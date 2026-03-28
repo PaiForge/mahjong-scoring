@@ -1,0 +1,16 @@
+{
+  "name": "mahjong-scoring-monorepo",
+  "version": "0.1.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "packageManager": "pnpm@10.27.0",
+  "volta": {
+    "node": "24.12.0"
+  }
+}
