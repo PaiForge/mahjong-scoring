@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { Footer } from "@/components/footer";
+import { Footer } from "./footer";
 
 export function LandingPage() {
   return (

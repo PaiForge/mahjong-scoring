@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
-import { Sidebar } from "@/components/sidebar";
-import { MobileHeader } from "@/components/mobile-header";
-import { MobileTabBar } from "@/components/mobile-tab-bar";
+import { Sidebar } from "@/app/_components/sidebar";
+import { MobileHeader } from "@/app/_components/mobile-header";
+import { MobileTabBar } from "@/app/_components/mobile-tab-bar";
 import "./globals.css";
 
 export const metadata: Metadata = {

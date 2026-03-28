@@ -1,5 +1,5 @@
-import { LandingPage } from "@/components/landing-page";
-import { Dashboard } from "@/components/dashboard";
+import { LandingPage } from "./_components/landing-page";
+import { Dashboard } from "./_components/dashboard";
 
 // TODO: Replace with actual auth check
 function getUser(): { id: string } | undefined {

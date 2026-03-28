@@ -13,3 +13,13 @@
 
 - `docs/coding-standards.md`
 - `docs/extended-mspz.md`
+
+## App Router コロケーション規約
+
+`src/app/` 配下では、ルート規約ファイル（`page.tsx`, `layout.tsx`, `loading.tsx`, `error.tsx` 等）以外のディレクトリには `_` プレフィックスを付けること。
+
+- `_components/` — コンポーネント
+- `_hooks/` — カスタムフック
+- `_lib/` — ユーティリティ
+
+これにより、App Router のルート解決対象から除外され、ルートセグメントと明確に区別できる。
