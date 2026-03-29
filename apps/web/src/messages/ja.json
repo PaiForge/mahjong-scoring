@@ -137,6 +137,24 @@
       "ctaDrill": "問題を解く"
     }
   },
+  "scoreTable": {
+    "pageTitle": "点数早見表",
+    "pageDescription": "親・子のロン／ツモ点数を符×翻の一覧で確認できます",
+    "ko": "子",
+    "oya": "親",
+    "ron": "ロン",
+    "tsumo": "ツモ",
+    "fuHan": "符×翻",
+    "fuSuffix": "符",
+    "hanSuffix": "翻",
+    "score": "点数",
+    "name": "名称",
+    "mangan": "満貫",
+    "haneman": "跳満",
+    "baiman": "倍満",
+    "sanbaiman": "三倍満",
+    "yakuman": "役満"
+  },
   "footer": {
     "learn": "学ぶ",
     "training": "練習",
