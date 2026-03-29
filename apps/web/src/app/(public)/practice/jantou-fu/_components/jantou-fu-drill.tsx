@@ -8,8 +8,10 @@ import {
   getKazeName,
 } from "@mahjong-scoring/core";
 import type { JantouFuQuestion, JantouFuChoice } from "@mahjong-scoring/core";
+import { Hai } from "@pai-forge/mahjong-react-ui";
 import { useTimedSession } from "../../_hooks/use-timed-session";
-import { HaiLabel } from "./hai-label";
+import { QuizTimer } from "../../_components/quiz-timer";
+import { CHALLENGE_TIME_LIMIT } from "../../_lib/challenge-constants";
 
 export function JantouFuDrill() {
   const router = useRouter();
@@ -68,9 +70,10 @@ export function JantouFuDrill() {
       <div className="mx-auto max-w-md">
         {/* Status bar */}
         <div className="flex items-center justify-between text-sm">
-          <div className="font-mono font-semibold text-surface-900">
-            {tc("timeRemaining", { seconds: session.remainingSeconds })}
-          </div>
+          <QuizTimer
+            timeRemaining={session.remainingSeconds}
+            progress={session.elapsedMs / 1000 / CHALLENGE_TIME_LIMIT}
+          />
           <div className="flex items-center gap-3">
             <span className="text-surface-500">
               {tc("score")}: <span className="font-semibold text-surface-900">{session.correctCount}</span>
@@ -86,14 +89,6 @@ export function JantouFuDrill() {
               ))}
             </div>
           </div>
-        </div>
-
-        {/* Timer bar */}
-        <div className="mt-2 h-1.5 overflow-hidden rounded-full bg-surface-200">
-          <div
-            className="h-full rounded-full bg-primary-500 transition-all duration-100"
-            style={{ width: `${(session.remainingSeconds / 60) * 100}%` }}
-          />
         </div>
 
         {/* Context */}
@@ -143,7 +138,9 @@ export function JantouFuDrill() {
                 onClick={() => handleChoiceClick(choice)}
                 className={`flex flex-col items-center gap-1 rounded-xl border ${borderClass} ${bgClass} p-4 transition-all`}
               >
-                <HaiLabel haiKindId={choice.hai} />
+                <div className="scale-125">
+                  <Hai hai={choice.hai} />
+                </div>
                 {session.showFeedback && (
                   <span className="text-xs text-surface-500">
                     {t("fu", { value: choice.fu })}

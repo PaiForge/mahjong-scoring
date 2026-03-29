@@ -10,7 +10,7 @@ export async function generateMetadata(): Promise<Metadata> {
   };
 }
 
-export default async function JantouFuPage() {
+export default async function LearnJantouFuPage() {
   const t = await getTranslations("jantouFu");
   const tc = await getTranslations("challenge");
 
@@ -20,19 +20,27 @@ export default async function JantouFuPage() {
         <h1 className="text-2xl font-bold text-surface-900">{t("title")}</h1>
         <p className="mt-2 text-sm text-surface-500">{t("description")}</p>
 
-        <div className="mt-6 flex items-center gap-2 text-sm">
-          <svg className="size-4 text-primary-600" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-            <path strokeLinecap="round" strokeLinejoin="round" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.746 0 3.332.477 4.5 1.253v13C19.832 18.477 18.246 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />
-          </svg>
-          <Link
-            href="/learn/jantou-fu"
-            className="text-primary-600 hover:text-primary-700 font-medium transition-colors"
-          >
-            {t("learnLink")}
-          </Link>
+        <div className="mt-6 rounded-xl border border-surface-200 bg-white p-6 shadow-sm">
+          <h2 className="text-base font-semibold text-surface-900">
+            {t("rules.title")}
+          </h2>
+          <ul className="mt-3 space-y-2 text-sm text-surface-600">
+            <li className="flex items-start gap-2">
+              <span className="mt-0.5 inline-block size-1.5 shrink-0 rounded-full bg-primary-500" />
+              {t("rules.yakuhai")}
+            </li>
+            <li className="flex items-start gap-2">
+              <span className="mt-0.5 inline-block size-1.5 shrink-0 rounded-full bg-primary-500" />
+              {t("rules.renfonpai")}
+            </li>
+            <li className="flex items-start gap-2">
+              <span className="mt-0.5 inline-block size-1.5 shrink-0 rounded-full bg-surface-300" />
+              {t("rules.other")}
+            </li>
+          </ul>
         </div>
 
-        <div className="mt-8 text-center">
+        <div className="mt-6 text-center">
           <Link
             href="/practice/jantou-fu/play"
             className="inline-block rounded-lg bg-primary-500 px-8 py-3 text-sm font-semibold text-white shadow-sm transition-colors hover:bg-primary-600"

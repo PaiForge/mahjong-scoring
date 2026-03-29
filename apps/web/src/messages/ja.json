@@ -38,6 +38,7 @@
     "title": "練習",
     "description": "符計算の基礎から点数申告まで、段階的にマスターできるドリルを用意しています",
     "start": "スタート",
+    "learn": "学ぶ",
     "progress": "学習の進捗",
     "progressSignInPrompt": "サインインすると学習履歴を記録できます",
     "difficulty": {
@@ -91,6 +92,7 @@
     "bakaze": "場風",
     "jikaze": "自風",
     "selectCorrectHead": "2符以上の雀頭はどれ？",
+    "learnLink": "雀頭の符について学ぶ",
     "fu": "{value} 符",
     "rules": {
       "title": "ルール",

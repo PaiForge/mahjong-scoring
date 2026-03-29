@@ -17,10 +17,11 @@ interface DrillDef {
   titleKey: string;
   descriptionKey: string;
   difficulty: Difficulty;
+  learnHref?: string;
 }
 
 const drills: readonly DrillDef[] = [
-  { href: "/practice/jantou-fu", titleKey: "drills.jantouFu.title", descriptionKey: "drills.jantouFu.description", difficulty: "beginner" },
+  { href: "/practice/jantou-fu/play", titleKey: "drills.jantouFu.title", descriptionKey: "drills.jantouFu.description", difficulty: "beginner", learnHref: "/learn/jantou-fu" },
   { href: "/practice/machi-fu", titleKey: "drills.machiFu.title", descriptionKey: "drills.machiFu.description", difficulty: "beginner" },
   { href: "/practice/mentsu-fu", titleKey: "drills.mentsuFu.title", descriptionKey: "drills.mentsuFu.description", difficulty: "intermediate" },
   { href: "/practice/tehai-fu", titleKey: "drills.tehaiFu.title", descriptionKey: "drills.tehaiFu.description", difficulty: "advanced" },
@@ -46,6 +47,8 @@ export default async function PracticePage() {
               difficulty={drill.difficulty}
               difficultyLabel={t(`difficulty.${drill.difficulty}`)}
               startLabel={t("start")}
+              learnHref={drill.learnHref}
+              learnLabel={drill.learnHref ? t("learn") : undefined}
             />
           ))}
         </div>
