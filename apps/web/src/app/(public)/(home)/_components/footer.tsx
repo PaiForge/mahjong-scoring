@@ -1,6 +1,9 @@
 import Link from "next/link";
+import { useTranslations } from "next-intl";
 
 export function Footer() {
+  const t = useTranslations("footer");
+
   return (
     <footer className="border-t border-surface-200 bg-surface-50 px-6 py-10">
       <div className="mx-auto grid max-w-5xl grid-cols-2 gap-8 md:grid-cols-4">
@@ -16,42 +19,42 @@ export function Footer() {
               <span className="text-surface-500">Scoring</span>
             </span>
           </div>
-          <p className="mt-3 text-xs text-surface-400">&copy; 2026 PaiForge</p>
+          <p className="mt-3 text-xs text-surface-400">{t("copyright")}</p>
         </div>
 
         <div>
-          <h3 className="mb-3 text-xs font-semibold uppercase tracking-wider text-surface-400">学ぶ</h3>
+          <h3 className="mb-3 text-xs font-semibold uppercase tracking-wider text-surface-400">{t("learn")}</h3>
           <ul className="space-y-2 text-sm">
             <li>
               <Link href="/reference" className="text-surface-600 hover:text-primary-600 transition-colors">
-                点数表
+                {t("scoreDrill")}
               </Link>
             </li>
           </ul>
         </div>
 
         <div>
-          <h3 className="mb-3 text-xs font-semibold uppercase tracking-wider text-surface-400">練習</h3>
+          <h3 className="mb-3 text-xs font-semibold uppercase tracking-wider text-surface-400">{t("training")}</h3>
           <ul className="space-y-2 text-sm">
             <li>
               <Link href="/practice" className="text-surface-600 hover:text-primary-600 transition-colors">
-                点数計算ドリル
+                {t("scoreDrill")}
               </Link>
             </li>
           </ul>
         </div>
 
         <div className="hidden md:block">
-          <h3 className="mb-3 text-xs font-semibold uppercase tracking-wider text-surface-400">その他</h3>
+          <h3 className="mb-3 text-xs font-semibold uppercase tracking-wider text-surface-400">{t("other")}</h3>
           <ul className="space-y-2 text-sm">
             <li>
               <Link href="/terms" className="text-surface-600 hover:text-primary-600 transition-colors">
-                利用規約
+                {t("terms")}
               </Link>
             </li>
             <li>
               <Link href="/privacy" className="text-surface-600 hover:text-primary-600 transition-colors">
-                プライバシーポリシー
+                {t("privacy")}
               </Link>
             </li>
           </ul>

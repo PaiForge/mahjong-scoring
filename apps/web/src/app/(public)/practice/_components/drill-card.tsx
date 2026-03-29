@@ -5,13 +5,9 @@ interface DrillCardProps {
   title: string;
   description: string;
   difficulty: "beginner" | "intermediate" | "advanced";
+  difficultyLabel: string;
+  startLabel: string;
 }
-
-const difficultyLabel = {
-  beginner: "初級",
-  intermediate: "中級",
-  advanced: "上級",
-} as const;
 
 const difficultyColor = {
   beginner: "bg-primary-100 text-primary-700",
@@ -19,7 +15,7 @@ const difficultyColor = {
   advanced: "bg-red-100 text-red-700",
 } as const;
 
-export function DrillCard({ href, title, description, difficulty }: DrillCardProps) {
+export function DrillCard({ href, title, description, difficulty, difficultyLabel, startLabel }: DrillCardProps) {
   return (
     <Link
       href={href}
@@ -31,13 +27,13 @@ export function DrillCard({ href, title, description, difficulty }: DrillCardPro
             {title}
           </h3>
           <span className={`rounded-full px-2 py-0.5 text-xs font-medium ${difficultyColor[difficulty]}`}>
-            {difficultyLabel[difficulty]}
+            {difficultyLabel}
           </span>
         </div>
         <p className="mt-2 text-sm text-surface-500">{description}</p>
       </div>
       <div className="mt-4 flex items-center text-sm font-medium text-primary-600">
-        スタート
+        {startLabel}
         <svg className="ml-1 size-4 transition-transform group-hover:translate-x-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
           <path strokeLinecap="round" strokeLinejoin="round" d="M9 5l7 7-7 7" />
         </svg>

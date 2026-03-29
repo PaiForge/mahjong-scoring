@@ -1,22 +1,25 @@
 import Link from "next/link";
+import { useTranslations } from "next-intl";
 
 export function FeatureSection() {
+  const t = useTranslations("landing");
+
   return (
     <section className="px-6 py-12">
       <div className="mx-auto grid max-w-4xl gap-6 sm:grid-cols-2 lg:grid-cols-3">
         <FeatureCard
-          title="符計算ドリル"
-          description="手牌から符を正しく数える練習ができます"
+          title={t("featureFuDrill")}
+          description={t("featureFuDrillDescription")}
           href="/practice"
         />
         <FeatureCard
-          title="点数申告トレーニング"
-          description="翻数と符から素早く点数を答える反復練習"
+          title={t("featureScoreTraining")}
+          description={t("featureScoreTrainingDescription")}
           href="/practice"
         />
         <FeatureCard
-          title="点数早見表"
-          description="親・子の点数を一覧でいつでも確認"
+          title={t("featureScoreTable")}
+          description={t("featureScoreTableDescription")}
           href="/reference"
         />
       </div>

@@ -1,0 +1,80 @@
+{
+  "metadata": {
+    "siteName": "Mahjong Scoring",
+    "siteDescription": "麻雀の点数計算を基礎から学べるトレーニングアプリ。初心者でも符計算・点数申告をマスターできます。"
+  },
+  "nav": {
+    "home": "ホーム",
+    "practice": "練習",
+    "reference": "点数表",
+    "leaderboard": "ランキング"
+  },
+  "landing": {
+    "heroTitle": "麻雀の点数計算を\nマスターしよう",
+    "heroDescription": "符計算から点数申告まで、初心者でもステップバイステップで学べるトレーニングアプリ",
+    "ctaStart": "練習をはじめる",
+    "ctaReference": "点数表を見る",
+    "featureFuDrill": "符計算ドリル",
+    "featureFuDrillDescription": "手牌から符を正しく数える練習ができます",
+    "featureScoreTraining": "点数申告トレーニング",
+    "featureScoreTrainingDescription": "翻数と符から素早く点数を答える反復練習",
+    "featureScoreTable": "点数早見表",
+    "featureScoreTableDescription": "親・子の点数を一覧でいつでも確認",
+    "appBannerLabel": "Coming Soon",
+    "appBannerTitle": "スマートフォンアプリ",
+    "appBannerDescription": "iOS / Android アプリで通勤中やオフラインでも練習できます"
+  },
+  "dashboard": {
+    "title": "ダッシュボード",
+    "description": "ここに学習進捗や最近のアクティビティが表示されます",
+    "todayPractice": "今日の練習",
+    "todayPracticeUnit": "{count} 問",
+    "accuracy": "正答率",
+    "accuracyValue": "-- %",
+    "streak": "連続学習日数",
+    "streakUnit": "{count} 日"
+  },
+  "practice": {
+    "title": "練習",
+    "description": "符計算の基礎から点数申告まで、段階的にマスターできるドリルを用意しています",
+    "start": "スタート",
+    "progress": "学習の進捗",
+    "progressSignInPrompt": "サインインすると学習履歴を記録できます",
+    "difficulty": {
+      "beginner": "初級",
+      "intermediate": "中級",
+      "advanced": "上級"
+    },
+    "drills": {
+      "jantouFu": {
+        "title": "雀頭の符計算",
+        "description": "雀頭（アタマ）の牌種に応じた符を答えるドリル"
+      },
+      "machiFu": {
+        "title": "待ちの符計算",
+        "description": "待ち形（両面・嵌張・辺張・単騎・双碰）の符を答えるドリル"
+      },
+      "mentsuFu": {
+        "title": "面子の符計算",
+        "description": "面子の種類（順子・刻子・槓子）と明暗に応じた符を答えるドリル"
+      },
+      "tehaiFu": {
+        "title": "手牌の符計算",
+        "description": "手牌全体の符を合計して答える総合ドリル"
+      },
+      "score": {
+        "title": "点数計算ドリル",
+        "description": "翻数・符から最終的な点数を算出する実戦形式のドリル"
+      }
+    }
+  },
+  "footer": {
+    "learn": "学ぶ",
+    "training": "練習",
+    "scoreDrill": "点数計算ドリル",
+    "other": "その他",
+    "terms": "利用規約",
+    "privacy": "プライバシーポリシー",
+    "copyright": "© 2026 PaiForge"
+  }
+}
