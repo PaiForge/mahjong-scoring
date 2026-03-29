@@ -23,3 +23,55 @@
 - `_lib/` — ユーティリティ
 
 これにより、App Router のルート解決対象から除外され、ルートセグメントと明確に区別できる。
+
+## プロジェクト構成
+
+```
+apps/web/          — Next.js 16 (Turbopack, App Router, Tailwind CSS v4)
+packages/core/     — 共通ドメインロジック（問題生成等）。@pai-forge/riichi-mahjong 依存
+packages/eslint-config/ — 共通 ESLint 設定（PaiForge コーディング規約準拠）
+```
+
+## i18n
+
+- `next-intl` をルーティングなしで使用（locale は `ja` 固定、将来英語対応予定）
+- 辞書ファイル: `apps/web/src/messages/ja.json`
+- サーバーコンポーネント: `getTranslations()` / クライアントコンポーネント: `useTranslations()`
+- UIコンポーネントに日本語をベタ書きしない
+
+## 共通UIコンポーネント（`apps/web/src/app/_components/`）
+
+- `PageTitle` — h1。全ページで使用
+- `SectionTitle` — h2。緑のアクセントバー付き
+- `ContentContainer` — ページコンテンツの max-w-3xl ラッパー。全ページで統一して使用し CLS を防ぐ
+- `Sidebar` / `MobileHeader` / `MobileTabBar` — ナビゲーションシェル
+
+## 牌画像（@pai-forge/mahjong-react-ui）
+
+- `Hai` コンポーネントで牌を表示（base64埋め込み画像）
+- React Native 対応パッケージのため `apps/web/src/shims/react-native.ts` で web 用 shim を提供
+- ライブラリの `styles.css` は Tailwind v4 と競合するためインポート禁止。牌サイズクラスは `globals.css` に抽出済み
+- `Hai` を使うコンポーネントは `"use client"` が必要
+
+## チャレンジモード（ドリル共通仕様）
+
+- 制限時間 60 秒、ミス 3 回で終了
+- ページ遷移直後にカウントダウンオーバーレイ（3, 2, 1）→ タイマー開始
+- 「準備はいいですか？」のような確認画面は出さない
+- 共通フック: `apps/web/src/app/(public)/practice/_hooks/` に `use-timed-session.ts`, `use-game-timer.ts`, `use-countdown.ts`
+- 円形タイマー: `apps/web/src/app/(public)/practice/_components/quiz-timer.tsx`
+
+## ルート構成
+
+```
+/                           — LP（未ログイン）/ ダッシュボード（ログイン済み）
+/practice                   — ドリル一覧
+/practice/jantou-fu         — 雀頭符ドリル説明（learn へのリンク付き）
+/practice/jantou-fu/play/session — ドリル本体
+/practice/jantou-fu/play/result  — 結果表示
+/learn/jantou-fu            — 雀頭の符計算（教本ページ、SEO重視でSSR）
+```
+
+## コミットルール
+
+- ユーザーが明示的に指示した場合のみコミットする
