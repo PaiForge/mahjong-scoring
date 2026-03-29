@@ -129,7 +129,7 @@ export function JantouFuDrill() {
                 type="button"
                 disabled={session.showFeedback || session.isCountingDown}
                 onClick={() => handleChoiceClick(choice)}
-                className={`flex flex-col items-center gap-1 rounded-xl border ${borderClass} ${bgClass} p-4 transition-all`}
+                className={`flex flex-col items-center gap-5 rounded-xl border ${borderClass} ${bgClass} p-4 transition-all`}
               >
                 <div className="scale-125">
                   <Hai hai={choice.hai} />

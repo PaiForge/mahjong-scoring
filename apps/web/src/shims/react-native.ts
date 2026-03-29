@@ -54,12 +54,25 @@ export const Pressable = forwardRef<HTMLDivElement, Record<string, unknown>>(
   }
 );
 
+// RN Image receives `source` (object with `uri` or a require() result).
+// HTML <img> needs `src` (string).
+function resolveSource(source: unknown): string | undefined {
+  if (!source) return undefined;
+  if (typeof source === "string") return source;
+  if (typeof source === "object" && "uri" in (source as Record<string, unknown>)) {
+    return (source as Record<string, string>).uri;
+  }
+  return undefined;
+}
+
 export const Image = forwardRef<HTMLImageElement, Record<string, unknown>>(
   function ImageShim(props, ref) {
     const filtered: Record<string, unknown> = {};
     for (const key of Object.keys(props)) {
       if (RN_ONLY_PROPS.has(key)) continue;
-      if (key === "style") {
+      if (key === "source") {
+        filtered["src"] = resolveSource(props[key]);
+      } else if (key === "style") {
         filtered[key] = normalizeStyle(props[key]);
       } else {
         filtered[key] = props[key];

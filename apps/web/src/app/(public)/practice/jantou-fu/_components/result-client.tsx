@@ -30,9 +30,6 @@ export function ResultClient() {
         <p className="mt-2 text-sm text-surface-500">
           {tc("resultAccuracy", { accuracy })}
         </p>
-        <p className="mt-1 text-xs text-surface-400">
-          {isTimeUp ? tc("gameOverTime") : tc("gameOverMistakes", { limit: 3 })}
-        </p>
       </div>
 
       <div className="mt-8 flex flex-col items-center gap-3 sm:flex-row">
