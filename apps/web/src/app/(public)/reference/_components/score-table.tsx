@@ -108,13 +108,10 @@ export function ScoreTable() {
     setHiddenCells((prev) => ({ ...prev, [id]: !prev[id] }));
   };
 
-  const cellBase =
-    "border border-surface-300 p-2 relative h-14 align-middle cursor-pointer select-none transition-colors";
-
   return (
     <div className="w-full relative">
       {/* Controls */}
-      <div className="sticky top-0 z-20 bg-white/95 backdrop-blur-sm pb-3 mb-1">
+      <div className="sticky top-0 z-20 pb-3 mb-1">
         <div className="flex flex-nowrap gap-2 items-center justify-end">
           <ToggleGroup
             options={[
@@ -146,168 +143,143 @@ export function ScoreTable() {
       {/* Table */}
       <div className="overflow-x-auto w-full">
         {viewMode === "normal" ? (
-          <table className="w-full text-center border-collapse border border-surface-300 bg-white shadow-sm rounded-lg overflow-hidden">
-            <thead>
-              <tr>
-                <th className="bg-surface-600 text-white border border-surface-300 w-14 py-2 text-xs font-medium">
-                  {t("fuSuffix")}＼{t("hanSuffix")}
-                </th>
-                {HAN_COLS.map((han) => (
-                  <th
-                    key={han}
-                    className="bg-surface-600 text-white border border-surface-300 py-2 text-lg font-bold"
-                  >
-                    {han}
-                    <span className="text-xs font-normal ml-0.5">{t("hanSuffix")}</span>
+          <div className="overflow-hidden rounded-xl border border-surface-200">
+            <table className="w-full text-center text-sm">
+              <thead>
+                <tr className="bg-surface-50">
+                  <th className="px-4 py-3 text-left font-medium text-surface-600">
+                    {t("fuSuffix")}＼{t("hanSuffix")}
                   </th>
-                ))}
-              </tr>
-            </thead>
-            <tbody>
-              {FU_ROWS.map((fu, idx) => {
-                const isFrequent = FREQUENT_FU.has(fu);
-                const rowBg = isFrequent
-                  ? "bg-amber-50/60 hover:bg-amber-100/60"
-                  : idx % 2 === 0
-                    ? "bg-surface-50/50 hover:bg-surface-100/50"
-                    : "bg-white hover:bg-surface-50/50";
+                  {HAN_COLS.map((han) => (
+                    <th key={han} className="px-4 py-3 font-medium text-surface-600">
+                      {han}{t("hanSuffix")}
+                    </th>
+                  ))}
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-surface-100">
+                {FU_ROWS.map((fu) => {
+                  const isFrequent = FREQUENT_FU.has(fu);
 
-                return (
-                  <tr key={fu} className={rowBg}>
-                    <td
-                      className={`border border-surface-300 text-sm py-1 font-medium ${
-                        isFrequent
-                          ? "bg-amber-100 text-amber-800"
-                          : "bg-surface-200 text-surface-600"
-                      }`}
-                    >
-                      {fu}
-                    </td>
-                    {HAN_COLS.map((han) => {
-                      if (isInvalidCell(han, fu, winType)) {
+                  return (
+                    <tr key={fu} className="bg-white">
+                      <td
+                        className={`px-4 py-3 text-left font-medium ${
+                          isFrequent ? "text-amber-700" : "text-surface-600"
+                        }`}
+                      >
+                        {fu}
+                      </td>
+                      {HAN_COLS.map((han) => {
+                        if (isInvalidCell(han, fu, winType)) {
+                          return (
+                            <td key={han} className="px-4 py-3 text-surface-400">
+                              -
+                            </td>
+                          );
+                        }
+
+                        const score = isKo
+                          ? calculateKoScore(han, fu)
+                          : calculateOyaScore(han, fu);
+                        const cellId = `${activeTab}-${winType}-${han}han-${fu}fu`;
+                        const isHidden = !!hiddenCells[cellId];
+
+                        if (score.isMangan) {
+                          return (
+                            <td
+                              key={han}
+                              className="px-4 py-3 cursor-pointer select-none"
+                              onClick={() => toggleCell(cellId)}
+                            >
+                              <span
+                                className={`font-semibold text-primary-600 ${
+                                  isHidden ? "blur-md" : ""
+                                }`}
+                              >
+                                {t("mangan")}
+                              </span>
+                            </td>
+                          );
+                        }
+
                         return (
                           <td
                             key={han}
-                            className="border border-surface-300 text-surface-400 bg-surface-100/50 h-14"
-                          >
-                            <div className="text-surface-400 text-sm">-</div>
-                          </td>
-                        );
-                      }
-
-                      const score = isKo
-                        ? calculateKoScore(han, fu)
-                        : calculateOyaScore(han, fu);
-                      const cellId = `${activeTab}-${winType}-${han}han-${fu}fu`;
-                      const isHidden = !!hiddenCells[cellId];
-
-                      if (score.isMangan) {
-                        return (
-                          <td
-                            key={han}
-                            className={`border border-surface-300 p-1 cursor-pointer transition-colors select-none relative h-14 ${
-                              isHidden ? "bg-surface-200" : "bg-primary-100 hover:bg-primary-200"
-                            }`}
+                            className="px-4 py-3 cursor-pointer select-none"
                             onClick={() => toggleCell(cellId)}
                           >
-                            <div
-                              className={`flex items-center justify-center h-full text-sm font-bold text-primary-700 ${
+                            <span
+                              className={`font-semibold text-primary-600 ${
                                 isHidden ? "blur-md" : ""
                               }`}
                             >
-                              {t("mangan")}
-                            </div>
+                              {winType === "ron" ? (
+                                score.ron
+                              ) : (
+                                <TsumoScore score={score.tsumo} />
+                              )}
+                            </span>
                           </td>
                         );
-                      }
-
-                      return (
-                        <td
-                          key={han}
-                          className={`${cellBase} ${isHidden ? "bg-surface-200" : "bg-transparent"}`}
-                          onClick={() => toggleCell(cellId)}
-                        >
-                          <div
-                            className={`text-surface-800 text-sm font-medium ${
-                              winType === "tsumo"
-                                ? "flex items-center justify-center h-full"
-                                : ""
-                            } ${isHidden ? "blur-md" : ""}`}
-                          >
-                            {winType === "ron" ? score.ron : <TsumoScore score={score.tsumo} />}
-                          </div>
-                        </td>
-                      );
-                    })}
-                  </tr>
-                );
-              })}
-            </tbody>
-          </table>
+                      })}
+                    </tr>
+                  );
+                })}
+              </tbody>
+            </table>
+          </div>
         ) : (
-          <table className="w-full text-center border-collapse border border-surface-300 bg-white shadow-sm rounded-lg overflow-hidden">
-            <thead>
-              <tr>
-                <th className="bg-surface-600 text-white border border-surface-300 py-2 font-medium">
-                  {t("name")}
-                </th>
-                <th className="bg-surface-600 text-white border border-surface-300 py-2 font-medium">
-                  {t("hanSuffix")}
-                </th>
-                <th className="bg-surface-600 text-white border border-surface-300 py-2 font-medium">
-                  {t("score")}
-                </th>
-              </tr>
-            </thead>
-            <tbody>
-              {HIGH_SCORES.map((item, idx) => {
-                const cellId = `${activeTab}-${winType}-${item.nameKey}`;
-                const isHidden = !!hiddenCells[cellId];
-                const isYakuman = item.nameKey === "yakuman";
-                const rowBg = isYakuman
-                  ? "bg-purple-50 hover:bg-purple-100"
-                  : idx % 2 === 0
-                    ? "bg-surface-50/50 hover:bg-surface-100/50"
-                    : "bg-white hover:bg-surface-50/50";
+          <div className="overflow-hidden rounded-xl border border-surface-200">
+            <table className="w-full text-sm">
+              <thead>
+                <tr className="bg-surface-50">
+                  <th className="px-4 py-3 text-left font-medium text-surface-600">
+                    {t("name")}
+                  </th>
+                  <th className="px-4 py-3 text-right font-medium text-surface-600">
+                    {t("hanSuffix")}
+                  </th>
+                  <th className="px-4 py-3 text-right font-medium text-surface-600">
+                    {t("score")}
+                  </th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-surface-100">
+                {HIGH_SCORES.map((item) => {
+                  const cellId = `${activeTab}-${winType}-${item.nameKey}`;
+                  const isHidden = !!hiddenCells[cellId];
 
-                return (
-                  <tr key={item.nameKey} className={rowBg}>
-                    <td
-                      className={`border border-surface-300 text-sm py-3 font-medium ${
-                        isYakuman
-                          ? "bg-purple-100 text-purple-800"
-                          : "bg-primary-100 text-primary-800"
-                      }`}
-                    >
-                      {t(item.nameKey)}
-                    </td>
-                    <td className="border border-surface-300 font-medium text-surface-600 text-sm">
-                      {item.han}
-                      {t("hanSuffix")}
-                    </td>
-                    <td
-                      className={`${cellBase} ${isHidden ? "bg-surface-200" : "bg-transparent"}`}
-                      onClick={() => toggleCell(cellId)}
-                    >
-                      <div
-                        className={`text-surface-800 text-sm font-medium ${
-                          winType === "tsumo"
-                            ? "flex items-center justify-center h-full"
-                            : ""
-                        } ${isHidden ? "blur-md" : ""}`}
+                  return (
+                    <tr key={item.nameKey} className="bg-white">
+                      <td className="px-4 py-3 text-surface-900 font-medium">
+                        {t(item.nameKey)}
+                      </td>
+                      <td className="px-4 py-3 text-right text-surface-600">
+                        {item.han}{t("hanSuffix")}
+                      </td>
+                      <td
+                        className="px-4 py-3 text-right cursor-pointer select-none"
+                        onClick={() => toggleCell(cellId)}
                       >
-                        {winType === "ron" ? (
-                          isKo ? item.ronKo : item.ronOya
-                        ) : (
-                          <TsumoScore score={isKo ? item.tsumoKo : item.tsumoOya} />
-                        )}
-                      </div>
-                    </td>
-                  </tr>
-                );
-              })}
-            </tbody>
-          </table>
+                        <span
+                          className={`font-semibold text-primary-600 ${
+                            isHidden ? "blur-md" : ""
+                          }`}
+                        >
+                          {winType === "ron" ? (
+                            isKo ? item.ronKo : item.ronOya
+                          ) : (
+                            <TsumoScore score={isKo ? item.tsumoKo : item.tsumoOya} />
+                          )}
+                        </span>
+                      </td>
+                    </tr>
+                  );
+                })}
+              </tbody>
+            </table>
+          </div>
         )}
       </div>
     </div>
