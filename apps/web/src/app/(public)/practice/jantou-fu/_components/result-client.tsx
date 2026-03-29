@@ -37,7 +37,7 @@ export function ResultClient() {
 
       <div className="mt-8 flex flex-col items-center gap-3 sm:flex-row">
         <Link
-          href="/practice/jantou-fu/play"
+          href="/practice/jantou-fu/play/session"
           className="rounded-lg bg-primary-500 px-6 py-2.5 text-sm font-semibold text-white shadow-sm transition-colors hover:bg-primary-600"
         >
           {tc("retryButton")}

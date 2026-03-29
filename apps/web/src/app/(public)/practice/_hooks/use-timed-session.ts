@@ -2,6 +2,7 @@
 
 import { useCallback, useRef, useState } from "react";
 import { useGameTimer } from "./use-game-timer";
+import { useCountdown } from "./use-countdown";
 import {
   CHALLENGE_TIME_LIMIT,
   MISTAKE_LIMIT,
@@ -11,21 +12,36 @@ interface UseTimedSessionOptions {
   timeLimit?: number;
   mistakeLimit?: number;
   feedbackDurationMs?: number;
+  countdownFrom?: number;
 }
 
 export function useTimedSession({
   timeLimit = CHALLENGE_TIME_LIMIT,
   mistakeLimit = MISTAKE_LIMIT,
   feedbackDurationMs = 800,
+  countdownFrom = 3,
 }: UseTimedSessionOptions = {}) {
   const [correctCount, setCorrectCount] = useState(0);
   const [incorrectCount, setIncorrectCount] = useState(0);
   const [isFinished, setIsFinished] = useState(false);
-  const [isStarted, setIsStarted] = useState(false);
+  const [isPlaying, setIsPlaying] = useState(false);
   const [showFeedback, setShowFeedback] = useState(false);
-  const [lastAnswerCorrect, setLastAnswerCorrect] = useState<boolean | undefined>(undefined);
-  const feedbackTimeoutRef = useRef<ReturnType<typeof setTimeout> | undefined>(undefined);
+  const [lastAnswerCorrect, setLastAnswerCorrect] = useState<
+    boolean | undefined
+  >(undefined);
+  const feedbackTimeoutRef = useRef<ReturnType<typeof setTimeout> | undefined>(
+    undefined
+  );
   const isFinishedRef = useRef(false);
+
+  const handleCountdownComplete = useCallback(() => {
+    setIsPlaying(true);
+  }, []);
+
+  const countdown = useCountdown({
+    from: countdownFrom,
+    onComplete: handleCountdownComplete,
+  });
 
   const handleTimeLimitReached = useCallback(() => {
     if (isFinishedRef.current) return;
@@ -36,15 +52,11 @@ export function useTimedSession({
   const { remainingSeconds, elapsedMs, reset: resetTimer } = useGameTimer({
     timeLimit,
     onTimeLimitReached: handleTimeLimitReached,
-    isActive: isStarted && !isFinished,
+    isActive: isPlaying && !isFinished,
   });
 
   const totalCount = correctCount + incorrectCount;
   const remainingLives = Math.max(0, mistakeLimit - incorrectCount);
-
-  const start = useCallback(() => {
-    setIsStarted(true);
-  }, []);
 
   const handleAnswer = useCallback(
     (correct: boolean, onNext: () => void) => {
@@ -85,15 +97,18 @@ export function useTimedSession({
     setCorrectCount(0);
     setIncorrectCount(0);
     setIsFinished(false);
-    setIsStarted(false);
+    setIsPlaying(false);
     setShowFeedback(false);
     setLastAnswerCorrect(undefined);
     isFinishedRef.current = false;
     resetTimer();
-  }, [resetTimer]);
+    countdown.reset();
+  }, [resetTimer, countdown]);
 
   return {
-    isStarted,
+    isCountingDown: countdown.isActive,
+    countdownValue: countdown.count,
+    isPlaying,
     isFinished,
     correctCount,
     incorrectCount,
@@ -103,7 +118,6 @@ export function useTimedSession({
     elapsedMs,
     showFeedback,
     lastAnswerCorrect,
-    start,
     handleAnswer,
     reset,
     mistakeLimit,

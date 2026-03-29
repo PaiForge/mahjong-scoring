@@ -42,7 +42,7 @@ export default async function LearnJantouFuPage() {
 
         <div className="mt-6 text-center">
           <Link
-            href="/practice/jantou-fu/play"
+            href="/practice/jantou-fu/play/session"
             className="inline-block rounded-lg bg-primary-500 px-8 py-3 text-sm font-semibold text-white shadow-sm transition-colors hover:bg-primary-600"
           >
             {tc("startButton")}

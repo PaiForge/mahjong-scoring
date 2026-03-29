@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { useTranslations } from "next-intl";
 import {
@@ -34,39 +34,32 @@ export function JantouFuDrill() {
     [session, advanceQuestion]
   );
 
-  // Finished → redirect to result
-  if (session.isFinished) {
+  // Finished → redirect to result via useEffect (not during render)
+  useEffect(() => {
+    if (!session.isFinished) return;
     const params = new URLSearchParams({
       correct: session.correctCount.toString(),
       total: session.totalCount.toString(),
       time: session.elapsedMs.toString(),
     });
-    router.push(`/practice/jantou-fu/result?${params.toString()}`);
+    router.push(`/practice/jantou-fu/play/result?${params.toString()}`);
+  }, [session.isFinished, session.correctCount, session.totalCount, session.elapsedMs, router]);
+
+  if (session.isFinished) {
     return null;
   }
 
-  // Not started → show ready screen
-  if (!session.isStarted) {
-    return (
-      <div className="flex flex-col items-center justify-center px-6 py-16">
-        <h2 className="text-xl font-bold text-surface-900">{tc("ready")}</h2>
-        <p className="mt-3 max-w-sm text-center text-sm text-surface-500">
-          {tc("readyDescription", { timeLimit: 60, mistakeLimit: 3 })}
-        </p>
-        <button
-          type="button"
-          onClick={session.start}
-          className="mt-8 rounded-lg bg-primary-500 px-8 py-3 text-sm font-semibold text-white shadow-sm transition-colors hover:bg-primary-600"
-        >
-          {tc("startButton")}
-        </button>
-      </div>
-    );
-  }
-
-  // Playing
   return (
     <div className="px-6 py-6">
+      {/* Countdown overlay */}
+      {session.isCountingDown && (
+        <div className="fixed inset-0 md:left-64 z-30 flex items-center justify-center bg-white/80 backdrop-blur-sm">
+          <span className="text-6xl font-bold text-primary-500 animate-pulse">
+            {session.countdownValue}
+          </span>
+        </div>
+      )}
+
       <div className="mx-auto max-w-md">
         {/* Status bar */}
         <div className="flex items-center justify-between text-sm">
@@ -134,7 +127,7 @@ export function JantouFuDrill() {
               <button
                 key={`${question.id}-${choice.hai}`}
                 type="button"
-                disabled={session.showFeedback}
+                disabled={session.showFeedback || session.isCountingDown}
                 onClick={() => handleChoiceClick(choice)}
                 className={`flex flex-col items-center gap-1 rounded-xl border ${borderClass} ${bgClass} p-4 transition-all`}
               >
