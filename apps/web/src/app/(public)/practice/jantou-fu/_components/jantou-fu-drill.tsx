@@ -9,6 +9,7 @@ import {
 } from "@mahjong-scoring/core";
 import type { JantouFuQuestion, JantouFuChoice } from "@mahjong-scoring/core";
 import { Hai } from "@pai-forge/mahjong-react-ui";
+import { ContentContainer } from "@/app/_components/content-container";
 import { useTimedSession } from "../../_hooks/use-timed-session";
 import { QuizTimer } from "../../_components/quiz-timer";
 import { CHALLENGE_TIME_LIMIT } from "../../_lib/challenge-constants";
@@ -50,7 +51,7 @@ export function JantouFuDrill() {
   }
 
   return (
-    <div className="px-6 py-6">
+    <ContentContainer>
       {/* Countdown overlay */}
       {session.isCountingDown && (
         <div className="fixed inset-0 md:left-64 z-30 flex items-center justify-center bg-white/80 backdrop-blur-sm">
@@ -144,6 +145,6 @@ export function JantouFuDrill() {
           })}
         </div>
       </div>
-    </div>
+    </ContentContainer>
   );
 }

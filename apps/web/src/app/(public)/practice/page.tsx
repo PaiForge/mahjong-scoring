@@ -1,5 +1,7 @@
 import type { Metadata } from "next";
 import { getTranslations } from "next-intl/server";
+import { ContentContainer } from "@/app/_components/content-container";
+import { PageTitle } from "@/app/_components/page-title";
 import { DrillCard } from "./_components/drill-card";
 
 export async function generateMetadata(): Promise<Metadata> {
@@ -32,32 +34,30 @@ export default async function PracticePage() {
   const t = await getTranslations("practice");
 
   return (
-    <div className="px-6 py-8">
-      <div className="mx-auto max-w-4xl">
-        <h1 className="text-2xl font-bold text-surface-900">{t("title")}</h1>
-        <p className="mt-2 text-sm text-surface-500">{t("description")}</p>
+    <ContentContainer>
+      <PageTitle>{t("title")}</PageTitle>
+      <p className="mt-2 text-sm text-surface-500">{t("description")}</p>
 
-        <div className="mt-8 grid gap-4 sm:grid-cols-2">
-          {drills.map((drill) => (
-            <DrillCard
-              key={drill.href}
-              href={drill.href}
-              title={t(drill.titleKey)}
-              description={t(drill.descriptionKey)}
-              difficulty={drill.difficulty}
-              difficultyLabel={t(`difficulty.${drill.difficulty}`)}
-              startLabel={t("start")}
-              learnHref={drill.learnHref}
-              learnLabel={drill.learnHref ? t("learn") : undefined}
-            />
-          ))}
-        </div>
-
-        <div className="mt-8 rounded-xl border border-surface-200 bg-white p-6 shadow-sm">
-          <h2 className="text-sm font-semibold text-surface-900">{t("progress")}</h2>
-          <p className="mt-1 text-sm text-surface-400">{t("progressSignInPrompt")}</p>
-        </div>
+      <div className="mt-8 grid gap-4 sm:grid-cols-2">
+        {drills.map((drill) => (
+          <DrillCard
+            key={drill.href}
+            href={drill.href}
+            title={t(drill.titleKey)}
+            description={t(drill.descriptionKey)}
+            difficulty={drill.difficulty}
+            difficultyLabel={t(`difficulty.${drill.difficulty}`)}
+            startLabel={t("start")}
+            learnHref={drill.learnHref}
+            learnLabel={drill.learnHref ? t("learn") : undefined}
+          />
+        ))}
       </div>
-    </div>
+
+      <div className="mt-8 rounded-xl border border-surface-200 bg-white p-6 shadow-sm">
+        <h2 className="text-sm font-semibold text-surface-900">{t("progress")}</h2>
+        <p className="mt-1 text-sm text-surface-400">{t("progressSignInPrompt")}</p>
+      </div>
+    </ContentContainer>
   );
 }

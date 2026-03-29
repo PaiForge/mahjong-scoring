@@ -1,5 +1,6 @@
 import { getTranslations } from "next-intl/server";
 import { HaiKind } from "@mahjong-scoring/core";
+import { SectionTitle } from "@/app/_components/section-title";
 import { TileExample } from "./tile-example";
 
 export async function JantouFuGuide() {
@@ -9,9 +10,9 @@ export async function JantouFuGuide() {
     <div className="space-y-8">
       {/* What is jantou */}
       <section>
-        <h2 className="text-lg font-semibold text-surface-900">
+        <SectionTitle>
           {t("whatIsJantou")}
-        </h2>
+        </SectionTitle>
         <p className="mt-2 text-sm leading-relaxed text-surface-600">
           {t("whatIsJantouBody")}
         </p>
@@ -19,9 +20,9 @@ export async function JantouFuGuide() {
 
       {/* Yakuhai jantou */}
       <section>
-        <h2 className="text-lg font-semibold text-surface-900">
+        <SectionTitle>
           {t("yakuhaiTitle")}
-        </h2>
+        </SectionTitle>
         <p className="mt-2 text-sm leading-relaxed text-surface-600">
           {t("yakuhaiBody")}
         </p>
@@ -46,9 +47,9 @@ export async function JantouFuGuide() {
 
       {/* Renfonpai */}
       <section>
-        <h2 className="text-lg font-semibold text-surface-900">
+        <SectionTitle>
           {t("renfonpaiTitle")}
-        </h2>
+        </SectionTitle>
         <p className="mt-2 text-sm leading-relaxed text-surface-600">
           {t("renfonpaiBody")}
         </p>
@@ -64,9 +65,9 @@ export async function JantouFuGuide() {
 
       {/* No fu */}
       <section>
-        <h2 className="text-lg font-semibold text-surface-900">
+        <SectionTitle>
           {t("noFuTitle")}
-        </h2>
+        </SectionTitle>
         <p className="mt-2 text-sm leading-relaxed text-surface-600">
           {t("noFuBody")}
         </p>
@@ -83,7 +84,7 @@ export async function JantouFuGuide() {
 
       {/* Summary table */}
       <section>
-        <h2 className="text-lg font-semibold text-surface-900">{t("summaryTitle")}</h2>
+        <SectionTitle>{t("summaryTitle")}</SectionTitle>
         <div className="mt-4 overflow-hidden rounded-xl border border-surface-200">
           <table className="w-full text-sm">
             <thead>

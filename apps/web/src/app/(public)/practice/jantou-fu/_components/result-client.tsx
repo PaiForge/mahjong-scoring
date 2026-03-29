@@ -3,25 +3,20 @@
 import { useSearchParams } from "next/navigation";
 import { useTranslations } from "next-intl";
 import Link from "next/link";
+import { ContentContainer } from "@/app/_components/content-container";
+import { PageTitle } from "@/app/_components/page-title";
 
 export function ResultClient() {
   const searchParams = useSearchParams();
   const tc = useTranslations("challenge");
-  const t = useTranslations("jantouFu");
 
   const correct = Number(searchParams.get("correct") ?? 0);
   const total = Number(searchParams.get("total") ?? 0);
-  const timeMs = Number(searchParams.get("time") ?? 0);
-
   const accuracy = total > 0 ? Math.round((correct / total) * 100) : 0;
-  const timeSeconds = Math.round(timeMs / 1000);
-  const isTimeUp = timeSeconds >= 60;
 
   return (
-    <div className="flex flex-col items-center justify-center px-6 py-16">
-      <h1 className="text-2xl font-bold text-surface-900">
-        {tc("finished")}
-      </h1>
+    <ContentContainer className="flex flex-col items-center">
+      <PageTitle>{tc("finished")}</PageTitle>
 
       <div className="mt-8 w-full max-w-xs rounded-xl border border-surface-200 bg-white p-6 shadow-sm text-center">
         <p className="text-4xl font-bold text-primary-600">
@@ -46,6 +41,6 @@ export function ResultClient() {
           {tc("backToList")}
         </Link>
       </div>
-    </div>
+    </ContentContainer>
   );
 }
