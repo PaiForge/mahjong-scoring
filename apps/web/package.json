@@ -10,6 +10,7 @@
     "typecheck": "tsc --noEmit"
   },
   "dependencies": {
+    "@mahjong-scoring/core": "workspace:*",
     "next": "^16.0.0",
     "next-intl": "^4.8.3",
     "react": "^19.0.0",

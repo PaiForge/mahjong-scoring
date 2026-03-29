@@ -68,6 +68,37 @@
       }
     }
   },
+  "challenge": {
+    "timeRemaining": "残り {seconds} 秒",
+    "score": "スコア",
+    "correct": "正解",
+    "incorrect": "不正解",
+    "lives": "ライフ",
+    "startButton": "スタート",
+    "retryButton": "もう一度",
+    "backToList": "練習一覧に戻る",
+    "ready": "準備はいいですか？",
+    "readyDescription": "制限時間 {timeLimit} 秒以内にできるだけ多くの問題に正解してください。{mistakeLimit} 回間違えると終了です。",
+    "finished": "終了！",
+    "resultScore": "{correct} / {total}",
+    "resultAccuracy": "正答率 {accuracy}%",
+    "gameOverMistakes": "ミス {limit} 回で終了",
+    "gameOverTime": "タイムアップ"
+  },
+  "jantouFu": {
+    "title": "雀頭の符計算",
+    "description": "場風・自風を確認して、雀頭の符を答えてください",
+    "bakaze": "場風",
+    "jikaze": "自風",
+    "selectCorrectHead": "2符以上の雀頭はどれ？",
+    "fu": "{value} 符",
+    "rules": {
+      "title": "ルール",
+      "yakuhai": "役牌（三元牌・場風・自風）の雀頭 → 2符",
+      "renfonpai": "連風牌（場風と自風が同じ）の雀頭 → 4符",
+      "other": "それ以外の雀頭 → 0符"
+    }
+  },
   "footer": {
     "learn": "学ぶ",
     "training": "練習",

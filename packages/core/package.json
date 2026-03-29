@@ -1,0 +1,19 @@
+{
+  "name": "@mahjong-scoring/core",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "exports": {
+    ".": "./src/index.ts",
+    "./*": "./src/*.ts"
+  },
+  "scripts": {
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@pai-forge/riichi-mahjong": "^0.3.6"
+  },
+  "devDependencies": {
+    "typescript": "^5.9.0"
+  }
+}
