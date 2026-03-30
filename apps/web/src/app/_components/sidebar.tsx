@@ -3,6 +3,10 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useTranslations } from "next-intl";
+import { HomeIcon } from "./icons/home-icon";
+import { BookIcon } from "./icons/book-icon";
+import { TableIcon } from "./icons/table-icon";
+import { ChartIcon } from "./icons/chart-icon";
 
 interface NavItemDef {
   href: string;
@@ -11,42 +15,10 @@ interface NavItemDef {
 }
 
 const navItemDefs: readonly NavItemDef[] = [
-  {
-    href: "/",
-    labelKey: "home",
-    icon: (
-      <svg className="size-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-        <path strokeLinecap="round" strokeLinejoin="round" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-4 0a1 1 0 01-1-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 01-1 1" />
-      </svg>
-    ),
-  },
-  {
-    href: "/practice",
-    labelKey: "practice",
-    icon: (
-      <svg className="size-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-        <path strokeLinecap="round" strokeLinejoin="round" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.746 0 3.332.477 4.5 1.253v13C19.832 18.477 18.246 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />
-      </svg>
-    ),
-  },
-  {
-    href: "/reference",
-    labelKey: "reference",
-    icon: (
-      <svg className="size-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-        <path strokeLinecap="round" strokeLinejoin="round" d="M3 10h18M3 14h18m-9-4v8m-7 0h14a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z" />
-      </svg>
-    ),
-  },
-  {
-    href: "/leaderboard",
-    labelKey: "leaderboard",
-    icon: (
-      <svg className="size-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-        <path strokeLinecap="round" strokeLinejoin="round" d="M16 8v8m-4-5v5m-4-2v2m-2 4h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
-      </svg>
-    ),
-  },
+  { href: "/", labelKey: "home", icon: <HomeIcon /> },
+  { href: "/practice", labelKey: "practice", icon: <BookIcon /> },
+  { href: "/reference", labelKey: "reference", icon: <TableIcon /> },
+  { href: "/leaderboard", labelKey: "leaderboard", icon: <ChartIcon /> },
 ];
 
 export function Sidebar() {

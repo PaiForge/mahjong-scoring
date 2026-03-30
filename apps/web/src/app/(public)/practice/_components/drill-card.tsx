@@ -1,4 +1,6 @@
 import Link from "next/link";
+import { BookIcon } from "@/app/_components/icons/book-icon";
+import { ChevronRightIcon } from "@/app/_components/icons/chevron-right-icon";
 
 interface DrillCardProps {
   href: string;
@@ -46,38 +48,14 @@ export function DrillCard({
           className="flex items-center text-sm font-medium text-primary-600 hover:text-primary-700 transition-colors"
         >
           {startLabel}
-          <svg
-            className="ml-1 size-4"
-            fill="none"
-            viewBox="0 0 24 24"
-            stroke="currentColor"
-            strokeWidth={2}
-          >
-            <path
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              d="M9 5l7 7-7 7"
-            />
-          </svg>
+          <ChevronRightIcon className="ml-1 size-4" />
         </Link>
         {learnHref && learnLabel && (
           <Link
             href={learnHref}
             className="flex items-center gap-1 text-sm text-surface-400 hover:text-primary-600 transition-colors"
           >
-            <svg
-              className="size-4"
-              fill="none"
-              viewBox="0 0 24 24"
-              stroke="currentColor"
-              strokeWidth={2}
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.746 0 3.332.477 4.5 1.253v13C19.832 18.477 18.246 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"
-              />
-            </svg>
+            <BookIcon className="size-4" />
             {learnLabel}
           </Link>
         )}

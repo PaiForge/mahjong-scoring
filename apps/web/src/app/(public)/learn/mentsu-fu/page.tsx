@@ -1,37 +1,18 @@
 import type { Metadata } from "next";
 import { getTranslations } from "next-intl/server";
-import Link from "next/link";
-import { ContentContainer } from "@/app/_components/content-container";
-import { PageTitle } from "@/app/_components/page-title";
+import { createMetadata } from "@/app/_lib/metadata";
+import { LearnPageLayout } from "../_components/learn-page-layout";
 import { MentsuFuGuide } from "./_components/mentsu-fu-guide";
 
 export async function generateMetadata(): Promise<Metadata> {
   const t = await getTranslations("mentsuFu.learn");
-  return {
-    title: `${t("pageTitle")} - Mahjong Scoring`,
-    description: t("pageDescription"),
-  };
+  return createMetadata({ title: t("pageTitle"), description: t("pageDescription") });
 }
 
-export default async function LearnMentsuFuPage() {
-  const t = await getTranslations("mentsuFu.learn");
-
+export default function LearnMentsuFuPage() {
   return (
-    <ContentContainer>
-      <PageTitle>{t("pageTitle")}</PageTitle>
-
-      <div className="mt-6">
-        <MentsuFuGuide />
-      </div>
-
-      <div className="mt-10 text-center">
-        <Link
-          href="/practice/mentsu-fu/play"
-          className="inline-block rounded-lg bg-primary-500 px-8 py-3 text-sm font-semibold text-white shadow-sm transition-colors hover:bg-primary-600"
-        >
-          {t("ctaDrill")}
-        </Link>
-      </div>
-    </ContentContainer>
+    <LearnPageLayout namespace="mentsuFu.learn" playHref="/practice/mentsu-fu/play">
+      <MentsuFuGuide />
+    </LearnPageLayout>
   );
 }

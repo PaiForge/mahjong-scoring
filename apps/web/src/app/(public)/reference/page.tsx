@@ -2,14 +2,12 @@ import type { Metadata } from "next";
 import { getTranslations } from "next-intl/server";
 import { ContentContainer } from "@/app/_components/content-container";
 import { PageTitle } from "@/app/_components/page-title";
+import { createMetadata } from "@/app/_lib/metadata";
 import { ScoreTable } from "./_components/score-table";
 
 export async function generateMetadata(): Promise<Metadata> {
   const t = await getTranslations("scoreTable");
-  return {
-    title: `${t("pageTitle")} - Mahjong Scoring`,
-    description: t("pageDescription"),
-  };
+  return createMetadata({ title: t("pageTitle"), description: t("pageDescription") });
 }
 
 export default async function ReferencePage() {

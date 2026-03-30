@@ -2,14 +2,12 @@ import type { Metadata } from "next";
 import { getTranslations } from "next-intl/server";
 import { ContentContainer } from "@/app/_components/content-container";
 import { PageTitle } from "@/app/_components/page-title";
+import { createMetadata } from "@/app/_lib/metadata";
 import { DrillCard } from "./_components/drill-card";
 
 export async function generateMetadata(): Promise<Metadata> {
   const t = await getTranslations("practice");
-  return {
-    title: `${t("title")} - Mahjong Scoring`,
-    description: t("description"),
-  };
+  return createMetadata({ title: t("title"), description: t("description") });
 }
 
 type Difficulty = "beginner" | "intermediate" | "advanced";
