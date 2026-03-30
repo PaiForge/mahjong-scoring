@@ -212,6 +212,21 @@
       "ctaDrill": "問題を解く"
     }
   },
+  "tehaiFu": {
+    "title": "手牌の符計算",
+    "description": "手牌全体の面子構成・雀頭から、各要素の符を漏れなく回答する総合ドリル",
+    "bakaze": "場風",
+    "jikaze": "自風",
+    "agari": "和了牌",
+    "agariType": "和了",
+    "tsumo": "ツモ",
+    "ron": "ロン",
+    "pair": "雀頭",
+    "checkButton": "答え合わせ",
+    "skip": "スキップ",
+    "nextQuestion": "次の問題へ",
+    "correctAnswer": "正解: {fu}符"
+  },
   "scoreTable": {
     "pageTitle": "点数早見表",
     "pageDescription": "親・子のロン／ツモ点数を符×翻の一覧で確認できます",

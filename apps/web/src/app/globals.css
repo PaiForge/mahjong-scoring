@@ -78,4 +78,5 @@ body {
 .items-end { align-items: flex-end; }
 .gap-px { gap: 1px; }
 .box-border { box-sizing: border-box; }
+.ml-4 { margin-left: 1rem; }
 .visible { visibility: visible; }
