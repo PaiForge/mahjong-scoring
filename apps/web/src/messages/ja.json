@@ -137,6 +137,41 @@
       "ctaDrill": "問題を解く"
     }
   },
+  "machiFu": {
+    "title": "待ちの符計算",
+    "description": "待ち形と和了牌を確認して、待ちの符を答えてください",
+    "machiLabel": "待ち形",
+    "agariLabel": "和了牌",
+    "questionPrompt": "この待ちの符は？",
+    "fuOption": "{value}符",
+    "learnLink": "待ちの符について学ぶ",
+    "learn": {
+      "pageTitle": "待ちの符計算",
+      "pageDescription": "麻雀の待ち形（両面・嵌張・辺張・単騎・双碰）による符計算を、牌の画像付きでわかりやすく解説します。",
+      "whatIsMachi": "待ちの符とは",
+      "whatIsMachiBody": "聴牌（テンパイ）の形によって、和了時に符が加算される場合があります。待ちの形が限定的であるほど符がつきます。",
+      "twoFuTitle": "2符がつく待ち",
+      "twoFuBody": "嵌張（カンチャン）・辺張（ペンチャン）・単騎（タンキ）の3種類は2符が加算されます。受け入れ枚数が少なく、待ちとして不利な形です。",
+      "kanchanLabel": "嵌張待ち（例: 二萬・四萬で三萬待ち）",
+      "penchanLabel": "辺張待ち（例: 一筒・二筒で三筒待ち）",
+      "tankiLabel": "単騎待ち（例: 白で白待ち）",
+      "zeroFuTitle": "0符の待ち",
+      "zeroFuBody": "両面（リャンメン）・双碰（シャンポン）は0符です。受け入れ枚数が多く、有利な待ちとされます。",
+      "ryanmenLabel": "両面待ち（例: 六索・七索で五索 or 八索待ち）",
+      "shanponLabel": "双碰待ち（例: 東東・白白でどちらかの対子が刻子に）",
+      "nobetanNote": "※ ノベタンは単騎待ちとみなされ2符が付きます。",
+      "summaryTitle": "まとめ",
+      "colType": "待ちの種類",
+      "colFu": "符",
+      "rowKanchan": "嵌張（カンチャン）",
+      "rowPenchan": "辺張（ペンチャン）",
+      "rowTanki": "単騎（タンキ）",
+      "rowRyanmen": "両面（リャンメン）",
+      "rowShanpon": "双碰（シャンポン）",
+      "fuUnit": "{value}符",
+      "ctaDrill": "問題を解く"
+    }
+  },
   "scoreTable": {
     "pageTitle": "点数早見表",
     "pageDescription": "親・子のロン／ツモ点数を符×翻の一覧で確認できます",
