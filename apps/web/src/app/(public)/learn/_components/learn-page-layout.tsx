@@ -15,7 +15,6 @@ interface LearnPageLayoutProps {
 
 /**
  * 学習ページの共通レイアウト
- * 学習ページ共通レイアウト
  */
 export async function LearnPageLayout({ namespace, playHref, children }: LearnPageLayoutProps) {
   const t = await getTranslations(namespace);

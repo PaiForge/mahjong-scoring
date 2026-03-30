@@ -25,7 +25,7 @@ const YAOCHU: readonly HaiKindId[] = [
  * ランダムな中張牌を生成
  * 中張牌生成
  */
-export function randomSimple(): HaiKindId {
+function randomSimple(): HaiKindId {
   const base = randomChoice(SUIT_BASES);
   const num = randomInt(2, 8);
   const id = base + num - 1;
@@ -37,7 +37,7 @@ export function randomSimple(): HaiKindId {
  * ランダムな么九牌を生成
  * 么九牌生成
  */
-export function randomYaochu(): HaiKindId {
+function randomYaochu(): HaiKindId {
   return randomChoice(YAOCHU);
 }
 

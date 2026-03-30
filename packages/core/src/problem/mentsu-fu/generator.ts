@@ -5,6 +5,16 @@ import {
   createRandomKantsu,
 } from "./mentsu-factory";
 
+interface MentsuResult {
+  readonly mentsu: MentsuFuQuestion["mentsu"];
+  readonly fu: number;
+  readonly explanation: string;
+}
+
+function toQuestion(result: MentsuResult): MentsuFuQuestion {
+  return { id: crypto.randomUUID(), mentsu: result.mentsu, answer: result.fu, explanation: result.explanation };
+}
+
 /**
  * 面子の符計算問題を生成する
  * 面子符問題ジェネレータ
@@ -16,37 +26,14 @@ export function generateMentsuFuQuestion(): MentsuFuQuestion {
   if (r < 0.2) {
     const result = createRandomShuntsu();
     if (result) {
-      return {
-        id: crypto.randomUUID(),
-        mentsu: result.mentsu,
-        answer: result.fu,
-        explanation: result.explanation,
-      };
+      return toQuestion(result);
     }
-    const koutsu = createRandomKoutsu();
-    return {
-      id: crypto.randomUUID(),
-      mentsu: koutsu.mentsu,
-      answer: koutsu.fu,
-      explanation: koutsu.explanation,
-    };
+    return toQuestion(createRandomKoutsu());
   }
 
   if (r < 0.7) {
-    const koutsu = createRandomKoutsu();
-    return {
-      id: crypto.randomUUID(),
-      mentsu: koutsu.mentsu,
-      answer: koutsu.fu,
-      explanation: koutsu.explanation,
-    };
+    return toQuestion(createRandomKoutsu());
   }
 
-  const kantsu = createRandomKantsu();
-  return {
-    id: crypto.randomUUID(),
-    mentsu: kantsu.mentsu,
-    answer: kantsu.fu,
-    explanation: kantsu.explanation,
-  };
+  return toQuestion(createRandomKantsu());
 }

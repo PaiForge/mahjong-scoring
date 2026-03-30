@@ -8,8 +8,7 @@ import { Furo } from "@pai-forge/mahjong-react-ui";
 import { useTimedSession } from "../../_hooks/use-timed-session";
 import { DrillShell } from "../../_components/drill-shell";
 import { getFeedbackStyles } from "../../_lib/feedback-styles";
-
-const FU_OPTIONS = [0, 2, 4, 8, 16, 32] as const;
+import { FU_OPTIONS } from "../../_lib/fu-options";
 
 export function MentsuFuDrill() {
   const t = useTranslations("mentsuFu");

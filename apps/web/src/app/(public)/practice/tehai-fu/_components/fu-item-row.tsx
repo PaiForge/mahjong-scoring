@@ -4,8 +4,7 @@ import { useTranslations } from "next-intl";
 import { MentsuType } from "@mahjong-scoring/core";
 import type { TehaiFuItem } from "@mahjong-scoring/core";
 import { Hai, Furo } from "@pai-forge/mahjong-react-ui";
-
-const FU_OPTIONS = [0, 2, 4, 8, 16, 32] as const;
+import { FU_OPTIONS } from "../../_lib/fu-options";
 
 interface FuItemRowProps {
   readonly item: TehaiFuItem;
