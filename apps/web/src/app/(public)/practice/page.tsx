@@ -25,6 +25,7 @@ const drills: readonly DrillDef[] = [
   { href: "/practice/machi-fu/play", titleKey: "drills.machiFu.title", descriptionKey: "drills.machiFu.description", difficulty: "beginner", learnHref: "/learn/machi-fu" },
   { href: "/practice/mentsu-fu/play", titleKey: "drills.mentsuFu.title", descriptionKey: "drills.mentsuFu.description", difficulty: "intermediate", learnHref: "/learn/mentsu-fu" },
   { href: "/practice/tehai-fu/play", titleKey: "drills.tehaiFu.title", descriptionKey: "drills.tehaiFu.description", difficulty: "advanced", learnHref: "/learn/tehai-fu" },
+  { href: "/practice/yaku/play", titleKey: "drills.yaku.title", descriptionKey: "drills.yaku.description", difficulty: "intermediate", learnHref: "/learn/yaku" },
   { href: "/practice/score", titleKey: "drills.score.title", descriptionKey: "drills.score.description", difficulty: "advanced" },
 ];
 
