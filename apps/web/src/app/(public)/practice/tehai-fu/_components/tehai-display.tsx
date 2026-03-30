@@ -60,7 +60,10 @@ export const TehaiDisplay = memo(function TehaiDisplay({ question }: TehaiDispla
         </div>
         <div className="text-center">
           <span className="text-surface-400">{t("agari")}</span>
-          <div className="mt-0.5 flex justify-center">
+          <div
+            className="mt-0.5 flex justify-center"
+            style={{ transform: `scale(${scale})`, transformOrigin: "center top" }}
+          >
             <Hai hai={question.context.agariHai} size="sm" />
           </div>
         </div>

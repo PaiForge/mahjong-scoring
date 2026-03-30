@@ -93,7 +93,10 @@ const YakuTehaiDisplay = memo(function YakuTehaiDisplay({ question }: YakuTehaiD
         </div>
         <div className="text-center">
           <span className="text-surface-400">{t("agari")}</span>
-          <div className="mt-0.5 flex justify-center">
+          <div
+            className="mt-0.5 flex justify-center"
+            style={{ transform: `scale(${scale})`, transformOrigin: "center top" }}
+          >
             <Hai hai={question.context.agariHai} size="sm" />
           </div>
         </div>
@@ -112,7 +115,10 @@ const YakuTehaiDisplay = memo(function YakuTehaiDisplay({ question }: YakuTehaiD
         {question.context.doraMarkers.length > 0 && (
           <div className="text-center">
             <span className="text-surface-400">{t("dora")}</span>
-            <div className="mt-0.5 flex justify-center gap-0.5">
+            <div
+              className="mt-0.5 flex justify-center gap-0.5"
+              style={{ transform: `scale(${scale})`, transformOrigin: "center top" }}
+            >
               {question.context.doraMarkers.map((marker, i) => (
                 <Hai key={i} hai={marker} size="sm" />
               ))}
