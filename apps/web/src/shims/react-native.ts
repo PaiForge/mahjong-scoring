@@ -24,15 +24,34 @@ const PRESSABLE_PROP_MAP: Record<string, string | null> = {
   accessibilityState: null,
 };
 
+function convertTransform(
+  transforms: readonly Record<string, unknown>[],
+): string {
+  return transforms
+    .map((t) => {
+      if ("rotate" in t) return `rotate(${t.rotate})`;
+      if ("translateY" in t) return `translateY(${t.translateY}px)`;
+      if ("translateX" in t) return `translateX(${t.translateX}px)`;
+      if ("scale" in t) return `scale(${t.scale})`;
+      return "";
+    })
+    .filter(Boolean)
+    .join(" ");
+}
+
 function normalizeStyle(
   style: unknown
 ): Record<string, unknown> | undefined {
   if (!style) return undefined;
   if (Array.isArray(style)) {
-    return Object.assign({}, ...style.filter(Boolean));
+    return normalizeStyle(Object.assign({}, ...style.filter(Boolean)));
   }
   if (typeof style === "object") {
-    return style as Record<string, unknown>;
+    const obj = style as Record<string, unknown>;
+    if (Array.isArray(obj.transform)) {
+      return { ...obj, transform: convertTransform(obj.transform as readonly Record<string, unknown>[]) };
+    }
+    return obj;
   }
   return undefined;
 }

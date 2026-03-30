@@ -32,17 +32,50 @@ body {
   color: var(--color-surface-900);
 }
 
-/* @pai-forge/mahjong-react-ui tile sizes (extracted from library CSS) */
-.h-hai-md { height: 62px; }
-.w-hai-md { width: 44px; }
-.h-hai-sm { height: 45px; }
-.w-hai-sm { width: 32px; }
-.h-hai-lg { height: 78px; }
-.w-hai-lg { width: 56px; }
+/*
+ * @pai-forge/mahjong-react-ui が使用するクラス（ライブラリ CSS から抽出）。
+ * ライブラリの styles.css は Tailwind v4 と競合するためインポート禁止。
+ * また @source は Turbopack dev で機能しないため、必要なクラスをここで定義する。
+ */
+
+/* Tile sizes */
 .h-hai-xs { height: 34px; }
 .w-hai-xs { width: 24px; }
+.h-hai-sm { height: 45px; }
+.w-hai-sm { width: 32px; }
+.h-hai-md { height: 62px; }
+.w-hai-md { width: 44px; }
+.h-hai-lg { height: 78px; }
+.w-hai-lg { width: 56px; }
 .h-hai-xl { height: 101px; }
 .w-hai-xl { width: 72px; }
+
+/* Rotated tile sizes (for Furo sideways tiles) */
+.h-hai-xs-rotated { height: 24px; }
+.w-hai-xs-rotated { width: 34px; }
+.h-hai-sm-rotated { height: 32px; }
+.w-hai-sm-rotated { width: 45px; }
+.h-hai-md-rotated { height: 44px; }
+.w-hai-md-rotated { width: 62px; }
+.h-hai-lg-rotated { height: 56px; }
+.w-hai-lg-rotated { width: 78px; }
+.h-hai-xl-rotated { height: 72px; }
+.w-hai-xl-rotated { width: 101px; }
+
+/* Shadows */
 .shadow-hai {
   box-shadow: 0 1px 2px rgba(0, 0, 0, 0.15), inset 0 1px 0 rgba(255, 255, 255, 0.5);
 }
+.shadow-hai-back {
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.15);
+}
+
+/* Layout utilities used by Furo / HaiBack / Tehai components via className.
+ * Tailwind v4 only generates classes found in scanned source files.
+ * node_modules is not scanned, and @source does not work with Turbopack dev,
+ * so we define the missing classes here. */
+.inline-flex { display: inline-flex; }
+.items-end { align-items: flex-end; }
+.gap-px { gap: 1px; }
+.box-border { box-sizing: border-box; }
+.visible { visibility: visible; }
