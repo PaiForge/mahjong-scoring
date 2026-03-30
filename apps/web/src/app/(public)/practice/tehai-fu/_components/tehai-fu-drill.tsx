@@ -23,6 +23,7 @@ export function TehaiFuDrill() {
   const [answers, setAnswers] = useState<string[]>(() =>
     new Array(5).fill("")
   );
+  const [tileScale, setTileScale] = useState(1);
 
   const { gameSession, timerControl } = useTimedSession();
   const { showFeedback, isCountingDown, handleAnswer } = gameSession;
@@ -59,7 +60,7 @@ export function TehaiFuDrill() {
 
   return (
     <DrillShell gameSession={gameSession} timerControl={timerControl} resultPath="/practice/tehai-fu/result" maxWidth="max-w-lg">
-      <TehaiDisplay question={question} />
+      <TehaiDisplay question={question} onScaleChange={setTileScale} />
 
       {/* Item list */}
       <div className="mt-4 space-y-2">
@@ -72,6 +73,7 @@ export function TehaiFuDrill() {
             showFeedback={showFeedback}
             isCountingDown={isCountingDown}
             onSelect={handleSelect}
+            tileScale={tileScale}
           />
         ))}
       </div>

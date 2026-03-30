@@ -14,6 +14,7 @@ interface FuItemRowProps {
   readonly showFeedback: boolean;
   readonly isCountingDown: boolean;
   readonly onSelect: (index: number, value: string) => void;
+  readonly tileScale?: number;
 }
 
 /**
@@ -27,6 +28,7 @@ export const FuItemRow = memo(function FuItemRow({
   showFeedback,
   isCountingDown,
   onSelect,
+  tileScale,
 }: FuItemRowProps) {
   const t = useTranslations("tehaiFu");
   const answerNum = answer ? parseInt(answer) : undefined;
@@ -40,22 +42,32 @@ export const FuItemRow = memo(function FuItemRow({
     [onSelect, index],
   );
 
+  const scaleStyle = tileScale !== undefined && tileScale < 1
+    ? { transform: `scale(${tileScale})`, transformOrigin: "left center" }
+    : undefined;
+
   const renderItemTiles = () => {
-    if (item.originalMentsu && (item.isOpen || item.type === MentsuType.Kantsu)) {
-      return (
+    const tiles = item.originalMentsu && (item.isOpen || item.type === MentsuType.Kantsu)
+      ? (
         <Furo
           mentsu={item.originalMentsu}
           furo={item.originalMentsu.furo}
           size="sm"
         />
+      )
+      : (
+        <div className="flex gap-0.5">
+          {item.tiles.map((tile, i) => (
+            <Hai key={i} hai={tile} size="sm" />
+          ))}
+        </div>
       );
-    }
+
+    if (!scaleStyle) return tiles;
 
     return (
-      <div className="flex gap-0.5">
-        {item.tiles.map((tile, i) => (
-          <Hai key={i} hai={tile} size="sm" />
-        ))}
+      <div style={scaleStyle}>
+        {tiles}
       </div>
     );
   };

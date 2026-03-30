@@ -1,6 +1,6 @@
 "use client";
 
-import { memo } from "react";
+import { memo, useEffect } from "react";
 import { useTranslations } from "next-intl";
 import { getKazeName } from "@mahjong-scoring/core";
 import type { TehaiFuQuestion } from "@mahjong-scoring/core";
@@ -9,15 +9,20 @@ import { useAutoScale } from "../../_hooks/use-auto-scale";
 
 interface TehaiDisplayProps {
   readonly question: TehaiFuQuestion;
+  readonly onScaleChange?: (scale: number) => void;
 }
 
 /**
  * 手牌の符計算における手牌表示
  * 手牌表示
  */
-export const TehaiDisplay = memo(function TehaiDisplay({ question }: TehaiDisplayProps) {
+export const TehaiDisplay = memo(function TehaiDisplay({ question, onScaleChange }: TehaiDisplayProps) {
   const t = useTranslations("tehaiFu");
   const { wrapperRef, contentRef, scale } = useAutoScale([question]);
+
+  useEffect(() => {
+    onScaleChange?.(scale);
+  }, [scale, onScaleChange]);
 
   return (
     <div className="mt-4 rounded-xl border border-surface-200 bg-white p-2 shadow-sm">
