@@ -66,11 +66,12 @@ export function TehaiFuDrill() {
         {question.items.map((item, idx) => (
           <FuItemRow
             key={item.id}
+            index={idx}
             item={item}
             answer={answers[idx]}
             showFeedback={showFeedback}
             isCountingDown={isCountingDown}
-            onSelect={(value) => handleSelect(idx, value)}
+            onSelect={handleSelect}
           />
         ))}
       </div>

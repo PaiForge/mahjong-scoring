@@ -1,5 +1,6 @@
 "use client";
 
+import { memo, useCallback } from "react";
 import { useTranslations } from "next-intl";
 import { MentsuType } from "@mahjong-scoring/core";
 import type { TehaiFuItem } from "@mahjong-scoring/core";
@@ -7,18 +8,20 @@ import { Hai, Furo } from "@pai-forge/mahjong-react-ui";
 import { FU_OPTIONS } from "../../_lib/fu-options";
 
 interface FuItemRowProps {
+  readonly index: number;
   readonly item: TehaiFuItem;
   readonly answer: string;
   readonly showFeedback: boolean;
   readonly isCountingDown: boolean;
-  readonly onSelect: (value: string) => void;
+  readonly onSelect: (index: number, value: string) => void;
 }
 
 /**
  * 符計算の個別要素行
  * 符要素行
  */
-export function FuItemRow({
+export const FuItemRow = memo(function FuItemRow({
+  index,
   item,
   answer,
   showFeedback,
@@ -29,6 +32,13 @@ export function FuItemRow({
   const answerNum = answer ? parseInt(answer) : undefined;
   const isCorrect = showFeedback && answerNum === item.fu;
   const isWrong = showFeedback && answerNum !== item.fu;
+
+  const handleChange = useCallback(
+    (e: React.ChangeEvent<HTMLSelectElement>) => {
+      onSelect(index, e.target.value);
+    },
+    [onSelect, index],
+  );
 
   const renderItemTiles = () => {
     if (item.originalMentsu && (item.isOpen || item.type === MentsuType.Kantsu)) {
@@ -82,7 +92,7 @@ export function FuItemRow({
               : "border-surface-200"
           }`}
           value={answer}
-          onChange={(e) => onSelect(e.target.value)}
+          onChange={handleChange}
           disabled={showFeedback || isCountingDown}
         >
           <option value="" disabled>
@@ -97,4 +107,4 @@ export function FuItemRow({
       </div>
     </div>
   );
-}
+});

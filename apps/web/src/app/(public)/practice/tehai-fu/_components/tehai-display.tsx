@@ -1,5 +1,6 @@
 "use client";
 
+import { memo } from "react";
 import { useTranslations } from "next-intl";
 import { getKazeName } from "@mahjong-scoring/core";
 import type { TehaiFuQuestion } from "@mahjong-scoring/core";
@@ -14,7 +15,7 @@ interface TehaiDisplayProps {
  * 手牌の符計算における手牌表示
  * 手牌表示
  */
-export function TehaiDisplay({ question }: TehaiDisplayProps) {
+export const TehaiDisplay = memo(function TehaiDisplay({ question }: TehaiDisplayProps) {
   const t = useTranslations("tehaiFu");
   const { wrapperRef, contentRef, scale } = useAutoScale([question]);
 
@@ -72,4 +73,4 @@ export function TehaiDisplay({ question }: TehaiDisplayProps) {
       </div>
     </div>
   );
-}
+});
