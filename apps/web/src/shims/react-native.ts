@@ -24,6 +24,16 @@ const PRESSABLE_PROP_MAP: Record<string, string | null> = {
   accessibilityState: null,
 };
 
+function isRecord(value: unknown): value is Record<string, unknown> {
+  return typeof value === "object" && value !== null && !Array.isArray(value);
+}
+
+function isTransformArray(
+  value: unknown,
+): value is readonly Record<string, unknown>[] {
+  return Array.isArray(value) && value.every(isRecord);
+}
+
 function convertTransform(
   transforms: readonly Record<string, unknown>[],
 ): string {
@@ -46,12 +56,11 @@ function normalizeStyle(
   if (Array.isArray(style)) {
     return normalizeStyle(Object.assign({}, ...style.filter(Boolean)));
   }
-  if (typeof style === "object") {
-    const obj = style as Record<string, unknown>;
-    if (Array.isArray(obj.transform)) {
-      return { ...obj, transform: convertTransform(obj.transform as readonly Record<string, unknown>[]) };
+  if (isRecord(style)) {
+    if (isTransformArray(style.transform)) {
+      return { ...style, transform: convertTransform(style.transform) };
     }
-    return obj;
+    return style;
   }
   return undefined;
 }
@@ -78,8 +87,8 @@ export const Pressable = forwardRef<HTMLDivElement, Record<string, unknown>>(
 function resolveSource(source: unknown): string | undefined {
   if (!source) return undefined;
   if (typeof source === "string") return source;
-  if (typeof source === "object" && "uri" in (source as Record<string, unknown>)) {
-    return (source as Record<string, string>).uri;
+  if (isRecord(source) && "uri" in source && typeof source.uri === "string") {
+    return source.uri;
   }
   return undefined;
 }
