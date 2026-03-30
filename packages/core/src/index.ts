@@ -12,6 +12,12 @@ export type { TehaiFuQuestion, TehaiFuItem } from "./problem/tehai-fu/types";
 export { KAZEHAI, SANGENHAI } from "./core/constants";
 export { getKazeName } from "./core/hai-names";
 export { randomChoice, shuffle } from "./core/random";
+export {
+  calculateKoScore,
+  calculateOyaScore,
+  isInvalidCell,
+  HIGH_SCORES,
+} from "./core/score-calculation";
 export { isHaiKindId } from "./core/type-guards";
 export { HaiKind, MentsuType } from "@pai-forge/riichi-mahjong";
 export type {
