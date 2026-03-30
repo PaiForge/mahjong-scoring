@@ -19,7 +19,8 @@ export function JantouFuDrill() {
   );
   const [selectedHai, setSelectedHai] = useState<JantouFuChoice["hai"] | undefined>(undefined);
 
-  const session = useTimedSession();
+  const { gameSession, timerControl } = useTimedSession();
+  const { showFeedback, isCountingDown, handleAnswer } = gameSession;
 
   const advanceQuestion = useCallback(() => {
     setQuestion(generateJantouFuQuestion());
@@ -28,15 +29,15 @@ export function JantouFuDrill() {
 
   const handleChoiceClick = useCallback(
     (choice: JantouFuChoice) => {
-      if (session.showFeedback) return;
+      if (showFeedback) return;
       setSelectedHai(choice.hai);
-      session.handleAnswer(choice.isCorrect, advanceQuestion);
+      handleAnswer(choice.isCorrect, advanceQuestion);
     },
-    [session, advanceQuestion]
+    [showFeedback, handleAnswer, advanceQuestion]
   );
 
   return (
-    <DrillShell session={session} resultPath="/practice/jantou-fu/result">
+    <DrillShell gameSession={gameSession} timerControl={timerControl} resultPath="/practice/jantou-fu/result">
       {/* Context */}
       <div className="mt-6 flex justify-center gap-6 text-sm">
         <div className="text-center">
@@ -62,7 +63,7 @@ export function JantouFuDrill() {
       <div className="mt-4 grid grid-cols-2 gap-3">
         {question.choices.map((choice) => {
           const { borderClass, bgClass } = getFeedbackStyles(
-            session.showFeedback,
+            showFeedback,
             selectedHai === choice.hai,
             choice.isCorrect,
           );
@@ -71,7 +72,7 @@ export function JantouFuDrill() {
             <button
               key={`${question.id}-${choice.hai}`}
               type="button"
-              disabled={session.showFeedback || session.isCountingDown}
+              disabled={showFeedback || isCountingDown}
               onClick={() => handleChoiceClick(choice)}
               className={`flex flex-col items-center gap-5 rounded-xl border ${borderClass} ${bgClass} p-4 transition-all`}
             >

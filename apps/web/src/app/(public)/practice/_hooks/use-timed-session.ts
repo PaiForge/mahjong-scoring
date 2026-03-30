@@ -1,7 +1,6 @@
 "use client";
 
 import { useCallback, useRef, useState } from "react";
-import { useGameTimer } from "./use-game-timer";
 import { useCountdown } from "./use-countdown";
 import {
   CHALLENGE_TIME_LIMIT,
@@ -15,12 +14,50 @@ interface UseTimedSessionOptions {
   countdownFrom?: number;
 }
 
+/** ゲームロジック状態（タイマー値を含まない、ユーザー操作時のみ変化） */
+export interface GameSessionState {
+  readonly isCountingDown: boolean;
+  readonly countdownValue: number;
+  readonly isPlaying: boolean;
+  readonly isFinished: boolean;
+  readonly correctCount: number;
+  readonly incorrectCount: number;
+  readonly totalCount: number;
+  readonly remainingLives: number;
+  readonly showFeedback: boolean;
+  readonly lastAnswerCorrect: boolean | undefined;
+  readonly handleAnswer: (correct: boolean, onNext: () => void) => void;
+  readonly mistakeLimit: number;
+  readonly timeLimit: number;
+}
+
+/** DrillShell がタイマーを制御するためのインターフェース */
+export interface TimerControl {
+  /** タイマーを動かすべきか */
+  readonly isActive: boolean;
+  /** 制限時間到達時のコールバック */
+  readonly onTimeLimitReached: () => void;
+  /** タイマーをリセットする関数（reset に組み込むため DrillShell に渡す） */
+  readonly registerTimerReset: (resetFn: () => void) => void;
+  /** セッション全体をリセット */
+  readonly reset: () => void;
+}
+
+/**
+ * ドリルのゲームセッション管理
+ *
+ * タイマー値（elapsedMs, remainingSeconds）を含まないため、100ms ごとの再レンダリングが発生しない。
+ * タイマー表示は DrillShell 内で useGameTimer を呼び出し、DrillShell のみが再レンダリングされる。
+ */
 export function useTimedSession({
   timeLimit = CHALLENGE_TIME_LIMIT,
   mistakeLimit = MISTAKE_LIMIT,
   feedbackDurationMs = 800,
   countdownFrom = 3,
-}: UseTimedSessionOptions = {}) {
+}: UseTimedSessionOptions = {}): {
+  gameSession: GameSessionState;
+  timerControl: TimerControl;
+} {
   const [correctCount, setCorrectCount] = useState(0);
   const [incorrectCount, setIncorrectCount] = useState(0);
   const [isFinished, setIsFinished] = useState(false);
@@ -33,6 +70,7 @@ export function useTimedSession({
     undefined
   );
   const isFinishedRef = useRef(false);
+  const timerResetRef = useRef<(() => void) | undefined>(undefined);
 
   const handleCountdownComplete = useCallback(() => {
     setIsPlaying(true);
@@ -48,12 +86,6 @@ export function useTimedSession({
     isFinishedRef.current = true;
     setIsFinished(true);
   }, []);
-
-  const { remainingSeconds, elapsedMs, reset: resetTimer } = useGameTimer({
-    timeLimit,
-    onTimeLimitReached: handleTimeLimitReached,
-    isActive: isPlaying && !isFinished,
-  });
 
   const totalCount = correctCount + incorrectCount;
   const remainingLives = Math.max(0, mistakeLimit - incorrectCount);
@@ -92,6 +124,10 @@ export function useTimedSession({
     [incorrectCount, mistakeLimit, feedbackDurationMs, showFeedback]
   );
 
+  const registerTimerReset = useCallback((resetFn: () => void) => {
+    timerResetRef.current = resetFn;
+  }, []);
+
   const reset = useCallback(() => {
     if (feedbackTimeoutRef.current) clearTimeout(feedbackTimeoutRef.current);
     setCorrectCount(0);
@@ -101,11 +137,11 @@ export function useTimedSession({
     setShowFeedback(false);
     setLastAnswerCorrect(undefined);
     isFinishedRef.current = false;
-    resetTimer();
+    timerResetRef.current?.();
     countdown.reset();
-  }, [resetTimer, countdown]);
+  }, [countdown]);
 
-  return {
+  const gameSession: GameSessionState = {
     isCountingDown: countdown.isActive,
     countdownValue: countdown.count,
     isPlaying,
@@ -114,12 +150,19 @@ export function useTimedSession({
     incorrectCount,
     totalCount,
     remainingLives,
-    remainingSeconds,
-    elapsedMs,
     showFeedback,
     lastAnswerCorrect,
     handleAnswer,
-    reset,
     mistakeLimit,
+    timeLimit,
   };
+
+  const timerControl: TimerControl = {
+    isActive: isPlaying && !isFinished,
+    onTimeLimitReached: handleTimeLimitReached,
+    registerTimerReset,
+    reset,
+  };
+
+  return { gameSession, timerControl };
 }

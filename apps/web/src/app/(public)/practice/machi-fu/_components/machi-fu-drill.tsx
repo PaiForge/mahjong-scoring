@@ -18,7 +18,8 @@ export function MachiFuDrill() {
   );
   const [selectedFu, setSelectedFu] = useState<number | undefined>(undefined);
 
-  const session = useTimedSession();
+  const { gameSession, timerControl } = useTimedSession();
+  const { showFeedback, isCountingDown, handleAnswer } = gameSession;
 
   const advanceQuestion = useCallback(() => {
     setQuestion(generateMachiFuQuestion());
@@ -27,15 +28,15 @@ export function MachiFuDrill() {
 
   const handleFuClick = useCallback(
     (fu: number) => {
-      if (session.showFeedback) return;
+      if (showFeedback) return;
       setSelectedFu(fu);
-      session.handleAnswer(fu === question.answer, advanceQuestion);
+      handleAnswer(fu === question.answer, advanceQuestion);
     },
-    [session, question.answer, advanceQuestion]
+    [showFeedback, handleAnswer, question.answer, advanceQuestion]
   );
 
   return (
-    <DrillShell session={session} resultPath="/practice/machi-fu/result">
+    <DrillShell gameSession={gameSession} timerControl={timerControl} resultPath="/practice/machi-fu/result">
       {/* Machi tiles */}
       <div className="mt-6 flex flex-col items-center gap-4">
         <div className="flex flex-col items-center gap-2">
@@ -70,7 +71,7 @@ export function MachiFuDrill() {
       <div className="mt-4 grid grid-cols-2 gap-3">
         {FU_OPTIONS.map((fu) => {
           const { borderClass, bgClass } = getFeedbackStyles(
-            session.showFeedback,
+            showFeedback,
             selectedFu === fu,
             question.answer === fu,
           );
@@ -79,7 +80,7 @@ export function MachiFuDrill() {
             <button
               key={fu}
               type="button"
-              disabled={session.showFeedback || session.isCountingDown}
+              disabled={showFeedback || isCountingDown}
               onClick={() => handleFuClick(fu)}
               className={`flex items-center justify-center rounded-xl border ${borderClass} ${bgClass} p-4 text-2xl font-bold transition-all`}
             >

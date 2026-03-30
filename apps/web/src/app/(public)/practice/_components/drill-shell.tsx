@@ -1,16 +1,18 @@
 "use client";
 
-import type { ReactNode } from "react";
+import { type ReactNode, useEffect, useRef } from "react";
 import { useTranslations } from "next-intl";
 import { ContentContainer } from "@/app/_components/content-container";
-import { useTimedSession } from "../_hooks/use-timed-session";
+import type { GameSessionState, TimerControl } from "../_hooks/use-timed-session";
+import { useGameTimer } from "../_hooks/use-game-timer";
 import { useFinishRedirect } from "../_hooks/use-finish-redirect";
 import { QuizTimer } from "./quiz-timer";
-import { CHALLENGE_TIME_LIMIT } from "../_lib/challenge-constants";
 
 interface DrillShellProps {
-  /** useTimedSession の戻り値 */
-  readonly session: ReturnType<typeof useTimedSession>;
+  /** ゲームロジック状態（タイマー値を含まない） */
+  readonly gameSession: GameSessionState;
+  /** DrillShell 内でタイマーを制御するためのインターフェース */
+  readonly timerControl: TimerControl;
   /** リザルトページへのパス（例: "/practice/jantou-fu/result"） */
   readonly resultPath: string;
   /** ドリル本体のUI */
@@ -22,34 +24,52 @@ interface DrillShellProps {
 /**
  * ドリル共通シェル（カウントダウン・ステータスバー・ContentContainer）
  * ドリル共通外殻
+ *
+ * タイマー状態（elapsedMs, remainingSeconds）は DrillShell 内の useGameTimer で管理される。
+ * これにより 100ms ごとのタイマー更新は DrillShell のみが再レンダリングし、
+ * children（ドリル本体の牌画像・選択肢ボタン等）には伝播しない。
  */
 export function DrillShell({
-  session,
+  gameSession,
+  timerControl,
   resultPath,
   children,
   maxWidth = "max-w-md",
 }: DrillShellProps) {
   const tc = useTranslations("challenge");
 
+  const { remainingSeconds, elapsedMs, reset: resetTimer } = useGameTimer({
+    timeLimit: gameSession.timeLimit,
+    onTimeLimitReached: timerControl.onTimeLimitReached,
+    isActive: timerControl.isActive,
+  });
+
+  // タイマーリセット関数を timerControl に登録（セッションリセット時に使用）
+  const registerTimerResetRef = useRef(timerControl.registerTimerReset);
+  registerTimerResetRef.current = timerControl.registerTimerReset;
+  useEffect(() => {
+    registerTimerResetRef.current(resetTimer);
+  }, [resetTimer]);
+
   useFinishRedirect({
-    isFinished: session.isFinished,
-    correctCount: session.correctCount,
-    totalCount: session.totalCount,
-    elapsedMs: session.elapsedMs,
+    isFinished: gameSession.isFinished,
+    correctCount: gameSession.correctCount,
+    totalCount: gameSession.totalCount,
+    elapsedMs,
     resultPath,
   });
 
-  if (session.isFinished) {
+  if (gameSession.isFinished) {
     return undefined;
   }
 
   return (
     <ContentContainer>
       {/* Countdown overlay */}
-      {session.isCountingDown && (
+      {gameSession.isCountingDown && (
         <div className="fixed inset-0 md:left-64 z-30 flex items-center justify-center bg-white/80 backdrop-blur-sm">
           <span className="text-6xl font-bold text-primary-500 animate-pulse">
-            {session.countdownValue}
+            {gameSession.countdownValue}
           </span>
         </div>
       )}
@@ -58,18 +78,18 @@ export function DrillShell({
         {/* Status bar */}
         <div className="flex items-center justify-between text-sm">
           <QuizTimer
-            timeRemaining={session.remainingSeconds}
-            progress={session.elapsedMs / 1000 / CHALLENGE_TIME_LIMIT}
+            timeRemaining={remainingSeconds}
+            progress={elapsedMs / 1000 / gameSession.timeLimit}
           />
           <div className="flex items-center gap-3">
             <span className="text-surface-500">
-              {tc("score")}: <span className="font-semibold text-surface-900">{session.correctCount}</span>
+              {tc("score")}: <span className="font-semibold text-surface-900">{gameSession.correctCount}</span>
             </span>
             <div className="flex items-center gap-0.5">
-              {Array.from({ length: session.mistakeLimit }, (_, i) => (
+              {Array.from({ length: gameSession.mistakeLimit }, (_, i) => (
                 <span
                   key={i}
-                  className={`text-base ${i < session.remainingLives ? "text-red-500" : "text-surface-200"}`}
+                  className={`text-base ${i < gameSession.remainingLives ? "text-red-500" : "text-surface-200"}`}
                 >
                   &#9829;
                 </span>

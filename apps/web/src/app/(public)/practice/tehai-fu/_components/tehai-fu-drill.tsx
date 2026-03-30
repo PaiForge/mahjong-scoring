@@ -24,7 +24,8 @@ export function TehaiFuDrill() {
     new Array(5).fill("")
   );
 
-  const session = useTimedSession();
+  const { gameSession, timerControl } = useTimedSession();
+  const { showFeedback, isCountingDown, handleAnswer } = gameSession;
 
   const advanceQuestion = useCallback(() => {
     const q = generateQuestion();
@@ -33,23 +34,23 @@ export function TehaiFuDrill() {
   }, []);
 
   const handleSubmit = useCallback(() => {
-    if (!question || session.showFeedback) return;
+    if (!question || showFeedback) return;
     const allCorrect = question.items.every(
       (item, idx) => parseInt(answers[idx]) === item.fu,
     );
-    session.handleAnswer(allCorrect, advanceQuestion);
-  }, [question, answers, session, advanceQuestion]);
+    handleAnswer(allCorrect, advanceQuestion);
+  }, [question, answers, showFeedback, handleAnswer, advanceQuestion]);
 
   const handleSelect = useCallback(
     (idx: number, value: string) => {
-      if (session.showFeedback) return;
+      if (showFeedback) return;
       setAnswers((prev) => {
         const next = [...prev];
         next[idx] = value;
         return next;
       });
     },
-    [session.showFeedback],
+    [showFeedback],
   );
 
   if (!question) return undefined;
@@ -57,7 +58,7 @@ export function TehaiFuDrill() {
   const allAnswered = answers.length > 0 && answers.every((a) => a !== "");
 
   return (
-    <DrillShell session={session} resultPath="/practice/tehai-fu/result" maxWidth="max-w-lg">
+    <DrillShell gameSession={gameSession} timerControl={timerControl} resultPath="/practice/tehai-fu/result" maxWidth="max-w-lg">
       <TehaiDisplay question={question} />
 
       {/* Item list */}
@@ -67,8 +68,8 @@ export function TehaiFuDrill() {
             key={item.id}
             item={item}
             answer={answers[idx]}
-            showFeedback={session.showFeedback}
-            isCountingDown={session.isCountingDown}
+            showFeedback={showFeedback}
+            isCountingDown={isCountingDown}
             onSelect={(value) => handleSelect(idx, value)}
           />
         ))}
@@ -79,9 +80,9 @@ export function TehaiFuDrill() {
         <button
           type="button"
           onClick={handleSubmit}
-          disabled={!allAnswered || session.showFeedback || session.isCountingDown}
+          disabled={!allAnswered || showFeedback || isCountingDown}
           className={`w-full rounded-lg py-3 text-sm font-semibold text-white shadow-sm transition-colors ${
-            allAnswered && !session.showFeedback && !session.isCountingDown
+            allAnswered && !showFeedback && !isCountingDown
               ? "bg-primary-500 hover:bg-primary-600"
               : "cursor-not-allowed bg-surface-300"
           }`}

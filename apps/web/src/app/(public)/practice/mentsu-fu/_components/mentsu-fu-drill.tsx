@@ -17,7 +17,8 @@ export function MentsuFuDrill() {
   );
   const [selectedFu, setSelectedFu] = useState<number | undefined>(undefined);
 
-  const session = useTimedSession();
+  const { gameSession, timerControl } = useTimedSession();
+  const { showFeedback, isCountingDown, handleAnswer } = gameSession;
 
   const advanceQuestion = useCallback(() => {
     setQuestion(generateMentsuFuQuestion());
@@ -26,11 +27,11 @@ export function MentsuFuDrill() {
 
   const handleFuClick = useCallback(
     (fu: number) => {
-      if (session.showFeedback) return;
+      if (showFeedback) return;
       setSelectedFu(fu);
-      session.handleAnswer(fu === question.answer, advanceQuestion);
+      handleAnswer(fu === question.answer, advanceQuestion);
     },
-    [session, question.answer, advanceQuestion]
+    [showFeedback, handleAnswer, question.answer, advanceQuestion]
   );
 
   const renderMentsu = () => {
@@ -43,7 +44,7 @@ export function MentsuFuDrill() {
   };
 
   return (
-    <DrillShell session={session} resultPath="/practice/mentsu-fu/result">
+    <DrillShell gameSession={gameSession} timerControl={timerControl} resultPath="/practice/mentsu-fu/result">
       {/* Mentsu display */}
       <div className="mt-6 flex flex-col items-center gap-4">
         <span className="text-sm font-bold uppercase tracking-widest text-surface-400">
@@ -63,7 +64,7 @@ export function MentsuFuDrill() {
       <div className="mt-4 grid grid-cols-3 gap-3">
         {FU_OPTIONS.map((fu) => {
           const { borderClass, bgClass } = getFeedbackStyles(
-            session.showFeedback,
+            showFeedback,
             selectedFu === fu,
             question.answer === fu,
           );
@@ -72,7 +73,7 @@ export function MentsuFuDrill() {
             <button
               key={fu}
               type="button"
-              disabled={session.showFeedback || session.isCountingDown}
+              disabled={showFeedback || isCountingDown}
               onClick={() => handleFuClick(fu)}
               className={`flex items-center justify-center rounded-xl border ${borderClass} ${bgClass} p-4 text-2xl font-bold transition-all`}
             >
