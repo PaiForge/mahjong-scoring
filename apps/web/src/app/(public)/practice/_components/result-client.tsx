@@ -6,7 +6,16 @@ import Link from "next/link";
 import { ContentContainer } from "@/app/_components/content-container";
 import { PageTitle } from "@/app/_components/page-title";
 
-export function ResultClient() {
+interface ResultClientProps {
+  /** リトライ用のプレイページURL（例: "/practice/jantou-fu/play"） */
+  readonly playHref: string;
+}
+
+/**
+ * ドリル結果画面の共通クライアントコンポーネント
+ * ドリル結果表示
+ */
+export function ResultClient({ playHref }: ResultClientProps) {
   const searchParams = useSearchParams();
   const tc = useTranslations("challenge");
 
@@ -29,7 +38,7 @@ export function ResultClient() {
 
       <div className="mt-8 flex flex-col items-center gap-3 sm:flex-row">
         <Link
-          href="/practice/tehai-fu/play"
+          href={playHref}
           className="rounded-lg bg-primary-500 px-6 py-2.5 text-sm font-semibold text-white shadow-sm transition-colors hover:bg-primary-600"
         >
           {tc("retryButton")}

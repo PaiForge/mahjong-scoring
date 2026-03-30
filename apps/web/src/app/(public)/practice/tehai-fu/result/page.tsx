@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import { Suspense } from "react";
 import { getTranslations } from "next-intl/server";
-import { ResultClient } from "../_components/result-client";
+import { ResultClient } from "../../_components/result-client";
 
 export async function generateMetadata(): Promise<Metadata> {
   const t = await getTranslations("tehaiFu");
@@ -13,7 +13,7 @@ export async function generateMetadata(): Promise<Metadata> {
 export default function TehaiFuResultPage() {
   return (
     <Suspense>
-      <ResultClient />
+      <ResultClient playHref="/practice/tehai-fu/play" />
     </Suspense>
   );
 }
