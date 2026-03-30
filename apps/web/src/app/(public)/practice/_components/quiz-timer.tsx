@@ -1,5 +1,7 @@
 "use client";
 
+import { memo } from "react";
+
 interface QuizTimerProps {
   timeRemaining: number;
   progress: number;
@@ -19,7 +21,7 @@ function getColor(progress: number): string {
   return "#22c55e";
 }
 
-export function QuizTimer({
+export const QuizTimer = memo(function QuizTimer({
   timeRemaining,
   progress,
   size = 48,
@@ -69,4 +71,4 @@ export function QuizTimer({
       </span>
     </div>
   );
-}
+});

@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useCallback, useMemo, useState } from "react";
 import { useTranslations } from "next-intl";
 import {
   calculateKoScore,
@@ -47,9 +47,33 @@ export function ScoreTable() {
 
   const isKo = activeTab === "ko";
 
-  const toggleCell = (id: string) => {
+  const toggleCell = useCallback((id: string) => {
     setHiddenCells((prev) => ({ ...prev, [id]: !prev[id] }));
-  };
+  }, []);
+
+  const roleOptions = useMemo(
+    (): readonly { readonly value: Role; readonly label: string }[] => [
+      { value: "ko", label: t("ko") },
+      { value: "oya", label: t("oya") },
+    ],
+    [t]
+  );
+
+  const winTypeOptions = useMemo(
+    (): readonly { readonly value: WinType; readonly label: string }[] => [
+      { value: "ron", label: t("ron") },
+      { value: "tsumo", label: t("tsumo") },
+    ],
+    [t]
+  );
+
+  const viewModeOptions = useMemo(
+    (): readonly { readonly value: ViewMode; readonly label: string }[] => [
+      { value: "normal", label: t("fuHan") },
+      { value: "high_score", label: `${t("mangan")}+` },
+    ],
+    [t]
+  );
 
   return (
     <div className="w-full relative">
@@ -57,26 +81,17 @@ export function ScoreTable() {
       <div className="sticky top-0 z-20 pb-3 mb-1">
         <div className="flex flex-nowrap gap-2 items-center justify-end">
           <ToggleGroup
-            options={[
-              { value: "ko", label: t("ko") },
-              { value: "oya", label: t("oya") },
-            ]}
+            options={roleOptions}
             selected={activeTab}
             onChange={setActiveTab}
           />
           <ToggleGroup
-            options={[
-              { value: "ron", label: t("ron") },
-              { value: "tsumo", label: t("tsumo") },
-            ]}
+            options={winTypeOptions}
             selected={winType}
             onChange={setWinType}
           />
           <ToggleGroup
-            options={[
-              { value: "normal", label: t("fuHan") },
-              { value: "high_score", label: `${t("mangan")}+` },
-            ]}
+            options={viewModeOptions}
             selected={viewMode}
             onChange={setViewMode}
           />

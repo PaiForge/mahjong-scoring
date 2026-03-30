@@ -9,6 +9,7 @@ import {
 import type { JantouFuQuestion, JantouFuChoice } from "@mahjong-scoring/core";
 import { Hai } from "@pai-forge/mahjong-react-ui";
 import { useTimedSession } from "../../_hooks/use-timed-session";
+import { ChoiceButton } from "../../_components/choice-button";
 import { DrillShell } from "../../_components/drill-shell";
 import { getFeedbackStyles } from "../../_lib/feedback-styles";
 
@@ -27,13 +28,14 @@ export function JantouFuDrill() {
     setSelectedHai(undefined);
   }, []);
 
-  const handleChoiceClick = useCallback(
-    (choice: JantouFuChoice) => {
+  const handleChoiceSelect = useCallback(
+    (index: number) => {
       if (showFeedback) return;
+      const choice = question.choices[index];
       setSelectedHai(choice.hai);
       handleAnswer(choice.isCorrect, advanceQuestion);
     },
-    [showFeedback, handleAnswer, advanceQuestion]
+    [showFeedback, question.choices, handleAnswer, advanceQuestion]
   );
 
   return (
@@ -61,7 +63,7 @@ export function JantouFuDrill() {
 
       {/* Choices */}
       <div className="mt-4 grid grid-cols-2 gap-3">
-        {question.choices.map((choice) => {
+        {question.choices.map((choice, i) => {
           const { borderClass, bgClass } = getFeedbackStyles(
             showFeedback,
             selectedHai === choice.hai,
@@ -69,17 +71,19 @@ export function JantouFuDrill() {
           );
 
           return (
-            <button
+            <ChoiceButton
               key={`${question.id}-${choice.hai}`}
-              type="button"
+              index={i}
+              onSelect={handleChoiceSelect}
               disabled={showFeedback || isCountingDown}
-              onClick={() => handleChoiceClick(choice)}
-              className={`flex flex-col items-center gap-5 rounded-xl border ${borderClass} ${bgClass} p-4 transition-all`}
+              borderClass={borderClass}
+              bgClass={bgClass}
+              className="flex-col gap-5"
             >
               <div className="scale-125">
                 <Hai hai={choice.hai} />
               </div>
-            </button>
+            </ChoiceButton>
           );
         })}
       </div>

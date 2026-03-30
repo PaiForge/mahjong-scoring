@@ -1,12 +1,36 @@
 "use client";
 
-import { type ReactNode, useEffect, useRef } from "react";
+import { type ReactNode, memo, useEffect, useRef } from "react";
 import { useTranslations } from "next-intl";
 import { ContentContainer } from "@/app/_components/content-container";
 import type { GameSessionState, TimerControl } from "../_hooks/use-timed-session";
 import { useGameTimer } from "../_hooks/use-game-timer";
 import { useFinishRedirect } from "../_hooks/use-finish-redirect";
 import { QuizTimer } from "./quiz-timer";
+
+interface LifeIndicatorProps {
+  readonly remainingLives: number;
+  readonly mistakeLimit: number;
+}
+
+/** ライフ表示（ハートアイコン） */
+const LifeIndicator = memo(function LifeIndicator({
+  remainingLives,
+  mistakeLimit,
+}: LifeIndicatorProps) {
+  return (
+    <div className="flex items-center gap-0.5">
+      {Array.from({ length: mistakeLimit }, (_, i) => (
+        <span
+          key={i}
+          className={`text-base ${i < remainingLives ? "text-red-500" : "text-surface-200"}`}
+        >
+          &#9829;
+        </span>
+      ))}
+    </div>
+  );
+});
 
 interface DrillShellProps {
   /** ゲームロジック状態（タイマー値を含まない） */
@@ -85,16 +109,10 @@ export function DrillShell({
             <span className="text-surface-500">
               {tc("score")}: <span className="font-semibold text-surface-900">{gameSession.correctCount}</span>
             </span>
-            <div className="flex items-center gap-0.5">
-              {Array.from({ length: gameSession.mistakeLimit }, (_, i) => (
-                <span
-                  key={i}
-                  className={`text-base ${i < gameSession.remainingLives ? "text-red-500" : "text-surface-200"}`}
-                >
-                  &#9829;
-                </span>
-              ))}
-            </div>
+            <LifeIndicator
+              remainingLives={gameSession.remainingLives}
+              mistakeLimit={gameSession.mistakeLimit}
+            />
           </div>
         </div>
 

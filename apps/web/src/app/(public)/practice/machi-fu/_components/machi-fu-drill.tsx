@@ -6,6 +6,7 @@ import { generateMachiFuQuestion } from "@mahjong-scoring/core";
 import type { MachiFuQuestion } from "@mahjong-scoring/core";
 import { Hai } from "@pai-forge/mahjong-react-ui";
 import { useTimedSession } from "../../_hooks/use-timed-session";
+import { ChoiceButton } from "../../_components/choice-button";
 import { DrillShell } from "../../_components/drill-shell";
 import { getFeedbackStyles } from "../../_lib/feedback-styles";
 
@@ -26,9 +27,10 @@ export function MachiFuDrill() {
     setSelectedFu(undefined);
   }, []);
 
-  const handleFuClick = useCallback(
-    (fu: number) => {
+  const handleFuSelect = useCallback(
+    (index: number) => {
       if (showFeedback) return;
+      const fu = FU_OPTIONS[index];
       setSelectedFu(fu);
       handleAnswer(fu === question.answer, advanceQuestion);
     },
@@ -69,7 +71,7 @@ export function MachiFuDrill() {
 
       {/* Fu options */}
       <div className="mt-4 grid grid-cols-2 gap-3">
-        {FU_OPTIONS.map((fu) => {
+        {FU_OPTIONS.map((fu, i) => {
           const { borderClass, bgClass } = getFeedbackStyles(
             showFeedback,
             selectedFu === fu,
@@ -77,15 +79,17 @@ export function MachiFuDrill() {
           );
 
           return (
-            <button
+            <ChoiceButton
               key={fu}
-              type="button"
+              index={i}
+              onSelect={handleFuSelect}
               disabled={showFeedback || isCountingDown}
-              onClick={() => handleFuClick(fu)}
-              className={`flex items-center justify-center rounded-xl border ${borderClass} ${bgClass} p-4 text-2xl font-bold transition-all`}
+              borderClass={borderClass}
+              bgClass={bgClass}
+              className="text-2xl font-bold"
             >
               {t("fuOption", { value: fu })}
-            </button>
+            </ChoiceButton>
           );
         })}
       </div>
