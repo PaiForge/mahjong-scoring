@@ -9,8 +9,8 @@ export { generateMentsuFuQuestion } from "./problem/mentsu-fu/generator";
 export type { MentsuFuQuestion } from "./problem/mentsu-fu/types";
 export { generateTehaiFuQuestion } from "./problem/tehai-fu/generator";
 export type { TehaiFuQuestion, TehaiFuItem } from "./problem/tehai-fu/types";
-export { KAZEHAI, SANGENHAI } from "./core/constants";
-export { getKazeName } from "./core/hai-names";
+export { KAZEHAI, SANGENHAI, SUIT_BASES } from "./core/constants";
+export { getKazeName, getHaiName } from "./core/hai-names";
 export { randomChoice, shuffle } from "./core/random";
 export {
   calculateKoScore,

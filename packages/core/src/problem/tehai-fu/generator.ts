@@ -7,7 +7,11 @@ import {
   type CompletedMentsu,
 } from "@pai-forge/riichi-mahjong";
 import type { TehaiFuQuestion, TehaiFuItem } from "./types";
-import { generateMentsuFuQuestion } from "../mentsu-fu/generator";
+import {
+  createRandomShuntsu,
+  createRandomKoutsu,
+  createRandomKantsu,
+} from "../mentsu-fu/mentsu-factory";
 import { KAZEHAI } from "../../core/constants";
 import { isHaiKindId } from "../../core/type-guards";
 
@@ -36,6 +40,21 @@ function calculateHeadFu(
 }
 
 /**
+ * ランダムな面子を生成する（重み付き: 20%順子, 50%刻子, 30%槓子）
+ * 面子ランダム生成
+ */
+function createRandomMentsu() {
+  const r = Math.random();
+  if (r < 0.2) {
+    return createRandomShuntsu() ?? createRandomKoutsu();
+  }
+  if (r < 0.7) {
+    return createRandomKoutsu();
+  }
+  return createRandomKantsu();
+}
+
+/**
  * 手牌の符計算問題を生成する
  * 手牌符問題ジェネレータ
  */
@@ -53,8 +72,8 @@ export function generateTehaiFuQuestion(): TehaiFuQuestion | undefined {
     let item: TehaiFuItem | undefined;
 
     for (let retry = 0; retry < 50; retry++) {
-      const q = generateMentsuFuQuestion();
-      const tiles = q.mentsu.hais;
+      const result = createRandomMentsu();
+      const tiles = result.mentsu.hais;
 
       // 牌の使用可能性チェック
       const tempCount = new Map<HaiKindId, number>();
@@ -74,11 +93,11 @@ export function generateTehaiFuQuestion(): TehaiFuQuestion | undefined {
         item = {
           id: crypto.randomUUID(),
           tiles: [...tiles],
-          type: q.mentsu.type,
-          fu: q.answer,
-          explanation: q.explanation,
-          isOpen: !!q.mentsu.furo,
-          originalMentsu: q.mentsu,
+          type: result.mentsu.type,
+          fu: result.fu,
+          explanation: result.explanation,
+          isOpen: !!result.mentsu.furo,
+          originalMentsu: result.mentsu,
         };
         break;
       }
