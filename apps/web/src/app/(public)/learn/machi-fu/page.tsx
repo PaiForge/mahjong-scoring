@@ -26,7 +26,7 @@ export default async function LearnMachiFuPage() {
 
       <div className="mt-10 text-center">
         <Link
-          href="/practice/machi-fu/play/session"
+          href="/practice/machi-fu/play"
           className="inline-block rounded-lg bg-primary-500 px-8 py-3 text-sm font-semibold text-white shadow-sm transition-colors hover:bg-primary-600"
         >
           {t("ctaDrill")}

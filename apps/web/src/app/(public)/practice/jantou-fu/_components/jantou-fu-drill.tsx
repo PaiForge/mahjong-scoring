@@ -13,6 +13,7 @@ import { ContentContainer } from "@/app/_components/content-container";
 import { useTimedSession } from "../../_hooks/use-timed-session";
 import { QuizTimer } from "../../_components/quiz-timer";
 import { CHALLENGE_TIME_LIMIT } from "../../_lib/challenge-constants";
+import { getFeedbackStyles } from "../../_lib/feedback-styles";
 
 export function JantouFuDrill() {
   const router = useRouter();
@@ -21,15 +22,19 @@ export function JantouFuDrill() {
   const [question, setQuestion] = useState<JantouFuQuestion>(
     generateJantouFuQuestion
   );
+  const [selectedHai, setSelectedHai] = useState<JantouFuChoice["hai"] | undefined>(undefined);
 
   const session = useTimedSession();
 
   const advanceQuestion = useCallback(() => {
     setQuestion(generateJantouFuQuestion());
+    setSelectedHai(undefined);
   }, []);
 
   const handleChoiceClick = useCallback(
     (choice: JantouFuChoice) => {
+      if (session.showFeedback) return;
+      setSelectedHai(choice.hai);
       session.handleAnswer(choice.isCorrect, advanceQuestion);
     },
     [session, advanceQuestion]
@@ -43,7 +48,7 @@ export function JantouFuDrill() {
       total: session.totalCount.toString(),
       time: session.elapsedMs.toString(),
     });
-    router.push(`/practice/jantou-fu/play/result?${params.toString()}`);
+    router.push(`/practice/jantou-fu/result?${params.toString()}`);
   }, [session.isFinished, session.correctCount, session.totalCount, session.elapsedMs, router]);
 
   if (session.isFinished) {
@@ -109,20 +114,11 @@ export function JantouFuDrill() {
         {/* Choices */}
         <div className="mt-4 grid grid-cols-2 gap-3">
           {question.choices.map((choice) => {
-            let borderClass = "border-surface-200";
-            let bgClass = "bg-white hover:border-primary-300";
-
-            if (session.showFeedback) {
-              if (choice.isCorrect) {
-                borderClass = "border-green-500";
-                bgClass = "bg-green-50";
-              } else if (
-                session.lastAnswerCorrect === false &&
-                !choice.isCorrect
-              ) {
-                bgClass = "bg-white opacity-50";
-              }
-            }
+            const { borderClass, bgClass } = getFeedbackStyles(
+              session.showFeedback,
+              selectedHai === choice.hai,
+              choice.isCorrect,
+            );
 
             return (
               <button
@@ -135,11 +131,6 @@ export function JantouFuDrill() {
                 <div className="scale-125">
                   <Hai hai={choice.hai} />
                 </div>
-                {session.showFeedback && (
-                  <span className="text-xs text-surface-500">
-                    {t("fu", { value: choice.fu })}
-                  </span>
-                )}
               </button>
             );
           })}

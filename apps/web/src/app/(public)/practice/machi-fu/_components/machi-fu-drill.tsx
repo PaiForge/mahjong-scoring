@@ -10,6 +10,7 @@ import { ContentContainer } from "@/app/_components/content-container";
 import { useTimedSession } from "../../_hooks/use-timed-session";
 import { QuizTimer } from "../../_components/quiz-timer";
 import { CHALLENGE_TIME_LIMIT } from "../../_lib/challenge-constants";
+import { getFeedbackStyles } from "../../_lib/feedback-styles";
 
 const FU_OPTIONS = [0, 2] as const;
 
@@ -45,7 +46,7 @@ export function MachiFuDrill() {
       total: session.totalCount.toString(),
       time: session.elapsedMs.toString(),
     });
-    router.push(`/practice/machi-fu/play/result?${params.toString()}`);
+    router.push(`/practice/machi-fu/result?${params.toString()}`);
   }, [session.isFinished, session.correctCount, session.totalCount, session.elapsedMs, router]);
 
   if (session.isFinished) {
@@ -120,23 +121,11 @@ export function MachiFuDrill() {
         {/* Fu options */}
         <div className="mt-4 grid grid-cols-2 gap-3">
           {FU_OPTIONS.map((fu) => {
-            const isSelected = selectedFu === fu;
-            const isCorrect = question.answer === fu;
-
-            let borderClass = "border-surface-200";
-            let bgClass = "bg-white hover:border-primary-300";
-
-            if (session.showFeedback) {
-              if (isCorrect) {
-                borderClass = "border-green-500";
-                bgClass = "bg-green-50";
-              } else if (isSelected && !isCorrect) {
-                borderClass = "border-red-500";
-                bgClass = "bg-red-50";
-              } else {
-                bgClass = "bg-white opacity-50";
-              }
-            }
+            const { borderClass, bgClass } = getFeedbackStyles(
+              session.showFeedback,
+              selectedFu === fu,
+              question.answer === fu,
+            );
 
             return (
               <button
@@ -151,15 +140,6 @@ export function MachiFuDrill() {
             );
           })}
         </div>
-
-        {/* Feedback */}
-        {session.showFeedback && (
-          <div className="mt-4 rounded-xl bg-surface-50 p-4 text-center text-sm text-surface-600 animate-in fade-in slide-in-from-bottom-2">
-            <span className="font-semibold">{question.shapeName}</span>
-            {" — "}
-            {question.explanation}
-          </div>
-        )}
       </div>
     </ContentContainer>
   );

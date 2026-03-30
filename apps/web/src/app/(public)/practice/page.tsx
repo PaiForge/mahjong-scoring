@@ -23,8 +23,8 @@ interface DrillDef {
 }
 
 const drills: readonly DrillDef[] = [
-  { href: "/practice/jantou-fu/play/session", titleKey: "drills.jantouFu.title", descriptionKey: "drills.jantouFu.description", difficulty: "beginner", learnHref: "/learn/jantou-fu" },
-  { href: "/practice/machi-fu/play/session", titleKey: "drills.machiFu.title", descriptionKey: "drills.machiFu.description", difficulty: "beginner", learnHref: "/learn/machi-fu" },
+  { href: "/practice/jantou-fu/play", titleKey: "drills.jantouFu.title", descriptionKey: "drills.jantouFu.description", difficulty: "beginner", learnHref: "/learn/jantou-fu" },
+  { href: "/practice/machi-fu/play", titleKey: "drills.machiFu.title", descriptionKey: "drills.machiFu.description", difficulty: "beginner", learnHref: "/learn/machi-fu" },
   { href: "/practice/mentsu-fu", titleKey: "drills.mentsuFu.title", descriptionKey: "drills.mentsuFu.description", difficulty: "intermediate" },
   { href: "/practice/tehai-fu", titleKey: "drills.tehaiFu.title", descriptionKey: "drills.tehaiFu.description", difficulty: "advanced" },
   { href: "/practice/score", titleKey: "drills.score.title", descriptionKey: "drills.score.description", difficulty: "advanced" },
