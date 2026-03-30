@@ -20,6 +20,7 @@ export interface GameSessionState {
   readonly countdownValue: number;
   readonly isPlaying: boolean;
   readonly isFinished: boolean;
+  readonly isPaused: boolean;
   readonly correctCount: number;
   readonly incorrectCount: number;
   readonly totalCount: number;
@@ -27,6 +28,7 @@ export interface GameSessionState {
   readonly showFeedback: boolean;
   readonly lastAnswerCorrect: boolean | undefined;
   readonly handleAnswer: (correct: boolean, onNext: () => void) => void;
+  readonly togglePause: () => void;
   readonly mistakeLimit: number;
   readonly timeLimit: number;
 }
@@ -62,6 +64,7 @@ export function useTimedSession({
   const [incorrectCount, setIncorrectCount] = useState(0);
   const [isFinished, setIsFinished] = useState(false);
   const [isPlaying, setIsPlaying] = useState(false);
+  const [isPaused, setIsPaused] = useState(false);
   const [showFeedback, setShowFeedback] = useState(false);
   const [lastAnswerCorrect, setLastAnswerCorrect] = useState<
     boolean | undefined
@@ -90,9 +93,14 @@ export function useTimedSession({
   const totalCount = correctCount + incorrectCount;
   const remainingLives = Math.max(0, mistakeLimit - incorrectCount);
 
+  const togglePause = useCallback(() => {
+    if (isFinishedRef.current || countdown.isActive) return;
+    setIsPaused((prev) => !prev);
+  }, [countdown.isActive]);
+
   const handleAnswer = useCallback(
     (correct: boolean, onNext: () => void) => {
-      if (isFinishedRef.current || showFeedback) return;
+      if (isFinishedRef.current || showFeedback || isPaused) return;
 
       setShowFeedback(true);
       setLastAnswerCorrect(correct);
@@ -121,7 +129,7 @@ export function useTimedSession({
         onNext();
       }, feedbackDurationMs);
     },
-    [incorrectCount, mistakeLimit, feedbackDurationMs, showFeedback]
+    [incorrectCount, mistakeLimit, feedbackDurationMs, showFeedback, isPaused]
   );
 
   const registerTimerReset = useCallback((resetFn: () => void) => {
@@ -134,6 +142,7 @@ export function useTimedSession({
     setIncorrectCount(0);
     setIsFinished(false);
     setIsPlaying(false);
+    setIsPaused(false);
     setShowFeedback(false);
     setLastAnswerCorrect(undefined);
     isFinishedRef.current = false;
@@ -144,8 +153,9 @@ export function useTimedSession({
   const gameSession: GameSessionState = {
     isCountingDown: countdown.isActive,
     countdownValue: countdown.count,
-    isPlaying,
+    isPlaying: isPlaying && !isPaused,
     isFinished,
+    isPaused,
     correctCount,
     incorrectCount,
     totalCount,
@@ -153,12 +163,13 @@ export function useTimedSession({
     showFeedback,
     lastAnswerCorrect,
     handleAnswer,
+    togglePause,
     mistakeLimit,
     timeLimit,
   };
 
   const timerControl: TimerControl = {
-    isActive: isPlaying && !isFinished,
+    isActive: isPlaying && !isFinished && !isPaused,
     onTimeLimitReached: handleTimeLimitReached,
     registerTimerReset,
     reset,

@@ -84,7 +84,9 @@
     "resultScore": "{correct} / {total}",
     "resultAccuracy": "正答率 {accuracy}%",
     "gameOverMistakes": "ミス {limit} 回で終了",
-    "gameOverTime": "タイムアップ"
+    "gameOverTime": "タイムアップ",
+    "pause": "一時停止",
+    "resume": "再開"
   },
   "jantouFu": {
     "title": "雀頭の符計算",
