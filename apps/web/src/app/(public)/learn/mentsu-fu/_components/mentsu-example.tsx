@@ -2,6 +2,7 @@
 
 import type { HaiKindId } from "@mahjong-scoring/core";
 import { Hai, HaiBack } from "@pai-forge/mahjong-react-ui";
+import { useTranslations } from "next-intl";
 
 interface MentsuExampleProps {
   readonly tiles: readonly HaiKindId[];
@@ -12,6 +13,8 @@ interface MentsuExampleProps {
 }
 
 export function MentsuExample({ tiles, fu, label, isOpen, isKantsu }: MentsuExampleProps) {
+  const t = useTranslations("mentsuFu.learn");
+
   const renderTiles = () => {
     if (isKantsu && !isOpen && tiles.length === 4) {
       return (
@@ -40,7 +43,7 @@ export function MentsuExample({ tiles, fu, label, isOpen, isKantsu }: MentsuExam
         <span className="text-sm text-surface-600">{label}</span>
       </div>
       <span className={`text-sm font-semibold ${fu > 0 ? "text-primary-600" : "text-surface-400"}`}>
-        {fu}符
+        {t("fuUnit", { value: fu })}
       </span>
     </div>
   );

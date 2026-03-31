@@ -6,7 +6,8 @@ import { ResultClient } from "../../_components/result-client";
 
 export async function generateMetadata(): Promise<Metadata> {
   const t = await getTranslations("mentsuFu");
-  return createMetadata({ title: `${t("title")} - 結果` });
+  const tChallenge = await getTranslations("challenge");
+  return createMetadata({ title: `${t("title")} - ${tChallenge("resultSuffix")}` });
 }
 
 export default function MentsuFuResultPage() {

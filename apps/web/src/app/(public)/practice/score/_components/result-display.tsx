@@ -20,6 +20,85 @@ interface ResultDisplayProps {
   readonly requireFuForMangan?: boolean;
 }
 
+interface DetailItem {
+  readonly name: string;
+  readonly value: number;
+}
+
+interface DetailsAccordionProps {
+  readonly items: readonly DetailItem[];
+  readonly total: number;
+  readonly isOpen: boolean;
+  readonly onToggle: () => void;
+  readonly suffix: string;
+  readonly roundedTotal?: number;
+  readonly roundUpLabel?: string;
+}
+
+/**
+ * 詳細アコーディオン
+ * 符詳細・役詳細の展開表示
+ */
+function DetailsAccordion({
+  items,
+  total,
+  isOpen,
+  onToggle,
+  suffix,
+  roundedTotal,
+  roundUpLabel,
+}: DetailsAccordionProps) {
+  const t = useTranslations("score");
+
+  return (
+    <>
+      <button
+        type="button"
+        onClick={onToggle}
+        className="ml-2 text-xs font-normal text-primary-600 hover:text-primary-800 focus:outline-none"
+      >
+        {isOpen ? "\u25B2" : "\u25BC"}
+      </button>
+      {isOpen && (
+        <tr>
+          <td colSpan={3} className="py-2">
+            <div className="rounded bg-white px-2 py-0 text-xs text-surface-600">
+              <div>
+                {items.map((detail, idx) => (
+                  <div
+                    key={idx}
+                    className="flex justify-between border-b border-surface-100 py-1.5 last:border-0"
+                  >
+                    <span>{detail.name}</span>
+                    <span>
+                      {detail.value}
+                      {suffix}
+                    </span>
+                  </div>
+                ))}
+              </div>
+              <div className="mt-0 flex justify-between border-t border-surface-200 pb-1.5 pt-1.5 font-bold">
+                <span>{t("result.details.total")}</span>
+                <span>
+                  {total}
+                  {suffix}
+                </span>
+              </div>
+              {roundedTotal !== undefined && total !== roundedTotal && (
+                <div className="mt-1 text-right text-[10px] text-surface-400">
+                  {total}
+                  {suffix} → {roundedTotal}
+                  {suffix} ({roundUpLabel})
+                </div>
+              )}
+            </div>
+          </td>
+        </tr>
+      )}
+    </>
+  );
+}
+
 /**
  * 回答結果表示コンポーネント
  * 結果表示
@@ -40,6 +119,16 @@ export function ResultDisplay({
   const scoreLevelName = getScoreLevelName(answer.scoreLevel);
   const [showFuDetails, setShowFuDetails] = useState(false);
   const [showYakuDetails, setShowYakuDetails] = useState(false);
+
+  const fuTotal =
+    question.fuDetails?.reduce((acc, curr) => acc + curr.fu, 0) ?? 0;
+  const yakuTotal =
+    question.yakuDetails?.reduce((acc, curr) => acc + curr.han, 0) ?? 0;
+
+  const yakuDetailItems: readonly DetailItem[] =
+    question.yakuDetails?.map((d) => ({ name: d.name, value: d.han })) ?? [];
+  const fuDetailItems: readonly DetailItem[] =
+    question.fuDetails?.map((d) => ({ name: d.reason, value: d.fu })) ?? [];
 
   const getPaymentDescription = () => {
     const { payment } = answer;
@@ -150,49 +239,17 @@ export function ResultDisplay({
               <td className="py-2 font-bold text-surface-800">
                 {getHanDisplay(answer.han)}
                 {!simplifyMangan && scoreLevelName && ` (${scoreLevelName})`}
-                {question.yakuDetails && question.yakuDetails.length > 0 && (
-                  <button
-                    type="button"
-                    onClick={() => setShowYakuDetails(!showYakuDetails)}
-                    className="ml-2 text-xs font-normal text-primary-600 hover:text-primary-800 focus:outline-none"
-                  >
-                    {showYakuDetails ? "\u25B2" : "\u25BC"}
-                  </button>
+                {yakuDetailItems.length > 0 && (
+                  <DetailsAccordion
+                    items={yakuDetailItems}
+                    total={yakuTotal}
+                    isOpen={showYakuDetails}
+                    onToggle={() => setShowYakuDetails(!showYakuDetails)}
+                    suffix={t("form.options.hanSuffix")}
+                  />
                 )}
               </td>
             </tr>
-            {showYakuDetails && question.yakuDetails && (
-              <tr>
-                <td colSpan={3} className="py-2">
-                  <div className="rounded bg-white px-2 py-0 text-xs text-surface-600">
-                    <div>
-                      {question.yakuDetails.map((detail, idx) => (
-                        <div
-                          key={idx}
-                          className="flex justify-between border-b border-surface-100 py-1.5 last:border-0"
-                        >
-                          <span>{detail.name}</span>
-                          <span>
-                            {detail.han}
-                            {t("form.options.hanSuffix")}
-                          </span>
-                        </div>
-                      ))}
-                    </div>
-                    <div className="mt-0 flex justify-between border-t border-surface-200 pb-1.5 pt-1.5 font-bold">
-                      <span>{t("result.details.total")}</span>
-                      <span>
-                        {question.yakuDetails.reduce(
-                          (acc, curr) => acc + curr.han,
-                          0,
-                        )}
-                        {t("form.options.hanSuffix")}
-                      </span>
-                    </div>
-                  </div>
-                </td>
-              </tr>
-            )}
 
             {/* Fu */}
             {(!isManganOrAbove || requireFuForMangan) && (
@@ -212,62 +269,18 @@ export function ResultDisplay({
                     {answer.fu}
                     {t("form.options.fuSuffix")}
                     {question.fuDetails && (
-                      <button
-                        type="button"
-                        onClick={() => setShowFuDetails(!showFuDetails)}
-                        className="ml-2 text-xs font-normal text-primary-600 hover:text-primary-800 focus:outline-none"
-                      >
-                        {showFuDetails ? "\u25B2" : "\u25BC"}
-                      </button>
+                      <DetailsAccordion
+                        items={fuDetailItems}
+                        total={fuTotal}
+                        isOpen={showFuDetails}
+                        onToggle={() => setShowFuDetails(!showFuDetails)}
+                        suffix={t("form.options.fuSuffix")}
+                        roundedTotal={answer.fu}
+                        roundUpLabel={t("result.details.roundUp")}
+                      />
                     )}
                   </td>
                 </tr>
-                {showFuDetails && question.fuDetails && (
-                  <tr>
-                    <td colSpan={3} className="py-2">
-                      <div className="rounded bg-white px-2 py-0 text-xs text-surface-600">
-                        <div>
-                          {question.fuDetails.map((detail, idx) => (
-                            <div
-                              key={idx}
-                              className="flex justify-between border-b border-surface-100 py-1.5 last:border-0"
-                            >
-                              <span>{detail.reason}</span>
-                              <span>
-                                {detail.fu}
-                                {t("form.options.fuSuffix")}
-                              </span>
-                            </div>
-                          ))}
-                        </div>
-                        <div className="mt-0 flex justify-between border-t border-surface-200 pb-1.5 pt-1.5 font-bold">
-                          <span>{t("result.details.total")}</span>
-                          <span>
-                            {question.fuDetails.reduce(
-                              (acc, curr) => acc + curr.fu,
-                              0,
-                            )}
-                            {t("form.options.fuSuffix")}
-                          </span>
-                        </div>
-                        {question.fuDetails.reduce(
-                          (acc, curr) => acc + curr.fu,
-                          0,
-                        ) !== answer.fu && (
-                          <div className="mt-1 text-right text-[10px] text-surface-400">
-                            {question.fuDetails.reduce(
-                              (acc, curr) => acc + curr.fu,
-                              0,
-                            )}
-                            {t("form.options.fuSuffix")} → {answer.fu}
-                            {t("form.options.fuSuffix")} (
-                            {t("result.details.roundUp")})
-                          </div>
-                        )}
-                      </div>
-                    </td>
-                  </tr>
-                )}
               </>
             )}
 

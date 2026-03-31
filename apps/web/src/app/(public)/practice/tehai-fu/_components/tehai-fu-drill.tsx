@@ -6,15 +6,12 @@ import { generateTehaiFuQuestion } from "@mahjong-scoring/core";
 import type { TehaiFuQuestion } from "@mahjong-scoring/core";
 import { useTimedSession } from "../../_hooks/use-timed-session";
 import { DrillShell } from "../../_components/drill-shell";
+import { retryGenerate } from "../../_lib/retry-generate";
 import { TehaiDisplay } from "./tehai-display";
 import { FuItemRow } from "./fu-item-row";
 
 function generateQuestion(): TehaiFuQuestion | undefined {
-  for (let i = 0; i < 10; i++) {
-    const q = generateTehaiFuQuestion();
-    if (q) return q;
-  }
-  return undefined;
+  return retryGenerate(generateTehaiFuQuestion);
 }
 
 export function TehaiFuDrill() {

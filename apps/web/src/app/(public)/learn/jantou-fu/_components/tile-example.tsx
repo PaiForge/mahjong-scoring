@@ -2,14 +2,17 @@
 
 import { Hai } from "@pai-forge/mahjong-react-ui";
 import type { HaiKindId } from "@mahjong-scoring/core";
+import { useTranslations } from "next-intl";
 
 interface TileExampleProps {
-  tiles: readonly HaiKindId[];
-  fu: number;
-  label: string;
+  readonly tiles: readonly HaiKindId[];
+  readonly fu: number;
+  readonly label: string;
 }
 
 export function TileExample({ tiles, fu, label }: TileExampleProps) {
+  const t = useTranslations("jantouFu.learn");
+
   return (
     <div className="flex items-center gap-4">
       <div className="flex gap-1">
@@ -18,7 +21,7 @@ export function TileExample({ tiles, fu, label }: TileExampleProps) {
         ))}
       </div>
       <div className="text-sm">
-        <span className="font-semibold text-surface-900">{fu}符</span>
+        <span className="font-semibold text-surface-900">{t("fuUnit", { value: fu })}</span>
         <span className="ml-2 text-surface-500">{label}</span>
       </div>
     </div>

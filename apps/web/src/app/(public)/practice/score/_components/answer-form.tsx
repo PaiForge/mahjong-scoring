@@ -3,13 +3,8 @@
 import { useState, useMemo } from "react";
 import { useTranslations } from "next-intl";
 import type { UserAnswer } from "@mahjong-scoring/core";
-import {
-  RON_SCORES_KO,
-  RON_SCORES_OYA,
-  TSUMO_SCORES_KO_PART,
-  TSUMO_SCORES_OYA_PART,
-} from "@mahjong-scoring/core";
 import { YakuSelect } from "./yaku-select";
+import { getAvailableScores } from "../_lib/get-available-scores";
 
 interface AnswerFormProps {
   readonly onSubmit: (answer: UserAnswer) => void;
@@ -22,13 +17,6 @@ interface AnswerFormProps {
   readonly onSkip?: () => void;
   readonly onExit?: () => void;
 }
-
-type ScoreFilterType =
-  | "ronKo"
-  | "ronOya"
-  | "tsumoKoKo"
-  | "tsumoKoOya"
-  | "tsumoOyaAll";
 
 /**
  * 回答フォームコンポーネント
@@ -101,42 +89,10 @@ export function AnswerForm({
     setFu(value === "" ? undefined : Number(value));
   };
 
-  const filterScores = (
-    scores: readonly number[],
-    type: ScoreFilterType,
-  ): readonly number[] => {
-    if (han === undefined) return scores;
-    const isManganFixed = han >= 5;
-    if (isManganFixed) {
-      switch (type) {
-        case "ronKo":
-          return scores.filter((s) => s >= 8000);
-        case "ronOya":
-          return scores.filter((s) => s >= 12000);
-        case "tsumoKoKo":
-          return scores.filter((s) => s >= 2000);
-        case "tsumoKoOya":
-          return scores.filter((s) => s >= 4000);
-        case "tsumoOyaAll":
-          return scores.filter((s) => s >= 4000);
-      }
-    }
-    if (han <= 3) {
-      switch (type) {
-        case "ronKo":
-          return scores.filter((s) => s < 8000);
-        case "ronOya":
-          return scores.filter((s) => s < 12000);
-        case "tsumoKoKo":
-          return scores.filter((s) => s < 2000);
-        case "tsumoKoOya":
-          return scores.filter((s) => s < 4000);
-        case "tsumoOyaAll":
-          return scores.filter((s) => s < 4000);
-      }
-    }
-    return scores;
-  };
+  const availableScores = useMemo(
+    () => getAvailableScores(han, isOya, isTsumo),
+    [han, isOya, isTsumo],
+  );
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -237,7 +193,7 @@ export function AnswerForm({
         <label className="mb-2 block text-sm font-bold text-surface-700">
           {t("form.labels.score")}
         </label>
-        {isKoTsumo ? (
+        {availableScores.type === "koTsumo" ? (
           <div className="flex items-center gap-2">
             <div className="flex-1">
               <select
@@ -250,7 +206,7 @@ export function AnswerForm({
                 <option value="" disabled>
                   {t("form.placeholders.fromKo")}
                 </option>
-                {filterScores(TSUMO_SCORES_KO_PART, "tsumoKoKo").map((s) => (
+                {availableScores.koScores.map((s) => (
                   <option key={s} value={s}>
                     {s}
                   </option>
@@ -269,7 +225,7 @@ export function AnswerForm({
                 <option value="" disabled>
                   {t("form.placeholders.fromOya")}
                 </option>
-                {filterScores(TSUMO_SCORES_OYA_PART, "tsumoKoOya").map((s) => (
+                {availableScores.oyaScores.map((s) => (
                   <option key={s} value={s}>
                     {s}
                   </option>
@@ -288,18 +244,7 @@ export function AnswerForm({
             <option value="" disabled>
               {t("form.placeholders.select")}
             </option>
-            {filterScores(
-              isOya && isTsumo
-                ? TSUMO_SCORES_OYA_PART
-                : isOya
-                  ? RON_SCORES_OYA
-                  : RON_SCORES_KO,
-              isOya && isTsumo
-                ? "tsumoOyaAll"
-                : isOya
-                  ? "ronOya"
-                  : "ronKo",
-            ).map((s) => (
+            {availableScores.scores.map((s) => (
               <option key={s} value={s}>
                 {s}
                 {isOya && isTsumo ? t("form.options.all") : ""}

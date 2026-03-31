@@ -1,10 +1,12 @@
 "use client";
 
 import { useRouter } from "next/navigation";
-import { useEffect, useState } from "react";
 import { useTranslations } from "next-intl";
 import { useSettingsStore } from "@/stores/use-settings-store";
 import { useDrillStore } from "@/stores/use-drill-store";
+import { useIsClient } from "../../_hooks/use-is-client";
+import { SettingToggle } from "./setting-toggle";
+import { SmallCheckbox } from "./small-checkbox";
 
 /**
  * 点数計算ドリルの設定画面
@@ -13,7 +15,7 @@ import { useDrillStore } from "@/stores/use-drill-store";
 export function SetupScreen() {
   const t = useTranslations("score");
   const router = useRouter();
-  const [mounted, setMounted] = useState(false);
+  const mounted = useIsClient();
   const {
     requireYaku,
     setRequireYaku,
@@ -30,10 +32,6 @@ export function SetupScreen() {
     includeChild,
     setIncludeChild,
   } = useSettingsStore();
-
-  useEffect(() => {
-    setMounted(true);
-  }, []);
 
   const handleStart = () => {
     const params = new URLSearchParams();
@@ -176,67 +174,3 @@ export function SetupScreen() {
   );
 }
 
-interface SettingToggleProps {
-  readonly checked: boolean;
-  readonly onChange: (checked: boolean) => void;
-  readonly label: string;
-  readonly title?: string;
-  readonly isLast?: boolean;
-}
-
-function SettingToggle({ checked, onChange, label, title, isLast = false }: SettingToggleProps) {
-  return (
-    <label className={`group flex cursor-pointer items-center justify-between px-5 py-3.5 transition-colors hover:bg-surface-50 ${isLast ? "" : "border-b border-surface-100"}`}>
-      <span className="select-none text-sm font-medium text-surface-700 group-hover:text-surface-900">
-        {title || label}
-      </span>
-      <div className="relative inline-flex items-center">
-        <input
-          type="checkbox"
-          checked={checked}
-          onChange={(e) => onChange(e.target.checked)}
-          className="peer sr-only"
-        />
-        <div className="h-6 w-11 flex-shrink-0 cursor-pointer rounded-full border-2 border-transparent bg-surface-200 transition-colors duration-200 ease-in-out peer-focus:ring-2 peer-focus:ring-primary-500 peer-focus:ring-offset-2 peer-checked:bg-primary-500" />
-        <span
-          className={`pointer-events-none absolute left-[2px] top-[2px] block h-5 w-5 rounded-full bg-white shadow ring-0 transition-transform duration-200 ease-in-out ${
-            checked ? "translate-x-[20px]" : "translate-x-0"
-          }`}
-        />
-      </div>
-    </label>
-  );
-}
-
-interface SmallCheckboxProps {
-  readonly checked: boolean;
-  readonly onChange: (checked: boolean) => void;
-  readonly label: string;
-}
-
-function SmallCheckbox({ checked, onChange, label }: SmallCheckboxProps) {
-  return (
-    <label className="group flex cursor-pointer items-center gap-3 rounded-lg border border-transparent px-2 py-1.5 transition-all hover:bg-surface-50">
-      <div className="relative flex items-center justify-center">
-        <input
-          type="checkbox"
-          checked={checked}
-          onChange={(e) => onChange(e.target.checked)}
-          className="peer size-5 cursor-pointer appearance-none rounded border-2 border-surface-300 bg-white transition-all checked:border-primary-500 checked:bg-primary-500 hover:border-surface-400 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-offset-1"
-        />
-        <svg
-          className="pointer-events-none absolute size-3.5 text-white opacity-0 transition-opacity peer-checked:opacity-100"
-          fill="none"
-          viewBox="0 0 24 24"
-          stroke="currentColor"
-          strokeWidth="3"
-        >
-          <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
-        </svg>
-      </div>
-      <span className="select-none text-sm font-medium text-surface-700 group-hover:text-surface-900">
-        {label}
-      </span>
-    </label>
-  );
-}

@@ -100,7 +100,8 @@
     "gameOverMistakes": "ミス {limit} 回で終了",
     "gameOverTime": "タイムアップ",
     "pause": "一時停止",
-    "resume": "再開"
+    "resume": "再開",
+    "resultSuffix": "結果"
   },
   "jantouFu": {
     "title": "雀頭の符計算",

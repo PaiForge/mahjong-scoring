@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState, useCallback, useRef } from "react";
+import { useEffect, useCallback, useRef } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { Suspense } from "react";
 import { HaiKind } from "@mahjong-scoring/core";
@@ -9,17 +9,10 @@ import { useTranslations } from "next-intl";
 import { ContentContainer } from "@/app/_components/content-container";
 import { useDrillStore } from "@/stores/use-drill-store";
 import type { UserAnswer } from "@mahjong-scoring/core";
+import { useIsClient } from "../../_hooks/use-is-client";
 import { QuestionDisplay } from "./question-display";
 import { AnswerForm } from "./answer-form";
 import { ResultDisplay } from "./result-display";
-
-function useIsClient() {
-  const [isClient, setIsClient] = useState(false);
-  useEffect(() => {
-    setIsClient(true);
-  }, []);
-  return isClient;
-}
 
 function DrillBoardInner() {
   const t = useTranslations("score");
