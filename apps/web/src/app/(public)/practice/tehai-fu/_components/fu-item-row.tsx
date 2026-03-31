@@ -35,9 +35,9 @@ export const FuItemRow = memo(function FuItemRow({
   const isCorrect = showFeedback && answerNum === item.fu;
   const isWrong = showFeedback && answerNum !== item.fu;
 
-  const handleChange = useCallback(
-    (e: React.ChangeEvent<HTMLSelectElement>) => {
-      onSelect(index, e.target.value);
+  const handleButtonClick = useCallback(
+    (value: number) => {
+      onSelect(index, String(value));
     },
     [onSelect, index],
   );
@@ -82,40 +82,54 @@ export const FuItemRow = memo(function FuItemRow({
           : "border-surface-200"
       }`}
     >
-      <div className="flex items-center gap-2">
+      <div className="flex min-w-0 items-center gap-2">
         {renderItemTiles()}
-        {item.type === "Pair" && (
-          <span className="text-xs text-surface-400">{t("pair")}</span>
-        )}
       </div>
 
-      <div className="flex items-center gap-2">
+      <div className="ml-auto flex shrink-0 flex-col items-end gap-1">
         {isWrong && (
           <span className="text-xs font-bold text-red-600">
-            {item.fu}符
+            {t("correctAnswer", { fu: item.fu })}
           </span>
         )}
-        <select
-          className={`w-20 rounded-lg border px-2 py-1.5 text-center text-sm font-bold ${
-            showFeedback
-              ? isCorrect
-                ? "border-green-500 bg-green-50"
-                : "border-red-500 bg-red-50"
-              : "border-surface-200"
-          }`}
-          value={answer}
-          onChange={handleChange}
-          disabled={showFeedback || isCountingDown}
-        >
-          <option value="" disabled>
-            --
-          </option>
-          {FU_OPTIONS.map((opt) => (
-            <option key={opt} value={opt}>
-              {opt}符
-            </option>
-          ))}
-        </select>
+        <div className="flex justify-end gap-1">
+          {FU_OPTIONS.map((opt) => {
+            const isSelected = answer === String(opt);
+            const disabled = showFeedback || isCountingDown;
+
+            let buttonClass =
+              "rounded-lg border px-1.5 py-1 text-xs font-bold transition-colors";
+
+            // bg-*-50 で統一（feedback-styles.ts や他ドリルの行ボーダーと一致させる）
+            if (showFeedback && isSelected) {
+              buttonClass += isCorrect
+                ? " border-green-500 bg-green-50 text-green-700"
+                : " border-red-500 bg-red-50 text-red-700";
+            } else if (isSelected) {
+              buttonClass +=
+                " border-blue-500 bg-blue-100 text-blue-700";
+            } else {
+              buttonClass +=
+                " border-surface-200 bg-white text-surface-600";
+            }
+
+            if (disabled) {
+              buttonClass += " cursor-not-allowed opacity-60";
+            }
+
+            return (
+              <button
+                key={opt}
+                type="button"
+                className={buttonClass}
+                disabled={disabled}
+                onClick={() => handleButtonClick(opt)}
+              >
+                {opt}
+              </button>
+            );
+          })}
+        </div>
       </div>
     </div>
   );

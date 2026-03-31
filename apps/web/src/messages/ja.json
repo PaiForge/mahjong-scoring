@@ -231,6 +231,7 @@
     "checkButton": "答え合わせ",
     "skip": "スキップ",
     "nextQuestion": "次の問題へ",
+    "fuSuffix": "{value}符",
     "correctAnswer": "正解: {fu}符",
     "learnLink": "手牌の符について学ぶ",
     "learn": {
