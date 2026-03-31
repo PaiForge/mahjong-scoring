@@ -399,6 +399,136 @@
     "sanbaiman": "三倍満",
     "yakuman": "役満"
   },
+  "score": {
+    "title": "点数計算ドリル",
+    "description": "翻数・符から最終的な点数を算出する実戦形式のドリル",
+    "loading": "読み込み中...",
+    "generating": "問題を生成中...",
+    "setup": {
+      "requireYaku": "役も回答する",
+      "simplifyMangan": "5翻以降を簡略化",
+      "requireFu": "満貫以上も符を入力",
+      "autoNext": "正解したらすぐに次の問題へ",
+      "questionMode": "出題モード",
+      "oya": "親",
+      "ko": "子",
+      "targetScore": "出題する点数",
+      "nonMangan": "満貫未満",
+      "manganPlus": "満貫以上",
+      "start": "開始する"
+    },
+    "question": {
+      "round": "局",
+      "wind": "家",
+      "dealer": "親",
+      "nonDealer": "子",
+      "riichi": "リーチ",
+      "tsumo": "ツモ",
+      "ron": "ロン",
+      "win": "あがり",
+      "dora": "ドラ",
+      "uraDora": "裏ドラ"
+    },
+    "form": {
+      "labels": {
+        "han": "翻数",
+        "fu": "符",
+        "yaku": "役",
+        "score": "点数"
+      },
+      "placeholders": {
+        "select": "選択してください",
+        "fromKo": "子",
+        "fromOya": "親"
+      },
+      "messages": {
+        "fuNotRequired": "※満貫以上のため符の入力は不要です"
+      },
+      "options": {
+        "hanSuffix": "翻",
+        "fuSuffix": "符",
+        "mangan": "満貫",
+        "haneman": "跳満",
+        "baiman": "倍満",
+        "sanbaiman": "三倍満",
+        "yakuman": "役満",
+        "all": "オール"
+      },
+      "buttons": {
+        "answer": "回答する",
+        "skip": "スキップ",
+        "exit": "終了する"
+      },
+      "multiSelect": {
+        "add": "役を追加",
+        "title": "役を選択",
+        "done": "完了"
+      }
+    },
+    "board": {
+      "correct": "正解！",
+      "stats": "{correct} / {total}"
+    },
+    "result": {
+      "title": {
+        "correct": "正解！",
+        "incorrect": "不正解..."
+      },
+      "headers": {
+        "answer": "あなたの回答",
+        "correct": "正解"
+      },
+      "details": {
+        "none": "なし",
+        "total": "合計",
+        "roundUp": "切り上げ"
+      },
+      "next": "次の問題へ",
+      "pointSuffix": "点"
+    },
+    "yaku": {
+      "riichi": "立直",
+      "ippatsu": "一発",
+      "menzen_tsumo": "門前清自摸和",
+      "tanyao": "断幺九",
+      "pinfu": "平和",
+      "iipeiko": "一盃口",
+      "haku": "役牌 白",
+      "hatsu": "役牌 發",
+      "chun": "役牌 中",
+      "bakaze_ton": "場風 東",
+      "jikaze_nan": "自風 南",
+      "jikaze_sha": "自風 西",
+      "jikaze_pei": "自風 北",
+      "sanshoku_doujun": "三色同順",
+      "itsu": "一気通貫",
+      "chanta": "混全帯幺九",
+      "chitoisu": "七対子",
+      "toitoi": "対々和",
+      "sanankou": "三暗刻",
+      "honroto": "混老頭",
+      "double_riichi": "ダブル立直",
+      "sanshoku_doukou": "三色同刻",
+      "sankantsu": "三槓子",
+      "shosangen": "小三元",
+      "honitsu": "混一色",
+      "junchan": "純全帯幺九",
+      "ryanpeiko": "二盃口",
+      "chinitsu": "清一色",
+      "kokushi": "国士無双",
+      "suanko": "四暗刻",
+      "daisangen": "大三元",
+      "tsuiso": "字一色",
+      "shousushi": "小四喜",
+      "daisushi": "大四喜",
+      "ryuiso": "緑一色",
+      "chinroto": "清老頭",
+      "sukantsu": "四槓子",
+      "chuuren": "九蓮宝燈",
+      "tenhou": "天和",
+      "chihou": "地和"
+    }
+  },
   "footer": {
     "learn": "学ぶ",
     "training": "練習",
