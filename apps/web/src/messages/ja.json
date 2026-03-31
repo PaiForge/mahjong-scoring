@@ -41,6 +41,14 @@
     "learn": "学ぶ",
     "progress": "学習の進捗",
     "progressSignInPrompt": "サインインすると学習履歴を記録できます",
+    "categories": {
+      "fuCalculation": {
+        "title": "符の計算"
+      },
+      "han": {
+        "title": "翻数"
+      }
+    },
     "difficulty": {
       "beginner": "初級",
       "intermediate": "中級",
