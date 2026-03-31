@@ -26,25 +26,14 @@ export function Footer() {
           <h3 className="mb-3 text-xs font-semibold uppercase tracking-wider text-surface-400">{t("learn")}</h3>
           <ul className="space-y-2 text-sm">
             <li>
-              <Link href="/reference" className="text-surface-600 hover:text-primary-600 transition-colors">
-                {t("scoreDrill")}
+              <Link href="/learn/introduction" className="text-surface-600 hover:text-primary-600 transition-colors">
+                {t("introduction")}
               </Link>
             </li>
           </ul>
         </div>
 
         <div>
-          <h3 className="mb-3 text-xs font-semibold uppercase tracking-wider text-surface-400">{t("training")}</h3>
-          <ul className="space-y-2 text-sm">
-            <li>
-              <Link href="/practice" className="text-surface-600 hover:text-primary-600 transition-colors">
-                {t("scoreDrill")}
-              </Link>
-            </li>
-          </ul>
-        </div>
-
-        <div className="hidden md:block">
           <h3 className="mb-3 text-xs font-semibold uppercase tracking-wider text-surface-400">{t("other")}</h3>
           <ul className="space-y-2 text-sm">
             <li>

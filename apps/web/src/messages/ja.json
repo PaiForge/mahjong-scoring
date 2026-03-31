@@ -571,11 +571,18 @@
   },
   "footer": {
     "learn": "学ぶ",
-    "training": "練習",
-    "scoreDrill": "点数計算ドリル",
+    "introduction": "はじめに",
     "other": "その他",
     "terms": "利用規約",
     "privacy": "プライバシーポリシー",
     "copyright": "© 2026 PaiForge"
+  },
+  "terms": {
+    "pageTitle": "利用規約",
+    "comingSoon": "準備中です。"
+  },
+  "privacy": {
+    "pageTitle": "プライバシーポリシー",
+    "comingSoon": "準備中です。"
   }
 }
