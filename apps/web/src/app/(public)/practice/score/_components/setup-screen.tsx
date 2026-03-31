@@ -77,121 +77,133 @@ export function SetupScreen() {
   if (!mounted) {
     return (
       <div className="mt-8 space-y-6 text-center">
-        <div className="h-12 animate-pulse rounded-xl bg-surface-100" />
-        <div className="h-12 animate-pulse rounded-xl bg-surface-100" />
+        <div className="h-48 animate-pulse rounded-xl bg-surface-100" />
+        <div className="h-32 animate-pulse rounded-xl bg-surface-100" />
+        <div className="mx-auto h-12 w-32 animate-pulse rounded-lg bg-surface-100" />
       </div>
     );
   }
 
   return (
     <div className="mt-8 space-y-6">
-      {/* Settings */}
-      <div className="space-y-3">
-        <SettingCheckbox
-          checked={requireYaku}
-          onChange={setRequireYaku}
-          label={t("setup.requireYaku")}
-        />
-        <SettingCheckbox
-          checked={simplifyMangan}
-          onChange={setSimplifyMangan}
-          label={t("setup.simplifyMangan")}
-        />
-        <SettingCheckbox
-          checked={requireFuForMangan}
-          onChange={setRequireFuForMangan}
-          label={t("setup.requireFu")}
-        />
-        <SettingCheckbox
-          checked={autoNext}
-          onChange={setAutoNext}
-          label={t("setup.autoNext")}
-        />
-      </div>
-
-      {/* Question mode */}
-      <div className="border-t border-surface-100 pt-4">
-        <div className="mb-3 text-center text-sm font-bold text-surface-500">
-          {t("setup.questionMode")}
-        </div>
-        <div className="flex justify-center gap-6">
-          <SmallCheckbox
-            checked={includeParent}
-            onChange={setIncludeParent}
-            label={t("setup.oya")}
+      <div className="overflow-hidden rounded-xl border border-surface-200 bg-white shadow-sm">
+        <div className="flex flex-col">
+          <SettingToggle
+            checked={requireYaku}
+            onChange={setRequireYaku}
+            label={t("setup.requireYaku")}
           />
-          <SmallCheckbox
-            checked={includeChild}
-            onChange={setIncludeChild}
-            label={t("setup.ko")}
+          <SettingToggle
+            checked={simplifyMangan}
+            onChange={setSimplifyMangan}
+            label={t("setup.simplifyMangan")}
+          />
+          <SettingToggle
+            checked={requireFuForMangan}
+            onChange={setRequireFuForMangan}
+            label={t("setup.requireFu")}
+          />
+          <SettingToggle
+            checked={autoNext}
+            onChange={setAutoNext}
+            title={t("setup.autoNext")}
+            label={t("setup.autoNext")}
+            isLast={true}
           />
         </div>
       </div>
 
-      {/* Target score ranges */}
-      <div className="border-t border-surface-100 pt-4">
-        <div className="mb-3 text-center text-sm font-bold text-surface-500">
-          {t("setup.targetScore")}
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+        {/* Question mode */}
+        <div className="flex flex-col overflow-hidden rounded-xl border border-surface-200 bg-white shadow-sm">
+          <div className="border-b border-surface-200 bg-surface-50 px-4 py-3">
+            <h3 className="text-center text-sm font-bold text-surface-700">
+              {t("setup.questionMode")}
+            </h3>
+          </div>
+          <div className="flex flex-col gap-3 p-3">
+            <SmallCheckbox
+              checked={includeParent}
+              onChange={setIncludeParent}
+              label={t("setup.oya")}
+            />
+            <SmallCheckbox
+              checked={includeChild}
+              onChange={setIncludeChild}
+              label={t("setup.ko")}
+            />
+          </div>
         </div>
-        <div className="flex justify-center gap-6">
-          <SmallCheckbox
-            checked={targetScoreRanges.includes("non_mangan")}
-            onChange={() => handleToggleRange("non_mangan")}
-            label={t("setup.nonMangan")}
-          />
-          <SmallCheckbox
-            checked={targetScoreRanges.includes("mangan_plus")}
-            onChange={() => handleToggleRange("mangan_plus")}
-            label={t("setup.manganPlus")}
-          />
+
+        {/* Target score ranges */}
+        <div className="flex flex-col overflow-hidden rounded-xl border border-surface-200 bg-white shadow-sm">
+          <div className="border-b border-surface-200 bg-surface-50 px-4 py-3">
+            <h3 className="text-center text-sm font-bold text-surface-700">
+              {t("setup.targetScore")}
+            </h3>
+          </div>
+          <div className="flex flex-col gap-3 p-3">
+            <SmallCheckbox
+              checked={targetScoreRanges.includes("non_mangan")}
+              onChange={() => handleToggleRange("non_mangan")}
+              label={t("setup.nonMangan")}
+            />
+            <SmallCheckbox
+              checked={targetScoreRanges.includes("mangan_plus")}
+              onChange={() => handleToggleRange("mangan_plus")}
+              label={t("setup.manganPlus")}
+            />
+          </div>
         </div>
       </div>
 
       {/* Start button */}
-      <div className="text-center">
+      <div className="pt-2 text-center">
         <button
           type="button"
           onClick={handleStart}
           disabled={isDisabled}
-          className={`inline-flex items-center gap-2 rounded-lg px-8 py-3 text-sm font-semibold shadow-sm transition-colors ${
+          className={`inline-block rounded-lg px-12 py-3 text-sm font-bold shadow-sm transition-all focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-offset-2 ${
             isDisabled
-              ? "cursor-not-allowed bg-surface-300 text-surface-500"
-              : "bg-primary-500 text-white hover:bg-primary-600"
+              ? "cursor-not-allowed bg-surface-200 text-surface-400"
+              : "bg-primary-500 text-white hover:bg-primary-600 active:scale-95"
           }`}
         >
-          <span>{t("setup.start")}</span>
-          <svg className="size-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              strokeWidth={2.5}
-              d="M13 7l5 5m0 0l-5 5m5-5H6"
-            />
-          </svg>
+          {t("setup.start")}
         </button>
       </div>
     </div>
   );
 }
 
-interface SettingCheckboxProps {
+interface SettingToggleProps {
   readonly checked: boolean;
   readonly onChange: (checked: boolean) => void;
   readonly label: string;
+  readonly title?: string;
+  readonly isLast?: boolean;
 }
 
-function SettingCheckbox({ checked, onChange, label }: SettingCheckboxProps) {
+function SettingToggle({ checked, onChange, label, title, isLast = false }: SettingToggleProps) {
   return (
-    <label className="group flex cursor-pointer items-center justify-center gap-3 rounded-xl border border-transparent bg-surface-50 px-5 py-3 transition-all hover:border-surface-200 hover:bg-surface-100">
-      <input
-        type="checkbox"
-        checked={checked}
-        onChange={(e) => onChange(e.target.checked)}
-        className="size-5 rounded border-surface-300 text-primary-600 focus:ring-primary-500 focus:ring-offset-0"
-      />
-      <span className="select-none font-semibold text-surface-700 group-hover:text-surface-900">
-        {label}
+    <label className={`group flex cursor-pointer items-center justify-between px-5 py-3.5 transition-colors hover:bg-surface-50 ${isLast ? "" : "border-b border-surface-100"}`}>
+      <span className="select-none text-sm font-medium text-surface-700 group-hover:text-surface-900">
+        {title || label}
       </span>
+      <div className="relative inline-flex items-center">
+        <input
+          type="checkbox"
+          checked={checked}
+          onChange={(e) => onChange(e.target.checked)}
+          className="peer sr-only"
+        />
+        <div className="h-6 w-11 flex-shrink-0 cursor-pointer rounded-full border-2 border-transparent bg-surface-200 transition-colors duration-200 ease-in-out peer-focus:ring-2 peer-focus:ring-primary-500 peer-focus:ring-offset-2 peer-checked:bg-primary-500" />
+        <span
+          className={`pointer-events-none absolute left-[2px] top-[2px] block h-5 w-5 rounded-full bg-white shadow ring-0 transition-transform duration-200 ease-in-out ${
+            checked ? "translate-x-[20px]" : "translate-x-0"
+          }`}
+        />
+      </div>
     </label>
   );
 }
@@ -204,14 +216,25 @@ interface SmallCheckboxProps {
 
 function SmallCheckbox({ checked, onChange, label }: SmallCheckboxProps) {
   return (
-    <label className="group inline-flex cursor-pointer items-center gap-3 rounded-lg border border-transparent bg-surface-50 px-3 py-2 transition-all hover:border-surface-200 hover:bg-surface-100">
-      <input
-        type="checkbox"
-        checked={checked}
-        onChange={(e) => onChange(e.target.checked)}
-        className="size-4 rounded border-surface-300 text-primary-600 focus:ring-primary-500 focus:ring-offset-0"
-      />
-      <span className="select-none text-sm font-semibold text-surface-700">
+    <label className="group flex cursor-pointer items-center gap-3 rounded-lg border border-transparent px-2 py-1.5 transition-all hover:bg-surface-50">
+      <div className="relative flex items-center justify-center">
+        <input
+          type="checkbox"
+          checked={checked}
+          onChange={(e) => onChange(e.target.checked)}
+          className="peer size-5 cursor-pointer appearance-none rounded border-2 border-surface-300 bg-white transition-all checked:border-primary-500 checked:bg-primary-500 hover:border-surface-400 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-offset-1"
+        />
+        <svg
+          className="pointer-events-none absolute size-3.5 text-white opacity-0 transition-opacity peer-checked:opacity-100"
+          fill="none"
+          viewBox="0 0 24 24"
+          stroke="currentColor"
+          strokeWidth="3"
+        >
+          <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
+        </svg>
+      </div>
+      <span className="select-none text-sm font-medium text-surface-700 group-hover:text-surface-900">
         {label}
       </span>
     </label>
