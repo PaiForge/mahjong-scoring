@@ -9,7 +9,8 @@
     "reference": "点数表",
     "leaderboard": "ランキング",
     "brandMahjong": "麻雀",
-    "brandScoring": "点数計算"
+    "brandScoring": "点数計算",
+    "login": "ログイン"
   },
   "landing": {
     "heroTitle": "麻雀の点数計算を\nマスターしよう",
@@ -588,6 +589,10 @@
   },
   "leaderboard": {
     "pageTitle": "ランキング",
+    "comingSoon": "準備中です。"
+  },
+  "auth": {
+    "signInPageTitle": "ログイン",
     "comingSoon": "準備中です。"
   }
 }
