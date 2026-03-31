@@ -28,13 +28,13 @@ export function Sidebar() {
 
   return (
     <nav className="hidden md:flex fixed left-0 top-0 h-full w-64 flex-col border-r border-surface-200 bg-white/90 backdrop-blur-xl z-50">
-      <div className="flex items-center gap-2 px-6 py-5">
+      <Link href="/" className="flex items-center gap-2 px-6 py-5">
         <Image src="/logo.png" alt="" width={56} height={56} className="size-14" />
         <span className="text-lg font-bold">
-          <span className="text-primary-700">麻雀</span>
-          <span className="text-surface-500">点数計算</span>
+          <span className="text-primary-700">{t("brandMahjong")}</span>
+          <span className="text-surface-500">{t("brandScoring")}</span>
         </span>
-      </div>
+      </Link>
 
       <div className="flex-1 px-3 py-2">
         <ul className="space-y-1">

@@ -7,7 +7,9 @@
     "home": "ホーム",
     "practice": "練習",
     "reference": "点数表",
-    "leaderboard": "ランキング"
+    "leaderboard": "ランキング",
+    "brandMahjong": "麻雀",
+    "brandScoring": "点数計算"
   },
   "landing": {
     "heroTitle": "麻雀の点数計算を\nマスターしよう",
