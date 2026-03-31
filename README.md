@@ -1,40 +1,32 @@
-# Mahjong Scoring (Monorepo)
+# Mahjong Scoring
 
 麻雀の点数計算を学習するアプリ。
 
-This repository is a Monorepo managed by [Turborepo](https://turbo.build/).
+[Turborepo](https://turbo.build/) で管理する Monorepo 構成です。
 
-## Directory Structure
+## ディレクトリ構成
 
-- `apps/web`: Next.js web application
-- `apps/mobile`: React Native (Expo) mobile application (planned)
-- `docs/`: [PaiForge/docs](https://github.com/PaiForge/docs) (git submodule — コーディング規約等)
+- `apps/web` — Next.js Web アプリケーション
+- `packages/core` — UI 非依存の共有ドメインロジック
+- `packages/eslint-config` — 共有 ESLint 設定
+- `docs/` — [PaiForge/docs](https://github.com/PaiForge/docs)（git submodule — コーディング規約等）
 
-### Shared Packages
+## セットアップ
 
-| Package                  | Description                    |
-| ------------------------ | ------------------------------ |
-| `packages/eslint-config` | Shared ESLint configuration    |
-| `packages/types`         | Shared TypeScript type definitions |
-| `packages/ui`            | Shared UI components / theme   |
-
-## Quick Start
-
-### Prerequisites
+### 前提条件
 
 - Node.js 24.x
 - pnpm 10.x
 
 > [!TIP]
-> This project uses [Volta](https://volta.sh/) to pin the Node.js version.
-> If you have Volta installed, it will automatically switch to the correct Node.js version defined in `package.json`.
+> [Volta](https://volta.sh/) を導入済みであれば、`package.json` に定義された Node.js バージョンへ自動的に切り替わります。
 >
 > ```bash
 > volta pin node@24
 > volta install pnpm@10
 > ```
 
-### Clone
+### クローン
 
 ```bash
 git clone --recurse-submodules https://github.com/PaiForge/mahjong-scoring.git
@@ -47,30 +39,30 @@ cd mahjong-scoring
 git submodule update --init --recursive
 ```
 
-### Installation
+### インストール
 
 ```bash
 pnpm install
 ```
 
-### Development
+### 開発サーバーの起動
 
 ```bash
 pnpm dev
 ```
 
-### Scripts
+### スクリプト一覧
 
-From the root directory:
+| コマンド | 説明 |
+|---|---|
+| `pnpm dev` | 全アプリを開発モードで起動 |
+| `pnpm build` | 全アプリをビルド |
+| `pnpm lint` | リント実行 |
+| `pnpm typecheck` | 型チェック |
+| `pnpm test` | テスト実行 |
+| `pnpm format` | Prettier でフォーマット |
 
-- `pnpm dev`: Start all apps in development mode
-- `pnpm build`: Build all apps for production
-- `pnpm lint`: Lint all apps
-- `pnpm typecheck`: Run type checking
-- `pnpm test`: Run tests across the workspace
-- `pnpm format`: Format code with Prettier
-
-## Coding Standards
+## コーディング規約
 
 コーディング規約は `docs/` submodule で一元管理されています。
 
@@ -83,13 +75,13 @@ submodule を最新に更新するには:
 git submodule update --remote docs
 ```
 
-## Versioning Strategy
+## バージョニング
 
-This project follows [Semantic Versioning](https://semver.org/).
+[Semantic Versioning](https://semver.org/) に従います。
 
-### Git Tag Format
+### Git タグ形式
 
-Git tags use a prefix to identify the application:
+Git タグはアプリケーションごとにプレフィックスを付与します:
 
-- **Web app**: `web/v0.1.0`, `web/v0.2.0`, ...
-- **Mobile app**: `mobile/v0.1.0`, `mobile/v0.2.0`, ... (planned)
+- **Web**: `web/v0.1.0`, `web/v0.2.0`, ...
+- **Mobile**: `mobile/v0.1.0`, `mobile/v0.2.0`, ...（予定）
