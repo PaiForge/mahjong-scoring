@@ -8,7 +8,7 @@ interface LearnPageLayoutProps {
   /** i18n ネームスペース（例: "jantouFu.learn"） */
   readonly namespace: string;
   /** ドリルプレイページへのリンク（例: "/practice/jantou-fu/play"） */
-  readonly playHref: string;
+  readonly playHref?: string;
   /** ガイドコンテンツ */
   readonly children: ReactNode;
 }
@@ -27,14 +27,16 @@ export async function LearnPageLayout({ namespace, playHref, children }: LearnPa
         {children}
       </div>
 
-      <div className="mt-10 text-center">
-        <Link
-          href={playHref}
-          className="inline-block rounded-lg bg-primary-500 px-8 py-3 text-sm font-semibold text-white shadow-sm transition-colors hover:bg-primary-600"
-        >
-          {t("ctaDrill")}
-        </Link>
-      </div>
+      {playHref && (
+        <div className="mt-10 text-center">
+          <Link
+            href={playHref}
+            className="inline-block rounded-lg bg-primary-500 px-8 py-3 text-sm font-semibold text-white shadow-sm transition-colors hover:bg-primary-600"
+          >
+            {t("ctaDrill")}
+          </Link>
+        </div>
+      )}
     </ContentContainer>
   );
 }
