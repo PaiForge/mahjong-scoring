@@ -12,6 +12,7 @@
   },
   "dependencies": {
     "@mahjong-scoring/core": "workspace:*",
+    "@next/third-parties": "^16.2.1",
     "@pai-forge/mahjong-react-ui": "^0.2.0",
     "next": "^16.0.0",
     "next-intl": "^4.8.3",

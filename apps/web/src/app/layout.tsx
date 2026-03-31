@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { NextIntlClientProvider } from "next-intl";
 import { getLocale, getMessages } from "next-intl/server";
+import { GoogleAnalytics } from "@next/third-parties/google";
 import { Sidebar } from "@/app/_components/sidebar";
 import { MobileHeader } from "@/app/_components/mobile-header";
 import { MobileTabBar } from "@/app/_components/mobile-tab-bar";
@@ -19,6 +20,7 @@ export default async function RootLayout({
 }) {
   const locale = await getLocale();
   const messages = await getMessages();
+  const gaId = process.env.NEXT_PUBLIC_GA_MEASUREMENT_ID;
 
   return (
     <html lang={locale}>
@@ -31,6 +33,7 @@ export default async function RootLayout({
           </main>
           <MobileTabBar />
         </NextIntlClientProvider>
+        {gaId && <GoogleAnalytics gaId={gaId} />}
       </body>
     </html>
   );
