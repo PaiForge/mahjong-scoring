@@ -584,5 +584,9 @@
   "privacy": {
     "pageTitle": "プライバシーポリシー",
     "comingSoon": "準備中です。"
+  },
+  "leaderboard": {
+    "pageTitle": "ランキング",
+    "comingSoon": "準備中です。"
   }
 }

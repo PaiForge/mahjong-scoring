@@ -5,6 +5,7 @@ import { GoogleAnalytics } from "@next/third-parties/google";
 import { Sidebar } from "@/app/_components/sidebar";
 import { MobileHeader } from "@/app/_components/mobile-header";
 import { MobileTabBar } from "@/app/_components/mobile-tab-bar";
+import { Footer } from "@/app/_components/footer";
 import "./globals.css";
 
 export const metadata: Metadata = {
@@ -31,6 +32,7 @@ export default async function RootLayout({
           <main className="md:ml-64 pb-20 md:pb-0 min-h-screen">
             {children}
           </main>
+          <Footer />
           <MobileTabBar />
         </NextIntlClientProvider>
         {gaId && <GoogleAnalytics gaId={gaId} />}
