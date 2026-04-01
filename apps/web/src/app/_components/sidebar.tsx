@@ -4,6 +4,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useTranslations } from "next-intl";
 import { BrandLogo } from "./brand-logo";
+import { AuthNavItem } from "./auth-nav-item";
 import { NAV_ITEMS } from "./_lib/nav-items";
 
 export function Sidebar() {
@@ -40,6 +41,15 @@ export function Sidebar() {
             );
           })}
         </ul>
+      </div>
+
+      <div className="border-t border-surface-200 px-3 py-4">
+        <AuthNavItem
+          className="flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium text-surface-600 transition-colors hover:bg-surface-100 hover:text-surface-900"
+          iconClassName="size-5"
+          skeletonIconClassName="size-5"
+          skeletonTextClassName="h-4 w-16"
+        />
       </div>
     </nav>
   );

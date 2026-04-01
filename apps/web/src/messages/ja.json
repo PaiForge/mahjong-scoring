@@ -9,7 +9,9 @@
     "reference": "点数表",
     "leaderboard": "ランキング",
     "brandMahjong": "麻雀",
-    "brandScoring": "点数計算"
+    "brandScoring": "点数計算",
+    "login": "ログイン",
+    "mypage": "マイページ"
   },
   "landing": {
     "heroTitle": "麻雀の点数計算を\nマスターしよう",
@@ -589,5 +591,56 @@
   "leaderboard": {
     "pageTitle": "ランキング",
     "comingSoon": "準備中です。"
+  },
+  "auth": {
+    "signInPageTitle": "ログイン",
+    "comingSoon": "準備中です。",
+    "googleOAuth": "Google でログイン",
+    "googleOAuthLoading": "ログイン中...",
+    "authError": "認証に失敗しました。もう一度お試しください。"
+  },
+  "mypage": {
+    "pageTitle": "マイページ",
+    "comingSoon": "準備中です。"
+  },
+  "setupUsername": {
+    "title": "ユーザー名の設定",
+    "usernameLabel": "ユーザー名",
+    "usernameDescription": "プロフィールURLに使用されます。英小文字・数字・アンダースコアのみ使用できます。",
+    "usernamePlaceholder": "例: tsumo_master",
+    "usernameHint": "2〜20文字。英小文字で始まり、英小文字または数字で終わること。",
+    "cannotChange": "ユーザー名は後から変更できません",
+    "displayNameLabel": "表示名",
+    "displayNameDescription": "他のユーザーに表示される名前です。未入力の場合はユーザー名が使用されます。",
+    "displayNamePlaceholder": "例: ツモの達人",
+    "displayNameCanChange": "表示名は後から変更できます",
+    "displayNameMaxLength": "最大50文字",
+    "submit": "登録する",
+    "submitting": "登録中...",
+    "validation": {
+      "tooShort": "ユーザー名は2文字以上で入力してください",
+      "tooLong": "ユーザー名は20文字以内で入力してください",
+      "invalidFormat": "英小文字で始まり、英小文字・数字・アンダースコアのみ使用できます",
+      "reserved": "このユーザー名は使用できません",
+      "taken": "このユーザー名は既に使用されています",
+      "alreadySet": "ユーザー名は既に設定されています",
+      "error": "エラーが発生しました。もう一度お試しください"
+    }
+  },
+  "Admin": {
+    "title": "管理画面",
+    "users": "ユーザー",
+    "usersTable": {
+      "email": "メールアドレス",
+      "username": "ユーザー名",
+      "displayName": "表示名",
+      "createdAt": "登録日時",
+      "noUsersFound": "ユーザーが見つかりません"
+    }
+  },
+  "pagination": {
+    "previous": "前へ",
+    "next": "次へ",
+    "pageIndicator": "{current} / {total} ページ"
   }
 }
