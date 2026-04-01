@@ -14,8 +14,6 @@ export function GoogleOAuthButton() {
 
   const handleClick = async () => {
     const supabase = createClient();
-    if (!supabase) return;
-
     setIsLoading(true);
     try {
       await supabase.auth.signInWithOAuth({

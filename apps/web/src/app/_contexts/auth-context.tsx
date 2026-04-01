@@ -47,7 +47,6 @@ export function AuthProvider({ children }: { readonly children: ReactNode }) {
 
   const refreshUser = useCallback(async () => {
     const supabase = supabaseRef.current ?? createClient();
-    if (!supabase) return;
     const [
       {
         data: { user: currentUser },
@@ -62,11 +61,6 @@ export function AuthProvider({ children }: { readonly children: ReactNode }) {
 
   useEffect(() => {
     const supabase = createClient();
-    if (!supabase) {
-      setIsLoading(false);
-      return;
-    }
-
     supabaseRef.current = supabase;
 
     refreshUser().finally(() => setIsLoading(false));
@@ -87,14 +81,6 @@ export function AuthProvider({ children }: { readonly children: ReactNode }) {
 
   const signOut = useCallback(async () => {
     const supabase = supabaseRef.current ?? createClient();
-    if (!supabase) return;
-
-    try {
-      await fetch("/auth/logout", { method: "POST" });
-    } catch {
-      // Logging failure must never prevent the user from signing out.
-    }
-
     await supabase.auth.signOut();
   }, []);
 
