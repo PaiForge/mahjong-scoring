@@ -7,6 +7,11 @@ import { useRouter } from 'next/navigation';
 
 import { validateUsername } from '@/lib/username';
 
+import { registerUsername } from '../_lib/register-username';
+
+const inputClassName =
+  'w-full rounded-lg border border-surface-300 bg-white px-3 py-2 text-sm text-surface-800 placeholder:text-surface-400 focus:border-green-500 focus:ring-1 focus:ring-green-500 focus:outline-none';
+
 /**
  * ユーザー名登録フォーム。
  * 初回ログイン後にユーザー名と表示名を設定する。
@@ -64,18 +69,13 @@ export function UsernameForm() {
     setError(undefined);
 
     try {
-      const res = await fetch('/api/username', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          username: trimmedUsername,
-          displayName: displayName.trim() || undefined,
-        }),
-      });
+      const result = await registerUsername(
+        trimmedUsername,
+        displayName.trim() || undefined
+      );
 
-      if (!res.ok) {
-        const data = await res.json();
-        setError(getValidationMessage(data.error));
+      if (!result.success) {
+        setError(getValidationMessage(result.error));
         setIsSubmitting(false);
         return;
       }
@@ -103,7 +103,7 @@ export function UsernameForm() {
           maxLength={20}
           autoFocus
           autoComplete="off"
-          className="w-full rounded-lg border border-surface-300 bg-white px-3 py-2 text-sm text-surface-800 placeholder:text-surface-400 focus:border-green-500 focus:ring-1 focus:ring-green-500 focus:outline-none"
+          className={inputClassName}
         />
         {error && <p className="mt-2 text-sm text-red-500">{error}</p>}
         <ul className="mt-2 list-inside list-disc space-y-0.5">
@@ -125,7 +125,7 @@ export function UsernameForm() {
           placeholder={t('displayNamePlaceholder')}
           maxLength={50}
           autoComplete="off"
-          className="w-full rounded-lg border border-surface-300 bg-white px-3 py-2 text-sm text-surface-800 placeholder:text-surface-400 focus:border-green-500 focus:ring-1 focus:ring-green-500 focus:outline-none"
+          className={inputClassName}
         />
         <ul className="mt-2 list-inside list-disc">
           <li className="text-xs text-surface-500">{t('displayNameCanChange')}</li>

@@ -1,9 +1,8 @@
 import { NextResponse } from 'next/server';
 
-import { eq } from 'drizzle-orm';
-
 import { db, profiles } from '@/lib/db';
 import { extractPgErrorCode } from '@/lib/db/extract-pg-error-code';
+import { profileExistsByUserId } from '@/lib/db/queries';
 import { createClient } from '@/lib/supabase/server';
 import { validateUsername } from '@/lib/username';
 
@@ -46,13 +45,7 @@ export async function POST(request: Request) {
   }
 
   // Check if profile already exists (prevent double creation)
-  const [existingProfile] = await db
-    .select({ id: profiles.id })
-    .from(profiles)
-    .where(eq(profiles.id, user.id))
-    .limit(1);
-
-  if (existingProfile) {
+  if (await profileExistsByUserId(user.id)) {
     return NextResponse.json({ error: 'username_already_set' }, { status: 409 });
   }
 
