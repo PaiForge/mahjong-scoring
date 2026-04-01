@@ -14,6 +14,8 @@
     "@mahjong-scoring/core": "workspace:*",
     "@next/third-parties": "^16.2.1",
     "@pai-forge/mahjong-react-ui": "^0.2.0",
+    "@supabase/ssr": "^0.10.0",
+    "@supabase/supabase-js": "^2.101.1",
     "katex": "^0.16.44",
     "next": "^16.0.0",
     "next-intl": "^4.8.3",

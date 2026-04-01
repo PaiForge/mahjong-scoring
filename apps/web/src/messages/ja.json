@@ -10,7 +10,8 @@
     "leaderboard": "ランキング",
     "brandMahjong": "麻雀",
     "brandScoring": "点数計算",
-    "login": "ログイン"
+    "login": "ログイン",
+    "mypage": "マイページ"
   },
   "landing": {
     "heroTitle": "麻雀の点数計算を\nマスターしよう",
@@ -593,6 +594,13 @@
   },
   "auth": {
     "signInPageTitle": "ログイン",
+    "comingSoon": "準備中です。",
+    "googleOAuth": "Google でログイン",
+    "googleOAuthLoading": "ログイン中...",
+    "authError": "認証に失敗しました。もう一度お試しください。"
+  },
+  "mypage": {
+    "pageTitle": "マイページ",
     "comingSoon": "準備中です。"
   }
 }
