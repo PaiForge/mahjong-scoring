@@ -1,7 +1,6 @@
 import { redirect } from 'next/navigation';
 
-import { getAuthenticatedUser } from '@/lib/auth';
-import { getProfileByUserId } from '@/lib/db/queries';
+import { getAuthenticatedProfile } from '@/lib/auth';
 
 /**
  * プロフィール未作成ユーザー用レイアウト。
@@ -14,8 +13,7 @@ export default async function ProvisionalLayout({
 }: {
   readonly children: React.ReactNode;
 }) {
-  const user = await getAuthenticatedUser();
-  const profile = await getProfileByUserId(user.id);
+  const { profile } = await getAuthenticatedProfile();
 
   if (profile) {
     redirect('/mypage');

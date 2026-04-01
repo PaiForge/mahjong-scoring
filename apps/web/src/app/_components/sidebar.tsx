@@ -4,14 +4,12 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useTranslations } from "next-intl";
 import { BrandLogo } from "./brand-logo";
-import { UserIcon } from "./icons/user-icon";
+import { AuthNavItem } from "./auth-nav-item";
 import { NAV_ITEMS } from "./_lib/nav-items";
-import { useAuth } from "@/app/_contexts/auth-context";
 
 export function Sidebar() {
   const pathname = usePathname();
   const t = useTranslations("nav");
-  const { user, isLoading } = useAuth();
 
   return (
     <nav className="hidden md:flex fixed left-0 top-0 h-full w-64 flex-col border-r border-surface-200 bg-white/90 backdrop-blur-xl z-50">
@@ -46,28 +44,12 @@ export function Sidebar() {
       </div>
 
       <div className="border-t border-surface-200 px-3 py-4">
-        {isLoading ? (
-          <div className="flex items-center gap-3 px-3 py-2.5">
-            <div className="size-5 rounded-full bg-surface-200 animate-pulse" />
-            <div className="h-4 w-16 rounded bg-surface-200 animate-pulse" />
-          </div>
-        ) : user ? (
-          <Link
-            href="/mypage"
-            className="flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium text-surface-600 transition-colors hover:bg-surface-100 hover:text-surface-900"
-          >
-            <UserIcon />
-            {t("mypage")}
-          </Link>
-        ) : (
-          <Link
-            href="/sign-in"
-            className="flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium text-surface-600 transition-colors hover:bg-surface-100 hover:text-surface-900"
-          >
-            <UserIcon />
-            {t("login")}
-          </Link>
-        )}
+        <AuthNavItem
+          className="flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium text-surface-600 transition-colors hover:bg-surface-100 hover:text-surface-900"
+          iconClassName="size-5"
+          skeletonIconClassName="size-5"
+          skeletonTextClassName="h-4 w-16"
+        />
       </div>
     </nav>
   );
