@@ -1,6 +1,8 @@
 import {
+  pgEnum,
   pgTable,
   timestamp,
+  unique,
   uuid,
   varchar,
 } from 'drizzle-orm/pg-core';
@@ -27,3 +29,24 @@ export const profiles = pgTable('profiles', {
 
 export type Profile = typeof profiles.$inferSelect;
 export type NewProfile = typeof profiles.$inferInsert;
+
+/** アプリ内ロール */
+export const appRoleEnum = pgEnum('app_role', ['admin', 'user']);
+
+/** ユーザーロール */
+export const userRoles = pgTable(
+  'user_roles',
+  {
+    id: uuid('id').primaryKey().defaultRandom(),
+    /** auth.users(id) への外部キー（Supabase SQL で定義） */
+    userId: uuid('user_id').notNull(),
+    /** ロール */
+    role: appRoleEnum('role').notNull().default('user'),
+    /** 作成日時 */
+    createdAt: timestamp('created_at', { withTimezone: true }).defaultNow().notNull(),
+  },
+  (table) => [unique('uq_user_role').on(table.userId, table.role)],
+);
+
+export type UserRole = typeof userRoles.$inferSelect;
+export type NewUserRole = typeof userRoles.$inferInsert;

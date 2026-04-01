@@ -626,5 +626,21 @@
       "alreadySet": "ユーザー名は既に設定されています",
       "error": "エラーが発生しました。もう一度お試しください"
     }
+  },
+  "Admin": {
+    "title": "管理画面",
+    "users": "ユーザー",
+    "usersTable": {
+      "email": "メールアドレス",
+      "username": "ユーザー名",
+      "displayName": "表示名",
+      "createdAt": "登録日時",
+      "noUsersFound": "ユーザーが見つかりません"
+    }
+  },
+  "pagination": {
+    "previous": "前へ",
+    "next": "次へ",
+    "pageIndicator": "{current} / {total} ページ"
   }
 }

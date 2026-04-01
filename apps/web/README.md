@@ -76,6 +76,47 @@ To test Google Sign-In locally, you need to configure OAuth credentials:
    supabase stop && supabase start
    ```
 
+### Admin Panel Setup
+
+管理画面（`/admin`）を利用するには、以下のセットアップが必要です。
+
+#### 1. 環境変数の追加
+
+`SUPABASE_SERVICE_ROLE_KEY` を `.env.local` に追加します。
+
+```bash
+supabase status -o json
+```
+
+| `supabase status -o json` field | `.env.local` variable           | Notes                                         |
+| ------------------------------- | ------------------------------- | --------------------------------------------- |
+| `SERVICE_ROLE_KEY`              | `SUPABASE_SERVICE_ROLE_KEY`     | Admin API 用シークレットキー                    |
+
+> **WARNING**: `NEXT_PUBLIC_` プレフィックスを付けないでください。このキーは RLS をバイパスしてユーザー管理が可能なフルアクセスキーであり、ブラウザに露出させてはいけません。Admin Client は `import 'server-only'` ガードで保護されています。
+
+#### 2. マイグレーションの実行
+
+```bash
+pnpm db:run-migrate
+```
+
+これにより `user_roles` テーブルが作成されます。
+
+#### 3. 管理者ロールの付与
+
+Supabase Studio（http://127.0.0.1:54323）の SQL Editor、または psql で以下を実行します:
+
+```sql
+INSERT INTO user_roles (user_id, role)
+VALUES ('<your-user-uuid>', 'admin');
+```
+
+`<your-user-uuid>` は `auth.users` テーブルで確認できます。
+
+#### 4. 確認
+
+サインアウト → 再サインインし、`/admin` にアクセスして管理画面が表示されることを確認します。
+
 ### Local Services
 
 - **Supabase Studio**: http://127.0.0.1:54323
@@ -105,6 +146,7 @@ This app is deployed to [Vercel](https://vercel.com/). Since the repository is a
 | ------------------------------- | ---------------------------------------------------------------------------------------------------- | ---------------------- |
 | `NEXT_PUBLIC_SUPABASE_URL`      | Supabase project URL (e.g. `https://<reference-id>.supabase.co`)                                    | Yes                    |
 | `NEXT_PUBLIC_SUPABASE_ANON_KEY` | Supabase public (anon) key                                                                           | Yes                    |
+| `SUPABASE_SERVICE_ROLE_KEY`     | Supabase service role key (admin API access). See [Admin Panel Setup](#admin-panel-setup).             | Yes                    |
 | `NEXT_PUBLIC_GA_MEASUREMENT_ID` | Google Analytics 4 Measurement ID (e.g. `G-XXXXXXXXXX`). GA script will only be loaded if this is set. | No (Production Only)   |
 
 ## Tech Stack
