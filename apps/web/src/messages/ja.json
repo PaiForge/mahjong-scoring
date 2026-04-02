@@ -629,6 +629,10 @@
   },
   "Admin": {
     "title": "管理画面",
+    "dashboard": "ダッシュボード",
+    "dashboardDescription": "管理画面へようこそ。左メニューから各機能にアクセスできます。",
+    "userManagement": "ユーザー管理",
+    "userManagementDescription": "登録ユーザーの一覧表示・管理を行います。",
     "users": "ユーザー",
     "usersTable": {
       "email": "メールアドレス",

@@ -10,7 +10,7 @@ export function Footer() {
     <footer className="border-t border-surface-200 bg-surface-50 px-6 py-10 pb-24 md:pb-10 md:ml-64">
       <div className="mx-auto grid max-w-5xl grid-cols-2 gap-8 md:grid-cols-4">
         <div className="col-span-2 md:col-span-1">
-          <BrandLogo size="sm" />
+          <BrandLogo size="md" />
           <p className="mt-3 text-xs text-surface-400">{t("copyright")}</p>
         </div>
 

@@ -3,10 +3,6 @@ import { NextIntlClientProvider } from "next-intl";
 import { getLocale, getMessages } from "next-intl/server";
 import { GoogleAnalytics } from "@next/third-parties/google";
 import { AuthProvider } from "@/app/_contexts/auth-context";
-import { Sidebar } from "@/app/_components/sidebar";
-import { MobileHeader } from "@/app/_components/mobile-header";
-import { MobileTabBar } from "@/app/_components/mobile-tab-bar";
-import { Footer } from "@/app/_components/footer";
 import "./globals.css";
 
 export const metadata: Metadata = {
@@ -18,7 +14,7 @@ export const metadata: Metadata = {
 export default async function RootLayout({
   children,
 }: {
-  children: React.ReactNode;
+  readonly children: React.ReactNode;
 }) {
   const locale = await getLocale();
   const messages = await getMessages();
@@ -28,15 +24,7 @@ export default async function RootLayout({
     <html lang={locale}>
       <body className="min-h-screen overflow-x-hidden">
         <NextIntlClientProvider messages={messages}>
-          <AuthProvider>
-            <Sidebar />
-            <MobileHeader />
-            <main className="md:ml-64 pb-20 md:pb-0 min-h-screen">
-              {children}
-            </main>
-            <Footer />
-            <MobileTabBar />
-          </AuthProvider>
+          <AuthProvider>{children}</AuthProvider>
         </NextIntlClientProvider>
         {gaId && <GoogleAnalytics gaId={gaId} />}
       </body>
