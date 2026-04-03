@@ -78,11 +78,11 @@
       "yaku": {
         "title": "役の選択",
         "description": "手牌から成立する役をすべて選択する練習"
-      },
-      "score": {
-        "title": "点数計算練習",
-        "description": "翻数・符から最終的な点数を算出する実戦形式の練習"
       }
+    },
+    "comprehensiveBanner": {
+      "title": "点数計算総合演習",
+      "description": "翻数・役・符・点数全てをチェックできる問題に好きなだけ回答できます。麻雀の点数計算の総合練習として最適です。"
     }
   },
   "challenge": {

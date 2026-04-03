@@ -5,7 +5,9 @@
  * @flow 練習カードから各練習の説明ページまたはプレイページへ遷移する。
  */
 import type { Metadata } from "next";
+import Link from "next/link";
 import { getTranslations } from "next-intl/server";
+import { ChevronRightIcon } from "@/app/_components/icons/chevron-right-icon";
 import { ContentContainer } from "@/app/_components/content-container";
 import { PageTitle } from "@/app/_components/page-title";
 import { createMetadata } from "@/app/_lib/metadata";
@@ -36,7 +38,6 @@ const fuDrills: readonly DrillDef[] = [
 
 const hanDrills: readonly DrillDef[] = [
   { href: "/practice/yaku/play", titleKey: "drills.yaku.title", descriptionKey: "drills.yaku.description", difficulty: "intermediate", learnHref: "/learn/yaku" },
-  { href: "/practice/score", titleKey: "drills.score.title", descriptionKey: "drills.score.description", difficulty: "advanced" },
 ];
 
 function renderDrillCards(
@@ -66,6 +67,18 @@ export default async function PracticePage() {
       <PageTitle>{t("title")}</PageTitle>
       <p className="mt-2 text-sm text-surface-500">{t("description")}</p>
 
+      <Link
+        href="/practice/score"
+        className="mt-6 flex items-center gap-4 rounded-xl border border-surface-200 bg-white p-6 shadow-sm transition-colors hover:bg-surface-50"
+      >
+        <span className="text-3xl" aria-hidden="true">♾️</span>
+        <div className="flex-1">
+          <h2 className="text-base font-semibold text-surface-900">{t("comprehensiveBanner.title")}</h2>
+          <p className="mt-1 text-sm text-surface-500">{t("comprehensiveBanner.description")}</p>
+        </div>
+        <ChevronRightIcon className="size-5 shrink-0 text-surface-400" />
+      </Link>
+
       <div className="mt-8 space-y-10">
         <DrillCategorySection title={t("categories.fuCalculation.title")}>
           {renderDrillCards(fuDrills, t)}
@@ -74,11 +87,6 @@ export default async function PracticePage() {
         <DrillCategorySection title={t("categories.han.title")}>
           {renderDrillCards(hanDrills, t)}
         </DrillCategorySection>
-      </div>
-
-      <div className="mt-8 rounded-xl border border-surface-200 bg-white p-6 shadow-sm">
-        <h2 className="text-sm font-semibold text-surface-900">{t("progress")}</h2>
-        <p className="mt-1 text-sm text-surface-400">{t("progressSignInPrompt")}</p>
       </div>
     </ContentContainer>
   );
