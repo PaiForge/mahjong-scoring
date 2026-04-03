@@ -8,12 +8,11 @@ import {
   SELECTABLE_YAKU,
 } from "@mahjong-scoring/core";
 import type { YakuQuestion } from "@mahjong-scoring/core";
-import type { FinishCallbackArgs } from "../../_hooks/use-finish-redirect";
 import { useTimedSession } from "../../_hooks/use-timed-session";
+import { useSaveOnFinish } from "../../_hooks/use-save-on-finish";
 import { DrillShell } from "../../_components/drill-shell";
 import { DrillTehaiDisplay } from "../../_components/drill-tehai-display";
 import { retryGenerate } from "../../_lib/retry-generate";
-import { savePracticeResult } from "../../_actions/save-practice-result";
 import { YakuChip, getChipFeedbackState } from "./yaku-chip";
 import { HAN_GROUPS } from "../_lib/han-groups";
 
@@ -34,17 +33,7 @@ export function YakuDrill() {
     setSelectedYaku(new Set());
   }, []);
 
-  const handleFinish = useCallback(async (args: FinishCallbackArgs) => {
-    if (args.totalCount === 0) return;
-    const result = await savePracticeResult('yaku', 'default', {
-      score: args.correctCount,
-      incorrectAnswers: args.incorrectCount,
-      timeTaken: Math.round(args.elapsedMs / 1000),
-    });
-    if (!result.success) {
-      console.error("[savePracticeResult] yaku:", result.error);
-    }
-  }, []);
+  const handleFinish = useSaveOnFinish("yaku");
 
   const handleToggleYaku = useCallback(
     (yakuName: string) => {

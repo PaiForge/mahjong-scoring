@@ -6,12 +6,11 @@ import { generateMentsuFuQuestion } from "@mahjong-scoring/core";
 import type { MentsuFuQuestion } from "@mahjong-scoring/core";
 import { Furo } from "@pai-forge/mahjong-react-ui";
 import { useTimedSession } from "../../_hooks/use-timed-session";
-import type { FinishCallbackArgs } from "../../_hooks/use-finish-redirect";
+import { useSaveOnFinish } from "../../_hooks/use-save-on-finish";
 import { ChoiceButton } from "../../_components/choice-button";
 import { DrillShell } from "../../_components/drill-shell";
 import { getFeedbackStyles } from "../../_lib/feedback-styles";
 import { FU_OPTIONS } from "../../_lib/fu-options";
-import { savePracticeResult } from "../../_actions/save-practice-result";
 
 export function MentsuFuDrill() {
   const t = useTranslations("mentsuFu");
@@ -28,17 +27,7 @@ export function MentsuFuDrill() {
     setSelectedFu(undefined);
   }, []);
 
-  const handleFinish = useCallback(async (args: FinishCallbackArgs) => {
-    if (args.totalCount === 0) return;
-    const result = await savePracticeResult('mentsu_fu', 'default', {
-      score: args.correctCount,
-      incorrectAnswers: args.incorrectCount,
-      timeTaken: Math.round(args.elapsedMs / 1000),
-    });
-    if (!result.success) {
-      console.error("[savePracticeResult] mentsu_fu:", result.error);
-    }
-  }, []);
+  const handleFinish = useSaveOnFinish("mentsu_fu");
 
   const handleFuSelect = useCallback(
     (index: number) => {

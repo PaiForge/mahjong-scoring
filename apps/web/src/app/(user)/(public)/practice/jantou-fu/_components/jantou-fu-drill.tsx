@@ -9,11 +9,10 @@ import {
 import type { JantouFuQuestion, JantouFuChoice } from "@mahjong-scoring/core";
 import { Hai } from "@pai-forge/mahjong-react-ui";
 import { useTimedSession } from "../../_hooks/use-timed-session";
-import type { FinishCallbackArgs } from "../../_hooks/use-finish-redirect";
+import { useSaveOnFinish } from "../../_hooks/use-save-on-finish";
 import { ChoiceButton } from "../../_components/choice-button";
 import { DrillShell } from "../../_components/drill-shell";
 import { getFeedbackStyles } from "../../_lib/feedback-styles";
-import { savePracticeResult } from "../../_actions/save-practice-result";
 
 export function JantouFuDrill() {
   const t = useTranslations("jantouFu");
@@ -30,17 +29,7 @@ export function JantouFuDrill() {
     setSelectedHai(undefined);
   }, []);
 
-  const handleFinish = useCallback(async (args: FinishCallbackArgs) => {
-    if (args.totalCount === 0) return;
-    const result = await savePracticeResult('jantou_fu', 'default', {
-      score: args.correctCount,
-      incorrectAnswers: args.incorrectCount,
-      timeTaken: Math.round(args.elapsedMs / 1000),
-    });
-    if (!result.success) {
-      console.error("[savePracticeResult] jantou_fu:", result.error);
-    }
-  }, []);
+  const handleFinish = useSaveOnFinish("jantou_fu");
 
   const handleChoiceSelect = useCallback(
     (index: number) => {
