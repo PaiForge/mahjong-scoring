@@ -405,13 +405,14 @@
     "yakuman": "役満"
   },
   "score": {
-    "title": "点数計算練習",
+    "title": "点数計算総合演習",
     "description": "翻数・符から最終的な点数を算出する実戦形式の練習",
     "loading": "読み込み中...",
     "generating": "問題を生成中...",
     "setup": {
       "requireYaku": "役も回答する",
       "simplifyMangan": "5翻以降を簡略化",
+      "simplifyManganInfo": "有効にすると、5翻以上の回答が「満貫」「跳満」「倍満」「三倍満」「役満」のような区分での選択になります。無効にすると、「7翻」「13翻」のように具体的な翻数を指定して回答します。",
       "requireFu": "満貫以上も符を入力",
       "autoNext": "正解したらすぐに次の問題へ",
       "questionMode": "出題モード",
@@ -690,5 +691,9 @@
     },
     "allTimeRanking": "総合ランキング",
     "viewMore": "ランキングをもっと見る"
+  },
+  "common": {
+    "close": "閉じる",
+    "showDetailInfo": "詳細情報を表示"
   }
 }
