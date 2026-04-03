@@ -10,7 +10,7 @@ import type { FinishCallbackArgs } from "../../_hooks/use-finish-redirect";
 import { ChoiceButton } from "../../_components/choice-button";
 import { DrillShell } from "../../_components/drill-shell";
 import { getFeedbackStyles } from "../../_lib/feedback-styles";
-import { saveMachiFuResult } from "../_actions/save-result";
+import { savePracticeResult } from "../../_actions/save-practice-result";
 
 const FU_OPTIONS = [0, 2] as const;
 
@@ -31,13 +31,13 @@ export function MachiFuDrill() {
 
   const handleFinish = useCallback(async (args: FinishCallbackArgs) => {
     if (args.totalCount === 0) return;
-    const result = await saveMachiFuResult({
-      correctAnswers: args.correctCount,
+    const result = await savePracticeResult('machi_fu', 'default', {
+      score: args.correctCount,
       incorrectAnswers: args.incorrectCount,
       timeTaken: Math.round(args.elapsedMs / 1000),
     });
     if (!result.success) {
-      console.error("Failed to save machi_fu result:", result.error);
+      console.error("[savePracticeResult] machi_fu:", result.error);
     }
   }, []);
 

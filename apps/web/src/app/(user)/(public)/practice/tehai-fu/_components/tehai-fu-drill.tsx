@@ -8,7 +8,7 @@ import { useTimedSession } from "../../_hooks/use-timed-session";
 import type { FinishCallbackArgs } from "../../_hooks/use-finish-redirect";
 import { DrillShell } from "../../_components/drill-shell";
 import { retryGenerate } from "../../_lib/retry-generate";
-import { saveTehaiFuResult } from "../_actions/save-result";
+import { savePracticeResult } from "../../_actions/save-practice-result";
 import { TehaiDisplay } from "./tehai-display";
 import { FuItemRow } from "./fu-item-row";
 
@@ -35,13 +35,13 @@ export function TehaiFuDrill() {
 
   const handleFinish = useCallback(async (args: FinishCallbackArgs) => {
     if (args.totalCount === 0) return;
-    const result = await saveTehaiFuResult({
-      correctAnswers: args.correctCount,
+    const result = await savePracticeResult('tehai_fu', 'default', {
+      score: args.correctCount,
       incorrectAnswers: args.incorrectCount,
       timeTaken: Math.round(args.elapsedMs / 1000),
     });
     if (!result.success) {
-      console.error("Failed to save tehai_fu result:", result.error);
+      console.error("[savePracticeResult] tehai_fu:", result.error);
     }
   }, []);
 

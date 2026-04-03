@@ -11,7 +11,7 @@ import { ChoiceButton } from "../../_components/choice-button";
 import { DrillShell } from "../../_components/drill-shell";
 import { getFeedbackStyles } from "../../_lib/feedback-styles";
 import { FU_OPTIONS } from "../../_lib/fu-options";
-import { saveMentsuFuResult } from "../_actions/save-result";
+import { savePracticeResult } from "../../_actions/save-practice-result";
 
 export function MentsuFuDrill() {
   const t = useTranslations("mentsuFu");
@@ -30,13 +30,13 @@ export function MentsuFuDrill() {
 
   const handleFinish = useCallback(async (args: FinishCallbackArgs) => {
     if (args.totalCount === 0) return;
-    const result = await saveMentsuFuResult({
-      correctAnswers: args.correctCount,
+    const result = await savePracticeResult('mentsu_fu', 'default', {
+      score: args.correctCount,
       incorrectAnswers: args.incorrectCount,
       timeTaken: Math.round(args.elapsedMs / 1000),
     });
     if (!result.success) {
-      console.error("Failed to save mentsu_fu result:", result.error);
+      console.error("[savePracticeResult] mentsu_fu:", result.error);
     }
   }, []);
 

@@ -13,7 +13,7 @@ import type { FinishCallbackArgs } from "../../_hooks/use-finish-redirect";
 import { ChoiceButton } from "../../_components/choice-button";
 import { DrillShell } from "../../_components/drill-shell";
 import { getFeedbackStyles } from "../../_lib/feedback-styles";
-import { saveJantouFuResult } from "../_actions/save-result";
+import { savePracticeResult } from "../../_actions/save-practice-result";
 
 export function JantouFuDrill() {
   const t = useTranslations("jantouFu");
@@ -32,13 +32,13 @@ export function JantouFuDrill() {
 
   const handleFinish = useCallback(async (args: FinishCallbackArgs) => {
     if (args.totalCount === 0) return;
-    const result = await saveJantouFuResult({
-      correctAnswers: args.correctCount,
+    const result = await savePracticeResult('jantou_fu', 'default', {
+      score: args.correctCount,
       incorrectAnswers: args.incorrectCount,
       timeTaken: Math.round(args.elapsedMs / 1000),
     });
     if (!result.success) {
-      console.error("Failed to save jantou_fu result:", result.error);
+      console.error("[savePracticeResult] jantou_fu:", result.error);
     }
   }, []);
 

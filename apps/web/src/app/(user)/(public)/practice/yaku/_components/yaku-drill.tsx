@@ -13,7 +13,7 @@ import { useTimedSession } from "../../_hooks/use-timed-session";
 import { DrillShell } from "../../_components/drill-shell";
 import { DrillTehaiDisplay } from "../../_components/drill-tehai-display";
 import { retryGenerate } from "../../_lib/retry-generate";
-import { saveYakuResult } from "../_actions/save-result";
+import { savePracticeResult } from "../../_actions/save-practice-result";
 import { YakuChip, getChipFeedbackState } from "./yaku-chip";
 import { HAN_GROUPS } from "../_lib/han-groups";
 
@@ -36,13 +36,13 @@ export function YakuDrill() {
 
   const handleFinish = useCallback(async (args: FinishCallbackArgs) => {
     if (args.totalCount === 0) return;
-    const result = await saveYakuResult({
-      correctAnswers: args.correctCount,
+    const result = await savePracticeResult('yaku', 'default', {
+      score: args.correctCount,
       incorrectAnswers: args.incorrectCount,
       timeTaken: Math.round(args.elapsedMs / 1000),
     });
     if (!result.success) {
-      console.error("Failed to save yaku result:", result.error);
+      console.error("[savePracticeResult] yaku:", result.error);
     }
   }, []);
 
