@@ -1,8 +1,9 @@
+import { isPracticeMenuType } from '@/lib/db/practice-menu-types';
+
 import type { LeaderboardModule, LeaderboardPeriod } from './types';
-import { MODULES, VALID_PERIODS } from './types';
+import { VALID_PERIODS } from './types';
 
 const validPeriodSet: ReadonlySet<string> = new Set(VALID_PERIODS);
-const validModuleSet: ReadonlySet<string> = new Set(MODULES);
 
 /**
  * 期間値のバリデーション
@@ -17,5 +18,5 @@ export function isValidPeriod(value: string): value is LeaderboardPeriod {
  * 有効なモジュール値か判定する型ガード
  */
 export function isValidModule(value: string): value is LeaderboardModule {
-  return validModuleSet.has(value);
+  return isPracticeMenuType(value);
 }

@@ -1,4 +1,5 @@
 import type { PracticeMenuType } from '@/lib/db/practice-menu-types';
+import { PRACTICE_MENU_TYPES } from '@/lib/db/practice-menu-types';
 import type { RankedLeaderboardRow } from '@/lib/db/challenge-queries';
 
 /**
@@ -26,13 +27,7 @@ export type LeaderboardModuleSlug =
   | 'tehai-fu'
   | 'yaku';
 
-export const MODULES: readonly LeaderboardModule[] = [
-  'jantou_fu',
-  'machi_fu',
-  'mentsu_fu',
-  'tehai_fu',
-  'yaku',
-] as const;
+export const MODULES: readonly LeaderboardModule[] = PRACTICE_MENU_TYPES;
 
 export type LeaderboardRow = RankedLeaderboardRow;
 
