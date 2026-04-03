@@ -9,8 +9,10 @@ export async function generateMetadata(): Promise<Metadata> {
 }
 
 /**
+ * 役判定練習 プレイ
+ *
  * @description
- * 役ドリルのプレイページ。手牌から成立する役を制限時間内に判定する。
+ * 役判定練習のプレイページ。手牌から成立する役を制限時間内に判定する。
  * セッション終了時にスコアをサーバーに保存し、リーダーボードに反映する。
  *
  * @flow

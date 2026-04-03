@@ -1,3 +1,9 @@
+/**
+ * 練習一覧
+ *
+ * @description 練習一覧ページ。符計算・翻数の各練習をカテゴリ別に表示する。
+ * @flow 練習カードから各練習の説明ページまたはプレイページへ遷移する。
+ */
 import type { Metadata } from "next";
 import { getTranslations } from "next-intl/server";
 import { ContentContainer } from "@/app/_components/content-container";
