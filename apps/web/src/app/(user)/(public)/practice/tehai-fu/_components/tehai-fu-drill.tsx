@@ -5,6 +5,7 @@ import { useTranslations } from "next-intl";
 import { generateTehaiFuQuestion } from "@mahjong-scoring/core";
 import type { TehaiFuQuestion } from "@mahjong-scoring/core";
 import { useTimedSession } from "../../_hooks/use-timed-session";
+import { useSaveOnFinish } from "../../_hooks/use-save-on-finish";
 import { DrillShell } from "../../_components/drill-shell";
 import { retryGenerate } from "../../_lib/retry-generate";
 import { TehaiDisplay } from "./tehai-display";
@@ -31,6 +32,8 @@ export function TehaiFuDrill() {
     setAnswers(q ? new Array(q.items.length).fill("") : []);
   }, []);
 
+  const handleFinish = useSaveOnFinish("tehai_fu");
+
   const handleSubmit = useCallback(() => {
     if (!question || showFeedback) return;
     const allCorrect = question.items.every(
@@ -56,7 +59,7 @@ export function TehaiFuDrill() {
   const allAnswered = answers.length > 0 && answers.every((a) => a !== "");
 
   return (
-    <DrillShell gameSession={gameSession} timerControl={timerControl} resultPath="/practice/tehai-fu/result" maxWidth="max-w-lg">
+    <DrillShell gameSession={gameSession} timerControl={timerControl} resultPath="/practice/tehai-fu/result" maxWidth="max-w-lg" onFinish={handleFinish}>
       <TehaiDisplay question={question} onScaleChange={setTileScale} />
 
       {/* Item list */}

@@ -5,17 +5,14 @@ import { useTranslations } from "next-intl";
 import Link from "next/link";
 import { ContentContainer } from "@/app/_components/content-container";
 import { PageTitle } from "@/app/_components/page-title";
-
-interface ResultClientProps {
-  /** リトライ用のプレイページURL（例: "/practice/jantou-fu/play"） */
-  readonly playHref: string;
-}
+import type { PracticeResultClientProps } from "../_lib/create-practice-result-page";
+import { LeaderboardPreview } from "./leaderboard-preview";
 
 /**
  * ドリル結果画面の共通クライアントコンポーネント
  * ドリル結果表示
  */
-export function ResultClient({ playHref }: ResultClientProps) {
+export function ResultClient({ playHref, leaderboardRows, leaderboardDetailPath }: PracticeResultClientProps) {
   const searchParams = useSearchParams();
   const tc = useTranslations("challenge");
 
@@ -49,6 +46,11 @@ export function ResultClient({ playHref }: ResultClientProps) {
         >
           {tc("backToList")}
         </Link>
+      </div>
+
+      {/* リーダーボードプレビュー（上位3名） */}
+      <div className="mt-8 w-full max-w-md">
+        <LeaderboardPreview rows={leaderboardRows} detailPath={leaderboardDetailPath} />
       </div>
     </ContentContainer>
   );

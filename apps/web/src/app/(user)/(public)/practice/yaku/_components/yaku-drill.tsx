@@ -9,6 +9,7 @@ import {
 } from "@mahjong-scoring/core";
 import type { YakuQuestion } from "@mahjong-scoring/core";
 import { useTimedSession } from "../../_hooks/use-timed-session";
+import { useSaveOnFinish } from "../../_hooks/use-save-on-finish";
 import { DrillShell } from "../../_components/drill-shell";
 import { DrillTehaiDisplay } from "../../_components/drill-tehai-display";
 import { retryGenerate } from "../../_lib/retry-generate";
@@ -31,6 +32,8 @@ export function YakuDrill() {
     setQuestion(generateQuestion());
     setSelectedYaku(new Set());
   }, []);
+
+  const handleFinish = useSaveOnFinish("yaku");
 
   const handleToggleYaku = useCallback(
     (yakuName: string) => {
@@ -67,6 +70,7 @@ export function YakuDrill() {
       timerControl={timerControl}
       resultPath="/practice/yaku/result"
       maxWidth="max-w-2xl"
+      onFinish={handleFinish}
     >
       <DrillTehaiDisplay
         tehai={question.tehai}

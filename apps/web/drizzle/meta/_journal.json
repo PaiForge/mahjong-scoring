@@ -15,6 +15,13 @@
       "when": 1775027494057,
       "tag": "20260401071134_create_user_roles_table",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1775123996337,
+      "tag": "20260402095956_create_challenge_results_and_best_scores",
+      "breakpoints": true
     }
   ]
 }

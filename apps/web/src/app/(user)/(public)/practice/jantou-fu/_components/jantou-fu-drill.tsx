@@ -9,6 +9,7 @@ import {
 import type { JantouFuQuestion, JantouFuChoice } from "@mahjong-scoring/core";
 import { Hai } from "@pai-forge/mahjong-react-ui";
 import { useTimedSession } from "../../_hooks/use-timed-session";
+import { useSaveOnFinish } from "../../_hooks/use-save-on-finish";
 import { ChoiceButton } from "../../_components/choice-button";
 import { DrillShell } from "../../_components/drill-shell";
 import { getFeedbackStyles } from "../../_lib/feedback-styles";
@@ -28,6 +29,8 @@ export function JantouFuDrill() {
     setSelectedHai(undefined);
   }, []);
 
+  const handleFinish = useSaveOnFinish("jantou_fu");
+
   const handleChoiceSelect = useCallback(
     (index: number) => {
       if (showFeedback) return;
@@ -39,7 +42,7 @@ export function JantouFuDrill() {
   );
 
   return (
-    <DrillShell gameSession={gameSession} timerControl={timerControl} resultPath="/practice/jantou-fu/result">
+    <DrillShell gameSession={gameSession} timerControl={timerControl} resultPath="/practice/jantou-fu/result" onFinish={handleFinish}>
       {/* Context */}
       <div className="mt-6 flex justify-center gap-6 text-sm">
         <div className="text-center">

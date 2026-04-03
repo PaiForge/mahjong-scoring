@@ -14,6 +14,19 @@ interface UseTimedSessionOptions {
   countdownFrom?: number;
 }
 
+/**
+ * ゲーム終了時の確定結果
+ * 終了スナップショット
+ *
+ * ref から取得するため、React の state バッチングやレンダーサイクルに依存せず
+ * 終了時点の正確な値を保持する。
+ */
+export interface FinalResult {
+  readonly correctCount: number;
+  readonly incorrectCount: number;
+  readonly totalCount: number;
+}
+
 /** ゲームロジック状態（タイマー値を含まない、ユーザー操作時のみ変化） */
 export interface GameSessionState {
   readonly isCountingDown: boolean;
@@ -31,6 +44,7 @@ export interface GameSessionState {
   readonly togglePause: () => void;
   readonly mistakeLimit: number;
   readonly timeLimit: number;
+  readonly finalResult: FinalResult | undefined;
 }
 
 /** DrillShell がタイマーを制御するためのインターフェース */
@@ -69,10 +83,15 @@ export function useTimedSession({
   const [lastAnswerCorrect, setLastAnswerCorrect] = useState<
     boolean | undefined
   >(undefined);
+  const [finalResult, setFinalResult] = useState<FinalResult | undefined>(
+    undefined
+  );
   const feedbackTimeoutRef = useRef<ReturnType<typeof setTimeout> | undefined>(
     undefined
   );
   const isFinishedRef = useRef(false);
+  const correctCountRef = useRef(0);
+  const incorrectCountRef = useRef(0);
   const timerResetRef = useRef<(() => void) | undefined>(undefined);
 
   const handleCountdownComplete = useCallback(() => {
@@ -87,6 +106,13 @@ export function useTimedSession({
   const handleTimeLimitReached = useCallback(() => {
     if (isFinishedRef.current) return;
     isFinishedRef.current = true;
+    const correct = correctCountRef.current;
+    const incorrect = incorrectCountRef.current;
+    setFinalResult({
+      correctCount: correct,
+      incorrectCount: incorrect,
+      totalCount: correct + incorrect,
+    });
     setIsFinished(true);
   }, []);
 
@@ -105,7 +131,15 @@ export function useTimedSession({
       setShowFeedback(true);
       setLastAnswerCorrect(correct);
 
-      const newIncorrectCount = correct ? incorrectCount : incorrectCount + 1;
+      const newCorrectCount = correct
+        ? correctCountRef.current + 1
+        : correctCountRef.current;
+      const newIncorrectCount = correct
+        ? incorrectCountRef.current
+        : incorrectCountRef.current + 1;
+
+      correctCountRef.current = newCorrectCount;
+      incorrectCountRef.current = newIncorrectCount;
 
       if (correct) {
         setCorrectCount((c) => c + 1);
@@ -115,7 +149,13 @@ export function useTimedSession({
 
       if (newIncorrectCount >= mistakeLimit) {
         feedbackTimeoutRef.current = setTimeout(() => {
+          if (isFinishedRef.current) return;
           isFinishedRef.current = true;
+          setFinalResult({
+            correctCount: newCorrectCount,
+            incorrectCount: newIncorrectCount,
+            totalCount: newCorrectCount + newIncorrectCount,
+          });
           setIsFinished(true);
           setShowFeedback(false);
         }, feedbackDurationMs);
@@ -129,7 +169,7 @@ export function useTimedSession({
         onNext();
       }, feedbackDurationMs);
     },
-    [incorrectCount, mistakeLimit, feedbackDurationMs, showFeedback, isPaused]
+    [mistakeLimit, feedbackDurationMs, showFeedback, isPaused]
   );
 
   const registerTimerReset = useCallback((resetFn: () => void) => {
@@ -145,7 +185,10 @@ export function useTimedSession({
     setIsPaused(false);
     setShowFeedback(false);
     setLastAnswerCorrect(undefined);
+    setFinalResult(undefined);
     isFinishedRef.current = false;
+    correctCountRef.current = 0;
+    incorrectCountRef.current = 0;
     timerResetRef.current?.();
     countdown.reset();
   }, [countdown]);
@@ -166,6 +209,7 @@ export function useTimedSession({
     togglePause,
     mistakeLimit,
     timeLimit,
+    finalResult,
   };
 
   const timerControl: TimerControl = {

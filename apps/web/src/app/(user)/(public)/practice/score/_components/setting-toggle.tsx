@@ -1,18 +1,34 @@
+"use client";
+
 interface SettingToggleProps {
   readonly checked: boolean;
   readonly onChange: (checked: boolean) => void;
   readonly label: string;
   readonly title?: string;
   readonly isLast?: boolean;
+  readonly onInfoClick?: () => void;
+  readonly infoAriaLabel?: string;
 }
 
-export function SettingToggle({ checked, onChange, label, title, isLast = false }: SettingToggleProps) {
+export function SettingToggle({ checked, onChange, label, title, isLast = false, onInfoClick, infoAriaLabel }: SettingToggleProps) {
   return (
-    <label className={`group flex cursor-pointer items-center justify-between px-5 py-3.5 transition-colors hover:bg-surface-50 ${isLast ? "" : "border-b border-surface-100"}`}>
-      <span className="select-none text-sm font-medium text-surface-700 group-hover:text-surface-900">
-        {title || label}
+    <div className={`group flex items-center justify-between px-5 py-3.5 transition-colors hover:bg-surface-50 ${isLast ? "" : "border-b border-surface-100"}`}>
+      <span className="flex items-center gap-1.5">
+        <label className="cursor-pointer select-none text-sm font-medium text-surface-700 group-hover:text-surface-900">
+          {title || label}
+        </label>
+        {onInfoClick && (
+          <button
+            type="button"
+            onClick={onInfoClick}
+            className="inline-flex size-5 items-center justify-center rounded-full text-xs text-surface-400 transition-colors hover:bg-surface-200 hover:text-surface-600"
+            aria-label={infoAriaLabel}
+          >
+            ?
+          </button>
+        )}
       </span>
-      <div className="relative inline-flex items-center">
+      <label className="relative inline-flex cursor-pointer items-center">
         <input
           type="checkbox"
           checked={checked}
@@ -25,7 +41,7 @@ export function SettingToggle({ checked, onChange, label, title, isLast = false 
             checked ? "translate-x-[20px]" : "translate-x-0"
           }`}
         />
-      </div>
-    </label>
+      </label>
+    </div>
   );
 }

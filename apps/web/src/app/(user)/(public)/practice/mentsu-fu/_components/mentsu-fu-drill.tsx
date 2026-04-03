@@ -6,6 +6,7 @@ import { generateMentsuFuQuestion } from "@mahjong-scoring/core";
 import type { MentsuFuQuestion } from "@mahjong-scoring/core";
 import { Furo } from "@pai-forge/mahjong-react-ui";
 import { useTimedSession } from "../../_hooks/use-timed-session";
+import { useSaveOnFinish } from "../../_hooks/use-save-on-finish";
 import { ChoiceButton } from "../../_components/choice-button";
 import { DrillShell } from "../../_components/drill-shell";
 import { getFeedbackStyles } from "../../_lib/feedback-styles";
@@ -25,6 +26,8 @@ export function MentsuFuDrill() {
     setQuestion(generateMentsuFuQuestion());
     setSelectedFu(undefined);
   }, []);
+
+  const handleFinish = useSaveOnFinish("mentsu_fu");
 
   const handleFuSelect = useCallback(
     (index: number) => {
@@ -46,7 +49,7 @@ export function MentsuFuDrill() {
   };
 
   return (
-    <DrillShell gameSession={gameSession} timerControl={timerControl} resultPath="/practice/mentsu-fu/result">
+    <DrillShell gameSession={gameSession} timerControl={timerControl} resultPath="/practice/mentsu-fu/result" onFinish={handleFinish}>
       {/* Mentsu display */}
       <div className="mt-6 flex flex-col items-center gap-4">
         <span className="text-sm font-bold uppercase tracking-widest text-surface-400">

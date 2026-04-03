@@ -18,7 +18,7 @@
     "heroDescription": "符計算から点数申告まで、初心者でもステップバイステップで学べるトレーニングアプリ",
     "ctaStart": "練習をはじめる",
     "ctaReference": "点数表を見る",
-    "featureFuDrill": "符計算ドリル",
+    "featureFuDrill": "符計算練習",
     "featureFuDrillDescription": "手牌から符を正しく数える練習ができます",
     "featureScoreTraining": "点数申告トレーニング",
     "featureScoreTrainingDescription": "翻数と符から素早く点数を答える反復練習",
@@ -40,7 +40,7 @@
   },
   "practice": {
     "title": "練習",
-    "description": "符計算の基礎から点数申告まで、段階的にマスターできるドリルを用意しています",
+    "description": "符計算の基礎から点数申告まで、段階的にマスターできる練習を用意しています",
     "start": "スタート",
     "learn": "学ぶ",
     "progress": "学習の進捗",
@@ -61,28 +61,28 @@
     "drills": {
       "jantouFu": {
         "title": "雀頭の符計算",
-        "description": "雀頭（アタマ）の牌種に応じた符を答えるドリル"
+        "description": "雀頭（アタマ）の牌種に応じた符を答える練習"
       },
       "machiFu": {
         "title": "待ちの符計算",
-        "description": "待ち形（両面・嵌張・辺張・単騎・双碰）の符を答えるドリル"
+        "description": "待ち形（両面・嵌張・辺張・単騎・双碰）の符を答える練習"
       },
       "mentsuFu": {
         "title": "面子の符計算",
-        "description": "面子の種類（順子・刻子・槓子）と明暗に応じた符を答えるドリル"
+        "description": "面子の種類（順子・刻子・槓子）と明暗に応じた符を答える練習"
       },
       "tehaiFu": {
         "title": "手牌の符計算",
-        "description": "手牌全体の符を合計して答える総合ドリル"
+        "description": "手牌全体の符を合計して答える総合練習"
       },
       "yaku": {
         "title": "役の選択",
-        "description": "手牌から成立する役をすべて選択するドリル"
-      },
-      "score": {
-        "title": "点数計算ドリル",
-        "description": "翻数・符から最終的な点数を算出する実戦形式のドリル"
+        "description": "手牌から成立する役をすべて選択する練習"
       }
+    },
+    "comprehensiveBanner": {
+      "title": "点数計算総合演習",
+      "description": "翻数・役・符・点数全てをチェックできる問題に好きなだけ回答できます。麻雀の点数計算の総合練習として最適です。"
     }
   },
   "challenge": {
@@ -233,7 +233,7 @@
   },
   "tehaiFu": {
     "title": "手牌の符計算",
-    "description": "手牌全体の面子構成・雀頭から、各要素の符を漏れなく回答する総合ドリル",
+    "description": "手牌全体の面子構成・雀頭から、各要素の符を漏れなく回答する総合練習",
     "bakaze": "場風",
     "jikaze": "自風",
     "agari": "和了牌",
@@ -276,7 +276,7 @@
   },
   "yaku": {
     "title": "役の選択",
-    "description": "手牌を見て成立している役をすべて選択するドリル",
+    "description": "手牌を見て成立している役をすべて選択する練習",
     "learnLink": "役の種類を学ぶ",
     "bakaze": "場風",
     "jikaze": "自風",
@@ -405,13 +405,14 @@
     "yakuman": "役満"
   },
   "score": {
-    "title": "点数計算ドリル",
-    "description": "翻数・符から最終的な点数を算出する実戦形式のドリル",
+    "title": "点数計算総合演習",
+    "description": "翻数・符から最終的な点数を算出する実戦形式の練習",
     "loading": "読み込み中...",
     "generating": "問題を生成中...",
     "setup": {
       "requireYaku": "役も回答する",
       "simplifyMangan": "5翻以降を簡略化",
+      "simplifyManganInfo": "有効にすると、5翻以上の回答が「満貫」「跳満」「倍満」「三倍満」「役満」のような区分での選択になります。無効にすると、「7翻」「13翻」のように具体的な翻数を指定して回答します。",
       "requireFu": "満貫以上も符を入力",
       "autoNext": "正解したらすぐに次の問題へ",
       "questionMode": "出題モード",
@@ -557,7 +558,7 @@
       "practiceNeeded": "確かに覚えること自体は難しく、実戦レベルで即座に点数を計上するまでのレベルに習熟するにはある程度練習が必要ですし、時間もかかると思います。",
       "howToUseTitle": "このサイトの使い方",
       "howToUseBody1": "この待ちの場合は何符つくとか、この面子には何符つくと言った一般的な解説はここでは行いません。理由は、基本的な符の計算方法や暗記のテクニックなどは、他のWebサイトや動画で既に詳しく解説されているからです。",
-      "howToUseBody2": "点数計算の出題に関しても他にアプリや書籍などは一定数ありますが、ここでは問題の作り方や操作性などには他と差別化できるようにこだわりました。このサイトは点数計算ドリルとして活用していただくのがいいと思います。",
+      "howToUseBody2": "点数計算の出題に関しても他にアプリや書籍などは一定数ありますが、ここでは問題の作り方や操作性などには他と差別化できるようにこだわりました。このサイトは点数計算練習として活用していただくのがいいと思います。",
       "howToUseBody3": "点数計算が好きで麻雀を嗜む方は少数派だと思います。ただ、（オフラインで）麻雀をする上で必要不可欠なものには違いありません。",
       "howToUseBody4": "このサイトを利用してさっさと点数計算を覚えてしまいましょう。そして、点数計算以外の部分にある麻雀の本質的な楽しさを体験できるようになりましょう。"
     }
@@ -586,10 +587,6 @@
   },
   "privacy": {
     "pageTitle": "プライバシーポリシー",
-    "comingSoon": "準備中です。"
-  },
-  "leaderboard": {
-    "pageTitle": "ランキング",
     "comingSoon": "準備中です。"
   },
   "auth": {
@@ -646,5 +643,57 @@
     "previous": "前へ",
     "next": "次へ",
     "pageIndicator": "{current} / {total} ページ"
+  },
+  "leaderboard": {
+    "title": "ランキング",
+    "description": "トッププレイヤーのスコアを確認できます",
+    "allModulesSection": "種目別ランキング",
+    "periodLabel": "期間",
+    "period": {
+      "all-time": "総合",
+      "monthly": "月間"
+    },
+    "module": {
+      "jantou_fu": "雀頭の符",
+      "machi_fu": "待ちの符",
+      "mentsu_fu": "面子の符",
+      "tehai_fu": "手牌の符",
+      "yaku": "役"
+    },
+    "moduleIcon": {
+      "jantou_fu": "\ud83c\udc04",
+      "machi_fu": "\ud83c\udfaf",
+      "mentsu_fu": "\ud83e\udde9",
+      "tehai_fu": "\u2728",
+      "yaku": "\ud83c\udfc6"
+    },
+    "rankLabel": "{rank} 位",
+    "notRanked": "未挑戦",
+    "table": {
+      "rank": "順位",
+      "player": "プレイヤー",
+      "score": "スコア",
+      "miss": "ミス"
+    },
+    "emptyState": "まだスコアが記録されていません。最初の記録を作りましょう！",
+    "yourRank": "あなた",
+    "pagination": {
+      "label": "ランキングページ送り",
+      "previous": "前へ",
+      "next": "次へ",
+      "total": "全 {count} 人"
+    },
+    "tryChallenge": "この種目にチャレンジ",
+    "signUpBanner": {
+      "message": "ランキングに参加しよう！",
+      "description": "無料アカウントを作成して、スコアを記録し他のプレイヤーと競い合いましょう。",
+      "cta": "無料登録"
+    },
+    "allTimeRanking": "総合ランキング",
+    "viewMore": "ランキングをもっと見る"
+  },
+  "common": {
+    "close": "閉じる",
+    "showDetailInfo": "詳細情報を表示"
   }
 }

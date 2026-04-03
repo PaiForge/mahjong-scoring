@@ -1,21 +1,25 @@
 "use client";
 
+import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { useTranslations } from "next-intl";
 import { useSettingsStore } from "@/stores/use-settings-store";
 import { useDrillStore } from "@/stores/use-drill-store";
+import { InfoModal } from "@/app/_components/info-modal";
 import { useIsClient } from "../../_hooks/use-is-client";
 import { SettingToggle } from "./setting-toggle";
 import { SmallCheckbox } from "./small-checkbox";
 
 /**
- * 点数計算ドリルの設定画面
- * ドリル設定画面
+ * 点数計算練習の設定画面
+ * 練習設定画面
  */
 export function SetupScreen() {
   const t = useTranslations("score");
+  const tCommon = useTranslations("common");
   const router = useRouter();
   const mounted = useIsClient();
+  const [showSimplifyInfo, setShowSimplifyInfo] = useState(false);
   const {
     requireYaku,
     setRequireYaku,
@@ -95,6 +99,8 @@ export function SetupScreen() {
             checked={simplifyMangan}
             onChange={setSimplifyMangan}
             label={t("setup.simplifyMangan")}
+            onInfoClick={() => setShowSimplifyInfo(true)}
+            infoAriaLabel={tCommon("showDetailInfo")}
           />
           <SettingToggle
             checked={requireFuForMangan}
@@ -170,6 +176,15 @@ export function SetupScreen() {
           {t("setup.start")}
         </button>
       </div>
+
+      <InfoModal
+        open={showSimplifyInfo}
+        onClose={() => setShowSimplifyInfo(false)}
+        title={t("setup.simplifyMangan")}
+        closeLabel={tCommon("close")}
+      >
+        {t("setup.simplifyManganInfo")}
+      </InfoModal>
     </div>
   );
 }
