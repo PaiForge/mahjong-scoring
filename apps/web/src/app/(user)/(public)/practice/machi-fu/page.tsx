@@ -8,6 +8,16 @@ export async function generateMetadata(): Promise<Metadata> {
   return createMetadata({ title: t("title"), description: t("description") });
 }
 
+/**
+ * @description
+ * 待ち符ドリルの説明ページ。待ちの符計算についての概要を表示し、
+ * ドリル開始および教本ページへのリンクを提供する。
+ *
+ * @flow
+ * 1. ユーザーがドリル一覧から待ち符を選択して遷移
+ * 2. ドリルの説明と「開始」ボタン、教本ページへのリンクが表示される
+ * 3. 「開始」を押すと play ページへ遷移
+ */
 export default function MachiFuPage() {
   return <DrillIntroContent namespace="machiFu" slug="machi-fu" />;
 }

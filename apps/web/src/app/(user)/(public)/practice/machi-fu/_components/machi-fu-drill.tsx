@@ -6,9 +6,11 @@ import { generateMachiFuQuestion } from "@mahjong-scoring/core";
 import type { MachiFuQuestion } from "@mahjong-scoring/core";
 import { Hai } from "@pai-forge/mahjong-react-ui";
 import { useTimedSession } from "../../_hooks/use-timed-session";
+import type { FinishCallbackArgs } from "../../_hooks/use-finish-redirect";
 import { ChoiceButton } from "../../_components/choice-button";
 import { DrillShell } from "../../_components/drill-shell";
 import { getFeedbackStyles } from "../../_lib/feedback-styles";
+import { saveMachiFuResult } from "../_actions/save-result";
 
 const FU_OPTIONS = [0, 2] as const;
 
@@ -27,6 +29,18 @@ export function MachiFuDrill() {
     setSelectedFu(undefined);
   }, []);
 
+  const handleFinish = useCallback(async (args: FinishCallbackArgs) => {
+    if (args.totalCount === 0) return;
+    const result = await saveMachiFuResult({
+      correctAnswers: args.correctCount,
+      incorrectAnswers: args.incorrectCount,
+      timeTaken: Math.round(args.elapsedMs / 1000),
+    });
+    if (!result.success) {
+      console.error("Failed to save machi_fu result:", result.error);
+    }
+  }, []);
+
   const handleFuSelect = useCallback(
     (index: number) => {
       if (showFeedback) return;
@@ -38,7 +52,7 @@ export function MachiFuDrill() {
   );
 
   return (
-    <DrillShell gameSession={gameSession} timerControl={timerControl} resultPath="/practice/machi-fu/result">
+    <DrillShell gameSession={gameSession} timerControl={timerControl} resultPath="/practice/machi-fu/result" onFinish={handleFinish}>
       {/* Machi tiles */}
       <div className="mt-6 flex flex-col items-center gap-4">
         <div className="flex flex-col items-center gap-2">
