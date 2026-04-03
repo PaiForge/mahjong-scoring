@@ -7,6 +7,7 @@ import { BoardOverlay } from "@/app/_components/board-overlay";
 import { PauseIcon } from "@/app/_components/icons/pause-icon";
 import { PlayIcon } from "@/app/_components/icons/play-icon";
 import type { GameSessionState, TimerControl } from "../_hooks/use-timed-session";
+import type { FinishCallbackArgs } from "../_hooks/use-finish-redirect";
 import { useGameTimer } from "../_hooks/use-game-timer";
 import { useFinishRedirect } from "../_hooks/use-finish-redirect";
 import { QuizTimer } from "./quiz-timer";
@@ -46,6 +47,8 @@ interface DrillShellProps {
   readonly children: ReactNode;
   /** 内部ラッパーの max-w クラス（既定: "max-w-md"） */
   readonly maxWidth?: string;
+  /** ドリル終了時に呼び出されるコールバック（スコア保存等） */
+  readonly onFinish?: (args: FinishCallbackArgs) => Promise<void> | void;
 }
 
 /**
@@ -62,6 +65,7 @@ export function DrillShell({
   resultPath,
   children,
   maxWidth = "max-w-md",
+  onFinish,
 }: DrillShellProps) {
   const tc = useTranslations("challenge");
 
@@ -80,10 +84,10 @@ export function DrillShell({
 
   useFinishRedirect({
     isFinished: gameSession.isFinished,
-    correctCount: gameSession.correctCount,
-    totalCount: gameSession.totalCount,
+    finalResult: gameSession.finalResult,
     elapsedMs,
     resultPath,
+    onFinish,
   });
 
   if (gameSession.isFinished) {

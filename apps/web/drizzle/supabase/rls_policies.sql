@@ -29,3 +29,33 @@ CREATE TRIGGER profiles_updated_at
   BEFORE UPDATE ON "profiles"
   FOR EACH ROW
   EXECUTE FUNCTION public.update_updated_at_column();
+
+-- =============================================================================
+-- challenge_results
+-- =============================================================================
+ALTER TABLE "challenge_results" ENABLE ROW LEVEL SECURITY;
+
+DROP POLICY IF EXISTS "challenge_results_select" ON "challenge_results";
+CREATE POLICY "challenge_results_select" ON "challenge_results"
+  FOR SELECT USING (auth.uid() = user_id);
+
+DROP POLICY IF EXISTS "challenge_results_insert" ON "challenge_results";
+CREATE POLICY "challenge_results_insert" ON "challenge_results"
+  FOR INSERT WITH CHECK (auth.uid() = user_id);
+
+-- =============================================================================
+-- challenge_best_scores
+-- =============================================================================
+ALTER TABLE "challenge_best_scores" ENABLE ROW LEVEL SECURITY;
+
+DROP POLICY IF EXISTS "challenge_best_scores_select" ON "challenge_best_scores";
+CREATE POLICY "challenge_best_scores_select" ON "challenge_best_scores"
+  FOR SELECT USING (auth.uid() = user_id);
+
+DROP POLICY IF EXISTS "challenge_best_scores_insert" ON "challenge_best_scores";
+CREATE POLICY "challenge_best_scores_insert" ON "challenge_best_scores"
+  FOR INSERT WITH CHECK (auth.uid() = user_id);
+
+DROP POLICY IF EXISTS "challenge_best_scores_update" ON "challenge_best_scores";
+CREATE POLICY "challenge_best_scores_update" ON "challenge_best_scores"
+  FOR UPDATE USING (auth.uid() = user_id);

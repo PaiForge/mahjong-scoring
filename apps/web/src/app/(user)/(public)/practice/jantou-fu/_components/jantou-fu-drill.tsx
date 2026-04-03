@@ -9,9 +9,11 @@ import {
 import type { JantouFuQuestion, JantouFuChoice } from "@mahjong-scoring/core";
 import { Hai } from "@pai-forge/mahjong-react-ui";
 import { useTimedSession } from "../../_hooks/use-timed-session";
+import type { FinishCallbackArgs } from "../../_hooks/use-finish-redirect";
 import { ChoiceButton } from "../../_components/choice-button";
 import { DrillShell } from "../../_components/drill-shell";
 import { getFeedbackStyles } from "../../_lib/feedback-styles";
+import { saveJantouFuResult } from "../_actions/save-result";
 
 export function JantouFuDrill() {
   const t = useTranslations("jantouFu");
@@ -28,6 +30,18 @@ export function JantouFuDrill() {
     setSelectedHai(undefined);
   }, []);
 
+  const handleFinish = useCallback(async (args: FinishCallbackArgs) => {
+    if (args.totalCount === 0) return;
+    const result = await saveJantouFuResult({
+      correctAnswers: args.correctCount,
+      incorrectAnswers: args.incorrectCount,
+      timeTaken: Math.round(args.elapsedMs / 1000),
+    });
+    if (!result.success) {
+      console.error("Failed to save jantou_fu result:", result.error);
+    }
+  }, []);
+
   const handleChoiceSelect = useCallback(
     (index: number) => {
       if (showFeedback) return;
@@ -39,7 +53,7 @@ export function JantouFuDrill() {
   );
 
   return (
-    <DrillShell gameSession={gameSession} timerControl={timerControl} resultPath="/practice/jantou-fu/result">
+    <DrillShell gameSession={gameSession} timerControl={timerControl} resultPath="/practice/jantou-fu/result" onFinish={handleFinish}>
       {/* Context */}
       <div className="mt-6 flex justify-center gap-6 text-sm">
         <div className="text-center">

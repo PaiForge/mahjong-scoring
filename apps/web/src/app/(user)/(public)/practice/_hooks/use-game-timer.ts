@@ -18,6 +18,7 @@ export function useGameTimer({
   const [elapsedMs, setElapsedMs] = useState(0);
   const startTimeRef = useRef<number | undefined>(undefined);
   const accumulatedTimeRef = useRef(0);
+  const timeLimitFiredRef = useRef(false);
   const onTimeLimitReachedRef = useRef(onTimeLimitReached);
   onTimeLimitReachedRef.current = onTimeLimitReached;
 
@@ -38,7 +39,8 @@ export function useGameTimer({
         accumulatedTimeRef.current + (now - (startTimeRef.current ?? now));
       setElapsedMs(total);
 
-      if (total >= timeLimit * 1000) {
+      if (!timeLimitFiredRef.current && total >= timeLimit * 1000) {
+        timeLimitFiredRef.current = true;
         onTimeLimitReachedRef.current();
       }
     }, intervalMs);
@@ -53,6 +55,7 @@ export function useGameTimer({
     setElapsedMs(0);
     startTimeRef.current = undefined;
     accumulatedTimeRef.current = 0;
+    timeLimitFiredRef.current = false;
   }, []);
 
   return { elapsedMs, remainingMs, remainingSeconds, reset };
