@@ -6,10 +6,12 @@ import { generateMentsuFuQuestion } from "@mahjong-scoring/core";
 import type { MentsuFuQuestion } from "@mahjong-scoring/core";
 import { Furo } from "@pai-forge/mahjong-react-ui";
 import { useTimedSession } from "../../_hooks/use-timed-session";
+import type { FinishCallbackArgs } from "../../_hooks/use-finish-redirect";
 import { ChoiceButton } from "../../_components/choice-button";
 import { DrillShell } from "../../_components/drill-shell";
 import { getFeedbackStyles } from "../../_lib/feedback-styles";
 import { FU_OPTIONS } from "../../_lib/fu-options";
+import { saveMentsuFuResult } from "../_actions/save-result";
 
 export function MentsuFuDrill() {
   const t = useTranslations("mentsuFu");
@@ -24,6 +26,18 @@ export function MentsuFuDrill() {
   const advanceQuestion = useCallback(() => {
     setQuestion(generateMentsuFuQuestion());
     setSelectedFu(undefined);
+  }, []);
+
+  const handleFinish = useCallback(async (args: FinishCallbackArgs) => {
+    if (args.totalCount === 0) return;
+    const result = await saveMentsuFuResult({
+      correctAnswers: args.correctCount,
+      incorrectAnswers: args.incorrectCount,
+      timeTaken: Math.round(args.elapsedMs / 1000),
+    });
+    if (!result.success) {
+      console.error("Failed to save mentsu_fu result:", result.error);
+    }
   }, []);
 
   const handleFuSelect = useCallback(
@@ -46,7 +60,7 @@ export function MentsuFuDrill() {
   };
 
   return (
-    <DrillShell gameSession={gameSession} timerControl={timerControl} resultPath="/practice/mentsu-fu/result">
+    <DrillShell gameSession={gameSession} timerControl={timerControl} resultPath="/practice/mentsu-fu/result" onFinish={handleFinish}>
       {/* Mentsu display */}
       <div className="mt-6 flex flex-col items-center gap-4">
         <span className="text-sm font-bold uppercase tracking-widest text-surface-400">
