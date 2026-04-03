@@ -598,7 +598,12 @@
   },
   "mypage": {
     "pageTitle": "マイページ",
-    "comingSoon": "準備中です。"
+    "cards": {
+      "challenges": {
+        "title": "マイレコード",
+        "summary": "チャレンジモードの成績を確認できます"
+      }
+    }
   },
   "setupUsername": {
     "title": "ユーザー名の設定",
@@ -691,6 +696,49 @@
     },
     "allTimeRanking": "総合ランキング",
     "viewMore": "ランキングをもっと見る"
+  },
+  "mypageChallenges": {
+    "pageTitle": "マイレコード",
+    "records": "成績",
+    "noData": "データがありません",
+    "bestScore": "ベストスコア",
+    "avgScore": "平均スコア",
+    "avgScoreTooltip": "ミス上限に達せず終了（完走）したセッションの平均スコア",
+    "scoreTrend": "スコア推移",
+    "scoreUnit": "スコア",
+    "sessionHistory": "直近の履歴",
+    "viewAllResults": "すべての結果を見る",
+    "tableDate": "日時",
+    "tableCorrectAnswers": "正解数",
+    "tableIncorrectAnswers": "ミス数",
+    "vsLastWeek": "先週比",
+    "vs2WeeksAgo": "2週前比",
+    "vsLastMonth": "先月比",
+    "vs2MonthsAgo": "2ヶ月前比",
+    "periods": {
+      "thisWeek": "今週",
+      "lastWeek": "先週",
+      "thisMonth": "今月",
+      "lastMonth": "先月",
+      "twoWeeksAgo": "2週前",
+      "twoMonthsAgo": "2ヶ月前"
+    },
+    "menuTypes": {
+      "jantou_fu": "雀頭の符",
+      "machi_fu": "待ちの符",
+      "mentsu_fu": "面子の符",
+      "tehai_fu": "手牌の符",
+      "yaku": "役"
+    }
+  },
+  "mypageChallengeResults": {
+    "pageTitle": "チャレンジ全履歴",
+    "empty": "結果がありません",
+    "tableDate": "日時",
+    "tableMenu": "種目",
+    "tableCorrectAnswers": "正解数",
+    "tableIncorrectAnswers": "ミス数",
+    "allMenuTypes": "すべての種目"
   },
   "common": {
     "close": "閉じる",
