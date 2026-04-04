@@ -13,18 +13,12 @@ export function HeroSection() {
         <p className="mt-4 text-base text-primary-100 md:text-lg">
           {t("heroDescription")}
         </p>
-        <div className="mt-8 flex flex-col items-center gap-3 sm:flex-row sm:justify-center">
+        <div className="mt-8 flex justify-center">
           <Link
             href="/practice"
-            className="rounded-lg bg-white px-6 py-3 text-sm font-semibold text-primary-700 shadow-sm transition-colors hover:bg-primary-50"
+            className="rounded-lg bg-white px-8 py-3 text-sm font-semibold text-primary-700 shadow-sm transition-colors hover:bg-primary-50"
           >
-            {t("ctaStart")}
-          </Link>
-          <Link
-            href="/reference"
-            className="rounded-lg border border-white/30 px-6 py-3 text-sm font-semibold text-white transition-colors hover:bg-white/10"
-          >
-            {t("ctaReference")}
+            {t("ctaGetStarted")}
           </Link>
         </div>
       </div>

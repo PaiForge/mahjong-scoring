@@ -1,13 +1,15 @@
 import { HeroSection } from "./hero-section";
-import { FeatureSection } from "./feature-section";
-import { AppDownloadBanner } from "./app-download-banner";
+import { PracticeSection } from "./practice-section";
+import { ReferenceSection } from "./reference-section";
+import { LearnSection } from "./learn-section";
 
 export function LandingPage() {
   return (
     <>
       <HeroSection />
-      <FeatureSection />
-      <AppDownloadBanner />
+      <PracticeSection />
+      <ReferenceSection />
+      <LearnSection />
     </>
   );
 }
