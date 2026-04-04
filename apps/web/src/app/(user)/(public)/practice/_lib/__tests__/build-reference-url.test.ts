@@ -1,11 +1,11 @@
 import { describe, expect, it } from "vitest";
 
-import type { ScoreTableQuestionResult } from "../types";
+import type { ScoreQuestionResult } from "../score-question-result";
 import { buildReferenceUrl } from "../build-reference-url";
 
 function makeResult(
-  overrides: Partial<ScoreTableQuestionResult> = {},
-): ScoreTableQuestionResult {
+  overrides: Partial<ScoreQuestionResult> = {},
+): ScoreQuestionResult {
   return {
     isOya: false,
     isTsumo: false,

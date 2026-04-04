@@ -1,8 +1,10 @@
 "use client";
 
+import Link from "next/link";
 import { useTranslations } from "next-intl";
 import type { ScoreCalculationQuestionResult } from "../_lib/types";
 import { formatScoreAnswer } from "../_lib/format-answer";
+import { buildReferenceUrl } from "../../_lib/build-reference-url";
 import { ScoreProblemList } from "../../_components/score-problem-list";
 
 interface ScoreCalculationProblemListProps {
@@ -22,7 +24,16 @@ export function ScoreCalculationProblemList({ results }: ScoreCalculationProblem
     <ScoreProblemList
       results={results}
       translationNamespace="scoreCalculationDrill"
-      renderCorrectAnswer={(answer) => formatScoreAnswer(answer, t)}
+      renderCorrectAnswer={(answer, result) => (
+        <Link
+          href={buildReferenceUrl(result)}
+          className="text-primary-600 underline hover:text-primary-800"
+          target="_blank"
+          rel="noopener noreferrer"
+        >
+          {formatScoreAnswer(answer, t)}
+        </Link>
+      )}
       formatAnswer={formatScoreAnswer}
     />
   );

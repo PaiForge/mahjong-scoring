@@ -87,21 +87,13 @@
         "description": "点数表を暗記するチャレンジドリル"
       },
       "scoreCalculation": {
-        "title": "点数計算ドリル",
-        "description": "手牌から点数を読み取って回答するチャレンジドリル"
+        "title": "点数即答",
+        "description": "手牌から点数を読み取って素早く回答するチャレンジドリル"
       }
     },
     "comprehensiveBanner": {
       "title": "点数計算総合演習",
       "description": "翻数・役・符・点数全てをチェックできる問題に好きなだけ回答できます。麻雀の点数計算の総合練習として最適です。"
-    },
-    "scoreTableBanner": {
-      "title": "点数表早引き",
-      "description": "親子・ツモロン・翻数・符から正しい点数を素早く答えるドリルです"
-    },
-    "scoreCalculationBanner": {
-      "title": "点数計算ドリル",
-      "description": "手牌から点数を読み取って素早く回答するチャレンジドリルです"
     }
   },
   "challenge": {

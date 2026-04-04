@@ -1,8 +1,8 @@
 import { describe, expect, it } from "vitest";
 
-import type { ScoreTableQuestionResult } from "../types";
+import type { ScoreQuestionResult } from "../score-question-result";
 import { buildReferenceUrl } from "../build-reference-url";
-import { buildHighlightCellId } from "../../../../reference/_lib/score-table-utils";
+import { buildHighlightCellId } from "../../../reference/_lib/score-table-utils";
 
 /**
  * buildReferenceUrl で生成されたURLのクエリパラメータが、
@@ -21,8 +21,8 @@ function extractParams(url: string) {
 }
 
 function makeResult(
-  overrides: Partial<ScoreTableQuestionResult> = {},
-): ScoreTableQuestionResult {
+  overrides: Partial<ScoreQuestionResult> = {},
+): ScoreQuestionResult {
   return {
     isOya: false,
     isTsumo: false,
@@ -38,7 +38,7 @@ function makeResult(
 describe("buildReferenceUrl → ScoreTable highlight roundtrip", () => {
   const cases: {
     name: string;
-    input: Partial<ScoreTableQuestionResult>;
+    input: Partial<ScoreQuestionResult>;
     expectedCellId: string;
   }[] = [
     {
