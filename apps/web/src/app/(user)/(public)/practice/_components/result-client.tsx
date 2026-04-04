@@ -12,7 +12,7 @@ import { LeaderboardPreview } from "./leaderboard-preview";
  * ドリル結果画面の共通クライアントコンポーネント
  * ドリル結果表示
  */
-export function ResultClient({ playHref, leaderboardRows, leaderboardDetailPath }: PracticeResultClientProps) {
+export function ResultClient({ playHref, leaderboardRows, leaderboardDetailPath, children }: PracticeResultClientProps) {
   const searchParams = useSearchParams();
   const tc = useTranslations("challenge");
 
@@ -47,6 +47,9 @@ export function ResultClient({ playHref, leaderboardRows, leaderboardDetailPath 
           {tc("backToList")}
         </Link>
       </div>
+
+      {/* ドリル固有の追加コンテンツ */}
+      {children}
 
       {/* リーダーボードプレビュー（上位3名） */}
       <div className="mt-8 w-full max-w-md">

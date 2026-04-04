@@ -1,6 +1,7 @@
 "use client";
 
-import { useCallback, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { useSearchParams } from "next/navigation";
 import { useTranslations } from "next-intl";
 import {
   calculateKoScore,
@@ -9,10 +10,10 @@ import {
   HIGH_SCORES,
 } from "@mahjong-scoring/core";
 import { ToggleGroup } from "@/app/_components/toggle-group";
+import { isRole, isWinType, buildHighlightCellId } from "../_lib/score-table-utils";
+import type { Role, WinType } from "../_lib/score-table-utils";
 
-type Role = "ko" | "oya";
 type ViewMode = "normal" | "high_score";
-type WinType = "ron" | "tsumo";
 
 const HAN_COLS = [1, 2, 3, 4] as const;
 const FU_ROWS = [20, 25, 30, 40, 50, 60, 70, 80, 90, 100, 110] as const;
@@ -40,10 +41,40 @@ function TsumoScore({ score }: { readonly score: string | number }) {
 
 export function ScoreTable() {
   const t = useTranslations("scoreTable");
-  const [activeTab, setActiveTab] = useState<Role>("ko");
+  const searchParams = useSearchParams();
+  const highlightRef = useRef<HTMLTableCellElement>(null);
+
+  const paramRole = searchParams.get("role");
+  const paramWinType = searchParams.get("winType");
+  const paramHan = searchParams.get("han");
+  const paramFu = searchParams.get("fu");
+
+  const initialRole: Role =
+    paramRole !== null && isRole(paramRole) ? paramRole : "ko";
+  const initialWinType: WinType =
+    paramWinType !== null && isWinType(paramWinType) ? paramWinType : "ron";
+
+  const highlightCellId = useMemo(
+    () =>
+      buildHighlightCellId({
+        role: paramRole,
+        winType: paramWinType,
+        han: paramHan,
+        fu: paramFu,
+      }),
+    [paramRole, paramWinType, paramHan, paramFu],
+  );
+
+  const [activeTab, setActiveTab] = useState<Role>(initialRole);
   const [viewMode, setViewMode] = useState<ViewMode>("normal");
-  const [winType, setWinType] = useState<WinType>("ron");
+  const [winType, setWinType] = useState<WinType>(initialWinType);
   const [hiddenCells, setHiddenCells] = useState<Record<string, boolean>>({});
+
+  useEffect(() => {
+    if (highlightRef.current) {
+      highlightRef.current.scrollIntoView({ behavior: "smooth", block: "center" });
+    }
+  }, []);
 
   const isKo = activeTab === "ko";
 
@@ -142,12 +173,15 @@ export function ScoreTable() {
                           : calculateOyaScore(han, fu);
                         const cellId = `${activeTab}-${winType}-${han}han-${fu}fu`;
                         const isHidden = !!hiddenCells[cellId];
+                        const isHighlighted = cellId === highlightCellId;
+                        const highlightClass = isHighlighted ? " bg-amber-100 ring-2 ring-inset ring-amber-400" : "";
 
                         if (score.isMangan) {
                           return (
                             <td
                               key={han}
-                              className="px-4 py-3 cursor-pointer select-none"
+                              ref={isHighlighted ? highlightRef : undefined}
+                              className={`px-4 py-3 cursor-pointer select-none${highlightClass}`}
                               onClick={() => toggleCell(cellId)}
                             >
                               <span
@@ -164,7 +198,8 @@ export function ScoreTable() {
                         return (
                           <td
                             key={han}
-                            className="px-4 py-3 cursor-pointer select-none"
+                            ref={isHighlighted ? highlightRef : undefined}
+                            className={`px-4 py-3 cursor-pointer select-none${highlightClass}`}
                             onClick={() => toggleCell(cellId)}
                           >
                             <span

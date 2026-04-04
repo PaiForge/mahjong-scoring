@@ -18,6 +18,8 @@ export interface PracticeResultClientProps {
   readonly leaderboardRows: readonly LeaderboardRow[];
   /** リーダーボード詳細ページパス */
   readonly leaderboardDetailPath: string;
+  /** スコア表示とボタンの間に挿入する追加コンテンツ（問題別フィードバック等） */
+  readonly children?: React.ReactNode;
 }
 
 interface ResultPageConfig {

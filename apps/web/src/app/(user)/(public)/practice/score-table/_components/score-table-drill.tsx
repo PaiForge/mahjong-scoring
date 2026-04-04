@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { useTranslations } from "next-intl";
 import {
   generateScoreTableQuestion,
@@ -11,6 +11,8 @@ import { useTimedSession } from "../../_hooks/use-timed-session";
 import { useSaveOnFinish } from "../../_hooks/use-save-on-finish";
 import { DrillShell } from "../../_components/drill-shell";
 import { ScoreTableAnswerForm } from "./score-table-answer-form";
+import type { ScoreTableQuestionResult } from "../_lib/types";
+import { RESULT_STORAGE_KEY } from "../_lib/types";
 
 /**
  * 点数表早引きドリル本体
@@ -25,6 +27,8 @@ export function ScoreTableDrill() {
   const { gameSession, timerControl } = useTimedSession();
   const { showFeedback, isCountingDown, lastAnswerCorrect, handleAnswer } = gameSession;
 
+  const questionResultsRef = useRef<ScoreTableQuestionResult[]>([]);
+
   const advanceQuestion = useCallback(() => {
     setQuestion(generateScoreTableQuestion());
   }, []);
@@ -35,10 +39,27 @@ export function ScoreTableDrill() {
     (userAnswer: ScoreTableUserAnswer) => {
       if (showFeedback) return;
       const isCorrect = judgeScoreTableAnswer(userAnswer, question.correctAnswer);
+
+      questionResultsRef.current.push({
+        isOya: question.isOya,
+        isTsumo: question.isTsumo,
+        han: question.han,
+        fu: question.fu,
+        correctAnswer: question.correctAnswer,
+        userAnswer,
+        isCorrect,
+      });
+
       handleAnswer(isCorrect, advanceQuestion);
     },
-    [showFeedback, question.correctAnswer, handleAnswer, advanceQuestion],
+    [showFeedback, question, handleAnswer, advanceQuestion],
   );
+
+  useEffect(() => {
+    if (gameSession.isFinished) {
+      sessionStorage.setItem(RESULT_STORAGE_KEY, JSON.stringify(questionResultsRef.current));
+    }
+  }, [gameSession.isFinished]);
 
   const feedbackBorderClass = showFeedback
     ? lastAnswerCorrect

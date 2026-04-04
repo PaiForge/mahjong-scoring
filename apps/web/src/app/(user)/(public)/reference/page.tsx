@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { Suspense } from "react";
 import { getTranslations } from "next-intl/server";
 import { ContentContainer } from "@/app/_components/content-container";
 import { PageTitle } from "@/app/_components/page-title";
@@ -20,7 +21,9 @@ export default async function ReferencePage() {
       <p className="mt-2 text-sm text-surface-500">{t("pageDescription")}</p>
 
       <div className="mt-6">
-        <ScoreTable />
+        <Suspense>
+          <ScoreTable />
+        </Suspense>
       </div>
     </ContentContainer>
   );
