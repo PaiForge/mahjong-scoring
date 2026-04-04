@@ -89,6 +89,10 @@
       "scoreCalculation": {
         "title": "点数即答",
         "description": "手牌から点数を読み取って素早く回答するチャレンジドリル"
+      },
+      "hanCount": {
+        "title": "翻数即答",
+        "description": "手牌から合計翻数を素早く回答するチャレンジドリル"
       }
     },
     "comprehensiveBanner": {
@@ -676,7 +680,8 @@
       "tehai_fu": "手牌の符",
       "yaku": "役",
       "score_table": "点数表早引き",
-      "score_calculation": "点数計算"
+      "score_calculation": "点数計算",
+      "han_count": "翻数即答"
     },
     "moduleIcon": {
       "jantou_fu": "\ud83c\udc04",
@@ -685,7 +690,8 @@
       "tehai_fu": "\u2728",
       "yaku": "\ud83c\udfc6",
       "score_table": "\ud83d\udcc8",
-      "score_calculation": "\ud83c\udfb2"
+      "score_calculation": "\ud83c\udfb2",
+      "han_count": "\ud83d\udd22"
     },
     "rankLabel": "{rank} 位",
     "notRanked": "未挑戦",
@@ -745,7 +751,8 @@
       "tehai_fu": "手牌の符",
       "yaku": "役",
       "score_table": "点数表早引き",
-      "score_calculation": "点数計算"
+      "score_calculation": "点数計算",
+      "han_count": "翻数即答"
     }
   },
   "mypageChallengeResults": {
@@ -799,6 +806,29 @@
     "fromOya": "親から",
     "all": "オール",
     "answer": "回答する",
+    "generating": "問題を生成中...",
+    "result": {
+      "problemDetails": "問題の詳細",
+      "correctAnswer": "正解",
+      "yourAnswer": "あなたの回答",
+      "correct": "正解",
+      "incorrect": "不正解"
+    }
+  },
+  "hanCountDrill": {
+    "title": "翻数��答",
+    "description": "手牌と条件から合計翻数を素早く回答するドリルです",
+    "introDescription": "手牌・和了牌・風牌・ドラなどの情報から正しい翻数を答えるドリルです。1翻〜13翻の中から正解を選択してください。",
+    "bakaze": "場風",
+    "jikaze": "自風",
+    "agari": "和了牌",
+    "agariType": "和了",
+    "tsumo": "ツモ",
+    "ron": "ロン",
+    "riichi": "リーチ",
+    "dora": "ドラ表示牌",
+    "selectHan": "合計翻数を選択してください",
+    "hanOption": "{count}翻",
     "generating": "問題を生成中...",
     "result": {
       "problemDetails": "問題の詳細",

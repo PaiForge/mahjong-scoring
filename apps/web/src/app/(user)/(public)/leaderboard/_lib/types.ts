@@ -27,7 +27,8 @@ export type LeaderboardModuleSlug =
   | 'tehai-fu'
   | 'yaku'
   | 'score-table'
-  | 'score-calculation';
+  | 'score-calculation'
+  | 'han-count';
 
 export const MODULES: readonly LeaderboardModule[] = PRACTICE_MENU_TYPES;
 
@@ -66,6 +67,7 @@ const MODULE_TO_SLUG: Record<LeaderboardModule, LeaderboardModuleSlug> = {
   yaku: 'yaku',
   score_table: 'score-table',
   score_calculation: 'score-calculation',
+  han_count: 'han-count',
 };
 
 const SLUG_TO_MODULE: Record<LeaderboardModuleSlug, LeaderboardModule> = {
@@ -76,6 +78,7 @@ const SLUG_TO_MODULE: Record<LeaderboardModuleSlug, LeaderboardModule> = {
   yaku: 'yaku',
   'score-table': 'score_table',
   'score-calculation': 'score_calculation',
+  'han-count': 'han_count',
 };
 
 /**

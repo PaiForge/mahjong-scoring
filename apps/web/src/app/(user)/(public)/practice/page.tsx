@@ -38,6 +38,7 @@ const fuDrills: readonly DrillDef[] = [
 
 const hanDrills: readonly DrillDef[] = [
   { href: "/practice/yaku/play", titleKey: "drills.yaku.title", descriptionKey: "drills.yaku.description", difficulty: "intermediate", learnHref: "/learn/yaku" },
+  { href: "/practice/han-count/play", titleKey: "drills.hanCount.title", descriptionKey: "drills.hanCount.description", difficulty: "advanced" },
 ];
 
 const scoringDrills: readonly DrillDef[] = [
