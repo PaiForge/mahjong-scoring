@@ -21,13 +21,14 @@ describe('VALID_PERIODS', () => {
 });
 
 describe('MODULES', () => {
-  it('contains all five drill modules', () => {
+  it('contains all drill modules', () => {
     expect(MODULES).toEqual([
       'jantou_fu',
       'machi_fu',
       'mentsu_fu',
       'tehai_fu',
       'yaku',
+      'score_table',
     ]);
   });
 });

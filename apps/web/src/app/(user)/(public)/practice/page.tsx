@@ -40,6 +40,10 @@ const hanDrills: readonly DrillDef[] = [
   { href: "/practice/yaku/play", titleKey: "drills.yaku.title", descriptionKey: "drills.yaku.description", difficulty: "intermediate", learnHref: "/learn/yaku" },
 ];
 
+const scoringDrills: readonly DrillDef[] = [
+  { href: "/practice/score-table/play", titleKey: "drills.scoreTable.title", descriptionKey: "drills.scoreTable.description", difficulty: "intermediate" },
+];
+
 function renderDrillCards(
   drills: readonly DrillDef[],
   t: Awaited<ReturnType<typeof getTranslations<"practice">>>,
@@ -79,6 +83,18 @@ export default async function PracticePage() {
         <ChevronRightIcon className="size-5 shrink-0 text-surface-400" />
       </Link>
 
+      <Link
+        href="/practice/score-table"
+        className="mt-4 flex items-center gap-4 rounded-xl border border-surface-200 bg-white p-6 shadow-sm transition-colors hover:bg-surface-50"
+      >
+        <span className="text-3xl" aria-hidden="true">&#128200;</span>
+        <div className="flex-1">
+          <h2 className="text-base font-semibold text-surface-900">{t("scoreTableBanner.title")}</h2>
+          <p className="mt-1 text-sm text-surface-500">{t("scoreTableBanner.description")}</p>
+        </div>
+        <ChevronRightIcon className="size-5 shrink-0 text-surface-400" />
+      </Link>
+
       <div className="mt-8 space-y-10">
         <DrillCategorySection title={t("categories.fuCalculation.title")}>
           {renderDrillCards(fuDrills, t)}
@@ -86,6 +102,10 @@ export default async function PracticePage() {
 
         <DrillCategorySection title={t("categories.han.title")}>
           {renderDrillCards(hanDrills, t)}
+        </DrillCategorySection>
+
+        <DrillCategorySection title={t("categories.scoring.title")}>
+          {renderDrillCards(scoringDrills, t)}
         </DrillCategorySection>
       </div>
     </ContentContainer>

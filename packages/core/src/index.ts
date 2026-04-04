@@ -79,6 +79,19 @@ export {
 export { isHaiKindId, validateHaiKindId } from "./core/type-guards";
 export { HaiUsageTracker } from "./core/hai-tracker";
 
+// === Problem: Score Table Drill ===
+export { generateScoreTableQuestion } from "./problem/score-table/generator";
+export { judgeScoreTableAnswer } from "./problem/score-table/judgement";
+export type {
+  ScoreTableQuestion,
+  ScoreTableAnswer,
+  ScoreTableUserAnswer,
+  ScoreTableGeneratorOptions,
+  RonAnswer,
+  OyaTsumoAnswer,
+  KoTsumoAnswer,
+} from "./problem/score-table/types";
+
 // === Re-exports from @pai-forge/riichi-mahjong ===
 export { HaiKind, MentsuType } from "@pai-forge/riichi-mahjong";
 export type {

@@ -25,7 +25,8 @@ export type LeaderboardModuleSlug =
   | 'machi-fu'
   | 'mentsu-fu'
   | 'tehai-fu'
-  | 'yaku';
+  | 'yaku'
+  | 'score-table';
 
 export const MODULES: readonly LeaderboardModule[] = PRACTICE_MENU_TYPES;
 
@@ -62,6 +63,7 @@ const MODULE_TO_SLUG: Record<LeaderboardModule, LeaderboardModuleSlug> = {
   mentsu_fu: 'mentsu-fu',
   tehai_fu: 'tehai-fu',
   yaku: 'yaku',
+  score_table: 'score-table',
 };
 
 const SLUG_TO_MODULE: Record<LeaderboardModuleSlug, LeaderboardModule> = {
@@ -70,6 +72,7 @@ const SLUG_TO_MODULE: Record<LeaderboardModuleSlug, LeaderboardModule> = {
   'mentsu-fu': 'mentsu_fu',
   'tehai-fu': 'tehai_fu',
   yaku: 'yaku',
+  'score-table': 'score_table',
 };
 
 /**
