@@ -1,5 +1,4 @@
 import {
-  HaiKind,
   MentsuType,
   detectYaku,
   isMenzen,
@@ -7,6 +6,7 @@ import {
   type HaiKindId,
   type Kazehai,
   type CompletedMentsu,
+  type Tehai14,
 } from "@pai-forge/riichi-mahjong";
 import type { YakuQuestion } from "./types";
 import {
@@ -14,51 +14,13 @@ import {
   EXCLUDED_YAKU_FROM_ANSWER,
   getKazeYakuhaiDisplayName,
 } from "./constants";
-import {
-  createRandomShuntsu,
-  createRandomKoutsu,
-  createRandomKantsu,
-} from "../mentsu-fu/mentsu-factory";
+import { createRandomMentsu } from "../mentsu-fu/mentsu-factory";
 import { KAZEHAI } from "../../core/constants";
 import { randomChoice } from "../../core/random";
 import { isHaiKindId } from "../../core/type-guards";
-
-/**
- * ドラ表示牌をランダムに生成する
- * ドラ表示牌生成
- */
-function generateDoraMarkers(kantsuCount: number): HaiKindId[] {
-  const count = 1 + kantsuCount;
-  const markers: HaiKindId[] = [];
-  for (let i = 0; i < count; i++) {
-    const kindId = Math.floor(Math.random() * 34);
-    if (isHaiKindId(kindId)) {
-      markers.push(kindId);
-    }
-  }
-  return markers;
-}
-
-/**
- * 手牌中の指定牌種の枚数をカウントする
- * 牌枚数カウント
- */
-function countHaiInTehai(
-  closed: readonly HaiKindId[],
-  exposed: readonly CompletedMentsu[],
-  haiKindId: HaiKindId,
-): number {
-  let count = 0;
-  for (const h of closed) {
-    if (h === haiKindId) count++;
-  }
-  for (const mentsu of exposed) {
-    for (const h of mentsu.hais) {
-      if (h === haiKindId) count++;
-    }
-  }
-  return count;
-}
+import { HaiUsageTracker } from "../../core/hai-tracker";
+import { generateDoraMarkers } from "../shared/dora-utils";
+import { countHaiInTehai } from "../shared/hai-count";
 
 /**
  * 風牌の役牌を手動で判定し、表示名のリストを返す
@@ -66,8 +28,7 @@ function countHaiInTehai(
  * 風牌役牌判定
  */
 function detectKazeYakuhai(
-  closed: readonly HaiKindId[],
-  exposed: readonly CompletedMentsu[],
+  tehai: Tehai14,
   bakaze: Kazehai,
   jikaze: Kazehai,
 ): string[] {
@@ -75,7 +36,7 @@ function detectKazeYakuhai(
   const kazesToCheck = new Set<Kazehai>([bakaze, jikaze]);
 
   for (const kaze of kazesToCheck) {
-    const count = countHaiInTehai(closed, exposed, kaze);
+    const count = countHaiInTehai(tehai, kaze);
     if (count >= 3) {
       const displayName = getKazeYakuhaiDisplayName(kaze);
       if (displayName) {
@@ -89,20 +50,8 @@ function detectKazeYakuhai(
   return result;
 }
 
-/**
- * ランダムな面子を生成する（重み付き: 50%順子, 30%刻子, 20%槓子）
- * 面子ランダム生成
- */
-function createRandomMentsu() {
-  const r = Math.random();
-  if (r < 0.5) {
-    return createRandomShuntsu() ?? createRandomKoutsu();
-  }
-  if (r < 0.8) {
-    return createRandomKoutsu();
-  }
-  return createRandomKantsu();
-}
+/** 役ドリル用の面子生成重み（50%順子, 30%刻子, 20%槓子） */
+const YAKU_MENTSU_WEIGHTS = { shuntsu: 0.5, koutsu: 0.3 } as const;
 
 /**
  * 役選択ドリルの問題を生成する
@@ -110,11 +59,7 @@ function createRandomMentsu() {
  * 役選択問題ジェネレータ
  */
 export function generateYakuQuestion(): YakuQuestion | undefined {
-  const tracker = new Map<number, number>();
-  const canUse = (t: HaiKindId, count: number) =>
-    (tracker.get(t) ?? 0) + count <= 4;
-  const use = (t: HaiKindId, count: number) =>
-    tracker.set(t, (tracker.get(t) ?? 0) + count);
+  const tracker = new HaiUsageTracker();
 
   const mentsuList: Array<{
     tiles: readonly HaiKindId[];
@@ -127,7 +72,7 @@ export function generateYakuQuestion(): YakuQuestion | undefined {
     let found = false;
 
     for (let retry = 0; retry < 50; retry++) {
-      const result = createRandomMentsu();
+      const result = createRandomMentsu(YAKU_MENTSU_WEIGHTS);
       const tiles = result.mentsu.hais;
 
       const tempCount = new Map<HaiKindId, number>();
@@ -136,14 +81,14 @@ export function generateYakuQuestion(): YakuQuestion | undefined {
 
       let possible = true;
       for (const [t, c] of tempCount.entries()) {
-        if (!canUse(t, c)) {
+        if (!tracker.canUse(t, c)) {
           possible = false;
           break;
         }
       }
 
       if (possible) {
-        for (const t of tiles) use(t, 1);
+        for (const t of tiles) tracker.use(t, 1);
         mentsuList.push({
           tiles: [...tiles],
           mentsu: result.mentsu,
@@ -166,8 +111,8 @@ export function generateYakuQuestion(): YakuQuestion | undefined {
   for (let retry = 0; retry < 50; retry++) {
     const t = Math.floor(Math.random() * 34);
     if (!isHaiKindId(t)) continue;
-    if (canUse(t, 2)) {
-      use(t, 2);
+    if (tracker.canUse(t, 2)) {
+      tracker.use(t, 2);
       headTile = t;
       break;
     }
@@ -236,7 +181,7 @@ export function generateYakuQuestion(): YakuQuestion | undefined {
     }
 
     // 風牌の役牌を手動判定（ライブラリが返さないため）
-    const kazeYakuhai = detectKazeYakuhai(closed, exposed, bakaze, jikaze);
+    const kazeYakuhai = detectKazeYakuhai(validTehai, bakaze, jikaze);
     for (const name of kazeYakuhai) {
       if (!yakuNames.includes(name)) {
         yakuNames.push(name);

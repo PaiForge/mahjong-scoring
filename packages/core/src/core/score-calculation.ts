@@ -1,4 +1,12 @@
 /**
+ * 基本符（ベースポイント）を計算する
+ * 基本符計算
+ */
+export function calculateBasePoints(han: number, fu: number): number {
+  return fu * Math.pow(2, 2 + han);
+}
+
+/**
  * 子の点数を計算する
  * 子点数計算
  */
@@ -6,7 +14,7 @@ export function calculateKoScore(
   han: number,
   fu: number,
 ): { readonly isMangan: boolean; readonly ron: number; readonly tsumo: string } {
-  const base = fu * Math.pow(2, 2 + han);
+  const base = calculateBasePoints(han, fu);
   if (base >= 2000) {
     return { isMangan: true, ron: 8000, tsumo: "2000/4000" };
   }
@@ -24,7 +32,7 @@ export function calculateOyaScore(
   han: number,
   fu: number,
 ): { readonly isMangan: boolean; readonly ron: number; readonly tsumo: string } {
-  const base = fu * Math.pow(2, 2 + han);
+  const base = calculateBasePoints(han, fu);
   if (base >= 2000) {
     return { isMangan: true, ron: 12000, tsumo: "4000\u2200" };
   }

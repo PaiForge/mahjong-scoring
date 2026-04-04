@@ -1,11 +1,12 @@
 "use client";
 
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useCallback, useRef, useState } from "react";
 import { useTranslations } from "next-intl";
 import { generateValidQuestion } from "@mahjong-scoring/core";
 import type { DrillQuestion } from "@mahjong-scoring/core";
 import { useTimedSession } from "../../_hooks/use-timed-session";
 import { useSaveOnFinish } from "../../_hooks/use-save-on-finish";
+import { useSessionStorageSave } from "../../_hooks/use-session-storage-save";
 import { DrillShell } from "../../_components/drill-shell";
 import { DrillTehaiDisplay } from "../../_components/drill-tehai-display";
 import { HanCountAnswerForm } from "./han-count-answer-form";
@@ -53,11 +54,7 @@ export function HanCountDrill() {
     [showFeedback, question, handleAnswer, advanceQuestion],
   );
 
-  useEffect(() => {
-    if (gameSession.isFinished) {
-      sessionStorage.setItem(RESULT_STORAGE_KEY, JSON.stringify(questionResultsRef.current));
-    }
-  }, [gameSession.isFinished]);
+  useSessionStorageSave(RESULT_STORAGE_KEY, questionResultsRef, gameSession.isFinished);
 
   if (!question) {
     return (

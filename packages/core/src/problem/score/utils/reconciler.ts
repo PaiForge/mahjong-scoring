@@ -9,23 +9,7 @@ import type { YakuDetail } from "../types";
 import { recalculateScore } from "../../../score/calculator";
 import { getKeyForKazehai } from "../../../core/hai-names";
 import { isHaiKindId } from "../../../core/type-guards";
-
-/**
- * 手牌中の指定牌種の枚数をカウントする
- * 牌枚数カウント
- */
-function countHai(tehai: Tehai14, id: HaiKindId): number {
-  let c = 0;
-  for (const h of tehai.closed) {
-    if (h === id) c++;
-  }
-  for (const m of tehai.exposed) {
-    for (const h of m.hais) {
-      if (h === id) c++;
-    }
-  }
-  return c;
-}
+import { countHaiInTehai } from "../../shared/hai-count";
 
 /**
  * 役牌照合の結果
@@ -58,16 +42,16 @@ export function reconcileYakuhai(
   const hasJikaze = yakuResult.some((y) => y[0] === "自風牌" || y[0] === getKeyForKazehai(jikaze));
 
   if (bakaze === jikaze) {
-    if (!hasDoubleWind && countHai(tehai, bakaze) >= 3) {
+    if (!hasDoubleWind && countHaiInTehai(tehai, bakaze) >= 3) {
       extraYakuhaiHan += 2;
       additionalYakuDetails.push({ name: "連風牌", han: 2 });
     }
   } else {
-    if (!hasBakaze && countHai(tehai, bakaze) >= 3) {
+    if (!hasBakaze && countHaiInTehai(tehai, bakaze) >= 3) {
       extraYakuhaiHan += 1;
       additionalYakuDetails.push({ name: "場風牌", han: 1 });
     }
-    if (!hasJikaze && countHai(tehai, jikaze) >= 3) {
+    if (!hasJikaze && countHaiInTehai(tehai, jikaze) >= 3) {
       extraYakuhaiHan += 1;
       additionalYakuDetails.push({ name: "自風牌", han: 1 });
     }
@@ -82,7 +66,7 @@ export function reconcileYakuhai(
 
   for (const { id, name, key } of dragons) {
     const hasDragon = yakuResult.some((y) => y[0] === key);
-    if (!hasDragon && isHaiKindId(id) && countHai(tehai, id) >= 3) {
+    if (!hasDragon && isHaiKindId(id) && countHaiInTehai(tehai, id) >= 3) {
       extraYakuhaiHan += 1;
       additionalYakuDetails.push({ name, han: 1 });
     }

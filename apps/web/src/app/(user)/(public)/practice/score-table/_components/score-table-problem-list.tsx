@@ -4,7 +4,7 @@ import Link from "next/link";
 import { useTranslations } from "next-intl";
 import type { ScoreTableQuestionResult } from "../_lib/types";
 import { buildReferenceUrl } from "../../_lib/build-reference-url";
-import { formatAnswer } from "../_lib/format-answer";
+import { formatScoreAnswer as formatAnswer } from "../../_lib/format-score-answer";
 import { ScoreProblemList } from "../../_components/score-problem-list";
 
 interface ScoreTableProblemListProps {

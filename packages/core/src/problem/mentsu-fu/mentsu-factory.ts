@@ -1,5 +1,4 @@
 import {
-  HaiKind,
   MentsuType,
   FuroType,
   Tacha,
@@ -11,41 +10,13 @@ import {
 import { SUIT_BASES } from "../../core/constants";
 import { randomInt, randomChoice } from "../../core/random";
 import { isHaiKindId } from "../../core/type-guards";
-
-/** 么九牌（端牌＋字牌） */
-const YAOCHU: readonly HaiKindId[] = [
-  HaiKind.ManZu1, HaiKind.ManZu9,
-  HaiKind.PinZu1, HaiKind.PinZu9,
-  HaiKind.SouZu1, HaiKind.SouZu9,
-  HaiKind.Ton, HaiKind.Nan, HaiKind.Sha, HaiKind.Pei,
-  HaiKind.Haku, HaiKind.Hatsu, HaiKind.Chun,
-].filter(isHaiKindId);
-
-/**
- * ランダムな中張牌を生成
- * 中張牌生成
- */
-function randomSimple(): HaiKindId {
-  const base = randomChoice(SUIT_BASES);
-  const num = randomInt(2, 8);
-  const id = base + num - 1;
-  if (isHaiKindId(id)) return id;
-  return HaiKind.ManZu5;
-}
-
-/**
- * ランダムな么九牌を生成
- * 么九牌生成
- */
-function randomYaochu(): HaiKindId {
-  return randomChoice(YAOCHU);
-}
+import { randomSimple, randomYaochu } from "../shared/tile-random";
 
 /**
  * 面子生成結果
  * 面子生成結果
  */
-interface MentsuResult {
+export interface MentsuResult {
   readonly mentsu: Shuntsu | Koutsu | Kantsu;
   readonly fu: number;
   readonly explanation: string;
@@ -124,4 +95,32 @@ export function createRandomKantsu(): MentsuResult {
   const stateStr = isOpen ? "明槓（または加槓）" : "暗槓";
 
   return { mentsu, fu, explanation: `${typeStr}の${stateStr}は${fu}符です` };
+}
+
+/**
+ * 面子種別の確率重み
+ * 面子生成重み
+ */
+interface MentsuWeights {
+  /** 順子の確率（0〜1） */
+  readonly shuntsu: number;
+  /** 刻子の確率（0〜1、残りが槓子） */
+  readonly koutsu: number;
+}
+
+/**
+ * 重み付きでランダムな面子を生成する
+ * 面子ランダム生成
+ *
+ * @param weights - 面子種別の確率重み
+ */
+export function createRandomMentsu(weights: Readonly<MentsuWeights>): MentsuResult {
+  const r = Math.random();
+  if (r < weights.shuntsu) {
+    return createRandomShuntsu() ?? createRandomKoutsu();
+  }
+  if (r < weights.shuntsu + weights.koutsu) {
+    return createRandomKoutsu();
+  }
+  return createRandomKantsu();
 }

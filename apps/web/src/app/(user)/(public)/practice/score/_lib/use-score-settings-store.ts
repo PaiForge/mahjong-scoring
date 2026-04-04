@@ -28,10 +28,10 @@ interface SettingsState {
 }
 
 /**
- * ドリル設定ストア（永続化あり）
- * ドリル設定
+ * 点数計算ドリル設定ストア（永続化あり）
+ * 点数ドリル設定
  */
-export const useSettingsStore = create<SettingsState>()(
+export const useScoreSettingsStore = create<SettingsState>()(
   persist(
     (set) => ({
       requireYaku: false,

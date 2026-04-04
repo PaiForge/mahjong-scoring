@@ -49,9 +49,9 @@ type DrillStore = DrillState & DrillActions;
 
 /**
  * 点数計算ドリルのストア
- * ドリルストア
+ * 点数ドリルストア
  */
-export const useDrillStore = create<DrillStore>((set, get) => ({
+export const useScoreDrillStore = create<DrillStore>((set, get) => ({
   currentQuestion: undefined,
   userAnswer: undefined,
   judgementResult: undefined,

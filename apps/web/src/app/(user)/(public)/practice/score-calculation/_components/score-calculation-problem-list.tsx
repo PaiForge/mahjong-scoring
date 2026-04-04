@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { useTranslations } from "next-intl";
 import type { ScoreCalculationQuestionResult } from "../_lib/types";
-import { formatScoreAnswer } from "../_lib/format-answer";
+import { formatScoreAnswer } from "../../_lib/format-score-answer";
 import { buildReferenceUrl } from "../../_lib/build-reference-url";
 import { ScoreProblemList } from "../../_components/score-problem-list";
 

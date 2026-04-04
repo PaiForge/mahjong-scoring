@@ -2,16 +2,7 @@ import { HaiKind, type HaiKindId } from "@pai-forge/riichi-mahjong";
 import type { MachiFuQuestion } from "./types";
 import { randomInt, randomChoice } from "../../core/random";
 import { isHaiKindId } from "../../core/type-guards";
-
-/**
- * 数牌の花色ベース値
- * 数牌花色
- */
-const SUIT_BASES: readonly HaiKindId[] = [
-  HaiKind.ManZu1,
-  HaiKind.PinZu1,
-  HaiKind.SouZu1,
-].filter(isHaiKindId);
+import { SUIT_BASES } from "../../core/constants";
 
 /**
  * 両面待ちを生成（0符）

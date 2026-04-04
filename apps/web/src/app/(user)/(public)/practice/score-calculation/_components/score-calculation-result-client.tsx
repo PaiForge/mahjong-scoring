@@ -1,10 +1,9 @@
 "use client";
 
-import { useEffect, useState } from "react";
 import type { PracticeResultClientProps } from "../../_lib/create-practice-result-page";
 import { ResultClient } from "../../_components/result-client";
+import { useSessionStorageResult } from "../../_hooks/use-session-storage-result";
 import { ScoreCalculationProblemList } from "./score-calculation-problem-list";
-import type { ScoreCalculationQuestionResult } from "../_lib/types";
 import { RESULT_STORAGE_KEY, parseQuestionResults } from "../_lib/types";
 
 /**
@@ -15,15 +14,7 @@ import { RESULT_STORAGE_KEY, parseQuestionResults } from "../_lib/types";
  * 問題結果は sessionStorage から読み取り、読み取り後にクリアする。
  */
 export function ScoreCalculationResultClient(props: PracticeResultClientProps) {
-  const [questionResults, setQuestionResults] = useState<readonly ScoreCalculationQuestionResult[]>([]);
-
-  useEffect(() => {
-    const stored = sessionStorage.getItem(RESULT_STORAGE_KEY);
-    if (stored) {
-      setQuestionResults(parseQuestionResults(stored));
-      sessionStorage.removeItem(RESULT_STORAGE_KEY);
-    }
-  }, []);
+  const questionResults = useSessionStorageResult(RESULT_STORAGE_KEY, parseQuestionResults);
 
   return (
     <ResultClient {...props}>

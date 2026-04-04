@@ -7,7 +7,7 @@ import { HaiKind } from "@mahjong-scoring/core";
 import { toast } from "react-hot-toast";
 import { useTranslations } from "next-intl";
 import { ContentContainer } from "@/app/_components/content-container";
-import { useDrillStore } from "@/stores/use-drill-store";
+import { useScoreDrillStore } from "../_lib/use-score-drill-store";
 import type { UserAnswer } from "@mahjong-scoring/core";
 import { useIsClient } from "../../_hooks/use-is-client";
 import { useQuitConfirm } from "../../_hooks/use-quit-confirm";
@@ -32,7 +32,7 @@ function DrillBoardInner() {
     generateNewQuestion,
     submitAnswer,
     nextQuestion,
-  } = useDrillStore();
+  } = useScoreDrillStore();
 
   const isClient = useIsClient();
   const initializedRef = useRef(false);
@@ -61,7 +61,7 @@ function DrillBoardInner() {
       includeChild = rolesValues.includes("ko");
     }
 
-    useDrillStore.getState().setOptions({
+    useScoreDrillStore.getState().setOptions({
       allowedRanges,
       includeParent,
       includeChild,
@@ -113,7 +113,7 @@ function DrillBoardInner() {
     submitAnswer(answer, requireYaku, simplifyMangan, requireFuForMangan);
 
     if (autoNext) {
-      const state = useDrillStore.getState();
+      const state = useScoreDrillStore.getState();
       if (state.judgementResult?.isCorrect) {
         toast.success(t("board.correct"), {
           duration: 1500,

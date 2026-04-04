@@ -8,51 +8,11 @@ import {
   type Koutsu,
   type Kantsu,
 } from "@pai-forge/riichi-mahjong";
-import { randomInt, randomChoice } from "../../../core/random";
+import { randomChoice } from "../../../core/random";
 import { validateHaiKindId } from "../../../core/type-guards";
 import type { HaiUsageTracker } from "../../../core/hai-tracker";
 
-/**
- * 字牌と三元牌の配列（ランダム選択用）
- * 字牌・三元牌リスト
- */
-const JIHAI_AND_SANGENHAI: readonly HaiKindId[] = [
-  HaiKind.Ton, HaiKind.Nan, HaiKind.Sha, HaiKind.Pei,
-  HaiKind.Haku, HaiKind.Hatsu, HaiKind.Chun,
-];
-
-/**
- * 么九牌（数牌の1,9）の配列
- * 端牌リスト
- */
-const TERMINALS: readonly HaiKindId[] = [
-  HaiKind.ManZu1, HaiKind.ManZu9,
-  HaiKind.PinZu1, HaiKind.PinZu9,
-  HaiKind.SouZu1, HaiKind.SouZu9,
-];
-
-/**
- * ランダムな中張牌（2〜8）を生成する
- * 中張牌生成
- */
-export function randomSimple(): HaiKindId {
-  const suit = randomChoice(["m", "p", "s"]);
-  const num = randomInt(2, 8);
-  let base: HaiKindId = HaiKind.ManZu1;
-  if (suit === "p") base = HaiKind.PinZu1;
-  if (suit === "s") base = HaiKind.SouZu1;
-  return validateHaiKindId(base + num - 1).unwrapOr(HaiKind.ManZu5);
-}
-
-/**
- * ランダムな么九牌（1,9,字牌）を生成する
- * 么九牌生成
- */
-export function randomYaochu(): HaiKindId {
-  const isHonor = Math.random() < 0.5;
-  if (isHonor) return randomChoice(JIHAI_AND_SANGENHAI);
-  return randomChoice(TERMINALS);
-}
+export { randomSimple, randomYaochu } from "../../shared/tile-random";
 
 /**
  * 順子を生成する（数牌のみ）

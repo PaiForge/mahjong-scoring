@@ -21,20 +21,36 @@
 | 設定項目            | 値                              | 理由                                                        |
 | ------------------ | ------------------------------ | ----------------------------------------------------------- |
 | Region             | Northeast Asia (Tokyo)          | ユーザーの大半が日本在住。Vercel のデプロイリージョン (hnd1) とも近接 |
+| Enable Data API    | **オフ**                        | データアクセスは Drizzle ORM で直接 PostgreSQL に接続しており、PostgREST（Data API）は使用しない。Supabase クライアントは認証（`supabase.auth.*`）のみに利用。不要な API エンドポイントを無効化することで攻撃対象面を減らせる |
 
 > **ヒント:** Database Password を控える必要はありません。Vercel Supabase Integration 経由で `POSTGRES_URL` 等の接続情報が自動設定されます。
 
 ### Vercel Marketplace 経由（推奨）
 
+Supabase Integration はアカウント（チーム）レベルでインストールされます。すでに他のプロジェクトで導入済みかどうかで手順が異なります。
+
+#### 初回（Integration 未インストールの場合）
+
 1. Vercel Dashboard → 対象プロジェクト → **Settings** → **Integrations** → **Browse Marketplace** を開く
 2. 「Supabase」を検索し **Add Integration** をクリック
-3. Supabase アカウントを接続し、使用するプロジェクトを選択（または新規作成）
-4. Integration により、以下の環境変数が Vercel プロジェクトに自動同期される:
-   - `POSTGRES_URL`
-   - `POSTGRES_URL_NON_POOLING`
-   - `NEXT_PUBLIC_SUPABASE_URL`
-   - `SUPABASE_SERVICE_ROLE_KEY`
-   - その他 Supabase 関連の変数
+3. Supabase アカウントを接続し、使用する Supabase プロジェクトを選択（または新規作成）
+
+#### 既存 Integration にプロジェクトを追加する場合
+
+1. Vercel Dashboard → **Settings** → **Integrations**（`https://vercel.com/<team>/~/integrations`）を開く
+2. Supabase の **「Manage Access」** をクリック → モーダルで対象の Vercel プロジェクトにアクセス権を付与
+3. **「Configure」** をクリック → Supabase 側の管理画面に遷移
+4. **「Add new project connection」** で Vercel プロジェクトと Supabase プロジェクトを紐付ける
+
+#### 自動設定される環境変数
+
+いずれの手順でも、接続が完了すると以下の環境変数が対象の Vercel プロジェクトに自動同期されます:
+
+- `POSTGRES_URL`
+- `POSTGRES_URL_NON_POOLING`
+- `NEXT_PUBLIC_SUPABASE_URL`
+- `SUPABASE_SERVICE_ROLE_KEY`
+- その他 Supabase 関連の変数
 
 > **ヒント:** Vercel Marketplace の Supabase Integration により `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY` が自動設定されます。
 

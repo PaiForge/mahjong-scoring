@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useCallback, useRef, useState } from "react";
 import { useTranslations } from "next-intl";
 import {
   generateScoreTableQuestion,
@@ -9,6 +9,8 @@ import {
 import type { ScoreTableQuestion, ScoreTableUserAnswer } from "@mahjong-scoring/core";
 import { useTimedSession } from "../../_hooks/use-timed-session";
 import { useSaveOnFinish } from "../../_hooks/use-save-on-finish";
+import { useSessionStorageSave } from "../../_hooks/use-session-storage-save";
+import { getFeedbackBorderClass } from "../../_lib/feedback-styles";
 import { DrillShell } from "../../_components/drill-shell";
 import { ScoreTableAnswerForm } from "./score-table-answer-form";
 import type { ScoreTableQuestionResult } from "../_lib/types";
@@ -55,17 +57,9 @@ export function ScoreTableDrill() {
     [showFeedback, question, handleAnswer, advanceQuestion],
   );
 
-  useEffect(() => {
-    if (gameSession.isFinished) {
-      sessionStorage.setItem(RESULT_STORAGE_KEY, JSON.stringify(questionResultsRef.current));
-    }
-  }, [gameSession.isFinished]);
+  useSessionStorageSave(RESULT_STORAGE_KEY, questionResultsRef, gameSession.isFinished);
 
-  const feedbackBorderClass = showFeedback
-    ? lastAnswerCorrect
-      ? "border-green-500 bg-green-50"
-      : "border-red-500 bg-red-50"
-    : "border-surface-200 bg-white";
+  const feedbackBorderClass = getFeedbackBorderClass(showFeedback, lastAnswerCorrect);
 
   return (
     <DrillShell

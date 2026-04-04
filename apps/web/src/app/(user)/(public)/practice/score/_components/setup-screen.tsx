@@ -3,8 +3,8 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { useTranslations } from "next-intl";
-import { useSettingsStore } from "@/stores/use-settings-store";
-import { useDrillStore } from "@/stores/use-drill-store";
+import { useScoreSettingsStore } from "../_lib/use-score-settings-store";
+import { useScoreDrillStore } from "../_lib/use-score-drill-store";
 import { InfoModal } from "@/app/_components/info-modal";
 import { useIsClient } from "../../_hooks/use-is-client";
 import { SettingToggle } from "./setting-toggle";
@@ -35,7 +35,7 @@ export function SetupScreen() {
     setIncludeParent,
     includeChild,
     setIncludeChild,
-  } = useSettingsStore();
+  } = useScoreSettingsStore();
 
   const handleStart = () => {
     const params = new URLSearchParams();
@@ -58,7 +58,7 @@ export function SetupScreen() {
     if (includeParent) params.append("roles", "oya");
     if (includeChild) params.append("roles", "ko");
 
-    useDrillStore.getState().setQuestion(undefined);
+    useScoreDrillStore.getState().setQuestion(undefined);
 
     const queryString = params.toString();
     router.push(

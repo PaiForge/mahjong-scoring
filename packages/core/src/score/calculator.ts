@@ -1,4 +1,5 @@
 import type { ScoreResult, Payment } from "@pai-forge/riichi-mahjong";
+import { calculateBasePoints } from "../core/score-calculation";
 
 /**
  * 翻数が変わった場合の点数を再計算する
@@ -20,7 +21,7 @@ export function recalculateScore(
   const fu = originalResult.fu;
   const { isTsumo, isOya } = config;
 
-  let basePoints = fu * Math.pow(2, 2 + newHanValue);
+  let basePoints = calculateBasePoints(newHanValue, fu);
   let scoreLevel: ScoreResult["scoreLevel"];
 
   if (newHanValue >= 26) {

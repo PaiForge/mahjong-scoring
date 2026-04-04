@@ -1,5 +1,4 @@
 import {
-  HaiKind,
   MentsuType,
   validateTehai14,
   type HaiKindId,
@@ -7,63 +6,21 @@ import {
   type CompletedMentsu,
 } from "@pai-forge/riichi-mahjong";
 import type { TehaiFuQuestion, TehaiFuItem } from "./types";
-import {
-  createRandomShuntsu,
-  createRandomKoutsu,
-  createRandomKantsu,
-} from "../mentsu-fu/mentsu-factory";
+import { createRandomMentsu } from "../mentsu-fu/mentsu-factory";
 import { KAZEHAI } from "../../core/constants";
 import { isHaiKindId } from "../../core/type-guards";
+import { HaiUsageTracker } from "../../core/hai-tracker";
+import { calculateJantouFu } from "../shared/jantou-fu";
 
-/**
- * 雀頭の符を計算する
- * 雀頭符計算
- */
-function calculateHeadFu(
-  tile: HaiKindId,
-  bakaze: Kazehai,
-  jikaze: Kazehai,
-): { fu: number; explanation: string } {
-  if (tile >= HaiKind.Haku && tile <= HaiKind.Chun) {
-    return { fu: 2, explanation: "役牌雀頭（三元牌）" };
-  }
-
-  const reasons: string[] = [];
-  if (tile === bakaze) reasons.push("場風");
-  if (tile === jikaze) reasons.push("自風");
-
-  if (reasons.length > 0) {
-    return { fu: 2, explanation: `役牌雀頭（${reasons.join("・")}）` };
-  }
-
-  return { fu: 0, explanation: "数牌またはオタ風の雀頭" };
-}
-
-/**
- * ランダムな面子を生成する（重み付き: 20%順子, 50%刻子, 30%槓子）
- * 面子ランダム生成
- */
-function createRandomMentsu() {
-  const r = Math.random();
-  if (r < 0.2) {
-    return createRandomShuntsu() ?? createRandomKoutsu();
-  }
-  if (r < 0.7) {
-    return createRandomKoutsu();
-  }
-  return createRandomKantsu();
-}
+/** 手牌符ドリル用の面子生成重み（20%順子, 50%刻子, 30%槓子） */
+const TEHAI_FU_MENTSU_WEIGHTS = { shuntsu: 0.2, koutsu: 0.5 } as const;
 
 /**
  * 手牌の符計算問題を生成する
  * 手牌符問題ジェネレータ
  */
 export function generateTehaiFuQuestion(): TehaiFuQuestion | undefined {
-  const tracker = new Map<number, number>();
-  const canUse = (t: HaiKindId, count: number) =>
-    (tracker.get(t) ?? 0) + count <= 4;
-  const use = (t: HaiKindId, count: number) =>
-    tracker.set(t, (tracker.get(t) ?? 0) + count);
+  const tracker = new HaiUsageTracker();
 
   const items: TehaiFuItem[] = [];
 
@@ -72,7 +29,7 @@ export function generateTehaiFuQuestion(): TehaiFuQuestion | undefined {
     let item: TehaiFuItem | undefined;
 
     for (let retry = 0; retry < 50; retry++) {
-      const result = createRandomMentsu();
+      const result = createRandomMentsu(TEHAI_FU_MENTSU_WEIGHTS);
       const tiles = result.mentsu.hais;
 
       // 牌の使用可能性チェック
@@ -82,14 +39,14 @@ export function generateTehaiFuQuestion(): TehaiFuQuestion | undefined {
 
       let possible = true;
       for (const [t, c] of tempCount.entries()) {
-        if (!canUse(t, c)) {
+        if (!tracker.canUse(t, c)) {
           possible = false;
           break;
         }
       }
 
       if (possible) {
-        for (const t of tiles) use(t, 1);
+        for (const t of tiles) tracker.use(t, 1);
         item = {
           id: crypto.randomUUID(),
           tiles: [...tiles],
@@ -116,9 +73,9 @@ export function generateTehaiFuQuestion(): TehaiFuQuestion | undefined {
   for (let retry = 0; retry < 50; retry++) {
     const t = Math.floor(Math.random() * 34);
     if (!isHaiKindId(t)) continue;
-    if (canUse(t, 2)) {
-      use(t, 2);
-      const res = calculateHeadFu(t, bakaze, jikaze);
+    if (tracker.canUse(t, 2)) {
+      tracker.use(t, 2);
+      const res = calculateJantouFu(t, bakaze, jikaze);
       head = {
         id: crypto.randomUUID(),
         tiles: [t, t],

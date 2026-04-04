@@ -691,14 +691,14 @@
       "han_count": "翻数即答"
     },
     "moduleIcon": {
-      "jantou_fu": "\ud83c\udc04",
-      "machi_fu": "\ud83c\udfaf",
-      "mentsu_fu": "\ud83e\udde9",
-      "tehai_fu": "\u2728",
-      "yaku": "\ud83c\udfc6",
-      "score_table": "\ud83d\udcc8",
-      "score_calculation": "\ud83c\udfb2",
-      "han_count": "\ud83d\udd22"
+      "jantou_fu": "🀄",
+      "machi_fu": "🎯",
+      "mentsu_fu": "🧩",
+      "tehai_fu": "✨",
+      "yaku": "🏆",
+      "score_table": "📈",
+      "score_calculation": "🎲",
+      "han_count": "🔢"
     },
     "rankLabel": "{rank} 位",
     "notRanked": "未挑戦",
@@ -824,8 +824,7 @@
   },
   "hanCountDrill": {
     "title": "翻数��答",
-    "description": "手牌と条件から合計翻数を素早く回答するドリルです",
-    "introDescription": "手牌・和了牌・風牌・ドラなどの情報から正しい翻数を答えるドリルです。1翻〜13翻の中から正解を選択してください。",
+    "description": "手牌・和了牌・風牌・ドラなどの情報から正しい翻数を答えるドリルです。1翻〜13翻の中から正解を選択してください。",
     "bakaze": "場風",
     "jikaze": "自風",
     "agari": "和了牌",

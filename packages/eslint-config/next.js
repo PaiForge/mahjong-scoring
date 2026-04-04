@@ -1,34 +1,20 @@
-import js from "@eslint/js";
-import turboPlugin from "eslint-plugin-turbo";
-import tseslint from "typescript-eslint";
 import nextPlugin from "@next/eslint-plugin-next";
-import reactPlugin from "eslint-plugin-react";
-import reactHooksPlugin from "eslint-plugin-react-hooks";
+import pluginReact from "eslint-plugin-react";
+import pluginReactHooks from "eslint-plugin-react-hooks";
+import { config as baseConfig } from "./base.js";
 
 export const nextJsConfig = [
-  js.configs.recommended,
-  ...tseslint.configs.recommended,
+  ...baseConfig,
   {
     plugins: {
       "@next/next": nextPlugin,
-      react: reactPlugin,
-      "react-hooks": reactHooksPlugin,
+      react: pluginReact,
+      "react-hooks": pluginReactHooks,
     },
     rules: {
       ...nextPlugin.configs.recommended.rules,
       ...nextPlugin.configs["core-web-vitals"].rules,
-      ...reactHooksPlugin.configs.recommended.rules,
+      ...pluginReactHooks.configs.recommended.rules,
     },
-  },
-  {
-    plugins: {
-      turbo: turboPlugin,
-    },
-    rules: {
-      "turbo/no-undeclared-env-vars": "warn",
-    },
-  },
-  {
-    ignores: ["dist/**"],
   },
 ];

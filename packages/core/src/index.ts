@@ -24,7 +24,7 @@ export { SELECTABLE_YAKU } from "./problem/yaku/constants";
 export type { YakuQuestion } from "./problem/yaku/types";
 
 // === Problem: Score Drill ===
-export { ScoreDrillGenerator, generateValidQuestion } from "./problem/score/generator";
+export { ScoreDrillGenerator, generateScoreDrillQuestion, generateValidQuestion } from "./problem/score/generator";
 export { judgeAnswer, isMangan, getScoreLevelName } from "./problem/score/judgement";
 export {
   generateQuestionFromQuery,
@@ -71,6 +71,7 @@ export {
 } from "./core/hai-names";
 export { randomChoice, shuffle, randomInt } from "./core/random";
 export {
+  calculateBasePoints,
   calculateKoScore,
   calculateOyaScore,
   isInvalidCell,

@@ -3,13 +3,8 @@ import {
   createRandomShuntsu,
   createRandomKoutsu,
   createRandomKantsu,
+  type MentsuResult,
 } from "./mentsu-factory";
-
-interface MentsuResult {
-  readonly mentsu: MentsuFuQuestion["mentsu"];
-  readonly fu: number;
-  readonly explanation: string;
-}
 
 function toQuestion(result: MentsuResult): MentsuFuQuestion {
   return { id: crypto.randomUUID(), mentsu: result.mentsu, answer: result.fu, explanation: result.explanation };

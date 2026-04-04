@@ -4,6 +4,7 @@ import { useState, useEffect } from "react";
 import { useTranslations } from "next-intl";
 import type { ScoreTableUserAnswer } from "@mahjong-scoring/core";
 import { getAvailableScores } from "../score/_lib/get-available-scores";
+import { getSelectClass } from "../_lib/select-class";
 
 interface ScoreAnswerFormProps {
   /** 親かどうか */
@@ -71,10 +72,7 @@ export function ScoreAnswerForm({
     }
   };
 
-  const selectClass = (hasValue: boolean) =>
-    `w-full rounded-lg border border-surface-300 bg-white px-2 py-3 text-sm focus:border-primary-500 focus:ring-2 focus:ring-primary-500 disabled:bg-surface-100 ${
-      hasValue ? "text-surface-900" : "text-surface-400"
-    }`;
+  const selectClass = getSelectClass;
 
   return (
     <form onSubmit={handleSubmit} className="space-y-5">

@@ -14,6 +14,13 @@ import { recalculateScore } from "../../score/calculator";
 import { convertScoreDetailToFuDetails } from "../../score/fu-calculator";
 import { countDoraInTehai } from "../../core/hai-names";
 import { getYakuNameJa } from "../../core/constants";
+import {
+  haiIdToMspz,
+  kazeIdToMspz,
+  tehaiToMspz,
+  parseHais,
+  parseKazehai,
+} from "./mspz-serializer";
 
 /**
  * クエリパラメータからの問題生成結果
@@ -209,124 +216,3 @@ export function buildDrillQueryParams(question: Readonly<DrillQuestion>): URLSea
   return params;
 }
 
-/**
- * 牌種IDをMSPZ文字列に変換する
- * 牌ID→MSPZ変換
- */
-function haiIdToMspz(id: HaiKindId): string {
-  if (id >= 0 && id <= 8) return `${id + 1}m`;
-  if (id >= 9 && id <= 17) return `${id - 9 + 1}p`;
-  if (id >= 18 && id <= 26) return `${id - 18 + 1}s`;
-  if (id >= 27 && id <= 33) return `${id - 27 + 1}z`;
-  return "1m";
-}
-
-/**
- * 風牌IDをMSPZ文字列に変換する
- * 風牌ID→MSPZ変換
- */
-function kazeIdToMspz(id: Kazehai): string {
-  if (id === HaiKind.Ton) return "1z";
-  if (id === HaiKind.Nan) return "2z";
-  if (id === HaiKind.Sha) return "3z";
-  if (id === HaiKind.Pei) return "4z";
-  return "1z";
-}
-
-/**
- * 手牌をMSPZ文字列に変換する
- * 手牌→MSPZ変換
- */
-function tehaiToMspz(tehai: Tehai14): string {
-  let result = "";
-  const mans: number[] = [];
-  const pins: number[] = [];
-  const sous: number[] = [];
-  const zis: number[] = [];
-
-  const sortAndPush = (id: HaiKindId) => {
-    if (id >= 0 && id <= 8) mans.push(id + 1);
-    else if (id >= 9 && id <= 17) pins.push(id - 9 + 1);
-    else if (id >= 18 && id <= 26) sous.push(id - 18 + 1);
-    else if (id >= 27 && id <= 33) zis.push(id - 27 + 1);
-  };
-
-  for (const h of tehai.closed) sortAndPush(h);
-
-  mans.sort((a, b) => a - b);
-  pins.sort((a, b) => a - b);
-  sous.sort((a, b) => a - b);
-  zis.sort((a, b) => a - b);
-
-  if (mans.length) result += mans.join("") + "m";
-  if (pins.length) result += pins.join("") + "p";
-  if (sous.length) result += sous.join("") + "s";
-  if (zis.length) result += zis.join("") + "z";
-
-  for (const meld of tehai.exposed) {
-    let meldStr = "";
-    const mMans: number[] = [];
-    const mPins: number[] = [];
-    const mSous: number[] = [];
-    const mZis: number[] = [];
-
-    const mSortAndPush = (id: HaiKindId) => {
-      if (id >= 0 && id <= 8) mMans.push(id + 1);
-      else if (id >= 9 && id <= 17) mPins.push(id - 9 + 1);
-      else if (id >= 18 && id <= 26) mSous.push(id - 18 + 1);
-      else if (id >= 27 && id <= 33) mZis.push(id - 27 + 1);
-    };
-
-    for (const h of meld.hais) mSortAndPush(h);
-    mMans.sort((a, b) => a - b);
-    mPins.sort((a, b) => a - b);
-    mSous.sort((a, b) => a - b);
-    mZis.sort((a, b) => a - b);
-
-    if (mMans.length) meldStr += mMans.join("") + "m";
-    if (mPins.length) meldStr += mPins.join("") + "p";
-    if (mSous.length) meldStr += mSous.join("") + "s";
-    if (mZis.length) meldStr += mZis.join("") + "z";
-
-    if (meld.type === "Kantsu" && !meld.furo) {
-      // 暗槓: (...) 表記
-      result += `(${meldStr})`;
-    } else {
-      // 副露（チー・ポン・大明槓）: [...] 表記
-      result += `[${meldStr}]`;
-    }
-  }
-
-  return result;
-}
-
-/**
- * 牌文字列（MSPZ）をIDリストに変換する
- * MSPZ→牌IDリスト変換
- */
-function parseHais(str: string | undefined): HaiKindId[] {
-  if (!str) return [];
-  const result = parseMspz(str);
-  if (result.isOk()) return [...result.value.closed];
-
-  const extResult = parseExtendedMspz(str);
-  if (extResult.isOk()) return [...extResult.value.closed];
-
-  return [];
-}
-
-/**
- * 風牌文字列をIDに変換する
- * 風牌文字列→ID変換
- */
-function parseKazehai(str: string | undefined): Kazehai | undefined {
-  if (!str) return undefined;
-  const result = parseMspz(str);
-  if (result.isErr()) return undefined;
-
-  const id = result.value.closed[0];
-  if (id === HaiKind.Ton || id === HaiKind.Nan || id === HaiKind.Sha || id === HaiKind.Pei) {
-    return id;
-  }
-  return undefined;
-}
