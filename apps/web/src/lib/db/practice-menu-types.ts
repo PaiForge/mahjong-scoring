@@ -12,6 +12,7 @@
  * - 'tehai_fu': 手牌の符計算
  * - 'yaku': 役判定
  * - 'score_table': 点数表早引き
+ * - 'score_calculation': 点数計算ドリル
  *
  * `practice/score` は自由練習のため記録対象外。
  */
@@ -22,6 +23,7 @@ export const PRACTICE_MENU_TYPES = [
   'tehai_fu',
   'yaku',
   'score_table',
+  'score_calculation',
 ] as const;
 
 export type PracticeMenuType = (typeof PRACTICE_MENU_TYPES)[number];

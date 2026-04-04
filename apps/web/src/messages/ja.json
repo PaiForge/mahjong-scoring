@@ -85,6 +85,10 @@
       "scoreTable": {
         "title": "点数表早引き",
         "description": "点数表を暗記するチャレンジドリル"
+      },
+      "scoreCalculation": {
+        "title": "点数計算ドリル",
+        "description": "手牌から点数を読み取って回答するチャレンジドリル"
       }
     },
     "comprehensiveBanner": {
@@ -94,6 +98,10 @@
     "scoreTableBanner": {
       "title": "点数表早引き",
       "description": "親子・ツモロン・翻数・符から正しい点数を素早く答えるドリルです"
+    },
+    "scoreCalculationBanner": {
+      "title": "点数計算ドリル",
+      "description": "手牌から点数を読み取って素早く回答するチャレンジドリルです"
     }
   },
   "challenge": {
@@ -675,7 +683,8 @@
       "mentsu_fu": "面子の符",
       "tehai_fu": "手牌の符",
       "yaku": "役",
-      "score_table": "点数表早引き"
+      "score_table": "点数表早引き",
+      "score_calculation": "点数計算"
     },
     "moduleIcon": {
       "jantou_fu": "\ud83c\udc04",
@@ -683,7 +692,8 @@
       "mentsu_fu": "\ud83e\udde9",
       "tehai_fu": "\u2728",
       "yaku": "\ud83c\udfc6",
-      "score_table": "\ud83d\udcc8"
+      "score_table": "\ud83d\udcc8",
+      "score_calculation": "\ud83c\udfb2"
     },
     "rankLabel": "{rank} 位",
     "notRanked": "未挑戦",
@@ -742,7 +752,8 @@
       "mentsu_fu": "面子の符",
       "tehai_fu": "手牌の符",
       "yaku": "役",
-      "score_table": "点数表早引き"
+      "score_table": "点数表早引き",
+      "score_calculation": "点数計算"
     }
   },
   "mypageChallengeResults": {
@@ -774,6 +785,29 @@
     "answer": "回答する",
     "learnLink": "点数表を見る",
     "questionLabel": "この条件の点数は？",
+    "result": {
+      "problemDetails": "問題の詳細",
+      "correctAnswer": "正解",
+      "yourAnswer": "あなたの回答",
+      "correct": "正解",
+      "incorrect": "不正解"
+    }
+  },
+  "scoreCalculationDrill": {
+    "title": "点数計算ドリル",
+    "description": "手牌・和了牌・風牌・ドラなどの情報から正しい点数を答えるドリルです",
+    "oya": "親",
+    "ko": "子",
+    "tsumo": "ツモ",
+    "ron": "ロン",
+    "han": "{count}翻",
+    "fu": "{count}符",
+    "selectScore": "点数を選択",
+    "fromKo": "子から",
+    "fromOya": "親から",
+    "all": "オール",
+    "answer": "回答する",
+    "generating": "問題を生成中...",
     "result": {
       "problemDetails": "問題の詳細",
       "correctAnswer": "正解",

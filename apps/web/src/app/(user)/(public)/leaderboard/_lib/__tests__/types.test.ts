@@ -29,6 +29,7 @@ describe('MODULES', () => {
       'tehai_fu',
       'yaku',
       'score_table',
+      'score_calculation',
     ]);
   });
 });

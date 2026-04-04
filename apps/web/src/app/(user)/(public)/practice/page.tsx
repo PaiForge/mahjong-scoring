@@ -42,6 +42,7 @@ const hanDrills: readonly DrillDef[] = [
 
 const scoringDrills: readonly DrillDef[] = [
   { href: "/practice/score-table/play", titleKey: "drills.scoreTable.title", descriptionKey: "drills.scoreTable.description", difficulty: "intermediate" },
+  { href: "/practice/score-calculation/play", titleKey: "drills.scoreCalculation.title", descriptionKey: "drills.scoreCalculation.description", difficulty: "advanced" },
 ];
 
 function renderDrillCards(
@@ -91,6 +92,18 @@ export default async function PracticePage() {
         <div className="flex-1">
           <h2 className="text-base font-semibold text-surface-900">{t("scoreTableBanner.title")}</h2>
           <p className="mt-1 text-sm text-surface-500">{t("scoreTableBanner.description")}</p>
+        </div>
+        <ChevronRightIcon className="size-5 shrink-0 text-surface-400" />
+      </Link>
+
+      <Link
+        href="/practice/score-calculation"
+        className="mt-4 flex items-center gap-4 rounded-xl border border-surface-200 bg-white p-6 shadow-sm transition-colors hover:bg-surface-50"
+      >
+        <span className="text-3xl" aria-hidden="true">&#127936;</span>
+        <div className="flex-1">
+          <h2 className="text-base font-semibold text-surface-900">{t("scoreCalculationBanner.title")}</h2>
+          <p className="mt-1 text-sm text-surface-500">{t("scoreCalculationBanner.description")}</p>
         </div>
         <ChevronRightIcon className="size-5 shrink-0 text-surface-400" />
       </Link>

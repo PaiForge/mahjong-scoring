@@ -1,0 +1,106 @@
+"use client";
+
+import { useCallback, useEffect, useRef, useState } from "react";
+import { useTranslations } from "next-intl";
+import { generateValidQuestion, HaiKind, judgeScoreTableAnswer } from "@mahjong-scoring/core";
+import type { DrillQuestion, ScoreTableUserAnswer } from "@mahjong-scoring/core";
+import { useTimedSession } from "../../_hooks/use-timed-session";
+import { useSaveOnFinish } from "../../_hooks/use-save-on-finish";
+import { DrillShell } from "../../_components/drill-shell";
+import { QuestionDisplay } from "../../score/_components/question-display";
+import { ScoreCalculationAnswerForm } from "./score-calculation-answer-form";
+import type { ScoreCalculationQuestionResult } from "../_lib/types";
+import { RESULT_STORAGE_KEY, paymentToScoreTableAnswer } from "../_lib/types";
+
+/**
+ * 点数計算ドリル本体
+ * 点数計算ドリル
+ */
+export function ScoreCalculationDrill() {
+  const t = useTranslations("scoreCalculationDrill");
+  const [question, setQuestion] = useState<DrillQuestion | undefined>(() =>
+    generateValidQuestion() ?? undefined,
+  );
+  const [questionIndex, setQuestionIndex] = useState(0);
+
+  const { gameSession, timerControl } = useTimedSession();
+  const { showFeedback, isCountingDown, lastAnswerCorrect, handleAnswer } = gameSession;
+
+  const questionResultsRef = useRef<ScoreCalculationQuestionResult[]>([]);
+
+  const advanceQuestion = useCallback(() => {
+    setQuestion(generateValidQuestion() ?? undefined);
+    setQuestionIndex((prev) => prev + 1);
+  }, []);
+
+  const handleFinish = useSaveOnFinish("score_calculation");
+
+  const handleSubmit = useCallback(
+    (userAnswer: ScoreTableUserAnswer) => {
+      if (showFeedback || !question) return;
+
+      const correctAnswer = paymentToScoreTableAnswer(question.answer.payment);
+      const isCorrect = judgeScoreTableAnswer(userAnswer, correctAnswer);
+
+      const isOya = question.jikaze === HaiKind.Ton;
+
+      questionResultsRef.current.push({
+        isOya,
+        isTsumo: question.isTsumo,
+        han: question.answer.han,
+        fu: question.answer.fu,
+        correctAnswer,
+        userAnswer,
+        isCorrect,
+      });
+
+      handleAnswer(isCorrect, advanceQuestion);
+    },
+    [showFeedback, question, handleAnswer, advanceQuestion],
+  );
+
+  useEffect(() => {
+    if (gameSession.isFinished) {
+      sessionStorage.setItem(RESULT_STORAGE_KEY, JSON.stringify(questionResultsRef.current));
+    }
+  }, [gameSession.isFinished]);
+
+  const feedbackBorderClass = showFeedback
+    ? lastAnswerCorrect
+      ? "border-green-500 bg-green-50"
+      : "border-red-500 bg-red-50"
+    : "border-surface-200 bg-white";
+
+  if (!question) {
+    return (
+      <div className="flex items-center justify-center py-20">
+        <div className="text-surface-500">{t("generating")}</div>
+      </div>
+    );
+  }
+
+  return (
+    <DrillShell
+      gameSession={gameSession}
+      timerControl={timerControl}
+      resultPath="/practice/score-calculation/result"
+      onFinish={handleFinish}
+      maxWidth="max-w-lg"
+    >
+      {/* Question display */}
+      <div className={`mt-6 rounded-xl border-2 p-2 transition-colors sm:p-4 ${feedbackBorderClass}`}>
+        <QuestionDisplay question={question} />
+      </div>
+
+      {/* Answer form */}
+      <div className="mt-6">
+        <ScoreCalculationAnswerForm
+          question={question}
+          questionIndex={questionIndex}
+          onSubmit={handleSubmit}
+          disabled={showFeedback || isCountingDown}
+        />
+      </div>
+    </DrillShell>
+  );
+}
