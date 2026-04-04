@@ -25,7 +25,8 @@
     "referenceCta": "点数表を見る",
     "learnTitle": "基礎から学ぶ",
     "learnDescription": "符計算のルールや点数計算の仕組みを、わかりやすい解説で基礎から理解できます。",
-    "learnCta": "学習コンテンツを見る"
+    "learnCta": "学習コンテンツを見る",
+    "betaBanner": "🚧 現在ベータ版として開発中です 🚧"
   },
   "dashboard": {
     "title": "ダッシュボード",
