@@ -1,6 +1,6 @@
 "use client";
 
-import { type ReactNode, memo, useEffect, useRef } from "react";
+import { type ReactNode, memo, useEffect, useRef, useCallback } from "react";
 import { useTranslations } from "next-intl";
 import { ContentContainer } from "@/app/_components/content-container";
 import { BoardOverlay } from "@/app/_components/board-overlay";
@@ -10,7 +10,9 @@ import type { GameSessionState, TimerControl } from "../_hooks/use-timed-session
 import type { FinishCallbackArgs } from "../_hooks/use-finish-redirect";
 import { useGameTimer } from "../_hooks/use-game-timer";
 import { useFinishRedirect } from "../_hooks/use-finish-redirect";
+import { useQuitConfirm } from "../_hooks/use-quit-confirm";
 import { QuizTimer } from "./quiz-timer";
+import { QuitConfirmModal } from "./quit-confirm-modal";
 
 interface LifeIndicatorProps {
   readonly remainingLives: number;
@@ -68,6 +70,27 @@ export function DrillShell({
   onFinish,
 }: DrillShellProps) {
   const tc = useTranslations("challenge");
+
+  const wasPausedBeforeQuitRef = useRef(false);
+
+  const handleQuitOpen = useCallback(() => {
+    wasPausedBeforeQuitRef.current = gameSession.isPaused;
+    if (!gameSession.isPaused) {
+      gameSession.togglePause();
+    }
+  }, [gameSession]);
+
+  const handleQuitCancelResume = useCallback(() => {
+    if (!wasPausedBeforeQuitRef.current) {
+      gameSession.togglePause();
+    }
+  }, [gameSession]);
+
+  const { isQuitModalOpen, handleQuitClick, handleQuitCancel, handleQuitConfirm } =
+    useQuitConfirm({
+      onOpen: handleQuitOpen,
+      onCancel: handleQuitCancelResume,
+    });
 
   const { remainingSeconds, elapsedMs, reset: resetTimer } = useGameTimer({
     timeLimit: gameSession.timeLimit,
@@ -151,7 +174,24 @@ export function DrillShell({
             </button>
           </BoardOverlay>
         </div>
+
+        {/* Quit button */}
+        <div className="mt-6 text-center">
+          <button
+            type="button"
+            onClick={handleQuitClick}
+            className="text-sm text-surface-400 underline transition-colors hover:text-surface-600"
+          >
+            {tc("quitButton")}
+          </button>
+        </div>
       </div>
+
+      <QuitConfirmModal
+        isOpen={isQuitModalOpen}
+        onConfirm={handleQuitConfirm}
+        onCancel={handleQuitCancel}
+      />
     </ContentContainer>
   );
 }

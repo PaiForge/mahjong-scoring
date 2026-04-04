@@ -178,7 +178,7 @@ export function SetupScreen() {
       </div>
 
       <InfoModal
-        open={showSimplifyInfo}
+        isOpen={showSimplifyInfo}
         onClose={() => setShowSimplifyInfo(false)}
         title={t("setup.simplifyMangan")}
         closeLabel={tCommon("close")}

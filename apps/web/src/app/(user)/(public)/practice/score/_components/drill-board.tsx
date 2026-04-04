@@ -4,20 +4,25 @@ import { useEffect, useCallback, useRef } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { Suspense } from "react";
 import { HaiKind } from "@mahjong-scoring/core";
-import { Toaster, toast } from "react-hot-toast";
+import { toast } from "react-hot-toast";
 import { useTranslations } from "next-intl";
 import { ContentContainer } from "@/app/_components/content-container";
 import { useDrillStore } from "@/stores/use-drill-store";
 import type { UserAnswer } from "@mahjong-scoring/core";
 import { useIsClient } from "../../_hooks/use-is-client";
+import { useQuitConfirm } from "../../_hooks/use-quit-confirm";
+import { QuitConfirmModal } from "../../_components/quit-confirm-modal";
 import { QuestionDisplay } from "./question-display";
 import { AnswerForm } from "./answer-form";
 import { ResultDisplay } from "./result-display";
 
 function DrillBoardInner() {
   const t = useTranslations("score");
+  const tc = useTranslations("challenge");
   const router = useRouter();
   const searchParams = useSearchParams();
+  const { isQuitModalOpen, handleQuitClick, handleQuitCancel, handleQuitConfirm } =
+    useQuitConfirm();
   const {
     currentQuestion,
     userAnswer,
@@ -126,7 +131,6 @@ function DrillBoardInner() {
 
   return (
     <ContentContainer>
-      <Toaster />
       {/* Stats */}
       <div className="mb-4 flex items-center justify-between text-sm text-surface-500">
         <div>
@@ -167,6 +171,23 @@ function DrillBoardInner() {
           />
         )}
       </div>
+
+      {/* Quit button */}
+      <div className="mt-6 text-center">
+        <button
+          type="button"
+          onClick={handleQuitClick}
+          className="text-sm text-surface-400 underline transition-colors hover:text-surface-600"
+        >
+          {tc("quitButton")}
+        </button>
+      </div>
+
+      <QuitConfirmModal
+        isOpen={isQuitModalOpen}
+        onConfirm={handleQuitConfirm}
+        onCancel={handleQuitCancel}
+      />
     </ContentContainer>
   );
 }

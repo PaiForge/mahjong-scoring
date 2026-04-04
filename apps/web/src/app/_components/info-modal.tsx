@@ -3,7 +3,7 @@
 import { useEffect, useCallback } from "react";
 
 interface InfoModalProps {
-  readonly open: boolean;
+  readonly isOpen: boolean;
   readonly onClose: () => void;
   readonly title: string;
   readonly closeLabel: string;
@@ -11,7 +11,7 @@ interface InfoModalProps {
 }
 
 export function InfoModal({
-  open,
+  isOpen,
   onClose,
   title,
   closeLabel,
@@ -27,13 +27,13 @@ export function InfoModal({
   );
 
   useEffect(() => {
-    if (!open) return;
+    if (!isOpen) return;
     document.addEventListener("keydown", handleKeyDown);
     return () => document.removeEventListener("keydown", handleKeyDown);
-  }, [open, handleKeyDown]);
+  }, [isOpen, handleKeyDown]);
 
   useEffect(() => {
-    if (open) {
+    if (isOpen) {
       document.body.style.overflow = "hidden";
     } else {
       document.body.style.overflow = "";
@@ -41,9 +41,9 @@ export function InfoModal({
     return () => {
       document.body.style.overflow = "";
     };
-  }, [open]);
+  }, [isOpen]);
 
-  if (!open) return null;
+  if (!isOpen) return undefined;
 
   return (
     <div

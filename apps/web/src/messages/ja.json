@@ -118,7 +118,15 @@
     "gameOverTime": "タイムアップ",
     "pause": "一時停止",
     "resume": "再開",
-    "resultSuffix": "結果"
+    "resultSuffix": "結果",
+    "quit": {
+      "title": "練習を終了しますか？",
+      "message": "現在の進捗は保存されません。練習一覧に戻ります。",
+      "confirm": "やめる",
+      "cancel": "続ける",
+      "toast": "練習を終了しました"
+    },
+    "quitButton": "途中でやめる"
   },
   "jantouFu": {
     "title": "雀頭の符計算",

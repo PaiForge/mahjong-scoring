@@ -3,6 +3,7 @@ import { NextIntlClientProvider } from "next-intl";
 import { getLocale, getMessages } from "next-intl/server";
 import { GoogleAnalytics } from "@next/third-parties/google";
 import { AuthProvider } from "@/app/_contexts/auth-context";
+import { GlobalToaster } from "@/app/_components/global-toaster";
 import "./globals.css";
 
 export const metadata: Metadata = {
@@ -25,6 +26,7 @@ export default async function RootLayout({
       <body className="min-h-screen overflow-x-hidden">
         <NextIntlClientProvider messages={messages}>
           <AuthProvider>{children}</AuthProvider>
+          <GlobalToaster />
         </NextIntlClientProvider>
         {gaId && <GoogleAnalytics gaId={gaId} />}
       </body>
