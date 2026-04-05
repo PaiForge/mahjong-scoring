@@ -18,7 +18,7 @@ export function MobileTabBar() {
             <li key={item.href}>
               <Link
                 href={item.href}
-                className={`flex flex-col items-center gap-0.5 px-3 pt-2 pb-4 text-xs transition-colors ${
+                className={`flex flex-col items-center gap-0.5 px-3 py-2 text-xs transition-colors ${
                   isActive
                     ? "text-primary-600"
                     : "text-surface-400 hover:text-surface-600"
@@ -26,9 +26,6 @@ export function MobileTabBar() {
               >
                 {item.icon}
                 <span>{t(item.labelKey)}</span>
-                {isActive && (
-                  <div className="absolute bottom-1 size-1 rounded-full bg-primary-500" />
-                )}
               </Link>
             </li>
           );
