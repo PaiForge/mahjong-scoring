@@ -25,7 +25,7 @@ export default async function LearnIndexPage() {
   return (
     <ContentContainer>
       <PageTitle>{t("pageTitle")}</PageTitle>
-      <p className="mt-2 text-sm text-surface-500">{t("pageDescription")}</p>
+      <p className="mt-3 text-sm text-surface-500">{t("pageDescription")}</p>
 
       <ul className="mt-8 space-y-4">
         {learnPages.map((page) => (

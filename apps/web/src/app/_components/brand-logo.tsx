@@ -14,9 +14,9 @@ interface BrandLogoProps {
 }
 
 const sizeConfig = {
-  sm: { imageSize: 28, imageClass: "size-7", textClass: "text-sm" },
-  md: { imageSize: 48, imageClass: "size-12", textClass: "text-base" },
-  lg: { imageSize: 56, imageClass: "size-14", textClass: "text-lg" },
+  sm: { imageClass: "h-6 w-auto", textClass: "text-sm" },
+  md: { imageClass: "h-8 w-auto", textClass: "text-lg" },
+  lg: { imageClass: "h-8 w-auto", textClass: "text-xl" },
 } as const;
 
 export function BrandLogo({ size }: BrandLogoProps) {
@@ -28,8 +28,8 @@ export function BrandLogo({ size }: BrandLogoProps) {
       <Image
         src="/logo.png"
         alt=""
-        width={config.imageSize}
-        height={config.imageSize}
+        width={572}
+        height={441}
         className={config.imageClass}
       />
       <span className={`${config.textClass} font-bold`}>

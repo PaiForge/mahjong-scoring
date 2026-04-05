@@ -18,7 +18,7 @@ export default async function ReferencePage() {
     <ContentContainer>
       <PageTitle>{t("pageTitle")}</PageTitle>
 
-      <p className="mt-2 text-sm text-surface-500">{t("pageDescription")}</p>
+      <p className="mt-3 text-sm text-surface-500">{t("pageDescription")}</p>
 
       <div className="mt-6">
         <Suspense>

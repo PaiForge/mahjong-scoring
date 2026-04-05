@@ -7,11 +7,11 @@ export async function MachiFuGuide() {
   const t = await getTranslations("machiFu.learn");
 
   return (
-    <div className="space-y-8">
+    <div className="space-y-10">
       {/* What is machi fu */}
       <section>
         <SectionTitle>{t("whatIsMachi")}</SectionTitle>
-        <p className="mt-2 text-sm leading-relaxed text-surface-600">
+        <p className="mt-3 text-sm leading-relaxed text-surface-700">
           {t("whatIsMachiBody")}
         </p>
       </section>
@@ -19,7 +19,7 @@ export async function MachiFuGuide() {
       {/* 2 fu waits */}
       <section>
         <SectionTitle>{t("twoFuTitle")}</SectionTitle>
-        <p className="mt-2 text-sm leading-relaxed text-surface-600">
+        <p className="mt-3 text-sm leading-relaxed text-surface-700">
           {t("twoFuBody")}
         </p>
 
@@ -48,7 +48,7 @@ export async function MachiFuGuide() {
       {/* 0 fu waits */}
       <section>
         <SectionTitle>{t("zeroFuTitle")}</SectionTitle>
-        <p className="mt-2 text-sm leading-relaxed text-surface-600">
+        <p className="mt-3 text-sm leading-relaxed text-surface-700">
           {t("zeroFuBody")}
         </p>
 

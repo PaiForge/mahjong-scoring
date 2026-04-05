@@ -7,13 +7,13 @@ export async function JantouFuGuide() {
   const t = await getTranslations("jantouFu.learn");
 
   return (
-    <div className="space-y-8">
+    <div className="space-y-10">
       {/* What is jantou */}
       <section>
         <SectionTitle>
           {t("whatIsJantou")}
         </SectionTitle>
-        <p className="mt-2 text-sm leading-relaxed text-surface-600">
+        <p className="mt-3 text-sm leading-relaxed text-surface-700">
           {t("whatIsJantouBody")}
         </p>
       </section>
@@ -23,7 +23,7 @@ export async function JantouFuGuide() {
         <SectionTitle>
           {t("yakuhaiTitle")}
         </SectionTitle>
-        <p className="mt-2 text-sm leading-relaxed text-surface-600">
+        <p className="mt-3 text-sm leading-relaxed text-surface-700">
           {t("yakuhaiBody")}
         </p>
 
@@ -50,7 +50,7 @@ export async function JantouFuGuide() {
         <SectionTitle>
           {t("renfonpaiTitle")}
         </SectionTitle>
-        <p className="mt-2 text-sm leading-relaxed text-surface-600">
+        <p className="mt-3 text-sm leading-relaxed text-surface-700">
           {t("renfonpaiBody")}
         </p>
 
@@ -68,7 +68,7 @@ export async function JantouFuGuide() {
         <SectionTitle>
           {t("noFuTitle")}
         </SectionTitle>
-        <p className="mt-2 text-sm leading-relaxed text-surface-600">
+        <p className="mt-3 text-sm leading-relaxed text-surface-700">
           {t("noFuBody")}
         </p>
 

@@ -16,7 +16,7 @@ export default async function ScoreSetupPage() {
   return (
     <ContentContainer>
       <PageTitle>{t("title")}</PageTitle>
-      <p className="mt-2 text-sm text-surface-500">{t("description")}</p>
+      <p className="mt-3 text-sm text-surface-500">{t("description")}</p>
       <SetupScreen />
     </ContentContainer>
   );

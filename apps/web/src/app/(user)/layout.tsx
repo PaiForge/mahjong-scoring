@@ -12,7 +12,7 @@ export default function UserLayout({
     <>
       <Sidebar />
       <MobileHeader />
-      <main className="md:ml-64 pb-20 md:pb-0 min-h-screen">{children}</main>
+      <main className="md:ml-64 pb-20 md:pb-0 min-h-screen bg-white">{children}</main>
       <Footer />
       <MobileTabBar />
     </>

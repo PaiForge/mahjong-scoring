@@ -7,11 +7,11 @@ export async function MentsuFuGuide() {
   const t = await getTranslations("mentsuFu.learn");
 
   return (
-    <div className="space-y-8">
+    <div className="space-y-10">
       {/* What is mentsu fu */}
       <section>
         <SectionTitle>{t("whatIsMentsuFu")}</SectionTitle>
-        <p className="mt-2 text-sm leading-relaxed text-surface-600">
+        <p className="mt-3 text-sm leading-relaxed text-surface-700">
           {t("whatIsMentsuFuBody")}
         </p>
       </section>
@@ -19,7 +19,7 @@ export async function MentsuFuGuide() {
       {/* Shuntsu: 0 fu */}
       <section>
         <SectionTitle>{t("shuntsuTitle")}</SectionTitle>
-        <p className="mt-2 text-sm leading-relaxed text-surface-600">
+        <p className="mt-3 text-sm leading-relaxed text-surface-700">
           {t("shuntsuBody")}
         </p>
         <div className="mt-4 space-y-3 rounded-xl border border-surface-200 bg-white p-5">
@@ -34,7 +34,7 @@ export async function MentsuFuGuide() {
       {/* Koutsu: 2-8 fu */}
       <section>
         <SectionTitle>{t("koutsuTitle")}</SectionTitle>
-        <p className="mt-2 text-sm leading-relaxed text-surface-600">
+        <p className="mt-3 text-sm leading-relaxed text-surface-700">
           {t("koutsuBody")}
         </p>
         <div className="mt-4 space-y-3 rounded-xl border border-surface-200 bg-white p-5">
@@ -66,7 +66,7 @@ export async function MentsuFuGuide() {
       {/* Kantsu: 8-32 fu */}
       <section>
         <SectionTitle>{t("kantsuTitle")}</SectionTitle>
-        <p className="mt-2 text-sm leading-relaxed text-surface-600">
+        <p className="mt-3 text-sm leading-relaxed text-surface-700">
           {t("kantsuBody")}
         </p>
         <div className="mt-4 space-y-3 rounded-xl border border-surface-200 bg-white p-5">

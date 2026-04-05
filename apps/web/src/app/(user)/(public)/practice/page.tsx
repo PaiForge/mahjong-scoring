@@ -71,7 +71,7 @@ export default async function PracticePage() {
   return (
     <ContentContainer>
       <PageTitle>{t("title")}</PageTitle>
-      <p className="mt-2 text-sm text-surface-500">{t("description")}</p>
+      <p className="mt-3 text-sm text-surface-500">{t("description")}</p>
 
       <Link
         href="/practice/score"

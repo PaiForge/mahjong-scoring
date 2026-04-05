@@ -7,14 +7,14 @@ export async function TehaiFuGuide() {
   const t = await getTranslations("tehaiFu.learn");
 
   return (
-    <div className="space-y-8">
+    <div className="space-y-10">
       {/* Tsumo fu omission */}
       <section>
         <SectionTitle>{t("tsumoFuTitle")}</SectionTitle>
-        <p className="mt-2 text-sm leading-relaxed text-surface-600">
+        <p className="mt-3 text-sm leading-relaxed text-surface-700">
           {t("tsumoFuBody1")}
         </p>
-        <p className="mt-2 text-sm leading-relaxed text-surface-600">
+        <p className="mt-2 text-sm leading-relaxed text-surface-700">
           {t("tsumoFuBody2")}
         </p>
         <div className="mt-4 space-y-3 rounded-xl border border-surface-200 bg-white p-5">
@@ -31,10 +31,10 @@ export async function TehaiFuGuide() {
       {/* Ron koutsu miscalculation */}
       <section>
         <SectionTitle>{t("ronKoutsuTitle")}</SectionTitle>
-        <p className="mt-2 text-sm leading-relaxed text-surface-600">
+        <p className="mt-3 text-sm leading-relaxed text-surface-700">
           {t("ronKoutsuBody1")}
         </p>
-        <p className="mt-2 text-sm leading-relaxed text-surface-600">
+        <p className="mt-2 text-sm leading-relaxed text-surface-700">
           {t("ronKoutsuBody2")}
         </p>
         <div className="mt-4 space-y-4 rounded-xl border border-surface-200 bg-white p-5">
@@ -58,10 +58,10 @@ export async function TehaiFuGuide() {
       {/* Jikaze / Bakaze confusion */}
       <section>
         <SectionTitle>{t("kazeTitle")}</SectionTitle>
-        <p className="mt-2 text-sm leading-relaxed text-surface-600">
+        <p className="mt-3 text-sm leading-relaxed text-surface-700">
           {t("kazeBody1")}
         </p>
-        <p className="mt-2 text-sm leading-relaxed text-surface-600">
+        <p className="mt-2 text-sm leading-relaxed text-surface-700">
           {t("kazeBody2")}
         </p>
         <div className="mt-4 space-y-3 rounded-xl border border-surface-200 bg-white p-5">

@@ -28,7 +28,7 @@ export async function DrillIntroContent({
   return (
     <ContentContainer>
       <PageTitle>{t("title")}</PageTitle>
-      <p className="mt-2 text-sm text-surface-500">{t("description")}</p>
+      <p className="mt-3 text-sm text-surface-500">{t("description")}</p>
 
       {showLearnLink && (
         <div className="mt-6 flex items-center gap-2 text-sm">

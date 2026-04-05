@@ -5,11 +5,11 @@ export async function YakuGuide() {
   const t = await getTranslations("yaku.learn");
 
   return (
-    <div className="space-y-8">
+    <div className="space-y-10">
       {/* What are yaku */}
       <section>
         <SectionTitle>{t("whatIsYaku")}</SectionTitle>
-        <p className="mt-2 text-sm leading-relaxed text-surface-600">
+        <p className="mt-3 text-sm leading-relaxed text-surface-700">
           {t("whatIsYakuBody")}
         </p>
       </section>
@@ -17,7 +17,7 @@ export async function YakuGuide() {
       {/* 1翻役 */}
       <section>
         <SectionTitle>{t("ichihanTitle")}</SectionTitle>
-        <p className="mt-2 text-sm leading-relaxed text-surface-600">
+        <p className="mt-3 text-sm leading-relaxed text-surface-700">
           {t("ichihanBody")}
         </p>
         <div className="mt-4 rounded-xl border border-surface-200 bg-white p-5">
@@ -35,7 +35,7 @@ export async function YakuGuide() {
       {/* 2翻役 */}
       <section>
         <SectionTitle>{t("nihanTitle")}</SectionTitle>
-        <p className="mt-2 text-sm leading-relaxed text-surface-600">
+        <p className="mt-3 text-sm leading-relaxed text-surface-700">
           {t("nihanBody")}
         </p>
         <div className="mt-4 rounded-xl border border-surface-200 bg-white p-5">
@@ -57,7 +57,7 @@ export async function YakuGuide() {
       {/* 3翻役 */}
       <section>
         <SectionTitle>{t("sanhanTitle")}</SectionTitle>
-        <p className="mt-2 text-sm leading-relaxed text-surface-600">
+        <p className="mt-3 text-sm leading-relaxed text-surface-700">
           {t("sanhanBody")}
         </p>
         <div className="mt-4 rounded-xl border border-surface-200 bg-white p-5">
@@ -72,7 +72,7 @@ export async function YakuGuide() {
       {/* 6翻役 */}
       <section>
         <SectionTitle>{t("rokuhanTitle")}</SectionTitle>
-        <p className="mt-2 text-sm leading-relaxed text-surface-600">
+        <p className="mt-3 text-sm leading-relaxed text-surface-700">
           {t("rokuhanBody")}
         </p>
         <div className="mt-4 rounded-xl border border-surface-200 bg-white p-5">
@@ -85,7 +85,7 @@ export async function YakuGuide() {
       {/* 役満 */}
       <section>
         <SectionTitle>{t("yakumanTitle")}</SectionTitle>
-        <p className="mt-2 text-sm leading-relaxed text-surface-600">
+        <p className="mt-3 text-sm leading-relaxed text-surface-700">
           {t("yakumanBody")}
         </p>
         <div className="mt-4 rounded-xl border border-surface-200 bg-white p-5">

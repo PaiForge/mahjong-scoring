@@ -9,17 +9,17 @@ export async function IntroductionGuide() {
   const t = await getTranslations("introduction.learn");
 
   return (
-    <div className="space-y-8">
+    <div className="space-y-10">
       {/* 麻雀の点数計算は複雑ではない */}
       <section>
         <SectionTitle>{t("scoringIsSimpleTitle")}</SectionTitle>
-        <p className="mt-2 text-sm leading-relaxed text-surface-600">
+        <p className="mt-3 text-sm leading-relaxed text-surface-700">
           {t("scoringIsSimpleBody1")}
         </p>
-        <p className="mt-2 text-sm leading-relaxed text-surface-600">
+        <p className="mt-2 text-sm leading-relaxed text-surface-700">
           {t("scoringIsSimpleBody2")}
         </p>
-        <p className="mt-2 text-sm leading-relaxed text-surface-600">
+        <p className="mt-2 text-sm leading-relaxed text-surface-700">
           {t("scoringIsSimpleBody3")}
         </p>
 
@@ -27,11 +27,11 @@ export async function IntroductionGuide() {
           <BlockMath latex={String.raw`\text{符} \times 2^{(\text{翻数} + 2)} \times 4`} />
         </div>
 
-        <p className="mt-2 text-sm leading-relaxed text-surface-600">
+        <p className="mt-2 text-sm leading-relaxed text-surface-700">
           {t("exampleIntro")}
         </p>
 
-        <ol className="mt-3 list-decimal space-y-1 pl-6 text-sm leading-relaxed text-surface-600">
+        <ol className="mt-3 list-decimal space-y-1 pl-6 text-sm leading-relaxed text-surface-700">
           <li>
             {t("step1Prefix")}
             <InlineMath latex={String.raw`\text{符}`} />
@@ -60,16 +60,16 @@ export async function IntroductionGuide() {
           />
         </div>
 
-        <p className="mt-2 text-sm leading-relaxed text-surface-600">
+        <p className="mt-2 text-sm leading-relaxed text-surface-700">
           {t("calculatorNote")}
         </p>
-        <p className="mt-2 text-sm leading-relaxed text-surface-600">
+        <p className="mt-2 text-sm leading-relaxed text-surface-700">
           {t("memorizeNote")}
         </p>
-        <p className="mt-2 text-sm leading-relaxed text-surface-600">
+        <p className="mt-2 text-sm leading-relaxed text-surface-700">
           {t("kuku")}
         </p>
-        <p className="mt-2 text-sm leading-relaxed text-surface-600">
+        <p className="mt-2 text-sm leading-relaxed text-surface-700">
           {t("practiceNeeded")}
         </p>
       </section>
@@ -77,16 +77,16 @@ export async function IntroductionGuide() {
       {/* このサイトの使い方 */}
       <section>
         <SectionTitle>{t("howToUseTitle")}</SectionTitle>
-        <p className="mt-2 text-sm leading-relaxed text-surface-600">
+        <p className="mt-3 text-sm leading-relaxed text-surface-700">
           {t("howToUseBody1")}
         </p>
-        <p className="mt-2 text-sm leading-relaxed text-surface-600">
+        <p className="mt-2 text-sm leading-relaxed text-surface-700">
           {t("howToUseBody2")}
         </p>
-        <p className="mt-2 text-sm leading-relaxed text-surface-600">
+        <p className="mt-2 text-sm leading-relaxed text-surface-700">
           {t("howToUseBody3")}
         </p>
-        <p className="mt-2 text-sm leading-relaxed text-surface-600">
+        <p className="mt-2 text-sm leading-relaxed text-surface-700">
           {t("howToUseBody4")}
         </p>
       </section>

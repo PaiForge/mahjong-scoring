@@ -8,7 +8,7 @@ export function Dashboard() {
   return (
     <ContentContainer>
       <PageTitle>{t("title")}</PageTitle>
-      <p className="mt-2 text-sm text-surface-500">{t("description")}</p>
+      <p className="mt-3 text-sm text-surface-500">{t("description")}</p>
 
       <div className="mt-8 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
         <div className="rounded-xl border border-surface-200 bg-white p-6 shadow-sm">
