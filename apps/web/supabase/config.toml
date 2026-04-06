@@ -154,6 +154,17 @@ token_verifications = 30
 web3 = 30
 
 [auth.email]
+# === 本番環境 (Supabase Dashboard) での設定 ===
+# 以下の設定を Supabase Dashboard > Authentication > Settings で必ず同期すること:
+# 1. Email Auth を有効化 (Enable Email provider)
+# 2. "Confirm email" を有効化 (enable_confirmations に相当)
+# 3. "Secure password change" を有効化
+# 4. "Double confirm email changes" を有効化
+# 5. Minimum password length を 6 に設定
+# 6. Password requirements を "letters_digits" に設定
+# 7. Site URL を本番 URL に設定 (Authentication > URL Configuration)
+# 8. Redirect URLs に本番 URL を追加
+#
 # Allow/disallow new user signups via email to your project.
 enable_signup = true
 # If enabled, a user will be required to confirm any email change on both the old, and new email

@@ -1,0 +1,93 @@
+"use client";
+
+import { useState } from "react";
+
+import { useTranslations } from "next-intl";
+
+import { forgotPassword } from "../_actions/forgot-password";
+
+/**
+ * パスワードリセットリンク送信フォーム
+ * パスワードリセットフォーム
+ */
+export function ForgotPasswordForm() {
+  const t = useTranslations("forgotPassword");
+  const [email, setEmail] = useState("");
+  const [isLoading, setIsLoading] = useState(false);
+  const [isSent, setIsSent] = useState(false);
+  const [error, setError] = useState("");
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setError("");
+    setIsLoading(true);
+
+    try {
+      const result = await forgotPassword(email);
+
+      if ("error" in result) {
+        switch (result.error) {
+          case "rateLimited":
+            setError(t("rateLimited"));
+            break;
+          default:
+            setError(t("error"));
+        }
+        setIsLoading(false);
+        return;
+      }
+
+      setIsSent(true);
+      setIsLoading(false);
+    } catch {
+      setError(t("error"));
+      setIsLoading(false);
+    }
+  };
+
+  if (isSent) {
+    return (
+      <div className="w-full max-w-sm mx-auto text-center space-y-3">
+        <p className="text-surface-700">{t("sentDescription")}</p>
+        <p className="text-sm text-surface-500">{t("checkInbox")}</p>
+      </div>
+    );
+  }
+
+  return (
+    <form onSubmit={handleSubmit} className="w-full max-w-sm mx-auto space-y-4">
+      {error && (
+        <p className="text-center text-sm text-red-600">{error}</p>
+      )}
+
+      <p className="text-sm text-surface-500">{t("description")}</p>
+
+      <div>
+        <label
+          htmlFor="forgot-email"
+          className="block text-sm font-medium text-surface-700 mb-1"
+        >
+          {t("emailLabel")}
+        </label>
+        <input
+          id="forgot-email"
+          type="email"
+          value={email}
+          onChange={(e) => setEmail(e.target.value)}
+          required
+          autoComplete="email"
+          className="w-full px-3 py-2 bg-white border border-surface-200 rounded-lg text-surface-700 text-sm focus:outline-none focus:ring-2 focus:ring-primary/50"
+          placeholder={t("emailPlaceholder")}
+        />
+      </div>
+
+      <button
+        type="submit"
+        disabled={isLoading}
+        className="w-full px-6 py-3 bg-primary text-white rounded-lg text-sm font-medium hover:opacity-90 transition-opacity disabled:opacity-50 disabled:cursor-not-allowed"
+      >
+        {isLoading ? t("submitLoading") : t("submit")}
+      </button>
+    </form>
+  );
+}

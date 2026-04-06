@@ -67,12 +67,16 @@ export function AuthProvider({ children }: { readonly children: ReactNode }) {
 
     const {
       data: { subscription },
-    } = supabase.auth.onAuthStateChange((_event, newSession) => {
+    } = supabase.auth.onAuthStateChange((event, newSession) => {
       setSession(newSession);
       setUser(newSession?.user ?? null);
 
-      if (_event === "SIGNED_OUT") {
+      if (event === "SIGNED_OUT") {
         router.refresh();
+      }
+
+      if (event === "PASSWORD_RECOVERY") {
+        router.push("/reset-password");
       }
     });
 

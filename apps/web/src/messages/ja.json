@@ -617,7 +617,79 @@
     "comingSoon": "準備中です。",
     "googleOAuth": "Google でログイン",
     "googleOAuthLoading": "ログイン中...",
-    "authError": "認証に失敗しました。もう一度お試しください。"
+    "authError": "認証に失敗しました。もう一度お試しください。",
+    "or": "または",
+    "emailLabel": "メールアドレス",
+    "emailPlaceholder": "mail@example.com",
+    "passwordLabel": "パスワード",
+    "passwordPlaceholder": "パスワード",
+    "emailSignIn": "メールアドレスでログイン",
+    "emailSignInLoading": "ログイン中...",
+    "emailSignInError": "メールアドレスまたはパスワードが正しくありません。",
+    "rateLimited": "リクエストが多すぎます。しばらくしてからもう一度お試しください。",
+    "forgotPasswordLink": "パスワードを忘れた方",
+    "noAccountYet": "アカウントをお持ちでない方は",
+    "signUpLinkText": "新規登録",
+    "alreadyHaveAccount": "アカウントをお持ちの方は",
+    "signInLinkText": "ログイン"
+  },
+  "signUp": {
+    "pageTitle": "アカウント登録",
+    "emailLabel": "メールアドレス",
+    "emailPlaceholder": "mail@example.com",
+    "passwordLabel": "パスワード",
+    "passwordPlaceholder": "パスワード",
+    "confirmPasswordLabel": "パスワード（確認）",
+    "confirmPasswordPlaceholder": "パスワード（確認）",
+    "emailSignUp": "メールアドレスで登録",
+    "emailSignUpLoading": "登録中...",
+    "emailSignUpError": "登録に失敗しました。もう一度お試しください。",
+    "passwordMismatch": "パスワードが一致しません。",
+    "rateLimited": "リクエストが多すぎます。しばらくしてからもう一度お試しください。"
+  },
+  "verifyEmail": {
+    "pageTitle": "メール確認",
+    "description": "確認メールを送信しました。",
+    "checkInbox": "メールに記載されたリンクをクリックして、アカウントを有効化してください。",
+    "resendButton": "確認メールを再送",
+    "resendLoading": "送信中...",
+    "resendCooldown": "再送可能まで {seconds} 秒",
+    "resendSuccess": "確認メールを再送しました。",
+    "resendError": "再送に失敗しました。しばらくしてからもう一度お試しください。",
+    "rateLimited": "リクエストが多すぎます。しばらくしてからもう一度お試しください。"
+  },
+  "forgotPassword": {
+    "pageTitle": "パスワードリセット",
+    "description": "登録されたメールアドレスを入力してください。パスワードリセット用のリンクをお送りします。",
+    "emailLabel": "メールアドレス",
+    "emailPlaceholder": "mail@example.com",
+    "submit": "リセットリンクを送信",
+    "submitLoading": "送信中...",
+    "sentDescription": "パスワードリセット用のメールを送信しました。",
+    "checkInbox": "メールに記載されたリンクからパスワードを再設定してください。",
+    "backToSignIn": "ログインに戻る",
+    "error": "送信に失敗しました。もう一度お試しください。",
+    "rateLimited": "リクエストが多すぎます。しばらくしてからもう一度お試しください。"
+  },
+  "resetPassword": {
+    "pageTitle": "パスワード再設定",
+    "description": "新しいパスワードを入力してください。",
+    "passwordLabel": "新しいパスワード",
+    "passwordPlaceholder": "新しいパスワード",
+    "confirmPasswordLabel": "新しいパスワード（確認）",
+    "confirmPasswordPlaceholder": "新しいパスワード（確認）",
+    "submit": "パスワードを変更",
+    "submitLoading": "変更中...",
+    "passwordMismatch": "パスワードが一致しません。",
+    "error": "パスワードの変更に失敗しました。もう一度お試しください。"
+  },
+  "validation": {
+    "password": {
+      "tooShort": "パスワードは{minLength}文字以上で入力してください。",
+      "missingLetter": "パスワードには英字を1文字以上含めてください。",
+      "missingDigit": "パスワードには数字を1文字以上含めてください。",
+      "weak": "パスワードが脆弱です。別のパスワードをお試しください。"
+    }
   },
   "mypage": {
     "pageTitle": "マイページ",
