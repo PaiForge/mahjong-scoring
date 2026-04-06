@@ -1,5 +1,6 @@
 "use client";
 
+import { useMemo, useCallback } from "react";
 import Link from "next/link";
 import { useTranslations } from "next-intl";
 
@@ -59,6 +60,38 @@ export function Dashboard() {
   const comparisonLabel = getComparisonLabel(selectedPeriod, t);
   const navigablePrevPeriod = getNavigablePreviousPeriod(selectedPeriod);
 
+  const handlePeriodChange = useCallback(
+    (e: React.ChangeEvent<HTMLSelectElement>) => {
+      const value = e.target.value;
+      if (isDatePeriod(value)) setSelectedPeriod(value);
+    },
+    [setSelectedPeriod],
+  );
+
+  const handleMenuChange = useCallback(
+    (e: React.ChangeEvent<HTMLSelectElement>) => {
+      const value = e.target.value;
+      if (isPracticeMenuType(value)) setSelectedMenu(value);
+    },
+    [setSelectedMenu],
+  );
+
+  // useCallback ではなく useMemo を使用: undefined を返すケースがあるため
+  const handlePreviousPeriodClick = useMemo(
+    () => navigablePrevPeriod
+      ? () => setSelectedPeriod(navigablePrevPeriod)
+      : undefined,
+    [navigablePrevPeriod, setSelectedPeriod],
+  );
+
+  const menuOptions = useMemo(
+    () => (availableMenuTypes ?? []).map((type) => ({
+      value: type,
+      label: t(`menuTypes.${type}`),
+    })),
+    [availableMenuTypes, t],
+  );
+
   if (
     availableMenuTypes === undefined ||
     (isLoading && availableMenuTypes.length === 0)
@@ -74,21 +107,13 @@ export function Dashboard() {
     );
   }
 
-  const menuOptions = availableMenuTypes.map((type) => ({
-    value: type,
-    label: t(`menuTypes.${type}`),
-  }));
-
   return (
     <div className="space-y-6 overflow-x-hidden">
       <SectionTitle>{t("records")}</SectionTitle>
 
       <select
         value={selectedPeriod}
-        onChange={(e) => {
-          const value = e.target.value;
-          if (isDatePeriod(value)) setSelectedPeriod(value);
-        }}
+        onChange={handlePeriodChange}
         className={`block w-full sm:w-48 ${selectClassName}`}
       >
         {DATE_PERIODS.map((period) => (
@@ -100,10 +125,7 @@ export function Dashboard() {
 
       <select
         value={selectedMenu ?? ""}
-        onChange={(e) => {
-          const value = e.target.value;
-          if (isPracticeMenuType(value)) setSelectedMenu(value);
-        }}
+        onChange={handleMenuChange}
         className={`block w-full sm:w-64 ${selectClassName}`}
       >
         {menuOptions.map((opt) => (
@@ -160,11 +182,7 @@ export function Dashboard() {
                 previousLabel={t(
                   `periods.${getPreviousPeriodLabel(selectedPeriod)}`,
                 )}
-                onPreviousLabelClick={
-                  navigablePrevPeriod
-                    ? () => setSelectedPeriod(navigablePrevPeriod)
-                    : undefined
-                }
+                onPreviousLabelClick={handlePreviousPeriodClick}
               />
             </div>
           </div>

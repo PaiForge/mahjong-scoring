@@ -1,5 +1,6 @@
 "use client";
 
+import { useMemo } from "react";
 import { Hai, Furo } from "@pai-forge/mahjong-react-ui";
 import { HaiKind, MentsuType } from "@mahjong-scoring/core";
 import type { DrillQuestion } from "@mahjong-scoring/core";
@@ -21,14 +22,20 @@ export function QuestionDisplay({ question }: QuestionDisplayProps) {
   const isOya = jikaze === HaiKind.Ton;
   const haiSize = useResponsiveHaiSize();
 
-  const closedWithoutAgari = (() => {
+  const closedWithoutAgari = useMemo(() => {
     const index = tehai.closed.lastIndexOf(agariHai);
     if (index === -1) return tehai.closed;
     return [...tehai.closed.slice(0, index), ...tehai.closed.slice(index + 1)];
-  })();
+  }, [tehai.closed, agariHai]);
 
-  const kantsuList = tehai.exposed.filter((m) => m.type === MentsuType.Kantsu);
-  const otherFuroList = tehai.exposed.filter((m) => m.type !== MentsuType.Kantsu);
+  const kantsuList = useMemo(
+    () => tehai.exposed.filter((m) => m.type === MentsuType.Kantsu),
+    [tehai.exposed],
+  );
+  const otherFuroList = useMemo(
+    () => tehai.exposed.filter((m) => m.type !== MentsuType.Kantsu),
+    [tehai.exposed],
+  );
 
   return (
     <div className="space-y-6">

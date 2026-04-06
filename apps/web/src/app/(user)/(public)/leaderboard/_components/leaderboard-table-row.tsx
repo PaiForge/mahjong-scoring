@@ -1,3 +1,5 @@
+import { memo } from 'react';
+
 import type { LeaderboardRow } from '../_lib/types';
 import { LeaderboardRowCells } from './leaderboard-row-cells';
 
@@ -10,7 +12,7 @@ interface LeaderboardTableRowProps {
  * リーダーボードテーブル行
  * ランキングテーブルの1行
  */
-export function LeaderboardTableRow({ row, isCurrentUser }: LeaderboardTableRowProps) {
+export const LeaderboardTableRow = memo(function LeaderboardTableRow({ row, isCurrentUser }: LeaderboardTableRowProps) {
   return (
     <tr
       className={`border-b border-surface-200 last:border-b-0 transition-colors ${
@@ -20,4 +22,4 @@ export function LeaderboardTableRow({ row, isCurrentUser }: LeaderboardTableRowP
       <LeaderboardRowCells row={row} />
     </tr>
   );
-}
+});

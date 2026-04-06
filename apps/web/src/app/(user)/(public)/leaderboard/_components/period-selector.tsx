@@ -1,5 +1,6 @@
 'use client';
 
+import { useMemo } from 'react';
 import { useTranslations } from 'next-intl';
 
 import { ToggleGroup } from '@/app/_components/toggle-group';
@@ -19,10 +20,13 @@ interface PeriodSelectorProps {
 export function PeriodSelector({ currentPeriod, onPeriodChange }: PeriodSelectorProps) {
   const t = useTranslations('leaderboard');
 
-  const options = VALID_PERIODS.map((p) => ({
-    value: p,
-    label: t(`period.${p}`),
-  }));
+  const options = useMemo(
+    () => VALID_PERIODS.map((p) => ({
+      value: p,
+      label: t(`period.${p}`),
+    })),
+    [t],
+  );
 
   return <ToggleGroup options={options} selected={currentPeriod} onChange={onPeriodChange} />;
 }

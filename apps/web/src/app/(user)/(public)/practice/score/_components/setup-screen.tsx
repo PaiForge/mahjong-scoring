@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useCallback } from "react";
 import { useRouter } from "next/navigation";
 import { useTranslations } from "next-intl";
 import { useScoreSettingsStore } from "../_lib/use-score-settings-store";
@@ -66,13 +66,20 @@ export function SetupScreen() {
     );
   };
 
-  const handleToggleRange = (range: "non_mangan" | "mangan_plus") => {
-    if (targetScoreRanges.includes(range)) {
-      setTargetScoreRanges(targetScoreRanges.filter((r) => r !== range));
-    } else {
-      setTargetScoreRanges([...targetScoreRanges, range]);
-    }
-  };
+  const handleToggleRange = useCallback((range: "non_mangan" | "mangan_plus") => {
+    const current = useScoreSettingsStore.getState().targetScoreRanges;
+    setTargetScoreRanges(
+      current.includes(range) ? current.filter((r) => r !== range) : [...current, range],
+    );
+  }, [setTargetScoreRanges]);
+
+  const handleToggleNonMangan = useCallback(() => {
+    handleToggleRange("non_mangan");
+  }, [handleToggleRange]);
+
+  const handleToggleManganPlus = useCallback(() => {
+    handleToggleRange("mangan_plus");
+  }, [handleToggleRange]);
 
   const isDisabled = targetScoreRanges.length === 0 || (!includeParent && !includeChild);
 
@@ -149,12 +156,12 @@ export function SetupScreen() {
           <div className="flex flex-col gap-3 p-3">
             <SmallCheckbox
               checked={targetScoreRanges.includes("non_mangan")}
-              onChange={() => handleToggleRange("non_mangan")}
+              onChange={handleToggleNonMangan}
               label={t("setup.nonMangan")}
             />
             <SmallCheckbox
               checked={targetScoreRanges.includes("mangan_plus")}
-              onChange={() => handleToggleRange("mangan_plus")}
+              onChange={handleToggleManganPlus}
               label={t("setup.manganPlus")}
             />
           </div>

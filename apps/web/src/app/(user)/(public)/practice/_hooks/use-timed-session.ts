@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useRef, useState } from "react";
+import { useCallback, useMemo, useRef, useState } from "react";
 import { useCountdown } from "./use-countdown";
 import {
   CHALLENGE_TIME_LIMIT,
@@ -193,7 +193,7 @@ export function useTimedSession({
     countdown.reset();
   }, [countdown]);
 
-  const gameSession: GameSessionState = {
+  const gameSession: GameSessionState = useMemo(() => ({
     isCountingDown: countdown.isActive,
     countdownValue: countdown.count,
     isPlaying: isPlaying && !isPaused,
@@ -210,14 +210,31 @@ export function useTimedSession({
     mistakeLimit,
     timeLimit,
     finalResult,
-  };
+  }), [
+    countdown.isActive,
+    countdown.count,
+    isPlaying,
+    isPaused,
+    isFinished,
+    correctCount,
+    incorrectCount,
+    totalCount,
+    remainingLives,
+    showFeedback,
+    lastAnswerCorrect,
+    handleAnswer,
+    togglePause,
+    mistakeLimit,
+    timeLimit,
+    finalResult,
+  ]);
 
-  const timerControl: TimerControl = {
+  const timerControl: TimerControl = useMemo(() => ({
     isActive: isPlaying && !isFinished && !isPaused,
     onTimeLimitReached: handleTimeLimitReached,
     registerTimerReset,
     reset,
-  };
+  }), [isPlaying, isFinished, isPaused, handleTimeLimitReached, registerTimerReset, reset]);
 
   return { gameSession, timerControl };
 }

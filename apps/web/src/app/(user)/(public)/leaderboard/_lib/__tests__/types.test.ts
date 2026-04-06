@@ -30,6 +30,7 @@ describe('MODULES', () => {
       'yaku',
       'score_table',
       'score_calculation',
+      'han_count',
     ]);
   });
 });

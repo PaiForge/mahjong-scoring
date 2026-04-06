@@ -1,5 +1,6 @@
 "use client";
 
+import { useMemo } from "react";
 import {
   CartesianGrid,
   Legend,
@@ -40,6 +41,41 @@ export function ScoreChart({
   previousLabel,
   onPreviousLabelClick,
 }: ScoreChartProps) {
+  const hasPreviousData = data.some((d) => d.previousScore !== undefined);
+
+  const mutableData = useMemo(() => [...data], [data]);
+
+  const chartMargin = useMemo(
+    () => ({ top: 5, right: 10, left: 0, bottom: 5 }),
+    [],
+  );
+
+  const axisTick = useMemo(
+    () => ({ fill: "var(--color-surface-500)", fontSize: 12 }),
+    [],
+  );
+
+  const yAxisLabelConfig = useMemo(
+    () => ({
+      value: yAxisLabel,
+      angle: -90,
+      position: "insideLeft" as const,
+      fill: "var(--color-surface-500)",
+      fontSize: 12,
+    }),
+    [yAxisLabel],
+  );
+
+  const tooltipContentStyle = useMemo(
+    () => ({
+      backgroundColor: "var(--color-surface-50)",
+      border: "1px solid var(--color-surface-200)",
+      borderRadius: "8px",
+      color: "var(--color-surface-900)",
+    }),
+    [],
+  );
+
   if (data.length === 0) {
     return (
       <div className="flex items-center justify-center h-48 text-surface-500 text-sm">
@@ -48,38 +84,25 @@ export function ScoreChart({
     );
   }
 
-  const hasPreviousData = data.some((d) => d.previousScore !== undefined);
-
   return (
     <ResponsiveContainer width="100%" height={250} minHeight={200}>
       <LineChart
-        data={[...data]}
-        margin={{ top: 5, right: 10, left: 0, bottom: 5 }}
+        data={mutableData}
+        margin={chartMargin}
       >
         <CartesianGrid strokeDasharray="3 3" stroke="var(--color-surface-200)" />
         <XAxis
           dataKey="date"
-          tick={{ fill: "var(--color-surface-500)", fontSize: 12 }}
+          tick={axisTick}
           stroke="var(--color-surface-200)"
         />
         <YAxis
-          tick={{ fill: "var(--color-surface-500)", fontSize: 12 }}
+          tick={axisTick}
           stroke="var(--color-surface-200)"
-          label={{
-            value: yAxisLabel,
-            angle: -90,
-            position: "insideLeft",
-            fill: "var(--color-surface-500)",
-            fontSize: 12,
-          }}
+          label={yAxisLabelConfig}
         />
         <Tooltip
-          contentStyle={{
-            backgroundColor: "var(--color-surface-50)",
-            border: "1px solid var(--color-surface-200)",
-            borderRadius: "8px",
-            color: "var(--color-surface-900)",
-          }}
+          contentStyle={tooltipContentStyle}
           formatter={(value, name) => {
             if (value === undefined || value === null) return ["-", name ?? ""];
             const num = typeof value === "number" ? value : Number(value);

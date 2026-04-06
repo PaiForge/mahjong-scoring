@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useMemo } from "react";
+import { useState, useMemo, useCallback } from "react";
 import { useTranslations } from "next-intl";
 import type { UserAnswer } from "@mahjong-scoring/core";
 import { YakuSelect } from "./yaku-select";
@@ -82,13 +82,15 @@ export function AnswerForm({
     [t],
   );
 
-  const handleHanChange = (value: string) => {
+  const handleHanChange = useCallback((e: React.ChangeEvent<HTMLSelectElement>) => {
+    const value = e.target.value;
     setHan(value === "" ? undefined : Number(value));
-  };
+  }, []);
 
-  const handleFuChange = (value: string) => {
+  const handleFuChange = useCallback((e: React.ChangeEvent<HTMLSelectElement>) => {
+    const value = e.target.value;
     setFu(value === "" ? undefined : Number(value));
-  };
+  }, []);
 
   const availableScores = useMemo(
     () => getAvailableScores(han, isOya, isTsumo),
@@ -145,7 +147,7 @@ export function AnswerForm({
         </label>
         <select
           value={han ?? ""}
-          onChange={(e) => handleHanChange(e.target.value)}
+          onChange={handleHanChange}
           disabled={disabled}
           required
           className={selectClass(han !== undefined)}
@@ -166,7 +168,7 @@ export function AnswerForm({
           </label>
           <select
             value={fu ?? ""}
-            onChange={(e) => handleFuChange(e.target.value)}
+            onChange={handleFuChange}
             disabled={disabled}
             required
             className={selectClass(fu !== undefined)}

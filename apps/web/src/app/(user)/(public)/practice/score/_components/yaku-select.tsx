@@ -1,5 +1,6 @@
 "use client";
 
+import { useMemo } from "react";
 import { useTranslations } from "next-intl";
 import { YAKU_OPTIONS } from "@mahjong-scoring/core";
 import { MultiSelect } from "./multi-select";
@@ -63,20 +64,20 @@ export function YakuSelect({ value, onChange, disabled }: YakuSelectProps) {
   const t = useTranslations("score");
   const tYaku = useTranslations("score.yaku");
 
-  const multiSelectLabels = {
+  const multiSelectLabels = useMemo(() => ({
     add: t("form.multiSelect.add"),
     title: t("form.multiSelect.title"),
     done: t("form.multiSelect.done"),
-  };
+  }), [t]);
 
-  const options = YAKU_OPTIONS.map((yaku) => {
+  const options = useMemo(() => YAKU_OPTIONS.map((yaku) => {
     const key = YAKU_TO_KEY[yaku];
     const label = key ? tYaku(key) : yaku;
     return {
       value: yaku,
       label,
     };
-  });
+  }), [tYaku]);
 
   return (
     <div>
@@ -85,7 +86,7 @@ export function YakuSelect({ value, onChange, disabled }: YakuSelectProps) {
       </label>
       <MultiSelect
         options={options}
-        value={[...value]}
+        value={value}
         onChange={onChange}
         disabled={disabled}
         placeholder={t("form.placeholders.select")}

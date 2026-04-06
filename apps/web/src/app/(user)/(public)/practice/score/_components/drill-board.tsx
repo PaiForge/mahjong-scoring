@@ -76,9 +76,38 @@ function DrillBoardInner() {
     }
   }, [isClient, currentQuestion, initializeQuestion]);
 
-  const handleBackToSetup = () => {
+  const requireYaku = searchParams.get("mode") === "with_yaku";
+  const simplifyMangan = searchParams.get("simple") === "1";
+  const requireFuForMangan = searchParams.get("fu_mangan") === "1";
+  const autoNext = searchParams.get("auto_next") === "1";
+
+  const handleBackToSetup = useCallback(() => {
     router.push("/practice/score");
-  };
+  }, [router]);
+
+  const handleNext = useCallback(() => {
+    nextQuestion();
+  }, [nextQuestion]);
+
+  const handleSubmit = useCallback((answer: UserAnswer) => {
+    submitAnswer(answer, requireYaku, simplifyMangan, requireFuForMangan);
+
+    if (autoNext) {
+      const state = useScoreDrillStore.getState();
+      if (state.judgementResult?.isCorrect) {
+        toast.success(t("board.correct"), {
+          duration: 1500,
+          position: "top-center",
+          style: {
+            background: "#E6FFFA",
+            color: "#2C7A7B",
+            fontWeight: "bold",
+          },
+        });
+        nextQuestion();
+      }
+    }
+  }, [submitAnswer, nextQuestion, requireYaku, simplifyMangan, requireFuForMangan, autoNext, t]);
 
   if (!isClient) {
     return (
@@ -99,35 +128,6 @@ function DrillBoardInner() {
       </ContentContainer>
     );
   }
-
-  const requireYaku = searchParams.get("mode") === "with_yaku";
-  const simplifyMangan = searchParams.get("simple") === "1";
-  const requireFuForMangan = searchParams.get("fu_mangan") === "1";
-  const autoNext = searchParams.get("auto_next") === "1";
-
-  const handleNext = () => {
-    nextQuestion();
-  };
-
-  const handleSubmit = (answer: UserAnswer) => {
-    submitAnswer(answer, requireYaku, simplifyMangan, requireFuForMangan);
-
-    if (autoNext) {
-      const state = useScoreDrillStore.getState();
-      if (state.judgementResult?.isCorrect) {
-        toast.success(t("board.correct"), {
-          duration: 1500,
-          position: "top-center",
-          style: {
-            background: "#E6FFFA",
-            color: "#2C7A7B",
-            fontWeight: "bold",
-          },
-        });
-        handleNext();
-      }
-    }
-  };
 
   return (
     <ContentContainer>
