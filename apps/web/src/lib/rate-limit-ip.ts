@@ -2,6 +2,17 @@
  * IP ベースのインメモリレートリミッター。
  * Server Action（未認証エンドポイント）向けの固定ウィンドウ方式。
  * IPレートリミッター
+ *
+ * 制限事項:
+ * - インメモリ（Map）ベースのため、マルチインスタンス環境ではインスタンス間で
+ *   レートリミットの状態が共有されない。
+ * - Serverless 環境（Vercel Functions 等）ではコールドスタートごとにストアが
+ *   リセットされるため、制限の精度が低下する。
+ * - Supabase サーバーサイドのレートリミットとの二重防御により、上記制限の
+ *   影響を緩和している。
+ *
+ * TODO: 本番環境のスケール時には Redis（Upstash 等）ベースの実装に移行し、
+ * インスタンス間で状態を共有できるようにする。
  */
 
 export interface IpRateLimitConfig {
@@ -64,6 +75,8 @@ export const IP_RATE_LIMITS = {
   signUp: { maxRequests: 5, windowMs: 300_000 },
   forgotPassword: { maxRequests: 3, windowMs: 300_000 },
   resendEmail: { maxRequests: 3, windowMs: 300_000 },
+  resetPassword: { maxRequests: 5, windowMs: 300_000 },
+  username: { maxRequests: 5, windowMs: 300_000 },
 } as const;
 
 /**

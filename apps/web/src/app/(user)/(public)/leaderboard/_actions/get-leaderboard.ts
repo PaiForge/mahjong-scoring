@@ -73,7 +73,10 @@ export async function getLeaderboard(
 
     return { rows: leaderboardRows, totalCount: total, currentUserRank };
   } catch (error) {
-    console.error('[getLeaderboard] DB query failed:', error);
+    console.error(
+      '[getLeaderboard] DB query failed:',
+      error instanceof Error ? error.message : String(error),
+    );
     return EMPTY_RESULT;
   }
 }

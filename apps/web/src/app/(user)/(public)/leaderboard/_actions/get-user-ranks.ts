@@ -2,6 +2,8 @@
 
 import { unstable_cache } from 'next/cache';
 
+import { createClient } from '@/lib/supabase/server';
+
 import { getQueriesForPeriod } from '../_lib/period-queries';
 import type { LeaderboardPeriod, UserRankInfo } from '../_lib/types';
 import { MODULES } from '../_lib/types';
@@ -10,16 +12,26 @@ const REVALIDATE_SECONDS = 300; // 5 minutes
 const LEADERBOARD_KEY = 'default';
 
 /**
- * 全モジュールにおけるユーザーのランクを一括取得する
+ * 認証済みユーザーの全モジュールにおけるランクを一括取得する。
+ * 未認証の場合は空配列を返す。
  * ユーザーランク一括取得
  *
- * @param userId - ユーザーID
  * @param period - 期間
  */
 export async function getUserRanks(
-  userId: string,
   period: LeaderboardPeriod,
 ): Promise<readonly UserRankInfo[]> {
+  const supabase = await createClient();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+
+  if (!user) {
+    return [];
+  }
+
+  const userId = user.id;
+
   return unstable_cache(
     async () => {
       const { getUserRankedRow } = getQueriesForPeriod(period);

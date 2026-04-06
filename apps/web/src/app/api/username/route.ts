@@ -1,8 +1,10 @@
 import { NextResponse } from 'next/server';
 
+import { getClientIp } from '@/lib/client-ip';
 import { db, profiles } from '@/lib/db';
 import { extractPgErrorCode } from '@/lib/db/extract-pg-error-code';
 import { profileExistsByUserId } from '@/lib/db/queries';
+import { IP_RATE_LIMITS, checkIpRateLimitGuard } from '@/lib/rate-limit-ip';
 import { createClient } from '@/lib/supabase/server';
 import { validateUsername } from '@/lib/username';
 
@@ -15,6 +17,15 @@ const PG_UNIQUE_VIOLATION = '23505';
  * ユーザー名登録API
  */
 export async function POST(request: Request) {
+  const ipRateLimited = checkIpRateLimitGuard(
+    await getClientIp(),
+    'username',
+    IP_RATE_LIMITS.username,
+  );
+  if (ipRateLimited) {
+    return NextResponse.json({ error: 'rateLimited' }, { status: 429 });
+  }
+
   const supabase = await createClient();
   const {
     data: { user },

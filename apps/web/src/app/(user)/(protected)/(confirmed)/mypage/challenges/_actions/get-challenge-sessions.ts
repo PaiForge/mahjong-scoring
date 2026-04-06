@@ -102,7 +102,10 @@ export async function getChallengeSessions(
       previous: previousRows,
     };
   } catch (error) {
-    console.error("Failed to fetch challenge sessions:", error);
+    console.error(
+      "Failed to fetch challenge sessions:",
+      error instanceof Error ? error.message : String(error),
+    );
     return { current: [], previous: [] };
   }
 }

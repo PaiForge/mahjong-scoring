@@ -6,12 +6,13 @@ import { useRouter } from "next/navigation";
 import { useTranslations } from "next-intl";
 
 import { MIN_PASSWORD_LENGTH } from "@/config";
-import { createClient } from "@/lib/supabase/client";
 import { getPasswordValidationError } from "@/lib/validations/password";
+
+import { resetPassword } from "../_actions/reset-password";
 
 /**
  * パスワード再設定フォーム。
- * クライアントサイドで Supabase の updateUser を呼び出す。
+ * Server Action 経由で Supabase の updateUser を呼び出す。
  * パスワード再設定フォーム
  */
 export function ResetPasswordForm() {
@@ -40,13 +41,17 @@ export function ResetPasswordForm() {
 
     setIsLoading(true);
 
-    const supabase = createClient();
-    const { error: updateError } = await supabase.auth.updateUser({
-      password,
-    });
+    const result = await resetPassword(password);
 
-    if (updateError) {
-      setError(t("error"));
+    if ("error" in result) {
+      if (result.error === "rateLimited") {
+        setError(t("rateLimited"));
+      } else if (result.error.startsWith("password:")) {
+        const key = result.error.replace("password:", "");
+        setError(tPassword(key, { minLength: MIN_PASSWORD_LENGTH }));
+      } else {
+        setError(t("error"));
+      }
       setIsLoading(false);
       return;
     }

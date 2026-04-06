@@ -9,6 +9,8 @@ export type SaveResultResponse =
   | { readonly success: true }
   | { readonly success: false; readonly error: string };
 
+const ALLOWED_LEADERBOARD_KEYS: ReadonlySet<string> = new Set(['default']);
+
 export interface ChallengeFields {
   readonly score: number;
   readonly incorrectAnswers: number;
@@ -43,6 +45,11 @@ export async function savePracticeResult(
       return { success: false, error: 'invalid_menu_type' };
     }
 
+    if (!ALLOWED_LEADERBOARD_KEYS.has(leaderboardKey)) {
+      console.warn(`[savePracticeResult] invalid leaderboardKey: ${leaderboardKey}`);
+      return { success: false, error: 'invalid_leaderboard_key' };
+    }
+
     await saveChallengeResult({
       userId: user.id,
       menuType,
@@ -54,7 +61,10 @@ export async function savePracticeResult(
 
     return { success: true };
   } catch (error) {
-    console.error(`[savePracticeResult] ${menuType}: unexpected error during save:`, error);
+    console.error(
+      `[savePracticeResult] ${menuType}: unexpected error during save:`,
+      error instanceof Error ? error.message : String(error),
+    );
     return { success: false, error: 'unexpected_error' };
   }
 }

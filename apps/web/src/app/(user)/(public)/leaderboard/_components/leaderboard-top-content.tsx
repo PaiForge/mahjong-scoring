@@ -24,7 +24,7 @@ export async function LeaderboardTopContent({
 
   let userRanks: readonly UserRankInfo[] = [];
   if (currentUserId) {
-    userRanks = await getUserRanks(currentUserId, period);
+    userRanks = await getUserRanks(period);
   }
 
   const rankMap = new Map<LeaderboardModule, number>(
