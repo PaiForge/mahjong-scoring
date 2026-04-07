@@ -84,7 +84,8 @@ export function AuthProvider({ children }: { readonly children: ReactNode }) {
   }, [router, refreshUser]);
 
   const signOut = useCallback(async () => {
-    // サーバー側でアクティビティログを記録してからサインアウト
+    // サーバー側で activity-log 記録 + セッション無効化を行い、
+    // クライアント側で Supabase のローカルセッション状態をクリアする
     await fetch('/auth/logout', { method: 'POST' });
     const supabase = supabaseRef.current ?? createClient();
     await supabase.auth.signOut();

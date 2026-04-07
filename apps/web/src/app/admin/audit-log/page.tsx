@@ -1,13 +1,12 @@
 import { getTranslations } from 'next-intl/server';
 
-import { and, desc, eq, ilike, inArray, or, sql } from 'drizzle-orm';
 import { createSearchParamsCache, parseAsInteger, parseAsString } from 'nuqs/server';
 
 import { PageTitle } from '@/app/_components/page-title';
 import { PaginationNav } from '@/app/_components/pagination-nav';
-import { db, moderationActions, profiles } from '../../../lib/db';
-import { getPaginationData, DEFAULT_PAGE_SIZE } from '../../../lib/pagination';
 import { createAdminClient } from '../../../lib/supabase/admin';
+
+import { fetchAuditLogPageData } from './_lib/queries';
 
 const searchParamsCache = createSearchParamsCache({
   page: parseAsInteger.withDefault(1),
@@ -31,90 +30,8 @@ export default async function AdminAuditLogPage({
   const adminClient = createAdminClient();
   const userFilter = rawUser.trim();
 
-  // Where 条件を構築
-  const conditions = [];
-  if (actionFilter) {
-    conditions.push(eq(moderationActions.action, actionFilter));
-  }
-
-  // ユーザーフィルタ: プロフィール検索 + メール検索
-  let filteredTargetIds: string[] | undefined;
-  if (userFilter) {
-    const matchingProfiles = await db
-      .select({ id: profiles.id })
-      .from(profiles)
-      .where(
-        or(
-          ilike(profiles.username, `%${userFilter}%`),
-          ilike(profiles.displayName, `%${userFilter}%`),
-        ),
-      );
-
-    const { data: usersData } = await adminClient.auth.admin.listUsers({
-      page: 1,
-      perPage: 100,
-    });
-    const matchingEmailUserIds = (usersData?.users ?? [])
-      .filter((u) => u.email?.toLowerCase().includes(userFilter.toLowerCase()))
-      .map((u) => u.id);
-
-    const allMatchingIds = [
-      ...new Set([...matchingProfiles.map((p) => p.id), ...matchingEmailUserIds]),
-    ];
-
-    if (allMatchingIds.length === 0) {
-      filteredTargetIds = [];
-    } else {
-      filteredTargetIds = allMatchingIds;
-      conditions.push(inArray(moderationActions.targetId, allMatchingIds));
-    }
-  }
-
-  const whereClause = conditions.length > 0 ? and(...conditions) : undefined;
-
-  // ページネーション用の件数取得
-  const [countResult] = await db
-    .select({ count: sql<number>`count(*)` })
-    .from(moderationActions)
-    .where(whereClause);
-
-  const pagination = getPaginationData(page, Number(countResult.count), DEFAULT_PAGE_SIZE);
-
-  // ログ取得
-  const logs =
-    filteredTargetIds?.length === 0
-      ? []
-      : await db
-          .select()
-          .from(moderationActions)
-          .where(whereClause)
-          .orderBy(desc(moderationActions.createdAt))
-          .limit(pagination.limit)
-          .offset(pagination.offset);
-
-  // ユーザー情報の取得
-  const targetIds = [...new Set(logs.map((l) => l.targetId))];
-  const actorIds = [...new Set(logs.map((l) => l.actorId))];
-  const allUserIds = [...new Set([...targetIds, ...actorIds])];
-
-  const targetProfiles =
-    targetIds.length > 0
-      ? await db.select().from(profiles).where(inArray(profiles.id, targetIds))
-      : [];
-  const profileMap = new Map(targetProfiles.map((p) => [p.id, p]));
-
-  const emailMap = new Map<string, string>();
-  if (allUserIds.length > 0) {
-    const { data: usersData } = await adminClient.auth.admin.listUsers({
-      page: 1,
-      perPage: 100,
-    });
-    for (const u of usersData?.users ?? []) {
-      if (u.email) {
-        emailMap.set(u.id, u.email);
-      }
-    }
-  }
+  const { logs, currentPage, totalPages, profileMap, emailMap } =
+    await fetchAuditLogPageData(adminClient, page, actionFilter, userFilter);
 
   const buildHref = (p: number) => {
     const params = new URLSearchParams();
@@ -232,8 +149,8 @@ export default async function AdminAuditLogPage({
       </div>
 
       <PaginationNav
-        currentPage={pagination.currentPage}
-        totalPages={pagination.totalPages}
+        currentPage={currentPage}
+        totalPages={totalPages}
         buildHref={buildHref}
       />
     </div>

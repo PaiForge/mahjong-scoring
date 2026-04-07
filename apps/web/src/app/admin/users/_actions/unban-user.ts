@@ -1,6 +1,6 @@
 'use server';
 
-import { eq } from 'drizzle-orm';
+import { eq, sql } from 'drizzle-orm';
 import { revalidatePath } from 'next/cache';
 
 import type { ActionResult } from '../../../../lib/action-types';
@@ -52,7 +52,7 @@ export async function unbanUser(targetUserId: string): Promise<ActionResult> {
     await db.transaction(async (tx) => {
       await tx
         .update(profiles)
-        .set({ bannedAt: null })
+        .set({ bannedAt: sql`NULL` })
         .where(eq(profiles.id, targetUserId));
 
       await tx.insert(moderationActions).values({

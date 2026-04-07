@@ -40,6 +40,7 @@ export default async function AdminUsersPage({
     perPage: DEFAULT_PAGE_SIZE,
   });
   if (error) {
+    // Next.js error boundary に委任する意図的な throw
     throw new Error(`Failed to fetch users: ${error.message}`);
   }
 
