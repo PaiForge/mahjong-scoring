@@ -2,6 +2,7 @@
 .branches
 .temp
 .env
+!.env.example
 snippets/
 
 # dotenvx

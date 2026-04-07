@@ -10,3 +10,6 @@ dist/
 .env*.local
 
 .claude/
+
+# Supabase CLI local cache (generated at project root by Studio/CLI)
+/supabase/
