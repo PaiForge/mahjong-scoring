@@ -1,5 +1,7 @@
 import { cache } from "react";
 import { redirect } from "next/navigation";
+import type { User } from "@supabase/supabase-js";
+import { isUserBanned } from "./ban";
 import { createClient } from "./supabase/server";
 import { getProfileByUserId } from "./db/queries";
 
@@ -39,3 +41,25 @@ export const getOptionalUser = cache(async () => {
   } = await supabase.auth.getUser();
   return user;
 });
+
+/**
+ * 認証 + BAN チェックガード（Server Actions 用）。
+ * 認証済みかつ BAN されていないユーザーを返す。
+ * 認証+BANガード
+ */
+export async function authenticateAndCheckBan(): Promise<{ user: User } | { error: string }> {
+  const supabase = await createClient();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+
+  if (!user) {
+    return { error: "signInRequired" };
+  }
+
+  if (await isUserBanned(user.id)) {
+    return { error: "banned" };
+  }
+
+  return { user };
+}
