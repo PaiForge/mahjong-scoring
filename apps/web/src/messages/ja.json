@@ -645,7 +645,9 @@
     "emailSignUpLoading": "登録中...",
     "emailSignUpError": "登録に失敗しました。もう一度お試しください。",
     "passwordMismatch": "パスワードが一致しません。",
-    "rateLimited": "リクエストが多すぎます。しばらくしてからもう一度お試しください。"
+    "rateLimited": "リクエストが多すぎます。しばらくしてからもう一度お試しください。",
+    "freeBadge": "無料",
+    "freeAssurance": "完全無料 ・ クレジットカード不要"
   },
   "verifyEmail": {
     "pageTitle": "メール確認",

@@ -64,7 +64,7 @@ export default async function SignInPage({
 
         <p className="text-center text-sm text-surface-500">
           {t("noAccountYet")}
-          <Link href="/sign-up" className="text-primary hover:underline">
+          <Link href="/sign-up" className="text-primary-500 hover:underline">
             {t("signUpLinkText")}
           </Link>
         </p>

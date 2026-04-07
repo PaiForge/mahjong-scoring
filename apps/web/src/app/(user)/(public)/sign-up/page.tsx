@@ -50,7 +50,10 @@ export default async function SignUpPage({
 
   return (
     <ContentContainer>
-      <PageTitle>{t("pageTitle")}</PageTitle>
+      <PageTitle>
+        {t("pageTitle")}
+        <span className="ml-2 align-middle" aria-label={t("freeBadge")}>🆓</span>
+      </PageTitle>
       <div className="mt-8 space-y-6">
         {error && (
           <p className="text-center text-sm text-red-600">
@@ -58,6 +61,10 @@ export default async function SignUpPage({
           </p>
         )}
         <GoogleOAuthButton />
+        <p className="mt-2 text-center text-xs text-success">
+          <span aria-hidden="true">&#x2713;</span>{" "}
+          {t("freeAssurance")}
+        </p>
 
         <div className="flex items-center gap-4 max-w-sm mx-auto">
           <div className="flex-1 border-t border-surface-200" />
@@ -69,7 +76,7 @@ export default async function SignUpPage({
 
         <p className="text-center text-sm text-surface-500">
           {tAuth("alreadyHaveAccount")}
-          <Link href="/sign-in" className="text-primary hover:underline">
+          <Link href="/sign-in" className="text-primary-500 hover:underline">
             {tAuth("signInLinkText")}
           </Link>
         </p>
