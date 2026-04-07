@@ -733,14 +733,71 @@
     "dashboardDescription": "管理画面へようこそ。左メニューから各機能にアクセスできます。",
     "userManagement": "ユーザー管理",
     "userManagementDescription": "登録ユーザーの一覧表示・管理を行います。",
+    "auditLog": "監査ログ",
+    "auditLogDescription": "管理者の操作履歴を確認できます。",
+    "activityLog": "アクティビティログ",
+    "activityLogDescription": "ユーザーの行動履歴を確認できます。",
     "users": "ユーザー",
     "usersTable": {
       "email": "メールアドレス",
       "username": "ユーザー名",
       "displayName": "表示名",
+      "status": "ステータス",
+      "actions": "操作",
+      "active": "有効",
+      "banned": "BAN済み",
       "createdAt": "登録日時",
       "noUsersFound": "ユーザーが見つかりません"
+    },
+    "auditLogTable": {
+      "action": "アクション",
+      "target": "対象",
+      "actor": "実行者",
+      "reason": "理由",
+      "ipAddress": "IPアドレス",
+      "timestamp": "日時",
+      "noLogsFound": "ログが見つかりません",
+      "filterByAction": "アクションで絞り込み",
+      "filterByUser": "ユーザーで絞り込み",
+      "allActions": "すべて",
+      "filter": "絞り込み"
+    },
+    "activityLogTable": {
+      "action": "アクション",
+      "username": "ユーザー",
+      "target": "対象",
+      "metadata": "メタデータ",
+      "timestamp": "日時",
+      "noLogsFound": "ログが見つかりません",
+      "filterByAction": "アクションで絞り込み",
+      "filterByUser": "ユーザーで絞り込み",
+      "allActions": "すべて",
+      "filter": "絞り込み"
+    },
+    "banUser": {
+      "title": "ユーザーをBANする",
+      "reasonLabel": "BAN理由",
+      "reasonPlaceholder": "BANの理由を入力してください",
+      "cancel": "キャンセル",
+      "confirm": "BANする",
+      "pending": "処理中...",
+      "errorReasonRequired": "BANの理由を入力してください",
+      "errorFailed": "BANに失敗しました"
+    },
+    "unbanUser": {
+      "title": "BANを解除する",
+      "confirmMessage": "このユーザーのBANを解除しますか？",
+      "cancel": "キャンセル",
+      "confirm": "BAN解除",
+      "pending": "処理中...",
+      "errorFailed": "BAN解除に失敗しました"
     }
+  },
+  "banned": {
+    "title": "アカウントが停止されています",
+    "message": "あなたのアカウントは利用規約違反により停止されました。",
+    "reason": "理由: {reason}",
+    "contact": "異議がある場合はお問い合わせください。"
   },
   "pagination": {
     "previous": "前へ",

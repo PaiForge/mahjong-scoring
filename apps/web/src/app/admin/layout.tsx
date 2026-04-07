@@ -40,6 +40,18 @@ export default async function AdminLayout({
           >
             {t('users')}
           </Link>
+          <Link
+            href="/admin/audit-log"
+            className="block px-3 py-2 rounded text-sm hover:bg-gray-200 transition-colors"
+          >
+            {t('auditLog')}
+          </Link>
+          <Link
+            href="/admin/activity-log"
+            className="block px-3 py-2 rounded text-sm hover:bg-gray-200 transition-colors"
+          >
+            {t('activityLog')}
+          </Link>
         </nav>
       </aside>
       <main className="flex-1 p-8">
