@@ -24,6 +24,12 @@
 
 これにより、App Router のルート解決対象から除外され、ルートセグメントと明確に区別できる。
 
+## Next.js Proxy（旧 Middleware）
+
+- Next.js 16 では `middleware.ts` は `proxy.ts` に置き換えられた。**`middleware.ts` は使用禁止**
+- セッションリフレッシュ等の処理は `apps/web/src/proxy.ts` に記述すること
+- `middleware.ts` と `proxy.ts` が同時に存在するとビルドエラーになる
+
 ## プロジェクト構成
 
 ```
