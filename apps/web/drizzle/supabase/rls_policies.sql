@@ -59,3 +59,21 @@ CREATE POLICY "challenge_best_scores_insert" ON "challenge_best_scores"
 DROP POLICY IF EXISTS "challenge_best_scores_update" ON "challenge_best_scores";
 CREATE POLICY "challenge_best_scores_update" ON "challenge_best_scores"
   FOR UPDATE USING (auth.uid() = user_id);
+
+-- =============================================================================
+-- moderation_actions
+-- =============================================================================
+ALTER TABLE "moderation_actions" ENABLE ROW LEVEL SECURITY;
+
+DROP POLICY IF EXISTS "moderation_actions_deny_all" ON "moderation_actions";
+CREATE POLICY "moderation_actions_deny_all" ON "moderation_actions"
+  USING (false);
+
+-- =============================================================================
+-- user_activity_log
+-- =============================================================================
+ALTER TABLE "user_activity_log" ENABLE ROW LEVEL SECURITY;
+
+DROP POLICY IF EXISTS "user_activity_log_deny_all" ON "user_activity_log";
+CREATE POLICY "user_activity_log_deny_all" ON "user_activity_log"
+  USING (false);

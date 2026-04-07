@@ -1,9 +1,11 @@
 import {
   index,
   integer,
+  jsonb,
   pgEnum,
   pgTable,
   primaryKey,
+  text,
   timestamp,
   unique,
   uuid,
@@ -169,3 +171,78 @@ export const challengeBestScores = pgTable(
 
 export type ChallengeBestScore = typeof challengeBestScores.$inferSelect;
 export type NewChallengeBestScore = typeof challengeBestScores.$inferInsert;
+
+/**
+ * モデレーションアクション — 管理者の操作記録
+ *
+ * @description
+ * BAN / BAN解除などの管理者操作を記録する監査ログテーブル。
+ * 管理者（actorId）が対象ユーザー（targetId）に対して行った
+ * アクションとその理由を保持する。
+ */
+export const moderationActions = pgTable(
+  'moderation_actions',
+  {
+    id: uuid('id').primaryKey().defaultRandom(),
+    /** 操作を実行した管理者の auth.users(id) */
+    actorId: uuid('actor_id').notNull(),
+    /** 実行されたアクション（例: ban, unban） */
+    action: varchar('action', { length: 50 }).notNull(),
+    /** 対象のエンティティ種別（例: user） */
+    targetType: varchar('target_type', { length: 50 }).notNull(),
+    /** 対象エンティティの ID */
+    targetId: uuid('target_id').notNull(),
+    /** 操作の理由（任意） */
+    reason: text('reason'),
+    /** 追加メタデータ */
+    metadata: jsonb('metadata').default({}).$type<Record<string, unknown>>(),
+    /** 操作元の IP アドレス */
+    ipAddress: varchar('ip_address', { length: 45 }),
+    /** 作成日時 */
+    createdAt: timestamp('created_at', { withTimezone: true }).defaultNow().notNull(),
+  },
+  (table) => [
+    index('idx_ma_actor').on(table.actorId),
+    index('idx_ma_target').on(table.targetType, table.targetId),
+    index('idx_ma_action').on(table.action),
+    index('idx_ma_created_at').on(table.createdAt),
+  ],
+);
+
+export type ModerationAction = typeof moderationActions.$inferSelect;
+export type NewModerationAction = typeof moderationActions.$inferInsert;
+
+/**
+ * ユーザーアクティビティログ — ユーザー行動の記録
+ *
+ * @description
+ * ログイン・ログアウト・パスワード変更などのユーザー行動を
+ * fire-and-forget で記録するテーブル。
+ */
+export const userActivityLog = pgTable(
+  'user_activity_log',
+  {
+    id: uuid('id').primaryKey().defaultRandom(),
+    /** 行動したユーザーの auth.users(id) */
+    userId: uuid('user_id').notNull(),
+    /** 行動の種類（例: login, logout, change_password） */
+    action: varchar('action', { length: 50 }).notNull(),
+    /** 対象のエンティティ種別（任意） */
+    targetType: varchar('target_type', { length: 50 }),
+    /** 対象エンティティの ID（任意） */
+    targetId: uuid('target_id'),
+    /** 追加メタデータ */
+    metadata: jsonb('metadata').default({}).$type<Record<string, unknown>>(),
+    /** 作成日時 */
+    createdAt: timestamp('created_at', { withTimezone: true }).defaultNow().notNull(),
+  },
+  (table) => [
+    index('idx_ual_user').on(table.userId),
+    index('idx_ual_action').on(table.action),
+    index('idx_ual_target').on(table.targetType, table.targetId),
+    index('idx_ual_created_at').on(table.createdAt),
+  ],
+);
+
+export type UserActivityLog = typeof userActivityLog.$inferSelect;
+export type NewUserActivityLog = typeof userActivityLog.$inferInsert;
