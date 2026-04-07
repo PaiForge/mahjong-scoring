@@ -1,6 +1,7 @@
 "use server";
 
 import type { ActionResult } from "@/lib/action-types";
+import { logActivityEvent } from "@/lib/activity-log";
 import { getClientIp } from "@/lib/client-ip";
 import { IP_RATE_LIMITS, checkIpRateLimitGuard } from "@/lib/rate-limit-ip";
 import { createClient } from "@/lib/supabase/server";
@@ -33,6 +34,11 @@ export async function signIn(
 
   if (error) {
     return { error: "invalidCredentials" };
+  }
+
+  const { data: { user } } = await supabase.auth.getUser();
+  if (user) {
+    logActivityEvent({ userId: user.id, action: 'login' });
   }
 
   return { success: true };

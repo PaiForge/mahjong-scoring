@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 
+import { logActivityEvent } from "@/lib/activity-log";
 import { getProfileByUserId } from "@/lib/db/queries";
 import { createClient } from "@/lib/supabase/server";
 
@@ -26,6 +27,8 @@ async function handleSuccessfulAuth(
   origin: string,
   safeNext: string,
 ): Promise<NextResponse> {
+  logActivityEvent({ userId, action: 'login' });
+
   const profile = await getProfileByUserId(userId);
 
   if (!profile) {
