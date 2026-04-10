@@ -11,11 +11,18 @@
  *
  * キーは `menuType`（ドリル種別）。このテーブルに登録されていない menuType は
  * EXP 付与対象外（`calculateExp` が `null` を返す）となる。
- * 開発中・未調整のドリルで誤って EXP を付与しないための明示的なホワイトリスト。
- * 新しいドリルを EXP 付与対象に加える際は、難易度を決めてからここに追記する。
+ * 現時点で提供中のチャレンジドリルはすべて有効化済み（重みはいずれも 1）。
+ * 将来追加するドリルは、難易度を決めてから明示的にここへ追記して opt-in すること。
  */
 export const MODULE_WEIGHT: Readonly<Record<string, number>> = {
   jantou_fu: 1,
+  machi_fu: 1,
+  mentsu_fu: 1,
+  tehai_fu: 1,
+  yaku: 1,
+  score_table: 1,
+  score_calculation: 1,
+  han_count: 1,
 };
 
 /**

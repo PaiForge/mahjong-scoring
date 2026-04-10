@@ -44,8 +44,18 @@ describe("calculateExp", () => {
       expect(result).toBeNull();
     });
 
-    it("MODULE_WEIGHT に登録されていないドリル種別は全て null", () => {
-      for (const menuType of [
+    it("存在しない menuType（nonexistent_drill）は null を返す", () => {
+      const result = calculateExp({
+        score: 10,
+        incorrectAnswers: 0,
+        menuType: "nonexistent_drill",
+      });
+      expect(result).toBeNull();
+    });
+
+    it("現行の全チャレンジドリル（8種）は non-null な ExpResult を返す", () => {
+      const allDrills = [
+        "jantou_fu",
         "machi_fu",
         "mentsu_fu",
         "tehai_fu",
@@ -53,13 +63,17 @@ describe("calculateExp", () => {
         "score_table",
         "score_calculation",
         "han_count",
-      ]) {
+      ];
+      for (const menuType of allDrills) {
         const result = calculateExp({
           score: 10,
           incorrectAnswers: 0,
           menuType,
         });
-        expect(result).toBeNull();
+        expect(result).not.toBeNull();
+        // weight=1, score=10, mult=1.5 -> 15
+        expect(result?.baseExp).toBe(10);
+        expect(result?.totalExp).toBe(15);
       }
     });
   });
