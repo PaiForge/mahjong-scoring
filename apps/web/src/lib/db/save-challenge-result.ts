@@ -1,5 +1,7 @@
 import { sql } from 'drizzle-orm';
+import { revalidateTag } from 'next/cache';
 
+import { expHeatmapCacheTag } from './get-exp-heatmap-data';
 import { db } from './index';
 import { grantChallengeExp } from './save-exp';
 import { challengeBestScores, challengeResults } from './schema';
@@ -38,7 +40,7 @@ export async function saveChallengeResult(
   const { userId, menuType, leaderboardKey, score, incorrectAnswers, timeTaken } = input;
   const now = new Date();
 
-  return await db.transaction(async (tx) => {
+  const result = await db.transaction(async (tx) => {
     // 1. Append to challenge_results (all results, for period-based rankings)
     const [inserted] = await tx
       .insert(challengeResults)
@@ -91,7 +93,7 @@ export async function saveChallengeResult(
       });
 
     // 3. Grant EXP based on this challenge result
-    await grantChallengeExp(tx, {
+    const expInfo = await grantChallengeExp(tx, {
       userId,
       challengeResultId: inserted.id,
       menuType,
@@ -101,6 +103,14 @@ export async function saveChallengeResult(
       leaderboardKey,
     });
 
-    return { challengeResultId: inserted.id };
+    return { challengeResultId: inserted.id, expGranted: expInfo !== null };
   });
+
+  // EXP が付与された場合のみ、ヒートマップのキャッシュタグを無効化する。
+  // 未登録 menuType（開発中ドリル）の場合は付与自体がスキップされるためキャッシュ無効化も不要。
+  if (result.expGranted) {
+    revalidateTag(expHeatmapCacheTag(userId), 'default');
+  }
+
+  return { challengeResultId: result.challengeResultId };
 }

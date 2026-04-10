@@ -8,6 +8,7 @@ const {
   mockOnConflictDoUpdate,
   mockTransaction,
   mockGrantChallengeExp,
+  mockRevalidateTag,
 } = vi.hoisted(() => ({
   mockInsert: vi.fn(),
   mockFirstValues: vi.fn(),
@@ -16,6 +17,12 @@ const {
   mockOnConflictDoUpdate: vi.fn(),
   mockTransaction: vi.fn(),
   mockGrantChallengeExp: vi.fn(),
+  mockRevalidateTag: vi.fn(),
+}));
+
+vi.mock('next/cache', () => ({
+  revalidateTag: mockRevalidateTag,
+  unstable_cache: <T extends (...args: unknown[]) => unknown>(fn: T): T => fn,
 }));
 
 vi.mock('../index', () => ({
@@ -39,6 +46,11 @@ vi.mock('../schema', () => ({
 
 vi.mock('../save-exp', () => ({
   grantChallengeExp: mockGrantChallengeExp,
+}));
+
+vi.mock('../get-exp-heatmap-data', () => ({
+  expHeatmapCacheTag: (userId: string) => `exp-heatmap:${userId}`,
+  getExpHeatmapData: vi.fn(),
 }));
 
 vi.mock('drizzle-orm', () => ({
@@ -172,6 +184,81 @@ describe('saveChallengeResult', () => {
       const result = await saveChallengeResult(validInput);
 
       expect(result).toEqual({ challengeResultId: 'challenge-result-1' });
+    });
+  });
+
+  describe('heatmap cache invalidation', () => {
+    it('revalidates the per-user heatmap tag when EXP is granted', async () => {
+      mockGrantChallengeExp.mockResolvedValueOnce({
+        earnedExp: 50,
+        totalExp: 200,
+        level: 2,
+        levelUp: false,
+        progressPercent: 40,
+      });
+
+      await saveChallengeResult(validInput);
+
+      expect(mockRevalidateTag).toHaveBeenCalledTimes(1);
+      expect(mockRevalidateTag).toHaveBeenCalledWith('exp-heatmap:user-123', 'default');
+    });
+
+    it('does not revalidate the tag when EXP is skipped (unregistered menuType)', async () => {
+      mockGrantChallengeExp.mockResolvedValueOnce(null);
+
+      await saveChallengeResult(validInput);
+
+      expect(mockRevalidateTag).not.toHaveBeenCalled();
+    });
+
+    it('calls revalidateTag only once per save when EXP is granted', async () => {
+      mockGrantChallengeExp.mockResolvedValueOnce({
+        earnedExp: 10,
+        totalExp: 10,
+        level: 1,
+        levelUp: false,
+        progressPercent: 5,
+      });
+
+      await saveChallengeResult(validInput);
+
+      expect(mockRevalidateTag).toHaveBeenCalledTimes(1);
+    });
+
+    it('calls revalidateTag AFTER db.transaction resolves (not inside)', async () => {
+      const order: string[] = [];
+      mockRevalidateTag.mockImplementation(() => {
+        order.push('revalidateTag');
+      });
+      mockGrantChallengeExp.mockImplementationOnce(async () => {
+        order.push('grantChallengeExp');
+        return {
+          earnedExp: 10,
+          totalExp: 10,
+          level: 1,
+          levelUp: false,
+          progressPercent: 5,
+        };
+      });
+      // Wrap transaction to record begin/end around the callback
+      mockTransaction.mockImplementationOnce(
+        async (callback: (tx: { insert: typeof mockInsert }) => Promise<unknown>) => {
+          order.push('tx-begin');
+          const out = await callback({ insert: mockInsert });
+          order.push('tx-commit');
+          return out;
+        },
+      );
+
+      await saveChallengeResult(validInput);
+
+      const txCommitIdx = order.indexOf('tx-commit');
+      const revalidateIdx = order.indexOf('revalidateTag');
+      const grantIdx = order.indexOf('grantChallengeExp');
+      expect(txCommitIdx).toBeGreaterThan(-1);
+      expect(revalidateIdx).toBeGreaterThan(-1);
+      expect(grantIdx).toBeLessThan(txCommitIdx);
+      expect(revalidateIdx).toBeGreaterThan(txCommitIdx);
     });
   });
 

@@ -702,11 +702,44 @@
   },
   "mypage": {
     "pageTitle": "マイページ",
+    "activityTitle": "アクティビティ",
     "cards": {
       "challenges": {
         "title": "マイレコード",
         "summary": "チャレンジモードの成績を確認できます"
       }
+    }
+  },
+  "mypageHeatmap": {
+    "less": "少",
+    "more": "多",
+    "total": "合計",
+    "noActivity": "この日の活動はありません",
+    "empty": "まだ活動がありません。ドリルを始めよう！",
+    "expSuffix": "経験値",
+    "gridAriaLabel": "EXP アクティビティヒートマップ",
+    "barChartAriaLabel": "直近 7 日間の EXP 推移",
+    "legendAriaLabel": "経験値強度の凡例（少から多へ）",
+    "cellAriaLabel": "{date}: {amount} 経験値",
+    "detailPanelPlaceholder": "日付を選択すると、その日の内訳が表示されます",
+    "monthNames": [
+      "1月",
+      "2月",
+      "3月",
+      "4月",
+      "5月",
+      "6月",
+      "7月",
+      "8月",
+      "9月",
+      "10月",
+      "11月",
+      "12月"
+    ],
+    "dayLabels": {
+      "mon": "月",
+      "wed": "水",
+      "fri": "金"
     }
   },
   "setupUsername": {
