@@ -101,3 +101,49 @@ BEGIN
   END IF;
 END;
 $$;
+
+-- =============================================================================
+-- exp_events
+-- =============================================================================
+
+-- FK constraint: exp_events.user_id → auth.users(id) ON DELETE CASCADE
+DO $$
+BEGIN
+  IF NOT EXISTS (
+    SELECT 1 FROM pg_constraint WHERE conname = 'exp_events_user_id_fkey'
+  ) THEN
+    ALTER TABLE public.exp_events
+      ADD CONSTRAINT exp_events_user_id_fkey
+      FOREIGN KEY (user_id) REFERENCES auth.users(id) ON DELETE CASCADE;
+  END IF;
+END;
+$$;
+
+-- Note: the partial unique index `uq_exp_events_source_pair ON exp_events
+-- (source, source_id) WHERE source_id IS NOT NULL` is declared in schema.ts
+-- and created by the generated Drizzle migration. Keeping it there (rather
+-- than here) prevents schema/DB drift across regenerations.
+
+-- exp_events writes go through the service-role client only. Grant SELECT only
+-- so RLS + own-rows policy controls client reads.
+GRANT SELECT ON TABLE public.exp_events TO authenticated;
+
+-- =============================================================================
+-- user_exp
+-- =============================================================================
+
+-- FK constraint: user_exp.user_id → auth.users(id) ON DELETE CASCADE
+DO $$
+BEGIN
+  IF NOT EXISTS (
+    SELECT 1 FROM pg_constraint WHERE conname = 'user_exp_user_id_fkey'
+  ) THEN
+    ALTER TABLE public.user_exp
+      ADD CONSTRAINT user_exp_user_id_fkey
+      FOREIGN KEY (user_id) REFERENCES auth.users(id) ON DELETE CASCADE;
+  END IF;
+END;
+$$;
+
+-- Writes are service-role only. Reads are gated by RLS policy (own rows).
+GRANT SELECT ON TABLE public.user_exp TO authenticated;

@@ -77,3 +77,27 @@ ALTER TABLE "user_activity_log" ENABLE ROW LEVEL SECURITY;
 DROP POLICY IF EXISTS "user_activity_log_deny_all" ON "user_activity_log";
 CREATE POLICY "user_activity_log_deny_all" ON "user_activity_log"
   USING (false);
+
+-- =============================================================================
+-- exp_events
+-- =============================================================================
+-- Own-rows SELECT only. Writes are performed by the service-role client and
+-- bypass RLS, so no INSERT/UPDATE policy is defined.
+ALTER TABLE "exp_events" ENABLE ROW LEVEL SECURITY;
+
+DROP POLICY IF EXISTS "exp_events_select" ON "exp_events";
+CREATE POLICY "exp_events_select" ON "exp_events"
+  FOR SELECT USING (auth.uid() = user_id);
+
+-- =============================================================================
+-- user_exp
+-- =============================================================================
+-- Intentionally own-row only: `auth.uid() = user_id`.
+-- An EXP leaderboard is currently OUT OF SCOPE. Do NOT relax this policy to
+-- `USING (true)` without a product decision — it is not a bug. If/when a
+-- leaderboard ships, add rate limiting and revisit this policy explicitly.
+ALTER TABLE "user_exp" ENABLE ROW LEVEL SECURITY;
+
+DROP POLICY IF EXISTS "user_exp_select" ON "user_exp";
+CREATE POLICY "user_exp_select" ON "user_exp"
+  FOR SELECT USING (auth.uid() = user_id);

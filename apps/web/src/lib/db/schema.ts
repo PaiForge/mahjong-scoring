@@ -1,3 +1,4 @@
+import { sql } from 'drizzle-orm';
 import {
   index,
   integer,
@@ -8,6 +9,7 @@ import {
   text,
   timestamp,
   unique,
+  uniqueIndex,
   uuid,
   varchar,
 } from 'drizzle-orm/pg-core';
@@ -246,3 +248,79 @@ export const userActivityLog = pgTable(
 
 export type UserActivityLog = typeof userActivityLog.$inferSelect;
 export type NewUserActivityLog = typeof userActivityLog.$inferInsert;
+
+/**
+ * EXP イベント — 経験値付与の追記専用ログ
+ *
+ * @description
+ * ユーザーに経験値が付与されるたびに 1 行 INSERT される追記専用テーブル。
+ * 冪等性は `(source, source_id)` の partial unique index で担保する
+ * （`source_id IS NOT NULL` のみ）。これにより同じチャレンジ結果に対する
+ * 重複付与（再送・リロード等）を防ぐ。
+ *
+ * @design source / source_id — 付与根拠の追跡
+ *
+ * - `source`: 付与イベントの種類（例: `'challenge_result'`）
+ * - `source_id`: 対応する `challenge_results.id` 等の UUID
+ * - `menu_type`: ドリル種別（`challenge_result` の場合）
+ * - `metadata`: 計算内訳（score, incorrectAnswers, baseExp, 倍率 等）
+ */
+export const expEvents = pgTable(
+  'exp_events',
+  {
+    id: uuid('id').primaryKey().defaultRandom(),
+    /** auth.users(id) への外部キー（Supabase SQL で定義） */
+    userId: uuid('user_id').notNull(),
+    /** 付与イベントの種類（例: 'challenge_result'） */
+    source: varchar('source', { length: 50 }).notNull(),
+    /** 付与根拠となる行の ID（冪等キーとしても機能する） */
+    sourceId: uuid('source_id'),
+    /** ドリル種別 */
+    menuType: varchar('menu_type', { length: 30 }),
+    /** 付与された EXP */
+    amount: integer('amount').notNull(),
+    /** 計算内訳などの補助メタデータ */
+    metadata: jsonb('metadata').default({}).$type<Record<string, unknown>>(),
+    /** 作成日時 */
+    createdAt: timestamp('created_at', { withTimezone: true }).defaultNow().notNull(),
+  },
+  (table) => [
+    index('idx_exp_events_user_created').on(table.userId, table.createdAt),
+    index('idx_exp_events_source').on(table.source, table.sourceId),
+    // 冪等キー: 同じ (source, source_id) ペアでの二重付与を防ぐ partial unique index。
+    // source_id は将来の用途（デイリーログインボーナス等）で NULL になりうるため
+    // 部分インデックスで「source_id IS NOT NULL」に限定する。
+    // この partial predicate は `grantChallengeExp` の `onConflictDoNothing` の
+    // `where` 句と必ず一致させる必要がある（Postgres の ON CONFLICT 推論の制約）。
+    uniqueIndex('uq_exp_events_source_pair')
+      .on(table.source, table.sourceId)
+      .where(sql`source_id IS NOT NULL`),
+  ],
+);
+
+export type ExpEvent = typeof expEvents.$inferSelect;
+export type NewExpEvent = typeof expEvents.$inferInsert;
+
+/**
+ * ユーザー累計 EXP — マテリアライズドキャッシュ
+ *
+ * @description
+ * `(user_id)` ごとの累計 EXP を保持するキャッシュテーブル。
+ * `exp_events` からの `SUM(amount)` で再構築可能。
+ * 付与時は INSERT ... ON CONFLICT DO UPDATE で累積加算する。
+ */
+export const userExp = pgTable(
+  'user_exp',
+  {
+    /** auth.users(id) への外部キー（Supabase SQL で定義） */
+    userId: uuid('user_id').primaryKey(),
+    /** 累計 EXP */
+    totalExp: integer('total_exp').notNull().default(0),
+    /** 更新日時 */
+    updatedAt: timestamp('updated_at', { withTimezone: true }).defaultNow().notNull(),
+  },
+  (table) => [index('idx_user_exp_total').on(table.totalExp)],
+);
+
+export type UserExp = typeof userExp.$inferSelect;
+export type NewUserExp = typeof userExp.$inferInsert;

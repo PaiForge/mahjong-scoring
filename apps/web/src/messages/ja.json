@@ -128,6 +128,12 @@
     },
     "quitButton": "途中でやめる"
   },
+  "exp": {
+    "label": "経験値",
+    "earned": "+{amount} EXP",
+    "level": "Lv.{level}",
+    "levelUp": "レベルアップ！"
+  },
   "jantouFu": {
     "title": "雀頭の符計算",
     "description": "場風・自風を確認して、雀頭の符を答えてください",

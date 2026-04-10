@@ -34,24 +34,24 @@ describe('savePracticeResult', () => {
   });
 
   describe('unauthenticated user', () => {
-    it('returns auth_failed when user is not logged in', async () => {
+    it("returns { success: true, skipped: 'anonymous' } when user is not logged in (undefined)", async () => {
       mockGetUser.mockResolvedValue({
         data: { user: undefined },
       });
 
       const result = await savePracticeResult('jantou_fu', 'default', validFields);
 
-      expect(result).toEqual({ success: false, error: 'auth_failed' });
+      expect(result).toEqual({ success: true, skipped: 'anonymous' });
     });
 
-    it('returns auth_failed when user is null', async () => {
+    it("returns { success: true, skipped: 'anonymous' } when user is null", async () => {
       mockGetUser.mockResolvedValue({
         data: { user: null },
       });
 
       const result = await savePracticeResult('jantou_fu', 'default', validFields);
 
-      expect(result).toEqual({ success: false, error: 'auth_failed' });
+      expect(result).toEqual({ success: true, skipped: 'anonymous' });
     });
 
     it('does not call saveChallengeResult when unauthenticated', async () => {
@@ -97,13 +97,13 @@ describe('savePracticeResult', () => {
       mockGetUser.mockResolvedValue({
         data: { user: { id: 'user-123' } },
       });
-      mockSaveChallengeResult.mockResolvedValue(undefined);
+      mockSaveChallengeResult.mockResolvedValue({ challengeResultId: 'cr-1' });
     });
 
-    it('returns success: true', async () => {
+    it('returns success: true with challengeResultId', async () => {
       const result = await savePracticeResult('jantou_fu', 'default', validFields);
 
-      expect(result).toEqual({ success: true });
+      expect(result).toEqual({ success: true, challengeResultId: 'cr-1' });
     });
 
     it('calls saveChallengeResult with rounded values', async () => {

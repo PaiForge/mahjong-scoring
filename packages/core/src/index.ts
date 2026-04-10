@@ -93,6 +93,16 @@ export type {
   KoTsumoAnswer,
 } from "./problem/score-table/types";
 
+// === EXP ===
+export { calculateExp, getExpForLevel, getLevel, getLevelProgress } from "./exp";
+export {
+  EXP_CURVE,
+  MIN_COMPLETION_EXP,
+  MISS_BONUS,
+  MODULE_WEIGHT,
+} from "./exp";
+export type { ExpInfo, ExpInput, ExpResult, LevelProgress } from "./exp";
+
 // === Re-exports from @pai-forge/riichi-mahjong ===
 export { HaiKind, MentsuType } from "@pai-forge/riichi-mahjong";
 export type {

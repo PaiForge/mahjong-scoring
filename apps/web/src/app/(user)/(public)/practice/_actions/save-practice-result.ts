@@ -5,8 +5,18 @@ import type { PracticeMenuType } from '@/lib/db/practice-menu-types';
 import { saveChallengeResult } from '@/lib/db/save-challenge-result';
 import { createClient } from '@/lib/supabase/server';
 
+/**
+ * `savePracticeResult` の戻り値
+ * 練習結果保存レスポンス
+ *
+ * - `{ success: true, challengeResultId }`: 認証済みユーザーの保存成功。
+ * - `{ success: true, skipped: 'anonymous' }`: 未ログインユーザーによる呼び出し。
+ *   エラーではなく「期待された no-op」を表す。呼び出し側は静かに無視すること。
+ * - `{ success: false, error }`: それ以外の失敗（バリデーション・DB エラー等）。
+ */
 export type SaveResultResponse =
-  | { readonly success: true }
+  | { readonly success: true; readonly challengeResultId: string }
+  | { readonly success: true; readonly skipped: 'anonymous' }
   | { readonly success: false; readonly error: string };
 
 const ALLOWED_LEADERBOARD_KEYS: ReadonlySet<string> = new Set(['default']);
@@ -36,8 +46,13 @@ export async function savePracticeResult(
       data: { user },
     } = await supabase.auth.getUser();
 
+    // 未ログインユーザーはエラーではなく「静かにスキップ」を返す。
+    // これによりクライアント側で事前の認証チェックが不要になり、
+    // `AuthProvider` の非同期ロード中の競合で正規ユーザーが匿名扱いされる
+    // バグクラスを根絶する。Server の cookie ベース Supabase クライアントが
+    // 唯一の信頼できる認証ソース。
     if (!user) {
-      return { success: false, error: 'auth_failed' };
+      return { success: true, skipped: 'anonymous' };
     }
 
     if (!isPracticeMenuType(menuType)) {
@@ -50,7 +65,7 @@ export async function savePracticeResult(
       return { success: false, error: 'invalid_leaderboard_key' };
     }
 
-    await saveChallengeResult({
+    const { challengeResultId } = await saveChallengeResult({
       userId: user.id,
       menuType,
       leaderboardKey,
@@ -59,7 +74,7 @@ export async function savePracticeResult(
       timeTaken: Math.round(challengeFields.timeTaken),
     });
 
-    return { success: true };
+    return { success: true, challengeResultId };
   } catch (error) {
     console.error(
       `[savePracticeResult] ${menuType}: unexpected error during save:`,

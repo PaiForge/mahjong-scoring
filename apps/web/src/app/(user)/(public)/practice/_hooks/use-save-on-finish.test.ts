@@ -28,7 +28,7 @@ describe("useSaveOnFinish", () => {
   beforeEach(async () => {
     mockedSave = await importMockedAction();
     mockedSave.mockReset();
-    mockedSave.mockResolvedValue({ success: true });
+    mockedSave.mockResolvedValue({ success: true, challengeResultId: "cr-1" });
     vi.spyOn(console, "error").mockImplementation(() => undefined);
   });
 
@@ -50,31 +50,46 @@ describe("useSaveOnFinish", () => {
     expect(mockedSave).not.toHaveBeenCalled();
   });
 
-  it("成功時に console.error が呼ばれない", async () => {
-    mockedSave.mockResolvedValue({ success: true });
-    const { result } = renderHook(() => useSaveOnFinish("mentsu_fu"));
-    await result.current(makeArgs());
+  it("認証済みユーザーの成功時に { grant: challengeResultId } を返す", async () => {
+    mockedSave.mockResolvedValue({ success: true, challengeResultId: "cr-xyz" });
+    const { result } = renderHook(() => useSaveOnFinish("jantou_fu"));
+    const ret = await result.current(makeArgs());
 
+    expect(mockedSave).toHaveBeenCalled();
+    expect(ret).toEqual({ grant: "cr-xyz" });
     expect(console.error).not.toHaveBeenCalled();
   });
 
-  it("失敗時に console.error が呼ばれる", async () => {
-    mockedSave.mockResolvedValue({ success: false, error: "auth_failed" });
-    const { result } = renderHook(() => useSaveOnFinish("tehai_fu"));
-    await result.current(makeArgs());
+  it("匿名ユーザー（skipped='anonymous'）はサイレント no-op、console.error を出さない", async () => {
+    mockedSave.mockResolvedValue({ success: true, skipped: "anonymous" });
+    const { result } = renderHook(() => useSaveOnFinish("jantou_fu"));
+    const ret = await result.current(makeArgs());
 
+    // Server Action は呼ぶ（サーバー側が単一の認証ソース）
+    expect(mockedSave).toHaveBeenCalledTimes(1);
+    // ただし grant は返さない → URL に grant=… が付かない → EXP カードは表示されない
+    expect(ret).toBeUndefined();
+    // ログノイズなし
+    expect(console.error).not.toHaveBeenCalled();
+  });
+
+  it("action が success:false を返すと undefined を返し console.error にログする", async () => {
+    mockedSave.mockResolvedValue({ success: false, error: "unexpected_error" });
+    const { result } = renderHook(() => useSaveOnFinish("tehai_fu"));
+    const ret = await result.current(makeArgs());
+
+    expect(ret).toBeUndefined();
     expect(console.error).toHaveBeenCalledWith(
       "[savePracticeResult] tehai_fu:",
-      "auth_failed",
+      "unexpected_error",
     );
   });
 
-  it("savePracticeResult が reject した場合もクラッシュしない", async () => {
+  it("action が reject した場合もクラッシュせず console.error にログする", async () => {
     const networkError = new Error("network error");
     mockedSave.mockRejectedValue(networkError);
     const { result } = renderHook(() => useSaveOnFinish("yaku"));
 
-    // reject しても例外が伝播しない
     await expect(result.current(makeArgs())).resolves.toBeUndefined();
 
     expect(console.error).toHaveBeenCalledWith(

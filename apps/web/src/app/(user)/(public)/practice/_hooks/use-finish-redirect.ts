@@ -12,6 +12,18 @@ export interface FinishCallbackArgs {
   readonly elapsedMs: number;
 }
 
+/**
+ * ドリル終了コールバックの返り値
+ * 終了コールバック結果
+ *
+ * `grant` が設定されている場合、結果ページの URL に `grant=<id>` クエリパラメータとして
+ * 付与される。これは `challenge_results.id` で、結果ページでの EXP 付与情報の
+ * サーバーサイド再取得に使用される。
+ */
+export interface FinishCallbackResult {
+  readonly grant?: string;
+}
+
 interface UseFinishRedirectOptions {
   /** ドリル終了フラグ */
   readonly isFinished: boolean;
@@ -26,8 +38,13 @@ interface UseFinishRedirectOptions {
   readonly elapsedMs: number;
   /** リダイレクト先パス（例: "/practice/jantou-fu/result"） */
   readonly resultPath: string;
-  /** ドリル終了時に呼び出されるコールバック（スコア保存等） */
-  readonly onFinish?: (args: FinishCallbackArgs) => Promise<void> | void;
+  /**
+   * ドリル終了時に呼び出されるコールバック（スコア保存等）
+   * `FinishCallbackResult` を返すと、結果ページ URL にクエリパラメータが追加される。
+   */
+  readonly onFinish?: (
+    args: FinishCallbackArgs,
+  ) => Promise<FinishCallbackResult | void | undefined> | FinishCallbackResult | void;
 }
 
 /**
@@ -53,27 +70,38 @@ export function useFinishRedirect({
 
     const { correctCount, incorrectCount, totalCount } = finalResult;
 
-    const params = new URLSearchParams({
-      correct: correctCount.toString(),
-      total: totalCount.toString(),
-      time: elapsedMs.toString(),
-    });
-    const resultUrl = `${resultPath}?${params.toString()}`;
+    const buildResultUrl = (grant?: string): string => {
+      const params = new URLSearchParams({
+        correct: correctCount.toString(),
+        total: totalCount.toString(),
+        time: elapsedMs.toString(),
+      });
+      if (grant) params.set("grant", grant);
+      return `${resultPath}?${params.toString()}`;
+    };
 
     if (onFinish) {
       const maybePromise = onFinish({ correctCount, incorrectCount, totalCount, elapsedMs });
-      if (maybePromise) {
-        maybePromise
+      if (maybePromise && typeof (maybePromise as Promise<unknown>).then === "function") {
+        (maybePromise as Promise<FinishCallbackResult | void | undefined>)
+          .then((value) => {
+            const grant = value && "grant" in value ? value.grant : undefined;
+            router.push(buildResultUrl(grant));
+          })
           .catch((error: unknown) => {
             console.error("[useFinishRedirect] onFinish failed:", error);
-          })
-          .finally(() => {
-            router.push(resultUrl);
+            router.push(buildResultUrl());
           });
         return;
       }
+      const grant =
+        maybePromise && typeof maybePromise === "object" && "grant" in maybePromise
+          ? maybePromise.grant
+          : undefined;
+      router.push(buildResultUrl(grant));
+      return;
     }
 
-    router.push(resultUrl);
+    router.push(buildResultUrl());
   }, [isFinished, finalResult, elapsedMs, resultPath, router, onFinish]);
 }

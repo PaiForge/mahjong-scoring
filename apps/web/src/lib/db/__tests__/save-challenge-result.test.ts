@@ -1,10 +1,21 @@
 import { describe, expect, it, vi, beforeEach } from 'vitest';
 
-const { mockInsert, mockValues, mockOnConflictDoUpdate, mockTransaction } = vi.hoisted(() => ({
+const {
+  mockInsert,
+  mockFirstValues,
+  mockFirstReturning,
+  mockSecondValues,
+  mockOnConflictDoUpdate,
+  mockTransaction,
+  mockGrantChallengeExp,
+} = vi.hoisted(() => ({
   mockInsert: vi.fn(),
-  mockValues: vi.fn(),
+  mockFirstValues: vi.fn(),
+  mockFirstReturning: vi.fn(),
+  mockSecondValues: vi.fn(),
   mockOnConflictDoUpdate: vi.fn(),
   mockTransaction: vi.fn(),
+  mockGrantChallengeExp: vi.fn(),
 }));
 
 vi.mock('../index', () => ({
@@ -14,7 +25,7 @@ vi.mock('../index', () => ({
 }));
 
 vi.mock('../schema', () => ({
-  challengeResults: { _name: 'challenge_results' },
+  challengeResults: { _name: 'challenge_results', id: 'id' },
   challengeBestScores: {
     _name: 'challenge_best_scores',
     userId: 'user_id',
@@ -24,6 +35,10 @@ vi.mock('../schema', () => ({
     incorrectAnswers: 'incorrect_answers',
     timeTaken: 'time_taken',
   },
+}));
+
+vi.mock('../save-exp', () => ({
+  grantChallengeExp: mockGrantChallengeExp,
 }));
 
 vi.mock('drizzle-orm', () => ({
@@ -43,17 +58,42 @@ const validInput: ChallengeResultInput = {
 };
 
 describe('saveChallengeResult', () => {
+  let insertCallCount: number;
+
   beforeEach(() => {
     vi.clearAllMocks();
+    insertCallCount = 0;
 
-    mockValues.mockReturnValue({ onConflictDoUpdate: mockOnConflictDoUpdate });
+    // First insert: challenge_results — chain is .values().returning([{ id }])
+    mockFirstReturning.mockResolvedValue([{ id: 'challenge-result-1' }]);
+    mockFirstValues.mockReturnValue({ returning: mockFirstReturning });
+
+    // Second insert: challenge_best_scores — chain is .values().onConflictDoUpdate()
     mockOnConflictDoUpdate.mockResolvedValue(undefined);
-    mockInsert.mockReturnValue({ values: mockValues });
+    mockSecondValues.mockReturnValue({ onConflictDoUpdate: mockOnConflictDoUpdate });
 
-    // The transaction callback receives a `tx` object with an `insert` method
-    mockTransaction.mockImplementation(async (callback: (tx: { insert: typeof mockInsert }) => Promise<void>) => {
-      await callback({ insert: mockInsert });
+    mockInsert.mockImplementation(() => {
+      insertCallCount++;
+      if (insertCallCount === 1) {
+        return { values: mockFirstValues };
+      }
+      return { values: mockSecondValues };
     });
+
+    mockGrantChallengeExp.mockResolvedValue({
+      earnedExp: 0,
+      totalExp: 0,
+      level: 0,
+      levelUp: false,
+      progressPercent: 0,
+    });
+
+    // The transaction callback receives a `tx` object
+    mockTransaction.mockImplementation(
+      async (callback: (tx: { insert: typeof mockInsert }) => Promise<unknown>) => {
+        return await callback({ insert: mockInsert });
+      },
+    );
   });
 
   describe('successful save', () => {
@@ -69,10 +109,9 @@ describe('saveChallengeResult', () => {
       await saveChallengeResult(validInput);
 
       const firstInsertCall = mockInsert.mock.calls[0];
-      expect(firstInsertCall[0]).toEqual({ _name: 'challenge_results' });
+      expect(firstInsertCall[0]).toMatchObject({ _name: 'challenge_results' });
 
-      const firstValuesCall = mockValues.mock.calls[0];
-      expect(firstValuesCall[0]).toEqual({
+      expect(mockFirstValues).toHaveBeenCalledWith({
         userId: 'user-123',
         menuType: 'jantou_fu',
         leaderboardKey: 'default',
@@ -90,7 +129,7 @@ describe('saveChallengeResult', () => {
         _name: 'challenge_best_scores',
       });
 
-      const secondValuesCall = mockValues.mock.calls[1];
+      const secondValuesCall = mockSecondValues.mock.calls[0];
       expect(secondValuesCall[0]).toMatchObject({
         userId: 'user-123',
         menuType: 'jantou_fu',
@@ -112,6 +151,28 @@ describe('saveChallengeResult', () => {
       expect(upsertArg).toHaveProperty('set');
       expect(upsertArg).toHaveProperty('setWhere');
     });
+
+    it('calls grantChallengeExp with the inserted challengeResultId', async () => {
+      await saveChallengeResult(validInput);
+
+      expect(mockGrantChallengeExp).toHaveBeenCalledOnce();
+      const [, params] = mockGrantChallengeExp.mock.calls[0];
+      expect(params).toMatchObject({
+        userId: 'user-123',
+        challengeResultId: 'challenge-result-1',
+        menuType: 'jantou_fu',
+        leaderboardKey: 'default',
+        score: 10,
+        incorrectAnswers: 2,
+        timeTaken: 45,
+      });
+    });
+
+    it('returns the inserted challengeResultId', async () => {
+      const result = await saveChallengeResult(validInput);
+
+      expect(result).toEqual({ challengeResultId: 'challenge-result-1' });
+    });
   });
 
   describe('transaction error propagation', () => {
@@ -124,12 +185,7 @@ describe('saveChallengeResult', () => {
 
     it('propagates errors from the insert operation', async () => {
       const insertError = new Error('Insert failed');
-      mockTransaction.mockImplementation(async (callback: (tx: { insert: typeof mockInsert }) => Promise<void>) => {
-        mockInsert.mockReturnValue({
-          values: vi.fn().mockRejectedValue(insertError),
-        });
-        await callback({ insert: mockInsert });
-      });
+      mockFirstReturning.mockRejectedValue(insertError);
 
       await expect(saveChallengeResult(validInput)).rejects.toThrow('Insert failed');
     });
