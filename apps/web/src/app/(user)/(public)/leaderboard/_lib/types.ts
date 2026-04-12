@@ -1,5 +1,5 @@
-import type { PracticeMenuType } from '@/lib/db/practice-menu-types';
-import { PRACTICE_MENU_TYPES } from '@/lib/db/practice-menu-types';
+import type { PracticeMenuType, PracticeMenuSlug } from '@/lib/db/practice-menu-types';
+import { PRACTICE_MENU_TYPES, menuTypeToSlug, slugToMenuType } from '@/lib/db/practice-menu-types';
 import type { RankedLeaderboardRow } from '@/lib/db/challenge-queries';
 
 /**
@@ -20,15 +20,7 @@ export type LeaderboardModule = PracticeMenuType;
  * リーダーボードモジュールスラッグ
  * URL 用のケバブケース表記
  */
-export type LeaderboardModuleSlug =
-  | 'jantou-fu'
-  | 'machi-fu'
-  | 'mentsu-fu'
-  | 'tehai-fu'
-  | 'yaku'
-  | 'score-table'
-  | 'score-calculation'
-  | 'han-count';
+export type LeaderboardModuleSlug = PracticeMenuSlug;
 
 export const MODULES: readonly LeaderboardModule[] = PRACTICE_MENU_TYPES;
 
@@ -57,40 +49,15 @@ export const PAGE_SIZE = 20;
 
 // ---------------------------------------------------------------------------
 // URL slug <-> DB module name conversion
+// Delegates to the central registry in practice-menu-types.ts
 // ---------------------------------------------------------------------------
-
-const MODULE_TO_SLUG: Record<LeaderboardModule, LeaderboardModuleSlug> = {
-  jantou_fu: 'jantou-fu',
-  machi_fu: 'machi-fu',
-  mentsu_fu: 'mentsu-fu',
-  tehai_fu: 'tehai-fu',
-  yaku: 'yaku',
-  score_table: 'score-table',
-  score_calculation: 'score-calculation',
-  han_count: 'han-count',
-};
-
-const SLUG_TO_MODULE: Record<LeaderboardModuleSlug, LeaderboardModule> = {
-  'jantou-fu': 'jantou_fu',
-  'machi-fu': 'machi_fu',
-  'mentsu-fu': 'mentsu_fu',
-  'tehai-fu': 'tehai_fu',
-  yaku: 'yaku',
-  'score-table': 'score_table',
-  'score-calculation': 'score_calculation',
-  'han-count': 'han_count',
-};
 
 /**
  * モジュール名からURLスラッグへ変換する
  * モジュール→スラッグ変換
  */
 export function moduleToSlug(module: LeaderboardModule): LeaderboardModuleSlug {
-  return MODULE_TO_SLUG[module];
-}
-
-function isModuleSlug(value: string): value is LeaderboardModuleSlug {
-  return value in SLUG_TO_MODULE;
+  return menuTypeToSlug(module);
 }
 
 /**
@@ -98,8 +65,7 @@ function isModuleSlug(value: string): value is LeaderboardModuleSlug {
  * スラッグ→モジュール変換
  */
 export function slugToModule(slug: string): LeaderboardModule | undefined {
-  if (!isModuleSlug(slug)) return undefined;
-  return SLUG_TO_MODULE[slug];
+  return slugToMenuType(slug);
 }
 
 /**

@@ -1,9 +1,9 @@
 import type { SupabaseClient } from '@supabase/supabase-js';
-import { and, desc, eq, ilike, inArray, or, sql } from 'drizzle-orm';
+import { and, desc, eq, sql } from 'drizzle-orm';
 
-import { db, moderationActions, profiles } from '../../../../lib/db';
-import { escapeLikePattern } from '../../../../lib/escape-like-pattern';
+import { db, moderationActions } from '../../../../lib/db';
 import { getPaginationData, DEFAULT_PAGE_SIZE } from '../../../../lib/pagination';
+import { buildEmailMap, buildProfileMap, buildUserFilterCondition } from '../../_lib/log-query-helpers';
 
 import type { ModerationAction, Profile } from '../../../../lib/db';
 
@@ -33,37 +33,10 @@ export async function fetchAuditLogPageData(
   }
 
   // ユーザーフィルタ: プロフィール検索 + メール検索
-  let filteredTargetIds: string[] | undefined;
-  if (userFilter) {
-    const matchingProfiles = await db
-      .select({ id: profiles.id })
-      .from(profiles)
-      .where(
-        or(
-          ilike(profiles.username, `%${escapeLikePattern(userFilter)}%`),
-          ilike(profiles.displayName, `%${escapeLikePattern(userFilter)}%`),
-        ),
-      );
-
-    // TODO: ユーザー数が100人を超える場合、ページネーションで全件取得する必要がある
-    const { data: usersData } = await adminClient.auth.admin.listUsers({
-      page: 1,
-      perPage: 100,
-    });
-    const matchingEmailUserIds = (usersData?.users ?? [])
-      .filter((u) => u.email?.toLowerCase().includes(userFilter.toLowerCase()))
-      .map((u) => u.id);
-
-    const allMatchingIds = [
-      ...new Set([...matchingProfiles.map((p) => p.id), ...matchingEmailUserIds]),
-    ];
-
-    if (allMatchingIds.length === 0) {
-      filteredTargetIds = [];
-    } else {
-      filteredTargetIds = allMatchingIds;
-      conditions.push(inArray(moderationActions.targetId, allMatchingIds));
-    }
+  const { matchedIds: filteredTargetIds, condition: userCondition } =
+    await buildUserFilterCondition(adminClient, userFilter, moderationActions.targetId);
+  if (userCondition) {
+    conditions.push(userCondition);
   }
 
   const whereClause = conditions.length > 0 ? and(...conditions) : undefined;
@@ -93,25 +66,8 @@ export async function fetchAuditLogPageData(
   const actorIds = [...new Set(logs.map((l) => l.actorId))];
   const allUserIds = [...new Set([...targetIds, ...actorIds])];
 
-  const targetProfiles =
-    targetIds.length > 0
-      ? await db.select().from(profiles).where(inArray(profiles.id, targetIds))
-      : [];
-  const profileMap = new Map(targetProfiles.map((p) => [p.id, p]));
-
-  const emailMap = new Map<string, string>();
-  if (allUserIds.length > 0) {
-    // TODO: ユーザー数が100人を超える場合、ページネーションで全件取得する必要がある
-    const { data: usersData } = await adminClient.auth.admin.listUsers({
-      page: 1,
-      perPage: 100,
-    });
-    for (const u of usersData?.users ?? []) {
-      if (u.email) {
-        emailMap.set(u.id, u.email);
-      }
-    }
-  }
+  const profileMap = await buildProfileMap(targetIds);
+  const emailMap = await buildEmailMap(adminClient, allUserIds);
 
   return {
     logs,
