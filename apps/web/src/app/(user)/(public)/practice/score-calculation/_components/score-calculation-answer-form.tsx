@@ -1,11 +1,11 @@
 "use client";
 
 import { HaiKind } from "@mahjong-scoring/core";
-import type { DrillQuestion, ScoreTableUserAnswer } from "@mahjong-scoring/core";
+import type { ScoreQuestion, ScoreTableUserAnswer } from "@mahjong-scoring/core";
 import { ScoreAnswerForm } from "../../_components/score-answer-form";
 
 interface ScoreCalculationAnswerFormProps {
-  readonly question: DrillQuestion;
+  readonly question: ScoreQuestion;
   /** フォームリセット用のインデックス（問題が変わるたびにインクリメントされる） */
   readonly questionIndex: number;
   readonly onSubmit: (answer: ScoreTableUserAnswer) => void;

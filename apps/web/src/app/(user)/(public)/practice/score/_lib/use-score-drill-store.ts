@@ -1,15 +1,15 @@
 import { create } from "zustand";
 import type {
-  DrillQuestion,
+  ScoreQuestion,
   UserAnswer,
   JudgementResult,
   QuestionGeneratorOptions,
 } from "@mahjong-scoring/core";
-import { generateValidQuestion, judgeAnswer } from "@mahjong-scoring/core";
+import { generateValidScoreQuestion, judgeAnswer } from "@mahjong-scoring/core";
 
 interface DrillState {
   /** 現在の問題 */
-  currentQuestion: DrillQuestion | undefined;
+  currentQuestion: ScoreQuestion | undefined;
   /** ユーザーの回答 */
   userAnswer: UserAnswer | undefined;
   /** 判定結果 */
@@ -42,7 +42,7 @@ interface DrillActions {
   /** オプションを更新 */
   setOptions: (options: Partial<QuestionGeneratorOptions>) => void;
   /** 問題を直接設定 */
-  setQuestion: (question: DrillQuestion | undefined) => void;
+  setQuestion: (question: ScoreQuestion | undefined) => void;
 }
 
 type DrillStore = DrillState & DrillActions;
@@ -68,7 +68,7 @@ export const useScoreDrillStore = create<DrillStore>((set, get) => ({
 
   generateNewQuestion: () => {
     const { options } = get();
-    const question = generateValidQuestion(options);
+    const question = generateValidScoreQuestion(options);
     set({
       currentQuestion: question,
       userAnswer: undefined,
@@ -127,7 +127,7 @@ export const useScoreDrillStore = create<DrillStore>((set, get) => ({
     }));
   },
 
-  setQuestion: (question: DrillQuestion | undefined) => {
+  setQuestion: (question: ScoreQuestion | undefined) => {
     set({
       currentQuestion: question,
       userAnswer: undefined,

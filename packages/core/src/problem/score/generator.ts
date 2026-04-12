@@ -11,7 +11,7 @@ import { ScoreLevel, getYakuNameJa, KAZEHAI } from "../../core/constants";
 import { randomChoice } from "../../core/random";
 import { countDoraInTehai } from "../../core/hai-names";
 
-import type { DrillQuestion, QuestionGeneratorOptions, YakuDetail } from "./types";
+import type { ScoreQuestion, QuestionGeneratorOptions, YakuDetail } from "./types";
 import { reconcileYakuhai, applyRiichiAndUraDora } from "./utils/reconciler";
 import { generateMentsuTehai } from "./strategies/mentsu-strategy";
 import { generateChiitoiTehai } from "./strategies/chiitoi-strategy";
@@ -42,7 +42,7 @@ function validateScoreRange(
  * 点数計算ドリルの問題を1つ生成する（生成不可能な場合は undefined を返す）
  * 点数計算ドリル問題生成
  */
-export function generateScoreDrillQuestion(options: QuestionGeneratorOptions = {}): DrillQuestion | undefined {
+export function generateScoreQuestion(options: QuestionGeneratorOptions = {}): ScoreQuestion | undefined {
   const { includeFuro = true, includeChiitoi = false, includeParent = true, includeChild = true } = options;
 
   const isChiitoi = includeChiitoi && Math.random() < 0.1;
@@ -127,12 +127,12 @@ export function generateScoreDrillQuestion(options: QuestionGeneratorOptions = {
 
 /**
  * 後方互換性のための薄いラッパークラス
- * @deprecated generateScoreDrillQuestion を直接使用してください
+ * @deprecated generateScoreQuestion を直接使用してください
  * 点数計算ドリル問題ジェネレータ
  */
-export class ScoreDrillGenerator {
-  generate(options: QuestionGeneratorOptions = {}): DrillQuestion | undefined {
-    return generateScoreDrillQuestion(options);
+export class ScoreQuestionGenerator {
+  generate(options: QuestionGeneratorOptions = {}): ScoreQuestion | undefined {
+    return generateScoreQuestion(options);
   }
 }
 
@@ -143,12 +143,12 @@ export class ScoreDrillGenerator {
  * @param options - 問題生成オプション
  * @param maxRetries - 最大リトライ回数
  */
-export function generateValidQuestion(
+export function generateValidScoreQuestion(
   options: QuestionGeneratorOptions = {},
   maxRetries: number = 100,
-): DrillQuestion | undefined {
+): ScoreQuestion | undefined {
   for (let i = 0; i < maxRetries; i++) {
-    const question = generateScoreDrillQuestion(options);
+    const question = generateScoreQuestion(options);
     if (question) return question;
   }
   return undefined;

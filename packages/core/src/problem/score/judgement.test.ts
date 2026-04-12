@@ -1,18 +1,18 @@
 import { describe, it, expect } from "vitest";
 import { judgeAnswer, isMangan, getScoreLevelName } from "./judgement";
-import type { DrillQuestion, UserAnswer } from "./types";
+import type { ScoreQuestion, UserAnswer } from "./types";
 import { ScoreLevel } from "../../core/constants";
 
 /**
- * テスト用のDrillQuestionを構築するヘルパー
+ * テスト用のScoreQuestionを構築するヘルパー
  */
 function makeQuestion(overrides: {
   han?: number;
   fu?: number;
   scoreLevel?: string;
-  payment?: DrillQuestion["answer"]["payment"];
-  yakuDetails?: DrillQuestion["yakuDetails"];
-}): DrillQuestion {
+  payment?: ScoreQuestion["answer"]["payment"];
+  yakuDetails?: ScoreQuestion["yakuDetails"];
+}): ScoreQuestion {
   const {
     han = 2,
     fu = 30,
@@ -30,7 +30,7 @@ function makeQuestion(overrides: {
     doraMarkers: [],
     answer: { han, fu, scoreLevel, payment },
     yakuDetails,
-  } as unknown as DrillQuestion;
+  } as unknown as ScoreQuestion;
 }
 
 describe("isMangan", () => {

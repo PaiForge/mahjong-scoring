@@ -9,7 +9,7 @@ import {
   type Kazehai,
   type Tehai14,
 } from "@pai-forge/riichi-mahjong";
-import type { DrillQuestion, YakuDetail } from "./types";
+import type { ScoreQuestion, YakuDetail } from "./types";
 import { recalculateScore } from "../../score/calculator";
 import { convertScoreDetailToFuDetails } from "../../score/fu-calculator";
 import { countDoraInTehai } from "../../core/hai-names";
@@ -27,7 +27,7 @@ import {
  * クエリ結果
  */
 export type QueryResult =
-  | { readonly type: "success"; readonly question: DrillQuestion }
+  | { readonly type: "success"; readonly question: ScoreQuestion }
   | { readonly type: "error"; readonly message: string };
 
 /**
@@ -180,19 +180,19 @@ export function generateQuestionFromQuery(params: URLSearchParams): QueryResult 
 }
 
 /**
- * DrillQuestion から URL（Path + Query）を生成する
+ * ScoreQuestion から URL（Path + Query）を生成する
  * 問題URLパス生成
  */
-export function generatePathAndQueryFromQuestion(question: Readonly<DrillQuestion>): string {
+export function generatePathAndQueryFromQuestion(question: Readonly<ScoreQuestion>): string {
   const params = buildDrillQueryParams(question);
   return `/problems/score/play?${params.toString()}`;
 }
 
 /**
- * DrillQuestion から URLSearchParams を構築する
+ * ScoreQuestion から URLSearchParams を構築する
  * ドリルクエリパラメータ構築
  */
-export function buildDrillQueryParams(question: Readonly<DrillQuestion>): URLSearchParams {
+export function buildDrillQueryParams(question: Readonly<ScoreQuestion>): URLSearchParams {
   const params = new URLSearchParams();
 
   params.set("tehai", tehaiToMspz(question.tehai));

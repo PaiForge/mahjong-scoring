@@ -21,7 +21,7 @@ export interface YakuDetail {
  * ドリル問題
  * 点数計算ドリル問題
  */
-export interface DrillQuestion {
+export interface ScoreQuestion {
   /** 手牌（14枚） */
   readonly tehai: Tehai14;
   /** 和了牌 */

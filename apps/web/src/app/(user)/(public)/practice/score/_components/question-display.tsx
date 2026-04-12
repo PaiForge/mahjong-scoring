@@ -3,13 +3,13 @@
 import { useMemo } from "react";
 import { Hai, Furo } from "@pai-forge/mahjong-react-ui";
 import { HaiKind, MentsuType } from "@mahjong-scoring/core";
-import type { DrillQuestion } from "@mahjong-scoring/core";
+import type { ScoreQuestion } from "@mahjong-scoring/core";
 import { getKazeName, getDoraFromIndicator } from "@mahjong-scoring/core";
 import { useResponsiveHaiSize } from "../../_hooks/use-responsive-hai-size";
 import { useTranslations } from "next-intl";
 
 interface QuestionDisplayProps {
-  readonly question: DrillQuestion;
+  readonly question: ScoreQuestion;
 }
 
 /**

@@ -1,11 +1,11 @@
 import { describe, it, expect } from "vitest";
 import { HaiKind } from "@pai-forge/riichi-mahjong";
-import { ScoreDrillGenerator, generateValidQuestion } from "./generator";
+import { ScoreQuestionGenerator, generateValidScoreQuestion } from "./generator";
 import { ScoreLevel } from "../../core/constants";
 import { isMangan } from "./judgement";
 
-describe("ScoreDrillGenerator", () => {
-  const generator = new ScoreDrillGenerator();
+describe("ScoreQuestionGenerator", () => {
+  const generator = new ScoreQuestionGenerator();
 
   it("100回試行して少なくとも1回は問題が生成される", () => {
     let generated = false;
@@ -20,7 +20,7 @@ describe("ScoreDrillGenerator", () => {
   });
 
   it("生成された問題が正しい構造を持つ", () => {
-    const question = generateValidQuestion();
+    const question = generateValidScoreQuestion();
     expect(question).toBeDefined();
     if (!question) return;
 
@@ -38,7 +38,7 @@ describe("ScoreDrillGenerator", () => {
   });
 
   it("answer に有効な翻数・符・支払い情報が含まれる", () => {
-    const question = generateValidQuestion();
+    const question = generateValidScoreQuestion();
     expect(question).toBeDefined();
     if (!question) return;
 
@@ -120,16 +120,16 @@ describe("ScoreDrillGenerator", () => {
   });
 });
 
-describe("generateValidQuestion", () => {
+describe("generateValidScoreQuestion", () => {
   it("デフォルトオプションで有効な問題を生成する", () => {
-    const question = generateValidQuestion();
+    const question = generateValidScoreQuestion();
     expect(question).toBeDefined();
   });
 
   it("maxRetries=1 でも生成を試みる", () => {
-    // 1回で生成できない場合もあるが、undefined か DrillQuestion のいずれかを返す
-    const question = generateValidQuestion({}, 1);
-    // 型チェックのみ（undefined or DrillQuestion）
+    // 1回で生成できない場合もあるが、undefined か ScoreQuestion のいずれかを返す
+    const question = generateValidScoreQuestion({}, 1);
+    // 型チェックのみ（undefined or ScoreQuestion）
     expect(question === undefined || typeof question === "object").toBe(true);
   });
 
@@ -138,7 +138,7 @@ describe("generateValidQuestion", () => {
     // isRiichi=true かつ立直が yakuDetails に含まれるケースを探す
     let found = false;
     for (let i = 0; i < 1000; i++) {
-      const question = generateValidQuestion();
+      const question = generateValidScoreQuestion();
       if (!question) continue;
       if (question.isRiichi) {
         const hasRiichi = question.yakuDetails?.some(
@@ -158,7 +158,7 @@ describe("generateValidQuestion", () => {
   it("ドラ表示牌は有効な HaiKindId（0-33）である", () => {
     let tested = 0;
     for (let i = 0; i < 100; i++) {
-      const question = generateValidQuestion();
+      const question = generateValidScoreQuestion();
       if (!question) continue;
       for (const marker of question.doraMarkers) {
         expect(marker).toBeGreaterThanOrEqual(0);

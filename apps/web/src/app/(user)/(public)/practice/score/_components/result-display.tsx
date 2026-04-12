@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { useTranslations } from "next-intl";
 import type {
-  DrillQuestion,
+  ScoreQuestion,
   UserAnswer,
   JudgementResult,
 } from "@mahjong-scoring/core";
@@ -12,7 +12,7 @@ import { DetailsAccordion } from "./details-accordion";
 import type { DetailItem } from "./details-accordion";
 
 interface ResultDisplayProps {
-  readonly question: DrillQuestion;
+  readonly question: ScoreQuestion;
   readonly userAnswer: UserAnswer;
   readonly result: JudgementResult;
   readonly onNext: () => void;

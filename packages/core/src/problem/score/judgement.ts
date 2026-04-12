@@ -1,4 +1,4 @@
-import type { DrillQuestion, UserAnswer, JudgementResult } from "./types";
+import type { ScoreQuestion, UserAnswer, JudgementResult } from "./types";
 import { IGNORE_YAKU_FOR_JUDGEMENT, ScoreLevel } from "../../core/constants";
 
 /**
@@ -21,7 +21,7 @@ export function isMangan(scoreLevel: string): boolean {
  * 点数一致判定
  */
 function judgeScore(
-  payment: DrillQuestion["answer"]["payment"],
+  payment: ScoreQuestion["answer"]["payment"],
   userAnswer: Readonly<UserAnswer>,
 ): boolean {
   switch (payment.type) {
@@ -43,7 +43,7 @@ function judgeScore(
  * 役一致判定
  */
 function judgeYaku(
-  answerYakuDetails: DrillQuestion["yakuDetails"],
+  answerYakuDetails: ScoreQuestion["yakuDetails"],
   userYakus: readonly string[],
 ): boolean {
   if (!answerYakuDetails) return userYakus.length === 0;
@@ -90,7 +90,7 @@ function getSimplifiedHan(han: number): number {
  * @param requireFuForMangan - 満貫以上でも符の判定を必須とするかどうか
  */
 export function judgeAnswer(
-  question: Readonly<DrillQuestion>,
+  question: Readonly<ScoreQuestion>,
   userAnswer: Readonly<UserAnswer>,
   requireYaku: boolean = false,
   simplifyMangan: boolean = false,

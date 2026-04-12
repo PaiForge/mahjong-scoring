@@ -8,7 +8,7 @@ export { parseQuestionResults } from "../../_lib/score-question-result";
 export const RESULT_STORAGE_KEY = "score-calculation-drill-results";
 
 /**
- * DrillQuestion の Payment を ScoreTableAnswer に変換するアダプタ
+ * ScoreQuestion の Payment を ScoreTableAnswer に変換するアダプタ
  * 支払い情報変換
  *
  * @param payment - riichi-mahjong の Payment 型

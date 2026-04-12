@@ -45,7 +45,7 @@ export const ScoreLevel = {
  * ライブラリの役名（英語キー）から日本語名へのマッピング
  * 役名変換マップ（点数ドリル用）
  */
-export const SCORE_DRILL_YAKU_NAME_MAP: Readonly<Record<string, string>> = {
+export const SCORE_YAKU_NAME_MAP: Readonly<Record<string, string>> = {
   // 1翻
   Tanyao: "断么九",
   Pinfu: "平和",
@@ -103,7 +103,7 @@ export const SCORE_DRILL_YAKU_NAME_MAP: Readonly<Record<string, string>> = {
  * 役名日本語変換
  */
 export function getYakuNameJa(name: string): string {
-  return SCORE_DRILL_YAKU_NAME_MAP[name] ?? name;
+  return SCORE_YAKU_NAME_MAP[name] ?? name;
 }
 
 /**

@@ -2,8 +2,8 @@
 
 import { useCallback, useRef, useState } from "react";
 import { useTranslations } from "next-intl";
-import { generateValidQuestion } from "@mahjong-scoring/core";
-import type { DrillQuestion } from "@mahjong-scoring/core";
+import { generateValidScoreQuestion } from "@mahjong-scoring/core";
+import type { ScoreQuestion } from "@mahjong-scoring/core";
 import { useTimedSession } from "../../_hooks/use-timed-session";
 import { useSaveOnFinish } from "../../_hooks/use-save-on-finish";
 import { useSessionStorageSave } from "../../_hooks/use-session-storage-save";
@@ -19,8 +19,8 @@ import { RESULT_STORAGE_KEY } from "../_lib/types";
  */
 export function HanCountDrill() {
   const t = useTranslations("hanCountDrill");
-  const [question, setQuestion] = useState<DrillQuestion | undefined>(() =>
-    generateValidQuestion() ?? undefined,
+  const [question, setQuestion] = useState<ScoreQuestion | undefined>(() =>
+    generateValidScoreQuestion() ?? undefined,
   );
   const [questionIndex, setQuestionIndex] = useState(0);
 
@@ -30,7 +30,7 @@ export function HanCountDrill() {
   const questionResultsRef = useRef<HanCountQuestionResult[]>([]);
 
   const advanceQuestion = useCallback(() => {
-    setQuestion(generateValidQuestion() ?? undefined);
+    setQuestion(generateValidScoreQuestion() ?? undefined);
     setQuestionIndex((prev) => prev + 1);
   }, []);
 

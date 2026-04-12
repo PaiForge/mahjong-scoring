@@ -23,8 +23,8 @@ export { judgeYakuAnswer } from "./problem/yaku/judgement";
 export { SELECTABLE_YAKU } from "./problem/yaku/constants";
 export type { YakuQuestion } from "./problem/yaku/types";
 
-// === Problem: Score Drill ===
-export { ScoreDrillGenerator, generateScoreDrillQuestion, generateValidQuestion } from "./problem/score/generator";
+// === Problem: Score ===
+export { ScoreQuestionGenerator, generateScoreQuestion, generateValidScoreQuestion } from "./problem/score/generator";
 export { judgeAnswer, isMangan, getScoreLevelName } from "./problem/score/judgement";
 export {
   generateQuestionFromQuery,
@@ -32,7 +32,7 @@ export {
   buildDrillQueryParams,
 } from "./problem/score/query-generator";
 export type {
-  DrillQuestion,
+  ScoreQuestion,
   UserAnswer,
   JudgementResult,
   QuestionGeneratorOptions,
@@ -57,7 +57,7 @@ export {
   SANGENHAI,
   SUIT_BASES,
   ScoreLevel,
-  SCORE_DRILL_YAKU_NAME_MAP,
+  SCORE_YAKU_NAME_MAP,
   getYakuNameJa,
   IGNORE_YAKU_FOR_JUDGEMENT,
   YAKU_OPTIONS,

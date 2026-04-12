@@ -1,5 +1,5 @@
 import { HaiKind, type Kazehai } from "@pai-forge/riichi-mahjong";
-import { SCORE_DRILL_YAKU_NAME_MAP, YAKU_OPTIONS } from "../../core/constants";
+import { SCORE_YAKU_NAME_MAP, YAKU_OPTIONS } from "../../core/constants";
 
 /**
  * 役ドリルでは除外する英語キー
@@ -15,11 +15,11 @@ const YAKU_DRILL_EXCLUDED_KEYS: ReadonlySet<string> = new Set([
 
 /**
  * ライブラリの役名（英語キー）から日本語表示名へのマッピング
- * SCORE_DRILL_YAKU_NAME_MAP から風牌・状況役を除外したサブセット
+ * SCORE_YAKU_NAME_MAP から風牌・状況役を除外したサブセット
  * 役名マップ
  */
 export const YAKU_NAME_MAP: Readonly<Record<string, string>> = Object.fromEntries(
-  Object.entries(SCORE_DRILL_YAKU_NAME_MAP).filter(
+  Object.entries(SCORE_YAKU_NAME_MAP).filter(
     ([key]) => !YAKU_DRILL_EXCLUDED_KEYS.has(key),
   ),
 );
