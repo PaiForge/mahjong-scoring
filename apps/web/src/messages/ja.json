@@ -845,7 +845,8 @@
       "filterByAction": "アクションで絞り込み",
       "filterByUser": "ユーザーで絞り込み",
       "allActions": "すべて",
-      "filter": "絞り込み"
+      "filter": "絞り込み",
+      "userFilterPlaceholder": "メールアドレスまたはユーザー名"
     },
     "activityLogTable": {
       "action": "アクション",
@@ -857,7 +858,8 @@
       "filterByAction": "アクションで絞り込み",
       "filterByUser": "ユーザーで絞り込み",
       "allActions": "すべて",
-      "filter": "絞り込み"
+      "filter": "絞り込み",
+      "userFilterPlaceholder": "メールアドレスまたはユーザー名"
     },
     "banUser": {
       "title": "ユーザーをBANする",

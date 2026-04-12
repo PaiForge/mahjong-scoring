@@ -1,10 +1,17 @@
 "use client";
 
-import type { PracticeResultViewProps } from "../../_lib/create-practice-result-page";
-import { ResultView } from "../../_components/result-view";
-import { useSessionStorageResult } from "../../_hooks/use-session-storage-result";
-import { ScoreCalculationProblemList } from "./score-calculation-problem-list";
+import { createCustomResultView } from "../../_lib/create-custom-result-view";
+import { ScoreProblemListWithLinks } from "../../_components/score-problem-list-with-links";
 import { RESULT_STORAGE_KEY, parseQuestionResults } from "../_lib/types";
+import type { ScoreQuestionResult } from "../../_lib/score-question-result";
+
+/**
+ * 点数計算ドリルの問題一覧（翻訳ネームスペース固定）
+ * 点数計算問題一覧
+ */
+function ScoreCalculationProblemListBound({ results }: { readonly results: readonly ScoreQuestionResult[] }) {
+  return <ScoreProblemListWithLinks results={results} translationNamespace="scoreCalculationChallenge" />;
+}
 
 /**
  * 点数計算ドリル専用の結果画面クライアントコンポーネント
@@ -13,12 +20,8 @@ import { RESULT_STORAGE_KEY, parseQuestionResults } from "../_lib/types";
  * 共通 ResultView をラップし、問題別フィードバック一覧を children として注入する。
  * 問題結果は sessionStorage から読み取り、読み取り後にクリアする。
  */
-export function ScoreCalculationResultView(props: PracticeResultViewProps) {
-  const questionResults = useSessionStorageResult(RESULT_STORAGE_KEY, parseQuestionResults);
-
-  return (
-    <ResultView {...props}>
-      <ScoreCalculationProblemList results={questionResults} />
-    </ResultView>
-  );
-}
+export const ScoreCalculationResultView = createCustomResultView({
+  storageKey: RESULT_STORAGE_KEY,
+  parse: parseQuestionResults,
+  ProblemList: ScoreCalculationProblemListBound,
+});
