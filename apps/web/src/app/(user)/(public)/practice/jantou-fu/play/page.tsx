@@ -8,6 +8,20 @@ export async function generateMetadata(): Promise<Metadata> {
   return createMetadata({ title: t("title") });
 }
 
+/**
+ * 雀頭符ドリル プレイ
+ *
+ * @description
+ * 雀頭符ドリルのプレイページ。場風・自風の条件のもと、
+ * 指定された符になる雀頭を4択から選択する。
+ * セッション終了時にスコアをサーバーに保存し、リーダーボードに反映する。
+ *
+ * @flow
+ * 1. カウントダウンオーバーレイ（3, 2, 1）の後にタイマー開始
+ * 2. 場風・自風が表示され、正しい符の雀頭を4択から選択
+ * 3. 制限時間経過またはミス3回で終了
+ * 4. スコアを保存し、result ページへリダイレクト
+ */
 export default function JantouFuPlayPage() {
   return <JantouFuDrill />;
 }
