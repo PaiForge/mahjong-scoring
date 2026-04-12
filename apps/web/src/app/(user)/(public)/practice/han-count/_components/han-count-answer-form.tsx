@@ -32,7 +32,7 @@ export const HanCountAnswerForm = memo(function HanCountAnswerForm({
   onSubmit,
   disabled = false,
 }: HanCountAnswerFormProps) {
-  const t = useTranslations("hanCountDrill");
+  const t = useTranslations("hanCountChallenge");
   const [selectedIndex, setSelectedIndex] = useState<number | undefined>(undefined);
 
   // 問題が変わったら選択をリセットする

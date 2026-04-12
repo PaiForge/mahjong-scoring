@@ -15,13 +15,13 @@ interface HanCountProblemListProps {
  * 各問をアコーディオン形式で表示し、正誤と正解・ユーザー回答の詳細を確認できる。
  */
 export function HanCountProblemList({ results }: HanCountProblemListProps) {
-  const t = useTranslations("hanCountDrill");
-  const tResult = useTranslations("hanCountDrill.result");
+  const t = useTranslations("hanCountChallenge");
+  const tResult = useTranslations("hanCountChallenge.result");
 
   return (
     <ProblemListAccordion
       results={results}
-      translationNamespace="hanCountDrill"
+      translationNamespace="hanCountChallenge"
       isCorrect={(r) => r.isCorrect}
       renderDetail={(result) => (
         <div className="space-y-1 text-sm">

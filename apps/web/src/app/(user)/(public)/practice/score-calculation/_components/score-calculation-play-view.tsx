@@ -19,7 +19,7 @@ import { RESULT_STORAGE_KEY, paymentToScoreTableAnswer } from "../_lib/types";
  * 点数計算ドリル
  */
 export function ScoreCalculationPlayView() {
-  const t = useTranslations("scoreCalculationDrill");
+  const t = useTranslations("scoreCalculationChallenge");
   const [question, setQuestion] = useState<ScoreQuestion | undefined>(() =>
     generateValidScoreQuestion() ?? undefined,
   );

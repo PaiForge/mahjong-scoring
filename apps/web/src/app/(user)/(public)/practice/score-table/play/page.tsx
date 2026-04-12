@@ -4,7 +4,7 @@ import { createMetadata } from "@/app/_lib/metadata";
 import { ScoreTablePlayView } from "../_components/score-table-play-view";
 
 export async function generateMetadata(): Promise<Metadata> {
-  const t = await getTranslations("scoreTableDrill");
+  const t = await getTranslations("scoreTableChallenge");
   return createMetadata({ title: t("title") });
 }
 

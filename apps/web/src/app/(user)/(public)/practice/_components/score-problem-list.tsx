@@ -8,7 +8,7 @@ import { ProblemListAccordion } from "./problem-list-accordion";
 
 interface ScoreProblemListProps {
   readonly results: readonly ScoreQuestionResult[];
-  /** i18n の翻訳ネームスペース（例: "scoreTableDrill"） */
+  /** i18n の翻訳ネームスペース（例: "scoreTableChallenge"） */
   readonly translationNamespace: string;
   /** 正解を表示する際のレンダリング関数。リンク付き表示などをカスタマイズできる */
   readonly renderCorrectAnswer: (answer: ScoreTableAnswer, result: ScoreQuestionResult) => ReactNode;

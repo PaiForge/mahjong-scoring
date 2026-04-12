@@ -20,7 +20,7 @@ import { createPracticeResultPage } from "../../_lib/create-practice-result-page
 import { HanCountResultView } from "../_components/han-count-result-view";
 
 export async function generateMetadata(): Promise<Metadata> {
-  const t = await getTranslations("hanCountDrill");
+  const t = await getTranslations("hanCountChallenge");
   const tChallenge = await getTranslations("challenge");
   return createMetadata({ title: `${t("title")} - ${tChallenge("resultSuffix")}` });
 }

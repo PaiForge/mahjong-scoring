@@ -18,12 +18,12 @@ interface ScoreCalculationProblemListProps {
  * 各問をアコーディオン形式で表示し、正誤と正解・ユーザー回答の詳細を確認できる。
  */
 export function ScoreCalculationProblemList({ results }: ScoreCalculationProblemListProps) {
-  const t = useTranslations("scoreCalculationDrill");
+  const t = useTranslations("scoreCalculationChallenge");
 
   return (
     <ScoreProblemList
       results={results}
-      translationNamespace="scoreCalculationDrill"
+      translationNamespace="scoreCalculationChallenge"
       renderCorrectAnswer={(answer, result) => (
         <Link
           href={buildReferenceUrl(result)}

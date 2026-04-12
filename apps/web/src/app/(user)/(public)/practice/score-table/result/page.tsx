@@ -20,7 +20,7 @@ import { createPracticeResultPage } from "../../_lib/create-practice-result-page
 import { ScoreTableResultView } from "../_components/score-table-result-view";
 
 export async function generateMetadata(): Promise<Metadata> {
-  const t = await getTranslations("scoreTableDrill");
+  const t = await getTranslations("scoreTableChallenge");
   const tChallenge = await getTranslations("challenge");
   return createMetadata({ title: `${t("title")} - ${tChallenge("resultSuffix")}` });
 }

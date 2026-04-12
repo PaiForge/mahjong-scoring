@@ -21,7 +21,7 @@ import { RESULT_STORAGE_KEY } from "../_lib/types";
  * 点数表ドリル
  */
 export function ScoreTablePlayView() {
-  const t = useTranslations("scoreTableDrill");
+  const t = useTranslations("scoreTableChallenge");
   const [question, setQuestion] = useState<ScoreTableQuestion>(
     generateScoreTableQuestion,
   );

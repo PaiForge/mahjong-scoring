@@ -28,7 +28,7 @@ export function ScoreTableAnswerForm({
       questionKey={question.id}
       onSubmit={onSubmit}
       disabled={disabled}
-      translationNamespace="scoreTableDrill"
+      translationNamespace="scoreTableChallenge"
     />
   );
 }

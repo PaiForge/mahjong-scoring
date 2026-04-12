@@ -34,7 +34,7 @@ export function ScoreCalculationAnswerForm({
       questionKey={questionIndex}
       onSubmit={onSubmit}
       disabled={disabled}
-      translationNamespace="scoreCalculationDrill"
+      translationNamespace="scoreCalculationChallenge"
     />
   );
 }

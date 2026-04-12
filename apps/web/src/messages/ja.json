@@ -947,7 +947,7 @@
     "close": "閉じる",
     "showDetailInfo": "詳細情報を表示"
   },
-  "scoreTableDrill": {
+  "scoreTableChallenge": {
     "title": "点数表早引き",
     "description": "親子・ツモロン・翻数・符から正しい点数を答えるドリルです",
     "oya": "親",
@@ -971,7 +971,7 @@
       "incorrect": "不正解"
     }
   },
-  "scoreCalculationDrill": {
+  "scoreCalculationChallenge": {
     "title": "点数計算ドリル",
     "description": "手牌・和了牌・風牌・ドラなどの情報から正しい点数を答えるドリルです",
     "oya": "親",
@@ -994,7 +994,7 @@
       "incorrect": "不正解"
     }
   },
-  "hanCountDrill": {
+  "hanCountChallenge": {
     "title": "翻数��答",
     "description": "手牌・和了牌・風牌・ドラなどの情報から正しい翻数を答えるドリルです。1翻〜13翻の中から正解を選択してください。",
     "bakaze": "場風",

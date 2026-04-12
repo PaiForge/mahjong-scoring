@@ -18,7 +18,7 @@ import { RESULT_STORAGE_KEY } from "../_lib/types";
  * 翻数即答ドリル
  */
 export function HanCountPlayView() {
-  const t = useTranslations("hanCountDrill");
+  const t = useTranslations("hanCountChallenge");
   const [question, setQuestion] = useState<ScoreQuestion | undefined>(() =>
     generateValidScoreQuestion() ?? undefined,
   );
@@ -82,7 +82,7 @@ export function HanCountPlayView() {
           isRiichi: question.isRiichi,
           doraMarkers: question.doraMarkers,
         }}
-        translationNamespace="hanCountDrill"
+        translationNamespace="hanCountChallenge"
       />
 
       {/* Answer form */}

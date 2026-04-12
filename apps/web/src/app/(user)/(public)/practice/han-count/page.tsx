@@ -16,10 +16,10 @@ import { createMetadata } from "@/app/_lib/metadata";
 import { PracticeIntroContent } from "../_components/practice-intro-content";
 
 export async function generateMetadata(): Promise<Metadata> {
-  const t = await getTranslations("hanCountDrill");
+  const t = await getTranslations("hanCountChallenge");
   return createMetadata({ title: t("title"), description: t("description") });
 }
 
 export default function HanCountPage() {
-  return <PracticeIntroContent namespace="hanCountDrill" slug="han-count" showLearnLink={false} />;
+  return <PracticeIntroContent namespace="hanCountChallenge" slug="han-count" showLearnLink={false} />;
 }
