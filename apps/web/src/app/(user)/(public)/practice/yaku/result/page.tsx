@@ -30,4 +30,8 @@ export const dynamic = 'force-dynamic';
 export default createPracticeResultPage(ResultView, {
   module: 'yaku',
   playHref: '/practice/yaku/play',
+  resolveTitle: async () => {
+    const t = await getTranslations('yaku');
+    return t('title');
+  },
 });

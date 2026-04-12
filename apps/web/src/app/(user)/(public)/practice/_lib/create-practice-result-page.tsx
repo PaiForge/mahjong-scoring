@@ -8,6 +8,7 @@ import { getExpInfoByChallengeResultId } from '@/lib/db/save-exp';
 import { createClient } from '@/lib/supabase/server';
 
 import { ExpGainDisplay } from '../_components/exp-gain-display';
+import { SignUpCta } from '../_components/sign-up-cta';
 
 const PREVIEW_COUNT = 3;
 
@@ -16,13 +17,25 @@ const PREVIEW_COUNT = 3;
  * 練習結果ビュープロパティ
  */
 export interface PracticeResultViewProps {
+  /** ページタイトル（練習名） */
+  readonly practiceTitle: string;
   /** リトライ用のプレイページURL */
   readonly playHref: string;
   /** リーダーボードプレビュー上位行 */
   readonly leaderboardRows: readonly LeaderboardRow[];
   /** リーダーボード詳細ページパス */
   readonly leaderboardDetailPath: string;
-  /** スコア表示とボタンの間に挿入する追加コンテンツ（EXP カード・問題別フィードバック等） */
+  /**
+   * スコアバーとアクションボタンの間に挿入される追加コンテンツ。
+   * 経験値セクション（`ExpGainDisplay`）や問題別フィードバック一覧など、
+   * 結果ブロックとして一続きに表示したい要素を渡す。
+   *
+   * factory (`createPracticeResultPage`) は EXP をここに渡し、
+   * カスタムビュー (`createCustomResultView`) は EXP と ProblemList を
+   * Fragment で合成して渡す。`children` に統一することで、
+   * Server Component の要素を Client 境界に安全に渡せる
+   * （`children` スロットは Next.js 公式で推奨される渡し方）。
+   */
   readonly children?: React.ReactNode;
 }
 
@@ -31,6 +44,13 @@ interface ResultPageConfig {
   readonly module: LeaderboardModule;
   /** リトライ用のプレイページURL */
   readonly playHref: string;
+  /**
+   * ページタイトル（練習名）を解決する非同期関数。
+   * 各 page.tsx 側で `getTranslations('<namespace>')` を呼んで `t('title')` を返す。
+   * プロジェクトで主流の namespace 指定スタイルに揃えるため、
+   * factory 内ではグローバルな翻訳ルックアップを避ける。
+   */
+  readonly resolveTitle: () => Promise<string>;
 }
 
 /** Next.js 16 のページ props（searchParams は Promise） */
@@ -51,9 +71,11 @@ export function createPracticeResultPage(
   config: ResultPageConfig,
 ) {
   return async function PracticeResultPage({ searchParams }: PracticeResultPageProps) {
-    const [leaderboardResult, resolvedSearchParams] = await Promise.all([
+    const [leaderboardResult, resolvedSearchParams, practiceTitle, user] = await Promise.all([
       getLeaderboard(config.module, 'all-time', 1),
       searchParams,
+      config.resolveTitle(),
+      resolveCurrentUser(),
     ]);
 
     const leaderboardRows = leaderboardResult.rows.slice(0, PREVIEW_COUNT);
@@ -62,30 +84,47 @@ export function createPracticeResultPage(
     const rawGrant = resolvedSearchParams.grant;
     const grantId = typeof rawGrant === 'string' ? rawGrant : undefined;
 
-    const expInfo = grantId ? await tryFetchExpInfo(grantId) : undefined;
+    // ログイン済みで grant 付きの場合のみ EXP を取得。
+    // 未ログイン時は EXP を取得せず、代わりに登録 CTA を描画する。
+    const expInfo = user && grantId ? await tryFetchExpInfo(user.id, grantId) : undefined;
+
+    const resultBlock = user
+      ? expInfo
+        ? <ExpGainDisplay expInfo={expInfo} />
+        : undefined
+      : <SignUpCta />;
 
     return (
       <Suspense>
         <ResultView
+          practiceTitle={practiceTitle}
           playHref={config.playHref}
           leaderboardRows={leaderboardRows}
           leaderboardDetailPath={leaderboardDetailPath}
         >
-          {expInfo ? <ExpGainDisplay expInfo={expInfo} /> : undefined}
+          {resultBlock}
         </ResultView>
       </Suspense>
     );
   };
 }
 
-async function tryFetchExpInfo(challengeResultId: string) {
+async function resolveCurrentUser() {
   try {
     const supabase = await createClient();
     const {
       data: { user },
     } = await supabase.auth.getUser();
-    if (!user) return undefined;
-    return await getExpInfoByChallengeResultId(user.id, challengeResultId);
+    return user;
+  } catch (error) {
+    console.error('[createPracticeResultPage] failed to resolve user:', error);
+    return null;
+  }
+}
+
+async function tryFetchExpInfo(userId: string, challengeResultId: string) {
+  try {
+    return await getExpInfoByChallengeResultId(userId, challengeResultId);
   } catch (error) {
     console.error('[createPracticeResultPage] failed to fetch exp info:', error);
     return undefined;

@@ -30,4 +30,8 @@ export const dynamic = 'force-dynamic';
 export default createPracticeResultPage(ResultView, {
   module: 'tehai_fu',
   playHref: '/practice/tehai-fu/play',
+  resolveTitle: async () => {
+    const t = await getTranslations('tehaiFu');
+    return t('title');
+  },
 });

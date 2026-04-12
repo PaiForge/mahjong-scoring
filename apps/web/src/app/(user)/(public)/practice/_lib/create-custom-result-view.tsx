@@ -35,9 +35,14 @@ export function createCustomResultView<T>(
 
   function CustomResultView(props: PracticeResultViewProps) {
     const questionResults = useSessionStorageResult(storageKey, parse);
+    const { children, ...rest } = props;
 
+    // factory から渡される `children` には `ExpGainDisplay` が入る。
+    // ここでは EXP と問題別フィードバックを Fragment で連結して
+    // ResultView の children スロットに渡す。これにより EXP が消えない。
     return (
-      <ResultView {...props}>
+      <ResultView {...rest}>
+        {children}
         <ProblemList results={questionResults} />
       </ResultView>
     );
