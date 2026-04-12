@@ -8,7 +8,11 @@ import { getExpInfoByChallengeResultId } from '@/lib/db/save-exp';
 import { createClient } from '@/lib/supabase/server';
 
 import { ExpGainDisplay } from '../_components/exp-gain-display';
+import { LeaderboardPreview } from '../_components/leaderboard-preview';
+import { LeaderboardSkeleton } from '../_components/leaderboard-skeleton';
+import { ResultBlockSkeleton } from '../_components/result-block-skeleton';
 import { SignUpCta } from '../_components/sign-up-cta';
+import { debugResultDelay } from './debug-delay';
 
 const PREVIEW_COUNT = 3;
 
@@ -21,20 +25,26 @@ export interface PracticeResultViewProps {
   readonly practiceTitle: string;
   /** リトライ用のプレイページURL */
   readonly playHref: string;
-  /** リーダーボードプレビュー上位行 */
-  readonly leaderboardRows: readonly LeaderboardRow[];
-  /** リーダーボード詳細ページパス */
-  readonly leaderboardDetailPath: string;
+  /** 正答数（URL クエリ `?correct=` から親 Server Component が parse して渡す） */
+  readonly correct: number;
+  /** 総出題数（URL クエリ `?total=` から親 Server Component が parse して渡す） */
+  readonly total: number;
   /**
-   * スコアバーとアクションボタンの間に挿入される追加コンテンツ。
-   * 経験値セクション（`ExpGainDisplay`）や問題別フィードバック一覧など、
-   * 結果ブロックとして一続きに表示したい要素を渡す。
-   *
-   * factory (`createPracticeResultPage`) は EXP をここに渡し、
-   * カスタムビュー (`createCustomResultView`) は EXP と ProblemList を
-   * Fragment で合成して渡す。`children` に統一することで、
-   * Server Component の要素を Client 境界に安全に渡せる
-   * （`children` スロットは Next.js 公式で推奨される渡し方）。
+   * 経験値セクション / 登録 CTA のブロック。
+   * `<Suspense fallback={<ResultBlockSkeleton />}>` で包まれた
+   * 非同期ツリーを Server 側で組み立てて渡す。
+   */
+  readonly resultBlock: React.ReactNode;
+  /**
+   * リーダーボードプレビューのブロック。
+   * `<Suspense fallback={<LeaderboardSkeleton />}>` で包まれた
+   * 非同期ツリーを Server 側で組み立てて渡す。
+   */
+  readonly leaderboardBlock: React.ReactNode;
+  /**
+   * 練習種別ごとの追加コンテンツ（問題別フィードバック一覧など）。
+   * 現状はカスタムビュー (`createCustomResultView`) のみが使用する。
+   * `resultBlock` と `leaderboardBlock` の間に描画される。
    */
   readonly children?: React.ReactNode;
 }
@@ -62,51 +72,105 @@ interface PracticeResultPageProps {
  * 練習結果ページを生成するファクトリー関数
  * 練習結果ページ生成
  *
- * Server Component として getLeaderboard() でデータ取得し、
- * Client Component に props で渡す。`?grant=<challengeResultId>` が
- * 付与されている場合は EXP 付与情報を引き直して `ExpGainDisplay` を描画する。
+ * 設計: CLS 改善のために 2 つの Suspense 境界を導入している:
+ *
+ * 1. **即時描画（親 Server Component）**
+ *    - PageTitle / SectionTitle("結果") / ResultScoreBar / アクションボタン
+ *    - これらは URL クエリ (`?correct=&total=&time=`) のみで描画可能
+ *
+ * 2. **`<Suspense fallback={<ResultBlockSkeleton />}>`**
+ *    - `AsyncResultBlock`: 認証判定 + grant からの EXP 取得 + `ExpGainDisplay` or `SignUpCta` 描画
+ *
+ * 3. **`<Suspense fallback={<LeaderboardSkeleton />}>`**
+ *    - `AsyncLeaderboardBlock`: `getLeaderboard()` を呼んで `LeaderboardPreview` を描画
+ *
+ * 2 と 3 は互いに並列に解決され、遅い方に全体が引っ張られないストリーミング表示となる。
  */
 export function createPracticeResultPage(
   ResultView: ComponentType<PracticeResultViewProps>,
   config: ResultPageConfig,
 ) {
   return async function PracticeResultPage({ searchParams }: PracticeResultPageProps) {
-    const [leaderboardResult, resolvedSearchParams, practiceTitle, user] = await Promise.all([
-      getLeaderboard(config.module, 'all-time', 1),
+    // 即時描画に必要な最小限のデータだけ親で解決する。
+    // URL クエリ (`searchParams`) と、練習名（翻訳キー）。
+    const [resolvedSearchParams, practiceTitle] = await Promise.all([
       searchParams,
       config.resolveTitle(),
-      resolveCurrentUser(),
     ]);
-
-    const leaderboardRows = leaderboardResult.rows.slice(0, PREVIEW_COUNT);
-    const leaderboardDetailPath = buildDetailPath('all-time', config.module);
 
     const rawGrant = resolvedSearchParams.grant;
     const grantId = typeof rawGrant === 'string' ? rawGrant : undefined;
 
-    // ログイン済みで grant 付きの場合のみ EXP を取得。
-    // 未ログイン時は EXP を取得せず、代わりに登録 CTA を描画する。
-    const expInfo = user && grantId ? await tryFetchExpInfo(user.id, grantId) : undefined;
-
-    const resultBlock = user
-      ? expInfo
-        ? <ExpGainDisplay expInfo={expInfo} />
-        : undefined
-      : <SignUpCta />;
+    const rawCorrect = resolvedSearchParams.correct;
+    const rawTotal = resolvedSearchParams.total;
+    const correct = Number(typeof rawCorrect === 'string' ? rawCorrect : 0);
+    const total = Number(typeof rawTotal === 'string' ? rawTotal : 0);
 
     return (
-      <Suspense>
-        <ResultView
-          practiceTitle={practiceTitle}
-          playHref={config.playHref}
-          leaderboardRows={leaderboardRows}
-          leaderboardDetailPath={leaderboardDetailPath}
-        >
-          {resultBlock}
-        </ResultView>
-      </Suspense>
+      <ResultView
+        practiceTitle={practiceTitle}
+        playHref={config.playHref}
+        correct={Number.isFinite(correct) ? correct : 0}
+        total={Number.isFinite(total) ? total : 0}
+        resultBlock={
+          <Suspense fallback={<ResultBlockSkeleton />}>
+            <AsyncResultBlock grantId={grantId} />
+          </Suspense>
+        }
+        leaderboardBlock={
+          <Suspense fallback={<LeaderboardSkeleton />}>
+            <AsyncLeaderboardBlock module={config.module} />
+          </Suspense>
+        }
+      />
     );
   };
+}
+
+/**
+ * 経験値セクション / 登録 CTA を非同期に解決して描画する
+ * 非同期結果ブロック
+ *
+ * 認証状態の判定と EXP 取得を内包し、ストリーミング境界内で完結させる。
+ * ログイン済みで grant 付き → `ExpGainDisplay`
+ * ログイン済みで grant なし → なし（`Suspense` 解決後に空になる）
+ * 未ログイン → `SignUpCta`
+ */
+async function AsyncResultBlock({ grantId }: { readonly grantId: string | undefined }) {
+  // デバッグ用: `DEBUG_RESULT_DELAY_MS` が設定されていれば指定 ms 待機。
+  // 本番では no-op（debugResultDelay 内で NODE_ENV をチェック）。
+  await debugResultDelay();
+
+  const user = await resolveCurrentUser();
+
+  if (!user) {
+    return <SignUpCta />;
+  }
+
+  if (!grantId) {
+    return undefined;
+  }
+
+  const expInfo = await tryFetchExpInfo(user.id, grantId);
+  if (!expInfo) return undefined;
+
+  return <ExpGainDisplay expInfo={expInfo} />;
+}
+
+/**
+ * リーダーボードプレビューを非同期に解決して描画する
+ * 非同期リーダーボード
+ */
+async function AsyncLeaderboardBlock({ module }: { readonly module: LeaderboardModule }) {
+  // デバッグ用: `DEBUG_RESULT_DELAY_MS` が設定されていれば指定 ms 待機。
+  // 本番では no-op（debugResultDelay 内で NODE_ENV をチェック）。
+  await debugResultDelay();
+
+  const { rows } = await getLeaderboard(module, 'all-time', 1);
+  const previewRows = rows.slice(0, PREVIEW_COUNT) satisfies readonly LeaderboardRow[];
+  const detailPath = buildDetailPath('all-time', module);
+
+  return <LeaderboardPreview rows={previewRows} detailPath={detailPath} />;
 }
 
 async function resolveCurrentUser() {

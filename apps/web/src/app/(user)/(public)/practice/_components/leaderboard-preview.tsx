@@ -25,7 +25,7 @@ export function LeaderboardPreview({ rows, detailPath }: LeaderboardPreviewProps
   }
 
   return (
-    <div className="mt-12 space-y-3">
+    <div className="mt-12 min-h-[280px] space-y-3">
       <SectionTitle>{t('allTimeRanking')}</SectionTitle>
       <div>
         <table className="w-full table-fixed" aria-label={t('allTimeRanking')}>

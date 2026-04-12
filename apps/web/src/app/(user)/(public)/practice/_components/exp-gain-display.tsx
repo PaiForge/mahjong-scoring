@@ -19,7 +19,7 @@ export async function ExpGainDisplay({ expInfo }: ExpGainDisplayProps) {
   const { earnedExp, level, levelUp, progressPercent } = expInfo;
 
   return (
-    <section className="mt-10 space-y-3">
+    <section className="mt-10 min-h-[180px] space-y-3">
       <SectionTitle>{t("label")}</SectionTitle>
 
       <div className="flex items-center justify-between">

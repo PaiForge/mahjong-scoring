@@ -1,9 +1,7 @@
-"use client";
-
 import type { ComponentType } from "react";
 import type { PracticeResultViewProps } from "./create-practice-result-page";
 import { ResultView } from "../_components/result-view";
-import { useSessionStorageResult } from "../_hooks/use-session-storage-result";
+import { ProblemListLoader } from "../_components/problem-list-loader";
 
 /**
  * カスタム結果ビューのファクトリー設定
@@ -14,7 +12,7 @@ interface CreateCustomResultViewConfig<T> {
   readonly storageKey: string;
   /** 生文字列を型付き配列にパースする関数 */
   readonly parse: (raw: string | undefined) => readonly T[];
-  /** 問題結果一覧を描画するコンポーネント */
+  /** 問題結果一覧を描画するコンポーネント（Client Component） */
   readonly ProblemList: ComponentType<{ readonly results: readonly T[] }>;
 }
 
@@ -22,28 +20,31 @@ interface CreateCustomResultViewConfig<T> {
  * 練習固有の結果ビューコンポーネントを生成するファクトリー関数
  * カスタム結果ビュー生成
  *
- * 共通 ResultView をラップし、sessionStorage からの結果読み取りと
- * 問題別フィードバック一覧の注入を行うクライアントコンポーネントを返す。
+ * Server Component として `ResultView` をラップし、sessionStorage から
+ * 結果を読み取る小さな Client ラッパ（`ProblemListLoader`）を
+ * `children` スロットに注入する。
  *
- * @param config - sessionStorage キー、パース関数、問題一覧コンポーネント
- * @returns PracticeResultViewProps を受け取るクライアントコンポーネント
+ * Server Component 化の理由: `factory` が `ResultView` を呼び出す際に
+ * `resultBlock` / `leaderboardBlock` として `<Suspense>` 境界を props で
+ * 渡すため、`CustomResultView` 自身が Client Component だと RSC の
+ * シリアライズ規則上 Suspense 境界が正しく機能しない。`ResultView` を
+ * Server Component 化したのと同じ理由でカスタム版もここで Server 化する。
  */
 export function createCustomResultView<T>(
   config: CreateCustomResultViewConfig<T>,
 ): ComponentType<PracticeResultViewProps> {
   const { storageKey, parse, ProblemList } = config;
 
-  function CustomResultView(props: PracticeResultViewProps) {
-    const questionResults = useSessionStorageResult(storageKey, parse);
-    const { children, ...rest } = props;
-
-    // factory から渡される `children` には `ExpGainDisplay` が入る。
-    // ここでは EXP と問題別フィードバックを Fragment で連結して
-    // ResultView の children スロットに渡す。これにより EXP が消えない。
+  async function CustomResultView(props: PracticeResultViewProps) {
+    // `resultBlock` / `leaderboardBlock` は factory からそのまま透過。
+    // `children` スロットには sessionStorage 読み取り付きの ProblemListLoader を差し込む。
     return (
-      <ResultView {...rest}>
-        {children}
-        <ProblemList results={questionResults} />
+      <ResultView {...props}>
+        <ProblemListLoader
+          storageKey={storageKey}
+          parse={parse}
+          ProblemList={ProblemList}
+        />
       </ResultView>
     );
   }

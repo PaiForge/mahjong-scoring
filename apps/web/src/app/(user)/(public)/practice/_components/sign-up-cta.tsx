@@ -19,7 +19,7 @@ export async function SignUpCta() {
   const t = await getTranslations("challenge");
 
   return (
-    <section className="mt-10 rounded-lg border border-primary-200 bg-primary-50/60 p-4 sm:p-6">
+    <section className="mt-10 min-h-[180px] rounded-lg border border-primary-200 bg-primary-50/60 p-4 sm:p-6">
       <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <div>
           <p className="font-semibold text-surface-900">
