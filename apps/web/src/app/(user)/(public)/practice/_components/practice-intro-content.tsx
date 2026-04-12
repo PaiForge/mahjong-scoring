@@ -2,6 +2,7 @@ import Link from "next/link";
 import { getTranslations } from "next-intl/server";
 import { ContentContainer } from "@/app/_components/content-container";
 import { PageTitle } from "@/app/_components/page-title";
+import { PrimaryLinkButton } from "@/app/_components/primary-link-button";
 import { BookIcon } from "@/app/_components/icons/book-icon";
 
 interface PracticeIntroContentProps {
@@ -43,12 +44,9 @@ export async function PracticeIntroContent({
       )}
 
       <div className="mt-8 text-center">
-        <Link
-          href={`/practice/${slug}/play`}
-          className="inline-block rounded-lg bg-primary-500 px-8 py-3 text-sm font-semibold text-white shadow-sm transition-colors hover:bg-primary-600"
-        >
+        <PrimaryLinkButton href={`/practice/${slug}/play`} className="px-8 py-3">
           {tc("startButton")}
-        </Link>
+        </PrimaryLinkButton>
       </div>
     </ContentContainer>
   );

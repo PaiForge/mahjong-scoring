@@ -1,5 +1,7 @@
 import type { ScoreTableAnswer } from "@mahjong-scoring/core";
 
+import { createSessionStorageParser } from "./create-session-storage-parser";
+
 /**
  * 1問ごとの結果データ（点数系ドリル共通）
  * 点数問題結果
@@ -60,17 +62,6 @@ function isValidQuestionResult(value: unknown): value is ScoreQuestionResult {
 /**
  * sessionStorage から問題結果を安全にパースする
  * 問題結果パース
- *
- * @param raw - sessionStorage から取得した生文字列
- * @returns パース成功時は結果配列、失敗時は空配列
  */
-export function parseQuestionResults(raw: string | undefined): readonly ScoreQuestionResult[] {
-  if (raw === undefined) return [];
-  try {
-    const parsed: unknown = JSON.parse(raw);
-    if (!Array.isArray(parsed)) return [];
-    return parsed.filter(isValidQuestionResult);
-  } catch {
-    return [];
-  }
-}
+export const parseQuestionResults: (raw: string | undefined) => readonly ScoreQuestionResult[] =
+  createSessionStorageParser(isValidQuestionResult);

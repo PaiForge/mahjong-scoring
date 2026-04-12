@@ -18,11 +18,11 @@ import type { Metadata } from 'next';
 import { Suspense } from 'react';
 
 import { getTranslations } from 'next-intl/server';
-import Link from 'next/link';
 import { notFound } from 'next/navigation';
 
 import { ContentContainer } from '@/app/_components/content-container';
 import { PageTitle } from '@/app/_components/page-title';
+import { PrimaryLinkButton } from '@/app/_components/primary-link-button';
 import { createMetadata } from '@/app/_lib/metadata';
 import { getOptionalUser } from '@/lib/auth';
 import { menuTypeToMessageKey } from '@/lib/db/practice-menu-types';
@@ -139,12 +139,9 @@ export default async function LeaderboardDetailPage({
       </Suspense>
 
       <div className="pt-4 border-t border-surface-200">
-        <Link
-          href={challengePath}
-          className="inline-flex items-center rounded-lg bg-primary-500 px-5 py-2.5 text-sm font-semibold text-white shadow-sm transition-colors hover:bg-primary-600"
-        >
+        <PrimaryLinkButton href={challengePath} className="px-5">
           {t('tryChallenge')}
-        </Link>
+        </PrimaryLinkButton>
       </div>
     </ContentContainer>
   );

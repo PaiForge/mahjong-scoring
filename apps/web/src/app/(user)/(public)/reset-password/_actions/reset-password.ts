@@ -2,8 +2,7 @@
 
 import type { ActionResult } from '@/lib/action-types';
 import { logActivityEvent } from '@/lib/activity-log';
-import { getClientIp } from '@/lib/client-ip';
-import { IP_RATE_LIMITS, checkIpRateLimitGuard } from '@/lib/rate-limit-ip';
+import { IP_RATE_LIMITS, enforceIpRateLimit } from '@/lib/rate-limit-ip';
 import { createClient } from '@/lib/supabase/server';
 import { getPasswordValidationError } from '@/lib/validations/password';
 
@@ -17,13 +16,9 @@ export type ResetPasswordResult = ActionResult;
 export async function resetPassword(
   password: string,
 ): Promise<ResetPasswordResult> {
-  const ipRateLimited = checkIpRateLimitGuard(
-    await getClientIp(),
-    'resetPassword',
-    IP_RATE_LIMITS.resetPassword,
-  );
-  if (ipRateLimited) {
-    return ipRateLimited;
+  const rateLimited = await enforceIpRateLimit('resetPassword', IP_RATE_LIMITS.resetPassword);
+  if (rateLimited) {
+    return rateLimited;
   }
 
   const passwordError = getPasswordValidationError(password);

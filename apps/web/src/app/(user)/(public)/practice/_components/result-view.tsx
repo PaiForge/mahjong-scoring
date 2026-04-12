@@ -5,6 +5,7 @@ import { useTranslations } from "next-intl";
 import Link from "next/link";
 import { ContentContainer } from "@/app/_components/content-container";
 import { PageTitle } from "@/app/_components/page-title";
+import { PrimaryLinkButton } from "@/app/_components/primary-link-button";
 import type { PracticeResultViewProps } from "../_lib/create-practice-result-page";
 import { LeaderboardPreview } from "./leaderboard-preview";
 
@@ -34,12 +35,9 @@ export function ResultView({ playHref, leaderboardRows, leaderboardDetailPath, c
       </div>
 
       <div className="mt-8 flex flex-col items-center gap-3 sm:flex-row">
-        <Link
-          href={playHref}
-          className="rounded-lg bg-primary-500 px-6 py-2.5 text-sm font-semibold text-white shadow-sm transition-colors hover:bg-primary-600"
-        >
+        <PrimaryLinkButton href={playHref}>
           {tc("retryButton")}
-        </Link>
+        </PrimaryLinkButton>
         <Link
           href="/practice"
           className="rounded-lg border border-surface-200 px-6 py-2.5 text-sm font-semibold text-surface-600 transition-colors hover:bg-surface-100"

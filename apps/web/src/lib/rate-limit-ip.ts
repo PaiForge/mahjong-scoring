@@ -81,7 +81,7 @@ export const IP_RATE_LIMITS = {
 
 /**
  * Server Action 用の IP レートリミットガード。
- * 制限超過時は `{ error: 'rateLimited' }` を返し、許可時は null を返す。
+ * 制限超過時は `{ error: 'rateLimited' }` を返し、許可時は undefined を返す。
  * IPレートリミットガード
  *
  * @param ip - クライアント IP（`getClientIp()` の戻り値）
@@ -99,4 +99,22 @@ export function checkIpRateLimitGuard(
     return { error: "rateLimited" };
   }
   return undefined;
+}
+
+/**
+ * Server Action 用の IP レートリミットラッパー。
+ * `getClientIp()` の呼び出しとガード判定を一括で行い、
+ * 制限超過時は `{ error: 'rateLimited' }` を返す。
+ * IPレートリミット一括チェック
+ *
+ * @param key - アクションキー（`IP_RATE_LIMITS` のキー等）
+ * @param config - レートリミット設定
+ */
+export async function enforceIpRateLimit(
+  key: string,
+  config: Readonly<IpRateLimitConfig>,
+): Promise<{ error: "rateLimited" } | undefined> {
+  const { getClientIp } = await import("./client-ip");
+  const ip = await getClientIp();
+  return checkIpRateLimitGuard(ip, key, config);
 }

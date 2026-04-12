@@ -2,8 +2,7 @@
 
 import { SITE_URL } from "@/config";
 import type { ActionResult } from "@/lib/action-types";
-import { getClientIp } from "@/lib/client-ip";
-import { IP_RATE_LIMITS, checkIpRateLimitGuard } from "@/lib/rate-limit-ip";
+import { IP_RATE_LIMITS, enforceIpRateLimit } from "@/lib/rate-limit-ip";
 import { createClient } from "@/lib/supabase/server";
 
 export type ForgotPasswordResult = ActionResult;
@@ -16,13 +15,9 @@ export type ForgotPasswordResult = ActionResult;
 export async function forgotPassword(
   email: string,
 ): Promise<ForgotPasswordResult> {
-  const ipRateLimited = checkIpRateLimitGuard(
-    await getClientIp(),
-    "forgotPassword",
-    IP_RATE_LIMITS.forgotPassword,
-  );
-  if (ipRateLimited) {
-    return ipRateLimited;
+  const rateLimited = await enforceIpRateLimit("forgotPassword", IP_RATE_LIMITS.forgotPassword);
+  if (rateLimited) {
+    return rateLimited;
   }
 
   const supabase = await createClient();

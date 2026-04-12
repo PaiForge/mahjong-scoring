@@ -1,3 +1,5 @@
+import { createSessionStorageParser } from "../../_lib/create-session-storage-parser";
+
 /** sessionStorage に保存する際のキー */
 export const RESULT_STORAGE_KEY = "han-count-results";
 
@@ -32,18 +34,7 @@ function isValidQuestionResult(value: unknown): value is HanCountQuestionResult 
 
 /**
  * sessionStorage から問題結果を安全にパースする
- * ��数問題結果パース
- *
- * @param raw - sessionStorage から取得した生文字列
- * @returns ���ース成功時は結果配列、失敗時は空配列
+ * 翻数問題結果パース
  */
-export function parseHanCountResults(raw: string | undefined): readonly HanCountQuestionResult[] {
-  if (raw === undefined) return [];
-  try {
-    const parsed: unknown = JSON.parse(raw);
-    if (!Array.isArray(parsed)) return [];
-    return parsed.filter(isValidQuestionResult);
-  } catch {
-    return [];
-  }
-}
+export const parseHanCountResults: (raw: string | undefined) => readonly HanCountQuestionResult[] =
+  createSessionStorageParser(isValidQuestionResult);

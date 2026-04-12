@@ -7,6 +7,7 @@ import type { TehaiFuQuestion } from "@mahjong-scoring/core";
 import { useTimedSession } from "../../_hooks/use-timed-session";
 import { useSaveOnFinish } from "../../_hooks/use-save-on-finish";
 import { ChallengeShell } from "../../_components/challenge-shell";
+import { ChallengeSubmitButton } from "../../_components/challenge-submit-button";
 import { retryGenerate } from "../../_lib/retry-generate";
 import { TehaiDisplay } from "./tehai-display";
 import { FuItemRow } from "./fu-item-row";
@@ -79,20 +80,12 @@ export function TehaiFuPlayView() {
       </div>
 
       {/* Submit button */}
-      <div className="mt-4">
-        <button
-          type="button"
-          onClick={handleSubmit}
-          disabled={!allAnswered || showFeedback || isCountingDown}
-          className={`w-full rounded-lg py-3 text-sm font-semibold text-white shadow-sm transition-colors ${
-            allAnswered && !showFeedback && !isCountingDown
-              ? "bg-primary-500 hover:bg-primary-600"
-              : "cursor-not-allowed bg-surface-300"
-          }`}
-        >
-          {t("checkButton")}
-        </button>
-      </div>
+      <ChallengeSubmitButton
+        disabled={!allAnswered || showFeedback || isCountingDown}
+        onClick={handleSubmit}
+      >
+        {t("checkButton")}
+      </ChallengeSubmitButton>
     </ChallengeShell>
   );
 }
