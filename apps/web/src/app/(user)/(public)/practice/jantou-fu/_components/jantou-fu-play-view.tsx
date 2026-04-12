@@ -11,10 +11,10 @@ import { Hai } from "@pai-forge/mahjong-react-ui";
 import { useTimedSession } from "../../_hooks/use-timed-session";
 import { useSaveOnFinish } from "../../_hooks/use-save-on-finish";
 import { ChoiceButton } from "../../_components/choice-button";
-import { DrillShell } from "../../_components/drill-shell";
+import { ChallengeShell } from "../../_components/challenge-shell";
 import { getFeedbackStyles } from "../../_lib/feedback-styles";
 
-export function JantouFuDrill() {
+export function JantouFuPlayView() {
   const t = useTranslations("jantouFu");
   const [question, setQuestion] = useState<JantouFuQuestion>(
     generateJantouFuQuestion
@@ -42,7 +42,7 @@ export function JantouFuDrill() {
   );
 
   return (
-    <DrillShell gameSession={gameSession} timerControl={timerControl} resultPath="/practice/jantou-fu/result" onFinish={handleFinish}>
+    <ChallengeShell gameSession={gameSession} timerControl={timerControl} resultPath="/practice/jantou-fu/result" onFinish={handleFinish}>
       {/* Context */}
       <div className="mt-6 flex justify-center gap-6 text-sm">
         <div className="text-center">
@@ -90,6 +90,6 @@ export function JantouFuDrill() {
           );
         })}
       </div>
-    </DrillShell>
+    </ChallengeShell>
   );
 }

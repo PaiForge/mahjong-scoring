@@ -13,7 +13,7 @@
 import type { Metadata } from "next";
 import { getTranslations } from "next-intl/server";
 import { createMetadata } from "@/app/_lib/metadata";
-import { DrillIntroContent } from "../_components/drill-intro-content";
+import { PracticeIntroContent } from "../_components/practice-intro-content";
 
 export async function generateMetadata(): Promise<Metadata> {
   const t = await getTranslations("hanCountDrill");
@@ -21,5 +21,5 @@ export async function generateMetadata(): Promise<Metadata> {
 }
 
 export default function HanCountPage() {
-  return <DrillIntroContent namespace="hanCountDrill" slug="han-count" showLearnLink={false} />;
+  return <PracticeIntroContent namespace="hanCountDrill" slug="han-count" showLearnLink={false} />;
 }

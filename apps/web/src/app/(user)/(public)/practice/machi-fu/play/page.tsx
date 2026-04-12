@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import { getTranslations } from "next-intl/server";
 import { createMetadata } from "@/app/_lib/metadata";
-import { MachiFuDrill } from "../_components/machi-fu-drill";
+import { MachiFuPlayView } from "../_components/machi-fu-play-view";
 
 export async function generateMetadata(): Promise<Metadata> {
   const t = await getTranslations("machiFu");
@@ -22,5 +22,5 @@ export async function generateMetadata(): Promise<Metadata> {
  * 4. スコアを保存し、result ページへリダイレクト
  */
 export default function MachiFuPlayPage() {
-  return <MachiFuDrill />;
+  return <MachiFuPlayView />;
 }

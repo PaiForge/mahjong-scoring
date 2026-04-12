@@ -11,7 +11,7 @@ import { useAutoScale } from "../_hooks/use-auto-scale";
  * ドリル共通の手牌表示に必要なコンテキスト情報
  * ドリルコンテキスト
  */
-export interface DrillContext {
+export interface TehaiContext {
   readonly bakaze: Kazehai;
   readonly jikaze: Kazehai;
   readonly agariHai: HaiKindId;
@@ -20,9 +20,9 @@ export interface DrillContext {
   readonly doraMarkers?: readonly HaiKindId[];
 }
 
-interface DrillTehaiDisplayProps {
+interface TehaiDisplayProps {
   readonly tehai: Tehai14;
-  readonly context: DrillContext;
+  readonly context: TehaiContext;
   readonly translationNamespace: string;
   readonly onScaleChange?: (scale: number) => void;
 }
@@ -31,12 +31,12 @@ interface DrillTehaiDisplayProps {
  * ドリル共通の手牌表示コンポーネント
  * 手牌表示
  */
-export const DrillTehaiDisplay = memo(function DrillTehaiDisplay({
+export const TehaiDisplay = memo(function TehaiDisplay({
   tehai,
   context,
   translationNamespace,
   onScaleChange,
-}: DrillTehaiDisplayProps) {
+}: TehaiDisplayProps) {
   const t = useTranslations(translationNamespace);
   const { wrapperRef, contentRef, scale } = useAutoScale([tehai]);
 

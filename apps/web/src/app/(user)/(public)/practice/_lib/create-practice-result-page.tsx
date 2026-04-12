@@ -12,10 +12,10 @@ import { ExpGainDisplay } from '../_components/exp-gain-display';
 const PREVIEW_COUNT = 3;
 
 /**
- * 結果ページ Client Component の props 型
- * 練習結果クライアントプロパティ
+ * 結果ページ View Component の props 型
+ * 練習結果ビュープロパティ
  */
-export interface PracticeResultClientProps {
+export interface PracticeResultViewProps {
   /** リトライ用のプレイページURL */
   readonly playHref: string;
   /** リーダーボードプレビュー上位行 */
@@ -47,7 +47,7 @@ interface PracticeResultPageProps {
  * 付与されている場合は EXP 付与情報を引き直して `ExpGainDisplay` を描画する。
  */
 export function createPracticeResultPage(
-  ResultClient: ComponentType<PracticeResultClientProps>,
+  ResultView: ComponentType<PracticeResultViewProps>,
   config: ResultPageConfig,
 ) {
   return async function PracticeResultPage({ searchParams }: PracticeResultPageProps) {
@@ -66,13 +66,13 @@ export function createPracticeResultPage(
 
     return (
       <Suspense>
-        <ResultClient
+        <ResultView
           playHref={config.playHref}
           leaderboardRows={leaderboardRows}
           leaderboardDetailPath={leaderboardDetailPath}
         >
           {expInfo ? <ExpGainDisplay expInfo={expInfo} /> : undefined}
-        </ResultClient>
+        </ResultView>
       </Suspense>
     );
   };

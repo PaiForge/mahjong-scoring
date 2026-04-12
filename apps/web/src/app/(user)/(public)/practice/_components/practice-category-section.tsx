@@ -1,6 +1,6 @@
 import { SectionTitle } from "@/app/_components/section-title";
 
-interface DrillCategorySectionProps {
+interface PracticeCategorySectionProps {
   title: string;
   children: React.ReactNode;
 }
@@ -11,10 +11,10 @@ interface DrillCategorySectionProps {
  * カテゴリタイトルを表示し、
  * 子要素としてドリルカードを2カラムグリッドで並べる。
  */
-export function DrillCategorySection({
+export function PracticeCategorySection({
   title,
   children,
-}: DrillCategorySectionProps) {
+}: PracticeCategorySectionProps) {
   return (
     <section>
       <SectionTitle>{title}</SectionTitle>

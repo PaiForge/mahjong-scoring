@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import { getTranslations } from "next-intl/server";
 import { createMetadata } from "@/app/_lib/metadata";
-import { JantouFuDrill } from "../_components/jantou-fu-drill";
+import { JantouFuPlayView } from "../_components/jantou-fu-play-view";
 
 export async function generateMetadata(): Promise<Metadata> {
   const t = await getTranslations("jantouFu");
@@ -23,5 +23,5 @@ export async function generateMetadata(): Promise<Metadata> {
  * 4. スコアを保存し、result ページへリダイレクト
  */
 export default function JantouFuPlayPage() {
-  return <JantouFuDrill />;
+  return <JantouFuPlayView />;
 }

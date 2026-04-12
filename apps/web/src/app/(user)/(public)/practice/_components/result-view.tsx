@@ -5,14 +5,14 @@ import { useTranslations } from "next-intl";
 import Link from "next/link";
 import { ContentContainer } from "@/app/_components/content-container";
 import { PageTitle } from "@/app/_components/page-title";
-import type { PracticeResultClientProps } from "../_lib/create-practice-result-page";
+import type { PracticeResultViewProps } from "../_lib/create-practice-result-page";
 import { LeaderboardPreview } from "./leaderboard-preview";
 
 /**
  * ドリル結果画面の共通クライアントコンポーネント
  * ドリル結果表示
  */
-export function ResultClient({ playHref, leaderboardRows, leaderboardDetailPath, children }: PracticeResultClientProps) {
+export function ResultView({ playHref, leaderboardRows, leaderboardDetailPath, children }: PracticeResultViewProps) {
   const searchParams = useSearchParams();
   const tc = useTranslations("challenge");
 

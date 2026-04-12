@@ -10,8 +10,8 @@ import {
 import type { YakuQuestion } from "@mahjong-scoring/core";
 import { useTimedSession } from "../../_hooks/use-timed-session";
 import { useSaveOnFinish } from "../../_hooks/use-save-on-finish";
-import { DrillShell } from "../../_components/drill-shell";
-import { DrillTehaiDisplay } from "../../_components/drill-tehai-display";
+import { ChallengeShell } from "../../_components/challenge-shell";
+import { TehaiDisplay } from "../../_components/tehai-display";
 import { retryGenerate } from "../../_lib/retry-generate";
 import { YakuChip, getChipFeedbackState } from "./yaku-chip";
 import { HAN_GROUPS } from "../_lib/han-groups";
@@ -20,7 +20,7 @@ function generateQuestion(): YakuQuestion | undefined {
   return retryGenerate(generateYakuQuestion);
 }
 
-export function YakuDrill() {
+export function YakuPlayView() {
   const t = useTranslations("yaku");
   const [question, setQuestion] = useState<YakuQuestion | undefined>(generateQuestion);
   const [selectedYaku, setSelectedYaku] = useState<Set<string>>(new Set());
@@ -65,14 +65,14 @@ export function YakuDrill() {
   const hasSelection = selectedYaku.size > 0;
 
   return (
-    <DrillShell
+    <ChallengeShell
       gameSession={gameSession}
       timerControl={timerControl}
       resultPath="/practice/yaku/result"
       maxWidth="max-w-2xl"
       onFinish={handleFinish}
     >
-      <DrillTehaiDisplay
+      <TehaiDisplay
         tehai={question.tehai}
         context={question.context}
         translationNamespace="yaku"
@@ -131,6 +131,6 @@ export function YakuDrill() {
           {t("checkButton")}
         </button>
       </div>
-    </DrillShell>
+    </ChallengeShell>
   );
 }

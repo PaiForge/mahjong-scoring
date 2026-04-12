@@ -38,10 +38,10 @@ const LifeIndicator = memo(function LifeIndicator({
   );
 });
 
-interface DrillShellProps {
+interface ChallengeShellProps {
   /** ゲームロジック状態（タイマー値を含まない） */
   readonly gameSession: GameSessionState;
-  /** DrillShell 内でタイマーを制御するためのインターフェース */
+  /** ChallengeShell 内でタイマーを制御するためのインターフェース */
   readonly timerControl: TimerControl;
   /** リザルトページへのパス（例: "/practice/jantou-fu/result"） */
   readonly resultPath: string;
@@ -59,18 +59,18 @@ interface DrillShellProps {
  * ドリル共通シェル（カウントダウン・ステータスバー・ContentContainer）
  * ドリル共通外殻
  *
- * タイマー状態（elapsedMs, remainingSeconds）は DrillShell 内の useGameTimer で管理される。
- * これにより 100ms ごとのタイマー更新は DrillShell のみが再レンダリングし、
+ * タイマー状態（elapsedMs, remainingSeconds）は ChallengeShell 内の useGameTimer で管理される。
+ * これにより 100ms ごとのタイマー更新は ChallengeShell のみが再レンダリングし、
  * children（ドリル本体の牌画像・選択肢ボタン等）には伝播しない。
  */
-export function DrillShell({
+export function ChallengeShell({
   gameSession,
   timerControl,
   resultPath,
   children,
   maxWidth = "max-w-md",
   onFinish,
-}: DrillShellProps) {
+}: ChallengeShellProps) {
   const tc = useTranslations("challenge");
 
   const wasPausedBeforeQuitRef = useRef(false);

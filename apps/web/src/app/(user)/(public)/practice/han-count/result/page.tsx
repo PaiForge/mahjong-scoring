@@ -17,7 +17,7 @@ import type { Metadata } from "next";
 import { getTranslations } from "next-intl/server";
 import { createMetadata } from "@/app/_lib/metadata";
 import { createPracticeResultPage } from "../../_lib/create-practice-result-page";
-import { HanCountResultClient } from "../_components/han-count-result-client";
+import { HanCountResultView } from "../_components/han-count-result-view";
 
 export async function generateMetadata(): Promise<Metadata> {
   const t = await getTranslations("hanCountDrill");
@@ -27,7 +27,7 @@ export async function generateMetadata(): Promise<Metadata> {
 
 export const dynamic = 'force-dynamic';
 
-export default createPracticeResultPage(HanCountResultClient, {
+export default createPracticeResultPage(HanCountResultView, {
   module: 'han_count',
   playHref: '/practice/han-count/play',
 });

@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import { getTranslations } from "next-intl/server";
 import { createMetadata } from "@/app/_lib/metadata";
-import { TehaiFuDrill } from "../_components/tehai-fu-drill";
+import { TehaiFuPlayView } from "../_components/tehai-fu-play-view";
 
 export async function generateMetadata(): Promise<Metadata> {
   const t = await getTranslations("tehaiFu");
@@ -22,5 +22,5 @@ export async function generateMetadata(): Promise<Metadata> {
  * 4. スコアを保存し、result ページへリダイレクト
  */
 export default function TehaiFuPlayPage() {
-  return <TehaiFuDrill />;
+  return <TehaiFuPlayView />;
 }

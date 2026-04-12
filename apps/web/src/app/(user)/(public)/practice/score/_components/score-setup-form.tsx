@@ -4,7 +4,7 @@ import { useState, useCallback } from "react";
 import { useRouter } from "next/navigation";
 import { useTranslations } from "next-intl";
 import { useScoreSettingsStore } from "../_lib/use-score-settings-store";
-import { useScoreDrillStore } from "../_lib/use-score-drill-store";
+import { useScorePracticeStore } from "../_lib/use-score-practice-store";
 import { InfoModal } from "@/app/_components/info-modal";
 import { useIsClient } from "../../_hooks/use-is-client";
 import { SettingToggle } from "./setting-toggle";
@@ -14,7 +14,7 @@ import { SmallCheckbox } from "./small-checkbox";
  * 点数計算練習の設定画面
  * 練習設定画面
  */
-export function SetupScreen() {
+export function ScoreSetupForm() {
   const t = useTranslations("score");
   const tCommon = useTranslations("common");
   const router = useRouter();
@@ -58,7 +58,7 @@ export function SetupScreen() {
     if (includeParent) params.append("roles", "oya");
     if (includeChild) params.append("roles", "ko");
 
-    useScoreDrillStore.getState().setQuestion(undefined);
+    useScorePracticeStore.getState().setQuestion(undefined);
 
     const queryString = params.toString();
     router.push(

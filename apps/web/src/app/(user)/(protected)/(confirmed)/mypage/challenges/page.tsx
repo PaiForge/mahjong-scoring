@@ -13,7 +13,7 @@ import { ContentContainer } from "@/app/_components/content-container";
 import { PageTitle } from "@/app/_components/page-title";
 import { createMetadata } from "@/app/_lib/metadata";
 
-import { MypageContent } from "./_components/mypage-content";
+import { ChallengeStatsContent } from "./_components/challenge-stats-content";
 
 export async function generateMetadata(): Promise<Metadata> {
   const t = await getTranslations("mypageChallenges");
@@ -30,7 +30,7 @@ export default async function ChallengesPage() {
     <ContentContainer>
       <PageTitle>{t("pageTitle")}</PageTitle>
       <div className="mt-6">
-        <MypageContent />
+        <ChallengeStatsContent />
       </div>
     </ContentContainer>
   );

@@ -2,7 +2,7 @@ import { useTranslations } from "next-intl";
 import { ContentContainer } from "@/app/_components/content-container";
 import { PageTitle } from "@/app/_components/page-title";
 
-export function Dashboard() {
+export function HomeDashboard() {
   const t = useTranslations("dashboard");
 
   return (

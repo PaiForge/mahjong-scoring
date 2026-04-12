@@ -2,7 +2,7 @@ import Link from "next/link";
 import { BookIcon } from "@/app/_components/icons/book-icon";
 import { ChevronRightIcon } from "@/app/_components/icons/chevron-right-icon";
 
-interface DrillCardProps {
+interface PracticeCardProps {
   href: string;
   title: string;
   description: string;
@@ -19,7 +19,7 @@ const difficultyColor = {
   advanced: "bg-red-100 text-red-700",
 } as const;
 
-export function DrillCard({
+export function PracticeCard({
   href,
   title,
   description,
@@ -28,7 +28,7 @@ export function DrillCard({
   startLabel,
   learnHref,
   learnLabel,
-}: DrillCardProps) {
+}: PracticeCardProps) {
   return (
     <div className="flex flex-col justify-between rounded-xl border border-surface-200 bg-white p-5 shadow-sm">
       <div>

@@ -2,19 +2,19 @@
 
 import { useAuth } from "@/app/_contexts/auth-context";
 
-import { Dashboard } from "./dashboard";
+import { ChallengeDashboard } from "./challenge-dashboard";
 import { DashboardSkeleton } from "./dashboard-skeleton";
 
 /**
  * 認証ローディング状態をハンドリングしてダッシュボードを表示するラッパー
  * マイページコンテンツ
  */
-export function MypageContent() {
+export function ChallengeStatsContent() {
   const { isLoading } = useAuth();
 
   if (isLoading) {
     return <DashboardSkeleton />;
   }
 
-  return <Dashboard />;
+  return <ChallengeDashboard />;
 }

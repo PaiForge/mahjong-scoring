@@ -50,7 +50,7 @@ export const useScoreSettingsStore = create<SettingsState>()(
       setIncludeChild: (includeChild) => set({ includeChild }),
     }),
     {
-      name: "mahjong-drill-settings",
+      name: "mahjong-practice-settings",
     },
   ),
 );

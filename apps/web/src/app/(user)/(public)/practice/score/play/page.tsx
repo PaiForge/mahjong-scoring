@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import { getTranslations } from "next-intl/server";
 import { createMetadata } from "@/app/_lib/metadata";
-import { DrillBoard } from "../_components/drill-board";
+import { ScorePracticeBoard } from "../_components/score-practice-board";
 
 export async function generateMetadata(): Promise<Metadata> {
   const t = await getTranslations("score");
@@ -23,5 +23,5 @@ export async function generateMetadata(): Promise<Metadata> {
  * 4. 任意のタイミングで設定画面に戻るか終了できる
  */
 export default function ScorePlayPage() {
-  return <DrillBoard />;
+  return <ScorePracticeBoard />;
 }

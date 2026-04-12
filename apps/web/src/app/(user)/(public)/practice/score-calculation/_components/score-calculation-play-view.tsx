@@ -8,7 +8,7 @@ import { useTimedSession } from "../../_hooks/use-timed-session";
 import { useSaveOnFinish } from "../../_hooks/use-save-on-finish";
 import { useSessionStorageSave } from "../../_hooks/use-session-storage-save";
 import { getFeedbackBorderClass } from "../../_lib/feedback-styles";
-import { DrillShell } from "../../_components/drill-shell";
+import { ChallengeShell } from "../../_components/challenge-shell";
 import { QuestionDisplay } from "../../score/_components/question-display";
 import { ScoreCalculationAnswerForm } from "./score-calculation-answer-form";
 import type { ScoreCalculationQuestionResult } from "../_lib/types";
@@ -18,7 +18,7 @@ import { RESULT_STORAGE_KEY, paymentToScoreTableAnswer } from "../_lib/types";
  * 点数計算ドリル本体
  * 点数計算ドリル
  */
-export function ScoreCalculationDrill() {
+export function ScoreCalculationPlayView() {
   const t = useTranslations("scoreCalculationDrill");
   const [question, setQuestion] = useState<ScoreQuestion | undefined>(() =>
     generateValidScoreQuestion() ?? undefined,
@@ -74,7 +74,7 @@ export function ScoreCalculationDrill() {
   }
 
   return (
-    <DrillShell
+    <ChallengeShell
       gameSession={gameSession}
       timerControl={timerControl}
       resultPath="/practice/score-calculation/result"
@@ -95,6 +95,6 @@ export function ScoreCalculationDrill() {
           disabled={showFeedback || isCountingDown}
         />
       </div>
-    </DrillShell>
+    </ChallengeShell>
   );
 }

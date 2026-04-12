@@ -40,7 +40,7 @@ const selectClassName =
  * フィルター、KPIカード、チャート、履歴テーブルを表示する。
  * ダッシュボード
  */
-export function Dashboard() {
+export function ChallengeDashboard() {
   const t = useTranslations("mypageChallenges");
   const {
     selectedMenu,

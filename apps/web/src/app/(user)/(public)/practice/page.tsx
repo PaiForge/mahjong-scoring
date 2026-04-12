@@ -11,8 +11,8 @@ import { ChevronRightIcon } from "@/app/_components/icons/chevron-right-icon";
 import { ContentContainer } from "@/app/_components/content-container";
 import { PageTitle } from "@/app/_components/page-title";
 import { createMetadata } from "@/app/_lib/metadata";
-import { DrillCard } from "./_components/drill-card";
-import { DrillCategorySection } from "./_components/drill-category-section";
+import { PracticeCard } from "./_components/practice-card";
+import { PracticeCategorySection } from "./_components/practice-category-section";
 
 export async function generateMetadata(): Promise<Metadata> {
   const t = await getTranslations("practice");
@@ -21,7 +21,7 @@ export async function generateMetadata(): Promise<Metadata> {
 
 type Difficulty = "beginner" | "intermediate" | "advanced";
 
-interface DrillDef {
+interface PracticeDef {
   href: string;
   titleKey: string;
   descriptionKey: string;
@@ -29,38 +29,38 @@ interface DrillDef {
   learnHref?: string;
 }
 
-const fuDrills: readonly DrillDef[] = [
+const fuPractices: readonly PracticeDef[] = [
   { href: "/practice/jantou-fu/play", titleKey: "drills.jantouFu.title", descriptionKey: "drills.jantouFu.description", difficulty: "beginner", learnHref: "/learn/jantou-fu" },
   { href: "/practice/machi-fu/play", titleKey: "drills.machiFu.title", descriptionKey: "drills.machiFu.description", difficulty: "beginner", learnHref: "/learn/machi-fu" },
   { href: "/practice/mentsu-fu/play", titleKey: "drills.mentsuFu.title", descriptionKey: "drills.mentsuFu.description", difficulty: "intermediate", learnHref: "/learn/mentsu-fu" },
   { href: "/practice/tehai-fu/play", titleKey: "drills.tehaiFu.title", descriptionKey: "drills.tehaiFu.description", difficulty: "advanced", learnHref: "/learn/tehai-fu" },
 ];
 
-const hanDrills: readonly DrillDef[] = [
+const hanPractices: readonly PracticeDef[] = [
   { href: "/practice/yaku/play", titleKey: "drills.yaku.title", descriptionKey: "drills.yaku.description", difficulty: "intermediate", learnHref: "/learn/yaku" },
   { href: "/practice/han-count/play", titleKey: "drills.hanCount.title", descriptionKey: "drills.hanCount.description", difficulty: "advanced" },
 ];
 
-const scoringDrills: readonly DrillDef[] = [
+const scoringPractices: readonly PracticeDef[] = [
   { href: "/practice/score-table/play", titleKey: "drills.scoreTable.title", descriptionKey: "drills.scoreTable.description", difficulty: "intermediate" },
   { href: "/practice/score-calculation/play", titleKey: "drills.scoreCalculation.title", descriptionKey: "drills.scoreCalculation.description", difficulty: "advanced" },
 ];
 
-function renderDrillCards(
-  drills: readonly DrillDef[],
+function renderPracticeCards(
+  practices: readonly PracticeDef[],
   t: Awaited<ReturnType<typeof getTranslations<"practice">>>,
 ) {
-  return drills.map((drill) => (
-    <DrillCard
-      key={drill.href}
-      href={drill.href}
-      title={t(drill.titleKey)}
-      description={t(drill.descriptionKey)}
-      difficulty={drill.difficulty}
-      difficultyLabel={t(`difficulty.${drill.difficulty}`)}
+  return practices.map((practice) => (
+    <PracticeCard
+      key={practice.href}
+      href={practice.href}
+      title={t(practice.titleKey)}
+      description={t(practice.descriptionKey)}
+      difficulty={practice.difficulty}
+      difficultyLabel={t(`difficulty.${practice.difficulty}`)}
       startLabel={t("start")}
-      learnHref={drill.learnHref}
-      learnLabel={drill.learnHref ? t("learn") : undefined}
+      learnHref={practice.learnHref}
+      learnLabel={practice.learnHref ? t("learn") : undefined}
     />
   ));
 }
@@ -86,17 +86,17 @@ export default async function PracticePage() {
       </Link>
 
       <div className="mt-8 space-y-10">
-        <DrillCategorySection title={t("categories.fuCalculation.title")}>
-          {renderDrillCards(fuDrills, t)}
-        </DrillCategorySection>
+        <PracticeCategorySection title={t("categories.fuCalculation.title")}>
+          {renderPracticeCards(fuPractices, t)}
+        </PracticeCategorySection>
 
-        <DrillCategorySection title={t("categories.han.title")}>
-          {renderDrillCards(hanDrills, t)}
-        </DrillCategorySection>
+        <PracticeCategorySection title={t("categories.han.title")}>
+          {renderPracticeCards(hanPractices, t)}
+        </PracticeCategorySection>
 
-        <DrillCategorySection title={t("categories.scoring.title")}>
-          {renderDrillCards(scoringDrills, t)}
-        </DrillCategorySection>
+        <PracticeCategorySection title={t("categories.scoring.title")}>
+          {renderPracticeCards(scoringPractices, t)}
+        </PracticeCategorySection>
       </div>
     </ContentContainer>
   );

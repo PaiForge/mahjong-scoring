@@ -1,5 +1,5 @@
 /** sessionStorage に保存する際のキー */
-export const RESULT_STORAGE_KEY = "han-count-drill-results";
+export const RESULT_STORAGE_KEY = "han-count-results";
 
 /**
  * 翻数即答ドリルの1問ごとの結果データ

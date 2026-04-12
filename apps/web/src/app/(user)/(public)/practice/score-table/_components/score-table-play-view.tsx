@@ -11,7 +11,7 @@ import { useTimedSession } from "../../_hooks/use-timed-session";
 import { useSaveOnFinish } from "../../_hooks/use-save-on-finish";
 import { useSessionStorageSave } from "../../_hooks/use-session-storage-save";
 import { getFeedbackBorderClass } from "../../_lib/feedback-styles";
-import { DrillShell } from "../../_components/drill-shell";
+import { ChallengeShell } from "../../_components/challenge-shell";
 import { ScoreTableAnswerForm } from "./score-table-answer-form";
 import type { ScoreTableQuestionResult } from "../_lib/types";
 import { RESULT_STORAGE_KEY } from "../_lib/types";
@@ -20,7 +20,7 @@ import { RESULT_STORAGE_KEY } from "../_lib/types";
  * 点数表早引きドリル本体
  * 点数表ドリル
  */
-export function ScoreTableDrill() {
+export function ScoreTablePlayView() {
   const t = useTranslations("scoreTableDrill");
   const [question, setQuestion] = useState<ScoreTableQuestion>(
     generateScoreTableQuestion,
@@ -62,7 +62,7 @@ export function ScoreTableDrill() {
   const feedbackBorderClass = getFeedbackBorderClass(showFeedback, lastAnswerCorrect);
 
   return (
-    <DrillShell
+    <ChallengeShell
       gameSession={gameSession}
       timerControl={timerControl}
       resultPath="/practice/score-table/result"
@@ -109,6 +109,6 @@ export function ScoreTableDrill() {
           disabled={showFeedback || isCountingDown}
         />
       </div>
-    </DrillShell>
+    </ChallengeShell>
   );
 }

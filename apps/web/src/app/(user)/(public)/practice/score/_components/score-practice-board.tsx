@@ -7,16 +7,16 @@ import { HaiKind } from "@mahjong-scoring/core";
 import { toast } from "react-hot-toast";
 import { useTranslations } from "next-intl";
 import { ContentContainer } from "@/app/_components/content-container";
-import { useScoreDrillStore } from "../_lib/use-score-drill-store";
+import { useScorePracticeStore } from "../_lib/use-score-practice-store";
 import type { UserAnswer } from "@mahjong-scoring/core";
 import { useIsClient } from "../../_hooks/use-is-client";
 import { useQuitConfirm } from "../../_hooks/use-quit-confirm";
 import { QuitConfirmModal } from "../../_components/quit-confirm-modal";
 import { QuestionDisplay } from "./question-display";
-import { AnswerForm } from "./answer-form";
+import { ScorePracticeAnswerForm } from "./score-practice-answer-form";
 import { ResultDisplay } from "./result-display";
 
-function DrillBoardInner() {
+function ScorePracticeBoardInner() {
   const t = useTranslations("score");
   const tc = useTranslations("challenge");
   const router = useRouter();
@@ -32,7 +32,7 @@ function DrillBoardInner() {
     generateNewQuestion,
     submitAnswer,
     nextQuestion,
-  } = useScoreDrillStore();
+  } = useScorePracticeStore();
 
   const isClient = useIsClient();
   const initializedRef = useRef(false);
@@ -61,7 +61,7 @@ function DrillBoardInner() {
       includeChild = rolesValues.includes("ko");
     }
 
-    useScoreDrillStore.getState().setOptions({
+    useScorePracticeStore.getState().setOptions({
       allowedRanges,
       includeParent,
       includeChild,
@@ -93,7 +93,7 @@ function DrillBoardInner() {
     submitAnswer(answer, requireYaku, simplifyMangan, requireFuForMangan);
 
     if (autoNext) {
-      const state = useScoreDrillStore.getState();
+      const state = useScorePracticeStore.getState();
       if (state.judgementResult?.isCorrect) {
         toast.success(t("board.correct"), {
           duration: 1500,
@@ -157,7 +157,7 @@ function DrillBoardInner() {
             requireFuForMangan={requireFuForMangan}
           />
         ) : (
-          <AnswerForm
+          <ScorePracticeAnswerForm
             key={stats.total}
             onSubmit={handleSubmit}
             disabled={isAnswered}
@@ -196,7 +196,7 @@ function DrillBoardInner() {
  * 点数計算ドリルのメインボード
  * ドリルボード
  */
-export function DrillBoard() {
+export function ScorePracticeBoard() {
   return (
     <Suspense
       fallback={
@@ -207,7 +207,7 @@ export function DrillBoard() {
         </ContentContainer>
       }
     >
-      <DrillBoardInner />
+      <ScorePracticeBoardInner />
     </Suspense>
   );
 }

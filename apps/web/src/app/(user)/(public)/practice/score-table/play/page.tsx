@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import { getTranslations } from "next-intl/server";
 import { createMetadata } from "@/app/_lib/metadata";
-import { ScoreTableDrill } from "../_components/score-table-drill";
+import { ScoreTablePlayView } from "../_components/score-table-play-view";
 
 export async function generateMetadata(): Promise<Metadata> {
   const t = await getTranslations("scoreTableDrill");
@@ -24,5 +24,5 @@ export async function generateMetadata(): Promise<Metadata> {
  * 5. スコアを保存し、result ページへリダイレクト
  */
 export default function ScoreTablePlayPage() {
-  return <ScoreTableDrill />;
+  return <ScoreTablePlayView />;
 }

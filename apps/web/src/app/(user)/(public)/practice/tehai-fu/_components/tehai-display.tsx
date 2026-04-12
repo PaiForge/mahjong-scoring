@@ -2,7 +2,7 @@
 
 import { memo } from "react";
 import type { TehaiFuQuestion } from "@mahjong-scoring/core";
-import { DrillTehaiDisplay } from "../../_components/drill-tehai-display";
+import { TehaiDisplay as BaseTehaiDisplay } from "../../_components/tehai-display";
 
 interface TehaiDisplayProps {
   readonly question: TehaiFuQuestion;
@@ -15,7 +15,7 @@ interface TehaiDisplayProps {
  */
 export const TehaiDisplay = memo(function TehaiDisplay({ question, onScaleChange }: TehaiDisplayProps) {
   return (
-    <DrillTehaiDisplay
+    <BaseTehaiDisplay
       tehai={question.tehai}
       context={question.context}
       translationNamespace="tehaiFu"

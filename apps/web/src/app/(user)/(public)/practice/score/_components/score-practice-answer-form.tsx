@@ -7,7 +7,7 @@ import { YakuSelect } from "./yaku-select";
 import { getAvailableScores } from "../_lib/get-available-scores";
 import { getSelectClass } from "../../_lib/select-class";
 
-interface AnswerFormProps {
+interface ScorePracticeAnswerFormProps {
   readonly onSubmit: (answer: UserAnswer) => void;
   readonly disabled?: boolean;
   readonly isTsumo: boolean;
@@ -23,7 +23,7 @@ interface AnswerFormProps {
  * 回答フォームコンポーネント
  * 回答フォーム
  */
-export function AnswerForm({
+export function ScorePracticeAnswerForm({
   onSubmit,
   disabled = false,
   isTsumo,
@@ -33,7 +33,7 @@ export function AnswerForm({
   requireFuForMangan = false,
   onSkip,
   onExit,
-}: AnswerFormProps) {
+}: ScorePracticeAnswerFormProps) {
   const t = useTranslations("score");
   const [han, setHan] = useState<number | undefined>(undefined);
   const [fu, setFu] = useState<number | undefined>(undefined);

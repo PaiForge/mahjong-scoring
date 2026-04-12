@@ -47,13 +47,13 @@ export interface GameSessionState {
   readonly finalResult: FinalResult | undefined;
 }
 
-/** DrillShell がタイマーを制御するためのインターフェース */
+/** ChallengeShell がタイマーを制御するためのインターフェース */
 export interface TimerControl {
   /** タイマーを動かすべきか */
   readonly isActive: boolean;
   /** 制限時間到達時のコールバック */
   readonly onTimeLimitReached: () => void;
-  /** タイマーをリセットする関数（reset に組み込むため DrillShell に渡す） */
+  /** タイマーをリセットする関数（reset に組み込むため ChallengeShell に渡す） */
   readonly registerTimerReset: (resetFn: () => void) => void;
   /** セッション全体をリセット */
   readonly reset: () => void;
@@ -63,7 +63,7 @@ export interface TimerControl {
  * ドリルのゲームセッション管理
  *
  * タイマー値（elapsedMs, remainingSeconds）を含まないため、100ms ごとの再レンダリングが発生しない。
- * タイマー表示は DrillShell 内で useGameTimer を呼び出し、DrillShell のみが再レンダリングされる。
+ * タイマー表示は ChallengeShell 内で useGameTimer を呼び出し、ChallengeShell のみが再レンダリングされる。
  */
 export function useTimedSession({
   timeLimit = CHALLENGE_TIME_LIMIT,

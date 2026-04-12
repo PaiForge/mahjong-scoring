@@ -4,7 +4,7 @@ import { ContentContainer } from "@/app/_components/content-container";
 import { PageTitle } from "@/app/_components/page-title";
 import { BookIcon } from "@/app/_components/icons/book-icon";
 
-interface DrillIntroContentProps {
+interface PracticeIntroContentProps {
   /** i18n ネームスペース（例: "jantouFu"） */
   readonly namespace: string;
   /** ドリルスラッグ（例: "jantou-fu"） */
@@ -17,11 +17,11 @@ interface DrillIntroContentProps {
  * ドリル説明ページの共通コンテンツ
  * ドリル説明共通
  */
-export async function DrillIntroContent({
+export async function PracticeIntroContent({
   namespace,
   slug,
   showLearnLink = true,
-}: DrillIntroContentProps) {
+}: PracticeIntroContentProps) {
   const t = await getTranslations(namespace);
   const tc = await getTranslations("challenge");
 

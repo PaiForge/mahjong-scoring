@@ -6,7 +6,7 @@ import { generateTehaiFuQuestion } from "@mahjong-scoring/core";
 import type { TehaiFuQuestion } from "@mahjong-scoring/core";
 import { useTimedSession } from "../../_hooks/use-timed-session";
 import { useSaveOnFinish } from "../../_hooks/use-save-on-finish";
-import { DrillShell } from "../../_components/drill-shell";
+import { ChallengeShell } from "../../_components/challenge-shell";
 import { retryGenerate } from "../../_lib/retry-generate";
 import { TehaiDisplay } from "./tehai-display";
 import { FuItemRow } from "./fu-item-row";
@@ -15,7 +15,7 @@ function generateQuestion(): TehaiFuQuestion | undefined {
   return retryGenerate(generateTehaiFuQuestion);
 }
 
-export function TehaiFuDrill() {
+export function TehaiFuPlayView() {
   const t = useTranslations("tehaiFu");
   const [question, setQuestion] = useState<TehaiFuQuestion | undefined>(generateQuestion);
   const [answers, setAnswers] = useState<string[]>(() =>
@@ -59,7 +59,7 @@ export function TehaiFuDrill() {
   const allAnswered = answers.length > 0 && answers.every((a) => a !== "");
 
   return (
-    <DrillShell gameSession={gameSession} timerControl={timerControl} resultPath="/practice/tehai-fu/result" maxWidth="max-w-lg" onFinish={handleFinish}>
+    <ChallengeShell gameSession={gameSession} timerControl={timerControl} resultPath="/practice/tehai-fu/result" maxWidth="max-w-lg" onFinish={handleFinish}>
       <TehaiDisplay question={question} onScaleChange={setTileScale} />
 
       {/* Item list */}
@@ -93,6 +93,6 @@ export function TehaiFuDrill() {
           {t("checkButton")}
         </button>
       </div>
-    </DrillShell>
+    </ChallengeShell>
   );
 }

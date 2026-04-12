@@ -7,8 +7,8 @@ import type { ScoreQuestion } from "@mahjong-scoring/core";
 import { useTimedSession } from "../../_hooks/use-timed-session";
 import { useSaveOnFinish } from "../../_hooks/use-save-on-finish";
 import { useSessionStorageSave } from "../../_hooks/use-session-storage-save";
-import { DrillShell } from "../../_components/drill-shell";
-import { DrillTehaiDisplay } from "../../_components/drill-tehai-display";
+import { ChallengeShell } from "../../_components/challenge-shell";
+import { TehaiDisplay } from "../../_components/tehai-display";
 import { HanCountAnswerForm } from "./han-count-answer-form";
 import type { HanCountQuestionResult } from "../_lib/types";
 import { RESULT_STORAGE_KEY } from "../_lib/types";
@@ -17,7 +17,7 @@ import { RESULT_STORAGE_KEY } from "../_lib/types";
  * 翻数即答ドリル本体
  * 翻数即答ドリル
  */
-export function HanCountDrill() {
+export function HanCountPlayView() {
   const t = useTranslations("hanCountDrill");
   const [question, setQuestion] = useState<ScoreQuestion | undefined>(() =>
     generateValidScoreQuestion() ?? undefined,
@@ -65,14 +65,14 @@ export function HanCountDrill() {
   }
 
   return (
-    <DrillShell
+    <ChallengeShell
       gameSession={gameSession}
       timerControl={timerControl}
       resultPath="/practice/han-count/result"
       onFinish={handleFinish}
       maxWidth="max-w-2xl"
     >
-      <DrillTehaiDisplay
+      <TehaiDisplay
         tehai={question.tehai}
         context={{
           bakaze: question.bakaze,
@@ -95,6 +95,6 @@ export function HanCountDrill() {
           disabled={showFeedback || isCountingDown}
         />
       </div>
-    </DrillShell>
+    </ChallengeShell>
   );
 }

@@ -17,7 +17,7 @@ import type { Metadata } from "next";
 import { getTranslations } from "next-intl/server";
 import { createMetadata } from "@/app/_lib/metadata";
 import { createPracticeResultPage } from "../../_lib/create-practice-result-page";
-import { ScoreTableResultClient } from "../_components/score-table-result-client";
+import { ScoreTableResultView } from "../_components/score-table-result-view";
 
 export async function generateMetadata(): Promise<Metadata> {
   const t = await getTranslations("scoreTableDrill");
@@ -27,7 +27,7 @@ export async function generateMetadata(): Promise<Metadata> {
 
 export const dynamic = 'force-dynamic';
 
-export default createPracticeResultPage(ScoreTableResultClient, {
+export default createPracticeResultPage(ScoreTableResultView, {
   module: 'score_table',
   playHref: '/practice/score-table/play',
 });

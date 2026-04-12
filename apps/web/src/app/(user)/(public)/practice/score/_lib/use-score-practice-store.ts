@@ -7,7 +7,7 @@ import type {
 } from "@mahjong-scoring/core";
 import { generateValidScoreQuestion, judgeAnswer } from "@mahjong-scoring/core";
 
-interface DrillState {
+interface ScorePracticeState {
   /** 現在の問題 */
   currentQuestion: ScoreQuestion | undefined;
   /** ユーザーの回答 */
@@ -25,7 +25,7 @@ interface DrillState {
   };
 }
 
-interface DrillActions {
+interface ScorePracticeActions {
   /** 新しい問題を生成 */
   generateNewQuestion: () => void;
   /** 回答を送信 */
@@ -45,13 +45,13 @@ interface DrillActions {
   setQuestion: (question: ScoreQuestion | undefined) => void;
 }
 
-type DrillStore = DrillState & DrillActions;
+type ScorePracticeStore = ScorePracticeState & ScorePracticeActions;
 
 /**
- * 点数計算ドリルのストア
- * 点数ドリルストア
+ * 点数計算練習のストア
+ * 点数練習ストア
  */
-export const useScoreDrillStore = create<DrillStore>((set, get) => ({
+export const useScorePracticeStore = create<ScorePracticeStore>((set, get) => ({
   currentQuestion: undefined,
   userAnswer: undefined,
   judgementResult: undefined,

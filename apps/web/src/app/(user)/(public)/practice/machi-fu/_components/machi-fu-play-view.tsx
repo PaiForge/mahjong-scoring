@@ -2,20 +2,21 @@
 
 import { useCallback, useState } from "react";
 import { useTranslations } from "next-intl";
-import { generateMentsuFuQuestion } from "@mahjong-scoring/core";
-import type { MentsuFuQuestion } from "@mahjong-scoring/core";
-import { Furo } from "@pai-forge/mahjong-react-ui";
+import { generateMachiFuQuestion } from "@mahjong-scoring/core";
+import type { MachiFuQuestion } from "@mahjong-scoring/core";
+import { Hai } from "@pai-forge/mahjong-react-ui";
 import { useTimedSession } from "../../_hooks/use-timed-session";
 import { useSaveOnFinish } from "../../_hooks/use-save-on-finish";
 import { ChoiceButton } from "../../_components/choice-button";
-import { DrillShell } from "../../_components/drill-shell";
+import { ChallengeShell } from "../../_components/challenge-shell";
 import { getFeedbackStyles } from "../../_lib/feedback-styles";
-import { FU_OPTIONS } from "../../_lib/fu-options";
 
-export function MentsuFuDrill() {
-  const t = useTranslations("mentsuFu");
-  const [question, setQuestion] = useState<MentsuFuQuestion>(
-    generateMentsuFuQuestion
+const FU_OPTIONS = [0, 2] as const;
+
+export function MachiFuPlayView() {
+  const t = useTranslations("machiFu");
+  const [question, setQuestion] = useState<MachiFuQuestion>(
+    generateMachiFuQuestion
   );
   const [selectedFu, setSelectedFu] = useState<number | undefined>(undefined);
 
@@ -23,11 +24,11 @@ export function MentsuFuDrill() {
   const { showFeedback, isCountingDown, handleAnswer } = gameSession;
 
   const advanceQuestion = useCallback(() => {
-    setQuestion(generateMentsuFuQuestion());
+    setQuestion(generateMachiFuQuestion());
     setSelectedFu(undefined);
   }, []);
 
-  const handleFinish = useSaveOnFinish("mentsu_fu");
+  const handleFinish = useSaveOnFinish("machi_fu");
 
   const handleFuSelect = useCallback(
     (index: number) => {
@@ -39,24 +40,30 @@ export function MentsuFuDrill() {
     [showFeedback, handleAnswer, question.answer, advanceQuestion]
   );
 
-  const renderMentsu = () => {
-    const { mentsu } = question;
-    return (
-      <div className="scale-150 origin-center">
-        <Furo mentsu={mentsu} furo={mentsu.furo} />
-      </div>
-    );
-  };
-
   return (
-    <DrillShell gameSession={gameSession} timerControl={timerControl} resultPath="/practice/mentsu-fu/result" onFinish={handleFinish}>
-      {/* Mentsu display */}
+    <ChallengeShell gameSession={gameSession} timerControl={timerControl} resultPath="/practice/machi-fu/result" onFinish={handleFinish}>
+      {/* Machi tiles */}
       <div className="mt-6 flex flex-col items-center gap-4">
-        <span className="text-sm font-bold uppercase tracking-widest text-surface-400">
-          {t("mentsuLabel")}
-        </span>
-        <div className="flex items-center justify-center min-h-16">
-          {renderMentsu()}
+        <div className="flex flex-col items-center gap-2">
+          <span className="text-sm font-bold uppercase tracking-widest text-surface-400">
+            {t("machiLabel")}
+          </span>
+          <div className="flex gap-0.5 scale-125 origin-center">
+            {question.tiles.map((tile, i) => (
+              <Hai key={i} hai={tile} />
+            ))}
+          </div>
+        </div>
+
+        <div className="w-full h-px bg-surface-100" />
+
+        <div className="flex flex-col items-center gap-2">
+          <span className="text-sm font-bold uppercase tracking-widest text-surface-400">
+            {t("agariLabel")}
+          </span>
+          <div className="scale-125 origin-center">
+            <Hai hai={question.agariHai} />
+          </div>
         </div>
       </div>
 
@@ -66,7 +73,7 @@ export function MentsuFuDrill() {
       </p>
 
       {/* Fu options */}
-      <div className="mt-4 grid grid-cols-3 gap-3">
+      <div className="mt-4 grid grid-cols-2 gap-3">
         {FU_OPTIONS.map((fu, i) => {
           const { borderClass, bgClass } = getFeedbackStyles(
             showFeedback,
@@ -89,6 +96,6 @@ export function MentsuFuDrill() {
           );
         })}
       </div>
-    </DrillShell>
+    </ChallengeShell>
   );
 }
