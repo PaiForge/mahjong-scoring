@@ -2,10 +2,10 @@ import { HaiKind, type Kazehai } from "@pai-forge/riichi-mahjong";
 import { SCORE_YAKU_NAME_MAP, YAKU_OPTIONS } from "../../core/constants";
 
 /**
- * 役ドリルでは除外する英語キー
+ * 役練習では除外する英語キー
  * 風牌の役牌は getKazeYakuhaiDisplayName で個別に処理するため、
  * 状況役・偶然役とともにマップから除外する
- * 役ドリル除外キー
+ * 役練習除外キー
  */
 const YAKU_DRILL_EXCLUDED_KEYS: ReadonlySet<string> = new Set([
   "Riichi", "Ippatsu", "Haitei", "Houtei", "Rinshan", "Chankan",

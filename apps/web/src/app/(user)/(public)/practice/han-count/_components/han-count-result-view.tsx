@@ -5,7 +5,7 @@ import { HanCountProblemList } from "./han-count-problem-list";
 import { RESULT_STORAGE_KEY, parseHanCountResults } from "../_lib/types";
 
 /**
- * 翻数即答ドリル専用の結果画面クライアントコンポーネント
+ * 翻数即答練習専用の結果画面クライアントコンポーネント
  * 翻数即答結果表示
  *
  * 共通 ResultView をラップし、問題別フィードバック一覧を children として注入する。

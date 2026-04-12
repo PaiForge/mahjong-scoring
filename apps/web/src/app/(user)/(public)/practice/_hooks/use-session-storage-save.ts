@@ -4,12 +4,12 @@ import type { RefObject } from "react";
 import { useEffect } from "react";
 
 /**
- * ドリル終了時に結果データを sessionStorage に保存するフック
+ * 練習終了時に結果データを sessionStorage に保存するフック
  * セッションストレージ保存
  *
  * @param key - sessionStorage のキー
  * @param resultsRef - 結果データへの ref
- * @param isFinished - ドリルが終了したかどうか
+ * @param isFinished - 練習が終了したかどうか
  */
 export function useSessionStorageSave<T>(
   key: string,

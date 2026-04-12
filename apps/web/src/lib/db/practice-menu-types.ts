@@ -1,13 +1,13 @@
 /**
- * ドリル種別の型定義と変換ユーティリティ
+ * 練習種別の型定義と変換ユーティリティ
  *
- * チャレンジモード（ランキング対応）のドリル種別を定義する。
+ * チャレンジモード（ランキング対応）の練習種別を定義する。
  * `challenge_results` / `challenge_best_scores` テーブルの `menu_type` カラムに格納される値。
  *
- * @description 新しいドリル種別の追加は `PRACTICE_MENU_REGISTRY` に1行追加するだけでよい。
+ * @description 新しい練習種別の追加は `PRACTICE_MENU_REGISTRY` に1行追加するだけでよい。
  * slug（URL 用ケバブケース）・messageKey（i18n 用キャメルケース）はレジストリから自動導出される。
  *
- * @design menuType — ドリル種別
+ * @design menuType — 練習種別
  *
  * - 'jantou_fu': 雀頭の符計算
  * - 'machi_fu': 待ちの符計算
@@ -15,7 +15,7 @@
  * - 'tehai_fu': 手牌の符計算
  * - 'yaku': 役判定
  * - 'score_table': 点数表早引き
- * - 'score_calculation': 点数計算ドリル
+ * - 'score_calculation': 点数計算練習
  * - 'han_count': 翻数即答
  *
  * `practice/score` は自由練習のため記録対象外。
@@ -26,7 +26,7 @@
 // ---------------------------------------------------------------------------
 
 /**
- * ドリル種別レジストリエントリ
+ * 練習種別レジストリエントリ
  * menuType（DB snake_case）・slug（URL kebab-case）・messageKey（i18n camelCase）を束ねる
  */
 interface PracticeMenuEntry {
@@ -36,8 +36,8 @@ interface PracticeMenuEntry {
 }
 
 /**
- * ドリル種別レジストリ
- * 新しいドリルの追加はここに1行追加するだけでよい。
+ * 練習種別レジストリ
+ * 新しい練習の追加はここに1行追加するだけでよい。
  */
 const PRACTICE_MENU_REGISTRY = [
   { menuType: 'jantou_fu', slug: 'jantou-fu', messageKey: 'jantouFu' },
@@ -54,10 +54,10 @@ const PRACTICE_MENU_REGISTRY = [
 // Derived types
 // ---------------------------------------------------------------------------
 
-/** ドリル種別（DB snake_case） */
+/** 練習種別（DB snake_case） */
 export type PracticeMenuType = (typeof PRACTICE_MENU_REGISTRY)[number]['menuType'];
 
-/** ドリル種別スラッグ（URL kebab-case） */
+/** 練習種別スラッグ（URL kebab-case） */
 export type PracticeMenuSlug = (typeof PRACTICE_MENU_REGISTRY)[number]['slug'];
 
 /**
@@ -70,19 +70,19 @@ export type PracticeMenuMessageKey = (typeof PRACTICE_MENU_REGISTRY)[number]['me
 // Derived constants
 // ---------------------------------------------------------------------------
 
-/** 全ドリル種別の配列（DB snake_case） */
+/** 全練習種別の配列（DB snake_case） */
 export const PRACTICE_MENU_TYPES: readonly PracticeMenuType[] = PRACTICE_MENU_REGISTRY.map(
   (e) => e.menuType,
 );
 
-/** 全ドリル種別スラッグの配列（URL kebab-case） */
+/** 全練習種別スラッグの配列（URL kebab-case） */
 export const PRACTICE_MENU_SLUGS: readonly PracticeMenuSlug[] = PRACTICE_MENU_REGISTRY.map(
   (e) => e.slug,
 );
 
 const practiceMenuTypeSet: ReadonlySet<string> = new Set(PRACTICE_MENU_TYPES);
 
-/** 値が有効なドリル種別かを判定する型ガード */
+/** 値が有効な練習種別かを判定する型ガード */
 export function isPracticeMenuType(value: unknown): value is PracticeMenuType {
   return typeof value === 'string' && practiceMenuTypeSet.has(value);
 }
@@ -107,7 +107,7 @@ const menuTypeToMessageKeyMap = new Map<PracticeMenuType, PracticeMenuMessageKey
 // Conversion functions
 // ---------------------------------------------------------------------------
 
-/** DB の snake_case ドリル種別を URL スラッグ（kebab-case）に変換する */
+/** DB の snake_case 練習種別を URL スラッグ（kebab-case）に変換する */
 export function menuTypeToSlug(menuType: PracticeMenuType): PracticeMenuSlug {
   const slug = menuTypeToSlugMap.get(menuType);
   if (slug === undefined) {
@@ -122,13 +122,13 @@ function isPracticeMenuSlug(value: string): value is PracticeMenuSlug {
   return practiceMenuSlugSet.has(value);
 }
 
-/** URL スラッグ（kebab-case）を DB の snake_case ドリル種別に変換する */
+/** URL スラッグ（kebab-case）を DB の snake_case 練習種別に変換する */
 export function slugToMenuType(slug: string): PracticeMenuType | undefined {
   if (!isPracticeMenuSlug(slug)) return undefined;
   return slugToMenuTypeMap.get(slug);
 }
 
-/** DB の snake_case ドリル種別を i18n メッセージキー（camelCase）に変換する */
+/** DB の snake_case 練習種別を i18n メッセージキー（camelCase）に変換する */
 export function menuTypeToMessageKey(menuType: PracticeMenuType): PracticeMenuMessageKey {
   const key = menuTypeToMessageKeyMap.get(menuType);
   if (key === undefined) {

@@ -17,11 +17,11 @@ interface ScoreProblemListWithLinksProps {
 }
 
 /**
- * 点数系ドリル共通の問題別フィードバック一覧（正解リンク付き）
+ * 点数系練習共通の問題別フィードバック一覧（正解リンク付き）
  * 点数問題一覧（リンク付き）
  *
  * ScoreProblemList をラップし、正解値を点数表参照ページへのリンクとして表示する。
- * 点数表ドリル・点数計算ドリルで共通して使用される。
+ * 点数表練習・点数計算練習で共通して使用される。
  */
 export function ScoreProblemListWithLinks({
   results,

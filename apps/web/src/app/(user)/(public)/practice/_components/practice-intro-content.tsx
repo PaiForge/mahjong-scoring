@@ -8,15 +8,15 @@ import { BookIcon } from "@/app/_components/icons/book-icon";
 interface PracticeIntroContentProps {
   /** i18n ネームスペース（例: "jantouFu"） */
   readonly namespace: string;
-  /** ドリルスラッグ（例: "jantou-fu"） */
+  /** 練習スラッグ（例: "jantou-fu"） */
   readonly slug: string;
   /** 学習ページへのリンクを表示するかどうか（デフォルト: true） */
   readonly showLearnLink?: boolean;
 }
 
 /**
- * ドリル説明ページの共通コンテンツ
- * ドリル説明共通
+ * 練習説明ページの共通コンテンツ
+ * 練習説明共通
  */
 export async function PracticeIntroContent({
   namespace,

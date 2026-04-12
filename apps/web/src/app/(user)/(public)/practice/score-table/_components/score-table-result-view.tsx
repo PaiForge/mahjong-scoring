@@ -6,7 +6,7 @@ import { RESULT_STORAGE_KEY, parseQuestionResults } from "../_lib/types";
 import type { ScoreQuestionResult } from "../../_lib/score-question-result";
 
 /**
- * 点数表ドリルの問題一覧（翻訳ネームスペース固定）
+ * 点数表練習の問題一覧（翻訳ネームスペース固定）
  * 点数表問題一覧
  */
 function ScoreTableProblemListBound({ results }: { readonly results: readonly ScoreQuestionResult[] }) {
@@ -14,7 +14,7 @@ function ScoreTableProblemListBound({ results }: { readonly results: readonly Sc
 }
 
 /**
- * 点数表ドリル専用の結果画面クライアントコンポーネント
+ * 点数表練習専用の結果画面クライアントコンポーネント
  * 点数表結果表示
  *
  * 共通 ResultView をラップし、問題別フィードバック一覧を children として注入する。

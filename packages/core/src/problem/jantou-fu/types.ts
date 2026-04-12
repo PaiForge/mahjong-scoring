@@ -2,7 +2,7 @@ import type { Kazehai, HaiKindId } from "@pai-forge/riichi-mahjong";
 
 /**
  * 雀頭の符計算問題（JantouFu question）
- * 雀頭符計算ドリルの1問分のデータ
+ * 雀頭符計算練習の1問分のデータ
  */
 export interface JantouFuQuestion {
   id: string;

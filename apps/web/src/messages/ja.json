@@ -18,7 +18,7 @@
     "heroDescription": "符計算から点数申告まで、初心者でもステップバイステップで学べるトレーニングアプリ",
     "ctaGetStarted": "はじめよう",
     "practiceTitle": "練習で身につける",
-    "practiceDescription": "符計算から点数申告まで、実践的なドリルで繰り返しトレーニング。初心者でもステップバイステップで上達できます。",
+    "practiceDescription": "符計算から点数申告まで、実践的な練習で繰り返しトレーニング。初心者でもステップバイステップで上達できます。",
     "practiceCta": "練習をはじめる",
     "referenceTitle": "点数早見表",
     "referenceDescription": "親・子の点数を一覧でいつでも確認。対局中の素早い点数確認に役立ちます。",
@@ -61,7 +61,7 @@
       "intermediate": "中級",
       "advanced": "上級"
     },
-    "drills": {
+    "practices": {
       "jantouFu": {
         "title": "雀頭の符計算",
         "description": "雀頭（アタマ）の牌種に応じた符を答える練習"
@@ -84,15 +84,15 @@
       },
       "scoreTable": {
         "title": "点数表早引き",
-        "description": "点数表を暗記するチャレンジドリル"
+        "description": "点数表を暗記するチャレンジ練習"
       },
       "scoreCalculation": {
         "title": "点数即答",
-        "description": "手牌から点数を読み取って素早く回答するチャレンジドリル"
+        "description": "手牌から点数を読み取って素早く回答するチャレンジ練習"
       },
       "hanCount": {
         "title": "翻数即答",
-        "description": "手牌から合計翻数を素早く回答するチャレンジドリル"
+        "description": "手牌から合計翻数を素早く回答するチャレンジ練習"
       }
     },
     "comprehensiveBanner": {
@@ -187,7 +187,7 @@
       "rowRenfonpai": "連風牌（場風＝自風）",
       "rowOther": "数牌・オタ風",
       "fuUnit": "{value}符",
-      "ctaDrill": "問題を解く"
+      "ctaPractice": "問題を解く"
     }
   },
   "machiFu": {
@@ -222,7 +222,7 @@
       "rowRyanmen": "両面（リャンメン）",
       "rowShanpon": "双碰（シャンポン）",
       "fuUnit": "{value}符",
-      "ctaDrill": "問題を解く"
+      "ctaPractice": "問題を解く"
     }
   },
   "mentsuFu": {
@@ -262,7 +262,7 @@
       "rowClosedSimpleKantsuOrOpenYaochuKantsu": "中張牌の暗槓 / 么九牌の明槓",
       "rowClosedYaochuKantsu": "么九牌の暗槓",
       "fuUnit": "{value}符",
-      "ctaDrill": "問題を解く"
+      "ctaPractice": "問題を解く"
     }
   },
   "tehaiFu": {
@@ -305,7 +305,7 @@
       "kazeExampleJikazeAnnotation": "→ 自風牌（4符）",
       "kazeExampleOtakaze": "東場・南家 — 西の刻子",
       "kazeExampleOtakazeAnnotation": "→ オタ風（0符）",
-      "ctaDrill": "問題を解く"
+      "ctaPractice": "問題を解く"
     }
   },
   "yaku": {
@@ -417,7 +417,7 @@
       "row6hanYaku": "清一色",
       "rowYakuman": "役満",
       "rowYakumanYaku": "国士無双, 四暗刻, 大三元, 小四喜, 大四喜, 字一色, 清老頭, 緑一色, 九蓮宝燈, 四槓子",
-      "ctaDrill": "問題を解く"
+      "ctaPractice": "問題を解く"
     }
   },
   "scoreTable": {
@@ -719,7 +719,7 @@
       "more": "多",
       "total": "合計",
       "noActivity": "この日の活動はありません",
-      "empty": "まだ活動がありません。ドリルを始めよう！",
+      "empty": "まだ活動がありません。練習を始めよう！",
       "expSuffix": "経験値",
       "gridAriaLabel": "EXP アクティビティヒートマップ",
       "barChartAriaLabel": "直近 7 日間の EXP 推移",
@@ -956,7 +956,7 @@
   },
   "scoreTableChallenge": {
     "title": "点数表早引き",
-    "description": "親子・ツモロン・翻数・符から正しい点数を答えるドリルです",
+    "description": "親子・ツモロン・翻数・符から正しい点数を答える練習です",
     "oya": "親",
     "ko": "子",
     "tsumo": "ツモ",
@@ -979,8 +979,8 @@
     }
   },
   "scoreCalculationChallenge": {
-    "title": "点数計算ドリル",
-    "description": "手牌・和了牌・風牌・ドラなどの情報から正しい点数を答えるドリルです",
+    "title": "点数計算練習",
+    "description": "手牌・和了牌・風牌・ドラなどの情報から正しい点数を答える練習です",
     "oya": "親",
     "ko": "子",
     "tsumo": "ツモ",
@@ -1003,7 +1003,7 @@
   },
   "hanCountChallenge": {
     "title": "翻数��答",
-    "description": "手牌・和了牌・風牌・ドラなどの情報から正しい翻数を答えるドリルです。1翻〜13翻の中から正解を選択してください。",
+    "description": "手牌・和了牌・風牌・ドラなどの情報から正しい翻数を答える練習です。1翻〜13翻の中から正解を選択してください。",
     "bakaze": "場風",
     "jikaze": "自風",
     "agari": "和了牌",

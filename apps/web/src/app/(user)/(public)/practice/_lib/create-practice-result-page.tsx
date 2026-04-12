@@ -40,7 +40,7 @@ export interface PracticeResultViewProps {
 }
 
 interface ResultPageConfig {
-  /** ドリル種別 */
+  /** 練習種別 */
   readonly module: LeaderboardModule;
   /** リトライ用のプレイページURL */
   readonly playHref: string;

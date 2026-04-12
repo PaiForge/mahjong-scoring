@@ -100,7 +100,7 @@ export const FuItemRow = memo(function FuItemRow({
             let buttonClass =
               "rounded-lg border px-1.5 py-1 text-xs font-bold transition-colors";
 
-            // bg-*-50 で統一（feedback-styles.ts や他ドリルの行ボーダーと一致させる）
+            // bg-*-50 で統一（feedback-styles.ts や他練習の行ボーダーと一致させる）
             if (showFeedback && isSelected) {
               buttonClass += isCorrect
                 ? " border-green-500 bg-green-50 text-green-700"

@@ -2,7 +2,7 @@ import type { HaiKindId } from "@pai-forge/riichi-mahjong";
 
 /**
  * 待ちの符計算問題（MachiFu question）
- * 待ち符計算ドリルの1問分のデータ
+ * 待ち符計算練習の1問分のデータ
  */
 export interface MachiFuQuestion {
   id: string;

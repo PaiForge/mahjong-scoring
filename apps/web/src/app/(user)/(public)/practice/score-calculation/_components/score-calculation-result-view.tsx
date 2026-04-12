@@ -6,7 +6,7 @@ import { RESULT_STORAGE_KEY, parseQuestionResults } from "../_lib/types";
 import type { ScoreQuestionResult } from "../../_lib/score-question-result";
 
 /**
- * 点数計算ドリルの問題一覧（翻訳ネームスペース固定）
+ * 点数計算練習の問題一覧（翻訳ネームスペース固定）
  * 点数計算問題一覧
  */
 function ScoreCalculationProblemListBound({ results }: { readonly results: readonly ScoreQuestionResult[] }) {
@@ -14,7 +14,7 @@ function ScoreCalculationProblemListBound({ results }: { readonly results: reado
 }
 
 /**
- * 点数計算ドリル専用の結果画面クライアントコンポーネント
+ * 点数計算練習専用の結果画面クライアントコンポーネント
  * 点数計算結果表示
  *
  * 共通 ResultView をラップし、問題別フィードバック一覧を children として注入する。

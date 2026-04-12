@@ -40,7 +40,7 @@ const EMPTY_RESULT: LeaderboardResult = { rows: [], totalCount: 0, currentUserRa
  * リーダーボードデータを取得する
  * リーダーボード取得
  *
- * @param module - ドリル種別
+ * @param module - 練習種別
  * @param period - 期間（all-time / monthly）
  * @param page - ページ番号（1始まり）
  * @param currentUserId - 現在のユーザーID（任意）

@@ -4,7 +4,7 @@
  *
  * @description
  *   マイページのアクティビティヒートマップで使用する、日次 EXP 合計と
- *   ドリル種別ごとの内訳を並列クエリで取得する。日付境界は JST (Asia/Tokyo) 固定。
+ *   練習種別ごとの内訳を並列クエリで取得する。日付境界は JST (Asia/Tokyo) 固定。
  *
  * @see apps/web/src/app/(user)/(protected)/(confirmed)/mypage/_components/exp-activity-heatmap.tsx
  */

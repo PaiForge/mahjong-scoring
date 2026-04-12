@@ -39,8 +39,8 @@ function validateScoreRange(
 }
 
 /**
- * 点数計算ドリルの問題を1つ生成する（生成不可能な場合は undefined を返す）
- * 点数計算ドリル問題生成
+ * 点数計算練習の問題を1つ生成する（生成不可能な場合は undefined を返す）
+ * 点数計算練習問題生成
  */
 export function generateScoreQuestion(options: QuestionGeneratorOptions = {}): ScoreQuestion | undefined {
   const { includeFuro = true, includeChiitoi = false, includeParent = true, includeChild = true } = options;
@@ -128,7 +128,7 @@ export function generateScoreQuestion(options: QuestionGeneratorOptions = {}): S
 /**
  * 後方互換性のための薄いラッパークラス
  * @deprecated generateScoreQuestion を直接使用してください
- * 点数計算ドリル問題ジェネレータ
+ * 点数計算練習問題ジェネレータ
  */
 export class ScoreQuestionGenerator {
   generate(options: QuestionGeneratorOptions = {}): ScoreQuestion | undefined {

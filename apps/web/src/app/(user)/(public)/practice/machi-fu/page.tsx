@@ -17,7 +17,7 @@ export async function generateMetadata(): Promise<Metadata> {
  *
  * @flow
  * 1. ユーザーが練習一覧から待ち符を選択して遷移
- * 2. ドリルの説明と「開始」ボタン、教本ページへのリンクが表示される
+ * 2. 練習の説明と「開始」ボタン、教本ページへのリンクが表示される
  * 3. 「開始」を押すと play ページへ遷移
  */
 export default function MachiFuPage() {

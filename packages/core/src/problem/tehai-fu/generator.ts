@@ -12,7 +12,7 @@ import { isHaiKindId } from "../../core/type-guards";
 import { HaiUsageTracker } from "../../core/hai-tracker";
 import { calculateJantouFu } from "../shared/jantou-fu";
 
-/** 手牌符ドリル用の面子生成重み（20%順子, 50%刻子, 30%槓子） */
+/** 手牌符練習用の面子生成重み（20%順子, 50%刻子, 30%槓子） */
 const TEHAI_FU_MENTSU_WEIGHTS = { shuntsu: 0.2, koutsu: 0.5 } as const;
 
 /**

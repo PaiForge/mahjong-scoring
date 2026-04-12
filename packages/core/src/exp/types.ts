@@ -9,7 +9,7 @@ export interface ExpInput {
   readonly score: number;
   /** 誤答数（0〜3） */
   readonly incorrectAnswers: number;
-  /** ドリル種別 */
+  /** 練習種別 */
   readonly menuType: string;
 }
 

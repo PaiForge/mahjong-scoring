@@ -1,7 +1,7 @@
 import type { ScoreTableAnswer } from "@mahjong-scoring/core";
 
 /**
- * 点数系ドリルの回答を表示用文字列に変換する
+ * 点数系練習の回答を表示用文字列に変換する
  * 点数回答フォーマット
  *
  * @param answer - 回答データ

@@ -21,7 +21,7 @@ describe('VALID_PERIODS', () => {
 });
 
 describe('MODULES', () => {
-  it('contains all drill modules', () => {
+  it('contains all practice modules', () => {
     expect(MODULES).toEqual([
       'jantou_fu',
       'machi_fu',

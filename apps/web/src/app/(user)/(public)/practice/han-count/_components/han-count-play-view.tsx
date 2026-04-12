@@ -14,8 +14,8 @@ import type { HanCountQuestionResult } from "../_lib/types";
 import { RESULT_STORAGE_KEY } from "../_lib/types";
 
 /**
- * 翻数即答ドリル本体
- * 翻数即答ドリル
+ * 翻数即答練習本体
+ * 翻数即答練習
  */
 export function HanCountPlayView() {
   const t = useTranslations("hanCountChallenge");

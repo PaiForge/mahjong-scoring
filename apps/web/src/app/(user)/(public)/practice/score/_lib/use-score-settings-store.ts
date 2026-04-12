@@ -28,8 +28,8 @@ interface SettingsState {
 }
 
 /**
- * 点数計算ドリル設定ストア（永続化あり）
- * 点数ドリル設定
+ * 点数計算練習設定ストア（永続化あり）
+ * 点数練習設定
  */
 export const useScoreSettingsStore = create<SettingsState>()(
   persist(

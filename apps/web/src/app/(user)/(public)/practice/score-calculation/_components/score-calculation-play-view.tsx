@@ -15,8 +15,8 @@ import type { ScoreCalculationQuestionResult } from "../_lib/types";
 import { RESULT_STORAGE_KEY, paymentToScoreTableAnswer } from "../_lib/types";
 
 /**
- * 点数計算ドリル本体
- * 点数計算ドリル
+ * 点数計算練習本体
+ * 点数計算練習
  */
 export function ScoreCalculationPlayView() {
   const t = useTranslations("scoreCalculationChallenge");

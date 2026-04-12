@@ -19,7 +19,7 @@ interface CreateCustomResultViewConfig<T> {
 }
 
 /**
- * ドリル固有の結果ビューコンポーネントを生成するファクトリー関数
+ * 練習固有の結果ビューコンポーネントを生成するファクトリー関数
  * カスタム結果ビュー生成
  *
  * 共通 ResultView をラップし、sessionStorage からの結果読み取りと

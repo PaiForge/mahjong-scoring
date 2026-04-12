@@ -29,9 +29,9 @@ export interface ChallengeFields {
 
 /**
  * チャレンジ結果を challenge_results / challenge_best_scores に保存する Server Action
- * ドリル結果保存
+ * 練習結果保存
  *
- * @param menuType - ドリル種別
+ * @param menuType - 練習種別
  * @param leaderboardKey - ランキングセグメントキー
  * @param challengeFields - スコア、誤答数、経過時間
  */

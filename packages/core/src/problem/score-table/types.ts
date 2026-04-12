@@ -1,6 +1,6 @@
 /**
- * 点数表早引きドリルの型定義
- * 点数表ドリル型
+ * 点数表早引き練習の型定義
+ * 点数表練習型
  */
 
 /**
@@ -35,13 +35,13 @@ export interface KoTsumoAnswer {
 }
 
 /**
- * 点数表ドリルの正解型（ロン / 親ツモ / 子ツモ）
+ * 点数表練習の正解型（ロン / 親ツモ / 子ツモ）
  * 点数表正解
  */
 export type ScoreTableAnswer = RonAnswer | OyaTsumoAnswer | KoTsumoAnswer;
 
 /**
- * 点数表早引きドリルの1問分のデータ
+ * 点数表早引き練習の1問分のデータ
  * 点数表問題
  */
 export interface ScoreTableQuestion {

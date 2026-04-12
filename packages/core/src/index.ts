@@ -80,7 +80,7 @@ export {
 export { isHaiKindId, validateHaiKindId } from "./core/type-guards";
 export { HaiUsageTracker } from "./core/hai-tracker";
 
-// === Problem: Score Table Drill ===
+// === Problem: Score Table Practice ===
 export { generateScoreTableQuestion } from "./problem/score-table/generator";
 export { judgeScoreTableAnswer } from "./problem/score-table/judgement";
 export type {

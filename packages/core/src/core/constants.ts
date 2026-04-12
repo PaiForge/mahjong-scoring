@@ -43,7 +43,7 @@ export const ScoreLevel = {
 
 /**
  * ライブラリの役名（英語キー）から日本語名へのマッピング
- * 役名変換マップ（点数ドリル用）
+ * 役名変換マップ（点数練習用）
  */
 export const SCORE_YAKU_NAME_MAP: Readonly<Record<string, string>> = {
   // 1翻
