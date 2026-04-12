@@ -36,3 +36,33 @@ const practiceMenuTypeSet: ReadonlySet<string> = new Set(PRACTICE_MENU_TYPES);
 export function isPracticeMenuType(value: unknown): value is PracticeMenuType {
   return typeof value === 'string' && practiceMenuTypeSet.has(value);
 }
+
+/**
+ * i18n メッセージキー用の camelCase 識別子。
+ * DB の snake_case `PracticeMenuType` を i18n の camelCase キーに変換する際に使用する。
+ */
+export type PracticeMenuMessageKey =
+  | 'jantouFu'
+  | 'machiFu'
+  | 'mentsuFu'
+  | 'tehaiFu'
+  | 'yaku'
+  | 'scoreTable'
+  | 'scoreCalculation'
+  | 'hanCount';
+
+const MENU_TYPE_TO_MESSAGE_KEY: Record<PracticeMenuType, PracticeMenuMessageKey> = {
+  jantou_fu: 'jantouFu',
+  machi_fu: 'machiFu',
+  mentsu_fu: 'mentsuFu',
+  tehai_fu: 'tehaiFu',
+  yaku: 'yaku',
+  score_table: 'scoreTable',
+  score_calculation: 'scoreCalculation',
+  han_count: 'hanCount',
+};
+
+/** DB の snake_case ドリル種別を i18n メッセージキー（camelCase）に変換する */
+export function menuTypeToMessageKey(menuType: PracticeMenuType): PracticeMenuMessageKey {
+  return MENU_TYPE_TO_MESSAGE_KEY[menuType];
+}

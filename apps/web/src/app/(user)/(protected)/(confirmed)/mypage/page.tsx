@@ -29,7 +29,7 @@ export async function generateMetadata(): Promise<Metadata> {
 
 export default async function MyPage() {
   const t = await getTranslations("mypage");
-  const tHeatmap = await getTranslations("mypageHeatmap");
+  const tHeatmap = await getTranslations("mypage.heatmap");
   const user = await getAuthenticatedUser();
   const heatmapData = await getExpHeatmapData(user.id);
 

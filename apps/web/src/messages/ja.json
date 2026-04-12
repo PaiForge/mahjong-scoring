@@ -708,38 +708,84 @@
         "title": "マイレコード",
         "summary": "チャレンジモードの成績を確認できます"
       }
-    }
-  },
-  "mypageHeatmap": {
-    "less": "少",
-    "more": "多",
-    "total": "合計",
-    "noActivity": "この日の活動はありません",
-    "empty": "まだ活動がありません。ドリルを始めよう！",
-    "expSuffix": "経験値",
-    "gridAriaLabel": "EXP アクティビティヒートマップ",
-    "barChartAriaLabel": "直近 7 日間の EXP 推移",
-    "legendAriaLabel": "経験値強度の凡例（少から多へ）",
-    "cellAriaLabel": "{date}: {amount} 経験値",
-    "detailPanelPlaceholder": "日付を選択すると、その日の内訳が表示されます",
-    "monthNames": [
-      "1月",
-      "2月",
-      "3月",
-      "4月",
-      "5月",
-      "6月",
-      "7月",
-      "8月",
-      "9月",
-      "10月",
-      "11月",
-      "12月"
-    ],
-    "dayLabels": {
-      "mon": "月",
-      "wed": "水",
-      "fri": "金"
+    },
+    "heatmap": {
+      "less": "少",
+      "more": "多",
+      "total": "合計",
+      "noActivity": "この日の活動はありません",
+      "empty": "まだ活動がありません。ドリルを始めよう！",
+      "expSuffix": "経験値",
+      "gridAriaLabel": "EXP アクティビティヒートマップ",
+      "barChartAriaLabel": "直近 7 日間の EXP 推移",
+      "legendAriaLabel": "経験値強度の凡例（少から多へ）",
+      "cellAriaLabel": "{date}: {amount} 経験値",
+      "detailPanelPlaceholder": "日付を選択すると、その日の内訳が表示されます",
+      "monthNames": [
+        "1月",
+        "2月",
+        "3月",
+        "4月",
+        "5月",
+        "6月",
+        "7月",
+        "8月",
+        "9月",
+        "10月",
+        "11月",
+        "12月"
+      ],
+      "dayLabels": {
+        "mon": "月",
+        "wed": "水",
+        "fri": "金"
+      }
+    },
+    "challenges": {
+      "pageTitle": "マイレコード",
+      "records": "成績",
+      "noData": "データがありません",
+      "bestScore": "ベストスコア",
+      "avgScore": "平均スコア",
+      "avgScoreTooltip": "ミス上限に達せず終了（完走）したセッションの平均スコア",
+      "scoreTrend": "スコア推移",
+      "scoreUnit": "スコア",
+      "sessionHistory": "直近の履歴",
+      "viewAllResults": "すべての結果を見る",
+      "tableDate": "日時",
+      "tableCorrectAnswers": "正解数",
+      "tableIncorrectAnswers": "ミス数",
+      "vsLastWeek": "先週比",
+      "vs2WeeksAgo": "2週前比",
+      "vsLastMonth": "先月比",
+      "vs2MonthsAgo": "2ヶ月前比",
+      "periods": {
+        "thisWeek": "今週",
+        "lastWeek": "先週",
+        "thisMonth": "今月",
+        "lastMonth": "先月",
+        "twoWeeksAgo": "2週前",
+        "twoMonthsAgo": "2ヶ月前"
+      },
+      "menuTypes": {
+        "jantouFu": "雀頭の符",
+        "machiFu": "待ちの符",
+        "mentsuFu": "面子の符",
+        "tehaiFu": "手牌の符",
+        "yaku": "役",
+        "scoreTable": "点数表早引き",
+        "scoreCalculation": "点数計算",
+        "hanCount": "翻数即答"
+      }
+    },
+    "challengeResults": {
+      "pageTitle": "チャレンジ全履歴",
+      "empty": "結果がありません",
+      "tableDate": "日時",
+      "tableMenu": "種目",
+      "tableCorrectAnswers": "正解数",
+      "tableIncorrectAnswers": "ミス数",
+      "allMenuTypes": "すべての種目"
     }
   },
   "setupUsername": {
@@ -766,7 +812,7 @@
       "error": "エラーが発生しました。もう一度お試しください"
     }
   },
-  "Admin": {
+  "admin": {
     "title": "管理画面",
     "dashboard": "ダッシュボード",
     "dashboardDescription": "管理画面へようこそ。左メニューから各機能にアクセスできます。",
@@ -853,24 +899,24 @@
       "monthly": "月間"
     },
     "module": {
-      "jantou_fu": "雀頭の符",
-      "machi_fu": "待ちの符",
-      "mentsu_fu": "面子の符",
-      "tehai_fu": "手牌の符",
+      "jantouFu": "雀頭の符",
+      "machiFu": "待ちの符",
+      "mentsuFu": "面子の符",
+      "tehaiFu": "手牌の符",
       "yaku": "役",
-      "score_table": "点数表早引き",
-      "score_calculation": "点数計算",
-      "han_count": "翻数即答"
+      "scoreTable": "点数表早引き",
+      "scoreCalculation": "点数計算",
+      "hanCount": "翻数即答"
     },
     "moduleIcon": {
-      "jantou_fu": "🀄",
-      "machi_fu": "🎯",
-      "mentsu_fu": "🧩",
-      "tehai_fu": "✨",
+      "jantouFu": "🀄",
+      "machiFu": "🎯",
+      "mentsuFu": "🧩",
+      "tehaiFu": "✨",
       "yaku": "🏆",
-      "score_table": "📈",
-      "score_calculation": "🎲",
-      "han_count": "🔢"
+      "scoreTable": "📈",
+      "scoreCalculation": "🎲",
+      "hanCount": "🔢"
     },
     "rankLabel": "{rank} 位",
     "notRanked": "未挑戦",
@@ -896,52 +942,6 @@
     },
     "allTimeRanking": "総合ランキング",
     "viewMore": "ランキングをもっと見る"
-  },
-  "mypageChallenges": {
-    "pageTitle": "マイレコード",
-    "records": "成績",
-    "noData": "データがありません",
-    "bestScore": "ベストスコア",
-    "avgScore": "平均スコア",
-    "avgScoreTooltip": "ミス上限に達せず終了（完走）したセッションの平均スコア",
-    "scoreTrend": "スコア推移",
-    "scoreUnit": "スコア",
-    "sessionHistory": "直近の履歴",
-    "viewAllResults": "すべての結果を見る",
-    "tableDate": "日時",
-    "tableCorrectAnswers": "正解数",
-    "tableIncorrectAnswers": "ミス数",
-    "vsLastWeek": "先週比",
-    "vs2WeeksAgo": "2週前比",
-    "vsLastMonth": "先月比",
-    "vs2MonthsAgo": "2ヶ月前比",
-    "periods": {
-      "thisWeek": "今週",
-      "lastWeek": "先週",
-      "thisMonth": "今月",
-      "lastMonth": "先月",
-      "twoWeeksAgo": "2週前",
-      "twoMonthsAgo": "2ヶ月前"
-    },
-    "menuTypes": {
-      "jantou_fu": "雀頭の符",
-      "machi_fu": "待ちの符",
-      "mentsu_fu": "面子の符",
-      "tehai_fu": "手牌の符",
-      "yaku": "役",
-      "score_table": "点数表早引き",
-      "score_calculation": "点数計算",
-      "han_count": "翻数即答"
-    }
-  },
-  "mypageChallengeResults": {
-    "pageTitle": "チャレンジ全履歴",
-    "empty": "結果がありません",
-    "tableDate": "日時",
-    "tableMenu": "種目",
-    "tableCorrectAnswers": "正解数",
-    "tableIncorrectAnswers": "ミス数",
-    "allMenuTypes": "すべての種目"
   },
   "common": {
     "close": "閉じる",

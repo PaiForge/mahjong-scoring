@@ -27,7 +27,7 @@ export default async function AdminUsersPage({
 }) {
   const { page } = await searchParamsCache.parse(searchParams);
   const adminClient = createAdminClient();
-  const t = await getTranslations('Admin');
+  const t = await getTranslations('admin');
 
   // 現在のユーザー ID を取得（自分自身の BAN を防ぐため）
   const supabase = await createClient();

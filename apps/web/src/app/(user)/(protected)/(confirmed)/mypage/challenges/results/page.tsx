@@ -13,7 +13,7 @@ import { PageTitle } from "@/app/_components/page-title";
 import { PaginationNav } from "@/app/_components/pagination-nav";
 import { createMetadata } from "@/app/_lib/metadata";
 import type { PracticeMenuType } from "@/lib/db/practice-menu-types";
-import { isPracticeMenuType } from "@/lib/db/practice-menu-types";
+import { isPracticeMenuType, menuTypeToMessageKey } from "@/lib/db/practice-menu-types";
 import { getAuthenticatedUser } from "@/lib/auth";
 
 import { formatDate, getMissColorClass } from "../_lib/dashboard-utils";
@@ -25,7 +25,7 @@ interface Props {
 }
 
 export async function generateMetadata(): Promise<Metadata> {
-  const t = await getTranslations("mypageChallengeResults");
+  const t = await getTranslations("mypage.challengeResults");
   return {
     ...createMetadata({ title: t("pageTitle") }),
     robots: { index: false, follow: false },
@@ -33,8 +33,8 @@ export async function generateMetadata(): Promise<Metadata> {
 }
 
 export default async function ChallengeResultsPage({ searchParams }: Props) {
-  const t = await getTranslations("mypageChallengeResults");
-  const tChallenges = await getTranslations("mypageChallenges");
+  const t = await getTranslations("mypage.challengeResults");
+  const tChallenges = await getTranslations("mypage.challenges");
   const params = await searchParams;
 
   const user = await getAuthenticatedUser();
@@ -79,7 +79,11 @@ export default async function ChallengeResultsPage({ searchParams }: Props) {
           }}
           formatDate={formatDate}
           getMissColorClass={getMissColorClass}
-          getMenuLabel={(type) => tChallenges(`menuTypes.${type}`)}
+          getMenuLabel={(type) =>
+            isPracticeMenuType(type)
+              ? tChallenges(`menuTypes.${menuTypeToMessageKey(type)}`)
+              : type
+          }
         />
 
         <PaginationNav

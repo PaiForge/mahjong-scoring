@@ -25,6 +25,7 @@ import { ContentContainer } from '@/app/_components/content-container';
 import { PageTitle } from '@/app/_components/page-title';
 import { createMetadata } from '@/app/_lib/metadata';
 import { getOptionalUser } from '@/lib/auth';
+import { menuTypeToMessageKey } from '@/lib/db/practice-menu-types';
 
 import { getLeaderboard } from '../../_actions/get-leaderboard';
 import { LeaderboardDetailContent } from '../../_components/leaderboard-detail-content';
@@ -69,7 +70,8 @@ export async function generateMetadata({
   if (!validated) return {};
 
   const t = await getTranslations('leaderboard');
-  const title = t(`module.${validated.module}`);
+  const msgKey = menuTypeToMessageKey(validated.module);
+  const title = t(`module.${msgKey}`);
   const periodLabel = t(`period.${validated.period}`);
 
   return createMetadata({
@@ -114,7 +116,8 @@ export default async function LeaderboardDetailPage({
   const page = Math.max(1, parseInt(pageParam ?? '1', 10) || 1);
   const t = await getTranslations('leaderboard');
 
-  const moduleTitle = t(`module.${validated.module}`);
+  const moduleMsgKey = menuTypeToMessageKey(validated.module);
+  const moduleTitle = t(`module.${moduleMsgKey}`);
   const challengePath = buildChallengePath(validated.module);
 
   return (

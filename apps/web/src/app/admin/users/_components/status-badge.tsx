@@ -9,7 +9,7 @@ interface StatusBadgeProps {
  * ステータスバッジ
  */
 export async function StatusBadge({ isBanned }: StatusBadgeProps) {
-  const t = await getTranslations('Admin');
+  const t = await getTranslations('admin');
 
   if (isBanned) {
     return (

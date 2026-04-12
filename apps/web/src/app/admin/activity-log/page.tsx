@@ -26,7 +26,7 @@ export default async function AdminActivityLogPage({
   searchParams: Promise<Record<string, string | string[] | undefined>>;
 }) {
   const { page, action: actionFilter, user: rawUser } = await searchParamsCache.parse(searchParams);
-  const t = await getTranslations('Admin');
+  const t = await getTranslations('admin');
   const adminClient = createAdminClient();
   const userFilter = rawUser.trim();
 

@@ -4,7 +4,7 @@ import { getTranslations } from "next-intl/server";
 import { PageTitle } from "@/app/_components/page-title";
 
 export default async function AdminDashboardPage() {
-  const t = await getTranslations("Admin");
+  const t = await getTranslations("admin");
 
   return (
     <div>

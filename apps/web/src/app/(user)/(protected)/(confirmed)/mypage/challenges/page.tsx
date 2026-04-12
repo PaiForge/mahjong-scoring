@@ -16,7 +16,7 @@ import { createMetadata } from "@/app/_lib/metadata";
 import { ChallengeStatsContent } from "./_components/challenge-stats-content";
 
 export async function generateMetadata(): Promise<Metadata> {
-  const t = await getTranslations("mypageChallenges");
+  const t = await getTranslations("mypage.challenges");
   return {
     ...createMetadata({ title: t("pageTitle") }),
     robots: { index: false, follow: false },
@@ -24,7 +24,7 @@ export async function generateMetadata(): Promise<Metadata> {
 }
 
 export default async function ChallengesPage() {
-  const t = await getTranslations("mypageChallenges");
+  const t = await getTranslations("mypage.challenges");
 
   return (
     <ContentContainer>

@@ -14,7 +14,7 @@ interface BanButtonProps {
  * BANボタン
  */
 export function BanButton({ targetUserId }: BanButtonProps) {
-  const t = useTranslations('Admin');
+  const t = useTranslations('admin');
   const [isOpen, setIsOpen] = useState(false);
   const [reason, setReason] = useState('');
 

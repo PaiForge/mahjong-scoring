@@ -25,7 +25,7 @@ export default async function AdminLayout({
     notFound();
   }
 
-  const t = await getTranslations('Admin');
+  const t = await getTranslations('admin');
 
   return (
     <div className="flex min-h-screen">

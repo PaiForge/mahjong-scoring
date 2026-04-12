@@ -5,7 +5,7 @@ import Link from "next/link";
 import { useTranslations } from "next-intl";
 
 import { SectionTitle } from "@/app/_components/section-title";
-import { isPracticeMenuType } from "@/lib/db/practice-menu-types";
+import { isPracticeMenuType, menuTypeToMessageKey } from "@/lib/db/practice-menu-types";
 
 import {
   getComparisonLabel,
@@ -41,7 +41,7 @@ const selectClassName =
  * ダッシュボード
  */
 export function ChallengeDashboard() {
-  const t = useTranslations("mypageChallenges");
+  const t = useTranslations("mypage.challenges");
   const {
     selectedMenu,
     setSelectedMenu,
@@ -87,7 +87,7 @@ export function ChallengeDashboard() {
   const menuOptions = useMemo(
     () => (availableMenuTypes ?? []).map((type) => ({
       value: type,
-      label: t(`menuTypes.${type}`),
+      label: t(`menuTypes.${menuTypeToMessageKey(type)}`),
     })),
     [availableMenuTypes, t],
   );

@@ -14,7 +14,7 @@ interface UnbanButtonProps {
  * BAN解除ボタン
  */
 export function UnbanButton({ targetUserId }: UnbanButtonProps) {
-  const t = useTranslations('Admin');
+  const t = useTranslations('admin');
   const [isOpen, setIsOpen] = useState(false);
 
   const [state, formAction, isPending] = useActionState(

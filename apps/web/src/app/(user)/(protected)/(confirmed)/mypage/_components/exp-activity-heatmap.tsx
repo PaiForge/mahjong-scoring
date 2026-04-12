@@ -5,6 +5,8 @@ import { useCallback, useState } from "react";
 import { useTranslations } from "next-intl";
 
 import type { ExpHeatmapData } from "@/lib/db/get-exp-heatmap-data";
+import type { PracticeMenuMessageKey } from "@/lib/db/practice-menu-types";
+import { isPracticeMenuType, menuTypeToMessageKey } from "@/lib/db/practice-menu-types";
 
 import type { HeatmapLayout } from "../_lib/heatmap-utils";
 import { getExpLevel } from "../_lib/heatmap-utils";
@@ -26,19 +28,6 @@ const LEVEL_CLASSES: Record<number, string> = {
 const BAR_CHART_HEIGHT_PX = 140;
 const BAR_CHART_MIN_HEIGHT_PX = 4;
 
-/** `menuType` → i18n キーの許可リスト。未登録キーは i18n ミスとして `console.warn`。 */
-const KNOWN_MENU_TYPES = [
-  "jantou_fu",
-  "machi_fu",
-  "mentsu_fu",
-  "tehai_fu",
-  "yaku",
-  "score_table",
-  "score_calculation",
-  "han_count",
-] as const;
-type KnownMenuType = (typeof KNOWN_MENU_TYPES)[number];
-const KNOWN_MENU_TYPE_SET: ReadonlySet<string> = new Set<string>(KNOWN_MENU_TYPES);
 
 interface Props {
   data: ExpHeatmapData;
@@ -46,8 +35,8 @@ interface Props {
 }
 
 export function ExpActivityHeatmap({ data, layout }: Props) {
-  const t = useTranslations("mypageHeatmap");
-  const tMenu = useTranslations("mypageChallenges.menuTypes");
+  const t = useTranslations("mypage.heatmap");
+  const tMenu = useTranslations("mypage.challenges.menuTypes");
   const [selectedDate, setSelectedDate] = useState<string | null>(null);
 
   const dayLabels: Partial<Record<number, string>> = {
@@ -75,14 +64,14 @@ export function ExpActivityHeatmap({ data, layout }: Props) {
   /**
    * menuType キーをラベル文字列に解決する。
    *
-   * - 既知キー (`KNOWN_MENU_TYPES`) は i18n から取得
+   * - 既知キー (`PracticeMenuType`) は i18n から取得（snake_case → camelCase 変換）
    * - `'unknown'` は専用ラベル `noActivity` のコンテキスト外で出ないので `?` 表示
    * - それ以外（= MODULE_WEIGHT に追加されたが i18n 未登録のキー）は
    *   `console.warn` で開発者に通知しつつ `[?] key` と可視マーカーで描画する
    */
   function getMenuTypeLabel(moduleKey: string): string {
-    if (KNOWN_MENU_TYPE_SET.has(moduleKey)) {
-      return tMenu(moduleKey as KnownMenuType);
+    if (isPracticeMenuType(moduleKey)) {
+      return tMenu(menuTypeToMessageKey(moduleKey) as PracticeMenuMessageKey);
     }
     if (moduleKey === "unknown") {
       return `[?] ${moduleKey}`;
