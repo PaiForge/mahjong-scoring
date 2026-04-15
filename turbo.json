@@ -4,7 +4,17 @@
     "build": {
       "dependsOn": ["^build"],
       "outputs": [".next/**", "!.next/cache/**"],
-      "env": ["POSTGRES_URL", "POSTGRES_URL_NON_POOLING"]
+      "env": [
+        "NODE_ENV",
+        "DATABASE_URL",
+        "POSTGRES_URL",
+        "POSTGRES_URL_NON_POOLING",
+        "NEXT_PUBLIC_SITE_URL",
+        "NEXT_PUBLIC_SUPABASE_URL",
+        "NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY",
+        "SUPABASE_SERVICE_ROLE_KEY",
+        "NEXT_PUBLIC_GA_MEASUREMENT_ID"
+      ]
     },
     "dev": {
       "cache": false,
