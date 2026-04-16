@@ -13,7 +13,7 @@ interface ScoreCalculationAnswerFormProps {
 }
 
 /**
- * 点数計算ドリルの回答フォーム
+ * 点数計算練習の回答フォーム
  * 点数計算回答フォーム
  *
  * 点数のみを select で回答する。手牌から翻・符を自分で読み取る必要がある。

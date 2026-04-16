@@ -1,7 +1,7 @@
 import type { ScoreTableAnswer, ScoreTableUserAnswer } from "./types";
 
 /**
- * 点数表早引きドリルの正誤判定を行う
+ * 点数表早引き練習の正誤判定を行う
  * 点数表正誤判定
  *
  * @param userAnswer - ユーザーの回答

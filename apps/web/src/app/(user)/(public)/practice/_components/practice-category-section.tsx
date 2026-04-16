@@ -6,10 +6,10 @@ interface PracticeCategorySectionProps {
 }
 
 /**
- * ドリルカテゴリセクション
+ * 練習カテゴリセクション
  *
  * カテゴリタイトルを表示し、
- * 子要素としてドリルカードを2カラムグリッドで並べる。
+ * 子要素として練習カードを2カラムグリッドで並べる。
  */
 export function PracticeCategorySection({
   title,

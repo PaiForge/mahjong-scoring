@@ -53,8 +53,8 @@ describe("calculateExp", () => {
       expect(result).toBeNull();
     });
 
-    it("現行の全チャレンジドリル（8種）は non-null な ExpResult を返す", () => {
-      const allDrills = [
+    it("現行の全チャレンジ練習（8種）は non-null な ExpResult を返す", () => {
+      const allPractices = [
         "jantou_fu",
         "machi_fu",
         "mentsu_fu",
@@ -64,7 +64,7 @@ describe("calculateExp", () => {
         "score_calculation",
         "han_count",
       ];
-      for (const menuType of allDrills) {
+      for (const menuType of allPractices) {
         const result = calculateExp({
           score: 10,
           incorrectAnswers: 0,

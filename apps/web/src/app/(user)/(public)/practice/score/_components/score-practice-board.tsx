@@ -193,8 +193,8 @@ function ScorePracticeBoardInner() {
 }
 
 /**
- * 点数計算ドリルのメインボード
- * ドリルボード
+ * 点数計算練習のメインボード
+ * 練習ボード
  */
 export function ScorePracticeBoard() {
   return (

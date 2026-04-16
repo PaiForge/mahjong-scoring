@@ -9,10 +9,10 @@
 /**
  * モジュール別の EXP 重み
  *
- * キーは `menuType`（ドリル種別）。このテーブルに登録されていない menuType は
+ * キーは `menuType`（練習種別）。このテーブルに登録されていない menuType は
  * EXP 付与対象外（`calculateExp` が `null` を返す）となる。
- * 現時点で提供中のチャレンジドリルはすべて有効化済み（重みはいずれも 1）。
- * 将来追加するドリルは、難易度を決めてから明示的にここへ追記して opt-in すること。
+ * 現時点で提供中のチャレンジ練習はすべて有効化済み（重みはいずれも 1）。
+ * 将来追加する練習は、難易度を決めてから明示的にここへ追記して opt-in すること。
  */
 export const MODULE_WEIGHT: Readonly<Record<string, number>> = {
   jantou_fu: 1,

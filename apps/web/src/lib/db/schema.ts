@@ -59,7 +59,7 @@ export type UserRole = typeof userRoles.$inferSelect;
 export type NewUserRole = typeof userRoles.$inferInsert;
 
 /**
- * チャレンジ結果 — ドリルセッションの全記録
+ * チャレンジ結果 — 練習セッションの全記録
  *
  * @description
  * チャレンジモードの完了時に1行挿入される追記専用テーブル。
@@ -71,19 +71,19 @@ export type NewUserRole = typeof userRoles.$inferInsert;
  *
  * - `challenge_results`: 全結果の追記ログ（INSERT のみ）。
  *   期間ランキングおよびユーザー履歴に使用。
- * - `challenge_best_scores`: ユーザー/ドリル/キーごとの
+ * - `challenge_best_scores`: ユーザー/練習/キーごとの
  *   全期間ベストを UPSERT で管理。
  *
- * @design menuType — ドリル種別
+ * @design menuType — 練習種別
  *
- * 各ドリルに対応する値:
+ * 各練習に対応する値:
  * - 'jantou_fu' | 'machi_fu' | 'mentsu_fu' | 'tehai_fu' | 'yaku'
  * `practice/score` は自由練習のため記録対象外。
  *
  * @design leaderboardKey — ランキングセグメントキー
  *
- * ドリル内でランキングを細分化するためのキー。
- * 現時点では全ドリルで 'default' のみ。将来、難易度別や
+ * 練習内でランキングを細分化するためのキー。
+ * 現時点では全練習で 'default' のみ。将来、難易度別や
  * 条件別のセグメントが必要になった場合に拡張可能。
  *
  * @design ランキング基準: score DESC, incorrectAnswers ASC, timeTaken ASC
@@ -96,7 +96,7 @@ export const challengeResults = pgTable(
     id: uuid('id').primaryKey().defaultRandom(),
     /** auth.users(id) への外部キー（Supabase SQL で定義） */
     userId: uuid('user_id').notNull(),
-    /** ドリル種別 */
+    /** 練習種別 */
     menuType: varchar('menu_type', { length: 30 }).notNull(),
     /** ランキングセグメントキー */
     leaderboardKey: varchar('leaderboard_key', { length: 20 }).notNull(),
@@ -126,7 +126,7 @@ export type ChallengeResult = typeof challengeResults.$inferSelect;
 export type NewChallengeResult = typeof challengeResults.$inferInsert;
 
 /**
- * チャレンジベストスコア — ユーザー/ドリル/キーごとの全期間ベスト
+ * チャレンジベストスコア — ユーザー/練習/キーごとの全期間ベスト
  *
  * @description
  * (userId, menuType, leaderboardKey) の組み合わせごとに1行を保持し、
@@ -144,7 +144,7 @@ export const challengeBestScores = pgTable(
   {
     /** auth.users(id) への外部キー（Supabase SQL で定義） */
     userId: uuid('user_id').notNull(),
-    /** ドリル種別 */
+    /** 練習種別 */
     menuType: varchar('menu_type', { length: 30 }).notNull(),
     /** ランキングセグメントキー */
     leaderboardKey: varchar('leaderboard_key', { length: 20 }).notNull(),
@@ -262,7 +262,7 @@ export type NewUserActivityLog = typeof userActivityLog.$inferInsert;
  *
  * - `source`: 付与イベントの種類（例: `'challenge_result'`）
  * - `source_id`: 対応する `challenge_results.id` 等の UUID
- * - `menu_type`: ドリル種別（`challenge_result` の場合）
+ * - `menu_type`: 練習種別（`challenge_result` の場合）
  * - `metadata`: 計算内訳（score, incorrectAnswers, baseExp, 倍率 等）
  */
 export const expEvents = pgTable(
@@ -275,7 +275,7 @@ export const expEvents = pgTable(
     source: varchar('source', { length: 50 }).notNull(),
     /** 付与根拠となる行の ID（冪等キーとしても機能する） */
     sourceId: uuid('source_id'),
-    /** ドリル種別 */
+    /** 練習種別 */
     menuType: varchar('menu_type', { length: 30 }),
     /** 付与された EXP */
     amount: integer('amount').notNull(),

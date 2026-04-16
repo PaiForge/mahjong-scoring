@@ -7,7 +7,7 @@
  * Server Component としてリーダーボードデータを取得し、Client Component に渡す。
  *
  * @flow
- * 1. ドリル終了後に自動リダイレクトされる
+ * 1. 練習終了後に自動リダイレクトされる
  * 2. スコア・正答率を表示
  * 3. 全期間リーダーボード上位3名を表示
  * 4. リーダーボード詳細ページへのリンク
@@ -30,4 +30,8 @@ export const dynamic = 'force-dynamic';
 export default createPracticeResultPage(ResultView, {
   module: 'mentsu_fu',
   playHref: '/practice/mentsu-fu/play',
+  resolveTitle: async () => {
+    const t = await getTranslations('mentsuFu');
+    return t('title');
+  },
 });

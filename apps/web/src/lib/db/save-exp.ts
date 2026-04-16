@@ -34,8 +34,8 @@ interface GrantChallengeExpParams {
  * チャレンジ完了に対する EXP を計算して付与する
  * チャレンジ経験値付与
  *
- * 未登録のドリル種別 (`MODULE_WEIGHT` に無い `menuType`) は `null` を返し、
- * EXP 付与を完全にスキップする（開発中のドリルで誤って EXP を付与しないため）。
+ * 未登録の練習種別 (`MODULE_WEIGHT` に無い `menuType`) は `null` を返し、
+ * EXP 付与を完全にスキップする（開発中の練習で誤って EXP を付与しないため）。
  *
  * 冪等性: `(source, source_id)` の partial unique index に依存し、
  * 同じ `challengeResultId` に対する二重付与を防ぐ。重複検知時は既存イベントの

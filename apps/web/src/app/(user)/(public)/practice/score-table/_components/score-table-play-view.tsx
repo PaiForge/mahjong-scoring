@@ -17,8 +17,8 @@ import type { ScoreTableQuestionResult } from "../_lib/types";
 import { RESULT_STORAGE_KEY } from "../_lib/types";
 
 /**
- * 点数表早引きドリル本体
- * 点数表ドリル
+ * 点数表早引き練習本体
+ * 点数表練習
  */
 export function ScoreTablePlayView() {
   const t = useTranslations("scoreTableChallenge");

@@ -60,7 +60,7 @@ export interface TimerControl {
 }
 
 /**
- * ドリルのゲームセッション管理
+ * 練習のゲームセッション管理
  *
  * タイマー値（elapsedMs, remainingSeconds）を含まないため、100ms ごとの再レンダリングが発生しない。
  * タイマー表示は ChallengeShell 内で useGameTimer を呼び出し、ChallengeShell のみが再レンダリングされる。

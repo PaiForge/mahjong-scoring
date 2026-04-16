@@ -7,7 +7,7 @@ import { PrimaryLinkButton } from "@/app/_components/primary-link-button";
 interface LearnPageLayoutProps {
   /** i18n ネームスペース（例: "jantouFu.learn"） */
   readonly namespace: string;
-  /** ドリルプレイページへのリンク（例: "/practice/jantou-fu/play"） */
+  /** 練習プレイページへのリンク（例: "/practice/jantou-fu/play"） */
   readonly playHref?: string;
   /** ガイドコンテンツ */
   readonly children: ReactNode;
@@ -30,7 +30,7 @@ export async function LearnPageLayout({ namespace, playHref, children }: LearnPa
       {playHref && (
         <div className="mt-10 text-center">
           <PrimaryLinkButton href={playHref} className="px-8 py-3">
-            {t("ctaDrill")}
+            {t("ctaPractice")}
           </PrimaryLinkButton>
         </div>
       )}

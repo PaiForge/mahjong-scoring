@@ -8,8 +8,8 @@ import { Hai, Furo } from "@pai-forge/mahjong-react-ui";
 import { useAutoScale } from "../_hooks/use-auto-scale";
 
 /**
- * ドリル共通の手牌表示に必要なコンテキスト情報
- * ドリルコンテキスト
+ * 練習共通の手牌表示に必要なコンテキスト情報
+ * 練習コンテキスト
  */
 export interface TehaiContext {
   readonly bakaze: Kazehai;
@@ -28,7 +28,7 @@ interface TehaiDisplayProps {
 }
 
 /**
- * ドリル共通の手牌表示コンポーネント
+ * 練習共通の手牌表示コンポーネント
  * 手牌表示
  */
 export const TehaiDisplay = memo(function TehaiDisplay({

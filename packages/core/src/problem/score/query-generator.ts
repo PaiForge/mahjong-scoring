@@ -190,7 +190,7 @@ export function generatePathAndQueryFromQuestion(question: Readonly<ScoreQuestio
 
 /**
  * ScoreQuestion から URLSearchParams を構築する
- * ドリルクエリパラメータ構築
+ * 練習クエリパラメータ構築
  */
 export function buildDrillQueryParams(question: Readonly<ScoreQuestion>): URLSearchParams {
   const params = new URLSearchParams();

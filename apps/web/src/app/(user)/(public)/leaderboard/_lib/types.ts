@@ -12,7 +12,7 @@ export const VALID_PERIODS = ['all-time', 'monthly'] as const satisfies readonly
 
 /**
  * リーダーボードモジュール
- * ドリル種別（DB のスネークケース表記）
+ * 練習種別（DB のスネークケース表記）
  */
 export type LeaderboardModule = PracticeMenuType;
 

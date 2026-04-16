@@ -41,7 +41,7 @@ function detectKazeYakuhai(
       const displayName = getKazeYakuhaiDisplayName(kaze);
       if (displayName) {
         // 連風牌（場風と自風が同じ）の場合、Set により1回だけ追加される。
-        // このドリルは役「名」の選択のみを問うため、翻数（2翻分）は問わない。
+        // この練習は役「名」の選択のみを問うため、翻数（2翻分）は問わない。
         result.push(displayName);
       }
     }
@@ -50,11 +50,11 @@ function detectKazeYakuhai(
   return result;
 }
 
-/** 役ドリル用の面子生成重み（50%順子, 30%刻子, 20%槓子） */
+/** 役練習用の面子生成重み（50%順子, 30%刻子, 20%槓子） */
 const YAKU_MENTSU_WEIGHTS = { shuntsu: 0.5, koutsu: 0.3 } as const;
 
 /**
- * 役選択ドリルの問題を生成する
+ * 役選択練習の問題を生成する
  * ランダムな手牌を構築し、成立する役を正解として返す
  * 役選択問題ジェネレータ
  */

@@ -1,5 +1,6 @@
 import { getTranslations } from "next-intl/server";
 import type { ExpInfo } from "@mahjong-scoring/core";
+import { SectionTitle } from "@/app/_components/section-title";
 
 interface ExpGainDisplayProps {
   readonly expInfo: ExpInfo;
@@ -10,28 +11,28 @@ interface ExpGainDisplayProps {
  * 経験値獲得表示
  *
  * サーバーコンポーネント。`ExpInfo` を props で受け取り、描画のみを行う。
- * 未ログイン・保存失敗時はそもそも props が渡されず、呼び出し元で分岐する。
+ * 他のセクションと統一感を持たせるため、角丸カードではなく
+ * `SectionTitle` 配下のフラットなレイアウトで構成する。
  */
 export async function ExpGainDisplay({ expInfo }: ExpGainDisplayProps) {
   const t = await getTranslations("exp");
   const { earnedExp, level, levelUp, progressPercent } = expInfo;
 
   return (
-    <div className="mt-4 w-full max-w-xs rounded-xl border border-surface-200 bg-white p-4 shadow-sm">
-      {/* Earned EXP */}
+    <section className="mt-10 min-h-[180px] space-y-3">
+      <SectionTitle>{t("label")}</SectionTitle>
+
       <div className="flex items-center justify-between">
-        <span className="text-sm font-medium text-surface-500">{t("label")}</span>
+        <span className="text-sm font-semibold text-surface-900">
+          {t("level", { level })}
+        </span>
         <span className="text-lg font-bold text-primary-600">
           {t("earned", { amount: earnedExp })}
         </span>
       </div>
 
-      {/* Level and progress */}
-      <div className="mt-3">
-        <div className="mb-1.5 flex items-center justify-between">
-          <span className="text-sm font-semibold text-surface-900">
-            {t("level", { level })}
-          </span>
+      <div>
+        <div className="mb-1.5 flex items-center justify-end">
           <span className="text-xs text-surface-500">{progressPercent}%</span>
         </div>
         <div className="h-2 w-full rounded-full bg-surface-100">
@@ -42,14 +43,13 @@ export async function ExpGainDisplay({ expInfo }: ExpGainDisplayProps) {
         </div>
       </div>
 
-      {/* Level up notification */}
       {levelUp && (
-        <div className="mt-3 text-center">
+        <div>
           <span className="inline-block rounded-full bg-primary-100 px-3 py-1 text-sm font-semibold text-primary-700">
             {t("levelUp")}
           </span>
         </div>
       )}
-    </div>
+    </section>
   );
 }

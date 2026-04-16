@@ -45,23 +45,23 @@ interface ChallengeShellProps {
   readonly timerControl: TimerControl;
   /** リザルトページへのパス（例: "/practice/jantou-fu/result"） */
   readonly resultPath: string;
-  /** ドリル本体のUI */
+  /** 練習本体のUI */
   readonly children: ReactNode;
   /** 内部ラッパーの max-w クラス（既定: "max-w-md"） */
   readonly maxWidth?: string;
-  /** ドリル終了時に呼び出されるコールバック（スコア保存等） */
+  /** 練習終了時に呼び出されるコールバック（スコア保存等） */
   readonly onFinish?: (
     args: FinishCallbackArgs,
   ) => Promise<FinishCallbackResult | void | undefined> | FinishCallbackResult | void;
 }
 
 /**
- * ドリル共通シェル（カウントダウン・ステータスバー・ContentContainer）
- * ドリル共通外殻
+ * 練習共通シェル（カウントダウン・ステータスバー・ContentContainer）
+ * 練習共通外殻
  *
  * タイマー状態（elapsedMs, remainingSeconds）は ChallengeShell 内の useGameTimer で管理される。
  * これにより 100ms ごとのタイマー更新は ChallengeShell のみが再レンダリングし、
- * children（ドリル本体の牌画像・選択肢ボタン等）には伝播しない。
+ * children（練習本体の牌画像・選択肢ボタン等）には伝播しない。
  */
 export function ChallengeShell({
   gameSession,

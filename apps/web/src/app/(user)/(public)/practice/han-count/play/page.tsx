@@ -12,7 +12,7 @@ export async function generateMetadata(): Promise<Metadata> {
  * 翻数即答 プレイ
  *
  * @description
- * 翻数即答ドリルのプレイページ。手牌から合計翻数を制限時間内に回答する。
+ * 翻数即答練習のプレイページ。手牌から合計翻数を制限時間内に回答する。
  * セッション終了時にスコアをサーバーに保存し、リーダーボードに反映する。
  *
  * @flow

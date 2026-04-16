@@ -1,58 +1,74 @@
-"use client";
-
-import { useSearchParams } from "next/navigation";
-import { useTranslations } from "next-intl";
 import Link from "next/link";
+import { getTranslations } from "next-intl/server";
 import { ContentContainer } from "@/app/_components/content-container";
 import { PageTitle } from "@/app/_components/page-title";
 import { PrimaryLinkButton } from "@/app/_components/primary-link-button";
+import { SectionTitle } from "@/app/_components/section-title";
 import type { PracticeResultViewProps } from "../_lib/create-practice-result-page";
-import { LeaderboardPreview } from "./leaderboard-preview";
+import { ResultScoreBar } from "./result-score-bar";
 
 /**
- * ドリル結果画面の共通クライアントコンポーネント
- * ドリル結果表示
+ * 練習結果画面の共通ビュー
+ * 練習結果表示
+ *
+ * Server Component。`resultBlock` / `leaderboardBlock` の `Suspense` 境界が
+ * React Server Components のストリーミング機構で正しく機能するよう、このビュー
+ * 自体を Server Component として描画する。
+ *
+ * 以前は `"use client"` だったが、Client Component の props として渡された
+ * `<Suspense>` 境界は RSC シリアライズのタイミング上 fallback → 実コンテンツの
+ * 置換が期待通りに動作しない（スケルトンと実コンテンツが同時に描画される）
+ * 事象が発生したため、Server Component 化した。
+ *
+ * 子要素の `ResultScoreBar` は内部で `useTranslations` を呼ぶ Client Component
+ * だが、Server 親の子として通常通り動作する（RSC の方向制約に合致）。
+ *
+ * 表示順:
+ * 1. PageTitle（練習名） — 即時描画
+ * 2. 「結果」セクション（ScoreBar） — 即時描画（親 page.tsx の searchParams から props で受け取る）
+ * 3. `resultBlock` — 経験値 / 登録 CTA（Suspense 境界）
+ * 4. アクションボタン（もう一度 / 練習一覧に戻る） — 即時描画
+ * 5. `children` — 練習種別固有の追加コンテンツ（問題別フィードバック等）
+ * 6. `leaderboardBlock` — リーダーボードプレビュー（Suspense 境界）
  */
-export function ResultView({ playHref, leaderboardRows, leaderboardDetailPath, children }: PracticeResultViewProps) {
-  const searchParams = useSearchParams();
-  const tc = useTranslations("challenge");
-
-  const correct = Number(searchParams.get("correct") ?? 0);
-  const total = Number(searchParams.get("total") ?? 0);
-  const accuracy = total > 0 ? Math.round((correct / total) * 100) : 0;
+export async function ResultView({
+  practiceTitle,
+  playHref,
+  correct,
+  total,
+  resultBlock,
+  leaderboardBlock,
+  children,
+}: PracticeResultViewProps) {
+  const tc = await getTranslations("challenge");
 
   return (
-    <ContentContainer className="flex flex-col items-center">
-      <PageTitle>{tc("finished")}</PageTitle>
+    <ContentContainer>
+      <PageTitle>{practiceTitle}</PageTitle>
 
-      <div className="mt-8 w-full max-w-xs rounded-xl border border-surface-200 bg-white p-6 shadow-sm text-center">
-        <p className="text-4xl font-bold text-primary-600">
-          {tc("resultScore", { correct, total })}
-        </p>
-        <p className="mt-2 text-sm text-surface-500">
-          {tc("resultAccuracy", { accuracy })}
-        </p>
-      </div>
+      <section className="mt-6 space-y-3">
+        <SectionTitle>{tc("resultSectionTitle")}</SectionTitle>
+        <ResultScoreBar correct={correct} total={total} />
+      </section>
 
-      <div className="mt-8 flex flex-col items-center gap-3 sm:flex-row">
-        <PrimaryLinkButton href={playHref}>
-          {tc("retryButton")}
-        </PrimaryLinkButton>
+      {/* 結果ブロック: 経験値 / 登録 CTA。Suspense + ResultBlockSkeleton で包まれている。 */}
+      {resultBlock}
+
+      <div className="mt-8 flex flex-col gap-3 sm:flex-row">
+        <PrimaryLinkButton href={playHref}>{tc("retryButton")}</PrimaryLinkButton>
         <Link
           href="/practice"
-          className="rounded-lg border border-surface-200 px-6 py-2.5 text-sm font-semibold text-surface-600 transition-colors hover:bg-surface-100"
+          className="inline-flex items-center justify-center rounded-lg border border-surface-200 px-6 py-2.5 text-sm font-semibold text-surface-600 transition-colors hover:bg-surface-100"
         >
           {tc("backToList")}
         </Link>
       </div>
 
-      {/* ドリル固有の追加コンテンツ */}
+      {/* 練習種別固有の追加コンテンツ（問題別フィードバック一覧など） */}
       {children}
 
-      {/* リーダーボードプレビュー（上位3名） */}
-      <div className="mt-8 w-full max-w-md">
-        <LeaderboardPreview rows={leaderboardRows} detailPath={leaderboardDetailPath} />
-      </div>
+      {/* リーダーボードプレビュー。Suspense + LeaderboardSkeleton で包まれている。 */}
+      {leaderboardBlock}
     </ContentContainer>
   );
 }

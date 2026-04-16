@@ -1,7 +1,7 @@
 import type { Tehai14, HaiKindId, Kazehai } from "@pai-forge/riichi-mahjong";
 
 /**
- * 役選択ドリルの問題
+ * 役選択練習の問題
  * 完成手牌と和了状況を提示し、成立する役をすべて選択させる
  * 役選択問題
  */

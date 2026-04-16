@@ -3,7 +3,7 @@ import type { ScoreTableAnswer } from "@mahjong-scoring/core";
 import { createSessionStorageParser } from "./create-session-storage-parser";
 
 /**
- * 1問ごとの結果データ（点数系ドリル共通）
+ * 1問ごとの結果データ（点数系練習共通）
  * 点数問題結果
  */
 export interface ScoreQuestionResult {

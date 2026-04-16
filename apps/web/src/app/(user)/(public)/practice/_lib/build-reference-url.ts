@@ -1,7 +1,7 @@
 import type { ScoreQuestionResult } from "./score-question-result";
 
 /**
- * 点数系ドリルの問題結果から点数表参照ページへのURLを生成する
+ * 点数系練習の問題結果から点数表参照ページへのURLを生成する
  * 点数表リンクURL生成
  */
 export function buildReferenceUrl(

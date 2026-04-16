@@ -1,49 +1,53 @@
-"use client";
-
 import type { ComponentType } from "react";
 import type { PracticeResultViewProps } from "./create-practice-result-page";
 import { ResultView } from "../_components/result-view";
-import { useSessionStorageResult } from "../_hooks/use-session-storage-result";
 
 /**
  * カスタム結果ビューのファクトリー設定
  * カスタム結果ビュー設定
  */
-interface CreateCustomResultViewConfig<T> {
+interface CreateCustomResultViewConfig {
+  /**
+   * sessionStorage から結果を読み取って描画する Client Component。
+   * 関数 props を使わず `storageKey` 文字列のみを受け取る設計にし、
+   * Server → Client 境界のシリアライズ制約を満たす。
+   */
+  readonly ProblemListLoader: ComponentType<{ readonly storageKey: string }>;
   /** sessionStorage のキー */
   readonly storageKey: string;
-  /** 生文字列を型付き配列にパースする関数 */
-  readonly parse: (raw: string | undefined) => readonly T[];
-  /** 問題結果一覧を描画するコンポーネント */
-  readonly ProblemList: ComponentType<{ readonly results: readonly T[] }>;
 }
 
 /**
- * ドリル固有の結果ビューコンポーネントを生成するファクトリー関数
+ * 練習固有の結果ビューコンポーネントを生成するファクトリー関数
  * カスタム結果ビュー生成
  *
- * 共通 ResultView をラップし、sessionStorage からの結果読み取りと
- * 問題別フィードバック一覧の注入を行うクライアントコンポーネントを返す。
+ * Server Component として `ResultView` をラップし、各練習専用の
+ * `ProblemListLoader`（Client Component）を `children` スロットに注入する。
  *
- * @param config - sessionStorage キー、パース関数、問題一覧コンポーネント
- * @returns PracticeResultViewProps を受け取るクライアントコンポーネント
+ * 以前は generic な `ProblemListLoader<T>` に `parse` 関数と `ProblemList`
+ * コンポーネントを props として渡していたが、RSC の Server → Client
+ * 境界では「関数を props として渡せない」制約があり、`Functions cannot
+ * be passed directly to Client Components` ランタイムエラーが発生した。
+ * このため各練習側で専用 Loader を用意し、Server からは `storageKey`
+ * 文字列のみを渡す「Loader Component Pattern」に変更した。
  */
-export function createCustomResultView<T>(
-  config: CreateCustomResultViewConfig<T>,
+export function createCustomResultView(
+  config: CreateCustomResultViewConfig,
 ): ComponentType<PracticeResultViewProps> {
-  const { storageKey, parse, ProblemList } = config;
+  const { ProblemListLoader, storageKey } = config;
 
-  function CustomResultView(props: PracticeResultViewProps) {
-    const questionResults = useSessionStorageResult(storageKey, parse);
-
+  async function CustomResultView(props: PracticeResultViewProps) {
+    // `resultBlock` / `leaderboardBlock` は factory からそのまま透過。
+    // `children` スロットには sessionStorage 読み取り付きの専用 Loader を差し込む。
+    // 渡す props は `storageKey`（string）のみで、関数は一切渡さない。
     return (
       <ResultView {...props}>
-        <ProblemList results={questionResults} />
+        <ProblemListLoader storageKey={storageKey} />
       </ResultView>
     );
   }
 
-  CustomResultView.displayName = `CustomResultView(${ProblemList.displayName ?? ProblemList.name ?? "Unknown"})`;
+  CustomResultView.displayName = `CustomResultView(${ProblemListLoader.displayName ?? ProblemListLoader.name ?? "Unknown"})`;
 
   return CustomResultView;
 }

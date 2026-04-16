@@ -18,8 +18,8 @@ export interface YakuDetail {
 }
 
 /**
- * ドリル問題
- * 点数計算ドリル問題
+ * 練習問題
+ * 点数計算練習問題
  */
 export interface ScoreQuestion {
   /** 手牌（14枚） */
@@ -84,7 +84,7 @@ export interface JudgementResult {
 
 /**
  * 問題生成オプション
- * ドリル問題生成オプション
+ * 練習問題生成オプション
  */
 export interface QuestionGeneratorOptions {
   /** 副露を含めるかどうか */

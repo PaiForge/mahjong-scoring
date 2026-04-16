@@ -30,4 +30,8 @@ export const dynamic = 'force-dynamic';
 export default createPracticeResultPage(ManganScoreCalculationResultView, {
   module: 'mangan_score_calculation',
   playHref: '/practice/mangan-score-calculation/play',
+  resolveTitle: async () => {
+    const t = await getTranslations('manganScoreCalculationChallenge');
+    return t('title');
+  },
 });

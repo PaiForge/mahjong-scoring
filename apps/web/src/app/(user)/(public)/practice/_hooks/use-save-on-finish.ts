@@ -6,7 +6,7 @@ import type { FinishCallbackArgs, FinishCallbackResult } from "./use-finish-redi
 import { savePracticeResult } from "../_actions/save-practice-result";
 
 /**
- * ドリル終了時にチャレンジ結果を保存するコールバックを返す
+ * 練習終了時にチャレンジ結果を保存するコールバックを返す
  * 終了時スコア保存フック
  *
  * 認証チェックは Server Action 側が行う（cookie ベースの Supabase サーバークライアントが
@@ -19,7 +19,7 @@ import { savePracticeResult } from "../_actions/save-practice-result";
  * として返し、このフックはそれを `undefined` に変換してサイレントに no-op する。
  * これにより匿名ユーザーに対する `console.error` のノイズも発生しない。
  *
- * @param menuType ドリル種別（練習メニュー種別）
+ * @param menuType 練習種別（練習メニュー種別）
  */
 export function useSaveOnFinish(
   menuType: PracticeMenuType,

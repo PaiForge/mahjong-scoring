@@ -4,7 +4,7 @@ import { useEffect, useRef } from "react";
 import { useRouter } from "next/navigation";
 import type { FinalResult } from "./use-timed-session";
 
-/** ドリル終了時に呼び出されるコールバックの引数 */
+/** 練習終了時に呼び出されるコールバックの引数 */
 export interface FinishCallbackArgs {
   readonly correctCount: number;
   readonly incorrectCount: number;
@@ -13,7 +13,7 @@ export interface FinishCallbackArgs {
 }
 
 /**
- * ドリル終了コールバックの返り値
+ * 練習終了コールバックの返り値
  * 終了コールバック結果
  *
  * `grant` が設定されている場合、結果ページの URL に `grant=<id>` クエリパラメータとして
@@ -25,7 +25,7 @@ export interface FinishCallbackResult {
 }
 
 interface UseFinishRedirectOptions {
-  /** ドリル終了フラグ */
+  /** 練習終了フラグ */
   readonly isFinished: boolean;
   /**
    * ゲーム終了時の確定結果
@@ -39,7 +39,7 @@ interface UseFinishRedirectOptions {
   /** リダイレクト先パス（例: "/practice/jantou-fu/result"） */
   readonly resultPath: string;
   /**
-   * ドリル終了時に呼び出されるコールバック（スコア保存等）
+   * 練習終了時に呼び出されるコールバック（スコア保存等）
    * `FinishCallbackResult` を返すと、結果ページ URL にクエリパラメータが追加される。
    */
   readonly onFinish?: (
@@ -48,7 +48,7 @@ interface UseFinishRedirectOptions {
 }
 
 /**
- * ドリル終了時にリザルトページへリダイレクトする
+ * 練習終了時にリザルトページへリダイレクトする
  * 終了時リダイレクト
  *
  * `finalResult` が確定（undefined でない）かつ `isFinished` が true のとき、

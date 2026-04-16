@@ -12,7 +12,7 @@ interface QuitConfirmModalProps {
 /**
  * 途中でやめる確認モーダル
  *
- * ドリル中に「やめる」を押した際に表示する確認ダイアログ。
+ * 練習中に「やめる」を押した際に表示する確認ダイアログ。
  * ConfirmationModal の薄いラッパーで、翻訳ラベルを注入する。
  */
 export function QuitConfirmModal({

@@ -107,7 +107,7 @@ export async function saveChallengeResult(
   });
 
   // EXP が付与された場合のみ、ヒートマップのキャッシュタグを無効化する。
-  // 未登録 menuType（開発中ドリル）の場合は付与自体がスキップされるためキャッシュ無効化も不要。
+  // 未登録 menuType（開発中練習）の場合は付与自体がスキップされるためキャッシュ無効化も不要。
   if (result.expGranted) {
     revalidateTag(expHeatmapCacheTag(userId), 'default');
   }
