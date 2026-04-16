@@ -48,6 +48,7 @@ const PRACTICE_MENU_REGISTRY = [
   { menuType: 'score_table', slug: 'score-table', messageKey: 'scoreTable' },
   { menuType: 'score_calculation', slug: 'score-calculation', messageKey: 'scoreCalculation' },
   { menuType: 'han_count', slug: 'han-count', messageKey: 'hanCount' },
+  { menuType: 'mangan_score_calculation', slug: 'mangan-score-calculation', messageKey: 'manganScoreCalculation' },
 ] as const satisfies readonly PracticeMenuEntry[];
 
 // ---------------------------------------------------------------------------
