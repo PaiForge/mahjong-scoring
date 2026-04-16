@@ -12,39 +12,41 @@ import {
  * @param han - 選択された翻数（未選択の場合は undefined）
  * @param isOya - 親かどうか
  * @param isTsumo - ツモかどうか
+ * @param manganOnly - true の場合、翻数にかかわらず満貫以上の点数のみ返す
  */
 export function getAvailableScores(
   han: number | undefined,
   isOya: boolean,
   isTsumo: boolean,
+  manganOnly?: boolean,
 ): AvailableScores {
   const isKoTsumo = isTsumo && !isOya;
 
   if (isKoTsumo) {
     return {
       type: "koTsumo",
-      koScores: filterByHan(TSUMO_SCORES_KO_PART, han, "tsumoKo"),
-      oyaScores: filterByHan(TSUMO_SCORES_OYA_PART, han, "tsumoOya"),
+      koScores: filterByHan(TSUMO_SCORES_KO_PART, han, "tsumoKo", manganOnly),
+      oyaScores: filterByHan(TSUMO_SCORES_OYA_PART, han, "tsumoOya", manganOnly),
     };
   }
 
   if (isOya && isTsumo) {
     return {
       type: "single",
-      scores: filterByHan(TSUMO_SCORES_OYA_PART, han, "tsumoOyaAll"),
+      scores: filterByHan(TSUMO_SCORES_OYA_PART, han, "tsumoOyaAll", manganOnly),
     };
   }
 
   if (isOya) {
     return {
       type: "single",
-      scores: filterByHan(RON_SCORES_OYA, han, "ronOya"),
+      scores: filterByHan(RON_SCORES_OYA, han, "ronOya", manganOnly),
     };
   }
 
   return {
     type: "single",
-    scores: filterByHan(RON_SCORES_KO, han, "ronKo"),
+    scores: filterByHan(RON_SCORES_KO, han, "ronKo", manganOnly),
   };
 }
 
@@ -82,10 +84,15 @@ function filterByHan(
   scores: readonly number[],
   han: number | undefined,
   category: ScoreCategory,
+  manganOnly?: boolean,
 ): readonly number[] {
-  if (han === undefined) return scores;
-
   const threshold = MANGAN_THRESHOLDS[category];
+
+  if (manganOnly) {
+    return scores.filter((s) => s >= threshold);
+  }
+
+  if (han === undefined) return scores;
 
   if (han >= 5) {
     return scores.filter((s) => s >= threshold);

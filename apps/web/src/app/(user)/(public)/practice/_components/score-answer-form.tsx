@@ -19,6 +19,8 @@ interface ScoreAnswerFormProps {
   readonly disabled?: boolean;
   /** i18n の翻訳ネームスペース */
   readonly translationNamespace: string;
+  /** 満貫以上の点数のみ表示する */
+  readonly manganOnly?: boolean;
 }
 
 /**
@@ -35,6 +37,7 @@ export function ScoreAnswerForm({
   onSubmit,
   disabled = false,
   translationNamespace,
+  manganOnly,
 }: ScoreAnswerFormProps) {
   const t = useTranslations(translationNamespace);
   const [score, setScore] = useState<string>("");
@@ -44,7 +47,7 @@ export function ScoreAnswerForm({
   const isKoTsumo = isTsumo && !isOya;
   const isOyaTsumo = isTsumo && isOya;
 
-  const availableScores = getAvailableScores(han, isOya, isTsumo);
+  const availableScores = getAvailableScores(han, isOya, isTsumo, manganOnly);
 
   // 問題が変わったときにフォームをリセットする
   useEffect(() => {
