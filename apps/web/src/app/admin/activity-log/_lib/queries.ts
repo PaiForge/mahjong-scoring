@@ -3,7 +3,7 @@ import { and, desc, eq, sql } from 'drizzle-orm';
 
 import { db, userActivityLog } from '../../../../lib/db';
 import { getPaginationData, DEFAULT_PAGE_SIZE } from '../../../../lib/pagination';
-import { buildEmailMap, buildProfileMap, buildUserFilterCondition } from '../../_lib/log-query-helpers';
+import { buildEmailMap, buildProfileMap, buildUserFilterCondition, fetchAllAuthUsers } from '../../_lib/log-query-helpers';
 
 import type { Profile, UserActivityLog } from '../../../../lib/db';
 
@@ -19,7 +19,11 @@ interface ActivityLogPageData {
 
 /**
  * アクティビティログページのデータを取得する。
- * アクティビティログデータ取得
+ *
+ * NOTE: audit-log/queries.ts と構造が類似しているが、操作対象のテーブル・
+ * カラム・戻り値型が異なるため、Drizzle の型制約上ジェネリックな共通関数に
+ * 抽出するとかえって複雑になる。共通化可能なヘルパー（ユーザーフィルタ・
+ * プロフィール/メール解決）は log-query-helpers.ts に既に抽出済み。
  */
 export async function fetchActivityLogPageData(
   adminClient: SupabaseClient,
@@ -27,6 +31,9 @@ export async function fetchActivityLogPageData(
   actionFilter: string,
   userFilter: string,
 ): Promise<ActivityLogPageData> {
+  // 認証ユーザー一覧を一度だけ取得
+  const allUsers = await fetchAllAuthUsers(adminClient);
+
   // Where 条件を構築
   const conditions = [];
   if (actionFilter) {
@@ -35,7 +42,7 @@ export async function fetchActivityLogPageData(
 
   // ユーザーフィルタ
   const { matchedIds: filteredUserIds, condition: userCondition } =
-    await buildUserFilterCondition(adminClient, userFilter, userActivityLog.userId);
+    await buildUserFilterCondition(allUsers, userFilter, userActivityLog.userId);
   if (userCondition) {
     conditions.push(userCondition);
   }
@@ -68,7 +75,7 @@ export async function fetchActivityLogPageData(
   const allLookupIds = [...new Set([...userIds, ...targetIds])];
 
   const profileMap = await buildProfileMap(allLookupIds);
-  const emailMap = await buildEmailMap(adminClient, allLookupIds);
+  const emailMap = buildEmailMap(allUsers, allLookupIds);
 
   // アクション種別一覧（フィルタ用）
   const actionTypes = await db

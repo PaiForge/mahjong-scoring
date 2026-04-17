@@ -3,8 +3,8 @@
 import { useState, useCallback } from "react";
 import { useRouter } from "next/navigation";
 import { useTranslations } from "next-intl";
-import { useScoreSettingsStore } from "../_lib/use-score-settings-store";
-import { useScorePracticeStore } from "../_lib/use-score-practice-store";
+import { useScoreSettingsStore } from "../_hooks/use-score-settings-store";
+import { useScorePracticeStore } from "../_hooks/use-score-practice-store";
 import { InfoModal } from "@/app/_components/info-modal";
 import { useIsClient } from "../../_hooks/use-is-client";
 import { SettingToggle } from "./setting-toggle";

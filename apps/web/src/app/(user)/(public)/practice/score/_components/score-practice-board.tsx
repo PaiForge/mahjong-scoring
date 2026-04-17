@@ -7,7 +7,7 @@ import { isOya } from "@mahjong-scoring/core";
 import { toast } from "react-hot-toast";
 import { useTranslations } from "next-intl";
 import { ContentContainer } from "@/app/_components/content-container";
-import { useScorePracticeStore } from "../_lib/use-score-practice-store";
+import { useScorePracticeStore } from "../_hooks/use-score-practice-store";
 import type { UserAnswer } from "@mahjong-scoring/core";
 import { useIsClient } from "../../_hooks/use-is-client";
 import { useQuitConfirm } from "../../_hooks/use-quit-confirm";

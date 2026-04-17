@@ -3,7 +3,7 @@ import { and, desc, eq, sql } from 'drizzle-orm';
 
 import { db, moderationActions } from '../../../../lib/db';
 import { getPaginationData, DEFAULT_PAGE_SIZE } from '../../../../lib/pagination';
-import { buildEmailMap, buildProfileMap, buildUserFilterCondition } from '../../_lib/log-query-helpers';
+import { buildEmailMap, buildProfileMap, buildUserFilterCondition, fetchAllAuthUsers } from '../../_lib/log-query-helpers';
 
 import type { ModerationAction, Profile } from '../../../../lib/db';
 
@@ -18,7 +18,11 @@ interface AuditLogPageData {
 
 /**
  * 監査ログページのデータを取得する。
- * 監査ログデータ取得
+ *
+ * NOTE: activity-log/queries.ts と構造が類似しているが、操作対象のテーブル・
+ * カラム・戻り値型が異なるため、Drizzle の型制約上ジェネリックな共通関数に
+ * 抽出するとかえって複雑になる。共通化可能なヘルパー（ユーザーフィルタ・
+ * プロフィール/メール解決）は log-query-helpers.ts に既に抽出済み。
  */
 export async function fetchAuditLogPageData(
   adminClient: SupabaseClient,
@@ -26,6 +30,9 @@ export async function fetchAuditLogPageData(
   actionFilter: string,
   userFilter: string,
 ): Promise<AuditLogPageData> {
+  // 認証ユーザー一覧を一度だけ取得
+  const allUsers = await fetchAllAuthUsers(adminClient);
+
   // Where 条件を構築
   const conditions = [];
   if (actionFilter) {
@@ -34,7 +41,7 @@ export async function fetchAuditLogPageData(
 
   // ユーザーフィルタ: プロフィール検索 + メール検索
   const { matchedIds: filteredTargetIds, condition: userCondition } =
-    await buildUserFilterCondition(adminClient, userFilter, moderationActions.targetId);
+    await buildUserFilterCondition(allUsers, userFilter, moderationActions.targetId);
   if (userCondition) {
     conditions.push(userCondition);
   }
@@ -67,7 +74,7 @@ export async function fetchAuditLogPageData(
   const allUserIds = [...new Set([...targetIds, ...actorIds])];
 
   const profileMap = await buildProfileMap(targetIds);
-  const emailMap = await buildEmailMap(adminClient, allUserIds);
+  const emailMap = buildEmailMap(allUsers, allUserIds);
 
   return {
     logs,
