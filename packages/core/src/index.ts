@@ -23,14 +23,12 @@ export { judgeYakuAnswer } from "./problem/yaku/judgement";
 export { SELECTABLE_YAKU } from "./problem/yaku/constants";
 export type { YakuQuestion } from "./problem/yaku/types";
 
+// === Problem: Shared ===
+export { retryGenerate } from "./problem/retry-generate";
+
 // === Problem: Score ===
-export { ScoreQuestionGenerator, generateScoreQuestion, generateValidScoreQuestion } from "./problem/score/generator";
+export { generateValidScoreQuestion } from "./problem/score/generator";
 export { judgeAnswer, isMangan, getScoreLevelName } from "./problem/score/judgement";
-export {
-  generateQuestionFromQuery,
-  generatePathAndQueryFromQuestion,
-  buildDrillQueryParams,
-} from "./problem/score/query-generator";
 export type {
   ScoreQuestion,
   UserAnswer,
@@ -38,12 +36,8 @@ export type {
   QuestionGeneratorOptions,
   YakuDetail,
 } from "./problem/score/types";
-export type { QueryResult } from "./problem/score/query-generator";
 
 // === Score ===
-export { recalculateScore } from "./score/calculator";
-export { convertScoreDetailToFuDetails } from "./score/fu-calculator";
-export type { FuDetail } from "./score/fu-calculator";
 export {
   RON_SCORES_KO,
   RON_SCORES_OYA,
@@ -53,32 +47,18 @@ export {
 
 // === Core ===
 export {
-  KAZEHAI,
-  SANGENHAI,
-  SUIT_BASES,
-  ScoreLevel,
-  SCORE_YAKU_NAME_MAP,
-  getYakuNameJa,
-  IGNORE_YAKU_FOR_JUDGEMENT,
   YAKU_OPTIONS,
 } from "./core/constants";
 export {
   getKazeName,
-  getHaiName,
   getDoraFromIndicator,
-  countDoraInTehai,
-  getKeyForKazehai,
 } from "./core/hai-names";
-export { randomChoice, shuffle, randomInt } from "./core/random";
 export {
-  calculateBasePoints,
   calculateKoScore,
   calculateOyaScore,
   isInvalidCell,
   HIGH_SCORES,
 } from "./core/score-calculation";
-export { isHaiKindId, validateHaiKindId } from "./core/type-guards";
-export { HaiUsageTracker } from "./core/hai-tracker";
 
 // === Problem: Score Table Practice ===
 export { generateScoreTableQuestion } from "./problem/score-table/generator";
@@ -87,29 +67,17 @@ export type {
   ScoreTableQuestion,
   ScoreTableAnswer,
   ScoreTableUserAnswer,
-  ScoreTableGeneratorOptions,
-  RonAnswer,
-  OyaTsumoAnswer,
-  KoTsumoAnswer,
 } from "./problem/score-table/types";
 
 // === EXP ===
-export { calculateExp, getExpForLevel, getLevel, getLevelProgress } from "./exp";
-export {
-  EXP_CURVE,
-  MIN_COMPLETION_EXP,
-  MISS_BONUS,
-  MODULE_WEIGHT,
-} from "./exp";
-export type { ExpInfo, ExpInput, ExpResult, LevelProgress } from "./exp";
+export { calculateExp, getLevel, getLevelProgress } from "./exp";
+export type { ExpInfo } from "./exp";
 
 // === Re-exports from @pai-forge/riichi-mahjong ===
 export { HaiKind, MentsuType } from "@pai-forge/riichi-mahjong";
 export type {
   HaiKindId,
   Kazehai,
-  CompletedMentsu,
   Tehai14,
-  ScoreResult,
   Payment,
 } from "@pai-forge/riichi-mahjong";
