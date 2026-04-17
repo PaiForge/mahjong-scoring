@@ -2,7 +2,7 @@
 
 import { useMemo } from "react";
 import { Hai, Furo } from "@pai-forge/mahjong-react-ui";
-import { HaiKind, MentsuType } from "@mahjong-scoring/core";
+import { MentsuType, isOya } from "@mahjong-scoring/core";
 import type { ScoreQuestion } from "@mahjong-scoring/core";
 import { getKazeName, getDoraFromIndicator } from "@mahjong-scoring/core";
 import { useResponsiveHaiSize } from "../../_hooks/use-responsive-hai-size";
@@ -19,7 +19,7 @@ interface QuestionDisplayProps {
 export function QuestionDisplay({ question }: QuestionDisplayProps) {
   const t = useTranslations("score");
   const { tehai, agariHai, isTsumo, jikaze, bakaze, doraMarkers } = question;
-  const isOya = jikaze === HaiKind.Ton;
+  const oya = isOya(jikaze);
   const haiSize = useResponsiveHaiSize();
 
   const closedWithoutAgari = useMemo(() => {
@@ -47,7 +47,7 @@ export function QuestionDisplay({ question }: QuestionDisplayProps) {
             {getKazeName(bakaze)}
             {t("question.round")} {getKazeName(jikaze)}
             {t("question.wind")}
-            {isOya ? (
+            {oya ? (
               <span className="ml-2 text-yellow-300">{t("question.dealer")}</span>
             ) : (
               <span className="ml-2 text-white">{t("question.nonDealer")}</span>

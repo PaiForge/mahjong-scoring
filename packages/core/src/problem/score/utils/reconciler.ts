@@ -7,7 +7,7 @@ import {
 } from "@pai-forge/riichi-mahjong";
 import type { YakuDetail } from "../types";
 import { recalculateScore } from "../../../score/calculator";
-import { getKeyForKazehai } from "../../../core/hai-names";
+import { getKeyForKazehai, isOya } from "../../../core/hai-names";
 import { isHaiKindId } from "../../../core/type-guards";
 import { countHaiInTehai } from "../../shared/hai-count";
 
@@ -76,7 +76,7 @@ export function reconcileYakuhai(
     const newHan = answer.han + extraYakuhaiHan;
     const newAnswer = recalculateScore(answer, newHan, {
       isTsumo,
-      isOya: jikaze === HaiKind.Ton,
+      isOya: isOya(jikaze),
     });
     return { answer: newAnswer, additionalYakuDetails };
   }
@@ -143,7 +143,7 @@ export function applyRiichiAndUraDora(
   const newHan = currentAnswer.han + extraHan;
   const answer = recalculateScore(currentAnswer, newHan, {
     isTsumo,
-    isOya: jikaze === HaiKind.Ton,
+    isOya: isOya(jikaze),
   });
 
   return { answer, uraDoraMarkers, additionalYakuDetails };

@@ -3,7 +3,7 @@
 import { useEffect, useCallback, useRef } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { Suspense } from "react";
-import { HaiKind } from "@mahjong-scoring/core";
+import { isOya } from "@mahjong-scoring/core";
 import { toast } from "react-hot-toast";
 import { useTranslations } from "next-intl";
 import { ContentContainer } from "@/app/_components/content-container";
@@ -162,7 +162,7 @@ function ScorePracticeBoardInner() {
             onSubmit={handleSubmit}
             disabled={isAnswered}
             isTsumo={currentQuestion.isTsumo}
-            isOya={currentQuestion.jikaze === HaiKind.Ton}
+            isOya={isOya(currentQuestion.jikaze)}
             requireYaku={requireYaku}
             simplifyMangan={simplifyMangan}
             requireFuForMangan={requireFuForMangan}

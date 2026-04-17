@@ -52,6 +52,7 @@ export {
 export {
   getKazeName,
   getDoraFromIndicator,
+  isOya,
 } from "./core/hai-names";
 export {
   calculateKoScore,

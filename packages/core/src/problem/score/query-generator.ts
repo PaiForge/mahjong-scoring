@@ -11,7 +11,7 @@ import {
 } from "@pai-forge/riichi-mahjong";
 import type { ScoreQuestion, YakuDetail } from "./types";
 import { recalculateScore } from "../../score/calculator";
-import { countDoraInTehai } from "../../core/hai-names";
+import { countDoraInTehai, isOya } from "../../core/hai-names";
 import {
   haiIdToMspz,
   kazeIdToMspz,
@@ -115,7 +115,7 @@ export function generateQuestionFromQuery(params: URLSearchParams): QueryResult 
     const jikaze = parseKazehai(jiStr) ?? HaiKind.Ton;
 
     const uraDoraMarkers = uraDoraStr ? parseHais(uraDoraStr) : undefined;
-    const isOya = jikaze === HaiKind.Ton;
+    const oya = isOya(jikaze);
 
     const answer = calculateScoreForTehai(tehai, {
       agariHai,
@@ -136,7 +136,7 @@ export function generateQuestionFromQuery(params: URLSearchParams): QueryResult 
       const addedHan = 1;
       const uraDoraHan = uraDoraMarkers ? countDoraInTehai(tehai, uraDoraMarkers) : 0;
 
-      finalAnswer = recalculateScore(answer, answer.han + addedHan + uraDoraHan, { isTsumo, isOya });
+      finalAnswer = recalculateScore(answer, answer.han + addedHan + uraDoraHan, { isTsumo, isOya: oya });
 
       yakuDetails.unshift({ name: "立直", han: 1 });
       if (uraDoraHan > 0) {
