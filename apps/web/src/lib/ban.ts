@@ -1,19 +1,14 @@
-import { eq } from 'drizzle-orm';
 import 'server-only';
 
-import { db, profiles } from './db';
+import { getProfileCoreByUserId } from './db/queries';
 
 /**
  * ユーザーが BAN されているかチェックする。
- * profiles.bannedAt が non-null の場合に true を返す。
+ * `getProfileCoreByUserId` の React cache を共有し、同一リクエスト内で
+ * プロフィール取得と BAN チェックが重複クエリを発行しない。
  * BAN チェック
  */
 export async function isUserBanned(userId: string): Promise<boolean> {
-  const [profile] = await db
-    .select({ bannedAt: profiles.bannedAt })
-    .from(profiles)
-    .where(eq(profiles.id, userId))
-    .limit(1);
-
+  const profile = await getProfileCoreByUserId(userId);
   return profile?.bannedAt != null;
 }

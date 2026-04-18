@@ -31,6 +31,7 @@ describe('MODULES', () => {
       'score_table',
       'score_calculation',
       'han_count',
+      'mangan_score_calculation',
     ]);
   });
 });

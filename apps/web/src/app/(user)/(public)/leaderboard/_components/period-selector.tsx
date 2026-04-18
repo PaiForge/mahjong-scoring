@@ -1,32 +1,36 @@
-'use client';
+import Link from 'next/link';
+import { getTranslations } from 'next-intl/server';
 
-import { useMemo } from 'react';
-import { useTranslations } from 'next-intl';
-
-import { ToggleGroup } from '@/app/_components/toggle-group';
-
-import type { LeaderboardPeriod } from '../_lib/types';
-import { VALID_PERIODS } from '../_lib/types';
+import type { LeaderboardModule, LeaderboardPeriod } from '../_lib/types';
+import { VALID_PERIODS, buildDetailPath } from '../_lib/types';
 
 interface PeriodSelectorProps {
   readonly currentPeriod: LeaderboardPeriod;
-  readonly onPeriodChange: (period: LeaderboardPeriod) => void;
+  readonly module: LeaderboardModule;
 }
 
 /**
  * 期間セレクター
  * リーダーボードの期間切り替えコンポーネント
  */
-export function PeriodSelector({ currentPeriod, onPeriodChange }: PeriodSelectorProps) {
-  const t = useTranslations('leaderboard');
+export async function PeriodSelector({ currentPeriod, module: mod }: PeriodSelectorProps) {
+  const t = await getTranslations('leaderboard');
 
-  const options = useMemo(
-    () => VALID_PERIODS.map((p) => ({
-      value: p,
-      label: t(`period.${p}`),
-    })),
-    [t],
+  return (
+    <div className="flex rounded-md border border-primary-200 bg-primary-50 p-0.5">
+      {VALID_PERIODS.map((p) => (
+        <Link
+          key={p}
+          href={buildDetailPath(p, mod)}
+          className={`rounded-md px-2 py-1 text-xs font-medium transition-all ${
+            currentPeriod === p
+              ? 'bg-primary-600 text-white'
+              : 'text-surface-700 hover:bg-surface-100'
+          }`}
+        >
+          {t(`period.${p}`)}
+        </Link>
+      ))}
+    </div>
   );
-
-  return <ToggleGroup options={options} selected={currentPeriod} onChange={onPeriodChange} />;
 }

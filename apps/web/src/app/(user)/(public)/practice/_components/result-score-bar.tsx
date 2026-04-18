@@ -1,6 +1,4 @@
-"use client";
-
-import { useTranslations } from "next-intl";
+import { getTranslations } from "next-intl/server";
 
 interface ResultScoreBarProps {
   readonly correct: number;
@@ -15,8 +13,8 @@ interface ResultScoreBarProps {
  * セグメント幅は割合で計算し、各セグメント内に件数を表示する。
  * 凡例（正解/不正解）と正答率テキストもあわせて表示する。
  */
-export function ResultScoreBar({ correct, total }: ResultScoreBarProps) {
-  const tc = useTranslations("challenge");
+export async function ResultScoreBar({ correct, total }: ResultScoreBarProps) {
+  const tc = await getTranslations("challenge");
   const safeTotal = Math.max(total, 0);
   const safeCorrect = Math.max(Math.min(correct, safeTotal), 0);
   const incorrect = safeTotal - safeCorrect;

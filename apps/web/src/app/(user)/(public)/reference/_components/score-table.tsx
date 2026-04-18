@@ -70,13 +70,30 @@ export function ScoreTable() {
   const [winType, setWinType] = useState<WinType>(initialWinType);
   const [hiddenCells, setHiddenCells] = useState<Record<string, boolean>>({});
 
+  const isKo = activeTab === "ko";
+
+  /** 符・翻の点数計算結果グリッド（activeTab / winType のみに依存） */
+  const scoreGrid = useMemo(() => {
+    const grid = new Map<string, ReturnType<typeof calculateKoScore>>();
+    for (const fu of FU_ROWS) {
+      for (const han of HAN_COLS) {
+        if (!isInvalidCell(han, fu, winType)) {
+          const key = `${han}-${fu}`;
+          grid.set(
+            key,
+            isKo ? calculateKoScore(han, fu) : calculateOyaScore(han, fu),
+          );
+        }
+      }
+    }
+    return grid;
+  }, [isKo, winType]);
+
   useEffect(() => {
     if (highlightRef.current) {
       highlightRef.current.scrollIntoView({ behavior: "smooth", block: "center" });
     }
   }, []);
-
-  const isKo = activeTab === "ko";
 
   const toggleCell = useCallback((id: string) => {
     setHiddenCells((prev) => ({ ...prev, [id]: !prev[id] }));
@@ -160,7 +177,8 @@ export function ScoreTable() {
                         {fu}
                       </td>
                       {HAN_COLS.map((han) => {
-                        if (isInvalidCell(han, fu, winType)) {
+                        const score = scoreGrid.get(`${han}-${fu}`);
+                        if (!score) {
                           return (
                             <td key={han} className="px-4 py-3 text-surface-400">
                               -
@@ -168,9 +186,6 @@ export function ScoreTable() {
                           );
                         }
 
-                        const score = isKo
-                          ? calculateKoScore(han, fu)
-                          : calculateOyaScore(han, fu);
                         const cellId = `${activeTab}-${winType}-${han}han-${fu}fu`;
                         const isHidden = !!hiddenCells[cellId];
                         const isHighlighted = cellId === highlightCellId;

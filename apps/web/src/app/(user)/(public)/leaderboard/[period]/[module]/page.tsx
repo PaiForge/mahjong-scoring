@@ -98,7 +98,7 @@ async function DetailContent({
       currentUserId={currentUserId}
       data={data}
       currentPage={page}
-      initialPeriod={period}
+      period={period}
     />
   );
 }

@@ -31,6 +31,7 @@ export function BrandLogo({ size }: BrandLogoProps) {
         width={572}
         height={441}
         className={config.imageClass}
+        priority
       />
       <span className={`${config.textClass} font-bold`}>
         <span className="text-primary-700">{t("brandMahjong")}</span>

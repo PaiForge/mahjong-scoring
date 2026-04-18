@@ -43,6 +43,7 @@ const hanPractices: readonly PracticeDef[] = [
 
 const scoringPractices: readonly PracticeDef[] = [
   { href: "/practice/score-table/play", titleKey: "practices.scoreTable.title", descriptionKey: "practices.scoreTable.description", difficulty: "intermediate" },
+  { href: "/practice/mangan-score-calculation/play", titleKey: "practices.manganScoreCalculation.title", descriptionKey: "practices.manganScoreCalculation.description", difficulty: "intermediate" },
   { href: "/practice/score-calculation/play", titleKey: "practices.scoreCalculation.title", descriptionKey: "practices.scoreCalculation.description", difficulty: "advanced" },
 ];
 

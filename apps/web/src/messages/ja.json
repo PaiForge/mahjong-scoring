@@ -93,6 +93,10 @@
       "hanCount": {
         "title": "翻数即答",
         "description": "手牌から合計翻数を素早く回答するチャレンジ練習"
+      },
+      "manganScoreCalculation": {
+        "title": "満貫以上点数計算",
+        "description": "役と翻数が表示された満貫以上の手牌から点数を答えるチャレンジ練習"
       }
     },
     "comprehensiveBanner": {
@@ -780,7 +784,8 @@
         "yaku": "役",
         "scoreTable": "点数表早引き",
         "scoreCalculation": "点数計算",
-        "hanCount": "翻数即答"
+        "hanCount": "翻数即答",
+        "manganScoreCalculation": "満貫以上点数計算"
       }
     },
     "challengeResults": {
@@ -913,7 +918,8 @@
       "yaku": "役",
       "scoreTable": "点数表早引き",
       "scoreCalculation": "点数計算",
-      "hanCount": "翻数即答"
+      "hanCount": "翻数即答",
+      "manganScoreCalculation": "満貫以上点数計算"
     },
     "moduleIcon": {
       "jantouFu": "🀄",
@@ -923,7 +929,8 @@
       "yaku": "🏆",
       "scoreTable": "📈",
       "scoreCalculation": "🎲",
-      "hanCount": "🔢"
+      "hanCount": "🔢",
+      "manganScoreCalculation": "💰"
     },
     "rankLabel": "{rank} 位",
     "notRanked": "未挑戦",
@@ -993,6 +1000,32 @@
     "all": "オール",
     "answer": "回答する",
     "generating": "問題を生成中...",
+    "result": {
+      "problemDetails": "問題の詳細",
+      "correctAnswer": "正解",
+      "yourAnswer": "あなたの回答",
+      "correct": "正解",
+      "incorrect": "不正解"
+    }
+  },
+  "manganScoreCalculationChallenge": {
+    "title": "満貫以上点数計算ドリル",
+    "description": "役と翻数が表示された満貫以上の手牌から正しい点数を答えるドリルです",
+    "oya": "親",
+    "ko": "子",
+    "tsumo": "ツモ",
+    "ron": "ロン",
+    "han": "{count}翻",
+    "fu": "{count}符",
+    "selectScore": "点数を選択",
+    "fromKo": "子から",
+    "fromOya": "親から",
+    "all": "オール",
+    "answer": "回答する",
+    "generating": "問題を生成中...",
+    "yakuListTitle": "成立役",
+    "yakuHanSuffix": "{count}翻",
+    "yakuTotalHan": "合計 {count}翻",
     "result": {
       "problemDetails": "問題の詳細",
       "correctAnswer": "正解",

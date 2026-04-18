@@ -21,7 +21,18 @@ export default async function ReferencePage() {
       <p className="mt-3 text-sm text-surface-500">{t("pageDescription")}</p>
 
       <div className="mt-6">
-        <Suspense>
+        <Suspense
+          fallback={
+            <div className="w-full space-y-3">
+              <div className="flex justify-end gap-2">
+                {Array.from({ length: 3 }, (_, i) => (
+                  <div key={i} className="h-8 w-20 bg-surface-200 rounded animate-pulse" />
+                ))}
+              </div>
+              <div className="h-[400px] w-full rounded-xl border border-surface-200 bg-surface-50 animate-pulse" />
+            </div>
+          }
+        >
           <ScoreTable />
         </Suspense>
       </div>

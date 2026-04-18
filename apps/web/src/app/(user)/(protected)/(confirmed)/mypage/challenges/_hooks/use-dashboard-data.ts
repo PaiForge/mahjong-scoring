@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useMemo, useState, useTransition } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState, useTransition } from "react";
 
 import type { PracticeMenuType } from "@/lib/db/practice-menu-types";
 
@@ -24,39 +24,53 @@ import type {
 
 const TABLE_DISPLAY_LIMIT = 5;
 
+interface UseDashboardDataOptions {
+  /** サーバーサイドでプリフェッチした利用可能メニュー種別 */
+  readonly initialMenuTypes: readonly PracticeMenuType[];
+  /** サーバーサイドでプリフェッチした初期セッションデータ */
+  readonly initialSessions: {
+    readonly current: readonly ChallengeSession[];
+    readonly previous: readonly ChallengeSession[];
+  };
+}
+
 /**
  * ダッシュボードのデータ取得・状態管理を行うカスタムフック
+ * サーバーサイドプリフェッチした初期データを受け取り、初回の fetch を省略する。
  * ダッシュボードデータフック
  */
-export function useDashboardData() {
+export function useDashboardData({
+  initialMenuTypes,
+  initialSessions,
+}: UseDashboardDataOptions) {
+  const firstMenu = initialMenuTypes.length > 0 ? initialMenuTypes[0] : undefined;
+
   const [selectedMenu, setSelectedMenu] = useState<
     PracticeMenuType | undefined
-  >(undefined);
+  >(firstMenu);
   const [selectedPeriod, setSelectedPeriod] = useState<DatePeriod>("thisWeek");
   const [availableMenuTypes, setAvailableMenuTypes] = useState<
     PracticeMenuType[] | undefined
-  >(undefined);
+  >([...initialMenuTypes]);
   const [currentSessions, setCurrentSessions] = useState<ChallengeSession[]>(
-    [],
+    [...initialSessions.current],
   );
   const [previousSessions, setPreviousSessions] = useState<ChallengeSession[]>(
-    [],
+    [...initialSessions.previous],
   );
   const [isPending, startTransition] = useTransition();
 
-  useEffect(() => {
-    startTransition(async () => {
-      const types = await getAvailableMenuTypes();
-      setAvailableMenuTypes(types);
-      if (types.length > 0 && !selectedMenu) {
-        setSelectedMenu(types[0]);
-      }
-    });
-    // eslint-disable-next-line react-hooks/exhaustive-deps -- 初回のみ
-  }, []);
+  // 初期データがプリフェッチ済みなので初回 fetch をスキップするためのフラグ
+  const isInitialMount = useRef(true);
 
   const fetchSessions = useCallback(() => {
     if (!selectedMenu) return;
+
+    // 初回マウント時はサーバーサイドのプリフェッチデータを使用
+    if (isInitialMount.current) {
+      isInitialMount.current = false;
+      return;
+    }
 
     const currentRange = getPeriodRange(selectedPeriod);
     const previousRange = getPreviousPeriodRange(selectedPeriod);

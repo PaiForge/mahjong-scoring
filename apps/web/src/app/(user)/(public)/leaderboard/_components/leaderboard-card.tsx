@@ -1,7 +1,5 @@
-'use client';
-
-import { useTranslations } from 'next-intl';
 import Link from 'next/link';
+import { getTranslations } from 'next-intl/server';
 
 import { menuTypeToMessageKey } from '@/lib/db/practice-menu-types';
 
@@ -18,8 +16,8 @@ interface LeaderboardCardProps {
  * リーダーボードカード
  * 一覧ページで各モジュールのランキング概要を表示するカード
  */
-export function LeaderboardCard({ module, period, rank }: LeaderboardCardProps) {
-  const t = useTranslations('leaderboard');
+export async function LeaderboardCard({ module, period, rank }: LeaderboardCardProps) {
+  const t = await getTranslations('leaderboard');
 
   const msgKey = menuTypeToMessageKey(module);
   const title = t(`module.${msgKey}`);

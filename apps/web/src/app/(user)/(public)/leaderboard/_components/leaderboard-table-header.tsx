@@ -1,13 +1,11 @@
-'use client';
-
-import { useTranslations } from 'next-intl';
+import { getTranslations } from 'next-intl/server';
 
 /**
  * リーダーボードテーブルヘッダー
  * ランキングテーブルの見出し行
  */
-export function LeaderboardTableHeader() {
-  const t = useTranslations('leaderboard');
+export async function LeaderboardTableHeader() {
+  const t = await getTranslations('leaderboard');
 
   return (
     <thead>
