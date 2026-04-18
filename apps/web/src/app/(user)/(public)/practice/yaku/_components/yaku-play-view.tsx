@@ -6,6 +6,7 @@ import {
   generateYakuQuestion,
   judgeYakuAnswer,
   SELECTABLE_YAKU,
+  retryGenerate,
 } from "@mahjong-scoring/core";
 import type { YakuQuestion } from "@mahjong-scoring/core";
 import { useTimedSession } from "../../_hooks/use-timed-session";
@@ -13,7 +14,6 @@ import { useSaveOnFinish } from "../../_hooks/use-save-on-finish";
 import { ChallengeShell } from "../../_components/challenge-shell";
 import { ChallengeSubmitButton } from "../../_components/challenge-submit-button";
 import { TehaiDisplay } from "../../_components/tehai-display";
-import { retryGenerate } from "../../_lib/retry-generate";
 import { YakuChip, getChipFeedbackState } from "./yaku-chip";
 import { HAN_GROUPS } from "../_lib/han-groups";
 

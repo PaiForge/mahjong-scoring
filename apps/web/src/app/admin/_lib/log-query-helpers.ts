@@ -8,29 +8,6 @@ import { escapeLikePattern } from '../../../lib/escape-like-pattern';
 import type { Profile } from '../../../lib/db';
 
 /**
- * Supabase 認証ユーザー一覧を取得する（同一リクエスト内で重複呼び出しを防ぐキャッシュ付き）。
- * `buildUserFilterCondition` と `buildEmailMap` が同じ `adminClient` で呼ばれた場合に
- * `listUsers()` の重複リクエストを排除する。
- *
- * 認証ユーザー一覧取得
- *
- * TODO: ユーザー数が100人を超える場合、ページネーションで全件取得する必要がある
- */
-const adminUsersCache = new WeakMap<SupabaseClient, Promise<readonly User[]>>();
-
-function getAdminUsers(adminClient: SupabaseClient): Promise<readonly User[]> {
-  const cached = adminUsersCache.get(adminClient);
-  if (cached) return cached;
-
-  const promise = adminClient.auth.admin
-    .listUsers({ page: 1, perPage: 100 })
-    .then(({ data }) => data?.users ?? []);
-
-  adminUsersCache.set(adminClient, promise);
-  return promise;
-}
-
-/**
  * ユーザーフィルタ結果。
  * プロフィール検索 + メールアドレス検索で合致したユーザーID一覧
  */
@@ -41,17 +18,33 @@ interface UserFilterResult {
   readonly condition: ReturnType<typeof inArray> | undefined;
 }
 
+// TODO: ユーザー数が100人を超える場合、ページネーションで全件取得する必要がある
+/**
+ * Supabase 認証ユーザー一覧を取得する。
+ * 複数箇所で同じユーザー一覧を参照する場合、この関数を一度だけ呼び出して
+ * 結果を使い回すこと。
+ */
+export async function fetchAllAuthUsers(
+  adminClient: SupabaseClient,
+): Promise<readonly User[]> {
+  const { data: usersData } = await adminClient.auth.admin.listUsers({
+    page: 1,
+    perPage: 100,
+  });
+  return usersData?.users ?? [];
+}
+
 /**
  * ユーザーフィルタ条件を構築する。
  * プロフィール（username / displayName）とメールアドレスの両方を検索し、
  * 合致するユーザーIDで `inArray` 条件を返す。
  *
- * @param adminClient - Supabase 管理クライアント（認証ユーザー一覧取得用）
+ * @param allUsers - `fetchAllAuthUsers` で事前取得した認証ユーザー一覧
  * @param userFilter - 検索文字列（空文字の場合はフィルタなし）
  * @param targetColumn - 条件を適用するログテーブルのカラム
  */
 export async function buildUserFilterCondition(
-  adminClient: SupabaseClient,
+  allUsers: readonly User[],
   userFilter: string,
   targetColumn: Column,
 ): Promise<UserFilterResult> {
@@ -69,8 +62,7 @@ export async function buildUserFilterCondition(
       ),
     );
 
-  const users = await getAdminUsers(adminClient);
-  const matchingEmailUserIds = users
+  const matchingEmailUserIds = allUsers
     .filter((u) => u.email?.toLowerCase().includes(userFilter.toLowerCase()))
     .map((u) => u.id);
 
@@ -90,24 +82,25 @@ export async function buildUserFilterCondition(
 
 /**
  * メールアドレスマップを構築する。
- * Supabase 認証ユーザー一覧からユーザーID→メールアドレスの Map を返す。
+ * 事前取得した認証ユーザー一覧から、指定されたユーザーIDに絞って
+ * ユーザーID→メールアドレスの Map を返す。
  *
- * @param adminClient - Supabase 管理クライアント
+ * @param allUsers - `fetchAllAuthUsers` で事前取得した認証ユーザー一覧
  * @param userIds - メールアドレスを取得する対象のユーザーID一覧（空の場合は空 Map を返す）
  */
-export async function buildEmailMap(
-  adminClient: SupabaseClient,
+export function buildEmailMap(
+  allUsers: readonly User[],
   userIds: readonly string[],
-): Promise<Map<string, string>> {
+): Map<string, string> {
   const emailMap = new Map<string, string>();
 
   if (userIds.length === 0) {
     return emailMap;
   }
 
-  const users = await getAdminUsers(adminClient);
-  for (const u of users) {
-    if (u.email) {
+  const userIdSet = new Set(userIds);
+  for (const u of allUsers) {
+    if (u.email && userIdSet.has(u.id)) {
       emailMap.set(u.id, u.email);
     }
   }

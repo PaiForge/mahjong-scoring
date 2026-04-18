@@ -80,28 +80,17 @@ export function useFinishRedirect({
       return `${resultPath}?${params.toString()}`;
     };
 
-    if (onFinish) {
-      const maybePromise = onFinish({ correctCount, incorrectCount, totalCount, elapsedMs });
-      if (maybePromise && typeof (maybePromise as Promise<unknown>).then === "function") {
-        (maybePromise as Promise<FinishCallbackResult | void | undefined>)
-          .then((value) => {
-            const grant = value && "grant" in value ? value.grant : undefined;
-            router.push(buildResultUrl(grant));
-          })
-          .catch((error: unknown) => {
-            console.error("[useFinishRedirect] onFinish failed:", error);
-            router.push(buildResultUrl());
-          });
-        return;
-      }
-      const grant =
-        maybePromise && typeof maybePromise === "object" && "grant" in maybePromise
-          ? maybePromise.grant
+    void (async () => {
+      try {
+        const result = onFinish
+          ? await Promise.resolve(onFinish({ correctCount, incorrectCount, totalCount, elapsedMs }))
           : undefined;
-      router.push(buildResultUrl(grant));
-      return;
-    }
-
-    router.push(buildResultUrl());
+        const grant = result && "grant" in result ? result.grant : undefined;
+        router.push(buildResultUrl(grant));
+      } catch (error: unknown) {
+        console.error("[useFinishRedirect] onFinish failed:", error);
+        router.push(buildResultUrl());
+      }
+    })();
   }, [isFinished, finalResult, elapsedMs, resultPath, router, onFinish]);
 }

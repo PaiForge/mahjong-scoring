@@ -6,16 +6,16 @@ import {
   type HaiKindId,
   type Kazehai,
 } from "@pai-forge/riichi-mahjong";
-import { convertScoreDetailToFuDetails } from "../../score/fu-calculator";
-import { ScoreLevel, getYakuNameJa, KAZEHAI } from "../../core/constants";
+import { ScoreLevel, KAZEHAI } from "../../core/constants";
 import { randomChoice } from "../../core/random";
-import { countDoraInTehai } from "../../core/hai-names";
 
 import type { ScoreQuestion, QuestionGeneratorOptions, YakuDetail } from "./types";
 import { reconcileYakuhai, applyRiichiAndUraDora } from "./utils/reconciler";
 import { generateMentsuTehai } from "./strategies/mentsu-strategy";
 import { generateChiitoiTehai } from "./strategies/chiitoi-strategy";
 import { generateDoraMarkers } from "../shared/dora-utils";
+import { assembleScoreQuestion, buildYakuDetailsFromResult } from "./assemble-question";
+import { retryGenerate } from "../retry-generate";
 
 /**
  * 手牌中の槓子数をカウントする
@@ -73,11 +73,7 @@ export function generateScoreQuestion(options: QuestionGeneratorOptions = {}): S
   try {
     const answer = calculateScoreForTehai(tehai, { agariHai, isTsumo, jikaze, bakaze, doraMarkers });
     const yakuResult = detectYaku(tehai, { agariHai, bakaze, jikaze, doraMarkers, isTsumo });
-    let yakuDetails: YakuDetail[] = [];
-
-    for (const [name, han] of yakuResult) {
-      yakuDetails.push({ name: getYakuNameJa(name), han });
-    }
+    let yakuDetails: YakuDetail[] = buildYakuDetailsFromResult(yakuResult);
 
     const reconciled = reconcileYakuhai(tehai, yakuResult, yakuDetails, answer, bakaze, jikaze, isTsumo);
     let finalAnswer = reconciled.answer;
@@ -94,20 +90,11 @@ export function generateScoreQuestion(options: QuestionGeneratorOptions = {}): S
       yakuDetails = [...yakuDetails, ...riichiRes.additionalYakuDetails];
     }
 
-    const doraHan = countDoraInTehai(tehai, doraMarkers);
-    if (doraHan > 0 && !yakuDetails.find((d) => d.name === "ドラ")) {
-      yakuDetails = [...yakuDetails, { name: "ドラ", han: doraHan }];
-    }
-
-    const fuDetails = answer.detail
-      ? convertScoreDetailToFuDetails(answer.detail, { agariHai, isTsumo, bakaze, jikaze })
-      : undefined;
-
     const { allowedRanges = ["non_mangan", "mangan_plus"] } = options;
 
     if (!validateScoreRange(finalAnswer.scoreLevel, allowedRanges)) return undefined;
 
-    return {
+    return assembleScoreQuestion({
       tehai,
       agariHai,
       isTsumo,
@@ -117,22 +104,11 @@ export function generateScoreQuestion(options: QuestionGeneratorOptions = {}): S
       isRiichi,
       uraDoraMarkers,
       answer: finalAnswer,
-      fuDetails,
+      originalAnswer: answer,
       yakuDetails,
-    };
+    });
   } catch {
     return undefined;
-  }
-}
-
-/**
- * 後方互換性のための薄いラッパークラス
- * @deprecated generateScoreQuestion を直接使用してください
- * 点数計算練習問題ジェネレータ
- */
-export class ScoreQuestionGenerator {
-  generate(options: QuestionGeneratorOptions = {}): ScoreQuestion | undefined {
-    return generateScoreQuestion(options);
   }
 }
 
@@ -147,9 +123,5 @@ export function generateValidScoreQuestion(
   options: QuestionGeneratorOptions = {},
   maxRetries: number = 100,
 ): ScoreQuestion | undefined {
-  for (let i = 0; i < maxRetries; i++) {
-    const question = generateScoreQuestion(options);
-    if (question) return question;
-  }
-  return undefined;
+  return retryGenerate(() => generateScoreQuestion(options), maxRetries);
 }

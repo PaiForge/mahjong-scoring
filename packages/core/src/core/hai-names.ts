@@ -129,6 +129,14 @@ export function countDoraInTehai(
 }
 
 /**
+ * 自風が東（親）かどうかを判定する
+ * 親判定
+ */
+export function isOya(jikaze: Kazehai): boolean {
+  return jikaze === HaiKind.Ton;
+}
+
+/**
  * 風牌の英語キー名を取得する（YAKU_NAME_MAP参照用）
  * 風牌キー名取得
  */
