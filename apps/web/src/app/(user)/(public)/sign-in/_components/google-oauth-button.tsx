@@ -7,8 +7,16 @@ import { createClient } from "@/lib/supabase/client";
 
 /**
  * Google OAuth サインインボタン
+ *
+ * @param redirectTo ログイン成功時の遷移先。未指定または無効な場合は `/mypage`。
+ *   `page.tsx` 側で `sanitizeInternalRedirect` 済みの値を受け取る想定。
+ *   `/auth/callback` に `next` クエリとして渡し、コールバック内で再検証される。
  */
-export function GoogleOAuthButton() {
+export function GoogleOAuthButton({
+  redirectTo,
+}: {
+  redirectTo?: string;
+}) {
   const t = useTranslations("auth");
   const [isLoading, setIsLoading] = useState(false);
 
@@ -16,10 +24,14 @@ export function GoogleOAuthButton() {
     const supabase = createClient();
     setIsLoading(true);
     try {
+      const callbackUrl = new URL("/auth/callback", window.location.origin);
+      if (redirectTo) {
+        callbackUrl.searchParams.set("next", redirectTo);
+      }
       await supabase.auth.signInWithOAuth({
         provider: "google",
         options: {
-          redirectTo: `${window.location.origin}/auth/callback`,
+          redirectTo: callbackUrl.toString(),
         },
       });
     } catch {
