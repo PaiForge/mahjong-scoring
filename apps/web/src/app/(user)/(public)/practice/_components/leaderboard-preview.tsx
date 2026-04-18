@@ -1,7 +1,5 @@
-'use client';
-
-import { useTranslations } from 'next-intl';
 import Link from 'next/link';
+import { getTranslations } from 'next-intl/server';
 
 import { SectionTitle } from '@/app/_components/section-title';
 import { LeaderboardTableHeader } from '@/app/(user)/(public)/leaderboard/_components/leaderboard-table-header';
@@ -17,8 +15,8 @@ interface LeaderboardPreviewProps {
  * リーダーボードプレビュー
  * 全期間ランキング上位3名の表示
  */
-export function LeaderboardPreview({ rows, detailPath }: LeaderboardPreviewProps) {
-  const t = useTranslations('leaderboard');
+export async function LeaderboardPreview({ rows, detailPath }: LeaderboardPreviewProps) {
+  const t = await getTranslations('leaderboard');
 
   if (rows.length === 0) {
     return undefined;
