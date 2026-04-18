@@ -1,0 +1,1 @@
+ALTER TABLE "learn_chapter_reads" ADD CONSTRAINT "learn_chapter_reads_chapter_slug_format" CHECK ("learn_chapter_reads"."chapter_slug" ~ '^[a-z][a-z0-9-]{0,63}$');

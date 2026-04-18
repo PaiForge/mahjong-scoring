@@ -101,3 +101,21 @@ ALTER TABLE "user_exp" ENABLE ROW LEVEL SECURITY;
 DROP POLICY IF EXISTS "user_exp_select" ON "user_exp";
 CREATE POLICY "user_exp_select" ON "user_exp"
   FOR SELECT USING (auth.uid() = user_id);
+
+-- =============================================================================
+-- learn_chapter_reads
+-- =============================================================================
+-- 読了情報は本人のみ SELECT / INSERT / DELETE 可。UPDATE は意図的に禁止。
+ALTER TABLE "learn_chapter_reads" ENABLE ROW LEVEL SECURITY;
+
+DROP POLICY IF EXISTS "learn_chapter_reads_select" ON "learn_chapter_reads";
+CREATE POLICY "learn_chapter_reads_select" ON "learn_chapter_reads"
+  FOR SELECT USING (auth.uid() = user_id);
+
+DROP POLICY IF EXISTS "learn_chapter_reads_insert" ON "learn_chapter_reads";
+CREATE POLICY "learn_chapter_reads_insert" ON "learn_chapter_reads"
+  FOR INSERT WITH CHECK (auth.uid() = user_id);
+
+DROP POLICY IF EXISTS "learn_chapter_reads_delete" ON "learn_chapter_reads";
+CREATE POLICY "learn_chapter_reads_delete" ON "learn_chapter_reads"
+  FOR DELETE USING (auth.uid() = user_id);
