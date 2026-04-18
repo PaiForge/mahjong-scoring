@@ -92,6 +92,38 @@ export const CURRICULUM: readonly CurriculumChapter[] = [
 ] as const;
 
 /**
+ * order 昇順にソート済みの章配列。
+ *
+ * @remarks
+ * `CURRICULUM` 自体はソース上で order 昇順に定義されているため通常は順序一致するが、
+ * 将来 CURRICULUM の定義順序が崩れた場合でも API の振る舞いを安定させるために
+ * モジュール読込時に 1 回だけソートしておく。
+ */
+const CURRICULUM_SORTED_BY_ORDER: readonly CurriculumChapter[] = [...CURRICULUM].sort(
+  (a, b) => a.order - b.order,
+);
+
+/**
+ * slug から CurriculumChapter を O(1) で引くための lookup map。
+ * モジュール読込時に 1 回だけ構築される。
+ */
+const CURRICULUM_BY_SLUG: ReadonlyMap<CurriculumChapterSlug, CurriculumChapter> =
+  new Map(CURRICULUM.map((c) => [c.slug, c]));
+
+/**
+ * slug から章メタデータを O(1) で取得する。
+ * 章メタデータ取得
+ *
+ * @param slug 対象章のスラッグ
+ * @returns 該当する章。slug が不正な場合は undefined。
+ */
+export function getChapterBySlug(
+  slug: CurriculumChapterSlug,
+): CurriculumChapter | undefined {
+  return CURRICULUM_BY_SLUG.get(slug);
+}
+
+/**
  * 次に読むべき章を返す。order 昇順で readSlugs に含まれない最初の章。
  * 全章読了済の場合は undefined を返す。
  *
@@ -100,8 +132,7 @@ export const CURRICULUM: readonly CurriculumChapter[] = [
 export function pickNextChapter(
   readSlugs: ReadonlySet<string>,
 ): CurriculumChapter | undefined {
-  const sorted = [...CURRICULUM].sort((a, b) => a.order - b.order);
-  return sorted.find((c) => !readSlugs.has(c.slug));
+  return CURRICULUM_SORTED_BY_ORDER.find((c) => !readSlugs.has(c.slug));
 }
 
 /**
@@ -114,12 +145,11 @@ export function getAdjacentChapters(slug: CurriculumChapterSlug): {
   prev: CurriculumChapter | undefined;
   next: CurriculumChapter | undefined;
 } {
-  const sorted = [...CURRICULUM].sort((a, b) => a.order - b.order);
-  const idx = sorted.findIndex((c) => c.slug === slug);
+  const idx = CURRICULUM_SORTED_BY_ORDER.findIndex((c) => c.slug === slug);
   if (idx === -1) return { prev: undefined, next: undefined };
   return {
-    prev: sorted[idx - 1],
-    next: sorted[idx + 1],
+    prev: CURRICULUM_SORTED_BY_ORDER[idx - 1],
+    next: CURRICULUM_SORTED_BY_ORDER[idx + 1],
   };
 }
 

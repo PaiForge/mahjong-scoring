@@ -5,6 +5,7 @@ import {
   CURRICULUM_CHAPTER_SLUGS,
   CURRICULUM_SECTIONS,
   getAdjacentChapters,
+  getChapterBySlug,
   getChapterI18nPath,
   isCurriculumChapterSlug,
   pickNextChapter,
@@ -188,6 +189,37 @@ describe('getAdjacentChapters (additional edge cases)', () => {
     const { prev, next } = getAdjacentChapters('bogus-slug');
     expect(prev).toBeUndefined();
     expect(next).toBeUndefined();
+  });
+});
+
+describe('CURRICULUM definition order (CI 健全性テスト)', () => {
+  // モジュール内部で CURRICULUM_SORTED_BY_ORDER を事前ソートキャッシュしているため、
+  // 将来 CURRICULUM の定義順序が崩れた場合に「ソート依存コードがあった頃の順序と
+  // 異なる結果を返す」リスクがある。CURRICULUM がソース上でも order 昇順で並んで
+  // いることを CI で守る。
+  it('CURRICULUM is defined in ascending order by `order`', () => {
+    const orders = CURRICULUM.map((c) => c.order);
+    const sorted = [...orders].sort((a, b) => a - b);
+    expect(orders).toEqual(sorted);
+  });
+});
+
+describe('getChapterBySlug', () => {
+  it('returns the matching chapter for every slug in CURRICULUM', () => {
+    for (const chapter of CURRICULUM) {
+      expect(getChapterBySlug(chapter.slug)).toBe(chapter);
+    }
+  });
+
+  it('returns the exact chapter object for known slugs', () => {
+    const result = getChapterBySlug('jantou-fu');
+    expect(result?.slug).toBe('jantou-fu');
+    expect(result?.section).toBe('fu');
+  });
+
+  it('returns undefined for an unknown slug (runtime safety)', () => {
+    // @ts-expect-error: invalid slug at type level, but runtime must not crash.
+    expect(getChapterBySlug('not-a-real-chapter')).toBeUndefined();
   });
 });
 

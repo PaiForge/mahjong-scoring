@@ -30,6 +30,13 @@ function toCamelCase(slug: string): string {
  * - 0 件: 何も描画しない
  * - 1 件: フル幅（1 カラム）
  * - 2 件以上: モバイル 1 カラム / デスクトップ 2 カラムのグリッド
+ *
+ * @remarks
+ * 練習タイトルは `/practice/<slug>` の slug から `practice.practices.<camelSlug>.title`
+ * を動的生成して解決する。next-intl はキーが未登録の場合に「キー文字列自体」を返す
+ * 仕様のため、タイポや辞書漏れがユーザーに視覚的に露出するリスクがある。
+ * ここでは `t.has()` で存在確認し、ミスヒット時は汎用 CTA ラベル
+ * （`learnCurriculum.chapter.practiceLinkCta`）に fallback する。
  */
 export async function PracticeLinkList({ hrefs }: PracticeLinkListProps) {
   if (hrefs.length === 0) return undefined;
@@ -40,7 +47,10 @@ export async function PracticeLinkList({ hrefs }: PracticeLinkListProps) {
   const items = hrefs.map((href) => {
     const slug = practiceSlugFromHref(href);
     const titleKey = slug ? `practices.${toCamelCase(slug)}.title` : undefined;
-    const title = titleKey ? tPractice(titleKey) : t("practiceLinkCta");
+    const title =
+      titleKey && tPractice.has(titleKey)
+        ? tPractice(titleKey)
+        : t("practiceLinkCta");
     return { href, title };
   });
 

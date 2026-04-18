@@ -4,7 +4,7 @@ import { ContentContainer } from "@/app/_components/content-container";
 import { PageTitle } from "@/app/_components/page-title";
 import { getOptionalUser } from "@/lib/auth";
 import {
-  CURRICULUM,
+  getChapterBySlug,
   type CurriculumChapterSlug,
 } from "../_lib/curriculum";
 import { isChapterRead } from "../_lib/progress";
@@ -39,7 +39,7 @@ export async function LearnPageLayout({
   children,
 }: LearnPageLayoutProps) {
   const t = await getTranslations(namespace);
-  const chapter = CURRICULUM.find((c) => c.slug === slug);
+  const chapter = getChapterBySlug(slug);
   const practiceHrefs = chapter?.practiceHrefs ?? [];
 
   const [user, alreadyRead] = await Promise.all([
