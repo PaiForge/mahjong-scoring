@@ -24,6 +24,12 @@
 
 これにより、App Router のルート解決対象から除外され、ルートセグメントと明確に区別できる。
 
+## `"use client"` 使用基準
+
+- `"use client"` は本当にクライアント側の機能（hooks, event handlers, browser API）が必要な場合のみ付与する
+- `useTranslations()` だけのために `"use client"` を付けない。サーバーコンポーネントでは `getTranslations()` from `next-intl/server` を使用する
+- 新規コンポーネント作成時にサーバーコンポーネントとして実装できないか必ず検討する
+
 ## Next.js Proxy（旧 Middleware）
 
 - Next.js 16 では `middleware.ts` は `proxy.ts` に置き換えられた。**`middleware.ts` は使用禁止**
