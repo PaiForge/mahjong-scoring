@@ -1,12 +1,18 @@
 'use client';
 
+import Link from 'next/link';
+import { usePathname } from 'next/navigation';
 import { useTranslations } from 'next-intl';
 
 interface LeaderboardPaginationProps {
   readonly currentPage: number;
   readonly totalPages: number;
   readonly totalCount: number;
-  readonly onPageChange: (page: number) => void;
+}
+
+function buildPageHref(pathname: string, page: number): string {
+  if (page <= 1) return pathname;
+  return `${pathname}?page=${page}`;
 }
 
 /**
@@ -17,9 +23,9 @@ export function LeaderboardPagination({
   currentPage,
   totalPages,
   totalCount,
-  onPageChange,
 }: LeaderboardPaginationProps) {
   const t = useTranslations('leaderboard');
+  const pathname = usePathname();
 
   if (totalPages <= 1) return undefined;
 
@@ -49,14 +55,22 @@ export function LeaderboardPagination({
         {t('pagination.total', { count: totalCount })}
       </p>
       <div className="flex items-center gap-1">
-        <button
-          onClick={() => onPageChange(currentPage - 1)}
-          disabled={currentPage <= 1}
-          className="px-3 py-2 text-sm rounded border border-surface-200 hover:bg-surface-50 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-          aria-label={t('pagination.previous')}
-        >
-          {t('pagination.previous')}
-        </button>
+        {currentPage <= 1 ? (
+          <span
+            className="px-3 py-2 text-sm rounded border border-surface-200 opacity-50 cursor-not-allowed"
+            aria-label={t('pagination.previous')}
+          >
+            {t('pagination.previous')}
+          </span>
+        ) : (
+          <Link
+            href={buildPageHref(pathname, currentPage - 1)}
+            className="px-3 py-2 text-sm rounded border border-surface-200 hover:bg-surface-50 transition-colors"
+            aria-label={t('pagination.previous')}
+          >
+            {t('pagination.previous')}
+          </Link>
+        )}
 
         {pages.map((page, i) =>
           page === 'ellipsis' ? (
@@ -64,29 +78,37 @@ export function LeaderboardPagination({
               ...
             </span>
           ) : (
-            <button
+            <Link
               key={page}
-              onClick={() => onPageChange(page)}
+              href={buildPageHref(pathname, page)}
               aria-current={currentPage === page ? 'page' : undefined}
-              className={`min-w-[36px] px-2 py-2 text-sm rounded border transition-colors ${
+              className={`min-w-[36px] px-2 py-2 text-sm rounded border transition-colors text-center ${
                 currentPage === page
                   ? 'border-primary-500 bg-primary-500 text-white font-medium'
                   : 'border-surface-200 hover:bg-surface-50'
               }`}
             >
               {page}
-            </button>
+            </Link>
           ),
         )}
 
-        <button
-          onClick={() => onPageChange(currentPage + 1)}
-          disabled={currentPage >= totalPages}
-          className="px-3 py-2 text-sm rounded border border-surface-200 hover:bg-surface-50 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-          aria-label={t('pagination.next')}
-        >
-          {t('pagination.next')}
-        </button>
+        {currentPage >= totalPages ? (
+          <span
+            className="px-3 py-2 text-sm rounded border border-surface-200 opacity-50 cursor-not-allowed"
+            aria-label={t('pagination.next')}
+          >
+            {t('pagination.next')}
+          </span>
+        ) : (
+          <Link
+            href={buildPageHref(pathname, currentPage + 1)}
+            className="px-3 py-2 text-sm rounded border border-surface-200 hover:bg-surface-50 transition-colors"
+            aria-label={t('pagination.next')}
+          >
+            {t('pagination.next')}
+          </Link>
+        )}
       </div>
     </nav>
   );

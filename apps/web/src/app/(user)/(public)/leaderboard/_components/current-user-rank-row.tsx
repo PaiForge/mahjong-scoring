@@ -1,6 +1,4 @@
-'use client';
-
-import { useTranslations } from 'next-intl';
+import { getTranslations } from 'next-intl/server';
 
 import type { LeaderboardRow } from '../_lib/types';
 import { PlayerCell } from './player-cell';
@@ -19,8 +17,8 @@ interface CurrentUserRankRowProps {
  * 現在ユーザーのランク行
  * ページ外のユーザー順位を表示するセクション
  */
-export function CurrentUserRankRow({ row }: CurrentUserRankRowProps) {
-  const t = useTranslations('leaderboard');
+export async function CurrentUserRankRow({ row }: CurrentUserRankRowProps) {
+  const t = await getTranslations('leaderboard');
 
   return (
     <div className="border-t-2 border-surface-200 mt-2">

@@ -1,6 +1,4 @@
-'use client';
-
-import { useTranslations } from 'next-intl';
+import { getTranslations } from 'next-intl/server';
 
 import type { LeaderboardRow } from '../_lib/types';
 import { CurrentUserRankRow } from './current-user-rank-row';
@@ -17,8 +15,8 @@ interface LeaderboardTableProps {
  * リーダーボードテーブル
  * ランキング表示のメインテーブル
  */
-export function LeaderboardTable({ rows, currentUserId, currentUserRank }: LeaderboardTableProps) {
-  const t = useTranslations('leaderboard');
+export async function LeaderboardTable({ rows, currentUserId, currentUserRank }: LeaderboardTableProps) {
+  const t = await getTranslations('leaderboard');
 
   if (rows.length === 0) {
     return (
