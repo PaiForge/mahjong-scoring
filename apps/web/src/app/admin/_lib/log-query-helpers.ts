@@ -18,20 +18,29 @@ interface UserFilterResult {
   readonly condition: ReturnType<typeof inArray> | undefined;
 }
 
-// TODO: ユーザー数が100人を超える場合、ページネーションで全件取得する必要がある
 /**
- * Supabase 認証ユーザー一覧を取得する。
+ * Supabase 認証ユーザー一覧を全件取得する。
+ * 100件ずつページネーションして全ユーザーを収集する。
  * 複数箇所で同じユーザー一覧を参照する場合、この関数を一度だけ呼び出して
  * 結果を使い回すこと。
  */
 export async function fetchAllAuthUsers(
   adminClient: SupabaseClient,
 ): Promise<readonly User[]> {
-  const { data: usersData } = await adminClient.auth.admin.listUsers({
-    page: 1,
-    perPage: 100,
-  });
-  return usersData?.users ?? [];
+  const allUsers: User[] = [];
+  let page = 1;
+  const perPage = 100;
+
+  // eslint-disable-next-line no-constant-condition -- pagination loop
+  while (true) {
+    const { data } = await adminClient.auth.admin.listUsers({ page, perPage });
+    const users = data?.users ?? [];
+    allUsers.push(...users);
+    if (users.length < perPage) break;
+    page++;
+  }
+
+  return allUsers;
 }
 
 /**
