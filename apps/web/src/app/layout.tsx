@@ -1,10 +1,14 @@
 import type { Metadata } from "next";
+import dynamic from "next/dynamic";
 import { NextIntlClientProvider } from "next-intl";
 import { getLocale, getMessages } from "next-intl/server";
 import { GoogleAnalytics } from "@next/third-parties/google";
 import { AuthProvider } from "@/app/_contexts/auth-context";
-import { GlobalToaster } from "@/app/_components/global-toaster";
 import "./globals.css";
+
+const GlobalToaster = dynamic(
+  () => import("@/app/_components/global-toaster").then((mod) => mod.GlobalToaster),
+);
 
 export const metadata: Metadata = {
   title: "Mahjong Scoring - 麻雀点数計算トレーニング",

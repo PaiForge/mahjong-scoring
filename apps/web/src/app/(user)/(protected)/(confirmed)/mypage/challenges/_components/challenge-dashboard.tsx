@@ -2,6 +2,7 @@
 
 import { useMemo, useCallback } from "react";
 import Link from "next/link";
+import dynamic from "next/dynamic";
 import { useTranslations } from "next-intl";
 
 import { SectionTitle } from "@/app/_components/section-title";
@@ -16,9 +17,18 @@ import type { DatePeriod } from "../_lib/types";
 import { isDatePeriod } from "../_lib/types";
 import { useDashboardData } from "../_hooks/use-dashboard-data";
 import { DashboardContentSkeleton, DashboardSkeleton } from "./dashboard-skeleton";
-import { ScoreChart } from "./score-chart";
 import { SessionHistoryTable } from "./session-history-table";
 import { StatsCard } from "./stats-card";
+
+const ScoreChart = dynamic(
+  () => import("./score-chart").then((mod) => mod.ScoreChart),
+  {
+    ssr: false,
+    loading: () => (
+      <div className="h-[250px] w-full rounded-lg bg-surface-200 animate-pulse" />
+    ),
+  },
+);
 
 /**
  * 期間選択は意図的に固定期間のみ提供している。
