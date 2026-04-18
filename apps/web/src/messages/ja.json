@@ -190,8 +190,7 @@
       "rowJikaze": "自風牌",
       "rowRenfonpai": "連風牌（場風＝自風）",
       "rowOther": "数牌・オタ風",
-      "fuUnit": "{value}符",
-      "ctaPractice": "問題を解く"
+      "fuUnit": "{value}符"
     }
   },
   "machiFu": {
@@ -225,8 +224,7 @@
       "rowTanki": "単騎（タンキ）",
       "rowRyanmen": "両面（リャンメン）",
       "rowShanpon": "双碰（シャンポン）",
-      "fuUnit": "{value}符",
-      "ctaPractice": "問題を解く"
+      "fuUnit": "{value}符"
     }
   },
   "mentsuFu": {
@@ -265,8 +263,7 @@
       "rowClosedYaochuKoutsuOrOpenSimpleKantsu": "么九牌の暗刻 / 中張牌の明槓",
       "rowClosedSimpleKantsuOrOpenYaochuKantsu": "中張牌の暗槓 / 么九牌の明槓",
       "rowClosedYaochuKantsu": "么九牌の暗槓",
-      "fuUnit": "{value}符",
-      "ctaPractice": "問題を解く"
+      "fuUnit": "{value}符"
     }
   },
   "tehaiFu": {
@@ -308,8 +305,7 @@
       "kazeExampleJikaze": "南家 — 南の刻子",
       "kazeExampleJikazeAnnotation": "→ 自風牌（4符）",
       "kazeExampleOtakaze": "東場・南家 — 西の刻子",
-      "kazeExampleOtakazeAnnotation": "→ オタ風（0符）",
-      "ctaPractice": "問題を解く"
+      "kazeExampleOtakazeAnnotation": "→ オタ風（0符）"
     }
   },
   "yaku": {
@@ -420,8 +416,7 @@
       "row6han": "6翻",
       "row6hanYaku": "清一色",
       "rowYakuman": "役満",
-      "rowYakumanYaku": "国士無双, 四暗刻, 大三元, 小四喜, 大四喜, 字一色, 清老頭, 緑一色, 九蓮宝燈, 四槓子",
-      "ctaPractice": "問題を解く"
+      "rowYakumanYaku": "国士無双, 四暗刻, 大三元, 小四喜, 大四喜, 字一色, 清老頭, 緑一色, 九蓮宝燈, 四槓子"
     }
   },
   "scoreTable": {
@@ -617,17 +612,6 @@
       "practiceNeeded": "確かに覚えること自体は難しく、実戦レベルで即座に点数を計上するまでのレベルに習熟するにはある程度練習が必要ですし、時間もかかると思います。"
     }
   },
-  "learnIndex": {
-    "pageTitle": "学ぶ",
-    "pageDescription": "麻雀の点数計算に必要な知識をまとめた学習コンテンツの一覧です。",
-    "aboutThisApp": "このアプリについて",
-    "whyScoringIsComplex": "点数計算が複雑な理由",
-    "jantouFu": "雀頭の符計算を学ぶ",
-    "mentsuFu": "面子の符計算を学ぶ",
-    "machiFu": "待ちの符計算を学ぶ",
-    "tehaiFu": "手牌全体の符計算を学ぶ",
-    "yaku": "役の一覧と解説"
-  },
   "learnCurriculum": {
     "sections": {
       "foundation": "基礎",
@@ -676,7 +660,10 @@
       "markAsReadCta": "この章を読了にする",
       "markedAsRead": "読了済み",
       "unmarkAsReadCta": "読了を解除",
-      "unmarkConfirm": "この章の読了を解除しますか？",
+      "unmarkConfirmTitle": "読了を解除しますか？",
+      "unmarkConfirmMessage": "この章を未読の状態に戻します。再度読了にマークすることも可能です。",
+      "unmarkConfirmOk": "解除する",
+      "unmarkConfirmCancel": "キャンセル",
       "loginPromptCta": "読了を記録するにはログイン",
       "prevChapterLabel": "前の章",
       "nextChapterLabel": "次の章",

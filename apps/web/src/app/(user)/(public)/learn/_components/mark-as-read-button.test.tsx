@@ -5,7 +5,7 @@
  * - 成功時: ラベルが切り替わる
  * - サーバーエラー時: ラベルが元に戻る（ロールバック）+ toast.error 発火
  * - 未認証時: /sign-in?redirect=... へ router.push
- * - 解除時: confirm() でキャンセル可能
+ * - 解除時: ConfirmationModal でキャンセル可能
  */
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import { render, act, fireEvent } from "@testing-library/react";
@@ -47,6 +47,24 @@ vi.mock("react-hot-toast", () => ({
 import { MarkAsReadButton } from "./mark-as-read-button";
 
 // ---------------------------------------------------------------------------
+// Helpers
+// ---------------------------------------------------------------------------
+
+/**
+ * ConfirmationModal 内のボタンを label（i18n キー）で取得する。
+ * useTranslations のモックが key をそのまま返すため、label = key でマッチできる。
+ */
+function getModalButton(
+  container: HTMLElement,
+  label: string,
+): HTMLButtonElement | undefined {
+  const buttons = Array.from(container.querySelectorAll("button"));
+  return buttons.find((b) => b.textContent?.includes(label)) as
+    | HTMLButtonElement
+    | undefined;
+}
+
+// ---------------------------------------------------------------------------
 // Tests
 // ---------------------------------------------------------------------------
 
@@ -65,12 +83,16 @@ describe("MarkAsReadButton", () => {
   });
 
   it("initially renders unmarkAsReadCta when initialRead=true", () => {
-    const { getByRole } = render(
+    const { getAllByRole } = render(
       <MarkAsReadButton slug="jantou-fu" initialRead={true} />,
     );
-    const btn = getByRole("button");
-    expect(btn.textContent).toContain("unmarkAsReadCta");
-    expect(btn.getAttribute("aria-pressed")).toBe("true");
+    // ConfirmationModal は未表示だが、念のため aria-pressed を持つトグルボタンを特定する
+    const toggleBtn = getAllByRole("button").find(
+      (b) => b.getAttribute("aria-pressed") !== null,
+    );
+    expect(toggleBtn).toBeDefined();
+    expect(toggleBtn!.textContent).toContain("unmarkAsReadCta");
+    expect(toggleBtn!.getAttribute("aria-pressed")).toBe("true");
   });
 
   it("optimistically switches to unmark label and keeps it on success", async () => {
@@ -134,65 +156,100 @@ describe("MarkAsReadButton", () => {
     expect(btn.textContent).toContain("markAsReadCta");
   });
 
-  it("requires confirmation before unmarking a read chapter", async () => {
-    const confirmSpy = vi.spyOn(window, "confirm").mockReturnValue(false);
-
-    const { getByRole } = render(
+  it("opens the confirmation modal before unmarking a read chapter", async () => {
+    const { container, getAllByRole } = render(
       <MarkAsReadButton slug="jantou-fu" initialRead={true} />,
     );
-    const btn = getByRole("button");
+    const toggleBtn = getAllByRole("button").find(
+      (b) => b.getAttribute("aria-pressed") !== null,
+    )!;
 
     await act(async () => {
-      fireEvent.click(btn);
+      fireEvent.click(toggleBtn);
     });
 
-    expect(confirmSpy).toHaveBeenCalled();
+    // モーダルが開いており、確認テキストが表示されている
+    expect(container.textContent).toContain("unmarkConfirmTitle");
+    expect(container.textContent).toContain("unmarkConfirmMessage");
+    // この時点ではまだサーバーは呼ばれない
     expect(mockUnmarkChapterRead).not.toHaveBeenCalled();
-    // ラベルは変わらない（既読のまま）
-    expect(btn.textContent).toContain("unmarkAsReadCta");
-
-    confirmSpy.mockRestore();
   });
 
-  it("proceeds with unmark when user confirms", async () => {
-    const confirmSpy = vi.spyOn(window, "confirm").mockReturnValue(true);
-    mockUnmarkChapterRead.mockResolvedValue({ ok: true });
-
-    const { getByRole } = render(
+  it("cancels unmarking when the user presses the cancel button", async () => {
+    const { container, getAllByRole } = render(
       <MarkAsReadButton slug="jantou-fu" initialRead={true} />,
     );
-    const btn = getByRole("button");
+    const toggleBtn = getAllByRole("button").find(
+      (b) => b.getAttribute("aria-pressed") !== null,
+    )!;
 
     await act(async () => {
-      fireEvent.click(btn);
+      fireEvent.click(toggleBtn);
+    });
+
+    const cancelBtn = getModalButton(container, "unmarkConfirmCancel");
+    expect(cancelBtn).toBeDefined();
+
+    await act(async () => {
+      fireEvent.click(cancelBtn!);
+    });
+
+    expect(mockUnmarkChapterRead).not.toHaveBeenCalled();
+    // トグルボタンのラベルは既読のまま
+    expect(toggleBtn.textContent).toContain("unmarkAsReadCta");
+    // モーダルは閉じている
+    expect(container.textContent).not.toContain("unmarkConfirmTitle");
+  });
+
+  it("proceeds with unmark when the user confirms", async () => {
+    mockUnmarkChapterRead.mockResolvedValue({ ok: true });
+
+    const { container, getAllByRole } = render(
+      <MarkAsReadButton slug="jantou-fu" initialRead={true} />,
+    );
+    const toggleBtn = getAllByRole("button").find(
+      (b) => b.getAttribute("aria-pressed") !== null,
+    )!;
+
+    await act(async () => {
+      fireEvent.click(toggleBtn);
+    });
+
+    const confirmBtn = getModalButton(container, "unmarkConfirmOk");
+    expect(confirmBtn).toBeDefined();
+
+    await act(async () => {
+      fireEvent.click(confirmBtn!);
     });
 
     expect(mockUnmarkChapterRead).toHaveBeenCalledWith("jantou-fu");
-    expect(btn.textContent).toContain("markAsReadCta");
-
-    confirmSpy.mockRestore();
+    expect(toggleBtn.textContent).toContain("markAsReadCta");
   });
 
-  it("rolls back when unmarking fails", async () => {
-    const confirmSpy = vi.spyOn(window, "confirm").mockReturnValue(true);
+  it("rolls back when unmarking fails after confirmation", async () => {
     mockUnmarkChapterRead.mockResolvedValue({
       ok: false,
       skipped: "invalid-slug",
     });
 
-    const { getByRole } = render(
+    const { container, getAllByRole } = render(
       <MarkAsReadButton slug="jantou-fu" initialRead={true} />,
     );
-    const btn = getByRole("button");
+    const toggleBtn = getAllByRole("button").find(
+      (b) => b.getAttribute("aria-pressed") !== null,
+    )!;
 
     await act(async () => {
-      fireEvent.click(btn);
+      fireEvent.click(toggleBtn);
+    });
+
+    const confirmBtn = getModalButton(container, "unmarkConfirmOk");
+    await act(async () => {
+      fireEvent.click(confirmBtn!);
     });
 
     // 一旦未読に切り替わったが、失敗でロールバック
-    expect(btn.textContent).toContain("unmarkAsReadCta");
+    expect(toggleBtn.textContent).toContain("unmarkAsReadCta");
     expect(mockToastError).toHaveBeenCalledWith("updateFailedToast");
-
-    confirmSpy.mockRestore();
   });
 });

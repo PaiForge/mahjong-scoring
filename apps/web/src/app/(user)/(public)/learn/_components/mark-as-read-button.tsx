@@ -4,6 +4,7 @@ import { useRouter } from "next/navigation";
 import { useState, useTransition } from "react";
 import { useTranslations } from "next-intl";
 import { toast } from "react-hot-toast";
+import { ConfirmationModal } from "@/app/_components/confirmation-modal";
 import { markChapterRead } from "../_actions/mark-chapter-read";
 import { unmarkChapterRead } from "../_actions/unmark-chapter-read";
 
@@ -19,7 +20,7 @@ interface MarkAsReadButtonProps {
  * 読了トグル
  *
  * - 未読状態: 「読了にする」ボタンを押下で即 {@link markChapterRead} を呼び出す
- * - 既読状態: 「読了を解除」ボタンを押下で確認ダイアログ後 {@link unmarkChapterRead} を呼び出す
+ * - 既読状態: 「読了を解除」ボタンを押下で確認モーダル表示 → 承認で {@link unmarkChapterRead} を呼び出す
  * - 楽観的 UI 更新 + エラー時ロールバック + 未認証時はサインインページへ誘導
  */
 export function MarkAsReadButton({ slug, initialRead }: MarkAsReadButtonProps) {
@@ -27,14 +28,9 @@ export function MarkAsReadButton({ slug, initialRead }: MarkAsReadButtonProps) {
   const router = useRouter();
   const [isRead, setIsRead] = useState(initialRead);
   const [isPending, startTransition] = useTransition();
+  const [isUnmarkConfirmOpen, setIsUnmarkConfirmOpen] = useState(false);
 
-  const handleToggle = () => {
-    if (isRead) {
-      const ok = window.confirm(t("unmarkConfirm"));
-      if (!ok) return;
-    }
-
-    const nextState = !isRead;
+  const runToggle = (nextState: boolean) => {
     setIsRead(nextState);
 
     startTransition(async () => {
@@ -54,6 +50,23 @@ export function MarkAsReadButton({ slug, initialRead }: MarkAsReadButtonProps) {
     });
   };
 
+  const handleToggle = () => {
+    if (isRead) {
+      setIsUnmarkConfirmOpen(true);
+      return;
+    }
+    runToggle(true);
+  };
+
+  const handleUnmarkConfirmed = () => {
+    setIsUnmarkConfirmOpen(false);
+    runToggle(false);
+  };
+
+  const handleUnmarkCancel = () => {
+    setIsUnmarkConfirmOpen(false);
+  };
+
   const baseClass =
     "inline-flex items-center justify-center rounded-lg px-6 py-2.5 text-sm font-semibold shadow-sm transition-colors disabled:cursor-not-allowed disabled:opacity-60";
   const variantClass = isRead
@@ -61,14 +74,26 @@ export function MarkAsReadButton({ slug, initialRead }: MarkAsReadButtonProps) {
     : "bg-primary-500 text-white hover:bg-primary-600";
 
   return (
-    <button
-      type="button"
-      onClick={handleToggle}
-      disabled={isPending}
-      aria-pressed={isRead}
-      className={`${baseClass} ${variantClass}`}
-    >
-      {isRead ? t("unmarkAsReadCta") : t("markAsReadCta")}
-    </button>
+    <>
+      <button
+        type="button"
+        onClick={handleToggle}
+        disabled={isPending}
+        aria-pressed={isRead}
+        className={`${baseClass} ${variantClass}`}
+      >
+        {isRead ? t("unmarkAsReadCta") : t("markAsReadCta")}
+      </button>
+      <ConfirmationModal
+        isOpen={isUnmarkConfirmOpen}
+        title={t("unmarkConfirmTitle")}
+        message={t("unmarkConfirmMessage")}
+        confirmText={t("unmarkConfirmOk")}
+        cancelText={t("unmarkConfirmCancel")}
+        confirmVariant="warning"
+        onConfirm={handleUnmarkConfirmed}
+        onClose={handleUnmarkCancel}
+      />
+    </>
   );
 }
