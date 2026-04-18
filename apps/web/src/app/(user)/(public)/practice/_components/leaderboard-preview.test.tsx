@@ -3,8 +3,8 @@ import { render, screen } from '@testing-library/react';
 import { LeaderboardPreview } from './leaderboard-preview';
 import type { LeaderboardRow } from '@/app/(user)/(public)/leaderboard/_lib/types';
 
-vi.mock('next-intl', () => ({
-  useTranslations: () => (key: string) => key,
+vi.mock('next-intl/server', () => ({
+  getTranslations: () => Promise.resolve((key: string) => key),
 }));
 
 vi.mock('next/link', () => ({
@@ -50,14 +50,14 @@ function createRow(overrides: Partial<LeaderboardRow> = {}): LeaderboardRow {
 }
 
 describe('LeaderboardPreview', () => {
-  it('returns undefined when rows is empty', () => {
+  it('returns undefined when rows is empty', async () => {
     const { container } = render(
-      <LeaderboardPreview rows={[]} detailPath="/leaderboard/all-time/jantou-fu" />,
+      await LeaderboardPreview({ rows: [], detailPath: '/leaderboard/all-time/jantou-fu' }),
     );
     expect(container.innerHTML).toBe('');
   });
 
-  it('renders table with rows when rows are provided', () => {
+  it('renders table with rows when rows are provided', async () => {
     const rows = [
       createRow({ userId: 'u1', username: 'Alice', rank: 1 }),
       createRow({ userId: 'u2', username: 'Bob', rank: 2 }),
@@ -65,7 +65,7 @@ describe('LeaderboardPreview', () => {
     ];
 
     render(
-      <LeaderboardPreview rows={rows} detailPath="/leaderboard/all-time/jantou-fu" />,
+      await LeaderboardPreview({ rows, detailPath: '/leaderboard/all-time/jantou-fu' }),
     );
 
     expect(screen.getByTestId('row-u1')).toBeDefined();
@@ -73,34 +73,34 @@ describe('LeaderboardPreview', () => {
     expect(screen.getByTestId('row-u3')).toBeDefined();
   });
 
-  it('renders section title with allTimeRanking key', () => {
+  it('renders section title with allTimeRanking key', async () => {
     const rows = [createRow()];
 
     render(
-      <LeaderboardPreview rows={rows} detailPath="/leaderboard/all-time/jantou-fu" />,
+      await LeaderboardPreview({ rows, detailPath: '/leaderboard/all-time/jantou-fu' }),
     );
 
     expect(screen.getByText('allTimeRanking')).toBeDefined();
   });
 
-  it('renders a link to the detail page with viewMore key', () => {
+  it('renders a link to the detail page with viewMore key', async () => {
     const detailPath = '/leaderboard/all-time/mentsu-fu';
     const rows = [createRow()];
 
-    render(<LeaderboardPreview rows={rows} detailPath={detailPath} />);
+    render(await LeaderboardPreview({ rows, detailPath }));
 
     const link = screen.getByText('viewMore');
     expect(link.closest('a')?.getAttribute('href')).toBe(detailPath);
   });
 
-  it('renders exactly the number of rows passed', () => {
+  it('renders exactly the number of rows passed', async () => {
     const rows = [
       createRow({ userId: 'u1', rank: 1 }),
       createRow({ userId: 'u2', rank: 2 }),
     ];
 
     render(
-      <LeaderboardPreview rows={rows} detailPath="/leaderboard/all-time/jantou-fu" />,
+      await LeaderboardPreview({ rows, detailPath: '/leaderboard/all-time/jantou-fu' }),
     );
 
     expect(screen.getAllByTestId(/^row-/)).toHaveLength(2);

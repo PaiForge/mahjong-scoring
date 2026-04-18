@@ -20,8 +20,8 @@ import { ResultScoreBar } from "./result-score-bar";
  * 置換が期待通りに動作しない（スケルトンと実コンテンツが同時に描画される）
  * 事象が発生したため、Server Component 化した。
  *
- * 子要素の `ResultScoreBar` は内部で `useTranslations` を呼ぶ Client Component
- * だが、Server 親の子として通常通り動作する（RSC の方向制約に合致）。
+ * 子要素の `ResultScoreBar` も Server Component であり、`getTranslations` で
+ * 翻訳を取得する。
  *
  * 表示順:
  * 1. PageTitle（練習名） — 即時描画
