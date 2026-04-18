@@ -65,7 +65,7 @@ export default async function LearnIndexPage() {
 
       {CURRICULUM_SECTIONS.map((section) => {
         const chapters = grouped.get(section) ?? [];
-        if (chapters.length === 0) return null;
+        if (chapters.length === 0) return undefined;
         return (
           <section key={section} className="mt-10">
             <SectionTitle>{t(`sections.${section}`)}</SectionTitle>

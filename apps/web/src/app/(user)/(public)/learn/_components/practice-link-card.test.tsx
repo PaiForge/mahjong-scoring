@@ -1,6 +1,6 @@
 import { describe, expect, it, vi } from "vitest";
 import { render } from "@testing-library/react";
-import { PracticeLinkCard, PracticeLinkList } from "./practice-link-card";
+import { PracticeLinkList } from "./practice-link-card";
 
 vi.mock("next-intl/server", () => ({
   getTranslations: () =>
@@ -54,10 +54,10 @@ describe("PracticeLinkList", () => {
   });
 });
 
-describe("PracticeLinkCard", () => {
-  it("renders a link to the provided href", async () => {
+describe("PracticeLinkList: link href rendering", () => {
+  it("renders a link with the provided href via the list", async () => {
     const { container } = render(
-      await PracticeLinkCard({ href: "/practice/machi-fu" }),
+      await PracticeLinkList({ hrefs: ["/practice/machi-fu"] }),
     );
     const anchor = container.querySelector("a");
     expect(anchor).not.toBeNull();

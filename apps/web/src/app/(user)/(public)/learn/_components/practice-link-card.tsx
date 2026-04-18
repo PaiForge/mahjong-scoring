@@ -7,11 +7,6 @@ interface PracticeLinkListProps {
   readonly hrefs: readonly string[];
 }
 
-interface PracticeLinkCardProps {
-  /** `/practice/<slug>` 形式のリンク */
-  readonly href: string;
-}
-
 /**
  * `/practice/jantou-fu` 等の href から `practice.practices.<camelKey>.title` の
  * i18n キーを導出する。変換失敗時は undefined。
@@ -71,29 +66,6 @@ export async function PracticeLinkList({ hrefs }: PracticeLinkListProps) {
         ))}
       </div>
     </section>
-  );
-}
-
-/**
- * 練習リンクカード（単体）
- * 練習リンクカード
- *
- * 章ページから対応練習への導線カード。
- */
-export async function PracticeLinkCard({ href }: PracticeLinkCardProps) {
-  const t = await getTranslations("learnCurriculum.chapter");
-  const tPractice = await getTranslations("practice");
-
-  const slug = practiceSlugFromHref(href);
-  const titleKey = slug ? `practices.${toCamelCase(slug)}.title` : undefined;
-  const title = titleKey ? tPractice(titleKey) : t("practiceLinkCta");
-
-  return (
-    <PracticeLinkCardPresentation
-      href={href}
-      title={title}
-      ctaLabel={t("practiceLinkCta")}
-    />
   );
 }
 
