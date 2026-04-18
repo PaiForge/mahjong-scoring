@@ -96,7 +96,7 @@ describe("MarkAsReadButton", () => {
   });
 
   it("optimistically switches to unmark label and keeps it on success", async () => {
-    mockMarkChapterRead.mockResolvedValue({ ok: true });
+    mockMarkChapterRead.mockResolvedValue({ success: true });
 
     const { getByRole } = render(
       <MarkAsReadButton slug="jantou-fu" initialRead={false} />,
@@ -114,8 +114,8 @@ describe("MarkAsReadButton", () => {
 
   it("rolls back the optimistic update when server returns a non-ok result (generic failure)", async () => {
     mockMarkChapterRead.mockResolvedValue({
-      ok: false,
-      skipped: "invalid-slug",
+      success: false,
+      error: "invalid-slug",
     });
 
     const { getByRole } = render(
@@ -134,7 +134,7 @@ describe("MarkAsReadButton", () => {
 
   it("redirects to /sign-in?redirect=/learn/<slug> on anonymous result", async () => {
     mockMarkChapterRead.mockResolvedValue({
-      ok: false,
+      success: true,
       skipped: "anonymous",
     });
 
@@ -202,7 +202,7 @@ describe("MarkAsReadButton", () => {
   });
 
   it("proceeds with unmark when the user confirms", async () => {
-    mockUnmarkChapterRead.mockResolvedValue({ ok: true });
+    mockUnmarkChapterRead.mockResolvedValue({ success: true });
 
     const { container, getAllByRole } = render(
       <MarkAsReadButton slug="jantou-fu" initialRead={true} />,
@@ -228,8 +228,8 @@ describe("MarkAsReadButton", () => {
 
   it("rolls back when unmarking fails after confirmation", async () => {
     mockUnmarkChapterRead.mockResolvedValue({
-      ok: false,
-      skipped: "invalid-slug",
+      success: false,
+      error: "invalid-slug",
     });
 
     const { container, getAllByRole } = render(

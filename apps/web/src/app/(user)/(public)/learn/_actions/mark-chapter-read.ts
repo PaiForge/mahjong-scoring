@@ -12,27 +12,32 @@ import { isCurriculumChapterSlug } from '../_lib/curriculum';
  * 読了マーク系 Server Action の戻り値
  * 読了アクション結果
  *
- * - `{ ok: true }`: 成功（既に同じ状態でも冪等に true）
- * - `{ ok: false, skipped: 'anonymous' }`: 未ログインユーザー（静かにスキップ）
- * - `{ ok: false, skipped: 'invalid-slug' }`: curriculum に存在しない slug
+ * `savePracticeResult` と命名・構造を揃えている。
+ *
+ * - `{ success: true }`: 認証済みユーザーによる保存／解除成功
+ *   （既に同じ状態でも冪等に true）
+ * - `{ success: true, skipped: 'anonymous' }`: 未ログインユーザーによる呼び出し。
+ *   エラーではなく「期待された no-op」を表し、呼び出し側はサインインページへ誘導する。
+ * - `{ success: false, error: 'invalid-slug' }`: curriculum に存在しない slug
  */
 export type MarkActionResult =
-  | { readonly ok: true }
-  | { readonly ok: false; readonly skipped: 'anonymous' | 'invalid-slug' };
+  | { readonly success: true }
+  | { readonly success: true; readonly skipped: 'anonymous' }
+  | { readonly success: false; readonly error: 'invalid-slug' };
 
 /**
  * 指定章を読了済みとしてマークする Server Action。
  * 章読了マーク
  *
- * - 不正な slug は `skipped: 'invalid-slug'` で拒否
- * - 未認証は `skipped: 'anonymous'` で静かにスキップ
+ * - 不正な slug は `{ success: false, error: 'invalid-slug' }` で拒否
+ * - 未認証は `{ success: true, skipped: 'anonymous' }` で静かにスキップ
  * - 既に読了済みでも `ON CONFLICT DO NOTHING` で冪等
  *
  * @param slug 対象章のスラッグ
  */
 export async function markChapterRead(slug: string): Promise<MarkActionResult> {
   if (!isCurriculumChapterSlug(slug)) {
-    return { ok: false, skipped: 'invalid-slug' };
+    return { success: false, error: 'invalid-slug' };
   }
 
   const supabase = await createClient();
@@ -40,7 +45,7 @@ export async function markChapterRead(slug: string): Promise<MarkActionResult> {
     data: { user },
   } = await supabase.auth.getUser();
   if (!user) {
-    return { ok: false, skipped: 'anonymous' };
+    return { success: true, skipped: 'anonymous' };
   }
 
   await db
@@ -50,5 +55,5 @@ export async function markChapterRead(slug: string): Promise<MarkActionResult> {
 
   revalidatePath('/learn');
   revalidatePath(`/learn/${slug}`);
-  return { ok: true };
+  return { success: true };
 }

@@ -38,14 +38,18 @@ export function MarkAsReadButton({ slug, initialRead }: MarkAsReadButtonProps) {
         ? await markChapterRead(slug)
         : await unmarkChapterRead(slug);
 
-      if (!result.ok) {
+      // 未認証は「期待された no-op」として success: true + skipped: 'anonymous' が返る。
+      // 楽観的 UI を巻き戻してサインインページへ誘導する。
+      if (result.success && "skipped" in result && result.skipped === "anonymous") {
         setIsRead(!nextState);
-        if (result.skipped === "anonymous") {
-          const redirectTo = encodeURIComponent(`/learn/${slug}`);
-          router.push(`/sign-in?redirect=${redirectTo}`);
-        } else {
-          toast.error(t("updateFailedToast"));
-        }
+        const redirectTo = encodeURIComponent(`/learn/${slug}`);
+        router.push(`/sign-in?redirect=${redirectTo}`);
+        return;
+      }
+
+      if (!result.success) {
+        setIsRead(!nextState);
+        toast.error(t("updateFailedToast"));
       }
     });
   };

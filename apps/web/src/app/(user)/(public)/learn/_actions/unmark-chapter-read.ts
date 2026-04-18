@@ -14,15 +14,15 @@ import type { MarkActionResult } from './mark-chapter-read';
  * 指定章の読了マークを解除する Server Action。
  * 章読了解除
  *
- * - 不正な slug は `skipped: 'invalid-slug'` で拒否
- * - 未認証は `skipped: 'anonymous'` で静かにスキップ
- * - 該当行がなくても `ok: true` を返す（冪等）
+ * - 不正な slug は `{ success: false, error: 'invalid-slug' }` で拒否
+ * - 未認証は `{ success: true, skipped: 'anonymous' }` で静かにスキップ
+ * - 該当行がなくても `{ success: true }` を返す（冪等）
  *
  * @param slug 対象章のスラッグ
  */
 export async function unmarkChapterRead(slug: string): Promise<MarkActionResult> {
   if (!isCurriculumChapterSlug(slug)) {
-    return { ok: false, skipped: 'invalid-slug' };
+    return { success: false, error: 'invalid-slug' };
   }
 
   const supabase = await createClient();
@@ -30,7 +30,7 @@ export async function unmarkChapterRead(slug: string): Promise<MarkActionResult>
     data: { user },
   } = await supabase.auth.getUser();
   if (!user) {
-    return { ok: false, skipped: 'anonymous' };
+    return { success: true, skipped: 'anonymous' };
   }
 
   await db
@@ -44,5 +44,5 @@ export async function unmarkChapterRead(slug: string): Promise<MarkActionResult>
 
   revalidatePath('/learn');
   revalidatePath(`/learn/${slug}`);
-  return { ok: true };
+  return { success: true };
 }
