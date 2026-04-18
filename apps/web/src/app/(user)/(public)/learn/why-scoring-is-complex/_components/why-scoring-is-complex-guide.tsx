@@ -3,14 +3,14 @@ import { SectionTitle } from "@/app/_components/section-title";
 import { BlockMath, InlineMath } from "../../_components/math";
 
 /**
- * はじめに — 点数計算の概要を解説するガイドコンポーネント
+ * 点数計算が複雑な理由 — 公式に基づく計算方法を例に解説するガイドコンポーネント
  */
-export async function IntroductionGuide() {
-  const t = await getTranslations("introduction.learn");
+export async function WhyScoringIsComplexGuide() {
+  const t = await getTranslations("whyScoringIsComplex.learn");
 
   return (
     <div className="space-y-10">
-      {/* 麻雀の点数計算は複雑ではない */}
+      {/* 公式に基づけば計算自体は単純 */}
       <section>
         <SectionTitle>{t("scoringIsSimpleTitle")}</SectionTitle>
         <p className="mt-3 text-sm leading-relaxed text-surface-700">
@@ -71,23 +71,6 @@ export async function IntroductionGuide() {
         </p>
         <p className="mt-2 text-sm leading-relaxed text-surface-700">
           {t("practiceNeeded")}
-        </p>
-      </section>
-
-      {/* このサイトの使い方 */}
-      <section>
-        <SectionTitle>{t("howToUseTitle")}</SectionTitle>
-        <p className="mt-3 text-sm leading-relaxed text-surface-700">
-          {t("howToUseBody1")}
-        </p>
-        <p className="mt-2 text-sm leading-relaxed text-surface-700">
-          {t("howToUseBody2")}
-        </p>
-        <p className="mt-2 text-sm leading-relaxed text-surface-700">
-          {t("howToUseBody3")}
-        </p>
-        <p className="mt-2 text-sm leading-relaxed text-surface-700">
-          {t("howToUseBody4")}
         </p>
       </section>
     </div>

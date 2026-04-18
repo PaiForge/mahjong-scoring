@@ -11,7 +11,7 @@ export async function generateMetadata(): Promise<Metadata> {
 
 export default function LearnMachiFuPage() {
   return (
-    <LearnPageLayout namespace="machiFu.learn" playHref="/practice/machi-fu/play">
+    <LearnPageLayout slug="machi-fu" namespace="machiFu.learn">
       <MachiFuGuide />
     </LearnPageLayout>
   );

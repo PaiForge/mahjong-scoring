@@ -14,8 +14,8 @@ export function Footer() {
             <h3 className="mb-3 text-xs font-semibold uppercase tracking-wider text-surface-400">{t("learn")}</h3>
             <ul className="space-y-2 text-sm">
               <li>
-                <Link href="/learn/introduction" className="text-surface-600 hover:text-primary-600 transition-colors">
-                  {t("introduction")}
+                <Link href="/learn/about-this-app" className="text-surface-600 hover:text-primary-600 transition-colors">
+                  {t("aboutThisApp")}
                 </Link>
               </li>
             </ul>
