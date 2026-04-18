@@ -2,13 +2,12 @@
 
 import { useState, useCallback } from "react";
 import { useTranslations } from "next-intl";
-import { generateTehaiFuQuestion } from "@mahjong-scoring/core";
+import { generateTehaiFuQuestion, retryGenerate } from "@mahjong-scoring/core";
 import type { TehaiFuQuestion } from "@mahjong-scoring/core";
 import { useTimedSession } from "../../_hooks/use-timed-session";
 import { useSaveOnFinish } from "../../_hooks/use-save-on-finish";
 import { ChallengeShell } from "../../_components/challenge-shell";
 import { ChallengeSubmitButton } from "../../_components/challenge-submit-button";
-import { retryGenerate } from "../../_lib/retry-generate";
 import { TehaiDisplay } from "./tehai-display";
 import { FuItemRow } from "./fu-item-row";
 

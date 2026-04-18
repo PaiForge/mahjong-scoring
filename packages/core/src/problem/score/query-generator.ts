@@ -11,9 +11,7 @@ import {
 } from "@pai-forge/riichi-mahjong";
 import type { ScoreQuestion, YakuDetail } from "./types";
 import { recalculateScore } from "../../score/calculator";
-import { convertScoreDetailToFuDetails } from "../../score/fu-calculator";
-import { countDoraInTehai } from "../../core/hai-names";
-import { getYakuNameJa } from "../../core/constants";
+import { countDoraInTehai, isOya } from "../../core/hai-names";
 import {
   haiIdToMspz,
   kazeIdToMspz,
@@ -21,6 +19,7 @@ import {
   parseHais,
   parseKazehai,
 } from "./mspz-serializer";
+import { assembleScoreQuestion, buildYakuDetailsFromResult } from "./assemble-question";
 
 /**
  * クエリパラメータからの問題生成結果
@@ -116,7 +115,7 @@ export function generateQuestionFromQuery(params: URLSearchParams): QueryResult 
     const jikaze = parseKazehai(jiStr) ?? HaiKind.Ton;
 
     const uraDoraMarkers = uraDoraStr ? parseHais(uraDoraStr) : undefined;
-    const isOya = jikaze === HaiKind.Ton;
+    const oya = isOya(jikaze);
 
     const answer = calculateScoreForTehai(tehai, {
       agariHai,
@@ -129,10 +128,7 @@ export function generateQuestionFromQuery(params: URLSearchParams): QueryResult 
     if (answer.han === 0) return { type: "error", message: "No yaku (Yaku Nashi)." };
 
     const yakuResult = detectYaku(tehai, { agariHai, bakaze, jikaze, doraMarkers, uraDoraMarkers, isTsumo });
-    const yakuDetails: YakuDetail[] = yakuResult.map(([name, han]) => ({
-      name: getYakuNameJa(name),
-      han,
-    }));
+    const yakuDetails: YakuDetail[] = buildYakuDetailsFromResult(yakuResult);
 
     // リーチ・裏ドラの加算
     let finalAnswer = answer;
@@ -140,7 +136,7 @@ export function generateQuestionFromQuery(params: URLSearchParams): QueryResult 
       const addedHan = 1;
       const uraDoraHan = uraDoraMarkers ? countDoraInTehai(tehai, uraDoraMarkers) : 0;
 
-      finalAnswer = recalculateScore(answer, answer.han + addedHan + uraDoraHan, { isTsumo, isOya });
+      finalAnswer = recalculateScore(answer, answer.han + addedHan + uraDoraHan, { isTsumo, isOya: oya });
 
       yakuDetails.unshift({ name: "立直", han: 1 });
       if (uraDoraHan > 0) {
@@ -148,16 +144,9 @@ export function generateQuestionFromQuery(params: URLSearchParams): QueryResult 
       }
     }
 
-    // ドラ（表ドラ）の加算
-    const doraHan = countDoraInTehai(tehai, doraMarkers);
-
-    if (doraHan > 0) {
-      yakuDetails.push({ name: "ドラ", han: doraHan });
-    }
-
     return {
       type: "success",
-      question: {
+      question: assembleScoreQuestion({
         tehai,
         agariHai,
         isTsumo,
@@ -167,11 +156,9 @@ export function generateQuestionFromQuery(params: URLSearchParams): QueryResult 
         isRiichi,
         uraDoraMarkers,
         answer: finalAnswer,
-        fuDetails: answer.detail
-          ? convertScoreDetailToFuDetails(answer.detail, { agariHai, isTsumo, bakaze, jikaze })
-          : undefined,
+        originalAnswer: answer,
         yakuDetails,
-      },
+      }),
     };
   } catch (e) {
     const message = e instanceof Error ? e.message : "Unknown error occurred during parsing.";

@@ -1,16 +1,14 @@
 import { describe, it, expect } from "vitest";
 import { HaiKind } from "@pai-forge/riichi-mahjong";
-import { ScoreQuestionGenerator, generateValidScoreQuestion } from "./generator";
+import { generateScoreQuestion, generateValidScoreQuestion } from "./generator";
 import { ScoreLevel } from "../../core/constants";
 import { isMangan } from "./judgement";
 
-describe("ScoreQuestionGenerator", () => {
-  const generator = new ScoreQuestionGenerator();
-
+describe("generateScoreQuestion", () => {
   it("100回試行して少なくとも1回は問題が生成される", () => {
     let generated = false;
     for (let i = 0; i < 100; i++) {
-      const question = generator.generate();
+      const question = generateScoreQuestion();
       if (question) {
         generated = true;
         break;
@@ -52,7 +50,7 @@ describe("ScoreQuestionGenerator", () => {
   it("yakuDetails が定義されている場合、少なくとも1つの役がある", () => {
     let tested = 0;
     for (let i = 0; i < 200; i++) {
-      const question = generator.generate();
+      const question = generateScoreQuestion();
       if (!question) continue;
       if (question.yakuDetails) {
         expect(question.yakuDetails.length).toBeGreaterThan(0);
@@ -71,7 +69,7 @@ describe("ScoreQuestionGenerator", () => {
     it("includeParent=false の場合、自風が東にならない", () => {
       let tested = 0;
       for (let i = 0; i < 200; i++) {
-        const question = generator.generate({ includeParent: false, includeChild: true });
+        const question = generateScoreQuestion({ includeParent: false, includeChild: true });
         if (!question) continue;
         expect(question.jikaze).not.toBe(HaiKind.Ton);
         tested++;
@@ -83,7 +81,7 @@ describe("ScoreQuestionGenerator", () => {
     it("includeChild=false の場合、自風が東になる", () => {
       let tested = 0;
       for (let i = 0; i < 200; i++) {
-        const question = generator.generate({ includeParent: true, includeChild: false });
+        const question = generateScoreQuestion({ includeParent: true, includeChild: false });
         if (!question) continue;
         expect(question.jikaze).toBe(HaiKind.Ton);
         tested++;
@@ -97,7 +95,7 @@ describe("ScoreQuestionGenerator", () => {
     it("non_mangan のみの場合、通常点数の問題のみ生成される", () => {
       let tested = 0;
       for (let i = 0; i < 300; i++) {
-        const question = generator.generate({ allowedRanges: ["non_mangan"] });
+        const question = generateScoreQuestion({ allowedRanges: ["non_mangan"] });
         if (!question) continue;
         expect(question.answer.scoreLevel).toBe(ScoreLevel.Normal);
         tested++;
@@ -109,7 +107,7 @@ describe("ScoreQuestionGenerator", () => {
     it("mangan_plus のみの場合、満貫以上の問題のみ生成される", () => {
       let tested = 0;
       for (let i = 0; i < 300; i++) {
-        const question = generator.generate({ allowedRanges: ["mangan_plus"] });
+        const question = generateScoreQuestion({ allowedRanges: ["mangan_plus"] });
         if (!question) continue;
         expect(isMangan(question.answer.scoreLevel)).toBe(true);
         tested++;

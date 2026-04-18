@@ -2,7 +2,7 @@
 
 import { useCallback, useRef, useState } from "react";
 import { useTranslations } from "next-intl";
-import { generateValidScoreQuestion, HaiKind, judgeScoreTableAnswer } from "@mahjong-scoring/core";
+import { generateValidScoreQuestion, isOya, judgeScoreTableAnswer } from "@mahjong-scoring/core";
 import type { ScoreQuestion, ScoreTableUserAnswer } from "@mahjong-scoring/core";
 import { useTimedSession } from "../../_hooks/use-timed-session";
 import { useSaveOnFinish } from "../../_hooks/use-save-on-finish";
@@ -44,10 +44,10 @@ export function ScoreCalculationPlayView() {
       const correctAnswer = paymentToScoreTableAnswer(question.answer.payment);
       const isCorrect = judgeScoreTableAnswer(userAnswer, correctAnswer);
 
-      const isOya = question.jikaze === HaiKind.Ton;
+      const oya = isOya(question.jikaze);
 
       questionResultsRef.current.push({
-        isOya,
+        isOya: oya,
         isTsumo: question.isTsumo,
         han: question.answer.han,
         fu: question.answer.fu,
