@@ -1,4 +1,4 @@
-import type { SupabaseClient } from '@supabase/supabase-js';
+import type { SupabaseClient, User } from '@supabase/supabase-js';
 import type { Column } from 'drizzle-orm';
 import { ilike, inArray, or } from 'drizzle-orm';
 
@@ -6,6 +6,29 @@ import { db, profiles } from '../../../lib/db';
 import { escapeLikePattern } from '../../../lib/escape-like-pattern';
 
 import type { Profile } from '../../../lib/db';
+
+/**
+ * Supabase 認証ユーザー一覧を取得する（同一リクエスト内で重複呼び出しを防ぐキャッシュ付き）。
+ * `buildUserFilterCondition` と `buildEmailMap` が同じ `adminClient` で呼ばれた場合に
+ * `listUsers()` の重複リクエストを排除する。
+ *
+ * 認証ユーザー一覧取得
+ *
+ * TODO: ユーザー数が100人を超える場合、ページネーションで全件取得する必要がある
+ */
+const adminUsersCache = new WeakMap<SupabaseClient, Promise<readonly User[]>>();
+
+function getAdminUsers(adminClient: SupabaseClient): Promise<readonly User[]> {
+  const cached = adminUsersCache.get(adminClient);
+  if (cached) return cached;
+
+  const promise = adminClient.auth.admin
+    .listUsers({ page: 1, perPage: 100 })
+    .then(({ data }) => data?.users ?? []);
+
+  adminUsersCache.set(adminClient, promise);
+  return promise;
+}
 
 /**
  * ユーザーフィルタ結果。
@@ -46,12 +69,8 @@ export async function buildUserFilterCondition(
       ),
     );
 
-  // TODO: ユーザー数が100人を超える場合、ページネーションで全件取得する必要がある
-  const { data: usersData } = await adminClient.auth.admin.listUsers({
-    page: 1,
-    perPage: 100,
-  });
-  const matchingEmailUserIds = (usersData?.users ?? [])
+  const users = await getAdminUsers(adminClient);
+  const matchingEmailUserIds = users
     .filter((u) => u.email?.toLowerCase().includes(userFilter.toLowerCase()))
     .map((u) => u.id);
 
@@ -86,12 +105,8 @@ export async function buildEmailMap(
     return emailMap;
   }
 
-  // TODO: ユーザー数が100人を超える場合、ページネーションで全件取得する必要がある
-  const { data: usersData } = await adminClient.auth.admin.listUsers({
-    page: 1,
-    perPage: 100,
-  });
-  for (const u of usersData?.users ?? []) {
+  const users = await getAdminUsers(adminClient);
+  for (const u of users) {
     if (u.email) {
       emailMap.set(u.id, u.email);
     }
