@@ -19,6 +19,7 @@ import { ContentContainer } from "@/app/_components/content-container";
 import { PageTitle } from "@/app/_components/page-title";
 import { createMetadata } from "@/app/_lib/metadata";
 import { getOptionalUser } from "@/lib/auth";
+import { sanitizeInternalRedirect } from "@/lib/redirect";
 
 import { EmailPasswordForm } from "./_components/email-password-form";
 import { GoogleOAuthButton } from "./_components/google-oauth-button";
@@ -34,15 +35,20 @@ export async function generateMetadata(): Promise<Metadata> {
 export default async function SignInPage({
   searchParams,
 }: {
-  searchParams: Promise<{ error?: string }>;
+  searchParams: Promise<{ error?: string; redirect?: string }>;
 }) {
+  const { error, redirect: redirectParam } = await searchParams;
+  const sanitizedRedirect = sanitizeInternalRedirect(redirectParam);
+
   const user = await getOptionalUser();
 
   if (user) {
+    // 既ログインユーザーは redirect クエリを無視して /mypage へ固定遷移。
+    // 認証前の意図保持のための redirect を、既ログイン時にも尊重すると
+    // GET で副作用のある内部パスへのフィッシング誘導に悪用される恐れがあるため。
     redirect("/mypage");
   }
 
-  const { error } = await searchParams;
   const t = await getTranslations("auth");
 
   return (
@@ -52,7 +58,7 @@ export default async function SignInPage({
         {error && (
           <p className="text-center text-sm text-red-600">{t("authError")}</p>
         )}
-        <GoogleOAuthButton />
+        <GoogleOAuthButton redirectTo={sanitizedRedirect} />
 
         <div className="flex items-center gap-4 max-w-sm mx-auto">
           <div className="flex-1 border-t border-surface-200" />
@@ -60,7 +66,7 @@ export default async function SignInPage({
           <div className="flex-1 border-t border-surface-200" />
         </div>
 
-        <EmailPasswordForm />
+        <EmailPasswordForm redirectTo={sanitizedRedirect} />
 
         <p className="text-center text-sm text-surface-500">
           {t("noAccountYet")}

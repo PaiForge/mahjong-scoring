@@ -11,7 +11,7 @@ export async function generateMetadata(): Promise<Metadata> {
 
 export default function LearnYakuPage() {
   return (
-    <LearnPageLayout namespace="yaku.learn" playHref="/practice/yaku/play">
+    <LearnPageLayout slug="yaku" namespace="yaku.learn">
       <YakuGuide />
     </LearnPageLayout>
   );

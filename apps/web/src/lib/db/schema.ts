@@ -1,5 +1,6 @@
 import { sql } from 'drizzle-orm';
 import {
+  check,
   index,
   integer,
   jsonb,
@@ -324,3 +325,45 @@ export const userExp = pgTable(
 
 export type UserExp = typeof userExp.$inferSelect;
 export type NewUserExp = typeof userExp.$inferInsert;
+
+/**
+ * 章読了 — ユーザーごとの学習章の読了記録
+ * 学習進捗
+ *
+ * @description
+ * 認証ユーザーが `/learn/<slug>` を「読了」とマークするたびに 1 行 INSERT される。
+ * (user_id, chapter_slug) で 1 ユニーク。
+ *
+ * @design chapter_slug を文字列キーとして保持し DB 側で enum 化しない
+ * 章の追加・削除はコード側（_lib/curriculum.ts）で完結させ、
+ * DB マイグレーションを不要にする。
+ *
+ * @design 将来 source カラム（"manual" | "auto"）を追加する場合は
+ * ADD COLUMN source varchar(16) NOT NULL DEFAULT 'manual' で既存行ごと
+ * 安全に拡張可能。現時点では YAGNI で見送り。
+ */
+export const learnChapterReads = pgTable(
+  'learn_chapter_reads',
+  {
+    /** auth.users(id) への外部キー（Supabase SQL で定義） */
+    userId: uuid('user_id').notNull(),
+    /** 章スラッグ（curriculum.ts で管理） */
+    chapterSlug: varchar('chapter_slug', { length: 64 }).notNull(),
+    /** 読了日時 */
+    readAt: timestamp('read_at', { withTimezone: true }).defaultNow().notNull(),
+  },
+  (table) => [
+    primaryKey({ columns: [table.userId, table.chapterSlug] }),
+    index('idx_lcr_user').on(table.userId),
+    // chapter_slug の形式を制約: 先頭は英小文字、以降は英小文字・数字・ハイフン
+    // (最長 64 文字)。アプリ側 curriculum.ts の slug 命名規則に合わせ、
+    // 任意文字列の INSERT を DB 層でも防ぐ二重防御。
+    check(
+      'learn_chapter_reads_chapter_slug_format',
+      sql`${table.chapterSlug} ~ '^[a-z][a-z0-9-]{0,63}$'`,
+    ),
+  ],
+);
+
+export type LearnChapterRead = typeof learnChapterReads.$inferSelect;
+export type NewLearnChapterRead = typeof learnChapterReads.$inferInsert;

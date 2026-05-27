@@ -11,7 +11,7 @@ export async function generateMetadata(): Promise<Metadata> {
 
 export default function LearnMentsuFuPage() {
   return (
-    <LearnPageLayout namespace="mentsuFu.learn" playHref="/practice/mentsu-fu/play">
+    <LearnPageLayout slug="mentsu-fu" namespace="mentsuFu.learn">
       <MentsuFuGuide />
     </LearnPageLayout>
   );

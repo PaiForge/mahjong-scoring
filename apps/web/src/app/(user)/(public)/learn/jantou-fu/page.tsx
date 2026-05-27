@@ -11,7 +11,7 @@ export async function generateMetadata(): Promise<Metadata> {
 
 export default function LearnJantouFuPage() {
   return (
-    <LearnPageLayout namespace="jantouFu.learn" playHref="/practice/jantou-fu/play">
+    <LearnPageLayout slug="jantou-fu" namespace="jantouFu.learn">
       <JantouFuGuide />
     </LearnPageLayout>
   );

@@ -10,8 +10,15 @@ import { signIn } from "../_actions/sign-in";
 /**
  * メールアドレス/パスワードによるサインインフォーム
  * メールログインフォーム
+ *
+ * @param redirectTo ログイン成功時の遷移先。未指定または無効な場合は `/mypage`。
+ *   `page.tsx` 側で `sanitizeInternalRedirect` 済みの値を受け取る想定。
  */
-export function EmailPasswordForm() {
+export function EmailPasswordForm({
+  redirectTo,
+}: {
+  redirectTo?: string;
+}) {
   const t = useTranslations("auth");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -40,7 +47,7 @@ export function EmailPasswordForm() {
 
       // Hard navigation で Cookie の同期を確実にする。
       // router.push だと Server Component が Cookie 反映前にレンダリングされる可能性がある。
-      window.location.href = "/mypage";
+      window.location.href = redirectTo ?? "/mypage";
     } catch {
       setError(t("emailSignInError"));
       setIsLoading(false);

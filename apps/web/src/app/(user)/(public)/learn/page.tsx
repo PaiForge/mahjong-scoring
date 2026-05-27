@@ -1,44 +1,86 @@
+/**
+ * 学ぶ（カリキュラム目次）
+ *
+ * @description
+ * セクション（基礎 / 符 / 役 / 点数計算）ごとに章をグルーピングし、
+ * 読了状態・進捗率・「次はここから」ナビゲーションを表示する目次ページ。
+ * 表示は Zenn の書籍目次風のシンプルな縦列リスト。
+ * @flow
+ * ユーザーは各章のタイトル Link から対応する `/learn/<slug>` へ遷移する。
+ * 未認証ユーザーでも進捗は空として表示され、最初の章が「次はここから」となる。
+ */
 import type { Metadata } from "next";
-import Link from "next/link";
 import { getTranslations } from "next-intl/server";
 import { ContentContainer } from "@/app/_components/content-container";
 import { PageTitle } from "@/app/_components/page-title";
 import { createMetadata } from "@/app/_lib/metadata";
+import { CurriculumProgressBar } from "./_components/curriculum-progress-bar";
+import { CurriculumToc } from "./_components/curriculum-toc";
+import {
+  CURRICULUM,
+  CURRICULUM_SECTIONS,
+  type CurriculumChapter,
+  type CurriculumSection,
+  pickNextChapter,
+} from "./_lib/curriculum";
+import { fetchReadChapterSlugs } from "./_lib/progress";
 
 export async function generateMetadata(): Promise<Metadata> {
-  const t = await getTranslations("learnIndex");
-  return createMetadata({ title: t("pageTitle"), description: t("pageDescription") });
+  const t = await getTranslations("learnCurriculum.index");
+  return createMetadata({
+    title: t("pageTitle"),
+    description: t("pageDescription"),
+  });
 }
 
-const learnPages = [
-  { href: "/learn/introduction", titleKey: "introduction" },
-  { href: "/learn/jantou-fu", titleKey: "jantouFu" },
-  { href: "/learn/mentsu-fu", titleKey: "mentsuFu" },
-  { href: "/learn/machi-fu", titleKey: "machiFu" },
-  { href: "/learn/tehai-fu", titleKey: "tehaiFu" },
-  { href: "/learn/yaku", titleKey: "yaku" },
-] as const;
-
 export default async function LearnIndexPage() {
-  const t = await getTranslations("learnIndex");
+  const t = await getTranslations("learnCurriculum");
+  const readSlugs = await fetchReadChapterSlugs();
+  const next = pickNextChapter(readSlugs);
+  const allCompleted = !next;
+
+  const sorted = [...CURRICULUM].sort((a, b) => a.order - b.order);
+  const grouped = new Map<CurriculumSection, CurriculumChapter[]>();
+  for (const section of CURRICULUM_SECTIONS) grouped.set(section, []);
+  for (const chapter of sorted) {
+    grouped.get(chapter.section)?.push(chapter);
+  }
 
   return (
     <ContentContainer>
-      <PageTitle>{t("pageTitle")}</PageTitle>
-      <p className="mt-3 text-sm text-surface-500">{t("pageDescription")}</p>
+      <PageTitle>{t("index.pageTitle")}</PageTitle>
+      <p className="mt-3 text-sm text-surface-500">
+        {t("index.pageDescription")}
+      </p>
 
-      <ul className="mt-8 space-y-4">
-        {learnPages.map((page) => (
-          <li key={page.href}>
-            <Link
-              href={page.href}
-              className="text-sm font-medium text-primary-600 underline-offset-2 hover:underline"
-            >
-              {t(page.titleKey)}
-            </Link>
-          </li>
-        ))}
-      </ul>
+      <div className="mt-6">
+        <CurriculumProgressBar
+          readCount={readSlugs.size}
+          totalCount={CURRICULUM.length}
+          allCompleted={allCompleted}
+        />
+      </div>
+
+      {CURRICULUM_SECTIONS.map((section) => {
+        const chapters = grouped.get(section) ?? [];
+        if (chapters.length === 0) return undefined;
+        return (
+          <div key={section} className="mt-8">
+            <CurriculumToc
+              section={section}
+              chapters={chapters}
+              readSlugs={readSlugs}
+              nextSlug={next?.slug}
+            />
+          </div>
+        );
+      })}
+
+      {allCompleted && (
+        <p className="mt-8 text-center text-sm text-surface-600">
+          {t("index.allCompletedMessage")}
+        </p>
+      )}
     </ContentContainer>
   );
 }

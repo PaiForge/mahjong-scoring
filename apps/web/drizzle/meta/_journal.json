@@ -36,6 +36,20 @@
       "when": 1775795412798,
       "tag": "20260410043012_create_exp_events_and_user_exp",
       "breakpoints": true
+    },
+    {
+      "idx": 5,
+      "version": "7",
+      "when": 1776503213635,
+      "tag": "20260418090653_create_learn_chapter_reads_table",
+      "breakpoints": true
+    },
+    {
+      "idx": 6,
+      "version": "7",
+      "when": 1776504802145,
+      "tag": "20260418093322_add_chapter_slug_format_check",
+      "breakpoints": true
     }
   ]
 }

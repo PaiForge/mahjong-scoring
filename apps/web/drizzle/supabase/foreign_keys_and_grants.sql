@@ -147,3 +147,22 @@ $$;
 
 -- Writes are service-role only. Reads are gated by RLS policy (own rows).
 GRANT SELECT ON TABLE public.user_exp TO authenticated;
+
+-- =============================================================================
+-- learn_chapter_reads
+-- =============================================================================
+
+-- FK constraint: learn_chapter_reads.user_id → auth.users(id) ON DELETE CASCADE
+DO $$
+BEGIN
+  IF NOT EXISTS (
+    SELECT 1 FROM pg_constraint WHERE conname = 'learn_chapter_reads_user_id_fkey'
+  ) THEN
+    ALTER TABLE public.learn_chapter_reads
+      ADD CONSTRAINT learn_chapter_reads_user_id_fkey
+      FOREIGN KEY (user_id) REFERENCES auth.users(id) ON DELETE CASCADE;
+  END IF;
+END;
+$$;
+
+GRANT SELECT, INSERT, DELETE ON TABLE public.learn_chapter_reads TO authenticated;

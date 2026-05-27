@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 
 import { logActivityEvent } from "@/lib/activity-log";
 import { getProfileByUserId } from "@/lib/db/queries";
+import { sanitizeInternalRedirect } from "@/lib/redirect";
 import { createClient } from "@/lib/supabase/server";
 
 /**
@@ -43,9 +44,7 @@ export async function GET(request: Request) {
   const code = searchParams.get("code");
   const tokenHash = searchParams.get("token_hash");
   const type = searchParams.get("type");
-  const next = searchParams.get("next") ?? "/mypage";
-  const safeNext =
-    next.startsWith("/") && !next.startsWith("//") ? next : "/mypage";
+  const safeNext = sanitizeInternalRedirect(searchParams.get("next")) ?? "/mypage";
 
   const supabase = await createClient();
 
