@@ -18,6 +18,7 @@
     "pageTitle": "お知らせ",
     "pageDescription": "運営からのお知らせ一覧です。",
     "listTitle": "お知らせ一覧",
+    "pinned": "固定",
     "empty": "お知らせはまだありません。",
     "notFound": "お知らせが見つかりません",
     "backToList": "お知らせ一覧へ戻る"
