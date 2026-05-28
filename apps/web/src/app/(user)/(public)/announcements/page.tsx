@@ -25,9 +25,9 @@ export const revalidate = 86400;
 
 const ANNOUNCEMENTS_PER_PAGE = 20;
 
-type Props = {
+interface Props {
   searchParams: Promise<{ page?: string }>;
-};
+}
 
 export async function generateMetadata(): Promise<Metadata> {
   const t = await getTranslations("announcements");

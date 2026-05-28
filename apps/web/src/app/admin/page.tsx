@@ -25,6 +25,18 @@ export default async function AdminDashboardPage() {
         </Link>
 
         <Link
+          href="/admin/announcements"
+          className="block rounded-lg border border-gray-200 p-6 hover:bg-gray-50 transition-colors"
+        >
+          <h2 className="text-lg font-semibold mb-2">
+            {t("announcements.cardTitle")}
+          </h2>
+          <p className="text-sm text-gray-500">
+            {t("announcements.cardDescription")}
+          </p>
+        </Link>
+
+        <Link
           href="/admin/audit-log"
           className="block rounded-lg border border-gray-200 p-6 hover:bg-gray-50 transition-colors"
         >

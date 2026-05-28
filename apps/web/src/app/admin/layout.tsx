@@ -41,6 +41,12 @@ export default async function AdminLayout({
             {t('users')}
           </Link>
           <Link
+            href="/admin/announcements"
+            className="block px-3 py-2 rounded text-sm hover:bg-gray-200 transition-colors"
+          >
+            {t('announcements.navLabel')}
+          </Link>
+          <Link
             href="/admin/audit-log"
             className="block px-3 py-2 rounded text-sm hover:bg-gray-200 transition-colors"
           >

@@ -19,9 +19,9 @@ import { getPublishedAnnouncement } from "../_lib/queries";
 
 export const revalidate = 86400;
 
-type Props = {
+interface Props {
   params: Promise<{ slug: string }>;
-};
+}
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { slug } = await params;
