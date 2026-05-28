@@ -72,6 +72,7 @@ const URL_ROUTING_NAMES = [
   'auth',
   'practice',
   'learn',
+  'announcements',
   'profile',
   'sign_in',
   'sign_up',
