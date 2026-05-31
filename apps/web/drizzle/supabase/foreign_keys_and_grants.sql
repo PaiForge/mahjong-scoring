@@ -166,3 +166,10 @@ END;
 $$;
 
 GRANT SELECT, INSERT, DELETE ON TABLE public.learn_chapter_reads TO authenticated;
+
+-- =============================================================================
+-- announcements
+-- =============================================================================
+-- 公開コンテンツ。auth.users への FK は無し。読み取りのみ anon / authenticated に
+-- 付与し、RLS の published ポリシーで draft を隠す。書き込みは直 DB 接続のみ。
+GRANT SELECT ON TABLE public.announcements TO anon, authenticated;

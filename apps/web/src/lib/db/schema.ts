@@ -367,3 +367,53 @@ export const learnChapterReads = pgTable(
 
 export type LearnChapterRead = typeof learnChapterReads.$inferSelect;
 export type NewLearnChapterRead = typeof learnChapterReads.$inferInsert;
+
+/**
+ * お知らせ — 運営からのアナウンス
+ *
+ * @description
+ * 管理画面で作成・公開する運営アナウンス。公開ページ（/announcements）と
+ * 詳細ページ（/announcements/[slug]）で表示する。本文は Markdown。
+ *
+ * @design slug + locale の多言語構成
+ * 同一 slug に対しロケールごとの variant を許容し `uq(slug, locale)` で一意化する。
+ * 現状 UI のロケールは ja 固定だが、将来の英語対応を見越してスキーマ側で
+ * 多言語を表現できるようにしている。一覧/詳細クエリは要求ロケール →
+ * DEFAULT_LOCALE → 任意の順で variant を選ぶ（_lib/queries.ts）。
+ *
+ * @design status — draft / published
+ * 公開ページに出るのは status='published' の行のみ。published には
+ * published_at が必須（バリデーションで担保）。pinned_at が新しい行を
+ * 一覧の先頭に固定表示する。
+ */
+export const announcements = pgTable(
+  'announcements',
+  {
+    id: uuid('id').primaryKey().defaultRandom(),
+    /** URL スラッグ（ロケール間で共有） */
+    slug: varchar('slug', { length: 255 }).notNull(),
+    /** タイトル */
+    title: varchar('title', { length: 255 }).notNull(),
+    /** 本文（Markdown） */
+    content: text('content').notNull(),
+    /** ロケール（BCP 47） */
+    locale: varchar('locale', { length: 10 }).notNull(),
+    /** 公開状態（draft / published） */
+    status: varchar('status', { length: 20 }).notNull().default('draft'),
+    /** ピン留め日時（新しいものを一覧先頭に固定） */
+    pinnedAt: timestamp('pinned_at', { withTimezone: true }),
+    /** 公開日時（published 時は必須） */
+    publishedAt: timestamp('published_at', { withTimezone: true }),
+    /** 作成日時 */
+    createdAt: timestamp('created_at', { withTimezone: true }).defaultNow().notNull(),
+    /** 更新日時 */
+    updatedAt: timestamp('updated_at', { withTimezone: true }).defaultNow().notNull(),
+  },
+  (table) => [
+    unique('uq_announcements_slug_locale').on(table.slug, table.locale),
+    index('idx_announcements_status_published').on(table.status, table.publishedAt),
+  ],
+);
+
+export type Announcement = typeof announcements.$inferSelect;
+export type NewAnnouncement = typeof announcements.$inferInsert;

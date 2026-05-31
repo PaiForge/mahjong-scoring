@@ -119,3 +119,22 @@ CREATE POLICY "learn_chapter_reads_insert" ON "learn_chapter_reads"
 DROP POLICY IF EXISTS "learn_chapter_reads_delete" ON "learn_chapter_reads";
 CREATE POLICY "learn_chapter_reads_delete" ON "learn_chapter_reads"
   FOR DELETE USING (auth.uid() = user_id);
+
+-- =============================================================================
+-- announcements
+-- =============================================================================
+-- 公開コンテンツ。誰でも published の行のみ SELECT 可。
+-- 作成・更新・削除は管理画面のサーバーアクションが直 DB 接続（RLS バイパス）で
+-- 行うため、INSERT/UPDATE/DELETE ポリシーは定義しない。draft は REST API 経由では
+-- 参照できない。
+ALTER TABLE "announcements" ENABLE ROW LEVEL SECURITY;
+
+DROP POLICY IF EXISTS "announcements_select_published" ON "announcements";
+CREATE POLICY "announcements_select_published" ON "announcements"
+  FOR SELECT USING (status = 'published');
+
+DROP TRIGGER IF EXISTS announcements_updated_at ON "announcements";
+CREATE TRIGGER announcements_updated_at
+  BEFORE UPDATE ON "announcements"
+  FOR EACH ROW
+  EXECUTE FUNCTION public.update_updated_at_column();
