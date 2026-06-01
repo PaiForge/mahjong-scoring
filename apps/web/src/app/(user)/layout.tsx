@@ -1,5 +1,4 @@
-import { Sidebar } from "@/app/_components/sidebar";
-import { MobileHeader } from "@/app/_components/mobile-header";
+import { Header } from "@/app/_components/header";
 import { MobileTabBar } from "@/app/_components/mobile-tab-bar";
 import { Footer } from "@/app/_components/footer";
 
@@ -9,12 +8,18 @@ export default function UserLayout({
   readonly children: React.ReactNode;
 }) {
   return (
-    <>
-      <Sidebar />
-      <MobileHeader />
-      <main className="md:ml-64 pb-20 md:pb-0 min-h-screen bg-white">{children}</main>
+    <div className="flex min-h-screen flex-col">
+      <Header />
+      <main className="flex-1 bg-secondary">
+        {/* pb-0 at <sm: footer sits flush against page content on mobile; pt-8/sm:pb-8 preserved otherwise. */}
+        <div className="mx-auto max-w-4xl px-4 sm:px-6 lg:px-8 pt-8 pb-0 sm:pb-8">
+          {children}
+        </div>
+      </main>
       <Footer />
+      {/* 固定の MobileTabBar がフッターを覆わないようにするスペーサー */}
+      <div className="h-14 md:h-0" />
       <MobileTabBar />
-    </>
+    </div>
   );
 }

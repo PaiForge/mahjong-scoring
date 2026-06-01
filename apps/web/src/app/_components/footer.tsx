@@ -1,20 +1,24 @@
-"use client";
-
 import Link from "next/link";
-import { useTranslations } from "next-intl";
+import { getTranslations } from "next-intl/server";
+
 import { BrandLogo } from "./brand-logo";
 
-export function Footer() {
-  const t = useTranslations("footer");
+/**
+ * フッター。
+ * blindfold-chess の Footer を移植。カテゴリ列 + 区切り線 + コピーライト。
+ */
+export async function Footer() {
+  const t = await getTranslations("footer");
+
   return (
-    <footer className="border-t border-surface-200 bg-surface-50 px-6 py-10 pb-24 md:pb-10 md:ml-64">
-      <div className="mx-auto max-w-5xl">
-        <div className="grid grid-cols-2 gap-8 md:grid-cols-3">
+    <footer className="mt-auto border-t border-border bg-card">
+      <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-8">
+        <nav className="grid grid-cols-2 gap-8 md:grid-cols-3">
           <div>
-            <h3 className="mb-3 text-xs font-semibold uppercase tracking-wider text-surface-400">{t("learn")}</h3>
-            <ul className="space-y-2 text-sm">
+            <h3 className="text-sm font-semibold text-foreground">{t("learn")}</h3>
+            <ul className="mt-3 space-y-2 text-sm text-muted-foreground">
               <li>
-                <Link href="/learn/about-this-app" className="text-surface-600 hover:text-primary-600 transition-colors">
+                <Link href="/learn/about-this-app" className="transition-colors hover:text-foreground">
                   {t("aboutThisApp")}
                 </Link>
               </li>
@@ -22,27 +26,29 @@ export function Footer() {
           </div>
 
           <div>
-            <h3 className="mb-3 text-xs font-semibold uppercase tracking-wider text-surface-400">{t("other")}</h3>
-            <ul className="space-y-2 text-sm">
+            <h3 className="text-sm font-semibold text-foreground">{t("other")}</h3>
+            <ul className="mt-3 space-y-2 text-sm text-muted-foreground">
               <li>
-                <Link href="/terms" className="text-surface-600 hover:text-primary-600 transition-colors">
+                <Link href="/terms" className="transition-colors hover:text-foreground">
                   {t("terms")}
                 </Link>
               </li>
               <li>
-                <Link href="/privacy" className="text-surface-600 hover:text-primary-600 transition-colors">
+                <Link href="/privacy" className="transition-colors hover:text-foreground">
                   {t("privacy")}
                 </Link>
               </li>
             </ul>
           </div>
-        </div>
+        </nav>
 
-        <div className="mt-8 flex items-center justify-between">
-          <Link href="/">
-            <BrandLogo size="sm" />
-          </Link>
-          <p className="text-xs text-surface-400">{t("copyright")}</p>
+        <div className="mt-8 border-t border-border pt-6">
+          <div className="flex items-center justify-between">
+            <Link href="/">
+              <BrandLogo size="sm" />
+            </Link>
+            <p className="text-xs text-muted-foreground">{t("copyright")}</p>
+          </div>
         </div>
       </div>
     </footer>

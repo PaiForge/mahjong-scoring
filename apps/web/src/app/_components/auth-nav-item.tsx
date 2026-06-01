@@ -8,22 +8,13 @@ import { toast } from "react-hot-toast";
 import { UserIcon } from "./icons/user-icon";
 import { useAuth } from "@/app/_contexts/auth-context";
 
-interface AuthNavItemProps {
-  readonly className?: string;
-  readonly iconClassName?: string;
-  readonly skeletonIconClassName?: string;
-  readonly skeletonTextClassName?: string;
-  /** ドロップダウンメニューの展開方向。サイドバー下部は "top"、ヘッダーは "bottom" */
-  readonly menuPlacement?: "top" | "bottom";
-}
-
-export function AuthNavItem({
-  className,
-  iconClassName,
-  skeletonIconClassName,
-  skeletonTextClassName,
-  menuPlacement = "bottom",
-}: AuthNavItemProps) {
+/**
+ * ヘッダー右側のアカウント表示。
+ * blindfold-chess の AuthStatusDisplay を移植。
+ * 認証済み: アバター丸ボタン → ドロップダウン（マイページ/設定/ログアウト）。
+ * 未認証: 新規登録 / ログイン のテキストリンク。
+ */
+export function AuthNavItem() {
   const t = useTranslations("nav");
   const router = useRouter();
   const { user, isLoading, signOut } = useAuth();
@@ -38,73 +29,63 @@ export function AuthNavItem({
   }, [signOut, t, router]);
 
   useEffect(() => {
-    if (!isOpen) return;
-
-    const handleClickOutside = (event: MouseEvent) => {
-      if (!containerRef.current?.contains(event.target as Node)) {
+    function handleMouseDown(event: MouseEvent) {
+      if (containerRef.current && !containerRef.current.contains(event.target as Node)) {
         setIsOpen(false);
       }
-    };
-    const handleKeyDown = (event: KeyboardEvent) => {
-      if (event.key === "Escape") setIsOpen(false);
-    };
-
-    document.addEventListener("mousedown", handleClickOutside);
-    document.addEventListener("keydown", handleKeyDown);
-    return () => {
-      document.removeEventListener("mousedown", handleClickOutside);
-      document.removeEventListener("keydown", handleKeyDown);
-    };
-  }, [isOpen]);
+    }
+    document.addEventListener("mousedown", handleMouseDown);
+    return () => document.removeEventListener("mousedown", handleMouseDown);
+  }, []);
 
   if (isLoading) {
-    return (
-      <div className={className}>
-        <div className={`rounded-full bg-surface-200 animate-pulse ${skeletonIconClassName ?? ""}`} />
-        <div className={`rounded bg-surface-200 animate-pulse ${skeletonTextClassName ?? ""}`} />
-      </div>
-    );
+    return <div className="h-8 w-8 rounded-full bg-surface-200 animate-pulse" />;
   }
 
   if (!user) {
     return (
-      <Link href="/sign-in" className={className}>
-        <UserIcon className={iconClassName} />
-        {t("login")}
-      </Link>
+      <div className="flex items-center gap-3 text-sm">
+        <Link
+          href="/sign-up"
+          className="font-medium text-muted-foreground transition-colors hover:text-foreground"
+        >
+          {t("signUp")}
+        </Link>
+        <Link
+          href="/sign-in"
+          className="font-medium text-link-primary transition-colors hover:opacity-80"
+        >
+          {t("login")}
+        </Link>
+      </div>
     );
   }
-
-  // サイドバー(top)は全幅ボタンに合わせて左右いっぱい、
-  // ヘッダー(bottom)は右寄せで最小幅を確保する。
-  const menuPositionClass =
-    menuPlacement === "top"
-      ? "bottom-full mb-2 left-0 right-0"
-      : "top-full mt-2 right-0 min-w-[12rem]";
 
   return (
     <div ref={containerRef} className="relative">
       <button
         type="button"
-        onClick={() => setIsOpen((prev) => !prev)}
-        className={`${className ?? ""} w-full`}
+        className="flex items-center justify-center rounded-full transition-opacity hover:opacity-80"
+        aria-label={t("account")}
         aria-haspopup="menu"
         aria-expanded={isOpen}
+        onClick={() => setIsOpen((prev) => !prev)}
       >
-        <UserIcon className={iconClassName} />
-        {t("mypage")}
+        <span className="flex h-8 w-8 items-center justify-center rounded-full bg-muted text-muted-foreground">
+          <UserIcon className="size-5" />
+        </span>
       </button>
 
       {isOpen && (
         <div
           role="menu"
-          className={`absolute z-50 ${menuPositionClass} overflow-hidden rounded-lg border border-surface-200 bg-white shadow-lg`}
+          className="absolute right-0 top-full z-50 mt-2 w-48 overflow-hidden rounded-lg border border-border bg-card"
         >
           <Link
             href="/mypage"
             role="menuitem"
             onClick={() => setIsOpen(false)}
-            className="block px-4 py-2.5 text-sm text-surface-700 transition-colors hover:bg-surface-100"
+            className="block px-4 py-3 text-sm text-foreground transition-colors hover:bg-accent"
           >
             {t("mypage")}
           </Link>
@@ -112,7 +93,7 @@ export function AuthNavItem({
             href="/mypage/settings"
             role="menuitem"
             onClick={() => setIsOpen(false)}
-            className="block px-4 py-2.5 text-sm text-surface-700 transition-colors hover:bg-surface-100"
+            className="block px-4 py-3 text-sm text-foreground transition-colors hover:bg-accent"
           >
             {t("settings")}
           </Link>
@@ -120,7 +101,7 @@ export function AuthNavItem({
             type="button"
             role="menuitem"
             onClick={handleSignOut}
-            className="block w-full px-4 py-2.5 text-left text-sm text-red-600 transition-colors hover:bg-surface-100"
+            className="block w-full px-4 py-3 text-left text-sm text-foreground transition-colors hover:bg-accent"
           >
             {t("signOut")}
           </button>

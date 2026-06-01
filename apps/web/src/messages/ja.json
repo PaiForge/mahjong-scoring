@@ -11,10 +11,14 @@
     "brandMahjong": "麻雀",
     "brandScoring": "点数計算",
     "login": "ログイン",
+    "signUp": "新規登録",
     "mypage": "マイページ",
     "settings": "設定",
     "signOut": "ログアウト",
-    "signOutSuccess": "ログアウトしました"
+    "signOutSuccess": "ログアウトしました",
+    "account": "アカウント",
+    "menu": "メニュー",
+    "close": "閉じる"
   },
   "settings": {
     "pageTitle": "設定",

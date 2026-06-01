@@ -34,7 +34,7 @@ export function MobileTabBar() {
 
   return (
     <nav
-      className={`md:hidden fixed bottom-0 left-0 right-0 z-50 border-t border-surface-200 bg-white/90 backdrop-blur-xl pb-[env(safe-area-inset-bottom)] transition-transform duration-300 ${
+      className={`md:hidden fixed bottom-0 left-0 right-0 z-40 border-t border-border bg-card pb-[env(safe-area-inset-bottom)] transition-transform duration-300 ${
         isVisible ? "translate-y-0" : "translate-y-full"
       }`}
     >
@@ -47,8 +47,8 @@ export function MobileTabBar() {
                 href={item.href}
                 className={`flex flex-col items-center gap-0.5 px-3 py-1 text-xs transition-colors ${
                   isActive
-                    ? "text-primary-600"
-                    : "text-surface-400 hover:text-surface-600"
+                    ? "text-primary"
+                    : "text-muted-foreground hover:text-foreground"
                 }`}
               >
                 {item.icon}
