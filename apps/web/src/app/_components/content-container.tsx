@@ -34,18 +34,17 @@ export function ContentContainer({ children, className = "" }: ContentContainerP
   );
 
   if (!title) {
-    return card;
+    return <div className="mx-auto max-w-4xl px-4 py-6 sm:px-6 lg:px-8">{card}</div>;
   }
 
   return (
     <>
-      {/* PageTitle 部分のみ全幅のグレー帯。`-mt-4` でレイアウトの上パディングを打ち消し、
-          `left-1/2 w-screen -translate-x-1/2` でビューポート全幅にブリードさせる。
-          `mb-3` でカードとの間隔を与える（カードを直接描画し、余計なラッパーは挟まない）。 */}
-      <div className="relative left-1/2 -mt-4 mb-3 w-screen -translate-x-1/2 bg-secondary">
+      {/* PageTitle 部分のみ全幅グレー帯。レイアウトの main が全幅白のため、
+          bg-secondary が余計なハックなしで自然にビューポート全幅へ広がる。 */}
+      <div className="bg-secondary">
         <div className="mx-auto max-w-4xl px-4 py-5 sm:px-6 lg:px-8">{title}</div>
       </div>
-      {card}
+      <div className="mx-auto max-w-4xl px-4 pt-3 pb-8 sm:px-6 lg:px-8">{card}</div>
     </>
   );
 }

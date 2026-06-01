@@ -123,7 +123,7 @@ export function ChallengeShell({
     <ContentContainer>
       {/* Countdown overlay */}
       {gameSession.isCountingDown && (
-        <div className="fixed inset-0 md:left-64 z-30 flex items-center justify-center bg-white/80 backdrop-blur-sm">
+        <div className="fixed inset-0 z-30 flex items-center justify-center bg-white/80 backdrop-blur-sm">
           <span className="text-6xl font-bold text-primary-500 animate-pulse">
             {gameSession.countdownValue}
           </span>

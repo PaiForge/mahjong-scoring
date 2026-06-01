@@ -10,12 +10,8 @@ export default function UserLayout({
   return (
     <div className="flex min-h-screen flex-col">
       <Header />
-      <main className="flex-1 bg-card">
-        {/* 背景は白。PageTitle 部分のみ ContentContainer が全幅グレー帯を描画する。 */}
-        <div className="mx-auto max-w-4xl px-4 sm:px-6 lg:px-8 pt-4 pb-0 sm:pb-8">
-          {children}
-        </div>
-      </main>
+      {/* 背景は白の全幅。最大幅・余白・PageTitle のグレー帯は ContentContainer 側が持つ。 */}
+      <main className="flex-1 bg-card">{children}</main>
       <Footer />
       {/* 固定の MobileTabBar がフッターを覆わないようにするスペーサー */}
       <div className="h-14 md:h-0" />
