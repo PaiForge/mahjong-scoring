@@ -12,7 +12,7 @@ export default function UserLayout({
       <Header />
       <main className="flex-1 bg-secondary">
         {/* pb-0 at <sm: footer sits flush against page content on mobile; pt-8/sm:pb-8 preserved otherwise. */}
-        <div className="mx-auto max-w-4xl px-4 sm:px-6 lg:px-8 pt-8 pb-0 sm:pb-8">
+        <div className="mx-auto max-w-4xl px-4 sm:px-6 lg:px-8 pt-4 pb-0 sm:pb-8">
           {children}
         </div>
       </main>

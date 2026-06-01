@@ -37,7 +37,7 @@ export function ContentContainer({ children, className = "" }: ContentContainerP
   }
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-4">
       {title}
       {card}
     </div>

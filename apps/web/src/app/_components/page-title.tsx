@@ -7,7 +7,7 @@ export function PageTitle({ children, className = "" }: PageTitleProps) {
   return (
     <h1
       aria-live="polite"
-      className={`text-xl md:text-2xl font-light text-foreground text-center ${className}`}
+      className={`text-lg md:text-xl font-light text-foreground text-center ${className}`}
     >
       {children}
     </h1>
