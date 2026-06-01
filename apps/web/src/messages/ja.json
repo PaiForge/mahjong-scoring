@@ -11,7 +11,30 @@
     "brandMahjong": "麻雀",
     "brandScoring": "点数計算",
     "login": "ログイン",
-    "mypage": "マイページ"
+    "mypage": "マイページ",
+    "settings": "設定",
+    "signOut": "ログアウト",
+    "signOutSuccess": "ログアウトしました"
+  },
+  "settings": {
+    "pageTitle": "設定",
+    "dangerZoneTitle": "アカウントの削除",
+    "deleteAccountTitle": "退会する",
+    "deleteAccountDescription": "アカウントを削除すると、表示名などの個人情報が削除され、ログインできなくなります。",
+    "deleteAccountLink": "退会手続きへ進む"
+  },
+  "deleteAccount": {
+    "pageTitle": "退会",
+    "warning": "退会すると、このアカウントではログインできなくなり、表示名などの個人情報が削除されます。ユーザーIDは再利用防止のため保持されます。この操作は取り消せません。",
+    "confirmButton": "アカウントを削除する",
+    "deleting": "削除中…",
+    "confirmTitle": "本当に退会しますか？",
+    "confirmMessage": "この操作は取り消せません。アカウントを削除すると、このアカウントではログインできなくなります。",
+    "confirmOk": "退会する",
+    "confirmCancel": "キャンセル",
+    "error": "退会処理に失敗しました。時間をおいて再度お試しください。",
+    "successToast": "退会が完了しました",
+    "backToSettings": "設定へ戻る"
   },
   "announcements": {
     "pageTitle": "お知らせ",
