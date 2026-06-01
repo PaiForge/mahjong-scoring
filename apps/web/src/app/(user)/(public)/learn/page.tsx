@@ -48,7 +48,7 @@ export default async function LearnIndexPage() {
   }
 
   return (
-    <ContentContainer>
+    <ContentContainer breadcrumb={[{ label: t("index.pageTitle") }]}>
       <PageTitle>{t("index.pageTitle")}</PageTitle>
 
       <SectionTitle>{t("index.sectionTitle")}</SectionTitle>

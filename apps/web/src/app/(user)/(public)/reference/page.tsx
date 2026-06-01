@@ -16,7 +16,7 @@ export default async function ReferencePage() {
   const t = await getTranslations("scoreTable");
 
   return (
-    <ContentContainer>
+    <ContentContainer breadcrumb={[{ label: t("pageTitle") }]}>
       <PageTitle>{t("pageTitle")}</PageTitle>
 
       <SectionTitle>{t("tableTitle")}</SectionTitle>

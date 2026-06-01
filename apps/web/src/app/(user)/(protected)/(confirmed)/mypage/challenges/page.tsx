@@ -33,6 +33,7 @@ const DEFAULT_PERIOD = "thisWeek" as const;
 
 export default async function ChallengesPage() {
   const t = await getTranslations("mypage.challenges");
+  const tMypage = await getTranslations("mypage");
 
   // サーバーサイドで初期データをプリフェッチし、クライアントの初回 useEffect を省略する
   const supabase = await createClient();
@@ -66,7 +67,12 @@ export default async function ChallengesPage() {
   }
 
   return (
-    <ContentContainer>
+    <ContentContainer
+      breadcrumb={[
+        { label: tMypage("pageTitle"), href: "/mypage" },
+        { label: t("pageTitle") },
+      ]}
+    >
       <PageTitle>{t("pageTitle")}</PageTitle>
 
       <ChallengeDashboard

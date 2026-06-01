@@ -6,7 +6,6 @@
  * @flow 一覧（/announcements）→ 詳細
  */
 import type { Metadata } from "next";
-import Link from "next/link";
 import { notFound } from "next/navigation";
 import { getLocale, getTranslations } from "next-intl/server";
 
@@ -57,7 +56,12 @@ export default async function AnnouncementDetailPage({ params }: Props) {
     : undefined;
 
   return (
-    <ContentContainer>
+    <ContentContainer
+      breadcrumb={[
+        { label: t("pageTitle"), href: "/announcements" },
+        { label: announcement.title },
+      ]}
+    >
       <PageTitle>{announcement.title}</PageTitle>
 
       <article>
@@ -67,15 +71,6 @@ export default async function AnnouncementDetailPage({ params }: Props) {
       {publishedDate && (
         <p className="mt-8 text-right text-sm text-muted-foreground">{publishedDate}</p>
       )}
-
-      <div className="mt-6 border-t border-border pt-6">
-        <Link
-          href="/announcements"
-          className="text-sm font-medium text-link-primary transition-colors hover:opacity-80"
-        >
-          ← {t("backToList")}
-        </Link>
-      </div>
     </ContentContainer>
   );
 }

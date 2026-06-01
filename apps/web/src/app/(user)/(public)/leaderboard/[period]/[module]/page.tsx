@@ -122,7 +122,10 @@ export default async function LeaderboardDetailPage({
   const challengePath = buildChallengePath(validated.module);
 
   return (
-    <ContentContainer className="space-y-6">
+    <ContentContainer
+      className="space-y-6"
+      breadcrumb={[{ label: t('title'), href: '/leaderboard' }, { label: moduleTitle }]}
+    >
       <PageTitle>{t('title')}</PageTitle>
 
       <SectionTitle>{moduleTitle}</SectionTitle>

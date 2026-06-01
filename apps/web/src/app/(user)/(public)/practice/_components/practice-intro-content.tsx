@@ -25,9 +25,15 @@ export async function PracticeIntroContent({
 }: PracticeIntroContentProps) {
   const t = await getTranslations(namespace);
   const tc = await getTranslations("challenge");
+  const tp = await getTranslations("practice");
 
   return (
-    <ContentContainer>
+    <ContentContainer
+      breadcrumb={[
+        { label: tp("title"), href: "/practice" },
+        { label: t("title") },
+      ]}
+    >
       <PageTitle>{t("title")}</PageTitle>
       <p className="mt-3 text-sm text-surface-500">{t("description")}</p>
 

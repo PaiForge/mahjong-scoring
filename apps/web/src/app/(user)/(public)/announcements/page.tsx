@@ -58,7 +58,7 @@ export default async function AnnouncementsPage({ searchParams }: Props) {
   );
 
   return (
-    <ContentContainer>
+    <ContentContainer breadcrumb={[{ label: t("pageTitle") }]}>
       <PageTitle>{t("pageTitle")}</PageTitle>
 
       <SectionTitle>{t("listTitle")}</SectionTitle>

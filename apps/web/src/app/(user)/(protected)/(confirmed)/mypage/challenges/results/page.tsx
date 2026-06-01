@@ -36,6 +36,7 @@ export async function generateMetadata(): Promise<Metadata> {
 export default async function ChallengeResultsPage({ searchParams }: Props) {
   const t = await getTranslations("mypage.challengeResults");
   const tChallenges = await getTranslations("mypage.challenges");
+  const tMypage = await getTranslations("mypage");
   const params = await searchParams;
 
   const user = await getAuthenticatedUser();
@@ -65,7 +66,13 @@ export default async function ChallengeResultsPage({ searchParams }: Props) {
   };
 
   return (
-    <ContentContainer>
+    <ContentContainer
+      breadcrumb={[
+        { label: tMypage("pageTitle"), href: "/mypage" },
+        { label: tChallenges("pageTitle"), href: "/mypage/challenges" },
+        { label: t("pageTitle") },
+      ]}
+    >
       <PageTitle>{t("pageTitle")}</PageTitle>
 
       <SectionTitle>{t("sectionTitle")}</SectionTitle>

@@ -52,7 +52,7 @@ export default async function MyPage() {
   ];
 
   return (
-    <ContentContainer>
+    <ContentContainer breadcrumb={[{ label: t("pageTitle") }]}>
       <PageTitle>{t("pageTitle")}</PageTitle>
 
       <section className="rounded-lg border border-border bg-card p-4">

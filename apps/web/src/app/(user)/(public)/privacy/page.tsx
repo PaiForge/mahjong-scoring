@@ -13,7 +13,7 @@ export default async function PrivacyPage() {
   const t = await getTranslations("privacy");
 
   return (
-    <ContentContainer>
+    <ContentContainer breadcrumb={[{ label: t("pageTitle") }]}>
       <PageTitle>{t("pageTitle")}</PageTitle>
       <p className="mt-4 text-sm text-surface-500">{t("comingSoon")}</p>
     </ContentContainer>

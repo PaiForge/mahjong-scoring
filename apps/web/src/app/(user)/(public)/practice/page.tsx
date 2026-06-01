@@ -71,7 +71,7 @@ export default async function PracticePage() {
   const t = await getTranslations("practice");
 
   return (
-    <ContentContainer>
+    <ContentContainer breadcrumb={[{ label: t("title") }]}>
       <PageTitle>{t("title")}</PageTitle>
 
       <SectionTitle>{t("menuTitle")}</SectionTitle>

@@ -13,7 +13,7 @@ export default async function TermsPage() {
   const t = await getTranslations("terms");
 
   return (
-    <ContentContainer>
+    <ContentContainer breadcrumb={[{ label: t("pageTitle") }]}>
       <PageTitle>{t("pageTitle")}</PageTitle>
       <p className="mt-4 text-sm text-surface-500">{t("comingSoon")}</p>
     </ContentContainer>

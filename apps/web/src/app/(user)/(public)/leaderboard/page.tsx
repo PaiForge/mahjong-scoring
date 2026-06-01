@@ -53,7 +53,7 @@ export default async function LeaderboardIndexPage({ searchParams }: Leaderboard
   const t = await getTranslations('leaderboard');
 
   return (
-    <ContentContainer className="space-y-6">
+    <ContentContainer className="space-y-6" breadcrumb={[{ label: t('title') }]}>
       <PageTitle>{t('title')}</PageTitle>
 
       <SectionTitle>{t('allModulesSection')}</SectionTitle>

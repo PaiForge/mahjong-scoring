@@ -1,10 +1,14 @@
 import { Children, isValidElement } from "react";
 
+import { Breadcrumb, type BreadcrumbItem } from "./breadcrumb";
+import { Divider } from "./divider";
 import { PageTitle } from "./page-title";
 
 interface ContentContainerProps {
   children: React.ReactNode;
   className?: string;
+  /** パンくずリスト。指定するとカード下部に区切り線付きで表示する（チェスの PageLayout 準拠）。 */
+  breadcrumb?: readonly BreadcrumbItem[];
 }
 
 /**
@@ -18,7 +22,7 @@ interface ContentContainerProps {
  * 画面最上部の全幅グレー帯として表示する。グレー地は PageTitle 部分のみに限定し、
  * カード本体・左右・下は白（レイアウトの白背景）にするため。
  */
-export function ContentContainer({ children, className = "" }: ContentContainerProps) {
+export function ContentContainer({ children, className = "", breadcrumb }: ContentContainerProps) {
   const childArray = Children.toArray(children);
   const title = childArray.find((child) => isValidElement(child) && child.type === PageTitle);
   const body = title
@@ -30,6 +34,12 @@ export function ContentContainer({ children, className = "" }: ContentContainerP
       className={`bg-card -mx-4 sm:mx-0 rounded-none sm:rounded-lg border-0 sm:border sm:border-border p-4 sm:p-6 md:p-8 ${className}`}
     >
       {body}
+      {breadcrumb && breadcrumb.length > 0 && (
+        <div className="mt-8 space-y-4">
+          <Divider />
+          <Breadcrumb items={breadcrumb} />
+        </div>
+      )}
     </div>
   );
 
@@ -44,7 +54,7 @@ export function ContentContainer({ children, className = "" }: ContentContainerP
       <div className="bg-secondary">
         <div className="mx-auto max-w-4xl px-4 py-5 sm:px-6 lg:px-8">{title}</div>
       </div>
-      <div className="mx-auto max-w-4xl px-4 pb-8 sm:px-6 lg:px-8">{card}</div>
+      <div className="mx-auto max-w-4xl px-4 sm:px-6 lg:px-8">{card}</div>
     </>
   );
 }
