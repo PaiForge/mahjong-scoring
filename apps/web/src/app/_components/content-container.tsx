@@ -44,7 +44,7 @@ export function ContentContainer({ children, className = "" }: ContentContainerP
       <div className="bg-secondary">
         <div className="mx-auto max-w-4xl px-4 py-5 sm:px-6 lg:px-8">{title}</div>
       </div>
-      <div className="mx-auto max-w-4xl px-4 pt-3 pb-8 sm:px-6 lg:px-8">{card}</div>
+      <div className="mx-auto max-w-4xl px-4 pb-8 sm:px-6 lg:px-8">{card}</div>
     </>
   );
 }
