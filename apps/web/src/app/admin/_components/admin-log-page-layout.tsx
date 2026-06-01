@@ -2,7 +2,7 @@ import type { ReactNode } from 'react';
 
 import { createSearchParamsCache, parseAsInteger, parseAsString } from 'nuqs/server';
 
-import { PageTitle } from '../../_components/page-title';
+import { AdminPageTitle } from './admin-page-title';
 import { PaginationNav } from '../../_components/pagination-nav';
 
 /**
@@ -80,7 +80,7 @@ export function AdminLogPageLayout({
 
   return (
     <div>
-      <PageTitle className="mb-6">{title}</PageTitle>
+      <AdminPageTitle className="mb-6">{title}</AdminPageTitle>
 
       {/* フィルタ */}
       <form className="mb-6 flex items-end gap-4">

@@ -2,7 +2,7 @@ import { eq } from "drizzle-orm";
 import { notFound } from "next/navigation";
 import { getTranslations } from "next-intl/server";
 
-import { PageTitle } from "@/app/_components/page-title";
+import { AdminPageTitle } from "@/app/admin/_components/admin-page-title";
 import { announcements, db } from "@/lib/db";
 
 import { AnnouncementForm } from "../../_components/announcement-form";
@@ -31,7 +31,7 @@ export default async function EditAnnouncementPage({ params }: Props) {
   return (
     <div>
       <div className="mb-6 flex items-center justify-between">
-        <PageTitle>{t("editTitle")}</PageTitle>
+        <AdminPageTitle>{t("editTitle")}</AdminPageTitle>
         <DeleteAnnouncementButton announcementId={announcement.id} />
       </div>
       <AnnouncementForm

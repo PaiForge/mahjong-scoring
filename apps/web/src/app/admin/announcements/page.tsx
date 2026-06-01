@@ -2,7 +2,7 @@ import { desc } from "drizzle-orm";
 import Link from "next/link";
 import { getTranslations } from "next-intl/server";
 
-import { PageTitle } from "@/app/_components/page-title";
+import { AdminPageTitle } from "@/app/admin/_components/admin-page-title";
 import { type Announcement, announcements, db } from "@/lib/db";
 
 import { DeleteAnnouncementButton } from "./_components/delete-announcement-button";
@@ -31,7 +31,7 @@ export default async function AdminAnnouncementsPage() {
   return (
     <div>
       <div className="mb-6 flex items-center justify-between">
-        <PageTitle>{t("listTitle")}</PageTitle>
+        <AdminPageTitle>{t("listTitle")}</AdminPageTitle>
         <Link
           href="/admin/announcements/new"
           className="rounded bg-primary-600 px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-primary-700"

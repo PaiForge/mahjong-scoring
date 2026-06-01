@@ -24,9 +24,17 @@ export async function generateMetadata(): Promise<Metadata> {
 
 export default async function DeleteAccountPage() {
   const t = await getTranslations("deleteAccount");
+  const tMypage = await getTranslations("mypage");
+  const tSettings = await getTranslations("settings");
 
   return (
-    <ContentContainer>
+    <ContentContainer
+      breadcrumb={[
+        { label: tMypage("pageTitle"), href: "/mypage" },
+        { label: tSettings("pageTitle"), href: "/mypage/settings" },
+        { label: t("pageTitle") },
+      ]}
+    >
       <PageTitle>{t("pageTitle")}</PageTitle>
 
       <div className="mt-6 rounded-lg border border-red-200 bg-red-50 p-5">

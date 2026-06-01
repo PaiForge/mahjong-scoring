@@ -3,6 +3,8 @@ import type { ComponentPropsWithoutRef } from "react";
 import Markdown from "react-markdown";
 import remarkGfm from "remark-gfm";
 
+import { SectionTitle } from "./section-title";
+
 interface MarkdownRendererProps {
   readonly content: string;
   /** 先頭の h1 を描画しない（ページ側でタイトルを別途表示する場合に使う） */
@@ -41,9 +43,7 @@ export function MarkdownRenderer({ content, skipFirstH1 = false }: MarkdownRende
             );
           },
           h2: ({ children }) => (
-            <h2 className="mt-8 mb-2 border-l-4 border-primary-500 pl-3 text-lg font-semibold text-surface-900">
-              {children}
-            </h2>
+            <SectionTitle className="mt-8 mb-3 first:mt-0">{children}</SectionTitle>
           ),
           h3: ({ children }) => (
             <h3 className="mt-6 mb-2 text-base font-semibold text-surface-900">{children}</h3>

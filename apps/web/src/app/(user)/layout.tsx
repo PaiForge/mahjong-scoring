@@ -1,5 +1,4 @@
-import { Sidebar } from "@/app/_components/sidebar";
-import { MobileHeader } from "@/app/_components/mobile-header";
+import { Header } from "@/app/_components/header";
 import { MobileTabBar } from "@/app/_components/mobile-tab-bar";
 import { Footer } from "@/app/_components/footer";
 
@@ -9,12 +8,14 @@ export default function UserLayout({
   readonly children: React.ReactNode;
 }) {
   return (
-    <>
-      <Sidebar />
-      <MobileHeader />
-      <main className="md:ml-64 pb-20 md:pb-0 min-h-screen bg-white">{children}</main>
+    <div className="flex min-h-screen flex-col">
+      <Header />
+      {/* 背景は白の全幅。最大幅・余白・PageTitle のグレー帯は ContentContainer 側が持つ。 */}
+      <main className="flex-1 bg-card">{children}</main>
       <Footer />
+      {/* 固定の MobileTabBar がフッターを覆わないようにするスペーサー */}
+      <div className="h-14 md:h-0" />
       <MobileTabBar />
-    </>
+    </div>
   );
 }

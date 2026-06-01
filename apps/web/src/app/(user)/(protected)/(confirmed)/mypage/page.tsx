@@ -11,7 +11,6 @@ import { getTranslations } from "next-intl/server";
 
 import { ContentContainer } from "@/app/_components/content-container";
 import { PageTitle } from "@/app/_components/page-title";
-import { SectionTitle } from "@/app/_components/section-title";
 import { createMetadata } from "@/app/_lib/metadata";
 import { getAuthenticatedUser } from "@/lib/auth";
 import { getExpHeatmapData } from "@/lib/db/get-exp-heatmap-data";
@@ -53,14 +52,15 @@ export default async function MyPage() {
   ];
 
   return (
-    <ContentContainer>
+    <ContentContainer breadcrumb={[{ label: t("pageTitle") }]}>
       <PageTitle>{t("pageTitle")}</PageTitle>
 
-      <section className="mt-6 rounded-lg border border-surface-200 bg-surface-50 p-5">
-        <SectionTitle>{t("activityTitle")}</SectionTitle>
-        <div className="mt-4">
-          <ExpActivityHeatmap data={heatmapData} layout={heatmapLayout} />
-        </div>
+      <section className="rounded-lg border border-border bg-card p-4">
+        <h2 className="mb-3 text-sm font-semibold text-foreground">
+          <span className="mr-1">🔥</span>
+          {t("activityTitle")}
+        </h2>
+        <ExpActivityHeatmap data={heatmapData} layout={heatmapLayout} />
       </section>
 
       <div className="mt-6 grid grid-cols-1 sm:grid-cols-2 gap-4">
@@ -68,13 +68,13 @@ export default async function MyPage() {
           <Link
             key={card.href}
             href={card.href}
-            className="block rounded-lg border border-surface-200 bg-surface-50 p-5 transition-colors hover:bg-surface-100"
+            className="group block rounded-md border border-border bg-card p-6 transition-all hover:border-foreground/20"
           >
             <span className="text-2xl">{card.icon}</span>
-            <h2 className="mt-2 text-base font-semibold text-surface-900">
+            <h2 className="mt-2 text-base font-semibold text-foreground">
               {card.title}
             </h2>
-            <p className="mt-1 text-sm text-surface-500">{card.summary}</p>
+            <p className="mt-1 text-sm text-muted-foreground">{card.summary}</p>
           </Link>
         ))}
       </div>

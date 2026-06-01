@@ -15,6 +15,7 @@ import { getTranslations } from "next-intl/server";
 import { createMetadata } from "@/app/_lib/metadata";
 import { ContentContainer } from "@/app/_components/content-container";
 import { PageTitle } from "@/app/_components/page-title";
+import { SectionTitle } from "@/app/_components/section-title";
 import { ScoreSetupForm } from "./_components/score-setup-form";
 
 export async function generateMetadata(): Promise<Metadata> {
@@ -28,8 +29,12 @@ export default async function ScoreSetupPage() {
   return (
     <ContentContainer>
       <PageTitle>{t("title")}</PageTitle>
+
+      <SectionTitle>{t("setupTitle")}</SectionTitle>
       <p className="mt-3 text-sm text-surface-500">{t("description")}</p>
-      <ScoreSetupForm />
+      <div className="mt-6">
+        <ScoreSetupForm />
+      </div>
     </ContentContainer>
   );
 }

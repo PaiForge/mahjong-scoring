@@ -11,10 +11,14 @@
     "brandMahjong": "麻雀",
     "brandScoring": "点数計算",
     "login": "ログイン",
+    "signUp": "新規登録",
     "mypage": "マイページ",
     "settings": "設定",
     "signOut": "ログアウト",
-    "signOutSuccess": "ログアウトしました"
+    "signOutSuccess": "ログアウトしました",
+    "account": "アカウント",
+    "menu": "メニュー",
+    "close": "閉じる"
   },
   "settings": {
     "pageTitle": "設定",
@@ -63,6 +67,7 @@
   },
   "practice": {
     "title": "練習",
+    "menuTitle": "練習メニュー",
     "description": "符計算の基礎から点数申告まで、段階的にマスターできる練習を用意しています",
     "start": "スタート",
     "learn": "学ぶ",
@@ -444,6 +449,7 @@
   },
   "scoreTable": {
     "pageTitle": "点数早見表",
+    "tableTitle": "点数表",
     "pageDescription": "親・子のロン／ツモ点数を符×翻の一覧で確認できます",
     "ko": "子",
     "oya": "親",
@@ -462,6 +468,7 @@
   },
   "score": {
     "title": "点数計算総合演習",
+    "setupTitle": "条件設定",
     "description": "翻数・符から最終的な点数を算出する実戦形式の練習",
     "loading": "読み込み中...",
     "generating": "問題を生成中...",
@@ -674,6 +681,7 @@
     },
     "index": {
       "pageTitle": "学ぶ",
+      "sectionTitle": "カリキュラム",
       "pageDescription": "麻雀の点数計算に必要な知識をまとめた学習コンテンツの一覧です。",
       "progressLabel": "{read}章 / {total}章 読了",
       "nextChapterBadge": "次はここから",
@@ -874,6 +882,7 @@
     },
     "challengeResults": {
       "pageTitle": "チャレンジ全履歴",
+      "sectionTitle": "結果一覧",
       "empty": "結果がありません",
       "tableDate": "日時",
       "tableMenu": "種目",

@@ -1,4 +1,3 @@
-import { SectionTitle } from '@/app/_components/section-title';
 import { getOptionalUser } from '@/lib/auth';
 
 import { getUserRanks } from '../_actions/get-user-ranks';
@@ -8,7 +7,6 @@ import { LeaderboardCard } from './leaderboard-card';
 
 interface LeaderboardTopContentProps {
   readonly period: LeaderboardPeriod;
-  readonly sectionTitle: string;
 }
 
 /**
@@ -17,7 +15,6 @@ interface LeaderboardTopContentProps {
  */
 export async function LeaderboardTopContent({
   period,
-  sectionTitle,
 }: LeaderboardTopContentProps) {
   const user = await getOptionalUser();
   const currentUserId = user?.id ?? undefined;
@@ -32,20 +29,15 @@ export async function LeaderboardTopContent({
   );
 
   return (
-    <div className="space-y-8">
-      <section>
-        <SectionTitle>{sectionTitle}</SectionTitle>
-        <div className="mt-4 grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
-          {MODULES.map((module) => (
-            <LeaderboardCard
-              key={module}
-              module={module}
-              period={period}
-              rank={currentUserId ? rankMap.get(module) : undefined}
-            />
-          ))}
-        </div>
-      </section>
+    <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
+      {MODULES.map((module) => (
+        <LeaderboardCard
+          key={module}
+          module={module}
+          period={period}
+          rank={currentUserId ? rankMap.get(module) : undefined}
+        />
+      ))}
     </div>
   );
 }

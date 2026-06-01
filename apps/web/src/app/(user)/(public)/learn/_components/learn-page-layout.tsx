@@ -38,7 +38,10 @@ export async function LearnPageLayout({
   namespace,
   children,
 }: LearnPageLayoutProps) {
-  const t = await getTranslations(namespace);
+  const [t, tLearn] = await Promise.all([
+    getTranslations(namespace),
+    getTranslations("learnCurriculum.index"),
+  ]);
   const chapter = getChapterBySlug(slug);
   const practiceHrefs = chapter?.practiceHrefs ?? [];
 
@@ -48,10 +51,15 @@ export async function LearnPageLayout({
   ]);
 
   return (
-    <ContentContainer>
+    <ContentContainer
+      breadcrumb={[
+        { label: tLearn("pageTitle"), href: "/learn" },
+        { label: t("pageTitle") },
+      ]}
+    >
       <PageTitle>{t("pageTitle")}</PageTitle>
 
-      <div className="mt-6">{children}</div>
+      {children}
 
       <PracticeLinkList hrefs={practiceHrefs} />
 

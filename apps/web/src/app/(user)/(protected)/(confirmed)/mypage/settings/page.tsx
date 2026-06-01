@@ -23,9 +23,15 @@ export async function generateMetadata(): Promise<Metadata> {
 
 export default async function SettingsPage() {
   const t = await getTranslations("settings");
+  const tMypage = await getTranslations("mypage");
 
   return (
-    <ContentContainer>
+    <ContentContainer
+      breadcrumb={[
+        { label: tMypage("pageTitle"), href: "/mypage" },
+        { label: t("pageTitle") },
+      ]}
+    >
       <PageTitle>{t("pageTitle")}</PageTitle>
 
       <section className="mt-8">

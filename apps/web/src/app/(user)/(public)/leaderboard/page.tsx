@@ -20,6 +20,7 @@ import { getTranslations } from 'next-intl/server';
 
 import { ContentContainer } from '@/app/_components/content-container';
 import { PageTitle } from '@/app/_components/page-title';
+import { SectionTitle } from '@/app/_components/section-title';
 import { createMetadata } from '@/app/_lib/metadata';
 
 import { LeaderboardTopContent } from './_components/leaderboard-top-content';
@@ -52,8 +53,10 @@ export default async function LeaderboardIndexPage({ searchParams }: Leaderboard
   const t = await getTranslations('leaderboard');
 
   return (
-    <ContentContainer className="space-y-6">
+    <ContentContainer className="space-y-6" breadcrumb={[{ label: t('title') }]}>
       <PageTitle>{t('title')}</PageTitle>
+
+      <SectionTitle>{t('allModulesSection')}</SectionTitle>
       <p className="text-sm text-surface-500">{t('description')}</p>
 
       <Suspense
@@ -68,10 +71,7 @@ export default async function LeaderboardIndexPage({ searchParams }: Leaderboard
           </div>
         }
       >
-        <LeaderboardTopContent
-          period={period}
-          sectionTitle={t('allModulesSection')}
-        />
+        <LeaderboardTopContent period={period} />
       </Suspense>
     </ContentContainer>
   );

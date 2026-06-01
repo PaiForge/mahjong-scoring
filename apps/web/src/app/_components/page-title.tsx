@@ -6,7 +6,8 @@ interface PageTitleProps {
 export function PageTitle({ children, className = "" }: PageTitleProps) {
   return (
     <h1
-      className={`text-lg font-bold tracking-tight text-surface-900 ${className}`}
+      aria-live="polite"
+      className={`text-lg md:text-xl font-light text-foreground text-center ${className}`}
     >
       {children}
     </h1>
