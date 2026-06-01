@@ -49,6 +49,7 @@ export function Sidebar() {
           iconClassName="size-5"
           skeletonIconClassName="size-5"
           skeletonTextClassName="h-4 w-16"
+          menuPlacement="top"
         />
       </div>
     </nav>

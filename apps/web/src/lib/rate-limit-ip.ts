@@ -77,6 +77,7 @@ export const IP_RATE_LIMITS = {
   resendEmail: { maxRequests: 3, windowMs: 300_000 },
   resetPassword: { maxRequests: 5, windowMs: 300_000 },
   username: { maxRequests: 5, windowMs: 300_000 },
+  deleteAccount: { maxRequests: 5, windowMs: 300_000 },
 } as const;
 
 /**
