@@ -11,7 +11,6 @@ import { getTranslations } from "next-intl/server";
 
 import { ContentContainer } from "@/app/_components/content-container";
 import { PageTitle } from "@/app/_components/page-title";
-import { SectionTitle } from "@/app/_components/section-title";
 import { createMetadata } from "@/app/_lib/metadata";
 import { createClient } from "@/lib/supabase/server";
 
@@ -70,13 +69,10 @@ export default async function ChallengesPage() {
     <ContentContainer>
       <PageTitle>{t("pageTitle")}</PageTitle>
 
-      <SectionTitle>{t("records")}</SectionTitle>
-      <div className="mt-6">
-        <ChallengeDashboard
-          initialMenuTypes={availableMenuTypes}
-          initialSessions={initialSessions}
-        />
-      </div>
+      <ChallengeDashboard
+        initialMenuTypes={availableMenuTypes}
+        initialSessions={initialSessions}
+      />
     </ContentContainer>
   );
 }
