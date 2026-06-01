@@ -13,6 +13,7 @@ import type { Metadata } from "next";
 import { getTranslations } from "next-intl/server";
 import { ContentContainer } from "@/app/_components/content-container";
 import { PageTitle } from "@/app/_components/page-title";
+import { SectionTitle } from "@/app/_components/section-title";
 import { createMetadata } from "@/app/_lib/metadata";
 import { CurriculumProgressBar } from "./_components/curriculum-progress-bar";
 import { CurriculumToc } from "./_components/curriculum-toc";
@@ -49,6 +50,8 @@ export default async function LearnIndexPage() {
   return (
     <ContentContainer>
       <PageTitle>{t("index.pageTitle")}</PageTitle>
+
+      <SectionTitle>{t("index.sectionTitle")}</SectionTitle>
       <p className="mt-3 text-sm text-surface-500">
         {t("index.pageDescription")}
       </p>

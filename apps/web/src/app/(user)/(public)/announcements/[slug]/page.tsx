@@ -60,15 +60,15 @@ export default async function AnnouncementDetailPage({ params }: Props) {
     <ContentContainer>
       <PageTitle>{announcement.title}</PageTitle>
 
-      {publishedDate && (
-        <p className="text-center text-sm text-muted-foreground">{publishedDate}</p>
-      )}
-
-      <article className="mt-6">
+      <article>
         <MarkdownRenderer content={announcement.content} skipFirstH1 />
       </article>
 
-      <div className="mt-8 border-t border-border pt-6">
+      {publishedDate && (
+        <p className="mt-8 text-right text-sm text-muted-foreground">{publishedDate}</p>
+      )}
+
+      <div className="mt-6 border-t border-border pt-6">
         <Link
           href="/announcements"
           className="text-sm font-medium text-link-primary transition-colors hover:opacity-80"

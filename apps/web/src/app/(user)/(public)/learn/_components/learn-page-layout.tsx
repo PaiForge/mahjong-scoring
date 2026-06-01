@@ -51,7 +51,7 @@ export async function LearnPageLayout({
     <ContentContainer>
       <PageTitle>{t("pageTitle")}</PageTitle>
 
-      <div className="mt-6">{children}</div>
+      {children}
 
       <PracticeLinkList hrefs={practiceHrefs} />
 

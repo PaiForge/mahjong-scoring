@@ -43,7 +43,7 @@ export function MarkdownRenderer({ content, skipFirstH1 = false }: MarkdownRende
             );
           },
           h2: ({ children }) => (
-            <SectionTitle className="mt-8 mb-3">{children}</SectionTitle>
+            <SectionTitle className="mt-8 mb-3 first:mt-0">{children}</SectionTitle>
           ),
           h3: ({ children }) => (
             <h3 className="mt-6 mb-2 text-base font-semibold text-surface-900">{children}</h3>

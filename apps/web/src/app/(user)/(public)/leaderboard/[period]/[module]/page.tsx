@@ -23,6 +23,7 @@ import { notFound } from 'next/navigation';
 import { ContentContainer } from '@/app/_components/content-container';
 import { PageTitle } from '@/app/_components/page-title';
 import { PrimaryLinkButton } from '@/app/_components/primary-link-button';
+import { SectionTitle } from '@/app/_components/section-title';
 import { createMetadata } from '@/app/_lib/metadata';
 import { getOptionalUser } from '@/lib/auth';
 import { menuTypeToMessageKey } from '@/lib/db/practice-menu-types';
@@ -123,7 +124,8 @@ export default async function LeaderboardDetailPage({
   return (
     <ContentContainer className="space-y-6">
       <PageTitle>{t('title')}</PageTitle>
-      <p className="text-sm text-surface-500">{moduleTitle}</p>
+
+      <SectionTitle>{moduleTitle}</SectionTitle>
 
       <Suspense
         key={`${validated.period}:${page}`}

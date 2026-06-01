@@ -3,6 +3,7 @@ import { Suspense } from "react";
 import { getTranslations } from "next-intl/server";
 import { ContentContainer } from "@/app/_components/content-container";
 import { PageTitle } from "@/app/_components/page-title";
+import { SectionTitle } from "@/app/_components/section-title";
 import { createMetadata } from "@/app/_lib/metadata";
 import { ScoreTable } from "./_components/score-table";
 
@@ -18,6 +19,7 @@ export default async function ReferencePage() {
     <ContentContainer>
       <PageTitle>{t("pageTitle")}</PageTitle>
 
+      <SectionTitle>{t("tableTitle")}</SectionTitle>
       <p className="mt-3 text-sm text-surface-500">{t("pageDescription")}</p>
 
       <div className="mt-6">

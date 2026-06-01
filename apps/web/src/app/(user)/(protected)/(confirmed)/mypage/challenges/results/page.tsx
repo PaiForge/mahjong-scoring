@@ -11,6 +11,7 @@ import { getTranslations } from "next-intl/server";
 import { ContentContainer } from "@/app/_components/content-container";
 import { PageTitle } from "@/app/_components/page-title";
 import { PaginationNav } from "@/app/_components/pagination-nav";
+import { SectionTitle } from "@/app/_components/section-title";
 import { createMetadata } from "@/app/_lib/metadata";
 import type { PracticeMenuType } from "@/lib/db/practice-menu-types";
 import { isPracticeMenuType, menuTypeToMessageKey } from "@/lib/db/practice-menu-types";
@@ -66,6 +67,8 @@ export default async function ChallengeResultsPage({ searchParams }: Props) {
   return (
     <ContentContainer>
       <PageTitle>{t("pageTitle")}</PageTitle>
+
+      <SectionTitle>{t("sectionTitle")}</SectionTitle>
       <div className="mt-6 space-y-6">
         <ResultsTable
           items={items}

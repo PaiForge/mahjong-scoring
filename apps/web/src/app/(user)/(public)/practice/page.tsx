@@ -10,6 +10,7 @@ import { getTranslations } from "next-intl/server";
 import { ChevronRightIcon } from "@/app/_components/icons/chevron-right-icon";
 import { ContentContainer } from "@/app/_components/content-container";
 import { PageTitle } from "@/app/_components/page-title";
+import { SectionTitle } from "@/app/_components/section-title";
 import { createMetadata } from "@/app/_lib/metadata";
 import { PracticeCard } from "./_components/practice-card";
 import { PracticeCategorySection } from "./_components/practice-category-section";
@@ -72,6 +73,8 @@ export default async function PracticePage() {
   return (
     <ContentContainer>
       <PageTitle>{t("title")}</PageTitle>
+
+      <SectionTitle>{t("menuTitle")}</SectionTitle>
       <p className="mt-3 text-sm text-surface-500">{t("description")}</p>
 
       <Link
