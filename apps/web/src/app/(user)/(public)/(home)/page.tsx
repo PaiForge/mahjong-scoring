@@ -1,16 +1,13 @@
+import { getOptionalUser } from "@/lib/auth";
+
 import { LandingPage } from "./_components/landing-page";
-import { HomeDashboard } from "./_components/home-dashboard";
+import { HomeAnnouncements } from "./_components/home-announcements";
 
-// TODO: Replace with actual auth check
-function getUser(): { id: string } | undefined {
-  return undefined;
-}
-
-export default function Home() {
-  const user = getUser();
+export default async function Home() {
+  const user = await getOptionalUser();
 
   if (user) {
-    return <HomeDashboard />;
+    return <HomeAnnouncements />;
   }
 
   return <LandingPage />;
