@@ -18,6 +18,7 @@
     "pageTitle": "お知らせ",
     "pageDescription": "運営からのお知らせ一覧です。",
     "listTitle": "お知らせ一覧",
+    "viewAll": "すべて見る",
     "pinned": "固定",
     "empty": "お知らせはまだありません。",
     "notFound": "お知らせが見つかりません",
@@ -37,16 +38,6 @@
     "learnDescription": "符計算のルールや点数計算の仕組みを、わかりやすい解説で基礎から理解できます。",
     "learnCta": "学習コンテンツを見る",
     "betaBanner": "🚧 現在ベータ版として開発中です 🚧"
-  },
-  "dashboard": {
-    "title": "ダッシュボード",
-    "description": "ここに学習進捗や最近のアクティビティが表示されます",
-    "todayPractice": "今日の練習",
-    "todayPracticeUnit": "{count} 問",
-    "accuracy": "正答率",
-    "accuracyValue": "-- %",
-    "streak": "連続学習日数",
-    "streakUnit": "{count} 日"
   },
   "practice": {
     "title": "練習",
