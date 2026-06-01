@@ -1,6 +1,6 @@
 import { getTranslations } from "next-intl/server";
 
-import { PageTitle } from "@/app/_components/page-title";
+import { AdminPageTitle } from "@/app/admin/_components/admin-page-title";
 import { isSupportedLocale } from "@/i18n/locales";
 
 import { AnnouncementForm } from "../_components/announcement-form";
@@ -15,7 +15,7 @@ export default async function NewAnnouncementPage({ searchParams }: Props) {
 
   return (
     <div>
-      <PageTitle className="mb-6">{t("createTitle")}</PageTitle>
+      <AdminPageTitle className="mb-6">{t("createTitle")}</AdminPageTitle>
       <AnnouncementForm
         mode="create"
         defaultSlug={slug}

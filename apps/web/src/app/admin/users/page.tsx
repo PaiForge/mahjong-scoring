@@ -1,7 +1,7 @@
 import { getTranslations } from 'next-intl/server';
 
 import type { User } from '@supabase/supabase-js';
-import { PageTitle } from '@/app/_components/page-title';
+import { AdminPageTitle } from '@/app/admin/_components/admin-page-title';
 import { inArray } from 'drizzle-orm';
 import { createSearchParamsCache, parseAsInteger } from 'nuqs/server';
 
@@ -60,7 +60,7 @@ export default async function AdminUsersPage({
 
   return (
     <div>
-      <PageTitle className="mb-6">{t('users')}</PageTitle>
+      <AdminPageTitle className="mb-6">{t('users')}</AdminPageTitle>
 
       <div className="overflow-x-auto">
         <table className="w-full text-left text-sm">

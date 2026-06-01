@@ -1,4 +1,4 @@
-import { PageTitle } from "@/app/_components/page-title";
+import { AdminPageTitle } from "@/app/admin/_components/admin-page-title";
 
 /**
  * 監査ログのローディング状態
@@ -7,9 +7,9 @@ import { PageTitle } from "@/app/_components/page-title";
 export default function Loading() {
   return (
     <div>
-      <PageTitle className="mb-6">
+      <AdminPageTitle className="mb-6">
         <div className="h-8 w-40 bg-surface-200 rounded animate-pulse" />
-      </PageTitle>
+      </AdminPageTitle>
       <div className="flex gap-3 mb-4">
         <div className="h-10 w-40 bg-surface-200 rounded animate-pulse" />
         <div className="h-10 w-40 bg-surface-200 rounded animate-pulse" />
