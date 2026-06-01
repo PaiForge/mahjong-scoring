@@ -2,7 +2,6 @@ import { HomeIcon } from "../icons/home-icon";
 import { BookIcon } from "../icons/book-icon";
 import { TableIcon } from "../icons/table-icon";
 import { ChartIcon } from "../icons/chart-icon";
-import { AnnouncementIcon } from "../icons/announcement-icon";
 
 /**
  * ナビゲーション項目の定義
@@ -20,5 +19,4 @@ export const NAV_ITEMS: readonly NavItemDef[] = [
   { href: "/practice", labelKey: "practice", icon: <BookIcon /> },
   { href: "/reference", labelKey: "reference", icon: <TableIcon /> },
   { href: "/leaderboard", labelKey: "leaderboard", icon: <ChartIcon /> },
-  { href: "/announcements", labelKey: "announcements", icon: <AnnouncementIcon /> },
 ];
