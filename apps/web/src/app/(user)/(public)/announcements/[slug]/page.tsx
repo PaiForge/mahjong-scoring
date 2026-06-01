@@ -58,21 +58,24 @@ export default async function AnnouncementDetailPage({ params }: Props) {
 
   return (
     <ContentContainer>
-      <Link
-        href="/announcements"
-        className="text-sm text-primary-600 hover:text-primary-700"
-      >
-        ← {t("backToList")}
-      </Link>
+      <PageTitle>{announcement.title}</PageTitle>
 
-      <PageTitle className="mt-4">{announcement.title}</PageTitle>
       {publishedDate && (
-        <p className="mt-2 text-sm text-surface-400">{publishedDate}</p>
+        <p className="text-center text-sm text-muted-foreground">{publishedDate}</p>
       )}
 
       <article className="mt-6">
         <MarkdownRenderer content={announcement.content} skipFirstH1 />
       </article>
+
+      <div className="mt-8 border-t border-border pt-6">
+        <Link
+          href="/announcements"
+          className="text-sm font-medium text-link-primary transition-colors hover:opacity-80"
+        >
+          ← {t("backToList")}
+        </Link>
+      </div>
     </ContentContainer>
   );
 }
