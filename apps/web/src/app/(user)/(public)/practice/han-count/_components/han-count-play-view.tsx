@@ -66,6 +66,7 @@ export function HanCountPlayView() {
 
   return (
     <ChallengeShell
+      title={t("title")}
       gameSession={gameSession}
       timerControl={timerControl}
       resultPath="/practice/han-count/result"

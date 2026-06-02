@@ -75,6 +75,7 @@ export function ScoreCalculationPlayView() {
 
   return (
     <ChallengeShell
+      title={t("title")}
       gameSession={gameSession}
       timerControl={timerControl}
       resultPath="/practice/score-calculation/result"

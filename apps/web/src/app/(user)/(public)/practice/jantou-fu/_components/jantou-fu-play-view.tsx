@@ -42,7 +42,7 @@ export function JantouFuPlayView() {
   );
 
   return (
-    <ChallengeShell gameSession={gameSession} timerControl={timerControl} resultPath="/practice/jantou-fu/result" onFinish={handleFinish}>
+    <ChallengeShell title={t("title")} gameSession={gameSession} timerControl={timerControl} resultPath="/practice/jantou-fu/result" onFinish={handleFinish}>
       {/* Context */}
       <div className="mt-6 flex justify-center gap-6 text-sm">
         <div className="text-center">

@@ -7,12 +7,17 @@ import { isOya } from "@mahjong-scoring/core";
 import { toast } from "react-hot-toast";
 import { useTranslations } from "next-intl";
 import { ContentContainer } from "@/app/_components/content-container";
+import { PageTitle } from "@/app/_components/page-title";
 import { useScorePracticeStore } from "../_hooks/use-score-practice-store";
 import type { UserAnswer } from "@mahjong-scoring/core";
 import { useIsClient } from "../../_hooks/use-is-client";
+import { useScrollToElement } from "../../_hooks/use-scroll-to-element";
 import { QuestionDisplay } from "./question-display";
 import { ScorePracticeAnswerForm } from "./score-practice-answer-form";
 import { ResultDisplay } from "./result-display";
+
+/** スクロール先の最上部要素 id（練習開始時にここまでスクロールする） */
+const SCROLL_ANCHOR_ID = "practice-session";
 
 function ScorePracticeBoardInner() {
   const t = useTranslations("score");
@@ -32,6 +37,10 @@ function ScorePracticeBoardInner() {
 
   const isClient = useIsClient();
   const initializedRef = useRef(false);
+
+  // 練習開始直後（最初の問題が用意されたら）、グローバルヘッダ分のオフセットを
+  // 解消して問題を画面上部へ表示する
+  useScrollToElement(SCROLL_ANCHOR_ID, Boolean(currentQuestion));
 
   const initializeQuestion = useCallback(() => {
     if (initializedRef.current) return;
@@ -126,7 +135,9 @@ function ScorePracticeBoardInner() {
   }
 
   return (
-    <ContentContainer>
+    <ContentContainer id={SCROLL_ANCHOR_ID}>
+      <PageTitle>{t("title")}</PageTitle>
+
       {/* Stats */}
       <div className="mb-4 flex items-center justify-between text-sm text-surface-500">
         <div>

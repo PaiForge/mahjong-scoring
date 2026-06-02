@@ -59,7 +59,7 @@ export function TehaiFuPlayView() {
   const allAnswered = answers.length > 0 && answers.every((a) => a !== "");
 
   return (
-    <ChallengeShell gameSession={gameSession} timerControl={timerControl} resultPath="/practice/tehai-fu/result" maxWidth="max-w-lg" onFinish={handleFinish}>
+    <ChallengeShell title={t("title")} gameSession={gameSession} timerControl={timerControl} resultPath="/practice/tehai-fu/result" maxWidth="max-w-lg" onFinish={handleFinish}>
       <TehaiDisplay question={question} onScaleChange={setTileScale} />
 
       {/* Item list */}

@@ -67,6 +67,7 @@ export function YakuPlayView() {
 
   return (
     <ChallengeShell
+      title={t("title")}
       gameSession={gameSession}
       timerControl={timerControl}
       resultPath="/practice/yaku/result"

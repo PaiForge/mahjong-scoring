@@ -41,7 +41,7 @@ export function MachiFuPlayView() {
   );
 
   return (
-    <ChallengeShell gameSession={gameSession} timerControl={timerControl} resultPath="/practice/machi-fu/result" onFinish={handleFinish}>
+    <ChallengeShell title={t("title")} gameSession={gameSession} timerControl={timerControl} resultPath="/practice/machi-fu/result" onFinish={handleFinish}>
       {/* Machi tiles */}
       <div className="mt-6 flex flex-col items-center gap-4">
         <div className="flex flex-col items-center gap-2">

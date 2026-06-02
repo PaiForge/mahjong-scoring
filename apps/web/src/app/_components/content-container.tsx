@@ -9,6 +9,11 @@ interface ContentContainerProps {
   className?: string;
   /** パンくずリスト。指定するとカード下部に区切り線付きで表示する（チェスの PageLayout 準拠）。 */
   breadcrumb?: readonly BreadcrumbItem[];
+  /**
+   * 最上部要素に付与する id。`useScrollToElement` のスクロール先として使う。
+   * PageTitle がある場合はグレー帯、無い場合は外側ラッパーに付与する。
+   */
+  id?: string;
 }
 
 /**
@@ -22,7 +27,7 @@ interface ContentContainerProps {
  * 画面最上部の全幅グレー帯として表示する。グレー地は PageTitle 部分のみに限定し、
  * カード本体・左右・下は白（レイアウトの白背景）にするため。
  */
-export function ContentContainer({ children, className = "", breadcrumb }: ContentContainerProps) {
+export function ContentContainer({ children, className = "", breadcrumb, id }: ContentContainerProps) {
   const childArray = Children.toArray(children);
   const title = childArray.find((child) => isValidElement(child) && child.type === PageTitle);
   const body = title
@@ -44,14 +49,14 @@ export function ContentContainer({ children, className = "", breadcrumb }: Conte
   );
 
   if (!title) {
-    return <div className="mx-auto max-w-4xl px-4 py-6 sm:px-6 lg:px-8">{card}</div>;
+    return <div id={id} className="mx-auto max-w-4xl px-4 py-6 sm:px-6 lg:px-8">{card}</div>;
   }
 
   return (
     <>
       {/* PageTitle 部分のみ全幅グレー帯。レイアウトの main が全幅白のため、
           bg-secondary が余計なハックなしで自然にビューポート全幅へ広がる。 */}
-      <div className="bg-secondary">
+      <div id={id} className="bg-secondary">
         <div className="mx-auto max-w-4xl px-4 py-5 sm:px-6 lg:px-8">{title}</div>
       </div>
       <div className="mx-auto max-w-4xl px-4 sm:px-6 lg:px-8">{card}</div>

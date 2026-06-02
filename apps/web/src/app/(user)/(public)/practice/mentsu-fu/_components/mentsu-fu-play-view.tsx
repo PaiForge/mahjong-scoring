@@ -49,7 +49,7 @@ export function MentsuFuPlayView() {
   };
 
   return (
-    <ChallengeShell gameSession={gameSession} timerControl={timerControl} resultPath="/practice/mentsu-fu/result" onFinish={handleFinish}>
+    <ChallengeShell title={t("title")} gameSession={gameSession} timerControl={timerControl} resultPath="/practice/mentsu-fu/result" onFinish={handleFinish}>
       {/* Mentsu display */}
       <div className="mt-6 flex flex-col items-center gap-4">
         <span className="text-sm font-bold uppercase tracking-widest text-surface-400">
