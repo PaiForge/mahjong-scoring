@@ -74,7 +74,7 @@ export const FuItemRow = memo(function FuItemRow({
 
   return (
     <div
-      className={`flex items-center justify-between gap-3 rounded-xl border bg-white p-3 ${
+      className={`rounded-xl border bg-white p-3 ${
         showFeedback
           ? isCorrect
             ? "border-green-500 bg-green-50"
@@ -82,54 +82,52 @@ export const FuItemRow = memo(function FuItemRow({
           : "border-surface-200"
       }`}
     >
+      {/* 面子の牌（左）と、誤答時の正解表示（右） */}
       <div className="flex min-w-0 items-center gap-2">
         {renderItemTiles()}
-      </div>
-
-      <div className="ml-auto flex shrink-0 flex-col items-end gap-1">
         {isWrong && (
-          <span className="text-xs font-bold text-red-600">
+          <span className="ml-auto shrink-0 text-xs font-bold text-red-600">
             {t("correctAnswer", { fu: item.fu })}
           </span>
         )}
-        <div className="flex justify-end gap-1">
-          {FU_OPTIONS.map((opt) => {
-            const isSelected = answer === String(opt);
-            const disabled = showFeedback || isCountingDown;
+      </div>
 
-            let buttonClass =
-              "rounded-lg border px-1.5 py-1 text-xs font-bold transition-colors";
+      {/* 符の選択肢。牌の下に全幅で並べ、タップしやすい大きさにする */}
+      <div className="mt-2.5 grid grid-cols-6 gap-1.5">
+        {FU_OPTIONS.map((opt) => {
+          const isSelected = answer === String(opt);
+          const disabled = showFeedback || isCountingDown;
 
-            // bg-*-50 で統一（feedback-styles.ts や他練習の行ボーダーと一致させる）
-            if (showFeedback && isSelected) {
-              buttonClass += isCorrect
-                ? " border-green-500 bg-green-50 text-green-700"
-                : " border-red-500 bg-red-50 text-red-700";
-            } else if (isSelected) {
-              buttonClass +=
-                " border-blue-500 bg-blue-100 text-blue-700";
-            } else {
-              buttonClass +=
-                " border-surface-200 bg-white text-surface-600";
-            }
+          let buttonClass =
+            "rounded-lg border py-2.5 text-sm font-bold transition-colors";
 
-            if (disabled) {
-              buttonClass += " cursor-not-allowed opacity-60";
-            }
+          // bg-*-50 で統一（feedback-styles.ts や他練習の行ボーダーと一致させる）
+          if (showFeedback && isSelected) {
+            buttonClass += isCorrect
+              ? " border-green-500 bg-green-50 text-green-700"
+              : " border-red-500 bg-red-50 text-red-700";
+          } else if (isSelected) {
+            buttonClass += " border-blue-500 bg-blue-100 text-blue-700";
+          } else {
+            buttonClass += " border-surface-200 bg-white text-surface-600";
+          }
 
-            return (
-              <button
-                key={opt}
-                type="button"
-                className={buttonClass}
-                disabled={disabled}
-                onClick={() => handleButtonClick(opt)}
-              >
-                {opt}
-              </button>
-            );
-          })}
-        </div>
+          if (disabled) {
+            buttonClass += " cursor-not-allowed opacity-60";
+          }
+
+          return (
+            <button
+              key={opt}
+              type="button"
+              className={buttonClass}
+              disabled={disabled}
+              onClick={() => handleButtonClick(opt)}
+            >
+              {opt}
+            </button>
+          );
+        })}
       </div>
     </div>
   );

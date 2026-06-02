@@ -2,7 +2,6 @@ import {
   MentsuType,
   validateTehai14,
   type HaiKindId,
-  type Kazehai,
   type CompletedMentsu,
 } from "@pai-forge/riichi-mahjong";
 import type { TehaiFuQuestion, TehaiFuItem } from "./types";
@@ -118,10 +117,48 @@ export function generateTehaiFuQuestion(): TehaiFuQuestion | undefined {
   const result = validateTehai14(tehai);
   if (result.isErr()) return undefined;
 
+  // 5. 回答行（items）を手牌の表示順に並べ替える。
+  //    手牌は「昇順ソート済みの暗牌 → 副露（右側）」で表示されるため、
+  //    暗牌側の面子・雀頭を牌の昇順で、続けて副露を tehai.exposed の順に並べる。
+  //    これにより回答行が手牌の左から右の見た目と対応する。
+  const orderedItems = orderItemsByHandLayout(items);
+
   return {
     id: crypto.randomUUID(),
     tehai: result.value,
     context: { bakaze, jikaze, agariHai, isTsumo: Math.random() < 0.5 },
-    items,
+    items: orderedItems,
   };
+}
+
+/** その要素が手牌上で副露（右側）として表示されるか */
+function isExposedItem(item: TehaiFuItem): boolean {
+  return (item.isOpen || item.type === MentsuType.Kantsu) && !!item.originalMentsu;
+}
+
+/** ソート済みの牌配列同士を辞書順で比較する */
+function compareTilesAsc(
+  a: readonly HaiKindId[],
+  b: readonly HaiKindId[],
+): number {
+  const sa = [...a].sort((x, y) => x - y);
+  const sb = [...b].sort((x, y) => x - y);
+  const len = Math.min(sa.length, sb.length);
+  for (let i = 0; i < len; i++) {
+    if (sa[i] !== sb[i]) return sa[i] - sb[i];
+  }
+  return sa.length - sb.length;
+}
+
+/**
+ * 回答行を手牌の表示順（暗牌を牌の昇順 → 副露を生成順）に並べ替える
+ * 手牌レイアウト整列
+ */
+function orderItemsByHandLayout(
+  items: readonly TehaiFuItem[],
+): TehaiFuItem[] {
+  const closedItems = items.filter((it) => !isExposedItem(it));
+  const exposedItems = items.filter((it) => isExposedItem(it));
+  closedItems.sort((a, b) => compareTilesAsc(a.tiles, b.tiles));
+  return [...closedItems, ...exposedItems];
 }
