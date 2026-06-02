@@ -10,8 +10,6 @@ import { ContentContainer } from "@/app/_components/content-container";
 import { useScorePracticeStore } from "../_hooks/use-score-practice-store";
 import type { UserAnswer } from "@mahjong-scoring/core";
 import { useIsClient } from "../../_hooks/use-is-client";
-import { useQuitConfirm } from "../../_hooks/use-quit-confirm";
-import { QuitConfirmModal } from "../../_components/quit-confirm-modal";
 import { QuestionDisplay } from "./question-display";
 import { ScorePracticeAnswerForm } from "./score-practice-answer-form";
 import { ResultDisplay } from "./result-display";
@@ -21,8 +19,6 @@ function ScorePracticeBoardInner() {
   const tc = useTranslations("challenge");
   const router = useRouter();
   const searchParams = useSearchParams();
-  const { isQuitModalOpen, handleQuitClick, handleQuitCancel, handleQuitConfirm } =
-    useQuitConfirm();
   const {
     currentQuestion,
     userAnswer,
@@ -151,7 +147,6 @@ function ScorePracticeBoardInner() {
             userAnswer={userAnswer}
             result={judgementResult}
             onNext={handleNext}
-            onExit={handleBackToSetup}
             requireYaku={requireYaku}
             simplifyMangan={simplifyMangan}
             requireFuForMangan={requireFuForMangan}
@@ -167,7 +162,6 @@ function ScorePracticeBoardInner() {
             simplifyMangan={simplifyMangan}
             requireFuForMangan={requireFuForMangan}
             onSkip={handleNext}
-            onExit={handleBackToSetup}
           />
         )}
       </div>
@@ -176,18 +170,12 @@ function ScorePracticeBoardInner() {
       <div className="mt-6 text-center">
         <button
           type="button"
-          onClick={handleQuitClick}
+          onClick={handleBackToSetup}
           className="text-sm text-surface-400 underline transition-colors hover:text-surface-600"
         >
           {tc("quitButton")}
         </button>
       </div>
-
-      <QuitConfirmModal
-        isOpen={isQuitModalOpen}
-        onConfirm={handleQuitConfirm}
-        onCancel={handleQuitCancel}
-      />
     </ContentContainer>
   );
 }
