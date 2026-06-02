@@ -54,16 +54,6 @@ function SessionHistoryTableSkeleton() {
   );
 }
 
-/** 期間セレクターのスケルトン */
-function PeriodSelectorSkeleton() {
-  return (
-    <div className="flex flex-col sm:flex-row gap-3">
-      <div className="w-full sm:w-48 h-[38px] rounded-lg bg-surface-200 animate-pulse" />
-      <div className="w-full sm:w-64 h-[38px] rounded-lg bg-surface-200 animate-pulse" />
-    </div>
-  );
-}
-
 /** コンテンツ部分のスケルトン（セレクターを除く） */
 export function DashboardContentSkeleton() {
   return (
@@ -97,7 +87,11 @@ export function DashboardContentSkeleton() {
 export function DashboardSkeleton() {
   return (
     <div className="space-y-6">
-      <PeriodSelectorSkeleton />
+      {/* SectionTitle("記録") */}
+      <div className="h-7 w-24 animate-pulse rounded bg-surface-200" />
+      {/* 期間・メニューセレクタ（実UIは縦積みの block 要素） */}
+      <div className="h-[38px] w-full animate-pulse rounded-lg bg-surface-200 sm:w-48" />
+      <div className="h-[38px] w-full animate-pulse rounded-lg bg-surface-200 sm:w-64" />
       <DashboardContentSkeleton />
     </div>
   );

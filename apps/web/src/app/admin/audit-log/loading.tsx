@@ -10,9 +10,17 @@ export default function Loading() {
       <AdminPageTitle className="mb-6">
         <div className="h-8 w-40 bg-surface-200 rounded animate-pulse" />
       </AdminPageTitle>
-      <div className="flex gap-3 mb-4">
-        <div className="h-10 w-40 bg-surface-200 rounded animate-pulse" />
-        <div className="h-10 w-40 bg-surface-200 rounded animate-pulse" />
+      {/* フィルタ（実: mb-6 flex items-end gap-4、各コントロールにラベル + 送信ボタン） */}
+      <div className="mb-6 flex items-end gap-4">
+        <div>
+          <div className="mb-1 h-4 w-20 bg-surface-200 rounded animate-pulse" />
+          <div className="h-[38px] w-40 bg-surface-200 rounded animate-pulse" />
+        </div>
+        <div>
+          <div className="mb-1 h-4 w-20 bg-surface-200 rounded animate-pulse" />
+          <div className="h-[38px] w-40 bg-surface-200 rounded animate-pulse" />
+        </div>
+        <div className="h-[38px] w-20 bg-surface-200 rounded animate-pulse" />
       </div>
       <div className="overflow-x-auto">
         <table className="w-full text-left text-sm">
@@ -28,7 +36,7 @@ export default function Loading() {
           <tbody>
             {Array.from({ length: 10 }, (_, i) => (
               <tr key={i} className="border-t border-gray-200">
-                {Array.from({ length: 6 }, (_, j) => (
+                {Array.from({ length: 6 }, (__, j) => (
                   <td key={j} className="px-4 py-3">
                     <div className="h-4 w-24 bg-surface-200 rounded animate-pulse" />
                   </td>

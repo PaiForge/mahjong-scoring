@@ -1,4 +1,5 @@
 import { ContentContainer } from "@/app/_components/content-container";
+import { PageTitle } from "@/app/_components/page-title";
 
 import { DashboardSkeleton } from "./_components/dashboard-skeleton";
 
@@ -9,10 +10,11 @@ import { DashboardSkeleton } from "./_components/dashboard-skeleton";
 export default function Loading() {
   return (
     <ContentContainer>
-      <div className="h-8 w-40 mb-6 bg-surface-200 rounded animate-pulse" />
-      <div className="mt-6">
-        <DashboardSkeleton />
-      </div>
+      {/* PageTitle を使うことで実描画と同じ全幅グレー帯を再現する */}
+      <PageTitle>
+        <span className="inline-block h-7 w-40 animate-pulse rounded bg-surface-300 align-middle" />
+      </PageTitle>
+      <DashboardSkeleton />
     </ContentContainer>
   );
 }

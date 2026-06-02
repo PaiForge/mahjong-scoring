@@ -15,6 +15,7 @@ import { useQuitConfirm } from "../_hooks/use-quit-confirm";
 import { useScrollToElement } from "../_hooks/use-scroll-to-element";
 import { QuizTimer } from "./quiz-timer";
 import { QuitConfirmModal } from "./quit-confirm-modal";
+import { ResultPageSkeleton } from "./result-page-skeleton";
 
 interface LifeIndicatorProps {
   readonly remainingLives: number;
@@ -126,8 +127,10 @@ export function ChallengeShell({
     onFinish,
   });
 
+  // 終了後はスコア保存 → 結果ページ遷移までの間、白画面を出さずに
+  // 結果ページ形状のスケルトンを表示する（遷移中も古いルートとして残り続ける）。
   if (gameSession.isFinished) {
-    return undefined;
+    return <ResultPageSkeleton title={title} />;
   }
 
   return (
