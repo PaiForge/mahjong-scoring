@@ -63,6 +63,7 @@ export function ScoreTablePlayView() {
 
   return (
     <ChallengeShell
+      title={t("title")}
       gameSession={gameSession}
       timerControl={timerControl}
       resultPath="/practice/score-table/result"

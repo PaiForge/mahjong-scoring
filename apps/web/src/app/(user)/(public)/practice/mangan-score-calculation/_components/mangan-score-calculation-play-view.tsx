@@ -87,6 +87,7 @@ export function ManganScoreCalculationPlayView() {
 
   return (
     <ChallengeShell
+      title={t("title")}
       gameSession={gameSession}
       timerControl={timerControl}
       resultPath="/practice/mangan-score-calculation/result"

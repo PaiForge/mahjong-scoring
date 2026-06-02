@@ -3,6 +3,7 @@
 import { type ReactNode, memo, useEffect, useRef, useCallback } from "react";
 import { useTranslations } from "next-intl";
 import { ContentContainer } from "@/app/_components/content-container";
+import { PageTitle } from "@/app/_components/page-title";
 import { BoardOverlay } from "@/app/_components/board-overlay";
 import { PauseIcon } from "@/app/_components/icons/pause-icon";
 import { PlayIcon } from "@/app/_components/icons/play-icon";
@@ -11,6 +12,7 @@ import type { FinishCallbackArgs, FinishCallbackResult } from "../_hooks/use-fin
 import { useGameTimer } from "../_hooks/use-game-timer";
 import { useFinishRedirect } from "../_hooks/use-finish-redirect";
 import { useQuitConfirm } from "../_hooks/use-quit-confirm";
+import { useScrollToElement } from "../_hooks/use-scroll-to-element";
 import { QuizTimer } from "./quiz-timer";
 import { QuitConfirmModal } from "./quit-confirm-modal";
 
@@ -38,7 +40,12 @@ const LifeIndicator = memo(function LifeIndicator({
   );
 });
 
+/** スクロール先の最上部要素 id（練習開始時にここまでスクロールする） */
+const SCROLL_ANCHOR_ID = "practice-session";
+
 interface ChallengeShellProps {
+  /** 画面上部に表示する練習名（PageTitle に渡す） */
+  readonly title: ReactNode;
   /** ゲームロジック状態（タイマー値を含まない） */
   readonly gameSession: GameSessionState;
   /** ChallengeShell 内でタイマーを制御するためのインターフェース */
@@ -64,6 +71,7 @@ interface ChallengeShellProps {
  * children（練習本体の牌画像・選択肢ボタン等）には伝播しない。
  */
 export function ChallengeShell({
+  title,
   gameSession,
   timerControl,
   resultPath,
@@ -72,6 +80,9 @@ export function ChallengeShell({
   onFinish,
 }: ChallengeShellProps) {
   const tc = useTranslations("challenge");
+
+  // 練習開始直後、グローバルヘッダ分のオフセットを解消して盤面を画面上部へ表示する
+  useScrollToElement(SCROLL_ANCHOR_ID);
 
   const wasPausedBeforeQuitRef = useRef(false);
 
@@ -120,7 +131,9 @@ export function ChallengeShell({
   }
 
   return (
-    <ContentContainer>
+    <ContentContainer id={SCROLL_ANCHOR_ID}>
+      <PageTitle>{title}</PageTitle>
+
       {/* Countdown overlay */}
       {gameSession.isCountingDown && (
         <div className="fixed inset-0 z-30 flex items-center justify-center bg-white/80 backdrop-blur-sm">
