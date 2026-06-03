@@ -31,15 +31,15 @@ interface PracticeDef {
 }
 
 const fuPractices: readonly PracticeDef[] = [
-  { href: "/practice/jantou-fu/play", titleKey: "practices.jantouFu.title", descriptionKey: "practices.jantouFu.description", difficulty: "beginner", learnHref: "/learn/jantou-fu" },
-  { href: "/practice/machi-fu/play", titleKey: "practices.machiFu.title", descriptionKey: "practices.machiFu.description", difficulty: "beginner", learnHref: "/learn/machi-fu" },
-  { href: "/practice/mentsu-fu/play", titleKey: "practices.mentsuFu.title", descriptionKey: "practices.mentsuFu.description", difficulty: "intermediate", learnHref: "/learn/mentsu-fu" },
-  { href: "/practice/tehai-fu/play", titleKey: "practices.tehaiFu.title", descriptionKey: "practices.tehaiFu.description", difficulty: "advanced", learnHref: "/learn/tehai-fu" },
+  { href: "/practice/jantou-fu", titleKey: "practices.jantouFu.title", descriptionKey: "practices.jantouFu.description", difficulty: "beginner", learnHref: "/learn/jantou-fu" },
+  { href: "/practice/machi-fu", titleKey: "practices.machiFu.title", descriptionKey: "practices.machiFu.description", difficulty: "beginner", learnHref: "/learn/machi-fu" },
+  { href: "/practice/mentsu-fu", titleKey: "practices.mentsuFu.title", descriptionKey: "practices.mentsuFu.description", difficulty: "intermediate", learnHref: "/learn/mentsu-fu" },
+  { href: "/practice/tehai-fu", titleKey: "practices.tehaiFu.title", descriptionKey: "practices.tehaiFu.description", difficulty: "advanced", learnHref: "/learn/tehai-fu" },
 ];
 
 const hanPractices: readonly PracticeDef[] = [
-  { href: "/practice/yaku/play", titleKey: "practices.yaku.title", descriptionKey: "practices.yaku.description", difficulty: "intermediate", learnHref: "/learn/yaku" },
-  { href: "/practice/han-count/play", titleKey: "practices.hanCount.title", descriptionKey: "practices.hanCount.description", difficulty: "advanced" },
+  { href: "/practice/yaku", titleKey: "practices.yaku.title", descriptionKey: "practices.yaku.description", difficulty: "intermediate", learnHref: "/learn/yaku" },
+  { href: "/practice/han-count", titleKey: "practices.hanCount.title", descriptionKey: "practices.hanCount.description", difficulty: "advanced" },
 ];
 
 const scoringPractices: readonly PracticeDef[] = [

@@ -21,5 +21,5 @@ export async function generateMetadata(): Promise<Metadata> {
 }
 
 export default function HanCountPage() {
-  return <PracticeIntroContent namespace="hanCountChallenge" slug="han-count" showLearnLink={false} />;
+  return <PracticeIntroContent namespace="hanCountChallenge" slug="han-count" showLearnLink={false} showTraining />;
 }

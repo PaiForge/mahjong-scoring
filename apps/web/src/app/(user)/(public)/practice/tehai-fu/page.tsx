@@ -21,5 +21,5 @@ export async function generateMetadata(): Promise<Metadata> {
  * 3. 「開始」を押すと play ページへ遷移
  */
 export default function TehaiFuPage() {
-  return <PracticeIntroContent namespace="tehaiFu" slug="tehai-fu" />;
+  return <PracticeIntroContent namespace="tehaiFu" slug="tehai-fu" showTraining />;
 }

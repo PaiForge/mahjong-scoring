@@ -130,7 +130,10 @@
     "comprehensiveBanner": {
       "title": "点数計算総合演習",
       "description": "翻数・役・符・点数全てをチェックできる問題に好きなだけ回答できます。麻雀の点数計算の総合練習として最適です。"
-    }
+    },
+    "orDivider": "または",
+    "modeChallengeHint": "制限時間60秒・ミス3回で記録に挑戦",
+    "modeTrainingHint": "時間無制限でじっくり反復練習"
   },
   "challenge": {
     "timeRemaining": "残り {seconds} 秒",
@@ -164,6 +167,11 @@
       "cta": "無料登録",
       "signInLink": "ログイン"
     }
+  },
+  "training": {
+    "modeLabel": "トレーニング",
+    "startButton": "トレーニング",
+    "exitButton": "終了する"
   },
   "exp": {
     "label": "経験値",
