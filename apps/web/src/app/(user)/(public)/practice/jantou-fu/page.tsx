@@ -21,5 +21,5 @@ export async function generateMetadata(): Promise<Metadata> {
 }
 
 export default function JantouFuPage() {
-  return <PracticeIntroContent namespace="jantouFu" slug="jantou-fu" />;
+  return <PracticeIntroContent namespace="jantouFu" slug="jantou-fu" showTraining />;
 }

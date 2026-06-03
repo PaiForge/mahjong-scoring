@@ -21,5 +21,5 @@ export async function generateMetadata(): Promise<Metadata> {
  * 3. 「開始」を押すと play ページへ遷移
  */
 export default function YakuPage() {
-  return <PracticeIntroContent namespace="yaku" slug="yaku" />;
+  return <PracticeIntroContent namespace="yaku" slug="yaku" showTraining />;
 }
