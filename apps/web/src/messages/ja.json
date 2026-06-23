@@ -599,7 +599,8 @@
     },
     "board": {
       "correct": "正解！",
-      "stats": "{correct} / {total}"
+      "correctLabel": "正解",
+      "incorrectLabel": "不正解"
     },
     "result": {
       "title": {

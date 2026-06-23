@@ -15,6 +15,7 @@ import { useScrollToElement } from "../../_hooks/use-scroll-to-element";
 import { QuestionDisplay } from "./question-display";
 import { ScorePracticeAnswerForm } from "./score-practice-answer-form";
 import { ResultDisplay } from "./result-display";
+import { ScoreCounter } from "./score-counter";
 
 /** スクロール先の最上部要素 id（練習開始時にここまでスクロールする） */
 const SCROLL_ANCHOR_ID = "practice-session";
@@ -127,13 +128,6 @@ function ScorePracticeBoardInner() {
       {/* 要素間の余白を ContentContainer カードのパディング（p-4 sm:p-6 md:p-8）と同じ
           レスポンシブ値に揃え、最終要素である「終了する」の上下余白を均等にする。 */}
       <div className="space-y-4 sm:space-y-6 md:space-y-8">
-        {/* Stats */}
-        <div className="flex items-center justify-between text-sm text-surface-500">
-          <div>
-            {t("board.stats", { correct: stats.correct, total: stats.total })}
-          </div>
-        </div>
-
         {/* Question */}
         <div className="rounded-xl border border-surface-200 bg-white p-2 sm:p-6">
           <QuestionDisplay question={currentQuestion} />
@@ -166,6 +160,14 @@ function ScorePracticeBoardInner() {
           )}
         </div>
 
+        {/* Footer: 正解 / 不正解 カウンタ（旧・上部の "0 / 0" を移設） */}
+        <ScoreCounter
+          correct={stats.correct}
+          incorrect={stats.total - stats.correct}
+          correctLabel={t("board.correctLabel")}
+          incorrectLabel={t("board.incorrectLabel")}
+        />
+
         {/* Quit button */}
         <div className="text-center">
           <button
@@ -196,9 +198,6 @@ function ScorePracticeBoardSkeleton() {
       <PageTitle>{t("title")}</PageTitle>
 
       <div className="space-y-4 sm:space-y-6 md:space-y-8" aria-hidden>
-        {/* Stats */}
-        <div className="h-5 w-32 animate-pulse rounded bg-surface-100" />
-
         {/* Question */}
         <div className="rounded-xl border border-surface-200 bg-white p-2 sm:p-6">
           <div className="space-y-6">
@@ -226,6 +225,16 @@ function ScorePracticeBoardSkeleton() {
               <div className="h-4 w-16 animate-pulse rounded bg-surface-100" />
             </div>
           </div>
+        </div>
+
+        {/* Footer: 正解 / 不正解 カウンタ */}
+        <div className="flex items-center justify-center gap-12">
+          {["correct", "incorrect"].map((k) => (
+            <div key={k} className="flex items-center gap-3">
+              <div className="h-8 w-8 animate-pulse rounded-full bg-surface-100" />
+              <div className="h-6 w-6 animate-pulse rounded bg-surface-100" />
+            </div>
+          ))}
         </div>
 
         {/* Quit button */}
