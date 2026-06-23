@@ -135,12 +135,12 @@ function ScorePracticeBoardInner() {
         </div>
 
         {/* Question */}
-        <div className="rounded-xl border border-surface-200 bg-white p-2 shadow-sm sm:p-6">
+        <div className="rounded-xl border border-surface-200 bg-white p-2 sm:p-6">
           <QuestionDisplay question={currentQuestion} />
         </div>
 
         {/* Answer area */}
-        <div className="rounded-xl border border-surface-200 bg-white p-4 shadow-sm sm:p-6">
+        <div className="rounded-xl border border-surface-200 bg-white p-4 sm:p-6">
           {isAnswered && userAnswer && judgementResult ? (
             <ResultDisplay
               question={currentQuestion}
@@ -200,7 +200,7 @@ function ScorePracticeBoardSkeleton() {
         <div className="h-5 w-32 animate-pulse rounded bg-surface-100" />
 
         {/* Question */}
-        <div className="rounded-xl border border-surface-200 bg-white p-2 shadow-sm sm:p-6">
+        <div className="rounded-xl border border-surface-200 bg-white p-2 sm:p-6">
           <div className="space-y-6">
             <div className="h-20 animate-pulse rounded-lg bg-surface-100" />
             <div className="grid grid-cols-2 gap-4">
@@ -211,7 +211,7 @@ function ScorePracticeBoardSkeleton() {
         </div>
 
         {/* Answer area: 翻・符・点数の select（各 label 付き）、回答するボタン、スキップリンク */}
-        <div className="rounded-xl border border-surface-200 bg-white p-4 shadow-sm sm:p-6">
+        <div className="rounded-xl border border-surface-200 bg-white p-4 sm:p-6">
           <div className="space-y-5">
             {["han", "fu", "score"].map((field) => (
               <div key={field} className="space-y-2">

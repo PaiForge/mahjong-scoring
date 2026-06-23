@@ -97,7 +97,7 @@ export function ScoreSetupForm() {
     // 要素間の余白を ContentContainer カードのパディング（p-4 sm:p-6 md:p-8）と同じ
     // レスポンシブ値に揃えることで、最終要素であるボタンの上下余白が均等になる。
     <div className="mt-8 space-y-4 sm:space-y-6 md:space-y-8">
-      <div className="overflow-hidden rounded-xl border border-surface-200 bg-white shadow-sm">
+      <div className="overflow-hidden rounded-xl border border-surface-200 bg-white">
         <div className="flex flex-col">
           <SettingToggle
             checked={requireYaku}
@@ -128,7 +128,7 @@ export function ScoreSetupForm() {
 
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
         {/* Question mode */}
-        <div className="flex flex-col overflow-hidden rounded-xl border border-surface-200 bg-white shadow-sm">
+        <div className="flex flex-col overflow-hidden rounded-xl border border-surface-200 bg-white">
           <div className="border-b border-surface-200 bg-surface-50 px-4 py-3">
             <h3 className="text-center text-sm font-bold text-surface-700">
               {t("setup.questionMode")}
@@ -149,7 +149,7 @@ export function ScoreSetupForm() {
         </div>
 
         {/* Target score ranges */}
-        <div className="flex flex-col overflow-hidden rounded-xl border border-surface-200 bg-white shadow-sm">
+        <div className="flex flex-col overflow-hidden rounded-xl border border-surface-200 bg-white">
           <div className="border-b border-surface-200 bg-surface-50 px-4 py-3">
             <h3 className="text-center text-sm font-bold text-surface-700">
               {t("setup.targetScore")}
@@ -171,12 +171,12 @@ export function ScoreSetupForm() {
       </div>
 
       {/* Start button */}
-      <div className="text-center">
+      <div>
         <button
           type="button"
           onClick={handleStart}
           disabled={isDisabled}
-          className={`inline-block rounded-lg px-12 py-3 text-sm font-bold shadow-sm transition-all focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-offset-2 ${
+          className={`block w-full rounded-lg px-6 py-3 text-sm font-bold transition-all focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-offset-2 ${
             isDisabled
               ? "cursor-not-allowed bg-surface-200 text-surface-400"
               : "bg-primary-500 text-white hover:bg-primary-600 active:scale-95"
