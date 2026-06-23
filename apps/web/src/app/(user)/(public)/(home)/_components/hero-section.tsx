@@ -15,7 +15,7 @@ export function HeroSection() {
         </p>
         <div className="mt-8 flex justify-center">
           <Link
-            href="/practice"
+            href="/getting-started"
             className="rounded-lg bg-white px-8 py-3 text-sm font-semibold text-primary-700 shadow-sm transition-colors hover:bg-primary-50"
           >
             {t("ctaGetStarted")}
