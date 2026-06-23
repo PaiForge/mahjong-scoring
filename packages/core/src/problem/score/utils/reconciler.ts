@@ -7,7 +7,7 @@ import {
 } from "@pai-forge/riichi-mahjong";
 import type { YakuDetail } from "../types";
 import { recalculateScore } from "../../../score/calculator";
-import { getKeyForKazehai, isOya } from "../../../core/hai-names";
+import { countDoraInTehai, getKeyForKazehai, isOya } from "../../../core/hai-names";
 import { isHaiKindId } from "../../../core/type-guards";
 import { countHaiInTehai } from "../../shared/hai-count";
 
@@ -133,9 +133,9 @@ export function applyRiichiAndUraDora(
     }
   }
 
-  const hasUraDora = Math.random() < 0.4;
-  if (hasUraDora) {
-    const uraHan = Math.floor(Math.random() * 2) + 1;
+  // 裏ドラ翻数は表示牌から手牌を照合して算出する（表示牌と翻数の不一致を防ぐ）
+  const uraHan = countDoraInTehai(tehai, uraDoraMarkers);
+  if (uraHan > 0) {
     additionalYakuDetails.push({ name: "裏ドラ", han: uraHan });
     extraHan += uraHan;
   }
