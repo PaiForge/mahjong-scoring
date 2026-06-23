@@ -94,7 +94,9 @@ export function ScoreSetupForm() {
   }
 
   return (
-    <div className="mt-8 space-y-6">
+    // 要素間の余白を ContentContainer カードのパディング（p-4 sm:p-6 md:p-8）と同じ
+    // レスポンシブ値に揃えることで、最終要素であるボタンの上下余白が均等になる。
+    <div className="mt-8 space-y-4 sm:space-y-6 md:space-y-8">
       <div className="overflow-hidden rounded-xl border border-surface-200 bg-white shadow-sm">
         <div className="flex flex-col">
           <SettingToggle
@@ -169,7 +171,7 @@ export function ScoreSetupForm() {
       </div>
 
       {/* Start button */}
-      <div className="pt-2 text-center">
+      <div className="text-center">
         <button
           type="button"
           onClick={handleStart}
