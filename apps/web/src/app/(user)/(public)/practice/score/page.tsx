@@ -26,9 +26,15 @@ export async function generateMetadata(): Promise<Metadata> {
 
 export default async function ScoreSetupPage() {
   const t = await getTranslations("score");
+  const tp = await getTranslations("practice");
 
   return (
-    <ContentContainer>
+    <ContentContainer
+      breadcrumb={[
+        { label: tp("title"), href: "/practice" },
+        { label: t("title") },
+      ]}
+    >
       <PageTitle action={<ScoreHelpTour />}>{t("title")}</PageTitle>
 
       {/* SectionTitle と各カードの間隔を space-y で統一（mt- の散在を避ける） */}
