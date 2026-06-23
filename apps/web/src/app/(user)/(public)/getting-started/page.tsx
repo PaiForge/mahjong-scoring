@@ -14,8 +14,8 @@ import { getTranslations } from "next-intl/server";
 import { ContentContainer } from "@/app/_components/content-container";
 import { PageTitle } from "@/app/_components/page-title";
 import { BookIcon } from "@/app/_components/icons/book-icon";
+import { CheckIcon } from "@/app/_components/icons/check-icon";
 import { PlayIcon } from "@/app/_components/icons/play-icon";
-import { TableIcon } from "@/app/_components/icons/table-icon";
 import { createMetadata } from "@/app/_lib/metadata";
 
 import { StepCard } from "./_components/step-card";
@@ -35,42 +35,34 @@ export default async function GettingStartedPage() {
     <ContentContainer className="space-y-8">
       <div className="text-center">
         <PageTitle>{t("pageTitle")}</PageTitle>
-        <p className="mt-3 text-base text-surface-500">{t("headline")}</p>
       </div>
 
       <div className="grid grid-cols-1 gap-6 md:grid-cols-3">
         <StepCard
-          stepLabel={t("stepLabel", { step: 1 })}
-          icon={<BookIcon className="size-7" />}
+          icon={<CheckIcon className="size-7" />}
           iconClassName="bg-green-500/10 text-green-600"
-          title={t("steps.learn.title")}
-          description={t("steps.learn.description")}
-          ctaLabel={t("steps.learn.cta")}
-          ctaHref="/learn"
-          subLabel={t("steps.learn.sub")}
-          subHref="/learn/about-this-app"
+          title={t("steps.tryout.title")}
+          description={t("steps.tryout.description")}
+          ctaLabel={t("steps.tryout.cta")}
+          ctaHref="/practice/score"
         />
         <StepCard
-          stepLabel={t("stepLabel", { step: 2 })}
           icon={<PlayIcon className="size-7" />}
           iconClassName="bg-primary-500/10 text-primary-600"
           title={t("steps.practice.title")}
           description={t("steps.practice.description")}
           ctaLabel={t("steps.practice.cta")}
-          ctaHref="/practice"
+          ctaHref="/practice/jantou-fu/play"
           subLabel={t("steps.practice.sub")}
-          subHref="/practice/jantou-fu/play"
+          subHref="/practice"
         />
         <StepCard
-          stepLabel={t("stepLabel", { step: 3 })}
-          icon={<TableIcon className="size-7" />}
+          icon={<BookIcon className="size-7" />}
           iconClassName="bg-amber-500/10 text-amber-600"
-          title={t("steps.reference.title")}
-          description={t("steps.reference.description")}
-          ctaLabel={t("steps.reference.cta")}
-          ctaHref="/reference"
-          subLabel={t("steps.reference.sub")}
-          subHref="/leaderboard"
+          title={t("steps.learn.title")}
+          description={t("steps.learn.description")}
+          ctaLabel={t("steps.learn.cta")}
+          ctaHref="/learn"
         />
       </div>
 
