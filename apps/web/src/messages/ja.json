@@ -515,8 +515,6 @@
     "title": "点数計算総合演習",
     "setupTitle": "条件設定",
     "description": "翻数・符から最終的な点数を算出する実戦形式の練習",
-    "loading": "読み込み中...",
-    "generating": "問題を生成中...",
     "setup": {
       "requireYaku": "役も回答する",
       "simplifyMangan": "5翻以降を簡略化",

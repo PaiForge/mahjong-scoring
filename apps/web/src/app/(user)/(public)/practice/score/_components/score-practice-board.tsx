@@ -114,24 +114,10 @@ function ScorePracticeBoardInner() {
     }
   }, [submitAnswer, nextQuestion, requireYaku, simplifyMangan, requireFuForMangan, autoNext, t]);
 
-  if (!isClient) {
-    return (
-      <ContentContainer>
-        <div className="flex items-center justify-center py-20">
-          <div className="text-surface-500">{t("loading")}</div>
-        </div>
-      </ContentContainer>
-    );
-  }
-
-  if (!currentQuestion) {
-    return (
-      <ContentContainer>
-        <div className="flex items-center justify-center py-20">
-          <div className="text-surface-500">{t("generating")}</div>
-        </div>
-      </ContentContainer>
-    );
+  // クライアントマウント前・問題生成前はどちらも本体と同形のスケルトンを表示し、
+  // 実コンテンツへの差し替え時にレイアウトシフト（CLS）が起きないようにする。
+  if (!isClient || !currentQuestion) {
+    return <ScorePracticeBoardSkeleton />;
   }
 
   return (
@@ -196,20 +182,68 @@ function ScorePracticeBoardInner() {
 }
 
 /**
+ * プレイ画面のローディングスケルトン
+ *
+ * 本体（ScorePracticeBoardInner の最終レンダリング）と同じ ContentContainer・
+ * カードラッパー・space-y 構成を保つことで、実コンテンツ表示時の CLS を防ぐ。
+ * PageTitle は静的なため実際のタイトルを表示する。
+ */
+function ScorePracticeBoardSkeleton() {
+  const t = useTranslations("score");
+
+  return (
+    <ContentContainer id={SCROLL_ANCHOR_ID}>
+      <PageTitle>{t("title")}</PageTitle>
+
+      <div className="space-y-4 sm:space-y-6 md:space-y-8" aria-hidden>
+        {/* Stats */}
+        <div className="h-5 w-32 animate-pulse rounded bg-surface-100" />
+
+        {/* Question */}
+        <div className="rounded-xl border border-surface-200 bg-white p-2 shadow-sm sm:p-6">
+          <div className="space-y-6">
+            <div className="h-20 animate-pulse rounded-lg bg-surface-100" />
+            <div className="grid grid-cols-2 gap-4">
+              <div className="h-20 animate-pulse rounded-lg bg-surface-100" />
+              <div className="h-20 animate-pulse rounded-lg bg-surface-100" />
+            </div>
+          </div>
+        </div>
+
+        {/* Answer area: 翻・符・点数の select（各 label 付き）、回答するボタン、スキップリンク */}
+        <div className="rounded-xl border border-surface-200 bg-white p-4 shadow-sm sm:p-6">
+          <div className="space-y-5">
+            {["han", "fu", "score"].map((field) => (
+              <div key={field} className="space-y-2">
+                <div className="h-4 w-16 animate-pulse rounded bg-surface-100" />
+                <div className="h-12 animate-pulse rounded-lg bg-surface-100" />
+              </div>
+            ))}
+            {/* 回答するボタン（実体は primary 色のため一段濃いトーンで表現） */}
+            <div className="h-12 w-full animate-pulse rounded-lg bg-surface-200" />
+            {/* スキップ */}
+            <div className="flex justify-center pt-1">
+              <div className="h-4 w-16 animate-pulse rounded bg-surface-100" />
+            </div>
+          </div>
+        </div>
+
+        {/* Quit button */}
+        <div className="flex justify-center">
+          <div className="h-5 w-20 animate-pulse rounded bg-surface-100" />
+        </div>
+      </div>
+    </ContentContainer>
+  );
+}
+
+/**
  * 点数計算練習のメインボード
  * 練習ボード
  */
 export function ScorePracticeBoard() {
   return (
-    <Suspense
-      fallback={
-        <ContentContainer>
-          <div className="flex items-center justify-center py-20">
-            <div className="h-8 w-8 animate-spin rounded-full border-4 border-surface-300 border-t-primary-500" />
-          </div>
-        </ContentContainer>
-      }
-    >
+    <Suspense fallback={<ScorePracticeBoardSkeleton />}>
       <ScorePracticeBoardInner />
     </Suspense>
   );
