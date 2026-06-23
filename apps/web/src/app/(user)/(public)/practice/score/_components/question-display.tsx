@@ -2,6 +2,7 @@
 
 import { useMemo } from "react";
 import { Hai, Furo } from "@pai-forge/mahjong-react-ui";
+import type { HaiSize } from "@pai-forge/mahjong-react-ui";
 import { MentsuType, isOya } from "@mahjong-scoring/core";
 import type { ScoreQuestion } from "@mahjong-scoring/core";
 import { getKazeName, getDoraFromIndicator } from "@mahjong-scoring/core";
@@ -10,17 +11,23 @@ import { useTranslations } from "next-intl";
 
 interface QuestionDisplayProps {
   readonly question: ScoreQuestion;
+  /**
+   * 牌サイズの固定指定。省略時は画面幅に応じた自動サイズ。
+   * モーダル等、ビューポートより狭い枠に収めたい場合に明示する。
+   */
+  readonly size?: HaiSize;
 }
 
 /**
  * 手牌・状況表示コンポーネント
  * 問題表示
  */
-export function QuestionDisplay({ question }: QuestionDisplayProps) {
+export function QuestionDisplay({ question, size }: QuestionDisplayProps) {
   const t = useTranslations("score");
   const { tehai, agariHai, isTsumo, jikaze, bakaze, doraMarkers } = question;
   const oya = isOya(jikaze);
-  const haiSize = useResponsiveHaiSize();
+  const responsiveHaiSize = useResponsiveHaiSize();
+  const haiSize = size ?? responsiveHaiSize;
 
   const closedWithoutAgari = useMemo(() => {
     const index = tehai.closed.lastIndexOf(agariHai);

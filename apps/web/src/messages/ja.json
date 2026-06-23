@@ -515,8 +515,26 @@
     "title": "点数計算総合演習",
     "setupTitle": "条件設定",
     "description": "翻数・符から最終的な点数を算出する実戦形式の練習",
-    "loading": "読み込み中...",
-    "generating": "問題を生成中...",
+    "help": {
+      "label": "この練習の進め方を見る",
+      "title": "練習の進め方",
+      "slides": {
+        "question": {
+          "title": "① 問題画面",
+          "caption": "手牌・場風・自風・ドラなどの条件が表示されます。"
+        },
+        "answer": {
+          "title": "② 回答画面",
+          "caption": "翻・符・点数を選んで「回答する」を押します。"
+        },
+        "result": {
+          "title": "③ 結果画面",
+          "caption": "あなたの回答と正解を見比べて、点数計算を確認できます。"
+        }
+      },
+      "prev": "戻る",
+      "next": "次へ"
+    },
     "setup": {
       "requireYaku": "役も回答する",
       "simplifyMangan": "5翻以降を簡略化",
@@ -581,7 +599,8 @@
     },
     "board": {
       "correct": "正解！",
-      "stats": "{correct} / {total}"
+      "correctLabel": "正解",
+      "incorrectLabel": "不正解"
     },
     "result": {
       "title": {

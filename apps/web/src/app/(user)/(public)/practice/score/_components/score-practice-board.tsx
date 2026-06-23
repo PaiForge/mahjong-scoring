@@ -15,6 +15,7 @@ import { useScrollToElement } from "../../_hooks/use-scroll-to-element";
 import { QuestionDisplay } from "./question-display";
 import { ScorePracticeAnswerForm } from "./score-practice-answer-form";
 import { ResultDisplay } from "./result-display";
+import { ScoreCounter } from "./score-counter";
 
 /** スクロール先の最上部要素 id（練習開始時にここまでスクロールする） */
 const SCROLL_ANCHOR_ID = "practice-session";
@@ -114,78 +115,132 @@ function ScorePracticeBoardInner() {
     }
   }, [submitAnswer, nextQuestion, requireYaku, simplifyMangan, requireFuForMangan, autoNext, t]);
 
-  if (!isClient) {
-    return (
-      <ContentContainer>
-        <div className="flex items-center justify-center py-20">
-          <div className="text-surface-500">{t("loading")}</div>
-        </div>
-      </ContentContainer>
-    );
-  }
-
-  if (!currentQuestion) {
-    return (
-      <ContentContainer>
-        <div className="flex items-center justify-center py-20">
-          <div className="text-surface-500">{t("generating")}</div>
-        </div>
-      </ContentContainer>
-    );
+  // クライアントマウント前・問題生成前はどちらも本体と同形のスケルトンを表示し、
+  // 実コンテンツへの差し替え時にレイアウトシフト（CLS）が起きないようにする。
+  if (!isClient || !currentQuestion) {
+    return <ScorePracticeBoardSkeleton />;
   }
 
   return (
     <ContentContainer id={SCROLL_ANCHOR_ID}>
       <PageTitle>{t("title")}</PageTitle>
 
-      {/* Stats */}
-      <div className="mb-4 flex items-center justify-between text-sm text-surface-500">
-        <div>
-          {t("board.stats", { correct: stats.correct, total: stats.total })}
+      {/* 要素間の余白を ContentContainer カードのパディング（p-4 sm:p-6 md:p-8）と同じ
+          レスポンシブ値に揃え、最終要素である「終了する」の上下余白を均等にする。 */}
+      <div className="space-y-4 sm:space-y-6 md:space-y-8">
+        {/* Question */}
+        <div className="rounded-xl border border-surface-200 bg-white p-2 sm:p-6">
+          <QuestionDisplay question={currentQuestion} />
+        </div>
+
+        {/* Answer area */}
+        <div className="rounded-xl border border-surface-200 bg-white p-4 sm:p-6">
+          {isAnswered && userAnswer && judgementResult ? (
+            <ResultDisplay
+              question={currentQuestion}
+              userAnswer={userAnswer}
+              result={judgementResult}
+              onNext={handleNext}
+              requireYaku={requireYaku}
+              simplifyMangan={simplifyMangan}
+              requireFuForMangan={requireFuForMangan}
+            />
+          ) : (
+            <ScorePracticeAnswerForm
+              key={stats.total}
+              onSubmit={handleSubmit}
+              disabled={isAnswered}
+              isTsumo={currentQuestion.isTsumo}
+              isOya={isOya(currentQuestion.jikaze)}
+              requireYaku={requireYaku}
+              simplifyMangan={simplifyMangan}
+              requireFuForMangan={requireFuForMangan}
+              onSkip={handleNext}
+            />
+          )}
+        </div>
+
+        {/* Footer: 正解 / 不正解 カウンタ（旧・上部の "0 / 0" を移設） */}
+        <ScoreCounter
+          correct={stats.correct}
+          incorrect={stats.total - stats.correct}
+          correctLabel={t("board.correctLabel")}
+          incorrectLabel={t("board.incorrectLabel")}
+        />
+
+        {/* Quit button */}
+        <div className="text-center">
+          <button
+            type="button"
+            onClick={handleBackToSetup}
+            className="text-sm text-surface-400 underline transition-colors hover:text-surface-600"
+          >
+            {tc("quitButton")}
+          </button>
         </div>
       </div>
+    </ContentContainer>
+  );
+}
 
-      {/* Question */}
-      <div className="rounded-xl border border-surface-200 bg-white p-2 shadow-sm sm:p-6">
-        <QuestionDisplay question={currentQuestion} />
-      </div>
+/**
+ * プレイ画面のローディングスケルトン
+ *
+ * 本体（ScorePracticeBoardInner の最終レンダリング）と同じ ContentContainer・
+ * カードラッパー・space-y 構成を保つことで、実コンテンツ表示時の CLS を防ぐ。
+ * PageTitle は静的なため実際のタイトルを表示する。
+ */
+function ScorePracticeBoardSkeleton() {
+  const t = useTranslations("score");
 
-      {/* Answer area */}
-      <div className="mt-4 rounded-xl border border-surface-200 bg-white p-4 shadow-sm sm:p-6">
-        {isAnswered && userAnswer && judgementResult ? (
-          <ResultDisplay
-            question={currentQuestion}
-            userAnswer={userAnswer}
-            result={judgementResult}
-            onNext={handleNext}
-            requireYaku={requireYaku}
-            simplifyMangan={simplifyMangan}
-            requireFuForMangan={requireFuForMangan}
-          />
-        ) : (
-          <ScorePracticeAnswerForm
-            key={stats.total}
-            onSubmit={handleSubmit}
-            disabled={isAnswered}
-            isTsumo={currentQuestion.isTsumo}
-            isOya={isOya(currentQuestion.jikaze)}
-            requireYaku={requireYaku}
-            simplifyMangan={simplifyMangan}
-            requireFuForMangan={requireFuForMangan}
-            onSkip={handleNext}
-          />
-        )}
-      </div>
+  return (
+    <ContentContainer id={SCROLL_ANCHOR_ID}>
+      <PageTitle>{t("title")}</PageTitle>
 
-      {/* Quit button */}
-      <div className="mt-6 text-center">
-        <button
-          type="button"
-          onClick={handleBackToSetup}
-          className="text-sm text-surface-400 underline transition-colors hover:text-surface-600"
-        >
-          {tc("quitButton")}
-        </button>
+      <div className="space-y-4 sm:space-y-6 md:space-y-8" aria-hidden>
+        {/* Question */}
+        <div className="rounded-xl border border-surface-200 bg-white p-2 sm:p-6">
+          <div className="space-y-6">
+            <div className="h-20 animate-pulse rounded-lg bg-surface-100" />
+            <div className="grid grid-cols-2 gap-4">
+              <div className="h-20 animate-pulse rounded-lg bg-surface-100" />
+              <div className="h-20 animate-pulse rounded-lg bg-surface-100" />
+            </div>
+          </div>
+        </div>
+
+        {/* Answer area: 翻・符・点数の select（各 label 付き）、回答するボタン、スキップリンク */}
+        <div className="rounded-xl border border-surface-200 bg-white p-4 sm:p-6">
+          <div className="space-y-5">
+            {["han", "fu", "score"].map((field) => (
+              <div key={field} className="space-y-2">
+                <div className="h-4 w-16 animate-pulse rounded bg-surface-100" />
+                <div className="h-12 animate-pulse rounded-lg bg-surface-100" />
+              </div>
+            ))}
+            {/* 回答するボタン（実体は primary 色のため一段濃いトーンで表現） */}
+            <div className="h-12 w-full animate-pulse rounded-lg bg-surface-200" />
+            {/* スキップ */}
+            <div className="flex justify-center pt-1">
+              <div className="h-4 w-16 animate-pulse rounded bg-surface-100" />
+            </div>
+          </div>
+        </div>
+
+        {/* Footer: 正解 / 不正解 カウンタ */}
+        <div className="flex items-center justify-center gap-12">
+          {["correct", "incorrect"].map((k) => (
+            <div key={k} className="flex items-center gap-3">
+              <div className="h-8 w-8 animate-pulse rounded-full bg-surface-100" />
+              <div className="h-6 w-6 animate-pulse rounded bg-surface-100" />
+            </div>
+          ))}
+        </div>
+
+        {/* Quit button */}
+        <div className="flex justify-center">
+          <div className="h-5 w-20 animate-pulse rounded bg-surface-100" />
+        </div>
       </div>
     </ContentContainer>
   );
@@ -197,15 +252,7 @@ function ScorePracticeBoardInner() {
  */
 export function ScorePracticeBoard() {
   return (
-    <Suspense
-      fallback={
-        <ContentContainer>
-          <div className="flex items-center justify-center py-20">
-            <div className="h-8 w-8 animate-spin rounded-full border-4 border-surface-300 border-t-primary-500" />
-          </div>
-        </ContentContainer>
-      }
-    >
+    <Suspense fallback={<ScorePracticeBoardSkeleton />}>
       <ScorePracticeBoardInner />
     </Suspense>
   );

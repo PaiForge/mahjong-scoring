@@ -17,6 +17,7 @@ import { ContentContainer } from "@/app/_components/content-container";
 import { PageTitle } from "@/app/_components/page-title";
 import { SectionTitle } from "@/app/_components/section-title";
 import { ScoreSetupForm } from "./_components/score-setup-form";
+import { ScoreHelpTour } from "./_components/score-help-tour";
 
 export async function generateMetadata(): Promise<Metadata> {
   const t = await getTranslations("score");
@@ -25,14 +26,20 @@ export async function generateMetadata(): Promise<Metadata> {
 
 export default async function ScoreSetupPage() {
   const t = await getTranslations("score");
+  const tp = await getTranslations("practice");
 
   return (
-    <ContentContainer>
-      <PageTitle>{t("title")}</PageTitle>
+    <ContentContainer
+      breadcrumb={[
+        { label: tp("title"), href: "/practice" },
+        { label: t("title") },
+      ]}
+    >
+      <PageTitle action={<ScoreHelpTour />}>{t("title")}</PageTitle>
 
-      <SectionTitle>{t("setupTitle")}</SectionTitle>
-      <p className="mt-3 text-sm text-surface-500">{t("description")}</p>
-      <div className="mt-6">
+      {/* SectionTitle と各カードの間隔を space-y で統一（mt- の散在を避ける） */}
+      <div className="space-y-4 sm:space-y-6 md:space-y-8">
+        <SectionTitle>{t("setupTitle")}</SectionTitle>
         <ScoreSetupForm />
       </div>
     </ContentContainer>
