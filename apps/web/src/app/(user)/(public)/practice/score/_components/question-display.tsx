@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo } from "react";
+import { useMemo, useState } from "react";
 import { Hai, Furo } from "@pai-forge/mahjong-react-ui";
 import type { HaiSize } from "@pai-forge/mahjong-react-ui";
 import { MentsuType, isOya } from "@mahjong-scoring/core";
@@ -8,6 +8,7 @@ import type { ScoreQuestion } from "@mahjong-scoring/core";
 import { getKazeName, getDoraFromIndicator } from "@mahjong-scoring/core";
 import { useResponsiveHaiSize } from "../../_hooks/use-responsive-hai-size";
 import { useTranslations } from "next-intl";
+import { InfoModal } from "@/app/_components/info-modal";
 
 interface QuestionDisplayProps {
   readonly question: ScoreQuestion;
@@ -24,10 +25,12 @@ interface QuestionDisplayProps {
  */
 export function QuestionDisplay({ question, size }: QuestionDisplayProps) {
   const t = useTranslations("score");
+  const tCommon = useTranslations("common");
   const { tehai, agariHai, isTsumo, jikaze, bakaze, doraMarkers } = question;
   const oya = isOya(jikaze);
   const responsiveHaiSize = useResponsiveHaiSize();
   const haiSize = size ?? responsiveHaiSize;
+  const [showDoraInfo, setShowDoraInfo] = useState(false);
 
   const closedWithoutAgari = useMemo(() => {
     const index = tehai.closed.lastIndexOf(agariHai);
@@ -127,8 +130,16 @@ export function QuestionDisplay({ question, size }: QuestionDisplayProps) {
         {/* Dora & ura dora */}
         <div className="flex gap-4 rounded-lg bg-surface-100 p-3">
           <div>
-            <div className="mb-1 text-xs text-surface-500">
+            <div className="mb-1 flex items-center gap-1 text-xs text-surface-500">
               {t("question.dora")}
+              <button
+                type="button"
+                onClick={() => setShowDoraInfo(true)}
+                className="inline-flex size-4 items-center justify-center rounded-full text-[10px] text-surface-400 transition-colors hover:bg-surface-200 hover:text-surface-600"
+                aria-label={tCommon("showDetailInfo")}
+              >
+                ?
+              </button>
             </div>
             <div className="flex gap-1">
               {doraMarkers.map((marker, index) => {
@@ -156,6 +167,15 @@ export function QuestionDisplay({ question, size }: QuestionDisplayProps) {
           )}
         </div>
       </div>
+
+      <InfoModal
+        isOpen={showDoraInfo}
+        onClose={() => setShowDoraInfo(false)}
+        title={t("question.doraInfoTitle")}
+        closeLabel={tCommon("close")}
+      >
+        <p className="whitespace-pre-line">{t("question.doraInfo")}</p>
+      </InfoModal>
     </div>
   );
 }
