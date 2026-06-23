@@ -138,54 +138,58 @@ function ScorePracticeBoardInner() {
     <ContentContainer id={SCROLL_ANCHOR_ID}>
       <PageTitle>{t("title")}</PageTitle>
 
-      {/* Stats */}
-      <div className="mb-4 flex items-center justify-between text-sm text-surface-500">
-        <div>
-          {t("board.stats", { correct: stats.correct, total: stats.total })}
+      {/* 要素間の余白を ContentContainer カードのパディング（p-4 sm:p-6 md:p-8）と同じ
+          レスポンシブ値に揃え、最終要素である「終了する」の上下余白を均等にする。 */}
+      <div className="space-y-4 sm:space-y-6 md:space-y-8">
+        {/* Stats */}
+        <div className="flex items-center justify-between text-sm text-surface-500">
+          <div>
+            {t("board.stats", { correct: stats.correct, total: stats.total })}
+          </div>
         </div>
-      </div>
 
-      {/* Question */}
-      <div className="rounded-xl border border-surface-200 bg-white p-2 shadow-sm sm:p-6">
-        <QuestionDisplay question={currentQuestion} />
-      </div>
+        {/* Question */}
+        <div className="rounded-xl border border-surface-200 bg-white p-2 shadow-sm sm:p-6">
+          <QuestionDisplay question={currentQuestion} />
+        </div>
 
-      {/* Answer area */}
-      <div className="mt-4 rounded-xl border border-surface-200 bg-white p-4 shadow-sm sm:p-6">
-        {isAnswered && userAnswer && judgementResult ? (
-          <ResultDisplay
-            question={currentQuestion}
-            userAnswer={userAnswer}
-            result={judgementResult}
-            onNext={handleNext}
-            requireYaku={requireYaku}
-            simplifyMangan={simplifyMangan}
-            requireFuForMangan={requireFuForMangan}
-          />
-        ) : (
-          <ScorePracticeAnswerForm
-            key={stats.total}
-            onSubmit={handleSubmit}
-            disabled={isAnswered}
-            isTsumo={currentQuestion.isTsumo}
-            isOya={isOya(currentQuestion.jikaze)}
-            requireYaku={requireYaku}
-            simplifyMangan={simplifyMangan}
-            requireFuForMangan={requireFuForMangan}
-            onSkip={handleNext}
-          />
-        )}
-      </div>
+        {/* Answer area */}
+        <div className="rounded-xl border border-surface-200 bg-white p-4 shadow-sm sm:p-6">
+          {isAnswered && userAnswer && judgementResult ? (
+            <ResultDisplay
+              question={currentQuestion}
+              userAnswer={userAnswer}
+              result={judgementResult}
+              onNext={handleNext}
+              requireYaku={requireYaku}
+              simplifyMangan={simplifyMangan}
+              requireFuForMangan={requireFuForMangan}
+            />
+          ) : (
+            <ScorePracticeAnswerForm
+              key={stats.total}
+              onSubmit={handleSubmit}
+              disabled={isAnswered}
+              isTsumo={currentQuestion.isTsumo}
+              isOya={isOya(currentQuestion.jikaze)}
+              requireYaku={requireYaku}
+              simplifyMangan={simplifyMangan}
+              requireFuForMangan={requireFuForMangan}
+              onSkip={handleNext}
+            />
+          )}
+        </div>
 
-      {/* Quit button */}
-      <div className="mt-6 text-center">
-        <button
-          type="button"
-          onClick={handleBackToSetup}
-          className="text-sm text-surface-400 underline transition-colors hover:text-surface-600"
-        >
-          {tc("quitButton")}
-        </button>
+        {/* Quit button */}
+        <div className="text-center">
+          <button
+            type="button"
+            onClick={handleBackToSetup}
+            className="text-sm text-surface-400 underline transition-colors hover:text-surface-600"
+          >
+            {tc("quitButton")}
+          </button>
+        </div>
       </div>
     </ContentContainer>
   );
