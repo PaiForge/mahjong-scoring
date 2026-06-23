@@ -84,11 +84,53 @@ export function ScoreSetupForm() {
   const isDisabled = targetScoreRanges.length === 0 || (!includeParent && !includeChild);
 
   if (!mounted) {
+    // 本体と同じ構造（設定カード＝トグル4行、2カラムのチェックボックスカード、
+    // フル幅ボタン）でスケルトンを描画し、実 UI 表示時の CLS を防ぐ。
     return (
-      <div className="mt-8 space-y-6 text-center">
-        <div className="h-48 animate-pulse rounded-xl bg-surface-100" />
-        <div className="h-32 animate-pulse rounded-xl bg-surface-100" />
-        <div className="mx-auto h-12 w-32 animate-pulse rounded-lg bg-surface-100" />
+      <div className="space-y-4 sm:space-y-6 md:space-y-8">
+        {/* Settings card: トグル4行 */}
+        <div className="overflow-hidden rounded-xl border border-surface-200 bg-white">
+          <div className="flex flex-col">
+            {["requireYaku", "simplifyMangan", "requireFu", "autoNext"].map(
+              (key, i) => (
+                <div
+                  key={key}
+                  className={`flex items-center justify-between px-5 py-3.5 ${i < 3 ? "border-b border-surface-100" : ""}`}
+                >
+                  <div className="h-4 w-32 animate-pulse rounded bg-surface-100" />
+                  <div className="h-6 w-11 animate-pulse rounded-full bg-surface-100" />
+                </div>
+              ),
+            )}
+          </div>
+        </div>
+
+        {/* Grid: 出題モード / 点数範囲 の2カード（ヘッダー＋チェックボックス2行） */}
+        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+          {["questionMode", "targetScore"].map((key) => (
+            <div
+              key={key}
+              className="flex flex-col overflow-hidden rounded-xl border border-surface-200 bg-white"
+            >
+              <div className="border-b border-surface-200 bg-surface-50 px-4 py-3">
+                <div className="mx-auto h-4 w-20 animate-pulse rounded bg-surface-200" />
+              </div>
+              <div className="flex flex-col gap-3 p-3">
+                {["row1", "row2"].map((row) => (
+                  <div key={row} className="flex items-center gap-3 px-2 py-1.5">
+                    <div className="size-5 animate-pulse rounded bg-surface-100" />
+                    <div className="h-4 w-16 animate-pulse rounded bg-surface-100" />
+                  </div>
+                ))}
+              </div>
+            </div>
+          ))}
+        </div>
+
+        {/* Full-width start button */}
+        <div>
+          <div className="h-11 w-full animate-pulse rounded-lg bg-surface-200" />
+        </div>
       </div>
     );
   }
