@@ -4,10 +4,7 @@ import { useCallback, useEffect, useMemo, useRef, useState, useTransition } from
 
 import type { PracticeMenuType } from "@/lib/db/practice-menu-types";
 
-import {
-  getAvailableMenuTypes,
-  getChallengeSessions,
-} from "../_actions/get-challenge-sessions";
+import { getChallengeSessions } from "../_actions/get-challenge-sessions";
 import {
   buildChartData,
   computePercentChange,
@@ -49,9 +46,9 @@ export function useDashboardData({
     PracticeMenuType | undefined
   >(firstMenu);
   const [selectedPeriod, setSelectedPeriod] = useState<DatePeriod>("thisWeek");
-  const [availableMenuTypes, setAvailableMenuTypes] = useState<
-    PracticeMenuType[] | undefined
-  >([...initialMenuTypes]);
+  const [availableMenuTypes] = useState<PracticeMenuType[] | undefined>([
+    ...initialMenuTypes,
+  ]);
   const [currentSessions, setCurrentSessions] = useState<ChallengeSession[]>(
     [...initialSessions.current],
   );

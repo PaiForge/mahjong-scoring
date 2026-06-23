@@ -24,7 +24,7 @@ export default function Loading() {
           <tbody>
             {Array.from({ length: 10 }, (_, i) => (
               <tr key={i} className="border-t border-gray-200">
-                {Array.from({ length: 6 }, (_, j) => (
+                {Array.from({ length: 6 }, (_cell, j) => (
                   <td key={j} className="px-4 py-3">
                     <div className="h-4 w-24 bg-surface-200 rounded animate-pulse" />
                   </td>
