@@ -170,7 +170,8 @@
     },
     "orDivider": "または",
     "modeChallengeHint": "制限時間60秒・ミス3回で記録に挑戦",
-    "modeTrainingHint": "時間無制限でじっくり反復練習"
+    "modeTrainingHint": "時間無制限でじっくり反復練習",
+    "requiredKnowledge": "関連記事"
   },
   "challenge": {
     "timeRemaining": "残り {seconds} 秒",
@@ -223,6 +224,7 @@
     "jikaze": "自風",
     "selectCorrectHead": "2符以上の雀頭はどれ？",
     "learnLink": "雀頭の符について学ぶ",
+    "learnLinkDescription": "三元牌・風牌・連風牌など、雀頭につく符の仕組みを牌の画像付きで解説します。",
     "fu": "{value} 符",
     "howToPlay": {
       "title": "問題方式",

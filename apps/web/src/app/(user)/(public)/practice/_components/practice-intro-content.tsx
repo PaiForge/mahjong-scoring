@@ -48,22 +48,13 @@ export async function PracticeIntroContent({
       ]}
     >
       <PageTitle>{t("title")}</PageTitle>
-      <p className="mt-3 text-sm text-surface-500">{t("description")}</p>
-
-      {showLearnLink && (
-        <div className="mt-6 flex items-center gap-2 text-sm">
-          <BookIcon className="size-4 text-primary-600" />
-          <Link
-            href={`/learn/${slug}`}
-            className="text-primary-600 hover:text-primary-700 font-medium transition-colors"
-          >
-            {t("learnLink")}
-          </Link>
-        </div>
+      {/* 説明文は問題方式デモが冗長になるため、デモ未指定時のみ表示 */}
+      {!howToPlay && (
+        <p className="mt-3 text-sm text-surface-500">{t("description")}</p>
       )}
 
       {howToPlay && (
-        <div className="mt-8">
+        <div className="mt-6">
           <SectionTitle className="mb-4">{t("howToPlay.title")}</SectionTitle>
           <p className="mb-4 text-sm text-surface-600">
             {t("howToPlay.lead")}
@@ -75,8 +66,8 @@ export async function PracticeIntroContent({
       )}
 
       {showTraining ? (
-        <div className="mt-8 flex flex-col items-center gap-5">
-          <div className="flex w-full max-w-xs flex-col items-center gap-1.5">
+        <div className="mt-8 flex flex-col gap-5">
+          <div className="flex w-full flex-col items-center gap-1.5">
             <PrimaryLinkButton
               href={`/practice/${slug}/play`}
               className="w-full px-8 py-3"
@@ -86,13 +77,13 @@ export async function PracticeIntroContent({
             <p className="text-xs text-surface-400">{tp("modeChallengeHint")}</p>
           </div>
 
-          <div className="flex w-full max-w-xs items-center gap-3 text-xs text-surface-400">
+          <div className="flex w-full items-center gap-3 text-xs text-surface-400">
             <span className="h-px flex-1 bg-surface-200" />
             <span>{tp("orDivider")}</span>
             <span className="h-px flex-1 bg-surface-200" />
           </div>
 
-          <div className="flex w-full max-w-xs flex-col items-center gap-1.5">
+          <div className="flex w-full flex-col items-center gap-1.5">
             <Link
               href={`/practice/${slug}/training`}
               className="inline-flex w-full items-center justify-center gap-2 rounded-lg border border-primary-500 px-8 py-3 text-sm font-semibold text-primary-600 transition-colors hover:bg-primary-50"
@@ -104,10 +95,35 @@ export async function PracticeIntroContent({
           </div>
         </div>
       ) : (
-        <div className="mt-8 text-center">
-          <PrimaryLinkButton href={`/practice/${slug}/play`} className="px-8 py-3">
+        <div className="mt-8">
+          <PrimaryLinkButton
+            href={`/practice/${slug}/play`}
+            className="w-full px-8 py-3"
+          >
             {tc("startButton")}
           </PrimaryLinkButton>
+        </div>
+      )}
+
+      {showLearnLink && (
+        <div className="mt-10 space-y-3">
+          <SectionTitle>{tp("requiredKnowledge")}</SectionTitle>
+          <Link
+            href={`/learn/${slug}`}
+            className="group flex items-start gap-4 rounded-xl border border-surface-200 bg-white p-5 transition-colors hover:border-primary-300"
+          >
+            <BookIcon className="mt-0.5 size-5 shrink-0 text-primary-600" />
+            <div>
+              <p className="font-medium text-surface-900 transition-colors group-hover:text-primary-700">
+                {t("learnLink")}
+              </p>
+              {t.has("learnLinkDescription") && (
+                <p className="mt-1 text-sm text-surface-500">
+                  {t("learnLinkDescription")}
+                </p>
+              )}
+            </div>
+          </Link>
         </div>
       )}
     </ContentContainer>
