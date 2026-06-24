@@ -12,13 +12,14 @@ interface ContentContainerProps {
   /**
    * 最上部要素に付与する id。`useScrollToElement` のスクロール先として使う。
    * 通常は PageTitle があればグレー帯、無ければ外側ラッパーに付与するが、
-   * `fillViewport` 指定時は最小高さラッパーに付与する。
+   * `fillViewport` 指定時はカード領域（本文）に付与する。
    */
   id?: string;
   /**
-   * セッション全体を最小高さ画面いっぱい（min-h-screen）にする。
-   * `useScrollToElement` と併用し、練習開始直後にグローバルヘッダを画面外へ送って
-   * 練習コンテンツだけが表示されるようにする（blindfold-chess 準拠）。
+   * カード領域（本文）を最小高さ画面いっぱい（min-h-screen）にし、スクロール先 id も
+   * そこへ付与する。`useScrollToElement` やハッシュ遷移と併用すると、練習開始直後に
+   * タイトル帯・グローバルヘッダが画面外へ送られ、本文（盤面）が最上部に来る
+   * （blindfold-chess のセッション画面準拠：タイトルはスクロール対象に含めない）。
    */
   fillViewport?: boolean;
 }
@@ -69,34 +70,30 @@ export function ContentContainer({ children, className = "", breadcrumb, id, fil
 
   // PageTitle 部分の全幅領域。main と同じグレー（bg-secondary）で、py-5 が
   // タイトル上下の余白を兼ねる（下側はそのままカードとの間隔になる）。
+  // fillViewport 時はスクロール先をカード領域に置くため、タイトル帯には id を付けない
+  // （タイトルはスクロールで画面外へ送られ、本文＝カードが最上部に来る）。
   const titleBand = (
-    <div className="bg-secondary">
+    <div id={fillViewport ? undefined : id} className="bg-secondary">
       <div className="mx-auto max-w-4xl px-4 py-5 sm:px-6 lg:px-8">{title}</div>
     </div>
   );
   // sm 以上で角丸カードがグレー背景から浮くよう、下側だけ余白を取る。
   // 上側はタイトル帯の py-5 が担うため、ここで pt を足すと二重になり開きすぎる。
   // モバイルはフルブリードのまま密着させる（角丸が出ないため余白不要）。
+  // fillViewport 時はこのカード領域をスクロール先 id にし、min-h-screen で画面を埋める。
+  // これによりタイトル帯・グローバルヘッダはスクロールで画面外へ送られ、本文が最上部に来る。
   const cardArea = (
-    <div className="mx-auto max-w-4xl px-4 sm:px-6 lg:px-8 sm:pb-6">{card}</div>
+    <div
+      id={fillViewport ? id : undefined}
+      className={`mx-auto max-w-4xl px-4 sm:px-6 lg:px-8 sm:pb-6${fillViewport ? " min-h-screen" : ""}`}
+    >
+      {card}
+    </div>
   );
-
-  // fillViewport 時はタイトル帯＋カードをまとめて min-h-screen ラッパーで包み、
-  // スクロール先 id もそのラッパーに付与する（セッション全体が画面を埋める）。
-  if (fillViewport) {
-    return (
-      <div id={id} className="min-h-screen">
-        {titleBand}
-        {cardArea}
-      </div>
-    );
-  }
 
   return (
     <>
-      <div id={id} className="bg-secondary">
-        <div className="mx-auto max-w-4xl px-4 py-5 sm:px-6 lg:px-8">{title}</div>
-      </div>
+      {titleBand}
       {cardArea}
     </>
   );
