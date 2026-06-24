@@ -20,7 +20,7 @@ export async function LoginPromptCta({ slug }: LoginPromptCtaProps) {
   return (
     <Link
       href={`/sign-in?redirect=${redirectTo}`}
-      className="inline-flex items-center justify-center rounded-lg border border-surface-300 bg-white px-6 py-2.5 text-sm font-semibold text-surface-700 shadow-sm transition-colors hover:bg-surface-50"
+      className="inline-flex items-center justify-center rounded-lg border border-surface-300 bg-white px-6 py-2.5 text-sm font-semibold text-surface-700 transition-colors hover:bg-surface-50"
     >
       {t("loginPromptCta")}
     </Link>

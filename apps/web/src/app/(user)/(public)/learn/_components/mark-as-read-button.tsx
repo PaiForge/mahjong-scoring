@@ -72,7 +72,7 @@ export function MarkAsReadButton({ slug, initialRead }: MarkAsReadButtonProps) {
   };
 
   const baseClass =
-    "inline-flex items-center justify-center rounded-lg px-6 py-2.5 text-sm font-semibold shadow-sm transition-colors disabled:cursor-not-allowed disabled:opacity-60";
+    "inline-flex items-center justify-center rounded-lg px-6 py-2.5 text-sm font-semibold transition-colors disabled:cursor-not-allowed disabled:opacity-60";
   const variantClass = isRead
     ? "border border-surface-300 bg-white text-surface-700 hover:bg-surface-50"
     : "bg-primary-500 text-white hover:bg-primary-600";
