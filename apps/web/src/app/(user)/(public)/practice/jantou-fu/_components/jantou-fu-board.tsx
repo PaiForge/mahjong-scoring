@@ -50,9 +50,9 @@ export function JantouFuBoard({
   );
 
   return (
-    <>
+    <div className="mt-6 space-y-5">
       {/* Context */}
-      <div className="mt-6 flex justify-center gap-6 text-sm">
+      <div className="flex justify-center gap-6 text-sm">
         <div className="text-center">
           <span className="text-surface-400">{t("bakaze")}</span>
           <p className="mt-1 text-lg font-bold text-surface-900">
@@ -68,12 +68,12 @@ export function JantouFuBoard({
       </div>
 
       {/* Question */}
-      <p className="mt-6 text-center text-sm font-medium text-surface-600">
+      <p className="text-center text-sm font-medium text-surface-600">
         {t("selectCorrectHead")}
       </p>
 
       {/* Choices */}
-      <div className="mt-4 grid grid-cols-2 gap-3">
+      <div className="grid grid-cols-2 gap-3">
         {question.choices.map((choice, i) => {
           const { borderClass, bgClass } = getFeedbackStyles(
             showFeedback,
@@ -98,6 +98,6 @@ export function JantouFuBoard({
           );
         })}
       </div>
-    </>
+    </div>
   );
 }

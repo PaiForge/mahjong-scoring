@@ -64,11 +64,11 @@ export function TehaiFuBoard({
   const allAnswered = answers.length > 0 && answers.every((a) => a !== "");
 
   return (
-    <>
+    <div className="space-y-4">
       <TehaiDisplay question={question} onScaleChange={setTileScale} />
 
       {/* Item list */}
-      <div className="mt-4 space-y-2">
+      <div className="space-y-2">
         {question.items.map((item, idx) => (
           <FuItemRow
             key={item.id}
@@ -90,6 +90,6 @@ export function TehaiFuBoard({
       >
         {t("checkButton")}
       </ChallengeSubmitButton>
-    </>
+    </div>
   );
 }

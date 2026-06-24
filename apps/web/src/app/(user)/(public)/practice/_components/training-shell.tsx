@@ -49,7 +49,7 @@ export function TrainingShell({
     <ContentContainer id={PRACTICE_SCROLL_ANCHOR_ID} fillViewport>
       <PageTitle>{title}</PageTitle>
 
-      <div className={`mx-auto ${maxWidth}`}>
+      <div className={`mx-auto space-y-8 ${maxWidth}`}>
         {/* Game content area */}
         <div>{children}</div>
 
@@ -59,11 +59,10 @@ export function TrainingShell({
           incorrect={totalCount - correctCount}
           correctLabel={tc("correct")}
           incorrectLabel={tc("incorrect")}
-          className="mt-8"
         />
 
         {/* Exit link */}
-        <div className="mt-6 text-center">
+        <div className="text-center">
           <Link
             href={exitHref}
             className="text-sm text-surface-400 underline transition-colors hover:text-surface-600"

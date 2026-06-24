@@ -48,9 +48,9 @@ export function MachiFuBoard({
   );
 
   return (
-    <>
+    <div className="mt-6 space-y-5">
       {/* Machi tiles */}
-      <div className="mt-6 flex flex-col items-center gap-4">
+      <div className="flex flex-col items-center gap-4">
         <div className="flex flex-col items-center gap-2">
           <span className="text-sm font-bold uppercase tracking-widest text-surface-400">
             {t("machiLabel")}
@@ -75,12 +75,12 @@ export function MachiFuBoard({
       </div>
 
       {/* Question */}
-      <p className="mt-6 text-center text-sm font-medium text-surface-600">
+      <p className="text-center text-sm font-medium text-surface-600">
         {t("questionPrompt")}
       </p>
 
       {/* Fu options */}
-      <div className="mt-4 grid grid-cols-2 gap-3">
+      <div className="grid grid-cols-2 gap-3">
         {FU_OPTIONS.map((fu, i) => {
           const { borderClass, bgClass } = getFeedbackStyles(
             showFeedback,
@@ -103,6 +103,6 @@ export function MachiFuBoard({
           );
         })}
       </div>
-    </>
+    </div>
   );
 }

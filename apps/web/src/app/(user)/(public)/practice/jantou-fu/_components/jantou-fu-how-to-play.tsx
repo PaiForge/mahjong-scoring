@@ -25,7 +25,7 @@ export function JantouFuHowToPlay() {
   const t = useTranslations("jantouFu");
 
   return (
-    <div>
+    <div className="space-y-5">
       {/* Context */}
       <div className="flex justify-center gap-6 text-sm">
         <div className="text-center">
@@ -39,12 +39,12 @@ export function JantouFuHowToPlay() {
       </div>
 
       {/* Question */}
-      <p className="mt-5 text-center text-sm font-medium text-surface-600">
+      <p className="text-center text-sm font-medium text-surface-600">
         {t("selectCorrectHead")}
       </p>
 
       {/* Choices */}
-      <div className="mt-4 grid grid-cols-2 gap-3">
+      <div className="grid grid-cols-2 gap-3">
         {DEMO_CHOICES.map((choice, i) => (
           <div
             key={i}
@@ -72,7 +72,7 @@ export function JantouFuHowToPlay() {
       </div>
 
       {/* Answer note */}
-      <p className="mt-5 text-center text-xs leading-relaxed text-surface-500">
+      <p className="text-center text-xs leading-relaxed text-surface-500">
         {t("howToPlay.answerNote")}
       </p>
     </div>
