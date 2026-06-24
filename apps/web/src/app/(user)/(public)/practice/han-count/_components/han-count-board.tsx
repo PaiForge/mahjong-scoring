@@ -60,7 +60,7 @@ export function HanCountBoard({
   }
 
   return (
-    <>
+    <div className="space-y-4">
       <TehaiDisplay
         tehai={question.tehai}
         context={{
@@ -75,15 +75,13 @@ export function HanCountBoard({
       />
 
       {/* Answer form */}
-      <div className="mt-4">
-        <HanCountAnswerForm
-          correctHan={question.answer.han}
-          questionIndex={questionIndex}
-          showFeedback={showFeedback}
-          onSubmit={handleSubmit}
-          disabled={showFeedback || isCountingDown}
-        />
-      </div>
-    </>
+      <HanCountAnswerForm
+        correctHan={question.answer.han}
+        questionIndex={questionIndex}
+        showFeedback={showFeedback}
+        onSubmit={handleSubmit}
+        disabled={showFeedback || isCountingDown}
+      />
+    </div>
   );
 }

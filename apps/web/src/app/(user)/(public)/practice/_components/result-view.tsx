@@ -77,7 +77,7 @@ export async function ResultView({
           </PrimaryLinkButton>
           <Link
             href="/practice"
-            className="inline-flex w-full items-center justify-center rounded-lg border border-surface-200 px-6 py-3 text-sm font-semibold text-surface-600 transition-colors hover:bg-surface-100"
+            className="inline-flex w-full items-center justify-center rounded-lg border border-surface-200 py-3 text-sm font-semibold text-surface-600 transition-colors hover:bg-surface-100"
           >
             {tc("backToList")}
           </Link>

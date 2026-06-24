@@ -73,7 +73,7 @@ export function YakuBoard({
   const hasSelection = selectedYaku.size > 0;
 
   return (
-    <>
+    <div className="space-y-4">
       <TehaiDisplay
         tehai={question.tehai}
         context={question.context}
@@ -81,12 +81,12 @@ export function YakuBoard({
       />
 
       {/* Instruction */}
-      <p className="mt-4 text-center text-sm font-medium text-surface-600">
+      <p className="text-center text-sm font-medium text-surface-600">
         {t("selectYaku")}
       </p>
 
       {/* Yaku selection */}
-      <div className="mt-3 space-y-3">
+      <div className="space-y-3">
         {HAN_GROUPS.map((group) => (
           <div key={group.key}>
             <p className="mb-1.5 text-xs font-semibold text-surface-400">
@@ -125,6 +125,6 @@ export function YakuBoard({
       >
         {t("checkButton")}
       </ChallengeSubmitButton>
-    </>
+    </div>
   );
 }

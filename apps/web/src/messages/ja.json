@@ -228,8 +228,7 @@
     "fu": "{value} 符",
     "howToPlay": {
       "title": "問題方式",
-      "lead": "このような問題が出題されます。",
-      "answerNote": "三元牌（白・發・中）や場風・自風の雀頭は2符になります。それ以外の雀頭は0符です。"
+      "lead": "このような問題が出題されます。"
     },
     "rules": {
       "title": "ルール",
@@ -280,6 +279,10 @@
     "agariLabel": "和了牌",
     "questionPrompt": "この待ちの符は？",
     "fuOption": "{value}符",
+    "howToPlay": {
+      "title": "問題方式",
+      "lead": "このような問題が出題されます。"
+    },
     "learnLink": "待ちの符について学ぶ",
     "learn": {
       "pageTitle": "待ちの符計算",
@@ -313,6 +316,10 @@
     "mentsuLabel": "面子",
     "questionPrompt": "この面子の符は？",
     "fuOption": "{value}符",
+    "howToPlay": {
+      "title": "問題方式",
+      "lead": "このような問題が出題されます。"
+    },
     "learnLink": "面子の符について学ぶ",
     "learn": {
       "pageTitle": "面子の符計算",
@@ -361,6 +368,10 @@
     "nextQuestion": "次の問題へ",
     "fuSuffix": "{value}符",
     "correctAnswer": "正解: {fu}符",
+    "howToPlay": {
+      "title": "問題方式",
+      "lead": "このような問題が出題されます。"
+    },
     "learnLink": "手牌の符について学ぶ",
     "learn": {
       "pageTitle": "手牌の符計算でよくある間違い",
@@ -402,6 +413,10 @@
     "dora": "ドラ表示牌",
     "selectYaku": "成立している役をすべて選択してください",
     "checkButton": "答え合わせ",
+    "howToPlay": {
+      "title": "問題方式",
+      "lead": "このような問題が出題されます。"
+    },
     "hanGroup": {
       "1": "1翻",
       "2": "2翻",
@@ -1280,6 +1295,10 @@
     "dora": "ドラ表示牌",
     "selectHan": "合計翻数を選択してください",
     "hanOption": "{count}翻",
+    "howToPlay": {
+      "title": "問題方式",
+      "lead": "このような問題が出題されます。"
+    },
     "generating": "問題を生成中...",
     "result": {
       "problemDetails": "問題の詳細",

@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { getTranslations } from "next-intl/server";
 import { createMetadata } from "@/app/_lib/metadata";
 import { PracticeIntroContent } from "../_components/practice-intro-content";
+import { YakuHowToPlay } from "./_components/yaku-how-to-play";
 
 export async function generateMetadata(): Promise<Metadata> {
   const t = await getTranslations("yaku");
@@ -21,5 +22,12 @@ export async function generateMetadata(): Promise<Metadata> {
  * 3. 「開始」を押すと play ページへ遷移
  */
 export default function YakuPage() {
-  return <PracticeIntroContent namespace="yaku" slug="yaku" showTraining />;
+  return (
+    <PracticeIntroContent
+      namespace="yaku"
+      slug="yaku"
+      showTraining
+      howToPlay={<YakuHowToPlay />}
+    />
+  );
 }
