@@ -77,11 +77,6 @@ export function YakuHowToPlay() {
           />
         ))}
       </div>
-
-      {/* Answer note */}
-      <p className="text-center text-xs leading-relaxed text-surface-500">
-        {t("howToPlay.answerNote")}
-      </p>
     </div>
   );
 }
