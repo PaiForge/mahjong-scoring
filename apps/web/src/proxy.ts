@@ -33,8 +33,12 @@ export async function proxy(request: NextRequest) {
     },
   });
 
-  // Refresh the session - important for Server Components
-  await supabase.auth.getUser();
+  // Refresh the session - important for Server Components.
+  // getClaims() は非対称署名キー構成では JWT をローカル検証するため、
+  // getUser() のような認証サーバーへのネットワーク往復が不要になり、
+  // 全ナビゲーションに乗っていた固定遅延を削減できる。
+  // 期限切れ時はセッションリフレッシュにフォールバックし、Cookie 更新も維持される。
+  await supabase.auth.getClaims();
 
   return supabaseResponse;
 }
