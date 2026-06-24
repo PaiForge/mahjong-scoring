@@ -3,6 +3,7 @@ import Link from "next/link";
 import { getTranslations } from "next-intl/server";
 
 import { AdminPageTitle } from "@/app/admin/_components/admin-page-title";
+import { requireAdminPage } from "@/app/admin/_lib/auth";
 import { type Announcement, announcements, db } from "@/lib/db";
 
 import { DeleteAnnouncementButton } from "./_components/delete-announcement-button";
@@ -23,6 +24,8 @@ function groupBySlug(rows: Announcement[]): Map<string, Announcement[]> {
 }
 
 export default async function AdminAnnouncementsPage() {
+  await requireAdminPage();
+
   const t = await getTranslations("admin.announcements");
 
   const rows = await db.select().from(announcements).orderBy(desc(announcements.updatedAt));

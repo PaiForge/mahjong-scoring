@@ -2,6 +2,7 @@ import { getTranslations } from 'next-intl/server';
 
 import { createAdminClient } from '../../../lib/supabase/admin';
 import { AdminLogPageLayout, logSearchParamsCache } from '../_components/admin-log-page-layout';
+import { requireAdminPage } from '../_lib/auth';
 
 import { AuditLogRow } from './_components/audit-log-row';
 import { fetchAuditLogPageData } from './_lib/queries';
@@ -17,6 +18,8 @@ export default async function AdminAuditLogPage({
 }: {
   searchParams: Promise<Record<string, string | string[] | undefined>>;
 }) {
+  await requireAdminPage();
+
   const { page, action: actionFilter, user: rawUser } = await logSearchParamsCache.parse(searchParams);
   const t = await getTranslations('admin');
   const adminClient = createAdminClient();

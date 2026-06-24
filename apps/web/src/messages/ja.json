@@ -993,7 +993,18 @@
   "admin": {
     "title": "管理画面",
     "dashboard": "ダッシュボード",
-    "dashboardDescription": "管理画面へようこそ。左メニューから各機能にアクセスできます。",
+    "dashboardDescription": "新規ユーザーの登録推移を確認できます。各機能には左メニューからアクセスできます。",
+    "dashboardKpi": {
+      "from": "開始日",
+      "to": "終了日",
+      "past7days": "過去7日",
+      "past28days": "過去28日",
+      "past90days": "過去90日",
+      "newUsersPeriodTotal": "期間内の新規ユーザー数",
+      "newUsers": "新規ユーザー",
+      "dailyTrends": "新規ユーザーの日次推移",
+      "noData": "データがありません"
+    },
     "userManagement": "ユーザー管理",
     "userManagementDescription": "登録ユーザーの一覧表示・管理を行います。",
     "auditLog": "監査ログ",

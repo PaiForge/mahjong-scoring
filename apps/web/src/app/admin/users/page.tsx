@@ -2,6 +2,7 @@ import { getTranslations } from 'next-intl/server';
 
 import type { User } from '@supabase/supabase-js';
 import { AdminPageTitle } from '@/app/admin/_components/admin-page-title';
+import { requireAdminPage } from '@/app/admin/_lib/auth';
 import { inArray } from 'drizzle-orm';
 import { createSearchParamsCache, parseAsInteger } from 'nuqs/server';
 
@@ -25,6 +26,8 @@ export default async function AdminUsersPage({
 }: {
   searchParams: Promise<Record<string, string | string[] | undefined>>;
 }) {
+  await requireAdminPage();
+
   const { page } = await searchParamsCache.parse(searchParams);
   const adminClient = createAdminClient();
   const t = await getTranslations('admin');
