@@ -6,18 +6,31 @@ import { createClient } from "./supabase/server";
 import { getProfileByUserId } from "./db/queries";
 
 /**
+ * 認証済みユーザーの最小情報。JWT クレームから取得する（id = sub クレーム）。
+ * 認証済みユーザー情報
+ */
+export interface AuthUser {
+  readonly id: string;
+  readonly email?: string;
+}
+
+/**
  * 認証済みユーザーを返す。未認証の場合はサインインページへリダイレクト。
+ *
+ * getClaims() は非対称署名キー構成では JWT をローカル検証するため、
+ * getUser() のような認証サーバーへのネットワーク往復が不要になり、
+ * 保護ページ遷移ごとの認証待ちを短縮できる（対称鍵時は getUser に
+ * フォールバックし従来同等）。cache() によりリクエスト内では1回だけ評価される。
  * 認証済みユーザー取得
  */
-export const getAuthenticatedUser = cache(async () => {
+export const getAuthenticatedUser = cache(async (): Promise<AuthUser> => {
   const supabase = await createClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
-  if (!user) {
+  const { data, error } = await supabase.auth.getClaims();
+  const claims = data?.claims;
+  if (error || !claims) {
     redirect("/sign-in");
   }
-  return user;
+  return { id: claims.sub, email: claims.email };
 });
 
 /**
@@ -31,15 +44,15 @@ export const getAuthenticatedProfile = cache(async () => {
 });
 
 /**
- * 認証済みユーザーまたは undefined を返す。リダイレクトなし。
+ * 認証済みユーザーまたは null を返す。リダイレクトなし。
+ * getClaims() でローカル検証する（getAuthenticatedUser と同様）。
  * オプショナルユーザー取得
  */
-export const getOptionalUser = cache(async () => {
+export const getOptionalUser = cache(async (): Promise<AuthUser | null> => {
   const supabase = await createClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
-  return user;
+  const { data } = await supabase.auth.getClaims();
+  const claims = data?.claims;
+  return claims ? { id: claims.sub, email: claims.email } : null;
 });
 
 /**
