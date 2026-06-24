@@ -1173,7 +1173,8 @@
   },
   "common": {
     "close": "閉じる",
-    "showDetailInfo": "詳細情報を表示"
+    "showDetailInfo": "詳細情報を表示",
+    "loading": "読み込み中"
   },
   "scoreTableChallenge": {
     "title": "点数表早引き",
