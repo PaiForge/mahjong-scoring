@@ -26,7 +26,7 @@ export async function LeaderboardCard({ module, period, rank }: LeaderboardCardP
   return (
     <Link
       href={detailPath}
-      className="group block rounded-lg border border-surface-200 bg-white p-4 shadow-sm transition-all hover:shadow-md hover:border-surface-300"
+      className="group block rounded-lg border border-surface-200 bg-white p-4 transition-colors hover:border-surface-300"
     >
       <div className="flex items-center gap-3">
         <span className="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-md bg-surface-100 text-lg">

@@ -30,7 +30,7 @@ export function PracticeCard({
   learnLabel,
 }: PracticeCardProps) {
   return (
-    <div className="flex flex-col justify-between rounded-xl border border-surface-200 bg-white p-5 shadow-sm">
+    <div className="flex flex-col justify-between rounded-xl border border-surface-200 bg-white p-5">
       <div>
         <div className="flex items-center justify-between">
           <h3 className="text-base font-semibold text-surface-900">{title}</h3>
