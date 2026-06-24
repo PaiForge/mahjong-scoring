@@ -1248,6 +1248,10 @@
     "all": "オール",
     "answer": "回答する",
     "generating": "問題を生成中...",
+    "howToPlay": {
+      "title": "問題方式",
+      "lead": "このような問題が出題されます。"
+    },
     "result": {
       "problemDetails": "問題の詳細",
       "correctAnswer": "正解",

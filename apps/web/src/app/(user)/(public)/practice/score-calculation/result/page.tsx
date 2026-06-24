@@ -30,6 +30,7 @@ export const dynamic = 'force-dynamic';
 export default createPracticeResultPage(ScoreCalculationResultView, {
   module: 'score_calculation',
   playHref: '/practice/score-calculation/play',
+  introHref: '/practice/score-calculation',
   resolveTitle: async () => {
     const t = await getTranslations('scoreCalculationChallenge');
     return t('title');
