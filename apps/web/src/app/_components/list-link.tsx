@@ -2,6 +2,7 @@ import type { ReactNode } from "react";
 import Link from "next/link";
 
 import { ChevronRightIcon } from "./icons/chevron-right-icon";
+import { LinkPending } from "./link-pending";
 
 /**
  * リストリンクのコンテナ（blindfold-chess の ListLinkContainer 準拠）。
@@ -41,7 +42,12 @@ export function ListLink({ href, icon, title, meta, badge }: ListLinkProps) {
           {meta && (
             <span className="flex-shrink-0 text-xs text-muted-foreground">{meta}</span>
           )}
-          <ChevronRightIcon className="size-4 flex-shrink-0 text-foreground/40" />
+          {/* クリック後の遷移待ち中はチェブロンをスピナーへ差し替える */}
+          <span className="flex size-4 flex-shrink-0 items-center justify-center text-foreground/40">
+            <LinkPending spinnerClassName="size-4">
+              <ChevronRightIcon className="size-4" />
+            </LinkPending>
+          </span>
         </div>
       </Link>
     </li>
