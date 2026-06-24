@@ -4,16 +4,17 @@ interface AdminPageTitleProps {
 }
 
 /**
- * 管理画面用のページ見出し（h1）。
+ * 管理画面の各ページ見出し（h2）。
  *
- * エンドユーザー向けの PageTitle とは意図的に分離している。
- * 管理画面は業務用 UI のため、中央寄せ・細字のエンドユーザー用デザインではなく
- * 左寄せ・太字の従来スタイルを維持する。
+ * セクション全体の見出し（h1「管理画面」）は admin レイアウトのサイドバーが持つため、
+ * その配下に来るページ単位の見出しは h2 とする。
+ * エンドユーザー向けの PageTitle とは意図的に分離し、中央寄せ・細字ではなく
+ * 左寄せ・太字の業務用デザインを維持する。
  */
 export function AdminPageTitle({ children, className = "" }: AdminPageTitleProps) {
   return (
-    <h1 className={`text-lg font-bold tracking-tight text-surface-900 ${className}`}>
+    <h2 className={`text-lg font-bold tracking-tight text-surface-900 ${className}`}>
       {children}
-    </h1>
+    </h2>
   );
 }

@@ -14,6 +14,14 @@ export const metadata: Metadata = {
   robots: { index: false, follow: false },
 };
 
+/** サイドバーのナビゲーション項目（href と admin 名前空間の i18n キー） */
+const NAV_ITEMS = [
+  { href: '/admin/users', labelKey: 'users' },
+  { href: '/admin/announcements', labelKey: 'announcements.navLabel' },
+  { href: '/admin/audit-log', labelKey: 'auditLog' },
+  { href: '/admin/activity-log', labelKey: 'activityLog' },
+] as const;
+
 export default async function AdminLayout({
   children,
 }: {
@@ -29,35 +37,26 @@ export default async function AdminLayout({
 
   return (
     <div className="flex min-h-screen">
-      <aside className="w-56 border-r border-gray-200 bg-gray-50 p-4">
-        <div className="text-lg font-semibold mb-6">
-          {t('title')}
-        </div>
-        <nav className="space-y-2">
+      <aside className="w-56 border-r border-surface-200 bg-surface-50 p-4">
+        {/* セクション見出し（h1）。ダッシュボードへのリンクを兼ねる */}
+        <h1 className="mb-6">
           <Link
-            href="/admin/users"
-            className="block px-3 py-2 rounded text-sm hover:bg-gray-200 transition-colors"
+            href="/admin"
+            className="block rounded px-3 py-2 text-lg font-semibold text-surface-900 transition-colors hover:bg-surface-100"
           >
-            {t('users')}
+            {t('title')}
           </Link>
-          <Link
-            href="/admin/announcements"
-            className="block px-3 py-2 rounded text-sm hover:bg-gray-200 transition-colors"
-          >
-            {t('announcements.navLabel')}
-          </Link>
-          <Link
-            href="/admin/audit-log"
-            className="block px-3 py-2 rounded text-sm hover:bg-gray-200 transition-colors"
-          >
-            {t('auditLog')}
-          </Link>
-          <Link
-            href="/admin/activity-log"
-            className="block px-3 py-2 rounded text-sm hover:bg-gray-200 transition-colors"
-          >
-            {t('activityLog')}
-          </Link>
+        </h1>
+        <nav className="space-y-1">
+          {NAV_ITEMS.map((item) => (
+            <Link
+              key={item.href}
+              href={item.href}
+              className="block rounded px-3 py-2 text-sm text-surface-700 transition-colors hover:bg-surface-100"
+            >
+              {t(item.labelKey)}
+            </Link>
+          ))}
         </nav>
       </aside>
       <main className="flex-1 p-8">
