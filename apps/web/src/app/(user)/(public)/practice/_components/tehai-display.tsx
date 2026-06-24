@@ -45,7 +45,7 @@ export const TehaiDisplay = memo(function TehaiDisplay({
   }, [scale, onScaleChange]);
 
   return (
-    <div className="mt-4 rounded-xl border border-surface-200 bg-white p-2 shadow-sm">
+    <div className="mt-4 rounded-xl border border-surface-200 bg-white p-2">
       <div
         ref={wrapperRef}
         className="relative overflow-hidden"

@@ -79,7 +79,7 @@ export default async function PracticePage() {
 
       <Link
         href="/practice/score"
-        className="mt-6 flex items-center gap-4 rounded-xl border border-surface-200 bg-white p-6 shadow-sm transition-colors hover:bg-surface-50"
+        className="mt-6 flex items-center gap-4 rounded-xl border border-surface-200 bg-white p-6 transition-colors hover:bg-surface-50"
       >
         <span className="text-3xl" aria-hidden="true">♾️</span>
         <div className="flex-1">

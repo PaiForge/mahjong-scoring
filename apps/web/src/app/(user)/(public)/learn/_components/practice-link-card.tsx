@@ -93,7 +93,7 @@ function PracticeLinkCardPresentation({
   return (
     <Link
       href={href}
-      className="flex items-center justify-between gap-3 rounded-xl border border-surface-200 bg-white p-4 shadow-sm transition-colors hover:bg-surface-50"
+      className="flex items-center justify-between gap-3 rounded-xl border border-surface-200 bg-white p-4 transition-colors hover:bg-surface-50"
     >
       <div className="min-w-0 flex-1">
         <p className="truncate text-sm font-semibold text-surface-900">

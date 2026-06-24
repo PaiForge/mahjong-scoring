@@ -68,7 +68,7 @@ function ChapterNavCard({ chapter, direction, label, title }: ChapterNavCardProp
   return (
     <Link
       href={`/learn/${chapter.slug}`}
-      className={`flex items-center gap-3 rounded-xl border border-surface-200 bg-white p-4 shadow-sm transition-colors hover:bg-surface-50 ${
+      className={`flex items-center gap-3 rounded-xl border border-surface-200 bg-white p-4 transition-colors hover:bg-surface-50 ${
         isNext ? "md:col-start-2 md:justify-end md:text-right" : ""
       }`}
     >

@@ -50,7 +50,7 @@ export function StatsCard({ label, value, tooltip, comparison }: StatsCardProps)
   };
 
   return (
-    <div className="bg-surface-50 border border-surface-200 rounded-lg p-4 shadow-sm min-w-0">
+    <div className="bg-surface-50 border border-surface-200 rounded-lg p-4 min-w-0">
       <p className="text-xs text-surface-500 mb-1">
         {label}
         {tooltip && (
