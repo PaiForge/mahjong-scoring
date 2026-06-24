@@ -1,11 +1,20 @@
 import { describe, expect, it, vi, beforeEach } from 'vitest';
 
-const { mockGetUser, mockSelect, mockFrom, mockWhere, mockLimit } = vi.hoisted(() => ({
-  mockGetUser: vi.fn(),
-  mockSelect: vi.fn(),
-  mockFrom: vi.fn(),
-  mockWhere: vi.fn(),
-  mockLimit: vi.fn(),
+const { mockGetUser, mockSelect, mockFrom, mockWhere, mockLimit, mockNotFound } =
+  vi.hoisted(() => ({
+    mockGetUser: vi.fn(),
+    mockSelect: vi.fn(),
+    mockFrom: vi.fn(),
+    mockWhere: vi.fn(),
+    mockLimit: vi.fn(),
+    mockNotFound: vi.fn((): never => {
+      throw new Error('NEXT_NOT_FOUND');
+    }),
+  }));
+
+// Mock next/navigation notFound（呼び出しを検知するため throw する）
+vi.mock('next/navigation', () => ({
+  notFound: mockNotFound,
 }));
 
 // Mock the Supabase server client
@@ -32,7 +41,7 @@ vi.mock('drizzle-orm', () => ({
   eq: vi.fn((column: unknown, value: unknown) => ({ column, value })),
 }));
 
-import { requireAdmin } from '../auth';
+import { requireAdmin, requireAdminPage } from '../auth';
 
 describe('requireAdmin', () => {
   beforeEach(() => {
@@ -129,5 +138,40 @@ describe('requireAdmin', () => {
 
       expect(mockSelect).not.toHaveBeenCalled();
     });
+  });
+});
+
+describe('requireAdminPage', () => {
+  beforeEach(() => {
+    vi.clearAllMocks();
+    mockSelect.mockReturnValue({ from: mockFrom });
+    mockFrom.mockReturnValue({ where: mockWhere });
+    mockWhere.mockReturnValue({ limit: mockLimit });
+  });
+
+  it('returns the userId without calling notFound for an admin', async () => {
+    const userId = 'user-123';
+    mockGetUser.mockResolvedValue({ data: { user: { id: userId } } });
+    mockLimit.mockResolvedValue([{ userId, role: 'admin' }]);
+
+    const result = await requireAdminPage();
+
+    expect(result).toBe(userId);
+    expect(mockNotFound).not.toHaveBeenCalled();
+  });
+
+  it('calls notFound for a non-admin user', async () => {
+    mockGetUser.mockResolvedValue({ data: { user: { id: 'user-456' } } });
+    mockLimit.mockResolvedValue([{ userId: 'user-456', role: 'user' }]);
+
+    await expect(requireAdminPage()).rejects.toThrow('NEXT_NOT_FOUND');
+    expect(mockNotFound).toHaveBeenCalledOnce();
+  });
+
+  it('calls notFound for an unauthenticated user', async () => {
+    mockGetUser.mockResolvedValue({ data: { user: null } });
+
+    await expect(requireAdminPage()).rejects.toThrow('NEXT_NOT_FOUND');
+    expect(mockNotFound).toHaveBeenCalledOnce();
   });
 });

@@ -1,4 +1,5 @@
 import { eq } from 'drizzle-orm';
+import { notFound } from 'next/navigation';
 
 import { db, userRoles } from '../../../lib/db';
 import { createClient } from '../../../lib/supabase/server';
@@ -39,4 +40,23 @@ export async function requireAdmin(): Promise<AuthResult> {
   }
 
   return { userId: user.id };
+}
+
+/**
+ * 管理ページ用の認証ガード。
+ *
+ * `requireAdmin()` に失敗したら `notFound()` で打ち切る。レイアウトではなく
+ * 各ページで呼ぶことで、サイドバー（シェル）を即時描画しつつ、ページ本体の
+ * 認証待ちとデータ取得を 1 つの loading 境界（各ルートの loading.tsx）で覆える。
+ *
+ * @returns 認証済みユーザーの ID
+ */
+export async function requireAdminPage(): Promise<string> {
+  const result = await requireAdmin();
+
+  if ('error' in result) {
+    notFound();
+  }
+
+  return result.userId;
 }

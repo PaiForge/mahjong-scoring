@@ -3,11 +3,8 @@ export const dynamic = 'force-dynamic';
 import type { Metadata } from 'next';
 import { getTranslations } from 'next-intl/server';
 import Link from 'next/link';
-import { notFound } from 'next/navigation';
 
 import { NuqsAdapter } from 'nuqs/adapters/next/app';
-
-import { requireAdmin } from './_lib/auth';
 
 export const metadata: Metadata = {
   title: 'Admin - Mahjong Scoring',
@@ -27,12 +24,8 @@ export default async function AdminLayout({
 }: {
   readonly children: React.ReactNode;
 }) {
-  const result = await requireAdmin();
-
-  if ('error' in result) {
-    notFound();
-  }
-
+  // 認証は各ページの requireAdminPage() で行う。シェル（サイドバー）を即時描画し、
+  // ページ本体の認証待ち + データ取得を各ルートの loading.tsx 1 枚で覆うため。
   const t = await getTranslations('admin');
 
   return (

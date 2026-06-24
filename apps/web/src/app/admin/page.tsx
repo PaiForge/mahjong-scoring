@@ -4,6 +4,7 @@ import { createSearchParamsCache, parseAsString } from "nuqs/server";
 import { AdminPageTitle } from "@/app/admin/_components/admin-page-title";
 import { DailyTrendChart } from "@/app/admin/_components/daily-trend-chart";
 import { DateRangePicker } from "@/app/admin/_components/date-range-picker";
+import { requireAdminPage } from "@/app/admin/_lib/auth";
 import { daysAgo, getNewUsersPerDay, today } from "@/app/admin/_lib/dashboard";
 
 const searchParamsCache = createSearchParamsCache({
@@ -16,6 +17,8 @@ export default async function AdminDashboardPage({
 }: {
   readonly searchParams: Promise<Record<string, string | string[] | undefined>>;
 }) {
+  await requireAdminPage();
+
   const { from: startDate, to: endDate } =
     await searchParamsCache.parse(searchParams);
   const t = await getTranslations("admin");

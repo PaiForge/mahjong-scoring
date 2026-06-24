@@ -3,6 +3,7 @@ import { notFound } from "next/navigation";
 import { getTranslations } from "next-intl/server";
 
 import { AdminPageTitle } from "@/app/admin/_components/admin-page-title";
+import { requireAdminPage } from "@/app/admin/_lib/auth";
 import { announcements, db } from "@/lib/db";
 
 import { AnnouncementForm } from "../../_components/announcement-form";
@@ -15,6 +16,8 @@ interface Props {
 }
 
 export default async function EditAnnouncementPage({ params }: Props) {
+  await requireAdminPage();
+
   const { id } = await params;
   const t = await getTranslations("admin.announcements");
 
