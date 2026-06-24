@@ -11,9 +11,16 @@ interface ContentContainerProps {
   breadcrumb?: readonly BreadcrumbItem[];
   /**
    * 最上部要素に付与する id。`useScrollToElement` のスクロール先として使う。
-   * PageTitle がある場合はグレー帯、無い場合は外側ラッパーに付与する。
+   * 通常は PageTitle があればグレー帯、無ければ外側ラッパーに付与するが、
+   * `fillViewport` 指定時は最小高さラッパーに付与する。
    */
   id?: string;
+  /**
+   * セッション全体を最小高さ画面いっぱい（min-h-screen）にする。
+   * `useScrollToElement` と併用し、練習開始直後にグローバルヘッダを画面外へ送って
+   * 練習コンテンツだけが表示されるようにする（blindfold-chess 準拠）。
+   */
+  fillViewport?: boolean;
 }
 
 /**
@@ -28,7 +35,7 @@ interface ContentContainerProps {
  * 子要素に `<PageTitle>` が含まれる場合は、それをカードの外（上）へ引き上げ、
  * 画面最上部の全幅領域に表示する（背景は main と同じグレーで連続する）。
  */
-export function ContentContainer({ children, className = "", breadcrumb, id }: ContentContainerProps) {
+export function ContentContainer({ children, className = "", breadcrumb, id, fillViewport = false }: ContentContainerProps) {
   const childArray = Children.toArray(children);
   const title = childArray.find((child) => isValidElement(child) && child.type === PageTitle);
   const body = title
@@ -50,20 +57,47 @@ export function ContentContainer({ children, className = "", breadcrumb, id }: C
   );
 
   if (!title) {
-    return <div id={id} className="mx-auto max-w-4xl px-4 py-6 sm:px-6 lg:px-8">{card}</div>;
+    return (
+      <div
+        id={id}
+        className={`mx-auto max-w-4xl px-4 py-6 sm:px-6 lg:px-8 ${fillViewport ? "min-h-screen" : ""}`}
+      >
+        {card}
+      </div>
+    );
+  }
+
+  // PageTitle 部分の全幅領域。main と同じグレー（bg-secondary）で、py-5 が
+  // タイトル上下の余白を兼ねる（下側はそのままカードとの間隔になる）。
+  const titleBand = (
+    <div className="bg-secondary">
+      <div className="mx-auto max-w-4xl px-4 py-5 sm:px-6 lg:px-8">{title}</div>
+    </div>
+  );
+  // sm 以上で角丸カードがグレー背景から浮くよう、下側だけ余白を取る。
+  // 上側はタイトル帯の py-5 が担うため、ここで pt を足すと二重になり開きすぎる。
+  // モバイルはフルブリードのまま密着させる（角丸が出ないため余白不要）。
+  const cardArea = (
+    <div className="mx-auto max-w-4xl px-4 sm:px-6 lg:px-8 sm:pb-6">{card}</div>
+  );
+
+  // fillViewport 時はタイトル帯＋カードをまとめて min-h-screen ラッパーで包み、
+  // スクロール先 id もそのラッパーに付与する（セッション全体が画面を埋める）。
+  if (fillViewport) {
+    return (
+      <div id={id} className="min-h-screen">
+        {titleBand}
+        {cardArea}
+      </div>
+    );
   }
 
   return (
     <>
-      {/* PageTitle 部分の全幅領域。main と同じグレー（bg-secondary）で、py-5 が
-          タイトル上下の余白を兼ねる（下側はそのままカードとの間隔になる）。 */}
       <div id={id} className="bg-secondary">
         <div className="mx-auto max-w-4xl px-4 py-5 sm:px-6 lg:px-8">{title}</div>
       </div>
-      {/* sm 以上で角丸カードがグレー背景から浮くよう、下側だけ余白を取る。
-          上側はタイトル帯の py-5 が担うため、ここで pt を足すと二重になり開きすぎる。
-          モバイルはフルブリードのまま密着させる（角丸が出ないため余白不要）。 */}
-      <div className="mx-auto max-w-4xl px-4 sm:px-6 lg:px-8 sm:pb-6">{card}</div>
+      {cardArea}
     </>
   );
 }

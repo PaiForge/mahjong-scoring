@@ -134,7 +134,7 @@ export function ChallengeShell({
   }
 
   return (
-    <ContentContainer id={SCROLL_ANCHOR_ID}>
+    <ContentContainer id={SCROLL_ANCHOR_ID} fillViewport>
       <PageTitle>{title}</PageTitle>
 
       {/* Countdown overlay */}
