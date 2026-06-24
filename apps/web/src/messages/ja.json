@@ -1225,6 +1225,10 @@
     "answer": "回答する",
     "learnLink": "点数表を見る",
     "questionLabel": "この条件の点数は？",
+    "howToPlay": {
+      "title": "問題方式",
+      "lead": "このような問題が出題されます。"
+    },
     "result": {
       "problemDetails": "問題の詳細",
       "correctAnswer": "正解",
@@ -1248,6 +1252,10 @@
     "all": "オール",
     "answer": "回答する",
     "generating": "問題を生成中...",
+    "howToPlay": {
+      "title": "問題方式",
+      "lead": "このような問題が出題されます。"
+    },
     "result": {
       "problemDetails": "問題の詳細",
       "correctAnswer": "正解",
@@ -1274,6 +1282,10 @@
     "yakuListTitle": "成立役",
     "yakuHanSuffix": "{count}翻",
     "yakuTotalHan": "合計 {count}翻",
+    "howToPlay": {
+      "title": "問題方式",
+      "lead": "このような問題が出題されます。"
+    },
     "result": {
       "problemDetails": "問題の詳細",
       "correctAnswer": "正解",
