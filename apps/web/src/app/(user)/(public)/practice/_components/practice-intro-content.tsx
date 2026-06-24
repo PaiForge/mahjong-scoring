@@ -1,7 +1,9 @@
+import type { ReactNode } from "react";
 import Link from "next/link";
 import { getTranslations } from "next-intl/server";
 import { ContentContainer } from "@/app/_components/content-container";
 import { PageTitle } from "@/app/_components/page-title";
+import { SectionTitle } from "@/app/_components/section-title";
 import { PrimaryLinkButton } from "@/app/_components/primary-link-button";
 import { BookIcon } from "@/app/_components/icons/book-icon";
 import { InfinityIcon } from "@/app/_components/icons/infinity-icon";
@@ -15,6 +17,11 @@ interface PracticeIntroContentProps {
   readonly showLearnLink?: boolean;
   /** トレーニングモードへのボタンを表示するかどうか（デフォルト: false） */
   readonly showTraining?: boolean;
+  /**
+   * 問題方式（遊び方）のビジュアルデモ。渡された場合は説明文の下に
+   * 「問題方式」セクションとして実際の出題例を表示する。
+   */
+  readonly howToPlay?: ReactNode;
 }
 
 /**
@@ -26,6 +33,7 @@ export async function PracticeIntroContent({
   slug,
   showLearnLink = true,
   showTraining = false,
+  howToPlay,
 }: PracticeIntroContentProps) {
   const t = await getTranslations(namespace);
   const tc = await getTranslations("challenge");
@@ -51,6 +59,18 @@ export async function PracticeIntroContent({
           >
             {t("learnLink")}
           </Link>
+        </div>
+      )}
+
+      {howToPlay && (
+        <div className="mt-8">
+          <SectionTitle className="mb-4">{t("howToPlay.title")}</SectionTitle>
+          <p className="mb-4 text-sm text-surface-600">
+            {t("howToPlay.lead")}
+          </p>
+          <div className="rounded-xl border border-surface-200 bg-surface-50 p-6">
+            {howToPlay}
+          </div>
         </div>
       )}
 
