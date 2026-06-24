@@ -75,7 +75,6 @@ export default async function PracticePage() {
       <PageTitle>{t("title")}</PageTitle>
 
       <SectionTitle>{t("menuTitle")}</SectionTitle>
-      <p className="mt-3 text-sm text-surface-500">{t("description")}</p>
 
       <Link
         href="/practice/score"
@@ -83,7 +82,7 @@ export default async function PracticePage() {
       >
         <span className="text-3xl" aria-hidden="true">♾️</span>
         <div className="flex-1">
-          <h2 className="text-base font-semibold text-surface-900">{t("comprehensiveBanner.title")}</h2>
+          <h3 className="text-base font-semibold text-surface-900">{t("comprehensiveBanner.title")}</h3>
           <p className="mt-1 text-sm text-surface-500">{t("comprehensiveBanner.description")}</p>
         </div>
         <ChevronRightIcon className="size-5 shrink-0 text-surface-400" />
