@@ -11,7 +11,7 @@ import {
   YAxis,
 } from "recharts";
 
-import type { DailyCount } from "@/app/admin/_lib/dashboard";
+import type { DailyCount } from "@/app/admin/_lib/dashboard/aggregate-by-day";
 
 interface DailyTrendChartProps {
   readonly data: readonly DailyCount[];

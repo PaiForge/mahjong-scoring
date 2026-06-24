@@ -2,7 +2,7 @@
 
 import { parseAsString, useQueryStates } from "nuqs";
 
-import { daysAgo, today } from "@/app/admin/_lib/dashboard";
+import { daysAgo, today } from "@/app/admin/_lib/dashboard/date-utils";
 
 interface DateRangePickerProps {
   readonly startDate: string;
