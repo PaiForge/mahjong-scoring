@@ -12,7 +12,7 @@ export async function JantouFuGuide() {
       <section className="space-y-4">
         <SectionTitle>{t("whatIsJantou")}</SectionTitle>
         <p className="text-sm leading-relaxed text-surface-700">
-          {t("whatIsJantouBody")}
+          {t.rich("whatIsJantouBody", { br: () => <br /> })}
         </p>
       </section>
 
@@ -20,7 +20,7 @@ export async function JantouFuGuide() {
       <section className="space-y-4">
         <SectionTitle>{t("yakuhaiTitle")}</SectionTitle>
         <p className="text-sm leading-relaxed text-surface-700">
-          {t("yakuhaiBody")}
+          {t.rich("yakuhaiBody", { br: () => <br /> })}
         </p>
 
         <div className="space-y-3 rounded-xl border border-surface-200 bg-white p-5">
@@ -61,30 +61,6 @@ export async function JantouFuGuide() {
         </div>
       </section>
 
-      {/* Renfonpai */}
-      <section className="space-y-4">
-        <SectionTitle>{t("renfonpaiTitle")}</SectionTitle>
-        <p className="text-sm leading-relaxed text-surface-700">
-          {t("renfonpaiBody")}
-        </p>
-
-        <div className="space-y-3 rounded-xl border border-surface-200 bg-white p-5">
-          <h3 className="text-xs font-semibold uppercase tracking-wider text-surface-400">
-            {t("renfonpaiExamples")}
-          </h3>
-          <TileExample
-            tiles={[HaiKind.Ton, HaiKind.Ton]}
-            fu={4}
-            label={t("labelRenfonTon")}
-          />
-          <TileExample
-            tiles={[HaiKind.Nan, HaiKind.Nan]}
-            fu={4}
-            label={t("labelRenfonNan")}
-          />
-        </div>
-      </section>
-
       {/* No fu */}
       <section className="space-y-4">
         <SectionTitle>{t("noFuTitle")}</SectionTitle>
@@ -113,6 +89,19 @@ export async function JantouFuGuide() {
           />
         </div>
       </section>
+
+      {/* Column: renfonpai */}
+      <aside className="rounded-xl border border-amber-200 bg-amber-50/60 p-5">
+        <div className="mb-2 inline-flex items-center rounded-full bg-amber-200/70 px-2.5 py-0.5 text-xs font-semibold tracking-wide text-amber-800">
+          {t("columnLabel")}
+        </div>
+        <h3 className="mb-2 text-sm font-semibold text-surface-900">
+          {t("columnTitle")}
+        </h3>
+        <p className="text-sm leading-relaxed text-surface-700">
+          {t.rich("columnBody", { br: () => <br /> })}
+        </p>
+      </aside>
 
       {/* Summary table */}
       <section className="space-y-4">
@@ -146,14 +135,6 @@ export async function JantouFuGuide() {
                 <td className="px-4 py-3 text-surface-900">{t("rowJikaze")}</td>
                 <td className="px-4 py-3 text-right font-semibold text-primary-600">
                   {t("fuUnit", { value: 2 })}
-                </td>
-              </tr>
-              <tr className="bg-white">
-                <td className="px-4 py-3 text-surface-900">
-                  {t("rowRenfonpai")}
-                </td>
-                <td className="px-4 py-3 text-right font-semibold text-primary-600">
-                  {t("fuUnit", { value: 4 })}
                 </td>
               </tr>
               <tr className="bg-white">
