@@ -9,15 +9,15 @@ export async function TehaiFuGuide() {
   return (
     <div className="space-y-10">
       {/* Tsumo fu omission */}
-      <section>
+      <section className="space-y-4">
         <SectionTitle>{t("tsumoFuTitle")}</SectionTitle>
-        <p className="mt-3 text-sm leading-relaxed text-surface-700">
+        <p className="text-sm leading-relaxed text-surface-700">
           {t("tsumoFuBody1")}
         </p>
-        <p className="mt-2 text-sm leading-relaxed text-surface-700">
+        <p className="text-sm leading-relaxed text-surface-700">
           {t("tsumoFuBody2")}
         </p>
-        <div className="mt-4 space-y-3 rounded-xl border border-surface-200 bg-white p-5">
+        <div className="space-y-3 rounded-xl border border-surface-200 bg-white p-5">
           <TehaiFuExample
             tiles={[HaiKind.PinZu2, HaiKind.PinZu3, HaiKind.PinZu4]}
             rotatedIndex={0}
@@ -29,15 +29,15 @@ export async function TehaiFuGuide() {
       </section>
 
       {/* Ron koutsu miscalculation */}
-      <section>
+      <section className="space-y-4">
         <SectionTitle>{t("ronKoutsuTitle")}</SectionTitle>
-        <p className="mt-3 text-sm leading-relaxed text-surface-700">
+        <p className="text-sm leading-relaxed text-surface-700">
           {t("ronKoutsuBody1")}
         </p>
-        <p className="mt-2 text-sm leading-relaxed text-surface-700">
+        <p className="text-sm leading-relaxed text-surface-700">
           {t("ronKoutsuBody2")}
         </p>
-        <div className="mt-4 space-y-4 rounded-xl border border-surface-200 bg-white p-5">
+        <div className="space-y-4 rounded-xl border border-surface-200 bg-white p-5">
           <TehaiFuExample
             tiles={[HaiKind.SouZu3, HaiKind.SouZu3, HaiKind.Haku, HaiKind.Haku]}
             agariHai={HaiKind.SouZu3}
@@ -56,15 +56,15 @@ export async function TehaiFuGuide() {
       </section>
 
       {/* Jikaze / Bakaze confusion */}
-      <section>
+      <section className="space-y-4">
         <SectionTitle>{t("kazeTitle")}</SectionTitle>
-        <p className="mt-3 text-sm leading-relaxed text-surface-700">
+        <p className="text-sm leading-relaxed text-surface-700">
           {t("kazeBody1")}
         </p>
-        <p className="mt-2 text-sm leading-relaxed text-surface-700">
+        <p className="text-sm leading-relaxed text-surface-700">
           {t("kazeBody2")}
         </p>
-        <div className="mt-4 space-y-3 rounded-xl border border-surface-200 bg-white p-5">
+        <div className="space-y-3 rounded-xl border border-surface-200 bg-white p-5">
           <TehaiFuExample
             tiles={[HaiKind.Ton, HaiKind.Ton, HaiKind.Ton]}
             label={t("kazeExampleBakaze")}

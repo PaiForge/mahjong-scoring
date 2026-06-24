@@ -31,7 +31,7 @@ export default async function ForgotPasswordPage() {
   return (
     <ContentContainer>
       <PageTitle>{t("pageTitle")}</PageTitle>
-      <div className="mt-8 space-y-6">
+      <div className="space-y-6">
         <ForgotPasswordForm />
 
         <p className="text-center text-sm text-surface-500">

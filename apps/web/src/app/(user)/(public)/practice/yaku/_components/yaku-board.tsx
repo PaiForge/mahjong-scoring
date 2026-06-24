@@ -35,7 +35,9 @@ export function YakuBoard({
   onAnswer,
 }: YakuBoardProps) {
   const t = useTranslations("yaku");
-  const [question, setQuestion] = useState<YakuQuestion | undefined>(generateQuestion);
+  const [question, setQuestion] = useState<YakuQuestion | undefined>(
+    generateQuestion,
+  );
   const [selectedYaku, setSelectedYaku] = useState<Set<string>>(new Set());
 
   const advanceQuestion = useCallback(() => {
@@ -61,10 +63,9 @@ export function YakuBoard({
 
   const handleSubmit = useCallback(() => {
     if (!question || showFeedback || selectedYaku.size === 0) return;
-    const isCorrect = judgeYakuAnswer(
-      question.correctYakuNames,
-      [...selectedYaku],
-    );
+    const isCorrect = judgeYakuAnswer(question.correctYakuNames, [
+      ...selectedYaku,
+    ]);
     onAnswer(isCorrect, advanceQuestion);
   }, [question, selectedYaku, showFeedback, onAnswer, advanceQuestion]);
 
@@ -88,8 +89,8 @@ export function YakuBoard({
       {/* Yaku selection */}
       <div className="space-y-3">
         {HAN_GROUPS.map((group) => (
-          <div key={group.key}>
-            <p className="mb-1.5 text-xs font-semibold text-surface-400">
+          <div key={group.key} className="space-y-1.5">
+            <p className="text-xs font-semibold text-surface-400">
               {t(`hanGroup.${group.key}`)}
             </p>
             <div className="flex flex-wrap gap-1.5">

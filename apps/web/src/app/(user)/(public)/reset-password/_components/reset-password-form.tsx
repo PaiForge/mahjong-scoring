@@ -61,14 +61,12 @@ export function ResetPasswordForm() {
 
   return (
     <form onSubmit={handleSubmit} className="w-full max-w-sm mx-auto space-y-4">
-      {error && (
-        <p className="text-center text-sm text-red-600">{error}</p>
-      )}
+      {error && <p className="text-center text-sm text-red-600">{error}</p>}
 
-      <div>
+      <div className="space-y-1">
         <label
           htmlFor="reset-password"
-          className="block text-sm font-medium text-surface-700 mb-1"
+          className="block text-sm font-medium text-surface-700"
         >
           {t("passwordLabel")}
         </label>
@@ -85,10 +83,10 @@ export function ResetPasswordForm() {
         />
       </div>
 
-      <div>
+      <div className="space-y-1">
         <label
           htmlFor="reset-confirm-password"
-          className="block text-sm font-medium text-surface-700 mb-1"
+          className="block text-sm font-medium text-surface-700"
         >
           {t("confirmPasswordLabel")}
         </label>

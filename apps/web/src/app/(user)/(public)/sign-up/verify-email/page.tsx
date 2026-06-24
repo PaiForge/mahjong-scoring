@@ -30,7 +30,7 @@ export default async function VerifyEmailPage({
   return (
     <ContentContainer>
       <PageTitle>{t("pageTitle")}</PageTitle>
-      <div className="mt-8 space-y-6">
+      <div className="space-y-6">
         <div className="text-center space-y-3">
           <p className="text-surface-700">{t("description")}</p>
           <p className="text-sm text-surface-500">{t("checkInbox")}</p>

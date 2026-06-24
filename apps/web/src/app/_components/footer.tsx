@@ -12,29 +12,42 @@ export async function Footer() {
 
   return (
     <footer className="mt-auto border-t border-border bg-card">
-      <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-8">
+      <div className="mx-auto max-w-7xl space-y-8 px-4 sm:px-6 lg:px-8 py-8">
         <nav className="grid grid-cols-2 gap-8 md:grid-cols-3">
-          <div>
-            <h3 className="text-sm font-semibold text-foreground">{t("learn")}</h3>
-            <ul className="mt-3 space-y-2 text-sm text-muted-foreground">
+          <div className="space-y-3">
+            <h3 className="text-sm font-semibold text-foreground">
+              {t("learn")}
+            </h3>
+            <ul className="space-y-2 text-sm text-muted-foreground">
               <li>
-                <Link href="/learn/about-this-app" className="transition-colors hover:text-foreground">
+                <Link
+                  href="/learn/about-this-app"
+                  className="transition-colors hover:text-foreground"
+                >
                   {t("aboutThisApp")}
                 </Link>
               </li>
             </ul>
           </div>
 
-          <div>
-            <h3 className="text-sm font-semibold text-foreground">{t("other")}</h3>
-            <ul className="mt-3 space-y-2 text-sm text-muted-foreground">
+          <div className="space-y-3">
+            <h3 className="text-sm font-semibold text-foreground">
+              {t("other")}
+            </h3>
+            <ul className="space-y-2 text-sm text-muted-foreground">
               <li>
-                <Link href="/terms" className="transition-colors hover:text-foreground">
+                <Link
+                  href="/terms"
+                  className="transition-colors hover:text-foreground"
+                >
                   {t("terms")}
                 </Link>
               </li>
               <li>
-                <Link href="/privacy" className="transition-colors hover:text-foreground">
+                <Link
+                  href="/privacy"
+                  className="transition-colors hover:text-foreground"
+                >
                   {t("privacy")}
                 </Link>
               </li>
@@ -42,7 +55,7 @@ export async function Footer() {
           </div>
         </nav>
 
-        <div className="mt-8 border-t border-border pt-6">
+        <div className="border-t border-border pt-6">
           <div className="flex items-center justify-between">
             <Link href="/">
               <BrandLogo size="sm" />

@@ -31,21 +31,71 @@ interface PracticeDef {
 }
 
 const fuPractices: readonly PracticeDef[] = [
-  { href: "/practice/jantou-fu", titleKey: "practices.jantouFu.title", descriptionKey: "practices.jantouFu.description", difficulty: "beginner", learnHref: "/learn/jantou-fu" },
-  { href: "/practice/machi-fu", titleKey: "practices.machiFu.title", descriptionKey: "practices.machiFu.description", difficulty: "beginner", learnHref: "/learn/machi-fu" },
-  { href: "/practice/mentsu-fu", titleKey: "practices.mentsuFu.title", descriptionKey: "practices.mentsuFu.description", difficulty: "intermediate", learnHref: "/learn/mentsu-fu" },
-  { href: "/practice/tehai-fu", titleKey: "practices.tehaiFu.title", descriptionKey: "practices.tehaiFu.description", difficulty: "advanced", learnHref: "/learn/tehai-fu" },
+  {
+    href: "/practice/jantou-fu",
+    titleKey: "practices.jantouFu.title",
+    descriptionKey: "practices.jantouFu.description",
+    difficulty: "beginner",
+    learnHref: "/learn/jantou-fu",
+  },
+  {
+    href: "/practice/machi-fu",
+    titleKey: "practices.machiFu.title",
+    descriptionKey: "practices.machiFu.description",
+    difficulty: "beginner",
+    learnHref: "/learn/machi-fu",
+  },
+  {
+    href: "/practice/mentsu-fu",
+    titleKey: "practices.mentsuFu.title",
+    descriptionKey: "practices.mentsuFu.description",
+    difficulty: "intermediate",
+    learnHref: "/learn/mentsu-fu",
+  },
+  {
+    href: "/practice/tehai-fu",
+    titleKey: "practices.tehaiFu.title",
+    descriptionKey: "practices.tehaiFu.description",
+    difficulty: "advanced",
+    learnHref: "/learn/tehai-fu",
+  },
 ];
 
 const hanPractices: readonly PracticeDef[] = [
-  { href: "/practice/yaku", titleKey: "practices.yaku.title", descriptionKey: "practices.yaku.description", difficulty: "intermediate", learnHref: "/learn/yaku" },
-  { href: "/practice/han-count", titleKey: "practices.hanCount.title", descriptionKey: "practices.hanCount.description", difficulty: "advanced" },
+  {
+    href: "/practice/yaku",
+    titleKey: "practices.yaku.title",
+    descriptionKey: "practices.yaku.description",
+    difficulty: "intermediate",
+    learnHref: "/learn/yaku",
+  },
+  {
+    href: "/practice/han-count",
+    titleKey: "practices.hanCount.title",
+    descriptionKey: "practices.hanCount.description",
+    difficulty: "advanced",
+  },
 ];
 
 const scoringPractices: readonly PracticeDef[] = [
-  { href: "/practice/score-table", titleKey: "practices.scoreTable.title", descriptionKey: "practices.scoreTable.description", difficulty: "intermediate" },
-  { href: "/practice/mangan-score-calculation", titleKey: "practices.manganScoreCalculation.title", descriptionKey: "practices.manganScoreCalculation.description", difficulty: "intermediate" },
-  { href: "/practice/score-calculation", titleKey: "practices.scoreCalculation.title", descriptionKey: "practices.scoreCalculation.description", difficulty: "advanced" },
+  {
+    href: "/practice/score-table",
+    titleKey: "practices.scoreTable.title",
+    descriptionKey: "practices.scoreTable.description",
+    difficulty: "intermediate",
+  },
+  {
+    href: "/practice/mangan-score-calculation",
+    titleKey: "practices.manganScoreCalculation.title",
+    descriptionKey: "practices.manganScoreCalculation.description",
+    difficulty: "intermediate",
+  },
+  {
+    href: "/practice/score-calculation",
+    titleKey: "practices.scoreCalculation.title",
+    descriptionKey: "practices.scoreCalculation.description",
+    difficulty: "advanced",
+  },
 ];
 
 function renderPracticeCards(
@@ -74,32 +124,40 @@ export default async function PracticePage() {
     <ContentContainer breadcrumb={[{ label: t("title") }]}>
       <PageTitle>{t("title")}</PageTitle>
 
-      <SectionTitle>{t("menuTitle")}</SectionTitle>
+      <div className="space-y-8">
+        <SectionTitle>{t("menuTitle")}</SectionTitle>
 
-      <Link
-        href="/practice/score"
-        className="mt-6 flex items-center gap-4 rounded-xl border border-surface-200 bg-white p-6 transition-colors hover:bg-surface-50"
-      >
-        <span className="text-3xl" aria-hidden="true">♾️</span>
-        <div className="flex-1">
-          <h3 className="text-base font-semibold text-surface-900">{t("comprehensiveBanner.title")}</h3>
-          <p className="mt-1 text-sm text-surface-500">{t("comprehensiveBanner.description")}</p>
+        <Link
+          href="/practice/score"
+          className="flex items-center gap-4 rounded-xl border border-surface-200 bg-white p-6 transition-colors hover:bg-surface-50"
+        >
+          <span className="text-3xl" aria-hidden="true">
+            ♾️
+          </span>
+          <div className="flex-1">
+            <h3 className="text-base font-semibold text-surface-900">
+              {t("comprehensiveBanner.title")}
+            </h3>
+            <p className="mt-1 text-sm text-surface-500">
+              {t("comprehensiveBanner.description")}
+            </p>
+          </div>
+          <ChevronRightIcon className="size-5 shrink-0 text-surface-400" />
+        </Link>
+
+        <div className="space-y-10">
+          <PracticeCategorySection title={t("categories.fuCalculation.title")}>
+            {renderPracticeCards(fuPractices, t)}
+          </PracticeCategorySection>
+
+          <PracticeCategorySection title={t("categories.han.title")}>
+            {renderPracticeCards(hanPractices, t)}
+          </PracticeCategorySection>
+
+          <PracticeCategorySection title={t("categories.scoring.title")}>
+            {renderPracticeCards(scoringPractices, t)}
+          </PracticeCategorySection>
         </div>
-        <ChevronRightIcon className="size-5 shrink-0 text-surface-400" />
-      </Link>
-
-      <div className="mt-8 space-y-10">
-        <PracticeCategorySection title={t("categories.fuCalculation.title")}>
-          {renderPracticeCards(fuPractices, t)}
-        </PracticeCategorySection>
-
-        <PracticeCategorySection title={t("categories.han.title")}>
-          {renderPracticeCards(hanPractices, t)}
-        </PracticeCategorySection>
-
-        <PracticeCategorySection title={t("categories.scoring.title")}>
-          {renderPracticeCards(scoringPractices, t)}
-        </PracticeCategorySection>
       </div>
     </ContentContainer>
   );

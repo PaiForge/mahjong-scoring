@@ -37,21 +37,23 @@ export default async function DeleteAccountPage() {
     >
       <PageTitle>{t("pageTitle")}</PageTitle>
 
-      <div className="mt-6 rounded-lg border border-red-200 bg-red-50 p-5">
-        <p className="text-sm leading-relaxed text-surface-700">{t("warning")}</p>
-      </div>
+      <div className="mt-6 space-y-6">
+        <div className="rounded-lg border border-red-200 bg-red-50 p-5">
+          <p className="text-sm leading-relaxed text-surface-700">
+            {t("warning")}
+          </p>
+        </div>
 
-      <div className="mt-8">
         <DeleteAccountButton />
-      </div>
 
-      <div className="mt-6">
-        <Link
-          href="/mypage/settings"
-          className="text-sm font-medium text-primary-600 transition-colors hover:text-primary-700"
-        >
-          {t("backToSettings")}
-        </Link>
+        <div>
+          <Link
+            href="/mypage/settings"
+            className="text-sm font-medium text-primary-600 transition-colors hover:text-primary-700"
+          >
+            {t("backToSettings")}
+          </Link>
+        </div>
       </div>
     </ContentContainer>
   );

@@ -13,10 +13,10 @@ export default function Loading() {
         <span className="inline-block h-7 w-48 animate-pulse rounded bg-surface-300 align-middle" />
       </PageTitle>
 
-      {/* SectionTitle placeholder */}
-      <div className="h-7 w-32 animate-pulse rounded bg-surface-200" />
+      <div className="space-y-6">
+        {/* SectionTitle placeholder */}
+        <div className="h-7 w-32 animate-pulse rounded bg-surface-200" />
 
-      <div className="mt-6 space-y-6">
         <div className="overflow-x-auto">
           <table className="w-full text-sm">
             <thead>

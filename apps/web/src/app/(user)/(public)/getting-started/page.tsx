@@ -66,21 +66,19 @@ export default async function GettingStartedPage() {
         />
       </div>
 
-      <section className="rounded-lg border border-surface-200 bg-surface-50 px-6 py-8 text-center">
+      <section className="space-y-4 rounded-lg border border-surface-200 bg-surface-50 px-6 py-8 text-center">
         <h2 className="text-lg font-semibold text-surface-900">
           {t("signUp.title")}
         </h2>
-        <p className="mx-auto mt-3 max-w-xl text-sm leading-relaxed text-surface-500">
+        <p className="mx-auto max-w-xl text-sm leading-relaxed text-surface-500">
           {t("signUp.description")}
         </p>
-        <div className="mt-6">
-          <Link
-            href="/sign-up"
-            className="inline-flex items-center justify-center rounded-lg bg-primary-600 px-8 py-3 text-sm font-semibold text-white shadow-sm transition-colors hover:bg-primary-700"
-          >
-            {t("signUp.cta")}
-          </Link>
-        </div>
+        <Link
+          href="/sign-up"
+          className="inline-flex items-center justify-center rounded-lg bg-primary-600 px-8 py-3 text-sm font-semibold text-white shadow-sm transition-colors hover:bg-primary-700"
+        >
+          {t("signUp.cta")}
+        </Link>
       </section>
     </ContentContainer>
   );

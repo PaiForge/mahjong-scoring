@@ -55,15 +55,15 @@ export async function PracticeLinkList({ hrefs }: PracticeLinkListProps) {
   });
 
   return (
-    <section className="mt-10">
+    <section className="space-y-4">
       <h2 className="text-base font-semibold text-surface-900">
         {t("practiceLinksTitle")}
       </h2>
       <div
         className={
           items.length === 1
-            ? "mt-4"
-            : "mt-4 grid grid-cols-1 gap-3 md:grid-cols-2"
+            ? undefined
+            : "grid grid-cols-1 gap-3 md:grid-cols-2"
         }
       >
         {items.map((item) => (

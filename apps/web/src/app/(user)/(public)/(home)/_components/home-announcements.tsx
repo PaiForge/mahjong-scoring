@@ -21,50 +21,55 @@ export async function HomeAnnouncements() {
     <ContentContainer>
       <PageTitle>{tNav("home")}</PageTitle>
 
-      <SectionTitle>{t("pageTitle")}</SectionTitle>
+      <div className="space-y-4">
+        <SectionTitle>{t("pageTitle")}</SectionTitle>
 
-      {announcements.length === 0 ? (
-        <p className="mt-4 text-sm text-muted-foreground">{t("empty")}</p>
-      ) : (
-        <div className="mt-4">
-          <ListLinkContainer>
-            {announcements.map((announcement) => {
-              const publishedDate = announcement.publishedAt
-                ? new Date(announcement.publishedAt).toLocaleDateString(locale, {
-                    year: "numeric",
-                    month: "short",
-                    day: "numeric",
-                  })
-                : undefined;
+        {announcements.length === 0 ? (
+          <p className="text-sm text-muted-foreground">{t("empty")}</p>
+        ) : (
+          <div className="space-y-4">
+            <ListLinkContainer>
+              {announcements.map((announcement) => {
+                const publishedDate = announcement.publishedAt
+                  ? new Date(announcement.publishedAt).toLocaleDateString(
+                      locale,
+                      {
+                        year: "numeric",
+                        month: "short",
+                        day: "numeric",
+                      },
+                    )
+                  : undefined;
 
-              return (
-                <ListLink
-                  key={announcement.id}
-                  href={`/announcements/${announcement.slug}`}
-                  icon="📢"
-                  title={announcement.title}
-                  meta={publishedDate}
-                  badge={
-                    announcement.pinnedAt !== null ? (
-                      <span className="flex-shrink-0 rounded bg-primary-100 px-1.5 py-0.5 text-xs font-semibold text-primary-700">
-                        {t("pinned")}
-                      </span>
-                    ) : undefined
-                  }
-                />
-              );
-            })}
-          </ListLinkContainer>
-          <div className="mt-4 text-right">
-            <Link
-              href="/announcements"
-              className="text-sm font-medium text-link-primary transition-colors hover:opacity-80"
-            >
-              {t("viewAll")}
-            </Link>
+                return (
+                  <ListLink
+                    key={announcement.id}
+                    href={`/announcements/${announcement.slug}`}
+                    icon="📢"
+                    title={announcement.title}
+                    meta={publishedDate}
+                    badge={
+                      announcement.pinnedAt !== null ? (
+                        <span className="flex-shrink-0 rounded bg-primary-100 px-1.5 py-0.5 text-xs font-semibold text-primary-700">
+                          {t("pinned")}
+                        </span>
+                      ) : undefined
+                    }
+                  />
+                );
+              })}
+            </ListLinkContainer>
+            <div className="text-right">
+              <Link
+                href="/announcements"
+                className="text-sm font-medium text-link-primary transition-colors hover:opacity-80"
+              >
+                {t("viewAll")}
+              </Link>
+            </div>
           </div>
-        </div>
-      )}
+        )}
+      </div>
     </ContentContainer>
   );
 }

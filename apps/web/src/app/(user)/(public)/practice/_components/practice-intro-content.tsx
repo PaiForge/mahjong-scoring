@@ -57,11 +57,9 @@ export async function PracticeIntroContent({
         )}
 
         {howToPlay && (
-          <div>
-            <SectionTitle className="mb-4">{t("howToPlay.title")}</SectionTitle>
-            <p className="mb-4 text-sm text-surface-600">
-              {t("howToPlay.lead")}
-            </p>
+          <div className="space-y-4">
+            <SectionTitle>{t("howToPlay.title")}</SectionTitle>
+            <p className="text-sm text-surface-600">{t("howToPlay.lead")}</p>
             <div className="rounded-xl border border-surface-200 bg-surface-50 p-6">
               {howToPlay}
             </div>
@@ -77,7 +75,9 @@ export async function PracticeIntroContent({
               >
                 {tc("startButton")}
               </PrimaryLinkButton>
-              <p className="text-xs text-surface-400">{tp("modeChallengeHint")}</p>
+              <p className="text-xs text-surface-400">
+                {tp("modeChallengeHint")}
+              </p>
             </div>
 
             <div className="flex w-full items-center gap-3 text-xs text-surface-400">
@@ -94,18 +94,18 @@ export async function PracticeIntroContent({
                 <InfinityIcon className="size-4" />
                 {tt("startButton")}
               </Link>
-              <p className="text-xs text-surface-400">{tp("modeTrainingHint")}</p>
+              <p className="text-xs text-surface-400">
+                {tp("modeTrainingHint")}
+              </p>
             </div>
           </div>
         ) : (
-          <div>
-            <PrimaryLinkButton
-              href={`/practice/${slug}/play${PRACTICE_SCROLL_HASH}`}
-              className="w-full py-3"
-            >
-              {tc("startButton")}
-            </PrimaryLinkButton>
-          </div>
+          <PrimaryLinkButton
+            href={`/practice/${slug}/play${PRACTICE_SCROLL_HASH}`}
+            className="w-full py-3"
+          >
+            {tc("startButton")}
+          </PrimaryLinkButton>
         )}
 
         {showLearnLink && (

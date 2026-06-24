@@ -32,7 +32,10 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
     return createMetadata({ title: t("notFound") });
   }
 
-  const description = announcement.content.slice(0, 160).replace(/\n/g, " ").trim();
+  const description = announcement.content
+    .slice(0, 160)
+    .replace(/\n/g, " ")
+    .trim();
   return createMetadata({ title: announcement.title, description });
 }
 
@@ -64,13 +67,17 @@ export default async function AnnouncementDetailPage({ params }: Props) {
     >
       <PageTitle>{announcement.title}</PageTitle>
 
-      <article>
-        <MarkdownRenderer content={announcement.content} skipFirstH1 />
-      </article>
+      <div className="space-y-8">
+        <article>
+          <MarkdownRenderer content={announcement.content} skipFirstH1 />
+        </article>
 
-      {publishedDate && (
-        <p className="mt-8 text-right text-sm text-muted-foreground">{publishedDate}</p>
-      )}
+        {publishedDate && (
+          <p className="text-right text-sm text-muted-foreground">
+            {publishedDate}
+          </p>
+        )}
+      </div>
     </ContentContainer>
   );
 }

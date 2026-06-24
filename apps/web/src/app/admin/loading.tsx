@@ -37,10 +37,10 @@ export default function AdminDashboardLoading() {
         </div>
 
         {/* サマリーカード */}
-        <section className="rounded-lg border border-surface-200 bg-surface-50 p-6">
+        <section className="space-y-1 rounded-lg border border-surface-200 bg-surface-50 p-6">
           <div className="h-4 w-40 animate-pulse rounded bg-surface-100" />
-          <div className="mt-1 h-9 w-20 animate-pulse rounded bg-surface-200" />
-          <div className="mt-1 h-3 w-56 animate-pulse rounded bg-surface-100" />
+          <div className="h-9 w-20 animate-pulse rounded bg-surface-200" />
+          <div className="h-3 w-56 animate-pulse rounded bg-surface-100" />
         </section>
 
         {/* 日次推移チャート */}

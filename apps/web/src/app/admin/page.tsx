@@ -28,7 +28,9 @@ export default async function AdminDashboardPage({
   return (
     <>
       <AdminPageTitle className="mb-2">{t("dashboard")}</AdminPageTitle>
-      <p className="mb-6 text-sm text-surface-600">{t("dashboardDescription")}</p>
+      <p className="mb-6 text-sm text-surface-600">
+        {t("dashboardDescription")}
+      </p>
 
       <div className="space-y-6">
         <DateRangePicker
@@ -43,14 +45,14 @@ export default async function AdminDashboardPage({
           }}
         />
 
-        <section className="rounded-lg border border-surface-200 bg-surface-50 p-6">
+        <section className="space-y-1 rounded-lg border border-surface-200 bg-surface-50 p-6">
           <p className="text-sm text-surface-500">
             {t("dashboardKpi.newUsersPeriodTotal")}
           </p>
-          <p className="mt-1 text-3xl font-semibold text-surface-900">
+          <p className="text-3xl font-semibold text-surface-900">
             {newUsers.total}
           </p>
-          <p className="mt-1 text-xs text-surface-500">
+          <p className="text-xs text-surface-500">
             {startDate} ~ {endDate} (UTC)
           </p>
         </section>

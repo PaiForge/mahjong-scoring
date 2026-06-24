@@ -54,7 +54,7 @@ export default async function SignInPage({
   return (
     <ContentContainer>
       <PageTitle>{t("signInPageTitle")}</PageTitle>
-      <div className="mt-8 space-y-6">
+      <div className="space-y-6">
         {error && (
           <p className="text-center text-sm text-red-600">{t("authError")}</p>
         )}

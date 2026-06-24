@@ -15,7 +15,7 @@ export default async function PrivacyPage() {
   return (
     <ContentContainer breadcrumb={[{ label: t("pageTitle") }]}>
       <PageTitle>{t("pageTitle")}</PageTitle>
-      <p className="mt-4 text-sm text-surface-500">{t("comingSoon")}</p>
+      <p className="text-sm text-surface-500">{t("comingSoon")}</p>
     </ContentContainer>
   );
 }

@@ -11,27 +11,27 @@ export async function WhyScoringIsComplexGuide() {
   return (
     <div className="space-y-10">
       {/* 公式に基づけば計算自体は単純 */}
-      <section>
+      <section className="space-y-4">
         <SectionTitle>{t("scoringIsSimpleTitle")}</SectionTitle>
-        <p className="mt-3 text-sm leading-relaxed text-surface-700">
+        <p className="text-sm leading-relaxed text-surface-700">
           {t("scoringIsSimpleBody1")}
         </p>
-        <p className="mt-2 text-sm leading-relaxed text-surface-700">
+        <p className="text-sm leading-relaxed text-surface-700">
           {t("scoringIsSimpleBody2")}
         </p>
-        <p className="mt-2 text-sm leading-relaxed text-surface-700">
+        <p className="text-sm leading-relaxed text-surface-700">
           {t("scoringIsSimpleBody3")}
         </p>
 
-        <div className="mt-4">
-          <BlockMath latex={String.raw`\text{符} \times 2^{(\text{翻数} + 2)} \times 4`} />
-        </div>
+        <BlockMath
+          latex={String.raw`\text{符} \times 2^{(\text{翻数} + 2)} \times 4`}
+        />
 
-        <p className="mt-2 text-sm leading-relaxed text-surface-700">
+        <p className="text-sm leading-relaxed text-surface-700">
           {t("exampleIntro")}
         </p>
 
-        <ol className="mt-3 list-decimal space-y-1 pl-6 text-sm leading-relaxed text-surface-700">
+        <ol className="list-decimal space-y-1 pl-6 text-sm leading-relaxed text-surface-700">
           <li>
             {t("step1Prefix")}
             <InlineMath latex={String.raw`\text{符}`} />
@@ -49,27 +49,21 @@ export async function WhyScoringIsComplexGuide() {
             <InlineMath latex={String.raw`30 \times 32 \times 4`} />
             {t("step3Suffix")}
           </li>
-          <li>
-            {t("step4")}
-          </li>
+          <li>{t("step4")}</li>
         </ol>
 
-        <div className="mt-4">
-          <BlockMath
-            latex={String.raw`\begin{aligned} & 30 \times 2^{(3+2)} \times 4 \\ &= 30 \times 32 \times 4 \\ &= 960 \times 4 \\ &= 3840 \xrightarrow{\text{切り上げ}} 3900 \end{aligned}`}
-          />
-        </div>
+        <BlockMath
+          latex={String.raw`\begin{aligned} & 30 \times 2^{(3+2)} \times 4 \\ &= 30 \times 32 \times 4 \\ &= 960 \times 4 \\ &= 3840 \xrightarrow{\text{切り上げ}} 3900 \end{aligned}`}
+        />
 
-        <p className="mt-2 text-sm leading-relaxed text-surface-700">
+        <p className="text-sm leading-relaxed text-surface-700">
           {t("calculatorNote")}
         </p>
-        <p className="mt-2 text-sm leading-relaxed text-surface-700">
+        <p className="text-sm leading-relaxed text-surface-700">
           {t("memorizeNote")}
         </p>
-        <p className="mt-2 text-sm leading-relaxed text-surface-700">
-          {t("kuku")}
-        </p>
-        <p className="mt-2 text-sm leading-relaxed text-surface-700">
+        <p className="text-sm leading-relaxed text-surface-700">{t("kuku")}</p>
+        <p className="text-sm leading-relaxed text-surface-700">
           {t("practiceNeeded")}
         </p>
       </section>

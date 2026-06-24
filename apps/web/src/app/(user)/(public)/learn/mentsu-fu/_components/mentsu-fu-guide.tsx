@@ -9,20 +9,20 @@ export async function MentsuFuGuide() {
   return (
     <div className="space-y-10">
       {/* What is mentsu fu */}
-      <section>
+      <section className="space-y-4">
         <SectionTitle>{t("whatIsMentsuFu")}</SectionTitle>
-        <p className="mt-3 text-sm leading-relaxed text-surface-700">
+        <p className="text-sm leading-relaxed text-surface-700">
           {t("whatIsMentsuFuBody")}
         </p>
       </section>
 
       {/* Shuntsu: 0 fu */}
-      <section>
+      <section className="space-y-4">
         <SectionTitle>{t("shuntsuTitle")}</SectionTitle>
-        <p className="mt-3 text-sm leading-relaxed text-surface-700">
+        <p className="text-sm leading-relaxed text-surface-700">
           {t("shuntsuBody")}
         </p>
-        <div className="mt-4 space-y-3 rounded-xl border border-surface-200 bg-white p-5">
+        <div className="space-y-3 rounded-xl border border-surface-200 bg-white p-5">
           <MentsuExample
             tiles={[HaiKind.ManZu2, HaiKind.ManZu3, HaiKind.ManZu4]}
             fu={0}
@@ -32,12 +32,12 @@ export async function MentsuFuGuide() {
       </section>
 
       {/* Koutsu: 2-8 fu */}
-      <section>
+      <section className="space-y-4">
         <SectionTitle>{t("koutsuTitle")}</SectionTitle>
-        <p className="mt-3 text-sm leading-relaxed text-surface-700">
+        <p className="text-sm leading-relaxed text-surface-700">
           {t("koutsuBody")}
         </p>
-        <div className="mt-4 space-y-3 rounded-xl border border-surface-200 bg-white p-5">
+        <div className="space-y-3 rounded-xl border border-surface-200 bg-white p-5">
           <MentsuExample
             tiles={[HaiKind.ManZu5, HaiKind.ManZu5, HaiKind.ManZu5]}
             fu={2}
@@ -64,20 +64,30 @@ export async function MentsuFuGuide() {
       </section>
 
       {/* Kantsu: 8-32 fu */}
-      <section>
+      <section className="space-y-4">
         <SectionTitle>{t("kantsuTitle")}</SectionTitle>
-        <p className="mt-3 text-sm leading-relaxed text-surface-700">
+        <p className="text-sm leading-relaxed text-surface-700">
           {t("kantsuBody")}
         </p>
-        <div className="mt-4 space-y-3 rounded-xl border border-surface-200 bg-white p-5">
+        <div className="space-y-3 rounded-xl border border-surface-200 bg-white p-5">
           <MentsuExample
-            tiles={[HaiKind.SouZu5, HaiKind.SouZu5, HaiKind.SouZu5, HaiKind.SouZu5]}
+            tiles={[
+              HaiKind.SouZu5,
+              HaiKind.SouZu5,
+              HaiKind.SouZu5,
+              HaiKind.SouZu5,
+            ]}
             fu={8}
             label={t("kantsuOpenSimpleLabel")}
             isOpen
           />
           <MentsuExample
-            tiles={[HaiKind.PinZu7, HaiKind.PinZu7, HaiKind.PinZu7, HaiKind.PinZu7]}
+            tiles={[
+              HaiKind.PinZu7,
+              HaiKind.PinZu7,
+              HaiKind.PinZu7,
+              HaiKind.PinZu7,
+            ]}
             fu={16}
             label={t("kantsuClosedSimpleLabel")}
             isKantsu
@@ -89,7 +99,12 @@ export async function MentsuFuGuide() {
             isOpen
           />
           <MentsuExample
-            tiles={[HaiKind.PinZu9, HaiKind.PinZu9, HaiKind.PinZu9, HaiKind.PinZu9]}
+            tiles={[
+              HaiKind.PinZu9,
+              HaiKind.PinZu9,
+              HaiKind.PinZu9,
+              HaiKind.PinZu9,
+            ]}
             fu={32}
             label={t("kantsuClosedYaochuLabel")}
             isKantsu
@@ -98,40 +113,68 @@ export async function MentsuFuGuide() {
       </section>
 
       {/* Summary table */}
-      <section>
+      <section className="space-y-4">
         <SectionTitle>{t("summaryTitle")}</SectionTitle>
-        <div className="mt-4 overflow-hidden rounded-xl border border-surface-200">
+        <div className="overflow-hidden rounded-xl border border-surface-200">
           <table className="w-full text-sm">
             <thead>
               <tr className="bg-surface-50">
-                <th className="px-4 py-3 text-left font-medium text-surface-600">{t("colType")}</th>
-                <th className="px-4 py-3 text-right font-medium text-surface-600">{t("colFu")}</th>
+                <th className="px-4 py-3 text-left font-medium text-surface-600">
+                  {t("colType")}
+                </th>
+                <th className="px-4 py-3 text-right font-medium text-surface-600">
+                  {t("colFu")}
+                </th>
               </tr>
             </thead>
             <tbody className="divide-y divide-surface-100">
               <tr className="bg-white">
-                <td className="px-4 py-3 text-surface-500">{t("rowShuntsu")}</td>
-                <td className="px-4 py-3 text-right text-surface-400">{t("fuUnit", { value: 0 })}</td>
+                <td className="px-4 py-3 text-surface-500">
+                  {t("rowShuntsu")}
+                </td>
+                <td className="px-4 py-3 text-right text-surface-400">
+                  {t("fuUnit", { value: 0 })}
+                </td>
               </tr>
               <tr className="bg-white">
-                <td className="px-4 py-3 text-surface-900">{t("rowOpenSimpleKoutsu")}</td>
-                <td className="px-4 py-3 text-right font-semibold text-primary-600">{t("fuUnit", { value: 2 })}</td>
+                <td className="px-4 py-3 text-surface-900">
+                  {t("rowOpenSimpleKoutsu")}
+                </td>
+                <td className="px-4 py-3 text-right font-semibold text-primary-600">
+                  {t("fuUnit", { value: 2 })}
+                </td>
               </tr>
               <tr className="bg-white">
-                <td className="px-4 py-3 text-surface-900">{t("rowClosedSimpleKoutsuOrOpenYaochuKoutsu")}</td>
-                <td className="px-4 py-3 text-right font-semibold text-primary-600">{t("fuUnit", { value: 4 })}</td>
+                <td className="px-4 py-3 text-surface-900">
+                  {t("rowClosedSimpleKoutsuOrOpenYaochuKoutsu")}
+                </td>
+                <td className="px-4 py-3 text-right font-semibold text-primary-600">
+                  {t("fuUnit", { value: 4 })}
+                </td>
               </tr>
               <tr className="bg-white">
-                <td className="px-4 py-3 text-surface-900">{t("rowClosedYaochuKoutsuOrOpenSimpleKantsu")}</td>
-                <td className="px-4 py-3 text-right font-semibold text-primary-600">{t("fuUnit", { value: 8 })}</td>
+                <td className="px-4 py-3 text-surface-900">
+                  {t("rowClosedYaochuKoutsuOrOpenSimpleKantsu")}
+                </td>
+                <td className="px-4 py-3 text-right font-semibold text-primary-600">
+                  {t("fuUnit", { value: 8 })}
+                </td>
               </tr>
               <tr className="bg-white">
-                <td className="px-4 py-3 text-surface-900">{t("rowClosedSimpleKantsuOrOpenYaochuKantsu")}</td>
-                <td className="px-4 py-3 text-right font-semibold text-primary-600">{t("fuUnit", { value: 16 })}</td>
+                <td className="px-4 py-3 text-surface-900">
+                  {t("rowClosedSimpleKantsuOrOpenYaochuKantsu")}
+                </td>
+                <td className="px-4 py-3 text-right font-semibold text-primary-600">
+                  {t("fuUnit", { value: 16 })}
+                </td>
               </tr>
               <tr className="bg-white">
-                <td className="px-4 py-3 text-surface-900">{t("rowClosedYaochuKantsu")}</td>
-                <td className="px-4 py-3 text-right font-semibold text-primary-600">{t("fuUnit", { value: 32 })}</td>
+                <td className="px-4 py-3 text-surface-900">
+                  {t("rowClosedYaochuKantsu")}
+                </td>
+                <td className="px-4 py-3 text-right font-semibold text-primary-600">
+                  {t("fuUnit", { value: 32 })}
+                </td>
               </tr>
             </tbody>
           </table>

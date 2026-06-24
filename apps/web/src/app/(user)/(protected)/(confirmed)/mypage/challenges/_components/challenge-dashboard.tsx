@@ -7,7 +7,10 @@ import { useTranslations } from "next-intl";
 
 import { SectionTitle } from "@/app/_components/section-title";
 import type { PracticeMenuType } from "@/lib/db/practice-menu-types";
-import { isPracticeMenuType, menuTypeToMessageKey } from "@/lib/db/practice-menu-types";
+import {
+  isPracticeMenuType,
+  menuTypeToMessageKey,
+} from "@/lib/db/practice-menu-types";
 
 import {
   getComparisonLabel,
@@ -17,7 +20,10 @@ import {
 import type { ChallengeSession, DatePeriod } from "../_lib/types";
 import { isDatePeriod } from "../_lib/types";
 import { useDashboardData } from "../_hooks/use-dashboard-data";
-import { DashboardContentSkeleton, DashboardSkeleton } from "./dashboard-skeleton";
+import {
+  DashboardContentSkeleton,
+  DashboardSkeleton,
+} from "./dashboard-skeleton";
 import { SessionHistoryTable } from "./session-history-table";
 import { StatsCard } from "./stats-card";
 
@@ -103,17 +109,19 @@ export function ChallengeDashboard({
 
   // useCallback ではなく useMemo を使用: undefined を返すケースがあるため
   const handlePreviousPeriodClick = useMemo(
-    () => navigablePrevPeriod
-      ? () => setSelectedPeriod(navigablePrevPeriod)
-      : undefined,
+    () =>
+      navigablePrevPeriod
+        ? () => setSelectedPeriod(navigablePrevPeriod)
+        : undefined,
     [navigablePrevPeriod, setSelectedPeriod],
   );
 
   const menuOptions = useMemo(
-    () => (availableMenuTypes ?? []).map((type) => ({
-      value: type,
-      label: t(`menuTypes.${menuTypeToMessageKey(type)}`),
-    })),
+    () =>
+      (availableMenuTypes ?? []).map((type) => ({
+        value: type,
+        label: t(`menuTypes.${menuTypeToMessageKey(type)}`),
+      })),
     [availableMenuTypes, t],
   );
 
@@ -194,41 +202,37 @@ export function ChallengeDashboard({
             />
           </div>
 
-          <div className="min-w-0 overflow-hidden">
+          <div className="min-w-0 overflow-hidden space-y-4">
             <h3 className="text-sm md:text-base font-medium text-surface-500">
               {t("scoreTrend")}
             </h3>
-            <div className="mt-4">
-              <ScoreChart
-                data={chartData}
-                emptyMessage={t("noData")}
-                yAxisLabel={t("scoreUnit")}
-                currentLabel={t(`periods.${selectedPeriod}`)}
-                previousLabel={t(
-                  `periods.${getPreviousPeriodLabel(selectedPeriod)}`,
-                )}
-                onPreviousLabelClick={handlePreviousPeriodClick}
-              />
-            </div>
+            <ScoreChart
+              data={chartData}
+              emptyMessage={t("noData")}
+              yAxisLabel={t("scoreUnit")}
+              currentLabel={t(`periods.${selectedPeriod}`)}
+              previousLabel={t(
+                `periods.${getPreviousPeriodLabel(selectedPeriod)}`,
+              )}
+              onPreviousLabelClick={handlePreviousPeriodClick}
+            />
           </div>
 
-          <div>
+          <div className="space-y-4">
             <h3 className="text-sm md:text-base font-medium text-surface-500">
               {t("sessionHistory")}
             </h3>
-            <div className="mt-4">
-              <SessionHistoryTable
-                sessions={tableRows}
-                emptyMessage={t("noData")}
-                headers={{
-                  date: t("tableDate"),
-                  correctAnswers: t("tableCorrectAnswers"),
-                  incorrectAnswers: t("tableIncorrectAnswers"),
-                }}
-              />
-            </div>
+            <SessionHistoryTable
+              sessions={tableRows}
+              emptyMessage={t("noData")}
+              headers={{
+                date: t("tableDate"),
+                correctAnswers: t("tableCorrectAnswers"),
+                incorrectAnswers: t("tableIncorrectAnswers"),
+              }}
+            />
             {hasMoreResults && (
-              <div className="text-center mt-3">
+              <div className="text-center">
                 <Link
                   href="/mypage/challenges/results"
                   className="text-sm text-primary-500 hover:text-primary-600 transition-colors"

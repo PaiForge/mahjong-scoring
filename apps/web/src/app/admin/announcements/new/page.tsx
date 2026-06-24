@@ -17,8 +17,8 @@ export default async function NewAnnouncementPage({ searchParams }: Props) {
   const t = await getTranslations("admin.announcements");
 
   return (
-    <div>
-      <AdminPageTitle className="mb-6">{t("createTitle")}</AdminPageTitle>
+    <div className="space-y-6">
+      <AdminPageTitle>{t("createTitle")}</AdminPageTitle>
       <AnnouncementForm
         mode="create"
         defaultSlug={slug}

@@ -82,15 +82,21 @@ export function ScorePracticeAnswerForm({
     [t],
   );
 
-  const handleHanChange = useCallback((e: React.ChangeEvent<HTMLSelectElement>) => {
-    const value = e.target.value;
-    setHan(value === "" ? undefined : Number(value));
-  }, []);
+  const handleHanChange = useCallback(
+    (e: React.ChangeEvent<HTMLSelectElement>) => {
+      const value = e.target.value;
+      setHan(value === "" ? undefined : Number(value));
+    },
+    [],
+  );
 
-  const handleFuChange = useCallback((e: React.ChangeEvent<HTMLSelectElement>) => {
-    const value = e.target.value;
-    setFu(value === "" ? undefined : Number(value));
-  }, []);
+  const handleFuChange = useCallback(
+    (e: React.ChangeEvent<HTMLSelectElement>) => {
+      const value = e.target.value;
+      setFu(value === "" ? undefined : Number(value));
+    },
+    [],
+  );
 
   const availableScores = useMemo(
     () => getAvailableScores(han, isOya, isTsumo),
@@ -265,7 +271,7 @@ export function ScorePracticeAnswerForm({
 
       {/* Skip */}
       {onSkip && (
-        <div className="mt-4 text-center">
+        <div className="text-center">
           <button
             type="button"
             onClick={onSkip}
@@ -278,7 +284,7 @@ export function ScorePracticeAnswerForm({
 
       {/* Exit */}
       {onExit && (
-        <div className="mt-2 text-center">
+        <div className="text-center">
           <button
             type="button"
             onClick={onExit}

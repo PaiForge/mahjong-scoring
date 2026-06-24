@@ -10,8 +10,8 @@ import { AdminPageTitle } from "@/app/admin/_components/admin-page-title";
  */
 export default function AnnouncementsLoading() {
   return (
-    <div>
-      <div className="mb-6 flex items-center justify-between">
+    <div className="space-y-6">
+      <div className="flex items-center justify-between">
         <AdminPageTitle>
           <span className="inline-block h-7 w-40 animate-pulse rounded bg-surface-200 align-middle" />
         </AdminPageTitle>
@@ -27,7 +27,10 @@ export default function AnnouncementsLoading() {
             </div>
             <div className="space-y-3 p-4">
               {Array.from({ length: 2 }, (_row, j) => (
-                <div key={j} className="h-5 w-full animate-pulse rounded bg-surface-100" />
+                <div
+                  key={j}
+                  className="h-5 w-full animate-pulse rounded bg-surface-100"
+                />
               ))}
             </div>
           </section>

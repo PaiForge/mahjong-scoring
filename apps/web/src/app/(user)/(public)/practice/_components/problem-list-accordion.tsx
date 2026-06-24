@@ -30,7 +30,9 @@ export function ProblemListAccordion<T>({
   renderDetail,
 }: ProblemListAccordionProps<T>) {
   const tResult = useTranslations(`${translationNamespace}.result`);
-  const [expandedProblems, setExpandedProblems] = useState<Set<number>>(new Set());
+  const [expandedProblems, setExpandedProblems] = useState<Set<number>>(
+    new Set(),
+  );
 
   const toggleProblem = (index: number) => {
     setExpandedProblems((prev) => {
@@ -47,8 +49,8 @@ export function ProblemListAccordion<T>({
   if (results.length === 0) return undefined;
 
   return (
-    <div className="mt-8 w-full max-w-md">
-      <p className="mb-2 text-left text-sm font-medium text-surface-500">
+    <div className="mt-8 w-full max-w-md space-y-2">
+      <p className="text-left text-sm font-medium text-surface-500">
         {tResult("problemDetails")}
       </p>
       <div className="space-y-2">
@@ -57,7 +59,10 @@ export function ProblemListAccordion<T>({
           const correct = isCorrect(result);
 
           return (
-            <div key={index} className="overflow-hidden rounded-lg border border-surface-200">
+            <div
+              key={index}
+              className="overflow-hidden rounded-lg border border-surface-200"
+            >
               <button
                 type="button"
                 onClick={() => toggleProblem(index)}
@@ -71,18 +76,30 @@ export function ProblemListAccordion<T>({
                   >
                     <path d="M8 5v14l11-7z" />
                   </svg>
-                  <span className="font-medium whitespace-nowrap">No.{index + 1}</span>
+                  <span className="font-medium whitespace-nowrap">
+                    No.{index + 1}
+                  </span>
                   {renderSummary && (
-                    <span className="text-sm text-surface-500">{renderSummary(result, index)}</span>
+                    <span className="text-sm text-surface-500">
+                      {renderSummary(result, index)}
+                    </span>
                   )}
                 </div>
                 <div className="ml-2 flex flex-shrink-0 items-center gap-1">
                   {correct ? (
-                    <svg className="size-3 text-green-500" viewBox="0 0 24 24" fill="currentColor">
+                    <svg
+                      className="size-3 text-green-500"
+                      viewBox="0 0 24 24"
+                      fill="currentColor"
+                    >
                       <path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z" />
                     </svg>
                   ) : (
-                    <svg className="size-3 text-red-500" viewBox="0 0 24 24" fill="currentColor">
+                    <svg
+                      className="size-3 text-red-500"
+                      viewBox="0 0 24 24"
+                      fill="currentColor"
+                    >
                       <path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z" />
                     </svg>
                   )}

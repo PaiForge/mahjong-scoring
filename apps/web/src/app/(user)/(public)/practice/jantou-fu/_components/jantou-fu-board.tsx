@@ -30,9 +30,11 @@ export function JantouFuBoard({
 }: JantouFuBoardProps) {
   const t = useTranslations("jantouFu");
   const [question, setQuestion] = useState<JantouFuQuestion>(
-    generateJantouFuQuestion
+    generateJantouFuQuestion,
   );
-  const [selectedHai, setSelectedHai] = useState<JantouFuChoice["hai"] | undefined>(undefined);
+  const [selectedHai, setSelectedHai] = useState<
+    JantouFuChoice["hai"] | undefined
+  >(undefined);
 
   const advanceQuestion = useCallback(() => {
     setQuestion(generateJantouFuQuestion());
@@ -46,22 +48,22 @@ export function JantouFuBoard({
       setSelectedHai(choice.hai);
       onAnswer(choice.isCorrect, advanceQuestion);
     },
-    [showFeedback, question.choices, onAnswer, advanceQuestion]
+    [showFeedback, question.choices, onAnswer, advanceQuestion],
   );
 
   return (
     <div className="mt-6 space-y-5">
       {/* Context */}
       <div className="flex justify-center gap-6 text-sm">
-        <div className="text-center">
+        <div className="space-y-1 text-center">
           <span className="text-surface-400">{t("bakaze")}</span>
-          <p className="mt-1 text-lg font-bold text-surface-900">
+          <p className="text-lg font-bold text-surface-900">
             {getKazeName(question.context.bakaze)}
           </p>
         </div>
-        <div className="text-center">
+        <div className="space-y-1 text-center">
           <span className="text-surface-400">{t("jikaze")}</span>
-          <p className="mt-1 text-lg font-bold text-surface-900">
+          <p className="text-lg font-bold text-surface-900">
             {getKazeName(question.context.jikaze)}
           </p>
         </div>

@@ -59,19 +59,21 @@ export async function LearnPageLayout({
     >
       <PageTitle>{t("pageTitle")}</PageTitle>
 
-      {children}
+      <div className="space-y-10">
+        {children}
 
-      <PracticeLinkList hrefs={practiceHrefs} />
+        <PracticeLinkList hrefs={practiceHrefs} />
 
-      <div className="mt-10 flex justify-center">
-        {user ? (
-          <MarkAsReadButton slug={slug} initialRead={alreadyRead} />
-        ) : (
-          <LoginPromptCta slug={slug} />
-        )}
+        <div className="flex justify-center">
+          {user ? (
+            <MarkAsReadButton slug={slug} initialRead={alreadyRead} />
+          ) : (
+            <LoginPromptCta slug={slug} />
+          )}
+        </div>
+
+        <ChapterNav slug={slug} />
       </div>
-
-      <ChapterNav slug={slug} />
     </ContentContainer>
   );
 }

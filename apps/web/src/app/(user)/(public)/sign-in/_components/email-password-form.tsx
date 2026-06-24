@@ -14,11 +14,7 @@ import { signIn } from "../_actions/sign-in";
  * @param redirectTo ログイン成功時の遷移先。未指定または無効な場合は `/mypage`。
  *   `page.tsx` 側で `sanitizeInternalRedirect` 済みの値を受け取る想定。
  */
-export function EmailPasswordForm({
-  redirectTo,
-}: {
-  redirectTo?: string;
-}) {
+export function EmailPasswordForm({ redirectTo }: { redirectTo?: string }) {
   const t = useTranslations("auth");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -56,14 +52,12 @@ export function EmailPasswordForm({
 
   return (
     <form onSubmit={handleSubmit} className="w-full max-w-sm mx-auto space-y-4">
-      {error && (
-        <p className="text-center text-sm text-red-600">{error}</p>
-      )}
+      {error && <p className="text-center text-sm text-red-600">{error}</p>}
 
-      <div>
+      <div className="space-y-1">
         <label
           htmlFor="signin-email"
-          className="block text-sm font-medium text-surface-700 mb-1"
+          className="block text-sm font-medium text-surface-700"
         >
           {t("emailLabel")}
         </label>
@@ -79,10 +73,10 @@ export function EmailPasswordForm({
         />
       </div>
 
-      <div>
+      <div className="space-y-1">
         <label
           htmlFor="signin-password"
-          className="block text-sm font-medium text-surface-700 mb-1"
+          className="block text-sm font-medium text-surface-700"
         >
           {t("passwordLabel")}
         </label>
@@ -107,10 +101,7 @@ export function EmailPasswordForm({
       </button>
 
       <p className="text-center text-sm">
-        <Link
-          href="/forgot-password"
-          className="text-primary hover:underline"
-        >
+        <Link href="/forgot-password" className="text-primary hover:underline">
           {t("forgotPasswordLink")}
         </Link>
       </p>

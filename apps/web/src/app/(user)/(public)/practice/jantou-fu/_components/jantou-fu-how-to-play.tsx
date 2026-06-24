@@ -28,13 +28,13 @@ export function JantouFuHowToPlay() {
     <div className="space-y-5">
       {/* Context */}
       <div className="flex justify-center gap-6 text-sm">
-        <div className="text-center">
+        <div className="space-y-1 text-center">
           <span className="text-surface-400">{t("bakaze")}</span>
-          <p className="mt-1 text-lg font-bold text-surface-900">東</p>
+          <p className="text-lg font-bold text-surface-900">東</p>
         </div>
-        <div className="text-center">
+        <div className="space-y-1 text-center">
           <span className="text-surface-400">{t("jikaze")}</span>
-          <p className="mt-1 text-lg font-bold text-surface-900">南</p>
+          <p className="text-lg font-bold text-surface-900">南</p>
         </div>
       </div>
 

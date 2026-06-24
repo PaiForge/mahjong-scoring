@@ -1,9 +1,13 @@
-import type { ReactNode } from 'react';
+import type { ReactNode } from "react";
 
-import { createSearchParamsCache, parseAsInteger, parseAsString } from 'nuqs/server';
+import {
+  createSearchParamsCache,
+  parseAsInteger,
+  parseAsString,
+} from "nuqs/server";
 
-import { AdminPageTitle } from './admin-page-title';
-import { PaginationNav } from '../../_components/pagination-nav';
+import { AdminPageTitle } from "./admin-page-title";
+import { PaginationNav } from "../../_components/pagination-nav";
 
 /**
  * 管理画面ログページ共通の検索パラメータキャッシュ（ログ検索パラメータ）
@@ -12,8 +16,8 @@ import { PaginationNav } from '../../_components/pagination-nav';
  */
 export const logSearchParamsCache = createSearchParamsCache({
   page: parseAsInteger.withDefault(1),
-  action: parseAsString.withDefault(''),
-  user: parseAsString.withDefault(''),
+  action: parseAsString.withDefault(""),
+  user: parseAsString.withDefault(""),
 });
 
 /** テーブルのカラム定義（列ヘッダ） */
@@ -72,20 +76,23 @@ export function AdminLogPageLayout({
 }: AdminLogPageLayoutProps) {
   const buildHref = (p: number) => {
     const params = new URLSearchParams();
-    params.set('page', String(p));
-    if (actionFilter) params.set('action', actionFilter);
-    if (userFilter) params.set('user', userFilter);
+    params.set("page", String(p));
+    if (actionFilter) params.set("action", actionFilter);
+    if (userFilter) params.set("user", userFilter);
     return `${basePath}?${params.toString()}`;
   };
 
   return (
-    <div>
-      <AdminPageTitle className="mb-6">{title}</AdminPageTitle>
+    <div className="space-y-6">
+      <AdminPageTitle>{title}</AdminPageTitle>
 
       {/* フィルタ */}
-      <form className="mb-6 flex items-end gap-4">
+      <form className="flex items-end gap-4">
         <div>
-          <label htmlFor="action-filter" className="mb-1 block text-sm font-medium">
+          <label
+            htmlFor="action-filter"
+            className="mb-1 block text-sm font-medium"
+          >
             {i18n.filterByAction}
           </label>
           <select
@@ -99,7 +106,10 @@ export function AdminLogPageLayout({
           </select>
         </div>
         <div>
-          <label htmlFor="user-filter" className="mb-1 block text-sm font-medium">
+          <label
+            htmlFor="user-filter"
+            className="mb-1 block text-sm font-medium"
+          >
             {i18n.filterByUser}
           </label>
           <input

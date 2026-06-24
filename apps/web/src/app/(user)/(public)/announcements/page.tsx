@@ -44,7 +44,10 @@ export default async function AnnouncementsPage({ searchParams }: Props) {
 
   const currentPage = Math.max(1, Number(page) || 1);
   const totalCount = await getPublishedAnnouncementCount();
-  const totalPages = Math.max(1, Math.ceil(totalCount / ANNOUNCEMENTS_PER_PAGE));
+  const totalPages = Math.max(
+    1,
+    Math.ceil(totalCount / ANNOUNCEMENTS_PER_PAGE),
+  );
 
   if (currentPage > totalPages && totalPages > 0 && page !== undefined) {
     notFound();
@@ -61,49 +64,52 @@ export default async function AnnouncementsPage({ searchParams }: Props) {
     <ContentContainer breadcrumb={[{ label: t("pageTitle") }]}>
       <PageTitle>{t("pageTitle")}</PageTitle>
 
-      <SectionTitle>{t("listTitle")}</SectionTitle>
+      <div className="space-y-4">
+        <SectionTitle>{t("listTitle")}</SectionTitle>
 
-      {items.length === 0 ? (
-        <p className="mt-4 text-sm text-muted-foreground">{t("empty")}</p>
-      ) : (
-        <div className="mt-4">
-          <ListLinkContainer>
-            {items.map((announcement) => {
-              const publishedDate = announcement.publishedAt
-                ? new Date(announcement.publishedAt).toLocaleDateString(locale, {
-                    year: "numeric",
-                    month: "short",
-                    day: "numeric",
-                  })
-                : undefined;
+        {items.length === 0 ? (
+          <p className="text-sm text-muted-foreground">{t("empty")}</p>
+        ) : (
+          <div className="space-y-6">
+            <ListLinkContainer>
+              {items.map((announcement) => {
+                const publishedDate = announcement.publishedAt
+                  ? new Date(announcement.publishedAt).toLocaleDateString(
+                      locale,
+                      {
+                        year: "numeric",
+                        month: "short",
+                        day: "numeric",
+                      },
+                    )
+                  : undefined;
 
-              return (
-                <ListLink
-                  key={announcement.id}
-                  href={`/announcements/${announcement.slug}`}
-                  icon="📢"
-                  title={announcement.title}
-                  meta={publishedDate}
-                  badge={
-                    announcement.pinnedAt !== null ? (
-                      <span className="flex-shrink-0 rounded bg-primary-100 px-1.5 py-0.5 text-xs font-semibold text-primary-700">
-                        {t("pinned")}
-                      </span>
-                    ) : undefined
-                  }
-                />
-              );
-            })}
-          </ListLinkContainer>
-          <div className="mt-6">
+                return (
+                  <ListLink
+                    key={announcement.id}
+                    href={`/announcements/${announcement.slug}`}
+                    icon="📢"
+                    title={announcement.title}
+                    meta={publishedDate}
+                    badge={
+                      announcement.pinnedAt !== null ? (
+                        <span className="flex-shrink-0 rounded bg-primary-100 px-1.5 py-0.5 text-xs font-semibold text-primary-700">
+                          {t("pinned")}
+                        </span>
+                      ) : undefined
+                    }
+                  />
+                );
+              })}
+            </ListLinkContainer>
             <PaginationNav
               currentPage={currentPage}
               totalPages={totalPages}
               buildHref={(p) => `/announcements${p > 1 ? `?page=${p}` : ""}`}
             />
           </div>
-        </div>
-      )}
+        )}
+      </div>
     </ContentContainer>
   );
 }

@@ -37,7 +37,7 @@ export async function ChapterNav({ slug }: ChapterNavProps) {
   return (
     <nav
       aria-label={tChapter("prevChapterLabel")}
-      className="mt-10 grid grid-cols-1 gap-3 md:grid-cols-2"
+      className="grid grid-cols-1 gap-3 md:grid-cols-2"
     >
       {prev ? (
         <ChapterNavCard
@@ -63,7 +63,12 @@ export async function ChapterNav({ slug }: ChapterNavProps) {
   );
 }
 
-function ChapterNavCard({ chapter, direction, label, title }: ChapterNavCardProps) {
+function ChapterNavCard({
+  chapter,
+  direction,
+  label,
+  title,
+}: ChapterNavCardProps) {
   const isNext = direction === "next";
   return (
     <Link

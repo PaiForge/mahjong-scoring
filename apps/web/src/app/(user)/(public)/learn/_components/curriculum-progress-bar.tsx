@@ -25,7 +25,7 @@ export async function CurriculumProgressBar({
   const barColorClass = allCompleted ? "bg-primary-500" : "bg-primary-400";
 
   return (
-    <div>
+    <div className="space-y-2">
       <div className="flex items-center justify-between text-xs text-surface-600">
         <span className="font-medium">
           {t("progressLabel", { read: readCount, total: totalCount })}
@@ -33,7 +33,7 @@ export async function CurriculumProgressBar({
         <span className="tabular-nums">{percentage}%</span>
       </div>
       <div
-        className="mt-2 h-2 w-full overflow-hidden rounded-full bg-surface-200"
+        className="h-2 w-full overflow-hidden rounded-full bg-surface-200"
         role="progressbar"
         aria-valuenow={percentage}
         aria-valuemin={0}

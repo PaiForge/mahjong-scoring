@@ -54,14 +54,14 @@ export function InfoModal({
       aria-label={title}
     >
       <div
-        className="mx-4 w-full max-w-md rounded-xl bg-white p-6 shadow-xl"
+        className="mx-4 w-full max-w-md space-y-6 rounded-xl bg-white p-6 shadow-xl"
         onClick={(e) => e.stopPropagation()}
       >
-        <h3 className="mb-4 text-lg font-bold text-surface-900">{title}</h3>
+        <h3 className="text-lg font-bold text-surface-900">{title}</h3>
         <div className="text-sm leading-relaxed text-surface-700">
           {children}
         </div>
-        <div className="mt-6 flex justify-end">
+        <div className="flex justify-end">
           <button
             type="button"
             onClick={onClose}

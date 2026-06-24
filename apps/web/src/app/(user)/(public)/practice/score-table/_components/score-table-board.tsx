@@ -6,7 +6,10 @@ import {
   generateScoreTableQuestion,
   judgeScoreTableAnswer,
 } from "@mahjong-scoring/core";
-import type { ScoreTableQuestion, ScoreTableUserAnswer } from "@mahjong-scoring/core";
+import type {
+  ScoreTableQuestion,
+  ScoreTableUserAnswer,
+} from "@mahjong-scoring/core";
 import { getFeedbackBorderClass } from "../../_lib/feedback-styles";
 import { ScoreTableAnswerForm } from "./score-table-answer-form";
 import type { ScoreTableQuestionResult } from "../_lib/types";
@@ -45,7 +48,10 @@ export function ScoreTableBoard({
   const handleSubmit = useCallback(
     (userAnswer: ScoreTableUserAnswer) => {
       if (showFeedback) return;
-      const isCorrect = judgeScoreTableAnswer(userAnswer, question.correctAnswer);
+      const isCorrect = judgeScoreTableAnswer(
+        userAnswer,
+        question.correctAnswer,
+      );
 
       onRecordResult?.({
         isOya: question.isOya,
@@ -62,17 +68,22 @@ export function ScoreTableBoard({
     [showFeedback, question, onAnswer, advanceQuestion, onRecordResult],
   );
 
-  const feedbackBorderClass = getFeedbackBorderClass(showFeedback, lastAnswerCorrect);
+  const feedbackBorderClass = getFeedbackBorderClass(
+    showFeedback,
+    lastAnswerCorrect,
+  );
 
   return (
     <div className="mt-6 space-y-6">
       {/* Question display */}
-      <div className={`rounded-xl border-2 p-6 transition-colors ${feedbackBorderClass}`}>
+      <div
+        className={`space-y-4 rounded-xl border-2 p-6 transition-colors ${feedbackBorderClass}`}
+      >
         <p className="text-center text-sm font-medium text-surface-500">
           {t("questionLabel")}
         </p>
 
-        <div className="mt-4 flex justify-center gap-6">
+        <div className="flex justify-center gap-6">
           <span className="text-2xl font-bold text-surface-900">
             {question.isOya ? t("oya") : t("ko")}
           </span>
@@ -81,7 +92,7 @@ export function ScoreTableBoard({
           </span>
         </div>
 
-        <div className="mt-3 flex justify-center gap-6">
+        <div className="flex justify-center gap-6">
           <span className="text-2xl font-bold text-primary-600">
             {t("han", { count: question.han })}
           </span>

@@ -52,9 +52,7 @@ export function EmailSignUpForm() {
         if (serverError.startsWith("password:")) {
           const key = serverError.slice("password:".length);
           if (isPasswordValidationErrorKey(key)) {
-            setError(
-              tPassword(key, { minLength: MIN_PASSWORD_LENGTH }),
-            );
+            setError(tPassword(key, { minLength: MIN_PASSWORD_LENGTH }));
           } else {
             setError(t("emailSignUpError"));
           }
@@ -71,9 +69,7 @@ export function EmailSignUpForm() {
         return;
       }
 
-      router.push(
-        `/sign-up/verify-email?email=${encodeURIComponent(email)}`,
-      );
+      router.push(`/sign-up/verify-email?email=${encodeURIComponent(email)}`);
     } catch {
       setError(t("emailSignUpError"));
       setIsLoading(false);
@@ -82,14 +78,12 @@ export function EmailSignUpForm() {
 
   return (
     <form onSubmit={handleSubmit} className="w-full max-w-sm mx-auto space-y-4">
-      {error && (
-        <p className="text-center text-sm text-red-600">{error}</p>
-      )}
+      {error && <p className="text-center text-sm text-red-600">{error}</p>}
 
-      <div>
+      <div className="space-y-1">
         <label
           htmlFor="signup-email"
-          className="block text-sm font-medium text-surface-700 mb-1"
+          className="block text-sm font-medium text-surface-700"
         >
           {t("emailLabel")}
         </label>
@@ -105,10 +99,10 @@ export function EmailSignUpForm() {
         />
       </div>
 
-      <div>
+      <div className="space-y-1">
         <label
           htmlFor="signup-password"
-          className="block text-sm font-medium text-surface-700 mb-1"
+          className="block text-sm font-medium text-surface-700"
         >
           {t("passwordLabel")}
         </label>
@@ -125,10 +119,10 @@ export function EmailSignUpForm() {
         />
       </div>
 
-      <div>
+      <div className="space-y-1">
         <label
           htmlFor="signup-confirm-password"
-          className="block text-sm font-medium text-surface-700 mb-1"
+          className="block text-sm font-medium text-surface-700"
         >
           {t("confirmPasswordLabel")}
         </label>

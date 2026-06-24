@@ -51,39 +51,40 @@ export default async function LearnIndexPage() {
     <ContentContainer breadcrumb={[{ label: t("index.pageTitle") }]}>
       <PageTitle>{t("index.pageTitle")}</PageTitle>
 
-      <SectionTitle>{t("index.sectionTitle")}</SectionTitle>
-      <p className="mt-3 text-sm text-surface-500">
-        {t("index.pageDescription")}
-      </p>
+      <div className="space-y-8">
+        <div className="space-y-3">
+          <SectionTitle>{t("index.sectionTitle")}</SectionTitle>
+          <p className="text-sm text-surface-500">
+            {t("index.pageDescription")}
+          </p>
+        </div>
 
-      <div className="mt-6">
         <CurriculumProgressBar
           readCount={readSlugs.size}
           totalCount={CURRICULUM.length}
           allCompleted={allCompleted}
         />
-      </div>
 
-      {CURRICULUM_SECTIONS.map((section) => {
-        const chapters = grouped.get(section) ?? [];
-        if (chapters.length === 0) return undefined;
-        return (
-          <div key={section} className="mt-8">
+        {CURRICULUM_SECTIONS.map((section) => {
+          const chapters = grouped.get(section) ?? [];
+          if (chapters.length === 0) return undefined;
+          return (
             <CurriculumToc
+              key={section}
               section={section}
               chapters={chapters}
               readSlugs={readSlugs}
               nextSlug={next?.slug}
             />
-          </div>
-        );
-      })}
+          );
+        })}
 
-      {allCompleted && (
-        <p className="mt-8 text-center text-sm text-surface-600">
-          {t("index.allCompletedMessage")}
-        </p>
-      )}
+        {allCompleted && (
+          <p className="text-center text-sm text-surface-600">
+            {t("index.allCompletedMessage")}
+          </p>
+        )}
+      </div>
     </ContentContainer>
   );
 }

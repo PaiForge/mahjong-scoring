@@ -63,18 +63,14 @@ export function DashboardContentSkeleton() {
         <StatsCardSkeleton />
       </div>
 
-      <div className="min-w-0">
-        <div className="h-6 w-32 mb-4 bg-surface-200 rounded animate-pulse" />
-        <div className="mt-4">
-          <ScoreChartSkeleton />
-        </div>
+      <div className="min-w-0 space-y-4">
+        <div className="h-6 w-32 bg-surface-200 rounded animate-pulse" />
+        <ScoreChartSkeleton />
       </div>
 
-      <div>
-        <div className="h-6 w-28 mb-4 bg-surface-200 rounded animate-pulse" />
-        <div className="mt-4">
-          <SessionHistoryTableSkeleton />
-        </div>
+      <div className="space-y-4">
+        <div className="h-6 w-28 bg-surface-200 rounded animate-pulse" />
+        <SessionHistoryTableSkeleton />
       </div>
     </>
   );

@@ -85,19 +85,16 @@ export function ConfirmationModal({
       aria-describedby={messageId}
     >
       <div
-        className="mx-4 w-full max-w-md rounded-xl bg-white p-6 shadow-xl"
+        className="mx-4 w-full max-w-md space-y-6 rounded-xl bg-white p-6 shadow-xl"
         onClick={(e) => e.stopPropagation()}
       >
-        <h3 id={titleId} className="mb-4 text-lg font-bold text-surface-900">
+        <h3 id={titleId} className="text-lg font-bold text-surface-900">
           {title}
         </h3>
-        <p
-          id={messageId}
-          className="text-sm leading-relaxed text-surface-700"
-        >
+        <p id={messageId} className="text-sm leading-relaxed text-surface-700">
           {message}
         </p>
-        <div className="mt-6 flex justify-end gap-3">
+        <div className="flex justify-end gap-3">
           <button
             type="button"
             onClick={onClose}

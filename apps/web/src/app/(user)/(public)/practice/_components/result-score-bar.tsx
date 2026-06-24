@@ -20,10 +20,11 @@ export async function ResultScoreBar({ correct, total }: ResultScoreBarProps) {
   const incorrect = safeTotal - safeCorrect;
   const correctPercent = safeTotal > 0 ? (safeCorrect / safeTotal) * 100 : 0;
   const incorrectPercent = safeTotal > 0 ? (incorrect / safeTotal) * 100 : 0;
-  const accuracy = safeTotal > 0 ? Math.round((safeCorrect / safeTotal) * 100) : 0;
+  const accuracy =
+    safeTotal > 0 ? Math.round((safeCorrect / safeTotal) * 100) : 0;
 
   return (
-    <div className="w-full">
+    <div className="w-full space-y-3">
       <div
         className="flex h-8 w-full overflow-hidden rounded-md bg-surface-100"
         role="img"
@@ -47,15 +48,22 @@ export async function ResultScoreBar({ correct, total }: ResultScoreBarProps) {
         )}
       </div>
 
-      <div className="mt-3 flex flex-wrap items-center justify-between gap-3 text-xs text-surface-600">
+      <div className="flex flex-wrap items-center justify-between gap-3 text-xs text-surface-600">
         <div className="flex items-center gap-4">
           <span className="flex items-center gap-1.5">
-            <span className="size-3 rounded-sm bg-primary-500" aria-hidden="true" />
-            {tc("correct")}: <span className="font-semibold text-surface-800">{safeCorrect}</span>
+            <span
+              className="size-3 rounded-sm bg-primary-500"
+              aria-hidden="true"
+            />
+            {tc("correct")}:{" "}
+            <span className="font-semibold text-surface-800">
+              {safeCorrect}
+            </span>
           </span>
           <span className="flex items-center gap-1.5">
             <span className="size-3 rounded-sm bg-red-500" aria-hidden="true" />
-            {tc("incorrect")}: <span className="font-semibold text-surface-800">{incorrect}</span>
+            {tc("incorrect")}:{" "}
+            <span className="font-semibold text-surface-800">{incorrect}</span>
           </span>
         </div>
         <span className="font-semibold text-surface-800">

@@ -30,7 +30,7 @@ export default async function ResetPasswordPage() {
   return (
     <ContentContainer>
       <PageTitle>{t("pageTitle")}</PageTitle>
-      <div className="mt-8 space-y-6">
+      <div className="space-y-6">
         <p className="text-center text-sm text-surface-500">
           {t("description")}
         </p>

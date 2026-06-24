@@ -14,7 +14,10 @@ import { PaginationNav } from "@/app/_components/pagination-nav";
 import { SectionTitle } from "@/app/_components/section-title";
 import { createMetadata } from "@/app/_lib/metadata";
 import type { PracticeMenuType } from "@/lib/db/practice-menu-types";
-import { isPracticeMenuType, menuTypeToMessageKey } from "@/lib/db/practice-menu-types";
+import {
+  isPracticeMenuType,
+  menuTypeToMessageKey,
+} from "@/lib/db/practice-menu-types";
 import { getAuthenticatedUser } from "@/lib/auth";
 
 import { formatDate, getMissColorClass } from "../_lib/dashboard-utils";
@@ -75,8 +78,8 @@ export default async function ChallengeResultsPage({ searchParams }: Props) {
     >
       <PageTitle>{t("pageTitle")}</PageTitle>
 
-      <SectionTitle>{t("sectionTitle")}</SectionTitle>
-      <div className="mt-6 space-y-6">
+      <div className="space-y-6">
+        <SectionTitle>{t("sectionTitle")}</SectionTitle>
         <ResultsTable
           items={items}
           menuType={menuType}

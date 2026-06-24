@@ -6,12 +6,12 @@ import { AdminPageTitle } from "@/app/admin/_components/admin-page-title";
  */
 export default function Loading() {
   return (
-    <div>
-      <AdminPageTitle className="mb-6">
+    <div className="space-y-6">
+      <AdminPageTitle>
         <div className="h-8 w-40 bg-surface-200 rounded animate-pulse" />
       </AdminPageTitle>
-      {/* フィルタ（実: mb-6 flex items-end gap-4、各コントロールにラベル + 送信ボタン） */}
-      <div className="mb-6 flex items-end gap-4">
+      {/* フィルタ（実: flex items-end gap-4、各コントロールにラベル + 送信ボタン） */}
+      <div className="flex items-end gap-4">
         <div>
           <div className="mb-1 h-4 w-20 bg-surface-200 rounded animate-pulse" />
           <div className="h-[38px] w-40 bg-surface-200 rounded animate-pulse" />

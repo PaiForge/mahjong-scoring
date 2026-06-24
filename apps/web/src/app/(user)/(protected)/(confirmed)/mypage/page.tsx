@@ -55,28 +55,32 @@ export default async function MyPage() {
     <ContentContainer breadcrumb={[{ label: t("pageTitle") }]}>
       <PageTitle>{t("pageTitle")}</PageTitle>
 
-      <section className="rounded-lg border border-border bg-card p-4">
-        <h2 className="mb-3 text-sm font-semibold text-foreground">
-          <span className="mr-1">🔥</span>
-          {t("activityTitle")}
-        </h2>
-        <ExpActivityHeatmap data={heatmapData} layout={heatmapLayout} />
-      </section>
+      <div className="space-y-6">
+        <section className="rounded-lg border border-border bg-card p-4">
+          <h2 className="mb-3 text-sm font-semibold text-foreground">
+            <span className="mr-1">🔥</span>
+            {t("activityTitle")}
+          </h2>
+          <ExpActivityHeatmap data={heatmapData} layout={heatmapLayout} />
+        </section>
 
-      <div className="mt-6 grid grid-cols-1 sm:grid-cols-2 gap-4">
-        {cards.map((card) => (
-          <Link
-            key={card.href}
-            href={card.href}
-            className="group block rounded-md border border-border bg-card p-6 transition-all hover:border-foreground/20"
-          >
-            <span className="text-2xl">{card.icon}</span>
-            <h2 className="mt-2 text-base font-semibold text-foreground">
-              {card.title}
-            </h2>
-            <p className="mt-1 text-sm text-muted-foreground">{card.summary}</p>
-          </Link>
-        ))}
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          {cards.map((card) => (
+            <Link
+              key={card.href}
+              href={card.href}
+              className="group block rounded-md border border-border bg-card p-6 transition-all hover:border-foreground/20"
+            >
+              <span className="text-2xl">{card.icon}</span>
+              <h2 className="mt-2 text-base font-semibold text-foreground">
+                {card.title}
+              </h2>
+              <p className="mt-1 text-sm text-muted-foreground">
+                {card.summary}
+              </p>
+            </Link>
+          ))}
+        </div>
       </div>
     </ContentContainer>
   );

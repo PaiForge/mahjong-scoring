@@ -16,9 +16,9 @@ export function PracticeCategorySection({
   children,
 }: PracticeCategorySectionProps) {
   return (
-    <section>
+    <section className="space-y-4">
       <SectionTitle>{title}</SectionTitle>
-      <div className="mt-4 grid gap-4 sm:grid-cols-2">{children}</div>
+      <div className="grid gap-4 sm:grid-cols-2">{children}</div>
     </section>
   );
 }

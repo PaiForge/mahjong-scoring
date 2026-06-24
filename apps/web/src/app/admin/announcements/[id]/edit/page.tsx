@@ -32,8 +32,8 @@ export default async function EditAnnouncementPage({ params }: Props) {
   }
 
   return (
-    <div>
-      <div className="mb-6 flex items-center justify-between">
+    <div className="space-y-6">
+      <div className="flex items-center justify-between">
         <AdminPageTitle>{t("editTitle")}</AdminPageTitle>
         <DeleteAnnouncementButton announcementId={announcement.id} />
       </div>

@@ -239,7 +239,7 @@ export function ResultDisplay({
 
       {/* Exit */}
       {onExit && (
-        <div className="mt-4 text-center">
+        <div className="text-center">
           <button
             type="button"
             onClick={onExit}

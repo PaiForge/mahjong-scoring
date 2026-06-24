@@ -28,12 +28,15 @@ export default async function AdminAnnouncementsPage() {
 
   const t = await getTranslations("admin.announcements");
 
-  const rows = await db.select().from(announcements).orderBy(desc(announcements.updatedAt));
+  const rows = await db
+    .select()
+    .from(announcements)
+    .orderBy(desc(announcements.updatedAt));
   const grouped = groupBySlug(rows);
 
   return (
-    <div>
-      <div className="mb-6 flex items-center justify-between">
+    <div className="space-y-6">
+      <div className="flex items-center justify-between">
         <AdminPageTitle>{t("listTitle")}</AdminPageTitle>
         <Link
           href="/admin/announcements/new"
@@ -48,9 +51,14 @@ export default async function AdminAnnouncementsPage() {
       ) : (
         <div className="space-y-6">
           {[...grouped.entries()].map(([slug, variants]) => (
-            <section key={slug} className="rounded-lg border border-surface-200">
+            <section
+              key={slug}
+              className="rounded-lg border border-surface-200"
+            >
               <header className="flex items-center justify-between border-b border-surface-200 px-4 py-3">
-                <code className="text-sm font-semibold text-surface-800">{slug}</code>
+                <code className="text-sm font-semibold text-surface-800">
+                  {slug}
+                </code>
                 <Link
                   href={`/admin/announcements/new?slug=${encodeURIComponent(slug)}`}
                   className="text-sm font-medium text-primary-600 hover:text-primary-700"
@@ -64,7 +72,9 @@ export default async function AdminAnnouncementsPage() {
                     <th className="px-4 py-2 font-medium">{t("locale")}</th>
                     <th className="px-4 py-2 font-medium">{t("title")}</th>
                     <th className="px-4 py-2 font-medium">{t("status")}</th>
-                    <th className="px-4 py-2 font-medium">{t("publishedAt")}</th>
+                    <th className="px-4 py-2 font-medium">
+                      {t("publishedAt")}
+                    </th>
                     <th className="px-4 py-2 font-medium">{t("actions")}</th>
                   </tr>
                 </thead>
@@ -88,7 +98,9 @@ export default async function AdminAnnouncementsPage() {
                               : "bg-surface-100 text-surface-500"
                           }`}
                         >
-                          {a.status === "published" ? t("statusPublished") : t("statusDraft")}
+                          {a.status === "published"
+                            ? t("statusPublished")
+                            : t("statusDraft")}
                         </span>
                       </td>
                       <td className="px-4 py-3 text-surface-500">

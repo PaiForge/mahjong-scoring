@@ -30,9 +30,9 @@ export default function UserError({
 
   return (
     <ContentContainer>
-      <div className="flex flex-col items-center text-center py-16">
-        <PageTitle className="mb-3">問題が発生しました</PageTitle>
-        <p className="text-sm text-surface-600 mb-8">
+      <div className="flex flex-col items-center text-center py-16 space-y-6">
+        <PageTitle>問題が発生しました</PageTitle>
+        <p className="text-sm text-surface-600">
           予期しないエラーが発生しました。もう一度お試しください。
         </p>
         <div className="flex flex-wrap gap-3 justify-center">

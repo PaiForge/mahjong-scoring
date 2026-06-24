@@ -33,7 +33,9 @@ export const HanCountAnswerForm = memo(function HanCountAnswerForm({
   disabled = false,
 }: HanCountAnswerFormProps) {
   const t = useTranslations("hanCountChallenge");
-  const [selectedIndex, setSelectedIndex] = useState<number | undefined>(undefined);
+  const [selectedIndex, setSelectedIndex] = useState<number | undefined>(
+    undefined,
+  );
 
   // 問題が変わったら選択をリセットする
   useEffect(() => {
@@ -50,8 +52,8 @@ export const HanCountAnswerForm = memo(function HanCountAnswerForm({
   );
 
   return (
-    <div>
-      <p className="mb-3 text-center text-sm font-medium text-surface-600">
+    <div className="space-y-3">
+      <p className="text-center text-sm font-medium text-surface-600">
         {t("selectHan")}
       </p>
       <div className="grid grid-cols-4 gap-2 sm:grid-cols-5">

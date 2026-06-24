@@ -6,8 +6,8 @@ import { AdminPageTitle } from "@/app/admin/_components/admin-page-title";
  */
 export default function Loading() {
   return (
-    <div>
-      <AdminPageTitle className="mb-6">
+    <div className="space-y-6">
+      <AdminPageTitle>
         <div className="h-8 w-32 bg-surface-200 rounded animate-pulse" />
       </AdminPageTitle>
       <div className="overflow-x-auto">

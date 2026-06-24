@@ -42,20 +42,21 @@ export const FuItemRow = memo(function FuItemRow({
     [onSelect, index],
   );
 
-  const scaleStyle = tileScale !== undefined && tileScale < 1
-    ? { transform: `scale(${tileScale})`, transformOrigin: "left center" }
-    : undefined;
+  const scaleStyle =
+    tileScale !== undefined && tileScale < 1
+      ? { transform: `scale(${tileScale})`, transformOrigin: "left center" }
+      : undefined;
 
   const renderItemTiles = () => {
-    const tiles = item.originalMentsu && (item.isOpen || item.type === MentsuType.Kantsu)
-      ? (
+    const tiles =
+      item.originalMentsu &&
+      (item.isOpen || item.type === MentsuType.Kantsu) ? (
         <Furo
           mentsu={item.originalMentsu}
           furo={item.originalMentsu.furo}
           size="sm"
         />
-      )
-      : (
+      ) : (
         <div className="flex gap-0.5">
           {item.tiles.map((tile, i) => (
             <Hai key={i} hai={tile} size="sm" />
@@ -65,16 +66,12 @@ export const FuItemRow = memo(function FuItemRow({
 
     if (!scaleStyle) return tiles;
 
-    return (
-      <div style={scaleStyle}>
-        {tiles}
-      </div>
-    );
+    return <div style={scaleStyle}>{tiles}</div>;
   };
 
   return (
     <div
-      className={`rounded-xl border bg-white p-3 ${
+      className={`space-y-2.5 rounded-xl border bg-white p-3 ${
         showFeedback
           ? isCorrect
             ? "border-green-500 bg-green-50"
@@ -93,7 +90,7 @@ export const FuItemRow = memo(function FuItemRow({
       </div>
 
       {/* 符の選択肢。牌の下に全幅で並べ、タップしやすい大きさにする */}
-      <div className="mt-2.5 grid grid-cols-6 gap-1.5">
+      <div className="grid grid-cols-6 gap-1.5">
         {FU_OPTIONS.map((opt) => {
           const isSelected = answer === String(opt);
           const disabled = showFeedback || isCountingDown;

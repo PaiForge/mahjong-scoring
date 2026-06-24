@@ -34,9 +34,9 @@ export default async function SettingsPage() {
     >
       <PageTitle>{t("pageTitle")}</PageTitle>
 
-      <section className="mt-8">
+      <section className="mt-8 space-y-4">
         <SectionTitle>{t("dangerZoneTitle")}</SectionTitle>
-        <div className="mt-4 rounded-lg border border-red-200 bg-red-50 p-5">
+        <div className="rounded-lg border border-red-200 bg-red-50 p-5">
           <h3 className="text-sm font-semibold text-surface-900">
             {t("deleteAccountTitle")}
           </h3>

@@ -1,21 +1,21 @@
-import { getTranslations } from 'next-intl/server';
+import { getTranslations } from "next-intl/server";
 
-import type { User } from '@supabase/supabase-js';
-import { AdminPageTitle } from '@/app/admin/_components/admin-page-title';
-import { requireAdminPage } from '@/app/admin/_lib/auth';
-import { inArray } from 'drizzle-orm';
-import { createSearchParamsCache, parseAsInteger } from 'nuqs/server';
+import type { User } from "@supabase/supabase-js";
+import { AdminPageTitle } from "@/app/admin/_components/admin-page-title";
+import { requireAdminPage } from "@/app/admin/_lib/auth";
+import { inArray } from "drizzle-orm";
+import { createSearchParamsCache, parseAsInteger } from "nuqs/server";
 
-import { db, profiles } from '../../../lib/db';
-import { getPaginationData, DEFAULT_PAGE_SIZE } from '../../../lib/pagination';
-import { createClient } from '../../../lib/supabase/server';
-import { createAdminClient } from '../../../lib/supabase/admin';
-import { PaginationNav } from '../../_components/pagination-nav';
+import { db, profiles } from "../../../lib/db";
+import { getPaginationData, DEFAULT_PAGE_SIZE } from "../../../lib/pagination";
+import { createClient } from "../../../lib/supabase/server";
+import { createAdminClient } from "../../../lib/supabase/admin";
+import { PaginationNav } from "../../_components/pagination-nav";
 
-import type { Profile } from '../../../lib/db';
-import { StatusBadge } from './_components/status-badge';
-import { BanButton } from './_components/ban-button';
-import { UnbanButton } from './_components/unban-button';
+import type { Profile } from "../../../lib/db";
+import { StatusBadge } from "./_components/status-badge";
+import { BanButton } from "./_components/ban-button";
+import { UnbanButton } from "./_components/unban-button";
 
 const searchParamsCache = createSearchParamsCache({
   page: parseAsInteger.withDefault(1),
@@ -30,7 +30,7 @@ export default async function AdminUsersPage({
 
   const { page } = await searchParamsCache.parse(searchParams);
   const adminClient = createAdminClient();
-  const t = await getTranslations('admin');
+  const t = await getTranslations("admin");
 
   // 現在のユーザー ID を取得（自分自身の BAN を防ぐため）
   const supabase = await createClient();
@@ -62,26 +62,36 @@ export default async function AdminUsersPage({
   const buildHref = (p: number) => `/admin/users?page=${String(p)}`;
 
   return (
-    <div>
-      <AdminPageTitle className="mb-6">{t('users')}</AdminPageTitle>
+    <div className="space-y-6">
+      <AdminPageTitle>{t("users")}</AdminPageTitle>
 
       <div className="overflow-x-auto">
         <table className="w-full text-left text-sm">
           <thead>
             <tr className="border-b border-gray-200">
-              <th className="px-4 py-3 font-medium">{t('usersTable.email')}</th>
-              <th className="px-4 py-3 font-medium">{t('usersTable.username')}</th>
-              <th className="px-4 py-3 font-medium">{t('usersTable.displayName')}</th>
-              <th className="px-4 py-3 font-medium">{t('usersTable.status')}</th>
-              <th className="px-4 py-3 font-medium">{t('usersTable.createdAt')}</th>
-              <th className="px-4 py-3 font-medium">{t('usersTable.actions')}</th>
+              <th className="px-4 py-3 font-medium">{t("usersTable.email")}</th>
+              <th className="px-4 py-3 font-medium">
+                {t("usersTable.username")}
+              </th>
+              <th className="px-4 py-3 font-medium">
+                {t("usersTable.displayName")}
+              </th>
+              <th className="px-4 py-3 font-medium">
+                {t("usersTable.status")}
+              </th>
+              <th className="px-4 py-3 font-medium">
+                {t("usersTable.createdAt")}
+              </th>
+              <th className="px-4 py-3 font-medium">
+                {t("usersTable.actions")}
+              </th>
             </tr>
           </thead>
           <tbody>
             {users.length === 0 ? (
               <tr>
                 <td colSpan={6} className="px-4 py-8 text-center text-gray-500">
-                  {t('usersTable.noUsersFound')}
+                  {t("usersTable.noUsersFound")}
                 </td>
               </tr>
             ) : (
@@ -91,25 +101,24 @@ export default async function AdminUsersPage({
                 const isCurrentUser = currentUser?.id === user.id;
                 return (
                   <tr key={user.id} className="border-t border-gray-200">
-                    <td className="px-4 py-3">{user.email ?? '-'}</td>
-                    <td className="px-4 py-3">{profile?.username ?? '-'}</td>
-                    <td className="px-4 py-3">{profile?.displayName ?? '-'}</td>
+                    <td className="px-4 py-3">{user.email ?? "-"}</td>
+                    <td className="px-4 py-3">{profile?.username ?? "-"}</td>
+                    <td className="px-4 py-3">{profile?.displayName ?? "-"}</td>
                     <td className="px-4 py-3">
                       <StatusBadge isBanned={isBanned} />
                     </td>
                     <td className="px-4 py-3 text-gray-500">
                       {user.created_at
-                        ? new Date(user.created_at).toLocaleDateString('ja-JP')
-                        : '-'}
+                        ? new Date(user.created_at).toLocaleDateString("ja-JP")
+                        : "-"}
                     </td>
                     <td className="px-4 py-3">
-                      {!isCurrentUser && (
-                        isBanned ? (
+                      {!isCurrentUser &&
+                        (isBanned ? (
                           <UnbanButton targetUserId={user.id} />
                         ) : (
                           <BanButton targetUserId={user.id} />
-                        )
-                      )}
+                        ))}
                     </td>
                   </tr>
                 );
