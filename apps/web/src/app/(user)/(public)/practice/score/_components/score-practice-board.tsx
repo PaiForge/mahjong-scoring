@@ -15,7 +15,7 @@ import { useScrollToElement } from "../../_hooks/use-scroll-to-element";
 import { QuestionDisplay } from "./question-display";
 import { ScorePracticeAnswerForm } from "./score-practice-answer-form";
 import { ResultDisplay } from "./result-display";
-import { ScoreCounter } from "./score-counter";
+import { ScoreCounter } from "../../_components/score-counter";
 
 /** スクロール先の最上部要素 id（練習開始時にここまでスクロールする） */
 const SCROLL_ANCHOR_ID = "practice-session";

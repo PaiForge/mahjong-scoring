@@ -5,9 +5,9 @@ import Link from "next/link";
 import { useTranslations } from "next-intl";
 import { ContentContainer } from "@/app/_components/content-container";
 import { PageTitle } from "@/app/_components/page-title";
-import { InfinityIcon } from "@/app/_components/icons/infinity-icon";
 import { useScrollToElement } from "../_hooks/use-scroll-to-element";
 import { PRACTICE_SCROLL_ANCHOR_ID } from "../_lib/scroll-anchor";
+import { ScoreCounter } from "./score-counter";
 
 interface TrainingShellProps {
   /** 画面上部に表示する練習名（PageTitle に渡す） */
@@ -50,21 +50,17 @@ export function TrainingShell({
       <PageTitle>{title}</PageTitle>
 
       <div className={`mx-auto ${maxWidth}`}>
-        {/* Status bar */}
-        <div className="flex items-center justify-between text-sm">
-          <span className="inline-flex items-center gap-1 text-surface-500">
-            <InfinityIcon className="size-4" />
-            {tt("modeLabel")}
-          </span>
-          <span className="text-surface-500">
-            {tc("score")}:{" "}
-            <span className="font-semibold text-surface-900">{correctCount}</span>
-            <span className="text-surface-400"> / {totalCount}</span>
-          </span>
-        </div>
-
         {/* Game content area */}
         <div>{children}</div>
+
+        {/* Footer: 正解 / 不正解 カウンタ（score/play と同じくアイコン付きで下部に表示） */}
+        <ScoreCounter
+          correct={correctCount}
+          incorrect={totalCount - correctCount}
+          correctLabel={tc("correct")}
+          incorrectLabel={tc("incorrect")}
+          className="mt-8"
+        />
 
         {/* Exit link */}
         <div className="mt-6 text-center">
