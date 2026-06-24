@@ -47,9 +47,12 @@ export function ContentContainer({ children, className = "", breadcrumb, id, fil
   // fillViewport 時は白カード自身を min-h-screen にして画面を埋める。
   // ラッパー（透明）側に付けると下に main の bg-secondary が伸びてしまうため、
   // 白背景が伸びるようカードへ付与する（blindfold-chess のセッション画面準拠）。
+  // 通常時はモバイル（<sm）で flex-1 にし、cardArea（flex-col）内で縦に伸ばす。
+  // これで本文が短くてもカード下に main の bg-secondary が露出せず、グレーはタイトル帯
+  // 周辺だけになる（sm 以上は flex-none に戻し、角丸カードがグレー背景から浮く従来表示）。
   const card = (
     <div
-      className={`bg-card -mx-4 sm:mx-0 rounded-none sm:rounded-lg border-0 sm:border sm:border-border p-4 sm:p-6 md:p-8${fillViewport ? " min-h-screen" : ""} ${className}`}
+      className={`bg-card -mx-4 sm:mx-0 rounded-none sm:rounded-lg border-0 sm:border sm:border-border p-4 sm:p-6 md:p-8${fillViewport ? " min-h-screen" : " flex-1 sm:flex-none"} ${className}`}
     >
       {body}
       {breadcrumb && breadcrumb.length > 0 && (
@@ -82,15 +85,16 @@ export function ContentContainer({ children, className = "", breadcrumb, id, fil
       {title}
     </div>
   );
-  // sm 以上で角丸カードがグレー背景から浮くよう、下側だけ余白を取る。
+  // sm 以上で角丸カードがグレー背景から浮くよう、下側だけ余白を取る（sm:pb-6）。
   // 上側はタイトル帯の py-5 が担うため、ここで pt を足すと二重になり開きすぎる。
-  // モバイルはフルブリードのまま密着させる（角丸が出ないため余白不要）。
+  // モバイル（<sm）は flex-col + flex-1 で画面下端まで縦に伸ばし、白カードに高さを与える
+  // （これでカード下に bg-secondary が露出しない）。フルブリードのまま密着させる。
   // fillViewport 時はこのカード領域をスクロール先 id にする（min-h-screen は白カード側）。
   // これによりタイトル帯・グローバルヘッダはスクロールで画面外へ送られ、本文が最上部に来る。
   const cardArea = (
     <div
       id={fillViewport ? id : undefined}
-      className="mx-auto max-w-4xl px-4 sm:px-6 lg:px-8 sm:pb-6"
+      className="mx-auto flex w-full max-w-4xl flex-1 flex-col px-4 sm:block sm:flex-none sm:px-6 sm:pb-6 lg:px-8"
     >
       {card}
     </div>

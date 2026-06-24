@@ -12,7 +12,7 @@ export default function UserLayout({
       <Header />
       {/* 背景はセマンティックトークン bg-secondary（slate-50 / #f8fafc）。白い角丸カード
           （ContentContainer）がこの上に薄く浮く。最大幅・余白は ContentContainer 側が持つ。 */}
-      <main className="flex-1 bg-secondary">{children}</main>
+      <main className="flex flex-1 flex-col bg-secondary">{children}</main>
       <Footer />
       {/* 固定の MobileTabBar がフッターを覆わないようにするスペーサー */}
       <div className="h-14 md:h-0" />

@@ -25,7 +25,7 @@ export default function LeaderboardDetailLoading() {
 
       {/* 「チャレンジに挑戦」ボタン（実UIで常時表示） */}
       <div className="border-t border-surface-200 pt-4">
-        <div className="h-11 w-full animate-pulse rounded-lg bg-surface-100 sm:w-48" />
+        <div className="h-11 w-full animate-pulse rounded-lg bg-surface-100" />
       </div>
     </ContentContainer>
   );
