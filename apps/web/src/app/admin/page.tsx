@@ -23,11 +23,11 @@ export default async function AdminDashboardPage({
   const newUsers = await getNewUsersPerDay(startDate, endDate);
 
   return (
-    <div>
+    <>
       <AdminPageTitle className="mb-2">{t("dashboard")}</AdminPageTitle>
       <p className="mb-6 text-sm text-surface-600">{t("dashboardDescription")}</p>
 
-      <div className="mb-6">
+      <div className="space-y-6">
         <DateRangePicker
           startDate={startDate}
           endDate={endDate}
@@ -39,30 +39,30 @@ export default async function AdminDashboardPage({
             past90days: t("dashboardKpi.past90days"),
           }}
         />
-      </div>
 
-      <div className="mb-6 rounded-lg border border-surface-200 bg-surface-50 p-6">
-        <p className="text-sm text-surface-500">
-          {t("dashboardKpi.newUsersPeriodTotal")}
-        </p>
-        <p className="mt-1 text-3xl font-semibold text-surface-900">
-          {newUsers.total}
-        </p>
-        <p className="mt-1 text-xs text-surface-500">
-          {startDate} ~ {endDate} (UTC)
-        </p>
-      </div>
+        <section className="rounded-lg border border-surface-200 bg-surface-50 p-6">
+          <p className="text-sm text-surface-500">
+            {t("dashboardKpi.newUsersPeriodTotal")}
+          </p>
+          <p className="mt-1 text-3xl font-semibold text-surface-900">
+            {newUsers.total}
+          </p>
+          <p className="mt-1 text-xs text-surface-500">
+            {startDate} ~ {endDate} (UTC)
+          </p>
+        </section>
 
-      <div className="rounded-lg border border-surface-200 bg-surface-50 p-6">
-        <h2 className="mb-4 text-lg font-semibold text-surface-900">
-          {t("dashboardKpi.dailyTrends")}
-        </h2>
-        <DailyTrendChart
-          data={newUsers.daily}
-          seriesLabel={t("dashboardKpi.newUsers")}
-          emptyMessage={t("dashboardKpi.noData")}
-        />
+        <section className="rounded-lg border border-surface-200 bg-surface-50 p-6">
+          <h3 className="mb-4 text-lg font-semibold text-surface-900">
+            {t("dashboardKpi.dailyTrends")}
+          </h3>
+          <DailyTrendChart
+            data={newUsers.daily}
+            seriesLabel={t("dashboardKpi.newUsers")}
+            emptyMessage={t("dashboardKpi.noData")}
+          />
+        </section>
       </div>
-    </div>
+    </>
   );
 }
