@@ -1,64 +1,67 @@
-import Link from "next/link";
 import { getTranslations } from "next-intl/server";
+import { createSearchParamsCache, parseAsString } from "nuqs/server";
 
 import { AdminPageTitle } from "@/app/admin/_components/admin-page-title";
+import { DailyTrendChart } from "@/app/admin/_components/daily-trend-chart";
+import { DateRangePicker } from "@/app/admin/_components/date-range-picker";
+import { daysAgo, getNewUsersPerDay, today } from "@/app/admin/_lib/dashboard";
 
-export default async function AdminDashboardPage() {
+const searchParamsCache = createSearchParamsCache({
+  from: parseAsString.withDefault(daysAgo(28)),
+  to: parseAsString.withDefault(today()),
+});
+
+export default async function AdminDashboardPage({
+  searchParams,
+}: {
+  readonly searchParams: Promise<Record<string, string | string[] | undefined>>;
+}) {
+  const { from: startDate, to: endDate } =
+    await searchParamsCache.parse(searchParams);
   const t = await getTranslations("admin");
+
+  const newUsers = await getNewUsersPerDay(startDate, endDate);
 
   return (
     <div>
-      <AdminPageTitle className="mb-6">{t("dashboard")}</AdminPageTitle>
-      <p className="text-gray-600 mb-8">{t("dashboardDescription")}</p>
+      <AdminPageTitle className="mb-2">{t("dashboard")}</AdminPageTitle>
+      <p className="mb-6 text-sm text-surface-600">{t("dashboardDescription")}</p>
 
-      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-        <Link
-          href="/admin/users"
-          className="block rounded-lg border border-gray-200 p-6 hover:bg-gray-50 transition-colors"
-        >
-          <h2 className="text-lg font-semibold mb-2">
-            {t("userManagement")}
-          </h2>
-          <p className="text-sm text-gray-500">
-            {t("userManagementDescription")}
-          </p>
-        </Link>
+      <div className="mb-6">
+        <DateRangePicker
+          startDate={startDate}
+          endDate={endDate}
+          labels={{
+            from: t("dashboardKpi.from"),
+            to: t("dashboardKpi.to"),
+            past7days: t("dashboardKpi.past7days"),
+            past28days: t("dashboardKpi.past28days"),
+            past90days: t("dashboardKpi.past90days"),
+          }}
+        />
+      </div>
 
-        <Link
-          href="/admin/announcements"
-          className="block rounded-lg border border-gray-200 p-6 hover:bg-gray-50 transition-colors"
-        >
-          <h2 className="text-lg font-semibold mb-2">
-            {t("announcements.cardTitle")}
-          </h2>
-          <p className="text-sm text-gray-500">
-            {t("announcements.cardDescription")}
-          </p>
-        </Link>
+      <div className="mb-6 rounded-lg border border-surface-200 bg-surface-50 p-6">
+        <p className="text-sm text-surface-500">
+          {t("dashboardKpi.newUsersPeriodTotal")}
+        </p>
+        <p className="mt-1 text-3xl font-semibold text-surface-900">
+          {newUsers.total}
+        </p>
+        <p className="mt-1 text-xs text-surface-500">
+          {startDate} ~ {endDate} (UTC)
+        </p>
+      </div>
 
-        <Link
-          href="/admin/audit-log"
-          className="block rounded-lg border border-gray-200 p-6 hover:bg-gray-50 transition-colors"
-        >
-          <h2 className="text-lg font-semibold mb-2">
-            {t("auditLog")}
-          </h2>
-          <p className="text-sm text-gray-500">
-            {t("auditLogDescription")}
-          </p>
-        </Link>
-
-        <Link
-          href="/admin/activity-log"
-          className="block rounded-lg border border-gray-200 p-6 hover:bg-gray-50 transition-colors"
-        >
-          <h2 className="text-lg font-semibold mb-2">
-            {t("activityLog")}
-          </h2>
-          <p className="text-sm text-gray-500">
-            {t("activityLogDescription")}
-          </p>
-        </Link>
+      <div className="rounded-lg border border-surface-200 bg-surface-50 p-6">
+        <h2 className="mb-4 text-lg font-semibold text-surface-900">
+          {t("dashboardKpi.dailyTrends")}
+        </h2>
+        <DailyTrendChart
+          data={newUsers.daily}
+          seriesLabel={t("dashboardKpi.newUsers")}
+          emptyMessage={t("dashboardKpi.noData")}
+        />
       </div>
     </div>
   );
