@@ -29,7 +29,9 @@ export function TehaiFuBoard({
   onAnswer,
 }: TehaiFuBoardProps) {
   const t = useTranslations("tehaiFu");
-  const [question, setQuestion] = useState<TehaiFuQuestion | undefined>(generateQuestion);
+  const [question, setQuestion] = useState<TehaiFuQuestion | undefined>(
+    generateQuestion,
+  );
   const [answers, setAnswers] = useState<string[]>(() => new Array(5).fill(""));
   const [tileScale, setTileScale] = useState(1);
 

@@ -86,11 +86,11 @@ export function ScoreChart({
 
   return (
     <ResponsiveContainer width="100%" height={250} minHeight={200}>
-      <LineChart
-        data={mutableData}
-        margin={chartMargin}
-      >
-        <CartesianGrid strokeDasharray="3 3" stroke="var(--color-surface-200)" />
+      <LineChart data={mutableData} margin={chartMargin}>
+        <CartesianGrid
+          strokeDasharray="3 3"
+          stroke="var(--color-surface-200)"
+        />
         <XAxis
           dataKey="date"
           tick={axisTick}
@@ -131,9 +131,7 @@ export function ScoreChart({
                             ? "cursor-pointer hover:underline select-none"
                             : "select-none"
                         }
-                        onClick={
-                          isClickable ? onPreviousLabelClick : undefined
-                        }
+                        onClick={isClickable ? onPreviousLabelClick : undefined}
                         onKeyDown={
                           isClickable
                             ? (e) => {

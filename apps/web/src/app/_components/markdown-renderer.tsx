@@ -12,7 +12,10 @@ interface MarkdownRendererProps {
 }
 
 function isExternalHref(href: string | undefined): boolean {
-  return href?.startsWith("http://") === true || href?.startsWith("https://") === true;
+  return (
+    href?.startsWith("http://") === true ||
+    href?.startsWith("https://") === true
+  );
 }
 
 /**
@@ -25,7 +28,10 @@ function isExternalHref(href: string | undefined): boolean {
  *
  * @remarks 外部リンクには rel="noopener noreferrer" target="_blank" を付与する。
  */
-export function MarkdownRenderer({ content, skipFirstH1 = false }: MarkdownRendererProps) {
+export function MarkdownRenderer({
+  content,
+  skipFirstH1 = false,
+}: MarkdownRendererProps) {
   let h1Count = 0;
 
   return (
@@ -39,14 +45,20 @@ export function MarkdownRenderer({ content, skipFirstH1 = false }: MarkdownRende
               return null;
             }
             return (
-              <h1 className="mt-8 mb-3 text-xl font-bold text-surface-900">{children}</h1>
+              <h1 className="mt-8 mb-3 text-xl font-bold text-surface-900">
+                {children}
+              </h1>
             );
           },
           h2: ({ children }) => (
-            <SectionTitle className="mt-8 mb-3 first:mt-0">{children}</SectionTitle>
+            <SectionTitle className="mt-8 mb-3 first:mt-0">
+              {children}
+            </SectionTitle>
           ),
           h3: ({ children }) => (
-            <h3 className="mt-6 mb-2 text-base font-semibold text-surface-900">{children}</h3>
+            <h3 className="mt-6 mb-2 text-base font-semibold text-surface-900">
+              {children}
+            </h3>
           ),
           p: ({ children }) => <p className="my-3">{children}</p>,
           a: ({ href, children }) =>
@@ -60,7 +72,10 @@ export function MarkdownRenderer({ content, skipFirstH1 = false }: MarkdownRende
                 {children}
               </a>
             ) : (
-              <a href={href} className="text-primary-600 underline hover:text-primary-700">
+              <a
+                href={href}
+                className="text-primary-600 underline hover:text-primary-700"
+              >
                 {children}
               </a>
             ),
@@ -72,7 +87,9 @@ export function MarkdownRenderer({ content, skipFirstH1 = false }: MarkdownRende
           ),
           li: ({ children }) => <li>{children}</li>,
           strong: ({ children }) => (
-            <strong className="font-semibold text-surface-900">{children}</strong>
+            <strong className="font-semibold text-surface-900">
+              {children}
+            </strong>
           ),
           em: ({ children }) => <em className="italic">{children}</em>,
           blockquote: ({ children }) => (
@@ -81,8 +98,13 @@ export function MarkdownRenderer({ content, skipFirstH1 = false }: MarkdownRende
             </blockquote>
           ),
           hr: () => <hr className="my-6 border-surface-200" />,
-          code: ({ className, children, ...rest }: ComponentPropsWithoutRef<"code">) => {
-            const isBlock = typeof className === "string" && className.includes("language-");
+          code: ({
+            className,
+            children,
+            ...rest
+          }: ComponentPropsWithoutRef<"code">) => {
+            const isBlock =
+              typeof className === "string" && className.includes("language-");
             if (isBlock) {
               return (
                 <code className={className} {...rest}>
@@ -103,7 +125,9 @@ export function MarkdownRenderer({ content, skipFirstH1 = false }: MarkdownRende
           ),
           table: ({ children }) => (
             <div className="my-4 overflow-x-auto">
-              <table className="w-full border-collapse text-sm">{children}</table>
+              <table className="w-full border-collapse text-sm">
+                {children}
+              </table>
             </div>
           ),
           th: ({ children }) => (

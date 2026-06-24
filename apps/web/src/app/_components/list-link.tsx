@@ -8,9 +8,15 @@ import { LinkPending } from "./link-pending";
  * リストリンクのコンテナ（blindfold-chess の ListLinkContainer 準拠）。
  * 角丸＋ボーダーで囲んだリスト枠。
  */
-export function ListLinkContainer({ children }: { readonly children: ReactNode }) {
+export function ListLinkContainer({
+  children,
+}: {
+  readonly children: ReactNode;
+}) {
   return (
-    <ul className="overflow-hidden rounded-md border border-border bg-card">{children}</ul>
+    <ul className="overflow-hidden rounded-md border border-border bg-card">
+      {children}
+    </ul>
   );
 }
 
@@ -36,11 +42,15 @@ export function ListLink({ href, icon, title, meta, badge }: ListLinkProps) {
         <div className="flex items-center gap-3">
           <span className="flex-shrink-0 text-xl">{icon}</span>
           <div className="min-w-0 flex-1">
-            <span className="block truncate font-medium text-foreground">{title}</span>
+            <span className="block truncate font-medium text-foreground">
+              {title}
+            </span>
           </div>
           {badge}
           {meta && (
-            <span className="flex-shrink-0 text-xs text-muted-foreground">{meta}</span>
+            <span className="flex-shrink-0 text-xs text-muted-foreground">
+              {meta}
+            </span>
           )}
           {/* クリック後の遷移待ち中はチェブロンをスピナーへ差し替える */}
           <span className="flex size-4 flex-shrink-0 items-center justify-center text-foreground/40">

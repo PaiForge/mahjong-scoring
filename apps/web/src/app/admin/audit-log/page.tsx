@@ -1,11 +1,14 @@
-import { getTranslations } from 'next-intl/server';
+import { getTranslations } from "next-intl/server";
 
-import { createAdminClient } from '../../../lib/supabase/admin';
-import { AdminLogPageLayout, logSearchParamsCache } from '../_components/admin-log-page-layout';
-import { requireAdminPage } from '../_lib/auth';
+import { createAdminClient } from "../../../lib/supabase/admin";
+import {
+  AdminLogPageLayout,
+  logSearchParamsCache,
+} from "../_components/admin-log-page-layout";
+import { requireAdminPage } from "../_lib/auth";
 
-import { AuditLogRow } from './_components/audit-log-row';
-import { fetchAuditLogPageData } from './_lib/queries';
+import { AuditLogRow } from "./_components/audit-log-row";
+import { fetchAuditLogPageData } from "./_lib/queries";
 
 /**
  * 監査ログページ
@@ -20,8 +23,12 @@ export default async function AdminAuditLogPage({
 }) {
   await requireAdminPage();
 
-  const { page, action: actionFilter, user: rawUser } = await logSearchParamsCache.parse(searchParams);
-  const t = await getTranslations('admin');
+  const {
+    page,
+    action: actionFilter,
+    user: rawUser,
+  } = await logSearchParamsCache.parse(searchParams);
+  const t = await getTranslations("admin");
   const adminClient = createAdminClient();
   const userFilter = rawUser.trim();
 
@@ -30,7 +37,7 @@ export default async function AdminAuditLogPage({
 
   return (
     <AdminLogPageLayout
-      title={t('auditLog')}
+      title={t("auditLog")}
       basePath="/admin/audit-log"
       actionFilter={actionFilter}
       userFilter={userFilter}
@@ -41,19 +48,19 @@ export default async function AdminAuditLogPage({
         </>
       }
       i18n={{
-        filterByAction: t('auditLogTable.filterByAction'),
-        allActions: t('auditLogTable.allActions'),
-        filterByUser: t('auditLogTable.filterByUser'),
-        filter: t('auditLogTable.filter'),
-        userFilterPlaceholder: t('auditLogTable.userFilterPlaceholder'),
+        filterByAction: t("auditLogTable.filterByAction"),
+        allActions: t("auditLogTable.allActions"),
+        filterByUser: t("auditLogTable.filterByUser"),
+        filter: t("auditLogTable.filter"),
+        userFilterPlaceholder: t("auditLogTable.userFilterPlaceholder"),
       }}
       columns={[
-        { label: t('auditLogTable.action') },
-        { label: t('auditLogTable.target') },
-        { label: t('auditLogTable.actor') },
-        { label: t('auditLogTable.reason') },
-        { label: t('auditLogTable.ipAddress') },
-        { label: t('auditLogTable.timestamp') },
+        { label: t("auditLogTable.action") },
+        { label: t("auditLogTable.target") },
+        { label: t("auditLogTable.actor") },
+        { label: t("auditLogTable.reason") },
+        { label: t("auditLogTable.ipAddress") },
+        { label: t("auditLogTable.timestamp") },
       ]}
       currentPage={currentPage}
       totalPages={totalPages}
@@ -61,7 +68,7 @@ export default async function AdminAuditLogPage({
       {logs.length === 0 ? (
         <tr>
           <td colSpan={6} className="px-4 py-8 text-center text-gray-500">
-            {t('auditLogTable.noLogsFound')}
+            {t("auditLogTable.noLogsFound")}
           </td>
         </tr>
       ) : (

@@ -7,8 +7,13 @@ import { ScoreTableBoard } from "./score-table-board";
 
 export function ScoreTableTrainingView() {
   const t = useTranslations("scoreTableChallenge");
-  const { correctCount, totalCount, showFeedback, lastAnswerCorrect, handleAnswer } =
-    useTrainingSession();
+  const {
+    correctCount,
+    totalCount,
+    showFeedback,
+    lastAnswerCorrect,
+    handleAnswer,
+  } = useTrainingSession();
 
   return (
     <TrainingShell

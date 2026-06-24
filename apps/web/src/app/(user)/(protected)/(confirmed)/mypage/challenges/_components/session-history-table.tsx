@@ -51,7 +51,10 @@ export function SessionHistoryTable({
         </thead>
         <tbody>
           {sessions.map((session) => (
-            <tr key={`${session.date}-${session.correctAnswers}-${session.incorrectAnswers}`} className="border-b border-surface-100">
+            <tr
+              key={`${session.date}-${session.correctAnswers}-${session.incorrectAnswers}`}
+              className="border-b border-surface-100"
+            >
               <td className="py-2 px-2 sm:px-3 text-surface-900">
                 {session.date}
               </td>

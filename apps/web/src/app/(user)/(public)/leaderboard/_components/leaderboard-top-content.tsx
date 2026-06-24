@@ -1,9 +1,13 @@
-import { getOptionalUser } from '@/lib/auth';
+import { getOptionalUser } from "@/lib/auth";
 
-import { getUserRanks } from '../_actions/get-user-ranks';
-import type { LeaderboardModule, LeaderboardPeriod, UserRankInfo } from '../_lib/types';
-import { MODULES } from '../_lib/types';
-import { LeaderboardCard } from './leaderboard-card';
+import { getUserRanks } from "../_actions/get-user-ranks";
+import type {
+  LeaderboardModule,
+  LeaderboardPeriod,
+  UserRankInfo,
+} from "../_lib/types";
+import { MODULES } from "../_lib/types";
+import { LeaderboardCard } from "./leaderboard-card";
 
 interface LeaderboardTopContentProps {
   readonly period: LeaderboardPeriod;

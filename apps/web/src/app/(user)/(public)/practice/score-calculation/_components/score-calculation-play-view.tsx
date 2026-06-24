@@ -24,7 +24,11 @@ export function ScoreCalculationPlayView() {
     questionResultsRef.current.push(result);
   }, []);
 
-  useSessionStorageSave(RESULT_STORAGE_KEY, questionResultsRef, gameSession.isFinished);
+  useSessionStorageSave(
+    RESULT_STORAGE_KEY,
+    questionResultsRef,
+    gameSession.isFinished,
+  );
 
   return (
     <ChallengeShell

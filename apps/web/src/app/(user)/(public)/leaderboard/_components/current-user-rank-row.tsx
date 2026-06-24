@@ -1,12 +1,12 @@
-import { getTranslations } from 'next-intl/server';
+import { getTranslations } from "next-intl/server";
 
-import type { LeaderboardRow } from '../_lib/types';
-import { PlayerCell } from './player-cell';
+import type { LeaderboardRow } from "../_lib/types";
+import { PlayerCell } from "./player-cell";
 
 function getMissColorClass(incorrectAnswers: number): string {
-  if (incorrectAnswers === 0) return 'text-primary-600';
-  if (incorrectAnswers <= 1) return 'text-surface-500';
-  return 'text-red-500';
+  if (incorrectAnswers === 0) return "text-primary-600";
+  if (incorrectAnswers <= 1) return "text-surface-500";
+  return "text-red-500";
 }
 
 interface CurrentUserRankRowProps {
@@ -18,7 +18,7 @@ interface CurrentUserRankRowProps {
  * ページ外のユーザー順位を表示するセクション
  */
 export async function CurrentUserRankRow({ row }: CurrentUserRankRowProps) {
-  const t = await getTranslations('leaderboard');
+  const t = await getTranslations("leaderboard");
 
   return (
     <div className="border-t-2 border-surface-200 mt-2">
@@ -28,7 +28,7 @@ export async function CurrentUserRankRow({ row }: CurrentUserRankRowProps) {
             <tr>
               <td className="py-3 px-3 text-center w-16">
                 <span className="text-xs font-medium text-surface-400 uppercase">
-                  {t('yourRank')}
+                  {t("yourRank")}
                 </span>
               </td>
               <td className="py-3 px-3">

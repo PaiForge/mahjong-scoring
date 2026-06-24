@@ -54,7 +54,10 @@ export function AuthProvider({ children }: { readonly children: ReactNode }) {
       {
         data: { session: currentSession },
       },
-    ] = await Promise.all([supabase.auth.getUser(), supabase.auth.getSession()]);
+    ] = await Promise.all([
+      supabase.auth.getUser(),
+      supabase.auth.getSession(),
+    ]);
     setUser(currentUser);
     setSession(currentSession);
   }, []);
@@ -86,7 +89,7 @@ export function AuthProvider({ children }: { readonly children: ReactNode }) {
   const signOut = useCallback(async () => {
     // サーバー側で activity-log 記録 + セッション無効化を行い、
     // クライアント側で Supabase のローカルセッション状態をクリアする
-    await fetch('/auth/logout', { method: 'POST' });
+    await fetch("/auth/logout", { method: "POST" });
     const supabase = supabaseRef.current ?? createClient();
     await supabase.auth.signOut();
   }, []);

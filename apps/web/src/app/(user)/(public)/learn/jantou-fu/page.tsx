@@ -6,7 +6,10 @@ import { JantouFuGuide } from "./_components/jantou-fu-guide";
 
 export async function generateMetadata(): Promise<Metadata> {
   const t = await getTranslations("jantouFu.learn");
-  return createMetadata({ title: t("pageTitle"), description: t("pageDescription") });
+  return createMetadata({
+    title: t("pageTitle"),
+    description: t("pageDescription"),
+  });
 }
 
 export default function LearnJantouFuPage() {

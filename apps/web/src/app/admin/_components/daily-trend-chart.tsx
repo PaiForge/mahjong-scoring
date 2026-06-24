@@ -67,7 +67,10 @@ export function DailyTrendChart({
   return (
     <ResponsiveContainer width="100%" height={300} minHeight={250}>
       <LineChart data={mutableData} margin={chartMargin}>
-        <CartesianGrid strokeDasharray="3 3" stroke="var(--color-surface-200)" />
+        <CartesianGrid
+          strokeDasharray="3 3"
+          stroke="var(--color-surface-200)"
+        />
         <XAxis
           dataKey="date"
           tickFormatter={formatDate}

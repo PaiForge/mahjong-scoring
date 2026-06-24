@@ -28,8 +28,8 @@ export function HanCountBoard({
   onRecordResult,
 }: HanCountBoardProps) {
   const t = useTranslations("hanCountChallenge");
-  const [question, setQuestion] = useState<ScoreQuestion | undefined>(() =>
-    generateValidScoreQuestion() ?? undefined,
+  const [question, setQuestion] = useState<ScoreQuestion | undefined>(
+    () => generateValidScoreQuestion() ?? undefined,
   );
   const [questionIndex, setQuestionIndex] = useState(0);
 

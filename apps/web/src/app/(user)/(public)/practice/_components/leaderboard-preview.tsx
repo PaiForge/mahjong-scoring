@@ -1,10 +1,10 @@
-import Link from 'next/link';
-import { getTranslations } from 'next-intl/server';
+import Link from "next/link";
+import { getTranslations } from "next-intl/server";
 
-import { SectionTitle } from '@/app/_components/section-title';
-import { LeaderboardTableHeader } from '@/app/(user)/(public)/leaderboard/_components/leaderboard-table-header';
-import { LeaderboardTableRow } from '@/app/(user)/(public)/leaderboard/_components/leaderboard-table-row';
-import type { LeaderboardRow } from '@/app/(user)/(public)/leaderboard/_lib/types';
+import { SectionTitle } from "@/app/_components/section-title";
+import { LeaderboardTableHeader } from "@/app/(user)/(public)/leaderboard/_components/leaderboard-table-header";
+import { LeaderboardTableRow } from "@/app/(user)/(public)/leaderboard/_components/leaderboard-table-row";
+import type { LeaderboardRow } from "@/app/(user)/(public)/leaderboard/_lib/types";
 
 interface LeaderboardPreviewProps {
   readonly rows: readonly LeaderboardRow[];
@@ -15,8 +15,11 @@ interface LeaderboardPreviewProps {
  * リーダーボードプレビュー
  * 全期間ランキング上位3名の表示
  */
-export async function LeaderboardPreview({ rows, detailPath }: LeaderboardPreviewProps) {
-  const t = await getTranslations('leaderboard');
+export async function LeaderboardPreview({
+  rows,
+  detailPath,
+}: LeaderboardPreviewProps) {
+  const t = await getTranslations("leaderboard");
 
   if (rows.length === 0) {
     return undefined;
@@ -24,9 +27,9 @@ export async function LeaderboardPreview({ rows, detailPath }: LeaderboardPrevie
 
   return (
     <div className="min-h-[280px] space-y-3">
-      <SectionTitle>{t('allTimeRanking')}</SectionTitle>
+      <SectionTitle>{t("allTimeRanking")}</SectionTitle>
       <div>
-        <table className="w-full table-fixed" aria-label={t('allTimeRanking')}>
+        <table className="w-full table-fixed" aria-label={t("allTimeRanking")}>
           <LeaderboardTableHeader />
           <tbody>
             {rows.map((row) => (
@@ -44,7 +47,7 @@ export async function LeaderboardPreview({ rows, detailPath }: LeaderboardPrevie
           href={detailPath}
           className="text-primary-500 hover:underline text-sm font-medium"
         >
-          {t('viewMore')}
+          {t("viewMore")}
         </Link>
       </div>
     </div>

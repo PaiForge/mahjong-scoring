@@ -22,17 +22,19 @@ import { ScoreCalculationResultView } from "../_components/score-calculation-res
 export async function generateMetadata(): Promise<Metadata> {
   const t = await getTranslations("scoreCalculationChallenge");
   const tChallenge = await getTranslations("challenge");
-  return createMetadata({ title: `${t("title")} - ${tChallenge("resultSuffix")}` });
+  return createMetadata({
+    title: `${t("title")} - ${tChallenge("resultSuffix")}`,
+  });
 }
 
-export const dynamic = 'force-dynamic';
+export const dynamic = "force-dynamic";
 
 export default createPracticeResultPage(ScoreCalculationResultView, {
-  module: 'score_calculation',
-  playHref: '/practice/score-calculation/play',
-  introHref: '/practice/score-calculation',
+  module: "score_calculation",
+  playHref: "/practice/score-calculation/play",
+  introHref: "/practice/score-calculation",
   resolveTitle: async () => {
-    const t = await getTranslations('scoreCalculationChallenge');
-    return t('title');
+    const t = await getTranslations("scoreCalculationChallenge");
+    return t("title");
   },
 });

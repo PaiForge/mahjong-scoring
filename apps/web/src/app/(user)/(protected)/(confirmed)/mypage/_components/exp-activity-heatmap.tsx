@@ -6,7 +6,10 @@ import { useTranslations } from "next-intl";
 
 import type { ExpHeatmapData } from "@/lib/db/get-exp-heatmap-data";
 import type { PracticeMenuMessageKey } from "@/lib/db/practice-menu-types";
-import { isPracticeMenuType, menuTypeToMessageKey } from "@/lib/db/practice-menu-types";
+import {
+  isPracticeMenuType,
+  menuTypeToMessageKey,
+} from "@/lib/db/practice-menu-types";
 
 import type { HeatmapLayout } from "../_lib/heatmap-utils";
 import { getExpLevel } from "../_lib/heatmap-utils";
@@ -27,7 +30,6 @@ const LEVEL_CLASSES: Record<number, string> = {
 
 const BAR_CHART_HEIGHT_PX = 140;
 const BAR_CHART_MIN_HEIGHT_PX = 4;
-
 
 interface Props {
   data: ExpHeatmapData;
@@ -52,7 +54,9 @@ export function ExpActivityHeatmap({ data, layout }: Props) {
   // 空状態判定: 0 のエントリしか無いケースも空として扱う。
   const hasAnyActivity = Object.values(data.daily).some((v) => v > 0);
 
-  const moduleBreakdown = selectedDate ? (data.dailyByModule[selectedDate] ?? null) : null;
+  const moduleBreakdown = selectedDate
+    ? (data.dailyByModule[selectedDate] ?? null)
+    : null;
   const selectedTotal = selectedDate ? (data.daily[selectedDate] ?? 0) : 0;
 
   const expSuffix = t("expSuffix");
@@ -93,7 +97,9 @@ export function ExpActivityHeatmap({ data, layout }: Props) {
         <div />
         <div className="flex gap-[3px]">
           {layout.weeks.map((_, weekIdx) => {
-            const monthLabel = layout.monthLabels.find((m) => m.weekIdx === weekIdx);
+            const monthLabel = layout.monthLabels.find(
+              (m) => m.weekIdx === weekIdx,
+            );
             return (
               <div
                 key={weekIdx}
@@ -154,7 +160,10 @@ export function ExpActivityHeatmap({ data, layout }: Props) {
   }
 
   function renderBarChart() {
-    const maxAmount = Math.max(0, ...layout.recentDays.map((d) => data.daily[d] ?? 0));
+    const maxAmount = Math.max(
+      0,
+      ...layout.recentDays.map((d) => data.daily[d] ?? 0),
+    );
 
     return (
       <div
@@ -177,7 +186,10 @@ export function ExpActivityHeatmap({ data, layout }: Props) {
           const dateLabel = formatBarLabel(dateStr);
 
           return (
-            <div key={dateStr} className="flex flex-1 flex-col items-center gap-1">
+            <div
+              key={dateStr}
+              className="flex flex-1 flex-col items-center gap-1"
+            >
               <span className="text-xs text-surface-500">{amount}</span>
               <button
                 type="button"
@@ -200,12 +212,16 @@ export function ExpActivityHeatmap({ data, layout }: Props) {
   return (
     <div className="space-y-3">
       {/* デスクトップ: 46 週ヒートマップ */}
-      <div className="hidden overflow-x-auto md:flex md:justify-center">{renderDesktopGrid()}</div>
+      <div className="hidden overflow-x-auto md:flex md:justify-center">
+        {renderDesktopGrid()}
+      </div>
       {/* モバイル: 直近 7 日間のバーチャート */}
       <div className="block md:hidden">{renderBarChart()}</div>
 
       {/* 空状態メッセージ */}
-      {!hasAnyActivity && <p className="text-sm text-surface-500">{t("empty")}</p>}
+      {!hasAnyActivity && (
+        <p className="text-sm text-surface-500">{t("empty")}</p>
+      )}
 
       {/* レジェンド — デスクトップのみ */}
       <div
@@ -215,7 +231,10 @@ export function ExpActivityHeatmap({ data, layout }: Props) {
         <div className="flex items-center gap-1.5" aria-hidden="true">
           <span>{t("less")}</span>
           {[0, 1, 2, 3, 4].map((level) => (
-            <div key={level} className={`size-3 rounded-sm ${LEVEL_CLASSES[level]}`} />
+            <div
+              key={level}
+              className={`size-3 rounded-sm ${LEVEL_CLASSES[level]}`}
+            />
           ))}
           <span>{t("more")}</span>
         </div>
@@ -230,12 +249,15 @@ export function ExpActivityHeatmap({ data, layout }: Props) {
         {selectedDate ? (
           <>
             <p className="font-semibold text-surface-900">
-              {new Date(selectedDate + "T00:00:00+09:00").toLocaleDateString("ja-JP", {
-                year: "numeric",
-                month: "long",
-                day: "numeric",
-                timeZone: "Asia/Tokyo",
-              })}
+              {new Date(selectedDate + "T00:00:00+09:00").toLocaleDateString(
+                "ja-JP",
+                {
+                  year: "numeric",
+                  month: "long",
+                  day: "numeric",
+                  timeZone: "Asia/Tokyo",
+                },
+              )}
             </p>
             <p className="mt-1 text-surface-600">
               {t("total")}: {selectedTotal} {expSuffix}
@@ -245,7 +267,10 @@ export function ExpActivityHeatmap({ data, layout }: Props) {
                 {Object.entries(moduleBreakdown)
                   .sort(([, a], [, b]) => b - a)
                   .map(([moduleKey, exp]) => (
-                    <li key={moduleKey} className="flex justify-between text-surface-600">
+                    <li
+                      key={moduleKey}
+                      className="flex justify-between text-surface-600"
+                    >
                       <span>{getMenuTypeLabel(moduleKey)}</span>
                       <span>
                         {exp} {expSuffix}

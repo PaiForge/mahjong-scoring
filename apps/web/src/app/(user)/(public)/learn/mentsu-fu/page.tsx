@@ -6,7 +6,10 @@ import { MentsuFuGuide } from "./_components/mentsu-fu-guide";
 
 export async function generateMetadata(): Promise<Metadata> {
   const t = await getTranslations("mentsuFu.learn");
-  return createMetadata({ title: t("pageTitle"), description: t("pageDescription") });
+  return createMetadata({
+    title: t("pageTitle"),
+    description: t("pageDescription"),
+  });
 }
 
 export default function LearnMentsuFuPage() {

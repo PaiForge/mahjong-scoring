@@ -12,8 +12,16 @@ interface TehaiFuExampleProps {
   readonly annotationColor?: "primary" | "amber";
 }
 
-export function TehaiFuExample({ tiles, agariHai, rotatedIndex, label, annotation, annotationColor = "primary" }: TehaiFuExampleProps) {
-  const colorClass = annotationColor === "amber" ? "text-amber-600" : "text-primary-600";
+export function TehaiFuExample({
+  tiles,
+  agariHai,
+  rotatedIndex,
+  label,
+  annotation,
+  annotationColor = "primary",
+}: TehaiFuExampleProps) {
+  const colorClass =
+    annotationColor === "amber" ? "text-amber-600" : "text-primary-600";
 
   return (
     <div className="flex flex-col gap-2">
@@ -33,7 +41,9 @@ export function TehaiFuExample({ tiles, agariHai, rotatedIndex, label, annotatio
       <div className="text-sm">
         <span className="text-surface-600">{label}</span>
         {annotation != null && (
-          <span className={`ml-2 font-semibold ${colorClass}`}>{annotation}</span>
+          <span className={`ml-2 font-semibold ${colorClass}`}>
+            {annotation}
+          </span>
         )}
       </div>
     </div>

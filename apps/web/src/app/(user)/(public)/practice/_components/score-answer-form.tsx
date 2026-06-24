@@ -63,7 +63,11 @@ export function ScoreAnswerForm({
       const koScore = parseInt(scoreFromKo, 10);
       const oyaScore = parseInt(scoreFromOya, 10);
       if (isNaN(koScore) || isNaN(oyaScore)) return;
-      onSubmit({ type: "koTsumo", scoreFromKo: koScore, scoreFromOya: oyaScore });
+      onSubmit({
+        type: "koTsumo",
+        scoreFromKo: koScore,
+        scoreFromOya: oyaScore,
+      });
     } else if (isOyaTsumo) {
       const scoreNum = parseInt(score, 10);
       if (isNaN(scoreNum)) return;

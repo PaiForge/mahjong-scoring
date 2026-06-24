@@ -1,4 +1,4 @@
-import type { Profile, UserActivityLog } from '../../../../lib/db';
+import type { Profile, UserActivityLog } from "../../../../lib/db";
 
 interface ActivityLogRowProps {
   readonly log: UserActivityLog;
@@ -6,15 +6,19 @@ interface ActivityLogRowProps {
   readonly emailMap: Map<string, string>;
 }
 
-export function ActivityLogRow({ log, profileMap, emailMap }: ActivityLogRowProps) {
+export function ActivityLogRow({
+  log,
+  profileMap,
+  emailMap,
+}: ActivityLogRowProps) {
   const profile = profileMap.get(log.userId);
   const userDisplay =
     profile?.username ?? emailMap.get(log.userId) ?? log.userId;
   const targetDisplay = log.targetId
     ? (profileMap.get(log.targetId)?.username ??
-        emailMap.get(log.targetId) ??
-        log.targetId)
-    : '-';
+      emailMap.get(log.targetId) ??
+      log.targetId)
+    : "-";
 
   return (
     <tr className="border-t border-gray-200">
@@ -33,11 +37,11 @@ export function ActivityLogRow({ log, profileMap, emailMap }: ActivityLogRowProp
             {JSON.stringify(log.metadata).slice(0, 80)}
           </code>
         ) : (
-          '-'
+          "-"
         )}
       </td>
       <td className="px-4 py-3 text-gray-500">
-        {new Date(log.createdAt).toLocaleString('ja-JP')}
+        {new Date(log.createdAt).toLocaleString("ja-JP")}
       </td>
     </tr>
   );

@@ -1,6 +1,9 @@
 "use client";
 
-import type { ScoreTableQuestion, ScoreTableUserAnswer } from "@mahjong-scoring/core";
+import type {
+  ScoreTableQuestion,
+  ScoreTableUserAnswer,
+} from "@mahjong-scoring/core";
 import { ScoreAnswerForm } from "../../_components/score-answer-form";
 
 interface ScoreTableAnswerFormProps {

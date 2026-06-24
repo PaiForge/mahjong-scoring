@@ -37,7 +37,8 @@ export const YakuChip = memo(function YakuChip({
   } else if (isSelected) {
     chipClasses += " border-primary-500 bg-primary-50 text-primary-700";
   } else {
-    chipClasses += " border-surface-200 bg-white text-surface-600 hover:border-primary-300";
+    chipClasses +=
+      " border-surface-200 bg-white text-surface-600 hover:border-primary-300";
   }
 
   if (disabled && !feedbackState) {

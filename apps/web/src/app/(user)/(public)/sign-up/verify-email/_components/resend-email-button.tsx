@@ -12,11 +12,7 @@ const COOLDOWN_SECONDS = 60;
  * 確認メール再送ボタン。60秒のクールダウン付き。
  * メール再送ボタン
  */
-export function ResendEmailButton({
-  email,
-}: {
-  readonly email: string;
-}) {
+export function ResendEmailButton({ email }: { readonly email: string }) {
   const t = useTranslations("verifyEmail");
   const [isLoading, setIsLoading] = useState(false);
   const [message, setMessage] = useState("");
@@ -69,9 +65,7 @@ export function ResendEmailButton({
             ? t("resendCooldown", { seconds: cooldown })
             : t("resendButton")}
       </button>
-      {message && (
-        <p className="text-sm text-surface-500">{message}</p>
-      )}
+      {message && <p className="text-sm text-surface-500">{message}</p>}
     </div>
   );
 }

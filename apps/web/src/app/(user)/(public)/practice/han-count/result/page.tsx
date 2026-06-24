@@ -22,17 +22,19 @@ import { HanCountResultView } from "../_components/han-count-result-view";
 export async function generateMetadata(): Promise<Metadata> {
   const t = await getTranslations("hanCountChallenge");
   const tChallenge = await getTranslations("challenge");
-  return createMetadata({ title: `${t("title")} - ${tChallenge("resultSuffix")}` });
+  return createMetadata({
+    title: `${t("title")} - ${tChallenge("resultSuffix")}`,
+  });
 }
 
-export const dynamic = 'force-dynamic';
+export const dynamic = "force-dynamic";
 
 export default createPracticeResultPage(HanCountResultView, {
-  module: 'han_count',
-  playHref: '/practice/han-count/play',
-  introHref: '/practice/han-count',
+  module: "han_count",
+  playHref: "/practice/han-count/play",
+  introHref: "/practice/han-count",
   resolveTitle: async () => {
-    const t = await getTranslations('hanCountChallenge');
-    return t('title');
+    const t = await getTranslations("hanCountChallenge");
+    return t("title");
   },
 });

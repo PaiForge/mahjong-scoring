@@ -6,8 +6,8 @@ import { GoogleAnalytics } from "@next/third-parties/google";
 import { AuthProvider } from "@/app/_contexts/auth-context";
 import "./globals.css";
 
-const GlobalToaster = dynamic(
-  () => import("@/app/_components/global-toaster").then((mod) => mod.GlobalToaster),
+const GlobalToaster = dynamic(() =>
+  import("@/app/_components/global-toaster").then((mod) => mod.GlobalToaster),
 );
 
 export const metadata: Metadata = {

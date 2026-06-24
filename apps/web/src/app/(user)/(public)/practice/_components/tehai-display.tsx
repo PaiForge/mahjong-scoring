@@ -87,7 +87,10 @@ export const TehaiDisplay = memo(function TehaiDisplay({
           <span className="text-surface-400">{t("agari")}</span>
           <div
             className="mt-0.5 flex justify-center"
-            style={{ transform: `scale(${scale})`, transformOrigin: "center top" }}
+            style={{
+              transform: `scale(${scale})`,
+              transformOrigin: "center top",
+            }}
           >
             <Hai hai={context.agariHai} size="sm" />
           </div>
@@ -109,7 +112,10 @@ export const TehaiDisplay = memo(function TehaiDisplay({
             <span className="text-surface-400">{t("dora")}</span>
             <div
               className="mt-0.5 flex justify-center gap-0.5"
-              style={{ transform: `scale(${scale})`, transformOrigin: "center top" }}
+              style={{
+                transform: `scale(${scale})`,
+                transformOrigin: "center top",
+              }}
             >
               {context.doraMarkers.map((marker, i) => (
                 <Hai key={i} hai={marker} size="sm" />

@@ -1,7 +1,10 @@
 "use client";
 
 import { HaiKind } from "@mahjong-scoring/core";
-import type { ScoreQuestion, ScoreTableUserAnswer } from "@mahjong-scoring/core";
+import type {
+  ScoreQuestion,
+  ScoreTableUserAnswer,
+} from "@mahjong-scoring/core";
 import { ScoreAnswerForm } from "../../_components/score-answer-form";
 
 interface ManganScoreCalculationAnswerFormProps {

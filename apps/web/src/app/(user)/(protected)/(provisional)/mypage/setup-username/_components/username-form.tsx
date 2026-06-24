@@ -1,16 +1,16 @@
-'use client';
+"use client";
 
-import { type FormEvent, useCallback, useState } from 'react';
+import { type FormEvent, useCallback, useState } from "react";
 
-import { useTranslations } from 'next-intl';
-import { useRouter } from 'next/navigation';
+import { useTranslations } from "next-intl";
+import { useRouter } from "next/navigation";
 
-import { validateUsername } from '@/lib/username';
+import { validateUsername } from "@/lib/username";
 
-import { registerUsername } from '../_lib/register-username';
+import { registerUsername } from "../_lib/register-username";
 
 const inputClassName =
-  'w-full rounded-lg border border-surface-300 bg-white px-3 py-2 text-sm text-surface-800 placeholder:text-surface-400 focus:border-green-500 focus:ring-1 focus:ring-green-500 focus:outline-none';
+  "w-full rounded-lg border border-surface-300 bg-white px-3 py-2 text-sm text-surface-800 placeholder:text-surface-400 focus:border-green-500 focus:ring-1 focus:ring-green-500 focus:outline-none";
 
 /**
  * ユーザー名登録フォーム。
@@ -19,33 +19,33 @@ const inputClassName =
  * ユーザー名セットアップフォーム
  */
 export function UsernameForm() {
-  const t = useTranslations('setupUsername');
+  const t = useTranslations("setupUsername");
   const router = useRouter();
-  const [username, setUsername] = useState('');
-  const [displayName, setDisplayName] = useState('');
+  const [username, setUsername] = useState("");
+  const [displayName, setDisplayName] = useState("");
   const [error, setError] = useState<string | undefined>(undefined);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   const getValidationMessage = useCallback(
     (errorKey: string): string => {
       switch (errorKey) {
-        case 'too_short':
-          return t('validation.tooShort');
-        case 'too_long':
-          return t('validation.tooLong');
-        case 'invalid_format':
-          return t('validation.invalidFormat');
-        case 'reserved':
-          return t('validation.reserved');
-        case 'username_taken':
-          return t('validation.taken');
-        case 'username_already_set':
-          return t('validation.alreadySet');
+        case "too_short":
+          return t("validation.tooShort");
+        case "too_long":
+          return t("validation.tooLong");
+        case "invalid_format":
+          return t("validation.invalidFormat");
+        case "reserved":
+          return t("validation.reserved");
+        case "username_taken":
+          return t("validation.taken");
+        case "username_already_set":
+          return t("validation.alreadySet");
         default:
-          return t('validation.error');
+          return t("validation.error");
       }
     },
-    [t]
+    [t],
   );
 
   const handleUsernameChange = (value: string) => {
@@ -71,7 +71,7 @@ export function UsernameForm() {
     try {
       const result = await registerUsername(
         trimmedUsername,
-        displayName.trim() || undefined
+        displayName.trim() || undefined,
       );
 
       if (!result.success) {
@@ -80,9 +80,9 @@ export function UsernameForm() {
         return;
       }
 
-      router.push('/mypage');
+      router.push("/mypage");
     } catch {
-      setError(getValidationMessage('unknown'));
+      setError(getValidationMessage("unknown"));
       setIsSubmitting(false);
     }
   };
@@ -90,16 +90,21 @@ export function UsernameForm() {
   return (
     <form onSubmit={handleSubmit} className="space-y-6">
       <div>
-        <label htmlFor="username" className="mb-1 block text-sm font-medium text-surface-800">
-          {t('usernameLabel')} <span className="text-red-500">*</span>
+        <label
+          htmlFor="username"
+          className="mb-1 block text-sm font-medium text-surface-800"
+        >
+          {t("usernameLabel")} <span className="text-red-500">*</span>
         </label>
-        <p className="mb-2 text-xs text-surface-500">{t('usernameDescription')}</p>
+        <p className="mb-2 text-xs text-surface-500">
+          {t("usernameDescription")}
+        </p>
         <input
           id="username"
           type="text"
           value={username}
           onChange={(e) => handleUsernameChange(e.target.value)}
-          placeholder={t('usernamePlaceholder')}
+          placeholder={t("usernamePlaceholder")}
           maxLength={20}
           autoFocus
           autoComplete="off"
@@ -107,29 +112,38 @@ export function UsernameForm() {
         />
         {error && <p className="mt-2 text-sm text-red-500">{error}</p>}
         <ul className="mt-2 list-inside list-disc space-y-0.5">
-          <li className="text-xs text-red-500">{t('cannotChange')}</li>
-          <li className="text-xs text-surface-500">{t('usernameHint')}</li>
+          <li className="text-xs text-red-500">{t("cannotChange")}</li>
+          <li className="text-xs text-surface-500">{t("usernameHint")}</li>
         </ul>
       </div>
 
       <div>
-        <label htmlFor="displayName" className="mb-1 block text-sm font-medium text-surface-800">
-          {t('displayNameLabel')}
+        <label
+          htmlFor="displayName"
+          className="mb-1 block text-sm font-medium text-surface-800"
+        >
+          {t("displayNameLabel")}
         </label>
-        <p className="mb-2 text-xs text-surface-500">{t('displayNameDescription')}</p>
+        <p className="mb-2 text-xs text-surface-500">
+          {t("displayNameDescription")}
+        </p>
         <input
           id="displayName"
           type="text"
           value={displayName}
           onChange={(e) => setDisplayName(e.target.value)}
-          placeholder={t('displayNamePlaceholder')}
+          placeholder={t("displayNamePlaceholder")}
           maxLength={50}
           autoComplete="off"
           className={inputClassName}
         />
         <ul className="mt-2 list-inside list-disc">
-          <li className="text-xs text-surface-500">{t('displayNameCanChange')}</li>
-          <li className="text-xs text-surface-500">{t('displayNameMaxLength')}</li>
+          <li className="text-xs text-surface-500">
+            {t("displayNameCanChange")}
+          </li>
+          <li className="text-xs text-surface-500">
+            {t("displayNameMaxLength")}
+          </li>
         </ul>
       </div>
 
@@ -138,7 +152,7 @@ export function UsernameForm() {
         disabled={isSubmitting || username.trim().length === 0}
         className="w-full rounded-lg bg-green-600 px-4 py-3 text-sm font-medium text-white transition-colors hover:bg-green-700 disabled:cursor-not-allowed disabled:opacity-50"
       >
-        {isSubmitting ? t('submitting') : t('submit')}
+        {isSubmitting ? t("submitting") : t("submit")}
       </button>
     </form>
   );

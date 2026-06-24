@@ -1,14 +1,10 @@
 import { describe, expect, it, vi } from "vitest";
 import { render } from "@testing-library/react";
 import { CurriculumToc } from "./curriculum-toc";
-import type {
-  CurriculumChapter,
-  CurriculumSection,
-} from "../_lib/curriculum";
+import type { CurriculumChapter, CurriculumSection } from "../_lib/curriculum";
 
 vi.mock("next-intl/server", () => ({
-  getTranslations: () =>
-    Promise.resolve((key: string) => key),
+  getTranslations: () => Promise.resolve((key: string) => key),
 }));
 
 const chapters: readonly CurriculumChapter[] = [
@@ -78,7 +74,9 @@ describe("CurriculumToc", () => {
     );
     expect(marks).toHaveLength(1);
 
-    const readRow = container.querySelector('[data-chapter-slug="about-this-app"]');
+    const readRow = container.querySelector(
+      '[data-chapter-slug="about-this-app"]',
+    );
     expect(readRow?.getAttribute("data-read")).toBe("true");
 
     const unreadRow = container.querySelector(
@@ -96,7 +94,9 @@ describe("CurriculumToc", () => {
         nextSlug: "about-this-app",
       }),
     );
-    const nextRow = container.querySelector('[data-chapter-slug="about-this-app"]');
+    const nextRow = container.querySelector(
+      '[data-chapter-slug="about-this-app"]',
+    );
     expect(nextRow?.getAttribute("data-next")).toBe("true");
 
     const otherRow = container.querySelector(
@@ -154,7 +154,7 @@ describe("CurriculumToc", () => {
     }
   });
 
-  it("marks the next chapter row with aria-current=\"step\"", async () => {
+  it('marks the next chapter row with aria-current="step"', async () => {
     const { container } = render(
       await CurriculumToc({
         section,

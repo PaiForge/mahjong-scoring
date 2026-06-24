@@ -1,4 +1,4 @@
-import { getTranslations } from 'next-intl/server';
+import { getTranslations } from "next-intl/server";
 
 interface StatusBadgeProps {
   readonly isBanned: boolean;
@@ -9,19 +9,19 @@ interface StatusBadgeProps {
  * ステータスバッジ
  */
 export async function StatusBadge({ isBanned }: StatusBadgeProps) {
-  const t = await getTranslations('admin');
+  const t = await getTranslations("admin");
 
   if (isBanned) {
     return (
       <span className="inline-block rounded bg-red-100 px-2 py-0.5 text-xs font-medium text-red-700">
-        {t('usersTable.banned')}
+        {t("usersTable.banned")}
       </span>
     );
   }
 
   return (
     <span className="inline-block rounded bg-green-100 px-2 py-0.5 text-xs font-medium text-green-700">
-      {t('usersTable.active')}
+      {t("usersTable.active")}
     </span>
   );
 }

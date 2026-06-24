@@ -22,17 +22,19 @@ import { ScoreTableResultView } from "../_components/score-table-result-view";
 export async function generateMetadata(): Promise<Metadata> {
   const t = await getTranslations("scoreTableChallenge");
   const tChallenge = await getTranslations("challenge");
-  return createMetadata({ title: `${t("title")} - ${tChallenge("resultSuffix")}` });
+  return createMetadata({
+    title: `${t("title")} - ${tChallenge("resultSuffix")}`,
+  });
 }
 
-export const dynamic = 'force-dynamic';
+export const dynamic = "force-dynamic";
 
 export default createPracticeResultPage(ScoreTableResultView, {
-  module: 'score_table',
-  playHref: '/practice/score-table/play',
-  introHref: '/practice/score-table',
+  module: "score_table",
+  playHref: "/practice/score-table/play",
+  introHref: "/practice/score-table",
   resolveTitle: async () => {
-    const t = await getTranslations('scoreTableChallenge');
-    return t('title');
+    const t = await getTranslations("scoreTableChallenge");
+    return t("title");
   },
 });

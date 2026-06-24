@@ -78,7 +78,9 @@ export function AnnouncementForm({
         content,
         locale,
         status,
-        publishedAt: publishedAtLocal ? new Date(publishedAtLocal).toISOString() : null,
+        publishedAt: publishedAtLocal
+          ? new Date(publishedAtLocal).toISOString()
+          : null,
         pinned,
       };
 

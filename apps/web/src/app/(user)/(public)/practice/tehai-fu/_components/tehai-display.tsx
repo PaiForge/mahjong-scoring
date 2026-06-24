@@ -13,7 +13,10 @@ interface TehaiDisplayProps {
  * 手牌の符計算における手牌表示
  * 手牌表示
  */
-export const TehaiDisplay = memo(function TehaiDisplay({ question, onScaleChange }: TehaiDisplayProps) {
+export const TehaiDisplay = memo(function TehaiDisplay({
+  question,
+  onScaleChange,
+}: TehaiDisplayProps) {
   return (
     <BaseTehaiDisplay
       tehai={question.tehai}

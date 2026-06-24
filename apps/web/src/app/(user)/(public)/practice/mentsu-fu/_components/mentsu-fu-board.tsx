@@ -27,7 +27,7 @@ export function MentsuFuBoard({
 }: MentsuFuBoardProps) {
   const t = useTranslations("mentsuFu");
   const [question, setQuestion] = useState<MentsuFuQuestion>(
-    generateMentsuFuQuestion
+    generateMentsuFuQuestion,
   );
   const [selectedFu, setSelectedFu] = useState<number | undefined>(undefined);
 
@@ -43,7 +43,7 @@ export function MentsuFuBoard({
       setSelectedFu(fu);
       onAnswer(fu === question.answer, advanceQuestion);
     },
-    [showFeedback, onAnswer, question.answer, advanceQuestion]
+    [showFeedback, onAnswer, question.answer, advanceQuestion],
   );
 
   return (

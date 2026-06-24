@@ -1,5 +1,5 @@
-import { ContentContainer } from '@/app/_components/content-container';
-import { PageTitle } from '@/app/_components/page-title';
+import { ContentContainer } from "@/app/_components/content-container";
+import { PageTitle } from "@/app/_components/page-title";
 
 export default function LeaderboardDetailLoading() {
   return (
@@ -19,7 +19,10 @@ export default function LeaderboardDetailLoading() {
           <div className="h-9 w-32 animate-pulse rounded bg-surface-100" />
         </div>
         {Array.from({ length: 5 }).map((_, i) => (
-          <div key={i} className="h-12 w-full animate-pulse rounded bg-surface-100" />
+          <div
+            key={i}
+            className="h-12 w-full animate-pulse rounded bg-surface-100"
+          />
         ))}
       </div>
 

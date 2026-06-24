@@ -28,7 +28,7 @@ export function MachiFuBoard({
 }: MachiFuBoardProps) {
   const t = useTranslations("machiFu");
   const [question, setQuestion] = useState<MachiFuQuestion>(
-    generateMachiFuQuestion
+    generateMachiFuQuestion,
   );
   const [selectedFu, setSelectedFu] = useState<number | undefined>(undefined);
 
@@ -44,7 +44,7 @@ export function MachiFuBoard({
       setSelectedFu(fu);
       onAnswer(fu === question.answer, advanceQuestion);
     },
-    [showFeedback, onAnswer, question.answer, advanceQuestion]
+    [showFeedback, onAnswer, question.answer, advanceQuestion],
   );
 
   return (

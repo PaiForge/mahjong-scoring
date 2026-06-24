@@ -20,7 +20,10 @@ interface LinkPendingProps {
  * チェブロンのスロットを差し替える用途にも使える。
  * リンク待機インジケータ
  */
-export function LinkPending({ children, spinnerClassName = "" }: LinkPendingProps) {
+export function LinkPending({
+  children,
+  spinnerClassName = "",
+}: LinkPendingProps) {
   const { pending } = useLinkStatus();
   const t = useTranslations("common");
 

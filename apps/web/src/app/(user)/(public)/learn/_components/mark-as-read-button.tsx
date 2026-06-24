@@ -40,7 +40,11 @@ export function MarkAsReadButton({ slug, initialRead }: MarkAsReadButtonProps) {
 
       // 未認証は「期待された no-op」として success: true + skipped: 'anonymous' が返る。
       // 楽観的 UI を巻き戻してサインインページへ誘導する。
-      if (result.success && "skipped" in result && result.skipped === "anonymous") {
+      if (
+        result.success &&
+        "skipped" in result &&
+        result.skipped === "anonymous"
+      ) {
         setIsRead(!nextState);
         const redirectTo = encodeURIComponent(`/learn/${slug}`);
         router.push(`/sign-in?redirect=${redirectTo}`);

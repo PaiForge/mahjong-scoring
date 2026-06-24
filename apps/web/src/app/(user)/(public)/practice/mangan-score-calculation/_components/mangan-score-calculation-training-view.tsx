@@ -7,8 +7,13 @@ import { ManganScoreCalculationBoard } from "./mangan-score-calculation-board";
 
 export function ManganScoreCalculationTrainingView() {
   const t = useTranslations("manganScoreCalculationChallenge");
-  const { correctCount, totalCount, showFeedback, lastAnswerCorrect, handleAnswer } =
-    useTrainingSession();
+  const {
+    correctCount,
+    totalCount,
+    showFeedback,
+    lastAnswerCorrect,
+    handleAnswer,
+  } = useTrainingSession();
 
   return (
     <TrainingShell

@@ -85,9 +85,8 @@ describe("PracticeLinkList: i18n key fallback", () => {
       },
     }));
 
-    const { PracticeLinkList: PracticeLinkListReloaded } = await import(
-      "./practice-link-card"
-    );
+    const { PracticeLinkList: PracticeLinkListReloaded } =
+      await import("./practice-link-card");
 
     const { container } = render(
       await PracticeLinkListReloaded({ hrefs: ["/practice/jantou-fu"] }),

@@ -37,11 +37,21 @@ interface ContentContainerProps {
  * 子要素に `<PageTitle>` が含まれる場合は、それをカードの外（上）へ引き上げ、
  * 画面最上部の全幅領域に表示する（背景は main と同じグレーで連続する）。
  */
-export function ContentContainer({ children, className = "", breadcrumb, id, fillViewport = false }: ContentContainerProps) {
+export function ContentContainer({
+  children,
+  className = "",
+  breadcrumb,
+  id,
+  fillViewport = false,
+}: ContentContainerProps) {
   const childArray = Children.toArray(children);
-  const title = childArray.find((child) => isValidElement(child) && child.type === PageTitle);
+  const title = childArray.find(
+    (child) => isValidElement(child) && child.type === PageTitle,
+  );
   const body = title
-    ? childArray.filter((child) => !(isValidElement(child) && child.type === PageTitle))
+    ? childArray.filter(
+        (child) => !(isValidElement(child) && child.type === PageTitle),
+      )
     : childArray;
 
   // fillViewport 時は白カード自身を min-h-screen にして画面を埋める。

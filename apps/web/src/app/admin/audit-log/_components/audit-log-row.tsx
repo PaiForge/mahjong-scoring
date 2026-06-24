@@ -1,4 +1,4 @@
-import type { ModerationAction, Profile } from '../../../../lib/db';
+import type { ModerationAction, Profile } from "../../../../lib/db";
 
 interface AuditLogRowProps {
   readonly log: ModerationAction;
@@ -17,11 +17,11 @@ export function AuditLogRow({ log, profileMap, emailMap }: AuditLogRowProps) {
       <td className="px-4 py-3">
         <span
           className={`inline-block rounded px-2 py-0.5 text-xs font-medium ${
-            log.action === 'ban'
-              ? 'bg-red-100 text-red-700'
-              : log.action === 'unban'
-                ? 'bg-green-100 text-green-700'
-                : 'bg-gray-100 text-gray-700'
+            log.action === "ban"
+              ? "bg-red-100 text-red-700"
+              : log.action === "unban"
+                ? "bg-green-100 text-green-700"
+                : "bg-gray-100 text-gray-700"
           }`}
         >
           {log.action}
@@ -32,15 +32,17 @@ export function AuditLogRow({ log, profileMap, emailMap }: AuditLogRowProps) {
       <td className="px-4 py-3">
         {log.reason ? (
           <span title={log.reason}>
-            {log.reason.length > 50 ? `${log.reason.slice(0, 50)}...` : log.reason}
+            {log.reason.length > 50
+              ? `${log.reason.slice(0, 50)}...`
+              : log.reason}
           </span>
         ) : (
           <span className="text-gray-400">-</span>
         )}
       </td>
-      <td className="px-4 py-3 text-gray-500">{log.ipAddress ?? '-'}</td>
+      <td className="px-4 py-3 text-gray-500">{log.ipAddress ?? "-"}</td>
       <td className="px-4 py-3 text-gray-500">
-        {new Date(log.createdAt).toLocaleString('ja-JP')}
+        {new Date(log.createdAt).toLocaleString("ja-JP")}
       </td>
     </tr>
   );

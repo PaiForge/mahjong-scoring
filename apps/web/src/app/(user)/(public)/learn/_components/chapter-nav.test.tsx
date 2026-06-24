@@ -3,8 +3,7 @@ import { render } from "@testing-library/react";
 import { ChapterNav } from "./chapter-nav";
 
 vi.mock("next-intl/server", () => ({
-  getTranslations: () =>
-    Promise.resolve((key: string) => key),
+  getTranslations: () => Promise.resolve((key: string) => key),
 }));
 
 describe("ChapterNav", () => {
@@ -12,7 +11,9 @@ describe("ChapterNav", () => {
     const { container } = render(await ChapterNav({ slug: "about-this-app" }));
     const anchors = container.querySelectorAll("a");
     expect(anchors.length).toBe(1);
-    expect(anchors[0]!.getAttribute("href")).toBe("/learn/why-scoring-is-complex");
+    expect(anchors[0]!.getAttribute("href")).toBe(
+      "/learn/why-scoring-is-complex",
+    );
   });
 
   it("shows only the prev link for the last chapter", async () => {

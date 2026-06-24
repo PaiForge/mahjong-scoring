@@ -7,8 +7,13 @@ import { ScoreCalculationBoard } from "./score-calculation-board";
 
 export function ScoreCalculationTrainingView() {
   const t = useTranslations("scoreCalculationChallenge");
-  const { correctCount, totalCount, showFeedback, lastAnswerCorrect, handleAnswer } =
-    useTrainingSession();
+  const {
+    correctCount,
+    totalCount,
+    showFeedback,
+    lastAnswerCorrect,
+    handleAnswer,
+  } = useTrainingSession();
 
   return (
     <TrainingShell

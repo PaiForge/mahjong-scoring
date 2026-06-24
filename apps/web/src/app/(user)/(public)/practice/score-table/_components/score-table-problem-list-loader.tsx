@@ -18,9 +18,14 @@ interface ScoreTableProblemListLoaderProps {
  * 「string primitive のみ」に限定することで、RSC のシリアライズ
  * 制約（関数 props 禁止）を回避する。
  */
-export function ScoreTableProblemListLoader({ storageKey }: ScoreTableProblemListLoaderProps) {
+export function ScoreTableProblemListLoader({
+  storageKey,
+}: ScoreTableProblemListLoaderProps) {
   const results = useSessionStorageResult(storageKey, parseQuestionResults);
   return (
-    <ScoreProblemListWithLinks results={results} translationNamespace="scoreTableChallenge" />
+    <ScoreProblemListWithLinks
+      results={results}
+      translationNamespace="scoreTableChallenge"
+    />
   );
 }

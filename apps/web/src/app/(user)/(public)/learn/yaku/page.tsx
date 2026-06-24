@@ -6,7 +6,10 @@ import { YakuGuide } from "./_components/yaku-guide";
 
 export async function generateMetadata(): Promise<Metadata> {
   const t = await getTranslations("yaku.learn");
-  return createMetadata({ title: t("pageTitle"), description: t("pageDescription") });
+  return createMetadata({
+    title: t("pageTitle"),
+    description: t("pageDescription"),
+  });
 }
 
 export default function LearnYakuPage() {

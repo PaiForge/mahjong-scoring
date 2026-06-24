@@ -10,7 +10,11 @@ import {
   HIGH_SCORES,
 } from "@mahjong-scoring/core";
 import { ToggleGroup } from "@/app/_components/toggle-group";
-import { isRole, isWinType, buildHighlightCellId } from "../_lib/score-table-utils";
+import {
+  isRole,
+  isWinType,
+  buildHighlightCellId,
+} from "../_lib/score-table-utils";
 import type { Role, WinType } from "../_lib/score-table-utils";
 
 type ViewMode = "normal" | "high_score";
@@ -91,7 +95,10 @@ export function ScoreTable() {
 
   useEffect(() => {
     if (highlightRef.current) {
-      highlightRef.current.scrollIntoView({ behavior: "smooth", block: "center" });
+      highlightRef.current.scrollIntoView({
+        behavior: "smooth",
+        block: "center",
+      });
     }
   }, []);
 
@@ -104,7 +111,7 @@ export function ScoreTable() {
       { value: "ko", label: t("ko") },
       { value: "oya", label: t("oya") },
     ],
-    [t]
+    [t],
   );
 
   const winTypeOptions = useMemo(
@@ -112,7 +119,7 @@ export function ScoreTable() {
       { value: "ron", label: t("ron") },
       { value: "tsumo", label: t("tsumo") },
     ],
-    [t]
+    [t],
   );
 
   const viewModeOptions = useMemo(
@@ -120,7 +127,7 @@ export function ScoreTable() {
       { value: "normal", label: t("fuHan") },
       { value: "high_score", label: `${t("mangan")}+` },
     ],
-    [t]
+    [t],
   );
 
   return (
@@ -157,8 +164,12 @@ export function ScoreTable() {
                     {t("fuSuffix")}\uFF3C{t("hanSuffix")}
                   </th>
                   {HAN_COLS.map((han) => (
-                    <th key={han} className="px-4 py-3 font-medium text-surface-600">
-                      {han}{t("hanSuffix")}
+                    <th
+                      key={han}
+                      className="px-4 py-3 font-medium text-surface-600"
+                    >
+                      {han}
+                      {t("hanSuffix")}
                     </th>
                   ))}
                 </tr>
@@ -180,7 +191,10 @@ export function ScoreTable() {
                         const score = scoreGrid.get(`${han}-${fu}`);
                         if (!score) {
                           return (
-                            <td key={han} className="px-4 py-3 text-surface-400">
+                            <td
+                              key={han}
+                              className="px-4 py-3 text-surface-400"
+                            >
                               -
                             </td>
                           );
@@ -189,7 +203,9 @@ export function ScoreTable() {
                         const cellId = `${activeTab}-${winType}-${han}han-${fu}fu`;
                         const isHidden = !!hiddenCells[cellId];
                         const isHighlighted = cellId === highlightCellId;
-                        const highlightClass = isHighlighted ? " bg-amber-100 ring-2 ring-inset ring-amber-400" : "";
+                        const highlightClass = isHighlighted
+                          ? " bg-amber-100 ring-2 ring-inset ring-amber-400"
+                          : "";
 
                         if (score.isMangan) {
                           return (
@@ -264,7 +280,8 @@ export function ScoreTable() {
                         {t(item.nameKey)}
                       </td>
                       <td className="px-4 py-3 text-right text-surface-600">
-                        {item.han}{t("hanSuffix")}
+                        {item.han}
+                        {t("hanSuffix")}
                       </td>
                       <td
                         className="px-4 py-3 text-right cursor-pointer select-none"
@@ -276,9 +293,15 @@ export function ScoreTable() {
                           }`}
                         >
                           {winType === "ron" ? (
-                            isKo ? item.ronKo : item.ronOya
+                            isKo ? (
+                              item.ronKo
+                            ) : (
+                              item.ronOya
+                            )
                           ) : (
-                            <TsumoScore score={isKo ? item.tsumoKo : item.tsumoOya} />
+                            <TsumoScore
+                              score={isKo ? item.tsumoKo : item.tsumoOya}
+                            />
                           )}
                         </span>
                       </td>

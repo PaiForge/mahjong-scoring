@@ -18,7 +18,9 @@ interface HanCountProblemListLoaderProps {
  * 「string primitive のみ」に限定することで、RSC のシリアライズ
  * 制約（関数 props 禁止）を回避する。
  */
-export function HanCountProblemListLoader({ storageKey }: HanCountProblemListLoaderProps) {
+export function HanCountProblemListLoader({
+  storageKey,
+}: HanCountProblemListLoaderProps) {
   const results = useSessionStorageResult(storageKey, parseHanCountResults);
   return <HanCountProblemList results={results} />;
 }

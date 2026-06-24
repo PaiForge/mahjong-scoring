@@ -10,7 +10,11 @@ interface ToggleGroupProps<T extends string> {
  * トグルボタングループ
  * 切り替えボタン群
  */
-export function ToggleGroup<T extends string>({ options, selected, onChange }: ToggleGroupProps<T>) {
+export function ToggleGroup<T extends string>({
+  options,
+  selected,
+  onChange,
+}: ToggleGroupProps<T>) {
   return (
     <div className="flex rounded-md border border-primary-200 bg-primary-50 p-0.5">
       {options.map((opt) => (

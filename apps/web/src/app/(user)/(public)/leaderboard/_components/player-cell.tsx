@@ -1,6 +1,6 @@
-import Image from 'next/image';
+import Image from "next/image";
 
-import type { LeaderboardRow } from '../_lib/types';
+import type { LeaderboardRow } from "../_lib/types";
 
 interface PlayerCellProps {
   readonly row: LeaderboardRow;
@@ -25,11 +25,15 @@ export function PlayerCell({ row }: PlayerCellProps) {
         />
       ) : (
         <div className="flex h-8 w-8 items-center justify-center rounded-full bg-surface-100 text-surface-400 flex-shrink-0">
-          <span className="text-sm font-medium">{name.charAt(0).toUpperCase()}</span>
+          <span className="text-sm font-medium">
+            {name.charAt(0).toUpperCase()}
+          </span>
         </div>
       )}
       <div className="min-w-0">
-        <span className="text-sm font-medium text-surface-700 truncate block">{name}</span>
+        <span className="text-sm font-medium text-surface-700 truncate block">
+          {name}
+        </span>
       </div>
     </div>
   );

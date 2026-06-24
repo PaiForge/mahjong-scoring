@@ -15,13 +15,19 @@ interface StatsCardProps {
  * KPI表示カード。ベストスコアや平均スコアなどの統計値を表示する。
  * 統計カード
  */
-export function StatsCard({ label, value, tooltip, comparison }: StatsCardProps) {
+export function StatsCard({
+  label,
+  value,
+  tooltip,
+  comparison,
+}: StatsCardProps) {
   const renderComparison = () => {
     if (!comparison) return null;
 
     const { percentChange, absoluteChange, label: compLabel } = comparison;
 
-    if (percentChange === undefined && absoluteChange === undefined) return null;
+    if (percentChange === undefined && absoluteChange === undefined)
+      return null;
 
     const displayValue =
       percentChange !== undefined

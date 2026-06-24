@@ -10,9 +10,19 @@ interface SettingToggleProps {
   readonly infoAriaLabel?: string;
 }
 
-export function SettingToggle({ checked, onChange, label, title, isLast = false, onInfoClick, infoAriaLabel }: SettingToggleProps) {
+export function SettingToggle({
+  checked,
+  onChange,
+  label,
+  title,
+  isLast = false,
+  onInfoClick,
+  infoAriaLabel,
+}: SettingToggleProps) {
   return (
-    <div className={`group flex items-center justify-between px-5 py-3.5 transition-colors hover:bg-surface-50 ${isLast ? "" : "border-b border-surface-100"}`}>
+    <div
+      className={`group flex items-center justify-between px-5 py-3.5 transition-colors hover:bg-surface-50 ${isLast ? "" : "border-b border-surface-100"}`}
+    >
       <span className="flex items-center gap-1.5">
         <label className="cursor-pointer select-none text-sm font-medium text-surface-700 group-hover:text-surface-900">
           {title || label}

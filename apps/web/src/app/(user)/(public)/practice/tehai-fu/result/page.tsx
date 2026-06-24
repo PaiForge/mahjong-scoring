@@ -22,17 +22,19 @@ import { createPracticeResultPage } from "../../_lib/create-practice-result-page
 export async function generateMetadata(): Promise<Metadata> {
   const t = await getTranslations("tehaiFu");
   const tChallenge = await getTranslations("challenge");
-  return createMetadata({ title: `${t("title")} - ${tChallenge("resultSuffix")}` });
+  return createMetadata({
+    title: `${t("title")} - ${tChallenge("resultSuffix")}`,
+  });
 }
 
-export const dynamic = 'force-dynamic';
+export const dynamic = "force-dynamic";
 
 export default createPracticeResultPage(ResultView, {
-  module: 'tehai_fu',
-  playHref: '/practice/tehai-fu/play',
-  introHref: '/practice/tehai-fu',
+  module: "tehai_fu",
+  playHref: "/practice/tehai-fu/play",
+  introHref: "/practice/tehai-fu",
   resolveTitle: async () => {
-    const t = await getTranslations('tehaiFu');
-    return t('title');
+    const t = await getTranslations("tehaiFu");
+    return t("title");
   },
 });

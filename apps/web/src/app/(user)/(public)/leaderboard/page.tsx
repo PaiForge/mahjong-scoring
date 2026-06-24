@@ -13,21 +13,21 @@
  * 3. 各カードにユーザーの順位を表示（ログイン時）
  * 4. カードクリックで詳細ページへ遷移
  */
-import type { Metadata } from 'next';
-import { Suspense } from 'react';
+import type { Metadata } from "next";
+import { Suspense } from "react";
 
-import { getTranslations } from 'next-intl/server';
+import { getTranslations } from "next-intl/server";
 
-import { ContentContainer } from '@/app/_components/content-container';
-import { PageTitle } from '@/app/_components/page-title';
-import { SectionTitle } from '@/app/_components/section-title';
-import { createMetadata } from '@/app/_lib/metadata';
+import { ContentContainer } from "@/app/_components/content-container";
+import { PageTitle } from "@/app/_components/page-title";
+import { SectionTitle } from "@/app/_components/section-title";
+import { createMetadata } from "@/app/_lib/metadata";
 
-import { LeaderboardTopContent } from './_components/leaderboard-top-content';
-import type { LeaderboardPeriod } from './_lib/types';
-import { isValidPeriod } from './_lib/validators';
+import { LeaderboardTopContent } from "./_components/leaderboard-top-content";
+import type { LeaderboardPeriod } from "./_lib/types";
+import { isValidPeriod } from "./_lib/validators";
 
-export const dynamic = 'force-dynamic';
+export const dynamic = "force-dynamic";
 
 interface LeaderboardIndexPageProps {
   searchParams: Promise<{
@@ -39,25 +39,30 @@ function parsePeriod(value: string | undefined): LeaderboardPeriod {
   if (value && isValidPeriod(value)) {
     return value;
   }
-  return 'all-time';
+  return "all-time";
 }
 
 export async function generateMetadata(): Promise<Metadata> {
-  const t = await getTranslations('leaderboard');
-  return createMetadata({ title: t('title') });
+  const t = await getTranslations("leaderboard");
+  return createMetadata({ title: t("title") });
 }
 
-export default async function LeaderboardIndexPage({ searchParams }: LeaderboardIndexPageProps) {
+export default async function LeaderboardIndexPage({
+  searchParams,
+}: LeaderboardIndexPageProps) {
   const { period: periodParam } = await searchParams;
   const period = parsePeriod(periodParam);
-  const t = await getTranslations('leaderboard');
+  const t = await getTranslations("leaderboard");
 
   return (
-    <ContentContainer className="space-y-6" breadcrumb={[{ label: t('title') }]}>
-      <PageTitle>{t('title')}</PageTitle>
+    <ContentContainer
+      className="space-y-6"
+      breadcrumb={[{ label: t("title") }]}
+    >
+      <PageTitle>{t("title")}</PageTitle>
 
-      <SectionTitle>{t('allModulesSection')}</SectionTitle>
-      <p className="text-sm text-surface-500">{t('description')}</p>
+      <SectionTitle>{t("allModulesSection")}</SectionTitle>
+      <p className="text-sm text-surface-500">{t("description")}</p>
 
       <Suspense
         key={period}
@@ -65,7 +70,10 @@ export default async function LeaderboardIndexPage({ searchParams }: Leaderboard
           <div className="space-y-6">
             <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
               {Array.from({ length: 5 }).map((_, i) => (
-                <div key={i} className="h-24 w-full animate-pulse rounded-lg bg-surface-100" />
+                <div
+                  key={i}
+                  className="h-24 w-full animate-pulse rounded-lg bg-surface-100"
+                />
               ))}
             </div>
           </div>

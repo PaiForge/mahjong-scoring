@@ -42,9 +42,7 @@ export default async function ChallengesPage() {
   } = await supabase.auth.getUser();
 
   // protected ルート内のため user は必ず存在するが、型安全のためフォールバック
-  const availableMenuTypes = user
-    ? await fetchAvailableMenuTypes(user.id)
-    : [];
+  const availableMenuTypes = user ? await fetchAvailableMenuTypes(user.id) : [];
   const firstMenu =
     availableMenuTypes.length > 0 ? availableMenuTypes[0] : undefined;
 

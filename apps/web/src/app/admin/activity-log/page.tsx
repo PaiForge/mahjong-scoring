@@ -1,11 +1,14 @@
-import { getTranslations } from 'next-intl/server';
+import { getTranslations } from "next-intl/server";
 
-import { createAdminClient } from '../../../lib/supabase/admin';
-import { AdminLogPageLayout, logSearchParamsCache } from '../_components/admin-log-page-layout';
-import { requireAdminPage } from '../_lib/auth';
+import { createAdminClient } from "../../../lib/supabase/admin";
+import {
+  AdminLogPageLayout,
+  logSearchParamsCache,
+} from "../_components/admin-log-page-layout";
+import { requireAdminPage } from "../_lib/auth";
 
-import { ActivityLogRow } from './_components/activity-log-row';
-import { fetchActivityLogPageData } from './_lib/queries';
+import { ActivityLogRow } from "./_components/activity-log-row";
+import { fetchActivityLogPageData } from "./_lib/queries";
 
 /**
  * アクティビティログページ
@@ -20,8 +23,12 @@ export default async function AdminActivityLogPage({
 }) {
   await requireAdminPage();
 
-  const { page, action: actionFilter, user: rawUser } = await logSearchParamsCache.parse(searchParams);
-  const t = await getTranslations('admin');
+  const {
+    page,
+    action: actionFilter,
+    user: rawUser,
+  } = await logSearchParamsCache.parse(searchParams);
+  const t = await getTranslations("admin");
   const adminClient = createAdminClient();
   const userFilter = rawUser.trim();
 
@@ -30,7 +37,7 @@ export default async function AdminActivityLogPage({
 
   return (
     <AdminLogPageLayout
-      title={t('activityLog')}
+      title={t("activityLog")}
       basePath="/admin/activity-log"
       actionFilter={actionFilter}
       userFilter={userFilter}
@@ -40,18 +47,18 @@ export default async function AdminActivityLogPage({
         </option>
       ))}
       i18n={{
-        filterByAction: t('activityLogTable.filterByAction'),
-        allActions: t('activityLogTable.allActions'),
-        filterByUser: t('activityLogTable.filterByUser'),
-        filter: t('activityLogTable.filter'),
-        userFilterPlaceholder: t('activityLogTable.userFilterPlaceholder'),
+        filterByAction: t("activityLogTable.filterByAction"),
+        allActions: t("activityLogTable.allActions"),
+        filterByUser: t("activityLogTable.filterByUser"),
+        filter: t("activityLogTable.filter"),
+        userFilterPlaceholder: t("activityLogTable.userFilterPlaceholder"),
       }}
       columns={[
-        { label: t('activityLogTable.action') },
-        { label: t('activityLogTable.username') },
-        { label: t('activityLogTable.target') },
-        { label: t('activityLogTable.metadata') },
-        { label: t('activityLogTable.timestamp') },
+        { label: t("activityLogTable.action") },
+        { label: t("activityLogTable.username") },
+        { label: t("activityLogTable.target") },
+        { label: t("activityLogTable.metadata") },
+        { label: t("activityLogTable.timestamp") },
       ]}
       currentPage={currentPage}
       totalPages={totalPages}
@@ -59,7 +66,7 @@ export default async function AdminActivityLogPage({
       {logs.length === 0 ? (
         <tr>
           <td colSpan={5} className="px-4 py-8 text-center text-gray-500">
-            {t('activityLogTable.noLogsFound')}
+            {t("activityLogTable.noLogsFound")}
           </td>
         </tr>
       ) : (

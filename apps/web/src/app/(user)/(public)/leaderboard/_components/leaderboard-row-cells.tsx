@@ -1,15 +1,15 @@
-import type { LeaderboardRow } from '../_lib/types';
-import { PlayerCell } from './player-cell';
-import { RankBadge } from './rank-badge';
+import type { LeaderboardRow } from "../_lib/types";
+import { PlayerCell } from "./player-cell";
+import { RankBadge } from "./rank-badge";
 
 interface LeaderboardRowCellsProps {
   readonly row: LeaderboardRow;
 }
 
 function getMissColorClass(incorrectAnswers: number): string {
-  if (incorrectAnswers === 0) return 'text-primary-600';
-  if (incorrectAnswers <= 1) return 'text-surface-500';
-  return 'text-red-500';
+  if (incorrectAnswers === 0) return "text-primary-600";
+  if (incorrectAnswers <= 1) return "text-surface-500";
+  return "text-red-500";
 }
 
 /**

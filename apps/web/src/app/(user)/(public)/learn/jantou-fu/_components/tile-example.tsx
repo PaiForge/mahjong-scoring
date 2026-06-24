@@ -21,7 +21,9 @@ export function TileExample({ tiles, fu, label }: TileExampleProps) {
         ))}
       </div>
       <div className="text-sm">
-        <span className="font-semibold text-surface-900">{t("fuUnit", { value: fu })}</span>
+        <span className="font-semibold text-surface-900">
+          {t("fuUnit", { value: fu })}
+        </span>
         <span className="ml-2 text-surface-500">{label}</span>
       </div>
     </div>

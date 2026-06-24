@@ -7,8 +7,14 @@ import { PageTitle } from "@/app/_components/page-title";
 import { BoardOverlay } from "@/app/_components/board-overlay";
 import { PauseIcon } from "@/app/_components/icons/pause-icon";
 import { PlayIcon } from "@/app/_components/icons/play-icon";
-import type { GameSessionState, TimerControl } from "../_hooks/use-timed-session";
-import type { FinishCallbackArgs, FinishCallbackResult } from "../_hooks/use-finish-redirect";
+import type {
+  GameSessionState,
+  TimerControl,
+} from "../_hooks/use-timed-session";
+import type {
+  FinishCallbackArgs,
+  FinishCallbackResult,
+} from "../_hooks/use-finish-redirect";
 import { useGameTimer } from "../_hooks/use-game-timer";
 import { useFinishRedirect } from "../_hooks/use-finish-redirect";
 import { useQuitConfirm } from "../_hooks/use-quit-confirm";
@@ -63,7 +69,10 @@ interface ChallengeShellProps {
   /** 練習終了時に呼び出されるコールバック（スコア保存等） */
   readonly onFinish?: (
     args: FinishCallbackArgs,
-  ) => Promise<FinishCallbackResult | void | undefined> | FinishCallbackResult | void;
+  ) =>
+    | Promise<FinishCallbackResult | void | undefined>
+    | FinishCallbackResult
+    | void;
 }
 
 /**
@@ -104,14 +113,22 @@ export function ChallengeShell({
     }
   }, [gameSession]);
 
-  const { isQuitModalOpen, handleQuitClick, handleQuitCancel, handleQuitConfirm } =
-    useQuitConfirm({
-      onOpen: handleQuitOpen,
-      onCancel: handleQuitCancelResume,
-      exitHref,
-    });
+  const {
+    isQuitModalOpen,
+    handleQuitClick,
+    handleQuitCancel,
+    handleQuitConfirm,
+  } = useQuitConfirm({
+    onOpen: handleQuitOpen,
+    onCancel: handleQuitCancelResume,
+    exitHref,
+  });
 
-  const { remainingSeconds, elapsedMs, reset: resetTimer } = useGameTimer({
+  const {
+    remainingSeconds,
+    elapsedMs,
+    reset: resetTimer,
+  } = useGameTimer({
     timeLimit: gameSession.timeLimit,
     onTimeLimitReached: timerControl.onTimeLimitReached,
     isActive: timerControl.isActive,
@@ -166,12 +183,19 @@ export function ChallengeShell({
               className="rounded p-1 text-surface-500 transition-colors hover:bg-surface-100 hover:text-surface-700 disabled:opacity-40 disabled:pointer-events-none"
               aria-label={gameSession.isPaused ? tc("resume") : tc("pause")}
             >
-              {gameSession.isPaused ? <PlayIcon className="size-4" /> : <PauseIcon className="size-4" />}
+              {gameSession.isPaused ? (
+                <PlayIcon className="size-4" />
+              ) : (
+                <PauseIcon className="size-4" />
+              )}
             </button>
           </div>
           <div className="flex items-center gap-3">
             <span className="text-surface-500">
-              {tc("score")}: <span className="font-semibold text-surface-900">{gameSession.correctCount}</span>
+              {tc("score")}:{" "}
+              <span className="font-semibold text-surface-900">
+                {gameSession.correctCount}
+              </span>
             </span>
             <LifeIndicator
               remainingLives={gameSession.remainingLives}
@@ -182,7 +206,9 @@ export function ChallengeShell({
 
         {/* Game content area - overlay scoped here to keep status bar accessible */}
         <div className="relative">
-          <div className={gameSession.isPaused ? "blur-sm select-none" : undefined}>
+          <div
+            className={gameSession.isPaused ? "blur-sm select-none" : undefined}
+          >
             {children}
           </div>
 

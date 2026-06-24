@@ -6,7 +6,10 @@ import { MachiFuGuide } from "./_components/machi-fu-guide";
 
 export async function generateMetadata(): Promise<Metadata> {
   const t = await getTranslations("machiFu.learn");
-  return createMetadata({ title: t("pageTitle"), description: t("pageDescription") });
+  return createMetadata({
+    title: t("pageTitle"),
+    description: t("pageDescription"),
+  });
 }
 
 export default function LearnMachiFuPage() {

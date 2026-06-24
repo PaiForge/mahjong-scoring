@@ -58,7 +58,9 @@ export function QuestionDisplay({ question, size }: QuestionDisplayProps) {
             {t("question.round")} {getKazeName(jikaze)}
             {t("question.wind")}
             {oya ? (
-              <span className="ml-2 text-yellow-300">{t("question.dealer")}</span>
+              <span className="ml-2 text-yellow-300">
+                {t("question.dealer")}
+              </span>
             ) : (
               <span className="ml-2 text-white">{t("question.nonDealer")}</span>
             )}
@@ -118,7 +120,9 @@ export function QuestionDisplay({ question, size }: QuestionDisplayProps) {
       <div className="grid grid-cols-2 gap-4 text-sm">
         {/* Tsumo/Ron + agari hai */}
         <div className="rounded-lg bg-surface-100 p-3">
-          <div className="mb-1 text-xs text-surface-500">{t("question.win")}</div>
+          <div className="mb-1 text-xs text-surface-500">
+            {t("question.win")}
+          </div>
           <div className="flex items-center gap-2">
             <span className="text-xs font-bold">
               {isTsumo ? t("question.tsumo") : t("question.ron")}
@@ -159,7 +163,11 @@ export function QuestionDisplay({ question, size }: QuestionDisplayProps) {
                   const result = getDoraFromIndicator(marker);
                   if (result.isErr()) return undefined;
                   return (
-                    <Hai key={`ura-${index}`} hai={result.value} size={haiSize} />
+                    <Hai
+                      key={`ura-${index}`}
+                      hai={result.value}
+                      size={haiSize}
+                    />
                   );
                 })}
               </div>

@@ -1,10 +1,10 @@
-import Link from 'next/link';
-import { getTranslations } from 'next-intl/server';
+import Link from "next/link";
+import { getTranslations } from "next-intl/server";
 
-import { menuTypeToMessageKey } from '@/lib/db/practice-menu-types';
+import { menuTypeToMessageKey } from "@/lib/db/practice-menu-types";
 
-import type { LeaderboardModule, LeaderboardPeriod } from '../_lib/types';
-import { buildDetailPath } from '../_lib/types';
+import type { LeaderboardModule, LeaderboardPeriod } from "../_lib/types";
+import { buildDetailPath } from "../_lib/types";
 
 interface LeaderboardCardProps {
   readonly module: LeaderboardModule;
@@ -16,8 +16,12 @@ interface LeaderboardCardProps {
  * リーダーボードカード
  * 一覧ページで各モジュールのランキング概要を表示するカード
  */
-export async function LeaderboardCard({ module, period, rank }: LeaderboardCardProps) {
-  const t = await getTranslations('leaderboard');
+export async function LeaderboardCard({
+  module,
+  period,
+  rank,
+}: LeaderboardCardProps) {
+  const t = await getTranslations("leaderboard");
 
   const msgKey = menuTypeToMessageKey(module);
   const title = t(`module.${msgKey}`);
@@ -36,10 +40,10 @@ export async function LeaderboardCard({ module, period, rank }: LeaderboardCardP
           <h3 className="text-sm font-medium text-surface-700">{title}</h3>
           {rank !== undefined ? (
             <p className="text-lg font-semibold text-primary-600 tabular-nums">
-              {t('rankLabel', { rank })}
+              {t("rankLabel", { rank })}
             </p>
           ) : (
-            <p className="text-sm text-surface-400">{t('notRanked')}</p>
+            <p className="text-sm text-surface-400">{t("notRanked")}</p>
           )}
         </div>
       </div>

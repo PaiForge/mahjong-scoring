@@ -22,17 +22,19 @@ import { ManganScoreCalculationResultView } from "../_components/mangan-score-ca
 export async function generateMetadata(): Promise<Metadata> {
   const t = await getTranslations("manganScoreCalculationChallenge");
   const tChallenge = await getTranslations("challenge");
-  return createMetadata({ title: `${t("title")} - ${tChallenge("resultSuffix")}` });
+  return createMetadata({
+    title: `${t("title")} - ${tChallenge("resultSuffix")}`,
+  });
 }
 
-export const dynamic = 'force-dynamic';
+export const dynamic = "force-dynamic";
 
 export default createPracticeResultPage(ManganScoreCalculationResultView, {
-  module: 'mangan_score_calculation',
-  playHref: '/practice/mangan-score-calculation/play',
-  introHref: '/practice/mangan-score-calculation',
+  module: "mangan_score_calculation",
+  playHref: "/practice/mangan-score-calculation/play",
+  introHref: "/practice/mangan-score-calculation",
   resolveTitle: async () => {
-    const t = await getTranslations('manganScoreCalculationChallenge');
-    return t('title');
+    const t = await getTranslations("manganScoreCalculationChallenge");
+    return t("title");
   },
 });

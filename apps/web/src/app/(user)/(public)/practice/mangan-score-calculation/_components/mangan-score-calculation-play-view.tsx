@@ -24,11 +24,18 @@ export function ManganScoreCalculationPlayView() {
   const handleFinish = useSaveOnFinish("mangan_score_calculation");
 
   const questionResultsRef = useRef<ManganScoreCalculationQuestionResult[]>([]);
-  const recordResult = useCallback((result: ManganScoreCalculationQuestionResult) => {
-    questionResultsRef.current.push(result);
-  }, []);
+  const recordResult = useCallback(
+    (result: ManganScoreCalculationQuestionResult) => {
+      questionResultsRef.current.push(result);
+    },
+    [],
+  );
 
-  useSessionStorageSave(RESULT_STORAGE_KEY, questionResultsRef, gameSession.isFinished);
+  useSessionStorageSave(
+    RESULT_STORAGE_KEY,
+    questionResultsRef,
+    gameSession.isFinished,
+  );
 
   return (
     <ChallengeShell

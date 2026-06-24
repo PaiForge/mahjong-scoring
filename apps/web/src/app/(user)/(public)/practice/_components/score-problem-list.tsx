@@ -11,9 +11,15 @@ interface ScoreProblemListProps {
   /** i18n の翻訳ネームスペース（例: "scoreTableChallenge"） */
   readonly translationNamespace: string;
   /** 正解を表示する際のレンダリング関数。リンク付き表示などをカスタマイズできる */
-  readonly renderCorrectAnswer: (answer: ScoreTableAnswer, result: ScoreQuestionResult) => ReactNode;
+  readonly renderCorrectAnswer: (
+    answer: ScoreTableAnswer,
+    result: ScoreQuestionResult,
+  ) => ReactNode;
   /** ユーザー回答を表示する際のフォーマット関数 */
-  readonly formatAnswer: (answer: ScoreTableAnswer, t: (key: string) => string) => string;
+  readonly formatAnswer: (
+    answer: ScoreTableAnswer,
+    t: (key: string) => string,
+  ) => string;
 }
 
 /**

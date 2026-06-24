@@ -10,7 +10,12 @@ interface MachiExampleProps {
   label: string;
 }
 
-export function MachiExample({ tiles, agariHai, fu, label }: MachiExampleProps) {
+export function MachiExample({
+  tiles,
+  agariHai,
+  fu,
+  label,
+}: MachiExampleProps) {
   return (
     <div className="flex items-center gap-4">
       <div className="flex items-center gap-2">

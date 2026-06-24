@@ -12,11 +12,7 @@ import { createClient } from "@/lib/supabase/client";
  *   `page.tsx` 側で `sanitizeInternalRedirect` 済みの値を受け取る想定。
  *   `/auth/callback` に `next` クエリとして渡し、コールバック内で再検証される。
  */
-export function GoogleOAuthButton({
-  redirectTo,
-}: {
-  redirectTo?: string;
-}) {
+export function GoogleOAuthButton({ redirectTo }: { redirectTo?: string }) {
   const t = useTranslations("auth");
   const [isLoading, setIsLoading] = useState(false);
 

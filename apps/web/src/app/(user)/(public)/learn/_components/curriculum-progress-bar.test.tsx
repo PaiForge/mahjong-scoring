@@ -4,14 +4,12 @@ import { CurriculumProgressBar } from "./curriculum-progress-bar";
 
 vi.mock("next-intl/server", () => ({
   getTranslations: () =>
-    Promise.resolve(
-      (key: string, values?: Record<string, string | number>) => {
-        if (values) {
-          return `${key}:${JSON.stringify(values)}`;
-        }
-        return key;
-      },
-    ),
+    Promise.resolve((key: string, values?: Record<string, string | number>) => {
+      if (values) {
+        return `${key}:${JSON.stringify(values)}`;
+      }
+      return key;
+    }),
 }));
 
 describe("CurriculumProgressBar", () => {

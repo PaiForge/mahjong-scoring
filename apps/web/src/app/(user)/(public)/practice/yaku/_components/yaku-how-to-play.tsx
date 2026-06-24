@@ -14,11 +14,20 @@ import { YakuChip } from "./yaku-chip";
 // （TehaiDisplay は closed/exposed の描画にのみ使用するため検証は不要）
 const DEMO_TEHAI = {
   closed: [
-    HaiKind.ManZu2, HaiKind.ManZu3, HaiKind.ManZu4,
-    HaiKind.ManZu2, HaiKind.ManZu3, HaiKind.ManZu4,
-    HaiKind.PinZu3, HaiKind.PinZu4, HaiKind.PinZu5,
-    HaiKind.SouZu6, HaiKind.SouZu7, HaiKind.SouZu8,
-    HaiKind.SouZu5, HaiKind.SouZu5,
+    HaiKind.ManZu2,
+    HaiKind.ManZu3,
+    HaiKind.ManZu4,
+    HaiKind.ManZu2,
+    HaiKind.ManZu3,
+    HaiKind.ManZu4,
+    HaiKind.PinZu3,
+    HaiKind.PinZu4,
+    HaiKind.PinZu5,
+    HaiKind.SouZu6,
+    HaiKind.SouZu7,
+    HaiKind.SouZu8,
+    HaiKind.SouZu5,
+    HaiKind.SouZu5,
   ],
   exposed: [],
 } as unknown as Tehai14;

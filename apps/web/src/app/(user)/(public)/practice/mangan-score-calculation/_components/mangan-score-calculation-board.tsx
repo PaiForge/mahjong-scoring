@@ -2,13 +2,23 @@
 
 import { useCallback, useMemo, useState } from "react";
 import { useTranslations } from "next-intl";
-import { generateValidScoreQuestion, HaiKind, judgeScoreTableAnswer } from "@mahjong-scoring/core";
-import type { ScoreQuestion, ScoreTableUserAnswer } from "@mahjong-scoring/core";
+import {
+  generateValidScoreQuestion,
+  HaiKind,
+  judgeScoreTableAnswer,
+} from "@mahjong-scoring/core";
+import type {
+  ScoreQuestion,
+  ScoreTableUserAnswer,
+} from "@mahjong-scoring/core";
 import { getFeedbackBorderClass } from "../../_lib/feedback-styles";
 import { QuestionDisplay } from "../../score/_components/question-display";
 import { YakuListDisplay } from "./yaku-list-display";
 import { ManganScoreCalculationAnswerForm } from "./mangan-score-calculation-answer-form";
-import type { ManganScoreCalculationQuestionResult, PlayerType } from "../_lib/types";
+import type {
+  ManganScoreCalculationQuestionResult,
+  PlayerType,
+} from "../_lib/types";
 import { paymentToScoreTableAnswer, playerTypeToOptions } from "../_lib/types";
 
 interface ManganScoreCalculationBoardProps {
@@ -20,7 +30,9 @@ interface ManganScoreCalculationBoardProps {
   readonly lastAnswerCorrect?: boolean;
   readonly onAnswer: (correct: boolean, onNext: () => void) => void;
   /** 回答結果の記録（チャレンジの結果ページ用。トレーニングでは省略） */
-  readonly onRecordResult?: (result: ManganScoreCalculationQuestionResult) => void;
+  readonly onRecordResult?: (
+    result: ManganScoreCalculationQuestionResult,
+  ) => void;
 }
 
 /**
@@ -39,12 +51,15 @@ export function ManganScoreCalculationBoard({
   const t = useTranslations("manganScoreCalculationChallenge");
 
   const generateOptions = useMemo(
-    () => ({ allowedRanges: ["mangan_plus" as const], ...playerTypeToOptions(playerType) }),
+    () => ({
+      allowedRanges: ["mangan_plus" as const],
+      ...playerTypeToOptions(playerType),
+    }),
     [playerType],
   );
 
-  const [question, setQuestion] = useState<ScoreQuestion | undefined>(() =>
-    generateValidScoreQuestion(generateOptions) ?? undefined,
+  const [question, setQuestion] = useState<ScoreQuestion | undefined>(
+    () => generateValidScoreQuestion(generateOptions) ?? undefined,
   );
   const [questionIndex, setQuestionIndex] = useState(0);
 
@@ -83,12 +98,17 @@ export function ManganScoreCalculationBoard({
     );
   }
 
-  const feedbackBorderClass = getFeedbackBorderClass(showFeedback, lastAnswerCorrect);
+  const feedbackBorderClass = getFeedbackBorderClass(
+    showFeedback,
+    lastAnswerCorrect,
+  );
 
   return (
     <div className="mt-6 space-y-6">
       {/* Question display */}
-      <div className={`rounded-xl border-2 p-2 transition-colors sm:p-4 ${feedbackBorderClass}`}>
+      <div
+        className={`rounded-xl border-2 p-2 transition-colors sm:p-4 ${feedbackBorderClass}`}
+      >
         <QuestionDisplay question={question} />
       </div>
 

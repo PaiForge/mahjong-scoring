@@ -2,8 +2,15 @@
 
 import { useCallback, useState } from "react";
 import { useTranslations } from "next-intl";
-import { generateValidScoreQuestion, isOya, judgeScoreTableAnswer } from "@mahjong-scoring/core";
-import type { ScoreQuestion, ScoreTableUserAnswer } from "@mahjong-scoring/core";
+import {
+  generateValidScoreQuestion,
+  isOya,
+  judgeScoreTableAnswer,
+} from "@mahjong-scoring/core";
+import type {
+  ScoreQuestion,
+  ScoreTableUserAnswer,
+} from "@mahjong-scoring/core";
 import { getFeedbackBorderClass } from "../../_lib/feedback-styles";
 import { QuestionDisplay } from "../../score/_components/question-display";
 import { ScoreCalculationAnswerForm } from "./score-calculation-answer-form";
@@ -33,8 +40,8 @@ export function ScoreCalculationBoard({
   onRecordResult,
 }: ScoreCalculationBoardProps) {
   const t = useTranslations("scoreCalculationChallenge");
-  const [question, setQuestion] = useState<ScoreQuestion | undefined>(() =>
-    generateValidScoreQuestion() ?? undefined,
+  const [question, setQuestion] = useState<ScoreQuestion | undefined>(
+    () => generateValidScoreQuestion() ?? undefined,
   );
   const [questionIndex, setQuestionIndex] = useState(0);
 
@@ -73,12 +80,17 @@ export function ScoreCalculationBoard({
     );
   }
 
-  const feedbackBorderClass = getFeedbackBorderClass(showFeedback, lastAnswerCorrect);
+  const feedbackBorderClass = getFeedbackBorderClass(
+    showFeedback,
+    lastAnswerCorrect,
+  );
 
   return (
     <div className="mt-6 space-y-6">
       {/* Question display */}
-      <div className={`rounded-xl border-2 p-2 transition-colors sm:p-4 ${feedbackBorderClass}`}>
+      <div
+        className={`rounded-xl border-2 p-2 transition-colors sm:p-4 ${feedbackBorderClass}`}
+      >
         <QuestionDisplay question={question} />
       </div>
 

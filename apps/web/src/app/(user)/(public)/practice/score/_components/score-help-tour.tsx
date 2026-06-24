@@ -113,9 +113,13 @@ export function ScoreHelpTour() {
   const [sample, setSample] = useState<ScoreQuestion | undefined>(undefined);
 
   const open = useCallback(() => {
-    setSample((prev) =>
-      prev ??
-      generateValidScoreQuestion({ includeFuro: false, includeChiitoi: false }),
+    setSample(
+      (prev) =>
+        prev ??
+        generateValidScoreQuestion({
+          includeFuro: false,
+          includeChiitoi: false,
+        }),
     );
     setIndex(0);
     setIsOpen(true);
@@ -262,7 +266,9 @@ export function ScoreHelpTour() {
                 <p className="mb-1 text-sm font-bold text-surface-700">
                   {current.title}
                 </p>
-                <p className="mb-4 text-sm text-surface-500">{current.caption}</p>
+                <p className="mb-4 text-sm text-surface-500">
+                  {current.caption}
+                </p>
               </div>
               <div className="overflow-x-auto px-2">{current.node}</div>
             </div>

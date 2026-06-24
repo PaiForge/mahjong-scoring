@@ -1,22 +1,22 @@
-export const dynamic = 'force-dynamic';
+export const dynamic = "force-dynamic";
 
-import type { Metadata } from 'next';
-import { getTranslations } from 'next-intl/server';
-import Link from 'next/link';
+import type { Metadata } from "next";
+import { getTranslations } from "next-intl/server";
+import Link from "next/link";
 
-import { NuqsAdapter } from 'nuqs/adapters/next/app';
+import { NuqsAdapter } from "nuqs/adapters/next/app";
 
 export const metadata: Metadata = {
-  title: 'Admin - Mahjong Scoring',
+  title: "Admin - Mahjong Scoring",
   robots: { index: false, follow: false },
 };
 
 /** サイドバーのナビゲーション項目（href と admin 名前空間の i18n キー） */
 const NAV_ITEMS = [
-  { href: '/admin/users', labelKey: 'users' },
-  { href: '/admin/announcements', labelKey: 'announcements.navLabel' },
-  { href: '/admin/audit-log', labelKey: 'auditLog' },
-  { href: '/admin/activity-log', labelKey: 'activityLog' },
+  { href: "/admin/users", labelKey: "users" },
+  { href: "/admin/announcements", labelKey: "announcements.navLabel" },
+  { href: "/admin/audit-log", labelKey: "auditLog" },
+  { href: "/admin/activity-log", labelKey: "activityLog" },
 ] as const;
 
 export default async function AdminLayout({
@@ -26,7 +26,7 @@ export default async function AdminLayout({
 }) {
   // 認証は各ページの requireAdminPage() で行う。シェル（サイドバー）を即時描画し、
   // ページ本体の認証待ち + データ取得を各ルートの loading.tsx 1 枚で覆うため。
-  const t = await getTranslations('admin');
+  const t = await getTranslations("admin");
 
   return (
     <div className="flex min-h-screen">
@@ -37,7 +37,7 @@ export default async function AdminLayout({
             href="/admin"
             className="block rounded px-3 py-2 text-lg font-semibold text-surface-900 transition-colors hover:bg-surface-100"
           >
-            {t('title')}
+            {t("title")}
           </Link>
         </h1>
         <nav className="space-y-1">

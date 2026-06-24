@@ -1,6 +1,6 @@
-import { redirect } from 'next/navigation';
+import { redirect } from "next/navigation";
 
-import { getAuthenticatedProfile } from '@/lib/auth';
+import { getAuthenticatedProfile } from "@/lib/auth";
 
 /**
  * プロフィール未作成ユーザー用レイアウト。
@@ -16,7 +16,7 @@ export default async function ProvisionalLayout({
   const { profile } = await getAuthenticatedProfile();
 
   if (profile) {
-    redirect('/mypage');
+    redirect("/mypage");
   }
 
   return <>{children}</>;

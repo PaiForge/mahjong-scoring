@@ -22,17 +22,19 @@ import { createPracticeResultPage } from "../../_lib/create-practice-result-page
 export async function generateMetadata(): Promise<Metadata> {
   const t = await getTranslations("mentsuFu");
   const tChallenge = await getTranslations("challenge");
-  return createMetadata({ title: `${t("title")} - ${tChallenge("resultSuffix")}` });
+  return createMetadata({
+    title: `${t("title")} - ${tChallenge("resultSuffix")}`,
+  });
 }
 
-export const dynamic = 'force-dynamic';
+export const dynamic = "force-dynamic";
 
 export default createPracticeResultPage(ResultView, {
-  module: 'mentsu_fu',
-  playHref: '/practice/mentsu-fu/play',
-  introHref: '/practice/mentsu-fu',
+  module: "mentsu_fu",
+  playHref: "/practice/mentsu-fu/play",
+  introHref: "/practice/mentsu-fu",
   resolveTitle: async () => {
-    const t = await getTranslations('mentsuFu');
-    return t('title');
+    const t = await getTranslations("mentsuFu");
+    return t("title");
   },
 });

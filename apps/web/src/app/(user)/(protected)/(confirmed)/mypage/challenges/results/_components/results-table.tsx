@@ -30,9 +30,7 @@ export function ResultsTable({
   getMenuLabel,
 }: ResultsTableProps) {
   if (items.length === 0) {
-    return (
-      <p className="text-surface-500 text-center py-8">{emptyMessage}</p>
-    );
+    return <p className="text-surface-500 text-center py-8">{emptyMessage}</p>;
   }
 
   return (

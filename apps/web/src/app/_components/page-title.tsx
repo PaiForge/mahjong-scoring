@@ -9,7 +9,11 @@ interface PageTitleProps {
   action?: React.ReactNode;
 }
 
-export function PageTitle({ children, className = "", action }: PageTitleProps) {
+export function PageTitle({
+  children,
+  className = "",
+  action,
+}: PageTitleProps) {
   const heading = (
     <h1
       aria-live="polite"

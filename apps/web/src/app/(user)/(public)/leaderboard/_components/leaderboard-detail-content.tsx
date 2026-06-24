@@ -1,10 +1,14 @@
-import { getTranslations } from 'next-intl/server';
+import { getTranslations } from "next-intl/server";
 
-import type { LeaderboardModule, LeaderboardPeriod, LeaderboardResult } from '../_lib/types';
-import { PAGE_SIZE } from '../_lib/types';
-import { LeaderboardPagination } from './leaderboard-pagination';
-import { LeaderboardTable } from './leaderboard-table';
-import { PeriodSelector } from './period-selector';
+import type {
+  LeaderboardModule,
+  LeaderboardPeriod,
+  LeaderboardResult,
+} from "../_lib/types";
+import { PAGE_SIZE } from "../_lib/types";
+import { LeaderboardPagination } from "./leaderboard-pagination";
+import { LeaderboardTable } from "./leaderboard-table";
+import { PeriodSelector } from "./period-selector";
 
 interface LeaderboardDetailContentProps {
   readonly module: LeaderboardModule;
@@ -25,7 +29,7 @@ export async function LeaderboardDetailContent({
   currentPage,
   period,
 }: LeaderboardDetailContentProps) {
-  const t = await getTranslations('leaderboard');
+  const t = await getTranslations("leaderboard");
 
   const totalPages = Math.ceil(data.totalCount / PAGE_SIZE);
   const periodLabel = t(`period.${period}`);

@@ -3,9 +3,9 @@ interface RankBadgeProps {
 }
 
 const PODIUM_STYLES: Record<number, string> = {
-  1: 'bg-amber-100 text-amber-800 font-bold',
-  2: 'bg-gray-100 text-gray-600 font-bold',
-  3: 'bg-orange-100 text-orange-700 font-bold',
+  1: "bg-amber-100 text-amber-800 font-bold",
+  2: "bg-gray-100 text-gray-600 font-bold",
+  3: "bg-orange-100 text-orange-700 font-bold",
 };
 
 /**

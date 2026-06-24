@@ -63,10 +63,7 @@ export const QuizTimer = memo(function QuizTimer({
           className="transition-all duration-100 ease-linear"
         />
       </svg>
-      <span
-        className="relative z-10 text-xs font-bold"
-        style={{ color }}
-      >
+      <span className="relative z-10 text-xs font-bold" style={{ color }}>
         {formatTime(timeRemaining)}
       </span>
     </div>

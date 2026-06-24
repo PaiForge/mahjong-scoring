@@ -27,9 +27,7 @@ export default function RootError({
   }, [error]);
 
   return (
-    <div
-      className="flex items-center justify-center min-h-screen bg-surface-50 px-6"
-    >
+    <div className="flex items-center justify-center min-h-screen bg-surface-50 px-6">
       <div className="text-center max-w-md">
         <h1 className="text-2xl font-bold text-surface-900 mb-3">
           問題が発生しました

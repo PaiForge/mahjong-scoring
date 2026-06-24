@@ -1,5 +1,5 @@
-import { getTranslations } from 'next-intl/server';
-import Link from 'next/link';
+import { getTranslations } from "next-intl/server";
+import Link from "next/link";
 
 interface PaginationNavProps {
   currentPage: number;
@@ -21,12 +21,15 @@ export async function PaginationNav({
     return null;
   }
 
-  const t = await getTranslations('pagination');
+  const t = await getTranslations("pagination");
 
   return (
-    <nav aria-label="Pagination" className="flex items-center justify-between mt-4">
+    <nav
+      aria-label="Pagination"
+      className="flex items-center justify-between mt-4"
+    >
       <div className="text-sm text-gray-500">
-        {t('pageIndicator', { current: currentPage, total: totalPages })}
+        {t("pageIndicator", { current: currentPage, total: totalPages })}
       </div>
       <div className="flex gap-2">
         {currentPage > 1 ? (
@@ -34,11 +37,11 @@ export async function PaginationNav({
             href={buildHref(currentPage - 1)}
             className="px-4 py-2 text-sm rounded border border-gray-300 hover:bg-gray-100 transition-colors"
           >
-            {t('previous')}
+            {t("previous")}
           </Link>
         ) : (
           <span className="px-4 py-2 text-sm rounded border border-gray-300 opacity-50 cursor-not-allowed">
-            {t('previous')}
+            {t("previous")}
           </span>
         )}
         {currentPage < totalPages ? (
@@ -46,11 +49,11 @@ export async function PaginationNav({
             href={buildHref(currentPage + 1)}
             className="px-4 py-2 text-sm rounded border border-gray-300 hover:bg-gray-100 transition-colors"
           >
-            {t('next')}
+            {t("next")}
           </Link>
         ) : (
           <span className="px-4 py-2 text-sm rounded border border-gray-300 opacity-50 cursor-not-allowed">
-            {t('next')}
+            {t("next")}
           </span>
         )}
       </div>

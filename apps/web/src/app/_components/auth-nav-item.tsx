@@ -30,7 +30,10 @@ export function AuthNavItem() {
 
   useEffect(() => {
     function handleMouseDown(event: MouseEvent) {
-      if (containerRef.current && !containerRef.current.contains(event.target as Node)) {
+      if (
+        containerRef.current &&
+        !containerRef.current.contains(event.target as Node)
+      ) {
         setIsOpen(false);
       }
     }
@@ -39,7 +42,9 @@ export function AuthNavItem() {
   }, []);
 
   if (isLoading) {
-    return <div className="h-8 w-8 rounded-full bg-surface-200 animate-pulse" />;
+    return (
+      <div className="h-8 w-8 rounded-full bg-surface-200 animate-pulse" />
+    );
   }
 
   if (!user) {

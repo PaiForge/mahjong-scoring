@@ -15,11 +15,20 @@ import { TehaiDisplay } from "../../_components/tehai-display";
 // （TehaiDisplay は closed/exposed の描画にのみ使用するため検証は不要）
 const DEMO_TEHAI = {
   closed: [
-    HaiKind.ManZu2, HaiKind.ManZu3, HaiKind.ManZu4,
-    HaiKind.PinZu5, HaiKind.PinZu6, HaiKind.PinZu7,
-    HaiKind.Chun, HaiKind.Chun, HaiKind.Chun,
-    HaiKind.SouZu6, HaiKind.SouZu7, HaiKind.SouZu8,
-    HaiKind.Nan, HaiKind.Nan,
+    HaiKind.ManZu2,
+    HaiKind.ManZu3,
+    HaiKind.ManZu4,
+    HaiKind.PinZu5,
+    HaiKind.PinZu6,
+    HaiKind.PinZu7,
+    HaiKind.Chun,
+    HaiKind.Chun,
+    HaiKind.Chun,
+    HaiKind.SouZu6,
+    HaiKind.SouZu7,
+    HaiKind.SouZu8,
+    HaiKind.Nan,
+    HaiKind.Nan,
   ],
   exposed: [],
 } as unknown as Tehai14;

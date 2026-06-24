@@ -1,9 +1,9 @@
-import { getTranslations } from 'next-intl/server';
+import { getTranslations } from "next-intl/server";
 
-import type { LeaderboardRow } from '../_lib/types';
-import { CurrentUserRankRow } from './current-user-rank-row';
-import { LeaderboardTableHeader } from './leaderboard-table-header';
-import { LeaderboardTableRow } from './leaderboard-table-row';
+import type { LeaderboardRow } from "../_lib/types";
+import { CurrentUserRankRow } from "./current-user-rank-row";
+import { LeaderboardTableHeader } from "./leaderboard-table-header";
+import { LeaderboardTableRow } from "./leaderboard-table-row";
 
 interface LeaderboardTableProps {
   readonly rows: readonly LeaderboardRow[];
@@ -15,13 +15,17 @@ interface LeaderboardTableProps {
  * リーダーボードテーブル
  * ランキング表示のメインテーブル
  */
-export async function LeaderboardTable({ rows, currentUserId, currentUserRank }: LeaderboardTableProps) {
-  const t = await getTranslations('leaderboard');
+export async function LeaderboardTable({
+  rows,
+  currentUserId,
+  currentUserRank,
+}: LeaderboardTableProps) {
+  const t = await getTranslations("leaderboard");
 
   if (rows.length === 0) {
     return (
       <div className="text-center py-12 text-surface-400">
-        <p className="text-lg">{t('emptyState')}</p>
+        <p className="text-lg">{t("emptyState")}</p>
       </div>
     );
   }
@@ -29,7 +33,7 @@ export async function LeaderboardTable({ rows, currentUserId, currentUserRank }:
   return (
     <div className="space-y-0">
       <div>
-        <table className="w-full table-fixed" aria-label={t('title')}>
+        <table className="w-full table-fixed" aria-label={t("title")}>
           <LeaderboardTableHeader />
           <tbody>
             {rows.map((row) => (
@@ -43,7 +47,9 @@ export async function LeaderboardTable({ rows, currentUserId, currentUserRank }:
         </table>
       </div>
 
-      {currentUserRank ? <CurrentUserRankRow row={currentUserRank} /> : undefined}
+      {currentUserRank ? (
+        <CurrentUserRankRow row={currentUserRank} />
+      ) : undefined}
     </div>
   );
 }

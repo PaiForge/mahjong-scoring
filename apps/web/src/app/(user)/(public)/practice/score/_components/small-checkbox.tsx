@@ -4,7 +4,11 @@ interface SmallCheckboxProps {
   readonly label: string;
 }
 
-export function SmallCheckbox({ checked, onChange, label }: SmallCheckboxProps) {
+export function SmallCheckbox({
+  checked,
+  onChange,
+  label,
+}: SmallCheckboxProps) {
   return (
     <label className="group flex cursor-pointer items-center gap-3 rounded-lg border border-transparent px-2 py-1.5 transition-all hover:bg-surface-50">
       <div className="relative flex items-center justify-center">
@@ -21,7 +25,11 @@ export function SmallCheckbox({ checked, onChange, label }: SmallCheckboxProps) 
           stroke="currentColor"
           strokeWidth="3"
         >
-          <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
+          <path
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            d="M5 13l4 4L19 7"
+          />
         </svg>
       </div>
       <span className="select-none text-sm font-medium text-surface-700 group-hover:text-surface-900">

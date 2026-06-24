@@ -1,18 +1,21 @@
-import type { ComponentType } from 'react';
-import { Suspense } from 'react';
+import type { ComponentType } from "react";
+import { Suspense } from "react";
 
-import { getLeaderboard } from '@/app/(user)/(public)/leaderboard/_actions/get-leaderboard';
-import type { LeaderboardModule, LeaderboardRow } from '@/app/(user)/(public)/leaderboard/_lib/types';
-import { buildDetailPath } from '@/app/(user)/(public)/leaderboard/_lib/types';
-import { getExpInfoByChallengeResultId } from '@/lib/db/save-exp';
-import { createClient } from '@/lib/supabase/server';
+import { getLeaderboard } from "@/app/(user)/(public)/leaderboard/_actions/get-leaderboard";
+import type {
+  LeaderboardModule,
+  LeaderboardRow,
+} from "@/app/(user)/(public)/leaderboard/_lib/types";
+import { buildDetailPath } from "@/app/(user)/(public)/leaderboard/_lib/types";
+import { getExpInfoByChallengeResultId } from "@/lib/db/save-exp";
+import { createClient } from "@/lib/supabase/server";
 
-import { ExpGainDisplay } from '../_components/exp-gain-display';
-import { LeaderboardPreview } from '../_components/leaderboard-preview';
-import { LeaderboardSkeleton } from '../_components/leaderboard-skeleton';
-import { ResultBlockSkeleton } from '../_components/result-block-skeleton';
-import { SignUpCta } from '../_components/sign-up-cta';
-import { debugResultDelay } from './debug-delay';
+import { ExpGainDisplay } from "../_components/exp-gain-display";
+import { LeaderboardPreview } from "../_components/leaderboard-preview";
+import { LeaderboardSkeleton } from "../_components/leaderboard-skeleton";
+import { ResultBlockSkeleton } from "../_components/result-block-skeleton";
+import { SignUpCta } from "../_components/sign-up-cta";
+import { debugResultDelay } from "./debug-delay";
 
 const PREVIEW_COUNT = 3;
 
@@ -73,7 +76,9 @@ interface ResultPageConfig {
 
 /** Next.js 16 のページ props（searchParams は Promise） */
 interface PracticeResultPageProps {
-  readonly searchParams: Promise<Record<string, string | readonly string[] | undefined>>;
+  readonly searchParams: Promise<
+    Record<string, string | readonly string[] | undefined>
+  >;
 }
 
 /**
@@ -98,7 +103,9 @@ export function createPracticeResultPage(
   ResultView: ComponentType<PracticeResultViewProps>,
   config: ResultPageConfig,
 ) {
-  return async function PracticeResultPage({ searchParams }: PracticeResultPageProps) {
+  return async function PracticeResultPage({
+    searchParams,
+  }: PracticeResultPageProps) {
     // 即時描画に必要な最小限のデータだけ親で解決する。
     // URL クエリ (`searchParams`) と、練習名（翻訳キー）。
     const [resolvedSearchParams, practiceTitle] = await Promise.all([
@@ -107,12 +114,12 @@ export function createPracticeResultPage(
     ]);
 
     const rawGrant = resolvedSearchParams.grant;
-    const grantId = typeof rawGrant === 'string' ? rawGrant : undefined;
+    const grantId = typeof rawGrant === "string" ? rawGrant : undefined;
 
     const rawCorrect = resolvedSearchParams.correct;
     const rawTotal = resolvedSearchParams.total;
-    const correct = Number(typeof rawCorrect === 'string' ? rawCorrect : 0);
-    const total = Number(typeof rawTotal === 'string' ? rawTotal : 0);
+    const correct = Number(typeof rawCorrect === "string" ? rawCorrect : 0);
+    const total = Number(typeof rawTotal === "string" ? rawTotal : 0);
 
     return (
       <ResultView
@@ -145,7 +152,11 @@ export function createPracticeResultPage(
  * ログイン済みで grant なし → なし（`Suspense` 解決後に空になる）
  * 未ログイン → `SignUpCta`
  */
-async function AsyncResultBlock({ grantId }: { readonly grantId: string | undefined }) {
+async function AsyncResultBlock({
+  grantId,
+}: {
+  readonly grantId: string | undefined;
+}) {
   // デバッグ用: `DEBUG_RESULT_DELAY_MS` が設定されていれば指定 ms 待機。
   // 本番では no-op（debugResultDelay 内で NODE_ENV をチェック）。
   await debugResultDelay();
@@ -170,14 +181,21 @@ async function AsyncResultBlock({ grantId }: { readonly grantId: string | undefi
  * リーダーボードプレビューを非同期に解決して描画する
  * 非同期リーダーボード
  */
-async function AsyncLeaderboardBlock({ module }: { readonly module: LeaderboardModule }) {
+async function AsyncLeaderboardBlock({
+  module,
+}: {
+  readonly module: LeaderboardModule;
+}) {
   // デバッグ用: `DEBUG_RESULT_DELAY_MS` が設定されていれば指定 ms 待機。
   // 本番では no-op（debugResultDelay 内で NODE_ENV をチェック）。
   await debugResultDelay();
 
-  const { rows } = await getLeaderboard(module, 'all-time', 1);
-  const previewRows = rows.slice(0, PREVIEW_COUNT) satisfies readonly LeaderboardRow[];
-  const detailPath = buildDetailPath('all-time', module);
+  const { rows } = await getLeaderboard(module, "all-time", 1);
+  const previewRows = rows.slice(
+    0,
+    PREVIEW_COUNT,
+  ) satisfies readonly LeaderboardRow[];
+  const detailPath = buildDetailPath("all-time", module);
 
   return <LeaderboardPreview rows={previewRows} detailPath={detailPath} />;
 }
@@ -190,7 +208,7 @@ async function resolveCurrentUser() {
     } = await supabase.auth.getUser();
     return user;
   } catch (error) {
-    console.error('[createPracticeResultPage] failed to resolve user:', error);
+    console.error("[createPracticeResultPage] failed to resolve user:", error);
     return null;
   }
 }
@@ -199,7 +217,10 @@ async function tryFetchExpInfo(userId: string, challengeResultId: string) {
   try {
     return await getExpInfoByChallengeResultId(userId, challengeResultId);
   } catch (error) {
-    console.error('[createPracticeResultPage] failed to fetch exp info:', error);
+    console.error(
+      "[createPracticeResultPage] failed to fetch exp info:",
+      error,
+    );
     return undefined;
   }
 }

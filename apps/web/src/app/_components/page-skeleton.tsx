@@ -36,7 +36,10 @@ export function PageSkeleton({
         <div className="h-4 w-4/5 animate-pulse rounded bg-surface-100" />
         <div className="mt-6 space-y-3">
           {Array.from({ length: rows }).map((_, i) => (
-            <div key={i} className="h-14 w-full animate-pulse rounded-md bg-surface-100" />
+            <div
+              key={i}
+              className="h-14 w-full animate-pulse rounded-md bg-surface-100"
+            />
           ))}
         </div>
       </div>

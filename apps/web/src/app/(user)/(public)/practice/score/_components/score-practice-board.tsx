@@ -95,25 +95,36 @@ function ScorePracticeBoardInner() {
     nextQuestion();
   }, [nextQuestion]);
 
-  const handleSubmit = useCallback((answer: UserAnswer) => {
-    submitAnswer(answer, requireYaku, simplifyMangan, requireFuForMangan);
+  const handleSubmit = useCallback(
+    (answer: UserAnswer) => {
+      submitAnswer(answer, requireYaku, simplifyMangan, requireFuForMangan);
 
-    if (autoNext) {
-      const state = useScorePracticeStore.getState();
-      if (state.judgementResult?.isCorrect) {
-        toast.success(t("board.correct"), {
-          duration: 1500,
-          position: "top-center",
-          style: {
-            background: "#E6FFFA",
-            color: "#2C7A7B",
-            fontWeight: "bold",
-          },
-        });
-        nextQuestion();
+      if (autoNext) {
+        const state = useScorePracticeStore.getState();
+        if (state.judgementResult?.isCorrect) {
+          toast.success(t("board.correct"), {
+            duration: 1500,
+            position: "top-center",
+            style: {
+              background: "#E6FFFA",
+              color: "#2C7A7B",
+              fontWeight: "bold",
+            },
+          });
+          nextQuestion();
+        }
       }
-    }
-  }, [submitAnswer, nextQuestion, requireYaku, simplifyMangan, requireFuForMangan, autoNext, t]);
+    },
+    [
+      submitAnswer,
+      nextQuestion,
+      requireYaku,
+      simplifyMangan,
+      requireFuForMangan,
+      autoNext,
+      t,
+    ],
+  );
 
   // クライアントマウント前・問題生成前はどちらも本体と同形のスケルトンを表示し、
   // 実コンテンツへの差し替え時にレイアウトシフト（CLS）が起きないようにする。

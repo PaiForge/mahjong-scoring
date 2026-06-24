@@ -14,27 +14,27 @@
  * 4. 20件ごとにページネーション
  * 5. ログイン中のユーザーがページ外にいる場合、画面下部に自分の順位を表示
  */
-import type { Metadata } from 'next';
-import { Suspense } from 'react';
+import type { Metadata } from "next";
+import { Suspense } from "react";
 
-import { getTranslations } from 'next-intl/server';
-import { notFound } from 'next/navigation';
+import { getTranslations } from "next-intl/server";
+import { notFound } from "next/navigation";
 
-import { ContentContainer } from '@/app/_components/content-container';
-import { PageTitle } from '@/app/_components/page-title';
-import { PrimaryLinkButton } from '@/app/_components/primary-link-button';
-import { SectionTitle } from '@/app/_components/section-title';
-import { createMetadata } from '@/app/_lib/metadata';
-import { getOptionalUser } from '@/lib/auth';
-import { menuTypeToMessageKey } from '@/lib/db/practice-menu-types';
+import { ContentContainer } from "@/app/_components/content-container";
+import { PageTitle } from "@/app/_components/page-title";
+import { PrimaryLinkButton } from "@/app/_components/primary-link-button";
+import { SectionTitle } from "@/app/_components/section-title";
+import { createMetadata } from "@/app/_lib/metadata";
+import { getOptionalUser } from "@/lib/auth";
+import { menuTypeToMessageKey } from "@/lib/db/practice-menu-types";
 
-import { getLeaderboard } from '../../_actions/get-leaderboard';
-import { LeaderboardDetailContent } from '../../_components/leaderboard-detail-content';
-import type { LeaderboardModule, LeaderboardPeriod } from '../../_lib/types';
-import { buildChallengePath, slugToModule } from '../../_lib/types';
-import { isValidPeriod } from '../../_lib/validators';
+import { getLeaderboard } from "../../_actions/get-leaderboard";
+import { LeaderboardDetailContent } from "../../_components/leaderboard-detail-content";
+import type { LeaderboardModule, LeaderboardPeriod } from "../../_lib/types";
+import { buildChallengePath, slugToModule } from "../../_lib/types";
+import { isValidPeriod } from "../../_lib/validators";
 
-export const dynamic = 'force-dynamic';
+export const dynamic = "force-dynamic";
 
 interface LeaderboardDetailPageProps {
   params: Promise<{
@@ -70,13 +70,13 @@ export async function generateMetadata({
   const validated = validateParams(period, moduleSlug);
   if (!validated) return {};
 
-  const t = await getTranslations('leaderboard');
+  const t = await getTranslations("leaderboard");
   const msgKey = menuTypeToMessageKey(validated.module);
   const title = t(`module.${msgKey}`);
   const periodLabel = t(`period.${validated.period}`);
 
   return createMetadata({
-    title: `${title} (${periodLabel}) - ${t('title')}`,
+    title: `${title} (${periodLabel}) - ${t("title")}`,
   });
 }
 
@@ -114,8 +114,8 @@ export default async function LeaderboardDetailPage({
   const validated = validateParams(period, moduleSlug);
   if (!validated) notFound();
 
-  const page = Math.max(1, parseInt(pageParam ?? '1', 10) || 1);
-  const t = await getTranslations('leaderboard');
+  const page = Math.max(1, parseInt(pageParam ?? "1", 10) || 1);
+  const t = await getTranslations("leaderboard");
 
   const moduleMsgKey = menuTypeToMessageKey(validated.module);
   const moduleTitle = t(`module.${moduleMsgKey}`);
@@ -124,9 +124,12 @@ export default async function LeaderboardDetailPage({
   return (
     <ContentContainer
       className="space-y-6"
-      breadcrumb={[{ label: t('title'), href: '/leaderboard' }, { label: moduleTitle }]}
+      breadcrumb={[
+        { label: t("title"), href: "/leaderboard" },
+        { label: moduleTitle },
+      ]}
     >
-      <PageTitle>{t('title')}</PageTitle>
+      <PageTitle>{t("title")}</PageTitle>
 
       <SectionTitle>{moduleTitle}</SectionTitle>
 
@@ -135,17 +138,24 @@ export default async function LeaderboardDetailPage({
         fallback={
           <div className="space-y-4">
             {Array.from({ length: 5 }).map((_, i) => (
-              <div key={i} className="h-12 w-full animate-pulse rounded bg-surface-100" />
+              <div
+                key={i}
+                className="h-12 w-full animate-pulse rounded bg-surface-100"
+              />
             ))}
           </div>
         }
       >
-        <DetailContent period={validated.period} module={validated.module} page={page} />
+        <DetailContent
+          period={validated.period}
+          module={validated.module}
+          page={page}
+        />
       </Suspense>
 
       <div className="pt-4 border-t border-surface-200">
         <PrimaryLinkButton href={challengePath} className="w-full">
-          {t('tryChallenge')}
+          {t("tryChallenge")}
         </PrimaryLinkButton>
       </div>
     </ContentContainer>

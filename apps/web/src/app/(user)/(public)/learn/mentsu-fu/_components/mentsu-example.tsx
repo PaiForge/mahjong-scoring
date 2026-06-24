@@ -12,7 +12,13 @@ interface MentsuExampleProps {
   readonly isKantsu?: boolean;
 }
 
-export function MentsuExample({ tiles, fu, label, isOpen, isKantsu }: MentsuExampleProps) {
+export function MentsuExample({
+  tiles,
+  fu,
+  label,
+  isOpen,
+  isKantsu,
+}: MentsuExampleProps) {
   const t = useTranslations("mentsuFu.learn");
 
   const renderTiles = () => {
@@ -42,7 +48,9 @@ export function MentsuExample({ tiles, fu, label, isOpen, isKantsu }: MentsuExam
         {renderTiles()}
         <span className="text-sm text-surface-600">{label}</span>
       </div>
-      <span className={`text-sm font-semibold ${fu > 0 ? "text-primary-600" : "text-surface-400"}`}>
+      <span
+        className={`text-sm font-semibold ${fu > 0 ? "text-primary-600" : "text-surface-400"}`}
+      >
         {t("fuUnit", { value: fu })}
       </span>
     </div>

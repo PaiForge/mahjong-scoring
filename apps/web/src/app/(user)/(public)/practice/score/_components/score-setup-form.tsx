@@ -52,8 +52,10 @@ export function ScoreSetupForm() {
       params.set("auto_next", "1");
     }
     if (targetScoreRanges.length > 0 && targetScoreRanges.length < 2) {
-      if (targetScoreRanges.includes("non_mangan")) params.append("ranges", "non");
-      if (targetScoreRanges.includes("mangan_plus")) params.append("ranges", "plus");
+      if (targetScoreRanges.includes("non_mangan"))
+        params.append("ranges", "non");
+      if (targetScoreRanges.includes("mangan_plus"))
+        params.append("ranges", "plus");
     }
     if (includeParent) params.append("roles", "oya");
     if (includeChild) params.append("roles", "ko");
@@ -62,16 +64,23 @@ export function ScoreSetupForm() {
 
     const queryString = params.toString();
     router.push(
-      queryString ? `/practice/score/play?${queryString}` : "/practice/score/play",
+      queryString
+        ? `/practice/score/play?${queryString}`
+        : "/practice/score/play",
     );
   };
 
-  const handleToggleRange = useCallback((range: "non_mangan" | "mangan_plus") => {
-    const current = useScoreSettingsStore.getState().targetScoreRanges;
-    setTargetScoreRanges(
-      current.includes(range) ? current.filter((r) => r !== range) : [...current, range],
-    );
-  }, [setTargetScoreRanges]);
+  const handleToggleRange = useCallback(
+    (range: "non_mangan" | "mangan_plus") => {
+      const current = useScoreSettingsStore.getState().targetScoreRanges;
+      setTargetScoreRanges(
+        current.includes(range)
+          ? current.filter((r) => r !== range)
+          : [...current, range],
+      );
+    },
+    [setTargetScoreRanges],
+  );
 
   const handleToggleNonMangan = useCallback(() => {
     handleToggleRange("non_mangan");
@@ -81,7 +90,8 @@ export function ScoreSetupForm() {
     handleToggleRange("mangan_plus");
   }, [handleToggleRange]);
 
-  const isDisabled = targetScoreRanges.length === 0 || (!includeParent && !includeChild);
+  const isDisabled =
+    targetScoreRanges.length === 0 || (!includeParent && !includeChild);
 
   if (!mounted) {
     // 本体と同じ構造（設定カード＝トグル4行、2カラムのチェックボックスカード、
@@ -117,7 +127,10 @@ export function ScoreSetupForm() {
               </div>
               <div className="flex flex-col gap-3 p-3">
                 {["row1", "row2"].map((row) => (
-                  <div key={row} className="flex items-center gap-3 px-2 py-1.5">
+                  <div
+                    key={row}
+                    className="flex items-center gap-3 px-2 py-1.5"
+                  >
                     <div className="size-5 animate-pulse rounded bg-surface-100" />
                     <div className="h-4 w-16 animate-pulse rounded bg-surface-100" />
                   </div>
@@ -239,4 +252,3 @@ export function ScoreSetupForm() {
     </div>
   );
 }
-

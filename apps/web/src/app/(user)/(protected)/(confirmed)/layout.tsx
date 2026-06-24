@@ -1,6 +1,6 @@
-import { redirect } from 'next/navigation';
+import { redirect } from "next/navigation";
 
-import { getAuthenticatedProfile } from '@/lib/auth';
+import { getAuthenticatedProfile } from "@/lib/auth";
 
 /**
  * プロフィール作成済みユーザー用レイアウト。
@@ -16,7 +16,7 @@ export default async function ConfirmedLayout({
   const { profile } = await getAuthenticatedProfile();
 
   if (!profile) {
-    redirect('/mypage/setup-username');
+    redirect("/mypage/setup-username");
   }
 
   return <>{children}</>;
