@@ -52,7 +52,7 @@ export default async function AdminLayout({
           ))}
         </nav>
       </aside>
-      <main className="flex-1 p-8">
+      <main className="flex-1 bg-secondary p-8">
         <NuqsAdapter>{children}</NuqsAdapter>
       </main>
     </div>

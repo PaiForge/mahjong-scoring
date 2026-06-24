@@ -19,7 +19,7 @@ interface ContentContainerProps {
    * 白カード自身を最小高さ画面いっぱい（min-h-screen）にして画面を埋め、スクロール先 id
    * はカード領域（本文）に付与する。`useScrollToElement` やハッシュ遷移と併用すると、
    * 練習開始直後にタイトル帯・グローバルヘッダが画面外へ送られ、本文（盤面）が最上部に
-   * 来る。白背景が伸びるためグレー（bg-secondary）はタイトル帯周辺にしか露出しない
+   * 来る。白背景が伸びるため main の bg-secondary はタイトル帯周辺にしか露出しない
    * （blindfold-chess のセッション画面準拠：タイトルはスクロール対象に含めない）。
    */
   fillViewport?: boolean;
@@ -32,7 +32,7 @@ interface ContentContainerProps {
  * `-mx-4 sm:mx-0` でモバイル時は左右いっぱいに（フルブリード）、
  * sm 以上では角丸＋ボーダーのカードになる。
  *
- * レイアウトの main 背景はグレー（bg-secondary）で、この白カードがその上に浮く（blindfold-chess 準拠）。
+ * レイアウトの main 背景は bg-secondary（slate-50 / #f8fafc）で、この白カードがその上に薄く浮く（blindfold-chess 準拠）。
  *
  * 子要素に `<PageTitle>` が含まれる場合は、それをカードの外（上）へ引き上げ、
  * 画面最上部の全幅領域に表示する（背景は main と同じグレーで連続する）。
@@ -45,7 +45,7 @@ export function ContentContainer({ children, className = "", breadcrumb, id, fil
     : childArray;
 
   // fillViewport 時は白カード自身を min-h-screen にして画面を埋める。
-  // ラッパー（透明）側に付けると下にグレー（bg-secondary）が伸びてしまうため、
+  // ラッパー（透明）側に付けると下に main の bg-secondary が伸びてしまうため、
   // 白背景が伸びるようカードへ付与する（blindfold-chess のセッション画面準拠）。
   const card = (
     <div
@@ -69,13 +69,17 @@ export function ContentContainer({ children, className = "", breadcrumb, id, fil
     );
   }
 
-  // PageTitle 部分の全幅領域。main と同じグレー（bg-secondary）で、py-5 が
-  // タイトル上下の余白を兼ねる（下側はそのままカードとの間隔になる）。
+  // PageTitle 部分。背景はレイアウトの main（bg-secondary）が透けて見えるため、
+  // ここで bg-secondary を再指定しない（背景色は main に一元化する）。
+  // py-5 がタイトル上下の余白を兼ねる（下側はそのままカードとの間隔になる）。
   // fillViewport 時はスクロール先をカード領域に置くため、タイトル帯には id を付けない
   // （タイトルはスクロールで画面外へ送られ、本文＝カードが最上部に来る）。
   const titleBand = (
-    <div id={fillViewport ? undefined : id} className="bg-secondary">
-      <div className="mx-auto max-w-4xl px-4 py-5 sm:px-6 lg:px-8">{title}</div>
+    <div
+      id={fillViewport ? undefined : id}
+      className="mx-auto max-w-4xl px-4 py-5 sm:px-6 lg:px-8"
+    >
+      {title}
     </div>
   );
   // sm 以上で角丸カードがグレー背景から浮くよう、下側だけ余白を取る。
