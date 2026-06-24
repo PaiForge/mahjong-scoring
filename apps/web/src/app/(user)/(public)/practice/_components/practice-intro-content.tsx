@@ -73,7 +73,7 @@ export async function PracticeIntroContent({
             <div className="flex w-full flex-col items-center gap-1.5">
               <PrimaryLinkButton
                 href={`/practice/${slug}/play${PRACTICE_SCROLL_HASH}`}
-                className="w-full px-8 py-3"
+                className="w-full py-3"
               >
                 {tc("startButton")}
               </PrimaryLinkButton>
@@ -89,7 +89,7 @@ export async function PracticeIntroContent({
             <div className="flex w-full flex-col items-center gap-1.5">
               <Link
                 href={`/practice/${slug}/training${PRACTICE_SCROLL_HASH}`}
-                className="inline-flex w-full items-center justify-center gap-2 rounded-lg border border-primary-500 px-8 py-3 text-sm font-semibold text-primary-600 transition-colors hover:bg-primary-50"
+                className="inline-flex w-full items-center justify-center gap-2 rounded-lg border border-primary-500 py-3 text-sm font-semibold text-primary-600 transition-colors hover:bg-primary-50"
               >
                 <InfinityIcon className="size-4" />
                 {tt("startButton")}
@@ -101,7 +101,7 @@ export async function PracticeIntroContent({
           <div>
             <PrimaryLinkButton
               href={`/practice/${slug}/play${PRACTICE_SCROLL_HASH}`}
-              className="w-full px-8 py-3"
+              className="w-full py-3"
             >
               {tc("startButton")}
             </PrimaryLinkButton>
