@@ -10,8 +10,8 @@ export default function UserLayout({
   return (
     <div className="flex min-h-screen flex-col">
       <Header />
-      {/* 背景はグレーの全幅（blindfold-chess 準拠）。白い角丸カード（ContentContainer）が
-          この上に浮く。最大幅・余白は ContentContainer 側が持つ。 */}
+      {/* 背景はセマンティックトークン bg-secondary（slate-50 / #f8fafc）。白い角丸カード
+          （ContentContainer）がこの上に薄く浮く。最大幅・余白は ContentContainer 側が持つ。 */}
       <main className="flex-1 bg-secondary">{children}</main>
       <Footer />
       {/* 固定の MobileTabBar がフッターを覆わないようにするスペーサー */}

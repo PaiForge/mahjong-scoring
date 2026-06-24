@@ -38,7 +38,8 @@
   --color-card-foreground: #0f172a;
   --color-primary: #16a34a;
   --color-primary-foreground: #ffffff;
-  --color-secondary: #f1f5f9;
+  /* ページ背景（main）に使う淡いトーン。surface-50 と同値で、白カードが控えめに浮く。 */
+  --color-secondary: #f8fafc;
   --color-secondary-foreground: #0f172a;
   --color-muted: #f1f5f9;
   --color-muted-foreground: #64748b;
@@ -54,7 +55,6 @@
 
 body {
   font-family: system-ui, -apple-system, sans-serif;
-  background-color: var(--color-surface-50);
   color: var(--color-surface-900);
 }
 
