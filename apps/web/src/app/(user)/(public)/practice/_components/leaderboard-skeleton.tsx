@@ -19,7 +19,7 @@ export function LeaderboardSkeleton() {
   return (
     <div
       aria-hidden="true"
-      className="mt-12 min-h-[280px] space-y-3"
+      className="min-h-[280px] space-y-3"
       data-testid="leaderboard-skeleton"
     >
       <div className="h-6 w-32 animate-pulse rounded bg-surface-200" />

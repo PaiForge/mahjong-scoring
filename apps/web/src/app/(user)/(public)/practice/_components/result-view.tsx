@@ -34,6 +34,7 @@ import { ResultScoreBar } from "./result-score-bar";
 export async function ResultView({
   practiceTitle,
   playHref,
+  introHref,
   correct,
   total,
   resultBlock,
@@ -41,34 +42,49 @@ export async function ResultView({
   children,
 }: PracticeResultViewProps) {
   const tc = await getTranslations("challenge");
+  const tp = await getTranslations("practice");
 
   return (
-    <ContentContainer>
+    <ContentContainer
+      breadcrumb={[
+        { label: tp("title"), href: "/practice" },
+        introHref
+          ? { label: practiceTitle, href: introHref }
+          : { label: practiceTitle },
+        { label: tc("resultSuffix") },
+      ]}
+    >
       <PageTitle>{practiceTitle}</PageTitle>
 
-      <section className="mt-6 space-y-3">
-        <SectionTitle>{tc("resultSectionTitle")}</SectionTitle>
-        <ResultScoreBar correct={correct} total={total} />
-      </section>
+      {/* カード内のセクション間マージンは space-y で等間隔に統一する */}
+      <div className="space-y-8">
+        <section className="space-y-3">
+          <SectionTitle>{tc("resultSectionTitle")}</SectionTitle>
+          <ResultScoreBar correct={correct} total={total} />
+        </section>
 
-      {/* 結果ブロック: 経験値 / 登録 CTA。Suspense + ResultBlockSkeleton で包まれている。 */}
-      {resultBlock}
+        {/* 結果ブロック: 経験値 / 登録 CTA。Suspense + ResultBlockSkeleton で包まれている。 */}
+        {resultBlock}
 
-      <div className="mt-8 flex flex-col gap-3 sm:flex-row">
-        <PrimaryLinkButton href={playHref}>{tc("retryButton")}</PrimaryLinkButton>
-        <Link
-          href="/practice"
-          className="inline-flex items-center justify-center rounded-lg border border-surface-200 px-6 py-2.5 text-sm font-semibold text-surface-600 transition-colors hover:bg-surface-100"
-        >
-          {tc("backToList")}
-        </Link>
+        {/* アクションボタン（もう一度 / 練習一覧に戻る）。参考プロジェクト準拠で縦積み・全幅。 */}
+        <div className="space-y-3">
+          <PrimaryLinkButton href={playHref} className="w-full py-3">
+            {tc("retryButton")}
+          </PrimaryLinkButton>
+          <Link
+            href="/practice"
+            className="inline-flex w-full items-center justify-center rounded-lg border border-surface-200 px-6 py-3 text-sm font-semibold text-surface-600 transition-colors hover:bg-surface-100"
+          >
+            {tc("backToList")}
+          </Link>
+        </div>
+
+        {/* 練習種別固有の追加コンテンツ（問題別フィードバック一覧など） */}
+        {children}
+
+        {/* リーダーボードプレビュー。Suspense + LeaderboardSkeleton で包まれている。 */}
+        {leaderboardBlock}
       </div>
-
-      {/* 練習種別固有の追加コンテンツ（問題別フィードバック一覧など） */}
-      {children}
-
-      {/* リーダーボードプレビュー。Suspense + LeaderboardSkeleton で包まれている。 */}
-      {leaderboardBlock}
     </ContentContainer>
   );
 }

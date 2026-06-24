@@ -30,6 +30,7 @@ export const dynamic = 'force-dynamic';
 export default createPracticeResultPage(ResultView, {
   module: 'jantou_fu',
   playHref: '/practice/jantou-fu/play',
+  introHref: '/practice/jantou-fu',
   resolveTitle: async () => {
     const t = await getTranslations('jantouFu');
     return t('title');

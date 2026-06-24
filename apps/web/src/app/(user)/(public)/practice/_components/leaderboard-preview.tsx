@@ -23,7 +23,7 @@ export async function LeaderboardPreview({ rows, detailPath }: LeaderboardPrevie
   }
 
   return (
-    <div className="mt-12 min-h-[280px] space-y-3">
+    <div className="min-h-[280px] space-y-3">
       <SectionTitle>{t('allTimeRanking')}</SectionTitle>
       <div>
         <table className="w-full table-fixed" aria-label={t('allTimeRanking')}>

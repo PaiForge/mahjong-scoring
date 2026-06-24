@@ -30,6 +30,7 @@ export const dynamic = 'force-dynamic';
 export default createPracticeResultPage(HanCountResultView, {
   module: 'han_count',
   playHref: '/practice/han-count/play',
+  introHref: '/practice/han-count',
   resolveTitle: async () => {
     const t = await getTranslations('hanCountChallenge');
     return t('title');
