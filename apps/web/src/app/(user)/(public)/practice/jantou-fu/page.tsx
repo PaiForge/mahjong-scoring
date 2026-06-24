@@ -14,6 +14,7 @@ import type { Metadata } from "next";
 import { getTranslations } from "next-intl/server";
 import { createMetadata } from "@/app/_lib/metadata";
 import { PracticeIntroContent } from "../_components/practice-intro-content";
+import { JantouFuHowToPlay } from "./_components/jantou-fu-how-to-play";
 
 export async function generateMetadata(): Promise<Metadata> {
   const t = await getTranslations("jantouFu");
@@ -21,5 +22,12 @@ export async function generateMetadata(): Promise<Metadata> {
 }
 
 export default function JantouFuPage() {
-  return <PracticeIntroContent namespace="jantouFu" slug="jantou-fu" showTraining />;
+  return (
+    <PracticeIntroContent
+      namespace="jantouFu"
+      slug="jantou-fu"
+      showTraining
+      howToPlay={<JantouFuHowToPlay />}
+    />
+  );
 }

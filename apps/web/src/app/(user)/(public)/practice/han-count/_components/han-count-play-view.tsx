@@ -32,6 +32,7 @@ export function HanCountPlayView() {
       gameSession={gameSession}
       timerControl={timerControl}
       resultPath="/practice/han-count/result"
+      exitHref="/practice/han-count"
       onFinish={handleFinish}
       maxWidth="max-w-2xl"
     >

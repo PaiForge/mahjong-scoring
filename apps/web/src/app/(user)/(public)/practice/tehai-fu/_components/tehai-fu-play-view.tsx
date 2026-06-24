@@ -17,6 +17,7 @@ export function TehaiFuPlayView() {
       gameSession={gameSession}
       timerControl={timerControl}
       resultPath="/practice/tehai-fu/result"
+      exitHref="/practice/tehai-fu"
       maxWidth="max-w-lg"
       onFinish={handleFinish}
     >

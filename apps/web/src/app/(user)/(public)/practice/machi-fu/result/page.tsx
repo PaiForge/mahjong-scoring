@@ -30,6 +30,7 @@ export const dynamic = 'force-dynamic';
 export default createPracticeResultPage(ResultView, {
   module: 'machi_fu',
   playHref: '/practice/machi-fu/play',
+  introHref: '/practice/machi-fu',
   resolveTitle: async () => {
     const t = await getTranslations('machiFu');
     return t('title');

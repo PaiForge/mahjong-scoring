@@ -14,7 +14,7 @@ export function ResultBlockSkeleton() {
   return (
     <section
       aria-hidden="true"
-      className="mt-10 min-h-[180px] space-y-3"
+      className="min-h-[180px] space-y-3"
       data-testid="result-block-skeleton"
     >
       <div className="h-6 w-24 animate-pulse rounded bg-surface-200" />

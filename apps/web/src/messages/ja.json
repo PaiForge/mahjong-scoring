@@ -170,7 +170,8 @@
     },
     "orDivider": "または",
     "modeChallengeHint": "制限時間60秒・ミス3回で記録に挑戦",
-    "modeTrainingHint": "時間無制限でじっくり反復練習"
+    "modeTrainingHint": "時間無制限でじっくり反復練習",
+    "requiredKnowledge": "関連記事"
   },
   "challenge": {
     "timeRemaining": "残り {seconds} 秒",
@@ -192,7 +193,7 @@
     "resultSuffix": "結果",
     "quit": {
       "title": "練習を終了しますか？",
-      "message": "現在の進捗は保存されません。練習一覧に戻ります。",
+      "message": "現在の進捗は保存されません。",
       "confirm": "やめる",
       "cancel": "続ける",
       "toast": "練習を終了しました"
@@ -223,7 +224,13 @@
     "jikaze": "自風",
     "selectCorrectHead": "2符以上の雀頭はどれ？",
     "learnLink": "雀頭の符について学ぶ",
+    "learnLinkDescription": "三元牌・風牌・連風牌など、雀頭につく符の仕組みを牌の画像付きで解説します。",
     "fu": "{value} 符",
+    "howToPlay": {
+      "title": "問題方式",
+      "lead": "このような問題が出題されます。",
+      "answerNote": "三元牌（白・發・中）や場風・自風の雀頭は2符になります。それ以外の雀頭は0符です。"
+    },
     "rules": {
       "title": "ルール",
       "yakuhai": "役牌（三元牌・場風・自風）の雀頭 → 2符",

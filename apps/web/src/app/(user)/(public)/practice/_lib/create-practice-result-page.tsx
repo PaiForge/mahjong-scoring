@@ -25,6 +25,12 @@ export interface PracticeResultViewProps {
   readonly practiceTitle: string;
   /** リトライ用のプレイページURL */
   readonly playHref: string;
+  /**
+   * 練習説明ページ（イントロ）の URL（例: "/practice/jantou-fu"）。
+   * パンくずの中間リンクに使う。説明ページを持たない練習では省略し、
+   * その場合は中間項目をリンクなしのテキストとして表示する。
+   */
+  readonly introHref?: string;
   /** 正答数（URL クエリ `?correct=` から親 Server Component が parse して渡す） */
   readonly correct: number;
   /** 総出題数（URL クエリ `?total=` から親 Server Component が parse して渡す） */
@@ -54,6 +60,8 @@ interface ResultPageConfig {
   readonly module: LeaderboardModule;
   /** リトライ用のプレイページURL */
   readonly playHref: string;
+  /** 練習説明ページの URL（パンくず中間リンク用）。説明ページが無い練習では省略する。 */
+  readonly introHref?: string;
   /**
    * ページタイトル（練習名）を解決する非同期関数。
    * 各 page.tsx 側で `getTranslations('<namespace>')` を呼んで `t('title')` を返す。
@@ -110,6 +118,7 @@ export function createPracticeResultPage(
       <ResultView
         practiceTitle={practiceTitle}
         playHref={config.playHref}
+        introHref={config.introHref}
         correct={Number.isFinite(correct) ? correct : 0}
         total={Number.isFinite(total) ? total : 0}
         resultBlock={

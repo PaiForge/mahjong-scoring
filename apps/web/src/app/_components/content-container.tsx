@@ -11,9 +11,18 @@ interface ContentContainerProps {
   breadcrumb?: readonly BreadcrumbItem[];
   /**
    * 最上部要素に付与する id。`useScrollToElement` のスクロール先として使う。
-   * PageTitle がある場合はグレー帯、無い場合は外側ラッパーに付与する。
+   * 通常は PageTitle があればグレー帯、無ければ外側ラッパーに付与するが、
+   * `fillViewport` 指定時はカード領域（本文）に付与する。
    */
   id?: string;
+  /**
+   * 白カード自身を最小高さ画面いっぱい（min-h-screen）にして画面を埋め、スクロール先 id
+   * はカード領域（本文）に付与する。`useScrollToElement` やハッシュ遷移と併用すると、
+   * 練習開始直後にタイトル帯・グローバルヘッダが画面外へ送られ、本文（盤面）が最上部に
+   * 来る。白背景が伸びるためグレー（bg-secondary）はタイトル帯周辺にしか露出しない
+   * （blindfold-chess のセッション画面準拠：タイトルはスクロール対象に含めない）。
+   */
+  fillViewport?: boolean;
 }
 
 /**
@@ -28,16 +37,19 @@ interface ContentContainerProps {
  * 子要素に `<PageTitle>` が含まれる場合は、それをカードの外（上）へ引き上げ、
  * 画面最上部の全幅領域に表示する（背景は main と同じグレーで連続する）。
  */
-export function ContentContainer({ children, className = "", breadcrumb, id }: ContentContainerProps) {
+export function ContentContainer({ children, className = "", breadcrumb, id, fillViewport = false }: ContentContainerProps) {
   const childArray = Children.toArray(children);
   const title = childArray.find((child) => isValidElement(child) && child.type === PageTitle);
   const body = title
     ? childArray.filter((child) => !(isValidElement(child) && child.type === PageTitle))
     : childArray;
 
+  // fillViewport 時は白カード自身を min-h-screen にして画面を埋める。
+  // ラッパー（透明）側に付けると下にグレー（bg-secondary）が伸びてしまうため、
+  // 白背景が伸びるようカードへ付与する（blindfold-chess のセッション画面準拠）。
   const card = (
     <div
-      className={`bg-card -mx-4 sm:mx-0 rounded-none sm:rounded-lg border-0 sm:border sm:border-border p-4 sm:p-6 md:p-8 ${className}`}
+      className={`bg-card -mx-4 sm:mx-0 rounded-none sm:rounded-lg border-0 sm:border sm:border-border p-4 sm:p-6 md:p-8${fillViewport ? " min-h-screen" : ""} ${className}`}
     >
       {body}
       {breadcrumb && breadcrumb.length > 0 && (
@@ -50,20 +62,40 @@ export function ContentContainer({ children, className = "", breadcrumb, id }: C
   );
 
   if (!title) {
-    return <div id={id} className="mx-auto max-w-4xl px-4 py-6 sm:px-6 lg:px-8">{card}</div>;
+    return (
+      <div id={id} className="mx-auto max-w-4xl px-4 py-6 sm:px-6 lg:px-8">
+        {card}
+      </div>
+    );
   }
+
+  // PageTitle 部分の全幅領域。main と同じグレー（bg-secondary）で、py-5 が
+  // タイトル上下の余白を兼ねる（下側はそのままカードとの間隔になる）。
+  // fillViewport 時はスクロール先をカード領域に置くため、タイトル帯には id を付けない
+  // （タイトルはスクロールで画面外へ送られ、本文＝カードが最上部に来る）。
+  const titleBand = (
+    <div id={fillViewport ? undefined : id} className="bg-secondary">
+      <div className="mx-auto max-w-4xl px-4 py-5 sm:px-6 lg:px-8">{title}</div>
+    </div>
+  );
+  // sm 以上で角丸カードがグレー背景から浮くよう、下側だけ余白を取る。
+  // 上側はタイトル帯の py-5 が担うため、ここで pt を足すと二重になり開きすぎる。
+  // モバイルはフルブリードのまま密着させる（角丸が出ないため余白不要）。
+  // fillViewport 時はこのカード領域をスクロール先 id にする（min-h-screen は白カード側）。
+  // これによりタイトル帯・グローバルヘッダはスクロールで画面外へ送られ、本文が最上部に来る。
+  const cardArea = (
+    <div
+      id={fillViewport ? id : undefined}
+      className="mx-auto max-w-4xl px-4 sm:px-6 lg:px-8 sm:pb-6"
+    >
+      {card}
+    </div>
+  );
 
   return (
     <>
-      {/* PageTitle 部分の全幅領域。main と同じグレー（bg-secondary）で、py-5 が
-          タイトル上下の余白を兼ねる（下側はそのままカードとの間隔になる）。 */}
-      <div id={id} className="bg-secondary">
-        <div className="mx-auto max-w-4xl px-4 py-5 sm:px-6 lg:px-8">{title}</div>
-      </div>
-      {/* sm 以上で角丸カードがグレー背景から浮くよう、下側だけ余白を取る。
-          上側はタイトル帯の py-5 が担うため、ここで pt を足すと二重になり開きすぎる。
-          モバイルはフルブリードのまま密着させる（角丸が出ないため余白不要）。 */}
-      <div className="mx-auto max-w-4xl px-4 sm:px-6 lg:px-8 sm:pb-6">{card}</div>
+      {titleBand}
+      {cardArea}
     </>
   );
 }

@@ -10,6 +10,12 @@ interface UseQuitConfirmOptions {
   readonly onOpen?: () => void;
   /** モーダルをキャンセルで閉じたときに呼ばれるコールバック（タイマー再開等） */
   readonly onCancel?: () => void;
+  /**
+   * 「やめる」確定時の遷移先（既定: "/practice"）。
+   * 説明ページを持つ練習では各練習の説明ページ（例: "/practice/jantou-fu"）を渡し、
+   * トレーニングの「終了」と同じく元の説明ページへ戻す。
+   */
+  readonly exitHref?: string;
 }
 
 interface UseQuitConfirmReturn {
@@ -28,6 +34,7 @@ interface UseQuitConfirmReturn {
 export function useQuitConfirm({
   onOpen,
   onCancel: onCancelCallback,
+  exitHref = "/practice",
 }: UseQuitConfirmOptions = {}): UseQuitConfirmReturn {
   const tc = useTranslations("challenge");
   const router = useRouter();
@@ -46,8 +53,8 @@ export function useQuitConfirm({
   const handleQuitConfirm = useCallback(() => {
     setIsQuitModalOpen(false);
     toast(tc("quit.toast"));
-    router.push("/practice");
-  }, [tc, router]);
+    router.push(exitHref);
+  }, [tc, router, exitHref]);
 
   return { isQuitModalOpen, handleQuitClick, handleQuitCancel, handleQuitConfirm };
 }
