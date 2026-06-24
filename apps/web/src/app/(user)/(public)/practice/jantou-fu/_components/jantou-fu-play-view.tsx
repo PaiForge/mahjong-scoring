@@ -17,6 +17,7 @@ export function JantouFuPlayView() {
       gameSession={gameSession}
       timerControl={timerControl}
       resultPath="/practice/jantou-fu/result"
+      exitHref="/practice/jantou-fu"
       onFinish={handleFinish}
     >
       <JantouFuBoard

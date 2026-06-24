@@ -17,6 +17,7 @@ export function YakuPlayView() {
       gameSession={gameSession}
       timerControl={timerControl}
       resultPath="/practice/yaku/result"
+      exitHref="/practice/yaku"
       maxWidth="max-w-2xl"
       onFinish={handleFinish}
     >

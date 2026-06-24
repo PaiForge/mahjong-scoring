@@ -17,6 +17,7 @@ export function MentsuFuPlayView() {
       gameSession={gameSession}
       timerControl={timerControl}
       resultPath="/practice/mentsu-fu/result"
+      exitHref="/practice/mentsu-fu"
       onFinish={handleFinish}
     >
       <MentsuFuBoard

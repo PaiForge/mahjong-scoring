@@ -7,6 +7,7 @@ import { SectionTitle } from "@/app/_components/section-title";
 import { PrimaryLinkButton } from "@/app/_components/primary-link-button";
 import { BookIcon } from "@/app/_components/icons/book-icon";
 import { InfinityIcon } from "@/app/_components/icons/infinity-icon";
+import { PRACTICE_SCROLL_HASH } from "../_lib/scroll-anchor";
 
 interface PracticeIntroContentProps {
   /** i18n ネームスペース（例: "jantouFu"） */
@@ -71,7 +72,7 @@ export async function PracticeIntroContent({
           <div className="flex flex-col gap-5">
             <div className="flex w-full flex-col items-center gap-1.5">
               <PrimaryLinkButton
-                href={`/practice/${slug}/play`}
+                href={`/practice/${slug}/play${PRACTICE_SCROLL_HASH}`}
                 className="w-full px-8 py-3"
               >
                 {tc("startButton")}
@@ -87,7 +88,7 @@ export async function PracticeIntroContent({
 
             <div className="flex w-full flex-col items-center gap-1.5">
               <Link
-                href={`/practice/${slug}/training`}
+                href={`/practice/${slug}/training${PRACTICE_SCROLL_HASH}`}
                 className="inline-flex w-full items-center justify-center gap-2 rounded-lg border border-primary-500 px-8 py-3 text-sm font-semibold text-primary-600 transition-colors hover:bg-primary-50"
               >
                 <InfinityIcon className="size-4" />
@@ -99,7 +100,7 @@ export async function PracticeIntroContent({
         ) : (
           <div>
             <PrimaryLinkButton
-              href={`/practice/${slug}/play`}
+              href={`/practice/${slug}/play${PRACTICE_SCROLL_HASH}`}
               className="w-full px-8 py-3"
             >
               {tc("startButton")}

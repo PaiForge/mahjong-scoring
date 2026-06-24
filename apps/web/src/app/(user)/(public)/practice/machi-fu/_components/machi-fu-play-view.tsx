@@ -17,6 +17,7 @@ export function MachiFuPlayView() {
       gameSession={gameSession}
       timerControl={timerControl}
       resultPath="/practice/machi-fu/result"
+      exitHref="/practice/machi-fu"
       onFinish={handleFinish}
     >
       <MachiFuBoard

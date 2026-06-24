@@ -5,6 +5,7 @@ import { PageTitle } from "@/app/_components/page-title";
 import { PrimaryLinkButton } from "@/app/_components/primary-link-button";
 import { SectionTitle } from "@/app/_components/section-title";
 import type { PracticeResultViewProps } from "../_lib/create-practice-result-page";
+import { PRACTICE_SCROLL_HASH } from "../_lib/scroll-anchor";
 import { ResultScoreBar } from "./result-score-bar";
 
 /**
@@ -68,7 +69,10 @@ export async function ResultView({
 
         {/* アクションボタン（もう一度 / 練習一覧に戻る）。参考プロジェクト準拠で縦積み・全幅。 */}
         <div className="space-y-3">
-          <PrimaryLinkButton href={playHref} className="w-full py-3">
+          <PrimaryLinkButton
+            href={`${playHref}${PRACTICE_SCROLL_HASH}`}
+            className="w-full py-3"
+          >
             {tc("retryButton")}
           </PrimaryLinkButton>
           <Link

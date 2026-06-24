@@ -13,6 +13,7 @@ import { useGameTimer } from "../_hooks/use-game-timer";
 import { useFinishRedirect } from "../_hooks/use-finish-redirect";
 import { useQuitConfirm } from "../_hooks/use-quit-confirm";
 import { useScrollToElement } from "../_hooks/use-scroll-to-element";
+import { PRACTICE_SCROLL_ANCHOR_ID } from "../_lib/scroll-anchor";
 import { QuizTimer } from "./quiz-timer";
 import { QuitConfirmModal } from "./quit-confirm-modal";
 import { ResultPageSkeleton } from "./result-page-skeleton";
@@ -41,9 +42,6 @@ const LifeIndicator = memo(function LifeIndicator({
   );
 });
 
-/** スクロール先の最上部要素 id（練習開始時にここまでスクロールする） */
-const SCROLL_ANCHOR_ID = "practice-session";
-
 interface ChallengeShellProps {
   /** 画面上部に表示する練習名（PageTitle に渡す） */
   readonly title: ReactNode;
@@ -53,6 +51,11 @@ interface ChallengeShellProps {
   readonly timerControl: TimerControl;
   /** リザルトページへのパス（例: "/practice/jantou-fu/result"） */
   readonly resultPath: string;
+  /**
+   * 「やめる」確定時の遷移先（既定: "/practice"）。
+   * 説明ページを持つ練習では説明ページ（例: "/practice/jantou-fu"）を渡す。
+   */
+  readonly exitHref?: string;
   /** 練習本体のUI */
   readonly children: ReactNode;
   /** 内部ラッパーの max-w クラス（既定: "max-w-md"） */
@@ -78,12 +81,13 @@ export function ChallengeShell({
   resultPath,
   children,
   maxWidth = "max-w-md",
+  exitHref = "/practice",
   onFinish,
 }: ChallengeShellProps) {
   const tc = useTranslations("challenge");
 
   // 練習開始直後、グローバルヘッダ分のオフセットを解消して盤面を画面上部へ表示する
-  useScrollToElement(SCROLL_ANCHOR_ID);
+  useScrollToElement(PRACTICE_SCROLL_ANCHOR_ID);
 
   const wasPausedBeforeQuitRef = useRef(false);
 
@@ -104,6 +108,7 @@ export function ChallengeShell({
     useQuitConfirm({
       onOpen: handleQuitOpen,
       onCancel: handleQuitCancelResume,
+      exitHref,
     });
 
   const { remainingSeconds, elapsedMs, reset: resetTimer } = useGameTimer({
@@ -134,7 +139,7 @@ export function ChallengeShell({
   }
 
   return (
-    <ContentContainer id={SCROLL_ANCHOR_ID} fillViewport>
+    <ContentContainer id={PRACTICE_SCROLL_ANCHOR_ID} fillViewport>
       <PageTitle>{title}</PageTitle>
 
       {/* Countdown overlay */}

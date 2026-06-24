@@ -7,9 +7,7 @@ import { ContentContainer } from "@/app/_components/content-container";
 import { PageTitle } from "@/app/_components/page-title";
 import { InfinityIcon } from "@/app/_components/icons/infinity-icon";
 import { useScrollToElement } from "../_hooks/use-scroll-to-element";
-
-/** スクロール先の最上部要素 id（練習開始時にここまでスクロールする） */
-const SCROLL_ANCHOR_ID = "practice-session";
+import { PRACTICE_SCROLL_ANCHOR_ID } from "../_lib/scroll-anchor";
 
 interface TrainingShellProps {
   /** 画面上部に表示する練習名（PageTitle に渡す） */
@@ -45,10 +43,10 @@ export function TrainingShell({
   const tt = useTranslations("training");
 
   // 練習開始直後、グローバルヘッダ分のオフセットを解消して盤面を画面上部へ表示する
-  useScrollToElement(SCROLL_ANCHOR_ID);
+  useScrollToElement(PRACTICE_SCROLL_ANCHOR_ID);
 
   return (
-    <ContentContainer id={SCROLL_ANCHOR_ID} fillViewport>
+    <ContentContainer id={PRACTICE_SCROLL_ANCHOR_ID} fillViewport>
       <PageTitle>{title}</PageTitle>
 
       <div className={`mx-auto ${maxWidth}`}>
