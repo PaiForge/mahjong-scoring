@@ -10,6 +10,7 @@ import { notFound } from "next/navigation";
 
 import { ContentContainer } from "@/app/_components/content-container";
 import { PageTitle } from "@/app/_components/page-title";
+import { SectionTitle } from "@/app/_components/section-title";
 import { UserAvatar } from "@/app/_components/user-avatar";
 import { createMetadata } from "@/app/_lib/metadata";
 import { getPublicProfileByUsername } from "@/lib/db/queries";
@@ -72,41 +73,51 @@ export default async function PublicProfilePage({ params }: Props) {
     notFound();
   }
 
+  const t = await getTranslations("publicProfile");
   const name = profile.displayName ?? profile.username;
   const snsLinks = buildSnsLinks(profile);
 
   return (
     <ContentContainer>
-      <div className="flex flex-col items-center gap-4 text-center">
-        <UserAvatar avatarUrl={profile.avatarUrl} name={name} size="lg" />
+      {/* PageTitle を直接の子にすることでタイトル帯へ引き上げ、白カードに w-full が付与される */}
+      <PageTitle>{name}</PageTitle>
 
-        <div>
-          <PageTitle>{name}</PageTitle>
-          <p className="mt-1 text-sm text-surface-500">@{profile.username}</p>
+      <div className="space-y-8">
+        <div className="flex flex-col items-center gap-2 text-center">
+          <UserAvatar avatarUrl={profile.avatarUrl} name={name} size="lg" />
+          <p className="text-sm text-surface-500">@{profile.username}</p>
         </div>
 
-        {profile.bio && (
-          <p className="max-w-prose whitespace-pre-wrap text-sm leading-relaxed text-surface-700">
-            {profile.bio}
-          </p>
-        )}
+        <section className="space-y-4">
+          <SectionTitle>{t("bioTitle")}</SectionTitle>
+          {profile.bio ? (
+            <p className="whitespace-pre-wrap text-sm leading-relaxed text-surface-700">
+              {profile.bio}
+            </p>
+          ) : (
+            <p className="text-sm text-surface-400">{t("bioEmpty")}</p>
+          )}
+        </section>
 
         {snsLinks.length > 0 && (
-          <ul className="flex flex-wrap justify-center gap-3">
-            {snsLinks.map((link) => (
-              <li key={link.label}>
-                <a
-                  href={link.url}
-                  target="_blank"
-                  rel="noopener noreferrer me"
-                  className="inline-flex items-center gap-1.5 rounded-lg border border-surface-200 px-3 py-1.5 text-sm text-surface-700 transition-colors hover:bg-surface-100"
-                >
-                  <span className="font-medium">{link.label}</span>
-                  <span className="text-surface-500">{link.handle}</span>
-                </a>
-              </li>
-            ))}
-          </ul>
+          <section className="space-y-4">
+            <SectionTitle>{t("snsTitle")}</SectionTitle>
+            <ul className="flex flex-wrap gap-3">
+              {snsLinks.map((link) => (
+                <li key={link.label}>
+                  <a
+                    href={link.url}
+                    target="_blank"
+                    rel="noopener noreferrer me"
+                    className="inline-flex items-center gap-1.5 rounded-lg border border-surface-200 px-3 py-1.5 text-sm text-surface-700 transition-colors hover:bg-surface-100"
+                  >
+                    <span className="font-medium">{link.label}</span>
+                    <span className="text-surface-500">{link.handle}</span>
+                  </a>
+                </li>
+              ))}
+            </ul>
+          </section>
         )}
       </div>
     </ContentContainer>

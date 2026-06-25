@@ -1051,7 +1051,10 @@
     "error": "保存に失敗しました。もう一度お試しください。"
   },
   "publicProfile": {
-    "metaDescription": "{name} さんのプロフィール"
+    "metaDescription": "{name} さんのプロフィール",
+    "bioTitle": "自己紹介",
+    "bioEmpty": "自己紹介は登録されていません。",
+    "snsTitle": "SNS"
   },
   "admin": {
     "title": "管理画面",
