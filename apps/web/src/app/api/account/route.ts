@@ -1,12 +1,12 @@
-import { eq } from 'drizzle-orm';
-import { NextResponse } from 'next/server';
+import { eq } from "drizzle-orm";
+import { NextResponse } from "next/server";
 
-import { logActivityEvent } from '@/lib/activity-log';
-import { getClientIp } from '@/lib/client-ip';
-import { db, profiles } from '@/lib/db';
-import { IP_RATE_LIMITS, checkIpRateLimitGuard } from '@/lib/rate-limit-ip';
-import { createAdminClient } from '@/lib/supabase/admin';
-import { createClient } from '@/lib/supabase/server';
+import { logActivityEvent } from "@/lib/activity-log";
+import { getClientIp } from "@/lib/client-ip";
+import { db, profiles } from "@/lib/db";
+import { IP_RATE_LIMITS, checkIpRateLimitGuard } from "@/lib/rate-limit-ip";
+import { createAdminClient } from "@/lib/supabase/admin";
+import { createClient } from "@/lib/supabase/server";
 
 /**
  * アカウント退会エンドポイント。
@@ -21,11 +21,11 @@ import { createClient } from '@/lib/supabase/server';
 export async function DELETE() {
   const ipRateLimited = checkIpRateLimitGuard(
     await getClientIp(),
-    'deleteAccount',
+    "deleteAccount",
     IP_RATE_LIMITS.deleteAccount,
   );
   if (ipRateLimited) {
-    return NextResponse.json({ error: 'rateLimited' }, { status: 429 });
+    return NextResponse.json({ error: "rateLimited" }, { status: 429 });
   }
 
   const supabase = await createClient();
@@ -34,14 +34,14 @@ export async function DELETE() {
   } = await supabase.auth.getUser();
 
   if (!user) {
-    return NextResponse.json({ error: 'unauthorized' }, { status: 401 });
+    return NextResponse.json({ error: "unauthorized" }, { status: 401 });
   }
 
   // auth ユーザーを先にソフトデリートする。失敗時はプロフィールを更新しない。
   const adminClient = createAdminClient();
   const { error } = await adminClient.auth.admin.deleteUser(user.id, true);
   if (error) {
-    return NextResponse.json({ error: 'deleteFailed' }, { status: 500 });
+    return NextResponse.json({ error: "deleteFailed" }, { status: 500 });
   }
 
   // 個人情報を NULL 化し、退会日時を記録する（username は再利用防止のため保持）。
@@ -50,15 +50,33 @@ export async function DELETE() {
     .set({
       displayName: null,
       avatarUrl: null,
+      bio: null,
+      xUsername: null,
+      instagramUsername: null,
+      youtubeHandle: null,
       deletedAt: new Date(),
       updatedAt: new Date(),
     })
     .where(eq(profiles.id, user.id));
 
+  // アバター画像を Storage から削除する（ベストエフォート。失敗しても退会は完了させる）。
+  try {
+    const { data: avatarFiles } = await adminClient.storage
+      .from("avatars")
+      .list(user.id);
+    if (avatarFiles?.length) {
+      await adminClient.storage
+        .from("avatars")
+        .remove(avatarFiles.map((f) => `${user.id}/${f.name}`));
+    }
+  } catch {
+    // Storage 障害で退会をブロックしない。
+  }
+
   logActivityEvent({
     userId: user.id,
-    action: 'delete_account',
-    targetType: 'user',
+    action: "delete_account",
+    targetType: "user",
     targetId: user.id,
   });
 

@@ -92,6 +92,14 @@ enabled = true
 # The maximum file size allowed (e.g. "5MB", "500KB").
 file_size_limit = "50MiB"
 
+# ユーザーのアバター画像用バケット（公開読み取り）。
+# 本番(Supabase Dashboard)でも同じ設定にすること。
+# 書き込みは drizzle/supabase/storage_setup.sql の RLS で自分のフォルダのみに制限。
+[storage.buckets.avatars]
+public = true
+file_size_limit = "5MiB"
+allowed_mime_types = ["image/png", "image/jpeg", "image/webp"]
+
 # Allow connections via S3 compatible clients
 [storage.s3_protocol]
 enabled = true

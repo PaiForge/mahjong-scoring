@@ -57,6 +57,13 @@
       "when": 1779957727250,
       "tag": "20260528084207_create_announcements_table",
       "breakpoints": true
+    },
+    {
+      "idx": 8,
+      "version": "7",
+      "when": 1782356883454,
+      "tag": "20260625030803_add_bio_and_social_to_profiles",
+      "breakpoints": true
     }
   ]
 }
