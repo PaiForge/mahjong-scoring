@@ -3,6 +3,7 @@ import { getTranslations } from "next-intl/server";
 
 import { ContentContainer } from "@/app/_components/content-container";
 import { PageTitle } from "@/app/_components/page-title";
+import { SectionTitle } from "@/app/_components/section-title";
 
 import { UsernameForm } from "./_components/username-form";
 
@@ -21,9 +22,10 @@ export default async function SetupUsernamePage() {
   return (
     <ContentContainer>
       <PageTitle>{t("title")}</PageTitle>
-      <div className="mt-8">
+      <section className="space-y-4">
+        <SectionTitle>{t("sectionTitle")}</SectionTitle>
         <UsernameForm />
-      </div>
+      </section>
     </ContentContainer>
   );
 }

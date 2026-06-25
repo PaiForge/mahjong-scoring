@@ -986,6 +986,7 @@
   },
   "setupUsername": {
     "title": "ユーザー名の設定",
+    "sectionTitle": "本登録",
     "usernameLabel": "ユーザー名",
     "usernameDescription": "プロフィールURLに使用されます。英小文字・数字・アンダースコアのみ使用できます。",
     "usernamePlaceholder": "例: tsumo_master",
