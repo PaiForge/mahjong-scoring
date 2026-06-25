@@ -1,4 +1,5 @@
 import Image from "next/image";
+import Link from "next/link";
 
 import type { LeaderboardRow } from "../_lib/types";
 
@@ -14,7 +15,10 @@ export function PlayerCell({ row }: PlayerCellProps) {
   const name = row.displayName ?? row.username;
 
   return (
-    <div className="flex items-center gap-3 min-w-0">
+    <Link
+      href={`/u/${row.username}`}
+      className="flex items-center gap-3 min-w-0 rounded-lg transition-colors hover:bg-surface-100"
+    >
       {row.avatarUrl ? (
         <Image
           src={row.avatarUrl}
@@ -31,10 +35,10 @@ export function PlayerCell({ row }: PlayerCellProps) {
         </div>
       )}
       <div className="min-w-0">
-        <span className="text-sm font-medium text-surface-700 truncate block">
+        <span className="text-sm font-medium text-surface-700 truncate block hover:text-surface-900">
           {name}
         </span>
       </div>
-    </div>
+    </Link>
   );
 }
