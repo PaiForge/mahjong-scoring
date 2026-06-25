@@ -1,13 +1,13 @@
 import { PageSkeleton } from "@/app/_components/page-skeleton";
 
 /**
- * (user) シェル配下の入口ローディング状態。
+ * (user) シェル配下の汎用フォールバックローディング。
  *
- * 保護領域への遷移では `(protected)` / `(confirmed)` レイアウトが認証チェック
- * （getUser + DB 照会）で待機する。これらのレイアウトの待機は子セグメントの
- * loading.tsx（例: mypage/loading.tsx）より上位にあり覆われないため、ここに
- * 境界を置いて入口で即スケルトンを表示する。公開ルートは近接する
- * (public)/loading.tsx が優先されるため影響しない。
+ * 認証ガードは各ページの requireConfirmedUser() / requireProvisionalUser() に
+ * 移したため、保護領域のレイアウトは await しない。よって専用 loading.tsx を
+ * 持つページ（例: mypage/(home), profile/edit）はリロード時でも自前スケルトンを
+ * 表示する。ここはそれらを持たないページの汎用フォールバックとして機能する。
+ * 公開ルートは近接する (public)/loading.tsx が優先されるため影響しない。
  * ローディング
  */
 export default function UserLoading() {

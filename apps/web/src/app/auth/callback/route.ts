@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 
+import { getOptionalUser } from "@/lib/auth";
 import { logActivityEvent } from "@/lib/activity-log";
 import { getProfileByUserId } from "@/lib/db/queries";
 import { sanitizeInternalRedirect } from "@/lib/redirect";
@@ -28,7 +29,7 @@ async function handleSuccessfulAuth(
   origin: string,
   safeNext: string,
 ): Promise<NextResponse> {
-  logActivityEvent({ userId, action: 'login' });
+  logActivityEvent({ userId, action: "login" });
 
   const profile = await getProfileByUserId(userId);
 
@@ -44,7 +45,22 @@ export async function GET(request: Request) {
   const code = searchParams.get("code");
   const tokenHash = searchParams.get("token_hash");
   const type = searchParams.get("type");
-  const safeNext = sanitizeInternalRedirect(searchParams.get("next")) ?? "/mypage";
+  const authError = searchParams.get("error");
+  const errorCode = searchParams.get("error_code");
+  const safeNext =
+    sanitizeInternalRedirect(searchParams.get("next")) ?? "/mypage";
+
+  // GoTrue がメールリンク検証エラーを返すケース（使用済み・期限切れ等。
+  // 例: ?error=access_denied&error_code=otp_expired）。
+  // 既にセッションがある＝認証済みならマイページへ。
+  // そうでなければ「リンク無効」を明示し、汎用の認証失敗メッセージで誤解させない。
+  if (authError || errorCode) {
+    const user = await getOptionalUser();
+    if (user) {
+      return NextResponse.redirect(`${origin}/mypage`);
+    }
+    return NextResponse.redirect(`${origin}/sign-in?error=email_link_invalid`);
+  }
 
   const supabase = await createClient();
 
@@ -59,9 +75,7 @@ export async function GET(request: Request) {
       return handleSuccessfulAuth(data.session.user.id, origin, safeNext);
     }
 
-    return NextResponse.redirect(
-      `${origin}/sign-in?error=auth_callback_error`,
-    );
+    return NextResponse.redirect(`${origin}/sign-in?error=auth_callback_error`);
   }
 
   // パスワードリカバリ OTP の検証
@@ -75,9 +89,7 @@ export async function GET(request: Request) {
       return NextResponse.redirect(`${origin}/reset-password`);
     }
 
-    return NextResponse.redirect(
-      `${origin}/sign-in?error=auth_callback_error`,
-    );
+    return NextResponse.redirect(`${origin}/sign-in?error=auth_callback_error`);
   }
 
   // OAuth / PKCE コード交換
@@ -94,7 +106,5 @@ export async function GET(request: Request) {
     }
   }
 
-  return NextResponse.redirect(
-    `${origin}/sign-in?error=auth_callback_error`,
-  );
+  return NextResponse.redirect(`${origin}/sign-in?error=auth_callback_error`);
 }

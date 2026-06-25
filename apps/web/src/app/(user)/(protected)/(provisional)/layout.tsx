@@ -1,23 +1,16 @@
-import { redirect } from "next/navigation";
-
-import { getAuthenticatedProfile } from "@/lib/auth";
-
 /**
- * プロフィール未作成ユーザー用レイアウト。
- * プロフィールが既に存在する場合は /mypage へリダイレクト。
+ * 仮登録（プロフィール未作成）領域レイアウト（パススルー）。
+ *
+ * ガードは各ページの requireProvisionalUser() で行う（リロード時もページ個別の
+ * loading.tsx を表示するため。詳細は (protected)/layout.tsx のコメント参照）。
+ * このグループに新規ページを追加したら必ず requireProvisionalUser() を呼ぶこと。
  *
  * 仮登録レイアウト
  */
-export default async function ProvisionalLayout({
+export default function ProvisionalLayout({
   children,
 }: {
   readonly children: React.ReactNode;
 }) {
-  const { profile } = await getAuthenticatedProfile();
-
-  if (profile) {
-    redirect("/mypage");
-  }
-
   return <>{children}</>;
 }

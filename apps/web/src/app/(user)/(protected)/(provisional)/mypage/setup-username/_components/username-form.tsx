@@ -80,7 +80,8 @@ export function UsernameForm() {
         return;
       }
 
-      router.push("/mypage");
+      // 本登録直後はプロフィール編集（アバター・自己紹介・SNS。任意）へ誘導する。
+      router.push("/mypage/profile/edit?from=setup");
     } catch {
       setError(getValidationMessage("unknown"));
       setIsSubmitting(false);

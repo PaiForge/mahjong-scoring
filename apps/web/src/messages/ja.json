@@ -1,6 +1,7 @@
 {
   "metadata": {
-    "siteName": "Mahjong Scoring",
+    "siteName": "麻雀点数計算",
+    "siteTagline": "麻雀の点数計算トレーニング",
     "siteDescription": "麻雀の点数計算を基礎から学べるトレーニングアプリ。初心者でも符計算・点数申告をマスターできます。"
   },
   "nav": {
@@ -24,15 +25,16 @@
     "pageTitle": "設定",
     "rulesSectionTitle": "麻雀ルール",
     "renfonpaiTitle": "連風牌の雀頭を4符にする",
-    "renfonpaiDescription": "場風と自風が同じ風牌（連風牌）の雀頭を、場風2符＋自風2符として4符で計算します。オフのときは通常の役牌と同じく2符です。",
-    "dangerZoneTitle": "アカウントの削除",
-    "deleteAccountTitle": "退会する",
-    "deleteAccountDescription": "アカウントを削除すると、表示名などの個人情報が削除され、ログインできなくなります。",
-    "deleteAccountLink": "退会手続きへ進む"
+    "renfonpaiDescription": "場風と自風が同じ風牌（連風牌）の雀頭を、場風2符＋自風2符として4符で計算します。オフのときは通常の役牌と同じく2符です。"
   },
   "deleteAccount": {
     "pageTitle": "退会",
-    "warning": "退会すると、このアカウントではログインできなくなり、表示名などの個人情報が削除されます。ユーザーIDは再利用防止のため保持されます。この操作は取り消せません。",
+    "warning": "退会すると、このアカウントではログインできなくなります。この操作は取り消せません。",
+    "consequences": {
+      "personalData": "アバター・表示名・自己紹介・SNS などの個人情報は削除されます。",
+      "scoresRemoved": "成績は削除され、ランキングからも表示されなくなります。",
+      "usernameLocked": "ユーザー名は再利用防止のため保持され、同じ名前では再登録できません。"
+    },
     "confirmButton": "アカウントを削除する",
     "deleting": "削除中…",
     "confirmTitle": "本当に退会しますか？",
@@ -41,7 +43,7 @@
     "confirmCancel": "キャンセル",
     "error": "退会処理に失敗しました。時間をおいて再度お試しください。",
     "successToast": "退会が完了しました",
-    "backToSettings": "設定へ戻る"
+    "backToProfile": "プロフィール編集に戻る"
   },
   "announcements": {
     "pageTitle": "お知らせ",
@@ -816,6 +818,7 @@
     "googleOAuth": "Google でログイン",
     "googleOAuthLoading": "ログイン中...",
     "authError": "認証に失敗しました。もう一度お試しください。",
+    "emailLinkInvalid": "メール認証のリンクが無効か、有効期限が切れています。すでに認証が完了している場合は、そのままログインしてください。",
     "or": "または",
     "emailLabel": "メールアドレス",
     "emailPlaceholder": "mail@example.com",
@@ -854,7 +857,7 @@
     "resendButton": "確認メールを再送",
     "resendLoading": "送信中...",
     "resendCooldown": "再送可能まで {seconds} 秒",
-    "resendSuccess": "確認メールを再送しました。",
+    "resendSuccess": "確認メールを再送しました。迷惑メールフォルダもご確認ください。",
     "resendError": "再送に失敗しました。しばらくしてからもう一度お試しください。",
     "rateLimited": "リクエストが多すぎます。しばらくしてからもう一度お試しください。"
   },
@@ -894,6 +897,8 @@
   },
   "mypage": {
     "pageTitle": "マイページ",
+    "viewProfile": "公開プロフィール",
+    "editProfile": "プロフィール編集",
     "activityTitle": "アクティビティ",
     "cards": {
       "challenges": {
@@ -984,6 +989,7 @@
   },
   "setupUsername": {
     "title": "ユーザー名の設定",
+    "sectionTitle": "本登録",
     "usernameLabel": "ユーザー名",
     "usernameDescription": "プロフィールURLに使用されます。英小文字・数字・アンダースコアのみ使用できます。",
     "usernamePlaceholder": "例: tsumo_master",
@@ -1005,6 +1011,51 @@
       "alreadySet": "ユーザー名は既に設定されています",
       "error": "エラーが発生しました。もう一度お試しください"
     }
+  },
+  "profileEdit": {
+    "pageTitle": "プロフィール編集",
+    "basicSectionTitle": "基本情報",
+    "snsSectionTitle": "SNS アカウント",
+    "avatarLabel": "アバター",
+    "avatarHint": "JPEG / PNG / WebP、5MB まで。正方形に切り抜かれます。",
+    "avatarAlt": "アバター画像",
+    "avatarChange": "画像を選択",
+    "avatarUploaded": "アバターを更新しました。",
+    "avatarInvalidType": "JPEG / PNG / WebP 画像を選択してください。",
+    "avatarTooLarge": "ファイルサイズが大きすぎます（5MB まで）。",
+    "avatarUploadFailed": "アバターのアップロードに失敗しました。",
+    "displayNameLabel": "表示名",
+    "displayNameDescription": "他のユーザーに表示される名前です。未入力の場合はユーザー名が使用されます。",
+    "displayNamePlaceholder": "例: ツモの達人",
+    "bioLabel": "自己紹介",
+    "bioPlaceholder": "麻雀歴や好きな役などを書いてみましょう。",
+    "bioCounter": "{count}/{max}",
+    "xLabel": "X(旧Twitter)",
+    "xPlaceholder": "username（@は不要）",
+    "instagramLabel": "Instagram",
+    "instagramPlaceholder": "username（@は不要）",
+    "youtubeLabel": "YouTube",
+    "youtubePlaceholder": "handle（@は不要）",
+    "submit": "保存する",
+    "submitting": "保存中...",
+    "skip": "あとで設定する",
+    "deleteAccountLink": "アカウントを削除",
+    "success": "プロフィールを保存しました。",
+    "displayNameTooLong": "表示名は50文字以内で入力してください。",
+    "bioTooLong": "自己紹介は500文字以内で入力してください。",
+    "xUsernameInvalid": "X のユーザー名は半角英数字とアンダースコア（15文字以内）で入力してください。",
+    "instagramUsernameInvalid": "Instagram のユーザー名は半角英数字・ピリオド・アンダースコア（30文字以内）で入力してください。",
+    "youtubeHandleInvalid": "YouTube のハンドルは半角英数字・ピリオド・ハイフン・アンダースコア（30文字以内）で入力してください。",
+    "rateLimited": "リクエストが多すぎます。しばらくしてからもう一度お試しください。",
+    "updateFailed": "保存に失敗しました。もう一度お試しください。",
+    "error": "保存に失敗しました。もう一度お試しください。"
+  },
+  "publicProfile": {
+    "pageTitle": "プロフィール",
+    "metaDescription": "{name} さんのプロフィール",
+    "bioTitle": "自己紹介",
+    "bioEmpty": "自己紹介は登録されていません。",
+    "snsTitle": "SNS"
   },
   "admin": {
     "title": "管理画面",

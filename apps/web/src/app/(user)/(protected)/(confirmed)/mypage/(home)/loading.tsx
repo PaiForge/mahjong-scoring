@@ -14,6 +14,20 @@ export default function Loading() {
       </PageTitle>
 
       <div className="space-y-6">
+        {/* プロフィールカード（実: flex items-center gap-4 border-border bg-card p-4。
+            アバター(lg) + 表示名 + @username + 公開プロフィール/編集リンク） */}
+        <section className="flex items-center gap-4 rounded-lg border border-border bg-card p-4">
+          <div className="h-20 w-20 flex-shrink-0 animate-pulse rounded-full bg-surface-200" />
+          <div className="min-w-0 flex-1 space-y-2">
+            <div className="h-6 w-32 animate-pulse rounded bg-surface-200" />
+            <div className="h-4 w-24 animate-pulse rounded bg-surface-200" />
+            <div className="mt-1.5 flex gap-2">
+              <div className="h-7 w-28 animate-pulse rounded-lg bg-surface-200" />
+              <div className="h-7 w-28 animate-pulse rounded-lg bg-surface-200" />
+            </div>
+          </div>
+        </section>
+
         {/* アクティビティヒートマップ（実: border-border bg-card p-4、mt なし） */}
         <section className="rounded-lg border border-border bg-card p-4">
           <div className="mb-3 h-5 w-32 animate-pulse rounded bg-surface-200" />

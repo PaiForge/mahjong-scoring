@@ -10,7 +10,7 @@
 export const DESKTOP_WEEKS = 46;
 
 /** 日付境界として扱うタイムゾーン（固定）。ja ユーザー向けに JST。 */
-export const HEATMAP_TIME_ZONE = 'Asia/Tokyo';
+export const HEATMAP_TIME_ZONE = "Asia/Tokyo";
 
 /**
  * 任意の `now` を JST の年月日に正規化して、その日の 00:00 (ローカル TZ) を表す `Date` を返す。
@@ -23,16 +23,16 @@ export const HEATMAP_TIME_ZONE = 'Asia/Tokyo';
  * が JST の「その日」と一致することが重要であり、`formatDate()` と組み合わせて使う。
  */
 export function getJstTodayDate(now: Date): Date {
-  const parts = new Intl.DateTimeFormat('en-CA', {
+  const parts = new Intl.DateTimeFormat("en-CA", {
     timeZone: HEATMAP_TIME_ZONE,
-    year: 'numeric',
-    month: '2-digit',
-    day: '2-digit',
+    year: "numeric",
+    month: "2-digit",
+    day: "2-digit",
   }).formatToParts(now);
 
   const lookup: Record<string, string> = {};
   for (const p of parts) {
-    if (p.type !== 'literal') lookup[p.type] = p.value;
+    if (p.type !== "literal") lookup[p.type] = p.value;
   }
   const y = Number(lookup.year);
   const m = Number(lookup.month);
@@ -79,7 +79,11 @@ export function getHeatmapDateRangeForWeeks(
   today: Date,
   totalWeeks: number,
 ): { startDate: Date; endDate: Date } {
-  const endDate = new Date(today.getFullYear(), today.getMonth(), today.getDate());
+  const endDate = new Date(
+    today.getFullYear(),
+    today.getMonth(),
+    today.getDate(),
+  );
 
   const dayOfWeek = endDate.getDay();
   const currentSunday = new Date(endDate);
@@ -97,7 +101,11 @@ export function getHeatmapDateRangeForWeeks(
 export function getRecentDays(today: Date, days: number): string[] {
   const result: string[] = [];
   if (days <= 0) return result;
-  const current = new Date(today.getFullYear(), today.getMonth(), today.getDate());
+  const current = new Date(
+    today.getFullYear(),
+    today.getMonth(),
+    today.getDate(),
+  );
   current.setDate(current.getDate() - (days - 1));
   for (let i = 0; i < days; i++) {
     result.push(formatDate(current));
@@ -123,7 +131,7 @@ export function getMonthLabelsForWeeks(
     const firstDate = weeks[i].find((d) => d !== null);
     if (!firstDate) continue;
 
-    const month = new Date(firstDate + 'T00:00:00Z').getUTCMonth();
+    const month = new Date(firstDate + "T00:00:00Z").getUTCMonth();
     if (month !== prevMonth) {
       const lastLabel = labels[labels.length - 1];
       if (!lastLabel || i - lastLabel.weekIdx >= 2) {
@@ -142,7 +150,7 @@ export function buildWeeks(allDates: string[]): (string | null)[][] {
   let currentWeek: (string | null)[] = [];
 
   for (const dateStr of allDates) {
-    const date = new Date(dateStr + 'T00:00:00Z');
+    const date = new Date(dateStr + "T00:00:00Z");
     const dayOfWeek = date.getUTCDay(); // 0=Sunday
 
     if (dayOfWeek === 0 && currentWeek.length > 0) {
@@ -165,8 +173,8 @@ export function buildWeeks(allDates: string[]): (string | null)[][] {
 /** Date を 'YYYY-MM-DD' にフォーマットする。 */
 export function formatDate(date: Date): string {
   const y = date.getFullYear();
-  const m = String(date.getMonth() + 1).padStart(2, '0');
-  const d = String(date.getDate()).padStart(2, '0');
+  const m = String(date.getMonth() + 1).padStart(2, "0");
+  const d = String(date.getDate()).padStart(2, "0");
   return `${y}-${m}-${d}`;
 }
 

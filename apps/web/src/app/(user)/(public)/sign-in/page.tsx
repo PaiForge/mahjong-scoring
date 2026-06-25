@@ -56,7 +56,11 @@ export default async function SignInPage({
       <PageTitle>{t("signInPageTitle")}</PageTitle>
       <div className="space-y-6">
         {error && (
-          <p className="text-center text-sm text-red-600">{t("authError")}</p>
+          <p className="text-center text-sm text-red-600">
+            {error === "email_link_invalid"
+              ? t("emailLinkInvalid")
+              : t("authError")}
+          </p>
         )}
         <GoogleOAuthButton redirectTo={sanitizedRedirect} />
 

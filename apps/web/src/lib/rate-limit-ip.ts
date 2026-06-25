@@ -78,6 +78,8 @@ export const IP_RATE_LIMITS = {
   resetPassword: { maxRequests: 5, windowMs: 300_000 },
   username: { maxRequests: 5, windowMs: 300_000 },
   deleteAccount: { maxRequests: 5, windowMs: 300_000 },
+  uploadAvatar: { maxRequests: 5, windowMs: 600_000 },
+  updateProfile: { maxRequests: 10, windowMs: 600_000 },
 } as const;
 
 /**

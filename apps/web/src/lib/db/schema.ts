@@ -1,4 +1,4 @@
-import { sql } from 'drizzle-orm';
+import { sql } from "drizzle-orm";
 import {
   check,
   index,
@@ -13,47 +13,61 @@ import {
   uniqueIndex,
   uuid,
   varchar,
-} from 'drizzle-orm/pg-core';
+} from "drizzle-orm/pg-core";
 
 /** プロフィール */
-export const profiles = pgTable('profiles', {
+export const profiles = pgTable("profiles", {
   /** auth.users(id) への外部キー（Supabase SQL で定義） */
-  id: uuid('id').primaryKey(),
+  id: uuid("id").primaryKey(),
   /** ユーザーが決めるID（不変・ユニーク） */
-  username: varchar('username', { length: 255 }).unique().notNull(),
+  username: varchar("username", { length: 255 }).unique().notNull(),
   /** 表示名（変更可能） */
-  displayName: varchar('display_name', { length: 255 }),
-  /** アバターURL（将来用） */
-  avatarUrl: varchar('avatar_url', { length: 1024 }),
+  displayName: varchar("display_name", { length: 255 }),
+  /** アバターURL（avatars バケットの公開URL。ランキング等で表示） */
+  avatarUrl: varchar("avatar_url", { length: 1024 }),
+  /** 自己紹介 */
+  bio: text("bio"),
+  /** X(旧Twitter) ユーザー名（先頭 @ は除いて保存） */
+  xUsername: varchar("x_username", { length: 15 }),
+  /** Instagram ユーザー名（先頭 @ は除いて保存） */
+  instagramUsername: varchar("instagram_username", { length: 30 }),
+  /** YouTube ハンドル（先頭 @ は除いて保存） */
+  youtubeHandle: varchar("youtube_handle", { length: 30 }),
   /** BAN日時 */
-  bannedAt: timestamp('banned_at', { withTimezone: true }),
+  bannedAt: timestamp("banned_at", { withTimezone: true }),
   /** ソフトデリート日時 */
-  deletedAt: timestamp('deleted_at', { withTimezone: true }),
+  deletedAt: timestamp("deleted_at", { withTimezone: true }),
   /** 作成日時 */
-  createdAt: timestamp('created_at', { withTimezone: true }).defaultNow().notNull(),
+  createdAt: timestamp("created_at", { withTimezone: true })
+    .defaultNow()
+    .notNull(),
   /** 更新日時 */
-  updatedAt: timestamp('updated_at', { withTimezone: true }).defaultNow().notNull(),
+  updatedAt: timestamp("updated_at", { withTimezone: true })
+    .defaultNow()
+    .notNull(),
 });
 
 export type Profile = typeof profiles.$inferSelect;
 export type NewProfile = typeof profiles.$inferInsert;
 
 /** アプリ内ロール */
-export const appRoleEnum = pgEnum('app_role', ['admin', 'user']);
+export const appRoleEnum = pgEnum("app_role", ["admin", "user"]);
 
 /** ユーザーロール */
 export const userRoles = pgTable(
-  'user_roles',
+  "user_roles",
   {
-    id: uuid('id').primaryKey().defaultRandom(),
+    id: uuid("id").primaryKey().defaultRandom(),
     /** auth.users(id) への外部キー（Supabase SQL で定義） */
-    userId: uuid('user_id').notNull(),
+    userId: uuid("user_id").notNull(),
     /** ロール */
-    role: appRoleEnum('role').notNull().default('user'),
+    role: appRoleEnum("role").notNull().default("user"),
     /** 作成日時 */
-    createdAt: timestamp('created_at', { withTimezone: true }).defaultNow().notNull(),
+    createdAt: timestamp("created_at", { withTimezone: true })
+      .defaultNow()
+      .notNull(),
   },
-  (table) => [unique('uq_user_role').on(table.userId, table.role)],
+  (table) => [unique("uq_user_role").on(table.userId, table.role)],
 );
 
 export type UserRole = typeof userRoles.$inferSelect;
@@ -92,26 +106,28 @@ export type NewUserRole = typeof userRoles.$inferInsert;
  * 3段階の順位決定: スコアが高い順 → ミスが少ない順 → 時間が短い順。
  */
 export const challengeResults = pgTable(
-  'challenge_results',
+  "challenge_results",
   {
-    id: uuid('id').primaryKey().defaultRandom(),
+    id: uuid("id").primaryKey().defaultRandom(),
     /** auth.users(id) への外部キー（Supabase SQL で定義） */
-    userId: uuid('user_id').notNull(),
+    userId: uuid("user_id").notNull(),
     /** 練習種別 */
-    menuType: varchar('menu_type', { length: 30 }).notNull(),
+    menuType: varchar("menu_type", { length: 30 }).notNull(),
     /** ランキングセグメントキー */
-    leaderboardKey: varchar('leaderboard_key', { length: 20 }).notNull(),
+    leaderboardKey: varchar("leaderboard_key", { length: 20 }).notNull(),
     /** 正答数 */
-    score: integer('score').notNull(),
+    score: integer("score").notNull(),
     /** 誤答数 */
-    incorrectAnswers: integer('incorrect_answers').notNull().default(0),
+    incorrectAnswers: integer("incorrect_answers").notNull().default(0),
     /** 経過時間（秒） */
-    timeTaken: integer('time_taken').notNull(),
+    timeTaken: integer("time_taken").notNull(),
     /** 作成日時 */
-    createdAt: timestamp('created_at', { withTimezone: true }).defaultNow().notNull(),
+    createdAt: timestamp("created_at", { withTimezone: true })
+      .defaultNow()
+      .notNull(),
   },
   (table) => [
-    index('idx_cr_period_ranking').on(
+    index("idx_cr_period_ranking").on(
       table.menuType,
       table.leaderboardKey,
       table.createdAt,
@@ -119,7 +135,7 @@ export const challengeResults = pgTable(
       table.incorrectAnswers,
       table.timeTaken,
     ),
-    index('idx_cr_user').on(table.userId, table.menuType),
+    index("idx_cr_user").on(table.userId, table.menuType),
   ],
 );
 
@@ -141,28 +157,34 @@ export type NewChallengeResult = typeof challengeResults.$inferInsert;
  * `challenge_results` から `DISTINCT ON` で再計算できる。
  */
 export const challengeBestScores = pgTable(
-  'challenge_best_scores',
+  "challenge_best_scores",
   {
     /** auth.users(id) への外部キー（Supabase SQL で定義） */
-    userId: uuid('user_id').notNull(),
+    userId: uuid("user_id").notNull(),
     /** 練習種別 */
-    menuType: varchar('menu_type', { length: 30 }).notNull(),
+    menuType: varchar("menu_type", { length: 30 }).notNull(),
     /** ランキングセグメントキー */
-    leaderboardKey: varchar('leaderboard_key', { length: 20 }).notNull(),
+    leaderboardKey: varchar("leaderboard_key", { length: 20 }).notNull(),
     /** 正答数 */
-    score: integer('score').notNull(),
+    score: integer("score").notNull(),
     /** 誤答数 */
-    incorrectAnswers: integer('incorrect_answers').notNull().default(0),
+    incorrectAnswers: integer("incorrect_answers").notNull().default(0),
     /** 経過時間（秒） */
-    timeTaken: integer('time_taken').notNull(),
+    timeTaken: integer("time_taken").notNull(),
     /** ベスト達成日時 */
-    achievedAt: timestamp('achieved_at', { withTimezone: true }).defaultNow().notNull(),
+    achievedAt: timestamp("achieved_at", { withTimezone: true })
+      .defaultNow()
+      .notNull(),
     /** 更新日時 */
-    updatedAt: timestamp('updated_at', { withTimezone: true }).defaultNow().notNull(),
+    updatedAt: timestamp("updated_at", { withTimezone: true })
+      .defaultNow()
+      .notNull(),
   },
   (table) => [
-    primaryKey({ columns: [table.userId, table.menuType, table.leaderboardKey] }),
-    index('idx_cbs_ranking').on(
+    primaryKey({
+      columns: [table.userId, table.menuType, table.leaderboardKey],
+    }),
+    index("idx_cbs_ranking").on(
       table.menuType,
       table.leaderboardKey,
       table.score,
@@ -184,31 +206,33 @@ export type NewChallengeBestScore = typeof challengeBestScores.$inferInsert;
  * アクションとその理由を保持する。
  */
 export const moderationActions = pgTable(
-  'moderation_actions',
+  "moderation_actions",
   {
-    id: uuid('id').primaryKey().defaultRandom(),
+    id: uuid("id").primaryKey().defaultRandom(),
     /** 操作を実行した管理者の auth.users(id) */
-    actorId: uuid('actor_id').notNull(),
+    actorId: uuid("actor_id").notNull(),
     /** 実行されたアクション（例: ban, unban） */
-    action: varchar('action', { length: 50 }).notNull(),
+    action: varchar("action", { length: 50 }).notNull(),
     /** 対象のエンティティ種別（例: user） */
-    targetType: varchar('target_type', { length: 50 }).notNull(),
+    targetType: varchar("target_type", { length: 50 }).notNull(),
     /** 対象エンティティの ID */
-    targetId: uuid('target_id').notNull(),
+    targetId: uuid("target_id").notNull(),
     /** 操作の理由（任意） */
-    reason: text('reason'),
+    reason: text("reason"),
     /** 追加メタデータ */
-    metadata: jsonb('metadata').default({}).$type<Record<string, unknown>>(),
+    metadata: jsonb("metadata").default({}).$type<Record<string, unknown>>(),
     /** 操作元の IP アドレス */
-    ipAddress: varchar('ip_address', { length: 45 }),
+    ipAddress: varchar("ip_address", { length: 45 }),
     /** 作成日時 */
-    createdAt: timestamp('created_at', { withTimezone: true }).defaultNow().notNull(),
+    createdAt: timestamp("created_at", { withTimezone: true })
+      .defaultNow()
+      .notNull(),
   },
   (table) => [
-    index('idx_ma_actor').on(table.actorId),
-    index('idx_ma_target').on(table.targetType, table.targetId),
-    index('idx_ma_action').on(table.action),
-    index('idx_ma_created_at').on(table.createdAt),
+    index("idx_ma_actor").on(table.actorId),
+    index("idx_ma_target").on(table.targetType, table.targetId),
+    index("idx_ma_action").on(table.action),
+    index("idx_ma_created_at").on(table.createdAt),
   ],
 );
 
@@ -223,27 +247,29 @@ export type NewModerationAction = typeof moderationActions.$inferInsert;
  * fire-and-forget で記録するテーブル。
  */
 export const userActivityLog = pgTable(
-  'user_activity_log',
+  "user_activity_log",
   {
-    id: uuid('id').primaryKey().defaultRandom(),
+    id: uuid("id").primaryKey().defaultRandom(),
     /** 行動したユーザーの auth.users(id) */
-    userId: uuid('user_id').notNull(),
+    userId: uuid("user_id").notNull(),
     /** 行動の種類（例: login, logout, change_password） */
-    action: varchar('action', { length: 50 }).notNull(),
+    action: varchar("action", { length: 50 }).notNull(),
     /** 対象のエンティティ種別（任意） */
-    targetType: varchar('target_type', { length: 50 }),
+    targetType: varchar("target_type", { length: 50 }),
     /** 対象エンティティの ID（任意） */
-    targetId: uuid('target_id'),
+    targetId: uuid("target_id"),
     /** 追加メタデータ */
-    metadata: jsonb('metadata').default({}).$type<Record<string, unknown>>(),
+    metadata: jsonb("metadata").default({}).$type<Record<string, unknown>>(),
     /** 作成日時 */
-    createdAt: timestamp('created_at', { withTimezone: true }).defaultNow().notNull(),
+    createdAt: timestamp("created_at", { withTimezone: true })
+      .defaultNow()
+      .notNull(),
   },
   (table) => [
-    index('idx_ual_user').on(table.userId),
-    index('idx_ual_action').on(table.action),
-    index('idx_ual_target').on(table.targetType, table.targetId),
-    index('idx_ual_created_at').on(table.createdAt),
+    index("idx_ual_user").on(table.userId),
+    index("idx_ual_action").on(table.action),
+    index("idx_ual_target").on(table.targetType, table.targetId),
+    index("idx_ual_created_at").on(table.createdAt),
   ],
 );
 
@@ -267,33 +293,35 @@ export type NewUserActivityLog = typeof userActivityLog.$inferInsert;
  * - `metadata`: 計算内訳（score, incorrectAnswers, baseExp, 倍率 等）
  */
 export const expEvents = pgTable(
-  'exp_events',
+  "exp_events",
   {
-    id: uuid('id').primaryKey().defaultRandom(),
+    id: uuid("id").primaryKey().defaultRandom(),
     /** auth.users(id) への外部キー（Supabase SQL で定義） */
-    userId: uuid('user_id').notNull(),
+    userId: uuid("user_id").notNull(),
     /** 付与イベントの種類（例: 'challenge_result'） */
-    source: varchar('source', { length: 50 }).notNull(),
+    source: varchar("source", { length: 50 }).notNull(),
     /** 付与根拠となる行の ID（冪等キーとしても機能する） */
-    sourceId: uuid('source_id'),
+    sourceId: uuid("source_id"),
     /** 練習種別 */
-    menuType: varchar('menu_type', { length: 30 }),
+    menuType: varchar("menu_type", { length: 30 }),
     /** 付与された EXP */
-    amount: integer('amount').notNull(),
+    amount: integer("amount").notNull(),
     /** 計算内訳などの補助メタデータ */
-    metadata: jsonb('metadata').default({}).$type<Record<string, unknown>>(),
+    metadata: jsonb("metadata").default({}).$type<Record<string, unknown>>(),
     /** 作成日時 */
-    createdAt: timestamp('created_at', { withTimezone: true }).defaultNow().notNull(),
+    createdAt: timestamp("created_at", { withTimezone: true })
+      .defaultNow()
+      .notNull(),
   },
   (table) => [
-    index('idx_exp_events_user_created').on(table.userId, table.createdAt),
-    index('idx_exp_events_source').on(table.source, table.sourceId),
+    index("idx_exp_events_user_created").on(table.userId, table.createdAt),
+    index("idx_exp_events_source").on(table.source, table.sourceId),
     // 冪等キー: 同じ (source, source_id) ペアでの二重付与を防ぐ partial unique index。
     // source_id は将来の用途（デイリーログインボーナス等）で NULL になりうるため
     // 部分インデックスで「source_id IS NOT NULL」に限定する。
     // この partial predicate は `grantChallengeExp` の `onConflictDoNothing` の
     // `where` 句と必ず一致させる必要がある（Postgres の ON CONFLICT 推論の制約）。
-    uniqueIndex('uq_exp_events_source_pair')
+    uniqueIndex("uq_exp_events_source_pair")
       .on(table.source, table.sourceId)
       .where(sql`source_id IS NOT NULL`),
   ],
@@ -311,16 +339,18 @@ export type NewExpEvent = typeof expEvents.$inferInsert;
  * 付与時は INSERT ... ON CONFLICT DO UPDATE で累積加算する。
  */
 export const userExp = pgTable(
-  'user_exp',
+  "user_exp",
   {
     /** auth.users(id) への外部キー（Supabase SQL で定義） */
-    userId: uuid('user_id').primaryKey(),
+    userId: uuid("user_id").primaryKey(),
     /** 累計 EXP */
-    totalExp: integer('total_exp').notNull().default(0),
+    totalExp: integer("total_exp").notNull().default(0),
     /** 更新日時 */
-    updatedAt: timestamp('updated_at', { withTimezone: true }).defaultNow().notNull(),
+    updatedAt: timestamp("updated_at", { withTimezone: true })
+      .defaultNow()
+      .notNull(),
   },
-  (table) => [index('idx_user_exp_total').on(table.totalExp)],
+  (table) => [index("idx_user_exp_total").on(table.totalExp)],
 );
 
 export type UserExp = typeof userExp.$inferSelect;
@@ -343,23 +373,23 @@ export type NewUserExp = typeof userExp.$inferInsert;
  * 安全に拡張可能。現時点では YAGNI で見送り。
  */
 export const learnChapterReads = pgTable(
-  'learn_chapter_reads',
+  "learn_chapter_reads",
   {
     /** auth.users(id) への外部キー（Supabase SQL で定義） */
-    userId: uuid('user_id').notNull(),
+    userId: uuid("user_id").notNull(),
     /** 章スラッグ（curriculum.ts で管理） */
-    chapterSlug: varchar('chapter_slug', { length: 64 }).notNull(),
+    chapterSlug: varchar("chapter_slug", { length: 64 }).notNull(),
     /** 読了日時 */
-    readAt: timestamp('read_at', { withTimezone: true }).defaultNow().notNull(),
+    readAt: timestamp("read_at", { withTimezone: true }).defaultNow().notNull(),
   },
   (table) => [
     primaryKey({ columns: [table.userId, table.chapterSlug] }),
-    index('idx_lcr_user').on(table.userId),
+    index("idx_lcr_user").on(table.userId),
     // chapter_slug の形式を制約: 先頭は英小文字、以降は英小文字・数字・ハイフン
     // (最長 64 文字)。アプリ側 curriculum.ts の slug 命名規則に合わせ、
     // 任意文字列の INSERT を DB 層でも防ぐ二重防御。
     check(
-      'learn_chapter_reads_chapter_slug_format',
+      "learn_chapter_reads_chapter_slug_format",
       sql`${table.chapterSlug} ~ '^[a-z][a-z0-9-]{0,63}$'`,
     ),
   ],
@@ -387,31 +417,38 @@ export type NewLearnChapterRead = typeof learnChapterReads.$inferInsert;
  * 一覧の先頭に固定表示する。
  */
 export const announcements = pgTable(
-  'announcements',
+  "announcements",
   {
-    id: uuid('id').primaryKey().defaultRandom(),
+    id: uuid("id").primaryKey().defaultRandom(),
     /** URL スラッグ（ロケール間で共有） */
-    slug: varchar('slug', { length: 255 }).notNull(),
+    slug: varchar("slug", { length: 255 }).notNull(),
     /** タイトル */
-    title: varchar('title', { length: 255 }).notNull(),
+    title: varchar("title", { length: 255 }).notNull(),
     /** 本文（Markdown） */
-    content: text('content').notNull(),
+    content: text("content").notNull(),
     /** ロケール（BCP 47） */
-    locale: varchar('locale', { length: 10 }).notNull(),
+    locale: varchar("locale", { length: 10 }).notNull(),
     /** 公開状態（draft / published） */
-    status: varchar('status', { length: 20 }).notNull().default('draft'),
+    status: varchar("status", { length: 20 }).notNull().default("draft"),
     /** ピン留め日時（新しいものを一覧先頭に固定） */
-    pinnedAt: timestamp('pinned_at', { withTimezone: true }),
+    pinnedAt: timestamp("pinned_at", { withTimezone: true }),
     /** 公開日時（published 時は必須） */
-    publishedAt: timestamp('published_at', { withTimezone: true }),
+    publishedAt: timestamp("published_at", { withTimezone: true }),
     /** 作成日時 */
-    createdAt: timestamp('created_at', { withTimezone: true }).defaultNow().notNull(),
+    createdAt: timestamp("created_at", { withTimezone: true })
+      .defaultNow()
+      .notNull(),
     /** 更新日時 */
-    updatedAt: timestamp('updated_at', { withTimezone: true }).defaultNow().notNull(),
+    updatedAt: timestamp("updated_at", { withTimezone: true })
+      .defaultNow()
+      .notNull(),
   },
   (table) => [
-    unique('uq_announcements_slug_locale').on(table.slug, table.locale),
-    index('idx_announcements_status_published').on(table.status, table.publishedAt),
+    unique("uq_announcements_slug_locale").on(table.slug, table.locale),
+    index("idx_announcements_status_published").on(
+      table.status,
+      table.publishedAt,
+    ),
   ],
 );
 

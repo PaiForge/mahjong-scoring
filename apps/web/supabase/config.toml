@@ -92,6 +92,14 @@ enabled = true
 # The maximum file size allowed (e.g. "5MB", "500KB").
 file_size_limit = "50MiB"
 
+# ユーザーのアバター画像用バケット（公開読み取り）。
+# 本番(Supabase Dashboard)でも同じ設定にすること。
+# 書き込みは drizzle/supabase/storage_setup.sql の RLS で自分のフォルダのみに制限。
+[storage.buckets.avatars]
+public = true
+file_size_limit = "5MiB"
+allowed_mime_types = ["image/png", "image/jpeg", "image/webp"]
+
 # Allow connections via S3 compatible clients
 [storage.s3_protocol]
 enabled = true
@@ -181,16 +189,19 @@ otp_length = 6
 # Number of seconds before the email OTP expires (defaults to 1 hour).
 otp_expiry = 3600
 
+# メール件名・本文のサイト名は src/messages/ja.json の metadata.siteName を正典とする。
+# Supabase は config.toml / テンプレート HTML を直接読むため定数 import ができない。
+# サイト名を変更したら ja.json と以下の subject / templates/*.html を必ず揃えること。
 [auth.email.template.confirmation]
-subject = "麻雀点数道場 - メールアドレスの確認"
+subject = "麻雀点数計算 - メールアドレスの確認"
 content_path = "./supabase/templates/confirmation.html"
 
 [auth.email.template.recovery]
-subject = "麻雀点数道場 - パスワードのリセット"
+subject = "麻雀点数計算 - パスワードのリセット"
 content_path = "./supabase/templates/recovery.html"
 
 [auth.email.template.email_change]
-subject = "麻雀点数道場 - メールアドレス変更の確認"
+subject = "麻雀点数計算 - メールアドレス変更の確認"
 content_path = "./supabase/templates/email_change.html"
 
 [auth.sms]

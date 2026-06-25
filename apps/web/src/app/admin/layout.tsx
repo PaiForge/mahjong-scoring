@@ -6,8 +6,10 @@ import Link from "next/link";
 
 import { NuqsAdapter } from "nuqs/adapters/next/app";
 
+import { SITE_NAME } from "@/app/_lib/metadata";
+
 export const metadata: Metadata = {
-  title: "Admin - Mahjong Scoring",
+  title: `Admin - ${SITE_NAME}`,
   robots: { index: false, follow: false },
 };
 
