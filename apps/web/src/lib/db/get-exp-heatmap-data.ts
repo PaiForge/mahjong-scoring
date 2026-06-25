@@ -6,20 +6,20 @@
  *   マイページのアクティビティヒートマップで使用する、日次 EXP 合計と
  *   練習種別ごとの内訳を並列クエリで取得する。日付境界は JST (Asia/Tokyo) 固定。
  *
- * @see apps/web/src/app/(user)/(protected)/(confirmed)/mypage/_components/exp-activity-heatmap.tsx
+ * @see apps/web/src/app/(user)/(protected)/(confirmed)/mypage/(home)/_components/exp-activity-heatmap.tsx
  */
-import { and, eq, gte, lte, sql, sum } from 'drizzle-orm';
-import { unstable_cache } from 'next/cache';
+import { and, eq, gte, lte, sql, sum } from "drizzle-orm";
+import { unstable_cache } from "next/cache";
 
 import {
   DESKTOP_WEEKS,
   formatDate,
   getHeatmapDateRangeForWeeks,
   getJstTodayDate,
-} from '@/app/(user)/(protected)/(confirmed)/mypage/_lib/heatmap-utils';
+} from "@/app/(user)/(protected)/(confirmed)/mypage/(home)/_lib/heatmap-utils";
 
-import { db } from './index';
-import { expEvents } from './schema';
+import { db } from "./index";
+import { expEvents } from "./schema";
 
 export interface ExpHeatmapData {
   /** 'YYYY-MM-DD' をキーにした日次 EXP 合計 */
@@ -43,7 +43,10 @@ const HEATMAP_CACHE_TTL_SECONDS = 60;
  */
 async function fetchExpHeatmapData(userId: string): Promise<ExpHeatmapData> {
   const jstToday = getJstTodayDate(new Date());
-  const { startDate, endDate } = getHeatmapDateRangeForWeeks(jstToday, DESKTOP_WEEKS);
+  const { startDate, endDate } = getHeatmapDateRangeForWeeks(
+    jstToday,
+    DESKTOP_WEEKS,
+  );
 
   // startDate / endDate は JST の年月日を表すローカル TZ Date。
   // クエリ境界は「JST 00:00 〜 JST 23:59:59.999」を表す絶対 UTC 瞬間として組み立てる必要がある。
@@ -62,17 +65,17 @@ async function fetchExpHeatmapData(userId: string): Promise<ExpHeatmapData> {
   const [dailyRows, moduleRows] = await Promise.all([
     db
       .select({
-        date: dateExpr.as('date'),
-        total: sum(expEvents.amount).as('total'),
+        date: dateExpr.as("date"),
+        total: sum(expEvents.amount).as("total"),
       })
       .from(expEvents)
       .where(whereClause)
       .groupBy(dateExpr),
     db
       .select({
-        date: dateExpr.as('date'),
+        date: dateExpr.as("date"),
         menuType: expEvents.menuType,
-        total: sum(expEvents.amount).as('total'),
+        total: sum(expEvents.amount).as("total"),
       })
       .from(expEvents)
       .where(whereClause)
@@ -81,14 +84,16 @@ async function fetchExpHeatmapData(userId: string): Promise<ExpHeatmapData> {
 
   const daily: Record<string, number> = {};
   for (const row of dailyRows) {
-    const dateStr = typeof row.date === 'string' ? row.date : formatDate(new Date(row.date));
+    const dateStr =
+      typeof row.date === "string" ? row.date : formatDate(new Date(row.date));
     daily[dateStr] = Number(row.total) || 0;
   }
 
   const dailyByModule: Record<string, Record<string, number>> = {};
   for (const row of moduleRows) {
-    const dateStr = typeof row.date === 'string' ? row.date : formatDate(new Date(row.date));
-    const moduleKey = row.menuType ?? 'unknown';
+    const dateStr =
+      typeof row.date === "string" ? row.date : formatDate(new Date(row.date));
+    const moduleKey = row.menuType ?? "unknown";
     if (!dailyByModule[dateStr]) {
       dailyByModule[dateStr] = {};
     }
@@ -105,10 +110,12 @@ async function fetchExpHeatmapData(userId: string): Promise<ExpHeatmapData> {
  * 新しい EXP 付与時は `save-challenge-result.ts` 側で `revalidateTag` を呼ぶ。
  * TTL は防御的に 60 秒とし、`revalidateTag` が失敗しても極端に古い値が残らないようにする。
  */
-export async function getExpHeatmapData(userId: string): Promise<ExpHeatmapData> {
+export async function getExpHeatmapData(
+  userId: string,
+): Promise<ExpHeatmapData> {
   const cached = unstable_cache(
     (uid: string) => fetchExpHeatmapData(uid),
-    ['exp-heatmap-data', userId],
+    ["exp-heatmap-data", userId],
     {
       tags: [expHeatmapCacheTag(userId)],
       revalidate: HEATMAP_CACHE_TTL_SECONDS,
