@@ -22,6 +22,9 @@
   },
   "settings": {
     "pageTitle": "設定",
+    "rulesSectionTitle": "麻雀ルール",
+    "renfonpaiTitle": "連風牌の雀頭を4符にする",
+    "renfonpaiDescription": "場風と自風が同じ風牌（連風牌）の雀頭を、場風2符＋自風2符として4符で計算します。オフのときは通常の役牌と同じく2符です。",
     "dangerZoneTitle": "アカウントの削除",
     "deleteAccountTitle": "退会する",
     "deleteAccountDescription": "アカウントを削除すると、表示名などの個人情報が削除され、ログインできなくなります。",
@@ -229,12 +232,6 @@
     "howToPlay": {
       "title": "問題方式",
       "lead": "このような問題が出題されます。"
-    },
-    "rules": {
-      "title": "ルール",
-      "yakuhai": "役牌（三元牌・場風・自風）の雀頭 → 2符",
-      "renfonpai": "連風牌（場風と自風が同じ）の雀頭 → 4符",
-      "other": "それ以外の雀頭 → 0符"
     },
     "learn": {
       "pageTitle": "雀頭の符計算",

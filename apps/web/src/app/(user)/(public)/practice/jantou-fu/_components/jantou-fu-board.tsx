@@ -5,6 +5,7 @@ import { useTranslations } from "next-intl";
 import { generateJantouFuQuestion, getKazeName } from "@mahjong-scoring/core";
 import type { JantouFuQuestion, JantouFuChoice } from "@mahjong-scoring/core";
 import { Hai } from "@pai-forge/mahjong-react-ui";
+import { useRuleSettingsStore } from "@/app/_hooks/use-rule-settings-store";
 import { ChoiceButton } from "../../_components/choice-button";
 import { getFeedbackStyles } from "../../_lib/feedback-styles";
 
@@ -29,17 +30,18 @@ export function JantouFuBoard({
   onAnswer,
 }: JantouFuBoardProps) {
   const t = useTranslations("jantouFu");
-  const [question, setQuestion] = useState<JantouFuQuestion>(
-    generateJantouFuQuestion,
+  const renfonpaiAs4Fu = useRuleSettingsStore((s) => s.renfonpaiAs4Fu);
+  const [question, setQuestion] = useState<JantouFuQuestion>(() =>
+    generateJantouFuQuestion({ renfonpaiAs4Fu }),
   );
   const [selectedHai, setSelectedHai] = useState<
     JantouFuChoice["hai"] | undefined
   >(undefined);
 
   const advanceQuestion = useCallback(() => {
-    setQuestion(generateJantouFuQuestion());
+    setQuestion(generateJantouFuQuestion({ renfonpaiAs4Fu }));
     setSelectedHai(undefined);
-  }, []);
+  }, [renfonpaiAs4Fu]);
 
   const handleChoiceSelect = useCallback(
     (index: number) => {
