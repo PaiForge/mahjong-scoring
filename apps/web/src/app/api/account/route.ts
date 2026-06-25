@@ -1,20 +1,16 @@
-import { eq } from "drizzle-orm";
 import { NextResponse } from "next/server";
 
 import { logActivityEvent } from "@/lib/activity-log";
 import { getClientIp } from "@/lib/client-ip";
-import { db, profiles } from "@/lib/db";
 import { IP_RATE_LIMITS, checkIpRateLimitGuard } from "@/lib/rate-limit-ip";
-import { createAdminClient } from "@/lib/supabase/admin";
 import { createClient } from "@/lib/supabase/server";
+import { deleteAccount } from "@/lib/users/delete-account";
 
 /**
  * アカウント退会エンドポイント。
  *
- * `profiles.id` は `auth.users(id)` に対し ON DELETE RESTRICT のため物理削除はできない。
- * Supabase Admin API のソフトデリート（`deleteUser(id, true)`）で auth ユーザーを無効化し、
- * プロフィールの個人情報を NULL 化したうえで `deletedAt` を記録する。
- * username は再利用防止のため保持する。スコア・ランキングデータは保持する。
+ * 退会処理の本体は `deleteAccount()`（src/lib/users/delete-account.ts）に集約している。
+ * ここでは認証・レート制限・アクティビティログのみを担う。
  *
  * アカウント退会API
  */
@@ -37,40 +33,9 @@ export async function DELETE() {
     return NextResponse.json({ error: "unauthorized" }, { status: 401 });
   }
 
-  // auth ユーザーを先にソフトデリートする。失敗時はプロフィールを更新しない。
-  const adminClient = createAdminClient();
-  const { error } = await adminClient.auth.admin.deleteUser(user.id, true);
-  if (error) {
-    return NextResponse.json({ error: "deleteFailed" }, { status: 500 });
-  }
-
-  // 個人情報を NULL 化し、退会日時を記録する（username は再利用防止のため保持）。
-  await db
-    .update(profiles)
-    .set({
-      displayName: null,
-      avatarUrl: null,
-      bio: null,
-      xUsername: null,
-      instagramUsername: null,
-      youtubeHandle: null,
-      deletedAt: new Date(),
-      updatedAt: new Date(),
-    })
-    .where(eq(profiles.id, user.id));
-
-  // アバター画像を Storage から削除する（ベストエフォート。失敗しても退会は完了させる）。
-  try {
-    const { data: avatarFiles } = await adminClient.storage
-      .from("avatars")
-      .list(user.id);
-    if (avatarFiles?.length) {
-      await adminClient.storage
-        .from("avatars")
-        .remove(avatarFiles.map((f) => `${user.id}/${f.name}`));
-    }
-  } catch {
-    // Storage 障害で退会をブロックしない。
+  const result = await deleteAccount(user.id);
+  if ("error" in result) {
+    return NextResponse.json({ error: result.error }, { status: 500 });
   }
 
   logActivityEvent({

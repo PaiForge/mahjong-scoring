@@ -6,6 +6,7 @@
  */
 import type { Metadata } from "next";
 import { getTranslations } from "next-intl/server";
+import Link from "next/link";
 
 import { ContentContainer } from "@/app/_components/content-container";
 import { PageTitle } from "@/app/_components/page-title";
@@ -59,6 +60,15 @@ export default async function ProfileEditPage({
         </div>
 
         <ProfileForm initial={initial} showSkip={from === "setup"} />
+      </div>
+
+      <div className="mt-10 border-t border-surface-200 pt-6 text-center">
+        <Link
+          href="/mypage/profile/edit/delete-account"
+          className="text-sm text-surface-400 transition-colors hover:text-surface-600 hover:underline"
+        >
+          {t("deleteAccountLink")}
+        </Link>
       </div>
     </ContentContainer>
   );

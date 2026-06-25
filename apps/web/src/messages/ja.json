@@ -25,15 +25,16 @@
     "pageTitle": "設定",
     "rulesSectionTitle": "麻雀ルール",
     "renfonpaiTitle": "連風牌の雀頭を4符にする",
-    "renfonpaiDescription": "場風と自風が同じ風牌（連風牌）の雀頭を、場風2符＋自風2符として4符で計算します。オフのときは通常の役牌と同じく2符です。",
-    "dangerZoneTitle": "アカウントの削除",
-    "deleteAccountTitle": "退会する",
-    "deleteAccountDescription": "アカウントを削除すると、表示名などの個人情報が削除され、ログインできなくなります。",
-    "deleteAccountLink": "退会手続きへ進む"
+    "renfonpaiDescription": "場風と自風が同じ風牌（連風牌）の雀頭を、場風2符＋自風2符として4符で計算します。オフのときは通常の役牌と同じく2符です。"
   },
   "deleteAccount": {
     "pageTitle": "退会",
-    "warning": "退会すると、このアカウントではログインできなくなり、表示名などの個人情報が削除されます。ユーザーIDは再利用防止のため保持されます。この操作は取り消せません。",
+    "warning": "退会すると、このアカウントではログインできなくなります。この操作は取り消せません。",
+    "consequences": {
+      "personalData": "アバター・表示名・自己紹介・SNS などの個人情報は削除されます。",
+      "scoresRemoved": "成績は削除され、ランキングからも表示されなくなります。",
+      "usernameLocked": "ユーザー名は再利用防止のため保持され、同じ名前では再登録できません。"
+    },
     "confirmButton": "アカウントを削除する",
     "deleting": "削除中…",
     "confirmTitle": "本当に退会しますか？",
@@ -42,7 +43,7 @@
     "confirmCancel": "キャンセル",
     "error": "退会処理に失敗しました。時間をおいて再度お試しください。",
     "successToast": "退会が完了しました",
-    "backToSettings": "設定へ戻る"
+    "backToProfile": "プロフィール編集に戻る"
   },
   "announcements": {
     "pageTitle": "お知らせ",
@@ -1038,6 +1039,7 @@
     "submit": "保存する",
     "submitting": "保存中...",
     "skip": "あとで設定する",
+    "deleteAccountLink": "アカウントを削除",
     "success": "プロフィールを保存しました。",
     "displayNameTooLong": "表示名は50文字以内で入力してください。",
     "bioTooLong": "自己紹介は500文字以内で入力してください。",
