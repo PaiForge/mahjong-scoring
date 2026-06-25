@@ -1,4 +1,4 @@
-import { HomeIcon } from "../icons/home-icon";
+import { DumbbellIcon } from "../icons/dumbbell-icon";
 import { BookIcon } from "../icons/book-icon";
 import { TableIcon } from "../icons/table-icon";
 import { ChartIcon } from "../icons/chart-icon";
@@ -15,8 +15,8 @@ export interface NavItemDef {
 
 /** サイドバー・モバイルタブバー共通のナビゲーション項目 */
 export const NAV_ITEMS: readonly NavItemDef[] = [
-  { href: "/", labelKey: "home", icon: <HomeIcon /> },
-  { href: "/practice", labelKey: "practice", icon: <BookIcon /> },
+  { href: "/practice", labelKey: "practice", icon: <DumbbellIcon /> },
+  { href: "/learn", labelKey: "learn", icon: <BookIcon /> },
   { href: "/reference", labelKey: "reference", icon: <TableIcon /> },
   { href: "/leaderboard", labelKey: "leaderboard", icon: <ChartIcon /> },
 ];
