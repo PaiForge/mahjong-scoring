@@ -11,9 +11,7 @@ export type ResendEmailResult = ActionResult;
  * 確認メール再送 Server Action。
  * メール再送アクション
  */
-export async function resendEmail(
-  email: string,
-): Promise<ResendEmailResult> {
+export async function resendEmail(email: string): Promise<ResendEmailResult> {
   const ipRateLimited = checkIpRateLimitGuard(
     await getClientIp(),
     "resendEmail",
@@ -30,6 +28,11 @@ export async function resendEmail(
   });
 
   if (error) {
+    // GoTrue の送信頻度制限（max_frequency / 1時間あたり送信上限）に当たった場合は
+    // 「失敗」ではなく「しばらく待って」と案内する。
+    if (error.status === 429 || error.code === "over_email_send_rate_limit") {
+      return { error: "rateLimited" };
+    }
     return { error: "resendFailed" };
   }
 

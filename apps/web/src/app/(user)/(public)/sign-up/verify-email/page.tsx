@@ -6,11 +6,13 @@
  * 確認メールの再送機能を提供する。
  */
 import type { Metadata } from "next";
+import { redirect } from "next/navigation";
 import { getTranslations } from "next-intl/server";
 
 import { ContentContainer } from "@/app/_components/content-container";
 import { PageTitle } from "@/app/_components/page-title";
 import { createMetadata } from "@/app/_lib/metadata";
+import { getOptionalUser } from "@/lib/auth";
 
 import { ResendEmailButton } from "./_components/resend-email-button";
 
@@ -24,6 +26,13 @@ export default async function VerifyEmailPage({
 }: {
   searchParams: Promise<{ email?: string }>;
 }) {
+  // 確認済み（＝ログイン済み）ユーザーにこのページは不要。
+  // 再送しても GoTrue は送信せず「再送した」と誤解させるため、マイページへ退避する。
+  const user = await getOptionalUser();
+  if (user) {
+    redirect("/mypage");
+  }
+
   const { email } = await searchParams;
   const t = await getTranslations("verifyEmail");
 

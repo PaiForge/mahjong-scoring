@@ -817,6 +817,7 @@
     "googleOAuth": "Google でログイン",
     "googleOAuthLoading": "ログイン中...",
     "authError": "認証に失敗しました。もう一度お試しください。",
+    "emailLinkInvalid": "メール認証のリンクが無効か、有効期限が切れています。すでに認証が完了している場合は、そのままログインしてください。",
     "or": "または",
     "emailLabel": "メールアドレス",
     "emailPlaceholder": "mail@example.com",
@@ -855,7 +856,7 @@
     "resendButton": "確認メールを再送",
     "resendLoading": "送信中...",
     "resendCooldown": "再送可能まで {seconds} 秒",
-    "resendSuccess": "確認メールを再送しました。",
+    "resendSuccess": "確認メールを再送しました。迷惑メールフォルダもご確認ください。",
     "resendError": "再送に失敗しました。しばらくしてからもう一度お試しください。",
     "rateLimited": "リクエストが多すぎます。しばらくしてからもう一度お試しください。"
   },
