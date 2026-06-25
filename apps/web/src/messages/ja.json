@@ -896,6 +896,8 @@
   },
   "mypage": {
     "pageTitle": "マイページ",
+    "viewProfile": "公開プロフィール",
+    "editProfile": "プロフィール編集",
     "activityTitle": "アクティビティ",
     "cards": {
       "challenges": {
@@ -1045,6 +1047,9 @@
     "rateLimited": "リクエストが多すぎます。しばらくしてからもう一度お試しください。",
     "updateFailed": "保存に失敗しました。もう一度お試しください。",
     "error": "保存に失敗しました。もう一度お試しください。"
+  },
+  "publicProfile": {
+    "metaDescription": "{name} さんのプロフィール"
   },
   "admin": {
     "title": "管理画面",

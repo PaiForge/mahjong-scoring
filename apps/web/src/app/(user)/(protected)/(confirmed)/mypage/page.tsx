@@ -11,8 +11,10 @@ import { getTranslations } from "next-intl/server";
 
 import { ContentContainer } from "@/app/_components/content-container";
 import { PageTitle } from "@/app/_components/page-title";
+import { UserAvatar } from "@/app/_components/user-avatar";
 import { createMetadata } from "@/app/_lib/metadata";
 import { getAuthenticatedUser } from "@/lib/auth";
+import { getProfileCardByUserId } from "@/lib/db/queries";
 import { getExpHeatmapData } from "@/lib/db/get-exp-heatmap-data";
 
 import { ExpActivityHeatmap } from "./_components/exp-activity-heatmap";
@@ -30,7 +32,11 @@ export default async function MyPage() {
   const t = await getTranslations("mypage");
   const tHeatmap = await getTranslations("mypage.heatmap");
   const user = await getAuthenticatedUser();
-  const heatmapData = await getExpHeatmapData(user.id);
+  const [profile, heatmapData] = await Promise.all([
+    getProfileCardByUserId(user.id),
+    getExpHeatmapData(user.id),
+  ]);
+  const profileName = profile?.displayName ?? profile?.username ?? "";
 
   // SSR 時点で JST 基準のレイアウトを確定させ、クライアントの `new Date()` による
   // ハイドレーションミスマッチを防ぐ。
@@ -56,6 +62,40 @@ export default async function MyPage() {
       <PageTitle>{t("pageTitle")}</PageTitle>
 
       <div className="space-y-6">
+        <section className="flex items-center gap-4 rounded-lg border border-border bg-card p-4">
+          <UserAvatar
+            avatarUrl={profile?.avatarUrl ?? null}
+            name={profileName || t("pageTitle")}
+            size="lg"
+          />
+          <div className="min-w-0">
+            <h2 className="truncate text-lg font-semibold text-foreground">
+              {profileName || t("pageTitle")}
+            </h2>
+            {profile?.username && (
+              <p className="text-sm text-surface-500">@{profile.username}</p>
+            )}
+            <div className="mt-1.5 flex flex-wrap items-center gap-1">
+              {profile?.username && (
+                <Link
+                  href={`/u/${profile.username}`}
+                  className="inline-flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-sm font-medium text-foreground transition-colors hover:bg-surface-100"
+                >
+                  <span aria-hidden="true">👤</span>
+                  <span>{t("viewProfile")}</span>
+                </Link>
+              )}
+              <Link
+                href="/mypage/profile/edit"
+                className="inline-flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-sm font-medium text-foreground transition-colors hover:bg-surface-100"
+              >
+                <span aria-hidden="true">✏️</span>
+                <span>{t("editProfile")}</span>
+              </Link>
+            </div>
+          </div>
+        </section>
+
         <section className="rounded-lg border border-border bg-card p-4">
           <h2 className="mb-3 text-sm font-semibold text-foreground">
             <span className="mr-1">🔥</span>
