@@ -1,6 +1,7 @@
 {
   "metadata": {
-    "siteName": "Mahjong Scoring",
+    "siteName": "麻雀点数計算",
+    "siteTagline": "麻雀の点数計算トレーニング",
     "siteDescription": "麻雀の点数計算を基礎から学べるトレーニングアプリ。初心者でも符計算・点数申告をマスターできます。"
   },
   "nav": {

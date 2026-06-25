@@ -181,16 +181,19 @@ otp_length = 6
 # Number of seconds before the email OTP expires (defaults to 1 hour).
 otp_expiry = 3600
 
+# メール件名・本文のサイト名は src/messages/ja.json の metadata.siteName を正典とする。
+# Supabase は config.toml / テンプレート HTML を直接読むため定数 import ができない。
+# サイト名を変更したら ja.json と以下の subject / templates/*.html を必ず揃えること。
 [auth.email.template.confirmation]
-subject = "麻雀点数道場 - メールアドレスの確認"
+subject = "麻雀点数計算 - メールアドレスの確認"
 content_path = "./supabase/templates/confirmation.html"
 
 [auth.email.template.recovery]
-subject = "麻雀点数道場 - パスワードのリセット"
+subject = "麻雀点数計算 - パスワードのリセット"
 content_path = "./supabase/templates/recovery.html"
 
 [auth.email.template.email_change]
-subject = "麻雀点数道場 - メールアドレス変更の確認"
+subject = "麻雀点数計算 - メールアドレス変更の確認"
 content_path = "./supabase/templates/email_change.html"
 
 [auth.sms]
