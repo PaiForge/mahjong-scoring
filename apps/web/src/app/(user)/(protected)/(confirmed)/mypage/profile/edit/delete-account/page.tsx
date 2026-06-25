@@ -11,6 +11,7 @@ import Link from "next/link";
 import { ContentContainer } from "@/app/_components/content-container";
 import { PageTitle } from "@/app/_components/page-title";
 import { createMetadata } from "@/app/_lib/metadata";
+import { requireConfirmedUser } from "@/lib/auth";
 
 import { DeleteAccountButton } from "./_components/delete-account-button";
 
@@ -23,6 +24,7 @@ export async function generateMetadata(): Promise<Metadata> {
 }
 
 export default async function DeleteAccountPage() {
+  await requireConfirmedUser();
   const t = await getTranslations("deleteAccount");
   const tMypage = await getTranslations("mypage");
   const tProfile = await getTranslations("profileEdit");

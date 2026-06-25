@@ -11,6 +11,7 @@ import { ContentContainer } from "@/app/_components/content-container";
 import { PageTitle } from "@/app/_components/page-title";
 import { SectionTitle } from "@/app/_components/section-title";
 import { createMetadata } from "@/app/_lib/metadata";
+import { requireConfirmedUser } from "@/lib/auth";
 import { RuleSettingsSection } from "./_components/rule-settings-section";
 
 export async function generateMetadata(): Promise<Metadata> {
@@ -22,6 +23,7 @@ export async function generateMetadata(): Promise<Metadata> {
 }
 
 export default async function SettingsPage() {
+  await requireConfirmedUser();
   const t = await getTranslations("settings");
   const tMypage = await getTranslations("mypage");
 

@@ -11,7 +11,7 @@ import Link from "next/link";
 import { ContentContainer } from "@/app/_components/content-container";
 import { PageTitle } from "@/app/_components/page-title";
 import { createMetadata } from "@/app/_lib/metadata";
-import { getAuthenticatedUser } from "@/lib/auth";
+import { requireConfirmedUser } from "@/lib/auth";
 import { getProfileForEdit } from "@/lib/db/queries";
 
 import { AvatarUpload } from "./_components/avatar-upload";
@@ -34,7 +34,7 @@ export default async function ProfileEditPage({
   const t = await getTranslations("profileEdit");
   const tMypage = await getTranslations("mypage");
 
-  const user = await getAuthenticatedUser();
+  const { user } = await requireConfirmedUser();
   const profile = await getProfileForEdit(user.id);
 
   const initial = {

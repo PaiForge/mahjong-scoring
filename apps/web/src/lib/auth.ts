@@ -44,6 +44,47 @@ export const getAuthenticatedProfile = cache(async () => {
 });
 
 /**
+ * 本登録済み（プロフィール作成済み）ユーザーを要求するページガード。
+ * 未認証 → /sign-in、BAN → /banned、プロフィール未作成 → /mypage/setup-username。
+ *
+ * 認証ガードを (confirmed) レイアウトではなく各ページで呼ぶことで、認証待ちを
+ * ページ自身の loading.tsx 境界内に収め、リロード時もページ個別スケルトンを表示する。
+ * 本登録ユーザーガード
+ */
+export const requireConfirmedUser = cache(async () => {
+  const { user, profile } = await getAuthenticatedProfile();
+
+  if (await isUserBanned(user.id)) {
+    redirect("/banned");
+  }
+  if (!profile) {
+    redirect("/mypage/setup-username");
+  }
+
+  return { user, profile };
+});
+
+/**
+ * 仮登録（プロフィール未作成）ユーザーを要求するページガード。
+ * 未認証 → /sign-in、BAN → /banned、プロフィール作成済み → /mypage。
+ *
+ * 認証ガードを (provisional) レイアウトではなく各ページで呼ぶための関数。
+ * 仮登録ユーザーガード
+ */
+export const requireProvisionalUser = cache(async () => {
+  const { user, profile } = await getAuthenticatedProfile();
+
+  if (await isUserBanned(user.id)) {
+    redirect("/banned");
+  }
+  if (profile) {
+    redirect("/mypage");
+  }
+
+  return { user };
+});
+
+/**
  * 認証済みユーザーまたは null を返す。リダイレクトなし。
  * getClaims() でローカル検証する（getAuthenticatedUser と同様）。
  * オプショナルユーザー取得
@@ -60,7 +101,9 @@ export const getOptionalUser = cache(async (): Promise<AuthUser | null> => {
  * 認証済みかつ BAN されていないユーザーを返す。
  * 認証+BANガード
  */
-export async function authenticateAndCheckBan(): Promise<{ user: User } | { error: string }> {
+export async function authenticateAndCheckBan(): Promise<
+  { user: User } | { error: string }
+> {
   const supabase = await createClient();
   const {
     data: { user },

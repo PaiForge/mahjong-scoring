@@ -4,6 +4,7 @@ import { getTranslations } from "next-intl/server";
 import { ContentContainer } from "@/app/_components/content-container";
 import { PageTitle } from "@/app/_components/page-title";
 import { SectionTitle } from "@/app/_components/section-title";
+import { requireProvisionalUser } from "@/lib/auth";
 
 import { UsernameForm } from "./_components/username-form";
 
@@ -17,6 +18,7 @@ export async function generateMetadata(): Promise<Metadata> {
 }
 
 export default async function SetupUsernamePage() {
+  await requireProvisionalUser();
   const t = await getTranslations("setupUsername");
 
   return (

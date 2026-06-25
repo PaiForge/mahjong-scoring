@@ -13,7 +13,7 @@ import { ContentContainer } from "@/app/_components/content-container";
 import { PageTitle } from "@/app/_components/page-title";
 import { UserAvatar } from "@/app/_components/user-avatar";
 import { createMetadata } from "@/app/_lib/metadata";
-import { getAuthenticatedUser } from "@/lib/auth";
+import { requireConfirmedUser } from "@/lib/auth";
 import { getProfileCardByUserId } from "@/lib/db/queries";
 import { getExpHeatmapData } from "@/lib/db/get-exp-heatmap-data";
 
@@ -31,7 +31,7 @@ export async function generateMetadata(): Promise<Metadata> {
 export default async function MyPage() {
   const t = await getTranslations("mypage");
   const tHeatmap = await getTranslations("mypage.heatmap");
-  const user = await getAuthenticatedUser();
+  const { user } = await requireConfirmedUser();
   const [profile, heatmapData] = await Promise.all([
     getProfileCardByUserId(user.id),
     getExpHeatmapData(user.id),

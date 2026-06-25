@@ -18,7 +18,7 @@ import {
   isPracticeMenuType,
   menuTypeToMessageKey,
 } from "@/lib/db/practice-menu-types";
-import { getAuthenticatedUser } from "@/lib/auth";
+import { requireConfirmedUser } from "@/lib/auth";
 
 import { formatDate, getMissColorClass } from "../_lib/dashboard-utils";
 import { getChallengeResultsPaginated } from "../_lib/queries";
@@ -42,7 +42,7 @@ export default async function ChallengeResultsPage({ searchParams }: Props) {
   const tMypage = await getTranslations("mypage");
   const params = await searchParams;
 
-  const user = await getAuthenticatedUser();
+  const { user } = await requireConfirmedUser();
 
   const pageParam =
     typeof params.page === "string" ? parseInt(params.page, 10) : 1;
