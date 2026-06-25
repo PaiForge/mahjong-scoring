@@ -80,12 +80,19 @@ export default async function PublicProfilePage({ params }: Props) {
   return (
     <ContentContainer>
       {/* PageTitle を直接の子にすることでタイトル帯へ引き上げ、白カードに w-full が付与される */}
-      <PageTitle>{name}</PageTitle>
+      <PageTitle>{t("pageTitle")}</PageTitle>
 
       <div className="space-y-8">
         <div className="flex flex-col items-center gap-2 text-center">
           <UserAvatar avatarUrl={profile.avatarUrl} name={name} size="lg" />
-          <p className="text-sm text-surface-500">@{profile.username}</p>
+          <div>
+            {profile.displayName && (
+              <p className="text-lg font-semibold text-surface-900">
+                {profile.displayName}
+              </p>
+            )}
+            <p className="text-sm text-surface-500">@{profile.username}</p>
+          </div>
         </div>
 
         <section className="space-y-4">

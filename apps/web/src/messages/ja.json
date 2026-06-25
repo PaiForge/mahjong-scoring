@@ -1051,6 +1051,7 @@
     "error": "保存に失敗しました。もう一度お試しください。"
   },
   "publicProfile": {
+    "pageTitle": "プロフィール",
     "metaDescription": "{name} さんのプロフィール",
     "bioTitle": "自己紹介",
     "bioEmpty": "自己紹介は登録されていません。",
