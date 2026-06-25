@@ -35,28 +35,30 @@ export default async function SettingsPage() {
     >
       <PageTitle>{t("pageTitle")}</PageTitle>
 
-      <section className="mt-8 space-y-4">
-        <SectionTitle>{t("rulesSectionTitle")}</SectionTitle>
-        <RuleSettingsSection />
-      </section>
+      <div className="space-y-8">
+        <section className="space-y-4">
+          <SectionTitle>{t("rulesSectionTitle")}</SectionTitle>
+          <RuleSettingsSection />
+        </section>
 
-      <section className="mt-8 space-y-4">
-        <SectionTitle>{t("dangerZoneTitle")}</SectionTitle>
-        <div className="rounded-lg border border-red-200 bg-red-50 p-5">
-          <h3 className="text-sm font-semibold text-surface-900">
-            {t("deleteAccountTitle")}
-          </h3>
-          <p className="mt-1 text-sm text-surface-600">
-            {t("deleteAccountDescription")}
-          </p>
-          <Link
-            href="/mypage/settings/delete-account"
-            className="mt-4 inline-flex items-center justify-center rounded-lg border border-red-300 px-5 py-2 text-sm font-semibold text-red-600 transition-colors hover:bg-red-100"
-          >
-            {t("deleteAccountLink")}
-          </Link>
-        </div>
-      </section>
+        <section className="space-y-4">
+          <SectionTitle>{t("dangerZoneTitle")}</SectionTitle>
+          <div className="rounded-lg border border-red-200 bg-red-50 p-5">
+            <h3 className="text-sm font-semibold text-surface-900">
+              {t("deleteAccountTitle")}
+            </h3>
+            <p className="mt-1 text-sm text-surface-600">
+              {t("deleteAccountDescription")}
+            </p>
+            <Link
+              href="/mypage/settings/delete-account"
+              className="mt-4 inline-flex items-center justify-center rounded-lg border border-red-300 px-5 py-2 text-sm font-semibold text-red-600 transition-colors hover:bg-red-100"
+            >
+              {t("deleteAccountLink")}
+            </Link>
+          </div>
+        </section>
+      </div>
     </ContentContainer>
   );
 }
