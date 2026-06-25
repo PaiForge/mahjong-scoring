@@ -1011,7 +1011,6 @@
   },
   "profileEdit": {
     "pageTitle": "プロフィール編集",
-    "intro": "アバターや自己紹介を設定すると、ランキングなどであなたのことが伝わりやすくなります。すべて任意項目です。",
     "basicSectionTitle": "基本情報",
     "snsSectionTitle": "SNS アカウント",
     "avatarLabel": "アバター",

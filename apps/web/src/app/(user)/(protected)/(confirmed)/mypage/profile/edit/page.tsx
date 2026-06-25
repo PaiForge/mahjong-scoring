@@ -54,8 +54,6 @@ export default async function ProfileEditPage({
       <PageTitle>{t("pageTitle")}</PageTitle>
 
       <div className="space-y-8">
-        <p className="text-sm text-surface-600">{t("intro")}</p>
-
         <div className="flex justify-center">
           <AvatarUpload currentAvatarUrl={profile?.avatarUrl ?? null} />
         </div>
