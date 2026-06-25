@@ -11,6 +11,7 @@ import type {
   ScoreQuestion,
   ScoreTableUserAnswer,
 } from "@mahjong-scoring/core";
+import { useRuleSettingsStore } from "@/app/_hooks/use-rule-settings-store";
 import { getFeedbackBorderClass } from "../../_lib/feedback-styles";
 import { QuestionDisplay } from "../../score/_components/question-display";
 import { ScoreCalculationAnswerForm } from "./score-calculation-answer-form";
@@ -40,15 +41,16 @@ export function ScoreCalculationBoard({
   onRecordResult,
 }: ScoreCalculationBoardProps) {
   const t = useTranslations("scoreCalculationChallenge");
+  const renfonpaiAs4Fu = useRuleSettingsStore((s) => s.renfonpaiAs4Fu);
   const [question, setQuestion] = useState<ScoreQuestion | undefined>(
-    () => generateValidScoreQuestion() ?? undefined,
+    () => generateValidScoreQuestion({ renfonpaiAs4Fu }) ?? undefined,
   );
   const [questionIndex, setQuestionIndex] = useState(0);
 
   const advanceQuestion = useCallback(() => {
-    setQuestion(generateValidScoreQuestion() ?? undefined);
+    setQuestion(generateValidScoreQuestion({ renfonpaiAs4Fu }) ?? undefined);
     setQuestionIndex((prev) => prev + 1);
-  }, []);
+  }, [renfonpaiAs4Fu]);
 
   const handleSubmit = useCallback(
     (userAnswer: ScoreTableUserAnswer) => {

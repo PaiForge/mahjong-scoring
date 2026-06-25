@@ -97,4 +97,6 @@ export interface QuestionGeneratorOptions {
   readonly includeParent?: boolean;
   /** 子（散家）を含めるかどうか */
   readonly includeChild?: boolean;
+  /** 連風牌の雀頭を4符として扱うか（既定 false=2符） */
+  readonly renfonpaiAs4Fu?: boolean;
 }

@@ -12,6 +12,7 @@ import { ContentContainer } from "@/app/_components/content-container";
 import { PageTitle } from "@/app/_components/page-title";
 import { SectionTitle } from "@/app/_components/section-title";
 import { createMetadata } from "@/app/_lib/metadata";
+import { RuleSettingsSection } from "./_components/rule-settings-section";
 
 export async function generateMetadata(): Promise<Metadata> {
   const t = await getTranslations("settings");
@@ -33,6 +34,11 @@ export default async function SettingsPage() {
       ]}
     >
       <PageTitle>{t("pageTitle")}</PageTitle>
+
+      <section className="mt-8 space-y-4">
+        <SectionTitle>{t("rulesSectionTitle")}</SectionTitle>
+        <RuleSettingsSection />
+      </section>
 
       <section className="mt-8 space-y-4">
         <SectionTitle>{t("dangerZoneTitle")}</SectionTitle>

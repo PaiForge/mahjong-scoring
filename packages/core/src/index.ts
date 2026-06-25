@@ -28,7 +28,11 @@ export { retryGenerate } from "./problem/retry-generate";
 
 // === Problem: Score ===
 export { generateValidScoreQuestion } from "./problem/score/generator";
-export { judgeAnswer, isMangan, getScoreLevelName } from "./problem/score/judgement";
+export {
+  judgeAnswer,
+  isMangan,
+  getScoreLevelName,
+} from "./problem/score/judgement";
 export type {
   ScoreQuestion,
   UserAnswer,
@@ -46,14 +50,8 @@ export {
 } from "./score/constants";
 
 // === Core ===
-export {
-  YAKU_OPTIONS,
-} from "./core/constants";
-export {
-  getKazeName,
-  getDoraFromIndicator,
-  isOya,
-} from "./core/hai-names";
+export { YAKU_OPTIONS } from "./core/constants";
+export { getKazeName, getDoraFromIndicator, isOya } from "./core/hai-names";
 export {
   calculateKoScore,
   calculateOyaScore,
@@ -73,6 +71,10 @@ export type {
 // === EXP ===
 export { calculateExp, getLevel, getLevelProgress } from "./exp";
 export type { ExpInfo } from "./exp";
+
+// === Rules ===
+export { DEFAULT_RULE_SETTINGS } from "./rules/settings";
+export type { RuleSettings } from "./rules/settings";
 
 // === Re-exports from @pai-forge/riichi-mahjong ===
 export { HaiKind, MentsuType } from "@pai-forge/riichi-mahjong";

@@ -6,6 +6,7 @@ import type {
   QuestionGeneratorOptions,
 } from "@mahjong-scoring/core";
 import { generateValidScoreQuestion, judgeAnswer } from "@mahjong-scoring/core";
+import { useRuleSettingsStore } from "@/app/_hooks/use-rule-settings-store";
 
 interface ScorePracticeState {
   /** 現在の問題 */
@@ -68,7 +69,8 @@ export const useScorePracticeStore = create<ScorePracticeStore>((set, get) => ({
 
   generateNewQuestion: () => {
     const { options } = get();
-    const question = generateValidScoreQuestion(options);
+    const { renfonpaiAs4Fu } = useRuleSettingsStore.getState();
+    const question = generateValidScoreQuestion({ ...options, renfonpaiAs4Fu });
     set({
       currentQuestion: question,
       userAnswer: undefined,

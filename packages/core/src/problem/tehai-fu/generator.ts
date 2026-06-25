@@ -17,8 +17,13 @@ const TEHAI_FU_MENTSU_WEIGHTS = { shuntsu: 0.2, koutsu: 0.5 } as const;
 /**
  * 手牌の符計算問題を生成する
  * 手牌符問題ジェネレータ
+ *
+ * @param options.renfonpaiAs4Fu - 連風牌の雀頭を4符として扱うか（既定 false=2符）
  */
-export function generateTehaiFuQuestion(): TehaiFuQuestion | undefined {
+export function generateTehaiFuQuestion(
+  options: { readonly renfonpaiAs4Fu?: boolean } = {},
+): TehaiFuQuestion | undefined {
+  const { renfonpaiAs4Fu = false } = options;
   const tracker = new HaiUsageTracker();
 
   const items: TehaiFuItem[] = [];
@@ -33,8 +38,7 @@ export function generateTehaiFuQuestion(): TehaiFuQuestion | undefined {
 
       // 牌の使用可能性チェック
       const tempCount = new Map<HaiKindId, number>();
-      for (const t of tiles)
-        tempCount.set(t, (tempCount.get(t) ?? 0) + 1);
+      for (const t of tiles) tempCount.set(t, (tempCount.get(t) ?? 0) + 1);
 
       let possible = true;
       for (const [t, c] of tempCount.entries()) {
@@ -74,7 +78,7 @@ export function generateTehaiFuQuestion(): TehaiFuQuestion | undefined {
     if (!isHaiKindId(t)) continue;
     if (tracker.canUse(t, 2)) {
       tracker.use(t, 2);
-      const res = calculateJantouFu(t, bakaze, jikaze);
+      const res = calculateJantouFu(t, bakaze, jikaze, renfonpaiAs4Fu);
       head = {
         id: crypto.randomUUID(),
         tiles: [t, t],
@@ -133,7 +137,9 @@ export function generateTehaiFuQuestion(): TehaiFuQuestion | undefined {
 
 /** その要素が手牌上で副露（右側）として表示されるか */
 function isExposedItem(item: TehaiFuItem): boolean {
-  return (item.isOpen || item.type === MentsuType.Kantsu) && !!item.originalMentsu;
+  return (
+    (item.isOpen || item.type === MentsuType.Kantsu) && !!item.originalMentsu
+  );
 }
 
 /** ソート済みの牌配列同士を辞書順で比較する */
@@ -154,9 +160,7 @@ function compareTilesAsc(
  * 回答行を手牌の表示順（暗牌を牌の昇順 → 副露を生成順）に並べ替える
  * 手牌レイアウト整列
  */
-function orderItemsByHandLayout(
-  items: readonly TehaiFuItem[],
-): TehaiFuItem[] {
+function orderItemsByHandLayout(items: readonly TehaiFuItem[]): TehaiFuItem[] {
   const closedItems = items.filter((it) => !isExposedItem(it));
   const exposedItems = items.filter((it) => isExposedItem(it));
   closedItems.sort((a, b) => compareTilesAsc(a.tiles, b.tiles));

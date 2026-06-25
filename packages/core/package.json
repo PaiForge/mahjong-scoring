@@ -12,7 +12,7 @@
     "test": "vitest run"
   },
   "dependencies": {
-    "@pai-forge/riichi-mahjong": "^0.3.6",
+    "@pai-forge/riichi-mahjong": "^0.4.0",
     "neverthrow": "^8.2.0"
   },
   "devDependencies": {
