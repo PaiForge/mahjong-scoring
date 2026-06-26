@@ -39,7 +39,9 @@ export function generateShuntsu(
       const h3Result = validateHaiKindId(h3);
 
       if (
-        startResult.isOk() && h2Result.isOk() && h3Result.isOk() &&
+        startResult.isOk() &&
+        h2Result.isOk() &&
+        h3Result.isOk() &&
         tracker.canUse(startResult.value) &&
         tracker.canUse(h2Result.value) &&
         tracker.canUse(h3Result.value)
@@ -56,7 +58,8 @@ export function generateShuntsu(
   const h2Result = validateHaiKindId(startValue + 1);
   const h3Result = validateHaiKindId(startValue + 2);
 
-  if (startResult.isErr() || h2Result.isErr() || h3Result.isErr()) return undefined;
+  if (startResult.isErr() || h2Result.isErr() || h3Result.isErr())
+    return undefined;
 
   const start = startResult.value;
   const h2 = h2Result.value;
@@ -68,7 +71,11 @@ export function generateShuntsu(
 
   const hais = [start, h2, h3] as const;
   return furo
-    ? { type: MentsuType.Shuntsu, hais, furo: { type: FuroType.Chi, from: Tacha.Kamicha } }
+    ? {
+        type: MentsuType.Shuntsu,
+        hais,
+        furo: { type: FuroType.Chi, from: Tacha.Kamicha },
+      }
     : { type: MentsuType.Shuntsu, hais };
 }
 
@@ -83,18 +90,8 @@ export function generateKoutsu(
   tracker: HaiUsageTracker,
   furo: boolean = false,
 ): Koutsu | undefined {
-  const validHais: HaiKindId[] = [];
-  for (let i = 0; i < 34; i++) {
-    const result = validateHaiKindId(i);
-    if (result.isOk() && tracker.canUse(result.value, 3)) {
-      validHais.push(result.value);
-    }
-  }
-
-  if (validHais.length === 0) return undefined;
-
-  const hai = randomChoice(validHais);
-  if (tracker.use(hai, 3).isErr()) return undefined;
+  const hai = pickTrackableTile(tracker, 3);
+  if (hai === undefined) return undefined;
 
   const hais = [hai, hai, hai] as const;
   return furo
@@ -120,18 +117,8 @@ export function generateKantsu(
   tracker: HaiUsageTracker,
   furo: boolean = false,
 ): Kantsu | undefined {
-  const validHais: HaiKindId[] = [];
-  for (let i = 0; i < 34; i++) {
-    const result = validateHaiKindId(i);
-    if (result.isOk() && tracker.canUse(result.value, 4)) {
-      validHais.push(result.value);
-    }
-  }
-
-  if (validHais.length === 0) return undefined;
-
-  const hai = randomChoice(validHais);
-  if (tracker.use(hai, 4).isErr()) return undefined;
+  const hai = pickTrackableTile(tracker, 4);
+  if (hai === undefined) return undefined;
 
   const hais = [hai, hai, hai, hai] as const;
   return furo
@@ -152,11 +139,30 @@ export function generateKantsu(
  *
  * @param tracker - 牌使用状況トラッカー
  */
-export function generateToitsu(tracker: HaiUsageTracker): HaiKindId | undefined {
+export function generateToitsu(
+  tracker: HaiUsageTracker,
+): HaiKindId | undefined {
+  return pickTrackableTile(tracker, 2);
+}
+
+/**
+ * トラッカーで count 枚使用可能な牌をランダムに1つ選び、使用登録する
+ * 使用可能牌の抽選
+ *
+ * 全34種から count 枚確保できる牌を収集し、ランダムに1つ選んで使用登録する。
+ * 候補が無い、または使用登録に失敗した場合は undefined を返す。
+ *
+ * @param tracker - 牌使用状況トラッカー（成功時に count 枚使用登録する）
+ * @param count - 必要枚数（刻子=3, 槓子=4, 対子=2）
+ */
+function pickTrackableTile(
+  tracker: HaiUsageTracker,
+  count: number,
+): HaiKindId | undefined {
   const validHais: HaiKindId[] = [];
   for (let i = 0; i < 34; i++) {
     const result = validateHaiKindId(i);
-    if (result.isOk() && tracker.canUse(result.value, 2)) {
+    if (result.isOk() && tracker.canUse(result.value, count)) {
       validHais.push(result.value);
     }
   }
@@ -164,6 +170,6 @@ export function generateToitsu(tracker: HaiUsageTracker): HaiKindId | undefined 
   if (validHais.length === 0) return undefined;
 
   const hai = randomChoice(validHais);
-  if (tracker.use(hai, 2).isErr()) return undefined;
+  if (tracker.use(hai, count).isErr()) return undefined;
   return hai;
 }

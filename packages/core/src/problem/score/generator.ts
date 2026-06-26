@@ -23,16 +23,7 @@ import {
   buildYakuDetailsFromResult,
 } from "./assemble-question";
 import { retryGenerate } from "../retry-generate";
-
-/**
- * 手牌中の槓子数をカウントする
- * 槓子数カウント
- */
-function countKantsu(tehai: {
-  readonly exposed: readonly { readonly type: string }[];
-}): number {
-  return tehai.exposed.filter((mentsu) => mentsu.type === "Kantsu").length;
-}
+import { countKantsu } from "../shared/count-kantsu";
 
 /**
  * 点数レベルが許可範囲内かどうかを検証する

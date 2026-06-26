@@ -6,7 +6,6 @@ import {
   detectYaku,
   isTehai14,
   type HaiKindId,
-  type Kazehai,
   type Tehai14,
 } from "@pai-forge/riichi-mahjong";
 import type { ScoreQuestion, YakuDetail } from "./types";
@@ -19,7 +18,11 @@ import {
   parseHais,
   parseKazehai,
 } from "./mspz-serializer";
-import { assembleScoreQuestion, buildYakuDetailsFromResult } from "./assemble-question";
+import {
+  assembleScoreQuestion,
+  buildYakuDetailsFromResult,
+} from "./assemble-question";
+import { countKantsu } from "../shared/count-kantsu";
 
 /**
  * クエリパラメータからの問題生成結果
@@ -36,7 +39,9 @@ export type QueryResult =
  * @param params - URLSearchParams
  * @returns 生成結果（パラメータなしの場合は undefined）
  */
-export function generateQuestionFromQuery(params: URLSearchParams): QueryResult | undefined {
+export function generateQuestionFromQuery(
+  params: URLSearchParams,
+): QueryResult | undefined {
   try {
     const tehaiStr = params.get("tehai")?.replace(/\s/g, "");
     const agariStr = params.get("agari")?.replace(/\s/g, "");
@@ -48,30 +53,43 @@ export function generateQuestionFromQuery(params: URLSearchParams): QueryResult 
     const jiStr = params.get("ji")?.replace(/\s/g, "");
 
     if (!tehaiStr && !agariStr && !doraStr) return undefined;
-    if (!tehaiStr || !agariStr) return { type: "error", message: "tehai, agari parameters are required." };
+    if (!tehaiStr || !agariStr)
+      return {
+        type: "error",
+        message: "tehai, agari parameters are required.",
+      };
 
     // 手牌のパース
     let tehai: Tehai14;
     const extResult = parseExtendedMspz(tehaiStr);
     if (extResult.isOk()) {
       if (!isTehai14(extResult.value)) {
-        return { type: "error", message: "Invalid tehai: not a valid 14-tile hand." };
+        return {
+          type: "error",
+          message: "Invalid tehai: not a valid 14-tile hand.",
+        };
       }
       tehai = extResult.value;
     } else {
       const stdResult = parseMspz(tehaiStr);
       if (stdResult.isErr()) {
-        return { type: "error", message: `Invalid Extended MSPZ string: ${tehaiStr}` };
+        return {
+          type: "error",
+          message: `Invalid Extended MSPZ string: ${tehaiStr}`,
+        };
       }
       if (!isTehai14(stdResult.value)) {
-        return { type: "error", message: "Invalid tehai: not a valid 14-tile hand." };
+        return {
+          type: "error",
+          message: "Invalid tehai: not a valid 14-tile hand.",
+        };
       }
       tehai = stdResult.value;
     }
 
     // ドラ表示牌リスト
     const doraMarkers = parseHais(doraStr);
-    const kantsuCount = tehai.exposed.filter((m) => m.type === "Kantsu").length;
+    const kantsuCount = countKantsu(tehai);
     const requiredMarkerCount = 1 + kantsuCount;
 
     if (doraMarkers.length !== requiredMarkerCount) {
@@ -125,18 +143,32 @@ export function generateQuestionFromQuery(params: URLSearchParams): QueryResult 
       doraMarkers,
     });
 
-    if (answer.han === 0) return { type: "error", message: "No yaku (Yaku Nashi)." };
+    if (answer.han === 0)
+      return { type: "error", message: "No yaku (Yaku Nashi)." };
 
-    const yakuResult = detectYaku(tehai, { agariHai, bakaze, jikaze, doraMarkers, uraDoraMarkers, isTsumo });
+    const yakuResult = detectYaku(tehai, {
+      agariHai,
+      bakaze,
+      jikaze,
+      doraMarkers,
+      uraDoraMarkers,
+      isTsumo,
+    });
     const yakuDetails: YakuDetail[] = buildYakuDetailsFromResult(yakuResult);
 
     // リーチ・裏ドラの加算
     let finalAnswer = answer;
     if (isRiichi) {
       const addedHan = 1;
-      const uraDoraHan = uraDoraMarkers ? countDoraInTehai(tehai, uraDoraMarkers) : 0;
+      const uraDoraHan = uraDoraMarkers
+        ? countDoraInTehai(tehai, uraDoraMarkers)
+        : 0;
 
-      finalAnswer = recalculateScore(answer, answer.han + addedHan + uraDoraHan, { isTsumo, isOya: oya });
+      finalAnswer = recalculateScore(
+        answer,
+        answer.han + addedHan + uraDoraHan,
+        { isTsumo, isOya: oya },
+      );
 
       yakuDetails.unshift({ name: "立直", han: 1 });
       if (uraDoraHan > 0) {
@@ -161,7 +193,8 @@ export function generateQuestionFromQuery(params: URLSearchParams): QueryResult 
       }),
     };
   } catch (e) {
-    const message = e instanceof Error ? e.message : "Unknown error occurred during parsing.";
+    const message =
+      e instanceof Error ? e.message : "Unknown error occurred during parsing.";
     return { type: "error", message };
   }
 }
@@ -170,7 +203,9 @@ export function generateQuestionFromQuery(params: URLSearchParams): QueryResult 
  * ScoreQuestion から URL（Path + Query）を生成する
  * 問題URLパス生成
  */
-export function generatePathAndQueryFromQuestion(question: Readonly<ScoreQuestion>): string {
+export function generatePathAndQueryFromQuestion(
+  question: Readonly<ScoreQuestion>,
+): string {
   const params = buildDrillQueryParams(question);
   return `/problems/score/play?${params.toString()}`;
 }
@@ -179,7 +214,9 @@ export function generatePathAndQueryFromQuestion(question: Readonly<ScoreQuestio
  * ScoreQuestion から URLSearchParams を構築する
  * 練習クエリパラメータ構築
  */
-export function buildDrillQueryParams(question: Readonly<ScoreQuestion>): URLSearchParams {
+export function buildDrillQueryParams(
+  question: Readonly<ScoreQuestion>,
+): URLSearchParams {
   const params = new URLSearchParams();
 
   params.set("tehai", tehaiToMspz(question.tehai));
@@ -187,11 +224,17 @@ export function buildDrillQueryParams(question: Readonly<ScoreQuestion>): URLSea
   params.set("agari", haiIdToMspz(question.agariHai));
 
   if (question.doraMarkers.length > 0) {
-    params.set("dora", question.doraMarkers.map((id) => haiIdToMspz(id)).join(""));
+    params.set(
+      "dora",
+      question.doraMarkers.map((id) => haiIdToMspz(id)).join(""),
+    );
   }
 
   if (question.uraDoraMarkers && question.uraDoraMarkers.length > 0) {
-    params.set("ura", question.uraDoraMarkers.map((id) => haiIdToMspz(id)).join(""));
+    params.set(
+      "ura",
+      question.uraDoraMarkers.map((id) => haiIdToMspz(id)).join(""),
+    );
   }
 
   if (question.isTsumo) params.set("tsumo", "true");
@@ -202,4 +245,3 @@ export function buildDrillQueryParams(question: Readonly<ScoreQuestion>): URLSea
 
   return params;
 }
-

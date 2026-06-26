@@ -1,5 +1,6 @@
 import type { ScoreQuestion, UserAnswer, JudgementResult } from "./types";
 import { IGNORE_YAKU_FOR_JUDGEMENT, ScoreLevel } from "../../core/constants";
+import { setsEqual } from "../shared/set-equal";
 
 /**
  * 満貫以上かどうかを判定する
@@ -48,21 +49,11 @@ function judgeYaku(
 ): boolean {
   if (!answerYakuDetails) return userYakus.length === 0;
 
-  const expectedYakus = new Set(
-    answerYakuDetails
-      .map((d) => d.name)
-      .filter((name) => !IGNORE_YAKU_FOR_JUDGEMENT.includes(name)),
-  );
+  const expectedYakus = answerYakuDetails
+    .map((d) => d.name)
+    .filter((name) => !IGNORE_YAKU_FOR_JUDGEMENT.includes(name));
 
-  const userYakuSet = new Set(userYakus);
-
-  if (expectedYakus.size !== userYakuSet.size) return false;
-
-  for (const yaku of expectedYakus) {
-    if (!userYakuSet.has(yaku)) return false;
-  }
-
-  return true;
+  return setsEqual(expectedYakus, userYakus);
 }
 
 /**
@@ -73,9 +64,9 @@ function judgeYaku(
 function getSimplifiedHan(han: number): number {
   if (han >= 13) return 13; // 役満
   if (han >= 11) return 11; // 三倍満
-  if (han >= 8) return 8;   // 倍満
-  if (han >= 6) return 6;   // 跳満
-  if (han >= 5) return 5;   // 満貫
+  if (han >= 8) return 8; // 倍満
+  if (han >= 6) return 6; // 跳満
+  if (han >= 5) return 5; // 満貫
   return han;
 }
 
@@ -107,12 +98,14 @@ export function judgeAnswer(
     if (isManganOrAbove && answer.han < 5 && userAnswer.han === 5) {
       isHanCorrect = true;
     } else if (userAnswer.han >= 5 || answer.han >= 5) {
-      isHanCorrect = getSimplifiedHan(userAnswer.han) === getSimplifiedHan(answer.han);
+      isHanCorrect =
+        getSimplifiedHan(userAnswer.han) === getSimplifiedHan(answer.han);
     }
   }
 
   // 符の判定（満貫以上で符入力不要の場合は常に正解扱い）
-  const isFuCorrect = (isManganOrAbove && !requireFuForMangan) || userAnswer.fu === answer.fu;
+  const isFuCorrect =
+    (isManganOrAbove && !requireFuForMangan) || userAnswer.fu === answer.fu;
 
   // 点数の判定
   const isScoreCorrect = judgeScore(answer.payment, userAnswer);
@@ -122,7 +115,8 @@ export function judgeAnswer(
     ? judgeYaku(question.yakuDetails, userAnswer.yakus)
     : true;
 
-  const isCorrect = isHanCorrect && isFuCorrect && isScoreCorrect && isYakuCorrect;
+  const isCorrect =
+    isHanCorrect && isFuCorrect && isScoreCorrect && isYakuCorrect;
 
   return {
     isCorrect,

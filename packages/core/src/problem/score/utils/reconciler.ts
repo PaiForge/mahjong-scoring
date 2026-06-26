@@ -7,9 +7,14 @@ import {
 } from "@pai-forge/riichi-mahjong";
 import type { YakuDetail } from "../types";
 import { recalculateScore } from "../../../score/calculator";
-import { countDoraInTehai, getKeyForKazehai, isOya } from "../../../core/hai-names";
+import {
+  countDoraInTehai,
+  getKeyForKazehai,
+  isOya,
+} from "../../../core/hai-names";
 import { isHaiKindId } from "../../../core/type-guards";
 import { countHaiInTehai } from "../../shared/hai-count";
+import { generateDoraMarkers } from "../../shared/dora-utils";
 
 /**
  * 役牌照合の結果
@@ -37,9 +42,15 @@ export function reconcileYakuhai(
   let extraYakuhaiHan = 0;
   const additionalYakuDetails: YakuDetail[] = [];
 
-  const hasDoubleWind = yakuResult.some((y) => y[0] === "ダブ東" || y[0] === "ダブ南");
-  const hasBakaze = yakuResult.some((y) => y[0] === "場風牌" || y[0] === getKeyForKazehai(bakaze));
-  const hasJikaze = yakuResult.some((y) => y[0] === "自風牌" || y[0] === getKeyForKazehai(jikaze));
+  const hasDoubleWind = yakuResult.some(
+    (y) => y[0] === "ダブ東" || y[0] === "ダブ南",
+  );
+  const hasBakaze = yakuResult.some(
+    (y) => y[0] === "場風牌" || y[0] === getKeyForKazehai(bakaze),
+  );
+  const hasJikaze = yakuResult.some(
+    (y) => y[0] === "自風牌" || y[0] === getKeyForKazehai(jikaze),
+  );
 
   if (bakaze === jikaze) {
     if (!hasDoubleWind && countHaiInTehai(tehai, bakaze) >= 3) {
@@ -58,7 +69,11 @@ export function reconcileYakuhai(
   }
 
   // 三元牌チェック
-  const dragons: readonly { readonly id: number; readonly name: string; readonly key: string }[] = [
+  const dragons: readonly {
+    readonly id: number;
+    readonly name: string;
+    readonly key: string;
+  }[] = [
     { id: HaiKind.Haku, name: "役牌 白", key: "Haku" },
     { id: HaiKind.Hatsu, name: "役牌 發", key: "Hatsu" },
     { id: HaiKind.Chun, name: "役牌 中", key: "Chun" },
@@ -108,7 +123,11 @@ export function applyRiichiAndUraDora(
 ): ApplyRiichiResult {
   const isMenzenHand = tehai.exposed.length === 0;
   if (!isMenzenHand || Math.random() < 0.3) {
-    return { answer: currentAnswer, uraDoraMarkers: undefined, additionalYakuDetails: [] };
+    return {
+      answer: currentAnswer,
+      uraDoraMarkers: undefined,
+      additionalYakuDetails: [],
+    };
   }
 
   const additionalYakuDetails: YakuDetail[] = [];
@@ -123,15 +142,8 @@ export function applyRiichiAndUraDora(
 
   additionalYakuDetails.push({ name: riichiName, han: riichiHan });
 
-  const uraDoraMarkers: HaiKindId[] = [];
+  const uraDoraMarkers: HaiKindId[] = generateDoraMarkers(kantsuCount);
   let extraHan = riichiHan;
-
-  for (let i = 0; i < kantsuCount + 1; i++) {
-    const marker = Math.floor(Math.random() * 34);
-    if (isHaiKindId(marker)) {
-      uraDoraMarkers.push(marker);
-    }
-  }
 
   // 裏ドラ翻数は表示牌から手牌を照合して算出する（表示牌と翻数の不一致を防ぐ）
   const uraHan = countDoraInTehai(tehai, uraDoraMarkers);

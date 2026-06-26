@@ -1,4 +1,9 @@
-import { HaiKind, type Kazehai, type HaiKindId, type Tehai14 } from "@pai-forge/riichi-mahjong";
+import {
+  HaiKind,
+  type Kazehai,
+  type HaiKindId,
+  type Tehai14,
+} from "@pai-forge/riichi-mahjong";
 import { ok, type Result } from "neverthrow";
 import { validateHaiKindId } from "./type-guards";
 
@@ -74,7 +79,9 @@ export function getHaiName(haiKindId: HaiKindId): string {
  * ドラ表示牌からドラを計算する
  * ドラ算出
  */
-export function getDoraFromIndicator(indicator: HaiKindId): Result<HaiKindId, RangeError> {
+export function getDoraFromIndicator(
+  indicator: HaiKindId,
+): Result<HaiKindId, RangeError> {
   // 萬子
   if (indicator >= HaiKind.ManZu1 && indicator <= HaiKind.ManZu9) {
     const next = indicator === HaiKind.ManZu9 ? HaiKind.ManZu1 : indicator + 1;
@@ -104,6 +111,26 @@ export function getDoraFromIndicator(indicator: HaiKindId): Result<HaiKindId, Ra
 }
 
 /**
+ * 手牌中の指定牌種の枚数をカウントする
+ * 牌枚数カウント
+ *
+ * @param tehai - 14枚の手牌
+ * @param id - カウント対象の牌種ID
+ */
+export function countHaiInTehai(tehai: Tehai14, id: HaiKindId): number {
+  let count = 0;
+  for (const h of tehai.closed) {
+    if (h === id) count++;
+  }
+  for (const m of tehai.exposed) {
+    for (const h of m.hais) {
+      if (h === id) count++;
+    }
+  }
+  return count;
+}
+
+/**
  * 手牌中のドラ枚数をカウントする
  * ドラ枚数カウント
  */
@@ -115,15 +142,7 @@ export function countDoraInTehai(
   for (const marker of markers) {
     const doraResult = getDoraFromIndicator(marker);
     if (doraResult.isErr()) continue;
-    const doraHai = doraResult.value;
-    for (const h of tehai.closed) {
-      if (h === doraHai) count++;
-    }
-    for (const mentsu of tehai.exposed) {
-      for (const h of mentsu.hais) {
-        if (h === doraHai) count++;
-      }
-    }
+    count += countHaiInTehai(tehai, doraResult.value);
   }
   return count;
 }
@@ -142,9 +161,13 @@ export function isOya(jikaze: Kazehai): boolean {
  */
 export function getKeyForKazehai(kaze: Kazehai): string {
   switch (kaze) {
-    case HaiKind.Ton: return "Ton";
-    case HaiKind.Nan: return "Nan";
-    case HaiKind.Sha: return "Sha";
-    case HaiKind.Pei: return "Pei";
+    case HaiKind.Ton:
+      return "Ton";
+    case HaiKind.Nan:
+      return "Nan";
+    case HaiKind.Sha:
+      return "Sha";
+    case HaiKind.Pei:
+      return "Pei";
   }
 }

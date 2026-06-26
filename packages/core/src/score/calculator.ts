@@ -1,5 +1,5 @@
 import type { ScoreResult, Payment } from "@pai-forge/riichi-mahjong";
-import { calculateBasePoints } from "../core/score-calculation";
+import { calculateBasePoints, ceilTo100 } from "../core/score-calculation";
 
 /**
  * 翻数が変わった場合の点数を再計算する
@@ -46,22 +46,20 @@ export function recalculateScore(
     scoreLevel = "Normal";
   }
 
-  const ceil100 = (n: number) => Math.ceil(n / 100) * 100;
-
   let payment: Payment;
 
   if (isTsumo) {
     if (isOya) {
-      const amount = ceil100(basePoints * 2);
+      const amount = ceilTo100(basePoints * 2);
       payment = { type: "oyaTsumo", amount };
     } else {
-      const koPayment = ceil100(basePoints);
-      const oyaPayment = ceil100(basePoints * 2);
+      const koPayment = ceilTo100(basePoints);
+      const oyaPayment = ceilTo100(basePoints * 2);
       payment = { type: "koTsumo", amount: [koPayment, oyaPayment] };
     }
   } else {
     const multiplier = isOya ? 6 : 4;
-    const amount = ceil100(basePoints * multiplier);
+    const amount = ceilTo100(basePoints * multiplier);
     payment = { type: "ron", amount };
   }
 

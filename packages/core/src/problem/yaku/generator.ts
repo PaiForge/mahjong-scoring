@@ -19,6 +19,7 @@ import { randomChoice } from "../../core/random";
 import { HaiUsageTracker } from "../../core/hai-tracker";
 import { generateDoraMarkers } from "../shared/dora-utils";
 import { countHaiInTehai } from "../shared/hai-count";
+import { countKantsu } from "../shared/count-kantsu";
 import {
   generateMentsuSet,
   generatePairTile,
@@ -101,9 +102,7 @@ export function generateYakuQuestion(): YakuQuestion | undefined {
   const isTsumo = Math.random() < 0.5;
   const isRiichi = menzen && Math.random() < 0.2;
 
-  const kantsuCount = exposed.filter(
-    (m) => m.type === MentsuType.Kantsu,
-  ).length;
+  const kantsuCount = countKantsu(validTehai);
   const doraMarkers = generateDoraMarkers(kantsuCount);
 
   try {
