@@ -113,9 +113,16 @@ export function generateTehaiFuQuestion(
 
   closed.sort((a, b) => a - b);
 
-  // 和了牌を手牌から選択
-  const allTiles = items.flatMap((i) => [...i.tiles]);
-  const agariHai = allTiles[Math.floor(Math.random() * allTiles.length)];
+  // 和了牌を手牌から選択。
+  // 副露牌は鳴いた時点で確定しており、アンカンは4枚すべて使い切るため、
+  // どちらも5枚目以降が存在せず和了牌にはなり得ない。雀頭と暗面子（槓子以外）からのみ選ぶ。
+  const agariCandidates = items.flatMap((i) =>
+    i.type === "Pair" || (!i.isOpen && i.type !== MentsuType.Kantsu)
+      ? [...i.tiles]
+      : [],
+  );
+  const agariHai =
+    agariCandidates[Math.floor(Math.random() * agariCandidates.length)];
 
   const tehai = { closed, exposed };
   const result = validateTehai14(tehai);

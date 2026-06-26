@@ -1,4 +1,5 @@
 import { describe, it, expect } from "vitest";
+import { MentsuType } from "@pai-forge/riichi-mahjong";
 import { generateYakuQuestion } from "./generator";
 import { SELECTABLE_YAKU } from "./constants";
 
@@ -102,15 +103,36 @@ describe("generateYakuQuestion", () => {
       const question = generateYakuQuestion();
       if (!question) continue;
 
-      if (question.context.isTsumo && question.correctYakuNames.includes("門前清自摸和")) {
+      if (
+        question.context.isTsumo &&
+        question.correctYakuNames.includes("門前清自摸和")
+      ) {
         found = true;
         break;
       }
     }
     // 確率的テスト
     if (!found) {
-      console.warn("isTsumo=true かつ門前清自摸和の問題が生成されなかったためスキップ");
+      console.warn(
+        "isTsumo=true かつ門前清自摸和の問題が生成されなかったためスキップ",
+      );
     }
+  });
+
+  it("和了牌が槓子（カン）の牌種と一致しない", () => {
+    // 槓子は同じ牌4枚を束縛するため5枚目が存在せず、その牌では和了できない。
+    let tested = 0;
+    for (let i = 0; i < 2000; i++) {
+      const q = generateYakuQuestion();
+      if (!q) continue;
+      for (const m of q.tehai.exposed) {
+        if (m.type === MentsuType.Kantsu) {
+          expect(q.context.agariHai).not.toBe(m.hais[0]);
+        }
+      }
+      tested++;
+    }
+    expect(tested).toBeGreaterThan(0);
   });
 
   it("偶然役・ドラが正解に含まれない", () => {
