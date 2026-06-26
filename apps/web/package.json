@@ -16,7 +16,7 @@
   "dependencies": {
     "@mahjong-scoring/core": "workspace:*",
     "@next/third-parties": "^16.2.1",
-    "@pai-forge/mahjong-react-ui": "^0.2.1",
+    "@pai-forge/mahjong-react-ui": "^0.3.0",
     "@supabase/ssr": "^0.10.0",
     "@supabase/supabase-js": "^2.101.1",
     "drizzle-orm": "^0.45.2",
