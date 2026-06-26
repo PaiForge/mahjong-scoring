@@ -76,8 +76,7 @@ export function generateYakuQuestion(): YakuQuestion | undefined {
       const tiles = result.mentsu.hais;
 
       const tempCount = new Map<HaiKindId, number>();
-      for (const t of tiles)
-        tempCount.set(t, (tempCount.get(t) ?? 0) + 1);
+      for (const t of tiles) tempCount.set(t, (tempCount.get(t) ?? 0) + 1);
 
       let possible = true;
       for (const [t, c] of tempCount.entries()) {
@@ -129,7 +128,8 @@ export function generateYakuQuestion(): YakuQuestion | undefined {
 
   for (const item of mentsuList) {
     if (
-      (item.isOpen || (item.mentsu && item.mentsu.type === MentsuType.Kantsu)) &&
+      (item.isOpen ||
+        (item.mentsu && item.mentsu.type === MentsuType.Kantsu)) &&
       item.mentsu
     ) {
       exposed.push(item.mentsu);
@@ -140,9 +140,20 @@ export function generateYakuQuestion(): YakuQuestion | undefined {
 
   closed.sort((a, b) => a - b);
 
-  // 和了牌を手牌から選択
-  const allTiles = [headTile, headTile, ...mentsuList.flatMap((m) => [...m.tiles])];
-  const agariHai = allTiles[Math.floor(Math.random() * allTiles.length)];
+  // 和了牌を手牌から選択。
+  // 副露牌は鳴いた時点で確定しており、アンカンは4枚すべて使い切るため、
+  // どちらも5枚目以降が存在せず和了牌にはなり得ない。雀頭と暗面子（槓子以外）からのみ選ぶ。
+  const agariCandidates = [
+    headTile,
+    headTile,
+    ...mentsuList.flatMap((m) =>
+      !m.isOpen && (!m.mentsu || m.mentsu.type !== MentsuType.Kantsu)
+        ? [...m.tiles]
+        : [],
+    ),
+  ];
+  const agariHai =
+    agariCandidates[Math.floor(Math.random() * agariCandidates.length)];
 
   const tehai = { closed, exposed };
   const validateResult = validateTehai14(tehai);
