@@ -10,12 +10,14 @@ import { notFound } from "next/navigation";
 import { getLocale, getTranslations } from "next-intl/server";
 
 import { ContentContainer } from "@/app/_components/content-container";
-import { ListLink, ListLinkContainer } from "@/app/_components/list-link";
+import { ListLinkContainer } from "@/app/_components/list-link";
 import { PageTitle } from "@/app/_components/page-title";
 import { PaginationNav } from "@/app/_components/pagination-nav";
 import { SectionTitle } from "@/app/_components/section-title";
 import { createMetadata } from "@/app/_lib/metadata";
+import { getPaginationData } from "@/lib/pagination";
 
+import { AnnouncementListItem } from "./_components/announcement-list-item";
 import {
   getPublishedAnnouncementCount,
   getPublishedAnnouncementsPaginated,
@@ -42,23 +44,18 @@ export default async function AnnouncementsPage({ searchParams }: Props) {
   const locale = await getLocale();
   const t = await getTranslations("announcements");
 
-  const currentPage = Math.max(1, Number(page) || 1);
   const totalCount = await getPublishedAnnouncementCount();
-  const totalPages = Math.max(
-    1,
-    Math.ceil(totalCount / ANNOUNCEMENTS_PER_PAGE),
+  const { currentPage, totalPages, limit, offset } = getPaginationData(
+    Number(page) || 1,
+    totalCount,
+    ANNOUNCEMENTS_PER_PAGE,
   );
 
   if (currentPage > totalPages && totalPages > 0 && page !== undefined) {
     notFound();
   }
 
-  const offset = (currentPage - 1) * ANNOUNCEMENTS_PER_PAGE;
-  const items = await getPublishedAnnouncementsPaginated(
-    locale,
-    ANNOUNCEMENTS_PER_PAGE,
-    offset,
-  );
+  const items = await getPublishedAnnouncementsPaginated(locale, limit, offset);
 
   return (
     <ContentContainer breadcrumb={[{ label: t("pageTitle") }]}>
@@ -72,35 +69,14 @@ export default async function AnnouncementsPage({ searchParams }: Props) {
         ) : (
           <div className="space-y-6">
             <ListLinkContainer>
-              {items.map((announcement) => {
-                const publishedDate = announcement.publishedAt
-                  ? new Date(announcement.publishedAt).toLocaleDateString(
-                      locale,
-                      {
-                        year: "numeric",
-                        month: "short",
-                        day: "numeric",
-                      },
-                    )
-                  : undefined;
-
-                return (
-                  <ListLink
-                    key={announcement.id}
-                    href={`/announcements/${announcement.slug}`}
-                    icon="📢"
-                    title={announcement.title}
-                    meta={publishedDate}
-                    badge={
-                      announcement.pinnedAt !== null ? (
-                        <span className="flex-shrink-0 rounded bg-primary-100 px-1.5 py-0.5 text-xs font-semibold text-primary-700">
-                          {t("pinned")}
-                        </span>
-                      ) : undefined
-                    }
-                  />
-                );
-              })}
+              {items.map((announcement) => (
+                <AnnouncementListItem
+                  key={announcement.id}
+                  announcement={announcement}
+                  locale={locale}
+                  pinnedLabel={t("pinned")}
+                />
+              ))}
             </ListLinkContainer>
             <PaginationNav
               currentPage={currentPage}

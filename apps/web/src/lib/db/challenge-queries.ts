@@ -1,7 +1,7 @@
-import { and, asc, desc, eq, gte, sql } from 'drizzle-orm';
+import { and, asc, desc, eq, gte, sql, type SQL } from "drizzle-orm";
 
-import { db } from './index';
-import { challengeBestScores, challengeResults, profiles } from './schema';
+import { db } from "./index";
+import { challengeBestScores, challengeResults, profiles } from "./schema";
 
 /**
  * リーダーボード行
@@ -143,7 +143,7 @@ async function getPeriodRanking(
       asc(challengeResults.incorrectAnswers),
       asc(challengeResults.timeTaken),
     )
-    .as('best_per_user');
+    .as("best_per_user");
 
   const rows = await db
     .select({
@@ -157,11 +157,17 @@ async function getPeriodRanking(
     })
     .from(bestPerUser)
     .innerJoin(profiles, eq(bestPerUser.userId, profiles.id))
-    .orderBy(desc(bestPerUser.score), asc(bestPerUser.incorrectAnswers), asc(bestPerUser.timeTaken))
+    .orderBy(
+      desc(bestPerUser.score),
+      asc(bestPerUser.incorrectAnswers),
+      asc(bestPerUser.timeTaken),
+    )
     .offset(offset)
     .limit(limit);
 
-  const [countRow] = await db.select({ count: sql<number>`count(*)::int` }).from(bestPerUser);
+  const [countRow] = await db
+    .select({ count: sql<number>`count(*)::int` })
+    .from(bestPerUser);
 
   return {
     rows: rows.map((r) => ({
@@ -183,7 +189,13 @@ export async function getMonthlyRanking(
   offset: number,
   limit: number,
 ): Promise<LeaderboardPage> {
-  return getPeriodRanking(menuType, leaderboardKey, startOfCurrentMonth(), offset, limit);
+  return getPeriodRanking(
+    menuType,
+    leaderboardKey,
+    startOfCurrentMonth(),
+    offset,
+    limit,
+  );
 }
 
 // ---------------------------------------------------------------------------
@@ -216,6 +228,39 @@ function mapRawRankedRow(row: RawRankedRow): RankedLeaderboardRow {
 }
 
 /**
+ * ランキングの正準ソート順（スコア降順・ミス昇順・所要時間昇順）。
+ * ランキング順序
+ */
+const RANKING_ORDER_SQL = sql`score DESC, incorrect_answers ASC, time_taken ASC`;
+
+/**
+ * ランク付きユーザー行クエリを組み立てる。
+ * 内側のデータソース（best_scores 直 or 期間絞り込みサブクエリ）を差し替えつつ、
+ * ROW_NUMBER によるランク付与・profiles 結合・対象ユーザー絞り込みを共通化する。
+ * ランク行クエリ構築
+ *
+ * @param source - ranked サブクエリの FROM に入る SQL 断片
+ * @param userId - 取得対象のユーザーID
+ */
+function buildRankedRowQuery(source: SQL, userId: string): SQL {
+  return sql`
+    SELECT ranked.user_id, ranked.score, ranked.incorrect_answers,
+           ranked.time_taken, ranked.rank::int,
+           p.username, p.display_name, p.avatar_url
+    FROM (
+      SELECT
+        user_id, score, incorrect_answers, time_taken,
+        ROW_NUMBER() OVER (
+          ORDER BY ${RANKING_ORDER_SQL}
+        ) AS rank
+      FROM ${source}
+    ) ranked
+    INNER JOIN profiles p ON ranked.user_id = p.id
+    WHERE ranked.user_id = ${userId}
+  `;
+}
+
+/**
  * 全期間ランキングにおけるユーザーのランク付き行を取得する
  * 全期間ユーザーランク行取得
  */
@@ -224,23 +269,14 @@ export async function getUserAllTimeRankedRow(
   menuType: string,
   leaderboardKey: string,
 ): Promise<RankedLeaderboardRow | undefined> {
-  const [row] = await db.execute<RawRankedRow>(sql`
-    SELECT ranked.user_id, ranked.score, ranked.incorrect_answers,
-           ranked.time_taken, ranked.rank::int,
-           p.username, p.display_name, p.avatar_url
-    FROM (
-      SELECT
-        user_id, score, incorrect_answers, time_taken,
-        ROW_NUMBER() OVER (
-          ORDER BY score DESC, incorrect_answers ASC, time_taken ASC
-        ) AS rank
-      FROM challenge_best_scores
-      WHERE menu_type = ${menuType}
-        AND leaderboard_key = ${leaderboardKey}
-    ) ranked
-    INNER JOIN profiles p ON ranked.user_id = p.id
-    WHERE ranked.user_id = ${userId}
-  `);
+  const [row] = await db.execute<RawRankedRow>(
+    buildRankedRowQuery(
+      sql`challenge_best_scores
+          WHERE menu_type = ${menuType}
+            AND leaderboard_key = ${leaderboardKey}`,
+      userId,
+    ),
+  );
 
   return row ? mapRawRankedRow(row) : undefined;
 }
@@ -256,29 +292,20 @@ export async function getUserMonthlyRankedRow(
 ): Promise<RankedLeaderboardRow | undefined> {
   const periodStart = startOfCurrentMonth();
 
-  const [row] = await db.execute<RawRankedRow>(sql`
-    SELECT ranked.user_id, ranked.score, ranked.incorrect_answers,
-           ranked.time_taken, ranked.rank::int,
-           p.username, p.display_name, p.avatar_url
-    FROM (
-      SELECT
-        user_id, score, incorrect_answers, time_taken,
-        ROW_NUMBER() OVER (
-          ORDER BY score DESC, incorrect_answers ASC, time_taken ASC
-        ) AS rank
-      FROM (
+  const [row] = await db.execute<RawRankedRow>(
+    buildRankedRowQuery(
+      sql`(
         SELECT DISTINCT ON (user_id)
           user_id, score, incorrect_answers, time_taken
         FROM challenge_results
         WHERE menu_type = ${menuType}
           AND leaderboard_key = ${leaderboardKey}
           AND created_at >= ${periodStart.toISOString()}
-        ORDER BY user_id, score DESC, incorrect_answers ASC, time_taken ASC
-      ) best
-    ) ranked
-    INNER JOIN profiles p ON ranked.user_id = p.id
-    WHERE ranked.user_id = ${userId}
-  `);
+        ORDER BY user_id, ${RANKING_ORDER_SQL}
+      ) best`,
+      userId,
+    ),
+  );
 
   return row ? mapRawRankedRow(row) : undefined;
 }

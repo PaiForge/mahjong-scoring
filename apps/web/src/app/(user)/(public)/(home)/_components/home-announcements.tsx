@@ -1,9 +1,10 @@
 import Link from "next/link";
 import { getLocale, getTranslations } from "next-intl/server";
 
+import { AnnouncementListItem } from "@/app/(user)/(public)/announcements/_components/announcement-list-item";
 import { getPublishedAnnouncementsPaginated } from "@/app/(user)/(public)/announcements/_lib/queries";
 import { ContentContainer } from "@/app/_components/content-container";
-import { ListLink, ListLinkContainer } from "@/app/_components/list-link";
+import { ListLinkContainer } from "@/app/_components/list-link";
 import { PageTitle } from "@/app/_components/page-title";
 import { SectionTitle } from "@/app/_components/section-title";
 
@@ -29,35 +30,14 @@ export async function HomeAnnouncements() {
         ) : (
           <div className="space-y-4">
             <ListLinkContainer>
-              {announcements.map((announcement) => {
-                const publishedDate = announcement.publishedAt
-                  ? new Date(announcement.publishedAt).toLocaleDateString(
-                      locale,
-                      {
-                        year: "numeric",
-                        month: "short",
-                        day: "numeric",
-                      },
-                    )
-                  : undefined;
-
-                return (
-                  <ListLink
-                    key={announcement.id}
-                    href={`/announcements/${announcement.slug}`}
-                    icon="📢"
-                    title={announcement.title}
-                    meta={publishedDate}
-                    badge={
-                      announcement.pinnedAt !== null ? (
-                        <span className="flex-shrink-0 rounded bg-primary-100 px-1.5 py-0.5 text-xs font-semibold text-primary-700">
-                          {t("pinned")}
-                        </span>
-                      ) : undefined
-                    }
-                  />
-                );
-              })}
+              {announcements.map((announcement) => (
+                <AnnouncementListItem
+                  key={announcement.id}
+                  announcement={announcement}
+                  locale={locale}
+                  pinnedLabel={t("pinned")}
+                />
+              ))}
             </ListLinkContainer>
             <div className="text-right">
               <Link

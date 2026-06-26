@@ -1,11 +1,19 @@
-import type { SupabaseClient } from '@supabase/supabase-js';
-import { and, desc, eq, sql } from 'drizzle-orm';
+import type { SupabaseClient } from "@supabase/supabase-js";
+import { and, desc, eq, sql } from "drizzle-orm";
 
-import { db, userActivityLog } from '../../../../lib/db';
-import { getPaginationData, DEFAULT_PAGE_SIZE } from '../../../../lib/pagination';
-import { buildEmailMap, buildProfileMap, buildUserFilterCondition, fetchAllAuthUsers } from '../../_lib/log-query-helpers';
+import { db, userActivityLog } from "../../../../lib/db";
+import {
+  getPaginationData,
+  DEFAULT_PAGE_SIZE,
+} from "../../../../lib/pagination";
+import { listAllAuthUsers } from "../../../../lib/supabase/list-all-auth-users";
+import {
+  buildEmailMap,
+  buildProfileMap,
+  buildUserFilterCondition,
+} from "../../_lib/log-query-helpers";
 
-import type { Profile, UserActivityLog } from '../../../../lib/db';
+import type { Profile, UserActivityLog } from "../../../../lib/db";
 
 /** アクティビティログページデータ */
 interface ActivityLogPageData {
@@ -32,7 +40,7 @@ export async function fetchActivityLogPageData(
   userFilter: string,
 ): Promise<ActivityLogPageData> {
   // 認証ユーザー一覧を一度だけ取得
-  const allUsers = await fetchAllAuthUsers(adminClient);
+  const allUsers = await listAllAuthUsers(adminClient);
 
   // Where 条件を構築
   const conditions = [];
@@ -42,7 +50,11 @@ export async function fetchActivityLogPageData(
 
   // ユーザーフィルタ
   const { matchedIds: filteredUserIds, condition: userCondition } =
-    await buildUserFilterCondition(allUsers, userFilter, userActivityLog.userId);
+    await buildUserFilterCondition(
+      allUsers,
+      userFilter,
+      userActivityLog.userId,
+    );
   if (userCondition) {
     conditions.push(userCondition);
   }
@@ -55,7 +67,11 @@ export async function fetchActivityLogPageData(
     .from(userActivityLog)
     .where(whereClause);
 
-  const pagination = getPaginationData(page, Number(countResult.count), DEFAULT_PAGE_SIZE);
+  const pagination = getPaginationData(
+    page,
+    Number(countResult.count),
+    DEFAULT_PAGE_SIZE,
+  );
 
   // ログ取得
   const logs =
@@ -71,7 +87,9 @@ export async function fetchActivityLogPageData(
 
   // ユーザー情報の取得
   const userIds = [...new Set(logs.map((l) => l.userId))];
-  const targetIds = [...new Set(logs.flatMap((l) => (l.targetId ? [l.targetId] : [])))];
+  const targetIds = [
+    ...new Set(logs.flatMap((l) => (l.targetId ? [l.targetId] : []))),
+  ];
   const allLookupIds = [...new Set([...userIds, ...targetIds])];
 
   const profileMap = await buildProfileMap(allLookupIds);

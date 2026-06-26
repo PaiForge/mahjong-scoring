@@ -1,11 +1,19 @@
-import type { SupabaseClient } from '@supabase/supabase-js';
-import { and, desc, eq, sql } from 'drizzle-orm';
+import type { SupabaseClient } from "@supabase/supabase-js";
+import { and, desc, eq, sql } from "drizzle-orm";
 
-import { db, moderationActions } from '../../../../lib/db';
-import { getPaginationData, DEFAULT_PAGE_SIZE } from '../../../../lib/pagination';
-import { buildEmailMap, buildProfileMap, buildUserFilterCondition, fetchAllAuthUsers } from '../../_lib/log-query-helpers';
+import { db, moderationActions } from "../../../../lib/db";
+import {
+  getPaginationData,
+  DEFAULT_PAGE_SIZE,
+} from "../../../../lib/pagination";
+import { listAllAuthUsers } from "../../../../lib/supabase/list-all-auth-users";
+import {
+  buildEmailMap,
+  buildProfileMap,
+  buildUserFilterCondition,
+} from "../../_lib/log-query-helpers";
 
-import type { ModerationAction, Profile } from '../../../../lib/db';
+import type { ModerationAction, Profile } from "../../../../lib/db";
 
 /** 監査ログページデータ */
 interface AuditLogPageData {
@@ -31,7 +39,7 @@ export async function fetchAuditLogPageData(
   userFilter: string,
 ): Promise<AuditLogPageData> {
   // 認証ユーザー一覧を一度だけ取得
-  const allUsers = await fetchAllAuthUsers(adminClient);
+  const allUsers = await listAllAuthUsers(adminClient);
 
   // Where 条件を構築
   const conditions = [];
@@ -41,7 +49,11 @@ export async function fetchAuditLogPageData(
 
   // ユーザーフィルタ: プロフィール検索 + メール検索
   const { matchedIds: filteredTargetIds, condition: userCondition } =
-    await buildUserFilterCondition(allUsers, userFilter, moderationActions.targetId);
+    await buildUserFilterCondition(
+      allUsers,
+      userFilter,
+      moderationActions.targetId,
+    );
   if (userCondition) {
     conditions.push(userCondition);
   }
@@ -54,7 +66,11 @@ export async function fetchAuditLogPageData(
     .from(moderationActions)
     .where(whereClause);
 
-  const pagination = getPaginationData(page, Number(countResult.count), DEFAULT_PAGE_SIZE);
+  const pagination = getPaginationData(
+    page,
+    Number(countResult.count),
+    DEFAULT_PAGE_SIZE,
+  );
 
   // ログ取得
   const logs =

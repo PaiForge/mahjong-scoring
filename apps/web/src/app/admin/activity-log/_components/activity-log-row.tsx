@@ -1,4 +1,5 @@
 import type { Profile, UserActivityLog } from "../../../../lib/db";
+import { resolveUserDisplay } from "../../_lib/log-query-helpers";
 
 interface ActivityLogRowProps {
   readonly log: UserActivityLog;
@@ -11,13 +12,9 @@ export function ActivityLogRow({
   profileMap,
   emailMap,
 }: ActivityLogRowProps) {
-  const profile = profileMap.get(log.userId);
-  const userDisplay =
-    profile?.username ?? emailMap.get(log.userId) ?? log.userId;
+  const userDisplay = resolveUserDisplay(log.userId, profileMap, emailMap);
   const targetDisplay = log.targetId
-    ? (profileMap.get(log.targetId)?.username ??
-      emailMap.get(log.targetId) ??
-      log.targetId)
+    ? resolveUserDisplay(log.targetId, profileMap, emailMap)
     : "-";
 
   return (

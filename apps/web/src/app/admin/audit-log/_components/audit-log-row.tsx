@@ -1,4 +1,5 @@
 import type { ModerationAction, Profile } from "../../../../lib/db";
+import { resolveUserDisplay } from "../../_lib/log-query-helpers";
 
 interface AuditLogRowProps {
   readonly log: ModerationAction;
@@ -7,9 +8,7 @@ interface AuditLogRowProps {
 }
 
 export function AuditLogRow({ log, profileMap, emailMap }: AuditLogRowProps) {
-  const targetProfile = profileMap.get(log.targetId);
-  const targetDisplay =
-    targetProfile?.username ?? emailMap.get(log.targetId) ?? log.targetId;
+  const targetDisplay = resolveUserDisplay(log.targetId, profileMap, emailMap);
   const actorDisplay = emailMap.get(log.actorId) ?? log.actorId;
 
   return (

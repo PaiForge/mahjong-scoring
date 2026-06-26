@@ -14,6 +14,7 @@ import { MarkdownRenderer } from "@/app/_components/markdown-renderer";
 import { PageTitle } from "@/app/_components/page-title";
 import { createMetadata } from "@/app/_lib/metadata";
 
+import { formatPublishedDate } from "../_lib/format";
 import { getPublishedAnnouncement } from "../_lib/queries";
 
 export const revalidate = 86400;
@@ -50,13 +51,11 @@ export default async function AnnouncementDetailPage({ params }: Props) {
     notFound();
   }
 
-  const publishedDate = announcement.publishedAt
-    ? new Date(announcement.publishedAt).toLocaleDateString(locale, {
-        year: "numeric",
-        month: "long",
-        day: "numeric",
-      })
-    : undefined;
+  const publishedDate = formatPublishedDate(announcement.publishedAt, locale, {
+    year: "numeric",
+    month: "long",
+    day: "numeric",
+  });
 
   return (
     <ContentContainer

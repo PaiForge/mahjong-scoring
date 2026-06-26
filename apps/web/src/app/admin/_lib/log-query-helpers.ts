@@ -1,11 +1,11 @@
-import type { SupabaseClient, User } from '@supabase/supabase-js';
-import type { Column } from 'drizzle-orm';
-import { ilike, inArray, or } from 'drizzle-orm';
+import type { User } from "@supabase/supabase-js";
+import type { Column } from "drizzle-orm";
+import { ilike, inArray, or } from "drizzle-orm";
 
-import { db, profiles } from '../../../lib/db';
-import { escapeLikePattern } from '../../../lib/escape-like-pattern';
+import { db, profiles } from "../../../lib/db";
+import { escapeLikePattern } from "../../../lib/escape-like-pattern";
 
-import type { Profile } from '../../../lib/db';
+import type { Profile } from "../../../lib/db";
 
 /**
  * ユーザーフィルタ結果。
@@ -19,28 +19,20 @@ interface UserFilterResult {
 }
 
 /**
- * Supabase 認証ユーザー一覧を全件取得する。
- * 100件ずつページネーションして全ユーザーを収集する。
- * 複数箇所で同じユーザー一覧を参照する場合、この関数を一度だけ呼び出して
- * 結果を使い回すこと。
+ * ユーザーの表示名を解決する。
+ * プロフィール名 → メールアドレス → ID の順でフォールバックする。
+ * ユーザー表示名解決
+ *
+ * @param id - ユーザーID
+ * @param profileMap - ID→Profile のマップ
+ * @param emailMap - ID→メールアドレスのマップ
  */
-export async function fetchAllAuthUsers(
-  adminClient: SupabaseClient,
-): Promise<readonly User[]> {
-  const allUsers: User[] = [];
-  let page = 1;
-  const perPage = 100;
-
-  // eslint-disable-next-line no-constant-condition -- pagination loop
-  while (true) {
-    const { data } = await adminClient.auth.admin.listUsers({ page, perPage });
-    const users = data?.users ?? [];
-    allUsers.push(...users);
-    if (users.length < perPage) break;
-    page++;
-  }
-
-  return allUsers;
+export function resolveUserDisplay(
+  id: string,
+  profileMap: Map<string, Profile>,
+  emailMap: Map<string, string>,
+): string {
+  return profileMap.get(id)?.username ?? emailMap.get(id) ?? id;
 }
 
 /**
@@ -48,7 +40,7 @@ export async function fetchAllAuthUsers(
  * プロフィール（username / displayName）とメールアドレスの両方を検索し、
  * 合致するユーザーIDで `inArray` 条件を返す。
  *
- * @param allUsers - `fetchAllAuthUsers` で事前取得した認証ユーザー一覧
+ * @param allUsers - `listAllAuthUsers` で事前取得した認証ユーザー一覧
  * @param userFilter - 検索文字列（空文字の場合はフィルタなし）
  * @param targetColumn - 条件を適用するログテーブルのカラム
  */
@@ -94,7 +86,7 @@ export async function buildUserFilterCondition(
  * 事前取得した認証ユーザー一覧から、指定されたユーザーIDに絞って
  * ユーザーID→メールアドレスの Map を返す。
  *
- * @param allUsers - `fetchAllAuthUsers` で事前取得した認証ユーザー一覧
+ * @param allUsers - `listAllAuthUsers` で事前取得した認証ユーザー一覧
  * @param userIds - メールアドレスを取得する対象のユーザーID一覧（空の場合は空 Map を返す）
  */
 export function buildEmailMap(
