@@ -1,17 +1,9 @@
 "use client";
 
-import { useCallback, useMemo, useState } from "react";
+import { useMemo } from "react";
 import { useTranslations } from "next-intl";
-import {
-  generateValidScoreQuestion,
-  isOya,
-  judgeScoreTableAnswer,
-} from "@mahjong-scoring/core";
-import type {
-  ScoreQuestion,
-  ScoreTableUserAnswer,
-} from "@mahjong-scoring/core";
 import { getFeedbackBorderClass } from "../../_lib/feedback-styles";
+import { useScoreQuestionBoard } from "../../_hooks/use-score-question-board";
 import { QuestionDisplay } from "../../score/_components/question-display";
 import { YakuListDisplay } from "./yaku-list-display";
 import { ManganScoreCalculationAnswerForm } from "./mangan-score-calculation-answer-form";
@@ -19,7 +11,7 @@ import type {
   ManganScoreCalculationQuestionResult,
   PlayerType,
 } from "../_lib/types";
-import { paymentToScoreTableAnswer, playerTypeToOptions } from "../_lib/types";
+import { playerTypeToOptions } from "../_lib/types";
 
 interface ManganScoreCalculationBoardProps {
   /** 出題する親/子の種別（チャレンジは URL クエリで指定、トレーニングは既定値） */
@@ -58,37 +50,12 @@ export function ManganScoreCalculationBoard({
     [playerType],
   );
 
-  const [question, setQuestion] = useState<ScoreQuestion | undefined>(
-    () => generateValidScoreQuestion(generateOptions) ?? undefined,
-  );
-  const [questionIndex, setQuestionIndex] = useState(0);
-
-  const advanceQuestion = useCallback(() => {
-    setQuestion(generateValidScoreQuestion(generateOptions) ?? undefined);
-    setQuestionIndex((prev) => prev + 1);
-  }, [generateOptions]);
-
-  const handleSubmit = useCallback(
-    (userAnswer: ScoreTableUserAnswer) => {
-      if (showFeedback || !question) return;
-
-      const correctAnswer = paymentToScoreTableAnswer(question.answer.payment);
-      const isCorrect = judgeScoreTableAnswer(userAnswer, correctAnswer);
-
-      onRecordResult?.({
-        isOya: isOya(question.jikaze),
-        isTsumo: question.isTsumo,
-        han: question.answer.han,
-        fu: question.answer.fu,
-        correctAnswer,
-        userAnswer,
-        isCorrect,
-      });
-
-      onAnswer(isCorrect, advanceQuestion);
-    },
-    [showFeedback, question, onAnswer, advanceQuestion, onRecordResult],
-  );
+  const { question, questionIndex, handleSubmit } = useScoreQuestionBoard({
+    generateOptions,
+    showFeedback,
+    onAnswer,
+    onRecordResult,
+  });
 
   if (!question) {
     return (
