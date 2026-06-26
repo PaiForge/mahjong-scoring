@@ -7,10 +7,13 @@ import { useTranslations } from "next-intl";
 
 import { MIN_PASSWORD_LENGTH } from "@/config";
 import {
-  getPasswordValidationError,
   isPasswordValidationErrorKey,
+  validatePasswordPair,
 } from "@/lib/validations/password";
 
+import { AuthTextField } from "../../_components/auth-text-field";
+import { AuthSubmitButton } from "../../_components/auth-submit-button";
+import { AuthFormError } from "../../_components/auth-form-error";
 import { signUp } from "../_actions/sign-up";
 
 /**
@@ -31,14 +34,13 @@ export function EmailSignUpForm() {
     e.preventDefault();
     setError("");
 
-    if (password !== confirmPassword) {
-      setError(t("passwordMismatch"));
-      return;
-    }
-
-    const passwordError = getPasswordValidationError(password);
-    if (passwordError) {
-      setError(tPassword(passwordError, { minLength: MIN_PASSWORD_LENGTH }));
+    const pairError = validatePasswordPair(password, confirmPassword);
+    if (pairError) {
+      setError(
+        pairError.type === "mismatch"
+          ? t("passwordMismatch")
+          : tPassword(pairError.key, { minLength: MIN_PASSWORD_LENGTH }),
+      );
       return;
     }
 
@@ -78,74 +80,43 @@ export function EmailSignUpForm() {
 
   return (
     <form onSubmit={handleSubmit} className="w-full max-w-sm mx-auto space-y-4">
-      {error && <p className="text-center text-sm text-red-600">{error}</p>}
+      <AuthFormError message={error} />
 
-      <div className="space-y-1">
-        <label
-          htmlFor="signup-email"
-          className="block text-sm font-medium text-surface-700"
-        >
-          {t("emailLabel")}
-        </label>
-        <input
-          id="signup-email"
-          type="email"
-          value={email}
-          onChange={(e) => setEmail(e.target.value)}
-          required
-          autoComplete="email"
-          className="w-full px-3 py-2 bg-white border border-surface-200 rounded-lg text-surface-700 text-sm focus:outline-none focus:ring-2 focus:ring-primary/50"
-          placeholder={t("emailPlaceholder")}
-        />
-      </div>
+      <AuthTextField
+        id="signup-email"
+        label={t("emailLabel")}
+        type="email"
+        value={email}
+        onChange={setEmail}
+        autoComplete="email"
+        placeholder={t("emailPlaceholder")}
+      />
 
-      <div className="space-y-1">
-        <label
-          htmlFor="signup-password"
-          className="block text-sm font-medium text-surface-700"
-        >
-          {t("passwordLabel")}
-        </label>
-        <input
-          id="signup-password"
-          type="password"
-          value={password}
-          onChange={(e) => setPassword(e.target.value)}
-          required
-          minLength={MIN_PASSWORD_LENGTH}
-          autoComplete="new-password"
-          className="w-full px-3 py-2 bg-white border border-surface-200 rounded-lg text-surface-700 text-sm focus:outline-none focus:ring-2 focus:ring-primary/50"
-          placeholder={t("passwordPlaceholder")}
-        />
-      </div>
+      <AuthTextField
+        id="signup-password"
+        label={t("passwordLabel")}
+        type="password"
+        value={password}
+        onChange={setPassword}
+        minLength={MIN_PASSWORD_LENGTH}
+        autoComplete="new-password"
+        placeholder={t("passwordPlaceholder")}
+      />
 
-      <div className="space-y-1">
-        <label
-          htmlFor="signup-confirm-password"
-          className="block text-sm font-medium text-surface-700"
-        >
-          {t("confirmPasswordLabel")}
-        </label>
-        <input
-          id="signup-confirm-password"
-          type="password"
-          value={confirmPassword}
-          onChange={(e) => setConfirmPassword(e.target.value)}
-          required
-          minLength={MIN_PASSWORD_LENGTH}
-          autoComplete="new-password"
-          className="w-full px-3 py-2 bg-white border border-surface-200 rounded-lg text-surface-700 text-sm focus:outline-none focus:ring-2 focus:ring-primary/50"
-          placeholder={t("confirmPasswordPlaceholder")}
-        />
-      </div>
+      <AuthTextField
+        id="signup-confirm-password"
+        label={t("confirmPasswordLabel")}
+        type="password"
+        value={confirmPassword}
+        onChange={setConfirmPassword}
+        minLength={MIN_PASSWORD_LENGTH}
+        autoComplete="new-password"
+        placeholder={t("confirmPasswordPlaceholder")}
+      />
 
-      <button
-        type="submit"
-        disabled={isLoading}
-        className="w-full px-6 py-3 bg-primary text-white rounded-lg text-sm font-medium hover:opacity-90 transition-opacity disabled:opacity-50 disabled:cursor-not-allowed"
-      >
+      <AuthSubmitButton loading={isLoading}>
         {isLoading ? t("emailSignUpLoading") : t("emailSignUp")}
-      </button>
+      </AuthSubmitButton>
     </form>
   );
 }

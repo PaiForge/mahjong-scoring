@@ -1,9 +1,8 @@
 import { NextResponse } from "next/server";
 
 import { logActivityEvent } from "@/lib/activity-log";
-import { getClientIp } from "@/lib/client-ip";
-import { IP_RATE_LIMITS, checkIpRateLimitGuard } from "@/lib/rate-limit-ip";
-import { createClient } from "@/lib/supabase/server";
+import { authorizeApiRequest } from "@/lib/api-auth";
+import { IP_RATE_LIMITS } from "@/lib/rate-limit-ip";
 import { deleteAccount } from "@/lib/users/delete-account";
 
 /**
@@ -15,23 +14,12 @@ import { deleteAccount } from "@/lib/users/delete-account";
  * アカウント退会API
  */
 export async function DELETE() {
-  const ipRateLimited = checkIpRateLimitGuard(
-    await getClientIp(),
+  const auth = await authorizeApiRequest(
     "deleteAccount",
     IP_RATE_LIMITS.deleteAccount,
   );
-  if (ipRateLimited) {
-    return NextResponse.json({ error: "rateLimited" }, { status: 429 });
-  }
-
-  const supabase = await createClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
-
-  if (!user) {
-    return NextResponse.json({ error: "unauthorized" }, { status: 401 });
-  }
+  if (!auth.ok) return auth.response;
+  const { user } = auth;
 
   const result = await deleteAccount(user.id);
   if ("error" in result) {

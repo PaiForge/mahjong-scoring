@@ -1,7 +1,7 @@
-import { NextResponse } from 'next/server';
+import { NextResponse } from "next/server";
 
-import { logActivityEvent } from '../../../lib/activity-log';
-import { createClient } from '../../../lib/supabase/server';
+import { logCurrentUserEvent } from "../../../lib/activity-log";
+import { createClient } from "../../../lib/supabase/server";
 
 /**
  * ログアウト Route Handler。
@@ -10,13 +10,8 @@ import { createClient } from '../../../lib/supabase/server';
  */
 export async function POST() {
   const supabase = await createClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
 
-  if (user) {
-    logActivityEvent({ userId: user.id, action: 'logout' });
-  }
+  await logCurrentUserEvent(supabase, "logout");
 
   await supabase.auth.signOut();
 

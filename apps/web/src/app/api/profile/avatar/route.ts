@@ -3,11 +3,10 @@ import { NextResponse } from "next/server";
 import sharp from "sharp";
 
 import { logActivityEvent } from "@/lib/activity-log";
-import { getClientIp } from "@/lib/client-ip";
+import { authorizeApiRequest } from "@/lib/api-auth";
 import { db, profiles } from "@/lib/db";
 import { validateImageBinarySignature } from "@/lib/image-signature";
-import { IP_RATE_LIMITS, checkIpRateLimitGuard } from "@/lib/rate-limit-ip";
-import { createClient } from "@/lib/supabase/server";
+import { IP_RATE_LIMITS } from "@/lib/rate-limit-ip";
 
 /**
  * アバター画像アップロードエンドポイント。
@@ -26,23 +25,12 @@ const AVATAR_WEBP_QUALITY = 85;
 const AVATAR_PATH_SUFFIX = "avatar.webp";
 
 export async function POST(request: Request) {
-  const ipRateLimited = checkIpRateLimitGuard(
-    await getClientIp(),
+  const auth = await authorizeApiRequest(
     "uploadAvatar",
     IP_RATE_LIMITS.uploadAvatar,
   );
-  if (ipRateLimited) {
-    return NextResponse.json({ error: "rateLimited" }, { status: 429 });
-  }
-
-  const supabase = await createClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
-
-  if (!user) {
-    return NextResponse.json({ error: "unauthorized" }, { status: 401 });
-  }
+  if (!auth.ok) return auth.response;
+  const { user, supabase } = auth;
 
   const formData = await request.formData();
   const file = formData.get("file");
