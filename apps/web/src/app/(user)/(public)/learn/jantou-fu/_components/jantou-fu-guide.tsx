@@ -1,7 +1,9 @@
 import { getTranslations } from "next-intl/server";
 import { HaiKind } from "@mahjong-scoring/core";
 import { SectionTitle } from "@/app/_components/section-title";
+import { ExampleCard } from "../../_components/example-card";
 import { FuSummaryTable } from "../../_components/fu-summary-table";
+import { GuideParagraph } from "../../_components/guide-paragraph";
 import { TileExample } from "./tile-example";
 
 export async function JantouFuGuide() {
@@ -12,19 +14,19 @@ export async function JantouFuGuide() {
       {/* What is jantou */}
       <section className="space-y-4">
         <SectionTitle>{t("whatIsJantou")}</SectionTitle>
-        <p className="text-sm leading-relaxed text-surface-700">
+        <GuideParagraph>
           {t.rich("whatIsJantouBody", { br: () => <br /> })}
-        </p>
+        </GuideParagraph>
       </section>
 
       {/* Yakuhai jantou */}
       <section className="space-y-4">
         <SectionTitle>{t("yakuhaiTitle")}</SectionTitle>
-        <p className="text-sm leading-relaxed text-surface-700">
+        <GuideParagraph>
           {t.rich("yakuhaiBody", { br: () => <br /> })}
-        </p>
+        </GuideParagraph>
 
-        <div className="space-y-3 rounded-xl border border-surface-200 bg-white p-5">
+        <ExampleCard>
           <h3 className="text-xs font-semibold uppercase tracking-wider text-surface-400">
             {t("sangenExamples")}
           </h3>
@@ -43,9 +45,9 @@ export async function JantouFuGuide() {
             fu={2}
             label={t("labelChun")}
           />
-        </div>
+        </ExampleCard>
 
-        <div className="space-y-3 rounded-xl border border-surface-200 bg-white p-5">
+        <ExampleCard>
           <h3 className="text-xs font-semibold uppercase tracking-wider text-surface-400">
             {t("kazeExamples")}
           </h3>
@@ -59,17 +61,15 @@ export async function JantouFuGuide() {
             fu={2}
             label={t("labelJikaze")}
           />
-        </div>
+        </ExampleCard>
       </section>
 
       {/* No fu */}
       <section className="space-y-4">
         <SectionTitle>{t("noFuTitle")}</SectionTitle>
-        <p className="text-sm leading-relaxed text-surface-700">
-          {t("noFuBody")}
-        </p>
+        <GuideParagraph>{t("noFuBody")}</GuideParagraph>
 
-        <div className="space-y-3 rounded-xl border border-surface-200 bg-white p-5">
+        <ExampleCard>
           <h3 className="text-xs font-semibold uppercase tracking-wider text-surface-400">
             {t("noFuExamples")}
           </h3>
@@ -88,7 +88,7 @@ export async function JantouFuGuide() {
             fu={0}
             label={t("labelOtakaze")}
           />
-        </div>
+        </ExampleCard>
       </section>
 
       {/* Column: renfonpai */}
@@ -99,9 +99,9 @@ export async function JantouFuGuide() {
         <h3 className="mb-2 text-sm font-semibold text-surface-900">
           {t("columnTitle")}
         </h3>
-        <p className="text-sm leading-relaxed text-surface-700">
+        <GuideParagraph>
           {t.rich("columnBody", { br: () => <br /> })}
-        </p>
+        </GuideParagraph>
       </aside>
 
       {/* Summary table */}

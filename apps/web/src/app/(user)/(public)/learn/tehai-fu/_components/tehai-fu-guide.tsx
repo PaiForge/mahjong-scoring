@@ -1,6 +1,8 @@
 import { getTranslations } from "next-intl/server";
 import { HaiKind } from "@mahjong-scoring/core";
 import { SectionTitle } from "@/app/_components/section-title";
+import { ExampleCard } from "../../_components/example-card";
+import { GuideParagraph } from "../../_components/guide-paragraph";
 import { TehaiFuExample } from "./tehai-fu-example";
 
 export async function TehaiFuGuide() {
@@ -11,13 +13,9 @@ export async function TehaiFuGuide() {
       {/* Tsumo fu omission */}
       <section className="space-y-4">
         <SectionTitle>{t("tsumoFuTitle")}</SectionTitle>
-        <p className="text-sm leading-relaxed text-surface-700">
-          {t("tsumoFuBody1")}
-        </p>
-        <p className="text-sm leading-relaxed text-surface-700">
-          {t("tsumoFuBody2")}
-        </p>
-        <div className="space-y-3 rounded-xl border border-surface-200 bg-white p-5">
+        <GuideParagraph>{t("tsumoFuBody1")}</GuideParagraph>
+        <GuideParagraph>{t("tsumoFuBody2")}</GuideParagraph>
+        <ExampleCard>
           <TehaiFuExample
             tiles={[HaiKind.PinZu2, HaiKind.PinZu3, HaiKind.PinZu4]}
             rotatedIndex={0}
@@ -25,19 +23,15 @@ export async function TehaiFuGuide() {
             label={t("tsumoExample")}
             annotation={t("tsumoExampleAnnotation")}
           />
-        </div>
+        </ExampleCard>
       </section>
 
       {/* Ron koutsu miscalculation */}
       <section className="space-y-4">
         <SectionTitle>{t("ronKoutsuTitle")}</SectionTitle>
-        <p className="text-sm leading-relaxed text-surface-700">
-          {t("ronKoutsuBody1")}
-        </p>
-        <p className="text-sm leading-relaxed text-surface-700">
-          {t("ronKoutsuBody2")}
-        </p>
-        <div className="space-y-4 rounded-xl border border-surface-200 bg-white p-5">
+        <GuideParagraph>{t("ronKoutsuBody1")}</GuideParagraph>
+        <GuideParagraph>{t("ronKoutsuBody2")}</GuideParagraph>
+        <ExampleCard spacing="space-y-4">
           <TehaiFuExample
             tiles={[HaiKind.SouZu3, HaiKind.SouZu3, HaiKind.Haku, HaiKind.Haku]}
             agariHai={HaiKind.SouZu3}
@@ -52,19 +46,15 @@ export async function TehaiFuGuide() {
             label={t("ronKoutsuExampleTsumo")}
             annotation={t("ronKoutsuExampleTsumoAnnotation")}
           />
-        </div>
+        </ExampleCard>
       </section>
 
       {/* Jikaze / Bakaze confusion */}
       <section className="space-y-4">
         <SectionTitle>{t("kazeTitle")}</SectionTitle>
-        <p className="text-sm leading-relaxed text-surface-700">
-          {t("kazeBody1")}
-        </p>
-        <p className="text-sm leading-relaxed text-surface-700">
-          {t("kazeBody2")}
-        </p>
-        <div className="space-y-3 rounded-xl border border-surface-200 bg-white p-5">
+        <GuideParagraph>{t("kazeBody1")}</GuideParagraph>
+        <GuideParagraph>{t("kazeBody2")}</GuideParagraph>
+        <ExampleCard>
           <TehaiFuExample
             tiles={[HaiKind.Ton, HaiKind.Ton, HaiKind.Ton]}
             label={t("kazeExampleBakaze")}
@@ -81,7 +71,7 @@ export async function TehaiFuGuide() {
             annotation={t("kazeExampleOtakazeAnnotation")}
             annotationColor="amber"
           />
-        </div>
+        </ExampleCard>
       </section>
     </div>
   );

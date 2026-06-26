@@ -1,5 +1,6 @@
 import { getTranslations } from "next-intl/server";
 import { SectionTitle } from "@/app/_components/section-title";
+import { GuideParagraph } from "../../_components/guide-paragraph";
 
 export async function YakuGuide() {
   const t = await getTranslations("yaku.learn");
@@ -9,17 +10,13 @@ export async function YakuGuide() {
       {/* What are yaku */}
       <section className="space-y-4">
         <SectionTitle>{t("whatIsYaku")}</SectionTitle>
-        <p className="text-sm leading-relaxed text-surface-700">
-          {t("whatIsYakuBody")}
-        </p>
+        <GuideParagraph>{t("whatIsYakuBody")}</GuideParagraph>
       </section>
 
       {/* 1翻役 */}
       <section className="space-y-4">
         <SectionTitle>{t("ichihanTitle")}</SectionTitle>
-        <p className="text-sm leading-relaxed text-surface-700">
-          {t("ichihanBody")}
-        </p>
+        <GuideParagraph>{t("ichihanBody")}</GuideParagraph>
         <div className="rounded-xl border border-surface-200 bg-white p-5">
           <ul className="space-y-2 text-sm text-surface-700">
             <li>
@@ -53,9 +50,7 @@ export async function YakuGuide() {
       {/* 2翻役 */}
       <section className="space-y-4">
         <SectionTitle>{t("nihanTitle")}</SectionTitle>
-        <p className="text-sm leading-relaxed text-surface-700">
-          {t("nihanBody")}
-        </p>
+        <GuideParagraph>{t("nihanBody")}</GuideParagraph>
         <div className="rounded-xl border border-surface-200 bg-white p-5">
           <ul className="space-y-2 text-sm text-surface-700">
             <li>
@@ -105,9 +100,7 @@ export async function YakuGuide() {
       {/* 3翻役 */}
       <section className="space-y-4">
         <SectionTitle>{t("sanhanTitle")}</SectionTitle>
-        <p className="text-sm leading-relaxed text-surface-700">
-          {t("sanhanBody")}
-        </p>
+        <GuideParagraph>{t("sanhanBody")}</GuideParagraph>
         <div className="rounded-xl border border-surface-200 bg-white p-5">
           <ul className="space-y-2 text-sm text-surface-700">
             <li>
@@ -129,9 +122,7 @@ export async function YakuGuide() {
       {/* 6翻役 */}
       <section className="space-y-4">
         <SectionTitle>{t("rokuhanTitle")}</SectionTitle>
-        <p className="text-sm leading-relaxed text-surface-700">
-          {t("rokuhanBody")}
-        </p>
+        <GuideParagraph>{t("rokuhanBody")}</GuideParagraph>
         <div className="rounded-xl border border-surface-200 bg-white p-5">
           <ul className="space-y-2 text-sm text-surface-700">
             <li>
@@ -145,9 +136,7 @@ export async function YakuGuide() {
       {/* 役満 */}
       <section className="space-y-4">
         <SectionTitle>{t("yakumanTitle")}</SectionTitle>
-        <p className="text-sm leading-relaxed text-surface-700">
-          {t("yakumanBody")}
-        </p>
+        <GuideParagraph>{t("yakumanBody")}</GuideParagraph>
         <div className="rounded-xl border border-surface-200 bg-white p-5">
           <ul className="space-y-2 text-sm text-surface-700">
             <li>

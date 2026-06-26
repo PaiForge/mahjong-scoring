@@ -1,5 +1,6 @@
 import { getTranslations } from "next-intl/server";
 import { SectionTitle } from "@/app/_components/section-title";
+import { GuideParagraph } from "../../_components/guide-paragraph";
 
 /**
  * このアプリについて — 新第 1 章
@@ -11,12 +12,8 @@ export async function AboutThisAppGuide() {
     <div className="space-y-10">
       <section className="space-y-3">
         <SectionTitle>{t("introTitle")}</SectionTitle>
-        <p className="whitespace-pre-line text-sm leading-relaxed text-surface-700">
-          {t("lead1")}
-        </p>
-        <p className="whitespace-pre-line text-sm leading-relaxed text-surface-700">
-          {t("lead2")}
-        </p>
+        <GuideParagraph preLine>{t("lead1")}</GuideParagraph>
+        <GuideParagraph preLine>{t("lead2")}</GuideParagraph>
         <ol className="list-decimal space-y-1 pl-6 whitespace-pre-line text-sm leading-relaxed text-surface-700">
           <li>{t("reason1Summary")}</li>
           <li>{t("reason2Summary")}</li>
@@ -26,60 +23,34 @@ export async function AboutThisAppGuide() {
 
       <section className="space-y-3">
         <SectionTitle>{t("reason1Title")}</SectionTitle>
-        <p className="whitespace-pre-line text-sm leading-relaxed text-surface-700">
-          {t("reason1Body1")}
-        </p>
+        <GuideParagraph preLine>{t("reason1Body1")}</GuideParagraph>
         <p className="text-sm leading-relaxed text-surface-500">
           {t("reason1Note")}
         </p>
-        <p className="whitespace-pre-line text-sm leading-relaxed text-surface-700">
-          {t("reason1Body2")}
-        </p>
+        <GuideParagraph preLine>{t("reason1Body2")}</GuideParagraph>
       </section>
 
       <section className="space-y-3">
         <SectionTitle>{t("reason2Title")}</SectionTitle>
-        <p className="whitespace-pre-line text-sm leading-relaxed text-surface-700">
-          {t("reason2Body1")}
-        </p>
-        <p className="whitespace-pre-line text-sm leading-relaxed text-surface-700">
-          {t("reason2Body2")}
-        </p>
+        <GuideParagraph preLine>{t("reason2Body1")}</GuideParagraph>
+        <GuideParagraph preLine>{t("reason2Body2")}</GuideParagraph>
       </section>
 
       <section className="space-y-3">
         <SectionTitle>{t("reason3Title")}</SectionTitle>
-        <p className="whitespace-pre-line text-sm leading-relaxed text-surface-700">
-          {t("reason3Body1")}
-        </p>
-        <p className="whitespace-pre-line text-sm leading-relaxed text-surface-700">
-          {t("reason3Body2")}
-        </p>
+        <GuideParagraph preLine>{t("reason3Body1")}</GuideParagraph>
+        <GuideParagraph preLine>{t("reason3Body2")}</GuideParagraph>
       </section>
 
       <section className="space-y-3">
         <SectionTitle>{t("purposeTitle")}</SectionTitle>
-        <p className="whitespace-pre-line text-sm leading-relaxed text-surface-700">
-          {t("purposeBody1")}
-        </p>
-        <p className="whitespace-pre-line text-sm leading-relaxed text-surface-700">
-          {t("purposeBody2")}
-        </p>
-        <p className="whitespace-pre-line text-sm leading-relaxed text-surface-700">
-          {t("purposeBody3")}
-        </p>
-        <p className="whitespace-pre-line text-sm leading-relaxed text-surface-700">
-          {t("purposeBody4")}
-        </p>
-        <p className="whitespace-pre-line text-sm leading-relaxed text-surface-700">
-          {t("purposeBody5")}
-        </p>
-        <p className="whitespace-pre-line text-sm leading-relaxed text-surface-700">
-          {t("purposeBody6")}
-        </p>
-        <p className="whitespace-pre-line text-sm leading-relaxed text-surface-700">
-          {t("closing")}
-        </p>
+        <GuideParagraph preLine>{t("purposeBody1")}</GuideParagraph>
+        <GuideParagraph preLine>{t("purposeBody2")}</GuideParagraph>
+        <GuideParagraph preLine>{t("purposeBody3")}</GuideParagraph>
+        <GuideParagraph preLine>{t("purposeBody4")}</GuideParagraph>
+        <GuideParagraph preLine>{t("purposeBody5")}</GuideParagraph>
+        <GuideParagraph preLine>{t("purposeBody6")}</GuideParagraph>
+        <GuideParagraph preLine>{t("closing")}</GuideParagraph>
       </section>
     </div>
   );

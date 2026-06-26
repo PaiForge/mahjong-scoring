@@ -1,5 +1,6 @@
 import { getTranslations } from "next-intl/server";
 import { SectionTitle } from "@/app/_components/section-title";
+import { GuideParagraph } from "../../_components/guide-paragraph";
 import { BlockMath, InlineMath } from "../../_components/math";
 
 /**
@@ -13,23 +14,15 @@ export async function WhyScoringIsComplexGuide() {
       {/* 公式に基づけば計算自体は単純 */}
       <section className="space-y-4">
         <SectionTitle>{t("scoringIsSimpleTitle")}</SectionTitle>
-        <p className="text-sm leading-relaxed text-surface-700">
-          {t("scoringIsSimpleBody1")}
-        </p>
-        <p className="text-sm leading-relaxed text-surface-700">
-          {t("scoringIsSimpleBody2")}
-        </p>
-        <p className="text-sm leading-relaxed text-surface-700">
-          {t("scoringIsSimpleBody3")}
-        </p>
+        <GuideParagraph>{t("scoringIsSimpleBody1")}</GuideParagraph>
+        <GuideParagraph>{t("scoringIsSimpleBody2")}</GuideParagraph>
+        <GuideParagraph>{t("scoringIsSimpleBody3")}</GuideParagraph>
 
         <BlockMath
           latex={String.raw`\text{符} \times 2^{(\text{翻数} + 2)} \times 4`}
         />
 
-        <p className="text-sm leading-relaxed text-surface-700">
-          {t("exampleIntro")}
-        </p>
+        <GuideParagraph>{t("exampleIntro")}</GuideParagraph>
 
         <ol className="list-decimal space-y-1 pl-6 text-sm leading-relaxed text-surface-700">
           <li>
@@ -56,16 +49,10 @@ export async function WhyScoringIsComplexGuide() {
           latex={String.raw`\begin{aligned} & 30 \times 2^{(3+2)} \times 4 \\ &= 30 \times 32 \times 4 \\ &= 960 \times 4 \\ &= 3840 \xrightarrow{\text{切り上げ}} 3900 \end{aligned}`}
         />
 
-        <p className="text-sm leading-relaxed text-surface-700">
-          {t("calculatorNote")}
-        </p>
-        <p className="text-sm leading-relaxed text-surface-700">
-          {t("memorizeNote")}
-        </p>
-        <p className="text-sm leading-relaxed text-surface-700">{t("kuku")}</p>
-        <p className="text-sm leading-relaxed text-surface-700">
-          {t("practiceNeeded")}
-        </p>
+        <GuideParagraph>{t("calculatorNote")}</GuideParagraph>
+        <GuideParagraph>{t("memorizeNote")}</GuideParagraph>
+        <GuideParagraph>{t("kuku")}</GuideParagraph>
+        <GuideParagraph>{t("practiceNeeded")}</GuideParagraph>
       </section>
     </div>
   );

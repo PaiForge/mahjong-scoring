@@ -1,7 +1,9 @@
 import { getTranslations } from "next-intl/server";
 import { HaiKind } from "@mahjong-scoring/core";
 import { SectionTitle } from "@/app/_components/section-title";
+import { ExampleCard } from "../../_components/example-card";
 import { FuSummaryTable } from "../../_components/fu-summary-table";
+import { GuideParagraph } from "../../_components/guide-paragraph";
 import { MentsuExample } from "./mentsu-example";
 
 export async function MentsuFuGuide() {
@@ -12,33 +14,27 @@ export async function MentsuFuGuide() {
       {/* What is mentsu fu */}
       <section className="space-y-4">
         <SectionTitle>{t("whatIsMentsuFu")}</SectionTitle>
-        <p className="text-sm leading-relaxed text-surface-700">
-          {t("whatIsMentsuFuBody")}
-        </p>
+        <GuideParagraph>{t("whatIsMentsuFuBody")}</GuideParagraph>
       </section>
 
       {/* Shuntsu: 0 fu */}
       <section className="space-y-4">
         <SectionTitle>{t("shuntsuTitle")}</SectionTitle>
-        <p className="text-sm leading-relaxed text-surface-700">
-          {t("shuntsuBody")}
-        </p>
-        <div className="space-y-3 rounded-xl border border-surface-200 bg-white p-5">
+        <GuideParagraph>{t("shuntsuBody")}</GuideParagraph>
+        <ExampleCard>
           <MentsuExample
             tiles={[HaiKind.ManZu2, HaiKind.ManZu3, HaiKind.ManZu4]}
             fu={0}
             label={t("shuntsuLabel")}
           />
-        </div>
+        </ExampleCard>
       </section>
 
       {/* Koutsu: 2-8 fu */}
       <section className="space-y-4">
         <SectionTitle>{t("koutsuTitle")}</SectionTitle>
-        <p className="text-sm leading-relaxed text-surface-700">
-          {t("koutsuBody")}
-        </p>
-        <div className="space-y-3 rounded-xl border border-surface-200 bg-white p-5">
+        <GuideParagraph>{t("koutsuBody")}</GuideParagraph>
+        <ExampleCard>
           <MentsuExample
             tiles={[HaiKind.ManZu5, HaiKind.ManZu5, HaiKind.ManZu5]}
             fu={2}
@@ -61,16 +57,14 @@ export async function MentsuFuGuide() {
             fu={8}
             label={t("koutsuClosedYaochuLabel")}
           />
-        </div>
+        </ExampleCard>
       </section>
 
       {/* Kantsu: 8-32 fu */}
       <section className="space-y-4">
         <SectionTitle>{t("kantsuTitle")}</SectionTitle>
-        <p className="text-sm leading-relaxed text-surface-700">
-          {t("kantsuBody")}
-        </p>
-        <div className="space-y-3 rounded-xl border border-surface-200 bg-white p-5">
+        <GuideParagraph>{t("kantsuBody")}</GuideParagraph>
+        <ExampleCard>
           <MentsuExample
             tiles={[
               HaiKind.SouZu5,
@@ -110,7 +104,7 @@ export async function MentsuFuGuide() {
             label={t("kantsuClosedYaochuLabel")}
             isKantsu
           />
-        </div>
+        </ExampleCard>
       </section>
 
       {/* Summary table */}
