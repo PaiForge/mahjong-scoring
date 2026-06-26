@@ -1,5 +1,6 @@
 import type { ScoreResult, Payment } from "@pai-forge/riichi-mahjong";
 import { calculateBasePoints, ceilTo100 } from "../core/score-calculation";
+import { ScoreLevel } from "../core/constants";
 
 /**
  * 翻数が変わった場合の点数を再計算する
@@ -25,25 +26,25 @@ export function recalculateScore(
   let scoreLevel: ScoreResult["scoreLevel"];
 
   if (newHanValue >= 26) {
-    scoreLevel = "DoubleYakuman";
+    scoreLevel = ScoreLevel.DoubleYakuman;
     basePoints = 16000;
   } else if (newHanValue >= 13) {
-    scoreLevel = "Yakuman";
+    scoreLevel = ScoreLevel.Yakuman;
     basePoints = 8000;
   } else if (newHanValue >= 11) {
-    scoreLevel = "Sanbaiman";
+    scoreLevel = ScoreLevel.Sanbaiman;
     basePoints = 6000;
   } else if (newHanValue >= 8) {
-    scoreLevel = "Baiman";
+    scoreLevel = ScoreLevel.Baiman;
     basePoints = 4000;
   } else if (newHanValue >= 6) {
-    scoreLevel = "Haneman";
+    scoreLevel = ScoreLevel.Haneman;
     basePoints = 3000;
   } else if (basePoints >= 2000 || newHanValue >= 5) {
-    scoreLevel = "Mangan";
+    scoreLevel = ScoreLevel.Mangan;
     basePoints = 2000;
   } else {
-    scoreLevel = "Normal";
+    scoreLevel = ScoreLevel.Normal;
   }
 
   let payment: Payment;
