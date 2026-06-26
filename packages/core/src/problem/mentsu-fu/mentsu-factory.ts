@@ -2,7 +2,6 @@ import {
   MentsuType,
   FuroType,
   Tacha,
-  type HaiKindId,
   type Shuntsu,
   type Koutsu,
   type Kantsu,
@@ -41,7 +40,11 @@ export function createRandomShuntsu(): MentsuResult | undefined {
   const hais = [t1, t2, t3] as const;
 
   const mentsu: Shuntsu = isFuro
-    ? { type: MentsuType.Shuntsu, hais, furo: { type: FuroType.Chi, from: Tacha.Kamicha } }
+    ? {
+        type: MentsuType.Shuntsu,
+        hais,
+        furo: { type: FuroType.Chi, from: Tacha.Kamicha },
+      }
     : { type: MentsuType.Shuntsu, hais };
 
   return { mentsu, fu: 0, explanation: "順子は常に0符です" };
@@ -59,7 +62,11 @@ export function createRandomKoutsu(): MentsuResult {
   const hais = [tile, tile, tile] as const;
 
   const mentsu: Koutsu = isOpen
-    ? { type: MentsuType.Koutsu, hais, furo: { type: FuroType.Pon, from: Tacha.Toimen } }
+    ? {
+        type: MentsuType.Koutsu,
+        hais,
+        furo: { type: FuroType.Pon, from: Tacha.Toimen },
+      }
     : { type: MentsuType.Koutsu, hais };
 
   let fu = 2;
@@ -84,7 +91,11 @@ export function createRandomKantsu(): MentsuResult {
   const hais = [tile, tile, tile, tile] as const;
 
   const mentsu: Kantsu = isOpen
-    ? { type: MentsuType.Kantsu, hais, furo: { type: FuroType.Daiminkan, from: Tacha.Toimen } }
+    ? {
+        type: MentsuType.Kantsu,
+        hais,
+        furo: { type: FuroType.Daiminkan, from: Tacha.Toimen },
+      }
     : { type: MentsuType.Kantsu, hais };
 
   let fu = 8;
@@ -101,7 +112,7 @@ export function createRandomKantsu(): MentsuResult {
  * 面子種別の確率重み
  * 面子生成重み
  */
-interface MentsuWeights {
+export interface MentsuWeights {
   /** 順子の確率（0〜1） */
   readonly shuntsu: number;
   /** 刻子の確率（0〜1、残りが槓子） */
@@ -114,7 +125,9 @@ interface MentsuWeights {
  *
  * @param weights - 面子種別の確率重み
  */
-export function createRandomMentsu(weights: Readonly<MentsuWeights>): MentsuResult {
+export function createRandomMentsu(
+  weights: Readonly<MentsuWeights>,
+): MentsuResult {
   const r = Math.random();
   if (r < weights.shuntsu) {
     return createRandomShuntsu() ?? createRandomKoutsu();

@@ -14,13 +14,16 @@ import {
   EXCLUDED_YAKU_FROM_ANSWER,
   getKazeYakuhaiDisplayName,
 } from "./constants";
-import { createRandomMentsu } from "../mentsu-fu/mentsu-factory";
 import { KAZEHAI } from "../../core/constants";
 import { randomChoice } from "../../core/random";
-import { isHaiKindId } from "../../core/type-guards";
 import { HaiUsageTracker } from "../../core/hai-tracker";
 import { generateDoraMarkers } from "../shared/dora-utils";
 import { countHaiInTehai } from "../shared/hai-count";
+import {
+  generateMentsuSet,
+  generatePairTile,
+  pickAgariHai,
+} from "../shared/hand-skeleton";
 
 /**
  * 風牌の役牌を手動で判定し、表示名のリストを返す
@@ -61,99 +64,33 @@ const YAKU_MENTSU_WEIGHTS = { shuntsu: 0.5, koutsu: 0.3 } as const;
 export function generateYakuQuestion(): YakuQuestion | undefined {
   const tracker = new HaiUsageTracker();
 
-  const mentsuList: Array<{
-    tiles: readonly HaiKindId[];
-    mentsu?: CompletedMentsu;
-    isOpen: boolean;
-  }> = [];
-
   // 1. 4面子を生成
-  for (let i = 0; i < 4; i++) {
-    let found = false;
-
-    for (let retry = 0; retry < 50; retry++) {
-      const result = createRandomMentsu(YAKU_MENTSU_WEIGHTS);
-      const tiles = result.mentsu.hais;
-
-      const tempCount = new Map<HaiKindId, number>();
-      for (const t of tiles) tempCount.set(t, (tempCount.get(t) ?? 0) + 1);
-
-      let possible = true;
-      for (const [t, c] of tempCount.entries()) {
-        if (!tracker.canUse(t, c)) {
-          possible = false;
-          break;
-        }
-      }
-
-      if (possible) {
-        for (const t of tiles) tracker.use(t, 1);
-        mentsuList.push({
-          tiles: [...tiles],
-          mentsu: result.mentsu,
-          isOpen: !!result.mentsu.furo,
-        });
-        found = true;
-        break;
-      }
-    }
-
-    if (!found) return undefined;
-  }
+  const mentsuList = generateMentsuSet(tracker, YAKU_MENTSU_WEIGHTS);
+  if (!mentsuList) return undefined;
 
   // 2. コンテキスト生成
   const bakaze = randomChoice(KAZEHAI);
   const jikaze = randomChoice(KAZEHAI);
 
   // 3. 雀頭を生成
-  let headTile: HaiKindId | undefined;
-  for (let retry = 0; retry < 50; retry++) {
-    const t = Math.floor(Math.random() * 34);
-    if (!isHaiKindId(t)) continue;
-    if (tracker.canUse(t, 2)) {
-      tracker.use(t, 2);
-      headTile = t;
-      break;
-    }
-  }
-
+  const headTile = generatePairTile(tracker);
   if (headTile === undefined) return undefined;
 
   // 4. Tehai14 を構築
-  const closed: HaiKindId[] = [];
+  const closed: HaiKindId[] = [headTile, headTile]; // 雀頭は常に閉じた手牌
   const exposed: CompletedMentsu[] = [];
 
-  // 雀頭は常に閉じた手牌
-  closed.push(headTile, headTile);
-
-  for (const item of mentsuList) {
-    if (
-      (item.isOpen ||
-        (item.mentsu && item.mentsu.type === MentsuType.Kantsu)) &&
-      item.mentsu
-    ) {
-      exposed.push(item.mentsu);
+  for (const { mentsu } of mentsuList) {
+    if (!!mentsu.furo || mentsu.type === MentsuType.Kantsu) {
+      exposed.push(mentsu);
     } else {
-      closed.push(...item.tiles);
+      closed.push(...mentsu.hais);
     }
   }
 
   closed.sort((a, b) => a - b);
 
-  // 和了牌を手牌から選択。
-  // 副露牌は鳴いた時点で確定しており、アンカンは4枚すべて使い切るため、
-  // どちらも5枚目以降が存在せず和了牌にはなり得ない。雀頭と暗面子（槓子以外）からのみ選ぶ。
-  const agariCandidates = [
-    headTile,
-    headTile,
-    ...mentsuList.flatMap((m) =>
-      !m.isOpen && (!m.mentsu || m.mentsu.type !== MentsuType.Kantsu)
-        ? [...m.tiles]
-        : [],
-    ),
-  ];
-  const agariHai =
-    agariCandidates[Math.floor(Math.random() * agariCandidates.length)];
+  const agariHai = pickAgariHai(mentsuList, headTile);
 
   const tehai = { closed, exposed };
   const validateResult = validateTehai14(tehai);

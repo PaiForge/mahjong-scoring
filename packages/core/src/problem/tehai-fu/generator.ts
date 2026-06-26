@@ -5,11 +5,14 @@ import {
   type CompletedMentsu,
 } from "@pai-forge/riichi-mahjong";
 import type { TehaiFuQuestion, TehaiFuItem } from "./types";
-import { createRandomMentsu } from "../mentsu-fu/mentsu-factory";
 import { KAZEHAI } from "../../core/constants";
-import { isHaiKindId } from "../../core/type-guards";
 import { HaiUsageTracker } from "../../core/hai-tracker";
 import { calculateJantouFu } from "../shared/jantou-fu";
+import {
+  generateMentsuSet,
+  generatePairTile,
+  pickAgariHai,
+} from "../shared/hand-skeleton";
 
 /** 手牌符練習用の面子生成重み（20%順子, 50%刻子, 30%槓子） */
 const TEHAI_FU_MENTSU_WEIGHTS = { shuntsu: 0.2, koutsu: 0.5 } as const;
@@ -26,73 +29,37 @@ export function generateTehaiFuQuestion(
   const { renfonpaiAs4Fu = false } = options;
   const tracker = new HaiUsageTracker();
 
-  const items: TehaiFuItem[] = [];
-
   // 1. 4面子を生成
-  for (let i = 0; i < 4; i++) {
-    let item: TehaiFuItem | undefined;
+  const mentsuList = generateMentsuSet(tracker, TEHAI_FU_MENTSU_WEIGHTS);
+  if (!mentsuList) return undefined;
 
-    for (let retry = 0; retry < 50; retry++) {
-      const result = createRandomMentsu(TEHAI_FU_MENTSU_WEIGHTS);
-      const tiles = result.mentsu.hais;
-
-      // 牌の使用可能性チェック
-      const tempCount = new Map<HaiKindId, number>();
-      for (const t of tiles) tempCount.set(t, (tempCount.get(t) ?? 0) + 1);
-
-      let possible = true;
-      for (const [t, c] of tempCount.entries()) {
-        if (!tracker.canUse(t, c)) {
-          possible = false;
-          break;
-        }
-      }
-
-      if (possible) {
-        for (const t of tiles) tracker.use(t, 1);
-        item = {
-          id: crypto.randomUUID(),
-          tiles: [...tiles],
-          type: result.mentsu.type,
-          fu: result.fu,
-          explanation: result.explanation,
-          isOpen: !!result.mentsu.furo,
-          originalMentsu: result.mentsu,
-        };
-        break;
-      }
-    }
-
-    if (!item) return undefined;
-    items.push(item);
-  }
+  const items: TehaiFuItem[] = mentsuList.map((result) => ({
+    id: crypto.randomUUID(),
+    tiles: [...result.mentsu.hais],
+    type: result.mentsu.type,
+    fu: result.fu,
+    explanation: result.explanation,
+    isOpen: !!result.mentsu.furo,
+    originalMentsu: result.mentsu,
+  }));
 
   // 2. コンテキスト生成
   const bakaze = KAZEHAI[Math.floor(Math.random() * 4)];
   const jikaze = KAZEHAI[Math.floor(Math.random() * 4)];
 
   // 3. 雀頭を生成
-  let head: TehaiFuItem | undefined;
-  for (let retry = 0; retry < 50; retry++) {
-    const t = Math.floor(Math.random() * 34);
-    if (!isHaiKindId(t)) continue;
-    if (tracker.canUse(t, 2)) {
-      tracker.use(t, 2);
-      const res = calculateJantouFu(t, bakaze, jikaze, renfonpaiAs4Fu);
-      head = {
-        id: crypto.randomUUID(),
-        tiles: [t, t],
-        type: "Pair",
-        fu: res.fu,
-        explanation: res.explanation,
-        isOpen: false,
-      };
-      break;
-    }
-  }
+  const headTile = generatePairTile(tracker);
+  if (headTile === undefined) return undefined;
 
-  if (!head) return undefined;
-  items.push(head);
+  const headFu = calculateJantouFu(headTile, bakaze, jikaze, renfonpaiAs4Fu);
+  items.push({
+    id: crypto.randomUUID(),
+    tiles: [headTile, headTile],
+    type: "Pair",
+    fu: headFu.fu,
+    explanation: headFu.explanation,
+    isOpen: false,
+  });
 
   // 4. Tehai14 を構築
   const closed: HaiKindId[] = [];
@@ -113,16 +80,7 @@ export function generateTehaiFuQuestion(
 
   closed.sort((a, b) => a - b);
 
-  // 和了牌を手牌から選択。
-  // 副露牌は鳴いた時点で確定しており、アンカンは4枚すべて使い切るため、
-  // どちらも5枚目以降が存在せず和了牌にはなり得ない。雀頭と暗面子（槓子以外）からのみ選ぶ。
-  const agariCandidates = items.flatMap((i) =>
-    i.type === "Pair" || (!i.isOpen && i.type !== MentsuType.Kantsu)
-      ? [...i.tiles]
-      : [],
-  );
-  const agariHai =
-    agariCandidates[Math.floor(Math.random() * agariCandidates.length)];
+  const agariHai = pickAgariHai(mentsuList, headTile);
 
   const tehai = { closed, exposed };
   const result = validateTehai14(tehai);
