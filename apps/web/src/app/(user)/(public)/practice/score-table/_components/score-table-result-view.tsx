@@ -1,6 +1,5 @@
 import { createCustomResultView } from "../../_lib/create-custom-result-view";
 import { RESULT_STORAGE_KEY } from "../_lib/types";
-import { ScoreTableProblemListLoader } from "./score-table-problem-list-loader";
 
 /**
  * 点数表練習専用の結果画面コンポーネント
@@ -15,6 +14,6 @@ import { ScoreTableProblemListLoader } from "./score-table-problem-list-loader";
  * Client と判定されると `async Client Component` エラーになる。
  */
 export const ScoreTableResultView = createCustomResultView({
-  ProblemListLoader: ScoreTableProblemListLoader,
   storageKey: RESULT_STORAGE_KEY,
+  translationNamespace: "scoreTableChallenge",
 });

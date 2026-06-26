@@ -1,6 +1,6 @@
 "use client";
 
-import { HaiKind } from "@mahjong-scoring/core";
+import { isOya } from "@mahjong-scoring/core";
 import type {
   ScoreQuestion,
   ScoreTableUserAnswer,
@@ -27,11 +27,11 @@ export function ManganScoreCalculationAnswerForm({
   onSubmit,
   disabled = false,
 }: ManganScoreCalculationAnswerFormProps) {
-  const isOya = question.jikaze === HaiKind.Ton;
+  const oya = isOya(question.jikaze);
 
   return (
     <ScoreAnswerForm
-      isOya={isOya}
+      isOya={oya}
       isTsumo={question.isTsumo}
       han={question.answer.han}
       questionKey={questionIndex}

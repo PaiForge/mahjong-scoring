@@ -1,21 +1,37 @@
 import type { ComponentType } from "react";
 import type { PracticeResultViewProps } from "./create-practice-result-page";
 import { ResultView } from "../_components/result-view";
+import { ScoreProblemListLoader } from "../_components/score-problem-list-loader";
 
 /**
  * カスタム結果ビューのファクトリー設定
  * カスタム結果ビュー設定
+ *
+ * 点数系チャレンジ（score-calculation / score-table / mangan）は共通の
+ * `ScoreProblemListLoader` を使うため `translationNamespace` を渡すだけでよい。
+ * 独自の一覧描画が必要な練習（han-count 等）は `ProblemListLoader` を渡す。
  */
-interface CreateCustomResultViewConfig {
-  /**
-   * sessionStorage から結果を読み取って描画する Client Component。
-   * 関数 props を使わず `storageKey` 文字列のみを受け取る設計にし、
-   * Server → Client 境界のシリアライズ制約を満たす。
-   */
-  readonly ProblemListLoader: ComponentType<{ readonly storageKey: string }>;
+type CreateCustomResultViewConfig = {
   /** sessionStorage のキー */
   readonly storageKey: string;
-}
+} & (
+  | {
+      /**
+       * sessionStorage から結果を読み取って描画する Client Component。
+       * 関数 props を使わず `storageKey` 文字列のみを受け取る設計にし、
+       * Server → Client 境界のシリアライズ制約を満たす。
+       */
+      readonly ProblemListLoader: ComponentType<{
+        readonly storageKey: string;
+      }>;
+      readonly translationNamespace?: never;
+    }
+  | {
+      /** 共通 `ScoreProblemListLoader` に渡す翻訳名前空間 */
+      readonly translationNamespace: string;
+      readonly ProblemListLoader?: never;
+    }
+);
 
 /**
  * 練習固有の結果ビューコンポーネントを生成するファクトリー関数
@@ -34,20 +50,33 @@ interface CreateCustomResultViewConfig {
 export function createCustomResultView(
   config: CreateCustomResultViewConfig,
 ): ComponentType<PracticeResultViewProps> {
-  const { ProblemListLoader, storageKey } = config;
+  const { storageKey } = config;
 
   async function CustomResultView(props: PracticeResultViewProps) {
     // `resultBlock` / `leaderboardBlock` は factory からそのまま透過。
-    // `children` スロットには sessionStorage 読み取り付きの専用 Loader を差し込む。
-    // 渡す props は `storageKey`（string）のみで、関数は一切渡さない。
+    // `children` スロットには sessionStorage 読み取り付きの Loader を差し込む。
+    // 渡す props は string primitive のみで、関数は一切渡さない。
     return (
       <ResultView {...props}>
-        <ProblemListLoader storageKey={storageKey} />
+        {config.translationNamespace !== undefined ? (
+          <ScoreProblemListLoader
+            storageKey={storageKey}
+            translationNamespace={config.translationNamespace}
+          />
+        ) : (
+          <config.ProblemListLoader storageKey={storageKey} />
+        )}
       </ResultView>
     );
   }
 
-  CustomResultView.displayName = `CustomResultView(${ProblemListLoader.displayName ?? ProblemListLoader.name ?? "Unknown"})`;
+  const loaderName =
+    config.translationNamespace !== undefined
+      ? `Score(${config.translationNamespace})`
+      : (config.ProblemListLoader.displayName ??
+        config.ProblemListLoader.name ??
+        "Unknown");
+  CustomResultView.displayName = `CustomResultView(${loaderName})`;
 
   return CustomResultView;
 }

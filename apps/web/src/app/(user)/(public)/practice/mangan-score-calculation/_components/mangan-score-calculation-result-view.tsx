@@ -1,6 +1,5 @@
 import { createCustomResultView } from "../../_lib/create-custom-result-view";
 import { RESULT_STORAGE_KEY } from "../_lib/types";
-import { ManganScoreCalculationProblemListLoader } from "./mangan-score-calculation-problem-list-loader";
 
 /**
  * 満貫以上点数計算ドリル専用の結果画面コンポーネント
@@ -15,6 +14,6 @@ import { ManganScoreCalculationProblemListLoader } from "./mangan-score-calculat
  * Client と判定されると `async Client Component` エラーになる。
  */
 export const ManganScoreCalculationResultView = createCustomResultView({
-  ProblemListLoader: ManganScoreCalculationProblemListLoader,
   storageKey: RESULT_STORAGE_KEY,
+  translationNamespace: "manganScoreCalculationChallenge",
 });

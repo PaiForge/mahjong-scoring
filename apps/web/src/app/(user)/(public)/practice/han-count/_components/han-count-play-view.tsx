@@ -1,10 +1,9 @@
 "use client";
 
-import { useCallback, useRef } from "react";
 import { useTranslations } from "next-intl";
 import { useTimedSession } from "../../_hooks/use-timed-session";
 import { useSaveOnFinish } from "../../_hooks/use-save-on-finish";
-import { useSessionStorageSave } from "../../_hooks/use-session-storage-save";
+import { useRecordedResults } from "../../_hooks/use-recorded-results";
 import { ChallengeShell } from "../../_components/challenge-shell";
 import { HanCountBoard } from "./han-count-board";
 import type { HanCountQuestionResult } from "../_lib/types";
@@ -19,14 +18,8 @@ export function HanCountPlayView() {
   const { gameSession, timerControl } = useTimedSession();
   const handleFinish = useSaveOnFinish("han_count");
 
-  const questionResultsRef = useRef<HanCountQuestionResult[]>([]);
-  const recordResult = useCallback((result: HanCountQuestionResult) => {
-    questionResultsRef.current.push(result);
-  }, []);
-
-  useSessionStorageSave(
+  const { recordResult } = useRecordedResults<HanCountQuestionResult>(
     RESULT_STORAGE_KEY,
-    questionResultsRef,
     gameSession.isFinished,
   );
 

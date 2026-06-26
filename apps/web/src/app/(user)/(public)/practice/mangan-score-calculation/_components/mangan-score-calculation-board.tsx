@@ -4,7 +4,7 @@ import { useCallback, useMemo, useState } from "react";
 import { useTranslations } from "next-intl";
 import {
   generateValidScoreQuestion,
-  HaiKind,
+  isOya,
   judgeScoreTableAnswer,
 } from "@mahjong-scoring/core";
 import type {
@@ -76,7 +76,7 @@ export function ManganScoreCalculationBoard({
       const isCorrect = judgeScoreTableAnswer(userAnswer, correctAnswer);
 
       onRecordResult?.({
-        isOya: question.jikaze === HaiKind.Ton,
+        isOya: isOya(question.jikaze),
         isTsumo: question.isTsumo,
         han: question.answer.han,
         fu: question.answer.fu,

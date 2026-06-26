@@ -1,10 +1,9 @@
 "use client";
 
-import { useCallback, useRef } from "react";
 import { useTranslations } from "next-intl";
 import { useTimedSession } from "../../_hooks/use-timed-session";
 import { useSaveOnFinish } from "../../_hooks/use-save-on-finish";
-import { useSessionStorageSave } from "../../_hooks/use-session-storage-save";
+import { useRecordedResults } from "../../_hooks/use-recorded-results";
 import { ChallengeShell } from "../../_components/challenge-shell";
 import { ScoreTableBoard } from "./score-table-board";
 import type { ScoreTableQuestionResult } from "../_lib/types";
@@ -19,14 +18,8 @@ export function ScoreTablePlayView() {
   const { gameSession, timerControl } = useTimedSession();
   const handleFinish = useSaveOnFinish("score_table");
 
-  const questionResultsRef = useRef<ScoreTableQuestionResult[]>([]);
-  const recordResult = useCallback((result: ScoreTableQuestionResult) => {
-    questionResultsRef.current.push(result);
-  }, []);
-
-  useSessionStorageSave(
+  const { recordResult } = useRecordedResults<ScoreTableQuestionResult>(
     RESULT_STORAGE_KEY,
-    questionResultsRef,
     gameSession.isFinished,
   );
 
