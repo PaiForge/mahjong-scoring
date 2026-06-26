@@ -1,6 +1,7 @@
 import { getTranslations } from "next-intl/server";
 import { HaiKind } from "@mahjong-scoring/core";
 import { SectionTitle } from "@/app/_components/section-title";
+import { FuSummaryTable } from "../../_components/fu-summary-table";
 import { MachiExample } from "./machi-example";
 
 export async function MachiFuGuide() {
@@ -71,63 +72,19 @@ export async function MachiFuGuide() {
       </section>
 
       {/* Summary table */}
-      <section className="space-y-4">
-        <SectionTitle>{t("summaryTitle")}</SectionTitle>
-        <div className="overflow-hidden rounded-xl border border-surface-200">
-          <table className="w-full text-sm">
-            <thead>
-              <tr className="bg-surface-50">
-                <th className="px-4 py-3 text-left font-medium text-surface-600">
-                  {t("colType")}
-                </th>
-                <th className="px-4 py-3 text-right font-medium text-surface-600">
-                  {t("colFu")}
-                </th>
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-surface-100">
-              <tr className="bg-white">
-                <td className="px-4 py-3 text-surface-900">
-                  {t("rowKanchan")}
-                </td>
-                <td className="px-4 py-3 text-right font-semibold text-primary-600">
-                  {t("fuUnit", { value: 2 })}
-                </td>
-              </tr>
-              <tr className="bg-white">
-                <td className="px-4 py-3 text-surface-900">
-                  {t("rowPenchan")}
-                </td>
-                <td className="px-4 py-3 text-right font-semibold text-primary-600">
-                  {t("fuUnit", { value: 2 })}
-                </td>
-              </tr>
-              <tr className="bg-white">
-                <td className="px-4 py-3 text-surface-900">{t("rowTanki")}</td>
-                <td className="px-4 py-3 text-right font-semibold text-primary-600">
-                  {t("fuUnit", { value: 2 })}
-                </td>
-              </tr>
-              <tr className="bg-white">
-                <td className="px-4 py-3 text-surface-500">
-                  {t("rowRyanmen")}
-                </td>
-                <td className="px-4 py-3 text-right text-surface-400">
-                  {t("fuUnit", { value: 0 })}
-                </td>
-              </tr>
-              <tr className="bg-white">
-                <td className="px-4 py-3 text-surface-500">
-                  {t("rowShanpon")}
-                </td>
-                <td className="px-4 py-3 text-right text-surface-400">
-                  {t("fuUnit", { value: 0 })}
-                </td>
-              </tr>
-            </tbody>
-          </table>
-        </div>
-      </section>
+      <FuSummaryTable
+        title={t("summaryTitle")}
+        colType={t("colType")}
+        colFu={t("colFu")}
+        formatFu={(value) => t("fuUnit", { value })}
+        rows={[
+          { label: t("rowKanchan"), fu: 2 },
+          { label: t("rowPenchan"), fu: 2 },
+          { label: t("rowTanki"), fu: 2 },
+          { label: t("rowRyanmen"), fu: 0 },
+          { label: t("rowShanpon"), fu: 0 },
+        ]}
+      />
     </div>
   );
 }

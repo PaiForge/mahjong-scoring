@@ -1,6 +1,7 @@
 import { getTranslations } from "next-intl/server";
 import { HaiKind } from "@mahjong-scoring/core";
 import { SectionTitle } from "@/app/_components/section-title";
+import { FuSummaryTable } from "../../_components/fu-summary-table";
 import { MentsuExample } from "./mentsu-example";
 
 export async function MentsuFuGuide() {
@@ -113,73 +114,20 @@ export async function MentsuFuGuide() {
       </section>
 
       {/* Summary table */}
-      <section className="space-y-4">
-        <SectionTitle>{t("summaryTitle")}</SectionTitle>
-        <div className="overflow-hidden rounded-xl border border-surface-200">
-          <table className="w-full text-sm">
-            <thead>
-              <tr className="bg-surface-50">
-                <th className="px-4 py-3 text-left font-medium text-surface-600">
-                  {t("colType")}
-                </th>
-                <th className="px-4 py-3 text-right font-medium text-surface-600">
-                  {t("colFu")}
-                </th>
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-surface-100">
-              <tr className="bg-white">
-                <td className="px-4 py-3 text-surface-500">
-                  {t("rowShuntsu")}
-                </td>
-                <td className="px-4 py-3 text-right text-surface-400">
-                  {t("fuUnit", { value: 0 })}
-                </td>
-              </tr>
-              <tr className="bg-white">
-                <td className="px-4 py-3 text-surface-900">
-                  {t("rowOpenSimpleKoutsu")}
-                </td>
-                <td className="px-4 py-3 text-right font-semibold text-primary-600">
-                  {t("fuUnit", { value: 2 })}
-                </td>
-              </tr>
-              <tr className="bg-white">
-                <td className="px-4 py-3 text-surface-900">
-                  {t("rowClosedSimpleKoutsuOrOpenYaochuKoutsu")}
-                </td>
-                <td className="px-4 py-3 text-right font-semibold text-primary-600">
-                  {t("fuUnit", { value: 4 })}
-                </td>
-              </tr>
-              <tr className="bg-white">
-                <td className="px-4 py-3 text-surface-900">
-                  {t("rowClosedYaochuKoutsuOrOpenSimpleKantsu")}
-                </td>
-                <td className="px-4 py-3 text-right font-semibold text-primary-600">
-                  {t("fuUnit", { value: 8 })}
-                </td>
-              </tr>
-              <tr className="bg-white">
-                <td className="px-4 py-3 text-surface-900">
-                  {t("rowClosedSimpleKantsuOrOpenYaochuKantsu")}
-                </td>
-                <td className="px-4 py-3 text-right font-semibold text-primary-600">
-                  {t("fuUnit", { value: 16 })}
-                </td>
-              </tr>
-              <tr className="bg-white">
-                <td className="px-4 py-3 text-surface-900">
-                  {t("rowClosedYaochuKantsu")}
-                </td>
-                <td className="px-4 py-3 text-right font-semibold text-primary-600">
-                  {t("fuUnit", { value: 32 })}
-                </td>
-              </tr>
-            </tbody>
-          </table>
-        </div>
-      </section>
+      <FuSummaryTable
+        title={t("summaryTitle")}
+        colType={t("colType")}
+        colFu={t("colFu")}
+        formatFu={(value) => t("fuUnit", { value })}
+        rows={[
+          { label: t("rowShuntsu"), fu: 0 },
+          { label: t("rowOpenSimpleKoutsu"), fu: 2 },
+          { label: t("rowClosedSimpleKoutsuOrOpenYaochuKoutsu"), fu: 4 },
+          { label: t("rowClosedYaochuKoutsuOrOpenSimpleKantsu"), fu: 8 },
+          { label: t("rowClosedSimpleKantsuOrOpenYaochuKantsu"), fu: 16 },
+          { label: t("rowClosedYaochuKantsu"), fu: 32 },
+        ]}
+      />
     </div>
   );
 }
