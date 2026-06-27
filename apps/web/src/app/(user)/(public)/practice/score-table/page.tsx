@@ -57,7 +57,7 @@ export default async function ScoreTablePage({
           <SectionTitle>{t("howToPlay.title")}</SectionTitle>
           <p className="text-sm text-surface-600">{t("howToPlay.lead")}</p>
           <div className="rounded-xl border border-surface-200 bg-surface-50 p-6">
-            <ScoreTableHowToPlay />
+            <ScoreTableHowToPlay selection={selection} />
           </div>
         </div>
 
