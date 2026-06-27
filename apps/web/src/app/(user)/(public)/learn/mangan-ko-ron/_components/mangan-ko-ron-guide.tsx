@@ -1,7 +1,7 @@
 import { getTranslations } from "next-intl/server";
 import { SectionTitle } from "@/app/_components/section-title";
 import { GuideParagraph } from "../../_components/guide-paragraph";
-import { ManganKoRonScoreTable } from "./mangan-ko-ron-score-table";
+import { ManganScoreTable } from "../../_components/mangan-score-table";
 
 /**
  * 子のロン（満貫以上） — 満貫以上セクション第 1 章
@@ -15,7 +15,7 @@ export async function ManganKoRonGuide() {
         <SectionTitle>{t("bodyTitle")}</SectionTitle>
         <GuideParagraph preLine>{t("body1")}</GuideParagraph>
         <GuideParagraph preLine>{t("body2")}</GuideParagraph>
-        <ManganKoRonScoreTable />
+        <ManganScoreTable role="ko" />
         <GuideParagraph preLine>{t("body3")}</GuideParagraph>
       </section>
     </div>
