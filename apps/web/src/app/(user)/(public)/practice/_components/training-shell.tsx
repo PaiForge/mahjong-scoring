@@ -22,6 +22,13 @@ interface TrainingShellProps {
   readonly children: ReactNode;
   /** 内部ラッパーの max-w クラス（既定: "max-w-md"） */
   readonly maxWidth?: string;
+  /**
+   * 「スキップ」操作。指定時のみ、終了リンクの上にスキップリンクを表示する
+   * （無回答で次問題へ進む練習向け）。
+   */
+  readonly onSkip?: () => void;
+  /** スキップを一時的に無効化する（フィードバック表示中など） */
+  readonly skipDisabled?: boolean;
 }
 
 /**
@@ -38,6 +45,8 @@ export function TrainingShell({
   exitHref,
   children,
   maxWidth = "max-w-md",
+  onSkip,
+  skipDisabled = false,
 }: TrainingShellProps) {
   const tc = useTranslations("challenge");
   const tt = useTranslations("training");
@@ -61,14 +70,28 @@ export function TrainingShell({
           incorrectLabel={tc("incorrect")}
         />
 
-        {/* Exit link */}
-        <div className="text-center">
-          <Link
-            href={exitHref}
-            className="text-sm text-surface-400 underline transition-colors hover:text-surface-600"
-          >
-            {tt("exitButton")}
-          </Link>
+        {/* Skip / Exit: 参考プロジェクトに倣い、スコア下にまとめて縦に並べる */}
+        <div className="space-y-2 text-center">
+          {onSkip && (
+            <div>
+              <button
+                type="button"
+                onClick={onSkip}
+                disabled={skipDisabled}
+                className="text-sm text-surface-400 underline transition-colors hover:text-surface-600 disabled:opacity-50"
+              >
+                {tt("skipButton")}
+              </button>
+            </div>
+          )}
+          <div>
+            <Link
+              href={exitHref}
+              className="text-sm text-surface-400 underline transition-colors hover:text-surface-600"
+            >
+              {tt("exitButton")}
+            </Link>
+          </div>
         </div>
       </div>
     </ContentContainer>

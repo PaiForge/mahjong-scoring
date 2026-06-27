@@ -100,9 +100,18 @@ describe("parseQuestionResults", () => {
     expect(results).toEqual([]);
   });
 
-  it("fu が欠落した要素はフィルタされる", () => {
-    const invalid = { ...validResult };
-    Reflect.deleteProperty(invalid, "fu");
+  it("fu が欠落した要素は満貫以上として許容される", () => {
+    // 満貫以上の問題は符を持たないため、fu の欠落は妥当な結果とみなす。
+    const manganPlus = { ...validResult };
+    Reflect.deleteProperty(manganPlus, "fu");
+    const raw = JSON.stringify([manganPlus]);
+    const results = parseQuestionResults(raw);
+    expect(results).toHaveLength(1);
+    expect(results[0]!.fu).toBeUndefined();
+  });
+
+  it("fu が数値でない（文字列等）要素はフィルタされる", () => {
+    const invalid = { ...validResult, fu: "30" };
     const raw = JSON.stringify([invalid]);
     const results = parseQuestionResults(raw);
     expect(results).toEqual([]);

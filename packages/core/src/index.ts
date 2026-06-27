@@ -66,6 +66,10 @@ export type {
   ScoreTableQuestion,
   ScoreTableAnswer,
   ScoreTableUserAnswer,
+  ScoreTableGeneratorOptions,
+  ScoreTableRole,
+  ScoreTableWin,
+  ScoreTableRange,
 } from "./problem/score-table/types";
 
 // === EXP ===

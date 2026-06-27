@@ -14,7 +14,10 @@ interface PracticeLinkListProps {
  * @param href 練習ページへのパス
  */
 function practiceSlugFromHref(href: string): string | undefined {
-  const match = /^\/practice\/([a-z0-9-]+)\/?$/.exec(href);
+  // クエリ文字列やハッシュは除いてスラッグだけを取り出す
+  // （例: `/practice/score-table?roles=ko` → `score-table`）。
+  const pathOnly = href.split(/[?#]/)[0];
+  const match = /^\/practice\/([a-z0-9-]+)\/?$/.exec(pathOnly);
   if (!match) return undefined;
   return match[1];
 }

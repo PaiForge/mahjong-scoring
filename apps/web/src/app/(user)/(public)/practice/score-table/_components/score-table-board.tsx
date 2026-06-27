@@ -1,11 +1,8 @@
 "use client";
 
-import { useCallback, useState } from "react";
+import { useCallback } from "react";
 import { useTranslations } from "next-intl";
-import {
-  generateScoreTableQuestion,
-  judgeScoreTableAnswer,
-} from "@mahjong-scoring/core";
+import { judgeScoreTableAnswer } from "@mahjong-scoring/core";
 import type {
   ScoreTableQuestion,
   ScoreTableUserAnswer,
@@ -15,6 +12,10 @@ import { ScoreTableAnswerForm } from "./score-table-answer-form";
 import type { ScoreTableQuestionResult } from "../_lib/types";
 
 interface ScoreTableBoardProps {
+  /** 現在の問題 */
+  readonly question: ScoreTableQuestion;
+  /** 次の問題へ進む（回答後の遷移に使用） */
+  readonly onAdvance: () => void;
   readonly showFeedback: boolean;
   readonly isCountingDown?: boolean;
   /** 直前の回答が正解だったか（フィードバック枠の色分けに使用） */
@@ -27,9 +28,12 @@ interface ScoreTableBoardProps {
 /**
  * 点数表早引きの出題盤面（条件の提示と点数の回答）
  *
- * 出題状態と回答ロジックを内包し、チャレンジ・トレーニング両モードで共有する。
+ * 出題状態は呼び出し側（{@link useScoreTableQuestion}）が保持し、本コンポーネントは
+ * 与えられた問題の提示と回答判定のみを行う。チャレンジ・トレーニング両モードで共有する。
  */
 export function ScoreTableBoard({
+  question,
+  onAdvance,
   showFeedback,
   isCountingDown = false,
   lastAnswerCorrect,
@@ -37,13 +41,6 @@ export function ScoreTableBoard({
   onRecordResult,
 }: ScoreTableBoardProps) {
   const t = useTranslations("scoreTableChallenge");
-  const [question, setQuestion] = useState<ScoreTableQuestion>(
-    generateScoreTableQuestion,
-  );
-
-  const advanceQuestion = useCallback(() => {
-    setQuestion(generateScoreTableQuestion());
-  }, []);
 
   const handleSubmit = useCallback(
     (userAnswer: ScoreTableUserAnswer) => {
@@ -63,9 +60,9 @@ export function ScoreTableBoard({
         isCorrect,
       });
 
-      onAnswer(isCorrect, advanceQuestion);
+      onAnswer(isCorrect, onAdvance);
     },
-    [showFeedback, question, onAnswer, advanceQuestion, onRecordResult],
+    [showFeedback, question, onAnswer, onAdvance, onRecordResult],
   );
 
   const feedbackBorderClass = getFeedbackBorderClass(
@@ -96,9 +93,12 @@ export function ScoreTableBoard({
           <span className="text-2xl font-bold text-primary-600">
             {t("han", { count: question.han })}
           </span>
-          <span className="text-2xl font-bold text-primary-600">
-            {t("fu", { count: question.fu })}
-          </span>
+          {/* 満貫以上は符に依存しないため符を表示しない */}
+          {question.fu !== undefined && (
+            <span className="text-2xl font-bold text-primary-600">
+              {t("fu", { count: question.fu })}
+            </span>
+          )}
         </div>
       </div>
 

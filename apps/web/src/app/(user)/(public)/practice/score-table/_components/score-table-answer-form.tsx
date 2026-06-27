@@ -32,6 +32,7 @@ export function ScoreTableAnswerForm({
       onSubmit={onSubmit}
       disabled={disabled}
       translationNamespace="scoreTableChallenge"
+      autoSubmit
     />
   );
 }
