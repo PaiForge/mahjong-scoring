@@ -11,18 +11,28 @@
  */
 
 /** カリキュラムのセクション — 章をまとめる論理グループ */
-export const CURRICULUM_SECTIONS = ['foundation', 'fu', 'yaku', 'score'] as const;
+export const CURRICULUM_SECTIONS = [
+  "foundation",
+  "mangan",
+  "fu",
+  "yaku",
+  "score",
+] as const;
 export type CurriculumSection = (typeof CURRICULUM_SECTIONS)[number];
 
 /** 章スラッグのマスタ — `/learn/<slug>` の slug 部分に対応 */
 export const CURRICULUM_CHAPTER_SLUGS = [
-  'about-this-app',
-  'why-scoring-is-complex',
-  'jantou-fu',
-  'mentsu-fu',
-  'machi-fu',
-  'tehai-fu',
-  'yaku',
+  "about-this-app",
+  "why-scoring-is-complex",
+  "mangan-ko-ron",
+  "mangan-oya-ron",
+  "mangan-ko-tsumo",
+  "mangan-oya-tsumo",
+  "jantou-fu",
+  "mentsu-fu",
+  "machi-fu",
+  "tehai-fu",
+  "yaku",
 ] as const;
 export type CurriculumChapterSlug = (typeof CURRICULUM_CHAPTER_SLUGS)[number];
 
@@ -38,56 +48,84 @@ export interface CurriculumChapter {
 /** 章メタデータのマスタ配列（order 昇順で並べる） */
 export const CURRICULUM: readonly CurriculumChapter[] = [
   {
-    slug: 'about-this-app',
-    section: 'foundation',
+    slug: "about-this-app",
+    section: "foundation",
     order: 10,
-    i18nKey: 'learnCurriculum.chapters.aboutThisApp',
+    i18nKey: "learnCurriculum.chapters.aboutThisApp",
   },
   {
-    slug: 'why-scoring-is-complex',
-    section: 'foundation',
+    slug: "why-scoring-is-complex",
+    section: "foundation",
     order: 20,
-    i18nKey: 'learnCurriculum.chapters.whyScoringIsComplex',
+    i18nKey: "learnCurriculum.chapters.whyScoringIsComplex",
   },
   {
-    slug: 'jantou-fu',
-    section: 'fu',
+    slug: "mangan-ko-ron",
+    section: "mangan",
+    order: 21,
+    practiceHrefs: ["/practice/mangan-score-calculation"],
+    i18nKey: "learnCurriculum.chapters.manganKoRon",
+  },
+  {
+    slug: "mangan-oya-ron",
+    section: "mangan",
+    order: 22,
+    practiceHrefs: ["/practice/mangan-score-calculation"],
+    i18nKey: "learnCurriculum.chapters.manganOyaRon",
+  },
+  {
+    slug: "mangan-ko-tsumo",
+    section: "mangan",
+    order: 23,
+    practiceHrefs: ["/practice/mangan-score-calculation"],
+    i18nKey: "learnCurriculum.chapters.manganKoTsumo",
+  },
+  {
+    slug: "mangan-oya-tsumo",
+    section: "mangan",
+    order: 24,
+    practiceHrefs: ["/practice/mangan-score-calculation"],
+    i18nKey: "learnCurriculum.chapters.manganOyaTsumo",
+  },
+  {
+    slug: "jantou-fu",
+    section: "fu",
     order: 30,
-    practiceHrefs: ['/practice/jantou-fu'],
-    i18nKey: 'learnCurriculum.chapters.jantouFu',
+    practiceHrefs: ["/practice/jantou-fu"],
+    i18nKey: "learnCurriculum.chapters.jantouFu",
   },
   {
-    slug: 'mentsu-fu',
-    section: 'fu',
+    slug: "mentsu-fu",
+    section: "fu",
     order: 40,
-    practiceHrefs: ['/practice/mentsu-fu'],
-    i18nKey: 'learnCurriculum.chapters.mentsuFu',
+    practiceHrefs: ["/practice/mentsu-fu"],
+    i18nKey: "learnCurriculum.chapters.mentsuFu",
   },
   {
-    slug: 'machi-fu',
-    section: 'fu',
+    slug: "machi-fu",
+    section: "fu",
     order: 50,
-    practiceHrefs: ['/practice/machi-fu'],
-    i18nKey: 'learnCurriculum.chapters.machiFu',
+    practiceHrefs: ["/practice/machi-fu"],
+    i18nKey: "learnCurriculum.chapters.machiFu",
   },
   {
-    slug: 'tehai-fu',
-    section: 'fu',
+    slug: "tehai-fu",
+    section: "fu",
     order: 60,
     practiceHrefs: [
-      '/practice/tehai-fu',
-      '/practice/jantou-fu',
-      '/practice/mentsu-fu',
-      '/practice/machi-fu',
+      "/practice/tehai-fu",
+      "/practice/jantou-fu",
+      "/practice/mentsu-fu",
+      "/practice/machi-fu",
     ],
-    i18nKey: 'learnCurriculum.chapters.tehaiFu',
+    i18nKey: "learnCurriculum.chapters.tehaiFu",
   },
   {
-    slug: 'yaku',
-    section: 'yaku',
+    slug: "yaku",
+    section: "yaku",
     order: 70,
-    practiceHrefs: ['/practice/yaku', '/practice/han-count'],
-    i18nKey: 'learnCurriculum.chapters.yaku',
+    practiceHrefs: ["/practice/yaku", "/practice/han-count"],
+    i18nKey: "learnCurriculum.chapters.yaku",
   },
 ] as const;
 
@@ -99,16 +137,18 @@ export const CURRICULUM: readonly CurriculumChapter[] = [
  * 将来 CURRICULUM の定義順序が崩れた場合でも API の振る舞いを安定させるために
  * モジュール読込時に 1 回だけソートしておく。
  */
-const CURRICULUM_SORTED_BY_ORDER: readonly CurriculumChapter[] = [...CURRICULUM].sort(
-  (a, b) => a.order - b.order,
-);
+const CURRICULUM_SORTED_BY_ORDER: readonly CurriculumChapter[] = [
+  ...CURRICULUM,
+].sort((a, b) => a.order - b.order);
 
 /**
  * slug から CurriculumChapter を O(1) で引くための lookup map。
  * モジュール読込時に 1 回だけ構築される。
  */
-const CURRICULUM_BY_SLUG: ReadonlyMap<CurriculumChapterSlug, CurriculumChapter> =
-  new Map(CURRICULUM.map((c) => [c.slug, c]));
+const CURRICULUM_BY_SLUG: ReadonlyMap<
+  CurriculumChapterSlug,
+  CurriculumChapter
+> = new Map(CURRICULUM.map((c) => [c.slug, c]));
 
 /**
  * slug から章メタデータを O(1) で取得する。
@@ -162,7 +202,7 @@ export function isCurriculumChapterSlug(
   value: unknown,
 ): value is CurriculumChapterSlug {
   return (
-    typeof value === 'string' &&
+    typeof value === "string" &&
     (CURRICULUM_CHAPTER_SLUGS as readonly string[]).includes(value)
   );
 }
@@ -183,7 +223,7 @@ export function isCurriculumChapterSlug(
  * @param chapter 対象の章メタデータ
  */
 export function getChapterI18nPath(chapter: CurriculumChapter): string {
-  const prefix = 'learnCurriculum.';
+  const prefix = "learnCurriculum.";
   return chapter.i18nKey.startsWith(prefix)
     ? chapter.i18nKey.slice(prefix.length)
     : chapter.i18nKey;
