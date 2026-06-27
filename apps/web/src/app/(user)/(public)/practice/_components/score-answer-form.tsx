@@ -21,6 +21,12 @@ interface ScoreAnswerFormProps {
   readonly translationNamespace: string;
   /** 満貫以上の点数のみ表示する */
   readonly manganOnly?: boolean;
+  /**
+   * 選択完了時に自動送信する（「回答する」ボタンを押さずに送信扱いにする）。
+   * 単一選択は値が選ばれた時点、子ツモは2つとも選ばれた時点で送信する。
+   * 有効時は送信ボタンを表示しない。
+   */
+  readonly autoSubmit?: boolean;
 }
 
 /**
@@ -38,6 +44,7 @@ export function ScoreAnswerForm({
   disabled = false,
   translationNamespace,
   manganOnly,
+  autoSubmit = false,
 }: ScoreAnswerFormProps) {
   const t = useTranslations(translationNamespace);
   const [score, setScore] = useState<string>("");
@@ -56,26 +63,50 @@ export function ScoreAnswerForm({
     setScoreFromOya("");
   }, [questionKey]);
 
+  // 単一選択（ロン / 親ツモ）の値から回答を送信する
+  const submitSingle = (value: string) => {
+    const scoreNum = parseInt(value, 10);
+    if (isNaN(scoreNum)) return;
+    onSubmit(
+      isOyaTsumo
+        ? { type: "oyaTsumo", scoreAll: scoreNum }
+        : { type: "ron", score: scoreNum },
+    );
+  };
+
+  // 子ツモの2値から回答を送信する
+  const submitKoTsumo = (koValue: string, oyaValue: string) => {
+    const koScore = parseInt(koValue, 10);
+    const oyaScore = parseInt(oyaValue, 10);
+    if (isNaN(koScore) || isNaN(oyaScore)) return;
+    onSubmit({ type: "koTsumo", scoreFromKo: koScore, scoreFromOya: oyaScore });
+  };
+
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-
     if (isKoTsumo) {
-      const koScore = parseInt(scoreFromKo, 10);
-      const oyaScore = parseInt(scoreFromOya, 10);
-      if (isNaN(koScore) || isNaN(oyaScore)) return;
-      onSubmit({
-        type: "koTsumo",
-        scoreFromKo: koScore,
-        scoreFromOya: oyaScore,
-      });
-    } else if (isOyaTsumo) {
-      const scoreNum = parseInt(score, 10);
-      if (isNaN(scoreNum)) return;
-      onSubmit({ type: "oyaTsumo", scoreAll: scoreNum });
+      submitKoTsumo(scoreFromKo, scoreFromOya);
     } else {
-      const scoreNum = parseInt(score, 10);
-      if (isNaN(scoreNum)) return;
-      onSubmit({ type: "ron", score: scoreNum });
+      submitSingle(score);
+    }
+  };
+
+  const handleSingleChange = (value: string) => {
+    setScore(value);
+    if (autoSubmit && !disabled && value !== "") submitSingle(value);
+  };
+
+  const handleKoChange = (value: string) => {
+    setScoreFromKo(value);
+    if (autoSubmit && !disabled && value !== "" && scoreFromOya !== "") {
+      submitKoTsumo(value, scoreFromOya);
+    }
+  };
+
+  const handleOyaChange = (value: string) => {
+    setScoreFromOya(value);
+    if (autoSubmit && !disabled && value !== "" && scoreFromKo !== "") {
+      submitKoTsumo(scoreFromKo, value);
     }
   };
 
@@ -92,7 +123,7 @@ export function ScoreAnswerForm({
               </label>
               <select
                 value={scoreFromKo}
-                onChange={(e) => setScoreFromKo(e.target.value)}
+                onChange={(e) => handleKoChange(e.target.value)}
                 disabled={disabled}
                 required
                 className={selectClass(scoreFromKo !== "")}
@@ -114,7 +145,7 @@ export function ScoreAnswerForm({
               </label>
               <select
                 value={scoreFromOya}
-                onChange={(e) => setScoreFromOya(e.target.value)}
+                onChange={(e) => handleOyaChange(e.target.value)}
                 disabled={disabled}
                 required
                 className={selectClass(scoreFromOya !== "")}
@@ -138,7 +169,7 @@ export function ScoreAnswerForm({
           </label>
           <select
             value={score}
-            onChange={(e) => setScore(e.target.value)}
+            onChange={(e) => handleSingleChange(e.target.value)}
             disabled={disabled}
             required
             className={selectClass(score !== "")}
@@ -156,13 +187,16 @@ export function ScoreAnswerForm({
         </div>
       )}
 
-      <button
-        type="submit"
-        disabled={disabled}
-        className="w-full rounded-lg bg-primary-500 py-3 px-6 font-bold text-white transition-colors hover:bg-primary-600 disabled:cursor-not-allowed disabled:bg-surface-400 disabled:text-surface-200"
-      >
-        {t("answer")}
-      </button>
+      {/* 自動送信時は「回答する」ボタンを表示しない（選択完了で送信扱い） */}
+      {!autoSubmit && (
+        <button
+          type="submit"
+          disabled={disabled}
+          className="w-full rounded-lg bg-primary-500 py-3 px-6 font-bold text-white transition-colors hover:bg-primary-600 disabled:cursor-not-allowed disabled:bg-surface-400 disabled:text-surface-200"
+        >
+          {t("answer")}
+        </button>
+      )}
     </form>
   );
 }
