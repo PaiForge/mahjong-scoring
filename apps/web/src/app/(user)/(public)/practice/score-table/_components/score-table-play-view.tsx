@@ -7,6 +7,7 @@ import { useSaveOnFinish } from "../../_hooks/use-save-on-finish";
 import { useRecordedResults } from "../../_hooks/use-recorded-results";
 import { ChallengeShell } from "../../_components/challenge-shell";
 import { ScoreTableBoard } from "./score-table-board";
+import { useScoreTableQuestion } from "../_hooks/use-score-table-question";
 import type { ScoreTableQuestionResult } from "../_lib/types";
 import { RESULT_STORAGE_KEY } from "../_lib/types";
 
@@ -24,6 +25,7 @@ export function ScoreTablePlayView({
   const t = useTranslations("scoreTableChallenge");
   const { gameSession, timerControl } = useTimedSession();
   const handleFinish = useSaveOnFinish("score_table");
+  const { question, advance } = useScoreTableQuestion(generatorOptions);
 
   const { recordResult } = useRecordedResults<ScoreTableQuestionResult>(
     RESULT_STORAGE_KEY,
@@ -40,12 +42,13 @@ export function ScoreTablePlayView({
       onFinish={handleFinish}
     >
       <ScoreTableBoard
+        question={question}
+        onAdvance={advance}
         showFeedback={gameSession.showFeedback}
         isCountingDown={gameSession.isCountingDown}
         lastAnswerCorrect={gameSession.lastAnswerCorrect}
         onAnswer={gameSession.handleAnswer}
         onRecordResult={recordResult}
-        generatorOptions={generatorOptions}
       />
     </ChallengeShell>
   );

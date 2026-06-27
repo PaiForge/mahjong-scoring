@@ -215,6 +215,7 @@
   "training": {
     "modeLabel": "トレーニング",
     "startButton": "トレーニング",
+    "skipButton": "スキップ",
     "exitButton": "終了する"
   },
   "exp": {
@@ -1322,7 +1323,6 @@
     "fromOya": "親から",
     "all": "オール",
     "answer": "回答する",
-    "skip": "スキップ",
     "learnLink": "点数表を見る",
     "questionLabel": "この条件の点数は？",
     "howToPlay": {
