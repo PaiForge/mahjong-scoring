@@ -43,11 +43,12 @@ export function ScoreProblemList({
       translationNamespace={translationNamespace}
       isCorrect={(r) => r.isCorrect}
       renderSummary={(result) => {
+        // \u6E80\u8CAB\u4EE5\u4E0A\u306E\u554F\u984C\u306F\u7B26\u3092\u6301\u305F\u306A\u3044\u305F\u3081\u3001\u7B26\u306E\u8868\u793A\u3092\u7701\u304F\u3002
         const summary = [
           result.isOya ? t("oya") : t("ko"),
           result.isTsumo ? t("tsumo") : t("ron"),
           t("han", { count: result.han }),
-          t("fu", { count: result.fu }),
+          ...(result.fu === undefined ? [] : [t("fu", { count: result.fu })]),
         ].join("\u30FB");
         return summary;
       }}

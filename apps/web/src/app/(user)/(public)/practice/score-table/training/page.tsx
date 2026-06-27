@@ -15,12 +15,27 @@ import type { Metadata } from "next";
 import { getTranslations } from "next-intl/server";
 import { createMetadata } from "@/app/_lib/metadata";
 import { ScoreTableTrainingView } from "../_components/score-table-training-view";
+import {
+  searchParamsToSelection,
+  selectionToGeneratorOptions,
+} from "../_lib/options";
+
+type SearchParams = Record<string, string | string[] | undefined>;
 
 export async function generateMetadata(): Promise<Metadata> {
   const t = await getTranslations("scoreTableChallenge");
   return createMetadata({ title: t("title"), description: t("description") });
 }
 
-export default function ScoreTableTrainingPage() {
-  return <ScoreTableTrainingView />;
+export default async function ScoreTableTrainingPage({
+  searchParams,
+}: {
+  searchParams: Promise<SearchParams>;
+}) {
+  const selection = searchParamsToSelection(await searchParams);
+  return (
+    <ScoreTableTrainingView
+      generatorOptions={selectionToGeneratorOptions(selection)}
+    />
+  );
 }

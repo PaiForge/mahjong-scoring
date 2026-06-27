@@ -53,9 +53,7 @@ describe("generateScoreTableQuestion", () => {
       for (let i = 0; i < 100; i++) {
         const question = generateScoreTableQuestion();
         const winType = question.isTsumo ? "tsumo" : "ron";
-        expect(
-          isInvalidCell(question.han, question.fu, winType),
-        ).toBe(false);
+        expect(isInvalidCell(question.han, question.fu, winType)).toBe(false);
       }
     });
 
@@ -156,10 +154,7 @@ describe("generateScoreTableQuestion", () => {
           const expected = calculateOyaScore(question.han, question.fu);
           expect(question.correctAnswer.type).toBe("oyaTsumo");
           if (question.correctAnswer.type === "oyaTsumo") {
-            const tsumoNum = parseInt(
-              expected.tsumo.replace(/[^\d]/g, ""),
-              10,
-            );
+            const tsumoNum = parseInt(expected.tsumo.replace(/[^\d]/g, ""), 10);
             expect(question.correctAnswer.scoreAll).toBe(tsumoNum);
           }
           return;
@@ -359,14 +354,86 @@ describe("generateScoreTableQuestion", () => {
     });
   });
 
+  describe("役割・和了方法の絞り込み", () => {
+    it("roles を ko に限定すると常に子が生成されること", () => {
+      for (let i = 0; i < 100; i++) {
+        const question = generateScoreTableQuestion({ roles: ["ko"] });
+        expect(question.isOya).toBe(false);
+      }
+    });
+
+    it("wins を ron に限定すると常にロンが生成されること", () => {
+      for (let i = 0; i < 100; i++) {
+        const question = generateScoreTableQuestion({ wins: ["ron"] });
+        expect(question.isTsumo).toBe(false);
+      }
+    });
+  });
+
+  describe("満貫以上の出題（ranges: manganPlus）", () => {
+    it("翻数が 5〜13、符は undefined であること", () => {
+      for (let i = 0; i < 100; i++) {
+        const question = generateScoreTableQuestion({ ranges: ["manganPlus"] });
+        expect(question.han).toBeGreaterThanOrEqual(5);
+        expect(question.han).toBeLessThanOrEqual(13);
+        expect(question.fu).toBeUndefined();
+      }
+    });
+
+    it("子ロン満貫(5翻)は 8000、跳満(6翻)は 12000 であること", () => {
+      const scores = new Map<number, number>();
+      for (let i = 0; i < 500 && scores.size < 2; i++) {
+        const q = generateScoreTableQuestion({
+          roles: ["ko"],
+          wins: ["ron"],
+          ranges: ["manganPlus"],
+        });
+        if (q.correctAnswer.type === "ron" && (q.han === 5 || q.han === 6)) {
+          scores.set(q.han, q.correctAnswer.score);
+        }
+      }
+      expect(scores.get(5)).toBe(8000);
+      expect(scores.get(6)).toBe(12000);
+    });
+
+    it("親ツモ満貫(5翻)は 4000 オールであること", () => {
+      for (let i = 0; i < 500; i++) {
+        const q = generateScoreTableQuestion({
+          roles: ["oya"],
+          wins: ["tsumo"],
+          ranges: ["manganPlus"],
+        });
+        if (q.han === 5 && q.correctAnswer.type === "oyaTsumo") {
+          expect(q.correctAnswer.scoreAll).toBe(4000);
+          return;
+        }
+      }
+      console.warn("親ツモ5翻が生成されなかったためスキップ");
+    });
+
+    it("子ツモ倍満(8翻)は 4000/8000 であること", () => {
+      for (let i = 0; i < 500; i++) {
+        const q = generateScoreTableQuestion({
+          roles: ["ko"],
+          wins: ["tsumo"],
+          ranges: ["manganPlus"],
+        });
+        if (q.han === 8 && q.correctAnswer.type === "koTsumo") {
+          expect(q.correctAnswer.scoreFromKo).toBe(4000);
+          expect(q.correctAnswer.scoreFromOya).toBe(8000);
+          return;
+        }
+      }
+      console.warn("子ツモ8翻が生成されなかったためスキップ");
+    });
+  });
+
   describe("buildValidCombinations（間接テスト）", () => {
     it("500回生成しても無効な組み合わせが一度も出ないこと", () => {
       for (let i = 0; i < 500; i++) {
         const question = generateScoreTableQuestion();
         const winType = question.isTsumo ? "tsumo" : "ron";
-        expect(
-          isInvalidCell(question.han, question.fu, winType),
-        ).toBe(false);
+        expect(isInvalidCell(question.han, question.fu, winType)).toBe(false);
       }
     });
 
@@ -379,9 +446,7 @@ describe("generateScoreTableQuestion", () => {
           maxFu: 110,
         });
         const winType = question.isTsumo ? "tsumo" : "ron";
-        expect(
-          isInvalidCell(question.han, question.fu, winType),
-        ).toBe(false);
+        expect(isInvalidCell(question.han, question.fu, winType)).toBe(false);
       }
     });
   });

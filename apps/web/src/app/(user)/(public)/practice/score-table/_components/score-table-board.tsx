@@ -7,6 +7,7 @@ import {
   judgeScoreTableAnswer,
 } from "@mahjong-scoring/core";
 import type {
+  ScoreTableGeneratorOptions,
   ScoreTableQuestion,
   ScoreTableUserAnswer,
 } from "@mahjong-scoring/core";
@@ -22,6 +23,8 @@ interface ScoreTableBoardProps {
   readonly onAnswer: (correct: boolean, onNext: () => void) => void;
   /** 回答結果の記録（チャレンジの結果ページ用。トレーニングでは省略） */
   readonly onRecordResult?: (result: ScoreTableQuestionResult) => void;
+  /** 出題条件（親子・ツモロン・点数帯の絞り込み）。未指定時は従来の満貫未満ランダム */
+  readonly generatorOptions?: ScoreTableGeneratorOptions;
 }
 
 /**
@@ -35,15 +38,16 @@ export function ScoreTableBoard({
   lastAnswerCorrect,
   onAnswer,
   onRecordResult,
+  generatorOptions,
 }: ScoreTableBoardProps) {
   const t = useTranslations("scoreTableChallenge");
-  const [question, setQuestion] = useState<ScoreTableQuestion>(
-    generateScoreTableQuestion,
+  const [question, setQuestion] = useState<ScoreTableQuestion>(() =>
+    generateScoreTableQuestion(generatorOptions),
   );
 
   const advanceQuestion = useCallback(() => {
-    setQuestion(generateScoreTableQuestion());
-  }, []);
+    setQuestion(generateScoreTableQuestion(generatorOptions));
+  }, [generatorOptions]);
 
   const handleSubmit = useCallback(
     (userAnswer: ScoreTableUserAnswer) => {
@@ -96,9 +100,12 @@ export function ScoreTableBoard({
           <span className="text-2xl font-bold text-primary-600">
             {t("han", { count: question.han })}
           </span>
-          <span className="text-2xl font-bold text-primary-600">
-            {t("fu", { count: question.fu })}
-          </span>
+          {/* 満貫以上は符に依存しないため符を表示しない */}
+          {question.fu !== undefined && (
+            <span className="text-2xl font-bold text-primary-600">
+              {t("fu", { count: question.fu })}
+            </span>
+          )}
         </div>
       </div>
 

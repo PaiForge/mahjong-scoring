@@ -1334,6 +1334,19 @@
       "yourAnswer": "あなたの回答",
       "correct": "正解",
       "incorrect": "不正解"
+    },
+    "setup": {
+      "title": "出題設定",
+      "questionMode": "出題モード",
+      "oya": "親",
+      "ko": "子",
+      "winType": "和了方法",
+      "tsumo": "ツモ",
+      "ron": "ロン",
+      "targetScore": "出題する点数",
+      "nonMangan": "満貫未満",
+      "manganPlus": "満貫以上",
+      "emptyWarning": "各項目から最低1つずつ選択してください"
     }
   },
   "scoreCalculationChallenge": {

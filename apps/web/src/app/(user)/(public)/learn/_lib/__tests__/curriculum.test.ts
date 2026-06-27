@@ -125,8 +125,9 @@ describe("CURRICULUM", () => {
 
   it("has practice hrefs with only lowercase kebab-case slugs after /practice/", () => {
     // 不正な文字を含む href が紛れ込むと CHECK 制約や i18n キー解決が失敗する
-    // 先回り検知のための健全性テスト
-    const segmentPattern = /^\/practice\/[a-z0-9]+(?:-[a-z0-9]+)*$/;
+    // 先回り検知のための健全性テスト。
+    // 出題条件のクエリ文字列（例: `?roles=ko&wins=ron&ranges=plus`）は許容する。
+    const segmentPattern = /^\/practice\/[a-z0-9]+(?:-[a-z0-9]+)*(?:\?[^#]*)?$/;
     for (const chapter of CURRICULUM) {
       for (const href of chapter.practiceHrefs ?? []) {
         expect(href).toMatch(segmentPattern);

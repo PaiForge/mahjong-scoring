@@ -2,6 +2,12 @@ import type { Metadata } from "next";
 import { getTranslations } from "next-intl/server";
 import { createMetadata } from "@/app/_lib/metadata";
 import { ScoreTablePlayView } from "../_components/score-table-play-view";
+import {
+  searchParamsToSelection,
+  selectionToGeneratorOptions,
+} from "../_lib/options";
+
+type SearchParams = Record<string, string | string[] | undefined>;
 
 export async function generateMetadata(): Promise<Metadata> {
   const t = await getTranslations("scoreTableChallenge");
@@ -23,6 +29,15 @@ export async function generateMetadata(): Promise<Metadata> {
  * 4. 問題別の回答結果を sessionStorage に保存
  * 5. スコアを保存し、result ページへリダイレクト
  */
-export default function ScoreTablePlayPage() {
-  return <ScoreTablePlayView />;
+export default async function ScoreTablePlayPage({
+  searchParams,
+}: {
+  searchParams: Promise<SearchParams>;
+}) {
+  const selection = searchParamsToSelection(await searchParams);
+  return (
+    <ScoreTablePlayView
+      generatorOptions={selectionToGeneratorOptions(selection)}
+    />
+  );
 }

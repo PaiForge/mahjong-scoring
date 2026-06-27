@@ -8,7 +8,7 @@
  * ロン正解
  */
 export interface RonAnswer {
-  readonly type: 'ron';
+  readonly type: "ron";
   readonly score: number;
 }
 
@@ -17,7 +17,7 @@ export interface RonAnswer {
  * 親ツモ正解
  */
 export interface OyaTsumoAnswer {
-  readonly type: 'oyaTsumo';
+  readonly type: "oyaTsumo";
   /** オール点数 */
   readonly scoreAll: number;
 }
@@ -27,7 +27,7 @@ export interface OyaTsumoAnswer {
  * 子ツモ正解
  */
 export interface KoTsumoAnswer {
-  readonly type: 'koTsumo';
+  readonly type: "koTsumo";
   /** 子からの支払い */
   readonly scoreFromKo: number;
   /** 親からの支払い */
@@ -49,7 +49,11 @@ export interface ScoreTableQuestion {
   readonly isOya: boolean;
   readonly isTsumo: boolean;
   readonly han: number;
-  readonly fu: number;
+  /**
+   * 符。満貫以上（manganPlus）の問題では点数が符に依存しないため `undefined`。
+   * 満貫未満の問題では必ず数値が入る。
+   */
+  readonly fu?: number;
   readonly correctAnswer: ScoreTableAnswer;
 }
 
@@ -62,17 +66,32 @@ export interface ScoreTableQuestion {
  */
 export type ScoreTableUserAnswer = ScoreTableAnswer;
 
+/** 出題する役割（親 / 子） */
+export type ScoreTableRole = "oya" | "ko";
+
+/** 出題する和了方法（ツモ / ロン） */
+export type ScoreTableWin = "tsumo" | "ron";
+
+/** 出題する点数帯（満貫未満 / 満貫以上） */
+export type ScoreTableRange = "nonMangan" | "manganPlus";
+
 /**
- * 問題生成オプション（将来の拡張用）
+ * 問題生成オプション
  * 点数表生成オプション
  */
 export interface ScoreTableGeneratorOptions {
-  /** 翻数の最小値（既定: 1） */
+  /** 翻数の最小値（満貫未満帯のみに作用。既定: 1） */
   readonly minHan?: number;
-  /** 翻数の最大値（既定: 3） */
+  /** 翻数の最大値（満貫未満帯のみに作用。既定: 3） */
   readonly maxHan?: number;
-  /** 符の最小値（既定: 20） */
+  /** 符の最小値（満貫未満帯のみに作用。既定: 20） */
   readonly minFu?: number;
-  /** 符の最大値（既定: 60） */
+  /** 符の最大値（満貫未満帯のみに作用。既定: 60） */
   readonly maxFu?: number;
+  /** 出題する役割。既定: 親・子の両方 */
+  readonly roles?: readonly ScoreTableRole[];
+  /** 出題する和了方法。既定: ツモ・ロンの両方 */
+  readonly wins?: readonly ScoreTableWin[];
+  /** 出題する点数帯。既定: 満貫未満のみ（後方互換のため） */
+  readonly ranges?: readonly ScoreTableRange[];
 }
