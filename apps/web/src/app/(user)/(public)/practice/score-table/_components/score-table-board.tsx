@@ -33,6 +33,22 @@ interface ScoreTableBoardProps {
 }
 
 /**
+ * 2問の表示内容（親子・ツモロン・翻・符）が同一かを判定する
+ * 表示同一判定
+ */
+function isSameDisplayedQuestion(
+  a: ScoreTableQuestion,
+  b: ScoreTableQuestion,
+): boolean {
+  return (
+    a.isOya === b.isOya &&
+    a.isTsumo === b.isTsumo &&
+    a.han === b.han &&
+    a.fu === b.fu
+  );
+}
+
+/**
  * 点数表早引きの出題盤面（条件の提示と点数の回答）
  *
  * 出題状態と回答ロジックを内包し、チャレンジ・トレーニング両モードで共有する。
@@ -52,7 +68,17 @@ export function ScoreTableBoard({
   );
 
   const advanceQuestion = useCallback(() => {
-    setQuestion(generateScoreTableQuestion(generatorOptions));
+    setQuestion((prev) => {
+      // 直前と表示が同一の問題が連続すると、スキップや次問題への遷移で
+      // 「反応がない」ように見える（特に親子・ツモロン・点数帯を絞った
+      // トレーニングでは表示の差が翻数のみになりやすい）。可能な範囲で
+      // 直前と異なる問題になるまで引き直す。候補が1種類しかない場合は諦める。
+      let next = generateScoreTableQuestion(generatorOptions);
+      for (let i = 0; i < 20 && isSameDisplayedQuestion(prev, next); i++) {
+        next = generateScoreTableQuestion(generatorOptions);
+      }
+      return next;
+    });
   }, [generatorOptions]);
 
   const handleSubmit = useCallback(
