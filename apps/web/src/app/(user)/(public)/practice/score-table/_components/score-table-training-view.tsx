@@ -34,6 +34,7 @@ export function ScoreTableTrainingView({
         lastAnswerCorrect={lastAnswerCorrect}
         onAnswer={handleAnswer}
         generatorOptions={generatorOptions}
+        allowSkip
       />
     </TrainingShell>
   );

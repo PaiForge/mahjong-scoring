@@ -25,6 +25,11 @@ interface ScoreTableBoardProps {
   readonly onRecordResult?: (result: ScoreTableQuestionResult) => void;
   /** 出題条件（親子・ツモロン・点数帯の絞り込み）。未指定時は従来の満貫未満ランダム */
   readonly generatorOptions?: ScoreTableGeneratorOptions;
+  /**
+   * スキップ（無回答で次問題へ）を許可するか。
+   * トレーニング専用。タイマー制のチャレンジでは難問回避による不正防止のため無効。
+   */
+  readonly allowSkip?: boolean;
 }
 
 /**
@@ -39,6 +44,7 @@ export function ScoreTableBoard({
   onAnswer,
   onRecordResult,
   generatorOptions,
+  allowSkip = false,
 }: ScoreTableBoardProps) {
   const t = useTranslations("scoreTableChallenge");
   const [question, setQuestion] = useState<ScoreTableQuestion>(() =>
@@ -115,6 +121,20 @@ export function ScoreTableBoard({
         onSubmit={handleSubmit}
         disabled={showFeedback || isCountingDown}
       />
+
+      {/* Skip（トレーニングのみ。無回答で次問題へ進む） */}
+      {allowSkip && (
+        <div className="text-center">
+          <button
+            type="button"
+            onClick={advanceQuestion}
+            disabled={showFeedback || isCountingDown}
+            className="text-sm text-surface-500 underline transition-colors hover:text-surface-700 disabled:opacity-50"
+          >
+            {t("skip")}
+          </button>
+        </div>
+      )}
     </div>
   );
 }
