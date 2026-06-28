@@ -11,6 +11,7 @@ import { ContentContainer } from "@/app/_components/content-container";
 import { PageTitle } from "@/app/_components/page-title";
 import { SectionTitle } from "@/app/_components/section-title";
 import { createMetadata } from "@/app/_lib/metadata";
+import { MembersOnlyGate } from "./_components/members-only-gate";
 import { RuleSettingsSection } from "./_components/rule-settings-section";
 
 export async function generateMetadata(): Promise<Metadata> {
@@ -26,10 +27,12 @@ export default async function PreferencesPage() {
       <PageTitle>{t("pageTitle")}</PageTitle>
 
       <div className="space-y-8">
-        <section className="space-y-4">
-          <SectionTitle>{t("rulesSectionTitle")}</SectionTitle>
-          <RuleSettingsSection />
-        </section>
+        <MembersOnlyGate>
+          <section className="space-y-4">
+            <SectionTitle>{t("rulesSectionTitle")}</SectionTitle>
+            <RuleSettingsSection />
+          </section>
+        </MembersOnlyGate>
       </div>
     </ContentContainer>
   );

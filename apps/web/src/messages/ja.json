@@ -26,7 +26,13 @@
     "pageTitle": "設定",
     "rulesSectionTitle": "麻雀ルール",
     "renfonpaiTitle": "連風牌の雀頭を4符にする",
-    "renfonpaiDescription": "場風と自風が同じ風牌（連風牌）の雀頭を、場風2符＋自風2符として4符で計算します。オフのときは通常の役牌と同じく2符です。"
+    "renfonpaiDescription": "場風と自風が同じ風牌（連風牌）の雀頭を、場風2符＋自風2符として4符で計算します。オフのときは通常の役牌と同じく2符です。",
+    "membersGate": {
+      "title": "設定は会員限定の機能です",
+      "description": "無料登録すると、麻雀のローカルルールを自分好みにカスタマイズできます。",
+      "cta": "無料登録",
+      "signInLink": "ログイン"
+    }
   },
   "deleteAccount": {
     "pageTitle": "退会",
