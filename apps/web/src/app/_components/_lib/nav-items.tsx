@@ -2,6 +2,7 @@ import { DumbbellIcon } from "../icons/dumbbell-icon";
 import { BookIcon } from "../icons/book-icon";
 import { TableIcon } from "../icons/table-icon";
 import { ChartIcon } from "../icons/chart-icon";
+import { SettingsIcon } from "../icons/settings-icon";
 
 /**
  * ナビゲーション項目の定義
@@ -19,4 +20,5 @@ export const NAV_ITEMS: readonly NavItemDef[] = [
   { href: "/learn", labelKey: "learn", icon: <BookIcon /> },
   { href: "/reference", labelKey: "reference", icon: <TableIcon /> },
   { href: "/leaderboard", labelKey: "leaderboard", icon: <ChartIcon /> },
+  { href: "/preferences", labelKey: "settings", icon: <SettingsIcon /> },
 ];
