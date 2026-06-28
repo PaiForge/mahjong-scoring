@@ -33,23 +33,23 @@ export function MembersOnlyGate({
       </div>
 
       {showCta && (
-        <div className="absolute inset-0 z-10 flex items-center justify-center rounded-lg bg-white/30 p-4 backdrop-blur-[1px]">
-          <div className="w-full max-w-sm rounded-lg border border-primary-200 bg-primary-50/95 p-5 text-center shadow-sm">
+        <div className="absolute inset-0 z-10 flex flex-col items-center justify-center gap-3 p-4 text-center">
+          <div>
             <p className="font-semibold text-surface-900">{t("title")}</p>
             <p className="mt-1 text-sm text-surface-600">{t("description")}</p>
-            <Link
-              href="/sign-up"
-              className="mt-4 inline-flex w-full items-center justify-center rounded-lg bg-primary-500 px-6 py-2.5 text-sm font-semibold text-white shadow-sm transition-colors hover:bg-primary-600"
-            >
-              {t("cta")}
-            </Link>
-            <Link
-              href="/sign-in?redirect=/preferences"
-              className="mt-2 inline-block text-xs font-semibold text-primary-600 hover:underline"
-            >
-              {t("signInLink")}
-            </Link>
           </div>
+          <Link
+            href="/sign-up"
+            className="inline-flex items-center justify-center rounded-lg bg-primary-500 px-6 py-2.5 text-sm font-semibold text-white shadow-sm transition-colors hover:bg-primary-600"
+          >
+            {t("cta")}
+          </Link>
+          <Link
+            href="/sign-in?redirect=/preferences"
+            className="text-xs font-semibold text-primary-600 hover:underline"
+          >
+            {t("signInLink")}
+          </Link>
         </div>
       )}
     </div>
