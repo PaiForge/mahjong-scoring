@@ -95,7 +95,7 @@ export function AuthNavItem() {
             {t("mypage")}
           </Link>
           <Link
-            href="/mypage/settings"
+            href="/preferences"
             role="menuitem"
             onClick={() => setIsOpen(false)}
             className="block px-4 py-3 text-sm text-foreground transition-colors hover:bg-accent"
