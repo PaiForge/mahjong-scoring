@@ -6,7 +6,7 @@ import { useEffect, useState } from "react";
 import { createPortal } from "react-dom";
 import { useTranslations } from "next-intl";
 
-import { NAV_ITEMS } from "./_lib/nav-items";
+import { DRAWER_NAV_ITEMS } from "./_lib/nav-items";
 
 /**
  * ハンバーガーメニュー（左スライドのドロワー）。
@@ -109,7 +109,7 @@ export function NavMenu() {
               </div>
 
               <nav className="space-y-2 px-4 py-6">
-                {NAV_ITEMS.map((item) => {
+                {DRAWER_NAV_ITEMS.map((item) => {
                   const isActive = pathname === item.href;
                   return (
                     <Link

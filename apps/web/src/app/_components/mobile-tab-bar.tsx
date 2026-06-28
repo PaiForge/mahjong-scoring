@@ -4,7 +4,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { useTranslations } from "next-intl";
-import { NAV_ITEMS } from "./_lib/nav-items";
+import { TAB_BAR_NAV_ITEMS } from "./_lib/nav-items";
 
 const SCROLL_DEAD_ZONE = 10;
 
@@ -39,7 +39,7 @@ export function MobileTabBar() {
       }`}
     >
       <ul className="flex items-center justify-around px-2 py-1">
-        {NAV_ITEMS.map((item) => {
+        {TAB_BAR_NAV_ITEMS.map((item) => {
           const isActive = pathname === item.href;
           return (
             <li key={item.href}>

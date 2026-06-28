@@ -14,11 +14,22 @@ export interface NavItemDef {
   readonly icon: React.ReactNode;
 }
 
-/** サイドバー・モバイルタブバー共通のナビゲーション項目 */
-export const NAV_ITEMS: readonly NavItemDef[] = [
+/**
+ * モバイル下部タブバー用のナビゲーション項目。
+ * タブバーは主要コンテンツへの導線に絞るため、設定は含めない。
+ */
+export const TAB_BAR_NAV_ITEMS: readonly NavItemDef[] = [
   { href: "/practice", labelKey: "practice", icon: <DumbbellIcon /> },
   { href: "/learn", labelKey: "learn", icon: <BookIcon /> },
   { href: "/reference", labelKey: "reference", icon: <TableIcon /> },
   { href: "/leaderboard", labelKey: "leaderboard", icon: <ChartIcon /> },
+];
+
+/**
+ * ハンバーガードロワー用のナビゲーション項目。
+ * タブバーの項目に加えて、ログイン不要の設定への導線を含める。
+ */
+export const DRAWER_NAV_ITEMS: readonly NavItemDef[] = [
+  ...TAB_BAR_NAV_ITEMS,
   { href: "/preferences", labelKey: "settings", icon: <SettingsIcon /> },
 ];
