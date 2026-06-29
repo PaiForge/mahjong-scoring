@@ -8,7 +8,7 @@
     "home": "ホーム",
     "practice": "練習",
     "learn": "学習",
-    "reference": "点数表",
+    "reference": "早見表",
     "leaderboard": "ランキング",
     "brandMahjong": "麻雀",
     "brandScoring": "点数計算",
@@ -574,6 +574,18 @@
       "row6hanYaku": "清一色",
       "rowYakuman": "役満",
       "rowYakumanYaku": "国士無双, 四暗刻, 大三元, 小四喜, 大四喜, 字一色, 清老頭, 緑一色, 九蓮宝燈, 四槓子"
+    }
+  },
+  "reference": {
+    "title": "早見表",
+    "description": "点数や役をすぐに確認できる早見表をまとめています。",
+    "scoreTable": {
+      "title": "点数早見表",
+      "description": "親・子のロン／ツモ点数を符×翻の一覧で確認できます"
+    },
+    "yaku": {
+      "title": "役一覧",
+      "description": "各役の翻数（門前・食い下がり）と手牌の例をまとめた早見表です"
     }
   },
   "scoreTable": {

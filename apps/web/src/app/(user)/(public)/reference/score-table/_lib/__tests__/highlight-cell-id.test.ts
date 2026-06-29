@@ -15,7 +15,7 @@ describe("isRole", () => {
     expect(isRole("invalid")).toBe(false);
   });
 
-  it('空文字は無効', () => {
+  it("空文字は無効", () => {
     expect(isRole("")).toBe(false);
   });
 
@@ -37,7 +37,7 @@ describe("isWinType", () => {
     expect(isWinType("invalid")).toBe(false);
   });
 
-  it('空文字は無効', () => {
+  it("空文字は無効", () => {
     expect(isWinType("")).toBe(false);
   });
 });

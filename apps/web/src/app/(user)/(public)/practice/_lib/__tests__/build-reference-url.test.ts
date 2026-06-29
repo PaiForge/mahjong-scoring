@@ -21,22 +21,26 @@ function makeResult(
 describe("buildReferenceUrl", () => {
   it("子・ロンの場合 role=ko&winType=ron を含む", () => {
     const url = buildReferenceUrl(makeResult({ isOya: false, isTsumo: false }));
-    expect(url).toBe("/reference?role=ko&winType=ron&han=1&fu=30");
+    expect(url).toBe("/reference/score-table?role=ko&winType=ron&han=1&fu=30");
   });
 
   it("親・ロンの場合 role=oya&winType=ron を含む", () => {
     const url = buildReferenceUrl(makeResult({ isOya: true, isTsumo: false }));
-    expect(url).toBe("/reference?role=oya&winType=ron&han=1&fu=30");
+    expect(url).toBe("/reference/score-table?role=oya&winType=ron&han=1&fu=30");
   });
 
   it("子・ツモの場合 role=ko&winType=tsumo を含む", () => {
     const url = buildReferenceUrl(makeResult({ isOya: false, isTsumo: true }));
-    expect(url).toBe("/reference?role=ko&winType=tsumo&han=1&fu=30");
+    expect(url).toBe(
+      "/reference/score-table?role=ko&winType=tsumo&han=1&fu=30",
+    );
   });
 
   it("親・ツモの場合 role=oya&winType=tsumo を含む", () => {
     const url = buildReferenceUrl(makeResult({ isOya: true, isTsumo: true }));
-    expect(url).toBe("/reference?role=oya&winType=tsumo&han=1&fu=30");
+    expect(url).toBe(
+      "/reference/score-table?role=oya&winType=tsumo&han=1&fu=30",
+    );
   });
 
   it("翻数と符が正しくURLに含まれる", () => {
@@ -46,13 +50,17 @@ describe("buildReferenceUrl", () => {
   });
 
   it("4翻110符のケース", () => {
-    const url = buildReferenceUrl(makeResult({ han: 4, fu: 110, isOya: true, isTsumo: true }));
-    expect(url).toBe("/reference?role=oya&winType=tsumo&han=4&fu=110");
+    const url = buildReferenceUrl(
+      makeResult({ han: 4, fu: 110, isOya: true, isTsumo: true }),
+    );
+    expect(url).toBe(
+      "/reference/score-table?role=oya&winType=tsumo&han=4&fu=110",
+    );
   });
 
-  it("パスは /reference で始まる", () => {
+  it("パスは /reference/score-table で始まる", () => {
     const url = buildReferenceUrl(makeResult());
-    expect(url).toMatch(/^\/reference\?/);
+    expect(url).toMatch(/^\/reference\/score-table\?/);
   });
 
   it("全4パラメータが含まれる", () => {
