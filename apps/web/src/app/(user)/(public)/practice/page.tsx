@@ -63,6 +63,12 @@ const fuPractices: readonly PracticeDef[] = [
 
 const hanPractices: readonly PracticeDef[] = [
   {
+    href: "/practice/yaku-han",
+    titleKey: "practices.yakuHan.title",
+    descriptionKey: "practices.yakuHan.description",
+    difficulty: "beginner",
+  },
+  {
     href: "/practice/yaku",
     titleKey: "practices.yaku.title",
     descriptionKey: "practices.yaku.description",
