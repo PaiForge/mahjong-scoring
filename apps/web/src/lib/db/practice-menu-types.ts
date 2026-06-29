@@ -17,6 +17,7 @@
  * - 'score_table': 点数表早引き
  * - 'score_calculation': 点数計算練習
  * - 'han_count': 翻数即答
+ * - 'yaku_han': 役の翻数
  *
  * `practice/score` は自由練習のため記録対象外。
  */
@@ -40,15 +41,24 @@ interface PracticeMenuEntry {
  * 新しい練習の追加はここに1行追加するだけでよい。
  */
 const PRACTICE_MENU_REGISTRY = [
-  { menuType: 'jantou_fu', slug: 'jantou-fu', messageKey: 'jantouFu' },
-  { menuType: 'machi_fu', slug: 'machi-fu', messageKey: 'machiFu' },
-  { menuType: 'mentsu_fu', slug: 'mentsu-fu', messageKey: 'mentsuFu' },
-  { menuType: 'tehai_fu', slug: 'tehai-fu', messageKey: 'tehaiFu' },
-  { menuType: 'yaku', slug: 'yaku', messageKey: 'yaku' },
-  { menuType: 'score_table', slug: 'score-table', messageKey: 'scoreTable' },
-  { menuType: 'score_calculation', slug: 'score-calculation', messageKey: 'scoreCalculation' },
-  { menuType: 'han_count', slug: 'han-count', messageKey: 'hanCount' },
-  { menuType: 'mangan_score_calculation', slug: 'mangan-score-calculation', messageKey: 'manganScoreCalculation' },
+  { menuType: "jantou_fu", slug: "jantou-fu", messageKey: "jantouFu" },
+  { menuType: "machi_fu", slug: "machi-fu", messageKey: "machiFu" },
+  { menuType: "mentsu_fu", slug: "mentsu-fu", messageKey: "mentsuFu" },
+  { menuType: "tehai_fu", slug: "tehai-fu", messageKey: "tehaiFu" },
+  { menuType: "yaku", slug: "yaku", messageKey: "yaku" },
+  { menuType: "score_table", slug: "score-table", messageKey: "scoreTable" },
+  {
+    menuType: "score_calculation",
+    slug: "score-calculation",
+    messageKey: "scoreCalculation",
+  },
+  { menuType: "han_count", slug: "han-count", messageKey: "hanCount" },
+  { menuType: "yaku_han", slug: "yaku-han", messageKey: "yakuHan" },
+  {
+    menuType: "mangan_score_calculation",
+    slug: "mangan-score-calculation",
+    messageKey: "manganScoreCalculation",
+  },
 ] as const satisfies readonly PracticeMenuEntry[];
 
 // ---------------------------------------------------------------------------
@@ -56,36 +66,36 @@ const PRACTICE_MENU_REGISTRY = [
 // ---------------------------------------------------------------------------
 
 /** 練習種別（DB snake_case） */
-export type PracticeMenuType = (typeof PRACTICE_MENU_REGISTRY)[number]['menuType'];
+export type PracticeMenuType =
+  (typeof PRACTICE_MENU_REGISTRY)[number]["menuType"];
 
 /** 練習種別スラッグ（URL kebab-case） */
-export type PracticeMenuSlug = (typeof PRACTICE_MENU_REGISTRY)[number]['slug'];
+export type PracticeMenuSlug = (typeof PRACTICE_MENU_REGISTRY)[number]["slug"];
 
 /**
  * i18n メッセージキー用の camelCase 識別子。
  * DB の snake_case `PracticeMenuType` を i18n の camelCase キーに変換する際に使用する。
  */
-export type PracticeMenuMessageKey = (typeof PRACTICE_MENU_REGISTRY)[number]['messageKey'];
+export type PracticeMenuMessageKey =
+  (typeof PRACTICE_MENU_REGISTRY)[number]["messageKey"];
 
 // ---------------------------------------------------------------------------
 // Derived constants
 // ---------------------------------------------------------------------------
 
 /** 全練習種別の配列（DB snake_case） */
-export const PRACTICE_MENU_TYPES: readonly PracticeMenuType[] = PRACTICE_MENU_REGISTRY.map(
-  (e) => e.menuType,
-);
+export const PRACTICE_MENU_TYPES: readonly PracticeMenuType[] =
+  PRACTICE_MENU_REGISTRY.map((e) => e.menuType);
 
 /** 全練習種別スラッグの配列（URL kebab-case） */
-export const PRACTICE_MENU_SLUGS: readonly PracticeMenuSlug[] = PRACTICE_MENU_REGISTRY.map(
-  (e) => e.slug,
-);
+export const PRACTICE_MENU_SLUGS: readonly PracticeMenuSlug[] =
+  PRACTICE_MENU_REGISTRY.map((e) => e.slug);
 
 const practiceMenuTypeSet: ReadonlySet<string> = new Set(PRACTICE_MENU_TYPES);
 
 /** 値が有効な練習種別かを判定する型ガード */
 export function isPracticeMenuType(value: unknown): value is PracticeMenuType {
-  return typeof value === 'string' && practiceMenuTypeSet.has(value);
+  return typeof value === "string" && practiceMenuTypeSet.has(value);
 }
 
 // ---------------------------------------------------------------------------
@@ -100,9 +110,10 @@ const slugToMenuTypeMap = new Map<PracticeMenuSlug, PracticeMenuType>(
   PRACTICE_MENU_REGISTRY.map((e) => [e.slug, e.menuType]),
 );
 
-const menuTypeToMessageKeyMap = new Map<PracticeMenuType, PracticeMenuMessageKey>(
-  PRACTICE_MENU_REGISTRY.map((e) => [e.menuType, e.messageKey]),
-);
+const menuTypeToMessageKeyMap = new Map<
+  PracticeMenuType,
+  PracticeMenuMessageKey
+>(PRACTICE_MENU_REGISTRY.map((e) => [e.menuType, e.messageKey]));
 
 // ---------------------------------------------------------------------------
 // Conversion functions
@@ -130,7 +141,9 @@ export function slugToMenuType(slug: string): PracticeMenuType | undefined {
 }
 
 /** DB の snake_case 練習種別を i18n メッセージキー（camelCase）に変換する */
-export function menuTypeToMessageKey(menuType: PracticeMenuType): PracticeMenuMessageKey {
+export function menuTypeToMessageKey(
+  menuType: PracticeMenuType,
+): PracticeMenuMessageKey {
   const key = menuTypeToMessageKeyMap.get(menuType);
   if (key === undefined) {
     throw new Error(`Unknown PracticeMenuType: ${menuType}`);

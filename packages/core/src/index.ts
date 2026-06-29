@@ -23,6 +23,18 @@ export { judgeYakuAnswer } from "./problem/yaku/judgement";
 export { SELECTABLE_YAKU } from "./problem/yaku/constants";
 export type { YakuQuestion } from "./problem/yaku/types";
 
+// === Problem: Yaku Han ===
+export { generateYakuHanQuestion } from "./problem/yaku-han/generator";
+export {
+  YAKU_HAN_ENTRIES,
+  YAKUMAN_HAN,
+  DEFAULT_YAKU_HAN_RANGE,
+  getYakuHanEntries,
+  normalizeYakuHanRange,
+} from "./problem/yaku-han/constants";
+export type { YakuHanRange } from "./problem/yaku-han/constants";
+export type { YakuHanQuestion, YakuHanEntry } from "./problem/yaku-han/types";
+
 // === Problem: Shared ===
 export { retryGenerate } from "./problem/retry-generate";
 

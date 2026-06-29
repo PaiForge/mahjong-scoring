@@ -155,6 +155,10 @@
         "title": "手牌の符計算",
         "description": "手牌全体の符を合計して答える総合練習"
       },
+      "yakuHan": {
+        "title": "役の翻数",
+        "description": "役名と鳴きの有無から翻数を答える練習。食い下がりを覚えよう"
+      },
       "yaku": {
         "title": "役の選択",
         "description": "手牌から成立する役をすべて選択する練習"
@@ -1449,6 +1453,35 @@
       "lead": "このような問題が出題されます。"
     },
     "generating": "問題を生成中...",
+    "result": {
+      "problemDetails": "問題の詳細",
+      "correctAnswer": "正解",
+      "yourAnswer": "あなたの回答",
+      "correct": "正解",
+      "incorrect": "不正解"
+    }
+  },
+  "yakuHanChallenge": {
+    "title": "役の翻数",
+    "description": "役名と鳴きの有無から正しい翻数を答える練習です。門前と鳴き（食い下がり）で翻数が変わる役に注意して、1翻〜6翻または役満から正解を選択してください。",
+    "menzen": "門前",
+    "naki": "鳴き",
+    "selectHan": "翻数を選択してください",
+    "hanOption": "{count}翻",
+    "yakuman": "役満",
+    "range": {
+      "label": "出題範囲",
+      "noKuisagari": "食い下がりなし",
+      "noKuisagariHint": "鳴いても翻数が変わらない通常役（1〜3翻）",
+      "kuisagari": "食い下がりあり",
+      "kuisagariHint": "門前と鳴きで翻数が変わる役（三色・一通・混一など）",
+      "all": "すべて",
+      "allHint": "役満も含めたすべての役"
+    },
+    "howToPlay": {
+      "title": "問題方式",
+      "lead": "このような問題が出題されます。"
+    },
     "result": {
       "problemDetails": "問題の詳細",
       "correctAnswer": "正解",
