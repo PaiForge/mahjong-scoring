@@ -585,7 +585,11 @@
     },
     "yaku": {
       "title": "役一覧",
-      "description": "各役の翻数（門前・食い下がり）と手牌の例をまとめた早見表です"
+      "description": "各役の翻数（門前・食い下がり）と手牌の例をまとめた早見表です",
+      "lead": "各役の翻数と手牌の例です。門前と鳴きで翻数が変わる役（食い下がり）は両方を表示しています。手牌は代表的な一例です。",
+      "hanUnit": "{count}翻",
+      "yakuman": "役満",
+      "menzenNaki": "門前{menzen}翻 / 鳴き{naki}翻"
     }
   },
   "scoreTable": {
@@ -1068,6 +1072,7 @@
         "scoreTable": "点数表早引き",
         "scoreCalculation": "点数計算",
         "hanCount": "翻数即答",
+        "yakuHan": "役の翻数",
         "manganScoreCalculation": "満貫以上点数計算"
       }
     },
@@ -1306,6 +1311,7 @@
       "scoreTable": "点数表早引き",
       "scoreCalculation": "点数計算",
       "hanCount": "翻数即答",
+      "yakuHan": "役の翻数",
       "manganScoreCalculation": "満貫以上点数計算"
     },
     "moduleIcon": {
@@ -1317,6 +1323,7 @@
       "scoreTable": "📈",
       "scoreCalculation": "🎲",
       "hanCount": "🔢",
+      "yakuHan": "🎴",
       "manganScoreCalculation": "💰"
     },
     "rankLabel": "{rank} 位",
