@@ -80,8 +80,6 @@ export default async function ReferenceYakuPage() {
       <PageTitle>{t("title")}</PageTitle>
 
       <div className="space-y-8">
-        <p className="text-sm text-surface-500">{t("lead")}</p>
-
         {groups.map((group) => (
           <section key={group.han} className="space-y-3">
             <SectionTitle>{groupLabel(group.han)}</SectionTitle>
