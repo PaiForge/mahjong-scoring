@@ -38,14 +38,14 @@ export function MobileTabBar() {
         isVisible ? "translate-y-0" : "translate-y-full"
       }`}
     >
-      <ul className="flex items-center justify-around px-2 py-1">
+      <ul className="flex items-stretch px-2 py-1">
         {TAB_BAR_NAV_ITEMS.map((item) => {
           const isActive = pathname === item.href;
           return (
-            <li key={item.href}>
+            <li key={item.href} className="flex-1">
               <Link
                 href={item.href}
-                className={`flex flex-col items-center gap-0.5 px-3 py-1 text-xs transition-colors ${
+                className={`flex w-full flex-col items-center gap-0.5 px-3 py-1 text-xs transition-colors ${
                   isActive
                     ? "text-primary"
                     : "text-muted-foreground hover:text-foreground"
