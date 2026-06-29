@@ -9,7 +9,7 @@ export function buildReferenceUrl(
 ): string {
   const role = result.isOya ? "oya" : "ko";
   const winType = result.isTsumo ? "tsumo" : "ron";
-  const base = `/reference?role=${role}&winType=${winType}&han=${result.han}`;
+  const base = `/reference/score-table?role=${role}&winType=${winType}&han=${result.han}`;
   // 満貫以上は符に依存しないため fu を持たない。その場合は fu パラメータを付けない。
   return result.fu === undefined ? base : `${base}&fu=${result.fu}`;
 }

@@ -1,11 +1,11 @@
 "use client";
 
-import { memo, useEffect } from "react";
+import { memo, useCallback, useState } from "react";
 import { useTranslations } from "next-intl";
 import { getKazeName } from "@mahjong-scoring/core";
 import type { Tehai14, HaiKindId, Kazehai } from "@mahjong-scoring/core";
-import { Hai, Furo } from "@pai-forge/mahjong-react-ui";
-import { useAutoScale } from "../_hooks/use-auto-scale";
+import { Hai } from "@pai-forge/mahjong-react-ui";
+import { TehaiHand } from "../../_components/tehai-hand";
 
 /**
  * 練習共通の手牌表示に必要なコンテキスト情報
@@ -38,38 +38,21 @@ export const TehaiDisplay = memo(function TehaiDisplay({
   onScaleChange,
 }: TehaiDisplayProps) {
   const t = useTranslations(translationNamespace);
-  const { wrapperRef, contentRef, scale } = useAutoScale([tehai]);
+  // 牌の並びは共有コンポーネント TehaiHand に委譲し、その自動スケール値を
+  // コンテキスト牌（和了牌・ドラ）にも同じ倍率で適用するため state で受け取る。
+  const [scale, setScale] = useState(1);
 
-  useEffect(() => {
-    onScaleChange?.(scale);
-  }, [scale, onScaleChange]);
+  const handleScaleChange = useCallback(
+    (next: number) => {
+      setScale(next);
+      onScaleChange?.(next);
+    },
+    [onScaleChange],
+  );
 
   return (
     <div className="mt-4 rounded-xl border border-surface-200 bg-white p-2">
-      <div
-        ref={wrapperRef}
-        className="relative overflow-hidden"
-        style={{ height: `${45 * scale}px` }}
-      >
-        <div
-          ref={contentRef}
-          className="absolute left-0 top-0 flex items-end whitespace-nowrap"
-          style={{ transformOrigin: "left top" }}
-        >
-          <div className="flex shrink-0">
-            {tehai.closed.map((kindId, i) => (
-              <Hai key={i} hai={kindId} size="sm" />
-            ))}
-          </div>
-          {tehai.exposed.length > 0 && (
-            <div className="flex shrink-0 ml-1">
-              {tehai.exposed.map((mentsu, i) => (
-                <Furo key={i} mentsu={mentsu} furo={mentsu.furo} size="sm" />
-              ))}
-            </div>
-          )}
-        </div>
-      </div>
+      <TehaiHand tehai={tehai} onScaleChange={handleScaleChange} />
       <div className="mt-3 flex flex-wrap justify-center gap-4 text-xs">
         <div className="text-center">
           <span className="text-surface-400">{t("bakaze")}</span>

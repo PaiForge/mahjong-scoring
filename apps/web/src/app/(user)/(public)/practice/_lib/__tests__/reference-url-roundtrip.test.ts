@@ -2,7 +2,7 @@ import { describe, expect, it } from "vitest";
 
 import type { ScoreQuestionResult } from "../score-question-result";
 import { buildReferenceUrl } from "../build-reference-url";
-import { buildHighlightCellId } from "../../../reference/_lib/score-table-utils";
+import { buildHighlightCellId } from "../../../reference/score-table/_lib/score-table-utils";
 
 /**
  * buildReferenceUrl で生成されたURLのクエリパラメータが、

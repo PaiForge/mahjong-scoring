@@ -52,6 +52,11 @@ export type {
   QuestionGeneratorOptions,
   YakuDetail,
 } from "./problem/score/types";
+export {
+  parseTehai,
+  parseHais,
+  tehaiToMspz,
+} from "./problem/score/mspz-serializer";
 
 // === Score ===
 export {
@@ -97,6 +102,8 @@ export { HaiKind, MentsuType } from "@pai-forge/riichi-mahjong";
 export type {
   HaiKindId,
   Kazehai,
+  Tehai,
   Tehai14,
+  CompletedMentsu,
   Payment,
 } from "@pai-forge/riichi-mahjong";

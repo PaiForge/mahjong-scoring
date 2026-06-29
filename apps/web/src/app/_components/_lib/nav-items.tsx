@@ -21,7 +21,12 @@ export interface NavItemDef {
 export const TAB_BAR_NAV_ITEMS: readonly NavItemDef[] = [
   { href: "/practice", labelKey: "practice", icon: <DumbbellIcon /> },
   { href: "/learn", labelKey: "learn", icon: <BookIcon /> },
-  { href: "/reference", labelKey: "reference", icon: <TableIcon /> },
+  // 早見表ハブではなく、対局中に最も使う点数表へ直接リンクする
+  {
+    href: "/reference/score-table",
+    labelKey: "scoreTable",
+    icon: <TableIcon />,
+  },
   { href: "/leaderboard", labelKey: "leaderboard", icon: <ChartIcon /> },
 ];
 

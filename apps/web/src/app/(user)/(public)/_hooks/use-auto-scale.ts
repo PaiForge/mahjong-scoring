@@ -20,7 +20,8 @@ export function useAutoScale(deps: readonly unknown[]) {
       content.style.transform = "scale(1)";
       const naturalWidth = content.scrollWidth;
       const availableWidth = wrapper.clientWidth;
-      const newScale = naturalWidth > availableWidth ? availableWidth / naturalWidth : 1;
+      const newScale =
+        naturalWidth > availableWidth ? availableWidth / naturalWidth : 1;
       content.style.transform = `scale(${newScale})`;
       setScale(newScale);
     };

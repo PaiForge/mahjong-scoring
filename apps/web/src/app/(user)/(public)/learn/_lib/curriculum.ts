@@ -14,8 +14,8 @@
 export const CURRICULUM_SECTIONS = [
   "foundation",
   "mangan",
-  "fu",
   "yaku",
+  "fu",
   "score",
 ] as const;
 export type CurriculumSection = (typeof CURRICULUM_SECTIONS)[number];
@@ -88,6 +88,17 @@ export const CURRICULUM: readonly CurriculumChapter[] = [
     i18nKey: "learnCurriculum.chapters.manganOyaTsumo",
   },
   {
+    slug: "yaku",
+    section: "yaku",
+    order: 25,
+    practiceHrefs: [
+      "/practice/yaku-han",
+      "/practice/yaku",
+      "/practice/han-count",
+    ],
+    i18nKey: "learnCurriculum.chapters.yaku",
+  },
+  {
     slug: "jantou-fu",
     section: "fu",
     order: 30,
@@ -119,13 +130,6 @@ export const CURRICULUM: readonly CurriculumChapter[] = [
       "/practice/machi-fu",
     ],
     i18nKey: "learnCurriculum.chapters.tehaiFu",
-  },
-  {
-    slug: "yaku",
-    section: "yaku",
-    order: 70,
-    practiceHrefs: ["/practice/yaku", "/practice/han-count"],
-    i18nKey: "learnCurriculum.chapters.yaku",
   },
 ] as const;
 
