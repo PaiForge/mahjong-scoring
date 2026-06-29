@@ -2,9 +2,11 @@
  * 役一覧（チートシート）
  *
  * @description
- * 各役の翻数（門前・食い下がり）と代表的な手牌の例を、翻数別に一覧表示する
- * ビジュアル早見表。役名・翻数は core の YAKU_HAN_ENTRIES を単一ソースとし、
- * 手牌の例は yaku-examples の MPSZ 記法から牌画像へ変換して表示する。
+ * 各役を翻数別に一覧表示するビジュアル早見表。役名・翻数は core の
+ * YAKU_HAN_ENTRIES を単一ソースとする。翻数はセクション見出しで示し、
+ * 食い下がり役のみカードに「鳴きN翻」を併記する。手牌の例は「例」リンクの
+ * 開閉で表示し、出題盤面と同じ TehaiHand コンポーネントで描画する。
+ * 立直・門前清自摸和は手牌の形を持たない状況役のため除外する。
  *
  * @flow
  * リファレンスハブ（/reference）の「役一覧」カードから遷移して閲覧する。
@@ -17,32 +19,46 @@ import { ContentContainer } from "@/app/_components/content-container";
 import { PageTitle } from "@/app/_components/page-title";
 import { SectionTitle } from "@/app/_components/section-title";
 import { createMetadata } from "@/app/_lib/metadata";
-import { parseTiles } from "./_lib/parse-tiles";
-import { YAKU_EXAMPLE_NOTATIONS } from "./_lib/yaku-examples";
-import { YakuExampleHand } from "./_components/yaku-example-hand";
+import { YAKU_EXAMPLES, YAKU_CHEATSHEET_EXCLUDED } from "./_lib/yaku-examples";
+import type { YakuExample } from "./_lib/yaku-examples";
+import { YakuExampleDisclosure } from "./_components/yaku-example-disclosure";
+
+/** チートシートに表示する1役分の項目（役データと例示手牌を束ねる） */
+interface YakuCheatItem {
+  readonly entry: YakuHanEntry;
+  readonly examples: readonly YakuExample[];
+}
 
 export async function generateMetadata(): Promise<Metadata> {
   const t = await getTranslations("reference.yaku");
   return createMetadata({ title: t("title"), description: t("description") });
 }
 
-/** YAKU_HAN_ENTRIES を門前翻数ごとにグループ化する（出現順を保持） */
+/** チートシートに載せる役（除外役・例未定義を除く）を門前翻数ごとにグループ化する */
 function groupByMenzenHan(): readonly {
   readonly han: number;
-  readonly entries: readonly YakuHanEntry[];
+  readonly items: readonly YakuCheatItem[];
 }[] {
   const order: number[] = [];
-  const map = new Map<number, YakuHanEntry[]>();
+  const map = new Map<number, YakuCheatItem[]>();
   for (const entry of YAKU_HAN_ENTRIES) {
+    if (YAKU_CHEATSHEET_EXCLUDED.has(entry.name)) continue;
+    const examples = YAKU_EXAMPLES[entry.name];
+    if (examples === undefined) continue;
     let arr = map.get(entry.menzenHan);
     if (arr === undefined) {
       arr = [];
       map.set(entry.menzenHan, arr);
       order.push(entry.menzenHan);
     }
-    arr.push(entry);
+    arr.push({ entry, examples });
   }
-  return order.map((han) => ({ han, entries: map.get(han) ?? [] }));
+  return order.map((han) => ({ han, items: map.get(han) ?? [] }));
+}
+
+/** 食い下がり役（門前と鳴きで翻数が変わる）かどうか */
+function isKuisagari(entry: YakuHanEntry): boolean {
+  return entry.nakiHan !== undefined && entry.nakiHan !== entry.menzenHan;
 }
 
 export default async function ReferenceYakuPage() {
@@ -53,14 +69,6 @@ export default async function ReferenceYakuPage() {
 
   const groupLabel = (han: number) =>
     han === YAKUMAN_HAN ? t("yakuman") : t("hanUnit", { count: han });
-
-  const hanLabel = (entry: YakuHanEntry) => {
-    if (entry.menzenHan === YAKUMAN_HAN) return t("yakuman");
-    if (entry.nakiHan !== undefined && entry.nakiHan !== entry.menzenHan) {
-      return t("menzenNaki", { menzen: entry.menzenHan, naki: entry.nakiHan });
-    }
-    return t("hanUnit", { count: entry.menzenHan });
-  };
 
   return (
     <ContentContainer
@@ -78,27 +86,24 @@ export default async function ReferenceYakuPage() {
           <section key={group.han} className="space-y-3">
             <SectionTitle>{groupLabel(group.han)}</SectionTitle>
             <div className="space-y-2">
-              {group.entries.map((entry) => {
-                const notation = YAKU_EXAMPLE_NOTATIONS[entry.name];
-                return (
-                  <div
-                    key={entry.name}
-                    className="space-y-2 rounded-xl border border-surface-200 bg-white p-4"
-                  >
-                    <div className="flex items-baseline justify-between gap-2">
-                      <span className="font-semibold text-surface-900">
-                        {entry.name}
-                      </span>
+              {group.items.map(({ entry, examples }) => (
+                <div
+                  key={entry.name}
+                  className="space-y-2 rounded-xl border border-surface-200 bg-white p-4"
+                >
+                  <div className="flex items-baseline justify-between gap-2">
+                    <span className="font-semibold text-surface-900">
+                      {entry.name}
+                    </span>
+                    {isKuisagari(entry) && entry.nakiHan !== undefined && (
                       <span className="shrink-0 text-sm text-surface-500">
-                        {hanLabel(entry)}
+                        {t("nakiHan", { count: entry.nakiHan })}
                       </span>
-                    </div>
-                    {notation !== undefined && (
-                      <YakuExampleHand tiles={parseTiles(notation)} />
                     )}
                   </div>
-                );
-              })}
+                  <YakuExampleDisclosure examples={examples} />
+                </div>
+              ))}
             </div>
           </section>
         ))}

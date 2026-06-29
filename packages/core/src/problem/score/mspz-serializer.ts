@@ -4,6 +4,7 @@ import {
   parseExtendedMspz,
   type HaiKindId,
   type Kazehai,
+  type Tehai,
   type Tehai14,
 } from "@pai-forge/riichi-mahjong";
 
@@ -102,6 +103,22 @@ export function tehaiToMspz(tehai: Tehai14): string {
 }
 
 /**
+ * 牌文字列（MSPZ / Extended MSPZ）を手牌オブジェクトに変換する
+ * MSPZ→手牌変換
+ *
+ * 副露（`[...]`）・暗槓（`(...)`）を含む Extended MSPZ にも対応し、
+ * closed / exposed を保持した Tehai を返す。パースできない場合は undefined。
+ */
+export function parseTehai(str: string | undefined): Tehai | undefined {
+  if (!str) return undefined;
+  const ext = parseExtendedMspz(str);
+  if (ext.isOk()) return ext.value;
+  const std = parseMspz(str);
+  if (std.isOk()) return std.value;
+  return undefined;
+}
+
+/**
  * 牌文字列（MSPZ）をIDリストに変換する
  * MSPZ→牌IDリスト変換
  */
@@ -126,7 +143,12 @@ export function parseKazehai(str: string | undefined): Kazehai | undefined {
   if (result.isErr()) return undefined;
 
   const id = result.value.closed[0];
-  if (id === HaiKind.Ton || id === HaiKind.Nan || id === HaiKind.Sha || id === HaiKind.Pei) {
+  if (
+    id === HaiKind.Ton ||
+    id === HaiKind.Nan ||
+    id === HaiKind.Sha ||
+    id === HaiKind.Pei
+  ) {
     return id;
   }
   return undefined;
