@@ -48,9 +48,15 @@ describe("getAdjacentChapters", () => {
   });
 
   it("returns undefined next for the last chapter", () => {
-    const { prev, next } = getAdjacentChapters("yaku");
-    expect(prev?.slug).toBe("tehai-fu");
+    const { prev, next } = getAdjacentChapters("tehai-fu");
+    expect(prev?.slug).toBe("machi-fu");
     expect(next).toBeUndefined();
+  });
+
+  it("places yaku right after the mangan section and before fu", () => {
+    const { prev, next } = getAdjacentChapters("yaku");
+    expect(prev?.slug).toBe("mangan-oya-tsumo");
+    expect(next?.slug).toBe("jantou-fu");
   });
 
   it("returns both prev and next for a middle chapter", () => {

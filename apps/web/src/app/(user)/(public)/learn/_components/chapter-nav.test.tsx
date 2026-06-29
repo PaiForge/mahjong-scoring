@@ -17,10 +17,10 @@ describe("ChapterNav", () => {
   });
 
   it("shows only the prev link for the last chapter", async () => {
-    const { container } = render(await ChapterNav({ slug: "yaku" }));
+    const { container } = render(await ChapterNav({ slug: "tehai-fu" }));
     const anchors = container.querySelectorAll("a");
     expect(anchors.length).toBe(1);
-    expect(anchors[0]!.getAttribute("href")).toBe("/learn/tehai-fu");
+    expect(anchors[0]!.getAttribute("href")).toBe("/learn/machi-fu");
   });
 
   it("shows both prev and next links for a middle chapter", async () => {
