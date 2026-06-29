@@ -9,7 +9,7 @@ export async function YakuGuide() {
 
   return (
     <div className="space-y-10">
-      {/* 役は翻数のもと（前章までの流れと接続） */}
+      {/* 役と翻数（前章までの流れと接続） */}
       <section className="space-y-4">
         <SectionTitle>{t("whatIsYakuTitle")}</SectionTitle>
         <GuideParagraph>{t("whatIsYakuBody1")}</GuideParagraph>
@@ -24,7 +24,7 @@ export async function YakuGuide() {
         <GuideParagraph>{t("menzenNakiBody2")}</GuideParagraph>
       </section>
 
-      {/* 翻数別の役まとめ（早見表とは別の切り口のテキスト一覧） */}
+      {/* 翻数別の役まとめ（テキスト一覧）＋ 手牌例の早見表へのリンク */}
       <section className="space-y-4">
         <SectionTitle>{t("summaryTitle")}</SectionTitle>
         <div className="overflow-hidden rounded-xl border border-surface-200">
@@ -83,12 +83,7 @@ export async function YakuGuide() {
             </tbody>
           </table>
         </div>
-      </section>
 
-      {/* 全役の手牌例は早見表へ委譲（重複回避＋相互リンク） */}
-      <section className="space-y-4">
-        <SectionTitle>{t("referenceTitle")}</SectionTitle>
-        <GuideParagraph>{t("referenceBody")}</GuideParagraph>
         <Link
           href="/reference/yaku"
           className="group flex items-center gap-3 rounded-xl border border-surface-200 bg-white p-5 transition-colors hover:border-primary-300"
@@ -98,12 +93,6 @@ export async function YakuGuide() {
           </span>
           <ChevronRightIcon className="size-5 shrink-0 text-surface-400" />
         </Link>
-      </section>
-
-      {/* 練習への導線（practiceHrefs カードはレイアウト側が描画） */}
-      <section className="space-y-4">
-        <SectionTitle>{t("nextStepTitle")}</SectionTitle>
-        <GuideParagraph>{t("nextStepBody")}</GuideParagraph>
       </section>
     </div>
   );
