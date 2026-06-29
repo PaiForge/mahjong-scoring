@@ -63,7 +63,7 @@ export function YakuHanBoard({
   );
 
   return (
-    <div className="space-y-6">
+    <div className="mt-4 space-y-6">
       <YakuHanPrompt
         yakuName={question.yakuName}
         isMenzen={question.isMenzen}
