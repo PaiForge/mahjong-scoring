@@ -24,7 +24,68 @@ export async function YakuGuide() {
         <GuideParagraph>{t("menzenNakiBody2")}</GuideParagraph>
       </section>
 
-      {/* 全役の一覧は早見表へ委譲（重複回避＋相互リンク） */}
+      {/* 翻数別の役まとめ（早見表とは別の切り口のテキスト一覧） */}
+      <section className="space-y-4">
+        <SectionTitle>{t("summaryTitle")}</SectionTitle>
+        <div className="overflow-hidden rounded-xl border border-surface-200">
+          <table className="w-full text-sm">
+            <thead>
+              <tr className="bg-surface-50">
+                <th className="px-4 py-3 text-left font-medium text-surface-600">
+                  {t("colHan")}
+                </th>
+                <th className="px-4 py-3 text-left font-medium text-surface-600">
+                  {t("colYakuList")}
+                </th>
+              </tr>
+            </thead>
+            <tbody className="divide-y divide-surface-100">
+              <tr className="bg-white">
+                <td className="px-4 py-3 font-semibold text-primary-600">
+                  {t("row1han")}
+                </td>
+                <td className="px-4 py-3 text-surface-700">
+                  {t("row1hanYaku")}
+                </td>
+              </tr>
+              <tr className="bg-white">
+                <td className="px-4 py-3 font-semibold text-primary-600">
+                  {t("row2han")}
+                </td>
+                <td className="px-4 py-3 text-surface-700">
+                  {t("row2hanYaku")}
+                </td>
+              </tr>
+              <tr className="bg-white">
+                <td className="px-4 py-3 font-semibold text-primary-600">
+                  {t("row3han")}
+                </td>
+                <td className="px-4 py-3 text-surface-700">
+                  {t("row3hanYaku")}
+                </td>
+              </tr>
+              <tr className="bg-white">
+                <td className="px-4 py-3 font-semibold text-primary-600">
+                  {t("row6han")}
+                </td>
+                <td className="px-4 py-3 text-surface-700">
+                  {t("row6hanYaku")}
+                </td>
+              </tr>
+              <tr className="bg-white">
+                <td className="px-4 py-3 font-semibold text-primary-600">
+                  {t("rowYakuman")}
+                </td>
+                <td className="px-4 py-3 text-surface-700">
+                  {t("rowYakumanYaku")}
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      {/* 全役の手牌例は早見表へ委譲（重複回避＋相互リンク） */}
       <section className="space-y-4">
         <SectionTitle>{t("referenceTitle")}</SectionTitle>
         <GuideParagraph>{t("referenceBody")}</GuideParagraph>
