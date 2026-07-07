@@ -61,6 +61,28 @@ export async function getPublishedAnnouncementCount(): Promise<number> {
   return Number(result.count);
 }
 
+/** sitemap 生成用の公開お知らせ slug 一覧（ロケール variant は最新の published_at に集約） */
+export interface PublishedAnnouncementSlug {
+  readonly slug: string;
+  readonly publishedAt: Date | null;
+}
+
+/** sitemap.ts から利用する、公開お知らせの slug + 最終更新日時の一覧を取得する */
+export async function getPublishedAnnouncementSlugsForSitemap(): Promise<
+  PublishedAnnouncementSlug[]
+> {
+  const rows = await db
+    .select({
+      slug: announcements.slug,
+      publishedAt: sql<Date | null>`MAX(${announcements.publishedAt})`,
+    })
+    .from(announcements)
+    .where(eq(announcements.status, "published"))
+    .groupBy(announcements.slug);
+
+  return rows;
+}
+
 /**
  * slug 単体の公開お知らせを取得。
  * 全ロケール variant を取得し pickByLocale で best を選ぶ。
@@ -72,7 +94,9 @@ export async function getPublishedAnnouncement(
   const results = await db
     .select()
     .from(announcements)
-    .where(and(eq(announcements.slug, slug), eq(announcements.status, "published")))
+    .where(
+      and(eq(announcements.slug, slug), eq(announcements.status, "published")),
+    )
     .orderBy(desc(announcements.publishedAt));
 
   if (results.length === 0) {
