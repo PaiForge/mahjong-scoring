@@ -40,11 +40,8 @@ export { retryGenerate } from "./problem/retry-generate";
 
 // === Problem: Score ===
 export { generateValidScoreQuestion } from "./problem/score/generator";
-export {
-  judgeAnswer,
-  isMangan,
-  getScoreLevelName,
-} from "./problem/score/judgement";
+export { judgeAnswer } from "./problem/score/judgement";
+export { isMangan, getScoreLevelName } from "./score/tiers";
 export type {
   ScoreQuestion,
   UserAnswer,

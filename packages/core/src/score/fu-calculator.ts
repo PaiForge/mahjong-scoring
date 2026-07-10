@@ -6,6 +6,7 @@ import {
   type Kazehai,
   type ScoreDetail,
 } from "@pai-forge/riichi-mahjong";
+import { calculateMentsuFu } from "../core/score-calculation";
 
 /**
  * 符計算の内訳詳細
@@ -85,14 +86,11 @@ export function convertScoreDetailToFuDetails(
         }
       }
 
-      // 符の計算
-      let fu: number;
-      if (mentsu.type === MentsuType.Kantsu) {
-        fu = isYao ? (mentsu.furo ? 16 : 32) : (mentsu.furo ? 8 : 16);
-      } else {
-        // 刻子
-        fu = isYao ? (isOpen ? 4 : 8) : (isOpen ? 2 : 4);
-      }
+      const fu = calculateMentsuFu({
+        isKantsu: mentsu.type === MentsuType.Kantsu,
+        isOpen,
+        isYaochu: isYao,
+      });
 
       const typeLabel = mentsu.type === MentsuType.Kantsu ? "槓子" : "刻子";
       const yaoLabel = isYao ? "么九牌" : "中張牌";
@@ -109,19 +107,30 @@ export function convertScoreDetailToFuDetails(
 
     if (pair === config.bakaze) pairNamePart.push("場風");
     if (pair === config.jikaze) pairNamePart.push("自風");
-    if (pair === HaiKind.Haku || pair === HaiKind.Hatsu || pair === HaiKind.Chun) {
+    if (
+      pair === HaiKind.Haku ||
+      pair === HaiKind.Hatsu ||
+      pair === HaiKind.Chun
+    ) {
       pairNamePart.push("三元牌");
     }
 
-    result.push({ reason: `雀頭(${pairNamePart.join("・")})`, fu: details.jantou });
+    result.push({
+      reason: `雀頭(${pairNamePart.join("・")})`,
+      fu: details.jantou,
+    });
   }
 
   // 待ち符
   if (details.machi > 0) {
-    const machiLabel = machiType === "Tanki" ? "単騎待ち"
-      : machiType === "Kanchan" ? "嵌張待ち"
-      : machiType === "Penchan" ? "辺張待ち"
-      : "待ち";
+    const machiLabel =
+      machiType === "Tanki"
+        ? "単騎待ち"
+        : machiType === "Kanchan"
+          ? "嵌張待ち"
+          : machiType === "Penchan"
+            ? "辺張待ち"
+            : "待ち";
     result.push({ reason: machiLabel, fu: details.machi });
   }
 

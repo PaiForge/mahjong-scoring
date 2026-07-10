@@ -3,6 +3,7 @@ import {
   MentsuType,
   FuroType,
   Tacha,
+  type CompletedMentsu,
   type HaiKindId,
   type Shuntsu,
   type Koutsu,
@@ -11,6 +12,7 @@ import {
 import { randomChoice } from "../../../core/random";
 import { validateHaiKindId } from "../../../core/type-guards";
 import type { HaiUsageTracker } from "../../../core/hai-tracker";
+import type { MentsuWeights } from "../../mentsu-fu/mentsu-factory";
 
 /**
  * 順子を生成する（数牌のみ）
@@ -129,6 +131,36 @@ export function generateKantsu(
         },
       }
     : { type: MentsuType.Kantsu, hais };
+}
+
+/**
+ * 重み付きでランダムな面子を生成する（トラッカー対応）
+ * 重み付き面子生成
+ *
+ * 選ばれた種別が牌の残数不足で生成できない場合は、
+ * 他の種別へフォールバックして可能な限り面子を返す。
+ *
+ * @param tracker - 牌使用状況トラッカー
+ * @param weights - 面子種別の確率重み
+ * @param furo - 副露として生成するかどうか
+ */
+export function generateWeightedMentsu(
+  tracker: HaiUsageTracker,
+  weights: Readonly<MentsuWeights>,
+  furo: boolean = false,
+): CompletedMentsu | undefined {
+  const r = Math.random();
+  if (r < weights.shuntsu) {
+    return generateShuntsu(tracker, furo) ?? generateKoutsu(tracker, furo);
+  }
+  if (r < weights.shuntsu + weights.koutsu) {
+    return generateKoutsu(tracker, furo) ?? generateShuntsu(tracker, furo);
+  }
+  return (
+    generateKantsu(tracker, furo) ??
+    generateKoutsu(tracker, furo) ??
+    generateShuntsu(tracker, furo)
+  );
 }
 
 /**

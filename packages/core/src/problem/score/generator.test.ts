@@ -2,7 +2,7 @@ import { describe, it, expect } from "vitest";
 import { HaiKind } from "@pai-forge/riichi-mahjong";
 import { generateScoreQuestion, generateValidScoreQuestion } from "./generator";
 import { ScoreLevel } from "../../core/constants";
-import { isMangan } from "./judgement";
+import { isMangan } from "../../score/tiers";
 
 describe("generateScoreQuestion", () => {
   it("100回試行して少なくとも1回は問題が生成される", () => {
@@ -44,7 +44,9 @@ describe("generateScoreQuestion", () => {
     expect(question.answer.fu).toBeGreaterThanOrEqual(20);
     expect(question.answer.scoreLevel).toBeDefined();
     expect(question.answer.payment).toBeDefined();
-    expect(["ron", "oyaTsumo", "koTsumo"]).toContain(question.answer.payment.type);
+    expect(["ron", "oyaTsumo", "koTsumo"]).toContain(
+      question.answer.payment.type,
+    );
   });
 
   it("yakuDetails が定義されている場合、少なくとも1つの役がある", () => {
@@ -69,7 +71,10 @@ describe("generateScoreQuestion", () => {
     it("includeParent=false の場合、自風が東にならない", () => {
       let tested = 0;
       for (let i = 0; i < 200; i++) {
-        const question = generateScoreQuestion({ includeParent: false, includeChild: true });
+        const question = generateScoreQuestion({
+          includeParent: false,
+          includeChild: true,
+        });
         if (!question) continue;
         expect(question.jikaze).not.toBe(HaiKind.Ton);
         tested++;
@@ -81,7 +86,10 @@ describe("generateScoreQuestion", () => {
     it("includeChild=false の場合、自風が東になる", () => {
       let tested = 0;
       for (let i = 0; i < 200; i++) {
-        const question = generateScoreQuestion({ includeParent: true, includeChild: false });
+        const question = generateScoreQuestion({
+          includeParent: true,
+          includeChild: false,
+        });
         if (!question) continue;
         expect(question.jikaze).toBe(HaiKind.Ton);
         tested++;
@@ -95,7 +103,9 @@ describe("generateScoreQuestion", () => {
     it("non_mangan のみの場合、通常点数の問題のみ生成される", () => {
       let tested = 0;
       for (let i = 0; i < 300; i++) {
-        const question = generateScoreQuestion({ allowedRanges: ["non_mangan"] });
+        const question = generateScoreQuestion({
+          allowedRanges: ["non_mangan"],
+        });
         if (!question) continue;
         expect(question.answer.scoreLevel).toBe(ScoreLevel.Normal);
         tested++;
@@ -107,7 +117,9 @@ describe("generateScoreQuestion", () => {
     it("mangan_plus のみの場合、満貫以上の問題のみ生成される", () => {
       let tested = 0;
       for (let i = 0; i < 300; i++) {
-        const question = generateScoreQuestion({ allowedRanges: ["mangan_plus"] });
+        const question = generateScoreQuestion({
+          allowedRanges: ["mangan_plus"],
+        });
         if (!question) continue;
         expect(isMangan(question.answer.scoreLevel)).toBe(true);
         tested++;
@@ -149,7 +161,9 @@ describe("generateValidScoreQuestion", () => {
       }
     }
     if (!found) {
-      console.warn("isRiichi=true かつ立直を含む問題が生成されなかったためスキップ");
+      console.warn(
+        "isRiichi=true かつ立直を含む問題が生成されなかったためスキップ",
+      );
     }
   });
 

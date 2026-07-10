@@ -57,6 +57,23 @@ export function calculateOyaScore(
   return { isMangan: false, ron, tsumo: `${tsumo}\u2200` };
 }
 
+/**
+ * 刻子・槓子1面子分の符を計算する
+ * 面子符計算
+ *
+ * 基本符は刻子2符・槓子8符。暗（非副露）で2倍、么九牌でさらに2倍。
+ */
+export function calculateMentsuFu(config: {
+  readonly isKantsu: boolean;
+  readonly isOpen: boolean;
+  readonly isYaochu: boolean;
+}): number {
+  let fu = config.isKantsu ? 8 : 2;
+  if (!config.isOpen) fu *= 2;
+  if (config.isYaochu) fu *= 2;
+  return fu;
+}
+
 type WinType = "ron" | "tsumo";
 
 /**
