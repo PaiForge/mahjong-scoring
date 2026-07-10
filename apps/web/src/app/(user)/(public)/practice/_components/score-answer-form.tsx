@@ -4,7 +4,7 @@ import { useState, useEffect } from "react";
 import { useTranslations } from "next-intl";
 import type { ScoreTableUserAnswer } from "@mahjong-scoring/core";
 import { getAvailableScores } from "../score/_lib/get-available-scores";
-import { getSelectClass } from "../_lib/select-class";
+import { ScoreOptionSelect } from "./score-option-select";
 
 interface ScoreAnswerFormProps {
   /** 親かどうか */
@@ -110,8 +110,6 @@ export function ScoreAnswerForm({
     }
   };
 
-  const selectClass = getSelectClass;
-
   return (
     <form onSubmit={handleSubmit} className="space-y-5">
       {availableScores.type === "koTsumo" ? (
@@ -121,44 +119,26 @@ export function ScoreAnswerForm({
               <label className="mb-2 block text-sm font-bold text-surface-700">
                 {t("fromKo")}
               </label>
-              <select
+              <ScoreOptionSelect
                 value={scoreFromKo}
-                onChange={(e) => handleKoChange(e.target.value)}
+                onChange={handleKoChange}
+                options={availableScores.koScores}
+                placeholder={t("selectScore")}
                 disabled={disabled}
-                required
-                className={selectClass(scoreFromKo !== "")}
-              >
-                <option value="" disabled>
-                  {t("selectScore")}
-                </option>
-                {availableScores.koScores.map((s) => (
-                  <option key={s} value={s}>
-                    {s}
-                  </option>
-                ))}
-              </select>
+              />
             </div>
             <span className="mt-6 font-medium text-surface-500">/</span>
             <div className="flex-1">
               <label className="mb-2 block text-sm font-bold text-surface-700">
                 {t("fromOya")}
               </label>
-              <select
+              <ScoreOptionSelect
                 value={scoreFromOya}
-                onChange={(e) => handleOyaChange(e.target.value)}
+                onChange={handleOyaChange}
+                options={availableScores.oyaScores}
+                placeholder={t("selectScore")}
                 disabled={disabled}
-                required
-                className={selectClass(scoreFromOya !== "")}
-              >
-                <option value="" disabled>
-                  {t("selectScore")}
-                </option>
-                {availableScores.oyaScores.map((s) => (
-                  <option key={s} value={s}>
-                    {s}
-                  </option>
-                ))}
-              </select>
+              />
             </div>
           </div>
         </div>
@@ -167,23 +147,14 @@ export function ScoreAnswerForm({
           <label className="mb-2 block text-sm font-bold text-surface-700">
             {t("selectScore")}
           </label>
-          <select
+          <ScoreOptionSelect
             value={score}
-            onChange={(e) => handleSingleChange(e.target.value)}
+            onChange={handleSingleChange}
+            options={availableScores.scores}
+            placeholder={t("selectScore")}
             disabled={disabled}
-            required
-            className={selectClass(score !== "")}
-          >
-            <option value="" disabled>
-              {t("selectScore")}
-            </option>
-            {availableScores.scores.map((s) => (
-              <option key={s} value={s}>
-                {s}
-                {isOyaTsumo ? t("all") : ""}
-              </option>
-            ))}
-          </select>
+            optionSuffix={isOyaTsumo ? t("all") : ""}
+          />
         </div>
       )}
 
