@@ -6,7 +6,7 @@ import {
 } from "@pai-forge/riichi-mahjong";
 import { convertScoreDetailToFuDetails } from "../../score/fu-calculator";
 import { countDoraInTehai } from "../../core/dora";
-import { getYakuNameJa } from "../../core/constants";
+import { getYakuNameJa } from "../../core/yaku-names";
 import type { ScoreQuestion, YakuDetail } from "./types";
 
 /**

@@ -1,5 +1,5 @@
 import { HaiKind, type Kazehai } from "@pai-forge/riichi-mahjong";
-import { SCORE_YAKU_NAME_MAP, YAKU_OPTIONS } from "../../core/constants";
+import { SCORE_YAKU_NAME_MAP, YAKU_OPTIONS } from "../../core/yaku-names";
 
 /**
  * 役練習では除外する英語キー
@@ -8,9 +8,20 @@ import { SCORE_YAKU_NAME_MAP, YAKU_OPTIONS } from "../../core/constants";
  * 役練習除外キー
  */
 const YAKU_DRILL_EXCLUDED_KEYS: ReadonlySet<string> = new Set([
-  "Riichi", "Ippatsu", "Haitei", "Houtei", "Rinshan", "Chankan",
-  "DoubleRiichi", "Tenhou", "Chiihou", "Yakuhai",
-  "Ton", "Nan", "Sha", "Pei",
+  "Riichi",
+  "Ippatsu",
+  "Haitei",
+  "Houtei",
+  "Rinshan",
+  "Chankan",
+  "DoubleRiichi",
+  "Tenhou",
+  "Chiihou",
+  "Yakuhai",
+  "Ton",
+  "Nan",
+  "Sha",
+  "Pei",
 ]);
 
 /**
@@ -18,11 +29,12 @@ const YAKU_DRILL_EXCLUDED_KEYS: ReadonlySet<string> = new Set([
  * SCORE_YAKU_NAME_MAP から風牌・状況役を除外したサブセット
  * 役名マップ
  */
-export const YAKU_NAME_MAP: Readonly<Record<string, string>> = Object.fromEntries(
-  Object.entries(SCORE_YAKU_NAME_MAP).filter(
-    ([key]) => !YAKU_DRILL_EXCLUDED_KEYS.has(key),
-  ),
-);
+export const YAKU_NAME_MAP: Readonly<Record<string, string>> =
+  Object.fromEntries(
+    Object.entries(SCORE_YAKU_NAME_MAP).filter(
+      ([key]) => !YAKU_DRILL_EXCLUDED_KEYS.has(key),
+    ),
+  );
 
 /**
  * ユーザーが選択可能な役のリスト（翻数順）
@@ -62,6 +74,8 @@ const KAZE_YAKUHAI_DISPLAY_MAP: Readonly<Record<number, string>> = {
  * ライブラリは風牌の役牌を YakuResult に含めないため、手牌の刻子/槓子から手動で判定する
  * 風牌役牌表示名取得
  */
-export function getKazeYakuhaiDisplayName(kazeHaiKindId: Kazehai): string | undefined {
+export function getKazeYakuhaiDisplayName(
+  kazeHaiKindId: Kazehai,
+): string | undefined {
   return KAZE_YAKUHAI_DISPLAY_MAP[kazeHaiKindId];
 }

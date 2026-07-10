@@ -64,7 +64,7 @@ export {
 } from "./score/constants";
 
 // === Core ===
-export { YAKU_OPTIONS } from "./core/constants";
+export { YAKU_OPTIONS } from "./core/yaku-names";
 export { getKazeName, isOya } from "./core/kaze";
 export { getDoraFromIndicator } from "./core/dora";
 export {

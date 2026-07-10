@@ -1,5 +1,5 @@
 import type { ScoreQuestion, UserAnswer, JudgementResult } from "./types";
-import { IGNORE_YAKU_FOR_JUDGEMENT } from "../../core/constants";
+import { IGNORE_YAKU_FOR_JUDGEMENT } from "../../core/yaku-names";
 import { isMangan } from "../../score/tiers";
 import { scoreTierForHan } from "../../score/tiers";
 import { setsEqual } from "../shared/set-equal";
