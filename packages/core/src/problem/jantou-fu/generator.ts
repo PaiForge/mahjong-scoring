@@ -1,6 +1,6 @@
 import { HaiKind, type HaiKindId } from "@pai-forge/riichi-mahjong";
 import type { JantouFuQuestion } from "./types";
-import { getKazeName } from "../../core/hai-names";
+import { getKazeName } from "../../core/kaze";
 import { randomChoice, shuffle } from "../../core/random";
 import { KAZEHAI, SANGENHAI } from "../../core/constants";
 import { isHaiKindId } from "../../core/type-guards";

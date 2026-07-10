@@ -1,5 +1,5 @@
 import { MentsuType, type HaiKindId } from "@pai-forge/riichi-mahjong";
-import { isHaiKindId } from "../../core/type-guards";
+import { randomHaiKindId } from "./tile-random";
 import type { HaiUsageTracker } from "../../core/hai-tracker";
 import {
   createRandomMentsu,
@@ -70,8 +70,7 @@ export function generatePairTile(
   tracker: HaiUsageTracker,
 ): HaiKindId | undefined {
   for (let retry = 0; retry < MAX_RETRY; retry++) {
-    const t = Math.floor(Math.random() * 34);
-    if (!isHaiKindId(t)) continue;
+    const t = randomHaiKindId();
     if (tracker.canUse(t, 2)) {
       tracker.use(t, 2);
       return t;

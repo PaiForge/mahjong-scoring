@@ -1,5 +1,5 @@
 import type { HaiKindId } from "@pai-forge/riichi-mahjong";
-import { isHaiKindId } from "../../core/type-guards";
+import { randomHaiKindId } from "./tile-random";
 
 /**
  * ドラ表示牌をランダムに生成する
@@ -11,10 +11,7 @@ export function generateDoraMarkers(kantsuCount: number): HaiKindId[] {
   const count = 1 + kantsuCount;
   const markers: HaiKindId[] = [];
   for (let i = 0; i < count; i++) {
-    const kindId = Math.floor(Math.random() * 34);
-    if (isHaiKindId(kindId)) {
-      markers.push(kindId);
-    }
+    markers.push(randomHaiKindId());
   }
   return markers;
 }

@@ -7,12 +7,9 @@ import {
 } from "@pai-forge/riichi-mahjong";
 import type { YakuDetail } from "../types";
 import { recalculateScore } from "../../../score/calculator";
-import {
-  countDoraInTehai,
-  countHaiInTehai,
-  getKeyForKazehai,
-  isOya,
-} from "../../../core/hai-names";
+import { countDoraInTehai } from "../../../core/dora";
+import { countHaiInTehai } from "../../../core/hai-count";
+import { getKeyForKazehai, isOya } from "../../../core/kaze";
 import { isHaiKindId } from "../../../core/type-guards";
 import { generateDoraMarkers } from "../../shared/dora-utils";
 

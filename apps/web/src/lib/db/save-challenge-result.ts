@@ -1,10 +1,10 @@
-import { sql } from 'drizzle-orm';
-import { revalidateTag } from 'next/cache';
+import { sql } from "drizzle-orm";
+import { revalidateTag } from "next/cache";
 
-import { expHeatmapCacheTag } from './get-exp-heatmap-data';
-import { db } from './index';
-import { grantChallengeExp } from './save-exp';
-import { challengeBestScores, challengeResults } from './schema';
+import { expHeatmapCacheTag } from "./get-exp-heatmap-data";
+import { db } from "./index";
+import { grantChallengeExp } from "./save-exp";
+import { challengeBestScores, challengeResults } from "./schema";
 
 export interface ChallengeResultInput {
   readonly userId: string;
@@ -37,7 +37,14 @@ export interface SaveChallengeResultReturn {
 export async function saveChallengeResult(
   input: ChallengeResultInput,
 ): Promise<SaveChallengeResultReturn> {
-  const { userId, menuType, leaderboardKey, score, incorrectAnswers, timeTaken } = input;
+  const {
+    userId,
+    menuType,
+    leaderboardKey,
+    score,
+    incorrectAnswers,
+    timeTaken,
+  } = input;
   const now = new Date();
 
   const result = await db.transaction(async (tx) => {
@@ -103,13 +110,16 @@ export async function saveChallengeResult(
       leaderboardKey,
     });
 
-    return { challengeResultId: inserted.id, expGranted: expInfo !== null };
+    return {
+      challengeResultId: inserted.id,
+      expGranted: expInfo !== undefined,
+    };
   });
 
   // EXP が付与された場合のみ、ヒートマップのキャッシュタグを無効化する。
   // 未登録 menuType（開発中練習）の場合は付与自体がスキップされるためキャッシュ無効化も不要。
   if (result.expGranted) {
-    revalidateTag(expHeatmapCacheTag(userId), 'default');
+    revalidateTag(expHeatmapCacheTag(userId), "default");
   }
 
   return { challengeResultId: result.challengeResultId };

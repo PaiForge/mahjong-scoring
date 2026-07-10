@@ -10,11 +10,7 @@
  * @see {@link ./types.ts} 入出力型
  * @see {@link ./level.ts} レベルカーブ
  */
-import {
-  MIN_COMPLETION_EXP,
-  MISS_BONUS,
-  MODULE_WEIGHT,
-} from "./constants";
+import { MIN_COMPLETION_EXP, MISS_BONUS, MODULE_WEIGHT } from "./constants";
 import type { ExpInput, ExpResult } from "./types";
 
 function getAccuracyMultiplier(incorrectAnswers: number): number {
@@ -30,19 +26,19 @@ function getAccuracyMultiplier(incorrectAnswers: number): number {
  * 経験値を計算する
  * 経験値計算
  *
- * `menuType` が {@link MODULE_WEIGHT} に登録されていない場合は `null` を返し、
+ * `menuType` が {@link MODULE_WEIGHT} に登録されていない場合は `undefined` を返し、
  * 呼び出し元で EXP 付与を完全にスキップする。
  * （デフォルト重みを使わず明示的ホワイトリスト方式にしているのは、
  *  開発中・未調整の練習で誤って EXP が付与されるのを防ぐため）
  *
  * @param input スコア・誤答数・練習種別
- * @returns baseExp / accuracyMultiplier / totalExp、または未登録 menuType の場合は `null`
+ * @returns baseExp / accuracyMultiplier / totalExp、または未登録 menuType の場合は `undefined`
  */
-export function calculateExp(input: ExpInput): ExpResult | null {
+export function calculateExp(input: ExpInput): ExpResult | undefined {
   const { score, incorrectAnswers, menuType } = input;
 
   const weight = MODULE_WEIGHT[menuType];
-  if (weight === undefined) return null;
+  if (weight === undefined) return undefined;
 
   const baseExp = score * weight;
   const accuracyMultiplier = getAccuracyMultiplier(incorrectAnswers);

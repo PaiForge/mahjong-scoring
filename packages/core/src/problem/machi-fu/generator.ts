@@ -1,8 +1,11 @@
-import { HaiKind, type HaiKindId } from "@pai-forge/riichi-mahjong";
 import type { MachiFuQuestion } from "./types";
 import { randomInt, randomChoice } from "../../core/random";
 import { isHaiKindId } from "../../core/type-guards";
 import { SUIT_BASES } from "../../core/constants";
+import {
+  randomHaiKindId,
+  randomHaiKindIdExcluding,
+} from "../shared/tile-random";
 
 /**
  * 両面待ちを生成（0符）
@@ -18,7 +21,12 @@ function createRyanmen(): MachiFuQuestion | undefined {
   const wait1 = base + start - 2;
   const wait2 = base + start + 1;
 
-  if (!isHaiKindId(t1) || !isHaiKindId(t2) || !isHaiKindId(wait1) || !isHaiKindId(wait2)) {
+  if (
+    !isHaiKindId(t1) ||
+    !isHaiKindId(t2) ||
+    !isHaiKindId(wait1) ||
+    !isHaiKindId(wait2)
+  ) {
     return undefined;
   }
 
@@ -90,9 +98,8 @@ function createKanchan(): MachiFuQuestion | undefined {
  * 単騎待ちを生成（2符）
  * 単騎待ち生成
  */
-function createTanki(): MachiFuQuestion | undefined {
-  const hai = Math.floor(Math.random() * 34);
-  if (!isHaiKindId(hai)) return undefined;
+function createTanki(): MachiFuQuestion {
+  const hai = randomHaiKindId();
 
   return {
     id: crypto.randomUUID(),
@@ -108,15 +115,9 @@ function createTanki(): MachiFuQuestion | undefined {
  * 双碰待ちを生成（0符）
  * 双碰待ち生成
  */
-function createShanpon(): MachiFuQuestion | undefined {
-  const t1 = Math.floor(Math.random() * 34);
-  if (!isHaiKindId(t1)) return undefined;
-
-  let t2 = Math.floor(Math.random() * 34);
-  while (t1 === t2) {
-    t2 = Math.floor(Math.random() * 34);
-  }
-  if (!isHaiKindId(t2)) return undefined;
+function createShanpon(): MachiFuQuestion {
+  const t1 = randomHaiKindId();
+  const t2 = randomHaiKindIdExcluding(t1);
 
   const agari = Math.random() < 0.5 ? t1 : t2;
 
@@ -143,12 +144,7 @@ export function generateMachiFuQuestion(): MachiFuQuestion {
     createShanpon,
   ];
 
-  const r = Math.random();
-  const index = r < 0.2 ? 0 : r < 0.4 ? 1 : r < 0.6 ? 2 : r < 0.8 ? 3 : 4;
-  const result = patterns[index]();
-
-  if (result) return result;
-
-  // フォールバック: 単騎 → 双碰
-  return createTanki() ?? createShanpon() ?? createTanki()!;
+  // 各パターンを等確率で出題する。順子系パターン（両面・辺張・嵌張）は
+  // 牌範囲の検証に失敗しうるため、フォールバックとして常に成功する単騎を使う。
+  return randomChoice(patterns)() ?? createTanki();
 }

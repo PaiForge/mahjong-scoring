@@ -4,13 +4,15 @@ import { calculateExp } from "./calc";
 import type { ExpInput, ExpResult } from "./types";
 
 /**
- * `calculateExp` が null を返さないことを前提にテストするためのヘルパー。
- * null の場合はテストを即座に fail させる。
+ * `calculateExp` が undefined を返さないことを前提にテストするためのヘルパー。
+ * undefined の場合はテストを即座に fail させる。
  */
 function calc(input: ExpInput): ExpResult {
   const result = calculateExp(input);
-  if (result === null) {
-    throw new Error(`calculateExp unexpectedly returned null for ${JSON.stringify(input)}`);
+  if (result === undefined) {
+    throw new Error(
+      `calculateExp unexpectedly returned undefined for ${JSON.stringify(input)}`,
+    );
   }
   return result;
 }
@@ -32,28 +34,28 @@ describe("calculateExp", () => {
   });
 
   // --------------------------------------------------------------
-  // ホワイトリスト（未登録 menuType は null）
+  // ホワイトリスト（未登録 menuType は undefined）
   // --------------------------------------------------------------
   describe("ホワイトリスト", () => {
-    it("未登録の menuType（ホワイトリストに無い）は null を返す", () => {
+    it("未登録の menuType（ホワイトリストに無い）は undefined を返す", () => {
       const result = calculateExp({
         score: 7,
         incorrectAnswers: 3,
         menuType: "unknown_module",
       });
-      expect(result).toBeNull();
+      expect(result).toBeUndefined();
     });
 
-    it("存在しない menuType（nonexistent_drill）は null を返す", () => {
+    it("存在しない menuType（nonexistent_drill）は undefined を返す", () => {
       const result = calculateExp({
         score: 10,
         incorrectAnswers: 0,
         menuType: "nonexistent_drill",
       });
-      expect(result).toBeNull();
+      expect(result).toBeUndefined();
     });
 
-    it("現行の全チャレンジ練習（8種）は non-null な ExpResult を返す", () => {
+    it("現行の全チャレンジ練習（8種）は ExpResult を返す", () => {
       const allPractices = [
         "jantou_fu",
         "machi_fu",
@@ -70,7 +72,7 @@ describe("calculateExp", () => {
           incorrectAnswers: 0,
           menuType,
         });
-        expect(result).not.toBeNull();
+        expect(result).toBeDefined();
         // weight=1, score=10, mult=1.5 -> 15
         expect(result?.baseExp).toBe(10);
         expect(result?.totalExp).toBe(15);
@@ -209,17 +211,33 @@ describe("calculateExp", () => {
       expect(result.totalExp).toBe(1);
     });
 
-    it("空文字の menuType は null（ホワイトリスト厳格判定）", () => {
+    it("空文字の menuType は undefined（ホワイトリスト厳格判定）", () => {
       expect(
         calculateExp({ score: 5, incorrectAnswers: 0, menuType: "" }),
-      ).toBeNull();
+      ).toBeUndefined();
     });
 
     it("全ミスバケット（0/1/2/3）で jantou_fu の累計 EXP が単調減少する", () => {
-      const perfect = calc({ score: 20, incorrectAnswers: 0, menuType: "jantou_fu" }).totalExp;
-      const oneMiss = calc({ score: 20, incorrectAnswers: 1, menuType: "jantou_fu" }).totalExp;
-      const twoMiss = calc({ score: 20, incorrectAnswers: 2, menuType: "jantou_fu" }).totalExp;
-      const burst = calc({ score: 20, incorrectAnswers: 3, menuType: "jantou_fu" }).totalExp;
+      const perfect = calc({
+        score: 20,
+        incorrectAnswers: 0,
+        menuType: "jantou_fu",
+      }).totalExp;
+      const oneMiss = calc({
+        score: 20,
+        incorrectAnswers: 1,
+        menuType: "jantou_fu",
+      }).totalExp;
+      const twoMiss = calc({
+        score: 20,
+        incorrectAnswers: 2,
+        menuType: "jantou_fu",
+      }).totalExp;
+      const burst = calc({
+        score: 20,
+        incorrectAnswers: 3,
+        menuType: "jantou_fu",
+      }).totalExp;
       expect(perfect).toBeGreaterThan(oneMiss);
       expect(oneMiss).toBeGreaterThan(twoMiss);
       expect(twoMiss).toBeGreaterThan(burst);
