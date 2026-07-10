@@ -8,6 +8,13 @@ import {
 } from "@pai-forge/riichi-mahjong";
 import { calculateMentsuFu } from "../core/score-calculation";
 
+/** 符が付く待ち形の日本語ラベル */
+const MACHI_LABELS: Readonly<Record<string, string>> = {
+  Tanki: "単騎待ち",
+  Kanchan: "嵌張待ち",
+  Penchan: "辺張待ち",
+};
+
 /**
  * 符計算の内訳詳細
  * 符内訳
@@ -124,14 +131,8 @@ export function convertScoreDetailToFuDetails(
   // 待ち符
   if (details.machi > 0) {
     const machiLabel =
-      machiType === "Tanki"
-        ? "単騎待ち"
-        : machiType === "Kanchan"
-          ? "嵌張待ち"
-          : machiType === "Penchan"
-            ? "辺張待ち"
-            : "待ち";
-    result.push({ reason: machiLabel, fu: details.machi });
+      machiType !== undefined ? MACHI_LABELS[machiType] : undefined;
+    result.push({ reason: machiLabel ?? "待ち", fu: details.machi });
   }
 
   // 喰い平和の特例（合計20符を30符に切り上げ）

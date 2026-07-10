@@ -5,6 +5,7 @@ import {
   isMenzen,
   type HaiKindId,
   type Kazehai,
+  type Tehai14,
 } from "@pai-forge/riichi-mahjong";
 import { ScoreLevel, KAZEHAI } from "../../core/constants";
 import { randomChoice } from "../../core/random";
@@ -49,49 +50,48 @@ function validateScoreRange(
 }
 
 /**
- * 点数計算練習の問題を1つ生成する（生成不可能な場合は undefined を返す）
- * 点数計算練習問題生成
+ * 出題する自風を選択する
+ * 自風選択
  */
-export function generateScoreQuestion(
-  options: QuestionGeneratorOptions = {},
-): ScoreQuestion | undefined {
-  const {
-    includeFuro = true,
-    includeChiitoi = false,
-    includeParent = true,
-    includeChild = true,
-    renfonpaiAs4Fu = false,
-  } = options;
-  const doubleWindJantouFu: 2 | 4 = renfonpaiAs4Fu ? 4 : 2;
-  const ruleConfig = { doubleWindJantouFu };
+function selectJikaze(includeParent: boolean, includeChild: boolean): Kazehai {
+  let candidates: readonly Kazehai[] = KAZEHAI;
+  if (!includeParent) candidates = candidates.filter((k) => k !== HaiKind.Ton);
+  if (!includeChild) candidates = candidates.filter((k) => k === HaiKind.Ton);
+  if (candidates.length === 0) candidates = KAZEHAI;
+  return randomChoice(candidates);
+}
 
-  const isChiitoi = includeChiitoi && Math.random() < 0.1;
+/** 場風の候補（東場・南場） */
+const BAKAZE_OPTIONS: readonly Kazehai[] = [HaiKind.Ton, HaiKind.Nan];
 
-  const tehaiResult = isChiitoi
-    ? generateChiitoiTehai()
-    : generateMentsuTehai(includeFuro);
+/** 和了状況（点数・役計算の入力） */
+interface AgariContext {
+  readonly agariHai: HaiKindId;
+  readonly isTsumo: boolean;
+  readonly jikaze: Kazehai;
+  readonly bakaze: Kazehai;
+  readonly doraMarkers: readonly HaiKindId[];
+  readonly ruleConfig: { readonly doubleWindJantouFu: 2 | 4 };
+}
 
-  if (!tehaiResult) return undefined;
-
-  const { tehai, agariHai } = tehaiResult;
-
-  const isTsumo = Math.random() < 0.5;
-
-  let validKazehai: Kazehai[] = [...KAZEHAI];
-  if (!includeParent)
-    validKazehai = validKazehai.filter((k) => k !== HaiKind.Ton);
-  if (!includeChild)
-    validKazehai = validKazehai.filter((k) => k === HaiKind.Ton);
-  if (validKazehai.length === 0) validKazehai = [...KAZEHAI];
-
-  const jikaze = randomChoice(validKazehai);
-  const bakazeOptions: Kazehai[] = [HaiKind.Ton, HaiKind.Nan];
-  const bakaze = randomChoice(bakazeOptions);
-
-  const kantsuCount = countKantsu(tehai);
-  const doraMarkers = generateDoraMarkers(kantsuCount);
-
-  // ライブラリ境界の防御: calculateScoreForTehai / detectYaku は例外を投げうるため try/catch で保護
+/**
+ * ライブラリで点数と役を計算する
+ * 点数役計算
+ *
+ * `calculateScoreForTehai` / `detectYaku` は例外を投げうるため、
+ * ライブラリ境界であるこの関数内でのみ try/catch で防御し undefined に変換する。
+ */
+function computeScoreAndYaku(
+  tehai: Tehai14,
+  context: AgariContext,
+):
+  | {
+      readonly answer: ReturnType<typeof calculateScoreForTehai>;
+      readonly yakuResult: ReturnType<typeof detectYaku>;
+    }
+  | undefined {
+  const { agariHai, isTsumo, jikaze, bakaze, doraMarkers, ruleConfig } =
+    context;
   try {
     const answer = calculateScoreForTehai(tehai, {
       agariHai,
@@ -108,59 +108,103 @@ export function generateScoreQuestion(
       doraMarkers,
       isTsumo,
     });
-    let yakuDetails: YakuDetail[] = buildYakuDetailsFromResult(yakuResult);
-
-    const reconciled = reconcileYakuhai(
-      tehai,
-      yakuResult,
-      yakuDetails,
-      answer,
-      bakaze,
-      jikaze,
-      isTsumo,
-    );
-    let finalAnswer = reconciled.answer;
-    yakuDetails = [...yakuDetails, ...reconciled.additionalYakuDetails];
-    if (finalAnswer.han === 0) return undefined;
-
-    const isRiichi = isMenzen(tehai) && Math.random() < 0.2;
-    let uraDoraMarkers: HaiKindId[] | undefined;
-
-    if (isRiichi) {
-      const riichiRes = applyRiichiAndUraDora(
-        tehai,
-        finalAnswer,
-        yakuDetails,
-        kantsuCount,
-        isTsumo,
-        jikaze,
-      );
-      finalAnswer = riichiRes.answer;
-      uraDoraMarkers = riichiRes.uraDoraMarkers;
-      yakuDetails = [...yakuDetails, ...riichiRes.additionalYakuDetails];
-    }
-
-    const { allowedRanges = ["non_mangan", "mangan_plus"] } = options;
-
-    if (!validateScoreRange(finalAnswer.scoreLevel, allowedRanges))
-      return undefined;
-
-    return assembleScoreQuestion({
-      tehai,
-      agariHai,
-      isTsumo,
-      jikaze,
-      bakaze,
-      doraMarkers,
-      isRiichi,
-      uraDoraMarkers,
-      answer: finalAnswer,
-      originalAnswer: answer,
-      yakuDetails,
-    });
+    return { answer, yakuResult };
   } catch {
     return undefined;
   }
+}
+
+/**
+ * 点数計算練習の問題を1つ生成する（生成不可能な場合は undefined を返す）
+ * 点数計算練習問題生成
+ */
+export function generateScoreQuestion(
+  options: QuestionGeneratorOptions = {},
+): ScoreQuestion | undefined {
+  const {
+    includeFuro = true,
+    includeChiitoi = false,
+    includeParent = true,
+    includeChild = true,
+    renfonpaiAs4Fu = false,
+    allowedRanges = ["non_mangan", "mangan_plus"],
+  } = options;
+
+  // 1. 手牌の生成（七対子 or 面子手）
+  const isChiitoi = includeChiitoi && Math.random() < 0.1;
+  const tehaiResult = isChiitoi
+    ? generateChiitoiTehai()
+    : generateMentsuTehai(includeFuro);
+  if (!tehaiResult) return undefined;
+  const { tehai, agariHai } = tehaiResult;
+
+  // 2. 和了状況の決定
+  const isTsumo = Math.random() < 0.5;
+  const jikaze = selectJikaze(includeParent, includeChild);
+  const bakaze = randomChoice(BAKAZE_OPTIONS);
+  const kantsuCount = countKantsu(tehai);
+  const doraMarkers = generateDoraMarkers(kantsuCount);
+
+  // 3. 点数・役の計算（ライブラリ境界）
+  const scored = computeScoreAndYaku(tehai, {
+    agariHai,
+    isTsumo,
+    jikaze,
+    bakaze,
+    doraMarkers,
+    ruleConfig: { doubleWindJantouFu: renfonpaiAs4Fu ? 4 : 2 },
+  });
+  if (!scored) return undefined;
+
+  // 4. 役牌の照合と補正
+  let yakuDetails: YakuDetail[] = buildYakuDetailsFromResult(scored.yakuResult);
+  const reconciled = reconcileYakuhai(
+    tehai,
+    scored.yakuResult,
+    yakuDetails,
+    scored.answer,
+    bakaze,
+    jikaze,
+    isTsumo,
+  );
+  let finalAnswer = reconciled.answer;
+  yakuDetails = [...yakuDetails, ...reconciled.additionalYakuDetails];
+  if (finalAnswer.han === 0) return undefined;
+
+  // 5. リーチ・裏ドラの適用（門前のみ、確率20%）
+  const isRiichi = isMenzen(tehai) && Math.random() < 0.2;
+  let uraDoraMarkers: HaiKindId[] | undefined;
+  if (isRiichi) {
+    const riichiRes = applyRiichiAndUraDora(
+      tehai,
+      finalAnswer,
+      yakuDetails,
+      kantsuCount,
+      isTsumo,
+      jikaze,
+    );
+    finalAnswer = riichiRes.answer;
+    uraDoraMarkers = riichiRes.uraDoraMarkers;
+    yakuDetails = [...yakuDetails, ...riichiRes.additionalYakuDetails];
+  }
+
+  // 6. 点数帯の検証と組み立て
+  if (!validateScoreRange(finalAnswer.scoreLevel, allowedRanges))
+    return undefined;
+
+  return assembleScoreQuestion({
+    tehai,
+    agariHai,
+    isTsumo,
+    jikaze,
+    bakaze,
+    doraMarkers,
+    isRiichi,
+    uraDoraMarkers,
+    answer: finalAnswer,
+    originalAnswer: scored.answer,
+    yakuDetails,
+  });
 }
 
 /**

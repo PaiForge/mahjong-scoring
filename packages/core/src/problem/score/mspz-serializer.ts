@@ -8,75 +8,83 @@ import {
   type Tehai14,
 } from "@pai-forge/riichi-mahjong";
 
+/** MSPZ の花色サフィックス */
+type Suit = "m" | "p" | "s" | "z";
+
+/** 花色の表記順（MSPZ 標準順） */
+const SUITS: readonly Suit[] = ["m", "p", "s", "z"];
+
+/**
+ * 牌種IDを花色と数字に分解する
+ * 牌ID→花色数字分解
+ */
+function haiIdToSuitNumber(id: HaiKindId): {
+  readonly suit: Suit;
+  readonly number: number;
+} {
+  if (id >= 27) return { suit: "z", number: id - 27 + 1 };
+  if (id >= 18) return { suit: "s", number: id - 18 + 1 };
+  if (id >= 9) return { suit: "p", number: id - 9 + 1 };
+  return { suit: "m", number: id + 1 };
+}
+
 /**
  * 牌種IDをMSPZ文字列に変換する
  * 牌ID→MSPZ変換
  */
 export function haiIdToMspz(id: HaiKindId): string {
-  if (id >= 0 && id <= 8) return `${id + 1}m`;
-  if (id >= 9 && id <= 17) return `${id - 9 + 1}p`;
-  if (id >= 18 && id <= 26) return `${id - 18 + 1}s`;
-  if (id >= 27 && id <= 33) return `${id - 27 + 1}z`;
-  return "1m";
+  const { suit, number } = haiIdToSuitNumber(id);
+  return `${number}${suit}`;
 }
+
+/** 風牌ID→MSPZ文字列マップ */
+const KAZE_TO_MSPZ: Readonly<Record<Kazehai, string>> = {
+  [HaiKind.Ton]: "1z",
+  [HaiKind.Nan]: "2z",
+  [HaiKind.Sha]: "3z",
+  [HaiKind.Pei]: "4z",
+};
 
 /**
  * 風牌IDをMSPZ文字列に変換する
  * 風牌ID→MSPZ変換
  */
 export function kazeIdToMspz(id: Kazehai): string {
-  if (id === HaiKind.Ton) return "1z";
-  if (id === HaiKind.Nan) return "2z";
-  if (id === HaiKind.Sha) return "3z";
-  if (id === HaiKind.Pei) return "4z";
-  return "1z";
+  return KAZE_TO_MSPZ[id] ?? "1z";
 }
 
 /**
  * 牌IDリストを花色ごとのバケットに振り分ける
  * 花色バケット振り分け
  */
-function bucketSortHais(ids: readonly HaiKindId[]): {
-  readonly mans: number[];
-  readonly pins: number[];
-  readonly sous: number[];
-  readonly zis: number[];
-} {
-  const mans: number[] = [];
-  const pins: number[] = [];
-  const sous: number[] = [];
-  const zis: number[] = [];
+function bucketSortHais(
+  ids: readonly HaiKindId[],
+): Readonly<Record<Suit, readonly number[]>> {
+  const buckets: Record<Suit, number[]> = { m: [], p: [], s: [], z: [] };
 
   for (const id of ids) {
-    if (id >= 0 && id <= 8) mans.push(id + 1);
-    else if (id >= 9 && id <= 17) pins.push(id - 9 + 1);
-    else if (id >= 18 && id <= 26) sous.push(id - 18 + 1);
-    else if (id >= 27 && id <= 33) zis.push(id - 27 + 1);
+    const { suit, number } = haiIdToSuitNumber(id);
+    buckets[suit].push(number);
   }
 
-  mans.sort((a, b) => a - b);
-  pins.sort((a, b) => a - b);
-  sous.sort((a, b) => a - b);
-  zis.sort((a, b) => a - b);
+  for (const suit of SUITS) {
+    buckets[suit].sort((a, b) => a - b);
+  }
 
-  return { mans, pins, sous, zis };
+  return buckets;
 }
 
 /**
  * バケットをMSPZ文字列に変換する
  * バケット→MSPZ変換
  */
-function bucketsToMspz(buckets: {
-  readonly mans: readonly number[];
-  readonly pins: readonly number[];
-  readonly sous: readonly number[];
-  readonly zis: readonly number[];
-}): string {
+function bucketsToMspz(
+  buckets: Readonly<Record<Suit, readonly number[]>>,
+): string {
   let result = "";
-  if (buckets.mans.length) result += buckets.mans.join("") + "m";
-  if (buckets.pins.length) result += buckets.pins.join("") + "p";
-  if (buckets.sous.length) result += buckets.sous.join("") + "s";
-  if (buckets.zis.length) result += buckets.zis.join("") + "z";
+  for (const suit of SUITS) {
+    if (buckets[suit].length) result += buckets[suit].join("") + suit;
+  }
   return result;
 }
 
@@ -103,14 +111,10 @@ export function tehaiToMspz(tehai: Tehai14): string {
 }
 
 /**
- * 牌文字列（MSPZ / Extended MSPZ）を手牌オブジェクトに変換する
- * MSPZ→手牌変換
- *
- * 副露（`[...]`）・暗槓（`(...)`）を含む Extended MSPZ にも対応し、
- * closed / exposed を保持した Tehai を返す。パースできない場合は undefined。
+ * MSPZ / Extended MSPZ 文字列を柔軟にパースする（Extended 優先）
+ * 柔軟MSPZ解析
  */
-export function parseTehai(str: string | undefined): Tehai | undefined {
-  if (!str) return undefined;
+function parseFlexible(str: string): Tehai | undefined {
   const ext = parseExtendedMspz(str);
   if (ext.isOk()) return ext.value;
   const std = parseMspz(str);
@@ -119,18 +123,24 @@ export function parseTehai(str: string | undefined): Tehai | undefined {
 }
 
 /**
- * 牌文字列（MSPZ）をIDリストに変換する
+ * 牌文字列（MSPZ / Extended MSPZ）を手牌オブジェクトに変換する
+ * MSPZ→手牌変換
+ *
+ * 副露（`[...]`）・暗槓（`(...)`）を含む Extended MSPZ にも対応し、
+ * closed / exposed を保持した Tehai を返す。パースできない場合は undefined。
+ */
+export function parseTehai(str: string | undefined): Tehai | undefined {
+  if (!str) return undefined;
+  return parseFlexible(str);
+}
+
+/**
+ * 牌文字列（MSPZ / Extended MSPZ）の純手牌部分をIDリストに変換する
  * MSPZ→牌IDリスト変換
  */
 export function parseHais(str: string | undefined): HaiKindId[] {
   if (!str) return [];
-  const result = parseMspz(str);
-  if (result.isOk()) return [...result.value.closed];
-
-  const extResult = parseExtendedMspz(str);
-  if (extResult.isOk()) return [...extResult.value.closed];
-
-  return [];
+  return [...(parseFlexible(str)?.closed ?? [])];
 }
 
 /**
