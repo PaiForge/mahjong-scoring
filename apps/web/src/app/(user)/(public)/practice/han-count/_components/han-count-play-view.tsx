@@ -1,44 +1,24 @@
 "use client";
 
-import { useTranslations } from "next-intl";
-import { useTimedSession } from "../../_hooks/use-timed-session";
-import { useSaveOnFinish } from "../../_hooks/use-save-on-finish";
-import { useRecordedResults } from "../../_hooks/use-recorded-results";
-import { ChallengeShell } from "../../_components/challenge-shell";
+import { createChallengePlayView } from "../../_lib/create-challenge-views";
 import { HanCountBoard } from "./han-count-board";
 import type { HanCountQuestionResult } from "../_lib/types";
 import { RESULT_STORAGE_KEY } from "../_lib/types";
 
-/**
- * 翻数即答練習本体
- * 翻数即答練習
- */
-export function HanCountPlayView() {
-  const t = useTranslations("hanCountChallenge");
-  const { gameSession, timerControl } = useTimedSession();
-  const handleFinish = useSaveOnFinish("han_count");
-
-  const { recordResult } = useRecordedResults<HanCountQuestionResult>(
-    RESULT_STORAGE_KEY,
-    gameSession.isFinished,
-  );
-
-  return (
-    <ChallengeShell
-      title={t("title")}
-      gameSession={gameSession}
-      timerControl={timerControl}
-      resultPath="/practice/han-count/result"
-      exitHref="/practice/han-count"
-      onFinish={handleFinish}
-      maxWidth="max-w-2xl"
-    >
+export const HanCountPlayView = createChallengePlayView<HanCountQuestionResult>(
+  {
+    namespace: "hanCountChallenge",
+    menuType: "han_count",
+    slug: "han-count",
+    maxWidth: "max-w-2xl",
+    resultStorageKey: RESULT_STORAGE_KEY,
+    renderBoard: ({ showFeedback, isCountingDown, onAnswer, recordResult }) => (
       <HanCountBoard
-        showFeedback={gameSession.showFeedback}
-        isCountingDown={gameSession.isCountingDown}
-        onAnswer={gameSession.handleAnswer}
+        showFeedback={showFeedback}
+        isCountingDown={isCountingDown}
+        onAnswer={onAnswer}
         onRecordResult={recordResult}
       />
-    </ChallengeShell>
-  );
-}
+    ),
+  },
+);
