@@ -1,9 +1,8 @@
 "use client";
 
-import { useCallback, useState } from "react";
+import { useCallback } from "react";
 import { useTranslations } from "next-intl";
-import { generateValidScoreQuestion } from "@mahjong-scoring/core";
-import type { ScoreQuestion } from "@mahjong-scoring/core";
+import { useGeneratedScoreQuestion } from "../../_hooks/use-generated-score-question";
 import { TehaiDisplay } from "../../_components/tehai-display";
 import { HanCountAnswerForm } from "./han-count-answer-form";
 import type { HanCountQuestionResult } from "../_lib/types";
@@ -28,15 +27,8 @@ export function HanCountBoard({
   onRecordResult,
 }: HanCountBoardProps) {
   const t = useTranslations("hanCountChallenge");
-  const [question, setQuestion] = useState<ScoreQuestion | undefined>(
-    () => generateValidScoreQuestion() ?? undefined,
-  );
-  const [questionIndex, setQuestionIndex] = useState(0);
-
-  const advanceQuestion = useCallback(() => {
-    setQuestion(generateValidScoreQuestion() ?? undefined);
-    setQuestionIndex((prev) => prev + 1);
-  }, []);
+  const { question, questionIndex, advanceQuestion } =
+    useGeneratedScoreQuestion();
 
   const handleSubmit = useCallback(
     (userHan: number) => {

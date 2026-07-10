@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useState } from "react";
+import { useCallback } from "react";
 import {
   generateValidScoreQuestion,
   isOya,
@@ -12,6 +12,7 @@ import type {
 } from "@mahjong-scoring/core";
 import type { ScoreQuestionResult } from "../_lib/score-question-result";
 import { paymentToScoreTableAnswer } from "../_lib/payment-adapter";
+import { useGeneratedScoreQuestion } from "./use-generated-score-question";
 
 type GenerateOptions = Parameters<typeof generateValidScoreQuestion>[0];
 
@@ -43,15 +44,8 @@ export function useScoreQuestionBoard({
   onAnswer,
   onRecordResult,
 }: UseScoreQuestionBoardParams): UseScoreQuestionBoardResult {
-  const [question, setQuestion] = useState<ScoreQuestion | undefined>(
-    () => generateValidScoreQuestion(generateOptions) ?? undefined,
-  );
-  const [questionIndex, setQuestionIndex] = useState(0);
-
-  const advanceQuestion = useCallback(() => {
-    setQuestion(generateValidScoreQuestion(generateOptions) ?? undefined);
-    setQuestionIndex((prev) => prev + 1);
-  }, [generateOptions]);
+  const { question, questionIndex, advanceQuestion } =
+    useGeneratedScoreQuestion(generateOptions);
 
   const handleSubmit = useCallback(
     (userAnswer: ScoreTableUserAnswer) => {
