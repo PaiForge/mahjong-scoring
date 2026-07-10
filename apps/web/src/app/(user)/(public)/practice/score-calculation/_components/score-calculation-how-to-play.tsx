@@ -1,5 +1,3 @@
-"use client";
-
 import { HaiKind } from "@mahjong-scoring/core";
 import type { ScoreQuestion } from "@mahjong-scoring/core";
 import { QuestionDisplay } from "../../score/_components/question-display";
