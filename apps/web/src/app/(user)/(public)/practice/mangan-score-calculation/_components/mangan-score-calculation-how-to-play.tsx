@@ -1,5 +1,3 @@
-"use client";
-
 import { HaiKind } from "@mahjong-scoring/core";
 import type { ScoreQuestion } from "@mahjong-scoring/core";
 import { QuestionDisplay } from "../../score/_components/question-display";
@@ -58,7 +56,7 @@ export function ManganScoreCalculationHowToPlay() {
   return (
     <div className="space-y-4">
       <QuestionDisplay question={DEMO_QUESTION} />
-      {DEMO_QUESTION.yakuDetails && DEMO_QUESTION.yakuDetails.length > 0 && (
+      {DEMO_QUESTION.yakuDetails && (
         <YakuListDisplay yakuDetails={DEMO_QUESTION.yakuDetails} />
       )}
     </div>

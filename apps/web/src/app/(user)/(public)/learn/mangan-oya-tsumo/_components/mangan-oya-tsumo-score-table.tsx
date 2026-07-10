@@ -1,14 +1,6 @@
 import { getTranslations } from "next-intl/server";
 import { HIGH_SCORES } from "@mahjong-scoring/core";
-
-/** 種類ごとの翻数レンジ表示（満貫は4翻も含むため "5" 単独にしない） */
-const HAN_DISPLAY: Record<string, string> = {
-  mangan: "4 〜 5",
-  haneman: "6 〜 7",
-  baiman: "8 〜 10",
-  sanbaiman: "11 〜 12",
-  yakuman: "13 〜",
-};
+import { HAN_DISPLAY } from "../../_lib/han-display";
 
 /**
  * 親ツモ（満貫以上）の点数早見表（種類×翻数×子1人の支払い×合計）

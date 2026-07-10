@@ -1,19 +1,11 @@
 import { getTranslations } from "next-intl/server";
 import { HIGH_SCORES } from "@mahjong-scoring/core";
+import { HAN_DISPLAY } from "../_lib/han-display";
 
 interface ManganScoreTableProps {
   /** 子・親のどちらの点数を表示するか */
   readonly role: "ko" | "oya";
 }
-
-/** 種類ごとの翻数レンジ表示（満貫は4翻も含むため "5" 単独にしない） */
-const HAN_DISPLAY: Record<string, string> = {
-  mangan: "4 〜 5",
-  haneman: "6 〜 7",
-  baiman: "8 〜 10",
-  sanbaiman: "11 〜 12",
-  yakuman: "13 〜",
-};
 
 /** nameKey から manganScoreTable 名前空間の備考キーを導出する */
 function noteKeyOf(nameKey: string): string {

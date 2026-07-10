@@ -1,30 +1,17 @@
 "use client";
 
-import { useTranslations } from "next-intl";
-import { useTimedSession } from "../../_hooks/use-timed-session";
-import { useSaveOnFinish } from "../../_hooks/use-save-on-finish";
-import { ChallengeShell } from "../../_components/challenge-shell";
+import { createChallengePlayView } from "../../_lib/create-challenge-views";
 import { JantouFuBoard } from "./jantou-fu-board";
 
-export function JantouFuPlayView() {
-  const t = useTranslations("jantouFu");
-  const { gameSession, timerControl } = useTimedSession();
-  const handleFinish = useSaveOnFinish("jantou_fu");
-
-  return (
-    <ChallengeShell
-      title={t("title")}
-      gameSession={gameSession}
-      timerControl={timerControl}
-      resultPath="/practice/jantou-fu/result"
-      exitHref="/practice/jantou-fu"
-      onFinish={handleFinish}
-    >
-      <JantouFuBoard
-        showFeedback={gameSession.showFeedback}
-        isCountingDown={gameSession.isCountingDown}
-        onAnswer={gameSession.handleAnswer}
-      />
-    </ChallengeShell>
-  );
-}
+export const JantouFuPlayView = createChallengePlayView({
+  namespace: "jantouFu",
+  menuType: "jantou_fu",
+  slug: "jantou-fu",
+  renderBoard: ({ showFeedback, isCountingDown, onAnswer }) => (
+    <JantouFuBoard
+      showFeedback={showFeedback}
+      isCountingDown={isCountingDown}
+      onAnswer={onAnswer}
+    />
+  ),
+});

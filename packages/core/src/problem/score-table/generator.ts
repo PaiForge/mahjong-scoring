@@ -5,6 +5,7 @@ import {
   isInvalidCell,
   HIGH_SCORES,
 } from "../../core/score-calculation";
+import { scoreTierForHan } from "../../score/tiers";
 import type {
   ScoreTableQuestion,
   ScoreTableAnswer,
@@ -73,11 +74,9 @@ function buildCorrectAnswer(
  * 満貫以上帯の特定
  */
 function highScoreBandForHan(han: number): (typeof HIGH_SCORES)[number] {
-  if (han <= 5) return HIGH_SCORES[0]; // mangan
-  if (han <= 7) return HIGH_SCORES[1]; // haneman
-  if (han <= 10) return HIGH_SCORES[2]; // baiman
-  if (han <= 12) return HIGH_SCORES[3]; // sanbaiman
-  return HIGH_SCORES[4]; // yakuman
+  // HIGH_SCORES は役満（13翻）まで。ダブル役満相当の翻数も役満帯に丸める
+  const key = scoreTierForHan(Math.min(han, 13))?.key;
+  return HIGH_SCORES.find((band) => band.nameKey === key) ?? HIGH_SCORES[0];
 }
 
 /**

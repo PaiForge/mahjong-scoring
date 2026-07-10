@@ -1,45 +1,30 @@
 "use client";
 
-import { useTranslations } from "next-intl";
-import { useTimedSession } from "../../_hooks/use-timed-session";
-import { useSaveOnFinish } from "../../_hooks/use-save-on-finish";
-import { useRecordedResults } from "../../_hooks/use-recorded-results";
-import { ChallengeShell } from "../../_components/challenge-shell";
+import { createChallengePlayView } from "../../_lib/create-challenge-views";
 import { ScoreCalculationBoard } from "./score-calculation-board";
 import type { ScoreCalculationQuestionResult } from "../_lib/types";
 import { RESULT_STORAGE_KEY } from "../_lib/types";
 
-/**
- * 点数計算練習本体
- * 点数計算練習
- */
-export function ScoreCalculationPlayView() {
-  const t = useTranslations("scoreCalculationChallenge");
-  const { gameSession, timerControl } = useTimedSession();
-  const handleFinish = useSaveOnFinish("score_calculation");
-
-  const { recordResult } = useRecordedResults<ScoreCalculationQuestionResult>(
-    RESULT_STORAGE_KEY,
-    gameSession.isFinished,
-  );
-
-  return (
-    <ChallengeShell
-      title={t("title")}
-      gameSession={gameSession}
-      timerControl={timerControl}
-      resultPath="/practice/score-calculation/result"
-      exitHref="/practice/score-calculation"
-      onFinish={handleFinish}
-      maxWidth="max-w-lg"
-    >
+export const ScoreCalculationPlayView =
+  createChallengePlayView<ScoreCalculationQuestionResult>({
+    namespace: "scoreCalculationChallenge",
+    menuType: "score_calculation",
+    slug: "score-calculation",
+    maxWidth: "max-w-lg",
+    resultStorageKey: RESULT_STORAGE_KEY,
+    renderBoard: ({
+      showFeedback,
+      isCountingDown,
+      lastAnswerCorrect,
+      onAnswer,
+      recordResult,
+    }) => (
       <ScoreCalculationBoard
-        showFeedback={gameSession.showFeedback}
-        isCountingDown={gameSession.isCountingDown}
-        lastAnswerCorrect={gameSession.lastAnswerCorrect}
-        onAnswer={gameSession.handleAnswer}
+        showFeedback={showFeedback}
+        isCountingDown={isCountingDown}
+        lastAnswerCorrect={lastAnswerCorrect}
+        onAnswer={onAnswer}
         onRecordResult={recordResult}
       />
-    </ChallengeShell>
-  );
-}
+    ),
+  });

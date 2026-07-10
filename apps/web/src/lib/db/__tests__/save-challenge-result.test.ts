@@ -1,4 +1,4 @@
-import { describe, expect, it, vi, beforeEach } from 'vitest';
+import { describe, expect, it, vi, beforeEach } from "vitest";
 
 const {
   mockInsert,
@@ -20,56 +20,59 @@ const {
   mockRevalidateTag: vi.fn(),
 }));
 
-vi.mock('next/cache', () => ({
+vi.mock("next/cache", () => ({
   revalidateTag: mockRevalidateTag,
   unstable_cache: <T extends (...args: unknown[]) => unknown>(fn: T): T => fn,
 }));
 
-vi.mock('../index', () => ({
+vi.mock("../index", () => ({
   db: {
     transaction: mockTransaction,
   },
 }));
 
-vi.mock('../schema', () => ({
-  challengeResults: { _name: 'challenge_results', id: 'id' },
+vi.mock("../schema", () => ({
+  challengeResults: { _name: "challenge_results", id: "id" },
   challengeBestScores: {
-    _name: 'challenge_best_scores',
-    userId: 'user_id',
-    menuType: 'menu_type',
-    leaderboardKey: 'leaderboard_key',
-    score: 'score',
-    incorrectAnswers: 'incorrect_answers',
-    timeTaken: 'time_taken',
+    _name: "challenge_best_scores",
+    userId: "user_id",
+    menuType: "menu_type",
+    leaderboardKey: "leaderboard_key",
+    score: "score",
+    incorrectAnswers: "incorrect_answers",
+    timeTaken: "time_taken",
   },
 }));
 
-vi.mock('../save-exp', () => ({
+vi.mock("../save-exp", () => ({
   grantChallengeExp: mockGrantChallengeExp,
 }));
 
-vi.mock('../get-exp-heatmap-data', () => ({
+vi.mock("../get-exp-heatmap-data", () => ({
   expHeatmapCacheTag: (userId: string) => `exp-heatmap:${userId}`,
   getExpHeatmapData: vi.fn(),
 }));
 
-vi.mock('drizzle-orm', () => ({
-  sql: (strings: TemplateStringsArray, ...values: unknown[]) => ({ strings, values }),
+vi.mock("drizzle-orm", () => ({
+  sql: (strings: TemplateStringsArray, ...values: unknown[]) => ({
+    strings,
+    values,
+  }),
 }));
 
-import type { ChallengeResultInput } from '../save-challenge-result';
-import { saveChallengeResult } from '../save-challenge-result';
+import type { ChallengeResultInput } from "../save-challenge-result";
+import { saveChallengeResult } from "../save-challenge-result";
 
 const validInput: ChallengeResultInput = {
-  userId: 'user-123',
-  menuType: 'jantou_fu',
-  leaderboardKey: 'default',
+  userId: "user-123",
+  menuType: "jantou_fu",
+  leaderboardKey: "default",
   score: 10,
   incorrectAnswers: 2,
   timeTaken: 45,
 };
 
-describe('saveChallengeResult', () => {
+describe("saveChallengeResult", () => {
   let insertCallCount: number;
 
   beforeEach(() => {
@@ -77,12 +80,14 @@ describe('saveChallengeResult', () => {
     insertCallCount = 0;
 
     // First insert: challenge_results — chain is .values().returning([{ id }])
-    mockFirstReturning.mockResolvedValue([{ id: 'challenge-result-1' }]);
+    mockFirstReturning.mockResolvedValue([{ id: "challenge-result-1" }]);
     mockFirstValues.mockReturnValue({ returning: mockFirstReturning });
 
     // Second insert: challenge_best_scores — chain is .values().onConflictDoUpdate()
     mockOnConflictDoUpdate.mockResolvedValue(undefined);
-    mockSecondValues.mockReturnValue({ onConflictDoUpdate: mockOnConflictDoUpdate });
+    mockSecondValues.mockReturnValue({
+      onConflictDoUpdate: mockOnConflictDoUpdate,
+    });
 
     mockInsert.mockImplementation(() => {
       insertCallCount++;
@@ -102,14 +107,16 @@ describe('saveChallengeResult', () => {
 
     // The transaction callback receives a `tx` object
     mockTransaction.mockImplementation(
-      async (callback: (tx: { insert: typeof mockInsert }) => Promise<unknown>) => {
+      async (
+        callback: (tx: { insert: typeof mockInsert }) => Promise<unknown>,
+      ) => {
         return await callback({ insert: mockInsert });
       },
     );
   });
 
-  describe('successful save', () => {
-    it('executes two inserts within a transaction', async () => {
+  describe("successful save", () => {
+    it("executes two inserts within a transaction", async () => {
       await saveChallengeResult(validInput);
 
       expect(mockTransaction).toHaveBeenCalledOnce();
@@ -117,35 +124,35 @@ describe('saveChallengeResult', () => {
       expect(mockInsert).toHaveBeenCalledTimes(2);
     });
 
-    it('inserts into challenge_results with correct values', async () => {
+    it("inserts into challenge_results with correct values", async () => {
       await saveChallengeResult(validInput);
 
       const firstInsertCall = mockInsert.mock.calls[0];
-      expect(firstInsertCall[0]).toMatchObject({ _name: 'challenge_results' });
+      expect(firstInsertCall[0]).toMatchObject({ _name: "challenge_results" });
 
       expect(mockFirstValues).toHaveBeenCalledWith({
-        userId: 'user-123',
-        menuType: 'jantou_fu',
-        leaderboardKey: 'default',
+        userId: "user-123",
+        menuType: "jantou_fu",
+        leaderboardKey: "default",
         score: 10,
         incorrectAnswers: 2,
         timeTaken: 45,
       });
     });
 
-    it('inserts into challenge_best_scores with achievedAt', async () => {
+    it("inserts into challenge_best_scores with achievedAt", async () => {
       await saveChallengeResult(validInput);
 
       const secondInsertCall = mockInsert.mock.calls[1];
       expect(secondInsertCall[0]).toMatchObject({
-        _name: 'challenge_best_scores',
+        _name: "challenge_best_scores",
       });
 
       const secondValuesCall = mockSecondValues.mock.calls[0];
       expect(secondValuesCall[0]).toMatchObject({
-        userId: 'user-123',
-        menuType: 'jantou_fu',
-        leaderboardKey: 'default',
+        userId: "user-123",
+        menuType: "jantou_fu",
+        leaderboardKey: "default",
         score: 10,
         incorrectAnswers: 2,
         timeTaken: 45,
@@ -154,41 +161,41 @@ describe('saveChallengeResult', () => {
       expect(secondValuesCall[0].achievedAt).toBeInstanceOf(Date);
     });
 
-    it('calls onConflictDoUpdate for the best scores upsert', async () => {
+    it("calls onConflictDoUpdate for the best scores upsert", async () => {
       await saveChallengeResult(validInput);
 
       expect(mockOnConflictDoUpdate).toHaveBeenCalledOnce();
       const upsertArg = mockOnConflictDoUpdate.mock.calls[0][0];
-      expect(upsertArg).toHaveProperty('target');
-      expect(upsertArg).toHaveProperty('set');
-      expect(upsertArg).toHaveProperty('setWhere');
+      expect(upsertArg).toHaveProperty("target");
+      expect(upsertArg).toHaveProperty("set");
+      expect(upsertArg).toHaveProperty("setWhere");
     });
 
-    it('calls grantChallengeExp with the inserted challengeResultId', async () => {
+    it("calls grantChallengeExp with the inserted challengeResultId", async () => {
       await saveChallengeResult(validInput);
 
       expect(mockGrantChallengeExp).toHaveBeenCalledOnce();
       const [, params] = mockGrantChallengeExp.mock.calls[0];
       expect(params).toMatchObject({
-        userId: 'user-123',
-        challengeResultId: 'challenge-result-1',
-        menuType: 'jantou_fu',
-        leaderboardKey: 'default',
+        userId: "user-123",
+        challengeResultId: "challenge-result-1",
+        menuType: "jantou_fu",
+        leaderboardKey: "default",
         score: 10,
         incorrectAnswers: 2,
         timeTaken: 45,
       });
     });
 
-    it('returns the inserted challengeResultId', async () => {
+    it("returns the inserted challengeResultId", async () => {
       const result = await saveChallengeResult(validInput);
 
-      expect(result).toEqual({ challengeResultId: 'challenge-result-1' });
+      expect(result).toEqual({ challengeResultId: "challenge-result-1" });
     });
   });
 
-  describe('heatmap cache invalidation', () => {
-    it('revalidates the per-user heatmap tag when EXP is granted', async () => {
+  describe("heatmap cache invalidation", () => {
+    it("revalidates the per-user heatmap tag when EXP is granted", async () => {
       mockGrantChallengeExp.mockResolvedValueOnce({
         earnedExp: 50,
         totalExp: 200,
@@ -200,18 +207,21 @@ describe('saveChallengeResult', () => {
       await saveChallengeResult(validInput);
 
       expect(mockRevalidateTag).toHaveBeenCalledTimes(1);
-      expect(mockRevalidateTag).toHaveBeenCalledWith('exp-heatmap:user-123', 'default');
+      expect(mockRevalidateTag).toHaveBeenCalledWith(
+        "exp-heatmap:user-123",
+        "default",
+      );
     });
 
-    it('does not revalidate the tag when EXP is skipped (unregistered menuType)', async () => {
-      mockGrantChallengeExp.mockResolvedValueOnce(null);
+    it("does not revalidate the tag when EXP is skipped (unregistered menuType)", async () => {
+      mockGrantChallengeExp.mockResolvedValueOnce(undefined);
 
       await saveChallengeResult(validInput);
 
       expect(mockRevalidateTag).not.toHaveBeenCalled();
     });
 
-    it('calls revalidateTag only once per save when EXP is granted', async () => {
+    it("calls revalidateTag only once per save when EXP is granted", async () => {
       mockGrantChallengeExp.mockResolvedValueOnce({
         earnedExp: 10,
         totalExp: 10,
@@ -225,13 +235,13 @@ describe('saveChallengeResult', () => {
       expect(mockRevalidateTag).toHaveBeenCalledTimes(1);
     });
 
-    it('calls revalidateTag AFTER db.transaction resolves (not inside)', async () => {
+    it("calls revalidateTag AFTER db.transaction resolves (not inside)", async () => {
       const order: string[] = [];
       mockRevalidateTag.mockImplementation(() => {
-        order.push('revalidateTag');
+        order.push("revalidateTag");
       });
       mockGrantChallengeExp.mockImplementationOnce(async () => {
-        order.push('grantChallengeExp');
+        order.push("grantChallengeExp");
         return {
           earnedExp: 10,
           totalExp: 10,
@@ -242,19 +252,21 @@ describe('saveChallengeResult', () => {
       });
       // Wrap transaction to record begin/end around the callback
       mockTransaction.mockImplementationOnce(
-        async (callback: (tx: { insert: typeof mockInsert }) => Promise<unknown>) => {
-          order.push('tx-begin');
+        async (
+          callback: (tx: { insert: typeof mockInsert }) => Promise<unknown>,
+        ) => {
+          order.push("tx-begin");
           const out = await callback({ insert: mockInsert });
-          order.push('tx-commit');
+          order.push("tx-commit");
           return out;
         },
       );
 
       await saveChallengeResult(validInput);
 
-      const txCommitIdx = order.indexOf('tx-commit');
-      const revalidateIdx = order.indexOf('revalidateTag');
-      const grantIdx = order.indexOf('grantChallengeExp');
+      const txCommitIdx = order.indexOf("tx-commit");
+      const revalidateIdx = order.indexOf("revalidateTag");
+      const grantIdx = order.indexOf("grantChallengeExp");
       expect(txCommitIdx).toBeGreaterThan(-1);
       expect(revalidateIdx).toBeGreaterThan(-1);
       expect(grantIdx).toBeLessThan(txCommitIdx);
@@ -262,19 +274,23 @@ describe('saveChallengeResult', () => {
     });
   });
 
-  describe('transaction error propagation', () => {
-    it('propagates errors thrown inside the transaction', async () => {
-      const transactionError = new Error('DB connection lost');
+  describe("transaction error propagation", () => {
+    it("propagates errors thrown inside the transaction", async () => {
+      const transactionError = new Error("DB connection lost");
       mockTransaction.mockRejectedValue(transactionError);
 
-      await expect(saveChallengeResult(validInput)).rejects.toThrow('DB connection lost');
+      await expect(saveChallengeResult(validInput)).rejects.toThrow(
+        "DB connection lost",
+      );
     });
 
-    it('propagates errors from the insert operation', async () => {
-      const insertError = new Error('Insert failed');
+    it("propagates errors from the insert operation", async () => {
+      const insertError = new Error("Insert failed");
       mockFirstReturning.mockRejectedValue(insertError);
 
-      await expect(saveChallengeResult(validInput)).rejects.toThrow('Insert failed');
+      await expect(saveChallengeResult(validInput)).rejects.toThrow(
+        "Insert failed",
+      );
     });
   });
 });

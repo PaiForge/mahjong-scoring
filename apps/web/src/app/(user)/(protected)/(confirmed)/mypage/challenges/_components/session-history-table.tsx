@@ -1,10 +1,5 @@
 import { getMissColorClass } from "../_lib/dashboard-utils";
-
-interface SessionRow {
-  readonly date: string;
-  readonly correctAnswers: string;
-  readonly incorrectAnswers: number;
-}
+import type { SessionRow } from "../_lib/types";
 
 interface SessionHistoryTableProps {
   readonly sessions: readonly SessionRow[];

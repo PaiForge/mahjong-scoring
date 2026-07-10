@@ -2,7 +2,7 @@
 
 import { SITE_URL } from "@/config";
 import type { ActionResult } from "@/lib/action-types";
-import { IP_RATE_LIMITS, enforceIpRateLimit } from "@/lib/rate-limit-ip";
+import { enforceIpRateLimit } from "@/lib/rate-limit-ip";
 import { createClient } from "@/lib/supabase/server";
 import { getPasswordValidationError } from "@/lib/validations/password";
 
@@ -16,7 +16,7 @@ export async function signUp(
   email: string,
   password: string,
 ): Promise<SignUpResult> {
-  const rateLimited = await enforceIpRateLimit("signUp", IP_RATE_LIMITS.signUp);
+  const rateLimited = await enforceIpRateLimit("signUp");
   if (rateLimited) {
     return rateLimited;
   }

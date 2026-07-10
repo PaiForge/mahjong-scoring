@@ -1,21 +1,8 @@
 import type { ScoreQuestion, UserAnswer, JudgementResult } from "./types";
-import { IGNORE_YAKU_FOR_JUDGEMENT, ScoreLevel } from "../../core/constants";
+import { IGNORE_YAKU_FOR_JUDGEMENT } from "../../core/yaku-names";
+import { isMangan } from "../../score/tiers";
+import { scoreTierForHan } from "../../score/tiers";
 import { setsEqual } from "../shared/set-equal";
-
-/**
- * 満貫以上かどうかを判定する
- * 満貫以上判定
- */
-export function isMangan(scoreLevel: string): boolean {
-  return (
-    scoreLevel === ScoreLevel.Mangan ||
-    scoreLevel === ScoreLevel.Haneman ||
-    scoreLevel === ScoreLevel.Baiman ||
-    scoreLevel === ScoreLevel.Sanbaiman ||
-    scoreLevel === ScoreLevel.Yakuman ||
-    scoreLevel === ScoreLevel.DoubleYakuman
-  );
-}
 
 /**
  * 点数の判定
@@ -58,16 +45,12 @@ function judgeYaku(
 
 /**
  * 簡略化された翻数を取得する
- * 5翻以上をクラスごとの代表値に変換する
+ * 5翻以上をクラスごとの代表値（区分の最小翻数）に変換する
  * 翻数簡略化
  */
 function getSimplifiedHan(han: number): number {
-  if (han >= 13) return 13; // 役満
-  if (han >= 11) return 11; // 三倍満
-  if (han >= 8) return 8; // 倍満
-  if (han >= 6) return 6; // 跳満
-  if (han >= 5) return 5; // 満貫
-  return han;
+  if (han >= 13) return 13; // 役満（ダブル役満も13翻扱い）
+  return scoreTierForHan(han)?.minHan ?? han;
 }
 
 /**
@@ -125,29 +108,4 @@ export function judgeAnswer(
     isScoreCorrect,
     isYakuCorrect,
   };
-}
-
-/**
- * 点数レベルを日本語に変換する
- * 点数レベル日本語変換
- */
-export function getScoreLevelName(scoreLevel: string): string {
-  switch (scoreLevel) {
-    case ScoreLevel.Normal:
-      return "";
-    case ScoreLevel.Mangan:
-      return "満貫";
-    case ScoreLevel.Haneman:
-      return "跳満";
-    case ScoreLevel.Baiman:
-      return "倍満";
-    case ScoreLevel.Sanbaiman:
-      return "三倍満";
-    case ScoreLevel.Yakuman:
-      return "役満";
-    case ScoreLevel.DoubleYakuman:
-      return "ダブル役満";
-    default:
-      return "";
-  }
 }

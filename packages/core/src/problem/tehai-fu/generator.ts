@@ -6,6 +6,7 @@ import {
 } from "@pai-forge/riichi-mahjong";
 import type { TehaiFuQuestion, TehaiFuItem } from "./types";
 import { KAZEHAI } from "../../core/constants";
+import { randomChoice } from "../../core/random";
 import { HaiUsageTracker } from "../../core/hai-tracker";
 import { calculateJantouFu } from "../shared/jantou-fu";
 import {
@@ -44,8 +45,8 @@ export function generateTehaiFuQuestion(
   }));
 
   // 2. コンテキスト生成
-  const bakaze = KAZEHAI[Math.floor(Math.random() * 4)];
-  const jikaze = KAZEHAI[Math.floor(Math.random() * 4)];
+  const bakaze = randomChoice(KAZEHAI);
+  const jikaze = randomChoice(KAZEHAI);
 
   // 3. 雀頭を生成
   const headTile = generatePairTile(tracker);

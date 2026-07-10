@@ -2,7 +2,6 @@ import { NextResponse } from "next/server";
 
 import { logActivityEvent } from "@/lib/activity-log";
 import { authorizeApiRequest } from "@/lib/api-auth";
-import { IP_RATE_LIMITS } from "@/lib/rate-limit-ip";
 import { deleteAccount } from "@/lib/users/delete-account";
 
 /**
@@ -14,10 +13,7 @@ import { deleteAccount } from "@/lib/users/delete-account";
  * アカウント退会API
  */
 export async function DELETE() {
-  const auth = await authorizeApiRequest(
-    "deleteAccount",
-    IP_RATE_LIMITS.deleteAccount,
-  );
+  const auth = await authorizeApiRequest("deleteAccount");
   if (!auth.ok) return auth.response;
   const { user } = auth;
 

@@ -5,8 +5,8 @@ import {
   type Tehai14,
 } from "@pai-forge/riichi-mahjong";
 import { convertScoreDetailToFuDetails } from "../../score/fu-calculator";
-import { countDoraInTehai } from "../../core/hai-names";
-import { getYakuNameJa } from "../../core/constants";
+import { countDoraInTehai } from "../../core/dora";
+import { getYakuNameJa } from "../../core/yaku-names";
 import type { ScoreQuestion, YakuDetail } from "./types";
 
 /**
@@ -49,7 +49,9 @@ interface AssembleScoreQuestionInput {
  * ドラの加算と fuDetails の計算を行い、最終的な ScoreQuestion を返す。
  * 問題組立
  */
-export function assembleScoreQuestion(input: AssembleScoreQuestionInput): ScoreQuestion {
+export function assembleScoreQuestion(
+  input: AssembleScoreQuestionInput,
+): ScoreQuestion {
   const {
     tehai,
     agariHai,
@@ -72,7 +74,12 @@ export function assembleScoreQuestion(input: AssembleScoreQuestionInput): ScoreQ
   }
 
   const fuDetails = originalAnswer.detail
-    ? convertScoreDetailToFuDetails(originalAnswer.detail, { agariHai, isTsumo, bakaze, jikaze })
+    ? convertScoreDetailToFuDetails(originalAnswer.detail, {
+        agariHai,
+        isTsumo,
+        bakaze,
+        jikaze,
+      })
     : undefined;
 
   return {

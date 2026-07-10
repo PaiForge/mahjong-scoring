@@ -53,6 +53,8 @@ describe("generateScoreTableQuestion", () => {
       for (let i = 0; i < 100; i++) {
         const question = generateScoreTableQuestion();
         const winType = question.isTsumo ? "tsumo" : "ron";
+        expect(question.fu).toBeDefined();
+        if (question.fu === undefined) continue;
         expect(isInvalidCell(question.han, question.fu, winType)).toBe(false);
       }
     });
@@ -98,7 +100,7 @@ describe("generateScoreTableQuestion", () => {
     it("子ロンの正解が calculateKoScore の結果と一致すること", () => {
       for (let i = 0; i < 200; i++) {
         const question = generateScoreTableQuestion();
-        if (!question.isOya && !question.isTsumo) {
+        if (!question.isOya && !question.isTsumo && question.fu !== undefined) {
           const expected = calculateKoScore(question.han, question.fu);
           expect(question.correctAnswer.type).toBe("ron");
           if (question.correctAnswer.type === "ron") {
@@ -114,7 +116,7 @@ describe("generateScoreTableQuestion", () => {
     it("親ロンの正解が calculateOyaScore の結果と一致すること", () => {
       for (let i = 0; i < 200; i++) {
         const question = generateScoreTableQuestion();
-        if (question.isOya && !question.isTsumo) {
+        if (question.isOya && !question.isTsumo && question.fu !== undefined) {
           const expected = calculateOyaScore(question.han, question.fu);
           expect(question.correctAnswer.type).toBe("ron");
           if (question.correctAnswer.type === "ron") {
@@ -129,7 +131,7 @@ describe("generateScoreTableQuestion", () => {
     it("子ツモの正解が calculateKoScore の結果と一致すること", () => {
       for (let i = 0; i < 200; i++) {
         const question = generateScoreTableQuestion();
-        if (!question.isOya && question.isTsumo) {
+        if (!question.isOya && question.isTsumo && question.fu !== undefined) {
           const expected = calculateKoScore(question.han, question.fu);
           expect(question.correctAnswer.type).toBe("koTsumo");
           if (question.correctAnswer.type === "koTsumo") {
@@ -150,7 +152,7 @@ describe("generateScoreTableQuestion", () => {
     it("親ツモの正解が calculateOyaScore の結果と一致すること", () => {
       for (let i = 0; i < 200; i++) {
         const question = generateScoreTableQuestion();
-        if (question.isOya && question.isTsumo) {
+        if (question.isOya && question.isTsumo && question.fu !== undefined) {
           const expected = calculateOyaScore(question.han, question.fu);
           expect(question.correctAnswer.type).toBe("oyaTsumo");
           if (question.correctAnswer.type === "oyaTsumo") {
@@ -433,6 +435,8 @@ describe("generateScoreTableQuestion", () => {
       for (let i = 0; i < 500; i++) {
         const question = generateScoreTableQuestion();
         const winType = question.isTsumo ? "tsumo" : "ron";
+        expect(question.fu).toBeDefined();
+        if (question.fu === undefined) continue;
         expect(isInvalidCell(question.han, question.fu, winType)).toBe(false);
       }
     });
@@ -446,6 +450,8 @@ describe("generateScoreTableQuestion", () => {
           maxFu: 110,
         });
         const winType = question.isTsumo ? "tsumo" : "ron";
+        expect(question.fu).toBeDefined();
+        if (question.fu === undefined) continue;
         expect(isInvalidCell(question.han, question.fu, winType)).toBe(false);
       }
     });

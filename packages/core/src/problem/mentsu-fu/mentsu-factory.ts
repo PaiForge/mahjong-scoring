@@ -8,6 +8,7 @@ import {
 } from "@pai-forge/riichi-mahjong";
 import { SUIT_BASES } from "../../core/constants";
 import { randomInt, randomChoice } from "../../core/random";
+import { calculateMentsuFu } from "../../core/score-calculation";
 import { isHaiKindId } from "../../core/type-guards";
 import { randomSimple, randomYaochu } from "../shared/tile-random";
 
@@ -19,22 +20,6 @@ export interface MentsuResult {
   readonly mentsu: Shuntsu | Koutsu | Kantsu;
   readonly fu: number;
   readonly explanation: string;
-}
-
-/**
- * 刻子・槓子の符に倍率を適用する。
- * 暗（非副露）で2倍、么九牌で2倍。
- * 符倍率適用
- */
-function applyFuMultipliers(
-  base: number,
-  isOpen: boolean,
-  isYaochu: boolean,
-): number {
-  let fu = base;
-  if (!isOpen) fu *= 2;
-  if (isYaochu) fu *= 2;
-  return fu;
 }
 
 /**
@@ -85,7 +70,7 @@ export function createRandomKoutsu(): MentsuResult {
       }
     : { type: MentsuType.Koutsu, hais };
 
-  const fu = applyFuMultipliers(2, isOpen, isYaochu);
+  const fu = calculateMentsuFu({ isKantsu: false, isOpen, isYaochu });
 
   const typeStr = isYaochu ? "么九牌" : "中張牌";
   const stateStr = isOpen ? "明刻" : "暗刻";
@@ -112,7 +97,7 @@ export function createRandomKantsu(): MentsuResult {
       }
     : { type: MentsuType.Kantsu, hais };
 
-  const fu = applyFuMultipliers(8, isOpen, isYaochu);
+  const fu = calculateMentsuFu({ isKantsu: true, isOpen, isYaochu });
 
   const typeStr = isYaochu ? "么九牌" : "中張牌";
   const stateStr = isOpen ? "明槓（または加槓）" : "暗槓";

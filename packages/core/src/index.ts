@@ -40,11 +40,8 @@ export { retryGenerate } from "./problem/retry-generate";
 
 // === Problem: Score ===
 export { generateValidScoreQuestion } from "./problem/score/generator";
-export {
-  judgeAnswer,
-  isMangan,
-  getScoreLevelName,
-} from "./problem/score/judgement";
+export { judgeAnswer } from "./problem/score/judgement";
+export { isMangan, getScoreLevelName } from "./score/tiers";
 export type {
   ScoreQuestion,
   UserAnswer,
@@ -67,8 +64,9 @@ export {
 } from "./score/constants";
 
 // === Core ===
-export { YAKU_OPTIONS } from "./core/constants";
-export { getKazeName, getDoraFromIndicator, isOya } from "./core/hai-names";
+export { YAKU_OPTIONS } from "./core/yaku-names";
+export { getKazeName, isOya } from "./core/kaze";
+export { getDoraFromIndicator } from "./core/dora";
 export {
   calculateKoScore,
   calculateOyaScore,

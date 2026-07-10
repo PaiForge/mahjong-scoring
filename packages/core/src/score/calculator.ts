@@ -1,6 +1,7 @@
 import type { ScoreResult, Payment } from "@pai-forge/riichi-mahjong";
 import { calculateBasePoints, ceilTo100 } from "../core/score-calculation";
 import { ScoreLevel } from "../core/constants";
+import { scoreTierForHan } from "./tiers";
 
 /**
  * 翻数が変わった場合の点数を再計算する
@@ -25,22 +26,12 @@ export function recalculateScore(
   let basePoints = calculateBasePoints(newHanValue, fu);
   let scoreLevel: ScoreResult["scoreLevel"];
 
-  if (newHanValue >= 26) {
-    scoreLevel = ScoreLevel.DoubleYakuman;
-    basePoints = 16000;
-  } else if (newHanValue >= 13) {
-    scoreLevel = ScoreLevel.Yakuman;
-    basePoints = 8000;
-  } else if (newHanValue >= 11) {
-    scoreLevel = ScoreLevel.Sanbaiman;
-    basePoints = 6000;
-  } else if (newHanValue >= 8) {
-    scoreLevel = ScoreLevel.Baiman;
-    basePoints = 4000;
-  } else if (newHanValue >= 6) {
-    scoreLevel = ScoreLevel.Haneman;
-    basePoints = 3000;
-  } else if (basePoints >= 2000 || newHanValue >= 5) {
+  const tier = scoreTierForHan(newHanValue);
+  if (tier) {
+    scoreLevel = tier.level;
+    basePoints = tier.basePoints;
+  } else if (basePoints >= 2000) {
+    // 4翻以下でも基本符が満貫相当（60符3翻等）なら満貫に切り上げる
     scoreLevel = ScoreLevel.Mangan;
     basePoints = 2000;
   } else {

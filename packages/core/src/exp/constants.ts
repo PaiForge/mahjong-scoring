@@ -10,7 +10,7 @@
  * モジュール別の EXP 重み
  *
  * キーは `menuType`（練習種別）。このテーブルに登録されていない menuType は
- * EXP 付与対象外（`calculateExp` が `null` を返す）となる。
+ * EXP 付与対象外（`calculateExp` が `undefined` を返す）となる。
  * 現時点で提供中のチャレンジ練習はすべて有効化済み（重みはいずれも 1）。
  * 将来追加する練習は、難易度を決めてから明示的にここへ追記して opt-in すること。
  */
@@ -30,7 +30,10 @@ export const MODULE_WEIGHT: Readonly<Record<string, number>> = {
  *
  * チャレンジは 3 ミスで終了するため、`incorrectAnswers` は 0〜3 を想定する。
  */
-export const MISS_BONUS: ReadonlyArray<{ readonly misses: number; readonly multiplier: number }> = [
+export const MISS_BONUS: ReadonlyArray<{
+  readonly misses: number;
+  readonly multiplier: number;
+}> = [
   { misses: 0, multiplier: 1.5 }, // パーフェクト
   { misses: 1, multiplier: 1.2 },
   { misses: 2, multiplier: 1.1 },

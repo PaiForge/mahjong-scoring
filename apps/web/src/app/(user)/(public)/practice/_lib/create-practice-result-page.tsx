@@ -206,10 +206,11 @@ async function resolveCurrentUser() {
     const {
       data: { user },
     } = await supabase.auth.getUser();
-    return user;
+    // Supabase API は null を返すが、プロジェクト規約に合わせ undefined に正規化する
+    return user ?? undefined;
   } catch (error) {
     console.error("[createPracticeResultPage] failed to resolve user:", error);
-    return null;
+    return undefined;
   }
 }
 

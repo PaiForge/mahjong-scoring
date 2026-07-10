@@ -7,13 +7,9 @@ import {
 } from "@pai-forge/riichi-mahjong";
 import type { YakuDetail } from "../types";
 import { recalculateScore } from "../../../score/calculator";
-import {
-  countDoraInTehai,
-  getKeyForKazehai,
-  isOya,
-} from "../../../core/hai-names";
-import { isHaiKindId } from "../../../core/type-guards";
-import { countHaiInTehai } from "../../shared/hai-count";
+import { countDoraInTehai } from "../../../core/dora";
+import { countHaiInTehai } from "../../../core/hai-count";
+import { getKeyForKazehai, isOya } from "../../../core/kaze";
 import { generateDoraMarkers } from "../../shared/dora-utils";
 
 /**
@@ -70,7 +66,7 @@ export function reconcileYakuhai(
 
   // 三元牌チェック
   const dragons: readonly {
-    readonly id: number;
+    readonly id: HaiKindId;
     readonly name: string;
     readonly key: string;
   }[] = [
@@ -81,7 +77,7 @@ export function reconcileYakuhai(
 
   for (const { id, name, key } of dragons) {
     const hasDragon = yakuResult.some((y) => y[0] === key);
-    if (!hasDragon && isHaiKindId(id) && countHaiInTehai(tehai, id) >= 3) {
+    if (!hasDragon && countHaiInTehai(tehai, id) >= 3) {
       extraYakuhaiHan += 1;
       additionalYakuDetails.push({ name, han: 1 });
     }

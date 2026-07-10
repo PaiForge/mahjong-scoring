@@ -4,6 +4,7 @@ import { useState } from "react";
 
 import { useTranslations } from "next-intl";
 
+import { useAuthFormSubmit } from "../../_hooks/use-auth-form-submit";
 import { AuthTextField } from "../../_components/auth-text-field";
 import { AuthSubmitButton } from "../../_components/auth-submit-button";
 import { AuthFormError } from "../../_components/auth-form-error";
@@ -16,36 +17,20 @@ import { forgotPassword } from "../_actions/forgot-password";
 export function ForgotPasswordForm() {
   const t = useTranslations("forgotPassword");
   const [email, setEmail] = useState("");
-  const [isLoading, setIsLoading] = useState(false);
   const [isSent, setIsSent] = useState(false);
-  const [error, setError] = useState("");
+  const { error, isLoading, submit } = useAuthFormSubmit();
 
-  const handleSubmit = async (e: React.FormEvent) => {
+  const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    setError("");
-    setIsLoading(true);
-
-    try {
-      const result = await forgotPassword(email);
-
-      if ("error" in result) {
-        switch (result.error) {
-          case "rateLimited":
-            setError(t("rateLimited"));
-            break;
-          default:
-            setError(t("error"));
-        }
-        setIsLoading(false);
-        return;
-      }
-
-      setIsSent(true);
-      setIsLoading(false);
-    } catch {
-      setError(t("error"));
-      setIsLoading(false);
-    }
+    void submit({
+      action: () => forgotPassword(email),
+      mapError: (code) =>
+        code === "rateLimited" ? t("rateLimited") : t("error"),
+      onSuccess: () => {
+        setIsSent(true);
+      },
+      stopLoadingOnSuccess: true,
+    });
   };
 
   if (isSent) {

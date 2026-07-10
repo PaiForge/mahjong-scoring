@@ -1,10 +1,8 @@
-import type { PracticeMenuType } from "@/lib/db/practice-menu-types";
-
+import { formatDate, getMissColorClass } from "../../_lib/dashboard-utils";
 import type { ChallengeSession } from "../../_lib/types";
 
 interface ResultsTableProps {
   readonly items: readonly ChallengeSession[];
-  readonly menuType: PracticeMenuType | undefined;
   readonly emptyMessage: string;
   readonly headers: {
     readonly date: string;
@@ -12,8 +10,7 @@ interface ResultsTableProps {
     readonly correctAnswers: string;
     readonly incorrectAnswers: string;
   };
-  readonly formatDate: (date: Date | undefined) => string;
-  readonly getMissColorClass: (incorrectAnswers: number) => string;
+  /** menuType を表示ラベルへ変換する（i18n は呼び出し元の名前空間で行う） */
   readonly getMenuLabel: (menuType: string) => string;
 }
 
@@ -25,8 +22,6 @@ export function ResultsTable({
   items,
   emptyMessage,
   headers,
-  formatDate,
-  getMissColorClass,
   getMenuLabel,
 }: ResultsTableProps) {
   if (items.length === 0) {

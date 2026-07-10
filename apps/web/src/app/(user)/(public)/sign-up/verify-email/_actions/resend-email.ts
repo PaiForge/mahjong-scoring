@@ -1,7 +1,7 @@
 "use server";
 
 import type { ActionResult } from "@/lib/action-types";
-import { IP_RATE_LIMITS, enforceIpRateLimit } from "@/lib/rate-limit-ip";
+import { enforceIpRateLimit } from "@/lib/rate-limit-ip";
 import { createClient } from "@/lib/supabase/server";
 
 export type ResendEmailResult = ActionResult;
@@ -11,10 +11,7 @@ export type ResendEmailResult = ActionResult;
  * メール再送アクション
  */
 export async function resendEmail(email: string): Promise<ResendEmailResult> {
-  const ipRateLimited = await enforceIpRateLimit(
-    "resendEmail",
-    IP_RATE_LIMITS.resendEmail,
-  );
+  const ipRateLimited = await enforceIpRateLimit("resendEmail");
   if (ipRateLimited) {
     return ipRateLimited;
   }

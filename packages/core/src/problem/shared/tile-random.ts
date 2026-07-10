@@ -8,11 +8,19 @@ import { isHaiKindId, validateHaiKindId } from "../../core/type-guards";
  * 么九牌リスト
  */
 const YAOCHU: readonly HaiKindId[] = [
-  HaiKind.ManZu1, HaiKind.ManZu9,
-  HaiKind.PinZu1, HaiKind.PinZu9,
-  HaiKind.SouZu1, HaiKind.SouZu9,
-  HaiKind.Ton, HaiKind.Nan, HaiKind.Sha, HaiKind.Pei,
-  HaiKind.Haku, HaiKind.Hatsu, HaiKind.Chun,
+  HaiKind.ManZu1,
+  HaiKind.ManZu9,
+  HaiKind.PinZu1,
+  HaiKind.PinZu9,
+  HaiKind.SouZu1,
+  HaiKind.SouZu9,
+  HaiKind.Ton,
+  HaiKind.Nan,
+  HaiKind.Sha,
+  HaiKind.Pei,
+  HaiKind.Haku,
+  HaiKind.Hatsu,
+  HaiKind.Chun,
 ].filter(isHaiKindId);
 
 /**
@@ -32,4 +40,26 @@ export function randomSimple(): HaiKindId {
  */
 export function randomYaochu(): HaiKindId {
   return randomChoice(YAOCHU);
+}
+
+/**
+ * 全34種からランダムな牌種IDを生成する
+ * ランダム牌種生成
+ */
+export function randomHaiKindId(): HaiKindId {
+  return validateHaiKindId(randomInt(0, 33)).unwrapOr(HaiKind.ManZu1);
+}
+
+/**
+ * 指定した牌を除く33種からランダムな牌種IDを生成する
+ * 相違牌生成
+ *
+ * @param exclude - 除外する牌種ID
+ */
+export function randomHaiKindIdExcluding(exclude: HaiKindId): HaiKindId {
+  let hai = randomHaiKindId();
+  while (hai === exclude) {
+    hai = randomHaiKindId();
+  }
+  return hai;
 }

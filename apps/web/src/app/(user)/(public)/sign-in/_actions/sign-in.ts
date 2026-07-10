@@ -2,7 +2,7 @@
 
 import type { ActionResult } from "@/lib/action-types";
 import { logCurrentUserEvent } from "@/lib/activity-log";
-import { IP_RATE_LIMITS, enforceIpRateLimit } from "@/lib/rate-limit-ip";
+import { enforceIpRateLimit } from "@/lib/rate-limit-ip";
 import { createClient } from "@/lib/supabase/server";
 
 export type SignInResult = ActionResult;
@@ -16,7 +16,7 @@ export async function signIn(
   email: string,
   password: string,
 ): Promise<SignInResult> {
-  const rateLimited = await enforceIpRateLimit("signIn", IP_RATE_LIMITS.signIn);
+  const rateLimited = await enforceIpRateLimit("signIn");
   if (rateLimited) {
     return rateLimited;
   }

@@ -9,18 +9,23 @@ import { randomChoice } from "../../../core/random";
 import { randomInt } from "../../../core/random";
 import { HaiUsageTracker } from "../../../core/hai-tracker";
 import {
-  generateShuntsu,
-  generateKoutsu,
-  generateKantsu,
+  generateWeightedMentsu,
   generateToitsu,
 } from "../utils/shape-generator";
+import type { MentsuWeights } from "../../mentsu-fu/mentsu-factory";
+
+/** 点数計算練習の面子重み（順子: 65%, 刻子: 30%, 残り5% 槓子） */
+const SCORE_MENTSU_WEIGHTS: MentsuWeights = { shuntsu: 0.65, koutsu: 0.3 };
 
 /**
  * 面子の構造情報
  * 面子構造
  */
 interface MentsuShape {
-  readonly type: typeof MentsuType.Shuntsu | typeof MentsuType.Koutsu | typeof MentsuType.Kantsu;
+  readonly type:
+    | typeof MentsuType.Shuntsu
+    | typeof MentsuType.Koutsu
+    | typeof MentsuType.Kantsu;
   readonly hais: readonly HaiKindId[];
   readonly isFuro: boolean;
 }
@@ -54,7 +59,9 @@ export interface MentsuTehaiResult {
  *
  * @param includeFuro - 副露を含めるかどうか
  */
-export function generateMentsuTehai(includeFuro: boolean): MentsuTehaiResult | undefined {
+export function generateMentsuTehai(
+  includeFuro: boolean,
+): MentsuTehaiResult | undefined {
   const tracker = new HaiUsageTracker();
   const closedHais: HaiKindId[] = [];
   const exposed: CompletedMentsu[] = [];
@@ -66,19 +73,11 @@ export function generateMentsuTehai(includeFuro: boolean): MentsuTehaiResult | u
   // 4面子を生成
   for (let i = 0; i < 4; i++) {
     const isFuro = i < furoCount;
-    // 面子の種類を決定（順子: 65%, 刻子: 30%, 槓子: 5%）
-    const rand = Math.random();
-    const isShuntsu = rand < 0.65;
-    const isKantsu = rand >= 0.95;
-
-    let mentsu: CompletedMentsu | undefined;
-    if (isShuntsu) {
-      mentsu = generateShuntsu(tracker, isFuro) ?? generateKoutsu(tracker, isFuro);
-    } else if (isKantsu) {
-      mentsu = generateKantsu(tracker, isFuro) ?? generateKoutsu(tracker, isFuro) ?? generateShuntsu(tracker, isFuro);
-    } else {
-      mentsu = generateKoutsu(tracker, isFuro) ?? generateShuntsu(tracker, isFuro);
-    }
+    const mentsu = generateWeightedMentsu(
+      tracker,
+      SCORE_MENTSU_WEIGHTS,
+      isFuro,
+    );
 
     if (!mentsu) return undefined;
 
@@ -104,7 +103,13 @@ export function generateMentsuTehai(includeFuro: boolean): MentsuTehaiResult | u
   closedHais.sort((a, b) => a - b);
 
   // 和了牌の候補を収集
-  const candidates: { readonly hai: HaiKindId; readonly target: { readonly type: "mentsu" | "pair"; readonly index: number } }[] = [];
+  const candidates: {
+    readonly hai: HaiKindId;
+    readonly target: {
+      readonly type: "mentsu" | "pair";
+      readonly index: number;
+    };
+  }[] = [];
 
   // 面子からの候補
   for (let idx = 0; idx < structuralMentsu.length; idx++) {

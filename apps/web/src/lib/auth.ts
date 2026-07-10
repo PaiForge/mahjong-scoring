@@ -85,16 +85,18 @@ export const requireProvisionalUser = cache(async () => {
 });
 
 /**
- * 認証済みユーザーまたは null を返す。リダイレクトなし。
+ * 認証済みユーザーまたは undefined を返す。リダイレクトなし。
  * getClaims() でローカル検証する（getAuthenticatedUser と同様）。
  * オプショナルユーザー取得
  */
-export const getOptionalUser = cache(async (): Promise<AuthUser | null> => {
-  const supabase = await createClient();
-  const { data } = await supabase.auth.getClaims();
-  const claims = data?.claims;
-  return claims ? { id: claims.sub, email: claims.email } : null;
-});
+export const getOptionalUser = cache(
+  async (): Promise<AuthUser | undefined> => {
+    const supabase = await createClient();
+    const { data } = await supabase.auth.getClaims();
+    const claims = data?.claims;
+    return claims ? { id: claims.sub, email: claims.email } : undefined;
+  },
+);
 
 /**
  * 認証 + BAN チェックガード（Server Actions 用）。

@@ -10,11 +10,11 @@ import { useSessionStorageSave } from "./use-session-storage-save";
  * チャレンジ型練習の play view が共通で用いる。結果を ref に push し、
  * isFinished が true になった時点で storageKey へ JSON 保存する。
  *
- * @param storageKey - sessionStorage のキー
+ * @param storageKey - sessionStorage のキー（undefined の場合は記録のみで保存しない）
  * @param isFinished - 練習が終了したかどうか
  */
 export function useRecordedResults<T>(
-  storageKey: string,
+  storageKey: string | undefined,
   isFinished: boolean,
 ): { recordResult: (result: T) => void } {
   const resultsRef = useRef<T[]>([]);
@@ -23,7 +23,11 @@ export function useRecordedResults<T>(
     resultsRef.current.push(result);
   }, []);
 
-  useSessionStorageSave(storageKey, resultsRef, isFinished);
+  useSessionStorageSave(
+    storageKey ?? "",
+    resultsRef,
+    storageKey !== undefined && isFinished,
+  );
 
   return { recordResult };
 }

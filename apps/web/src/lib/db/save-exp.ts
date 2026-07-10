@@ -10,12 +10,16 @@
  * @see {@link @mahjong-scoring/core} 計算ロジック（calculateExp, getLevel）
  * @see {@link ./save-challenge-result.ts} 呼び出し元のトランザクション
  */
-import { calculateExp, getLevel, getLevelProgress } from '@mahjong-scoring/core';
-import type { ExpInfo } from '@mahjong-scoring/core';
-import { and, eq, sql } from 'drizzle-orm';
+import {
+  calculateExp,
+  getLevel,
+  getLevelProgress,
+} from "@mahjong-scoring/core";
+import type { ExpInfo } from "@mahjong-scoring/core";
+import { and, eq, sql } from "drizzle-orm";
 
-import { db } from './index';
-import { expEvents, userExp } from './schema';
+import { db } from "./index";
+import { expEvents, userExp } from "./schema";
 
 /** Drizzle の `db.transaction()` コールバック引数の型 */
 type TransactionClient = Parameters<Parameters<typeof db.transaction>[0]>[0];
@@ -34,7 +38,7 @@ interface GrantChallengeExpParams {
  * チャレンジ完了に対する EXP を計算して付与する
  * チャレンジ経験値付与
  *
- * 未登録の練習種別 (`MODULE_WEIGHT` に無い `menuType`) は `null` を返し、
+ * 未登録の練習種別 (`MODULE_WEIGHT` に無い `menuType`) は `undefined` を返し、
  * EXP 付与を完全にスキップする（開発中の練習で誤って EXP を付与しないため）。
  *
  * 冪等性: `(source, source_id)` の partial unique index に依存し、
@@ -43,12 +47,12 @@ interface GrantChallengeExpParams {
  *
  * @param tx トランザクションクライアント
  * @param params ユーザー・チャレンジ結果・スコア情報
- * @returns 付与結果、または `null`（未登録 menuType で付与スキップ）
+ * @returns 付与結果、または `undefined`（未登録 menuType で付与スキップ）
  */
 export async function grantChallengeExp(
   tx: TransactionClient,
   params: GrantChallengeExpParams,
-): Promise<ExpInfo | null> {
+): Promise<ExpInfo | undefined> {
   const {
     userId,
     challengeResultId,
@@ -60,9 +64,9 @@ export async function grantChallengeExp(
   } = params;
 
   const expResult = calculateExp({ score, incorrectAnswers, menuType });
-  if (expResult === null) {
+  if (expResult === undefined) {
     // 未登録の menuType: EXP 付与をスキップ（デフォルト重みは与えない）
-    return null;
+    return undefined;
   }
 
   // 1. exp_events に仮 INSERT（冪等: (source, source_id) の partial unique index）
@@ -77,7 +81,7 @@ export async function grantChallengeExp(
     .insert(expEvents)
     .values({
       userId,
-      source: 'challenge_result',
+      source: "challenge_result",
       sourceId: challengeResultId,
       menuType,
       amount: expResult.totalExp,
@@ -153,7 +157,7 @@ async function rebuildExpInfoFromExisting(
     .from(expEvents)
     .where(
       and(
-        eq(expEvents.source, 'challenge_result'),
+        eq(expEvents.source, "challenge_result"),
         eq(expEvents.sourceId, challengeResultId),
         eq(expEvents.userId, userId),
       ),
@@ -174,8 +178,9 @@ function buildExpInfoFromRow(row: ExistingEventRow | undefined): ExpInfo {
     };
   }
   const metadata = row.metadata ?? {};
-  const rawTotalAfter = metadata['totalExpAfter'];
-  const totalExpAfter = typeof rawTotalAfter === 'number' ? rawTotalAfter : row.amount;
+  const rawTotalAfter = metadata["totalExpAfter"];
+  const totalExpAfter =
+    typeof rawTotalAfter === "number" ? rawTotalAfter : row.amount;
   return buildExpInfo({ earned: row.amount, totalExpAfter });
 }
 
@@ -216,7 +221,7 @@ export async function getExpInfoByChallengeResultId(
     .from(expEvents)
     .where(
       and(
-        eq(expEvents.source, 'challenge_result'),
+        eq(expEvents.source, "challenge_result"),
         eq(expEvents.sourceId, challengeResultId),
         eq(expEvents.userId, userId),
       ),

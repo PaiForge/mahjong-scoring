@@ -5,6 +5,7 @@ import { useState } from "react";
 import Link from "next/link";
 import { useTranslations } from "next-intl";
 
+import { useAuthFormSubmit } from "../../_hooks/use-auth-form-submit";
 import { AuthTextField } from "../../_components/auth-text-field";
 import { AuthSubmitButton } from "../../_components/auth-submit-button";
 import { AuthFormError } from "../../_components/auth-form-error";
@@ -21,36 +22,20 @@ export function EmailPasswordForm({ redirectTo }: { redirectTo?: string }) {
   const t = useTranslations("auth");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const [error, setError] = useState("");
-  const [isLoading, setIsLoading] = useState(false);
+  const { error, isLoading, submit } = useAuthFormSubmit();
 
-  const handleSubmit = async (e: React.FormEvent) => {
+  const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    setError("");
-    setIsLoading(true);
-
-    try {
-      const result = await signIn(email, password);
-
-      if ("error" in result) {
-        switch (result.error) {
-          case "rateLimited":
-            setError(t("rateLimited"));
-            break;
-          default:
-            setError(t("emailSignInError"));
-        }
-        setIsLoading(false);
-        return;
-      }
-
-      // Hard navigation で Cookie の同期を確実にする。
-      // router.push だと Server Component が Cookie 反映前にレンダリングされる可能性がある。
-      window.location.href = redirectTo ?? "/mypage";
-    } catch {
-      setError(t("emailSignInError"));
-      setIsLoading(false);
-    }
+    void submit({
+      action: () => signIn(email, password),
+      mapError: (code) =>
+        code === "rateLimited" ? t("rateLimited") : t("emailSignInError"),
+      onSuccess: () => {
+        // Hard navigation で Cookie の同期を確実にする。
+        // router.push だと Server Component が Cookie 反映前にレンダリングされる可能性がある。
+        window.location.href = redirectTo ?? "/mypage";
+      },
+    });
   };
 
   return (

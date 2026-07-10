@@ -6,6 +6,7 @@ import type { UserAnswer } from "@mahjong-scoring/core";
 import { YakuSelect } from "./yaku-select";
 import { getAvailableScores } from "../_lib/get-available-scores";
 import { getSelectClass } from "../../_lib/select-class";
+import { ScoreOptionSelect } from "../../_components/score-option-select";
 
 interface ScorePracticeAnswerFormProps {
   readonly onSubmit: (answer: UserAnswer) => void;
@@ -202,61 +203,34 @@ export function ScorePracticeAnswerForm({
         {availableScores.type === "koTsumo" ? (
           <div className="flex items-center gap-2">
             <div className="flex-1">
-              <select
+              <ScoreOptionSelect
                 value={scoreFromKo}
-                onChange={(e) => setScoreFromKo(e.target.value)}
+                onChange={setScoreFromKo}
+                options={availableScores.koScores}
+                placeholder={t("form.placeholders.fromKo")}
                 disabled={disabled}
-                required
-                className={selectClass(scoreFromKo !== "")}
-              >
-                <option value="" disabled>
-                  {t("form.placeholders.fromKo")}
-                </option>
-                {availableScores.koScores.map((s) => (
-                  <option key={s} value={s}>
-                    {s}
-                  </option>
-                ))}
-              </select>
+              />
             </div>
             <span className="font-medium text-surface-500">/</span>
             <div className="flex-1">
-              <select
+              <ScoreOptionSelect
                 value={scoreFromOya}
-                onChange={(e) => setScoreFromOya(e.target.value)}
+                onChange={setScoreFromOya}
+                options={availableScores.oyaScores}
+                placeholder={t("form.placeholders.fromOya")}
                 disabled={disabled}
-                required
-                className={selectClass(scoreFromOya !== "")}
-              >
-                <option value="" disabled>
-                  {t("form.placeholders.fromOya")}
-                </option>
-                {availableScores.oyaScores.map((s) => (
-                  <option key={s} value={s}>
-                    {s}
-                  </option>
-                ))}
-              </select>
+              />
             </div>
           </div>
         ) : (
-          <select
+          <ScoreOptionSelect
             value={score}
-            onChange={(e) => setScore(e.target.value)}
+            onChange={setScore}
+            options={availableScores.scores}
+            placeholder={t("form.placeholders.select")}
             disabled={disabled}
-            required
-            className={selectClass(score !== "")}
-          >
-            <option value="" disabled>
-              {t("form.placeholders.select")}
-            </option>
-            {availableScores.scores.map((s) => (
-              <option key={s} value={s}>
-                {s}
-                {isOya && isTsumo ? t("form.options.all") : ""}
-              </option>
-            ))}
-          </select>
+            optionSuffix={isOya && isTsumo ? t("form.options.all") : ""}
+          />
         )}
       </div>
 

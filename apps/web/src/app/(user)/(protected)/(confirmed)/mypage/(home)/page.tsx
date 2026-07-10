@@ -38,12 +38,19 @@ export default async function MyPage() {
   ]);
   const profileName = profile?.displayName ?? profile?.username ?? "";
 
+  // next-intl の raw() は unknown を返すため、型アサーションではなく
+  // 実行時フィルタで文字列配列に絞り込む
+  const rawMonthNames: unknown = tHeatmap.raw("monthNames");
+  const monthNames = Array.isArray(rawMonthNames)
+    ? rawMonthNames.filter((m): m is string => typeof m === "string")
+    : [];
+
   // SSR 時点で JST 基準のレイアウトを確定させ、クライアントの `new Date()` による
   // ハイドレーションミスマッチを防ぐ。
   const heatmapLayout = buildHeatmapLayout({
     now: new Date(),
     daily: heatmapData.daily,
-    monthNames: tHeatmap.raw("monthNames") as string[],
+    monthNames,
     recentDaysCount: 7,
     totalWeeks: DESKTOP_WEEKS,
   });

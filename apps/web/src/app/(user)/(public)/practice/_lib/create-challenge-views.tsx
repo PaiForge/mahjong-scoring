@@ -1,0 +1,153 @@
+"use client";
+
+import type { ReactNode } from "react";
+import { useTranslations } from "next-intl";
+import type { PracticeMenuType } from "@/lib/db/practice-menu-types";
+import { ChallengeShell } from "../_components/challenge-shell";
+import { TrainingShell } from "../_components/training-shell";
+import { useRecordedResults } from "../_hooks/use-recorded-results";
+import { useSaveOnFinish } from "../_hooks/use-save-on-finish";
+import { useTimedSession } from "../_hooks/use-timed-session";
+import { useTrainingSession } from "../_hooks/use-training-session";
+
+/**
+ * チャレンジ盤面の描画に渡される状態
+ * チャレンジ盤面引数
+ */
+export interface ChallengeBoardArgs<TResult> {
+  readonly showFeedback: boolean;
+  readonly isCountingDown: boolean;
+  readonly lastAnswerCorrect: boolean | undefined;
+  readonly onAnswer: (correct: boolean, onNext: () => void) => void;
+  /** 問題結果の記録（config.resultStorageKey 指定時のみ終了時に保存される） */
+  readonly recordResult: (result: TResult) => void;
+}
+
+/**
+ * チャレンジ本体ビューの生成設定
+ * チャレンジビュー設定
+ */
+export interface ChallengePlayViewConfig<TResult> {
+  /** 辞書の namespace（例: "jantouFu"） */
+  readonly namespace: string;
+  /** スコア保存に使う練習メニュー種別（例: "jantou_fu"） */
+  readonly menuType: PracticeMenuType;
+  /** ルートスラッグ（例: "jantou-fu"）。result / exit のパス生成に使う */
+  readonly slug: string;
+  /** シェル内部ラッパーの max-w クラス（未指定時はシェルの既定値） */
+  readonly maxWidth?: string;
+  /** 問題結果を保存する sessionStorage キー（結果ページで内訳表示する練習のみ） */
+  readonly resultStorageKey?: string;
+  /** 盤面の描画 */
+  readonly renderBoard: (args: ChallengeBoardArgs<TResult>) => ReactNode;
+}
+
+/**
+ * チャレンジ型練習の本体ビューを生成するファクトリ
+ * チャレンジビュー生成
+ *
+ * 全チャレンジ型練習で共通の「セッション管理 → スコア保存 → シェル描画」の
+ * 定型を一元化する。各練習は盤面の描画（renderBoard）と設定値のみを提供する。
+ */
+export function createChallengePlayView<TResult = never>(
+  config: ChallengePlayViewConfig<TResult>,
+): () => ReactNode {
+  const { namespace, menuType, slug, maxWidth, resultStorageKey, renderBoard } =
+    config;
+
+  function ChallengePlayView() {
+    const t = useTranslations(namespace);
+    const { gameSession, timerControl } = useTimedSession();
+    const handleFinish = useSaveOnFinish(menuType);
+    const { recordResult } = useRecordedResults<TResult>(
+      resultStorageKey,
+      gameSession.isFinished,
+    );
+
+    return (
+      <ChallengeShell
+        title={t("title")}
+        gameSession={gameSession}
+        timerControl={timerControl}
+        resultPath={`/practice/${slug}/result`}
+        exitHref={`/practice/${slug}`}
+        maxWidth={maxWidth}
+        onFinish={handleFinish}
+      >
+        {renderBoard({
+          showFeedback: gameSession.showFeedback,
+          isCountingDown: gameSession.isCountingDown,
+          lastAnswerCorrect: gameSession.lastAnswerCorrect,
+          onAnswer: gameSession.handleAnswer,
+          recordResult,
+        })}
+      </ChallengeShell>
+    );
+  }
+  ChallengePlayView.displayName = `ChallengePlayView(${slug})`;
+  return ChallengePlayView;
+}
+
+/**
+ * トレーニング盤面の描画に渡される状態
+ * トレーニング盤面引数
+ */
+export interface TrainingBoardArgs {
+  readonly showFeedback: boolean;
+  readonly lastAnswerCorrect: boolean | undefined;
+  readonly onAnswer: (correct: boolean, onNext: () => void) => void;
+}
+
+/**
+ * トレーニングビューの生成設定
+ * トレーニングビュー設定
+ */
+export interface TrainingViewConfig {
+  /** 辞書の namespace（例: "jantouFu"） */
+  readonly namespace: string;
+  /** ルートスラッグ（例: "jantou-fu"）。終了リンクのパス生成に使う */
+  readonly slug: string;
+  /** シェル内部ラッパーの max-w クラス（未指定時はシェルの既定値） */
+  readonly maxWidth?: string;
+  /** 盤面の描画 */
+  readonly renderBoard: (args: TrainingBoardArgs) => ReactNode;
+}
+
+/**
+ * トレーニングモード（時間無制限・非記録）の本体ビューを生成するファクトリ
+ * トレーニングビュー生成
+ */
+export function createTrainingView(
+  config: TrainingViewConfig,
+): () => ReactNode {
+  const { namespace, slug, maxWidth, renderBoard } = config;
+
+  function TrainingView() {
+    const t = useTranslations(namespace);
+    const {
+      correctCount,
+      totalCount,
+      showFeedback,
+      lastAnswerCorrect,
+      handleAnswer,
+    } = useTrainingSession();
+
+    return (
+      <TrainingShell
+        title={t("title")}
+        correctCount={correctCount}
+        totalCount={totalCount}
+        exitHref={`/practice/${slug}`}
+        maxWidth={maxWidth}
+      >
+        {renderBoard({
+          showFeedback,
+          lastAnswerCorrect,
+          onAnswer: handleAnswer,
+        })}
+      </TrainingShell>
+    );
+  }
+  TrainingView.displayName = `TrainingView(${slug})`;
+  return TrainingView;
+}

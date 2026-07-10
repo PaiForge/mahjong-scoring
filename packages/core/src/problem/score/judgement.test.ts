@@ -1,5 +1,6 @@
 import { describe, it, expect } from "vitest";
-import { judgeAnswer, isMangan, getScoreLevelName } from "./judgement";
+import { judgeAnswer } from "./judgement";
+import { isMangan, getScoreLevelName } from "../../score/tiers";
 import type { ScoreQuestion, UserAnswer } from "./types";
 import { ScoreLevel } from "../../core/constants";
 
@@ -118,7 +119,11 @@ describe("judgeAnswer", () => {
 
   describe("翻の不正解", () => {
     it("翻数が違う場合 isHanCorrect が false", () => {
-      const question = makeQuestion({ han: 3, fu: 30, payment: { type: "ron", amount: 3900 } });
+      const question = makeQuestion({
+        han: 3,
+        fu: 30,
+        payment: { type: "ron", amount: 3900 },
+      });
       const answer: UserAnswer = { han: 2, fu: 30, score: 3900, yakus: [] };
       const result = judgeAnswer(question, answer);
 
@@ -129,7 +134,11 @@ describe("judgeAnswer", () => {
 
   describe("符の不正解", () => {
     it("符が違う場合 isFuCorrect が false", () => {
-      const question = makeQuestion({ han: 2, fu: 30, payment: { type: "ron", amount: 2000 } });
+      const question = makeQuestion({
+        han: 2,
+        fu: 30,
+        payment: { type: "ron", amount: 2000 },
+      });
       const answer: UserAnswer = { han: 2, fu: 40, score: 2000, yakus: [] };
       const result = judgeAnswer(question, answer);
 
@@ -140,7 +149,11 @@ describe("judgeAnswer", () => {
 
   describe("点数の不正解", () => {
     it("ロン点数が違う場合 isScoreCorrect が false", () => {
-      const question = makeQuestion({ han: 2, fu: 30, payment: { type: "ron", amount: 2000 } });
+      const question = makeQuestion({
+        han: 2,
+        fu: 30,
+        payment: { type: "ron", amount: 2000 },
+      });
       const answer: UserAnswer = { han: 2, fu: 30, score: 3900, yakus: [] };
       const result = judgeAnswer(question, answer);
 
@@ -285,7 +298,12 @@ describe("judgeAnswer", () => {
         scoreLevel: ScoreLevel.Mangan,
         payment: { type: "ron", amount: 8000 },
       });
-      const answer: UserAnswer = { han: 5, fu: undefined, score: 8000, yakus: [] };
+      const answer: UserAnswer = {
+        han: 5,
+        fu: undefined,
+        score: 8000,
+        yakus: [],
+      };
       const result = judgeAnswer(question, answer);
 
       expect(result.isFuCorrect).toBe(true);
@@ -314,7 +332,10 @@ describe("judgeAnswer", () => {
         han: 2,
         fu: 30,
         payment: { type: "ron", amount: 2000 },
-        yakuDetails: [{ name: "断么九", han: 1 }, { name: "平和", han: 1 }],
+        yakuDetails: [
+          { name: "断么九", han: 1 },
+          { name: "平和", han: 1 },
+        ],
       });
       const answer: UserAnswer = { han: 2, fu: 30, score: 2000, yakus: [] };
       const result = judgeAnswer(question, answer, false);
@@ -327,9 +348,17 @@ describe("judgeAnswer", () => {
         han: 2,
         fu: 30,
         payment: { type: "ron", amount: 2000 },
-        yakuDetails: [{ name: "断么九", han: 1 }, { name: "平和", han: 1 }],
+        yakuDetails: [
+          { name: "断么九", han: 1 },
+          { name: "平和", han: 1 },
+        ],
       });
-      const answer: UserAnswer = { han: 2, fu: 30, score: 2000, yakus: ["断么九", "平和"] };
+      const answer: UserAnswer = {
+        han: 2,
+        fu: 30,
+        score: 2000,
+        yakus: ["断么九", "平和"],
+      };
       const result = judgeAnswer(question, answer, true);
 
       expect(result.isYakuCorrect).toBe(true);
@@ -340,9 +369,17 @@ describe("judgeAnswer", () => {
         han: 2,
         fu: 30,
         payment: { type: "ron", amount: 2000 },
-        yakuDetails: [{ name: "断么九", han: 1 }, { name: "平和", han: 1 }],
+        yakuDetails: [
+          { name: "断么九", han: 1 },
+          { name: "平和", han: 1 },
+        ],
       });
-      const answer: UserAnswer = { han: 2, fu: 30, score: 2000, yakus: ["断么九"] };
+      const answer: UserAnswer = {
+        han: 2,
+        fu: 30,
+        score: 2000,
+        yakus: ["断么九"],
+      };
       const result = judgeAnswer(question, answer, true);
 
       expect(result.isYakuCorrect).toBe(false);
@@ -360,7 +397,12 @@ describe("judgeAnswer", () => {
         ],
       });
       // ドラは無視されるので断么九と平和だけで正解
-      const answer: UserAnswer = { han: 3, fu: 30, score: 3900, yakus: ["断么九", "平和"] };
+      const answer: UserAnswer = {
+        han: 3,
+        fu: 30,
+        score: 3900,
+        yakus: ["断么九", "平和"],
+      };
       const result = judgeAnswer(question, answer, true);
 
       expect(result.isYakuCorrect).toBe(true);

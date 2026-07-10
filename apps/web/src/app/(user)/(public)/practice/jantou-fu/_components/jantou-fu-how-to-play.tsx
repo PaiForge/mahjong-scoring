@@ -1,7 +1,7 @@
 "use client";
 
 import { useTranslations } from "next-intl";
-import { HaiKind } from "@mahjong-scoring/core";
+import { HaiKind, getKazeName } from "@mahjong-scoring/core";
 import type { HaiKindId } from "@mahjong-scoring/core";
 import { Hai } from "@pai-forge/mahjong-react-ui";
 import { CheckIcon } from "@/app/_components/icons/check-icon";
@@ -30,11 +30,15 @@ export function JantouFuHowToPlay() {
       <div className="flex justify-center gap-6 text-sm">
         <div className="space-y-1 text-center">
           <span className="text-surface-400">{t("bakaze")}</span>
-          <p className="text-lg font-bold text-surface-900">東</p>
+          <p className="text-lg font-bold text-surface-900">
+            {getKazeName(HaiKind.Ton)}
+          </p>
         </div>
         <div className="space-y-1 text-center">
           <span className="text-surface-400">{t("jikaze")}</span>
-          <p className="text-lg font-bold text-surface-900">南</p>
+          <p className="text-lg font-bold text-surface-900">
+            {getKazeName(HaiKind.Nan)}
+          </p>
         </div>
       </div>
 
