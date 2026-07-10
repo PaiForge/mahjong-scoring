@@ -38,7 +38,10 @@ function TsumoScore({ score }: { readonly score: string | number }) {
   }
   return (
     <div className="flex flex-col items-center leading-tight">
-      <span>{text}\u2200</span>
+      <span>
+        {text}
+        {"\u2200"}
+      </span>
     </div>
   );
 }
@@ -161,7 +164,9 @@ export function ScoreTable() {
               <thead>
                 <tr className="bg-surface-50">
                   <th className="px-4 py-3 text-left font-medium text-surface-600">
-                    {t("fuSuffix")}\uFF3C{t("hanSuffix")}
+                    {t("fuSuffix")}
+                    {"\uFF3C"}
+                    {t("hanSuffix")}
                   </th>
                   {HAN_COLS.map((han) => (
                     <th

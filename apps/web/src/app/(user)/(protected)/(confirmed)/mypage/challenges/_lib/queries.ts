@@ -60,15 +60,8 @@ export async function getChallengeResultsPaginated(
   const totalPages = Math.ceil(totalCount / PAGE_SIZE);
 
   const items = rows.flatMap((row) => {
-    if (!isPracticeMenuType(row.menuType)) return [];
-    const session: ChallengeSession = {
-      id: row.id,
-      menuType: row.menuType,
-      score: row.score,
-      incorrectAnswers: row.incorrectAnswers,
-      createdAt: row.createdAt,
-    };
-    return [session];
+    const session = toChallengeSession(row);
+    return session ? [session] : [];
   });
 
   return { items, totalPages };

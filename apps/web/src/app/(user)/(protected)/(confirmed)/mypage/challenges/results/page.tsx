@@ -20,7 +20,6 @@ import {
 } from "@/lib/db/practice-menu-types";
 import { requireConfirmedUser } from "@/lib/auth";
 
-import { formatDate, getMissColorClass } from "../_lib/dashboard-utils";
 import { getChallengeResultsPaginated } from "../_lib/queries";
 import { ResultsTable } from "./_components/results-table";
 
@@ -82,7 +81,6 @@ export default async function ChallengeResultsPage({ searchParams }: Props) {
         <SectionTitle>{t("sectionTitle")}</SectionTitle>
         <ResultsTable
           items={items}
-          menuType={menuType}
           emptyMessage={t("empty")}
           headers={{
             date: t("tableDate"),
@@ -90,8 +88,6 @@ export default async function ChallengeResultsPage({ searchParams }: Props) {
             correctAnswers: t("tableCorrectAnswers"),
             incorrectAnswers: t("tableIncorrectAnswers"),
           }}
-          formatDate={formatDate}
-          getMissColorClass={getMissColorClass}
           getMenuLabel={(type) =>
             isPracticeMenuType(type)
               ? tChallenges(`menuTypes.${menuTypeToMessageKey(type)}`)

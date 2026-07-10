@@ -2,7 +2,12 @@ import type { useTranslations } from "next-intl";
 
 import { MISTAKE_LIMIT } from "@/app/(user)/(public)/practice/_lib/challenge-constants";
 
-import type { ChallengeSession, ChartDataPoint, DatePeriod, SessionRow } from "./types";
+import type {
+  ChallengeSession,
+  ChartDataPoint,
+  DatePeriod,
+  SessionRow,
+} from "./types";
 
 /**
  * 日付を MM/DD HH:mm 形式にフォーマットする
@@ -171,16 +176,6 @@ export function aggregateByDay(
 }
 
 /**
- * 日付キーから期間開始日を基準にした日インデックスを返す
- * 日インデックス
- */
-export function getDayIndex(dateKey: string, periodStart: Date): number {
-  const d = new Date(`${dateKey}T00:00:00`);
-  const diff = d.getTime() - periodStart.getTime();
-  return Math.floor(diff / (1000 * 60 * 60 * 24));
-}
-
-/**
  * ミス数に応じたカラークラスを返す
  * ミスカラークラス
  */
@@ -221,12 +216,8 @@ export function buildChartData(
     ...previousDaily.map((d) => d.dateKey),
   ]);
 
-  const currentMap = new Map(
-    currentDaily.map((d) => [d.dateKey, d]),
-  );
-  const previousMap = new Map(
-    previousDaily.map((d) => [d.dateKey, d]),
-  );
+  const currentMap = new Map(currentDaily.map((d) => [d.dateKey, d]));
+  const previousMap = new Map(previousDaily.map((d) => [d.dateKey, d]));
 
   return Array.from(allDateKeys)
     .sort()
