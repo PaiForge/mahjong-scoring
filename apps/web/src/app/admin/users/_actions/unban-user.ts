@@ -1,13 +1,14 @@
-'use server';
+"use server";
 
-import { eq, sql } from 'drizzle-orm';
-import { revalidatePath } from 'next/cache';
+import { eq, sql } from "drizzle-orm";
+import { revalidatePath } from "next/cache";
 
-import type { ActionResult } from '../../../../lib/action-types';
-import { getClientIp } from '../../../../lib/client-ip';
-import { db, moderationActions, profiles } from '../../../../lib/db';
-import { createAdminClient } from '../../../../lib/supabase/admin';
-import { requireAdmin } from '../../_lib/auth';
+import type { ActionResult } from "../../../../lib/action-types";
+import { getClientIp } from "../../../../lib/client-ip";
+import { db, profiles } from "../../../../lib/db";
+import { createAdminClient } from "../../../../lib/supabase/admin";
+import { requireAdminActor } from "../../_lib/auth";
+import { recordModerationAction } from "../_lib/moderation";
 
 /**
  * ユーザーの BAN を解除する Server Action。
@@ -19,12 +20,12 @@ import { requireAdmin } from '../../_lib/auth';
  * ユーザーBAN解除
  */
 export async function unbanUser(targetUserId: string): Promise<ActionResult> {
-  const adminResult = await requireAdmin();
-  if ('error' in adminResult) {
-    return { error: 'unauthorized' };
+  const admin = await requireAdminActor("unauthorized");
+  if ("error" in admin) {
+    return admin;
   }
+  const { actorId } = admin;
 
-  const actorId = adminResult.userId;
   const adminClient = createAdminClient();
   const ipAddress = await getClientIp();
 
@@ -40,11 +41,11 @@ export async function unbanUser(targetUserId: string): Promise<ActionResult> {
   // Phase 1: Supabase Auth で BAN 解除
   const { error: authError } = await adminClient.auth.admin.updateUserById(
     targetUserId,
-    { ban_duration: 'none' },
+    { ban_duration: "none" },
   );
 
   if (authError) {
-    return { error: 'unbanFailed' };
+    return { error: "unbanFailed" };
   }
 
   // Phase 2: DB トランザクション
@@ -55,19 +56,17 @@ export async function unbanUser(targetUserId: string): Promise<ActionResult> {
         .set({ bannedAt: sql`NULL` })
         .where(eq(profiles.id, targetUserId));
 
-      await tx.insert(moderationActions).values({
+      await recordModerationAction(tx, {
         actorId,
-        action: 'unban',
-        targetType: 'user',
+        action: "unban",
         targetId: targetUserId,
         ipAddress,
-        metadata: {},
       });
     });
   } catch {
     // DB 失敗時: Auth 側を re-ban + bannedAt 復元
     await adminClient.auth.admin.updateUserById(targetUserId, {
-      ban_duration: '876000h',
+      ban_duration: "876000h",
     });
     if (originalBannedAt) {
       await db
@@ -75,9 +74,9 @@ export async function unbanUser(targetUserId: string): Promise<ActionResult> {
         .set({ bannedAt: originalBannedAt })
         .where(eq(profiles.id, targetUserId));
     }
-    return { error: 'unbanFailed' };
+    return { error: "unbanFailed" };
   }
 
-  revalidatePath('/admin/users');
+  revalidatePath("/admin/users");
   return { success: true };
 }

@@ -1,15 +1,15 @@
-import { eq } from 'drizzle-orm';
-import { notFound } from 'next/navigation';
+import { eq } from "drizzle-orm";
+import { notFound } from "next/navigation";
 
-import { db, userRoles } from '../../../lib/db';
-import { createClient } from '../../../lib/supabase/server';
+import { db, userRoles } from "../../../lib/db";
+import { createClient } from "../../../lib/supabase/server";
 
 interface AuthSuccess {
-  userId: string;
+  readonly userId: string;
 }
 
 interface AuthFailure {
-  error: 'unauthorized';
+  readonly error: "unauthorized";
 }
 
 type AuthResult = AuthSuccess | AuthFailure;
@@ -26,7 +26,7 @@ export async function requireAdmin(): Promise<AuthResult> {
   } = await supabase.auth.getUser();
 
   if (!user) {
-    return { error: 'unauthorized' };
+    return { error: "unauthorized" };
   }
 
   const [userRole] = await db
@@ -35,11 +35,29 @@ export async function requireAdmin(): Promise<AuthResult> {
     .where(eq(userRoles.userId, user.id))
     .limit(1);
 
-  if (!userRole || userRole.role !== 'admin') {
-    return { error: 'unauthorized' };
+  if (!userRole || userRole.role !== "admin") {
+    return { error: "unauthorized" };
   }
 
   return { userId: user.id };
+}
+
+/**
+ * Server Action 用の管理者ガード。
+ *
+ * `requireAdmin()` に失敗した場合、アクションが返すべきエラーキーに
+ * 変換して返す（アクションごとに UI 側の i18n キーが異なるため引数で受け取る）。
+ *
+ * @param failureError - 認証失敗時に返すエラーキー
+ */
+export async function requireAdminActor(
+  failureError: string,
+): Promise<{ readonly actorId: string } | { readonly error: string }> {
+  const result = await requireAdmin();
+  if ("error" in result) {
+    return { error: failureError };
+  }
+  return { actorId: result.userId };
 }
 
 /**
@@ -54,7 +72,7 @@ export async function requireAdmin(): Promise<AuthResult> {
 export async function requireAdminPage(): Promise<string> {
   const result = await requireAdmin();
 
-  if ('error' in result) {
+  if ("error" in result) {
     notFound();
   }
 

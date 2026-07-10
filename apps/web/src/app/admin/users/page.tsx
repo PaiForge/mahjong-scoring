@@ -3,16 +3,14 @@ import { getTranslations } from "next-intl/server";
 import type { User } from "@supabase/supabase-js";
 import { AdminPageTitle } from "@/app/admin/_components/admin-page-title";
 import { requireAdminPage } from "@/app/admin/_lib/auth";
-import { inArray } from "drizzle-orm";
+import { buildProfileMap } from "@/app/admin/_lib/log-query-helpers";
 import { createSearchParamsCache, parseAsInteger } from "nuqs/server";
 
-import { db, profiles } from "../../../lib/db";
 import { getPaginationData, DEFAULT_PAGE_SIZE } from "../../../lib/pagination";
 import { createClient } from "../../../lib/supabase/server";
 import { createAdminClient } from "../../../lib/supabase/admin";
 import { PaginationNav } from "../../_components/pagination-nav";
 
-import type { Profile } from "../../../lib/db";
 import { StatusBadge } from "./_components/status-badge";
 import { BanButton } from "./_components/ban-button";
 import { UnbanButton } from "./_components/unban-button";
@@ -52,12 +50,7 @@ export default async function AdminUsersPage({
 
   const pagination = getPaginationData(page, totalCount);
 
-  const userIds = users.map((u) => u.id);
-  const userProfiles: Profile[] =
-    userIds.length > 0
-      ? await db.select().from(profiles).where(inArray(profiles.id, userIds))
-      : [];
-  const profileMap = new Map(userProfiles.map((p) => [p.id, p]));
+  const profileMap = await buildProfileMap(users.map((u) => u.id));
 
   const buildHref = (p: number) => `/admin/users?page=${String(p)}`;
 

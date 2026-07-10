@@ -1,13 +1,14 @@
-'use server';
+"use server";
 
-import { eq } from 'drizzle-orm';
-import { revalidatePath } from 'next/cache';
+import { eq } from "drizzle-orm";
+import { revalidatePath } from "next/cache";
 
-import type { ActionResult } from '../../../../lib/action-types';
-import { getClientIp } from '../../../../lib/client-ip';
-import { db, moderationActions, profiles } from '../../../../lib/db';
-import { createAdminClient } from '../../../../lib/supabase/admin';
-import { requireAdmin } from '../../_lib/auth';
+import type { ActionResult } from "../../../../lib/action-types";
+import { getClientIp } from "../../../../lib/client-ip";
+import { db, profiles } from "../../../../lib/db";
+import { createAdminClient } from "../../../../lib/supabase/admin";
+import { requireAdminActor } from "../../_lib/auth";
+import { recordModerationAction } from "../_lib/moderation";
 
 /**
  * ユーザーを BAN する Server Action。
@@ -22,22 +23,21 @@ export async function banUser(
   targetUserId: string,
   reason: string,
 ): Promise<ActionResult> {
-  const adminResult = await requireAdmin();
-  if ('error' in adminResult) {
-    return { error: 'unauthorized' };
+  const admin = await requireAdminActor("unauthorized");
+  if ("error" in admin) {
+    return admin;
   }
-
-  const actorId = adminResult.userId;
+  const { actorId } = admin;
 
   // 自分自身の BAN を禁止
   if (actorId === targetUserId) {
-    return { error: 'cannotBanSelf' };
+    return { error: "cannotBanSelf" };
   }
 
   // 理由バリデーション
   const trimmedReason = reason.trim();
   if (trimmedReason.length === 0 || trimmedReason.length > 1000) {
-    return { error: 'invalidReason' };
+    return { error: "invalidReason" };
   }
 
   const adminClient = createAdminClient();
@@ -46,11 +46,11 @@ export async function banUser(
   // Phase 1: Supabase Auth で BAN
   const { error: authError } = await adminClient.auth.admin.updateUserById(
     targetUserId,
-    { ban_duration: '876000h' },
+    { ban_duration: "876000h" },
   );
 
   if (authError) {
-    return { error: 'banFailed' };
+    return { error: "banFailed" };
   }
 
   // Phase 2: DB トランザクション
@@ -62,24 +62,22 @@ export async function banUser(
         .set({ bannedAt: now })
         .where(eq(profiles.id, targetUserId));
 
-      await tx.insert(moderationActions).values({
+      await recordModerationAction(tx, {
         actorId,
-        action: 'ban',
-        targetType: 'user',
+        action: "ban",
         targetId: targetUserId,
         reason: trimmedReason,
         ipAddress,
-        metadata: {},
       });
     });
   } catch {
     // DB 失敗時: Auth 側をロールバック
     await adminClient.auth.admin.updateUserById(targetUserId, {
-      ban_duration: 'none',
+      ban_duration: "none",
     });
-    return { error: 'banFailed' };
+    return { error: "banFailed" };
   }
 
-  revalidatePath('/admin/users');
+  revalidatePath("/admin/users");
   return { success: true };
 }

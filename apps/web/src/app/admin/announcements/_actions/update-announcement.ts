@@ -1,12 +1,15 @@
 "use server";
 
 import { eq } from "drizzle-orm";
-import { revalidatePath } from "next/cache";
 
 import type { ActionResult } from "@/lib/action-types";
 import { announcements, db } from "@/lib/db";
-import { requireAdmin } from "@/app/admin/_lib/auth";
+import { requireAdminActor } from "@/app/admin/_lib/auth";
 
+import {
+  revalidateAnnouncementPaths,
+  toAnnouncementRow,
+} from "../_lib/announcement-row";
 import {
   type AnnouncementInput,
   isUniqueViolation,
@@ -17,9 +20,9 @@ export async function updateAnnouncement(
   id: string,
   data: AnnouncementInput,
 ): Promise<ActionResult<{ id: string }>> {
-  const adminResult = await requireAdmin();
-  if ("error" in adminResult) {
-    return { error: "errorSaveFailed" };
+  const admin = await requireAdminActor("errorSaveFailed");
+  if ("error" in admin) {
+    return admin;
   }
 
   const validationError = validateAnnouncement(data);
@@ -40,16 +43,7 @@ export async function updateAnnouncement(
   try {
     await db
       .update(announcements)
-      .set({
-        slug: data.slug,
-        title: data.title,
-        content: data.content,
-        locale: data.locale,
-        status: data.status,
-        pinnedAt: data.pinned ? new Date() : null,
-        publishedAt: data.publishedAt ? new Date(data.publishedAt) : null,
-        updatedAt: new Date(),
-      })
+      .set({ ...toAnnouncementRow(data), updatedAt: new Date() })
       .where(eq(announcements.id, id));
   } catch (err: unknown) {
     if (isUniqueViolation(err)) {
@@ -58,9 +52,7 @@ export async function updateAnnouncement(
     throw err;
   }
 
-  revalidatePath("/admin/announcements");
-  revalidatePath("/announcements");
-  revalidatePath(`/announcements/${data.slug}`);
+  revalidateAnnouncementPaths(data.slug);
 
   return { success: true, id };
 }

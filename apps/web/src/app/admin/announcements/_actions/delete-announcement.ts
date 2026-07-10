@@ -1,16 +1,17 @@
 "use server";
 
 import { eq } from "drizzle-orm";
-import { revalidatePath } from "next/cache";
+
+import { revalidateAnnouncementPaths } from "../_lib/announcement-row";
 
 import type { ActionResult } from "@/lib/action-types";
 import { announcements, db } from "@/lib/db";
-import { requireAdmin } from "@/app/admin/_lib/auth";
+import { requireAdminActor } from "@/app/admin/_lib/auth";
 
 export async function deleteAnnouncement(id: string): Promise<ActionResult> {
-  const adminResult = await requireAdmin();
-  if ("error" in adminResult) {
-    return { error: "errorDeleteFailed" };
+  const admin = await requireAdminActor("errorDeleteFailed");
+  if ("error" in admin) {
+    return admin;
   }
 
   const [existing] = await db
@@ -25,9 +26,7 @@ export async function deleteAnnouncement(id: string): Promise<ActionResult> {
 
   await db.delete(announcements).where(eq(announcements.id, id));
 
-  revalidatePath("/admin/announcements");
-  revalidatePath("/announcements");
-  revalidatePath(`/announcements/${existing.slug}`);
+  revalidateAnnouncementPaths(existing.slug);
 
   return { success: true };
 }
