@@ -1,14 +1,24 @@
-import type { PracticeMenuType, PracticeMenuSlug } from '@/lib/db/practice-menu-types';
-import { PRACTICE_MENU_TYPES, menuTypeToSlug, slugToMenuType } from '@/lib/db/practice-menu-types';
-import type { RankedLeaderboardRow } from '@/lib/db/challenge-queries';
+import type {
+  PracticeMenuType,
+  PracticeMenuSlug,
+} from "@/lib/db/practice-menu-types";
+import {
+  PRACTICE_MENU_TYPES,
+  menuTypeToSlug,
+  slugToMenuType,
+} from "@/lib/db/practice-menu-types";
+import type { RankedLeaderboardRow } from "@/lib/db/leaderboard-queries";
 
 /**
  * リーダーボード期間
  * ランキング表示の期間種別
  */
-export type LeaderboardPeriod = 'all-time' | 'monthly';
+export type LeaderboardPeriod = "all-time" | "monthly";
 
-export const VALID_PERIODS = ['all-time', 'monthly'] as const satisfies readonly LeaderboardPeriod[];
+export const VALID_PERIODS = [
+  "all-time",
+  "monthly",
+] as const satisfies readonly LeaderboardPeriod[];
 
 /**
  * リーダーボードモジュール

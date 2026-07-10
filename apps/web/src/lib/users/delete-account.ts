@@ -2,6 +2,8 @@ import "server-only";
 
 import { eq } from "drizzle-orm";
 
+import type { ActionResult } from "@/lib/action-types";
+
 import {
   challengeBestScores,
   challengeResults,
@@ -29,9 +31,7 @@ import { createAdminClient } from "@/lib/supabase/admin";
  *
  * アカウント退会
  */
-export async function deleteAccount(
-  userId: string,
-): Promise<{ success: true } | { error: string }> {
+export async function deleteAccount(userId: string): Promise<ActionResult> {
   const adminClient = createAdminClient();
 
   // 1. auth ユーザーをソフトデリート（ログイン不可化）。失敗時は以降を実行しない。

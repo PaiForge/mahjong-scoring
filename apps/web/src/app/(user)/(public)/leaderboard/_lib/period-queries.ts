@@ -1,12 +1,17 @@
 import {
   getAllTimeRanking,
   getMonthlyRanking,
+} from "@/lib/db/leaderboard-queries";
+import type {
+  LeaderboardPage,
+  RankedLeaderboardRow,
+} from "@/lib/db/leaderboard-queries";
+import {
   getUserAllTimeRankedRow,
   getUserMonthlyRankedRow,
-} from '@/lib/db/challenge-queries';
-import type { LeaderboardPage, RankedLeaderboardRow } from '@/lib/db/challenge-queries';
+} from "@/lib/db/user-rank-queries";
 
-import type { LeaderboardPeriod } from './types';
+import type { LeaderboardPeriod } from "./types";
 
 type RankingFn = (
   menuType: string,
@@ -27,7 +32,7 @@ interface PeriodQueries {
 }
 
 const PERIOD_QUERIES: Record<LeaderboardPeriod, PeriodQueries> = {
-  'all-time': {
+  "all-time": {
     getRanking: getAllTimeRanking,
     getUserRankedRow: getUserAllTimeRankedRow,
   },
