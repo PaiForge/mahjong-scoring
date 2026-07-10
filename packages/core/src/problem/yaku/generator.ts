@@ -18,7 +18,7 @@ import { KAZEHAI } from "../../core/constants";
 import { randomChoice } from "../../core/random";
 import { HaiUsageTracker } from "../../core/hai-tracker";
 import { generateDoraMarkers } from "../shared/dora-utils";
-import { countHaiInTehai } from "../shared/hai-count";
+import { countHaiInTehai } from "../../core/hai-names";
 import { countKantsu } from "../shared/count-kantsu";
 import {
   generateMentsuSet,

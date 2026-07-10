@@ -12,8 +12,6 @@ import { randomChoice } from "../../../core/random";
 import { validateHaiKindId } from "../../../core/type-guards";
 import type { HaiUsageTracker } from "../../../core/hai-tracker";
 
-export { randomSimple, randomYaochu } from "../../shared/tile-random";
-
 /**
  * 順子を生成する（数牌のみ）
  * 順子生成

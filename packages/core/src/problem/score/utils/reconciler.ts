@@ -9,11 +9,11 @@ import type { YakuDetail } from "../types";
 import { recalculateScore } from "../../../score/calculator";
 import {
   countDoraInTehai,
+  countHaiInTehai,
   getKeyForKazehai,
   isOya,
 } from "../../../core/hai-names";
 import { isHaiKindId } from "../../../core/type-guards";
-import { countHaiInTehai } from "../../shared/hai-count";
 import { generateDoraMarkers } from "../../shared/dora-utils";
 
 /**
