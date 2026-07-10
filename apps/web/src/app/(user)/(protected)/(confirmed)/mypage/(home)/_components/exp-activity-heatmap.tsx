@@ -5,7 +5,6 @@ import { useCallback, useState } from "react";
 import { useTranslations } from "next-intl";
 
 import type { ExpHeatmapData } from "@/lib/db/get-exp-heatmap-data";
-import type { PracticeMenuMessageKey } from "@/lib/db/practice-menu-types";
 import {
   isPracticeMenuType,
   menuTypeToMessageKey,
@@ -75,7 +74,7 @@ export function ExpActivityHeatmap({ data, layout }: Props) {
    */
   function getMenuTypeLabel(moduleKey: string): string {
     if (isPracticeMenuType(moduleKey)) {
-      return tMenu(menuTypeToMessageKey(moduleKey) as PracticeMenuMessageKey);
+      return tMenu(menuTypeToMessageKey(moduleKey));
     }
     if (moduleKey === "unknown") {
       return `[?] ${moduleKey}`;

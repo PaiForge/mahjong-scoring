@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useCallback } from "react";
+import { ModalShell } from "./modal-shell";
 
 interface InfoModalProps {
   readonly isOpen: boolean;
@@ -10,6 +10,12 @@ interface InfoModalProps {
   readonly children: React.ReactNode;
 }
 
+/**
+ * 情報表示モーダル
+ *
+ * 閉じるボタンのみを持つ汎用モーダル。
+ * シェル（オーバーレイ・Escape・スクロールロック）は ModalShell に委譲する。
+ */
 export function InfoModal({
   isOpen,
   onClose,
@@ -17,61 +23,20 @@ export function InfoModal({
   closeLabel,
   children,
 }: InfoModalProps) {
-  const handleKeyDown = useCallback(
-    (e: KeyboardEvent) => {
-      if (e.key === "Escape") {
-        onClose();
-      }
-    },
-    [onClose],
-  );
-
-  useEffect(() => {
-    if (!isOpen) return;
-    document.addEventListener("keydown", handleKeyDown);
-    return () => document.removeEventListener("keydown", handleKeyDown);
-  }, [isOpen, handleKeyDown]);
-
-  useEffect(() => {
-    if (isOpen) {
-      document.body.style.overflow = "hidden";
-    } else {
-      document.body.style.overflow = "";
-    }
-    return () => {
-      document.body.style.overflow = "";
-    };
-  }, [isOpen]);
-
-  if (!isOpen) return undefined;
-
   return (
-    <div
-      className="fixed inset-0 z-50 flex items-center justify-center bg-black/50"
-      onClick={onClose}
-      role="dialog"
-      aria-modal="true"
-      aria-label={title}
-    >
-      <div
-        className="mx-4 w-full max-w-md space-y-6 rounded-xl bg-white p-6 shadow-xl"
-        onClick={(e) => e.stopPropagation()}
-      >
-        <h3 className="text-lg font-bold text-surface-900">{title}</h3>
-        <div className="text-sm leading-relaxed text-surface-700">
-          {children}
-        </div>
-        <div className="flex justify-end">
-          <button
-            type="button"
-            onClick={onClose}
-            autoFocus
-            className="rounded-lg bg-primary-500 px-6 py-2 text-sm font-bold text-white transition-colors hover:bg-primary-600"
-          >
-            {closeLabel}
-          </button>
-        </div>
+    <ModalShell isOpen={isOpen} onClose={onClose} label={title}>
+      <h3 className="text-lg font-bold text-surface-900">{title}</h3>
+      <div className="text-sm leading-relaxed text-surface-700">{children}</div>
+      <div className="flex justify-end">
+        <button
+          type="button"
+          onClick={onClose}
+          autoFocus
+          className="rounded-lg bg-primary-500 px-6 py-2 text-sm font-bold text-white transition-colors hover:bg-primary-600"
+        >
+          {closeLabel}
+        </button>
       </div>
-    </div>
+    </ModalShell>
   );
 }
