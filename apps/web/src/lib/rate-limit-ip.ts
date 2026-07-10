@@ -110,12 +110,12 @@ export function checkIpRateLimitGuard(
  * 制限超過時は `{ error: 'rateLimited' }` を返す。
  * IPレートリミット一括チェック
  *
- * @param key - アクションキー（`IP_RATE_LIMITS` のキー等）
- * @param config - レートリミット設定
+ * @param key - アクションキー（`IP_RATE_LIMITS` のキー）
+ * @param config - レートリミット設定（省略時は `IP_RATE_LIMITS[key]`）
  */
 export async function enforceIpRateLimit(
-  key: string,
-  config: Readonly<IpRateLimitConfig>,
+  key: keyof typeof IP_RATE_LIMITS,
+  config: Readonly<IpRateLimitConfig> = IP_RATE_LIMITS[key],
 ): Promise<{ error: "rateLimited" } | undefined> {
   const { getClientIp } = await import("./client-ip");
   const ip = await getClientIp();

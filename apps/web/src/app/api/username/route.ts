@@ -4,7 +4,6 @@ import { authorizeApiRequest } from "@/lib/api-auth";
 import { db, profiles } from "@/lib/db";
 import { extractPgErrorCode } from "@/lib/db/extract-pg-error-code";
 import { profileExistsByUserId } from "@/lib/db/queries";
-import { IP_RATE_LIMITS } from "@/lib/rate-limit-ip";
 import { validateUsername } from "@/lib/username";
 
 const PG_UNIQUE_VIOLATION = "23505";
@@ -16,7 +15,7 @@ const PG_UNIQUE_VIOLATION = "23505";
  * ユーザー名登録API
  */
 export async function POST(request: Request) {
-  const auth = await authorizeApiRequest("username", IP_RATE_LIMITS.username);
+  const auth = await authorizeApiRequest("username");
   if (!auth.ok) return auth.response;
   const { user } = auth;
 

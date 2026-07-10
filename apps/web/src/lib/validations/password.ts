@@ -34,7 +34,7 @@ export function isPasswordValidationErrorKey(
 }
 
 /**
- * パスワードのバリデーションエラーキーを返す。正常時は null。
+ * パスワードのバリデーションエラーキーを返す。正常時は undefined。
  * パスワードバリデーションエラー取得
  */
 export function getPasswordValidationError(
@@ -57,7 +57,7 @@ export type PasswordPairValidation =
 
 /**
  * パスワードと確認用パスワードの組をクライアント側で検証する。
- * 問題なければ null を返す。
+ * 問題なければ undefined を返す。
  * パスワード組検証
  *
  * sign-up / reset-password フォームで共有する。エラーの翻訳は呼び出し側が
@@ -66,9 +66,23 @@ export type PasswordPairValidation =
 export function validatePasswordPair(
   password: string,
   confirmPassword: string,
-): PasswordPairValidation | null {
+): PasswordPairValidation | undefined {
   if (password !== confirmPassword) return { type: "mismatch" };
   const key = getPasswordValidationError(password);
   if (key) return { type: "invalid", key };
-  return null;
+  return undefined;
+}
+
+/**
+ * Server Action が返す `password:<key>` 形式のエラーからバリデーションキーを取り出す。
+ * パスワードアクションエラー解析
+ *
+ * `password:` 形式でない、またはキーが不明な場合は undefined を返す。
+ */
+export function parsePasswordActionError(
+  error: string,
+): PasswordValidationErrorKey | undefined {
+  if (!error.startsWith("password:")) return undefined;
+  const key = error.slice("password:".length);
+  return isPasswordValidationErrorKey(key) ? key : undefined;
 }

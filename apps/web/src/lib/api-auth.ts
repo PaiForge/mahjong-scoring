@@ -2,7 +2,11 @@ import type { User } from "@supabase/supabase-js";
 import { NextResponse } from "next/server";
 
 import { getClientIp } from "./client-ip";
-import { checkIpRateLimitGuard, type IpRateLimitConfig } from "./rate-limit-ip";
+import {
+  IP_RATE_LIMITS,
+  checkIpRateLimitGuard,
+  type IpRateLimitConfig,
+} from "./rate-limit-ip";
 import { createClient } from "./supabase/server";
 
 type SupabaseServerClient = Awaited<ReturnType<typeof createClient>>;
@@ -23,16 +27,16 @@ type AuthorizeResult =
  * `{ ok: false, response }` として返す。成功時は `{ ok: true, user, supabase }`。
  *
  * @example
- * const auth = await authorizeApiRequest("deleteAccount", IP_RATE_LIMITS.deleteAccount);
+ * const auth = await authorizeApiRequest("deleteAccount");
  * if (!auth.ok) return auth.response;
  * const { user, supabase } = auth;
  *
- * @param rateLimitKey - レートリミットのアクションキー
- * @param config - レートリミット設定
+ * @param rateLimitKey - レートリミットのアクションキー（`IP_RATE_LIMITS` のキー）
+ * @param config - レートリミット設定（省略時は `IP_RATE_LIMITS[rateLimitKey]`）
  */
 export async function authorizeApiRequest(
-  rateLimitKey: string,
-  config: Readonly<IpRateLimitConfig>,
+  rateLimitKey: keyof typeof IP_RATE_LIMITS,
+  config: Readonly<IpRateLimitConfig> = IP_RATE_LIMITS[rateLimitKey],
 ): Promise<AuthorizeResult> {
   const ipRateLimited = checkIpRateLimitGuard(
     await getClientIp(),

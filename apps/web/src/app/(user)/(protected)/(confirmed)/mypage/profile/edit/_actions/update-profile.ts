@@ -6,7 +6,7 @@ import type { ActionResult } from "@/lib/action-types";
 import { logActivityEvent } from "@/lib/activity-log";
 import { authenticateAndCheckBan } from "@/lib/auth";
 import { db, profiles } from "@/lib/db";
-import { IP_RATE_LIMITS, enforceIpRateLimit } from "@/lib/rate-limit-ip";
+import { enforceIpRateLimit } from "@/lib/rate-limit-ip";
 
 import {
   type ProfileInput,
@@ -23,10 +23,7 @@ export type UpdateProfileResult = ActionResult;
 export async function updateProfile(
   input: ProfileInput,
 ): Promise<UpdateProfileResult> {
-  const rateLimited = await enforceIpRateLimit(
-    "updateProfile",
-    IP_RATE_LIMITS.updateProfile,
-  );
+  const rateLimited = await enforceIpRateLimit("updateProfile");
   if (rateLimited) {
     return rateLimited;
   }

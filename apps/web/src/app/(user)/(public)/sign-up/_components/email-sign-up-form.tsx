@@ -7,10 +7,11 @@ import { useTranslations } from "next-intl";
 
 import { MIN_PASSWORD_LENGTH } from "@/config";
 import {
-  isPasswordValidationErrorKey,
+  parsePasswordActionError,
   validatePasswordPair,
 } from "@/lib/validations/password";
 
+import { useAuthFormSubmit } from "../../_hooks/use-auth-form-submit";
 import { AuthTextField } from "../../_components/auth-text-field";
 import { AuthSubmitButton } from "../../_components/auth-submit-button";
 import { AuthFormError } from "../../_components/auth-form-error";
@@ -27,55 +28,32 @@ export function EmailSignUpForm() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
-  const [error, setError] = useState("");
-  const [isLoading, setIsLoading] = useState(false);
+  const { error, isLoading, submit } = useAuthFormSubmit();
 
-  const handleSubmit = async (e: React.FormEvent) => {
+  const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    setError("");
-
-    const pairError = validatePasswordPair(password, confirmPassword);
-    if (pairError) {
-      setError(
-        pairError.type === "mismatch"
+    void submit({
+      validate: () => {
+        const pairError = validatePasswordPair(password, confirmPassword);
+        if (!pairError) return undefined;
+        return pairError.type === "mismatch"
           ? t("passwordMismatch")
-          : tPassword(pairError.key, { minLength: MIN_PASSWORD_LENGTH }),
-      );
-      return;
-    }
-
-    setIsLoading(true);
-
-    try {
-      const result = await signUp(email, password);
-
-      if ("error" in result) {
-        const serverError = result.error;
-        if (serverError.startsWith("password:")) {
-          const key = serverError.slice("password:".length);
-          if (isPasswordValidationErrorKey(key)) {
-            setError(tPassword(key, { minLength: MIN_PASSWORD_LENGTH }));
-          } else {
-            setError(t("emailSignUpError"));
-          }
-        } else {
-          switch (serverError) {
-            case "rateLimited":
-              setError(t("rateLimited"));
-              break;
-            default:
-              setError(t("emailSignUpError"));
-          }
+          : tPassword(pairError.key, { minLength: MIN_PASSWORD_LENGTH });
+      },
+      action: () => signUp(email, password),
+      mapError: (code) => {
+        const passwordKey = parsePasswordActionError(code);
+        if (passwordKey) {
+          return tPassword(passwordKey, { minLength: MIN_PASSWORD_LENGTH });
         }
-        setIsLoading(false);
-        return;
-      }
-
-      router.push(`/sign-up/verify-email?email=${encodeURIComponent(email)}`);
-    } catch {
-      setError(t("emailSignUpError"));
-      setIsLoading(false);
-    }
+        return code === "rateLimited"
+          ? t("rateLimited")
+          : t("emailSignUpError");
+      },
+      onSuccess: () => {
+        router.push(`/sign-up/verify-email?email=${encodeURIComponent(email)}`);
+      },
+    });
   };
 
   return (

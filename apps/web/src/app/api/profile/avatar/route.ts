@@ -6,7 +6,6 @@ import { logActivityEvent } from "@/lib/activity-log";
 import { authorizeApiRequest } from "@/lib/api-auth";
 import { db, profiles } from "@/lib/db";
 import { validateImageBinarySignature } from "@/lib/image-signature";
-import { IP_RATE_LIMITS } from "@/lib/rate-limit-ip";
 
 /**
  * アバター画像アップロードエンドポイント。
@@ -25,10 +24,7 @@ const AVATAR_WEBP_QUALITY = 85;
 const AVATAR_PATH_SUFFIX = "avatar.webp";
 
 export async function POST(request: Request) {
-  const auth = await authorizeApiRequest(
-    "uploadAvatar",
-    IP_RATE_LIMITS.uploadAvatar,
-  );
+  const auth = await authorizeApiRequest("uploadAvatar");
   if (!auth.ok) return auth.response;
   const { user, supabase } = auth;
 
