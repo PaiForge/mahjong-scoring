@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { useTranslations } from "next-intl";
 import type { ScoreTableUserAnswer } from "@mahjong-scoring/core";
 import { getAvailableScores } from "../score/_lib/get-available-scores";
@@ -13,8 +13,6 @@ interface ScoreAnswerFormProps {
   readonly isTsumo: boolean;
   /** 翻数 */
   readonly han: number;
-  /** フォームリセット用のキー（変わるたびにフォームがリセットされる） */
-  readonly questionKey: string | number;
   readonly onSubmit: (answer: ScoreTableUserAnswer) => void;
   readonly disabled?: boolean;
   /** i18n の翻訳ネームスペース */
@@ -34,12 +32,15 @@ interface ScoreAnswerFormProps {
  * 点数回答フォーム
  *
  * 点数のみを select で回答する。翻・符・親子・ツモロンの判定は呼び出し元が行う。
+ *
+ * @remarks
+ * 問題が変わったときの入力リセットは、呼び出し元が `key` に問題の識別子を
+ * 渡して再マウントさせることで行う（`useEffect` での state リセットはしない）。
  */
 export function ScoreAnswerForm({
   isOya,
   isTsumo,
   han,
-  questionKey,
   onSubmit,
   disabled = false,
   translationNamespace,
@@ -55,13 +56,6 @@ export function ScoreAnswerForm({
   const isOyaTsumo = isTsumo && isOya;
 
   const availableScores = getAvailableScores(han, isOya, isTsumo, manganOnly);
-
-  // 問題が変わったときにフォームをリセットする
-  useEffect(() => {
-    setScore("");
-    setScoreFromKo("");
-    setScoreFromOya("");
-  }, [questionKey]);
 
   // 単一選択（ロン / 親ツモ）の値から回答を送信する
   const submitSingle = (value: string) => {

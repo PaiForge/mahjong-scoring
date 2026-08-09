@@ -5,7 +5,7 @@ import Link from "next/link";
 import { useTranslations } from "next-intl";
 import { PrimaryLinkButton } from "@/app/_components/primary-link-button";
 import { InfinityIcon } from "@/app/_components/icons/infinity-icon";
-import { useIsClient } from "../../_hooks/use-is-client";
+import { useIsClient } from "../../../../../_hooks/use-is-client";
 import { PRACTICE_SCROLL_HASH } from "../../_lib/scroll-anchor";
 import { SmallCheckbox } from "../../score/_components/small-checkbox";
 import { useScoreTableSettingsStore } from "../_hooks/use-score-table-settings-store";

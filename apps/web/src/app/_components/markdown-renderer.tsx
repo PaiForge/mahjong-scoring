@@ -1,5 +1,6 @@
 import type { ComponentPropsWithoutRef } from "react";
 
+import type { Root } from "mdast";
 import Markdown from "react-markdown";
 import remarkGfm from "remark-gfm";
 
@@ -9,6 +10,25 @@ interface MarkdownRendererProps {
   readonly content: string;
   /** 先頭の h1 を描画しない（ページ側でタイトルを別途表示する場合に使う） */
   readonly skipFirstH1?: boolean;
+}
+
+/**
+ * 先頭の h1 を AST から取り除く remark プラグイン
+ *
+ * @remarks
+ * 描画中にカウンタ変数を書き換える実装だと、レンダーの回数によって結果が
+ * 変わってしまう。パース結果に対する変換として表現することで冪等にする。
+ * setext 形式（`Title` + `===`）の見出しも同じ heading ノードになるため扱える。
+ */
+function remarkDropFirstH1() {
+  return (tree: Root) => {
+    const index = tree.children.findIndex(
+      (node) => node.type === "heading" && node.depth === 1,
+    );
+    if (index !== -1) {
+      tree.children.splice(index, 1);
+    }
+  };
 }
 
 function isExternalHref(href: string | undefined): boolean {
@@ -32,24 +52,18 @@ export function MarkdownRenderer({
   content,
   skipFirstH1 = false,
 }: MarkdownRendererProps) {
-  let h1Count = 0;
-
   return (
     <div className="text-surface-700 leading-relaxed break-words">
       <Markdown
-        remarkPlugins={[remarkGfm]}
+        remarkPlugins={
+          skipFirstH1 ? [remarkGfm, remarkDropFirstH1] : [remarkGfm]
+        }
         components={{
-          h1: ({ children }) => {
-            h1Count += 1;
-            if (skipFirstH1 && h1Count === 1) {
-              return null;
-            }
-            return (
-              <h1 className="mt-8 mb-3 text-xl font-bold text-surface-900">
-                {children}
-              </h1>
-            );
-          },
+          h1: ({ children }) => (
+            <h1 className="mt-8 mb-3 text-xl font-bold text-surface-900">
+              {children}
+            </h1>
+          ),
           h2: ({ children }) => (
             <SectionTitle className="mt-8 mb-3 first:mt-0">
               {children}

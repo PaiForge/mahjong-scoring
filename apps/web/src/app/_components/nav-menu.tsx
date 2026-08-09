@@ -6,6 +6,7 @@ import { useEffect, useState } from "react";
 import { createPortal } from "react-dom";
 import { useTranslations } from "next-intl";
 
+import { useIsClient } from "../_hooks/use-is-client";
 import { DRAWER_NAV_ITEMS } from "./_lib/nav-items";
 
 /**
@@ -16,11 +17,7 @@ export function NavMenu() {
   const t = useTranslations("nav");
   const pathname = usePathname();
   const [isOpen, setIsOpen] = useState(false);
-  const [mounted, setMounted] = useState(false);
-
-  useEffect(() => {
-    setMounted(true);
-  }, []);
+  const mounted = useIsClient();
 
   useEffect(() => {
     if (isOpen) {

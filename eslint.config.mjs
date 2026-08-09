@@ -14,6 +14,12 @@ export default [
     files: ["apps/mobile/**/*.{js,jsx,ts,tsx}"],
   })),
   {
-    ignores: ["apps/web/.next/**", "**/dist/**", "**/node_modules/**"],
+    ignores: [
+      "apps/web/.next/**",
+      // supabase start が生成する作業ディレクトリ（バンドル済みの edge runtime を含む）
+      "**/supabase/.temp/**",
+      "**/dist/**",
+      "**/node_modules/**",
+    ],
   },
 ];

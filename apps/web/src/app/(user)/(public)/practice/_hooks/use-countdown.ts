@@ -9,18 +9,17 @@ interface UseCountdownOptions {
 
 export function useCountdown({ from = 3, onComplete }: UseCountdownOptions) {
   const [count, setCount] = useState(from);
-  const [isActive, setIsActive] = useState(true);
   const onCompleteRef = useRef(onComplete);
-  onCompleteRef.current = onComplete;
+
+  useEffect(() => {
+    onCompleteRef.current = onComplete;
+  });
+
+  // isActive は count から導出できるため状態として保持しない
+  const isActive = count > 0;
 
   useEffect(() => {
     if (!isActive) return;
-
-    if (count <= 0) {
-      setIsActive(false);
-      onCompleteRef.current();
-      return;
-    }
 
     const timer = setTimeout(() => {
       setCount((c) => c - 1);
@@ -29,9 +28,13 @@ export function useCountdown({ from = 3, onComplete }: UseCountdownOptions) {
     return () => clearTimeout(timer);
   }, [count, isActive]);
 
+  useEffect(() => {
+    if (count > 0) return;
+    onCompleteRef.current();
+  }, [count]);
+
   const reset = useCallback(() => {
     setCount(from);
-    setIsActive(true);
   }, [from]);
 
   return { count, isActive, reset };

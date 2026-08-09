@@ -25,7 +25,7 @@ interface HanCountAnswerFormProps {
  *
  * 1翻〜13翻の選択肢をボタンで表示し、タップで即回答する。
  */
-export const HanCountAnswerForm = memo(function HanCountAnswerForm({
+export const HanCountAnswerForm = memo(function HanCountAnswerFormComponent({
   correctHan,
   questionIndex,
   showFeedback,

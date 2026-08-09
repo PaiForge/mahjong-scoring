@@ -22,7 +22,6 @@ describe("ScoreAnswerForm autoSubmit", () => {
         isOya={false}
         isTsumo={false}
         han={3}
-        questionKey="q1"
         onSubmit={onSubmit}
         translationNamespace="x"
         autoSubmit
@@ -50,7 +49,6 @@ describe("ScoreAnswerForm autoSubmit", () => {
         isOya={false}
         isTsumo={true}
         han={3}
-        questionKey="q1"
         onSubmit={onSubmit}
         translationNamespace="x"
         autoSubmit
@@ -82,7 +80,6 @@ describe("ScoreAnswerForm autoSubmit", () => {
         isOya={false}
         isTsumo={false}
         han={3}
-        questionKey="q1"
         onSubmit={onSubmit}
         translationNamespace="x"
       />,

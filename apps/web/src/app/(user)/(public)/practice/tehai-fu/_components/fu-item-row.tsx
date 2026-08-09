@@ -21,7 +21,7 @@ interface FuItemRowProps {
  * 符計算の個別要素行
  * 符要素行
  */
-export const FuItemRow = memo(function FuItemRow({
+export const FuItemRow = memo(function FuItemRowComponent({
   index,
   item,
   answer,

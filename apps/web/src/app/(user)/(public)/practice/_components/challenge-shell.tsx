@@ -30,7 +30,7 @@ interface LifeIndicatorProps {
 }
 
 /** ライフ表示（ハートアイコン） */
-const LifeIndicator = memo(function LifeIndicator({
+const LifeIndicator = memo(function LifeIndicatorComponent({
   remainingLives,
   mistakeLimit,
 }: LifeIndicatorProps) {
@@ -136,7 +136,9 @@ export function ChallengeShell({
 
   // タイマーリセット関数を timerControl に登録（セッションリセット時に使用）
   const registerTimerResetRef = useRef(timerControl.registerTimerReset);
-  registerTimerResetRef.current = timerControl.registerTimerReset;
+  useEffect(() => {
+    registerTimerResetRef.current = timerControl.registerTimerReset;
+  });
   useEffect(() => {
     registerTimerResetRef.current(resetTimer);
   }, [resetTimer]);

@@ -10,7 +10,7 @@ import { ContentContainer } from "@/app/_components/content-container";
 import { PageTitle } from "@/app/_components/page-title";
 import { useScorePracticeStore } from "../_hooks/use-score-practice-store";
 import type { UserAnswer } from "@mahjong-scoring/core";
-import { useIsClient } from "../../_hooks/use-is-client";
+import { useIsClient } from "../../../../../_hooks/use-is-client";
 import { useScrollToElement } from "../../_hooks/use-scroll-to-element";
 import { PRACTICE_SCROLL_ANCHOR_ID } from "../../_lib/scroll-anchor";
 import {

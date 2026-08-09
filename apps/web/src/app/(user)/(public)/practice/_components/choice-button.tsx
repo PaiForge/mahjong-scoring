@@ -19,7 +19,7 @@ interface ChoiceButtonProps {
  *
  * インデックスベースで選択を通知し、インライン arrow function の再生成を防ぐ。
  */
-export const ChoiceButton = memo(function ChoiceButton({
+export const ChoiceButton = memo(function ChoiceButtonComponent({
   index,
   onSelect,
   disabled,

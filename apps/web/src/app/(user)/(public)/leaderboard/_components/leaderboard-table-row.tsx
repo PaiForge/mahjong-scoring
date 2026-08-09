@@ -12,7 +12,7 @@ interface LeaderboardTableRowProps {
  * リーダーボードテーブル行
  * ランキングテーブルの1行
  */
-export const LeaderboardTableRow = memo(function LeaderboardTableRow({
+export const LeaderboardTableRow = memo(function LeaderboardTableRowComponent({
   row,
   isCurrentUser,
 }: LeaderboardTableRowProps) {

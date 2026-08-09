@@ -20,7 +20,10 @@ export function useGameTimer({
   const accumulatedTimeRef = useRef(0);
   const timeLimitFiredRef = useRef(false);
   const onTimeLimitReachedRef = useRef(onTimeLimitReached);
-  onTimeLimitReachedRef.current = onTimeLimitReached;
+
+  useEffect(() => {
+    onTimeLimitReachedRef.current = onTimeLimitReached;
+  });
 
   useEffect(() => {
     if (!isActive) {

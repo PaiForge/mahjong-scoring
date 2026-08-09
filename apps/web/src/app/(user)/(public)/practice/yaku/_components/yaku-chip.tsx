@@ -14,7 +14,7 @@ interface YakuChipProps {
  * 役選択チップ
  * 役チップ
  */
-export const YakuChip = memo(function YakuChip({
+export const YakuChip = memo(function YakuChipComponent({
   yakuName,
   isSelected,
   feedbackState,
