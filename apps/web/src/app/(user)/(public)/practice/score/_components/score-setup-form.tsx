@@ -6,7 +6,7 @@ import { useTranslations } from "next-intl";
 import { useScoreSettingsStore } from "../_hooks/use-score-settings-store";
 import { useScorePracticeStore } from "../_hooks/use-score-practice-store";
 import { InfoModal } from "@/app/_components/info-modal";
-import { useIsClient } from "../../_hooks/use-is-client";
+import { useIsClient } from "../../../../../_hooks/use-is-client";
 import { SettingToggle } from "./setting-toggle";
 import { SmallCheckbox } from "./small-checkbox";
 

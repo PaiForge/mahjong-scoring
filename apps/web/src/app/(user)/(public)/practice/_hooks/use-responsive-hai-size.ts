@@ -1,9 +1,25 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useSyncExternalStore } from "react";
 import type { HaiSize } from "@pai-forge/mahjong-react-ui";
 
 const BREAKPOINT = "(min-width: 500px)";
+
+function subscribe(onStoreChange: () => void) {
+  const mql = window.matchMedia(BREAKPOINT);
+  mql.addEventListener("change", onStoreChange);
+  return () => {
+    mql.removeEventListener("change", onStoreChange);
+  };
+}
+
+function getSnapshot(): HaiSize {
+  return window.matchMedia(BREAKPOINT).matches ? "sm" : "xs";
+}
+
+function getServerSnapshot(): HaiSize {
+  return "sm";
+}
 
 /**
  * 画面幅に応じて牌のサイズを返すフック
@@ -11,27 +27,11 @@ const BREAKPOINT = "(min-width: 500px)";
  *
  * `window.matchMedia` を使用してブレークポイントの変更を監視する。
  * resize イベントのポーリングよりも効率的。
+ *
+ * @remarks
+ * スナップショットは文字列のため参照同一性の問題は起きない。
+ * `useEffect` での初回同期が不要になり、余分なレンダーを挟まない。
  */
 export function useResponsiveHaiSize(): HaiSize {
-  const [size, setSize] = useState<HaiSize>(() => {
-    if (typeof window === "undefined") return "sm";
-    return window.matchMedia(BREAKPOINT).matches ? "sm" : "xs";
-  });
-
-  useEffect(() => {
-    const mql = window.matchMedia(BREAKPOINT);
-    const handleChange = (e: MediaQueryListEvent) => {
-      setSize(e.matches ? "sm" : "xs");
-    };
-
-    // 初回の同期
-    setSize(mql.matches ? "sm" : "xs");
-
-    mql.addEventListener("change", handleChange);
-    return () => {
-      mql.removeEventListener("change", handleChange);
-    };
-  }, []);
-
-  return size;
+  return useSyncExternalStore(subscribe, getSnapshot, getServerSnapshot);
 }

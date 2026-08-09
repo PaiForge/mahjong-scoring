@@ -34,7 +34,7 @@ export function ManganScoreCalculationAnswerForm({
       isOya={oya}
       isTsumo={question.isTsumo}
       han={question.answer.han}
-      questionKey={questionIndex}
+      key={questionIndex}
       onSubmit={onSubmit}
       disabled={disabled}
       translationNamespace="manganScoreCalculationChallenge"

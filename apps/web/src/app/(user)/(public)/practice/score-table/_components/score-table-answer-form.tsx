@@ -28,7 +28,7 @@ export function ScoreTableAnswerForm({
       isOya={question.isOya}
       isTsumo={question.isTsumo}
       han={question.han}
-      questionKey={question.id}
+      key={question.id}
       onSubmit={onSubmit}
       disabled={disabled}
       translationNamespace="scoreTableChallenge"
