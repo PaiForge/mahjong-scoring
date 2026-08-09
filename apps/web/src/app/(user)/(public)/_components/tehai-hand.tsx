@@ -19,7 +19,7 @@ interface TehaiHandProps {
  * 練習の出題盤面（TehaiDisplay）と各種早見表で共有する、牌の「出し方」の単一実装。
  * コンテキスト情報（場風・自風・ドラ等）は含めず、牌の並びのみを描画する。
  */
-export const TehaiHand = memo(function TehaiHand({
+export const TehaiHand = memo(function TehaiHandComponent({
   tehai,
   onScaleChange,
 }: TehaiHandProps) {

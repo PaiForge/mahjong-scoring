@@ -30,7 +30,7 @@ interface LifeIndicatorProps {
 }
 
 /** ライフ表示（ハートアイコン） */
-const LifeIndicator = memo(function LifeIndicator({
+const LifeIndicator = memo(function LifeIndicatorComponent({
   remainingLives,
   mistakeLimit,
 }: LifeIndicatorProps) {

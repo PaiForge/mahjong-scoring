@@ -31,7 +31,7 @@ interface TehaiDisplayProps {
  * 練習共通の手牌表示コンポーネント
  * 手牌表示
  */
-export const TehaiDisplay = memo(function TehaiDisplay({
+export const TehaiDisplay = memo(function TehaiDisplayComponent({
   tehai,
   context,
   translationNamespace,

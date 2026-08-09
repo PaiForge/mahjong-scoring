@@ -31,7 +31,7 @@ interface YakuHanAnswerFormProps {
  *
  * 1翻〜6翻と役満の選択肢をボタンで表示し、タップで即回答する。
  */
-export const YakuHanAnswerForm = memo(function YakuHanAnswerForm({
+export const YakuHanAnswerForm = memo(function YakuHanAnswerFormComponent({
   correctHan,
   questionIndex,
   showFeedback,

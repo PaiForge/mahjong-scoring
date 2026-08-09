@@ -21,7 +21,7 @@ function getColor(progress: number): string {
   return "#22c55e";
 }
 
-export const QuizTimer = memo(function QuizTimer({
+export const QuizTimer = memo(function QuizTimerComponent({
   timeRemaining,
   progress,
   size = 48,
