@@ -4,7 +4,7 @@ import { WhyScoringIsComplexGuide } from "./_components/why-scoring-is-complex-g
 
 /** KaTeX CSS（数式レンダリング用） */
 const KATEX_CSS_HREF =
-  "https://cdn.jsdelivr.net/npm/katex@0.16.44/dist/katex.min.css";
+  "https://cdn.jsdelivr.net/npm/katex@0.18.2/dist/katex.min.css";
 
 export function generateMetadata() {
   return createLearnMetadata("whyScoringIsComplex.learn");
