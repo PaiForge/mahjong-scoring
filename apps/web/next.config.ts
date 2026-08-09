@@ -15,6 +15,9 @@ const securityHeaders = [
 
 const nextConfig: NextConfig = {
   reactStrictMode: true,
+  // next dev による AGENTS.md / CLAUDE.md の自動生成を無効化する。
+  // AI 向けの規約はリポジトリルートの CLAUDE.md を単一の正とするため。
+  agentRules: false,
   images: {
     remotePatterns: [
       {
