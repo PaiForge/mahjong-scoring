@@ -6,6 +6,20 @@ import tseslint from "typescript-eslint";
 /**
  * Shared base ESLint configuration.
  *
+ * @remarks
+ * このパッケージは devDependencies で `typescript` を
+ * `npm:@typescript/typescript6` にエイリアスしている。typescript-eslint は
+ * TypeScript 7 を実行時に明示的に拒否する（`does not support TS 7.0`）ため、
+ * アプリ側が TypeScript 7 を使いつつ lint を動かすには、typescript-eslint が
+ * 解決する `typescript` だけを 6 系に固定する必要がある。
+ *
+ * この固定を外すと peer が TypeScript 7 に解決され lint 全体が起動しなくなる。
+ * typescript-eslint が TS7 を peerDependencies で受け入れたら不要になる。
+ * 追跡: typescript-eslint#10940
+ *
+ * 型情報を使うルール（`parserOptions.project` / `*-type-checked`）は
+ * 使っていないため、パーサが TS6 でも lint 結果は変わらない。
+ *
  * Includes PaiForge coding standards:
  * - No `null` (use `undefined`)
  * - No variable shadowing
