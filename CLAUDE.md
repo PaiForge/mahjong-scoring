@@ -36,6 +36,14 @@
 - セッションリフレッシュ等の処理は `apps/web/src/proxy.ts` に記述すること
 - `middleware.ts` と `proxy.ts` が同時に存在するとビルドエラーになる
 
+## TypeScript 7 と typescript-eslint の共存
+
+アプリ（`apps/web`, `packages/core`）は TypeScript 7 を使う。ただし typescript-eslint は TS7 を実行時に拒否するため、`packages/eslint-config` の devDependencies で `typescript` を `npm:@typescript/typescript6` にエイリアスし、typescript-eslint が解決する `typescript` だけを 6 系に固定している。
+
+- **この固定を外さないこと。** 外すと peer が TS7 に解決され `pnpm lint` が起動しなくなる
+- typescript-eslint が TS7 を peer で受け入れたら不要（typescript-eslint#10940）
+- エディタは「Use Workspace Version」が使えない（TS7 は `tsserver` を同梱しない）。TS7 用拡張を使うこと
+
 ## プロジェクト構成
 
 ```
@@ -93,10 +101,10 @@ packages/eslint-config/ — 共通 ESLint 設定（PaiForge コーディング�
 
 練習種別により2つのパターンが存在する:
 
-| パターン | 構成 | 該当 |
-|---------|------|------|
+| パターン     | 構成                           | 該当                                                      |
+| ------------ | ------------------------------ | --------------------------------------------------------- |
 | チャレンジ型 | 説明(page.tsx) → play → result | jantou-fu, mentsu-fu, machi-fu, tehai-fu, yaku, han-count |
-| 無限訓練型 | play のみ（result なし） | score |
+| 無限訓練型   | play のみ（result なし）       | score                                                     |
 
 - `score-calculation`, `score-table` はチャレンジ型だが説明ページ（page.tsx）は未作成
 - `score` は終了条件がなく無限ループする訓練機能のため、result ページを持たない
