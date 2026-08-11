@@ -8,6 +8,7 @@ import type {
   JudgementResult,
 } from "@mahjong-scoring/core";
 import { isMangan, getScoreLevelName } from "@mahjong-scoring/core";
+import { practiceHanTier } from "../_lib/han-tiers";
 import { DetailsAccordion } from "./details-accordion";
 import type { DetailItem } from "./details-accordion";
 
@@ -68,13 +69,9 @@ export function ResultDisplay({
   };
 
   const getHanDisplay = (hanValue: number, levelName?: string) => {
-    if (simplifyMangan && hanValue >= 5) {
-      if (levelName) return levelName;
-      if (hanValue >= 13) return t("form.options.yakuman");
-      if (hanValue >= 11) return t("form.options.sanbaiman");
-      if (hanValue >= 8) return t("form.options.baiman");
-      if (hanValue >= 6) return t("form.options.haneman");
-      if (hanValue >= 5) return t("form.options.mangan");
+    const tier = simplifyMangan ? practiceHanTier(hanValue) : undefined;
+    if (tier) {
+      return levelName ?? t(`form.options.${tier.key}`);
     }
     return `${hanValue}${t("form.options.hanSuffix")}`;
   };
