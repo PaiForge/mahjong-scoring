@@ -3,18 +3,11 @@ import { HaiKind } from "@pai-forge/riichi-mahjong";
 import { generateScoreQuestion, generateValidScoreQuestion } from "./generator";
 import { ScoreLevel } from "../../core/constants";
 import { isMangan } from "../../score/tiers";
+import { expectGeneratesEventually, expectSampled } from "../../test/sampling";
 
 describe("generateScoreQuestion", () => {
-  it("100回試行して少なくとも1回は問題が生成される", () => {
-    let generated = false;
-    for (let i = 0; i < 100; i++) {
-      const question = generateScoreQuestion();
-      if (question) {
-        generated = true;
-        break;
-      }
-    }
-    expect(generated).toBe(true);
+  it("試行すれば問題が生成される", () => {
+    expectGeneratesEventually(generateScoreQuestion);
   });
 
   it("生成された問題が正しい構造を持つ", () => {
@@ -50,82 +43,67 @@ describe("generateScoreQuestion", () => {
   });
 
   it("yakuDetails が定義されている場合、少なくとも1つの役がある", () => {
-    let tested = 0;
-    for (let i = 0; i < 200; i++) {
-      const question = generateScoreQuestion();
-      if (!question) continue;
-      if (question.yakuDetails) {
-        expect(question.yakuDetails.length).toBeGreaterThan(0);
-        for (const yaku of question.yakuDetails) {
-          expect(yaku.name).toBeTruthy();
-          expect(yaku.han).toBeGreaterThanOrEqual(1);
-        }
-        tested++;
-        if (tested >= 10) break;
+    const questions = expectSampled(generateScoreQuestion, {
+      attempts: 200,
+      where: (q) => q.yakuDetails !== undefined,
+    });
+
+    for (const question of questions) {
+      expect(question.yakuDetails!.length).toBeGreaterThan(0);
+      for (const yaku of question.yakuDetails!) {
+        expect(yaku.name).toBeTruthy();
+        expect(yaku.han).toBeGreaterThanOrEqual(1);
       }
     }
-    expect(tested).toBeGreaterThan(0);
   });
 
   describe("オプション: includeParent / includeChild", () => {
     it("includeParent=false の場合、自風が東にならない", () => {
-      let tested = 0;
-      for (let i = 0; i < 200; i++) {
-        const question = generateScoreQuestion({
-          includeParent: false,
-          includeChild: true,
-        });
-        if (!question) continue;
+      const questions = expectSampled(
+        () =>
+          generateScoreQuestion({ includeParent: false, includeChild: true }),
+        { attempts: 200 },
+      );
+
+      for (const question of questions) {
         expect(question.jikaze).not.toBe(HaiKind.Ton);
-        tested++;
-        if (tested >= 10) break;
       }
-      expect(tested).toBeGreaterThan(0);
     });
 
     it("includeChild=false の場合、自風が東になる", () => {
-      let tested = 0;
-      for (let i = 0; i < 200; i++) {
-        const question = generateScoreQuestion({
-          includeParent: true,
-          includeChild: false,
-        });
-        if (!question) continue;
+      const questions = expectSampled(
+        () =>
+          generateScoreQuestion({ includeParent: true, includeChild: false }),
+        { attempts: 200 },
+      );
+
+      for (const question of questions) {
         expect(question.jikaze).toBe(HaiKind.Ton);
-        tested++;
-        if (tested >= 10) break;
       }
-      expect(tested).toBeGreaterThan(0);
     });
   });
 
   describe("オプション: allowedRanges", () => {
-    it("non_mangan のみの場合、通常点数の問題のみ生成される", () => {
-      let tested = 0;
-      for (let i = 0; i < 300; i++) {
-        const question = generateScoreQuestion({
-          allowedRanges: ["nonMangan"],
-        });
-        if (!question) continue;
+    it("nonMangan のみの場合、通常点数の問題のみ生成される", () => {
+      const questions = expectSampled(
+        () => generateScoreQuestion({ allowedRanges: ["nonMangan"] }),
+        { attempts: 300, need: 5 },
+      );
+
+      for (const question of questions) {
         expect(question.answer.scoreLevel).toBe(ScoreLevel.Normal);
-        tested++;
-        if (tested >= 5) break;
       }
-      expect(tested).toBeGreaterThan(0);
     });
 
-    it("mangan_plus のみの場合、満貫以上の問題のみ生成される", () => {
-      let tested = 0;
-      for (let i = 0; i < 300; i++) {
-        const question = generateScoreQuestion({
-          allowedRanges: ["manganPlus"],
-        });
-        if (!question) continue;
+    it("manganPlus のみの場合、満貫以上の問題のみ生成される", () => {
+      const questions = expectSampled(
+        () => generateScoreQuestion({ allowedRanges: ["manganPlus"] }),
+        { attempts: 300, need: 5 },
+      );
+
+      for (const question of questions) {
         expect(isMangan(question.answer.scoreLevel)).toBe(true);
-        tested++;
-        if (tested >= 5) break;
       }
-      expect(tested).toBeGreaterThan(0);
     });
   });
 });
@@ -168,17 +146,13 @@ describe("generateValidScoreQuestion", () => {
   });
 
   it("ドラ表示牌は有効な HaiKindId（0-33）である", () => {
-    let tested = 0;
-    for (let i = 0; i < 100; i++) {
-      const question = generateValidScoreQuestion();
-      if (!question) continue;
+    const questions = expectSampled(generateValidScoreQuestion);
+
+    for (const question of questions) {
       for (const marker of question.doraMarkers) {
         expect(marker).toBeGreaterThanOrEqual(0);
         expect(marker).toBeLessThanOrEqual(33);
       }
-      tested++;
-      if (tested >= 10) break;
     }
-    expect(tested).toBeGreaterThan(0);
   });
 });

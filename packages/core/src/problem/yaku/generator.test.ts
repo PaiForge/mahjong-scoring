@@ -2,29 +2,19 @@ import { describe, it, expect } from "vitest";
 import { MentsuType } from "@pai-forge/riichi-mahjong";
 import { generateYakuQuestion } from "./generator";
 import { SELECTABLE_YAKU } from "./constants";
+import {
+  expectGeneratesEventually,
+  expectSampled,
+  generateOne,
+} from "../../test/sampling";
 
 describe("generateYakuQuestion", () => {
-  it("100回試行して少なくとも1回は問題が生成される", () => {
-    let generated = false;
-    for (let i = 0; i < 100; i++) {
-      const question = generateYakuQuestion();
-      if (question) {
-        generated = true;
-        break;
-      }
-    }
-    expect(generated).toBe(true);
+  it("試行すれば問題が生成される", () => {
+    expectGeneratesEventually(generateYakuQuestion);
   });
 
   it("生成された問題が正しい構造を持つ", () => {
-    let question;
-    for (let i = 0; i < 100; i++) {
-      question = generateYakuQuestion();
-      if (question) break;
-    }
-
-    expect(question).toBeDefined();
-    if (!question) return;
+    const question = generateOne(generateYakuQuestion);
 
     expect(question.id).toBeTruthy();
     expect(question.tehai).toBeDefined();
@@ -39,20 +29,13 @@ describe("generateYakuQuestion", () => {
 
   it("正解の役名が SELECTABLE_YAKU に含まれる", () => {
     const selectableSet = new Set(SELECTABLE_YAKU);
-    let tested = 0;
+    const questions = expectSampled(generateYakuQuestion, { attempts: 200 });
 
-    for (let i = 0; i < 200; i++) {
-      const question = generateYakuQuestion();
-      if (!question) continue;
-
+    for (const question of questions) {
       for (const yakuName of question.correctYakuNames) {
         expect(selectableSet.has(yakuName)).toBe(true);
       }
-      tested++;
-      if (tested >= 10) break;
     }
-
-    expect(tested).toBeGreaterThan(0);
   });
 
   it("isRiichi が true の場合、立直が正解に含まれる", () => {
@@ -121,18 +104,18 @@ describe("generateYakuQuestion", () => {
 
   it("和了牌が槓子（カン）の牌種と一致しない", () => {
     // 槓子は同じ牌4枚を束縛するため5枚目が存在せず、その牌では和了できない。
-    let tested = 0;
-    for (let i = 0; i < 2000; i++) {
-      const q = generateYakuQuestion();
-      if (!q) continue;
+    const questions = expectSampled(generateYakuQuestion, {
+      attempts: 2000,
+      need: 2000,
+    });
+
+    for (const q of questions) {
       for (const m of q.tehai.exposed) {
         if (m.type === MentsuType.Kantsu) {
           expect(q.context.agariHai).not.toBe(m.hais[0]);
         }
       }
-      tested++;
     }
-    expect(tested).toBeGreaterThan(0);
   });
 
   it("偶然役・ドラが正解に含まれない", () => {

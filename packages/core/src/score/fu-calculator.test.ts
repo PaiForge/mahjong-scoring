@@ -1,6 +1,24 @@
 import { describe, it, expect } from "vitest";
-import { HaiKind, MentsuType, type ScoreDetail, type HaiKindId, type Kazehai } from "@pai-forge/riichi-mahjong";
+import {
+  HaiKind,
+  MentsuType,
+  type ScoreDetail,
+  type HaiKindId,
+  type Kazehai,
+} from "@pai-forge/riichi-mahjong";
 import { convertScoreDetailToFuDetails, type FuDetail } from "./fu-calculator";
+
+/**
+ * テスト用の面子
+ *
+ * ScoreDetail の面子はライブラリ型より緩い形で足りるため、
+ * 検証に必要なフィールドだけを持つ。
+ */
+interface TestMentsu {
+  readonly type: MentsuType;
+  readonly hais: readonly HaiKindId[];
+  readonly furo?: { readonly type: unknown; readonly from: unknown };
+}
 
 /**
  * テスト用の ScoreDetail を構築するヘルパー
@@ -12,7 +30,7 @@ function makeMentsuDetail(overrides: {
   machi?: number;
   agari?: number;
   total?: number;
-  fourMentsu?: readonly any[];
+  fourMentsu?: readonly TestMentsu[];
   jantouHais?: readonly HaiKindId[];
   machiType?: string;
 }): ScoreDetail {
@@ -24,10 +42,22 @@ function makeMentsuDetail(overrides: {
     agari = 0,
     total = 30,
     fourMentsu = [
-      { type: MentsuType.Shuntsu, hais: [HaiKind.ManZu1, HaiKind.ManZu2, HaiKind.ManZu3] },
-      { type: MentsuType.Shuntsu, hais: [HaiKind.PinZu1, HaiKind.PinZu2, HaiKind.PinZu3] },
-      { type: MentsuType.Shuntsu, hais: [HaiKind.SouZu1, HaiKind.SouZu2, HaiKind.SouZu3] },
-      { type: MentsuType.Shuntsu, hais: [HaiKind.ManZu4, HaiKind.ManZu5, HaiKind.ManZu6] },
+      {
+        type: MentsuType.Shuntsu,
+        hais: [HaiKind.ManZu1, HaiKind.ManZu2, HaiKind.ManZu3],
+      },
+      {
+        type: MentsuType.Shuntsu,
+        hais: [HaiKind.PinZu1, HaiKind.PinZu2, HaiKind.PinZu3],
+      },
+      {
+        type: MentsuType.Shuntsu,
+        hais: [HaiKind.SouZu1, HaiKind.SouZu2, HaiKind.SouZu3],
+      },
+      {
+        type: MentsuType.Shuntsu,
+        hais: [HaiKind.ManZu4, HaiKind.ManZu5, HaiKind.ManZu6],
+      },
     ],
     jantouHais = [HaiKind.ManZu9, HaiKind.ManZu9],
     machiType = "Ryanmen",
@@ -47,6 +77,28 @@ function makeMentsuDetail(overrides: {
   } as unknown as ScoreDetail;
 }
 
+/**
+ * 既定の場風・自風で符の内訳を求める
+ *
+ * ほとんどのケースは風が結果に影響しない（面子符・待ち符の検証）ため、
+ * 東場・南家を既定にする。風そのものを検証するテストだけが上書きする。
+ */
+function convert(
+  detail: ScoreDetail,
+  context: {
+    agariHai: HaiKindId;
+    isTsumo: boolean;
+    bakaze?: Kazehai;
+    jikaze?: Kazehai;
+  },
+): readonly FuDetail[] {
+  return convertScoreDetailToFuDetails(detail, {
+    bakaze: HaiKind.Ton,
+    jikaze: HaiKind.Nan,
+    ...context,
+  });
+}
+
 describe("convertScoreDetailToFuDetails", () => {
   describe("七対子", () => {
     it("七対子は25符1行のみ返す", () => {
@@ -59,11 +111,9 @@ describe("convertScoreDetailToFuDetails", () => {
         },
       } as unknown as ScoreDetail;
 
-      const result = convertScoreDetailToFuDetails(detail, {
+      const result = convert(detail, {
         agariHai: HaiKind.ManZu1,
         isTsumo: true,
-        bakaze: HaiKind.Ton,
-        jikaze: HaiKind.Nan,
       });
 
       expect(result).toEqual([{ reason: "七対子", fu: 25 }]);
@@ -81,11 +131,9 @@ describe("convertScoreDetailToFuDetails", () => {
         },
       } as unknown as ScoreDetail;
 
-      const result = convertScoreDetailToFuDetails(detail, {
+      const result = convert(detail, {
         agariHai: HaiKind.ManZu1,
         isTsumo: false,
-        bakaze: HaiKind.Ton,
-        jikaze: HaiKind.Nan,
       });
 
       expect(result).toEqual([{ reason: "副底", fu: 20 }]);
@@ -96,11 +144,9 @@ describe("convertScoreDetailToFuDetails", () => {
     it("平和ツモは20符1行のみ返す", () => {
       const detail = makeMentsuDetail({ total: 20, base: 20, agari: 0 });
 
-      const result = convertScoreDetailToFuDetails(detail, {
+      const result = convert(detail, {
         agariHai: HaiKind.ManZu4,
         isTsumo: true,
-        bakaze: HaiKind.Ton,
-        jikaze: HaiKind.Nan,
       });
 
       expect(result).toEqual([{ reason: "平和ツモ", fu: 20 }]);
@@ -111,11 +157,9 @@ describe("convertScoreDetailToFuDetails", () => {
     it("副底20符を含む", () => {
       const detail = makeMentsuDetail({ base: 20, agari: 10, total: 30 });
 
-      const result = convertScoreDetailToFuDetails(detail, {
+      const result = convert(detail, {
         agariHai: HaiKind.ManZu4,
         isTsumo: false,
-        bakaze: HaiKind.Ton,
-        jikaze: HaiKind.Nan,
       });
 
       expect(result[0]).toEqual({ reason: "副底", fu: 20 });
@@ -126,11 +170,9 @@ describe("convertScoreDetailToFuDetails", () => {
     it("ツモの場合「ツモ」と表示", () => {
       const detail = makeMentsuDetail({ agari: 2, total: 30 });
 
-      const result = convertScoreDetailToFuDetails(detail, {
+      const result = convert(detail, {
         agariHai: HaiKind.ManZu4,
         isTsumo: true,
-        bakaze: HaiKind.Ton,
-        jikaze: HaiKind.Nan,
       });
 
       const agariEntry = result.find((d) => d.reason === "ツモ");
@@ -141,11 +183,9 @@ describe("convertScoreDetailToFuDetails", () => {
     it("門前ロンの場合「門前加符」と表示", () => {
       const detail = makeMentsuDetail({ agari: 10, total: 30 });
 
-      const result = convertScoreDetailToFuDetails(detail, {
+      const result = convert(detail, {
         agariHai: HaiKind.ManZu4,
         isTsumo: false,
-        bakaze: HaiKind.Ton,
-        jikaze: HaiKind.Nan,
       });
 
       const agariEntry = result.find((d) => d.reason === "門前加符");
@@ -156,11 +196,9 @@ describe("convertScoreDetailToFuDetails", () => {
     it("和了符が0の場合は含まれない", () => {
       const detail = makeMentsuDetail({ agari: 0, total: 30 });
 
-      const result = convertScoreDetailToFuDetails(detail, {
+      const result = convert(detail, {
         agariHai: HaiKind.ManZu4,
         isTsumo: false,
-        bakaze: HaiKind.Ton,
-        jikaze: HaiKind.Nan,
       });
 
       expect(result.find((d) => d.reason === "門前加符")).toBeUndefined();
@@ -174,18 +212,28 @@ describe("convertScoreDetailToFuDetails", () => {
         mentsu: 4,
         total: 30,
         fourMentsu: [
-          { type: MentsuType.Koutsu, hais: [HaiKind.ManZu5, HaiKind.ManZu5, HaiKind.ManZu5] },
-          { type: MentsuType.Shuntsu, hais: [HaiKind.PinZu1, HaiKind.PinZu2, HaiKind.PinZu3] },
-          { type: MentsuType.Shuntsu, hais: [HaiKind.SouZu1, HaiKind.SouZu2, HaiKind.SouZu3] },
-          { type: MentsuType.Shuntsu, hais: [HaiKind.ManZu7, HaiKind.ManZu8, HaiKind.ManZu9] },
+          {
+            type: MentsuType.Koutsu,
+            hais: [HaiKind.ManZu5, HaiKind.ManZu5, HaiKind.ManZu5],
+          },
+          {
+            type: MentsuType.Shuntsu,
+            hais: [HaiKind.PinZu1, HaiKind.PinZu2, HaiKind.PinZu3],
+          },
+          {
+            type: MentsuType.Shuntsu,
+            hais: [HaiKind.SouZu1, HaiKind.SouZu2, HaiKind.SouZu3],
+          },
+          {
+            type: MentsuType.Shuntsu,
+            hais: [HaiKind.ManZu7, HaiKind.ManZu8, HaiKind.ManZu9],
+          },
         ],
       });
 
-      const result = convertScoreDetailToFuDetails(detail, {
+      const result = convert(detail, {
         agariHai: HaiKind.PinZu1,
         isTsumo: true,
-        bakaze: HaiKind.Ton,
-        jikaze: HaiKind.Nan,
       });
 
       const mentsuEntry = result.find((d) => d.reason.includes("暗刻"));
@@ -199,18 +247,28 @@ describe("convertScoreDetailToFuDetails", () => {
         mentsu: 8,
         total: 30,
         fourMentsu: [
-          { type: MentsuType.Koutsu, hais: [HaiKind.ManZu1, HaiKind.ManZu1, HaiKind.ManZu1] },
-          { type: MentsuType.Shuntsu, hais: [HaiKind.PinZu4, HaiKind.PinZu5, HaiKind.PinZu6] },
-          { type: MentsuType.Shuntsu, hais: [HaiKind.SouZu4, HaiKind.SouZu5, HaiKind.SouZu6] },
-          { type: MentsuType.Shuntsu, hais: [HaiKind.ManZu4, HaiKind.ManZu5, HaiKind.ManZu6] },
+          {
+            type: MentsuType.Koutsu,
+            hais: [HaiKind.ManZu1, HaiKind.ManZu1, HaiKind.ManZu1],
+          },
+          {
+            type: MentsuType.Shuntsu,
+            hais: [HaiKind.PinZu4, HaiKind.PinZu5, HaiKind.PinZu6],
+          },
+          {
+            type: MentsuType.Shuntsu,
+            hais: [HaiKind.SouZu4, HaiKind.SouZu5, HaiKind.SouZu6],
+          },
+          {
+            type: MentsuType.Shuntsu,
+            hais: [HaiKind.ManZu4, HaiKind.ManZu5, HaiKind.ManZu6],
+          },
         ],
       });
 
-      const result = convertScoreDetailToFuDetails(detail, {
+      const result = convert(detail, {
         agariHai: HaiKind.PinZu4,
         isTsumo: true,
-        bakaze: HaiKind.Ton,
-        jikaze: HaiKind.Nan,
       });
 
       const mentsuEntry = result.find((d) => d.reason.includes("暗刻"));
@@ -224,18 +282,29 @@ describe("convertScoreDetailToFuDetails", () => {
         mentsu: 2,
         total: 30,
         fourMentsu: [
-          { type: MentsuType.Koutsu, hais: [HaiKind.ManZu5, HaiKind.ManZu5, HaiKind.ManZu5], furo: { type: "Pon", from: "Kamicha" } },
-          { type: MentsuType.Shuntsu, hais: [HaiKind.PinZu1, HaiKind.PinZu2, HaiKind.PinZu3] },
-          { type: MentsuType.Shuntsu, hais: [HaiKind.SouZu1, HaiKind.SouZu2, HaiKind.SouZu3] },
-          { type: MentsuType.Shuntsu, hais: [HaiKind.ManZu7, HaiKind.ManZu8, HaiKind.ManZu9] },
+          {
+            type: MentsuType.Koutsu,
+            hais: [HaiKind.ManZu5, HaiKind.ManZu5, HaiKind.ManZu5],
+            furo: { type: "Pon", from: "Kamicha" },
+          },
+          {
+            type: MentsuType.Shuntsu,
+            hais: [HaiKind.PinZu1, HaiKind.PinZu2, HaiKind.PinZu3],
+          },
+          {
+            type: MentsuType.Shuntsu,
+            hais: [HaiKind.SouZu1, HaiKind.SouZu2, HaiKind.SouZu3],
+          },
+          {
+            type: MentsuType.Shuntsu,
+            hais: [HaiKind.ManZu7, HaiKind.ManZu8, HaiKind.ManZu9],
+          },
         ],
       });
 
-      const result = convertScoreDetailToFuDetails(detail, {
+      const result = convert(detail, {
         agariHai: HaiKind.PinZu1,
         isTsumo: true,
-        bakaze: HaiKind.Ton,
-        jikaze: HaiKind.Nan,
       });
 
       const mentsuEntry = result.find((d) => d.reason.includes("明刻"));
@@ -248,18 +317,29 @@ describe("convertScoreDetailToFuDetails", () => {
         mentsu: 4,
         total: 30,
         fourMentsu: [
-          { type: MentsuType.Koutsu, hais: [HaiKind.ManZu9, HaiKind.ManZu9, HaiKind.ManZu9], furo: { type: "Pon", from: "Kamicha" } },
-          { type: MentsuType.Shuntsu, hais: [HaiKind.PinZu4, HaiKind.PinZu5, HaiKind.PinZu6] },
-          { type: MentsuType.Shuntsu, hais: [HaiKind.SouZu4, HaiKind.SouZu5, HaiKind.SouZu6] },
-          { type: MentsuType.Shuntsu, hais: [HaiKind.ManZu4, HaiKind.ManZu5, HaiKind.ManZu6] },
+          {
+            type: MentsuType.Koutsu,
+            hais: [HaiKind.ManZu9, HaiKind.ManZu9, HaiKind.ManZu9],
+            furo: { type: "Pon", from: "Kamicha" },
+          },
+          {
+            type: MentsuType.Shuntsu,
+            hais: [HaiKind.PinZu4, HaiKind.PinZu5, HaiKind.PinZu6],
+          },
+          {
+            type: MentsuType.Shuntsu,
+            hais: [HaiKind.SouZu4, HaiKind.SouZu5, HaiKind.SouZu6],
+          },
+          {
+            type: MentsuType.Shuntsu,
+            hais: [HaiKind.ManZu4, HaiKind.ManZu5, HaiKind.ManZu6],
+          },
         ],
       });
 
-      const result = convertScoreDetailToFuDetails(detail, {
+      const result = convert(detail, {
         agariHai: HaiKind.PinZu4,
         isTsumo: true,
-        bakaze: HaiKind.Ton,
-        jikaze: HaiKind.Nan,
       });
 
       const mentsuEntry = result.find((d) => d.reason.includes("明刻"));
@@ -272,18 +352,33 @@ describe("convertScoreDetailToFuDetails", () => {
         mentsu: 16,
         total: 40,
         fourMentsu: [
-          { type: MentsuType.Kantsu, hais: [HaiKind.ManZu5, HaiKind.ManZu5, HaiKind.ManZu5, HaiKind.ManZu5] },
-          { type: MentsuType.Shuntsu, hais: [HaiKind.PinZu1, HaiKind.PinZu2, HaiKind.PinZu3] },
-          { type: MentsuType.Shuntsu, hais: [HaiKind.SouZu1, HaiKind.SouZu2, HaiKind.SouZu3] },
-          { type: MentsuType.Shuntsu, hais: [HaiKind.ManZu7, HaiKind.ManZu8, HaiKind.ManZu9] },
+          {
+            type: MentsuType.Kantsu,
+            hais: [
+              HaiKind.ManZu5,
+              HaiKind.ManZu5,
+              HaiKind.ManZu5,
+              HaiKind.ManZu5,
+            ],
+          },
+          {
+            type: MentsuType.Shuntsu,
+            hais: [HaiKind.PinZu1, HaiKind.PinZu2, HaiKind.PinZu3],
+          },
+          {
+            type: MentsuType.Shuntsu,
+            hais: [HaiKind.SouZu1, HaiKind.SouZu2, HaiKind.SouZu3],
+          },
+          {
+            type: MentsuType.Shuntsu,
+            hais: [HaiKind.ManZu7, HaiKind.ManZu8, HaiKind.ManZu9],
+          },
         ],
       });
 
-      const result = convertScoreDetailToFuDetails(detail, {
+      const result = convert(detail, {
         agariHai: HaiKind.PinZu1,
         isTsumo: true,
-        bakaze: HaiKind.Ton,
-        jikaze: HaiKind.Nan,
       });
 
       const mentsuEntry = result.find((d) => d.reason.includes("暗槓子"));
@@ -296,18 +391,33 @@ describe("convertScoreDetailToFuDetails", () => {
         mentsu: 32,
         total: 60,
         fourMentsu: [
-          { type: MentsuType.Kantsu, hais: [HaiKind.ManZu1, HaiKind.ManZu1, HaiKind.ManZu1, HaiKind.ManZu1] },
-          { type: MentsuType.Shuntsu, hais: [HaiKind.PinZu4, HaiKind.PinZu5, HaiKind.PinZu6] },
-          { type: MentsuType.Shuntsu, hais: [HaiKind.SouZu4, HaiKind.SouZu5, HaiKind.SouZu6] },
-          { type: MentsuType.Shuntsu, hais: [HaiKind.ManZu4, HaiKind.ManZu5, HaiKind.ManZu6] },
+          {
+            type: MentsuType.Kantsu,
+            hais: [
+              HaiKind.ManZu1,
+              HaiKind.ManZu1,
+              HaiKind.ManZu1,
+              HaiKind.ManZu1,
+            ],
+          },
+          {
+            type: MentsuType.Shuntsu,
+            hais: [HaiKind.PinZu4, HaiKind.PinZu5, HaiKind.PinZu6],
+          },
+          {
+            type: MentsuType.Shuntsu,
+            hais: [HaiKind.SouZu4, HaiKind.SouZu5, HaiKind.SouZu6],
+          },
+          {
+            type: MentsuType.Shuntsu,
+            hais: [HaiKind.ManZu4, HaiKind.ManZu5, HaiKind.ManZu6],
+          },
         ],
       });
 
-      const result = convertScoreDetailToFuDetails(detail, {
+      const result = convert(detail, {
         agariHai: HaiKind.PinZu4,
         isTsumo: true,
-        bakaze: HaiKind.Ton,
-        jikaze: HaiKind.Nan,
       });
 
       const mentsuEntry = result.find((d) => d.reason.includes("暗槓子"));
@@ -320,18 +430,34 @@ describe("convertScoreDetailToFuDetails", () => {
         mentsu: 8,
         total: 30,
         fourMentsu: [
-          { type: MentsuType.Kantsu, hais: [HaiKind.ManZu5, HaiKind.ManZu5, HaiKind.ManZu5, HaiKind.ManZu5], furo: { type: "Daiminkan", from: "Kamicha" } },
-          { type: MentsuType.Shuntsu, hais: [HaiKind.PinZu1, HaiKind.PinZu2, HaiKind.PinZu3] },
-          { type: MentsuType.Shuntsu, hais: [HaiKind.SouZu1, HaiKind.SouZu2, HaiKind.SouZu3] },
-          { type: MentsuType.Shuntsu, hais: [HaiKind.ManZu7, HaiKind.ManZu8, HaiKind.ManZu9] },
+          {
+            type: MentsuType.Kantsu,
+            hais: [
+              HaiKind.ManZu5,
+              HaiKind.ManZu5,
+              HaiKind.ManZu5,
+              HaiKind.ManZu5,
+            ],
+            furo: { type: "Daiminkan", from: "Kamicha" },
+          },
+          {
+            type: MentsuType.Shuntsu,
+            hais: [HaiKind.PinZu1, HaiKind.PinZu2, HaiKind.PinZu3],
+          },
+          {
+            type: MentsuType.Shuntsu,
+            hais: [HaiKind.SouZu1, HaiKind.SouZu2, HaiKind.SouZu3],
+          },
+          {
+            type: MentsuType.Shuntsu,
+            hais: [HaiKind.ManZu7, HaiKind.ManZu8, HaiKind.ManZu9],
+          },
         ],
       });
 
-      const result = convertScoreDetailToFuDetails(detail, {
+      const result = convert(detail, {
         agariHai: HaiKind.PinZu1,
         isTsumo: true,
-        bakaze: HaiKind.Ton,
-        jikaze: HaiKind.Nan,
       });
 
       const mentsuEntry = result.find((d) => d.reason.includes("明槓子"));
@@ -344,16 +470,30 @@ describe("convertScoreDetailToFuDetails", () => {
         mentsu: 16,
         total: 40,
         fourMentsu: [
-          { type: MentsuType.Kantsu, hais: [HaiKind.Ton, HaiKind.Ton, HaiKind.Ton, HaiKind.Ton], furo: { type: "Daiminkan", from: "Kamicha" } },
-          { type: MentsuType.Shuntsu, hais: [HaiKind.PinZu4, HaiKind.PinZu5, HaiKind.PinZu6] },
-          { type: MentsuType.Shuntsu, hais: [HaiKind.SouZu4, HaiKind.SouZu5, HaiKind.SouZu6] },
-          { type: MentsuType.Shuntsu, hais: [HaiKind.ManZu4, HaiKind.ManZu5, HaiKind.ManZu6] },
+          {
+            type: MentsuType.Kantsu,
+            hais: [HaiKind.Ton, HaiKind.Ton, HaiKind.Ton, HaiKind.Ton],
+            furo: { type: "Daiminkan", from: "Kamicha" },
+          },
+          {
+            type: MentsuType.Shuntsu,
+            hais: [HaiKind.PinZu4, HaiKind.PinZu5, HaiKind.PinZu6],
+          },
+          {
+            type: MentsuType.Shuntsu,
+            hais: [HaiKind.SouZu4, HaiKind.SouZu5, HaiKind.SouZu6],
+          },
+          {
+            type: MentsuType.Shuntsu,
+            hais: [HaiKind.ManZu4, HaiKind.ManZu5, HaiKind.ManZu6],
+          },
         ],
       });
 
-      const result = convertScoreDetailToFuDetails(detail, {
+      const result = convert(detail, {
         agariHai: HaiKind.PinZu4,
         isTsumo: true,
+        // 場風・自風のどちらでもない雀頭であることを検証する
         bakaze: HaiKind.Nan,
         jikaze: HaiKind.Sha,
       });
@@ -368,18 +508,28 @@ describe("convertScoreDetailToFuDetails", () => {
         mentsu: 2,
         total: 30,
         fourMentsu: [
-          { type: MentsuType.Koutsu, hais: [HaiKind.ManZu5, HaiKind.ManZu5, HaiKind.ManZu5] },
-          { type: MentsuType.Shuntsu, hais: [HaiKind.PinZu1, HaiKind.PinZu2, HaiKind.PinZu3] },
-          { type: MentsuType.Shuntsu, hais: [HaiKind.SouZu1, HaiKind.SouZu2, HaiKind.SouZu3] },
-          { type: MentsuType.Shuntsu, hais: [HaiKind.ManZu7, HaiKind.ManZu8, HaiKind.ManZu9] },
+          {
+            type: MentsuType.Koutsu,
+            hais: [HaiKind.ManZu5, HaiKind.ManZu5, HaiKind.ManZu5],
+          },
+          {
+            type: MentsuType.Shuntsu,
+            hais: [HaiKind.PinZu1, HaiKind.PinZu2, HaiKind.PinZu3],
+          },
+          {
+            type: MentsuType.Shuntsu,
+            hais: [HaiKind.SouZu1, HaiKind.SouZu2, HaiKind.SouZu3],
+          },
+          {
+            type: MentsuType.Shuntsu,
+            hais: [HaiKind.ManZu7, HaiKind.ManZu8, HaiKind.ManZu9],
+          },
         ],
       });
 
-      const result = convertScoreDetailToFuDetails(detail, {
+      const result = convert(detail, {
         agariHai: HaiKind.ManZu5, // 和了牌が刻子に含まれる → シャンポン待ち → 明刻
         isTsumo: false,
-        bakaze: HaiKind.Ton,
-        jikaze: HaiKind.Nan,
       });
 
       const mentsuEntry = result.find((d) => d.reason.includes("刻"));
@@ -397,11 +547,9 @@ describe("convertScoreDetailToFuDetails", () => {
         jantouHais: [HaiKind.Ton, HaiKind.Ton],
       });
 
-      const result = convertScoreDetailToFuDetails(detail, {
+      const result = convert(detail, {
         agariHai: HaiKind.ManZu1,
         isTsumo: true,
-        bakaze: HaiKind.Ton,
-        jikaze: HaiKind.Nan,
       });
 
       const jantouEntry = result.find((d) => d.reason.includes("雀頭"));
@@ -417,11 +565,9 @@ describe("convertScoreDetailToFuDetails", () => {
         jantouHais: [HaiKind.Nan, HaiKind.Nan],
       });
 
-      const result = convertScoreDetailToFuDetails(detail, {
+      const result = convert(detail, {
         agariHai: HaiKind.ManZu1,
         isTsumo: true,
-        bakaze: HaiKind.Ton,
-        jikaze: HaiKind.Nan,
       });
 
       const jantouEntry = result.find((d) => d.reason.includes("雀頭"));
@@ -436,11 +582,9 @@ describe("convertScoreDetailToFuDetails", () => {
         jantouHais: [HaiKind.Haku, HaiKind.Haku],
       });
 
-      const result = convertScoreDetailToFuDetails(detail, {
+      const result = convert(detail, {
         agariHai: HaiKind.ManZu1,
         isTsumo: true,
-        bakaze: HaiKind.Ton,
-        jikaze: HaiKind.Nan,
       });
 
       const jantouEntry = result.find((d) => d.reason.includes("雀頭"));
@@ -455,10 +599,10 @@ describe("convertScoreDetailToFuDetails", () => {
         jantouHais: [HaiKind.Ton, HaiKind.Ton],
       });
 
-      const result = convertScoreDetailToFuDetails(detail, {
+      const result = convert(detail, {
         agariHai: HaiKind.ManZu1,
         isTsumo: true,
-        bakaze: HaiKind.Ton,
+        // 連風牌（場風＝自風）の雀頭を検証する
         jikaze: HaiKind.Ton,
       });
 
@@ -471,11 +615,9 @@ describe("convertScoreDetailToFuDetails", () => {
     it("雀頭符が0の場合は含まれない", () => {
       const detail = makeMentsuDetail({ jantou: 0, total: 30 });
 
-      const result = convertScoreDetailToFuDetails(detail, {
+      const result = convert(detail, {
         agariHai: HaiKind.ManZu1,
         isTsumo: true,
-        bakaze: HaiKind.Ton,
-        jikaze: HaiKind.Nan,
       });
 
       expect(result.find((d) => d.reason.includes("雀頭"))).toBeUndefined();
@@ -484,13 +626,15 @@ describe("convertScoreDetailToFuDetails", () => {
 
   describe("待ち符", () => {
     it("単騎待ちは2符", () => {
-      const detail = makeMentsuDetail({ machi: 2, total: 30, machiType: "Tanki" });
+      const detail = makeMentsuDetail({
+        machi: 2,
+        total: 30,
+        machiType: "Tanki",
+      });
 
-      const result = convertScoreDetailToFuDetails(detail, {
+      const result = convert(detail, {
         agariHai: HaiKind.ManZu1,
         isTsumo: true,
-        bakaze: HaiKind.Ton,
-        jikaze: HaiKind.Nan,
       });
 
       const machiEntry = result.find((d) => d.reason.includes("待ち"));
@@ -500,13 +644,15 @@ describe("convertScoreDetailToFuDetails", () => {
     });
 
     it("嵌張待ちは2符", () => {
-      const detail = makeMentsuDetail({ machi: 2, total: 30, machiType: "Kanchan" });
+      const detail = makeMentsuDetail({
+        machi: 2,
+        total: 30,
+        machiType: "Kanchan",
+      });
 
-      const result = convertScoreDetailToFuDetails(detail, {
+      const result = convert(detail, {
         agariHai: HaiKind.ManZu2,
         isTsumo: true,
-        bakaze: HaiKind.Ton,
-        jikaze: HaiKind.Nan,
       });
 
       const machiEntry = result.find((d) => d.reason.includes("待ち"));
@@ -515,13 +661,15 @@ describe("convertScoreDetailToFuDetails", () => {
     });
 
     it("辺張待ちは2符", () => {
-      const detail = makeMentsuDetail({ machi: 2, total: 30, machiType: "Penchan" });
+      const detail = makeMentsuDetail({
+        machi: 2,
+        total: 30,
+        machiType: "Penchan",
+      });
 
-      const result = convertScoreDetailToFuDetails(detail, {
+      const result = convert(detail, {
         agariHai: HaiKind.ManZu3,
         isTsumo: true,
-        bakaze: HaiKind.Ton,
-        jikaze: HaiKind.Nan,
       });
 
       const machiEntry = result.find((d) => d.reason.includes("待ち"));
@@ -532,11 +680,9 @@ describe("convertScoreDetailToFuDetails", () => {
     it("待ち符が0の場合は含まれない", () => {
       const detail = makeMentsuDetail({ machi: 0, total: 30 });
 
-      const result = convertScoreDetailToFuDetails(detail, {
+      const result = convert(detail, {
         agariHai: HaiKind.ManZu1,
         isTsumo: true,
-        bakaze: HaiKind.Ton,
-        jikaze: HaiKind.Nan,
       });
 
       expect(result.find((d) => d.reason.includes("待ち"))).toBeUndefined();
@@ -554,11 +700,9 @@ describe("convertScoreDetailToFuDetails", () => {
         total: 30,
       });
 
-      const result = convertScoreDetailToFuDetails(detail, {
+      const result = convert(detail, {
         agariHai: HaiKind.ManZu4,
         isTsumo: false,
-        bakaze: HaiKind.Ton,
-        jikaze: HaiKind.Nan,
       });
 
       const tokureiEntry = result.find((d) => d.reason === "特例等の加符");
