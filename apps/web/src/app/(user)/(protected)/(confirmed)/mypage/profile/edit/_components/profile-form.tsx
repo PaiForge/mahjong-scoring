@@ -1,6 +1,10 @@
 "use client";
 
 import { type FormEvent, useState } from "react";
+import {
+  PROFILE_INPUT_CLASS,
+  ProfileTextField,
+} from "@/app/(user)/(protected)/_components/profile-text-field";
 
 import { useTranslations } from "next-intl";
 import Link from "next/link";
@@ -11,9 +15,6 @@ import { SectionTitle } from "@/app/_components/section-title";
 
 import { updateProfile } from "../_actions/update-profile";
 import { PROFILE_LIMITS } from "../_lib/profile-validation";
-
-const inputClassName =
-  "w-full rounded-lg border border-surface-300 bg-white px-3 py-2 text-sm text-surface-800 placeholder:text-surface-400 focus:border-green-500 focus:ring-1 focus:ring-green-500 focus:outline-none";
 
 /** action が返す既知のエラーキー（profileEdit 名前空間に対応する文言がある） */
 const KNOWN_ERROR_KEYS = new Set([
@@ -93,27 +94,15 @@ export function ProfileForm({
       <section className="space-y-4">
         <SectionTitle>{t("basicSectionTitle")}</SectionTitle>
 
-        <div>
-          <label
-            htmlFor="displayName"
-            className="mb-1 block text-sm font-medium text-surface-800"
-          >
-            {t("displayNameLabel")}
-          </label>
-          <p className="mb-2 text-xs text-surface-500">
-            {t("displayNameDescription")}
-          </p>
-          <input
-            id="displayName"
-            type="text"
-            value={displayName}
-            onChange={(e) => setDisplayName(e.target.value)}
-            placeholder={t("displayNamePlaceholder")}
-            maxLength={PROFILE_LIMITS.displayName}
-            autoComplete="off"
-            className={inputClassName}
-          />
-        </div>
+        <ProfileTextField
+          id="displayName"
+          label={t("displayNameLabel")}
+          description={t("displayNameDescription")}
+          value={displayName}
+          onChange={setDisplayName}
+          placeholder={t("displayNamePlaceholder")}
+          maxLength={PROFILE_LIMITS.displayName}
+        />
 
         <div>
           <label
@@ -129,7 +118,7 @@ export function ProfileForm({
             placeholder={t("bioPlaceholder")}
             maxLength={PROFILE_LIMITS.bio}
             rows={4}
-            className={inputClassName}
+            className={PROFILE_INPUT_CLASS}
           />
           <p className="mt-1 text-right text-xs text-surface-400">
             {t("bioCounter", { count: bio.length, max: PROFILE_LIMITS.bio })}
@@ -140,62 +129,32 @@ export function ProfileForm({
       <section className="space-y-4">
         <SectionTitle>{t("snsSectionTitle")}</SectionTitle>
 
-        <div>
-          <label
-            htmlFor="xUsername"
-            className="mb-1 block text-sm font-medium text-surface-800"
-          >
-            {t("xLabel")}
-          </label>
-          <input
-            id="xUsername"
-            type="text"
-            value={xUsername}
-            onChange={(e) => setXUsername(e.target.value)}
-            placeholder={t("xPlaceholder")}
-            maxLength={PROFILE_LIMITS.xUsername + 1}
-            autoComplete="off"
-            className={inputClassName}
-          />
-        </div>
+        <ProfileTextField
+          id="xUsername"
+          label={t("xLabel")}
+          value={xUsername}
+          onChange={setXUsername}
+          placeholder={t("xPlaceholder")}
+          maxLength={PROFILE_LIMITS.xUsername + 1}
+        />
 
-        <div>
-          <label
-            htmlFor="instagramUsername"
-            className="mb-1 block text-sm font-medium text-surface-800"
-          >
-            {t("instagramLabel")}
-          </label>
-          <input
-            id="instagramUsername"
-            type="text"
-            value={instagramUsername}
-            onChange={(e) => setInstagramUsername(e.target.value)}
-            placeholder={t("instagramPlaceholder")}
-            maxLength={PROFILE_LIMITS.instagramUsername + 1}
-            autoComplete="off"
-            className={inputClassName}
-          />
-        </div>
+        <ProfileTextField
+          id="instagramUsername"
+          label={t("instagramLabel")}
+          value={instagramUsername}
+          onChange={setInstagramUsername}
+          placeholder={t("instagramPlaceholder")}
+          maxLength={PROFILE_LIMITS.instagramUsername + 1}
+        />
 
-        <div>
-          <label
-            htmlFor="youtubeHandle"
-            className="mb-1 block text-sm font-medium text-surface-800"
-          >
-            {t("youtubeLabel")}
-          </label>
-          <input
-            id="youtubeHandle"
-            type="text"
-            value={youtubeHandle}
-            onChange={(e) => setYoutubeHandle(e.target.value)}
-            placeholder={t("youtubePlaceholder")}
-            maxLength={PROFILE_LIMITS.youtubeHandle + 1}
-            autoComplete="off"
-            className={inputClassName}
-          />
-        </div>
+        <ProfileTextField
+          id="youtubeHandle"
+          label={t("youtubeLabel")}
+          value={youtubeHandle}
+          onChange={setYoutubeHandle}
+          placeholder={t("youtubePlaceholder")}
+          maxLength={PROFILE_LIMITS.youtubeHandle + 1}
+        />
       </section>
 
       {error && <p className="text-sm text-red-500">{error}</p>}
