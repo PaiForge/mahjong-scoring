@@ -1,9 +1,9 @@
-'use server';
+"use server";
 
-import { isPracticeMenuType } from '@/lib/db/practice-menu-types';
-import type { PracticeMenuType } from '@/lib/db/practice-menu-types';
-import { saveChallengeResult } from '@/lib/db/save-challenge-result';
-import { createClient } from '@/lib/supabase/server';
+import { getOptionalVerifiedUser } from "@/lib/auth";
+import { isPracticeMenuType } from "@/lib/db/practice-menu-types";
+import type { PracticeMenuType } from "@/lib/db/practice-menu-types";
+import { saveChallengeResult } from "@/lib/db/save-challenge-result";
 
 /**
  * `savePracticeResult` の戻り値
@@ -16,10 +16,10 @@ import { createClient } from '@/lib/supabase/server';
  */
 export type SaveResultResponse =
   | { readonly success: true; readonly challengeResultId: string }
-  | { readonly success: true; readonly skipped: 'anonymous' }
+  | { readonly success: true; readonly skipped: "anonymous" }
   | { readonly success: false; readonly error: string };
 
-const ALLOWED_LEADERBOARD_KEYS: ReadonlySet<string> = new Set(['default']);
+const ALLOWED_LEADERBOARD_KEYS: ReadonlySet<string> = new Set(["default"]);
 
 export interface ChallengeFields {
   readonly score: number;
@@ -41,10 +41,7 @@ export async function savePracticeResult(
   challengeFields: ChallengeFields,
 ): Promise<SaveResultResponse> {
   try {
-    const supabase = await createClient();
-    const {
-      data: { user },
-    } = await supabase.auth.getUser();
+    const user = await getOptionalVerifiedUser();
 
     // 未ログインユーザーはエラーではなく「静かにスキップ」を返す。
     // これによりクライアント側で事前の認証チェックが不要になり、
@@ -52,17 +49,19 @@ export async function savePracticeResult(
     // バグクラスを根絶する。Server の cookie ベース Supabase クライアントが
     // 唯一の信頼できる認証ソース。
     if (!user) {
-      return { success: true, skipped: 'anonymous' };
+      return { success: true, skipped: "anonymous" };
     }
 
     if (!isPracticeMenuType(menuType)) {
       console.warn(`[savePracticeResult] invalid menuType: ${menuType}`);
-      return { success: false, error: 'invalid_menu_type' };
+      return { success: false, error: "invalid_menu_type" };
     }
 
     if (!ALLOWED_LEADERBOARD_KEYS.has(leaderboardKey)) {
-      console.warn(`[savePracticeResult] invalid leaderboardKey: ${leaderboardKey}`);
-      return { success: false, error: 'invalid_leaderboard_key' };
+      console.warn(
+        `[savePracticeResult] invalid leaderboardKey: ${leaderboardKey}`,
+      );
+      return { success: false, error: "invalid_leaderboard_key" };
     }
 
     const { challengeResultId } = await saveChallengeResult({
@@ -80,6 +79,6 @@ export async function savePracticeResult(
       `[savePracticeResult] ${menuType}: unexpected error during save:`,
       error instanceof Error ? error.message : String(error),
     );
-    return { success: false, error: 'unexpected_error' };
+    return { success: false, error: "unexpected_error" };
   }
 }

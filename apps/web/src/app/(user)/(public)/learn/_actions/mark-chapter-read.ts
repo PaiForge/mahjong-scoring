@@ -1,12 +1,12 @@
-'use server';
+"use server";
 
-import { revalidatePath } from 'next/cache';
+import { revalidatePath } from "next/cache";
 
-import { db } from '@/lib/db';
-import { learnChapterReads } from '@/lib/db/schema';
-import { createClient } from '@/lib/supabase/server';
+import { getOptionalVerifiedUser } from "@/lib/auth";
+import { db } from "@/lib/db";
+import { learnChapterReads } from "@/lib/db/schema";
 
-import { isCurriculumChapterSlug } from '../_lib/curriculum';
+import { isCurriculumChapterSlug } from "../_lib/curriculum";
 
 /**
  * 読了マーク系 Server Action の戻り値
@@ -22,8 +22,8 @@ import { isCurriculumChapterSlug } from '../_lib/curriculum';
  */
 export type MarkActionResult =
   | { readonly success: true }
-  | { readonly success: true; readonly skipped: 'anonymous' }
-  | { readonly success: false; readonly error: 'invalid-slug' };
+  | { readonly success: true; readonly skipped: "anonymous" }
+  | { readonly success: false; readonly error: "invalid-slug" };
 
 /**
  * 指定章を読了済みとしてマークする Server Action。
@@ -37,15 +37,12 @@ export type MarkActionResult =
  */
 export async function markChapterRead(slug: string): Promise<MarkActionResult> {
   if (!isCurriculumChapterSlug(slug)) {
-    return { success: false, error: 'invalid-slug' };
+    return { success: false, error: "invalid-slug" };
   }
 
-  const supabase = await createClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
+  const user = await getOptionalVerifiedUser();
   if (!user) {
-    return { success: true, skipped: 'anonymous' };
+    return { success: true, skipped: "anonymous" };
   }
 
   await db
@@ -53,7 +50,7 @@ export async function markChapterRead(slug: string): Promise<MarkActionResult> {
     .values({ userId: user.id, chapterSlug: slug })
     .onConflictDoNothing();
 
-  revalidatePath('/learn');
+  revalidatePath("/learn");
   revalidatePath(`/learn/${slug}`);
   return { success: true };
 }

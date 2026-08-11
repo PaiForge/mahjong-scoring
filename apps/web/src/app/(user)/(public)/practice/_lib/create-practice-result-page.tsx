@@ -8,7 +8,7 @@ import type {
 } from "@/app/(user)/(public)/leaderboard/_lib/types";
 import { buildDetailPath } from "@/app/(user)/(public)/leaderboard/_lib/types";
 import { getExpInfoByChallengeResultId } from "@/lib/db/save-exp";
-import { createClient } from "@/lib/supabase/server";
+import { getOptionalUser } from "@/lib/auth";
 
 import { ExpGainDisplay } from "../_components/exp-gain-display";
 import { LeaderboardPreview } from "../_components/leaderboard-preview";
@@ -202,12 +202,7 @@ async function AsyncLeaderboardBlock({
 
 async function resolveCurrentUser() {
   try {
-    const supabase = await createClient();
-    const {
-      data: { user },
-    } = await supabase.auth.getUser();
-    // Supabase API は null を返すが、プロジェクト規約に合わせ undefined に正規化する
-    return user ?? undefined;
+    return await getOptionalUser();
   } catch (error) {
     console.error("[createPracticeResultPage] failed to resolve user:", error);
     return undefined;
