@@ -1,4 +1,5 @@
 import { describe, expect, it } from "vitest";
+import { makeScoreQuestionResult } from "./score-question-result.fixture";
 
 import type { ScoreQuestionResult } from "../score-question-result";
 import { buildReferenceUrl } from "../build-reference-url";
@@ -17,21 +18,6 @@ function extractParams(url: string) {
     winType: params.get("winType"),
     han: params.get("han"),
     fu: params.get("fu"),
-  };
-}
-
-function makeResult(
-  overrides: Partial<ScoreQuestionResult> = {},
-): ScoreQuestionResult {
-  return {
-    isOya: false,
-    isTsumo: false,
-    han: 1,
-    fu: 30,
-    correctAnswer: { type: "ron", score: 1000 },
-    userAnswer: { type: "ron", score: 1000 },
-    isCorrect: true,
-    ...overrides,
   };
 }
 
@@ -70,7 +56,7 @@ describe("buildReferenceUrl → ScoreTable highlight roundtrip", () => {
 
   for (const { name, input, expectedCellId } of cases) {
     it(`${name} のURL → ハイライトセルIDが一致する`, () => {
-      const url = buildReferenceUrl(makeResult(input));
+      const url = buildReferenceUrl(makeScoreQuestionResult(input));
       const params = extractParams(url);
       const cellId = buildHighlightCellId(params);
       expect(cellId).toBe(expectedCellId);

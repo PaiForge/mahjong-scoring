@@ -1,6 +1,5 @@
-import { db, moderationActions } from "../../../../lib/db";
-
-type TransactionClient = Parameters<Parameters<typeof db.transaction>[0]>[0];
+import { moderationActions } from "../../../../lib/db";
+import type { TransactionClient } from "@/lib/db";
 
 /** モデレーション操作の記録内容 */
 interface ModerationActionRecord {

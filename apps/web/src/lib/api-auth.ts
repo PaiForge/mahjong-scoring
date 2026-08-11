@@ -1,4 +1,5 @@
 import type { User } from "@supabase/supabase-js";
+import type { SupabaseServerClient } from "./supabase/server";
 import { NextResponse } from "next/server";
 
 import { getClientIp } from "./client-ip";
@@ -8,8 +9,6 @@ import {
   type IpRateLimitConfig,
 } from "./rate-limit-ip";
 import { createClient } from "./supabase/server";
-
-type SupabaseServerClient = Awaited<ReturnType<typeof createClient>>;
 
 type AuthorizeResult =
   | {
