@@ -9,6 +9,8 @@ import type {
 } from "@mahjong-scoring/core";
 import { isMangan, getScoreLevelName } from "@mahjong-scoring/core";
 import { practiceHanTier } from "../_lib/han-tiers";
+import { formatScoreAnswer } from "../../_lib/format-score-answer";
+import { paymentToScoreTableAnswer } from "../../_lib/payment-adapter";
 import { DetailsAccordion } from "./details-accordion";
 import type { DetailItem } from "./details-accordion";
 
@@ -54,19 +56,13 @@ export function ResultDisplay({
   const fuDetailItems: readonly DetailItem[] =
     question.fuDetails?.map((d) => ({ name: d.reason, value: d.fu })) ?? [];
 
-  const getPaymentDescription = () => {
-    const { payment } = answer;
-    if (payment.type === "ron") {
-      return `${payment.amount}${t("form.labels.score")}`;
-    }
-    if (payment.type === "koTsumo") {
-      return `${payment.amount[0]}/${payment.amount[1]}`;
-    }
-    if (payment.type === "oyaTsumo") {
-      return `${payment.amount}${t("form.options.all")}`;
-    }
-    return "";
-  };
+  // 正解の支払いは共通の整形関数に寄せる（"オール" 等の表記を1箇所で管理）。
+  // ロンにはユーザー回答セルと同じ「点」を付ける。
+  const paymentDescription = formatScoreAnswer(
+    paymentToScoreTableAnswer(answer.payment),
+    (key) => t(`form.options.${key}`),
+    { ronSuffix: t("result.pointSuffix") },
+  );
 
   const getHanDisplay = (hanValue: number, levelName?: string) => {
     const tier = simplifyMangan ? practiceHanTier(hanValue) : undefined;
@@ -218,7 +214,7 @@ export function ResultDisplay({
                 {result.isScoreCorrect ? "\u2713" : "\u2717"}
               </td>
               <td className="py-2 font-bold text-surface-800">
-                {getPaymentDescription()}
+                {paymentDescription}
               </td>
             </tr>
           </tbody>

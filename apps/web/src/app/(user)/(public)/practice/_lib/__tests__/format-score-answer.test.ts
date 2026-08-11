@@ -57,4 +57,36 @@ describe("formatScoreAnswer", () => {
     const answer: ScoreTableAnswer = { type: "oyaTsumo", scoreAll: 4000 };
     expect(formatScoreAnswer(answer, customT)).toBe("4000ALL");
   });
+
+  describe("ronSuffix", () => {
+    it("ロンにのみ接尾辞を付ける", () => {
+      const answer: ScoreTableAnswer = { type: "ron", score: 8000 };
+      expect(formatScoreAnswer(answer, mockT, { ronSuffix: "点" })).toBe(
+        "8000点",
+      );
+    });
+
+    it("親ツモには付けない（オール表記が単位を兼ねるため）", () => {
+      const answer: ScoreTableAnswer = { type: "oyaTsumo", scoreAll: 4000 };
+      expect(formatScoreAnswer(answer, mockT, { ronSuffix: "点" })).toBe(
+        "4000オール",
+      );
+    });
+
+    it("子ツモには付けない", () => {
+      const answer: ScoreTableAnswer = {
+        type: "koTsumo",
+        scoreFromKo: 2000,
+        scoreFromOya: 4000,
+      };
+      expect(formatScoreAnswer(answer, mockT, { ronSuffix: "点" })).toBe(
+        "2000/4000",
+      );
+    });
+
+    it("未指定なら従来どおり接尾辞なし", () => {
+      const answer: ScoreTableAnswer = { type: "ron", score: 8000 };
+      expect(formatScoreAnswer(answer, mockT)).toBe("8000");
+    });
+  });
 });
