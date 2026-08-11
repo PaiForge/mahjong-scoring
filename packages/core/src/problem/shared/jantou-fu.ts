@@ -13,6 +13,32 @@ export interface JantouFuResult {
   readonly explanation: string;
 }
 
+/** 雀頭が役牌である理由 */
+export type JantouFuReason = "場風" | "自風" | "三元牌";
+
+/**
+ * 雀頭が役牌である理由を列挙する（役牌でなければ空配列）
+ * 雀頭役牌理由
+ *
+ * 「その雀頭が符を持つか」の判定はこの関数が唯一の定義。符の値と
+ * 表示ラベルの組み立ては呼び出し側の責務。
+ *
+ * @param tile - 雀頭の牌種ID
+ * @param bakaze - 場風
+ * @param jikaze - 自風
+ */
+export function jantouFuReasons(
+  tile: HaiKindId,
+  bakaze: Kazehai,
+  jikaze: Kazehai,
+): readonly JantouFuReason[] {
+  const reasons: JantouFuReason[] = [];
+  if (tile === bakaze) reasons.push("場風");
+  if (tile === jikaze) reasons.push("自風");
+  if (tile >= HaiKind.Haku && tile <= HaiKind.Chun) reasons.push("三元牌");
+  return reasons;
+}
+
 /**
  * 雀頭の符を計算する
  * 三元牌: 2符、場風: 2符、自風: 2符
@@ -31,21 +57,15 @@ export function calculateJantouFu(
   jikaze: Kazehai,
   renfonpaiAs4Fu = false,
 ): JantouFuResult {
-  if (tile >= HaiKind.Haku && tile <= HaiKind.Chun) {
-    return { fu: 2, explanation: "役牌雀頭（三元牌）" };
+  const reasons = jantouFuReasons(tile, bakaze, jikaze);
+
+  if (reasons.length === 0) {
+    return { fu: 0, explanation: "数牌またはオタ風の雀頭" };
   }
 
-  const reasons: string[] = [];
-  if (tile === bakaze) reasons.push("場風");
-  if (tile === jikaze) reasons.push("自風");
+  // 場風かつ自風＝連風牌。ルールにより4符または2符（既定2符）。
+  const isRenfonpai = reasons.includes("場風") && reasons.includes("自風");
+  const fu = isRenfonpai && renfonpaiAs4Fu ? 4 : 2;
 
-  if (reasons.length > 0) {
-    // reasons.length === 2 は場風かつ自風＝連風牌。
-    // 連風牌はルールにより4符または2符（既定2符）。
-    const isRenfonpai = reasons.length === 2;
-    const fu = isRenfonpai && renfonpaiAs4Fu ? 4 : 2;
-    return { fu, explanation: `役牌雀頭（${reasons.join("・")}）` };
-  }
-
-  return { fu: 0, explanation: "数牌またはオタ風の雀頭" };
+  return { fu, explanation: `役牌雀頭（${reasons.join("・")}）` };
 }
