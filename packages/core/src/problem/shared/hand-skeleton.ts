@@ -1,4 +1,10 @@
-import { MentsuType, type HaiKindId } from "@pai-forge/riichi-mahjong";
+import {
+  MentsuType,
+  validateTehai14,
+  type CompletedMentsu,
+  type HaiKindId,
+  type Tehai14,
+} from "@pai-forge/riichi-mahjong";
 import { randomHaiKindId } from "./tile-random";
 import type { HaiUsageTracker } from "../../core/hai-tracker";
 import {
@@ -9,6 +15,60 @@ import {
 
 /** 面子・雀頭生成のリトライ上限 */
 const MAX_RETRY = 50;
+
+/**
+ * その面子が副露側（手牌の右に晒される）かどうか
+ * 副露判定
+ *
+ * 鳴いた面子と槓子は晒される。暗槓も4枚を並べて見せるため exposed 扱い。
+ * 手牌構築でこの区分を判断する唯一の定義。
+ */
+export function isExposedMentsu(mentsu: CompletedMentsu): boolean {
+  return !!mentsu.furo || mentsu.type === MentsuType.Kantsu;
+}
+
+/**
+ * 暗牌を理牌して Tehai14 として検証する（不正な手牌は undefined）
+ * 手牌確定
+ *
+ * @param closed - 暗牌（雀頭を含む）。この関数内でコピーしてソートする
+ * @param exposed - 副露・槓子
+ */
+export function finalizeTehai14(
+  closed: readonly HaiKindId[],
+  exposed: readonly CompletedMentsu[],
+): Tehai14 | undefined {
+  const sorted = [...closed].sort((a, b) => a - b);
+  const result = validateTehai14({ closed: sorted, exposed: [...exposed] });
+  return result.isErr() ? undefined : result.value;
+}
+
+/**
+ * 面子リストと雀頭から Tehai14 を組み立てる（不正な手牌は undefined）
+ * 手牌構築
+ *
+ * 副露・槓子を exposed、残りと雀頭を closed に振り分けて確定する。
+ *
+ * @param mentsuList - 生成済みの面子（雀頭は含まない）
+ * @param pairTile - 雀頭の牌種
+ */
+export function buildTehai14(
+  mentsuList: readonly MentsuResult[],
+  pairTile: HaiKindId,
+): Tehai14 | undefined {
+  const closed: HaiKindId[] = [pairTile, pairTile];
+  const exposed: CompletedMentsu[] = [];
+
+  for (const { mentsu } of mentsuList) {
+    if (isExposedMentsu(mentsu)) {
+      exposed.push(mentsu);
+    } else {
+      closed.push(...mentsu.hais);
+    }
+  }
+
+  return finalizeTehai14(closed, exposed);
+}
 
 /**
  * トラッカーで使用可能性を確認しながら、重み付きランダム面子を count 個生成する
