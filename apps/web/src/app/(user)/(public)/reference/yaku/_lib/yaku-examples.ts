@@ -75,6 +75,8 @@ export const YAKU_EXAMPLES: Readonly<Record<string, readonly YakuExample[]>> = {
   大三元: [{ mspz: "234m555z666z777z11p" }],
   字一色: [{ mspz: "111z222z333z444z55z" }],
   小四喜: [{ mspz: "234m111z222z333z44z" }],
+  // 雀頭を数牌にして字一色との複合を避けた形
+  大四喜: [{ mspz: "111z222z333z444z11m" }],
   清老頭: [{ mspz: "111m999m111p999p11s" }],
   緑一色: [{ mspz: "234s234s666s888s66z" }],
   四槓子: [{ mspz: "55z(1111m)(2222p)(3333s)(4444z)" }],

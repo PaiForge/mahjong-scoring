@@ -59,6 +59,7 @@ export const YAKU_HAN_ENTRIES: readonly YakuHanEntry[] = [
   { name: "大三元", menzenHan: YAKUMAN_HAN, nakiHan: YAKUMAN_HAN },
   { name: "字一色", menzenHan: YAKUMAN_HAN, nakiHan: YAKUMAN_HAN },
   { name: "小四喜", menzenHan: YAKUMAN_HAN, nakiHan: YAKUMAN_HAN },
+  { name: "大四喜", menzenHan: YAKUMAN_HAN, nakiHan: YAKUMAN_HAN },
   { name: "清老頭", menzenHan: YAKUMAN_HAN, nakiHan: YAKUMAN_HAN },
   { name: "緑一色", menzenHan: YAKUMAN_HAN, nakiHan: YAKUMAN_HAN },
   { name: "四槓子", menzenHan: YAKUMAN_HAN, nakiHan: YAKUMAN_HAN },
