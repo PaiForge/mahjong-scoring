@@ -36,10 +36,7 @@ vi.mock("../../../../lib/db", async () => {
   };
 });
 
-// Mock drizzle-orm eq function
-vi.mock("drizzle-orm", () => ({
-  eq: vi.fn((column: unknown, value: unknown) => ({ column, value })),
-}));
+vi.mock("drizzle-orm", async () => await import("@/test/drizzle-orm-mock"));
 
 import { requireAdmin, requireAdminPage } from "../auth";
 

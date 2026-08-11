@@ -1,10 +1,31 @@
 import { describe, it, expect } from "vitest";
 import { generateScoreTableQuestion } from "./generator";
+import type { ScoreTableGeneratorOptions, ScoreTableQuestion } from "./types";
 import {
   calculateKoScore,
   calculateOyaScore,
   isInvalidCell,
 } from "../../core/score-calculation";
+
+/**
+ * 条件に合う問題が生成されるまで試行する
+ *
+ * 親子・ツモロンはランダムに決まるため、特定の組み合わせを検証するには
+ * 引き当てるまで試す必要がある。見つからなければ失敗させる
+ * （以前は console.warn して return していたため、生成されないと
+ * テストが無言で pass していた）。
+ */
+function findQuestion(
+  options: Readonly<ScoreTableGeneratorOptions>,
+  predicate: (question: ScoreTableQuestion) => boolean,
+  attempts = 200,
+): ScoreTableQuestion {
+  for (let i = 0; i < attempts; i++) {
+    const question = generateScoreTableQuestion(options);
+    if (predicate(question)) return question;
+  }
+  throw new Error(`${attempts} 回試行しても条件に合う問題が生成されなかった`);
+}
 
 describe("generateScoreTableQuestion", () => {
   describe("デフォルトオプションでの問題生成", () => {
@@ -98,75 +119,56 @@ describe("generateScoreTableQuestion", () => {
 
   describe("正解が正しく算出されること", () => {
     it("子ロンの正解が calculateKoScore の結果と一致すること", () => {
-      for (let i = 0; i < 200; i++) {
-        const question = generateScoreTableQuestion();
-        if (!question.isOya && !question.isTsumo && question.fu !== undefined) {
-          const expected = calculateKoScore(question.han, question.fu);
-          expect(question.correctAnswer.type).toBe("ron");
-          if (question.correctAnswer.type === "ron") {
-            expect(question.correctAnswer.score).toBe(expected.ron);
-          }
-          return;
-        }
-      }
-      // 確率的テスト: 200回で見つからなければスキップ
-      console.warn("子ロンの問題が生成されなかったためスキップ");
+      const question = findQuestion(
+        {},
+        (q) => !q.isOya && !q.isTsumo && q.fu !== undefined,
+      );
+      const expected = calculateKoScore(question.han, question.fu!);
+
+      expect(question.correctAnswer).toEqual({
+        type: "ron",
+        score: expected.ron,
+      });
     });
 
     it("親ロンの正解が calculateOyaScore の結果と一致すること", () => {
-      for (let i = 0; i < 200; i++) {
-        const question = generateScoreTableQuestion();
-        if (question.isOya && !question.isTsumo && question.fu !== undefined) {
-          const expected = calculateOyaScore(question.han, question.fu);
-          expect(question.correctAnswer.type).toBe("ron");
-          if (question.correctAnswer.type === "ron") {
-            expect(question.correctAnswer.score).toBe(expected.ron);
-          }
-          return;
-        }
-      }
-      console.warn("親ロンの問題が生成されなかったためスキップ");
+      const question = findQuestion(
+        {},
+        (q) => q.isOya && !q.isTsumo && q.fu !== undefined,
+      );
+      const expected = calculateOyaScore(question.han, question.fu!);
+
+      expect(question.correctAnswer).toEqual({
+        type: "ron",
+        score: expected.ron,
+      });
     });
 
     it("子ツモの正解が calculateKoScore の結果と一致すること", () => {
-      for (let i = 0; i < 200; i++) {
-        const question = generateScoreTableQuestion();
-        if (!question.isOya && question.isTsumo && question.fu !== undefined) {
-          const expected = calculateKoScore(question.han, question.fu);
-          expect(question.correctAnswer.type).toBe("koTsumo");
-          if (
-            question.correctAnswer.type === "koTsumo" &&
-            expected.tsumo.type === "koTsumo"
-          ) {
-            expect(question.correctAnswer.scoreFromKo).toBe(
-              expected.tsumo.fromKo,
-            );
-            expect(question.correctAnswer.scoreFromOya).toBe(
-              expected.tsumo.fromOya,
-            );
-          }
-          return;
-        }
-      }
-      console.warn("子ツモの問題が生成されなかったためスキップ");
+      const question = findQuestion(
+        {},
+        (q) => !q.isOya && q.isTsumo && q.fu !== undefined,
+      );
+      const expected = calculateKoScore(question.han, question.fu!);
+
+      expect(question.correctAnswer).toEqual({
+        type: "koTsumo",
+        scoreFromKo: (expected.tsumo as { fromKo: number }).fromKo,
+        scoreFromOya: (expected.tsumo as { fromOya: number }).fromOya,
+      });
     });
 
     it("親ツモの正解が calculateOyaScore の結果と一致すること", () => {
-      for (let i = 0; i < 200; i++) {
-        const question = generateScoreTableQuestion();
-        if (question.isOya && question.isTsumo && question.fu !== undefined) {
-          const expected = calculateOyaScore(question.han, question.fu);
-          expect(question.correctAnswer.type).toBe("oyaTsumo");
-          if (
-            question.correctAnswer.type === "oyaTsumo" &&
-            expected.tsumo.type === "oyaTsumo"
-          ) {
-            expect(question.correctAnswer.scoreAll).toBe(expected.tsumo.all);
-          }
-          return;
-        }
-      }
-      console.warn("親ツモの問題が生成されなかったためスキップ");
+      const question = findQuestion(
+        {},
+        (q) => q.isOya && q.isTsumo && q.fu !== undefined,
+      );
+      const expected = calculateOyaScore(question.han, question.fu!);
+
+      expect(question.correctAnswer).toEqual({
+        type: "oyaTsumo",
+        scoreAll: (expected.tsumo as { all: number }).all,
+      });
     });
   });
 
@@ -200,163 +202,53 @@ describe("generateScoreTableQuestion", () => {
     });
   });
 
-  describe("境界値: 3翻60符（満貫未満の最高符）", () => {
-    // 3翻60符: base = 60 * 2^5 = 1920 < 2000 なので満貫にはならない
-    it("子ロン: 7700 点であること", () => {
-      for (let i = 0; i < 100; i++) {
-        const question = generateScoreTableQuestion({
-          minHan: 3,
-          maxHan: 3,
-          minFu: 60,
-          maxFu: 60,
-        });
-        if (!question.isOya && !question.isTsumo) {
-          expect(question.correctAnswer.type).toBe("ron");
-          if (question.correctAnswer.type === "ron") {
-            expect(question.correctAnswer.score).toBe(7700);
-          }
-          return;
-        }
-      }
-      console.warn("3翻60符の子ロンが生成されなかったためスキップ");
+  describe.each([
+    {
+      label: "3翻60符（満貫未満の最高符）",
+      // base = 60 * 2^5 = 1920 < 2000 なので満貫にはならない
+      fu: 60,
+      koRon: 7700,
+      oyaRon: 11600,
+      koTsumo: [2000, 3900] as const,
+      oyaTsumoAll: 3900,
+    },
+    {
+      label: "3翻70符（満貫になるケース）",
+      // base = 70 * 2^5 = 2240 >= 2000 なので満貫
+      fu: 70,
+      koRon: 8000,
+      oyaRon: 12000,
+      koTsumo: [2000, 4000] as const,
+      oyaTsumoAll: 4000,
+    },
+  ])("境界値: $label", ({ fu, koRon, oyaRon, koTsumo, oyaTsumoAll }) => {
+    const options = { minHan: 3, maxHan: 3, minFu: fu, maxFu: fu };
+
+    it("子ロン", () => {
+      const question = findQuestion(options, (q) => !q.isOya && !q.isTsumo);
+      expect(question.correctAnswer).toEqual({ type: "ron", score: koRon });
     });
 
-    it("親ロン: 11600 点であること", () => {
-      for (let i = 0; i < 100; i++) {
-        const question = generateScoreTableQuestion({
-          minHan: 3,
-          maxHan: 3,
-          minFu: 60,
-          maxFu: 60,
-        });
-        if (question.isOya && !question.isTsumo) {
-          expect(question.correctAnswer.type).toBe("ron");
-          if (question.correctAnswer.type === "ron") {
-            expect(question.correctAnswer.score).toBe(11600);
-          }
-          return;
-        }
-      }
-      console.warn("3翻60符の親ロンが生成されなかったためスキップ");
+    it("親ロン", () => {
+      const question = findQuestion(options, (q) => q.isOya && !q.isTsumo);
+      expect(question.correctAnswer).toEqual({ type: "ron", score: oyaRon });
     });
 
-    it("子ツモ: 2000/3900 であること", () => {
-      for (let i = 0; i < 100; i++) {
-        const question = generateScoreTableQuestion({
-          minHan: 3,
-          maxHan: 3,
-          minFu: 60,
-          maxFu: 60,
-        });
-        if (!question.isOya && question.isTsumo) {
-          expect(question.correctAnswer.type).toBe("koTsumo");
-          if (question.correctAnswer.type === "koTsumo") {
-            expect(question.correctAnswer.scoreFromKo).toBe(2000);
-            expect(question.correctAnswer.scoreFromOya).toBe(3900);
-          }
-          return;
-        }
-      }
-      console.warn("3翻60符の子ツモが生成されなかったためスキップ");
+    it("子ツモ", () => {
+      const question = findQuestion(options, (q) => !q.isOya && q.isTsumo);
+      expect(question.correctAnswer).toEqual({
+        type: "koTsumo",
+        scoreFromKo: koTsumo[0],
+        scoreFromOya: koTsumo[1],
+      });
     });
 
-    it("親ツモ: 3900 オールであること", () => {
-      for (let i = 0; i < 100; i++) {
-        const question = generateScoreTableQuestion({
-          minHan: 3,
-          maxHan: 3,
-          minFu: 60,
-          maxFu: 60,
-        });
-        if (question.isOya && question.isTsumo) {
-          expect(question.correctAnswer.type).toBe("oyaTsumo");
-          if (question.correctAnswer.type === "oyaTsumo") {
-            expect(question.correctAnswer.scoreAll).toBe(3900);
-          }
-          return;
-        }
-      }
-      console.warn("3翻60符の親ツモが生成されなかったためスキップ");
-    });
-  });
-
-  describe("境界値: 3翻70符（満貫になるケース）", () => {
-    // 3翻70符: base = 70 * 2^5 = 2240 >= 2000 なので満貫
-    it("子ロン: 8000 点であること", () => {
-      for (let i = 0; i < 100; i++) {
-        const question = generateScoreTableQuestion({
-          minHan: 3,
-          maxHan: 3,
-          minFu: 70,
-          maxFu: 70,
-        });
-        if (!question.isOya && !question.isTsumo) {
-          expect(question.correctAnswer.type).toBe("ron");
-          if (question.correctAnswer.type === "ron") {
-            expect(question.correctAnswer.score).toBe(8000);
-          }
-          return;
-        }
-      }
-      console.warn("3翻70符の子ロンが生成されなかったためスキップ");
-    });
-
-    it("親ロン: 12000 点であること", () => {
-      for (let i = 0; i < 100; i++) {
-        const question = generateScoreTableQuestion({
-          minHan: 3,
-          maxHan: 3,
-          minFu: 70,
-          maxFu: 70,
-        });
-        if (question.isOya && !question.isTsumo) {
-          expect(question.correctAnswer.type).toBe("ron");
-          if (question.correctAnswer.type === "ron") {
-            expect(question.correctAnswer.score).toBe(12000);
-          }
-          return;
-        }
-      }
-      console.warn("3翻70符の親ロンが生成されなかったためスキップ");
-    });
-
-    it("子ツモ: 2000/4000 であること", () => {
-      for (let i = 0; i < 100; i++) {
-        const question = generateScoreTableQuestion({
-          minHan: 3,
-          maxHan: 3,
-          minFu: 70,
-          maxFu: 70,
-        });
-        if (!question.isOya && question.isTsumo) {
-          expect(question.correctAnswer.type).toBe("koTsumo");
-          if (question.correctAnswer.type === "koTsumo") {
-            expect(question.correctAnswer.scoreFromKo).toBe(2000);
-            expect(question.correctAnswer.scoreFromOya).toBe(4000);
-          }
-          return;
-        }
-      }
-      console.warn("3翻70符の子ツモが生成されなかったためスキップ");
-    });
-
-    it("親ツモ: 4000 オールであること", () => {
-      for (let i = 0; i < 100; i++) {
-        const question = generateScoreTableQuestion({
-          minHan: 3,
-          maxHan: 3,
-          minFu: 70,
-          maxFu: 70,
-        });
-        if (question.isOya && question.isTsumo) {
-          expect(question.correctAnswer.type).toBe("oyaTsumo");
-          if (question.correctAnswer.type === "oyaTsumo") {
-            expect(question.correctAnswer.scoreAll).toBe(4000);
-          }
-          return;
-        }
-      }
-      console.warn("3翻70符の親ツモが生成されなかったためスキップ");
+    it("親ツモ", () => {
+      const question = findQuestion(options, (q) => q.isOya && q.isTsumo);
+      expect(question.correctAnswer).toEqual({
+        type: "oyaTsumo",
+        scoreAll: oyaTsumoAll,
+      });
     });
   });
 
@@ -403,34 +295,30 @@ describe("generateScoreTableQuestion", () => {
     });
 
     it("親ツモ満貫(5翻)は 4000 オールであること", () => {
-      for (let i = 0; i < 500; i++) {
-        const q = generateScoreTableQuestion({
-          roles: ["oya"],
-          wins: ["tsumo"],
-          ranges: ["manganPlus"],
-        });
-        if (q.han === 5 && q.correctAnswer.type === "oyaTsumo") {
-          expect(q.correctAnswer.scoreAll).toBe(4000);
-          return;
-        }
-      }
-      console.warn("親ツモ5翻が生成されなかったためスキップ");
+      const question = findQuestion(
+        { roles: ["oya"], wins: ["tsumo"], ranges: ["manganPlus"] },
+        (q) => q.han === 5,
+        500,
+      );
+
+      expect(question.correctAnswer).toEqual({
+        type: "oyaTsumo",
+        scoreAll: 4000,
+      });
     });
 
     it("子ツモ倍満(8翻)は 4000/8000 であること", () => {
-      for (let i = 0; i < 500; i++) {
-        const q = generateScoreTableQuestion({
-          roles: ["ko"],
-          wins: ["tsumo"],
-          ranges: ["manganPlus"],
-        });
-        if (q.han === 8 && q.correctAnswer.type === "koTsumo") {
-          expect(q.correctAnswer.scoreFromKo).toBe(4000);
-          expect(q.correctAnswer.scoreFromOya).toBe(8000);
-          return;
-        }
-      }
-      console.warn("子ツモ8翻が生成されなかったためスキップ");
+      const question = findQuestion(
+        { roles: ["ko"], wins: ["tsumo"], ranges: ["manganPlus"] },
+        (q) => q.han === 8,
+        500,
+      );
+
+      expect(question.correctAnswer).toEqual({
+        type: "koTsumo",
+        scoreFromKo: 4000,
+        scoreFromOya: 8000,
+      });
     });
   });
 

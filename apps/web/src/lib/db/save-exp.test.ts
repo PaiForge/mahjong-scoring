@@ -16,16 +16,7 @@ vi.mock("@mahjong-scoring/core", () => ({
   getLevelProgress: (...args: unknown[]) => mockGetLevelProgress(...args),
 }));
 
-vi.mock("drizzle-orm", () => ({
-  and: (...args: unknown[]) => ({ _tag: "and", args }),
-  eq: (...args: unknown[]) => ({ _tag: "eq", args }),
-  sql: Object.assign(
-    (strings: TemplateStringsArray, ..._values: unknown[]) => strings.join(""),
-    {
-      raw: (s: string) => s,
-    },
-  ),
-}));
+vi.mock("drizzle-orm", async () => await import("@/test/drizzle-orm-mock"));
 
 vi.mock("./index", () => ({
   db: {
