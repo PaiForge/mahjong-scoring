@@ -1,4 +1,8 @@
 import { AdminPageTitle } from "@/app/admin/_components/admin-page-title";
+import {
+  PageTitleSkeleton,
+  TableSkeleton,
+} from "@/app/admin/_components/table-skeleton";
 
 /**
  * ユーザー管理のローディング状態
@@ -8,32 +12,9 @@ export default function Loading() {
   return (
     <div className="space-y-6">
       <AdminPageTitle>
-        <div className="h-8 w-32 bg-surface-200 rounded animate-pulse" />
+        <PageTitleSkeleton width="w-32" />
       </AdminPageTitle>
-      <div className="overflow-x-auto">
-        <table className="w-full text-left text-sm">
-          <thead>
-            <tr className="border-b border-gray-200">
-              {Array.from({ length: 6 }, (_, i) => (
-                <th key={i} className="px-4 py-3">
-                  <div className="h-4 w-16 bg-surface-200 rounded animate-pulse" />
-                </th>
-              ))}
-            </tr>
-          </thead>
-          <tbody>
-            {Array.from({ length: 10 }, (_, i) => (
-              <tr key={i} className="border-t border-gray-200">
-                {Array.from({ length: 6 }, (_cell, j) => (
-                  <td key={j} className="px-4 py-3">
-                    <div className="h-4 w-24 bg-surface-200 rounded animate-pulse" />
-                  </td>
-                ))}
-              </tr>
-            ))}
-          </tbody>
-        </table>
-      </div>
+      <TableSkeleton columns={6} />
     </div>
   );
 }

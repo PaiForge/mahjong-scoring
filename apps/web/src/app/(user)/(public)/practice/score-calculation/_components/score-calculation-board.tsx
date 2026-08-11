@@ -1,6 +1,7 @@
 "use client";
 
 import { useMemo } from "react";
+import { QuestionGeneratingPlaceholder } from "../../_components/question-generating-placeholder";
 import { useTranslations } from "next-intl";
 import { useRuleSettingsStore } from "@/app/_hooks/use-rule-settings-store";
 import { getFeedbackBorderClass } from "../../_lib/feedback-styles";
@@ -43,11 +44,7 @@ export function ScoreCalculationBoard({
   });
 
   if (!question) {
-    return (
-      <div className="flex items-center justify-center py-20">
-        <div className="text-surface-500">{t("generating")}</div>
-      </div>
-    );
+    return <QuestionGeneratingPlaceholder label={t("generating")} />;
   }
 
   const feedbackBorderClass = getFeedbackBorderClass(

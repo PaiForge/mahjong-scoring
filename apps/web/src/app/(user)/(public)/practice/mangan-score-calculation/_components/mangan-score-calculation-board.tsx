@@ -1,6 +1,7 @@
 "use client";
 
 import { useMemo } from "react";
+import { QuestionGeneratingPlaceholder } from "../../_components/question-generating-placeholder";
 import { useTranslations } from "next-intl";
 import { getFeedbackBorderClass } from "../../_lib/feedback-styles";
 import { useScoreQuestionBoard } from "../../_hooks/use-score-question-board";
@@ -58,11 +59,7 @@ export function ManganScoreCalculationBoard({
   });
 
   if (!question) {
-    return (
-      <div className="flex items-center justify-center py-20">
-        <div className="text-surface-500">{t("generating")}</div>
-      </div>
-    );
+    return <QuestionGeneratingPlaceholder label={t("generating")} />;
   }
 
   const feedbackBorderClass = getFeedbackBorderClass(

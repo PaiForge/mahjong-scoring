@@ -1,6 +1,7 @@
 "use client";
 
 import { useCallback } from "react";
+import { QuestionGeneratingPlaceholder } from "../../_components/question-generating-placeholder";
 import { useTranslations } from "next-intl";
 import { useGeneratedScoreQuestion } from "../../_hooks/use-generated-score-question";
 import { TehaiDisplay } from "../../_components/tehai-display";
@@ -44,11 +45,7 @@ export function HanCountBoard({
   );
 
   if (!question) {
-    return (
-      <div className="flex items-center justify-center py-20">
-        <div className="text-surface-500">{t("generating")}</div>
-      </div>
-    );
+    return <QuestionGeneratingPlaceholder label={t("generating")} />;
   }
 
   return (
