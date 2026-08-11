@@ -1,4 +1,5 @@
-import type { Kazehai, HaiKindId } from "@pai-forge/riichi-mahjong";
+import type { HaiKindId } from "@pai-forge/riichi-mahjong";
+import type { KazeContext } from "../shared/agari-context";
 
 /**
  * 雀頭の符計算問題（JantouFu question）
@@ -6,10 +7,7 @@ import type { Kazehai, HaiKindId } from "@pai-forge/riichi-mahjong";
  */
 export interface JantouFuQuestion {
   readonly id: string;
-  readonly context: {
-    readonly bakaze: Kazehai;
-    readonly jikaze: Kazehai;
-  };
+  readonly context: KazeContext;
   readonly choices: readonly JantouFuChoice[];
 }
 
