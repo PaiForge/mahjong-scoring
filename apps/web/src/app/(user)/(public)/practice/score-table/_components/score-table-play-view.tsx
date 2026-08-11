@@ -21,8 +21,6 @@ export const ScoreTablePlayView = createChallengePlayView<
   ScoreTablePlayViewProps,
   ReturnType<typeof useScoreTableQuestion>
 >({
-  namespace: "scoreTableChallenge",
-  menuType: "score_table",
   slug: "score-table",
   resultStorageKey: RESULT_STORAGE_KEY,
   useBoardState: ({ generatorOptions }) =>

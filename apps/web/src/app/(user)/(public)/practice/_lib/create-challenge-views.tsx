@@ -2,7 +2,8 @@
 
 import type { ReactNode } from "react";
 import { useTranslations } from "next-intl";
-import type { PracticeMenuType } from "@/lib/db/practice-menu-types";
+import type { PracticeMenuSlug } from "@/lib/db/practice-menu-types";
+import { practiceMenuBySlug } from "@/lib/db/practice-menu-types";
 import { ChallengeShell } from "../_components/challenge-shell";
 import { TrainingShell } from "../_components/training-shell";
 import { useRecordedResults } from "../_hooks/use-recorded-results";
@@ -28,12 +29,12 @@ export interface ChallengeBoardArgs<TResult> {
  * チャレンジビュー設定
  */
 export interface ChallengePlayViewConfig<TResult, TProps, TState> {
-  /** 辞書の namespace（例: "jantouFu"） */
-  readonly namespace: string;
-  /** スコア保存に使う練習メニュー種別（例: "jantou_fu"） */
-  readonly menuType: PracticeMenuType;
-  /** ルートスラッグ（例: "jantou-fu"）。result / exit のパス生成に使う */
-  readonly slug: string;
+  /**
+   * ルートスラッグ（例: "jantou-fu"）。
+   * 辞書の namespace とスコア保存に使う練習メニュー種別はレジストリから導出し、
+   * result / exit のパス生成にも使う。
+   */
+  readonly slug: PracticeMenuSlug;
   /** シェル内部ラッパーの max-w クラス（未指定時はシェルの既定値） */
   readonly maxWidth?: string;
   /** 問題結果を保存する sessionStorage キー（結果ページで内訳表示する練習のみ） */
@@ -67,8 +68,8 @@ export function createChallengePlayView<
 >(
   config: ChallengePlayViewConfig<TResult, TProps, TState>,
 ): (props: TProps) => ReactNode {
-  const { namespace, menuType, slug, maxWidth, resultStorageKey, renderBoard } =
-    config;
+  const { slug, maxWidth, resultStorageKey, renderBoard } = config;
+  const { namespace, menuType } = practiceMenuBySlug(slug);
   const useBoardState =
     config.useBoardState ?? (() => undefined as unknown as TState);
 
@@ -127,10 +128,11 @@ export interface TrainingBoardArgs {
  * トレーニングビュー設定
  */
 export interface TrainingViewConfig<TProps> {
-  /** 辞書の namespace（例: "jantouFu"） */
-  readonly namespace: string;
-  /** ルートスラッグ（例: "jantou-fu"）。終了リンクのパス生成に使う */
-  readonly slug: string;
+  /**
+   * ルートスラッグ（例: "jantou-fu"）。
+   * 辞書の namespace はレジストリから導出し、終了リンクのパス生成にも使う。
+   */
+  readonly slug: PracticeMenuSlug;
   /** シェル内部ラッパーの max-w クラス（未指定時はシェルの既定値） */
   readonly maxWidth?: string;
   /**
@@ -148,7 +150,8 @@ export interface TrainingViewConfig<TProps> {
 export function createTrainingView<TProps = Record<string, never>>(
   config: TrainingViewConfig<TProps>,
 ): (props: TProps) => ReactNode {
-  const { namespace, slug, maxWidth, renderBoard } = config;
+  const { slug, maxWidth, renderBoard } = config;
+  const { namespace } = practiceMenuBySlug(slug);
 
   function TrainingView(props: TProps) {
     const t = useTranslations(namespace);
