@@ -13,6 +13,7 @@
  * 3. 設定を選び「開始」または「トレーニング」で play / training へ遷移
  */
 import type { Metadata } from "next";
+import { HowToPlaySection } from "../_components/how-to-play-section";
 import { getTranslations } from "next-intl/server";
 import { ContentContainer } from "@/app/_components/content-container";
 import { PageTitle } from "@/app/_components/page-title";
@@ -52,13 +53,12 @@ export default async function ScoreTablePage({
       <PageTitle>{t("title")}</PageTitle>
 
       <div className="space-y-8">
-        <div className="space-y-4">
-          <SectionTitle>{t("howToPlay.title")}</SectionTitle>
-          <p className="text-sm text-surface-600">{t("howToPlay.lead")}</p>
-          <div className="rounded-xl border border-surface-200 bg-surface-50 p-6">
-            <ScoreTableHowToPlay selection={selection} />
-          </div>
-        </div>
+        <HowToPlaySection
+          title={t("howToPlay.title")}
+          lead={t("howToPlay.lead")}
+        >
+          <ScoreTableHowToPlay selection={selection} />
+        </HowToPlaySection>
 
         <div className="space-y-4">
           <SectionTitle>{t("setup.title")}</SectionTitle>

@@ -1,4 +1,5 @@
 import type { ReactNode } from "react";
+import { HowToPlaySection } from "./how-to-play-section";
 import { CHALLENGE_TIME_LIMIT, MISTAKE_LIMIT } from "@mahjong-scoring/core";
 import { PracticeStartCta } from "./practice-start-cta";
 import Link from "next/link";
@@ -58,13 +59,12 @@ export async function PracticeIntroContent({
         )}
 
         {howToPlay && (
-          <div className="space-y-4">
-            <SectionTitle>{t("howToPlay.title")}</SectionTitle>
-            <p className="text-sm text-surface-600">{t("howToPlay.lead")}</p>
-            <div className="rounded-xl border border-surface-200 bg-surface-50 p-6">
-              {howToPlay}
-            </div>
-          </div>
+          <HowToPlaySection
+            title={t("howToPlay.title")}
+            lead={t("howToPlay.lead")}
+          >
+            {howToPlay}
+          </HowToPlaySection>
         )}
 
         {showTraining ? (

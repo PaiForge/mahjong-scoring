@@ -13,10 +13,10 @@
  * 3. 範囲を選んで「開始」を押すと play ページへ遷移（range クエリ付き）
  */
 import type { Metadata } from "next";
+import { HowToPlaySection } from "../_components/how-to-play-section";
 import { getTranslations } from "next-intl/server";
 import { ContentContainer } from "@/app/_components/content-container";
 import { PageTitle } from "@/app/_components/page-title";
-import { SectionTitle } from "@/app/_components/section-title";
 import { createNamespaceMetadata } from "@/app/_lib/metadata";
 import { YakuHanHowToPlay } from "./_components/yaku-han-how-to-play";
 import { YakuHanStartPanel } from "./_components/yaku-han-start-panel";
@@ -38,13 +38,12 @@ export default async function YakuHanPage() {
     >
       <PageTitle>{t("title")}</PageTitle>
       <div className="space-y-8">
-        <div className="space-y-4">
-          <SectionTitle>{t("howToPlay.title")}</SectionTitle>
-          <p className="text-sm text-surface-600">{t("howToPlay.lead")}</p>
-          <div className="rounded-xl border border-surface-200 bg-surface-50 p-6">
-            <YakuHanHowToPlay />
-          </div>
-        </div>
+        <HowToPlaySection
+          title={t("howToPlay.title")}
+          lead={t("howToPlay.lead")}
+        >
+          <YakuHanHowToPlay />
+        </HowToPlaySection>
 
         <YakuHanStartPanel />
       </div>
