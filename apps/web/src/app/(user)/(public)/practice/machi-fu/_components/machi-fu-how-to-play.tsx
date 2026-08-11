@@ -4,7 +4,7 @@ import { useTranslations } from "next-intl";
 import { HaiKind } from "@mahjong-scoring/core";
 import type { HaiKindId } from "@mahjong-scoring/core";
 import { Hai } from "@pai-forge/mahjong-react-ui";
-import { CheckIcon } from "@/app/_components/icons/check-icon";
+import { DemoChoiceCell } from "../../_components/demo-choice-cell";
 
 /** デモ用の固定例: 嵌張待ち（二萬・四萬で三萬待ち） → 2符 */
 const DEMO_TILES: readonly HaiKindId[] = [HaiKind.ManZu2, HaiKind.ManZu4];
@@ -59,21 +59,13 @@ export function MachiFuHowToPlay() {
         {DEMO_FU_CHOICES.map((fu) => {
           const isCorrect = fu === DEMO_ANSWER;
           return (
-            <div
+            <DemoChoiceCell
               key={fu}
-              className={`relative flex items-center justify-center rounded-xl border p-4 text-2xl font-bold ${
-                isCorrect
-                  ? "border-green-500 bg-green-50 text-green-700"
-                  : "border-surface-200 bg-white text-surface-400 opacity-60"
-              }`}
+              isCorrect={isCorrect}
+              className={`text-2xl font-bold ${isCorrect ? "text-green-700" : "text-surface-400"}`}
             >
-              {isCorrect && (
-                <span className="absolute right-2 top-2 flex size-5 items-center justify-center rounded-full bg-green-500">
-                  <CheckIcon className="size-3 text-white" />
-                </span>
-              )}
               {t("fuOption", { value: fu })}
-            </div>
+            </DemoChoiceCell>
           );
         })}
       </div>

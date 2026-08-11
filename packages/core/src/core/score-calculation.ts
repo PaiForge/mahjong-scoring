@@ -1,5 +1,5 @@
 import type { WinType } from "./roles";
-import { MANGAN_PLUS_TIERS } from "../score/tiers";
+import { DISPLAY_TIERS, hanRangeOf, MANGAN_PLUS_TIERS } from "../score/tiers";
 
 /**
  * 満貫の基本符。基本符がこれ以上なら満貫以上として頭打ちになる。
@@ -163,21 +163,19 @@ export function isInvalidCell(
   );
 }
 
-/** 満貫以上の帯（翻数しきい値の昇順、ダブル役満を除く） */
-const HIGH_SCORE_TIERS = [
-  ...MANGAN_PLUS_TIERS.filter((tier) => tier.key !== "doubleYakuman"),
-].reverse();
-
 /**
- * 帯の翻数レンジ表示を組み立てる（例: "5" / "6-7" / "13~"）
+ * 早見表の翻数レンジ表示を組み立てる（例: "5" / "6-7" / "13~"）
  * 翻数レンジ表示
+ *
+ * 早見表は「この翻数なら符に関係なくこの点数」を示すため、満貫の下限は
+ * 5 翻。学習ページは「満貫になる翻数」を教える別の観点で 4 翻から示す
+ * （learn/_lib/han-display.ts）。
  */
-function hanRangeLabel(index: number): string {
-  const tier = HIGH_SCORE_TIERS[index];
-  const next = HIGH_SCORE_TIERS[index + 1];
-  if (next === undefined) return `${tier.minHan}~`;
-  const max = next.minHan - 1;
-  return tier.minHan === max ? `${tier.minHan}` : `${tier.minHan}-${max}`;
+function hanRangeLabel(key: string): string {
+  const range = hanRangeOf(key);
+  if (range === undefined) return "";
+  if (range.max === undefined) return `${range.min}~`;
+  return range.min === range.max ? `${range.min}` : `${range.min}-${range.max}`;
 }
 
 /**
@@ -187,12 +185,12 @@ function hanRangeLabel(index: number): string {
  * 翻数しきい値・基本符は MANGAN_PLUS_TIERS、点数は基本符からの導出。
  * ここに点数を直書きしないこと（満貫の 8000/12000 等が二重管理になる）。
  */
-export const HIGH_SCORES = HIGH_SCORE_TIERS.map((tier, index) => {
+export const HIGH_SCORES = DISPLAY_TIERS.map((tier) => {
   const ko = koScoreFromBasePoints(tier.basePoints);
   const oya = oyaScoreFromBasePoints(tier.basePoints);
   return {
     nameKey: tier.key,
-    han: hanRangeLabel(index),
+    han: hanRangeLabel(tier.key),
     ronKo: ko.ron,
     tsumoKo: ko.tsumo,
     ronOya: oya.ron,

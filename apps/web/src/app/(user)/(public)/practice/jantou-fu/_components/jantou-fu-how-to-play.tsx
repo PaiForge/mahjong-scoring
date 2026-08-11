@@ -4,7 +4,7 @@ import { useTranslations } from "next-intl";
 import { HaiKind, getKazeName } from "@mahjong-scoring/core";
 import type { HaiKindId } from "@mahjong-scoring/core";
 import { Hai } from "@pai-forge/mahjong-react-ui";
-import { CheckIcon } from "@/app/_components/icons/check-icon";
+import { DemoChoiceCell } from "../../_components/demo-choice-cell";
 
 /** デモ用の固定例: 東場・南家。正解は中（三元牌 → 2符） */
 const DEMO_CHOICES: readonly { hai: HaiKindId; isCorrect: boolean }[] = [
@@ -50,19 +50,11 @@ export function JantouFuHowToPlay() {
       {/* Choices */}
       <div className="grid grid-cols-2 gap-3">
         {DEMO_CHOICES.map((choice, i) => (
-          <div
+          <DemoChoiceCell
             key={i}
-            className={`relative flex flex-col items-center justify-center gap-2 rounded-xl border p-4 ${
-              choice.isCorrect
-                ? "border-green-500 bg-green-50"
-                : "border-surface-200 bg-white opacity-60"
-            }`}
+            isCorrect={choice.isCorrect}
+            className="flex-col gap-2"
           >
-            {choice.isCorrect && (
-              <span className="absolute right-2 top-2 flex size-5 items-center justify-center rounded-full bg-green-500">
-                <CheckIcon className="size-3 text-white" />
-              </span>
-            )}
             <div className="scale-125">
               <Hai hai={choice.hai} />
             </div>
@@ -71,7 +63,7 @@ export function JantouFuHowToPlay() {
                 {t("fu", { value: 2 })}
               </span>
             )}
-          </div>
+          </DemoChoiceCell>
         ))}
       </div>
     </div>

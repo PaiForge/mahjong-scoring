@@ -1,6 +1,7 @@
 "use client";
 
 import { useTranslations } from "next-intl";
+import { DemoChoiceCell } from "../../_components/demo-choice-cell";
 import { HaiKind } from "@mahjong-scoring/core";
 import type { Tehai14 } from "@mahjong-scoring/core";
 import { TehaiDisplay } from "../../_components/tehai-display";
@@ -70,16 +71,14 @@ export function HanCountHowToPlay() {
         {HAN_OPTIONS.map((han) => {
           const isCorrect = han === DEMO_ANSWER;
           return (
-            <div
+            <DemoChoiceCell
               key={han}
-              className={`flex items-center justify-center rounded-xl border p-4 text-sm font-semibold ${
-                isCorrect
-                  ? "border-green-500 bg-green-50 text-green-700"
-                  : "border-surface-200 bg-white text-surface-400 opacity-60"
-              }`}
+              isCorrect={isCorrect}
+              showCheck={false}
+              className={`text-sm font-semibold ${isCorrect ? "text-green-700" : "text-surface-400"}`}
             >
               {t("hanOption", { count: han })}
-            </div>
+            </DemoChoiceCell>
           );
         })}
       </div>
