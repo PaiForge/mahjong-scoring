@@ -14,23 +14,20 @@
  * 6. リトライまたは練習一覧に戻るボタン
  */
 import type { Metadata } from "next";
-import { getTranslations } from "next-intl/server";
-import { createResultMetadata } from "@/app/_lib/metadata";
-import { createPracticeResultPage } from "../../_lib/create-practice-result-page";
+import {
+  createPracticeResultMetadata,
+  createPracticeResultPage,
+} from "../../_lib/create-practice-result-page";
 import { ManganScoreCalculationResultView } from "../_components/mangan-score-calculation-result-view";
 
+const SLUG = "mangan-score-calculation" as const;
+
 export async function generateMetadata(): Promise<Metadata> {
-  return createResultMetadata("manganScoreCalculationChallenge");
+  return createPracticeResultMetadata(SLUG);
 }
 
 export const dynamic = "force-dynamic";
 
 export default createPracticeResultPage(ManganScoreCalculationResultView, {
-  module: "mangan_score_calculation",
-  playHref: "/practice/mangan-score-calculation/play",
-  introHref: "/practice/mangan-score-calculation",
-  resolveTitle: async () => {
-    const t = await getTranslations("manganScoreCalculationChallenge");
-    return t("title");
-  },
+  slug: SLUG,
 });

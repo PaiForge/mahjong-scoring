@@ -14,23 +14,20 @@
  * 6. リトライまたは練習一覧に戻るボタン
  */
 import type { Metadata } from "next";
-import { getTranslations } from "next-intl/server";
-import { createResultMetadata } from "@/app/_lib/metadata";
-import { createPracticeResultPage } from "../../_lib/create-practice-result-page";
+import {
+  createPracticeResultMetadata,
+  createPracticeResultPage,
+} from "../../_lib/create-practice-result-page";
 import { ScoreCalculationResultView } from "../_components/score-calculation-result-view";
 
+const SLUG = "score-calculation" as const;
+
 export async function generateMetadata(): Promise<Metadata> {
-  return createResultMetadata("scoreCalculationChallenge");
+  return createPracticeResultMetadata(SLUG);
 }
 
 export const dynamic = "force-dynamic";
 
 export default createPracticeResultPage(ScoreCalculationResultView, {
-  module: "score_calculation",
-  playHref: "/practice/score-calculation/play",
-  introHref: "/practice/score-calculation",
-  resolveTitle: async () => {
-    const t = await getTranslations("scoreCalculationChallenge");
-    return t("title");
-  },
+  slug: SLUG,
 });

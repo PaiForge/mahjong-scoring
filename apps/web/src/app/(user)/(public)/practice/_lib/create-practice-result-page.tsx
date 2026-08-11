@@ -1,10 +1,16 @@
+import type { Metadata } from "next";
 import type { ComponentType } from "react";
 import { Suspense } from "react";
+import { getTranslations } from "next-intl/server";
+
+import { createResultMetadata } from "@/app/_lib/metadata";
 
 import { getLeaderboard } from "@/app/(user)/(public)/leaderboard/_actions/get-leaderboard";
 import type { LeaderboardModule } from "@/app/(user)/(public)/leaderboard/_lib/types";
 import type { RankedLeaderboardRow } from "@/lib/db/leaderboard-queries";
 import { buildDetailPath } from "@/app/(user)/(public)/leaderboard/_lib/types";
+import type { PracticeMenuSlug } from "@/lib/db/practice-menu-types";
+import { practiceMenuBySlug } from "@/lib/db/practice-menu-types";
 import { getExpInfoByChallengeResultId } from "@/lib/db/save-exp";
 import { getOptionalUser } from "@/lib/auth";
 import { logExternalError } from "@/lib/log-error";
@@ -58,19 +64,26 @@ export interface PracticeResultViewProps {
 }
 
 interface ResultPageConfig {
-  /** 練習種別 */
-  readonly module: LeaderboardModule;
-  /** リトライ用のプレイページURL */
-  readonly playHref: string;
-  /** 練習説明ページの URL（パンくず中間リンク用）。説明ページが無い練習では省略する。 */
-  readonly introHref?: string;
   /**
-   * ページタイトル（練習名）を解決する非同期関数。
-   * 各 page.tsx 側で `getTranslations('<namespace>')` を呼んで `t('title')` を返す。
-   * プロジェクトで主流の namespace 指定スタイルに揃えるため、
-   * factory 内ではグローバルな翻訳ルックアップを避ける。
+   * ルートスラッグ（例: "jantou-fu"）。
+   * ランキングの練習種別・辞書 namespace・プレイページ / 説明ページの URL は
+   * すべてレジストリと命名規約から導出する。
    */
-  readonly resolveTitle: () => Promise<string>;
+  readonly slug: PracticeMenuSlug;
+}
+
+/**
+ * 結果ページのメタデータを生成する
+ * 結果ページメタデータ
+ *
+ * 各 page.tsx の `generateMetadata` から練習の slug を渡して呼ぶ。
+ * 辞書 namespace をレジストリから引くため、page.tsx 側に namespace を
+ * 書かずに済む（`createPracticeResultPage` と同じ slug 1 つで完結する）。
+ */
+export async function createPracticeResultMetadata(
+  slug: PracticeMenuSlug,
+): Promise<Metadata> {
+  return createResultMetadata(practiceMenuBySlug(slug).namespace);
 }
 
 /** Next.js 16 のページ props（searchParams は Promise） */
@@ -83,6 +96,10 @@ interface PracticeResultPageProps {
 /**
  * 練習結果ページを生成するファクトリー関数
  * 練習結果ページ生成
+ *
+ * 練習ごとに渡すのは slug 1 つで、ランキングの練習種別・練習名・プレイページ /
+ * 説明ページの URL はレジストリ（`practiceMenuBySlug`）と `/practice/<slug>`
+ * の命名規約から導出する。
  *
  * 設計: CLS 改善のために 2 つの Suspense 境界を導入している:
  *
@@ -102,15 +119,19 @@ export function createPracticeResultPage(
   ResultView: ComponentType<PracticeResultViewProps>,
   config: ResultPageConfig,
 ) {
+  const { slug } = config;
+  const { menuType, namespace } = practiceMenuBySlug(slug);
+
   return async function PracticeResultPage({
     searchParams,
   }: PracticeResultPageProps) {
     // 即時描画に必要な最小限のデータだけ親で解決する。
     // URL クエリ (`searchParams`) と、練習名（翻訳キー）。
-    const [resolvedSearchParams, practiceTitle] = await Promise.all([
+    const [resolvedSearchParams, t] = await Promise.all([
       searchParams,
-      config.resolveTitle(),
+      getTranslations(namespace),
     ]);
+    const practiceTitle = t("title");
 
     const rawGrant = resolvedSearchParams.grant;
     const grantId = typeof rawGrant === "string" ? rawGrant : undefined;
@@ -123,8 +144,8 @@ export function createPracticeResultPage(
     return (
       <ResultView
         practiceTitle={practiceTitle}
-        playHref={config.playHref}
-        introHref={config.introHref}
+        playHref={`/practice/${slug}/play`}
+        introHref={`/practice/${slug}`}
         correct={Number.isFinite(correct) ? correct : 0}
         total={Number.isFinite(total) ? total : 0}
         resultBlock={
@@ -134,7 +155,7 @@ export function createPracticeResultPage(
         }
         leaderboardBlock={
           <Suspense fallback={<LeaderboardSkeleton />}>
-            <AsyncLeaderboardBlock module={config.module} />
+            <AsyncLeaderboardBlock module={menuType} />
           </Suspense>
         }
       />
