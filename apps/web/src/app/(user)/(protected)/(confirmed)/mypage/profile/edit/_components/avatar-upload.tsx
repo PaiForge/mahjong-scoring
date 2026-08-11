@@ -6,6 +6,8 @@ import { useTranslations } from "next-intl";
 import Image from "next/image";
 import toast from "react-hot-toast";
 
+import { API_ERROR_RATE_LIMITED, callApi } from "@/lib/api-client";
+
 const ALLOWED_TYPES = ["image/jpeg", "image/png", "image/webp"];
 const MAX_SIZE = 5 * 1024 * 1024; // 5MB
 
@@ -44,32 +46,26 @@ export function AvatarUpload({
       const formData = new FormData();
       formData.append("file", file);
 
-      const res = await fetch("/api/profile/avatar", {
-        method: "POST",
-        body: formData,
-      });
+      const result = await callApi<{ avatarUrl: string }>(
+        "/api/profile/avatar",
+        { method: "POST", body: formData },
+      );
 
-      if (!res.ok) {
-        const data = (await res.json().catch(() => ({}))) as {
-          error?: string;
-        };
+      if (!result.ok) {
         setError(
-          data.error === "tooLarge"
+          result.error === "tooLarge"
             ? t("avatarTooLarge")
-            : data.error === "invalidType" || data.error === "invalidImage"
+            : result.error === "invalidType" || result.error === "invalidImage"
               ? t("avatarInvalidType")
-              : t("avatarUploadFailed"),
+              : result.error === API_ERROR_RATE_LIMITED
+                ? t("rateLimited")
+                : t("avatarUploadFailed"),
         );
         return;
       }
 
-      const { avatarUrl: newUrl } = (await res.json()) as {
-        avatarUrl: string;
-      };
-      setAvatarUrl(newUrl);
+      setAvatarUrl(result.data.avatarUrl);
       toast.success(t("avatarUploaded"));
-    } catch {
-      setError(t("avatarUploadFailed"));
     } finally {
       setIsUploading(false);
       if (fileInputRef.current) {

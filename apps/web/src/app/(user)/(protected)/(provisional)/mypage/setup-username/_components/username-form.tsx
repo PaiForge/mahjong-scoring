@@ -5,6 +5,10 @@ import { type FormEvent, useCallback, useState } from "react";
 import { useTranslations } from "next-intl";
 import { useRouter } from "next/navigation";
 
+import {
+  API_ERROR_RATE_LIMITED,
+  API_ERROR_UNAUTHORIZED,
+} from "@/lib/api-client";
 import { validateUsername } from "@/lib/username";
 
 import { registerUsername } from "../_lib/register-username";
@@ -41,6 +45,10 @@ export function UsernameForm() {
           return t("validation.taken");
         case "username_already_set":
           return t("validation.alreadySet");
+        case API_ERROR_RATE_LIMITED:
+          return t("validation.rateLimited");
+        case API_ERROR_UNAUTHORIZED:
+          return t("validation.unauthorized");
         default:
           return t("validation.error");
       }
