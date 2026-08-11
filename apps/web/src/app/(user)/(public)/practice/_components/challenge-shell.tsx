@@ -19,6 +19,7 @@ import { useGameTimer } from "../_hooks/use-game-timer";
 import { useFinishRedirect } from "../_hooks/use-finish-redirect";
 import { useQuitConfirm } from "../_hooks/use-quit-confirm";
 import { useScrollToElement } from "../_hooks/use-scroll-to-element";
+import { buildResultBreadcrumb } from "../_lib/result-breadcrumb";
 import { PRACTICE_SCROLL_ANCHOR_ID } from "../_lib/scroll-anchor";
 import { QuizTimer } from "./quiz-timer";
 import { QuitConfirmModal } from "./quit-confirm-modal";
@@ -104,6 +105,7 @@ export function ChallengeShell({
   onFinish,
 }: ChallengeShellProps) {
   const tc = useTranslations("challenge");
+  const tp = useTranslations("practice");
 
   // 練習開始直後、グローバルヘッダ分のオフセットを解消して盤面を画面上部へ表示する
   useScrollToElement(PRACTICE_SCROLL_ANCHOR_ID);
@@ -167,9 +169,14 @@ export function ChallengeShell({
     return (
       <ResultPageSkeleton
         practiceTitle={title}
-        // 説明ページを持つ練習では exitHref が説明ページ URL になっており、
-        // 結果ページが受け取る introHref と一致する（既定値の練習一覧は除く）。
-        introHref={exitHref === "/practice" ? undefined : exitHref}
+        breadcrumb={buildResultBreadcrumb({
+          practiceListLabel: tp("title"),
+          practiceTitle: title,
+          resultLabel: tc("resultSuffix"),
+          // 説明ページを持つ練習では exitHref が説明ページ URL になっており、
+          // 結果ページが受け取る introHref と一致する（既定値の練習一覧は除く）。
+          introHref: exitHref === "/practice" ? undefined : exitHref,
+        })}
         // 結果ページの一覧は URL の total（= 終了時の totalCount）分だけ並ぶ。
         problemCount={
           hasProblemList

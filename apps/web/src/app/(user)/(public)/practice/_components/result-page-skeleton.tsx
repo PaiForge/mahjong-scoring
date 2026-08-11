@@ -1,23 +1,19 @@
-"use client";
-
-import { useTranslations } from "next-intl";
-
+import type { BreadcrumbItem } from "@/app/_components/breadcrumb";
 import { ContentContainer } from "@/app/_components/content-container";
 import { PageTitle } from "@/app/_components/page-title";
 import { SectionTitleSkeleton } from "@/app/_components/section-title-skeleton";
-import { buildResultBreadcrumb } from "../_lib/result-breadcrumb";
+import { LeaderboardSkeleton } from "./leaderboard-skeleton";
 import { ProblemListSkeleton } from "./problem-list-skeleton";
 import { ResultBlockSkeleton } from "./result-block-skeleton";
-import { LeaderboardSkeleton } from "./leaderboard-skeleton";
 
 interface ResultPageSkeletonProps {
   /** 結果ページと同じ練習名を表示してタイトル帯を一致させる */
   readonly practiceTitle: string;
-  /** 練習説明ページの URL。結果ページと同じパンくずを組み立てるために使う。 */
-  readonly introHref?: string;
+  /** 結果ページと同じパンくず（`buildResultBreadcrumb` で組み立てる） */
+  readonly breadcrumb: readonly BreadcrumbItem[];
   /**
    * 問題別フィードバック一覧に並ぶ問題数。
-   * 一覧を持たない練習では 0（既定）にして枠自体を出さない。
+   * 一覧を持たない練習や、出題数が分からない場面では 0（既定）にして枠自体を出さない。
    */
   readonly problemCount?: number;
 }
@@ -26,32 +22,23 @@ interface ResultPageSkeletonProps {
  * 結果ページの読み込み中スケルトン
  * 結果ページスケルトン
  *
- * チャレンジ終了直後（スコア保存 → 結果ページへの遷移中）に表示する。
- * 以前はこの間 `ChallengeShell` が何も描画せず main が真っ白になっていた。
  * 結果ページ（`ResultView`）と同じレイアウト（タイトル帯・結果見出し・スコアバー・
- * 経験値ブロック・アクションボタン・リーダーボード・パンくず）の placeholder を
- * 出すことで、白画面を排し、結果ページの実描画へ滑らかに繋ぐ。
+ * 経験値ブロック・アクションボタン・問題一覧・リーダーボード・パンくず）の
+ * placeholder を描画する。次の 2 箇所から使う:
  *
- * パンくずは `ResultView` と同じ `buildResultBreadcrumb` で組み立てる
- * （こちらは Client Component なので `useTranslations` を使う）。
+ * 1. `ChallengeShell`（Client）— チャレンジ終了からリダイレクト開始までの間
+ * 2. 各練習の `result/loading.tsx`（Server）— 結果ページの取得完了までの間
+ *
+ * 翻訳の取得 API がサーバー / クライアントで異なるため、このコンポーネント自身は
+ * 翻訳を引かず、練習名とパンくずを props で受け取る純粋な描画に徹する。
  */
 export function ResultPageSkeleton({
   practiceTitle,
-  introHref,
+  breadcrumb,
   problemCount = 0,
 }: ResultPageSkeletonProps) {
-  const tc = useTranslations("challenge");
-  const tp = useTranslations("practice");
-
   return (
-    <ContentContainer
-      breadcrumb={buildResultBreadcrumb({
-        practiceListLabel: tp("title"),
-        practiceTitle,
-        resultLabel: tc("resultSuffix"),
-        introHref,
-      })}
-    >
+    <ContentContainer breadcrumb={breadcrumb}>
       <PageTitle>{practiceTitle}</PageTitle>
 
       {/* 結果ページ（ResultView）と同じ space-y-8 で間隔を揃え、遷移時のズレを防ぐ */}
