@@ -6,7 +6,7 @@ import { generateMentsuFuQuestion } from "@mahjong-scoring/core";
 import type { MentsuFuQuestion } from "@mahjong-scoring/core";
 import { Furo } from "@pai-forge/mahjong-react-ui";
 import { ChoiceButton } from "../../_components/choice-button";
-import { getFeedbackStyles } from "../../_lib/feedback-styles";
+import { getChoiceFeedbackProps } from "../../_lib/feedback-styles";
 import { FU_OPTIONS } from "../../_lib/fu-options";
 
 interface MentsuFuBoardProps {
@@ -67,27 +67,22 @@ export function MentsuFuBoard({
 
       {/* Fu options */}
       <div className="grid grid-cols-3 gap-3">
-        {FU_OPTIONS.map((fu, i) => {
-          const { borderClass, bgClass } = getFeedbackStyles(
-            showFeedback,
-            selectedFu === fu,
-            question.answer === fu,
-          );
-
-          return (
-            <ChoiceButton
-              key={fu}
-              index={i}
-              onSelect={handleFuSelect}
-              disabled={showFeedback || isCountingDown}
-              borderClass={borderClass}
-              bgClass={bgClass}
-              className="text-2xl font-bold"
-            >
-              {t("fuOption", { value: fu })}
-            </ChoiceButton>
-          );
-        })}
+        {FU_OPTIONS.map((fu, i) => (
+          <ChoiceButton
+            key={fu}
+            index={i}
+            onSelect={handleFuSelect}
+            className="text-2xl font-bold"
+            {...getChoiceFeedbackProps({
+              showFeedback,
+              isCountingDown,
+              isSelected: selectedFu === fu,
+              isCorrect: question.answer === fu,
+            })}
+          >
+            {t("fuOption", { value: fu })}
+          </ChoiceButton>
+        ))}
       </div>
     </div>
   );
