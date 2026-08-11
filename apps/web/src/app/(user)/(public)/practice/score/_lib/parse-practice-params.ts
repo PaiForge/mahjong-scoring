@@ -20,8 +20,8 @@ export function parseGeneratorOptionsFromParams(
 > {
   const ranges = parseRangeValues(params.getAll(RANGE_PARAM));
   const allowedRanges: ScoreRange[] = [];
-  if (ranges.includeNonMangan) allowedRanges.push("non_mangan");
-  if (ranges.includeManganPlus) allowedRanges.push("mangan_plus");
+  if (ranges.includeNonMangan) allowedRanges.push("nonMangan");
+  if (ranges.includeManganPlus) allowedRanges.push("manganPlus");
 
   let includeParent = true;
   let includeChild = true;

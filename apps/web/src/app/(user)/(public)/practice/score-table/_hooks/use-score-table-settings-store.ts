@@ -1,4 +1,4 @@
-import type { ScoreTableRange } from "@mahjong-scoring/core";
+import type { ScoreRange } from "@mahjong-scoring/core";
 import { create } from "zustand";
 import { persist } from "zustand/middleware";
 
@@ -16,8 +16,8 @@ interface ScoreTableSettingsState {
   includeRon: boolean;
   setIncludeRon: (enabled: boolean) => void;
   /** 出題する点数帯 */
-  targetScoreRanges: ScoreTableRange[];
-  setTargetScoreRanges: (ranges: ScoreTableRange[]) => void;
+  targetScoreRanges: ScoreRange[];
+  setTargetScoreRanges: (ranges: ScoreRange[]) => void;
 }
 
 /**

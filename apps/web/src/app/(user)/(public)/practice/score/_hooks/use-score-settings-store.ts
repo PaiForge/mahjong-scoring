@@ -40,7 +40,7 @@ export const useScoreSettingsStore = create<SettingsState>()(
       requireFuForMangan: false,
       setRequireFuForMangan: (requireFuForMangan) =>
         set({ requireFuForMangan }),
-      targetScoreRanges: ["non_mangan", "mangan_plus"],
+      targetScoreRanges: ["nonMangan", "manganPlus"],
       setTargetScoreRanges: (targetScoreRanges) => set({ targetScoreRanges }),
       autoNext: false,
       setAutoNext: (autoNext) => set({ autoNext }),
@@ -51,6 +51,28 @@ export const useScoreSettingsStore = create<SettingsState>()(
     }),
     {
       name: "mahjong-practice-settings",
+      // v0 は点数帯を snake_case（"non_mangan" / "mangan_plus"）で保存していた。
+      // 型を core の ScoreRange（camelCase）へ統一したため、保存済みの値を
+      // 変換する。変換しないと全チェックが外れ、練習を開始できなくなる。
+      version: 1,
+      migrate: (persisted, version) => {
+        if (version >= 1) return persisted as SettingsState;
+
+        const state = persisted as Partial<SettingsState> & {
+          targetScoreRanges?: readonly string[];
+        };
+        const legacy: Readonly<Record<string, ScoreRange>> = {
+          non_mangan: "nonMangan",
+          mangan_plus: "manganPlus",
+        };
+
+        return {
+          ...state,
+          targetScoreRanges: (state.targetScoreRanges ?? []).map(
+            (range) => legacy[range] ?? (range as ScoreRange),
+          ),
+        } as SettingsState;
+      },
     },
   ),
 );

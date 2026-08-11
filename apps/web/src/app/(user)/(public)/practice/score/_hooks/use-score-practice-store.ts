@@ -60,7 +60,7 @@ export const useScorePracticeStore = create<ScorePracticeStore>((set, get) => ({
   options: {
     includeFuro: true,
     includeChiitoi: false,
-    allowedRanges: ["non_mangan", "mangan_plus"],
+    allowedRanges: ["nonMangan", "manganPlus"],
   },
   stats: {
     total: 0,

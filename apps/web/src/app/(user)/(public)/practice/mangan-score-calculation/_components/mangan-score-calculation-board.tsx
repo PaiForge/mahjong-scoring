@@ -45,7 +45,7 @@ export function ManganScoreCalculationBoard({
 
   const generateOptions = useMemo(
     () => ({
-      allowedRanges: ["mangan_plus" as const],
+      allowedRanges: ["manganPlus" as const],
       ...playerTypeToOptions(playerType),
     }),
     [playerType],

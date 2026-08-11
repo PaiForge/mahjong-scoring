@@ -1,5 +1,4 @@
 import {
-  HaiKind,
   MentsuType,
   FuroType,
   Tacha,
@@ -9,6 +8,8 @@ import {
   type Koutsu,
   type Kantsu,
 } from "@pai-forge/riichi-mahjong";
+import { SUIT_BASES } from "../../../core/constants";
+import { pickMentsuType } from "../../shared/pick-mentsu-type";
 import { randomChoice } from "../../../core/random";
 import { validateHaiKindId } from "../../../core/type-guards";
 import type { HaiUsageTracker } from "../../../core/hai-tracker";
@@ -25,10 +26,9 @@ export function generateShuntsu(
   tracker: HaiUsageTracker,
   furo: boolean = false,
 ): Shuntsu | undefined {
-  const suits = [HaiKind.ManZu1, HaiKind.PinZu1, HaiKind.SouZu1];
   const bases: number[] = [];
 
-  for (const suitBase of suits) {
+  for (const suitBase of SUIT_BASES) {
     for (let num = 0; num < 7; num++) {
       const start = suitBase + num;
       const h2 = start + 1;
@@ -149,18 +149,18 @@ export function generateWeightedMentsu(
   weights: Readonly<MentsuWeights>,
   furo: boolean = false,
 ): CompletedMentsu | undefined {
-  const r = Math.random();
-  if (r < weights.shuntsu) {
-    return generateShuntsu(tracker, furo) ?? generateKoutsu(tracker, furo);
+  switch (pickMentsuType(weights)) {
+    case "shuntsu":
+      return generateShuntsu(tracker, furo) ?? generateKoutsu(tracker, furo);
+    case "koutsu":
+      return generateKoutsu(tracker, furo) ?? generateShuntsu(tracker, furo);
+    case "kantsu":
+      return (
+        generateKantsu(tracker, furo) ??
+        generateKoutsu(tracker, furo) ??
+        generateShuntsu(tracker, furo)
+      );
   }
-  if (r < weights.shuntsu + weights.koutsu) {
-    return generateKoutsu(tracker, furo) ?? generateShuntsu(tracker, furo);
-  }
-  return (
-    generateKantsu(tracker, furo) ??
-    generateKoutsu(tracker, furo) ??
-    generateShuntsu(tracker, furo)
-  );
 }
 
 /**

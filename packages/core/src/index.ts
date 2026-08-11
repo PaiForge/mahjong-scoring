@@ -96,7 +96,6 @@ export type {
   ScoreTableAnswer,
   ScoreTableUserAnswer,
   ScoreTableGeneratorOptions,
-  ScoreTableRange,
 } from "./problem/score-table/types";
 
 // === Core: 立場・和了方法 ===

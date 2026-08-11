@@ -16,13 +16,13 @@ import {
   getLevelProgress,
 } from "@mahjong-scoring/core";
 import type { ExpInfo } from "@mahjong-scoring/core";
+import type { TransactionClient } from "./index";
 import { and, eq, sql } from "drizzle-orm";
 
 import { db } from "./index";
 import { expEvents, userExp } from "./schema";
 
 /** Drizzle の `db.transaction()` コールバック引数の型 */
-type TransactionClient = Parameters<Parameters<typeof db.transaction>[0]>[0];
 
 interface GrantChallengeExpParams {
   readonly userId: string;

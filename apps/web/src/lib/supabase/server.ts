@@ -30,3 +30,11 @@ export async function createClient() {
     },
   });
 }
+
+/**
+ * サーバー用 Supabase クライアント
+ * Supabaseサーバークライアント
+ *
+ * `createClient()` の戻り値の型。ライブラリが型名を公開していないため導出する。
+ */
+export type SupabaseServerClient = Awaited<ReturnType<typeof createClient>>;

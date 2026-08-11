@@ -104,7 +104,7 @@ describe("generateScoreQuestion", () => {
       let tested = 0;
       for (let i = 0; i < 300; i++) {
         const question = generateScoreQuestion({
-          allowedRanges: ["non_mangan"],
+          allowedRanges: ["nonMangan"],
         });
         if (!question) continue;
         expect(question.answer.scoreLevel).toBe(ScoreLevel.Normal);
@@ -118,7 +118,7 @@ describe("generateScoreQuestion", () => {
       let tested = 0;
       for (let i = 0; i < 300; i++) {
         const question = generateScoreQuestion({
-          allowedRanges: ["mangan_plus"],
+          allowedRanges: ["manganPlus"],
         });
         if (!question) continue;
         expect(isMangan(question.answer.scoreLevel)).toBe(true);

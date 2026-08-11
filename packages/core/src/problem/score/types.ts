@@ -90,10 +90,10 @@ export interface JudgementResult {
  * 出題する点数帯（満貫未満 / 満貫以上）
  * 点数帯
  *
- * 点数表早引き（`ScoreTableRange`）は同じ概念を camelCase で表す。
- * こちらは点数計算練習のジェネレータオプション用の表記。
+ * 点数計算練習と点数表早引きで共通。URL 上の表記は別（"non" / "plus"）で、
+ * 変換は web の `practice/_lib/range-params.ts` が担う。
  */
-export type ScoreRange = "non_mangan" | "mangan_plus";
+export type ScoreRange = "nonMangan" | "manganPlus";
 
 export interface QuestionGeneratorOptions {
   /** 副露を含めるかどうか */

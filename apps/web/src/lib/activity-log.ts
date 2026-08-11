@@ -1,9 +1,7 @@
 import "server-only";
+import type { SupabaseServerClient } from "./supabase/server";
 
 import { db, userActivityLog } from "./db";
-import type { createClient } from "./supabase/server";
-
-type SupabaseServerClient = Awaited<ReturnType<typeof createClient>>;
 
 interface ActivityEvent {
   readonly userId: string;

@@ -55,9 +55,9 @@ export function ScoreSetupForm() {
       params.set("auto_next", "1");
     }
     if (targetScoreRanges.length > 0 && targetScoreRanges.length < 2) {
-      if (targetScoreRanges.includes("non_mangan"))
+      if (targetScoreRanges.includes("nonMangan"))
         params.append("ranges", "non");
-      if (targetScoreRanges.includes("mangan_plus"))
+      if (targetScoreRanges.includes("manganPlus"))
         params.append("ranges", "plus");
     }
     if (includeParent) params.append("roles", "oya");
@@ -82,11 +82,11 @@ export function ScoreSetupForm() {
   );
 
   const handleToggleNonMangan = useCallback(() => {
-    handleToggleRange("non_mangan");
+    handleToggleRange("nonMangan");
   }, [handleToggleRange]);
 
   const handleToggleManganPlus = useCallback(() => {
-    handleToggleRange("mangan_plus");
+    handleToggleRange("manganPlus");
   }, [handleToggleRange]);
 
   const isDisabled =
@@ -198,12 +198,12 @@ export function ScoreSetupForm() {
         {/* Target score ranges */}
         <SettingCard title={t("setup.targetScore")}>
           <SmallCheckbox
-            checked={targetScoreRanges.includes("non_mangan")}
+            checked={targetScoreRanges.includes("nonMangan")}
             onChange={handleToggleNonMangan}
             label={t("setup.nonMangan")}
           />
           <SmallCheckbox
-            checked={targetScoreRanges.includes("mangan_plus")}
+            checked={targetScoreRanges.includes("manganPlus")}
             onChange={handleToggleManganPlus}
             label={t("setup.manganPlus")}
           />

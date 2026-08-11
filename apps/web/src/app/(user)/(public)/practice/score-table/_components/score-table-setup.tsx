@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useRef } from "react";
-import type { ScoreTableRange } from "@mahjong-scoring/core";
+import type { ScoreRange } from "@mahjong-scoring/core";
 import { SettingCard } from "../../_components/setting-card";
 import { toggleInArray } from "../../_lib/toggle-in-array";
 import { CHALLENGE_TIME_LIMIT, MISTAKE_LIMIT } from "@mahjong-scoring/core";
@@ -72,7 +72,7 @@ export function ScoreTableSetup({
   const includeNonMangan = targetScoreRanges.includes("nonMangan");
   const includeManganPlus = targetScoreRanges.includes("manganPlus");
 
-  const toggleRange = (range: ScoreTableRange) => {
+  const toggleRange = (range: ScoreRange) => {
     const current = useScoreTableSettingsStore.getState().targetScoreRanges;
     setTargetScoreRanges(toggleInArray(current, range));
   };
