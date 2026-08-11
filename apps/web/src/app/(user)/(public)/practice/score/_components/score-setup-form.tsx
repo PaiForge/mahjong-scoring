@@ -3,6 +3,7 @@
 import { useState, useCallback } from "react";
 import { useRouter } from "next/navigation";
 import { useTranslations } from "next-intl";
+import type { ScoreRange } from "@mahjong-scoring/core";
 import { useScoreSettingsStore } from "../_hooks/use-score-settings-store";
 import { useScorePracticeStore } from "../_hooks/use-score-practice-store";
 import { InfoModal } from "@/app/_components/info-modal";
@@ -71,7 +72,7 @@ export function ScoreSetupForm() {
   };
 
   const handleToggleRange = useCallback(
-    (range: "non_mangan" | "mangan_plus") => {
+    (range: ScoreRange) => {
       const current = useScoreSettingsStore.getState().targetScoreRanges;
       setTargetScoreRanges(
         current.includes(range)

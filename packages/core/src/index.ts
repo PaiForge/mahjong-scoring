@@ -53,6 +53,7 @@ export type {
   UserAnswer,
   JudgementResult,
   QuestionGeneratorOptions,
+  ScoreRange,
   YakuDetail,
 } from "./problem/score/types";
 export {

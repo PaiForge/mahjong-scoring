@@ -13,6 +13,7 @@ import { randomChoice } from "../../core/random";
 import type {
   ScoreQuestion,
   QuestionGeneratorOptions,
+  ScoreRange,
   YakuDetail,
 } from "./types";
 import { reconcileYakuhai, applyRiichiAndUraDora } from "./utils/reconciler";
@@ -32,7 +33,7 @@ import { countKantsu } from "../shared/count-kantsu";
  */
 function validateScoreRange(
   scoreLevel: string,
-  allowedRanges: readonly ("non_mangan" | "mangan_plus")[],
+  allowedRanges: readonly ScoreRange[],
 ): boolean {
   if (
     allowedRanges.length === 1 &&
