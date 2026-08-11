@@ -1,11 +1,9 @@
 import type { Metadata } from "next";
-import { getTranslations } from "next-intl/server";
-import { createMetadata } from "@/app/_lib/metadata";
+import { createTitleOnlyMetadata } from "@/app/_lib/metadata";
 import { TehaiFuPlayView } from "../_components/tehai-fu-play-view";
 
 export async function generateMetadata(): Promise<Metadata> {
-  const t = await getTranslations("tehaiFu");
-  return createMetadata({ title: t("title") });
+  return createTitleOnlyMetadata("tehaiFu");
 }
 
 /**

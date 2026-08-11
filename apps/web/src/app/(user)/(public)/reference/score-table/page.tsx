@@ -4,14 +4,13 @@ import { getTranslations } from "next-intl/server";
 import { ContentContainer } from "@/app/_components/content-container";
 import { PageTitle } from "@/app/_components/page-title";
 import { SectionTitle } from "@/app/_components/section-title";
-import { createMetadata } from "@/app/_lib/metadata";
+import { createNamespaceMetadata } from "@/app/_lib/metadata";
 import { ScoreTable } from "./_components/score-table";
 
 export async function generateMetadata(): Promise<Metadata> {
-  const t = await getTranslations("scoreTable");
-  return createMetadata({
-    title: t("pageTitle"),
-    description: t("pageDescription"),
+  return createNamespaceMetadata("scoreTable", {
+    title: "pageTitle",
+    description: "pageDescription",
   });
 }
 

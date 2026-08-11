@@ -12,7 +12,7 @@
  */
 import type { Metadata } from "next";
 import { getTranslations } from "next-intl/server";
-import { createMetadata } from "@/app/_lib/metadata";
+import { createNamespaceMetadata } from "@/app/_lib/metadata";
 import { ContentContainer } from "@/app/_components/content-container";
 import { PageTitle } from "@/app/_components/page-title";
 import { SectionTitle } from "@/app/_components/section-title";
@@ -20,8 +20,7 @@ import { ScoreSetupForm } from "./_components/score-setup-form";
 import { ScoreHelpTour } from "./_components/score-help-tour";
 
 export async function generateMetadata(): Promise<Metadata> {
-  const t = await getTranslations("score");
-  return createMetadata({ title: t("title"), description: t("description") });
+  return createNamespaceMetadata("score");
 }
 
 export default async function ScoreSetupPage() {

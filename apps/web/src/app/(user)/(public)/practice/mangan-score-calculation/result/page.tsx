@@ -15,16 +15,12 @@
  */
 import type { Metadata } from "next";
 import { getTranslations } from "next-intl/server";
-import { createMetadata } from "@/app/_lib/metadata";
+import { createResultMetadata } from "@/app/_lib/metadata";
 import { createPracticeResultPage } from "../../_lib/create-practice-result-page";
 import { ManganScoreCalculationResultView } from "../_components/mangan-score-calculation-result-view";
 
 export async function generateMetadata(): Promise<Metadata> {
-  const t = await getTranslations("manganScoreCalculationChallenge");
-  const tChallenge = await getTranslations("challenge");
-  return createMetadata({
-    title: `${t("title")} - ${tChallenge("resultSuffix")}`,
-  });
+  return createResultMetadata("manganScoreCalculationChallenge");
 }
 
 export const dynamic = "force-dynamic";

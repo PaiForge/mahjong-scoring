@@ -11,13 +11,12 @@ import { ChevronRightIcon } from "@/app/_components/icons/chevron-right-icon";
 import { ContentContainer } from "@/app/_components/content-container";
 import { PageTitle } from "@/app/_components/page-title";
 import { SectionTitle } from "@/app/_components/section-title";
-import { createMetadata } from "@/app/_lib/metadata";
+import { createNamespaceMetadata } from "@/app/_lib/metadata";
 import { PracticeCard } from "./_components/practice-card";
 import { PracticeCategorySection } from "./_components/practice-category-section";
 
 export async function generateMetadata(): Promise<Metadata> {
-  const t = await getTranslations("practice");
-  return createMetadata({ title: t("title"), description: t("description") });
+  return createNamespaceMetadata("practice");
 }
 
 type Difficulty = "beginner" | "intermediate" | "advanced";
