@@ -79,6 +79,41 @@ export function scoreTierForHan(han: number): HanTier | undefined {
 }
 
 /**
+ * 早見表・学習ページで表示する満貫以上の区分（翻数の昇順）
+ * 表示用点数区分
+ *
+ * ダブル役満を除く。26 翻以上も役満として扱い、役満を上限なしの帯にする。
+ */
+export const DISPLAY_TIERS: readonly HanTier[] = [
+  ...MANGAN_PLUS_TIERS.filter((tier) => tier.key !== "doubleYakuman"),
+].reverse();
+
+/** 区分が占める翻数の範囲（上限なしは max: undefined） */
+export interface HanRange {
+  readonly min: number;
+  readonly max: number | undefined;
+}
+
+/**
+ * 区分が占める翻数の範囲を返す
+ * 区分翻数レンジ
+ *
+ * 表示テキストの組み立ては呼び出し側の責務。早見表は "6-7"、
+ * 学習ページは "6 〜 7" と体裁が異なり、満貫は「4 翻でも符次第で満貫に
+ * なる」ことを教えるため下限を 4 として表示する（詳細は各表示側を参照）。
+ */
+export function hanRangeOf(key: string): HanRange | undefined {
+  const index = DISPLAY_TIERS.findIndex((tier) => tier.key === key);
+  if (index === -1) return undefined;
+
+  const next = DISPLAY_TIERS[index + 1];
+  return {
+    min: DISPLAY_TIERS[index].minHan,
+    max: next === undefined ? undefined : next.minHan - 1,
+  };
+}
+
+/**
  * 満貫以上かどうかを判定する
  * 満貫以上判定
  */
