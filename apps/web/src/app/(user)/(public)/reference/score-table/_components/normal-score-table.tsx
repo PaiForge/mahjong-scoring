@@ -107,7 +107,7 @@ export function NormalScoreTable({
                         ) : winType === "ron" ? (
                           score.ron
                         ) : (
-                          <TsumoScore score={score.tsumo} />
+                          <TsumoScore payment={score.tsumo} />
                         )}
                       </span>
                     </td>

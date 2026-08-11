@@ -1,6 +1,23 @@
 import type { WinType } from "./roles";
 
 /**
+ * ツモ和了の支払い
+ * ツモ支払い
+ *
+ * 子ツモは「子から / 親から」の2口、親ツモは全員から同額（オール）。
+ * 点数の表現はこの構造体が唯一の形式で、"2000/4000" や "4000∀" のような
+ * 文字列化は表示コンポーネントの責務（オール表記は i18n に依存するため、
+ * core では文字列を組み立てない）。
+ */
+export type TsumoPayment =
+  | {
+      readonly type: "koTsumo";
+      readonly fromKo: number;
+      readonly fromOya: number;
+    }
+  | { readonly type: "oyaTsumo"; readonly all: number };
+
+/**
  * 基本符（ベースポイント）を計算する
  * 基本符計算
  */
@@ -26,16 +43,26 @@ export function calculateKoScore(
 ): {
   readonly isMangan: boolean;
   readonly ron: number;
-  readonly tsumo: string;
+  readonly tsumo: TsumoPayment;
 } {
   const base = calculateBasePoints(han, fu);
   if (base >= 2000) {
-    return { isMangan: true, ron: 8000, tsumo: "2000/4000" };
+    return {
+      isMangan: true,
+      ron: 8000,
+      tsumo: { type: "koTsumo", fromKo: 2000, fromOya: 4000 },
+    };
   }
   const ron = ceilTo100(base * 4);
-  const tsumoKo = ceilTo100(base * 1);
-  const tsumoOya = ceilTo100(base * 2);
-  return { isMangan: false, ron, tsumo: `${tsumoKo}/${tsumoOya}` };
+  return {
+    isMangan: false,
+    ron,
+    tsumo: {
+      type: "koTsumo",
+      fromKo: ceilTo100(base * 1),
+      fromOya: ceilTo100(base * 2),
+    },
+  };
 }
 
 /**
@@ -48,15 +75,22 @@ export function calculateOyaScore(
 ): {
   readonly isMangan: boolean;
   readonly ron: number;
-  readonly tsumo: string;
+  readonly tsumo: TsumoPayment;
 } {
   const base = calculateBasePoints(han, fu);
   if (base >= 2000) {
-    return { isMangan: true, ron: 12000, tsumo: "4000\u2200" };
+    return {
+      isMangan: true,
+      ron: 12000,
+      tsumo: { type: "oyaTsumo", all: 4000 },
+    };
   }
   const ron = ceilTo100(base * 6);
-  const tsumo = ceilTo100(base * 2);
-  return { isMangan: false, ron, tsumo: `${tsumo}\u2200` };
+  return {
+    isMangan: false,
+    ron,
+    tsumo: { type: "oyaTsumo", all: ceilTo100(base * 2) },
+  };
 }
 
 /**
@@ -102,40 +136,40 @@ export const HIGH_SCORES = [
     nameKey: "mangan",
     han: "5",
     ronKo: 8000,
-    tsumoKo: "2000/4000",
+    tsumoKo: { type: "koTsumo", fromKo: 2000, fromOya: 4000 },
     ronOya: 12000,
-    tsumoOya: "4000",
+    tsumoOya: { type: "oyaTsumo", all: 4000 },
   },
   {
     nameKey: "haneman",
     han: "6-7",
     ronKo: 12000,
-    tsumoKo: "3000/6000",
+    tsumoKo: { type: "koTsumo", fromKo: 3000, fromOya: 6000 },
     ronOya: 18000,
-    tsumoOya: "6000",
+    tsumoOya: { type: "oyaTsumo", all: 6000 },
   },
   {
     nameKey: "baiman",
     han: "8-10",
     ronKo: 16000,
-    tsumoKo: "4000/8000",
+    tsumoKo: { type: "koTsumo", fromKo: 4000, fromOya: 8000 },
     ronOya: 24000,
-    tsumoOya: "8000",
+    tsumoOya: { type: "oyaTsumo", all: 8000 },
   },
   {
     nameKey: "sanbaiman",
     han: "11-12",
     ronKo: 24000,
-    tsumoKo: "6000/12000",
+    tsumoKo: { type: "koTsumo", fromKo: 6000, fromOya: 12000 },
     ronOya: 36000,
-    tsumoOya: "12000",
+    tsumoOya: { type: "oyaTsumo", all: 12000 },
   },
   {
     nameKey: "yakuman",
     han: "13~",
     ronKo: 32000,
-    tsumoKo: "8000/16000",
+    tsumoKo: { type: "koTsumo", fromKo: 8000, fromOya: 16000 },
     ronOya: 48000,
-    tsumoOya: "16000",
+    tsumoOya: { type: "oyaTsumo", all: 16000 },
   },
 ] as const;

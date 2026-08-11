@@ -80,6 +80,7 @@ export {
   isInvalidCell,
   HIGH_SCORES,
 } from "./core/score-calculation";
+export type { TsumoPayment } from "./core/score-calculation";
 
 // === Problem: Score Table Practice ===
 export { generateScoreTableQuestion } from "./problem/score-table/generator";

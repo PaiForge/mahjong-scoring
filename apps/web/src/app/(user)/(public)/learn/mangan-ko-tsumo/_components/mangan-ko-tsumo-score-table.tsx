@@ -2,12 +2,6 @@ import { getTranslations } from "next-intl/server";
 import { HIGH_SCORES } from "@mahjong-scoring/core";
 import { HAN_DISPLAY } from "../../_lib/han-display";
 
-/** "2000/4000"（子の支払い/親の支払い）を分解する */
-function parseKoTsumo(value: string): { ko: number; oya: number } {
-  const [ko, oya] = value.split("/").map((n) => Number.parseInt(n, 10));
-  return { ko, oya };
-}
-
 /**
  * 子ツモ（満貫以上）の点数早見表（種類×翻数×子の支払い×親の支払い×合計）
  * 子ツモ満貫以上早見表
@@ -44,7 +38,7 @@ export async function ManganKoTsumoScoreTable() {
         </thead>
         <tbody className="divide-y divide-surface-100">
           {HIGH_SCORES.map((row) => {
-            const { ko, oya } = parseKoTsumo(row.tsumoKo);
+            const { fromKo: ko, fromOya: oya } = row.tsumoKo;
             const total = ko * 2 + oya;
             return (
               <tr key={row.nameKey} className="bg-white">

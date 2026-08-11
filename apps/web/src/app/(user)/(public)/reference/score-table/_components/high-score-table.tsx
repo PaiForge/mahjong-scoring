@@ -73,7 +73,9 @@ export function HighScoreTable({
                         item.ronOya
                       )
                     ) : (
-                      <TsumoScore score={isKo ? item.tsumoKo : item.tsumoOya} />
+                      <TsumoScore
+                        payment={isKo ? item.tsumoKo : item.tsumoOya}
+                      />
                     )}
                   </span>
                 </td>

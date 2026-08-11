@@ -5,6 +5,7 @@ import {
   isInvalidCell,
   HIGH_SCORES,
 } from "../../core/score-calculation";
+import type { TsumoPayment } from "../../core/score-calculation";
 import { scoreTierForHan } from "../../score/tiers";
 import type { Role, WinType } from "../../core/roles";
 import type {
@@ -28,14 +29,17 @@ function getFuCandidates(minFu: number, maxFu: number): readonly number[] {
 }
 
 /**
- * ツモ点数文字列から数値部分を抽出する
- * ツモ点数パース
- *
- * `calculateOyaScore` は "4000∀"、`calculateKoScore` は "1000/2000" 形式の文字列を返す。
- * 数字以外の文字を除去して数値に変換する。
+ * ツモ支払いを点数表の正解形式へ変換する
+ * ツモ支払い変換
  */
-function parseTsumoNumber(tsumoStr: string): number {
-  return parseInt(tsumoStr.replace(/[^\d]/g, ""), 10);
+function tsumoAnswerOf(payment: TsumoPayment): ScoreTableAnswer {
+  return payment.type === "oyaTsumo"
+    ? { type: "oyaTsumo", scoreAll: payment.all }
+    : {
+        type: "koTsumo",
+        scoreFromKo: payment.fromKo,
+        scoreFromOya: payment.fromOya,
+      };
 }
 
 /**
@@ -48,24 +52,10 @@ function buildCorrectAnswer(
   han: number,
   fu: number,
 ): ScoreTableAnswer {
-  if (isOya) {
-    const result = calculateOyaScore(han, fu);
-    if (isTsumo) {
-      return { type: "oyaTsumo", scoreAll: parseTsumoNumber(result.tsumo) };
-    }
-    return { type: "ron", score: result.ron };
-  }
-
-  const result = calculateKoScore(han, fu);
-  if (isTsumo) {
-    const parts = result.tsumo.split("/");
-    return {
-      type: "koTsumo",
-      scoreFromKo: parseInt(parts[0], 10),
-      scoreFromOya: parseInt(parts[1], 10),
-    };
-  }
-  return { type: "ron", score: result.ron };
+  const result = isOya ? calculateOyaScore(han, fu) : calculateKoScore(han, fu);
+  return isTsumo
+    ? tsumoAnswerOf(result.tsumo)
+    : { type: "ron", score: result.ron };
 }
 
 /**
@@ -92,21 +82,10 @@ function buildManganCorrectAnswer(
   han: number,
 ): ScoreTableAnswer {
   const band = highScoreBandForHan(han);
-  if (isOya) {
-    if (isTsumo) {
-      return { type: "oyaTsumo", scoreAll: parseTsumoNumber(band.tsumoOya) };
-    }
-    return { type: "ron", score: band.ronOya };
-  }
   if (isTsumo) {
-    const parts = band.tsumoKo.split("/");
-    return {
-      type: "koTsumo",
-      scoreFromKo: parseInt(parts[0], 10),
-      scoreFromOya: parseInt(parts[1], 10),
-    };
+    return tsumoAnswerOf(isOya ? band.tsumoOya : band.tsumoKo);
   }
-  return { type: "ron", score: band.ronKo };
+  return { type: "ron", score: isOya ? band.ronOya : band.ronKo };
 }
 
 /** 問題の出題パラメータ */
