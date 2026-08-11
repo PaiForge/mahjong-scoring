@@ -1,10 +1,8 @@
 "use client";
 
 import { useEffect, useRef } from "react";
-import Link from "next/link";
+import { PracticeStartCta } from "../../_components/practice-start-cta";
 import { useTranslations } from "next-intl";
-import { PrimaryLinkButton } from "@/app/_components/primary-link-button";
-import { InfinityIcon } from "@/app/_components/icons/infinity-icon";
 import { useIsClient } from "../../../../../_hooks/use-is-client";
 import { PRACTICE_SCROLL_HASH } from "../../_lib/scroll-anchor";
 import { SmallCheckbox } from "../../score/_components/small-checkbox";
@@ -170,53 +168,18 @@ export function ScoreTableSetup({
         <p className="text-center text-xs text-red-600">{t("emptyWarning")}</p>
       )}
 
-      <div className="flex flex-col gap-5">
-        <div className="flex w-full flex-col items-center gap-1.5">
-          {isDisabled ? (
-            <span
-              aria-disabled="true"
-              className="block w-full cursor-not-allowed rounded-lg bg-surface-200 px-6 py-3 text-center text-sm font-bold text-surface-400"
-            >
-              {tc("startButton")}
-            </span>
-          ) : (
-            <PrimaryLinkButton
-              href={`/practice/score-table/play${suffix}`}
-              className="w-full py-3"
-            >
-              {tc("startButton")}
-            </PrimaryLinkButton>
-          )}
-          <p className="text-xs text-surface-400">{tp("modeChallengeHint")}</p>
-        </div>
-
-        <div className="flex w-full items-center gap-3 text-xs text-surface-400">
-          <span className="h-px flex-1 bg-surface-200" />
-          <span>{tp("orDivider")}</span>
-          <span className="h-px flex-1 bg-surface-200" />
-        </div>
-
-        <div className="flex w-full flex-col items-center gap-1.5">
-          {isDisabled ? (
-            <span
-              aria-disabled="true"
-              className="inline-flex w-full cursor-not-allowed items-center justify-center gap-2 rounded-lg border border-surface-200 py-3 text-sm font-semibold text-surface-400"
-            >
-              <InfinityIcon className="size-4" />
-              {tt("startButton")}
-            </span>
-          ) : (
-            <Link
-              href={`/practice/score-table/training${suffix}`}
-              className="inline-flex w-full items-center justify-center gap-2 rounded-lg border border-primary-500 py-3 text-sm font-semibold text-primary-600 transition-colors hover:bg-primary-50"
-            >
-              <InfinityIcon className="size-4" />
-              {tt("startButton")}
-            </Link>
-          )}
-          <p className="text-xs text-surface-400">{tp("modeTrainingHint")}</p>
-        </div>
-      </div>
+      <PracticeStartCta
+        playHref={`/practice/score-table/play${suffix}`}
+        trainingHref={`/practice/score-table/training${suffix}`}
+        disabled={isDisabled}
+        labels={{
+          challenge: tc("startButton"),
+          challengeHint: tp("modeChallengeHint"),
+          training: tt("startButton"),
+          trainingHint: tp("modeTrainingHint"),
+          orDivider: tp("orDivider"),
+        }}
+      />
     </div>
   );
 }
