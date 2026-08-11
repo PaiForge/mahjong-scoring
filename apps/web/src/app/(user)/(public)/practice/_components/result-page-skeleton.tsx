@@ -6,6 +6,7 @@ import { ContentContainer } from "@/app/_components/content-container";
 import { PageTitle } from "@/app/_components/page-title";
 import { SectionTitleSkeleton } from "@/app/_components/section-title-skeleton";
 import { buildResultBreadcrumb } from "../_lib/result-breadcrumb";
+import { ProblemListSkeleton } from "./problem-list-skeleton";
 import { ResultBlockSkeleton } from "./result-block-skeleton";
 import { LeaderboardSkeleton } from "./leaderboard-skeleton";
 
@@ -14,6 +15,11 @@ interface ResultPageSkeletonProps {
   readonly practiceTitle: string;
   /** 練習説明ページの URL。結果ページと同じパンくずを組み立てるために使う。 */
   readonly introHref?: string;
+  /**
+   * 問題別フィードバック一覧に並ぶ問題数。
+   * 一覧を持たない練習では 0（既定）にして枠自体を出さない。
+   */
+  readonly problemCount?: number;
 }
 
 /**
@@ -32,6 +38,7 @@ interface ResultPageSkeletonProps {
 export function ResultPageSkeleton({
   practiceTitle,
   introHref,
+  problemCount = 0,
 }: ResultPageSkeletonProps) {
   const tc = useTranslations("challenge");
   const tp = useTranslations("practice");
@@ -74,6 +81,10 @@ export function ResultPageSkeleton({
           <div className="h-11 w-full animate-pulse rounded-lg bg-surface-200" />
           <div className="h-11 w-full animate-pulse rounded-lg bg-surface-100" />
         </div>
+
+        {/* 問題別フィードバック一覧（一覧を持つ練習のみ）。ResultView では
+            children スロットとしてアクションボタンとリーダーボードの間に入る。 */}
+        <ProblemListSkeleton count={problemCount} />
 
         {/* リーダーボードプレビュー */}
         <LeaderboardSkeleton />
