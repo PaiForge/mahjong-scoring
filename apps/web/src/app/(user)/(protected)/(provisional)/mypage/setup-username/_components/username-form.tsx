@@ -1,6 +1,7 @@
 "use client";
 
 import { type FormEvent, useCallback, useState } from "react";
+import { ProfileTextField } from "@/app/(user)/(protected)/_components/profile-text-field";
 
 import { useTranslations } from "next-intl";
 import { useRouter } from "next/navigation";
@@ -12,9 +13,6 @@ import {
 import { validateUsername } from "@/lib/username";
 
 import { registerUsername } from "../_lib/register-username";
-
-const inputClassName =
-  "w-full rounded-lg border border-surface-300 bg-white px-3 py-2 text-sm text-surface-800 placeholder:text-surface-400 focus:border-green-500 focus:ring-1 focus:ring-green-500 focus:outline-none";
 
 /**
  * ユーザー名登録フォーム。
@@ -98,54 +96,33 @@ export function UsernameForm() {
 
   return (
     <form onSubmit={handleSubmit} className="space-y-6">
-      <div>
-        <label
-          htmlFor="username"
-          className="mb-1 block text-sm font-medium text-surface-800"
-        >
-          {t("usernameLabel")} <span className="text-red-500">*</span>
-        </label>
-        <p className="mb-2 text-xs text-surface-500">
-          {t("usernameDescription")}
-        </p>
-        <input
-          id="username"
-          type="text"
-          value={username}
-          onChange={(e) => handleUsernameChange(e.target.value)}
-          placeholder={t("usernamePlaceholder")}
-          maxLength={20}
-          autoFocus
-          autoComplete="off"
-          className={inputClassName}
-        />
+      <ProfileTextField
+        id="username"
+        label={t("usernameLabel")}
+        description={t("usernameDescription")}
+        value={username}
+        onChange={handleUsernameChange}
+        placeholder={t("usernamePlaceholder")}
+        maxLength={20}
+        required
+        autoFocus
+      >
         {error && <p className="mt-2 text-sm text-red-500">{error}</p>}
         <ul className="mt-2 list-inside list-disc space-y-0.5">
           <li className="text-xs text-red-500">{t("cannotChange")}</li>
           <li className="text-xs text-surface-500">{t("usernameHint")}</li>
         </ul>
-      </div>
+      </ProfileTextField>
 
-      <div>
-        <label
-          htmlFor="displayName"
-          className="mb-1 block text-sm font-medium text-surface-800"
-        >
-          {t("displayNameLabel")}
-        </label>
-        <p className="mb-2 text-xs text-surface-500">
-          {t("displayNameDescription")}
-        </p>
-        <input
-          id="displayName"
-          type="text"
-          value={displayName}
-          onChange={(e) => setDisplayName(e.target.value)}
-          placeholder={t("displayNamePlaceholder")}
-          maxLength={50}
-          autoComplete="off"
-          className={inputClassName}
-        />
+      <ProfileTextField
+        id="displayName"
+        label={t("displayNameLabel")}
+        description={t("displayNameDescription")}
+        value={displayName}
+        onChange={setDisplayName}
+        placeholder={t("displayNamePlaceholder")}
+        maxLength={50}
+      >
         <ul className="mt-2 list-inside list-disc">
           <li className="text-xs text-surface-500">
             {t("displayNameCanChange")}
@@ -154,7 +131,7 @@ export function UsernameForm() {
             {t("displayNameMaxLength")}
           </li>
         </ul>
-      </div>
+      </ProfileTextField>
 
       <button
         type="submit"

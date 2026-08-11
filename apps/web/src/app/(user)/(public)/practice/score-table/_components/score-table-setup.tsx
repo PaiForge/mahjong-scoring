@@ -1,6 +1,9 @@
 "use client";
 
 import { useEffect, useRef } from "react";
+import type { ScoreTableRange } from "@mahjong-scoring/core";
+import { SettingCard } from "../../_components/setting-card";
+import { toggleInArray } from "../../_lib/toggle-in-array";
 import { CHALLENGE_TIME_LIMIT, MISTAKE_LIMIT } from "@mahjong-scoring/core";
 import { PracticeStartCta } from "../../_components/practice-start-cta";
 import { useTranslations } from "next-intl";
@@ -69,13 +72,9 @@ export function ScoreTableSetup({
   const includeNonMangan = targetScoreRanges.includes("nonMangan");
   const includeManganPlus = targetScoreRanges.includes("manganPlus");
 
-  const toggleRange = (range: "nonMangan" | "manganPlus") => {
+  const toggleRange = (range: ScoreTableRange) => {
     const current = useScoreTableSettingsStore.getState().targetScoreRanges;
-    setTargetScoreRanges(
-      current.includes(range)
-        ? current.filter((r) => r !== range)
-        : [...current, range],
-    );
+    setTargetScoreRanges(toggleInArray(current, range));
   };
 
   const selection: ScoreTableSelection = {
@@ -184,24 +183,6 @@ export function ScoreTableSetup({
           orDivider: tp("orDivider"),
         }}
       />
-    </div>
-  );
-}
-
-interface SettingCardProps {
-  readonly title: string;
-  readonly children: React.ReactNode;
-}
-
-function SettingCard({ title, children }: SettingCardProps) {
-  return (
-    <div className="flex flex-col overflow-hidden rounded-xl border border-surface-200 bg-white">
-      <div className="border-b border-surface-200 bg-surface-50 px-4 py-3">
-        <h3 className="text-center text-sm font-bold text-surface-700">
-          {title}
-        </h3>
-      </div>
-      <div className="flex flex-col gap-3 p-3">{children}</div>
     </div>
   );
 }

@@ -1,6 +1,8 @@
 "use client";
 
 import { useState, useCallback } from "react";
+import { SettingCard } from "../../_components/setting-card";
+import { toggleInArray } from "../../_lib/toggle-in-array";
 import { useRouter } from "next/navigation";
 import { useTranslations } from "next-intl";
 import type { ScoreRange } from "@mahjong-scoring/core";
@@ -74,11 +76,7 @@ export function ScoreSetupForm() {
   const handleToggleRange = useCallback(
     (range: ScoreRange) => {
       const current = useScoreSettingsStore.getState().targetScoreRanges;
-      setTargetScoreRanges(
-        current.includes(range)
-          ? current.filter((r) => r !== range)
-          : [...current, range],
-      );
+      setTargetScoreRanges(toggleInArray(current, range));
     },
     [setTargetScoreRanges],
   );
@@ -184,46 +182,32 @@ export function ScoreSetupForm() {
 
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
         {/* Question mode */}
-        <div className="flex flex-col overflow-hidden rounded-xl border border-surface-200 bg-white">
-          <div className="border-b border-surface-200 bg-surface-50 px-4 py-3">
-            <h3 className="text-center text-sm font-bold text-surface-700">
-              {t("setup.questionMode")}
-            </h3>
-          </div>
-          <div className="flex flex-col gap-3 p-3">
-            <SmallCheckbox
-              checked={includeParent}
-              onChange={setIncludeParent}
-              label={t("setup.oya")}
-            />
-            <SmallCheckbox
-              checked={includeChild}
-              onChange={setIncludeChild}
-              label={t("setup.ko")}
-            />
-          </div>
-        </div>
+        <SettingCard title={t("setup.questionMode")}>
+          <SmallCheckbox
+            checked={includeParent}
+            onChange={setIncludeParent}
+            label={t("setup.oya")}
+          />
+          <SmallCheckbox
+            checked={includeChild}
+            onChange={setIncludeChild}
+            label={t("setup.ko")}
+          />
+        </SettingCard>
 
         {/* Target score ranges */}
-        <div className="flex flex-col overflow-hidden rounded-xl border border-surface-200 bg-white">
-          <div className="border-b border-surface-200 bg-surface-50 px-4 py-3">
-            <h3 className="text-center text-sm font-bold text-surface-700">
-              {t("setup.targetScore")}
-            </h3>
-          </div>
-          <div className="flex flex-col gap-3 p-3">
-            <SmallCheckbox
-              checked={targetScoreRanges.includes("non_mangan")}
-              onChange={handleToggleNonMangan}
-              label={t("setup.nonMangan")}
-            />
-            <SmallCheckbox
-              checked={targetScoreRanges.includes("mangan_plus")}
-              onChange={handleToggleManganPlus}
-              label={t("setup.manganPlus")}
-            />
-          </div>
-        </div>
+        <SettingCard title={t("setup.targetScore")}>
+          <SmallCheckbox
+            checked={targetScoreRanges.includes("non_mangan")}
+            onChange={handleToggleNonMangan}
+            label={t("setup.nonMangan")}
+          />
+          <SmallCheckbox
+            checked={targetScoreRanges.includes("mangan_plus")}
+            onChange={handleToggleManganPlus}
+            label={t("setup.manganPlus")}
+          />
+        </SettingCard>
       </div>
 
       {/* Start button */}

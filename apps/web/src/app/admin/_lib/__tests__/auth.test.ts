@@ -1,24 +1,22 @@
-import { describe, expect, it, vi, beforeEach } from 'vitest';
+import { describe, expect, it, vi, beforeEach } from "vitest";
 
-const { mockGetUser, mockSelect, mockFrom, mockWhere, mockLimit, mockNotFound } =
-  vi.hoisted(() => ({
-    mockGetUser: vi.fn(),
-    mockSelect: vi.fn(),
-    mockFrom: vi.fn(),
-    mockWhere: vi.fn(),
-    mockLimit: vi.fn(),
-    mockNotFound: vi.fn((): never => {
-      throw new Error('NEXT_NOT_FOUND');
-    }),
-  }));
+import type { QueryChainMock } from "@/test/drizzle-mock";
+
+const { mockGetUser, holder, mockNotFound } = vi.hoisted(() => ({
+  mockGetUser: vi.fn(),
+  holder: { chain: undefined as unknown as QueryChainMock },
+  mockNotFound: vi.fn((): never => {
+    throw new Error("NEXT_NOT_FOUND");
+  }),
+}));
 
 // Mock next/navigation notFound（呼び出しを検知するため throw する）
-vi.mock('next/navigation', () => ({
+vi.mock("next/navigation", () => ({
   notFound: mockNotFound,
 }));
 
 // Mock the Supabase server client
-vi.mock('../../../../lib/supabase/server', () => ({
+vi.mock("../../../../lib/supabase/server", () => ({
   createClient: vi.fn(() =>
     Promise.resolve({
       auth: {
@@ -29,37 +27,34 @@ vi.mock('../../../../lib/supabase/server', () => ({
 }));
 
 // Mock the DB module
-vi.mock('../../../../lib/db', () => ({
-  db: {
-    select: mockSelect,
-  },
-  userRoles: { userId: 'user_id' },
-}));
+vi.mock("../../../../lib/db", async () => {
+  const { createQueryChain } = await import("@/test/drizzle-mock");
+  holder.chain = createQueryChain();
+  return {
+    db: { select: holder.chain.select },
+    userRoles: { userId: "user_id" },
+  };
+});
 
 // Mock drizzle-orm eq function
-vi.mock('drizzle-orm', () => ({
+vi.mock("drizzle-orm", () => ({
   eq: vi.fn((column: unknown, value: unknown) => ({ column, value })),
 }));
 
-import { requireAdmin, requireAdminPage } from '../auth';
+import { requireAdmin, requireAdminPage } from "../auth";
 
-describe('requireAdmin', () => {
+describe("requireAdmin", () => {
   beforeEach(() => {
     vi.clearAllMocks();
-
-    // Set up the default chain: db.select().from().where().limit()
-    mockSelect.mockReturnValue({ from: mockFrom });
-    mockFrom.mockReturnValue({ where: mockWhere });
-    mockWhere.mockReturnValue({ limit: mockLimit });
   });
 
-  describe('authenticated admin user', () => {
-    it('returns userId on success', async () => {
-      const userId = 'user-123';
+  describe("authenticated admin user", () => {
+    it("returns userId on success", async () => {
+      const userId = "user-123";
       mockGetUser.mockResolvedValue({
         data: { user: { id: userId } },
       });
-      mockLimit.mockResolvedValue([{ userId, role: 'admin' }]);
+      holder.chain.limit.mockResolvedValue([{ userId, role: "admin" }]);
 
       const result = await requireAdmin();
 
@@ -67,92 +62,91 @@ describe('requireAdmin', () => {
     });
   });
 
-  describe('unauthenticated user', () => {
-    it('returns error when user is not logged in', async () => {
+  describe("unauthenticated user", () => {
+    it("returns error when user is not logged in", async () => {
       mockGetUser.mockResolvedValue({
         data: { user: undefined },
       });
 
       const result = await requireAdmin();
 
-      expect(result).toEqual({ error: 'unauthorized' });
+      expect(result).toEqual({ error: "unauthorized" });
     });
 
-    it('returns error when user is null', async () => {
+    it("returns error when user is null", async () => {
       mockGetUser.mockResolvedValue({
         data: { user: null },
       });
 
       const result = await requireAdmin();
 
-      expect(result).toEqual({ error: 'unauthorized' });
+      expect(result).toEqual({ error: "unauthorized" });
     });
   });
 
-  describe('authenticated but non-admin user', () => {
+  describe("authenticated but non-admin user", () => {
     it('returns error when user has "user" role', async () => {
       mockGetUser.mockResolvedValue({
-        data: { user: { id: 'user-456' } },
+        data: { user: { id: "user-456" } },
       });
-      mockLimit.mockResolvedValue([{ userId: 'user-456', role: 'user' }]);
+      holder.chain.limit.mockResolvedValue([
+        { userId: "user-456", role: "user" },
+      ]);
 
       const result = await requireAdmin();
 
-      expect(result).toEqual({ error: 'unauthorized' });
+      expect(result).toEqual({ error: "unauthorized" });
     });
 
-    it('returns error when user has no role record at all', async () => {
+    it("returns error when user has no role record at all", async () => {
       mockGetUser.mockResolvedValue({
-        data: { user: { id: 'user-789' } },
+        data: { user: { id: "user-789" } },
       });
-      mockLimit.mockResolvedValue([]);
+      holder.chain.limit.mockResolvedValue([]);
 
       const result = await requireAdmin();
 
-      expect(result).toEqual({ error: 'unauthorized' });
+      expect(result).toEqual({ error: "unauthorized" });
     });
   });
 
-  describe('DB query is called correctly for authenticated users', () => {
-    it('queries the userRoles table with the correct userId', async () => {
-      const userId = 'user-abc';
+  describe("DB query is called correctly for authenticated users", () => {
+    it("queries the userRoles table with the correct userId", async () => {
+      const userId = "user-abc";
       mockGetUser.mockResolvedValue({
         data: { user: { id: userId } },
       });
-      mockLimit.mockResolvedValue([{ userId, role: 'admin' }]);
+      holder.chain.limit.mockResolvedValue([{ userId, role: "admin" }]);
 
       await requireAdmin();
 
-      expect(mockSelect).toHaveBeenCalledOnce();
-      expect(mockFrom).toHaveBeenCalledOnce();
-      expect(mockWhere).toHaveBeenCalledOnce();
-      expect(mockLimit).toHaveBeenCalledWith(1);
+      expect(holder.chain.select).toHaveBeenCalledOnce();
+      expect(holder.chain.from).toHaveBeenCalledOnce();
+      expect(holder.chain.where).toHaveBeenCalledOnce();
+      expect(holder.chain.limit).toHaveBeenCalledWith(1);
     });
 
-    it('does not query DB when user is not authenticated', async () => {
+    it("does not query DB when user is not authenticated", async () => {
       mockGetUser.mockResolvedValue({
         data: { user: undefined },
       });
 
       await requireAdmin();
 
-      expect(mockSelect).not.toHaveBeenCalled();
+      expect(holder.chain.select).not.toHaveBeenCalled();
     });
   });
 });
 
-describe('requireAdminPage', () => {
+describe("requireAdminPage", () => {
   beforeEach(() => {
     vi.clearAllMocks();
-    mockSelect.mockReturnValue({ from: mockFrom });
-    mockFrom.mockReturnValue({ where: mockWhere });
-    mockWhere.mockReturnValue({ limit: mockLimit });
   });
 
-  it('returns the userId without calling notFound for an admin', async () => {
-    const userId = 'user-123';
+  it("returns the userId without calling notFound for an admin", async () => {
+    const userId = "user-123";
     mockGetUser.mockResolvedValue({ data: { user: { id: userId } } });
-    mockLimit.mockResolvedValue([{ userId, role: 'admin' }]);
+    holder.chain.limit.mockResolvedValue([{ userId, role: "admin" }]);
 
     const result = await requireAdminPage();
 
@@ -160,18 +154,20 @@ describe('requireAdminPage', () => {
     expect(mockNotFound).not.toHaveBeenCalled();
   });
 
-  it('calls notFound for a non-admin user', async () => {
-    mockGetUser.mockResolvedValue({ data: { user: { id: 'user-456' } } });
-    mockLimit.mockResolvedValue([{ userId: 'user-456', role: 'user' }]);
+  it("calls notFound for a non-admin user", async () => {
+    mockGetUser.mockResolvedValue({ data: { user: { id: "user-456" } } });
+    holder.chain.limit.mockResolvedValue([
+      { userId: "user-456", role: "user" },
+    ]);
 
-    await expect(requireAdminPage()).rejects.toThrow('NEXT_NOT_FOUND');
+    await expect(requireAdminPage()).rejects.toThrow("NEXT_NOT_FOUND");
     expect(mockNotFound).toHaveBeenCalledOnce();
   });
 
-  it('calls notFound for an unauthenticated user', async () => {
+  it("calls notFound for an unauthenticated user", async () => {
     mockGetUser.mockResolvedValue({ data: { user: null } });
 
-    await expect(requireAdminPage()).rejects.toThrow('NEXT_NOT_FOUND');
+    await expect(requireAdminPage()).rejects.toThrow("NEXT_NOT_FOUND");
     expect(mockNotFound).toHaveBeenCalledOnce();
   });
 });

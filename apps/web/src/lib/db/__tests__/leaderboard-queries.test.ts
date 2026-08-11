@@ -1,5 +1,7 @@
 import { describe, expect, it, vi, beforeEach } from "vitest";
 
+import { createQueryChain } from "@/test/drizzle-mock";
+
 // ---------------------------------------------------------------------------
 // Hoisted mocks
 // ---------------------------------------------------------------------------
@@ -7,32 +9,6 @@ import { describe, expect, it, vi, beforeEach } from "vitest";
 const { mockExecute } = vi.hoisted(() => ({
   mockExecute: vi.fn(),
 }));
-
-/**
- * Drizzle の fluent chain をモックするヘルパー。
- * 各メソッドが自分自身を返すので、任意の順序でチェーンでき、
- * 最終的に then で Promise として解決される。
- */
-function createChainMock(resolveValue: unknown) {
-  const chain: Record<string, unknown> = {};
-  const methods = [
-    "select",
-    "selectDistinctOn",
-    "from",
-    "innerJoin",
-    "where",
-    "orderBy",
-    "offset",
-    "limit",
-    "as",
-  ];
-  for (const m of methods) {
-    chain[m] = vi.fn(() => chain);
-  }
-  // Make the chain thenable so `await chain` resolves to resolveValue
-  chain["then"] = (resolve: (v: unknown) => void) => resolve(resolveValue);
-  return chain;
-}
 
 let selectCallIndex = 0;
 let selectReturnValues: unknown[][] = [];
@@ -49,13 +25,13 @@ vi.mock("../index", () => ({
         const idx = selectCallIndex++;
         const resolveValue =
           idx < selectReturnValues.length ? selectReturnValues[idx] : [];
-        return createChainMock(resolveValue);
+        return createQueryChain(resolveValue);
       };
     },
     get selectDistinctOn() {
       return (..._args: unknown[]) => {
         // For monthly ranking subquery, return a chain that .as() returns an object
-        const chain = createChainMock([]);
+        const chain = createQueryChain([]);
         // Override .as to return a subquery reference object
         (chain as Record<string, unknown>)["as"] = vi.fn(() => ({
           userId: "sub_user_id",
