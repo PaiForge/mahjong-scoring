@@ -1,22 +1,24 @@
-import dotenv from 'dotenv';
-import { defineConfig } from 'drizzle-kit';
+import dotenv from "dotenv";
+import { defineConfig } from "drizzle-kit";
 
-dotenv.config({ path: ['.env.local', '.env'] });
+import {
+  LOCAL_SUPABASE_DATABASE_URL,
+  resolveMigrationDatabaseUrl,
+} from "./scripts/_lib/database-url";
+
+dotenv.config({ path: [".env.local", ".env"] });
 
 const databaseUrl =
-  process.env.POSTGRES_URL_NON_POOLING ||
-  process.env.POSTGRES_URL ||
-  process.env.DATABASE_URL ||
-  'postgresql://postgres:postgres@127.0.0.1:54322/postgres';
+  resolveMigrationDatabaseUrl() ?? LOCAL_SUPABASE_DATABASE_URL;
 
 export default defineConfig({
-  schema: './src/lib/db/schema.ts',
-  out: './drizzle',
-  dialect: 'postgresql',
+  schema: "./src/lib/db/schema.ts",
+  out: "./drizzle",
+  dialect: "postgresql",
   dbCredentials: {
     url: databaseUrl,
   },
   migrations: {
-    prefix: 'timestamp',
+    prefix: "timestamp",
   },
 });
