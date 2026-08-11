@@ -6,14 +6,13 @@ import { dirname, join } from "path";
 import postgres from "postgres";
 import { fileURLToPath } from "url";
 
+import { resolveMigrationDatabaseUrl } from "./_lib/database-url";
+
 dotenv.config({ path: [".env.local", ".env"] });
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 
-const connectionString =
-  process.env.POSTGRES_URL_NON_POOLING ||
-  process.env.POSTGRES_URL ||
-  process.env.DATABASE_URL;
+const connectionString = resolveMigrationDatabaseUrl();
 
 if (!connectionString) {
   console.log("No database connection configured. Skipping migration.");

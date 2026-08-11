@@ -1,4 +1,7 @@
 import {
+  koScoreFromBasePoints,
+  oyaScoreFromBasePoints,
+  MANGAN_BASE_POINTS,
   RON_SCORES_KO,
   RON_SCORES_OYA,
   TSUMO_SCORES_KO_PART,
@@ -26,14 +29,24 @@ export function getAvailableScores(
     return {
       type: "koTsumo",
       koScores: filterByHan(TSUMO_SCORES_KO_PART, han, "tsumoKo", manganOnly),
-      oyaScores: filterByHan(TSUMO_SCORES_OYA_PART, han, "tsumoOya", manganOnly),
+      oyaScores: filterByHan(
+        TSUMO_SCORES_OYA_PART,
+        han,
+        "tsumoOya",
+        manganOnly,
+      ),
     };
   }
 
   if (isOya && isTsumo) {
     return {
       type: "single",
-      scores: filterByHan(TSUMO_SCORES_OYA_PART, han, "tsumoOyaAll", manganOnly),
+      scores: filterByHan(
+        TSUMO_SCORES_OYA_PART,
+        han,
+        "tsumoOyaAll",
+        manganOnly,
+      ),
     };
   }
 
@@ -66,19 +79,25 @@ type AvailableScores = KoTsumoScores | SingleScores;
 export type { AvailableScores };
 
 type ScoreCategory =
-  | "ronKo"
-  | "ronOya"
-  | "tsumoKo"
-  | "tsumoOya"
-  | "tsumoOyaAll";
+  "ronKo" | "ronOya" | "tsumoKo" | "tsumoOya" | "tsumoOyaAll";
 
-const MANGAN_THRESHOLDS: Readonly<Record<ScoreCategory, number>> = {
-  ronKo: 8000,
-  ronOya: 12000,
-  tsumoKo: 2000,
-  tsumoOya: 4000,
-  tsumoOyaAll: 4000,
-};
+/**
+ * 満貫の点数（選択肢を満貫以上に絞る際のしきい値）
+ *
+ * 8000 / 12000 等を直書きせず、満貫の基本符から core と同じ式で導出する。
+ * 親ツモは「全員から同額」なので tsumoOya と tsumoOyaAll は同じ値になる。
+ */
+const MANGAN_THRESHOLDS: Readonly<Record<ScoreCategory, number>> = (() => {
+  const ko = koScoreFromBasePoints(MANGAN_BASE_POINTS);
+  const oya = oyaScoreFromBasePoints(MANGAN_BASE_POINTS);
+  return {
+    ronKo: ko.ron,
+    ronOya: oya.ron,
+    tsumoKo: ko.tsumo.fromKo,
+    tsumoOya: ko.tsumo.fromOya,
+    tsumoOyaAll: oya.tsumo.all,
+  };
+})();
 
 function filterByHan(
   scores: readonly number[],

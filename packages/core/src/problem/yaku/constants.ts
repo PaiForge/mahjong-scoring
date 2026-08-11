@@ -1,5 +1,9 @@
 import { HaiKind, type Kazehai } from "@pai-forge/riichi-mahjong";
-import { SCORE_YAKU_NAME_MAP, YAKU_OPTIONS } from "../../core/yaku-names";
+import {
+  SCORE_YAKU_NAME_MAP,
+  SITUATIONAL_YAKU_KEYS,
+  YAKU_OPTIONS,
+} from "../../core/yaku-names";
 
 /**
  * 役練習では除外する英語キー
@@ -8,15 +12,9 @@ import { SCORE_YAKU_NAME_MAP, YAKU_OPTIONS } from "../../core/yaku-names";
  * 役練習除外キー
  */
 const YAKU_DRILL_EXCLUDED_KEYS: ReadonlySet<string> = new Set([
+  ...SITUATIONAL_YAKU_KEYS,
   "Riichi",
-  "Ippatsu",
-  "Haitei",
-  "Houtei",
-  "Rinshan",
-  "Chankan",
-  "DoubleRiichi",
-  "Tenhou",
-  "Chiihou",
+  // 風牌の役牌は getKazeYakuhaiDisplayName で個別に処理する
   "Yakuhai",
   "Ton",
   "Nan",
@@ -47,16 +45,9 @@ export const SELECTABLE_YAKU: readonly string[] = YAKU_OPTIONS;
  * 正解から除外するライブラリ返却役名（状況役・偶然役）
  * 除外役名リスト
  */
-export const EXCLUDED_YAKU_FROM_ANSWER: ReadonlySet<string> = new Set([
-  "Ippatsu",
-  "Haitei",
-  "Houtei",
-  "Rinshan",
-  "Chankan",
-  "DoubleRiichi",
-  "Tenhou",
-  "Chiihou",
-]);
+export const EXCLUDED_YAKU_FROM_ANSWER: ReadonlySet<string> = new Set(
+  SITUATIONAL_YAKU_KEYS,
+);
 
 /**
  * 風牌の牌種IDから役牌表示名へのマッピング

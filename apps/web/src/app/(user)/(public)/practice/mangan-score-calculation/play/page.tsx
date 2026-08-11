@@ -1,12 +1,10 @@
 import { Suspense } from "react";
 import type { Metadata } from "next";
-import { getTranslations } from "next-intl/server";
-import { createMetadata } from "@/app/_lib/metadata";
+import { createTitleOnlyMetadata } from "@/app/_lib/metadata";
 import { ManganScoreCalculationPlayView } from "../_components/mangan-score-calculation-play-view";
 
 export async function generateMetadata(): Promise<Metadata> {
-  const t = await getTranslations("manganScoreCalculationChallenge");
-  return createMetadata({ title: t("title") });
+  return createTitleOnlyMetadata("manganScoreCalculationChallenge");
 }
 
 /**

@@ -34,16 +34,14 @@ export type LeaderboardModuleSlug = PracticeMenuSlug;
 
 export const MODULES: readonly LeaderboardModule[] = PRACTICE_MENU_TYPES;
 
-export type LeaderboardRow = RankedLeaderboardRow;
-
 /**
  * リーダーボード結果
  * ランキングの取得結果
  */
 export interface LeaderboardResult {
-  readonly rows: readonly LeaderboardRow[];
+  readonly rows: readonly RankedLeaderboardRow[];
   readonly totalCount: number;
-  readonly currentUserRank: LeaderboardRow | undefined;
+  readonly currentUserRank: RankedLeaderboardRow | undefined;
 }
 
 /**

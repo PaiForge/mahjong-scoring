@@ -6,6 +6,7 @@ import {
   HIGH_SCORES,
 } from "../../core/score-calculation";
 import type { TsumoPayment } from "../../core/score-calculation";
+import { FU_VALUES } from "../../score/constants";
 import { scoreTierForHan } from "../../score/tiers";
 import type { Role, WinType } from "../../core/roles";
 import type {
@@ -13,9 +14,6 @@ import type {
   ScoreTableAnswer,
   ScoreTableGeneratorOptions,
 } from "./types";
-
-/** 有効な符の値（10刻み、20〜110） */
-const ALL_FU_VALUES = [20, 25, 30, 40, 50, 60, 70, 80, 90, 100, 110] as const;
 
 /** 満貫以上で出題する翻数。各値が HIGH_SCORES のいずれかの帯に対応する */
 const MANGAN_PLUS_HAN_VALUES = [5, 6, 7, 8, 9, 10, 11, 12, 13] as const;
@@ -25,7 +23,7 @@ const MANGAN_PLUS_HAN_VALUES = [5, 6, 7, 8, 9, 10, 11, 12, 13] as const;
  * 符候補フィルタ
  */
 function getFuCandidates(minFu: number, maxFu: number): readonly number[] {
-  return ALL_FU_VALUES.filter((fu) => fu >= minFu && fu <= maxFu);
+  return FU_VALUES.filter((fu) => fu >= minFu && fu <= maxFu);
 }
 
 /**

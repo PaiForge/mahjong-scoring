@@ -11,14 +11,12 @@
  * 3. 「開始」を押すと play ページへ遷移
  */
 import type { Metadata } from "next";
-import { getTranslations } from "next-intl/server";
-import { createMetadata } from "@/app/_lib/metadata";
+import { createNamespaceMetadata } from "@/app/_lib/metadata";
 import { PracticeIntroContent } from "../_components/practice-intro-content";
 import { ManganScoreCalculationHowToPlay } from "./_components/mangan-score-calculation-how-to-play";
 
 export async function generateMetadata(): Promise<Metadata> {
-  const t = await getTranslations("manganScoreCalculationChallenge");
-  return createMetadata({ title: t("title"), description: t("description") });
+  return createNamespaceMetadata("manganScoreCalculationChallenge");
 }
 
 export default function ManganScoreCalculationPage() {

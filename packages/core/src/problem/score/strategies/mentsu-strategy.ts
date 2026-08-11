@@ -1,6 +1,5 @@
 import {
   MentsuType,
-  validateTehai14,
   type HaiKindId,
   type Tehai14,
   type CompletedMentsu,
@@ -8,6 +7,7 @@ import {
 import { randomChoice } from "../../../core/random";
 import { randomInt } from "../../../core/random";
 import { HaiUsageTracker } from "../../../core/hai-tracker";
+import { finalizeTehai14, isExposedMentsu } from "../../shared/hand-skeleton";
 import {
   generateWeightedMentsu,
   generateToitsu,
@@ -87,7 +87,7 @@ export function generateMentsuTehai(
       isFuro: !!mentsu.furo,
     });
 
-    if (mentsu.furo || mentsu.type === MentsuType.Kantsu) {
+    if (isExposedMentsu(mentsu)) {
       exposed.push(mentsu);
     } else {
       closedHais.push(...mentsu.hais);
@@ -98,9 +98,6 @@ export function generateMentsuTehai(
   const toitsuHai = generateToitsu(tracker);
   if (toitsuHai === undefined) return undefined;
   closedHais.push(toitsuHai, toitsuHai);
-
-  // 理牌
-  closedHais.sort((a, b) => a - b);
 
   // 和了牌の候補を収集
   const candidates: {
@@ -138,8 +135,7 @@ export function generateMentsuTehai(
     agariTarget,
   };
 
-  const tehai = { closed: closedHais, exposed };
-  const result = validateTehai14(tehai);
-  if (result.isErr()) return undefined;
-  return { tehai: result.value, agariHai, structure };
+  const tehai = finalizeTehai14(closedHais, exposed);
+  if (tehai === undefined) return undefined;
+  return { tehai, agariHai, structure };
 }

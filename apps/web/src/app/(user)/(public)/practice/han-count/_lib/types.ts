@@ -1,7 +1,9 @@
+import { resultStorageKeyFor } from "@/lib/db/practice-menu-types";
+
 import { createSessionStorageParser } from "../../_lib/create-session-storage-parser";
 
 /** sessionStorage に保存する際のキー */
-export const RESULT_STORAGE_KEY = "han-count-results";
+export const RESULT_STORAGE_KEY = resultStorageKeyFor("han-count");
 
 /**
  * 翻数即答練習の1問ごとの結果データ
@@ -20,8 +22,11 @@ export interface HanCountQuestionResult {
  * sessionStorage から取得した値が HanCountQuestionResult として妥当か検証する
  * 翻数問題結果バリデーション
  */
-function isValidQuestionResult(value: unknown): value is HanCountQuestionResult {
-  if (typeof value !== "object" || value === undefined || value === null) return false;
+function isValidQuestionResult(
+  value: unknown,
+): value is HanCountQuestionResult {
+  if (typeof value !== "object" || value === undefined || value === null)
+    return false;
   const correctHan = Reflect.get(value, "correctHan");
   const userHan = Reflect.get(value, "userHan");
   const isCorrect = Reflect.get(value, "isCorrect");
@@ -36,5 +41,8 @@ function isValidQuestionResult(value: unknown): value is HanCountQuestionResult 
  * sessionStorage から問題結果を安全にパースする
  * 翻数問題結果パース
  */
-export const parseHanCountResults: (raw: string | undefined) => readonly HanCountQuestionResult[] =
-  createSessionStorageParser(isValidQuestionResult);
+export const parseHanCountResults: (
+  raw: string | undefined,
+) => readonly HanCountQuestionResult[] = createSessionStorageParser(
+  isValidQuestionResult,
+);

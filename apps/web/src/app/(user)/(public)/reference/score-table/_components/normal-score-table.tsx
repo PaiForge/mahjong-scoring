@@ -2,6 +2,7 @@
 
 import type { RefObject } from "react";
 import { useTranslations } from "next-intl";
+import { FU_VALUES } from "@mahjong-scoring/core";
 import type { calculateKoScore } from "@mahjong-scoring/core";
 import type { Role, WinType } from "@mahjong-scoring/core";
 import { TsumoScore } from "./tsumo-score";
@@ -9,7 +10,7 @@ import { TsumoScore } from "./tsumo-score";
 /** 表の翻数列（1〜4翻） */
 export const HAN_COLS = [1, 2, 3, 4] as const;
 /** 表の符行（20〜110符） */
-export const FU_ROWS = [20, 25, 30, 40, 50, 60, 70, 80, 90, 100, 110] as const;
+export const FU_ROWS = FU_VALUES;
 
 const FREQUENT_FU = new Set([30, 40]);
 

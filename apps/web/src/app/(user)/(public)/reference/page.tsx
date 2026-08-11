@@ -16,11 +16,10 @@ import { TableIcon } from "@/app/_components/icons/table-icon";
 import { BookIcon } from "@/app/_components/icons/book-icon";
 import { ContentContainer } from "@/app/_components/content-container";
 import { PageTitle } from "@/app/_components/page-title";
-import { createMetadata } from "@/app/_lib/metadata";
+import { createNamespaceMetadata } from "@/app/_lib/metadata";
 
 export async function generateMetadata(): Promise<Metadata> {
-  const t = await getTranslations("reference");
-  return createMetadata({ title: t("title"), description: t("description") });
+  return createNamespaceMetadata("reference");
 }
 
 interface ReferenceCardDef {

@@ -18,7 +18,7 @@ import type { YakuHanEntry } from "@mahjong-scoring/core";
 import { ContentContainer } from "@/app/_components/content-container";
 import { PageTitle } from "@/app/_components/page-title";
 import { SectionTitle } from "@/app/_components/section-title";
-import { createMetadata } from "@/app/_lib/metadata";
+import { createNamespaceMetadata } from "@/app/_lib/metadata";
 import { YAKU_EXAMPLES, YAKU_CHEATSHEET_EXCLUDED } from "./_lib/yaku-examples";
 import type { YakuExample } from "./_lib/yaku-examples";
 import { YakuExampleDisclosure } from "./_components/yaku-example-disclosure";
@@ -30,8 +30,7 @@ interface YakuCheatItem {
 }
 
 export async function generateMetadata(): Promise<Metadata> {
-  const t = await getTranslations("reference.yaku");
-  return createMetadata({ title: t("title"), description: t("description") });
+  return createNamespaceMetadata("reference.yaku");
 }
 
 /** チートシートに載せる役（除外役・例未定義を除く）を門前翻数ごとにグループ化する */

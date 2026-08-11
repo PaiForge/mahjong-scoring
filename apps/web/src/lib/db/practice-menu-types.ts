@@ -151,3 +151,14 @@ export function menuTypeToMessageKey(
   }
   return key;
 }
+
+/**
+ * 練習結果を sessionStorage に保存する際のキーを導出する
+ * 結果ストレージキー
+ *
+ * `<slug>-results` 形式。各練習の _lib/types.ts に手書きすると
+ * slug 変更時に追随漏れが起きるため、レジストリの slug から導出する。
+ */
+export function resultStorageKeyFor(slug: PracticeMenuSlug): string {
+  return `${slug}-results`;
+}

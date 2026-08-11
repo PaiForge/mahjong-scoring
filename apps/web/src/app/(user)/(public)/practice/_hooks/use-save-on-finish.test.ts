@@ -12,7 +12,9 @@ async function importMockedAction() {
   return mod.savePracticeResult as ReturnType<typeof vi.fn>;
 }
 
-function makeArgs(overrides: Partial<FinishCallbackArgs> = {}): FinishCallbackArgs {
+function makeArgs(
+  overrides: Partial<FinishCallbackArgs> = {},
+): FinishCallbackArgs {
   return {
     correctCount: 5,
     incorrectCount: 2,
@@ -51,7 +53,10 @@ describe("useSaveOnFinish", () => {
   });
 
   it("認証済みユーザーの成功時に { grant: challengeResultId } を返す", async () => {
-    mockedSave.mockResolvedValue({ success: true, challengeResultId: "cr-xyz" });
+    mockedSave.mockResolvedValue({
+      success: true,
+      challengeResultId: "cr-xyz",
+    });
     const { result } = renderHook(() => useSaveOnFinish("jantou_fu"));
     const ret = await result.current(makeArgs());
 
@@ -92,9 +97,10 @@ describe("useSaveOnFinish", () => {
 
     await expect(result.current(makeArgs())).resolves.toBeUndefined();
 
+    // logExternalError は unknown をメッセージ文字列に正規化してから出力する
     expect(console.error).toHaveBeenCalledWith(
       "[savePracticeResult] yaku:",
-      networkError,
+      networkError.message,
     );
   });
 });

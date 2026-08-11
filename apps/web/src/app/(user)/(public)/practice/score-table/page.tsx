@@ -17,7 +17,7 @@ import { getTranslations } from "next-intl/server";
 import { ContentContainer } from "@/app/_components/content-container";
 import { PageTitle } from "@/app/_components/page-title";
 import { SectionTitle } from "@/app/_components/section-title";
-import { createMetadata } from "@/app/_lib/metadata";
+import { createNamespaceMetadata } from "@/app/_lib/metadata";
 import { ScoreTableHowToPlay } from "./_components/score-table-how-to-play";
 import { ScoreTableSetup } from "./_components/score-table-setup";
 import { hasSelectionParams, searchParamsToSelection } from "./_lib/options";
@@ -25,8 +25,7 @@ import { hasSelectionParams, searchParamsToSelection } from "./_lib/options";
 type SearchParams = Record<string, string | string[] | undefined>;
 
 export async function generateMetadata(): Promise<Metadata> {
-  const t = await getTranslations("scoreTableChallenge");
-  return createMetadata({ title: t("title"), description: t("description") });
+  return createNamespaceMetadata("scoreTableChallenge");
 }
 
 export default async function ScoreTablePage({

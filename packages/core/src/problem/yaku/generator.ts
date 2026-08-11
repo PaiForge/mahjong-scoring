@@ -1,11 +1,7 @@
 import {
-  MentsuType,
   detectYaku,
   isMenzen,
-  validateTehai14,
-  type HaiKindId,
   type Kazehai,
-  type CompletedMentsu,
   type Tehai14,
 } from "@pai-forge/riichi-mahjong";
 import type { YakuQuestion } from "./types";
@@ -21,6 +17,7 @@ import { generateDoraMarkers } from "../shared/dora-utils";
 import { countHaiInTehai } from "../../core/hai-count";
 import { countKantsu } from "../shared/count-kantsu";
 import {
+  buildTehai14,
   generateMentsuSet,
   generatePairTile,
   pickAgariHai,
@@ -78,26 +75,10 @@ export function generateYakuQuestion(): YakuQuestion | undefined {
   if (headTile === undefined) return undefined;
 
   // 4. Tehai14 を構築
-  const closed: HaiKindId[] = [headTile, headTile]; // 雀頭は常に閉じた手牌
-  const exposed: CompletedMentsu[] = [];
-
-  for (const { mentsu } of mentsuList) {
-    if (!!mentsu.furo || mentsu.type === MentsuType.Kantsu) {
-      exposed.push(mentsu);
-    } else {
-      closed.push(...mentsu.hais);
-    }
-  }
-
-  closed.sort((a, b) => a - b);
+  const validTehai = buildTehai14(mentsuList, headTile);
+  if (validTehai === undefined) return undefined;
 
   const agariHai = pickAgariHai(mentsuList, headTile);
-
-  const tehai = { closed, exposed };
-  const validateResult = validateTehai14(tehai);
-  if (validateResult.isErr()) return undefined;
-
-  const validTehai = validateResult.value;
   const menzen = isMenzen(validTehai);
   const isTsumo = Math.random() < 0.5;
   const isRiichi = menzen && Math.random() < 0.2;

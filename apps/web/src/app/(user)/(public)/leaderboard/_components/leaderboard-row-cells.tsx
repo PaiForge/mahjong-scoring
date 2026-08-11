@@ -1,10 +1,10 @@
-import type { LeaderboardRow } from "../_lib/types";
+import type { RankedLeaderboardRow } from "@/lib/db/leaderboard-queries";
 import { PlayerCell } from "./player-cell";
 import { RankBadge } from "./rank-badge";
 import { ScoreMissCells } from "./score-miss-cells";
 
 interface LeaderboardRowCellsProps {
-  readonly row: LeaderboardRow;
+  readonly row: RankedLeaderboardRow;
 }
 
 /**

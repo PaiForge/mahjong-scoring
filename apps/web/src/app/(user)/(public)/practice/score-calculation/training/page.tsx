@@ -12,13 +12,11 @@
  * 4. 「終了」を押すと説明ページへ戻る
  */
 import type { Metadata } from "next";
-import { getTranslations } from "next-intl/server";
-import { createMetadata } from "@/app/_lib/metadata";
+import { createNamespaceMetadata } from "@/app/_lib/metadata";
 import { ScoreCalculationTrainingView } from "../_components/score-calculation-training-view";
 
 export async function generateMetadata(): Promise<Metadata> {
-  const t = await getTranslations("scoreCalculationChallenge");
-  return createMetadata({ title: t("title"), description: t("description") });
+  return createNamespaceMetadata("scoreCalculationChallenge");
 }
 
 export default function ScoreCalculationTrainingPage() {

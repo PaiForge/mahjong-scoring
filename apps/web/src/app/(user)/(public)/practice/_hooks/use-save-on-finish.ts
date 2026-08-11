@@ -2,7 +2,11 @@
 
 import { useCallback } from "react";
 import type { PracticeMenuType } from "@/lib/db/practice-menu-types";
-import type { FinishCallbackArgs, FinishCallbackResult } from "./use-finish-redirect";
+import { logExternalError } from "@/lib/log-error";
+import type {
+  FinishCallbackArgs,
+  FinishCallbackResult,
+} from "./use-finish-redirect";
 import { savePracticeResult } from "../_actions/save-practice-result";
 
 /**
@@ -35,7 +39,7 @@ export function useSaveOnFinish(
           timeTaken: Math.round(args.elapsedMs / 1000),
         });
         if (!result.success) {
-          console.error(`[savePracticeResult] ${menuType}:`, result.error);
+          logExternalError("savePracticeResult", menuType, result.error);
           return undefined;
         }
         if ("skipped" in result) {
@@ -44,7 +48,7 @@ export function useSaveOnFinish(
         }
         return { grant: result.challengeResultId };
       } catch (error: unknown) {
-        console.error(`[savePracticeResult] ${menuType}:`, error);
+        logExternalError("savePracticeResult", menuType, error);
         return undefined;
       }
     },

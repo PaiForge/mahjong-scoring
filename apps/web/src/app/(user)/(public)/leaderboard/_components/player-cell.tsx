@@ -1,10 +1,10 @@
 import Link from "next/link";
 
 import { UserAvatar } from "@/app/_components/user-avatar";
-import type { LeaderboardRow } from "../_lib/types";
+import type { RankedLeaderboardRow } from "@/lib/db/leaderboard-queries";
 
 interface PlayerCellProps {
-  readonly row: LeaderboardRow;
+  readonly row: RankedLeaderboardRow;
 }
 
 /**

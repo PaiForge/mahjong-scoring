@@ -64,20 +64,36 @@ export function getYakuNameJa(name: string): string {
 }
 
 /**
+ * 状況役・偶然役の英語キー
+ * 状況役キーリスト
+ *
+ * 手牌の形ではなく和了の状況で決まる役。「回答として選ばせない」
+ * 「判定から除外する」という扱いはこの集合が唯一の定義で、
+ * 日本語版が必要な箇所は {@link getYakuNameJa} 経由で導出する。
+ */
+export const SITUATIONAL_YAKU_KEYS: readonly string[] = [
+  "Ippatsu",
+  "Haitei",
+  "Houtei",
+  "Rinshan",
+  "Chankan",
+  "DoubleRiichi",
+  "Tenhou",
+  "Chiihou",
+];
+
+/** ドラ（役ではないが役名として返ってくる） */
+const DORA_NAMES: readonly string[] = ["ドラ", "裏ドラ"];
+
+/**
  * 判定時に無視する役（ドラ・偶然役など）
  * 判定除外役リスト
+ *
+ * ライブラリは日本語名で役を返すため、状況役キーを日本語へ変換して持つ。
  */
 export const IGNORE_YAKU_FOR_JUDGEMENT: readonly string[] = [
-  "ドラ",
-  "裏ドラ",
-  "一発",
-  "海底摸月",
-  "河底撈魚",
-  "嶺上開花",
-  "槍槓",
-  "ダブル立直",
-  "天和",
-  "地和",
+  ...DORA_NAMES,
+  ...SITUATIONAL_YAKU_KEYS.map(getYakuNameJa),
 ];
 
 /**

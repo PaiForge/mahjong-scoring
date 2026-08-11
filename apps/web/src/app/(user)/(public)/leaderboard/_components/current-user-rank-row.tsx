@@ -1,11 +1,11 @@
 import { getTranslations } from "next-intl/server";
 
-import type { LeaderboardRow } from "../_lib/types";
+import type { RankedLeaderboardRow } from "@/lib/db/leaderboard-queries";
 import { PlayerCell } from "./player-cell";
 import { ScoreMissCells } from "./score-miss-cells";
 
 interface CurrentUserRankRowProps {
-  readonly row: LeaderboardRow;
+  readonly row: RankedLeaderboardRow;
 }
 
 /**

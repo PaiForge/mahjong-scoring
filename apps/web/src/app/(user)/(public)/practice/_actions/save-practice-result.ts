@@ -1,6 +1,7 @@
 "use server";
 
 import { getOptionalVerifiedUser } from "@/lib/auth";
+import { logExternalError } from "@/lib/log-error";
 import { isPracticeMenuType } from "@/lib/db/practice-menu-types";
 import type { PracticeMenuType } from "@/lib/db/practice-menu-types";
 import { saveChallengeResult } from "@/lib/db/save-challenge-result";
@@ -75,9 +76,10 @@ export async function savePracticeResult(
 
     return { success: true, challengeResultId };
   } catch (error) {
-    console.error(
-      `[savePracticeResult] ${menuType}: unexpected error during save:`,
-      error instanceof Error ? error.message : String(error),
+    logExternalError(
+      "savePracticeResult",
+      `${menuType}: unexpected error during save`,
+      error,
     );
     return { success: false, error: "unexpected_error" };
   }

@@ -1,6 +1,5 @@
 import type { Metadata } from "next";
-import { getTranslations } from "next-intl/server";
-import { createMetadata } from "@/app/_lib/metadata";
+import { createTitleOnlyMetadata } from "@/app/_lib/metadata";
 import { ScoreTablePlayView } from "../_components/score-table-play-view";
 import {
   searchParamsToSelection,
@@ -10,8 +9,7 @@ import {
 type SearchParams = Record<string, string | string[] | undefined>;
 
 export async function generateMetadata(): Promise<Metadata> {
-  const t = await getTranslations("scoreTableChallenge");
-  return createMetadata({ title: t("title") });
+  return createTitleOnlyMetadata("scoreTableChallenge");
 }
 
 /**

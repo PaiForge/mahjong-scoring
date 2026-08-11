@@ -1,8 +1,8 @@
-import type { LeaderboardRow } from "../_lib/types";
+import type { RankedLeaderboardRow } from "@/lib/db/leaderboard-queries";
 import { getMissColorClass } from "../_lib/miss-color";
 
 interface ScoreMissCellsProps {
-  readonly row: LeaderboardRow;
+  readonly row: RankedLeaderboardRow;
 }
 
 /**

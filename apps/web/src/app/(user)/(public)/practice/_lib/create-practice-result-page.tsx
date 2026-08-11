@@ -2,13 +2,12 @@ import type { ComponentType } from "react";
 import { Suspense } from "react";
 
 import { getLeaderboard } from "@/app/(user)/(public)/leaderboard/_actions/get-leaderboard";
-import type {
-  LeaderboardModule,
-  LeaderboardRow,
-} from "@/app/(user)/(public)/leaderboard/_lib/types";
+import type { LeaderboardModule } from "@/app/(user)/(public)/leaderboard/_lib/types";
+import type { RankedLeaderboardRow } from "@/lib/db/leaderboard-queries";
 import { buildDetailPath } from "@/app/(user)/(public)/leaderboard/_lib/types";
 import { getExpInfoByChallengeResultId } from "@/lib/db/save-exp";
 import { getOptionalUser } from "@/lib/auth";
+import { logExternalError } from "@/lib/log-error";
 
 import { ExpGainDisplay } from "../_components/exp-gain-display";
 import { LeaderboardPreview } from "../_components/leaderboard-preview";
@@ -194,7 +193,7 @@ async function AsyncLeaderboardBlock({
   const previewRows = rows.slice(
     0,
     PREVIEW_COUNT,
-  ) satisfies readonly LeaderboardRow[];
+  ) satisfies readonly RankedLeaderboardRow[];
   const detailPath = buildDetailPath("all-time", module);
 
   return <LeaderboardPreview rows={previewRows} detailPath={detailPath} />;
@@ -204,7 +203,11 @@ async function resolveCurrentUser() {
   try {
     return await getOptionalUser();
   } catch (error) {
-    console.error("[createPracticeResultPage] failed to resolve user:", error);
+    logExternalError(
+      "createPracticeResultPage",
+      "failed to resolve user",
+      error,
+    );
     return undefined;
   }
 }
@@ -213,8 +216,9 @@ async function tryFetchExpInfo(userId: string, challengeResultId: string) {
   try {
     return await getExpInfoByChallengeResultId(userId, challengeResultId);
   } catch (error) {
-    console.error(
-      "[createPracticeResultPage] failed to fetch exp info:",
+    logExternalError(
+      "createPracticeResultPage",
+      "failed to fetch exp info",
       error,
     );
     return undefined;

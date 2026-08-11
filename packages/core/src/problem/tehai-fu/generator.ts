@@ -1,6 +1,5 @@
 import {
   MentsuType,
-  validateTehai14,
   type HaiKindId,
   type CompletedMentsu,
 } from "@pai-forge/riichi-mahjong";
@@ -10,6 +9,7 @@ import { randomChoice } from "../../core/random";
 import { HaiUsageTracker } from "../../core/hai-tracker";
 import { calculateJantouFu } from "../shared/jantou-fu";
 import {
+  finalizeTehai14,
   generateMentsuSet,
   generatePairTile,
   pickAgariHai,
@@ -67,25 +67,17 @@ export function generateTehaiFuQuestion(
   const exposed: CompletedMentsu[] = [];
 
   for (const item of items) {
-    if (item.type === "Pair") {
-      closed.push(...item.tiles);
-    } else if (
-      (item.isOpen || item.type === MentsuType.Kantsu) &&
-      item.originalMentsu
-    ) {
+    if (isExposedItem(item) && item.originalMentsu) {
       exposed.push(item.originalMentsu);
     } else {
       closed.push(...item.tiles);
     }
   }
 
-  closed.sort((a, b) => a - b);
-
   const agariHai = pickAgariHai(mentsuList, headTile);
 
-  const tehai = { closed, exposed };
-  const result = validateTehai14(tehai);
-  if (result.isErr()) return undefined;
+  const tehai = finalizeTehai14(closed, exposed);
+  if (tehai === undefined) return undefined;
 
   // 5. 回答行（items）を手牌の表示順に並べ替える。
   //    手牌は「昇順ソート済みの暗牌 → 副露（右側）」で表示されるため、
@@ -95,7 +87,7 @@ export function generateTehaiFuQuestion(
 
   return {
     id: crypto.randomUUID(),
-    tehai: result.value,
+    tehai,
     context: { bakaze, jikaze, agariHai, isTsumo: Math.random() < 0.5 },
     items: orderedItems,
   };
