@@ -18,6 +18,7 @@
  * - 'score_calculation': 点数計算練習
  * - 'han_count': 翻数即答
  * - 'yaku_han': 役の翻数
+ * - 'mangan_score_calculation': 満貫以上の点数計算
  *
  * `practice/score` は自由練習のため記録対象外。
  */

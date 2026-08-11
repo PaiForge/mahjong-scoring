@@ -13,6 +13,10 @@
  * EXP 付与対象外（`calculateExp` が `undefined` を返す）となる。
  * 現時点で提供中のチャレンジ練習はすべて有効化済み（重みはいずれも 1）。
  * 将来追加する練習は、難易度を決めてから明示的にここへ追記して opt-in すること。
+ *
+ * core は web のレジストリに依存できないためキーは string 型だが、
+ * `PRACTICE_MENU_REGISTRY` との網羅性は web 側の
+ * `lib/db/__tests__/exp-module-weight.test.ts` が検証している。
  */
 export const MODULE_WEIGHT: Readonly<Record<string, number>> = {
   jantou_fu: 1,
@@ -23,6 +27,8 @@ export const MODULE_WEIGHT: Readonly<Record<string, number>> = {
   score_table: 1,
   score_calculation: 1,
   han_count: 1,
+  yaku_han: 1,
+  mangan_score_calculation: 1,
 };
 
 /**

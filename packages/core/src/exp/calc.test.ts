@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest";
 
 import { calculateExp } from "./calc";
+import { MODULE_WEIGHT } from "./constants";
 import type { ExpInput, ExpResult } from "./types";
 
 /**
@@ -55,27 +56,26 @@ describe("calculateExp", () => {
       expect(result).toBeUndefined();
     });
 
-    it("現行の全チャレンジ練習（8種）は ExpResult を返す", () => {
-      const allPractices = [
-        "jantou_fu",
-        "machi_fu",
-        "mentsu_fu",
-        "tehai_fu",
-        "yaku",
-        "score_table",
-        "score_calculation",
-        "han_count",
-      ];
-      for (const menuType of allPractices) {
+    // MODULE_WEIGHT から導出する。ここに練習種別のリストをコピーすると
+    // 追加漏れが起きても気付けない（実際 yaku_han などが漏れていた）。
+    // 「提供中の練習がすべて登録されているか」はレジストリを参照できる
+    // web 側の lib/db/__tests__/exp-module-weight.test.ts が検証する。
+    it("MODULE_WEIGHT に登録された全練習が ExpResult を返す", () => {
+      const registered = Object.keys(MODULE_WEIGHT);
+      expect(registered.length).toBeGreaterThan(0);
+
+      for (const menuType of registered) {
         const result = calculateExp({
           score: 10,
           incorrectAnswers: 0,
           menuType,
         });
-        expect(result).toBeDefined();
+        expect(result, `${menuType} が ExpResult を返さない`).toBeDefined();
         // weight=1, score=10, mult=1.5 -> 15
-        expect(result?.baseExp).toBe(10);
-        expect(result?.totalExp).toBe(15);
+        expect(result?.baseExp).toBe(10 * MODULE_WEIGHT[menuType]);
+        expect(result?.totalExp).toBe(
+          Math.floor(10 * MODULE_WEIGHT[menuType] * 1.5),
+        );
       }
     });
   });
