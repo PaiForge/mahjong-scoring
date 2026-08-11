@@ -5,6 +5,7 @@ import { PageTitle } from "@/app/_components/page-title";
 import { PrimaryLinkButton } from "@/app/_components/primary-link-button";
 import { SectionTitle } from "@/app/_components/section-title";
 import type { PracticeResultViewProps } from "../_lib/create-practice-result-page";
+import { buildResultBreadcrumb } from "../_lib/result-breadcrumb";
 import { PRACTICE_SCROLL_HASH } from "../_lib/scroll-anchor";
 import { ResultScoreBar } from "./result-score-bar";
 
@@ -47,13 +48,12 @@ export async function ResultView({
 
   return (
     <ContentContainer
-      breadcrumb={[
-        { label: tp("title"), href: "/practice" },
-        introHref
-          ? { label: practiceTitle, href: introHref }
-          : { label: practiceTitle },
-        { label: tc("resultSuffix") },
-      ]}
+      breadcrumb={buildResultBreadcrumb({
+        practiceListLabel: tp("title"),
+        practiceTitle,
+        resultLabel: tc("resultSuffix"),
+        introHref,
+      })}
     >
       <PageTitle>{practiceTitle}</PageTitle>
 

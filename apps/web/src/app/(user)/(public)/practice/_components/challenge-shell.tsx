@@ -49,8 +49,11 @@ const LifeIndicator = memo(function LifeIndicatorComponent({
 });
 
 interface ChallengeShellProps {
-  /** 画面上部に表示する練習名（PageTitle に渡す） */
-  readonly title: ReactNode;
+  /**
+   * 画面上部に表示する練習名（PageTitle に渡す）。
+   * 終了後のスケルトンでパンくずのラベルにも使うため文字列に限定する。
+   */
+  readonly title: string;
   /** ゲームロジック状態（タイマー値を含まない） */
   readonly gameSession: GameSessionState;
   /** ChallengeShell 内でタイマーを制御するためのインターフェース */
@@ -154,7 +157,14 @@ export function ChallengeShell({
   // 終了後はスコア保存 → 結果ページ遷移までの間、白画面を出さずに
   // 結果ページ形状のスケルトンを表示する（遷移中も古いルートとして残り続ける）。
   if (gameSession.isFinished) {
-    return <ResultPageSkeleton title={title} />;
+    return (
+      <ResultPageSkeleton
+        practiceTitle={title}
+        // 説明ページを持つ練習では exitHref が説明ページ URL になっており、
+        // 結果ページが受け取る introHref と一致する（既定値の練習一覧は除く）。
+        introHref={exitHref === "/practice" ? undefined : exitHref}
+      />
+    );
   }
 
   return (
