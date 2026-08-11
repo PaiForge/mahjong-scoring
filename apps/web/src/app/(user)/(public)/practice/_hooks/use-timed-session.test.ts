@@ -1,4 +1,5 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
+import { completeCountdown } from "./__tests__/timer-helpers";
 import { renderHook, act } from "@testing-library/react";
 import { useTimedSession } from "./use-timed-session";
 
@@ -9,15 +10,6 @@ import { useTimedSession } from "./use-timed-session";
  * vi.useFakeTimers() でタイマーを制御し、カウントダウンを完了させてから
  * ポーズ関連のテストを行う。
  */
-
-/** カウントダウンを完了させるヘルパー（countdownFrom 秒分進める） */
-function completeCountdown(countdownFrom = 3) {
-  for (let i = 0; i < countdownFrom; i++) {
-    act(() => {
-      vi.advanceTimersByTime(1000);
-    });
-  }
-}
 
 describe("useTimedSession - pause feature", () => {
   beforeEach(() => {
@@ -113,7 +105,7 @@ describe("useTimedSession - pause feature", () => {
 
     it("isFinished 時は togglePause が無効", () => {
       const { result } = renderHook(() =>
-        useTimedSession({ mistakeLimit: 1, feedbackDurationMs: 0 })
+        useTimedSession({ mistakeLimit: 1, feedbackDurationMs: 0 }),
       );
       completeCountdown();
 
@@ -162,7 +154,7 @@ describe("useTimedSession - pause feature", () => {
 
     it("ポーズ解除後は handleAnswer が正常に動作する", () => {
       const { result } = renderHook(() =>
-        useTimedSession({ feedbackDurationMs: 100 })
+        useTimedSession({ feedbackDurationMs: 100 }),
       );
       completeCountdown();
 
@@ -289,7 +281,7 @@ describe("useTimedSession - pause feature", () => {
   describe("フィードバック表示中のポーズ", () => {
     it("フィードバック表示中でもポーズのトグルが可能", () => {
       const { result } = renderHook(() =>
-        useTimedSession({ feedbackDurationMs: 5000 })
+        useTimedSession({ feedbackDurationMs: 5000 }),
       );
       completeCountdown();
 

@@ -53,12 +53,7 @@ vi.mock("../get-exp-heatmap-data", () => ({
   getExpHeatmapData: vi.fn(),
 }));
 
-vi.mock("drizzle-orm", () => ({
-  sql: (strings: TemplateStringsArray, ...values: unknown[]) => ({
-    strings,
-    values,
-  }),
-}));
+vi.mock("drizzle-orm", async () => await import("@/test/drizzle-orm-mock"));
 
 import type { ChallengeResultInput } from "../save-challenge-result";
 import { saveChallengeResult } from "../save-challenge-result";

@@ -72,17 +72,7 @@ vi.mock("../schema", () => ({
   },
 }));
 
-vi.mock("drizzle-orm", () => ({
-  and: (...args: unknown[]) => ({ type: "and", args }),
-  asc: (col: unknown) => ({ type: "asc", col }),
-  desc: (col: unknown) => ({ type: "desc", col }),
-  eq: (a: unknown, b: unknown) => ({ type: "eq", a, b }),
-  gte: (a: unknown, b: unknown) => ({ type: "gte", a, b }),
-  sql: (strings: TemplateStringsArray, ...values: unknown[]) => ({
-    strings,
-    values,
-  }),
-}));
+vi.mock("drizzle-orm", async () => await import("@/test/drizzle-orm-mock"));
 
 import { getAllTimeRanking, getMonthlyRanking } from "../leaderboard-queries";
 import {
@@ -93,6 +83,26 @@ import {
 // ---------------------------------------------------------------------------
 // Tests
 // ---------------------------------------------------------------------------
+
+/**
+ * SQL が返す生のランキング行（snake_case）を組み立てる
+ *
+ * `mapRawRankedRow` の変換を検証するためのモック入力。既定は
+ * 「表示名あり・アバターなし・1位」で、見たい差分だけ上書きする。
+ */
+function rawRankedRow(overrides: Record<string, unknown> = {}) {
+  return {
+    user_id: "user-a",
+    username: "alice",
+    score: 20,
+    incorrect_answers: 0,
+    time_taken: 30,
+    display_name: "Alice",
+    avatar_url: null,
+    rank: 1,
+    ...overrides,
+  };
+}
 
 describe("getAllTimeRanking", () => {
   beforeEach(() => {
@@ -233,18 +243,7 @@ describe("getUserAllTimeRankedRow", () => {
   });
 
   it("returns mapped row when user exists in ranking", async () => {
-    mockExecute.mockResolvedValue([
-      {
-        user_id: "user-a",
-        username: "alice",
-        score: 20,
-        incorrect_answers: 0,
-        time_taken: 30,
-        display_name: "Alice",
-        avatar_url: null,
-        rank: 1,
-      },
-    ]);
+    mockExecute.mockResolvedValue([rawRankedRow()]);
 
     const result = await getUserAllTimeRankedRow(
       "user-a",
@@ -278,16 +277,15 @@ describe("getUserAllTimeRankedRow", () => {
 
   it("maps null display_name and avatar_url to undefined", async () => {
     mockExecute.mockResolvedValue([
-      {
+      rawRankedRow({
         user_id: "user-b",
         username: "bob",
         score: 10,
         incorrect_answers: 2,
         time_taken: 50,
         display_name: null,
-        avatar_url: null,
         rank: 3,
-      },
+      }),
     ]);
 
     const result = await getUserAllTimeRankedRow(
@@ -302,7 +300,7 @@ describe("getUserAllTimeRankedRow", () => {
 
   it("preserves non-null display_name and avatar_url", async () => {
     mockExecute.mockResolvedValue([
-      {
+      rawRankedRow({
         user_id: "user-c",
         username: "charlie",
         score: 15,
@@ -311,7 +309,7 @@ describe("getUserAllTimeRankedRow", () => {
         display_name: "Charlie",
         avatar_url: "https://example.com/avatar.png",
         rank: 2,
-      },
+      }),
     ]);
 
     const result = await getUserAllTimeRankedRow(
@@ -332,7 +330,7 @@ describe("getUserMonthlyRankedRow", () => {
 
   it("returns mapped row when user exists in monthly ranking", async () => {
     mockExecute.mockResolvedValue([
-      {
+      rawRankedRow({
         user_id: "user-c",
         username: "charlie",
         score: 12,
@@ -341,7 +339,7 @@ describe("getUserMonthlyRankedRow", () => {
         display_name: "Charlie",
         avatar_url: "https://example.com/avatar.png",
         rank: 2,
-      },
+      }),
     ]);
 
     const result = await getUserMonthlyRankedRow(

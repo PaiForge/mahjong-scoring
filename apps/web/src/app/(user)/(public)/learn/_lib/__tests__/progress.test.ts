@@ -21,12 +21,7 @@ vi.mock("@/lib/db", async () => {
   return { db: { select: holder.chain.select } };
 });
 
-vi.mock("@/lib/db/schema", () => ({
-  learnChapterReads: {
-    userId: "user_id",
-    chapterSlug: "chapter_slug",
-  },
-}));
+vi.mock("@/lib/db/schema", async () => await import("@/test/schema-mock"));
 
 // `server-only` is not resolvable in test environment; stub it out.
 vi.mock("server-only", () => ({}));

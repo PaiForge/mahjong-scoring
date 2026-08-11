@@ -26,17 +26,9 @@ vi.mock("@/lib/db", () => ({
   },
 }));
 
-vi.mock("@/lib/db/schema", () => ({
-  learnChapterReads: {
-    userId: "user_id",
-    chapterSlug: "chapter_slug",
-  },
-}));
+vi.mock("@/lib/db/schema", async () => await import("@/test/schema-mock"));
 
-vi.mock("drizzle-orm", () => ({
-  and: vi.fn((...args: unknown[]) => ({ __and: args })),
-  eq: vi.fn((column: unknown, value: unknown) => ({ __eq: { column, value } })),
-}));
+vi.mock("drizzle-orm", async () => await import("@/test/drizzle-orm-mock"));
 
 vi.mock("next/cache", () => ({
   revalidatePath: mockRevalidatePath,

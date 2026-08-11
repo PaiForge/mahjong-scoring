@@ -28,12 +28,7 @@ vi.mock("@/lib/db", () => ({
   },
 }));
 
-vi.mock("@/lib/db/schema", () => ({
-  learnChapterReads: {
-    userId: "user_id",
-    chapterSlug: "chapter_slug",
-  },
-}));
+vi.mock("@/lib/db/schema", async () => await import("@/test/schema-mock"));
 
 vi.mock("next/cache", () => ({
   revalidatePath: mockRevalidatePath,

@@ -1,4 +1,5 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
+import { completeCountdown } from "./__tests__/timer-helpers";
 import { renderHook, act } from "@testing-library/react";
 import { useTimedSession } from "./use-timed-session";
 import { useFinishRedirect } from "./use-finish-redirect";
@@ -39,14 +40,6 @@ function useSession(
   return { session, onFinish };
 }
 
-function completeCountdown(countdownFrom = 3) {
-  for (let i = 0; i < countdownFrom; i++) {
-    act(() => {
-      vi.advanceTimersByTime(1000);
-    });
-  }
-}
-
 describe("useFinishRedirect integration", () => {
   beforeEach(() => {
     vi.useFakeTimers();
@@ -58,9 +51,7 @@ describe("useFinishRedirect integration", () => {
   });
 
   it("3ミス到達で終了したとき onFinish が呼ばれ grant 付き URL に push される", async () => {
-    const onFinishImpl = vi
-      .fn()
-      .mockResolvedValue({ grant: "cr-gameover" });
+    const onFinishImpl = vi.fn().mockResolvedValue({ grant: "cr-gameover" });
     const { result } = renderHook(() => useSession(onFinishImpl));
 
     completeCountdown();
@@ -96,9 +87,7 @@ describe("useFinishRedirect integration", () => {
   });
 
   it("時間切れで終了したとき onFinish が呼ばれ grant 付き URL に push される", async () => {
-    const onFinishImpl = vi
-      .fn()
-      .mockResolvedValue({ grant: "cr-timeout" });
+    const onFinishImpl = vi.fn().mockResolvedValue({ grant: "cr-timeout" });
     const { result } = renderHook(() => useSession(onFinishImpl));
 
     completeCountdown();
