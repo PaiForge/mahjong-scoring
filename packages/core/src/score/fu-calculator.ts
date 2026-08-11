@@ -7,6 +7,7 @@ import {
 } from "@pai-forge/riichi-mahjong";
 import { calculateMentsuFu } from "../core/score-calculation";
 import { jantouFuReasons } from "../problem/shared/jantou-fu";
+import { openLabel, yaochuLabel } from "../problem/shared/mentsu-labels";
 
 /** 符が付く待ち形の日本語ラベル */
 const MACHI_LABELS: Readonly<Record<string, string>> = {
@@ -100,10 +101,11 @@ export function convertScoreDetailToFuDetails(
       });
 
       const typeLabel = mentsu.type === MentsuType.Kantsu ? "槓子" : "刻子";
-      const yaoLabel = isYao ? "么九牌" : "中張牌";
-      const openLabel = isOpen ? "明" : "暗";
 
-      result.push({ reason: `${yaoLabel}${openLabel}${typeLabel}`, fu });
+      result.push({
+        reason: `${yaochuLabel(isYao)}${openLabel(isOpen)}${typeLabel}`,
+        fu,
+      });
     }
   }
 

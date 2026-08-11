@@ -6,6 +6,8 @@ import {
   type Koutsu,
   type Kantsu,
 } from "@pai-forge/riichi-mahjong";
+import { openLabel, yaochuLabel } from "../shared/mentsu-labels";
+import { pickMentsuType } from "../shared/pick-mentsu-type";
 import { SUIT_BASES } from "../../core/constants";
 import { randomInt, randomChoice } from "../../core/random";
 import { calculateMentsuFu } from "../../core/score-calculation";
@@ -72,8 +74,8 @@ export function createRandomKoutsu(): MentsuResult {
 
   const fu = calculateMentsuFu({ isKantsu: false, isOpen, isYaochu });
 
-  const typeStr = isYaochu ? "么九牌" : "中張牌";
-  const stateStr = isOpen ? "明刻" : "暗刻";
+  const typeStr = yaochuLabel(isYaochu);
+  const stateStr = `${openLabel(isOpen)}刻`;
 
   return { mentsu, fu, explanation: `${typeStr}の${stateStr}は${fu}符です` };
 }
@@ -99,8 +101,10 @@ export function createRandomKantsu(): MentsuResult {
 
   const fu = calculateMentsuFu({ isKantsu: true, isOpen, isYaochu });
 
-  const typeStr = isYaochu ? "么九牌" : "中張牌";
-  const stateStr = isOpen ? "明槓（または加槓）" : "暗槓";
+  const typeStr = yaochuLabel(isYaochu);
+  const stateStr = isOpen
+    ? `${openLabel(true)}槓（または加槓）`
+    : `${openLabel(false)}槓`;
 
   return { mentsu, fu, explanation: `${typeStr}の${stateStr}は${fu}符です` };
 }
@@ -125,12 +129,12 @@ export interface MentsuWeights {
 export function createRandomMentsu(
   weights: Readonly<MentsuWeights>,
 ): MentsuResult {
-  const r = Math.random();
-  if (r < weights.shuntsu) {
-    return createRandomShuntsu() ?? createRandomKoutsu();
+  switch (pickMentsuType(weights)) {
+    case "shuntsu":
+      return createRandomShuntsu() ?? createRandomKoutsu();
+    case "koutsu":
+      return createRandomKoutsu();
+    case "kantsu":
+      return createRandomKantsu();
   }
-  if (r < weights.shuntsu + weights.koutsu) {
-    return createRandomKoutsu();
-  }
-  return createRandomKantsu();
 }
