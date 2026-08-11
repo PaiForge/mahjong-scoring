@@ -1,4 +1,5 @@
 import type { ReactNode } from "react";
+import { CHALLENGE_TIME_LIMIT, MISTAKE_LIMIT } from "@mahjong-scoring/core";
 import { PracticeStartCta } from "./practice-start-cta";
 import Link from "next/link";
 import { getTranslations } from "next-intl/server";
@@ -72,7 +73,10 @@ export async function PracticeIntroContent({
             trainingHref={`/practice/${slug}/training${PRACTICE_SCROLL_HASH}`}
             labels={{
               challenge: tc("startButton"),
-              challengeHint: tp("modeChallengeHint"),
+              challengeHint: tp("modeChallengeHint", {
+                timeLimit: CHALLENGE_TIME_LIMIT,
+                mistakeLimit: MISTAKE_LIMIT,
+              }),
               training: tt("startButton"),
               trainingHint: tp("modeTrainingHint"),
               orDivider: tp("orDivider"),

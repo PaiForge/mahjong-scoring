@@ -34,7 +34,9 @@ export const MODULE_WEIGHT: Readonly<Record<string, number>> = {
 /**
  * 精度ボーナス（ミス数ベース）
  *
- * チャレンジは 3 ミスで終了するため、`incorrectAnswers` は 0〜3 を想定する。
+ * チャレンジは MISTAKE_LIMIT ミスで終了するため、ボーナスが付くのは
+ * 0〜MISTAKE_LIMIT-1 ミス。倍率は手で調整した値のため導出できないが、
+ * 段数と上限の対応は `calc.test.ts` が検証する。
  */
 export const MISS_BONUS: ReadonlyArray<{
   readonly misses: number;

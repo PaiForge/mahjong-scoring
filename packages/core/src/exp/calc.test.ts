@@ -1,7 +1,8 @@
 import { describe, expect, it } from "vitest";
 
 import { calculateExp } from "./calc";
-import { MODULE_WEIGHT } from "./constants";
+import { MISS_BONUS, MODULE_WEIGHT } from "./constants";
+import { MISTAKE_LIMIT } from "../challenge/constants";
 import type { ExpInput, ExpResult } from "./types";
 
 /**
@@ -243,5 +244,24 @@ describe("calculateExp", () => {
       expect(twoMiss).toBeGreaterThan(burst);
       expect(burst).toBe(20); // baseExp 20 * 1.0
     });
+  });
+});
+
+describe("MISS_BONUS とチャレンジのミス上限", () => {
+  it("ボーナスが付くのは 0〜MISTAKE_LIMIT-1 ミス（上限到達はボーナスなし）", () => {
+    // 倍率は手で調整した値のため導出できない。上限を変えたときに
+    // 表の段数の見直し漏れを検出するための対応チェック。
+    expect(MISS_BONUS.map((b) => b.misses)).toEqual(
+      Array.from({ length: MISTAKE_LIMIT }, (_, i) => i),
+    );
+  });
+
+  it("上限ちょうどのミス（バースト）は倍率 1.0", () => {
+    const burst = calc({
+      score: 10,
+      incorrectAnswers: MISTAKE_LIMIT,
+      menuType: "jantou_fu",
+    });
+    expect(burst.accuracyMultiplier).toBe(1.0);
   });
 });

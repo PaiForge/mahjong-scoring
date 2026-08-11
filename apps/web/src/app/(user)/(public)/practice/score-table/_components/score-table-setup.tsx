@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useRef } from "react";
+import { CHALLENGE_TIME_LIMIT, MISTAKE_LIMIT } from "@mahjong-scoring/core";
 import { PracticeStartCta } from "../../_components/practice-start-cta";
 import { useTranslations } from "next-intl";
 import { useIsClient } from "../../../../../_hooks/use-is-client";
@@ -174,7 +175,10 @@ export function ScoreTableSetup({
         disabled={isDisabled}
         labels={{
           challenge: tc("startButton"),
-          challengeHint: tp("modeChallengeHint"),
+          challengeHint: tp("modeChallengeHint", {
+            timeLimit: CHALLENGE_TIME_LIMIT,
+            mistakeLimit: MISTAKE_LIMIT,
+          }),
           training: tt("startButton"),
           trainingHint: tp("modeTrainingHint"),
           orDivider: tp("orDivider"),
