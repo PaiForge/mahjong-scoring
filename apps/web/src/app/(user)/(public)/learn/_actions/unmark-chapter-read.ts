@@ -1,14 +1,14 @@
-'use server';
+"use server";
 
-import { and, eq } from 'drizzle-orm';
-import { revalidatePath } from 'next/cache';
+import { and, eq } from "drizzle-orm";
+import { revalidatePath } from "next/cache";
 
-import { db } from '@/lib/db';
-import { learnChapterReads } from '@/lib/db/schema';
-import { createClient } from '@/lib/supabase/server';
+import { getOptionalVerifiedUser } from "@/lib/auth";
+import { db } from "@/lib/db";
+import { learnChapterReads } from "@/lib/db/schema";
 
-import { isCurriculumChapterSlug } from '../_lib/curriculum';
-import type { MarkActionResult } from './mark-chapter-read';
+import { isCurriculumChapterSlug } from "../_lib/curriculum";
+import type { MarkActionResult } from "./mark-chapter-read";
 
 /**
  * 指定章の読了マークを解除する Server Action。
@@ -20,17 +20,16 @@ import type { MarkActionResult } from './mark-chapter-read';
  *
  * @param slug 対象章のスラッグ
  */
-export async function unmarkChapterRead(slug: string): Promise<MarkActionResult> {
+export async function unmarkChapterRead(
+  slug: string,
+): Promise<MarkActionResult> {
   if (!isCurriculumChapterSlug(slug)) {
-    return { success: false, error: 'invalid-slug' };
+    return { success: false, error: "invalid-slug" };
   }
 
-  const supabase = await createClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
+  const user = await getOptionalVerifiedUser();
   if (!user) {
-    return { success: true, skipped: 'anonymous' };
+    return { success: true, skipped: "anonymous" };
   }
 
   await db
@@ -42,7 +41,7 @@ export async function unmarkChapterRead(slug: string): Promise<MarkActionResult>
       ),
     );
 
-  revalidatePath('/learn');
+  revalidatePath("/learn");
   revalidatePath(`/learn/${slug}`);
   return { success: true };
 }

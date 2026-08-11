@@ -1,7 +1,6 @@
+import type { ScoreRange } from "@mahjong-scoring/core";
 import { create } from "zustand";
 import { persist } from "zustand/middleware";
-
-type ScoreRange = "non_mangan" | "mangan_plus";
 
 interface SettingsState {
   /** 役も回答するかどうか */
@@ -39,7 +38,8 @@ export const useScoreSettingsStore = create<SettingsState>()(
       simplifyMangan: false,
       setSimplifyMangan: (simplifyMangan) => set({ simplifyMangan }),
       requireFuForMangan: false,
-      setRequireFuForMangan: (requireFuForMangan) => set({ requireFuForMangan }),
+      setRequireFuForMangan: (requireFuForMangan) =>
+        set({ requireFuForMangan }),
       targetScoreRanges: ["non_mangan", "mangan_plus"],
       setTargetScoreRanges: (targetScoreRanges) => set({ targetScoreRanges }),
       autoNext: false,

@@ -86,13 +86,22 @@ export interface JudgementResult {
  * 問題生成オプション
  * 練習問題生成オプション
  */
+/**
+ * 出題する点数帯（満貫未満 / 満貫以上）
+ * 点数帯
+ *
+ * 点数表早引き（`ScoreTableRange`）は同じ概念を camelCase で表す。
+ * こちらは点数計算練習のジェネレータオプション用の表記。
+ */
+export type ScoreRange = "non_mangan" | "mangan_plus";
+
 export interface QuestionGeneratorOptions {
   /** 副露を含めるかどうか */
   readonly includeFuro?: boolean;
   /** 七対子を含めるかどうか */
   readonly includeChiitoi?: boolean;
   /** 出題する点数範囲 */
-  readonly allowedRanges?: readonly ("non_mangan" | "mangan_plus")[];
+  readonly allowedRanges?: readonly ScoreRange[];
   /** 親（東家）を含めるかどうか */
   readonly includeParent?: boolean;
   /** 子（散家）を含めるかどうか */

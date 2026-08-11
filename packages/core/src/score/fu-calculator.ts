@@ -1,12 +1,12 @@
 import {
   MentsuType,
-  HaiKind,
   isYaochu,
   type HaiKindId,
   type Kazehai,
   type ScoreDetail,
 } from "@pai-forge/riichi-mahjong";
 import { calculateMentsuFu } from "../core/score-calculation";
+import { jantouFuReasons } from "../problem/shared/jantou-fu";
 
 /** 符が付く待ち形の日本語ラベル */
 const MACHI_LABELS: Readonly<Record<string, string>> = {
@@ -110,20 +110,10 @@ export function convertScoreDetailToFuDetails(
   // 雀頭符
   if (details.jantou > 0 && structure.type === "Mentsu") {
     const pair = structure.jantou.hais[0];
-    const pairNamePart: string[] = [];
-
-    if (pair === config.bakaze) pairNamePart.push("場風");
-    if (pair === config.jikaze) pairNamePart.push("自風");
-    if (
-      pair === HaiKind.Haku ||
-      pair === HaiKind.Hatsu ||
-      pair === HaiKind.Chun
-    ) {
-      pairNamePart.push("三元牌");
-    }
+    const reasons = jantouFuReasons(pair, config.bakaze, config.jikaze);
 
     result.push({
-      reason: `雀頭(${pairNamePart.join("・")})`,
+      reason: `雀頭(${reasons.join("・")})`,
       fu: details.jantou,
     });
   }

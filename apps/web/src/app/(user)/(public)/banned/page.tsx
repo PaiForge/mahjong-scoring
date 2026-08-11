@@ -4,9 +4,9 @@ import { redirect } from "next/navigation";
 
 import { PageTitle } from "@/app/_components/page-title";
 import { ContentContainer } from "@/app/_components/content-container";
+import { getAuthenticatedUser } from "../../../../lib/auth";
 import { isUserBanned } from "../../../../lib/ban";
 import { db, moderationActions } from "../../../../lib/db";
-import { createClient } from "../../../../lib/supabase/server";
 
 /**
  * BAN ページ
@@ -17,15 +17,8 @@ import { createClient } from "../../../../lib/supabase/server";
 export default async function BannedPage() {
   const t = await getTranslations("banned");
 
-  const supabase = await createClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
-
-  // 未認証ならサインインへ
-  if (!user) {
-    redirect("/sign-in");
-  }
+  // 未認証なら getAuthenticatedUser が /sign-in へリダイレクトする
+  const user = await getAuthenticatedUser();
 
   // BAN されていなければホームへ
   const banned = await isUserBanned(user.id);

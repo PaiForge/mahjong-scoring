@@ -1,7 +1,7 @@
 "use server";
 
+import { getOptionalUser } from "@/lib/auth";
 import type { PracticeMenuType } from "@/lib/db/practice-menu-types";
-import { createClient } from "@/lib/supabase/server";
 
 import type { ChallengeSession } from "../_lib/types";
 import { fetchChallengeSessions } from "../_lib/queries";
@@ -21,10 +21,7 @@ export async function getChallengeSessions(
   previous: ChallengeSession[];
 }> {
   try {
-    const supabase = await createClient();
-    const {
-      data: { user },
-    } = await supabase.auth.getUser();
+    const user = await getOptionalUser();
 
     if (!user) {
       return { current: [], previous: [] };

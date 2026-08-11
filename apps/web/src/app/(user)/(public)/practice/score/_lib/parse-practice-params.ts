@@ -1,4 +1,9 @@
-import type { QuestionGeneratorOptions } from "@mahjong-scoring/core";
+import type {
+  QuestionGeneratorOptions,
+  ScoreRange,
+} from "@mahjong-scoring/core";
+
+import { RANGE_PARAM, parseRangeValues } from "../../_lib/range-params";
 
 /**
  * 無限練習（score）のクエリパラメータから問題生成オプションを組み立てる
@@ -13,15 +18,10 @@ export function parseGeneratorOptionsFromParams(
   QuestionGeneratorOptions,
   "allowedRanges" | "includeParent" | "includeChild"
 > {
-  const allowedRanges: ("non_mangan" | "mangan_plus")[] = [];
-  const rangesValues = params.getAll("ranges");
-
-  if (rangesValues.length > 0) {
-    if (rangesValues.includes("non")) allowedRanges.push("non_mangan");
-    if (rangesValues.includes("plus")) allowedRanges.push("mangan_plus");
-  } else {
-    allowedRanges.push("non_mangan", "mangan_plus");
-  }
+  const ranges = parseRangeValues(params.getAll(RANGE_PARAM));
+  const allowedRanges: ScoreRange[] = [];
+  if (ranges.includeNonMangan) allowedRanges.push("non_mangan");
+  if (ranges.includeManganPlus) allowedRanges.push("mangan_plus");
 
   let includeParent = true;
   let includeChild = true;

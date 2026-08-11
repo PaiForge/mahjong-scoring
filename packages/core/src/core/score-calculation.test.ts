@@ -1,50 +1,90 @@
 import { describe, it, expect } from "vitest";
-import { calculateKoScore, calculateOyaScore, isInvalidCell } from "./score-calculation";
+import {
+  calculateKoScore,
+  calculateOyaScore,
+  isInvalidCell,
+} from "./score-calculation";
 
 describe("calculateKoScore", () => {
   it("1翻30符の子ロンは1000点", () => {
     const result = calculateKoScore(1, 30);
-    expect(result).toEqual({ isMangan: false, ron: 1000, tsumo: "300/500" });
+    expect(result).toEqual({
+      isMangan: false,
+      ron: 1000,
+      tsumo: { type: "koTsumo", fromKo: 300, fromOya: 500 },
+    });
   });
 
   it("1翻40符の子ロンは1300点", () => {
     const result = calculateKoScore(1, 40);
-    expect(result).toEqual({ isMangan: false, ron: 1300, tsumo: "400/700" });
+    expect(result).toEqual({
+      isMangan: false,
+      ron: 1300,
+      tsumo: { type: "koTsumo", fromKo: 400, fromOya: 700 },
+    });
   });
 
   it("2翻30符の子ロンは2000点", () => {
     const result = calculateKoScore(2, 30);
-    expect(result).toEqual({ isMangan: false, ron: 2000, tsumo: "500/1000" });
+    expect(result).toEqual({
+      isMangan: false,
+      ron: 2000,
+      tsumo: { type: "koTsumo", fromKo: 500, fromOya: 1000 },
+    });
   });
 
   it("3翻30符の子ロンは3900点", () => {
     const result = calculateKoScore(3, 30);
-    expect(result).toEqual({ isMangan: false, ron: 3900, tsumo: "1000/2000" });
+    expect(result).toEqual({
+      isMangan: false,
+      ron: 3900,
+      tsumo: { type: "koTsumo", fromKo: 1000, fromOya: 2000 },
+    });
   });
 
   it("3翻40符の子ロンは5200点", () => {
     const result = calculateKoScore(3, 40);
-    expect(result).toEqual({ isMangan: false, ron: 5200, tsumo: "1300/2600" });
+    expect(result).toEqual({
+      isMangan: false,
+      ron: 5200,
+      tsumo: { type: "koTsumo", fromKo: 1300, fromOya: 2600 },
+    });
   });
 
   it("4翻30符の子は満貫(base=1920 < 2000)", () => {
     const result = calculateKoScore(4, 30);
-    expect(result).toEqual({ isMangan: false, ron: 7700, tsumo: "2000/3900" });
+    expect(result).toEqual({
+      isMangan: false,
+      ron: 7700,
+      tsumo: { type: "koTsumo", fromKo: 2000, fromOya: 3900 },
+    });
   });
 
   it("3翻70符の子は満貫(base=2240 >= 2000)", () => {
     const result = calculateKoScore(3, 70);
-    expect(result).toEqual({ isMangan: true, ron: 8000, tsumo: "2000/4000" });
+    expect(result).toEqual({
+      isMangan: true,
+      ron: 8000,
+      tsumo: { type: "koTsumo", fromKo: 2000, fromOya: 4000 },
+    });
   });
 
   it("4翻40符の子は満貫(base=2560 >= 2000)", () => {
     const result = calculateKoScore(4, 40);
-    expect(result).toEqual({ isMangan: true, ron: 8000, tsumo: "2000/4000" });
+    expect(result).toEqual({
+      isMangan: true,
+      ron: 8000,
+      tsumo: { type: "koTsumo", fromKo: 2000, fromOya: 4000 },
+    });
   });
 
   it("2翻25符の子ロンは1600点（七対子ロン）", () => {
     const result = calculateKoScore(2, 25);
-    expect(result).toEqual({ isMangan: false, ron: 1600, tsumo: "400/800" });
+    expect(result).toEqual({
+      isMangan: false,
+      ron: 1600,
+      tsumo: { type: "koTsumo", fromKo: 400, fromOya: 800 },
+    });
   });
 
   it("100点単位の切り上げが正しい", () => {
@@ -58,45 +98,77 @@ describe("calculateKoScore", () => {
 describe("calculateOyaScore", () => {
   it("1翻30符の親ロンは1500点", () => {
     const result = calculateOyaScore(1, 30);
-    expect(result).toEqual({ isMangan: false, ron: 1500, tsumo: "500∀" });
+    expect(result).toEqual({
+      isMangan: false,
+      ron: 1500,
+      tsumo: { type: "oyaTsumo", all: 500 },
+    });
   });
 
   it("1翻40符の親ロンは2000点", () => {
     const result = calculateOyaScore(1, 40);
-    expect(result).toEqual({ isMangan: false, ron: 2000, tsumo: "700∀" });
+    expect(result).toEqual({
+      isMangan: false,
+      ron: 2000,
+      tsumo: { type: "oyaTsumo", all: 700 },
+    });
   });
 
   it("2翻30符の親ロンは2900点", () => {
     // base = 30 * 2^4 = 480, ron = 480*6 = 2880 -> 2900
     const result = calculateOyaScore(2, 30);
-    expect(result).toEqual({ isMangan: false, ron: 2900, tsumo: "1000∀" });
+    expect(result).toEqual({
+      isMangan: false,
+      ron: 2900,
+      tsumo: { type: "oyaTsumo", all: 1000 },
+    });
   });
 
   it("3翻30符の親ロンは5800点", () => {
     const result = calculateOyaScore(3, 30);
-    expect(result).toEqual({ isMangan: false, ron: 5800, tsumo: "2000∀" });
+    expect(result).toEqual({
+      isMangan: false,
+      ron: 5800,
+      tsumo: { type: "oyaTsumo", all: 2000 },
+    });
   });
 
   it("3翻40符の親ロンは7700点", () => {
     // base = 40 * 2^5 = 1280, ron = 1280*6 = 7680 -> 7700
     const result = calculateOyaScore(3, 40);
-    expect(result).toEqual({ isMangan: false, ron: 7700, tsumo: "2600∀" });
+    expect(result).toEqual({
+      isMangan: false,
+      ron: 7700,
+      tsumo: { type: "oyaTsumo", all: 2600 },
+    });
   });
 
   it("4翻40符の親は満貫(base=2560 >= 2000)", () => {
     const result = calculateOyaScore(4, 40);
-    expect(result).toEqual({ isMangan: true, ron: 12000, tsumo: "4000∀" });
+    expect(result).toEqual({
+      isMangan: true,
+      ron: 12000,
+      tsumo: { type: "oyaTsumo", all: 4000 },
+    });
   });
 
   it("3翻70符の親は満貫", () => {
     const result = calculateOyaScore(3, 70);
-    expect(result).toEqual({ isMangan: true, ron: 12000, tsumo: "4000∀" });
+    expect(result).toEqual({
+      isMangan: true,
+      ron: 12000,
+      tsumo: { type: "oyaTsumo", all: 4000 },
+    });
   });
 
   it("2翻25符の親ロンは2400点", () => {
     // base = 25 * 2^4 = 400, ron = 400*6 = 2400
     const result = calculateOyaScore(2, 25);
-    expect(result).toEqual({ isMangan: false, ron: 2400, tsumo: "800∀" });
+    expect(result).toEqual({
+      isMangan: false,
+      ron: 2400,
+      tsumo: { type: "oyaTsumo", all: 800 },
+    });
   });
 });
 

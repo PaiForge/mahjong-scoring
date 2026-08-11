@@ -1,18 +1,5 @@
-/** 親/子 */
-export type Role = "ko" | "oya";
-
-/** ロン/ツモ */
-export type WinType = "ron" | "tsumo";
-
-/** Role 型ガード */
-export function isRole(value: string): value is Role {
-  return value === "ko" || value === "oya";
-}
-
-/** WinType 型ガード */
-export function isWinType(value: string): value is WinType {
-  return value === "ron" || value === "tsumo";
-}
+import { isRole, isWinType } from "@mahjong-scoring/core";
+import type { Role, WinType } from "@mahjong-scoring/core";
 
 interface BuildHighlightCellIdParams {
   readonly role: string | null;

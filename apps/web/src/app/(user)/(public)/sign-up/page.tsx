@@ -15,12 +15,11 @@
 import type { Metadata } from "next";
 import { getTranslations } from "next-intl/server";
 import Link from "next/link";
-import { redirect } from "next/navigation";
 
 import { ContentContainer } from "@/app/_components/content-container";
 import { PageTitle } from "@/app/_components/page-title";
 import { createMetadata } from "@/app/_lib/metadata";
-import { getOptionalUser } from "@/lib/auth";
+import { redirectIfAuthenticated } from "@/lib/auth";
 
 import { GoogleOAuthButton } from "../sign-in/_components/google-oauth-button";
 import { EmailSignUpForm } from "./_components/email-sign-up-form";
@@ -38,11 +37,7 @@ export default async function SignUpPage({
 }: {
   searchParams: Promise<{ error?: string }>;
 }) {
-  const user = await getOptionalUser();
-
-  if (user) {
-    redirect("/mypage");
-  }
+  await redirectIfAuthenticated();
 
   const { error } = await searchParams;
   const t = await getTranslations("signUp");

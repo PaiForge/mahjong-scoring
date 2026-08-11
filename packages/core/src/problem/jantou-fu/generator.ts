@@ -4,6 +4,7 @@ import { getKazeName } from "../../core/kaze";
 import { randomChoice, shuffle } from "../../core/random";
 import { KAZEHAI, SANGENHAI } from "../../core/constants";
 import { isHaiKindId } from "../../core/type-guards";
+import { calculateJantouFu } from "../shared/jantou-fu";
 
 /**
  * 数牌の牌種ID一覧（雀頭不正解候補用）
@@ -31,6 +32,11 @@ export function generateJantouFuQuestion(
   const bakaze = randomChoice(KAZEHAI);
   const jikaze = randomChoice(KAZEHAI);
 
+  // 符の値は calculateJantouFu（雀頭符ルールの唯一の定義）から引く。
+  // このジェネレータが持つのは候補の列挙と出題用の説明文だけ。
+  const fuOf = (hai: HaiKindId): number =>
+    calculateJantouFu(hai, bakaze, jikaze, renfonpaiAs4Fu).fu;
+
   // 正解候補（2符 or 連風牌で4符）
   const correctCandidates: {
     hai: HaiKindId;
@@ -38,7 +44,7 @@ export function generateJantouFuQuestion(
     explanation: string;
   }[] = SANGENHAI.map((hai) => ({
     hai,
-    fu: 2,
+    fu: fuOf(hai),
     explanation:
       hai === HaiKind.Haku
         ? "役牌（白）"
@@ -50,18 +56,18 @@ export function generateJantouFuQuestion(
   if (bakaze === jikaze) {
     correctCandidates.push({
       hai: bakaze,
-      fu: renfonpaiAs4Fu ? 4 : 2,
+      fu: fuOf(bakaze),
       explanation: `連風牌（${getKazeName(bakaze)}）`,
     });
   } else {
     correctCandidates.push({
       hai: bakaze,
-      fu: 2,
+      fu: fuOf(bakaze),
       explanation: `場風（${getKazeName(bakaze)}）`,
     });
     correctCandidates.push({
       hai: jikaze,
-      fu: 2,
+      fu: fuOf(jikaze),
       explanation: `自風（${getKazeName(jikaze)}）`,
     });
   }
@@ -97,7 +103,7 @@ export function generateJantouFuQuestion(
     ...selectedIncorrect.map((c) => ({
       hai: c.hai,
       isCorrect: false,
-      fu: 0,
+      fu: fuOf(c.hai),
       explanation: c.explanation,
     })),
   ]);

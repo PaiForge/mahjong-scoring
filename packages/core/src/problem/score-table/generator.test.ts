@@ -134,13 +134,15 @@ describe("generateScoreTableQuestion", () => {
         if (!question.isOya && question.isTsumo && question.fu !== undefined) {
           const expected = calculateKoScore(question.han, question.fu);
           expect(question.correctAnswer.type).toBe("koTsumo");
-          if (question.correctAnswer.type === "koTsumo") {
-            const parts = expected.tsumo.split("/");
+          if (
+            question.correctAnswer.type === "koTsumo" &&
+            expected.tsumo.type === "koTsumo"
+          ) {
             expect(question.correctAnswer.scoreFromKo).toBe(
-              parseInt(parts[0], 10),
+              expected.tsumo.fromKo,
             );
             expect(question.correctAnswer.scoreFromOya).toBe(
-              parseInt(parts[1], 10),
+              expected.tsumo.fromOya,
             );
           }
           return;
@@ -155,9 +157,11 @@ describe("generateScoreTableQuestion", () => {
         if (question.isOya && question.isTsumo && question.fu !== undefined) {
           const expected = calculateOyaScore(question.han, question.fu);
           expect(question.correctAnswer.type).toBe("oyaTsumo");
-          if (question.correctAnswer.type === "oyaTsumo") {
-            const tsumoNum = parseInt(expected.tsumo.replace(/[^\d]/g, ""), 10);
-            expect(question.correctAnswer.scoreAll).toBe(tsumoNum);
+          if (
+            question.correctAnswer.type === "oyaTsumo" &&
+            expected.tsumo.type === "oyaTsumo"
+          ) {
+            expect(question.correctAnswer.scoreAll).toBe(expected.tsumo.all);
           }
           return;
         }

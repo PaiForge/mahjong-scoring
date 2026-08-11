@@ -1,6 +1,7 @@
+import { callApi } from "@/lib/api-client";
+
 type RegisterUsernameResult =
-  | { success: true }
-  | { success: false; error: string };
+  { success: true } | { success: false; error: string };
 
 /**
  * ユーザー名登録APIを呼び出す。
@@ -9,17 +10,16 @@ type RegisterUsernameResult =
  */
 export async function registerUsername(
   username: string,
-  displayName?: string
+  displayName?: string,
 ): Promise<RegisterUsernameResult> {
-  const res = await fetch('/api/username', {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
+  const result = await callApi("/api/username", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
     body: JSON.stringify({ username, displayName }),
   });
 
-  if (!res.ok) {
-    const data = await res.json();
-    return { success: false, error: data.error };
+  if (!result.ok) {
+    return { success: false, error: result.error };
   }
 
   return { success: true };

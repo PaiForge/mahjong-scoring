@@ -3,6 +3,8 @@
  * 点数表練習型
  */
 
+import type { Role, WinType } from "../../core/roles";
+
 /**
  * ロン和了の正解
  * ロン正解
@@ -66,12 +68,6 @@ export interface ScoreTableQuestion {
  */
 export type ScoreTableUserAnswer = ScoreTableAnswer;
 
-/** 出題する役割（親 / 子） */
-export type ScoreTableRole = "oya" | "ko";
-
-/** 出題する和了方法（ツモ / ロン） */
-export type ScoreTableWin = "tsumo" | "ron";
-
 /** 出題する点数帯（満貫未満 / 満貫以上） */
 export type ScoreTableRange = "nonMangan" | "manganPlus";
 
@@ -89,9 +85,9 @@ export interface ScoreTableGeneratorOptions {
   /** 符の最大値（満貫未満帯のみに作用。既定: 60） */
   readonly maxFu?: number;
   /** 出題する役割。既定: 親・子の両方 */
-  readonly roles?: readonly ScoreTableRole[];
+  readonly roles?: readonly Role[];
   /** 出題する和了方法。既定: ツモ・ロンの両方 */
-  readonly wins?: readonly ScoreTableWin[];
+  readonly wins?: readonly WinType[];
   /** 出題する点数帯。既定: 満貫未満のみ（後方互換のため） */
   readonly ranges?: readonly ScoreTableRange[];
 }

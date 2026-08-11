@@ -1,7 +1,16 @@
 import type {
+  Role,
   ScoreTableGeneratorOptions,
   ScoreTableRange,
+  WinType,
 } from "@mahjong-scoring/core";
+
+import {
+  RANGE_PARAM,
+  RANGE_TOKEN_MANGAN_PLUS,
+  RANGE_TOKEN_NON_MANGAN,
+  parseRangeValues,
+} from "../../_lib/range-params";
 
 /**
  * 点数表早引きの出題絞り込み選択
@@ -43,7 +52,7 @@ export function hasSelectionParams(params: RawSearchParams): boolean {
   return (
     valuesOf(params.roles).length > 0 ||
     valuesOf(params.wins).length > 0 ||
-    valuesOf(params.ranges).length > 0
+    valuesOf(params[RANGE_PARAM]).length > 0
   );
 }
 
@@ -59,15 +68,15 @@ export function searchParamsToSelection(
 ): ScoreTableSelection {
   const roles = valuesOf(params.roles);
   const wins = valuesOf(params.wins);
-  const ranges = valuesOf(params.ranges);
+  const ranges = parseRangeValues(valuesOf(params[RANGE_PARAM]));
 
   return {
     includeOya: roles.length === 0 || roles.includes("oya"),
     includeKo: roles.length === 0 || roles.includes("ko"),
     includeTsumo: wins.length === 0 || wins.includes("tsumo"),
     includeRon: wins.length === 0 || wins.includes("ron"),
-    includeNonMangan: ranges.length === 0 || ranges.includes("non"),
-    includeManganPlus: ranges.length === 0 || ranges.includes("plus"),
+    includeNonMangan: ranges.includeNonMangan,
+    includeManganPlus: ranges.includeManganPlus,
   };
 }
 
@@ -78,11 +87,11 @@ export function searchParamsToSelection(
 export function selectionToGeneratorOptions(
   selection: ScoreTableSelection,
 ): ScoreTableGeneratorOptions {
-  const roles: ("oya" | "ko")[] = [];
+  const roles: Role[] = [];
   if (selection.includeOya) roles.push("oya");
   if (selection.includeKo) roles.push("ko");
 
-  const wins: ("tsumo" | "ron")[] = [];
+  const wins: WinType[] = [];
   if (selection.includeTsumo) wins.push("tsumo");
   if (selection.includeRon) wins.push("ron");
 
@@ -111,8 +120,10 @@ export function selectionToQueryString(selection: ScoreTableSelection): string {
     if (selection.includeRon) params.append("wins", "ron");
   }
   if (!(selection.includeNonMangan && selection.includeManganPlus)) {
-    if (selection.includeNonMangan) params.append("ranges", "non");
-    if (selection.includeManganPlus) params.append("ranges", "plus");
+    if (selection.includeNonMangan)
+      params.append(RANGE_PARAM, RANGE_TOKEN_NON_MANGAN);
+    if (selection.includeManganPlus)
+      params.append(RANGE_PARAM, RANGE_TOKEN_MANGAN_PLUS);
   }
 
   return params.toString();

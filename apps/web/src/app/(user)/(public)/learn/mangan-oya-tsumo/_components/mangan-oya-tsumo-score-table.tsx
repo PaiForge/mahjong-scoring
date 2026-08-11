@@ -35,7 +35,7 @@ export async function ManganOyaTsumoScoreTable() {
         </thead>
         <tbody className="divide-y divide-surface-100">
           {HIGH_SCORES.map((row) => {
-            const each = Number.parseInt(row.tsumoOya, 10);
+            const each = row.tsumoOya.all;
             const total = each * 3;
             return (
               <tr key={row.nameKey} className="bg-white">

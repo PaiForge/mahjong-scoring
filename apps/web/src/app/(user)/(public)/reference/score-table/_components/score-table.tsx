@@ -7,14 +7,12 @@ import {
   calculateKoScore,
   calculateOyaScore,
   isInvalidCell,
-} from "@mahjong-scoring/core";
-import { ToggleGroup } from "@/app/_components/toggle-group";
-import {
   isRole,
   isWinType,
-  buildHighlightCellId,
-} from "../_lib/score-table-utils";
-import type { Role, WinType } from "../_lib/score-table-utils";
+} from "@mahjong-scoring/core";
+import { ToggleGroup } from "@/app/_components/toggle-group";
+import { buildHighlightCellId } from "../_lib/score-table-utils";
+import type { Role, WinType } from "@mahjong-scoring/core";
 import { HAN_COLS, FU_ROWS, NormalScoreTable } from "./normal-score-table";
 import { HighScoreTable } from "./high-score-table";
 

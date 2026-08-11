@@ -1,10 +1,11 @@
 import { getTranslations } from "next-intl/server";
 import { HIGH_SCORES } from "@mahjong-scoring/core";
+import type { Role } from "@mahjong-scoring/core";
 import { HAN_DISPLAY } from "../_lib/han-display";
 
 interface ManganScoreTableProps {
   /** 子・親のどちらの点数を表示するか */
-  readonly role: "ko" | "oya";
+  readonly role: Role;
 }
 
 /** nameKey から manganScoreTable 名前空間の備考キーを導出する */

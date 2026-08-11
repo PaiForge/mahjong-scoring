@@ -8,6 +8,7 @@ import { toast } from "react-hot-toast";
 
 import { ConfirmationModal } from "@/app/_components/confirmation-modal";
 import { useAuth } from "@/app/_contexts/auth-context";
+import { API_ERROR_RATE_LIMITED, callApi } from "@/lib/api-client";
 
 /**
  * アカウント削除ボタン。確認モーダルを挟んで /api/account を呼び、ログアウトしてトップへ。
@@ -24,21 +25,18 @@ export function DeleteAccountButton() {
     setIsModalOpen(false);
     setIsDeleting(true);
 
-    try {
-      const res = await fetch("/api/account", { method: "DELETE" });
-      if (!res.ok) {
-        toast.error(t("error"));
-        setIsDeleting(false);
-        return;
-      }
-
-      await signOut();
-      toast.success(t("successToast"));
-      router.push("/");
-    } catch {
-      toast.error(t("error"));
+    const result = await callApi("/api/account", { method: "DELETE" });
+    if (!result.ok) {
+      toast.error(
+        result.error === API_ERROR_RATE_LIMITED ? t("rateLimited") : t("error"),
+      );
       setIsDeleting(false);
+      return;
     }
+
+    await signOut();
+    toast.success(t("successToast"));
+    router.push("/");
   };
 
   return (

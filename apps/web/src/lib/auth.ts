@@ -99,6 +99,44 @@ export const getOptionalUser = cache(
 );
 
 /**
+ * 認証済みユーザーまたは undefined を返す。リダイレクトなし。
+ * 検証付きオプショナルユーザー取得
+ *
+ * `getOptionalUser` と違い getUser() で認証サーバーに問い合わせる。
+ * JWT のローカル検証では失効済みセッションを有効期限まで検出できないため、
+ * DB へ書き込む Server Action ではこちらを使い、失効を即座に反映する。
+ * 表示専用の読み取りには `getOptionalUser`（ローカル検証・低レイテンシ）を使うこと。
+ */
+export const getOptionalVerifiedUser = cache(
+  async (): Promise<AuthUser | undefined> => {
+    const supabase = await createClient();
+    const {
+      data: { user },
+    } = await supabase.auth.getUser();
+    // Supabase API は null を返すが、プロジェクト規約に合わせ undefined に正規化する
+    return user ? { id: user.id, email: user.email } : undefined;
+  },
+);
+
+/**
+ * ゲスト専用ページのガード。ログイン済みなら退避先へリダイレクトする。
+ * ゲスト専用ガード
+ *
+ * サインイン・サインアップ・メール確認待ちのように「未ログインでのみ意味がある」
+ * ページで使う。呼び出し元のページには
+ * `export const dynamic = "force-dynamic"` が必要（Next.js の規約上
+ * ファイルごとに書く必要があるため、この関数では担保できない）。
+ *
+ * @param to - 退避先パス（既定 /mypage）
+ */
+export async function redirectIfAuthenticated(to = "/mypage"): Promise<void> {
+  const user = await getOptionalUser();
+  if (user) {
+    redirect(to);
+  }
+}
+
+/**
  * 認証 + BAN チェックガード（Server Actions 用）。
  * 認証済みかつ BAN されていないユーザーを返す。
  * 認証+BANガード

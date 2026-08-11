@@ -13,12 +13,11 @@
 import type { Metadata } from "next";
 import { getTranslations } from "next-intl/server";
 import Link from "next/link";
-import { redirect } from "next/navigation";
 
 import { ContentContainer } from "@/app/_components/content-container";
 import { PageTitle } from "@/app/_components/page-title";
 import { createMetadata } from "@/app/_lib/metadata";
-import { getOptionalUser } from "@/lib/auth";
+import { redirectIfAuthenticated } from "@/lib/auth";
 import { sanitizeInternalRedirect } from "@/lib/redirect";
 
 import { EmailPasswordForm } from "./_components/email-password-form";
@@ -40,14 +39,10 @@ export default async function SignInPage({
   const { error, redirect: redirectParam } = await searchParams;
   const sanitizedRedirect = sanitizeInternalRedirect(redirectParam);
 
-  const user = await getOptionalUser();
-
-  if (user) {
-    // 既ログインユーザーは redirect クエリを無視して /mypage へ固定遷移。
-    // 認証前の意図保持のための redirect を、既ログイン時にも尊重すると
-    // GET で副作用のある内部パスへのフィッシング誘導に悪用される恐れがあるため。
-    redirect("/mypage");
-  }
+  // 既ログインユーザーは redirect クエリを無視して /mypage へ固定遷移。
+  // 認証前の意図保持のための redirect を、既ログイン時にも尊重すると
+  // GET で副作用のある内部パスへのフィッシング誘導に悪用される恐れがあるため。
+  await redirectIfAuthenticated();
 
   const t = await getTranslations("auth");
 

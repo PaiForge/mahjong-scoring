@@ -41,12 +41,19 @@ export { retryGenerate } from "./problem/retry-generate";
 // === Problem: Score ===
 export { generateValidScoreQuestion } from "./problem/score/generator";
 export { judgeAnswer } from "./problem/score/judgement";
-export { isMangan, getScoreLevelName } from "./score/tiers";
+export {
+  isMangan,
+  getScoreLevelName,
+  scoreTierForHan,
+  MANGAN_PLUS_TIERS,
+} from "./score/tiers";
+export type { HanTier } from "./score/tiers";
 export type {
   ScoreQuestion,
   UserAnswer,
   JudgementResult,
   QuestionGeneratorOptions,
+  ScoreRange,
   YakuDetail,
 } from "./problem/score/types";
 export {
@@ -73,6 +80,7 @@ export {
   isInvalidCell,
   HIGH_SCORES,
 } from "./core/score-calculation";
+export type { TsumoPayment } from "./core/score-calculation";
 
 // === Problem: Score Table Practice ===
 export { generateScoreTableQuestion } from "./problem/score-table/generator";
@@ -82,10 +90,12 @@ export type {
   ScoreTableAnswer,
   ScoreTableUserAnswer,
   ScoreTableGeneratorOptions,
-  ScoreTableRole,
-  ScoreTableWin,
   ScoreTableRange,
 } from "./problem/score-table/types";
+
+// === Core: 立場・和了方法 ===
+export { isRole, isWinType } from "./core/roles";
+export type { Role, WinType } from "./core/roles";
 
 // === EXP ===
 export { calculateExp, getLevel, getLevelProgress } from "./exp";

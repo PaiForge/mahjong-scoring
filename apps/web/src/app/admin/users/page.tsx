@@ -6,8 +6,8 @@ import { requireAdminPage } from "@/app/admin/_lib/auth";
 import { buildProfileMap } from "@/app/admin/_lib/log-query-helpers";
 import { createSearchParamsCache, parseAsInteger } from "nuqs/server";
 
+import { getOptionalUser } from "../../../lib/auth";
 import { getPaginationData, DEFAULT_PAGE_SIZE } from "../../../lib/pagination";
-import { createClient } from "../../../lib/supabase/server";
 import { createAdminClient } from "../../../lib/supabase/admin";
 import { PaginationNav } from "../../_components/pagination-nav";
 
@@ -31,10 +31,7 @@ export default async function AdminUsersPage({
   const t = await getTranslations("admin");
 
   // 現在のユーザー ID を取得（自分自身の BAN を防ぐため）
-  const supabase = await createClient();
-  const {
-    data: { user: currentUser },
-  } = await supabase.auth.getUser();
+  const currentUser = await getOptionalUser();
 
   const { data: usersData, error } = await adminClient.auth.admin.listUsers({
     page,

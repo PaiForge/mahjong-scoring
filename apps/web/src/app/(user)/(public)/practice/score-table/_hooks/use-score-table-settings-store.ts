@@ -1,7 +1,6 @@
+import type { ScoreTableRange } from "@mahjong-scoring/core";
 import { create } from "zustand";
 import { persist } from "zustand/middleware";
-
-type ScoreTableRange = "nonMangan" | "manganPlus";
 
 interface ScoreTableSettingsState {
   /** 親を出題に含めるか */

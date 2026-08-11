@@ -2,7 +2,7 @@
 
 import { useTranslations } from "next-intl";
 import { HIGH_SCORES } from "@mahjong-scoring/core";
-import type { Role, WinType } from "../_lib/score-table-utils";
+import type { Role, WinType } from "@mahjong-scoring/core";
 import { TsumoScore } from "./tsumo-score";
 
 interface HighScoreTableProps {
@@ -73,7 +73,9 @@ export function HighScoreTable({
                         item.ronOya
                       )
                     ) : (
-                      <TsumoScore score={isKo ? item.tsumoKo : item.tsumoOya} />
+                      <TsumoScore
+                        payment={isKo ? item.tsumoKo : item.tsumoOya}
+                      />
                     )}
                   </span>
                 </td>

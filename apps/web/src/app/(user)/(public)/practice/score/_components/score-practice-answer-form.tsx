@@ -5,6 +5,7 @@ import { useTranslations } from "next-intl";
 import type { UserAnswer } from "@mahjong-scoring/core";
 import { YakuSelect } from "./yaku-select";
 import { getAvailableScores } from "../_lib/get-available-scores";
+import { MANGAN_MIN_HAN, PRACTICE_HAN_TIERS } from "../_lib/han-tiers";
 import { getSelectClass } from "../../_lib/select-class";
 import { ScoreOptionSelect } from "../../_components/score-option-select";
 
@@ -43,32 +44,36 @@ export function ScorePracticeAnswerForm({
   const [scoreFromKo, setScoreFromKo] = useState<string>("");
   const [scoreFromOya, setScoreFromOya] = useState<string>("");
 
-  const isMangan = han !== undefined && han >= 5;
+  const isMangan = han !== undefined && han >= MANGAN_MIN_HAN;
   const isFuRequired = !isMangan || requireFuForMangan;
   const isKoTsumo = isTsumo && !isOya;
 
   const hanOptions = useMemo(() => {
+    // 満貫以上の区分は翻数しきい値の昇順で並べる（PRACTICE_HAN_TIERS は降順）
+    const manganPlusOptions = [...PRACTICE_HAN_TIERS].reverse().map((tier) => ({
+      value: tier.minHan,
+      label: t(`form.options.${tier.key}`),
+    }));
+
     if (simplifyMangan) {
       return [
         { value: "", label: t("form.placeholders.select") },
-        { value: 1, label: `1${t("form.options.hanSuffix")}` },
-        { value: 2, label: `2${t("form.options.hanSuffix")}` },
-        { value: 3, label: `3${t("form.options.hanSuffix")}` },
-        { value: 4, label: `4${t("form.options.hanSuffix")}` },
-        { value: 5, label: t("form.options.mangan") },
-        { value: 6, label: t("form.options.haneman") },
-        { value: 8, label: t("form.options.baiman") },
-        { value: 11, label: t("form.options.sanbaiman") },
-        { value: 13, label: t("form.options.yakuman") },
+        ...Array.from({ length: MANGAN_MIN_HAN - 1 }, (_, i) => ({
+          value: i + 1,
+          label: `${i + 1}${t("form.options.hanSuffix")}`,
+        })),
+        ...manganPlusOptions,
       ];
     }
+
+    const yakumanOption = manganPlusOptions[manganPlusOptions.length - 1]!;
     return [
       { value: "", label: t("form.placeholders.select") },
-      ...Array.from({ length: 12 }, (_, i) => ({
+      ...Array.from({ length: yakumanOption.value - 1 }, (_, i) => ({
         value: i + 1,
         label: `${i + 1}${t("form.options.hanSuffix")}`,
       })),
-      { value: 13, label: t("form.options.yakuman") },
+      yakumanOption,
     ];
   }, [simplifyMangan, t]);
 
