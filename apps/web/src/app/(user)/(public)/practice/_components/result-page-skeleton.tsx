@@ -4,6 +4,7 @@ import { useTranslations } from "next-intl";
 
 import { ContentContainer } from "@/app/_components/content-container";
 import { PageTitle } from "@/app/_components/page-title";
+import { SectionTitleSkeleton } from "@/app/_components/section-title-skeleton";
 import { buildResultBreadcrumb } from "../_lib/result-breadcrumb";
 import { ResultBlockSkeleton } from "./result-block-skeleton";
 import { LeaderboardSkeleton } from "./leaderboard-skeleton";
@@ -48,11 +49,21 @@ export function ResultPageSkeleton({
 
       {/* 結果ページ（ResultView）と同じ space-y-8 で間隔を揃え、遷移時のズレを防ぐ */}
       <div className="space-y-8">
-        {/* 「結果」見出し + スコアバー */}
+        {/* 「結果」見出し + スコアバー（ResultScoreBar と同じ構造） */}
         <section aria-hidden="true" className="space-y-3">
-          <div className="h-7 w-24 animate-pulse rounded bg-surface-200" />
-          <div className="h-8 w-full animate-pulse rounded-md bg-surface-100" />
-          <div className="h-4 w-2/3 animate-pulse rounded bg-surface-200" />
+          <SectionTitleSkeleton />
+          <div className="w-full space-y-3">
+            <div className="h-8 w-full animate-pulse rounded-md bg-surface-100" />
+            {/* 凡例（正解 / 不正解）と正答率。実物と同じ flex-wrap にして
+                狭い幅での折り返し（＝高さの増加）まで一致させる。 */}
+            <div className="flex flex-wrap items-center justify-between gap-3">
+              <div className="flex items-center gap-4">
+                <div className="h-4 w-20 animate-pulse rounded bg-surface-200" />
+                <div className="h-4 w-24 animate-pulse rounded bg-surface-200" />
+              </div>
+              <div className="h-4 w-16 animate-pulse rounded bg-surface-200" />
+            </div>
+          </div>
         </section>
 
         {/* 経験値 / 登録 CTA */}
