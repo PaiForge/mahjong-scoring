@@ -17,6 +17,10 @@ interface ProblemListSkeletonProps {
  * - 外枠 `mt-8 w-full max-w-md space-y-2`
  * - 見出しラベル: `text-sm` の 1 行 = 20px
  * - 各行: border 2px + `p-3` 24px + `text-base` 1 行 24px = 50px
+ *
+ * 点数系練習の行見出し（「親・ツモ・3翻・40符」等）は画面幅が狭いと折り返して
+ * 50px を超えることがある。その場合だけ実物がわずかに高くなるが、一覧全体の
+ * 高さを確保できていれば十分なため許容する。
  */
 export function ProblemListSkeleton({ count }: ProblemListSkeletonProps) {
   if (count <= 0) return undefined;
