@@ -1,6 +1,8 @@
 import { describe, expect, it } from "vitest";
 
-import { isRole, isWinType, buildHighlightCellId } from "../score-table-utils";
+import { isRole, isWinType } from "@mahjong-scoring/core";
+
+import { buildHighlightCellId } from "../score-table-utils";
 
 describe("isRole", () => {
   it('"ko" は有効', () => {

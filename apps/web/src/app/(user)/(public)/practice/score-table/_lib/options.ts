@@ -1,6 +1,8 @@
 import type {
+  Role,
   ScoreTableGeneratorOptions,
   ScoreTableRange,
+  WinType,
 } from "@mahjong-scoring/core";
 
 import {
@@ -85,11 +87,11 @@ export function searchParamsToSelection(
 export function selectionToGeneratorOptions(
   selection: ScoreTableSelection,
 ): ScoreTableGeneratorOptions {
-  const roles: ("oya" | "ko")[] = [];
+  const roles: Role[] = [];
   if (selection.includeOya) roles.push("oya");
   if (selection.includeKo) roles.push("ko");
 
-  const wins: ("tsumo" | "ron")[] = [];
+  const wins: WinType[] = [];
   if (selection.includeTsumo) wins.push("tsumo");
   if (selection.includeRon) wins.push("ron");
 

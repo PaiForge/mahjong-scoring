@@ -89,10 +89,12 @@ export type {
   ScoreTableAnswer,
   ScoreTableUserAnswer,
   ScoreTableGeneratorOptions,
-  ScoreTableRole,
-  ScoreTableWin,
   ScoreTableRange,
 } from "./problem/score-table/types";
+
+// === Core: 立場・和了方法 ===
+export { isRole, isWinType } from "./core/roles";
+export type { Role, WinType } from "./core/roles";
 
 // === EXP ===
 export { calculateExp, getLevel, getLevelProgress } from "./exp";

@@ -2,7 +2,7 @@
 
 import { useTranslations } from "next-intl";
 import { HIGH_SCORES } from "@mahjong-scoring/core";
-import type { Role, WinType } from "../_lib/score-table-utils";
+import type { Role, WinType } from "@mahjong-scoring/core";
 import { TsumoScore } from "./tsumo-score";
 
 interface HighScoreTableProps {

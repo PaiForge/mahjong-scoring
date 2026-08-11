@@ -1,3 +1,5 @@
+import type { WinType } from "./roles";
+
 /**
  * 基本符（ベースポイント）を計算する
  * 基本符計算
@@ -73,8 +75,6 @@ export function calculateMentsuFu(config: {
   if (config.isYaochu) fu *= 2;
   return fu;
 }
-
-type WinType = "ron" | "tsumo";
 
 /**
  * 無効なセル（存在しない符×翻の組み合わせ）かどうかを判定する

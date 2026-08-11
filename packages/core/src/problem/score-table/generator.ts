@@ -6,12 +6,11 @@ import {
   HIGH_SCORES,
 } from "../../core/score-calculation";
 import { scoreTierForHan } from "../../score/tiers";
+import type { Role, WinType } from "../../core/roles";
 import type {
   ScoreTableQuestion,
   ScoreTableAnswer,
   ScoreTableGeneratorOptions,
-  ScoreTableRole,
-  ScoreTableWin,
 } from "./types";
 
 /** 有効な符の値（10刻み、20〜110） */
@@ -125,8 +124,8 @@ interface QuestionParams {
  * 役割×和了の列挙
  */
 function enumerateRoleWinPairs(
-  roles: readonly ScoreTableRole[],
-  wins: readonly ScoreTableWin[],
+  roles: readonly Role[],
+  wins: readonly WinType[],
 ): ReadonlyArray<{ isOya: boolean; isTsumo: boolean }> {
   const pairs: { isOya: boolean; isTsumo: boolean }[] = [];
   for (const role of roles) {
