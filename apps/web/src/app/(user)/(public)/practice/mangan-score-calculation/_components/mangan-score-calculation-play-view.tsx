@@ -17,8 +17,6 @@ export const ManganScoreCalculationPlayView = createChallengePlayView<
   Record<string, never>,
   PlayerType
 >({
-  namespace: "manganScoreCalculationChallenge",
-  menuType: "mangan_score_calculation",
   slug: "mangan-score-calculation",
   maxWidth: "max-w-lg",
   resultStorageKey: RESULT_STORAGE_KEY,

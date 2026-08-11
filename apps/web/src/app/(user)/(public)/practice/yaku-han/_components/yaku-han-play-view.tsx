@@ -20,8 +20,6 @@ export const YakuHanPlayView = createChallengePlayView<
   YakuHanQuestionResult,
   YakuHanPlayViewProps
 >({
-  namespace: "yakuHanChallenge",
-  menuType: "yaku_han",
   slug: "yaku-han",
   maxWidth: "max-w-2xl",
   resultStorageKey: RESULT_STORAGE_KEY,

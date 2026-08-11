@@ -5,7 +5,8 @@
  * `challenge_results` / `challenge_best_scores` テーブルの `menu_type` カラムに格納される値。
  *
  * @description 新しい練習種別の追加は `PRACTICE_MENU_REGISTRY` に1行追加するだけでよい。
- * slug（URL 用ケバブケース）・messageKey（i18n 用キャメルケース）はレジストリから自動導出される。
+ * slug（URL 用ケバブケース）・messageKey（i18n 用キャメルケース）・namespace
+ * （練習ページの辞書セクション）はレジストリから自動導出される。
  *
  * @design menuType — 練習種別
  *
@@ -29,12 +30,21 @@
 
 /**
  * 練習種別レジストリエントリ
- * menuType（DB snake_case）・slug（URL kebab-case）・messageKey（i18n camelCase）を束ねる
+ * menuType（DB snake_case）・slug（URL kebab-case）・messageKey（i18n camelCase）・
+ * namespace（練習ページの辞書セクション）を束ねる
+ *
+ * `messageKey` と `namespace` は別物である点に注意:
+ * - `messageKey`: 練習名の一覧的な参照に使う共通キー。
+ *   `practice.practices.<messageKey>` / `mypage.challenges.menuTypes.<messageKey>` /
+ *   `leaderboard.module.<messageKey>` から引かれる。
+ * - `namespace`: その練習専用の辞書セクション。`<namespace>.title` が練習名、
+ *   配下に問題文や選択肢のラベルが入る。チャレンジ系は `〜Challenge` で終わる。
  */
 interface PracticeMenuEntry {
   readonly menuType: string;
   readonly slug: string;
   readonly messageKey: string;
+  readonly namespace: string;
 }
 
 /**
@@ -42,23 +52,60 @@ interface PracticeMenuEntry {
  * 新しい練習の追加はここに1行追加するだけでよい。
  */
 const PRACTICE_MENU_REGISTRY = [
-  { menuType: "jantou_fu", slug: "jantou-fu", messageKey: "jantouFu" },
-  { menuType: "machi_fu", slug: "machi-fu", messageKey: "machiFu" },
-  { menuType: "mentsu_fu", slug: "mentsu-fu", messageKey: "mentsuFu" },
-  { menuType: "tehai_fu", slug: "tehai-fu", messageKey: "tehaiFu" },
-  { menuType: "yaku", slug: "yaku", messageKey: "yaku" },
-  { menuType: "score_table", slug: "score-table", messageKey: "scoreTable" },
+  {
+    menuType: "jantou_fu",
+    slug: "jantou-fu",
+    messageKey: "jantouFu",
+    namespace: "jantouFu",
+  },
+  {
+    menuType: "machi_fu",
+    slug: "machi-fu",
+    messageKey: "machiFu",
+    namespace: "machiFu",
+  },
+  {
+    menuType: "mentsu_fu",
+    slug: "mentsu-fu",
+    messageKey: "mentsuFu",
+    namespace: "mentsuFu",
+  },
+  {
+    menuType: "tehai_fu",
+    slug: "tehai-fu",
+    messageKey: "tehaiFu",
+    namespace: "tehaiFu",
+  },
+  { menuType: "yaku", slug: "yaku", messageKey: "yaku", namespace: "yaku" },
+  {
+    menuType: "score_table",
+    slug: "score-table",
+    messageKey: "scoreTable",
+    namespace: "scoreTableChallenge",
+  },
   {
     menuType: "score_calculation",
     slug: "score-calculation",
     messageKey: "scoreCalculation",
+    namespace: "scoreCalculationChallenge",
   },
-  { menuType: "han_count", slug: "han-count", messageKey: "hanCount" },
-  { menuType: "yaku_han", slug: "yaku-han", messageKey: "yakuHan" },
+  {
+    menuType: "han_count",
+    slug: "han-count",
+    messageKey: "hanCount",
+    namespace: "hanCountChallenge",
+  },
+  {
+    menuType: "yaku_han",
+    slug: "yaku-han",
+    messageKey: "yakuHan",
+    namespace: "yakuHanChallenge",
+  },
   {
     menuType: "mangan_score_calculation",
     slug: "mangan-score-calculation",
     messageKey: "manganScoreCalculation",
+    namespace: "manganScoreCalculationChallenge",
   },
 ] as const satisfies readonly PracticeMenuEntry[];
 
@@ -79,6 +126,21 @@ export type PracticeMenuSlug = (typeof PRACTICE_MENU_REGISTRY)[number]["slug"];
  */
 export type PracticeMenuMessageKey =
   (typeof PRACTICE_MENU_REGISTRY)[number]["messageKey"];
+
+/** 練習ページの i18n 名前空間（`<namespace>.title` が練習名） */
+export type PracticeMenuNamespace =
+  (typeof PRACTICE_MENU_REGISTRY)[number]["namespace"];
+
+/**
+ * 練習種別の全情報
+ * 練習種別記述子
+ */
+export interface PracticeMenuDescriptor {
+  readonly menuType: PracticeMenuType;
+  readonly slug: PracticeMenuSlug;
+  readonly messageKey: PracticeMenuMessageKey;
+  readonly namespace: PracticeMenuNamespace;
+}
 
 // ---------------------------------------------------------------------------
 // Derived constants
@@ -116,6 +178,10 @@ const menuTypeToMessageKeyMap = new Map<
   PracticeMenuMessageKey
 >(PRACTICE_MENU_REGISTRY.map((e) => [e.menuType, e.messageKey]));
 
+const slugToDescriptorMap = new Map<PracticeMenuSlug, PracticeMenuDescriptor>(
+  PRACTICE_MENU_REGISTRY.map((e) => [e.slug, e]),
+);
+
 // ---------------------------------------------------------------------------
 // Conversion functions
 // ---------------------------------------------------------------------------
@@ -150,6 +216,24 @@ export function menuTypeToMessageKey(
     throw new Error(`Unknown PracticeMenuType: ${menuType}`);
   }
   return key;
+}
+
+/**
+ * URL スラッグから練習種別の全情報を取得する
+ * 練習種別記述子取得
+ *
+ * 練習ページを組み立てるファクトリー（本体・結果・ローディング）は、
+ * 各練習から slug だけを受け取り、menuType や i18n 名前空間はここから引く。
+ * 同じ組み合わせを練習ごとに何度も書かないための入口。
+ */
+export function practiceMenuBySlug(
+  slug: PracticeMenuSlug,
+): PracticeMenuDescriptor {
+  const descriptor = slugToDescriptorMap.get(slug);
+  if (descriptor === undefined) {
+    throw new Error(`Unknown PracticeMenuSlug: ${slug}`);
+  }
+  return descriptor;
 }
 
 /**

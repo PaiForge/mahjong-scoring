@@ -4,8 +4,6 @@ import { createChallengePlayView } from "../../_lib/create-challenge-views";
 import { MentsuFuBoard } from "./mentsu-fu-board";
 
 export const MentsuFuPlayView = createChallengePlayView({
-  namespace: "mentsuFu",
-  menuType: "mentsu_fu",
   slug: "mentsu-fu",
   renderBoard: ({ showFeedback, isCountingDown, onAnswer }) => (
     <MentsuFuBoard

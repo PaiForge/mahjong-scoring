@@ -7,8 +7,6 @@ import { RESULT_STORAGE_KEY } from "../_lib/types";
 
 export const HanCountPlayView = createChallengePlayView<HanCountQuestionResult>(
   {
-    namespace: "hanCountChallenge",
-    menuType: "han_count",
     slug: "han-count",
     maxWidth: "max-w-2xl",
     resultStorageKey: RESULT_STORAGE_KEY,

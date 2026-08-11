@@ -14,23 +14,18 @@
  * 5. リトライまたは練習一覧に戻るボタン
  */
 import type { Metadata } from "next";
-import { getTranslations } from "next-intl/server";
-import { createResultMetadata } from "@/app/_lib/metadata";
 import { ResultView } from "../../_components/result-view";
-import { createPracticeResultPage } from "../../_lib/create-practice-result-page";
+import {
+  createPracticeResultMetadata,
+  createPracticeResultPage,
+} from "../../_lib/create-practice-result-page";
+
+const SLUG = "mentsu-fu" as const;
 
 export async function generateMetadata(): Promise<Metadata> {
-  return createResultMetadata("mentsuFu");
+  return createPracticeResultMetadata(SLUG);
 }
 
 export const dynamic = "force-dynamic";
 
-export default createPracticeResultPage(ResultView, {
-  module: "mentsu_fu",
-  playHref: "/practice/mentsu-fu/play",
-  introHref: "/practice/mentsu-fu",
-  resolveTitle: async () => {
-    const t = await getTranslations("mentsuFu");
-    return t("title");
-  },
-});
+export default createPracticeResultPage(ResultView, { slug: SLUG });

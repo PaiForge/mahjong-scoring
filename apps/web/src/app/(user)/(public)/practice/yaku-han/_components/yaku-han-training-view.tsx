@@ -12,7 +12,6 @@ interface YakuHanTrainingViewProps {
 
 export const YakuHanTrainingView = createTrainingView<YakuHanTrainingViewProps>(
   {
-    namespace: "yakuHanChallenge",
     slug: "yaku-han",
     maxWidth: "max-w-2xl",
     renderBoard: (args, { range }) => (

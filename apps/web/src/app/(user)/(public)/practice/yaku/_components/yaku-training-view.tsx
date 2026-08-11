@@ -4,7 +4,6 @@ import { createTrainingView } from "../../_lib/create-challenge-views";
 import { YakuBoard } from "./yaku-board";
 
 export const YakuTrainingView = createTrainingView({
-  namespace: "yaku",
   slug: "yaku",
   maxWidth: "max-w-2xl",
   renderBoard: ({ showFeedback, onAnswer }) => (
