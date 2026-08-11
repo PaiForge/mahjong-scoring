@@ -1,13 +1,25 @@
-import type { ReactNode } from "react";
+"use client";
+
+import { useTranslations } from "next-intl";
 
 import { ContentContainer } from "@/app/_components/content-container";
 import { PageTitle } from "@/app/_components/page-title";
+import { SectionTitleSkeleton } from "@/app/_components/section-title-skeleton";
+import { buildResultBreadcrumb } from "../_lib/result-breadcrumb";
+import { ProblemListSkeleton } from "./problem-list-skeleton";
 import { ResultBlockSkeleton } from "./result-block-skeleton";
 import { LeaderboardSkeleton } from "./leaderboard-skeleton";
 
 interface ResultPageSkeletonProps {
   /** 結果ページと同じ練習名を表示してタイトル帯を一致させる */
-  readonly title: ReactNode;
+  readonly practiceTitle: string;
+  /** 練習説明ページの URL。結果ページと同じパンくずを組み立てるために使う。 */
+  readonly introHref?: string;
+  /**
+   * 問題別フィードバック一覧に並ぶ問題数。
+   * 一覧を持たない練習では 0（既定）にして枠自体を出さない。
+   */
+  readonly problemCount?: number;
 }
 
 /**
@@ -17,21 +29,48 @@ interface ResultPageSkeletonProps {
  * チャレンジ終了直後（スコア保存 → 結果ページへの遷移中）に表示する。
  * 以前はこの間 `ChallengeShell` が何も描画せず main が真っ白になっていた。
  * 結果ページ（`ResultView`）と同じレイアウト（タイトル帯・結果見出し・スコアバー・
- * 経験値ブロック・アクションボタン・リーダーボード）の placeholder を出すことで、
- * 白画面を排し、結果ページの実描画へ滑らかに繋ぐ。
+ * 経験値ブロック・アクションボタン・リーダーボード・パンくず）の placeholder を
+ * 出すことで、白画面を排し、結果ページの実描画へ滑らかに繋ぐ。
+ *
+ * パンくずは `ResultView` と同じ `buildResultBreadcrumb` で組み立てる
+ * （こちらは Client Component なので `useTranslations` を使う）。
  */
-export function ResultPageSkeleton({ title }: ResultPageSkeletonProps) {
+export function ResultPageSkeleton({
+  practiceTitle,
+  introHref,
+  problemCount = 0,
+}: ResultPageSkeletonProps) {
+  const tc = useTranslations("challenge");
+  const tp = useTranslations("practice");
+
   return (
-    <ContentContainer>
-      <PageTitle>{title}</PageTitle>
+    <ContentContainer
+      breadcrumb={buildResultBreadcrumb({
+        practiceListLabel: tp("title"),
+        practiceTitle,
+        resultLabel: tc("resultSuffix"),
+        introHref,
+      })}
+    >
+      <PageTitle>{practiceTitle}</PageTitle>
 
       {/* 結果ページ（ResultView）と同じ space-y-8 で間隔を揃え、遷移時のズレを防ぐ */}
       <div className="space-y-8">
-        {/* 「結果」見出し + スコアバー */}
+        {/* 「結果」見出し + スコアバー（ResultScoreBar と同じ構造） */}
         <section aria-hidden="true" className="space-y-3">
-          <div className="h-7 w-24 animate-pulse rounded bg-surface-200" />
-          <div className="h-8 w-full animate-pulse rounded-md bg-surface-100" />
-          <div className="h-4 w-2/3 animate-pulse rounded bg-surface-200" />
+          <SectionTitleSkeleton />
+          <div className="w-full space-y-3">
+            <div className="h-8 w-full animate-pulse rounded-md bg-surface-100" />
+            {/* 凡例（正解 / 不正解）と正答率。実物と同じ flex-wrap にして
+                狭い幅での折り返し（＝高さの増加）まで一致させる。 */}
+            <div className="flex flex-wrap items-center justify-between gap-3">
+              <div className="flex items-center gap-4">
+                <div className="h-4 w-20 animate-pulse rounded bg-surface-200" />
+                <div className="h-4 w-24 animate-pulse rounded bg-surface-200" />
+              </div>
+              <div className="h-4 w-16 animate-pulse rounded bg-surface-200" />
+            </div>
+          </div>
         </section>
 
         {/* 経験値 / 登録 CTA */}
@@ -42,6 +81,10 @@ export function ResultPageSkeleton({ title }: ResultPageSkeletonProps) {
           <div className="h-11 w-full animate-pulse rounded-lg bg-surface-200" />
           <div className="h-11 w-full animate-pulse rounded-lg bg-surface-100" />
         </div>
+
+        {/* 問題別フィードバック一覧（一覧を持つ練習のみ）。ResultView では
+            children スロットとしてアクションボタンとリーダーボードの間に入る。 */}
+        <ProblemListSkeleton count={problemCount} />
 
         {/* リーダーボードプレビュー */}
         <LeaderboardSkeleton />

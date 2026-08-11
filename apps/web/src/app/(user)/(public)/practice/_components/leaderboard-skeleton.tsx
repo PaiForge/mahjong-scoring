@@ -1,3 +1,5 @@
+import { SectionTitleSkeleton } from "@/app/_components/section-title-skeleton";
+
 /**
  * リーダーボードプレビューのスケルトン
  * リーダーボードスケルトン
@@ -22,7 +24,7 @@ export function LeaderboardSkeleton() {
       className="min-h-[280px] space-y-3"
       data-testid="leaderboard-skeleton"
     >
-      <div className="h-6 w-32 animate-pulse rounded bg-surface-200" />
+      <SectionTitleSkeleton width="w-32" />
       <div className="space-y-2">
         <div className="h-10 w-full animate-pulse rounded bg-surface-100" />
         <div className="h-10 w-full animate-pulse rounded bg-surface-200" />

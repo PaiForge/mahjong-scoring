@@ -49,8 +49,11 @@ const LifeIndicator = memo(function LifeIndicatorComponent({
 });
 
 interface ChallengeShellProps {
-  /** 画面上部に表示する練習名（PageTitle に渡す） */
-  readonly title: ReactNode;
+  /**
+   * 画面上部に表示する練習名（PageTitle に渡す）。
+   * 終了後のスケルトンでパンくずのラベルにも使うため文字列に限定する。
+   */
+  readonly title: string;
   /** ゲームロジック状態（タイマー値を含まない） */
   readonly gameSession: GameSessionState;
   /** ChallengeShell 内でタイマーを制御するためのインターフェース */
@@ -66,6 +69,12 @@ interface ChallengeShellProps {
   readonly children: ReactNode;
   /** 内部ラッパーの max-w クラス（既定: "max-w-md"） */
   readonly maxWidth?: string;
+  /**
+   * 結果ページが問題別フィードバック一覧を表示するか。
+   * true の場合、終了後のスケルトンにも出題数分の一覧枠を描画して
+   * 結果ページとの高さのずれを防ぐ。
+   */
+  readonly hasProblemList?: boolean;
   /** 練習終了時に呼び出されるコールバック（スコア保存等） */
   readonly onFinish?: (
     args: FinishCallbackArgs,
@@ -91,6 +100,7 @@ export function ChallengeShell({
   children,
   maxWidth = "max-w-md",
   exitHref = "/practice",
+  hasProblemList = false,
   onFinish,
 }: ChallengeShellProps) {
   const tc = useTranslations("challenge");
@@ -154,7 +164,20 @@ export function ChallengeShell({
   // 終了後はスコア保存 → 結果ページ遷移までの間、白画面を出さずに
   // 結果ページ形状のスケルトンを表示する（遷移中も古いルートとして残り続ける）。
   if (gameSession.isFinished) {
-    return <ResultPageSkeleton title={title} />;
+    return (
+      <ResultPageSkeleton
+        practiceTitle={title}
+        // 説明ページを持つ練習では exitHref が説明ページ URL になっており、
+        // 結果ページが受け取る introHref と一致する（既定値の練習一覧は除く）。
+        introHref={exitHref === "/practice" ? undefined : exitHref}
+        // 結果ページの一覧は URL の total（= 終了時の totalCount）分だけ並ぶ。
+        problemCount={
+          hasProblemList
+            ? (gameSession.finalResult?.totalCount ?? gameSession.totalCount)
+            : 0
+        }
+      />
+    );
   }
 
   return (

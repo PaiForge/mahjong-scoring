@@ -90,6 +90,8 @@ export function createChallengePlayView<
         resultPath={`/practice/${slug}/result`}
         exitHref={`/practice/${slug}`}
         maxWidth={maxWidth}
+        // 結果を保存する練習だけが結果ページで問題別フィードバック一覧を表示する
+        hasProblemList={resultStorageKey !== undefined}
         onFinish={handleFinish}
       >
         {renderBoard(

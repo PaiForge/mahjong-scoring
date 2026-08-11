@@ -1,11 +1,13 @@
 "use client";
 
+import { ProblemListSkeleton } from "./problem-list-skeleton";
 import { ScoreProblemListWithLinks } from "./score-problem-list-with-links";
 import { useSessionStorageResult } from "../_hooks/use-session-storage-result";
+import type { ProblemListLoaderProps } from "../_lib/problem-list-loader-props";
 import { parseQuestionResults } from "../_lib/score-question-result";
 
-interface ScoreProblemListLoaderProps {
-  readonly storageKey: string;
+interface ScoreProblemListLoaderProps extends ProblemListLoaderProps {
+  /** 共通 `ScoreProblemList` に渡す翻訳名前空間 */
   readonly translationNamespace: string;
 }
 
@@ -14,15 +16,23 @@ interface ScoreProblemListLoaderProps {
  * 点数系問題一覧ローダー
  *
  * score-calculation / score-table / mangan-score-calculation で共通。
- * Client Component。`storageKey` と `translationNamespace`（いずれも string
- * primitive）のみを props で受け取り、Server → Client 境界のシリアライズ
- * 制約（関数 props 禁止）を満たす。
+ * Client Component。string / number の primitive のみを props で受け取り、
+ * Server → Client 境界のシリアライズ制約（関数 props 禁止）を満たす。
+ *
+ * sessionStorage の読み取りが完了するまでは `ProblemListSkeleton` で高さを
+ * 確保し、一覧が現れたときに以降のセクションが押し下げられるのを防ぐ。
  */
 export function ScoreProblemListLoader({
   storageKey,
+  expectedCount,
   translationNamespace,
 }: ScoreProblemListLoaderProps) {
   const results = useSessionStorageResult(storageKey, parseQuestionResults);
+
+  if (results === undefined) {
+    return <ProblemListSkeleton count={expectedCount} />;
+  }
+
   return (
     <ScoreProblemListWithLinks
       results={results}

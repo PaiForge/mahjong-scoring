@@ -1,5 +1,6 @@
 import type { ComponentType } from "react";
 import type { PracticeResultViewProps } from "./create-practice-result-page";
+import type { ProblemListLoaderProps } from "./problem-list-loader-props";
 import { ResultView } from "../_components/result-view";
 import { ScoreProblemListLoader } from "../_components/score-problem-list-loader";
 
@@ -18,12 +19,10 @@ type CreateCustomResultViewConfig = {
   | {
       /**
        * sessionStorage から結果を読み取って描画する Client Component。
-       * 関数 props を使わず `storageKey` 文字列のみを受け取る設計にし、
+       * 関数 props を使わず primitive のみを受け取る設計にし、
        * Server → Client 境界のシリアライズ制約を満たす。
        */
-      readonly ProblemListLoader: ComponentType<{
-        readonly storageKey: string;
-      }>;
+      readonly ProblemListLoader: ComponentType<ProblemListLoaderProps>;
       readonly translationNamespace?: never;
     }
   | {
@@ -55,16 +54,22 @@ export function createCustomResultView(
   async function CustomResultView(props: PracticeResultViewProps) {
     // `resultBlock` / `leaderboardBlock` は factory からそのまま透過。
     // `children` スロットには sessionStorage 読み取り付きの Loader を差し込む。
-    // 渡す props は string primitive のみで、関数は一切渡さない。
+    // 渡す props は primitive のみで、関数は一切渡さない。
+    // `expectedCount` は URL クエリ由来の出題数で、Loader が読み取り完了までの
+    // placeholder の行数に使う。
     return (
       <ResultView {...props}>
         {config.translationNamespace !== undefined ? (
           <ScoreProblemListLoader
             storageKey={storageKey}
+            expectedCount={props.total}
             translationNamespace={config.translationNamespace}
           />
         ) : (
-          <config.ProblemListLoader storageKey={storageKey} />
+          <config.ProblemListLoader
+            storageKey={storageKey}
+            expectedCount={props.total}
+          />
         )}
       </ResultView>
     );
