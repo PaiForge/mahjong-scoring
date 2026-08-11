@@ -64,6 +64,7 @@ export {
 
 // === Score ===
 export {
+  FU_VALUES,
   RON_SCORES_KO,
   RON_SCORES_OYA,
   TSUMO_SCORES_OYA_PART,
@@ -77,6 +78,9 @@ export { getDoraFromIndicator } from "./core/dora";
 export {
   calculateKoScore,
   calculateOyaScore,
+  koScoreFromBasePoints,
+  oyaScoreFromBasePoints,
+  MANGAN_BASE_POINTS,
   isInvalidCell,
   HIGH_SCORES,
 } from "./core/score-calculation";

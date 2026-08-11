@@ -2,6 +2,7 @@
 
 import { useState, useMemo, useCallback } from "react";
 import { useTranslations } from "next-intl";
+import { FU_VALUES } from "@mahjong-scoring/core";
 import type { UserAnswer } from "@mahjong-scoring/core";
 import { YakuSelect } from "./yaku-select";
 import { getAvailableScores } from "../_lib/get-available-scores";
@@ -80,7 +81,7 @@ export function ScorePracticeAnswerForm({
   const fuOptions = useMemo(
     () => [
       { value: "", label: t("form.placeholders.select") },
-      ...[20, 25, 30, 40, 50, 60, 70, 80, 90, 100, 110].map((v) => ({
+      ...FU_VALUES.map((v) => ({
         value: v,
         label: `${v}${t("form.options.fuSuffix")}`,
       })),

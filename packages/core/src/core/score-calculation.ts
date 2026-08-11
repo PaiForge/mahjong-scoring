@@ -1,4 +1,15 @@
 import type { WinType } from "./roles";
+import { MANGAN_PLUS_TIERS } from "../score/tiers";
+
+/**
+ * 満貫の基本符。基本符がこれ以上なら満貫以上として頭打ちになる。
+ * 満貫基本符
+ *
+ * 満貫は MANGAN_PLUS_TIERS で最も基本符が小さい区分なので最小値を引く。
+ */
+export const MANGAN_BASE_POINTS = Math.min(
+  ...MANGAN_PLUS_TIERS.map((tier) => tier.basePoints),
+);
 
 /**
  * ツモ和了の支払い
@@ -9,13 +20,21 @@ import type { WinType } from "./roles";
  * 文字列化は表示コンポーネントの責務（オール表記は i18n に依存するため、
  * core では文字列を組み立てない）。
  */
-export type TsumoPayment =
-  | {
-      readonly type: "koTsumo";
-      readonly fromKo: number;
-      readonly fromOya: number;
-    }
-  | { readonly type: "oyaTsumo"; readonly all: number };
+export interface KoTsumoPayment {
+  readonly type: "koTsumo";
+  /** 子1人あたりの支払い */
+  readonly fromKo: number;
+  /** 親の支払い */
+  readonly fromOya: number;
+}
+
+export interface OyaTsumoPayment {
+  readonly type: "oyaTsumo";
+  /** 全員が同額を支払う（オール） */
+  readonly all: number;
+}
+
+export type TsumoPayment = KoTsumoPayment | OyaTsumoPayment;
 
 /**
  * 基本符（ベースポイント）を計算する
@@ -34,6 +53,43 @@ export function ceilTo100(n: number): number {
 }
 
 /**
+ * 基本符から子の支払いを導出する
+ * 子点数導出
+ *
+ * 子はロンで基本符の4倍、ツモで子から1倍・親から2倍。
+ * 満貫以上も同じ式で、基本符に {@link MANGAN_PLUS_TIERS} の固定値を渡す。
+ */
+export function koScoreFromBasePoints(basePoints: number): {
+  readonly ron: number;
+  readonly tsumo: KoTsumoPayment;
+} {
+  return {
+    ron: ceilTo100(basePoints * 4),
+    tsumo: {
+      type: "koTsumo",
+      fromKo: ceilTo100(basePoints * 1),
+      fromOya: ceilTo100(basePoints * 2),
+    },
+  };
+}
+
+/**
+ * 基本符から親の支払いを導出する
+ * 親点数導出
+ *
+ * 親はロンで基本符の6倍、ツモで全員から2倍。
+ */
+export function oyaScoreFromBasePoints(basePoints: number): {
+  readonly ron: number;
+  readonly tsumo: OyaTsumoPayment;
+} {
+  return {
+    ron: ceilTo100(basePoints * 6),
+    tsumo: { type: "oyaTsumo", all: ceilTo100(basePoints * 2) },
+  };
+}
+
+/**
  * 子の点数を計算する
  * 子点数計算
  */
@@ -46,22 +102,10 @@ export function calculateKoScore(
   readonly tsumo: TsumoPayment;
 } {
   const base = calculateBasePoints(han, fu);
-  if (base >= 2000) {
-    return {
-      isMangan: true,
-      ron: 8000,
-      tsumo: { type: "koTsumo", fromKo: 2000, fromOya: 4000 },
-    };
-  }
-  const ron = ceilTo100(base * 4);
+  const isMangan = base >= MANGAN_BASE_POINTS;
   return {
-    isMangan: false,
-    ron,
-    tsumo: {
-      type: "koTsumo",
-      fromKo: ceilTo100(base * 1),
-      fromOya: ceilTo100(base * 2),
-    },
+    isMangan,
+    ...koScoreFromBasePoints(isMangan ? MANGAN_BASE_POINTS : base),
   };
 }
 
@@ -78,18 +122,10 @@ export function calculateOyaScore(
   readonly tsumo: TsumoPayment;
 } {
   const base = calculateBasePoints(han, fu);
-  if (base >= 2000) {
-    return {
-      isMangan: true,
-      ron: 12000,
-      tsumo: { type: "oyaTsumo", all: 4000 },
-    };
-  }
-  const ron = ceilTo100(base * 6);
+  const isMangan = base >= MANGAN_BASE_POINTS;
   return {
-    isMangan: false,
-    ron,
-    tsumo: { type: "oyaTsumo", all: ceilTo100(base * 2) },
+    isMangan,
+    ...oyaScoreFromBasePoints(isMangan ? MANGAN_BASE_POINTS : base),
   };
 }
 
@@ -127,49 +163,39 @@ export function isInvalidCell(
   );
 }
 
+/** 満貫以上の帯（翻数しきい値の昇順、ダブル役満を除く） */
+const HIGH_SCORE_TIERS = [
+  ...MANGAN_PLUS_TIERS.filter((tier) => tier.key !== "doubleYakuman"),
+].reverse();
+
+/**
+ * 帯の翻数レンジ表示を組み立てる（例: "5" / "6-7" / "13~"）
+ * 翻数レンジ表示
+ */
+function hanRangeLabel(index: number): string {
+  const tier = HIGH_SCORE_TIERS[index];
+  const next = HIGH_SCORE_TIERS[index + 1];
+  if (next === undefined) return `${tier.minHan}~`;
+  const max = next.minHan - 1;
+  return tier.minHan === max ? `${tier.minHan}` : `${tier.minHan}-${max}`;
+}
+
 /**
  * 満貫以上の点数データ
  * 高打点データ
+ *
+ * 翻数しきい値・基本符は MANGAN_PLUS_TIERS、点数は基本符からの導出。
+ * ここに点数を直書きしないこと（満貫の 8000/12000 等が二重管理になる）。
  */
-export const HIGH_SCORES = [
-  {
-    nameKey: "mangan",
-    han: "5",
-    ronKo: 8000,
-    tsumoKo: { type: "koTsumo", fromKo: 2000, fromOya: 4000 },
-    ronOya: 12000,
-    tsumoOya: { type: "oyaTsumo", all: 4000 },
-  },
-  {
-    nameKey: "haneman",
-    han: "6-7",
-    ronKo: 12000,
-    tsumoKo: { type: "koTsumo", fromKo: 3000, fromOya: 6000 },
-    ronOya: 18000,
-    tsumoOya: { type: "oyaTsumo", all: 6000 },
-  },
-  {
-    nameKey: "baiman",
-    han: "8-10",
-    ronKo: 16000,
-    tsumoKo: { type: "koTsumo", fromKo: 4000, fromOya: 8000 },
-    ronOya: 24000,
-    tsumoOya: { type: "oyaTsumo", all: 8000 },
-  },
-  {
-    nameKey: "sanbaiman",
-    han: "11-12",
-    ronKo: 24000,
-    tsumoKo: { type: "koTsumo", fromKo: 6000, fromOya: 12000 },
-    ronOya: 36000,
-    tsumoOya: { type: "oyaTsumo", all: 12000 },
-  },
-  {
-    nameKey: "yakuman",
-    han: "13~",
-    ronKo: 32000,
-    tsumoKo: { type: "koTsumo", fromKo: 8000, fromOya: 16000 },
-    ronOya: 48000,
-    tsumoOya: { type: "oyaTsumo", all: 16000 },
-  },
-] as const;
+export const HIGH_SCORES = HIGH_SCORE_TIERS.map((tier, index) => {
+  const ko = koScoreFromBasePoints(tier.basePoints);
+  const oya = oyaScoreFromBasePoints(tier.basePoints);
+  return {
+    nameKey: tier.key,
+    han: hanRangeLabel(index),
+    ronKo: ko.ron,
+    tsumoKo: ko.tsumo,
+    ronOya: oya.ron,
+    tsumoOya: oya.tsumo,
+  };
+});
