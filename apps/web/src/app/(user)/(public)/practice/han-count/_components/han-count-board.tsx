@@ -1,6 +1,7 @@
 "use client";
 
 import { useCallback } from "react";
+import { tehaiContextOf } from "../../_lib/score-question-context";
 import { QuestionGeneratingPlaceholder } from "../../_components/question-generating-placeholder";
 import { useTranslations } from "next-intl";
 import { useGeneratedScoreQuestion } from "../../_hooks/use-generated-score-question";
@@ -52,14 +53,7 @@ export function HanCountBoard({
     <div className="space-y-4">
       <TehaiDisplay
         tehai={question.tehai}
-        context={{
-          bakaze: question.bakaze,
-          jikaze: question.jikaze,
-          agariHai: question.agariHai,
-          isTsumo: question.isTsumo,
-          isRiichi: question.isRiichi,
-          doraMarkers: question.doraMarkers,
-        }}
+        context={tehaiContextOf(question)}
         translationNamespace="hanCountChallenge"
       />
 

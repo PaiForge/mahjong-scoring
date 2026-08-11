@@ -3,22 +3,21 @@
 import { memo, useCallback, useState } from "react";
 import { useTranslations } from "next-intl";
 import { getKazeName } from "@mahjong-scoring/core";
-import type { Tehai14, HaiKindId, Kazehai } from "@mahjong-scoring/core";
+import type { AgariContext, Tehai14, HaiKindId } from "@mahjong-scoring/core";
 import { Hai } from "@pai-forge/mahjong-react-ui";
 import { TehaiHand } from "../../_components/tehai-hand";
 
 /**
  * 練習共通の手牌表示に必要なコンテキスト情報
  * 練習コンテキスト
+ *
+ * core の {@link AgariContext} に表示上の任意項目を足したもの。
+ * リーチ表示とドラ表示はそれを持たない練習からも使われるため任意。
  */
-export interface TehaiContext {
-  readonly bakaze: Kazehai;
-  readonly jikaze: Kazehai;
-  readonly agariHai: HaiKindId;
-  readonly isTsumo: boolean;
+export type TehaiContext = AgariContext & {
   readonly isRiichi?: boolean;
   readonly doraMarkers?: readonly HaiKindId[];
-}
+};
 
 interface TehaiDisplayProps {
   readonly tehai: Tehai14;

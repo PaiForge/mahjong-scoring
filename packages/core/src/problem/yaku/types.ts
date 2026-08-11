@@ -1,4 +1,5 @@
-import type { Tehai14, HaiKindId, Kazehai } from "@pai-forge/riichi-mahjong";
+import type { Tehai14, HaiKindId } from "@pai-forge/riichi-mahjong";
+import type { AgariContext } from "../shared/agari-context";
 
 /**
  * 役選択練習の問題
@@ -8,11 +9,8 @@ import type { Tehai14, HaiKindId, Kazehai } from "@pai-forge/riichi-mahjong";
 export interface YakuQuestion {
   readonly id: string;
   readonly tehai: Tehai14;
-  readonly context: {
-    readonly bakaze: Kazehai;
-    readonly jikaze: Kazehai;
-    readonly agariHai: HaiKindId;
-    readonly isTsumo: boolean;
+  /** リーチ・ドラは役の成否に直結するため、この練習では必須 */
+  readonly context: AgariContext & {
     readonly isRiichi: boolean;
     readonly doraMarkers: readonly HaiKindId[];
   };

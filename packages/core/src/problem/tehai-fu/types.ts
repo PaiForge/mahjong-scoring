@@ -1,10 +1,10 @@
 import type {
   Tehai14,
   HaiKindId,
-  Kazehai,
   MentsuType,
   CompletedMentsu,
 } from "@pai-forge/riichi-mahjong";
+import type { AgariContext } from "../shared/agari-context";
 
 /**
  * 手牌の符計算における個別の構成要素
@@ -27,11 +27,6 @@ export interface TehaiFuItem {
 export interface TehaiFuQuestion {
   readonly id: string;
   readonly tehai: Tehai14;
-  readonly context: {
-    readonly bakaze: Kazehai;
-    readonly jikaze: Kazehai;
-    readonly agariHai: HaiKindId;
-    readonly isTsumo: boolean;
-  };
+  readonly context: AgariContext;
   readonly items: readonly TehaiFuItem[];
 }
