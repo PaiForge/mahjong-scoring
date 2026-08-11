@@ -7,7 +7,7 @@ import type { JantouFuQuestion, JantouFuChoice } from "@mahjong-scoring/core";
 import { Hai } from "@pai-forge/mahjong-react-ui";
 import { useRuleSettingsStore } from "@/app/_hooks/use-rule-settings-store";
 import { ChoiceButton } from "../../_components/choice-button";
-import { getFeedbackStyles } from "../../_lib/feedback-styles";
+import { getChoiceFeedbackProps } from "../../_lib/feedback-styles";
 
 interface JantouFuBoardProps {
   /** 正誤フィードバック表示中か（セッションから受け取る） */
@@ -78,29 +78,24 @@ export function JantouFuBoard({
 
       {/* Choices */}
       <div className="grid grid-cols-2 gap-3">
-        {question.choices.map((choice, i) => {
-          const { borderClass, bgClass } = getFeedbackStyles(
-            showFeedback,
-            selectedHai === choice.hai,
-            choice.isCorrect,
-          );
-
-          return (
-            <ChoiceButton
-              key={`${question.id}-${choice.hai}`}
-              index={i}
-              onSelect={handleChoiceSelect}
-              disabled={showFeedback || isCountingDown}
-              borderClass={borderClass}
-              bgClass={bgClass}
-              className="flex-col gap-5"
-            >
-              <div className="scale-125">
-                <Hai hai={choice.hai} />
-              </div>
-            </ChoiceButton>
-          );
-        })}
+        {question.choices.map((choice, i) => (
+          <ChoiceButton
+            key={`${question.id}-${choice.hai}`}
+            index={i}
+            onSelect={handleChoiceSelect}
+            className="flex-col gap-5"
+            {...getChoiceFeedbackProps({
+              showFeedback,
+              isCountingDown,
+              isSelected: selectedHai === choice.hai,
+              isCorrect: choice.isCorrect,
+            })}
+          >
+            <div className="scale-125">
+              <Hai hai={choice.hai} />
+            </div>
+          </ChoiceButton>
+        ))}
       </div>
     </div>
   );

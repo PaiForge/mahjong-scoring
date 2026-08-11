@@ -2,10 +2,7 @@
 
 import { useCallback, useMemo, useRef, useState } from "react";
 import { useCountdown } from "./use-countdown";
-import {
-  CHALLENGE_TIME_LIMIT,
-  MISTAKE_LIMIT,
-} from "../_lib/challenge-constants";
+import { CHALLENGE_TIME_LIMIT, MISTAKE_LIMIT } from "@mahjong-scoring/core";
 
 interface UseTimedSessionOptions {
   timeLimit?: number;
@@ -84,10 +81,10 @@ export function useTimedSession({
     boolean | undefined
   >(undefined);
   const [finalResult, setFinalResult] = useState<FinalResult | undefined>(
-    undefined
+    undefined,
   );
   const feedbackTimeoutRef = useRef<ReturnType<typeof setTimeout> | undefined>(
-    undefined
+    undefined,
   );
   const isFinishedRef = useRef(false);
   const correctCountRef = useRef(0);
@@ -169,7 +166,7 @@ export function useTimedSession({
         onNext();
       }, feedbackDurationMs);
     },
-    [mistakeLimit, feedbackDurationMs, showFeedback, isPaused]
+    [mistakeLimit, feedbackDurationMs, showFeedback, isPaused],
   );
 
   const registerTimerReset = useCallback((resetFn: () => void) => {
@@ -193,48 +190,61 @@ export function useTimedSession({
     countdown.reset();
   }, [countdown]);
 
-  const gameSession: GameSessionState = useMemo(() => ({
-    isCountingDown: countdown.isActive,
-    countdownValue: countdown.count,
-    isPlaying: isPlaying && !isPaused,
-    isFinished,
-    isPaused,
-    correctCount,
-    incorrectCount,
-    totalCount,
-    remainingLives,
-    showFeedback,
-    lastAnswerCorrect,
-    handleAnswer,
-    togglePause,
-    mistakeLimit,
-    timeLimit,
-    finalResult,
-  }), [
-    countdown.isActive,
-    countdown.count,
-    isPlaying,
-    isPaused,
-    isFinished,
-    correctCount,
-    incorrectCount,
-    totalCount,
-    remainingLives,
-    showFeedback,
-    lastAnswerCorrect,
-    handleAnswer,
-    togglePause,
-    mistakeLimit,
-    timeLimit,
-    finalResult,
-  ]);
+  const gameSession: GameSessionState = useMemo(
+    () => ({
+      isCountingDown: countdown.isActive,
+      countdownValue: countdown.count,
+      isPlaying: isPlaying && !isPaused,
+      isFinished,
+      isPaused,
+      correctCount,
+      incorrectCount,
+      totalCount,
+      remainingLives,
+      showFeedback,
+      lastAnswerCorrect,
+      handleAnswer,
+      togglePause,
+      mistakeLimit,
+      timeLimit,
+      finalResult,
+    }),
+    [
+      countdown.isActive,
+      countdown.count,
+      isPlaying,
+      isPaused,
+      isFinished,
+      correctCount,
+      incorrectCount,
+      totalCount,
+      remainingLives,
+      showFeedback,
+      lastAnswerCorrect,
+      handleAnswer,
+      togglePause,
+      mistakeLimit,
+      timeLimit,
+      finalResult,
+    ],
+  );
 
-  const timerControl: TimerControl = useMemo(() => ({
-    isActive: isPlaying && !isFinished && !isPaused,
-    onTimeLimitReached: handleTimeLimitReached,
-    registerTimerReset,
-    reset,
-  }), [isPlaying, isFinished, isPaused, handleTimeLimitReached, registerTimerReset, reset]);
+  const timerControl: TimerControl = useMemo(
+    () => ({
+      isActive: isPlaying && !isFinished && !isPaused,
+      onTimeLimitReached: handleTimeLimitReached,
+      registerTimerReset,
+      reset,
+    }),
+    [
+      isPlaying,
+      isFinished,
+      isPaused,
+      handleTimeLimitReached,
+      registerTimerReset,
+      reset,
+    ],
+  );
 
   return { gameSession, timerControl };
 }

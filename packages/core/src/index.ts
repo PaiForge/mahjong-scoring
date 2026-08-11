@@ -103,6 +103,9 @@ export type {
 export { isRole, isWinType } from "./core/roles";
 export type { Role, WinType } from "./core/roles";
 
+// === Challenge ===
+export { CHALLENGE_TIME_LIMIT, MISTAKE_LIMIT } from "./challenge/constants";
+
 // === EXP ===
 export { calculateExp, getLevel, getLevelProgress } from "./exp";
 export type { ExpInfo } from "./exp";

@@ -1,12 +1,11 @@
 "use client";
 
 import { useState } from "react";
-import Link from "next/link";
+import { CHALLENGE_TIME_LIMIT, MISTAKE_LIMIT } from "@mahjong-scoring/core";
+import { PracticeStartCta } from "../../_components/practice-start-cta";
 import { useTranslations } from "next-intl";
 import { DEFAULT_YAKU_HAN_RANGE } from "@mahjong-scoring/core";
 import type { YakuHanRange } from "@mahjong-scoring/core";
-import { PrimaryLinkButton } from "@/app/_components/primary-link-button";
-import { InfinityIcon } from "@/app/_components/icons/infinity-icon";
 import { SectionTitle } from "@/app/_components/section-title";
 import { PRACTICE_SCROLL_HASH } from "../../_lib/scroll-anchor";
 
@@ -81,31 +80,20 @@ export function YakuHanStartPanel() {
       </div>
 
       {/* 開始導線 */}
-      <div className="flex flex-col gap-5">
-        <div className="flex w-full flex-col items-center gap-1.5">
-          <PrimaryLinkButton href={playHref} className="w-full py-3">
-            {tc("startButton")}
-          </PrimaryLinkButton>
-          <p className="text-xs text-surface-400">{tp("modeChallengeHint")}</p>
-        </div>
-
-        <div className="flex w-full items-center gap-3 text-xs text-surface-400">
-          <span className="h-px flex-1 bg-surface-200" />
-          <span>{tp("orDivider")}</span>
-          <span className="h-px flex-1 bg-surface-200" />
-        </div>
-
-        <div className="flex w-full flex-col items-center gap-1.5">
-          <Link
-            href={trainingHref}
-            className="inline-flex w-full items-center justify-center gap-2 rounded-lg border border-primary-500 py-3 text-sm font-semibold text-primary-600 transition-colors hover:bg-primary-50"
-          >
-            <InfinityIcon className="size-4" />
-            {tt("startButton")}
-          </Link>
-          <p className="text-xs text-surface-400">{tp("modeTrainingHint")}</p>
-        </div>
-      </div>
+      <PracticeStartCta
+        playHref={playHref}
+        trainingHref={trainingHref}
+        labels={{
+          challenge: tc("startButton"),
+          challengeHint: tp("modeChallengeHint", {
+            timeLimit: CHALLENGE_TIME_LIMIT,
+            mistakeLimit: MISTAKE_LIMIT,
+          }),
+          training: tt("startButton"),
+          trainingHint: tp("modeTrainingHint"),
+          orDivider: tp("orDivider"),
+        }}
+      />
     </div>
   );
 }

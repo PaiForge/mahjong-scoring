@@ -1,6 +1,6 @@
 import type { useTranslations } from "next-intl";
 
-import { MISTAKE_LIMIT } from "@/app/(user)/(public)/practice/_lib/challenge-constants";
+import { MISTAKE_LIMIT } from "@mahjong-scoring/core";
 
 import type {
   ChallengeSession,
@@ -108,7 +108,7 @@ export function computeStats(sessions: readonly ChallengeSession[]) {
   const bestScore = scores.length > 0 ? Math.max(...scores) : undefined;
 
   const completedScores = sessions
-    .filter((s) => s.incorrectAnswers < MISTAKE_LIMIT)
+    .filter(isCompletedSession)
     .map((s) => s.score);
 
   const avgCompletionScore =

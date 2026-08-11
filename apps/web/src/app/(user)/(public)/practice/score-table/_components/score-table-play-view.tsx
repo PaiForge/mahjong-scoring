@@ -1,11 +1,8 @@
 "use client";
 
-import { useTranslations } from "next-intl";
 import type { ScoreTableGeneratorOptions } from "@mahjong-scoring/core";
-import { useTimedSession } from "../../_hooks/use-timed-session";
-import { useSaveOnFinish } from "../../_hooks/use-save-on-finish";
-import { useRecordedResults } from "../../_hooks/use-recorded-results";
-import { ChallengeShell } from "../../_components/challenge-shell";
+
+import { createChallengePlayView } from "../../_lib/create-challenge-views";
 import { ScoreTableBoard } from "./score-table-board";
 import { useScoreTableQuestion } from "../_hooks/use-score-table-question";
 import type { ScoreTableQuestionResult } from "../_lib/types";
@@ -19,37 +16,26 @@ interface ScoreTablePlayViewProps {
  * 点数表早引き練習本体
  * 点数表練習
  */
-export function ScoreTablePlayView({
-  generatorOptions,
-}: ScoreTablePlayViewProps) {
-  const t = useTranslations("scoreTableChallenge");
-  const { gameSession, timerControl } = useTimedSession();
-  const handleFinish = useSaveOnFinish("score_table");
-  const { question, advance } = useScoreTableQuestion(generatorOptions);
-
-  const { recordResult } = useRecordedResults<ScoreTableQuestionResult>(
-    RESULT_STORAGE_KEY,
-    gameSession.isFinished,
-  );
-
-  return (
-    <ChallengeShell
-      title={t("title")}
-      gameSession={gameSession}
-      timerControl={timerControl}
-      resultPath="/practice/score-table/result"
-      exitHref="/practice/score-table"
-      onFinish={handleFinish}
-    >
-      <ScoreTableBoard
-        question={question}
-        onAdvance={advance}
-        showFeedback={gameSession.showFeedback}
-        isCountingDown={gameSession.isCountingDown}
-        lastAnswerCorrect={gameSession.lastAnswerCorrect}
-        onAnswer={gameSession.handleAnswer}
-        onRecordResult={recordResult}
-      />
-    </ChallengeShell>
-  );
-}
+export const ScoreTablePlayView = createChallengePlayView<
+  ScoreTableQuestionResult,
+  ScoreTablePlayViewProps,
+  ReturnType<typeof useScoreTableQuestion>
+>({
+  namespace: "scoreTableChallenge",
+  menuType: "score_table",
+  slug: "score-table",
+  resultStorageKey: RESULT_STORAGE_KEY,
+  useBoardState: ({ generatorOptions }) =>
+    useScoreTableQuestion(generatorOptions),
+  renderBoard: (args, _props, { question, advance }) => (
+    <ScoreTableBoard
+      question={question}
+      onAdvance={advance}
+      showFeedback={args.showFeedback}
+      isCountingDown={args.isCountingDown}
+      lastAnswerCorrect={args.lastAnswerCorrect}
+      onAnswer={args.onAnswer}
+      onRecordResult={args.recordResult}
+    />
+  ),
+});
