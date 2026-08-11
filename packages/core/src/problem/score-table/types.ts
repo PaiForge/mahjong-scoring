@@ -4,6 +4,7 @@
  */
 
 import type { Role, WinType } from "../../core/roles";
+import type { ScoreRange } from "../score/types";
 
 /**
  * ロン和了の正解
@@ -68,9 +69,6 @@ export interface ScoreTableQuestion {
  */
 export type ScoreTableUserAnswer = ScoreTableAnswer;
 
-/** 出題する点数帯（満貫未満 / 満貫以上） */
-export type ScoreTableRange = "nonMangan" | "manganPlus";
-
 /**
  * 問題生成オプション
  * 点数表生成オプション
@@ -89,5 +87,5 @@ export interface ScoreTableGeneratorOptions {
   /** 出題する和了方法。既定: ツモ・ロンの両方 */
   readonly wins?: readonly WinType[];
   /** 出題する点数帯。既定: 満貫未満のみ（後方互換のため） */
-  readonly ranges?: readonly ScoreTableRange[];
+  readonly ranges?: readonly ScoreRange[];
 }

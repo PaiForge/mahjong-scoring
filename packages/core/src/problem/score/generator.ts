@@ -37,13 +37,13 @@ function validateScoreRange(
 ): boolean {
   if (
     allowedRanges.length === 1 &&
-    allowedRanges[0] === "non_mangan" &&
+    allowedRanges[0] === "nonMangan" &&
     scoreLevel !== ScoreLevel.Normal
   )
     return false;
   if (
     allowedRanges.length === 1 &&
-    allowedRanges[0] === "mangan_plus" &&
+    allowedRanges[0] === "manganPlus" &&
     scoreLevel === ScoreLevel.Normal
   )
     return false;
@@ -128,7 +128,7 @@ export function generateScoreQuestion(
     includeParent = true,
     includeChild = true,
     renfonpaiAs4Fu = false,
-    allowedRanges = ["non_mangan", "mangan_plus"],
+    allowedRanges = ["nonMangan", "manganPlus"],
   } = options;
 
   // 1. 手牌の生成（七対子 or 面子手）

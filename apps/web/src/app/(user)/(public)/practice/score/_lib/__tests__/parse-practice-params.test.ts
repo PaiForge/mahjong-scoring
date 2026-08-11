@@ -7,28 +7,28 @@ import {
 describe("parseGeneratorOptionsFromParams", () => {
   it("ranges 未指定時は両方の点数帯を含む", () => {
     const result = parseGeneratorOptionsFromParams(new URLSearchParams());
-    expect(result.allowedRanges).toEqual(["non_mangan", "mangan_plus"]);
+    expect(result.allowedRanges).toEqual(["nonMangan", "manganPlus"]);
   });
 
-  it("ranges=non のみ指定すると non_mangan だけになる", () => {
+  it("ranges=non のみ指定すると nonMangan だけになる", () => {
     const result = parseGeneratorOptionsFromParams(
       new URLSearchParams("ranges=non"),
     );
-    expect(result.allowedRanges).toEqual(["non_mangan"]);
+    expect(result.allowedRanges).toEqual(["nonMangan"]);
   });
 
-  it("ranges=plus のみ指定すると mangan_plus だけになる", () => {
+  it("ranges=plus のみ指定すると manganPlus だけになる", () => {
     const result = parseGeneratorOptionsFromParams(
       new URLSearchParams("ranges=plus"),
     );
-    expect(result.allowedRanges).toEqual(["mangan_plus"]);
+    expect(result.allowedRanges).toEqual(["manganPlus"]);
   });
 
   it("ranges を複数指定すると両方含む", () => {
     const result = parseGeneratorOptionsFromParams(
       new URLSearchParams("ranges=non&ranges=plus"),
     );
-    expect(result.allowedRanges).toEqual(["non_mangan", "mangan_plus"]);
+    expect(result.allowedRanges).toEqual(["nonMangan", "manganPlus"]);
   });
 
   it("roles 未指定時は親・子とも含む", () => {

@@ -1,7 +1,7 @@
 import type {
   Role,
   ScoreTableGeneratorOptions,
-  ScoreTableRange,
+  ScoreRange,
   WinType,
 } from "@mahjong-scoring/core";
 
@@ -95,7 +95,7 @@ export function selectionToGeneratorOptions(
   if (selection.includeTsumo) wins.push("tsumo");
   if (selection.includeRon) wins.push("ron");
 
-  const ranges: ScoreTableRange[] = [];
+  const ranges: ScoreRange[] = [];
   if (selection.includeNonMangan) ranges.push("nonMangan");
   if (selection.includeManganPlus) ranges.push("manganPlus");
 
