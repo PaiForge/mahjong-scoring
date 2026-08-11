@@ -27,7 +27,7 @@ export interface ChallengeBoardArgs<TResult> {
  * チャレンジ本体ビューの生成設定
  * チャレンジビュー設定
  */
-export interface ChallengePlayViewConfig<TResult> {
+export interface ChallengePlayViewConfig<TResult, TProps, TState> {
   /** 辞書の namespace（例: "jantouFu"） */
   readonly namespace: string;
   /** スコア保存に使う練習メニュー種別（例: "jantou_fu"） */
@@ -38,8 +38,19 @@ export interface ChallengePlayViewConfig<TResult> {
   readonly maxWidth?: string;
   /** 問題結果を保存する sessionStorage キー（結果ページで内訳表示する練習のみ） */
   readonly resultStorageKey?: string;
+  /**
+   * 盤面が必要とする追加状態を用意するフック
+   *
+   * 出題状態の管理（`useScoreTableQuestion` など）やクエリ参照が要る練習向け。
+   * ビュー先頭で無条件に呼ばれる。
+   */
+  readonly useBoardState?: (props: TProps) => TState;
   /** 盤面の描画 */
-  readonly renderBoard: (args: ChallengeBoardArgs<TResult>) => ReactNode;
+  readonly renderBoard: (
+    args: ChallengeBoardArgs<TResult>,
+    props: TProps,
+    state: TState,
+  ) => ReactNode;
 }
 
 /**
@@ -49,14 +60,21 @@ export interface ChallengePlayViewConfig<TResult> {
  * 全チャレンジ型練習で共通の「セッション管理 → スコア保存 → シェル描画」の
  * 定型を一元化する。各練習は盤面の描画（renderBoard）と設定値のみを提供する。
  */
-export function createChallengePlayView<TResult = never>(
-  config: ChallengePlayViewConfig<TResult>,
-): () => ReactNode {
+export function createChallengePlayView<
+  TResult = never,
+  TProps = Record<string, never>,
+  TState = undefined,
+>(
+  config: ChallengePlayViewConfig<TResult, TProps, TState>,
+): (props: TProps) => ReactNode {
   const { namespace, menuType, slug, maxWidth, resultStorageKey, renderBoard } =
     config;
+  const useBoardState =
+    config.useBoardState ?? (() => undefined as unknown as TState);
 
-  function ChallengePlayView() {
+  function ChallengePlayView(props: TProps) {
     const t = useTranslations(namespace);
+    const boardState = useBoardState(props);
     const { gameSession, timerControl } = useTimedSession();
     const handleFinish = useSaveOnFinish(menuType);
     const { recordResult } = useRecordedResults<TResult>(
@@ -74,13 +92,17 @@ export function createChallengePlayView<TResult = never>(
         maxWidth={maxWidth}
         onFinish={handleFinish}
       >
-        {renderBoard({
-          showFeedback: gameSession.showFeedback,
-          isCountingDown: gameSession.isCountingDown,
-          lastAnswerCorrect: gameSession.lastAnswerCorrect,
-          onAnswer: gameSession.handleAnswer,
-          recordResult,
-        })}
+        {renderBoard(
+          {
+            showFeedback: gameSession.showFeedback,
+            isCountingDown: gameSession.isCountingDown,
+            lastAnswerCorrect: gameSession.lastAnswerCorrect,
+            onAnswer: gameSession.handleAnswer,
+            recordResult,
+          },
+          props,
+          boardState,
+        )}
       </ChallengeShell>
     );
   }
@@ -102,27 +124,31 @@ export interface TrainingBoardArgs {
  * トレーニングビューの生成設定
  * トレーニングビュー設定
  */
-export interface TrainingViewConfig {
+export interface TrainingViewConfig<TProps> {
   /** 辞書の namespace（例: "jantouFu"） */
   readonly namespace: string;
   /** ルートスラッグ（例: "jantou-fu"）。終了リンクのパス生成に使う */
   readonly slug: string;
   /** シェル内部ラッパーの max-w クラス（未指定時はシェルの既定値） */
   readonly maxWidth?: string;
-  /** 盤面の描画 */
-  readonly renderBoard: (args: TrainingBoardArgs) => ReactNode;
+  /**
+   * 盤面の描画
+   *
+   * ビューの render 中に無条件で呼ばれるため、この中でフックを呼んでもよい。
+   */
+  readonly renderBoard: (args: TrainingBoardArgs, props: TProps) => ReactNode;
 }
 
 /**
  * トレーニングモード（時間無制限・非記録）の本体ビューを生成するファクトリ
  * トレーニングビュー生成
  */
-export function createTrainingView(
-  config: TrainingViewConfig,
-): () => ReactNode {
+export function createTrainingView<TProps = Record<string, never>>(
+  config: TrainingViewConfig<TProps>,
+): (props: TProps) => ReactNode {
   const { namespace, slug, maxWidth, renderBoard } = config;
 
-  function TrainingView() {
+  function TrainingView(props: TProps) {
     const t = useTranslations(namespace);
     const {
       correctCount,
@@ -140,11 +166,14 @@ export function createTrainingView(
         exitHref={`/practice/${slug}`}
         maxWidth={maxWidth}
       >
-        {renderBoard({
-          showFeedback,
-          lastAnswerCorrect,
-          onAnswer: handleAnswer,
-        })}
+        {renderBoard(
+          {
+            showFeedback,
+            lastAnswerCorrect,
+            onAnswer: handleAnswer,
+          },
+          props,
+        )}
       </TrainingShell>
     );
   }
