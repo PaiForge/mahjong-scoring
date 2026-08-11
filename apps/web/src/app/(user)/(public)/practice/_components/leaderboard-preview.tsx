@@ -4,10 +4,10 @@ import { getTranslations } from "next-intl/server";
 import { SectionTitle } from "@/app/_components/section-title";
 import { LeaderboardTableHeader } from "@/app/(user)/(public)/leaderboard/_components/leaderboard-table-header";
 import { LeaderboardTableRow } from "@/app/(user)/(public)/leaderboard/_components/leaderboard-table-row";
-import type { LeaderboardRow } from "@/app/(user)/(public)/leaderboard/_lib/types";
+import type { RankedLeaderboardRow } from "@/lib/db/leaderboard-queries";
 
 interface LeaderboardPreviewProps {
-  readonly rows: readonly LeaderboardRow[];
+  readonly rows: readonly RankedLeaderboardRow[];
   readonly detailPath: string;
 }
 

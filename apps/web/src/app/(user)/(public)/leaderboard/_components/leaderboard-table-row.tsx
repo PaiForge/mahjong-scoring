@@ -1,10 +1,10 @@
 import { memo } from "react";
 
-import type { LeaderboardRow } from "../_lib/types";
+import type { RankedLeaderboardRow } from "@/lib/db/leaderboard-queries";
 import { LeaderboardRowCells } from "./leaderboard-row-cells";
 
 interface LeaderboardTableRowProps {
-  readonly row: LeaderboardRow;
+  readonly row: RankedLeaderboardRow;
   readonly isCurrentUser: boolean;
 }
 

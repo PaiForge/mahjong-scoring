@@ -1,7 +1,7 @@
 import { describe, expect, it, vi } from "vitest";
 import { render, screen } from "@testing-library/react";
 import { LeaderboardPreview } from "./leaderboard-preview";
-import type { LeaderboardRow } from "@/app/(user)/(public)/leaderboard/_lib/types";
+import type { RankedLeaderboardRow } from "@/lib/db/leaderboard-queries";
 
 vi.mock("next-intl/server", () => ({
   getTranslations: () => Promise.resolve((key: string) => key),
@@ -33,7 +33,7 @@ vi.mock(
 vi.mock(
   "@/app/(user)/(public)/leaderboard/_components/leaderboard-table-row",
   () => ({
-    LeaderboardTableRow: ({ row }: { readonly row: LeaderboardRow }) => (
+    LeaderboardTableRow: ({ row }: { readonly row: RankedLeaderboardRow }) => (
       <tr data-testid={`row-${row.userId}`}>
         <td>{row.username}</td>
       </tr>
@@ -41,7 +41,9 @@ vi.mock(
   }),
 );
 
-function createRow(overrides: Partial<LeaderboardRow> = {}): LeaderboardRow {
+function createRow(
+  overrides: Partial<RankedLeaderboardRow> = {},
+): RankedLeaderboardRow {
   return {
     userId: "user-1",
     username: "player1",
@@ -52,7 +54,7 @@ function createRow(overrides: Partial<LeaderboardRow> = {}): LeaderboardRow {
     avatarUrl: undefined,
     rank: 1,
     ...overrides,
-  } as LeaderboardRow;
+  } as RankedLeaderboardRow;
 }
 
 describe("LeaderboardPreview", () => {

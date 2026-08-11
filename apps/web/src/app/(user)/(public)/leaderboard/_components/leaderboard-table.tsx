@@ -1,14 +1,14 @@
 import { getTranslations } from "next-intl/server";
 
-import type { LeaderboardRow } from "../_lib/types";
+import type { RankedLeaderboardRow } from "@/lib/db/leaderboard-queries";
 import { CurrentUserRankRow } from "./current-user-rank-row";
 import { LeaderboardTableHeader } from "./leaderboard-table-header";
 import { LeaderboardTableRow } from "./leaderboard-table-row";
 
 interface LeaderboardTableProps {
-  readonly rows: readonly LeaderboardRow[];
+  readonly rows: readonly RankedLeaderboardRow[];
   readonly currentUserId: string | undefined;
-  readonly currentUserRank: LeaderboardRow | undefined;
+  readonly currentUserRank: RankedLeaderboardRow | undefined;
 }
 
 /**

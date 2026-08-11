@@ -1,7 +1,9 @@
+import { resultStorageKeyFor } from "@/lib/db/practice-menu-types";
+
 import { createSessionStorageParser } from "../../_lib/create-session-storage-parser";
 
 /** sessionStorage に保存する際のキー */
-export const RESULT_STORAGE_KEY = "yaku-han-results";
+export const RESULT_STORAGE_KEY = resultStorageKeyFor("yaku-han");
 
 /**
  * 役翻数練習の1問ごとの結果データ

@@ -1,5 +1,6 @@
 import { unstable_cache } from "next/cache";
 
+import type { RankedLeaderboardRow } from "@/lib/db/leaderboard-queries";
 import { logExternalError } from "@/lib/log-error";
 
 import { getQueriesForPeriod } from "../_lib/period-queries";
@@ -7,7 +8,6 @@ import type {
   LeaderboardModule,
   LeaderboardPeriod,
   LeaderboardResult,
-  LeaderboardRow,
 } from "../_lib/types";
 import { PAGE_SIZE } from "../_lib/types";
 import { isValidModule, isValidPeriod } from "../_lib/validators";
@@ -81,12 +81,12 @@ export async function getLeaderboard(
       PAGE_SIZE,
     );
 
-    const leaderboardRows: LeaderboardRow[] = rows.map((r, i) => ({
+    const leaderboardRows: RankedLeaderboardRow[] = rows.map((r, i) => ({
       ...r,
       rank: offset + i + 1,
     }));
 
-    let currentUserRank: LeaderboardRow | undefined;
+    let currentUserRank: RankedLeaderboardRow | undefined;
     if (
       currentUserId &&
       !leaderboardRows.some((r) => r.userId === currentUserId)
