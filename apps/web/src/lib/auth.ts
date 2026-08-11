@@ -119,6 +119,24 @@ export const getOptionalVerifiedUser = cache(
 );
 
 /**
+ * ゲスト専用ページのガード。ログイン済みなら退避先へリダイレクトする。
+ * ゲスト専用ガード
+ *
+ * サインイン・サインアップ・メール確認待ちのように「未ログインでのみ意味がある」
+ * ページで使う。呼び出し元のページには
+ * `export const dynamic = "force-dynamic"` が必要（Next.js の規約上
+ * ファイルごとに書く必要があるため、この関数では担保できない）。
+ *
+ * @param to - 退避先パス（既定 /mypage）
+ */
+export async function redirectIfAuthenticated(to = "/mypage"): Promise<void> {
+  const user = await getOptionalUser();
+  if (user) {
+    redirect(to);
+  }
+}
+
+/**
  * 認証 + BAN チェックガード（Server Actions 用）。
  * 認証済みかつ BAN されていないユーザーを返す。
  * 認証+BANガード
