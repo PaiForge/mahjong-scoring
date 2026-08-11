@@ -2,9 +2,6 @@ import { createPracticeResultLoading } from "../../_lib/create-practice-result-l
 
 /**
  * 結果ページの読み込み中スケルトン。
- * namespace / slug は同ディレクトリの page.tsx と揃える。
+ * slug は同ディレクトリの page.tsx と揃える。
  */
-export default createPracticeResultLoading({
-  slug: "mentsu-fu",
-  namespace: "mentsuFu",
-});
+export default createPracticeResultLoading({ slug: "mentsu-fu" });

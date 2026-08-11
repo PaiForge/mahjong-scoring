@@ -1,13 +1,17 @@
 import { getTranslations } from "next-intl/server";
 
+import type { PracticeMenuSlug } from "@/lib/db/practice-menu-types";
+import { practiceMenuBySlug } from "@/lib/db/practice-menu-types";
 import { ResultPageSkeleton } from "../_components/result-page-skeleton";
 import { buildResultBreadcrumb } from "./result-breadcrumb";
 
 interface ResultLoadingConfig {
-  /** ルートスラッグ（例: "machi-fu"）。説明ページ URL の生成に使う。 */
-  readonly slug: string;
-  /** 辞書の namespace（例: "machiFu"）。練習名（`title`）を引く。 */
-  readonly namespace: string;
+  /**
+   * ルートスラッグ（例: "machi-fu"）。
+   * 練習名を引く辞書 namespace はレジストリから導出し、説明ページ URL の
+   * 生成にも使う。同ディレクトリの page.tsx と同じ slug を渡すこと。
+   */
+  readonly slug: PracticeMenuSlug;
 }
 
 /**
@@ -24,10 +28,9 @@ interface ResultLoadingConfig {
  * 受け取れないため、問題別フィードバック一覧の枠はここでは出さない。
  * 一覧の高さは結果ページ本体（`ScoreProblemListLoader` 等）が確保する。
  */
-export function createPracticeResultLoading({
-  slug,
-  namespace,
-}: ResultLoadingConfig) {
+export function createPracticeResultLoading({ slug }: ResultLoadingConfig) {
+  const { namespace } = practiceMenuBySlug(slug);
+
   return async function PracticeResultLoading() {
     const [t, tc, tp] = await Promise.all([
       getTranslations(namespace),
