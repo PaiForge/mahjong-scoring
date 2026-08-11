@@ -1,6 +1,7 @@
 "use server";
 
 import { getOptionalUser } from "@/lib/auth";
+import { logExternalError } from "@/lib/log-error";
 import type { PracticeMenuType } from "@/lib/db/practice-menu-types";
 
 import type { ChallengeSession } from "../_lib/types";
@@ -36,9 +37,10 @@ export async function getChallengeSessions(
       previousRangeEnd,
     );
   } catch (error) {
-    console.error(
-      "Failed to fetch challenge sessions:",
-      error instanceof Error ? error.message : String(error),
+    logExternalError(
+      "getChallengeSessions",
+      "failed to fetch challenge sessions",
+      error,
     );
     return { current: [], previous: [] };
   }

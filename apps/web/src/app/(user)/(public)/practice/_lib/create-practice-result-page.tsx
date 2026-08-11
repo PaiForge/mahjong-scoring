@@ -9,6 +9,7 @@ import type {
 import { buildDetailPath } from "@/app/(user)/(public)/leaderboard/_lib/types";
 import { getExpInfoByChallengeResultId } from "@/lib/db/save-exp";
 import { getOptionalUser } from "@/lib/auth";
+import { logExternalError } from "@/lib/log-error";
 
 import { ExpGainDisplay } from "../_components/exp-gain-display";
 import { LeaderboardPreview } from "../_components/leaderboard-preview";
@@ -204,7 +205,11 @@ async function resolveCurrentUser() {
   try {
     return await getOptionalUser();
   } catch (error) {
-    console.error("[createPracticeResultPage] failed to resolve user:", error);
+    logExternalError(
+      "createPracticeResultPage",
+      "failed to resolve user",
+      error,
+    );
     return undefined;
   }
 }
@@ -213,8 +218,9 @@ async function tryFetchExpInfo(userId: string, challengeResultId: string) {
   try {
     return await getExpInfoByChallengeResultId(userId, challengeResultId);
   } catch (error) {
-    console.error(
-      "[createPracticeResultPage] failed to fetch exp info:",
+    logExternalError(
+      "createPracticeResultPage",
+      "failed to fetch exp info",
       error,
     );
     return undefined;
