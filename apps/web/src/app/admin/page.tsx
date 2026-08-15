@@ -7,9 +7,13 @@ import { DateRangePicker } from "@/app/admin/_components/date-range-picker";
 import { requireAdminPage } from "@/app/admin/_lib/auth";
 import { daysAgo, getNewUsersPerDay, today } from "@/app/admin/_lib/dashboard";
 
+// nuqs のキャッシュはモジュールスコープで組み立てる必要があるため、
+// 既定の期間もモジュール評価時の日付で決まる（プロセスが生きている間は固定）。
+const defaultsResolvedAt = new Date();
+
 const searchParamsCache = createSearchParamsCache({
-  from: parseAsString.withDefault(daysAgo(28)),
-  to: parseAsString.withDefault(today()),
+  from: parseAsString.withDefault(daysAgo(28, defaultsResolvedAt)),
+  to: parseAsString.withDefault(today(defaultsResolvedAt)),
 });
 
 export default async function AdminDashboardPage({

@@ -26,10 +26,13 @@ export function DateRangePicker({
   endDate,
   labels,
 }: DateRangePickerProps) {
+  // 既定値・上限・プリセットで同じ「今日」を使うため、ここで1回だけ解決する
+  const now = new Date();
+
   const [, setParams] = useQueryStates(
     {
-      from: parseAsString.withDefault(daysAgo(28)),
-      to: parseAsString.withDefault(today()),
+      from: parseAsString.withDefault(daysAgo(28, now)),
+      to: parseAsString.withDefault(today(now)),
     },
     { shallow: false },
   );
@@ -64,15 +67,15 @@ export function DateRangePicker({
           type="date"
           value={endDate}
           min={startDate}
-          max={today()}
+          max={today(now)}
           onChange={(e) => setParams({ to: e.target.value })}
           className="rounded border border-surface-200 bg-surface-50 px-3 py-1.5 text-sm"
         />
       </div>
       <div className="flex gap-1.5">
         {presets.map((preset) => {
-          const presetFrom = daysAgo(preset.days);
-          const presetTo = today();
+          const presetFrom = daysAgo(preset.days, now);
+          const presetTo = today(now);
           const isActive = startDate === presetFrom && endDate === presetTo;
 
           return (
