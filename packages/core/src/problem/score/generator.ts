@@ -173,14 +173,11 @@ export function generateScoreQuestion(
   if (finalAnswer.han === 0) return undefined;
 
   // 5. リーチ・裏ドラの適用（門前のみ、確率20%）
+  //    リーチの抽選はここが唯一の判定。isRiichi が true の問題は必ず
+  //    立直の翻と裏ドラ表示牌を持つ（出題表示と正解が食い違わない）。
   const isRiichi = isMenzen(tehai) && Math.random() < 0.2;
-  // applyRiichiAndUraDora が内部で行っていた門前の再判定と 30% スキップを
-  // そのまま呼び出し側に移した（このコミットでは挙動を変えない）。
-  // 出題側の isRiichi とこの抽選が二重になっている点の是正は次のコミットで行う。
-  const appliesRiichiScoring =
-    isRiichi && tehai.exposed.length === 0 && Math.random() >= 0.3;
   let uraDoraMarkers: readonly HaiKindId[] | undefined;
-  if (appliesRiichiScoring) {
+  if (isRiichi) {
     const markers = generateDoraMarkers(kantsuCount);
     const riichiRes = applyRiichiAndUraDora({
       tehai,
