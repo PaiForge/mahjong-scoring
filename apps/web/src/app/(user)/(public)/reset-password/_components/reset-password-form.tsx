@@ -6,12 +6,9 @@ import { useRouter } from "next/navigation";
 import { useTranslations } from "next-intl";
 
 import { MIN_PASSWORD_LENGTH } from "@/config";
-import {
-  parsePasswordActionError,
-  validatePasswordPair,
-} from "@/lib/validations/password";
 
 import { useAuthFormSubmit } from "../../_hooks/use-auth-form-submit";
+import { usePasswordFormMessages } from "../../_hooks/use-password-form-messages";
 import { AuthTextField } from "../../_components/auth-text-field";
 import { AuthSubmitButton } from "../../_components/auth-submit-button";
 import { AuthFormError } from "../../_components/auth-form-error";
@@ -24,7 +21,8 @@ import { resetPassword } from "../_actions/reset-password";
  */
 export function ResetPasswordForm() {
   const t = useTranslations("resetPassword");
-  const tPassword = useTranslations("validation.password");
+  const { validatePair, mapPasswordError } =
+    usePasswordFormMessages("resetPassword");
   const router = useRouter();
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
@@ -33,21 +31,11 @@ export function ResetPasswordForm() {
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     void submit({
-      validate: () => {
-        const pairError = validatePasswordPair(password, confirmPassword);
-        if (!pairError) return undefined;
-        return pairError.type === "mismatch"
-          ? t("passwordMismatch")
-          : tPassword(pairError.key, { minLength: MIN_PASSWORD_LENGTH });
-      },
+      validate: () => validatePair(password, confirmPassword),
       action: () => resetPassword(password),
       mapError: (code) => {
         if (code === "rateLimited") return t("rateLimited");
-        const passwordKey = parsePasswordActionError(code);
-        if (passwordKey) {
-          return tPassword(passwordKey, { minLength: MIN_PASSWORD_LENGTH });
-        }
-        return t("error");
+        return mapPasswordError(code) ?? t("error");
       },
       onSuccess: () => {
         router.push("/mypage");
