@@ -174,18 +174,24 @@ export function generateScoreQuestion(
 
   // 5. リーチ・裏ドラの適用（門前のみ、確率20%）
   const isRiichi = isMenzen(tehai) && Math.random() < 0.2;
-  let uraDoraMarkers: HaiKindId[] | undefined;
-  if (isRiichi) {
-    const riichiRes = applyRiichiAndUraDora(
+  // applyRiichiAndUraDora が内部で行っていた門前の再判定と 30% スキップを
+  // そのまま呼び出し側に移した（このコミットでは挙動を変えない）。
+  // 出題側の isRiichi とこの抽選が二重になっている点の是正は次のコミットで行う。
+  const appliesRiichiScoring =
+    isRiichi && tehai.exposed.length === 0 && Math.random() >= 0.3;
+  let uraDoraMarkers: readonly HaiKindId[] | undefined;
+  if (appliesRiichiScoring) {
+    const markers = generateDoraMarkers(kantsuCount);
+    const riichiRes = applyRiichiAndUraDora({
       tehai,
-      finalAnswer,
-      yakuDetails,
-      kantsuCount,
+      currentAnswer: finalAnswer,
+      uraDoraMarkers: markers,
+      isDoubleRiichi: Math.random() < 0.1,
       isTsumo,
       jikaze,
-    );
+    });
     finalAnswer = riichiRes.answer;
-    uraDoraMarkers = riichiRes.uraDoraMarkers;
+    uraDoraMarkers = markers;
     yakuDetails = [...yakuDetails, ...riichiRes.additionalYakuDetails];
   }
 
