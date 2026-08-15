@@ -2,11 +2,11 @@
 
 import { useTranslations } from "next-intl";
 import { getKazeName } from "@mahjong-scoring/core";
-import type { HaiKindId } from "@mahjong-scoring/core";
+import type { Kazehai } from "@mahjong-scoring/core";
 
 interface JantouFuKazeContextProps {
-  readonly bakaze: HaiKindId;
-  readonly jikaze: HaiKindId;
+  readonly bakaze: Kazehai;
+  readonly jikaze: Kazehai;
 }
 
 /**
