@@ -9,7 +9,7 @@ import {
 import { openLabel, yaochuLabel } from "../shared/mentsu-labels";
 import { pickMentsuType } from "../shared/pick-mentsu-type";
 import { SUIT_BASES } from "../../core/constants";
-import { randomInt, randomChoice } from "../../core/random";
+import { randomBool, randomInt, randomChoice } from "../../core/random";
 import { calculateMentsuFu } from "../../core/score-calculation";
 import { isHaiKindId } from "../../core/type-guards";
 import { randomSimple, randomYaochu } from "../shared/tile-random";
@@ -39,7 +39,7 @@ export function createRandomShuntsu(): MentsuResult | undefined {
     return undefined;
   }
 
-  const isFuro = Math.random() < 0.5;
+  const isFuro = randomBool(0.5);
   const hais = [t1, t2, t3] as const;
 
   const mentsu: Shuntsu = isFuro
@@ -58,8 +58,8 @@ export function createRandomShuntsu(): MentsuResult | undefined {
  * 刻子生成
  */
 export function createRandomKoutsu(): MentsuResult {
-  const isYaochu = Math.random() < 0.5;
-  const isOpen = Math.random() < 0.5;
+  const isYaochu = randomBool(0.5);
+  const isOpen = randomBool(0.5);
 
   const tile = isYaochu ? randomYaochu() : randomSimple();
   const hais = [tile, tile, tile] as const;
@@ -85,8 +85,8 @@ export function createRandomKoutsu(): MentsuResult {
  * 槓子生成
  */
 export function createRandomKantsu(): MentsuResult {
-  const isYaochu = Math.random() < 0.5;
-  const isOpen = Math.random() < 0.5;
+  const isYaochu = randomBool(0.5);
+  const isOpen = randomBool(0.5);
 
   const tile = isYaochu ? randomYaochu() : randomSimple();
   const hais = [tile, tile, tile, tile] as const;

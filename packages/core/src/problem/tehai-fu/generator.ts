@@ -5,7 +5,7 @@ import {
 } from "@pai-forge/riichi-mahjong";
 import type { TehaiFuQuestion, TehaiFuItem } from "./types";
 import { KAZEHAI } from "../../core/constants";
-import { randomChoice } from "../../core/random";
+import { randomBool, randomChoice } from "../../core/random";
 import { HaiUsageTracker } from "../../core/hai-tracker";
 import { calculateJantouFu } from "../shared/jantou-fu";
 import {
@@ -88,7 +88,7 @@ export function generateTehaiFuQuestion(
   return {
     id: crypto.randomUUID(),
     tehai,
-    context: { bakaze, jikaze, agariHai, isTsumo: Math.random() < 0.5 },
+    context: { bakaze, jikaze, agariHai, isTsumo: randomBool(0.5) },
     items: orderedItems,
   };
 }

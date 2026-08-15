@@ -5,6 +5,7 @@ import {
   type HaiKindId,
   type Tehai14,
 } from "@pai-forge/riichi-mahjong";
+import { randomChoice } from "../../core/random";
 import { randomHaiKindId } from "./tile-random";
 import type { HaiUsageTracker } from "../../core/hai-tracker";
 import {
@@ -160,5 +161,5 @@ export function pickAgariHai(
       candidates.push(...r.mentsu.hais);
     }
   }
-  return candidates[Math.floor(Math.random() * candidates.length)];
+  return randomChoice(candidates);
 }

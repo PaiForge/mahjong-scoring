@@ -11,7 +11,7 @@ import {
   getKazeYakuhaiDisplayName,
 } from "./constants";
 import { KAZEHAI } from "../../core/constants";
-import { randomChoice } from "../../core/random";
+import { randomBool, randomChoice } from "../../core/random";
 import { HaiUsageTracker } from "../../core/hai-tracker";
 import { generateDoraMarkers } from "../shared/dora-utils";
 import { countHaiInTehai } from "../../core/hai-count";
@@ -80,8 +80,8 @@ export function generateYakuQuestion(): YakuQuestion | undefined {
 
   const agariHai = pickAgariHai(mentsuList, headTile);
   const menzen = isMenzen(validTehai);
-  const isTsumo = Math.random() < 0.5;
-  const isRiichi = menzen && Math.random() < 0.2;
+  const isTsumo = randomBool(0.5);
+  const isRiichi = menzen && randomBool(0.2);
 
   const kantsuCount = countKantsu(validTehai);
   const doraMarkers = generateDoraMarkers(kantsuCount);

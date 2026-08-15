@@ -1,5 +1,5 @@
 import type { MachiFuQuestion } from "./types";
-import { randomInt, randomChoice } from "../../core/random";
+import { randomBool, randomInt, randomChoice } from "../../core/random";
 import { isHaiKindId } from "../../core/type-guards";
 import { SUIT_BASES } from "../../core/constants";
 import {
@@ -30,7 +30,7 @@ function createRyanmen(): MachiFuQuestion | undefined {
     return undefined;
   }
 
-  const agari = Math.random() < 0.5 ? wait1 : wait2;
+  const agari = randomBool(0.5) ? wait1 : wait2;
 
   return {
     id: crypto.randomUUID(),
@@ -48,7 +48,7 @@ function createRyanmen(): MachiFuQuestion | undefined {
  */
 function createPenchan(): MachiFuQuestion | undefined {
   const base = randomChoice(SUIT_BASES);
-  const isLow = Math.random() < 0.5; // 12待ち3 or 89待ち7
+  const isLow = randomBool(0.5); // 12待ち3 or 89待ち7
 
   const t1 = isLow ? base : base + 7;
   const t2 = isLow ? base + 1 : base + 8;
@@ -119,7 +119,7 @@ function createShanpon(): MachiFuQuestion {
   const t1 = randomHaiKindId();
   const t2 = randomHaiKindIdExcluding(t1);
 
-  const agari = Math.random() < 0.5 ? t1 : t2;
+  const agari = randomBool(0.5) ? t1 : t2;
 
   return {
     id: crypto.randomUUID(),

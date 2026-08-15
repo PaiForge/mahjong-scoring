@@ -1,4 +1,4 @@
-import { randomChoice } from "../../core/random";
+import { randomBool, randomChoice } from "../../core/random";
 import { DEFAULT_YAKU_HAN_RANGE, getYakuHanEntries } from "./constants";
 import type { YakuHanRange } from "./constants";
 import type { YakuHanQuestion } from "./types";
@@ -17,7 +17,7 @@ export function generateYakuHanQuestion(
   const nakiHan = entry.nakiHan;
   const canNaki = nakiHan !== undefined;
   // 鳴ける役のみ 50% で鳴き状態を出題する（門前限定役は常に門前）
-  const playNaki = canNaki && Math.random() < 0.5;
+  const playNaki = canNaki && randomBool(0.5);
 
   return {
     yakuName: entry.name,
