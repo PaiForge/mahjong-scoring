@@ -48,8 +48,9 @@ export default async function ChallengesPage() {
   } = { current: [], previous: [] };
 
   if (firstMenu) {
-    const currentRange = getPeriodRange(DEFAULT_PERIOD);
-    const previousRange = getPreviousPeriodRange(DEFAULT_PERIOD);
+    const now = new Date();
+    const currentRange = getPeriodRange(DEFAULT_PERIOD, now);
+    const previousRange = getPreviousPeriodRange(DEFAULT_PERIOD, now);
     initialSessions = await fetchChallengeSessions(
       user.id,
       firstMenu,
