@@ -64,23 +64,17 @@ export default async function AdminAuditLogPage({
       ]}
       currentPage={currentPage}
       totalPages={totalPages}
+      isEmpty={logs.length === 0}
+      emptyLabel={t("auditLogTable.noLogsFound")}
     >
-      {logs.length === 0 ? (
-        <tr>
-          <td colSpan={6} className="px-4 py-8 text-center text-gray-500">
-            {t("auditLogTable.noLogsFound")}
-          </td>
-        </tr>
-      ) : (
-        logs.map((log) => (
-          <AuditLogRow
-            key={log.id}
-            log={log}
-            profileMap={profileMap}
-            emailMap={emailMap}
-          />
-        ))
-      )}
+      {logs.map((log) => (
+        <AuditLogRow
+          key={log.id}
+          log={log}
+          profileMap={profileMap}
+          emailMap={emailMap}
+        />
+      ))}
     </AdminLogPageLayout>
   );
 }

@@ -62,23 +62,17 @@ export default async function AdminActivityLogPage({
       ]}
       currentPage={currentPage}
       totalPages={totalPages}
+      isEmpty={logs.length === 0}
+      emptyLabel={t("activityLogTable.noLogsFound")}
     >
-      {logs.length === 0 ? (
-        <tr>
-          <td colSpan={5} className="px-4 py-8 text-center text-gray-500">
-            {t("activityLogTable.noLogsFound")}
-          </td>
-        </tr>
-      ) : (
-        logs.map((log) => (
-          <ActivityLogRow
-            key={log.id}
-            log={log}
-            profileMap={profileMap}
-            emailMap={emailMap}
-          />
-        ))
-      )}
+      {logs.map((log) => (
+        <ActivityLogRow
+          key={log.id}
+          log={log}
+          profileMap={profileMap}
+          emailMap={emailMap}
+        />
+      ))}
     </AdminLogPageLayout>
   );
 }

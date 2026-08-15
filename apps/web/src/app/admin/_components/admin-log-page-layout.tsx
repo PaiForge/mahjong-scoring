@@ -7,6 +7,7 @@ import {
 } from "nuqs/server";
 
 import { AdminPageTitle } from "./admin-page-title";
+import { TableEmptyRow } from "./table-empty-row";
 import { PaginationNav } from "../../_components/pagination-nav";
 
 /**
@@ -48,8 +49,12 @@ interface AdminLogPageLayoutProps {
   };
   /** テーブルカラム定義 */
   readonly columns: readonly ColumnDef[];
-  /** ログ行の描画（テーブルボディの中身） */
+  /** ログ行の描画（テーブルボディの中身）。0 件のときは undefined を渡す */
   readonly children: ReactNode;
+  /** 0 件のときに表示する文言（i18n 済み） */
+  readonly emptyLabel: string;
+  /** ログが 0 件か */
+  readonly isEmpty: boolean;
   /** 現在のページ番号 */
   readonly currentPage: number;
   /** 総ページ数 */
@@ -71,6 +76,8 @@ export function AdminLogPageLayout({
   i18n,
   columns,
   children,
+  emptyLabel,
+  isEmpty,
   currentPage,
   totalPages,
 }: AdminLogPageLayoutProps) {
@@ -141,7 +148,13 @@ export function AdminLogPageLayout({
               ))}
             </tr>
           </thead>
-          <tbody>{children}</tbody>
+          <tbody>
+            {isEmpty ? (
+              <TableEmptyRow columnCount={columns.length} label={emptyLabel} />
+            ) : (
+              children
+            )}
+          </tbody>
         </table>
       </div>
 
