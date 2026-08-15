@@ -11,6 +11,7 @@ import {
   getKazeYakuhaiDisplayName,
 } from "./constants";
 import { KAZEHAI } from "../../core/constants";
+import { defaultIdGenerator, type IdGenerator } from "../../core/id";
 import { randomBool, randomChoice } from "../../core/random";
 import { HaiUsageTracker } from "../../core/hai-tracker";
 import { generateDoraMarkers } from "../shared/dora-utils";
@@ -59,7 +60,9 @@ const YAKU_MENTSU_WEIGHTS = { shuntsu: 0.5, koutsu: 0.3 } as const;
  * ランダムな手牌を構築し、成立する役を正解として返す
  * 役選択問題ジェネレータ
  */
-export function generateYakuQuestion(): YakuQuestion | undefined {
+export function generateYakuQuestion(
+  idGen: IdGenerator = defaultIdGenerator,
+): YakuQuestion | undefined {
   const tracker = new HaiUsageTracker();
 
   // 1. 4面子を生成
@@ -128,7 +131,7 @@ export function generateYakuQuestion(): YakuQuestion | undefined {
     if (yakuNames.length === 0) return undefined;
 
     return {
-      id: crypto.randomUUID(),
+      id: idGen(),
       tehai: validTehai,
       context: {
         bakaze,

@@ -1,4 +1,5 @@
 import type { MachiFuQuestion } from "./types";
+import { defaultIdGenerator, type IdGenerator } from "../../core/id";
 import { randomBool, randomInt, randomChoice } from "../../core/random";
 import { isHaiKindId } from "../../core/type-guards";
 import { SUIT_BASES } from "../../core/constants";
@@ -11,7 +12,7 @@ import {
  * 両面待ちを生成（0符）
  * 両面待ち生成
  */
-function createRyanmen(): MachiFuQuestion | undefined {
+function createRyanmen(idGen: IdGenerator): MachiFuQuestion | undefined {
   const base = randomChoice(SUIT_BASES);
   // start: 2〜7 → 牌 [start, start+1] で待ち [start-1] or [start+2]
   const start = randomInt(2, 7);
@@ -33,7 +34,7 @@ function createRyanmen(): MachiFuQuestion | undefined {
   const agari = randomBool(0.5) ? wait1 : wait2;
 
   return {
-    id: crypto.randomUUID(),
+    id: idGen(),
     tiles: [t1, t2],
     agariHai: agari,
     answer: 0,
@@ -46,7 +47,7 @@ function createRyanmen(): MachiFuQuestion | undefined {
  * 辺張待ちを生成（2符）
  * 辺張待ち生成
  */
-function createPenchan(): MachiFuQuestion | undefined {
+function createPenchan(idGen: IdGenerator): MachiFuQuestion | undefined {
   const base = randomChoice(SUIT_BASES);
   const isLow = randomBool(0.5); // 12待ち3 or 89待ち7
 
@@ -59,7 +60,7 @@ function createPenchan(): MachiFuQuestion | undefined {
   }
 
   return {
-    id: crypto.randomUUID(),
+    id: idGen(),
     tiles: [t1, t2],
     agariHai: agari,
     answer: 2,
@@ -72,7 +73,7 @@ function createPenchan(): MachiFuQuestion | undefined {
  * 嵌張待ちを生成（2符）
  * 嵌張待ち生成
  */
-function createKanchan(): MachiFuQuestion | undefined {
+function createKanchan(idGen: IdGenerator): MachiFuQuestion | undefined {
   const base = randomChoice(SUIT_BASES);
   const center = randomInt(2, 8); // 間の牌は 2〜8
 
@@ -85,7 +86,7 @@ function createKanchan(): MachiFuQuestion | undefined {
   }
 
   return {
-    id: crypto.randomUUID(),
+    id: idGen(),
     tiles: [t1, t2],
     agariHai: agari,
     answer: 2,
@@ -98,11 +99,11 @@ function createKanchan(): MachiFuQuestion | undefined {
  * 単騎待ちを生成（2符）
  * 単騎待ち生成
  */
-function createTanki(): MachiFuQuestion {
+function createTanki(idGen: IdGenerator): MachiFuQuestion {
   const hai = randomHaiKindId();
 
   return {
-    id: crypto.randomUUID(),
+    id: idGen(),
     tiles: [hai],
     agariHai: hai,
     answer: 2,
@@ -115,14 +116,14 @@ function createTanki(): MachiFuQuestion {
  * 双碰待ちを生成（0符）
  * 双碰待ち生成
  */
-function createShanpon(): MachiFuQuestion {
+function createShanpon(idGen: IdGenerator): MachiFuQuestion {
   const t1 = randomHaiKindId();
   const t2 = randomHaiKindIdExcluding(t1);
 
   const agari = randomBool(0.5) ? t1 : t2;
 
   return {
-    id: crypto.randomUUID(),
+    id: idGen(),
     tiles: [t1, t1, t2, t2],
     agariHai: agari,
     answer: 0,
@@ -135,7 +136,9 @@ function createShanpon(): MachiFuQuestion {
  * 待ちの符計算問題を生成する
  * 待ち符問題ジェネレータ
  */
-export function generateMachiFuQuestion(): MachiFuQuestion {
+export function generateMachiFuQuestion(
+  idGen: IdGenerator = defaultIdGenerator,
+): MachiFuQuestion {
   const patterns = [
     createRyanmen,
     createPenchan,
@@ -146,5 +149,5 @@ export function generateMachiFuQuestion(): MachiFuQuestion {
 
   // 各パターンを等確率で出題する。順子系パターン（両面・辺張・嵌張）は
   // 牌範囲の検証に失敗しうるため、フォールバックとして常に成功する単騎を使う。
-  return randomChoice(patterns)() ?? createTanki();
+  return randomChoice(patterns)(idGen) ?? createTanki(idGen);
 }
