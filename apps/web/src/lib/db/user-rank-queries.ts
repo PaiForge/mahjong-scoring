@@ -38,6 +38,10 @@ function mapRawRankedRow(row: RawRankedRow): RankedLeaderboardRow {
 /**
  * ランキングの正準ソート順（スコア降順・ミス昇順・所要時間昇順）。
  * ランキング順序
+ *
+ * ROW_NUMBER() / DISTINCT ON の中で使うため生 SQL で持つ。Drizzle クエリ側は
+ * leaderboard-queries.ts の `rankingOrder` が同じ順序を定義しており、
+ * 順位決定ルールを変えるときは両方を揃えること。
  */
 const RANKING_ORDER_SQL = sql`score DESC, incorrect_answers ASC, time_taken ASC`;
 
