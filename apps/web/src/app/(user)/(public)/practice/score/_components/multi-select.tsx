@@ -1,6 +1,8 @@
 "use client";
 
-import { useState, useEffect, useCallback } from "react";
+import { useState } from "react";
+
+import { ModalShell } from "@/app/_components/modal-shell";
 
 interface MultiSelectOption {
   readonly value: string;
@@ -53,20 +55,6 @@ export function MultiSelect({
   const getLabel = (val: string) => {
     return options.find((opt) => opt.value === val)?.label ?? val;
   };
-
-  const handleKeyDown = useCallback(
-    (e: KeyboardEvent) => {
-      if (e.key === "Escape" && isModalOpen) {
-        setIsModalOpen(false);
-      }
-    },
-    [isModalOpen],
-  );
-
-  useEffect(() => {
-    document.addEventListener("keydown", handleKeyDown);
-    return () => document.removeEventListener("keydown", handleKeyDown);
-  }, [handleKeyDown]);
 
   return (
     <div className={`w-full ${className}`}>
@@ -140,61 +128,53 @@ export function MultiSelect({
       </div>
 
       {/* Modal */}
-      {isModalOpen && (
-        <div
-          className="fixed inset-0 z-50 flex items-center justify-center bg-black/50"
-          onClick={() => setIsModalOpen(false)}
-          role="dialog"
-          aria-modal="true"
-        >
-          <div
-            className="mx-4 w-full max-w-md rounded-xl bg-white p-6 shadow-xl"
-            onClick={(e) => e.stopPropagation()}
-          >
-            <div className="flex h-[70vh] flex-col md:h-96">
-              <h3 className="mb-4 text-lg font-bold text-surface-900">
-                {labels.title}
-              </h3>
-              <div className="flex-1 overflow-y-auto rounded-lg border border-surface-200">
-                {options.map((option) => {
-                  const isSelected = value.includes(option.value);
-                  return (
-                    <div
-                      key={option.value}
-                      onClick={() => toggleOption(option.value)}
-                      className={`cursor-pointer border-b border-surface-100 px-4 py-3 text-sm transition-colors last:border-0 ${
-                        isSelected
-                          ? "bg-primary-100 font-medium text-primary-900"
-                          : "text-surface-700 hover:bg-surface-50"
-                      }`}
-                      role="option"
-                      aria-selected={isSelected}
-                    >
-                      <div className="flex items-center justify-between">
-                        <span>{option.label}</span>
-                        {isSelected && (
-                          <span className="text-lg leading-none text-primary-600">
-                            &#10003;
-                          </span>
-                        )}
-                      </div>
-                    </div>
-                  );
-                })}
-              </div>
-              <div className="mt-4 flex justify-end">
-                <button
-                  type="button"
-                  onClick={() => setIsModalOpen(false)}
-                  className="rounded-lg bg-primary-500 px-6 py-2 font-bold text-white transition-colors hover:bg-primary-600"
+      <ModalShell
+        isOpen={isModalOpen}
+        onClose={() => setIsModalOpen(false)}
+        label={labels.title}
+      >
+        <div className="flex h-[70vh] flex-col md:h-96">
+          <h3 className="mb-4 text-lg font-bold text-surface-900">
+            {labels.title}
+          </h3>
+          <div className="flex-1 overflow-y-auto rounded-lg border border-surface-200">
+            {options.map((option) => {
+              const isSelected = value.includes(option.value);
+              return (
+                <div
+                  key={option.value}
+                  onClick={() => toggleOption(option.value)}
+                  className={`cursor-pointer border-b border-surface-100 px-4 py-3 text-sm transition-colors last:border-0 ${
+                    isSelected
+                      ? "bg-primary-100 font-medium text-primary-900"
+                      : "text-surface-700 hover:bg-surface-50"
+                  }`}
+                  role="option"
+                  aria-selected={isSelected}
                 >
-                  {labels.done}
-                </button>
-              </div>
-            </div>
+                  <div className="flex items-center justify-between">
+                    <span>{option.label}</span>
+                    {isSelected && (
+                      <span className="text-lg leading-none text-primary-600">
+                        &#10003;
+                      </span>
+                    )}
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+          <div className="mt-4 flex justify-end">
+            <button
+              type="button"
+              onClick={() => setIsModalOpen(false)}
+              className="rounded-lg bg-primary-500 px-6 py-2 font-bold text-white transition-colors hover:bg-primary-600"
+            >
+              {labels.done}
+            </button>
           </div>
         </div>
-      )}
+      </ModalShell>
     </div>
   );
 }

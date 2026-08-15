@@ -11,6 +11,8 @@ import { getPaginationData, DEFAULT_PAGE_SIZE } from "../../../lib/pagination";
 import { createAdminClient } from "../../../lib/supabase/admin";
 import { PaginationNav } from "../../_components/pagination-nav";
 
+import { TableEmptyRow } from "../_components/table-empty-row";
+
 import { StatusBadge } from "./_components/status-badge";
 import { BanButton } from "./_components/ban-button";
 import { UnbanButton } from "./_components/unban-button";
@@ -18,6 +20,9 @@ import { UnbanButton } from "./_components/unban-button";
 const searchParamsCache = createSearchParamsCache({
   page: parseAsInteger.withDefault(1),
 });
+
+/** ユーザー一覧テーブルの列数（メール・ユーザー名・表示名・状態・登録日・操作） */
+const USER_TABLE_COLUMN_COUNT = 6;
 
 export default async function AdminUsersPage({
   searchParams,
@@ -79,11 +84,10 @@ export default async function AdminUsersPage({
           </thead>
           <tbody>
             {users.length === 0 ? (
-              <tr>
-                <td colSpan={6} className="px-4 py-8 text-center text-gray-500">
-                  {t("usersTable.noUsersFound")}
-                </td>
-              </tr>
+              <TableEmptyRow
+                columnCount={USER_TABLE_COLUMN_COUNT}
+                label={t("usersTable.noUsersFound")}
+              />
             ) : (
               users.map((user) => {
                 const profile = profileMap.get(user.id);

@@ -3,6 +3,8 @@
 import { useActionState, useState } from "react";
 import { useTranslations } from "next-intl";
 
+import { ModalShell } from "@/app/_components/modal-shell";
+
 import { banUser } from "../_actions/ban-user";
 
 interface BanButtonProps {
@@ -35,6 +37,11 @@ export function BanButton({ targetUserId }: BanButtonProps) {
     undefined,
   );
 
+  const close = () => {
+    setIsOpen(false);
+    setReason("");
+  };
+
   return (
     <>
       <button
@@ -45,55 +52,48 @@ export function BanButton({ targetUserId }: BanButtonProps) {
         BAN
       </button>
 
-      {isOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50">
-          <div className="w-full max-w-md rounded-lg bg-white p-6 shadow-lg">
-            <h3 className="mb-4 text-lg font-semibold">{t("banUser.title")}</h3>
+      <ModalShell isOpen={isOpen} onClose={close} label={t("banUser.title")}>
+        <h3 className="text-lg font-semibold">{t("banUser.title")}</h3>
 
-            <form action={formAction}>
-              <label
-                htmlFor="ban-reason"
-                className="mb-1 block text-sm font-medium"
-              >
-                {t("banUser.reasonLabel")}
-              </label>
-              <textarea
-                id="ban-reason"
-                value={reason}
-                onChange={(e) => setReason(e.target.value)}
-                placeholder={t("banUser.reasonPlaceholder")}
-                className="mb-4 w-full rounded border border-gray-300 px-3 py-2 text-sm"
-                rows={3}
-                maxLength={1000}
-              />
+        <form action={formAction}>
+          <label
+            htmlFor="ban-reason"
+            className="mb-1 block text-sm font-medium"
+          >
+            {t("banUser.reasonLabel")}
+          </label>
+          <textarea
+            id="ban-reason"
+            value={reason}
+            onChange={(e) => setReason(e.target.value)}
+            placeholder={t("banUser.reasonPlaceholder")}
+            className="mb-4 w-full rounded border border-gray-300 px-3 py-2 text-sm"
+            rows={3}
+            maxLength={1000}
+          />
 
-              {state?.error && (
-                <p className="mb-3 text-sm text-red-600">{state.error}</p>
-              )}
+          {state?.error && (
+            <p className="mb-3 text-sm text-red-600">{state.error}</p>
+          )}
 
-              <div className="flex justify-end gap-2">
-                <button
-                  type="button"
-                  onClick={() => {
-                    setIsOpen(false);
-                    setReason("");
-                  }}
-                  className="rounded border border-gray-300 px-4 py-2 text-sm hover:bg-gray-100 transition-colors"
-                >
-                  {t("banUser.cancel")}
-                </button>
-                <button
-                  type="submit"
-                  disabled={isPending}
-                  className="rounded bg-red-600 px-4 py-2 text-sm font-medium text-white hover:bg-red-700 disabled:opacity-50 transition-colors"
-                >
-                  {isPending ? t("banUser.pending") : t("banUser.confirm")}
-                </button>
-              </div>
-            </form>
+          <div className="flex justify-end gap-2">
+            <button
+              type="button"
+              onClick={close}
+              className="rounded border border-gray-300 px-4 py-2 text-sm hover:bg-gray-100 transition-colors"
+            >
+              {t("banUser.cancel")}
+            </button>
+            <button
+              type="submit"
+              disabled={isPending}
+              className="rounded bg-red-600 px-4 py-2 text-sm font-medium text-white hover:bg-red-700 disabled:opacity-50 transition-colors"
+            >
+              {isPending ? t("banUser.pending") : t("banUser.confirm")}
+            </button>
           </div>
-        </div>
-      )}
+        </form>
+      </ModalShell>
     </>
   );
 }

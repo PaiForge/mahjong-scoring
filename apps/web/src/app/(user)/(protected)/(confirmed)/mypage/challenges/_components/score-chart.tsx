@@ -13,6 +13,18 @@ import {
 } from "recharts";
 import type { Props as LegendProps } from "recharts/types/component/DefaultLegendContent";
 
+import {
+  CHART_AXIS_TICK,
+  CHART_EMPTY_CLASS,
+  CHART_GRID_DASH,
+  CHART_GRID_STROKE,
+  CHART_MARGIN,
+  CHART_PRIMARY_ACTIVE_DOT,
+  CHART_PRIMARY_DOT,
+  CHART_PRIMARY_STROKE,
+  CHART_TOOLTIP_CONTENT_STYLE,
+} from "@/app/_lib/chart-theme";
+
 interface DataPoint {
   readonly date: string;
   readonly dateKey: string;
@@ -45,64 +57,39 @@ export function ScoreChart({
 
   const mutableData = useMemo(() => [...data], [data]);
 
-  const chartMargin = useMemo(
-    () => ({ top: 5, right: 10, left: 0, bottom: 5 }),
-    [],
-  );
-
-  const axisTick = useMemo(
-    () => ({ fill: "var(--color-surface-500)", fontSize: 12 }),
-    [],
-  );
-
   const yAxisLabelConfig = useMemo(
     () => ({
+      ...CHART_AXIS_TICK,
       value: yAxisLabel,
       angle: -90,
       position: "insideLeft" as const,
-      fill: "var(--color-surface-500)",
-      fontSize: 12,
     }),
     [yAxisLabel],
   );
 
-  const tooltipContentStyle = useMemo(
-    () => ({
-      backgroundColor: "var(--color-surface-50)",
-      border: "1px solid var(--color-surface-200)",
-      borderRadius: "8px",
-      color: "var(--color-surface-900)",
-    }),
-    [],
-  );
-
   if (data.length === 0) {
-    return (
-      <div className="flex items-center justify-center h-48 text-surface-500 text-sm">
-        {emptyMessage}
-      </div>
-    );
+    return <div className={CHART_EMPTY_CLASS}>{emptyMessage}</div>;
   }
 
   return (
     <ResponsiveContainer width="100%" height={250} minHeight={200}>
-      <LineChart data={mutableData} margin={chartMargin}>
+      <LineChart data={mutableData} margin={CHART_MARGIN}>
         <CartesianGrid
-          strokeDasharray="3 3"
-          stroke="var(--color-surface-200)"
+          strokeDasharray={CHART_GRID_DASH}
+          stroke={CHART_GRID_STROKE}
         />
         <XAxis
           dataKey="date"
-          tick={axisTick}
-          stroke="var(--color-surface-200)"
+          tick={CHART_AXIS_TICK}
+          stroke={CHART_GRID_STROKE}
         />
         <YAxis
-          tick={axisTick}
-          stroke="var(--color-surface-200)"
+          tick={CHART_AXIS_TICK}
+          stroke={CHART_GRID_STROKE}
           label={yAxisLabelConfig}
         />
         <Tooltip
-          contentStyle={tooltipContentStyle}
+          contentStyle={CHART_TOOLTIP_CONTENT_STYLE}
           formatter={(value, name) => {
             if (value === undefined || value === null) return ["-", name ?? ""];
             const num = typeof value === "number" ? value : Number(value);
@@ -160,10 +147,10 @@ export function ScoreChart({
           type="monotone"
           dataKey="score"
           name={currentLabel}
-          stroke="var(--color-primary-500)"
+          stroke={CHART_PRIMARY_STROKE}
           strokeWidth={2}
-          dot={{ fill: "var(--color-primary-500)", r: 3 }}
-          activeDot={{ fill: "var(--color-primary-500)", r: 5 }}
+          dot={CHART_PRIMARY_DOT}
+          activeDot={CHART_PRIMARY_ACTIVE_DOT}
           connectNulls
         />
         {hasPreviousData && (
