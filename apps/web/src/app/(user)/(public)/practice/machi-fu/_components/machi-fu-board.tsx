@@ -1,11 +1,9 @@
 "use client";
 
-import { useCallback, useState } from "react";
 import { useTranslations } from "next-intl";
 import { generateMachiFuQuestion } from "@mahjong-scoring/core";
-import type { MachiFuQuestion } from "@mahjong-scoring/core";
-import { ChoiceButton } from "../../_components/choice-button";
-import { getChoiceFeedbackProps } from "../../_lib/feedback-styles";
+import { FuChoiceGrid } from "../../_components/fu-choice-grid";
+import { useFuChoiceBoard } from "../../_hooks/use-fu-choice-board";
 import { MACHI_FU_OPTIONS } from "../_lib/fu-options";
 import { MachiFuPrompt } from "./machi-fu-prompt";
 
@@ -26,25 +24,12 @@ export function MachiFuBoard({
   onAnswer,
 }: MachiFuBoardProps) {
   const t = useTranslations("machiFu");
-  const [question, setQuestion] = useState<MachiFuQuestion>(
-    generateMachiFuQuestion,
-  );
-  const [selectedFu, setSelectedFu] = useState<number | undefined>(undefined);
-
-  const advanceQuestion = useCallback(() => {
-    setQuestion(generateMachiFuQuestion());
-    setSelectedFu(undefined);
-  }, []);
-
-  const handleFuSelect = useCallback(
-    (index: number) => {
-      if (showFeedback) return;
-      const fu = MACHI_FU_OPTIONS[index];
-      setSelectedFu(fu);
-      onAnswer(fu === question.answer, advanceQuestion);
-    },
-    [showFeedback, onAnswer, question.answer, advanceQuestion],
-  );
+  const { question, selectedFu, handleSelect } = useFuChoiceBoard({
+    generateQuestion: generateMachiFuQuestion,
+    options: MACHI_FU_OPTIONS,
+    showFeedback,
+    onAnswer,
+  });
 
   return (
     <div className="mt-6 space-y-5">
@@ -57,24 +42,16 @@ export function MachiFuBoard({
       </p>
 
       {/* Fu options */}
-      <div className="grid grid-cols-2 gap-3">
-        {MACHI_FU_OPTIONS.map((fu, i) => (
-          <ChoiceButton
-            key={fu}
-            index={i}
-            onSelect={handleFuSelect}
-            className="text-2xl font-bold"
-            {...getChoiceFeedbackProps({
-              showFeedback,
-              isCountingDown,
-              isSelected: selectedFu === fu,
-              isCorrect: question.answer === fu,
-            })}
-          >
-            {t("fuOption", { value: fu })}
-          </ChoiceButton>
-        ))}
-      </div>
+      <FuChoiceGrid
+        options={MACHI_FU_OPTIONS}
+        answer={question.answer}
+        selectedFu={selectedFu}
+        showFeedback={showFeedback}
+        isCountingDown={isCountingDown}
+        onSelect={handleSelect}
+        columnsClassName="grid-cols-2"
+        translationNamespace="machiFu"
+      />
     </div>
   );
 }

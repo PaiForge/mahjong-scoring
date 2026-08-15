@@ -1,13 +1,11 @@
 "use client";
 
-import { useCallback, useState } from "react";
 import { useTranslations } from "next-intl";
 import { generateMentsuFuQuestion } from "@mahjong-scoring/core";
-import type { MentsuFuQuestion } from "@mahjong-scoring/core";
 import { Furo } from "@pai-forge/mahjong-react-ui";
-import { ChoiceButton } from "../../_components/choice-button";
+import { FuChoiceGrid } from "../../_components/fu-choice-grid";
 import { PromptLabel } from "../../_components/prompt-label";
-import { getChoiceFeedbackProps } from "../../_lib/feedback-styles";
+import { useFuChoiceBoard } from "../../_hooks/use-fu-choice-board";
 import { FU_OPTIONS } from "../../_lib/fu-options";
 
 interface MentsuFuBoardProps {
@@ -27,25 +25,12 @@ export function MentsuFuBoard({
   onAnswer,
 }: MentsuFuBoardProps) {
   const t = useTranslations("mentsuFu");
-  const [question, setQuestion] = useState<MentsuFuQuestion>(
-    generateMentsuFuQuestion,
-  );
-  const [selectedFu, setSelectedFu] = useState<number | undefined>(undefined);
-
-  const advanceQuestion = useCallback(() => {
-    setQuestion(generateMentsuFuQuestion());
-    setSelectedFu(undefined);
-  }, []);
-
-  const handleFuSelect = useCallback(
-    (index: number) => {
-      if (showFeedback) return;
-      const fu = FU_OPTIONS[index];
-      setSelectedFu(fu);
-      onAnswer(fu === question.answer, advanceQuestion);
-    },
-    [showFeedback, onAnswer, question.answer, advanceQuestion],
-  );
+  const { question, selectedFu, handleSelect } = useFuChoiceBoard({
+    generateQuestion: generateMentsuFuQuestion,
+    options: FU_OPTIONS,
+    showFeedback,
+    onAnswer,
+  });
 
   return (
     <div className="mt-6 space-y-5">
@@ -65,24 +50,16 @@ export function MentsuFuBoard({
       </p>
 
       {/* Fu options */}
-      <div className="grid grid-cols-3 gap-3">
-        {FU_OPTIONS.map((fu, i) => (
-          <ChoiceButton
-            key={fu}
-            index={i}
-            onSelect={handleFuSelect}
-            className="text-2xl font-bold"
-            {...getChoiceFeedbackProps({
-              showFeedback,
-              isCountingDown,
-              isSelected: selectedFu === fu,
-              isCorrect: question.answer === fu,
-            })}
-          >
-            {t("fuOption", { value: fu })}
-          </ChoiceButton>
-        ))}
-      </div>
+      <FuChoiceGrid
+        options={FU_OPTIONS}
+        answer={question.answer}
+        selectedFu={selectedFu}
+        showFeedback={showFeedback}
+        isCountingDown={isCountingDown}
+        onSelect={handleSelect}
+        columnsClassName="grid-cols-3"
+        translationNamespace="mentsuFu"
+      />
     </div>
   );
 }
