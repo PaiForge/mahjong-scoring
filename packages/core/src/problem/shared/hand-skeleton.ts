@@ -108,7 +108,12 @@ export function generateMentsuSet(
       }
 
       if (possible) {
-        for (const t of tiles) tracker.use(t, 1);
+        // canUse で確保できると確認済みだが、use の Result を捨てると
+        // 上限超過を検知できないまま牌が5枚使われた手牌ができてしまう。
+        // 起きないはずの失敗も握り潰さず、生成そのものを諦める。
+        for (const t of tiles) {
+          if (tracker.use(t, 1).isErr()) return undefined;
+        }
         found = result;
         break;
       }
@@ -132,10 +137,9 @@ export function generatePairTile(
 ): HaiKindId | undefined {
   for (let retry = 0; retry < MAX_RETRY; retry++) {
     const t = randomHaiKindId();
-    if (tracker.canUse(t, 2)) {
-      tracker.use(t, 2);
-      return t;
-    }
+    // canUse と use で同じ上限判定を二重に持たない。use は確保できない場合
+    // 使用枚数を変えずに Err を返すので、その結果だけで分岐できる。
+    if (tracker.use(t, 2).isOk()) return t;
   }
   return undefined;
 }
