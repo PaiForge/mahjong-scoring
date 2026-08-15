@@ -1,10 +1,11 @@
 "use client";
 
 import { useTranslations } from "next-intl";
-import { HaiKind, getKazeName } from "@mahjong-scoring/core";
+import { HaiKind } from "@mahjong-scoring/core";
 import type { HaiKindId } from "@mahjong-scoring/core";
 import { Hai } from "@pai-forge/mahjong-react-ui";
 import { DemoChoiceCell } from "../../_components/demo-choice-cell";
+import { JantouFuKazeContext } from "./jantou-fu-kaze-context";
 
 /** デモ用の固定例: 東場・南家。正解は中（三元牌 → 2符） */
 const DEMO_CHOICES: readonly { hai: HaiKindId; isCorrect: boolean }[] = [
@@ -27,20 +28,7 @@ export function JantouFuHowToPlay() {
   return (
     <div className="space-y-5">
       {/* Context */}
-      <div className="flex justify-center gap-6 text-sm">
-        <div className="space-y-1 text-center">
-          <span className="text-surface-400">{t("bakaze")}</span>
-          <p className="text-lg font-bold text-surface-900">
-            {getKazeName(HaiKind.Ton)}
-          </p>
-        </div>
-        <div className="space-y-1 text-center">
-          <span className="text-surface-400">{t("jikaze")}</span>
-          <p className="text-lg font-bold text-surface-900">
-            {getKazeName(HaiKind.Nan)}
-          </p>
-        </div>
-      </div>
+      <JantouFuKazeContext bakaze={HaiKind.Ton} jikaze={HaiKind.Nan} />
 
       {/* Question */}
       <p className="text-center text-sm font-medium text-surface-600">

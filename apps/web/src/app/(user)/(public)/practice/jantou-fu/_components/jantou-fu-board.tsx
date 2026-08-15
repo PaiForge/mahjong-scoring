@@ -2,11 +2,12 @@
 
 import { useCallback, useState } from "react";
 import { useTranslations } from "next-intl";
-import { generateJantouFuQuestion, getKazeName } from "@mahjong-scoring/core";
+import { generateJantouFuQuestion } from "@mahjong-scoring/core";
 import type { JantouFuQuestion, JantouFuChoice } from "@mahjong-scoring/core";
 import { Hai } from "@pai-forge/mahjong-react-ui";
 import { useRuleSettingsStore } from "@/app/_hooks/use-rule-settings-store";
 import { ChoiceButton } from "../../_components/choice-button";
+import { JantouFuKazeContext } from "./jantou-fu-kaze-context";
 import { getChoiceFeedbackProps } from "../../_lib/feedback-styles";
 
 interface JantouFuBoardProps {
@@ -56,20 +57,10 @@ export function JantouFuBoard({
   return (
     <div className="mt-6 space-y-5">
       {/* Context */}
-      <div className="flex justify-center gap-6 text-sm">
-        <div className="space-y-1 text-center">
-          <span className="text-surface-400">{t("bakaze")}</span>
-          <p className="text-lg font-bold text-surface-900">
-            {getKazeName(question.context.bakaze)}
-          </p>
-        </div>
-        <div className="space-y-1 text-center">
-          <span className="text-surface-400">{t("jikaze")}</span>
-          <p className="text-lg font-bold text-surface-900">
-            {getKazeName(question.context.jikaze)}
-          </p>
-        </div>
-      </div>
+      <JantouFuKazeContext
+        bakaze={question.context.bakaze}
+        jikaze={question.context.jikaze}
+      />
 
       {/* Question */}
       <p className="text-center text-sm font-medium text-surface-600">

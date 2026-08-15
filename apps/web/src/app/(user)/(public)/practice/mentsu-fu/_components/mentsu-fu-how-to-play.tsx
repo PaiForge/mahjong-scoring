@@ -4,7 +4,8 @@ import { useTranslations } from "next-intl";
 import { HaiKind } from "@mahjong-scoring/core";
 import type { HaiKindId } from "@mahjong-scoring/core";
 import { Hai } from "@pai-forge/mahjong-react-ui";
-import { DemoChoiceCell } from "../../_components/demo-choice-cell";
+import { DemoFuChoiceGrid } from "../../_components/demo-fu-choice-grid";
+import { PromptLabel } from "../../_components/prompt-label";
 import { FU_OPTIONS } from "../../_lib/fu-options";
 
 /** デモ用の固定例: 中張牌（五筒）の暗刻 → 4符 */
@@ -29,9 +30,7 @@ export function MentsuFuHowToPlay() {
     <div className="space-y-5">
       {/* Mentsu */}
       <div className="flex flex-col items-center gap-2">
-        <span className="text-sm font-bold uppercase tracking-widest text-surface-400">
-          {t("mentsuLabel")}
-        </span>
+        <PromptLabel>{t("mentsuLabel")}</PromptLabel>
         <div className="flex gap-0.5 scale-125 origin-center">
           {DEMO_MENTSU.map((hai, i) => (
             <Hai key={i} hai={hai} />
@@ -45,20 +44,12 @@ export function MentsuFuHowToPlay() {
       </p>
 
       {/* Fu options */}
-      <div className="grid grid-cols-3 gap-3">
-        {FU_OPTIONS.map((fu) => {
-          const isCorrect = fu === DEMO_ANSWER;
-          return (
-            <DemoChoiceCell
-              key={fu}
-              isCorrect={isCorrect}
-              className={`text-2xl font-bold ${isCorrect ? "text-green-700" : "text-surface-400"}`}
-            >
-              {t("fuOption", { value: fu })}
-            </DemoChoiceCell>
-          );
-        })}
-      </div>
+      <DemoFuChoiceGrid
+        options={FU_OPTIONS}
+        answer={DEMO_ANSWER}
+        columnsClassName="grid-cols-3"
+        translationNamespace="mentsuFu"
+      />
     </div>
   );
 }

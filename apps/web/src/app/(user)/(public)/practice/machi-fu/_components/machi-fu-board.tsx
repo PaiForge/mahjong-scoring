@@ -4,11 +4,10 @@ import { useCallback, useState } from "react";
 import { useTranslations } from "next-intl";
 import { generateMachiFuQuestion } from "@mahjong-scoring/core";
 import type { MachiFuQuestion } from "@mahjong-scoring/core";
-import { Hai } from "@pai-forge/mahjong-react-ui";
 import { ChoiceButton } from "../../_components/choice-button";
 import { getChoiceFeedbackProps } from "../../_lib/feedback-styles";
-
-const FU_OPTIONS = [0, 2] as const;
+import { MACHI_FU_OPTIONS } from "../_lib/fu-options";
+import { MachiFuPrompt } from "./machi-fu-prompt";
 
 interface MachiFuBoardProps {
   readonly showFeedback: boolean;
@@ -40,7 +39,7 @@ export function MachiFuBoard({
   const handleFuSelect = useCallback(
     (index: number) => {
       if (showFeedback) return;
-      const fu = FU_OPTIONS[index];
+      const fu = MACHI_FU_OPTIONS[index];
       setSelectedFu(fu);
       onAnswer(fu === question.answer, advanceQuestion);
     },
@@ -50,29 +49,7 @@ export function MachiFuBoard({
   return (
     <div className="mt-6 space-y-5">
       {/* Machi tiles */}
-      <div className="flex flex-col items-center gap-4">
-        <div className="flex flex-col items-center gap-2">
-          <span className="text-sm font-bold uppercase tracking-widest text-surface-400">
-            {t("machiLabel")}
-          </span>
-          <div className="flex gap-0.5 scale-125 origin-center">
-            {question.tiles.map((tile, i) => (
-              <Hai key={i} hai={tile} />
-            ))}
-          </div>
-        </div>
-
-        <div className="w-full h-px bg-surface-100" />
-
-        <div className="flex flex-col items-center gap-2">
-          <span className="text-sm font-bold uppercase tracking-widest text-surface-400">
-            {t("agariLabel")}
-          </span>
-          <div className="scale-125 origin-center">
-            <Hai hai={question.agariHai} />
-          </div>
-        </div>
-      </div>
+      <MachiFuPrompt tiles={question.tiles} agariHai={question.agariHai} />
 
       {/* Question */}
       <p className="text-center text-sm font-medium text-surface-600">
@@ -81,7 +58,7 @@ export function MachiFuBoard({
 
       {/* Fu options */}
       <div className="grid grid-cols-2 gap-3">
-        {FU_OPTIONS.map((fu, i) => (
+        {MACHI_FU_OPTIONS.map((fu, i) => (
           <ChoiceButton
             key={fu}
             index={i}

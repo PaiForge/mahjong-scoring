@@ -6,6 +6,7 @@ import { generateMentsuFuQuestion } from "@mahjong-scoring/core";
 import type { MentsuFuQuestion } from "@mahjong-scoring/core";
 import { Furo } from "@pai-forge/mahjong-react-ui";
 import { ChoiceButton } from "../../_components/choice-button";
+import { PromptLabel } from "../../_components/prompt-label";
 import { getChoiceFeedbackProps } from "../../_lib/feedback-styles";
 import { FU_OPTIONS } from "../../_lib/fu-options";
 
@@ -50,9 +51,7 @@ export function MentsuFuBoard({
     <div className="mt-6 space-y-5">
       {/* Mentsu display */}
       <div className="flex flex-col items-center gap-4">
-        <span className="text-sm font-bold uppercase tracking-widest text-surface-400">
-          {t("mentsuLabel")}
-        </span>
+        <PromptLabel>{t("mentsuLabel")}</PromptLabel>
         <div className="flex items-center justify-center min-h-16">
           <div className="scale-150 origin-center">
             <Furo mentsu={question.mentsu} furo={question.mentsu.furo} />
