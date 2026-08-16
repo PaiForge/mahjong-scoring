@@ -8,10 +8,10 @@ import { toast } from "react-hot-toast";
 
 import { ConfirmationModal } from "@/app/_components/confirmation-modal";
 import { useAuth } from "@/app/_contexts/auth-context";
-import { API_ERROR_RATE_LIMITED, callApi } from "@/lib/api-client";
+import { deleteOwnAccount } from "../_actions/delete-account";
 
 /**
- * アカウント削除ボタン。確認モーダルを挟んで /api/account を呼び、ログアウトしてトップへ。
+ * アカウント削除ボタン。確認モーダルを挟んで退会アクションを呼び、ログアウトしてトップへ。
  * 退会ボタン
  */
 export function DeleteAccountButton() {
@@ -25,10 +25,10 @@ export function DeleteAccountButton() {
     setIsModalOpen(false);
     setIsDeleting(true);
 
-    const result = await callApi("/api/account", { method: "DELETE" });
-    if (!result.ok) {
+    const result = await deleteOwnAccount();
+    if ("error" in result) {
       toast.error(
-        result.error === API_ERROR_RATE_LIMITED ? t("rateLimited") : t("error"),
+        result.error === "rateLimited" ? t("rateLimited") : t("error"),
       );
       setIsDeleting(false);
       return;

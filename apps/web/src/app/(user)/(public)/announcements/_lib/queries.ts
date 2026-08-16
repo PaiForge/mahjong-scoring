@@ -1,3 +1,5 @@
+import { cache } from "react";
+
 import { and, desc, eq, sql } from "drizzle-orm";
 
 import { type Announcement, announcements, db } from "@/lib/db";
@@ -86,22 +88,27 @@ export async function getPublishedAnnouncementSlugsForSitemap(): Promise<
 /**
  * slug 単体の公開お知らせを取得。
  * 全ロケール variant を取得し pickByLocale で best を選ぶ。
+ *
+ * `generateMetadata` と page 本体の両方から同じ引数で呼ばれるため、
+ * React の `cache()` でリクエスト内のクエリを 1 回に重複排除する。
  */
-export async function getPublishedAnnouncement(
-  slug: string,
-  locale: string,
-): Promise<Announcement | null> {
-  const results = await db
-    .select()
-    .from(announcements)
-    .where(
-      and(eq(announcements.slug, slug), eq(announcements.status, "published")),
-    )
-    .orderBy(desc(announcements.publishedAt));
+export const getPublishedAnnouncement = cache(
+  async (slug: string, locale: string): Promise<Announcement | null> => {
+    const results = await db
+      .select()
+      .from(announcements)
+      .where(
+        and(
+          eq(announcements.slug, slug),
+          eq(announcements.status, "published"),
+        ),
+      )
+      .orderBy(desc(announcements.publishedAt));
 
-  if (results.length === 0) {
-    return null;
-  }
+    if (results.length === 0) {
+      return null;
+    }
 
-  return pickByLocale(results, locale);
-}
+    return pickByLocale(results, locale);
+  },
+);
