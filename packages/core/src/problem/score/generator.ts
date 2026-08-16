@@ -8,7 +8,7 @@ import {
   type Tehai14,
 } from "@pai-forge/riichi-mahjong";
 import { ScoreLevel, KAZEHAI } from "../../core/constants";
-import { randomChoice } from "../../core/random";
+import { randomBool, randomChoice } from "../../core/random";
 
 import type {
   ScoreQuestion,
@@ -132,7 +132,7 @@ export function generateScoreQuestion(
   } = options;
 
   // 1. 手牌の生成（七対子 or 面子手）
-  const isChiitoi = includeChiitoi && Math.random() < 0.1;
+  const isChiitoi = includeChiitoi && randomBool(0.1);
   const tehaiResult = isChiitoi
     ? generateChiitoiTehai()
     : generateMentsuTehai(includeFuro);
@@ -140,7 +140,7 @@ export function generateScoreQuestion(
   const { tehai, agariHai } = tehaiResult;
 
   // 2. 和了状況の決定
-  const isTsumo = Math.random() < 0.5;
+  const isTsumo = randomBool(0.5);
   const jikaze = selectJikaze(includeParent, includeChild);
   const bakaze = randomChoice(BAKAZE_OPTIONS);
   const kantsuCount = countKantsu(tehai);
@@ -173,19 +173,22 @@ export function generateScoreQuestion(
   if (finalAnswer.han === 0) return undefined;
 
   // 5. リーチ・裏ドラの適用（門前のみ、確率20%）
-  const isRiichi = isMenzen(tehai) && Math.random() < 0.2;
-  let uraDoraMarkers: HaiKindId[] | undefined;
+  //    リーチの抽選はここが唯一の判定。isRiichi が true の問題は必ず
+  //    立直の翻と裏ドラ表示牌を持つ（出題表示と正解が食い違わない）。
+  const isRiichi = isMenzen(tehai) && randomBool(0.2);
+  let uraDoraMarkers: readonly HaiKindId[] | undefined;
   if (isRiichi) {
-    const riichiRes = applyRiichiAndUraDora(
+    const markers = generateDoraMarkers(kantsuCount);
+    const riichiRes = applyRiichiAndUraDora({
       tehai,
-      finalAnswer,
-      yakuDetails,
-      kantsuCount,
+      currentAnswer: finalAnswer,
+      uraDoraMarkers: markers,
+      isDoubleRiichi: randomBool(0.1),
       isTsumo,
       jikaze,
-    );
+    });
     finalAnswer = riichiRes.answer;
-    uraDoraMarkers = riichiRes.uraDoraMarkers;
+    uraDoraMarkers = markers;
     yakuDetails = [...yakuDetails, ...riichiRes.additionalYakuDetails];
   }
 

@@ -308,85 +308,92 @@ describe("reconcileYakuhai", () => {
 });
 
 describe("applyRiichiAndUraDora", () => {
-  it("副露手の場合、リーチは適用されない", () => {
-    const tehai: Tehai14 = {
-      closed: standardRest(HaiKind.Ton),
-      exposed: [
-        {
-          type: MentsuType.Koutsu,
-          hais: [HaiKind.Haku, HaiKind.Haku, HaiKind.Haku],
-          furo: true,
-        },
-      ],
-    } as unknown as Tehai14;
+  /** 白の暗刻 + 123m/123p/123s + 東の雀頭（門前・14牌） */
+  function makeRiichiTehai(): Tehai14 {
+    return makeTehaiWithKoutsu(HaiKind.Haku, standardRest(HaiKind.Ton));
+  }
 
-    const answer = makeScoreResult({ han: 1 });
-    const yakuDetails = [{ name: "役牌 白", han: 1 }];
+  /** 手牌に1枚も当たらない裏ドラ表示牌（索子8 → ドラは索子9） */
+  const NO_HIT_MARKER = HaiKind.SouZu8;
 
-    const result = applyRiichiAndUraDora(
-      tehai,
-      answer,
-      yakuDetails,
-      0,
-      false,
-      HaiKind.Nan,
-    );
+  it("立直で1翻が加算される", () => {
+    const result = applyRiichiAndUraDora({
+      tehai: makeRiichiTehai(),
+      currentAnswer: makeScoreResult({ han: 1 }),
+      uraDoraMarkers: [NO_HIT_MARKER],
+      isDoubleRiichi: false,
+      isTsumo: false,
+      jikaze: HaiKind.Nan,
+    });
 
-    // 副露手なので常に元のanswerが返される
-    expect(result.answer.han).toBe(1);
-    expect(result.uraDoraMarkers).toBeUndefined();
+    expect(result.answer.han).toBe(2);
+    expect(result.additionalYakuDetails).toEqual([{ name: "立直", han: 1 }]);
   });
 
-  it("門前手の場合、翻が1以上増加するかスキップされる", () => {
-    const tehai: Tehai14 = {
-      closed: [
-        HaiKind.ManZu1,
-        HaiKind.ManZu2,
-        HaiKind.ManZu3,
-        HaiKind.ManZu4,
-        HaiKind.ManZu5,
-        HaiKind.ManZu6,
-        HaiKind.PinZu1,
-        HaiKind.PinZu2,
-        HaiKind.PinZu3,
-        HaiKind.SouZu1,
-        HaiKind.SouZu2,
-        HaiKind.SouZu3,
-        HaiKind.SouZu7,
-        HaiKind.SouZu7,
-      ],
-      exposed: [],
-    } as unknown as Tehai14;
+  it("ダブル立直で2翻が加算される", () => {
+    const result = applyRiichiAndUraDora({
+      tehai: makeRiichiTehai(),
+      currentAnswer: makeScoreResult({ han: 1 }),
+      uraDoraMarkers: [NO_HIT_MARKER],
+      isDoubleRiichi: true,
+      isTsumo: false,
+      jikaze: HaiKind.Nan,
+    });
 
-    const answer = makeScoreResult({ han: 1 });
-    const yakuDetails = [{ name: "断么九", han: 1 }];
+    expect(result.answer.han).toBe(3);
+    expect(result.additionalYakuDetails).toEqual([
+      { name: "ダブル立直", han: 2 },
+    ]);
+  });
 
-    // 確率的なので複数回試行
-    let riichiApplied = false;
-    let riichiNotApplied = false;
+  it("裏ドラ翻数が表示牌と手牌の照合結果に一致する", () => {
+    // 中の表示牌 → ドラは白（三元牌はループする）。手牌は白の暗刻なので3枚。
+    const result = applyRiichiAndUraDora({
+      tehai: makeRiichiTehai(),
+      currentAnswer: makeScoreResult({ han: 1 }),
+      uraDoraMarkers: [HaiKind.Chun],
+      isDoubleRiichi: false,
+      isTsumo: false,
+      jikaze: HaiKind.Nan,
+    });
 
-    for (let i = 0; i < 200; i++) {
-      const result = applyRiichiAndUraDora(
-        tehai,
-        answer,
-        [...yakuDetails],
-        0,
-        false,
-        HaiKind.Nan,
-      );
+    expect(result.additionalYakuDetails).toEqual([
+      { name: "立直", han: 1 },
+      { name: "裏ドラ", han: 3 },
+    ]);
+    expect(result.answer.han).toBe(1 + 1 + 3);
+  });
 
-      if (result.answer.han > 1) {
-        riichiApplied = true;
-        // リーチが適用された場合、翻が増加している
-        expect(result.answer.han).toBeGreaterThan(1);
-      } else {
-        riichiNotApplied = true;
-      }
+  it("表示牌が複数（槓子あり）の場合も全ての表示牌を照合する", () => {
+    // 1m の表示牌 → ドラは 2m（手牌に1枚）、中の表示牌 → ドラは白（3枚）
+    const result = applyRiichiAndUraDora({
+      tehai: makeRiichiTehai(),
+      currentAnswer: makeScoreResult({ han: 1 }),
+      uraDoraMarkers: [HaiKind.ManZu1, HaiKind.Chun],
+      isDoubleRiichi: false,
+      isTsumo: false,
+      jikaze: HaiKind.Nan,
+    });
 
-      if (riichiApplied && riichiNotApplied) break;
-    }
+    expect(result.additionalYakuDetails).toContainEqual({
+      name: "裏ドラ",
+      han: 4,
+    });
+    expect(result.answer.han).toBe(1 + 1 + 4);
+  });
 
-    // 確率的に両方のパスが通ることを確認
-    expect(riichiApplied || riichiNotApplied).toBe(true);
+  it("裏ドラが乗らない場合は裏ドラの役詳細を含めない", () => {
+    const result = applyRiichiAndUraDora({
+      tehai: makeRiichiTehai(),
+      currentAnswer: makeScoreResult({ han: 1 }),
+      uraDoraMarkers: [NO_HIT_MARKER],
+      isDoubleRiichi: false,
+      isTsumo: false,
+      jikaze: HaiKind.Nan,
+    });
+
+    expect(result.additionalYakuDetails.some((d) => d.name === "裏ドラ")).toBe(
+      false,
+    );
   });
 });

@@ -26,4 +26,17 @@ describe("generateTehaiFuQuestion", () => {
       }
     }
   });
+
+  it("ID は注入した採番関数から取り、問題と回答行で重複しない", () => {
+    // 採番を注入できるので、ID を含めて生成結果を決定的に検証できる。
+    let seq = 0;
+    const question = generateTehaiFuQuestion({ idGen: () => `id-${seq++}` });
+
+    expect(question).toBeDefined();
+    if (!question) return;
+
+    const ids = [question.id, ...question.items.map((item) => item.id)];
+    expect(ids.every((id) => id.startsWith("id-"))).toBe(true);
+    expect(new Set(ids).size).toBe(ids.length);
+  });
 });

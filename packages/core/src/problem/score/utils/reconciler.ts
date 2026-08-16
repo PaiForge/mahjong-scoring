@@ -10,7 +10,6 @@ import { recalculateScore } from "../../../score/calculator";
 import { countDoraInTehai } from "../../../core/dora";
 import { countHaiInTehai } from "../../../core/hai-count";
 import { getKeyForKazehai, isOya } from "../../../core/kaze";
-import { generateDoraMarkers } from "../../shared/dora-utils";
 
 /**
  * 役牌照合の結果
@@ -101,58 +100,52 @@ export function reconcileYakuhai(
  */
 interface ApplyRiichiResult {
   readonly answer: ScoreResult;
-  readonly uraDoraMarkers: HaiKindId[] | undefined;
   readonly additionalYakuDetails: readonly YakuDetail[];
 }
 
 /**
- * リーチ・裏ドラの適用
+ * リーチ・裏ドラを適用した点数を求める
  * リーチ裏ドラ適用
+ *
+ * 「リーチを適用する」ことが確定した手牌にのみ呼ぶ純粋関数。
+ * 門前判定・リーチ有無・ダブル立直・裏ドラ表示牌の抽選は呼び出し側の責務とし、
+ * この関数は与えられた条件から翻数と点数を導出するだけに留める
+ * （出題側の乱数とこの関数の乱数が二重に走る構造を避けるため）。
  */
-export function applyRiichiAndUraDora(
-  tehai: Tehai14,
-  currentAnswer: ScoreResult,
-  yakuDetails: readonly YakuDetail[],
-  kantsuCount: number,
-  isTsumo: boolean,
-  jikaze: Kazehai,
-): ApplyRiichiResult {
-  const isMenzenHand = tehai.exposed.length === 0;
-  if (!isMenzenHand || Math.random() < 0.3) {
-    return {
-      answer: currentAnswer,
-      uraDoraMarkers: undefined,
-      additionalYakuDetails: [],
-    };
-  }
+export function applyRiichiAndUraDora(input: {
+  readonly tehai: Tehai14;
+  readonly currentAnswer: ScoreResult;
+  /** 裏ドラ表示牌（呼び出し側で generateDoraMarkers して渡す） */
+  readonly uraDoraMarkers: readonly HaiKindId[];
+  readonly isDoubleRiichi: boolean;
+  readonly isTsumo: boolean;
+  readonly jikaze: Kazehai;
+}): ApplyRiichiResult {
+  const {
+    tehai,
+    currentAnswer,
+    uraDoraMarkers,
+    isDoubleRiichi,
+    isTsumo,
+    jikaze,
+  } = input;
 
-  const additionalYakuDetails: YakuDetail[] = [];
-  const isDoubleRiichi = Math.random() < 0.1;
-  let riichiHan = 1;
-  let riichiName = "立直";
-
-  if (isDoubleRiichi) {
-    riichiHan = 2;
-    riichiName = "ダブル立直";
-  }
-
-  additionalYakuDetails.push({ name: riichiName, han: riichiHan });
-
-  const uraDoraMarkers: HaiKindId[] = generateDoraMarkers(kantsuCount);
-  let extraHan = riichiHan;
+  const riichiHan = isDoubleRiichi ? 2 : 1;
+  const riichiName = isDoubleRiichi ? "ダブル立直" : "立直";
 
   // 裏ドラ翻数は表示牌から手牌を照合して算出する（表示牌と翻数の不一致を防ぐ）
   const uraHan = countDoraInTehai(tehai, uraDoraMarkers);
-  if (uraHan > 0) {
-    additionalYakuDetails.push({ name: "裏ドラ", han: uraHan });
-    extraHan += uraHan;
-  }
 
-  const newHan = currentAnswer.han + extraHan;
+  const additionalYakuDetails: readonly YakuDetail[] = [
+    { name: riichiName, han: riichiHan },
+    ...(uraHan > 0 ? [{ name: "裏ドラ", han: uraHan }] : []),
+  ];
+
+  const newHan = currentAnswer.han + riichiHan + uraHan;
   const answer = recalculateScore(currentAnswer, newHan, {
     isTsumo,
     isOya: isOya(jikaze),
   });
 
-  return { answer, uraDoraMarkers, additionalYakuDetails };
+  return { answer, additionalYakuDetails };
 }

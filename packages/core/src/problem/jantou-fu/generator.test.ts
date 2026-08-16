@@ -70,4 +70,10 @@ describe("generateJantouFuQuestion", () => {
     }
     expect(tested).toBeGreaterThan(0);
   });
+
+  it("ID は注入した採番関数から取る", () => {
+    const question = generateJantouFuQuestion({ idGen: () => "fixed-id" });
+
+    expect(question.id).toBe("fixed-id");
+  });
 });

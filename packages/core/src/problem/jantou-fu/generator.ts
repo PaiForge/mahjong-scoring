@@ -5,6 +5,7 @@ import { randomChoice, shuffle } from "../../core/random";
 import { KAZEHAI, SANGENHAI } from "../../core/constants";
 import { isHaiKindId } from "../../core/type-guards";
 import { calculateJantouFu } from "../shared/jantou-fu";
+import { defaultIdGenerator, type IdGenerator } from "../../core/id";
 
 /**
  * 数牌の牌種ID一覧（雀頭不正解候補用）
@@ -24,11 +25,15 @@ const NUMBER_TILES: readonly HaiKindId[] = Array.from(
  * 不正解: オタ風・数牌の雀頭 → 0符
  *
  * @param options.renfonpaiAs4Fu - 連風牌の雀頭を4符として扱うか（既定 false=2符）
+ * @param options.idGen - 問題 ID の採番（既定 crypto.randomUUID）
  */
 export function generateJantouFuQuestion(
-  options: { readonly renfonpaiAs4Fu?: boolean } = {},
+  options: {
+    readonly renfonpaiAs4Fu?: boolean;
+    readonly idGen?: IdGenerator;
+  } = {},
 ): JantouFuQuestion {
-  const { renfonpaiAs4Fu = false } = options;
+  const { renfonpaiAs4Fu = false, idGen = defaultIdGenerator } = options;
   const bakaze = randomChoice(KAZEHAI);
   const jikaze = randomChoice(KAZEHAI);
 
@@ -109,7 +114,7 @@ export function generateJantouFuQuestion(
   ]);
 
   return {
-    id: crypto.randomUUID(),
+    id: idGen(),
     context: { bakaze, jikaze },
     choices,
   };

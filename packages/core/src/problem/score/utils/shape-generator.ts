@@ -10,7 +10,7 @@ import {
 } from "@pai-forge/riichi-mahjong";
 import { SUIT_BASES } from "../../../core/constants";
 import { pickMentsuType } from "../../shared/pick-mentsu-type";
-import { randomChoice } from "../../../core/random";
+import { randomBool, randomChoice } from "../../../core/random";
 import { validateHaiKindId } from "../../../core/type-guards";
 import type { HaiUsageTracker } from "../../../core/hai-tracker";
 import type { MentsuWeights } from "../../mentsu-fu/mentsu-factory";
@@ -126,7 +126,7 @@ export function generateKantsu(
         type: MentsuType.Kantsu,
         hais,
         furo: {
-          type: Math.random() < 0.5 ? FuroType.Daiminkan : FuroType.Kakan,
+          type: randomBool(0.5) ? FuroType.Daiminkan : FuroType.Kakan,
           from: randomChoice([Tacha.Kamicha, Tacha.Toimen, Tacha.Shimocha]),
         },
       }

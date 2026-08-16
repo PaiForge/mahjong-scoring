@@ -5,6 +5,7 @@
 
 import type { Role, WinType } from "../../core/roles";
 import type { ScoreRange } from "../score/types";
+import type { IdGenerator } from "../../core/id";
 
 /**
  * ロン和了の正解
@@ -88,4 +89,6 @@ export interface ScoreTableGeneratorOptions {
   readonly wins?: readonly WinType[];
   /** 出題する点数帯。既定: 満貫未満のみ（後方互換のため） */
   readonly ranges?: readonly ScoreRange[];
+  /** 問題 ID の採番。既定: crypto.randomUUID */
+  readonly idGen?: IdGenerator;
 }
