@@ -13,6 +13,7 @@ import {
 import { useRouter } from "next/navigation";
 import type { Session, SupabaseClient, User } from "@supabase/supabase-js";
 import { createClient } from "@/lib/supabase/client";
+import { signOutAction } from "@/app/_actions/sign-out";
 
 /**
  * 認証コンテキストの値の型定義。
@@ -89,7 +90,7 @@ export function AuthProvider({ children }: { readonly children: ReactNode }) {
   const signOut = useCallback(async () => {
     // サーバー側で activity-log 記録 + セッション無効化を行い、
     // クライアント側で Supabase のローカルセッション状態をクリアする
-    await fetch("/auth/logout", { method: "POST" });
+    await signOutAction();
     const supabase = supabaseRef.current ?? createClient();
     await supabase.auth.signOut();
   }, []);
