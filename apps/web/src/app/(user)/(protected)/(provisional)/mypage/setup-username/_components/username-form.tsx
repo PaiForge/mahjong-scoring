@@ -6,13 +6,9 @@ import { ProfileTextField } from "@/app/(user)/(protected)/_components/profile-t
 import { useTranslations } from "next-intl";
 import { useRouter } from "next/navigation";
 
-import {
-  API_ERROR_RATE_LIMITED,
-  API_ERROR_UNAUTHORIZED,
-} from "@/lib/api-client";
 import { validateUsername } from "@/lib/username";
 
-import { registerUsername } from "../_lib/register-username";
+import { registerUsername } from "../_actions/register-username";
 
 /**
  * ユーザー名登録フォーム。
@@ -43,9 +39,9 @@ export function UsernameForm() {
           return t("validation.taken");
         case "username_already_set":
           return t("validation.alreadySet");
-        case API_ERROR_RATE_LIMITED:
+        case "rateLimited":
           return t("validation.rateLimited");
-        case API_ERROR_UNAUTHORIZED:
+        case "unauthorized":
           return t("validation.unauthorized");
         default:
           return t("validation.error");
@@ -80,7 +76,7 @@ export function UsernameForm() {
         displayName.trim() || undefined,
       );
 
-      if (!result.success) {
+      if ("error" in result) {
         setError(getValidationMessage(result.error));
         setIsSubmitting(false);
         return;
