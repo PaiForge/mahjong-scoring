@@ -47,7 +47,7 @@ export function JantouFuHowToPlay() {
               <Hai hai={choice.hai} />
             </div>
             {choice.isCorrect && (
-              <span className="text-xs font-bold text-green-600">
+              <span className="text-xs font-bold text-primary-600">
                 {t("fu", { value: 2 })}
               </span>
             )}

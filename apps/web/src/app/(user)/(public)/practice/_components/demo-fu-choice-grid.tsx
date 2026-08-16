@@ -38,7 +38,7 @@ export function DemoFuChoiceGrid({
           <DemoChoiceCell
             key={fu}
             isCorrect={isCorrect}
-            className={`text-2xl font-bold ${isCorrect ? "text-green-700" : "text-surface-400"}`}
+            className={`text-2xl font-bold ${isCorrect ? "text-primary-700" : "text-surface-400"}`}
           >
             {t("fuOption", { value: fu })}
           </DemoChoiceCell>

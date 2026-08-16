@@ -8,7 +8,7 @@ import type { ReactNode } from "react";
  * 単行入力（{@link ProfileTextField}）と textarea で共有する。
  */
 export const PROFILE_INPUT_CLASS =
-  "w-full rounded-lg border border-surface-300 bg-white px-3 py-2 text-sm text-surface-800 placeholder:text-surface-400 focus:border-green-500 focus:ring-1 focus:ring-green-500 focus:outline-none";
+  "w-full rounded-lg border border-surface-300 bg-white px-3 py-2 text-sm text-surface-800 placeholder:text-surface-400 focus:border-primary-500 focus:ring-1 focus:ring-primary-500 focus:outline-none";
 
 interface ProfileTextFieldProps {
   readonly id: string;

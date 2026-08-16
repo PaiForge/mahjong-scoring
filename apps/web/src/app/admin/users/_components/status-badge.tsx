@@ -20,7 +20,7 @@ export async function StatusBadge({ isBanned }: StatusBadgeProps) {
   }
 
   return (
-    <span className="inline-block rounded bg-green-100 px-2 py-0.5 text-xs font-medium text-green-700">
+    <span className="inline-block rounded bg-primary-100 px-2 py-0.5 text-xs font-medium text-primary-700">
       {t("usersTable.active")}
     </span>
   );

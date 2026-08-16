@@ -27,7 +27,7 @@ export function ScoreCounter({
         aria-label={`${correctLabel}: ${correct}`}
       >
         <span
-          className="rounded-full bg-green-100 p-2 text-green-700"
+          className="rounded-full bg-primary-100 p-2 text-primary-700"
           aria-hidden
         >
           <svg

@@ -29,7 +29,7 @@ export const YakuChip = memo(function YakuChipComponent({
     "inline-block rounded-full border px-3 py-1.5 text-xs font-medium transition-colors cursor-pointer select-none";
 
   if (feedbackState === "correct") {
-    chipClasses += " border-green-500 bg-green-50 text-green-700";
+    chipClasses += " border-primary-500 bg-primary-50 text-primary-700";
   } else if (feedbackState === "incorrect") {
     chipClasses += " border-red-500 bg-red-50 text-red-700";
   } else if (feedbackState === "missed") {

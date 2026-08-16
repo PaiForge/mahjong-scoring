@@ -88,7 +88,7 @@ export function ProblemListAccordion<T>({
                 <div className="ml-2 flex flex-shrink-0 items-center gap-1">
                   {correct ? (
                     <svg
-                      className="size-3 text-green-500"
+                      className="size-3 text-primary-500"
                       viewBox="0 0 24 24"
                       fill="currentColor"
                     >
@@ -104,7 +104,7 @@ export function ProblemListAccordion<T>({
                     </svg>
                   )}
                   <span
-                    className={`text-sm font-medium ${correct ? "text-green-500" : "text-red-500"}`}
+                    className={`text-sm font-medium ${correct ? "text-primary-500" : "text-red-500"}`}
                   >
                     {correct ? tResult("correct") : tResult("incorrect")}
                   </span>

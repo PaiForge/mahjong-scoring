@@ -74,7 +74,7 @@ export const FuItemRow = memo(function FuItemRowComponent({
       className={`space-y-2.5 rounded-xl border bg-white p-3 ${
         showFeedback
           ? isCorrect
-            ? "border-green-500 bg-green-50"
+            ? "border-primary-500 bg-primary-50"
             : "border-red-500 bg-red-50"
           : "border-surface-200"
       }`}
@@ -101,7 +101,7 @@ export const FuItemRow = memo(function FuItemRowComponent({
           // bg-*-50 で統一（feedback-styles.ts や他練習の行ボーダーと一致させる）
           if (showFeedback && isSelected) {
             buttonClass += isCorrect
-              ? " border-green-500 bg-green-50 text-green-700"
+              ? " border-primary-500 bg-primary-50 text-primary-700"
               : " border-red-500 bg-red-50 text-red-700";
           } else if (isSelected) {
             buttonClass += " border-blue-500 bg-blue-100 text-blue-700";
