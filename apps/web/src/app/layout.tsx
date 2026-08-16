@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import dynamic from "next/dynamic";
 import { NextIntlClientProvider } from "next-intl";
-import { getLocale, getMessages } from "next-intl/server";
+import { getLocale } from "next-intl/server";
 import { GoogleAnalytics } from "@next/third-parties/google";
 import { AuthProvider } from "@/app/_contexts/auth-context";
 import { SITE_DESCRIPTION, SITE_NAME, SITE_TAGLINE } from "@/app/_lib/metadata";
@@ -22,13 +22,12 @@ export default async function RootLayout({
   readonly children: React.ReactNode;
 }) {
   const locale = await getLocale();
-  const messages = await getMessages();
   const gaId = process.env.NEXT_PUBLIC_GA_MEASUREMENT_ID;
 
   return (
     <html lang={locale}>
       <body className="min-h-screen overflow-x-hidden">
-        <NextIntlClientProvider messages={messages}>
+        <NextIntlClientProvider>
           <AuthProvider>{children}</AuthProvider>
           <GlobalToaster />
         </NextIntlClientProvider>
