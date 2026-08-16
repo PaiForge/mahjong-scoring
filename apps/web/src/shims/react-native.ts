@@ -1,7 +1,8 @@
 // Shim for react-native imports used by @pai-forge/mahjong-react-ui on web.
 // Stubs RN components to their DOM equivalents, filtering out RN-specific props.
 
-import { forwardRef, createElement } from "react";
+import { createElement } from "react";
+import type { Ref } from "react";
 
 export const StyleSheet = {
   create: <T extends Record<string, unknown>>(styles: T): T => styles,
@@ -49,9 +50,7 @@ function convertTransform(
     .join(" ");
 }
 
-function normalizeStyle(
-  style: unknown
-): Record<string, unknown> | undefined {
+function normalizeStyle(style: unknown): Record<string, unknown> | undefined {
   if (!style) return undefined;
   if (Array.isArray(style)) {
     return normalizeStyle(Object.assign({}, ...style.filter(Boolean)));
@@ -65,22 +64,23 @@ function normalizeStyle(
   return undefined;
 }
 
-export const Pressable = forwardRef<HTMLDivElement, Record<string, unknown>>(
-  function PressableShim(props, ref) {
-    const mapped: Record<string, unknown> = {};
-    for (const key of Object.keys(props)) {
-      if (key === "style") {
-        mapped[key] = normalizeStyle(props[key]);
-      } else if (key in PRESSABLE_PROP_MAP) {
-        const webKey = PRESSABLE_PROP_MAP[key];
-        if (webKey) mapped[webKey] = props[key];
-      } else {
-        mapped[key] = props[key];
-      }
+export function Pressable({
+  ref,
+  ...props
+}: Record<string, unknown> & { ref?: Ref<HTMLDivElement> }) {
+  const mapped: Record<string, unknown> = {};
+  for (const key of Object.keys(props)) {
+    if (key === "style") {
+      mapped[key] = normalizeStyle(props[key]);
+    } else if (key in PRESSABLE_PROP_MAP) {
+      const webKey = PRESSABLE_PROP_MAP[key];
+      if (webKey) mapped[webKey] = props[key];
+    } else {
+      mapped[key] = props[key];
     }
-    return createElement("div", { ...mapped, ref });
   }
-);
+  return createElement("div", { ...mapped, ref });
+}
 
 // RN Image receives `source` (object with `uri` or a require() result).
 // HTML <img> needs `src` (string).
@@ -93,19 +93,20 @@ function resolveSource(source: unknown): string | undefined {
   return undefined;
 }
 
-export const Image = forwardRef<HTMLImageElement, Record<string, unknown>>(
-  function ImageShim(props, ref) {
-    const filtered: Record<string, unknown> = {};
-    for (const key of Object.keys(props)) {
-      if (RN_ONLY_PROPS.has(key)) continue;
-      if (key === "source") {
-        filtered["src"] = resolveSource(props[key]);
-      } else if (key === "style") {
-        filtered[key] = normalizeStyle(props[key]);
-      } else {
-        filtered[key] = props[key];
-      }
+export function Image({
+  ref,
+  ...props
+}: Record<string, unknown> & { ref?: Ref<HTMLImageElement> }) {
+  const filtered: Record<string, unknown> = {};
+  for (const key of Object.keys(props)) {
+    if (RN_ONLY_PROPS.has(key)) continue;
+    if (key === "source") {
+      filtered["src"] = resolveSource(props[key]);
+    } else if (key === "style") {
+      filtered[key] = normalizeStyle(props[key]);
+    } else {
+      filtered[key] = props[key];
     }
-    return createElement("img", { ...filtered, ref });
   }
-);
+  return createElement("img", { ...filtered, ref });
+}
