@@ -28,8 +28,8 @@ export function BrandLogo({ size }: BrandLogoProps) {
       <Image
         src="/logo.png"
         alt=""
-        width={572}
-        height={441}
+        width={512}
+        height={512}
         className={config.imageClass}
         priority
       />
