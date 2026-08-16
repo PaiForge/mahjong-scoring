@@ -163,7 +163,7 @@ export function ProfileForm({
         <button
           type="submit"
           disabled={isSubmitting}
-          className="w-full rounded-lg bg-green-600 px-4 py-3 text-sm font-medium text-white transition-colors hover:bg-green-700 disabled:cursor-not-allowed disabled:opacity-50"
+          className="w-full rounded-lg bg-primary-600 px-4 py-3 text-sm font-medium text-white transition-colors hover:bg-primary-700 disabled:cursor-not-allowed disabled:opacity-50"
         >
           {isSubmitting ? t("submitting") : t("submit")}
         </button>

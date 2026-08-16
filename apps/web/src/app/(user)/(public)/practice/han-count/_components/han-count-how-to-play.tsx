@@ -75,7 +75,7 @@ export function HanCountHowToPlay() {
               key={han}
               isCorrect={isCorrect}
               showCheck={false}
-              className={`text-sm font-semibold ${isCorrect ? "text-green-700" : "text-surface-400"}`}
+              className={`text-sm font-semibold ${isCorrect ? "text-primary-700" : "text-surface-400"}`}
             >
               {t("hanOption", { count: han })}
             </DemoChoiceCell>

@@ -50,7 +50,7 @@ export function QuestionDisplay({ question, size }: QuestionDisplayProps) {
   return (
     <div className="space-y-6">
       {/* Hand display */}
-      <div className="rounded-lg bg-green-800 p-2">
+      <div className="rounded-lg bg-primary-800 p-2">
         {/* Wind info */}
         <div className="mb-4 flex items-center justify-center gap-4 text-sm text-white">
           <div>

@@ -78,7 +78,7 @@ export function ResultDisplay({
       <div
         className={`rounded-lg py-3 text-center ${
           result.isCorrect
-            ? "bg-green-100 text-green-800"
+            ? "bg-primary-100 text-primary-800"
             : "bg-red-100 text-red-800"
         }`}
       >
@@ -118,7 +118,7 @@ export function ResultDisplay({
                           key={idx}
                           className={`inline-block rounded border px-2 py-0.5 text-xs ${
                             result.isYakuCorrect
-                              ? "border-green-200 bg-green-50 text-green-700"
+                              ? "border-primary-200 bg-primary-50 text-primary-700"
                               : "border-red-200 bg-red-50 text-red-700"
                           }`}
                         >
@@ -131,7 +131,7 @@ export function ResultDisplay({
                       </span>
                     )}
                     <span
-                      className={`ml-1 ${result.isYakuCorrect ? "text-green-600" : "text-red-600"}`}
+                      className={`ml-1 ${result.isYakuCorrect ? "text-primary-600" : "text-red-600"}`}
                     >
                       {result.isYakuCorrect ? "\u2713" : "\u2717"}
                     </span>
@@ -147,7 +147,7 @@ export function ResultDisplay({
                 {t("form.labels.han")}
               </td>
               <td
-                className={`py-2 pr-4 ${result.isHanCorrect ? "text-green-600" : "text-red-600"}`}
+                className={`py-2 pr-4 ${result.isHanCorrect ? "text-primary-600" : "text-red-600"}`}
               >
                 {getHanDisplay(userAnswer.han)}{" "}
                 {result.isHanCorrect ? "\u2713" : "\u2717"}
@@ -175,7 +175,7 @@ export function ResultDisplay({
                     {t("form.labels.fu")}
                   </td>
                   <td
-                    className={`py-2 pr-4 ${result.isFuCorrect ? "text-green-600" : "text-red-600"}`}
+                    className={`py-2 pr-4 ${result.isFuCorrect ? "text-primary-600" : "text-red-600"}`}
                   >
                     {userAnswer.fu ?? "-"}
                     {t("form.options.fuSuffix")}{" "}
@@ -206,7 +206,7 @@ export function ResultDisplay({
                 {t("form.labels.score")}
               </td>
               <td
-                className={`py-2 pr-4 ${result.isScoreCorrect ? "text-green-600" : "text-red-600"}`}
+                className={`py-2 pr-4 ${result.isScoreCorrect ? "text-primary-600" : "text-red-600"}`}
               >
                 {userAnswer.scoreFromKo !== undefined
                   ? `${userAnswer.scoreFromKo}/${userAnswer.scoreFromOya}`

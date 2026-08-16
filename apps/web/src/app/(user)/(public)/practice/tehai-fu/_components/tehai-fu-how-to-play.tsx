@@ -72,15 +72,15 @@ export function TehaiFuHowToPlay() {
         {DEMO_ITEMS.map((item, i) => (
           <div
             key={i}
-            className="flex items-center gap-2 rounded-xl border border-green-500 bg-green-50 p-3"
+            className="flex items-center gap-2 rounded-xl border border-primary-500 bg-primary-50 p-3"
           >
             <div className="flex gap-0.5">
               {item.tiles.map((tile, j) => (
                 <Hai key={j} hai={tile} size="sm" />
               ))}
             </div>
-            <span className="ml-auto flex shrink-0 items-center gap-1 text-sm font-bold text-green-700">
-              <span className="flex size-4 items-center justify-center rounded-full bg-green-500">
+            <span className="ml-auto flex shrink-0 items-center gap-1 text-sm font-bold text-primary-700">
+              <span className="flex size-4 items-center justify-center rounded-full bg-primary-500">
                 <CheckIcon className="size-2.5 text-white" />
               </span>
               {t("fuSuffix", { value: item.fu })}

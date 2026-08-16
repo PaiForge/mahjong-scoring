@@ -40,7 +40,7 @@ export default async function GettingStartedPage() {
       <div className="grid grid-cols-1 gap-6 md:grid-cols-3">
         <StepCard
           icon={<CheckIcon className="size-7" />}
-          iconClassName="bg-green-500/10 text-green-600"
+          iconClassName="bg-primary-500/10 text-primary-600"
           title={t("steps.tryout.title")}
           description={t("steps.tryout.description")}
           ctaLabel={t("steps.tryout.cta")}
