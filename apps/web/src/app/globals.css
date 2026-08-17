@@ -33,6 +33,12 @@
   --color-success: #007a3d;
 
   /*
+   * 初心者マーク（若葉マーク）の黄。ロゴ PNG は線画のみで背景が透過なので、
+   * 表示側の背景色としてこのトークンを敷いて緑 + 黄の二色に見せる。
+   */
+  --color-brand-mark: #fdf0c2;
+
+  /*
    * Semantic トークン（blindfold-chess のトークン体系に準拠）。
    * ニュートラルは麻雀のスレート系（surface-*）にマッピングし、
    * primary / ring / link は麻雀の緑を維持する。
