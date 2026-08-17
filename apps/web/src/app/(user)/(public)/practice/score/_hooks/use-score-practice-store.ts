@@ -17,6 +17,8 @@ interface ScorePracticeState {
   judgementResult: JudgementResult | undefined;
   /** 回答済みかどうか */
   isAnswered: boolean;
+  /** 出題ごとに増える連番。回答フォームの key に使い、スキップ時も入力をクリアする */
+  questionSeq: number;
   /** 問題生成オプション */
   options: QuestionGeneratorOptions;
   /** 統計 */
@@ -57,6 +59,7 @@ export const useScorePracticeStore = create<ScorePracticeStore>((set, get) => ({
   userAnswer: undefined,
   judgementResult: undefined,
   isAnswered: false,
+  questionSeq: 0,
   options: {
     includeFuro: true,
     includeChiitoi: false,
@@ -71,12 +74,13 @@ export const useScorePracticeStore = create<ScorePracticeStore>((set, get) => ({
     const { options } = get();
     const { renfonpaiAs4Fu } = useRuleSettingsStore.getState();
     const question = generateValidScoreQuestion({ ...options, renfonpaiAs4Fu });
-    set({
+    set((state) => ({
       currentQuestion: question,
       userAnswer: undefined,
       judgementResult: undefined,
       isAnswered: false,
-    });
+      questionSeq: state.questionSeq + 1,
+    }));
   },
 
   submitAnswer: (
@@ -130,11 +134,12 @@ export const useScorePracticeStore = create<ScorePracticeStore>((set, get) => ({
   },
 
   setQuestion: (question: ScoreQuestion | undefined) => {
-    set({
+    set((state) => ({
       currentQuestion: question,
       userAnswer: undefined,
       judgementResult: undefined,
       isAnswered: false,
-    });
+      questionSeq: state.questionSeq + 1,
+    }));
   },
 }));
