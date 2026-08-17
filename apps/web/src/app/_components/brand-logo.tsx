@@ -19,14 +19,6 @@ const sizeConfig = {
   lg: { imageClass: "h-8 w-auto", textClass: "text-xl" },
 } as const;
 
-/*
- * ロゴ PNG は緑の線画のみで背景が透過。初心者マーク（若葉マーク）モチーフの
- * 二色配色にするため、画像自体は編集せず表示側で薄い黄色を敷く。
- * 角丸 16% は画像内の緑枠の角丸（枠幅比 13.3%）に余白分を足した値で、
- * 黄色のタイルが緑枠と平行なカーブになる。
- */
-const MARK_CLASS = "rounded-[16%] bg-brand-mark";
-
 export function BrandLogo({ size }: BrandLogoProps) {
   const t = useTranslations("nav");
   const config = sizeConfig[size];
@@ -38,7 +30,7 @@ export function BrandLogo({ size }: BrandLogoProps) {
         alt=""
         width={512}
         height={512}
-        className={`${config.imageClass} ${MARK_CLASS}`}
+        className={config.imageClass}
         priority
       />
       {/* brandMahjong + brandScoring を連結するとサイト名（metadata.siteName）と一致する。
