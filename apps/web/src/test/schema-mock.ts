@@ -14,3 +14,10 @@ export const learnChapterReads = {
   userId: "user_id",
   chapterSlug: "chapter_slug",
 } as const;
+
+/** profiles のカラム（ユーザー名登録で参照するものだけ） */
+export const profiles = {
+  id: "id",
+  username: "username",
+  displayName: "display_name",
+} as const;

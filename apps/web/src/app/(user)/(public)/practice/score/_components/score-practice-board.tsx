@@ -40,6 +40,7 @@ function ScorePracticeBoardInner() {
     userAnswer,
     judgementResult,
     isAnswered,
+    questionSeq,
     stats,
     generateNewQuestion,
     submitAnswer,
@@ -141,7 +142,7 @@ function ScorePracticeBoardInner() {
             />
           ) : (
             <ScorePracticeAnswerForm
-              key={stats.total}
+              key={questionSeq}
               onSubmit={handleSubmit}
               disabled={isAnswered}
               isTsumo={currentQuestion.isTsumo}

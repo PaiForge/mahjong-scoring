@@ -2,6 +2,7 @@
 
 import { useState, useCallback } from "react";
 import { SettingCard } from "../../_components/setting-card";
+import { SettingCardSkeleton } from "../../_components/setting-card-skeleton";
 import { toggleInArray } from "../../_lib/toggle-in-array";
 import { useRouter } from "next/navigation";
 import { useTranslations } from "next-intl";
@@ -117,25 +118,7 @@ export function ScoreSetupForm() {
         {/* Grid: 出題モード / 点数範囲 の2カード（ヘッダー＋チェックボックス2行） */}
         <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
           {["questionMode", "targetScore"].map((key) => (
-            <div
-              key={key}
-              className="flex flex-col overflow-hidden rounded-xl border border-surface-200 bg-white"
-            >
-              <div className="border-b border-surface-200 bg-surface-50 px-4 py-3">
-                <div className="mx-auto h-4 w-20 animate-pulse rounded bg-surface-200" />
-              </div>
-              <div className="flex flex-col gap-3 p-3">
-                {["row1", "row2"].map((row) => (
-                  <div
-                    key={row}
-                    className="flex items-center gap-3 px-2 py-1.5"
-                  >
-                    <div className="size-5 animate-pulse rounded bg-surface-100" />
-                    <div className="h-4 w-16 animate-pulse rounded bg-surface-100" />
-                  </div>
-                ))}
-              </div>
-            </div>
+            <SettingCardSkeleton key={key} />
           ))}
         </div>
 

@@ -48,7 +48,7 @@ export function StatsCard({
 
     return (
       <p
-        className={`text-xs mt-1 ${isPositive ? "text-green-600" : "text-red-500"}`}
+        className={`text-xs mt-1 ${isPositive ? "text-primary-600" : "text-red-500"}`}
       >
         {isPositive ? "\u25B2" : "\u25BC"} {displayValue} {compLabel}
       </p>

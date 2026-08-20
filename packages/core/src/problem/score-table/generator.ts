@@ -14,6 +14,7 @@ import type {
   ScoreTableAnswer,
   ScoreTableGeneratorOptions,
 } from "./types";
+import { defaultIdGenerator } from "../../core/id";
 
 /** 満貫以上で出題する翻数。各値が HIGH_SCORES のいずれかの帯に対応する */
 const MANGAN_PLUS_HAN_VALUES = [5, 6, 7, 8, 9, 10, 11, 12, 13] as const;
@@ -172,6 +173,7 @@ export function generateScoreTableQuestion(
   const wins = options?.wins ?? ["tsumo", "ron"];
   // 後方互換: 未指定時は満貫未満のみ（従来の振る舞い）
   const ranges = options?.ranges ?? ["nonMangan"];
+  const idGen = options?.idGen ?? defaultIdGenerator;
 
   const pairs = enumerateRoleWinPairs(
     roles.length > 0 ? roles : ["oya", "ko"],
@@ -201,7 +203,7 @@ export function generateScoreTableQuestion(
       : buildManganCorrectAnswer(isOya, isTsumo, han);
 
   return {
-    id: crypto.randomUUID(),
+    id: idGen(),
     isOya,
     isTsumo,
     han,

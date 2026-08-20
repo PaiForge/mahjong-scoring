@@ -19,7 +19,7 @@ export function AuditLogRow({ log, profileMap, emailMap }: AuditLogRowProps) {
             log.action === "ban"
               ? "bg-red-100 text-red-700"
               : log.action === "unban"
-                ? "bg-green-100 text-green-700"
+                ? "bg-primary-100 text-primary-700"
                 : "bg-gray-100 text-gray-700"
           }`}
         >

@@ -1,6 +1,13 @@
 "use client";
 
-import { useCallback, useEffect, useMemo, useRef, useState, useTransition } from "react";
+import {
+  useCallback,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+  useTransition,
+} from "react";
 
 import type { PracticeMenuType } from "@/lib/db/practice-menu-types";
 
@@ -40,7 +47,8 @@ export function useDashboardData({
   initialMenuTypes,
   initialSessions,
 }: UseDashboardDataOptions) {
-  const firstMenu = initialMenuTypes.length > 0 ? initialMenuTypes[0] : undefined;
+  const firstMenu =
+    initialMenuTypes.length > 0 ? initialMenuTypes[0] : undefined;
 
   const [selectedMenu, setSelectedMenu] = useState<
     PracticeMenuType | undefined
@@ -49,12 +57,12 @@ export function useDashboardData({
   const [availableMenuTypes] = useState<PracticeMenuType[] | undefined>([
     ...initialMenuTypes,
   ]);
-  const [currentSessions, setCurrentSessions] = useState<ChallengeSession[]>(
-    [...initialSessions.current],
-  );
-  const [previousSessions, setPreviousSessions] = useState<ChallengeSession[]>(
-    [...initialSessions.previous],
-  );
+  const [currentSessions, setCurrentSessions] = useState<ChallengeSession[]>([
+    ...initialSessions.current,
+  ]);
+  const [previousSessions, setPreviousSessions] = useState<ChallengeSession[]>([
+    ...initialSessions.previous,
+  ]);
   const [isPending, startTransition] = useTransition();
 
   // 初期データがプリフェッチ済みなので初回 fetch をスキップするためのフラグ
@@ -69,8 +77,10 @@ export function useDashboardData({
       return;
     }
 
-    const currentRange = getPeriodRange(selectedPeriod);
-    const previousRange = getPreviousPeriodRange(selectedPeriod);
+    // 現在期間と前期間で同じ「今」を基準にするため、ここで1回だけ解決する
+    const now = new Date();
+    const currentRange = getPeriodRange(selectedPeriod, now);
+    const previousRange = getPreviousPeriodRange(selectedPeriod, now);
 
     startTransition(async () => {
       const result = await getChallengeSessions(

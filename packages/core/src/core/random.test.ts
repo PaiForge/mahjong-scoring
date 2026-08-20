@@ -1,5 +1,43 @@
 import { describe, it, expect } from "vitest";
-import { randomInt, randomChoice, shuffle } from "./random";
+import {
+  randomBool,
+  randomChoice,
+  randomFloat,
+  randomInt,
+  shuffle,
+} from "./random";
+
+describe("randomFloat", () => {
+  it("0以上1未満の値を返す", () => {
+    for (let i = 0; i < 100; i++) {
+      const v = randomFloat();
+      expect(v).toBeGreaterThanOrEqual(0);
+      expect(v).toBeLessThan(1);
+    }
+  });
+});
+
+describe("randomBool", () => {
+  it("確率0なら常に false", () => {
+    for (let i = 0; i < 50; i++) {
+      expect(randomBool(0)).toBe(false);
+    }
+  });
+
+  it("確率1なら常に true", () => {
+    for (let i = 0; i < 50; i++) {
+      expect(randomBool(1)).toBe(true);
+    }
+  });
+
+  it("確率0.5なら両方の結果が出る", () => {
+    const results = new Set<boolean>();
+    for (let i = 0; i < 200; i++) {
+      results.add(randomBool(0.5));
+    }
+    expect(results.size).toBe(2);
+  });
+});
 
 describe("randomInt", () => {
   it("min と max が同じなら常にその値", () => {

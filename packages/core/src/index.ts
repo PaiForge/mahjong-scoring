@@ -38,6 +38,8 @@ export type { YakuHanQuestion, YakuHanEntry } from "./problem/yaku-han/types";
 // === Problem: Shared ===
 export { retryGenerate } from "./problem/retry-generate";
 export type { KazeContext, AgariContext } from "./problem/shared/agari-context";
+export { defaultIdGenerator } from "./core/id";
+export type { IdGenerator } from "./core/id";
 
 // === Problem: Score ===
 export { generateValidScoreQuestion } from "./problem/score/generator";

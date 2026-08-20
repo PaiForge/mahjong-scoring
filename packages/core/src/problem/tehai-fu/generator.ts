@@ -5,9 +5,10 @@ import {
 } from "@pai-forge/riichi-mahjong";
 import type { TehaiFuQuestion, TehaiFuItem } from "./types";
 import { KAZEHAI } from "../../core/constants";
-import { randomChoice } from "../../core/random";
+import { randomBool, randomChoice } from "../../core/random";
 import { HaiUsageTracker } from "../../core/hai-tracker";
 import { calculateJantouFu } from "../shared/jantou-fu";
+import { defaultIdGenerator, type IdGenerator } from "../../core/id";
 import {
   finalizeTehai14,
   generateMentsuSet,
@@ -23,11 +24,15 @@ const TEHAI_FU_MENTSU_WEIGHTS = { shuntsu: 0.2, koutsu: 0.5 } as const;
  * 手牌符問題ジェネレータ
  *
  * @param options.renfonpaiAs4Fu - 連風牌の雀頭を4符として扱うか（既定 false=2符）
+ * @param options.idGen - 問題・回答行 ID の採番（既定 crypto.randomUUID）
  */
 export function generateTehaiFuQuestion(
-  options: { readonly renfonpaiAs4Fu?: boolean } = {},
+  options: {
+    readonly renfonpaiAs4Fu?: boolean;
+    readonly idGen?: IdGenerator;
+  } = {},
 ): TehaiFuQuestion | undefined {
-  const { renfonpaiAs4Fu = false } = options;
+  const { renfonpaiAs4Fu = false, idGen = defaultIdGenerator } = options;
   const tracker = new HaiUsageTracker();
 
   // 1. 4面子を生成
@@ -35,7 +40,7 @@ export function generateTehaiFuQuestion(
   if (!mentsuList) return undefined;
 
   const items: TehaiFuItem[] = mentsuList.map((result) => ({
-    id: crypto.randomUUID(),
+    id: idGen(),
     tiles: [...result.mentsu.hais],
     type: result.mentsu.type,
     fu: result.fu,
@@ -54,7 +59,7 @@ export function generateTehaiFuQuestion(
 
   const headFu = calculateJantouFu(headTile, bakaze, jikaze, renfonpaiAs4Fu);
   items.push({
-    id: crypto.randomUUID(),
+    id: idGen(),
     tiles: [headTile, headTile],
     type: "Pair",
     fu: headFu.fu,
@@ -86,9 +91,9 @@ export function generateTehaiFuQuestion(
   const orderedItems = orderItemsByHandLayout(items);
 
   return {
-    id: crypto.randomUUID(),
+    id: idGen(),
     tehai,
-    context: { bakaze, jikaze, agariHai, isTsumo: Math.random() < 0.5 },
+    context: { bakaze, jikaze, agariHai, isTsumo: randomBool(0.5) },
     items: orderedItems,
   };
 }

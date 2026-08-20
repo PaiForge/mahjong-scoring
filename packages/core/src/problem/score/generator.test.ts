@@ -121,27 +121,22 @@ describe("generateValidScoreQuestion", () => {
     expect(question === undefined || typeof question === "object").toBe(true);
   });
 
-  it("リーチフラグが true の場合、yakuDetails に立直が含まれるケースがある", () => {
-    // applyRiichiAndUraDora は内部で確率的にリーチをスキップすることがある
-    // isRiichi=true かつ立直が yakuDetails に含まれるケースを探す
-    let found = false;
-    for (let i = 0; i < 1000; i++) {
-      const question = generateValidScoreQuestion();
-      if (!question) continue;
-      if (question.isRiichi) {
-        const hasRiichi = question.yakuDetails?.some(
+  it("リーチフラグが true の問題は必ず立直の翻と裏ドラ表示牌を持つ", () => {
+    // 出題（isRiichi の表示）と正解（yakuDetails・点数）が食い違わないこと。
+    // リーチの抽選が generator の1箇所に閉じている限り、例外は無い。
+    const riichiQuestions = expectSampled(generateValidScoreQuestion, {
+      need: 5,
+      attempts: 1000,
+      where: (q) => q.isRiichi === true,
+    });
+
+    for (const question of riichiQuestions) {
+      expect(
+        question.yakuDetails?.some(
           (y) => y.name === "立直" || y.name === "ダブル立直",
-        );
-        if (hasRiichi) {
-          found = true;
-          break;
-        }
-      }
-    }
-    if (!found) {
-      console.warn(
-        "isRiichi=true かつ立直を含む問題が生成されなかったためスキップ",
-      );
+        ),
+      ).toBe(true);
+      expect(question.uraDoraMarkers).toBeDefined();
     }
   });
 

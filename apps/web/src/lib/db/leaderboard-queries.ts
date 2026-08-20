@@ -1,4 +1,6 @@
 import { and, asc, desc, eq, gte, sql } from "drizzle-orm";
+import type { SQL } from "drizzle-orm";
+import type { PgColumn } from "drizzle-orm/pg-core";
 
 import { db } from "./index";
 import { challengeBestScores, challengeResults, profiles } from "./schema";
@@ -43,6 +45,48 @@ export interface RankResult {
 }
 
 /**
+ * クエリ結果の行を LeaderboardRow へ正規化する
+ * ランキング行正規化
+ *
+ * profiles 由来の nullable カラムを、公開型に合わせて undefined に寄せる。
+ */
+function toLeaderboardRow(row: {
+  readonly userId: string;
+  readonly username: string;
+  readonly score: number;
+  readonly incorrectAnswers: number;
+  readonly timeTaken: number;
+  readonly displayName: string | null;
+  readonly avatarUrl: string | null;
+}): LeaderboardRow {
+  return {
+    ...row,
+    displayName: row.displayName ?? undefined,
+    avatarUrl: row.avatarUrl ?? undefined,
+  };
+}
+
+/**
+ * ランキングの正準ソート順（スコア降順 → ミス昇順 → 所要時間昇順）
+ * ランキング順序
+ *
+ * 順位決定ルールの唯一の定義。全期間・期間別・DISTINCT ON のいずれも
+ * ここから引く。生 SQL 版は user-rank-queries.ts の `RANKING_ORDER_SQL`
+ * にあり、変更時は両方を揃えること。
+ */
+function rankingOrder(columns: {
+  readonly score: PgColumn;
+  readonly incorrectAnswers: PgColumn;
+  readonly timeTaken: PgColumn;
+}): SQL[] {
+  return [
+    desc(columns.score),
+    asc(columns.incorrectAnswers),
+    asc(columns.timeTaken),
+  ];
+}
+
+/**
  * 当月の開始日時（UTC）を返す
  * 月初日時取得
  */
@@ -83,11 +127,7 @@ export async function getAllTimeRanking(
         eq(challengeBestScores.leaderboardKey, leaderboardKey),
       ),
     )
-    .orderBy(
-      desc(challengeBestScores.score),
-      asc(challengeBestScores.incorrectAnswers),
-      asc(challengeBestScores.timeTaken),
-    )
+    .orderBy(...rankingOrder(challengeBestScores))
     .offset(offset)
     .limit(limit);
 
@@ -102,11 +142,7 @@ export async function getAllTimeRanking(
     );
 
   return {
-    rows: rows.map((r) => ({
-      ...r,
-      displayName: r.displayName ?? undefined,
-      avatarUrl: r.avatarUrl ?? undefined,
-    })),
+    rows: rows.map(toLeaderboardRow),
     total: countRow?.count ?? 0,
   };
 }
@@ -137,12 +173,7 @@ async function getPeriodRanking(
         gte(challengeResults.createdAt, periodStart),
       ),
     )
-    .orderBy(
-      challengeResults.userId,
-      desc(challengeResults.score),
-      asc(challengeResults.incorrectAnswers),
-      asc(challengeResults.timeTaken),
-    )
+    .orderBy(challengeResults.userId, ...rankingOrder(challengeResults))
     .as("best_per_user");
 
   const rows = await db
@@ -157,11 +188,7 @@ async function getPeriodRanking(
     })
     .from(bestPerUser)
     .innerJoin(profiles, eq(bestPerUser.userId, profiles.id))
-    .orderBy(
-      desc(bestPerUser.score),
-      asc(bestPerUser.incorrectAnswers),
-      asc(bestPerUser.timeTaken),
-    )
+    .orderBy(...rankingOrder(bestPerUser))
     .offset(offset)
     .limit(limit);
 
@@ -170,11 +197,7 @@ async function getPeriodRanking(
     .from(bestPerUser);
 
   return {
-    rows: rows.map((r) => ({
-      ...r,
-      displayName: r.displayName ?? undefined,
-      avatarUrl: r.avatarUrl ?? undefined,
-    })),
+    rows: rows.map(toLeaderboardRow),
     total: countRow?.count ?? 0,
   };
 }
