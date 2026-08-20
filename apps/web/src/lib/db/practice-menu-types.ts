@@ -14,6 +14,7 @@
  * - 'machi_fu': 待ちの符計算
  * - 'mentsu_fu': 面子の符計算
  * - 'tehai_fu': 手牌の符計算
+ * - 'total_fu': 手牌の合計符
  * - 'yaku': 役判定
  * - 'score_table': 点数表早引き
  * - 'score_calculation': 点数計算練習
@@ -75,6 +76,12 @@ const PRACTICE_MENU_REGISTRY = [
     slug: "tehai-fu",
     messageKey: "tehaiFu",
     namespace: "tehaiFu",
+  },
+  {
+    menuType: "total_fu",
+    slug: "total-fu",
+    messageKey: "totalFu",
+    namespace: "totalFu",
   },
   { menuType: "yaku", slug: "yaku", messageKey: "yaku", namespace: "yaku" },
   {

@@ -1,13 +1,11 @@
 import { describe, it, expect } from "vitest";
 import { generateTotalFuQuestion } from "./generator";
+import { TOTAL_FU_OPTIONS } from "./constants";
 import {
   expectGeneratesEventually,
   expectSampled,
   generateOne,
 } from "../../test/sampling";
-
-/** 符として取りうる値（ライブラリの `Fu` 型と同じ） */
-const VALID_FU = [20, 25, 30, 40, 50, 60, 70, 80, 90, 100, 110];
 
 describe("generateTotalFuQuestion", () => {
   it("試行すれば問題が生成される", () => {
@@ -21,7 +19,7 @@ describe("generateTotalFuQuestion", () => {
     });
 
     for (const q of questions) {
-      expect(VALID_FU).toContain(q.answer);
+      expect(TOTAL_FU_OPTIONS).toContain(q.answer);
     }
   });
 

@@ -154,7 +154,11 @@
       },
       "tehaiFu": {
         "title": "手牌の符計算",
-        "description": "手牌全体の符を合計して答える総合練習"
+        "description": "手牌の面子・雀頭ごとに符を漏れなく答える練習"
+      },
+      "totalFu": {
+        "title": "手牌の合計符",
+        "description": "手牌全体の符を合計し、切り上げ後の符を一発で答える練習"
       },
       "yakuHan": {
         "title": "役の翻数",
@@ -461,6 +465,28 @@
       "kazeExampleOtakaze": "東場・南家 — 西の刻子",
       "kazeExampleOtakazeAnnotation": "→ オタ風（0符）"
     }
+  },
+  "totalFu": {
+    "title": "手牌の合計符",
+    "description": "手牌全体の符を合計し、切り上げ後の符を一発で答える練習",
+    "bakaze": "場風",
+    "jikaze": "自風",
+    "agari": "和了牌",
+    "agariType": "和了",
+    "tsumo": "ツモ",
+    "ron": "ロン",
+    "prompt": "この手牌は何符？",
+    "fuOption": "{value}符",
+    "fuSuffix": "{value}符",
+    "breakdownTitle": "符の内訳",
+    "breakdownTotal": "合計",
+    "roundUp": "切り上げ",
+    "howToPlay": {
+      "title": "問題方式",
+      "lead": "このような問題が出題されます。"
+    },
+    "learnLink": "手牌の符について学ぶ",
+    "learnLinkDescription": "副底・和了符・待ち符まで含めた符の数え方と、10符単位への切り上げを確認できます。"
   },
   "yaku": {
     "title": "役の選択",
@@ -1005,6 +1031,7 @@
         "machiFu": "待ちの符",
         "mentsuFu": "面子の符",
         "tehaiFu": "手牌の符",
+        "totalFu": "手牌の合計符",
         "yaku": "役",
         "scoreTable": "点数表早引き",
         "scoreCalculation": "点数計算",
@@ -1246,6 +1273,7 @@
       "machiFu": "待ちの符",
       "mentsuFu": "面子の符",
       "tehaiFu": "手牌の符",
+      "totalFu": "手牌の合計符",
       "yaku": "役",
       "scoreTable": "点数表早引き",
       "scoreCalculation": "点数計算",
@@ -1258,6 +1286,7 @@
       "machiFu": "🎯",
       "mentsuFu": "🧩",
       "tehaiFu": "✨",
+      "totalFu": "🧮",
       "yaku": "🏆",
       "scoreTable": "📈",
       "scoreCalculation": "🎲",
