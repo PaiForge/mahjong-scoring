@@ -31,8 +31,8 @@ interface TotalFuBoardProps {
   /**
    * 不正解で停止中の状態から次問題へ進む操作
    *
-   * 指定した場合のみ符の内訳の下に「次の問題へ」ボタンを出す
-   * （自動で進まないトレーニングモード向け）。
+   * 指定した場合のみ、不正解時に符の内訳と「次の問題へ」ボタンを出して停止する
+   * （自動で進まないトレーニングモード向け）。チャレンジでは指定しない。
    */
   readonly onProceed?: () => void;
   /** 回答結果の記録（チャレンジの結果ページ用。トレーニングでは省略） */
@@ -43,7 +43,11 @@ interface TotalFuBoardProps {
  * 合計符の出題盤面（手牌の提示と符の選択）
  *
  * 出題状態と回答ロジックを内包し、チャレンジ・トレーニング両モードで共有する。
- * 不正解のときだけ符の内訳を示し、どの構成要素を取りこぼしたかを確認できるようにする。
+ *
+ * 符の内訳は `onProceed` を受け取ったとき（トレーニング）だけ、不正解の問題に
+ * 対して表示する。チャレンジは制限時間内に解き続ける形式で、内訳を出しても
+ * 読む間もなく次の問題へ変わってしまうため出さない。振り返りは結果ページの
+ * 問題別フィードバック一覧で行う。
  */
 export function TotalFuBoard({
   showFeedback,
@@ -103,10 +107,14 @@ export function TotalFuBoard({
         translationNamespace="totalFu"
       />
 
-      {showFeedback && lastAnswerCorrect === false && (
-        <>
-          <FuBreakdown details={question.fuDetails} answer={question.answer} />
-          {onProceed && (
+      {onProceed !== undefined &&
+        showFeedback &&
+        lastAnswerCorrect === false && (
+          <>
+            <FuBreakdown
+              details={question.fuDetails}
+              answer={question.answer}
+            />
             <button
               type="button"
               onClick={onProceed}
@@ -114,9 +122,8 @@ export function TotalFuBoard({
             >
               {t("nextQuestion")}
             </button>
-          )}
-        </>
-      )}
+          </>
+        )}
     </div>
   );
 }
