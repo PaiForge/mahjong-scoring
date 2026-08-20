@@ -9,7 +9,12 @@
 - Node.js 24.x
 - pnpm 10.x
 - Docker（Supabase CLI に必要）
-- [Supabase CLI](https://supabase.com/docs/guides/local-development)
+
+[Supabase CLI](https://supabase.com/docs/guides/local-development) はこのアプリの
+devDependency として同梱されているため（`pnpm install` で入ります）、個別に
+インストールする必要はありません。`supabase/config.toml` は CLI のバージョンと
+結合しているので、グローバルインストール版ではなく `apps/web` から
+`pnpm supabase ...` で同梱版を実行してください。
 
 ### セットアップ
 
@@ -17,24 +22,24 @@
 # 依存パッケージのインストール（モノレポのルートで実行）
 pnpm install
 
-# Supabase ローカル環境の起動（初回は Docker イメージのダウンロードが行われます）
-supabase start
+# Supabase ローカル環境の起動（apps/web で実行。初回は Docker イメージのダウンロードが行われます）
+pnpm supabase start
 ```
 
-`supabase start` 完了後、`supabase status -o json` を実行して API キーを取得します。取得した値を `.env.local` にコピーしてください:
+`pnpm supabase start` 完了後、`pnpm supabase status -o json` を実行して API キーを取得します。取得した値を `.env.local` にコピーしてください:
 
 ```bash
-supabase status -o json
+pnpm supabase status -o json
 cp .env.example .env.local
 ```
 
-| `supabase status -o json` のフィールド | `.env.local` の変数              | 備考                                          |
-| -------------------------------------- | ------------------------------- | --------------------------------------------- |
-| `PUBLISHABLE_KEY`                      | `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY` | ブラウザクライアントで使用する公開キー          |
-| `API_URL`                              | `NEXT_PUBLIC_SUPABASE_URL`      | デフォルト値は `http://127.0.0.1:54321`        |
-| —                                      | `POSTGRES_URL`                  | ローカル開発ではデフォルト値が使われるため設定不要 |
+| `pnpm supabase status -o json` のフィールド | `.env.local` の変数                    | 備考                                               |
+| ------------------------------------------- | -------------------------------------- | -------------------------------------------------- |
+| `PUBLISHABLE_KEY`                           | `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY` | ブラウザクライアントで使用する公開キー             |
+| `API_URL`                                   | `NEXT_PUBLIC_SUPABASE_URL`             | デフォルト値は `http://127.0.0.1:54321`            |
+| —                                           | `POSTGRES_URL`                         | ローカル開発ではデフォルト値が使われるため設定不要 |
 
-> **ヒント:** これらの値は `supabase start` の出力にも表示されます（"Authentication Keys" の Publishable と "APIs" の Project URL）。
+> **ヒント:** これらの値は `pnpm supabase start` の出力にも表示されます（"Authentication Keys" の Publishable と "APIs" の Project URL）。
 
 ```bash
 # データベースマイグレーションの実行
@@ -63,13 +68,13 @@ Google サインインをローカルでテストするには、OAuth 認証情�
 ### ローカルサービス
 
 - **Supabase Studio**: http://127.0.0.1:54323
-- **Inbucket（メールテスト用）**: http://127.0.0.1:54324
+- **Mailpit（メールテスト用）**: http://127.0.0.1:54324
 - **PostgreSQL**: `postgresql://postgres:postgres@127.0.0.1:54322/postgres`
 
 Supabase を停止するには:
 
 ```bash
-supabase stop
+pnpm supabase stop
 ```
 
 ## デプロイ
