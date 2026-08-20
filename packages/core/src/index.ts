@@ -17,6 +17,11 @@ export type { MentsuFuQuestion } from "./problem/mentsu-fu/types";
 export { generateTehaiFuQuestion } from "./problem/tehai-fu/generator";
 export type { TehaiFuQuestion, TehaiFuItem } from "./problem/tehai-fu/types";
 
+// === Problem: Total Fu ===
+export { generateTotalFuQuestion } from "./problem/total-fu/generator";
+export type { TotalFuQuestion } from "./problem/total-fu/types";
+export type { FuDetail } from "./score/fu-calculator";
+
 // === Problem: Yaku ===
 export { generateYakuQuestion } from "./problem/yaku/generator";
 export { judgeYakuAnswer } from "./problem/yaku/judgement";
