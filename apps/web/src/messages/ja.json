@@ -476,6 +476,7 @@
     "tsumo": "ツモ",
     "ron": "ロン",
     "prompt": "この手牌は何符？",
+    "generating": "問題を生成中...",
     "fuOption": "{value}符",
     "fuSuffix": "{value}符",
     "breakdownTitle": "符の内訳",
