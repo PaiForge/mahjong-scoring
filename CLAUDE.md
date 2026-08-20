@@ -155,6 +155,23 @@ ON CONFLICT ON CONSTRAINT uq_user_role DO NOTHING;
 
 `psql` が無い場合は Supabase Studio（`http://127.0.0.1:54323`）の Table Editor か `pnpm --filter web db:studio`（Drizzle Studio）で `user_roles` に行を追加してもよい。
 
+## Supabase ローカル環境
+
+Supabase CLI は `apps/web` の devDependency として同梱している（`supabase/config.toml` が
+CLI のバージョンと結合しているため）。グローバルインストール版ではなく、必ず `apps/web` から
+`pnpm supabase ...` で同梱版を実行すること。
+
+```bash
+cd apps/web
+pnpm supabase start          # 起動（初回は Docker イメージのダウンロード）
+pnpm supabase status -o json # API キーの取得
+pnpm supabase stop           # 停止
+```
+
+- Supabase Studio: http://127.0.0.1:54323
+- Mailpit（メールテスト用）: http://127.0.0.1:54324
+- PostgreSQL: `postgresql://postgres:postgres@127.0.0.1:54322/postgres`
+
 ## Database Migration
 
 - **Always use `pnpm db:run-migrate`** — This runs `scripts/migrate.ts`, which executes Drizzle migrations and then applies Supabase-specific SQL (RLS policies, FK constraints) in Supabase environments.

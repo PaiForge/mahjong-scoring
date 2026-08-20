@@ -24,17 +24,17 @@
 
    **開発用 OAuth クライアント:**
 
-   | フィールド                      | 値                                            |
-   | ------------------------------ | --------------------------------------------- |
-   | Authorized JavaScript origins  | `http://localhost:3000`                        |
-   | Authorized redirect URIs       | `http://127.0.0.1:54321/auth/v1/callback`     |
+   | フィールド                    | 値                                        |
+   | ----------------------------- | ----------------------------------------- |
+   | Authorized JavaScript origins | `http://localhost:3000`                   |
+   | Authorized redirect URIs      | `http://127.0.0.1:54321/auth/v1/callback` |
 
    **本番用 OAuth クライアント:**
 
-   | フィールド                      | 値                                                          |
-   | ------------------------------ | ----------------------------------------------------------- |
-   | Authorized JavaScript origins  | `https://your-domain.com`                                    |
-   | Authorized redirect URIs       | `https://<reference-id>.supabase.co/auth/v1/callback`        |
+   | フィールド                    | 値                                                    |
+   | ----------------------------- | ----------------------------------------------------- |
+   | Authorized JavaScript origins | `https://your-domain.com`                             |
+   | Authorized redirect URIs      | `https://<reference-id>.supabase.co/auth/v1/callback` |
 
    > **ヒント:** `<reference-id>` は Supabase Dashboard > **Project Settings** > **General** の **Project ID**（"Reference used in APIs and URLs."）に表示される短い英数字文字列です。Supabase URL のサブドメイン部分（例: `abcdefghijkl.supabase.co`）であり、UUID ではありません。
 
@@ -59,7 +59,7 @@
 
 ## ローカル開発（Supabase CLI）
 
-`supabase start` でローカル実行する場合、OAuth プロバイダーの設定は本番環境とは異なる仕組みで動作します:
+`pnpm supabase start` でローカル実行する場合、OAuth プロバイダーの設定は本番環境とは異なる仕組みで動作します:
 
 - **プロバイダー設定** は `supabase/config.toml` で定義されます（Supabase Dashboard ではありません）。Google OAuth は `[auth.external.google] enabled = true` で有効化済みです。
 - **認証情報** は `supabase/.env` から読み込まれます（環境変数や Dashboard の設定ではありません）。`config.toml` は `env()` 構文でこれらを参照します（例: `client_id = "env(SUPABASE_AUTH_EXTERNAL_GOOGLE_CLIENT_ID)"`）。
@@ -83,7 +83,7 @@
 
 3. **Supabase を再起動** して新しい環境変数を反映させます:
    ```bash
-   supabase stop && supabase start
+   pnpm supabase stop && pnpm supabase start
    ```
 
 ### localhost と 127.0.0.1 の違い

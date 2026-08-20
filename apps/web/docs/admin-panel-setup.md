@@ -7,12 +7,12 @@
 `SUPABASE_SERVICE_ROLE_KEY` を `.env.local` に追加します。
 
 ```bash
-supabase status -o json
+pnpm supabase status -o json
 ```
 
-| `supabase status -o json` のフィールド | `.env.local` の変数              | 備考                                          |
-| -------------------------------------- | ------------------------------- | --------------------------------------------- |
-| `SERVICE_ROLE_KEY`                     | `SUPABASE_SERVICE_ROLE_KEY`     | Admin API 用シークレットキー                    |
+| `pnpm supabase status -o json` のフィールド | `.env.local` の変数         | 備考                         |
+| ------------------------------------------- | --------------------------- | ---------------------------- |
+| `SERVICE_ROLE_KEY`                          | `SUPABASE_SERVICE_ROLE_KEY` | Admin API 用シークレットキー |
 
 > **WARNING**: `NEXT_PUBLIC_` プレフィックスを付けないでください。このキーは RLS をバイパスしてユーザー管理が可能なフルアクセスキーであり、ブラウザに露出させてはいけません。Admin Client は `import 'server-only'` ガードで保護されています。
 
