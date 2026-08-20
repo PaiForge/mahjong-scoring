@@ -82,7 +82,7 @@ export function TotalFuBoard({
         showFeedback={showFeedback}
         isCountingDown={isCountingDown}
         onSelect={handleSelect}
-        columnsClassName="grid-cols-4"
+        columnsClassName="grid-cols-3"
         translationNamespace="totalFu"
       />
 
