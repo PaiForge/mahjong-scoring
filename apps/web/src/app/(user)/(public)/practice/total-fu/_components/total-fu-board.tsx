@@ -9,6 +9,8 @@ import {
 } from "@mahjong-scoring/core";
 import type { TotalFuQuestion } from "@mahjong-scoring/core";
 import { useRuleSettingsStore } from "@/app/_hooks/use-rule-settings-store";
+import { toQuestionResult } from "../_lib/types";
+import type { TotalFuQuestionResult } from "../_lib/types";
 import { FuChoiceGrid } from "../../_components/fu-choice-grid";
 import { QuestionGeneratingPlaceholder } from "../../_components/question-generating-placeholder";
 import { TehaiDisplay } from "../../_components/tehai-display";
@@ -33,6 +35,8 @@ interface TotalFuBoardProps {
    * （自動で進まないトレーニングモード向け）。
    */
   readonly onProceed?: () => void;
+  /** 回答結果の記録（チャレンジの結果ページ用。トレーニングでは省略） */
+  readonly onRecordResult?: (result: TotalFuQuestionResult) => void;
 }
 
 /**
@@ -47,6 +51,7 @@ export function TotalFuBoard({
   lastAnswerCorrect,
   onAnswer,
   onProceed,
+  onRecordResult,
 }: TotalFuBoardProps) {
   const t = useTranslations("totalFu");
   const renfonpaiAs4Fu = useRuleSettingsStore((s) => s.renfonpaiAs4Fu);
@@ -65,9 +70,10 @@ export function TotalFuBoard({
       if (showFeedback || !question) return;
       const fu = TOTAL_FU_OPTIONS[index];
       setSelectedFu(fu);
+      onRecordResult?.(toQuestionResult(question, fu));
       onAnswer(fu === question.answer, advanceQuestion);
     },
-    [showFeedback, question, onAnswer, advanceQuestion],
+    [showFeedback, question, onAnswer, advanceQuestion, onRecordResult],
   );
 
   if (!question) {

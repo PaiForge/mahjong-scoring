@@ -483,6 +483,13 @@
     "breakdownTotal": "合計",
     "roundUp": "切り上げ",
     "nextQuestion": "次の問題へ",
+    "result": {
+      "problemDetails": "問題の詳細",
+      "correctAnswer": "正解",
+      "yourAnswer": "あなたの回答",
+      "correct": "正解",
+      "incorrect": "不正解"
+    },
     "howToPlay": {
       "title": "問題方式",
       "lead": "このような問題が出題されます。"

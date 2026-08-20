@@ -70,6 +70,9 @@ export type {
 export {
   parseTehai,
   parseHais,
+  parseKazehai,
+  haiIdToMspz,
+  kazeIdToMspz,
   tehaiToMspz,
 } from "./problem/score/mspz-serializer";
 
