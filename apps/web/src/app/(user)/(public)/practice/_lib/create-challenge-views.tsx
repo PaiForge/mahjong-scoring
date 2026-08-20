@@ -121,6 +121,13 @@ export interface TrainingBoardArgs {
   readonly showFeedback: boolean;
   readonly lastAnswerCorrect: boolean | undefined;
   readonly onAnswer: (correct: boolean, onNext: () => void) => void;
+  /**
+   * 不正解で停止中の状態から次問題へ進む
+   *
+   * `holdOnIncorrect` を指定した練習だけが意味を持つ。盤面は解説の下に
+   * この操作を呼ぶボタンを置く。
+   */
+  readonly onProceed: () => void;
 }
 
 /**
@@ -136,6 +143,12 @@ export interface TrainingViewConfig<TProps> {
   /** シェル内部ラッパーの max-w クラス（未指定時はシェルの既定値） */
   readonly maxWidth?: string;
   /**
+   * 不正解時にフィードバック表示のまま停止し、ユーザーの操作を待つ
+   *
+   * 解説を読ませたい練習向け。既定は自動で次問題へ進む。
+   */
+  readonly holdOnIncorrect?: boolean;
+  /**
    * 盤面の描画
    *
    * ビューの render 中に無条件で呼ばれるため、この中でフックを呼んでもよい。
@@ -150,7 +163,7 @@ export interface TrainingViewConfig<TProps> {
 export function createTrainingView<TProps = Record<string, never>>(
   config: TrainingViewConfig<TProps>,
 ): (props: TProps) => ReactNode {
-  const { slug, maxWidth, renderBoard } = config;
+  const { slug, maxWidth, holdOnIncorrect, renderBoard } = config;
   const { namespace } = practiceMenuBySlug(slug);
 
   function TrainingView(props: TProps) {
@@ -161,7 +174,8 @@ export function createTrainingView<TProps = Record<string, never>>(
       showFeedback,
       lastAnswerCorrect,
       handleAnswer,
-    } = useTrainingSession();
+      proceed,
+    } = useTrainingSession({ holdOnIncorrect });
 
     return (
       <TrainingShell
@@ -176,6 +190,7 @@ export function createTrainingView<TProps = Record<string, never>>(
             showFeedback,
             lastAnswerCorrect,
             onAnswer: handleAnswer,
+            onProceed: proceed,
           },
           props,
         )}

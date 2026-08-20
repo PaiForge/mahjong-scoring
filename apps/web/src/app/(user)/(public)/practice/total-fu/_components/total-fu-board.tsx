@@ -23,19 +23,30 @@ function generateQuestion(
 interface TotalFuBoardProps {
   readonly showFeedback: boolean;
   readonly isCountingDown?: boolean;
+  /** 直前の回答が正解だったか（未回答時は undefined） */
+  readonly lastAnswerCorrect?: boolean;
   readonly onAnswer: (correct: boolean, onNext: () => void) => void;
+  /**
+   * 不正解で停止中の状態から次問題へ進む操作
+   *
+   * 指定した場合のみ符の内訳の下に「次の問題へ」ボタンを出す
+   * （自動で進まないトレーニングモード向け）。
+   */
+  readonly onProceed?: () => void;
 }
 
 /**
  * 合計符の出題盤面（手牌の提示と符の選択）
  *
  * 出題状態と回答ロジックを内包し、チャレンジ・トレーニング両モードで共有する。
- * 回答後は符の内訳を示し、どの構成要素を取りこぼしたかを確認できるようにする。
+ * 不正解のときだけ符の内訳を示し、どの構成要素を取りこぼしたかを確認できるようにする。
  */
 export function TotalFuBoard({
   showFeedback,
   isCountingDown = false,
+  lastAnswerCorrect,
   onAnswer,
+  onProceed,
 }: TotalFuBoardProps) {
   const t = useTranslations("totalFu");
   const renfonpaiAs4Fu = useRuleSettingsStore((s) => s.renfonpaiAs4Fu);
@@ -86,8 +97,19 @@ export function TotalFuBoard({
         translationNamespace="totalFu"
       />
 
-      {showFeedback && (
-        <FuBreakdown details={question.fuDetails} answer={question.answer} />
+      {showFeedback && lastAnswerCorrect === false && (
+        <>
+          <FuBreakdown details={question.fuDetails} answer={question.answer} />
+          {onProceed && (
+            <button
+              type="button"
+              onClick={onProceed}
+              className="w-full rounded-lg bg-primary-500 px-6 py-3 font-bold text-white transition-colors hover:bg-primary-600"
+            >
+              {t("nextQuestion")}
+            </button>
+          )}
+        </>
       )}
     </div>
   );
