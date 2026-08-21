@@ -59,10 +59,7 @@
 }
 
 body {
-  font-family:
-    system-ui,
-    -apple-system,
-    sans-serif;
+  font-family: system-ui, -apple-system, sans-serif;
   color: var(--color-surface-900);
 }
 
@@ -73,74 +70,32 @@ body {
  */
 
 /* Tile sizes */
-.h-hai-xs {
-  height: 34px;
-}
-.w-hai-xs {
-  width: 24px;
-}
-.h-hai-sm {
-  height: 45px;
-}
-.w-hai-sm {
-  width: 32px;
-}
-.h-hai-md {
-  height: 62px;
-}
-.w-hai-md {
-  width: 44px;
-}
-.h-hai-lg {
-  height: 78px;
-}
-.w-hai-lg {
-  width: 56px;
-}
-.h-hai-xl {
-  height: 101px;
-}
-.w-hai-xl {
-  width: 72px;
-}
+.h-hai-xs { height: 34px; }
+.w-hai-xs { width: 24px; }
+.h-hai-sm { height: 45px; }
+.w-hai-sm { width: 32px; }
+.h-hai-md { height: 62px; }
+.w-hai-md { width: 44px; }
+.h-hai-lg { height: 78px; }
+.w-hai-lg { width: 56px; }
+.h-hai-xl { height: 101px; }
+.w-hai-xl { width: 72px; }
 
 /* Rotated tile sizes (for Furo sideways tiles) */
-.h-hai-xs-rotated {
-  height: 24px;
-}
-.w-hai-xs-rotated {
-  width: 34px;
-}
-.h-hai-sm-rotated {
-  height: 32px;
-}
-.w-hai-sm-rotated {
-  width: 45px;
-}
-.h-hai-md-rotated {
-  height: 44px;
-}
-.w-hai-md-rotated {
-  width: 62px;
-}
-.h-hai-lg-rotated {
-  height: 56px;
-}
-.w-hai-lg-rotated {
-  width: 78px;
-}
-.h-hai-xl-rotated {
-  height: 72px;
-}
-.w-hai-xl-rotated {
-  width: 101px;
-}
+.h-hai-xs-rotated { height: 24px; }
+.w-hai-xs-rotated { width: 34px; }
+.h-hai-sm-rotated { height: 32px; }
+.w-hai-sm-rotated { width: 45px; }
+.h-hai-md-rotated { height: 44px; }
+.w-hai-md-rotated { width: 62px; }
+.h-hai-lg-rotated { height: 56px; }
+.w-hai-lg-rotated { width: 78px; }
+.h-hai-xl-rotated { height: 72px; }
+.w-hai-xl-rotated { width: 101px; }
 
 /* Shadows */
 .shadow-hai {
-  box-shadow:
-    0 1px 2px rgba(0, 0, 0, 0.15),
-    inset 0 1px 0 rgba(255, 255, 255, 0.5);
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.15), inset 0 1px 0 rgba(255, 255, 255, 0.5);
 }
 .shadow-hai-back {
   box-shadow: 0 1px 2px rgba(0, 0, 0, 0.15);
@@ -150,21 +105,9 @@ body {
  * Tailwind v4 only generates classes found in scanned source files.
  * node_modules is not scanned, and @source does not work with Turbopack dev,
  * so we define the missing classes here. */
-.inline-flex {
-  display: inline-flex;
-}
-.items-end {
-  align-items: flex-end;
-}
-.gap-px {
-  gap: 1px;
-}
-.box-border {
-  box-sizing: border-box;
-}
-.ml-4 {
-  margin-left: 1rem;
-}
-.visible {
-  visibility: visible;
-}
+.inline-flex { display: inline-flex; }
+.items-end { align-items: flex-end; }
+.gap-px { gap: 1px; }
+.box-border { box-sizing: border-box; }
+.ml-4 { margin-left: 1rem; }
+.visible { visibility: visible; }
