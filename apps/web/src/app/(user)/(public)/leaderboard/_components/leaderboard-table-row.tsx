@@ -18,7 +18,7 @@ export const LeaderboardTableRow = memo(function LeaderboardTableRowComponent({
 }: LeaderboardTableRowProps) {
   return (
     <tr
-      className={`border-b border-surface-200 last:border-b-0 transition-colors ${
+      className={`border-b-2 border-dashed border-border/40 last:border-b-0 transition-colors ${
         isCurrentUser ? "bg-primary-50" : "hover:bg-surface-50"
       }`}
     >

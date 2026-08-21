@@ -111,7 +111,7 @@ export function ProblemListAccordion<T>({
                 </div>
               </button>
               {isExpanded && (
-                <div className="border-t border-surface-200 bg-surface-50 px-3 pb-3 pt-3">
+                <div className="border-t-2 border-dashed border-border/40 bg-surface-50 px-3 pb-3 pt-3">
                   {renderDetail(result, index)}
                 </div>
               )}

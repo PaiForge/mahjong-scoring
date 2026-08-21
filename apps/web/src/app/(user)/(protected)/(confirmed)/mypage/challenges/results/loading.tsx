@@ -22,7 +22,7 @@ export default function Loading() {
         <div className="overflow-x-auto">
           <table className="w-full text-sm">
             <thead>
-              <tr className="border-b border-surface-200">
+              <tr className="border-b-3 border-ink">
                 {Array.from({ length: 4 }, (_, i) => (
                   <th key={i} className="py-2 px-2 sm:px-3">
                     <SkeletonBar className="h-4 w-16 rounded" />
@@ -32,7 +32,10 @@ export default function Loading() {
             </thead>
             <tbody>
               {Array.from({ length: 10 }, (_, i) => (
-                <tr key={i} className="border-b border-surface-100">
+                <tr
+                  key={i}
+                  className="border-b-2 border-dashed border-border/40"
+                >
                   {Array.from({ length: 4 }, (__, j) => (
                     <td key={j} className="py-2 px-2 sm:px-3">
                       <SkeletonBar className="h-4 w-20 rounded" />

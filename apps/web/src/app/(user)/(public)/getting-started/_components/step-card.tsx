@@ -33,7 +33,7 @@ export function StepCard({
         </span>
       ) : null}
       <div
-        className={`flex size-14 items-center justify-center rounded-2xl ${iconClassName}`}
+        className={`flex size-14 items-center justify-center rounded-2xl border-3 border-ink shadow-xs ${iconClassName}`}
       >
         {icon}
       </div>

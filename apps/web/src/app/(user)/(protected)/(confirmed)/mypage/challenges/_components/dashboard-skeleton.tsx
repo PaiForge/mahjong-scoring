@@ -21,7 +21,7 @@ function SessionHistoryTableSkeleton() {
     <div className="overflow-x-auto">
       <table className="w-full text-sm">
         <thead>
-          <tr className="border-b border-surface-200">
+          <tr className="border-b-3 border-ink">
             <th className="text-left py-2 px-2 sm:px-3">
               <SkeletonBar className="h-4 w-16 rounded" />
             </th>
@@ -35,7 +35,7 @@ function SessionHistoryTableSkeleton() {
         </thead>
         <tbody>
           {Array.from({ length: 5 }, (_, i) => (
-            <tr key={i} className="border-b border-surface-100">
+            <tr key={i} className="border-b-2 border-dashed border-border/40">
               <td className="py-2 px-2 sm:px-3">
                 <SkeletonBar className="h-4 w-32 rounded" />
               </td>

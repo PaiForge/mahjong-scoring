@@ -32,10 +32,10 @@ export function ChallengeSubmitButton({
         type="button"
         onClick={onClick}
         disabled={disabled}
-        className={`w-full rounded-lg py-3 text-sm font-semibold text-white shadow-sm transition-colors ${
+        className={`w-full rounded-lg border-3 border-ink py-3 text-sm font-bold text-white ${
           disabled
-            ? "cursor-not-allowed bg-surface-300"
-            : "bg-primary-500 hover:bg-primary-600"
+            ? "cursor-not-allowed bg-surface-300 opacity-60"
+            : "press-sm bg-primary-500 shadow-sm hover:bg-primary-600"
         }`}
       >
         {children}

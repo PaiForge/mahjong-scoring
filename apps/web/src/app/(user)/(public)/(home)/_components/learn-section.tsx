@@ -11,7 +11,7 @@ export function LearnSection() {
     <LandingSection
       sectionClassName="bg-white"
       icon={<BookIcon className="size-8" />}
-      iconClassName="bg-primary-500/10 text-primary-600"
+      iconClassName="bg-primary-200 text-primary-800"
       title={t("learnTitle")}
       description={t("learnDescription")}
       href="/learn"

@@ -151,7 +151,7 @@ export default async function LeaderboardDetailPage({
         />
       </Suspense>
 
-      <div className="pt-4 border-t border-surface-200">
+      <div className="pt-4 border-t-2 border-dashed border-border/40">
         <PrimaryLinkButton href={challengePath} className="w-full">
           {t("tryChallenge")}
         </PrimaryLinkButton>

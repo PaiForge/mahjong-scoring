@@ -238,7 +238,7 @@ export function ScoreHelpTour() {
             onClick={(e) => e.stopPropagation()}
           >
             {/* Header */}
-            <div className="flex items-center justify-between border-b border-surface-200 px-5 py-3">
+            <div className="flex items-center justify-between border-b-2 border-dashed border-border/40 px-5 py-3">
               <h3 className="text-base font-bold text-surface-900">
                 {t("help.title")}
               </h3>
@@ -274,7 +274,7 @@ export function ScoreHelpTour() {
             </div>
 
             {/* Footer */}
-            <div className="flex items-center justify-between border-t border-surface-200 px-5 py-3">
+            <div className="flex items-center justify-between border-t-2 border-dashed border-border/40 px-5 py-3">
               <button
                 type="button"
                 onClick={goPrev}

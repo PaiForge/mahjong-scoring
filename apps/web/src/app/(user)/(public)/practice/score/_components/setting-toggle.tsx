@@ -21,7 +21,7 @@ export function SettingToggle({
 }: SettingToggleProps) {
   return (
     <div
-      className={`group flex items-center justify-between px-5 py-3.5 transition-colors hover:bg-surface-50 ${isLast ? "" : "border-b border-surface-100"}`}
+      className={`group flex items-center justify-between px-5 py-3.5 transition-colors hover:bg-surface-50 ${isLast ? "" : "border-b-2 border-dashed border-border/40"}`}
     >
       <span className="flex items-center gap-1.5">
         <label className="cursor-pointer select-none text-sm font-medium text-surface-700 group-hover:text-surface-900">

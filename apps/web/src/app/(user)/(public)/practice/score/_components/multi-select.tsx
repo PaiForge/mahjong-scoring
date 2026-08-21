@@ -144,7 +144,7 @@ export function MultiSelect({
                 <div
                   key={option.value}
                   onClick={() => toggleOption(option.value)}
-                  className={`cursor-pointer border-b border-surface-100 px-4 py-3 text-sm transition-colors last:border-0 ${
+                  className={`cursor-pointer border-b-2 border-dashed border-border/40 px-4 py-3 text-sm transition-colors last:border-0 ${
                     isSelected
                       ? "bg-primary-100 font-medium text-primary-900"
                       : "text-surface-700 hover:bg-surface-50"

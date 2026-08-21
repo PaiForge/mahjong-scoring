@@ -93,7 +93,7 @@ export function ResultDisplay({
       <div className="rounded-lg bg-surface-50 p-4">
         <table className="w-full text-sm">
           <thead>
-            <tr className="border-b border-surface-200">
+            <tr className="border-b-3 border-ink">
               <th className="pb-3 pr-4 pt-2 text-left font-bold text-surface-600" />
               <th className="pb-3 pr-4 pt-2 text-left font-bold text-surface-600">
                 {t("result.headers.answer")}

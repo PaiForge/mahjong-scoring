@@ -11,7 +11,7 @@ export function ReferenceSection() {
     <LandingSection
       sectionClassName="border-b-4 border-ink bg-surface-50"
       icon={<TableIcon className="size-8" />}
-      iconClassName="bg-amber-500/10 text-amber-600"
+      iconClassName="bg-amber-200 text-amber-800"
       title={t("referenceTitle")}
       description={t("referenceDescription")}
       href="/reference"
