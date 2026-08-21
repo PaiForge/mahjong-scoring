@@ -78,6 +78,57 @@ function makeMentsuDetail(overrides: {
 }
 
 /**
+ * 検証対象の面子に添える、符に影響しない3面子
+ *
+ * 順子は0符なので、面子符の検証では対象の1面子だけが結果に現れる。対象と牌が
+ * 重ならないよう2組用意する。中張牌（5）を検証するときは `CHUNCHAN_FILLER` と
+ * 和了牌 `PinZu1`、么九牌（1・9・字牌）を検証するときは `YAOCHU_FILLER` と
+ * 和了牌 `PinZu4` を使う。和了牌はフィラー側の牌を指すことで、対象の刻子が
+ * ロンでシャンポン待ち扱いになるのを避ける。
+ */
+const CHUNCHAN_FILLER: readonly TestMentsu[] = [
+  {
+    type: MentsuType.Shuntsu,
+    hais: [HaiKind.PinZu1, HaiKind.PinZu2, HaiKind.PinZu3],
+  },
+  {
+    type: MentsuType.Shuntsu,
+    hais: [HaiKind.SouZu1, HaiKind.SouZu2, HaiKind.SouZu3],
+  },
+  {
+    type: MentsuType.Shuntsu,
+    hais: [HaiKind.ManZu7, HaiKind.ManZu8, HaiKind.ManZu9],
+  },
+];
+
+/** {@link CHUNCHAN_FILLER} の么九牌版 */
+const YAOCHU_FILLER: readonly TestMentsu[] = [
+  {
+    type: MentsuType.Shuntsu,
+    hais: [HaiKind.PinZu4, HaiKind.PinZu5, HaiKind.PinZu6],
+  },
+  {
+    type: MentsuType.Shuntsu,
+    hais: [HaiKind.SouZu4, HaiKind.SouZu5, HaiKind.SouZu6],
+  },
+  {
+    type: MentsuType.Shuntsu,
+    hais: [HaiKind.ManZu4, HaiKind.ManZu5, HaiKind.ManZu6],
+  },
+];
+
+/**
+ * 「検証対象の面子ひとつ + 符に影響しない3面子」の ScoreDetail を組むヘルパー
+ */
+function makeTargetMentsuDetail(
+  target: TestMentsu,
+  filler: readonly TestMentsu[],
+  fu: { readonly mentsu: number; readonly total: number },
+): ScoreDetail {
+  return makeMentsuDetail({ ...fu, fourMentsu: [target, ...filler] });
+}
+
+/**
  * 既定の場風・自風で符の内訳を求める
  *
  * ほとんどのケースは風が結果に影響しない（面子符・待ち符の検証）ため、
@@ -208,28 +259,14 @@ describe("convertScoreDetailToFuDetails", () => {
 
   describe("面子符", () => {
     it("中張牌の暗刻は4符", () => {
-      const detail = makeMentsuDetail({
-        mentsu: 4,
-        total: 30,
-        fourMentsu: [
-          {
-            type: MentsuType.Koutsu,
-            hais: [HaiKind.ManZu5, HaiKind.ManZu5, HaiKind.ManZu5],
-          },
-          {
-            type: MentsuType.Shuntsu,
-            hais: [HaiKind.PinZu1, HaiKind.PinZu2, HaiKind.PinZu3],
-          },
-          {
-            type: MentsuType.Shuntsu,
-            hais: [HaiKind.SouZu1, HaiKind.SouZu2, HaiKind.SouZu3],
-          },
-          {
-            type: MentsuType.Shuntsu,
-            hais: [HaiKind.ManZu7, HaiKind.ManZu8, HaiKind.ManZu9],
-          },
-        ],
-      });
+      const detail = makeTargetMentsuDetail(
+        {
+          type: MentsuType.Koutsu,
+          hais: [HaiKind.ManZu5, HaiKind.ManZu5, HaiKind.ManZu5],
+        },
+        CHUNCHAN_FILLER,
+        { mentsu: 4, total: 30 },
+      );
 
       const result = convert(detail, {
         agariHai: HaiKind.PinZu1,
@@ -243,28 +280,14 @@ describe("convertScoreDetailToFuDetails", () => {
     });
 
     it("么九牌の暗刻は8符", () => {
-      const detail = makeMentsuDetail({
-        mentsu: 8,
-        total: 30,
-        fourMentsu: [
-          {
-            type: MentsuType.Koutsu,
-            hais: [HaiKind.ManZu1, HaiKind.ManZu1, HaiKind.ManZu1],
-          },
-          {
-            type: MentsuType.Shuntsu,
-            hais: [HaiKind.PinZu4, HaiKind.PinZu5, HaiKind.PinZu6],
-          },
-          {
-            type: MentsuType.Shuntsu,
-            hais: [HaiKind.SouZu4, HaiKind.SouZu5, HaiKind.SouZu6],
-          },
-          {
-            type: MentsuType.Shuntsu,
-            hais: [HaiKind.ManZu4, HaiKind.ManZu5, HaiKind.ManZu6],
-          },
-        ],
-      });
+      const detail = makeTargetMentsuDetail(
+        {
+          type: MentsuType.Koutsu,
+          hais: [HaiKind.ManZu1, HaiKind.ManZu1, HaiKind.ManZu1],
+        },
+        YAOCHU_FILLER,
+        { mentsu: 8, total: 30 },
+      );
 
       const result = convert(detail, {
         agariHai: HaiKind.PinZu4,
@@ -278,29 +301,15 @@ describe("convertScoreDetailToFuDetails", () => {
     });
 
     it("中張牌の明刻は2符", () => {
-      const detail = makeMentsuDetail({
-        mentsu: 2,
-        total: 30,
-        fourMentsu: [
-          {
-            type: MentsuType.Koutsu,
-            hais: [HaiKind.ManZu5, HaiKind.ManZu5, HaiKind.ManZu5],
-            furo: { type: "Pon", from: "Kamicha" },
-          },
-          {
-            type: MentsuType.Shuntsu,
-            hais: [HaiKind.PinZu1, HaiKind.PinZu2, HaiKind.PinZu3],
-          },
-          {
-            type: MentsuType.Shuntsu,
-            hais: [HaiKind.SouZu1, HaiKind.SouZu2, HaiKind.SouZu3],
-          },
-          {
-            type: MentsuType.Shuntsu,
-            hais: [HaiKind.ManZu7, HaiKind.ManZu8, HaiKind.ManZu9],
-          },
-        ],
-      });
+      const detail = makeTargetMentsuDetail(
+        {
+          type: MentsuType.Koutsu,
+          hais: [HaiKind.ManZu5, HaiKind.ManZu5, HaiKind.ManZu5],
+          furo: { type: "Pon", from: "Kamicha" },
+        },
+        CHUNCHAN_FILLER,
+        { mentsu: 2, total: 30 },
+      );
 
       const result = convert(detail, {
         agariHai: HaiKind.PinZu1,
@@ -313,29 +322,15 @@ describe("convertScoreDetailToFuDetails", () => {
     });
 
     it("么九牌の明刻は4符", () => {
-      const detail = makeMentsuDetail({
-        mentsu: 4,
-        total: 30,
-        fourMentsu: [
-          {
-            type: MentsuType.Koutsu,
-            hais: [HaiKind.ManZu9, HaiKind.ManZu9, HaiKind.ManZu9],
-            furo: { type: "Pon", from: "Kamicha" },
-          },
-          {
-            type: MentsuType.Shuntsu,
-            hais: [HaiKind.PinZu4, HaiKind.PinZu5, HaiKind.PinZu6],
-          },
-          {
-            type: MentsuType.Shuntsu,
-            hais: [HaiKind.SouZu4, HaiKind.SouZu5, HaiKind.SouZu6],
-          },
-          {
-            type: MentsuType.Shuntsu,
-            hais: [HaiKind.ManZu4, HaiKind.ManZu5, HaiKind.ManZu6],
-          },
-        ],
-      });
+      const detail = makeTargetMentsuDetail(
+        {
+          type: MentsuType.Koutsu,
+          hais: [HaiKind.ManZu9, HaiKind.ManZu9, HaiKind.ManZu9],
+          furo: { type: "Pon", from: "Kamicha" },
+        },
+        YAOCHU_FILLER,
+        { mentsu: 4, total: 30 },
+      );
 
       const result = convert(detail, {
         agariHai: HaiKind.PinZu4,
@@ -348,33 +343,19 @@ describe("convertScoreDetailToFuDetails", () => {
     });
 
     it("中張牌の暗槓は16符", () => {
-      const detail = makeMentsuDetail({
-        mentsu: 16,
-        total: 40,
-        fourMentsu: [
-          {
-            type: MentsuType.Kantsu,
-            hais: [
-              HaiKind.ManZu5,
-              HaiKind.ManZu5,
-              HaiKind.ManZu5,
-              HaiKind.ManZu5,
-            ],
-          },
-          {
-            type: MentsuType.Shuntsu,
-            hais: [HaiKind.PinZu1, HaiKind.PinZu2, HaiKind.PinZu3],
-          },
-          {
-            type: MentsuType.Shuntsu,
-            hais: [HaiKind.SouZu1, HaiKind.SouZu2, HaiKind.SouZu3],
-          },
-          {
-            type: MentsuType.Shuntsu,
-            hais: [HaiKind.ManZu7, HaiKind.ManZu8, HaiKind.ManZu9],
-          },
-        ],
-      });
+      const detail = makeTargetMentsuDetail(
+        {
+          type: MentsuType.Kantsu,
+          hais: [
+            HaiKind.ManZu5,
+            HaiKind.ManZu5,
+            HaiKind.ManZu5,
+            HaiKind.ManZu5,
+          ],
+        },
+        CHUNCHAN_FILLER,
+        { mentsu: 16, total: 40 },
+      );
 
       const result = convert(detail, {
         agariHai: HaiKind.PinZu1,
@@ -387,33 +368,19 @@ describe("convertScoreDetailToFuDetails", () => {
     });
 
     it("么九牌の暗槓は32符", () => {
-      const detail = makeMentsuDetail({
-        mentsu: 32,
-        total: 60,
-        fourMentsu: [
-          {
-            type: MentsuType.Kantsu,
-            hais: [
-              HaiKind.ManZu1,
-              HaiKind.ManZu1,
-              HaiKind.ManZu1,
-              HaiKind.ManZu1,
-            ],
-          },
-          {
-            type: MentsuType.Shuntsu,
-            hais: [HaiKind.PinZu4, HaiKind.PinZu5, HaiKind.PinZu6],
-          },
-          {
-            type: MentsuType.Shuntsu,
-            hais: [HaiKind.SouZu4, HaiKind.SouZu5, HaiKind.SouZu6],
-          },
-          {
-            type: MentsuType.Shuntsu,
-            hais: [HaiKind.ManZu4, HaiKind.ManZu5, HaiKind.ManZu6],
-          },
-        ],
-      });
+      const detail = makeTargetMentsuDetail(
+        {
+          type: MentsuType.Kantsu,
+          hais: [
+            HaiKind.ManZu1,
+            HaiKind.ManZu1,
+            HaiKind.ManZu1,
+            HaiKind.ManZu1,
+          ],
+        },
+        YAOCHU_FILLER,
+        { mentsu: 32, total: 60 },
+      );
 
       const result = convert(detail, {
         agariHai: HaiKind.PinZu4,
@@ -426,34 +393,20 @@ describe("convertScoreDetailToFuDetails", () => {
     });
 
     it("中張牌の明槓は8符", () => {
-      const detail = makeMentsuDetail({
-        mentsu: 8,
-        total: 30,
-        fourMentsu: [
-          {
-            type: MentsuType.Kantsu,
-            hais: [
-              HaiKind.ManZu5,
-              HaiKind.ManZu5,
-              HaiKind.ManZu5,
-              HaiKind.ManZu5,
-            ],
-            furo: { type: "Daiminkan", from: "Kamicha" },
-          },
-          {
-            type: MentsuType.Shuntsu,
-            hais: [HaiKind.PinZu1, HaiKind.PinZu2, HaiKind.PinZu3],
-          },
-          {
-            type: MentsuType.Shuntsu,
-            hais: [HaiKind.SouZu1, HaiKind.SouZu2, HaiKind.SouZu3],
-          },
-          {
-            type: MentsuType.Shuntsu,
-            hais: [HaiKind.ManZu7, HaiKind.ManZu8, HaiKind.ManZu9],
-          },
-        ],
-      });
+      const detail = makeTargetMentsuDetail(
+        {
+          type: MentsuType.Kantsu,
+          hais: [
+            HaiKind.ManZu5,
+            HaiKind.ManZu5,
+            HaiKind.ManZu5,
+            HaiKind.ManZu5,
+          ],
+          furo: { type: "Daiminkan", from: "Kamicha" },
+        },
+        CHUNCHAN_FILLER,
+        { mentsu: 8, total: 30 },
+      );
 
       const result = convert(detail, {
         agariHai: HaiKind.PinZu1,
@@ -466,29 +419,15 @@ describe("convertScoreDetailToFuDetails", () => {
     });
 
     it("么九牌の明槓は16符", () => {
-      const detail = makeMentsuDetail({
-        mentsu: 16,
-        total: 40,
-        fourMentsu: [
-          {
-            type: MentsuType.Kantsu,
-            hais: [HaiKind.Ton, HaiKind.Ton, HaiKind.Ton, HaiKind.Ton],
-            furo: { type: "Daiminkan", from: "Kamicha" },
-          },
-          {
-            type: MentsuType.Shuntsu,
-            hais: [HaiKind.PinZu4, HaiKind.PinZu5, HaiKind.PinZu6],
-          },
-          {
-            type: MentsuType.Shuntsu,
-            hais: [HaiKind.SouZu4, HaiKind.SouZu5, HaiKind.SouZu6],
-          },
-          {
-            type: MentsuType.Shuntsu,
-            hais: [HaiKind.ManZu4, HaiKind.ManZu5, HaiKind.ManZu6],
-          },
-        ],
-      });
+      const detail = makeTargetMentsuDetail(
+        {
+          type: MentsuType.Kantsu,
+          hais: [HaiKind.Ton, HaiKind.Ton, HaiKind.Ton, HaiKind.Ton],
+          furo: { type: "Daiminkan", from: "Kamicha" },
+        },
+        YAOCHU_FILLER,
+        { mentsu: 16, total: 40 },
+      );
 
       const result = convert(detail, {
         agariHai: HaiKind.PinZu4,
@@ -504,28 +443,14 @@ describe("convertScoreDetailToFuDetails", () => {
     });
 
     it("ロン和了で刻子に和了牌が含まれる場合は明刻扱い", () => {
-      const detail = makeMentsuDetail({
-        mentsu: 2,
-        total: 30,
-        fourMentsu: [
-          {
-            type: MentsuType.Koutsu,
-            hais: [HaiKind.ManZu5, HaiKind.ManZu5, HaiKind.ManZu5],
-          },
-          {
-            type: MentsuType.Shuntsu,
-            hais: [HaiKind.PinZu1, HaiKind.PinZu2, HaiKind.PinZu3],
-          },
-          {
-            type: MentsuType.Shuntsu,
-            hais: [HaiKind.SouZu1, HaiKind.SouZu2, HaiKind.SouZu3],
-          },
-          {
-            type: MentsuType.Shuntsu,
-            hais: [HaiKind.ManZu7, HaiKind.ManZu8, HaiKind.ManZu9],
-          },
-        ],
-      });
+      const detail = makeTargetMentsuDetail(
+        {
+          type: MentsuType.Koutsu,
+          hais: [HaiKind.ManZu5, HaiKind.ManZu5, HaiKind.ManZu5],
+        },
+        CHUNCHAN_FILLER,
+        { mentsu: 2, total: 30 },
+      );
 
       const result = convert(detail, {
         agariHai: HaiKind.ManZu5, // 和了牌が刻子に含まれる → シャンポン待ち → 明刻
