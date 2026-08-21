@@ -37,7 +37,7 @@ export const ChoiceButton = memo(function ChoiceButtonComponent({
       type="button"
       disabled={disabled}
       onClick={handleClick}
-      className={`flex items-center justify-center rounded-xl border ${borderClass} ${bgClass} p-4 transition-all ${className}`}
+      className={`press-sm flex items-center justify-center rounded-xl border-3 shadow-sm ${borderClass} ${bgClass} p-4 ${className}`}
     >
       {children}
     </button>

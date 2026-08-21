@@ -23,14 +23,14 @@ export function FuBreakdown({ details, answer }: FuBreakdownProps) {
   const rawTotal = details.reduce((sum, detail) => sum + detail.fu, 0);
 
   return (
-    <div className="rounded-xl border border-surface-200 bg-white p-4 text-sm">
+    <div className="rounded-xl border-3 border-ink bg-white p-4 text-sm">
       <p className="mb-2 font-bold text-surface-900">{t("breakdownTitle")}</p>
 
       <dl>
         {details.map((detail, i) => (
           <div
             key={i}
-            className="flex justify-between border-b border-surface-100 py-1.5 last:border-0"
+            className="flex justify-between border-b-2 border-dashed border-border/40 py-1.5 last:border-0"
           >
             <dt className="text-surface-600">{detail.reason}</dt>
             <dd className="text-surface-800">
@@ -40,7 +40,7 @@ export function FuBreakdown({ details, answer }: FuBreakdownProps) {
         ))}
       </dl>
 
-      <div className="mt-1 flex justify-between border-t border-surface-200 pt-1.5 font-bold text-surface-900">
+      <div className="mt-1 flex justify-between border-t-2 border-dashed border-border/40 pt-1.5 font-bold text-surface-900">
         <span>{t("breakdownTotal")}</span>
         <span>{t("fuSuffix", { value: rawTotal })}</span>
       </div>

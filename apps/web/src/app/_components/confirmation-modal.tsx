@@ -37,9 +37,9 @@ export function ConfirmationModal({
   const confirmColorClass = (() => {
     switch (confirmVariant) {
       case "danger":
-        return "bg-red-500 hover:bg-red-600";
+        return "bg-destructive hover:bg-destructive/90";
       case "warning":
-        return "bg-amber-500 hover:bg-amber-600";
+        return "bg-warning hover:bg-warning/90";
       case "primary":
         return "bg-primary-500 hover:bg-primary-600";
       default: {
@@ -56,7 +56,7 @@ export function ConfirmationModal({
       labelledBy={titleId}
       describedBy={messageId}
     >
-      <h3 id={titleId} className="text-lg font-bold text-surface-900">
+      <h3 id={titleId} className="text-xl font-bold text-surface-900">
         {title}
       </h3>
       <p id={messageId} className="text-sm leading-relaxed text-surface-700">
@@ -66,7 +66,7 @@ export function ConfirmationModal({
         <button
           type="button"
           onClick={onClose}
-          className="rounded-lg border border-surface-300 px-6 py-2 text-sm font-bold text-surface-700 transition-colors hover:bg-surface-100"
+          className="press-sm rounded-lg border-3 border-ink bg-card px-6 py-2 text-sm font-bold text-surface-700 shadow-sm hover:bg-surface-100"
         >
           {cancelText}
         </button>
@@ -74,7 +74,7 @@ export function ConfirmationModal({
           type="button"
           onClick={onConfirm}
           autoFocus
-          className={`rounded-lg px-6 py-2 text-sm font-bold text-white transition-colors ${confirmColorClass}`}
+          className={`press-sm rounded-lg border-3 border-ink px-6 py-2 text-sm font-bold text-white shadow-sm ${confirmColorClass}`}
         >
           {confirmText}
         </button>

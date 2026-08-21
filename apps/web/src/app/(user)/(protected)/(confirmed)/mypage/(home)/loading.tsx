@@ -18,7 +18,7 @@ export default function Loading() {
       <div className="space-y-6">
         {/* プロフィールカード（実: flex items-center gap-4 border-border bg-card p-4。
             アバター(lg) + 表示名 + @username + 公開プロフィール/編集リンク） */}
-        <section className="flex items-center gap-4 rounded-lg border border-border bg-card p-4">
+        <section className="flex items-center gap-4 rounded-lg border-3 border-ink bg-card p-4">
           <SkeletonBar className="h-20 w-20 flex-shrink-0 rounded-full" />
           <div className="min-w-0 flex-1 space-y-2">
             <SkeletonBar className="h-6 w-32 rounded" />
@@ -31,14 +31,14 @@ export default function Loading() {
         </section>
 
         {/* アクティビティヒートマップ（実: border-border bg-card p-4、mt なし） */}
-        <section className="rounded-lg border border-border bg-card p-4">
+        <section className="rounded-lg border-3 border-ink bg-card p-4">
           <SkeletonBar className="mb-3 h-5 w-32 rounded" />
           <SkeletonBar className="h-[140px] w-full rounded" />
         </section>
 
         {/* カード（実: rounded-md border-border bg-card p-6） */}
         <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-          <div className="rounded-md border border-border bg-card p-6">
+          <div className="rounded-md border-3 border-ink bg-card p-6">
             <SkeletonBar className="h-8 w-8 rounded" />
             <SkeletonBar className="mt-2 h-5 w-32 rounded" />
             <SkeletonBar className="mt-1 h-4 w-full rounded" />

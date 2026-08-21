@@ -154,7 +154,7 @@ export function QuestionDisplay({ question, size }: QuestionDisplayProps) {
             </div>
           </div>
           {question.isRiichi && question.uraDoraMarkers && (
-            <div className="border-l border-surface-300 pl-4">
+            <div className="border-l-4 border-ink pl-4">
               <div className="mb-1 text-xs text-surface-500">
                 {t("question.uraDora")}
               </div>

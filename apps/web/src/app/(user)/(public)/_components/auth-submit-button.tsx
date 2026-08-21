@@ -18,7 +18,7 @@ export function AuthSubmitButton({ loading, children }: AuthSubmitButtonProps) {
     <button
       type="submit"
       disabled={loading}
-      className="w-full px-6 py-3 bg-primary text-white rounded-lg text-sm font-medium hover:opacity-90 transition-opacity disabled:opacity-50 disabled:cursor-not-allowed"
+      className="press-sm w-full rounded-lg border-3 border-ink bg-primary px-6 py-3 text-sm font-bold text-white shadow-sm hover:bg-primary-600 disabled:opacity-50 disabled:cursor-not-allowed"
     >
       {children}
     </button>

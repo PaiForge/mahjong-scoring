@@ -31,7 +31,10 @@ export default async function AdminLayout({
   const t = await getTranslations("admin");
 
   return (
-    <div className="flex min-h-screen">
+    // 管理画面はユーザー向けの pop スキンを持ち込まず、独立した見た目にする。
+    // data-skin="plain" の配下は Tailwind 既定の角丸・ぼかし影・フォントへ戻る
+    // （定義は globals.css）。
+    <div data-skin="plain" className="flex min-h-screen">
       <aside className="w-56 border-r border-surface-200 bg-surface-50 p-4">
         {/* セクション見出し（h1）。ダッシュボードへのリンクを兼ねる */}
         <h1 className="mb-6">

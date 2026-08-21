@@ -9,9 +9,9 @@ export function PracticeSection() {
 
   return (
     <LandingSection
-      sectionClassName="border-y border-surface-200 bg-white"
+      sectionClassName="border-y-4 border-ink bg-white"
       icon={<PlayIcon className="size-8" />}
-      iconClassName="bg-primary-500/10 text-primary-600"
+      iconClassName="bg-primary-200 text-primary-800"
       title={t("practiceTitle")}
       description={t("practiceDescription")}
       href="/practice"

@@ -151,7 +151,9 @@ export function ScoreTableSetup({
       </div>
 
       {isDisabled && (
-        <p className="text-center text-xs text-red-600">{t("emptyWarning")}</p>
+        <p className="text-center text-xs text-destructive">
+          {t("emptyWarning")}
+        </p>
       )}
 
       <PracticeStartCta

@@ -25,14 +25,14 @@ export function InfoModal({
 }: InfoModalProps) {
   return (
     <ModalShell isOpen={isOpen} onClose={onClose} label={title}>
-      <h3 className="text-lg font-bold text-surface-900">{title}</h3>
+      <h3 className="text-xl font-bold text-surface-900">{title}</h3>
       <div className="text-sm leading-relaxed text-surface-700">{children}</div>
       <div className="flex justify-end">
         <button
           type="button"
           onClick={onClose}
           autoFocus
-          className="rounded-lg bg-primary-500 px-6 py-2 text-sm font-bold text-white transition-colors hover:bg-primary-600"
+          className="press-sm rounded-lg border-3 border-ink bg-primary-500 px-6 py-2 text-sm font-bold text-white shadow-sm hover:bg-primary-600"
         >
           {closeLabel}
         </button>

@@ -31,9 +31,10 @@ export const YakuChip = memo(function YakuChipComponent({
   if (feedbackState === "correct") {
     chipClasses += " border-primary-500 bg-primary-50 text-primary-700";
   } else if (feedbackState === "incorrect") {
-    chipClasses += " border-red-500 bg-red-50 text-red-700";
+    chipClasses +=
+      " border-destructive bg-destructive-subtle text-destructive-strong";
   } else if (feedbackState === "missed") {
-    chipClasses += " border-amber-500 bg-amber-50 text-amber-700";
+    chipClasses += " border-warning bg-warning-subtle text-warning-strong";
   } else if (isSelected) {
     chipClasses += " border-primary-500 bg-primary-50 text-primary-700";
   } else {

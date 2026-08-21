@@ -69,7 +69,7 @@ export default async function MyPage() {
       <PageTitle>{t("pageTitle")}</PageTitle>
 
       <div className="space-y-6">
-        <section className="flex items-center gap-4 rounded-lg border border-border bg-card p-4">
+        <section className="flex items-center gap-4 rounded-lg border-3 border-ink bg-card p-4">
           <UserAvatar
             avatarUrl={profile?.avatarUrl ?? null}
             name={profileName || t("pageTitle")}
@@ -103,7 +103,7 @@ export default async function MyPage() {
           </div>
         </section>
 
-        <section className="rounded-lg border border-border bg-card p-4">
+        <section className="rounded-lg border-3 border-ink bg-card p-4">
           <h2 className="mb-3 text-sm font-semibold text-foreground">
             <span className="mr-1">🔥</span>
             {t("activityTitle")}
@@ -116,7 +116,7 @@ export default async function MyPage() {
             <Link
               key={card.href}
               href={card.href}
-              className="group block rounded-md border border-border bg-card p-6 transition-all hover:border-foreground/20"
+              className="press-sm group block rounded-xl border-3 border-ink bg-card p-6 shadow-sm hover:bg-primary-50"
             >
               <span className="text-2xl">{card.icon}</span>
               <h2 className="mt-2 text-base font-semibold text-foreground">

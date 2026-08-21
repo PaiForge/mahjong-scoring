@@ -27,20 +27,20 @@ export async function CurriculumProgressBar({
   return (
     <div className="space-y-2">
       <div className="flex items-center justify-between text-xs text-surface-600">
-        <span className="font-medium">
+        <span className="font-bold">
           {t("progressLabel", { read: readCount, total: totalCount })}
         </span>
         <span className="tabular-nums">{percentage}%</span>
       </div>
       <div
-        className="h-2 w-full overflow-hidden rounded-full bg-surface-200"
+        className="h-4 w-full overflow-hidden rounded-full border-3 border-ink bg-surface-200"
         role="progressbar"
         aria-valuenow={percentage}
         aria-valuemin={0}
         aria-valuemax={100}
       >
         <div
-          className={`h-full rounded-full transition-all ${barColorClass}`}
+          className={`h-full rounded-l-full transition-all ${barColorClass}`}
           style={{ width: `${percentage}%` }}
         />
       </div>

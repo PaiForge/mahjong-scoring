@@ -9,14 +9,14 @@ export function ReferenceSection() {
 
   return (
     <LandingSection
-      sectionClassName="bg-surface-50"
+      sectionClassName="border-b-4 border-ink bg-surface-50"
       icon={<TableIcon className="size-8" />}
-      iconClassName="bg-amber-500/10 text-amber-600"
+      iconClassName="bg-amber-200 text-amber-800"
       title={t("referenceTitle")}
       description={t("referenceDescription")}
       href="/reference"
       ctaLabel={t("referenceCta")}
-      ctaClassName="border border-surface-200 bg-white text-surface-900 hover:bg-surface-50"
+      ctaClassName="bg-white text-surface-900 hover:bg-primary-50"
     />
   );
 }

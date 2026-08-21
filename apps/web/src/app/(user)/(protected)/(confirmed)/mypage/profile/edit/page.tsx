@@ -62,7 +62,7 @@ export default async function ProfileEditPage({
         <ProfileForm initial={initial} showSkip={from === "setup"} />
       </div>
 
-      <div className="mt-10 border-t border-surface-200 pt-6 text-center">
+      <div className="mt-10 border-t-2 border-dashed border-border/40 pt-6 text-center">
         <Link
           href="/mypage/profile/edit/delete-account"
           className="text-sm text-surface-400 transition-colors hover:text-surface-600 hover:underline"

@@ -51,7 +51,7 @@ export const TehaiDisplay = memo(function TehaiDisplayComponent({
   );
 
   return (
-    <div className="mt-4 rounded-xl border border-surface-200 bg-white p-2">
+    <div className="mt-4 rounded-xl border-3 border-ink bg-white p-2">
       <TehaiHand tehai={tehai} onScaleChange={handleScaleChange} />
       <div className="mt-3 flex flex-wrap justify-center gap-4 text-xs">
         <div className="text-center">
@@ -87,7 +87,7 @@ export const TehaiDisplay = memo(function TehaiDisplayComponent({
         {context.isRiichi && (
           <div className="text-center">
             <span className="text-surface-400">{t("riichi")}</span>
-            <p className="mt-0.5 font-bold text-red-600">&#x25CF;</p>
+            <p className="mt-0.5 font-bold text-destructive">&#x25CF;</p>
           </div>
         )}
         {context.doraMarkers && context.doraMarkers.length > 0 && (

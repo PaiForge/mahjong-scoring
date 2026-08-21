@@ -10,5 +10,5 @@ interface AuthFormErrorProps {
  */
 export function AuthFormError({ message }: AuthFormErrorProps) {
   if (!message) return null;
-  return <p className="text-center text-sm text-red-600">{message}</p>;
+  return <p className="text-center text-sm text-destructive">{message}</p>;
 }

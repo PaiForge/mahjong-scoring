@@ -3,7 +3,7 @@
 import { useActionState, useState } from "react";
 import { useTranslations } from "next-intl";
 
-import { ModalShell } from "@/app/_components/modal-shell";
+import { AdminModalShell } from "@/app/admin/_components/admin-modal-shell";
 
 import { unbanUser } from "../_actions/unban-user";
 
@@ -45,7 +45,11 @@ export function UnbanButton({ targetUserId }: UnbanButtonProps) {
         {t("unbanUser.confirm")}
       </button>
 
-      <ModalShell isOpen={isOpen} onClose={close} label={t("unbanUser.title")}>
+      <AdminModalShell
+        isOpen={isOpen}
+        onClose={close}
+        label={t("unbanUser.title")}
+      >
         <h3 className="text-lg font-semibold">{t("unbanUser.title")}</h3>
         <p className="text-sm text-gray-600">{t("unbanUser.confirmMessage")}</p>
 
@@ -71,7 +75,7 @@ export function UnbanButton({ targetUserId }: UnbanButtonProps) {
             </button>
           </div>
         </form>
-      </ModalShell>
+      </AdminModalShell>
     </>
   );
 }

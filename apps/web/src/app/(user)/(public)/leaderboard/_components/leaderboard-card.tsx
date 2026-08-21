@@ -30,14 +30,14 @@ export async function LeaderboardCard({
   return (
     <Link
       href={detailPath}
-      className="group block rounded-lg border border-surface-200 bg-white p-4 transition-colors hover:border-surface-300"
+      className="press-sm group block rounded-lg border-3 border-ink bg-white p-4 shadow-sm hover:bg-primary-50"
     >
       <div className="flex items-center gap-3">
-        <span className="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-md bg-surface-100 text-lg">
+        <span className="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-lg border-2 border-ink bg-primary-50 text-lg">
           {t(`moduleIcon.${msgKey}`)}
         </span>
         <div className="min-w-0 flex-1">
-          <h3 className="text-sm font-medium text-surface-700">{title}</h3>
+          <h3 className="text-sm font-bold text-surface-700">{title}</h3>
           {rank !== undefined ? (
             <p className="text-lg font-semibold text-primary-600 tabular-nums">
               {t("rankLabel", { rank })}

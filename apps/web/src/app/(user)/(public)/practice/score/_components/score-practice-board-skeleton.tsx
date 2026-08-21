@@ -23,7 +23,7 @@ export function ScorePracticeBoardSkeleton() {
 
       <div className="space-y-4 sm:space-y-6 md:space-y-8" aria-hidden>
         {/* Question */}
-        <div className="rounded-xl border border-surface-200 bg-white p-2 sm:p-6">
+        <div className="rounded-xl border-3 border-ink bg-white p-2 sm:p-6">
           <div className="space-y-6">
             <SkeletonBar className="h-20 rounded-lg" tone={100} />
             <div className="grid grid-cols-2 gap-4">
@@ -34,7 +34,7 @@ export function ScorePracticeBoardSkeleton() {
         </div>
 
         {/* Answer area: 翻・符・点数の select（各 label 付き）、回答するボタン、スキップリンク */}
-        <div className="rounded-xl border border-surface-200 bg-white p-4 sm:p-6">
+        <div className="rounded-xl border-3 border-ink bg-white p-4 sm:p-6">
           <div className="space-y-5">
             {["han", "fu", "score"].map((field) => (
               <div key={field} className="space-y-2">

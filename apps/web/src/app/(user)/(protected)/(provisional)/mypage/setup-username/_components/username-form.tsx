@@ -103,9 +103,9 @@ export function UsernameForm() {
         required
         autoFocus
       >
-        {error && <p className="mt-2 text-sm text-red-500">{error}</p>}
+        {error && <p className="mt-2 text-sm text-destructive">{error}</p>}
         <ul className="mt-2 list-inside list-disc space-y-0.5">
-          <li className="text-xs text-red-500">{t("cannotChange")}</li>
+          <li className="text-xs text-destructive">{t("cannotChange")}</li>
           <li className="text-xs text-surface-500">{t("usernameHint")}</li>
         </ul>
       </ProfileTextField>

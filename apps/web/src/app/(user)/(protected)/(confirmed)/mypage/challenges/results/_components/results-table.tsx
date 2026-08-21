@@ -32,7 +32,7 @@ export function ResultsTable({
     <div className="overflow-x-auto">
       <table className="w-full text-sm">
         <thead>
-          <tr className="border-b border-surface-200">
+          <tr className="border-b-3 border-ink">
             <th className="text-left py-2 px-2 sm:px-3 text-surface-500 font-medium">
               {headers.date}
             </th>
@@ -49,7 +49,10 @@ export function ResultsTable({
         </thead>
         <tbody>
           {items.map((item) => (
-            <tr key={item.id} className="border-b border-surface-100">
+            <tr
+              key={item.id}
+              className="border-b-2 border-dashed border-border/40"
+            >
               <td className="py-2 px-2 sm:px-3 text-surface-900">
                 {formatDate(item.createdAt)}
               </td>

@@ -43,7 +43,7 @@ export default async function ReferenceScoreTablePage() {
                 ))}
               </div>
               <SkeletonBar
-                className="h-[400px] w-full rounded-xl border border-surface-200"
+                className="h-[400px] w-full rounded-xl border-3 border-ink"
                 tone={50}
               />
             </div>

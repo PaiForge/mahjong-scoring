@@ -14,9 +14,9 @@ interface PracticeCardProps {
 }
 
 const difficultyColor = {
-  beginner: "bg-primary-100 text-primary-700",
-  intermediate: "bg-amber-100 text-amber-700",
-  advanced: "bg-red-100 text-red-700",
+  beginner: "bg-success-subtle text-success-strong",
+  intermediate: "bg-warning-subtle text-warning-strong",
+  advanced: "bg-destructive-subtle text-destructive-strong",
 } as const;
 
 export function PracticeCard({
@@ -30,22 +30,24 @@ export function PracticeCard({
   learnLabel,
 }: PracticeCardProps) {
   return (
-    <div className="flex flex-col justify-between rounded-xl border border-surface-200 bg-white p-5">
+    <div className="flex flex-col justify-between rounded-2xl border-3 border-ink bg-white p-5 shadow-sm transition-transform hover:-translate-y-1">
       <div>
         <div className="flex items-center justify-between">
-          <h3 className="text-base font-semibold text-surface-900">{title}</h3>
+          <h3 className="text-base font-bold text-surface-900">{title}</h3>
           <span
-            className={`rounded-full px-2 py-0.5 text-xs font-medium ${difficultyColor[difficulty]}`}
+            className={`rounded-full border-2 border-ink px-2 py-0.5 text-xs font-bold ${difficultyColor[difficulty]}`}
           >
             {difficultyLabel}
           </span>
         </div>
-        <p className="mt-2 text-sm text-surface-500">{description}</p>
+        <p className="mt-2 text-sm font-medium text-surface-500">
+          {description}
+        </p>
       </div>
       <div className="mt-4 flex items-center justify-between">
         <Link
           href={href}
-          className="flex items-center text-sm font-medium text-primary-600 hover:text-primary-700 transition-colors"
+          className="flex items-center text-sm font-bold text-primary-600 transition-colors hover:text-primary-700"
         >
           {startLabel}
           <ChevronRightIcon className="ml-1 size-4" />

@@ -75,7 +75,7 @@ export const FuItemRow = memo(function FuItemRowComponent({
         showFeedback
           ? isCorrect
             ? "border-primary-500 bg-primary-50"
-            : "border-red-500 bg-red-50"
+            : "border-destructive bg-destructive-subtle"
           : "border-surface-200"
       }`}
     >
@@ -83,7 +83,7 @@ export const FuItemRow = memo(function FuItemRowComponent({
       <div className="flex min-w-0 items-center gap-2">
         {renderItemTiles()}
         {isWrong && (
-          <span className="ml-auto shrink-0 text-xs font-bold text-red-600">
+          <span className="ml-auto shrink-0 text-xs font-bold text-destructive">
             {t("correctAnswer", { fu: item.fu })}
           </span>
         )}
@@ -102,7 +102,7 @@ export const FuItemRow = memo(function FuItemRowComponent({
           if (showFeedback && isSelected) {
             buttonClass += isCorrect
               ? " border-primary-500 bg-primary-50 text-primary-700"
-              : " border-red-500 bg-red-50 text-red-700";
+              : " border-destructive bg-destructive-subtle text-destructive-strong";
           } else if (isSelected) {
             buttonClass += " border-blue-500 bg-blue-100 text-blue-700";
           } else {

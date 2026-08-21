@@ -61,7 +61,7 @@ export function ProblemListAccordion<T>({
           return (
             <div
               key={index}
-              className="overflow-hidden rounded-lg border border-surface-200"
+              className="overflow-hidden rounded-lg border-3 border-ink"
             >
               <button
                 type="button"
@@ -96,7 +96,7 @@ export function ProblemListAccordion<T>({
                     </svg>
                   ) : (
                     <svg
-                      className="size-3 text-red-500"
+                      className="size-3 text-destructive"
                       viewBox="0 0 24 24"
                       fill="currentColor"
                     >
@@ -104,14 +104,14 @@ export function ProblemListAccordion<T>({
                     </svg>
                   )}
                   <span
-                    className={`text-sm font-medium ${correct ? "text-primary-500" : "text-red-500"}`}
+                    className={`text-sm font-medium ${correct ? "text-primary-500" : "text-destructive"}`}
                   >
                     {correct ? tResult("correct") : tResult("incorrect")}
                   </span>
                 </div>
               </button>
               {isExpanded && (
-                <div className="border-t border-surface-200 bg-surface-50 px-3 pb-3 pt-3">
+                <div className="border-t-2 border-dashed border-border/40 bg-surface-50 px-3 pb-3 pt-3">
                   {renderDetail(result, index)}
                 </div>
               )}

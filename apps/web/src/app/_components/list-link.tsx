@@ -6,7 +6,7 @@ import { LinkPending } from "./link-pending";
 
 /**
  * リストリンクのコンテナ（blindfold-chess の ListLinkContainer 準拠）。
- * 角丸＋ボーダーで囲んだリスト枠。
+ * 大きな角丸＋太枠＋オフセット影で囲んだリスト枠。
  */
 export function ListLinkContainer({
   children,
@@ -14,7 +14,7 @@ export function ListLinkContainer({
   readonly children: ReactNode;
 }) {
   return (
-    <ul className="overflow-hidden rounded-md border border-border bg-card">
+    <ul className="overflow-hidden rounded-xl border-3 border-ink bg-card shadow-sm">
       {children}
     </ul>
   );
@@ -37,12 +37,12 @@ interface ListLinkProps {
  */
 export function ListLink({ href, icon, title, meta, badge }: ListLinkProps) {
   return (
-    <li className="border-b border-border transition-colors last:border-b-0 hover:bg-muted">
+    <li className="border-b-2 border-dashed border-border/40 transition-colors last:border-b-0 hover:bg-primary-50">
       <Link href={href} className="block px-4 py-3">
         <div className="flex items-center gap-3">
           <span className="flex-shrink-0 text-xl">{icon}</span>
           <div className="min-w-0 flex-1">
-            <span className="block truncate font-medium text-foreground">
+            <span className="block truncate font-bold text-foreground">
               {title}
             </span>
           </div>

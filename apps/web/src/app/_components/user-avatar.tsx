@@ -36,17 +36,17 @@ export function UserAvatar({
         alt={name}
         width={px}
         height={px}
-        className={`${box} flex-shrink-0 rounded-full object-cover`}
+        className={`${box} flex-shrink-0 rounded-full border-3 border-ink object-cover`}
       />
     );
   }
 
   return (
     <div
-      className={`${box} flex flex-shrink-0 items-center justify-center rounded-full bg-surface-100 text-surface-400`}
+      className={`${box} flex flex-shrink-0 items-center justify-center rounded-full border-3 border-ink bg-surface-100 text-surface-500`}
       aria-hidden="true"
     >
-      <span className={`${text} font-medium`}>
+      <span className={`${text} font-bold`}>
         {name.charAt(0).toUpperCase()}
       </span>
     </div>

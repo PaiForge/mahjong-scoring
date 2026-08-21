@@ -11,7 +11,7 @@ export async function Footer() {
   const t = await getTranslations("footer");
 
   return (
-    <footer className="mt-auto border-t border-border bg-card">
+    <footer className="mt-auto border-t-4 border-ink bg-card">
       <div className="mx-auto max-w-7xl space-y-8 px-4 sm:px-6 lg:px-8 py-8">
         <nav className="grid grid-cols-2 gap-8 md:grid-cols-3">
           <div className="space-y-3">
@@ -55,7 +55,7 @@ export async function Footer() {
           </div>
         </nav>
 
-        <div className="border-t border-border pt-6">
+        <div className="border-t-2 border-dashed border-border/40 pt-6">
           <div className="flex items-center justify-between">
             <Link href="/">
               <BrandLogo size="sm" />

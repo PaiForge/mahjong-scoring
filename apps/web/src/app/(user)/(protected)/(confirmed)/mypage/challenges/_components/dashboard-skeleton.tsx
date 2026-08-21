@@ -2,7 +2,7 @@ import { SkeletonBar } from "@/app/_components/skeleton-bar";
 /** KPIカード1枚分のスケルトン */
 function StatsCardSkeleton() {
   return (
-    <div className="bg-surface-50 border border-surface-200 rounded-lg p-4">
+    <div className="bg-surface-50 border-3 border-ink rounded-lg p-4">
       <SkeletonBar className="h-3 w-20 mb-3 rounded" />
       <SkeletonBar className="h-8 w-16 mb-2 rounded" />
       <SkeletonBar className="h-3 w-28 rounded" />
@@ -21,7 +21,7 @@ function SessionHistoryTableSkeleton() {
     <div className="overflow-x-auto">
       <table className="w-full text-sm">
         <thead>
-          <tr className="border-b border-surface-200">
+          <tr className="border-b-3 border-ink">
             <th className="text-left py-2 px-2 sm:px-3">
               <SkeletonBar className="h-4 w-16 rounded" />
             </th>
@@ -35,7 +35,7 @@ function SessionHistoryTableSkeleton() {
         </thead>
         <tbody>
           {Array.from({ length: 5 }, (_, i) => (
-            <tr key={i} className="border-b border-surface-100">
+            <tr key={i} className="border-b-2 border-dashed border-border/40">
               <td className="py-2 px-2 sm:px-3">
                 <SkeletonBar className="h-4 w-32 rounded" />
               </td>

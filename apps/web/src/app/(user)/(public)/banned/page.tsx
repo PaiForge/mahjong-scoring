@@ -47,7 +47,7 @@ export default async function BannedPage() {
         <PageTitle>{t("title")}</PageTitle>
         <p className="text-gray-600">{t("message")}</p>
         {reason && (
-          <p className="rounded bg-red-50 px-4 py-3 text-sm text-red-700">
+          <p className="rounded bg-destructive-subtle px-4 py-3 text-sm text-destructive-strong">
             {t("reason", { reason })}
           </p>
         )}

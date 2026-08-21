@@ -157,7 +157,7 @@ export function ScoreAnswerForm({
         <button
           type="submit"
           disabled={disabled}
-          className="w-full rounded-lg bg-primary-500 py-3 px-6 font-bold text-white transition-colors hover:bg-primary-600 disabled:cursor-not-allowed disabled:bg-surface-400 disabled:text-surface-200"
+          className="press-sm w-full rounded-lg border-3 border-ink bg-primary-500 px-6 py-3 font-bold text-white shadow-sm hover:bg-primary-600 disabled:cursor-not-allowed disabled:bg-surface-400 disabled:text-surface-200 disabled:opacity-60"
         >
           {t("answer")}
         </button>

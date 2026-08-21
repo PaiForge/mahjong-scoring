@@ -71,7 +71,7 @@ export function ManganScoreCalculationBoard({
     <div className="mt-6 space-y-6">
       {/* Question display */}
       <div
-        className={`rounded-xl border-2 p-2 transition-colors sm:p-4 ${feedbackBorderClass}`}
+        className={`rounded-xl border-3 p-2 shadow-sm transition-colors sm:p-4 ${feedbackBorderClass}`}
       >
         <QuestionDisplay question={question} />
       </div>

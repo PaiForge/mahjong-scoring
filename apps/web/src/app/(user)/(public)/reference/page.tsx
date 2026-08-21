@@ -56,10 +56,10 @@ export default async function ReferenceHubPage() {
           <Link
             key={card.href}
             href={card.href}
-            className="flex items-center gap-4 rounded-xl border border-surface-200 bg-white p-6 transition-colors hover:bg-surface-50"
+            className="press-sm flex items-center gap-4 rounded-xl border-3 border-ink bg-white p-6 shadow-sm hover:bg-primary-50"
           >
             <span
-              className="flex size-12 shrink-0 items-center justify-center rounded-lg bg-amber-500/10 text-amber-600"
+              className="flex size-12 shrink-0 items-center justify-center rounded-lg border-2 border-ink bg-amber-200 text-amber-700"
               aria-hidden="true"
             >
               {card.icon}

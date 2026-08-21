@@ -60,7 +60,7 @@ export function MultiSelect({
     <div className={`w-full ${className}`}>
       {/* Chips display / trigger */}
       <div
-        className={`flex min-h-[46px] w-full flex-wrap items-center gap-2 rounded-lg border border-surface-300 bg-white px-2 py-2 ${
+        className={`flex min-h-[46px] w-full flex-wrap items-center gap-2 rounded-lg border-3 border-ink bg-white px-2 py-2 ${
           disabled ? "cursor-not-allowed bg-surface-100" : "cursor-pointer"
         }`}
         onClick={() => !disabled && setIsModalOpen(true)}
@@ -137,14 +137,14 @@ export function MultiSelect({
           <h3 className="mb-4 text-lg font-bold text-surface-900">
             {labels.title}
           </h3>
-          <div className="flex-1 overflow-y-auto rounded-lg border border-surface-200">
+          <div className="flex-1 overflow-y-auto rounded-lg border-3 border-ink">
             {options.map((option) => {
               const isSelected = value.includes(option.value);
               return (
                 <div
                   key={option.value}
                   onClick={() => toggleOption(option.value)}
-                  className={`cursor-pointer border-b border-surface-100 px-4 py-3 text-sm transition-colors last:border-0 ${
+                  className={`cursor-pointer border-b-2 border-dashed border-border/40 px-4 py-3 text-sm transition-colors last:border-0 ${
                     isSelected
                       ? "bg-primary-100 font-medium text-primary-900"
                       : "text-surface-700 hover:bg-surface-50"

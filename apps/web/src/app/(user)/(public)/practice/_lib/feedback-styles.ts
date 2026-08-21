@@ -10,10 +10,10 @@ export function getFeedbackBorderClass(
   lastAnswerCorrect: boolean | undefined,
 ): string {
   if (!showFeedback || lastAnswerCorrect === undefined)
-    return "border-surface-200 bg-white";
+    return "border-ink bg-white";
   return lastAnswerCorrect
-    ? "border-green-500 bg-green-50"
-    : "border-red-500 bg-red-50";
+    ? "border-success bg-success-subtle"
+    : "border-destructive bg-destructive-subtle";
 }
 
 export function getFeedbackStyles(
@@ -23,20 +23,23 @@ export function getFeedbackStyles(
 ): { borderClass: string; bgClass: string } {
   if (!showFeedback) {
     return {
-      borderClass: "border-surface-200",
-      bgClass: "bg-white hover:border-primary-300",
+      borderClass: "border-ink",
+      bgClass: "bg-white hover:bg-primary-50",
     };
   }
 
   if (isCorrect) {
-    return { borderClass: "border-green-500", bgClass: "bg-green-50" };
+    return { borderClass: "border-success", bgClass: "bg-success-subtle" };
   }
 
   if (isSelected) {
-    return { borderClass: "border-red-500", bgClass: "bg-red-50" };
+    return {
+      borderClass: "border-destructive",
+      bgClass: "bg-destructive-subtle",
+    };
   }
 
-  return { borderClass: "border-surface-200", bgClass: "bg-white opacity-50" };
+  return { borderClass: "border-ink", bgClass: "bg-white opacity-50" };
 }
 
 /**

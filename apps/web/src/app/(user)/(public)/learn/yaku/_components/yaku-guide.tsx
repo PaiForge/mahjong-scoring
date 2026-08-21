@@ -76,7 +76,7 @@ export async function YakuGuide() {
 
         <Link
           href="/reference/yaku"
-          className="group flex items-center gap-3 rounded-xl border border-surface-200 bg-white p-5 transition-colors hover:border-primary-300"
+          className="press-sm group flex items-center gap-3 rounded-xl border-3 border-ink bg-white p-5 shadow-sm hover:bg-primary-50"
         >
           <span className="flex-1 font-medium text-surface-900 transition-colors group-hover:text-primary-700">
             {t("referenceLink")}

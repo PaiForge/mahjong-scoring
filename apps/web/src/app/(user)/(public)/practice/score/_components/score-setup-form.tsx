@@ -100,13 +100,13 @@ export function ScoreSetupForm() {
     return (
       <div className="space-y-4 sm:space-y-6 md:space-y-8">
         {/* Settings card: トグル4行 */}
-        <div className="overflow-hidden rounded-xl border border-surface-200 bg-white">
+        <div className="overflow-hidden rounded-xl border-3 border-ink bg-white">
           <div className="flex flex-col">
             {["requireYaku", "simplifyMangan", "requireFu", "autoNext"].map(
               (key, i) => (
                 <div
                   key={key}
-                  className={`flex items-center justify-between px-5 py-3.5 ${i < 3 ? "border-b border-surface-100" : ""}`}
+                  className={`flex items-center justify-between px-5 py-3.5 ${i < 3 ? "border-b-2 border-dashed border-border/40" : ""}`}
                 >
                   <SkeletonBar className="h-4 w-32 rounded" tone={100} />
                   <SkeletonBar className="h-6 w-11 rounded-full" tone={100} />
@@ -135,7 +135,7 @@ export function ScoreSetupForm() {
     // 要素間の余白を ContentContainer カードのパディング（p-4 sm:p-6 md:p-8）と同じ
     // レスポンシブ値に揃える。SectionTitle との間隔も親（page.tsx）の space-y が担う。
     <div className="space-y-4 sm:space-y-6 md:space-y-8">
-      <div className="overflow-hidden rounded-xl border border-surface-200 bg-white">
+      <div className="overflow-hidden rounded-xl border-3 border-ink bg-white">
         <div className="flex flex-col">
           <SettingToggle
             checked={requireYaku}

@@ -103,7 +103,7 @@ export async function PracticeIntroContent({
             <SectionTitle>{tp("requiredKnowledge")}</SectionTitle>
             <Link
               href={learnHref}
-              className="group flex items-start gap-4 rounded-xl border border-surface-200 bg-white p-5 transition-colors hover:border-primary-300"
+              className="press-sm group flex items-start gap-4 rounded-xl border-3 border-ink bg-white p-5 shadow-sm hover:bg-primary-50"
             >
               <BookIcon className="mt-0.5 size-5 shrink-0 text-primary-600" />
               <div>

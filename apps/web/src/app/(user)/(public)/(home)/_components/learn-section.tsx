@@ -11,12 +11,12 @@ export function LearnSection() {
     <LandingSection
       sectionClassName="bg-white"
       icon={<BookIcon className="size-8" />}
-      iconClassName="bg-primary-500/10 text-primary-600"
+      iconClassName="bg-primary-200 text-primary-800"
       title={t("learnTitle")}
       description={t("learnDescription")}
       href="/learn"
       ctaLabel={t("learnCta")}
-      ctaClassName="border border-surface-200 bg-white text-surface-900 hover:bg-surface-50"
+      ctaClassName="bg-white text-surface-900 hover:bg-primary-50"
     />
   );
 }

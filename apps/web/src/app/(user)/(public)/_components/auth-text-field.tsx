@@ -45,7 +45,7 @@ export function AuthTextField({
         required={required}
         minLength={minLength}
         autoComplete={autoComplete}
-        className="w-full px-3 py-2 bg-white border border-surface-200 rounded-lg text-surface-700 text-sm focus:outline-none focus:ring-2 focus:ring-primary/50"
+        className="w-full px-3 py-2 bg-white border-3 border-ink rounded-lg text-surface-700 text-sm focus:outline-none focus:ring-2 focus:ring-primary/50"
         placeholder={placeholder}
       />
     </div>

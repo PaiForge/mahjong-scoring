@@ -20,7 +20,7 @@ export async function PeriodSelector({
   const t = await getTranslations("leaderboard");
 
   return (
-    <div className="flex rounded-md border border-primary-200 bg-primary-50 p-0.5">
+    <div className="flex rounded-full border-3 border-ink bg-primary-50 p-0.5">
       {VALID_PERIODS.map((p) => (
         <Link
           key={p}

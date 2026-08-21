@@ -26,7 +26,7 @@ export default function LeaderboardDetailLoading() {
       </div>
 
       {/* 「チャレンジに挑戦」ボタン（実UIで常時表示） */}
-      <div className="border-t border-surface-200 pt-4">
+      <div className="border-t-2 border-dashed border-border/40 pt-4">
         <SkeletonBar className="h-11 w-full rounded-lg" tone={100} />
       </div>
     </ContentContainer>
