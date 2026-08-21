@@ -62,13 +62,20 @@ packages/eslint-config/ — 共通 ESLint 設定（PaiForge コーディング�
 ## 共通UIコンポーネント（`apps/web/src/app/_components/`）
 
 - `PageTitle` — h1。全ページで使用
-- `SectionTitle` — h2。緑のアクセントバー付き
+- `SectionTitle` — h2。濃い緑の pill に白抜き
 - `ContentContainer` — ページコンテンツの max-w-3xl ラッパー。全ページで統一して使用し CLS を防ぐ
 - `Sidebar` / `MobileHeader` / `MobileTabBar` — ナビゲーションシェル
 - `DataTable` / `DataTableHeaderCell` — データテーブルの外枠と見出しセル。表を作るときは直接 `<table>` を書かない
-- `SkeletonBar` — 読み込み中のプレースホルダ矩形。`animate-pulse` と背景色を直接書かない
+- `SkeletonBar` — 読み込み中のプレースホルダ矩形。`animate-pulse` と背景色を直接書かない。角丸は `radius`（md / lg / xl / full）で指定し、`className` に `rounded*` を書かない
 - `PageTitleSkeleton` — 見出しのプレースホルダ帯。`PageTitle` / `AdminPageTitle` の子として置く
+- `SectionTitleSkeleton` — 見出しのプレースホルダ pill。矩形で代用せずこれを使う（`SectionTitle` 自身を描画するため実物と高さ・形が一致する）
 - `icons/OutlineIcon` — 線画アイコンの svg 外殻。新しい線画アイコンはこれを使う
+
+## 角丸
+
+素の `rounded` は Tailwind の非推奨トークン `--radius`（0.25rem 固定）を参照しており、
+`globals.css` で取り直した `--radius-*` の影響を受けない。丸みを揃えたい箇所では
+`rounded-md` 以降のサイズ付きユーティリティを使うこと。
 
 ## 牌画像（@pai-forge/mahjong-react-ui）
 
