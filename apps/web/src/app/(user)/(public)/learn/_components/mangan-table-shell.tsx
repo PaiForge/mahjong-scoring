@@ -2,18 +2,13 @@ import type { ReactNode } from "react";
 import { getTranslations } from "next-intl/server";
 import { HIGH_SCORES } from "@mahjong-scoring/core";
 
-import { HAN_DISPLAY } from "../_lib/han-display";
+import {
+  DATA_TABLE_ALIGN_CLASS,
+  DataTable,
+  DataTableHeaderCell,
+} from "@/app/_components/data-table";
 
-/**
- * 配置クラスの対応表
- *
- * Tailwind はソース中のリテラルなクラス名しか検出しないため、
- * `text-${align}` のような動的生成をしてはいけない。
- */
-const ALIGN_CLASS: Readonly<Record<"left" | "right", string>> = {
-  left: "text-left",
-  right: "text-right",
-};
+import { HAN_DISPLAY } from "../_lib/han-display";
 
 /** 満貫以上早見表の1行分のデータ */
 export type ManganTableRow = (typeof HIGH_SCORES)[number];
@@ -57,51 +52,41 @@ export async function ManganTableShell({
   const tScore = await getTranslations("scoreTable");
 
   return (
-    <div className="overflow-hidden rounded-xl border border-surface-200">
-      <table className="w-full text-sm">
-        <thead>
-          <tr className="bg-surface-50">
-            <th className="px-4 py-3 text-left font-medium text-surface-600">
-              {t("colType")}
-            </th>
-            <th className="px-4 py-3 text-right font-medium text-surface-600">
-              {t("colHan")}
-            </th>
-            {columns.map((column) => (
-              <th
-                key={column.headerKey}
-                className={`px-4 py-3 ${ALIGN_CLASS[column.align]} font-medium text-surface-600`}
-              >
-                {t(column.headerKey)}
-              </th>
-            ))}
-          </tr>
-        </thead>
-        <tbody className="divide-y divide-surface-100">
-          {HIGH_SCORES.map((row) => (
-            <tr key={row.nameKey} className="bg-white">
-              <td className="px-4 py-3 font-medium text-surface-900">
-                {tScore(row.nameKey)}
-              </td>
-              <td className="px-4 py-3 text-right text-surface-600">
-                {HAN_DISPLAY[row.nameKey]}
-              </td>
-              {renderCells(row, t).map((cell, index) => {
-                const column = columns[index];
-                return (
-                  <td
-                    key={column.headerKey}
-                    className={`px-4 py-3 ${ALIGN_CLASS[column.align]} ${column.cellClassName}`}
-                  >
-                    {cell}
-                  </td>
-                );
-              })}
-            </tr>
+    <DataTable
+      header={
+        <>
+          <DataTableHeaderCell align="left">{t("colType")}</DataTableHeaderCell>
+          <DataTableHeaderCell align="right">{t("colHan")}</DataTableHeaderCell>
+          {columns.map((column) => (
+            <DataTableHeaderCell key={column.headerKey} align={column.align}>
+              {t(column.headerKey)}
+            </DataTableHeaderCell>
           ))}
-        </tbody>
-      </table>
-    </div>
+        </>
+      }
+    >
+      {HIGH_SCORES.map((row) => (
+        <tr key={row.nameKey} className="bg-white">
+          <td className="px-4 py-3 font-medium text-surface-900">
+            {tScore(row.nameKey)}
+          </td>
+          <td className="px-4 py-3 text-right text-surface-600">
+            {HAN_DISPLAY[row.nameKey]}
+          </td>
+          {renderCells(row, t).map((cell, index) => {
+            const column = columns[index];
+            return (
+              <td
+                key={column.headerKey}
+                className={`px-4 py-3 ${DATA_TABLE_ALIGN_CLASS[column.align]} ${column.cellClassName}`}
+              >
+                {cell}
+              </td>
+            );
+          })}
+        </tr>
+      ))}
+    </DataTable>
   );
 }
 
