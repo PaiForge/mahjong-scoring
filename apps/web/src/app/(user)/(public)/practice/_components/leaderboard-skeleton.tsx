@@ -1,4 +1,5 @@
 import { SectionTitleSkeleton } from "@/app/_components/section-title-skeleton";
+import { SkeletonBar } from "@/app/_components/skeleton-bar";
 
 /**
  * リーダーボードプレビューのスケルトン
@@ -26,13 +27,13 @@ export function LeaderboardSkeleton() {
     >
       <SectionTitleSkeleton width="w-32" />
       <div className="space-y-2">
-        <div className="h-10 w-full animate-pulse rounded bg-surface-100" />
-        <div className="h-10 w-full animate-pulse rounded bg-surface-200" />
-        <div className="h-10 w-full animate-pulse rounded bg-surface-200" />
-        <div className="h-10 w-full animate-pulse rounded bg-surface-200" />
+        <SkeletonBar className="h-10 w-full rounded" tone={100} />
+        <SkeletonBar className="h-10 w-full rounded" />
+        <SkeletonBar className="h-10 w-full rounded" />
+        <SkeletonBar className="h-10 w-full rounded" />
       </div>
       <div className="flex justify-center pt-2">
-        <div className="h-4 w-20 animate-pulse rounded bg-surface-200" />
+        <SkeletonBar className="h-4 w-20 rounded" />
       </div>
     </div>
   );

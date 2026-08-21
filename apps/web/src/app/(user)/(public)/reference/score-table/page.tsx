@@ -6,6 +6,7 @@ import { PageTitle } from "@/app/_components/page-title";
 import { SectionTitle } from "@/app/_components/section-title";
 import { createNamespaceMetadata } from "@/app/_lib/metadata";
 import { ScoreTable } from "./_components/score-table";
+import { SkeletonBar } from "@/app/_components/skeleton-bar";
 
 export async function generateMetadata(): Promise<Metadata> {
   return createNamespaceMetadata("scoreTable", {
@@ -38,13 +39,13 @@ export default async function ReferenceScoreTablePage() {
             <div className="w-full space-y-3">
               <div className="flex justify-end gap-2">
                 {Array.from({ length: 3 }, (_, i) => (
-                  <div
-                    key={i}
-                    className="h-8 w-20 bg-surface-200 rounded animate-pulse"
-                  />
+                  <SkeletonBar key={i} className="h-8 w-20 rounded" />
                 ))}
               </div>
-              <div className="h-[400px] w-full rounded-xl border border-surface-200 bg-surface-50 animate-pulse" />
+              <SkeletonBar
+                className="h-[400px] w-full rounded-xl border border-surface-200"
+                tone={50}
+              />
             </div>
           }
         >

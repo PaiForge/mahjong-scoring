@@ -4,6 +4,7 @@ import { useTranslations } from "next-intl";
 import { ContentContainer } from "@/app/_components/content-container";
 import { PageTitle } from "@/app/_components/page-title";
 import { PRACTICE_SCROLL_ANCHOR_ID } from "../../_lib/scroll-anchor";
+import { SkeletonBar } from "@/app/_components/skeleton-bar";
 
 /**
  * プレイ画面のローディングスケルトン
@@ -24,10 +25,10 @@ export function ScorePracticeBoardSkeleton() {
         {/* Question */}
         <div className="rounded-xl border border-surface-200 bg-white p-2 sm:p-6">
           <div className="space-y-6">
-            <div className="h-20 animate-pulse rounded-lg bg-surface-100" />
+            <SkeletonBar className="h-20 rounded-lg" tone={100} />
             <div className="grid grid-cols-2 gap-4">
-              <div className="h-20 animate-pulse rounded-lg bg-surface-100" />
-              <div className="h-20 animate-pulse rounded-lg bg-surface-100" />
+              <SkeletonBar className="h-20 rounded-lg" tone={100} />
+              <SkeletonBar className="h-20 rounded-lg" tone={100} />
             </div>
           </div>
         </div>
@@ -37,15 +38,15 @@ export function ScorePracticeBoardSkeleton() {
           <div className="space-y-5">
             {["han", "fu", "score"].map((field) => (
               <div key={field} className="space-y-2">
-                <div className="h-4 w-16 animate-pulse rounded bg-surface-100" />
-                <div className="h-12 animate-pulse rounded-lg bg-surface-100" />
+                <SkeletonBar className="h-4 w-16 rounded" tone={100} />
+                <SkeletonBar className="h-12 rounded-lg" tone={100} />
               </div>
             ))}
             {/* 回答するボタン（実体は primary 色のため一段濃いトーンで表現） */}
-            <div className="h-12 w-full animate-pulse rounded-lg bg-surface-200" />
+            <SkeletonBar className="h-12 w-full rounded-lg" />
             {/* スキップ */}
             <div className="flex justify-center pt-1">
-              <div className="h-4 w-16 animate-pulse rounded bg-surface-100" />
+              <SkeletonBar className="h-4 w-16 rounded" tone={100} />
             </div>
           </div>
         </div>
@@ -54,15 +55,15 @@ export function ScorePracticeBoardSkeleton() {
         <div className="flex items-center justify-center gap-12">
           {["correct", "incorrect"].map((k) => (
             <div key={k} className="flex items-center gap-3">
-              <div className="h-8 w-8 animate-pulse rounded-full bg-surface-100" />
-              <div className="h-6 w-6 animate-pulse rounded bg-surface-100" />
+              <SkeletonBar className="h-8 w-8 rounded-full" tone={100} />
+              <SkeletonBar className="h-6 w-6 rounded" tone={100} />
             </div>
           ))}
         </div>
 
         {/* Quit button */}
         <div className="flex justify-center">
-          <div className="h-5 w-20 animate-pulse rounded bg-surface-100" />
+          <SkeletonBar className="h-5 w-20 rounded" tone={100} />
         </div>
       </div>
     </ContentContainer>

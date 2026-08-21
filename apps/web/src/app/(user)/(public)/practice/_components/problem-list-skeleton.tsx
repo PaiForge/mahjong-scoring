@@ -1,3 +1,4 @@
+import { SkeletonBar } from "@/app/_components/skeleton-bar";
 interface ProblemListSkeletonProps {
   /** 出題数。結果ページでは URL の `total`、遷移中は終了時の totalCount を渡す。 */
   readonly count: number;
@@ -31,12 +32,13 @@ export function ProblemListSkeleton({ count }: ProblemListSkeletonProps) {
       className="mt-8 w-full max-w-md space-y-2"
       data-testid="problem-list-skeleton"
     >
-      <div className="h-5 w-24 animate-pulse rounded bg-surface-200" />
+      <SkeletonBar className="h-5 w-24 rounded" />
       <div className="space-y-2">
         {Array.from({ length: count }, (_, index) => (
-          <div
+          <SkeletonBar
             key={index}
-            className="h-[50px] animate-pulse rounded-lg border border-surface-200 bg-surface-50"
+            className="h-[50px] rounded-lg border border-surface-200"
+            tone={50}
           />
         ))}
       </div>

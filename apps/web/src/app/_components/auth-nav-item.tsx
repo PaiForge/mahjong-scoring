@@ -7,6 +7,7 @@ import { useTranslations } from "next-intl";
 import { toast } from "react-hot-toast";
 import { UserIcon } from "./icons/user-icon";
 import { useAuth } from "@/app/_contexts/auth-context";
+import { SkeletonBar } from "@/app/_components/skeleton-bar";
 
 /**
  * ヘッダー右側のアカウント表示。
@@ -43,9 +44,7 @@ export function AuthNavItem() {
   }, []);
 
   if (isLoading) {
-    return (
-      <div className="h-8 w-8 rounded-full bg-surface-200 animate-pulse" />
-    );
+    return <SkeletonBar className="h-8 w-8 rounded-full" />;
   }
 
   if (!user) {

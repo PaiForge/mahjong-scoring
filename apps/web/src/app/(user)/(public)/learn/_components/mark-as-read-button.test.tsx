@@ -60,8 +60,7 @@ function getModalButton(
 ): HTMLButtonElement | undefined {
   const buttons = Array.from(container.querySelectorAll("button"));
   return buttons.find((b) => b.textContent?.includes(label)) as
-    | HTMLButtonElement
-    | undefined;
+    HTMLButtonElement | undefined;
 }
 
 // ---------------------------------------------------------------------------

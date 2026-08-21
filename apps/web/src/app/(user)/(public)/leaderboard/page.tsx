@@ -26,6 +26,7 @@ import { createMetadata } from "@/app/_lib/metadata";
 import { LeaderboardTopContent } from "./_components/leaderboard-top-content";
 import type { LeaderboardPeriod } from "./_lib/types";
 import { isValidPeriod } from "./_lib/validators";
+import { SkeletonBar } from "@/app/_components/skeleton-bar";
 
 export const dynamic = "force-dynamic";
 
@@ -70,9 +71,10 @@ export default async function LeaderboardIndexPage({
           <div className="space-y-6">
             <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
               {Array.from({ length: 5 }).map((_, i) => (
-                <div
+                <SkeletonBar
                   key={i}
-                  className="h-24 w-full animate-pulse rounded-lg bg-surface-100"
+                  className="h-24 w-full rounded-lg"
+                  tone={100}
                 />
               ))}
             </div>

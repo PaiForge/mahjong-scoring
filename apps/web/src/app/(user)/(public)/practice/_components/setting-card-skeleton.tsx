@@ -1,3 +1,5 @@
+import { SkeletonBar } from "@/app/_components/skeleton-bar";
+
 import {
   SETTING_CARD_BODY_CLASS,
   SETTING_CARD_FRAME_CLASS,
@@ -21,13 +23,13 @@ export function SettingCardSkeleton({ rows = 2 }: SettingCardSkeletonProps) {
   return (
     <div className={SETTING_CARD_FRAME_CLASS}>
       <div className={SETTING_CARD_HEADER_CLASS}>
-        <div className="mx-auto h-4 w-20 animate-pulse rounded bg-surface-200" />
+        <SkeletonBar className="mx-auto h-4 w-20 rounded" />
       </div>
       <div className={SETTING_CARD_BODY_CLASS}>
         {Array.from({ length: rows }, (_, i) => (
           <div key={i} className="flex items-center gap-3 px-2 py-1.5">
-            <div className="size-5 animate-pulse rounded bg-surface-100" />
-            <div className="h-4 w-16 animate-pulse rounded bg-surface-100" />
+            <SkeletonBar className="size-5 rounded" tone={100} />
+            <SkeletonBar className="h-4 w-16 rounded" tone={100} />
           </div>
         ))}
       </div>

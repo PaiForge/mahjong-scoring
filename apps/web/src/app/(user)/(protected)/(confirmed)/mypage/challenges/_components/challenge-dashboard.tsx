@@ -26,14 +26,13 @@ import {
 } from "./dashboard-skeleton";
 import { SessionHistoryTable } from "./session-history-table";
 import { StatsCard } from "./stats-card";
+import { SkeletonBar } from "@/app/_components/skeleton-bar";
 
 const ScoreChart = dynamic(
   () => import("./score-chart").then((mod) => mod.ScoreChart),
   {
     ssr: false,
-    loading: () => (
-      <div className="h-[250px] w-full rounded-lg bg-surface-200 animate-pulse" />
-    ),
+    loading: () => <SkeletonBar className="h-[250px] w-full rounded-lg" />,
   },
 );
 
