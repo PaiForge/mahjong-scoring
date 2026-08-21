@@ -864,6 +864,7 @@
       "nextChapterLabel": "次の章",
       "practiceLinksTitle": "この章に対応する練習",
       "practiceLinkCta": "練習を始める",
+      "practiceLinkChallengeCta": "{title}にチャレンジ",
       "updateFailedToast": "進捗の更新に失敗しました。再度お試しください。"
     },
     "exampleTable": {

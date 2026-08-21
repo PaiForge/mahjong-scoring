@@ -5,9 +5,17 @@ import { PracticeLinkList } from "./practice-link-card";
 // next-intl の t() は関数だが、`t.has(key)` のようなメソッドも持つ。
 // `practice-link-card` は `t.has()` で辞書キーの存在確認を行うため、
 // モックでも関数 + プロパティを再現する必要がある。
+// PrimaryLinkButton 配下の LinkPending がクライアント側の useTranslations を使う。
+vi.mock("next-intl", () => ({
+  useTranslations: () => (key: string) => key,
+}));
+
 vi.mock("next-intl/server", () => ({
   getTranslations: (_namespace?: string) => {
-    const t = (key: string) => key;
+    // 実際の t() は `{title}` 等のプレースホルダを values で埋めるため、
+    // モックでも値を連結して返し、値が渡っているかを検証できるようにする。
+    const t = (key: string, values?: Record<string, string>) =>
+      values ? `${key}(${Object.values(values).join(",")})` : key;
     // デフォルトでは全てのキーが存在する扱い（辞書整合性は別テストで担保）。
     t.has = (_key: string) => true;
     return Promise.resolve(t);
@@ -78,7 +86,8 @@ describe("PracticeLinkList: i18n key fallback", () => {
     vi.resetModules();
     vi.doMock("next-intl/server", () => ({
       getTranslations: (_namespace?: string) => {
-        const t = (key: string) => key;
+        const t = (key: string, values?: Record<string, string>) =>
+          values ? `${key}(${Object.values(values).join(",")})` : key;
         // 全てのキーが存在しない扱い（= 辞書抜けのシミュレーション）
         t.has = (_key: string) => false;
         return Promise.resolve(t);
