@@ -4,6 +4,7 @@ import {
   MentsuType,
   type Tehai14,
   type ScoreResult,
+  type Kazehai,
 } from "@pai-forge/riichi-mahjong";
 import { reconcileYakuhai, applyRiichiAndUraDora } from "./reconciler";
 
@@ -52,22 +53,60 @@ function standardRest(jantou: number): number[] {
   ];
 }
 
+/** ライブラリの役検出結果（{@link reconcileYakuhai} への入力） */
+interface DetectedYaku {
+  readonly yakuResult: readonly (readonly [string, number])[];
+  readonly yakuDetails: readonly {
+    readonly name: string;
+    readonly han: number;
+  }[];
+}
+
+/** ライブラリが役を1つも検出していない状態 */
+const NONE_DETECTED: DetectedYaku = { yakuResult: [], yakuDetails: [] };
+
+/** ライブラリが「役牌 白」を1翻だけ検出済みの状態 */
+const HAKU_DETECTED: DetectedYaku = {
+  yakuResult: [["Haku", 1]],
+  yakuDetails: [{ name: "役牌 白", han: 1 }],
+};
+
+/** ライブラリが「断么九」を1翻だけ検出済みの状態 */
+const TANYAO_DETECTED: DetectedYaku = {
+  yakuResult: [["Tanyao", 1]],
+  yakuDetails: [{ name: "断么九", han: 1 }],
+};
+
+/**
+ * 既定の場風・自風（東場・南家）で役牌の照合を行う
+ *
+ * どのテストもロン和了で、風を上書きするのは連風の検証だけ。定型の引数7つを
+ * ここにまとめ、各テストは手牌と検出済みの役に集中する。
+ *
+ * @param han - 照合前にライブラリが出した翻数
+ * @param kaze - 場風・自風の上書き（既定は東場・南家）
+ */
+function reconcile(
+  tehai: Tehai14,
+  detected: DetectedYaku,
+  han: number,
+  kaze: { readonly bakaze?: Kazehai; readonly jikaze?: Kazehai } = {},
+) {
+  return reconcileYakuhai(
+    tehai,
+    detected.yakuResult,
+    detected.yakuDetails,
+    makeScoreResult({ han }),
+    kaze.bakaze ?? HaiKind.Ton,
+    kaze.jikaze ?? HaiKind.Nan,
+    false,
+  );
+}
+
 describe("reconcileYakuhai", () => {
   it("役牌が既にライブラリで検出済みの場合、翻数を変更しない", () => {
     const tehai = makeTehaiWithKoutsu(HaiKind.Haku, standardRest(HaiKind.Ton));
-    const answer = makeScoreResult({ han: 1 });
-    const yakuResult: [string, number][] = [["Haku", 1]];
-    const yakuDetails = [{ name: "役牌 白", han: 1 }];
-
-    const result = reconcileYakuhai(
-      tehai,
-      yakuResult,
-      yakuDetails,
-      answer,
-      HaiKind.Ton,
-      HaiKind.Nan,
-      false,
-    );
+    const result = reconcile(tehai, HAKU_DETECTED, 1);
 
     expect(result.answer.han).toBe(1);
   });
@@ -75,19 +114,7 @@ describe("reconcileYakuhai", () => {
   it("場風牌が未検出の場合、1翻追加される", () => {
     // 場風: 東、自風: 南。手牌に東の刻子があるがライブラリ未検出
     const tehai = makeTehaiWithKoutsu(HaiKind.Ton, standardRest(HaiKind.Haku));
-    const answer = makeScoreResult({ han: 1 });
-    const yakuResult: [string, number][] = [["Haku", 1]];
-    const yakuDetails = [{ name: "役牌 白", han: 1 }];
-
-    const result = reconcileYakuhai(
-      tehai,
-      yakuResult,
-      yakuDetails,
-      answer,
-      HaiKind.Ton, // bakaze
-      HaiKind.Nan, // jikaze
-      false,
-    );
+    const result = reconcile(tehai, HAKU_DETECTED, 1);
 
     expect(result.answer.han).toBe(2);
     expect(result.additionalYakuDetails).toContainEqual({
@@ -98,19 +125,7 @@ describe("reconcileYakuhai", () => {
 
   it("自風牌が未検出の場合、1翻追加される", () => {
     const tehai = makeTehaiWithKoutsu(HaiKind.Nan, standardRest(HaiKind.Haku));
-    const answer = makeScoreResult({ han: 1 });
-    const yakuResult: [string, number][] = [["Haku", 1]];
-    const yakuDetails = [{ name: "役牌 白", han: 1 }];
-
-    const result = reconcileYakuhai(
-      tehai,
-      yakuResult,
-      yakuDetails,
-      answer,
-      HaiKind.Ton, // bakaze
-      HaiKind.Nan, // jikaze
-      false,
-    );
+    const result = reconcile(tehai, HAKU_DETECTED, 1);
 
     expect(result.answer.han).toBe(2);
     expect(result.additionalYakuDetails).toContainEqual({
@@ -121,19 +136,10 @@ describe("reconcileYakuhai", () => {
 
   it("連風牌（場風=自風）が未検出の場合、2翻追加される", () => {
     const tehai = makeTehaiWithKoutsu(HaiKind.Ton, standardRest(HaiKind.Haku));
-    const answer = makeScoreResult({ han: 1 });
-    const yakuResult: [string, number][] = [["Haku", 1]];
-    const yakuDetails = [{ name: "役牌 白", han: 1 }];
-
-    const result = reconcileYakuhai(
-      tehai,
-      yakuResult,
-      yakuDetails,
-      answer,
-      HaiKind.Ton, // bakaze
-      HaiKind.Ton, // jikaze（東家の東場 → 連風）
-      false,
-    );
+    const result = reconcile(tehai, HAKU_DETECTED, 1, {
+      bakaze: HaiKind.Ton,
+      jikaze: HaiKind.Ton,
+    });
 
     expect(result.answer.han).toBe(3);
     expect(result.additionalYakuDetails).toContainEqual({
@@ -144,19 +150,7 @@ describe("reconcileYakuhai", () => {
 
   it("三元牌（發）が未検出の場合、1翻追加される", () => {
     const tehai = makeTehaiWithKoutsu(HaiKind.Hatsu, standardRest(HaiKind.Ton));
-    const answer = makeScoreResult({ han: 0 });
-    const yakuResult: [string, number][] = [];
-    const yakuDetails: { name: string; han: number }[] = [];
-
-    const result = reconcileYakuhai(
-      tehai,
-      yakuResult,
-      yakuDetails,
-      answer,
-      HaiKind.Ton,
-      HaiKind.Nan,
-      false,
-    );
+    const result = reconcile(tehai, NONE_DETECTED, 0);
 
     expect(result.answer.han).toBe(1);
     expect(result.additionalYakuDetails).toContainEqual({
@@ -167,19 +161,7 @@ describe("reconcileYakuhai", () => {
 
   it("三元牌（中）が未検出の場合、1翻追加される", () => {
     const tehai = makeTehaiWithKoutsu(HaiKind.Chun, standardRest(HaiKind.Ton));
-    const answer = makeScoreResult({ han: 0 });
-    const yakuResult: [string, number][] = [];
-    const yakuDetails: { name: string; han: number }[] = [];
-
-    const result = reconcileYakuhai(
-      tehai,
-      yakuResult,
-      yakuDetails,
-      answer,
-      HaiKind.Ton,
-      HaiKind.Nan,
-      false,
-    );
+    const result = reconcile(tehai, NONE_DETECTED, 0);
 
     expect(result.answer.han).toBe(1);
     expect(result.additionalYakuDetails).toContainEqual({
@@ -210,19 +192,7 @@ describe("reconcileYakuhai", () => {
       exposed: [],
     } as unknown as Tehai14;
 
-    const answer = makeScoreResult({ han: 0 });
-    const yakuResult: [string, number][] = [];
-    const yakuDetails: { name: string; han: number }[] = [];
-
-    const result = reconcileYakuhai(
-      tehai,
-      yakuResult,
-      yakuDetails,
-      answer,
-      HaiKind.Ton,
-      HaiKind.Nan,
-      false,
-    );
+    const result = reconcile(tehai, NONE_DETECTED, 0);
 
     expect(result.answer.han).toBe(2);
     expect(result.additionalYakuDetails).toContainEqual({
@@ -247,19 +217,7 @@ describe("reconcileYakuhai", () => {
       ],
     } as unknown as Tehai14;
 
-    const answer = makeScoreResult({ han: 0 });
-    const yakuResult: [string, number][] = [];
-    const yakuDetails: { name: string; han: number }[] = [];
-
-    const result = reconcileYakuhai(
-      tehai,
-      yakuResult,
-      yakuDetails,
-      answer,
-      HaiKind.Ton,
-      HaiKind.Nan,
-      false,
-    );
+    const result = reconcile(tehai, NONE_DETECTED, 0);
 
     expect(result.answer.han).toBe(1);
     expect(result.additionalYakuDetails).toContainEqual({
@@ -289,19 +247,7 @@ describe("reconcileYakuhai", () => {
       exposed: [],
     } as unknown as Tehai14;
 
-    const answer = makeScoreResult({ han: 1 });
-    const yakuResult: [string, number][] = [["Tanyao", 1]];
-    const yakuDetails = [{ name: "断么九", han: 1 }];
-
-    const result = reconcileYakuhai(
-      tehai,
-      yakuResult,
-      yakuDetails,
-      answer,
-      HaiKind.Ton,
-      HaiKind.Nan,
-      false,
-    );
+    const result = reconcile(tehai, TANYAO_DETECTED, 1);
 
     expect(result.answer.han).toBe(1);
   });
