@@ -1,6 +1,7 @@
 import { resultStorageKeyFor } from "@/lib/db/practice-menu-types";
 
 import { createSessionStorageParser } from "../../_lib/create-session-storage-parser";
+import { hasFieldTypes } from "../../_lib/shape-guards";
 
 /** sessionStorage に保存する際のキー */
 export const RESULT_STORAGE_KEY = resultStorageKeyFor("han-count");
@@ -25,16 +26,11 @@ export interface HanCountQuestionResult {
 function isValidQuestionResult(
   value: unknown,
 ): value is HanCountQuestionResult {
-  if (typeof value !== "object" || value === undefined || value === null)
-    return false;
-  const correctHan = Reflect.get(value, "correctHan");
-  const userHan = Reflect.get(value, "userHan");
-  const isCorrect = Reflect.get(value, "isCorrect");
-  return (
-    typeof correctHan === "number" &&
-    typeof userHan === "number" &&
-    typeof isCorrect === "boolean"
-  );
+  return hasFieldTypes(value, {
+    correctHan: "number",
+    userHan: "number",
+    isCorrect: "boolean",
+  });
 }
 
 /**

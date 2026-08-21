@@ -1,6 +1,7 @@
 import type { ScoreTableAnswer } from "@mahjong-scoring/core";
 
 import { createSessionStorageParser } from "./create-session-storage-parser";
+import { hasFieldTypes, isRecord } from "./shape-guards";
 
 /**
  * 1問ごとの結果データ（点数系練習共通）
@@ -30,9 +31,8 @@ const VALID_ANSWER_TYPES = new Set(["ron", "oyaTsumo", "koTsumo"]);
  * 回答型判定
  */
 function hasValidAnswerType(value: unknown): boolean {
-  if (typeof value !== "object" || value === undefined || value === null)
-    return false;
-  const typeValue = Reflect.get(value, "type");
+  if (!isRecord(value)) return false;
+  const typeValue: unknown = Reflect.get(value, "type");
   return typeof typeValue === "string" && VALID_ANSWER_TYPES.has(typeValue);
 }
 
@@ -41,23 +41,22 @@ function hasValidAnswerType(value: unknown): boolean {
  * 問題結果バリデーション
  */
 function isValidQuestionResult(value: unknown): value is ScoreQuestionResult {
-  if (typeof value !== "object" || value === undefined || value === null)
+  if (
+    !hasFieldTypes(value, {
+      isOya: "boolean",
+      isTsumo: "boolean",
+      han: "number",
+      isCorrect: "boolean",
+    })
+  ) {
     return false;
-  const isOya = Reflect.get(value, "isOya");
-  const isTsumo = Reflect.get(value, "isTsumo");
-  const han = Reflect.get(value, "han");
-  const fu = Reflect.get(value, "fu");
-  const isCorrect = Reflect.get(value, "isCorrect");
-  const correctAnswer = Reflect.get(value, "correctAnswer");
-  const userAnswer = Reflect.get(value, "userAnswer");
+  }
+  // 符は満貫以上の問題で省略されるため、任意フィールドとして個別に見る
+  const fu: unknown = Reflect.get(value, "fu");
   return (
-    typeof isOya === "boolean" &&
-    typeof isTsumo === "boolean" &&
-    typeof han === "number" &&
     (fu === undefined || typeof fu === "number") &&
-    typeof isCorrect === "boolean" &&
-    hasValidAnswerType(correctAnswer) &&
-    hasValidAnswerType(userAnswer)
+    hasValidAnswerType(Reflect.get(value, "correctAnswer")) &&
+    hasValidAnswerType(Reflect.get(value, "userAnswer"))
   );
 }
 
