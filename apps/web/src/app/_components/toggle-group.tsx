@@ -16,15 +16,15 @@ export function ToggleGroup<T extends string>({
   onChange,
 }: ToggleGroupProps<T>) {
   return (
-    <div className="flex rounded-md border border-primary-200 bg-primary-50 p-0.5">
+    <div className="flex rounded-full border-3 border-ink bg-primary-50 p-0.5">
       {options.map((opt) => (
         <button
           key={opt.value}
           onClick={() => onChange(opt.value)}
-          className={`rounded-md px-2 py-1 text-xs font-medium transition-all ${
+          className={`rounded-full px-3 py-1 text-xs font-bold transition-colors ${
             selected === opt.value
-              ? "bg-primary-600 text-white"
-              : "text-surface-700 hover:bg-surface-100"
+              ? "bg-primary-700 text-white"
+              : "text-surface-700 hover:bg-primary-100"
           }`}
         >
           {opt.label}

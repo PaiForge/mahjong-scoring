@@ -69,7 +69,7 @@ export function ModalShell({
       aria-label={label}
     >
       <div
-        className="mx-4 w-full max-w-md space-y-6 rounded-xl bg-white p-6 shadow-xl"
+        className="mx-4 w-full max-w-md space-y-6 rounded-2xl border-4 border-ink bg-white p-6 shadow-lg"
         onClick={(e) => e.stopPropagation()}
       >
         {children}

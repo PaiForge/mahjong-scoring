@@ -52,8 +52,9 @@ export function MarkdownRenderer({
   content,
   skipFirstH1 = false,
 }: MarkdownRendererProps) {
+  // 本文既定の font-weight 700 は長文だと読みづらいため、ここだけ通常の太さへ戻す。
   return (
-    <div className="text-surface-700 leading-relaxed break-words">
+    <div className="font-normal text-surface-700 leading-relaxed break-words">
       <Markdown
         remarkPlugins={
           skipFirstH1 ? [remarkGfm, remarkDropFirstH1] : [remarkGfm]
@@ -107,7 +108,7 @@ export function MarkdownRenderer({
           ),
           em: ({ children }) => <em className="italic">{children}</em>,
           blockquote: ({ children }) => (
-            <blockquote className="my-4 border-l-4 border-surface-300 pl-4 text-surface-600 italic">
+            <blockquote className="my-4 border-l-4 border-ink pl-4 text-surface-600 italic">
               {children}
             </blockquote>
           ),
@@ -145,12 +146,12 @@ export function MarkdownRenderer({
             </div>
           ),
           th: ({ children }) => (
-            <th className="border border-surface-200 bg-surface-50 px-3 py-2 text-left font-semibold text-surface-900">
+            <th className="border-2 border-ink bg-primary-50 px-3 py-2 text-left font-bold text-surface-900">
               {children}
             </th>
           ),
           td: ({ children }) => (
-            <td className="border border-surface-200 px-3 py-2">{children}</td>
+            <td className="border-2 border-ink px-3 py-2">{children}</td>
           ),
         }}
       >

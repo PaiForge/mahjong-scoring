@@ -44,7 +44,7 @@ export function AuthNavItem() {
   }, []);
 
   if (isLoading) {
-    return <SkeletonBar className="h-8 w-8 rounded-full" />;
+    return <SkeletonBar className="h-8 w-8 rounded-full border-3 border-ink" />;
   }
 
   if (!user) {
@@ -52,13 +52,13 @@ export function AuthNavItem() {
       <div className="flex items-center gap-3 text-sm">
         <Link
           href="/sign-up"
-          className="font-medium text-muted-foreground transition-colors hover:text-foreground"
+          className="press-sm rounded-full border-3 border-ink bg-card px-3 py-1 font-bold text-foreground shadow-xs hover:bg-primary-50"
         >
           {t("signUp")}
         </Link>
         <Link
           href="/sign-in"
-          className="font-medium text-link-primary transition-colors hover:opacity-80"
+          className="press-sm rounded-full border-3 border-ink bg-primary-500 px-3 py-1 font-bold text-white shadow-xs hover:bg-primary-600"
         >
           {t("login")}
         </Link>
@@ -76,7 +76,7 @@ export function AuthNavItem() {
         aria-expanded={isOpen}
         onClick={() => setIsOpen((prev) => !prev)}
       >
-        <span className="flex h-8 w-8 items-center justify-center rounded-full bg-muted text-muted-foreground">
+        <span className="flex h-8 w-8 items-center justify-center rounded-full border-3 border-ink bg-primary-50 text-foreground">
           <UserIcon className="size-5" />
         </span>
       </button>
@@ -84,13 +84,13 @@ export function AuthNavItem() {
       {isOpen && (
         <div
           role="menu"
-          className="absolute right-0 top-full z-50 mt-2 w-48 overflow-hidden rounded-lg border border-border bg-card"
+          className="absolute right-0 top-full z-50 mt-2 w-48 overflow-hidden rounded-xl border-3 border-ink bg-card shadow-sm"
         >
           <Link
             href="/mypage"
             role="menuitem"
             onClick={() => setIsOpen(false)}
-            className="block px-4 py-3 text-sm text-foreground transition-colors hover:bg-accent"
+            className="block border-b-2 border-dashed border-border/40 px-4 py-3 text-sm font-bold text-foreground transition-colors hover:bg-primary-50"
           >
             {t("mypage")}
           </Link>
@@ -98,7 +98,7 @@ export function AuthNavItem() {
             href="/preferences"
             role="menuitem"
             onClick={() => setIsOpen(false)}
-            className="block px-4 py-3 text-sm text-foreground transition-colors hover:bg-accent"
+            className="block border-b-2 border-dashed border-border/40 px-4 py-3 text-sm font-bold text-foreground transition-colors hover:bg-primary-50"
           >
             {t("settings")}
           </Link>
@@ -106,7 +106,7 @@ export function AuthNavItem() {
             type="button"
             role="menuitem"
             onClick={handleSignOut}
-            className="block w-full px-4 py-3 text-left text-sm text-foreground transition-colors hover:bg-accent"
+            className="block w-full px-4 py-3 text-left text-sm font-bold text-foreground transition-colors hover:bg-primary-50"
           >
             {t("signOut")}
           </button>

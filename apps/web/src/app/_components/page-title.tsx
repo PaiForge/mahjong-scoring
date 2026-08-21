@@ -17,7 +17,7 @@ export function PageTitle({
   const heading = (
     <h1
       aria-live="polite"
-      className={`text-lg md:text-xl font-light text-foreground text-center ${className}`}
+      className={`text-xl md:text-2xl font-bold text-foreground text-center ${className}`}
     >
       {children}
     </h1>

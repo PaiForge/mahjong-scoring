@@ -35,24 +35,24 @@ export async function PaginationNav({
         {currentPage > 1 ? (
           <Link
             href={buildHref(currentPage - 1)}
-            className="px-4 py-2 text-sm rounded border border-surface-300 hover:bg-surface-100 transition-colors"
+            className="press-sm rounded-lg border-3 border-ink bg-card px-4 py-2 text-sm shadow-sm hover:bg-primary-50"
           >
             {t("previous")}
           </Link>
         ) : (
-          <span className="px-4 py-2 text-sm rounded border border-surface-300 opacity-50 cursor-not-allowed">
+          <span className="cursor-not-allowed rounded-lg border-3 border-ink px-4 py-2 text-sm opacity-40">
             {t("previous")}
           </span>
         )}
         {currentPage < totalPages ? (
           <Link
             href={buildHref(currentPage + 1)}
-            className="px-4 py-2 text-sm rounded border border-surface-300 hover:bg-surface-100 transition-colors"
+            className="press-sm rounded-lg border-3 border-ink bg-card px-4 py-2 text-sm shadow-sm hover:bg-primary-50"
           >
             {t("next")}
           </Link>
         ) : (
-          <span className="px-4 py-2 text-sm rounded border border-surface-300 opacity-50 cursor-not-allowed">
+          <span className="cursor-not-allowed rounded-lg border-3 border-ink px-4 py-2 text-sm opacity-40">
             {t("next")}
           </span>
         )}

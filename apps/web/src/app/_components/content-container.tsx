@@ -29,8 +29,8 @@ interface ContentContainerProps {
  * ページコンテンツの白カードラッパー（blindfold-chess の PagePanel / PageLayout 準拠）。
  *
  * 横幅は (user) レイアウトの `max-w-4xl` ラッパーが与えるため、ここでは持たない。
- * `-mx-4 sm:mx-0` でモバイル時は左右いっぱいに（フルブリード）、
- * sm 以上では角丸＋ボーダーのカードになる。
+ * `-mx-4 sm:mx-0` でモバイル時は左右いっぱいに（フルブリード。上下だけ太枠を残す）、
+ * sm 以上では大きな角丸＋四辺の太枠＋オフセット影のカードになる。
  *
  * レイアウトの main 背景は bg-secondary（slate-50 / #f8fafc）で、この白カードがその上に薄く浮く（blindfold-chess 準拠）。
  *
@@ -62,7 +62,7 @@ export function ContentContainer({
   // 周辺だけになる（sm 以上は flex-none に戻し、角丸カードがグレー背景から浮く従来表示）。
   const card = (
     <div
-      className={`bg-card -mx-4 sm:mx-0 rounded-none sm:rounded-lg border-0 sm:border sm:border-border p-4 sm:p-6 md:p-8${fillViewport ? " min-h-screen" : " flex-1 sm:flex-none"} ${className}`}
+      className={`bg-card -mx-4 sm:mx-0 rounded-none sm:rounded-2xl border-y-4 border-ink sm:border-4 sm:shadow-lg p-4 sm:p-6 md:p-8${fillViewport ? " min-h-screen" : " flex-1 sm:flex-none"} ${className}`}
     >
       {body}
       {breadcrumb && breadcrumb.length > 0 && (

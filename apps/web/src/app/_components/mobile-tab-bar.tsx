@@ -34,7 +34,7 @@ export function MobileTabBar() {
 
   return (
     <nav
-      className={`md:hidden fixed bottom-0 left-0 right-0 z-40 border-t border-border bg-card pb-[env(safe-area-inset-bottom)] transition-transform duration-300 ${
+      className={`md:hidden fixed bottom-0 left-0 right-0 z-40 border-t-4 border-ink bg-card pb-[env(safe-area-inset-bottom)] transition-transform duration-300 ${
         isVisible ? "translate-y-0" : "translate-y-full"
       }`}
     >

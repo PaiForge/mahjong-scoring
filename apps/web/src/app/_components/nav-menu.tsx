@@ -36,7 +36,7 @@ export function NavMenu() {
       <button
         type="button"
         onClick={() => setIsOpen((prev) => !prev)}
-        className="p-2 rounded-md text-muted-foreground hover:bg-accent"
+        className="press-sm rounded-lg border-3 border-ink bg-card p-1.5 text-foreground shadow-sm"
         aria-label={t("menu")}
         aria-expanded={isOpen}
       >
@@ -75,18 +75,18 @@ export function NavMenu() {
             )}
 
             <div
-              className={`fixed inset-y-0 left-0 z-50 w-64 transform bg-card transition-transform duration-300 ease-in-out ${
+              className={`fixed inset-y-0 left-0 z-50 w-64 transform border-r-4 border-ink bg-card transition-transform duration-300 ease-in-out ${
                 isOpen ? "translate-x-0" : "-translate-x-full"
               }`}
             >
-              <div className="flex h-14 items-center justify-between border-b border-border px-4">
-                <span className="text-lg font-semibold text-foreground">
+              <div className="flex h-14 items-center justify-between border-b-4 border-ink px-4">
+                <span className="text-lg font-bold text-foreground">
                   {t("menu")}
                 </span>
                 <button
                   type="button"
                   onClick={() => setIsOpen(false)}
-                  className="p-2 rounded-md text-muted-foreground hover:bg-accent"
+                  className="press-sm rounded-lg border-3 border-ink bg-card p-1.5 text-foreground shadow-sm"
                   aria-label={t("close")}
                 >
                   <svg
@@ -113,10 +113,10 @@ export function NavMenu() {
                       key={item.href}
                       href={item.href}
                       onClick={() => setIsOpen(false)}
-                      className={`flex items-center gap-3 rounded-md px-4 py-3 transition-colors ${
+                      className={`flex items-center gap-3 rounded-full border-3 border-ink px-4 py-2.5 font-bold transition-colors ${
                         isActive
-                          ? "bg-accent text-foreground"
-                          : "text-muted-foreground hover:bg-accent hover:text-foreground"
+                          ? "bg-primary-700 text-white shadow-xs"
+                          : "bg-card text-foreground shadow-xs hover:bg-primary-50"
                       }`}
                     >
                       {item.icon}
