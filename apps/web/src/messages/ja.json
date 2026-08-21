@@ -865,6 +865,11 @@
       "practiceLinksTitle": "この章に対応する練習",
       "practiceLinkCta": "練習を始める",
       "updateFailedToast": "進捗の更新に失敗しました。再度お試しください。"
+    },
+    "exampleTable": {
+      "colTiles": "牌",
+      "colKind": "種類",
+      "colFu": "符"
     }
   },
   "footer": {
