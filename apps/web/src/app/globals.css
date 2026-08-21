@@ -50,17 +50,122 @@
   --color-muted-foreground: #64748b;
   --color-accent: #f1f5f9;
   --color-accent-foreground: #0f172a;
-  --color-border: #e2e8f0;
+  /* 枠線は輪郭として濃く出す（ぼかし影を廃した分、形は線で示す）。 */
+  --color-border: #034621;
   --color-input: #ffffff;
   --color-ring: #00904a;
   --color-destructive: #dc524a;
   --color-destructive-foreground: #ffffff;
   --color-link-primary: #007a3d;
+
+  /*
+   * 骨格トークン。
+   *
+   * 枠線と影を「ぼかしのない濃色オフセット」で統一し、角丸を大きく取る
+   * ポップな骨格に寄せる。配色は従来のまま変えず、質感だけを差し替える。
+   * 影の色はブランドの深緑（primary-900）を ink として流用し、
+   * グレーの落ち影ではなく輪郭の延長として扱う。
+   */
+  --color-ink: #034621;
+
+  /* Tailwind 既定のぼかし影を、そのままオフセット影へ置き換える。
+     shadow-sm / shadow-md ... のサイズ差は「影の深さ」ではなく「ズレ幅」になる。 */
+  --shadow-2xs: 1px 1px 0 var(--color-ink);
+  --shadow-xs: 2px 2px 0 var(--color-ink);
+  --shadow-sm: 3px 3px 0 var(--color-ink);
+  --shadow-md: 4px 4px 0 var(--color-ink);
+  --shadow-lg: 6px 6px 0 var(--color-ink);
+  --shadow-xl: 8px 8px 0 var(--color-ink);
+  --shadow-2xl: 10px 10px 0 var(--color-ink);
+
+  /* 角丸を一段ずつ大きく取り直す。既存の rounded-lg / rounded-xl の
+     指定をそのまま活かしたまま、全体の丸みだけが増す。 */
+  --radius-sm: 8px;
+  --radius-md: 10px;
+  --radius-lg: 14px;
+  --radius-xl: 18px;
+  --radius-2xl: 22px;
+  --radius-3xl: 28px;
+
+  /* 丸ゴシック優先のスタック。太めに組んでも字面が硬くならない。 */
+  --font-sans:
+    "Hiragino Maru Gothic ProN", "Yu Gothic", "Meiryo", "Rounded Mplus 1c",
+    system-ui, -apple-system, sans-serif;
 }
 
 body {
-  font-family: system-ui, -apple-system, sans-serif;
+  font-family: var(--font-sans);
+  /* 骨格スタイルの要。既定を太字に置き、細くしたい箇所だけを個別に戻す。 */
+  font-weight: 700;
   color: var(--color-surface-900);
+  /* ごく薄い斜めストライプの下地。白いカードが紙の上に置かれて見える。 */
+  background-color: var(--color-secondary);
+  background-image: repeating-linear-gradient(
+    45deg,
+    rgba(3, 70, 33, 0.025) 0 14px,
+    transparent 14px 28px
+  );
+}
+
+/*
+ * 押し込み演出。ハードシャドウのぶんだけ要素を沈ませ、影を同量縮める。
+ * ボタン・カードなど「影が付いていて押せるもの」に付与する。
+ * サフィックスは組み合わせる shadow-* に合わせる（press-md なら shadow-md）。
+ */
+@utility press-sm {
+  transition:
+    transform 0.1s ease,
+    box-shadow 0.1s ease;
+
+  &:hover:not(:disabled) {
+    transform: translate(2px, 2px);
+    box-shadow: 1px 1px 0 var(--color-ink);
+  }
+
+  &:active:not(:disabled) {
+    transform: translate(3px, 3px);
+    box-shadow: 0 0 0 var(--color-ink);
+  }
+}
+
+@utility press-md {
+  transition:
+    transform 0.1s ease,
+    box-shadow 0.1s ease;
+
+  &:hover:not(:disabled) {
+    transform: translate(2px, 2px);
+    box-shadow: 2px 2px 0 var(--color-ink);
+  }
+
+  &:active:not(:disabled) {
+    transform: translate(4px, 4px);
+    box-shadow: 0 0 0 var(--color-ink);
+  }
+}
+
+@utility press-lg {
+  transition:
+    transform 0.1s ease,
+    box-shadow 0.1s ease;
+
+  &:hover:not(:disabled) {
+    transform: translate(3px, 3px);
+    box-shadow: 3px 3px 0 var(--color-ink);
+  }
+
+  &:active:not(:disabled) {
+    transform: translate(6px, 6px);
+    box-shadow: 0 0 0 var(--color-ink);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .press-sm,
+  .press-md,
+  .press-lg {
+    transition: none;
+  }
 }
 
 /*
