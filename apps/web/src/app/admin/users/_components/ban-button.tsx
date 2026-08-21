@@ -3,7 +3,7 @@
 import { useActionState, useState } from "react";
 import { useTranslations } from "next-intl";
 
-import { ModalShell } from "@/app/_components/modal-shell";
+import { AdminModalShell } from "@/app/admin/_components/admin-modal-shell";
 
 import { banUser } from "../_actions/ban-user";
 
@@ -52,7 +52,11 @@ export function BanButton({ targetUserId }: BanButtonProps) {
         BAN
       </button>
 
-      <ModalShell isOpen={isOpen} onClose={close} label={t("banUser.title")}>
+      <AdminModalShell
+        isOpen={isOpen}
+        onClose={close}
+        label={t("banUser.title")}
+      >
         <h3 className="text-lg font-semibold">{t("banUser.title")}</h3>
 
         <form action={formAction}>
@@ -93,7 +97,7 @@ export function BanButton({ targetUserId }: BanButtonProps) {
             </button>
           </div>
         </form>
-      </ModalShell>
+      </AdminModalShell>
     </>
   );
 }
