@@ -61,7 +61,7 @@ export function ProblemListAccordion<T>({
           return (
             <div
               key={index}
-              className="overflow-hidden rounded-lg border border-surface-200"
+              className="overflow-hidden rounded-lg border-3 border-ink"
             >
               <button
                 type="button"

@@ -51,7 +51,7 @@ export function PracticeStartCta({
         {disabled ? (
           <span
             aria-disabled="true"
-            className="block w-full cursor-not-allowed rounded-lg bg-surface-200 px-6 py-3 text-center text-sm font-bold text-surface-400"
+            className="block w-full cursor-not-allowed rounded-lg border-3 border-ink bg-surface-200 px-6 py-3 text-center text-sm font-bold text-surface-400 opacity-50"
           >
             {labels.challenge}
           </span>
@@ -64,16 +64,16 @@ export function PracticeStartCta({
       </div>
 
       <div className="flex w-full items-center gap-3 text-xs text-surface-400">
-        <span className="h-px flex-1 bg-surface-200" />
-        <span>{labels.orDivider}</span>
-        <span className="h-px flex-1 bg-surface-200" />
+        <span className="h-0.5 flex-1 border-t-2 border-dashed border-border/40" />
+        <span className="font-bold">{labels.orDivider}</span>
+        <span className="h-0.5 flex-1 border-t-2 border-dashed border-border/40" />
       </div>
 
       <div className="flex w-full flex-col items-center gap-1.5">
         {disabled ? (
           <span
             aria-disabled="true"
-            className="inline-flex w-full cursor-not-allowed items-center justify-center gap-2 rounded-lg border border-surface-200 py-3 text-sm font-semibold text-surface-400"
+            className="inline-flex w-full cursor-not-allowed items-center justify-center gap-2 rounded-lg border-3 border-ink py-3 text-sm font-bold text-surface-400 opacity-50"
           >
             <InfinityIcon className="size-4" />
             {labels.training}
@@ -81,7 +81,7 @@ export function PracticeStartCta({
         ) : (
           <Link
             href={trainingHref}
-            className="inline-flex w-full items-center justify-center gap-2 rounded-lg border border-primary-500 py-3 text-sm font-semibold text-primary-600 transition-colors hover:bg-primary-50"
+            className="press-sm inline-flex w-full items-center justify-center gap-2 rounded-lg border-3 border-ink bg-card py-3 text-sm font-bold text-primary-700 shadow-sm hover:bg-primary-50"
           >
             <InfinityIcon className="size-4" />
             {labels.training}

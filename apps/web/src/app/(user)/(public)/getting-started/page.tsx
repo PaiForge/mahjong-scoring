@@ -66,7 +66,7 @@ export default async function GettingStartedPage() {
         />
       </div>
 
-      <section className="space-y-4 rounded-lg border border-surface-200 bg-surface-50 px-6 py-8 text-center">
+      <section className="space-y-4 rounded-lg border-3 border-ink bg-surface-50 px-6 py-8 text-center">
         <h2 className="text-lg font-semibold text-surface-900">
           {t("signUp.title")}
         </h2>

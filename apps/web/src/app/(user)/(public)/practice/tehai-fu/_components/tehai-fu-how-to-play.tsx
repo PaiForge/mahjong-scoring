@@ -72,7 +72,7 @@ export function TehaiFuHowToPlay() {
         {DEMO_ITEMS.map((item, i) => (
           <div
             key={i}
-            className="flex items-center gap-2 rounded-xl border border-primary-500 bg-primary-50 p-3"
+            className="flex items-center gap-2 rounded-xl border-3 border-ink bg-primary-50 p-3"
           >
             <div className="flex gap-0.5">
               {item.tiles.map((tile, j) => (

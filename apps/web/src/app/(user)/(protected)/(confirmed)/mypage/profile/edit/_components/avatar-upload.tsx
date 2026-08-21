@@ -80,7 +80,7 @@ export function AvatarUpload({
         type="button"
         onClick={() => fileInputRef.current?.click()}
         disabled={isUploading}
-        className="relative h-24 w-24 overflow-hidden rounded-full border border-surface-200 bg-surface-100 transition-opacity hover:opacity-90 disabled:cursor-not-allowed"
+        className="relative h-24 w-24 overflow-hidden rounded-full border-3 border-ink bg-surface-100 transition-opacity hover:opacity-90 disabled:cursor-not-allowed"
         aria-label={t("avatarChange")}
       >
         {avatarUrl ? (

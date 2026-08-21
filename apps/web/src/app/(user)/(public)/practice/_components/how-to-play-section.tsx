@@ -26,7 +26,7 @@ export function HowToPlaySection({
     <div className="space-y-4">
       <SectionTitle>{title}</SectionTitle>
       <p className="text-sm text-surface-600">{lead}</p>
-      <div className="rounded-xl border border-surface-200 bg-surface-50 p-6">
+      <div className="rounded-xl border-3 border-ink bg-surface-50 p-6">
         {children}
       </div>
     </div>

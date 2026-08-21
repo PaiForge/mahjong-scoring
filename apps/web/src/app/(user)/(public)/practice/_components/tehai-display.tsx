@@ -51,7 +51,7 @@ export const TehaiDisplay = memo(function TehaiDisplayComponent({
   );
 
   return (
-    <div className="mt-4 rounded-xl border border-surface-200 bg-white p-2">
+    <div className="mt-4 rounded-xl border-3 border-ink bg-white p-2">
       <TehaiHand tehai={tehai} onScaleChange={handleScaleChange} />
       <div className="mt-3 flex flex-wrap justify-center gap-4 text-xs">
         <div className="text-center">

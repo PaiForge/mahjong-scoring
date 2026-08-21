@@ -49,7 +49,7 @@ const DATE_PERIODS: readonly DatePeriod[] = [
 ];
 
 const selectClassName =
-  "px-3 py-2 rounded-lg border border-surface-200 bg-surface-50 text-surface-900 text-sm focus:outline-none focus:ring-2 focus:ring-primary-400";
+  "px-3 py-2 rounded-lg border-3 border-ink bg-surface-50 text-surface-900 text-sm focus:outline-none focus:ring-2 focus:ring-primary-400";
 
 interface ChallengeDashboardProps {
   /** サーバーサイドでプリフェッチした利用可能メニュー種別 */

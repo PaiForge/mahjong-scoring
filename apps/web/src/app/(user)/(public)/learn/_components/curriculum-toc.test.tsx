@@ -126,7 +126,7 @@ describe("CurriculumToc", () => {
     // is centered on the dashed guide line's x=8px.
     expect(nextLine?.style.left).toBe("7px");
     expect(nextLine?.className).toContain("absolute");
-    expect(nextLine?.className).toContain("bg-amber-400");
+    expect(nextLine?.className).toContain("bg-amber-500");
 
     // Non-next rows do not render the amber guide line.
     const otherRow = container.querySelector(
@@ -263,7 +263,7 @@ describe("CurriculumToc", () => {
     expect(nextRow).not.toBeNull();
 
     const link = nextRow?.querySelector("a");
-    const badge = nextRow?.querySelector(".bg-amber-100");
+    const badge = nextRow?.querySelector(".bg-amber-200");
     expect(link).not.toBeNull();
     expect(badge).not.toBeNull();
     // Badge must be a sibling of the link (inline with the title), not in a

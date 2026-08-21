@@ -56,13 +56,13 @@ export function StatsCard({
   };
 
   return (
-    <div className="bg-surface-50 border border-surface-200 rounded-lg p-4 min-w-0">
+    <div className="bg-surface-50 border-3 border-ink rounded-lg p-4 min-w-0">
       <p className="text-xs text-surface-500 mb-1">
         {label}
         {tooltip && (
           <span className="relative inline-block ml-1 group">
             <span
-              className="inline-flex items-center justify-center w-4 h-4 rounded-full border border-surface-400 text-surface-500 cursor-help text-[10px] leading-none"
+              className="inline-flex items-center justify-center w-4 h-4 rounded-full border-2 border-ink text-surface-500 cursor-help text-[10px] leading-none"
               aria-label={tooltip}
             >
               i

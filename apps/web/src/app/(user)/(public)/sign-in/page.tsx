@@ -60,9 +60,9 @@ export default async function SignInPage({
         <GoogleOAuthButton redirectTo={sanitizedRedirect} />
 
         <div className="flex items-center gap-4 max-w-sm mx-auto">
-          <div className="flex-1 border-t border-surface-200" />
+          <div className="flex-1 border-t-2 border-dashed border-border/40" />
           <span className="text-sm text-surface-500">{t("or")}</span>
-          <div className="flex-1 border-t border-surface-200" />
+          <div className="flex-1 border-t-2 border-dashed border-border/40" />
         </div>
 
         <EmailPasswordForm redirectTo={sanitizedRedirect} />

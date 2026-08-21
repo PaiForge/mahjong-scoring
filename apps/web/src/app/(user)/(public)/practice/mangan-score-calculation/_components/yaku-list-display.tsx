@@ -17,7 +17,7 @@ export function YakuListDisplay({ yakuDetails }: YakuListDisplayProps) {
   const totalHan = yakuDetails.reduce((sum, yaku) => sum + yaku.han, 0);
 
   return (
-    <div className="space-y-2 rounded-lg bg-amber-50 border border-amber-200 p-3">
+    <div className="space-y-2 rounded-lg bg-amber-50 border-3 border-amber-500 p-3">
       <div className="text-xs font-bold text-amber-800">
         {t("yakuListTitle")}
       </div>

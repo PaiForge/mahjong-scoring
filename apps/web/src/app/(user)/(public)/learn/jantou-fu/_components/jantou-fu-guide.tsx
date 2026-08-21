@@ -92,7 +92,7 @@ export async function JantouFuGuide() {
       </section>
 
       {/* Column: renfonpai */}
-      <aside className="rounded-xl border border-amber-200 bg-amber-50/60 p-5">
+      <aside className="rounded-xl border-3 border-amber-500 bg-amber-50/60 p-5">
         <div className="mb-2 inline-flex items-center rounded-full bg-amber-200/70 px-2.5 py-0.5 text-xs font-semibold tracking-wide text-amber-800">
           {t("columnLabel")}
         </div>

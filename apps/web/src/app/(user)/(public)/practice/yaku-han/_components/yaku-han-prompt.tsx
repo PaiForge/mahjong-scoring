@@ -26,7 +26,7 @@ export function YakuHanPrompt({
   const t = useTranslations("yakuHanChallenge");
 
   return (
-    <div className="flex flex-col items-center gap-3 rounded-xl border border-surface-200 bg-white py-8">
+    <div className="flex flex-col items-center gap-3 rounded-xl border-3 border-ink bg-white py-8">
       {canNaki && (
         <span
           className={`rounded-full px-3 py-1 text-xs font-semibold ${

@@ -60,7 +60,7 @@ export function LeaderboardPagination({
       <div className="flex items-center gap-1">
         {currentPage <= 1 ? (
           <span
-            className="px-3 py-2 text-sm rounded border border-surface-200 opacity-50 cursor-not-allowed"
+            className="cursor-not-allowed rounded-lg border-3 border-ink px-3 py-2 text-sm opacity-40"
             aria-label={t("pagination.previous")}
           >
             {t("pagination.previous")}
@@ -68,7 +68,7 @@ export function LeaderboardPagination({
         ) : (
           <Link
             href={buildPageHref(pathname, currentPage - 1)}
-            className="px-3 py-2 text-sm rounded border border-surface-200 hover:bg-surface-50 transition-colors"
+            className="press-sm rounded-lg border-3 border-ink bg-card px-3 py-2 text-sm shadow-sm hover:bg-primary-50"
             aria-label={t("pagination.previous")}
           >
             {t("pagination.previous")}
@@ -101,7 +101,7 @@ export function LeaderboardPagination({
 
         {currentPage >= totalPages ? (
           <span
-            className="px-3 py-2 text-sm rounded border border-surface-200 opacity-50 cursor-not-allowed"
+            className="cursor-not-allowed rounded-lg border-3 border-ink px-3 py-2 text-sm opacity-40"
             aria-label={t("pagination.next")}
           >
             {t("pagination.next")}
@@ -109,7 +109,7 @@ export function LeaderboardPagination({
         ) : (
           <Link
             href={buildPageHref(pathname, currentPage + 1)}
-            className="px-3 py-2 text-sm rounded border border-surface-200 hover:bg-surface-50 transition-colors"
+            className="press-sm rounded-lg border-3 border-ink bg-card px-3 py-2 text-sm shadow-sm hover:bg-primary-50"
             aria-label={t("pagination.next")}
           >
             {t("pagination.next")}

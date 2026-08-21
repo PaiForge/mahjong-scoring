@@ -124,12 +124,12 @@ function ScorePracticeBoardInner() {
           レスポンシブ値に揃え、最終要素である「終了する」の上下余白を均等にする。 */}
       <div className="space-y-4 sm:space-y-6 md:space-y-8">
         {/* Question */}
-        <div className="rounded-xl border border-surface-200 bg-white p-2 sm:p-6">
+        <div className="rounded-xl border-3 border-ink bg-white p-2 sm:p-6">
           <QuestionDisplay question={currentQuestion} />
         </div>
 
         {/* Answer area */}
-        <div className="rounded-xl border border-surface-200 bg-white p-4 sm:p-6">
+        <div className="rounded-xl border-3 border-ink bg-white p-4 sm:p-6">
           {isAnswered && userAnswer && judgementResult ? (
             <ResultDisplay
               question={currentQuestion}

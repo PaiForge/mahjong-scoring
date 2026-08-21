@@ -49,16 +49,16 @@ export function AuthNavItem() {
 
   if (!user) {
     return (
-      <div className="flex items-center gap-3 text-sm">
+      <div className="flex items-center gap-2 text-xs sm:gap-3 sm:text-sm">
         <Link
           href="/sign-up"
-          className="press-sm rounded-full border-3 border-ink bg-card px-3 py-1 font-bold text-foreground shadow-xs hover:bg-primary-50"
+          className="press-sm rounded-full border-3 border-ink bg-card px-2.5 py-1 font-bold whitespace-nowrap text-foreground shadow-xs hover:bg-primary-50 sm:px-3"
         >
           {t("signUp")}
         </Link>
         <Link
           href="/sign-in"
-          className="press-sm rounded-full border-3 border-ink bg-primary-500 px-3 py-1 font-bold text-white shadow-xs hover:bg-primary-600"
+          className="press-sm rounded-full border-3 border-ink bg-primary-500 px-2.5 py-1 font-bold whitespace-nowrap text-white shadow-xs hover:bg-primary-600 sm:px-3"
         >
           {t("login")}
         </Link>

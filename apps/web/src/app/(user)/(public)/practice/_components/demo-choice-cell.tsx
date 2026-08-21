@@ -9,8 +9,8 @@ import { CheckIcon } from "@/app/_components/icons/check-icon";
  * 文字色は中身（牌かテキストか）によって変わるため呼び出し側の className に委ねる。
  */
 const STATE_CLASS = {
-  correct: "border-primary-500 bg-primary-50",
-  incorrect: "border-surface-200 bg-white opacity-60",
+  correct: "border-primary-600 bg-primary-100",
+  incorrect: "border-ink bg-white opacity-60",
 } as const;
 
 interface DemoChoiceCellProps {
@@ -40,10 +40,10 @@ export function DemoChoiceCell({
 
   return (
     <div
-      className={`relative flex items-center justify-center rounded-xl border p-4 ${state} ${className}`}
+      className={`relative flex items-center justify-center rounded-xl border-3 p-4 ${state} ${className}`}
     >
       {isCorrect && showCheck && (
-        <span className="absolute right-2 top-2 flex size-5 items-center justify-center rounded-full bg-primary-500">
+        <span className="absolute right-2 top-2 flex size-5 items-center justify-center rounded-full border-2 border-ink bg-primary-500">
           <CheckIcon className="size-3 text-white" />
         </span>
       )}

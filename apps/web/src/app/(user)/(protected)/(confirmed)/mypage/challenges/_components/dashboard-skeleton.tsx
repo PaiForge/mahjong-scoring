@@ -2,7 +2,7 @@ import { SkeletonBar } from "@/app/_components/skeleton-bar";
 /** KPIカード1枚分のスケルトン */
 function StatsCardSkeleton() {
   return (
-    <div className="bg-surface-50 border border-surface-200 rounded-lg p-4">
+    <div className="bg-surface-50 border-3 border-ink rounded-lg p-4">
       <SkeletonBar className="h-3 w-20 mb-3 rounded" />
       <SkeletonBar className="h-8 w-16 mb-2 rounded" />
       <SkeletonBar className="h-3 w-28 rounded" />

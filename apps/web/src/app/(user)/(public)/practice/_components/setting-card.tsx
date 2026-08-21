@@ -7,9 +7,9 @@ import type { ReactNode } from "react";
  * 再現する必要があるため、クラス文字列をここから引けるようにしておく。
  */
 export const SETTING_CARD_FRAME_CLASS =
-  "flex flex-col overflow-hidden rounded-xl border border-surface-200 bg-white";
+  "flex flex-col overflow-hidden rounded-xl border-3 border-ink bg-white shadow-sm";
 export const SETTING_CARD_HEADER_CLASS =
-  "border-b border-surface-200 bg-surface-50 px-4 py-3";
+  "border-b-3 border-ink bg-primary-50 px-4 py-3";
 export const SETTING_CARD_BODY_CLASS = "flex flex-col gap-3 p-3";
 
 interface SettingCardProps {

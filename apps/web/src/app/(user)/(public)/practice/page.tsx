@@ -141,16 +141,16 @@ export default async function PracticePage() {
 
         <Link
           href="/practice/score"
-          className="flex items-center gap-4 rounded-xl border border-surface-200 bg-white p-6 transition-colors hover:bg-surface-50"
+          className="press-sm flex items-center gap-4 rounded-2xl border-3 border-ink bg-white p-6 shadow-sm hover:bg-primary-50"
         >
           <span className="text-3xl" aria-hidden="true">
             ♾️
           </span>
           <div className="flex-1">
-            <h3 className="text-base font-semibold text-surface-900">
+            <h3 className="text-base font-bold text-surface-900">
               {t("comprehensiveBanner.title")}
             </h3>
-            <p className="mt-1 text-sm text-surface-500">
+            <p className="mt-1 text-sm font-medium text-surface-500">
               {t("comprehensiveBanner.description")}
             </p>
           </div>

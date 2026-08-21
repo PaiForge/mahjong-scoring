@@ -86,7 +86,7 @@ export default async function ReferenceYakuPage() {
               {group.items.map(({ entry, examples }) => (
                 <div
                   key={entry.name}
-                  className="space-y-2 rounded-xl border border-surface-200 bg-white p-4"
+                  className="space-y-2 rounded-xl border-3 border-ink bg-white p-4"
                 >
                   <div className="flex items-baseline justify-between gap-2">
                     <span className="font-semibold text-surface-900">

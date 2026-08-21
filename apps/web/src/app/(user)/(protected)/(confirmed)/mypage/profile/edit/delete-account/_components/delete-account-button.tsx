@@ -45,7 +45,7 @@ export function DeleteAccountButton() {
         type="button"
         onClick={() => setIsModalOpen(true)}
         disabled={isDeleting}
-        className="inline-flex items-center justify-center rounded-lg border border-red-300 px-5 py-2 text-sm font-semibold text-red-600 transition-colors hover:bg-red-50 disabled:opacity-50"
+        className="press-sm inline-flex items-center justify-center rounded-lg border-3 border-red-500 bg-white px-5 py-2 text-sm font-bold text-red-600 shadow-sm hover:bg-red-50 disabled:opacity-50"
       >
         {isDeleting ? t("deleting") : t("confirmButton")}
       </button>

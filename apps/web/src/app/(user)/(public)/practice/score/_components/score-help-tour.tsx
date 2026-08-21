@@ -135,7 +135,7 @@ export function ScoreHelpTour() {
         title: t("help.slides.question.title"),
         caption: t("help.slides.question.caption"),
         node: (
-          <div className="rounded-xl border border-surface-200 bg-white p-2">
+          <div className="rounded-xl border-3 border-ink bg-white p-2">
             {/* 牌サイズは xs 固定 + 狭い画面でも収まるよう FitToWidth で最終調整 */}
             <FitToWidth>
               <QuestionDisplay question={sample} size="xs" />
@@ -148,7 +148,7 @@ export function ScoreHelpTour() {
         title: t("help.slides.answer.title"),
         caption: t("help.slides.answer.caption"),
         node: (
-          <div className="rounded-xl border border-surface-200 bg-white p-4 sm:p-6">
+          <div className="rounded-xl border-3 border-ink bg-white p-4 sm:p-6">
             <ScorePracticeAnswerForm
               onSubmit={noop}
               disabled
@@ -163,7 +163,7 @@ export function ScoreHelpTour() {
         title: t("help.slides.result.title"),
         caption: t("help.slides.result.caption"),
         node: (
-          <div className="rounded-xl border border-surface-200 bg-white p-4 sm:p-6">
+          <div className="rounded-xl border-3 border-ink bg-white p-4 sm:p-6">
             <ResultDisplay
               question={sample}
               userAnswer={buildCorrectAnswer(sample.answer)}

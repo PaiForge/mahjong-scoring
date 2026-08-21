@@ -26,7 +26,7 @@ export function StepCard({
   subHref,
 }: StepCardProps) {
   return (
-    <div className="flex flex-col items-center space-y-4 rounded-lg border border-surface-200 bg-white p-6 text-center">
+    <div className="flex flex-col items-center space-y-4 rounded-lg border-3 border-ink bg-white p-6 text-center">
       {stepLabel ? (
         <span className="text-xs font-bold tracking-wider text-primary-600">
           {stepLabel}

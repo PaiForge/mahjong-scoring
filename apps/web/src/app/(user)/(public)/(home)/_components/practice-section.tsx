@@ -9,7 +9,7 @@ export function PracticeSection() {
 
   return (
     <LandingSection
-      sectionClassName="border-y border-surface-200 bg-white"
+      sectionClassName="border-y-4 border-ink bg-white"
       icon={<PlayIcon className="size-8" />}
       iconClassName="bg-primary-500/10 text-primary-600"
       title={t("practiceTitle")}

@@ -49,6 +49,9 @@ export async function CurriculumToc({
   // center of the section bullet: half of size-4 (8px).
   // NOTE: keep in sync with SECTION_BULLET_SIZE_CLASS ("size-4") below.
   const BULLET_CENTER_LEFT_PX = 8;
+  // 縦線（破線ガイド／「次はここから」の実線）はどちらも 2px 幅なので、
+  // bullet 中心に載せるには左端を 1px 手前に置く。
+  const GUIDE_LINE_LEFT_PX = BULLET_CENTER_LEFT_PX - 1;
   // Vertical offset from the top of the outer <div> to the vertical center of
   // the section bullet: half of size-4 (8px). Because the bullet sits on the
   // first line of the heading row with no extra top padding, this is simply
@@ -61,9 +64,9 @@ export async function CurriculumToc({
         <span
           aria-hidden="true"
           data-testid="curriculum-dashed-line"
-          className="pointer-events-none absolute border-l border-dashed border-surface-300"
+          className="pointer-events-none absolute border-l-2 border-dashed border-surface-400"
           style={{
-            left: `${BULLET_CENTER_LEFT_PX}px`,
+            left: `${GUIDE_LINE_LEFT_PX}px`,
             top: `${BULLET_CENTER_TOP_PX}px`,
             bottom: `${BULLET_CENTER_TOP_PX}px`,
           }}
@@ -73,9 +76,9 @@ export async function CurriculumToc({
             aria-hidden="true"
             data-testid="curriculum-section-bullet"
             data-section={section}
-            className={`relative z-10 inline-block ${SECTION_BULLET_SIZE_CLASS} shrink-0 rounded-full ${bulletColorClass}`}
+            className={`relative z-10 inline-block ${SECTION_BULLET_SIZE_CLASS} shrink-0 rounded-full border-2 border-ink ${bulletColorClass}`}
           />
-          <p className="text-sm font-semibold tracking-wide text-surface-900">
+          <p className="text-sm font-bold tracking-wide text-surface-900">
             {sectionLabel}
           </p>
         </div>
@@ -106,20 +109,20 @@ export async function CurriculumToc({
                   <span
                     aria-hidden="true"
                     data-testid="curriculum-next-line"
-                    className="pointer-events-none absolute top-0 bottom-0 z-10 w-[2px] bg-amber-400"
-                    style={{ left: `${BULLET_CENTER_LEFT_PX - 1}px` }}
+                    className="pointer-events-none absolute top-0 bottom-0 z-10 w-[2px] bg-amber-500"
+                    style={{ left: `${GUIDE_LINE_LEFT_PX}px` }}
                   />
                 )}
                 <span className="flex min-w-0 flex-1 flex-col gap-0.5">
                   <span className="flex flex-wrap items-center gap-2">
                     <Link
                       href={`/learn/${ch.slug}`}
-                      className="text-sm font-semibold text-surface-900 transition-colors hover:text-primary-700 hover:underline"
+                      className="text-sm font-bold text-surface-900 transition-colors hover:text-primary-700 hover:underline"
                     >
                       {t(`${path}.title`)}
                     </Link>
                     {isNext && (
-                      <span className="inline-flex shrink-0 items-center rounded-full bg-amber-100 px-2 py-0.5 text-[11px] font-medium text-amber-700">
+                      <span className="inline-flex shrink-0 items-center rounded-full border-2 border-ink bg-amber-200 px-2 py-0.5 text-[11px] font-bold text-amber-900">
                         {tIndex("nextChapterBadge")}
                       </span>
                     )}

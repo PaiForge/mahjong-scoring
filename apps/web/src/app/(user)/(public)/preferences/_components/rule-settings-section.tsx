@@ -15,7 +15,7 @@ export function RuleSettingsSection() {
   const setRenfonpaiAs4Fu = useRuleSettingsStore((s) => s.setRenfonpaiAs4Fu);
 
   return (
-    <div className="overflow-hidden rounded-lg border border-surface-200 bg-white">
+    <div className="overflow-hidden rounded-lg border-3 border-ink bg-white">
       <div className="group flex items-center justify-between px-5 py-4">
         <span className="pr-4">
           <span className="block text-sm font-medium text-surface-900">

@@ -74,7 +74,7 @@ export function ScoreTableBoard({
     <div className="mt-6 space-y-6">
       {/* Question display */}
       <div
-        className={`space-y-4 rounded-xl border-2 p-6 transition-colors ${feedbackBorderClass}`}
+        className={`space-y-4 rounded-xl border-3 p-6 shadow-sm transition-colors ${feedbackBorderClass}`}
       >
         <p className="text-center text-sm font-medium text-surface-500">
           {t("questionLabel")}

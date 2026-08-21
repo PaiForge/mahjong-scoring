@@ -37,7 +37,7 @@ export function ProblemListSkeleton({ count }: ProblemListSkeletonProps) {
         {Array.from({ length: count }, (_, index) => (
           <SkeletonBar
             key={index}
-            className="h-[50px] rounded-lg border border-surface-200"
+            className="h-[50px] rounded-lg border-3 border-ink"
             tone={50}
           />
         ))}

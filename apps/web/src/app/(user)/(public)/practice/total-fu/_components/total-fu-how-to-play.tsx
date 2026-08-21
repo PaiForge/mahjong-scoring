@@ -73,7 +73,7 @@ export function TotalFuHowToPlay() {
       <QuestionPrompt>{t("prompt")}</QuestionPrompt>
 
       {/* 正解の符 */}
-      <div className="flex items-center justify-center gap-2 rounded-xl border border-primary-500 bg-primary-50 p-4">
+      <div className="flex items-center justify-center gap-2 rounded-xl border-3 border-ink bg-primary-50 p-4">
         <span className="flex size-4 items-center justify-center rounded-full bg-primary-500">
           <CheckIcon className="size-2.5 text-white" />
         </span>

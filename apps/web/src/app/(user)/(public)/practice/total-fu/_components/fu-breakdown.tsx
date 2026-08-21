@@ -23,7 +23,7 @@ export function FuBreakdown({ details, answer }: FuBreakdownProps) {
   const rawTotal = details.reduce((sum, detail) => sum + detail.fu, 0);
 
   return (
-    <div className="rounded-xl border border-surface-200 bg-white p-4 text-sm">
+    <div className="rounded-xl border-3 border-ink bg-white p-4 text-sm">
       <p className="mb-2 font-bold text-surface-900">{t("breakdownTitle")}</p>
 
       <dl>

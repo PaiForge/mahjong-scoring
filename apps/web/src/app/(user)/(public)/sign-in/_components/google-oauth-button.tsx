@@ -39,7 +39,7 @@ export function GoogleOAuthButton({ redirectTo }: { redirectTo?: string }) {
     <button
       onClick={handleClick}
       disabled={isLoading}
-      className="flex items-center justify-center gap-3 w-full max-w-sm mx-auto px-6 py-3 bg-white border border-surface-200 rounded-lg shadow-sm hover:shadow-md transition-shadow disabled:opacity-50 disabled:cursor-not-allowed"
+      className="press-sm flex items-center justify-center gap-3 w-full max-w-sm mx-auto px-6 py-3 bg-white border-3 border-ink rounded-lg shadow-sm disabled:opacity-50 disabled:cursor-not-allowed"
     >
       <GoogleIcon />
       <span className="text-sm font-medium text-surface-700">

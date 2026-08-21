@@ -35,7 +35,7 @@ export function BrandLogo({ size }: BrandLogoProps) {
       />
       {/* brandMahjong + brandScoring を連結するとサイト名（metadata.siteName）と一致する。
           ロゴの二色配色のために分割しているだけなので、サイト名変更時は両者を揃えること。 */}
-      <span className={`${config.textClass} font-bold`}>
+      <span className={`${config.textClass} font-bold whitespace-nowrap`}>
         <span className="text-primary-700">{t("brandMahjong")}</span>
         <span className="text-surface-500">{t("brandScoring")}</span>
       </span>
