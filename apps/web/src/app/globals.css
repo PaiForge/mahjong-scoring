@@ -50,8 +50,8 @@
   --color-muted-foreground: #64748b;
   --color-accent: #f1f5f9;
   --color-accent-foreground: #0f172a;
-  /* 枠線は輪郭として濃く出す（ぼかし影を廃した分、形は線で示す）。 */
-  --color-border: #034621;
+  /* 枠線は輪郭として濃く出す（ぼかし影を廃した分、形は線で示す）。ink と同値。 */
+  --color-border: #2f6b4f;
   --color-input: #ffffff;
   --color-ring: #00904a;
   --color-destructive: #dc524a;
@@ -63,10 +63,14 @@
    *
    * 枠線と影を「ぼかしのない濃色オフセット」で統一し、角丸を大きく取る
    * ポップな骨格に寄せる。配色は従来のまま変えず、質感だけを差し替える。
-   * 影の色はブランドの深緑（primary-900）を ink として流用し、
-   * グレーの落ち影ではなく輪郭の延長として扱う。
+   * 影はグレーの落ち影ではなく輪郭の延長として扱うため、線と同じ ink を使う。
+   *
+   * ink はブランドグリーンの彩度を落として明度を上げた苔色。primary-900 を
+   * そのまま使うと黒に見えて周囲から浮くため、緑と分かる範囲まで柔らげている。
+   * 一方で primary-500 のボタンに載せても輪郭が残るだけの暗さは保つ
+   * （これより明るくすると緑のボタン上で枠が消える）。
    */
-  --color-ink: #034621;
+  --color-ink: #2f6b4f;
 
   /* Tailwind 既定のぼかし影を、そのままオフセット影へ置き換える。
      shadow-sm / shadow-md ... のサイズ差は「影の深さ」ではなく「ズレ幅」になる。 */
@@ -102,7 +106,7 @@ body {
   background-color: var(--color-secondary);
   background-image: repeating-linear-gradient(
     45deg,
-    rgba(3, 70, 33, 0.045) 0 14px,
+    rgba(47, 107, 79, 0.05) 0 14px,
     transparent 14px 28px
   );
 }
