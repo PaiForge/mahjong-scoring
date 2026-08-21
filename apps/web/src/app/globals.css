@@ -30,7 +30,25 @@
   --color-surface-900: #0f172a;
   --color-surface-950: #020617;
 
+  /*
+   * 状態色（success / warning / destructive）。
+   * 各トーンは 4 段で持つ:
+   *   {tone}            線・文字・塗りの主色（白文字を載せるならこの上に）
+   *   {tone}-foreground 主色の塗りに載せる文字色
+   *   {tone}-subtle     淡い塗り（バッジ・行のハイライト）
+   *   {tone}-strong     subtle の上に置く濃い文字・線
+   * 正誤フィードバックや難易度のような「意味を持つ色」はここを使い、
+   * Tailwind 既定の green-* / red-* / amber-* を直接書かない。
+   * 章カテゴリや順位メダルのような「区別のための色」は対象外。
+   */
   --color-success: #007a3d;
+  --color-success-foreground: #ffffff;
+  --color-success-subtle: #d3f5db;
+  --color-success-strong: #034621;
+  --color-warning: #b45309;
+  --color-warning-foreground: #ffffff;
+  --color-warning-subtle: #fef3c7;
+  --color-warning-strong: #78350f;
 
   /*
    * Semantic トークン（blindfold-chess のトークン体系に準拠）。
@@ -56,6 +74,8 @@
   --color-ring: #00904a;
   --color-destructive: #dc524a;
   --color-destructive-foreground: #ffffff;
+  --color-destructive-subtle: #fee2e2;
+  --color-destructive-strong: #7f1d1d;
   --color-link-primary: #007a3d;
 
   /*
@@ -72,15 +92,23 @@
    */
   --color-ink: #2f6b4f;
 
-  /* Tailwind 既定のぼかし影を、そのままオフセット影へ置き換える。
-     shadow-sm / shadow-md ... のサイズ差は「影の深さ」ではなく「ズレ幅」になる。 */
-  --shadow-2xs: 1px 1px 0 var(--color-ink);
-  --shadow-xs: 2px 2px 0 var(--color-ink);
-  --shadow-sm: 3px 3px 0 var(--color-ink);
-  --shadow-md: 4px 4px 0 var(--color-ink);
-  --shadow-lg: 6px 6px 0 var(--color-ink);
-  --shadow-xl: 8px 8px 0 var(--color-ink);
-  --shadow-2xl: 10px 10px 0 var(--color-ink);
+  /*
+   * shadow-* の実体は --skin-shadow-*（@layer base で定義）に委ねる。
+   * Tailwind は --shadow-* の値を shadow-* ユーティリティにインライン展開するため、
+   * 他のトークンのようにスコープ内で --shadow-sm を再定義しても効かない。
+   * 変数を 1 段はさむことで、[data-skin="plain"] 配下（管理画面）だけ
+   * ぼかし影へ戻せるようにしている。
+   */
+  --shadow-2xs: var(--skin-shadow-2xs);
+  --shadow-xs: var(--skin-shadow-xs);
+  --shadow-sm: var(--skin-shadow-sm);
+  --shadow-md: var(--skin-shadow-md);
+  --shadow-lg: var(--skin-shadow-lg);
+  --shadow-xl: var(--skin-shadow-xl);
+  --shadow-2xl: var(--skin-shadow-2xl);
+
+  /* 見出しを持ち上げる文字のオフセット影（LP のヒーロー用）。 */
+  --text-shadow-pop: 4px 4px 0 var(--color-primary-800);
 
   /* 角丸を一段ずつ大きく取り直す。既存の rounded-lg / rounded-xl の
      指定をそのまま活かしたまま、全体の丸みだけが増す。 */
@@ -97,29 +125,76 @@
     system-ui, -apple-system, sans-serif;
 }
 
-body {
-  font-family: var(--font-sans);
-  /* 骨格スタイルの要。既定を太字に置き、細くしたい箇所だけを個別に戻す。 */
-  font-weight: 700;
-  color: var(--color-surface-900);
-  /* ごく薄い斜めストライプの下地。白いカードが紙の上に置かれて見える。 */
-  background-color: var(--color-secondary);
-  background-image: repeating-linear-gradient(
-    45deg,
-    rgba(47, 107, 79, 0.05) 0 14px,
-    transparent 14px 28px
-  );
+@layer base {
+  :root {
+    /* 既定スキン（pop）。shadow-* のサイズ差は「影の深さ」ではなく「ズレ幅」になる。 */
+    --skin-shadow-2xs: 1px 1px 0 var(--color-ink);
+    --skin-shadow-xs: 2px 2px 0 var(--color-ink);
+    --skin-shadow-sm: 3px 3px 0 var(--color-ink);
+    --skin-shadow-md: 4px 4px 0 var(--color-ink);
+    --skin-shadow-lg: 6px 6px 0 var(--color-ink);
+    --skin-shadow-xl: 8px 8px 0 var(--color-ink);
+    --skin-shadow-2xl: 10px 10px 0 var(--color-ink);
+  }
+
+  body {
+    font-family: var(--font-sans);
+    /* 骨格スタイルの要。既定を太字に置き、細くしたい箇所だけを個別に戻す。 */
+    font-weight: 700;
+    color: var(--color-surface-900);
+    /* ごく薄い斜めストライプの下地。白いカードが紙の上に置かれて見える。 */
+    background-color: var(--color-secondary);
+    background-image: repeating-linear-gradient(
+      45deg,
+      rgba(47, 107, 79, 0.05) 0 14px,
+      transparent 14px 28px
+    );
+  }
+
+  /*
+   * plain スキン。管理画面のように pop の骨格を持ち込みたくない区画のルートに
+   * data-skin="plain" を付けると、この配下だけ Tailwind 既定の質感へ戻る。
+   * 値は Tailwind の theme.css と同じもの。
+   * ユーザー向け画面側をスコープにしない理由: NavMenu のドロワーが document.body
+   * へポータルされるため、ラッパーで囲む方式だと外れてしまう。
+   */
+  [data-skin="plain"] {
+    --skin-shadow-2xs: 0 1px rgb(0 0 0 / 0.05);
+    --skin-shadow-xs: 0 1px 2px 0 rgb(0 0 0 / 0.05);
+    --skin-shadow-sm:
+      0 1px 3px 0 rgb(0 0 0 / 0.1), 0 1px 2px -1px rgb(0 0 0 / 0.1);
+    --skin-shadow-md:
+      0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+    --skin-shadow-lg:
+      0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
+    --skin-shadow-xl:
+      0 20px 25px -5px rgb(0 0 0 / 0.1), 0 8px 10px -6px rgb(0 0 0 / 0.1);
+    --skin-shadow-2xl: 0 25px 50px -12px rgb(0 0 0 / 0.25);
+    --radius-sm: 0.25rem;
+    --radius-md: 0.375rem;
+    --radius-lg: 0.5rem;
+    --radius-xl: 0.75rem;
+    --radius-2xl: 1rem;
+    --radius-3xl: 1.5rem;
+    --color-border: #e2e8f0;
+    --font-sans: system-ui, -apple-system, sans-serif;
+    font-family: var(--font-sans);
+    font-weight: 400;
+    background: var(--color-background);
+  }
 }
 
 /*
  * 押し込み演出。ハードシャドウのぶんだけ要素を沈ませ、影を同量縮める。
  * ボタン・カードなど「影が付いていて押せるもの」に付与する。
  * サフィックスは組み合わせる shadow-* に合わせる（press-md なら shadow-md）。
+ * hover:bg-* と併用することが多いので background-color も一緒に遷移させる。
  */
 @utility press-sm {
   transition:
     transform 0.1s ease,
-    box-shadow 0.1s ease;
+    box-shadow 0.1s ease,
+    background-color 0.1s ease;
 
   &:hover:not(:disabled) {
     transform: translate(2px, 2px);
@@ -130,12 +205,17 @@ body {
     transform: translate(3px, 3px);
     box-shadow: 0 0 0 var(--color-ink);
   }
+
+  @media (prefers-reduced-motion: reduce) {
+    transition: none;
+  }
 }
 
 @utility press-md {
   transition:
     transform 0.1s ease,
-    box-shadow 0.1s ease;
+    box-shadow 0.1s ease,
+    background-color 0.1s ease;
 
   &:hover:not(:disabled) {
     transform: translate(2px, 2px);
@@ -146,12 +226,17 @@ body {
     transform: translate(4px, 4px);
     box-shadow: 0 0 0 var(--color-ink);
   }
+
+  @media (prefers-reduced-motion: reduce) {
+    transition: none;
+  }
 }
 
 @utility press-lg {
   transition:
     transform 0.1s ease,
-    box-shadow 0.1s ease;
+    box-shadow 0.1s ease,
+    background-color 0.1s ease;
 
   &:hover:not(:disabled) {
     transform: translate(3px, 3px);
@@ -162,12 +247,8 @@ body {
     transform: translate(6px, 6px);
     box-shadow: 0 0 0 var(--color-ink);
   }
-}
 
-@media (prefers-reduced-motion: reduce) {
-  .press-sm,
-  .press-md,
-  .press-lg {
+  @media (prefers-reduced-motion: reduce) {
     transition: none;
   }
 }

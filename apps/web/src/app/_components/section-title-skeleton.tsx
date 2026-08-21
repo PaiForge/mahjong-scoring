@@ -15,13 +15,13 @@ interface SectionTitleSkeletonProps {
  * 近似すると実物より低くなり、ブレークポイントごとにもずれるため使わない。
  *
  * 中身の `&nbsp;` は 1 行分の行ボックスを作るためのもの。pill の塗りと影は
- * 読み込み中に主張しすぎるため、薄いグレーの枠だけに置き換える。
+ * 読み込み中に主張しすぎるため、`placeholder` バリアントで薄いグレーにする。
  */
 export function SectionTitleSkeleton({
   width = "w-24",
 }: SectionTitleSkeletonProps) {
   return (
-    <SectionTitle className="bg-surface-100! shadow-none!">
+    <SectionTitle variant="placeholder">
       <SkeletonBar as="span" className={`inline-block rounded ${width}`}>
         &nbsp;
       </SkeletonBar>
