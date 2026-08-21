@@ -32,7 +32,7 @@ const ScoreChart = dynamic(
   () => import("./score-chart").then((mod) => mod.ScoreChart),
   {
     ssr: false,
-    loading: () => <SkeletonBar className="h-[250px] w-full rounded-lg" />,
+    loading: () => <SkeletonBar radius="lg" className="h-[250px] w-full" />,
   },
 );
 

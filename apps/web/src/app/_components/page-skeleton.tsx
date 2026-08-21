@@ -30,17 +30,13 @@ export function PageSkeleton({
       </PageTitle>
 
       <div className="space-y-4">
-        <SkeletonBar className="h-6 w-40 rounded" />
-        <SkeletonBar className="h-4 w-full rounded" tone={100} />
-        <SkeletonBar className="h-4 w-11/12 rounded" tone={100} />
-        <SkeletonBar className="h-4 w-4/5 rounded" tone={100} />
+        <SkeletonBar className="h-6 w-40" />
+        <SkeletonBar className="h-4 w-full" tone={100} />
+        <SkeletonBar className="h-4 w-11/12" tone={100} />
+        <SkeletonBar className="h-4 w-4/5" tone={100} />
         <div className="mt-6 space-y-3">
           {Array.from({ length: rows }).map((_, i) => (
-            <SkeletonBar
-              key={i}
-              className="h-14 w-full rounded-md"
-              tone={100}
-            />
+            <SkeletonBar key={i} className="h-14 w-full" tone={100} />
           ))}
         </div>
       </div>

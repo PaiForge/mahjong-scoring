@@ -39,11 +39,12 @@ export default async function ReferenceScoreTablePage() {
             <div className="w-full space-y-3">
               <div className="flex justify-end gap-2">
                 {Array.from({ length: 3 }, (_, i) => (
-                  <SkeletonBar key={i} className="h-8 w-20 rounded" />
+                  <SkeletonBar key={i} className="h-8 w-20" />
                 ))}
               </div>
               <SkeletonBar
-                className="h-[400px] w-full rounded-xl border-3 border-ink"
+                radius="xl"
+                className="h-[400px] w-full border-3 border-ink"
                 tone={50}
               />
             </div>

@@ -108,8 +108,8 @@ export function ScoreSetupForm() {
                   key={key}
                   className={`flex items-center justify-between px-5 py-3.5 ${i < 3 ? "border-b-2 border-dashed border-border/40" : ""}`}
                 >
-                  <SkeletonBar className="h-4 w-32 rounded" tone={100} />
-                  <SkeletonBar className="h-6 w-11 rounded-full" tone={100} />
+                  <SkeletonBar className="h-4 w-32" tone={100} />
+                  <SkeletonBar radius="full" className="h-6 w-11" tone={100} />
                 </div>
               ),
             )}
@@ -125,7 +125,7 @@ export function ScoreSetupForm() {
 
         {/* Full-width start button */}
         <div>
-          <SkeletonBar className="h-11 w-full rounded-lg" />
+          <SkeletonBar radius="lg" className="h-11 w-full" />
         </div>
       </div>
     );

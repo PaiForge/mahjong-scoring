@@ -23,10 +23,10 @@ export default function PublicProfileLoading() {
 
       <div className="space-y-8">
         <div className="flex flex-col items-center gap-2 text-center">
-          <SkeletonBar className="h-20 w-20 rounded-full" />
+          <SkeletonBar radius="full" className="h-20 w-20" />
           <div className="flex flex-col items-center gap-2">
-            <SkeletonBar className="h-6 w-32 rounded" />
-            <SkeletonBar className="h-4 w-24 rounded" tone={100} />
+            <SkeletonBar className="h-6 w-32" />
+            <SkeletonBar className="h-4 w-24" tone={100} />
           </div>
         </div>
 
@@ -34,14 +34,14 @@ export default function PublicProfileLoading() {
           {/* SectionTitle の緑アクセントバーを再現して CLS を防ぐ */}
           <div className="border-b-2 border-primary-500 pb-2">
             <SkeletonBar
-              className="inline-block h-6 w-24 rounded align-middle"
+              className="inline-block h-6 w-24 align-middle"
               as="span"
             />
           </div>
           <div className="space-y-2">
-            <SkeletonBar className="h-4 w-full rounded" tone={100} />
-            <SkeletonBar className="h-4 w-11/12 rounded" tone={100} />
-            <SkeletonBar className="h-4 w-4/5 rounded" tone={100} />
+            <SkeletonBar className="h-4 w-full" tone={100} />
+            <SkeletonBar className="h-4 w-11/12" tone={100} />
+            <SkeletonBar className="h-4 w-4/5" tone={100} />
           </div>
         </section>
       </div>

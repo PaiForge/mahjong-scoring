@@ -27,13 +27,13 @@ export function LeaderboardSkeleton() {
     >
       <SectionTitleSkeleton width="w-32" />
       <div className="space-y-2">
-        <SkeletonBar className="h-10 w-full rounded" tone={100} />
-        <SkeletonBar className="h-10 w-full rounded" />
-        <SkeletonBar className="h-10 w-full rounded" />
-        <SkeletonBar className="h-10 w-full rounded" />
+        <SkeletonBar className="h-10 w-full" tone={100} />
+        <SkeletonBar className="h-10 w-full" />
+        <SkeletonBar className="h-10 w-full" />
+        <SkeletonBar className="h-10 w-full" />
       </div>
       <div className="flex justify-center pt-2">
-        <SkeletonBar className="h-4 w-20 rounded" />
+        <SkeletonBar className="h-4 w-20" />
       </div>
     </div>
   );

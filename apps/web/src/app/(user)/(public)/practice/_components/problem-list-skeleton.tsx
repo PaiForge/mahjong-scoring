@@ -32,12 +32,13 @@ export function ProblemListSkeleton({ count }: ProblemListSkeletonProps) {
       className="mt-8 w-full max-w-md space-y-2"
       data-testid="problem-list-skeleton"
     >
-      <SkeletonBar className="h-5 w-24 rounded" />
+      <SkeletonBar className="h-5 w-24" />
       <div className="space-y-2">
         {Array.from({ length: count }, (_, index) => (
           <SkeletonBar
+            radius="lg"
             key={index}
-            className="h-[50px] rounded-lg border-3 border-ink"
+            className="h-[50px] border-3 border-ink"
             tone={50}
           />
         ))}

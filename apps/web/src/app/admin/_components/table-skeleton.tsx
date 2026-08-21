@@ -1,10 +1,5 @@
 import { SkeletonBar } from "@/app/_components/skeleton-bar";
 
-/** スケルトンのプレースホルダ矩形（管理画面は角丸を常に `rounded` で揃える） */
-function Bar({ className }: { readonly className: string }) {
-  return <SkeletonBar className={`${className} rounded`} />;
-}
-
 /**
  * 管理画面のテーブルスケルトン
  * テーブルスケルトン
@@ -26,7 +21,7 @@ export function TableSkeleton({
           <tr className="border-b border-gray-200">
             {Array.from({ length: columns }, (_, i) => (
               <th key={i} className="px-4 py-3">
-                <Bar className="h-4 w-16" />
+                <SkeletonBar className="h-4 w-16" />
               </th>
             ))}
           </tr>
@@ -36,7 +31,7 @@ export function TableSkeleton({
             <tr key={i} className="border-t border-gray-200">
               {Array.from({ length: columns }, (__, j) => (
                 <td key={j} className="px-4 py-3">
-                  <Bar className="h-4 w-24" />
+                  <SkeletonBar className="h-4 w-24" />
                 </td>
               ))}
             </tr>
@@ -59,11 +54,11 @@ export function LogFilterSkeleton() {
     <div className="flex items-end gap-4">
       {Array.from({ length: 2 }, (_, i) => (
         <div key={i}>
-          <Bar className="mb-1 h-4 w-20" />
-          <Bar className="h-[38px] w-40" />
+          <SkeletonBar className="mb-1 h-4 w-20" />
+          <SkeletonBar className="h-[38px] w-40" />
         </div>
       ))}
-      <Bar className="h-[38px] w-20" />
+      <SkeletonBar className="h-[38px] w-20" />
     </div>
   );
 }

@@ -72,8 +72,9 @@ export default async function LeaderboardIndexPage({
             <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
               {Array.from({ length: 5 }).map((_, i) => (
                 <SkeletonBar
+                  radius="lg"
                   key={i}
-                  className="h-24 w-full rounded-lg"
+                  className="h-24 w-full"
                   tone={100}
                 />
               ))}
