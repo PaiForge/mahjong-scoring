@@ -3,6 +3,7 @@ import { getTranslations } from "next-intl/server";
 import type { User } from "@supabase/supabase-js";
 import { AdminPageTitle } from "@/app/admin/_components/admin-page-title";
 import { requireAdminPage } from "@/app/admin/_lib/auth";
+import { formatAdminDate } from "@/app/admin/_lib/format-date";
 import { buildProfileMap } from "@/app/admin/_lib/log-query-helpers";
 import { createSearchParamsCache, parseAsInteger } from "nuqs/server";
 
@@ -102,9 +103,7 @@ export default async function AdminUsersPage({
                       <StatusBadge isBanned={isBanned} />
                     </td>
                     <td className="px-4 py-3 text-gray-500">
-                      {user.created_at
-                        ? new Date(user.created_at).toLocaleDateString("ja-JP")
-                        : "-"}
+                      {formatAdminDate(user.created_at)}
                     </td>
                     <td className="px-4 py-3">
                       {!isCurrentUser &&

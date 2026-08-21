@@ -4,6 +4,7 @@ import { getTranslations } from "next-intl/server";
 
 import { AdminPageTitle } from "@/app/admin/_components/admin-page-title";
 import { requireAdminPage } from "@/app/admin/_lib/auth";
+import { formatAdminDateTime } from "@/app/admin/_lib/format-date";
 import { type Announcement, announcements, db } from "@/lib/db";
 
 import { DeleteAnnouncementButton } from "./_components/delete-announcement-button";
@@ -104,9 +105,7 @@ export default async function AdminAnnouncementsPage() {
                         </span>
                       </td>
                       <td className="px-4 py-3 text-surface-500">
-                        {a.publishedAt
-                          ? new Date(a.publishedAt).toLocaleString("ja-JP")
-                          : "-"}
+                        {formatAdminDateTime(a.publishedAt)}
                       </td>
                       <td className="px-4 py-3">
                         <div className="flex gap-3">
