@@ -6,6 +6,7 @@ import type { FuDetail } from "@mahjong-scoring/core";
 import { CheckIcon } from "@/app/_components/icons/check-icon";
 import { TehaiDisplay } from "../../_components/tehai-display";
 import { FuBreakdown } from "./fu-breakdown";
+import { QuestionPrompt } from "../../_components/question-prompt";
 
 /**
  * デモ用の固定例: 東場・南家・七筒ツモ
@@ -69,9 +70,7 @@ export function TotalFuHowToPlay() {
         translationNamespace="totalFu"
       />
 
-      <p className="text-center text-sm font-medium text-surface-600">
-        {t("prompt")}
-      </p>
+      <QuestionPrompt>{t("prompt")}</QuestionPrompt>
 
       {/* 正解の符 */}
       <div className="flex items-center justify-center gap-2 rounded-xl border border-primary-500 bg-primary-50 p-4">

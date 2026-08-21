@@ -9,6 +9,7 @@ import { useRuleSettingsStore } from "@/app/_hooks/use-rule-settings-store";
 import { ChoiceButton } from "../../_components/choice-button";
 import { JantouFuKazeContext } from "./jantou-fu-kaze-context";
 import { getChoiceFeedbackProps } from "../../_lib/feedback-styles";
+import { QuestionPrompt } from "../../_components/question-prompt";
 
 interface JantouFuBoardProps {
   /** 正誤フィードバック表示中か（セッションから受け取る） */
@@ -63,9 +64,7 @@ export function JantouFuBoard({
       />
 
       {/* Question */}
-      <p className="text-center text-sm font-medium text-surface-600">
-        {t("selectCorrectHead")}
-      </p>
+      <QuestionPrompt>{t("selectCorrectHead")}</QuestionPrompt>
 
       {/* Choices */}
       <div className="grid grid-cols-2 gap-3">

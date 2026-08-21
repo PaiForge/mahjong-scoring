@@ -13,6 +13,7 @@ import { ChallengeSubmitButton } from "../../_components/challenge-submit-button
 import { TehaiDisplay } from "../../_components/tehai-display";
 import { YakuChip, getChipFeedbackState } from "./yaku-chip";
 import { HAN_GROUPS } from "../_lib/han-groups";
+import { QuestionPrompt } from "../../_components/question-prompt";
 
 function generateQuestion(): YakuQuestion | undefined {
   return retryGenerate(generateYakuQuestion);
@@ -82,9 +83,7 @@ export function YakuBoard({
       />
 
       {/* Instruction */}
-      <p className="text-center text-sm font-medium text-surface-600">
-        {t("selectYaku")}
-      </p>
+      <QuestionPrompt>{t("selectYaku")}</QuestionPrompt>
 
       {/* Yaku selection */}
       <div className="space-y-3">

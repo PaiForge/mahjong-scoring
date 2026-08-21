@@ -5,6 +5,7 @@ import { HaiKind } from "@mahjong-scoring/core";
 import type { Tehai14 } from "@mahjong-scoring/core";
 import { TehaiDisplay } from "../../_components/tehai-display";
 import { YakuChip } from "./yaku-chip";
+import { QuestionPrompt } from "../../_components/question-prompt";
 
 /**
  * デモ用の固定例: 断么九 + 一盃口
@@ -69,9 +70,7 @@ export function YakuHowToPlay() {
       />
 
       {/* Instruction */}
-      <p className="text-center text-sm font-medium text-surface-600">
-        {t("selectYaku")}
-      </p>
+      <QuestionPrompt>{t("selectYaku")}</QuestionPrompt>
 
       {/* Yaku chips（正解をハイライト） */}
       <div className="flex flex-wrap justify-center gap-1.5">

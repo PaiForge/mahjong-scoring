@@ -15,6 +15,7 @@ import { FuChoiceGrid } from "../../_components/fu-choice-grid";
 import { QuestionGeneratingPlaceholder } from "../../_components/question-generating-placeholder";
 import { TehaiDisplay } from "../../_components/tehai-display";
 import { FuBreakdown } from "./fu-breakdown";
+import { QuestionPrompt } from "../../_components/question-prompt";
 
 function generateQuestion(
   renfonpaiAs4Fu: boolean,
@@ -92,9 +93,7 @@ export function TotalFuBoard({
         translationNamespace="totalFu"
       />
 
-      <p className="text-center text-sm font-medium text-surface-600">
-        {t("prompt")}
-      </p>
+      <QuestionPrompt>{t("prompt")}</QuestionPrompt>
 
       <FuChoiceGrid
         options={TOTAL_FU_OPTIONS}

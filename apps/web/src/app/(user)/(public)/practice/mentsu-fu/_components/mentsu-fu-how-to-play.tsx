@@ -7,6 +7,7 @@ import { Hai } from "@pai-forge/mahjong-react-ui";
 import { DemoFuChoiceGrid } from "../../_components/demo-fu-choice-grid";
 import { PromptLabel } from "../../_components/prompt-label";
 import { FU_OPTIONS } from "../../_lib/fu-options";
+import { QuestionPrompt } from "../../_components/question-prompt";
 
 /** デモ用の固定例: 中張牌（五筒）の暗刻 → 4符 */
 const DEMO_MENTSU: readonly HaiKindId[] = [
@@ -39,9 +40,7 @@ export function MentsuFuHowToPlay() {
       </div>
 
       {/* Question */}
-      <p className="text-center text-sm font-medium text-surface-600">
-        {t("questionPrompt")}
-      </p>
+      <QuestionPrompt>{t("questionPrompt")}</QuestionPrompt>
 
       {/* Fu options */}
       <DemoFuChoiceGrid

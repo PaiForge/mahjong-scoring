@@ -7,6 +7,7 @@ import { FuChoiceGrid } from "../../_components/fu-choice-grid";
 import { PromptLabel } from "../../_components/prompt-label";
 import { useFuChoiceBoard } from "../../_hooks/use-fu-choice-board";
 import { FU_OPTIONS } from "../../_lib/fu-options";
+import { QuestionPrompt } from "../../_components/question-prompt";
 
 interface MentsuFuBoardProps {
   readonly showFeedback: boolean;
@@ -45,9 +46,7 @@ export function MentsuFuBoard({
       </div>
 
       {/* Question */}
-      <p className="text-center text-sm font-medium text-surface-600">
-        {t("questionPrompt")}
-      </p>
+      <QuestionPrompt>{t("questionPrompt")}</QuestionPrompt>
 
       {/* Fu options */}
       <FuChoiceGrid
