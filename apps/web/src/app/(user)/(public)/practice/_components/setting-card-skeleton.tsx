@@ -28,7 +28,7 @@ export function SettingCardSkeleton({ rows = 2 }: SettingCardSkeletonProps) {
       <div className={SETTING_CARD_BODY_CLASS}>
         {Array.from({ length: rows }, (_, i) => (
           <div key={i} className="flex items-center gap-3 px-2 py-1.5">
-            <SkeletonBar className="size-5" tone={100} />
+            <SkeletonBar radius="sm" className="size-5" tone={100} />
             <SkeletonBar className="h-4 w-16" tone={100} />
           </div>
         ))}

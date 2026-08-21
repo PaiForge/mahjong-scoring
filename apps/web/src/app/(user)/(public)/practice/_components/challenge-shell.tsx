@@ -212,7 +212,7 @@ export function ChallengeShell({
               type="button"
               onClick={gameSession.togglePause}
               disabled={gameSession.isCountingDown || gameSession.isFinished}
-              className="rounded p-1 text-surface-500 transition-colors hover:bg-surface-100 hover:text-surface-700 disabled:opacity-40 disabled:pointer-events-none"
+              className="rounded-md p-1 text-surface-500 transition-colors hover:bg-surface-100 hover:text-surface-700 disabled:opacity-40 disabled:pointer-events-none"
               aria-label={gameSession.isPaused ? tc("resume") : tc("pause")}
             >
               {gameSession.isPaused ? (

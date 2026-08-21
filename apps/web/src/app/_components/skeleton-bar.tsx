@@ -22,6 +22,8 @@ const TONE_CLASS = {
  * ここを経由させておけば `data-skin="plain"` の角丸にも自動で追従する。
  */
 const RADIUS_CLASS = {
+  /** チェックボックスや凡例の小さな四角（`small-checkbox` と同じ） */
+  sm: "rounded-sm",
   /** 文字列や小さな矩形。既定 */
   md: "rounded-md",
   /** ボタン・入力欄（`primary-link-button` と同じ） */
