@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { getTranslations } from "next-intl/server";
+import { Divider } from "@/app/_components/divider";
 import { ChevronRightIcon } from "@/app/_components/icons/chevron-right-icon";
 import {
   getAdjacentChapters,
@@ -13,7 +14,7 @@ interface ChapterNavProps {
   readonly slug: CurriculumChapterSlug;
 }
 
-interface ChapterNavCardProps {
+interface ChapterNavLinkProps {
   readonly chapter: CurriculumChapter;
   readonly direction: "prev" | "next";
   readonly label: string;
@@ -24,7 +25,8 @@ interface ChapterNavCardProps {
  * 章ページの前後リンク
  * 章ナビゲーション
  *
- * 現在の章の前後章をカード風リンクで表示する。
+ * 現在の章の前後章を1行のテキストリンクで表示する。ページ下部で主張すべきは
+ * 練習への CTA なので、二次的な導線であるここは枠を持たせず軽くする。
  * 先頭章では prev スロットを、末尾章では next スロットを非表示にする。
  */
 export async function ChapterNav({ slug }: ChapterNavProps) {
@@ -35,60 +37,52 @@ export async function ChapterNav({ slug }: ChapterNavProps) {
   if (!prev && !next) return undefined;
 
   return (
-    <nav
-      aria-label={tChapter("prevChapterLabel")}
-      className="grid grid-cols-1 gap-3 md:grid-cols-2"
-    >
-      {prev ? (
-        <ChapterNavCard
-          chapter={prev}
-          direction="prev"
-          label={tChapter("prevChapterLabel")}
-          title={t(`${getChapterI18nPath(prev)}.title`)}
-        />
-      ) : (
-        <div aria-hidden="true" />
-      )}
-      {next ? (
-        <ChapterNavCard
-          chapter={next}
-          direction="next"
-          label={tChapter("nextChapterLabel")}
-          title={t(`${getChapterI18nPath(next)}.title`)}
-        />
-      ) : (
-        <div aria-hidden="true" />
-      )}
-    </nav>
+    <div className="space-y-6">
+      <Divider />
+      <nav
+        aria-label={tChapter("prevChapterLabel")}
+        className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between"
+      >
+        {prev && (
+          <ChapterNavLink
+            chapter={prev}
+            direction="prev"
+            label={tChapter("prevChapterLabel")}
+            title={t(`${getChapterI18nPath(prev)}.title`)}
+          />
+        )}
+        {next && (
+          <ChapterNavLink
+            chapter={next}
+            direction="next"
+            label={tChapter("nextChapterLabel")}
+            title={t(`${getChapterI18nPath(next)}.title`)}
+          />
+        )}
+      </nav>
+    </div>
   );
 }
 
-function ChapterNavCard({
+function ChapterNavLink({
   chapter,
   direction,
   label,
   title,
-}: ChapterNavCardProps) {
+}: ChapterNavLinkProps) {
   const isNext = direction === "next";
   return (
     <Link
       href={`/learn/${chapter.slug}`}
-      className={`press-sm flex items-center gap-3 rounded-xl border-3 border-ink bg-white p-4 shadow-sm hover:bg-primary-50 ${
-        isNext ? "md:col-start-2 md:justify-end md:text-right" : ""
+      // 先頭章では prev が無いので、next 単独でも右端に寄るよう ml-auto を持たせる。
+      className={`inline-flex max-w-full items-center gap-2 text-sm text-primary-600 underline-offset-4 transition-colors hover:text-primary-700 hover:underline ${
+        isNext ? "sm:ml-auto" : ""
       }`}
     >
-      {!isNext && (
-        <ChevronRightIcon className="size-5 shrink-0 rotate-180 text-surface-400" />
-      )}
-      <div className="min-w-0 flex-1">
-        <p className="text-xs font-medium text-surface-500">{label}</p>
-        <p className="mt-0.5 truncate text-sm font-semibold text-surface-900">
-          {title}
-        </p>
-      </div>
-      {isNext && (
-        <ChevronRightIcon className="size-5 shrink-0 text-surface-400" />
-      )}
+      {!isNext && <ChevronRightIcon className="size-4 shrink-0 rotate-180" />}
+      <span className="shrink-0 text-surface-500">{label}</span>
+      <span className="truncate">{title}</span>
+      {isNext && <ChevronRightIcon className="size-4 shrink-0" />}
     </Link>
   );
 }
