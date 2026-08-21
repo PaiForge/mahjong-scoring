@@ -25,7 +25,7 @@ interface ChapterNavLinkProps {
  * 章ページの前後リンク
  * 章ナビゲーション
  *
- * 現在の章の前後章を1行のテキストリンクで表示する。ページ下部で主張すべきは
+ * 現在の章の前後章を1行のテキストリンクで左右に表示する。ページ下部で主張すべきは
  * 練習への CTA なので、二次的な導線であるここは枠を持たせず軽くする。
  * 先頭章では prev スロットを、末尾章では next スロットを非表示にする。
  */
@@ -40,8 +40,8 @@ export async function ChapterNav({ slug }: ChapterNavProps) {
     <div className="space-y-6">
       <Divider />
       <nav
-        aria-label={tChapter("prevChapterLabel")}
-        className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between"
+        aria-label={tChapter("chapterNavLabel")}
+        className="flex items-center justify-between gap-4"
       >
         {prev && (
           <ChapterNavLink
@@ -75,12 +75,16 @@ function ChapterNavLink({
     <Link
       href={`/learn/${chapter.slug}`}
       // 先頭章では prev が無いので、next 単独でも右端に寄るよう ml-auto を持たせる。
-      className={`inline-flex max-w-full items-center gap-2 text-sm text-primary-600 underline-offset-4 transition-colors hover:text-primary-700 hover:underline ${
-        isNext ? "sm:ml-auto" : ""
+      className={`inline-flex min-w-0 items-center gap-2 text-sm text-primary-600 underline-offset-4 transition-colors hover:text-primary-700 hover:underline ${
+        isNext ? "ml-auto" : ""
       }`}
     >
       {!isNext && <ChevronRightIcon className="size-4 shrink-0 rotate-180" />}
-      <span className="shrink-0 text-surface-500">{label}</span>
+      {/* 狭い画面では章名の表示幅を優先し、方向はチェブロンに委ねる
+          （読み上げには残すため hidden ではなく sr-only を使う）。 */}
+      <span className="sr-only shrink-0 text-surface-500 sm:not-sr-only">
+        {label}
+      </span>
       <span className="truncate">{title}</span>
       {isNext && <ChevronRightIcon className="size-4 shrink-0" />}
     </Link>

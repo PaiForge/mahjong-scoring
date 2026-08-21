@@ -103,6 +103,7 @@ describe("i18n integrity: chapter UI keys", () => {
     "unmarkConfirmOk",
     "unmarkConfirmCancel",
     "loginPromptCta",
+    "chapterNavLabel",
     "prevChapterLabel",
     "nextChapterLabel",
     "practiceLinksTitle",
