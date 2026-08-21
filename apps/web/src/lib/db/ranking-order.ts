@@ -39,19 +39,40 @@ export function rankingOrder(columns: RankingColumns): SQL[] {
 }
 
 /**
- * 生 SQL の `ORDER BY` 句に埋め込む順序式
+ * 列を修飾する別名として許す形
+ *
+ * この関数はテーブル別名を生 SQL に直接埋め込むため、呼び出し側が渡せる値を
+ * 素の識別子に限る。別名はコード中のリテラルしか想定しておらず、外部入力を
+ * 通してはいけない。
+ */
+const SAFE_IDENTIFIER = /^[a-z_][a-z0-9_]*$/;
+
+/**
+ * 生 SQL の `ORDER BY` 句に埋め込む順序式を作る
  * ランキング順序（生 SQL）
  *
  * `ROW_NUMBER() OVER (ORDER BY ...)` や `DISTINCT ON ... ORDER BY` のように
- * Drizzle のクエリビルダで書けない箇所から使う。列名は修飾しないため、
- * 同名の列を持つテーブルを結合したクエリでは使わないこと。
+ * Drizzle のクエリビルダで書けない箇所から使う。
+ *
+ * @param alias - 列を修飾するテーブル名または別名。省略すると修飾しないため、
+ *   FROM に関係が1つしかないスコープでしか使えない。結合を含むスコープでは
+ *   必ず渡すこと（渡さないと同名の列があったときに実行時エラーになる）。
  */
-export const RANKING_ORDER_SQL: SQL = sql.join(
-  RANKING_ORDER.map((entry) =>
-    sql.raw(`${entry.sqlName} ${entry.direction === "desc" ? "DESC" : "ASC"}`),
-  ),
-  sql`, `,
-);
+export function rankingOrderSql(alias?: string): SQL {
+  if (alias !== undefined && !SAFE_IDENTIFIER.test(alias)) {
+    throw new Error(`ランキング順序の別名として使えません: ${alias}`);
+  }
+  const qualifier = alias === undefined ? "" : `${alias}.`;
+
+  return sql.join(
+    RANKING_ORDER.map((entry) =>
+      sql.raw(
+        `${qualifier}${entry.sqlName} ${entry.direction === "desc" ? "DESC" : "ASC"}`,
+      ),
+    ),
+    sql`, `,
+  );
+}
 
 /**
  * UPSERT の `setWhere` 用に、挿入行が既存行より上位かを判定する式を返す

@@ -5,7 +5,7 @@ import {
   startOfCurrentMonth,
   type RankedLeaderboardRow,
 } from "./leaderboard-queries";
-import { RANKING_ORDER_SQL } from "./ranking-order";
+import { rankingOrderSql } from "./ranking-order";
 
 // ---------------------------------------------------------------------------
 // User's ranked row (rank + full profile data for "your rank" display)
@@ -37,24 +37,39 @@ function mapRawRankedRow(row: RawRankedRow): RankedLeaderboardRow {
 }
 
 /**
+ * `buildRankedRowQuery` に渡せる関係名・別名
+ *
+ * 生 SQL に直接埋め込むため、外部入力が混じらないよう既知のリテラルに限る。
+ */
+type RankedSourceAlias = "challenge_best_scores" | "best";
+
+/**
  * ランク付きユーザー行クエリを組み立てる。
  * 内側のデータソース（best_scores 直 or 期間絞り込みサブクエリ）を差し替えつつ、
  * ROW_NUMBER によるランク付与・profiles 結合・対象ユーザー絞り込みを共通化する。
  * ランク行クエリ構築
  *
  * @param source - ranked サブクエリの FROM に入る SQL 断片
+ * @param sourceAlias - `source` の関係名または別名。列の修飾に使い、生 SQL へ
+ *   そのまま埋め込むため、コード中のリテラルだけを取れる型にしてある
  * @param userId - 取得対象のユーザーID
  */
-function buildRankedRowQuery(source: SQL, userId: string): SQL {
+function buildRankedRowQuery(
+  source: SQL,
+  sourceAlias: RankedSourceAlias,
+  userId: string,
+): SQL {
   return sql`
     SELECT ranked.user_id, ranked.score, ranked.incorrect_answers,
            ranked.time_taken, ranked.rank::int,
            p.username, p.display_name, p.avatar_url
     FROM (
       SELECT
-        user_id, score, incorrect_answers, time_taken,
+        ${sql.raw(sourceAlias)}.user_id, ${sql.raw(sourceAlias)}.score,
+        ${sql.raw(sourceAlias)}.incorrect_answers,
+        ${sql.raw(sourceAlias)}.time_taken,
         ROW_NUMBER() OVER (
-          ORDER BY ${RANKING_ORDER_SQL}
+          ORDER BY ${rankingOrderSql(sourceAlias)}
         ) AS rank
       FROM ${source}
     ) ranked
@@ -77,6 +92,7 @@ export async function getUserAllTimeRankedRow(
       sql`challenge_best_scores
           WHERE menu_type = ${menuType}
             AND leaderboard_key = ${leaderboardKey}`,
+      "challenge_best_scores",
       userId,
     ),
   );
@@ -98,14 +114,16 @@ export async function getUserMonthlyRankedRow(
   const [row] = await db.execute<RawRankedRow>(
     buildRankedRowQuery(
       sql`(
-        SELECT DISTINCT ON (user_id)
-          user_id, score, incorrect_answers, time_taken
+        SELECT DISTINCT ON (challenge_results.user_id)
+          challenge_results.user_id, challenge_results.score,
+          challenge_results.incorrect_answers, challenge_results.time_taken
         FROM challenge_results
         WHERE menu_type = ${menuType}
           AND leaderboard_key = ${leaderboardKey}
           AND created_at >= ${periodStart.toISOString()}
-        ORDER BY user_id, ${RANKING_ORDER_SQL}
+        ORDER BY challenge_results.user_id, ${rankingOrderSql("challenge_results")}
       ) best`,
+      "best",
       userId,
     ),
   );
