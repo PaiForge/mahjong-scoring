@@ -119,6 +119,14 @@
   --radius-2xl: 22px;
   --radius-3xl: 28px;
 
+  /*
+   * 本文の行間を取り直す。日本語の長文は Tailwind 既定の relaxed (1.625) だと
+   * 行が詰まって読みにくいため、全体を一段広げる。既存の `leading-relaxed`
+   * 指定をそのまま活かしたまま、教本・モーダル・LP などの本文が一括で広がる。
+   * 個別ページで行間を上書きせず、変えたいときはここを触ること。
+   */
+  --leading-relaxed: 1.9;
+
   /* 丸ゴシック優先のスタック。太めに組んでも字面が硬くならない。 */
   --font-sans:
     "Hiragino Maru Gothic ProN", "Yu Gothic", "Meiryo", "Rounded Mplus 1c",
