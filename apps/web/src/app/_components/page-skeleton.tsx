@@ -1,6 +1,7 @@
 import { ContentContainer } from "./content-container";
 import { PageTitle } from "./page-title";
-import { SkeletonBar } from "@/app/_components/skeleton-bar";
+import { PageTitleSkeleton } from "./page-title-skeleton";
+import { SkeletonBar } from "./skeleton-bar";
 
 interface PageSkeletonProps {
   /** タイトルバーのプレースホルダ幅（Tailwind の w-* クラス）。 */
@@ -25,11 +26,7 @@ export function PageSkeleton({
   return (
     <ContentContainer>
       <PageTitle>
-        <SkeletonBar
-          as="span"
-          tone={300}
-          className={`inline-block h-7 ${titleWidthClassName} rounded align-middle`}
-        />
+        <PageTitleSkeleton width={titleWidthClassName} />
       </PageTitle>
 
       <div className="space-y-4">

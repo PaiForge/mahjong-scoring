@@ -1,6 +1,7 @@
 import { ContentContainer } from "@/app/_components/content-container";
 import { PageTitle } from "@/app/_components/page-title";
 import { SkeletonBar } from "@/app/_components/skeleton-bar";
+import { PageTitleSkeleton } from "@/app/_components/page-title-skeleton";
 
 /**
  * 公開プロフィールのローディング状態。
@@ -17,11 +18,7 @@ export default function PublicProfileLoading() {
     <ContentContainer>
       {/* PageTitle を直接の子にしてタイトル帯へ引き上げる（実ページと同じ構造） */}
       <PageTitle>
-        <SkeletonBar
-          className="inline-block h-7 w-32 rounded align-middle"
-          tone={300}
-          as="span"
-        />
+        <PageTitleSkeleton width="w-32" />
       </PageTitle>
 
       <div className="space-y-8">

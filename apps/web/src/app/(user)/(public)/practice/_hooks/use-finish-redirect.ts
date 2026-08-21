@@ -44,7 +44,10 @@ interface UseFinishRedirectOptions {
    */
   readonly onFinish?: (
     args: FinishCallbackArgs,
-  ) => Promise<FinishCallbackResult | void | undefined> | FinishCallbackResult | void;
+  ) =>
+    | Promise<FinishCallbackResult | void | undefined>
+    | FinishCallbackResult
+    | void;
 }
 
 /**
@@ -83,7 +86,9 @@ export function useFinishRedirect({
     void (async () => {
       try {
         const result = onFinish
-          ? await Promise.resolve(onFinish({ correctCount, incorrectCount, totalCount, elapsedMs }))
+          ? await Promise.resolve(
+              onFinish({ correctCount, incorrectCount, totalCount, elapsedMs }),
+            )
           : undefined;
         const grant = result && "grant" in result ? result.grant : undefined;
         router.push(buildResultUrl(grant));

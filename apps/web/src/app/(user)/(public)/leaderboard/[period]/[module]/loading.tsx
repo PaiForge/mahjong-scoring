@@ -1,17 +1,14 @@
 import { ContentContainer } from "@/app/_components/content-container";
 import { PageTitle } from "@/app/_components/page-title";
 import { SkeletonBar } from "@/app/_components/skeleton-bar";
+import { PageTitleSkeleton } from "@/app/_components/page-title-skeleton";
 
 export default function LeaderboardDetailLoading() {
   return (
     <ContentContainer className="space-y-6">
       {/* PageTitle を使うことで実描画と同じ全幅グレー帯を再現する */}
       <PageTitle>
-        <SkeletonBar
-          className="inline-block h-7 w-48 rounded align-middle"
-          tone={300}
-          as="span"
-        />
+        <PageTitleSkeleton width="w-48" />
       </PageTitle>
 
       {/* SectionTitle（モジュール名） */}

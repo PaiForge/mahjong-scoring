@@ -67,8 +67,3 @@ export function LogFilterSkeleton() {
     </div>
   );
 }
-
-/** ページタイトルのスケルトン */
-export function PageTitleSkeleton({ width }: { readonly width: string }) {
-  return <Bar className={`h-8 ${width}`} />;
-}

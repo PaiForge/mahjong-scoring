@@ -6,7 +6,12 @@ import type { PracticeMenuType } from "@/lib/db/practice-menu-types";
  */
 
 /** 期間選択の有効値 */
-const DATE_PERIOD_VALUES = ["thisWeek", "lastWeek", "thisMonth", "lastMonth"] as const;
+const DATE_PERIOD_VALUES = [
+  "thisWeek",
+  "lastWeek",
+  "thisMonth",
+  "lastMonth",
+] as const;
 
 /** 期間選択 */
 export type DatePeriod = (typeof DATE_PERIOD_VALUES)[number];

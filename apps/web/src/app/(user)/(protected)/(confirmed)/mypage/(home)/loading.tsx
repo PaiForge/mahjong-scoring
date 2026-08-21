@@ -1,6 +1,7 @@
 import { ContentContainer } from "@/app/_components/content-container";
 import { PageTitle } from "@/app/_components/page-title";
 import { SkeletonBar } from "@/app/_components/skeleton-bar";
+import { PageTitleSkeleton } from "@/app/_components/page-title-skeleton";
 
 /**
  * マイページのローディング状態
@@ -11,11 +12,7 @@ export default function Loading() {
     <ContentContainer>
       {/* PageTitle を使うことで実描画と同じ全幅グレー帯を再現する */}
       <PageTitle>
-        <SkeletonBar
-          className="inline-block h-7 w-40 rounded align-middle"
-          tone={300}
-          as="span"
-        />
+        <PageTitleSkeleton width="w-40" />
       </PageTitle>
 
       <div className="space-y-6">

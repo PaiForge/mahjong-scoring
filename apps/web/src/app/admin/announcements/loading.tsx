@@ -1,5 +1,6 @@
 import { AdminPageTitle } from "@/app/admin/_components/admin-page-title";
 import { SkeletonBar } from "@/app/_components/skeleton-bar";
+import { PageTitleSkeleton } from "@/app/_components/page-title-skeleton";
 
 /**
  * お知らせ管理（一覧・作成・編集）のローディング状態。
@@ -14,10 +15,7 @@ export default function AnnouncementsLoading() {
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <AdminPageTitle>
-          <SkeletonBar
-            className="inline-block h-7 w-40 rounded align-middle"
-            as="span"
-          />
+          <PageTitleSkeleton width="w-40" />
         </AdminPageTitle>
         <SkeletonBar className="h-9 w-24 rounded" />
       </div>

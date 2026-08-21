@@ -1,5 +1,6 @@
 import { AdminPageTitle } from "@/app/admin/_components/admin-page-title";
 import { SkeletonBar } from "@/app/_components/skeleton-bar";
+import { PageTitleSkeleton } from "@/app/_components/page-title-skeleton";
 
 /**
  * ダッシュボード（admin/page.tsx）のローディング状態。
@@ -15,10 +16,7 @@ export default function AdminDashboardLoading() {
   return (
     <>
       <AdminPageTitle className="mb-2">
-        <SkeletonBar
-          className="inline-block h-7 w-40 rounded align-middle"
-          as="span"
-        />
+        <PageTitleSkeleton width="w-40" />
       </AdminPageTitle>
       <SkeletonBar className="mb-6 h-4 w-2/3 max-w-md rounded" tone={100} />
 
