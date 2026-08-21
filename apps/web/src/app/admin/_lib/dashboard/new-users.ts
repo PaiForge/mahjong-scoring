@@ -1,8 +1,8 @@
-import 'server-only';
+import "server-only";
 
-import { listAllAuthUsers } from '@/lib/supabase/list-all-auth-users';
+import { listAllAuthUsers } from "@/lib/supabase/list-all-auth-users";
 
-import { type DailyCount, aggregateByDay } from './aggregate-by-day';
+import { type DailyCount, aggregateByDay } from "./aggregate-by-day";
 
 /**
  * auth.users.created_at から新規ユーザー登録数を日次集計する。

@@ -13,6 +13,7 @@ import { InfoModal } from "@/app/_components/info-modal";
 import { useIsClient } from "../../../../../_hooks/use-is-client";
 import { SettingToggle } from "./setting-toggle";
 import { SmallCheckbox } from "./small-checkbox";
+import { SkeletonBar } from "@/app/_components/skeleton-bar";
 
 /**
  * 点数計算練習の設定画面
@@ -107,8 +108,8 @@ export function ScoreSetupForm() {
                   key={key}
                   className={`flex items-center justify-between px-5 py-3.5 ${i < 3 ? "border-b border-surface-100" : ""}`}
                 >
-                  <div className="h-4 w-32 animate-pulse rounded bg-surface-100" />
-                  <div className="h-6 w-11 animate-pulse rounded-full bg-surface-100" />
+                  <SkeletonBar className="h-4 w-32 rounded" tone={100} />
+                  <SkeletonBar className="h-6 w-11 rounded-full" tone={100} />
                 </div>
               ),
             )}
@@ -124,7 +125,7 @@ export function ScoreSetupForm() {
 
         {/* Full-width start button */}
         <div>
-          <div className="h-11 w-full animate-pulse rounded-lg bg-surface-200" />
+          <SkeletonBar className="h-11 w-full rounded-lg" />
         </div>
       </div>
     );

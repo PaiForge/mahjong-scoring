@@ -1,4 +1,5 @@
 import type { Profile, UserActivityLog } from "../../../../lib/db";
+import { formatAdminDateTime } from "../../_lib/format-date";
 import { resolveUserDisplay } from "../../_lib/log-query-helpers";
 
 interface ActivityLogRowProps {
@@ -38,7 +39,7 @@ export function ActivityLogRow({
         )}
       </td>
       <td className="px-4 py-3 text-gray-500">
-        {new Date(log.createdAt).toLocaleString("ja-JP")}
+        {formatAdminDateTime(log.createdAt)}
       </td>
     </tr>
   );

@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { getTranslations } from "next-intl/server";
+import { DataTable, DataTableHeaderCell } from "@/app/_components/data-table";
 import { SectionTitle } from "@/app/_components/section-title";
 import { ChevronRightIcon } from "@/app/_components/icons/chevron-right-icon";
 import { GuideParagraph } from "../../_components/guide-paragraph";
@@ -27,62 +28,51 @@ export async function YakuGuide() {
       {/* 翻数別の役まとめ（テキスト一覧）＋ 手牌例の早見表へのリンク */}
       <section className="space-y-4">
         <SectionTitle>{t("summaryTitle")}</SectionTitle>
-        <div className="overflow-hidden rounded-xl border border-surface-200">
-          <table className="w-full text-sm">
-            <thead>
-              <tr className="bg-surface-50">
-                <th className="px-4 py-3 text-left font-medium text-surface-600">
-                  {t("colHan")}
-                </th>
-                <th className="px-4 py-3 text-left font-medium text-surface-600">
-                  {t("colYakuList")}
-                </th>
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-surface-100">
-              <tr className="bg-white">
-                <td className="px-4 py-3 font-semibold text-primary-600">
-                  {t("row1han")}
-                </td>
-                <td className="px-4 py-3 text-surface-700">
-                  {t("row1hanYaku")}
-                </td>
-              </tr>
-              <tr className="bg-white">
-                <td className="px-4 py-3 font-semibold text-primary-600">
-                  {t("row2han")}
-                </td>
-                <td className="px-4 py-3 text-surface-700">
-                  {t("row2hanYaku")}
-                </td>
-              </tr>
-              <tr className="bg-white">
-                <td className="px-4 py-3 font-semibold text-primary-600">
-                  {t("row3han")}
-                </td>
-                <td className="px-4 py-3 text-surface-700">
-                  {t("row3hanYaku")}
-                </td>
-              </tr>
-              <tr className="bg-white">
-                <td className="px-4 py-3 font-semibold text-primary-600">
-                  {t("row6han")}
-                </td>
-                <td className="px-4 py-3 text-surface-700">
-                  {t("row6hanYaku")}
-                </td>
-              </tr>
-              <tr className="bg-white">
-                <td className="px-4 py-3 font-semibold text-primary-600">
-                  {t("rowYakuman")}
-                </td>
-                <td className="px-4 py-3 text-surface-700">
-                  {t("rowYakumanYaku")}
-                </td>
-              </tr>
-            </tbody>
-          </table>
-        </div>
+        <DataTable
+          header={
+            <>
+              <DataTableHeaderCell align="left">
+                {t("colHan")}
+              </DataTableHeaderCell>
+              <DataTableHeaderCell align="left">
+                {t("colYakuList")}
+              </DataTableHeaderCell>
+            </>
+          }
+        >
+          <tr className="bg-white">
+            <td className="px-4 py-3 font-semibold text-primary-600">
+              {t("row1han")}
+            </td>
+            <td className="px-4 py-3 text-surface-700">{t("row1hanYaku")}</td>
+          </tr>
+          <tr className="bg-white">
+            <td className="px-4 py-3 font-semibold text-primary-600">
+              {t("row2han")}
+            </td>
+            <td className="px-4 py-3 text-surface-700">{t("row2hanYaku")}</td>
+          </tr>
+          <tr className="bg-white">
+            <td className="px-4 py-3 font-semibold text-primary-600">
+              {t("row3han")}
+            </td>
+            <td className="px-4 py-3 text-surface-700">{t("row3hanYaku")}</td>
+          </tr>
+          <tr className="bg-white">
+            <td className="px-4 py-3 font-semibold text-primary-600">
+              {t("row6han")}
+            </td>
+            <td className="px-4 py-3 text-surface-700">{t("row6hanYaku")}</td>
+          </tr>
+          <tr className="bg-white">
+            <td className="px-4 py-3 font-semibold text-primary-600">
+              {t("rowYakuman")}
+            </td>
+            <td className="px-4 py-3 text-surface-700">
+              {t("rowYakumanYaku")}
+            </td>
+          </tr>
+        </DataTable>
 
         <Link
           href="/reference/yaku"

@@ -26,6 +26,7 @@ import {
 } from "./assemble-question";
 import { retryGenerate } from "../retry-generate";
 import { countKantsu } from "../shared/count-kantsu";
+import type { AgariContext } from "../shared/agari-context";
 
 /**
  * 点数レベルが許可範囲内かどうかを検証する
@@ -65,12 +66,14 @@ function selectJikaze(includeParent: boolean, includeChild: boolean): Kazehai {
 /** 場風の候補（東場・南場） */
 const BAKAZE_OPTIONS: readonly Kazehai[] = [HaiKind.Ton, HaiKind.Nan];
 
-/** 和了状況（点数・役計算の入力） */
-interface AgariContext {
-  readonly agariHai: HaiKindId;
-  readonly isTsumo: boolean;
-  readonly jikaze: Kazehai;
-  readonly bakaze: Kazehai;
+/**
+ * 点数・役計算の入力
+ * 点数計算入力
+ *
+ * 共通の和了状況（{@link AgariContext}）に、点数計算にだけ必要なドラ表示牌と
+ * ルール設定を足したもの。
+ */
+interface ScoringInput extends AgariContext {
   readonly doraMarkers: readonly HaiKindId[];
   readonly ruleConfig: { readonly doubleWindJantouFu: 2 | 4 };
 }
@@ -84,7 +87,7 @@ interface AgariContext {
  */
 function computeScoreAndYaku(
   tehai: Tehai14,
-  context: AgariContext,
+  context: ScoringInput,
 ):
   | {
       readonly answer: ReturnType<typeof calculateScoreForTehai>;

@@ -1,3 +1,4 @@
+import { DataTable, DataTableHeaderCell } from "@/app/_components/data-table";
 import { SectionTitle } from "@/app/_components/section-title";
 
 interface FuSummaryRow {
@@ -37,39 +38,32 @@ export function FuSummaryTable({
   return (
     <section className="space-y-4">
       <SectionTitle>{title}</SectionTitle>
-      <div className="overflow-hidden rounded-xl border border-surface-200">
-        <table className="w-full text-sm">
-          <thead>
-            <tr className="bg-surface-50">
-              <th className="px-4 py-3 text-left font-medium text-surface-600">
-                {colType}
-              </th>
-              <th className="px-4 py-3 text-right font-medium text-surface-600">
-                {colFu}
-              </th>
+      <DataTable
+        header={
+          <>
+            <DataTableHeaderCell align="left">{colType}</DataTableHeaderCell>
+            <DataTableHeaderCell align="right">{colFu}</DataTableHeaderCell>
+          </>
+        }
+      >
+        {rows.map((row, index) => {
+          const hasFu = row.fu > 0;
+          return (
+            <tr key={index} className="bg-white">
+              <td
+                className={`px-4 py-3 ${hasFu ? "text-surface-900" : "text-surface-500"}`}
+              >
+                {row.label}
+              </td>
+              <td
+                className={`px-4 py-3 text-right ${hasFu ? "font-semibold text-primary-600" : "text-surface-400"}`}
+              >
+                {formatFu(row.fu)}
+              </td>
             </tr>
-          </thead>
-          <tbody className="divide-y divide-surface-100">
-            {rows.map((row, index) => {
-              const hasFu = row.fu > 0;
-              return (
-                <tr key={index} className="bg-white">
-                  <td
-                    className={`px-4 py-3 ${hasFu ? "text-surface-900" : "text-surface-500"}`}
-                  >
-                    {row.label}
-                  </td>
-                  <td
-                    className={`px-4 py-3 text-right ${hasFu ? "font-semibold text-primary-600" : "text-surface-400"}`}
-                  >
-                    {formatFu(row.fu)}
-                  </td>
-                </tr>
-              );
-            })}
-          </tbody>
-        </table>
-      </div>
+          );
+        })}
+      </DataTable>
     </section>
   );
 }

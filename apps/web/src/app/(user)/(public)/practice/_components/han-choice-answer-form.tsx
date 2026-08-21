@@ -5,6 +5,7 @@ import { useTranslations } from "next-intl";
 
 import { ChoiceButton } from "./choice-button";
 import { getFeedbackStyles } from "../_lib/feedback-styles";
+import { QuestionPrompt } from "./question-prompt";
 
 interface HanChoiceAnswerFormProps {
   /** 表示する翻数の選択肢 */
@@ -69,9 +70,7 @@ export const HanChoiceAnswerForm = memo(function HanChoiceAnswerFormComponent({
 
   return (
     <div className="space-y-3">
-      <p className="text-center text-sm font-medium text-surface-600">
-        {t("selectHan")}
-      </p>
+      <QuestionPrompt>{t("selectHan")}</QuestionPrompt>
       <div className={`grid ${columnsClassName} gap-2`}>
         {options.map((han, index) => {
           const isSelected = selectedIndex === index;

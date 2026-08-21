@@ -6,6 +6,7 @@ import { FuChoiceGrid } from "../../_components/fu-choice-grid";
 import { useFuChoiceBoard } from "../../_hooks/use-fu-choice-board";
 import { MACHI_FU_OPTIONS } from "../_lib/fu-options";
 import { MachiFuPrompt } from "./machi-fu-prompt";
+import { QuestionPrompt } from "../../_components/question-prompt";
 
 interface MachiFuBoardProps {
   readonly showFeedback: boolean;
@@ -37,9 +38,7 @@ export function MachiFuBoard({
       <MachiFuPrompt tiles={question.tiles} agariHai={question.agariHai} />
 
       {/* Question */}
-      <p className="text-center text-sm font-medium text-surface-600">
-        {t("questionPrompt")}
-      </p>
+      <QuestionPrompt>{t("questionPrompt")}</QuestionPrompt>
 
       {/* Fu options */}
       <FuChoiceGrid

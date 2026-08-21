@@ -8,13 +8,19 @@ import type { ScoreTableAnswer } from "@mahjong-scoring/core";
  * @param payment - riichi-mahjong の Payment 型
  * @returns ScoreTableAnswer 形式の正解データ
  */
-export function paymentToScoreTableAnswer(payment: Readonly<Payment>): ScoreTableAnswer {
+export function paymentToScoreTableAnswer(
+  payment: Readonly<Payment>,
+): ScoreTableAnswer {
   switch (payment.type) {
     case "ron":
       return { type: "ron", score: payment.amount };
     case "oyaTsumo":
       return { type: "oyaTsumo", scoreAll: payment.amount };
     case "koTsumo":
-      return { type: "koTsumo", scoreFromKo: payment.amount[0], scoreFromOya: payment.amount[1] };
+      return {
+        type: "koTsumo",
+        scoreFromKo: payment.amount[0],
+        scoreFromOya: payment.amount[1],
+      };
   }
 }

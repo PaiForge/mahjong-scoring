@@ -5,6 +5,7 @@ import { SectionTitleSkeleton } from "@/app/_components/section-title-skeleton";
 import { LeaderboardSkeleton } from "./leaderboard-skeleton";
 import { ProblemListSkeleton } from "./problem-list-skeleton";
 import { ResultBlockSkeleton } from "./result-block-skeleton";
+import { SkeletonBar } from "@/app/_components/skeleton-bar";
 
 interface ResultPageSkeletonProps {
   /** 結果ページと同じ練習名を表示してタイトル帯を一致させる */
@@ -47,15 +48,15 @@ export function ResultPageSkeleton({
         <section aria-hidden="true" className="space-y-3">
           <SectionTitleSkeleton />
           <div className="w-full space-y-3">
-            <div className="h-8 w-full animate-pulse rounded-md bg-surface-100" />
+            <SkeletonBar className="h-8 w-full rounded-md" tone={100} />
             {/* 凡例（正解 / 不正解）と正答率。実物と同じ flex-wrap にして
                 狭い幅での折り返し（＝高さの増加）まで一致させる。 */}
             <div className="flex flex-wrap items-center justify-between gap-3">
               <div className="flex items-center gap-4">
-                <div className="h-4 w-20 animate-pulse rounded bg-surface-200" />
-                <div className="h-4 w-24 animate-pulse rounded bg-surface-200" />
+                <SkeletonBar className="h-4 w-20 rounded" />
+                <SkeletonBar className="h-4 w-24 rounded" />
               </div>
-              <div className="h-4 w-16 animate-pulse rounded bg-surface-200" />
+              <SkeletonBar className="h-4 w-16 rounded" />
             </div>
           </div>
         </section>
@@ -65,8 +66,8 @@ export function ResultPageSkeleton({
 
         {/* アクションボタン（もう一度 / 練習一覧に戻る）。ResultView と同じ縦積み・全幅。 */}
         <div aria-hidden="true" className="space-y-3">
-          <div className="h-11 w-full animate-pulse rounded-lg bg-surface-200" />
-          <div className="h-11 w-full animate-pulse rounded-lg bg-surface-100" />
+          <SkeletonBar className="h-11 w-full rounded-lg" />
+          <SkeletonBar className="h-11 w-full rounded-lg" tone={100} />
         </div>
 
         {/* 問題別フィードバック一覧（一覧を持つ練習のみ）。ResultView では

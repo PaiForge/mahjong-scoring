@@ -1,7 +1,7 @@
-import { isPracticeMenuType } from '@/lib/db/practice-menu-types';
+import { isPracticeMenuType } from "@/lib/db/practice-menu-types";
 
-import type { LeaderboardModule, LeaderboardPeriod } from './types';
-import { VALID_PERIODS } from './types';
+import type { LeaderboardModule, LeaderboardPeriod } from "./types";
+import { VALID_PERIODS } from "./types";
 
 const validPeriodSet: ReadonlySet<string> = new Set(VALID_PERIODS);
 

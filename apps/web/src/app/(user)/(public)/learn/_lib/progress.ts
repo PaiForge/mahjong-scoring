@@ -1,10 +1,10 @@
-import 'server-only';
+import "server-only";
 
-import { eq } from 'drizzle-orm';
+import { eq } from "drizzle-orm";
 
-import { db } from '@/lib/db';
-import { learnChapterReads } from '@/lib/db/schema';
-import { getOptionalUser } from '@/lib/auth';
+import { db } from "@/lib/db";
+import { learnChapterReads } from "@/lib/db/schema";
+import { getOptionalUser } from "@/lib/auth";
 
 /**
  * 認証ユーザーの読了済み章スラッグ集合を返す。

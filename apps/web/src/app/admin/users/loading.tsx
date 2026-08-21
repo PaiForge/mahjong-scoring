@@ -1,8 +1,6 @@
 import { AdminPageTitle } from "@/app/admin/_components/admin-page-title";
-import {
-  PageTitleSkeleton,
-  TableSkeleton,
-} from "@/app/admin/_components/table-skeleton";
+import { PageTitleSkeleton } from "@/app/_components/page-title-skeleton";
+import { TableSkeleton } from "@/app/admin/_components/table-skeleton";
 
 /**
  * ユーザー管理のローディング状態

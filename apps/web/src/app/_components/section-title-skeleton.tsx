@@ -1,4 +1,5 @@
 import { SectionTitle } from "./section-title";
+import { SkeletonBar } from "./skeleton-bar";
 
 interface SectionTitleSkeletonProps {
   /** プレースホルダーバーの幅（Tailwind の `w-*` クラス） */
@@ -21,11 +22,9 @@ export function SectionTitleSkeleton({
 }: SectionTitleSkeletonProps) {
   return (
     <SectionTitle className="border-surface-200">
-      <span
-        className={`inline-block animate-pulse rounded bg-surface-200 ${width}`}
-      >
+      <SkeletonBar as="span" className={`inline-block rounded ${width}`}>
         &nbsp;
-      </span>
+      </SkeletonBar>
     </SectionTitle>
   );
 }

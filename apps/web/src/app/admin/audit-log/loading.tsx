@@ -1,6 +1,6 @@
 import { AdminPageTitle } from "@/app/admin/_components/admin-page-title";
+import { PageTitleSkeleton } from "@/app/_components/page-title-skeleton";
 import {
-  PageTitleSkeleton,
   LogFilterSkeleton,
   TableSkeleton,
 } from "@/app/admin/_components/table-skeleton";

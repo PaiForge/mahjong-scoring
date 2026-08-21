@@ -6,6 +6,7 @@ import type { HaiKindId } from "@mahjong-scoring/core";
 import { DemoFuChoiceGrid } from "../../_components/demo-fu-choice-grid";
 import { MACHI_FU_OPTIONS } from "../_lib/fu-options";
 import { MachiFuPrompt } from "./machi-fu-prompt";
+import { QuestionPrompt } from "../../_components/question-prompt";
 
 /** デモ用の固定例: 嵌張待ち（二萬・四萬で三萬待ち） → 2符 */
 const DEMO_TILES: readonly HaiKindId[] = [HaiKind.ManZu2, HaiKind.ManZu4];
@@ -29,9 +30,7 @@ export function MachiFuHowToPlay() {
       <MachiFuPrompt tiles={DEMO_TILES} agariHai={DEMO_AGARI} />
 
       {/* Question */}
-      <p className="text-center text-sm font-medium text-surface-600">
-        {t("questionPrompt")}
-      </p>
+      <QuestionPrompt>{t("questionPrompt")}</QuestionPrompt>
 
       {/* Fu options */}
       <DemoFuChoiceGrid

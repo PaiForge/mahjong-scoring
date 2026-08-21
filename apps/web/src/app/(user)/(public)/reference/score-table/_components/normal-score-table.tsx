@@ -5,6 +5,7 @@ import { useTranslations } from "next-intl";
 import { FU_VALUES } from "@mahjong-scoring/core";
 import type { calculateKoScore } from "@mahjong-scoring/core";
 import type { Role, WinType } from "@mahjong-scoring/core";
+import { DataTable, DataTableHeaderCell } from "@/app/_components/data-table";
 import { TsumoScore } from "./tsumo-score";
 
 /** 表の翻数列（1〜4翻） */
@@ -44,81 +45,79 @@ export function NormalScoreTable({
   const t = useTranslations("scoreTable");
 
   return (
-    <div className="overflow-hidden rounded-xl border border-surface-200">
-      <table className="w-full text-center text-sm">
-        <thead>
-          <tr className="bg-surface-50">
-            <th className="px-4 py-3 text-left font-medium text-surface-600">
-              {t("fuSuffix")}
-              {"＼"}
+    <DataTable
+      tableClassName="text-center"
+      header={
+        <>
+          <DataTableHeaderCell align="left">
+            {t("fuSuffix")}
+            {"＼"}
+            {t("hanSuffix")}
+          </DataTableHeaderCell>
+          {HAN_COLS.map((han) => (
+            <DataTableHeaderCell key={han}>
+              {han}
               {t("hanSuffix")}
-            </th>
-            {HAN_COLS.map((han) => (
-              <th key={han} className="px-4 py-3 font-medium text-surface-600">
-                {han}
-                {t("hanSuffix")}
-              </th>
-            ))}
-          </tr>
-        </thead>
-        <tbody className="divide-y divide-surface-100">
-          {FU_ROWS.map((fu) => {
-            const isFrequent = FREQUENT_FU.has(fu);
+            </DataTableHeaderCell>
+          ))}
+        </>
+      }
+    >
+      {FU_ROWS.map((fu) => {
+        const isFrequent = FREQUENT_FU.has(fu);
 
-            return (
-              <tr key={fu} className="bg-white">
+        return (
+          <tr key={fu} className="bg-white">
+            <td
+              className={`px-4 py-3 text-left font-medium ${
+                isFrequent ? "text-amber-700" : "text-surface-600"
+              }`}
+            >
+              {fu}
+            </td>
+            {HAN_COLS.map((han) => {
+              const score = scoreGrid.get(`${han}-${fu}`);
+              if (!score) {
+                return (
+                  <td key={han} className="px-4 py-3 text-surface-400">
+                    -
+                  </td>
+                );
+              }
+
+              const cellId = `${activeTab}-${winType}-${han}han-${fu}fu`;
+              const isHidden = !!hiddenCells[cellId];
+              const isHighlighted = cellId === highlightCellId;
+              const highlightClass = isHighlighted
+                ? " bg-amber-100 ring-2 ring-inset ring-amber-400"
+                : "";
+
+              return (
                 <td
-                  className={`px-4 py-3 text-left font-medium ${
-                    isFrequent ? "text-amber-700" : "text-surface-600"
-                  }`}
+                  key={han}
+                  ref={isHighlighted ? highlightRef : undefined}
+                  className={`px-4 py-3 cursor-pointer select-none${highlightClass}`}
+                  onClick={() => onToggleCell(cellId)}
                 >
-                  {fu}
+                  <span
+                    className={`font-semibold text-primary-600 ${
+                      isHidden ? "blur-md" : ""
+                    }`}
+                  >
+                    {score.isMangan ? (
+                      t("mangan")
+                    ) : winType === "ron" ? (
+                      score.ron
+                    ) : (
+                      <TsumoScore payment={score.tsumo} />
+                    )}
+                  </span>
                 </td>
-                {HAN_COLS.map((han) => {
-                  const score = scoreGrid.get(`${han}-${fu}`);
-                  if (!score) {
-                    return (
-                      <td key={han} className="px-4 py-3 text-surface-400">
-                        -
-                      </td>
-                    );
-                  }
-
-                  const cellId = `${activeTab}-${winType}-${han}han-${fu}fu`;
-                  const isHidden = !!hiddenCells[cellId];
-                  const isHighlighted = cellId === highlightCellId;
-                  const highlightClass = isHighlighted
-                    ? " bg-amber-100 ring-2 ring-inset ring-amber-400"
-                    : "";
-
-                  return (
-                    <td
-                      key={han}
-                      ref={isHighlighted ? highlightRef : undefined}
-                      className={`px-4 py-3 cursor-pointer select-none${highlightClass}`}
-                      onClick={() => onToggleCell(cellId)}
-                    >
-                      <span
-                        className={`font-semibold text-primary-600 ${
-                          isHidden ? "blur-md" : ""
-                        }`}
-                      >
-                        {score.isMangan ? (
-                          t("mangan")
-                        ) : winType === "ron" ? (
-                          score.ron
-                        ) : (
-                          <TsumoScore payment={score.tsumo} />
-                        )}
-                      </span>
-                    </td>
-                  );
-                })}
-              </tr>
-            );
-          })}
-        </tbody>
-      </table>
-    </div>
+              );
+            })}
+          </tr>
+        );
+      })}
+    </DataTable>
   );
 }

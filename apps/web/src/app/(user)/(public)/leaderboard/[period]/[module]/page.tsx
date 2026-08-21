@@ -33,6 +33,7 @@ import { LeaderboardDetailContent } from "../../_components/leaderboard-detail-c
 import type { LeaderboardModule, LeaderboardPeriod } from "../../_lib/types";
 import { buildChallengePath, slugToModule } from "../../_lib/types";
 import { isValidPeriod } from "../../_lib/validators";
+import { SkeletonBar } from "@/app/_components/skeleton-bar";
 
 export const dynamic = "force-dynamic";
 
@@ -138,10 +139,7 @@ export default async function LeaderboardDetailPage({
         fallback={
           <div className="space-y-4">
             {Array.from({ length: 5 }).map((_, i) => (
-              <div
-                key={i}
-                className="h-12 w-full animate-pulse rounded bg-surface-100"
-              />
+              <SkeletonBar key={i} className="h-12 w-full rounded" tone={100} />
             ))}
           </div>
         }

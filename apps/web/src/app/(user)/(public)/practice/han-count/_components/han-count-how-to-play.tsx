@@ -5,6 +5,7 @@ import { DemoChoiceCell } from "../../_components/demo-choice-cell";
 import { HaiKind } from "@mahjong-scoring/core";
 import type { Tehai14 } from "@mahjong-scoring/core";
 import { TehaiDisplay } from "../../_components/tehai-display";
+import { QuestionPrompt } from "../../_components/question-prompt";
 
 /**
  * デモ用の固定例: 立直 + 門前清自摸和 + 断么九 = 3翻
@@ -62,9 +63,7 @@ export function HanCountHowToPlay() {
       />
 
       {/* Instruction */}
-      <p className="text-center text-sm font-medium text-surface-600">
-        {t("selectHan")}
-      </p>
+      <QuestionPrompt>{t("selectHan")}</QuestionPrompt>
 
       {/* Han options（正解をハイライト） */}
       <div className="grid grid-cols-4 gap-2 sm:grid-cols-5">

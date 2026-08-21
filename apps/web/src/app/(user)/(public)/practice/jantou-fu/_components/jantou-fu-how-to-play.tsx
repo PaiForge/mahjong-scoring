@@ -6,6 +6,7 @@ import type { HaiKindId } from "@mahjong-scoring/core";
 import { Hai } from "@pai-forge/mahjong-react-ui";
 import { DemoChoiceCell } from "../../_components/demo-choice-cell";
 import { JantouFuKazeContext } from "./jantou-fu-kaze-context";
+import { QuestionPrompt } from "../../_components/question-prompt";
 
 /** デモ用の固定例: 東場・南家。正解は中（三元牌 → 2符） */
 const DEMO_CHOICES: readonly { hai: HaiKindId; isCorrect: boolean }[] = [
@@ -31,9 +32,7 @@ export function JantouFuHowToPlay() {
       <JantouFuKazeContext bakaze={HaiKind.Ton} jikaze={HaiKind.Nan} />
 
       {/* Question */}
-      <p className="text-center text-sm font-medium text-surface-600">
-        {t("selectCorrectHead")}
-      </p>
+      <QuestionPrompt>{t("selectCorrectHead")}</QuestionPrompt>
 
       {/* Choices */}
       <div className="grid grid-cols-2 gap-3">

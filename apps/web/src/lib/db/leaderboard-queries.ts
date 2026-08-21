@@ -1,8 +1,7 @@
-import { and, asc, desc, eq, gte, sql } from "drizzle-orm";
-import type { SQL } from "drizzle-orm";
-import type { PgColumn } from "drizzle-orm/pg-core";
+import { and, eq, gte, sql } from "drizzle-orm";
 
 import { db } from "./index";
+import { rankingOrder } from "./ranking-order";
 import { challengeBestScores, challengeResults, profiles } from "./schema";
 
 /**
@@ -64,26 +63,6 @@ function toLeaderboardRow(row: {
     displayName: row.displayName ?? undefined,
     avatarUrl: row.avatarUrl ?? undefined,
   };
-}
-
-/**
- * ランキングの正準ソート順（スコア降順 → ミス昇順 → 所要時間昇順）
- * ランキング順序
- *
- * 順位決定ルールの唯一の定義。全期間・期間別・DISTINCT ON のいずれも
- * ここから引く。生 SQL 版は user-rank-queries.ts の `RANKING_ORDER_SQL`
- * にあり、変更時は両方を揃えること。
- */
-function rankingOrder(columns: {
-  readonly score: PgColumn;
-  readonly incorrectAnswers: PgColumn;
-  readonly timeTaken: PgColumn;
-}): SQL[] {
-  return [
-    desc(columns.score),
-    asc(columns.incorrectAnswers),
-    asc(columns.timeTaken),
-  ];
 }
 
 /**

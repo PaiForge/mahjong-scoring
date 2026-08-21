@@ -1,5 +1,7 @@
 import { ContentContainer } from "@/app/_components/content-container";
 import { PageTitle } from "@/app/_components/page-title";
+import { SkeletonBar } from "@/app/_components/skeleton-bar";
+import { PageTitleSkeleton } from "@/app/_components/page-title-skeleton";
 
 /**
  * マイページのローディング状態
@@ -10,36 +12,36 @@ export default function Loading() {
     <ContentContainer>
       {/* PageTitle を使うことで実描画と同じ全幅グレー帯を再現する */}
       <PageTitle>
-        <span className="inline-block h-7 w-40 animate-pulse rounded bg-surface-300 align-middle" />
+        <PageTitleSkeleton width="w-40" />
       </PageTitle>
 
       <div className="space-y-6">
         {/* プロフィールカード（実: flex items-center gap-4 border-border bg-card p-4。
             アバター(lg) + 表示名 + @username + 公開プロフィール/編集リンク） */}
         <section className="flex items-center gap-4 rounded-lg border border-border bg-card p-4">
-          <div className="h-20 w-20 flex-shrink-0 animate-pulse rounded-full bg-surface-200" />
+          <SkeletonBar className="h-20 w-20 flex-shrink-0 rounded-full" />
           <div className="min-w-0 flex-1 space-y-2">
-            <div className="h-6 w-32 animate-pulse rounded bg-surface-200" />
-            <div className="h-4 w-24 animate-pulse rounded bg-surface-200" />
+            <SkeletonBar className="h-6 w-32 rounded" />
+            <SkeletonBar className="h-4 w-24 rounded" />
             <div className="mt-1.5 flex gap-2">
-              <div className="h-7 w-28 animate-pulse rounded-lg bg-surface-200" />
-              <div className="h-7 w-28 animate-pulse rounded-lg bg-surface-200" />
+              <SkeletonBar className="h-7 w-28 rounded-lg" />
+              <SkeletonBar className="h-7 w-28 rounded-lg" />
             </div>
           </div>
         </section>
 
         {/* アクティビティヒートマップ（実: border-border bg-card p-4、mt なし） */}
         <section className="rounded-lg border border-border bg-card p-4">
-          <div className="mb-3 h-5 w-32 animate-pulse rounded bg-surface-200" />
-          <div className="h-[140px] w-full animate-pulse rounded bg-surface-200" />
+          <SkeletonBar className="mb-3 h-5 w-32 rounded" />
+          <SkeletonBar className="h-[140px] w-full rounded" />
         </section>
 
         {/* カード（実: rounded-md border-border bg-card p-6） */}
         <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
           <div className="rounded-md border border-border bg-card p-6">
-            <div className="h-8 w-8 animate-pulse rounded bg-surface-200" />
-            <div className="mt-2 h-5 w-32 animate-pulse rounded bg-surface-200" />
-            <div className="mt-1 h-4 w-full animate-pulse rounded bg-surface-200" />
+            <SkeletonBar className="h-8 w-8 rounded" />
+            <SkeletonBar className="mt-2 h-5 w-32 rounded" />
+            <SkeletonBar className="mt-1 h-4 w-full rounded" />
           </div>
         </div>
       </div>

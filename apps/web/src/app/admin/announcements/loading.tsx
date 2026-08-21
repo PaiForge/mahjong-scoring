@@ -1,4 +1,6 @@
 import { AdminPageTitle } from "@/app/admin/_components/admin-page-title";
+import { SkeletonBar } from "@/app/_components/skeleton-bar";
+import { PageTitleSkeleton } from "@/app/_components/page-title-skeleton";
 
 /**
  * お知らせ管理（一覧・作成・編集）のローディング状態。
@@ -13,23 +15,24 @@ export default function AnnouncementsLoading() {
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <AdminPageTitle>
-          <span className="inline-block h-7 w-40 animate-pulse rounded bg-surface-200 align-middle" />
+          <PageTitleSkeleton width="w-40" />
         </AdminPageTitle>
-        <div className="h-9 w-24 animate-pulse rounded bg-surface-200" />
+        <SkeletonBar className="h-9 w-24 rounded" />
       </div>
 
       <div className="space-y-6">
         {Array.from({ length: 2 }, (_, i) => (
           <section key={i} className="rounded-lg border border-surface-200">
             <div className="flex items-center justify-between border-b border-surface-200 px-4 py-3">
-              <div className="h-4 w-32 animate-pulse rounded bg-surface-200" />
-              <div className="h-4 w-16 animate-pulse rounded bg-surface-100" />
+              <SkeletonBar className="h-4 w-32 rounded" />
+              <SkeletonBar className="h-4 w-16 rounded" tone={100} />
             </div>
             <div className="space-y-3 p-4">
               {Array.from({ length: 2 }, (_row, j) => (
-                <div
+                <SkeletonBar
                   key={j}
-                  className="h-5 w-full animate-pulse rounded bg-surface-100"
+                  className="h-5 w-full rounded"
+                  tone={100}
                 />
               ))}
             </div>

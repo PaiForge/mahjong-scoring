@@ -1,4 +1,5 @@
 import type { ModerationAction, Profile } from "../../../../lib/db";
+import { formatAdminDateTime } from "../../_lib/format-date";
 import { resolveUserDisplay } from "../../_lib/log-query-helpers";
 
 interface AuditLogRowProps {
@@ -41,7 +42,7 @@ export function AuditLogRow({ log, profileMap, emailMap }: AuditLogRowProps) {
       </td>
       <td className="px-4 py-3 text-gray-500">{log.ipAddress ?? "-"}</td>
       <td className="px-4 py-3 text-gray-500">
-        {new Date(log.createdAt).toLocaleString("ja-JP")}
+        {formatAdminDateTime(log.createdAt)}
       </td>
     </tr>
   );

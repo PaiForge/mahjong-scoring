@@ -65,6 +65,10 @@ packages/eslint-config/ — 共通 ESLint 設定（PaiForge コーディング�
 - `SectionTitle` — h2。緑のアクセントバー付き
 - `ContentContainer` — ページコンテンツの max-w-3xl ラッパー。全ページで統一して使用し CLS を防ぐ
 - `Sidebar` / `MobileHeader` / `MobileTabBar` — ナビゲーションシェル
+- `DataTable` / `DataTableHeaderCell` — データテーブルの外枠と見出しセル。表を作るときは直接 `<table>` を書かない
+- `SkeletonBar` — 読み込み中のプレースホルダ矩形。`animate-pulse` と背景色を直接書かない
+- `PageTitleSkeleton` — 見出しのプレースホルダ帯。`PageTitle` / `AdminPageTitle` の子として置く
+- `icons/OutlineIcon` — 線画アイコンの svg 外殻。新しい線画アイコンはこれを使う
 
 ## 牌画像（@pai-forge/mahjong-react-ui）
 

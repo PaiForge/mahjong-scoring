@@ -3,6 +3,7 @@ import { revalidateTag } from "next/cache";
 
 import { expHeatmapCacheTag } from "./get-exp-heatmap-data";
 import { db } from "./index";
+import { excludedRanksBetter } from "./ranking-order";
 import { grantChallengeExp } from "./save-exp";
 import { challengeBestScores, challengeResults } from "./schema";
 
@@ -29,8 +30,8 @@ export interface SaveChallengeResultReturn {
  * 2. `challenge_best_scores` に UPSERT（全期間ベスト）
  * 3. `exp_events` + `user_exp` に EXP 付与（{@link grantChallengeExp}）
  *
- * UPSERT は新結果がタプル比較 (score DESC, incorrect_answers ASC, time_taken ASC)
- * で既存より良い場合のみ更新する。
+ * UPSERT は新結果が既存より上位の場合のみ更新する。上位かどうかの判定は
+ * ランキングと同じ順序規則（{@link excludedRanksBetter}）から導出する。
  *
  * @returns 挿入された `challenge_results.id`
  */
@@ -62,8 +63,7 @@ export async function saveChallengeResult(
       .returning({ id: challengeResults.id });
 
     // 2. UPSERT into challenge_best_scores (all-time best per user/menu/key)
-    //    Only updates when the new result is strictly better:
-    //    (higher score, then fewer incorrect answers, then faster time)
+    //    Only updates when the new result ranks strictly higher.
     await tx
       .insert(challengeBestScores)
       .values({
@@ -88,15 +88,7 @@ export async function saveChallengeResult(
           achievedAt: sql`EXCLUDED.achieved_at`,
           updatedAt: sql`now()`,
         },
-        setWhere: sql`(
-          EXCLUDED.score,
-          -EXCLUDED.incorrect_answers,
-          -EXCLUDED.time_taken
-        ) > (
-          ${challengeBestScores.score},
-          -${challengeBestScores.incorrectAnswers},
-          -${challengeBestScores.timeTaken}
-        )`,
+        setWhere: excludedRanksBetter(challengeBestScores),
       });
 
     // 3. Grant EXP based on this challenge result

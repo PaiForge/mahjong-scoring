@@ -1,4 +1,5 @@
 import { SectionTitleSkeleton } from "@/app/_components/section-title-skeleton";
+import { SkeletonBar } from "@/app/_components/skeleton-bar";
 
 /**
  * 経験値セクション / 登録 CTA のスケルトン
@@ -27,15 +28,15 @@ export function ResultBlockSkeleton() {
       <SectionTitleSkeleton />
       {/* レベル表示と獲得 EXP の行 */}
       <div className="flex items-center justify-between">
-        <div className="h-5 w-20 animate-pulse rounded bg-surface-200" />
-        <div className="h-6 w-24 animate-pulse rounded bg-surface-200" />
+        <SkeletonBar className="h-5 w-20 rounded" />
+        <SkeletonBar className="h-6 w-24 rounded" />
       </div>
       {/* 進捗率テキスト + 進捗バー */}
       <div>
         <div className="mb-1.5 flex items-center justify-end">
-          <div className="h-4 w-10 animate-pulse rounded bg-surface-200" />
+          <SkeletonBar className="h-4 w-10 rounded" />
         </div>
-        <div className="h-2 w-full animate-pulse rounded-full bg-surface-100" />
+        <SkeletonBar className="h-2 w-full rounded-full" tone={100} />
       </div>
     </section>
   );

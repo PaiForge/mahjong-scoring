@@ -9,6 +9,7 @@ import {
 import { resultStorageKeyFor } from "@/lib/db/practice-menu-types";
 
 import { createSessionStorageParser } from "../../_lib/create-session-storage-parser";
+import { hasFieldTypes } from "../../_lib/shape-guards";
 
 /** sessionStorage に保存する際のキー */
 export const RESULT_STORAGE_KEY = resultStorageKeyFor("total-fu");
@@ -65,14 +66,9 @@ export function toQuestionResult(
 /** 値が FuDetail の配列として妥当か検証する */
 function isValidFuDetails(value: unknown): value is readonly FuDetail[] {
   if (!Array.isArray(value)) return false;
-  return value.every((detail: unknown) => {
-    if (typeof detail !== "object" || detail === undefined || detail === null)
-      return false;
-    return (
-      typeof Reflect.get(detail, "reason") === "string" &&
-      typeof Reflect.get(detail, "fu") === "number"
-    );
-  });
+  return value.every((detail: unknown) =>
+    hasFieldTypes(detail, { reason: "string", fu: "number" }),
+  );
 }
 
 /**
@@ -80,21 +76,21 @@ function isValidFuDetails(value: unknown): value is readonly FuDetail[] {
  * 合計符問題結果バリデーション
  */
 function isValidQuestionResult(value: unknown): value is TotalFuQuestionResult {
-  if (typeof value !== "object" || value === undefined || value === null)
-    return false;
-  const stringFields = ["tehai", "agariHai", "bakaze", "jikaze"];
   if (
-    !stringFields.every((key) => typeof Reflect.get(value, key) === "string")
+    !hasFieldTypes(value, {
+      tehai: "string",
+      agariHai: "string",
+      bakaze: "string",
+      jikaze: "string",
+      isTsumo: "boolean",
+      correctFu: "number",
+      userFu: "number",
+      isCorrect: "boolean",
+    })
   ) {
     return false;
   }
-  return (
-    typeof Reflect.get(value, "isTsumo") === "boolean" &&
-    typeof Reflect.get(value, "correctFu") === "number" &&
-    typeof Reflect.get(value, "userFu") === "number" &&
-    typeof Reflect.get(value, "isCorrect") === "boolean" &&
-    isValidFuDetails(Reflect.get(value, "fuDetails"))
-  );
+  return isValidFuDetails(Reflect.get(value, "fuDetails"));
 }
 
 /**

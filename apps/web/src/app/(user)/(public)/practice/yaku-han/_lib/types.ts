@@ -1,6 +1,7 @@
 import { resultStorageKeyFor } from "@/lib/db/practice-menu-types";
 
 import { createSessionStorageParser } from "../../_lib/create-session-storage-parser";
+import { hasFieldTypes } from "../../_lib/shape-guards";
 
 /** sessionStorage に保存する際のキー */
 export const RESULT_STORAGE_KEY = resultStorageKeyFor("yaku-han");
@@ -29,22 +30,14 @@ export interface YakuHanQuestionResult {
  * 役翻数問題結果バリデーション
  */
 function isValidQuestionResult(value: unknown): value is YakuHanQuestionResult {
-  if (typeof value !== "object" || value === undefined || value === null)
-    return false;
-  const yakuName = Reflect.get(value, "yakuName");
-  const isMenzen = Reflect.get(value, "isMenzen");
-  const canNaki = Reflect.get(value, "canNaki");
-  const correctHan = Reflect.get(value, "correctHan");
-  const userHan = Reflect.get(value, "userHan");
-  const isCorrect = Reflect.get(value, "isCorrect");
-  return (
-    typeof yakuName === "string" &&
-    typeof isMenzen === "boolean" &&
-    typeof canNaki === "boolean" &&
-    typeof correctHan === "number" &&
-    typeof userHan === "number" &&
-    typeof isCorrect === "boolean"
-  );
+  return hasFieldTypes(value, {
+    yakuName: "string",
+    isMenzen: "boolean",
+    canNaki: "boolean",
+    correctHan: "number",
+    userHan: "number",
+    isCorrect: "boolean",
+  });
 }
 
 /**

@@ -1,8 +1,8 @@
-/** スケルトンのプレースホルダ矩形 */
+import { SkeletonBar } from "@/app/_components/skeleton-bar";
+
+/** スケルトンのプレースホルダ矩形（管理画面は角丸を常に `rounded` で揃える） */
 function Bar({ className }: { readonly className: string }) {
-  return (
-    <div className={`${className} animate-pulse rounded bg-surface-200`} />
-  );
+  return <SkeletonBar className={`${className} rounded`} />;
 }
 
 /**
@@ -66,9 +66,4 @@ export function LogFilterSkeleton() {
       <Bar className="h-[38px] w-20" />
     </div>
   );
-}
-
-/** ページタイトルのスケルトン */
-export function PageTitleSkeleton({ width }: { readonly width: string }) {
-  return <Bar className={`h-8 ${width}`} />;
 }

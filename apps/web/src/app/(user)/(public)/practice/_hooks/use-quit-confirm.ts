@@ -56,5 +56,10 @@ export function useQuitConfirm({
     router.push(exitHref);
   }, [tc, router, exitHref]);
 
-  return { isQuitModalOpen, handleQuitClick, handleQuitCancel, handleQuitConfirm };
+  return {
+    isQuitModalOpen,
+    handleQuitClick,
+    handleQuitCancel,
+    handleQuitConfirm,
+  };
 }
