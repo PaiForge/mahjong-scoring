@@ -181,7 +181,7 @@ export function aggregateByDay(
  */
 export function getMissColorClass(incorrectAnswers: number): string {
   if (incorrectAnswers === 0) return "text-foreground";
-  if (incorrectAnswers <= 1) return "text-amber-500";
+  if (incorrectAnswers <= 1) return "text-warning";
   return "text-destructive";
 }
 

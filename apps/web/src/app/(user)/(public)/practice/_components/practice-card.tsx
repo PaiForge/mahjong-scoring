@@ -14,9 +14,9 @@ interface PracticeCardProps {
 }
 
 const difficultyColor = {
-  beginner: "bg-primary-200 text-primary-900",
-  intermediate: "bg-amber-200 text-amber-900",
-  advanced: "bg-red-200 text-red-900",
+  beginner: "bg-success-subtle text-success-strong",
+  intermediate: "bg-warning-subtle text-warning-strong",
+  advanced: "bg-destructive-subtle text-destructive-strong",
 } as const;
 
 export function PracticeCard({

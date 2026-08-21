@@ -46,7 +46,11 @@ export function YakuHanProblemList({ results }: YakuHanProblemListProps) {
             <span className="font-medium">{tResult("correctAnswer")}:</span>{" "}
             {hanLabel(result.correctHan)}
           </p>
-          <p className={result.isCorrect ? "text-primary-600" : "text-red-600"}>
+          <p
+            className={
+              result.isCorrect ? "text-primary-600" : "text-destructive"
+            }
+          >
             <span className="font-medium">{tResult("yourAnswer")}:</span>{" "}
             {hanLabel(result.userHan)}
           </p>

@@ -67,7 +67,7 @@ export function TotalFuProblemList({ results }: TotalFuProblemListProps) {
               </p>
               <p
                 className={
-                  result.isCorrect ? "text-primary-600" : "text-red-600"
+                  result.isCorrect ? "text-primary-600" : "text-destructive"
                 }
               >
                 <span className="font-medium">{tResult("yourAnswer")}:</span>{" "}

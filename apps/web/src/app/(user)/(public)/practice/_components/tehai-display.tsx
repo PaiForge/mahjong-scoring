@@ -87,7 +87,7 @@ export const TehaiDisplay = memo(function TehaiDisplayComponent({
         {context.isRiichi && (
           <div className="text-center">
             <span className="text-surface-400">{t("riichi")}</span>
-            <p className="mt-0.5 font-bold text-red-600">&#x25CF;</p>
+            <p className="mt-0.5 font-bold text-destructive">&#x25CF;</p>
           </div>
         )}
         {context.doraMarkers && context.doraMarkers.length > 0 && (

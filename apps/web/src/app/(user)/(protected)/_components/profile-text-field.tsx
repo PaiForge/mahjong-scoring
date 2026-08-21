@@ -51,7 +51,7 @@ export function ProfileTextField({
         className="mb-1 block text-sm font-medium text-surface-800"
       >
         {label}
-        {required && <span className="text-red-500"> *</span>}
+        {required && <span className="text-destructive"> *</span>}
       </label>
       {description && (
         <p className="mb-2 text-xs text-surface-500">{description}</p>

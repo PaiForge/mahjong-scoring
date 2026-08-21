@@ -37,9 +37,9 @@ export function ConfirmationModal({
   const confirmColorClass = (() => {
     switch (confirmVariant) {
       case "danger":
-        return "bg-red-500 hover:bg-red-600";
+        return "bg-destructive hover:bg-destructive/90";
       case "warning":
-        return "bg-amber-500 hover:bg-amber-600";
+        return "bg-warning hover:bg-warning/90";
       case "primary":
         return "bg-primary-500 hover:bg-primary-600";
       default: {

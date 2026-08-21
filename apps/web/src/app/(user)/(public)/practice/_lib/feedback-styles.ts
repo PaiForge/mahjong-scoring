@@ -12,8 +12,8 @@ export function getFeedbackBorderClass(
   if (!showFeedback || lastAnswerCorrect === undefined)
     return "border-ink bg-white";
   return lastAnswerCorrect
-    ? "border-green-600 bg-green-100"
-    : "border-red-600 bg-red-100";
+    ? "border-success bg-success-subtle"
+    : "border-destructive bg-destructive-subtle";
 }
 
 export function getFeedbackStyles(
@@ -29,11 +29,14 @@ export function getFeedbackStyles(
   }
 
   if (isCorrect) {
-    return { borderClass: "border-green-600", bgClass: "bg-green-100" };
+    return { borderClass: "border-success", bgClass: "bg-success-subtle" };
   }
 
   if (isSelected) {
-    return { borderClass: "border-red-600", bgClass: "bg-red-100" };
+    return {
+      borderClass: "border-destructive",
+      bgClass: "bg-destructive-subtle",
+    };
   }
 
   return { borderClass: "border-ink", bgClass: "bg-white opacity-50" };

@@ -27,7 +27,7 @@ export function ScoreCounter({
         aria-label={`${correctLabel}: ${correct}`}
       >
         <span
-          className="rounded-full border-2 border-ink bg-primary-200 p-2 text-primary-800"
+          className="rounded-full border-2 border-ink bg-success-subtle p-2 text-success-strong"
           aria-hidden
         >
           <svg
@@ -54,7 +54,7 @@ export function ScoreCounter({
         aria-label={`${incorrectLabel}: ${incorrect}`}
       >
         <span
-          className="rounded-full border-2 border-ink bg-red-200 p-2 text-red-800"
+          className="rounded-full border-2 border-ink bg-destructive-subtle p-2 text-destructive-strong"
           aria-hidden
         >
           <svg

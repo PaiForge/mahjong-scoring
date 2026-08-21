@@ -40,7 +40,7 @@ export async function ResultScoreBar({ correct, total }: ResultScoreBarProps) {
         )}
         {incorrect > 0 && (
           <div
-            className="flex items-center justify-center bg-red-500 text-sm font-semibold text-white"
+            className="flex items-center justify-center bg-destructive text-sm font-semibold text-white"
             style={{ width: `${incorrectPercent}%` }}
           >
             {incorrect}
@@ -61,7 +61,10 @@ export async function ResultScoreBar({ correct, total }: ResultScoreBarProps) {
             </span>
           </span>
           <span className="flex items-center gap-1.5">
-            <span className="size-3 rounded-sm bg-red-500" aria-hidden="true" />
+            <span
+              className="size-3 rounded-sm bg-destructive"
+              aria-hidden="true"
+            />
             {tc("incorrect")}:{" "}
             <span className="font-semibold text-surface-800">{incorrect}</span>
           </span>

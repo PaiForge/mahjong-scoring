@@ -53,7 +53,7 @@ export default async function SignUpPage({
       </PageTitle>
       <div className="space-y-6">
         {error && (
-          <p className="text-center text-sm text-red-600">
+          <p className="text-center text-sm text-destructive">
             {tAuth("authError")}
           </p>
         )}

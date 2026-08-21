@@ -29,7 +29,11 @@ export function HanCountProblemList({ results }: HanCountProblemListProps) {
             <span className="font-medium">{tResult("correctAnswer")}:</span>{" "}
             {t("hanOption", { count: result.correctHan })}
           </p>
-          <p className={result.isCorrect ? "text-primary-600" : "text-red-600"}>
+          <p
+            className={
+              result.isCorrect ? "text-primary-600" : "text-destructive"
+            }
+          >
             <span className="font-medium">{tResult("yourAnswer")}:</span>{" "}
             {t("hanOption", { count: result.userHan })}
           </p>

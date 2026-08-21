@@ -58,7 +58,11 @@ export function ScoreProblemList({
             <span className="font-medium">{tResult("correctAnswer")}:</span>{" "}
             {renderCorrectAnswer(result.correctAnswer, result)}
           </p>
-          <p className={result.isCorrect ? "text-primary-600" : "text-red-600"}>
+          <p
+            className={
+              result.isCorrect ? "text-primary-600" : "text-destructive"
+            }
+          >
             <span className="font-medium">{tResult("yourAnswer")}:</span>{" "}
             {formatAnswer(result.userAnswer, t)}
           </p>
