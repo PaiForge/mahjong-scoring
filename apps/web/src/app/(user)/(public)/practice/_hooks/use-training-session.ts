@@ -5,6 +5,13 @@ import { useCallback, useMemo, useRef, useState } from "react";
 interface UseTrainingSessionOptions {
   /** 正誤フィードバックの表示時間（ms） */
   feedbackDurationMs?: number;
+  /**
+   * 不正解時は自動で次問題へ進まず、{@link TrainingSessionState.proceed} の
+   * 呼び出しを待つ
+   *
+   * 解説を読ませたい練習向け。正解時は指定に関わらず自動で進む。
+   */
+  holdOnIncorrect?: boolean;
 }
 
 /**
@@ -20,6 +27,12 @@ export interface TrainingSessionState {
   readonly lastAnswerCorrect: boolean | undefined;
   /** 回答処理。フィードバック表示後に onNext で次問題へ進む */
   readonly handleAnswer: (correct: boolean, onNext: () => void) => void;
+  /**
+   * 不正解で停止中の状態から次問題へ進む
+   *
+   * `holdOnIncorrect` 未指定時、および停止していないときは何もしない。
+   */
+  readonly proceed: () => void;
 }
 
 /**
@@ -30,6 +43,7 @@ export interface TrainingSessionState {
  */
 export function useTrainingSession({
   feedbackDurationMs = 800,
+  holdOnIncorrect = false,
 }: UseTrainingSessionOptions = {}): TrainingSessionState {
   const [correctCount, setCorrectCount] = useState(0);
   const [totalCount, setTotalCount] = useState(0);
@@ -38,8 +52,10 @@ export function useTrainingSession({
     boolean | undefined
   >(undefined);
   const feedbackTimeoutRef = useRef<ReturnType<typeof setTimeout> | undefined>(
-    undefined
+    undefined,
   );
+  // 不正解で停止したときの「次へ進む」処理。proceed が呼ばれるまで保持する
+  const pendingNextRef = useRef<(() => void) | undefined>(undefined);
 
   const handleAnswer = useCallback(
     (correct: boolean, onNext: () => void) => {
@@ -50,14 +66,28 @@ export function useTrainingSession({
       setTotalCount((c) => c + 1);
       if (correct) setCorrectCount((c) => c + 1);
 
+      if (holdOnIncorrect && !correct) {
+        pendingNextRef.current = onNext;
+        return;
+      }
+
       feedbackTimeoutRef.current = setTimeout(() => {
         setShowFeedback(false);
         setLastAnswerCorrect(undefined);
         onNext();
       }, feedbackDurationMs);
     },
-    [showFeedback, feedbackDurationMs]
+    [showFeedback, feedbackDurationMs, holdOnIncorrect],
   );
+
+  const proceed = useCallback(() => {
+    const next = pendingNextRef.current;
+    if (next === undefined) return;
+    pendingNextRef.current = undefined;
+    setShowFeedback(false);
+    setLastAnswerCorrect(undefined);
+    next();
+  }, []);
 
   return useMemo(
     () => ({
@@ -66,7 +96,15 @@ export function useTrainingSession({
       showFeedback,
       lastAnswerCorrect,
       handleAnswer,
+      proceed,
     }),
-    [correctCount, totalCount, showFeedback, lastAnswerCorrect, handleAnswer]
+    [
+      correctCount,
+      totalCount,
+      showFeedback,
+      lastAnswerCorrect,
+      handleAnswer,
+      proceed,
+    ],
   );
 }

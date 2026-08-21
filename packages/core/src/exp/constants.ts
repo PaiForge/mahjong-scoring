@@ -23,6 +23,7 @@ export const MODULE_WEIGHT: Readonly<Record<string, number>> = {
   machi_fu: 1,
   mentsu_fu: 1,
   tehai_fu: 1,
+  total_fu: 1,
   yaku: 1,
   score_table: 1,
   score_calculation: 1,

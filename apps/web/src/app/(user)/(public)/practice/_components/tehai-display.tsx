@@ -3,7 +3,7 @@
 import { memo, useCallback, useState } from "react";
 import { useTranslations } from "next-intl";
 import { getKazeName } from "@mahjong-scoring/core";
-import type { AgariContext, Tehai14, HaiKindId } from "@mahjong-scoring/core";
+import type { AgariContext, Tehai, HaiKindId } from "@mahjong-scoring/core";
 import { Hai } from "@pai-forge/mahjong-react-ui";
 import { TehaiHand } from "../../_components/tehai-hand";
 
@@ -20,7 +20,8 @@ export type TehaiContext = AgariContext & {
 };
 
 interface TehaiDisplayProps {
-  readonly tehai: Tehai14;
+  /** 表示する手牌（純手牌 + 副露）。Tehai14 もそのまま渡せる。 */
+  readonly tehai: Pick<Tehai, "closed" | "exposed">;
   readonly context: TehaiContext;
   readonly translationNamespace: string;
   readonly onScaleChange?: (scale: number) => void;

@@ -58,6 +58,13 @@ const fuPractices: readonly PracticeDef[] = [
     difficulty: "advanced",
     learnHref: "/learn/tehai-fu",
   },
+  {
+    href: "/practice/total-fu",
+    titleKey: "practices.totalFu.title",
+    descriptionKey: "practices.totalFu.description",
+    difficulty: "advanced",
+    learnHref: "/learn/tehai-fu",
+  },
 ];
 
 const hanPractices: readonly PracticeDef[] = [

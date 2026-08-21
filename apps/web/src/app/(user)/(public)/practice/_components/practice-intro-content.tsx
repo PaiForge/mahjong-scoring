@@ -18,6 +18,12 @@ interface PracticeIntroContentProps {
   readonly slug: string;
   /** 学習ページへのリンクを表示するかどうか（デフォルト: true） */
   readonly showLearnLink?: boolean;
+  /**
+   * 学習ページのパス（既定は `/learn/<slug>`）
+   *
+   * 専用の教本ページを持たず、別の練習の教本を前提知識とする練習が指定する。
+   */
+  readonly learnHref?: string;
   /** トレーニングモードへのボタンを表示するかどうか（デフォルト: false） */
   readonly showTraining?: boolean;
   /**
@@ -35,6 +41,7 @@ export async function PracticeIntroContent({
   namespace,
   slug,
   showLearnLink = true,
+  learnHref = `/learn/${slug}`,
   showTraining = false,
   howToPlay,
 }: PracticeIntroContentProps) {
@@ -95,7 +102,7 @@ export async function PracticeIntroContent({
           <div className="space-y-3">
             <SectionTitle>{tp("requiredKnowledge")}</SectionTitle>
             <Link
-              href={`/learn/${slug}`}
+              href={learnHref}
               className="group flex items-start gap-4 rounded-xl border border-surface-200 bg-white p-5 transition-colors hover:border-primary-300"
             >
               <BookIcon className="mt-0.5 size-5 shrink-0 text-primary-600" />
