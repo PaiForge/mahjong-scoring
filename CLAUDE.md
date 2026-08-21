@@ -77,6 +77,12 @@ packages/eslint-config/ — 共通 ESLint 設定（PaiForge コーディング�
 `globals.css` で取り直した `--radius-*` の影響を受けない。丸みを揃えたい箇所では
 `rounded-md` 以降のサイズ付きユーティリティを使うこと。
 
+## 行間
+
+本文の行間は `globals.css` の `@theme` で `--leading-relaxed` を取り直して一元管理する。
+長文の段落には `leading-relaxed` を付けるだけでよく、ページ個別に `leading-*` の
+数値を上書きしない。全体の行間を変えたいときは `--leading-relaxed` を触ること。
+
 ## 牌画像（@pai-forge/mahjong-react-ui）
 
 - `Hai` コンポーネントで牌を表示（base64埋め込み画像）

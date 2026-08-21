@@ -75,11 +75,13 @@ export function MarkAsReadButton({ slug, initialRead }: MarkAsReadButtonProps) {
     setIsUnmarkConfirmOpen(false);
   };
 
+  // 章の終端に置く控えめな導線。塗りのボタンにすると練習への CTA より
+  // 目立ってしまうため、テキストリンクの体裁にとどめる。
   const baseClass =
-    "inline-flex items-center justify-center rounded-lg px-6 py-2.5 text-sm font-semibold transition-colors disabled:cursor-not-allowed disabled:opacity-60";
+    "text-sm underline-offset-4 transition-colors hover:underline disabled:cursor-not-allowed disabled:no-underline disabled:opacity-60";
   const variantClass = isRead
-    ? "press-sm border-3 border-ink bg-white text-surface-700 shadow-sm hover:bg-primary-50"
-    : "bg-primary-500 text-white hover:bg-primary-600";
+    ? "text-surface-500 hover:text-surface-700"
+    : "text-primary-600 hover:text-primary-700";
 
   return (
     <>

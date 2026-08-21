@@ -1,6 +1,6 @@
-import Link from "next/link";
 import { getTranslations } from "next-intl/server";
 import { ChevronRightIcon } from "@/app/_components/icons/chevron-right-icon";
+import { PrimaryLinkButton } from "@/app/_components/primary-link-button";
 
 interface PracticeLinkListProps {
   /** `/practice/<slug>` 形式のリンク集 */
@@ -50,11 +50,12 @@ export async function PracticeLinkList({ hrefs }: PracticeLinkListProps) {
   const items = hrefs.map((href) => {
     const slug = practiceSlugFromHref(href);
     const titleKey = slug ? `practices.${toCamelCase(slug)}.title` : undefined;
-    const title =
+    // 練習名が引けたときは「<練習名>にチャレンジ」、引けないときは汎用 CTA。
+    const label =
       titleKey && tPractice.has(titleKey)
-        ? tPractice(titleKey)
+        ? t("practiceLinkChallengeCta", { title: tPractice(titleKey) })
         : t("practiceLinkCta");
-    return { href, title };
+    return { href, label };
   });
 
   return (
@@ -70,11 +71,10 @@ export async function PracticeLinkList({ hrefs }: PracticeLinkListProps) {
         }
       >
         {items.map((item) => (
-          <PracticeLinkCardPresentation
+          <PracticeLinkButton
             key={item.href}
             href={item.href}
-            title={item.title}
-            ctaLabel={t("practiceLinkCta")}
+            label={item.label}
           />
         ))}
       </div>
@@ -82,29 +82,29 @@ export async function PracticeLinkList({ hrefs }: PracticeLinkListProps) {
   );
 }
 
-interface PracticeLinkCardPresentationProps {
+interface PracticeLinkButtonProps {
   readonly href: string;
-  readonly title: string;
-  readonly ctaLabel: string;
+  /** ボタンに表示する CTA ラベル */
+  readonly label: string;
 }
 
-function PracticeLinkCardPresentation({
-  href,
-  title,
-  ctaLabel,
-}: PracticeLinkCardPresentationProps) {
+/**
+ * 練習への導線ボタン
+ * 練習リンクボタン
+ *
+ * 押せることが一目で分かるよう塗りのプライマリボタンで示し、右端のチェブロンで
+ * 画面遷移を伴うことを明示する。遷移待ち中はチェブロンがスピナーへ変わる。
+ */
+function PracticeLinkButton({ href, label }: PracticeLinkButtonProps) {
   return (
-    <Link
+    <PrimaryLinkButton
       href={href}
-      className="press-sm flex items-center justify-between gap-3 rounded-xl border-3 border-ink bg-white p-4 shadow-sm hover:bg-primary-50"
+      className="w-full gap-3 px-5 py-3"
+      trailingIcon={<ChevronRightIcon className="size-5" />}
     >
-      <div className="min-w-0 flex-1">
-        <p className="truncate text-sm font-semibold text-surface-900">
-          {title}
-        </p>
-        <p className="mt-0.5 text-xs text-primary-600">{ctaLabel}</p>
-      </div>
-      <ChevronRightIcon className="size-5 shrink-0 text-surface-400" />
-    </Link>
+      {/* ラベルに残り幅を持たせ、チェブロンをボタンの右端へ寄せる
+          （justify-* を className で足しても基底の justify-center には勝てない）。 */}
+      <span className="min-w-0 flex-1 text-center">{label}</span>
+    </PrimaryLinkButton>
   );
 }

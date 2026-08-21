@@ -1,13 +1,24 @@
 import { getTranslations } from "next-intl/server";
 import { HaiKind } from "@mahjong-scoring/core";
 import { SectionTitle } from "@/app/_components/section-title";
-import { ExampleCard } from "../../_components/example-card";
+import { ExampleTable } from "../../_components/example-table";
 import { FuSummaryTable } from "../../_components/fu-summary-table";
 import { GuideParagraph } from "../../_components/guide-paragraph";
-import { TileExample } from "./tile-example";
+import { TileSet } from "../../_components/tile-set";
 
 export async function JantouFuGuide() {
-  const t = await getTranslations("jantouFu.learn");
+  const [t, tTable] = await Promise.all([
+    getTranslations("jantouFu.learn"),
+    getTranslations("learnCurriculum.exampleTable"),
+  ]);
+
+  const formatFu = (value: number) => t("fuUnit", { value });
+  const tableColumns = {
+    colTiles: tTable("colTiles"),
+    colKind: tTable("colKind"),
+    colFu: tTable("colFu"),
+    formatFu,
+  };
 
   return (
     <div className="space-y-10">
@@ -26,42 +37,44 @@ export async function JantouFuGuide() {
           {t.rich("yakuhaiBody", { br: () => <br /> })}
         </GuideParagraph>
 
-        <ExampleCard>
-          <h3 className="text-xs font-semibold uppercase tracking-wider text-surface-400">
-            {t("sangenExamples")}
-          </h3>
-          <TileExample
-            tiles={[HaiKind.Haku, HaiKind.Haku]}
-            fu={2}
-            label={t("labelHaku")}
-          />
-          <TileExample
-            tiles={[HaiKind.Hatsu, HaiKind.Hatsu]}
-            fu={2}
-            label={t("labelHatsu")}
-          />
-          <TileExample
-            tiles={[HaiKind.Chun, HaiKind.Chun]}
-            fu={2}
-            label={t("labelChun")}
-          />
-        </ExampleCard>
+        <ExampleTable
+          title={t("sangenExamples")}
+          {...tableColumns}
+          rows={[
+            {
+              tiles: <TileSet tiles={[HaiKind.Haku, HaiKind.Haku]} />,
+              label: t("labelHaku"),
+              fu: 2,
+            },
+            {
+              tiles: <TileSet tiles={[HaiKind.Hatsu, HaiKind.Hatsu]} />,
+              label: t("labelHatsu"),
+              fu: 2,
+            },
+            {
+              tiles: <TileSet tiles={[HaiKind.Chun, HaiKind.Chun]} />,
+              label: t("labelChun"),
+              fu: 2,
+            },
+          ]}
+        />
 
-        <ExampleCard>
-          <h3 className="text-xs font-semibold uppercase tracking-wider text-surface-400">
-            {t("kazeExamples")}
-          </h3>
-          <TileExample
-            tiles={[HaiKind.Ton, HaiKind.Ton]}
-            fu={2}
-            label={t("labelBakaze")}
-          />
-          <TileExample
-            tiles={[HaiKind.Nan, HaiKind.Nan]}
-            fu={2}
-            label={t("labelJikaze")}
-          />
-        </ExampleCard>
+        <ExampleTable
+          title={t("kazeExamples")}
+          {...tableColumns}
+          rows={[
+            {
+              tiles: <TileSet tiles={[HaiKind.Ton, HaiKind.Ton]} />,
+              label: t("labelBakaze"),
+              fu: 2,
+            },
+            {
+              tiles: <TileSet tiles={[HaiKind.Nan, HaiKind.Nan]} />,
+              label: t("labelJikaze"),
+              fu: 2,
+            },
+          ]}
+        />
       </section>
 
       {/* No fu */}
@@ -69,26 +82,27 @@ export async function JantouFuGuide() {
         <SectionTitle>{t("noFuTitle")}</SectionTitle>
         <GuideParagraph>{t("noFuBody")}</GuideParagraph>
 
-        <ExampleCard>
-          <h3 className="text-xs font-semibold uppercase tracking-wider text-surface-400">
-            {t("noFuExamples")}
-          </h3>
-          <TileExample
-            tiles={[HaiKind.ManZu1, HaiKind.ManZu1]}
-            fu={0}
-            label={t("labelSuuhaiManzu")}
-          />
-          <TileExample
-            tiles={[HaiKind.PinZu5, HaiKind.PinZu5]}
-            fu={0}
-            label={t("labelSuuhaiPinzu")}
-          />
-          <TileExample
-            tiles={[HaiKind.Sha, HaiKind.Sha]}
-            fu={0}
-            label={t("labelOtakaze")}
-          />
-        </ExampleCard>
+        <ExampleTable
+          title={t("noFuExamples")}
+          {...tableColumns}
+          rows={[
+            {
+              tiles: <TileSet tiles={[HaiKind.ManZu1, HaiKind.ManZu1]} />,
+              label: t("labelSuuhaiManzu"),
+              fu: 0,
+            },
+            {
+              tiles: <TileSet tiles={[HaiKind.PinZu5, HaiKind.PinZu5]} />,
+              label: t("labelSuuhaiPinzu"),
+              fu: 0,
+            },
+            {
+              tiles: <TileSet tiles={[HaiKind.Sha, HaiKind.Sha]} />,
+              label: t("labelOtakaze"),
+              fu: 0,
+            },
+          ]}
+        />
       </section>
 
       {/* Column: renfonpai */}
@@ -109,7 +123,7 @@ export async function JantouFuGuide() {
         title={t("summaryTitle")}
         colType={t("colType")}
         colFu={t("colFu")}
-        formatFu={(value) => t("fuUnit", { value })}
+        formatFu={formatFu}
         rows={[
           { label: t("rowSangen"), fu: 2 },
           { label: t("rowBakaze"), fu: 2 },
