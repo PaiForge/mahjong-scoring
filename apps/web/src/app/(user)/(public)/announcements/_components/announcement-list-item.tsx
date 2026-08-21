@@ -31,7 +31,7 @@ export function AnnouncementListItem({
       meta={publishedDate}
       badge={
         announcement.pinnedAt !== null ? (
-          <span className="flex-shrink-0 rounded bg-primary-100 px-1.5 py-0.5 text-xs font-semibold text-primary-700">
+          <span className="flex-shrink-0 rounded-md bg-primary-100 px-1.5 py-0.5 text-xs font-semibold text-primary-700">
             {pinnedLabel}
           </span>
         ) : undefined

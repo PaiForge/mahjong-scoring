@@ -116,7 +116,7 @@ export function ResultDisplay({
                       userAnswer.yakus.map((yaku, idx) => (
                         <span
                           key={idx}
-                          className={`inline-block rounded border px-2 py-0.5 text-xs ${
+                          className={`inline-block rounded-md border px-2 py-0.5 text-xs ${
                             result.isYakuCorrect
                               ? "border-primary-200 bg-primary-50 text-primary-700"
                               : "border-destructive-subtle bg-destructive-subtle text-destructive-strong"

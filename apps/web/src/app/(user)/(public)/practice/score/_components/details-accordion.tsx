@@ -44,7 +44,7 @@ export function DetailsAccordion({
       {isOpen && (
         <tr>
           <td colSpan={3} className="py-2">
-            <div className="rounded bg-white px-2 py-0 text-xs text-surface-600">
+            <div className="rounded-md bg-white px-2 py-0 text-xs text-surface-600">
               <div>
                 {items.map((detail, idx) => (
                   <div

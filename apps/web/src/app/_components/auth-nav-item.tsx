@@ -44,7 +44,9 @@ export function AuthNavItem() {
   }, []);
 
   if (isLoading) {
-    return <SkeletonBar className="h-8 w-8 rounded-full border-3 border-ink" />;
+    return (
+      <SkeletonBar radius="full" className="h-8 w-8 border-3 border-ink" />
+    );
   }
 
   if (!user) {

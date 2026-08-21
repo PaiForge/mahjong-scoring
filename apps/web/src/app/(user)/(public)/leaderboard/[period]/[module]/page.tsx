@@ -139,7 +139,7 @@ export default async function LeaderboardDetailPage({
         fallback={
           <div className="space-y-4">
             {Array.from({ length: 5 }).map((_, i) => (
-              <SkeletonBar key={i} className="h-12 w-full rounded" tone={100} />
+              <SkeletonBar key={i} className="h-12 w-full" tone={100} />
             ))}
           </div>
         }

@@ -22,7 +22,7 @@ export function SectionTitleSkeleton({
 }: SectionTitleSkeletonProps) {
   return (
     <SectionTitle variant="placeholder">
-      <SkeletonBar as="span" className={`inline-block rounded ${width}`}>
+      <SkeletonBar as="span" className={`inline-block ${width}`}>
         &nbsp;
       </SkeletonBar>
     </SectionTitle>

@@ -17,23 +17,19 @@ export default function AnnouncementsLoading() {
         <AdminPageTitle>
           <PageTitleSkeleton width="w-40" />
         </AdminPageTitle>
-        <SkeletonBar className="h-9 w-24 rounded" />
+        <SkeletonBar className="h-9 w-24" />
       </div>
 
       <div className="space-y-6">
         {Array.from({ length: 2 }, (_, i) => (
           <section key={i} className="rounded-lg border border-surface-200">
             <div className="flex items-center justify-between border-b border-surface-200 px-4 py-3">
-              <SkeletonBar className="h-4 w-32 rounded" />
-              <SkeletonBar className="h-4 w-16 rounded" tone={100} />
+              <SkeletonBar className="h-4 w-32" />
+              <SkeletonBar className="h-4 w-16" tone={100} />
             </div>
             <div className="space-y-3 p-4">
               {Array.from({ length: 2 }, (_row, j) => (
-                <SkeletonBar
-                  key={j}
-                  className="h-5 w-full rounded"
-                  tone={100}
-                />
+                <SkeletonBar key={j} className="h-5 w-full" tone={100} />
               ))}
             </div>
           </section>

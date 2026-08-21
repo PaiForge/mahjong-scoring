@@ -2,6 +2,7 @@ import { ContentContainer } from "@/app/_components/content-container";
 import { PageTitle } from "@/app/_components/page-title";
 import { SkeletonBar } from "@/app/_components/skeleton-bar";
 import { PageTitleSkeleton } from "@/app/_components/page-title-skeleton";
+import { SectionTitleSkeleton } from "@/app/_components/section-title-skeleton";
 
 /**
  * チャレンジ全履歴のローディング状態
@@ -16,8 +17,7 @@ export default function Loading() {
       </PageTitle>
 
       <div className="space-y-6">
-        {/* SectionTitle placeholder */}
-        <SkeletonBar className="h-7 w-32 rounded" />
+        <SectionTitleSkeleton width="w-32" />
 
         <div className="overflow-x-auto">
           <table className="w-full text-sm">
@@ -25,7 +25,7 @@ export default function Loading() {
               <tr className="border-b-3 border-ink">
                 {Array.from({ length: 4 }, (_, i) => (
                   <th key={i} className="py-2 px-2 sm:px-3">
-                    <SkeletonBar className="h-4 w-16 rounded" />
+                    <SkeletonBar className="h-4 w-16" />
                   </th>
                 ))}
               </tr>
@@ -38,7 +38,7 @@ export default function Loading() {
                 >
                   {Array.from({ length: 4 }, (__, j) => (
                     <td key={j} className="py-2 px-2 sm:px-3">
-                      <SkeletonBar className="h-4 w-20 rounded" />
+                      <SkeletonBar className="h-4 w-20" />
                     </td>
                   ))}
                 </tr>

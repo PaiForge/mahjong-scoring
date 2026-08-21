@@ -28,15 +28,15 @@ export function ResultBlockSkeleton() {
       <SectionTitleSkeleton />
       {/* レベル表示と獲得 EXP の行 */}
       <div className="flex items-center justify-between">
-        <SkeletonBar className="h-5 w-20 rounded" />
-        <SkeletonBar className="h-6 w-24 rounded" />
+        <SkeletonBar className="h-5 w-20" />
+        <SkeletonBar className="h-6 w-24" />
       </div>
       {/* 進捗率テキスト + 進捗バー */}
       <div>
         <div className="mb-1.5 flex items-center justify-end">
-          <SkeletonBar className="h-4 w-10 rounded" />
+          <SkeletonBar className="h-4 w-10" />
         </div>
-        <SkeletonBar className="h-2 w-full rounded-full" tone={100} />
+        <SkeletonBar radius="full" className="h-2 w-full" tone={100} />
       </div>
     </section>
   );

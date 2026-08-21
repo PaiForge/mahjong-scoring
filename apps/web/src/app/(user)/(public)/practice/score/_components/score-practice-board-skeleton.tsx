@@ -25,10 +25,10 @@ export function ScorePracticeBoardSkeleton() {
         {/* Question */}
         <div className="rounded-xl border-3 border-ink bg-white p-2 sm:p-6">
           <div className="space-y-6">
-            <SkeletonBar className="h-20 rounded-lg" tone={100} />
+            <SkeletonBar radius="lg" className="h-20" tone={100} />
             <div className="grid grid-cols-2 gap-4">
-              <SkeletonBar className="h-20 rounded-lg" tone={100} />
-              <SkeletonBar className="h-20 rounded-lg" tone={100} />
+              <SkeletonBar radius="lg" className="h-20" tone={100} />
+              <SkeletonBar radius="lg" className="h-20" tone={100} />
             </div>
           </div>
         </div>
@@ -38,15 +38,15 @@ export function ScorePracticeBoardSkeleton() {
           <div className="space-y-5">
             {["han", "fu", "score"].map((field) => (
               <div key={field} className="space-y-2">
-                <SkeletonBar className="h-4 w-16 rounded" tone={100} />
-                <SkeletonBar className="h-12 rounded-lg" tone={100} />
+                <SkeletonBar className="h-4 w-16" tone={100} />
+                <SkeletonBar radius="lg" className="h-12" tone={100} />
               </div>
             ))}
             {/* 回答するボタン（実体は primary 色のため一段濃いトーンで表現） */}
-            <SkeletonBar className="h-12 w-full rounded-lg" />
+            <SkeletonBar radius="lg" className="h-12 w-full" />
             {/* スキップ */}
             <div className="flex justify-center pt-1">
-              <SkeletonBar className="h-4 w-16 rounded" tone={100} />
+              <SkeletonBar className="h-4 w-16" tone={100} />
             </div>
           </div>
         </div>
@@ -55,15 +55,15 @@ export function ScorePracticeBoardSkeleton() {
         <div className="flex items-center justify-center gap-12">
           {["correct", "incorrect"].map((k) => (
             <div key={k} className="flex items-center gap-3">
-              <SkeletonBar className="h-8 w-8 rounded-full" tone={100} />
-              <SkeletonBar className="h-6 w-6 rounded" tone={100} />
+              <SkeletonBar radius="full" className="h-8 w-8" tone={100} />
+              <SkeletonBar className="h-6 w-6" tone={100} />
             </div>
           ))}
         </div>
 
         {/* Quit button */}
         <div className="flex justify-center">
-          <SkeletonBar className="h-5 w-20 rounded" tone={100} />
+          <SkeletonBar className="h-5 w-20" tone={100} />
         </div>
       </div>
     </ContentContainer>

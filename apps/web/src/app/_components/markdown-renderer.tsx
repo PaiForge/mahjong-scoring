@@ -128,7 +128,7 @@ export function MarkdownRenderer({
               );
             }
             return (
-              <code className="rounded bg-surface-100 px-1.5 py-0.5 font-mono text-sm text-surface-800">
+              <code className="rounded-md bg-surface-100 px-1.5 py-0.5 font-mono text-sm text-surface-800">
                 {children}
               </code>
             );

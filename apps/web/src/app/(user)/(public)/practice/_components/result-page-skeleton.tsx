@@ -48,15 +48,15 @@ export function ResultPageSkeleton({
         <section aria-hidden="true" className="space-y-3">
           <SectionTitleSkeleton />
           <div className="w-full space-y-3">
-            <SkeletonBar className="h-8 w-full rounded-md" tone={100} />
+            <SkeletonBar className="h-8 w-full" tone={100} />
             {/* 凡例（正解 / 不正解）と正答率。実物と同じ flex-wrap にして
                 狭い幅での折り返し（＝高さの増加）まで一致させる。 */}
             <div className="flex flex-wrap items-center justify-between gap-3">
               <div className="flex items-center gap-4">
-                <SkeletonBar className="h-4 w-20 rounded" />
-                <SkeletonBar className="h-4 w-24 rounded" />
+                <SkeletonBar className="h-4 w-20" />
+                <SkeletonBar className="h-4 w-24" />
               </div>
-              <SkeletonBar className="h-4 w-16 rounded" />
+              <SkeletonBar className="h-4 w-16" />
             </div>
           </div>
         </section>
@@ -66,8 +66,8 @@ export function ResultPageSkeleton({
 
         {/* アクションボタン（もう一度 / 練習一覧に戻る）。ResultView と同じ縦積み・全幅。 */}
         <div aria-hidden="true" className="space-y-3">
-          <SkeletonBar className="h-11 w-full rounded-lg" />
-          <SkeletonBar className="h-11 w-full rounded-lg" tone={100} />
+          <SkeletonBar radius="lg" className="h-11 w-full" />
+          <SkeletonBar radius="lg" className="h-11 w-full" tone={100} />
         </div>
 
         {/* 問題別フィードバック一覧（一覧を持つ練習のみ）。ResultView では
