@@ -29,8 +29,8 @@ interface LearnPageLayoutProps {
  * 章本文の前後に以下を描画する:
  * - ページタイトル（`{namespace}.pageTitle`）
  * - 章本文（children）
- * - 対応練習へのリンク集（CURRICULUM の `practiceHrefs` を参照）
  * - 読了トグル（認証時）/ ログイン導線（未認証時）
+ * - 対応練習へのリンク集（CURRICULUM の `practiceHrefs` を参照）
  * - 前後章へのリンク
  */
 export async function LearnPageLayout({
@@ -62,15 +62,16 @@ export async function LearnPageLayout({
       <div className="space-y-10">
         {children}
 
-        <PracticeLinkList hrefs={practiceHrefs} />
-
-        <div className="flex justify-center">
+        {/* 章を読み終えた位置に置く。練習への CTA より前へは出さない。 */}
+        <div className="flex justify-end">
           {user ? (
             <MarkAsReadButton slug={slug} initialRead={alreadyRead} />
           ) : (
             <LoginPromptCta slug={slug} />
           )}
         </div>
+
+        <PracticeLinkList hrefs={practiceHrefs} />
 
         <ChapterNav slug={slug} />
       </div>

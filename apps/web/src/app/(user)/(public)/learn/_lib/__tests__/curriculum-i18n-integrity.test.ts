@@ -107,6 +107,7 @@ describe("i18n integrity: chapter UI keys", () => {
     "nextChapterLabel",
     "practiceLinksTitle",
     "practiceLinkCta",
+    "practiceLinkChallengeCta",
     "updateFailedToast",
   ];
 
