@@ -2,6 +2,7 @@ import { ContentContainer } from "@/app/_components/content-container";
 import { PageTitle } from "@/app/_components/page-title";
 import { SkeletonBar } from "@/app/_components/skeleton-bar";
 import { PageTitleSkeleton } from "@/app/_components/page-title-skeleton";
+import { SectionTitleSkeleton } from "@/app/_components/section-title-skeleton";
 
 /**
  * チャレンジ全履歴のローディング状態
@@ -16,8 +17,7 @@ export default function Loading() {
       </PageTitle>
 
       <div className="space-y-6">
-        {/* SectionTitle placeholder */}
-        <SkeletonBar className="h-7 w-32" />
+        <SectionTitleSkeleton width="w-32" />
 
         <div className="overflow-x-auto">
           <table className="w-full text-sm">

@@ -2,6 +2,7 @@ import { ContentContainer } from "@/app/_components/content-container";
 import { PageTitle } from "@/app/_components/page-title";
 import { SkeletonBar } from "@/app/_components/skeleton-bar";
 import { PageTitleSkeleton } from "@/app/_components/page-title-skeleton";
+import { SectionTitleSkeleton } from "@/app/_components/section-title-skeleton";
 
 export default function LeaderboardDetailLoading() {
   return (
@@ -11,8 +12,8 @@ export default function LeaderboardDetailLoading() {
         <PageTitleSkeleton width="w-48" />
       </PageTitle>
 
-      {/* SectionTitle（モジュール名） */}
-      <SkeletonBar className="h-7 w-32" tone={100} />
+      {/* モジュール名 */}
+      <SectionTitleSkeleton width="w-32" />
 
       <div className="space-y-4">
         {/* 期間ラベル + 期間セレクタ（実UIは gap-4） */}

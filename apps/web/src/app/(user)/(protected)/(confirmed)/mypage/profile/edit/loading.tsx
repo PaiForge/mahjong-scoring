@@ -1,6 +1,6 @@
 import { ContentContainer } from "@/app/_components/content-container";
 import { PageTitle } from "@/app/_components/page-title";
-import { SectionTitle } from "@/app/_components/section-title";
+import { SectionTitleSkeleton } from "@/app/_components/section-title-skeleton";
 import { SkeletonBar } from "@/app/_components/skeleton-bar";
 import { PageTitleSkeleton } from "@/app/_components/page-title-skeleton";
 
@@ -30,12 +30,7 @@ export default function Loading() {
 
         {/* 基本情報セクション */}
         <section className="space-y-4">
-          <SectionTitle>
-            <SkeletonBar
-              className="inline-block h-5 w-24 align-middle"
-              as="span"
-            />
-          </SectionTitle>
+          <SectionTitleSkeleton width="w-24" />
 
           {/* 表示名（label + 説明 + input） */}
           <div className="space-y-2">
@@ -54,12 +49,7 @@ export default function Loading() {
 
         {/* SNS セクション（X / Instagram / YouTube） */}
         <section className="space-y-4">
-          <SectionTitle>
-            <SkeletonBar
-              className="inline-block h-5 w-28 align-middle"
-              as="span"
-            />
-          </SectionTitle>
+          <SectionTitleSkeleton width="w-28" />
 
           {SNS_FIELDS.map((field) => (
             <div key={field} className="space-y-2">

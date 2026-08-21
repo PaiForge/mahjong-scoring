@@ -1,6 +1,7 @@
 import { ContentContainer } from "./content-container";
 import { PageTitle } from "./page-title";
 import { PageTitleSkeleton } from "./page-title-skeleton";
+import { SectionTitleSkeleton } from "./section-title-skeleton";
 import { SkeletonBar } from "./skeleton-bar";
 
 interface PageSkeletonProps {
@@ -30,13 +31,18 @@ export function PageSkeleton({
       </PageTitle>
 
       <div className="space-y-4">
-        <SkeletonBar className="h-6 w-40" />
+        <SectionTitleSkeleton width="w-32" />
         <SkeletonBar className="h-4 w-full" tone={100} />
         <SkeletonBar className="h-4 w-11/12" tone={100} />
         <SkeletonBar className="h-4 w-4/5" tone={100} />
         <div className="mt-6 space-y-3">
           {Array.from({ length: rows }).map((_, i) => (
-            <SkeletonBar key={i} className="h-14 w-full" tone={100} />
+            <SkeletonBar
+              key={i}
+              radius="xl"
+              className="h-14 w-full"
+              tone={100}
+            />
           ))}
         </div>
       </div>

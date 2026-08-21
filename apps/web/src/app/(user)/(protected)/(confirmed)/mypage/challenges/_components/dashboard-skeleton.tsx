@@ -1,3 +1,4 @@
+import { SectionTitleSkeleton } from "@/app/_components/section-title-skeleton";
 import { SkeletonBar } from "@/app/_components/skeleton-bar";
 /** KPIカード1枚分のスケルトン */
 function StatsCardSkeleton() {
@@ -83,7 +84,7 @@ export function DashboardSkeleton() {
   return (
     <div className="space-y-6">
       {/* SectionTitle("記録") */}
-      <SkeletonBar className="h-7 w-24" />
+      <SectionTitleSkeleton width="w-24" />
       {/* 期間・メニューセレクタ（実UIは縦積みの block 要素） */}
       <SkeletonBar radius="lg" className="h-[38px] w-full sm:w-48" />
       <SkeletonBar radius="lg" className="h-[38px] w-full sm:w-64" />
