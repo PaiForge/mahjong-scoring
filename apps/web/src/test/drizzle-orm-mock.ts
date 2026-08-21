@@ -8,8 +8,8 @@ import { vi } from "vitest";
  * 戻り値は識別できる形であれば何でもよい。各テストが独自の sentinel を
  * 作ると形が揃わないため、`{ op, args }` に統一する。
  *
- * `sql` はテンプレートリテラルとして呼ばれるうえ `sql.raw()` も持つため、
- * 呼び出し可能オブジェクトとして再現する。
+ * `sql` はテンプレートリテラルとして呼ばれるうえ `sql.raw()` / `sql.join()` も
+ * 持つため、呼び出し可能オブジェクトとして再現する。
  *
  * このモジュールはテスト専用。
  */
@@ -39,5 +39,12 @@ export const sql = Object.assign(
     strings,
     values,
   }),
-  { raw: (s: string) => s },
+  {
+    raw: (s: string) => s,
+    join: (chunks: readonly unknown[], separator?: unknown) => ({
+      op: "sql.join",
+      chunks,
+      separator,
+    }),
+  },
 );
