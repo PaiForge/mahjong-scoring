@@ -23,7 +23,10 @@ export default function Loading() {
       <div className="space-y-8">
         {/* アバター（実: 中央寄せの円 + 画像選択リンク + ヒント） */}
         <div className="flex flex-col items-center gap-3">
-          <SkeletonBar radius="full" className="h-20 w-20" />
+          <SkeletonBar
+            radius="full"
+            className="h-24 w-24 border-3 border-ink"
+          />
           <SkeletonBar className="h-4 w-20" />
           <SkeletonBar className="h-3 w-56" />
         </div>

@@ -19,7 +19,10 @@ export default function Loading() {
         {/* プロフィールカード（実: flex items-center gap-4 border-border bg-card p-4。
             アバター(lg) + 表示名 + @username + 公開プロフィール/編集リンク） */}
         <section className="flex items-center gap-4 rounded-lg border-3 border-ink bg-card p-4">
-          <SkeletonBar radius="full" className="h-20 w-20 flex-shrink-0" />
+          <SkeletonBar
+            radius="full"
+            className="h-20 w-20 flex-shrink-0 border-3 border-ink"
+          />
           <div className="min-w-0 flex-1 space-y-2">
             <SkeletonBar className="h-6 w-32" />
             <SkeletonBar className="h-4 w-24" />
