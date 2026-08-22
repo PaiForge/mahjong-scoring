@@ -1,5 +1,6 @@
 "use client";
 
+import { useBodyScrollLock } from "../_hooks/use-body-scroll-lock";
 import { useEffect, useCallback } from "react";
 import type { ReactNode } from "react";
 
@@ -55,16 +56,7 @@ export function ModalShell({
     return () => document.removeEventListener("keydown", handleKeyDown);
   }, [isOpen, handleKeyDown]);
 
-  useEffect(() => {
-    if (isOpen) {
-      document.body.style.overflow = "hidden";
-    } else {
-      document.body.style.overflow = "";
-    }
-    return () => {
-      document.body.style.overflow = "";
-    };
-  }, [isOpen]);
+  useBodyScrollLock(isOpen);
 
   if (!isOpen) return undefined;
 
