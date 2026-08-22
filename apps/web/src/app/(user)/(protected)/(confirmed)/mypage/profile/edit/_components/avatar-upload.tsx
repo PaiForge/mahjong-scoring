@@ -6,7 +6,11 @@ import { useTranslations } from "next-intl";
 import Image from "next/image";
 import toast from "react-hot-toast";
 
-import { API_ERROR_RATE_LIMITED, callApi } from "@/lib/api-client";
+import {
+  API_ERROR_BANNED,
+  API_ERROR_RATE_LIMITED,
+  callApi,
+} from "@/lib/api-client";
 import { TEXT_LINK_CLASSES } from "@/app/_components/_lib/link-classes";
 
 const ALLOWED_TYPES = ["image/jpeg", "image/png", "image/webp"];
@@ -60,7 +64,9 @@ export function AvatarUpload({
               ? t("avatarInvalidType")
               : result.error === API_ERROR_RATE_LIMITED
                 ? t("rateLimited")
-                : t("avatarUploadFailed"),
+                : result.error === API_ERROR_BANNED
+                  ? t("banned")
+                  : t("avatarUploadFailed"),
         );
         return;
       }

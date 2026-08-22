@@ -2,6 +2,7 @@ import type { User } from "@supabase/supabase-js";
 import type { SupabaseServerClient } from "./supabase/server";
 import { NextResponse } from "next/server";
 
+import { isUserBanned } from "./ban";
 import { getClientIp } from "./client-ip";
 import {
   IP_RATE_LIMITS,
@@ -22,8 +23,11 @@ type AuthorizeResult =
  * API ルート共通の「IP レートリミット + 認証ユーザー取得」前処理。
  * API認証前処理
  *
- * レートリミット超過時は 429、未認証時は 401 の `NextResponse` を
+ * レートリミット超過時は 429、未認証時は 401、BAN 済みは 403 の `NextResponse` を
  * `{ ok: false, response }` として返す。成功時は `{ ok: true, user, supabase }`。
+ *
+ * BAN チェックはページガードと同じ方針。Route Handler は画面を経由せず
+ * 直接叩けるため、ここでも弾く。
  *
  * @example
  * const auth = await authorizeApiRequest("deleteAccount");
@@ -58,6 +62,13 @@ export async function authorizeApiRequest(
     return {
       ok: false,
       response: NextResponse.json({ error: "unauthorized" }, { status: 401 }),
+    };
+  }
+
+  if (await isUserBanned(user.id)) {
+    return {
+      ok: false,
+      response: NextResponse.json({ error: "banned" }, { status: 403 }),
     };
   }
 

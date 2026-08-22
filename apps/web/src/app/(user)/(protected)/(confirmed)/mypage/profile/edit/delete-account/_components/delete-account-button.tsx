@@ -29,7 +29,11 @@ export function DeleteAccountButton() {
     const result = await deleteOwnAccount();
     if ("error" in result) {
       toast.error(
-        result.error === "rateLimited" ? t("rateLimited") : t("error"),
+        result.error === "rateLimited"
+          ? t("rateLimited")
+          : result.error === "banned"
+            ? t("banned")
+            : t("error"),
       );
       setIsDeleting(false);
       return;
