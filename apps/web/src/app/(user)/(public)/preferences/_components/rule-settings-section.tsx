@@ -28,7 +28,9 @@ export function RuleSettingsSection() {
           <span className="block text-sm font-medium text-surface-900">
             {t("renfonpaiTitle")}
           </span>
-          <span className="mt-0.5 block text-xs text-surface-500">
+          {/* 説明文は句読点で折り返す。辞書側の改行をそのまま出すため
+              whitespace-pre-line を当てる。 */}
+          <span className="mt-0.5 block whitespace-pre-line text-xs text-surface-500">
             {t("renfonpaiDescription")}
           </span>
         </span>
