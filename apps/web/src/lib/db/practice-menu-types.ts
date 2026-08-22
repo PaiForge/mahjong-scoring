@@ -46,6 +46,12 @@ interface PracticeMenuEntry {
   readonly slug: string;
   readonly messageKey: string;
   readonly namespace: string;
+  /**
+   * 問題別の回答結果を記録し、結果ページで問題別フィードバック一覧を出すか。
+   * true の練習は play 中に sessionStorage へ結果を積み、結果ページ（とその
+   * スケルトン）が出題数ぶんの一覧枠を描く。
+   */
+  readonly hasProblemList: boolean;
 }
 
 /**
@@ -58,61 +64,77 @@ const PRACTICE_MENU_REGISTRY = [
     slug: "jantou-fu",
     messageKey: "jantouFu",
     namespace: "jantouFu",
+    hasProblemList: false,
   },
   {
     menuType: "machi_fu",
     slug: "machi-fu",
     messageKey: "machiFu",
     namespace: "machiFu",
+    hasProblemList: false,
   },
   {
     menuType: "mentsu_fu",
     slug: "mentsu-fu",
     messageKey: "mentsuFu",
     namespace: "mentsuFu",
+    hasProblemList: false,
   },
   {
     menuType: "tehai_fu",
     slug: "tehai-fu",
     messageKey: "tehaiFu",
     namespace: "tehaiFu",
+    hasProblemList: false,
   },
   {
     menuType: "total_fu",
     slug: "total-fu",
     messageKey: "totalFu",
     namespace: "totalFu",
+    hasProblemList: true,
   },
-  { menuType: "yaku", slug: "yaku", messageKey: "yaku", namespace: "yaku" },
+  {
+    menuType: "yaku",
+    slug: "yaku",
+    messageKey: "yaku",
+    namespace: "yaku",
+    hasProblemList: false,
+  },
   {
     menuType: "score_table",
     slug: "score-table",
     messageKey: "scoreTable",
     namespace: "scoreTableChallenge",
+    hasProblemList: true,
   },
   {
     menuType: "score_calculation",
     slug: "score-calculation",
     messageKey: "scoreCalculation",
     namespace: "scoreCalculationChallenge",
+    hasProblemList: true,
   },
   {
     menuType: "han_count",
     slug: "han-count",
     messageKey: "hanCount",
     namespace: "hanCountChallenge",
+    hasProblemList: true,
   },
   {
     menuType: "yaku_han",
     slug: "yaku-han",
     messageKey: "yakuHan",
     namespace: "yakuHanChallenge",
+    hasProblemList: true,
   },
   {
     menuType: "mangan_score_calculation",
     slug: "mangan-score-calculation",
     messageKey: "manganScoreCalculation",
     namespace: "manganScoreCalculationChallenge",
+    hasProblemList: true,
   },
 ] as const satisfies readonly PracticeMenuEntry[];
 
@@ -147,6 +169,7 @@ export interface PracticeMenuDescriptor {
   readonly slug: PracticeMenuSlug;
   readonly messageKey: PracticeMenuMessageKey;
   readonly namespace: PracticeMenuNamespace;
+  readonly hasProblemList: boolean;
 }
 
 // ---------------------------------------------------------------------------

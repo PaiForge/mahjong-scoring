@@ -9,7 +9,6 @@ import { ScoreTableGeneratingPlaceholder } from "./score-table-generating-placeh
 import { useScoreTableGeneratorOptions } from "../_hooks/use-score-table-query-selection";
 import { useScoreTableQuestion } from "../_hooks/use-score-table-question";
 import type { ScoreTableQuestionResult } from "../_lib/types";
-import { RESULT_STORAGE_KEY } from "../_lib/types";
 
 /**
  * URL の出題条件で盤面を描く
@@ -48,7 +47,6 @@ export const ScoreTablePlayView = createChallengePlayView<
   Record<string, never>
 >({
   slug: "score-table",
-  resultStorageKey: RESULT_STORAGE_KEY,
   renderBoard: (args) => (
     <Suspense fallback={<ScoreTableGeneratingPlaceholder />}>
       <ScoreTableBoardFromQuery args={args} />
