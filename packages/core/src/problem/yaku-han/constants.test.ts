@@ -1,7 +1,7 @@
 import { describe, it, expect } from "vitest";
 
 import { YAKU_HAN_ENTRIES, YAKUMAN_HAN } from "./constants";
-import { YAKU_OPTIONS } from "../../core/yaku-names";
+import { YAKU_OPTION_GROUPS, YAKU_OPTIONS } from "../../core/yaku-names";
 
 /**
  * `YAKU_OPTIONS` にあって `YAKU_HAN_ENTRIES` に無くてよい役名。
@@ -40,6 +40,20 @@ describe("YAKU_HAN_ENTRIES", () => {
     );
 
     expect(unknown, `未知の役: ${unknown.join(", ")}`).toEqual([]);
+  });
+
+  it("YAKU_OPTION_GROUPS の翻数が menzenHan と一致する", () => {
+    const hanOf = new Map(YAKU_HAN_ENTRIES.map((e) => [e.name, e.menzenHan]));
+
+    for (const group of YAKU_OPTION_GROUPS) {
+      for (const name of group.names) {
+        const entryName = YAKUHAI_VARIANTS.has(name) ? "役牌" : name;
+        expect(
+          hanOf.get(entryName),
+          `${name} のグループは ${group.han} 翻だが YAKU_HAN_ENTRIES と異なる`,
+        ).toBe(group.han);
+      }
+    }
   });
 
   it("役名が重複していない", () => {

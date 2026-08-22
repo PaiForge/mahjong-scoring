@@ -5,14 +5,14 @@ import { useTranslations } from "next-intl";
 import {
   generateYakuQuestion,
   judgeYakuAnswer,
-  SELECTABLE_YAKU,
+  SELECTABLE_YAKU_GROUPS,
+  YAKUMAN_HAN,
   retryGenerate,
 } from "@mahjong-scoring/core";
 import type { YakuQuestion } from "@mahjong-scoring/core";
 import { ChallengeSubmitButton } from "../../_components/challenge-submit-button";
 import { TehaiDisplay } from "../../_components/tehai-display";
 import { YakuChip, getChipFeedbackState } from "./yaku-chip";
-import { HAN_GROUPS } from "../_lib/han-groups";
 import { QuestionPrompt } from "../../_components/question-prompt";
 
 function generateQuestion(): YakuQuestion | undefined {
@@ -23,6 +23,11 @@ interface YakuBoardProps {
   readonly showFeedback: boolean;
   readonly isCountingDown?: boolean;
   readonly onAnswer: (correct: boolean, onNext: () => void) => void;
+}
+
+/** 翻数グループの i18n キー（役満だけ数値ではなく "yakuman"） */
+function hanGroupKey(han: number): string {
+  return han === YAKUMAN_HAN ? "yakuman" : String(han);
 }
 
 /**
@@ -87,32 +92,30 @@ export function YakuBoard({
 
       {/* Yaku selection */}
       <div className="space-y-3">
-        {HAN_GROUPS.map((group) => (
-          <div key={group.key} className="space-y-1.5">
+        {SELECTABLE_YAKU_GROUPS.map((group) => (
+          <div key={group.han} className="space-y-1.5">
             <p className="text-xs font-semibold text-surface-400">
-              {t(`hanGroup.${group.key}`)}
+              {t(`hanGroup.${hanGroupKey(group.han)}`)}
             </p>
             <div className="flex flex-wrap gap-1.5">
-              {SELECTABLE_YAKU.slice(group.startIndex, group.endIndex).map(
-                (yakuName) => (
-                  <YakuChip
-                    key={yakuName}
-                    yakuName={yakuName}
-                    isSelected={selectedYaku.has(yakuName)}
-                    feedbackState={
-                      showFeedback
-                        ? getChipFeedbackState(
-                            yakuName,
-                            selectedYaku,
-                            question.correctYakuNames,
-                          )
-                        : undefined
-                    }
-                    disabled={showFeedback || isCountingDown}
-                    onToggle={handleToggleYaku}
-                  />
-                ),
-              )}
+              {group.names.map((yakuName) => (
+                <YakuChip
+                  key={yakuName}
+                  yakuName={yakuName}
+                  isSelected={selectedYaku.has(yakuName)}
+                  feedbackState={
+                    showFeedback
+                      ? getChipFeedbackState(
+                          yakuName,
+                          selectedYaku,
+                          question.correctYakuNames,
+                        )
+                      : undefined
+                  }
+                  disabled={showFeedback || isCountingDown}
+                  onToggle={handleToggleYaku}
+                />
+              ))}
             </div>
           </div>
         ))}

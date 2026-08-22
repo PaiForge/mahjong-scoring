@@ -2,6 +2,7 @@ import { HaiKind, type Kazehai } from "@pai-forge/riichi-mahjong";
 import {
   SCORE_YAKU_NAME_MAP,
   SITUATIONAL_YAKU_KEYS,
+  YAKU_OPTION_GROUPS,
   YAKU_OPTIONS,
 } from "../../core/yaku-names";
 
@@ -40,6 +41,14 @@ export const YAKU_NAME_MAP: Readonly<Record<string, string>> =
  * 選択可能役リスト
  */
 export const SELECTABLE_YAKU: readonly string[] = YAKU_OPTIONS;
+
+/**
+ * 選択可能役リストを翻数グループごとに分けたもの（表示順）
+ * 選択可能役グループ
+ *
+ * YAKU_OPTION_GROUPS と同一（単一ソース化）。
+ */
+export const SELECTABLE_YAKU_GROUPS = YAKU_OPTION_GROUPS;
 
 /**
  * 正解から除外するライブラリ返却役名（状況役・偶然役）

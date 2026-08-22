@@ -25,7 +25,10 @@ export type { FuDetail } from "./score/fu-calculator";
 // === Problem: Yaku ===
 export { generateYakuQuestion } from "./problem/yaku/generator";
 export { judgeYakuAnswer } from "./problem/yaku/judgement";
-export { SELECTABLE_YAKU } from "./problem/yaku/constants";
+export {
+  SELECTABLE_YAKU,
+  SELECTABLE_YAKU_GROUPS,
+} from "./problem/yaku/constants";
 export type { YakuQuestion } from "./problem/yaku/types";
 
 // === Problem: Yaku Han ===
