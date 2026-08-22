@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef } from "react";
+import { Suspense, useEffect, useRef } from "react";
 import type { ScoreRange } from "@mahjong-scoring/core";
 import { SettingCard } from "../../_components/setting-card";
 import { SettingCardSkeleton } from "../../_components/setting-card-skeleton";
@@ -11,35 +11,32 @@ import { useTranslations } from "next-intl";
 import { useIsClient } from "../../../../../_hooks/use-is-client";
 import { PRACTICE_SCROLL_HASH } from "../../_lib/scroll-anchor";
 import { SmallCheckbox } from "../../score/_components/small-checkbox";
+import { useScoreTableQuerySelection } from "../_hooks/use-score-table-query-selection";
 import { useScoreTableSettingsStore } from "../_hooks/use-score-table-settings-store";
 import {
   selectionToQueryString,
   type ScoreTableSelection,
 } from "../_lib/options";
 
-interface ScoreTableSetupProps {
-  /** URL から復元した出題条件（ガイドからの遷移時のプリセット） */
-  readonly initialSelection: ScoreTableSelection;
-  /** URL に出題条件の指定があったか（あれば初期値としてストアへ反映する） */
-  readonly applyInitial: boolean;
+/** ストア hydrate 前・クライアント描画前に確保する 3 カード分の枠 */
+function ScoreTableSetupSkeleton() {
+  return (
+    <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
+      {["mode", "win", "score"].map((key) => (
+        <SettingCardSkeleton key={key} />
+      ))}
+    </div>
+  );
 }
 
-/**
- * 点数表早引きの出題設定フォーム
- * 点数表出題設定
- *
- * 親子・ツモロン・点数帯（満貫未満/満貫以上）を選び、チャレンジ／トレーニングを
- * 選択内容のクエリ付きで開始する。ガイドからの遷移時は URL の指定を初期値にする。
- */
-export function ScoreTableSetup({
-  initialSelection,
-  applyInitial,
-}: ScoreTableSetupProps) {
+function ScoreTableSetupForm() {
   const t = useTranslations("scoreTableChallenge.setup");
   const tc = useTranslations("challenge");
   const tp = useTranslations("practice");
   const tt = useTranslations("training");
   const mounted = useIsClient();
+  const { selection: initialSelection, hasParams: applyInitial } =
+    useScoreTableQuerySelection();
 
   const {
     includeOya,
@@ -95,13 +92,7 @@ export function ScoreTableSetup({
     (!includeNonMangan && !includeManganPlus);
 
   if (!mounted) {
-    return (
-      <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
-        {["mode", "win", "score"].map((key) => (
-          <SettingCardSkeleton key={key} />
-        ))}
-      </div>
-    );
+    return <ScoreTableSetupSkeleton />;
   }
 
   return (
@@ -167,5 +158,23 @@ export function ScoreTableSetup({
         })}
       />
     </div>
+  );
+}
+
+/**
+ * 点数表早引きの出題設定フォーム
+ * 点数表出題設定
+ *
+ * 親子・ツモロン・点数帯（満貫未満/満貫以上）を選び、チャレンジ／トレーニングを
+ * 選択内容のクエリ付きで開始する。ガイドからの遷移時は URL の指定を初期値にする。
+ * 条件は `useSearchParams()` で読むため静的ルートではクライアント描画になる。
+ * 自前の `Suspense` で包み、プリレンダー HTML にはカードと同寸のスケルトンを出す
+ * （これが無いと `loading.tsx` の境界まで巻き込んでページ全体がスケルトンになる）。
+ */
+export function ScoreTableSetup() {
+  return (
+    <Suspense fallback={<ScoreTableSetupSkeleton />}>
+      <ScoreTableSetupForm />
+    </Suspense>
   );
 }

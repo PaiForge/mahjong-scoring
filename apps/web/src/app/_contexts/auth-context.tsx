@@ -3,6 +3,7 @@
 import {
   type ReactNode,
   createContext,
+  startTransition,
   useCallback,
   useContext,
   useEffect,
@@ -38,6 +39,13 @@ const AuthContext = createContext<AuthContextValue | undefined>(undefined);
 /**
  * 認証状態を提供するプロバイダー
  * 認証コンテキストプロバイダー
+ *
+ * 状態更新はすべて `startTransition` で包む。このプロバイダーはアプリ全体の祖先
+ * なので、初回ロード直後（ページのクライアントチャンクがまだ届いておらず
+ * `loading.tsx` の Suspense 境界が未ハイドレートのとき）に同期的な更新を流すと、
+ * React はその境界をハイドレートできずクライアントレンダーに切り替え、SSR 済みの
+ * 本文を捨てて一瞬 loading のスケルトンへ巻き戻す。transition にしておけば
+ * ハイドレーション完了まで更新を待てるため巻き戻らない。
  */
 export function AuthProvider({ children }: { readonly children: ReactNode }) {
   const [user, setUser] = useState<User | null>(null);
@@ -59,21 +67,27 @@ export function AuthProvider({ children }: { readonly children: ReactNode }) {
       supabase.auth.getUser(),
       supabase.auth.getSession(),
     ]);
-    setUser(currentUser);
-    setSession(currentSession);
+    startTransition(() => {
+      setUser(currentUser);
+      setSession(currentSession);
+    });
   }, []);
 
   useEffect(() => {
     const supabase = createClient();
     supabaseRef.current = supabase;
 
-    refreshUser().finally(() => setIsLoading(false));
+    refreshUser().finally(() => {
+      startTransition(() => setIsLoading(false));
+    });
 
     const {
       data: { subscription },
     } = supabase.auth.onAuthStateChange((event, newSession) => {
-      setSession(newSession);
-      setUser(newSession?.user ?? null);
+      startTransition(() => {
+        setSession(newSession);
+        setUser(newSession?.user ?? null);
+      });
 
       if (event === "SIGNED_OUT") {
         router.refresh();

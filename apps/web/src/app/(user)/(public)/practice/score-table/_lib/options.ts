@@ -43,7 +43,26 @@ export const FULL_SELECTION: ScoreTableSelection = {
 
 /** Next.js の searchParams で受け取りうる値の型 */
 type SearchParamValue = string | string[] | undefined;
-type RawSearchParams = Record<string, SearchParamValue>;
+
+/** 出題条件を読み取る元になる searchParams 相当のオブジェクト */
+export type RawSearchParams = Record<string, SearchParamValue>;
+
+/**
+ * `URLSearchParams`（`useSearchParams()` の戻り値など）を searchParams 相当へ変換する
+ * URL 条件の読み出し
+ *
+ * 同名パラメータの複数指定（`roles=oya&roles=ko`）を配列のまま保つため、
+ * `Object.fromEntries` ではなく `getAll` で読む。
+ */
+export function readSelectionParams(
+  params: Pick<URLSearchParams, "getAll">,
+): RawSearchParams {
+  return {
+    [ROLE_PARAM]: params.getAll(ROLE_PARAM),
+    [WIN_PARAM]: params.getAll(WIN_PARAM),
+    [RANGE_PARAM]: params.getAll(RANGE_PARAM),
+  };
+}
 
 function valuesOf(raw: SearchParamValue): readonly string[] {
   if (raw === undefined) return [];
