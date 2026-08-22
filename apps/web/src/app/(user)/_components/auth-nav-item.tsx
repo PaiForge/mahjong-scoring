@@ -34,6 +34,16 @@ export function AuthNavItem() {
     router.push("/");
   }, [signOut, t, router]);
 
+  // ドロップダウン内の Link はメニューを開くまで mount されず、開いてから
+  // プリフェッチが始まる。開いてすぐクリックするとプリフェッチ未完了のまま遷移し、
+  // サーバ応答が返るまでスケルトンも出ない（無反応に見える）。ログイン確定時点で
+  // 遷移先を先に prefetch しておく（既定の kind=auto: 動的ルートは loading 境界まで）。
+  useEffect(() => {
+    if (!user) return;
+    router.prefetch("/mypage");
+    router.prefetch("/preferences");
+  }, [user, router]);
+
   useEffect(() => {
     function handleMouseDown(event: MouseEvent) {
       if (
