@@ -1,3 +1,9 @@
+import {
+  CompactTable,
+  CompactTableCell,
+  CompactTableHeaderCell,
+  CompactTableRow,
+} from "./compact-table";
 import { getMissColorClass } from "../_lib/dashboard-utils";
 import type { SessionRow } from "../_lib/types";
 
@@ -29,42 +35,35 @@ export function SessionHistoryTable({
   }
 
   return (
-    <div className="overflow-x-auto">
-      <table className="w-full text-sm">
-        <thead>
-          <tr className="border-b-3 border-ink">
-            <th className="text-left py-2 px-2 sm:px-3 text-surface-500 font-medium">
-              {headers.date}
-            </th>
-            <th className="text-right py-2 px-2 sm:px-3 text-surface-500 font-medium whitespace-nowrap">
-              {headers.correctAnswers}
-            </th>
-            <th className="text-right py-2 px-2 sm:px-3 text-surface-500 font-medium whitespace-nowrap">
-              {headers.incorrectAnswers}
-            </th>
-          </tr>
-        </thead>
-        <tbody>
-          {sessions.map((session) => (
-            <tr
-              key={`${session.date}-${session.correctAnswers}-${session.incorrectAnswers}`}
-              className="border-b-2 border-dashed border-border/40"
-            >
-              <td className="py-2 px-2 sm:px-3 text-surface-900">
-                {session.date}
-              </td>
-              <td className="py-2 px-2 sm:px-3 text-right text-surface-900">
-                {session.correctAnswers}
-              </td>
-              <td
-                className={`py-2 px-2 sm:px-3 text-right ${getMissColorClass(session.incorrectAnswers)}`}
-              >
-                {session.incorrectAnswers}
-              </td>
-            </tr>
-          ))}
-        </tbody>
-      </table>
-    </div>
+    <CompactTable
+      head={
+        <>
+          <CompactTableHeaderCell>{headers.date}</CompactTableHeaderCell>
+          <CompactTableHeaderCell align="right">
+            {headers.correctAnswers}
+          </CompactTableHeaderCell>
+          <CompactTableHeaderCell align="right">
+            {headers.incorrectAnswers}
+          </CompactTableHeaderCell>
+        </>
+      }
+    >
+      {sessions.map((session) => (
+        <CompactTableRow
+          key={`${session.date}-${session.correctAnswers}-${session.incorrectAnswers}`}
+        >
+          <CompactTableCell>{session.date}</CompactTableCell>
+          <CompactTableCell align="right">
+            {session.correctAnswers}
+          </CompactTableCell>
+          <CompactTableCell
+            align="right"
+            className={getMissColorClass(session.incorrectAnswers)}
+          >
+            {session.incorrectAnswers}
+          </CompactTableCell>
+        </CompactTableRow>
+      ))}
+    </CompactTable>
   );
 }
