@@ -24,6 +24,7 @@ import { PRACTICE_SCROLL_ANCHOR_ID } from "../_lib/scroll-anchor";
 import { QuizTimer } from "./quiz-timer";
 import { QuitConfirmModal } from "./quit-confirm-modal";
 import { ResultPageSkeleton } from "./result-page-skeleton";
+import { TEXT_LINK_MUTED_CLASSES } from "@/app/_components/_lib/link-classes";
 
 interface LifeIndicatorProps {
   readonly remainingLives: number;
@@ -261,7 +262,7 @@ export function ChallengeShell({
           <button
             type="button"
             onClick={handleQuitClick}
-            className="text-sm text-surface-400 underline transition-colors hover:text-surface-600"
+            className={`text-sm ${TEXT_LINK_MUTED_CLASSES}`}
           >
             {tc("quitButton")}
           </button>

@@ -16,6 +16,7 @@ import { getProfileForEdit } from "@/lib/db/queries";
 
 import { AvatarUpload } from "./_components/avatar-upload";
 import { ProfileForm } from "./_components/profile-form";
+import { TEXT_LINK_MUTED_CLASSES } from "@/app/_components/_lib/link-classes";
 
 export async function generateMetadata(): Promise<Metadata> {
   const t = await getTranslations("profileEdit");
@@ -65,7 +66,7 @@ export default async function ProfileEditPage({
       <div className="mt-10 border-t-2 border-dashed border-border/40 pt-6 text-center">
         <Link
           href="/mypage/profile/edit/delete-account"
-          className="text-sm text-surface-400 transition-colors hover:text-surface-600 hover:underline"
+          className={`text-sm ${TEXT_LINK_MUTED_CLASSES}`}
         >
           {t("deleteAccountLink")}
         </Link>

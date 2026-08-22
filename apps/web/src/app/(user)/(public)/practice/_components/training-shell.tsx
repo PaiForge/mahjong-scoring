@@ -8,6 +8,7 @@ import { PageTitle } from "@/app/_components/page-title";
 import { useScrollToElement } from "../_hooks/use-scroll-to-element";
 import { PRACTICE_SCROLL_ANCHOR_ID } from "../_lib/scroll-anchor";
 import { ScoreCounter } from "./score-counter";
+import { TEXT_LINK_MUTED_CLASSES } from "@/app/_components/_lib/link-classes";
 
 interface TrainingShellProps {
   /** 画面上部に表示する練習名（PageTitle に渡す） */
@@ -78,7 +79,7 @@ export function TrainingShell({
                 type="button"
                 onClick={onSkip}
                 disabled={skipDisabled}
-                className="text-sm text-surface-400 underline transition-colors hover:text-surface-600 disabled:opacity-50"
+                className={`text-sm disabled:opacity-50 ${TEXT_LINK_MUTED_CLASSES}`}
               >
                 {tt("skipButton")}
               </button>
@@ -87,7 +88,7 @@ export function TrainingShell({
           <div>
             <Link
               href={exitHref}
-              className="text-sm text-surface-400 underline transition-colors hover:text-surface-600"
+              className={`text-sm ${TEXT_LINK_MUTED_CLASSES}`}
             >
               {tt("exitButton")}
             </Link>
