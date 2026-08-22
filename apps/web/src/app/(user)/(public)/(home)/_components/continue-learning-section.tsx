@@ -5,33 +5,34 @@ import { CurriculumProgressBar } from "@/app/(user)/(public)/learn/_components/c
 import { CurriculumToc } from "@/app/(user)/(public)/learn/_components/curriculum-toc";
 import {
   CURRICULUM,
-  pickNextChapter,
+  type CurriculumChapter,
 } from "@/app/(user)/(public)/learn/_lib/curriculum";
-import { fetchReadChapterSlugs } from "@/app/(user)/(public)/learn/_lib/progress";
 import { SectionTitle } from "@/app/(user)/_components/section-title";
 import { TEXT_LINK_CLASSES } from "@/app/_components/_lib/link-classes";
 
+interface ContinueLearningSectionProps {
+  /** 読了済み章のスラッグ */
+  readonly readSlugs: ReadonlySet<string>;
+  /** 次に読む章 */
+  readonly nextChapter: CurriculumChapter;
+}
+
 /**
- * ダッシュボードの「学習の続き」セクション。
- * 学習の続き
+ * ダッシュボードの「教本の続き」セクション。
+ * 教本の続き
  *
  * 進捗バーと「次はここから」の章 1 件を `/learn` と同じ見た目で表示し、
  * 再訪ユーザーが読みかけの位置へ 1 クリックで戻れるようにする。
  * 目次全体は `/learn` の役目なので、ここでは次の 1 章だけに絞る。
  *
- * @remarks
- * サーバーコンポーネント。読了状態は `fetchReadChapterSlugs()`（`cache()` 済みの
- * `getOptionalUser()` 経由）で取るため、同一リクエスト内で他の呼び出しと重複しない。
+ * 全章読了済みのときは次の章が無いのでこのセクション自体を出さない。
+ * 出す / 出さないの判断は親（`selectDashboardGuidance`）が持つ。
  */
-export async function ContinueLearningSection() {
-  const [t, tLearn, readSlugs] = await Promise.all([
-    getTranslations("dashboard"),
-    getTranslations("learnCurriculum.index"),
-    fetchReadChapterSlugs(),
-  ]);
-
-  const next = pickNextChapter(readSlugs);
-  const allCompleted = !next;
+export async function ContinueLearningSection({
+  readSlugs,
+  nextChapter,
+}: ContinueLearningSectionProps) {
+  const t = await getTranslations("dashboard");
 
   return (
     <div className="space-y-4">
@@ -40,21 +41,15 @@ export async function ContinueLearningSection() {
       <CurriculumProgressBar
         readCount={readSlugs.size}
         totalCount={CURRICULUM.length}
-        allCompleted={allCompleted}
+        allCompleted={false}
       />
 
-      {next ? (
-        <CurriculumToc
-          section={next.section}
-          chapters={[next]}
-          readSlugs={readSlugs}
-          nextSlug={next.slug}
-        />
-      ) : (
-        <p className="text-center text-sm text-surface-600">
-          {tLearn("allCompletedMessage")}
-        </p>
-      )}
+      <CurriculumToc
+        section={nextChapter.section}
+        chapters={[nextChapter]}
+        readSlugs={readSlugs}
+        nextSlug={nextChapter.slug}
+      />
 
       <div className="text-right">
         <Link
