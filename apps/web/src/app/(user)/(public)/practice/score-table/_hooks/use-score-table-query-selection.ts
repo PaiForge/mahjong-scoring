@@ -2,10 +2,12 @@
 
 import { useMemo } from "react";
 import { useSearchParams } from "next/navigation";
+import type { ScoreTableGeneratorOptions } from "@mahjong-scoring/core";
 import {
   hasSelectionParams,
   readSelectionParams,
   searchParamsToSelection,
+  selectionToGeneratorOptions,
   type ScoreTableSelection,
 } from "../_lib/options";
 
@@ -35,4 +37,16 @@ export function useScoreTableQuerySelection(): ScoreTableQuerySelection {
       hasParams: hasSelectionParams(raw),
     };
   }, [searchParams]);
+}
+
+/**
+ * URL クエリの出題条件をジェネレータオプションとして読むフック
+ * URL 出題オプション
+ *
+ * play / training の盤面が使う。`useScoreTableQuestion` の依存に渡るため、
+ * 参照が毎レンダー変わらないようメモ化する。
+ */
+export function useScoreTableGeneratorOptions(): ScoreTableGeneratorOptions {
+  const { selection } = useScoreTableQuerySelection();
+  return useMemo(() => selectionToGeneratorOptions(selection), [selection]);
 }

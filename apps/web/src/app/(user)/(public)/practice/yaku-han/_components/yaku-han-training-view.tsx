@@ -1,25 +1,32 @@
 "use client";
 
-import { normalizeYakuHanRange } from "@mahjong-scoring/core";
+import { Suspense } from "react";
 
 import { createTrainingView } from "../../_lib/create-challenge-views";
+import type { TrainingBoardArgs } from "../../_lib/create-challenge-views";
 import { YakuHanBoard } from "./yaku-han-board";
+import { YakuHanGeneratingPlaceholder } from "./yaku-han-generating-placeholder";
+import { useYakuHanRangeQuery } from "../_hooks/use-yaku-han-range-query";
 
-interface YakuHanTrainingViewProps {
-  /** 出題範囲（URL の range クエリ。不正値・未指定は全役にフォールバック） */
-  readonly range?: string;
+/** URL の出題範囲で盤面を描く（{@link YakuHanPlayView} と同じ理由で境界の内側） */
+function YakuHanBoardFromQuery({ args }: { readonly args: TrainingBoardArgs }) {
+  const range = useYakuHanRangeQuery();
+
+  return (
+    <YakuHanBoard
+      showFeedback={args.showFeedback}
+      range={range}
+      onAnswer={args.onAnswer}
+    />
+  );
 }
 
-export const YakuHanTrainingView = createTrainingView<YakuHanTrainingViewProps>(
-  {
-    slug: "yaku-han",
-    maxWidth: "max-w-2xl",
-    renderBoard: (args, { range }) => (
-      <YakuHanBoard
-        showFeedback={args.showFeedback}
-        range={normalizeYakuHanRange(range)}
-        onAnswer={args.onAnswer}
-      />
-    ),
-  },
-);
+export const YakuHanTrainingView = createTrainingView({
+  slug: "yaku-han",
+  maxWidth: "max-w-2xl",
+  renderBoard: (args) => (
+    <Suspense fallback={<YakuHanGeneratingPlaceholder />}>
+      <YakuHanBoardFromQuery args={args} />
+    </Suspense>
+  ),
+});
