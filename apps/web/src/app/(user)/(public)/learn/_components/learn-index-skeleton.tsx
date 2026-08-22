@@ -12,7 +12,7 @@ import { CurriculumProgressBarSkeleton } from "./curriculum-progress-bar-skeleto
 import { CurriculumTocSkeleton } from "./curriculum-toc-skeleton";
 
 /**
- * 学ぶ（カリキュラム目次）の読み込み中スケルトン
+ * 教本（目次）の読み込み中スケルトン
  * 目次ページスケルトン
  *
  * `/learn` の実描画（`learn/page.tsx`）と同じ構造 — タイトル帯・セクション見出し +
@@ -31,7 +31,7 @@ export function LearnIndexSkeleton() {
 
       <div className="space-y-8">
         <div className="space-y-3">
-          <SectionTitleSkeleton width="w-28" />
+          <SectionTitleSkeleton width="w-12" />
           <p className="text-sm">
             <SkeletonBar as="span" tone={100} className="inline-block w-4/5">
               &nbsp;
