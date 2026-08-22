@@ -3,7 +3,7 @@
 import { useCallback, useState } from "react";
 import { useTranslations } from "next-intl";
 import {
-  TOTAL_FU_OPTIONS,
+  FU_VALUES,
   generateTotalFuQuestion,
   retryGenerate,
 } from "@mahjong-scoring/core";
@@ -74,7 +74,7 @@ export function TotalFuBoard({
   const handleSelect = useCallback(
     (index: number) => {
       if (showFeedback || !question) return;
-      const fu = TOTAL_FU_OPTIONS[index];
+      const fu = FU_VALUES[index];
       setSelectedFu(fu);
       onRecordResult?.(toQuestionResult(question, fu));
       onAnswer(fu === question.answer, advanceQuestion);
@@ -97,7 +97,7 @@ export function TotalFuBoard({
       <QuestionPrompt>{t("prompt")}</QuestionPrompt>
 
       <FuChoiceGrid
-        options={TOTAL_FU_OPTIONS}
+        options={FU_VALUES}
         answer={question.answer}
         selectedFu={selectedFu}
         showFeedback={showFeedback}

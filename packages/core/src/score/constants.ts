@@ -1,11 +1,17 @@
+import type { Fu } from "@pai-forge/riichi-mahjong";
+
 /**
  * 有効な符の値（20〜110符）
  * 符リスト
  *
  * 20符（平和ツモ）と25符（七対子）以外は10刻み。出題・点数表・
  * 回答選択肢はすべてこのリストから引く。
+ *
+ * ライブラリの `Fu` 型（20 | 25 | 30 | … | 110）と同じ並び。型注釈が
+ * `readonly Fu[]` なので値が増えてもここが欠けていることは型では
+ * 検出できず、並びは constants.test.ts が検証する。
  */
-export const FU_VALUES: readonly number[] = [
+export const FU_VALUES: readonly Fu[] = [
   20, 25, 30, 40, 50, 60, 70, 80, 90, 100, 110,
 ];
 

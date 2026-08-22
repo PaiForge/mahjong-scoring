@@ -19,7 +19,6 @@ export type { TehaiFuQuestion, TehaiFuItem } from "./problem/tehai-fu/types";
 
 // === Problem: Total Fu ===
 export { generateTotalFuQuestion } from "./problem/total-fu/generator";
-export { TOTAL_FU_OPTIONS } from "./problem/total-fu/constants";
 export type { TotalFuQuestion } from "./problem/total-fu/types";
 export type { FuDetail } from "./score/fu-calculator";
 

@@ -1,6 +1,6 @@
 import { describe, it, expect } from "vitest";
 import { generateTotalFuQuestion } from "./generator";
-import { TOTAL_FU_OPTIONS } from "./constants";
+import { FU_VALUES } from "../../score/constants";
 import {
   expectGeneratesEventually,
   expectSampled,
@@ -19,7 +19,7 @@ describe("generateTotalFuQuestion", () => {
     });
 
     for (const q of questions) {
-      expect(TOTAL_FU_OPTIONS).toContain(q.answer);
+      expect(FU_VALUES).toContain(q.answer);
     }
   });
 
