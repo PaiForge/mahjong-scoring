@@ -237,6 +237,15 @@ pnpm supabase stop           # 停止
 - Mailpit（メールテスト用）: http://127.0.0.1:54324
 - PostgreSQL: `postgresql://postgres:postgres@127.0.0.1:54322/postgres`
 
+### `config.config has invalid keys` が出たら
+
+`pnpm supabase` は同梱版が未インストールだと黙ってグローバル版（Homebrew 等）に
+フォールバックする。古いグローバル版が新しい `config.toml` のキーを知らないため、
+`failed to parse config: 'config.config' has invalid keys: <キー名>` になる。
+`config.toml` を書き換えるのではなく `pnpm install` を実行し、
+`pnpm supabase --version` が `apps/web/package.json` の devDependency と
+一致することを確認すること。
+
 ## Database Migration
 
 - **Always use `pnpm db:run-migrate`** — This runs `scripts/migrate.ts`, which executes Drizzle migrations and then applies Supabase-specific SQL (RLS policies, FK constraints) in Supabase environments.
