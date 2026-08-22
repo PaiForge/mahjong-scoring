@@ -11,10 +11,11 @@ const holder = vi.hoisted(() => ({
 
 vi.mock("./db", async () => {
   const { createQueryChain } = await import("@/test/drizzle-mock");
+  const { profiles } = await import("@/test/schema-mock");
   holder.chain = createQueryChain();
   return {
     db: { select: vi.fn(() => holder.chain) },
-    profiles: { id: "id", bannedAt: "banned_at" },
+    profiles,
   };
 });
 

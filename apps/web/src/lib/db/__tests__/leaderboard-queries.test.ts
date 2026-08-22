@@ -46,31 +46,7 @@ vi.mock("../index", () => ({
   },
 }));
 
-vi.mock("../schema", () => ({
-  challengeBestScores: {
-    userId: "user_id",
-    menuType: "menu_type",
-    leaderboardKey: "leaderboard_key",
-    score: "score",
-    incorrectAnswers: "incorrect_answers",
-    timeTaken: "time_taken",
-  },
-  challengeResults: {
-    userId: "user_id",
-    menuType: "menu_type",
-    leaderboardKey: "leaderboard_key",
-    score: "score",
-    incorrectAnswers: "incorrect_answers",
-    timeTaken: "time_taken",
-    createdAt: "created_at",
-  },
-  profiles: {
-    id: "id",
-    username: "username",
-    displayName: "display_name",
-    avatarUrl: "avatar_url",
-  },
-}));
+vi.mock("../schema", async () => await import("@/test/schema-mock"));
 
 vi.mock("drizzle-orm", async () => await import("@/test/drizzle-orm-mock"));
 

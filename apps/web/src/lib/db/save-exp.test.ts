@@ -24,17 +24,7 @@ vi.mock("./index", () => ({
   },
 }));
 
-vi.mock("./schema", () => ({
-  expEvents: {
-    id: "id",
-    userId: "user_id",
-    source: "source",
-    sourceId: "source_id",
-    amount: "amount",
-    metadata: "metadata",
-  },
-  userExp: { userId: "user_id", totalExp: "total_exp" },
-}));
+vi.mock("./schema", async () => await import("@/test/schema-mock"));
 
 // ---------------------------------------------------------------------------
 // Helpers

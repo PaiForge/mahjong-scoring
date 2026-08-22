@@ -29,10 +29,11 @@ vi.mock("../../../../lib/supabase/server", () => ({
 // Mock the DB module
 vi.mock("../../../../lib/db", async () => {
   const { createQueryChain } = await import("@/test/drizzle-mock");
+  const { userRoles } = await import("@/test/schema-mock");
   holder.chain = createQueryChain();
   return {
     db: { select: holder.chain.select },
-    userRoles: { userId: "user_id" },
+    userRoles,
   };
 });
 
