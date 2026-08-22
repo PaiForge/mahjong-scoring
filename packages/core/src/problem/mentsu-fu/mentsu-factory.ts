@@ -6,7 +6,6 @@ import {
   type Koutsu,
   type Kantsu,
 } from "@pai-forge/riichi-mahjong";
-import { openLabel, yaochuLabel } from "../shared/mentsu-labels";
 import { pickMentsuType } from "../shared/pick-mentsu-type";
 import { SUIT_BASES } from "../../core/constants";
 import { randomBool, randomInt, randomChoice } from "../../core/random";
@@ -21,7 +20,6 @@ import { randomSimple, randomYaochu } from "../shared/tile-random";
 export interface MentsuResult {
   readonly mentsu: Shuntsu | Koutsu | Kantsu;
   readonly fu: number;
-  readonly explanation: string;
 }
 
 /**
@@ -50,7 +48,7 @@ export function createRandomShuntsu(): MentsuResult | undefined {
       }
     : { type: MentsuType.Shuntsu, hais };
 
-  return { mentsu, fu: 0, explanation: "順子は常に0符です" };
+  return { mentsu, fu: 0 };
 }
 
 /**
@@ -74,10 +72,7 @@ export function createRandomKoutsu(): MentsuResult {
 
   const fu = calculateMentsuFu({ isKantsu: false, isOpen, isYaochu });
 
-  const typeStr = yaochuLabel(isYaochu);
-  const stateStr = `${openLabel(isOpen)}刻`;
-
-  return { mentsu, fu, explanation: `${typeStr}の${stateStr}は${fu}符です` };
+  return { mentsu, fu };
 }
 
 /**
@@ -101,12 +96,7 @@ export function createRandomKantsu(): MentsuResult {
 
   const fu = calculateMentsuFu({ isKantsu: true, isOpen, isYaochu });
 
-  const typeStr = yaochuLabel(isYaochu);
-  const stateStr = isOpen
-    ? `${openLabel(true)}槓（または加槓）`
-    : `${openLabel(false)}槓`;
-
-  return { mentsu, fu, explanation: `${typeStr}の${stateStr}は${fu}符です` };
+  return { mentsu, fu };
 }
 
 /**

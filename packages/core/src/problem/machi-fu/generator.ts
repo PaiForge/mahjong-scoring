@@ -38,8 +38,6 @@ function createRyanmen(idGen: IdGenerator): MachiFuQuestion | undefined {
     tiles: [t1, t2],
     agariHai: agari,
     answer: 0,
-    shapeName: "両面待ち",
-    explanation: "両面待ちは0符です",
   };
 }
 
@@ -64,8 +62,6 @@ function createPenchan(idGen: IdGenerator): MachiFuQuestion | undefined {
     tiles: [t1, t2],
     agariHai: agari,
     answer: 2,
-    shapeName: "ペンチャン待ち",
-    explanation: "ペンチャン待ちは2符です",
   };
 }
 
@@ -90,8 +86,6 @@ function createKanchan(idGen: IdGenerator): MachiFuQuestion | undefined {
     tiles: [t1, t2],
     agariHai: agari,
     answer: 2,
-    shapeName: "カンチャン待ち",
-    explanation: "カンチャン待ちは2符です",
   };
 }
 
@@ -107,8 +101,6 @@ function createTanki(idGen: IdGenerator): MachiFuQuestion {
     tiles: [hai],
     agariHai: hai,
     answer: 2,
-    shapeName: "単騎待ち",
-    explanation: "単騎待ちは2符です",
   };
 }
 
@@ -127,8 +119,6 @@ function createShanpon(idGen: IdGenerator): MachiFuQuestion {
     tiles: [t1, t1, t2, t2],
     agariHai: agari,
     answer: 0,
-    shapeName: "シャンポン待ち",
-    explanation: "シャンポン待ちは0符です",
   };
 }
 

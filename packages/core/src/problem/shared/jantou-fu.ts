@@ -5,15 +5,6 @@ import {
 } from "@pai-forge/riichi-mahjong";
 import { doubleWindJantouFu } from "../../rules/settings";
 
-/**
- * 雀頭の符計算結果
- * 雀頭符計算結果
- */
-export interface JantouFuResult {
-  readonly fu: number;
-  readonly explanation: string;
-}
-
 /** 雀頭が役牌である理由 */
 export type JantouFuReason = "場風" | "自風" | "三元牌";
 
@@ -57,16 +48,12 @@ export function calculateJantouFu(
   bakaze: Kazehai,
   jikaze: Kazehai,
   renfonpaiAs4Fu = false,
-): JantouFuResult {
+): number {
   const reasons = jantouFuReasons(tile, bakaze, jikaze);
 
-  if (reasons.length === 0) {
-    return { fu: 0, explanation: "数牌またはオタ風の雀頭" };
-  }
+  if (reasons.length === 0) return 0;
 
   // 場風かつ自風＝連風牌。ルールにより4符または2符（既定2符）。
   const isRenfonpai = reasons.includes("場風") && reasons.includes("自風");
-  const fu = isRenfonpai ? doubleWindJantouFu(renfonpaiAs4Fu) : 2;
-
-  return { fu, explanation: `役牌雀頭（${reasons.join("・")}）` };
+  return isRenfonpai ? doubleWindJantouFu(renfonpaiAs4Fu) : 2;
 }

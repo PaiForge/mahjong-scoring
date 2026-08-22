@@ -15,5 +15,4 @@ export interface JantouFuChoice {
   readonly hai: HaiKindId;
   readonly isCorrect: boolean;
   readonly fu: number;
-  readonly explanation: string;
 }

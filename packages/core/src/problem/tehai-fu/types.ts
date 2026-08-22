@@ -15,7 +15,6 @@ export interface TehaiFuItem {
   readonly tiles: readonly HaiKindId[];
   readonly type: MentsuType | "Pair";
   readonly fu: number;
-  readonly explanation: string;
   readonly originalMentsu?: CompletedMentsu;
   readonly isOpen: boolean;
 }
