@@ -2,9 +2,7 @@ import { describe, expect, it, vi } from "vitest";
 import { render } from "@testing-library/react";
 import { ChapterNav } from "./chapter-nav";
 
-vi.mock("next-intl/server", () => ({
-  getTranslations: () => Promise.resolve((key: string) => key),
-}));
+vi.mock("next-intl/server", async () => await import("@/test/intl-mock"));
 
 describe("ChapterNav", () => {
   it("shows only the next link for the first chapter", async () => {

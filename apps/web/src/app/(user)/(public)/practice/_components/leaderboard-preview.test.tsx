@@ -3,9 +3,7 @@ import { render, screen } from "@testing-library/react";
 import { LeaderboardPreview } from "./leaderboard-preview";
 import type { RankedLeaderboardRow } from "@/lib/db/leaderboard-queries";
 
-vi.mock("next-intl/server", () => ({
-  getTranslations: () => Promise.resolve((key: string) => key),
-}));
+vi.mock("next-intl/server", async () => await import("@/test/intl-mock"));
 
 vi.mock("next/link", () => ({
   default: ({

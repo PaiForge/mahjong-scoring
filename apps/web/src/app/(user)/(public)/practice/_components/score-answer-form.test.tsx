@@ -1,9 +1,7 @@
 import { describe, expect, it, vi } from "vitest";
 import { render, screen, fireEvent, within } from "@testing-library/react";
 
-vi.mock("next-intl", () => ({
-  useTranslations: () => (key: string) => key,
-}));
+vi.mock("next-intl", async () => await import("@/test/intl-mock"));
 
 import { ScoreAnswerForm } from "./score-answer-form";
 
