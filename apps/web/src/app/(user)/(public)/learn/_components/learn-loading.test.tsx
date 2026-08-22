@@ -9,22 +9,28 @@ vi.mock("next/navigation", () => ({
   usePathname: () => pathname.value,
 }));
 
-function rowCount(container: HTMLElement) {
+function chapterRowCount(container: HTMLElement) {
   return container.querySelectorAll(
     '[data-testid="curriculum-chapter-row-skeleton"]',
   ).length;
+}
+
+function hasChapterSkeleton(container: HTMLElement) {
+  return container.querySelector('[data-testid="learn-chapter-skeleton"]');
 }
 
 describe("LearnLoading", () => {
   it("目次（/learn）では目次のスケルトンを出す", () => {
     pathname.value = "/learn";
     const { container } = render(<LearnLoading />);
-    expect(rowCount(container)).toBe(CURRICULUM.length);
+    expect(chapterRowCount(container)).toBe(CURRICULUM.length);
+    expect(hasChapterSkeleton(container)).toBeNull();
   });
 
-  it("章ページでは汎用スケルトンを出す", () => {
+  it("章ページでは章ページのスケルトンを出す", () => {
     pathname.value = "/learn/jantou-fu";
     const { container } = render(<LearnLoading />);
-    expect(rowCount(container)).toBe(0);
+    expect(hasChapterSkeleton(container)).not.toBeNull();
+    expect(chapterRowCount(container)).toBe(0);
   });
 });
