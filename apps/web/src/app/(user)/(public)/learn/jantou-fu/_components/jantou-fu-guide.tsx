@@ -1,7 +1,14 @@
+import Link from "next/link";
 import { getTranslations } from "next-intl/server";
 import { HaiKind } from "@mahjong-scoring/core";
+import { TEXT_LINK_MUTED_CLASSES } from "@/app/_components/_lib/link-classes";
 import { SectionTitle } from "@/app/(user)/_components/section-title";
+import {
+  PREFERENCE_ANCHORS,
+  preferencesHref,
+} from "@/app/(user)/(public)/preferences/_lib/anchors";
 import { ExampleTable } from "../../_components/example-table";
+import { GuideNote } from "../../_components/guide-note";
 import { FuSummaryTable } from "../../_components/fu-summary-table";
 import { GuideParagraph } from "../../_components/guide-paragraph";
 import { TileSet } from "../../_components/tile-set";
@@ -113,9 +120,23 @@ export async function JantouFuGuide() {
         <h3 className="mb-2 text-sm font-semibold text-surface-900">
           {t("columnTitle")}
         </h3>
-        <GuideParagraph>
-          {t.rich("columnBody", { br: () => <br /> })}
-        </GuideParagraph>
+        <div className="space-y-2">
+          <GuideParagraph>
+            {t.rich("columnBody", { br: () => <br /> })}
+          </GuideParagraph>
+          <GuideNote>
+            {t.rich("columnSettingsNote", {
+              settingsLink: (chunks) => (
+                <Link
+                  href={preferencesHref(PREFERENCE_ANCHORS.renfonpai)}
+                  className={TEXT_LINK_MUTED_CLASSES}
+                >
+                  {chunks}
+                </Link>
+              ),
+            })}
+          </GuideNote>
+        </div>
       </aside>
 
       {/* Summary table */}

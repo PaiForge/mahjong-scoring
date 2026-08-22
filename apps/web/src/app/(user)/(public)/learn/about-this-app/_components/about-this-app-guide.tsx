@@ -1,5 +1,6 @@
 import { getTranslations } from "next-intl/server";
 import { SectionTitle } from "@/app/(user)/_components/section-title";
+import { GuideNote } from "../../_components/guide-note";
 import { GuideParagraph } from "../../_components/guide-paragraph";
 import { GuideSubsectionTitle } from "../../_components/guide-subsection-title";
 
@@ -27,9 +28,7 @@ export async function AboutThisAppGuide() {
               {t("reason1Title")}
             </GuideSubsectionTitle>
             <GuideParagraph preLine>{t("reason1Body1")}</GuideParagraph>
-            <p className="text-sm leading-relaxed text-surface-500">
-              {t("reason1Note")}
-            </p>
+            <GuideNote>{t("reason1Note")}</GuideNote>
             <GuideParagraph preLine>{t("reason1Body2")}</GuideParagraph>
           </section>
 
