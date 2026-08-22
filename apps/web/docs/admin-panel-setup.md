@@ -22,7 +22,23 @@ pnpm supabase status -o json
 
 ## 3. 管理者ロールの付与
 
-Supabase Studio（http://127.0.0.1:54323）の SQL Editor、または psql で以下を実行します:
+### 開発用シードを使う（推奨）
+
+```bash
+pnpm --filter web db:seed:dev
+```
+
+管理者（`admin@example.local`）と一般ユーザー（`user@example.local`）を投入します。
+パスワードはどちらも `devpass1`、メール確認済みの状態で作られるのでそのままサインインできます。
+何度実行しても既存ユーザーは作り直しません。
+
+DB と Supabase の両方がローカルホストでない場合は実行を拒否するため、
+本番環境に対しては使えません。
+
+### 既存のユーザーに付与する
+
+すでに使っているアカウントを管理者にしたい場合は、Supabase Studio（http://127.0.0.1:54323）の
+SQL Editor、または psql で以下を実行します:
 
 ```sql
 INSERT INTO user_roles (user_id, role)
