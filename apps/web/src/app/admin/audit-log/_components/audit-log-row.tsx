@@ -10,7 +10,7 @@ interface AuditLogRowProps {
 
 export function AuditLogRow({ log, profileMap, emailMap }: AuditLogRowProps) {
   const targetDisplay = resolveUserDisplay(log.targetId, profileMap, emailMap);
-  const actorDisplay = emailMap.get(log.actorId) ?? log.actorId;
+  const actorDisplay = resolveUserDisplay(log.actorId, profileMap, emailMap);
 
   return (
     <tr className="border-t border-gray-200">

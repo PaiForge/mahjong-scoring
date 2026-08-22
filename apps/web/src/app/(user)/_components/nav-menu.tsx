@@ -2,10 +2,11 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { createPortal } from "react-dom";
 import { useTranslations } from "next-intl";
 
+import { useBodyScrollLock } from "@/app/_hooks/use-body-scroll-lock";
 import { useIsClient } from "@/app/_hooks/use-is-client";
 import { DRAWER_NAV_ITEMS } from "./_lib/nav-items";
 
@@ -19,16 +20,7 @@ export function NavMenu() {
   const [isOpen, setIsOpen] = useState(false);
   const mounted = useIsClient();
 
-  useEffect(() => {
-    if (isOpen) {
-      document.body.style.overflow = "hidden";
-    } else {
-      document.body.style.overflow = "";
-    }
-    return () => {
-      document.body.style.overflow = "";
-    };
-  }, [isOpen]);
+  useBodyScrollLock(isOpen);
 
   return (
     <>

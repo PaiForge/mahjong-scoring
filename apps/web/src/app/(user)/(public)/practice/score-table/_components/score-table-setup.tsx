@@ -5,8 +5,8 @@ import type { ScoreRange } from "@mahjong-scoring/core";
 import { SettingCard } from "../../_components/setting-card";
 import { SettingCardSkeleton } from "../../_components/setting-card-skeleton";
 import { toggleInArray } from "../../_lib/toggle-in-array";
-import { CHALLENGE_TIME_LIMIT, MISTAKE_LIMIT } from "@mahjong-scoring/core";
 import { PracticeStartCta } from "../../_components/practice-start-cta";
+import { buildPracticeStartCtaLabels } from "../../_lib/practice-start-cta-labels";
 import { useTranslations } from "next-intl";
 import { useIsClient } from "../../../../../_hooks/use-is-client";
 import { PRACTICE_SCROLL_HASH } from "../../_lib/scroll-anchor";
@@ -160,16 +160,11 @@ export function ScoreTableSetup({
         playHref={`/practice/score-table/play${suffix}`}
         trainingHref={`/practice/score-table/training${suffix}`}
         disabled={isDisabled}
-        labels={{
-          challenge: tc("startButton"),
-          challengeHint: tp("modeChallengeHint", {
-            timeLimit: CHALLENGE_TIME_LIMIT,
-            mistakeLimit: MISTAKE_LIMIT,
-          }),
-          training: tt("startButton"),
-          trainingHint: tp("modeTrainingHint"),
-          orDivider: tp("orDivider"),
-        }}
+        labels={buildPracticeStartCtaLabels({
+          challenge: tc,
+          practice: tp,
+          training: tt,
+        })}
       />
     </div>
   );

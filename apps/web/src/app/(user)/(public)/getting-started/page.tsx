@@ -15,16 +15,15 @@ import { PageTitle } from "@/app/(user)/_components/page-title";
 import { BookIcon } from "@/app/(user)/_components/icons/book-icon";
 import { CheckIcon } from "@/app/(user)/_components/icons/check-icon";
 import { PlayIcon } from "@/app/(user)/_components/icons/play-icon";
-import { createMetadata } from "@/app/_lib/metadata";
+import { createNamespaceMetadata } from "@/app/_lib/metadata";
 
 import { StepCard } from "./_components/step-card";
 import { LinkButton } from "@/app/(user)/_components/link-button";
 
 export async function generateMetadata(): Promise<Metadata> {
-  const t = await getTranslations("gettingStarted");
-  return createMetadata({
-    title: t("pageTitle"),
-    description: t("pageDescription"),
+  return createNamespaceMetadata("gettingStarted", {
+    title: "pageTitle",
+    description: "pageDescription",
   });
 }
 

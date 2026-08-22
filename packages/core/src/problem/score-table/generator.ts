@@ -5,9 +5,12 @@ import {
   isInvalidCell,
   HIGH_SCORES,
 } from "../../core/score-calculation";
-import type { TsumoPayment } from "../../core/score-calculation";
 import { FU_VALUES } from "../../score/constants";
-import { scoreTierForHan } from "../../score/tiers";
+import {
+  MANGAN_MIN_HAN,
+  scoreTierForHan,
+  YAKUMAN_HAN,
+} from "../../score/tiers";
 import type { Role, WinType } from "../../core/roles";
 import type {
   ScoreTableQuestion,
@@ -16,8 +19,11 @@ import type {
 } from "./types";
 import { defaultIdGenerator } from "../../core/id";
 
-/** 満貫以上で出題する翻数。各値が HIGH_SCORES のいずれかの帯に対応する */
-const MANGAN_PLUS_HAN_VALUES = [5, 6, 7, 8, 9, 10, 11, 12, 13] as const;
+/** 満貫以上で出題する翻数。満貫から役満までの各値が HIGH_SCORES のいずれかの帯に対応する */
+const MANGAN_PLUS_HAN_VALUES: readonly number[] = Array.from(
+  { length: YAKUMAN_HAN - MANGAN_MIN_HAN + 1 },
+  (_, i) => MANGAN_MIN_HAN + i,
+);
 
 /**
  * 指定範囲内の符候補を取得する
@@ -25,20 +31,6 @@ const MANGAN_PLUS_HAN_VALUES = [5, 6, 7, 8, 9, 10, 11, 12, 13] as const;
  */
 function getFuCandidates(minFu: number, maxFu: number): readonly number[] {
   return FU_VALUES.filter((fu) => fu >= minFu && fu <= maxFu);
-}
-
-/**
- * ツモ支払いを点数表の正解形式へ変換する
- * ツモ支払い変換
- */
-function tsumoAnswerOf(payment: TsumoPayment): ScoreTableAnswer {
-  return payment.type === "oyaTsumo"
-    ? { type: "oyaTsumo", scoreAll: payment.all }
-    : {
-        type: "koTsumo",
-        scoreFromKo: payment.fromKo,
-        scoreFromOya: payment.fromOya,
-      };
 }
 
 /**
@@ -52,9 +44,7 @@ function buildCorrectAnswer(
   fu: number,
 ): ScoreTableAnswer {
   const result = isOya ? calculateOyaScore(han, fu) : calculateKoScore(han, fu);
-  return isTsumo
-    ? tsumoAnswerOf(result.tsumo)
-    : { type: "ron", score: result.ron };
+  return isTsumo ? result.tsumo : { type: "ron", score: result.ron };
 }
 
 /**
@@ -62,8 +52,8 @@ function buildCorrectAnswer(
  * 満貫以上帯の特定
  */
 function highScoreBandForHan(han: number): (typeof HIGH_SCORES)[number] {
-  // HIGH_SCORES は役満（13翻）まで。ダブル役満相当の翻数も役満帯に丸める
-  const key = scoreTierForHan(Math.min(han, 13))?.key;
+  // HIGH_SCORES は役満まで。ダブル役満相当の翻数も役満帯に丸める
+  const key = scoreTierForHan(Math.min(han, YAKUMAN_HAN))?.key;
   return HIGH_SCORES.find((band) => band.nameKey === key) ?? HIGH_SCORES[0];
 }
 
@@ -82,7 +72,7 @@ function buildManganCorrectAnswer(
 ): ScoreTableAnswer {
   const band = highScoreBandForHan(han);
   if (isTsumo) {
-    return tsumoAnswerOf(isOya ? band.tsumoOya : band.tsumoKo);
+    return isOya ? band.tsumoOya : band.tsumoKo;
   }
   return { type: "ron", score: isOya ? band.ronOya : band.ronKo };
 }

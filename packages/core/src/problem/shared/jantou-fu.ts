@@ -3,6 +3,7 @@ import {
   type HaiKindId,
   type Kazehai,
 } from "@pai-forge/riichi-mahjong";
+import { doubleWindJantouFu } from "../../rules/settings";
 
 /**
  * 雀頭の符計算結果
@@ -65,7 +66,7 @@ export function calculateJantouFu(
 
   // 場風かつ自風＝連風牌。ルールにより4符または2符（既定2符）。
   const isRenfonpai = reasons.includes("場風") && reasons.includes("自風");
-  const fu = isRenfonpai && renfonpaiAs4Fu ? 4 : 2;
+  const fu = isRenfonpai ? doubleWindJantouFu(renfonpaiAs4Fu) : 2;
 
   return { fu, explanation: `役牌雀頭（${reasons.join("・")}）` };
 }

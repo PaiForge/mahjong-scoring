@@ -7,7 +7,7 @@ import {
   type Kazehai,
   type Tehai14,
 } from "@pai-forge/riichi-mahjong";
-import { ScoreLevel, KAZEHAI } from "../../core/constants";
+import { BAKAZE_OPTIONS, ScoreLevel, KAZEHAI } from "../../core/constants";
 import { randomBool, randomChoice } from "../../core/random";
 
 import type {
@@ -27,6 +27,7 @@ import {
 import { retryGenerate } from "../retry-generate";
 import { countKantsu } from "../shared/count-kantsu";
 import type { AgariContext } from "../shared/agari-context";
+import { doubleWindJantouFu } from "../../rules/settings";
 
 /**
  * 点数レベルが許可範囲内かどうかを検証する
@@ -62,9 +63,6 @@ function selectJikaze(includeParent: boolean, includeChild: boolean): Kazehai {
   if (candidates.length === 0) candidates = KAZEHAI;
   return randomChoice(candidates);
 }
-
-/** 場風の候補（東場・南場） */
-const BAKAZE_OPTIONS: readonly Kazehai[] = [HaiKind.Ton, HaiKind.Nan];
 
 /**
  * 点数・役計算の入力
@@ -156,7 +154,9 @@ export function generateScoreQuestion(
     jikaze,
     bakaze,
     doraMarkers,
-    ruleConfig: { doubleWindJantouFu: renfonpaiAs4Fu ? 4 : 2 },
+    ruleConfig: {
+      doubleWindJantouFu: doubleWindJantouFu(renfonpaiAs4Fu),
+    },
   });
   if (!scored) return undefined;
 

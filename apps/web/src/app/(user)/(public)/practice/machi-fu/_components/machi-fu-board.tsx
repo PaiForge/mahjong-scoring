@@ -7,12 +7,9 @@ import { useFuChoiceBoard } from "../../_hooks/use-fu-choice-board";
 import { MACHI_FU_OPTIONS } from "../_lib/fu-options";
 import { MachiFuPrompt } from "./machi-fu-prompt";
 import { QuestionPrompt } from "../../_components/question-prompt";
+import type { PracticeBoardProps } from "../../_lib/practice-board-props";
 
-interface MachiFuBoardProps {
-  readonly showFeedback: boolean;
-  readonly isCountingDown?: boolean;
-  readonly onAnswer: (correct: boolean, onNext: () => void) => void;
-}
+type MachiFuBoardProps = PracticeBoardProps;
 
 /**
  * 待ち符の出題盤面（待ち牌・和了牌の提示と2択）

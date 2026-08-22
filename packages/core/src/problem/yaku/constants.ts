@@ -1,7 +1,10 @@
-import { HaiKind, type Kazehai } from "@pai-forge/riichi-mahjong";
+import type { Kazehai } from "@pai-forge/riichi-mahjong";
+import { getKeyForKazehai } from "../../core/kaze";
 import {
+  getYakuNameJa,
   SCORE_YAKU_NAME_MAP,
   SITUATIONAL_YAKU_KEYS,
+  YAKU_OPTION_GROUPS,
   YAKU_OPTIONS,
 } from "../../core/yaku-names";
 
@@ -42,6 +45,14 @@ export const YAKU_NAME_MAP: Readonly<Record<string, string>> =
 export const SELECTABLE_YAKU: readonly string[] = YAKU_OPTIONS;
 
 /**
+ * 選択可能役リストを翻数グループごとに分けたもの（表示順）
+ * 選択可能役グループ
+ *
+ * YAKU_OPTION_GROUPS と同一（単一ソース化）。
+ */
+export const SELECTABLE_YAKU_GROUPS = YAKU_OPTION_GROUPS;
+
+/**
  * 正解から除外するライブラリ返却役名（状況役・偶然役）
  * 除外役名リスト
  */
@@ -50,23 +61,15 @@ export const EXCLUDED_YAKU_FROM_ANSWER: ReadonlySet<string> = new Set(
 );
 
 /**
- * 風牌の牌種IDから役牌表示名へのマッピング
- * 風牌役名マップ
- */
-const KAZE_YAKUHAI_DISPLAY_MAP: Readonly<Record<number, string>> = {
-  [HaiKind.Ton]: "役牌 東",
-  [HaiKind.Nan]: "役牌 南",
-  [HaiKind.Sha]: "役牌 西",
-  [HaiKind.Pei]: "役牌 北",
-};
-
-/**
  * 風牌の牌種IDが場風・自風として役牌になる場合の表示名を返す
  * ライブラリは風牌の役牌を YakuResult に含めないため、手牌の刻子/槓子から手動で判定する
  * 風牌役牌表示名取得
+ *
+ * 表示名は SCORE_YAKU_NAME_MAP が唯一の定義。ここは風牌 → 英語キーの
+ * 変換（{@link getKeyForKazehai}）を挟んで引き直すだけで、独自の対応表は持たない。
  */
 export function getKazeYakuhaiDisplayName(
   kazeHaiKindId: Kazehai,
 ): string | undefined {
-  return KAZE_YAKUHAI_DISPLAY_MAP[kazeHaiKindId];
+  return getYakuNameJa(getKeyForKazehai(kazeHaiKindId));
 }

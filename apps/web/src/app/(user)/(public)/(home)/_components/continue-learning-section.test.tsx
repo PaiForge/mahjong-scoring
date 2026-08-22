@@ -6,9 +6,7 @@ import {
   type CurriculumChapter,
 } from "@/app/(user)/(public)/learn/_lib/curriculum";
 
-vi.mock("next-intl/server", () => ({
-  getTranslations: () => Promise.resolve((key: string) => key),
-}));
+vi.mock("next-intl/server", async () => await import("@/test/intl-mock"));
 
 /**
  * 目次・進捗バーは async なサーバーコンポーネントで、入れ子のままでは

@@ -1,3 +1,5 @@
+import { scoreTablePracticeHref } from "../../practice/score-table/_lib/options";
+
 /**
  * 学習カリキュラム — 章メタデータのレジストリ
  *
@@ -63,28 +65,52 @@ export const CURRICULUM: readonly CurriculumChapter[] = [
     slug: "mangan-ko-ron",
     section: "mangan",
     order: 21,
-    practiceHrefs: ["/practice/score-table?roles=ko&wins=ron&ranges=plus"],
+    practiceHrefs: [
+      scoreTablePracticeHref({
+        roles: ["ko"],
+        wins: ["ron"],
+        ranges: ["manganPlus"],
+      }),
+    ],
     i18nKey: "learnCurriculum.chapters.manganKoRon",
   },
   {
     slug: "mangan-oya-ron",
     section: "mangan",
     order: 22,
-    practiceHrefs: ["/practice/score-table?roles=oya&wins=ron&ranges=plus"],
+    practiceHrefs: [
+      scoreTablePracticeHref({
+        roles: ["oya"],
+        wins: ["ron"],
+        ranges: ["manganPlus"],
+      }),
+    ],
     i18nKey: "learnCurriculum.chapters.manganOyaRon",
   },
   {
     slug: "mangan-ko-tsumo",
     section: "mangan",
     order: 23,
-    practiceHrefs: ["/practice/score-table?roles=ko&wins=tsumo&ranges=plus"],
+    practiceHrefs: [
+      scoreTablePracticeHref({
+        roles: ["ko"],
+        wins: ["tsumo"],
+        ranges: ["manganPlus"],
+      }),
+    ],
     i18nKey: "learnCurriculum.chapters.manganKoTsumo",
   },
   {
     slug: "mangan-oya-tsumo",
     section: "mangan",
     order: 24,
-    practiceHrefs: ["/practice/score-table?roles=oya&wins=tsumo&ranges=plus"],
+    practiceHrefs: [
+      scoreTablePracticeHref({
+        roles: ["oya"],
+        wins: ["tsumo"],
+        ranges: ["manganPlus"],
+      }),
+    ],
     i18nKey: "learnCurriculum.chapters.manganOyaTsumo",
   },
   {

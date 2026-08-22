@@ -14,7 +14,7 @@ import { getTranslations } from "next-intl/server";
 import { ContentContainer } from "@/app/(user)/_components/content-container";
 import { PageTitle } from "@/app/(user)/_components/page-title";
 import { SectionTitle } from "@/app/(user)/_components/section-title";
-import { createMetadata } from "@/app/_lib/metadata";
+import { createNamespaceMetadata } from "@/app/_lib/metadata";
 import { CurriculumProgressBar } from "./_components/curriculum-progress-bar";
 import { CurriculumToc } from "./_components/curriculum-toc";
 import {
@@ -27,10 +27,9 @@ import {
 import { fetchReadChapterSlugs } from "./_lib/progress";
 
 export async function generateMetadata(): Promise<Metadata> {
-  const t = await getTranslations("learnCurriculum.index");
-  return createMetadata({
-    title: t("pageTitle"),
-    description: t("pageDescription"),
+  return createNamespaceMetadata("learnCurriculum.index", {
+    title: "pageTitle",
+    description: "pageDescription",
   });
 }
 

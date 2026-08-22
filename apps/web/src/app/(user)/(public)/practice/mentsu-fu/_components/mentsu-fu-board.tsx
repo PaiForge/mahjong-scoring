@@ -8,12 +8,9 @@ import { PromptLabel } from "../../_components/prompt-label";
 import { useFuChoiceBoard } from "../../_hooks/use-fu-choice-board";
 import { FU_OPTIONS } from "../../_lib/fu-options";
 import { QuestionPrompt } from "../../_components/question-prompt";
+import type { PracticeBoardProps } from "../../_lib/practice-board-props";
 
-interface MentsuFuBoardProps {
-  readonly showFeedback: boolean;
-  readonly isCountingDown?: boolean;
-  readonly onAnswer: (correct: boolean, onNext: () => void) => void;
-}
+type MentsuFuBoardProps = PracticeBoardProps;
 
 /**
  * 面子符の出題盤面（面子の提示と符の選択）

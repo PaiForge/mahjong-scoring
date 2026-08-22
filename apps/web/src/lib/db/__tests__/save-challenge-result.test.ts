@@ -31,18 +31,7 @@ vi.mock("../index", () => ({
   },
 }));
 
-vi.mock("../schema", () => ({
-  challengeResults: { _name: "challenge_results", id: "id" },
-  challengeBestScores: {
-    _name: "challenge_best_scores",
-    userId: "user_id",
-    menuType: "menu_type",
-    leaderboardKey: "leaderboard_key",
-    score: "score",
-    incorrectAnswers: "incorrect_answers",
-    timeTaken: "time_taken",
-  },
-}));
+vi.mock("../schema", async () => await import("@/test/schema-mock"));
 
 vi.mock("../save-exp", () => ({
   grantChallengeExp: mockGrantChallengeExp,

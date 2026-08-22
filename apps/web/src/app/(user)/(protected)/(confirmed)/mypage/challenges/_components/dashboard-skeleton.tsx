@@ -1,5 +1,11 @@
 import { SectionTitleSkeleton } from "@/app/(user)/_components/section-title-skeleton";
 import { SkeletonBar } from "@/app/_components/skeleton-bar";
+import {
+  CompactTable,
+  CompactTableCell,
+  CompactTableHeaderCell,
+  CompactTableRow,
+} from "./compact-table";
 /** KPIカード1枚分のスケルトン */
 function StatsCardSkeleton() {
   return (
@@ -19,38 +25,35 @@ function ScoreChartSkeleton() {
 /** セッション履歴テーブルのスケルトン */
 function SessionHistoryTableSkeleton() {
   return (
-    <div className="overflow-x-auto">
-      <table className="w-full text-sm">
-        <thead>
-          <tr className="border-b-3 border-ink">
-            <th className="text-left py-2 px-2 sm:px-3">
-              <SkeletonBar className="h-4 w-16" />
-            </th>
-            <th className="text-right py-2 px-2 sm:px-3">
-              <SkeletonBar className="h-4 w-12 ml-auto" />
-            </th>
-            <th className="text-right py-2 px-2 sm:px-3">
-              <SkeletonBar className="h-4 w-12 ml-auto" />
-            </th>
-          </tr>
-        </thead>
-        <tbody>
-          {Array.from({ length: 5 }, (_, i) => (
-            <tr key={i} className="border-b-2 border-dashed border-border/40">
-              <td className="py-2 px-2 sm:px-3">
-                <SkeletonBar className="h-4 w-32" />
-              </td>
-              <td className="py-2 px-2 sm:px-3">
-                <SkeletonBar className="h-4 w-8 ml-auto" />
-              </td>
-              <td className="py-2 px-2 sm:px-3">
-                <SkeletonBar className="h-4 w-8 ml-auto" />
-              </td>
-            </tr>
-          ))}
-        </tbody>
-      </table>
-    </div>
+    <CompactTable
+      head={
+        <>
+          <CompactTableHeaderCell>
+            <SkeletonBar className="h-4 w-16" />
+          </CompactTableHeaderCell>
+          <CompactTableHeaderCell align="right">
+            <SkeletonBar className="h-4 w-12 ml-auto" />
+          </CompactTableHeaderCell>
+          <CompactTableHeaderCell align="right">
+            <SkeletonBar className="h-4 w-12 ml-auto" />
+          </CompactTableHeaderCell>
+        </>
+      }
+    >
+      {Array.from({ length: 5 }, (_, i) => (
+        <CompactTableRow key={i}>
+          <CompactTableCell>
+            <SkeletonBar className="h-4 w-32" />
+          </CompactTableCell>
+          <CompactTableCell align="right">
+            <SkeletonBar className="h-4 w-8 ml-auto" />
+          </CompactTableCell>
+          <CompactTableCell align="right">
+            <SkeletonBar className="h-4 w-8 ml-auto" />
+          </CompactTableCell>
+        </CompactTableRow>
+      ))}
+    </CompactTable>
   );
 }
 

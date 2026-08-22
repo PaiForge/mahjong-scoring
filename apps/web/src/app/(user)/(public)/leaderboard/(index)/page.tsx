@@ -21,7 +21,7 @@ import { getTranslations } from "next-intl/server";
 import { ContentContainer } from "@/app/(user)/_components/content-container";
 import { PageTitle } from "@/app/(user)/_components/page-title";
 import { SectionTitle } from "@/app/(user)/_components/section-title";
-import { createMetadata } from "@/app/_lib/metadata";
+import { createTitleOnlyMetadata } from "@/app/_lib/metadata";
 
 import { LeaderboardTopContent } from "../_components/leaderboard-top-content";
 import type { LeaderboardPeriod } from "../_lib/types";
@@ -44,8 +44,7 @@ function parsePeriod(value: string | undefined): LeaderboardPeriod {
 }
 
 export async function generateMetadata(): Promise<Metadata> {
-  const t = await getTranslations("leaderboard");
-  return createMetadata({ title: t("title") });
+  return createTitleOnlyMetadata("leaderboard");
 }
 
 export default async function LeaderboardIndexPage({

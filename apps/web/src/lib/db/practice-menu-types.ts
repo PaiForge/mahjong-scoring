@@ -36,8 +36,8 @@
  *
  * `messageKey` と `namespace` は別物である点に注意:
  * - `messageKey`: 練習名の一覧的な参照に使う共通キー。
- *   `practice.practices.<messageKey>` / `mypage.challenges.menuTypes.<messageKey>` /
- *   `leaderboard.module.<messageKey>` から引かれる。
+ *   練習一覧は `practice.practices.<messageKey>.title`、マイページ・ランキングは
+ *   短い名の `practice.practices.<messageKey>.shortTitle` を引く。
  * - `namespace`: その練習専用の辞書セクション。`<namespace>.title` が練習名、
  *   配下に問題文や選択肢のラベルが入る。チャレンジ系は `〜Challenge` で終わる。
  */

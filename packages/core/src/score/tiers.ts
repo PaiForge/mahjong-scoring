@@ -71,6 +71,26 @@ export const MANGAN_PLUS_TIERS: readonly HanTier[] = [
 ];
 
 /**
+ * 満貫に到達する最小翻数。これ以上なら（符によらず）満貫以上。
+ * 満貫しきい値
+ *
+ * 満貫は {@link MANGAN_PLUS_TIERS} で最も翻数の低い区分なので最小値を引く。
+ */
+export const MANGAN_MIN_HAN = Math.min(
+  ...MANGAN_PLUS_TIERS.map((tier) => tier.minHan),
+);
+
+/**
+ * 役満を表す翻数。ダブル役満相当の翻数もこの値に丸めて扱う。
+ * 役満翻数
+ */
+export const YAKUMAN_HAN = (() => {
+  const yakuman = MANGAN_PLUS_TIERS.find((tier) => tier.key === "yakuman");
+  if (!yakuman) throw new Error("MANGAN_PLUS_TIERS に役満の区分がない");
+  return yakuman.minHan;
+})();
+
+/**
  * 翻数から満貫以上の点数区分を引く（満貫未満は undefined）
  * 点数区分特定
  */

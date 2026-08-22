@@ -25,6 +25,12 @@ export interface ScoreTableSelection {
   readonly includeManganPlus: boolean;
 }
 
+/** 親/子を指定するクエリパラメータ名 */
+export const ROLE_PARAM = "roles";
+
+/** ツモ/ロンを指定するクエリパラメータ名 */
+export const WIN_PARAM = "wins";
+
 /** すべての軸を含む既定選択 */
 export const FULL_SELECTION: ScoreTableSelection = {
   includeOya: true,
@@ -50,8 +56,8 @@ function valuesOf(raw: SearchParamValue): readonly string[] {
  */
 export function hasSelectionParams(params: RawSearchParams): boolean {
   return (
-    valuesOf(params.roles).length > 0 ||
-    valuesOf(params.wins).length > 0 ||
+    valuesOf(params[ROLE_PARAM]).length > 0 ||
+    valuesOf(params[WIN_PARAM]).length > 0 ||
     valuesOf(params[RANGE_PARAM]).length > 0
   );
 }
@@ -66,8 +72,8 @@ export function hasSelectionParams(params: RawSearchParams): boolean {
 export function searchParamsToSelection(
   params: RawSearchParams,
 ): ScoreTableSelection {
-  const roles = valuesOf(params.roles);
-  const wins = valuesOf(params.wins);
+  const roles = valuesOf(params[ROLE_PARAM]);
+  const wins = valuesOf(params[WIN_PARAM]);
   const ranges = parseRangeValues(valuesOf(params[RANGE_PARAM]));
 
   return {
@@ -112,12 +118,12 @@ export function selectionToQueryString(selection: ScoreTableSelection): string {
   const params = new URLSearchParams();
 
   if (!(selection.includeOya && selection.includeKo)) {
-    if (selection.includeOya) params.append("roles", "oya");
-    if (selection.includeKo) params.append("roles", "ko");
+    if (selection.includeOya) params.append(ROLE_PARAM, "oya");
+    if (selection.includeKo) params.append(ROLE_PARAM, "ko");
   }
   if (!(selection.includeTsumo && selection.includeRon)) {
-    if (selection.includeTsumo) params.append("wins", "tsumo");
-    if (selection.includeRon) params.append("wins", "ron");
+    if (selection.includeTsumo) params.append(WIN_PARAM, "tsumo");
+    if (selection.includeRon) params.append(WIN_PARAM, "ron");
   }
   if (!(selection.includeNonMangan && selection.includeManganPlus)) {
     if (selection.includeNonMangan)
@@ -127,4 +133,32 @@ export function selectionToQueryString(selection: ScoreTableSelection): string {
   }
 
   return params.toString();
+}
+
+/**
+ * 出題条件付きの点数表早引きへのリンクを組み立てる
+ * 点数表練習リンク
+ *
+ * 教本から「子・ロン・満貫以上だけ」のように絞って遷移するときに使う。
+ * 省略した軸は全選択（= パラメータを出さない）。受け取り側は未知のトークンを
+ * 黙って無視して全選択に劣化させるため、URL の語彙をここ以外で組み立てないこと。
+ */
+export function scoreTablePracticeHref(picks: {
+  readonly roles?: readonly Role[];
+  readonly wins?: readonly WinType[];
+  readonly ranges?: readonly ScoreRange[];
+}): string {
+  const { roles, wins, ranges } = picks;
+  const query = selectionToQueryString({
+    includeOya: roles === undefined || roles.includes("oya"),
+    includeKo: roles === undefined || roles.includes("ko"),
+    includeTsumo: wins === undefined || wins.includes("tsumo"),
+    includeRon: wins === undefined || wins.includes("ron"),
+    includeNonMangan: ranges === undefined || ranges.includes("nonMangan"),
+    includeManganPlus: ranges === undefined || ranges.includes("manganPlus"),
+  });
+
+  return query === ""
+    ? "/practice/score-table"
+    : `/practice/score-table?${query}`;
 }

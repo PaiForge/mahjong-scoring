@@ -3,7 +3,7 @@
 import { useCallback, useState } from "react";
 import { useTranslations } from "next-intl";
 import {
-  TOTAL_FU_OPTIONS,
+  FU_VALUES,
   generateTotalFuQuestion,
   retryGenerate,
 } from "@mahjong-scoring/core";
@@ -17,6 +17,7 @@ import { TehaiDisplay } from "../../_components/tehai-display";
 import { FuBreakdown } from "./fu-breakdown";
 import { QuestionPrompt } from "../../_components/question-prompt";
 import { Button } from "@/app/(user)/_components/button";
+import type { RecordingPracticeBoardProps } from "../../_lib/practice-board-props";
 
 function generateQuestion(
   renfonpaiAs4Fu: boolean,
@@ -24,12 +25,9 @@ function generateQuestion(
   return retryGenerate(() => generateTotalFuQuestion({ renfonpaiAs4Fu }));
 }
 
-interface TotalFuBoardProps {
-  readonly showFeedback: boolean;
-  readonly isCountingDown?: boolean;
+interface TotalFuBoardProps extends RecordingPracticeBoardProps<TotalFuQuestionResult> {
   /** 直前の回答が正解だったか（未回答時は undefined） */
   readonly lastAnswerCorrect?: boolean;
-  readonly onAnswer: (correct: boolean, onNext: () => void) => void;
   /**
    * 不正解で停止中の状態から次問題へ進む操作
    *
@@ -37,8 +35,6 @@ interface TotalFuBoardProps {
    * （自動で進まないトレーニングモード向け）。チャレンジでは指定しない。
    */
   readonly onProceed?: () => void;
-  /** 回答結果の記録（チャレンジの結果ページ用。トレーニングでは省略） */
-  readonly onRecordResult?: (result: TotalFuQuestionResult) => void;
 }
 
 /**
@@ -74,7 +70,7 @@ export function TotalFuBoard({
   const handleSelect = useCallback(
     (index: number) => {
       if (showFeedback || !question) return;
-      const fu = TOTAL_FU_OPTIONS[index];
+      const fu = FU_VALUES[index];
       setSelectedFu(fu);
       onRecordResult?.(toQuestionResult(question, fu));
       onAnswer(fu === question.answer, advanceQuestion);
@@ -97,7 +93,7 @@ export function TotalFuBoard({
       <QuestionPrompt>{t("prompt")}</QuestionPrompt>
 
       <FuChoiceGrid
-        options={TOTAL_FU_OPTIONS}
+        options={FU_VALUES}
         answer={question.answer}
         selectedFu={selectedFu}
         showFeedback={showFeedback}

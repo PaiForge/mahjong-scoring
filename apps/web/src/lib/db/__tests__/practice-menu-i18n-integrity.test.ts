@@ -3,9 +3,12 @@
  *
  * @description
  * 練習種別は `menuTypeToMessageKey()` で camelCase のキーに変換され、
- * 4つの名前空間（練習一覧・マイページ・ランキング名・ランキングアイコン）
- * から参照される。レジストリに1行足しても4箇所の JSON 追記漏れは
- * 実行時まで検出されないため、ここで突き合わせる。
+ * 練習一覧（`practice.practices`）とランキングアイコンの2つの名前空間から
+ * 参照される。レジストリに1行足しても JSON の追記漏れは実行時まで
+ * 検出されないため、ここで突き合わせる。
+ *
+ * 練習名は `practice.practices.<key>.title`（正式名）と `.shortTitle`
+ * （マイページ・ランキングで使う短い名）の2つを持つ。
  *
  * learn 側の curriculum-i18n-integrity.test.ts と同じパターン。
  */
@@ -22,11 +25,7 @@ import {
 
 const messages = messagesJson as unknown as {
   readonly practice: { readonly practices: Record<string, unknown> };
-  readonly mypage: {
-    readonly challenges: { readonly menuTypes: Record<string, unknown> };
-  };
   readonly leaderboard: {
-    readonly module: Record<string, unknown>;
     readonly moduleIcon: Record<string, unknown>;
   };
 } & Record<string, { readonly title?: unknown } | undefined>;
@@ -34,8 +33,6 @@ const messages = messagesJson as unknown as {
 /** 練習種別ごとのキーを持つ名前空間 */
 const NAMESPACES = [
   ["practice.practices", messages.practice.practices],
-  ["mypage.challenges.menuTypes", messages.mypage.challenges.menuTypes],
-  ["leaderboard.module", messages.leaderboard.module],
   ["leaderboard.moduleIcon", messages.leaderboard.moduleIcon],
 ] as const;
 
@@ -56,6 +53,25 @@ describe.each(NAMESPACES)("i18n integrity: %s", (namespace, entries) => {
 
     expect(extra, `${namespace} に余分: ${extra.join(", ")}`).toEqual([]);
   });
+});
+
+/**
+ * マイページ・ランキングは練習名の短い方（shortTitle）を引く。
+ * title だけ足して shortTitle を忘れると実行時までわからないため検証する。
+ */
+describe("i18n integrity: practice.practices.<key>.shortTitle", () => {
+  it.each(PRACTICE_MENU_TYPES.map(menuTypeToMessageKey))(
+    "%s が title と shortTitle を持つ",
+    (key) => {
+      const entry = messages.practice.practices[key] as
+        { readonly title?: unknown; readonly shortTitle?: unknown } | undefined;
+
+      expect(typeof entry?.title, `${key}.title が無い`).toBe("string");
+      expect(typeof entry?.shortTitle, `${key}.shortTitle が無い`).toBe(
+        "string",
+      );
+    },
+  );
 });
 
 /**

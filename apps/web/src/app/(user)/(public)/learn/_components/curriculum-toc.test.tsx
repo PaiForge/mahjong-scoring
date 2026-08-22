@@ -3,9 +3,7 @@ import { render } from "@testing-library/react";
 import { CurriculumToc } from "./curriculum-toc";
 import type { CurriculumChapter, CurriculumSection } from "../_lib/curriculum";
 
-vi.mock("next-intl/server", () => ({
-  getTranslations: () => Promise.resolve((key: string) => key),
-}));
+vi.mock("next-intl/server", async () => await import("@/test/intl-mock"));
 
 const chapters: readonly CurriculumChapter[] = [
   {

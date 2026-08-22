@@ -2,18 +2,21 @@
 
 import { useCallback, useState } from "react";
 
+import type { PracticeBoardProps } from "../_lib/practice-board-props";
+
 /** 符を答える練習の問題が満たすべき最小の形 */
 interface FuQuestion {
   readonly answer: number;
 }
 
-interface UseFuChoiceBoardParams<TQuestion extends FuQuestion> {
+interface UseFuChoiceBoardParams<TQuestion extends FuQuestion> extends Pick<
+  PracticeBoardProps,
+  "showFeedback" | "onAnswer"
+> {
   /** 問題を 1 問生成する */
   readonly generateQuestion: () => TQuestion;
   /** 選択肢として並べる符（インデックスで選択される） */
   readonly options: readonly number[];
-  readonly showFeedback: boolean;
-  readonly onAnswer: (correct: boolean, onNext: () => void) => void;
 }
 
 interface UseFuChoiceBoardResult<TQuestion extends FuQuestion> {

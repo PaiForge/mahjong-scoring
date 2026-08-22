@@ -18,7 +18,7 @@ import Link from "next/link";
 
 import { ContentContainer } from "@/app/(user)/_components/content-container";
 import { PageTitle } from "@/app/(user)/_components/page-title";
-import { createMetadata } from "@/app/_lib/metadata";
+import { createTitleOnlyMetadata } from "@/app/_lib/metadata";
 import { redirectIfAuthenticated } from "@/lib/auth";
 
 import { GoogleOAuthButton } from "../sign-in/_components/google-oauth-button";
@@ -29,8 +29,7 @@ import { TEXT_LINK_CLASSES } from "@/app/_components/_lib/link-classes";
 export const dynamic = "force-dynamic";
 
 export async function generateMetadata(): Promise<Metadata> {
-  const t = await getTranslations("signUp");
-  return createMetadata({ title: t("pageTitle") });
+  return createTitleOnlyMetadata("signUp", "pageTitle");
 }
 
 export default async function SignUpPage({

@@ -74,6 +74,27 @@ export function startOfCurrentMonth(): Date {
   return new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), 1));
 }
 
+/**
+ * 期間ランキングの母集団を絞る条件
+ * 期間ランキング母集団
+ *
+ * 「当月の challenge_results をユーザーごとに最良1件」という母集団定義のうち、
+ * 対象行の絞り込み部分の唯一の定義。Drizzle のクエリビルダから組む一覧取得と、
+ * 生 SQL で ROW_NUMBER を回すユーザーランク取得の双方がここを通る
+ * （期間の粒度を変えるときに片方だけ直す事故を防ぐ）。
+ */
+export function periodResultsWhere(
+  menuType: string,
+  leaderboardKey: string,
+  periodStart: Date,
+) {
+  return and(
+    eq(challengeResults.menuType, menuType),
+    eq(challengeResults.leaderboardKey, leaderboardKey),
+    gte(challengeResults.createdAt, periodStart),
+  );
+}
+
 // ---------------------------------------------------------------------------
 // All-time ranking (from challenge_best_scores)
 // ---------------------------------------------------------------------------
@@ -145,13 +166,7 @@ async function getPeriodRanking(
       timeTaken: challengeResults.timeTaken,
     })
     .from(challengeResults)
-    .where(
-      and(
-        eq(challengeResults.menuType, menuType),
-        eq(challengeResults.leaderboardKey, leaderboardKey),
-        gte(challengeResults.createdAt, periodStart),
-      ),
-    )
+    .where(periodResultsWhere(menuType, leaderboardKey, periodStart))
     .orderBy(challengeResults.userId, ...rankingOrder(challengeResults))
     .as("best_per_user");
 

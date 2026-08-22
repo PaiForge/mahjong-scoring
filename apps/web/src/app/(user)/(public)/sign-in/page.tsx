@@ -16,7 +16,7 @@ import Link from "next/link";
 
 import { ContentContainer } from "@/app/(user)/_components/content-container";
 import { PageTitle } from "@/app/(user)/_components/page-title";
-import { createMetadata } from "@/app/_lib/metadata";
+import { createTitleOnlyMetadata } from "@/app/_lib/metadata";
 import { redirectIfAuthenticated } from "@/lib/auth";
 import { sanitizeInternalRedirect } from "@/lib/redirect";
 
@@ -28,8 +28,7 @@ import { TEXT_LINK_CLASSES } from "@/app/_components/_lib/link-classes";
 export const dynamic = "force-dynamic";
 
 export async function generateMetadata(): Promise<Metadata> {
-  const t = await getTranslations("auth");
-  return createMetadata({ title: t("signInPageTitle") });
+  return createTitleOnlyMetadata("auth", "signInPageTitle");
 }
 
 export default async function SignInPage({

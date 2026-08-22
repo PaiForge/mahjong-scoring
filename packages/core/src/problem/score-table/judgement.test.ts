@@ -10,28 +10,28 @@ describe("judgeScoreTableAnswer", () => {
       expect(judgeScoreTableAnswer(user, correct)).toBe(true);
     });
 
-    it("oyaTsumo: scoreAll が一致する場合 true", () => {
+    it("oyaTsumo: all が一致する場合 true", () => {
       const correct = {
         type: "oyaTsumo",
-        scoreAll: 2000,
+        all: 2000,
       } as ScoreTableAnswer;
       const user = {
         type: "oyaTsumo",
-        scoreAll: 2000,
+        all: 2000,
       } as ScoreTableUserAnswer;
       expect(judgeScoreTableAnswer(user, correct)).toBe(true);
     });
 
-    it("koTsumo: scoreFromKo と scoreFromOya が一致する場合 true", () => {
+    it("koTsumo: fromKo と fromOya が一致する場合 true", () => {
       const correct = {
         type: "koTsumo",
-        scoreFromKo: 1000,
-        scoreFromOya: 2000,
+        fromKo: 1000,
+        fromOya: 2000,
       } as ScoreTableAnswer;
       const user = {
         type: "koTsumo",
-        scoreFromKo: 1000,
-        scoreFromOya: 2000,
+        fromKo: 1000,
+        fromOya: 2000,
       } as ScoreTableUserAnswer;
       expect(judgeScoreTableAnswer(user, correct)).toBe(true);
     });
@@ -44,42 +44,42 @@ describe("judgeScoreTableAnswer", () => {
       expect(judgeScoreTableAnswer(user, correct)).toBe(false);
     });
 
-    it("oyaTsumo: scoreAll が異なる場合 false", () => {
+    it("oyaTsumo: all が異なる場合 false", () => {
       const correct = {
         type: "oyaTsumo",
-        scoreAll: 2000,
+        all: 2000,
       } as ScoreTableAnswer;
       const user = {
         type: "oyaTsumo",
-        scoreAll: 1300,
+        all: 1300,
       } as ScoreTableUserAnswer;
       expect(judgeScoreTableAnswer(user, correct)).toBe(false);
     });
 
-    it("koTsumo: scoreFromKo が異なる場合 false", () => {
+    it("koTsumo: fromKo が異なる場合 false", () => {
       const correct = {
         type: "koTsumo",
-        scoreFromKo: 1000,
-        scoreFromOya: 2000,
+        fromKo: 1000,
+        fromOya: 2000,
       } as ScoreTableAnswer;
       const user = {
         type: "koTsumo",
-        scoreFromKo: 500,
-        scoreFromOya: 2000,
+        fromKo: 500,
+        fromOya: 2000,
       } as ScoreTableUserAnswer;
       expect(judgeScoreTableAnswer(user, correct)).toBe(false);
     });
 
-    it("koTsumo: scoreFromOya が異なる場合 false", () => {
+    it("koTsumo: fromOya が異なる場合 false", () => {
       const correct = {
         type: "koTsumo",
-        scoreFromKo: 1000,
-        scoreFromOya: 2000,
+        fromKo: 1000,
+        fromOya: 2000,
       } as ScoreTableAnswer;
       const user = {
         type: "koTsumo",
-        scoreFromKo: 1000,
-        scoreFromOya: 1000,
+        fromKo: 1000,
+        fromOya: 1000,
       } as ScoreTableUserAnswer;
       expect(judgeScoreTableAnswer(user, correct)).toBe(false);
     });
@@ -90,7 +90,7 @@ describe("judgeScoreTableAnswer", () => {
       const correct = { type: "ron", score: 3900 } as ScoreTableAnswer;
       const user = {
         type: "oyaTsumo",
-        scoreAll: 3900,
+        all: 3900,
       } as ScoreTableUserAnswer;
       expect(judgeScoreTableAnswer(user, correct)).toBe(false);
     });
@@ -98,7 +98,7 @@ describe("judgeScoreTableAnswer", () => {
     it("正解が oyaTsumo でユーザーが ron の場合 false", () => {
       const correct = {
         type: "oyaTsumo",
-        scoreAll: 2000,
+        all: 2000,
       } as ScoreTableAnswer;
       const user = { type: "ron", score: 2000 } as ScoreTableUserAnswer;
       expect(judgeScoreTableAnswer(user, correct)).toBe(false);
@@ -107,8 +107,8 @@ describe("judgeScoreTableAnswer", () => {
     it("正解が koTsumo でユーザーが ron の場合 false", () => {
       const correct = {
         type: "koTsumo",
-        scoreFromKo: 1000,
-        scoreFromOya: 2000,
+        fromKo: 1000,
+        fromOya: 2000,
       } as ScoreTableAnswer;
       const user = { type: "ron", score: 1000 } as ScoreTableUserAnswer;
       expect(judgeScoreTableAnswer(user, correct)).toBe(false);
@@ -118,38 +118,38 @@ describe("judgeScoreTableAnswer", () => {
       const correct = { type: "ron", score: 3900 } as ScoreTableAnswer;
       const user = {
         type: "koTsumo",
-        scoreFromKo: 1000,
-        scoreFromOya: 2000,
+        fromKo: 1000,
+        fromOya: 2000,
       } as ScoreTableUserAnswer;
       expect(judgeScoreTableAnswer(user, correct)).toBe(false);
     });
   });
 
   describe("koTsumo で片方だけ正解の場合 false を返すこと", () => {
-    it("scoreFromKo のみ正解の場合 false", () => {
+    it("fromKo のみ正解の場合 false", () => {
       const correct = {
         type: "koTsumo",
-        scoreFromKo: 2000,
-        scoreFromOya: 4000,
+        fromKo: 2000,
+        fromOya: 4000,
       } as ScoreTableAnswer;
       const user = {
         type: "koTsumo",
-        scoreFromKo: 2000,
-        scoreFromOya: 3000,
+        fromKo: 2000,
+        fromOya: 3000,
       } as ScoreTableUserAnswer;
       expect(judgeScoreTableAnswer(user, correct)).toBe(false);
     });
 
-    it("scoreFromOya のみ正解の場合 false", () => {
+    it("fromOya のみ正解の場合 false", () => {
       const correct = {
         type: "koTsumo",
-        scoreFromKo: 2000,
-        scoreFromOya: 4000,
+        fromKo: 2000,
+        fromOya: 4000,
       } as ScoreTableAnswer;
       const user = {
         type: "koTsumo",
-        scoreFromKo: 1000,
-        scoreFromOya: 4000,
+        fromKo: 1000,
+        fromOya: 4000,
       } as ScoreTableUserAnswer;
       expect(judgeScoreTableAnswer(user, correct)).toBe(false);
     });

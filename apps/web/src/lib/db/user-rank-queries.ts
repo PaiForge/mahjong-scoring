@@ -2,6 +2,7 @@ import { sql, type SQL } from "drizzle-orm";
 
 import { db } from "./index";
 import {
+  periodResultsWhere,
   startOfCurrentMonth,
   type RankedLeaderboardRow,
 } from "./leaderboard-queries";
@@ -118,9 +119,7 @@ export async function getUserMonthlyRankedRow(
           challenge_results.user_id, challenge_results.score,
           challenge_results.incorrect_answers, challenge_results.time_taken
         FROM challenge_results
-        WHERE menu_type = ${menuType}
-          AND leaderboard_key = ${leaderboardKey}
-          AND created_at >= ${periodStart.toISOString()}
+        WHERE ${periodResultsWhere(menuType, leaderboardKey, periodStart)}
         ORDER BY challenge_results.user_id, ${rankingOrderSql("challenge_results")}
       ) best`,
       "best",

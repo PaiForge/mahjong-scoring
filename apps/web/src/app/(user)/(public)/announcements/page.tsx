@@ -14,7 +14,7 @@ import { ListLinkContainer } from "@/app/(user)/_components/list-link";
 import { PageTitle } from "@/app/(user)/_components/page-title";
 import { PaginationNav } from "@/app/(user)/_components/pagination-nav";
 import { SectionTitle } from "@/app/(user)/_components/section-title";
-import { createMetadata } from "@/app/_lib/metadata";
+import { createNamespaceMetadata } from "@/app/_lib/metadata";
 import { getPaginationData } from "@/lib/pagination";
 
 import { AnnouncementListItem } from "./_components/announcement-list-item";
@@ -32,10 +32,9 @@ interface Props {
 }
 
 export async function generateMetadata(): Promise<Metadata> {
-  const t = await getTranslations("announcements");
-  return createMetadata({
-    title: t("pageTitle"),
-    description: t("pageDescription"),
+  return createNamespaceMetadata("announcements", {
+    title: "pageTitle",
+    description: "pageDescription",
   });
 }
 

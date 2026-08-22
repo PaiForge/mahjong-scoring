@@ -10,7 +10,7 @@ import Link from "next/link";
 
 import { ContentContainer } from "@/app/(user)/_components/content-container";
 import { PageTitle } from "@/app/(user)/_components/page-title";
-import { createMetadata } from "@/app/_lib/metadata";
+import { createPrivateMetadata } from "@/app/_lib/metadata";
 import { requireConfirmedUser } from "@/lib/auth";
 import { getProfileForEdit } from "@/lib/db/queries";
 
@@ -19,11 +19,7 @@ import { ProfileForm } from "../_components/profile-form";
 import { TEXT_LINK_MUTED_CLASSES } from "@/app/_components/_lib/link-classes";
 
 export async function generateMetadata(): Promise<Metadata> {
-  const t = await getTranslations("profileEdit");
-  return {
-    ...createMetadata({ title: t("pageTitle") }),
-    robots: { index: false, follow: false },
-  };
+  return createPrivateMetadata("profileEdit");
 }
 
 export default async function ProfileEditPage({

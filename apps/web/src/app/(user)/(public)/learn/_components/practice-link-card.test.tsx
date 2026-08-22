@@ -6,9 +6,7 @@ import { PracticeLinkList } from "./practice-link-card";
 // `practice-link-card` は `t.has()` で辞書キーの存在確認を行うため、
 // モックでも関数 + プロパティを再現する必要がある。
 // LinkButton 配下の LinkPending がクライアント側の useTranslations を使う。
-vi.mock("next-intl", () => ({
-  useTranslations: () => (key: string) => key,
-}));
+vi.mock("next-intl", async () => await import("@/test/intl-mock"));
 
 vi.mock("next-intl/server", () => ({
   getTranslations: (_namespace?: string) => {

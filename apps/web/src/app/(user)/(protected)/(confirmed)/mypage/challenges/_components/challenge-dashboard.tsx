@@ -73,6 +73,7 @@ export function ChallengeDashboard({
   initialSessions,
 }: ChallengeDashboardProps) {
   const t = useTranslations("mypage.challenges");
+  const tPractices = useTranslations("practice.practices");
   const {
     selectedMenu,
     setSelectedMenu,
@@ -120,9 +121,9 @@ export function ChallengeDashboard({
     () =>
       (availableMenuTypes ?? []).map((type) => ({
         value: type,
-        label: t(`menuTypes.${menuTypeToMessageKey(type)}`),
+        label: tPractices(`${menuTypeToMessageKey(type)}.shortTitle`),
       })),
-    [availableMenuTypes, t],
+    [availableMenuTypes, tPractices],
   );
 
   if (

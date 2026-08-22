@@ -1,3 +1,4 @@
+import { DEFAULT_PAGE_SIZE } from "@/lib/pagination";
 import type {
   PracticeMenuType,
   PracticeMenuSlug,
@@ -53,7 +54,8 @@ export interface UserRankInfo {
   readonly rank: number;
 }
 
-export const PAGE_SIZE = 20;
+/** 1ページあたりの表示件数（アプリ共通の既定値に揃える） */
+export const PAGE_SIZE = DEFAULT_PAGE_SIZE;
 
 // ---------------------------------------------------------------------------
 // URL slug <-> DB module name conversion

@@ -3,7 +3,7 @@
 import { useMemo } from "react";
 import { QuestionGeneratingPlaceholder } from "../../_components/question-generating-placeholder";
 import { useTranslations } from "next-intl";
-import { getFeedbackBorderClass } from "../../_lib/feedback-styles";
+import { FeedbackFrame } from "../../_components/feedback-frame";
 import { useScoreQuestionBoard } from "../../_hooks/use-score-question-board";
 import { QuestionDisplay } from "../../score/_components/question-display";
 import { YakuListDisplay } from "./yaku-list-display";
@@ -13,19 +13,13 @@ import type {
   PlayerType,
 } from "../_lib/types";
 import { playerTypeToOptions } from "../_lib/types";
+import type { RecordingPracticeBoardProps } from "../../_lib/practice-board-props";
 
-interface ManganScoreCalculationBoardProps {
+interface ManganScoreCalculationBoardProps extends RecordingPracticeBoardProps<ManganScoreCalculationQuestionResult> {
   /** 出題する親/子の種別（チャレンジは URL クエリで指定、トレーニングは既定値） */
   readonly playerType: PlayerType;
-  readonly showFeedback: boolean;
-  readonly isCountingDown?: boolean;
   /** 直前の回答が正解だったか（フィードバック枠の色分けに使用） */
   readonly lastAnswerCorrect?: boolean;
-  readonly onAnswer: (correct: boolean, onNext: () => void) => void;
-  /** 回答結果の記録（チャレンジの結果ページ用。トレーニングでは省略） */
-  readonly onRecordResult?: (
-    result: ManganScoreCalculationQuestionResult,
-  ) => void;
 }
 
 /**
@@ -62,19 +56,15 @@ export function ManganScoreCalculationBoard({
     return <QuestionGeneratingPlaceholder label={t("generating")} />;
   }
 
-  const feedbackBorderClass = getFeedbackBorderClass(
-    showFeedback,
-    lastAnswerCorrect,
-  );
-
   return (
     <div className="mt-6 space-y-6">
       {/* Question display */}
-      <div
-        className={`rounded-xl border-3 p-2 shadow-sm transition-colors sm:p-4 ${feedbackBorderClass}`}
+      <FeedbackFrame
+        showFeedback={showFeedback}
+        lastAnswerCorrect={lastAnswerCorrect}
       >
         <QuestionDisplay question={question} />
-      </div>
+      </FeedbackFrame>
 
       {/* Yaku list */}
       {question.yakuDetails && question.yakuDetails.length > 0 && (

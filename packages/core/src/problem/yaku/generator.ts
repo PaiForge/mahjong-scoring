@@ -10,7 +10,7 @@ import {
   EXCLUDED_YAKU_FROM_ANSWER,
   getKazeYakuhaiDisplayName,
 } from "./constants";
-import { KAZEHAI } from "../../core/constants";
+import { BAKAZE_OPTIONS, KAZEHAI } from "../../core/constants";
 import { defaultIdGenerator, type IdGenerator } from "../../core/id";
 import { randomBool, randomChoice } from "../../core/random";
 import { HaiUsageTracker } from "../../core/hai-tracker";
@@ -70,7 +70,7 @@ export function generateYakuQuestion(
   if (!mentsuList) return undefined;
 
   // 2. コンテキスト生成
-  const bakaze = randomChoice(KAZEHAI);
+  const bakaze = randomChoice(BAKAZE_OPTIONS);
   const jikaze = randomChoice(KAZEHAI);
 
   // 3. 雀頭を生成

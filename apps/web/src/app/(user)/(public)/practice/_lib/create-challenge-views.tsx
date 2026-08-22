@@ -10,16 +10,16 @@ import { useRecordedResults } from "../_hooks/use-recorded-results";
 import { useSaveOnFinish } from "../_hooks/use-save-on-finish";
 import { useTimedSession } from "../_hooks/use-timed-session";
 import { useTrainingSession } from "../_hooks/use-training-session";
+import type { PracticeBoardProps } from "./practice-board-props";
 
 /**
  * チャレンジ盤面の描画に渡される状態
  * チャレンジ盤面引数
  */
-export interface ChallengeBoardArgs<TResult> {
-  readonly showFeedback: boolean;
+export interface ChallengeBoardArgs<TResult> extends PracticeBoardProps {
+  /** チャレンジではカウントダウンが必ずあるため必須 */
   readonly isCountingDown: boolean;
   readonly lastAnswerCorrect: boolean | undefined;
-  readonly onAnswer: (correct: boolean, onNext: () => void) => void;
   /** 問題結果の記録（config.resultStorageKey 指定時のみ終了時に保存される） */
   readonly recordResult: (result: TResult) => void;
 }
@@ -117,10 +117,8 @@ export function createChallengePlayView<
  * トレーニング盤面の描画に渡される状態
  * トレーニング盤面引数
  */
-export interface TrainingBoardArgs {
-  readonly showFeedback: boolean;
+export interface TrainingBoardArgs extends PracticeBoardProps {
   readonly lastAnswerCorrect: boolean | undefined;
-  readonly onAnswer: (correct: boolean, onNext: () => void) => void;
   /**
    * 不正解で停止中の状態から次問題へ進む
    *

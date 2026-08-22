@@ -7,6 +7,7 @@ import {
   TSUMO_SCORES_KO_PART,
   TSUMO_SCORES_OYA_PART,
 } from "@mahjong-scoring/core";
+import { MANGAN_MIN_HAN } from "./han-tiers";
 
 /**
  * 利用可能な点数リストを取得する
@@ -113,10 +114,11 @@ function filterByHan(
 
   if (han === undefined) return scores;
 
-  if (han >= 5) {
+  if (han >= MANGAN_MIN_HAN) {
     return scores.filter((s) => s >= threshold);
   }
-  if (han <= 3) {
+  // 満貫の1つ下の翻（4翻）は符次第で満貫にも満貫未満にもなるため絞り込まない
+  if (han < MANGAN_MIN_HAN - 1) {
     return scores.filter((s) => s < threshold);
   }
   return scores;

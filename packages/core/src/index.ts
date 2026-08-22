@@ -19,14 +19,16 @@ export type { TehaiFuQuestion, TehaiFuItem } from "./problem/tehai-fu/types";
 
 // === Problem: Total Fu ===
 export { generateTotalFuQuestion } from "./problem/total-fu/generator";
-export { TOTAL_FU_OPTIONS } from "./problem/total-fu/constants";
 export type { TotalFuQuestion } from "./problem/total-fu/types";
 export type { FuDetail } from "./score/fu-calculator";
 
 // === Problem: Yaku ===
 export { generateYakuQuestion } from "./problem/yaku/generator";
 export { judgeYakuAnswer } from "./problem/yaku/judgement";
-export { SELECTABLE_YAKU } from "./problem/yaku/constants";
+export {
+  SELECTABLE_YAKU,
+  SELECTABLE_YAKU_GROUPS,
+} from "./problem/yaku/constants";
 export type { YakuQuestion } from "./problem/yaku/types";
 
 // === Problem: Yaku Han ===
@@ -56,6 +58,7 @@ export {
   scoreTierForHan,
   hanRangeOf,
   DISPLAY_TIERS,
+  MANGAN_MIN_HAN,
   MANGAN_PLUS_TIERS,
 } from "./score/tiers";
 export type { HanTier, HanRange } from "./score/tiers";

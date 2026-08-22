@@ -1,4 +1,5 @@
 import { getTranslations } from "next-intl/server";
+import { getPaginationData } from "@/lib/pagination";
 
 import type {
   LeaderboardModule,
@@ -31,7 +32,11 @@ export async function LeaderboardDetailContent({
 }: LeaderboardDetailContentProps) {
   const t = await getTranslations("leaderboard");
 
-  const totalPages = Math.ceil(data.totalCount / PAGE_SIZE);
+  const { totalPages } = getPaginationData(
+    currentPage,
+    data.totalCount,
+    PAGE_SIZE,
+  );
   const periodLabel = t(`period.${period}`);
 
   return (

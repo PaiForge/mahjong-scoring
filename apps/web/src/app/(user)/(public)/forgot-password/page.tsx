@@ -16,14 +16,13 @@ import Link from "next/link";
 
 import { ContentContainer } from "@/app/(user)/_components/content-container";
 import { PageTitle } from "@/app/(user)/_components/page-title";
-import { createMetadata } from "@/app/_lib/metadata";
+import { createTitleOnlyMetadata } from "@/app/_lib/metadata";
 
 import { ForgotPasswordForm } from "./_components/forgot-password-form";
 import { TEXT_LINK_CLASSES } from "@/app/_components/_lib/link-classes";
 
 export async function generateMetadata(): Promise<Metadata> {
-  const t = await getTranslations("forgotPassword");
-  return createMetadata({ title: t("pageTitle") });
+  return createTitleOnlyMetadata("forgotPassword", "pageTitle");
 }
 
 export default async function ForgotPasswordPage() {

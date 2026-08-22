@@ -18,17 +18,18 @@ export function judgeScoreTableAnswer(
 
   switch (correctAnswer.type) {
     case "ron":
-      return userAnswer.type === "ron" && userAnswer.score === correctAnswer.score;
+      return (
+        userAnswer.type === "ron" && userAnswer.score === correctAnswer.score
+      );
     case "oyaTsumo":
       return (
-        userAnswer.type === "oyaTsumo" &&
-        userAnswer.scoreAll === correctAnswer.scoreAll
+        userAnswer.type === "oyaTsumo" && userAnswer.all === correctAnswer.all
       );
     case "koTsumo":
       return (
         userAnswer.type === "koTsumo" &&
-        userAnswer.scoreFromKo === correctAnswer.scoreFromKo &&
-        userAnswer.scoreFromOya === correctAnswer.scoreFromOya
+        userAnswer.fromKo === correctAnswer.fromKo &&
+        userAnswer.fromOya === correctAnswer.fromOya
       );
   }
 }

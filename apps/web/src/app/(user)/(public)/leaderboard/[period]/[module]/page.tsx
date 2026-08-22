@@ -72,8 +72,9 @@ export async function generateMetadata({
   if (!validated) return {};
 
   const t = await getTranslations("leaderboard");
+  const tPractices = await getTranslations("practice.practices");
   const msgKey = menuTypeToMessageKey(validated.module);
-  const title = t(`module.${msgKey}`);
+  const title = tPractices(`${msgKey}.shortTitle`);
   const periodLabel = t(`period.${validated.period}`);
 
   return createMetadata({
@@ -117,9 +118,10 @@ export default async function LeaderboardDetailPage({
 
   const page = Math.max(1, parseInt(pageParam ?? "1", 10) || 1);
   const t = await getTranslations("leaderboard");
+  const tPractices = await getTranslations("practice.practices");
 
   const moduleMsgKey = menuTypeToMessageKey(validated.module);
-  const moduleTitle = t(`module.${moduleMsgKey}`);
+  const moduleTitle = tPractices(`${moduleMsgKey}.shortTitle`);
   const challengePath = buildChallengePath(validated.module);
 
   return (

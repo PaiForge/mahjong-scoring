@@ -153,8 +153,8 @@ describe("generateScoreTableQuestion", () => {
 
       expect(question.correctAnswer).toEqual({
         type: "koTsumo",
-        scoreFromKo: (expected.tsumo as { fromKo: number }).fromKo,
-        scoreFromOya: (expected.tsumo as { fromOya: number }).fromOya,
+        fromKo: (expected.tsumo as { fromKo: number }).fromKo,
+        fromOya: (expected.tsumo as { fromOya: number }).fromOya,
       });
     });
 
@@ -167,7 +167,7 @@ describe("generateScoreTableQuestion", () => {
 
       expect(question.correctAnswer).toEqual({
         type: "oyaTsumo",
-        scoreAll: (expected.tsumo as { all: number }).all,
+        all: (expected.tsumo as { all: number }).all,
       });
     });
   });
@@ -238,8 +238,8 @@ describe("generateScoreTableQuestion", () => {
       const question = findQuestion(options, (q) => !q.isOya && q.isTsumo);
       expect(question.correctAnswer).toEqual({
         type: "koTsumo",
-        scoreFromKo: koTsumo[0],
-        scoreFromOya: koTsumo[1],
+        fromKo: koTsumo[0],
+        fromOya: koTsumo[1],
       });
     });
 
@@ -247,7 +247,7 @@ describe("generateScoreTableQuestion", () => {
       const question = findQuestion(options, (q) => q.isOya && q.isTsumo);
       expect(question.correctAnswer).toEqual({
         type: "oyaTsumo",
-        scoreAll: oyaTsumoAll,
+        all: oyaTsumoAll,
       });
     });
   });
@@ -303,7 +303,7 @@ describe("generateScoreTableQuestion", () => {
 
       expect(question.correctAnswer).toEqual({
         type: "oyaTsumo",
-        scoreAll: 4000,
+        all: 4000,
       });
     });
 
@@ -316,8 +316,8 @@ describe("generateScoreTableQuestion", () => {
 
       expect(question.correctAnswer).toEqual({
         type: "koTsumo",
-        scoreFromKo: 4000,
-        scoreFromOya: 8000,
+        fromKo: 4000,
+        fromOya: 8000,
       });
     });
   });

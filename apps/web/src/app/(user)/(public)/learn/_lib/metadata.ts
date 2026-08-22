@@ -1,7 +1,6 @@
 import type { Metadata } from "next";
-import { getTranslations } from "next-intl/server";
 
-import { createMetadata } from "@/app/_lib/metadata";
+import { createNamespaceMetadata } from "@/app/_lib/metadata";
 
 /**
  * 教本（learn）ページの metadata を生成する。
@@ -13,9 +12,8 @@ import { createMetadata } from "@/app/_lib/metadata";
 export async function createLearnMetadata(
   namespace: string,
 ): Promise<Metadata> {
-  const t = await getTranslations(namespace);
-  return createMetadata({
-    title: t("pageTitle"),
-    description: t("pageDescription"),
+  return createNamespaceMetadata(namespace, {
+    title: "pageTitle",
+    description: "pageDescription",
   });
 }

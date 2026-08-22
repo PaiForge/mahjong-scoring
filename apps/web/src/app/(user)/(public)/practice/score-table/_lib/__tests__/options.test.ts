@@ -5,6 +5,7 @@ import {
   hasSelectionParams,
   searchParamsToSelection,
   selectionToGeneratorOptions,
+  scoreTablePracticeHref,
   selectionToQueryString,
 } from "../options";
 
@@ -92,5 +93,43 @@ describe("selectionToQueryString", () => {
     );
     // URLSearchParams.entries() は同名キーを1つに潰すが、ガイド設定は各軸1値のため一致する
     expect(roundTripped).toEqual(original);
+  });
+});
+
+describe("scoreTablePracticeHref", () => {
+  it("指定した軸だけをクエリに出す", () => {
+    expect(
+      scoreTablePracticeHref({
+        roles: ["ko"],
+        wins: ["ron"],
+        ranges: ["manganPlus"],
+      }),
+    ).toBe("/practice/score-table?roles=ko&wins=ron&ranges=plus");
+  });
+
+  it("全選択の軸は省略し、何も絞らなければクエリを付けない", () => {
+    expect(scoreTablePracticeHref({})).toBe("/practice/score-table");
+    expect(scoreTablePracticeHref({ roles: ["oya", "ko"] })).toBe(
+      "/practice/score-table",
+    );
+  });
+
+  it("組み立てた URL を読み直すと同じ絞り込みになる", () => {
+    const href = scoreTablePracticeHref({
+      roles: ["oya"],
+      ranges: ["nonMangan"],
+    });
+    const query = new URLSearchParams(href.split("?")[1] ?? "");
+
+    expect(
+      searchParamsToSelection(Object.fromEntries(query.entries())),
+    ).toEqual({
+      includeOya: true,
+      includeKo: false,
+      includeTsumo: true,
+      includeRon: true,
+      includeNonMangan: true,
+      includeManganPlus: false,
+    });
   });
 });

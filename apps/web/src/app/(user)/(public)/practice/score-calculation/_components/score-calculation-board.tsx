@@ -4,20 +4,16 @@ import { useMemo } from "react";
 import { QuestionGeneratingPlaceholder } from "../../_components/question-generating-placeholder";
 import { useTranslations } from "next-intl";
 import { useRuleSettingsStore } from "@/app/_hooks/use-rule-settings-store";
-import { getFeedbackBorderClass } from "../../_lib/feedback-styles";
+import { FeedbackFrame } from "../../_components/feedback-frame";
 import { useScoreQuestionBoard } from "../../_hooks/use-score-question-board";
 import { QuestionDisplay } from "../../score/_components/question-display";
 import { ScoreCalculationAnswerForm } from "./score-calculation-answer-form";
 import type { ScoreCalculationQuestionResult } from "../_lib/types";
+import type { RecordingPracticeBoardProps } from "../../_lib/practice-board-props";
 
-interface ScoreCalculationBoardProps {
-  readonly showFeedback: boolean;
-  readonly isCountingDown?: boolean;
+interface ScoreCalculationBoardProps extends RecordingPracticeBoardProps<ScoreCalculationQuestionResult> {
   /** 直前の回答が正解だったか（フィードバック枠の色分けに使用） */
   readonly lastAnswerCorrect?: boolean;
-  readonly onAnswer: (correct: boolean, onNext: () => void) => void;
-  /** 回答結果の記録（チャレンジの結果ページ用。トレーニングでは省略） */
-  readonly onRecordResult?: (result: ScoreCalculationQuestionResult) => void;
 }
 
 /**
@@ -47,19 +43,15 @@ export function ScoreCalculationBoard({
     return <QuestionGeneratingPlaceholder label={t("generating")} />;
   }
 
-  const feedbackBorderClass = getFeedbackBorderClass(
-    showFeedback,
-    lastAnswerCorrect,
-  );
-
   return (
     <div className="mt-6 space-y-6">
       {/* Question display */}
-      <div
-        className={`rounded-xl border-3 p-2 shadow-sm transition-colors sm:p-4 ${feedbackBorderClass}`}
+      <FeedbackFrame
+        showFeedback={showFeedback}
+        lastAnswerCorrect={lastAnswerCorrect}
       >
         <QuestionDisplay question={question} />
-      </div>
+      </FeedbackFrame>
 
       {/* Answer form */}
       <ScoreCalculationAnswerForm

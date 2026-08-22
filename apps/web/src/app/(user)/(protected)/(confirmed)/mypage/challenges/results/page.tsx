@@ -12,7 +12,7 @@ import { ContentContainer } from "@/app/(user)/_components/content-container";
 import { PageTitle } from "@/app/(user)/_components/page-title";
 import { PaginationNav } from "@/app/(user)/_components/pagination-nav";
 import { SectionTitle } from "@/app/(user)/_components/section-title";
-import { createMetadata } from "@/app/_lib/metadata";
+import { createPrivateMetadata } from "@/app/_lib/metadata";
 import type { PracticeMenuType } from "@/lib/db/practice-menu-types";
 import {
   isPracticeMenuType,
@@ -28,17 +28,14 @@ interface Props {
 }
 
 export async function generateMetadata(): Promise<Metadata> {
-  const t = await getTranslations("mypage.challengeResults");
-  return {
-    ...createMetadata({ title: t("pageTitle") }),
-    robots: { index: false, follow: false },
-  };
+  return createPrivateMetadata("mypage.challengeResults");
 }
 
 export default async function ChallengeResultsPage({ searchParams }: Props) {
   const t = await getTranslations("mypage.challengeResults");
   const tChallenges = await getTranslations("mypage.challenges");
   const tMypage = await getTranslations("mypage");
+  const tPractices = await getTranslations("practice.practices");
   const params = await searchParams;
 
   const { user } = await requireConfirmedUser();
@@ -90,7 +87,7 @@ export default async function ChallengeResultsPage({ searchParams }: Props) {
           }}
           getMenuLabel={(type) =>
             isPracticeMenuType(type)
-              ? tChallenges(`menuTypes.${menuTypeToMessageKey(type)}`)
+              ? tPractices(`${menuTypeToMessageKey(type)}.shortTitle`)
               : type
           }
         />

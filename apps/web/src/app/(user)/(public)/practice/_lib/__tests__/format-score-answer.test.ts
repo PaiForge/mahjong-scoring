@@ -25,20 +25,20 @@ describe("formatScoreAnswer", () => {
   });
 
   it("親ツモの場合はオール表記を返す", () => {
-    const answer: ScoreTableAnswer = { type: "oyaTsumo", scoreAll: 4000 };
+    const answer: ScoreTableAnswer = { type: "oyaTsumo", all: 4000 };
     expect(formatScoreAnswer(answer, mockT)).toBe("4000オール");
   });
 
   it("親ツモ 2000オール", () => {
-    const answer: ScoreTableAnswer = { type: "oyaTsumo", scoreAll: 2000 };
+    const answer: ScoreTableAnswer = { type: "oyaTsumo", all: 2000 };
     expect(formatScoreAnswer(answer, mockT)).toBe("2000オール");
   });
 
   it("子ツモの場合はスラッシュ区切りで返す", () => {
     const answer: ScoreTableAnswer = {
       type: "koTsumo",
-      scoreFromKo: 1000,
-      scoreFromOya: 2000,
+      fromKo: 1000,
+      fromOya: 2000,
     };
     expect(formatScoreAnswer(answer, mockT)).toBe("1000/2000");
   });
@@ -46,15 +46,15 @@ describe("formatScoreAnswer", () => {
   it("子ツモ 2000/4000", () => {
     const answer: ScoreTableAnswer = {
       type: "koTsumo",
-      scoreFromKo: 2000,
-      scoreFromOya: 4000,
+      fromKo: 2000,
+      fromOya: 4000,
     };
     expect(formatScoreAnswer(answer, mockT)).toBe("2000/4000");
   });
 
   it("翻訳関数の 'all' キーが使われる", () => {
     const customT = (key: string): string => (key === "all" ? "ALL" : key);
-    const answer: ScoreTableAnswer = { type: "oyaTsumo", scoreAll: 4000 };
+    const answer: ScoreTableAnswer = { type: "oyaTsumo", all: 4000 };
     expect(formatScoreAnswer(answer, customT)).toBe("4000ALL");
   });
 
@@ -67,7 +67,7 @@ describe("formatScoreAnswer", () => {
     });
 
     it("親ツモには付けない（オール表記が単位を兼ねるため）", () => {
-      const answer: ScoreTableAnswer = { type: "oyaTsumo", scoreAll: 4000 };
+      const answer: ScoreTableAnswer = { type: "oyaTsumo", all: 4000 };
       expect(formatScoreAnswer(answer, mockT, { ronSuffix: "点" })).toBe(
         "4000オール",
       );
@@ -76,8 +76,8 @@ describe("formatScoreAnswer", () => {
     it("子ツモには付けない", () => {
       const answer: ScoreTableAnswer = {
         type: "koTsumo",
-        scoreFromKo: 2000,
-        scoreFromOya: 4000,
+        fromKo: 2000,
+        fromOya: 4000,
       };
       expect(formatScoreAnswer(answer, mockT, { ronSuffix: "点" })).toBe(
         "2000/4000",

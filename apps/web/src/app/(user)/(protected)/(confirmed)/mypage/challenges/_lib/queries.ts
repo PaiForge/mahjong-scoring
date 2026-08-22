@@ -8,13 +8,12 @@
 import { and, count, desc, eq, gte, lt } from "drizzle-orm";
 
 import { db } from "@/lib/db";
+import { DEFAULT_PAGE_SIZE, getPaginationData } from "@/lib/pagination";
 import type { PracticeMenuType } from "@/lib/db/practice-menu-types";
 import { isPracticeMenuType } from "@/lib/db/practice-menu-types";
 import { challengeResults } from "@/lib/db/schema";
 
 import type { ChallengeSession } from "./types";
-
-const PAGE_SIZE = 20;
 
 /**
  * ページネーション付きでチャレンジ結果を取得する
@@ -32,8 +31,9 @@ export async function getChallengeResultsPaginated(
 
   const whereClause = and(...conditions);
 
-  const safePage = Math.max(1, page);
-  const offset = (safePage - 1) * PAGE_SIZE;
+  // 件数と行を並行して引くため、行の取得に必要な limit / offset だけ先に算出し、
+  // 総ページ数は件数が揃ってから同じヘルパーで求める。
+  const { limit, offset } = getPaginationData(page, 0, DEFAULT_PAGE_SIZE);
 
   const [countResult, rows] = await Promise.all([
     db
@@ -52,12 +52,15 @@ export async function getChallengeResultsPaginated(
       .from(challengeResults)
       .where(whereClause)
       .orderBy(desc(challengeResults.createdAt))
-      .limit(PAGE_SIZE)
+      .limit(limit)
       .offset(offset),
   ]);
 
-  const totalCount = countResult.count;
-  const totalPages = Math.ceil(totalCount / PAGE_SIZE);
+  const { totalPages } = getPaginationData(
+    page,
+    countResult.count,
+    DEFAULT_PAGE_SIZE,
+  );
 
   const items = rows.flatMap((row) => {
     const session = toChallengeSession(row);

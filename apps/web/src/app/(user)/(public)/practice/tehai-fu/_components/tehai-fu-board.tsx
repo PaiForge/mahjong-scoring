@@ -8,6 +8,7 @@ import { useRuleSettingsStore } from "@/app/_hooks/use-rule-settings-store";
 import { ChallengeSubmitButton } from "../../_components/challenge-submit-button";
 import { TehaiDisplay } from "./tehai-display";
 import { FuItemRow } from "./fu-item-row";
+import type { PracticeBoardProps } from "../../_lib/practice-board-props";
 
 function generateQuestion(
   renfonpaiAs4Fu: boolean,
@@ -15,11 +16,7 @@ function generateQuestion(
   return retryGenerate(() => generateTehaiFuQuestion({ renfonpaiAs4Fu }));
 }
 
-interface TehaiFuBoardProps {
-  readonly showFeedback: boolean;
-  readonly isCountingDown?: boolean;
-  readonly onAnswer: (correct: boolean, onNext: () => void) => void;
-}
+type TehaiFuBoardProps = PracticeBoardProps;
 
 /**
  * 手牌符の出題盤面（手牌の提示と符目ごとの入力・一括判定）

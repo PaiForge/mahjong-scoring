@@ -11,7 +11,7 @@ import { getTranslations } from "next-intl/server";
 
 import { ContentContainer } from "@/app/(user)/_components/content-container";
 import { PageTitle } from "@/app/(user)/_components/page-title";
-import { createMetadata } from "@/app/_lib/metadata";
+import { createPrivateMetadata } from "@/app/_lib/metadata";
 import { requireConfirmedUser } from "@/lib/auth";
 
 import { ChallengeDashboard } from "../_components/challenge-dashboard";
@@ -22,11 +22,7 @@ import {
 } from "../_lib/queries";
 
 export async function generateMetadata(): Promise<Metadata> {
-  const t = await getTranslations("mypage.challenges");
-  return {
-    ...createMetadata({ title: t("pageTitle") }),
-    robots: { index: false, follow: false },
-  };
+  return createPrivateMetadata("mypage.challenges");
 }
 
 const DEFAULT_PERIOD = "thisWeek" as const;

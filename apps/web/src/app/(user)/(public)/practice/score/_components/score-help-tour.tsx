@@ -11,6 +11,7 @@ import type {
 import { QuestionDisplay } from "./question-display";
 import { ScorePracticeAnswerForm } from "./score-practice-answer-form";
 import { ResultDisplay } from "./result-display";
+import { useBodyScrollLock } from "@/app/_hooks/use-body-scroll-lock";
 import { Button } from "@/app/(user)/_components/button";
 
 /**
@@ -187,18 +188,16 @@ export function ScoreHelpTour() {
     [total],
   );
 
-  // Esc で閉じる & 背面スクロールをロック
+  useBodyScrollLock(isOpen);
+
+  // Esc で閉じる
   useEffect(() => {
     if (!isOpen) return;
     const onKeyDown = (e: KeyboardEvent) => {
       if (e.key === "Escape") close();
     };
     document.addEventListener("keydown", onKeyDown);
-    document.body.style.overflow = "hidden";
-    return () => {
-      document.removeEventListener("keydown", onKeyDown);
-      document.body.style.overflow = "";
-    };
+    return () => document.removeEventListener("keydown", onKeyDown);
   }, [isOpen, close]);
 
   const current = slides[index];

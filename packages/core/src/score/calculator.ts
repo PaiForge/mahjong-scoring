@@ -1,5 +1,9 @@
 import type { ScoreResult, Payment } from "@pai-forge/riichi-mahjong";
-import { calculateBasePoints, ceilTo100 } from "../core/score-calculation";
+import {
+  calculateBasePoints,
+  ceilTo100,
+  MANGAN_BASE_POINTS,
+} from "../core/score-calculation";
 import { ScoreLevel } from "../core/constants";
 import { scoreTierForHan } from "./tiers";
 
@@ -30,10 +34,10 @@ export function recalculateScore(
   if (tier) {
     scoreLevel = tier.level;
     basePoints = tier.basePoints;
-  } else if (basePoints >= 2000) {
+  } else if (basePoints >= MANGAN_BASE_POINTS) {
     // 4翻以下でも基本符が満貫相当（60符3翻等）なら満貫に切り上げる
     scoreLevel = ScoreLevel.Mangan;
-    basePoints = 2000;
+    basePoints = MANGAN_BASE_POINTS;
   } else {
     scoreLevel = ScoreLevel.Normal;
   }

@@ -74,6 +74,31 @@ export type UserRole = typeof userRoles.$inferSelect;
 export type NewUserRole = typeof userRoles.$inferInsert;
 
 /**
+ * チャレンジの成績を表す共通カラム
+ * 成績カラム
+ *
+ * `challenge_best_scores` は `challenge_results` から再構築できる関係にあり、
+ * 両テーブルは同じ成績タプルを持つ。片方だけ長さや既定値を変えると静かに
+ * 壊れるため定義を1箇所にする。呼び出しごとに新しいビルダーを返す。
+ */
+function scoreTupleColumns() {
+  return {
+    /** auth.users(id) への外部キー（Supabase SQL で定義） */
+    userId: uuid("user_id").notNull(),
+    /** 練習種別 */
+    menuType: varchar("menu_type", { length: 30 }).notNull(),
+    /** ランキングセグメントキー */
+    leaderboardKey: varchar("leaderboard_key", { length: 20 }).notNull(),
+    /** 正答数 */
+    score: integer("score").notNull(),
+    /** 誤答数 */
+    incorrectAnswers: integer("incorrect_answers").notNull().default(0),
+    /** 経過時間（秒） */
+    timeTaken: integer("time_taken").notNull(),
+  };
+}
+
+/**
  * チャレンジ結果 — 練習セッションの全記録
  *
  * @description
@@ -109,18 +134,7 @@ export const challengeResults = pgTable(
   "challenge_results",
   {
     id: uuid("id").primaryKey().defaultRandom(),
-    /** auth.users(id) への外部キー（Supabase SQL で定義） */
-    userId: uuid("user_id").notNull(),
-    /** 練習種別 */
-    menuType: varchar("menu_type", { length: 30 }).notNull(),
-    /** ランキングセグメントキー */
-    leaderboardKey: varchar("leaderboard_key", { length: 20 }).notNull(),
-    /** 正答数 */
-    score: integer("score").notNull(),
-    /** 誤答数 */
-    incorrectAnswers: integer("incorrect_answers").notNull().default(0),
-    /** 経過時間（秒） */
-    timeTaken: integer("time_taken").notNull(),
+    ...scoreTupleColumns(),
     /** 作成日時 */
     createdAt: timestamp("created_at", { withTimezone: true })
       .defaultNow()
@@ -159,18 +173,7 @@ export type NewChallengeResult = typeof challengeResults.$inferInsert;
 export const challengeBestScores = pgTable(
   "challenge_best_scores",
   {
-    /** auth.users(id) への外部キー（Supabase SQL で定義） */
-    userId: uuid("user_id").notNull(),
-    /** 練習種別 */
-    menuType: varchar("menu_type", { length: 30 }).notNull(),
-    /** ランキングセグメントキー */
-    leaderboardKey: varchar("leaderboard_key", { length: 20 }).notNull(),
-    /** 正答数 */
-    score: integer("score").notNull(),
-    /** 誤答数 */
-    incorrectAnswers: integer("incorrect_answers").notNull().default(0),
-    /** 経過時間（秒） */
-    timeTaken: integer("time_taken").notNull(),
+    ...scoreTupleColumns(),
     /** ベスト達成日時 */
     achievedAt: timestamp("achieved_at", { withTimezone: true })
       .defaultNow()

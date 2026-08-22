@@ -10,13 +10,12 @@ import { getTranslations } from "next-intl/server";
 import { ContentContainer } from "@/app/(user)/_components/content-container";
 import { PageTitle } from "@/app/(user)/_components/page-title";
 import { SectionTitle } from "@/app/(user)/_components/section-title";
-import { createMetadata } from "@/app/_lib/metadata";
+import { createTitleOnlyMetadata } from "@/app/_lib/metadata";
 import { MembersOnlyGate } from "./_components/members-only-gate";
 import { RuleSettingsSection } from "./_components/rule-settings-section";
 
 export async function generateMetadata(): Promise<Metadata> {
-  const t = await getTranslations("settings");
-  return createMetadata({ title: t("pageTitle") });
+  return createTitleOnlyMetadata("settings", "pageTitle");
 }
 
 export default async function PreferencesPage() {

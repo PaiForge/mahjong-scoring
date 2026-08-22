@@ -1,6 +1,7 @@
 "use client";
 
 import { useTranslations } from "next-intl";
+import { AnswerComparison } from "../../_components/answer-comparison";
 import { ProblemListAccordion } from "../../_components/problem-list-accordion";
 import type { HanCountQuestionResult } from "../_lib/types";
 
@@ -16,7 +17,6 @@ interface HanCountProblemListProps {
  */
 export function HanCountProblemList({ results }: HanCountProblemListProps) {
   const t = useTranslations("hanCountChallenge");
-  const tResult = useTranslations("hanCountChallenge.result");
 
   return (
     <ProblemListAccordion
@@ -24,20 +24,12 @@ export function HanCountProblemList({ results }: HanCountProblemListProps) {
       translationNamespace="hanCountChallenge"
       isCorrect={(r) => r.isCorrect}
       renderDetail={(result) => (
-        <div className="space-y-1 text-sm">
-          <p className="text-surface-500">
-            <span className="font-medium">{tResult("correctAnswer")}:</span>{" "}
-            {t("hanOption", { count: result.correctHan })}
-          </p>
-          <p
-            className={
-              result.isCorrect ? "text-primary-600" : "text-destructive"
-            }
-          >
-            <span className="font-medium">{tResult("yourAnswer")}:</span>{" "}
-            {t("hanOption", { count: result.userHan })}
-          </p>
-        </div>
+        <AnswerComparison
+          translationNamespace="hanCountChallenge"
+          isCorrect={result.isCorrect}
+          correct={t("hanOption", { count: result.correctHan })}
+          user={t("hanOption", { count: result.userHan })}
+        />
       )}
     />
   );

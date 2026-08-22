@@ -8,14 +8,9 @@ import { useGeneratedScoreQuestion } from "../../_hooks/use-generated-score-ques
 import { TehaiDisplay } from "../../_components/tehai-display";
 import { HanCountAnswerForm } from "./han-count-answer-form";
 import type { HanCountQuestionResult } from "../_lib/types";
+import type { RecordingPracticeBoardProps } from "../../_lib/practice-board-props";
 
-interface HanCountBoardProps {
-  readonly showFeedback: boolean;
-  readonly isCountingDown?: boolean;
-  readonly onAnswer: (correct: boolean, onNext: () => void) => void;
-  /** 回答結果の記録（チャレンジの結果ページ用。トレーニングでは省略） */
-  readonly onRecordResult?: (result: HanCountQuestionResult) => void;
-}
+type HanCountBoardProps = RecordingPracticeBoardProps<HanCountQuestionResult>;
 
 /**
  * 翻数即答の出題盤面（手牌の提示と翻数入力）

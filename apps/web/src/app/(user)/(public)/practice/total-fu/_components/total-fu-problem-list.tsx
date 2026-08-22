@@ -2,6 +2,7 @@
 
 import { useTranslations } from "next-intl";
 import { parseHais, parseKazehai, parseTehai } from "@mahjong-scoring/core";
+import { AnswerComparison } from "../../_components/answer-comparison";
 import { ProblemListAccordion } from "../../_components/problem-list-accordion";
 import { TehaiDisplay } from "../../_components/tehai-display";
 import type { TotalFuQuestionResult } from "../_lib/types";
@@ -39,7 +40,6 @@ function restoreQuestion(result: TotalFuQuestionResult) {
  */
 export function TotalFuProblemList({ results }: TotalFuProblemListProps) {
   const t = useTranslations("totalFu");
-  const tResult = useTranslations("totalFu.result");
 
   return (
     <ProblemListAccordion
@@ -60,20 +60,12 @@ export function TotalFuProblemList({ results }: TotalFuProblemListProps) {
               />
             )}
 
-            <div className="space-y-1 text-sm">
-              <p className="text-surface-500">
-                <span className="font-medium">{tResult("correctAnswer")}:</span>{" "}
-                {t("fuSuffix", { value: result.correctFu })}
-              </p>
-              <p
-                className={
-                  result.isCorrect ? "text-primary-600" : "text-destructive"
-                }
-              >
-                <span className="font-medium">{tResult("yourAnswer")}:</span>{" "}
-                {t("fuSuffix", { value: result.userFu })}
-              </p>
-            </div>
+            <AnswerComparison
+              translationNamespace="totalFu"
+              isCorrect={result.isCorrect}
+              correct={t("fuSuffix", { value: result.correctFu })}
+              user={t("fuSuffix", { value: result.userFu })}
+            />
 
             <FuBreakdown details={result.fuDetails} answer={result.correctFu} />
           </div>

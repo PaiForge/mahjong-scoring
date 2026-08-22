@@ -12,7 +12,7 @@ import { getTranslations } from "next-intl/server";
 import { ContentContainer } from "@/app/(user)/_components/content-container";
 import { PageTitle } from "@/app/(user)/_components/page-title";
 import { UserAvatar } from "@/app/(user)/_components/user-avatar";
-import { createMetadata } from "@/app/_lib/metadata";
+import { createPrivateMetadata } from "@/app/_lib/metadata";
 import { requireConfirmedUser } from "@/lib/auth";
 import { getProfileCardByUserId } from "@/lib/db/queries";
 import { getExpHeatmapData } from "@/lib/db/get-exp-heatmap-data";
@@ -21,11 +21,7 @@ import { ExpActivityHeatmap } from "./_components/exp-activity-heatmap";
 import { DESKTOP_WEEKS, buildHeatmapLayout } from "./_lib/heatmap-utils";
 
 export async function generateMetadata(): Promise<Metadata> {
-  const t = await getTranslations("mypage");
-  return {
-    ...createMetadata({ title: t("pageTitle") }),
-    robots: { index: false, follow: false },
-  };
+  return createPrivateMetadata("mypage");
 }
 
 export default async function MyPage() {

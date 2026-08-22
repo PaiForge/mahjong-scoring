@@ -10,18 +10,14 @@ import Link from "next/link";
 
 import { ContentContainer } from "@/app/(user)/_components/content-container";
 import { PageTitle } from "@/app/(user)/_components/page-title";
-import { createMetadata } from "@/app/_lib/metadata";
+import { createPrivateMetadata } from "@/app/_lib/metadata";
 import { requireConfirmedUser } from "@/lib/auth";
 
 import { DeleteAccountButton } from "./_components/delete-account-button";
 import { TEXT_LINK_CLASSES } from "@/app/_components/_lib/link-classes";
 
 export async function generateMetadata(): Promise<Metadata> {
-  const t = await getTranslations("deleteAccount");
-  return {
-    ...createMetadata({ title: t("pageTitle") }),
-    robots: { index: false, follow: false },
-  };
+  return createPrivateMetadata("deleteAccount");
 }
 
 export default async function DeleteAccountPage() {

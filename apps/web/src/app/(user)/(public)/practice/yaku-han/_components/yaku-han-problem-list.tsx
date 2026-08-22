@@ -1,6 +1,7 @@
 "use client";
 
 import { useTranslations } from "next-intl";
+import { AnswerComparison } from "../../_components/answer-comparison";
 import { ProblemListAccordion } from "../../_components/problem-list-accordion";
 import type { YakuHanQuestionResult } from "../_lib/types";
 import { isYakuman } from "./yaku-han-answer-form";
@@ -17,7 +18,6 @@ interface YakuHanProblemListProps {
  */
 export function YakuHanProblemList({ results }: YakuHanProblemListProps) {
   const t = useTranslations("yakuHanChallenge");
-  const tResult = useTranslations("yakuHanChallenge.result");
 
   const hanLabel = (han: number) =>
     isYakuman(han) ? t("yakuman") : t("hanOption", { count: han });
@@ -33,7 +33,12 @@ export function YakuHanProblemList({ results }: YakuHanProblemListProps) {
       isCorrect={(r) => r.isCorrect}
       renderSummary={(r) => `${r.yakuName}${stateLabel(r)}`}
       renderDetail={(result) => (
-        <div className="space-y-1 text-sm">
+        <AnswerComparison
+          translationNamespace="yakuHanChallenge"
+          isCorrect={result.isCorrect}
+          correct={hanLabel(result.correctHan)}
+          user={hanLabel(result.userHan)}
+        >
           <p className="text-surface-700">
             <span className="font-medium">{result.yakuName}</span>{" "}
             {result.canNaki && (
@@ -42,19 +47,7 @@ export function YakuHanProblemList({ results }: YakuHanProblemListProps) {
               </span>
             )}
           </p>
-          <p className="text-surface-500">
-            <span className="font-medium">{tResult("correctAnswer")}:</span>{" "}
-            {hanLabel(result.correctHan)}
-          </p>
-          <p
-            className={
-              result.isCorrect ? "text-primary-600" : "text-destructive"
-            }
-          >
-            <span className="font-medium">{tResult("yourAnswer")}:</span>{" "}
-            {hanLabel(result.userHan)}
-          </p>
-        </div>
+        </AnswerComparison>
       )}
     />
   );

@@ -4,6 +4,7 @@ import type { ReactNode } from "react";
 import { useTranslations } from "next-intl";
 import type { ScoreTableAnswer } from "@mahjong-scoring/core";
 import type { ScoreQuestionResult } from "../_lib/score-question-result";
+import { AnswerComparison } from "./answer-comparison";
 import { ProblemListAccordion } from "./problem-list-accordion";
 
 interface ScoreProblemListProps {
@@ -35,7 +36,6 @@ export function ScoreProblemList({
   formatAnswer,
 }: ScoreProblemListProps) {
   const t = useTranslations(translationNamespace);
-  const tResult = useTranslations(`${translationNamespace}.result`);
 
   return (
     <ProblemListAccordion
@@ -53,20 +53,12 @@ export function ScoreProblemList({
         return summary;
       }}
       renderDetail={(result) => (
-        <div className="space-y-1 text-sm">
-          <p className="text-surface-500">
-            <span className="font-medium">{tResult("correctAnswer")}:</span>{" "}
-            {renderCorrectAnswer(result.correctAnswer, result)}
-          </p>
-          <p
-            className={
-              result.isCorrect ? "text-primary-600" : "text-destructive"
-            }
-          >
-            <span className="font-medium">{tResult("yourAnswer")}:</span>{" "}
-            {formatAnswer(result.userAnswer, t)}
-          </p>
-        </div>
+        <AnswerComparison
+          translationNamespace={translationNamespace}
+          isCorrect={result.isCorrect}
+          correct={renderCorrectAnswer(result.correctAnswer, result)}
+          user={formatAnswer(result.userAnswer, t)}
+        />
       )}
     />
   );

@@ -2,6 +2,7 @@ import { unstable_cache } from "next/cache";
 
 import type { RankedLeaderboardRow } from "@/lib/db/leaderboard-queries";
 import { logExternalError } from "@/lib/log-error";
+import { getPaginationData } from "@/lib/pagination";
 
 import { getQueriesForPeriod } from "../_lib/period-queries";
 import type {
@@ -71,14 +72,14 @@ export async function getLeaderboard(
     return EMPTY_RESULT;
   }
 
-  const offset = (page - 1) * PAGE_SIZE;
+  const { limit, offset } = getPaginationData(page, 0, PAGE_SIZE);
 
   try {
     const { rows, total } = await getCachedRanking(
       module,
       period,
       offset,
-      PAGE_SIZE,
+      limit,
     );
 
     const leaderboardRows: RankedLeaderboardRow[] = rows.map((r, i) => ({
