@@ -1,6 +1,6 @@
 import { getTranslations } from "next-intl/server";
 import { ChevronRightIcon } from "@/app/_components/icons/chevron-right-icon";
-import { PrimaryLinkButton } from "@/app/_components/primary-link-button";
+import { LinkButton } from "@/app/_components/link-button";
 
 interface PracticeLinkListProps {
   /** `/practice/<slug>` 形式のリンク集 */
@@ -97,14 +97,16 @@ interface PracticeLinkButtonProps {
  */
 function PracticeLinkButton({ href, label }: PracticeLinkButtonProps) {
   return (
-    <PrimaryLinkButton
+    <LinkButton
       href={href}
-      className="w-full gap-3 px-5 py-3"
+      size="lg"
+      fullWidth
+      className="gap-3"
       trailingIcon={<ChevronRightIcon className="size-5" />}
     >
       {/* ラベルに残り幅を持たせ、チェブロンをボタンの右端へ寄せる
           （justify-* を className で足しても基底の justify-center には勝てない）。 */}
       <span className="min-w-0 flex-1 text-center">{label}</span>
-    </PrimaryLinkButton>
+    </LinkButton>
   );
 }

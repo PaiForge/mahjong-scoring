@@ -7,7 +7,7 @@ import { getTranslations } from "next-intl/server";
 import { ContentContainer } from "@/app/_components/content-container";
 import { PageTitle } from "@/app/_components/page-title";
 import { SectionTitle } from "@/app/_components/section-title";
-import { PrimaryLinkButton } from "@/app/_components/primary-link-button";
+import { LinkButton } from "@/app/_components/link-button";
 import { BookIcon } from "@/app/_components/icons/book-icon";
 import { PRACTICE_SCROLL_HASH } from "../_lib/scroll-anchor";
 
@@ -90,12 +90,13 @@ export async function PracticeIntroContent({
             }}
           />
         ) : (
-          <PrimaryLinkButton
+          <LinkButton
             href={`/practice/${slug}/play${PRACTICE_SCROLL_HASH}`}
-            className="w-full py-3"
+            size="lg"
+            fullWidth
           >
             {tc("startButton")}
-          </PrimaryLinkButton>
+          </LinkButton>
         )}
 
         {showLearnLink && (

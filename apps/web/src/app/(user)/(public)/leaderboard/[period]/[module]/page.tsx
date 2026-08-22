@@ -22,7 +22,7 @@ import { notFound } from "next/navigation";
 
 import { ContentContainer } from "@/app/_components/content-container";
 import { PageTitle } from "@/app/_components/page-title";
-import { PrimaryLinkButton } from "@/app/_components/primary-link-button";
+import { LinkButton } from "@/app/_components/link-button";
 import { SectionTitle } from "@/app/_components/section-title";
 import { createMetadata } from "@/app/_lib/metadata";
 import { getOptionalUser } from "@/lib/auth";
@@ -152,9 +152,9 @@ export default async function LeaderboardDetailPage({
       </Suspense>
 
       <div className="pt-4 border-t-2 border-dashed border-border/40">
-        <PrimaryLinkButton href={challengePath} className="w-full">
+        <LinkButton href={challengePath} fullWidth>
           {t("tryChallenge")}
-        </PrimaryLinkButton>
+        </LinkButton>
       </div>
     </ContentContainer>
   );
