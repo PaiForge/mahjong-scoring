@@ -14,9 +14,11 @@ import { TEXT_LINK_MUTED_CLASSES } from "./_lib/link-classes";
  * ヘッダー右側のアカウント表示。
  * blindfold-chess の AuthStatusDisplay を移植。
  * 認証済み: アバター丸ボタン → ドロップダウン（マイページ/設定/ログアウト）。
- * 未認証: ログイン（テキストリンク）/ 新規登録（プライマリボタン）。
- * 同形のボタンを 2 つ並べるとセグメントに見えるため、一次導線の新規登録だけを
- * ボタンにして、ログインはテキストリンクに落とす。
+ * 未認証: ログイン（テキストリンク）/ 新規登録（枠線のみのボタン）。
+ * 同形のボタンを 2 つ並べるとセグメントに見えるため、押せる面は新規登録だけに絞る。
+ * その新規登録も塗り + オフセット影のフル装備にはしない。ヘッダーは遷移の場であって
+ * 登録の本命導線は LP ヒーローや結果画面の CTA が持つため、ここはアバター
+ * （border-3 + 影なし）と同じ重さに揃え、認証状態が変わっても右端の重量を一定に保つ。
  */
 export function AuthNavItem() {
   const t = useTranslations("nav");
@@ -63,7 +65,7 @@ export function AuthNavItem() {
         </Link>
         <Link
           href="/sign-up"
-          className="press-sm rounded-lg border-3 border-ink bg-primary-500 px-2.5 py-1 font-bold whitespace-nowrap text-white shadow-xs hover:bg-primary-600 sm:px-3 sm:py-1.5"
+          className="rounded-lg border-3 border-ink bg-card px-2.5 py-1 font-bold whitespace-nowrap text-primary-700 transition-colors hover:bg-primary-50 sm:px-3 sm:py-1.5"
         >
           {t("signUp")}
         </Link>
