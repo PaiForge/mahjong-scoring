@@ -89,7 +89,7 @@ export async function fetchAuditLogPageData(
   const actorIds = [...new Set(logs.map((l) => l.actorId))];
   const allUserIds = [...new Set([...targetIds, ...actorIds])];
 
-  const profileMap = await buildProfileMap(targetIds);
+  const profileMap = await buildProfileMap(allUserIds);
   const emailMap = buildEmailMap(allUsers, allUserIds);
 
   return {
