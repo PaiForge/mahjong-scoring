@@ -6,25 +6,42 @@ import {
   calculateOyaScore,
   isInvalidCell,
 } from "../../core/score-calculation";
+import { expectSampled } from "../../test/sampling";
 
 /**
  * 条件に合う問題が生成されるまで試行する
  *
  * 親子・ツモロンはランダムに決まるため、特定の組み合わせを検証するには
- * 引き当てるまで試す必要がある。見つからなければ失敗させる
- * （以前は console.warn して return していたため、生成されないと
- * テストが無言で pass していた）。
+ * 引き当てるまで試す必要がある。見つからなければ
+ * {@link expectSampled} が失敗させる。
  */
 function findQuestion(
   options: Readonly<ScoreTableGeneratorOptions>,
   predicate: (question: ScoreTableQuestion) => boolean,
   attempts = 200,
 ): ScoreTableQuestion {
-  for (let i = 0; i < attempts; i++) {
-    const question = generateScoreTableQuestion(options);
-    if (predicate(question)) return question;
-  }
-  throw new Error(`${attempts} 回試行しても条件に合う問題が生成されなかった`);
+  return expectSampled(() => generateScoreTableQuestion(options), {
+    need: 1,
+    attempts,
+    where: predicate,
+  })[0];
+}
+
+/**
+ * 条件に合う問題を複数集める（1件も集まらなければ失敗）
+ *
+ * 「◯◯が生成されないこと」の検証は、条件に合う問題が1件も出ないと
+ * 無言で pass してしまう。母集団が空でないことまで保証する。
+ */
+function sampleWhere(
+  predicate: (question: ScoreTableQuestion) => boolean,
+  need = 20,
+): readonly ScoreTableQuestion[] {
+  return expectSampled(() => generateScoreTableQuestion(), {
+    need,
+    attempts: 600,
+    where: predicate,
+  });
 }
 
 describe("generateScoreTableQuestion", () => {
@@ -80,39 +97,35 @@ describe("generateScoreTableQuestion", () => {
       }
     });
 
-    it("1翻20符が生成されないこと（統計的確認）", () => {
-      for (let i = 0; i < 200; i++) {
-        const question = generateScoreTableQuestion();
-        if (question.han === 1) {
-          expect(question.fu).not.toBe(20);
-        }
+    it("1翻20符が生成されないこと", () => {
+      const questions = sampleWhere((q) => q.han === 1);
+
+      for (const question of questions) {
+        expect(question.fu).not.toBe(20);
       }
     });
 
-    it("ロン20符が生成されないこと（統計的確認）", () => {
-      for (let i = 0; i < 200; i++) {
-        const question = generateScoreTableQuestion();
-        if (!question.isTsumo) {
-          expect(question.fu).not.toBe(20);
-        }
+    it("ロン20符が生成されないこと", () => {
+      const questions = sampleWhere((q) => !q.isTsumo);
+
+      for (const question of questions) {
+        expect(question.fu).not.toBe(20);
       }
     });
 
-    it("1翻25符が生成されないこと（統計的確認）", () => {
-      for (let i = 0; i < 200; i++) {
-        const question = generateScoreTableQuestion();
-        if (question.han === 1) {
-          expect(question.fu).not.toBe(25);
-        }
+    it("1翻25符が生成されないこと", () => {
+      const questions = sampleWhere((q) => q.han === 1);
+
+      for (const question of questions) {
+        expect(question.fu).not.toBe(25);
       }
     });
 
-    it("ツモ2翻25符が生成されないこと（統計的確認）", () => {
-      for (let i = 0; i < 200; i++) {
-        const question = generateScoreTableQuestion();
-        if (question.isTsumo && question.han === 2) {
-          expect(question.fu).not.toBe(25);
-        }
+    it("ツモ2翻25符が生成されないこと", () => {
+      const questions = sampleWhere((q) => q.isTsumo && q.han === 2);
+
+      for (const question of questions) {
+        expect(question.fu).not.toBe(25);
       }
     });
   });

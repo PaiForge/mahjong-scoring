@@ -39,33 +39,19 @@ describe("generateYakuQuestion", () => {
   });
 
   it("isRiichi が true の場合、立直が正解に含まれる", () => {
-    let found = false;
-    for (let i = 0; i < 500; i++) {
-      const question = generateYakuQuestion();
-      if (!question) continue;
+    const questions = expectSampled(generateYakuQuestion, {
+      need: 5,
+      attempts: 1000,
+      where: (q) => q.context.isRiichi,
+    });
 
-      if (question.context.isRiichi) {
-        expect(question.correctYakuNames).toContain("立直");
-        found = true;
-        break;
-      }
-    }
-    // 門前かつ20%確率なので500回あれば十分見つかるはず
-    // ただし確率的テストなので found しなくてもスキップ
-    if (!found) {
-      console.warn("isRiichi=true の問題が生成されなかったためスキップ");
+    for (const question of questions) {
+      expect(question.correctYakuNames).toContain("立直");
     }
   });
 
   it("生成された問題の tehai と context フィールドが正しい型を持つ", () => {
-    let question;
-    for (let i = 0; i < 100; i++) {
-      question = generateYakuQuestion();
-      if (question) break;
-    }
-
-    expect(question).toBeDefined();
-    if (!question) return;
+    const question = generateOne(generateYakuQuestion);
 
     // tehai の構造
     expect(question.tehai.closed).toBeDefined();
@@ -81,25 +67,13 @@ describe("generateYakuQuestion", () => {
   });
 
   it("isTsumo=true かつ門前の場合、門前清自摸和が含まれるケースがある", () => {
-    let found = false;
-    for (let i = 0; i < 500; i++) {
-      const question = generateYakuQuestion();
-      if (!question) continue;
-
-      if (
-        question.context.isTsumo &&
-        question.correctYakuNames.includes("門前清自摸和")
-      ) {
-        found = true;
-        break;
-      }
-    }
-    // 確率的テスト
-    if (!found) {
-      console.warn(
-        "isTsumo=true かつ門前清自摸和の問題が生成されなかったためスキップ",
-      );
-    }
+    // 1件も出ないこと自体が異常なので、expectSampled の非空保証が検証になる
+    expectSampled(generateYakuQuestion, {
+      need: 1,
+      attempts: 1000,
+      where: (q) =>
+        q.context.isTsumo && q.correctYakuNames.includes("門前清自摸和"),
+    });
   });
 
   it("和了牌が槓子（カン）の牌種と一致しない", () => {
@@ -132,10 +106,12 @@ describe("generateYakuQuestion", () => {
       "地和",
     ];
 
-    for (let i = 0; i < 200; i++) {
-      const question = generateYakuQuestion();
-      if (!question) continue;
+    const questions = expectSampled(generateYakuQuestion, {
+      need: 200,
+      attempts: 400,
+    });
 
+    for (const question of questions) {
       for (const excluded of excludedNames) {
         expect(question.correctYakuNames).not.toContain(excluded);
       }
