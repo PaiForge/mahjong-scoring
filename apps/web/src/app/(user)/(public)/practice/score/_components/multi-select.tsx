@@ -3,6 +3,7 @@
 import { useState } from "react";
 
 import { ModalShell } from "@/app/_components/modal-shell";
+import { Button } from "@/app/_components/button";
 
 interface MultiSelectOption {
   readonly value: string;
@@ -165,13 +166,7 @@ export function MultiSelect({
             })}
           </div>
           <div className="mt-4 flex justify-end">
-            <button
-              type="button"
-              onClick={() => setIsModalOpen(false)}
-              className="rounded-lg bg-primary-500 px-6 py-2 font-bold text-white transition-colors hover:bg-primary-600"
-            >
-              {labels.done}
-            </button>
+            <Button onClick={() => setIsModalOpen(false)}>{labels.done}</Button>
           </div>
         </div>
       </ModalShell>

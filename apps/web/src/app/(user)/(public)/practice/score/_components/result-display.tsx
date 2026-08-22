@@ -13,6 +13,7 @@ import { formatScoreAnswer } from "../../_lib/format-score-answer";
 import { paymentToScoreTableAnswer } from "../../_lib/payment-adapter";
 import { DetailsAccordion } from "./details-accordion";
 import type { DetailItem } from "./details-accordion";
+import { Button } from "@/app/_components/button";
 
 interface ResultDisplayProps {
   readonly question: ScoreQuestion;
@@ -222,13 +223,9 @@ export function ResultDisplay({
       </div>
 
       {/* Next button */}
-      <button
-        type="button"
-        onClick={onNext}
-        className="w-full rounded-lg bg-primary-500 py-3 px-6 font-bold text-white transition-colors hover:bg-primary-600"
-      >
+      <Button size="lg" fullWidth onClick={onNext}>
         {t("result.next")}
-      </button>
+      </Button>
 
       {/* Exit */}
       {onExit && (

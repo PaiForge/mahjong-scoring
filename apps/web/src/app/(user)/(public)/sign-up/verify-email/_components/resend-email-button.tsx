@@ -5,6 +5,7 @@ import { useEffect, useState } from "react";
 import { useTranslations } from "next-intl";
 
 import { resendEmail } from "../_actions/resend-email";
+import { Button } from "@/app/_components/button";
 
 const COOLDOWN_SECONDS = 60;
 
@@ -54,17 +55,13 @@ export function ResendEmailButton({ email }: { readonly email: string }) {
 
   return (
     <div className="space-y-2">
-      <button
-        onClick={handleResend}
-        disabled={isDisabled}
-        className="px-6 py-2 bg-primary text-white rounded-lg text-sm font-medium hover:opacity-90 transition-opacity disabled:opacity-50 disabled:cursor-not-allowed"
-      >
+      <Button onClick={handleResend} disabled={isDisabled}>
         {isLoading
           ? t("resendLoading")
           : cooldown > 0
             ? t("resendCooldown", { seconds: cooldown })
             : t("resendButton")}
-      </button>
+      </Button>
       {message && <p className="text-sm text-surface-500">{message}</p>}
     </div>
   );

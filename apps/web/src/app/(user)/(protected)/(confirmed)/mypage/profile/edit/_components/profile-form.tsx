@@ -16,6 +16,7 @@ import { SectionTitle } from "@/app/_components/section-title";
 import { updateProfile } from "../_actions/update-profile";
 import { PROFILE_LIMITS } from "../_lib/profile-validation";
 import { TEXT_LINK_MUTED_CLASSES } from "@/app/_components/_lib/link-classes";
+import { Button } from "@/app/_components/button";
 
 /** action が返す既知のエラーキー（profileEdit 名前空間に対応する文言がある） */
 const KNOWN_ERROR_KEYS = new Set([
@@ -161,13 +162,9 @@ export function ProfileForm({
       {error && <p className="text-sm text-destructive">{error}</p>}
 
       <div className="space-y-3">
-        <button
-          type="submit"
-          disabled={isSubmitting}
-          className="w-full rounded-lg bg-primary-600 px-4 py-3 text-sm font-medium text-white transition-colors hover:bg-primary-700 disabled:cursor-not-allowed disabled:opacity-50"
-        >
+        <Button type="submit" size="lg" fullWidth disabled={isSubmitting}>
           {isSubmitting ? t("submitting") : t("submit")}
-        </button>
+        </Button>
         {showSkip && (
           <div className="text-center">
             <Link
