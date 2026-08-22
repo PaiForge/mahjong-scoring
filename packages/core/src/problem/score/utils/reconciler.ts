@@ -10,6 +10,7 @@ import { recalculateScore } from "../../../score/calculator";
 import { countDoraInTehai } from "../../../core/dora";
 import { countHaiInTehai } from "../../../core/hai-count";
 import { getKeyForKazehai, isOya } from "../../../core/kaze";
+import { getYakuNameJa } from "../../../core/yaku-names";
 
 /**
  * 役牌照合の結果
@@ -63,22 +64,18 @@ export function reconcileYakuhai(
     }
   }
 
-  // 三元牌チェック
-  const dragons: readonly {
-    readonly id: HaiKindId;
-    readonly name: string;
-    readonly key: string;
-  }[] = [
-    { id: HaiKind.Haku, name: "役牌 白", key: "Haku" },
-    { id: HaiKind.Hatsu, name: "役牌 發", key: "Hatsu" },
-    { id: HaiKind.Chun, name: "役牌 中", key: "Chun" },
+  // 三元牌チェック。表示名は英語キーから getYakuNameJa で導出する
+  const dragons: readonly { readonly id: HaiKindId; readonly key: string }[] = [
+    { id: HaiKind.Haku, key: "Haku" },
+    { id: HaiKind.Hatsu, key: "Hatsu" },
+    { id: HaiKind.Chun, key: "Chun" },
   ];
 
-  for (const { id, name, key } of dragons) {
+  for (const { id, key } of dragons) {
     const hasDragon = yakuResult.some((y) => y[0] === key);
     if (!hasDragon && countHaiInTehai(tehai, id) >= 3) {
       extraYakuhaiHan += 1;
-      additionalYakuDetails.push({ name, han: 1 });
+      additionalYakuDetails.push({ name: getYakuNameJa(key), han: 1 });
     }
   }
 
