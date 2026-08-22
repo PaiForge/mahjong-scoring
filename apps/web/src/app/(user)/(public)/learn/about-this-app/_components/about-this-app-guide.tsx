@@ -1,6 +1,7 @@
 import { getTranslations } from "next-intl/server";
 import { SectionTitle } from "@/app/_components/section-title";
 import { GuideParagraph } from "../../_components/guide-paragraph";
+import { GuideSubsectionTitle } from "../../_components/guide-subsection-title";
 
 /**
  * このアプリについて — 新第 1 章
@@ -19,27 +20,35 @@ export async function AboutThisAppGuide() {
           <li>{t("reason2Summary")}</li>
           <li>{t("reason3Summary")}</li>
         </ol>
-      </section>
 
-      <section className="space-y-3">
-        <SectionTitle>{t("reason1Title")}</SectionTitle>
-        <GuideParagraph preLine>{t("reason1Body1")}</GuideParagraph>
-        <p className="text-sm leading-relaxed text-surface-500">
-          {t("reason1Note")}
-        </p>
-        <GuideParagraph preLine>{t("reason1Body2")}</GuideParagraph>
-      </section>
+        <div className="space-y-8 pt-3">
+          <section className="space-y-3">
+            <GuideSubsectionTitle number={1}>
+              {t("reason1Title")}
+            </GuideSubsectionTitle>
+            <GuideParagraph preLine>{t("reason1Body1")}</GuideParagraph>
+            <p className="text-sm leading-relaxed text-surface-500">
+              {t("reason1Note")}
+            </p>
+            <GuideParagraph preLine>{t("reason1Body2")}</GuideParagraph>
+          </section>
 
-      <section className="space-y-3">
-        <SectionTitle>{t("reason2Title")}</SectionTitle>
-        <GuideParagraph preLine>{t("reason2Body1")}</GuideParagraph>
-        <GuideParagraph preLine>{t("reason2Body2")}</GuideParagraph>
-      </section>
+          <section className="space-y-3">
+            <GuideSubsectionTitle number={2}>
+              {t("reason2Title")}
+            </GuideSubsectionTitle>
+            <GuideParagraph preLine>{t("reason2Body1")}</GuideParagraph>
+            <GuideParagraph preLine>{t("reason2Body2")}</GuideParagraph>
+          </section>
 
-      <section className="space-y-3">
-        <SectionTitle>{t("reason3Title")}</SectionTitle>
-        <GuideParagraph preLine>{t("reason3Body1")}</GuideParagraph>
-        <GuideParagraph preLine>{t("reason3Body2")}</GuideParagraph>
+          <section className="space-y-3">
+            <GuideSubsectionTitle number={3}>
+              {t("reason3Title")}
+            </GuideSubsectionTitle>
+            <GuideParagraph preLine>{t("reason3Body1")}</GuideParagraph>
+            <GuideParagraph preLine>{t("reason3Body2")}</GuideParagraph>
+          </section>
+        </div>
       </section>
 
       <section className="space-y-3">
