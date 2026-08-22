@@ -5,6 +5,7 @@ import { SectionTitle } from "@/app/_components/section-title";
 import { LeaderboardTableHeader } from "@/app/(user)/(public)/leaderboard/_components/leaderboard-table-header";
 import { LeaderboardTableRow } from "@/app/(user)/(public)/leaderboard/_components/leaderboard-table-row";
 import type { RankedLeaderboardRow } from "@/lib/db/leaderboard-queries";
+import { TEXT_LINK_CLASSES } from "@/app/_components/_lib/link-classes";
 
 interface LeaderboardPreviewProps {
   readonly rows: readonly RankedLeaderboardRow[];
@@ -45,7 +46,7 @@ export async function LeaderboardPreview({
       <div className="text-center pt-2">
         <Link
           href={detailPath}
-          className="text-primary-500 hover:underline text-sm font-medium"
+          className={`text-sm font-medium ${TEXT_LINK_CLASSES}`}
         >
           {t("viewMore")}
         </Link>

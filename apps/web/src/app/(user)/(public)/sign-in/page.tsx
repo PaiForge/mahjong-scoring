@@ -22,6 +22,7 @@ import { sanitizeInternalRedirect } from "@/lib/redirect";
 
 import { EmailPasswordForm } from "./_components/email-password-form";
 import { GoogleOAuthButton } from "./_components/google-oauth-button";
+import { TEXT_LINK_CLASSES } from "@/app/_components/_lib/link-classes";
 
 /** 認証状態に依存するため、ビルド時のプリレンダリングを無効化 */
 export const dynamic = "force-dynamic";
@@ -69,7 +70,7 @@ export default async function SignInPage({
 
         <p className="text-center text-sm text-surface-500">
           {t("noAccountYet")}
-          <Link href="/sign-up" className="text-primary-500 hover:underline">
+          <Link href="/sign-up" className={TEXT_LINK_CLASSES}>
             {t("signUpLinkText")}
           </Link>
         </p>

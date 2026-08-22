@@ -14,6 +14,7 @@ import { createMetadata } from "@/app/_lib/metadata";
 import { requireConfirmedUser } from "@/lib/auth";
 
 import { DeleteAccountButton } from "./_components/delete-account-button";
+import { TEXT_LINK_CLASSES } from "@/app/_components/_lib/link-classes";
 
 export async function generateMetadata(): Promise<Metadata> {
   const t = await getTranslations("deleteAccount");
@@ -56,7 +57,7 @@ export default async function DeleteAccountPage() {
         <div>
           <Link
             href="/mypage/profile/edit"
-            className="text-sm font-medium text-primary-600 transition-colors hover:text-primary-700"
+            className={`text-sm font-medium ${TEXT_LINK_CLASSES}`}
           >
             {t("backToProfile")}
           </Link>

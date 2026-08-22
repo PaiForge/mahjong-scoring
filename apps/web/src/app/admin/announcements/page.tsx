@@ -8,6 +8,7 @@ import { formatAdminDateTime } from "@/app/admin/_lib/format-date";
 import { type Announcement, announcements, db } from "@/lib/db";
 
 import { DeleteAnnouncementButton } from "./_components/delete-announcement-button";
+import { TEXT_LINK_CLASSES } from "@/app/_components/_lib/link-classes";
 
 export const dynamic = "force-dynamic";
 
@@ -62,7 +63,7 @@ export default async function AdminAnnouncementsPage() {
                 </code>
                 <Link
                   href={`/admin/announcements/new?slug=${encodeURIComponent(slug)}`}
-                  className="text-sm font-medium text-primary-600 hover:text-primary-700"
+                  className={`text-sm font-medium ${TEXT_LINK_CLASSES}`}
                 >
                   {t("addVariant")}
                 </Link>
@@ -111,7 +112,7 @@ export default async function AdminAnnouncementsPage() {
                         <div className="flex gap-3">
                           <Link
                             href={`/admin/announcements/${a.id}/edit`}
-                            className="text-sm font-medium text-primary-600 hover:text-primary-700"
+                            className={`text-sm font-medium ${TEXT_LINK_CLASSES}`}
                           >
                             {t("edit")}
                           </Link>

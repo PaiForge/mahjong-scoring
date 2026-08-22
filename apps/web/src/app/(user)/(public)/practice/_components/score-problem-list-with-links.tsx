@@ -6,6 +6,7 @@ import type { ScoreQuestionResult } from "../_lib/score-question-result";
 import { buildReferenceUrl } from "../_lib/build-reference-url";
 import { formatScoreAnswer } from "../_lib/format-score-answer";
 import { ScoreProblemList } from "./score-problem-list";
+import { TEXT_LINK_CLASSES } from "@/app/_components/_lib/link-classes";
 
 interface ScoreProblemListWithLinksProps {
   readonly results: readonly ScoreQuestionResult[];
@@ -36,7 +37,7 @@ export function ScoreProblemListWithLinks({
       renderCorrectAnswer={(answer, result) => (
         <Link
           href={buildReferenceUrl(result)}
-          className="text-primary-600 underline hover:text-primary-800"
+          className={TEXT_LINK_CLASSES}
           target="_blank"
           rel="noopener noreferrer"
         >
