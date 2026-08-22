@@ -37,18 +37,22 @@ export function GoogleOAuthButton({ redirectTo }: { redirectTo?: string }) {
   };
 
   return (
-    <Button
-      variant="neutral"
-      size="lg"
-      fullWidth
-      onClick={handleClick}
-      disabled={isLoading}
-      className="mx-auto max-w-sm gap-3"
-    >
-      <GoogleIcon />
-      <span className="text-sm font-medium text-surface-700">
-        {isLoading ? t("googleOAuthLoading") : t("googleOAuth")}
-      </span>
-    </Button>
+    // Button は inline-flex のため mx-auto では中央に寄らない。
+    // 幅を絞ったうえで中央寄せするラッパーで包む。
+    <div className="mx-auto w-full max-w-sm">
+      <Button
+        variant="neutral"
+        size="lg"
+        fullWidth
+        onClick={handleClick}
+        disabled={isLoading}
+        className="gap-3"
+      >
+        <GoogleIcon />
+        <span className="text-sm font-medium text-surface-700">
+          {isLoading ? t("googleOAuthLoading") : t("googleOAuth")}
+        </span>
+      </Button>
+    </div>
   );
 }
