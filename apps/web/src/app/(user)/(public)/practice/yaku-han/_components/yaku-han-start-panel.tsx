@@ -1,8 +1,8 @@
 "use client";
 
 import { useState } from "react";
-import { CHALLENGE_TIME_LIMIT, MISTAKE_LIMIT } from "@mahjong-scoring/core";
 import { PracticeStartCta } from "../../_components/practice-start-cta";
+import { buildPracticeStartCtaLabels } from "../../_lib/practice-start-cta-labels";
 import { useTranslations } from "next-intl";
 import { DEFAULT_YAKU_HAN_RANGE } from "@mahjong-scoring/core";
 import type { YakuHanRange } from "@mahjong-scoring/core";
@@ -83,16 +83,11 @@ export function YakuHanStartPanel() {
       <PracticeStartCta
         playHref={playHref}
         trainingHref={trainingHref}
-        labels={{
-          challenge: tc("startButton"),
-          challengeHint: tp("modeChallengeHint", {
-            timeLimit: CHALLENGE_TIME_LIMIT,
-            mistakeLimit: MISTAKE_LIMIT,
-          }),
-          training: tt("startButton"),
-          trainingHint: tp("modeTrainingHint"),
-          orDivider: tp("orDivider"),
-        }}
+        labels={buildPracticeStartCtaLabels({
+          challenge: tc,
+          practice: tp,
+          training: tt,
+        })}
       />
     </div>
   );
