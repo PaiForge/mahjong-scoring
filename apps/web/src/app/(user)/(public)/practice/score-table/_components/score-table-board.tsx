@@ -10,19 +10,15 @@ import type {
 import { FeedbackFrame } from "../../_components/feedback-frame";
 import { ScoreTableAnswerForm } from "./score-table-answer-form";
 import type { ScoreTableQuestionResult } from "../_lib/types";
+import type { RecordingPracticeBoardProps } from "../../_lib/practice-board-props";
 
-interface ScoreTableBoardProps {
+interface ScoreTableBoardProps extends RecordingPracticeBoardProps<ScoreTableQuestionResult> {
   /** 現在の問題 */
   readonly question: ScoreTableQuestion;
   /** 次の問題へ進む（回答後の遷移に使用） */
   readonly onAdvance: () => void;
-  readonly showFeedback: boolean;
-  readonly isCountingDown?: boolean;
   /** 直前の回答が正解だったか（フィードバック枠の色分けに使用） */
   readonly lastAnswerCorrect?: boolean;
-  readonly onAnswer: (correct: boolean, onNext: () => void) => void;
-  /** 回答結果の記録（チャレンジの結果ページ用。トレーニングでは省略） */
-  readonly onRecordResult?: (result: ScoreTableQuestionResult) => void;
 }
 
 /**

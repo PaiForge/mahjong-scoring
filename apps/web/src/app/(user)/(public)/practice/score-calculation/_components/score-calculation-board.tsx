@@ -9,15 +9,11 @@ import { useScoreQuestionBoard } from "../../_hooks/use-score-question-board";
 import { QuestionDisplay } from "../../score/_components/question-display";
 import { ScoreCalculationAnswerForm } from "./score-calculation-answer-form";
 import type { ScoreCalculationQuestionResult } from "../_lib/types";
+import type { RecordingPracticeBoardProps } from "../../_lib/practice-board-props";
 
-interface ScoreCalculationBoardProps {
-  readonly showFeedback: boolean;
-  readonly isCountingDown?: boolean;
+interface ScoreCalculationBoardProps extends RecordingPracticeBoardProps<ScoreCalculationQuestionResult> {
   /** 直前の回答が正解だったか（フィードバック枠の色分けに使用） */
   readonly lastAnswerCorrect?: boolean;
-  readonly onAnswer: (correct: boolean, onNext: () => void) => void;
-  /** 回答結果の記録（チャレンジの結果ページ用。トレーニングでは省略） */
-  readonly onRecordResult?: (result: ScoreCalculationQuestionResult) => void;
 }
 
 /**

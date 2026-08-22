@@ -10,15 +10,9 @@ import { ChoiceButton } from "../../_components/choice-button";
 import { JantouFuKazeContext } from "./jantou-fu-kaze-context";
 import { getChoiceFeedbackProps } from "../../_lib/feedback-styles";
 import { QuestionPrompt } from "../../_components/question-prompt";
+import type { PracticeBoardProps } from "../../_lib/practice-board-props";
 
-interface JantouFuBoardProps {
-  /** 正誤フィードバック表示中か（セッションから受け取る） */
-  readonly showFeedback: boolean;
-  /** カウントダウン中か（チャレンジのみ。トレーニングでは false） */
-  readonly isCountingDown?: boolean;
-  /** 回答処理。正誤と次問題へ進むコールバックを渡す */
-  readonly onAnswer: (correct: boolean, onNext: () => void) => void;
-}
+type JantouFuBoardProps = PracticeBoardProps;
 
 /**
  * 雀頭符の出題盤面（場風・自風の提示と4択）

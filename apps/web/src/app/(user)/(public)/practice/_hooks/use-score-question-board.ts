@@ -12,16 +12,17 @@ import type {
 } from "@mahjong-scoring/core";
 import type { ScoreQuestionResult } from "../_lib/score-question-result";
 import { paymentToScoreTableAnswer } from "../_lib/payment-adapter";
+import type { RecordingPracticeBoardProps } from "../_lib/practice-board-props";
 import { useGeneratedScoreQuestion } from "./use-generated-score-question";
 
 type GenerateOptions = Parameters<typeof generateValidScoreQuestion>[0];
 
-interface UseScoreQuestionBoardParams {
+interface UseScoreQuestionBoardParams extends Pick<
+  RecordingPracticeBoardProps<ScoreQuestionResult>,
+  "showFeedback" | "onAnswer" | "onRecordResult"
+> {
   /** 出題オプション（再生成のたびに使用するため安定参照を渡すこと） */
   readonly generateOptions: GenerateOptions;
-  readonly showFeedback: boolean;
-  readonly onAnswer: (correct: boolean, onNext: () => void) => void;
-  readonly onRecordResult?: (result: ScoreQuestionResult) => void;
 }
 
 interface UseScoreQuestionBoardResult {

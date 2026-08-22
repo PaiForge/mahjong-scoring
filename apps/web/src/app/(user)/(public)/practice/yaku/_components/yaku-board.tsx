@@ -14,16 +14,13 @@ import { ChallengeSubmitButton } from "../../_components/challenge-submit-button
 import { TehaiDisplay } from "../../_components/tehai-display";
 import { YakuChip, getChipFeedbackState } from "./yaku-chip";
 import { QuestionPrompt } from "../../_components/question-prompt";
+import type { PracticeBoardProps } from "../../_lib/practice-board-props";
 
 function generateQuestion(): YakuQuestion | undefined {
   return retryGenerate(generateYakuQuestion);
 }
 
-interface YakuBoardProps {
-  readonly showFeedback: boolean;
-  readonly isCountingDown?: boolean;
-  readonly onAnswer: (correct: boolean, onNext: () => void) => void;
-}
+type YakuBoardProps = PracticeBoardProps;
 
 /** 翻数グループの i18n キー（役満だけ数値ではなく "yakuman"） */
 function hanGroupKey(han: number): string {

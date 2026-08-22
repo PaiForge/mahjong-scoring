@@ -9,15 +9,11 @@ import type { YakuHanQuestion, YakuHanRange } from "@mahjong-scoring/core";
 import { YakuHanPrompt } from "./yaku-han-prompt";
 import { YakuHanAnswerForm } from "./yaku-han-answer-form";
 import type { YakuHanQuestionResult } from "../_lib/types";
+import type { RecordingPracticeBoardProps } from "../../_lib/practice-board-props";
 
-interface YakuHanBoardProps {
-  readonly showFeedback: boolean;
-  readonly isCountingDown?: boolean;
+interface YakuHanBoardProps extends RecordingPracticeBoardProps<YakuHanQuestionResult> {
   /** 出題範囲（役のフィルタ）。未指定時は全役から出題する */
   readonly range?: YakuHanRange;
-  readonly onAnswer: (correct: boolean, onNext: () => void) => void;
-  /** 回答結果の記録（チャレンジの結果ページ用。トレーニングでは省略） */
-  readonly onRecordResult?: (result: YakuHanQuestionResult) => void;
 }
 
 /**
