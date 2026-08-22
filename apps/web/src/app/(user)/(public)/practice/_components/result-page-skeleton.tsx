@@ -28,7 +28,7 @@ interface ResultPageSkeletonProps {
  * placeholder を描画する。次の 2 箇所から使う:
  *
  * 1. `ChallengeShell`（Client）— チャレンジ終了からリダイレクト開始までの間
- * 2. `PracticeResultLoadingFallback`（`(public)/loading.tsx` の resolver 経由）— 結果ページの取得完了までの間
+ * 2. `PracticeResultLoadingFallback`（`/practice/<slug>/loading.tsx` 経由）— 結果ページの取得完了までの間
  *
  * このコンポーネント自身は翻訳を引かず、練習名とパンくずを props で受け取る
  * 純粋な描画に徹する。

@@ -14,9 +14,13 @@ import { describe, expect, it } from "vitest";
  *   境界までしか取らないため、内側の個別スケルトンは「速いサーバでは一度も
  *   出ない / 遅いサーバでは本文直前に一瞬だけ出る」状態になる（2026-08 に実測）
  *
- * 祖先が共通で配下に個別スケルトンを置きたい場合は、個別の loading.tsx を
- * 足すのではなく、共通の 1 枚から pathname で振り分ける
- * （`(public)/_lib/resolve-loading-fallback.tsx` 参照）。
+ * 境界は「遷移時に新しくマウントされるスロット」に無いとフォールバックが出ない。
+ * React は遷移中、既にマウント済みの Suspense のフォールバックを出さないため、
+ * 祖先の共通 loading.tsx は同じセグメント内の遷移（/learn → /learn/x 等）で
+ * 効かず、クリックが無反応になる（2026-08 に実測）。よって境界は leaf
+ * （page.tsx と同じディレクトリか、配下に他の loading.tsx を持たない最小の祖先）に置く。
+ * 複数の子を 1 枚で受けたい場合は `PracticeLoading` のように pathname で
+ * 振り分ける。
  * index ページだけ固有のスケルトンにしたい場合は、page.tsx と loading.tsx を
  * route group に退避して兄弟ルートの祖先にならないようにする
  * （`mypage/(home)`, `admin/(dashboard)` 参照）。

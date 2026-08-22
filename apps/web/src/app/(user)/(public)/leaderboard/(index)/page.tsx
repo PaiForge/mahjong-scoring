@@ -23,9 +23,9 @@ import { PageTitle } from "@/app/(user)/_components/page-title";
 import { SectionTitle } from "@/app/(user)/_components/section-title";
 import { createMetadata } from "@/app/_lib/metadata";
 
-import { LeaderboardTopContent } from "./_components/leaderboard-top-content";
-import type { LeaderboardPeriod } from "./_lib/types";
-import { isValidPeriod } from "./_lib/validators";
+import { LeaderboardTopContent } from "../_components/leaderboard-top-content";
+import type { LeaderboardPeriod } from "../_lib/types";
+import { isValidPeriod } from "../_lib/validators";
 import { SkeletonBar } from "@/app/_components/skeleton-bar";
 
 export const dynamic = "force-dynamic";

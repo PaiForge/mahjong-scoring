@@ -14,8 +14,8 @@ interface Props {
  * 結果ページのローディングフォールバック
  * 結果ページローディング
  *
- * `(public)/loading.tsx` の resolver から `/practice/:slug/result` に対して描画する。
- * `loading.tsx` は pathname で振り分けるためクライアントコンポーネントであり、
+ * `/practice/<slug>/loading.tsx`（`PracticeLoading`）から result への遷移時に描画する。
+ * その loading.tsx は pathname で振り分けるためクライアントコンポーネントであり、
  * 翻訳は `useTranslations()` で引く（`getTranslations()` は使えない）。
  *
  * 出題数は URL クエリ（`?total=`）にあるが `loading.tsx` は searchParams を

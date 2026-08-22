@@ -8,7 +8,6 @@ import { SectionTitleSkeleton } from "@/app/(user)/_components/section-title-ske
  * リーダーボード詳細のスケルトン
  * リーダーボード詳細スケルトン
  *
- * `(public)/loading.tsx` の resolver から `/leaderboard/:period/:module` に対して描画する。
  */
 export function LeaderboardDetailSkeleton() {
   return (
