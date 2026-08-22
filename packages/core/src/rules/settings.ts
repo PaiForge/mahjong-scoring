@@ -22,3 +22,14 @@ export interface RuleSettings {
 export const DEFAULT_RULE_SETTINGS: RuleSettings = {
   renfonpaiAs4Fu: false,
 };
+
+/**
+ * 連風牌の雀頭が何符になるかをルール設定から導く
+ * 連風牌雀頭符
+ *
+ * 「連風牌雀頭を4符とするか」というルールの唯一の定義。ライブラリへ渡す
+ * `ruleConfig.doubleWindJantouFu` も、自前で符を積む経路もここを通すこと。
+ */
+export function doubleWindJantouFu(renfonpaiAs4Fu: boolean): 2 | 4 {
+  return renfonpaiAs4Fu ? 4 : 2;
+}

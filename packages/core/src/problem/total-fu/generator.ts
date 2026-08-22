@@ -11,6 +11,7 @@ import { generateChiitoiTehai } from "../score/strategies/chiitoi-strategy";
 import { generateMentsuTehai } from "../score/strategies/mentsu-strategy";
 import type { AgariContext } from "../shared/agari-context";
 import type { TotalFuQuestion } from "./types";
+import { doubleWindJantouFu } from "../../rules/settings";
 
 /** 七対子を出題する確率 */
 const CHIITOI_RATE = 0.12;
@@ -35,7 +36,9 @@ function calculateFuSource(
       jikaze: context.jikaze,
       bakaze: context.bakaze,
       doraMarkers: [],
-      ruleConfig: { doubleWindJantouFu: renfonpaiAs4Fu ? 4 : 2 },
+      ruleConfig: {
+        doubleWindJantouFu: doubleWindJantouFu(renfonpaiAs4Fu),
+      },
     });
   } catch {
     return undefined;

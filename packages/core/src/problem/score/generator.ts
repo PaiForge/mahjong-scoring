@@ -27,6 +27,7 @@ import {
 import { retryGenerate } from "../retry-generate";
 import { countKantsu } from "../shared/count-kantsu";
 import type { AgariContext } from "../shared/agari-context";
+import { doubleWindJantouFu } from "../../rules/settings";
 
 /**
  * 点数レベルが許可範囲内かどうかを検証する
@@ -153,7 +154,9 @@ export function generateScoreQuestion(
     jikaze,
     bakaze,
     doraMarkers,
-    ruleConfig: { doubleWindJantouFu: renfonpaiAs4Fu ? 4 : 2 },
+    ruleConfig: {
+      doubleWindJantouFu: doubleWindJantouFu(renfonpaiAs4Fu),
+    },
   });
   if (!scored) return undefined;
 
