@@ -10,7 +10,7 @@ import { getTranslations } from "next-intl/server";
 
 import { ContentContainer } from "@/app/(user)/_components/content-container";
 import { PageTitle } from "@/app/(user)/_components/page-title";
-import { createMetadata } from "@/app/_lib/metadata";
+import { createTitleOnlyMetadata } from "@/app/_lib/metadata";
 import { redirectIfAuthenticated } from "@/lib/auth";
 
 import { ResendEmailButton } from "./_components/resend-email-button";
@@ -19,8 +19,7 @@ import { ResendEmailButton } from "./_components/resend-email-button";
 export const dynamic = "force-dynamic";
 
 export async function generateMetadata(): Promise<Metadata> {
-  const t = await getTranslations("verifyEmail");
-  return createMetadata({ title: t("pageTitle") });
+  return createTitleOnlyMetadata("verifyEmail", "pageTitle");
 }
 
 export default async function VerifyEmailPage({

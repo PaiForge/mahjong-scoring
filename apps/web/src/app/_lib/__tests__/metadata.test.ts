@@ -11,6 +11,7 @@ vi.mock("next-intl/server", () => ({
 import {
   createMetadata,
   createNamespaceMetadata,
+  createPrivateMetadata,
   createResultMetadata,
   createTitleOnlyMetadata,
   SITE_NAME,
@@ -72,6 +73,28 @@ describe("createTitleOnlyMetadata", () => {
     await expect(
       createTitleOnlyMetadata("scoreTable", "pageTitle"),
     ).resolves.toEqual({ title: `点数表 - ${SITE_NAME}` });
+  });
+});
+
+describe("createPrivateMetadata", () => {
+  it("サイト名サフィックス付きのタイトルに noindex を足す", async () => {
+    setupTranslations({ mypage: { pageTitle: "マイページ" } });
+
+    await expect(createPrivateMetadata("mypage")).resolves.toEqual({
+      title: `マイページ - ${SITE_NAME}`,
+      robots: { index: false, follow: false },
+    });
+  });
+
+  it("タイトルのキーを上書きできる", async () => {
+    setupTranslations({ setupUsername: { title: "ユーザー名の設定" } });
+
+    await expect(
+      createPrivateMetadata("setupUsername", "title"),
+    ).resolves.toEqual({
+      title: `ユーザー名の設定 - ${SITE_NAME}`,
+      robots: { index: false, follow: false },
+    });
   });
 });
 

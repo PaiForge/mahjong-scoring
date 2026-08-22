@@ -77,6 +77,26 @@ export async function createTitleOnlyMetadata(
 }
 
 /**
+ * 検索エンジンに載せないページの Metadata を生成する
+ * 非公開ページメタデータ生成
+ *
+ * マイページのようにログインユーザー本人だけが見るページ用。
+ * {@link createTitleOnlyMetadata} に noindex を足したもの。
+ *
+ * @param namespace - 翻訳名前空間（例: "mypage"）
+ * @param titleKey - タイトルのキー（既定 "pageTitle"）
+ */
+export async function createPrivateMetadata(
+  namespace: string,
+  titleKey = "pageTitle",
+): Promise<Metadata> {
+  return {
+    ...(await createTitleOnlyMetadata(namespace, titleKey)),
+    robots: { index: false, follow: false },
+  };
+}
+
+/**
  * 練習の結果ページ用 Metadata を生成する
  * 結果ページメタデータ生成
  *

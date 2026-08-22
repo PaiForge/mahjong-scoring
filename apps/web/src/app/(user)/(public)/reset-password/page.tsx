@@ -15,13 +15,12 @@ import { getTranslations } from "next-intl/server";
 
 import { ContentContainer } from "@/app/(user)/_components/content-container";
 import { PageTitle } from "@/app/(user)/_components/page-title";
-import { createMetadata } from "@/app/_lib/metadata";
+import { createTitleOnlyMetadata } from "@/app/_lib/metadata";
 
 import { ResetPasswordForm } from "./_components/reset-password-form";
 
 export async function generateMetadata(): Promise<Metadata> {
-  const t = await getTranslations("resetPassword");
-  return createMetadata({ title: t("pageTitle") });
+  return createTitleOnlyMetadata("resetPassword", "pageTitle");
 }
 
 export default async function ResetPasswordPage() {

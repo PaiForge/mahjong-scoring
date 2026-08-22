@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { getTranslations } from "next-intl/server";
 
+import { createPrivateMetadata } from "@/app/_lib/metadata";
 import { ContentContainer } from "@/app/(user)/_components/content-container";
 import { PageTitle } from "@/app/(user)/_components/page-title";
 import { SectionTitle } from "@/app/(user)/_components/section-title";
@@ -9,12 +10,7 @@ import { requireProvisionalUser } from "@/lib/auth";
 import { UsernameForm } from "./_components/username-form";
 
 export async function generateMetadata(): Promise<Metadata> {
-  const t = await getTranslations("setupUsername");
-
-  return {
-    title: t("title"),
-    robots: { index: false, follow: false },
-  };
+  return createPrivateMetadata("setupUsername", "title");
 }
 
 export default async function SetupUsernamePage() {
