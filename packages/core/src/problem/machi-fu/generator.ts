@@ -114,9 +114,13 @@ function createShanpon(idGen: IdGenerator): MachiFuQuestion {
 
   const agari = randomBool(0.5) ? t1 : t2;
 
+  // 2つの対子は牌種の昇順で並べる。他の待ち形は牌の並びが形そのもの
+  // （両面なら 67s のように昇順）なので、双碰だけ順不同にしない。
+  const [lower, higher] = t1 < t2 ? [t1, t2] : [t2, t1];
+
   return {
     id: idGen(),
-    tiles: [t1, t1, t2, t2],
+    tiles: [lower, lower, higher, higher],
     agariHai: agari,
     answer: 0,
   };

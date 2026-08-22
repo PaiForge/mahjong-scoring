@@ -141,7 +141,8 @@ describe("generateMachiFuQuestion", () => {
       const [a, b, c, d] = tiles;
       expect(a).toBe(b);
       expect(c).toBe(d);
-      expect(a).not.toBe(c);
+      // 2種は異なる牌で、必ず昇順（対子の順序が実行ごとに入れ替わらない）
+      expect(a).toBeLessThan(c);
       expect([a, c]).toContain(agariHai);
     }
   });
@@ -156,19 +157,14 @@ describe("generateMachiFuQuestion", () => {
   });
 
   /**
-   * 双碰待ちの2種は順不同（`[5s,5s,2m,2m]` もありうる）ため対象外。
-   * 順子系は `classify` が tiles[0] < tiles[1] を前提にしている。
+   * 牌の並びは形そのもの（両面なら 67s）なので、実行ごとに順序が
+   * 変わらないこと。双碰も対子2つを昇順に並べる。
    */
-  it("順子系の待ちは牌が昇順に並ぶ", () => {
-    const suitedShapes: readonly Shape[] = ["ryanmen", "penchan", "kanchan"];
-    const questions = expectSampled(() => generateMachiFuQuestion(), {
-      need: 100,
-      attempts: 2000,
-      where: (q) => suitedShapes.includes(classify(q)),
-    });
-
-    for (const { tiles } of questions) {
-      expect(tiles[1]).toBeGreaterThan(tiles[0]);
+  it("牌は昇順に並ぶ", () => {
+    for (const { tiles } of samples()) {
+      for (let i = 1; i < tiles.length; i++) {
+        expect(tiles[i]).toBeGreaterThanOrEqual(tiles[i - 1]);
+      }
     }
   });
 });
