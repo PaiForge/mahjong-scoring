@@ -19,11 +19,6 @@ export async function generateMetadata(): Promise<Metadata> {
   return createNamespaceMetadata("yakuHanChallenge");
 }
 
-export default async function YakuHanTrainingPage({
-  searchParams,
-}: {
-  searchParams: Promise<{ range?: string }>;
-}) {
-  const { range } = await searchParams;
-  return <YakuHanTrainingView range={range} />;
+export default function YakuHanTrainingPage() {
+  return <YakuHanTrainingView />;
 }

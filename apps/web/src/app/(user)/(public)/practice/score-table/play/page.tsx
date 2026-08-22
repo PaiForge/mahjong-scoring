@@ -1,12 +1,6 @@
 import type { Metadata } from "next";
 import { createTitleOnlyMetadata } from "@/app/_lib/metadata";
 import { ScoreTablePlayView } from "../_components/score-table-play-view";
-import {
-  searchParamsToSelection,
-  selectionToGeneratorOptions,
-} from "../_lib/options";
-
-type SearchParams = Record<string, string | string[] | undefined>;
 
 export async function generateMetadata(): Promise<Metadata> {
   return createTitleOnlyMetadata("scoreTableChallenge");
@@ -27,15 +21,6 @@ export async function generateMetadata(): Promise<Metadata> {
  * 4. 問題別の回答結果を sessionStorage に保存
  * 5. スコアを保存し、result ページへリダイレクト
  */
-export default async function ScoreTablePlayPage({
-  searchParams,
-}: {
-  searchParams: Promise<SearchParams>;
-}) {
-  const selection = searchParamsToSelection(await searchParams);
-  return (
-    <ScoreTablePlayView
-      generatorOptions={selectionToGeneratorOptions(selection)}
-    />
-  );
+export default function ScoreTablePlayPage() {
+  return <ScoreTablePlayView />;
 }

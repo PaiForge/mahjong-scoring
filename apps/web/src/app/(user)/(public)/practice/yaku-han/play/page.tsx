@@ -20,11 +20,6 @@ export async function generateMetadata(): Promise<Metadata> {
  * 3. 制限時間経過またはミス3回で終了
  * 4. スコアを保存し、result ページへリダイレクト
  */
-export default async function YakuHanPlayPage({
-  searchParams,
-}: {
-  searchParams: Promise<{ range?: string }>;
-}) {
-  const { range } = await searchParams;
-  return <YakuHanPlayView range={range} />;
+export default function YakuHanPlayPage() {
+  return <YakuHanPlayView />;
 }

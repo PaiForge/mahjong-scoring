@@ -1,15 +1,38 @@
 "use client";
 
-import { normalizeYakuHanRange } from "@mahjong-scoring/core";
+import { Suspense } from "react";
 
 import { createChallengePlayView } from "../../_lib/create-challenge-views";
+import type { ChallengeBoardArgs } from "../../_lib/create-challenge-views";
 import { YakuHanBoard } from "./yaku-han-board";
+import { YakuHanGeneratingPlaceholder } from "./yaku-han-generating-placeholder";
+import { useYakuHanRangeQuery } from "../_hooks/use-yaku-han-range-query";
 import type { YakuHanQuestionResult } from "../_lib/types";
 import { RESULT_STORAGE_KEY } from "../_lib/types";
 
-interface YakuHanPlayViewProps {
-  /** 出題範囲（URL の range クエリ。不正値・未指定は全役にフォールバック） */
-  readonly range?: string;
+/**
+ * URL の出題範囲で盤面を描く
+ *
+ * 範囲を `useSearchParams()` で読むため、静的ルートではこのサブツリーだけが
+ * クライアント描画になる。シェル（タイトル・タイマー・ライフ）は
+ * プリレンダーされたまま残る。
+ */
+function YakuHanBoardFromQuery({
+  args,
+}: {
+  readonly args: ChallengeBoardArgs<YakuHanQuestionResult>;
+}) {
+  const range = useYakuHanRangeQuery();
+
+  return (
+    <YakuHanBoard
+      showFeedback={args.showFeedback}
+      isCountingDown={args.isCountingDown}
+      range={range}
+      onAnswer={args.onAnswer}
+      onRecordResult={args.recordResult}
+    />
+  );
 }
 
 /**
@@ -18,18 +41,14 @@ interface YakuHanPlayViewProps {
  */
 export const YakuHanPlayView = createChallengePlayView<
   YakuHanQuestionResult,
-  YakuHanPlayViewProps
+  Record<string, never>
 >({
   slug: "yaku-han",
   maxWidth: "max-w-2xl",
   resultStorageKey: RESULT_STORAGE_KEY,
-  renderBoard: (args, { range }) => (
-    <YakuHanBoard
-      showFeedback={args.showFeedback}
-      isCountingDown={args.isCountingDown}
-      range={normalizeYakuHanRange(range)}
-      onAnswer={args.onAnswer}
-      onRecordResult={args.recordResult}
-    />
+  renderBoard: (args) => (
+    <Suspense fallback={<YakuHanGeneratingPlaceholder />}>
+      <YakuHanBoardFromQuery args={args} />
+    </Suspense>
   ),
 });
