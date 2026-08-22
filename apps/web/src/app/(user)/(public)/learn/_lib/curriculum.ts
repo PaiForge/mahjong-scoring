@@ -22,25 +22,15 @@ export const CURRICULUM_SECTIONS = [
 ] as const;
 export type CurriculumSection = (typeof CURRICULUM_SECTIONS)[number];
 
-/** 章スラッグのマスタ — `/learn/<slug>` の slug 部分に対応 */
-export const CURRICULUM_CHAPTER_SLUGS = [
-  "about-this-app",
-  "why-scoring-is-complex",
-  "mangan-ko-ron",
-  "mangan-oya-ron",
-  "mangan-ko-tsumo",
-  "mangan-oya-tsumo",
-  "jantou-fu",
-  "mentsu-fu",
-  "machi-fu",
-  "tehai-fu",
-  "yaku",
-] as const;
-export type CurriculumChapterSlug = (typeof CURRICULUM_CHAPTER_SLUGS)[number];
-
-/** 1 章分のメタデータ */
-export interface CurriculumChapter {
-  readonly slug: CurriculumChapterSlug;
+/**
+ * 章メタデータの記述形式（型導出用）
+ *
+ * `slug` を `string` にしてあるのは、章スラッグの union を
+ * {@link CURRICULUM_REGISTRY} から導出するため。公開する形は
+ * {@link CurriculumChapter}。`lib/db/practice-menu-types.ts` と同じ組み方。
+ */
+interface CurriculumChapterEntry {
+  readonly slug: string;
   readonly section: CurriculumSection;
   readonly order: number;
   readonly practiceHrefs?: readonly string[];
@@ -48,7 +38,7 @@ export interface CurriculumChapter {
 }
 
 /** 章メタデータのマスタ配列（order 昇順で並べる） */
-export const CURRICULUM: readonly CurriculumChapter[] = [
+const CURRICULUM_REGISTRY = [
   {
     slug: "about-this-app",
     section: "foundation",
@@ -157,7 +147,27 @@ export const CURRICULUM: readonly CurriculumChapter[] = [
     ],
     i18nKey: "learnCurriculum.chapters.tehaiFu",
   },
-] as const;
+] as const satisfies readonly CurriculumChapterEntry[];
+
+/** 章スラッグ — `/learn/<slug>` の slug 部分に対応 */
+export type CurriculumChapterSlug =
+  (typeof CURRICULUM_REGISTRY)[number]["slug"];
+
+/** 1 章分のメタデータ */
+export interface CurriculumChapter {
+  readonly slug: CurriculumChapterSlug;
+  readonly section: CurriculumSection;
+  readonly order: number;
+  readonly practiceHrefs?: readonly string[];
+  readonly i18nKey: string;
+}
+
+/** 章メタデータのマスタ配列（order 昇順で並べる） */
+export const CURRICULUM: readonly CurriculumChapter[] = CURRICULUM_REGISTRY;
+
+/** 章スラッグの一覧（CURRICULUM と同じ順序） */
+export const CURRICULUM_CHAPTER_SLUGS: readonly CurriculumChapterSlug[] =
+  CURRICULUM.map((chapter) => chapter.slug);
 
 /**
  * order 昇順にソート済みの章配列。
