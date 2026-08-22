@@ -8,8 +8,12 @@ import { PageTitleSkeleton } from "@/app/_components/page-title-skeleton";
  * admin レイアウトはシェル（サイドバー）を即時描画し、ページ側で
  * `requireAdminPage()`（認証）と新規ユーザー集計を待つ。その待機をこの 1 枚で
  * 覆う。実体（タイトル → 説明 → 期間ピッカー → サマリーカード → 日次推移
- * チャート）の構造・余白に合わせて CLS を防ぐ。お知らせ等の他ページは各ルートの
- * loading.tsx が優先される。
+ * チャート）の構造・余白に合わせて CLS を防ぐ。
+ *
+ * ダッシュボード（page.tsx）と一緒に route group `(dashboard)` に置き、他の管理
+ * ページの祖先にならないようにしている。admin/loading.tsx に置くと users 等の
+ * loading.tsx と入れ子になり、プリフェッチがこちらしか取らないため個別スケルトンが
+ * 機能しなくなる（`loading-boundaries.test.ts` が検査する）。
  * ローディング
  */
 export default function AdminDashboardLoading() {
