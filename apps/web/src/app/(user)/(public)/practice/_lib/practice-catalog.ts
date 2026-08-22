@@ -1,3 +1,4 @@
+import type { CurriculumChapterSlug } from "@/app/(user)/(public)/learn/_lib/curriculum";
 import {
   isPracticeMenuSlug,
   practiceMenuBySlug,
@@ -14,7 +15,8 @@ import {
  *
  * @design 導出できるものは持たない
  * href・i18n キーは slug から導出する（`practiceHref` / `practiceTitleKey` /
- * `practiceDescriptionKey`）。slug と messageKey の対応は
+ * `practiceDescriptionKey`）。教本へのリンクも章スラッグだけを持ち、パスは
+ * `chapterHref()` に任せる。slug と messageKey の対応は
  * `lib/db/practice-menu-types.ts` のレジストリが正典で、そこに載らない練習
  * （記録対象外の `/practice/score`）はカタログにも含めない。
  */
@@ -31,8 +33,15 @@ export interface PracticeMenu {
   readonly slug: PracticeMenuSlug;
   readonly category: PracticeCategory;
   readonly difficulty: PracticeDifficulty;
-  /** 対応する教本の章。無い練習もある（翻数即答など） */
-  readonly learnHref?: string;
+  /**
+   * 前提知識となる教本の章。専用の章を持たない練習（翻数即答など）は undefined。
+   *
+   * 章側の `practiceHrefs`（その章を読んだら解く練習）とは向きも意味も違う関係で、
+   * 互いの逆写像ではない。手牌の合計符のように「章の practiceHrefs には
+   * 挙がっていないが前提となる章はある」練習や、役の翻数のように
+   * 「章から勧められるが専用の章は持たない」練習がある。
+   */
+  readonly learnChapter?: CurriculumChapterSlug;
 }
 
 /** 練習メニューのマスタ配列（カテゴリごとに一覧の表示順で並べる） */
@@ -41,38 +50,38 @@ export const PRACTICE_CATALOG: readonly PracticeMenu[] = [
     slug: "jantou-fu",
     category: "fuCalculation",
     difficulty: "beginner",
-    learnHref: "/learn/jantou-fu",
+    learnChapter: "jantou-fu",
   },
   {
     slug: "machi-fu",
     category: "fuCalculation",
     difficulty: "beginner",
-    learnHref: "/learn/machi-fu",
+    learnChapter: "machi-fu",
   },
   {
     slug: "mentsu-fu",
     category: "fuCalculation",
     difficulty: "intermediate",
-    learnHref: "/learn/mentsu-fu",
+    learnChapter: "mentsu-fu",
   },
   {
     slug: "tehai-fu",
     category: "fuCalculation",
     difficulty: "advanced",
-    learnHref: "/learn/tehai-fu",
+    learnChapter: "tehai-fu",
   },
   {
     slug: "total-fu",
     category: "fuCalculation",
     difficulty: "advanced",
-    learnHref: "/learn/tehai-fu",
+    learnChapter: "tehai-fu",
   },
   { slug: "yaku-han", category: "han", difficulty: "beginner" },
   {
     slug: "yaku",
     category: "han",
     difficulty: "intermediate",
-    learnHref: "/learn/yaku",
+    learnChapter: "yaku",
   },
   { slug: "han-count", category: "han", difficulty: "advanced" },
   { slug: "score-table", category: "scoring", difficulty: "intermediate" },

@@ -155,6 +155,19 @@ const CURRICULUM_BY_SLUG: ReadonlyMap<
 > = new Map(CURRICULUM.map((c) => [c.slug, c]));
 
 /**
+ * 章ページのパスを返す。
+ * 章パス
+ *
+ * `/learn/<slug>` の組み立てをこの 1 箇所に閉じる。目次・前後章ナビ・練習からの
+ * 導線がそれぞれ文字列を組み立てると、ルートを変えたときに追随漏れが出る。
+ *
+ * @param slug 対象章のスラッグ
+ */
+export function chapterHref(slug: CurriculumChapterSlug): string {
+  return `/learn/${slug}`;
+}
+
+/**
  * slug から章メタデータを O(1) で取得する。
  * 章メタデータ取得
  *

@@ -3,6 +3,7 @@ import { getTranslations } from "next-intl/server";
 import { Divider } from "@/app/(user)/_components/divider";
 import { ChevronRightIcon } from "@/app/(user)/_components/icons/chevron-right-icon";
 import {
+  chapterHref,
   getAdjacentChapters,
   getChapterI18nPath,
   type CurriculumChapter,
@@ -74,7 +75,7 @@ function ChapterNavLink({
   const isNext = direction === "next";
   return (
     <Link
-      href={`/learn/${chapter.slug}`}
+      href={chapterHref(chapter.slug)}
       // 先頭章では prev が無いので、next 単独でも右端に寄るよう ml-auto を持たせる。
       className={`inline-flex min-w-0 items-center gap-2 text-sm ${TEXT_LINK_CLASSES} ${
         isNext ? "ml-auto" : ""

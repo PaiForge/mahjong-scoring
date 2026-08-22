@@ -26,7 +26,6 @@ export default function TotalFuPage() {
       namespace="totalFu"
       slug="total-fu"
       showTraining
-      learnHref="/learn/tehai-fu"
       howToPlay={<TotalFuHowToPlay />}
     />
   );

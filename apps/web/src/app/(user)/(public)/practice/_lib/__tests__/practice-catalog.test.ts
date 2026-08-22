@@ -1,6 +1,10 @@
 import { describe, expect, it } from "vitest";
 
 import messages from "@/messages/ja.json";
+import {
+  CURRICULUM,
+  CURRICULUM_CHAPTER_SLUGS,
+} from "@/app/(user)/(public)/learn/_lib/curriculum";
 import { PRACTICE_MENU_SLUGS } from "@/lib/db/practice-menu-types";
 import {
   PRACTICE_CATALOG,
@@ -32,11 +36,38 @@ describe("PRACTICE_CATALOG", () => {
     expect(total).toBe(PRACTICE_CATALOG.length);
   });
 
-  it("教本リンクは /learn/ 配下を指す", () => {
+  it("前提章はカリキュラムに存在する章を指す", () => {
     for (const menu of PRACTICE_CATALOG) {
-      if (menu.learnHref === undefined) continue;
-      expect(menu.learnHref).toMatch(/^\/learn\/[a-z0-9-]+$/);
+      if (menu.learnChapter === undefined) continue;
+      expect(CURRICULUM_CHAPTER_SLUGS).toContain(menu.learnChapter);
     }
+  });
+});
+
+describe("章と練習の対応", () => {
+  it("章の practiceHrefs はカタログに載っている練習を指す", () => {
+    for (const chapter of CURRICULUM) {
+      for (const href of chapter.practiceHrefs ?? []) {
+        // 解決できない href は「おすすめの練習」から黙って消えるため、
+        // 章側のタイポやカタログからの削除をここで検出する
+        expect(practiceSlugFromHref(href)).toBeDefined();
+      }
+    }
+  });
+
+  it("章の practiceHrefs と練習の learnChapter は互いの逆写像ではない", () => {
+    // 逆写像だと思って一方から他方を導出すると壊れることを固定する。
+    // 手牌の合計符は前提章を持つが、その章の practiceHrefs には挙がっていない。
+    const totalFu = PRACTICE_CATALOG.find((m) => m.slug === "total-fu");
+    expect(totalFu?.learnChapter).toBe("tehai-fu");
+    const tehaiFuChapter = CURRICULUM.find((c) => c.slug === "tehai-fu");
+    expect(tehaiFuChapter?.practiceHrefs).not.toContain("/practice/total-fu");
+
+    // 逆に、役の翻数は役の章から勧められるが専用の章は持たない。
+    const yakuHan = PRACTICE_CATALOG.find((m) => m.slug === "yaku-han");
+    expect(yakuHan?.learnChapter).toBeUndefined();
+    const yakuChapter = CURRICULUM.find((c) => c.slug === "yaku");
+    expect(yakuChapter?.practiceHrefs).toContain("/practice/yaku-han");
   });
 });
 

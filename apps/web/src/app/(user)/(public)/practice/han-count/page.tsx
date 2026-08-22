@@ -24,7 +24,6 @@ export default function HanCountPage() {
     <PracticeIntroContent
       namespace="hanCountChallenge"
       slug="han-count"
-      showLearnLink={false}
       showTraining
       howToPlay={<HanCountHowToPlay />}
     />

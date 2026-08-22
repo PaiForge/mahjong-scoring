@@ -7,7 +7,7 @@ import { getOptionalVerifiedUser } from "@/lib/auth";
 import { db } from "@/lib/db";
 import { learnChapterReads } from "@/lib/db/schema";
 
-import { isCurriculumChapterSlug } from "../_lib/curriculum";
+import { chapterHref, isCurriculumChapterSlug } from "../_lib/curriculum";
 import type { MarkActionResult } from "./mark-chapter-read";
 
 /**
@@ -42,6 +42,6 @@ export async function unmarkChapterRead(
     );
 
   revalidatePath("/learn");
-  revalidatePath(`/learn/${slug}`);
+  revalidatePath(chapterHref(slug));
   return { success: true };
 }
