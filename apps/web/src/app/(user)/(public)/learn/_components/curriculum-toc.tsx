@@ -113,11 +113,11 @@ export async function CurriculumToc({
                     style={{ left: `${GUIDE_LINE_LEFT_PX}px` }}
                   />
                 )}
-                <span className="flex min-w-0 flex-1 flex-col gap-0.5">
+                <span className="flex min-w-0 flex-1 flex-col gap-2">
                   <span className="flex flex-wrap items-center gap-2">
                     <Link
                       href={`/learn/${ch.slug}`}
-                      className="text-sm font-bold text-surface-900 transition-colors hover:text-primary-700 hover:underline"
+                      className="text-sm font-bold text-muted-foreground underline decoration-surface-300 underline-offset-4 transition-colors hover:text-foreground hover:decoration-surface-500"
                     >
                       {t(`${path}.title`)}
                     </Link>
@@ -127,7 +127,9 @@ export async function CurriculumToc({
                       </span>
                     )}
                   </span>
-                  <span className="text-xs text-surface-500">
+                  {/* リンク色 (muted-foreground = surface-500) と並ぶため、
+                      説明文は同系のまま一段淡くして主従を付ける。 */}
+                  <span className="text-xs text-surface-400">
                     {t(`${path}.description`)}
                   </span>
                 </span>
