@@ -31,6 +31,7 @@ import { menuTypeToMessageKey } from "@/lib/db/practice-menu-types";
 import { getLeaderboard } from "../../_actions/get-leaderboard";
 import { LeaderboardDetailContent } from "../../_components/leaderboard-detail-content";
 import type { LeaderboardModule, LeaderboardPeriod } from "../../_lib/types";
+import { PlayIcon } from "@/app/(user)/_components/icons/play-icon";
 import { buildChallengePath, slugToModule } from "../../_lib/types";
 import { isValidPeriod } from "../../_lib/validators";
 import { SkeletonBar } from "@/app/_components/skeleton-bar";
@@ -154,7 +155,8 @@ export default async function LeaderboardDetailPage({
       </Suspense>
 
       <div className="pt-4 border-t-2 border-dashed border-border/40">
-        <LinkButton href={challengePath} fullWidth>
+        <LinkButton href={challengePath} fullWidth className="gap-2">
+          <PlayIcon className="size-4" />
           {t("tryChallenge")}
         </LinkButton>
       </div>

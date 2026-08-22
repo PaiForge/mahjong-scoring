@@ -1,4 +1,5 @@
 import { InfinityIcon } from "@/app/(user)/_components/icons/infinity-icon";
+import { PlayIcon } from "@/app/(user)/_components/icons/play-icon";
 import { LinkButton } from "@/app/(user)/_components/link-button";
 
 /** 開始導線に表示する文言 */
@@ -45,7 +46,14 @@ export function PracticeStartCta({
   return (
     <div className="flex flex-col gap-5">
       <div className="flex w-full flex-col items-center gap-1.5">
-        <LinkButton href={playHref} size="lg" fullWidth disabled={disabled}>
+        <LinkButton
+          href={playHref}
+          size="lg"
+          fullWidth
+          disabled={disabled}
+          className="gap-2"
+        >
+          <PlayIcon className="size-4" />
           {labels.challenge}
         </LinkButton>
         <p className="text-xs text-surface-400">{labels.challengeHint}</p>

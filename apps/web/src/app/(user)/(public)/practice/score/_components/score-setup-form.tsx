@@ -14,6 +14,7 @@ import { useIsClient } from "../../../../../_hooks/use-is-client";
 import { SettingToggle } from "./setting-toggle";
 import { SmallCheckbox } from "./small-checkbox";
 import { SkeletonBar } from "@/app/_components/skeleton-bar";
+import { PlayIcon } from "@/app/(user)/_components/icons/play-icon";
 
 /**
  * 点数計算練習の設定画面
@@ -200,12 +201,13 @@ export function ScoreSetupForm() {
           type="button"
           onClick={handleStart}
           disabled={isDisabled}
-          className={`block w-full rounded-lg px-6 py-3 text-sm font-bold transition-all focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-offset-2 ${
+          className={`inline-flex w-full items-center justify-center gap-2 rounded-lg px-6 py-3 text-sm font-bold transition-all focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-offset-2 ${
             isDisabled
               ? "cursor-not-allowed bg-surface-200 text-surface-400"
               : "bg-primary-500 text-white hover:bg-primary-600 active:scale-95"
           }`}
         >
+          <PlayIcon className="size-4" />
           {t("setup.start")}
         </button>
       </div>
