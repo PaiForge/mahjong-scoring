@@ -14,12 +14,12 @@ import { PageTitle } from "@/app/(user)/_components/page-title";
 import { createMetadata } from "@/app/_lib/metadata";
 import { requireConfirmedUser } from "@/lib/auth";
 
-import { ChallengeDashboard } from "./_components/challenge-dashboard";
-import { getPeriodRange, getPreviousPeriodRange } from "./_lib/period-utils";
+import { ChallengeDashboard } from "../_components/challenge-dashboard";
+import { getPeriodRange, getPreviousPeriodRange } from "../_lib/period-utils";
 import {
   fetchAvailableMenuTypes,
   fetchChallengeSessions,
-} from "./_lib/queries";
+} from "../_lib/queries";
 
 export async function generateMetadata(): Promise<Metadata> {
   const t = await getTranslations("mypage.challenges");
