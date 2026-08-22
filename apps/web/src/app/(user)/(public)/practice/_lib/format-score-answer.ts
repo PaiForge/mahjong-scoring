@@ -21,8 +21,8 @@ export function formatScoreAnswer(
     case "ron":
       return `${answer.score}${options.ronSuffix ?? ""}`;
     case "oyaTsumo":
-      return `${answer.scoreAll}${t("all")}`;
+      return `${answer.all}${t("all")}`;
     case "koTsumo":
-      return `${answer.scoreFromKo}/${answer.scoreFromOya}`;
+      return `${answer.fromKo}/${answer.fromOya}`;
   }
 }

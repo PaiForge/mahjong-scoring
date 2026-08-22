@@ -6,6 +6,7 @@
 import type { Role, WinType } from "../../core/roles";
 import type { ScoreRange } from "../score/types";
 import type { IdGenerator } from "../../core/id";
+import type { TsumoPayment } from "../../core/score-calculation";
 
 /**
  * ロン和了の正解
@@ -17,32 +18,14 @@ export interface RonAnswer {
 }
 
 /**
- * 親ツモ和了の正解
- * 親ツモ正解
- */
-export interface OyaTsumoAnswer {
-  readonly type: "oyaTsumo";
-  /** オール点数 */
-  readonly scoreAll: number;
-}
-
-/**
- * 子ツモ和了の正解
- * 子ツモ正解
- */
-export interface KoTsumoAnswer {
-  readonly type: "koTsumo";
-  /** 子からの支払い */
-  readonly scoreFromKo: number;
-  /** 親からの支払い */
-  readonly scoreFromOya: number;
-}
-
-/**
  * 点数表練習の正解型（ロン / 親ツモ / 子ツモ）
  * 点数表正解
+ *
+ * ツモの2種は {@link TsumoPayment} をそのまま使う。かつて同じ判別子で
+ * フィールド名だけ違う型を並行して持っており、繋ぐためだけの変換関数が
+ * 必要になっていた。
  */
-export type ScoreTableAnswer = RonAnswer | OyaTsumoAnswer | KoTsumoAnswer;
+export type ScoreTableAnswer = RonAnswer | TsumoPayment;
 
 /**
  * 点数表早引き練習の1問分のデータ

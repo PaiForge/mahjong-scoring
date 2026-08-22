@@ -68,8 +68,8 @@ describe("ScoreAnswerForm autoSubmit", () => {
     expect(onSubmit).toHaveBeenCalledTimes(1);
     expect(onSubmit).toHaveBeenCalledWith({
       type: "koTsumo",
-      scoreFromKo: Number(koValue),
-      scoreFromOya: Number(oyaValue),
+      fromKo: Number(koValue),
+      fromOya: Number(oyaValue),
     });
   });
 

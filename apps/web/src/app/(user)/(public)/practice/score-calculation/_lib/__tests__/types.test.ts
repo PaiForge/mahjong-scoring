@@ -28,13 +28,13 @@ describe("paymentToScoreTableAnswer", () => {
     it("親ツモ支払いを ScoreTableAnswer に変換する", () => {
       const payment: Payment = { type: "oyaTsumo", amount: 4000 };
       const result = paymentToScoreTableAnswer(payment);
-      expect(result).toEqual({ type: "oyaTsumo", scoreAll: 4000 });
+      expect(result).toEqual({ type: "oyaTsumo", all: 4000 });
     });
 
     it("親ツモ 2000オール", () => {
       const payment: Payment = { type: "oyaTsumo", amount: 2000 };
       const result = paymentToScoreTableAnswer(payment);
-      expect(result).toEqual({ type: "oyaTsumo", scoreAll: 2000 });
+      expect(result).toEqual({ type: "oyaTsumo", all: 2000 });
     });
   });
 
@@ -44,8 +44,8 @@ describe("paymentToScoreTableAnswer", () => {
       const result = paymentToScoreTableAnswer(payment);
       expect(result).toEqual({
         type: "koTsumo",
-        scoreFromKo: 1000,
-        scoreFromOya: 2000,
+        fromKo: 1000,
+        fromOya: 2000,
       });
     });
 
@@ -54,8 +54,8 @@ describe("paymentToScoreTableAnswer", () => {
       const result = paymentToScoreTableAnswer(payment);
       expect(result).toEqual({
         type: "koTsumo",
-        scoreFromKo: 2000,
-        scoreFromOya: 4000,
+        fromKo: 2000,
+        fromOya: 4000,
       });
     });
 
@@ -64,8 +64,8 @@ describe("paymentToScoreTableAnswer", () => {
       const result = paymentToScoreTableAnswer(payment);
       expect(result).toEqual({
         type: "koTsumo",
-        scoreFromKo: 700,
-        scoreFromOya: 1300,
+        fromKo: 700,
+        fromOya: 1300,
       });
     });
   });
@@ -80,22 +80,22 @@ describe("paymentToScoreTableAnswer", () => {
       }
     });
 
-    it("oyaTsumo の amount が scoreAll にマッピングされる", () => {
+    it("oyaTsumo の amount が all にマッピングされる", () => {
       const payment: Payment = { type: "oyaTsumo", amount: 4000 };
       const result = paymentToScoreTableAnswer(payment);
       expect(result.type).toBe("oyaTsumo");
       if (result.type === "oyaTsumo") {
-        expect(result.scoreAll).toBe(4000);
+        expect(result.all).toBe(4000);
       }
     });
 
-    it("koTsumo の amount[0] が scoreFromKo, amount[1] が scoreFromOya にマッピングされる", () => {
+    it("koTsumo の amount[0] が fromKo, amount[1] が fromOya にマッピングされる", () => {
       const payment: Payment = { type: "koTsumo", amount: [1300, 2600] };
       const result = paymentToScoreTableAnswer(payment);
       expect(result.type).toBe("koTsumo");
       if (result.type === "koTsumo") {
-        expect(result.scoreFromKo).toBe(1300);
-        expect(result.scoreFromOya).toBe(2600);
+        expect(result.fromKo).toBe(1300);
+        expect(result.fromOya).toBe(2600);
       }
     });
   });

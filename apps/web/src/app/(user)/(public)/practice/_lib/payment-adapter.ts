@@ -15,12 +15,12 @@ export function paymentToScoreTableAnswer(
     case "ron":
       return { type: "ron", score: payment.amount };
     case "oyaTsumo":
-      return { type: "oyaTsumo", scoreAll: payment.amount };
+      return { type: "oyaTsumo", all: payment.amount };
     case "koTsumo":
       return {
         type: "koTsumo",
-        scoreFromKo: payment.amount[0],
-        scoreFromOya: payment.amount[1],
+        fromKo: payment.amount[0],
+        fromOya: payment.amount[1],
       };
   }
 }

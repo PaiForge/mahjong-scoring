@@ -26,8 +26,8 @@ describe("parseQuestionResults", () => {
       isTsumo: true,
       han: 2,
       fu: 30,
-      correctAnswer: { type: "koTsumo", scoreFromKo: 1000, scoreFromOya: 2000 },
-      userAnswer: { type: "koTsumo", scoreFromKo: 1000, scoreFromOya: 2000 },
+      correctAnswer: { type: "koTsumo", fromKo: 1000, fromOya: 2000 },
+      userAnswer: { type: "koTsumo", fromKo: 1000, fromOya: 2000 },
       isCorrect: true,
     };
     const raw = JSON.stringify([validResult, koTsumoResult]);
@@ -41,8 +41,8 @@ describe("parseQuestionResults", () => {
       isTsumo: true,
       han: 3,
       fu: 30,
-      correctAnswer: { type: "oyaTsumo", scoreAll: 4000 },
-      userAnswer: { type: "oyaTsumo", scoreAll: 4000 },
+      correctAnswer: { type: "oyaTsumo", all: 4000 },
+      userAnswer: { type: "oyaTsumo", all: 4000 },
       isCorrect: true,
     };
     const raw = JSON.stringify([oyaTsumoResult]);

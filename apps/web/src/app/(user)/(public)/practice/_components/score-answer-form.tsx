@@ -64,7 +64,7 @@ export function ScoreAnswerForm({
     if (isNaN(scoreNum)) return;
     onSubmit(
       isOyaTsumo
-        ? { type: "oyaTsumo", scoreAll: scoreNum }
+        ? { type: "oyaTsumo", all: scoreNum }
         : { type: "ron", score: scoreNum },
     );
   };
@@ -74,7 +74,7 @@ export function ScoreAnswerForm({
     const koScore = parseInt(koValue, 10);
     const oyaScore = parseInt(oyaValue, 10);
     if (isNaN(koScore) || isNaN(oyaScore)) return;
-    onSubmit({ type: "koTsumo", scoreFromKo: koScore, scoreFromOya: oyaScore });
+    onSubmit({ type: "koTsumo", fromKo: koScore, fromOya: oyaScore });
   };
 
   const handleSubmit = (e: React.FormEvent) => {

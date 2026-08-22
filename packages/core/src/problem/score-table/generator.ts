@@ -5,7 +5,6 @@ import {
   isInvalidCell,
   HIGH_SCORES,
 } from "../../core/score-calculation";
-import type { TsumoPayment } from "../../core/score-calculation";
 import { FU_VALUES } from "../../score/constants";
 import {
   MANGAN_MIN_HAN,
@@ -35,20 +34,6 @@ function getFuCandidates(minFu: number, maxFu: number): readonly number[] {
 }
 
 /**
- * ツモ支払いを点数表の正解形式へ変換する
- * ツモ支払い変換
- */
-function tsumoAnswerOf(payment: TsumoPayment): ScoreTableAnswer {
-  return payment.type === "oyaTsumo"
-    ? { type: "oyaTsumo", scoreAll: payment.all }
-    : {
-        type: "koTsumo",
-        scoreFromKo: payment.fromKo,
-        scoreFromOya: payment.fromOya,
-      };
-}
-
-/**
  * 満貫未満の正解を算出する
  * 満貫未満正解算出
  */
@@ -59,9 +44,7 @@ function buildCorrectAnswer(
   fu: number,
 ): ScoreTableAnswer {
   const result = isOya ? calculateOyaScore(han, fu) : calculateKoScore(han, fu);
-  return isTsumo
-    ? tsumoAnswerOf(result.tsumo)
-    : { type: "ron", score: result.ron };
+  return isTsumo ? result.tsumo : { type: "ron", score: result.ron };
 }
 
 /**
@@ -89,7 +72,7 @@ function buildManganCorrectAnswer(
 ): ScoreTableAnswer {
   const band = highScoreBandForHan(han);
   if (isTsumo) {
-    return tsumoAnswerOf(isOya ? band.tsumoOya : band.tsumoKo);
+    return isOya ? band.tsumoOya : band.tsumoKo;
   }
   return { type: "ron", score: isOya ? band.ronOya : band.ronKo };
 }
