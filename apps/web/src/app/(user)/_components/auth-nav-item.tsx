@@ -8,7 +8,7 @@ import { toast } from "react-hot-toast";
 import { UserIcon } from "./icons/user-icon";
 import { useAuth } from "@/app/_contexts/auth-context";
 import { SkeletonBar } from "@/app/_components/skeleton-bar";
-import { TEXT_LINK_MUTED_CLASSES } from "./_lib/link-classes";
+import { TEXT_LINK_MUTED_CLASSES } from "@/app/_components/_lib/link-classes";
 
 /**
  * ヘッダー右側のアカウント表示。

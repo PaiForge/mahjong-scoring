@@ -9,9 +9,9 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { getTranslations } from "next-intl/server";
 
-import { ContentContainer } from "@/app/_components/content-container";
-import { PageTitle } from "@/app/_components/page-title";
-import { UserAvatar } from "@/app/_components/user-avatar";
+import { ContentContainer } from "@/app/(user)/_components/content-container";
+import { PageTitle } from "@/app/(user)/_components/page-title";
+import { UserAvatar } from "@/app/(user)/_components/user-avatar";
 import { createMetadata } from "@/app/_lib/metadata";
 import { requireConfirmedUser } from "@/lib/auth";
 import { getProfileCardByUserId } from "@/lib/db/queries";

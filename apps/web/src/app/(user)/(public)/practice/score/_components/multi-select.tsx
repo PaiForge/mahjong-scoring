@@ -3,7 +3,7 @@
 import { useState } from "react";
 
 import { ModalShell } from "@/app/_components/modal-shell";
-import { Button } from "@/app/_components/button";
+import { Button } from "@/app/(user)/_components/button";
 
 interface MultiSelectOption {
   readonly value: string;

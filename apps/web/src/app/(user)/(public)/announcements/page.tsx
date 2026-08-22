@@ -9,11 +9,11 @@ import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { getLocale, getTranslations } from "next-intl/server";
 
-import { ContentContainer } from "@/app/_components/content-container";
-import { ListLinkContainer } from "@/app/_components/list-link";
-import { PageTitle } from "@/app/_components/page-title";
-import { PaginationNav } from "@/app/_components/pagination-nav";
-import { SectionTitle } from "@/app/_components/section-title";
+import { ContentContainer } from "@/app/(user)/_components/content-container";
+import { ListLinkContainer } from "@/app/(user)/_components/list-link";
+import { PageTitle } from "@/app/(user)/_components/page-title";
+import { PaginationNav } from "@/app/(user)/_components/pagination-nav";
+import { SectionTitle } from "@/app/(user)/_components/section-title";
 import { createMetadata } from "@/app/_lib/metadata";
 import { getPaginationData } from "@/lib/pagination";
 

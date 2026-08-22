@@ -15,7 +15,7 @@
  * ボタンではないため対象外。
  */
 
-import { FOCUS_RING_CLASSES } from "./link-classes";
+import { FOCUS_RING_CLASSES } from "@/app/_components/_lib/link-classes";
 
 /** 塗り・文字色の系統 */
 export type ButtonVariant =

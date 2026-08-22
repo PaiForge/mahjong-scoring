@@ -1,6 +1,6 @@
 import { useTranslations } from "next-intl";
 
-import { TableIcon } from "@/app/_components/icons/table-icon";
+import { TableIcon } from "@/app/(user)/_components/icons/table-icon";
 
 import { LandingSection } from "./landing-section";
 

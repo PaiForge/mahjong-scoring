@@ -6,7 +6,7 @@ import {
   DATA_TABLE_ALIGN_CLASS,
   DataTable,
   DataTableHeaderCell,
-} from "@/app/_components/data-table";
+} from "@/app/(user)/_components/data-table";
 
 import { HAN_DISPLAY } from "../_lib/han-display";
 

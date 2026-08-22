@@ -3,7 +3,7 @@
 import { useId } from "react";
 
 import { Button } from "./button";
-import { ModalShell } from "./modal-shell";
+import { ModalShell } from "@/app/_components/modal-shell";
 
 interface ConfirmationModalProps {
   readonly isOpen: boolean;

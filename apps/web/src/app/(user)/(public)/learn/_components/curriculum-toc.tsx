@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { getTranslations } from "next-intl/server";
-import { CheckIcon } from "@/app/_components/icons/check-icon";
+import { CheckIcon } from "@/app/(user)/_components/icons/check-icon";
 import { TEXT_LINK_MUTED_CLASSES } from "@/app/_components/_lib/link-classes";
 import {
   getChapterI18nPath,

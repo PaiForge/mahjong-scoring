@@ -10,15 +10,15 @@
 import type { Metadata } from "next";
 import { getTranslations } from "next-intl/server";
 
-import { ContentContainer } from "@/app/_components/content-container";
-import { PageTitle } from "@/app/_components/page-title";
-import { BookIcon } from "@/app/_components/icons/book-icon";
-import { CheckIcon } from "@/app/_components/icons/check-icon";
-import { PlayIcon } from "@/app/_components/icons/play-icon";
+import { ContentContainer } from "@/app/(user)/_components/content-container";
+import { PageTitle } from "@/app/(user)/_components/page-title";
+import { BookIcon } from "@/app/(user)/_components/icons/book-icon";
+import { CheckIcon } from "@/app/(user)/_components/icons/check-icon";
+import { PlayIcon } from "@/app/(user)/_components/icons/play-icon";
 import { createMetadata } from "@/app/_lib/metadata";
 
 import { StepCard } from "./_components/step-card";
-import { LinkButton } from "@/app/_components/link-button";
+import { LinkButton } from "@/app/(user)/_components/link-button";
 
 export async function generateMetadata(): Promise<Metadata> {
   const t = await getTranslations("gettingStarted");

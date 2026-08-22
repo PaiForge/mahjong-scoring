@@ -6,8 +6,8 @@ import { useTranslations } from "next-intl";
 import { useRouter } from "next/navigation";
 import { toast } from "react-hot-toast";
 
-import { Button } from "@/app/_components/button";
-import { ConfirmationModal } from "@/app/_components/confirmation-modal";
+import { Button } from "@/app/(user)/_components/button";
+import { ConfirmationModal } from "@/app/(user)/_components/confirmation-modal";
 import { useAuth } from "@/app/_contexts/auth-context";
 import { deleteOwnAccount } from "../_actions/delete-account";
 

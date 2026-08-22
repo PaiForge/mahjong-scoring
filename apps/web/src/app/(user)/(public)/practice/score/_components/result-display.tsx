@@ -13,7 +13,7 @@ import { formatScoreAnswer } from "../../_lib/format-score-answer";
 import { paymentToScoreTableAnswer } from "../../_lib/payment-adapter";
 import { DetailsAccordion } from "./details-accordion";
 import type { DetailItem } from "./details-accordion";
-import { Button } from "@/app/_components/button";
+import { Button } from "@/app/(user)/_components/button";
 
 interface ResultDisplayProps {
   readonly question: ScoreQuestion;

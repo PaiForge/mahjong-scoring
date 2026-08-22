@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { useTranslations } from "next-intl";
 import type { ScoreTableUserAnswer } from "@mahjong-scoring/core";
-import { Button } from "@/app/_components/button";
+import { Button } from "@/app/(user)/_components/button";
 import { getAvailableScores } from "../score/_lib/get-available-scores";
 import { ScoreOptionSelect } from "./score-option-select";
 

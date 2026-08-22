@@ -9,7 +9,7 @@ import { getAvailableScores } from "../_lib/get-available-scores";
 import { MANGAN_MIN_HAN, PRACTICE_HAN_TIERS } from "../_lib/han-tiers";
 import { getSelectClass } from "../../_lib/select-class";
 import { ScoreOptionSelect } from "../../_components/score-option-select";
-import { Button } from "@/app/_components/button";
+import { Button } from "@/app/(user)/_components/button";
 
 interface ScorePracticeAnswerFormProps {
   readonly onSubmit: (answer: UserAnswer) => void;

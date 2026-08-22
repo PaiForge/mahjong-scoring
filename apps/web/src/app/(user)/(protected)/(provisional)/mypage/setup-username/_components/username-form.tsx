@@ -9,7 +9,7 @@ import { useRouter } from "next/navigation";
 import { validateUsername } from "@/lib/username";
 
 import { registerUsername } from "../_actions/register-username";
-import { Button } from "@/app/_components/button";
+import { Button } from "@/app/(user)/_components/button";
 
 /**
  * ユーザー名登録フォーム。

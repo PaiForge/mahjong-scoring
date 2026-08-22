@@ -16,7 +16,7 @@ import { QuestionGeneratingPlaceholder } from "../../_components/question-genera
 import { TehaiDisplay } from "../../_components/tehai-display";
 import { FuBreakdown } from "./fu-breakdown";
 import { QuestionPrompt } from "../../_components/question-prompt";
-import { Button } from "@/app/_components/button";
+import { Button } from "@/app/(user)/_components/button";
 
 function generateQuestion(
   renfonpaiAs4Fu: boolean,

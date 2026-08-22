@@ -1,5 +1,5 @@
 import { SectionTitle } from "./section-title";
-import { SkeletonBar } from "./skeleton-bar";
+import { SkeletonBar } from "@/app/_components/skeleton-bar";
 
 interface SectionTitleSkeletonProps {
   /** プレースホルダーバーの幅（Tailwind の `w-*` クラス） */

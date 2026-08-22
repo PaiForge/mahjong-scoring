@@ -1,5 +1,5 @@
 import { getTranslations } from "next-intl/server";
-import { SectionTitle } from "@/app/_components/section-title";
+import { SectionTitle } from "@/app/(user)/_components/section-title";
 import { GuideParagraph } from "../../_components/guide-paragraph";
 import { BlockMath, InlineMath } from "../../_components/math";
 

@@ -1,6 +1,6 @@
 import Link from "next/link";
 
-import { UserAvatar } from "@/app/_components/user-avatar";
+import { UserAvatar } from "@/app/(user)/_components/user-avatar";
 import type { RankedLeaderboardRow } from "@/lib/db/leaderboard-queries";
 
 interface PlayerCellProps {

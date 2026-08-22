@@ -2,7 +2,7 @@
 
 import type { ReactNode } from "react";
 
-import { Button } from "@/app/_components/button";
+import { Button } from "@/app/(user)/_components/button";
 
 interface AuthSubmitButtonProps {
   readonly loading: boolean;

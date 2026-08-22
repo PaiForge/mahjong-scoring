@@ -59,7 +59,25 @@ packages/eslint-config/ — 共通 ESLint 設定（PaiForge コーディング�
 - サーバーコンポーネント: `getTranslations()` / クライアントコンポーネント: `useTranslations()`
 - UIコンポーネントに日本語をベタ書きしない
 
-## 共通UIコンポーネント（`apps/web/src/app/_components/`）
+## 共通UIコンポーネント
+
+置き場所は 2 つに分かれる。ディレクトリで「管理画面が使うか」を表現している。
+
+| ディレクトリ                           | 中身                                                                                                                                                  |
+| -------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `apps/web/src/app/_components/`        | ユーザー向け画面と管理画面（`/admin`）で共有するもの。`SkeletonBar` / `PageTitleSkeleton` / `ModalShell` / `GlobalToaster` / `_lib/link-classes` のみ |
+| `apps/web/src/app/(user)/_components/` | ブランド UI（太枠・ハードシャドウ・押し込み演出の世界）。上記以外はすべてここ                                                                         |
+
+新しい共通コンポーネントは原則 `(user)/_components/` に置く。`app/_components/`
+へ足すのは管理画面からも使うときだけ。`app/_components/` 側から
+`(user)/_components/` を import しない（依存の向きを一方向に保つ）。
+
+例外は 2 つだけ:
+
+- ルートの `app/not-found.tsx` / `app/error.tsx` — `(user)` 配下ではないがユーザーに見える画面なので、ブランド UI を使う
+- 管理画面の `PaginationNav` — 元々ユーザー向けと同じ見た目なので `(user)/_components/` のものを共有する
+
+### 主なコンポーネント
 
 - `PageTitle` — h1。全ページで使用
 - `SectionTitle` — h2。濃い緑の pill に白抜き
@@ -71,7 +89,7 @@ packages/eslint-config/ — 共通 ESLint 設定（PaiForge コーディング�
 - `SectionTitleSkeleton` — 見出しのプレースホルダ pill。矩形で代用せずこれを使う（`SectionTitle` 自身を描画するため実物と高さ・形が一致する）
 - `icons/OutlineIcon` — 線画アイコンの svg 外殻。新しい線画アイコンはこれを使う
 
-### ボタン（`apps/web/src/app/_components/`）
+### ボタン（`apps/web/src/app/(user)/_components/`）
 
 - `Button` — `<button>` のボタン。`LinkButton` — `next/link` のボタン
 - 見た目は `_lib/button-classes.ts` の `buttonClasses()` に集約。`border-3 border-ink bg-primary-500 ...` のような一式をページ側で直接書かない
@@ -79,9 +97,11 @@ packages/eslint-config/ — 共通 ESLint 設定（PaiForge コーディング�
 - 無効時は `disabled` を渡す。呼び出し側で `<span aria-disabled>` を書き分けない（`LinkButton` が span を描画する）
 - 外部リンクの `<a>` など上記に乗らない要素には `buttonClasses()` を直接使う
 - 「押せる面」（カード全体がリンクになっているもの。`ListLink` 等）はボタンではないため対象外
-- 管理画面（`/admin`）は別のビジュアル言語のため、この統一の対象外
+- 管理画面（`/admin`）は別のビジュアル言語のため対象外。`(user)/_components/` に置いているのはその意思表示でもある
 
 ### テキストリンク（`apps/web/src/app/_components/_lib/link-classes.ts`）
+
+管理画面でも使うため `app/_components/` 側に置いている。
 
 本文中のリンクやページ間の補助導線は `TEXT_LINK_CLASSES`（既定・緑）/
 `TEXT_LINK_MUTED_CLASSES`（控えめ・グレー）を `className` に貼る。

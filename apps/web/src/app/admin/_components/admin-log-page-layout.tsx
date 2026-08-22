@@ -8,7 +8,7 @@ import {
 
 import { AdminPageTitle } from "./admin-page-title";
 import { TableEmptyRow } from "./table-empty-row";
-import { PaginationNav } from "../../_components/pagination-nav";
+import { PaginationNav } from "@/app/(user)/_components/pagination-nav";
 
 /**
  * 管理画面ログページ共通の検索パラメータキャッシュ（ログ検索パラメータ）

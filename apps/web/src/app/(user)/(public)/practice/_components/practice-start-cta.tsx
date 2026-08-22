@@ -1,5 +1,5 @@
-import { InfinityIcon } from "@/app/_components/icons/infinity-icon";
-import { LinkButton } from "@/app/_components/link-button";
+import { InfinityIcon } from "@/app/(user)/_components/icons/infinity-icon";
+import { LinkButton } from "@/app/(user)/_components/link-button";
 
 /** 開始導線に表示する文言 */
 export interface PracticeStartCtaLabels {

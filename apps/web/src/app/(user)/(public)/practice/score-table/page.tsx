@@ -15,9 +15,9 @@
 import type { Metadata } from "next";
 import { HowToPlaySection } from "../_components/how-to-play-section";
 import { getTranslations } from "next-intl/server";
-import { ContentContainer } from "@/app/_components/content-container";
-import { PageTitle } from "@/app/_components/page-title";
-import { SectionTitle } from "@/app/_components/section-title";
+import { ContentContainer } from "@/app/(user)/_components/content-container";
+import { PageTitle } from "@/app/(user)/_components/page-title";
+import { SectionTitle } from "@/app/(user)/_components/section-title";
 import { createNamespaceMetadata } from "@/app/_lib/metadata";
 import { ScoreTableHowToPlay } from "./_components/score-table-how-to-play";
 import { ScoreTableSetup } from "./_components/score-table-setup";

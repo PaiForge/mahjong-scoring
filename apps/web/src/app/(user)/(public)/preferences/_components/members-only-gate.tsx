@@ -6,7 +6,7 @@ import { useTranslations } from "next-intl";
 
 import { useAuth } from "@/app/_contexts/auth-context";
 import { TEXT_LINK_CLASSES } from "@/app/_components/_lib/link-classes";
-import { LinkButton } from "@/app/_components/link-button";
+import { LinkButton } from "@/app/(user)/_components/link-button";
 
 /**
  * 会員限定ゲート（スモーク）

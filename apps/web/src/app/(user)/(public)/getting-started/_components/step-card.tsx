@@ -2,7 +2,7 @@ import type { ReactNode } from "react";
 
 import Link from "next/link";
 import { TEXT_LINK_MUTED_CLASSES } from "@/app/_components/_lib/link-classes";
-import { LinkButton } from "@/app/_components/link-button";
+import { LinkButton } from "@/app/(user)/_components/link-button";
 
 interface StepCardProps {
   readonly stepLabel?: string;

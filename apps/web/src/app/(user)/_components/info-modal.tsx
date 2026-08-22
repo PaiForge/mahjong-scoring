@@ -1,7 +1,7 @@
 "use client";
 
 import { Button } from "./button";
-import { ModalShell } from "./modal-shell";
+import { ModalShell } from "@/app/_components/modal-shell";
 
 interface InfoModalProps {
   readonly isOpen: boolean;

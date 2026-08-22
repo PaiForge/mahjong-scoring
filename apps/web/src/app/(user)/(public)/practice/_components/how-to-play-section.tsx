@@ -1,6 +1,6 @@
 import type { ReactNode } from "react";
 
-import { SectionTitle } from "@/app/_components/section-title";
+import { SectionTitle } from "@/app/(user)/_components/section-title";
 
 interface HowToPlaySectionProps {
   /** セクション見出し（<namespace>.howToPlay.title） */

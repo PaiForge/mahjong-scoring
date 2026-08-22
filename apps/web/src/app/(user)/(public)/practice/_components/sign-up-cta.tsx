@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { getTranslations } from "next-intl/server";
 import { TEXT_LINK_CLASSES } from "@/app/_components/_lib/link-classes";
-import { LinkButton } from "@/app/_components/link-button";
+import { LinkButton } from "@/app/(user)/_components/link-button";
 
 /**
  * 未ログインユーザー向けの登録 CTA

@@ -1,4 +1,4 @@
-import { SectionTitleSkeleton } from "@/app/_components/section-title-skeleton";
+import { SectionTitleSkeleton } from "@/app/(user)/_components/section-title-skeleton";
 import { SkeletonBar } from "@/app/_components/skeleton-bar";
 
 /**

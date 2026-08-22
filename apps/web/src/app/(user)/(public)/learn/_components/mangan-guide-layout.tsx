@@ -1,7 +1,7 @@
 import type { ReactNode } from "react";
 import { getTranslations } from "next-intl/server";
 
-import { SectionTitle } from "@/app/_components/section-title";
+import { SectionTitle } from "@/app/(user)/_components/section-title";
 
 import { GuideParagraph } from "./guide-paragraph";
 

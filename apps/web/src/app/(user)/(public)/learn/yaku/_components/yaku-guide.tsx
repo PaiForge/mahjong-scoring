@@ -1,8 +1,11 @@
 import Link from "next/link";
 import { getTranslations } from "next-intl/server";
-import { DataTable, DataTableHeaderCell } from "@/app/_components/data-table";
-import { SectionTitle } from "@/app/_components/section-title";
-import { ChevronRightIcon } from "@/app/_components/icons/chevron-right-icon";
+import {
+  DataTable,
+  DataTableHeaderCell,
+} from "@/app/(user)/_components/data-table";
+import { SectionTitle } from "@/app/(user)/_components/section-title";
+import { ChevronRightIcon } from "@/app/(user)/_components/icons/chevron-right-icon";
 import { GuideParagraph } from "../../_components/guide-paragraph";
 
 export async function YakuGuide() {

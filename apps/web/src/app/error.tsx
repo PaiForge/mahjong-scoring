@@ -3,8 +3,10 @@
 import { useEffect } from "react";
 import Link from "next/link";
 
-import { buttonClasses } from "./_components/_lib/button-classes";
-import { Button } from "./_components/button";
+// ルート 404/500 は (user) 配下ではないが、ユーザーに見える画面なので
+// ブランド UI のボタンを使う（admin 配下のエラーもここに落ちる）。
+import { buttonClasses } from "@/app/(user)/_components/_lib/button-classes";
+import { Button } from "@/app/(user)/_components/button";
 
 /**
  * Root Error Boundary

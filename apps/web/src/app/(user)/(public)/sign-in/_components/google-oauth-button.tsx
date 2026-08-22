@@ -2,8 +2,8 @@
 
 import { useState } from "react";
 import { useTranslations } from "next-intl";
-import { Button } from "@/app/_components/button";
-import { GoogleIcon } from "@/app/_components/icons/google-icon";
+import { Button } from "@/app/(user)/_components/button";
+import { GoogleIcon } from "@/app/(user)/_components/icons/google-icon";
 import { createClient } from "@/lib/supabase/client";
 
 /**

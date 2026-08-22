@@ -1,6 +1,6 @@
 import { useTranslations } from "next-intl";
 
-import { PlayIcon } from "@/app/_components/icons/play-icon";
+import { PlayIcon } from "@/app/(user)/_components/icons/play-icon";
 
 import { LandingSection } from "./landing-section";
 

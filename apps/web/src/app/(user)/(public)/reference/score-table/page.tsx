@@ -1,9 +1,9 @@
 import type { Metadata } from "next";
 import { Suspense } from "react";
 import { getTranslations } from "next-intl/server";
-import { ContentContainer } from "@/app/_components/content-container";
-import { PageTitle } from "@/app/_components/page-title";
-import { SectionTitle } from "@/app/_components/section-title";
+import { ContentContainer } from "@/app/(user)/_components/content-container";
+import { PageTitle } from "@/app/(user)/_components/page-title";
+import { SectionTitle } from "@/app/(user)/_components/section-title";
 import { createNamespaceMetadata } from "@/app/_lib/metadata";
 import { ScoreTable } from "./_components/score-table";
 import { SkeletonBar } from "@/app/_components/skeleton-bar";

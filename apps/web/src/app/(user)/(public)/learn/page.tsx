@@ -11,9 +11,9 @@
  */
 import type { Metadata } from "next";
 import { getTranslations } from "next-intl/server";
-import { ContentContainer } from "@/app/_components/content-container";
-import { PageTitle } from "@/app/_components/page-title";
-import { SectionTitle } from "@/app/_components/section-title";
+import { ContentContainer } from "@/app/(user)/_components/content-container";
+import { PageTitle } from "@/app/(user)/_components/page-title";
+import { SectionTitle } from "@/app/(user)/_components/section-title";
 import { createMetadata } from "@/app/_lib/metadata";
 import { CurriculumProgressBar } from "./_components/curriculum-progress-bar";
 import { CurriculumToc } from "./_components/curriculum-toc";

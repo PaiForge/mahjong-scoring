@@ -1,6 +1,6 @@
 import { getTranslations } from "next-intl/server";
-import { ChevronRightIcon } from "@/app/_components/icons/chevron-right-icon";
-import { LinkButton } from "@/app/_components/link-button";
+import { ChevronRightIcon } from "@/app/(user)/_components/icons/chevron-right-icon";
+import { LinkButton } from "@/app/(user)/_components/link-button";
 
 interface PracticeLinkListProps {
   /** `/practice/<slug>` 形式のリンク集 */

@@ -8,11 +8,11 @@ import type { Metadata } from "next";
 import { getTranslations } from "next-intl/server";
 import { notFound } from "next/navigation";
 
-import { buttonClasses } from "@/app/_components/_lib/button-classes";
-import { ContentContainer } from "@/app/_components/content-container";
-import { PageTitle } from "@/app/_components/page-title";
-import { SectionTitle } from "@/app/_components/section-title";
-import { UserAvatar } from "@/app/_components/user-avatar";
+import { buttonClasses } from "@/app/(user)/_components/_lib/button-classes";
+import { ContentContainer } from "@/app/(user)/_components/content-container";
+import { PageTitle } from "@/app/(user)/_components/page-title";
+import { SectionTitle } from "@/app/(user)/_components/section-title";
+import { UserAvatar } from "@/app/(user)/_components/user-avatar";
 import { createMetadata } from "@/app/_lib/metadata";
 import { getPublicProfileByUsername } from "@/lib/db/queries";
 

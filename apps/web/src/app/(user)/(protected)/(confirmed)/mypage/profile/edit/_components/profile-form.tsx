@@ -11,12 +11,12 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import toast from "react-hot-toast";
 
-import { SectionTitle } from "@/app/_components/section-title";
+import { SectionTitle } from "@/app/(user)/_components/section-title";
 
 import { updateProfile } from "../_actions/update-profile";
 import { PROFILE_LIMITS } from "../_lib/profile-validation";
 import { TEXT_LINK_MUTED_CLASSES } from "@/app/_components/_lib/link-classes";
-import { Button } from "@/app/_components/button";
+import { Button } from "@/app/(user)/_components/button";
 
 /** action が返す既知のエラーキー（profileEdit 名前空間に対応する文言がある） */
 const KNOWN_ERROR_KEYS = new Set([

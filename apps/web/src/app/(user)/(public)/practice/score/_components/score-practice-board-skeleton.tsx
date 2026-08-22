@@ -1,8 +1,8 @@
 "use client";
 
 import { useTranslations } from "next-intl";
-import { ContentContainer } from "@/app/_components/content-container";
-import { PageTitle } from "@/app/_components/page-title";
+import { ContentContainer } from "@/app/(user)/_components/content-container";
+import { PageTitle } from "@/app/(user)/_components/page-title";
 import { PRACTICE_SCROLL_ANCHOR_ID } from "../../_lib/scroll-anchor";
 import { SkeletonBar } from "@/app/_components/skeleton-bar";
 

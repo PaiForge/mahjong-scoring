@@ -1,6 +1,6 @@
-import { Header } from "@/app/_components/header";
-import { MobileTabBar } from "@/app/_components/mobile-tab-bar";
-import { Footer } from "@/app/_components/footer";
+import { Header } from "@/app/(user)/_components/header";
+import { MobileTabBar } from "@/app/(user)/_components/mobile-tab-bar";
+import { Footer } from "@/app/(user)/_components/footer";
 
 export default function UserLayout({
   children,

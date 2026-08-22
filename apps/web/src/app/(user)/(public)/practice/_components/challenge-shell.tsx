@@ -2,11 +2,11 @@
 
 import { type ReactNode, memo, useEffect, useRef, useCallback } from "react";
 import { useTranslations } from "next-intl";
-import { ContentContainer } from "@/app/_components/content-container";
-import { PageTitle } from "@/app/_components/page-title";
-import { BoardOverlay } from "@/app/_components/board-overlay";
-import { PauseIcon } from "@/app/_components/icons/pause-icon";
-import { PlayIcon } from "@/app/_components/icons/play-icon";
+import { ContentContainer } from "@/app/(user)/_components/content-container";
+import { PageTitle } from "@/app/(user)/_components/page-title";
+import { BoardOverlay } from "@/app/(user)/_components/board-overlay";
+import { PauseIcon } from "@/app/(user)/_components/icons/pause-icon";
+import { PlayIcon } from "@/app/(user)/_components/icons/play-icon";
 import type {
   GameSessionState,
   TimerControl,

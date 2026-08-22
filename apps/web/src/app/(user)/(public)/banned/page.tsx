@@ -2,8 +2,8 @@ import { desc, eq, and } from "drizzle-orm";
 import { getTranslations } from "next-intl/server";
 import { redirect } from "next/navigation";
 
-import { PageTitle } from "@/app/_components/page-title";
-import { ContentContainer } from "@/app/_components/content-container";
+import { PageTitle } from "@/app/(user)/_components/page-title";
+import { ContentContainer } from "@/app/(user)/_components/content-container";
 import { getAuthenticatedUser } from "../../../../lib/auth";
 import { isUserBanned } from "../../../../lib/ban";
 import { db, moderationActions } from "../../../../lib/db";

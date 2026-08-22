@@ -4,11 +4,11 @@ import { CHALLENGE_TIME_LIMIT, MISTAKE_LIMIT } from "@mahjong-scoring/core";
 import { PracticeStartCta } from "./practice-start-cta";
 import Link from "next/link";
 import { getTranslations } from "next-intl/server";
-import { ContentContainer } from "@/app/_components/content-container";
-import { PageTitle } from "@/app/_components/page-title";
-import { SectionTitle } from "@/app/_components/section-title";
-import { LinkButton } from "@/app/_components/link-button";
-import { BookIcon } from "@/app/_components/icons/book-icon";
+import { ContentContainer } from "@/app/(user)/_components/content-container";
+import { PageTitle } from "@/app/(user)/_components/page-title";
+import { SectionTitle } from "@/app/(user)/_components/section-title";
+import { LinkButton } from "@/app/(user)/_components/link-button";
+import { BookIcon } from "@/app/(user)/_components/icons/book-icon";
 import { PRACTICE_SCROLL_HASH } from "../_lib/scroll-anchor";
 
 interface PracticeIntroContentProps {

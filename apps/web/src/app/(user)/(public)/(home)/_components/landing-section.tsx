@@ -1,7 +1,7 @@
 import type { ReactNode } from "react";
 
-import type { ButtonVariant } from "@/app/_components/_lib/button-classes";
-import { LinkButton } from "@/app/_components/link-button";
+import type { ButtonVariant } from "@/app/(user)/_components/_lib/button-classes";
+import { LinkButton } from "@/app/(user)/_components/link-button";
 
 interface LandingSectionProps {
   readonly sectionClassName: string;
