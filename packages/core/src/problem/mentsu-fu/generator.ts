@@ -17,6 +17,5 @@ export function generateMentsuFuQuestion(
     id: idGen(),
     mentsu: result.mentsu,
     answer: result.fu,
-    explanation: result.explanation,
   };
 }

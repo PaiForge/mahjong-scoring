@@ -1,5 +1,6 @@
 import { describe, it, expect } from "vitest";
 import { generateYakuHanQuestion } from "./generator";
+import { expectSampled } from "../../test/sampling";
 import {
   YAKU_HAN_ENTRIES,
   YAKUMAN_HAN,
@@ -53,11 +54,15 @@ describe("generateYakuHanQuestion", () => {
         (e) => e.name,
       ),
     );
-    for (let i = 0; i < 500; i++) {
-      const q = generateYakuHanQuestion();
-      if (menzenOnlyNames.has(q.yakuName)) {
-        expect(q.isMenzen).toBe(true);
-      }
+    // 門前限定役が1問も出ないと無言で pass するため、母集団を保証する
+    const questions = expectSampled(generateYakuHanQuestion, {
+      need: 20,
+      attempts: 500,
+      where: (q) => menzenOnlyNames.has(q.yakuName),
+    });
+
+    for (const q of questions) {
+      expect(q.isMenzen).toBe(true);
     }
   });
 });

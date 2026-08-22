@@ -12,9 +12,7 @@ describe("generateJantouFuQuestion", () => {
       const { bakaze, jikaze } = question.context;
 
       for (const choice of question.choices) {
-        expect(calculateJantouFu(choice.hai, bakaze, jikaze).fu).toBe(
-          choice.fu,
-        );
+        expect(calculateJantouFu(choice.hai, bakaze, jikaze)).toBe(choice.fu);
       }
     }
   });
@@ -25,7 +23,7 @@ describe("generateJantouFuQuestion", () => {
       const { bakaze, jikaze } = question.context;
 
       for (const choice of question.choices) {
-        expect(calculateJantouFu(choice.hai, bakaze, jikaze, true).fu).toBe(
+        expect(calculateJantouFu(choice.hai, bakaze, jikaze, true)).toBe(
           choice.fu,
         );
       }

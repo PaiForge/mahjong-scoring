@@ -1,6 +1,5 @@
 import { HaiKind, type HaiKindId } from "@pai-forge/riichi-mahjong";
 import type { JantouFuQuestion } from "./types";
-import { getKazeName } from "../../core/kaze";
 import { randomChoice, shuffle } from "../../core/random";
 import { BAKAZE_OPTIONS, KAZEHAI, SANGENHAI } from "../../core/constants";
 import { isHaiKindId } from "../../core/type-guards";
@@ -38,78 +37,32 @@ export function generateJantouFuQuestion(
   const jikaze = randomChoice(KAZEHAI);
 
   // 符の値は calculateJantouFu（雀頭符ルールの唯一の定義）から引く。
-  // このジェネレータが持つのは候補の列挙と出題用の説明文だけ。
+  // このジェネレータが持つのは候補の列挙だけ。
   const fuOf = (hai: HaiKindId): number =>
-    calculateJantouFu(hai, bakaze, jikaze, renfonpaiAs4Fu).fu;
+    calculateJantouFu(hai, bakaze, jikaze, renfonpaiAs4Fu);
 
-  // 正解候補（2符 or 連風牌で4符）
-  const correctCandidates: {
-    hai: HaiKindId;
-    fu: number;
-    explanation: string;
-  }[] = SANGENHAI.map((hai) => ({
-    hai,
-    fu: fuOf(hai),
-    explanation:
-      hai === HaiKind.Haku
-        ? "役牌（白）"
-        : hai === HaiKind.Hatsu
-          ? "役牌（發）"
-          : "役牌（中）",
-  }));
-
-  if (bakaze === jikaze) {
-    correctCandidates.push({
-      hai: bakaze,
-      fu: fuOf(bakaze),
-      explanation: `連風牌（${getKazeName(bakaze)}）`,
-    });
-  } else {
-    correctCandidates.push({
-      hai: bakaze,
-      fu: fuOf(bakaze),
-      explanation: `場風（${getKazeName(bakaze)}）`,
-    });
-    correctCandidates.push({
-      hai: jikaze,
-      fu: fuOf(jikaze),
-      explanation: `自風（${getKazeName(jikaze)}）`,
-    });
-  }
+  // 正解候補（2符 or 連風牌で4符）。連風牌のときは場風＝自風なので1枚だけ。
+  const correctCandidates: readonly HaiKindId[] = [
+    ...SANGENHAI,
+    ...(bakaze === jikaze ? [bakaze] : [bakaze, jikaze]),
+  ];
 
   const correct = randomChoice(correctCandidates);
 
-  // 不正解候補（0符）
-  const incorrectCandidates: { hai: HaiKindId; explanation: string }[] = [];
-
-  for (const kaze of KAZEHAI) {
-    if (kaze !== bakaze && kaze !== jikaze) {
-      incorrectCandidates.push({
-        hai: kaze,
-        explanation: `オタ風（${getKazeName(kaze)}）`,
-      });
-    }
-  }
-
-  const shuffledNumbers = shuffle(NUMBER_TILES);
-  for (let i = 0; i < 10; i++) {
-    incorrectCandidates.push({ hai: shuffledNumbers[i], explanation: "数牌" });
-  }
+  // 不正解候補（0符）: オタ風と数牌
+  const incorrectCandidates: HaiKindId[] = KAZEHAI.filter(
+    (kaze) => kaze !== bakaze && kaze !== jikaze,
+  );
+  incorrectCandidates.push(...shuffle(NUMBER_TILES).slice(0, 10));
 
   const selectedIncorrect = shuffle(incorrectCandidates).slice(0, 3);
 
   const choices = shuffle([
-    {
-      hai: correct.hai,
-      isCorrect: true,
-      fu: correct.fu,
-      explanation: correct.explanation,
-    },
-    ...selectedIncorrect.map((c) => ({
-      hai: c.hai,
+    { hai: correct, isCorrect: true, fu: fuOf(correct) },
+    ...selectedIncorrect.map((hai) => ({
+      hai,
       isCorrect: false,
-      fu: fuOf(c.hai),
-      explanation: c.explanation,
+      fu: fuOf(hai),
     })),
   ]);
 

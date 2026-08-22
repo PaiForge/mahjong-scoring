@@ -8,5 +8,4 @@ export interface MentsuFuQuestion {
   readonly id: string;
   readonly mentsu: CompletedMentsu;
   readonly answer: number;
-  readonly explanation: string;
 }

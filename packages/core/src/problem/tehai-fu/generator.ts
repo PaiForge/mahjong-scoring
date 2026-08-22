@@ -44,7 +44,6 @@ export function generateTehaiFuQuestion(
     tiles: [...result.mentsu.hais],
     type: result.mentsu.type,
     fu: result.fu,
-    explanation: result.explanation,
     isOpen: !!result.mentsu.furo,
     originalMentsu: result.mentsu,
   }));
@@ -57,13 +56,11 @@ export function generateTehaiFuQuestion(
   const headTile = generatePairTile(tracker);
   if (headTile === undefined) return undefined;
 
-  const headFu = calculateJantouFu(headTile, bakaze, jikaze, renfonpaiAs4Fu);
   items.push({
     id: idGen(),
     tiles: [headTile, headTile],
     type: "Pair",
-    fu: headFu.fu,
-    explanation: headFu.explanation,
+    fu: calculateJantouFu(headTile, bakaze, jikaze, renfonpaiAs4Fu),
     isOpen: false,
   });
 

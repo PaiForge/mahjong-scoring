@@ -12,8 +12,4 @@ export interface MachiFuQuestion {
   readonly agariHai: HaiKindId;
   /** 正解の符（0 or 2） */
   readonly answer: number;
-  /** 待ちの形の名称（例: "両面待ち"） */
-  readonly shapeName: string;
-  /** 解説テキスト（例: "両面待ちは0符です"） */
-  readonly explanation: string;
 }
