@@ -105,7 +105,7 @@ export function NavMenu() {
                 </button>
               </div>
 
-              <nav className="space-y-2 px-4 py-6">
+              <nav className="space-y-1 px-4 py-6">
                 {DRAWER_NAV_ITEMS.map((item) => {
                   const isActive = pathname === item.href;
                   return (
@@ -113,10 +113,10 @@ export function NavMenu() {
                       key={item.href}
                       href={item.href}
                       onClick={() => setIsOpen(false)}
-                      className={`flex items-center gap-3 rounded-full border-3 border-ink px-4 py-2.5 font-bold transition-colors ${
+                      className={`flex items-center gap-3 rounded-lg px-4 py-3 transition-colors ${
                         isActive
-                          ? "bg-primary-700 text-white shadow-xs"
-                          : "bg-card text-foreground shadow-xs hover:bg-primary-50"
+                          ? "bg-primary-50 text-primary"
+                          : "text-muted-foreground hover:bg-primary-50 hover:text-foreground"
                       }`}
                     >
                       {item.icon}
