@@ -2,6 +2,7 @@
 
 import { useTranslations } from "next-intl";
 import { useRuleSettingsStore } from "@/app/_hooks/use-rule-settings-store";
+import { PREFERENCE_ANCHORS } from "../_lib/anchors";
 
 /**
  * ルール設定セクション
@@ -16,7 +17,13 @@ export function RuleSettingsSection() {
 
   return (
     <div className="overflow-hidden rounded-lg border-3 border-ink bg-white">
-      <div className="group flex items-center justify-between px-5 py-4">
+      {/* 教本などから `/preferences#renfonpai` で直接飛んで来られる。
+          scroll-mt-* は着地時に項目が画面上端へ張り付かないための余白、
+          target: は「どれが目当ての項目か」を着地後も示すための下地。 */}
+      <div
+        id={PREFERENCE_ANCHORS.renfonpai}
+        className="group flex scroll-mt-24 items-center justify-between px-5 py-4 target:bg-primary-50"
+      >
         <span className="pr-4">
           <span className="block text-sm font-medium text-surface-900">
             {t("renfonpaiTitle")}
