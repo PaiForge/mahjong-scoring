@@ -3,7 +3,10 @@
 import type { ReactNode } from "react";
 import { useTranslations } from "next-intl";
 import type { PracticeMenuSlug } from "@/lib/db/practice-menu-types";
-import { practiceMenuBySlug } from "@/lib/db/practice-menu-types";
+import {
+  practiceMenuBySlug,
+  resultStorageKeyFor,
+} from "@/lib/db/practice-menu-types";
 import { ChallengeShell } from "../_components/challenge-shell";
 import { TrainingShell } from "../_components/training-shell";
 import { useRecordedResults } from "../_hooks/use-recorded-results";
@@ -20,7 +23,7 @@ export interface ChallengeBoardArgs<TResult> extends PracticeBoardProps {
   /** チャレンジではカウントダウンが必ずあるため必須 */
   readonly isCountingDown: boolean;
   readonly lastAnswerCorrect: boolean | undefined;
-  /** 問題結果の記録（config.resultStorageKey 指定時のみ終了時に保存される） */
+  /** 問題結果の記録（レジストリで `hasProblemList` の練習のみ終了時に保存される） */
   readonly recordResult: (result: TResult) => void;
 }
 
@@ -37,8 +40,6 @@ export interface ChallengePlayViewConfig<TResult, TProps, TState> {
   readonly slug: PracticeMenuSlug;
   /** シェル内部ラッパーの max-w クラス（未指定時はシェルの既定値） */
   readonly maxWidth?: string;
-  /** 問題結果を保存する sessionStorage キー（結果ページで内訳表示する練習のみ） */
-  readonly resultStorageKey?: string;
   /**
    * 盤面が必要とする追加状態を用意するフック
    *
@@ -68,8 +69,14 @@ export function createChallengePlayView<
 >(
   config: ChallengePlayViewConfig<TResult, TProps, TState>,
 ): (props: TProps) => ReactNode {
-  const { slug, maxWidth, resultStorageKey, renderBoard } = config;
-  const { namespace, menuType } = practiceMenuBySlug(slug);
+  const { slug, maxWidth, renderBoard } = config;
+  const { namespace, menuType, hasProblemList } = practiceMenuBySlug(slug);
+  // 問題別フィードバック一覧を持つ練習だけが問題結果を sessionStorage に積む。
+  // 一覧の有無はレジストリが唯一の定義で、結果ページとそのスケルトン
+  // （loading.tsx / ChallengeShell）も同じ旗を見る。
+  const resultStorageKey = hasProblemList
+    ? resultStorageKeyFor(slug)
+    : undefined;
   const useBoardState =
     config.useBoardState ?? (() => undefined as unknown as TState);
 
@@ -91,8 +98,7 @@ export function createChallengePlayView<
         resultPath={`/practice/${slug}/result`}
         exitHref={`/practice/${slug}`}
         maxWidth={maxWidth}
-        // 結果を保存する練習だけが結果ページで問題別フィードバック一覧を表示する
-        hasProblemList={resultStorageKey !== undefined}
+        hasProblemList={hasProblemList}
         onFinish={handleFinish}
       >
         {renderBoard(

@@ -8,7 +8,6 @@ import { YakuHanBoard } from "./yaku-han-board";
 import { YakuHanGeneratingPlaceholder } from "./yaku-han-generating-placeholder";
 import { useYakuHanRangeQuery } from "../_hooks/use-yaku-han-range-query";
 import type { YakuHanQuestionResult } from "../_lib/types";
-import { RESULT_STORAGE_KEY } from "../_lib/types";
 
 /**
  * URL の出題範囲で盤面を描く
@@ -45,7 +44,6 @@ export const YakuHanPlayView = createChallengePlayView<
 >({
   slug: "yaku-han",
   maxWidth: "max-w-2xl",
-  resultStorageKey: RESULT_STORAGE_KEY,
   renderBoard: (args) => (
     <Suspense fallback={<YakuHanGeneratingPlaceholder />}>
       <YakuHanBoardFromQuery args={args} />

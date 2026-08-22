@@ -1,3 +1,4 @@
+import { useSearchParams } from "next/navigation";
 import { useTranslations } from "next-intl";
 
 import type { PracticeMenuSlug } from "@/lib/db/practice-menu-types";
@@ -18,16 +19,22 @@ interface Props {
  * その loading.tsx は pathname で振り分けるためクライアントコンポーネントであり、
  * 翻訳は `useTranslations()` で引く（`getTranslations()` は使えない）。
  *
- * 出題数は URL クエリ（`?total=`）にあるが `loading.tsx` は searchParams を
- * 受け取れないため、問題別フィードバック一覧の枠はここでは出さない。
- * 一覧の高さは結果ページ本体（`ScoreProblemListLoader` 等）が確保する。
+ * 問題別フィードバック一覧の枠は出題数ぶん描く。`loading.tsx` は searchParams を
+ * props では受け取れないが、クライアントコンポーネントなので `useSearchParams()`
+ * で URL の `total` を読める。これを出さないと、チャレンジ終了直後の
+ * `ChallengeShell` のスケルトン（一覧枠あり）→ このフォールバック（枠なし）→
+ * 結果ページ（枠あり）と高さが一度縮んで伸び直す。一覧を持たない練習では
+ * `total` があっても枠を出さない（レジストリの `hasProblemList` を見る）。
  */
 export function PracticeResultLoadingFallback({ slug }: Props) {
-  const { namespace } = practiceMenuBySlug(slug);
+  const { namespace, hasProblemList } = practiceMenuBySlug(slug);
   const t = useTranslations(namespace);
   const tc = useTranslations("challenge");
   const tp = useTranslations("practice");
+  const searchParams = useSearchParams();
   const practiceTitle = t("title");
+  const total = Number(searchParams.get("total") ?? 0);
+  const problemCount = hasProblemList && Number.isFinite(total) ? total : 0;
 
   return (
     <ResultPageSkeleton
@@ -38,6 +45,7 @@ export function PracticeResultLoadingFallback({ slug }: Props) {
         resultLabel: tc("resultSuffix"),
         introHref: `/practice/${slug}`,
       })}
+      problemCount={problemCount}
     />
   );
 }
