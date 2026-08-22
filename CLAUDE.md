@@ -71,6 +71,16 @@ packages/eslint-config/ — 共通 ESLint 設定（PaiForge コーディング�
 - `SectionTitleSkeleton` — 見出しのプレースホルダ pill。矩形で代用せずこれを使う（`SectionTitle` 自身を描画するため実物と高さ・形が一致する）
 - `icons/OutlineIcon` — 線画アイコンの svg 外殻。新しい線画アイコンはこれを使う
 
+### ボタン（`apps/web/src/app/_components/`）
+
+- `Button` — `<button>` のボタン。`LinkButton` — `next/link` のボタン
+- 見た目は `_lib/button-classes.ts` の `buttonClasses()` に集約。`border-3 border-ink bg-primary-500 ...` のような一式をページ側で直接書かない
+- `variant`（primary / secondary / neutral / danger / warning / dangerOutline）、`size`（sm / md / lg / xl）、`fullWidth`、`disabled` で指定する。`className` は余白などレイアウト調整用で、色・枠・影を上書きしない
+- 無効時は `disabled` を渡す。呼び出し側で `<span aria-disabled>` を書き分けない（`LinkButton` が span を描画する）
+- 外部リンクの `<a>` など上記に乗らない要素には `buttonClasses()` を直接使う
+- 「押せる面」（カード全体がリンクになっているもの。`ListLink` 等）はボタンではないため対象外
+- 管理画面（`/admin`）は別のビジュアル言語のため、この統一の対象外
+
 ### テキストリンク（`apps/web/src/app/_components/_lib/link-classes.ts`）
 
 本文中のリンクやページ間の補助導線は `TEXT_LINK_CLASSES`（既定・緑）/
