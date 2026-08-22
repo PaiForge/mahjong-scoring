@@ -6,6 +6,7 @@
  */
 import type { Metadata } from "next";
 import { getTranslations } from "next-intl/server";
+import { chapterHref } from "@/app/(user)/(public)/learn/_lib/curriculum";
 import { ContentContainer } from "@/app/(user)/_components/content-container";
 import { PageTitle } from "@/app/(user)/_components/page-title";
 import { SectionTitle } from "@/app/(user)/_components/section-title";
@@ -38,8 +39,10 @@ function renderPracticeCards(
       difficulty={practice.difficulty}
       difficultyLabel={t(`difficulty.${practice.difficulty}`)}
       startLabel={t("start")}
-      learnHref={practice.learnHref}
-      learnLabel={practice.learnHref ? t("learn") : undefined}
+      learnHref={
+        practice.learnChapter ? chapterHref(practice.learnChapter) : undefined
+      }
+      learnLabel={practice.learnChapter ? t("learn") : undefined}
     />
   ));
 }

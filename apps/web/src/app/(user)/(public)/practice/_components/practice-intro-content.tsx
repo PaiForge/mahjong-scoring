@@ -4,26 +4,21 @@ import { CHALLENGE_TIME_LIMIT, MISTAKE_LIMIT } from "@mahjong-scoring/core";
 import { PracticeStartCta } from "./practice-start-cta";
 import Link from "next/link";
 import { getTranslations } from "next-intl/server";
+import { chapterHref } from "@/app/(user)/(public)/learn/_lib/curriculum";
+import type { PracticeMenuSlug } from "@/lib/db/practice-menu-types";
 import { ContentContainer } from "@/app/(user)/_components/content-container";
 import { PageTitle } from "@/app/(user)/_components/page-title";
 import { SectionTitle } from "@/app/(user)/_components/section-title";
 import { LinkButton } from "@/app/(user)/_components/link-button";
 import { BookIcon } from "@/app/(user)/_components/icons/book-icon";
+import { practiceMenuFromCatalog } from "../_lib/practice-catalog";
 import { PRACTICE_SCROLL_HASH } from "../_lib/scroll-anchor";
 
 interface PracticeIntroContentProps {
   /** i18n ネームスペース（例: "jantouFu"） */
   readonly namespace: string;
   /** 練習スラッグ（例: "jantou-fu"） */
-  readonly slug: string;
-  /** 学習ページへのリンクを表示するかどうか（デフォルト: true） */
-  readonly showLearnLink?: boolean;
-  /**
-   * 学習ページのパス（既定は `/learn/<slug>`）
-   *
-   * 専用の教本ページを持たず、別の練習の教本を前提知識とする練習が指定する。
-   */
-  readonly learnHref?: string;
+  readonly slug: PracticeMenuSlug;
   /** トレーニングモードへのボタンを表示するかどうか（デフォルト: false） */
   readonly showTraining?: boolean;
   /**
@@ -36,15 +31,20 @@ interface PracticeIntroContentProps {
 /**
  * 練習説明ページの共通コンテンツ
  * 練習説明共通
+ *
+ * @remarks
+ * 「関連記事」の教本リンクはカタログの `learnChapter` から引く。練習ページ側で
+ * パスを渡したり表示可否を切り替えたりはしない（章との対応はカタログが正典）。
  */
 export async function PracticeIntroContent({
   namespace,
   slug,
-  showLearnLink = true,
-  learnHref = `/learn/${slug}`,
   showTraining = false,
   howToPlay,
 }: PracticeIntroContentProps) {
+  // 前提知識となる章はカタログが持つ。専用の章を持たない練習では
+  // 「関連記事」セクションごと出さない。
+  const learnChapter = practiceMenuFromCatalog(slug)?.learnChapter;
   const t = await getTranslations(namespace);
   const tc = await getTranslations("challenge");
   const tp = await getTranslations("practice");
@@ -99,11 +99,11 @@ export async function PracticeIntroContent({
           </LinkButton>
         )}
 
-        {showLearnLink && (
+        {learnChapter && (
           <div className="space-y-3">
             <SectionTitle>{tp("requiredKnowledge")}</SectionTitle>
             <Link
-              href={learnHref}
+              href={chapterHref(learnChapter)}
               className="press-sm group flex items-start gap-4 rounded-xl border-3 border-ink bg-white p-5 shadow-sm hover:bg-primary-50"
             >
               <BookIcon className="mt-0.5 size-5 shrink-0 text-primary-600" />

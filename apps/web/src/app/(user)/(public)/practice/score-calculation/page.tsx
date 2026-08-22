@@ -24,7 +24,6 @@ export default function ScoreCalculationPage() {
     <PracticeIntroContent
       namespace="scoreCalculationChallenge"
       slug="score-calculation"
-      showLearnLink={false}
       showTraining
       howToPlay={<ScoreCalculationHowToPlay />}
     />

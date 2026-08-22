@@ -24,7 +24,6 @@ export default function ManganScoreCalculationPage() {
     <PracticeIntroContent
       namespace="manganScoreCalculationChallenge"
       slug="mangan-score-calculation"
-      showLearnLink={false}
       showTraining
       howToPlay={<ManganScoreCalculationHowToPlay />}
     />

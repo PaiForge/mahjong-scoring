@@ -3,6 +3,7 @@ import { getTranslations } from "next-intl/server";
 
 import { BrandLogo } from "./brand-logo";
 import { TEXT_LINK_MUTED_CLASSES } from "@/app/_components/_lib/link-classes";
+import { chapterHref } from "@/app/(user)/(public)/learn/_lib/curriculum";
 
 /**
  * フッター。
@@ -22,7 +23,7 @@ export async function Footer() {
             <ul className="space-y-2 text-sm text-muted-foreground">
               <li>
                 <Link
-                  href="/learn/about-this-app"
+                  href={chapterHref("about-this-app")}
                   className={TEXT_LINK_MUTED_CLASSES}
                 >
                   {t("aboutThisApp")}

@@ -6,6 +6,7 @@ import { useTranslations } from "next-intl";
 import { toast } from "react-hot-toast";
 import { ConfirmationModal } from "@/app/(user)/_components/confirmation-modal";
 import { markChapterRead } from "../_actions/mark-chapter-read";
+import { chapterHref, type CurriculumChapterSlug } from "../_lib/curriculum";
 import { unmarkChapterRead } from "../_actions/unmark-chapter-read";
 import {
   TEXT_LINK_CLASSES,
@@ -14,7 +15,7 @@ import {
 
 interface MarkAsReadButtonProps {
   /** 対象章のスラッグ */
-  readonly slug: string;
+  readonly slug: CurriculumChapterSlug;
   /** サーバーから取得した初期読了状態 */
   readonly initialRead: boolean;
 }
@@ -50,7 +51,7 @@ export function MarkAsReadButton({ slug, initialRead }: MarkAsReadButtonProps) {
         result.skipped === "anonymous"
       ) {
         setIsRead(!nextState);
-        const redirectTo = encodeURIComponent(`/learn/${slug}`);
+        const redirectTo = encodeURIComponent(chapterHref(slug));
         router.push(`/sign-in?redirect=${redirectTo}`);
         return;
       }
