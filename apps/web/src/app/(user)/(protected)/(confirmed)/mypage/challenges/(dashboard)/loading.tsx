@@ -1,7 +1,7 @@
 import { ContentContainer } from "@/app/(user)/_components/content-container";
 import { PageTitle } from "@/app/(user)/_components/page-title";
 
-import { DashboardSkeleton } from "./_components/dashboard-skeleton";
+import { DashboardSkeleton } from "../_components/dashboard-skeleton";
 import { PageTitleSkeleton } from "@/app/_components/page-title-skeleton";
 
 /**

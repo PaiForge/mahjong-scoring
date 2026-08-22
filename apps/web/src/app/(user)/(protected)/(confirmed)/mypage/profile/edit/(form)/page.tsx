@@ -14,8 +14,8 @@ import { createMetadata } from "@/app/_lib/metadata";
 import { requireConfirmedUser } from "@/lib/auth";
 import { getProfileForEdit } from "@/lib/db/queries";
 
-import { AvatarUpload } from "./_components/avatar-upload";
-import { ProfileForm } from "./_components/profile-form";
+import { AvatarUpload } from "../_components/avatar-upload";
+import { ProfileForm } from "../_components/profile-form";
 import { TEXT_LINK_MUTED_CLASSES } from "@/app/_components/_lib/link-classes";
 
 export async function generateMetadata(): Promise<Metadata> {
