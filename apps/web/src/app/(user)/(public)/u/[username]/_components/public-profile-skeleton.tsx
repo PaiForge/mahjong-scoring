@@ -12,9 +12,10 @@ import { PageTitleSkeleton } from "@/app/_components/page-title-skeleton";
  * アバターやセクション構成が一致せず実体とズレるため、専用に用意している。
  * SNS セクションは表示が任意（リンク未設定なら描画されない）のため、
  * 余計な CLS を生まないようスケルトンには含めない。
- * ローディング
+ * `(public)/loading.tsx` の resolver から `/u/:username` に対して描画する。
+ * 公開プロフィールスケルトン
  */
-export default function PublicProfileLoading() {
+export function PublicProfileSkeleton() {
   return (
     <ContentContainer>
       {/* PageTitle を直接の子にしてタイトル帯へ引き上げる（実ページと同じ構造） */}

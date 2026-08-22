@@ -17,7 +17,8 @@ interface PageSkeletonProps {
  * ナビゲーション中にサーバー描画が完了するまで即座に表示し、画面が固まって
  * 見える体感を解消する。`ContentContainer` + `PageTitle` で実描画と同じ
  * 全幅グレー帯を再現し CLS を防ぐ。個別ルートで忠実なスケルトンが必要な場合は
- * 各ルートに専用の loading.tsx を置く（そちらが優先される）。
+ * 各ルートに loading.tsx を置くのではなく、その領域の唯一の loading.tsx から
+ * 振り分ける（公開領域なら `(public)/_lib/resolve-loading-fallback.tsx` にエントリを足す）。
  * 汎用ページスケルトン
  */
 export function PageSkeleton({

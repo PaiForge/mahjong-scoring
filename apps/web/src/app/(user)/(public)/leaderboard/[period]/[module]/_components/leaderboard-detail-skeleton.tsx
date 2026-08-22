@@ -4,7 +4,13 @@ import { SkeletonBar } from "@/app/_components/skeleton-bar";
 import { PageTitleSkeleton } from "@/app/_components/page-title-skeleton";
 import { SectionTitleSkeleton } from "@/app/(user)/_components/section-title-skeleton";
 
-export default function LeaderboardDetailLoading() {
+/**
+ * リーダーボード詳細のスケルトン
+ * リーダーボード詳細スケルトン
+ *
+ * `(public)/loading.tsx` の resolver から `/leaderboard/:period/:module` に対して描画する。
+ */
+export function LeaderboardDetailSkeleton() {
   return (
     <ContentContainer className="space-y-6">
       {/* PageTitle を使うことで実描画と同じ全幅グレー帯を再現する */}
