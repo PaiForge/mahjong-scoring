@@ -22,9 +22,10 @@ export async function LeaderboardCard({
   rank,
 }: LeaderboardCardProps) {
   const t = await getTranslations("leaderboard");
+  const tPractices = await getTranslations("practice.practices");
 
   const msgKey = menuTypeToMessageKey(module);
-  const title = t(`module.${msgKey}`);
+  const title = tPractices(`${msgKey}.shortTitle`);
   const detailPath = buildDetailPath(period, module);
 
   return (

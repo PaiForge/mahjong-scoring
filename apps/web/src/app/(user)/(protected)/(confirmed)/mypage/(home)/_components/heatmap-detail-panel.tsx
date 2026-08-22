@@ -25,7 +25,7 @@ export function HeatmapDetailPanel({
   moduleBreakdown,
 }: HeatmapDetailPanelProps) {
   const t = useTranslations("mypage.heatmap");
-  const tMenu = useTranslations("mypage.challenges.menuTypes");
+  const tMenu = useTranslations("practice.practices");
   const expSuffix = t("expSuffix");
 
   /**

@@ -147,46 +147,57 @@
     "practices": {
       "jantouFu": {
         "title": "雀頭の符計算",
+        "shortTitle": "雀頭の符",
         "description": "雀頭（アタマ）の牌種に応じた符を答える練習"
       },
       "machiFu": {
         "title": "待ちの符計算",
+        "shortTitle": "待ちの符",
         "description": "待ち形（両面・嵌張・辺張・単騎・双碰）の符を答える練習"
       },
       "mentsuFu": {
         "title": "面子の符計算",
+        "shortTitle": "面子の符",
         "description": "面子の種類（順子・刻子・槓子）と明暗に応じた符を答える練習"
       },
       "tehaiFu": {
         "title": "手牌の符計算",
+        "shortTitle": "手牌の符",
         "description": "手牌の面子・雀頭ごとに符を漏れなく答える練習"
       },
       "totalFu": {
         "title": "手牌の合計符",
+        "shortTitle": "手牌の合計符",
         "description": "手牌全体の符を合計し、切り上げ後の符を一発で答える練習"
       },
       "yakuHan": {
         "title": "役の翻数",
+        "shortTitle": "役の翻数",
         "description": "役名と鳴きの有無から翻数を答える練習。食い下がりを覚えよう"
       },
       "yaku": {
         "title": "役の選択",
+        "shortTitle": "役",
         "description": "手牌から成立する役をすべて選択する練習"
       },
       "scoreTable": {
         "title": "点数表早引き",
+        "shortTitle": "点数表早引き",
         "description": "点数表を暗記するチャレンジ練習"
       },
       "scoreCalculation": {
         "title": "点数即答",
+        "shortTitle": "点数計算",
         "description": "手牌から点数を読み取って素早く回答するチャレンジ練習"
       },
       "hanCount": {
         "title": "翻数即答",
+        "shortTitle": "翻数即答",
         "description": "手牌から合計翻数を素早く回答するチャレンジ練習"
       },
       "manganScoreCalculation": {
         "title": "満貫以上点数計算",
+        "shortTitle": "満貫以上点数計算",
         "description": "役と翻数が表示された満貫以上の手牌から点数を答えるチャレンジ練習"
       }
     },
@@ -1046,19 +1057,6 @@
         "lastMonth": "先月",
         "twoWeeksAgo": "2週前",
         "twoMonthsAgo": "2ヶ月前"
-      },
-      "menuTypes": {
-        "jantouFu": "雀頭の符",
-        "machiFu": "待ちの符",
-        "mentsuFu": "面子の符",
-        "tehaiFu": "手牌の符",
-        "totalFu": "手牌の合計符",
-        "yaku": "役",
-        "scoreTable": "点数表早引き",
-        "scoreCalculation": "点数計算",
-        "hanCount": "翻数即答",
-        "yakuHan": "役の翻数",
-        "manganScoreCalculation": "満貫以上点数計算"
       }
     },
     "challengeResults": {
@@ -1288,19 +1286,6 @@
     "period": {
       "all-time": "総合",
       "monthly": "月間"
-    },
-    "module": {
-      "jantouFu": "雀頭の符",
-      "machiFu": "待ちの符",
-      "mentsuFu": "面子の符",
-      "tehaiFu": "手牌の符",
-      "totalFu": "手牌の合計符",
-      "yaku": "役",
-      "scoreTable": "点数表早引き",
-      "scoreCalculation": "点数計算",
-      "hanCount": "翻数即答",
-      "yakuHan": "役の翻数",
-      "manganScoreCalculation": "満貫以上点数計算"
     },
     "moduleIcon": {
       "jantouFu": "🀄",

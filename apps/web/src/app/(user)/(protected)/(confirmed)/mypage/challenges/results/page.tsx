@@ -35,6 +35,7 @@ export default async function ChallengeResultsPage({ searchParams }: Props) {
   const t = await getTranslations("mypage.challengeResults");
   const tChallenges = await getTranslations("mypage.challenges");
   const tMypage = await getTranslations("mypage");
+  const tPractices = await getTranslations("practice.practices");
   const params = await searchParams;
 
   const { user } = await requireConfirmedUser();
@@ -86,7 +87,7 @@ export default async function ChallengeResultsPage({ searchParams }: Props) {
           }}
           getMenuLabel={(type) =>
             isPracticeMenuType(type)
-              ? tChallenges(`menuTypes.${menuTypeToMessageKey(type)}`)
+              ? tPractices(`${menuTypeToMessageKey(type)}.shortTitle`)
               : type
           }
         />
