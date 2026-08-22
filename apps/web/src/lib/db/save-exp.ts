@@ -144,15 +144,20 @@ interface ExistingEventRow {
 }
 
 /**
- * `challengeResultId` に対応する既存の EXP イベントから
- * `ExpInfo` を再構築する（冪等再付与・ディープリンク時のフォールバック）。
+ * チャレンジ結果に対応する EXP イベントを1件引く
+ * EXPイベント取得
+ *
+ * トランザクション内の再構築と結果ページからの参照が同じ条件で引くため、
+ * 絞り込みの知識をここにまとめる。
+ *
+ * @param client トランザクションクライアントまたは通常の db
  */
-async function rebuildExpInfoFromExisting(
-  tx: TransactionClient,
+function selectChallengeExpEvent(
+  client: TransactionClient | typeof db,
   userId: string,
   challengeResultId: string,
-): Promise<ExpInfo> {
-  const [existing] = await tx
+): Promise<ExistingEventRow | undefined> {
+  return client
     .select({ amount: expEvents.amount, metadata: expEvents.metadata })
     .from(expEvents)
     .where(
@@ -162,7 +167,20 @@ async function rebuildExpInfoFromExisting(
         eq(expEvents.userId, userId),
       ),
     )
-    .limit(1);
+    .limit(1)
+    .then(([row]) => row);
+}
+
+/**
+ * `challengeResultId` に対応する既存の EXP イベントから
+ * `ExpInfo` を再構築する（冪等再付与・ディープリンク時のフォールバック）。
+ */
+async function rebuildExpInfoFromExisting(
+  tx: TransactionClient,
+  userId: string,
+  challengeResultId: string,
+): Promise<ExpInfo> {
+  const existing = await selectChallengeExpEvent(tx, userId, challengeResultId);
 
   return buildExpInfoFromRow(existing);
 }
@@ -216,17 +234,7 @@ export async function getExpInfoByChallengeResultId(
   userId: string,
   challengeResultId: string,
 ): Promise<ExpInfo | undefined> {
-  const [event] = await db
-    .select({ amount: expEvents.amount, metadata: expEvents.metadata })
-    .from(expEvents)
-    .where(
-      and(
-        eq(expEvents.source, "challenge_result"),
-        eq(expEvents.sourceId, challengeResultId),
-        eq(expEvents.userId, userId),
-      ),
-    )
-    .limit(1);
+  const event = await selectChallengeExpEvent(db, userId, challengeResultId);
 
   if (!event) return undefined;
   return buildExpInfoFromRow(event);
