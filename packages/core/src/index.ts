@@ -56,6 +56,7 @@ export {
   scoreTierForHan,
   hanRangeOf,
   DISPLAY_TIERS,
+  MANGAN_MIN_HAN,
   MANGAN_PLUS_TIERS,
 } from "./score/tiers";
 export type { HanTier, HanRange } from "./score/tiers";

@@ -1,7 +1,8 @@
 import type { YakuHanEntry } from "./types";
+import { YAKUMAN_HAN } from "../../score/tiers";
 
-/** 役満を表す翻数の内部表現 */
-export const YAKUMAN_HAN = 13;
+// 役満の翻数は MANGAN_PLUS_TIERS が唯一の定義。役の一覧と一緒に引けるよう再エクスポートする。
+export { YAKUMAN_HAN };
 
 /**
  * 役翻数練習で出題する役と翻数の一覧

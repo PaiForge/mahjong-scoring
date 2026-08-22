@@ -1,7 +1,11 @@
 import type { ScoreQuestion, UserAnswer, JudgementResult } from "./types";
 import { IGNORE_YAKU_FOR_JUDGEMENT } from "../../core/yaku-names";
-import { isMangan } from "../../score/tiers";
-import { scoreTierForHan } from "../../score/tiers";
+import {
+  isMangan,
+  MANGAN_MIN_HAN,
+  scoreTierForHan,
+  YAKUMAN_HAN,
+} from "../../score/tiers";
 import { setsEqual } from "../shared/set-equal";
 
 /**
@@ -49,7 +53,7 @@ function judgeYaku(
  * 翻数簡略化
  */
 function getSimplifiedHan(han: number): number {
-  if (han >= 13) return 13; // 役満（ダブル役満も13翻扱い）
+  if (han >= YAKUMAN_HAN) return YAKUMAN_HAN; // 役満（ダブル役満も役満扱い）
   return scoreTierForHan(han)?.minHan ?? han;
 }
 
@@ -78,9 +82,16 @@ export function judgeAnswer(
 
   if (simplifyMangan) {
     // 簡略化モード: 4翻以下でも満貫になる場合（60符3翻等）は「満貫（5翻扱い）」も正解とする
-    if (isManganOrAbove && answer.han < 5 && userAnswer.han === 5) {
+    if (
+      isManganOrAbove &&
+      answer.han < MANGAN_MIN_HAN &&
+      userAnswer.han === MANGAN_MIN_HAN
+    ) {
       isHanCorrect = true;
-    } else if (userAnswer.han >= 5 || answer.han >= 5) {
+    } else if (
+      userAnswer.han >= MANGAN_MIN_HAN ||
+      answer.han >= MANGAN_MIN_HAN
+    ) {
       isHanCorrect =
         getSimplifiedHan(userAnswer.han) === getSimplifiedHan(answer.han);
     }
