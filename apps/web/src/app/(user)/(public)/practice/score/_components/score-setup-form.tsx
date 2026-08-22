@@ -14,6 +14,8 @@ import { useIsClient } from "../../../../../_hooks/use-is-client";
 import { SettingToggle } from "./setting-toggle";
 import { SmallCheckbox } from "./small-checkbox";
 import { SkeletonBar } from "@/app/_components/skeleton-bar";
+import { PlayIcon } from "@/app/(user)/_components/icons/play-icon";
+import { Button } from "@/app/(user)/_components/button";
 
 /**
  * 点数計算練習の設定画面
@@ -123,9 +125,12 @@ export function ScoreSetupForm() {
           ))}
         </div>
 
-        {/* Full-width start button */}
+        {/* Full-width start button（Button size="lg" の実寸 = 枠込み 50px） */}
         <div>
-          <SkeletonBar radius="lg" className="h-11 w-full" />
+          <SkeletonBar
+            radius="lg"
+            className="h-[50px] w-full border-3 border-ink"
+          />
         </div>
       </div>
     );
@@ -196,18 +201,16 @@ export function ScoreSetupForm() {
 
       {/* Start button */}
       <div>
-        <button
-          type="button"
+        <Button
           onClick={handleStart}
           disabled={isDisabled}
-          className={`block w-full rounded-lg px-6 py-3 text-sm font-bold transition-all focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-offset-2 ${
-            isDisabled
-              ? "cursor-not-allowed bg-surface-200 text-surface-400"
-              : "bg-primary-500 text-white hover:bg-primary-600 active:scale-95"
-          }`}
+          size="lg"
+          fullWidth
+          className="gap-2"
         >
+          <PlayIcon className="size-4" />
           {t("setup.start")}
-        </button>
+        </Button>
       </div>
 
       <InfoModal

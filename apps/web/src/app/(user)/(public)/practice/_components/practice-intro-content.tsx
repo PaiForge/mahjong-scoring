@@ -10,6 +10,7 @@ import { ContentContainer } from "@/app/(user)/_components/content-container";
 import { PageTitle } from "@/app/(user)/_components/page-title";
 import { SectionTitle } from "@/app/(user)/_components/section-title";
 import { LinkButton } from "@/app/(user)/_components/link-button";
+import { PlayIcon } from "@/app/(user)/_components/icons/play-icon";
 import { BookIcon } from "@/app/(user)/_components/icons/book-icon";
 import { practiceMenuFromCatalog } from "../_lib/practice-catalog";
 import { PRACTICE_SCROLL_HASH } from "../_lib/scroll-anchor";
@@ -89,7 +90,9 @@ export async function PracticeIntroContent({
             href={`/practice/${slug}/play${PRACTICE_SCROLL_HASH}`}
             size="lg"
             fullWidth
+            className="gap-2"
           >
+            <PlayIcon className="size-4" />
             {tc("startButton")}
           </LinkButton>
         )}
