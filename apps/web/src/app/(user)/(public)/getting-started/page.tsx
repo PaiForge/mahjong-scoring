@@ -32,54 +32,54 @@ export default async function GettingStartedPage() {
   const t = await getTranslations("gettingStarted");
 
   return (
-    <ContentContainer className="space-y-8">
-      <div className="text-center">
-        <PageTitle>{t("pageTitle")}</PageTitle>
-      </div>
+    <ContentContainer breadcrumb={[{ label: t("pageTitle") }]}>
+      <PageTitle>{t("pageTitle")}</PageTitle>
 
-      <div className="grid grid-cols-1 gap-6 md:grid-cols-3">
-        <StepCard
-          icon={<CheckIcon className="size-7" />}
-          iconClassName="bg-primary-200 text-primary-800"
-          title={t("steps.tryout.title")}
-          description={t("steps.tryout.description")}
-          ctaLabel={t("steps.tryout.cta")}
-          ctaHref="/practice/score"
-        />
-        <StepCard
-          icon={<PlayIcon className="size-7" />}
-          iconClassName="bg-primary-200 text-primary-800"
-          title={t("steps.practice.title")}
-          description={t("steps.practice.description")}
-          ctaLabel={t("steps.practice.cta")}
-          ctaHref="/practice/jantou-fu/play"
-          subLabel={t("steps.practice.sub")}
-          subHref="/practice"
-        />
-        <StepCard
-          icon={<BookIcon className="size-7" />}
-          iconClassName="bg-amber-200 text-amber-800"
-          title={t("steps.learn.title")}
-          description={t("steps.learn.description")}
-          ctaLabel={t("steps.learn.cta")}
-          ctaHref="/learn"
-        />
-      </div>
+      <div className="space-y-8">
+        <div className="grid grid-cols-1 gap-6 md:grid-cols-3">
+          <StepCard
+            icon={<CheckIcon className="size-7" />}
+            iconClassName="bg-primary-200 text-primary-800"
+            title={t("steps.tryout.title")}
+            description={t("steps.tryout.description")}
+            ctaLabel={t("steps.tryout.cta")}
+            ctaHref="/practice/score"
+          />
+          <StepCard
+            icon={<PlayIcon className="size-7" />}
+            iconClassName="bg-primary-200 text-primary-800"
+            title={t("steps.practice.title")}
+            description={t("steps.practice.description")}
+            ctaLabel={t("steps.practice.cta")}
+            ctaHref="/practice/jantou-fu/play"
+            subLabel={t("steps.practice.sub")}
+            subHref="/practice"
+          />
+          <StepCard
+            icon={<BookIcon className="size-7" />}
+            iconClassName="bg-amber-200 text-amber-800"
+            title={t("steps.learn.title")}
+            description={t("steps.learn.description")}
+            ctaLabel={t("steps.learn.cta")}
+            ctaHref="/learn"
+          />
+        </div>
 
-      <section className="space-y-4 rounded-lg border-3 border-ink bg-surface-50 px-6 py-8 text-center">
-        <h2 className="text-lg font-semibold text-surface-900">
-          {t("signUp.title")}
-        </h2>
-        <p className="mx-auto max-w-xl text-sm leading-relaxed text-surface-500">
-          {t("signUp.description")}
-        </p>
-        <Link
-          href="/sign-up"
-          className="inline-flex items-center justify-center rounded-lg bg-primary-600 px-8 py-3 text-sm font-semibold text-white shadow-sm transition-colors hover:bg-primary-700"
-        >
-          {t("signUp.cta")}
-        </Link>
-      </section>
+        <section className="space-y-4 rounded-lg border-3 border-ink bg-surface-50 px-6 py-8 text-center">
+          <h2 className="text-lg font-semibold text-surface-900">
+            {t("signUp.title")}
+          </h2>
+          <p className="mx-auto max-w-xl text-sm leading-relaxed text-surface-500">
+            {t("signUp.description")}
+          </p>
+          <Link
+            href="/sign-up"
+            className="inline-flex items-center justify-center rounded-lg bg-primary-600 px-8 py-3 text-sm font-semibold text-white shadow-sm transition-colors hover:bg-primary-700"
+          >
+            {t("signUp.cta")}
+          </Link>
+        </section>
+      </div>
     </ContentContainer>
   );
 }
