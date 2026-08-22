@@ -2,6 +2,8 @@
 
 import type { ReactNode } from "react";
 
+import { Button } from "@/app/_components/button";
+
 interface AuthSubmitButtonProps {
   readonly loading: boolean;
   readonly children: ReactNode;
@@ -15,12 +17,8 @@ interface AuthSubmitButtonProps {
  */
 export function AuthSubmitButton({ loading, children }: AuthSubmitButtonProps) {
   return (
-    <button
-      type="submit"
-      disabled={loading}
-      className="press-sm w-full rounded-lg border-3 border-ink bg-primary px-6 py-3 text-sm font-bold text-white shadow-sm hover:bg-primary-600 disabled:opacity-50 disabled:cursor-not-allowed"
-    >
+    <Button type="submit" size="lg" fullWidth disabled={loading}>
       {children}
-    </button>
+    </Button>
   );
 }

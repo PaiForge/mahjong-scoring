@@ -1,5 +1,6 @@
 "use client";
 
+import { Button } from "./button";
 import { ModalShell } from "./modal-shell";
 
 interface InfoModalProps {
@@ -28,14 +29,9 @@ export function InfoModal({
       <h3 className="text-xl font-bold text-surface-900">{title}</h3>
       <div className="text-sm leading-relaxed text-surface-700">{children}</div>
       <div className="flex justify-end">
-        <button
-          type="button"
-          onClick={onClose}
-          autoFocus
-          className="press-sm rounded-lg border-3 border-ink bg-primary-500 px-6 py-2 text-sm font-bold text-white shadow-sm hover:bg-primary-600"
-        >
+        <Button onClick={onClose} autoFocus>
           {closeLabel}
-        </button>
+        </Button>
       </div>
     </ModalShell>
   );

@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { useTranslations } from "next-intl";
 import type { ScoreTableUserAnswer } from "@mahjong-scoring/core";
+import { Button } from "@/app/_components/button";
 import { getAvailableScores } from "../score/_lib/get-available-scores";
 import { ScoreOptionSelect } from "./score-option-select";
 
@@ -154,13 +155,9 @@ export function ScoreAnswerForm({
 
       {/* 自動送信時は「回答する」ボタンを表示しない（選択完了で送信扱い） */}
       {!autoSubmit && (
-        <button
-          type="submit"
-          disabled={disabled}
-          className="press-sm w-full rounded-lg border-3 border-ink bg-primary-500 px-6 py-3 font-bold text-white shadow-sm hover:bg-primary-600 disabled:cursor-not-allowed disabled:bg-surface-400 disabled:text-surface-200 disabled:opacity-60"
-        >
+        <Button type="submit" size="lg" fullWidth disabled={disabled}>
           {t("answer")}
-        </button>
+        </Button>
       )}
     </form>
   );

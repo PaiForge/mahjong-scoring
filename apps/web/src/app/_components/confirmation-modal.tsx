@@ -2,6 +2,7 @@
 
 import { useId } from "react";
 
+import { Button } from "./button";
 import { ModalShell } from "./modal-shell";
 
 interface ConfirmationModalProps {
@@ -34,21 +35,6 @@ export function ConfirmationModal({
   const titleId = useId();
   const messageId = useId();
 
-  const confirmColorClass = (() => {
-    switch (confirmVariant) {
-      case "danger":
-        return "bg-destructive hover:bg-destructive/90";
-      case "warning":
-        return "bg-warning hover:bg-warning/90";
-      case "primary":
-        return "bg-primary-500 hover:bg-primary-600";
-      default: {
-        const _exhaustive: never = confirmVariant;
-        return _exhaustive;
-      }
-    }
-  })();
-
   return (
     <ModalShell
       isOpen={isOpen}
@@ -63,21 +49,12 @@ export function ConfirmationModal({
         {message}
       </p>
       <div className="flex justify-end gap-3">
-        <button
-          type="button"
-          onClick={onClose}
-          className="press-sm rounded-lg border-3 border-ink bg-card px-6 py-2 text-sm font-bold text-surface-700 shadow-sm hover:bg-surface-100"
-        >
+        <Button variant="neutral" onClick={onClose}>
           {cancelText}
-        </button>
-        <button
-          type="button"
-          onClick={onConfirm}
-          autoFocus
-          className={`press-sm rounded-lg border-3 border-ink px-6 py-2 text-sm font-bold text-white shadow-sm ${confirmColorClass}`}
-        >
+        </Button>
+        <Button variant={confirmVariant} onClick={onConfirm} autoFocus>
           {confirmText}
-        </button>
+        </Button>
       </div>
     </ModalShell>
   );
