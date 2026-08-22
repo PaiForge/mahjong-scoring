@@ -7,6 +7,12 @@ import {
   type CurriculumChapter,
   type CurriculumSection,
 } from "../_lib/curriculum";
+import {
+  BULLET_CENTER_TOP_PX,
+  CHAPTER_ROW_BASE_CLASS,
+  GUIDE_LINE_LEFT_PX,
+  SECTION_BULLET_SIZE_CLASS,
+} from "../_lib/toc-layout";
 
 interface CurriculumTocProps {
   readonly section: CurriculumSection;
@@ -45,19 +51,6 @@ export async function CurriculumToc({
 
   const bulletColorClass = SECTION_CATEGORY_COLOR_CLASS[section];
   const sectionLabel = t(`sections.${section}`);
-
-  // Horizontal offset from the left edge of the outer <div> to the vertical
-  // center of the section bullet: half of size-4 (8px).
-  // NOTE: keep in sync with SECTION_BULLET_SIZE_CLASS ("size-4") below.
-  const BULLET_CENTER_LEFT_PX = 8;
-  // 縦線（破線ガイド／「次はここから」の実線）はどちらも 2px 幅なので、
-  // bullet 中心に載せるには左端を 1px 手前に置く。
-  const GUIDE_LINE_LEFT_PX = BULLET_CENTER_LEFT_PX - 1;
-  // Vertical offset from the top of the outer <div> to the vertical center of
-  // the section bullet: half of size-4 (8px). Because the bullet sits on the
-  // first line of the heading row with no extra top padding, this is simply
-  // half of the bullet height.
-  const BULLET_CENTER_TOP_PX = 8;
 
   return (
     <section aria-label={sectionLabel}>
@@ -166,19 +159,3 @@ const SECTION_CATEGORY_COLOR_CLASS: Readonly<
   yaku: "bg-amber-500",
   score: "bg-sky-500",
 };
-
-/**
- * セクション bullet のサイズ。
- * BULLET_CENTER_LEFT_PX / BULLET_CENTER_TOP_PX（破線ガイド線の座標）と
- * 対応しているため変更時はそちらも更新すること。
- */
-const SECTION_BULLET_SIZE_CLASS = "size-4";
-
-/**
- * 章行の共通クラス。
- * セクション bullet 中心 (left=8px) より右側に章タイトルが配置されるよう
- * `pl-7` (28px) でインデント。「次はここから」の amber 実線は破線ガイド線と
- * 同じ x 座標に absolute 配置するため、border-l は使わない。
- * 変更時は破線ガイド線の座標と視覚的にズレないか確認すること。
- */
-const CHAPTER_ROW_BASE_CLASS = "relative flex items-start gap-3 py-3 pl-7 pr-2";
