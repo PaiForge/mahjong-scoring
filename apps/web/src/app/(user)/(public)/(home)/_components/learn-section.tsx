@@ -16,7 +16,7 @@ export function LearnSection() {
       description={t("learnDescription")}
       href="/learn"
       ctaLabel={t("learnCta")}
-      ctaClassName="bg-white text-surface-900 hover:bg-primary-50"
+      ctaVariant="secondary"
     />
   );
 }

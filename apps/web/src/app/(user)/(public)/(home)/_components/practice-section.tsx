@@ -16,7 +16,7 @@ export function PracticeSection() {
       description={t("practiceDescription")}
       href="/practice"
       ctaLabel={t("practiceCta")}
-      ctaClassName="bg-primary-600 text-white hover:bg-primary-700"
+      ctaVariant="primary"
     />
   );
 }

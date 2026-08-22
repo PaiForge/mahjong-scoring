@@ -1,5 +1,6 @@
-import Link from "next/link";
 import { useTranslations } from "next-intl";
+
+import { LinkButton } from "@/app/_components/link-button";
 
 export function HeroSection() {
   const t = useTranslations("landing");
@@ -16,12 +17,9 @@ export function HeroSection() {
           {t("heroDescription")}
         </p>
         <div className="flex justify-center">
-          <Link
-            href="/getting-started"
-            className="press-md rounded-lg border-4 border-ink bg-white px-8 py-3 text-base font-bold text-primary-700 shadow-md hover:bg-primary-50"
-          >
+          <LinkButton href="/getting-started" variant="secondary" size="xl">
             {t("ctaGetStarted")}
-          </Link>
+          </LinkButton>
         </div>
       </div>
     </section>
