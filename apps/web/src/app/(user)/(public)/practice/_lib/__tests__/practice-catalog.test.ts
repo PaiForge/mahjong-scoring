@@ -1,0 +1,102 @@
+import { describe, expect, it } from "vitest";
+
+import messages from "@/messages/ja.json";
+import { PRACTICE_MENU_SLUGS } from "@/lib/db/practice-menu-types";
+import {
+  PRACTICE_CATALOG,
+  PRACTICE_CATEGORIES,
+  practiceDescriptionKey,
+  practiceHref,
+  practiceMenuFromCatalog,
+  practiceMenusByCategory,
+  practiceSlugFromHref,
+  practiceTitleKey,
+} from "../practice-catalog";
+
+describe("PRACTICE_CATALOG", () => {
+  it("記録対象の練習をすべて載せている", () => {
+    const cataloged = PRACTICE_CATALOG.map((menu) => menu.slug).sort();
+    expect(cataloged).toEqual([...PRACTICE_MENU_SLUGS].sort());
+  });
+
+  it("slug が重複していない", () => {
+    const slugs = PRACTICE_CATALOG.map((menu) => menu.slug);
+    expect(new Set(slugs).size).toBe(slugs.length);
+  });
+
+  it("カテゴリ別に分けると全件を過不足なく覆う", () => {
+    const total = PRACTICE_CATEGORIES.reduce(
+      (sum, category) => sum + practiceMenusByCategory(category).length,
+      0,
+    );
+    expect(total).toBe(PRACTICE_CATALOG.length);
+  });
+
+  it("教本リンクは /learn/ 配下を指す", () => {
+    for (const menu of PRACTICE_CATALOG) {
+      if (menu.learnHref === undefined) continue;
+      expect(menu.learnHref).toMatch(/^\/learn\/[a-z0-9-]+$/);
+    }
+  });
+});
+
+describe("i18n キーの導出", () => {
+  it("全練習の名前と説明が辞書に存在する", () => {
+    const practices: Record<string, { title: string; description: string }> =
+      messages.practice.practices;
+    for (const menu of PRACTICE_CATALOG) {
+      const titleKey = practiceTitleKey(menu.slug);
+      const descriptionKey = practiceDescriptionKey(menu.slug);
+      // "practices.<messageKey>.title" の messageKey 部分を取り出して引く
+      const messageKey = titleKey.split(".")[1] ?? "";
+      expect(practices[messageKey]?.title).toBeTruthy();
+      expect(practices[messageKey]?.description).toBeTruthy();
+      expect(descriptionKey).toBe(`practices.${messageKey}.description`);
+    }
+  });
+});
+
+describe("practiceHref", () => {
+  it("slug から練習ページのパスを作る", () => {
+    expect(practiceHref("jantou-fu")).toBe("/practice/jantou-fu");
+  });
+});
+
+describe("practiceSlugFromHref", () => {
+  it("練習ページのパスから slug を取り出す", () => {
+    expect(practiceSlugFromHref("/practice/jantou-fu")).toBe("jantou-fu");
+  });
+
+  it("クエリ付きでも slug を取り出す（教本の practiceHrefs 用）", () => {
+    expect(
+      practiceSlugFromHref("/practice/score-table?roles=ko&wins=ron"),
+    ).toBe("score-table");
+  });
+
+  it("末尾スラッシュとハッシュを許容する", () => {
+    expect(practiceSlugFromHref("/practice/yaku/")).toBe("yaku");
+    expect(practiceSlugFromHref("/practice/yaku#top")).toBe("yaku");
+  });
+
+  it("登録されていない練習は undefined", () => {
+    // /practice/score は記録対象外でレジストリに載らない
+    expect(practiceSlugFromHref("/practice/score")).toBeUndefined();
+    expect(practiceSlugFromHref("/practice/unknown")).toBeUndefined();
+  });
+
+  it("練習ページ以外は undefined", () => {
+    expect(practiceSlugFromHref("/learn/jantou-fu")).toBeUndefined();
+    expect(practiceSlugFromHref("/practice/jantou-fu/play")).toBeUndefined();
+    expect(practiceSlugFromHref("")).toBeUndefined();
+  });
+});
+
+describe("practiceMenuFromCatalog", () => {
+  it("slug からカタログの 1 件を引く", () => {
+    expect(practiceMenuFromCatalog("tehai-fu")).toMatchObject({
+      slug: "tehai-fu",
+      category: "fuCalculation",
+      difficulty: "advanced",
+    });
+  });
+});

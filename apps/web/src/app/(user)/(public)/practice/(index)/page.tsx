@@ -14,112 +14,28 @@ import { SectionTitle } from "@/app/(user)/_components/section-title";
 import { createNamespaceMetadata } from "@/app/_lib/metadata";
 import { PracticeCard } from "../_components/practice-card";
 import { PracticeCategorySection } from "../_components/practice-category-section";
+import {
+  practiceDescriptionKey,
+  practiceHref,
+  practiceMenusByCategory,
+  practiceTitleKey,
+  type PracticeMenu,
+} from "../_lib/practice-catalog";
 
 export async function generateMetadata(): Promise<Metadata> {
   return createNamespaceMetadata("practice");
 }
 
-type Difficulty = "beginner" | "intermediate" | "advanced";
-
-interface PracticeDef {
-  href: string;
-  titleKey: string;
-  descriptionKey: string;
-  difficulty: Difficulty;
-  learnHref?: string;
-}
-
-const fuPractices: readonly PracticeDef[] = [
-  {
-    href: "/practice/jantou-fu",
-    titleKey: "practices.jantouFu.title",
-    descriptionKey: "practices.jantouFu.description",
-    difficulty: "beginner",
-    learnHref: "/learn/jantou-fu",
-  },
-  {
-    href: "/practice/machi-fu",
-    titleKey: "practices.machiFu.title",
-    descriptionKey: "practices.machiFu.description",
-    difficulty: "beginner",
-    learnHref: "/learn/machi-fu",
-  },
-  {
-    href: "/practice/mentsu-fu",
-    titleKey: "practices.mentsuFu.title",
-    descriptionKey: "practices.mentsuFu.description",
-    difficulty: "intermediate",
-    learnHref: "/learn/mentsu-fu",
-  },
-  {
-    href: "/practice/tehai-fu",
-    titleKey: "practices.tehaiFu.title",
-    descriptionKey: "practices.tehaiFu.description",
-    difficulty: "advanced",
-    learnHref: "/learn/tehai-fu",
-  },
-  {
-    href: "/practice/total-fu",
-    titleKey: "practices.totalFu.title",
-    descriptionKey: "practices.totalFu.description",
-    difficulty: "advanced",
-    learnHref: "/learn/tehai-fu",
-  },
-];
-
-const hanPractices: readonly PracticeDef[] = [
-  {
-    href: "/practice/yaku-han",
-    titleKey: "practices.yakuHan.title",
-    descriptionKey: "practices.yakuHan.description",
-    difficulty: "beginner",
-  },
-  {
-    href: "/practice/yaku",
-    titleKey: "practices.yaku.title",
-    descriptionKey: "practices.yaku.description",
-    difficulty: "intermediate",
-    learnHref: "/learn/yaku",
-  },
-  {
-    href: "/practice/han-count",
-    titleKey: "practices.hanCount.title",
-    descriptionKey: "practices.hanCount.description",
-    difficulty: "advanced",
-  },
-];
-
-const scoringPractices: readonly PracticeDef[] = [
-  {
-    href: "/practice/score-table",
-    titleKey: "practices.scoreTable.title",
-    descriptionKey: "practices.scoreTable.description",
-    difficulty: "intermediate",
-  },
-  {
-    href: "/practice/mangan-score-calculation",
-    titleKey: "practices.manganScoreCalculation.title",
-    descriptionKey: "practices.manganScoreCalculation.description",
-    difficulty: "intermediate",
-  },
-  {
-    href: "/practice/score-calculation",
-    titleKey: "practices.scoreCalculation.title",
-    descriptionKey: "practices.scoreCalculation.description",
-    difficulty: "advanced",
-  },
-];
-
 function renderPracticeCards(
-  practices: readonly PracticeDef[],
+  practices: readonly PracticeMenu[],
   t: Awaited<ReturnType<typeof getTranslations<"practice">>>,
 ) {
   return practices.map((practice) => (
     <PracticeCard
-      key={practice.href}
-      href={practice.href}
-      title={t(practice.titleKey)}
-      description={t(practice.descriptionKey)}
+      key={practice.slug}
+      href={practiceHref(practice.slug)}
+      title={t(practiceTitleKey(practice.slug))}
+      description={t(practiceDescriptionKey(practice.slug))}
       difficulty={practice.difficulty}
       difficultyLabel={t(`difficulty.${practice.difficulty}`)}
       startLabel={t("start")}
@@ -159,15 +75,15 @@ export default async function PracticePage() {
 
         <div className="space-y-10">
           <PracticeCategorySection title={t("categories.fuCalculation.title")}>
-            {renderPracticeCards(fuPractices, t)}
+            {renderPracticeCards(practiceMenusByCategory("fuCalculation"), t)}
           </PracticeCategorySection>
 
           <PracticeCategorySection title={t("categories.han.title")}>
-            {renderPracticeCards(hanPractices, t)}
+            {renderPracticeCards(practiceMenusByCategory("han"), t)}
           </PracticeCategorySection>
 
           <PracticeCategorySection title={t("categories.scoring.title")}>
-            {renderPracticeCards(scoringPractices, t)}
+            {renderPracticeCards(practiceMenusByCategory("scoring"), t)}
           </PracticeCategorySection>
         </div>
       </div>
