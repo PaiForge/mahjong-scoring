@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { getTranslations } from "next-intl/server";
 import { TEXT_LINK_CLASSES } from "@/app/_components/_lib/link-classes";
+import { LinkButton } from "@/app/_components/link-button";
 
 /**
  * 未ログインユーザー向けの登録 CTA
@@ -31,12 +32,13 @@ export async function SignUpCta() {
           </p>
         </div>
         <div className="flex w-full flex-col items-center gap-2 sm:w-auto sm:items-end">
-          <Link
+          <LinkButton
             href="/sign-up"
-            className="inline-flex w-full items-center justify-center whitespace-nowrap rounded-lg bg-primary-500 px-6 py-2.5 text-sm font-semibold text-white shadow-sm transition-colors hover:bg-primary-600 sm:w-auto"
+            fullWidth
+            className="whitespace-nowrap sm:w-auto"
           >
             {t("signUpCta.cta")}
-          </Link>
+          </LinkButton>
           <Link
             href="/sign-in"
             className={`text-xs font-semibold ${TEXT_LINK_CLASSES}`}

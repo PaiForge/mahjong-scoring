@@ -3,6 +3,9 @@
 import { useEffect } from "react";
 import Link from "next/link";
 
+import { buttonClasses } from "./_components/_lib/button-classes";
+import { Button } from "./_components/button";
+
 /**
  * Root Error Boundary
  *
@@ -36,17 +39,8 @@ export default function RootError({
           予期しないエラーが発生しました。もう一度お試しください。
         </p>
         <div className="flex flex-wrap gap-3 justify-center">
-          <button
-            type="button"
-            onClick={reset}
-            className="rounded-lg bg-primary-500 px-6 py-2.5 text-sm font-semibold text-white transition-colors hover:bg-primary-600"
-          >
-            もう一度試す
-          </button>
-          <Link
-            href="/"
-            className="inline-flex items-center justify-center rounded-lg border border-surface-300 px-6 py-2.5 text-sm font-semibold text-surface-700 transition-colors hover:bg-surface-100"
-          >
+          <Button onClick={reset}>もう一度試す</Button>
+          <Link href="/" className={buttonClasses({ variant: "neutral" })}>
             ホームへ戻る
           </Link>
         </div>

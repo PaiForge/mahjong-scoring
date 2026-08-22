@@ -3,6 +3,8 @@
 import { useEffect } from "react";
 import Link from "next/link";
 
+import { buttonClasses } from "./_lib/button-classes";
+import { Button } from "./button";
 import { ContentContainer } from "./content-container";
 import { PageTitle } from "./page-title";
 
@@ -54,16 +56,10 @@ export function ErrorFallback({
         <PageTitle>{title}</PageTitle>
         <p className="text-sm text-surface-600">{description}</p>
         <div className="flex flex-wrap gap-3 justify-center">
-          <button
-            type="button"
-            onClick={reset}
-            className="rounded-lg bg-primary-500 px-6 py-2.5 text-sm font-semibold text-white transition-colors hover:bg-primary-600"
-          >
-            もう一度試す
-          </button>
+          <Button onClick={reset}>もう一度試す</Button>
           <Link
             href={backHref}
-            className="inline-flex items-center justify-center rounded-lg border border-surface-300 px-6 py-2.5 text-sm font-semibold text-surface-700 transition-colors hover:bg-surface-100"
+            className={buttonClasses({ variant: "neutral" })}
           >
             {backLabel}
           </Link>

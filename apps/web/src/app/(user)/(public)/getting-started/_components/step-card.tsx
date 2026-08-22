@@ -2,6 +2,7 @@ import type { ReactNode } from "react";
 
 import Link from "next/link";
 import { TEXT_LINK_MUTED_CLASSES } from "@/app/_components/_lib/link-classes";
+import { LinkButton } from "@/app/_components/link-button";
 
 interface StepCardProps {
   readonly stepLabel?: string;
@@ -41,12 +42,7 @@ export function StepCard({
       <h2 className="text-lg font-semibold text-surface-900">{title}</h2>
       <p className="text-sm leading-relaxed text-surface-500">{description}</p>
       <div className="mt-auto flex w-full flex-col items-center gap-3 pt-2">
-        <Link
-          href={ctaHref}
-          className="inline-flex items-center justify-center rounded-lg bg-primary-600 px-6 py-2.5 text-sm font-semibold text-white shadow-sm transition-colors hover:bg-primary-700"
-        >
-          {ctaLabel}
-        </Link>
+        <LinkButton href={ctaHref}>{ctaLabel}</LinkButton>
         <div className="flex min-h-5 items-center">
           {subLabel && subHref ? (
             <Link
