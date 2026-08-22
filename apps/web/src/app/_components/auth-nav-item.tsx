@@ -8,12 +8,15 @@ import { toast } from "react-hot-toast";
 import { UserIcon } from "./icons/user-icon";
 import { useAuth } from "@/app/_contexts/auth-context";
 import { SkeletonBar } from "@/app/_components/skeleton-bar";
+import { TEXT_LINK_MUTED_CLASSES } from "./_lib/link-classes";
 
 /**
  * ヘッダー右側のアカウント表示。
  * blindfold-chess の AuthStatusDisplay を移植。
  * 認証済み: アバター丸ボタン → ドロップダウン（マイページ/設定/ログアウト）。
- * 未認証: 新規登録 / ログイン のテキストリンク。
+ * 未認証: ログイン（テキストリンク）/ 新規登録（プライマリボタン）。
+ * 同形のボタンを 2 つ並べるとセグメントに見えるため、一次導線の新規登録だけを
+ * ボタンにして、ログインはテキストリンクに落とす。
  */
 export function AuthNavItem() {
   const t = useTranslations("nav");
@@ -51,18 +54,18 @@ export function AuthNavItem() {
 
   if (!user) {
     return (
-      <div className="flex items-center gap-2 text-xs sm:gap-3 sm:text-sm">
-        <Link
-          href="/sign-up"
-          className="press-sm rounded-full border-3 border-ink bg-card px-2.5 py-1 font-bold whitespace-nowrap text-foreground shadow-xs hover:bg-primary-50 sm:px-3"
-        >
-          {t("signUp")}
-        </Link>
+      <div className="flex items-center gap-3 text-xs sm:gap-4 sm:text-sm">
         <Link
           href="/sign-in"
-          className="press-sm rounded-full border-3 border-ink bg-primary-500 px-2.5 py-1 font-bold whitespace-nowrap text-white shadow-xs hover:bg-primary-600 sm:px-3"
+          className={`font-medium whitespace-nowrap ${TEXT_LINK_MUTED_CLASSES}`}
         >
           {t("login")}
+        </Link>
+        <Link
+          href="/sign-up"
+          className="press-sm rounded-lg border-3 border-ink bg-primary-500 px-2.5 py-1 font-bold whitespace-nowrap text-white shadow-xs hover:bg-primary-600 sm:px-3 sm:py-1.5"
+        >
+          {t("signUp")}
         </Link>
       </div>
     );
