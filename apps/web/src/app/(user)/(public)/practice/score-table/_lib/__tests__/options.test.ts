@@ -3,6 +3,7 @@ import { describe, expect, it } from "vitest";
 import {
   FULL_SELECTION,
   hasSelectionParams,
+  readSelectionParams,
   searchParamsToSelection,
   selectionToGeneratorOptions,
   scoreTablePracticeHref,
@@ -131,5 +132,21 @@ describe("scoreTablePracticeHref", () => {
       includeNonMangan: true,
       includeManganPlus: false,
     });
+  });
+});
+
+describe("readSelectionParams", () => {
+  it("同名パラメータの複数指定を配列のまま保つ", () => {
+    const raw = readSelectionParams(
+      new URLSearchParams("roles=oya&roles=ko&wins=ron"),
+    );
+    expect(raw).toEqual({ roles: ["oya", "ko"], wins: ["ron"], ranges: [] });
+    expect(hasSelectionParams(raw)).toBe(true);
+  });
+
+  it("条件パラメータが無ければ全選択・指定なし扱いになる", () => {
+    const raw = readSelectionParams(new URLSearchParams("other=x"));
+    expect(searchParamsToSelection(raw)).toEqual(FULL_SELECTION);
+    expect(hasSelectionParams(raw)).toBe(false);
   });
 });

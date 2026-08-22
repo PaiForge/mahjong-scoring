@@ -5,7 +5,9 @@
  * 点数表早引き練習の説明＋出題設定ページ。問題方式のデモに加え、
  * 親子・ツモロン・点数帯（満貫未満/満貫以上）を選んでチャレンジ／トレーニングを
  * 開始できる。ガイド（/learn/mangan-*）から条件付きで遷移した場合は、その条件が
- * 初期選択になる。
+ * 初期選択になる。条件はクライアント側で `useSearchParams()` から読む
+ * （サーバーで `searchParams` を読むとルートが動的になり、初回表示が
+ * `loading.tsx` のスケルトンを経由してしまうため）。
  *
  * @flow
  * 1. 練習一覧、または学習ガイドの練習リンクから遷移
@@ -21,27 +23,16 @@ import { SectionTitle } from "@/app/(user)/_components/section-title";
 import { createNamespaceMetadata } from "@/app/_lib/metadata";
 import { ScoreTableHowToPlay } from "./_components/score-table-how-to-play";
 import { ScoreTableSetup } from "./_components/score-table-setup";
-import { hasSelectionParams, searchParamsToSelection } from "./_lib/options";
-
-type SearchParams = Record<string, string | string[] | undefined>;
 
 export async function generateMetadata(): Promise<Metadata> {
   return createNamespaceMetadata("scoreTableChallenge");
 }
 
-export default async function ScoreTablePage({
-  searchParams,
-}: {
-  searchParams: Promise<SearchParams>;
-}) {
-  const params = await searchParams;
+export default async function ScoreTablePage() {
   const [t, tp] = await Promise.all([
     getTranslations("scoreTableChallenge"),
     getTranslations("practice"),
   ]);
-
-  const selection = searchParamsToSelection(params);
-  const applyInitial = hasSelectionParams(params);
 
   return (
     <ContentContainer
@@ -57,15 +48,12 @@ export default async function ScoreTablePage({
           title={t("howToPlay.title")}
           lead={t("howToPlay.lead")}
         >
-          <ScoreTableHowToPlay selection={selection} />
+          <ScoreTableHowToPlay />
         </HowToPlaySection>
 
         <div className="space-y-4">
           <SectionTitle>{t("setup.title")}</SectionTitle>
-          <ScoreTableSetup
-            initialSelection={selection}
-            applyInitial={applyInitial}
-          />
+          <ScoreTableSetup />
         </div>
       </div>
     </ContentContainer>
