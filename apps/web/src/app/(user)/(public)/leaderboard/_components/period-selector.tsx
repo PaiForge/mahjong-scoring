@@ -3,6 +3,10 @@ import { getTranslations } from "next-intl/server";
 
 import type { LeaderboardModule, LeaderboardPeriod } from "../_lib/types";
 import { VALID_PERIODS, buildDetailPath } from "../_lib/types";
+import {
+  TOGGLE_GROUP_CONTAINER_CLASSES,
+  toggleItemClasses,
+} from "@/app/(user)/_components/_lib/toggle-group-classes";
 
 interface PeriodSelectorProps {
   readonly currentPeriod: LeaderboardPeriod;
@@ -20,16 +24,12 @@ export async function PeriodSelector({
   const t = await getTranslations("leaderboard");
 
   return (
-    <div className="flex rounded-full border-3 border-ink bg-primary-50 p-0.5">
+    <div className={TOGGLE_GROUP_CONTAINER_CLASSES}>
       {VALID_PERIODS.map((p) => (
         <Link
           key={p}
           href={buildDetailPath(p, mod)}
-          className={`rounded-md px-2 py-1 text-xs font-medium transition-all ${
-            currentPeriod === p
-              ? "bg-primary-600 text-white"
-              : "text-surface-700 hover:bg-surface-100"
-          }`}
+          className={toggleItemClasses(currentPeriod === p)}
         >
           {t(`period.${p}`)}
         </Link>

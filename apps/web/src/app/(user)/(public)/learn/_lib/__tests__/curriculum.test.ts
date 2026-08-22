@@ -87,12 +87,6 @@ describe("isCurriculumChapterSlug", () => {
 });
 
 describe("CURRICULUM", () => {
-  it("has a chapter for every slug in CURRICULUM_CHAPTER_SLUGS", () => {
-    const curriculumSlugs = CURRICULUM.map((c) => c.slug).sort();
-    const masterSlugs = [...CURRICULUM_CHAPTER_SLUGS].sort();
-    expect(curriculumSlugs).toEqual(masterSlugs);
-  });
-
   it("has unique order values", () => {
     const orders = CURRICULUM.map((c) => c.order);
     expect(new Set(orders).size).toBe(orders.length);

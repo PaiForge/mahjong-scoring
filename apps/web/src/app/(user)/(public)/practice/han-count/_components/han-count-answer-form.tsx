@@ -1,9 +1,7 @@
 "use client";
 
 import { HanChoiceAnswerForm } from "../../_components/han-choice-answer-form";
-
-/** 選択肢として表示する翻数の範囲（1翻〜13翻） */
-const HAN_OPTIONS = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13] as const;
+import { HAN_OPTIONS } from "../_lib/han-options";
 
 interface HanCountAnswerFormProps {
   /** 正解の翻数 */
