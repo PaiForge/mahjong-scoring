@@ -7,6 +7,7 @@ import { ContentContainer } from "@/app/_components/content-container";
 import { ListLinkContainer } from "@/app/_components/list-link";
 import { PageTitle } from "@/app/_components/page-title";
 import { SectionTitle } from "@/app/_components/section-title";
+import { TEXT_LINK_CLASSES } from "@/app/_components/_lib/link-classes";
 
 const HOME_ANNOUNCEMENTS_LIMIT = 5;
 
@@ -42,7 +43,7 @@ export async function HomeAnnouncements() {
             <div className="text-right">
               <Link
                 href="/announcements"
-                className="text-sm font-medium text-link-primary transition-colors hover:opacity-80"
+                className={`text-sm font-medium ${TEXT_LINK_CLASSES}`}
               >
                 {t("viewAll")}
               </Link>

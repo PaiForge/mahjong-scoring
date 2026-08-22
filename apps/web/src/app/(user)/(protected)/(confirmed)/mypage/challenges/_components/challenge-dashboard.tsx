@@ -27,6 +27,7 @@ import {
 import { SessionHistoryTable } from "./session-history-table";
 import { StatsCard } from "./stats-card";
 import { SkeletonBar } from "@/app/_components/skeleton-bar";
+import { TEXT_LINK_CLASSES } from "@/app/_components/_lib/link-classes";
 
 const ScoreChart = dynamic(
   () => import("./score-chart").then((mod) => mod.ScoreChart),
@@ -234,7 +235,7 @@ export function ChallengeDashboard({
               <div className="text-center">
                 <Link
                   href="/mypage/challenges/results"
-                  className="text-sm text-primary-500 hover:text-primary-600 transition-colors"
+                  className={`text-sm ${TEXT_LINK_CLASSES}`}
                 >
                   {t("viewAllResults")}
                 </Link>

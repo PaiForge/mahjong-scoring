@@ -1,6 +1,7 @@
 import type { ReactNode } from "react";
 
 import Link from "next/link";
+import { TEXT_LINK_MUTED_CLASSES } from "@/app/_components/_lib/link-classes";
 
 interface StepCardProps {
   readonly stepLabel?: string;
@@ -50,7 +51,7 @@ export function StepCard({
           {subLabel && subHref ? (
             <Link
               href={subHref}
-              className="text-sm text-surface-500 underline-offset-2 transition-colors hover:text-surface-700 hover:underline"
+              className={`text-sm ${TEXT_LINK_MUTED_CLASSES}`}
             >
               {subLabel}
             </Link>

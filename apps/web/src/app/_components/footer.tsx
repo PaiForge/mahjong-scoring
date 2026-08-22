@@ -2,6 +2,7 @@ import Link from "next/link";
 import { getTranslations } from "next-intl/server";
 
 import { BrandLogo } from "./brand-logo";
+import { TEXT_LINK_MUTED_CLASSES } from "./_lib/link-classes";
 
 /**
  * フッター。
@@ -22,7 +23,7 @@ export async function Footer() {
               <li>
                 <Link
                   href="/learn/about-this-app"
-                  className="transition-colors hover:text-foreground"
+                  className={TEXT_LINK_MUTED_CLASSES}
                 >
                   {t("aboutThisApp")}
                 </Link>
@@ -36,18 +37,12 @@ export async function Footer() {
             </h3>
             <ul className="space-y-2 text-sm text-muted-foreground">
               <li>
-                <Link
-                  href="/terms"
-                  className="transition-colors hover:text-foreground"
-                >
+                <Link href="/terms" className={TEXT_LINK_MUTED_CLASSES}>
                   {t("terms")}
                 </Link>
               </li>
               <li>
-                <Link
-                  href="/privacy"
-                  className="transition-colors hover:text-foreground"
-                >
+                <Link href="/privacy" className={TEXT_LINK_MUTED_CLASSES}>
                   {t("privacy")}
                 </Link>
               </li>

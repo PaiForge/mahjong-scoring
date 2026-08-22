@@ -19,6 +19,7 @@ import { PageTitle } from "@/app/_components/page-title";
 import { createMetadata } from "@/app/_lib/metadata";
 
 import { ForgotPasswordForm } from "./_components/forgot-password-form";
+import { TEXT_LINK_CLASSES } from "@/app/_components/_lib/link-classes";
 
 export async function generateMetadata(): Promise<Metadata> {
   const t = await getTranslations("forgotPassword");
@@ -35,7 +36,7 @@ export default async function ForgotPasswordPage() {
         <ForgotPasswordForm />
 
         <p className="text-center text-sm text-surface-500">
-          <Link href="/sign-in" className="text-primary hover:underline">
+          <Link href="/sign-in" className={TEXT_LINK_CLASSES}>
             {t("backToSignIn")}
           </Link>
         </p>

@@ -5,6 +5,7 @@ import Markdown from "react-markdown";
 import remarkGfm from "remark-gfm";
 
 import { SectionTitle } from "./section-title";
+import { TEXT_LINK_CLASSES } from "./_lib/link-classes";
 
 interface MarkdownRendererProps {
   readonly content: string;
@@ -82,15 +83,12 @@ export function MarkdownRenderer({
                 href={href}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="text-primary-600 underline hover:text-primary-700"
+                className={TEXT_LINK_CLASSES}
               >
                 {children}
               </a>
             ) : (
-              <a
-                href={href}
-                className="text-primary-600 underline hover:text-primary-700"
-              >
+              <a href={href} className={TEXT_LINK_CLASSES}>
                 {children}
               </a>
             ),

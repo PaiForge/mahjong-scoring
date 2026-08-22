@@ -1,6 +1,8 @@
 import Link from "next/link";
 import { BookIcon } from "@/app/_components/icons/book-icon";
 import { ChevronRightIcon } from "@/app/_components/icons/chevron-right-icon";
+import { TEXT_LINK_CLASSES } from "@/app/_components/_lib/link-classes";
+import { TEXT_LINK_MUTED_CLASSES } from "@/app/_components/_lib/link-classes";
 
 interface PracticeCardProps {
   href: string;
@@ -47,7 +49,7 @@ export function PracticeCard({
       <div className="mt-4 flex items-center justify-between">
         <Link
           href={href}
-          className="flex items-center text-sm font-bold text-primary-600 transition-colors hover:text-primary-700"
+          className={`flex items-center text-sm font-bold ${TEXT_LINK_CLASSES}`}
         >
           {startLabel}
           <ChevronRightIcon className="ml-1 size-4" />
@@ -55,7 +57,7 @@ export function PracticeCard({
         {learnHref && learnLabel && (
           <Link
             href={learnHref}
-            className="flex items-center gap-1 text-sm text-surface-400 hover:text-primary-600 transition-colors"
+            className={`flex items-center gap-1 text-sm ${TEXT_LINK_MUTED_CLASSES}`}
           >
             <BookIcon className="size-4" />
             {learnLabel}

@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { getTranslations } from "next-intl/server";
+import { TEXT_LINK_CLASSES } from "@/app/_components/_lib/link-classes";
 
 /**
  * 未ログインユーザー向けの登録 CTA
@@ -38,7 +39,7 @@ export async function SignUpCta() {
           </Link>
           <Link
             href="/sign-in"
-            className="text-xs font-semibold text-primary-600 hover:underline"
+            className={`text-xs font-semibold ${TEXT_LINK_CLASSES}`}
           >
             {t("signUpCta.signInLink")}
           </Link>

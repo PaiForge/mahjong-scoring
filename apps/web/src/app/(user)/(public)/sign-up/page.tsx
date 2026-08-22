@@ -23,6 +23,7 @@ import { redirectIfAuthenticated } from "@/lib/auth";
 
 import { GoogleOAuthButton } from "../sign-in/_components/google-oauth-button";
 import { EmailSignUpForm } from "./_components/email-sign-up-form";
+import { TEXT_LINK_CLASSES } from "@/app/_components/_lib/link-classes";
 
 /** 認証状態に依存するため、ビルド時のプリレンダリングを無効化 */
 export const dynamic = "force-dynamic";
@@ -74,7 +75,7 @@ export default async function SignUpPage({
 
         <p className="text-center text-sm text-surface-500">
           {tAuth("alreadyHaveAccount")}
-          <Link href="/sign-in" className="text-primary-500 hover:underline">
+          <Link href="/sign-in" className={TEXT_LINK_CLASSES}>
             {tAuth("signInLinkText")}
           </Link>
         </p>

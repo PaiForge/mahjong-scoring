@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { getTranslations } from "next-intl/server";
+import { TEXT_LINK_CLASSES } from "@/app/_components/_lib/link-classes";
 
 interface LoginPromptCtaProps {
   /** 対象章のスラッグ（サインイン後のリダイレクト先生成に使用） */
@@ -20,7 +21,7 @@ export async function LoginPromptCta({ slug }: LoginPromptCtaProps) {
   return (
     <Link
       href={`/sign-in?redirect=${redirectTo}`}
-      className="text-sm text-primary-600 underline-offset-4 transition-colors hover:text-primary-700 hover:underline"
+      className={`text-sm ${TEXT_LINK_CLASSES}`}
     >
       {t("loginPromptCta")}
     </Link>

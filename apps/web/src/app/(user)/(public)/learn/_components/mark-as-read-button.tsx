@@ -7,6 +7,10 @@ import { toast } from "react-hot-toast";
 import { ConfirmationModal } from "@/app/_components/confirmation-modal";
 import { markChapterRead } from "../_actions/mark-chapter-read";
 import { unmarkChapterRead } from "../_actions/unmark-chapter-read";
+import {
+  TEXT_LINK_CLASSES,
+  TEXT_LINK_MUTED_CLASSES,
+} from "@/app/_components/_lib/link-classes";
 
 interface MarkAsReadButtonProps {
   /** 対象章のスラッグ */
@@ -77,11 +81,10 @@ export function MarkAsReadButton({ slug, initialRead }: MarkAsReadButtonProps) {
 
   // 章の終端に置く控えめな導線。塗りのボタンにすると練習への CTA より
   // 目立ってしまうため、テキストリンクの体裁にとどめる。
+  // 既読後は「取り消す」導線になるので控えめな色に落とす。
   const baseClass =
-    "text-sm underline-offset-4 transition-colors hover:underline disabled:cursor-not-allowed disabled:no-underline disabled:opacity-60";
-  const variantClass = isRead
-    ? "text-surface-500 hover:text-surface-700"
-    : "text-primary-600 hover:text-primary-700";
+    "text-sm disabled:cursor-not-allowed disabled:no-underline disabled:opacity-60";
+  const variantClass = isRead ? TEXT_LINK_MUTED_CLASSES : TEXT_LINK_CLASSES;
 
   return (
     <>

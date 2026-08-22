@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { getTranslations } from "next-intl/server";
 import { CheckIcon } from "@/app/_components/icons/check-icon";
+import { TEXT_LINK_MUTED_CLASSES } from "@/app/_components/_lib/link-classes";
 import {
   getChapterI18nPath,
   type CurriculumChapter,
@@ -117,7 +118,7 @@ export async function CurriculumToc({
                   <span className="flex flex-wrap items-center gap-2">
                     <Link
                       href={`/learn/${ch.slug}`}
-                      className="text-sm font-bold text-muted-foreground underline decoration-surface-300 underline-offset-4 transition-colors hover:text-foreground hover:decoration-surface-500"
+                      className={`text-sm font-bold ${TEXT_LINK_MUTED_CLASSES}`}
                     >
                       {t(`${path}.title`)}
                     </Link>

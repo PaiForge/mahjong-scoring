@@ -8,6 +8,7 @@ import {
   type CurriculumChapter,
   type CurriculumChapterSlug,
 } from "../_lib/curriculum";
+import { TEXT_LINK_CLASSES } from "@/app/_components/_lib/link-classes";
 
 interface ChapterNavProps {
   /** 現在の章スラッグ */
@@ -75,7 +76,7 @@ function ChapterNavLink({
     <Link
       href={`/learn/${chapter.slug}`}
       // 先頭章では prev が無いので、next 単独でも右端に寄るよう ml-auto を持たせる。
-      className={`inline-flex min-w-0 items-center gap-2 text-sm text-primary-600 underline-offset-4 transition-colors hover:text-primary-700 hover:underline ${
+      className={`inline-flex min-w-0 items-center gap-2 text-sm ${TEXT_LINK_CLASSES} ${
         isNext ? "ml-auto" : ""
       }`}
     >

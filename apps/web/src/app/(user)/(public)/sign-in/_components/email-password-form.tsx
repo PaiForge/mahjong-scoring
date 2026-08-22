@@ -10,6 +10,7 @@ import { AuthTextField } from "../../_components/auth-text-field";
 import { AuthSubmitButton } from "../../_components/auth-submit-button";
 import { AuthFormError } from "../../_components/auth-form-error";
 import { signIn } from "../_actions/sign-in";
+import { TEXT_LINK_CLASSES } from "@/app/_components/_lib/link-classes";
 
 /**
  * メールアドレス/パスワードによるサインインフォーム
@@ -67,7 +68,7 @@ export function EmailPasswordForm({ redirectTo }: { redirectTo?: string }) {
       </AuthSubmitButton>
 
       <p className="text-center text-sm">
-        <Link href="/forgot-password" className="text-primary hover:underline">
+        <Link href="/forgot-password" className={TEXT_LINK_CLASSES}>
           {t("forgotPasswordLink")}
         </Link>
       </p>

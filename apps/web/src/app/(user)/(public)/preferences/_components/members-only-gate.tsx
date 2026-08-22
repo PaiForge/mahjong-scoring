@@ -5,6 +5,7 @@ import Link from "next/link";
 import { useTranslations } from "next-intl";
 
 import { useAuth } from "@/app/_contexts/auth-context";
+import { TEXT_LINK_CLASSES } from "@/app/_components/_lib/link-classes";
 
 /**
  * 会員限定ゲート（スモーク）
@@ -46,7 +47,7 @@ export function MembersOnlyGate({
           </Link>
           <Link
             href="/sign-in?redirect=/preferences"
-            className="text-xs font-semibold text-primary-600 hover:underline"
+            className={`text-xs font-semibold ${TEXT_LINK_CLASSES}`}
           >
             {t("signInLink")}
           </Link>

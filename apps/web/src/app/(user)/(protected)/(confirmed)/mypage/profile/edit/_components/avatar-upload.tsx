@@ -7,6 +7,7 @@ import Image from "next/image";
 import toast from "react-hot-toast";
 
 import { API_ERROR_RATE_LIMITED, callApi } from "@/lib/api-client";
+import { TEXT_LINK_CLASSES } from "@/app/_components/_lib/link-classes";
 
 const ALLOWED_TYPES = ["image/jpeg", "image/png", "image/webp"];
 const MAX_SIZE = 5 * 1024 * 1024; // 5MB
@@ -116,7 +117,7 @@ export function AvatarUpload({
         type="button"
         onClick={() => fileInputRef.current?.click()}
         disabled={isUploading}
-        className="text-sm font-medium text-primary-600 hover:underline disabled:opacity-50"
+        className={`text-sm font-medium disabled:opacity-50 ${TEXT_LINK_CLASSES}`}
       >
         {t("avatarChange")}
       </button>
