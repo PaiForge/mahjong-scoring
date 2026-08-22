@@ -61,9 +61,15 @@ export function ContentContainer({
   // 通常時はモバイル（<sm）で flex-1 にし、cardArea（flex-col）内で縦に伸ばす。
   // これで本文が短くてもカード下に地の斜線が露出せず、地はタイトル帯周辺だけになる
   // （sm 以上は flex-none に戻し、角丸カードが地から浮く従来表示）。
+  //
+  // タイトル帯があるレイアウトでは、モバイルのカードが flex-1 で画面下端まで伸びて
+  // フッターに密着する。カード下端の枠線（4px）とフッター上端の枠線（4px）が並ぶと
+  // 8px の太い線に見えるため、この場合はカードの下枠を落としてフッターの枠線に任せる。
+  // タイトル無しのレイアウトはラッパーの py-6 でフッターとの間に余白があるため、
+  // 従来どおり四辺（モバイルは上下）に枠を持たせる。
   const card = (
     <div
-      className={`bg-card -mx-4 sm:mx-0 rounded-none sm:rounded-2xl border-y-4 border-ink sm:border-4 sm:shadow-lg p-4 sm:p-6 md:p-8${fillViewport ? " min-h-screen" : " flex-1 sm:flex-none"} ${className}`}
+      className={`bg-card -mx-4 sm:mx-0 rounded-none sm:rounded-2xl ${title ? "border-t-4" : "border-y-4"} border-ink sm:border-4 sm:shadow-lg p-4 sm:p-6 md:p-8${fillViewport ? " min-h-screen" : " flex-1 sm:flex-none"} ${className}`}
     >
       {body}
       {breadcrumb && breadcrumb.length > 0 && (
