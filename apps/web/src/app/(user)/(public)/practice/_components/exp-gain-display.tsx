@@ -1,6 +1,6 @@
 import { getTranslations } from "next-intl/server";
 import type { ExpInfo } from "@mahjong-scoring/core";
-import { SectionTitle } from "@/app/_components/section-title";
+import { SectionTitle } from "@/app/(user)/_components/section-title";
 
 interface ExpGainDisplayProps {
   readonly expInfo: ExpInfo;

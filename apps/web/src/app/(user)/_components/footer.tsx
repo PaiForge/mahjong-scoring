@@ -2,7 +2,7 @@ import Link from "next/link";
 import { getTranslations } from "next-intl/server";
 
 import { BrandLogo } from "./brand-logo";
-import { TEXT_LINK_MUTED_CLASSES } from "./_lib/link-classes";
+import { TEXT_LINK_MUTED_CLASSES } from "@/app/_components/_lib/link-classes";
 
 /**
  * フッター。

@@ -1,9 +1,8 @@
-import Link from "next/link";
 import { getTranslations } from "next-intl/server";
-import { ContentContainer } from "@/app/_components/content-container";
-import { PageTitle } from "@/app/_components/page-title";
-import { PrimaryLinkButton } from "@/app/_components/primary-link-button";
-import { SectionTitle } from "@/app/_components/section-title";
+import { ContentContainer } from "@/app/(user)/_components/content-container";
+import { PageTitle } from "@/app/(user)/_components/page-title";
+import { LinkButton } from "@/app/(user)/_components/link-button";
+import { SectionTitle } from "@/app/(user)/_components/section-title";
 import type { PracticeResultViewProps } from "../_lib/create-practice-result-page";
 import { buildResultBreadcrumb } from "../_lib/result-breadcrumb";
 import { PRACTICE_SCROLL_HASH } from "../_lib/scroll-anchor";
@@ -69,18 +68,16 @@ export async function ResultView({
 
         {/* アクションボタン（もう一度 / 練習一覧に戻る）。参考プロジェクト準拠で縦積み・全幅。 */}
         <div className="space-y-3">
-          <PrimaryLinkButton
+          <LinkButton
             href={`${playHref}${PRACTICE_SCROLL_HASH}`}
-            className="w-full py-3"
+            size="lg"
+            fullWidth
           >
             {tc("retryButton")}
-          </PrimaryLinkButton>
-          <Link
-            href="/practice"
-            className="press-sm inline-flex w-full items-center justify-center rounded-lg border-3 border-ink bg-card py-3 text-sm font-bold text-surface-700 shadow-sm hover:bg-surface-100"
-          >
+          </LinkButton>
+          <LinkButton href="/practice" variant="neutral" size="lg" fullWidth>
             {tc("backToList")}
-          </Link>
+          </LinkButton>
         </div>
 
         {/* 練習種別固有の追加コンテンツ（問題別フィードバック一覧など） */}

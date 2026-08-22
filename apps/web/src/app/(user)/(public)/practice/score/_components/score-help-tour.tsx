@@ -11,6 +11,7 @@ import type {
 import { QuestionDisplay } from "./question-display";
 import { ScorePracticeAnswerForm } from "./score-practice-answer-form";
 import { ResultDisplay } from "./result-display";
+import { Button } from "@/app/(user)/_components/button";
 
 /**
  * 点数計算総合演習 ヘルプツアー
@@ -296,21 +297,13 @@ export function ScoreHelpTour() {
               </div>
 
               {isLast ? (
-                <button
-                  type="button"
-                  onClick={close}
-                  className="rounded-lg bg-primary-500 px-4 py-2 text-sm font-bold text-white transition-colors hover:bg-primary-600"
-                >
+                <Button size="sm" onClick={close}>
                   {tCommon("close")}
-                </button>
+                </Button>
               ) : (
-                <button
-                  type="button"
-                  onClick={goNext}
-                  className="rounded-lg bg-primary-500 px-4 py-2 text-sm font-bold text-white transition-colors hover:bg-primary-600"
-                >
+                <Button size="sm" onClick={goNext}>
                   {t("help.next")}
-                </button>
+                </Button>
               )}
             </div>
           </div>

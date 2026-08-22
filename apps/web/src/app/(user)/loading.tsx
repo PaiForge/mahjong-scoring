@@ -1,4 +1,4 @@
-import { PageSkeleton } from "@/app/_components/page-skeleton";
+import { PageSkeleton } from "@/app/(user)/_components/page-skeleton";
 
 /**
  * (user) シェル配下の汎用フォールバックローディング。

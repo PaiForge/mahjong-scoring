@@ -7,10 +7,10 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { getTranslations } from "next-intl/server";
-import { ChevronRightIcon } from "@/app/_components/icons/chevron-right-icon";
-import { ContentContainer } from "@/app/_components/content-container";
-import { PageTitle } from "@/app/_components/page-title";
-import { SectionTitle } from "@/app/_components/section-title";
+import { ChevronRightIcon } from "@/app/(user)/_components/icons/chevron-right-icon";
+import { ContentContainer } from "@/app/(user)/_components/content-container";
+import { PageTitle } from "@/app/(user)/_components/page-title";
+import { SectionTitle } from "@/app/(user)/_components/section-title";
 import { createNamespaceMetadata } from "@/app/_lib/metadata";
 import { PracticeCard } from "./_components/practice-card";
 import { PracticeCategorySection } from "./_components/practice-category-section";

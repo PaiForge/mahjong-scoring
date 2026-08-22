@@ -5,7 +5,10 @@ import { useTranslations } from "next-intl";
 import { FU_VALUES } from "@mahjong-scoring/core";
 import type { calculateKoScore } from "@mahjong-scoring/core";
 import type { Role, WinType } from "@mahjong-scoring/core";
-import { DataTable, DataTableHeaderCell } from "@/app/_components/data-table";
+import {
+  DataTable,
+  DataTableHeaderCell,
+} from "@/app/(user)/_components/data-table";
 import { TsumoScore } from "./tsumo-score";
 
 /** 表の翻数列（1〜4翻） */

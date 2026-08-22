@@ -16,6 +16,7 @@ import { QuestionGeneratingPlaceholder } from "../../_components/question-genera
 import { TehaiDisplay } from "../../_components/tehai-display";
 import { FuBreakdown } from "./fu-breakdown";
 import { QuestionPrompt } from "../../_components/question-prompt";
+import { Button } from "@/app/(user)/_components/button";
 
 function generateQuestion(
   renfonpaiAs4Fu: boolean,
@@ -114,13 +115,9 @@ export function TotalFuBoard({
               details={question.fuDetails}
               answer={question.answer}
             />
-            <button
-              type="button"
-              onClick={onProceed}
-              className="w-full rounded-lg bg-primary-500 px-6 py-3 font-bold text-white transition-colors hover:bg-primary-600"
-            >
+            <Button size="lg" fullWidth onClick={onProceed}>
               {t("nextQuestion")}
-            </button>
+            </Button>
           </>
         )}
     </div>

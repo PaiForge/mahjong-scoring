@@ -8,17 +8,17 @@
  * 遷移する。ページ下部からアカウント登録(/sign-up)へ誘導する。
  */
 import type { Metadata } from "next";
-import Link from "next/link";
 import { getTranslations } from "next-intl/server";
 
-import { ContentContainer } from "@/app/_components/content-container";
-import { PageTitle } from "@/app/_components/page-title";
-import { BookIcon } from "@/app/_components/icons/book-icon";
-import { CheckIcon } from "@/app/_components/icons/check-icon";
-import { PlayIcon } from "@/app/_components/icons/play-icon";
+import { ContentContainer } from "@/app/(user)/_components/content-container";
+import { PageTitle } from "@/app/(user)/_components/page-title";
+import { BookIcon } from "@/app/(user)/_components/icons/book-icon";
+import { CheckIcon } from "@/app/(user)/_components/icons/check-icon";
+import { PlayIcon } from "@/app/(user)/_components/icons/play-icon";
 import { createMetadata } from "@/app/_lib/metadata";
 
 import { StepCard } from "./_components/step-card";
+import { LinkButton } from "@/app/(user)/_components/link-button";
 
 export async function generateMetadata(): Promise<Metadata> {
   const t = await getTranslations("gettingStarted");
@@ -72,12 +72,9 @@ export default async function GettingStartedPage() {
           <p className="mx-auto max-w-xl text-sm leading-relaxed text-surface-500">
             {t("signUp.description")}
           </p>
-          <Link
-            href="/sign-up"
-            className="inline-flex items-center justify-center rounded-lg bg-primary-600 px-8 py-3 text-sm font-semibold text-white shadow-sm transition-colors hover:bg-primary-700"
-          >
+          <LinkButton href="/sign-up" size="lg">
             {t("signUp.cta")}
-          </Link>
+          </LinkButton>
         </section>
       </div>
     </ContentContainer>

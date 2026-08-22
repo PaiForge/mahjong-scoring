@@ -9,9 +9,9 @@ import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { getLocale, getTranslations } from "next-intl/server";
 
-import { ContentContainer } from "@/app/_components/content-container";
-import { MarkdownRenderer } from "@/app/_components/markdown-renderer";
-import { PageTitle } from "@/app/_components/page-title";
+import { ContentContainer } from "@/app/(user)/_components/content-container";
+import { MarkdownRenderer } from "@/app/(user)/_components/markdown-renderer";
+import { PageTitle } from "@/app/(user)/_components/page-title";
 import { createMetadata } from "@/app/_lib/metadata";
 
 import { formatPublishedDate } from "../_lib/format";

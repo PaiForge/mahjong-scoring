@@ -3,7 +3,10 @@
 import { useTranslations } from "next-intl";
 import { HIGH_SCORES } from "@mahjong-scoring/core";
 import type { Role, WinType } from "@mahjong-scoring/core";
-import { DataTable, DataTableHeaderCell } from "@/app/_components/data-table";
+import {
+  DataTable,
+  DataTableHeaderCell,
+} from "@/app/(user)/_components/data-table";
 import { TsumoScore } from "./tsumo-score";
 
 interface HighScoreTableProps {

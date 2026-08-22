@@ -9,6 +9,7 @@ import { getAvailableScores } from "../_lib/get-available-scores";
 import { MANGAN_MIN_HAN, PRACTICE_HAN_TIERS } from "../_lib/han-tiers";
 import { getSelectClass } from "../../_lib/select-class";
 import { ScoreOptionSelect } from "../../_components/score-option-select";
+import { Button } from "@/app/(user)/_components/button";
 
 interface ScorePracticeAnswerFormProps {
   readonly onSubmit: (answer: UserAnswer) => void;
@@ -241,13 +242,9 @@ export function ScorePracticeAnswerForm({
       </div>
 
       {/* Submit */}
-      <button
-        type="submit"
-        disabled={disabled}
-        className="w-full rounded-lg bg-primary-500 py-3 px-6 font-bold text-white transition-colors hover:bg-primary-600 disabled:cursor-not-allowed disabled:bg-surface-400 disabled:text-surface-200"
-      >
+      <Button type="submit" size="lg" fullWidth disabled={disabled}>
         {t("form.buttons.answer")}
-      </button>
+      </Button>
 
       {/* Skip */}
       {onSkip && (

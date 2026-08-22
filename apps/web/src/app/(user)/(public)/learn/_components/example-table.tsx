@@ -1,5 +1,8 @@
 import type { ReactNode } from "react";
-import { DataTable, DataTableHeaderCell } from "@/app/_components/data-table";
+import {
+  DataTable,
+  DataTableHeaderCell,
+} from "@/app/(user)/_components/data-table";
 
 interface ExampleTableRow {
   /** 牌のセルの中身（{@link TileSet} 等のクライアントコンポーネント） */

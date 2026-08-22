@@ -1,6 +1,6 @@
 import { useTranslations } from "next-intl";
 
-import { TableIcon } from "@/app/_components/icons/table-icon";
+import { TableIcon } from "@/app/(user)/_components/icons/table-icon";
 
 import { LandingSection } from "./landing-section";
 
@@ -16,7 +16,7 @@ export function ReferenceSection() {
       description={t("referenceDescription")}
       href="/reference"
       ctaLabel={t("referenceCta")}
-      ctaClassName="bg-white text-surface-900 hover:bg-primary-50"
+      ctaVariant="secondary"
     />
   );
 }

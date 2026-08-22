@@ -6,7 +6,8 @@ import { useTranslations } from "next-intl";
 import { useRouter } from "next/navigation";
 import { toast } from "react-hot-toast";
 
-import { ConfirmationModal } from "@/app/_components/confirmation-modal";
+import { Button } from "@/app/(user)/_components/button";
+import { ConfirmationModal } from "@/app/(user)/_components/confirmation-modal";
 import { useAuth } from "@/app/_contexts/auth-context";
 import { deleteOwnAccount } from "../_actions/delete-account";
 
@@ -41,14 +42,14 @@ export function DeleteAccountButton() {
 
   return (
     <>
-      <button
-        type="button"
+      <Button
+        variant="dangerOutline"
+        size="sm"
         onClick={() => setIsModalOpen(true)}
         disabled={isDeleting}
-        className="press-sm inline-flex items-center justify-center rounded-lg border-3 border-destructive bg-white px-5 py-2 text-sm font-bold text-destructive shadow-sm hover:bg-destructive-subtle disabled:opacity-50"
       >
         {isDeleting ? t("deleting") : t("confirmButton")}
-      </button>
+      </Button>
 
       <ConfirmationModal
         isOpen={isModalOpen}

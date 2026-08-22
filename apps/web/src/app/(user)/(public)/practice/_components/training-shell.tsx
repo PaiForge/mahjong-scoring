@@ -3,8 +3,8 @@
 import { type ReactNode } from "react";
 import Link from "next/link";
 import { useTranslations } from "next-intl";
-import { ContentContainer } from "@/app/_components/content-container";
-import { PageTitle } from "@/app/_components/page-title";
+import { ContentContainer } from "@/app/(user)/_components/content-container";
+import { PageTitle } from "@/app/(user)/_components/page-title";
 import { useScrollToElement } from "../_hooks/use-scroll-to-element";
 import { PRACTICE_SCROLL_ANCHOR_ID } from "../_lib/scroll-anchor";
 import { ScoreCounter } from "./score-counter";

@@ -4,7 +4,7 @@ import { useRouter } from "next/navigation";
 import { useState, useTransition } from "react";
 import { useTranslations } from "next-intl";
 import { toast } from "react-hot-toast";
-import { ConfirmationModal } from "@/app/_components/confirmation-modal";
+import { ConfirmationModal } from "@/app/(user)/_components/confirmation-modal";
 import { markChapterRead } from "../_actions/mark-chapter-read";
 import { unmarkChapterRead } from "../_actions/unmark-chapter-read";
 import {

@@ -4,6 +4,8 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useTranslations } from "next-intl";
 
+import { LinkButton } from "@/app/(user)/_components/link-button";
+
 interface LeaderboardPaginationProps {
   readonly currentPage: number;
   readonly totalPages: number;
@@ -58,22 +60,15 @@ export function LeaderboardPagination({
         {t("pagination.total", { count: totalCount })}
       </p>
       <div className="flex items-center gap-1">
-        {currentPage <= 1 ? (
-          <span
-            className="cursor-not-allowed rounded-lg border-3 border-ink px-3 py-2 text-sm opacity-40"
-            aria-label={t("pagination.previous")}
-          >
-            {t("pagination.previous")}
-          </span>
-        ) : (
-          <Link
-            href={buildPageHref(pathname, currentPage - 1)}
-            className="press-sm rounded-lg border-3 border-ink bg-card px-3 py-2 text-sm shadow-sm hover:bg-primary-50"
-            aria-label={t("pagination.previous")}
-          >
-            {t("pagination.previous")}
-          </Link>
-        )}
+        <LinkButton
+          href={buildPageHref(pathname, Math.max(1, currentPage - 1))}
+          variant="secondary"
+          size="sm"
+          disabled={currentPage <= 1}
+          aria-label={t("pagination.previous")}
+        >
+          {t("pagination.previous")}
+        </LinkButton>
 
         {pages.map((page, i) =>
           page === "ellipsis" ? (
@@ -99,22 +94,15 @@ export function LeaderboardPagination({
           ),
         )}
 
-        {currentPage >= totalPages ? (
-          <span
-            className="cursor-not-allowed rounded-lg border-3 border-ink px-3 py-2 text-sm opacity-40"
-            aria-label={t("pagination.next")}
-          >
-            {t("pagination.next")}
-          </span>
-        ) : (
-          <Link
-            href={buildPageHref(pathname, currentPage + 1)}
-            className="press-sm rounded-lg border-3 border-ink bg-card px-3 py-2 text-sm shadow-sm hover:bg-primary-50"
-            aria-label={t("pagination.next")}
-          >
-            {t("pagination.next")}
-          </Link>
-        )}
+        <LinkButton
+          href={buildPageHref(pathname, Math.min(totalPages, currentPage + 1))}
+          variant="secondary"
+          size="sm"
+          disabled={currentPage >= totalPages}
+          aria-label={t("pagination.next")}
+        >
+          {t("pagination.next")}
+        </LinkButton>
       </div>
     </nav>
   );

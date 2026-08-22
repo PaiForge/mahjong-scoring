@@ -1,8 +1,5 @@
-import Link from "next/link";
-
-import { InfinityIcon } from "@/app/_components/icons/infinity-icon";
-
-import { PrimaryLinkButton } from "@/app/_components/primary-link-button";
+import { InfinityIcon } from "@/app/(user)/_components/icons/infinity-icon";
+import { LinkButton } from "@/app/(user)/_components/link-button";
 
 /** 開始導線に表示する文言 */
 export interface PracticeStartCtaLabels {
@@ -48,18 +45,9 @@ export function PracticeStartCta({
   return (
     <div className="flex flex-col gap-5">
       <div className="flex w-full flex-col items-center gap-1.5">
-        {disabled ? (
-          <span
-            aria-disabled="true"
-            className="block w-full cursor-not-allowed rounded-lg border-3 border-ink bg-surface-200 px-6 py-3 text-center text-sm font-bold text-surface-400 opacity-50"
-          >
-            {labels.challenge}
-          </span>
-        ) : (
-          <PrimaryLinkButton href={playHref} className="w-full py-3">
-            {labels.challenge}
-          </PrimaryLinkButton>
-        )}
+        <LinkButton href={playHref} size="lg" fullWidth disabled={disabled}>
+          {labels.challenge}
+        </LinkButton>
         <p className="text-xs text-surface-400">{labels.challengeHint}</p>
       </div>
 
@@ -70,23 +58,17 @@ export function PracticeStartCta({
       </div>
 
       <div className="flex w-full flex-col items-center gap-1.5">
-        {disabled ? (
-          <span
-            aria-disabled="true"
-            className="inline-flex w-full cursor-not-allowed items-center justify-center gap-2 rounded-lg border-3 border-ink py-3 text-sm font-bold text-surface-400 opacity-50"
-          >
-            <InfinityIcon className="size-4" />
-            {labels.training}
-          </span>
-        ) : (
-          <Link
-            href={trainingHref}
-            className="press-sm inline-flex w-full items-center justify-center gap-2 rounded-lg border-3 border-ink bg-card py-3 text-sm font-bold text-primary-700 shadow-sm hover:bg-primary-50"
-          >
-            <InfinityIcon className="size-4" />
-            {labels.training}
-          </Link>
-        )}
+        <LinkButton
+          href={trainingHref}
+          variant="secondary"
+          size="lg"
+          fullWidth
+          disabled={disabled}
+          className="gap-2"
+        >
+          <InfinityIcon className="size-4" />
+          {labels.training}
+        </LinkButton>
         <p className="text-xs text-surface-400">{labels.trainingHint}</p>
       </div>
     </div>

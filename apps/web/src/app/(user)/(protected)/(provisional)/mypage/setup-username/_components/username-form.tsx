@@ -9,6 +9,7 @@ import { useRouter } from "next/navigation";
 import { validateUsername } from "@/lib/username";
 
 import { registerUsername } from "../_actions/register-username";
+import { Button } from "@/app/(user)/_components/button";
 
 /**
  * ユーザー名登録フォーム。
@@ -129,13 +130,14 @@ export function UsernameForm() {
         </ul>
       </ProfileTextField>
 
-      <button
+      <Button
         type="submit"
+        size="lg"
+        fullWidth
         disabled={isSubmitting || username.trim().length === 0}
-        className="w-full rounded-lg bg-primary-600 px-4 py-3 text-sm font-medium text-white transition-colors hover:bg-primary-700 disabled:cursor-not-allowed disabled:opacity-50"
       >
         {isSubmitting ? t("submitting") : t("submit")}
-      </button>
+      </Button>
     </form>
   );
 }

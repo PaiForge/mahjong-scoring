@@ -1,5 +1,5 @@
 import type { Announcement } from "@/lib/db";
-import { ListLink } from "@/app/_components/list-link";
+import { ListLink } from "@/app/(user)/_components/list-link";
 
 import { formatPublishedDate } from "../_lib/format";
 

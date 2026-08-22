@@ -1,8 +1,8 @@
 import { ContentContainer } from "./content-container";
 import { PageTitle } from "./page-title";
-import { PageTitleSkeleton } from "./page-title-skeleton";
+import { PageTitleSkeleton } from "@/app/_components/page-title-skeleton";
 import { SectionTitleSkeleton } from "./section-title-skeleton";
-import { SkeletonBar } from "./skeleton-bar";
+import { SkeletonBar } from "@/app/_components/skeleton-bar";
 
 interface PageSkeletonProps {
   /** タイトルバーのプレースホルダ幅（Tailwind の w-* クラス）。 */

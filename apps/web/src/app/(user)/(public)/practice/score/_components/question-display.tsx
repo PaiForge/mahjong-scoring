@@ -8,7 +8,7 @@ import type { ScoreQuestion } from "@mahjong-scoring/core";
 import { getKazeName, getDoraFromIndicator } from "@mahjong-scoring/core";
 import { useResponsiveHaiSize } from "../../_hooks/use-responsive-hai-size";
 import { useTranslations } from "next-intl";
-import { InfoModal } from "@/app/_components/info-modal";
+import { InfoModal } from "@/app/(user)/_components/info-modal";
 
 interface QuestionDisplayProps {
   readonly question: ScoreQuestion;

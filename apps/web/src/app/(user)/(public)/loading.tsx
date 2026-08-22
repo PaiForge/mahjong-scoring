@@ -1,4 +1,4 @@
-import { PageSkeleton } from "@/app/_components/page-skeleton";
+import { PageSkeleton } from "@/app/(user)/_components/page-skeleton";
 
 /**
  * 公開ルート共通のローディング状態（キャッチオール）。

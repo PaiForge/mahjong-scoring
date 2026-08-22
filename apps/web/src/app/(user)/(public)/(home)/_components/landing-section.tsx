@@ -1,6 +1,7 @@
 import type { ReactNode } from "react";
 
-import Link from "next/link";
+import type { ButtonVariant } from "@/app/(user)/_components/_lib/button-classes";
+import { LinkButton } from "@/app/(user)/_components/link-button";
 
 interface LandingSectionProps {
   readonly sectionClassName: string;
@@ -10,7 +11,8 @@ interface LandingSectionProps {
   readonly description: string;
   readonly href: string;
   readonly ctaLabel: string;
-  readonly ctaClassName: string;
+  /** CTA ボタンの系統。塗りが必要なら primary、白抜きなら secondary */
+  readonly ctaVariant: ButtonVariant;
 }
 
 export function LandingSection({
@@ -21,7 +23,7 @@ export function LandingSection({
   description,
   href,
   ctaLabel,
-  ctaClassName,
+  ctaVariant,
 }: LandingSectionProps) {
   return (
     <section className={`px-6 py-24 ${sectionClassName}`}>
@@ -36,12 +38,9 @@ export function LandingSection({
           {description}
         </p>
         <div className="pt-4">
-          <Link
-            href={href}
-            className={`press-md inline-flex items-center justify-center rounded-lg border-4 border-ink px-8 py-3 text-base font-bold shadow-md ${ctaClassName}`}
-          >
+          <LinkButton href={href} variant={ctaVariant} size="xl">
             {ctaLabel}
-          </Link>
+          </LinkButton>
         </div>
       </div>
     </section>

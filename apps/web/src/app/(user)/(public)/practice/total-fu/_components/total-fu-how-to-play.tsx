@@ -3,7 +3,7 @@
 import { useTranslations } from "next-intl";
 import { HaiKind, validateTehai14 } from "@mahjong-scoring/core";
 import type { FuDetail } from "@mahjong-scoring/core";
-import { CheckIcon } from "@/app/_components/icons/check-icon";
+import { CheckIcon } from "@/app/(user)/_components/icons/check-icon";
 import { TehaiDisplay } from "../../_components/tehai-display";
 import { FuBreakdown } from "./fu-breakdown";
 import { QuestionPrompt } from "../../_components/question-prompt";

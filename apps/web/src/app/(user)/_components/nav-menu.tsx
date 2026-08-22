@@ -6,7 +6,7 @@ import { useEffect, useState } from "react";
 import { createPortal } from "react-dom";
 import { useTranslations } from "next-intl";
 
-import { useIsClient } from "../_hooks/use-is-client";
+import { useIsClient } from "@/app/_hooks/use-is-client";
 import { DRAWER_NAV_ITEMS } from "./_lib/nav-items";
 
 /**

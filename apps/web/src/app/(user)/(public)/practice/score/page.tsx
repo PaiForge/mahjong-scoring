@@ -13,9 +13,9 @@
 import type { Metadata } from "next";
 import { getTranslations } from "next-intl/server";
 import { createNamespaceMetadata } from "@/app/_lib/metadata";
-import { ContentContainer } from "@/app/_components/content-container";
-import { PageTitle } from "@/app/_components/page-title";
-import { SectionTitle } from "@/app/_components/section-title";
+import { ContentContainer } from "@/app/(user)/_components/content-container";
+import { PageTitle } from "@/app/(user)/_components/page-title";
+import { SectionTitle } from "@/app/(user)/_components/section-title";
 import { ScoreSetupForm } from "./_components/score-setup-form";
 import { ScoreHelpTour } from "./_components/score-help-tour";
 

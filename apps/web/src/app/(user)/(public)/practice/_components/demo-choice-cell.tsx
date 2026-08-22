@@ -1,6 +1,6 @@
 import type { ReactNode } from "react";
 
-import { CheckIcon } from "@/app/_components/icons/check-icon";
+import { CheckIcon } from "@/app/(user)/_components/icons/check-icon";
 
 /**
  * 正誤の配色

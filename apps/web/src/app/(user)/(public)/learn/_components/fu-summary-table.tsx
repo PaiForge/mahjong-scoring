@@ -1,5 +1,8 @@
-import { DataTable, DataTableHeaderCell } from "@/app/_components/data-table";
-import { SectionTitle } from "@/app/_components/section-title";
+import {
+  DataTable,
+  DataTableHeaderCell,
+} from "@/app/(user)/_components/data-table";
+import { SectionTitle } from "@/app/(user)/_components/section-title";
 
 interface FuSummaryRow {
   /** 翻訳済みの種類ラベル */

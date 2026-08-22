@@ -1,6 +1,6 @@
 import { useTranslations } from "next-intl";
 
-import { BookIcon } from "@/app/_components/icons/book-icon";
+import { BookIcon } from "@/app/(user)/_components/icons/book-icon";
 
 import { LandingSection } from "./landing-section";
 
@@ -16,7 +16,7 @@ export function LearnSection() {
       description={t("learnDescription")}
       href="/learn"
       ctaLabel={t("learnCta")}
-      ctaClassName="bg-white text-surface-900 hover:bg-primary-50"
+      ctaVariant="secondary"
     />
   );
 }

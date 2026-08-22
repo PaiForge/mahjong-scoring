@@ -4,7 +4,7 @@ import { useTranslations } from "next-intl";
 import { HaiKind } from "@mahjong-scoring/core";
 import type { HaiKindId, Tehai14 } from "@mahjong-scoring/core";
 import { Hai } from "@pai-forge/mahjong-react-ui";
-import { CheckIcon } from "@/app/_components/icons/check-icon";
+import { CheckIcon } from "@/app/(user)/_components/icons/check-icon";
 import { TehaiDisplay } from "../../_components/tehai-display";
 
 /**

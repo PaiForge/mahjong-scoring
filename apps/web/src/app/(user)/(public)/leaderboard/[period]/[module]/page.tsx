@@ -20,10 +20,10 @@ import { Suspense } from "react";
 import { getTranslations } from "next-intl/server";
 import { notFound } from "next/navigation";
 
-import { ContentContainer } from "@/app/_components/content-container";
-import { PageTitle } from "@/app/_components/page-title";
-import { PrimaryLinkButton } from "@/app/_components/primary-link-button";
-import { SectionTitle } from "@/app/_components/section-title";
+import { ContentContainer } from "@/app/(user)/_components/content-container";
+import { PageTitle } from "@/app/(user)/_components/page-title";
+import { LinkButton } from "@/app/(user)/_components/link-button";
+import { SectionTitle } from "@/app/(user)/_components/section-title";
 import { createMetadata } from "@/app/_lib/metadata";
 import { getOptionalUser } from "@/lib/auth";
 import { menuTypeToMessageKey } from "@/lib/db/practice-menu-types";
@@ -152,9 +152,9 @@ export default async function LeaderboardDetailPage({
       </Suspense>
 
       <div className="pt-4 border-t-2 border-dashed border-border/40">
-        <PrimaryLinkButton href={challengePath} className="w-full">
+        <LinkButton href={challengePath} fullWidth>
           {t("tryChallenge")}
-        </PrimaryLinkButton>
+        </LinkButton>
       </div>
     </ContentContainer>
   );

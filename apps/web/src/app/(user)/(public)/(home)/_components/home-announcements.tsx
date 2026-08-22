@@ -3,10 +3,10 @@ import { getLocale, getTranslations } from "next-intl/server";
 
 import { AnnouncementListItem } from "@/app/(user)/(public)/announcements/_components/announcement-list-item";
 import { getPublishedAnnouncementsPaginated } from "@/app/(user)/(public)/announcements/_lib/queries";
-import { ContentContainer } from "@/app/_components/content-container";
-import { ListLinkContainer } from "@/app/_components/list-link";
-import { PageTitle } from "@/app/_components/page-title";
-import { SectionTitle } from "@/app/_components/section-title";
+import { ContentContainer } from "@/app/(user)/_components/content-container";
+import { ListLinkContainer } from "@/app/(user)/_components/list-link";
+import { PageTitle } from "@/app/(user)/_components/page-title";
+import { SectionTitle } from "@/app/(user)/_components/section-title";
 import { TEXT_LINK_CLASSES } from "@/app/_components/_lib/link-classes";
 
 const HOME_ANNOUNCEMENTS_LIMIT = 5;

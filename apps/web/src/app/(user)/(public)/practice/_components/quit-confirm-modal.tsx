@@ -1,7 +1,7 @@
 "use client";
 
 import { useTranslations } from "next-intl";
-import { ConfirmationModal } from "@/app/_components/confirmation-modal";
+import { ConfirmationModal } from "@/app/(user)/_components/confirmation-modal";
 
 interface QuitConfirmModalProps {
   readonly isOpen: boolean;

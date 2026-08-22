@@ -1,6 +1,6 @@
 import { getTranslations } from "next-intl/server";
 import { HaiKind } from "@mahjong-scoring/core";
-import { SectionTitle } from "@/app/_components/section-title";
+import { SectionTitle } from "@/app/(user)/_components/section-title";
 import { ExampleCard } from "../../_components/example-card";
 import { GuideParagraph } from "../../_components/guide-paragraph";
 import { TehaiFuExample } from "./tehai-fu-example";

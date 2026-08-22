@@ -5,7 +5,7 @@ import { PracticeLinkList } from "./practice-link-card";
 // next-intl の t() は関数だが、`t.has(key)` のようなメソッドも持つ。
 // `practice-link-card` は `t.has()` で辞書キーの存在確認を行うため、
 // モックでも関数 + プロパティを再現する必要がある。
-// PrimaryLinkButton 配下の LinkPending がクライアント側の useTranslations を使う。
+// LinkButton 配下の LinkPending がクライアント側の useTranslations を使う。
 vi.mock("next-intl", () => ({
   useTranslations: () => (key: string) => key,
 }));

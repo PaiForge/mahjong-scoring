@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { getTranslations } from "next-intl/server";
-import { Divider } from "@/app/_components/divider";
-import { ChevronRightIcon } from "@/app/_components/icons/chevron-right-icon";
+import { Divider } from "@/app/(user)/_components/divider";
+import { ChevronRightIcon } from "@/app/(user)/_components/icons/chevron-right-icon";
 import {
   getAdjacentChapters,
   getChapterI18nPath,

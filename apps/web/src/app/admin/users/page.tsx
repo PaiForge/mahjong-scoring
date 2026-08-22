@@ -10,7 +10,7 @@ import { createSearchParamsCache, parseAsInteger } from "nuqs/server";
 import { getOptionalUser } from "../../../lib/auth";
 import { getPaginationData, DEFAULT_PAGE_SIZE } from "../../../lib/pagination";
 import { createAdminClient } from "../../../lib/supabase/admin";
-import { PaginationNav } from "../../_components/pagination-nav";
+import { PaginationNav } from "@/app/(user)/_components/pagination-nav";
 
 import { TableEmptyRow } from "../_components/table-empty-row";
 

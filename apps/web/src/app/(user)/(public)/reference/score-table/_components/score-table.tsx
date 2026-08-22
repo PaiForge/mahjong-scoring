@@ -10,7 +10,7 @@ import {
   isRole,
   isWinType,
 } from "@mahjong-scoring/core";
-import { ToggleGroup } from "@/app/_components/toggle-group";
+import { ToggleGroup } from "@/app/(user)/_components/toggle-group";
 import { buildHighlightCellId } from "../_lib/score-table-utils";
 import type { Role, WinType } from "@mahjong-scoring/core";
 import { HAN_COLS, FU_ROWS, NormalScoreTable } from "./normal-score-table";

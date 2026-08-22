@@ -6,6 +6,7 @@ import { useTranslations } from "next-intl";
 
 import { useAuth } from "@/app/_contexts/auth-context";
 import { TEXT_LINK_CLASSES } from "@/app/_components/_lib/link-classes";
+import { LinkButton } from "@/app/(user)/_components/link-button";
 
 /**
  * 会員限定ゲート（スモーク）
@@ -39,12 +40,7 @@ export function MembersOnlyGate({
             <p className="font-semibold text-surface-900">{t("title")}</p>
             <p className="mt-1 text-sm text-surface-600">{t("description")}</p>
           </div>
-          <Link
-            href="/sign-up"
-            className="inline-flex items-center justify-center rounded-lg bg-primary-500 px-6 py-2.5 text-sm font-semibold text-white shadow-sm transition-colors hover:bg-primary-600"
-          >
-            {t("cta")}
-          </Link>
+          <LinkButton href="/sign-up">{t("cta")}</LinkButton>
           <Link
             href="/sign-in?redirect=/preferences"
             className={`text-xs font-semibold ${TEXT_LINK_CLASSES}`}

@@ -11,11 +11,11 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { getTranslations } from "next-intl/server";
-import { ChevronRightIcon } from "@/app/_components/icons/chevron-right-icon";
-import { TableIcon } from "@/app/_components/icons/table-icon";
-import { BookIcon } from "@/app/_components/icons/book-icon";
-import { ContentContainer } from "@/app/_components/content-container";
-import { PageTitle } from "@/app/_components/page-title";
+import { ChevronRightIcon } from "@/app/(user)/_components/icons/chevron-right-icon";
+import { TableIcon } from "@/app/(user)/_components/icons/table-icon";
+import { BookIcon } from "@/app/(user)/_components/icons/book-icon";
+import { ContentContainer } from "@/app/(user)/_components/content-container";
+import { PageTitle } from "@/app/(user)/_components/page-title";
 import { createNamespaceMetadata } from "@/app/_lib/metadata";
 
 export async function generateMetadata(): Promise<Metadata> {

@@ -1,6 +1,6 @@
 "use client";
 
-import { ErrorFallback } from "@/app/_components/error-fallback";
+import { ErrorFallback } from "@/app/(user)/_components/error-fallback";
 
 /**
  * ランキング用エラー境界

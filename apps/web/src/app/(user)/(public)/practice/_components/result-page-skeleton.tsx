@@ -1,7 +1,7 @@
-import type { BreadcrumbItem } from "@/app/_components/breadcrumb";
-import { ContentContainer } from "@/app/_components/content-container";
-import { PageTitle } from "@/app/_components/page-title";
-import { SectionTitleSkeleton } from "@/app/_components/section-title-skeleton";
+import type { BreadcrumbItem } from "@/app/(user)/_components/breadcrumb";
+import { ContentContainer } from "@/app/(user)/_components/content-container";
+import { PageTitle } from "@/app/(user)/_components/page-title";
+import { SectionTitleSkeleton } from "@/app/(user)/_components/section-title-skeleton";
 import { LeaderboardSkeleton } from "./leaderboard-skeleton";
 import { ProblemListSkeleton } from "./problem-list-skeleton";
 import { ResultBlockSkeleton } from "./result-block-skeleton";

@@ -2,6 +2,8 @@
 
 import type { ReactNode } from "react";
 
+import { Button } from "@/app/(user)/_components/button";
+
 /**
  * チャレンジモード送信ボタンの props
  * チャレンジ送信ボタン
@@ -28,18 +30,9 @@ export function ChallengeSubmitButton({
 }: ChallengeSubmitButtonProps) {
   return (
     <div className="mt-4">
-      <button
-        type="button"
-        onClick={onClick}
-        disabled={disabled}
-        className={`w-full rounded-lg border-3 border-ink py-3 text-sm font-bold text-white ${
-          disabled
-            ? "cursor-not-allowed bg-surface-300 opacity-60"
-            : "press-sm bg-primary-500 shadow-sm hover:bg-primary-600"
-        }`}
-      >
+      <Button size="lg" fullWidth onClick={onClick} disabled={disabled}>
         {children}
-      </button>
+      </Button>
     </div>
   );
 }

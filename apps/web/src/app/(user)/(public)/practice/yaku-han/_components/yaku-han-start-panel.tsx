@@ -6,7 +6,7 @@ import { PracticeStartCta } from "../../_components/practice-start-cta";
 import { useTranslations } from "next-intl";
 import { DEFAULT_YAKU_HAN_RANGE } from "@mahjong-scoring/core";
 import type { YakuHanRange } from "@mahjong-scoring/core";
-import { SectionTitle } from "@/app/_components/section-title";
+import { SectionTitle } from "@/app/(user)/_components/section-title";
 import { PRACTICE_SCROLL_HASH } from "../../_lib/scroll-anchor";
 
 /** 出題範囲の選択肢（表示順） */

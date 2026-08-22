@@ -1,4 +1,4 @@
-import type { BreadcrumbItem } from "@/app/_components/breadcrumb";
+import type { BreadcrumbItem } from "@/app/(user)/_components/breadcrumb";
 
 interface ResultBreadcrumbArgs {
   /** 練習一覧のラベル（`practice.title`） */
