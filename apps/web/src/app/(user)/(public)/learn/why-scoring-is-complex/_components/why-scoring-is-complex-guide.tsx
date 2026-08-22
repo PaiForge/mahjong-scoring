@@ -14,45 +14,47 @@ export async function WhyScoringIsComplexGuide() {
       {/* 公式に基づけば計算自体は単純 */}
       <section className="space-y-4">
         <SectionTitle>{t("scoringIsSimpleTitle")}</SectionTitle>
-        <GuideParagraph>{t("scoringIsSimpleBody1")}</GuideParagraph>
-        <GuideParagraph>{t("scoringIsSimpleBody2")}</GuideParagraph>
-        <GuideParagraph>{t("scoringIsSimpleBody3")}</GuideParagraph>
+        <GuideParagraph preLine>{t("scoringIsSimpleBody1")}</GuideParagraph>
+        <GuideParagraph preLine>{t("scoringIsSimpleBody2")}</GuideParagraph>
 
         <BlockMath
           latex={String.raw`\text{符} \times 2^{(\text{翻数} + 2)} \times 4`}
         />
 
-        <GuideParagraph>{t("exampleIntro")}</GuideParagraph>
+        <GuideParagraph preLine>{t("exampleIntro")}</GuideParagraph>
 
-        <ol className="list-decimal space-y-1 pl-6 text-sm leading-relaxed text-surface-700">
-          <li>
-            {t("step1Prefix")}
-            <InlineMath latex={String.raw`\text{符}`} />
-            {t("step1Mid")}
-            <InlineMath latex={String.raw`\text{翻数}`} />
-            {t("step1Suffix")}
-          </li>
-          <li>
-            {t("step2Prefix")}
-            <InlineMath latex={String.raw`2^{(3+2)} = 2^5 = 32`} />
-            {t("step2Suffix")}
-          </li>
-          <li>
-            {t("step3Prefix")}
-            <InlineMath latex={String.raw`30 \times 32 \times 4`} />
-            {t("step3Suffix")}
-          </li>
-          <li>{t("step4")}</li>
-        </ol>
+        {/* 計算手順 */}
+        <aside className="rounded-xl border-3 border-amber-500 bg-amber-50/60 p-5">
+          <ol className="list-decimal space-y-1 pl-6 text-sm leading-relaxed text-surface-700">
+            <li>
+              {t("step1Prefix")}
+              <InlineMath latex={String.raw`\text{符}`} />
+              {t("step1Mid")}
+              <InlineMath latex={String.raw`\text{翻数}`} />
+              {t("step1Suffix")}
+            </li>
+            <li>
+              {t("step2Prefix")}
+              <InlineMath latex={String.raw`2^{(3+2)} = 2^5 = 32`} />
+              {t("step2Suffix")}
+            </li>
+            <li>
+              {t("step3Prefix")}
+              <InlineMath latex={String.raw`30 \times 32 \times 4`} />
+              {t("step3Suffix")}
+            </li>
+            <li>{t("step4")}</li>
+          </ol>
 
-        <BlockMath
-          latex={String.raw`\begin{aligned} & 30 \times 2^{(3+2)} \times 4 \\ &= 30 \times 32 \times 4 \\ &= 960 \times 4 \\ &= 3840 \xrightarrow{\text{切り上げ}} 3900 \end{aligned}`}
-        />
+          <BlockMath
+            latex={String.raw`\begin{aligned} & 30 \times 2^{(3+2)} \times 4 \\ &= 30 \times 32 \times 4 \\ &= 960 \times 4 \\ &= 3840 \xrightarrow{\text{切り上げ}} 3900 \end{aligned}`}
+          />
+        </aside>
 
-        <GuideParagraph>{t("calculatorNote")}</GuideParagraph>
-        <GuideParagraph>{t("memorizeNote")}</GuideParagraph>
-        <GuideParagraph>{t("kuku")}</GuideParagraph>
-        <GuideParagraph>{t("practiceNeeded")}</GuideParagraph>
+        <GuideParagraph preLine>{t("calculatorNote")}</GuideParagraph>
+        <GuideParagraph preLine>{t("memorizeNote")}</GuideParagraph>
+        <GuideParagraph preLine>{t("kuku")}</GuideParagraph>
+        <GuideParagraph preLine>{t("practiceNeeded")}</GuideParagraph>
       </section>
     </div>
   );
