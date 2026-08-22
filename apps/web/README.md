@@ -49,6 +49,13 @@ pnpm db:run-migrate
 > **注意:** `drizzle-kit push` ではなく `pnpm db:run-migrate` を使用してください。`db:run-migrate` は Drizzle マイグレーションに加えて、Supabase 固有の SQL（RLS ポリシー、外部キー制約等）も適用します。
 
 ```bash
+# 開発用シードユーザーの投入（任意。管理者と一般ユーザーを作成します）
+pnpm db:seed:dev
+```
+
+> **注意:** `SUPABASE_SERVICE_ROLE_KEY` の設定が必要です。詳細は [docs/admin-panel-setup.md](docs/admin-panel-setup.md) を参照してください。
+
+```bash
 # 開発サーバーの起動
 pnpm dev
 ```

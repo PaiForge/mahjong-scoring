@@ -195,7 +195,17 @@ packages/eslint-config/ — 共通 ESLint 設定（PaiForge コーディング�
 
 ### 管理者ロールの割り当て
 
-管理画面（`/admin`）は `requireAdmin()`（`src/app/admin/_lib/auth.ts`）で `user_roles` テーブルの `role = 'admin'` を検証する。ロールを付与する UI は無いため、DB に直接 INSERT する。
+管理画面（`/admin`）は `requireAdmin()`（`src/app/admin/_lib/auth.ts`）で `user_roles` テーブルの `role = 'admin'` を検証する。ロールを付与する UI は無い。
+
+ローカルでは開発用シードを使う:
+
+```bash
+pnpm --filter web db:seed:dev
+```
+
+管理者（`admin@example.local`）と一般ユーザー（`user@example.local`）を投入する。パスワードはどちらも `devpass1`、メール確認済みなのでそのままサインインできる。冪等なので何度実行してもよい。DB と Supabase の両方がローカルホストでなければ実行を拒否する。実装は `apps/web/scripts/dev-seed.ts`。
+
+既存のアカウントを管理者にしたい場合は DB に直接 INSERT する:
 
 1. 対象ユーザーをメールアドレスで通常登録する（`auth.users` に行ができる）
 2. 以下の SQL で admin ロールを付与する（ローカル Supabase の Postgres は `127.0.0.1:54322`）:
@@ -226,6 +236,15 @@ pnpm supabase stop           # 停止
 - Supabase Studio: http://127.0.0.1:54323
 - Mailpit（メールテスト用）: http://127.0.0.1:54324
 - PostgreSQL: `postgresql://postgres:postgres@127.0.0.1:54322/postgres`
+
+### `config.config has invalid keys` が出たら
+
+`pnpm supabase` は同梱版が未インストールだと黙ってグローバル版（Homebrew 等）に
+フォールバックする。古いグローバル版が新しい `config.toml` のキーを知らないため、
+`failed to parse config: 'config.config' has invalid keys: <キー名>` になる。
+`config.toml` を書き換えるのではなく `pnpm install` を実行し、
+`pnpm supabase --version` が `apps/web/package.json` の devDependency と
+一致することを確認すること。
 
 ## Database Migration
 
