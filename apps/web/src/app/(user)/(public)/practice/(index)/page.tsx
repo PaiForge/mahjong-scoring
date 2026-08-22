@@ -5,121 +5,36 @@
  * @flow 練習カードから各練習の説明ページまたはプレイページへ遷移する。
  */
 import type { Metadata } from "next";
-import Link from "next/link";
 import { getTranslations } from "next-intl/server";
-import { ChevronRightIcon } from "@/app/(user)/_components/icons/chevron-right-icon";
 import { ContentContainer } from "@/app/(user)/_components/content-container";
 import { PageTitle } from "@/app/(user)/_components/page-title";
 import { SectionTitle } from "@/app/(user)/_components/section-title";
 import { createNamespaceMetadata } from "@/app/_lib/metadata";
+import { ComprehensivePracticeBanner } from "../_components/comprehensive-practice-banner";
 import { PracticeCard } from "../_components/practice-card";
 import { PracticeCategorySection } from "../_components/practice-category-section";
+import {
+  practiceDescriptionKey,
+  practiceHref,
+  practiceMenusByCategory,
+  practiceTitleKey,
+  type PracticeMenu,
+} from "../_lib/practice-catalog";
 
 export async function generateMetadata(): Promise<Metadata> {
   return createNamespaceMetadata("practice");
 }
 
-type Difficulty = "beginner" | "intermediate" | "advanced";
-
-interface PracticeDef {
-  href: string;
-  titleKey: string;
-  descriptionKey: string;
-  difficulty: Difficulty;
-  learnHref?: string;
-}
-
-const fuPractices: readonly PracticeDef[] = [
-  {
-    href: "/practice/jantou-fu",
-    titleKey: "practices.jantouFu.title",
-    descriptionKey: "practices.jantouFu.description",
-    difficulty: "beginner",
-    learnHref: "/learn/jantou-fu",
-  },
-  {
-    href: "/practice/machi-fu",
-    titleKey: "practices.machiFu.title",
-    descriptionKey: "practices.machiFu.description",
-    difficulty: "beginner",
-    learnHref: "/learn/machi-fu",
-  },
-  {
-    href: "/practice/mentsu-fu",
-    titleKey: "practices.mentsuFu.title",
-    descriptionKey: "practices.mentsuFu.description",
-    difficulty: "intermediate",
-    learnHref: "/learn/mentsu-fu",
-  },
-  {
-    href: "/practice/tehai-fu",
-    titleKey: "practices.tehaiFu.title",
-    descriptionKey: "practices.tehaiFu.description",
-    difficulty: "advanced",
-    learnHref: "/learn/tehai-fu",
-  },
-  {
-    href: "/practice/total-fu",
-    titleKey: "practices.totalFu.title",
-    descriptionKey: "practices.totalFu.description",
-    difficulty: "advanced",
-    learnHref: "/learn/tehai-fu",
-  },
-];
-
-const hanPractices: readonly PracticeDef[] = [
-  {
-    href: "/practice/yaku-han",
-    titleKey: "practices.yakuHan.title",
-    descriptionKey: "practices.yakuHan.description",
-    difficulty: "beginner",
-  },
-  {
-    href: "/practice/yaku",
-    titleKey: "practices.yaku.title",
-    descriptionKey: "practices.yaku.description",
-    difficulty: "intermediate",
-    learnHref: "/learn/yaku",
-  },
-  {
-    href: "/practice/han-count",
-    titleKey: "practices.hanCount.title",
-    descriptionKey: "practices.hanCount.description",
-    difficulty: "advanced",
-  },
-];
-
-const scoringPractices: readonly PracticeDef[] = [
-  {
-    href: "/practice/score-table",
-    titleKey: "practices.scoreTable.title",
-    descriptionKey: "practices.scoreTable.description",
-    difficulty: "intermediate",
-  },
-  {
-    href: "/practice/mangan-score-calculation",
-    titleKey: "practices.manganScoreCalculation.title",
-    descriptionKey: "practices.manganScoreCalculation.description",
-    difficulty: "intermediate",
-  },
-  {
-    href: "/practice/score-calculation",
-    titleKey: "practices.scoreCalculation.title",
-    descriptionKey: "practices.scoreCalculation.description",
-    difficulty: "advanced",
-  },
-];
-
 function renderPracticeCards(
-  practices: readonly PracticeDef[],
+  practices: readonly PracticeMenu[],
   t: Awaited<ReturnType<typeof getTranslations<"practice">>>,
 ) {
   return practices.map((practice) => (
     <PracticeCard
-      key={practice.href}
-      href={practice.href}
-      title={t(practice.titleKey)}
-      description={t(practice.descriptionKey)}
+      key={practice.slug}
+      href={practiceHref(practice.slug)}
+      title={t(practiceTitleKey(practice.slug))}
+      description={t(practiceDescriptionKey(practice.slug))}
       difficulty={practice.difficulty}
       difficultyLabel={t(`difficulty.${practice.difficulty}`)}
       startLabel={t("start")}
@@ -139,35 +54,19 @@ export default async function PracticePage() {
       <div className="space-y-8">
         <SectionTitle>{t("menuTitle")}</SectionTitle>
 
-        <Link
-          href="/practice/score"
-          className="press-sm flex items-center gap-4 rounded-2xl border-3 border-ink bg-white p-6 shadow-sm hover:bg-primary-50"
-        >
-          <span className="text-3xl" aria-hidden="true">
-            ♾️
-          </span>
-          <div className="flex-1">
-            <h3 className="text-base font-bold text-surface-900">
-              {t("comprehensiveBanner.title")}
-            </h3>
-            <p className="mt-1 text-sm font-medium text-surface-500">
-              {t("comprehensiveBanner.description")}
-            </p>
-          </div>
-          <ChevronRightIcon className="size-5 shrink-0 text-surface-400" />
-        </Link>
+        <ComprehensivePracticeBanner />
 
         <div className="space-y-10">
           <PracticeCategorySection title={t("categories.fuCalculation.title")}>
-            {renderPracticeCards(fuPractices, t)}
+            {renderPracticeCards(practiceMenusByCategory("fuCalculation"), t)}
           </PracticeCategorySection>
 
           <PracticeCategorySection title={t("categories.han.title")}>
-            {renderPracticeCards(hanPractices, t)}
+            {renderPracticeCards(practiceMenusByCategory("han"), t)}
           </PracticeCategorySection>
 
           <PracticeCategorySection title={t("categories.scoring.title")}>
-            {renderPracticeCards(scoringPractices, t)}
+            {renderPracticeCards(practiceMenusByCategory("scoring"), t)}
           </PracticeCategorySection>
         </div>
       </div>
