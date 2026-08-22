@@ -2,8 +2,8 @@
 
 import { useTranslations } from "next-intl";
 import { HaiKind } from "@mahjong-scoring/core";
-import type { Tehai14 } from "@mahjong-scoring/core";
 import { TehaiDisplay } from "../../_components/tehai-display";
+import { buildDemoTehai } from "../../_lib/demo-tehai";
 import { YakuChip } from "./yaku-chip";
 import { QuestionPrompt } from "../../_components/question-prompt";
 
@@ -11,27 +11,22 @@ import { QuestionPrompt } from "../../_components/question-prompt";
  * デモ用の固定例: 断么九 + 一盃口
  * 234m 234m 345p 678s + 5s 単騎待ち（ロン）。単騎待ちのため平和は不成立。
  */
-// Tehai14 はブランド型のため、リポジトリのテスト同様 as unknown as で静的構築する
-// （TehaiDisplay は closed/exposed の描画にのみ使用するため検証は不要）
-const DEMO_TEHAI = {
-  closed: [
-    HaiKind.ManZu2,
-    HaiKind.ManZu3,
-    HaiKind.ManZu4,
-    HaiKind.ManZu2,
-    HaiKind.ManZu3,
-    HaiKind.ManZu4,
-    HaiKind.PinZu3,
-    HaiKind.PinZu4,
-    HaiKind.PinZu5,
-    HaiKind.SouZu6,
-    HaiKind.SouZu7,
-    HaiKind.SouZu8,
-    HaiKind.SouZu5,
-    HaiKind.SouZu5,
-  ],
-  exposed: [],
-} as unknown as Tehai14;
+const DEMO_TEHAI = buildDemoTehai([
+  HaiKind.ManZu2,
+  HaiKind.ManZu3,
+  HaiKind.ManZu4,
+  HaiKind.ManZu2,
+  HaiKind.ManZu3,
+  HaiKind.ManZu4,
+  HaiKind.PinZu3,
+  HaiKind.PinZu4,
+  HaiKind.PinZu5,
+  HaiKind.SouZu6,
+  HaiKind.SouZu7,
+  HaiKind.SouZu8,
+  HaiKind.SouZu5,
+  HaiKind.SouZu5,
+]);
 
 const DEMO_CONTEXT = {
   bakaze: HaiKind.Ton,

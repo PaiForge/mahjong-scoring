@@ -1,44 +1,18 @@
 "use client";
 
 import { useTranslations } from "next-intl";
-import { HaiKind, validateTehai14 } from "@mahjong-scoring/core";
 import type { FuDetail } from "@mahjong-scoring/core";
 import { CheckIcon } from "@/app/(user)/_components/icons/check-icon";
 import { TehaiDisplay } from "../../_components/tehai-display";
+import { DEMO_FU_CONTEXT, DEMO_FU_TEHAI } from "../../_lib/demo-tehai";
 import { FuBreakdown } from "./fu-breakdown";
 import { QuestionPrompt } from "../../_components/question-prompt";
 
 /**
- * デモ用の固定例: 東場・南家・七筒ツモ
+ * デモ用の固定例: 東場・南家・七筒ツモ（{@link DEMO_FU_TEHAI}）
  * 234m / 567p / 中中中(暗刻) / 678s / 南南(雀頭)
  * 副底20 + ツモ2 + 么九牌暗刻子8 + 雀頭(自風)2 = 32符 → 40符
  */
-const DEMO_TEHAI_RESULT = validateTehai14({
-  closed: [
-    HaiKind.ManZu2,
-    HaiKind.ManZu3,
-    HaiKind.ManZu4,
-    HaiKind.PinZu5,
-    HaiKind.PinZu6,
-    HaiKind.PinZu7,
-    HaiKind.Chun,
-    HaiKind.Chun,
-    HaiKind.Chun,
-    HaiKind.SouZu6,
-    HaiKind.SouZu7,
-    HaiKind.SouZu8,
-    HaiKind.Nan,
-    HaiKind.Nan,
-  ],
-  exposed: [],
-});
-
-const DEMO_CONTEXT = {
-  bakaze: HaiKind.Ton,
-  jikaze: HaiKind.Nan,
-  agariHai: HaiKind.PinZu7,
-  isTsumo: true,
-} as const;
 
 /** 上記の手牌に対する符の内訳（値はライブラリの符計算と一致することを確認済み） */
 const DEMO_DETAILS: readonly FuDetail[] = [
@@ -60,13 +34,11 @@ const DEMO_ANSWER = 40;
 export function TotalFuHowToPlay() {
   const t = useTranslations("totalFu");
 
-  if (DEMO_TEHAI_RESULT.isErr()) return undefined;
-
   return (
     <div className="space-y-4">
       <TehaiDisplay
-        tehai={DEMO_TEHAI_RESULT.value}
-        context={DEMO_CONTEXT}
+        tehai={DEMO_FU_TEHAI}
+        context={DEMO_FU_CONTEXT}
         translationNamespace="totalFu"
       />
 

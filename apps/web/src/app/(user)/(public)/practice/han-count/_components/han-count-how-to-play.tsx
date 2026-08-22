@@ -3,35 +3,31 @@
 import { useTranslations } from "next-intl";
 import { DemoChoiceCell } from "../../_components/demo-choice-cell";
 import { HaiKind } from "@mahjong-scoring/core";
-import type { Tehai14 } from "@mahjong-scoring/core";
 import { TehaiDisplay } from "../../_components/tehai-display";
+import { buildDemoTehai } from "../../_lib/demo-tehai";
 import { QuestionPrompt } from "../../_components/question-prompt";
+import { HAN_OPTIONS } from "../_lib/han-options";
 
 /**
  * デモ用の固定例: 立直 + 門前清自摸和 + 断么九 = 3翻
  * 234m 567m 345p 555s 88s（門前ツモ・リーチ）。刻子があるため平和は不成立。
  */
-// Tehai14 はブランド型のため、リポジトリのテスト同様 as unknown as で静的構築する
-// （TehaiDisplay は closed/exposed の描画にのみ使用するため検証は不要）
-const DEMO_TEHAI = {
-  closed: [
-    HaiKind.ManZu2,
-    HaiKind.ManZu3,
-    HaiKind.ManZu4,
-    HaiKind.ManZu5,
-    HaiKind.ManZu6,
-    HaiKind.ManZu7,
-    HaiKind.PinZu3,
-    HaiKind.PinZu4,
-    HaiKind.PinZu5,
-    HaiKind.SouZu5,
-    HaiKind.SouZu5,
-    HaiKind.SouZu5,
-    HaiKind.SouZu8,
-    HaiKind.SouZu8,
-  ],
-  exposed: [],
-} as unknown as Tehai14;
+const DEMO_TEHAI = buildDemoTehai([
+  HaiKind.ManZu2,
+  HaiKind.ManZu3,
+  HaiKind.ManZu4,
+  HaiKind.ManZu5,
+  HaiKind.ManZu6,
+  HaiKind.ManZu7,
+  HaiKind.PinZu3,
+  HaiKind.PinZu4,
+  HaiKind.PinZu5,
+  HaiKind.SouZu5,
+  HaiKind.SouZu5,
+  HaiKind.SouZu5,
+  HaiKind.SouZu8,
+  HaiKind.SouZu8,
+]);
 
 const DEMO_CONTEXT = {
   bakaze: HaiKind.Ton,
@@ -41,7 +37,6 @@ const DEMO_CONTEXT = {
   isRiichi: true,
 } as const;
 
-const HAN_OPTIONS = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13] as const;
 const DEMO_ANSWER = 3;
 
 /**
