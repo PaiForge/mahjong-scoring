@@ -2,7 +2,7 @@
 
 import type { ActionResult } from "@/lib/action-types";
 import { logActivityEvent } from "@/lib/activity-log";
-import { getOptionalVerifiedUser } from "@/lib/auth";
+import { authenticateAndCheckBan } from "@/lib/auth";
 import { enforceIpRateLimit } from "@/lib/rate-limit-ip";
 import { deleteAccount } from "@/lib/users/delete-account";
 
@@ -20,10 +20,11 @@ export async function deleteOwnAccount(): Promise<ActionResult> {
     return rateLimited;
   }
 
-  const user = await getOptionalVerifiedUser();
-  if (!user) {
-    return { error: "unauthorized" };
+  const authResult = await authenticateAndCheckBan();
+  if ("error" in authResult) {
+    return authResult;
   }
+  const { user } = authResult;
 
   const result = await deleteAccount(user.id);
   if ("error" in result) {

@@ -3,7 +3,8 @@
  * 内部APIクライアント
  *
  * サーバー側の契約は `lib/api-auth.ts` の `authorizeApiRequest` に一元化されており、
- * 失敗時は必ず `{ error: string }` を返す（429 は `"rateLimited"`、401 は `"unauthorized"`）。
+ * 失敗時は必ず `{ error: string }` を返す
+ * （429 は `"rateLimited"`、401 は `"unauthorized"`、403 は `"banned"`）。
  * このモジュールはその契約を消費する側の唯一の定義で、各呼び出し元が
  * `res.ok` 判定とエラーコード取り出しを書き直さずに済むようにする。
  */
@@ -18,6 +19,9 @@ export const API_ERROR_RATE_LIMITED = "rateLimited";
 
 /** 未認証時に返るエラーコード（`authorizeApiRequest` が 401 で返す） */
 export const API_ERROR_UNAUTHORIZED = "unauthorized";
+
+/** BAN 済みユーザーの操作時に返るエラーコード（`authorizeApiRequest` が 403 で返す） */
+export const API_ERROR_BANNED = "banned";
 
 /** 本文を読めない・エラーコードが無いときのフォールバック */
 export const API_ERROR_UNKNOWN = "unknown";

@@ -1,6 +1,5 @@
 import { cache } from "react";
 import { redirect } from "next/navigation";
-import type { User } from "@supabase/supabase-js";
 import { isUserBanned } from "./ban";
 import { createClient } from "./supabase/server";
 import { getProfileByUserId } from "./db/queries";
@@ -140,17 +139,20 @@ export async function redirectIfAuthenticated(to = "/mypage"): Promise<void> {
  * 認証 + BAN チェックガード（Server Actions 用）。
  * 認証済みかつ BAN されていないユーザーを返す。
  * 認証+BANガード
+ *
+ * DB を書き換える Server Action はすべてこれを通すこと。ページガード
+ * （{@link requireConfirmedUser} 等）は画面遷移しか守らないため、Action を
+ * 直接叩かれると BAN が効かない。
+ *
+ * エラーコードは未認証が `"unauthorized"`、BAN が `"banned"`。
  */
 export async function authenticateAndCheckBan(): Promise<
-  { user: User } | { error: string }
+  { user: AuthUser } | { error: "unauthorized" | "banned" }
 > {
-  const supabase = await createClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
+  const user = await getOptionalVerifiedUser();
 
   if (!user) {
-    return { error: "signInRequired" };
+    return { error: "unauthorized" };
   }
 
   if (await isUserBanned(user.id)) {

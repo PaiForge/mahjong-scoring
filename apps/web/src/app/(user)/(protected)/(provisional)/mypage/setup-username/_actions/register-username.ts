@@ -4,7 +4,7 @@ import type { ActionResult } from "@/lib/action-types";
 import { db, profiles } from "@/lib/db";
 import { extractPgErrorCode } from "@/lib/db/extract-pg-error-code";
 import { profileExistsByUserId } from "@/lib/db/queries";
-import { getOptionalVerifiedUser } from "@/lib/auth";
+import { authenticateAndCheckBan } from "@/lib/auth";
 import { enforceIpRateLimit } from "@/lib/rate-limit-ip";
 import { validateUsername } from "@/lib/username";
 
@@ -28,10 +28,11 @@ export async function registerUsername(
     return rateLimited;
   }
 
-  const user = await getOptionalVerifiedUser();
-  if (!user) {
-    return { error: "unauthorized" };
+  const authResult = await authenticateAndCheckBan();
+  if ("error" in authResult) {
+    return authResult;
   }
+  const { user } = authResult;
 
   const trimmedUsername = username.trim();
   if (!trimmedUsername) {

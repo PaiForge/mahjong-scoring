@@ -6,12 +6,12 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 
 const {
   mockEnforceIpRateLimit,
-  mockGetOptionalVerifiedUser,
+  mockAuthenticateAndCheckBan,
   mockDeleteAccount,
   mockLogActivityEvent,
 } = vi.hoisted(() => ({
   mockEnforceIpRateLimit: vi.fn(),
-  mockGetOptionalVerifiedUser: vi.fn(),
+  mockAuthenticateAndCheckBan: vi.fn(),
   mockDeleteAccount: vi.fn(),
   mockLogActivityEvent: vi.fn(),
 }));
@@ -21,7 +21,7 @@ vi.mock("@/lib/rate-limit-ip", () => ({
 }));
 
 vi.mock("@/lib/auth", () => ({
-  getOptionalVerifiedUser: mockGetOptionalVerifiedUser,
+  authenticateAndCheckBan: mockAuthenticateAndCheckBan,
 }));
 
 vi.mock("@/lib/users/delete-account", () => ({
@@ -43,7 +43,7 @@ const USER = { id: "user-123", email: "user@example.com" };
 /** 認証もレートリミットも通過した状態にする */
 function authorized() {
   mockEnforceIpRateLimit.mockResolvedValue(undefined);
-  mockGetOptionalVerifiedUser.mockResolvedValue(USER);
+  mockAuthenticateAndCheckBan.mockResolvedValue({ user: USER });
 }
 
 // ---------------------------------------------------------------------------
@@ -70,7 +70,7 @@ describe("deleteOwnAccount", () => {
 
       await deleteOwnAccount();
 
-      expect(mockGetOptionalVerifiedUser).not.toHaveBeenCalled();
+      expect(mockAuthenticateAndCheckBan).not.toHaveBeenCalled();
       expect(mockDeleteAccount).not.toHaveBeenCalled();
       expect(mockLogActivityEvent).not.toHaveBeenCalled();
     });
@@ -84,10 +84,24 @@ describe("deleteOwnAccount", () => {
     });
   });
 
+  describe("banned user", () => {
+    it('returns { error: "banned" } and performs no write', async () => {
+      mockEnforceIpRateLimit.mockResolvedValue(undefined);
+      mockAuthenticateAndCheckBan.mockResolvedValue({ error: "banned" });
+
+      const result = await deleteOwnAccount();
+
+      expect(result).toEqual({ error: "banned" });
+      expect(mockDeleteAccount).not.toHaveBeenCalled();
+    });
+  });
+
   describe("unauthenticated user", () => {
     it('returns { error: "unauthorized" } when there is no verified user', async () => {
       mockEnforceIpRateLimit.mockResolvedValue(undefined);
-      mockGetOptionalVerifiedUser.mockResolvedValue(undefined);
+      mockAuthenticateAndCheckBan.mockResolvedValue({
+        error: "unauthorized",
+      });
 
       const result = await deleteOwnAccount();
 
@@ -96,7 +110,9 @@ describe("deleteOwnAccount", () => {
 
     it("never deletes when unauthenticated", async () => {
       mockEnforceIpRateLimit.mockResolvedValue(undefined);
-      mockGetOptionalVerifiedUser.mockResolvedValue(undefined);
+      mockAuthenticateAndCheckBan.mockResolvedValue({
+        error: "unauthorized",
+      });
 
       await deleteOwnAccount();
 

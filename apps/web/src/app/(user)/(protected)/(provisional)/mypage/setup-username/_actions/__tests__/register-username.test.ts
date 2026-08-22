@@ -6,13 +6,13 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 
 const {
   mockEnforceIpRateLimit,
-  mockGetOptionalVerifiedUser,
+  mockAuthenticateAndCheckBan,
   mockProfileExistsByUserId,
   mockInsert,
   mockValues,
 } = vi.hoisted(() => ({
   mockEnforceIpRateLimit: vi.fn(),
-  mockGetOptionalVerifiedUser: vi.fn(),
+  mockAuthenticateAndCheckBan: vi.fn(),
   mockProfileExistsByUserId: vi.fn(),
   mockInsert: vi.fn(),
   mockValues: vi.fn(),
@@ -23,7 +23,7 @@ vi.mock("@/lib/rate-limit-ip", () => ({
 }));
 
 vi.mock("@/lib/auth", () => ({
-  getOptionalVerifiedUser: mockGetOptionalVerifiedUser,
+  authenticateAndCheckBan: mockAuthenticateAndCheckBan,
 }));
 
 vi.mock("@/lib/db/queries", () => ({
@@ -50,7 +50,7 @@ const USER = { id: "user-123", email: "user@example.com" };
 /** 認証もレートリミットも通過した状態にする */
 function authorized() {
   mockEnforceIpRateLimit.mockResolvedValue(undefined);
-  mockGetOptionalVerifiedUser.mockResolvedValue(USER);
+  mockAuthenticateAndCheckBan.mockResolvedValue({ user: USER });
   mockProfileExistsByUserId.mockResolvedValue(false);
 }
 
@@ -89,7 +89,7 @@ describe("registerUsername", () => {
 
       await registerUsername("alice");
 
-      expect(mockGetOptionalVerifiedUser).not.toHaveBeenCalled();
+      expect(mockAuthenticateAndCheckBan).not.toHaveBeenCalled();
       expect(mockProfileExistsByUserId).not.toHaveBeenCalled();
       expect(mockInsert).not.toHaveBeenCalled();
     });
@@ -103,10 +103,24 @@ describe("registerUsername", () => {
     });
   });
 
+  describe("banned user", () => {
+    it('returns { error: "banned" } and performs no write', async () => {
+      mockEnforceIpRateLimit.mockResolvedValue(undefined);
+      mockAuthenticateAndCheckBan.mockResolvedValue({ error: "banned" });
+
+      const result = await registerUsername("alice");
+
+      expect(result).toEqual({ error: "banned" });
+      expect(mockInsert).not.toHaveBeenCalled();
+    });
+  });
+
   describe("unauthenticated user", () => {
     it('returns { error: "unauthorized" } when there is no verified user', async () => {
       mockEnforceIpRateLimit.mockResolvedValue(undefined);
-      mockGetOptionalVerifiedUser.mockResolvedValue(undefined);
+      mockAuthenticateAndCheckBan.mockResolvedValue({
+        error: "unauthorized",
+      });
 
       const result = await registerUsername("alice");
 

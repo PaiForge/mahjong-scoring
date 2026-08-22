@@ -27,6 +27,7 @@ const KNOWN_ERROR_KEYS = new Set([
   "youtubeHandleInvalid",
   "rateLimited",
   "updateFailed",
+  "banned",
 ]);
 
 export interface ProfileFormInitial {

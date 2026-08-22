@@ -44,6 +44,8 @@ export function UsernameForm() {
           return t("validation.rateLimited");
         case "unauthorized":
           return t("validation.unauthorized");
+        case "banned":
+          return t("validation.banned");
         default:
           return t("validation.error");
       }
