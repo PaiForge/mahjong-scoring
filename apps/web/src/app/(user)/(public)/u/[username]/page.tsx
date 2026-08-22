@@ -8,6 +8,7 @@ import type { Metadata } from "next";
 import { getTranslations } from "next-intl/server";
 import { notFound } from "next/navigation";
 
+import { buttonClasses } from "@/app/_components/_lib/button-classes";
 import { ContentContainer } from "@/app/_components/content-container";
 import { PageTitle } from "@/app/_components/page-title";
 import { SectionTitle } from "@/app/_components/section-title";
@@ -116,7 +117,7 @@ export default async function PublicProfilePage({ params }: Props) {
                     href={link.url}
                     target="_blank"
                     rel="noopener noreferrer me"
-                    className="press-sm inline-flex items-center gap-1.5 rounded-lg border-3 border-ink bg-card px-3 py-1.5 text-sm font-bold text-surface-700 shadow-sm hover:bg-surface-100"
+                    className={`${buttonClasses({ variant: "neutral", size: "sm" })} gap-1.5`}
                   >
                     <span className="font-medium">{link.label}</span>
                     <span className="text-surface-500">{link.handle}</span>

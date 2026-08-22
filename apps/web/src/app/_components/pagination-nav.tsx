@@ -1,5 +1,6 @@
 import { getTranslations } from "next-intl/server";
-import Link from "next/link";
+
+import { LinkButton } from "./link-button";
 
 interface PaginationNavProps {
   readonly currentPage: number;
@@ -32,30 +33,22 @@ export async function PaginationNav({
         {t("pageIndicator", { current: currentPage, total: totalPages })}
       </div>
       <div className="flex gap-2">
-        {currentPage > 1 ? (
-          <Link
-            href={buildHref(currentPage - 1)}
-            className="press-sm rounded-lg border-3 border-ink bg-card px-4 py-2 text-sm shadow-sm hover:bg-primary-50"
-          >
-            {t("previous")}
-          </Link>
-        ) : (
-          <span className="cursor-not-allowed rounded-lg border-3 border-ink px-4 py-2 text-sm opacity-40">
-            {t("previous")}
-          </span>
-        )}
-        {currentPage < totalPages ? (
-          <Link
-            href={buildHref(currentPage + 1)}
-            className="press-sm rounded-lg border-3 border-ink bg-card px-4 py-2 text-sm shadow-sm hover:bg-primary-50"
-          >
-            {t("next")}
-          </Link>
-        ) : (
-          <span className="cursor-not-allowed rounded-lg border-3 border-ink px-4 py-2 text-sm opacity-40">
-            {t("next")}
-          </span>
-        )}
+        <LinkButton
+          href={buildHref(Math.max(1, currentPage - 1))}
+          variant="secondary"
+          size="sm"
+          disabled={currentPage <= 1}
+        >
+          {t("previous")}
+        </LinkButton>
+        <LinkButton
+          href={buildHref(Math.min(totalPages, currentPage + 1))}
+          variant="secondary"
+          size="sm"
+          disabled={currentPage >= totalPages}
+        >
+          {t("next")}
+        </LinkButton>
       </div>
     </nav>
   );

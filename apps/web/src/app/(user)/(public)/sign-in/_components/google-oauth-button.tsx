@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { useTranslations } from "next-intl";
+import { Button } from "@/app/_components/button";
 import { GoogleIcon } from "@/app/_components/icons/google-icon";
 import { createClient } from "@/lib/supabase/client";
 
@@ -36,15 +37,18 @@ export function GoogleOAuthButton({ redirectTo }: { redirectTo?: string }) {
   };
 
   return (
-    <button
+    <Button
+      variant="neutral"
+      size="lg"
+      fullWidth
       onClick={handleClick}
       disabled={isLoading}
-      className="press-sm flex items-center justify-center gap-3 w-full max-w-sm mx-auto px-6 py-3 bg-white border-3 border-ink rounded-lg shadow-sm disabled:opacity-50 disabled:cursor-not-allowed"
+      className="mx-auto max-w-sm gap-3"
     >
       <GoogleIcon />
       <span className="text-sm font-medium text-surface-700">
         {isLoading ? t("googleOAuthLoading") : t("googleOAuth")}
       </span>
-    </button>
+    </Button>
   );
 }
