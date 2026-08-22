@@ -7,7 +7,7 @@
   "nav": {
     "home": "ホーム",
     "practice": "練習",
-    "learn": "学習",
+    "learn": "教本",
     "scoreTable": "点数表",
     "leaderboard": "ランキング",
     "brandMahjong": "麻雀",
@@ -75,7 +75,7 @@
     "referenceCta": "点数表を見る",
     "learnTitle": "基礎から学ぶ",
     "learnDescription": "符計算のルールや点数計算の仕組みを、わかりやすい解説で基礎から理解できます。",
-    "learnCta": "学習コンテンツを見る",
+    "learnCta": "教本を読む",
     "betaBanner": "🚧 現在ベータ版として開発中です 🚧"
   },
   "gettingStarted": {
@@ -95,7 +95,7 @@
       },
       "learn": {
         "title": "机上で知る",
-        "description": "書籍のように点数計算の知識をまとめた学習コンテンツを用意しています。",
+        "description": "書籍のように点数計算の知識をまとめた教本を用意しています。",
         "cta": "読んでみる"
       }
     },
@@ -108,7 +108,7 @@
   "dashboard": {
     "title": "ダッシュボード",
     "description": "ここに学習進捗や最近のアクティビティが表示されます",
-    "continueLearningTitle": "学習の続き",
+    "continueLearningTitle": "教本の続き",
     "viewAllChapters": "目次へ",
     "todayPractice": "今日の練習",
     "todayPracticeUnit": "{count} 問",
@@ -122,7 +122,7 @@
     "menuTitle": "総合練習",
     "description": "符計算の基礎から点数申告まで、段階的にマスターできる練習を用意しています",
     "start": "スタート",
-    "learn": "学ぶ",
+    "learn": "教本を読む",
     "progress": "学習の進捗",
     "progressSignInPrompt": "サインインすると学習履歴を記録できます",
     "categories": {
@@ -846,9 +846,9 @@
       }
     },
     "index": {
-      "pageTitle": "学ぶ",
-      "sectionTitle": "カリキュラム",
-      "pageDescription": "麻雀の点数計算に必要な知識をまとめた学習コンテンツの一覧です。",
+      "pageTitle": "教本",
+      "sectionTitle": "目次",
+      "pageDescription": "麻雀の点数計算を基礎から学ぶための教本です。章を順に読み進められます。",
       "progressLabel": "{read}章 / {total}章 読了",
       "nextChapterBadge": "次はここから",
       "allCompletedMessage": "すべての章を読了しました。おつかれさまでした！"
@@ -877,7 +877,7 @@
     }
   },
   "footer": {
-    "learn": "学ぶ",
+    "learn": "教本",
     "aboutThisApp": "このアプリについて",
     "other": "その他",
     "terms": "利用規約",
