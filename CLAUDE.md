@@ -71,6 +71,14 @@ packages/eslint-config/ — 共通 ESLint 設定（PaiForge コーディング�
 - `SectionTitleSkeleton` — 見出しのプレースホルダ pill。矩形で代用せずこれを使う（`SectionTitle` 自身を描画するため実物と高さ・形が一致する）
 - `icons/OutlineIcon` — 線画アイコンの svg 外殻。新しい線画アイコンはこれを使う
 
+### テキストリンク（`apps/web/src/app/_components/_lib/link-classes.ts`）
+
+本文中のリンクやページ間の補助導線は `TEXT_LINK_CLASSES`（既定・緑）/
+`TEXT_LINK_MUTED_CLASSES`（控えめ・グレー）を `className` に貼る。
+`text-primary-* hover:underline` のようなリンクの class をページ側で直接書かない。
+リンク風の `<button>` にも同じ定数を使う。カード全体がクリック対象になるもの
+（`ListLink` 等）は「押せる面」なので対象外。
+
 ## 角丸
 
 素の `rounded` は Tailwind の非推奨トークン `--radius`（0.25rem 固定）を参照しており、
