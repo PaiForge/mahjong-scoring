@@ -45,8 +45,6 @@ export async function RecommendedPracticeSection({
     <div className="space-y-4">
       <SectionTitle>{t("recommendedPracticeTitle")}</SectionTitle>
 
-      <p className="text-sm text-surface-500">{t("recommendedPracticeHint")}</p>
-
       <div
         className={
           menus.length === 1
