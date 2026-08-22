@@ -2,7 +2,7 @@ import { HaiKind, type HaiKindId } from "@pai-forge/riichi-mahjong";
 import type { JantouFuQuestion } from "./types";
 import { getKazeName } from "../../core/kaze";
 import { randomChoice, shuffle } from "../../core/random";
-import { KAZEHAI, SANGENHAI } from "../../core/constants";
+import { BAKAZE_OPTIONS, KAZEHAI, SANGENHAI } from "../../core/constants";
 import { isHaiKindId } from "../../core/type-guards";
 import { calculateJantouFu } from "../shared/jantou-fu";
 import { defaultIdGenerator, type IdGenerator } from "../../core/id";
@@ -34,7 +34,7 @@ export function generateJantouFuQuestion(
   } = {},
 ): JantouFuQuestion {
   const { renfonpaiAs4Fu = false, idGen = defaultIdGenerator } = options;
-  const bakaze = randomChoice(KAZEHAI);
+  const bakaze = randomChoice(BAKAZE_OPTIONS);
   const jikaze = randomChoice(KAZEHAI);
 
   // 符の値は calculateJantouFu（雀頭符ルールの唯一の定義）から引く。

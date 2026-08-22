@@ -4,7 +4,7 @@ import {
   type CompletedMentsu,
 } from "@pai-forge/riichi-mahjong";
 import type { TehaiFuQuestion, TehaiFuItem } from "./types";
-import { KAZEHAI } from "../../core/constants";
+import { BAKAZE_OPTIONS, KAZEHAI } from "../../core/constants";
 import { randomBool, randomChoice } from "../../core/random";
 import { HaiUsageTracker } from "../../core/hai-tracker";
 import { calculateJantouFu } from "../shared/jantou-fu";
@@ -50,7 +50,7 @@ export function generateTehaiFuQuestion(
   }));
 
   // 2. コンテキスト生成
-  const bakaze = randomChoice(KAZEHAI);
+  const bakaze = randomChoice(BAKAZE_OPTIONS);
   const jikaze = randomChoice(KAZEHAI);
 
   // 3. 雀頭を生成

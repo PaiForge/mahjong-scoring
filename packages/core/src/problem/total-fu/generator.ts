@@ -1,11 +1,9 @@
 import {
-  HaiKind,
   calculateScoreForTehai,
-  type Kazehai,
   type ScoreResult,
   type Tehai14,
 } from "@pai-forge/riichi-mahjong";
-import { KAZEHAI } from "../../core/constants";
+import { BAKAZE_OPTIONS, KAZEHAI } from "../../core/constants";
 import { defaultIdGenerator, type IdGenerator } from "../../core/id";
 import { randomBool, randomChoice } from "../../core/random";
 import { convertScoreDetailToFuDetails } from "../../score/fu-calculator";
@@ -16,9 +14,6 @@ import type { TotalFuQuestion } from "./types";
 
 /** 七対子を出題する確率 */
 const CHIITOI_RATE = 0.12;
-
-/** 場風の候補（東場・南場） */
-const BAKAZE_OPTIONS: readonly Kazehai[] = [HaiKind.Ton, HaiKind.Nan];
 
 /**
  * 符計算のみを目的とした点数計算

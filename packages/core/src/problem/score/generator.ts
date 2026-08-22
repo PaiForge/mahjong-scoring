@@ -7,7 +7,7 @@ import {
   type Kazehai,
   type Tehai14,
 } from "@pai-forge/riichi-mahjong";
-import { ScoreLevel, KAZEHAI } from "../../core/constants";
+import { BAKAZE_OPTIONS, ScoreLevel, KAZEHAI } from "../../core/constants";
 import { randomBool, randomChoice } from "../../core/random";
 
 import type {
@@ -62,9 +62,6 @@ function selectJikaze(includeParent: boolean, includeChild: boolean): Kazehai {
   if (candidates.length === 0) candidates = KAZEHAI;
   return randomChoice(candidates);
 }
-
-/** 場風の候補（東場・南場） */
-const BAKAZE_OPTIONS: readonly Kazehai[] = [HaiKind.Ton, HaiKind.Nan];
 
 /**
  * 点数・役計算の入力
