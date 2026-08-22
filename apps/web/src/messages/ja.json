@@ -108,6 +108,8 @@
   "dashboard": {
     "title": "ダッシュボード",
     "description": "ここに学習進捗や最近のアクティビティが表示されます",
+    "continueLearningTitle": "学習の続き",
+    "viewAllChapters": "目次へ",
     "todayPractice": "今日の練習",
     "todayPracticeUnit": "{count} 問",
     "accuracy": "正答率",

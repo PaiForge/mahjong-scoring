@@ -1,13 +1,13 @@
 import { getOptionalUser } from "@/lib/auth";
 
+import { HomeDashboard } from "./_components/home-dashboard";
 import { LandingPage } from "./_components/landing-page";
-import { HomeAnnouncements } from "./_components/home-announcements";
 
 export default async function Home() {
   const user = await getOptionalUser();
 
   if (user) {
-    return <HomeAnnouncements />;
+    return <HomeDashboard />;
   }
 
   return <LandingPage />;
