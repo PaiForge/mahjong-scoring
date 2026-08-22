@@ -3,7 +3,7 @@
 import { useMemo } from "react";
 import { QuestionGeneratingPlaceholder } from "../../_components/question-generating-placeholder";
 import { useTranslations } from "next-intl";
-import { getFeedbackBorderClass } from "../../_lib/feedback-styles";
+import { FeedbackFrame } from "../../_components/feedback-frame";
 import { useScoreQuestionBoard } from "../../_hooks/use-score-question-board";
 import { QuestionDisplay } from "../../score/_components/question-display";
 import { YakuListDisplay } from "./yaku-list-display";
@@ -62,19 +62,15 @@ export function ManganScoreCalculationBoard({
     return <QuestionGeneratingPlaceholder label={t("generating")} />;
   }
 
-  const feedbackBorderClass = getFeedbackBorderClass(
-    showFeedback,
-    lastAnswerCorrect,
-  );
-
   return (
     <div className="mt-6 space-y-6">
       {/* Question display */}
-      <div
-        className={`rounded-xl border-3 p-2 shadow-sm transition-colors sm:p-4 ${feedbackBorderClass}`}
+      <FeedbackFrame
+        showFeedback={showFeedback}
+        lastAnswerCorrect={lastAnswerCorrect}
       >
         <QuestionDisplay question={question} />
-      </div>
+      </FeedbackFrame>
 
       {/* Yaku list */}
       {question.yakuDetails && question.yakuDetails.length > 0 && (

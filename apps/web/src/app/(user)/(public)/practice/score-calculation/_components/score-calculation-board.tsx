@@ -4,7 +4,7 @@ import { useMemo } from "react";
 import { QuestionGeneratingPlaceholder } from "../../_components/question-generating-placeholder";
 import { useTranslations } from "next-intl";
 import { useRuleSettingsStore } from "@/app/_hooks/use-rule-settings-store";
-import { getFeedbackBorderClass } from "../../_lib/feedback-styles";
+import { FeedbackFrame } from "../../_components/feedback-frame";
 import { useScoreQuestionBoard } from "../../_hooks/use-score-question-board";
 import { QuestionDisplay } from "../../score/_components/question-display";
 import { ScoreCalculationAnswerForm } from "./score-calculation-answer-form";
@@ -47,19 +47,15 @@ export function ScoreCalculationBoard({
     return <QuestionGeneratingPlaceholder label={t("generating")} />;
   }
 
-  const feedbackBorderClass = getFeedbackBorderClass(
-    showFeedback,
-    lastAnswerCorrect,
-  );
-
   return (
     <div className="mt-6 space-y-6">
       {/* Question display */}
-      <div
-        className={`rounded-xl border-3 p-2 shadow-sm transition-colors sm:p-4 ${feedbackBorderClass}`}
+      <FeedbackFrame
+        showFeedback={showFeedback}
+        lastAnswerCorrect={lastAnswerCorrect}
       >
         <QuestionDisplay question={question} />
-      </div>
+      </FeedbackFrame>
 
       {/* Answer form */}
       <ScoreCalculationAnswerForm

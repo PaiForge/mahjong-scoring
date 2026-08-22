@@ -7,7 +7,7 @@ import type {
   ScoreTableQuestion,
   ScoreTableUserAnswer,
 } from "@mahjong-scoring/core";
-import { getFeedbackBorderClass } from "../../_lib/feedback-styles";
+import { FeedbackFrame } from "../../_components/feedback-frame";
 import { ScoreTableAnswerForm } from "./score-table-answer-form";
 import type { ScoreTableQuestionResult } from "../_lib/types";
 
@@ -65,16 +65,13 @@ export function ScoreTableBoard({
     [showFeedback, question, onAnswer, onAdvance, onRecordResult],
   );
 
-  const feedbackBorderClass = getFeedbackBorderClass(
-    showFeedback,
-    lastAnswerCorrect,
-  );
-
   return (
     <div className="mt-6 space-y-6">
       {/* Question display */}
-      <div
-        className={`space-y-4 rounded-xl border-3 p-6 shadow-sm transition-colors ${feedbackBorderClass}`}
+      <FeedbackFrame
+        showFeedback={showFeedback}
+        lastAnswerCorrect={lastAnswerCorrect}
+        className="space-y-4 p-6"
       >
         <p className="text-center text-sm font-medium text-surface-500">
           {t("questionLabel")}
@@ -100,7 +97,7 @@ export function ScoreTableBoard({
             </span>
           )}
         </div>
-      </div>
+      </FeedbackFrame>
 
       {/* Answer form */}
       <ScoreTableAnswerForm
