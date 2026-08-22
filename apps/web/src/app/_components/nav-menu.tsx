@@ -36,7 +36,7 @@ export function NavMenu() {
       <button
         type="button"
         onClick={() => setIsOpen((prev) => !prev)}
-        className="press-sm rounded-lg border-3 border-ink bg-card p-1.5 text-foreground shadow-sm"
+        className="rounded-lg p-1.5 text-foreground transition-colors hover:bg-primary-50"
         aria-label={t("menu")}
         aria-expanded={isOpen}
       >
@@ -86,7 +86,7 @@ export function NavMenu() {
                 <button
                   type="button"
                   onClick={() => setIsOpen(false)}
-                  className="press-sm rounded-lg border-3 border-ink bg-card p-1.5 text-foreground shadow-sm"
+                  className="rounded-lg p-1.5 text-foreground transition-colors hover:bg-primary-50"
                   aria-label={t("close")}
                 >
                   <svg
