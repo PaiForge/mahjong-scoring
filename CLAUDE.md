@@ -123,8 +123,11 @@ packages/eslint-config/ — 共通 ESLint 設定（PaiForge コーディング�
 - 複数の子ルートを 1 枚で受けるときは `practice/_components/practice-loading.tsx` のように
   `usePathname()` で振り分ける。index ページだけ固有にしたいときは page.tsx と loading.tsx を
   route group に退避する（`mypage/(home)`, `practice/(index)`, `admin/(dashboard)`）
-- ドロップダウン等、開くまで mount されない `<Link>` は開いてすぐ押すとプリフェッチ未完了で
-  無反応になる。`router.prefetch()` で先に取っておく（`auth-nav-item.tsx` 参照）
+- ドロップダウン等のメニュー内 `<Link>` は閉じている間も mount したままにする（`invisible` + `inert`）。
+  開くまで unmount しているとプリフェッチが開いてから始まり、すぐ押すとサーバ応答まで無反応になる。
+  Next 16 の Segment Cache では動的ルートの prefetch に 2 往復（`/_tree` → loading 境界）かかる。
+  `router.prefetch()` で先読みする案は Link 自身のプリフェッチと干渉して逆に遅くなったので使わない
+  （`auth-nav-item.tsx` 参照）
 
 ## 角丸
 
