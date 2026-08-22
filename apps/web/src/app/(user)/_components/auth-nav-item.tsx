@@ -88,37 +88,44 @@ export function AuthNavItem() {
         </span>
       </button>
 
-      {isOpen && (
-        <div
-          role="menu"
-          className="absolute right-0 top-full z-50 mt-2 w-48 overflow-hidden rounded-xl border-3 border-ink bg-card shadow-sm"
+      {/* メニューは閉じていても mount したままにする（invisible + inert）。
+          閉じている間に unmount すると中の Link がプリフェッチされず、開いてすぐ
+          クリックしたときにサーバ応答までスケルトンも出ない（無反応に見える）。
+          visibility: hidden なら IntersectionObserver が発火するので、Link は
+          ページ表示時点で遷移先（/mypage は loading 境界まで）を取得しておける。
+          router.prefetch() で先読みする案は Next 16 の Segment Cache で Link 自身の
+          プリフェッチと干渉し、開いて待ってから押しても遅くなったため採らない。 */}
+      <div
+        role="menu"
+        inert={!isOpen}
+        aria-hidden={!isOpen}
+        className={`absolute right-0 top-full z-50 mt-2 w-48 overflow-hidden rounded-xl border-3 border-ink bg-card shadow-sm ${isOpen ? "" : "invisible"}`}
+      >
+        <Link
+          href="/mypage"
+          role="menuitem"
+          onClick={() => setIsOpen(false)}
+          className="block border-b-2 border-dashed border-border/40 px-4 py-3 text-sm font-bold text-foreground transition-colors hover:bg-primary-50"
         >
-          <Link
-            href="/mypage"
-            role="menuitem"
-            onClick={() => setIsOpen(false)}
-            className="block border-b-2 border-dashed border-border/40 px-4 py-3 text-sm font-bold text-foreground transition-colors hover:bg-primary-50"
-          >
-            {t("mypage")}
-          </Link>
-          <Link
-            href="/preferences"
-            role="menuitem"
-            onClick={() => setIsOpen(false)}
-            className="block border-b-2 border-dashed border-border/40 px-4 py-3 text-sm font-bold text-foreground transition-colors hover:bg-primary-50"
-          >
-            {t("settings")}
-          </Link>
-          <button
-            type="button"
-            role="menuitem"
-            onClick={handleSignOut}
-            className="block w-full px-4 py-3 text-left text-sm font-bold text-foreground transition-colors hover:bg-primary-50"
-          >
-            {t("signOut")}
-          </button>
-        </div>
-      )}
+          {t("mypage")}
+        </Link>
+        <Link
+          href="/preferences"
+          role="menuitem"
+          onClick={() => setIsOpen(false)}
+          className="block border-b-2 border-dashed border-border/40 px-4 py-3 text-sm font-bold text-foreground transition-colors hover:bg-primary-50"
+        >
+          {t("settings")}
+        </Link>
+        <button
+          type="button"
+          role="menuitem"
+          onClick={handleSignOut}
+          className="block w-full px-4 py-3 text-left text-sm font-bold text-foreground transition-colors hover:bg-primary-50"
+        >
+          {t("signOut")}
+        </button>
+      </div>
     </div>
   );
 }

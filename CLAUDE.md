@@ -109,6 +109,26 @@ packages/eslint-config/ — 共通 ESLint 設定（PaiForge コーディング�
 リンク風の `<button>` にも同じ定数を使う。カード全体がクリック対象になるもの
 （`ListLink` 等）は「押せる面」なので対象外。
 
+## ローディング境界（loading.tsx）
+
+`src/app/loading-boundaries.test.ts` が「すべての page.tsx は祖先に loading.tsx を
+ちょうど 1 つ持つ」ことを検査する。Next の挙動に由来する制約で、どちらに違反しても
+スケルトンが機能しない（2026-08 に本番ビルドで実測）。
+
+- **入れ子にしない** — `<Link>` のプリフェッチは最も外側の境界までしか取らないため、
+  内側の個別スケルトンは速いサーバでは一度も出ず、遅いサーバでは本文直前に一瞬出るだけになる
+- **leaf に置く** — React は遷移中、マウント済みの Suspense のフォールバックを出さない。
+  祖先の共通 loading.tsx は同じセグメント内の遷移（`/learn` → `/learn/x` 等）で効かず、
+  サーバ応答までクリックが無反応になる
+- 複数の子ルートを 1 枚で受けるときは `practice/_components/practice-loading.tsx` のように
+  `usePathname()` で振り分ける。index ページだけ固有にしたいときは page.tsx と loading.tsx を
+  route group に退避する（`mypage/(home)`, `practice/(index)`, `admin/(dashboard)`）
+- ドロップダウン等のメニュー内 `<Link>` は閉じている間も mount したままにする（`invisible` + `inert`）。
+  開くまで unmount しているとプリフェッチが開いてから始まり、すぐ押すとサーバ応答まで無反応になる。
+  Next 16 の Segment Cache では動的ルートの prefetch に 2 往復（`/_tree` → loading 境界）かかる。
+  `router.prefetch()` で先読みする案は Link 自身のプリフェッチと干渉して逆に遅くなったので使わない
+  （`auth-nav-item.tsx` 参照）
+
 ## 角丸
 
 素の `rounded` は Tailwind の非推奨トークン `--radius`（0.25rem 固定）を参照しており、

@@ -204,7 +204,8 @@ export function menuTypeToSlug(menuType: PracticeMenuType): PracticeMenuSlug {
 
 const practiceMenuSlugSet: ReadonlySet<string> = new Set(PRACTICE_MENU_SLUGS);
 
-function isPracticeMenuSlug(value: string): value is PracticeMenuSlug {
+/** 値が有効な練習種別スラッグ（URL kebab-case）かを判定する型ガード */
+export function isPracticeMenuSlug(value: string): value is PracticeMenuSlug {
   return practiceMenuSlugSet.has(value);
 }
 

@@ -12,8 +12,8 @@ import { ContentContainer } from "@/app/(user)/_components/content-container";
 import { PageTitle } from "@/app/(user)/_components/page-title";
 import { SectionTitle } from "@/app/(user)/_components/section-title";
 import { createNamespaceMetadata } from "@/app/_lib/metadata";
-import { PracticeCard } from "./_components/practice-card";
-import { PracticeCategorySection } from "./_components/practice-category-section";
+import { PracticeCard } from "../_components/practice-card";
+import { PracticeCategorySection } from "../_components/practice-category-section";
 
 export async function generateMetadata(): Promise<Metadata> {
   return createNamespaceMetadata("practice");
