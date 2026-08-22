@@ -1,5 +1,10 @@
 "use client";
 
+import {
+  TOGGLE_GROUP_CONTAINER_CLASSES,
+  toggleItemClasses,
+} from "./_lib/toggle-group-classes";
+
 interface ToggleGroupProps<T extends string> {
   readonly options: readonly { readonly value: T; readonly label: string }[];
   readonly selected: T;
@@ -16,16 +21,12 @@ export function ToggleGroup<T extends string>({
   onChange,
 }: ToggleGroupProps<T>) {
   return (
-    <div className="flex rounded-full border-3 border-ink bg-primary-50 p-0.5">
+    <div className={TOGGLE_GROUP_CONTAINER_CLASSES}>
       {options.map((opt) => (
         <button
           key={opt.value}
           onClick={() => onChange(opt.value)}
-          className={`rounded-full px-3 py-1 text-xs font-bold transition-colors ${
-            selected === opt.value
-              ? "bg-primary-700 text-white"
-              : "text-surface-700 hover:bg-primary-100"
-          }`}
+          className={toggleItemClasses(selected === opt.value)}
         >
           {opt.label}
         </button>
