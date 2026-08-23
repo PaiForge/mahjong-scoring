@@ -3,6 +3,7 @@ import { HaiKind } from "@mahjong-scoring/core";
 import { Divider } from "@/app/(user)/_components/divider";
 import { SectionTitle } from "@/app/(user)/_components/section-title";
 import { ExampleCard } from "../../_components/example-card";
+import { GuideOrderedList } from "../../_components/guide-ordered-list";
 import { GuideParagraph } from "../../_components/guide-paragraph";
 import { GuideSubsectionTitle } from "../../_components/guide-subsection-title";
 import { TehaiFuExample } from "./tehai-fu-example";
@@ -13,11 +14,19 @@ export async function TehaiFuGuide() {
   return (
     <section className="space-y-4">
       <SectionTitle>{t("commonMistakesTitle")}</SectionTitle>
+      <GuideParagraph>{t("commonMistakesLead")}</GuideParagraph>
+      <GuideOrderedList>
+        <li>{t("tsumoFuTitle")}</li>
+        <li>{t("ronKoutsuTitle")}</li>
+        <li>{t("kazeTitle")}</li>
+      </GuideOrderedList>
 
       <div className="space-y-8 pt-3">
         {/* Tsumo fu omission */}
         <section className="space-y-4">
-          <GuideSubsectionTitle>{t("tsumoFuTitle")}</GuideSubsectionTitle>
+          <GuideSubsectionTitle number={1}>
+            {t("tsumoFuTitle")}
+          </GuideSubsectionTitle>
           <GuideParagraph>{t("tsumoFuBody1")}</GuideParagraph>
           <GuideParagraph>{t("tsumoFuBody2")}</GuideParagraph>
           <ExampleCard>
@@ -33,7 +42,9 @@ export async function TehaiFuGuide() {
 
         {/* Ron koutsu miscalculation */}
         <section className="space-y-4">
-          <GuideSubsectionTitle>{t("ronKoutsuTitle")}</GuideSubsectionTitle>
+          <GuideSubsectionTitle number={2}>
+            {t("ronKoutsuTitle")}
+          </GuideSubsectionTitle>
           <GuideParagraph>{t("ronKoutsuBody1")}</GuideParagraph>
           <GuideParagraph>{t("ronKoutsuBody2")}</GuideParagraph>
           <ExampleCard spacing="space-y-4">
@@ -66,7 +77,9 @@ export async function TehaiFuGuide() {
 
         {/* Jikaze / Bakaze confusion */}
         <section className="space-y-4">
-          <GuideSubsectionTitle>{t("kazeTitle")}</GuideSubsectionTitle>
+          <GuideSubsectionTitle number={3}>
+            {t("kazeTitle")}
+          </GuideSubsectionTitle>
           <GuideParagraph>{t("kazeBody1")}</GuideParagraph>
           <GuideParagraph>{t("kazeBody2")}</GuideParagraph>
           <ExampleCard>
