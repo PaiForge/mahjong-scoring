@@ -64,6 +64,13 @@
       "when": 1782356883454,
       "tag": "20260625030803_add_bio_and_social_to_profiles",
       "breakpoints": true
+    },
+    {
+      "idx": 9,
+      "version": "7",
+      "when": 1787480661719,
+      "tag": "20260823102421_add_hidden_from_leaderboard_to_profiles",
+      "breakpoints": true
     }
   ]
 }

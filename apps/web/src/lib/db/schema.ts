@@ -1,5 +1,6 @@
 import { sql } from "drizzle-orm";
 import {
+  boolean,
   check,
   index,
   integer,
@@ -33,6 +34,28 @@ export const profiles = pgTable("profiles", {
   instagramUsername: varchar("instagram_username", { length: 30 }),
   /** YouTube ハンドル（先頭 @ は除いて保存） */
   youtubeHandle: varchar("youtube_handle", { length: 30 }),
+  /**
+   * ランキング非表示（本人によるオプトアウト）
+   *
+   * @description
+   * 設定ページ（`/preferences`）でユーザー自身が切り替える。true の間、
+   * ランキングの母集団から外れ、一覧にも自分の順位行にも出なくなる。
+   *
+   * @design 「これから出ない」スイッチであって記録の削除ではない
+   * 成績（`challenge_results` / `challenge_best_scores`）はそのまま残り、
+   * オフに戻せば順位も戻る。設定画面の説明文もそう書いてある。
+   *
+   * @design 絞り込みは母集団を組み立てる層で行う
+   * 順位は「並べた結果の何行目か」で決まるため、表示クエリだけで隠すと
+   * 順位番号に欠番が出る。`leaderboard-visibility.ts` の述語を
+   * ランキングの母集団（一覧・件数・ROW_NUMBER の入力）すべてに通す。
+   *
+   * インデックスは張らない。選択性の低い boolean で、常に索引済みの
+   * menu_type / leaderboard_key の絞り込みと同時に評価されるため。
+   */
+  hiddenFromLeaderboard: boolean("hidden_from_leaderboard")
+    .notNull()
+    .default(false),
   /** BAN日時 */
   bannedAt: timestamp("banned_at", { withTimezone: true }),
   /** ソフトデリート日時 */

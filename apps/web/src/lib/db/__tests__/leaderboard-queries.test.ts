@@ -1,6 +1,6 @@
 import { describe, expect, it, vi, beforeEach } from "vitest";
 
-import { createQueryChain } from "@/test/drizzle-mock";
+import { createQueryChain, type QueryChainMock } from "@/test/drizzle-mock";
 
 // ---------------------------------------------------------------------------
 // Hoisted mocks
@@ -12,10 +12,13 @@ const { mockExecute } = vi.hoisted(() => ({
 
 let selectCallIndex = 0;
 let selectReturnValues: unknown[][] = [];
+/** `db.select()` が返したチェーンを呼ばれた順に控える（一覧側=0 / 件数側=1） */
+let selectChains: QueryChainMock[] = [];
 
 function setupSelectChains(...chains: unknown[][]) {
   selectCallIndex = 0;
   selectReturnValues = chains;
+  selectChains = [];
 }
 
 vi.mock("../index", () => ({
@@ -25,7 +28,9 @@ vi.mock("../index", () => ({
         const idx = selectCallIndex++;
         const resolveValue =
           idx < selectReturnValues.length ? selectReturnValues[idx] : [];
-        return createQueryChain(resolveValue);
+        const chain = createQueryChain(resolveValue);
+        selectChains.push(chain);
+        return chain;
       };
     },
     get selectDistinctOn() {
@@ -51,6 +56,7 @@ vi.mock("../schema", async () => await import("@/test/schema-mock"));
 vi.mock("drizzle-orm", async () => await import("@/test/drizzle-orm-mock"));
 
 import { getAllTimeRanking, getMonthlyRanking } from "../leaderboard-queries";
+import { notHiddenFromLeaderboard } from "../leaderboard-visibility";
 import {
   getUserAllTimeRankedRow,
   getUserMonthlyRankedRow,
@@ -165,6 +171,24 @@ describe("getAllTimeRanking", () => {
     expect(result.total).toBe(0);
     expect(result.rows).toEqual([]);
   });
+
+  // 一覧だけ絞ると total が実際の行数より多くなり、末尾に空ページができる
+  it("applies the visibility filter to both the rows query and the count query", async () => {
+    setupSelectChains([], [{ count: 0 }]);
+
+    await getAllTimeRanking("jantou_fu", "default", 0, 20);
+
+    expect(selectChains).toHaveLength(2);
+    for (const chain of selectChains) {
+      expect(chain.innerJoin).toHaveBeenCalled();
+      expect(chain.where).toHaveBeenCalledWith(
+        expect.objectContaining({
+          op: "and",
+          args: expect.arrayContaining([notHiddenFromLeaderboard()]),
+        }),
+      );
+    }
+  });
 });
 
 describe("getMonthlyRanking", () => {
@@ -210,6 +234,18 @@ describe("getMonthlyRanking", () => {
 
     expect(result.rows).toEqual([]);
     expect(result.total).toBe(0);
+  });
+
+  it("applies the visibility filter to both the rows query and the count query", async () => {
+    setupSelectChains([], [{ count: 0 }]);
+
+    await getMonthlyRanking("jantou_fu", "default", 0, 20);
+
+    expect(selectChains).toHaveLength(2);
+    for (const chain of selectChains) {
+      expect(chain.innerJoin).toHaveBeenCalled();
+      expect(chain.where).toHaveBeenCalledWith(notHiddenFromLeaderboard());
+    }
   });
 });
 

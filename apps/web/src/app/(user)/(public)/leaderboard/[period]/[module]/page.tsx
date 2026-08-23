@@ -26,6 +26,7 @@ import { LinkButton } from "@/app/(user)/_components/link-button";
 import { SectionTitle } from "@/app/(user)/_components/section-title";
 import { createMetadata } from "@/app/_lib/metadata";
 import { getOptionalUser } from "@/lib/auth";
+import { isHiddenFromLeaderboard } from "@/lib/db/leaderboard-visibility";
 import { menuTypeToMessageKey } from "@/lib/db/practice-menu-types";
 
 import { getLeaderboard } from "../../_actions/get-leaderboard";
@@ -94,7 +95,20 @@ async function DetailContent({
 }) {
   const user = await getOptionalUser();
   const currentUserId = user?.id ?? undefined;
-  const data = await getLeaderboard(mod, period, page, currentUserId);
+  const viewerHidden =
+    currentUserId === undefined
+      ? false
+      : await isHiddenFromLeaderboard(currentUserId);
+
+  // 非表示中は母集団から外れているので順位行もハイライトも出ない。順位取得は
+  // ランキング全体に ROW_NUMBER を回すため、undefined が返ると分かっている
+  // 呼び出しは投げない。
+  const data = await getLeaderboard(
+    mod,
+    period,
+    page,
+    viewerHidden ? undefined : currentUserId,
+  );
 
   return (
     <LeaderboardDetailContent
@@ -103,6 +117,7 @@ async function DetailContent({
       data={data}
       currentPage={page}
       period={period}
+      viewerHidden={viewerHidden}
     />
   );
 }

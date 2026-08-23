@@ -1,5 +1,6 @@
 import { unstable_cache } from "next/cache";
 
+import { LEADERBOARD_CACHE_TAG } from "@/lib/cache-tags";
 import type { RankedLeaderboardRow } from "@/lib/db/leaderboard-queries";
 import { logExternalError } from "@/lib/log-error";
 import { getPaginationData } from "@/lib/pagination";
@@ -39,7 +40,7 @@ function getCachedRanking(
       String(offset),
       String(limit),
     ],
-    { revalidate: REVALIDATE_SECONDS, tags: ["leaderboard"] },
+    { revalidate: REVALIDATE_SECONDS, tags: [LEADERBOARD_CACHE_TAG] },
   )();
 }
 

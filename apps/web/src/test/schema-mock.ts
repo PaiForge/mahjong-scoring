@@ -25,6 +25,7 @@ export const profiles = {
   username: "username",
   displayName: "display_name",
   avatarUrl: "avatar_url",
+  hiddenFromLeaderboard: "hidden_from_leaderboard",
   bannedAt: "banned_at",
 } as const;
 
