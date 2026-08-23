@@ -312,6 +312,7 @@
   },
   "jantouFu": {
     "title": "雀頭の符計算",
+    "generating": "問題を生成中...",
     "description": "場風・自風を確認して、雀頭の符を答えてください",
     "bakaze": "場風",
     "jikaze": "自風",
@@ -359,6 +360,7 @@
   },
   "machiFu": {
     "title": "待ちの符計算",
+    "generating": "問題を生成中...",
     "description": "待ち形と和了牌を確認して、待ちの符を答えてください",
     "machiLabel": "待ち形",
     "agariLabel": "和了牌",
@@ -397,6 +399,7 @@
   },
   "mentsuFu": {
     "title": "面子の符計算",
+    "generating": "問題を生成中...",
     "description": "面子の種類（順子・刻子・槓子）と明暗に応じた符を答えてください",
     "mentsuLabel": "面子",
     "questionPrompt": "この面子の符は？",
@@ -440,6 +443,7 @@
   },
   "tehaiFu": {
     "title": "手牌の符計算",
+    "generating": "問題を生成中...",
     "description": "手牌全体の面子構成・雀頭から、各要素の符を漏れなく回答する総合練習",
     "bakaze": "場風",
     "jikaze": "自風",
@@ -517,6 +521,7 @@
   },
   "yaku": {
     "title": "役の選択",
+    "generating": "問題を生成中...",
     "description": "手牌を見て成立している役をすべて選択する練習",
     "learnLink": "役の種類を学ぶ",
     "bakaze": "場風",

@@ -9,7 +9,9 @@ import { useRuleSettingsStore } from "@/app/_hooks/use-rule-settings-store";
 import { ChoiceButton } from "../../_components/choice-button";
 import { JantouFuKazeContext } from "./jantou-fu-kaze-context";
 import { getChoiceFeedbackProps } from "../../_lib/feedback-styles";
+import { QuestionGeneratingPlaceholder } from "../../_components/question-generating-placeholder";
 import { QuestionPrompt } from "../../_components/question-prompt";
+import { useClientGeneratedQuestion } from "../../_hooks/use-client-generated-question";
 import type { PracticeBoardProps } from "../../_lib/practice-board-props";
 
 type JantouFuBoardProps = PracticeBoardProps;
@@ -27,27 +29,33 @@ export function JantouFuBoard({
 }: JantouFuBoardProps) {
   const t = useTranslations("jantouFu");
   const renfonpaiAs4Fu = useRuleSettingsStore((s) => s.renfonpaiAs4Fu);
-  const [question, setQuestion] = useState<JantouFuQuestion>(() =>
-    generateJantouFuQuestion({ renfonpaiAs4Fu }),
+  const generateQuestion = useCallback(
+    (): JantouFuQuestion => generateJantouFuQuestion({ renfonpaiAs4Fu }),
+    [renfonpaiAs4Fu],
   );
+  const [question, setQuestion] = useClientGeneratedQuestion(generateQuestion);
   const [selectedHai, setSelectedHai] = useState<
     JantouFuChoice["hai"] | undefined
   >(undefined);
 
   const advanceQuestion = useCallback(() => {
-    setQuestion(generateJantouFuQuestion({ renfonpaiAs4Fu }));
+    setQuestion(generateQuestion());
     setSelectedHai(undefined);
-  }, [renfonpaiAs4Fu]);
+  }, [generateQuestion, setQuestion]);
 
   const handleChoiceSelect = useCallback(
     (index: number) => {
-      if (showFeedback) return;
+      if (showFeedback || !question) return;
       const choice = question.choices[index];
       setSelectedHai(choice.hai);
       onAnswer(choice.isCorrect, advanceQuestion);
     },
-    [showFeedback, question.choices, onAnswer, advanceQuestion],
+    [showFeedback, question, onAnswer, advanceQuestion],
   );
+
+  if (!question) {
+    return <QuestionGeneratingPlaceholder label={t("generating")} />;
+  }
 
   return (
     <div className="mt-6 space-y-5">

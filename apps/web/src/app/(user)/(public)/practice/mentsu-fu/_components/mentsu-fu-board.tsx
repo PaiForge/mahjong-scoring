@@ -7,6 +7,7 @@ import { FuChoiceGrid } from "../../_components/fu-choice-grid";
 import { PromptLabel } from "../../_components/prompt-label";
 import { useFuChoiceBoard } from "../../_hooks/use-fu-choice-board";
 import { FU_OPTIONS } from "../../_lib/fu-options";
+import { QuestionGeneratingPlaceholder } from "../../_components/question-generating-placeholder";
 import { QuestionPrompt } from "../../_components/question-prompt";
 import type { PracticeBoardProps } from "../../_lib/practice-board-props";
 
@@ -29,6 +30,10 @@ export function MentsuFuBoard({
     showFeedback,
     onAnswer,
   });
+
+  if (!question) {
+    return <QuestionGeneratingPlaceholder label={t("generating")} />;
+  }
 
   return (
     <div className="mt-6 space-y-5">

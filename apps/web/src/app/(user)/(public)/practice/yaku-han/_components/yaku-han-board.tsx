@@ -1,11 +1,14 @@
 "use client";
 
 import { useCallback, useState } from "react";
+import { useTranslations } from "next-intl";
 import {
   DEFAULT_YAKU_HAN_RANGE,
   generateYakuHanQuestion,
 } from "@mahjong-scoring/core";
 import type { YakuHanQuestion, YakuHanRange } from "@mahjong-scoring/core";
+import { QuestionGeneratingPlaceholder } from "../../_components/question-generating-placeholder";
+import { useClientGeneratedQuestion } from "../../_hooks/use-client-generated-question";
 import { YakuHanPrompt } from "./yaku-han-prompt";
 import { YakuHanAnswerForm } from "./yaku-han-answer-form";
 import type { YakuHanQuestionResult } from "../_lib/types";
@@ -28,19 +31,22 @@ export function YakuHanBoard({
   onAnswer,
   onRecordResult,
 }: YakuHanBoardProps) {
-  const [question, setQuestion] = useState<YakuHanQuestion>(() =>
-    generateYakuHanQuestion(range),
+  const t = useTranslations("yakuHanChallenge");
+  const generateQuestion = useCallback(
+    (): YakuHanQuestion => generateYakuHanQuestion(range),
+    [range],
   );
+  const [question, setQuestion] = useClientGeneratedQuestion(generateQuestion);
   const [questionIndex, setQuestionIndex] = useState(0);
 
   const advanceQuestion = useCallback(() => {
-    setQuestion(generateYakuHanQuestion(range));
+    setQuestion(generateQuestion());
     setQuestionIndex((prev) => prev + 1);
-  }, [range]);
+  }, [generateQuestion, setQuestion]);
 
   const handleSubmit = useCallback(
     (userHan: number) => {
-      if (showFeedback) return;
+      if (showFeedback || !question) return;
 
       const correctHan = question.correctHan;
       const isCorrect = userHan === correctHan;
@@ -57,6 +63,10 @@ export function YakuHanBoard({
     },
     [showFeedback, question, onAnswer, advanceQuestion, onRecordResult],
   );
+
+  if (!question) {
+    return <QuestionGeneratingPlaceholder label={t("generating")} />;
+  }
 
   return (
     <div className="mt-4 space-y-6">

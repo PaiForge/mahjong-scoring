@@ -6,6 +6,8 @@ import { generateTehaiFuQuestion, retryGenerate } from "@mahjong-scoring/core";
 import type { TehaiFuQuestion } from "@mahjong-scoring/core";
 import { useRuleSettingsStore } from "@/app/_hooks/use-rule-settings-store";
 import { ChallengeSubmitButton } from "../../_components/challenge-submit-button";
+import { QuestionGeneratingPlaceholder } from "../../_components/question-generating-placeholder";
+import { useClientGeneratedQuestion } from "../../_hooks/use-client-generated-question";
 import { TehaiDisplay } from "./tehai-display";
 import { FuItemRow } from "./fu-item-row";
 import type { PracticeBoardProps } from "../../_lib/practice-board-props";
@@ -30,17 +32,19 @@ export function TehaiFuBoard({
 }: TehaiFuBoardProps) {
   const t = useTranslations("tehaiFu");
   const renfonpaiAs4Fu = useRuleSettingsStore((s) => s.renfonpaiAs4Fu);
-  const [question, setQuestion] = useState<TehaiFuQuestion | undefined>(() =>
-    generateQuestion(renfonpaiAs4Fu),
+  const generate = useCallback(
+    () => generateQuestion(renfonpaiAs4Fu),
+    [renfonpaiAs4Fu],
   );
+  const [question, setQuestion] = useClientGeneratedQuestion(generate);
   const [answers, setAnswers] = useState<string[]>(() => new Array(5).fill(""));
   const [tileScale, setTileScale] = useState(1);
 
   const advanceQuestion = useCallback(() => {
-    const q = generateQuestion(renfonpaiAs4Fu);
+    const q = generate();
     setQuestion(q);
     setAnswers(q ? new Array(q.items.length).fill("") : []);
-  }, [renfonpaiAs4Fu]);
+  }, [generate, setQuestion]);
 
   const handleSubmit = useCallback(() => {
     if (!question || showFeedback) return;
@@ -62,7 +66,9 @@ export function TehaiFuBoard({
     [showFeedback],
   );
 
-  if (!question) return undefined;
+  if (!question) {
+    return <QuestionGeneratingPlaceholder label={t("generating")} />;
+  }
 
   const allAnswered = answers.length > 0 && answers.every((a) => a !== "");
 

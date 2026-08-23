@@ -3,6 +3,7 @@
 import { useCallback, useState } from "react";
 import { generateValidScoreQuestion } from "@mahjong-scoring/core";
 import type { ScoreQuestion } from "@mahjong-scoring/core";
+import { useClientGeneratedQuestion } from "./use-client-generated-question";
 
 type GenerateOptions = Parameters<typeof generateValidScoreQuestion>[0];
 
@@ -20,15 +21,17 @@ export function useGeneratedScoreQuestion(generateOptions?: GenerateOptions): {
   readonly questionIndex: number;
   readonly advanceQuestion: () => void;
 } {
-  const [question, setQuestion] = useState<ScoreQuestion | undefined>(
+  const generate = useCallback(
     () => generateValidScoreQuestion(generateOptions) ?? undefined,
+    [generateOptions],
   );
+  const [question, setQuestion] = useClientGeneratedQuestion(generate);
   const [questionIndex, setQuestionIndex] = useState(0);
 
   const advanceQuestion = useCallback(() => {
-    setQuestion(generateValidScoreQuestion(generateOptions) ?? undefined);
+    setQuestion(generate());
     setQuestionIndex((prev) => prev + 1);
-  }, [generateOptions]);
+  }, [generate, setQuestion]);
 
   return { question, questionIndex, advanceQuestion };
 }

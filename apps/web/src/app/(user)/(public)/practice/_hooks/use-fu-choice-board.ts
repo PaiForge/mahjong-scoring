@@ -3,6 +3,7 @@
 import { useCallback, useState } from "react";
 
 import type { PracticeBoardProps } from "../_lib/practice-board-props";
+import { useClientGeneratedQuestion } from "./use-client-generated-question";
 
 /** 符を答える練習の問題が満たすべき最小の形 */
 interface FuQuestion {
@@ -20,7 +21,8 @@ interface UseFuChoiceBoardParams<TQuestion extends FuQuestion> extends Pick<
 }
 
 interface UseFuChoiceBoardResult<TQuestion extends FuQuestion> {
-  readonly question: TQuestion;
+  /** 現在の問題。最初の問題はクライアントで生成するため、それまでは undefined */
+  readonly question: TQuestion | undefined;
   /** 直前に選択された符（未選択時は undefined） */
   readonly selectedFu: number | undefined;
   readonly handleSelect: (index: number) => void;
@@ -40,22 +42,22 @@ export function useFuChoiceBoard<TQuestion extends FuQuestion>({
   showFeedback,
   onAnswer,
 }: UseFuChoiceBoardParams<TQuestion>): UseFuChoiceBoardResult<TQuestion> {
-  const [question, setQuestion] = useState<TQuestion>(generateQuestion);
+  const [question, setQuestion] = useClientGeneratedQuestion(generateQuestion);
   const [selectedFu, setSelectedFu] = useState<number | undefined>(undefined);
 
   const advanceQuestion = useCallback(() => {
     setQuestion(generateQuestion());
     setSelectedFu(undefined);
-  }, [generateQuestion]);
+  }, [generateQuestion, setQuestion]);
 
   const handleSelect = useCallback(
     (index: number) => {
-      if (showFeedback) return;
+      if (showFeedback || !question) return;
       const fu = options[index];
       setSelectedFu(fu);
       onAnswer(fu === question.answer, advanceQuestion);
     },
-    [showFeedback, options, onAnswer, question.answer, advanceQuestion],
+    [showFeedback, options, onAnswer, question, advanceQuestion],
   );
 
   return { question, selectedFu, handleSelect };

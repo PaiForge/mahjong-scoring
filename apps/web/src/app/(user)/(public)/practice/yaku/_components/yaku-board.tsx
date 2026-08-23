@@ -13,7 +13,9 @@ import type { YakuQuestion } from "@mahjong-scoring/core";
 import { ChallengeSubmitButton } from "../../_components/challenge-submit-button";
 import { TehaiDisplay } from "../../_components/tehai-display";
 import { YakuChip, getChipFeedbackState } from "./yaku-chip";
+import { QuestionGeneratingPlaceholder } from "../../_components/question-generating-placeholder";
 import { QuestionPrompt } from "../../_components/question-prompt";
+import { useClientGeneratedQuestion } from "../../_hooks/use-client-generated-question";
 import type { PracticeBoardProps } from "../../_lib/practice-board-props";
 
 function generateQuestion(): YakuQuestion | undefined {
@@ -38,15 +40,13 @@ export function YakuBoard({
   onAnswer,
 }: YakuBoardProps) {
   const t = useTranslations("yaku");
-  const [question, setQuestion] = useState<YakuQuestion | undefined>(
-    generateQuestion,
-  );
+  const [question, setQuestion] = useClientGeneratedQuestion(generateQuestion);
   const [selectedYaku, setSelectedYaku] = useState<Set<string>>(new Set());
 
   const advanceQuestion = useCallback(() => {
     setQuestion(generateQuestion());
     setSelectedYaku(new Set());
-  }, []);
+  }, [setQuestion]);
 
   const handleToggleYaku = useCallback(
     (yakuName: string) => {
@@ -72,7 +72,9 @@ export function YakuBoard({
     onAnswer(isCorrect, advanceQuestion);
   }, [question, selectedYaku, showFeedback, onAnswer, advanceQuestion]);
 
-  if (!question) return undefined;
+  if (!question) {
+    return <QuestionGeneratingPlaceholder label={t("generating")} />;
+  }
 
   const hasSelection = selectedYaku.size > 0;
 
