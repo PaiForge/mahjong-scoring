@@ -1,6 +1,7 @@
 import { getTranslations } from "next-intl/server";
 import { SectionTitle } from "@/app/(user)/_components/section-title";
 import { GuideNote } from "../../_components/guide-note";
+import { GuideOrderedList } from "../../_components/guide-ordered-list";
 import { GuideParagraph } from "../../_components/guide-paragraph";
 import { GuideSubsectionTitle } from "../../_components/guide-subsection-title";
 
@@ -16,11 +17,11 @@ export async function AboutThisAppGuide() {
         <SectionTitle>{t("introTitle")}</SectionTitle>
         <GuideParagraph preLine>{t("lead1")}</GuideParagraph>
         <GuideParagraph preLine>{t("lead2")}</GuideParagraph>
-        <ol className="list-decimal space-y-1 pl-6 whitespace-pre-line text-sm leading-relaxed text-surface-700">
+        <GuideOrderedList>
           <li>{t("reason1Summary")}</li>
           <li>{t("reason2Summary")}</li>
           <li>{t("reason3Summary")}</li>
-        </ol>
+        </GuideOrderedList>
 
         <div className="space-y-8 pt-3">
           <section className="space-y-3">
