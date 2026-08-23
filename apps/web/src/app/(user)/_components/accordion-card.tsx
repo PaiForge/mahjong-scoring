@@ -1,13 +1,18 @@
 "use client";
 
 import type { ReactNode } from "react";
-import { useId, useState } from "react";
+import { useEffect, useId, useRef, useState } from "react";
 
 interface AccordionCardProps {
   /** ヘッダー左側（▶ の右）に表示する見出し */
   readonly title: ReactNode;
   /** ヘッダー右端に表示する補足（正誤バッジ・翻数など。任意） */
   readonly trailing?: ReactNode;
+  /**
+   * アンカー用の id。指定すると URL のハッシュが一致したときに自動で開き、
+   * そのカードまでスクロールする（他ページからの直リンク用）。
+   */
+  readonly anchorId?: string;
   /** 展開時に表示する本文 */
   readonly children: ReactNode;
 }
@@ -19,17 +24,45 @@ interface AccordionCardProps {
  * 太枠カードのヘッダーを押すと本文を展開する。▶ の回転・破線区切り・本文の
  * 薄い背景など「開閉するもの」の見た目をここに集約し、練習結果の問題一覧と
  * 役一覧の例示手牌で同じ操作感にする。本文は閉じている間は描画しない。
+ *
+ * `anchorId` を渡すとハッシュ付きの直リンクに応答する。閉じたまま着地すると
+ * 目当ての内容が見えないため、開いた上でカード先頭までスクロールする。
  */
 export function AccordionCard({
   title,
   trailing,
+  anchorId,
   children,
 }: AccordionCardProps) {
   const [isOpen, setIsOpen] = useState(false);
   const panelId = useId();
+  const rootRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    if (anchorId === undefined) return;
+
+    const openIfTargeted = () => {
+      // ハッシュは日本語役名を含むためブラウザ側でパーセントエンコードされる。
+      if (decodeURIComponent(window.location.hash.slice(1)) !== anchorId)
+        return;
+      setIsOpen(true);
+      // 展開は下方向に伸びるためカード上端の位置は変わらない。開く前にスクロール
+      // しても着地点はずれない。
+      rootRef.current?.scrollIntoView({ behavior: "instant", block: "start" });
+    };
+
+    openIfTargeted();
+    // 同一ページ内で別の役へのリンクを踏んだ場合も追従する。
+    window.addEventListener("hashchange", openIfTargeted);
+    return () => window.removeEventListener("hashchange", openIfTargeted);
+  }, [anchorId]);
 
   return (
-    <div className="overflow-hidden rounded-lg border-3 border-ink bg-white">
+    <div
+      ref={rootRef}
+      id={anchorId}
+      className="scroll-mt-24 overflow-hidden rounded-lg border-3 border-ink bg-white"
+    >
       <button
         type="button"
         onClick={() => setIsOpen((prev) => !prev)}
