@@ -23,6 +23,7 @@ export function ManganOyaTsumoScoreTable() {
   return (
     <ManganTableShell
       columns={COLUMNS}
+      showHan={false}
       renderCells={(row) => {
         const each = row.tsumoOya.all;
         return [formatPoints(each), formatPoints(each * 3)];
