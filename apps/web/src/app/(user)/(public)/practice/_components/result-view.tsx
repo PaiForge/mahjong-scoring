@@ -2,6 +2,8 @@ import { getTranslations } from "next-intl/server";
 import { ContentContainer } from "@/app/(user)/_components/content-container";
 import { PageTitle } from "@/app/(user)/_components/page-title";
 import { LinkButton } from "@/app/(user)/_components/link-button";
+import { DumbbellIcon } from "@/app/(user)/_components/icons/dumbbell-icon";
+import { RotateCcwIcon } from "@/app/(user)/_components/icons/rotate-ccw-icon";
 import { SectionTitle } from "@/app/(user)/_components/section-title";
 import type { PracticeResultViewProps } from "../_lib/create-practice-result-page";
 import { buildResultBreadcrumb } from "../_lib/result-breadcrumb";
@@ -73,9 +75,11 @@ export async function ResultView({
             size="lg"
             fullWidth
           >
+            <RotateCcwIcon className="size-4" />
             {tc("retryButton")}
           </LinkButton>
           <LinkButton href="/practice" variant="neutral" size="lg" fullWidth>
+            <DumbbellIcon className="size-4" />
             {tc("backToList")}
           </LinkButton>
         </div>

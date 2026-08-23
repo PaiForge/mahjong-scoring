@@ -46,13 +46,7 @@ export function PracticeStartCta({
   return (
     <div className="flex flex-col gap-5">
       <div className="flex w-full flex-col items-center gap-1.5">
-        <LinkButton
-          href={playHref}
-          size="lg"
-          fullWidth
-          disabled={disabled}
-          className="gap-2"
-        >
+        <LinkButton href={playHref} size="lg" fullWidth disabled={disabled}>
           <PlayIcon className="size-4" />
           {labels.challenge}
         </LinkButton>
@@ -72,7 +66,6 @@ export function PracticeStartCta({
           size="lg"
           fullWidth
           disabled={disabled}
-          className="gap-2"
         >
           <InfinityIcon className="size-4" />
           {labels.training}
