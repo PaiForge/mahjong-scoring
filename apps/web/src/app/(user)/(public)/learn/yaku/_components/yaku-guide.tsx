@@ -4,8 +4,8 @@ import {
   DataTable,
   DataTableHeaderCell,
 } from "@/app/(user)/_components/data-table";
+import { TEXT_LINK_CLASSES } from "@/app/_components/_lib/link-classes";
 import { SectionTitle } from "@/app/(user)/_components/section-title";
-import { ChevronRightIcon } from "@/app/(user)/_components/icons/chevron-right-icon";
 import { GuideParagraph } from "../../_components/guide-paragraph";
 
 export async function YakuGuide() {
@@ -35,7 +35,7 @@ export async function YakuGuide() {
           header={
             <>
               <DataTableHeaderCell align="left">
-                {t("colHan")}
+                <span className="whitespace-nowrap">{t("colHan")}</span>
               </DataTableHeaderCell>
               <DataTableHeaderCell align="left">
                 {t("colYakuList")}
@@ -44,31 +44,31 @@ export async function YakuGuide() {
           }
         >
           <tr className="bg-white">
-            <td className="px-4 py-3 font-semibold text-primary-600">
+            <td className="whitespace-nowrap px-4 py-3 font-semibold text-primary-600">
               {t("row1han")}
             </td>
             <td className="px-4 py-3 text-surface-700">{t("row1hanYaku")}</td>
           </tr>
           <tr className="bg-white">
-            <td className="px-4 py-3 font-semibold text-primary-600">
+            <td className="whitespace-nowrap px-4 py-3 font-semibold text-primary-600">
               {t("row2han")}
             </td>
             <td className="px-4 py-3 text-surface-700">{t("row2hanYaku")}</td>
           </tr>
           <tr className="bg-white">
-            <td className="px-4 py-3 font-semibold text-primary-600">
+            <td className="whitespace-nowrap px-4 py-3 font-semibold text-primary-600">
               {t("row3han")}
             </td>
             <td className="px-4 py-3 text-surface-700">{t("row3hanYaku")}</td>
           </tr>
           <tr className="bg-white">
-            <td className="px-4 py-3 font-semibold text-primary-600">
+            <td className="whitespace-nowrap px-4 py-3 font-semibold text-primary-600">
               {t("row6han")}
             </td>
             <td className="px-4 py-3 text-surface-700">{t("row6hanYaku")}</td>
           </tr>
           <tr className="bg-white">
-            <td className="px-4 py-3 font-semibold text-primary-600">
+            <td className="whitespace-nowrap px-4 py-3 font-semibold text-primary-600">
               {t("rowYakuman")}
             </td>
             <td className="px-4 py-3 text-surface-700">
@@ -79,12 +79,9 @@ export async function YakuGuide() {
 
         <Link
           href="/reference/yaku"
-          className="press-sm group flex items-center gap-3 rounded-xl border-3 border-ink bg-white p-5 shadow-sm hover:bg-primary-50"
+          className={`block text-center text-sm font-medium ${TEXT_LINK_CLASSES}`}
         >
-          <span className="flex-1 font-medium text-surface-900 transition-colors group-hover:text-primary-700">
-            {t("referenceLink")}
-          </span>
-          <ChevronRightIcon className="size-5 shrink-0 text-surface-400" />
+          {t("referenceLink")}
         </Link>
       </section>
     </div>
