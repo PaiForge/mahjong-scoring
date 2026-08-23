@@ -11,15 +11,18 @@ import {
  * 非表示設定中の案内
  * ランキング非表示の案内
  *
- * 自分でランキング非表示にしている間は自分の順位行が出ない。黙って消えると
+ * 自分でランキング非表示にしている間は自分の順位が出ない。黙って消えると
  * 「記録できていない」と読めてしまうため、設定によるものだと明示して
  * 設定ページへ戻す。
+ *
+ * 一覧と詳細の両方から使うため、周りとの区切り（枠線・余白）は置き場所を
+ * 知っている呼び出し側に任せる。
  */
 export async function ViewerHiddenNote() {
   const t = await getTranslations("leaderboard");
 
   return (
-    <div className="mt-2 border-t-2 border-surface-200 pt-3 text-center text-sm text-surface-500">
+    <div className="text-center text-sm text-surface-500">
       <p>{t("viewerHidden")}</p>
       <Link
         href={preferencesHref(PREFERENCE_ANCHORS.leaderboardVisibility)}

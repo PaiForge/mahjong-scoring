@@ -51,7 +51,11 @@ export async function LeaderboardTable({
         </table>
       </div>
 
-      {viewerHidden ? <ViewerHiddenNote /> : undefined}
+      {viewerHidden ? (
+        <div className="mt-2 border-t-2 border-surface-200 pt-3">
+          <ViewerHiddenNote />
+        </div>
+      ) : undefined}
       {currentUserRank ? (
         <CurrentUserRankRow row={currentUserRank} />
       ) : undefined}
