@@ -1,6 +1,10 @@
 "use client";
 
 import { useTranslations } from "next-intl";
+import {
+  SettingsCard,
+  SettingToggleRow,
+} from "@/app/(user)/_components/setting-toggle-row";
 import { useRuleSettingsStore } from "@/app/_hooks/use-rule-settings-store";
 import { PREFERENCE_ANCHORS } from "../_lib/anchors";
 
@@ -16,40 +20,15 @@ export function RuleSettingsSection() {
   const setRenfonpaiAs4Fu = useRuleSettingsStore((s) => s.setRenfonpaiAs4Fu);
 
   return (
-    <div className="overflow-hidden rounded-lg border-3 border-ink bg-white">
-      {/* 教本などから `/preferences#renfonpai` で直接飛んで来られる。
-          scroll-mt-* は着地時に項目が画面上端へ張り付かないための余白、
-          target: は「どれが目当ての項目か」を着地後も示すための下地。 */}
-      <div
+    <SettingsCard>
+      {/* 教本などから `/preferences#renfonpai` で直接飛んで来られる */}
+      <SettingToggleRow
         id={PREFERENCE_ANCHORS.renfonpai}
-        className="group flex scroll-mt-24 items-center justify-between px-5 py-4 target:bg-primary-50"
-      >
-        <span className="pr-4">
-          <span className="block text-sm font-medium text-surface-900">
-            {t("renfonpaiTitle")}
-          </span>
-          {/* 説明文は句読点で折り返す。辞書側の改行をそのまま出すため
-              whitespace-pre-line を当てる。 */}
-          <span className="mt-0.5 block whitespace-pre-line text-xs text-surface-500">
-            {t("renfonpaiDescription")}
-          </span>
-        </span>
-        <label className="relative inline-flex flex-shrink-0 cursor-pointer items-center">
-          <input
-            type="checkbox"
-            checked={renfonpaiAs4Fu}
-            onChange={(e) => setRenfonpaiAs4Fu(e.target.checked)}
-            className="peer sr-only"
-            aria-label={t("renfonpaiTitle")}
-          />
-          <div className="h-6 w-11 flex-shrink-0 rounded-full border-2 border-transparent bg-surface-200 transition-colors duration-200 ease-in-out peer-focus:ring-2 peer-focus:ring-primary-500 peer-focus:ring-offset-2 peer-checked:bg-primary-500" />
-          <span
-            className={`pointer-events-none absolute left-[2px] top-[2px] block h-5 w-5 rounded-full bg-white shadow ring-0 transition-transform duration-200 ease-in-out ${
-              renfonpaiAs4Fu ? "translate-x-[20px]" : "translate-x-0"
-            }`}
-          />
-        </label>
-      </div>
-    </div>
+        title={t("renfonpaiTitle")}
+        description={t("renfonpaiDescription")}
+        checked={renfonpaiAs4Fu}
+        onChange={setRenfonpaiAs4Fu}
+      />
+    </SettingsCard>
   );
 }

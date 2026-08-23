@@ -17,6 +17,8 @@ interface LeaderboardDetailContentProps {
   readonly data: LeaderboardResult;
   readonly currentPage: number;
   readonly period: LeaderboardPeriod;
+  /** 閲覧者が自分でランキング非表示にしているか */
+  readonly viewerHidden: boolean;
 }
 
 /**
@@ -29,6 +31,7 @@ export async function LeaderboardDetailContent({
   data,
   currentPage,
   period,
+  viewerHidden,
 }: LeaderboardDetailContentProps) {
   const t = await getTranslations("leaderboard");
 
@@ -51,6 +54,7 @@ export async function LeaderboardDetailContent({
           rows={data.rows}
           currentUserId={currentUserId}
           currentUserRank={data.currentUserRank}
+          viewerHidden={viewerHidden}
         />
         <LeaderboardPagination
           currentPage={currentPage}

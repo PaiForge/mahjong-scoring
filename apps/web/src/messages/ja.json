@@ -27,6 +27,10 @@
     "rulesSectionTitle": "麻雀ルール",
     "renfonpaiTitle": "連風牌の雀頭を4符にする",
     "renfonpaiDescription": "場風と自風が同じ風牌（連風牌）の雀頭を、\n場風2符＋自風2符として4符で計算します。\nオフのときは通常の役牌と同じく2符です。",
+    "privacySectionTitle": "プライバシー",
+    "leaderboardVisibilityTitle": "ランキングに表示しない",
+    "leaderboardVisibilityDescription": "オンにすると、ランキングにあなたの名前と成績が表示されなくなります。\n成績の記録は残るので、オフに戻せば順位も元どおりです。",
+    "leaderboardVisibilityFailedToast": "設定を保存できませんでした。しばらくしてからもう一度お試しください。",
     "membersGate": {
       "title": "設定は会員限定の機能です",
       "description": "無料登録すると、麻雀のローカルルールを自分好みにカスタマイズできます。",
@@ -1319,6 +1323,8 @@
     },
     "emptyState": "まだスコアが記録されていません。最初の記録を作りましょう！",
     "yourRank": "あなた",
+    "viewerHidden": "ランキングに表示しない設定のため、あなたの順位は出ていません。",
+    "viewerHiddenLink": "設定を変更する",
     "pagination": {
       "label": "ランキングページ送り",
       "previous": "前へ",

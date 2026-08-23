@@ -80,6 +80,7 @@ export const IP_RATE_LIMITS = {
   deleteAccount: { maxRequests: 5, windowMs: 300_000 },
   uploadAvatar: { maxRequests: 5, windowMs: 600_000 },
   updateProfile: { maxRequests: 10, windowMs: 600_000 },
+  updateLeaderboardVisibility: { maxRequests: 20, windowMs: 600_000 },
 } as const;
 
 /**

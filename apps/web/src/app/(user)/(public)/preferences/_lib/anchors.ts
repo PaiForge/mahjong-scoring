@@ -8,6 +8,8 @@
 export const PREFERENCE_ANCHORS = {
   /** 連風牌（場風＝自風）の雀頭を4符にするか */
   renfonpai: "renfonpai",
+  /** ランキングに自分を表示しないか */
+  leaderboardVisibility: "leaderboard-visibility",
 } as const;
 
 export type PreferenceAnchor =
