@@ -3,13 +3,24 @@
 import type { HaiKindId } from "@mahjong-scoring/core";
 import { Hai } from "@pai-forge/mahjong-react-ui";
 
+/** 注釈の意味づけと色の対応表 */
+const ANNOTATION_TONE_CLASS = {
+  /** 正しい計算結果 */
+  result: "text-primary-600",
+  /** 間違えやすく、注意を促したい結果 */
+  caution: "text-amber-600",
+} as const;
+
+/** 注釈の意味づけ */
+type AnnotationTone = keyof typeof ANNOTATION_TONE_CLASS;
+
 interface TehaiFuExampleProps {
   readonly tiles: readonly HaiKindId[];
   readonly agariHai?: HaiKindId;
   readonly rotatedIndex?: number;
   readonly label: string;
   readonly annotation?: string;
-  readonly annotationColor?: "primary" | "amber";
+  readonly annotationTone?: AnnotationTone;
 }
 
 export function TehaiFuExample({
@@ -18,11 +29,8 @@ export function TehaiFuExample({
   rotatedIndex,
   label,
   annotation,
-  annotationColor = "primary",
+  annotationTone = "result",
 }: TehaiFuExampleProps) {
-  const colorClass =
-    annotationColor === "amber" ? "text-amber-600" : "text-primary-600";
-
   return (
     <div className="flex flex-col gap-2">
       <div className="flex items-center gap-2">
@@ -38,10 +46,13 @@ export function TehaiFuExample({
           </>
         )}
       </div>
-      <div className="text-sm">
+      {/* 狭い画面では説明と結論の間で折り返す（結論の途中で切らない） */}
+      <div className="flex flex-wrap gap-x-2 gap-y-0.5 text-sm">
         <span className="text-surface-600">{label}</span>
         {annotation != null && (
-          <span className={`ml-2 font-semibold ${colorClass}`}>
+          <span
+            className={`font-semibold ${ANNOTATION_TONE_CLASS[annotationTone]}`}
+          >
             {annotation}
           </span>
         )}

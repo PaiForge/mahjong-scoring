@@ -1,5 +1,6 @@
 import { getTranslations } from "next-intl/server";
 import { HaiKind } from "@mahjong-scoring/core";
+import { Divider } from "@/app/(user)/_components/divider";
 import { SectionTitle } from "@/app/(user)/_components/section-title";
 import { ExampleCard } from "../../_components/example-card";
 import { GuideParagraph } from "../../_components/guide-paragraph";
@@ -37,9 +38,9 @@ export async function TehaiFuGuide() {
             agariHai={HaiKind.SouZu3}
             label={t("ronKoutsuExampleRon")}
             annotation={t("ronKoutsuExampleRonAnnotation")}
-            annotationColor="amber"
+            annotationTone="caution"
           />
-          <hr className="border-surface-100" />
+          <Divider />
           <TehaiFuExample
             tiles={[HaiKind.SouZu3, HaiKind.SouZu3, HaiKind.Haku, HaiKind.Haku]}
             agariHai={HaiKind.SouZu3}
@@ -69,7 +70,7 @@ export async function TehaiFuGuide() {
             tiles={[HaiKind.Sha, HaiKind.Sha, HaiKind.Sha]}
             label={t("kazeExampleOtakaze")}
             annotation={t("kazeExampleOtakazeAnnotation")}
-            annotationColor="amber"
+            annotationTone="caution"
           />
         </ExampleCard>
       </section>
