@@ -88,6 +88,8 @@ packages/eslint-config/ — 共通 ESLint 設定（PaiForge コーディング�
 - `PageTitleSkeleton` — 見出しのプレースホルダ帯。`PageTitle` / `AdminPageTitle` の子として置く
 - `SectionTitleSkeleton` — 見出しのプレースホルダ pill。矩形で代用せずこれを使う（`SectionTitle` 自身を描画するため実物と高さ・形が一致する）
 - `icons/OutlineIcon` — 線画アイコンの svg 外殻。新しい線画アイコンはこれを使う
+- `HighlightPanel` — 地の文から浮かせて読ませる琥珀色の囲み（教本のコラム・計算手順・注意書き）。`border-amber-500 bg-amber-50/60` の一式をページ側で直接書かない
+- `SettingsCard` / `SettingToggleRow` — 設定ページの項目カードとトグル行。設定項目を足すときに `<input type="checkbox">` とスイッチの markup を書き起こさない
 
 ### ボタン（`apps/web/src/app/(user)/_components/`）
 

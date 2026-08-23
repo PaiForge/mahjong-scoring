@@ -2,6 +2,7 @@ import { getTranslations } from "next-intl/server";
 import { SectionTitle } from "@/app/(user)/_components/section-title";
 import { GuideParagraph } from "../../_components/guide-paragraph";
 import { BlockMath, InlineMath } from "../../_components/math";
+import { HighlightPanel } from "@/app/(user)/_components/highlight-panel";
 
 /**
  * 点数計算が複雑な理由 — 公式に基づく計算方法を例に解説するガイドコンポーネント
@@ -24,7 +25,7 @@ export async function WhyScoringIsComplexGuide() {
         <GuideParagraph preLine>{t("exampleIntro")}</GuideParagraph>
 
         {/* 計算手順 */}
-        <aside className="rounded-xl border-3 border-amber-500 bg-amber-50/60 p-5">
+        <HighlightPanel>
           <ol className="list-decimal space-y-1 pl-6 text-sm leading-relaxed text-surface-700">
             <li>
               {t("step1Prefix")}
@@ -49,7 +50,7 @@ export async function WhyScoringIsComplexGuide() {
           <BlockMath
             latex={String.raw`\begin{aligned} & 30 \times 2^{(3+2)} \times 4 \\ &= 30 \times 32 \times 4 \\ &= 960 \times 4 \\ &= 3840 \xrightarrow{\text{切り上げ}} 3900 \end{aligned}`}
           />
-        </aside>
+        </HighlightPanel>
 
         <GuideParagraph preLine>{t("calculatorNote")}</GuideParagraph>
         <GuideParagraph preLine>{t("memorizeNote")}</GuideParagraph>
