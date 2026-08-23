@@ -1,13 +1,27 @@
 import { getTranslations } from "next-intl/server";
 import { HaiKind } from "@mahjong-scoring/core";
 import { SectionTitle } from "@/app/(user)/_components/section-title";
-import { ExampleCard } from "../../_components/example-card";
+import { ExampleTable } from "../../_components/example-table";
 import { FuSummaryTable } from "../../_components/fu-summary-table";
 import { GuideParagraph } from "../../_components/guide-paragraph";
-import { MentsuExample } from "./mentsu-example";
+import { TileSet } from "../../_components/tile-set";
+
+/** 暗槓は両端の牌を裏向きに描画する */
+const CLOSED_KANTSU_FACE_DOWN = [0, 3];
 
 export async function MentsuFuGuide() {
-  const t = await getTranslations("mentsuFu.learn");
+  const [t, tTable] = await Promise.all([
+    getTranslations("mentsuFu.learn"),
+    getTranslations("learnCurriculum.exampleTable"),
+  ]);
+
+  const formatFu = (value: number) => t("fuUnit", { value });
+  const tableColumns = {
+    colTiles: tTable("colTiles"),
+    colKind: tTable("colKind"),
+    colFu: tTable("colFu"),
+    formatFu,
+  };
 
   return (
     <div className="space-y-10">
@@ -21,90 +35,140 @@ export async function MentsuFuGuide() {
       <section className="space-y-4">
         <SectionTitle>{t("shuntsuTitle")}</SectionTitle>
         <GuideParagraph>{t("shuntsuBody")}</GuideParagraph>
-        <ExampleCard>
-          <MentsuExample
-            tiles={[HaiKind.ManZu2, HaiKind.ManZu3, HaiKind.ManZu4]}
-            fu={0}
-            label={t("shuntsuLabel")}
-          />
-        </ExampleCard>
+
+        <ExampleTable
+          title={t("shuntsuExamples")}
+          {...tableColumns}
+          rows={[
+            {
+              tiles: (
+                <TileSet
+                  tiles={[HaiKind.ManZu2, HaiKind.ManZu3, HaiKind.ManZu4]}
+                />
+              ),
+              label: t("shuntsuLabel"),
+              fu: 0,
+            },
+          ]}
+        />
       </section>
 
       {/* Koutsu: 2-8 fu */}
       <section className="space-y-4">
         <SectionTitle>{t("koutsuTitle")}</SectionTitle>
         <GuideParagraph>{t("koutsuBody")}</GuideParagraph>
-        <ExampleCard>
-          <MentsuExample
-            tiles={[HaiKind.ManZu5, HaiKind.ManZu5, HaiKind.ManZu5]}
-            fu={2}
-            label={t("koutsuOpenSimpleLabel")}
-            isOpen
-          />
-          <MentsuExample
-            tiles={[HaiKind.PinZu3, HaiKind.PinZu3, HaiKind.PinZu3]}
-            fu={4}
-            label={t("koutsuClosedSimpleLabel")}
-          />
-          <MentsuExample
-            tiles={[HaiKind.Haku, HaiKind.Haku, HaiKind.Haku]}
-            fu={4}
-            label={t("koutsuOpenYaochuLabel")}
-            isOpen
-          />
-          <MentsuExample
-            tiles={[HaiKind.ManZu1, HaiKind.ManZu1, HaiKind.ManZu1]}
-            fu={8}
-            label={t("koutsuClosedYaochuLabel")}
-          />
-        </ExampleCard>
+
+        <ExampleTable
+          title={t("koutsuExamples")}
+          {...tableColumns}
+          rows={[
+            {
+              tiles: (
+                <TileSet
+                  tiles={[HaiKind.ManZu5, HaiKind.ManZu5, HaiKind.ManZu5]}
+                />
+              ),
+              label: t("koutsuOpenSimpleLabel"),
+              fu: 2,
+            },
+            {
+              tiles: (
+                <TileSet
+                  tiles={[HaiKind.PinZu3, HaiKind.PinZu3, HaiKind.PinZu3]}
+                />
+              ),
+              label: t("koutsuClosedSimpleLabel"),
+              fu: 4,
+            },
+            {
+              tiles: (
+                <TileSet tiles={[HaiKind.Haku, HaiKind.Haku, HaiKind.Haku]} />
+              ),
+              label: t("koutsuOpenYaochuLabel"),
+              fu: 4,
+            },
+            {
+              tiles: (
+                <TileSet
+                  tiles={[HaiKind.ManZu1, HaiKind.ManZu1, HaiKind.ManZu1]}
+                />
+              ),
+              label: t("koutsuClosedYaochuLabel"),
+              fu: 8,
+            },
+          ]}
+        />
       </section>
 
       {/* Kantsu: 8-32 fu */}
       <section className="space-y-4">
         <SectionTitle>{t("kantsuTitle")}</SectionTitle>
         <GuideParagraph>{t("kantsuBody")}</GuideParagraph>
-        <ExampleCard>
-          <MentsuExample
-            tiles={[
-              HaiKind.SouZu5,
-              HaiKind.SouZu5,
-              HaiKind.SouZu5,
-              HaiKind.SouZu5,
-            ]}
-            fu={8}
-            label={t("kantsuOpenSimpleLabel")}
-            isOpen
-          />
-          <MentsuExample
-            tiles={[
-              HaiKind.PinZu7,
-              HaiKind.PinZu7,
-              HaiKind.PinZu7,
-              HaiKind.PinZu7,
-            ]}
-            fu={16}
-            label={t("kantsuClosedSimpleLabel")}
-            isKantsu
-          />
-          <MentsuExample
-            tiles={[HaiKind.Chun, HaiKind.Chun, HaiKind.Chun, HaiKind.Chun]}
-            fu={16}
-            label={t("kantsuOpenYaochuLabel")}
-            isOpen
-          />
-          <MentsuExample
-            tiles={[
-              HaiKind.PinZu9,
-              HaiKind.PinZu9,
-              HaiKind.PinZu9,
-              HaiKind.PinZu9,
-            ]}
-            fu={32}
-            label={t("kantsuClosedYaochuLabel")}
-            isKantsu
-          />
-        </ExampleCard>
+
+        <ExampleTable
+          title={t("kantsuExamples")}
+          {...tableColumns}
+          rows={[
+            {
+              tiles: (
+                <TileSet
+                  tiles={[
+                    HaiKind.SouZu5,
+                    HaiKind.SouZu5,
+                    HaiKind.SouZu5,
+                    HaiKind.SouZu5,
+                  ]}
+                />
+              ),
+              label: t("kantsuOpenSimpleLabel"),
+              fu: 8,
+            },
+            {
+              tiles: (
+                <TileSet
+                  tiles={[
+                    HaiKind.PinZu7,
+                    HaiKind.PinZu7,
+                    HaiKind.PinZu7,
+                    HaiKind.PinZu7,
+                  ]}
+                  faceDownIndexes={CLOSED_KANTSU_FACE_DOWN}
+                />
+              ),
+              label: t("kantsuClosedSimpleLabel"),
+              fu: 16,
+            },
+            {
+              tiles: (
+                <TileSet
+                  tiles={[
+                    HaiKind.Chun,
+                    HaiKind.Chun,
+                    HaiKind.Chun,
+                    HaiKind.Chun,
+                  ]}
+                />
+              ),
+              label: t("kantsuOpenYaochuLabel"),
+              fu: 16,
+            },
+            {
+              tiles: (
+                <TileSet
+                  tiles={[
+                    HaiKind.PinZu9,
+                    HaiKind.PinZu9,
+                    HaiKind.PinZu9,
+                    HaiKind.PinZu9,
+                  ]}
+                  faceDownIndexes={CLOSED_KANTSU_FACE_DOWN}
+                />
+              ),
+              label: t("kantsuClosedYaochuLabel"),
+              fu: 32,
+            },
+          ]}
+        />
       </section>
 
       {/* Summary table */}
@@ -112,7 +176,7 @@ export async function MentsuFuGuide() {
         title={t("summaryTitle")}
         colType={t("colType")}
         colFu={t("colFu")}
-        formatFu={(value) => t("fuUnit", { value })}
+        formatFu={formatFu}
         rows={[
           { label: t("rowShuntsu"), fu: 0 },
           { label: t("rowOpenSimpleKoutsu"), fu: 2 },
