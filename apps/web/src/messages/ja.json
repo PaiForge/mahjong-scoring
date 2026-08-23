@@ -559,16 +559,8 @@
       "summaryTitle": "翻数別の役まとめ",
       "colHan": "翻数",
       "colYakuList": "役",
-      "row1han": "1翻",
-      "row1hanYaku": "立直, 門前清自摸和, 断么九, 平和, 一盃口, 役牌",
-      "row2han": "2翻",
-      "row2hanYaku": "三色同順, 一気通貫, 混全帯么九, 七対子, 対々和, 三暗刻, 三色同刻, 三槓子, 小三元, 混老頭",
-      "row3han": "3翻",
-      "row3hanYaku": "混一色, 純全帯么九, 二盃口",
-      "row6han": "6翻",
-      "row6hanYaku": "清一色",
-      "rowYakuman": "役満",
-      "rowYakumanYaku": "国士無双, 四暗刻, 大三元, 小四喜, 大四喜, 字一色, 清老頭, 緑一色, 九蓮宝燈, 四槓子"
+      "hanUnit": "{count}翻",
+      "yakuman": "役満"
     }
   },
   "reference": {
