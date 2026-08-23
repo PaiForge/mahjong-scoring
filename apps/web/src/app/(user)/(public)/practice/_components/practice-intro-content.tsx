@@ -90,7 +90,6 @@ export async function PracticeIntroContent({
             href={`/practice/${slug}/play${PRACTICE_SCROLL_HASH}`}
             size="lg"
             fullWidth
-            className="gap-2"
           >
             <PlayIcon className="size-4" />
             {tc("startButton")}

@@ -46,6 +46,15 @@ export interface ButtonClassOptions {
 
 const BASE = `inline-flex items-center justify-center rounded-lg font-bold ${FOCUS_RING_CLASSES}`;
 
+/**
+ * ボタンの中身（アイコン + ラベル）を包む一段のクラス。
+ *
+ * `LinkButton` は遷移待ち中に中身ごと隠してスピナーを重ねるため、
+ * アイコンとラベルの間隔は呼び出し側の `className` ではなく
+ * この一段が持つ（隠す単位と間隔の単位を一致させる）。
+ */
+export const BUTTON_CONTENT_CLASSES = "inline-flex items-center gap-2";
+
 const SIZE_CLASSES: Record<ButtonSize, string> = {
   sm: "border-3 px-4 py-2 text-sm",
   md: "border-3 px-6 py-2.5 text-sm",

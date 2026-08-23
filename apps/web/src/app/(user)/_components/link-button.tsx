@@ -2,11 +2,12 @@ import type { ComponentProps, ReactNode } from "react";
 import Link from "next/link";
 
 import {
+  BUTTON_CONTENT_CLASSES,
   buttonClasses,
   type ButtonSize,
   type ButtonVariant,
 } from "./_lib/button-classes";
-import { LinkPending } from "./link-pending";
+import { LinkPending, LinkPendingOverlay } from "./link-pending";
 
 interface LinkButtonProps extends ComponentProps<typeof Link> {
   readonly variant?: ButtonVariant;
@@ -16,6 +17,8 @@ interface LinkButtonProps extends ComponentProps<typeof Link> {
   /**
    * ラベルの右端に置くアイコン（チェブロン等）。
    * 遷移待ち中はこのスロット自体がスピナーへ差し替わる。
+   *
+   * 指定しない場合、遷移待ち中は中身を隠してボタン中央にスピナーを出す。
    */
   readonly trailingIcon?: ReactNode;
   /**
@@ -31,7 +34,11 @@ interface LinkButtonProps extends ComponentProps<typeof Link> {
  * リンクのボタン
  *
  * 見た目は `Button` と共通（`buttonClasses`）で、要素だけが `next/link`。
- * クリック後の遷移待ち中はラベル右にスピナーを表示する。
+ * クリック後の遷移待ち中はボタン中央にスピナーを表示する
+ * （`trailingIcon` があるときはそのスロットを差し替える）。
+ *
+ * アイコン + ラベルの間隔はコンポーネント側が持つため、
+ * 呼び出し側の `className` に `gap-*` を書かない。
  */
 export function LinkButton({
   variant,
@@ -49,7 +56,7 @@ export function LinkButton({
   if (disabled) {
     return (
       <span aria-disabled="true" className={classes}>
-        {children}
+        <span className={BUTTON_CONTENT_CLASSES}>{children}</span>
         {trailingIcon ? (
           <span className="flex size-5 shrink-0 items-center justify-center">
             {trailingIcon}
@@ -59,17 +66,21 @@ export function LinkButton({
     );
   }
 
-  return (
-    <Link className={classes} {...props}>
-      {children}
-      {trailingIcon ? (
+  if (trailingIcon) {
+    return (
+      <Link className={classes} {...props}>
+        {children}
         <span className="flex size-5 shrink-0 items-center justify-center">
           {/* スピナーの色は border-current 経由でボタンの文字色を継ぐ */}
           <LinkPending spinnerClassName="size-4">{trailingIcon}</LinkPending>
         </span>
-      ) : (
-        <LinkPending spinnerClassName="ml-2 size-4" />
-      )}
+      </Link>
+    );
+  }
+
+  return (
+    <Link className={`relative ${classes}`} {...props}>
+      <LinkPendingOverlay>{children}</LinkPendingOverlay>
     </Link>
   );
 }

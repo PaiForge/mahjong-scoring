@@ -170,7 +170,7 @@ export default async function LeaderboardDetailPage({
       </Suspense>
 
       <div className="pt-4 border-t-2 border-dashed border-border/40">
-        <LinkButton href={challengePath} fullWidth className="gap-2">
+        <LinkButton href={challengePath} fullWidth>
           <PlayIcon className="size-4" />
           {t("tryChallenge")}
         </LinkButton>
