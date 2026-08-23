@@ -113,8 +113,6 @@ export default async function ReferenceYakuPage() {
     >
       <PageTitle>{t("title")}</PageTitle>
 
-      <p className="mb-6 text-sm text-surface-500">{t("nakiNote")}</p>
-
       <div className="space-y-8">
         {groups.map((group) => (
           <section key={group.han} className="space-y-3">
@@ -138,6 +136,8 @@ export default async function ReferenceYakuPage() {
           </section>
         ))}
       </div>
+
+      <p className="mt-6 text-sm text-surface-500">{t("nakiNote")}</p>
     </ContentContainer>
   );
 }
