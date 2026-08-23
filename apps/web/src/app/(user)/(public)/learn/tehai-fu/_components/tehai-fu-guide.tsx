@@ -14,7 +14,7 @@ export async function TehaiFuGuide() {
   return (
     <section className="space-y-4">
       <SectionTitle>{t("commonMistakesTitle")}</SectionTitle>
-      <GuideParagraph>{t("commonMistakesLead")}</GuideParagraph>
+      <GuideParagraph preLine>{t("commonMistakesLead")}</GuideParagraph>
       <GuideOrderedList>
         <li>{t("tsumoFuTitle")}</li>
         <li>{t("ronKoutsuTitle")}</li>
@@ -27,8 +27,8 @@ export async function TehaiFuGuide() {
           <GuideSubsectionTitle number={1}>
             {t("tsumoFuTitle")}
           </GuideSubsectionTitle>
-          <GuideParagraph>{t("tsumoFuBody1")}</GuideParagraph>
-          <GuideParagraph>{t("tsumoFuBody2")}</GuideParagraph>
+          <GuideParagraph preLine>{t("tsumoFuBody1")}</GuideParagraph>
+          <GuideParagraph preLine>{t("tsumoFuBody2")}</GuideParagraph>
           <ExampleCard>
             <TehaiFuExample
               tiles={[HaiKind.PinZu2, HaiKind.PinZu3, HaiKind.PinZu4]}
@@ -45,8 +45,8 @@ export async function TehaiFuGuide() {
           <GuideSubsectionTitle number={2}>
             {t("ronKoutsuTitle")}
           </GuideSubsectionTitle>
-          <GuideParagraph>{t("ronKoutsuBody1")}</GuideParagraph>
-          <GuideParagraph>{t("ronKoutsuBody2")}</GuideParagraph>
+          <GuideParagraph preLine>{t("ronKoutsuBody1")}</GuideParagraph>
+          <GuideParagraph preLine>{t("ronKoutsuBody2")}</GuideParagraph>
           <ExampleCard spacing="space-y-4">
             <TehaiFuExample
               tiles={[
@@ -80,8 +80,8 @@ export async function TehaiFuGuide() {
           <GuideSubsectionTitle number={3}>
             {t("kazeTitle")}
           </GuideSubsectionTitle>
-          <GuideParagraph>{t("kazeBody1")}</GuideParagraph>
-          <GuideParagraph>{t("kazeBody2")}</GuideParagraph>
+          <GuideParagraph preLine>{t("kazeBody1")}</GuideParagraph>
+          <GuideParagraph preLine>{t("kazeBody2")}</GuideParagraph>
           <ExampleCard>
             <TehaiFuExample
               tiles={[HaiKind.Ton, HaiKind.Ton, HaiKind.Ton]}
