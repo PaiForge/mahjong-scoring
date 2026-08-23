@@ -24,6 +24,8 @@ export interface ManganTableColumn {
 
 interface ManganTableShellProps {
   readonly columns: readonly ManganTableColumn[];
+  /** 翻数列を表示するか（既定: 表示する） */
+  readonly showHan?: boolean;
   /**
    * 種類・翻数に続くセルの内容（columns と同じ順・同じ数）
    *
@@ -46,6 +48,7 @@ interface ManganTableShellProps {
  */
 export async function ManganTableShell({
   columns,
+  showHan = true,
   renderCells,
 }: ManganTableShellProps) {
   const t = await getTranslations("manganScoreTable");
@@ -56,7 +59,11 @@ export async function ManganTableShell({
       header={
         <>
           <DataTableHeaderCell align="left">{t("colType")}</DataTableHeaderCell>
-          <DataTableHeaderCell align="right">{t("colHan")}</DataTableHeaderCell>
+          {showHan && (
+            <DataTableHeaderCell align="right">
+              {t("colHan")}
+            </DataTableHeaderCell>
+          )}
           {columns.map((column) => (
             <DataTableHeaderCell key={column.headerKey} align={column.align}>
               {t(column.headerKey)}
@@ -70,9 +77,11 @@ export async function ManganTableShell({
           <td className="px-4 py-3 font-medium text-surface-900">
             {tScore(row.nameKey)}
           </td>
-          <td className="px-4 py-3 text-right text-surface-600">
-            {HAN_DISPLAY[row.nameKey]}
-          </td>
+          {showHan && (
+            <td className="px-4 py-3 text-right text-surface-600">
+              {HAN_DISPLAY[row.nameKey]}
+            </td>
+          )}
           {renderCells(row, t).map((cell, index) => {
             const column = columns[index];
             return (
