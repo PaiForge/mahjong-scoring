@@ -6,6 +6,7 @@ import { FuChoiceGrid } from "../../_components/fu-choice-grid";
 import { useFuChoiceBoard } from "../../_hooks/use-fu-choice-board";
 import { MACHI_FU_OPTIONS } from "../_lib/fu-options";
 import { MachiFuPrompt } from "./machi-fu-prompt";
+import { QuestionGeneratingPlaceholder } from "../../_components/question-generating-placeholder";
 import { QuestionPrompt } from "../../_components/question-prompt";
 import type { PracticeBoardProps } from "../../_lib/practice-board-props";
 
@@ -28,6 +29,10 @@ export function MachiFuBoard({
     showFeedback,
     onAnswer,
   });
+
+  if (!question) {
+    return <QuestionGeneratingPlaceholder label={t("generating")} />;
+  }
 
   return (
     <div className="mt-6 space-y-5">

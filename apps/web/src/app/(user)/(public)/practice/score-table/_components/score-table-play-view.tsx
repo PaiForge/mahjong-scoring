@@ -25,6 +25,10 @@ function ScoreTableBoardFromQuery({
   const generatorOptions = useScoreTableGeneratorOptions();
   const { question, advance } = useScoreTableQuestion(generatorOptions);
 
+  if (!question) {
+    return <ScoreTableGeneratingPlaceholder />;
+  }
+
   return (
     <ScoreTableBoard
       question={question}

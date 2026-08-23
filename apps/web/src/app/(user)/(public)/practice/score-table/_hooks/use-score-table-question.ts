@@ -1,11 +1,12 @@
 "use client";
 
-import { useCallback, useState } from "react";
+import { useCallback } from "react";
 import { generateScoreTableQuestion } from "@mahjong-scoring/core";
 import type {
   ScoreTableGeneratorOptions,
   ScoreTableQuestion,
 } from "@mahjong-scoring/core";
+import { useClientGeneratedQuestion } from "../../_hooks/use-client-generated-question";
 
 /**
  * 2問の表示内容（親子・ツモロン・翻・符）が同一かを判定する
@@ -28,7 +29,8 @@ function isSameDisplayedQuestion(
  * 点数表出題状態
  *
  * 現在の問題と「次の問題へ進む」操作を提供する。スキップ・回答後の遷移の
- * いずれもこの `advance` を呼ぶ。
+ * いずれもこの `advance` を呼ぶ。最初の問題はクライアントで生成するため、
+ * マウントまでは `question` が undefined になる。
  *
  * 直前と表示が同一の問題が連続すると、スキップや次問題への遷移で「反応がない」
  * ように見える（特に親子・ツモロン・点数帯を絞ったトレーニングでは表示差が翻数
@@ -39,20 +41,26 @@ function isSameDisplayedQuestion(
  */
 export function useScoreTableQuestion(
   generatorOptions?: ScoreTableGeneratorOptions,
-): { question: ScoreTableQuestion; advance: () => void } {
-  const [question, setQuestion] = useState<ScoreTableQuestion>(() =>
-    generateScoreTableQuestion(generatorOptions),
+): { question: ScoreTableQuestion | undefined; advance: () => void } {
+  const generate = useCallback(
+    () => generateScoreTableQuestion(generatorOptions),
+    [generatorOptions],
   );
+  const [question, setQuestion] = useClientGeneratedQuestion(generate);
 
   const advance = useCallback(() => {
     setQuestion((prev) => {
-      let next = generateScoreTableQuestion(generatorOptions);
-      for (let i = 0; i < 20 && isSameDisplayedQuestion(prev, next); i++) {
-        next = generateScoreTableQuestion(generatorOptions);
+      let next = generate();
+      for (
+        let i = 0;
+        prev !== undefined && i < 20 && isSameDisplayedQuestion(prev, next);
+        i++
+      ) {
+        next = generate();
       }
       return next;
     });
-  }, [generatorOptions]);
+  }, [generate, setQuestion]);
 
   return { question, advance };
 }

@@ -38,15 +38,19 @@ function ScoreTableTrainingViewInner() {
       totalCount={totalCount}
       exitHref={EXIT_HREF}
       onSkip={advance}
-      skipDisabled={showFeedback}
+      skipDisabled={showFeedback || question === undefined}
     >
-      <ScoreTableBoard
-        question={question}
-        onAdvance={advance}
-        showFeedback={showFeedback}
-        lastAnswerCorrect={lastAnswerCorrect}
-        onAnswer={handleAnswer}
-      />
+      {question === undefined ? (
+        <ScoreTableGeneratingPlaceholder />
+      ) : (
+        <ScoreTableBoard
+          question={question}
+          onAdvance={advance}
+          showFeedback={showFeedback}
+          lastAnswerCorrect={lastAnswerCorrect}
+          onAnswer={handleAnswer}
+        />
+      )}
     </TrainingShell>
   );
 }

@@ -13,6 +13,7 @@ import { toQuestionResult } from "../_lib/types";
 import type { TotalFuQuestionResult } from "../_lib/types";
 import { FuChoiceGrid } from "../../_components/fu-choice-grid";
 import { QuestionGeneratingPlaceholder } from "../../_components/question-generating-placeholder";
+import { useClientGeneratedQuestion } from "../../_hooks/use-client-generated-question";
 import { TehaiDisplay } from "../../_components/tehai-display";
 import { FuBreakdown } from "./fu-breakdown";
 import { QuestionPrompt } from "../../_components/question-prompt";
@@ -57,15 +58,17 @@ export function TotalFuBoard({
 }: TotalFuBoardProps) {
   const t = useTranslations("totalFu");
   const renfonpaiAs4Fu = useRuleSettingsStore((s) => s.renfonpaiAs4Fu);
-  const [question, setQuestion] = useState<TotalFuQuestion | undefined>(() =>
-    generateQuestion(renfonpaiAs4Fu),
+  const generate = useCallback(
+    () => generateQuestion(renfonpaiAs4Fu),
+    [renfonpaiAs4Fu],
   );
+  const [question, setQuestion] = useClientGeneratedQuestion(generate);
   const [selectedFu, setSelectedFu] = useState<number | undefined>(undefined);
 
   const advanceQuestion = useCallback(() => {
-    setQuestion(generateQuestion(renfonpaiAs4Fu));
+    setQuestion(generate());
     setSelectedFu(undefined);
-  }, [renfonpaiAs4Fu]);
+  }, [generate, setQuestion]);
 
   const handleSelect = useCallback(
     (index: number) => {
