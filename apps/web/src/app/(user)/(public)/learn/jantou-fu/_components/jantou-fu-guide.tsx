@@ -12,6 +12,7 @@ import { GuideNote } from "../../_components/guide-note";
 import { FuSummaryTable } from "../../_components/fu-summary-table";
 import { GuideParagraph } from "../../_components/guide-paragraph";
 import { TileSet } from "../../_components/tile-set";
+import { HighlightPanel } from "@/app/(user)/_components/highlight-panel";
 
 export async function JantouFuGuide() {
   const [t, tTable] = await Promise.all([
@@ -113,7 +114,7 @@ export async function JantouFuGuide() {
       </section>
 
       {/* Column: renfonpai */}
-      <aside className="rounded-xl border-3 border-amber-500 bg-amber-50/60 p-5">
+      <HighlightPanel>
         <div className="mb-2 inline-flex items-center rounded-full bg-amber-200/70 px-2.5 py-0.5 text-xs font-semibold tracking-wide text-amber-800">
           {t("columnLabel")}
         </div>
@@ -137,7 +138,7 @@ export async function JantouFuGuide() {
             })}
           </GuideNote>
         </div>
-      </aside>
+      </HighlightPanel>
 
       {/* Summary table */}
       <FuSummaryTable

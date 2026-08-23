@@ -52,7 +52,7 @@ export async function LeaderboardTable({
       </div>
 
       {viewerHidden ? (
-        <div className="mt-2 border-t-2 border-surface-200 pt-3">
+        <div className="mt-4">
           <ViewerHiddenNote />
         </div>
       ) : undefined}
