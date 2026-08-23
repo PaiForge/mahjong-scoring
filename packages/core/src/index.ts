@@ -36,6 +36,7 @@ export { generateYakuHanQuestion } from "./problem/yaku-han/generator";
 export {
   YAKU_HAN_ENTRIES,
   YAKUMAN_HAN,
+  groupYakuHanEntriesByMenzenHan,
   DEFAULT_YAKU_HAN_RANGE,
   getYakuHanEntries,
   normalizeYakuHanRange,

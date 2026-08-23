@@ -1,6 +1,10 @@
 import { describe, it, expect } from "vitest";
 
-import { YAKU_HAN_ENTRIES, YAKUMAN_HAN } from "./constants";
+import {
+  YAKU_HAN_ENTRIES,
+  YAKUMAN_HAN,
+  groupYakuHanEntriesByMenzenHan,
+} from "./constants";
 import { YAKU_OPTION_GROUPS, YAKU_OPTIONS } from "../../core/yaku-names";
 
 /**
@@ -69,5 +73,45 @@ describe("YAKU_HAN_ENTRIES", () => {
       // 四喜和はいずれも鳴いて成立する
       expect(entry?.nakiHan).toBe(YAKUMAN_HAN);
     }
+  });
+});
+
+describe("groupYakuHanEntriesByMenzenHan", () => {
+  it("全ての役をいずれかのグループに漏れなく振り分ける", () => {
+    const groups = groupYakuHanEntriesByMenzenHan(YAKU_HAN_ENTRIES);
+    const grouped = groups.flatMap((g) => g.entries);
+
+    expect(grouped).toHaveLength(YAKU_HAN_ENTRIES.length);
+    expect(new Set(grouped.map((e) => e.name)).size).toBe(
+      YAKU_HAN_ENTRIES.length,
+    );
+  });
+
+  it("グループ内の役は全て同じ門前翻数を持つ", () => {
+    for (const group of groupYakuHanEntriesByMenzenHan(YAKU_HAN_ENTRIES)) {
+      for (const entry of group.entries) {
+        expect(entry.menzenHan, `${entry.name} のグループが不正`).toBe(
+          group.han,
+        );
+      }
+    }
+  });
+
+  it("グループは翻数の低い順（役満が最後）に並ぶ", () => {
+    const hans = groupYakuHanEntriesByMenzenHan(YAKU_HAN_ENTRIES).map(
+      (g) => g.han,
+    );
+
+    expect(hans).toEqual([...hans].sort((a, b) => a - b));
+    expect(hans.at(-1)).toBe(YAKUMAN_HAN);
+  });
+
+  it("役を絞り込んでも残った役だけでグループを作る", () => {
+    const groups = groupYakuHanEntriesByMenzenHan(
+      YAKU_HAN_ENTRIES.filter((e) => e.menzenHan === YAKUMAN_HAN),
+    );
+
+    expect(groups).toHaveLength(1);
+    expect(groups[0]?.han).toBe(YAKUMAN_HAN);
   });
 });
