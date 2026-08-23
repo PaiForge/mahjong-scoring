@@ -82,6 +82,34 @@ export type YakuHanRange = "no-kuisagari" | "kuisagari" | "all";
 /** デフォルトの出題範囲 */
 export const DEFAULT_YAKU_HAN_RANGE: YakuHanRange = "all";
 
+/**
+ * 役エントリを門前翻数ごとにグループ化する
+ * 役翻数グループ化
+ *
+ * グループの並びは YAKU_HAN_ENTRIES の出現順（翻数の低い順）に従う。
+ * 教本の翻数別まとめと役一覧（早見表）が同じ区切り・同じ並びになるよう、
+ * 表示側で個別にグループ化せずこの関数を経由させる。
+ */
+export function groupYakuHanEntriesByMenzenHan(
+  entries: readonly YakuHanEntry[],
+): readonly {
+  readonly han: number;
+  readonly entries: readonly YakuHanEntry[];
+}[] {
+  const order: number[] = [];
+  const map = new Map<number, YakuHanEntry[]>();
+  for (const entry of entries) {
+    let group = map.get(entry.menzenHan);
+    if (group === undefined) {
+      group = [];
+      map.set(entry.menzenHan, group);
+      order.push(entry.menzenHan);
+    }
+    group.push(entry);
+  }
+  return order.map((han) => ({ han, entries: map.get(han) ?? [] }));
+}
+
 /** 役満（13翻）かどうか */
 function isYakumanEntry(entry: YakuHanEntry): boolean {
   return entry.menzenHan === YAKUMAN_HAN;

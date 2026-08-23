@@ -1,8 +1,8 @@
 "use client";
 
 import type { ReactNode } from "react";
-import { useState } from "react";
 import { useTranslations } from "next-intl";
+import { AccordionCard } from "@/app/(user)/_components/accordion-card";
 
 interface ProblemListAccordionProps<T> {
   readonly results: readonly T[];
@@ -20,7 +20,8 @@ interface ProblemListAccordionProps<T> {
  * 練習共通の問題別アコーディオン一覧
  * 問題一覧アコーディオン
  *
- * 各問を折りたたみ形式で表示し、正誤アイコンとカスタマイズ可能な詳細セクションを提供する。
+ * 各問を `AccordionCard` で折りたたみ表示し、正誤アイコンとカスタマイズ可能な
+ * 詳細セクションを提供する。
  */
 export function ProblemListAccordion<T>({
   results,
@@ -30,21 +31,6 @@ export function ProblemListAccordion<T>({
   renderDetail,
 }: ProblemListAccordionProps<T>) {
   const tResult = useTranslations(`${translationNamespace}.result`);
-  const [expandedProblems, setExpandedProblems] = useState<Set<number>>(
-    new Set(),
-  );
-
-  const toggleProblem = (index: number) => {
-    setExpandedProblems((prev) => {
-      const next = new Set(prev);
-      if (next.has(index)) {
-        next.delete(index);
-      } else {
-        next.add(index);
-      }
-      return next;
-    });
-  };
 
   if (results.length === 0) return undefined;
 
@@ -55,27 +41,13 @@ export function ProblemListAccordion<T>({
       </p>
       <div className="space-y-2">
         {results.map((result, index) => {
-          const isExpanded = expandedProblems.has(index);
           const correct = isCorrect(result);
 
           return (
-            <div
+            <AccordionCard
               key={index}
-              className="overflow-hidden rounded-lg border-3 border-ink"
-            >
-              <button
-                type="button"
-                onClick={() => toggleProblem(index)}
-                className="flex w-full items-center justify-between p-3 text-left transition-colors hover:bg-surface-50"
-              >
-                <div className="flex min-w-0 items-center gap-2">
-                  <svg
-                    className={`size-3 flex-shrink-0 text-surface-400 transition-transform ${isExpanded ? "rotate-90" : ""}`}
-                    viewBox="0 0 24 24"
-                    fill="currentColor"
-                  >
-                    <path d="M8 5v14l11-7z" />
-                  </svg>
+              title={
+                <>
                   <span className="font-medium whitespace-nowrap">
                     No.{index + 1}
                   </span>
@@ -84,8 +56,10 @@ export function ProblemListAccordion<T>({
                       {renderSummary(result, index)}
                     </span>
                   )}
-                </div>
-                <div className="ml-2 flex flex-shrink-0 items-center gap-1">
+                </>
+              }
+              trailing={
+                <>
                   {correct ? (
                     <svg
                       className="size-3 text-primary-500"
@@ -108,14 +82,11 @@ export function ProblemListAccordion<T>({
                   >
                     {correct ? tResult("correct") : tResult("incorrect")}
                   </span>
-                </div>
-              </button>
-              {isExpanded && (
-                <div className="border-t-2 border-dashed border-border/40 bg-surface-50 px-3 pb-3 pt-3">
-                  {renderDetail(result, index)}
-                </div>
-              )}
-            </div>
+                </>
+              }
+            >
+              {renderDetail(result, index)}
+            </AccordionCard>
           );
         })}
       </div>

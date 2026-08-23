@@ -81,3 +81,17 @@ export const YAKU_EXAMPLES: Readonly<Record<string, readonly YakuExample[]>> = {
   緑一色: [{ mspz: "234s234s666s888s66z" }],
   四槓子: [{ mspz: "55z(1111m)(2222p)(3333s)(4444z)" }],
 };
+
+/**
+ * 役一覧（早見表）に載る役かどうか
+ * 早見表掲載判定
+ *
+ * 状況役（除外役）と例示手牌が未定義の役は載らない。教本側から
+ * 「リンクを張ってよい役か」を判定するのにも使う。
+ */
+export function hasYakuCheatsheetEntry(yakuName: string): boolean {
+  return (
+    !YAKU_CHEATSHEET_EXCLUDED.has(yakuName) &&
+    YAKU_EXAMPLES[yakuName] !== undefined
+  );
+}
