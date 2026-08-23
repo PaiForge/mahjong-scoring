@@ -7,6 +7,7 @@ import { PageTitle } from "@/app/(user)/_components/page-title";
 import { BoardOverlay } from "@/app/(user)/_components/board-overlay";
 import { PauseIcon } from "@/app/(user)/_components/icons/pause-icon";
 import { PlayIcon } from "@/app/(user)/_components/icons/play-icon";
+import { ScoreCounter } from "./score-counter";
 import type {
   GameSessionState,
   TimerControl,
@@ -77,6 +78,8 @@ interface ChallengeShellProps {
    * 結果ページとの高さのずれを防ぐ。
    */
   readonly hasProblemList?: boolean;
+  /** play 中に training と同じ正誤カウンタを表示するか */
+  readonly showScoreCounter?: boolean;
   /** 練習終了時に呼び出されるコールバック（スコア保存等） */
   readonly onFinish?: (
     args: FinishCallbackArgs,
@@ -103,6 +106,7 @@ export function ChallengeShell({
   maxWidth = "max-w-md",
   exitHref = "/practice",
   hasProblemList = false,
+  showScoreCounter = false,
   onFinish,
 }: ChallengeShellProps) {
   const tc = useTranslations("challenge");
@@ -223,18 +227,10 @@ export function ChallengeShell({
               )}
             </button>
           </div>
-          <div className="flex items-center gap-3">
-            <span className="text-surface-500">
-              {tc("score")}:{" "}
-              <span className="font-semibold text-surface-900">
-                {gameSession.correctCount}
-              </span>
-            </span>
-            <LifeIndicator
-              remainingLives={gameSession.remainingLives}
-              mistakeLimit={gameSession.mistakeLimit}
-            />
-          </div>
+          <LifeIndicator
+            remainingLives={gameSession.remainingLives}
+            mistakeLimit={gameSession.mistakeLimit}
+          />
         </div>
 
         {/* Game content area - overlay scoped here to keep status bar accessible */}
@@ -257,16 +253,38 @@ export function ChallengeShell({
           </BoardOverlay>
         </div>
 
-        {/* Quit button */}
-        <div className="mt-6 text-center">
-          <button
-            type="button"
-            onClick={handleQuitClick}
-            className={`text-sm ${TEXT_LINK_MUTED_CLASSES}`}
-          >
-            {tc("quitButton")}
-          </button>
-        </div>
+        {showScoreCounter ? (
+          // TrainingShell と同じく、盤面・正誤カウンタ・終了操作を 8 (32px) 間隔で並べる。
+          <div className="mt-8 space-y-8">
+            <ScoreCounter
+              correct={gameSession.correctCount}
+              incorrect={gameSession.incorrectCount}
+              correctLabel={tc("correct")}
+              incorrectLabel={tc("incorrect")}
+            />
+
+            <div className="text-center">
+              <button
+                type="button"
+                onClick={handleQuitClick}
+                className={`text-sm ${TEXT_LINK_MUTED_CLASSES}`}
+              >
+                {tc("quitButton")}
+              </button>
+            </div>
+          </div>
+        ) : (
+          /* Quit button */
+          <div className="mt-6 text-center">
+            <button
+              type="button"
+              onClick={handleQuitClick}
+              className={`text-sm ${TEXT_LINK_MUTED_CLASSES}`}
+            >
+              {tc("quitButton")}
+            </button>
+          </div>
+        )}
       </div>
 
       <QuitConfirmModal
