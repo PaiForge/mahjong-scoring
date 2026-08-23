@@ -1,6 +1,7 @@
 import { and, eq, gte, sql } from "drizzle-orm";
 
 import { db } from "./index";
+import { notHiddenFromLeaderboard } from "./leaderboard-visibility";
 import { rankingOrder } from "./ranking-order";
 import { challengeBestScores, challengeResults, profiles } from "./schema";
 
@@ -100,6 +101,21 @@ export function periodResultsWhere(
 // ---------------------------------------------------------------------------
 
 /**
+ * 全期間ランキングの母集団を絞る条件
+ * 全期間ランキング母集団
+ *
+ * profiles との結合を前提に、対象の練習・セグメントかつランキング非表示で
+ * ないものへ絞る。一覧と件数で同じものを使う。
+ */
+function allTimeWhere(menuType: string, leaderboardKey: string) {
+  return and(
+    eq(challengeBestScores.menuType, menuType),
+    eq(challengeBestScores.leaderboardKey, leaderboardKey),
+    notHiddenFromLeaderboard(),
+  );
+}
+
+/**
  * 全期間ランキングを取得する
  * 全期間ランキング取得
  */
@@ -121,25 +137,18 @@ export async function getAllTimeRanking(
     })
     .from(challengeBestScores)
     .innerJoin(profiles, eq(challengeBestScores.userId, profiles.id))
-    .where(
-      and(
-        eq(challengeBestScores.menuType, menuType),
-        eq(challengeBestScores.leaderboardKey, leaderboardKey),
-      ),
-    )
+    .where(allTimeWhere(menuType, leaderboardKey))
     .orderBy(...rankingOrder(challengeBestScores))
     .offset(offset)
     .limit(limit);
 
+  // 件数側も profiles を結合する。ランキング非表示の絞り込みが一覧にしか
+  // 効いていないと total が実際の行数より多くなり、末尾に空ページができる。
   const [countRow] = await db
     .select({ count: sql<number>`count(*)::int` })
     .from(challengeBestScores)
-    .where(
-      and(
-        eq(challengeBestScores.menuType, menuType),
-        eq(challengeBestScores.leaderboardKey, leaderboardKey),
-      ),
-    );
+    .innerJoin(profiles, eq(challengeBestScores.userId, profiles.id))
+    .where(allTimeWhere(menuType, leaderboardKey));
 
   return {
     rows: rows.map(toLeaderboardRow),
@@ -182,13 +191,17 @@ async function getPeriodRanking(
     })
     .from(bestPerUser)
     .innerJoin(profiles, eq(bestPerUser.userId, profiles.id))
+    .where(notHiddenFromLeaderboard())
     .orderBy(...rankingOrder(bestPerUser))
     .offset(offset)
     .limit(limit);
 
+  // 件数側も同じ結合と絞り込みを通す（`getAllTimeRanking` と同じ理由）。
   const [countRow] = await db
     .select({ count: sql<number>`count(*)::int` })
-    .from(bestPerUser);
+    .from(bestPerUser)
+    .innerJoin(profiles, eq(bestPerUser.userId, profiles.id))
+    .where(notHiddenFromLeaderboard());
 
   return {
     rows: rows.map(toLeaderboardRow),

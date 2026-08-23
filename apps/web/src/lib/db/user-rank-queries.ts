@@ -1,6 +1,7 @@
 import { sql, type SQL } from "drizzle-orm";
 
 import { db } from "./index";
+import { visibleProfileJoinSql } from "./leaderboard-visibility";
 import {
   periodResultsWhere,
   startOfCurrentMonth,
@@ -50,6 +51,10 @@ type RankedSourceAlias = "challenge_best_scores" | "best";
  * ROW_NUMBER によるランク付与・profiles 結合・対象ユーザー絞り込みを共通化する。
  * ランク行クエリ構築
  *
+ * 順位は母集団の行位置で決まるため、ランキング非表示ユーザーの除外は
+ * `source` 側（＝ ROW_NUMBER を回す前）で済ませてある。外側の profiles 結合は
+ * 表示用の列を足すためのもので、そこで絞ると順位番号に欠番が出る。
+ *
  * @param source - ranked サブクエリの FROM に入る SQL 断片
  * @param sourceAlias - `source` の関係名または別名。列の修飾に使い、生 SQL へ
  *   そのまま埋め込むため、コード中のリテラルだけを取れる型にしてある
@@ -91,8 +96,9 @@ export async function getUserAllTimeRankedRow(
   const [row] = await db.execute<RawRankedRow>(
     buildRankedRowQuery(
       sql`challenge_best_scores
-          WHERE menu_type = ${menuType}
-            AND leaderboard_key = ${leaderboardKey}`,
+          ${visibleProfileJoinSql("challenge_best_scores")}
+          WHERE challenge_best_scores.menu_type = ${menuType}
+            AND challenge_best_scores.leaderboard_key = ${leaderboardKey}`,
       "challenge_best_scores",
       userId,
     ),
@@ -119,6 +125,7 @@ export async function getUserMonthlyRankedRow(
           challenge_results.user_id, challenge_results.score,
           challenge_results.incorrect_answers, challenge_results.time_taken
         FROM challenge_results
+        ${visibleProfileJoinSql("challenge_results")}
         WHERE ${periodResultsWhere(menuType, leaderboardKey, periodStart)}
         ORDER BY challenge_results.user_id, ${rankingOrderSql("challenge_results")}
       ) best`,
