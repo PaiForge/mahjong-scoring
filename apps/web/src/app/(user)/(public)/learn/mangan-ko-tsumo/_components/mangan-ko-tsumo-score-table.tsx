@@ -25,6 +25,7 @@ export function ManganKoTsumoScoreTable() {
   return (
     <ManganTableShell
       columns={COLUMNS}
+      showHan={false}
       renderCells={(row) => {
         const { fromKo, fromOya } = row.tsumoKo;
         return [
