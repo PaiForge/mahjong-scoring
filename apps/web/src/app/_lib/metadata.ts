@@ -27,6 +27,52 @@ export const OG_IMAGE = {
   alt: `${SITE_NAME} - ${SITE_TAGLINE}`,
 } as const;
 
+/** サイト既定のタイトル（トップページとルートレイアウトのフォールバック） */
+export const DEFAULT_TITLE = `${SITE_NAME} - ${SITE_TAGLINE}`;
+
+/**
+ * OGP / Twitter Card 一式を組み立てる
+ * ソーシャルカード生成
+ *
+ * Next は openGraph / twitter をフィールド単位ではなくオブジェクトごと
+ * 差し替えるため、常に完全な形を返す。images を省くと file convention の
+ * 画像ごと消える（実測）ので OG_IMAGE を毎回明示する。
+ *
+ * createMetadata が全ページで使うほか、ヘルパーを通らないルートレイアウト・
+ * トップページもこれを spread する（手書き複製で乖離させない）。
+ *
+ * @param title - サイト名サフィックス込みの完全なタイトル
+ * @param description - 説明（持たないページでは省略）
+ * @param path - og:url にするパス。canonical を持つページだけ渡す
+ */
+export function buildSocialCard({
+  title,
+  description,
+  path,
+}: {
+  readonly title: string;
+  readonly description?: string;
+  readonly path?: string;
+}): Pick<Metadata, "openGraph" | "twitter"> {
+  return {
+    openGraph: {
+      type: "website",
+      siteName: SITE_NAME,
+      locale: "ja_JP",
+      title,
+      images: [OG_IMAGE],
+      ...(description ? { description } : {}),
+      ...(path ? { url: path } : {}),
+    },
+    twitter: {
+      card: "summary_large_image",
+      title,
+      images: [OG_IMAGE],
+      ...(description ? { description } : {}),
+    },
+  };
+}
+
 /**
  * ページ用の Metadata を生成する
  * メタデータヘルパー
@@ -53,25 +99,7 @@ export function createMetadata({
     title: fullTitle,
     ...(description ? { description } : {}),
     ...(path ? { alternates: { canonical: path } } : {}),
-    // Next は openGraph / twitter をフィールド単位ではなくオブジェクトごと
-    // 差し替えるため、親から継承させず各ページで完全な形を組み立てる。
-    // images も同様で、省略すると app/opengraph-image.png の file convention
-    // ごと消える（実測）。そのため OG_IMAGE を毎回明示する。
-    openGraph: {
-      type: "website",
-      siteName: SITE_NAME,
-      locale: "ja_JP",
-      title: fullTitle,
-      images: [OG_IMAGE],
-      ...(description ? { description } : {}),
-      ...(path ? { url: path } : {}),
-    },
-    twitter: {
-      card: "summary_large_image",
-      title: fullTitle,
-      images: [OG_IMAGE],
-      ...(description ? { description } : {}),
-    },
+    ...buildSocialCard({ title: fullTitle, description, path }),
   };
 }
 

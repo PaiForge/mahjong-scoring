@@ -5,10 +5,9 @@ import { getLocale } from "next-intl/server";
 import { GoogleAnalytics } from "@next/third-parties/google";
 import { AuthProvider } from "@/app/_contexts/auth-context";
 import {
-  OG_IMAGE,
+  buildSocialCard,
+  DEFAULT_TITLE,
   SITE_DESCRIPTION,
-  SITE_NAME,
-  SITE_TAGLINE,
 } from "@/app/_lib/metadata";
 import { SITE_URL } from "@/config";
 import "./globals.css";
@@ -21,24 +20,13 @@ export const metadata: Metadata = {
   // 各ページの alternates.canonical と OGP の相対パスを絶対 URL へ解決する基準。
   // これが無いと canonical が出力されず、プレビュードメインと重複評価される。
   metadataBase: new URL(SITE_URL),
-  title: `${SITE_NAME} - ${SITE_TAGLINE}`,
+  title: DEFAULT_TITLE,
   description: SITE_DESCRIPTION,
-  // トップページは createMetadata を通らないため、ここで既定の OGP を持つ。
-  openGraph: {
-    type: "website",
-    siteName: SITE_NAME,
-    locale: "ja_JP",
-    url: "/",
-    title: `${SITE_NAME} - ${SITE_TAGLINE}`,
-    description: SITE_DESCRIPTION,
-    images: [OG_IMAGE],
-  },
-  twitter: {
-    card: "summary_large_image",
-    title: `${SITE_NAME} - ${SITE_TAGLINE}`,
-    description: SITE_DESCRIPTION,
-    images: [OG_IMAGE],
-  },
+  // metadata を持たないページ（banned 等）へのフォールバック。
+  // og:url はここに書かない — 書くと canonical を持たないページまで
+  // トップページの URL を名乗ってしまう。トップの og:url は
+  // (home)/page.tsx が自分で持つ。
+  ...buildSocialCard({ title: DEFAULT_TITLE, description: SITE_DESCRIPTION }),
 };
 
 export default async function RootLayout({
