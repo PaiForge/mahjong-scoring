@@ -11,12 +11,12 @@
  * 3. 「開始」を押すと play ページへ遷移
  */
 import type { Metadata } from "next";
-import { createNamespaceMetadata } from "@/app/_lib/metadata";
+import { createPracticeMetadata } from "../_lib/metadata";
 import { PracticeIntroContent } from "../_components/practice-intro-content";
 import { HanCountHowToPlay } from "./_components/han-count-how-to-play";
 
 export async function generateMetadata(): Promise<Metadata> {
-  return createNamespaceMetadata("hanCountChallenge");
+  return createPracticeMetadata("han-count");
 }
 
 export default function HanCountPage() {

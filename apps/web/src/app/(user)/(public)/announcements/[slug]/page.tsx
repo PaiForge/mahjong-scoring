@@ -37,7 +37,11 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
     .slice(0, 160)
     .replace(/\n/g, " ")
     .trim();
-  return createMetadata({ title: announcement.title, description });
+  return createMetadata({
+    title: announcement.title,
+    description,
+    path: `/announcements/${slug}`,
+  });
 }
 
 export default async function AnnouncementDetailPage({ params }: Props) {

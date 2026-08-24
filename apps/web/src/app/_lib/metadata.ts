@@ -17,19 +17,89 @@ export const SITE_TAGLINE = messages.metadata.siteTagline;
 export const SITE_DESCRIPTION = messages.metadata.siteDescription;
 
 /**
+ * OGP / Twitter Card の画像。
+ * `pnpm --filter web og:generate` で再生成する（scripts/generate-og-image.ts）。
+ */
+export const OG_IMAGE = {
+  url: "/og-image.png",
+  width: 1200,
+  height: 630,
+  alt: `${SITE_NAME} - ${SITE_TAGLINE}`,
+} as const;
+
+/** サイト既定のタイトル（トップページとルートレイアウトのフォールバック） */
+export const DEFAULT_TITLE = `${SITE_NAME} - ${SITE_TAGLINE}`;
+
+/**
+ * OGP / Twitter Card 一式を組み立てる
+ * ソーシャルカード生成
+ *
+ * Next は openGraph / twitter をフィールド単位ではなくオブジェクトごと
+ * 差し替えるため、常に完全な形を返す。images を省くと file convention の
+ * 画像ごと消える（実測）ので OG_IMAGE を毎回明示する。
+ *
+ * createMetadata が全ページで使うほか、ヘルパーを通らないルートレイアウト・
+ * トップページもこれを spread する（手書き複製で乖離させない）。
+ *
+ * @param title - サイト名サフィックス込みの完全なタイトル
+ * @param description - 説明（持たないページでは省略）
+ * @param path - og:url にするパス。canonical を持つページだけ渡す
+ */
+export function buildSocialCard({
+  title,
+  description,
+  path,
+}: {
+  readonly title: string;
+  readonly description?: string;
+  readonly path?: string;
+}): Pick<Metadata, "openGraph" | "twitter"> {
+  return {
+    openGraph: {
+      type: "website",
+      siteName: SITE_NAME,
+      locale: "ja_JP",
+      title,
+      images: [OG_IMAGE],
+      ...(description ? { description } : {}),
+      ...(path ? { url: path } : {}),
+    },
+    twitter: {
+      card: "summary_large_image",
+      title,
+      images: [OG_IMAGE],
+      ...(description ? { description } : {}),
+    },
+  };
+}
+
+/**
  * ページ用の Metadata を生成する
  * メタデータヘルパー
  */
 export function createMetadata({
   title,
   description,
+  path,
 }: {
   readonly title: string;
   readonly description?: string;
+  /**
+   * canonical URL のパス（例: `/learn/jantou-fu`）。
+   *
+   * ルートレイアウトの `metadataBase` を基準に絶対 URL へ解決される。
+   * 検索結果に載せるページにだけ渡すこと。noindex ページや
+   * play / result / training のような遷移先には不要。
+   */
+  readonly path?: string;
 }): Metadata {
+  const fullTitle = `${title} - ${SITE_NAME}`;
+
   return {
-    title: `${title} - ${SITE_NAME}`,
+    title: fullTitle,
     ...(description ? { description } : {}),
+    ...(path ? { alternates: { canonical: path } } : {}),
+    ...buildSocialCard({ title: fullTitle, description, path }),
   };
 }
 
@@ -43,19 +113,21 @@ export function createMetadata({
  * {@link createTitleOnlyMetadata} を使うこと。
  *
  * @param namespace - 翻訳名前空間（例: "jantouFu"）
- * @param keys - タイトル・説明のキー（既定 "title" / "description"）
+ * @param options - タイトル・説明のキー（既定 "title" / "description"）と
+ *   canonical のパス
  */
 export async function createNamespaceMetadata(
   namespace: string,
-  keys: {
+  options: {
     readonly title?: string;
     readonly description?: string;
+    readonly path?: string;
   } = {},
 ): Promise<Metadata> {
-  const { title = "title", description = "description" } = keys;
+  const { title = "title", description = "description", path } = options;
   const t = await getTranslations(namespace);
 
-  return createMetadata({ title: t(title), description: t(description) });
+  return createMetadata({ title: t(title), description: t(description), path });
 }
 
 /**
@@ -67,13 +139,15 @@ export async function createNamespaceMetadata(
  *
  * @param namespace - 翻訳名前空間（例: "jantouFu"）
  * @param titleKey - タイトルのキー（既定 "title"）
+ * @param path - canonical のパス（検索結果に載せるページのみ指定する）
  */
 export async function createTitleOnlyMetadata(
   namespace: string,
   titleKey = "title",
+  path?: string,
 ): Promise<Metadata> {
   const t = await getTranslations(namespace);
-  return createMetadata({ title: t(titleKey) });
+  return createMetadata({ title: t(titleKey), path });
 }
 
 /**
@@ -112,7 +186,12 @@ export async function createResultMetadata(
     getTranslations("challenge"),
   ]);
 
-  return createMetadata({
-    title: `${t("title")} - ${tChallenge("resultSuffix")}`,
-  });
+  return {
+    ...createMetadata({
+      title: `${t("title")} - ${tChallenge("resultSuffix")}`,
+    }),
+    // 結果ページはセッション直後にしか意味を持たない。index はさせず、
+    // 再挑戦・説明ページへの内部リンクは辿らせる。
+    robots: { index: false, follow: true },
+  };
 }

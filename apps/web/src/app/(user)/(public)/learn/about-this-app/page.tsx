@@ -3,7 +3,7 @@ import { LearnPageLayout } from "../_components/learn-page-layout";
 import { AboutThisAppGuide } from "./_components/about-this-app-guide";
 
 export function generateMetadata() {
-  return createLearnMetadata("aboutThisApp.learn");
+  return createLearnMetadata("about-this-app");
 }
 
 export default function LearnAboutThisAppPage() {

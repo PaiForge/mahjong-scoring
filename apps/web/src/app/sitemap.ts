@@ -1,39 +1,29 @@
 import type { MetadataRoute } from "next";
 
 import { getPublishedAnnouncementSlugsForSitemap } from "@/app/(user)/(public)/announcements/_lib/queries";
-import { CURRICULUM_CHAPTER_SLUGS } from "@/app/(user)/(public)/learn/_lib/curriculum";
+import {
+  LEARN_SITEMAP_PATHS,
+  PRACTICE_SITEMAP_PATHS,
+  STATIC_SITEMAP_ROUTE_DEFS,
+} from "@/app/_lib/sitemap-routes";
 import { SITE_URL } from "@/config";
-import { PRACTICE_MENU_SLUGS } from "@/lib/db/practice-menu-types";
 
-const STATIC_ROUTE_DEFS = [
-  { url: "", changeFrequency: "weekly", priority: 1.0 },
-  { url: "/getting-started", changeFrequency: "monthly", priority: 0.9 },
-  { url: "/learn", changeFrequency: "weekly", priority: 0.9 },
-  { url: "/practice", changeFrequency: "weekly", priority: 0.9 },
-  { url: "/reference", changeFrequency: "weekly", priority: 0.8 },
-  { url: "/reference/score-table", changeFrequency: "monthly", priority: 0.7 },
-  { url: "/reference/yaku", changeFrequency: "monthly", priority: 0.7 },
-  { url: "/announcements", changeFrequency: "daily", priority: 0.5 },
-  { url: "/terms", changeFrequency: "yearly", priority: 0.2 },
-  { url: "/privacy", changeFrequency: "yearly", priority: 0.2 },
-] as const;
-
-const STATIC_ROUTES: MetadataRoute.Sitemap = STATIC_ROUTE_DEFS.map((route) => ({
-  ...route,
-  url: `${SITE_URL}${route.url}`,
-}));
-
-const LEARN_ROUTES: MetadataRoute.Sitemap = CURRICULUM_CHAPTER_SLUGS.map(
-  (slug) => ({
-    url: `${SITE_URL}/learn/${slug}`,
-    changeFrequency: "monthly",
-    priority: 0.8,
+const STATIC_ROUTES: MetadataRoute.Sitemap = STATIC_SITEMAP_ROUTE_DEFS.map(
+  (route) => ({
+    ...route,
+    url: `${SITE_URL}${route.url}`,
   }),
 );
 
-const PRACTICE_ROUTES: MetadataRoute.Sitemap = PRACTICE_MENU_SLUGS.map(
-  (slug) => ({
-    url: `${SITE_URL}/practice/${slug}`,
+const LEARN_ROUTES: MetadataRoute.Sitemap = LEARN_SITEMAP_PATHS.map((path) => ({
+  url: `${SITE_URL}${path}`,
+  changeFrequency: "monthly",
+  priority: 0.8,
+}));
+
+const PRACTICE_ROUTES: MetadataRoute.Sitemap = PRACTICE_SITEMAP_PATHS.map(
+  (path) => ({
+    url: `${SITE_URL}${path}`,
     changeFrequency: "monthly",
     priority: 0.8,
   }),

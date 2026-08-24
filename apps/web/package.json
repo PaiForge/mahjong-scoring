@@ -8,6 +8,8 @@
     "build": "next build",
     "start": "next start",
     "lint": "eslint .",
+    "og:generate": "tsx scripts/generate-og-image.ts",
+    "icons:generate": "tsx scripts/generate-icons.ts",
     "typecheck": "tsc --noEmit",
     "test": "vitest run",
     "db:run-migrate": "tsx scripts/migrate.ts",

@@ -23,7 +23,7 @@ import {
 } from "../_lib/practice-catalog";
 
 export async function generateMetadata(): Promise<Metadata> {
-  return createNamespaceMetadata("practice");
+  return createNamespaceMetadata("practice", { path: "/practice" });
 }
 
 function renderPracticeCards(

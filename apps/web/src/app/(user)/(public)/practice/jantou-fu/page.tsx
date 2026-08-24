@@ -11,12 +11,12 @@
  * 3. 「開始」を押すと play ページへ遷移
  */
 import type { Metadata } from "next";
-import { createNamespaceMetadata } from "@/app/_lib/metadata";
+import { createPracticeMetadata } from "../_lib/metadata";
 import { PracticeIntroContent } from "../_components/practice-intro-content";
 import { JantouFuHowToPlay } from "./_components/jantou-fu-how-to-play";
 
 export async function generateMetadata(): Promise<Metadata> {
-  return createNamespaceMetadata("jantouFu");
+  return createPracticeMetadata("jantou-fu");
 }
 
 export default function JantouFuPage() {

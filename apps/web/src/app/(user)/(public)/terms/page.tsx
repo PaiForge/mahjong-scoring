@@ -5,7 +5,7 @@ import { ContentContainer } from "@/app/(user)/_components/content-container";
 import { PageTitle } from "@/app/(user)/_components/page-title";
 
 export async function generateMetadata(): Promise<Metadata> {
-  return createTitleOnlyMetadata("terms", "pageTitle");
+  return createTitleOnlyMetadata("terms", "pageTitle", "/terms");
 }
 
 export default async function TermsPage() {

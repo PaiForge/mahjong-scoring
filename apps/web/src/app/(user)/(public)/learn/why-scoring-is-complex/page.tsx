@@ -7,7 +7,7 @@ const KATEX_CSS_HREF =
   "https://cdn.jsdelivr.net/npm/katex@0.18.2/dist/katex.min.css";
 
 export function generateMetadata() {
-  return createLearnMetadata("whyScoringIsComplex.learn");
+  return createLearnMetadata("why-scoring-is-complex");
 }
 
 export default function LearnWhyScoringIsComplexPage() {

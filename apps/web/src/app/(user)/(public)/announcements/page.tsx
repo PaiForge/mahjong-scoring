@@ -35,6 +35,7 @@ export async function generateMetadata(): Promise<Metadata> {
   return createNamespaceMetadata("announcements", {
     title: "pageTitle",
     description: "pageDescription",
+    path: "/announcements",
   });
 }
 

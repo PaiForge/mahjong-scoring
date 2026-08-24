@@ -19,7 +19,7 @@ import { PageTitle } from "@/app/(user)/_components/page-title";
 import { createNamespaceMetadata } from "@/app/_lib/metadata";
 
 export async function generateMetadata(): Promise<Metadata> {
-  return createNamespaceMetadata("reference");
+  return createNamespaceMetadata("reference", { path: "/reference" });
 }
 
 interface ReferenceCardDef {

@@ -14,6 +14,7 @@ import {
   createPrivateMetadata,
   createResultMetadata,
   createTitleOnlyMetadata,
+  OG_IMAGE,
   SITE_NAME,
 } from "../metadata";
 
@@ -22,6 +23,37 @@ function setupTranslations(dict: Record<string, Record<string, string>>) {
   mockGetTranslations.mockImplementation((namespace: string) =>
     Promise.resolve((key: string) => dict[namespace]?.[key] ?? `?${key}`),
   );
+}
+
+/**
+ * createMetadata が常に付ける OGP / Twitter Card の期待値。
+ *
+ * Next は openGraph / twitter をオブジェクトごと差し替えるため、
+ * ヘルパーは毎回完全な形を返す必要がある。ここを緩めると
+ * 「og:image だけ欠けたページ」に気付けなくなるので完全一致で見る。
+ *
+ * @param title - サイト名サフィックス込みのタイトル
+ * @param description - 説明（無いページでは省略される）
+ * @param path - canonical のパス（指定時のみ og:url が付く）
+ */
+function expectedCard(title: string, description?: string, path?: string) {
+  return {
+    openGraph: {
+      type: "website",
+      siteName: SITE_NAME,
+      locale: "ja_JP",
+      title,
+      images: [OG_IMAGE],
+      ...(description ? { description } : {}),
+      ...(path ? { url: path } : {}),
+    },
+    twitter: {
+      card: "summary_large_image",
+      title,
+      images: [OG_IMAGE],
+      ...(description ? { description } : {}),
+    },
+  };
 }
 
 beforeEach(() => {
@@ -37,6 +69,7 @@ describe("createNamespaceMetadata", () => {
     await expect(createNamespaceMetadata("jantouFu")).resolves.toEqual({
       title: `雀頭符 - ${SITE_NAME}`,
       description: "雀頭の符を学ぶ",
+      ...expectedCard(`雀頭符 - ${SITE_NAME}`, "雀頭の符を学ぶ"),
     });
   });
 
@@ -53,6 +86,20 @@ describe("createNamespaceMetadata", () => {
     ).resolves.toEqual({
       title: `点数表 - ${SITE_NAME}`,
       description: "早見表",
+      ...expectedCard(`点数表 - ${SITE_NAME}`, "早見表"),
+    });
+  });
+
+  it("path を渡すと canonical に通す", async () => {
+    setupTranslations({
+      jantouFu: { title: "雀頭符", description: "雀頭の符を学ぶ" },
+    });
+
+    await expect(
+      createNamespaceMetadata("jantouFu", { path: "/learn/jantou-fu" }),
+    ).resolves.toMatchObject({
+      alternates: { canonical: "/learn/jantou-fu" },
+      openGraph: { url: "/learn/jantou-fu" },
     });
   });
 });
@@ -63,8 +110,12 @@ describe("createTitleOnlyMetadata", () => {
 
     const metadata = await createTitleOnlyMetadata("jantouFu");
 
-    expect(metadata).toEqual({ title: `雀頭符 - ${SITE_NAME}` });
+    expect(metadata).toEqual({
+      title: `雀頭符 - ${SITE_NAME}`,
+      ...expectedCard(`雀頭符 - ${SITE_NAME}`),
+    });
     expect(metadata).not.toHaveProperty("description");
+    expect(metadata.openGraph).not.toHaveProperty("description");
   });
 
   it("タイトルのキーを上書きできる", async () => {
@@ -72,7 +123,18 @@ describe("createTitleOnlyMetadata", () => {
 
     await expect(
       createTitleOnlyMetadata("scoreTable", "pageTitle"),
-    ).resolves.toEqual({ title: `点数表 - ${SITE_NAME}` });
+    ).resolves.toEqual({
+      title: `点数表 - ${SITE_NAME}`,
+      ...expectedCard(`点数表 - ${SITE_NAME}`),
+    });
+  });
+
+  it("path を渡すと canonical に通す", async () => {
+    setupTranslations({ terms: { pageTitle: "利用規約" } });
+
+    await expect(
+      createTitleOnlyMetadata("terms", "pageTitle", "/terms"),
+    ).resolves.toMatchObject({ alternates: { canonical: "/terms" } });
   });
 });
 
@@ -83,7 +145,16 @@ describe("createPrivateMetadata", () => {
     await expect(createPrivateMetadata("mypage")).resolves.toEqual({
       title: `マイページ - ${SITE_NAME}`,
       robots: { index: false, follow: false },
+      ...expectedCard(`マイページ - ${SITE_NAME}`),
     });
+  });
+
+  it("canonical を持たない（検索結果に載せないため）", async () => {
+    setupTranslations({ mypage: { pageTitle: "マイページ" } });
+
+    const metadata = await createPrivateMetadata("mypage");
+
+    expect(metadata).not.toHaveProperty("alternates");
   });
 
   it("タイトルのキーを上書きできる", async () => {
@@ -94,6 +165,7 @@ describe("createPrivateMetadata", () => {
     ).resolves.toEqual({
       title: `ユーザー名の設定 - ${SITE_NAME}`,
       robots: { index: false, follow: false },
+      ...expectedCard(`ユーザー名の設定 - ${SITE_NAME}`),
     });
   });
 });
@@ -107,6 +179,19 @@ describe("createResultMetadata", () => {
 
     await expect(createResultMetadata("jantouFu")).resolves.toEqual({
       title: `雀頭符 - 結果 - ${SITE_NAME}`,
+      robots: { index: false, follow: true },
+      ...expectedCard(`雀頭符 - 結果 - ${SITE_NAME}`),
+    });
+  });
+
+  it("noindex, follow を出す（intro と検索結果で競合させない）", async () => {
+    setupTranslations({
+      jantouFu: { title: "雀頭符" },
+      challenge: { resultSuffix: "結果" },
+    });
+
+    await expect(createResultMetadata("jantouFu")).resolves.toMatchObject({
+      robots: { index: false, follow: true },
     });
   });
 
@@ -127,6 +212,7 @@ describe("createMetadata", () => {
   it("サイト名を付けた title を返す", () => {
     expect(createMetadata({ title: "練習" })).toEqual({
       title: `練習 - ${SITE_NAME}`,
+      ...expectedCard(`練習 - ${SITE_NAME}`),
     });
   });
 
@@ -134,6 +220,29 @@ describe("createMetadata", () => {
     expect(createMetadata({ title: "練習", description: "説明" })).toEqual({
       title: `練習 - ${SITE_NAME}`,
       description: "説明",
+      ...expectedCard(`練習 - ${SITE_NAME}`, "説明"),
     });
+  });
+
+  it("path を渡すと canonical と og:url が付く", () => {
+    expect(createMetadata({ title: "練習", path: "/practice" })).toEqual({
+      title: `練習 - ${SITE_NAME}`,
+      alternates: { canonical: "/practice" },
+      ...expectedCard(`練習 - ${SITE_NAME}`, undefined, "/practice"),
+    });
+  });
+
+  it("path を省略すると canonical を持たない", () => {
+    const metadata = createMetadata({ title: "練習" });
+
+    expect(metadata).not.toHaveProperty("alternates");
+    expect(metadata.openGraph).not.toHaveProperty("url");
+  });
+
+  it("OGP 画像を必ず含める（file convention に頼らない）", () => {
+    const metadata = createMetadata({ title: "練習" });
+
+    expect(metadata.openGraph).toMatchObject({ images: [OG_IMAGE] });
+    expect(metadata.twitter).toMatchObject({ images: [OG_IMAGE] });
   });
 });

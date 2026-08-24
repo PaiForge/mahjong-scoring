@@ -4,10 +4,10 @@
 
 このアプリは [Vercel](https://vercel.com/) にデプロイされます。リポジトリは Turborepo モノレポのため、Vercel プロジェクトを以下のように設定してください:
 
-| 設定項目           | 値         |
-| ----------------- | --------- |
-| Framework Preset  | Next.js   |
-| Root Directory    | `apps/web` |
+| 設定項目         | 値         |
+| ---------------- | ---------- |
+| Framework Preset | Next.js    |
+| Root Directory   | `apps/web` |
 
 ## Supabase の設定
 
@@ -18,10 +18,10 @@
 1. [Supabase Dashboard](https://supabase.com/dashboard/new/<org-id>) から新規プロジェクトを作成する
 2. 作成したプロジェクトを、次の手順（Vercel Marketplace Integration）で連携する
 
-| 設定項目            | 値                              | 理由                                                        |
-| ------------------ | ------------------------------ | ----------------------------------------------------------- |
-| Region             | Northeast Asia (Tokyo)          | ユーザーの大半が日本在住。Vercel のデプロイリージョン (hnd1) とも近接 |
-| Enable Data API    | **オフ**                        | データアクセスは Drizzle ORM で直接 PostgreSQL に接続しており、PostgREST（Data API）は使用しない。Supabase クライアントは認証（`supabase.auth.*`）のみに利用。不要な API エンドポイントを無効化することで攻撃対象面を減らせる |
+| 設定項目        | 値                     | 理由                                                                                                                                                                                                                          |
+| --------------- | ---------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Region          | Northeast Asia (Tokyo) | ユーザーの大半が日本在住。Vercel のデプロイリージョン (hnd1) とも近接                                                                                                                                                         |
+| Enable Data API | **オフ**               | データアクセスは Drizzle ORM で直接 PostgreSQL に接続しており、PostgREST（Data API）は使用しない。Supabase クライアントは認証（`supabase.auth.*`）のみに利用。不要な API エンドポイントを無効化することで攻撃対象面を減らせる |
 
 > **ヒント:** Database Password を控える必要はありません。Vercel Supabase Integration 経由で `POSTGRES_URL` 等の接続情報が自動設定されます。
 
@@ -60,11 +60,12 @@ Supabase Integration はアカウント（チーム）レベルでインスト�
 
 ## 環境変数
 
-| 変数名                            | 説明                                                                                                  | 必須                   | 備考 |
-| -------------------------------- | ---------------------------------------------------------------------------------------------------- | ---------------------- | --- |
-| `NEXT_PUBLIC_SUPABASE_URL`       | Supabase プロジェクト URL（例: `https://<reference-id>.supabase.co`）                                  | はい                   | Integration で自動設定 |
-| `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY` | Supabase 公開（publishable）キー                                                                       | はい                   | Integration で自動設定 |
-| `SUPABASE_SERVICE_ROLE_KEY`      | Supabase サービスロールキー（Admin API アクセス用）。[管理画面のセットアップ](admin-panel-setup.md)を参照。 | はい                   | Integration で自動設定 |
-| `POSTGRES_URL`                   | PostgreSQL 接続 URL（プーリング経由）                                                                    | はい                   | Integration で自動設定 |
-| `POSTGRES_URL_NON_POOLING`       | PostgreSQL 接続 URL（直接接続、マイグレーション用）                                                        | はい                   | Integration で自動設定 |
-| `NEXT_PUBLIC_GA_MEASUREMENT_ID`  | Google Analytics 4 測定 ID（例: `G-XXXXXXXXXX`）。設定時のみ GA スクリプトが読み込まれます。                | いいえ（本番環境のみ）   | — |
+| 変数名                                 | 説明                                                                                                                                                                                                                                 | 必須                   | 備考                                                                                                                                           |
+| -------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ | ---------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------- |
+| `NEXT_PUBLIC_SUPABASE_URL`             | Supabase プロジェクト URL（例: `https://<reference-id>.supabase.co`）                                                                                                                                                                | はい                   | Integration で自動設定                                                                                                                         |
+| `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY` | Supabase 公開（publishable）キー                                                                                                                                                                                                     | はい                   | Integration で自動設定                                                                                                                         |
+| `SUPABASE_SERVICE_ROLE_KEY`            | Supabase サービスロールキー（Admin API アクセス用）。[管理画面のセットアップ](admin-panel-setup.md)を参照。                                                                                                                          | はい                   | Integration で自動設定                                                                                                                         |
+| `POSTGRES_URL`                         | PostgreSQL 接続 URL（プーリング経由）                                                                                                                                                                                                | はい                   | Integration で自動設定                                                                                                                         |
+| `POSTGRES_URL_NON_POOLING`             | PostgreSQL 接続 URL（直接接続、マイグレーション用）                                                                                                                                                                                  | はい                   | Integration で自動設定                                                                                                                         |
+| `NEXT_PUBLIC_GA_MEASUREMENT_ID`        | Google Analytics 4 測定 ID（例: `G-XXXXXXXXXX`）。設定時のみ GA スクリプトが読み込まれます。                                                                                                                                         | いいえ（本番環境のみ） | —                                                                                                                                              |
+| `NEXT_PUBLIC_SITE_URL`                 | サイトの公開 URL。canonical・sitemap・robots・認証メールのリダイレクト先の組み立てに使われます。未設定・空・不正値の場合は本番 URL（`https://score.mahjong.help`、`src/config.ts` の `PRODUCTION_SITE_URL`）にフォールバックします。 | いいえ                 | 本番は未設定でよい。プレビュー環境で認証メールをそのプレビューに向けたい場合のみ環境別に設定する（Supabase 側の Redirect URLs への登録も必要） |
