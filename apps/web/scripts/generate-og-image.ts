@@ -52,6 +52,27 @@ function escapeXml(value: string): string {
   );
 }
 
+/**
+ * テキストがカードからはみ出さないことを検証する。
+ *
+ * SVG の <text> は幅を超えても警告なく描画し続けるため、ja.json の文言を
+ * 長くして再生成すると枠外へ silent にはみ出す。全角前提で
+ * 「フォントサイズ × 文字数」がカード内の実効幅に収まるかを見る。
+ */
+function assertTextFits(label: string, text: string, fontSize: number): void {
+  const textX = CARD.x + LOGO_SIZE + 112;
+  const available = CARD.x + CARD.w - 40 - textX;
+  const estimated = text.length * fontSize;
+  if (estimated > available) {
+    const max = Math.floor(available / fontSize);
+    throw new Error(
+      `${label}「${text}」(${text.length} 文字) がカードに収まりません` +
+        `（${fontSize}px では最大 ${max} 文字）。` +
+        "文言を短くするか、scripts/generate-og-image.ts のレイアウトを調整してください。",
+    );
+  }
+}
+
 function buildBackgroundSvg(siteName: string, tagline: string): string {
   const textX = CARD.x + LOGO_SIZE + 112;
 
@@ -76,6 +97,8 @@ function buildBackgroundSvg(siteName: string, tagline: string): string {
 
 async function main(): Promise<void> {
   const { siteName, siteTagline } = messages.metadata;
+  assertTextFits("サイト名", siteName, 88);
+  assertTextFits("キャッチコピー", siteTagline, 36);
   const webRoot = join(dirname(fileURLToPath(import.meta.url)), "..");
 
   const background = await sharp(

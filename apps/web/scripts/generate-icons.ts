@@ -59,7 +59,15 @@ async function main(): Promise<void> {
   const source = readFileSync(join(webRoot, "public/logo.png"));
 
   const render = (size: number): Promise<Buffer> =>
-    sharp(source).resize(size, size, { fit: "contain" }).png().toBuffer();
+    sharp(source)
+      .resize(size, size, {
+        fit: "contain",
+        // 既定の背景は不透明の黒。非正方のロゴに差し替えて再実行したとき
+        // レターボックスが黒帯にならないよう、余白は透明で埋める。
+        background: { r: 0, g: 0, b: 0, alpha: 0 },
+      })
+      .png()
+      .toBuffer();
 
   const icoEntries = await Promise.all(
     ICO_SIZES.map(async (size) => ({ size, data: await render(size) })),
