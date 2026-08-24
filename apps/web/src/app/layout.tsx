@@ -5,6 +5,7 @@ import { getLocale } from "next-intl/server";
 import { GoogleAnalytics } from "@next/third-parties/google";
 import { AuthProvider } from "@/app/_contexts/auth-context";
 import { SITE_DESCRIPTION, SITE_NAME, SITE_TAGLINE } from "@/app/_lib/metadata";
+import { SITE_URL } from "@/config";
 import "./globals.css";
 
 const GlobalToaster = dynamic(() =>
@@ -12,6 +13,9 @@ const GlobalToaster = dynamic(() =>
 );
 
 export const metadata: Metadata = {
+  // 各ページの alternates.canonical と OGP の相対パスを絶対 URL へ解決する基準。
+  // これが無いと canonical が出力されず、プレビュードメインと重複評価される。
+  metadataBase: new URL(SITE_URL),
   title: `${SITE_NAME} - ${SITE_TAGLINE}`,
   description: SITE_DESCRIPTION,
 };

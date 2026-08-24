@@ -23,13 +23,23 @@ export const SITE_DESCRIPTION = messages.metadata.siteDescription;
 export function createMetadata({
   title,
   description,
+  path,
 }: {
   readonly title: string;
   readonly description?: string;
+  /**
+   * canonical URL のパス（例: `/learn/jantou-fu`）。
+   *
+   * ルートレイアウトの `metadataBase` を基準に絶対 URL へ解決される。
+   * 検索結果に載せるページにだけ渡すこと。noindex ページや
+   * play / result / training のような遷移先には不要。
+   */
+  readonly path?: string;
 }): Metadata {
   return {
     title: `${title} - ${SITE_NAME}`,
     ...(description ? { description } : {}),
+    ...(path ? { alternates: { canonical: path } } : {}),
   };
 }
 
@@ -43,19 +53,21 @@ export function createMetadata({
  * {@link createTitleOnlyMetadata} を使うこと。
  *
  * @param namespace - 翻訳名前空間（例: "jantouFu"）
- * @param keys - タイトル・説明のキー（既定 "title" / "description"）
+ * @param options - タイトル・説明のキー（既定 "title" / "description"）と
+ *   canonical のパス
  */
 export async function createNamespaceMetadata(
   namespace: string,
-  keys: {
+  options: {
     readonly title?: string;
     readonly description?: string;
+    readonly path?: string;
   } = {},
 ): Promise<Metadata> {
-  const { title = "title", description = "description" } = keys;
+  const { title = "title", description = "description", path } = options;
   const t = await getTranslations(namespace);
 
-  return createMetadata({ title: t(title), description: t(description) });
+  return createMetadata({ title: t(title), description: t(description), path });
 }
 
 /**
@@ -67,13 +79,15 @@ export async function createNamespaceMetadata(
  *
  * @param namespace - 翻訳名前空間（例: "jantouFu"）
  * @param titleKey - タイトルのキー（既定 "title"）
+ * @param path - canonical のパス（検索結果に載せるページのみ指定する）
  */
 export async function createTitleOnlyMetadata(
   namespace: string,
   titleKey = "title",
+  path?: string,
 ): Promise<Metadata> {
   const t = await getTranslations(namespace);
-  return createMetadata({ title: t(titleKey) });
+  return createMetadata({ title: t(titleKey), path });
 }
 
 /**
