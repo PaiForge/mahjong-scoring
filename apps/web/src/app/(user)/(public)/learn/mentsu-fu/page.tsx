@@ -3,7 +3,7 @@ import { LearnPageLayout } from "../_components/learn-page-layout";
 import { MentsuFuGuide } from "./_components/mentsu-fu-guide";
 
 export function generateMetadata() {
-  return createLearnMetadata("mentsuFu.learn", "mentsu-fu");
+  return createLearnMetadata("mentsu-fu");
 }
 
 export default function LearnMentsuFuPage() {

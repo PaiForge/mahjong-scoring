@@ -4,7 +4,7 @@ import { PracticeIntroContent } from "../_components/practice-intro-content";
 import { YakuHowToPlay } from "./_components/yaku-how-to-play";
 
 export async function generateMetadata(): Promise<Metadata> {
-  return createPracticeMetadata("yaku", "yaku");
+  return createPracticeMetadata("yaku");
 }
 
 /**

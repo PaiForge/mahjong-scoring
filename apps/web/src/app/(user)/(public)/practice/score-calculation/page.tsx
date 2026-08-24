@@ -16,10 +16,7 @@ import { PracticeIntroContent } from "../_components/practice-intro-content";
 import { ScoreCalculationHowToPlay } from "./_components/score-calculation-how-to-play";
 
 export async function generateMetadata(): Promise<Metadata> {
-  return createPracticeMetadata(
-    "scoreCalculationChallenge",
-    "score-calculation",
-  );
+  return createPracticeMetadata("score-calculation");
 }
 
 export default function ScoreCalculationPage() {

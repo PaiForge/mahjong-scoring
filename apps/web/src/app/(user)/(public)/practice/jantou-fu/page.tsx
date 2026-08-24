@@ -16,7 +16,7 @@ import { PracticeIntroContent } from "../_components/practice-intro-content";
 import { JantouFuHowToPlay } from "./_components/jantou-fu-how-to-play";
 
 export async function generateMetadata(): Promise<Metadata> {
-  return createPracticeMetadata("jantouFu", "jantou-fu");
+  return createPracticeMetadata("jantou-fu");
 }
 
 export default function JantouFuPage() {

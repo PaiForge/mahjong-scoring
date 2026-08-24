@@ -28,12 +28,12 @@ beforeEach(() => {
 });
 
 describe("createPracticeMetadata", () => {
-  it("slug から導出した canonical を持ち、index 可能", async () => {
+  it("canonical と辞書ネームスペースを slug から導出し、index 可能", async () => {
     setupTranslations({
       jantouFu: { title: "雀頭符", description: "説明" },
     });
 
-    const metadata = await createPracticeMetadata("jantouFu", "jantou-fu");
+    const metadata = await createPracticeMetadata("jantou-fu");
 
     expect(metadata).toMatchObject({
       title: `雀頭符 - ${SITE_NAME}`,

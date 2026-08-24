@@ -3,7 +3,7 @@ import { LearnPageLayout } from "../_components/learn-page-layout";
 import { TehaiFuGuide } from "./_components/tehai-fu-guide";
 
 export function generateMetadata() {
-  return createLearnMetadata("tehaiFu.learn", "tehai-fu");
+  return createLearnMetadata("tehai-fu");
 }
 
 export default function LearnTehaiFuPage() {

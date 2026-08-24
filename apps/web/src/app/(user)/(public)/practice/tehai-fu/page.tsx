@@ -4,7 +4,7 @@ import { PracticeIntroContent } from "../_components/practice-intro-content";
 import { TehaiFuHowToPlay } from "./_components/tehai-fu-how-to-play";
 
 export async function generateMetadata(): Promise<Metadata> {
-  return createPracticeMetadata("tehaiFu", "tehai-fu");
+  return createPracticeMetadata("tehai-fu");
 }
 
 /**

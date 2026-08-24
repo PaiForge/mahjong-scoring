@@ -3,7 +3,7 @@ import { LearnPageLayout } from "../_components/learn-page-layout";
 import { ManganOyaTsumoGuide } from "./_components/mangan-oya-tsumo-guide";
 
 export function generateMetadata() {
-  return createLearnMetadata("manganOyaTsumo.learn", "mangan-oya-tsumo");
+  return createLearnMetadata("mangan-oya-tsumo");
 }
 
 export default function LearnManganOyaTsumoPage() {

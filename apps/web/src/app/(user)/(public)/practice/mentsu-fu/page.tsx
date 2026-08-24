@@ -4,7 +4,7 @@ import { PracticeIntroContent } from "../_components/practice-intro-content";
 import { MentsuFuHowToPlay } from "./_components/mentsu-fu-how-to-play";
 
 export async function generateMetadata(): Promise<Metadata> {
-  return createPracticeMetadata("mentsuFu", "mentsu-fu");
+  return createPracticeMetadata("mentsu-fu");
 }
 
 /**

@@ -4,7 +4,7 @@ import { PracticeIntroContent } from "../_components/practice-intro-content";
 import { MachiFuHowToPlay } from "./_components/machi-fu-how-to-play";
 
 export async function generateMetadata(): Promise<Metadata> {
-  return createPracticeMetadata("machiFu", "machi-fu");
+  return createPracticeMetadata("machi-fu");
 }
 
 /**

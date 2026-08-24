@@ -22,7 +22,7 @@ import { YakuHanHowToPlay } from "./_components/yaku-han-how-to-play";
 import { YakuHanStartPanel } from "./_components/yaku-han-start-panel";
 
 export async function generateMetadata(): Promise<Metadata> {
-  return createPracticeMetadata("yakuHanChallenge", "yaku-han");
+  return createPracticeMetadata("yaku-han");
 }
 
 export default async function YakuHanPage() {

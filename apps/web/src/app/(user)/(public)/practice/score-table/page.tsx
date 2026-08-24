@@ -25,7 +25,7 @@ import { ScoreTableHowToPlay } from "./_components/score-table-how-to-play";
 import { ScoreTableSetup } from "./_components/score-table-setup";
 
 export async function generateMetadata(): Promise<Metadata> {
-  return createPracticeMetadata("scoreTableChallenge", "score-table");
+  return createPracticeMetadata("score-table");
 }
 
 export default async function ScoreTablePage() {

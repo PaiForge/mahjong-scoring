@@ -3,7 +3,7 @@ import { LearnPageLayout } from "../_components/learn-page-layout";
 import { ManganKoRonGuide } from "./_components/mangan-ko-ron-guide";
 
 export function generateMetadata() {
-  return createLearnMetadata("manganKoRon.learn", "mangan-ko-ron");
+  return createLearnMetadata("mangan-ko-ron");
 }
 
 export default function LearnManganKoRonPage() {

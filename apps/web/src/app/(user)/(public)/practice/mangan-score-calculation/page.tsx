@@ -16,10 +16,7 @@ import { PracticeIntroContent } from "../_components/practice-intro-content";
 import { ManganScoreCalculationHowToPlay } from "./_components/mangan-score-calculation-how-to-play";
 
 export async function generateMetadata(): Promise<Metadata> {
-  return createPracticeMetadata(
-    "manganScoreCalculationChallenge",
-    "mangan-score-calculation",
-  );
+  return createPracticeMetadata("mangan-score-calculation");
 }
 
 export default function ManganScoreCalculationPage() {

@@ -4,7 +4,10 @@ import {
   createNamespaceMetadata,
   createTitleOnlyMetadata,
 } from "@/app/_lib/metadata";
-import type { PracticeMenuSlug } from "@/lib/db/practice-menu-types";
+import {
+  practiceMenuBySlug,
+  type PracticeMenuSlug,
+} from "@/lib/db/practice-menu-types";
 
 import { practiceHref } from "./practice-catalog";
 
@@ -25,14 +28,18 @@ const PRACTICE_SUBPAGE_ROBOTS = { index: false, follow: true } as const;
  * canonical を持つのは説明ページだけ。play / result / training は
  * 検索結果に載せないため、このヘルパーを使わない。
  *
- * @param namespace - 翻訳名前空間（例: "jantouFu"）
- * @param slug - 練習のスラッグ（canonical の組み立てに使う）
+ * 辞書ネームスペースはレジストリ（practice-menu-types.ts）の `namespace`
+ * から引く。namespace と slug を別々に渡すと、コピペで「タイトルは面子・
+ * canonical は待ち」のような誤配線が typecheck を通ってしまうため。
+ *
+ * @param slug - 練習のスラッグ
  */
 export async function createPracticeMetadata(
-  namespace: string,
   slug: PracticeMenuSlug,
 ): Promise<Metadata> {
-  return createNamespaceMetadata(namespace, { path: practiceHref(slug) });
+  return createNamespaceMetadata(practiceMenuBySlug(slug).namespace, {
+    path: practiceHref(slug),
+  });
 }
 
 /**

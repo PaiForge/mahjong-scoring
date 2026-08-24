@@ -16,7 +16,7 @@ import { PracticeIntroContent } from "../_components/practice-intro-content";
 import { HanCountHowToPlay } from "./_components/han-count-how-to-play";
 
 export async function generateMetadata(): Promise<Metadata> {
-  return createPracticeMetadata("hanCountChallenge", "han-count");
+  return createPracticeMetadata("han-count");
 }
 
 export default function HanCountPage() {
