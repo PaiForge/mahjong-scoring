@@ -1,5 +1,7 @@
 import Link from "next/link";
 
+import { SITE_URL } from "@/config";
+
 export interface BreadcrumbItem {
   readonly label: string;
   /** 省略時はリンクなし（現在地）として表示する */
@@ -9,8 +11,6 @@ export interface BreadcrumbItem {
 interface BreadcrumbProps {
   readonly items: readonly BreadcrumbItem[];
 }
-
-const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL ?? "";
 
 /** トップ階層（ホーム）のラベル。チェスではロゴだが、ここでは絵文字を使う。 */
 const HOME_LABEL = "ホーム";
@@ -30,7 +30,7 @@ export function Breadcrumb({ items }: BreadcrumbProps) {
         "@type": "ListItem",
         position: 1,
         name: HOME_LABEL,
-        item: SITE_URL || undefined,
+        item: SITE_URL,
       },
       ...items.map((item, index) => ({
         "@type": "ListItem",
