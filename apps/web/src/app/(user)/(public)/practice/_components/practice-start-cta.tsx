@@ -30,6 +30,24 @@ interface PracticeStartCtaProps {
   readonly disabled?: boolean;
 }
 
+/** 3ブロック全体の縦積み */
+export const PRACTICE_START_CTA_FRAME_CLASS = "flex flex-col gap-5";
+
+/** ボタン + 補足文の 1 ブロック */
+export const PRACTICE_START_CTA_BLOCK_CLASS =
+  "flex w-full flex-col items-center gap-1.5";
+
+/** ボタン下の補足文 */
+export const PRACTICE_START_CTA_HINT_CLASS = "text-xs text-surface-400";
+
+/** OR 区切りの行 */
+export const PRACTICE_START_CTA_DIVIDER_CLASS =
+  "flex w-full items-center gap-3 text-xs text-surface-400";
+
+/** OR 区切りの破線 */
+export const PRACTICE_START_CTA_DIVIDER_LINE_CLASS =
+  "h-0.5 flex-1 border-t-2 border-dashed border-border/40";
+
 /**
  * 練習の開始導線（チャレンジ / OR 区切り / トレーニング）
  * 練習開始導線
@@ -44,22 +62,22 @@ export function PracticeStartCta({
   disabled = false,
 }: PracticeStartCtaProps) {
   return (
-    <div className="flex flex-col gap-5">
-      <div className="flex w-full flex-col items-center gap-1.5">
+    <div className={PRACTICE_START_CTA_FRAME_CLASS}>
+      <div className={PRACTICE_START_CTA_BLOCK_CLASS}>
         <LinkButton href={playHref} size="lg" fullWidth disabled={disabled}>
           <PlayIcon className="size-4" />
           {labels.challenge}
         </LinkButton>
-        <p className="text-xs text-surface-400">{labels.challengeHint}</p>
+        <p className={PRACTICE_START_CTA_HINT_CLASS}>{labels.challengeHint}</p>
       </div>
 
-      <div className="flex w-full items-center gap-3 text-xs text-surface-400">
-        <span className="h-0.5 flex-1 border-t-2 border-dashed border-border/40" />
+      <div className={PRACTICE_START_CTA_DIVIDER_CLASS}>
+        <span className={PRACTICE_START_CTA_DIVIDER_LINE_CLASS} />
         <span className="font-bold">{labels.orDivider}</span>
-        <span className="h-0.5 flex-1 border-t-2 border-dashed border-border/40" />
+        <span className={PRACTICE_START_CTA_DIVIDER_LINE_CLASS} />
       </div>
 
-      <div className="flex w-full flex-col items-center gap-1.5">
+      <div className={PRACTICE_START_CTA_BLOCK_CLASS}>
         <LinkButton
           href={trainingHref}
           variant="secondary"
@@ -70,7 +88,7 @@ export function PracticeStartCta({
           <InfinityIcon className="size-4" />
           {labels.training}
         </LinkButton>
-        <p className="text-xs text-surface-400">{labels.trainingHint}</p>
+        <p className={PRACTICE_START_CTA_HINT_CLASS}>{labels.trainingHint}</p>
       </div>
     </div>
   );
