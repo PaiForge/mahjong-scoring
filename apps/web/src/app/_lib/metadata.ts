@@ -17,6 +17,17 @@ export const SITE_TAGLINE = messages.metadata.siteTagline;
 export const SITE_DESCRIPTION = messages.metadata.siteDescription;
 
 /**
+ * OGP / Twitter Card の画像。
+ * `pnpm --filter web og:generate` で再生成する（scripts/generate-og-image.ts）。
+ */
+export const OG_IMAGE = {
+  url: "/og-image.png",
+  width: 1200,
+  height: 630,
+  alt: `${SITE_NAME} - ${SITE_TAGLINE}`,
+} as const;
+
+/**
  * ページ用の Metadata を生成する
  * メタデータヘルパー
  */
@@ -36,10 +47,31 @@ export function createMetadata({
    */
   readonly path?: string;
 }): Metadata {
+  const fullTitle = `${title} - ${SITE_NAME}`;
+
   return {
-    title: `${title} - ${SITE_NAME}`,
+    title: fullTitle,
     ...(description ? { description } : {}),
     ...(path ? { alternates: { canonical: path } } : {}),
+    // Next は openGraph / twitter をフィールド単位ではなくオブジェクトごと
+    // 差し替えるため、親から継承させず各ページで完全な形を組み立てる。
+    // images も同様で、省略すると app/opengraph-image.png の file convention
+    // ごと消える（実測）。そのため OG_IMAGE を毎回明示する。
+    openGraph: {
+      type: "website",
+      siteName: SITE_NAME,
+      locale: "ja_JP",
+      title: fullTitle,
+      images: [OG_IMAGE],
+      ...(description ? { description } : {}),
+      ...(path ? { url: path } : {}),
+    },
+    twitter: {
+      card: "summary_large_image",
+      title: fullTitle,
+      images: [OG_IMAGE],
+      ...(description ? { description } : {}),
+    },
   };
 }
 
