@@ -6,6 +6,7 @@ import { SettingCard } from "../../_components/setting-card";
 import { SettingCardSkeleton } from "../../_components/setting-card-skeleton";
 import { toggleInArray } from "../../_lib/toggle-in-array";
 import { PracticeStartCta } from "../../_components/practice-start-cta";
+import { PracticeStartCtaSkeleton } from "../../_components/practice-start-cta-skeleton";
 import { buildPracticeStartCtaLabels } from "../../_lib/practice-start-cta-labels";
 import { useTranslations } from "next-intl";
 import { useIsClient } from "../../../../../_hooks/use-is-client";
@@ -18,13 +19,16 @@ import {
   type ScoreTableSelection,
 } from "../_lib/options";
 
-/** ストア hydrate 前・クライアント描画前に確保する 3 カード分の枠 */
+/** ストア hydrate 前・クライアント描画前に確保する設定カードと開始導線の枠 */
 function ScoreTableSetupSkeleton() {
   return (
-    <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
-      {["mode", "win", "score"].map((key) => (
-        <SettingCardSkeleton key={key} />
-      ))}
+    <div className="space-y-6">
+      <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
+        {["mode", "win", "score"].map((key) => (
+          <SettingCardSkeleton key={key} />
+        ))}
+      </div>
+      <PracticeStartCtaSkeleton />
     </div>
   );
 }
