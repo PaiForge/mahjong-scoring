@@ -611,7 +611,9 @@
     "haneman": "跳満",
     "baiman": "倍満",
     "sanbaiman": "三倍満",
-    "yakuman": "役満"
+    "yakuman": "役満",
+    "kiriageManganActive": "※ 現在、切り上げ満貫が有効になっています。",
+    "kiriageManganActiveLink": "設定を変更する"
   },
   "score": {
     "title": "点数計算総合演習",

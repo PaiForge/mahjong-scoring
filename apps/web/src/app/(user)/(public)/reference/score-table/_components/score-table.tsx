@@ -16,6 +16,7 @@ import { buildHighlightCellId } from "../_lib/score-table-utils";
 import type { Role, WinType } from "@mahjong-scoring/core";
 import { HAN_COLS, FU_ROWS, NormalScoreTable } from "./normal-score-table";
 import { HighScoreTable } from "./high-score-table";
+import { KiriageManganNote } from "./kiriage-mangan-note";
 
 type ViewMode = "normal" | "high_score";
 
@@ -160,6 +161,13 @@ export function ScoreTable() {
           />
         )}
       </div>
+
+      {/* 切り上げ満貫が動かすのは符×翻の表だけなので、満貫+ の表では出さない */}
+      {kiriageMangan && viewMode === "normal" && (
+        <div className="mt-4">
+          <KiriageManganNote />
+        </div>
+      )}
     </div>
   );
 }
