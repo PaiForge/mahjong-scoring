@@ -12,6 +12,38 @@ export const MANGAN_BASE_POINTS = Math.min(
 );
 
 /**
+ * 切り上げ満貫の対象となる基本符
+ * 切り上げ満貫基本符
+ *
+ * 30符4翻・60符3翻はどちらも基本符1920で、満貫の2000にわずかに届かない。
+ * 切り上げ満貫ルールではこの基本符以上を満貫として扱う。
+ */
+export const KIRIAGE_MANGAN_BASE_POINTS = calculateBasePoints(4, 30);
+
+/**
+ * 点数導出のルールオプション
+ * 点数導出オプション
+ */
+export interface ScoreCalculationOptions {
+  /** 30符4翻・60符3翻を満貫に切り上げるか（切り上げ満貫、既定 false） */
+  readonly kiriageMangan?: boolean;
+}
+
+/**
+ * 基本符が満貫（以上）として扱われるかを判定する
+ * 満貫到達判定
+ */
+function reachesMangan(
+  basePoints: number,
+  options?: ScoreCalculationOptions,
+): boolean {
+  if (basePoints >= MANGAN_BASE_POINTS) return true;
+  return (
+    options?.kiriageMangan === true && basePoints >= KIRIAGE_MANGAN_BASE_POINTS
+  );
+}
+
+/**
  * ツモ和了の支払い
  * ツモ支払い
  *
@@ -96,13 +128,14 @@ export function oyaScoreFromBasePoints(basePoints: number): {
 export function calculateKoScore(
   han: number,
   fu: number,
+  options?: ScoreCalculationOptions,
 ): {
   readonly isMangan: boolean;
   readonly ron: number;
   readonly tsumo: TsumoPayment;
 } {
   const base = calculateBasePoints(han, fu);
-  const isMangan = base >= MANGAN_BASE_POINTS;
+  const isMangan = reachesMangan(base, options);
   return {
     isMangan,
     ...koScoreFromBasePoints(isMangan ? MANGAN_BASE_POINTS : base),
@@ -116,13 +149,14 @@ export function calculateKoScore(
 export function calculateOyaScore(
   han: number,
   fu: number,
+  options?: ScoreCalculationOptions,
 ): {
   readonly isMangan: boolean;
   readonly ron: number;
   readonly tsumo: TsumoPayment;
 } {
   const base = calculateBasePoints(han, fu);
-  const isMangan = base >= MANGAN_BASE_POINTS;
+  const isMangan = reachesMangan(base, options);
   return {
     isMangan,
     ...oyaScoreFromBasePoints(isMangan ? MANGAN_BASE_POINTS : base),

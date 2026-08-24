@@ -208,3 +208,52 @@ describe("isInvalidCell", () => {
     expect(isInvalidCell(4, 30, "tsumo")).toBe(false);
   });
 });
+
+describe("切り上げ満貫オプション", () => {
+  it("4翻30符の子は満貫に切り上げる", () => {
+    const result = calculateKoScore(4, 30, { kiriageMangan: true });
+    expect(result).toEqual({
+      isMangan: true,
+      ron: 8000,
+      tsumo: { type: "koTsumo", fromKo: 2000, fromOya: 4000 },
+    });
+  });
+
+  it("3翻60符の子は満貫に切り上げる", () => {
+    const result = calculateKoScore(3, 60, { kiriageMangan: true });
+    expect(result).toEqual({
+      isMangan: true,
+      ron: 8000,
+      tsumo: { type: "koTsumo", fromKo: 2000, fromOya: 4000 },
+    });
+  });
+
+  it("4翻30符の親は満貫に切り上げる", () => {
+    const result = calculateOyaScore(4, 30, { kiriageMangan: true });
+    expect(result).toEqual({
+      isMangan: true,
+      ron: 12000,
+      tsumo: { type: "oyaTsumo", all: 4000 },
+    });
+  });
+
+  it("3翻60符の親は満貫に切り上げる", () => {
+    const result = calculateOyaScore(3, 60, { kiriageMangan: true });
+    expect(result).toEqual({
+      isMangan: true,
+      ron: 12000,
+      tsumo: { type: "oyaTsumo", all: 4000 },
+    });
+  });
+
+  it("基本符が1920未満（3翻30符）は切り上げの対象外", () => {
+    const result = calculateKoScore(3, 30, { kiriageMangan: true });
+    expect(result.isMangan).toBe(false);
+    expect(result.ron).toBe(3900);
+  });
+
+  it("オプション無効時は従来どおり切り上げない", () => {
+    expect(calculateKoScore(4, 30, { kiriageMangan: false }).ron).toBe(7700);
+    expect(calculateOyaScore(3, 60).ron).toBe(11600);
+  });
+});

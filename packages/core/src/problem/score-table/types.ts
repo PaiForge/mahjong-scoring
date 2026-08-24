@@ -72,6 +72,8 @@ export interface ScoreTableGeneratorOptions {
   readonly wins?: readonly WinType[];
   /** 出題する点数帯。既定: 満貫未満のみ（後方互換のため） */
   readonly ranges?: readonly ScoreRange[];
+  /** 30符4翻・60符3翻を満貫に切り上げるか（切り上げ満貫、既定 false） */
+  readonly kiriageMangan?: boolean;
   /** 問題 ID の採番。既定: crypto.randomUUID */
   readonly idGen?: IdGenerator;
 }

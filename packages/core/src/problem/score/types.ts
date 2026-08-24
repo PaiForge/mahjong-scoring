@@ -108,4 +108,6 @@ export interface QuestionGeneratorOptions {
   readonly includeChild?: boolean;
   /** 連風牌の雀頭を4符として扱うか（既定 false=2符） */
   readonly renfonpaiAs4Fu?: boolean;
+  /** 30符4翻・60符3翻を満貫に切り上げるか（切り上げ満貫、既定 false） */
+  readonly kiriageMangan?: boolean;
 }

@@ -28,6 +28,8 @@ import { retryGenerate } from "../retry-generate";
 import { countKantsu } from "../shared/count-kantsu";
 import type { AgariContext } from "../shared/agari-context";
 import { doubleWindJantouFu } from "../../rules/settings";
+import { applyKiriageMangan } from "../../score/calculator";
+import { isOya } from "../../core/kaze";
 
 /**
  * 点数レベルが許可範囲内かどうかを検証する
@@ -129,6 +131,7 @@ export function generateScoreQuestion(
     includeParent = true,
     includeChild = true,
     renfonpaiAs4Fu = false,
+    kiriageMangan = false,
     allowedRanges = ["nonMangan", "manganPlus"],
   } = options;
 
@@ -195,7 +198,15 @@ export function generateScoreQuestion(
     yakuDetails = [...yakuDetails, ...riichiRes.additionalYakuDetails];
   }
 
-  // 6. 点数帯の検証と組み立て
+  // 6. 切り上げ満貫の適用（30符4翻・60符3翻を満貫の点数に切り上げ）
+  if (kiriageMangan) {
+    finalAnswer = applyKiriageMangan(finalAnswer, {
+      isTsumo,
+      isOya: isOya(jikaze),
+    });
+  }
+
+  // 7. 点数帯の検証と組み立て
   if (!validateScoreRange(finalAnswer.scoreLevel, allowedRanges))
     return undefined;
 

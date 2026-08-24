@@ -362,3 +362,52 @@ describe("generateScoreTableQuestion", () => {
     });
   });
 });
+
+describe("切り上げ満貫オプション", () => {
+  it("kiriageMangan 有効時、3翻60符の子ロンは満貫の8000点になる", () => {
+    const question = findQuestion(
+      {
+        minHan: 3,
+        maxHan: 3,
+        minFu: 60,
+        maxFu: 60,
+        roles: ["ko"],
+        wins: ["ron"],
+        kiriageMangan: true,
+      },
+      () => true,
+    );
+    expect(question.correctAnswer).toEqual({ type: "ron", score: 8000 });
+  });
+
+  it("kiriageMangan 有効時、4翻30符の親ツモは4000オールになる", () => {
+    const question = findQuestion(
+      {
+        minHan: 4,
+        maxHan: 4,
+        minFu: 30,
+        maxFu: 30,
+        roles: ["oya"],
+        wins: ["tsumo"],
+        kiriageMangan: true,
+      },
+      () => true,
+    );
+    expect(question.correctAnswer).toEqual({ type: "oyaTsumo", all: 4000 });
+  });
+
+  it("kiriageMangan 無効時、3翻60符の子ロンは7700点のまま", () => {
+    const question = findQuestion(
+      {
+        minHan: 3,
+        maxHan: 3,
+        minFu: 60,
+        maxFu: 60,
+        roles: ["ko"],
+        wins: ["ron"],
+      },
+      () => true,
+    );
+    expect(question.correctAnswer).toEqual({ type: "ron", score: 7700 });
+  });
+});

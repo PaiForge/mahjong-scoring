@@ -13,6 +13,14 @@ export interface RuleSettings {
    * - true: 場風2符＋自風2符として4符
    */
   readonly renfonpaiAs4Fu: boolean;
+
+  /**
+   * 30符4翻・60符3翻のアガリを満貫に切り上げるかどうか（切り上げ満貫）。
+   *
+   * - false: 切り上げない（子7700点・親11600点、デフォルト）
+   * - true: 満貫に切り上げる（子8000点・親12000点）
+   */
+  readonly kiriageMangan: boolean;
 }
 
 /**
@@ -21,6 +29,7 @@ export interface RuleSettings {
  */
 export const DEFAULT_RULE_SETTINGS: RuleSettings = {
   renfonpaiAs4Fu: false,
+  kiriageMangan: false,
 };
 
 /**
