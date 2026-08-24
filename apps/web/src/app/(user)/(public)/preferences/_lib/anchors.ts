@@ -8,6 +8,8 @@
 export const PREFERENCE_ANCHORS = {
   /** 連風牌（場風＝自風）の雀頭を4符にするか */
   renfonpai: "renfonpai",
+  /** 30符4翻・60符3翻を満貫に切り上げるか（切り上げ満貫） */
+  kiriageMangan: "kiriage-mangan",
   /** ランキングに自分を表示しないか */
   leaderboardVisibility: "leaderboard-visibility",
 } as const;

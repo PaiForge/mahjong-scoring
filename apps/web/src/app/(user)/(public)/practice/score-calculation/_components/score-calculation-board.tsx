@@ -30,7 +30,11 @@ export function ScoreCalculationBoard({
 }: ScoreCalculationBoardProps) {
   const t = useTranslations("scoreCalculationChallenge");
   const renfonpaiAs4Fu = useRuleSettingsStore((s) => s.renfonpaiAs4Fu);
-  const generateOptions = useMemo(() => ({ renfonpaiAs4Fu }), [renfonpaiAs4Fu]);
+  const kiriageMangan = useRuleSettingsStore((s) => s.kiriageMangan);
+  const generateOptions = useMemo(
+    () => ({ renfonpaiAs4Fu, kiriageMangan }),
+    [renfonpaiAs4Fu, kiriageMangan],
+  );
 
   const { question, questionIndex, handleSubmit } = useScoreQuestionBoard({
     generateOptions,

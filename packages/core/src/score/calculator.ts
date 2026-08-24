@@ -2,6 +2,7 @@ import type { ScoreResult, Payment } from "@pai-forge/riichi-mahjong";
 import {
   calculateBasePoints,
   ceilTo100,
+  KIRIAGE_MANGAN_BASE_POINTS,
   MANGAN_BASE_POINTS,
 } from "../core/score-calculation";
 import { ScoreLevel } from "../core/constants";
@@ -42,27 +43,59 @@ export function recalculateScore(
     scoreLevel = ScoreLevel.Normal;
   }
 
-  let payment: Payment;
-
-  if (isTsumo) {
-    if (isOya) {
-      const amount = ceilTo100(basePoints * 2);
-      payment = { type: "oyaTsumo", amount };
-    } else {
-      const koPayment = ceilTo100(basePoints);
-      const oyaPayment = ceilTo100(basePoints * 2);
-      payment = { type: "koTsumo", amount: [koPayment, oyaPayment] };
-    }
-  } else {
-    const multiplier = isOya ? 6 : 4;
-    const amount = ceilTo100(basePoints * multiplier);
-    payment = { type: "ron", amount };
-  }
-
   return {
     han: newHanValue,
     fu,
     scoreLevel,
-    payment,
+    payment: buildPayment(basePoints, { isTsumo, isOya }),
+  };
+}
+
+/**
+ * 基本符からツモ/ロン・親/子に応じた支払いを組み立てる
+ * 支払い組み立て
+ */
+function buildPayment(
+  basePoints: number,
+  config: {
+    readonly isTsumo: boolean;
+    readonly isOya: boolean;
+  },
+): Payment {
+  const { isTsumo, isOya } = config;
+  if (isTsumo) {
+    if (isOya) {
+      return { type: "oyaTsumo", amount: ceilTo100(basePoints * 2) };
+    }
+    return {
+      type: "koTsumo",
+      amount: [ceilTo100(basePoints), ceilTo100(basePoints * 2)],
+    };
+  }
+  return { type: "ron", amount: ceilTo100(basePoints * (isOya ? 6 : 4)) };
+}
+
+/**
+ * 切り上げ満貫を適用する
+ * 切り上げ満貫適用
+ *
+ * 30符4翻・60符3翻（基本符1920）の結果を満貫の点数に切り上げる。
+ * 対象外の結果はそのまま返す。翻・符は変えず、点数区分と支払いだけを
+ * 満貫にする（符計算の学習内容は切り上げ満貫でも変わらないため）。
+ */
+export function applyKiriageMangan(
+  result: Readonly<ScoreResult>,
+  config: {
+    readonly isTsumo: boolean;
+    readonly isOya: boolean;
+  },
+): ScoreResult {
+  if (result.scoreLevel !== ScoreLevel.Normal) return result;
+  if (calculateBasePoints(result.han, result.fu) < KIRIAGE_MANGAN_BASE_POINTS)
+    return result;
+  return {
+    ...result,
+    scoreLevel: ScoreLevel.Mangan,
+    payment: buildPayment(MANGAN_BASE_POINTS, config),
   };
 }

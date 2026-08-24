@@ -42,8 +42,11 @@ function buildCorrectAnswer(
   isTsumo: boolean,
   han: number,
   fu: number,
+  kiriageMangan: boolean,
 ): ScoreTableAnswer {
-  const result = isOya ? calculateOyaScore(han, fu) : calculateKoScore(han, fu);
+  const result = isOya
+    ? calculateOyaScore(han, fu, { kiriageMangan })
+    : calculateKoScore(han, fu, { kiriageMangan });
   return isTsumo ? result.tsumo : { type: "ron", score: result.ron };
 }
 
@@ -163,6 +166,7 @@ export function generateScoreTableQuestion(
   const wins = options?.wins ?? ["tsumo", "ron"];
   // 後方互換: 未指定時は満貫未満のみ（従来の振る舞い）
   const ranges = options?.ranges ?? ["nonMangan"];
+  const kiriageMangan = options?.kiriageMangan ?? false;
   const idGen = options?.idGen ?? defaultIdGenerator;
 
   const pairs = enumerateRoleWinPairs(
@@ -189,7 +193,7 @@ export function generateScoreTableQuestion(
   // 満貫未満は必ず符を持つ。fu の有無で型を絞り込み、型アサーションを避ける。
   const correctAnswer =
     range === "nonMangan" && fu !== undefined
-      ? buildCorrectAnswer(isOya, isTsumo, han, fu)
+      ? buildCorrectAnswer(isOya, isTsumo, han, fu, kiriageMangan)
       : buildManganCorrectAnswer(isOya, isTsumo, han);
 
   return {

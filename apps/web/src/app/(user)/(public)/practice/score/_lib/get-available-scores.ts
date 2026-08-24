@@ -17,24 +17,33 @@ import { MANGAN_MIN_HAN } from "./han-tiers";
  * @param isOya - 親かどうか
  * @param isTsumo - ツモかどうか
  * @param manganOnly - true の場合、翻数にかかわらず満貫以上の点数のみ返す
+ * @param kiriageMangan - 切り上げ満貫を採用しているか（3翻でも満貫がありうる）
  */
 export function getAvailableScores(
   han: number | undefined,
   isOya: boolean,
   isTsumo: boolean,
   manganOnly?: boolean,
+  kiriageMangan?: boolean,
 ): AvailableScores {
   const isKoTsumo = isTsumo && !isOya;
 
   if (isKoTsumo) {
     return {
       type: "koTsumo",
-      koScores: filterByHan(TSUMO_SCORES_KO_PART, han, "tsumoKo", manganOnly),
+      koScores: filterByHan(
+        TSUMO_SCORES_KO_PART,
+        han,
+        "tsumoKo",
+        manganOnly,
+        kiriageMangan,
+      ),
       oyaScores: filterByHan(
         TSUMO_SCORES_OYA_PART,
         han,
         "tsumoOya",
         manganOnly,
+        kiriageMangan,
       ),
     };
   }
@@ -47,6 +56,7 @@ export function getAvailableScores(
         han,
         "tsumoOyaAll",
         manganOnly,
+        kiriageMangan,
       ),
     };
   }
@@ -54,13 +64,19 @@ export function getAvailableScores(
   if (isOya) {
     return {
       type: "single",
-      scores: filterByHan(RON_SCORES_OYA, han, "ronOya", manganOnly),
+      scores: filterByHan(
+        RON_SCORES_OYA,
+        han,
+        "ronOya",
+        manganOnly,
+        kiriageMangan,
+      ),
     };
   }
 
   return {
     type: "single",
-    scores: filterByHan(RON_SCORES_KO, han, "ronKo", manganOnly),
+    scores: filterByHan(RON_SCORES_KO, han, "ronKo", manganOnly, kiriageMangan),
   };
 }
 
@@ -105,6 +121,7 @@ function filterByHan(
   han: number | undefined,
   category: ScoreCategory,
   manganOnly?: boolean,
+  kiriageMangan?: boolean,
 ): readonly number[] {
   const threshold = MANGAN_THRESHOLDS[category];
 
@@ -117,8 +134,10 @@ function filterByHan(
   if (han >= MANGAN_MIN_HAN) {
     return scores.filter((s) => s >= threshold);
   }
-  // 満貫の1つ下の翻（4翻）は符次第で満貫にも満貫未満にもなるため絞り込まない
-  if (han < MANGAN_MIN_HAN - 1) {
+  // 満貫の1つ下の翻（4翻）は符次第で満貫にも満貫未満にもなるため絞り込まない。
+  // 切り上げ満貫ではさらに1つ下の翻（3翻）も60符で満貫になるため、絞らない範囲を広げる
+  const boundary = MANGAN_MIN_HAN - (kiriageMangan ? 2 : 1);
+  if (han < boundary) {
     return scores.filter((s) => s < threshold);
   }
   return scores;

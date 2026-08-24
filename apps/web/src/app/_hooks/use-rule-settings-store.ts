@@ -7,6 +7,7 @@ import {
 
 interface RuleSettingsState extends RuleSettings {
   setRenfonpaiAs4Fu: (enabled: boolean) => void;
+  setKiriageMangan: (enabled: boolean) => void;
 }
 
 /**
@@ -21,6 +22,7 @@ export const useRuleSettingsStore = create<RuleSettingsState>()(
     (set) => ({
       ...DEFAULT_RULE_SETTINGS,
       setRenfonpaiAs4Fu: (renfonpaiAs4Fu) => set({ renfonpaiAs4Fu }),
+      setKiriageMangan: (kiriageMangan) => set({ kiriageMangan }),
     }),
     {
       // 既定の浅いマージ（永続値を初期state へ上書き）により、
