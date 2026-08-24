@@ -186,7 +186,12 @@ export async function createResultMetadata(
     getTranslations("challenge"),
   ]);
 
-  return createMetadata({
-    title: `${t("title")} - ${tChallenge("resultSuffix")}`,
-  });
+  return {
+    ...createMetadata({
+      title: `${t("title")} - ${tChallenge("resultSuffix")}`,
+    }),
+    // 結果ページはセッション直後にしか意味を持たない。index はさせず、
+    // 再挑戦・説明ページへの内部リンクは辿らせる。
+    robots: { index: false, follow: true },
+  };
 }

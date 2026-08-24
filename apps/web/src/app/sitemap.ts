@@ -11,6 +11,8 @@ const STATIC_ROUTE_DEFS = [
   { url: "/learn", changeFrequency: "weekly", priority: 0.9 },
   { url: "/practice", changeFrequency: "weekly", priority: 0.9 },
   { url: "/reference", changeFrequency: "weekly", priority: 0.8 },
+  // 総合演習。slug が練習レジストリ外のため PRACTICE_ROUTES で導出されない
+  { url: "/practice/score", changeFrequency: "monthly", priority: 0.8 },
   { url: "/reference/score-table", changeFrequency: "monthly", priority: 0.7 },
   { url: "/reference/yaku", changeFrequency: "monthly", priority: 0.7 },
   { url: "/announcements", changeFrequency: "daily", priority: 0.5 },

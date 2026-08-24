@@ -1,9 +1,9 @@
 import type { Metadata } from "next";
-import { createTitleOnlyMetadata } from "@/app/_lib/metadata";
+import { createPracticePlayMetadata } from "../../_lib/metadata";
 import { ScorePracticeBoard } from "../_components/score-practice-board";
 
 export async function generateMetadata(): Promise<Metadata> {
-  return createTitleOnlyMetadata("score");
+  return createPracticePlayMetadata("score");
 }
 
 /**

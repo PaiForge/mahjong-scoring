@@ -1,9 +1,9 @@
 import type { Metadata } from "next";
-import { createTitleOnlyMetadata } from "@/app/_lib/metadata";
+import { createPracticePlayMetadata } from "../../_lib/metadata";
 import { MentsuFuPlayView } from "../_components/mentsu-fu-play-view";
 
 export async function generateMetadata(): Promise<Metadata> {
-  return createTitleOnlyMetadata("mentsuFu");
+  return createPracticePlayMetadata("mentsuFu");
 }
 
 /**

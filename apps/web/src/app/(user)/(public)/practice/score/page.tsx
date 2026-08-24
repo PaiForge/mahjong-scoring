@@ -20,7 +20,9 @@ import { ScoreSetupForm } from "./_components/score-setup-form";
 import { ScoreHelpTour } from "./_components/score-help-tour";
 
 export async function generateMetadata(): Promise<Metadata> {
-  return createNamespaceMetadata("score");
+  // slug "score" は練習レジストリ（PRACTICE_MENU_SLUGS）に載らないため
+  // createPracticeMetadata を使えない。パスをここで明示する。
+  return createNamespaceMetadata("score", { path: "/practice/score" });
 }
 
 export default async function ScoreSetupPage() {

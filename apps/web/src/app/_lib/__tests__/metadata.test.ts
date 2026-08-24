@@ -179,7 +179,19 @@ describe("createResultMetadata", () => {
 
     await expect(createResultMetadata("jantouFu")).resolves.toEqual({
       title: `雀頭符 - 結果 - ${SITE_NAME}`,
+      robots: { index: false, follow: true },
       ...expectedCard(`雀頭符 - 結果 - ${SITE_NAME}`),
+    });
+  });
+
+  it("noindex, follow を出す（intro と検索結果で競合させない）", async () => {
+    setupTranslations({
+      jantouFu: { title: "雀頭符" },
+      challenge: { resultSuffix: "結果" },
+    });
+
+    await expect(createResultMetadata("jantouFu")).resolves.toMatchObject({
+      robots: { index: false, follow: true },
     });
   });
 

@@ -12,11 +12,11 @@
  * 4. 「終了」を押すと説明ページへ戻る
  */
 import type { Metadata } from "next";
-import { createNamespaceMetadata } from "@/app/_lib/metadata";
+import { createPracticeTrainingMetadata } from "../../_lib/metadata";
 import { ScoreCalculationTrainingView } from "../_components/score-calculation-training-view";
 
 export async function generateMetadata(): Promise<Metadata> {
-  return createNamespaceMetadata("scoreCalculationChallenge");
+  return createPracticeTrainingMetadata("scoreCalculationChallenge");
 }
 
 export default function ScoreCalculationTrainingPage() {

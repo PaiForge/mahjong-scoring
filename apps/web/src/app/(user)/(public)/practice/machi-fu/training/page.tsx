@@ -12,11 +12,11 @@
  * 4. 「終了」を押すと説明ページへ戻る
  */
 import type { Metadata } from "next";
-import { createNamespaceMetadata } from "@/app/_lib/metadata";
+import { createPracticeTrainingMetadata } from "../../_lib/metadata";
 import { MachiFuTrainingView } from "../_components/machi-fu-training-view";
 
 export async function generateMetadata(): Promise<Metadata> {
-  return createNamespaceMetadata("machiFu");
+  return createPracticeTrainingMetadata("machiFu");
 }
 
 export default function MachiFuTrainingPage() {
