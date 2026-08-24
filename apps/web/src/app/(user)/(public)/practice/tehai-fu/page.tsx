@@ -1,10 +1,10 @@
 import type { Metadata } from "next";
-import { createNamespaceMetadata } from "@/app/_lib/metadata";
+import { createPracticeMetadata } from "../_lib/metadata";
 import { PracticeIntroContent } from "../_components/practice-intro-content";
 import { TehaiFuHowToPlay } from "./_components/tehai-fu-how-to-play";
 
 export async function generateMetadata(): Promise<Metadata> {
-  return createNamespaceMetadata("tehaiFu");
+  return createPracticeMetadata("tehaiFu", "tehai-fu");
 }
 
 /**

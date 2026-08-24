@@ -5,7 +5,7 @@ import { ContentContainer } from "@/app/(user)/_components/content-container";
 import { PageTitle } from "@/app/(user)/_components/page-title";
 
 export async function generateMetadata(): Promise<Metadata> {
-  return createTitleOnlyMetadata("privacy", "pageTitle");
+  return createTitleOnlyMetadata("privacy", "pageTitle", "/privacy");
 }
 
 export default async function PrivacyPage() {

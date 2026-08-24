@@ -20,12 +20,12 @@ import { getTranslations } from "next-intl/server";
 import { ContentContainer } from "@/app/(user)/_components/content-container";
 import { PageTitle } from "@/app/(user)/_components/page-title";
 import { SectionTitle } from "@/app/(user)/_components/section-title";
-import { createNamespaceMetadata } from "@/app/_lib/metadata";
+import { createPracticeMetadata } from "../_lib/metadata";
 import { ScoreTableHowToPlay } from "./_components/score-table-how-to-play";
 import { ScoreTableSetup } from "./_components/score-table-setup";
 
 export async function generateMetadata(): Promise<Metadata> {
-  return createNamespaceMetadata("scoreTableChallenge");
+  return createPracticeMetadata("scoreTableChallenge", "score-table");
 }
 
 export default async function ScoreTablePage() {

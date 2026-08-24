@@ -41,7 +41,9 @@ interface YakuCheatItem {
 }
 
 export async function generateMetadata(): Promise<Metadata> {
-  return createNamespaceMetadata("reference.yaku");
+  return createNamespaceMetadata("reference.yaku", {
+    path: "/reference/yaku",
+  });
 }
 
 /** チートシートに載せる役（除外役・例未定義を除く）を門前翻数ごとにグループ化する */

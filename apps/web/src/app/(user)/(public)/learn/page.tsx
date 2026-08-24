@@ -30,6 +30,7 @@ export async function generateMetadata(): Promise<Metadata> {
   return createNamespaceMetadata("learnCurriculum.index", {
     title: "pageTitle",
     description: "pageDescription",
+    path: "/learn",
   });
 }
 

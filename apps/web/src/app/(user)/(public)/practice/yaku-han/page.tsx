@@ -17,12 +17,12 @@ import { HowToPlaySection } from "../_components/how-to-play-section";
 import { getTranslations } from "next-intl/server";
 import { ContentContainer } from "@/app/(user)/_components/content-container";
 import { PageTitle } from "@/app/(user)/_components/page-title";
-import { createNamespaceMetadata } from "@/app/_lib/metadata";
+import { createPracticeMetadata } from "../_lib/metadata";
 import { YakuHanHowToPlay } from "./_components/yaku-han-how-to-play";
 import { YakuHanStartPanel } from "./_components/yaku-han-start-panel";
 
 export async function generateMetadata(): Promise<Metadata> {
-  return createNamespaceMetadata("yakuHanChallenge");
+  return createPracticeMetadata("yakuHanChallenge", "yaku-han");
 }
 
 export default async function YakuHanPage() {

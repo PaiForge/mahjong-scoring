@@ -12,6 +12,7 @@ export async function generateMetadata(): Promise<Metadata> {
   return createNamespaceMetadata("scoreTable", {
     title: "pageTitle",
     description: "pageDescription",
+    path: "/reference/score-table",
   });
 }
 
