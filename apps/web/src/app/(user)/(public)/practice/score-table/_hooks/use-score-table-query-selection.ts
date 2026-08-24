@@ -2,6 +2,7 @@
 
 import { useMemo } from "react";
 import { useSearchParams } from "next/navigation";
+import { useRuleSettingsStore } from "@/app/_hooks/use-rule-settings-store";
 import type { ScoreTableGeneratorOptions } from "@mahjong-scoring/core";
 import {
   hasSelectionParams,
@@ -44,9 +45,14 @@ export function useScoreTableQuerySelection(): ScoreTableQuerySelection {
  * URL 出題オプション
  *
  * play / training の盤面が使う。`useScoreTableQuestion` の依存に渡るため、
- * 参照が毎レンダー変わらないようメモ化する。
+ * 参照が毎レンダー変わらないようメモ化する。URL の条件に加えて、
+ * ローカルルール設定（切り上げ満貫）も出題オプションへ反映する。
  */
 export function useScoreTableGeneratorOptions(): ScoreTableGeneratorOptions {
   const { selection } = useScoreTableQuerySelection();
-  return useMemo(() => selectionToGeneratorOptions(selection), [selection]);
+  const kiriageMangan = useRuleSettingsStore((s) => s.kiriageMangan);
+  return useMemo(
+    () => ({ ...selectionToGeneratorOptions(selection), kiriageMangan }),
+    [selection, kiriageMangan],
+  );
 }

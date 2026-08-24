@@ -72,8 +72,12 @@ export const useScorePracticeStore = create<ScorePracticeStore>((set, get) => ({
 
   generateNewQuestion: () => {
     const { options } = get();
-    const { renfonpaiAs4Fu } = useRuleSettingsStore.getState();
-    const question = generateValidScoreQuestion({ ...options, renfonpaiAs4Fu });
+    const { renfonpaiAs4Fu, kiriageMangan } = useRuleSettingsStore.getState();
+    const question = generateValidScoreQuestion({
+      ...options,
+      renfonpaiAs4Fu,
+      kiriageMangan,
+    });
     set((state) => ({
       currentQuestion: question,
       userAnswer: undefined,

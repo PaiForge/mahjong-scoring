@@ -4,6 +4,7 @@ import { useState } from "react";
 import { useTranslations } from "next-intl";
 import type { ScoreTableUserAnswer } from "@mahjong-scoring/core";
 import { Button } from "@/app/(user)/_components/button";
+import { useRuleSettingsStore } from "@/app/_hooks/use-rule-settings-store";
 import { getAvailableScores } from "../score/_lib/get-available-scores";
 import { ScoreOptionSelect } from "./score-option-select";
 
@@ -56,7 +57,14 @@ export function ScoreAnswerForm({
   const isKoTsumo = isTsumo && !isOya;
   const isOyaTsumo = isTsumo && isOya;
 
-  const availableScores = getAvailableScores(han, isOya, isTsumo, manganOnly);
+  const kiriageMangan = useRuleSettingsStore((s) => s.kiriageMangan);
+  const availableScores = getAvailableScores(
+    han,
+    isOya,
+    isTsumo,
+    manganOnly,
+    kiriageMangan,
+  );
 
   // 単一選択（ロン / 親ツモ）の値から回答を送信する
   const submitSingle = (value: string) => {

@@ -5,6 +5,7 @@ import { useTranslations } from "next-intl";
 import { FU_VALUES } from "@mahjong-scoring/core";
 import type { UserAnswer } from "@mahjong-scoring/core";
 import { YakuSelect } from "./yaku-select";
+import { useRuleSettingsStore } from "@/app/_hooks/use-rule-settings-store";
 import { getAvailableScores } from "../_lib/get-available-scores";
 import { MANGAN_MIN_HAN, PRACTICE_HAN_TIERS } from "../_lib/han-tiers";
 import { getSelectClass } from "../../_lib/select-class";
@@ -106,9 +107,10 @@ export function ScorePracticeAnswerForm({
     [],
   );
 
+  const kiriageMangan = useRuleSettingsStore((s) => s.kiriageMangan);
   const availableScores = useMemo(
-    () => getAvailableScores(han, isOya, isTsumo),
-    [han, isOya, isTsumo],
+    () => getAvailableScores(han, isOya, isTsumo, undefined, kiriageMangan),
+    [han, isOya, isTsumo, kiriageMangan],
   );
 
   const handleSubmit = (e: React.FormEvent) => {

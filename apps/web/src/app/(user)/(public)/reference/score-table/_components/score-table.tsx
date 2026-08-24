@@ -11,6 +11,7 @@ import {
   isWinType,
 } from "@mahjong-scoring/core";
 import { ToggleGroup } from "@/app/(user)/_components/toggle-group";
+import { useRuleSettingsStore } from "@/app/_hooks/use-rule-settings-store";
 import { buildHighlightCellId } from "../_lib/score-table-utils";
 import type { Role, WinType } from "@mahjong-scoring/core";
 import { HAN_COLS, FU_ROWS, NormalScoreTable } from "./normal-score-table";
@@ -57,8 +58,9 @@ export function ScoreTable() {
   const [hiddenCells, setHiddenCells] = useState<Record<string, boolean>>({});
 
   const isKo = activeTab === "ko";
+  const kiriageMangan = useRuleSettingsStore((s) => s.kiriageMangan);
 
-  /** 符・翻の点数計算結果グリッド（activeTab / winType のみに依存） */
+  /** 符・翻の点数計算結果グリッド（activeTab / winType / 切り上げ満貫設定に依存） */
   const scoreGrid = useMemo(() => {
     const grid = new Map<string, ReturnType<typeof calculateKoScore>>();
     for (const fu of FU_ROWS) {
@@ -67,13 +69,15 @@ export function ScoreTable() {
           const key = `${han}-${fu}`;
           grid.set(
             key,
-            isKo ? calculateKoScore(han, fu) : calculateOyaScore(han, fu),
+            isKo
+              ? calculateKoScore(han, fu, { kiriageMangan })
+              : calculateOyaScore(han, fu, { kiriageMangan }),
           );
         }
       }
     }
     return grid;
-  }, [isKo, winType]);
+  }, [isKo, winType, kiriageMangan]);
 
   useEffect(() => {
     if (highlightRef.current) {
