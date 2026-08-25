@@ -15,15 +15,21 @@ type GenerateOptions = Parameters<typeof generateValidScoreQuestion>[0];
  * 回答判定は呼び出し側（各盤面）が行う。
  *
  * @param generateOptions - 出題オプション（再生成のたびに使用するため安定参照を渡すこと）
+ * @param maxRetries - 生成の最大試行回数（未指定時は `generateValidScoreQuestion` の既定値）。
+ *   出題条件が厳しく生成成功率が低い練習（`minHan` 指定の試験等）は、予算超過で
+ *   `undefined` が返ると盤面がプレースホルダのまま止まるため、大きめの値を渡すこと
  */
-export function useGeneratedScoreQuestion(generateOptions?: GenerateOptions): {
+export function useGeneratedScoreQuestion(
+  generateOptions?: GenerateOptions,
+  maxRetries?: number,
+): {
   readonly question: ScoreQuestion | undefined;
   readonly questionIndex: number;
   readonly advanceQuestion: () => void;
 } {
   const generate = useCallback(
-    () => generateValidScoreQuestion(generateOptions) ?? undefined,
-    [generateOptions],
+    () => generateValidScoreQuestion(generateOptions, maxRetries) ?? undefined,
+    [generateOptions, maxRetries],
   );
   const [question, setQuestion] = useClientGeneratedQuestion(generate);
   const [questionIndex, setQuestionIndex] = useState(0);
