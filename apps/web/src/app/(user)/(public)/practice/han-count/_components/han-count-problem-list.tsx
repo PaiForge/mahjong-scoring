@@ -3,6 +3,7 @@
 import { useTranslations } from "next-intl";
 import { AnswerComparison } from "../../_components/answer-comparison";
 import { ProblemListAccordion } from "../../_components/problem-list-accordion";
+import { hanCountLabel } from "../_lib/han-options";
 import type { HanCountQuestionResult } from "../_lib/types";
 
 interface HanCountProblemListProps {
@@ -27,8 +28,8 @@ export function HanCountProblemList({ results }: HanCountProblemListProps) {
         <AnswerComparison
           translationNamespace="hanCountChallenge"
           isCorrect={result.isCorrect}
-          correct={t("hanOption", { count: result.correctHan })}
-          user={t("hanOption", { count: result.userHan })}
+          correct={hanCountLabel(result.correctHan, t)}
+          user={hanCountLabel(result.userHan, t)}
         />
       )}
     />

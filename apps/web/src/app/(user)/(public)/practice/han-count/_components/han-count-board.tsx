@@ -1,6 +1,7 @@
 "use client";
 
 import { useCallback } from "react";
+import { clampHanToYakuman } from "@mahjong-scoring/core";
 import { tehaiContextOf } from "../../_lib/score-question-context";
 import { QuestionGeneratingPlaceholder } from "../../_components/question-generating-placeholder";
 import { useTranslations } from "next-intl";
@@ -31,7 +32,9 @@ export function HanCountBoard({
     (userHan: number) => {
       if (showFeedback || !question) return;
 
-      const correctHan = question.answer.han;
+      // 選択肢は 1〜13 のため、14翻以上（役満+ドラ・ダブル役満等）の正解は
+      // 役満（13翻）に丸めて判定・記録する。丸めないと正解できない問題になる
+      const correctHan = clampHanToYakuman(question.answer.han);
       const isCorrect = userHan === correctHan;
 
       onRecordResult?.({ correctHan, userHan, isCorrect });
@@ -52,9 +55,9 @@ export function HanCountBoard({
         translationNamespace="hanCountChallenge"
       />
 
-      {/* Answer form */}
+      {/* Answer form（正解ハイライトも丸めた翻数で行う） */}
       <HanCountAnswerForm
-        correctHan={question.answer.han}
+        correctHan={clampHanToYakuman(question.answer.han)}
         questionIndex={questionIndex}
         showFeedback={showFeedback}
         onSubmit={handleSubmit}

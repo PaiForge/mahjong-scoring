@@ -1,7 +1,7 @@
 "use client";
 
 import { HanChoiceAnswerForm } from "../../_components/han-choice-answer-form";
-import { HAN_OPTIONS } from "../_lib/han-options";
+import { HAN_OPTIONS, hanCountLabel } from "../_lib/han-options";
 
 interface HanCountAnswerFormProps {
   /** 正解の翻数 */
@@ -18,7 +18,7 @@ interface HanCountAnswerFormProps {
  * 翻数即答練習の回答フォーム
  * 翻数回答フォーム
  *
- * 1翻〜13翻の選択肢をボタンで表示し、タップで即回答する。
+ * 1翻〜12翻と役満の選択肢をボタンで表示し、タップで即回答する。
  */
 export function HanCountAnswerForm(props: HanCountAnswerFormProps) {
   return (
@@ -27,7 +27,7 @@ export function HanCountAnswerForm(props: HanCountAnswerFormProps) {
       options={HAN_OPTIONS}
       translationNamespace="hanCountChallenge"
       columnsClassName="grid-cols-4 sm:grid-cols-5"
-      renderLabel={(han, t) => t("hanOption", { count: han })}
+      renderLabel={hanCountLabel}
     />
   );
 }
