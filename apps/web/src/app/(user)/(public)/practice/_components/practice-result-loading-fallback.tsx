@@ -3,6 +3,7 @@ import { useTranslations } from "next-intl";
 
 import type { PracticeMenuSlug } from "@/lib/db/practice-menu-types";
 import { practiceMenuBySlug } from "@/lib/db/practice-menu-types";
+import { practiceHref } from "../_lib/practice-catalog";
 import { buildResultBreadcrumb } from "../_lib/result-breadcrumb";
 import { ResultPageSkeleton } from "./result-page-skeleton";
 
@@ -43,7 +44,7 @@ export function PracticeResultLoadingFallback({ slug }: Props) {
         practiceListLabel: tp("title"),
         practiceTitle,
         resultLabel: tc("resultSuffix"),
-        introHref: `/practice/${slug}`,
+        introHref: practiceHref(slug),
       })}
       problemCount={problemCount}
     />

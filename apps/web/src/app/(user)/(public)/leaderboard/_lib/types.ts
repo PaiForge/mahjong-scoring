@@ -6,6 +6,7 @@ import type {
 import {
   PRACTICE_MENU_TYPES,
   menuTypeToSlug,
+  practiceMenuBySlug,
   slugToMenuType,
 } from "@/lib/db/practice-menu-types";
 import type { RankedLeaderboardRow } from "@/lib/db/leaderboard-queries";
@@ -95,5 +96,6 @@ export function buildDetailPath(
  */
 export function buildChallengePath(module: LeaderboardModule): string {
   const slug = moduleToSlug(module);
-  return `/practice/${slug}/play`;
+  // basePath 上書き（/exam 配下の昇級試験等）にも追随する
+  return `${practiceMenuBySlug(slug).basePath}/play`;
 }

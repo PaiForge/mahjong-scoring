@@ -19,9 +19,14 @@ export interface FinishCallbackArgs {
  * `grant` が設定されている場合、結果ページの URL に `grant=<id>` クエリパラメータとして
  * 付与される。これは `challenge_results.id` で、結果ページでの EXP 付与情報の
  * サーバーサイド再取得に使用される。
+ *
+ * `promoted` は今回の保存で新たに付与された段級位 slug。結果ページの URL に
+ * `promoted=<slug>`（複数可）として付与され、昇級バナーの表示に使用される。
+ * 表示側はクエリ値を鵜呑みにせず `user_ranks` と突き合わせて検証する。
  */
 export interface FinishCallbackResult {
   readonly grant?: string;
+  readonly promoted?: readonly string[];
 }
 
 interface UseFinishRedirectOptions {
@@ -73,13 +78,16 @@ export function useFinishRedirect({
 
     const { correctCount, incorrectCount, totalCount } = finalResult;
 
-    const buildResultUrl = (grant?: string): string => {
+    const buildResultUrl = (result?: FinishCallbackResult): string => {
       const params = new URLSearchParams({
         correct: correctCount.toString(),
         total: totalCount.toString(),
         time: elapsedMs.toString(),
       });
-      if (grant) params.set("grant", grant);
+      if (result?.grant) params.set("grant", result.grant);
+      for (const slug of result?.promoted ?? []) {
+        params.append("promoted", slug);
+      }
       return `${resultPath}?${params.toString()}`;
     };
 
@@ -90,8 +98,7 @@ export function useFinishRedirect({
               onFinish({ correctCount, incorrectCount, totalCount, elapsedMs }),
             )
           : undefined;
-        const grant = result && "grant" in result ? result.grant : undefined;
-        router.push(buildResultUrl(grant));
+        router.push(buildResultUrl(result ?? undefined));
       } catch (error: unknown) {
         console.error("[useFinishRedirect] onFinish failed:", error);
         router.push(buildResultUrl());

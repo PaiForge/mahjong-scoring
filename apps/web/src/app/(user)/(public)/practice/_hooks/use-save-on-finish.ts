@@ -46,7 +46,10 @@ export function useSaveOnFinish(
           // 匿名ユーザー: 期待される no-op（エラーではない）
           return undefined;
         }
-        return { grant: result.challengeResultId };
+        return {
+          grant: result.challengeResultId,
+          promoted: result.grantedRanks,
+        };
       } catch (error: unknown) {
         logExternalError("savePracticeResult", menuType, error);
         return undefined;

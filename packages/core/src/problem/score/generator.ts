@@ -133,6 +133,7 @@ export function generateScoreQuestion(
     renfonpaiAs4Fu = false,
     kiriageMangan = false,
     allowedRanges = ["nonMangan", "manganPlus"],
+    minHan = 0,
   } = options;
 
   // 1. 手牌の生成（七対子 or 面子手）
@@ -206,9 +207,11 @@ export function generateScoreQuestion(
     });
   }
 
-  // 7. 点数帯の検証と組み立て
+  // 7. 点数帯・最小翻数の検証と組み立て
+  //    minHan はリーチ・裏ドラ適用後の最終翻数で判定する（出題表示と一致させる）
   if (!validateScoreRange(finalAnswer.scoreLevel, allowedRanges))
     return undefined;
+  if (finalAnswer.han < minHan) return undefined;
 
   return assembleScoreQuestion({
     tehai,

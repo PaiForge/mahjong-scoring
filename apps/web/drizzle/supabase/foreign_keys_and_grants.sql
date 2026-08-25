@@ -173,3 +173,23 @@ GRANT SELECT, INSERT, DELETE ON TABLE public.learn_chapter_reads TO authenticate
 -- 公開コンテンツ。auth.users への FK は無し。読み取りのみ anon / authenticated に
 -- 付与し、RLS の published ポリシーで draft を隠す。書き込みは直 DB 接続のみ。
 GRANT SELECT ON TABLE public.announcements TO anon, authenticated;
+
+-- =============================================================================
+-- user_ranks
+-- =============================================================================
+
+-- FK constraint: user_ranks.user_id → auth.users(id) ON DELETE CASCADE
+DO $$
+BEGIN
+  IF NOT EXISTS (
+    SELECT 1 FROM pg_constraint WHERE conname = 'user_ranks_user_id_fkey'
+  ) THEN
+    ALTER TABLE public.user_ranks
+      ADD CONSTRAINT user_ranks_user_id_fkey
+      FOREIGN KEY (user_id) REFERENCES auth.users(id) ON DELETE CASCADE;
+  END IF;
+END;
+$$;
+
+-- Writes are service-role only (rank evaluation runs server-side).
+GRANT SELECT ON TABLE public.user_ranks TO authenticated;

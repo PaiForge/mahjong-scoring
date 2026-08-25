@@ -12,7 +12,12 @@ import { SectionTitle } from "@/app/(user)/_components/section-title";
 import { LinkButton } from "@/app/(user)/_components/link-button";
 import { PlayIcon } from "@/app/(user)/_components/icons/play-icon";
 import { BookIcon } from "@/app/(user)/_components/icons/book-icon";
-import { practiceMenuFromCatalog } from "../_lib/practice-catalog";
+import { practiceMenuBySlug } from "@/lib/db/practice-menu-types";
+import {
+  practiceMenuFromCatalog,
+  practicePlayHref,
+  practiceTrainingHref,
+} from "../_lib/practice-catalog";
 import { PRACTICE_SCROLL_HASH } from "../_lib/scroll-anchor";
 
 interface PracticeIntroContentProps {
@@ -27,6 +32,11 @@ interface PracticeIntroContentProps {
    * 「問題方式」セクションとして実際の出題例を表示する。
    */
   readonly howToPlay?: ReactNode;
+  /**
+   * 開始ボタンの直前に置く注意書き（昇級試験の合格条件パネル等）。
+   * 開始前に必ず目に入る位置に出したい情報のためのスロット。
+   */
+  readonly notice?: ReactNode;
 }
 
 /**
@@ -42,6 +52,7 @@ export async function PracticeIntroContent({
   slug,
   showTraining = false,
   howToPlay,
+  notice,
 }: PracticeIntroContentProps) {
   // 前提知識となる章はカタログが持つ。専用の章を持たない練習では
   // 「関連記事」セクションごと出さない。
@@ -75,19 +86,20 @@ export async function PracticeIntroContent({
           </HowToPlaySection>
         )}
 
+        {notice}
+
         {showTraining ? (
           <PracticeStartCta
-            playHref={`/practice/${slug}/play${PRACTICE_SCROLL_HASH}`}
-            trainingHref={`/practice/${slug}/training${PRACTICE_SCROLL_HASH}`}
-            labels={buildPracticeStartCtaLabels({
-              challenge: tc,
-              practice: tp,
-              training: tt,
-            })}
+            playHref={`${practicePlayHref(slug)}${PRACTICE_SCROLL_HASH}`}
+            trainingHref={`${practiceTrainingHref(slug)}${PRACTICE_SCROLL_HASH}`}
+            labels={buildPracticeStartCtaLabels(
+              { challenge: tc, practice: tp, training: tt },
+              practiceMenuBySlug(slug),
+            )}
           />
         ) : (
           <LinkButton
-            href={`/practice/${slug}/play${PRACTICE_SCROLL_HASH}`}
+            href={`${practicePlayHref(slug)}${PRACTICE_SCROLL_HASH}`}
             size="lg"
             fullWidth
           >

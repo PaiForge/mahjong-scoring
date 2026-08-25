@@ -14,6 +14,7 @@ import { useSaveOnFinish } from "../_hooks/use-save-on-finish";
 import { useTimedSession } from "../_hooks/use-timed-session";
 import { useTrainingSession } from "../_hooks/use-training-session";
 import type { PracticeBoardProps } from "./practice-board-props";
+import { practiceHref, practiceResultHref } from "./practice-catalog";
 
 /**
  * チャレンジ盤面の描画に渡される状態
@@ -76,7 +77,8 @@ export function createChallengePlayView<
   config: ChallengePlayViewConfig<TResult, TProps, TState>,
 ): (props: TProps) => ReactNode {
   const { slug, maxWidth, renderBoard, showScoreCounter } = config;
-  const { namespace, menuType, hasProblemList } = practiceMenuBySlug(slug);
+  const { namespace, menuType, hasProblemList, mistakeLimit, timeLimit } =
+    practiceMenuBySlug(slug);
   // 問題別フィードバック一覧を持つ練習だけが問題結果を sessionStorage に積む。
   // 一覧の有無はレジストリが唯一の定義で、結果ページとそのスケルトン
   // （loading.tsx / ChallengeShell）も同じ旗を見る。
@@ -89,7 +91,12 @@ export function createChallengePlayView<
   function ChallengePlayView(props: TProps) {
     const t = useTranslations(namespace);
     const boardState = useBoardState(props);
-    const { gameSession, timerControl } = useTimedSession();
+    // セッションルール（制限時間・ミス上限）はレジストリが正典。
+    // 練習ごとの上書き（昇級試験のミス1回等）もここ経由で効く
+    const { gameSession, timerControl } = useTimedSession({
+      mistakeLimit,
+      timeLimit,
+    });
     const handleFinish = useSaveOnFinish(menuType);
     const { recordResult } = useRecordedResults<TResult>(
       resultStorageKey,
@@ -101,8 +108,8 @@ export function createChallengePlayView<
         title={t("title")}
         gameSession={gameSession}
         timerControl={timerControl}
-        resultPath={`/practice/${slug}/result`}
-        exitHref={`/practice/${slug}`}
+        resultPath={practiceResultHref(slug)}
+        exitHref={practiceHref(slug)}
         maxWidth={maxWidth}
         hasProblemList={hasProblemList}
         showScoreCounter={showScoreCounter}
@@ -193,7 +200,7 @@ export function createTrainingView<TProps = Record<string, never>>(
         title={t("title")}
         correctCount={correctCount}
         totalCount={totalCount}
-        exitHref={`/practice/${slug}`}
+        exitHref={practiceHref(slug)}
         maxWidth={maxWidth}
       >
         {renderBoard(

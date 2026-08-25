@@ -71,6 +71,13 @@
       "when": 1787480661719,
       "tag": "20260823102421_add_hidden_from_leaderboard_to_profiles",
       "breakpoints": true
+    },
+    {
+      "idx": 10,
+      "version": "7",
+      "when": 1787627765925,
+      "tag": "20260825031605_create_user_ranks",
+      "breakpoints": true
     }
   ]
 }

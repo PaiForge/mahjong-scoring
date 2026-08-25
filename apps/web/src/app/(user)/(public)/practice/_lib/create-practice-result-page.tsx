@@ -15,12 +15,16 @@ import { getExpInfoByChallengeResultId } from "@/lib/db/save-exp";
 import { getOptionalUser } from "@/lib/auth";
 import { logExternalError } from "@/lib/log-error";
 
+import { isRankSlug } from "@/lib/ranks/registry";
+
 import { ExpGainDisplay } from "../_components/exp-gain-display";
+import { PromotionBanner } from "../_components/promotion-banner";
 import { LeaderboardPreview } from "../_components/leaderboard-preview";
 import { LeaderboardSkeleton } from "../_components/leaderboard-skeleton";
 import { ResultBlockSkeleton } from "../_components/result-block-skeleton";
 import { SignUpCta } from "../_components/sign-up-cta";
 import { debugResultDelay } from "./debug-delay";
+import { practiceHref, practicePlayHref } from "./practice-catalog";
 
 const PREVIEW_COUNT = 3;
 
@@ -43,6 +47,12 @@ export interface PracticeResultViewProps {
   readonly correct: number;
   /** 総出題数（URL クエリ `?total=` から親 Server Component が parse して渡す） */
   readonly total: number;
+  /**
+   * 昇級バナーのブロック（昇級がなければ undefined）。
+   * URL クエリ `?promoted=` 由来の候補を `user_ranks` と突き合わせて描画する
+   * 非同期ツリー。結果セクションの直後に表示される。
+   */
+  readonly promotionBlock?: React.ReactNode;
   /**
    * 経験値セクション / 登録 CTA のブロック。
    * `<Suspense fallback={<ResultBlockSkeleton />}>` で包まれた
@@ -136,6 +146,17 @@ export function createPracticeResultPage(
     const rawGrant = resolvedSearchParams.grant;
     const grantId = typeof rawGrant === "string" ? rawGrant : undefined;
 
+    // 昇級バナー: promoted=<slug>（複数可）。未知のスラッグはここで落とし、
+    // 実在検証（本人が保持しているか）は PromotionBanner 側で行う
+    const rawPromoted = resolvedSearchParams.promoted;
+    const promotedSlugs = (
+      Array.isArray(rawPromoted)
+        ? rawPromoted
+        : typeof rawPromoted === "string"
+          ? [rawPromoted]
+          : []
+    ).filter(isRankSlug);
+
     const rawCorrect = resolvedSearchParams.correct;
     const rawTotal = resolvedSearchParams.total;
     const correct = Number(typeof rawCorrect === "string" ? rawCorrect : 0);
@@ -144,10 +165,18 @@ export function createPracticeResultPage(
     return (
       <ResultView
         practiceTitle={practiceTitle}
-        playHref={`/practice/${slug}/play`}
-        introHref={`/practice/${slug}`}
+        playHref={practicePlayHref(slug)}
+        introHref={practiceHref(slug)}
         correct={Number.isFinite(correct) ? correct : 0}
         total={Number.isFinite(total) ? total : 0}
+        promotionBlock={
+          promotedSlugs.length > 0 ? (
+            // バナーは付加情報のため fallback は出さない（解決後に現れる）
+            <Suspense>
+              <PromotionBanner slugs={promotedSlugs} />
+            </Suspense>
+          ) : undefined
+        }
         resultBlock={
           <Suspense fallback={<ResultBlockSkeleton />}>
             <AsyncResultBlock grantId={grantId} />

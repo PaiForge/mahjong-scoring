@@ -1,11 +1,16 @@
 import { describe, expect, it, vi, beforeEach } from "vitest";
 
-const { mockGetOptionalVerifiedUser, mockSaveChallengeResult } = vi.hoisted(
-  () => ({
-    mockGetOptionalVerifiedUser: vi.fn(),
-    mockSaveChallengeResult: vi.fn(),
-  }),
-);
+const {
+  mockGetOptionalVerifiedUser,
+  mockSaveChallengeResult,
+  mockCheckAndGrantRanks,
+} = vi.hoisted(() => ({
+  mockGetOptionalVerifiedUser: vi.fn(),
+  mockSaveChallengeResult: vi.fn(),
+  mockCheckAndGrantRanks: vi.fn(),
+}));
+
+vi.mock("server-only", () => ({}));
 
 vi.mock("@/lib/auth", () => ({
   getOptionalVerifiedUser: mockGetOptionalVerifiedUser,
@@ -13,6 +18,10 @@ vi.mock("@/lib/auth", () => ({
 
 vi.mock("../../../../../../lib/db/save-challenge-result", () => ({
   saveChallengeResult: mockSaveChallengeResult,
+}));
+
+vi.mock("../../../../../../lib/db/rank-evaluation", () => ({
+  checkAndGrantRanks: mockCheckAndGrantRanks,
 }));
 
 import { savePracticeResult } from "../save-practice-result";
@@ -94,6 +103,7 @@ describe("savePracticeResult", () => {
     beforeEach(() => {
       mockGetOptionalVerifiedUser.mockResolvedValue({ id: "user-123" });
       mockSaveChallengeResult.mockResolvedValue({ challengeResultId: "cr-1" });
+      mockCheckAndGrantRanks.mockResolvedValue([]);
     });
 
     it("returns success: true with challengeResultId", async () => {
@@ -103,7 +113,44 @@ describe("savePracticeResult", () => {
         validFields,
       );
 
-      expect(result).toEqual({ success: true, challengeResultId: "cr-1" });
+      expect(result).toEqual({
+        success: true,
+        challengeResultId: "cr-1",
+        grantedRanks: [],
+      });
+    });
+
+    it("昇級判定の結果を grantedRanks として返す", async () => {
+      mockCheckAndGrantRanks.mockResolvedValue(["kyu-5"]);
+
+      const result = await savePracticeResult(
+        "mangan_exam",
+        "default",
+        validFields,
+      );
+
+      expect(result).toEqual({
+        success: true,
+        challengeResultId: "cr-1",
+        grantedRanks: ["kyu-5"],
+      });
+      expect(mockCheckAndGrantRanks).toHaveBeenCalledWith("user-123");
+    });
+
+    it("昇級判定の失敗は保存を壊さない（grantedRanks は空で成功を返す）", async () => {
+      mockCheckAndGrantRanks.mockRejectedValue(new Error("db down"));
+
+      const result = await savePracticeResult(
+        "mangan_exam",
+        "default",
+        validFields,
+      );
+
+      expect(result).toEqual({
+        success: true,
+        challengeResultId: "cr-1",
+        grantedRanks: [],
+      });
     });
 
     it("calls saveChallengeResult with rounded values", async () => {

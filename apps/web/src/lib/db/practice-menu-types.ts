@@ -21,9 +21,12 @@
  * - 'han_count': 翻数即答
  * - 'yaku_han': 役の翻数
  * - 'mangan_score_calculation': 満貫以上の点数計算
+ * - 'mangan_exam': 昇級試験（満貫以上の点数計算・役表示なし・ミス1回で終了）
  *
  * `practice/score` は自由練習のため記録対象外。
  */
+
+import { CHALLENGE_TIME_LIMIT, MISTAKE_LIMIT } from "@mahjong-scoring/core";
 
 // ---------------------------------------------------------------------------
 // Registry — single source of truth
@@ -52,6 +55,30 @@ interface PracticeMenuEntry {
    * スケルトン）が出題数ぶんの一覧枠を描く。
    */
   readonly hasProblemList: boolean;
+  /**
+   * チャレンジのミス上限の上書き（省略時は共通の `MISTAKE_LIMIT`）。
+   * ミス上限
+   *
+   * セッションの強制終了（`useTimedSession`）・開始導線のヒント文言・
+   * マイページの完走判定はすべてここから引く。全体定数 `MISTAKE_LIMIT` を
+   * 直接参照すると、上限の異なる練習（昇級試験等）で判定がずれる。
+   */
+  readonly mistakeLimit?: number;
+  /**
+   * チャレンジの制限時間（秒）の上書き（省略時は共通の `CHALLENGE_TIME_LIMIT`）。
+   * 制限時間
+   */
+  readonly timeLimit?: number;
+  /**
+   * ルートのベースパスの上書き（省略時は `/practice/<slug>`）。
+   * ベースパス
+   *
+   * 昇級試験のように `/practice` 以外の URL 名前空間に置く練習が指定する
+   * （例: `/exam/mangan`）。説明・play・result の URL、canonical、
+   * sitemap はすべてここから導出されるため、`src/app/` の物理配置と
+   * 必ず一致させること。
+   */
+  readonly basePath?: string;
 }
 
 /**
@@ -136,6 +163,19 @@ const PRACTICE_MENU_REGISTRY = [
     namespace: "manganScoreCalculationChallenge",
     hasProblemList: true,
   },
+  {
+    menuType: "mangan_exam",
+    slug: "mangan-exam",
+    messageKey: "manganExam",
+    namespace: "manganExamChallenge",
+    hasProblemList: true,
+    // 昇級試験のためミス1回で強制終了（通常チャレンジは MISTAKE_LIMIT = 3）。
+    // 「1ミスでアウト」をセッション側で強制することで、昇級判定は
+    // ベストスコア >= 合格点の単純比較で成立する（RANK_REGISTRY 参照）
+    mistakeLimit: 1,
+    // 試験は /practice ではなく /exam の URL 名前空間に置く
+    basePath: "/exam/mangan",
+  },
 ] as const satisfies readonly PracticeMenuEntry[];
 
 // ---------------------------------------------------------------------------
@@ -163,6 +203,9 @@ export type PracticeMenuNamespace =
 /**
  * 練習種別の全情報
  * 練習種別記述子
+ *
+ * `mistakeLimit` / `timeLimit` はレジストリの省略値を共通定数で解決済み。
+ * 利用側でデフォルトを重ねて適用しないこと。
  */
 export interface PracticeMenuDescriptor {
   readonly menuType: PracticeMenuType;
@@ -170,6 +213,10 @@ export interface PracticeMenuDescriptor {
   readonly messageKey: PracticeMenuMessageKey;
   readonly namespace: PracticeMenuNamespace;
   readonly hasProblemList: boolean;
+  readonly mistakeLimit: number;
+  readonly timeLimit: number;
+  /** ルートのベースパス（説明ページの URL。play / result はこの配下） */
+  readonly basePath: string;
 }
 
 // ---------------------------------------------------------------------------
@@ -208,9 +255,29 @@ const menuTypeToMessageKeyMap = new Map<
   PracticeMenuMessageKey
 >(PRACTICE_MENU_REGISTRY.map((e) => [e.menuType, e.messageKey]));
 
+/** レジストリの省略値を共通定数で解決した記述子を組み立てる */
+function resolveDescriptor(
+  entry: (typeof PRACTICE_MENU_REGISTRY)[number],
+): PracticeMenuDescriptor {
+  // 上書きフィールドは省略可能なため、authoring 型に広げてから読む
+  // （as const の union 型は省略メンバーへのアクセスを許さない）
+  const overrides: PracticeMenuEntry = entry;
+  return {
+    ...entry,
+    mistakeLimit: overrides.mistakeLimit ?? MISTAKE_LIMIT,
+    timeLimit: overrides.timeLimit ?? CHALLENGE_TIME_LIMIT,
+    basePath: overrides.basePath ?? `/practice/${entry.slug}`,
+  };
+}
+
 const slugToDescriptorMap = new Map<PracticeMenuSlug, PracticeMenuDescriptor>(
-  PRACTICE_MENU_REGISTRY.map((e) => [e.slug, e]),
+  PRACTICE_MENU_REGISTRY.map((e) => [e.slug, resolveDescriptor(e)]),
 );
+
+const menuTypeToDescriptorMap = new Map<
+  PracticeMenuType,
+  PracticeMenuDescriptor
+>(PRACTICE_MENU_REGISTRY.map((e) => [e.menuType, resolveDescriptor(e)]));
 
 // ---------------------------------------------------------------------------
 // Conversion functions
@@ -263,6 +330,24 @@ export function practiceMenuBySlug(
   const descriptor = slugToDescriptorMap.get(slug);
   if (descriptor === undefined) {
     throw new Error(`Unknown PracticeMenuSlug: ${slug}`);
+  }
+  return descriptor;
+}
+
+/**
+ * 練習種別（DB snake_case）から練習種別の全情報を取得する
+ * 練習種別記述子取得（種別キー）
+ *
+ * DB 由来のデータ（チャレンジセッション等）にセッションルールを突き合わせる
+ * 場面で使う。ミス上限の異なる練習が混在するため、完走判定などで全体定数
+ * `MISTAKE_LIMIT` を直接参照せずここから引くこと。
+ */
+export function practiceMenuByType(
+  menuType: PracticeMenuType,
+): PracticeMenuDescriptor {
+  const descriptor = menuTypeToDescriptorMap.get(menuType);
+  if (descriptor === undefined) {
+    throw new Error(`Unknown PracticeMenuType: ${menuType}`);
   }
   return descriptor;
 }

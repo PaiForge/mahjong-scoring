@@ -23,6 +23,8 @@ interface UseScoreQuestionBoardParams extends Pick<
 > {
   /** 出題オプション（再生成のたびに使用するため安定参照を渡すこと） */
   readonly generateOptions: GenerateOptions;
+  /** 生成の最大試行回数（{@link useGeneratedScoreQuestion} の同名引数へそのまま渡す） */
+  readonly maxRetries?: number;
 }
 
 interface UseScoreQuestionBoardResult {
@@ -41,12 +43,13 @@ interface UseScoreQuestionBoardResult {
  */
 export function useScoreQuestionBoard({
   generateOptions,
+  maxRetries,
   showFeedback,
   onAnswer,
   onRecordResult,
 }: UseScoreQuestionBoardParams): UseScoreQuestionBoardResult {
   const { question, questionIndex, advanceQuestion } =
-    useGeneratedScoreQuestion(generateOptions);
+    useGeneratedScoreQuestion(generateOptions, maxRetries);
 
   const handleSubmit = useCallback(
     (userAnswer: ScoreTableUserAnswer) => {

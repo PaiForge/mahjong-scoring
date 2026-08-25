@@ -480,3 +480,34 @@ export const announcements = pgTable(
 
 export type Announcement = typeof announcements.$inferSelect;
 export type NewAnnouncement = typeof announcements.$inferInsert;
+
+/**
+ * 段級位の付与記録 — ユーザーが達成した段級位
+ *
+ * @description
+ * 昇級判定（`lib/db/rank-evaluation.ts`）が要件達成を検出したときに
+ * 1行挿入される追記専用テーブル。ランクの定義そのもの（要件・序列）は
+ * DB に持たず、コードの `lib/ranks/registry.ts` が正典。
+ *
+ * @design 主キー (user_id, rank_slug)
+ *
+ * 付与は `onConflictDoNothing` で冪等にする（判定は結果保存のたびに
+ * 走るため、同じランクを二重に付与しない）。剥奪は想定しない。
+ */
+export const userRanks = pgTable(
+  "user_ranks",
+  {
+    /** auth.users(id) への外部キー（Supabase SQL で定義） */
+    userId: uuid("user_id").notNull(),
+    /** 段級位スラッグ（`lib/ranks/registry.ts` の slug） */
+    rankSlug: varchar("rank_slug", { length: 30 }).notNull(),
+    /** 付与日時 */
+    grantedAt: timestamp("granted_at", { withTimezone: true })
+      .defaultNow()
+      .notNull(),
+  },
+  (table) => [primaryKey({ columns: [table.userId, table.rankSlug] })],
+);
+
+export type UserRank = typeof userRanks.$inferSelect;
+export type NewUserRank = typeof userRanks.$inferInsert;

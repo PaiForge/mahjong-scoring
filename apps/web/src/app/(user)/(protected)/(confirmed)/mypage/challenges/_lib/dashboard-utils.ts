@@ -1,6 +1,6 @@
 import type { useTranslations } from "next-intl";
 
-import { MISTAKE_LIMIT } from "@mahjong-scoring/core";
+import { practiceMenuByType } from "@/lib/db/practice-menu-types";
 
 import type {
   ChallengeSession,
@@ -93,9 +93,14 @@ export function getNavigablePreviousPeriod(
 /**
  * 完走判定: ミス上限に達せず終了したセッション
  * 完走判定
+ *
+ * ミス上限は練習ごとに異なる（昇級試験は1回）ため、全体定数ではなく
+ * その練習のレジストリ値と突き合わせる。
  */
 export function isCompletedSession(session: ChallengeSession): boolean {
-  return session.incorrectAnswers < MISTAKE_LIMIT;
+  return (
+    session.incorrectAnswers < practiceMenuByType(session.menuType).mistakeLimit
+  );
 }
 
 /**
