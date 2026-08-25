@@ -173,7 +173,9 @@ export function QuestionDisplay({ question, size }: QuestionDisplayProps) {
                 ?
               </button>
             </div>
-            <div className="flex gap-1">
+            {/* ドラは「1 + 槓子数」枚あるため、槓の入った手では 1 行に収まらない。
+                折り返してセルからはみ出させない */}
+            <div className="flex flex-wrap gap-1">
               {doraMarkers.map((marker, index) => {
                 const result = getDoraFromIndicator(marker);
                 if (result.isErr()) return undefined;
@@ -186,7 +188,7 @@ export function QuestionDisplay({ question, size }: QuestionDisplayProps) {
               <div className="mb-1 text-xs text-surface-500">
                 {t("question.uraDora")}
               </div>
-              <div className="flex gap-1">
+              <div className="flex flex-wrap gap-1">
                 {question.uraDoraMarkers.map((marker, index) => {
                   const result = getDoraFromIndicator(marker);
                   if (result.isErr()) return undefined;

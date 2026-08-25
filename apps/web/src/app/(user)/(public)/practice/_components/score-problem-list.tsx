@@ -103,7 +103,7 @@ export function ScoreProblemList({
 
         return (
           <div className="space-y-3">
-            {question && <QuestionDisplay question={question} size="xs" />}
+            {question && <QuestionDisplay question={question} />}
 
             <AnswerComparison
               translationNamespace={translationNamespace}
