@@ -1,6 +1,6 @@
 import { Suspense } from "react";
 import type { Metadata } from "next";
-import { createPracticePlayMetadata } from "../../_lib/metadata";
+import { createPracticePlayMetadata } from "@/app/(user)/(public)/practice/_lib/metadata";
 import { ManganExamPlayView } from "../_components/mangan-exam-play-view";
 
 export async function generateMetadata(): Promise<Metadata> {

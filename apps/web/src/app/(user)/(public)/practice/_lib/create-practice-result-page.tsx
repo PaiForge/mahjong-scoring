@@ -24,6 +24,7 @@ import { LeaderboardSkeleton } from "../_components/leaderboard-skeleton";
 import { ResultBlockSkeleton } from "../_components/result-block-skeleton";
 import { SignUpCta } from "../_components/sign-up-cta";
 import { debugResultDelay } from "./debug-delay";
+import { practiceHref, practicePlayHref } from "./practice-catalog";
 
 const PREVIEW_COUNT = 3;
 
@@ -164,8 +165,8 @@ export function createPracticeResultPage(
     return (
       <ResultView
         practiceTitle={practiceTitle}
-        playHref={`/practice/${slug}/play`}
-        introHref={`/practice/${slug}`}
+        playHref={practicePlayHref(slug)}
+        introHref={practiceHref(slug)}
         correct={Number.isFinite(correct) ? correct : 0}
         total={Number.isFinite(total) ? total : 0}
         promotionBlock={

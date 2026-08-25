@@ -5,7 +5,7 @@ import type {
   ScoreQuestion,
   ScoreTableUserAnswer,
 } from "@mahjong-scoring/core";
-import { ScoreAnswerForm } from "../../_components/score-answer-form";
+import { ScoreAnswerForm } from "@/app/(user)/(public)/practice/_components/score-answer-form";
 
 interface ManganExamAnswerFormProps {
   readonly question: ScoreQuestion;

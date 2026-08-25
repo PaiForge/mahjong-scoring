@@ -1,6 +1,6 @@
 "use client";
 
-import { createChallengePlayView } from "../../_lib/create-challenge-views";
+import { createChallengePlayView } from "@/app/(user)/(public)/practice/_lib/create-challenge-views";
 import { ManganExamBoard } from "./mangan-exam-board";
 import type { ManganExamQuestionResult } from "../_lib/types";
 

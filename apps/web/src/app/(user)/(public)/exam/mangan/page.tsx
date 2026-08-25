@@ -12,8 +12,8 @@
  * 3. 「開始」を押すと play ページへ遷移
  */
 import type { Metadata } from "next";
-import { createPracticeMetadata } from "../_lib/metadata";
-import { PracticeIntroContent } from "../_components/practice-intro-content";
+import { createPracticeMetadata } from "@/app/(user)/(public)/practice/_lib/metadata";
+import { PracticeIntroContent } from "@/app/(user)/(public)/practice/_components/practice-intro-content";
 import { ManganExamConditions } from "./_components/mangan-exam-conditions";
 import { ManganExamHowToPlay } from "./_components/mangan-exam-how-to-play";
 

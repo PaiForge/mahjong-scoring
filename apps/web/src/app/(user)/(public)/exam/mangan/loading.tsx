@@ -1,4 +1,4 @@
-import { PracticeLoading } from "../_components/practice-loading";
+import { PracticeLoading } from "@/app/(user)/(public)/practice/_components/practice-loading";
 
 /**
  * 練習ルート（説明 / play / result）の読み込み中スケルトン。

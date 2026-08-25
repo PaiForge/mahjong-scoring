@@ -13,7 +13,11 @@ import { LinkButton } from "@/app/(user)/_components/link-button";
 import { PlayIcon } from "@/app/(user)/_components/icons/play-icon";
 import { BookIcon } from "@/app/(user)/_components/icons/book-icon";
 import { practiceMenuBySlug } from "@/lib/db/practice-menu-types";
-import { practiceMenuFromCatalog } from "../_lib/practice-catalog";
+import {
+  practiceMenuFromCatalog,
+  practicePlayHref,
+  practiceTrainingHref,
+} from "../_lib/practice-catalog";
 import { PRACTICE_SCROLL_HASH } from "../_lib/scroll-anchor";
 
 interface PracticeIntroContentProps {
@@ -86,8 +90,8 @@ export async function PracticeIntroContent({
 
         {showTraining ? (
           <PracticeStartCta
-            playHref={`/practice/${slug}/play${PRACTICE_SCROLL_HASH}`}
-            trainingHref={`/practice/${slug}/training${PRACTICE_SCROLL_HASH}`}
+            playHref={`${practicePlayHref(slug)}${PRACTICE_SCROLL_HASH}`}
+            trainingHref={`${practiceTrainingHref(slug)}${PRACTICE_SCROLL_HASH}`}
             labels={buildPracticeStartCtaLabels(
               { challenge: tc, practice: tp, training: tt },
               practiceMenuBySlug(slug),
@@ -95,7 +99,7 @@ export async function PracticeIntroContent({
           />
         ) : (
           <LinkButton
-            href={`/practice/${slug}/play${PRACTICE_SCROLL_HASH}`}
+            href={`${practicePlayHref(slug)}${PRACTICE_SCROLL_HASH}`}
             size="lg"
             fullWidth
           >

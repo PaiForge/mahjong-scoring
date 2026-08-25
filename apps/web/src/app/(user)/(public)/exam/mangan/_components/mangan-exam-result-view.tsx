@@ -1,4 +1,4 @@
-import { createCustomResultView } from "../../_lib/create-custom-result-view";
+import { createCustomResultView } from "@/app/(user)/(public)/practice/_lib/create-custom-result-view";
 import { RESULT_STORAGE_KEY } from "../_lib/types";
 
 /**

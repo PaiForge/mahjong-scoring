@@ -1,6 +1,6 @@
 import { HaiKind } from "@mahjong-scoring/core";
-import { QuestionDisplay } from "../../score/_components/question-display";
-import { buildDemoScoreQuestion } from "../../_lib/demo-score-question";
+import { QuestionDisplay } from "@/app/(user)/(public)/practice/score/_components/question-display";
+import { buildDemoScoreQuestion } from "@/app/(user)/(public)/practice/_lib/demo-score-question";
 
 /**
  * デモ用の固定例: 立直 + 門前清自摸和 + 断么九 + 平和 + ドラ1 = 5翻（満貫）

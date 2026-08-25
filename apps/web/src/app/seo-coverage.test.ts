@@ -5,7 +5,10 @@ import { fileURLToPath } from "node:url";
 import { describe, expect, it } from "vitest";
 
 import { INDEXABLE_PATHS } from "@/app/_lib/sitemap-routes";
-import { isPracticeMenuSlug } from "@/lib/db/practice-menu-types";
+import {
+  PRACTICE_MENU_SLUGS,
+  practiceMenuBySlug,
+} from "@/lib/db/practice-menu-types";
 
 /**
  * SEO カバレッジの不変条件（loading-boundaries.test.ts と同型の構造検査）:
@@ -80,9 +83,13 @@ function declaresCanonical(source: string, urlPath: string): boolean {
   if (learnMatch) {
     return source.includes(`createLearnMetadata("${learnMatch[1]}")`);
   }
-  const practiceMatch = /^\/practice\/([^/]+)$/.exec(urlPath);
-  if (practiceMatch && isPracticeMenuSlug(practiceMatch[1])) {
-    return source.includes(`createPracticeMetadata("${practiceMatch[1]}")`);
+  // 練習の説明ページ: URL はレジストリの basePath（/exam 配下の昇級試験を含む）
+  // から引くため、/practice/ 前置きの正規表現ではなく basePath の逆引きで判定する
+  const practiceSlug = PRACTICE_MENU_SLUGS.find(
+    (slug) => practiceMenuBySlug(slug).basePath === urlPath,
+  );
+  if (practiceSlug) {
+    return source.includes(`createPracticeMetadata("${practiceSlug}")`);
   }
   // path オプション（path: "/x"）と createTitleOnlyMetadata の第 3 引数
   // （, "/x"）の両方を受ける

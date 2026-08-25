@@ -69,6 +69,16 @@ interface PracticeMenuEntry {
    * 制限時間
    */
   readonly timeLimit?: number;
+  /**
+   * ルートのベースパスの上書き（省略時は `/practice/<slug>`）。
+   * ベースパス
+   *
+   * 昇級試験のように `/practice` 以外の URL 名前空間に置く練習が指定する
+   * （例: `/exam/mangan`）。説明・play・result の URL、canonical、
+   * sitemap はすべてここから導出されるため、`src/app/` の物理配置と
+   * 必ず一致させること。
+   */
+  readonly basePath?: string;
 }
 
 /**
@@ -163,6 +173,8 @@ const PRACTICE_MENU_REGISTRY = [
     // 「1ミスでアウト」をセッション側で強制することで、昇級判定は
     // ベストスコア >= 合格点の単純比較で成立する（RANK_REGISTRY 参照）
     mistakeLimit: 1,
+    // 試験は /practice ではなく /exam の URL 名前空間に置く
+    basePath: "/exam/mangan",
   },
 ] as const satisfies readonly PracticeMenuEntry[];
 
@@ -203,6 +215,8 @@ export interface PracticeMenuDescriptor {
   readonly hasProblemList: boolean;
   readonly mistakeLimit: number;
   readonly timeLimit: number;
+  /** ルートのベースパス（説明ページの URL。play / result はこの配下） */
+  readonly basePath: string;
 }
 
 // ---------------------------------------------------------------------------
@@ -252,6 +266,7 @@ function resolveDescriptor(
     ...entry,
     mistakeLimit: overrides.mistakeLimit ?? MISTAKE_LIMIT,
     timeLimit: overrides.timeLimit ?? CHALLENGE_TIME_LIMIT,
+    basePath: overrides.basePath ?? `/practice/${entry.slug}`,
   };
 }
 

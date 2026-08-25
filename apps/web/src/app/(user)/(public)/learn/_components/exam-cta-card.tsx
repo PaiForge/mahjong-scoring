@@ -5,6 +5,7 @@ import { SectionTitle } from "@/app/(user)/_components/section-title";
 import { practiceMenuBySlug } from "@/lib/db/practice-menu-types";
 import type { PracticeMenuSlug } from "@/lib/db/practice-menu-types";
 import { rankRequiringMenu } from "@/lib/ranks/registry";
+import { practiceHref } from "@/app/(user)/(public)/practice/_lib/practice-catalog";
 import { PlayIcon } from "@/app/(user)/_components/icons/play-icon";
 
 interface ExamCtaCardProps {
@@ -56,7 +57,7 @@ export async function ExamCtaCard({ slug }: ExamCtaCardProps) {
             </dd>
           </div>
         </dl>
-        <LinkButton href={`/practice/${slug}`} size="lg" fullWidth>
+        <LinkButton href={practiceHref(slug)} size="lg" fullWidth>
           <PlayIcon className="size-4" />
           {t("examCta.start")}
         </LinkButton>

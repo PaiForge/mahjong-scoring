@@ -14,6 +14,7 @@ import { useSaveOnFinish } from "../_hooks/use-save-on-finish";
 import { useTimedSession } from "../_hooks/use-timed-session";
 import { useTrainingSession } from "../_hooks/use-training-session";
 import type { PracticeBoardProps } from "./practice-board-props";
+import { practiceHref, practiceResultHref } from "./practice-catalog";
 
 /**
  * チャレンジ盤面の描画に渡される状態
@@ -107,8 +108,8 @@ export function createChallengePlayView<
         title={t("title")}
         gameSession={gameSession}
         timerControl={timerControl}
-        resultPath={`/practice/${slug}/result`}
-        exitHref={`/practice/${slug}`}
+        resultPath={practiceResultHref(slug)}
+        exitHref={practiceHref(slug)}
         maxWidth={maxWidth}
         hasProblemList={hasProblemList}
         showScoreCounter={showScoreCounter}
@@ -199,7 +200,7 @@ export function createTrainingView<TProps = Record<string, never>>(
         title={t("title")}
         correctCount={correctCount}
         totalCount={totalCount}
-        exitHref={`/practice/${slug}`}
+        exitHref={practiceHref(slug)}
         maxWidth={maxWidth}
       >
         {renderBoard(

@@ -4,6 +4,7 @@ import { usePathname } from "next/navigation";
 
 import { PageSkeleton } from "@/app/(user)/_components/page-skeleton";
 import type { PracticeMenuSlug } from "@/lib/db/practice-menu-types";
+import { practiceResultHref } from "../_lib/practice-catalog";
 import { PracticeResultLoadingFallback } from "./practice-result-loading-fallback";
 
 interface Props {
@@ -27,7 +28,7 @@ interface Props {
  */
 export function PracticeLoading({ slug }: Props) {
   const pathname = usePathname();
-  const isResult = new RegExp(`^/practice/${slug}/result/?$`).test(pathname);
+  const isResult = new RegExp(`^${practiceResultHref(slug)}/?$`).test(pathname);
   if (isResult) {
     return <PracticeResultLoadingFallback slug={slug} />;
   }

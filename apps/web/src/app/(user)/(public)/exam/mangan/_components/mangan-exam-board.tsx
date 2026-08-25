@@ -1,17 +1,17 @@
 "use client";
 
 import { useTranslations } from "next-intl";
-import { QuestionGeneratingPlaceholder } from "../../_components/question-generating-placeholder";
-import { FeedbackFrame } from "../../_components/feedback-frame";
-import { useScoreQuestionBoard } from "../../_hooks/use-score-question-board";
-import { QuestionDisplay } from "../../score/_components/question-display";
+import { QuestionGeneratingPlaceholder } from "@/app/(user)/(public)/practice/_components/question-generating-placeholder";
+import { FeedbackFrame } from "@/app/(user)/(public)/practice/_components/feedback-frame";
+import { useScoreQuestionBoard } from "@/app/(user)/(public)/practice/_hooks/use-score-question-board";
+import { QuestionDisplay } from "@/app/(user)/(public)/practice/score/_components/question-display";
 import { ManganExamAnswerForm } from "./mangan-exam-answer-form";
 import type { ManganExamQuestionResult } from "../_lib/types";
 import {
   EXAM_GENERATE_OPTIONS,
   EXAM_GENERATION_MAX_RETRIES,
 } from "../_lib/types";
-import type { RecordingPracticeBoardProps } from "../../_lib/practice-board-props";
+import type { RecordingPracticeBoardProps } from "@/app/(user)/(public)/practice/_lib/practice-board-props";
 
 interface ManganExamBoardProps extends RecordingPracticeBoardProps<ManganExamQuestionResult> {
   /** 直前の回答が正解だったか（フィードバック枠の色分けに使用） */

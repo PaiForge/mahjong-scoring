@@ -125,9 +125,30 @@ export function practiceMenusByCategory(
   return PRACTICE_CATALOG.filter((menu) => menu.category === category);
 }
 
-/** 練習ページのパス */
+/**
+ * 練習ページのパス
+ *
+ * 原則 `/practice/<slug>` だが、昇級試験のように別の URL 名前空間に置く
+ * 練習はレジストリの `basePath` が上書きする。パスを直に組み立てず
+ * 必ずここを通すこと（play / result は `practicePlayHref` 等を使う）。
+ */
 export function practiceHref(slug: PracticeMenuSlug): string {
-  return `/practice/${slug}`;
+  return practiceMenuBySlug(slug).basePath;
+}
+
+/** 練習のプレイページのパス */
+export function practicePlayHref(slug: PracticeMenuSlug): string {
+  return `${practiceHref(slug)}/play`;
+}
+
+/** 練習のトレーニングページのパス */
+export function practiceTrainingHref(slug: PracticeMenuSlug): string {
+  return `${practiceHref(slug)}/training`;
+}
+
+/** 練習の結果ページのパス */
+export function practiceResultHref(slug: PracticeMenuSlug): string {
+  return `${practiceHref(slug)}/result`;
 }
 
 /** 練習名の i18n キー（`getTranslations("practice")` スコープ内で使う） */

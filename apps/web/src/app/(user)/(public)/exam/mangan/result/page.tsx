@@ -16,7 +16,7 @@ import type { Metadata } from "next";
 import {
   createPracticeResultMetadata,
   createPracticeResultPage,
-} from "../../_lib/create-practice-result-page";
+} from "@/app/(user)/(public)/practice/_lib/create-practice-result-page";
 import { ManganExamResultView } from "../_components/mangan-exam-result-view";
 
 const SLUG = "mangan-exam" as const;
