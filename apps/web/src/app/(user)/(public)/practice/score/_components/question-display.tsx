@@ -5,10 +5,12 @@ import { Hai, Furo } from "@pai-forge/mahjong-react-ui";
 import type { HaiSize } from "@pai-forge/mahjong-react-ui";
 import { MentsuType, isOya } from "@mahjong-scoring/core";
 import type { HaiKindId, Kazehai, Tehai } from "@mahjong-scoring/core";
-import { getKazeName, getDoraFromIndicator } from "@mahjong-scoring/core";
+import { getKazeName } from "@mahjong-scoring/core";
 import { useResponsiveHaiSize } from "../../_hooks/use-responsive-hai-size";
 import { useTranslations } from "next-intl";
 import { InfoModal } from "@/app/(user)/_components/info-modal";
+import { useDoraDisplayMode } from "@/app/_hooks/use-display-settings-store";
+import { resolveDoraTiles } from "@/app/_lib/dora-display";
 
 /**
  * 手牌表示に必要な出題データの表示専用サブセット
@@ -30,7 +32,11 @@ export interface ScoreQuestionDisplayData {
   readonly jikaze: Kazehai;
   /** 場風 */
   readonly bakaze: Kazehai;
-  /** ドラ表示牌 */
+  /**
+   * ドラ表示牌
+   *
+   * 表示牌のまま出すか、ドラそのものへ読み替えて出すかは表示設定で決まる。
+   */
   readonly doraMarkers: readonly HaiKindId[];
   /** リーチ有無 */
   readonly isRiichi?: boolean;
@@ -59,6 +65,17 @@ export function QuestionDisplay({ question, size }: QuestionDisplayProps) {
   const responsiveHaiSize = useResponsiveHaiSize();
   const haiSize = size ?? responsiveHaiSize;
   const [showDoraInfo, setShowDoraInfo] = useState(false);
+  const doraDisplay = useDoraDisplayMode();
+  const isIndicator = doraDisplay === "indicator";
+
+  const doraTiles = useMemo(
+    () => resolveDoraTiles(doraMarkers, doraDisplay),
+    [doraMarkers, doraDisplay],
+  );
+  const uraDoraTiles = useMemo(
+    () => resolveDoraTiles(question.uraDoraMarkers ?? [], doraDisplay),
+    [question.uraDoraMarkers, doraDisplay],
+  );
 
   const closedWithoutAgari = useMemo(() => {
     const index = tehai.closed.lastIndexOf(agariHai);
@@ -163,7 +180,7 @@ export function QuestionDisplay({ question, size }: QuestionDisplayProps) {
         <div className="flex gap-4 rounded-lg bg-surface-100 p-3">
           <div>
             <div className="mb-1 flex items-center gap-1 text-xs text-surface-500">
-              {t("question.dora")}
+              {tCommon(isIndicator ? "doraIndicator" : "dora")}
               <button
                 type="button"
                 onClick={() => setShowDoraInfo(true)}
@@ -176,30 +193,20 @@ export function QuestionDisplay({ question, size }: QuestionDisplayProps) {
             {/* ドラは「1 + 槓子数」枚あるため、槓の入った手では 1 行に収まらない。
                 折り返してセルからはみ出させない */}
             <div className="flex flex-wrap gap-1">
-              {doraMarkers.map((marker, index) => {
-                const result = getDoraFromIndicator(marker);
-                if (result.isErr()) return undefined;
-                return <Hai key={index} hai={result.value} size={haiSize} />;
-              })}
+              {doraTiles.map((tile, index) => (
+                <Hai key={index} hai={tile} size={haiSize} />
+              ))}
             </div>
           </div>
-          {question.isRiichi && question.uraDoraMarkers && (
+          {question.isRiichi && uraDoraTiles.length > 0 && (
             <div className="border-l-4 border-ink pl-4">
               <div className="mb-1 text-xs text-surface-500">
-                {t("question.uraDora")}
+                {tCommon(isIndicator ? "uraDoraIndicator" : "uraDora")}
               </div>
               <div className="flex flex-wrap gap-1">
-                {question.uraDoraMarkers.map((marker, index) => {
-                  const result = getDoraFromIndicator(marker);
-                  if (result.isErr()) return undefined;
-                  return (
-                    <Hai
-                      key={`ura-${index}`}
-                      hai={result.value}
-                      size={haiSize}
-                    />
-                  );
-                })}
+                {uraDoraTiles.map((tile, index) => (
+                  <Hai key={`ura-${index}`} hai={tile} size={haiSize} />
+                ))}
               </div>
             </div>
           )}
@@ -212,7 +219,13 @@ export function QuestionDisplay({ question, size }: QuestionDisplayProps) {
         title={t("question.doraInfoTitle")}
         closeLabel={tCommon("close")}
       >
-        <p className="whitespace-pre-line">{t("question.doraInfo")}</p>
+        <p className="whitespace-pre-line">
+          {t(
+            isIndicator
+              ? "question.doraInfoIndicator"
+              : "question.doraInfoActual",
+          )}
+        </p>
       </InfoModal>
     </div>
   );
