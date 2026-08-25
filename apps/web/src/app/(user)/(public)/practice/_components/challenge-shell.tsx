@@ -25,7 +25,10 @@ import { PRACTICE_SCROLL_ANCHOR_ID } from "../_lib/scroll-anchor";
 import { QuizTimer } from "./quiz-timer";
 import { QuitConfirmModal } from "./quit-confirm-modal";
 import { ResultPageSkeleton } from "./result-page-skeleton";
-import { TEXT_LINK_MUTED_CLASSES } from "@/app/_components/_lib/link-classes";
+import {
+  PracticeFooterAction,
+  PracticeFooterActions,
+} from "./practice-footer-actions";
 
 interface LifeIndicatorProps {
   readonly remainingLives: number;
@@ -263,26 +266,20 @@ export function ChallengeShell({
               incorrectLabel={tc("incorrect")}
             />
 
-            <div className="text-center">
-              <button
-                type="button"
-                onClick={handleQuitClick}
-                className={`text-sm ${TEXT_LINK_MUTED_CLASSES}`}
-              >
+            <PracticeFooterActions>
+              <PracticeFooterAction onClick={handleQuitClick}>
                 {tc("quitButton")}
-              </button>
-            </div>
+              </PracticeFooterAction>
+            </PracticeFooterActions>
           </div>
         ) : (
           /* Quit button */
-          <div className="mt-6 text-center">
-            <button
-              type="button"
-              onClick={handleQuitClick}
-              className={`text-sm ${TEXT_LINK_MUTED_CLASSES}`}
-            >
-              {tc("quitButton")}
-            </button>
+          <div className="mt-6">
+            <PracticeFooterActions>
+              <PracticeFooterAction onClick={handleQuitClick}>
+                {tc("quitButton")}
+              </PracticeFooterAction>
+            </PracticeFooterActions>
           </div>
         )}
       </div>

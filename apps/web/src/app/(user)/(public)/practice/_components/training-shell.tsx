@@ -1,14 +1,16 @@
 "use client";
 
 import { type ReactNode } from "react";
-import Link from "next/link";
 import { useTranslations } from "next-intl";
 import { ContentContainer } from "@/app/(user)/_components/content-container";
 import { PageTitle } from "@/app/(user)/_components/page-title";
 import { useScrollToElement } from "../_hooks/use-scroll-to-element";
 import { PRACTICE_SCROLL_ANCHOR_ID } from "../_lib/scroll-anchor";
 import { ScoreCounter } from "./score-counter";
-import { TEXT_LINK_MUTED_CLASSES } from "@/app/_components/_lib/link-classes";
+import {
+  PracticeFooterAction,
+  PracticeFooterActions,
+} from "./practice-footer-actions";
 
 interface TrainingShellProps {
   /** 画面上部に表示する練習名（PageTitle に渡す） */
@@ -72,28 +74,16 @@ export function TrainingShell({
         />
 
         {/* Skip / Exit: 参考プロジェクトに倣い、スコア下にまとめて縦に並べる */}
-        <div className="space-y-2 text-center">
+        <PracticeFooterActions>
           {onSkip && (
-            <div>
-              <button
-                type="button"
-                onClick={onSkip}
-                disabled={skipDisabled}
-                className={`text-sm disabled:opacity-50 ${TEXT_LINK_MUTED_CLASSES}`}
-              >
-                {tt("skipButton")}
-              </button>
-            </div>
+            <PracticeFooterAction onClick={onSkip} disabled={skipDisabled}>
+              {tt("skipButton")}
+            </PracticeFooterAction>
           )}
-          <div>
-            <Link
-              href={exitHref}
-              className={`text-sm ${TEXT_LINK_MUTED_CLASSES}`}
-            >
-              {tt("exitButton")}
-            </Link>
-          </div>
-        </div>
+          <PracticeFooterAction href={exitHref}>
+            {tt("exitButton")}
+          </PracticeFooterAction>
+        </PracticeFooterActions>
       </div>
     </ContentContainer>
   );
