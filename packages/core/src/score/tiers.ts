@@ -91,6 +91,19 @@ export const YAKUMAN_HAN = (() => {
 })();
 
 /**
+ * 13翻以上を役満の翻数（{@link YAKUMAN_HAN}）に丸める
+ * 役満翻数丸め
+ *
+ * ダブル役満相当の翻数（26翻以上）も数え役満超えの翻数もすべて役満として
+ * 扱う、というアプリ全体の決定（{@link DISPLAY_TIERS} のコメント参照）の
+ * 計算面の実装。翻数の表示・判定で「役満か否か」より細かい区別をしない
+ * 箇所はこれを通す。
+ */
+export function clampHanToYakuman(han: number): number {
+  return Math.min(han, YAKUMAN_HAN);
+}
+
+/**
  * 翻数から満貫以上の点数区分を引く（満貫未満は undefined）
  * 点数区分特定
  */

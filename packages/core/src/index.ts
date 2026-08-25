@@ -54,6 +54,7 @@ export type { IdGenerator } from "./core/id";
 export { generateValidScoreQuestion } from "./problem/score/generator";
 export { judgeAnswer } from "./problem/score/judgement";
 export {
+  clampHanToYakuman,
   isMangan,
   getScoreLevelName,
   scoreTierForHan,

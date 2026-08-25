@@ -1,10 +1,10 @@
 import type { ScoreQuestion, UserAnswer, JudgementResult } from "./types";
 import { IGNORE_YAKU_FOR_JUDGEMENT } from "../../core/yaku-names";
 import {
+  clampHanToYakuman,
   isMangan,
   MANGAN_MIN_HAN,
   scoreTierForHan,
-  YAKUMAN_HAN,
 } from "../../score/tiers";
 import { setsEqual } from "../shared/set-equal";
 
@@ -53,8 +53,8 @@ function judgeYaku(
  * 翻数簡略化
  */
 function getSimplifiedHan(han: number): number {
-  if (han >= YAKUMAN_HAN) return YAKUMAN_HAN; // 役満（ダブル役満も役満扱い）
-  return scoreTierForHan(han)?.minHan ?? han;
+  // ダブル役満区分（26翻〜）の代表値も役満に丸める
+  return clampHanToYakuman(scoreTierForHan(han)?.minHan ?? han);
 }
 
 /**
