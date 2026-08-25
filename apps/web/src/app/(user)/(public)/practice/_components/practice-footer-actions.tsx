@@ -16,7 +16,11 @@ import { TEXT_LINK_MUTED_CLASSES } from "@/app/_components/_lib/link-classes";
  * 広がるのは押せる範囲だけ。
  */
 type PracticeFooterActionProps = { readonly children: ReactNode } & (
-  | { readonly href: string }
+  | {
+      readonly href: string;
+      /** 遷移に添える処理（トースト表示など）。遷移自体は Link が行う */
+      readonly onClick?: () => void;
+    }
   | { readonly onClick: () => void; readonly disabled?: boolean }
 );
 
@@ -25,7 +29,11 @@ const ACTION_CLASSES = `inline-flex min-h-11 items-center justify-center px-4 te
 export function PracticeFooterAction(props: PracticeFooterActionProps) {
   if ("href" in props) {
     return (
-      <Link href={props.href} className={ACTION_CLASSES}>
+      <Link
+        href={props.href}
+        onClick={props.onClick}
+        className={ACTION_CLASSES}
+      >
         {props.children}
       </Link>
     );

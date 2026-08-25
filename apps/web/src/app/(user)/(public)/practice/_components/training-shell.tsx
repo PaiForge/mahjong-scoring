@@ -1,7 +1,8 @@
 "use client";
 
-import { type ReactNode } from "react";
+import { type ReactNode, useCallback } from "react";
 import { useTranslations } from "next-intl";
+import { toast } from "react-hot-toast";
 import { ContentContainer } from "@/app/(user)/_components/content-container";
 import { PageTitle } from "@/app/(user)/_components/page-title";
 import { useScrollToElement } from "../_hooks/use-scroll-to-element";
@@ -57,6 +58,13 @@ export function TrainingShell({
   // 練習開始直後、グローバルヘッダ分のオフセットを解消して盤面を画面上部へ表示する
   useScrollToElement(PRACTICE_SCROLL_ANCHOR_ID);
 
+  // チャレンジを「やめる」で抜けたときと同じく、終了したことをトーストで返す。
+  // トーストの表示自体はルートレイアウトの GlobalToaster が担うため、
+  // 遷移後の説明ページでも消えずに残る。
+  const handleExit = useCallback(() => {
+    toast(tt("exitToast"));
+  }, [tt]);
+
   return (
     <ContentContainer id={PRACTICE_SCROLL_ANCHOR_ID} fillViewport>
       <PageTitle>{title}</PageTitle>
@@ -80,7 +88,7 @@ export function TrainingShell({
               {tt("skipButton")}
             </PracticeFooterAction>
           )}
-          <PracticeFooterAction href={exitHref}>
+          <PracticeFooterAction href={exitHref} onClick={handleExit}>
             {tt("exitButton")}
           </PracticeFooterAction>
         </PracticeFooterActions>

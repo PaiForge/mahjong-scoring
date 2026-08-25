@@ -28,12 +28,6 @@ import {
 } from "../../_components/practice-footer-actions";
 
 /** 正解トーストの表示スタイル */
-const CORRECT_TOAST_STYLE = {
-  background: "#E6FFFA",
-  color: "#2C7A7B",
-  fontWeight: "bold",
-} as const;
-
 function ScorePracticeBoardInner() {
   const t = useTranslations("score");
   const tc = useTranslations("challenge");
@@ -94,11 +88,8 @@ function ScorePracticeBoardInner() {
       if (autoNext) {
         const state = useScorePracticeStore.getState();
         if (state.judgementResult?.isCorrect) {
-          toast.success(t("board.correct"), {
-            duration: 1500,
-            position: "top-center",
-            style: CORRECT_TOAST_STYLE,
-          });
+          // 連続で解く練習なので既定より短く消す（見た目は GlobalToaster が持つ）
+          toast.success(t("board.correct"), { duration: 1500 });
           nextQuestion();
         }
       }

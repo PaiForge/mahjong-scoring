@@ -143,6 +143,22 @@
     --skin-shadow-lg: 6px 6px 0 var(--color-ink);
     --skin-shadow-xl: 8px 8px 0 var(--color-ink);
     --skin-shadow-2xl: 10px 10px 0 var(--color-ink);
+
+    /*
+     * トーストを画面下端から持ち上げる量（GlobalToaster が引く）。
+     * react-hot-toast のコンテナ位置はインラインスタイルで決まり
+     * ユーティリティクラスで上書きできないため、変数で渡してここで
+     * 画面幅ごとの値を持つ。モバイルはタブバー（約 56px + セーフエリア）
+     * に重ならない高さまで上げる。
+     */
+    --toast-bottom-offset: calc(56px + env(safe-area-inset-bottom) + 1rem);
+  }
+
+  @media (width >= 48rem) {
+    :root {
+      /* タブバーは md 以上で消えるため、通常の画面端の余白まで下げる。 */
+      --toast-bottom-offset: 1rem;
+    }
   }
 
   body {
