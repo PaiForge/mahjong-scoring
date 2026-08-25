@@ -15,7 +15,7 @@ interface ProblemListSkeletonProps {
  * 遷移前後で一覧の領域が一致するようにしている。
  *
  * 寸法は `ProblemListAccordion` の実装に合わせる:
- * - 外枠 `mt-8 w-full max-w-md space-y-2`
+ * - 外枠 `mt-8 w-full space-y-2`
  * - 見出しラベル: `text-sm` の 1 行 = 20px
  * - 各行: border 2px + `p-3` 24px + `text-base` 1 行 24px = 50px
  *
@@ -29,7 +29,7 @@ export function ProblemListSkeleton({ count }: ProblemListSkeletonProps) {
   return (
     <div
       aria-hidden="true"
-      className="mt-8 w-full max-w-md space-y-2"
+      className="mt-8 w-full space-y-2"
       data-testid="problem-list-skeleton"
     >
       <SkeletonBar className="h-5 w-24" />

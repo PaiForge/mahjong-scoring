@@ -11,6 +11,7 @@ import type {
   ScoreTableUserAnswer,
 } from "@mahjong-scoring/core";
 import type { ScoreQuestionResult } from "../_lib/score-question-result";
+import { toScoreQuestionSnapshot } from "../_lib/score-question-result";
 import { paymentToScoreTableAnswer } from "../_lib/payment-adapter";
 import type { RecordingPracticeBoardProps } from "../_lib/practice-board-props";
 import { useGeneratedScoreQuestion } from "./use-generated-score-question";
@@ -66,6 +67,8 @@ export function useScoreQuestionBoard({
         correctAnswer,
         userAnswer,
         isCorrect,
+        // 結果ページで出題内容（手牌・ドラ）を再表示するために保存する
+        question: toScoreQuestionSnapshot(question),
       });
 
       onAnswer(isCorrect, advanceQuestion);

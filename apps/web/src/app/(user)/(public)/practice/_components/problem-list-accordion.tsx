@@ -35,7 +35,7 @@ export function ProblemListAccordion<T>({
   if (results.length === 0) return undefined;
 
   return (
-    <div className="mt-8 w-full max-w-md space-y-2">
+    <div className="mt-8 w-full space-y-2">
       <p className="text-left text-sm font-medium text-surface-500">
         {tResult("problemDetails")}
       </p>

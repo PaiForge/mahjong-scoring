@@ -1,7 +1,33 @@
-import type { ScoreTableAnswer } from "@mahjong-scoring/core";
+import { haiIdToMspz, kazeIdToMspz, tehaiToMspz } from "@mahjong-scoring/core";
+import type { ScoreQuestion, ScoreTableAnswer } from "@mahjong-scoring/core";
 
 import { createSessionStorageParser } from "./create-session-storage-parser";
 import { hasFieldTypes, isRecord } from "./shape-guards";
+
+/**
+ * 出題内容のスナップショット（結果ページでの手牌再表示用）
+ * 出題スナップショット
+ *
+ * sessionStorage を経由する都合上、ブランド型（Tehai14 等）はそのまま
+ * 往復できないため、total-fu 練習と同様に牌はすべて MSPZ 文字列に落として
+ * 保存する。
+ */
+export interface ScoreQuestionSnapshot {
+  /** 手牌（Extended MSPZ。和了牌を含む14枚 + 副露・暗槓） */
+  readonly tehai: string;
+  /** 和了牌（MSPZ） */
+  readonly agariHai: string;
+  /** 場風（MSPZ） */
+  readonly bakaze: string;
+  /** 自風（MSPZ） */
+  readonly jikaze: string;
+  /** ドラ表示牌（MSPZ） */
+  readonly doraMarkers: readonly string[];
+  /** リーチ有無 */
+  readonly isRiichi?: boolean;
+  /** 裏ドラ表示牌（MSPZ） */
+  readonly uraDoraMarkers?: readonly string[];
+}
 
 /**
  * 1問ごとの結果データ（点数系練習共通）
@@ -22,6 +48,29 @@ export interface ScoreQuestionResult {
   readonly userAnswer: ScoreTableAnswer;
   /** 正誤 */
   readonly isCorrect: boolean;
+  /**
+   * 出題内容。結果ページで手牌・ドラを再表示するために持つ。
+   * この項目を保存する前の旧データには存在しないため任意
+   */
+  readonly question?: ScoreQuestionSnapshot;
+}
+
+/**
+ * 出題から保存用スナップショットを組み立てる
+ * 出題スナップショット生成
+ */
+export function toScoreQuestionSnapshot(
+  question: ScoreQuestion,
+): ScoreQuestionSnapshot {
+  return {
+    tehai: tehaiToMspz(question.tehai),
+    agariHai: haiIdToMspz(question.agariHai),
+    bakaze: kazeIdToMspz(question.bakaze),
+    jikaze: kazeIdToMspz(question.jikaze),
+    doraMarkers: question.doraMarkers.map(haiIdToMspz),
+    isRiichi: question.isRiichi,
+    uraDoraMarkers: question.uraDoraMarkers?.map(haiIdToMspz),
+  };
 }
 
 const VALID_ANSWER_TYPES = new Set(["ron", "oyaTsumo", "koTsumo"]);
@@ -34,6 +83,40 @@ function hasValidAnswerType(value: unknown): boolean {
   if (!isRecord(value)) return false;
   const typeValue: unknown = Reflect.get(value, "type");
   return typeof typeValue === "string" && VALID_ANSWER_TYPES.has(typeValue);
+}
+
+/** 値が文字列のみの配列かを判定する */
+function isStringArray(value: unknown): value is readonly string[] {
+  return (
+    Array.isArray(value) && value.every((item) => typeof item === "string")
+  );
+}
+
+/**
+ * 値が ScoreQuestionSnapshot として妥当か検証する
+ * 出題スナップショットバリデーション
+ *
+ * MSPZ として解釈できるかまでは見ない（表示時のパースが失敗したら
+ * 手牌の再表示だけを諦める）。ここでは形だけを確かめる。
+ */
+function isValidQuestionSnapshot(value: unknown): boolean {
+  if (
+    !hasFieldTypes(value, {
+      tehai: "string",
+      agariHai: "string",
+      bakaze: "string",
+      jikaze: "string",
+    })
+  ) {
+    return false;
+  }
+  const isRiichi: unknown = Reflect.get(value, "isRiichi");
+  const uraDoraMarkers: unknown = Reflect.get(value, "uraDoraMarkers");
+  return (
+    isStringArray(Reflect.get(value, "doraMarkers")) &&
+    (isRiichi === undefined || typeof isRiichi === "boolean") &&
+    (uraDoraMarkers === undefined || isStringArray(uraDoraMarkers))
+  );
 }
 
 /**
@@ -53,8 +136,11 @@ function isValidQuestionResult(value: unknown): value is ScoreQuestionResult {
   }
   // 符は満貫以上の問題で省略されるため、任意フィールドとして個別に見る
   const fu: unknown = Reflect.get(value, "fu");
+  // 出題スナップショットは保存を始める前の旧データに存在しないため任意
+  const question: unknown = Reflect.get(value, "question");
   return (
     (fu === undefined || typeof fu === "number") &&
+    (question === undefined || isValidQuestionSnapshot(question)) &&
     hasValidAnswerType(Reflect.get(value, "correctAnswer")) &&
     hasValidAnswerType(Reflect.get(value, "userAnswer"))
   );

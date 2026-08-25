@@ -1,6 +1,11 @@
+import { HaiKind } from "@mahjong-scoring/core";
 import { describe, expect, it } from "vitest";
 
-import { parseQuestionResults } from "../score-question-result";
+import { buildDemoScoreQuestion } from "../demo-score-question";
+import {
+  parseQuestionResults,
+  toScoreQuestionSnapshot,
+} from "../score-question-result";
 
 describe("parseQuestionResults", () => {
   const validResult = {
@@ -194,5 +199,101 @@ describe("parseQuestionResults", () => {
     const raw = JSON.stringify([42, validResult]);
     const results = parseQuestionResults(raw);
     expect(results).toHaveLength(1);
+  });
+
+  describe("question スナップショット", () => {
+    const validSnapshot = {
+      tehai: "234567m345p55678s",
+      agariHai: "3p",
+      bakaze: "1z",
+      jikaze: "2z",
+      doraMarkers: ["1m"],
+      isRiichi: true,
+      uraDoraMarkers: ["5s"],
+    };
+
+    it("スナップショット付きの結果をパースできる", () => {
+      const raw = JSON.stringify([{ ...validResult, question: validSnapshot }]);
+      const results = parseQuestionResults(raw);
+      expect(results).toHaveLength(1);
+      expect(results[0]?.question).toEqual(validSnapshot);
+    });
+
+    it("isRiichi と uraDoraMarkers が無いスナップショットも許容される", () => {
+      const snapshot = {
+        tehai: validSnapshot.tehai,
+        agariHai: validSnapshot.agariHai,
+        bakaze: validSnapshot.bakaze,
+        jikaze: validSnapshot.jikaze,
+        doraMarkers: validSnapshot.doraMarkers,
+      };
+      const raw = JSON.stringify([{ ...validResult, question: snapshot }]);
+      const results = parseQuestionResults(raw);
+      expect(results).toHaveLength(1);
+    });
+
+    it("tehai が文字列でないスナップショットを持つ要素はフィルタされる", () => {
+      const invalid = {
+        ...validResult,
+        question: { ...validSnapshot, tehai: 42 },
+      };
+      const raw = JSON.stringify([invalid]);
+      expect(parseQuestionResults(raw)).toEqual([]);
+    });
+
+    it("doraMarkers に文字列以外を含むスナップショットを持つ要素はフィルタされる", () => {
+      const invalid = {
+        ...validResult,
+        question: { ...validSnapshot, doraMarkers: ["1m", 3] },
+      };
+      const raw = JSON.stringify([invalid]);
+      expect(parseQuestionResults(raw)).toEqual([]);
+    });
+
+    it("doraMarkers が欠落したスナップショットを持つ要素はフィルタされる", () => {
+      const invalid = { ...validResult, question: { ...validSnapshot } };
+      Reflect.deleteProperty(invalid.question, "doraMarkers");
+      const raw = JSON.stringify([invalid]);
+      expect(parseQuestionResults(raw)).toEqual([]);
+    });
+  });
+});
+
+describe("toScoreQuestionSnapshot", () => {
+  it("出題を MSPZ 文字列のスナップショットに変換する", () => {
+    const question = buildDemoScoreQuestion({
+      doraMarkers: [HaiKind.ManZu1],
+      isRiichi: true,
+    });
+    const snapshot = toScoreQuestionSnapshot(question);
+    expect(snapshot).toEqual({
+      tehai: "234567m345p55678s",
+      agariHai: "3p",
+      bakaze: "1z",
+      jikaze: "2z",
+      doraMarkers: ["1m"],
+      isRiichi: true,
+      uraDoraMarkers: undefined,
+    });
+  });
+
+  it("変換結果はパーサーのバリデーションを通過する", () => {
+    const question = buildDemoScoreQuestion({
+      doraMarkers: [HaiKind.SouZu1],
+      isRiichi: false,
+    });
+    const result = {
+      isOya: false,
+      isTsumo: true,
+      han: 5,
+      correctAnswer: { type: "koTsumo", fromKo: 2000, fromOya: 4000 },
+      userAnswer: { type: "koTsumo", fromKo: 2000, fromOya: 4000 },
+      isCorrect: true,
+      question: toScoreQuestionSnapshot(question),
+    };
+    // JSON.stringify が undefined の任意項目を落とした形が実際の保存形
+    const results = parseQuestionResults(JSON.stringify([result]));
+    expect(results).toHaveLength(1);
+    expect(results[0]?.question?.tehai).toBe("234567m345p55678s");
   });
 });

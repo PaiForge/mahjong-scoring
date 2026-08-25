@@ -4,14 +4,42 @@ import { useMemo, useState } from "react";
 import { Hai, Furo } from "@pai-forge/mahjong-react-ui";
 import type { HaiSize } from "@pai-forge/mahjong-react-ui";
 import { MentsuType, isOya } from "@mahjong-scoring/core";
-import type { ScoreQuestion } from "@mahjong-scoring/core";
+import type { HaiKindId, Kazehai, Tehai } from "@mahjong-scoring/core";
 import { getKazeName, getDoraFromIndicator } from "@mahjong-scoring/core";
 import { useResponsiveHaiSize } from "../../_hooks/use-responsive-hai-size";
 import { useTranslations } from "next-intl";
 import { InfoModal } from "@/app/(user)/_components/info-modal";
 
+/**
+ * 手牌表示に必要な出題データの表示専用サブセット
+ * 出題表示データ
+ *
+ * `ScoreQuestion` はこの型を構造的に満たすためそのまま渡せる。別型に
+ * している理由は結果ページでの再表示: sessionStorage から復元した出題は
+ * ブランド型（Tehai14）と正解データ（answer）を持たないが、描画には
+ * どちらも不要なため、描画が実際に読む形だけをここで要求する。
+ */
+export interface ScoreQuestionDisplayData {
+  /** 手牌（和了牌を含む。純手牌 + 副露） */
+  readonly tehai: Pick<Tehai, "closed" | "exposed">;
+  /** 和了牌 */
+  readonly agariHai: HaiKindId;
+  /** ツモ和了かどうか */
+  readonly isTsumo: boolean;
+  /** 自風 */
+  readonly jikaze: Kazehai;
+  /** 場風 */
+  readonly bakaze: Kazehai;
+  /** ドラ表示牌 */
+  readonly doraMarkers: readonly HaiKindId[];
+  /** リーチ有無 */
+  readonly isRiichi?: boolean;
+  /** 裏ドラ表示牌 */
+  readonly uraDoraMarkers?: readonly HaiKindId[];
+}
+
 interface QuestionDisplayProps {
-  readonly question: ScoreQuestion;
+  readonly question: ScoreQuestionDisplayData;
   /**
    * 牌サイズの固定指定。省略時は画面幅に応じた自動サイズ。
    * モーダル等、ビューポートより狭い枠に収めたい場合に明示する。
@@ -145,7 +173,9 @@ export function QuestionDisplay({ question, size }: QuestionDisplayProps) {
                 ?
               </button>
             </div>
-            <div className="flex gap-1">
+            {/* ドラは「1 + 槓子数」枚あるため、槓の入った手では 1 行に収まらない。
+                折り返してセルからはみ出させない */}
+            <div className="flex flex-wrap gap-1">
               {doraMarkers.map((marker, index) => {
                 const result = getDoraFromIndicator(marker);
                 if (result.isErr()) return undefined;
@@ -158,7 +188,7 @@ export function QuestionDisplay({ question, size }: QuestionDisplayProps) {
               <div className="mb-1 text-xs text-surface-500">
                 {t("question.uraDora")}
               </div>
-              <div className="flex gap-1">
+              <div className="flex flex-wrap gap-1">
                 {question.uraDoraMarkers.map((marker, index) => {
                   const result = getDoraFromIndicator(marker);
                   if (result.isErr()) return undefined;
