@@ -138,3 +138,13 @@ CREATE TRIGGER announcements_updated_at
   BEFORE UPDATE ON "announcements"
   FOR EACH ROW
   EXECUTE FUNCTION public.update_updated_at_column();
+
+-- =============================================================================
+-- user_ranks
+-- =============================================================================
+-- 付与記録は本人のみ SELECT 可。書き込みは昇級判定（サーバー側の直 DB 接続）のみ。
+ALTER TABLE "user_ranks" ENABLE ROW LEVEL SECURITY;
+
+DROP POLICY IF EXISTS "user_ranks_select" ON "user_ranks";
+CREATE POLICY "user_ranks_select" ON "user_ranks"
+  FOR SELECT USING (auth.uid() = user_id);

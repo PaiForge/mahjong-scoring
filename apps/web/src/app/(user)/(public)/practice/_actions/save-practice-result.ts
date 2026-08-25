@@ -4,19 +4,27 @@ import { getOptionalVerifiedUser } from "@/lib/auth";
 import { logExternalError } from "@/lib/log-error";
 import { isPracticeMenuType } from "@/lib/db/practice-menu-types";
 import type { PracticeMenuType } from "@/lib/db/practice-menu-types";
+import { checkAndGrantRanks } from "@/lib/db/rank-evaluation";
 import { saveChallengeResult } from "@/lib/db/save-challenge-result";
+import type { RankSlug } from "@/lib/ranks/registry";
 
 /**
  * `savePracticeResult` の戻り値
  * 練習結果保存レスポンス
  *
- * - `{ success: true, challengeResultId }`: 認証済みユーザーの保存成功。
+ * - `{ success: true, challengeResultId, grantedRanks }`: 認証済みユーザーの保存成功。
+ *   `grantedRanks` は今回の保存を機に新たに付与された段級位（通常は空配列）。
+ *   昇級判定自体が失敗した場合も保存は成功として返し、`grantedRanks` は空になる。
  * - `{ success: true, skipped: 'anonymous' }`: 未ログインユーザーによる呼び出し。
  *   エラーではなく「期待された no-op」を表す。呼び出し側は静かに無視すること。
  * - `{ success: false, error }`: それ以外の失敗（バリデーション・DB エラー等）。
  */
 export type SaveResultResponse =
-  | { readonly success: true; readonly challengeResultId: string }
+  | {
+      readonly success: true;
+      readonly challengeResultId: string;
+      readonly grantedRanks: readonly RankSlug[];
+    }
   | { readonly success: true; readonly skipped: "anonymous" }
   | { readonly success: false; readonly error: string };
 
@@ -74,7 +82,21 @@ export async function savePracticeResult(
       timeTaken: Math.round(challengeFields.timeTaken),
     });
 
-    return { success: true, challengeResultId };
+    // 昇級判定はベストスコア更新のコミット後に実行する。
+    // 判定の失敗が結果保存を壊さないよう、失敗時は空配列で握りつぶす
+    // （次回の保存時に再評価されるため取りこぼしにはならない）
+    let grantedRanks: readonly RankSlug[] = [];
+    try {
+      grantedRanks = await checkAndGrantRanks(user.id);
+    } catch (error) {
+      logExternalError(
+        "checkAndGrantRanks",
+        `${menuType}: rank evaluation failed`,
+        error,
+      );
+    }
+
+    return { success: true, challengeResultId, grantedRanks };
   } catch (error) {
     logExternalError(
       "savePracticeResult",
