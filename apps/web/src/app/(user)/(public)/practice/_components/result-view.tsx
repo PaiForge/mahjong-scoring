@@ -29,10 +29,11 @@ import { ResultScoreBar } from "./result-score-bar";
  * 表示順:
  * 1. PageTitle（練習名） — 即時描画
  * 2. 「結果」セクション（ScoreBar） — 即時描画（親 page.tsx の searchParams から props で受け取る）
- * 3. `resultBlock` — 経験値 / 登録 CTA（Suspense 境界）
- * 4. アクションボタン（もう一度 / 練習一覧に戻る） — 即時描画
- * 5. `children` — 練習種別固有の追加コンテンツ（問題別フィードバック等）
- * 6. `leaderboardBlock` — リーダーボードプレビュー（Suspense 境界）
+ * 3. `promotionBlock` — 昇級バナー（昇級時のみ。Suspense 境界）
+ * 4. `resultBlock` — 経験値 / 登録 CTA（Suspense 境界）
+ * 5. アクションボタン（もう一度 / 練習一覧に戻る） — 即時描画
+ * 6. `children` — 練習種別固有の追加コンテンツ（問題別フィードバック等）
+ * 7. `leaderboardBlock` — リーダーボードプレビュー（Suspense 境界）
  */
 export async function ResultView({
   practiceTitle,
@@ -40,6 +41,7 @@ export async function ResultView({
   introHref,
   correct,
   total,
+  promotionBlock,
   resultBlock,
   leaderboardBlock,
   children,
@@ -64,6 +66,9 @@ export async function ResultView({
           <SectionTitle>{tc("resultSectionTitle")}</SectionTitle>
           <ResultScoreBar correct={correct} total={total} />
         </section>
+
+        {/* 昇級バナー: 今回の保存で段級位が付与されたときだけ現れる（Suspense 境界） */}
+        {promotionBlock}
 
         {/* 結果ブロック: 経験値 / 登録 CTA。Suspense + ResultBlockSkeleton で包まれている。 */}
         {resultBlock}

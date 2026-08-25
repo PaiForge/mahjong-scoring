@@ -1,3 +1,5 @@
+import type { PracticeMenuSlug } from "@/lib/db/practice-menu-types";
+
 import { scoreTablePracticeHref } from "../../practice/score-table/_lib/options";
 
 /**
@@ -34,6 +36,12 @@ interface CurriculumChapterEntry {
   readonly section: CurriculumSection;
   readonly order: number;
   readonly practiceHrefs?: readonly string[];
+  /**
+   * この章の読了が前提となる昇級試験（練習スラッグ）。
+   * 章末に「昇級試験へ」の CTA を出す。`practiceHrefs`（読んだら解く練習）
+   * とは意味が違うため別フィールドにしている。
+   */
+  readonly examSlug?: PracticeMenuSlug;
   readonly i18nKey: string;
 }
 
@@ -112,6 +120,8 @@ const CURRICULUM_REGISTRY = [
       "/practice/yaku",
       "/practice/han-count",
     ],
+    // 満貫の章（役の前）と本章で5級試験の前提知識が揃う
+    examSlug: "mangan-exam",
     i18nKey: "learnCurriculum.chapters.yaku",
   },
   {
@@ -154,6 +164,8 @@ export interface CurriculumChapter {
   readonly section: CurriculumSection;
   readonly order: number;
   readonly practiceHrefs?: readonly string[];
+  /** この章の読了が前提となる昇級試験（練習スラッグ）。章末に CTA を出す */
+  readonly examSlug?: PracticeMenuSlug;
   readonly i18nKey: string;
 }
 

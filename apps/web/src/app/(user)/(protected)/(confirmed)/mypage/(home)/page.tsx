@@ -16,6 +16,8 @@ import { createPrivateMetadata } from "@/app/_lib/metadata";
 import { requireConfirmedUser } from "@/lib/auth";
 import { getProfileCardByUserId } from "@/lib/db/queries";
 import { getExpHeatmapData } from "@/lib/db/get-exp-heatmap-data";
+import { getUserRankSlugs } from "@/lib/db/rank-queries";
+import { highestRank } from "@/lib/ranks/registry";
 
 import { ExpActivityHeatmap } from "./_components/exp-activity-heatmap";
 import { DESKTOP_WEEKS, buildHeatmapLayout } from "./_lib/heatmap-utils";
@@ -27,12 +29,15 @@ export async function generateMetadata(): Promise<Metadata> {
 export default async function MyPage() {
   const t = await getTranslations("mypage");
   const tHeatmap = await getTranslations("mypage.heatmap");
+  const tRanks = await getTranslations("ranks");
   const { user } = await requireConfirmedUser();
-  const [profile, heatmapData] = await Promise.all([
+  const [profile, heatmapData, rankSlugs] = await Promise.all([
     getProfileCardByUserId(user.id),
     getExpHeatmapData(user.id),
+    getUserRankSlugs(user.id),
   ]);
   const profileName = profile?.displayName ?? profile?.username ?? "";
+  const currentRank = highestRank(rankSlugs);
 
   // next-intl の raw() は unknown を返すため、型アサーションではなく
   // 実行時フィルタで文字列配列に絞り込む
@@ -72,9 +77,18 @@ export default async function MyPage() {
             size="lg"
           />
           <div className="min-w-0">
-            <h2 className="truncate text-lg font-semibold text-foreground">
-              {profileName || t("pageTitle")}
-            </h2>
+            <div className="flex items-center gap-2">
+              <h2 className="min-w-0 truncate text-lg font-semibold text-foreground">
+                {profileName || t("pageTitle")}
+              </h2>
+              {/* 達成済みの最上位段級位。未達成なら何も出さない */}
+              {currentRank && (
+                <span className="inline-flex shrink-0 items-center gap-1 rounded-full border-2 border-ink bg-amber-100 px-2.5 py-0.5 text-xs font-bold text-surface-900">
+                  <span aria-hidden="true">🎓</span>
+                  {tRanks(`names.${currentRank.slug}`)}
+                </span>
+              )}
+            </div>
             {profile?.username && (
               <p className="text-sm text-surface-500">@{profile.username}</p>
             )}

@@ -109,3 +109,43 @@ const rankSlugSet: ReadonlySet<string> = new Set(RANK_SLUGS);
 export function isRankSlug(value: string): value is RankSlug {
   return rankSlugSet.has(value);
 }
+
+/**
+ * 達成済みスラッグの中で最上位（level 最大）のランク定義を返す
+ * 最上位段級位取得
+ *
+ * マイページ等で「現在の段級位」を表示するのに使う。未達成なら undefined。
+ */
+export function highestRank(
+  slugs: readonly RankSlug[],
+): RankDefinition | undefined {
+  const achieved = new Set<string>(slugs);
+  // RANK_REGISTRY は level 昇順のため、後ろから最初に見つかったものが最上位
+  return [...RANK_REGISTRY].reverse().find((rank) => achieved.has(rank.slug));
+}
+
+/**
+ * ある練習を昇級試験として要求しているランクを返す
+ * 試験対応ランク取得
+ *
+ * 教本章末の「昇級試験へ」CTA が、試験（練習）からランク名・合格基準を
+ * 逆引きするのに使う。どのランクの要件にも含まれない練習なら undefined。
+ */
+export function rankRequiringMenu(menuType: string):
+  | {
+      readonly rank: RankDefinition;
+      readonly requirement: ChallengeScoreRequirement;
+    }
+  | undefined {
+  for (const rank of RANK_REGISTRY) {
+    for (const requirement of rank.requirements) {
+      if (
+        requirement.type === "challenge_score" &&
+        requirement.menuType === menuType
+      ) {
+        return { rank, requirement };
+      }
+    }
+  }
+  return undefined;
+}

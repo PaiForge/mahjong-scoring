@@ -14,6 +14,7 @@
 import type { Metadata } from "next";
 import { createPracticeMetadata } from "../_lib/metadata";
 import { PracticeIntroContent } from "../_components/practice-intro-content";
+import { ManganExamConditions } from "./_components/mangan-exam-conditions";
 import { ManganExamHowToPlay } from "./_components/mangan-exam-how-to-play";
 
 export async function generateMetadata(): Promise<Metadata> {
@@ -26,6 +27,7 @@ export default function ManganExamPage() {
       namespace="manganExamChallenge"
       slug="mangan-exam"
       howToPlay={<ManganExamHowToPlay />}
+      notice={<ManganExamConditions />}
     />
   );
 }

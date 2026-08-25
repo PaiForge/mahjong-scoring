@@ -1,5 +1,6 @@
 import { describe, expect, it } from "vitest";
 
+import messagesJson from "@/messages/ja.json";
 import { practiceMenuByType } from "@/lib/db/practice-menu-types";
 import { RANK_REGISTRY, RANK_SLUGS, isRankSlug } from "../registry";
 
@@ -33,6 +34,28 @@ describe("RANK_REGISTRY", () => {
     expect(requirement.minScore).toBe(10);
     expect(practiceMenuByType(requirement.menuType).mistakeLimit).toBe(1);
   });
+});
+
+/**
+ * 段級位名は `ranks.names.<slug>` / 合格基準は `ranks.criteria.<slug>` を引く。
+ * レジストリに1件足しても JSON の追記漏れは実行時まで検出されないため、
+ * ここで突き合わせる（practice-menu-i18n-integrity.test.ts と同じパターン）。
+ */
+describe("i18n integrity: ranks", () => {
+  const messages = messagesJson as unknown as {
+    readonly ranks: {
+      readonly names: Record<string, unknown>;
+      readonly criteria: Record<string, unknown>;
+    };
+  };
+
+  it.each(["names", "criteria"] as const)(
+    "ranks.%s が全スラッグを持ち、余分を持たない",
+    (section) => {
+      const keys = Object.keys(messages.ranks[section]).sort();
+      expect(keys).toEqual([...RANK_SLUGS].sort());
+    },
+  );
 });
 
 describe("isRankSlug", () => {

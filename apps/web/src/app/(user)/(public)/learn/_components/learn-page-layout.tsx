@@ -9,6 +9,7 @@ import {
 } from "../_lib/curriculum";
 import { isChapterRead } from "../_lib/progress";
 import { ChapterNav } from "./chapter-nav";
+import { ExamCtaCard } from "./exam-cta-card";
 import { LoginPromptCta } from "./login-prompt-cta";
 import { MarkAsReadButton } from "./mark-as-read-button";
 import { PracticeLinkList } from "./practice-link-card";
@@ -72,6 +73,9 @@ export async function LearnPageLayout({
         </div>
 
         <PracticeLinkList hrefs={practiceHrefs} />
+
+        {/* 練習で腕試し → 昇級試験、の順。試験を持つ章（CURRICULUM の examSlug）のみ */}
+        {chapter?.examSlug && <ExamCtaCard slug={chapter.examSlug} />}
 
         <ChapterNav slug={slug} />
       </div>

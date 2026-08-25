@@ -28,6 +28,11 @@ interface PracticeIntroContentProps {
    * 「問題方式」セクションとして実際の出題例を表示する。
    */
   readonly howToPlay?: ReactNode;
+  /**
+   * 開始ボタンの直前に置く注意書き（昇級試験の合格条件パネル等）。
+   * 開始前に必ず目に入る位置に出したい情報のためのスロット。
+   */
+  readonly notice?: ReactNode;
 }
 
 /**
@@ -43,6 +48,7 @@ export async function PracticeIntroContent({
   slug,
   showTraining = false,
   howToPlay,
+  notice,
 }: PracticeIntroContentProps) {
   // 前提知識となる章はカタログが持つ。専用の章を持たない練習では
   // 「関連記事」セクションごと出さない。
@@ -75,6 +81,8 @@ export async function PracticeIntroContent({
             {howToPlay}
           </HowToPlaySection>
         )}
+
+        {notice}
 
         {showTraining ? (
           <PracticeStartCta
