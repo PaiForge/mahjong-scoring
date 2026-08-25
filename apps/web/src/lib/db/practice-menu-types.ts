@@ -21,6 +21,7 @@
  * - 'han_count': 翻数即答
  * - 'yaku_han': 役の翻数
  * - 'mangan_score_calculation': 満貫以上の点数計算
+ * - 'mangan_exam': 昇級試験（満貫以上の点数計算・役表示なし・ミス1回で終了）
  *
  * `practice/score` は自由練習のため記録対象外。
  */
@@ -151,6 +152,17 @@ const PRACTICE_MENU_REGISTRY = [
     messageKey: "manganScoreCalculation",
     namespace: "manganScoreCalculationChallenge",
     hasProblemList: true,
+  },
+  {
+    menuType: "mangan_exam",
+    slug: "mangan-exam",
+    messageKey: "manganExam",
+    namespace: "manganExamChallenge",
+    hasProblemList: true,
+    // 昇級試験のためミス1回で強制終了（通常チャレンジは MISTAKE_LIMIT = 3）。
+    // 「1ミスでアウト」をセッション側で強制することで、昇級判定は
+    // ベストスコア >= 合格点の単純比較で成立する（RANK_REGISTRY 参照）
+    mistakeLimit: 1,
   },
 ] as const satisfies readonly PracticeMenuEntry[];
 

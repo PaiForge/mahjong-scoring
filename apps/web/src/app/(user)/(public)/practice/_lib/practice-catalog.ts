@@ -91,6 +91,12 @@ export const PRACTICE_CATALOG: readonly PracticeMenu[] = [
     difficulty: "intermediate",
   },
   { slug: "score-calculation", category: "scoring", difficulty: "advanced" },
+  {
+    slug: "mangan-exam",
+    category: "scoring",
+    difficulty: "advanced",
+    learnChapter: "yaku",
+  },
 ] as const;
 
 /**

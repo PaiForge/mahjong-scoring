@@ -206,6 +206,11 @@
         "title": "満貫以上点数計算",
         "shortTitle": "満貫以上点数計算",
         "description": "役と翻数が表示された満貫以上の手牌から点数を答えるチャレンジ練習"
+      },
+      "manganExam": {
+        "title": "昇級試験：満貫以上の点数計算",
+        "shortTitle": "満貫試験",
+        "description": "役の表示なしで手牌から翻数を数え、満貫以上の点数を答える試験形式のチャレンジ。ミスは1回まで"
       }
     },
     "comprehensiveBanner": {
@@ -1315,7 +1320,8 @@
       "scoreCalculation": "🎲",
       "hanCount": "🔢",
       "yakuHan": "🎴",
-      "manganScoreCalculation": "💰"
+      "manganScoreCalculation": "💰",
+      "manganExam": "🎓"
     },
     "rankLabel": "{rank} 位",
     "notRanked": "未挑戦",
@@ -1409,6 +1415,33 @@
     "howToPlay": {
       "title": "問題方式",
       "lead": "このような問題が出題されます。"
+    },
+    "result": {
+      "problemDetails": "問題の詳細",
+      "correctAnswer": "正解",
+      "yourAnswer": "あなたの回答",
+      "correct": "正解",
+      "incorrect": "不正解"
+    }
+  },
+  "manganExamChallenge": {
+    "title": "昇級試験：満貫以上の点数計算",
+    "description": "役の表示なしで手牌から翻数を数え、満貫以上の点数を答える試験形式のドリルです。ミスは1回までです",
+    "oya": "親",
+    "ko": "子",
+    "tsumo": "ツモ",
+    "ron": "ロン",
+    "selectScore": "点数を選択",
+    "fromKo": "子から",
+    "fromOya": "親から",
+    "all": "オール",
+    "answer": "回答する",
+    "generating": "問題を生成中...",
+    "learnLink": "役について学ぶ",
+    "learnLinkDescription": "役の表示がない分、翻数を自分で数える必要があります。教本の役の章を読んでから挑戦しましょう。",
+    "howToPlay": {
+      "title": "問題方式",
+      "lead": "このような問題が出題されます。役は表示されないため、手牌から翻数を自分で数えて点数を答えます。"
     },
     "result": {
       "problemDetails": "問題の詳細",

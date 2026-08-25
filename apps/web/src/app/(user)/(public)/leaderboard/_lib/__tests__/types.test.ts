@@ -34,6 +34,7 @@ describe("MODULES", () => {
       "han_count",
       "yaku_han",
       "mangan_score_calculation",
+      "mangan_exam",
     ]);
   });
 });
