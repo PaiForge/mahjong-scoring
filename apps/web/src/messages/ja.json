@@ -1451,6 +1451,8 @@
     "ko": "子",
     "tsumo": "ツモ",
     "ron": "ロン",
+    "han": "{count}翻",
+    "fu": "{count}符",
     "selectScore": "点数を選択",
     "fromKo": "子から",
     "fromOya": "親から",
