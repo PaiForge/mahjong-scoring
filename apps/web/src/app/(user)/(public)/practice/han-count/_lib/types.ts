@@ -11,7 +11,7 @@ export const RESULT_STORAGE_KEY = resultStorageKeyFor("han-count");
  * 翻数問題結果
  */
 export interface HanCountQuestionResult {
-  /** 正解の翻数 */
+  /** 正解の翻数（13翻以上の手は役満=13翻に丸めて記録する） */
   readonly correctHan: number;
   /** ユーザーが選択した翻数 */
   readonly userHan: number;

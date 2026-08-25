@@ -152,7 +152,7 @@ export interface TrainingBoardArgs extends PracticeBoardProps {
  * トレーニングビューの生成設定
  * トレーニングビュー設定
  */
-export interface TrainingViewConfig<TProps> {
+export interface TrainingViewConfig<TProps, TState> {
   /**
    * ルートスラッグ（例: "jantou-fu"）。
    * 辞書の namespace はレジストリから導出し、終了リンクのパス生成にも使う。
@@ -167,25 +167,49 @@ export interface TrainingViewConfig<TProps> {
    */
   readonly holdOnIncorrect?: boolean;
   /**
+   * 盤面が必要とする追加状態を用意するフック
+   *
+   * チャレンジ側の {@link ChallengePlayViewConfig.useBoardState} と同じ役割。
+   * スキップは「無回答で次の問題へ進む」操作なので、出題状態をシェルと
+   * 同じ階層に置く必要があり、スキップを出す練習はこれで状態を引き上げる。
+   */
+  readonly useBoardState?: (props: TProps) => TState;
+  /**
+   * スキップ操作を取り出す（無回答で次問題へ進む練習向け）
+   *
+   * 指定するとフッターにスキップリンクが出る。出題の生成待ちなど、
+   * まだ進めない状態では undefined を返すこと（リンクは無効化される）。
+   * フィードバック表示中の無効化はファクトリ側で行う。
+   */
+  readonly skipOf?: (state: TState) => (() => void) | undefined;
+  /**
    * 盤面の描画
    *
    * ビューの render 中に無条件で呼ばれるため、この中でフックを呼んでもよい。
    */
-  readonly renderBoard: (args: TrainingBoardArgs, props: TProps) => ReactNode;
+  readonly renderBoard: (
+    args: TrainingBoardArgs,
+    props: TProps,
+    state: TState,
+  ) => ReactNode;
 }
 
 /**
  * トレーニングモード（時間無制限・非記録）の本体ビューを生成するファクトリ
  * トレーニングビュー生成
  */
-export function createTrainingView<TProps = Record<string, never>>(
-  config: TrainingViewConfig<TProps>,
-): (props: TProps) => ReactNode {
-  const { slug, maxWidth, holdOnIncorrect, renderBoard } = config;
+export function createTrainingView<
+  TProps = Record<string, never>,
+  TState = undefined,
+>(config: TrainingViewConfig<TProps, TState>): (props: TProps) => ReactNode {
+  const { slug, maxWidth, holdOnIncorrect, skipOf, renderBoard } = config;
   const { namespace } = practiceMenuBySlug(slug);
+  const useBoardState =
+    config.useBoardState ?? (() => undefined as unknown as TState);
 
   function TrainingView(props: TProps) {
     const t = useTranslations(namespace);
+    const boardState = useBoardState(props);
     const {
       correctCount,
       totalCount,
@@ -195,6 +219,10 @@ export function createTrainingView<TProps = Record<string, never>>(
       proceed,
     } = useTrainingSession({ holdOnIncorrect });
 
+    // スキップを出す練習だけ、盤面の状態から「次へ進む」操作を取り出す。
+    // 正誤フィードバック中は次問題へ自動で進むためスキップさせない。
+    const skip = skipOf?.(boardState);
+
     return (
       <TrainingShell
         title={t("title")}
@@ -202,6 +230,8 @@ export function createTrainingView<TProps = Record<string, never>>(
         totalCount={totalCount}
         exitHref={practiceHref(slug)}
         maxWidth={maxWidth}
+        onSkip={skipOf && (() => skip?.())}
+        skipDisabled={showFeedback || skip === undefined}
       >
         {renderBoard(
           {
@@ -211,6 +241,7 @@ export function createTrainingView<TProps = Record<string, never>>(
             onProceed: proceed,
           },
           props,
+          boardState,
         )}
       </TrainingShell>
     );

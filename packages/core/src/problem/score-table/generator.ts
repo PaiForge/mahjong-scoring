@@ -7,6 +7,7 @@ import {
 } from "../../core/score-calculation";
 import { FU_VALUES } from "../../score/constants";
 import {
+  clampHanToYakuman,
   MANGAN_MIN_HAN,
   scoreTierForHan,
   YAKUMAN_HAN,
@@ -56,7 +57,7 @@ function buildCorrectAnswer(
  */
 function highScoreBandForHan(han: number): (typeof HIGH_SCORES)[number] {
   // HIGH_SCORES は役満まで。ダブル役満相当の翻数も役満帯に丸める
-  const key = scoreTierForHan(Math.min(han, YAKUMAN_HAN))?.key;
+  const key = scoreTierForHan(clampHanToYakuman(han))?.key;
   return HIGH_SCORES.find((band) => band.nameKey === key) ?? HIGH_SCORES[0];
 }
 

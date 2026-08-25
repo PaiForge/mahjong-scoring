@@ -1,20 +1,30 @@
 "use client";
 
 import { createChallengePlayView } from "../../_lib/create-challenge-views";
+import { useGeneratedScoreQuestion } from "../../_hooks/use-generated-score-question";
 import { HanCountBoard } from "./han-count-board";
+import type { HanCountQuestionState } from "./han-count-board";
 import type { HanCountQuestionResult } from "../_lib/types";
 
-export const HanCountPlayView = createChallengePlayView<HanCountQuestionResult>(
-  {
-    slug: "han-count",
-    maxWidth: "max-w-2xl",
-    renderBoard: ({ showFeedback, isCountingDown, onAnswer, recordResult }) => (
-      <HanCountBoard
-        showFeedback={showFeedback}
-        isCountingDown={isCountingDown}
-        onAnswer={onAnswer}
-        onRecordResult={recordResult}
-      />
-    ),
-  },
-);
+export const HanCountPlayView = createChallengePlayView<
+  HanCountQuestionResult,
+  Record<string, never>,
+  HanCountQuestionState
+>({
+  slug: "han-count",
+  maxWidth: "max-w-2xl",
+  useBoardState: () => useGeneratedScoreQuestion(),
+  renderBoard: (
+    { showFeedback, isCountingDown, onAnswer, recordResult },
+    _props,
+    questionState,
+  ) => (
+    <HanCountBoard
+      {...questionState}
+      showFeedback={showFeedback}
+      isCountingDown={isCountingDown}
+      onAnswer={onAnswer}
+      onRecordResult={recordResult}
+    />
+  ),
+});

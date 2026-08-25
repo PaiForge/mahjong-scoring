@@ -6,7 +6,7 @@ import { HaiKind } from "@mahjong-scoring/core";
 import { TehaiDisplay } from "../../_components/tehai-display";
 import { buildDemoTehai } from "../../_lib/demo-tehai";
 import { QuestionPrompt } from "../../_components/question-prompt";
-import { HAN_OPTIONS } from "../_lib/han-options";
+import { HAN_OPTIONS, hanCountLabel } from "../_lib/han-options";
 
 /**
  * デモ用の固定例: 立直 + 門前清自摸和 + 断么九 = 3翻
@@ -71,7 +71,7 @@ export function HanCountHowToPlay() {
               showCheck={false}
               className={`text-sm font-semibold ${isCorrect ? "text-primary-700" : "text-surface-400"}`}
             >
-              {t("hanOption", { count: han })}
+              {hanCountLabel(han, t)}
             </DemoChoiceCell>
           );
         })}

@@ -22,6 +22,10 @@ import { ScorePracticeAnswerForm } from "./score-practice-answer-form";
 import { ScorePracticeBoardSkeleton } from "./score-practice-board-skeleton";
 import { ResultDisplay } from "./result-display";
 import { ScoreCounter } from "../../_components/score-counter";
+import {
+  PracticeFooterAction,
+  PracticeFooterActions,
+} from "../../_components/practice-footer-actions";
 
 /** 正解トーストの表示スタイル */
 const CORRECT_TOAST_STYLE = {
@@ -164,15 +168,11 @@ function ScorePracticeBoardInner() {
         />
 
         {/* Quit button */}
-        <div className="text-center">
-          <button
-            type="button"
-            onClick={handleBackToSetup}
-            className="text-sm text-surface-400 underline transition-colors hover:text-surface-600"
-          >
+        <PracticeFooterActions>
+          <PracticeFooterAction onClick={handleBackToSetup}>
             {tc("quitButton")}
-          </button>
-        </div>
+          </PracticeFooterAction>
+        </PracticeFooterActions>
       </div>
     </ContentContainer>
   );
