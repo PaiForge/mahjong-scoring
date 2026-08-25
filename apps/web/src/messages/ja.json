@@ -262,7 +262,8 @@
     "modeLabel": "トレーニング",
     "startButton": "トレーニング",
     "skipButton": "スキップ",
-    "exitButton": "終了する"
+    "exitButton": "終了する",
+    "exitToast": "練習を終了しました"
   },
   "exp": {
     "label": "経験値",
