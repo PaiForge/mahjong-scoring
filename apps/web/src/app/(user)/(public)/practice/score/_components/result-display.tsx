@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useId, useState } from "react";
 import { useTranslations } from "next-intl";
 import type {
   ScoreQuestion,
@@ -11,9 +11,12 @@ import { isMangan, getScoreLevelName } from "@mahjong-scoring/core";
 import { practiceHanTier } from "../_lib/han-tiers";
 import { formatScoreAnswer } from "../../_lib/format-score-answer";
 import { paymentToScoreTableAnswer } from "../../_lib/payment-adapter";
-import { DetailsAccordion } from "./details-accordion";
+import { DetailsPanelRow, DetailsToggleButton } from "./details-accordion";
 import type { DetailItem } from "./details-accordion";
 import { Button } from "@/app/(user)/_components/button";
+
+/** 結果テーブルの列数（項目名 / あなたの回答 / 正解）。展開行の colSpan に使う */
+const TABLE_COLUMN_COUNT = 3;
 
 interface ResultDisplayProps {
   readonly question: ScoreQuestion;
@@ -46,6 +49,8 @@ export function ResultDisplay({
   const scoreLevelName = getScoreLevelName(answer.scoreLevel);
   const [showFuDetails, setShowFuDetails] = useState(false);
   const [showYakuDetails, setShowYakuDetails] = useState(false);
+  const fuDetailsPanelId = useId();
+  const yakuDetailsPanelId = useId();
 
   const fuTotal =
     question.fuDetails?.reduce((acc, curr) => acc + curr.fu, 0) ?? 0;
@@ -157,16 +162,23 @@ export function ResultDisplay({
                 {getHanDisplay(answer.han)}
                 {!simplifyMangan && scoreLevelName && ` (${scoreLevelName})`}
                 {yakuDetailItems.length > 0 && (
-                  <DetailsAccordion
-                    items={yakuDetailItems}
-                    total={yakuTotal}
+                  <DetailsToggleButton
                     isOpen={showYakuDetails}
                     onToggle={() => setShowYakuDetails(!showYakuDetails)}
-                    suffix={t("form.options.hanSuffix")}
+                    panelId={yakuDetailsPanelId}
                   />
                 )}
               </td>
             </tr>
+            {yakuDetailItems.length > 0 && showYakuDetails && (
+              <DetailsPanelRow
+                items={yakuDetailItems}
+                total={yakuTotal}
+                suffix={t("form.options.hanSuffix")}
+                panelId={yakuDetailsPanelId}
+                colSpan={TABLE_COLUMN_COUNT}
+              />
+            )}
 
             {/* Fu */}
             {(!isManganOrAbove || requireFuForMangan) && (
@@ -186,18 +198,25 @@ export function ResultDisplay({
                     {answer.fu}
                     {t("form.options.fuSuffix")}
                     {question.fuDetails && (
-                      <DetailsAccordion
-                        items={fuDetailItems}
-                        total={fuTotal}
+                      <DetailsToggleButton
                         isOpen={showFuDetails}
                         onToggle={() => setShowFuDetails(!showFuDetails)}
-                        suffix={t("form.options.fuSuffix")}
-                        roundedTotal={answer.fu}
-                        roundUpLabel={t("result.details.roundUp")}
+                        panelId={fuDetailsPanelId}
                       />
                     )}
                   </td>
                 </tr>
+                {question.fuDetails && showFuDetails && (
+                  <DetailsPanelRow
+                    items={fuDetailItems}
+                    total={fuTotal}
+                    suffix={t("form.options.fuSuffix")}
+                    panelId={fuDetailsPanelId}
+                    colSpan={TABLE_COLUMN_COUNT}
+                    roundedTotal={answer.fu}
+                    roundUpLabel={t("result.details.roundUp")}
+                  />
+                )}
               </>
             )}
 
