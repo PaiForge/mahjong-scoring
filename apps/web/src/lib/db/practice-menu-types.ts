@@ -25,6 +25,8 @@
  * `practice/score` は自由練習のため記録対象外。
  */
 
+import { CHALLENGE_TIME_LIMIT, MISTAKE_LIMIT } from "@mahjong-scoring/core";
+
 // ---------------------------------------------------------------------------
 // Registry — single source of truth
 // ---------------------------------------------------------------------------
@@ -52,6 +54,20 @@ interface PracticeMenuEntry {
    * スケルトン）が出題数ぶんの一覧枠を描く。
    */
   readonly hasProblemList: boolean;
+  /**
+   * チャレンジのミス上限の上書き（省略時は共通の `MISTAKE_LIMIT`）。
+   * ミス上限
+   *
+   * セッションの強制終了（`useTimedSession`）・開始導線のヒント文言・
+   * マイページの完走判定はすべてここから引く。全体定数 `MISTAKE_LIMIT` を
+   * 直接参照すると、上限の異なる練習（昇級試験等）で判定がずれる。
+   */
+  readonly mistakeLimit?: number;
+  /**
+   * チャレンジの制限時間（秒）の上書き（省略時は共通の `CHALLENGE_TIME_LIMIT`）。
+   * 制限時間
+   */
+  readonly timeLimit?: number;
 }
 
 /**
@@ -163,6 +179,9 @@ export type PracticeMenuNamespace =
 /**
  * 練習種別の全情報
  * 練習種別記述子
+ *
+ * `mistakeLimit` / `timeLimit` はレジストリの省略値を共通定数で解決済み。
+ * 利用側でデフォルトを重ねて適用しないこと。
  */
 export interface PracticeMenuDescriptor {
   readonly menuType: PracticeMenuType;
@@ -170,6 +189,8 @@ export interface PracticeMenuDescriptor {
   readonly messageKey: PracticeMenuMessageKey;
   readonly namespace: PracticeMenuNamespace;
   readonly hasProblemList: boolean;
+  readonly mistakeLimit: number;
+  readonly timeLimit: number;
 }
 
 // ---------------------------------------------------------------------------
@@ -208,9 +229,28 @@ const menuTypeToMessageKeyMap = new Map<
   PracticeMenuMessageKey
 >(PRACTICE_MENU_REGISTRY.map((e) => [e.menuType, e.messageKey]));
 
+/** レジストリの省略値を共通定数で解決した記述子を組み立てる */
+function resolveDescriptor(
+  entry: (typeof PRACTICE_MENU_REGISTRY)[number],
+): PracticeMenuDescriptor {
+  // 上書きフィールドは省略可能なため、authoring 型に広げてから読む
+  // （as const の union 型は省略メンバーへのアクセスを許さない）
+  const overrides: PracticeMenuEntry = entry;
+  return {
+    ...entry,
+    mistakeLimit: overrides.mistakeLimit ?? MISTAKE_LIMIT,
+    timeLimit: overrides.timeLimit ?? CHALLENGE_TIME_LIMIT,
+  };
+}
+
 const slugToDescriptorMap = new Map<PracticeMenuSlug, PracticeMenuDescriptor>(
-  PRACTICE_MENU_REGISTRY.map((e) => [e.slug, e]),
+  PRACTICE_MENU_REGISTRY.map((e) => [e.slug, resolveDescriptor(e)]),
 );
+
+const menuTypeToDescriptorMap = new Map<
+  PracticeMenuType,
+  PracticeMenuDescriptor
+>(PRACTICE_MENU_REGISTRY.map((e) => [e.menuType, resolveDescriptor(e)]));
 
 // ---------------------------------------------------------------------------
 // Conversion functions
@@ -263,6 +303,24 @@ export function practiceMenuBySlug(
   const descriptor = slugToDescriptorMap.get(slug);
   if (descriptor === undefined) {
     throw new Error(`Unknown PracticeMenuSlug: ${slug}`);
+  }
+  return descriptor;
+}
+
+/**
+ * 練習種別（DB snake_case）から練習種別の全情報を取得する
+ * 練習種別記述子取得（種別キー）
+ *
+ * DB 由来のデータ（チャレンジセッション等）にセッションルールを突き合わせる
+ * 場面で使う。ミス上限の異なる練習が混在するため、完走判定などで全体定数
+ * `MISTAKE_LIMIT` を直接参照せずここから引くこと。
+ */
+export function practiceMenuByType(
+  menuType: PracticeMenuType,
+): PracticeMenuDescriptor {
+  const descriptor = menuTypeToDescriptorMap.get(menuType);
+  if (descriptor === undefined) {
+    throw new Error(`Unknown PracticeMenuType: ${menuType}`);
   }
   return descriptor;
 }

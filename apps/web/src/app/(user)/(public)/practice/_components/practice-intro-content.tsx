@@ -12,6 +12,7 @@ import { SectionTitle } from "@/app/(user)/_components/section-title";
 import { LinkButton } from "@/app/(user)/_components/link-button";
 import { PlayIcon } from "@/app/(user)/_components/icons/play-icon";
 import { BookIcon } from "@/app/(user)/_components/icons/book-icon";
+import { practiceMenuBySlug } from "@/lib/db/practice-menu-types";
 import { practiceMenuFromCatalog } from "../_lib/practice-catalog";
 import { PRACTICE_SCROLL_HASH } from "../_lib/scroll-anchor";
 
@@ -79,11 +80,10 @@ export async function PracticeIntroContent({
           <PracticeStartCta
             playHref={`/practice/${slug}/play${PRACTICE_SCROLL_HASH}`}
             trainingHref={`/practice/${slug}/training${PRACTICE_SCROLL_HASH}`}
-            labels={buildPracticeStartCtaLabels({
-              challenge: tc,
-              practice: tp,
-              training: tt,
-            })}
+            labels={buildPracticeStartCtaLabels(
+              { challenge: tc, practice: tp, training: tt },
+              practiceMenuBySlug(slug),
+            )}
           />
         ) : (
           <LinkButton

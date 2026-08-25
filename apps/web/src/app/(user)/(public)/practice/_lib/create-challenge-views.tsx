@@ -76,7 +76,8 @@ export function createChallengePlayView<
   config: ChallengePlayViewConfig<TResult, TProps, TState>,
 ): (props: TProps) => ReactNode {
   const { slug, maxWidth, renderBoard, showScoreCounter } = config;
-  const { namespace, menuType, hasProblemList } = practiceMenuBySlug(slug);
+  const { namespace, menuType, hasProblemList, mistakeLimit, timeLimit } =
+    practiceMenuBySlug(slug);
   // 問題別フィードバック一覧を持つ練習だけが問題結果を sessionStorage に積む。
   // 一覧の有無はレジストリが唯一の定義で、結果ページとそのスケルトン
   // （loading.tsx / ChallengeShell）も同じ旗を見る。
@@ -89,7 +90,12 @@ export function createChallengePlayView<
   function ChallengePlayView(props: TProps) {
     const t = useTranslations(namespace);
     const boardState = useBoardState(props);
-    const { gameSession, timerControl } = useTimedSession();
+    // セッションルール（制限時間・ミス上限）はレジストリが正典。
+    // 練習ごとの上書き（昇級試験のミス1回等）もここ経由で効く
+    const { gameSession, timerControl } = useTimedSession({
+      mistakeLimit,
+      timeLimit,
+    });
     const handleFinish = useSaveOnFinish(menuType);
     const { recordResult } = useRecordedResults<TResult>(
       resultStorageKey,
