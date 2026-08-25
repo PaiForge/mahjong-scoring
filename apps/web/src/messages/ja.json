@@ -700,8 +700,7 @@
       },
       "buttons": {
         "answer": "回答する",
-        "skip": "スキップ",
-        "exit": "終了する"
+        "skip": "スキップ"
       },
       "multiSelect": {
         "add": "役を追加",

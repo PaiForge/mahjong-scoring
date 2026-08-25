@@ -10,6 +10,10 @@ import { getAvailableScores } from "../_lib/get-available-scores";
 import { MANGAN_MIN_HAN, PRACTICE_HAN_TIERS } from "../_lib/han-tiers";
 import { getSelectClass } from "../../_lib/select-class";
 import { ScoreOptionSelect } from "../../_components/score-option-select";
+import {
+  PracticeFooterAction,
+  PracticeFooterActions,
+} from "../../_components/practice-footer-actions";
 import { Button } from "@/app/(user)/_components/button";
 
 interface ScorePracticeAnswerFormProps {
@@ -21,7 +25,6 @@ interface ScorePracticeAnswerFormProps {
   readonly simplifyMangan?: boolean;
   readonly requireFuForMangan?: boolean;
   readonly onSkip?: () => void;
-  readonly onExit?: () => void;
 }
 
 /**
@@ -37,7 +40,6 @@ export function ScorePracticeAnswerForm({
   simplifyMangan = false,
   requireFuForMangan = false,
   onSkip,
-  onExit,
 }: ScorePracticeAnswerFormProps) {
   const t = useTranslations("score");
   const [han, setHan] = useState<number | undefined>(undefined);
@@ -250,28 +252,11 @@ export function ScorePracticeAnswerForm({
 
       {/* Skip */}
       {onSkip && (
-        <div className="text-center">
-          <button
-            type="button"
-            onClick={onSkip}
-            className="text-sm text-surface-500 underline hover:text-surface-700"
-          >
+        <PracticeFooterActions>
+          <PracticeFooterAction onClick={onSkip}>
             {t("form.buttons.skip")}
-          </button>
-        </div>
-      )}
-
-      {/* Exit */}
-      {onExit && (
-        <div className="text-center">
-          <button
-            type="button"
-            onClick={onExit}
-            className="text-sm text-surface-500 underline hover:text-surface-600"
-          >
-            {t("form.buttons.exit")}
-          </button>
-        </div>
+          </PracticeFooterAction>
+        </PracticeFooterActions>
       )}
     </form>
   );

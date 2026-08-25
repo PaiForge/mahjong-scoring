@@ -23,7 +23,6 @@ interface ResultDisplayProps {
   readonly userAnswer: UserAnswer;
   readonly result: JudgementResult;
   readonly onNext: () => void;
-  readonly onExit?: () => void;
   readonly requireYaku?: boolean;
   readonly simplifyMangan?: boolean;
   readonly requireFuForMangan?: boolean;
@@ -38,7 +37,6 @@ export function ResultDisplay({
   userAnswer,
   result,
   onNext,
-  onExit,
   requireYaku = false,
   simplifyMangan = false,
   requireFuForMangan = false,
@@ -245,19 +243,6 @@ export function ResultDisplay({
       <Button size="lg" fullWidth onClick={onNext}>
         {t("result.next")}
       </Button>
-
-      {/* Exit */}
-      {onExit && (
-        <div className="text-center">
-          <button
-            type="button"
-            onClick={onExit}
-            className="text-sm text-surface-500 underline hover:text-surface-600"
-          >
-            {t("form.buttons.exit")}
-          </button>
-        </div>
-      )}
     </div>
   );
 }
