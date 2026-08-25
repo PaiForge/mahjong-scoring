@@ -13,3 +13,7 @@ dist/
 
 # Supabase CLI local cache (generated at project root by Studio/CLI)
 /supabase/
+
+# ローカル専用の設計メモ（作者のマシンにしか存在しない。参照は CLAUDE.md の
+# 「SPEC ファイルは足場」を参照）
+SPEC*.md
