@@ -2,7 +2,7 @@ import { describe, it, expect } from "vitest";
 import { HaiKind } from "@pai-forge/riichi-mahjong";
 import { generateScoreQuestion, generateValidScoreQuestion } from "./generator";
 import { ScoreLevel } from "../../core/constants";
-import { isMangan } from "../../score/tiers";
+import { isMangan, MANGAN_MIN_HAN } from "../../score/tiers";
 import { expectGeneratesEventually, expectSampled } from "../../test/sampling";
 
 describe("generateScoreQuestion", () => {
@@ -104,6 +104,37 @@ describe("generateScoreQuestion", () => {
       for (const question of questions) {
         expect(isMangan(question.answer.scoreLevel)).toBe(true);
       }
+    });
+  });
+
+  describe("オプション: minHan", () => {
+    it("minHan 以上の翻数の問題のみ生成される", () => {
+      const questions = expectSampled(
+        () =>
+          generateScoreQuestion({
+            allowedRanges: ["manganPlus"],
+            minHan: MANGAN_MIN_HAN,
+          }),
+        { attempts: 1000, need: 5 },
+      );
+
+      for (const question of questions) {
+        expect(question.answer.han).toBeGreaterThanOrEqual(MANGAN_MIN_HAN);
+      }
+    });
+
+    it("minHan 未指定の場合、manganPlus には符由来の満貫（4翻以下）も含まれる", () => {
+      // minHan が存在する理由の裏付け: 絞らなければ 4翻以下の満貫が出題される
+      const questions = expectSampled(
+        () => generateScoreQuestion({ allowedRanges: ["manganPlus"] }),
+        {
+          attempts: 3000,
+          need: 1,
+          where: (q) => q.answer.han < MANGAN_MIN_HAN,
+        },
+      );
+
+      expect(questions.length).toBeGreaterThanOrEqual(1);
     });
   });
 });

@@ -110,4 +110,14 @@ export interface QuestionGeneratorOptions {
   readonly renfonpaiAs4Fu?: boolean;
   /** 30符4翻・60符3翻を満貫に切り上げるか（切り上げ満貫、既定 false） */
   readonly kiriageMangan?: boolean;
+  /**
+   * 出題する最小翻数（既定: 制約なし）
+   * 最小翻数
+   *
+   * `allowedRanges: ["manganPlus"]` だけでは符由来の満貫（4翻40符等、
+   * プールの約 37%）が混ざり、符を計算しないと点数が確定しない問題が出る。
+   * `MANGAN_MIN_HAN` を渡すと翻数だけで点数が確定する手に限定でき、
+   * 符の知識を前提にしない出題（昇級試験等）が組める。
+   */
+  readonly minHan?: number;
 }
