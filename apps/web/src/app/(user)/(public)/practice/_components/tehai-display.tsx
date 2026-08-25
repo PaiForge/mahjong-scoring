@@ -1,11 +1,13 @@
 "use client";
 
-import { memo, useCallback, useState } from "react";
+import { memo, useCallback, useMemo, useState } from "react";
 import { useTranslations } from "next-intl";
 import { getKazeName } from "@mahjong-scoring/core";
 import type { AgariContext, Tehai, HaiKindId } from "@mahjong-scoring/core";
 import { Hai } from "@pai-forge/mahjong-react-ui";
 import { TehaiHand } from "../../_components/tehai-hand";
+import { useDoraDisplayMode } from "@/app/_hooks/use-display-settings-store";
+import { resolveDoraTiles } from "@/app/_lib/dora-display";
 
 /**
  * 練習共通の手牌表示に必要なコンテキスト情報
@@ -13,6 +15,9 @@ import { TehaiHand } from "../../_components/tehai-hand";
  *
  * core の {@link AgariContext} に表示上の任意項目を足したもの。
  * リーチ表示とドラ表示はそれを持たない練習からも使われるため任意。
+ *
+ * ドラは常に「表示牌」で受け取る。表示牌のまま出すか、ドラそのものへ
+ * 読み替えて出すかは表示設定で決まる。
  */
 export type TehaiContext = AgariContext & {
   readonly isRiichi?: boolean;
@@ -38,9 +43,16 @@ export const TehaiDisplay = memo(function TehaiDisplayComponent({
   onScaleChange,
 }: TehaiDisplayProps) {
   const t = useTranslations(translationNamespace);
+  const tCommon = useTranslations("common");
+  const doraDisplay = useDoraDisplayMode();
   // 牌の並びは共有コンポーネント TehaiHand に委譲し、その自動スケール値を
   // コンテキスト牌（和了牌・ドラ）にも同じ倍率で適用するため state で受け取る。
   const [scale, setScale] = useState(1);
+
+  const doraTiles = useMemo(
+    () => resolveDoraTiles(context.doraMarkers ?? [], doraDisplay),
+    [context.doraMarkers, doraDisplay],
+  );
 
   const handleScaleChange = useCallback(
     (next: number) => {
@@ -90,9 +102,11 @@ export const TehaiDisplay = memo(function TehaiDisplayComponent({
             <p className="mt-0.5 font-bold text-destructive">&#x25CF;</p>
           </div>
         )}
-        {context.doraMarkers && context.doraMarkers.length > 0 && (
+        {doraTiles.length > 0 && (
           <div className="text-center">
-            <span className="text-surface-400">{t("dora")}</span>
+            <span className="text-surface-400">
+              {tCommon(doraDisplay === "indicator" ? "doraIndicator" : "dora")}
+            </span>
             <div
               className="mt-0.5 flex justify-center gap-0.5"
               style={{
@@ -100,8 +114,8 @@ export const TehaiDisplay = memo(function TehaiDisplayComponent({
                 transformOrigin: "center top",
               }}
             >
-              {context.doraMarkers.map((marker, i) => (
-                <Hai key={i} hai={marker} size="sm" />
+              {doraTiles.map((tile, i) => (
+                <Hai key={i} hai={tile} size="sm" />
               ))}
             </div>
           </div>

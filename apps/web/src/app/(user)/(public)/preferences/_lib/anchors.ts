@@ -10,6 +10,8 @@ export const PREFERENCE_ANCHORS = {
   renfonpai: "renfonpai",
   /** 30符4翻・60符3翻を満貫に切り上げるか（切り上げ満貫） */
   kiriageMangan: "kiriage-mangan",
+  /** ドラを表示牌ではなくドラそのもので表示するか */
+  doraDisplay: "dora-display",
   /** ランキングに自分を表示しないか */
   leaderboardVisibility: "leaderboard-visibility",
 } as const;
