@@ -14,10 +14,12 @@ const EXIT_HREF = "/practice/score-table";
 
 /**
  * このビューだけ createTrainingView を使わずに手書きしている。
- * TrainingShell の onSkip / skipDisabled に、盤面側の `advance` を
- * 渡す必要があるため（他のトレーニングはスキップ機能を持たない）。
- * ファクトリに「盤面の状態をシェルへ引き上げる」経路を足すと
- * 1箇所のために設定項目が増えるので、ここは意図的に例外としている。
+ *
+ * スキップ自体はファクトリの `useBoardState` / `skipOf` で扱えるように
+ * なったが、この練習は出題条件を URL クエリから読む（`useSearchParams`）。
+ * 状態を引き上げるとビュー全体が Suspense 境界の内側に入り、フォールバック
+ * 側でもシェルを描いてプリレンダー HTML に見出し・終了リンクを残す必要が
+ * あるため、境界の外殻ごとここで組み立てている。
  */
 function ScoreTableTrainingViewInner() {
   const t = useTranslations("scoreTableChallenge");
