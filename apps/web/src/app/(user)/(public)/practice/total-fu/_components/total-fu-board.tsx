@@ -14,6 +14,7 @@ import type { TotalFuQuestionResult } from "../_lib/types";
 import { FuChoiceGrid } from "../../_components/fu-choice-grid";
 import { QuestionGeneratingPlaceholder } from "../../_components/question-generating-placeholder";
 import { useClientGeneratedQuestion } from "../../_hooks/use-client-generated-question";
+import { useTrainingReveal } from "../../_hooks/use-training-reveal";
 import { TehaiDisplay } from "../../_components/tehai-display";
 import { FuBreakdown } from "./fu-breakdown";
 import { QuestionPrompt } from "../../_components/question-prompt";
@@ -43,7 +44,7 @@ interface TotalFuBoardProps extends RecordingPracticeBoardProps<TotalFuQuestionR
  *
  * 出題状態と回答ロジックを内包し、チャレンジ・トレーニング両モードで共有する。
  *
- * 符の内訳は `onProceed` を受け取ったとき（トレーニング）だけ、不正解の問題に
+ * 符の内訳はトレーニングでだけ、不正解の問題と「わからない」で開示した問題に
  * 対して表示する。チャレンジは制限時間内に解き続ける形式で、内訳を出しても
  * 読む間もなく次の問題へ変わってしまうため出さない。振り返りは結果ページの
  * 問題別フィードバック一覧で行う。
@@ -69,6 +70,10 @@ export function TotalFuBoard({
     setQuestion(generate());
     setSelectedFu(undefined);
   }, [generate, setQuestion]);
+
+  const isRevealed = useTrainingReveal(
+    question === undefined ? undefined : advanceQuestion,
+  );
 
   const handleSelect = useCallback(
     (index: number) => {
@@ -102,19 +107,17 @@ export function TotalFuBoard({
         translationNamespace="totalFu"
       />
 
-      {onProceed !== undefined &&
-        showFeedback &&
-        lastAnswerCorrect === false && (
-          <>
-            <FuBreakdown
-              details={question.fuDetails}
-              answer={question.answer}
-            />
+      {showFeedback && (lastAnswerCorrect === false || isRevealed) && (
+        <>
+          <FuBreakdown details={question.fuDetails} answer={question.answer} />
+          {/* 開示中の「次の問題へ」はシェルのフッターにあるため、ここには出さない */}
+          {onProceed !== undefined && lastAnswerCorrect === false && (
             <Button size="lg" fullWidth onClick={onProceed}>
               {t("nextQuestion")}
             </Button>
-          </>
-        )}
+          )}
+        </>
+      )}
     </div>
   );
 }

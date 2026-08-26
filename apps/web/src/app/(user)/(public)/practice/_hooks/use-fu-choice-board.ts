@@ -4,6 +4,7 @@ import { useCallback, useState } from "react";
 
 import type { PracticeBoardProps } from "../_lib/practice-board-props";
 import { useClientGeneratedQuestion } from "./use-client-generated-question";
+import { useTrainingReveal } from "./use-training-reveal";
 
 /** 符を答える練習の問題が満たすべき最小の形 */
 interface FuQuestion {
@@ -49,6 +50,8 @@ export function useFuChoiceBoard<TQuestion extends FuQuestion>({
     setQuestion(generateQuestion());
     setSelectedFu(undefined);
   }, [generateQuestion, setQuestion]);
+
+  useTrainingReveal(question === undefined ? undefined : advanceQuestion);
 
   const handleSelect = useCallback(
     (index: number) => {

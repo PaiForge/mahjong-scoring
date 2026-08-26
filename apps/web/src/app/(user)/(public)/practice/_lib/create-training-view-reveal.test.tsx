@@ -8,62 +8,54 @@ vi.mock("../_actions/save-practice-result", () => ({
   savePracticeResult: vi.fn(),
 }));
 
-import type { TrainingBoardArgs } from "./create-challenge-views";
+import { useTrainingReveal } from "../_hooks/use-training-reveal";
 import { createTrainingView } from "./create-challenge-views";
 
 /**
- * 「わからない」は「盤面が持つ次問題への操作」をシェルのフッターから
- * 開示→proceed の2段で呼ぶ配線なので、盤面の中身（牌画像・出題生成）ではなく
- * ファクトリの受け渡しだけを検証する。
+ * 「わからない」は「盤面が登録した次問題への操作」をシェルのフッターから
+ * 開示 → proceed の2段で呼ぶ配線なので、盤面の中身（牌画像・出題生成）ではなく
+ * ファクトリと盤面の受け渡しだけを検証する。
  */
-function renderTrainingView(state: {
-  readonly advance?: () => void;
-}): ReturnType<typeof render> {
-  const TrainingView = createTrainingView<
-    Record<string, never>,
-    { readonly advance?: () => void }
-  >({
+function renderTrainingView(advance: (() => void) | undefined) {
+  function Board({ showFeedback }: { readonly showFeedback: boolean }) {
+    const isRevealed = useTrainingReveal(advance);
+    return (
+      <div>
+        board feedback:{String(showFeedback)} revealed:{String(isRevealed)}
+      </div>
+    );
+  }
+
+  const TrainingView = createTrainingView({
     slug: "han-count",
-    useBoardState: () => state,
-    advanceOf: ({ advance }) => advance,
-    renderBoard: (args: TrainingBoardArgs) => (
-      <div>board feedback:{String(args.showFeedback)}</div>
-    ),
+    renderBoard: ({ showFeedback }) => <Board showFeedback={showFeedback} />,
   });
 
   return render(<TrainingView />);
 }
 
 describe("createTrainingView わからない（正解開示）", () => {
-  it("押すと開示状態になり（盤面は showFeedback 表示・集計は不変）、「次の問題へ」で操作を呼ぶ", () => {
+  it("押すと開示状態になり（盤面は showFeedback 表示）、「次の問題へ」で登録された操作を呼ぶ", () => {
     const advance = vi.fn();
-    renderTrainingView({ advance });
+    renderTrainingView(advance);
 
     fireEvent.click(screen.getByRole("button", { name: "revealButton" }));
 
     // 開示しただけでは進まない。盤面は回答時と同じ正解表示になる
     expect(advance).not.toHaveBeenCalled();
-    expect(screen.getByText("board feedback:true")).toBeTruthy();
+    expect(screen.getByText(/board feedback:true revealed:true/)).toBeTruthy();
 
     fireEvent.click(screen.getByRole("button", { name: "nextButton" }));
     expect(advance).toHaveBeenCalledTimes(1);
-    expect(screen.getByText("board feedback:false")).toBeTruthy();
+    expect(
+      screen.getByText(/board feedback:false revealed:false/),
+    ).toBeTruthy();
   });
 
-  it("advanceOf が undefined を返す間（出題の生成待ち等）は無効化する", () => {
-    renderTrainingView({ advance: undefined });
+  it("盤面が操作を登録しない間（出題の生成待ち等）は無効化する", () => {
+    renderTrainingView(undefined);
 
     const reveal = screen.getByRole("button", { name: "revealButton" });
     expect((reveal as HTMLButtonElement).disabled).toBe(true);
-  });
-
-  it("advanceOf 未指定の練習には「わからない」リンクを出さない", () => {
-    const TrainingView = createTrainingView({
-      slug: "han-count",
-      renderBoard: () => <div>board</div>,
-    });
-    render(<TrainingView />);
-
-    expect(screen.queryByRole("button", { name: "revealButton" })).toBeNull();
   });
 });

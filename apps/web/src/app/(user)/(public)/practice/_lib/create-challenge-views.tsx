@@ -1,6 +1,6 @@
 "use client";
 
-import type { ReactNode } from "react";
+import { useCallback, useMemo, useState, type ReactNode } from "react";
 import { useTranslations } from "next-intl";
 import type { PracticeMenuSlug } from "@/lib/db/practice-menu-types";
 import {
@@ -13,6 +13,7 @@ import { useRecordedResults } from "../_hooks/use-recorded-results";
 import { useSaveOnFinish } from "../_hooks/use-save-on-finish";
 import { useTimedSession } from "../_hooks/use-timed-session";
 import { useTrainingSession } from "../_hooks/use-training-session";
+import { TrainingRevealProvider } from "../_hooks/use-training-reveal";
 import type { PracticeBoardProps } from "./practice-board-props";
 import { practiceHref, practiceResultHref } from "./practice-catalog";
 
@@ -177,21 +178,9 @@ export interface TrainingViewConfig<TProps, TState> {
    * 盤面が必要とする追加状態を用意するフック
    *
    * チャレンジ側の {@link ChallengePlayViewConfig.useBoardState} と同じ役割。
-   * 「わからない」は無回答で正解を開いてから次問題へ進む操作なので、
-   * 出題状態をシェルと同じ階層に置く必要があり、これを出す練習は
-   * このフックで状態を引き上げる。
+   * 出題条件をクエリから読む練習など、盤面の外に状態が要るとき使う。
    */
   readonly useBoardState?: (props: TProps) => TState;
-  /**
-   * 「次の問題へ進む」操作を取り出す（「わからない」を出す練習向け）
-   *
-   * 指定するとフッターに「わからない」リンクが出る。押すと無回答のまま
-   * 正解を開示（盤面は回答時と同じ showFeedback 表示）して停止し、
-   * 「次の問題へ」でこの操作を呼んで進む。出題の生成待ちなど、まだ
-   * 進めない状態では undefined を返すこと（リンクは無効化される）。
-   * フィードバック表示中の無効化はファクトリ側で行う。
-   */
-  readonly advanceOf?: (state: TState) => (() => void) | undefined;
   /**
    * 盤面の描画
    *
@@ -212,7 +201,7 @@ export function createTrainingView<
   TProps = Record<string, never>,
   TState = undefined,
 >(config: TrainingViewConfig<TProps, TState>): (props: TProps) => ReactNode {
-  const { slug, maxWidth, holdOnIncorrect, advanceOf, renderBoard } = config;
+  const { slug, maxWidth, holdOnIncorrect, renderBoard } = config;
   const { namespace } = practiceMenuBySlug(slug);
   const useBoardState =
     config.useBoardState ?? (() => undefined as unknown as TState);
@@ -231,9 +220,17 @@ export function createTrainingView<
       proceed,
     } = useTrainingSession({ holdOnIncorrect });
 
-    // 「わからない」を出す練習だけ、盤面の状態から「次へ進む」操作を取り出す。
-    // 正誤フィードバック中は次問題へ自動で進むため開示させない。
-    const advance = advanceOf?.(boardState);
+    // 「次へ進む」操作は盤面が持つ（出題の差し替えと入力欄のリセットを含む）ため、
+    // useTrainingReveal 経由で登録してもらう。生成待ちの間は undefined になる。
+    const [advance, setAdvance] = useState<(() => void) | undefined>(undefined);
+    const registerAdvance = useCallback(
+      (next: (() => void) | undefined) => setAdvance(() => next),
+      [],
+    );
+    const revealValue = useMemo(
+      () => ({ isRevealed, registerAdvance }),
+      [isRevealed, registerAdvance],
+    );
 
     return (
       <TrainingShell
@@ -242,26 +239,25 @@ export function createTrainingView<
         totalCount={totalCount}
         exitHref={practiceHref(slug)}
         maxWidth={maxWidth}
-        onReveal={
-          advanceOf &&
-          (() => {
-            if (advance) reveal(advance);
-          })
-        }
+        onReveal={() => {
+          if (advance) reveal(advance);
+        }}
         revealDisabled={showFeedback || advance === undefined}
         isRevealed={isRevealed}
         onProceed={proceed}
       >
-        {renderBoard(
-          {
-            showFeedback,
-            lastAnswerCorrect,
-            onAnswer: handleAnswer,
-            onProceed: proceed,
-          },
-          props,
-          boardState,
-        )}
+        <TrainingRevealProvider value={revealValue}>
+          {renderBoard(
+            {
+              showFeedback,
+              lastAnswerCorrect,
+              onAnswer: handleAnswer,
+              onProceed: proceed,
+            },
+            props,
+            boardState,
+          )}
+        </TrainingRevealProvider>
       </TrainingShell>
     );
   }
