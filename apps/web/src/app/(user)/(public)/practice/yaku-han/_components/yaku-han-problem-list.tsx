@@ -32,22 +32,15 @@ export function YakuHanProblemList({ results }: YakuHanProblemListProps) {
       translationNamespace="yakuHanChallenge"
       isCorrect={(r) => r.isCorrect}
       renderSummary={(r) => `${r.yakuName}${stateLabel(r)}`}
+      // 役名と門前 / 鳴きはヘッダーのサマリーが出しているため、
+      // 展開後は正解とユーザー回答の対比だけを見せる
       renderDetail={(result) => (
         <AnswerComparison
           translationNamespace="yakuHanChallenge"
           isCorrect={result.isCorrect}
           correct={hanLabel(result.correctHan)}
           user={hanLabel(result.userHan)}
-        >
-          <p className="text-surface-700">
-            <span className="font-medium">{result.yakuName}</span>{" "}
-            {result.canNaki && (
-              <span className="text-surface-500">
-                （{result.isMenzen ? t("menzen") : t("naki")}）
-              </span>
-            )}
-          </p>
-        </AnswerComparison>
+        />
       )}
     />
   );
