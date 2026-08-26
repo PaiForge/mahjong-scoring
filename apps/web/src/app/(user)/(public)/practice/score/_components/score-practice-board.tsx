@@ -74,8 +74,11 @@ function ScorePracticeBoardInner() {
     parseModeFlagsFromParams(new URLSearchParams(searchParams.toString()));
 
   const handleBackToSetup = useCallback(() => {
+    // 他の練習（challenge-shell / training-shell）の「終了」と同じく、
+    // 離脱したことをトーストで知らせてから設定画面へ戻す。
+    toast(tc("quit.toast"));
     router.push("/practice/score");
-  }, [router]);
+  }, [router, tc]);
 
   const handleNext = useCallback(() => {
     nextQuestion();
