@@ -26,7 +26,8 @@ interface HighScoreTableProps {
  *
  * セルのタップでぼかし表示を切り替える（暗記用）。
  * highlightKey で指定された区分の行はハイライトし、初期表示時に
- * 画面中央へスクロールされる。
+ * 画面中央へスクロールされる。青は「参照している場所」を指す色
+ * （NormalScoreTable のセルハイライトと同系）。
  */
 export function HighScoreTable({
   activeTab,
@@ -59,7 +60,7 @@ export function HighScoreTable({
         return (
           <tr
             key={item.nameKey}
-            className={isHighlighted ? "bg-amber-100" : "bg-white"}
+            className={isHighlighted ? "bg-blue-100" : "bg-white"}
           >
             <td
               ref={isHighlighted ? highlightRef : undefined}

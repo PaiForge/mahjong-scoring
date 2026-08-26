@@ -19,6 +19,8 @@ export type DataTableAlign = keyof typeof DATA_TABLE_ALIGN_CLASS;
 interface DataTableHeaderCellProps {
   /** セルの配置（既定は表の text-align に従う） */
   readonly align?: DataTableAlign;
+  /** 追加クラス（ハイライト等）。レイアウトの上書きには使わない */
+  readonly className?: string;
   readonly children: ReactNode;
 }
 
@@ -28,17 +30,19 @@ interface DataTableHeaderCellProps {
  */
 export function DataTableHeaderCell({
   align = "center",
+  className,
   children,
 }: DataTableHeaderCellProps) {
-  const className = [
+  const mergedClassName = [
     "px-4 py-3",
     DATA_TABLE_ALIGN_CLASS[align],
     "font-bold text-surface-700",
+    className,
   ]
     .filter(Boolean)
     .join(" ");
 
-  return <th className={className}>{children}</th>;
+  return <th className={mergedClassName}>{children}</th>;
 }
 
 interface DataTableProps {

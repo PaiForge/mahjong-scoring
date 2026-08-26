@@ -31,7 +31,10 @@ interface NormalScoreTableProps {
  * 通常点数表
  *
  * セルのタップでぼかし表示を切り替える（暗記用）。
- * highlight で指定されたセルはハイライトし、初期表示時に画面中央へスクロールされる。
+ * highlight で指定されたセルは、符の行見出し・翻の列見出しとあわせて
+ * クロスヘア状にハイライトし、初期表示時に画面中央へスクロールされる。
+ * ハイライトの青は「参照している場所」を指す色で、頻出符の琥珀
+ * （行見出しの強調）や正解フィードバックの緑と役割を分けている。
  */
 export function NormalScoreTable({
   scoreGrid,
@@ -55,7 +58,12 @@ export function NormalScoreTable({
             {t("hanSuffix")}
           </DataTableHeaderCell>
           {HAN_COLS.map((han) => (
-            <DataTableHeaderCell key={han}>
+            <DataTableHeaderCell
+              key={han}
+              className={
+                highlight?.han === han ? "bg-blue-100 text-blue-700" : undefined
+              }
+            >
               {han}
               {t("hanSuffix")}
             </DataTableHeaderCell>
@@ -65,12 +73,17 @@ export function NormalScoreTable({
     >
       {FU_ROWS.map((fu) => {
         const isFrequent = FREQUENT_FU.has(fu);
+        const isFuHighlighted = highlight?.fu === fu;
 
         return (
           <tr key={fu} className="bg-white">
             <td
               className={`px-4 py-3 text-left font-medium ${
-                isFrequent ? "text-amber-700" : "text-surface-600"
+                isFuHighlighted
+                  ? "bg-blue-100 text-blue-700"
+                  : isFrequent
+                    ? "text-amber-700"
+                    : "text-surface-600"
               }`}
             >
               {fu}
@@ -92,7 +105,7 @@ export function NormalScoreTable({
                 highlight.han === han &&
                 highlight.fu === fu;
               const highlightClass = isHighlighted
-                ? " bg-amber-100 ring-2 ring-inset ring-amber-400"
+                ? " bg-blue-100 ring-2 ring-inset ring-blue-500"
                 : "";
 
               return (
