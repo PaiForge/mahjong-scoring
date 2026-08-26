@@ -23,3 +23,26 @@ export const PRACTICE_SETUP_ANCHOR_ID = "practice-setup";
 
 /** ナビゲーション URL に付与するハッシュ（例: `/practice/score-table#practice-setup`） */
 export const PRACTICE_SETUP_HASH = `#${PRACTICE_SETUP_ANCHOR_ID}`;
+
+/**
+ * 練習セッションの先頭（{@link PRACTICE_SCROLL_ANCHOR_ID}）へスクロールする。
+ * 練習先頭へ戻す
+ *
+ * 回答・開示・次へ進むのボタンは盤面下端やフッターにあるため、押した位置の
+ * まま止まると、盤面上部に出る正誤表示も続けて差し替わる次の問題も画面外に
+ * 残る。手牌符・点数計算総合演習のように縦に長い練習で顕著なので、表示が
+ * 切り替わる操作のたびにマウント時（`useScrollToElement`）と同じ位置へ戻す。
+ *
+ * マウント時と違い操作の続きとして動くので、どこへ運ばれたのかが分かるよう
+ * 滑らかにスクロールする。動きを減らす設定の環境では即時に切り替える。
+ */
+export function scrollToPracticeAnchor(): void {
+  const prefersReducedMotion = window.matchMedia(
+    "(prefers-reduced-motion: reduce)",
+  ).matches;
+
+  document.getElementById(PRACTICE_SCROLL_ANCHOR_ID)?.scrollIntoView({
+    behavior: prefersReducedMotion ? "instant" : "smooth",
+    block: "start",
+  });
+}
