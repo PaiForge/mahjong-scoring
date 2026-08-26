@@ -95,11 +95,11 @@ describe("useTrainingSession", () => {
     });
   });
 
-  describe("holdOnIncorrect", () => {
+  describe("holdAfterAnswer", () => {
     it("不正解では時間が経っても進まず、proceed で進む", () => {
       const onNext = vi.fn();
       const { result } = renderHook(() =>
-        useTrainingSession({ holdOnIncorrect: true }),
+        useTrainingSession({ holdAfterAnswer: true }),
       );
 
       act(() => result.current.handleAnswer(false, onNext));
@@ -117,23 +117,31 @@ describe("useTrainingSession", () => {
       expect(result.current.lastAnswerCorrect).toBeUndefined();
     });
 
-    it("正解のときは指定に関わらず自動で次問題へ進む", () => {
+    it("正解でも時間が経っても進まず、proceed で進む", () => {
       const onNext = vi.fn();
       const { result } = renderHook(() =>
-        useTrainingSession({ holdOnIncorrect: true }),
+        useTrainingSession({ holdAfterAnswer: true }),
       );
 
       act(() => result.current.handleAnswer(true, onNext));
-      act(() => vi.advanceTimersByTime(800));
+      act(() => vi.advanceTimersByTime(10_000));
+
+      // 合っていた根拠（符の内訳・符目ごとの正解）を確認する時間を確保する
+      expect(onNext).not.toHaveBeenCalled();
+      expect(result.current.showFeedback).toBe(true);
+      expect(result.current.lastAnswerCorrect).toBe(true);
+
+      act(() => result.current.proceed());
 
       expect(onNext).toHaveBeenCalledTimes(1);
       expect(result.current.showFeedback).toBe(false);
+      expect(result.current.lastAnswerCorrect).toBeUndefined();
     });
 
     it("停止中の proceed は一度しか効かない", () => {
       const onNext = vi.fn();
       const { result } = renderHook(() =>
-        useTrainingSession({ holdOnIncorrect: true }),
+        useTrainingSession({ holdAfterAnswer: true }),
       );
 
       act(() => result.current.handleAnswer(false, onNext));
@@ -145,7 +153,7 @@ describe("useTrainingSession", () => {
 
     it("停止していないときの proceed は何もしない", () => {
       const { result } = renderHook(() =>
-        useTrainingSession({ holdOnIncorrect: true }),
+        useTrainingSession({ holdAfterAnswer: true }),
       );
 
       act(() => result.current.proceed());
