@@ -18,6 +18,7 @@ import {
   parseModeFlagsFromParams,
 } from "../_lib/parse-practice-params";
 import { QuestionDisplay } from "./question-display";
+import { TehaiMentsuBreakdown } from "../../_components/tehai-mentsu-breakdown";
 import { ScorePracticeAnswerForm } from "./score-practice-answer-form";
 import { ScorePracticeBoardSkeleton } from "./score-practice-board-skeleton";
 import { ResultDisplay } from "./result-display";
@@ -123,6 +124,15 @@ function ScorePracticeBoardInner() {
       <div className="space-y-4 sm:space-y-6 md:space-y-8">
         {/* Question */}
         <QuestionDisplay question={currentQuestion} />
+
+        {/* 面子分解は正解開示の一部。回答中に見せると符の答えが割れるため、
+            回答後にのみ手牌の直下へ出す */}
+        {isAnswered && (
+          <TehaiMentsuBreakdown
+            tehai={currentQuestion.tehai}
+            context={currentQuestion}
+          />
+        )}
 
         {/* Answer area */}
         {isAnswered && userAnswer && judgementResult ? (
