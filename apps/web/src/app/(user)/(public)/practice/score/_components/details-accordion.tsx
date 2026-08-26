@@ -73,7 +73,7 @@ export function DetailsPanelRow({
             {items.map((detail, idx) => (
               <div
                 key={idx}
-                className="flex justify-between border-b-2 border-dashed border-border/40 py-1.5 last:border-0"
+                className="flex justify-between border-b-2 border-dashed border-border/60 py-1.5 last:border-0"
               >
                 <span>{detail.name}</span>
                 <span>
@@ -83,7 +83,7 @@ export function DetailsPanelRow({
               </div>
             ))}
           </div>
-          <div className="mt-0 flex justify-between border-t-2 border-dashed border-border/40 pb-1.5 pt-1.5 font-bold">
+          <div className="mt-0 flex justify-between border-t-2 border-border pb-1.5 pt-1.5 font-bold">
             <span>{t("result.details.total")}</span>
             <span>
               {total}
