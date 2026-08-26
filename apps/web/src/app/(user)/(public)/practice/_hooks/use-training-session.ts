@@ -7,12 +7,14 @@ interface UseTrainingSessionOptions {
   /** 正誤フィードバックの表示時間（ms） */
   feedbackDurationMs?: number;
   /**
-   * 不正解時は自動で次問題へ進まず、{@link TrainingSessionState.proceed} の
+   * 回答後は自動で次問題へ進まず、{@link TrainingSessionState.proceed} の
    * 呼び出しを待つ
    *
-   * 解説を読ませたい練習向け。正解時は指定に関わらず自動で進む。
+   * 正解表示を突き合わせて読ませたい練習向け。正解・不正解のどちらでも止まる。
+   * 正解でも止めるのは、合っていた根拠（符の内訳や符目ごとの正解）を確認する
+   * 時間がトレーニングでは要るため。
    */
-  holdOnIncorrect?: boolean;
+  holdAfterAnswer?: boolean;
 }
 
 /**
@@ -33,7 +35,12 @@ export interface TrainingSessionState {
    * `showFeedback` は true になる（盤面は回答時と同じ正解表示を描くため）。
    */
   readonly isRevealed: boolean;
-  /** 回答処理。フィードバック表示後に onNext で次問題へ進む */
+  /**
+   * 回答処理。フィードバック表示後に onNext で次問題へ進む
+   *
+   * {@link UseTrainingSessionOptions.holdAfterAnswer} 指定時は自動で進まず、
+   * {@link proceed} の呼び出しを待つ。
+   */
   readonly handleAnswer: (correct: boolean, onNext: () => void) => void;
   /**
    * 無回答のまま正解を開示し、{@link proceed} の呼び出しまで停止する
@@ -43,7 +50,7 @@ export interface TrainingSessionState {
    */
   readonly reveal: (onNext: () => void) => void;
   /**
-   * 停止状態（不正解での停止・正解開示）から次問題へ進む
+   * 停止状態（回答後の停止・正解開示）から次問題へ進む
    *
    * 停止していないときは何もしない。
    */
@@ -54,7 +61,8 @@ export interface TrainingSessionState {
  * 練習のトレーニングセッション管理
  *
  * 時間無制限・ミス無制限の反復練習用。正解数と出題数のみを集計し、
- * 回答ごとにフィードバックを挟んで次の問題へ自動で進む。
+ * 回答ごとにフィードバックを挟んで次の問題へ自動で進む
+ * （{@link UseTrainingSessionOptions.holdAfterAnswer} 指定時は操作を待つ）。
  *
  * 盤面の表示が切り替わる操作（回答・開示・次へ進む）では、あわせて練習の
  * 先頭へスクロールして戻す。これらのボタンは盤面下端やフッターにあり、
@@ -63,7 +71,7 @@ export interface TrainingSessionState {
  */
 export function useTrainingSession({
   feedbackDurationMs = 800,
-  holdOnIncorrect = false,
+  holdAfterAnswer = false,
 }: UseTrainingSessionOptions = {}): TrainingSessionState {
   const [correctCount, setCorrectCount] = useState(0);
   const [totalCount, setTotalCount] = useState(0);
@@ -75,7 +83,7 @@ export function useTrainingSession({
   const feedbackTimeoutRef = useRef<ReturnType<typeof setTimeout> | undefined>(
     undefined,
   );
-  // 停止（不正解での停止・正解開示）からの「次へ進む」処理。proceed が呼ばれるまで保持する
+  // 停止（回答後の停止・正解開示）からの「次へ進む」処理。proceed が呼ばれるまで保持する
   const pendingNextRef = useRef<(() => void) | undefined>(undefined);
 
   const handleAnswer = useCallback(
@@ -88,7 +96,7 @@ export function useTrainingSession({
       setTotalCount((c) => c + 1);
       if (correct) setCorrectCount((c) => c + 1);
 
-      if (holdOnIncorrect && !correct) {
+      if (holdAfterAnswer) {
         pendingNextRef.current = onNext;
         return;
       }
@@ -99,7 +107,7 @@ export function useTrainingSession({
         onNext();
       }, feedbackDurationMs);
     },
-    [showFeedback, feedbackDurationMs, holdOnIncorrect],
+    [showFeedback, feedbackDurationMs, holdAfterAnswer],
   );
 
   const reveal = useCallback(

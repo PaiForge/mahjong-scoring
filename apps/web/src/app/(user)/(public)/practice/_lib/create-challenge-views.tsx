@@ -148,9 +148,9 @@ export function createChallengePlayView<
 export interface TrainingBoardArgs extends PracticeBoardProps {
   readonly lastAnswerCorrect: boolean | undefined;
   /**
-   * 不正解で停止中の状態から次問題へ進む
+   * 回答後の停止状態から次問題へ進む
    *
-   * `holdOnIncorrect` を指定した練習だけが意味を持つ。盤面は解説の下に
+   * `holdAfterAnswer` を指定した練習だけが意味を持つ。盤面は正解表示の下に
    * この操作を呼ぶボタンを置く。
    */
   readonly onProceed: () => void;
@@ -169,11 +169,12 @@ export interface TrainingViewConfig<TProps, TState> {
   /** シェル内部ラッパーの max-w クラス（未指定時はシェルの既定値） */
   readonly maxWidth?: string;
   /**
-   * 不正解時にフィードバック表示のまま停止し、ユーザーの操作を待つ
+   * 回答後にフィードバック表示のまま停止し、ユーザーの操作を待つ
    *
-   * 解説を読ませたい練習向け。既定は自動で次問題へ進む。
+   * 正解表示を突き合わせて読ませたい練習向け。正解・不正解のどちらでも止まる。
+   * 既定は自動で次問題へ進む。
    */
-  readonly holdOnIncorrect?: boolean;
+  readonly holdAfterAnswer?: boolean;
   /**
    * 盤面が必要とする追加状態を用意するフック
    *
@@ -201,7 +202,7 @@ export function createTrainingView<
   TProps = Record<string, never>,
   TState = undefined,
 >(config: TrainingViewConfig<TProps, TState>): (props: TProps) => ReactNode {
-  const { slug, maxWidth, holdOnIncorrect, renderBoard } = config;
+  const { slug, maxWidth, holdAfterAnswer, renderBoard } = config;
   const { namespace } = practiceMenuBySlug(slug);
   const useBoardState =
     config.useBoardState ?? (() => undefined as unknown as TState);
@@ -218,7 +219,7 @@ export function createTrainingView<
       handleAnswer,
       reveal,
       proceed,
-    } = useTrainingSession({ holdOnIncorrect });
+    } = useTrainingSession({ holdAfterAnswer });
 
     // 「次へ進む」操作は盤面が持つ（出題の差し替えと入力欄のリセットを含む）ため、
     // useTrainingReveal 経由で登録してもらう。生成待ちの間は undefined になる。

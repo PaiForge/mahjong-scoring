@@ -6,8 +6,8 @@ import { TehaiFuBoard } from "./tehai-fu-board";
 export const TehaiFuTrainingView = createTrainingView({
   slug: "tehai-fu",
   maxWidth: "max-w-lg",
-  // 符目ごとの正解を突き合わせて読ませたいので、不正解のときは自動で次へ進めない
-  holdOnIncorrect: true,
+  // 符目ごとの正解を突き合わせて読ませたいので、回答後は自動で次へ進めない
+  holdAfterAnswer: true,
   renderBoard: ({ showFeedback, lastAnswerCorrect, onAnswer, onProceed }) => (
     <TehaiFuBoard
       showFeedback={showFeedback}

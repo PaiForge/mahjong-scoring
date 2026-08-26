@@ -24,9 +24,9 @@ interface TehaiFuBoardProps extends PracticeBoardProps {
   /** 直前の回答が正解だったか（未回答時は undefined） */
   readonly lastAnswerCorrect?: boolean;
   /**
-   * 不正解で停止中の状態から次問題へ進む操作
+   * 回答後の停止状態から次問題へ進む操作
    *
-   * 指定した場合のみ、不正解時に各行の正解を出したまま停止して
+   * 指定した場合のみ、回答後に各行の正解を出したまま停止して
    * 「次の問題へ」ボタンを出す（自動で進まないトレーニングモード向け）。
    * チャレンジでは指定しない。
    */
@@ -90,9 +90,13 @@ export function TehaiFuBoard({
   }
 
   const allAnswered = answers.length > 0 && answers.every((a) => a !== "");
-  // 不正解で停止中（トレーニングのみ）。行ごとの正解表示を残したまま操作を待つ
+  // 回答後の停止中（トレーニングのみ）。行ごとの正解表示を残したまま操作を待つ。
+  // 開示中の「次の問題へ」はシェルのフッターにあるため、ここには出さない
   const isHolding =
-    onProceed !== undefined && showFeedback && lastAnswerCorrect === false;
+    onProceed !== undefined &&
+    showFeedback &&
+    !isRevealed &&
+    lastAnswerCorrect !== undefined;
 
   return (
     <div className="space-y-4">
@@ -119,7 +123,7 @@ export function TehaiFuBoard({
         ))}
       </div>
 
-      {/* Submit button（不正解での停止中は「次の問題へ」に差し替える） */}
+      {/* Submit button（回答後の停止中は「次の問題へ」に差し替える） */}
       {isHolding ? (
         <div className="mt-4">
           <Button size="lg" fullWidth onClick={onProceed}>

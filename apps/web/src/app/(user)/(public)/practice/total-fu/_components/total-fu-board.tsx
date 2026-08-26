@@ -28,12 +28,10 @@ function generateQuestion(
 }
 
 interface TotalFuBoardProps extends RecordingPracticeBoardProps<TotalFuQuestionResult> {
-  /** 直前の回答が正解だったか（未回答時は undefined） */
-  readonly lastAnswerCorrect?: boolean;
   /**
-   * 不正解で停止中の状態から次問題へ進む操作
+   * 回答後の停止状態から次問題へ進む操作
    *
-   * 指定した場合のみ、不正解時に符の内訳と「次の問題へ」ボタンを出して停止する
+   * 指定した場合のみ、回答後に符の内訳と「次の問題へ」ボタンを出して停止する
    * （自動で進まないトレーニングモード向け）。チャレンジでは指定しない。
    */
   readonly onProceed?: () => void;
@@ -44,7 +42,7 @@ interface TotalFuBoardProps extends RecordingPracticeBoardProps<TotalFuQuestionR
  *
  * 出題状態と回答ロジックを内包し、チャレンジ・トレーニング両モードで共有する。
  *
- * 符の内訳はトレーニングでだけ、不正解の問題と「わからない」で開示した問題に
+ * 符の内訳はトレーニングでだけ、回答した問題と「わからない」で開示した問題に
  * 対して表示する。チャレンジは制限時間内に解き続ける形式で、内訳を出しても
  * 読む間もなく次の問題へ変わってしまうため出さない。振り返りは結果ページの
  * 問題別フィードバック一覧で行う。
@@ -52,7 +50,6 @@ interface TotalFuBoardProps extends RecordingPracticeBoardProps<TotalFuQuestionR
 export function TotalFuBoard({
   showFeedback,
   isCountingDown = false,
-  lastAnswerCorrect,
   onAnswer,
   onProceed,
   onRecordResult,
@@ -107,11 +104,11 @@ export function TotalFuBoard({
         translationNamespace="totalFu"
       />
 
-      {showFeedback && (lastAnswerCorrect === false || isRevealed) && (
+      {showFeedback && (onProceed !== undefined || isRevealed) && (
         <>
           <FuBreakdown details={question.fuDetails} answer={question.answer} />
           {/* 開示中の「次の問題へ」はシェルのフッターにあるため、ここには出さない */}
-          {onProceed !== undefined && lastAnswerCorrect === false && (
+          {onProceed !== undefined && !isRevealed && (
             <Button size="lg" fullWidth onClick={onProceed}>
               {t("nextQuestion")}
             </Button>
