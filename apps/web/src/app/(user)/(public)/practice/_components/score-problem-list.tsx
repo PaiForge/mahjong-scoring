@@ -9,6 +9,7 @@ import { QuestionDisplay } from "../score/_components/question-display";
 import type { ScoreQuestionResult } from "../_lib/score-question-result";
 import { AnswerComparison } from "./answer-comparison";
 import { ProblemListAccordion } from "./problem-list-accordion";
+import { TehaiMentsuBreakdown } from "./tehai-mentsu-breakdown";
 
 interface ScoreProblemListProps {
   readonly results: readonly ScoreQuestionResult[];
@@ -104,6 +105,9 @@ export function ScoreProblemList({
         return (
           <div className="space-y-3">
             {question && <QuestionDisplay question={question} />}
+            {question && (
+              <TehaiMentsuBreakdown tehai={question.tehai} context={question} />
+            )}
 
             <AnswerComparison
               translationNamespace={translationNamespace}

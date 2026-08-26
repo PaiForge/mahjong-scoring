@@ -295,6 +295,9 @@
 .h-hai-xl { height: 101px; }
 .w-hai-xl { width: 72px; }
 
+/* 牌4枚分の幅（面子分解で槓子まで含めて桁を揃える用途）。w-hai-sm と連動させる */
+.w-hai-sm-x4 { width: 128px; }
+
 /* Rotated tile sizes (for Furo sideways tiles) */
 .h-hai-xs-rotated { height: 24px; }
 .w-hai-xs-rotated { width: 34px; }

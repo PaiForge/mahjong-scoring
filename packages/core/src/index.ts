@@ -64,6 +64,7 @@ export {
   MANGAN_PLUS_TIERS,
 } from "./score/tiers";
 export type { HanTier, HanRange } from "./score/tiers";
+export { resolveMentsuStructure } from "./score/mentsu-structure";
 export type {
   ScoreQuestion,
   UserAnswer,
@@ -141,5 +142,6 @@ export type {
   Tehai,
   Tehai14,
   CompletedMentsu,
+  MentsuHouraStructure,
   Payment,
 } from "@pai-forge/riichi-mahjong";

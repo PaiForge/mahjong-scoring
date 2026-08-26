@@ -5,6 +5,7 @@ import { parseHais, parseKazehai, parseTehai } from "@mahjong-scoring/core";
 import { AnswerComparison } from "../../_components/answer-comparison";
 import { ProblemListAccordion } from "../../_components/problem-list-accordion";
 import { TehaiDisplay } from "../../_components/tehai-display";
+import { TehaiMentsuBreakdown } from "../../_components/tehai-mentsu-breakdown";
 import type { TotalFuQuestionResult } from "../_lib/types";
 import { FuBreakdown } from "./fu-breakdown";
 
@@ -53,7 +54,16 @@ export function TotalFuProblemList({ results }: TotalFuProblemListProps) {
         return (
           <div className="space-y-3">
             {question && (
-              <TehaiDisplay tehai={question.tehai} context={question.context} />
+              <>
+                <TehaiDisplay
+                  tehai={question.tehai}
+                  context={question.context}
+                />
+                <TehaiMentsuBreakdown
+                  tehai={question.tehai}
+                  context={question.context}
+                />
+              </>
             )}
 
             <AnswerComparison
