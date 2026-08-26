@@ -5,5 +5,5 @@ import { PracticeLoading } from "../_components/practice-loading";
  * slug は同ディレクトリの page.tsx と揃える。
  */
 export default function Loading() {
-  return <PracticeLoading slug="tehai-fu" />;
+  return <PracticeLoading slug="mentsu-jantou-fu" />;
 }

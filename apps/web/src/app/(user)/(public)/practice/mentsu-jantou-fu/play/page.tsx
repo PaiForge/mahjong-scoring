@@ -1,16 +1,16 @@
 import type { Metadata } from "next";
 import { createPracticePlayMetadata } from "../../_lib/metadata";
-import { TehaiFuPlayView } from "../_components/tehai-fu-play-view";
+import { MentsuJantouFuPlayView } from "../_components/mentsu-jantou-fu-play-view";
 
 export async function generateMetadata(): Promise<Metadata> {
-  return createPracticePlayMetadata("tehaiFu");
+  return createPracticePlayMetadata("mentsuJantouFu");
 }
 
 /**
- * 手牌符練習 プレイ
+ * 面子と雀頭の符計算 プレイ
  *
  * @description
- * 手牌符練習のプレイページ。手牌の各面子・雀頭・待ちの符計算を制限時間内に繰り返し回答する。
+ * 面子と雀頭の符計算のプレイページ。手牌の各面子・雀頭の符を制限時間内に繰り返し回答する。
  * セッション終了時にスコアをサーバーに保存し、リーダーボードに反映する。
  *
  * @flow
@@ -19,6 +19,6 @@ export async function generateMetadata(): Promise<Metadata> {
  * 3. 制限時間経過またはミス3回で終了
  * 4. スコアを保存し、result ページへリダイレクト
  */
-export default function TehaiFuPlayPage() {
-  return <TehaiFuPlayView />;
+export default function MentsuJantouFuPlayPage() {
+  return <MentsuJantouFuPlayView />;
 }

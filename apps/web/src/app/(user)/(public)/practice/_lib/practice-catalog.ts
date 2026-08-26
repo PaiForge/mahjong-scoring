@@ -66,7 +66,7 @@ export const PRACTICE_CATALOG: readonly PracticeMenu[] = [
     learnChapter: "mentsu-fu",
   },
   {
-    slug: "tehai-fu",
+    slug: "mentsu-jantou-fu",
     category: "fuCalculation",
     difficulty: "advanced",
     learnChapter: "tehai-fu",

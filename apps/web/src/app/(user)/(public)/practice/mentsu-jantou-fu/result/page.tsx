@@ -1,8 +1,8 @@
 /**
- * 手牌符練習 結果
+ * 面子と雀頭の符計算 結果
  *
  * @description
- * 手牌符練習の結果ページ。
+ * 面子と雀頭の符計算の結果ページ。
  * スコア・正答率の表示に加え、全期間リーダーボードの上位3名をプレビュー表示する。
  * Server Component としてリーダーボードデータを取得し、Client Component に渡す。
  *
@@ -20,7 +20,7 @@ import {
   createPracticeResultPage,
 } from "../../_lib/create-practice-result-page";
 
-const SLUG = "tehai-fu" as const;
+const SLUG = "mentsu-jantou-fu" as const;
 
 export async function generateMetadata(): Promise<Metadata> {
   return createPracticeResultMetadata(SLUG);

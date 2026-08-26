@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { MentsuType } from "@mahjong-scoring/core";
-import type { HaiKindId, TehaiFuQuestion } from "@mahjong-scoring/core";
+import type { HaiKindId, MentsuJantouFuQuestion } from "@mahjong-scoring/core";
 
 import { findAgariHighlight } from "../find-agari-highlight";
 
@@ -32,12 +32,15 @@ const PAIR_6P = {
 };
 
 function makeQuestion(
-  items: TehaiFuQuestion["items"],
+  items: MentsuJantouFuQuestion["items"],
   agariHai: HaiKindId,
-): TehaiFuQuestion {
+): MentsuJantouFuQuestion {
   return {
     id: "q",
-    tehai: { closed: [], exposed: [] } as unknown as TehaiFuQuestion["tehai"],
+    tehai: {
+      closed: [],
+      exposed: [],
+    } as unknown as MentsuJantouFuQuestion["tehai"],
     context: { bakaze: 27, jikaze: 27, agariHai, isTsumo: false },
     items,
   };

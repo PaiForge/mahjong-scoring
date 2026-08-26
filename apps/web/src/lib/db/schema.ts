@@ -140,7 +140,7 @@ function scoreTupleColumns() {
  * @design menuType — 練習種別
  *
  * 各練習に対応する値:
- * - 'jantou_fu' | 'machi_fu' | 'mentsu_fu' | 'tehai_fu' | 'total_fu' | 'yaku'
+ * - 'jantou_fu' | 'machi_fu' | 'mentsu_fu' | 'mentsu_jantou_fu' | 'total_fu' | 'yaku'
  * `practice/score` は自由練習のため記録対象外。
  *
  * @design leaderboardKey — ランキングセグメントキー

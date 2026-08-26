@@ -50,8 +50,8 @@ describe("isValidModule", () => {
       expect(isValidModule("yaku")).toBe(true);
     });
 
-    it('returns true for "tehai_fu"', () => {
-      expect(isValidModule("tehai_fu")).toBe(true);
+    it('returns true for "mentsu_jantou_fu"', () => {
+      expect(isValidModule("mentsu_jantou_fu")).toBe(true);
     });
   });
 

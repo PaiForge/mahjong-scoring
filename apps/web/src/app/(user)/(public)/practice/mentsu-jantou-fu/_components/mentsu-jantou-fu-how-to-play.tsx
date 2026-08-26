@@ -20,14 +20,14 @@ const DEMO_ITEMS: readonly (readonly HaiKindId[])[] = [
 ];
 
 /**
- * 手牌符練習の「問題方式」ビジュアルデモ
- * 手牌符 遊び方デモ
+ * 面子と雀頭の符計算の「問題方式」ビジュアルデモ
+ * 面子・雀頭符 遊び方デモ
  *
  * 実際の出題盤面（手牌の提示と要素ごとの符入力）を、出題時（未回答）のまま
  * 静的に再現する。各行の体裁は盤面の
  * {@link import("./fu-item-row").FuItemRow} の未入力時に合わせる。
  */
-export function TehaiFuHowToPlay() {
+export function MentsuJantouFuHowToPlay() {
   return (
     <div className="space-y-4">
       <TehaiDisplay tehai={DEMO_FU_TEHAI} context={DEMO_FU_CONTEXT} />

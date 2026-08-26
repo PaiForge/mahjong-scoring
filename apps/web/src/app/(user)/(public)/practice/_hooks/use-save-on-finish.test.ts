@@ -80,12 +80,12 @@ describe("useSaveOnFinish", () => {
 
   it("action が success:false を返すと undefined を返し console.error にログする", async () => {
     mockedSave.mockResolvedValue({ success: false, error: "unexpected_error" });
-    const { result } = renderHook(() => useSaveOnFinish("tehai_fu"));
+    const { result } = renderHook(() => useSaveOnFinish("mentsu_jantou_fu"));
     const ret = await result.current(makeArgs());
 
     expect(ret).toBeUndefined();
     expect(console.error).toHaveBeenCalledWith(
-      "[savePracticeResult] tehai_fu:",
+      "[savePracticeResult] mentsu_jantou_fu:",
       "unexpected_error",
     );
   });

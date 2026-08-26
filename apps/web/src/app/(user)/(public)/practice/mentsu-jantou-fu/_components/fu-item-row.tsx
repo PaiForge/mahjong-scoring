@@ -3,13 +3,13 @@
 import { memo, useCallback } from "react";
 import { useTranslations } from "next-intl";
 import { MentsuType } from "@mahjong-scoring/core";
-import type { TehaiFuItem } from "@mahjong-scoring/core";
+import type { MentsuJantouFuItem } from "@mahjong-scoring/core";
 import { Hai, Furo } from "@pai-forge/mahjong-react-ui";
 import { FU_OPTIONS } from "../../_lib/fu-options";
 
 interface FuItemRowProps {
   readonly index: number;
-  readonly item: TehaiFuItem;
+  readonly item: MentsuJantouFuItem;
   readonly answer: string;
   readonly showFeedback: boolean;
   /**
@@ -45,7 +45,7 @@ export const FuItemRow = memo(function FuItemRowComponent({
   onSelect,
   tileScale,
 }: FuItemRowProps) {
-  const t = useTranslations("tehaiFu");
+  const t = useTranslations("mentsuJantouFu");
   const answerNum = answer ? parseInt(answer) : undefined;
   const isCorrect = showFeedback && !isRevealed && answerNum === item.fu;
   const isWrong = showFeedback && !isRevealed && answerNum !== item.fu;
