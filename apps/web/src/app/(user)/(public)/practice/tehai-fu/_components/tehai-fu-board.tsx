@@ -5,6 +5,7 @@ import { useTranslations } from "next-intl";
 import { generateTehaiFuQuestion, retryGenerate } from "@mahjong-scoring/core";
 import type { TehaiFuQuestion } from "@mahjong-scoring/core";
 import { useRuleSettingsStore } from "@/app/_hooks/use-rule-settings-store";
+import { Button } from "@/app/(user)/_components/button";
 import { ChallengeSubmitButton } from "../../_components/challenge-submit-button";
 import { QuestionGeneratingPlaceholder } from "../../_components/question-generating-placeholder";
 import { useClientGeneratedQuestion } from "../../_hooks/use-client-generated-question";
@@ -19,7 +20,18 @@ function generateQuestion(
   return retryGenerate(() => generateTehaiFuQuestion({ renfonpaiAs4Fu }));
 }
 
-type TehaiFuBoardProps = PracticeBoardProps;
+interface TehaiFuBoardProps extends PracticeBoardProps {
+  /** 直前の回答が正解だったか（未回答時は undefined） */
+  readonly lastAnswerCorrect?: boolean;
+  /**
+   * 不正解で停止中の状態から次問題へ進む操作
+   *
+   * 指定した場合のみ、不正解時に各行の正解を出したまま停止して
+   * 「次の問題へ」ボタンを出す（自動で進まないトレーニングモード向け）。
+   * チャレンジでは指定しない。
+   */
+  readonly onProceed?: () => void;
+}
 
 /**
  * 手牌符の出題盤面（手牌の提示と符目ごとの入力・一括判定）
@@ -29,7 +41,9 @@ type TehaiFuBoardProps = PracticeBoardProps;
 export function TehaiFuBoard({
   showFeedback,
   isCountingDown = false,
+  lastAnswerCorrect,
   onAnswer,
+  onProceed,
 }: TehaiFuBoardProps) {
   const t = useTranslations("tehaiFu");
   const renfonpaiAs4Fu = useRuleSettingsStore((s) => s.renfonpaiAs4Fu);
@@ -76,6 +90,9 @@ export function TehaiFuBoard({
   }
 
   const allAnswered = answers.length > 0 && answers.every((a) => a !== "");
+  // 不正解で停止中（トレーニングのみ）。行ごとの正解表示を残したまま操作を待つ
+  const isHolding =
+    onProceed !== undefined && showFeedback && lastAnswerCorrect === false;
 
   return (
     <div className="space-y-4">
@@ -102,13 +119,21 @@ export function TehaiFuBoard({
         ))}
       </div>
 
-      {/* Submit button */}
-      <ChallengeSubmitButton
-        disabled={!allAnswered || showFeedback || isCountingDown}
-        onClick={handleSubmit}
-      >
-        {t("checkButton")}
-      </ChallengeSubmitButton>
+      {/* Submit button（不正解での停止中は「次の問題へ」に差し替える） */}
+      {isHolding ? (
+        <div className="mt-4">
+          <Button size="lg" fullWidth onClick={onProceed}>
+            {t("nextQuestion")}
+          </Button>
+        </div>
+      ) : (
+        <ChallengeSubmitButton
+          disabled={!allAnswered || showFeedback || isCountingDown}
+          onClick={handleSubmit}
+        >
+          {t("checkButton")}
+        </ChallengeSubmitButton>
+      )}
     </div>
   );
 }
