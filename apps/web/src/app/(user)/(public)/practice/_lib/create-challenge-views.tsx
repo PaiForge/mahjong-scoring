@@ -15,6 +15,7 @@ import { useTimedSession } from "../_hooks/use-timed-session";
 import { useTrainingSession } from "../_hooks/use-training-session";
 import { TrainingRevealProvider } from "../_hooks/use-training-reveal";
 import type { PracticeBoardProps } from "./practice-board-props";
+import { scrollToPracticeAnchor } from "./scroll-anchor";
 import { practiceHref, practiceResultHref } from "./practice-catalog";
 
 /**
@@ -232,6 +233,23 @@ export function createTrainingView<
       [isRevealed, registerAdvance],
     );
 
+    // 回答・開示の操作は盤面下端やフッターにあるため、押した位置のままだと
+    // 盤面上部に出る正誤表示と、続けて差し替わる次の問題が画面外に残る。
+    // 縦に長い練習（手牌符など）で顕著なので、操作のたびに先頭へ戻す。
+    // 「次の問題へ」は開示時に戻した位置のままなので、ここでは扱わない。
+    const handleAnswerFromTop = useCallback(
+      (correct: boolean, onNext: () => void) => {
+        scrollToPracticeAnchor();
+        handleAnswer(correct, onNext);
+      },
+      [handleAnswer],
+    );
+    const handleReveal = useCallback(() => {
+      if (advance === undefined) return;
+      scrollToPracticeAnchor();
+      reveal(advance);
+    }, [advance, reveal]);
+
     return (
       <TrainingShell
         title={t("title")}
@@ -239,9 +257,7 @@ export function createTrainingView<
         totalCount={totalCount}
         exitHref={practiceHref(slug)}
         maxWidth={maxWidth}
-        onReveal={() => {
-          if (advance) reveal(advance);
-        }}
+        onReveal={handleReveal}
         revealDisabled={showFeedback || advance === undefined}
         isRevealed={isRevealed}
         onProceed={proceed}
@@ -251,7 +267,7 @@ export function createTrainingView<
             {
               showFeedback,
               lastAnswerCorrect,
-              onAnswer: handleAnswer,
+              onAnswer: handleAnswerFromTop,
               onProceed: proceed,
             },
             props,

@@ -1,0 +1,78 @@
+import { describe, expect, it, vi, beforeEach, afterEach } from "vitest";
+import { render, screen, fireEvent } from "@testing-library/react";
+
+vi.mock("next-intl", async () => await import("@/test/intl-mock"));
+// チャレンジ側のファクトリが Server Action を参照するため、
+// クライアントから import できるようスタブに差し替える（トレーニングでは未使用）。
+vi.mock("../_actions/save-practice-result", () => ({
+  savePracticeResult: vi.fn(),
+}));
+
+import { useTrainingReveal } from "../_hooks/use-training-reveal";
+import { createTrainingView } from "./create-challenge-views";
+import { PRACTICE_SCROLL_ANCHOR_ID } from "./scroll-anchor";
+
+/**
+ * 縦に長い盤面（手牌符など）では回答・開示のボタンが画面下端にあるため、
+ * 押した位置のままだと正誤表示も次の問題も画面外に残る。
+ * jsdom はレイアウトを持たないので、スクロール先が練習セッションの先頭
+ * （ContentContainer のアンカー）であることだけを検証する。
+ */
+function renderTrainingView() {
+  const advance = vi.fn();
+
+  function Board({
+    onAnswer,
+  }: {
+    readonly onAnswer: (correct: boolean, onNext: () => void) => void;
+  }) {
+    useTrainingReveal(advance);
+    return (
+      <button type="button" onClick={() => onAnswer(true, advance)}>
+        submit
+      </button>
+    );
+  }
+
+  const TrainingView = createTrainingView({
+    slug: "han-count",
+    renderBoard: ({ onAnswer }) => <Board onAnswer={onAnswer} />,
+  });
+
+  render(<TrainingView />);
+}
+
+describe("createTrainingView 出題の先頭へのスクロール", () => {
+  let scrollIntoView: ReturnType<typeof vi.spyOn>;
+
+  beforeEach(() => {
+    scrollIntoView = vi
+      .spyOn(Element.prototype, "scrollIntoView")
+      .mockImplementation(() => {});
+  });
+
+  afterEach(() => {
+    scrollIntoView.mockRestore();
+  });
+
+  function scrolledAnchorIds() {
+    const targets = scrollIntoView.mock.instances as unknown as Element[];
+    return targets.map((element) => element.id);
+  }
+
+  it("回答すると練習セッションの先頭へ戻す", () => {
+    renderTrainingView();
+
+    fireEvent.click(screen.getByRole("button", { name: "submit" }));
+
+    expect(scrolledAnchorIds()).toContain(PRACTICE_SCROLL_ANCHOR_ID);
+  });
+
+  it("「わからない」でも練習セッションの先頭へ戻す", () => {
+    renderTrainingView();
+
+    fireEvent.click(screen.getByRole("button", { name: "revealButton" }));
+
+    expect(scrolledAnchorIds()).toContain(PRACTICE_SCROLL_ANCHOR_ID);
+  });
+});
