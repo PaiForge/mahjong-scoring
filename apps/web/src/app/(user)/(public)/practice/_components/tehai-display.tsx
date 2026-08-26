@@ -7,6 +7,7 @@ import type { AgariContext, Tehai, HaiKindId } from "@mahjong-scoring/core";
 import { Hai } from "@pai-forge/mahjong-react-ui";
 import { TehaiHand, HAI_SM_HEIGHT } from "../../_components/tehai-hand";
 import { useAutoScale } from "../../_hooks/use-auto-scale";
+import { RiichiStick } from "./riichi-stick";
 import { InfoModal } from "@/app/(user)/_components/info-modal";
 import { useDoraDisplayMode } from "@/app/_hooks/use-display-settings-store";
 import { resolveDoraTiles } from "@/app/_lib/dora-display";
@@ -116,11 +117,7 @@ export const TehaiDisplay = memo(function TehaiDisplayComponent({
             </span>
           </div>
 
-          {context.isRiichi && (
-            <span className="text-xs font-bold text-red-400">
-              {t("riichi")}
-            </span>
-          )}
+          {context.isRiichi && <RiichiStick label={t("riichi")} />}
 
           {doraTiles.length > 0 && (
             <div className="flex items-center gap-1">
