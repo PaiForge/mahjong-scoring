@@ -9,7 +9,7 @@ import { QuestionPrompt } from "../../_components/question-prompt";
 import { HAN_OPTIONS, hanCountLabel } from "../_lib/han-options";
 
 /**
- * デモ用の固定例: 立直 + 門前清自摸和 + 断么九 = 3翻
+ * デモ用の固定例: 立直 + 門前清自摸和 + 断么九（3翻）
  * 234m 567m 345p 555s 88s（門前ツモ・リーチ）。刻子があるため平和は不成立。
  */
 const DEMO_TEHAI = buildDemoTehai([
@@ -37,14 +37,12 @@ const DEMO_CONTEXT = {
   isRiichi: true,
 } as const;
 
-const DEMO_ANSWER = 3;
-
 /**
  * 翻数即答練習の「問題方式」ビジュアルデモ
  * 翻数即答 遊び方デモ
  *
- * 実際の出題盤面（手牌の提示と翻数の選択）を静的に再現し、
- * 正解の翻数をハイライトしてプレイ方法を端的に示す。
+ * 実際の出題盤面（手牌の提示と翻数の選択）を、出題時（未回答）のまま
+ * 静的に再現する。
  */
 export function HanCountHowToPlay() {
   const t = useTranslations("hanCountChallenge");
@@ -56,21 +54,13 @@ export function HanCountHowToPlay() {
       {/* Instruction */}
       <QuestionPrompt>{t("selectHan")}</QuestionPrompt>
 
-      {/* Han options（正解をハイライト） */}
+      {/* Han options（出題時と同じ未選択の並び） */}
       <div className="grid grid-cols-4 gap-2 sm:grid-cols-5">
-        {HAN_OPTIONS.map((han) => {
-          const isCorrect = han === DEMO_ANSWER;
-          return (
-            <DemoChoiceCell
-              key={han}
-              isCorrect={isCorrect}
-              showCheck={false}
-              className={`text-sm font-semibold ${isCorrect ? "text-primary-700" : "text-surface-400"}`}
-            >
-              {hanCountLabel(han, t)}
-            </DemoChoiceCell>
-          );
-        })}
+        {HAN_OPTIONS.map((han) => (
+          <DemoChoiceCell key={han} className="text-sm font-semibold">
+            {hanCountLabel(han, t)}
+          </DemoChoiceCell>
+        ))}
       </div>
     </div>
   );

@@ -7,6 +7,13 @@ interface YakuChipProps {
   readonly isSelected: boolean;
   readonly feedbackState: "correct" | "incorrect" | "missed" | undefined;
   readonly disabled: boolean;
+  /**
+   * 静的なプレビュー用（押せないが、未選択の見た目のまま）
+   *
+   * `disabled` の減光はカウントダウン中など「今は押せない」ことを伝えるための
+   * もので、出題例のプレビューでは無効に見えてしまうため切り離す。
+   */
+  readonly presentational?: boolean;
   readonly onToggle: (yakuName: string) => void;
 }
 
@@ -19,6 +26,7 @@ export const YakuChip = memo(function YakuChipComponent({
   isSelected,
   feedbackState,
   disabled,
+  presentational = false,
   onToggle,
 }: YakuChipProps) {
   const handleClick = useCallback(() => {
@@ -43,7 +51,9 @@ export const YakuChip = memo(function YakuChipComponent({
   }
 
   if (disabled && !feedbackState) {
-    chipClasses += " opacity-50 pointer-events-none";
+    chipClasses += presentational
+      ? " pointer-events-none"
+      : " opacity-50 pointer-events-none";
   }
 
   return (

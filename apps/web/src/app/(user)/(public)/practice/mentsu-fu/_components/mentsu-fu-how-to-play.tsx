@@ -9,20 +9,19 @@ import { PromptLabel } from "../../_components/prompt-label";
 import { FU_OPTIONS } from "../../_lib/fu-options";
 import { QuestionPrompt } from "../../_components/question-prompt";
 
-/** デモ用の固定例: 中張牌（五筒）の暗刻 → 4符 */
+/** デモ用の固定例: 中張牌（五筒）の暗刻 */
 const DEMO_MENTSU: readonly HaiKindId[] = [
   HaiKind.PinZu5,
   HaiKind.PinZu5,
   HaiKind.PinZu5,
 ];
-const DEMO_ANSWER = 4;
 
 /**
  * 面子符練習の「問題方式」ビジュアルデモ
  * 面子符 遊び方デモ
  *
- * 実際の出題盤面（面子の提示と符の選択）を静的に再現し、
- * 正解の符をハイライトしてプレイ方法を端的に示す。
+ * 実際の出題盤面（面子の提示と符の選択）を、出題時（未回答）のまま
+ * 静的に再現する。
  */
 export function MentsuFuHowToPlay() {
   const t = useTranslations("mentsuFu");
@@ -45,7 +44,6 @@ export function MentsuFuHowToPlay() {
       {/* Fu options */}
       <DemoFuChoiceGrid
         options={FU_OPTIONS}
-        answer={DEMO_ANSWER}
         columnsClassName="grid-cols-3"
         translationNamespace="mentsuFu"
       />

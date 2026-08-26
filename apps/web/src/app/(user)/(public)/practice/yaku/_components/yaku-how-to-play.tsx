@@ -35,13 +35,13 @@ const DEMO_CONTEXT = {
   isTsumo: false,
 } as const;
 
-/** 正解役（緑）＋ 不正解の選択肢（グレー）。実際の出題では全役から複数選択する。 */
-const DEMO_YAKU: readonly { name: string; isCorrect: boolean }[] = [
-  { name: "断么九", isCorrect: true },
-  { name: "一盃口", isCorrect: true },
-  { name: "平和", isCorrect: false },
-  { name: "三色同順", isCorrect: false },
-  { name: "対々和", isCorrect: false },
+/** 選択肢の抜粋。実際の出題では全役から複数選択する。 */
+const DEMO_YAKU: readonly string[] = [
+  "断么九",
+  "一盃口",
+  "平和",
+  "三色同順",
+  "対々和",
 ];
 
 const noop = () => {};
@@ -50,8 +50,8 @@ const noop = () => {};
  * 役判定練習の「問題方式」ビジュアルデモ
  * 役判定 遊び方デモ
  *
- * 実際の出題盤面（手牌の提示と役の複数選択）を静的に再現し、
- * 成立している役をハイライトしてプレイ方法を端的に示す。
+ * 実際の出題盤面（手牌の提示と役の複数選択）を、出題時（未回答）のまま
+ * 静的に再現する。
  */
 export function YakuHowToPlay() {
   const t = useTranslations("yaku");
@@ -63,15 +63,16 @@ export function YakuHowToPlay() {
       {/* Instruction */}
       <QuestionPrompt>{t("selectYaku")}</QuestionPrompt>
 
-      {/* Yaku chips（正解をハイライト） */}
+      {/* Yaku chips（出題時と同じ未選択の並び） */}
       <div className="flex flex-wrap justify-center gap-1.5">
-        {DEMO_YAKU.map(({ name, isCorrect }) => (
+        {DEMO_YAKU.map((name) => (
           <YakuChip
             key={name}
             yakuName={name}
-            isSelected={isCorrect}
-            feedbackState={isCorrect ? "correct" : undefined}
+            isSelected={false}
+            feedbackState={undefined}
             disabled
+            presentational
             onToggle={noop}
           />
         ))}
