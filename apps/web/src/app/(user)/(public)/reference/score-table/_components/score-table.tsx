@@ -147,8 +147,9 @@ export function ScoreTable({
     <div className="w-full relative">
       {/* Controls */}
       <div className="sticky top-0 z-20 pb-3 mb-1">
-        {/* 幅が足りないときはグループ単位で折り返す（ラベル内で改行させない） */}
-        <div className="flex flex-wrap gap-2 items-center justify-end">
+        {/* 狭い画面では間隔も詰めて 1 行に収める。それでも足りなければ
+            グループ単位で折り返す（ラベル内では改行させない） */}
+        <div className="flex flex-wrap gap-1.5 items-center justify-end sm:gap-2">
           <ToggleGroup
             options={roleOptions}
             selected={activeTab}
