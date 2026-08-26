@@ -100,10 +100,13 @@ export function MentsuJantouFuBoard({
     question.context.agariHai,
   );
   const allAnswered = answers.length > 0 && answers.every((a) => a !== "");
+  // 回答後に停止して正解を読ませるのはトレーニングだけなので、onProceed の有無が
+  // そのままモードの判別になる
+  const isTraining = onProceed !== undefined;
   // 回答後の停止中（トレーニングのみ）。行ごとの正解表示を残したまま操作を待つ。
   // 開示中の「次の問題へ」はシェルのフッターにあるため、ここには出さない
   const isHolding =
-    onProceed !== undefined &&
+    isTraining &&
     showFeedback &&
     !isRevealed &&
     lastAnswerCorrect !== undefined;
@@ -138,7 +141,8 @@ export function MentsuJantouFuBoard({
         ))}
       </div>
 
-      {/* Submit button（回答後の停止中は「次の問題へ」に差し替える） */}
+      {/* Submit button（回答後の停止中は「次の問題へ」に差し替える）。
+          チャレンジは押した瞬間に次問題へ進むため「答え合わせ」ではなく「回答する」 */}
       {isHolding ? (
         <div className="mt-4">
           <Button size="lg" fullWidth onClick={onProceed}>
@@ -150,7 +154,7 @@ export function MentsuJantouFuBoard({
           disabled={!allAnswered || showFeedback || isCountingDown}
           onClick={handleSubmit}
         >
-          {t("checkButton")}
+          {isTraining ? t("checkButton") : t("answerButton")}
         </ChallengeSubmitButton>
       )}
     </div>
