@@ -12,7 +12,10 @@ import { useScorePracticeStore } from "../_hooks/use-score-practice-store";
 import type { UserAnswer } from "@mahjong-scoring/core";
 import { useIsClient } from "../../../../../_hooks/use-is-client";
 import { useScrollToElement } from "../../_hooks/use-scroll-to-element";
-import { PRACTICE_SCROLL_ANCHOR_ID } from "../../_lib/scroll-anchor";
+import {
+  PRACTICE_SCROLL_ANCHOR_ID,
+  scrollToPracticeAnchor,
+} from "../../_lib/scroll-anchor";
 import {
   parseGeneratorOptionsFromParams,
   parseModeFlagsFromParams,
@@ -82,18 +85,24 @@ function ScorePracticeBoardInner() {
     router.push("/practice/score");
   }, [router, tc]);
 
+  // 回答・開示・次へ進むのボタンはいずれも縦に長い盤面の下端にあり、押した位置の
+  // ままだと手牌も結果表示も画面外に残る。他の練習（セッションフック）と同じく、
+  // 表示が切り替わる操作のたびに練習の先頭へ戻す。
   const handleNext = useCallback(() => {
+    scrollToPracticeAnchor();
     nextQuestion();
   }, [nextQuestion]);
 
   // 「わからない」: 無回答のまま正解を開示する（統計には入らない）。
   // 旧仕様のスキップ（開示なしで次問題へ）は、開示後の「次の問題へ」連打で代替できる
   const handleReveal = useCallback(() => {
+    scrollToPracticeAnchor();
     revealAnswer();
   }, [revealAnswer]);
 
   const handleSubmit = useCallback(
     (answer: UserAnswer) => {
+      scrollToPracticeAnchor();
       submitAnswer(answer, requireYaku, simplifyMangan, requireFuForMangan);
 
       if (autoNext) {
