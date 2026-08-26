@@ -7,8 +7,6 @@ import { DemoChoiceCell } from "./demo-choice-cell";
 interface DemoFuChoiceGridProps {
   /** 表示する符の選択肢 */
   readonly options: readonly number[];
-  /** 正解の符（緑で強調される） */
-  readonly answer: number;
   /** グリッドの列数クラス（例: "grid-cols-2"） */
   readonly columnsClassName: string;
   /** `fuOption` キーを持つ翻訳名前空間（例: "machiFu"） */
@@ -19,12 +17,11 @@ interface DemoFuChoiceGridProps {
  * 遊び方デモの符選択肢グリッド
  * デモ符選択肢
  *
- * 符を選ぶ練習（待ち符・面子符）の「遊び方」で、正解をハイライトした
+ * 符を選ぶ練習（待ち符・面子符・合計符）の「問題方式」で、出題時（未回答）の
  * 選択肢の並びを描く。選択肢の配列そのものは盤面と共有する定数から渡す。
  */
 export function DemoFuChoiceGrid({
   options,
-  answer,
   columnsClassName,
   translationNamespace,
 }: DemoFuChoiceGridProps) {
@@ -32,18 +29,11 @@ export function DemoFuChoiceGrid({
 
   return (
     <div className={`grid ${columnsClassName} gap-3`}>
-      {options.map((fu) => {
-        const isCorrect = fu === answer;
-        return (
-          <DemoChoiceCell
-            key={fu}
-            isCorrect={isCorrect}
-            className={`text-2xl font-bold ${isCorrect ? "text-primary-700" : "text-surface-400"}`}
-          >
-            {t("fuOption", { value: fu })}
-          </DemoChoiceCell>
-        );
-      })}
+      {options.map((fu) => (
+        <DemoChoiceCell key={fu} className="text-2xl font-bold">
+          {t("fuOption", { value: fu })}
+        </DemoChoiceCell>
+      ))}
     </div>
   );
 }
