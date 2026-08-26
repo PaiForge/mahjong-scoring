@@ -83,7 +83,7 @@ export function DetailsPanelRow({
               </div>
             ))}
           </div>
-          <div className="mt-0 flex justify-between border-t-2 border-dashed border-border/40 pb-1.5 pt-1.5 font-bold">
+          <div className="mt-0 flex justify-between border-t-2 border-border/40 pb-1.5 pt-1.5 font-bold">
             <span>{t("result.details.total")}</span>
             <span>
               {total}
