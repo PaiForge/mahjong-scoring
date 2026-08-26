@@ -233,10 +233,10 @@ export function createTrainingView<
       [isRevealed, registerAdvance],
     );
 
-    // 回答・開示の操作は盤面下端やフッターにあるため、押した位置のままだと
-    // 盤面上部に出る正誤表示と、続けて差し替わる次の問題が画面外に残る。
+    // 回答・開示・次へ進むの操作は盤面下端やフッターにあるため、押した位置の
+    // ままだと盤面上部に出る正誤表示と、続けて差し替わる次の問題が画面外に残る。
     // 縦に長い練習（手牌符など）で顕著なので、操作のたびに先頭へ戻す。
-    // 「次の問題へ」は開示時に戻した位置のままなので、ここでは扱わない。
+    // 開示中も解説を読むために下へ戻っているので「次の問題へ」でも改めて戻す。
     const handleAnswerFromTop = useCallback(
       (correct: boolean, onNext: () => void) => {
         scrollToPracticeAnchor();
@@ -249,6 +249,10 @@ export function createTrainingView<
       scrollToPracticeAnchor();
       reveal(advance);
     }, [advance, reveal]);
+    const handleProceed = useCallback(() => {
+      scrollToPracticeAnchor();
+      proceed();
+    }, [proceed]);
 
     return (
       <TrainingShell
@@ -260,7 +264,7 @@ export function createTrainingView<
         onReveal={handleReveal}
         revealDisabled={showFeedback || advance === undefined}
         isRevealed={isRevealed}
-        onProceed={proceed}
+        onProceed={handleProceed}
       >
         <TrainingRevealProvider value={revealValue}>
           {renderBoard(
@@ -268,7 +272,7 @@ export function createTrainingView<
               showFeedback,
               lastAnswerCorrect,
               onAnswer: handleAnswerFromTop,
-              onProceed: proceed,
+              onProceed: handleProceed,
             },
             props,
             boardState,

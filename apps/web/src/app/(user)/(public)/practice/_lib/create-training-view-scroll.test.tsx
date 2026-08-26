@@ -75,4 +75,15 @@ describe("createTrainingView 出題の先頭へのスクロール", () => {
 
     expect(scrolledAnchorIds()).toContain(PRACTICE_SCROLL_ANCHOR_ID);
   });
+
+  // 開示中は解説を読むために下へ戻っているため、開示時に一度戻しただけでは足りない
+  it("開示後の「次の問題へ」でも練習セッションの先頭へ戻す", () => {
+    renderTrainingView();
+
+    fireEvent.click(screen.getByRole("button", { name: "revealButton" }));
+    scrollIntoView.mockClear();
+    fireEvent.click(screen.getByRole("button", { name: "nextButton" }));
+
+    expect(scrolledAnchorIds()).toContain(PRACTICE_SCROLL_ANCHOR_ID);
+  });
 });

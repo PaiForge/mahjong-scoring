@@ -25,15 +25,23 @@ export const PRACTICE_SETUP_ANCHOR_ID = "practice-setup";
 export const PRACTICE_SETUP_HASH = `#${PRACTICE_SETUP_ANCHOR_ID}`;
 
 /**
- * 練習セッションの先頭（{@link PRACTICE_SCROLL_ANCHOR_ID}）へ即時スクロールする。
+ * 練習セッションの先頭（{@link PRACTICE_SCROLL_ANCHOR_ID}）へスクロールする。
  * 練習先頭へ戻す
  *
- * 手牌符のように縦に長い盤面では、画面下端のボタン（答え合わせ・わからない）を
- * 押した位置のまま止まるため、正誤表示も次の問題も画面外に残る。
+ * 手牌符のように縦に長い盤面では、画面下端のボタン（答え合わせ・わからない・
+ * 次の問題へ）を押した位置のまま止まるため、正誤表示も次の問題も画面外に残る。
  * マウント時（`useScrollToElement`）と同じ位置へ戻すことでこれを防ぐ。
+ *
+ * マウント時と違い操作の続きとして動くので、どこへ運ばれたのかが分かるよう
+ * 滑らかにスクロールする。動きを減らす設定の環境では即時に切り替える。
  */
 export function scrollToPracticeAnchor(): void {
-  document
-    .getElementById(PRACTICE_SCROLL_ANCHOR_ID)
-    ?.scrollIntoView({ behavior: "instant", block: "start" });
+  const prefersReducedMotion = window.matchMedia(
+    "(prefers-reduced-motion: reduce)",
+  ).matches;
+
+  document.getElementById(PRACTICE_SCROLL_ANCHOR_ID)?.scrollIntoView({
+    behavior: prefersReducedMotion ? "instant" : "smooth",
+    block: "start",
+  });
 }
