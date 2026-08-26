@@ -17,13 +17,17 @@ import { ScoreTableModalLink } from "./score-table-modal-link";
 import type { ScoreTableFocus } from "@/app/(user)/(public)/reference/score-table/_lib/score-table-utils";
 import { Button } from "@/app/(user)/_components/button";
 
-/** 結果テーブルの列数（項目名 / あなたの回答 / 正解）。展開行の colSpan に使う */
+/** 結果テーブルの最大列数（項目名 / あなたの回答 / 正解）。展開行の colSpan に使う */
 const TABLE_COLUMN_COUNT = 3;
+/** 無回答の正解開示時の列数（項目名 / 正解） */
+const REVEALED_COLUMN_COUNT = 2;
 
 interface ResultDisplayProps {
   readonly question: ScoreQuestion;
-  readonly userAnswer: UserAnswer;
-  readonly result: JudgementResult;
+  /** ユーザーの回答。無回答の正解開示（「わからない」）では undefined */
+  readonly userAnswer?: UserAnswer;
+  /** 判定結果。無回答の正解開示（「わからない」）では undefined */
+  readonly result?: JudgementResult;
   readonly onNext: () => void;
   readonly requireYaku?: boolean;
   readonly simplifyMangan?: boolean;
@@ -33,6 +37,9 @@ interface ResultDisplayProps {
 /**
  * 回答結果表示コンポーネント
  * 結果表示
+ *
+ * `userAnswer` / `result` が無い場合は無回答の正解開示として描画する:
+ * バナーは正誤ではなく中立の「答え合わせ」、「あなたの回答」列は列ごと省く。
  */
 export function ResultDisplay({
   question,
@@ -51,6 +58,10 @@ export function ResultDisplay({
   const [showYakuDetails, setShowYakuDetails] = useState(false);
   const fuDetailsPanelId = useId();
   const yakuDetailsPanelId = useId();
+
+  // 無回答の正解開示では「あなたの回答」列を出さない
+  const columnCount =
+    userAnswer !== undefined ? TABLE_COLUMN_COUNT : REVEALED_COLUMN_COUNT;
 
   const fuTotal =
     question.fuDetails?.reduce((acc, curr) => acc + curr.fu, 0) ?? 0;
@@ -89,18 +100,22 @@ export function ResultDisplay({
 
   return (
     <div className="space-y-4">
-      {/* Correct/Incorrect banner */}
+      {/* Correct/Incorrect banner（開示時は正誤を出さず中立の見出しにする） */}
       <div
         className={`rounded-lg py-3 text-center ${
-          result.isCorrect
-            ? "bg-success-subtle text-success-strong"
-            : "bg-destructive-subtle text-destructive-strong"
+          result === undefined
+            ? "bg-surface-100 text-surface-700"
+            : result.isCorrect
+              ? "bg-success-subtle text-success-strong"
+              : "bg-destructive-subtle text-destructive-strong"
         }`}
       >
         <div className="text-base font-bold">
-          {result.isCorrect
-            ? t("result.title.correct")
-            : t("result.title.incorrect")}
+          {result === undefined
+            ? t("result.title.revealed")
+            : result.isCorrect
+              ? t("result.title.correct")
+              : t("result.title.incorrect")}
         </div>
       </div>
 
@@ -110,63 +125,69 @@ export function ResultDisplay({
           <thead>
             <tr className="border-b-3 border-ink">
               <th className="pb-3 pr-4 pt-2 text-left font-bold text-surface-600" />
-              <th className="pb-3 pr-4 pt-2 text-left font-bold text-surface-600">
-                {t("result.headers.answer")}
-              </th>
+              {userAnswer !== undefined && (
+                <th className="pb-3 pr-4 pt-2 text-left font-bold text-surface-600">
+                  {t("result.headers.answer")}
+                </th>
+              )}
               <th className="pb-3 pt-2 text-left font-bold text-surface-600">
                 {t("result.headers.correct")}
               </th>
             </tr>
           </thead>
           <tbody>
-            {/* Yaku */}
-            {requireYaku && (
-              <tr>
-                <td className="whitespace-nowrap py-2 pr-4 align-top text-surface-600">
-                  {t("form.labels.yaku")}
-                </td>
-                <td className="py-2 pr-4 align-top">
-                  <div className="flex flex-wrap gap-1">
-                    {userAnswer.yakus.length > 0 ? (
-                      userAnswer.yakus.map((yaku, idx) => (
-                        <span
-                          key={idx}
-                          className={`inline-block rounded-md border px-2 py-0.5 text-xs ${
-                            result.isYakuCorrect
-                              ? "border-primary-200 bg-primary-50 text-primary-700"
-                              : "border-destructive-subtle bg-destructive-subtle text-destructive-strong"
-                          }`}
-                        >
-                          {yaku}
+            {/* Yaku（回答内容の行なので、開示時は出さない。正解の役は翻数行の内訳で見る） */}
+            {requireYaku &&
+              userAnswer !== undefined &&
+              result !== undefined && (
+                <tr>
+                  <td className="whitespace-nowrap py-2 pr-4 align-top text-surface-600">
+                    {t("form.labels.yaku")}
+                  </td>
+                  <td className="py-2 pr-4 align-top">
+                    <div className="flex flex-wrap gap-1">
+                      {userAnswer.yakus.length > 0 ? (
+                        userAnswer.yakus.map((yaku, idx) => (
+                          <span
+                            key={idx}
+                            className={`inline-block rounded-md border px-2 py-0.5 text-xs ${
+                              result.isYakuCorrect
+                                ? "border-primary-200 bg-primary-50 text-primary-700"
+                                : "border-destructive-subtle bg-destructive-subtle text-destructive-strong"
+                            }`}
+                          >
+                            {yaku}
+                          </span>
+                        ))
+                      ) : (
+                        <span className="text-sm text-surface-400">
+                          {t("result.details.none")}
                         </span>
-                      ))
-                    ) : (
-                      <span className="text-sm text-surface-400">
-                        {t("result.details.none")}
+                      )}
+                      <span
+                        className={`ml-1 ${result.isYakuCorrect ? "text-success" : "text-destructive"}`}
+                      >
+                        {result.isYakuCorrect ? "\u2713" : "\u2717"}
                       </span>
-                    )}
-                    <span
-                      className={`ml-1 ${result.isYakuCorrect ? "text-success" : "text-destructive"}`}
-                    >
-                      {result.isYakuCorrect ? "\u2713" : "\u2717"}
-                    </span>
-                  </div>
-                </td>
-                <td className="py-2 align-top font-bold text-surface-800" />
-              </tr>
-            )}
+                    </div>
+                  </td>
+                  <td className="py-2 align-top font-bold text-surface-800" />
+                </tr>
+              )}
 
             {/* Han */}
             <tr>
               <td className="whitespace-nowrap py-2 pr-4 text-surface-600">
                 {t("form.labels.han")}
               </td>
-              <td
-                className={`py-2 pr-4 ${result.isHanCorrect ? "text-success" : "text-destructive"}`}
-              >
-                {getHanDisplay(userAnswer.han)}{" "}
-                {result.isHanCorrect ? "\u2713" : "\u2717"}
-              </td>
+              {userAnswer !== undefined && result !== undefined && (
+                <td
+                  className={`py-2 pr-4 ${result.isHanCorrect ? "text-success" : "text-destructive"}`}
+                >
+                  {getHanDisplay(userAnswer.han)}{" "}
+                  {result.isHanCorrect ? "\u2713" : "\u2717"}
+                </td>
+              )}
               <td className="py-2 font-bold text-surface-800">
                 {getHanDisplay(answer.han)}
                 {!simplifyMangan && scoreLevelName && ` (${scoreLevelName})`}
@@ -185,7 +206,7 @@ export function ResultDisplay({
                 total={yakuTotal}
                 suffix={t("form.options.hanSuffix")}
                 panelId={yakuDetailsPanelId}
-                colSpan={TABLE_COLUMN_COUNT}
+                colSpan={columnCount}
               />
             )}
 
@@ -196,13 +217,15 @@ export function ResultDisplay({
                   <td className="whitespace-nowrap py-2 pr-4 text-surface-600">
                     {t("form.labels.fu")}
                   </td>
-                  <td
-                    className={`py-2 pr-4 ${result.isFuCorrect ? "text-success" : "text-destructive"}`}
-                  >
-                    {userAnswer.fu ?? "-"}
-                    {t("form.options.fuSuffix")}{" "}
-                    {result.isFuCorrect ? "\u2713" : "\u2717"}
-                  </td>
+                  {userAnswer !== undefined && result !== undefined && (
+                    <td
+                      className={`py-2 pr-4 ${result.isFuCorrect ? "text-success" : "text-destructive"}`}
+                    >
+                      {userAnswer.fu ?? "-"}
+                      {t("form.options.fuSuffix")}{" "}
+                      {result.isFuCorrect ? "\u2713" : "\u2717"}
+                    </td>
+                  )}
                   <td className="py-2 font-bold text-surface-800">
                     {answer.fu}
                     {t("form.options.fuSuffix")}
@@ -221,7 +244,7 @@ export function ResultDisplay({
                     total={fuTotal}
                     suffix={t("form.options.fuSuffix")}
                     panelId={fuDetailsPanelId}
-                    colSpan={TABLE_COLUMN_COUNT}
+                    colSpan={columnCount}
                     roundedTotal={answer.fu}
                     roundUpLabel={t("result.details.roundUp")}
                   />
@@ -234,14 +257,16 @@ export function ResultDisplay({
               <td className="whitespace-nowrap py-2 pr-4 text-surface-600">
                 {t("form.labels.score")}
               </td>
-              <td
-                className={`py-2 pr-4 ${result.isScoreCorrect ? "text-success" : "text-destructive"}`}
-              >
-                {userAnswer.scoreFromKo !== undefined
-                  ? `${userAnswer.scoreFromKo}/${userAnswer.scoreFromOya}`
-                  : `${userAnswer.score}${t("result.pointSuffix")}`}{" "}
-                {result.isScoreCorrect ? "\u2713" : "\u2717"}
-              </td>
+              {userAnswer !== undefined && result !== undefined && (
+                <td
+                  className={`py-2 pr-4 ${result.isScoreCorrect ? "text-success" : "text-destructive"}`}
+                >
+                  {userAnswer.scoreFromKo !== undefined
+                    ? `${userAnswer.scoreFromKo}/${userAnswer.scoreFromOya}`
+                    : `${userAnswer.score}${t("result.pointSuffix")}`}{" "}
+                  {result.isScoreCorrect ? "\u2713" : "\u2717"}
+                </td>
+              )}
               <td className="py-2 font-bold text-surface-800">
                 {paymentDescription}
               </td>

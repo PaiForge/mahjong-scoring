@@ -25,7 +25,7 @@ export function ScorePracticeBoardSkeleton() {
         {/* Question: 状況行 + 手牌が入る盤面ひと枠ぶんの高さ */}
         <SkeletonBar radius="xl" className="mt-4 h-36" tone={100} />
 
-        {/* Answer area: 翻・符・点数の select（各 label 付き）、回答するボタン、スキップリンク */}
+        {/* Answer area: 翻・符・点数の select（各 label 付き）、回答するボタン、わからないリンク */}
         <div className="space-y-5">
           {["han", "fu", "score"].map((field) => (
             <div key={field} className="space-y-2">
@@ -35,7 +35,7 @@ export function ScorePracticeBoardSkeleton() {
           ))}
           {/* 回答するボタン（実体は primary 色のため一段濃いトーンで表現） */}
           <SkeletonBar radius="lg" className="h-12 w-full" />
-          {/* スキップ */}
+          {/* わからない */}
           <div className="flex justify-center pt-1">
             <SkeletonBar className="h-4 w-16" tone={100} />
           </div>

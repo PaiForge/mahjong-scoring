@@ -671,7 +671,7 @@
       },
       "buttons": {
         "answer": "回答する",
-        "skip": "スキップ"
+        "reveal": "わからない"
       },
       "multiSelect": {
         "add": "役を追加",
@@ -687,7 +687,8 @@
     "result": {
       "title": {
         "correct": "正解！",
-        "incorrect": "不正解..."
+        "incorrect": "不正解...",
+        "revealed": "答え合わせ"
       },
       "headers": {
         "answer": "あなたの回答",
