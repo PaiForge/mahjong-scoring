@@ -3,6 +3,7 @@
 import { useCallback, useMemo, useRef, useState } from "react";
 import { useCountdown } from "./use-countdown";
 import { CHALLENGE_TIME_LIMIT, MISTAKE_LIMIT } from "@mahjong-scoring/core";
+import { scrollToPracticeAnchor } from "../_lib/scroll-anchor";
 
 interface UseTimedSessionOptions {
   timeLimit?: number;
@@ -125,6 +126,9 @@ export function useTimedSession({
     (correct: boolean, onNext: () => void) => {
       if (isFinishedRef.current || showFeedback || isPaused) return;
 
+      // 回答ボタンは盤面下端にあるため、縦に長い練習（手牌符など）では押した
+      // 位置のままだと盤面上部の正誤表示も次の問題も画面外に残る
+      scrollToPracticeAnchor();
       setShowFeedback(true);
       setLastAnswerCorrect(correct);
 

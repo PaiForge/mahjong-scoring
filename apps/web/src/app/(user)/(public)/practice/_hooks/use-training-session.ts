@@ -1,6 +1,7 @@
 "use client";
 
 import { useCallback, useMemo, useRef, useState } from "react";
+import { scrollToPracticeAnchor } from "../_lib/scroll-anchor";
 
 interface UseTrainingSessionOptions {
   /** 正誤フィードバックの表示時間（ms） */
@@ -54,6 +55,11 @@ export interface TrainingSessionState {
  *
  * 時間無制限・ミス無制限の反復練習用。正解数と出題数のみを集計し、
  * 回答ごとにフィードバックを挟んで次の問題へ自動で進む。
+ *
+ * 盤面の表示が切り替わる操作（回答・開示・次へ進む）では、あわせて練習の
+ * 先頭へスクロールして戻す。これらのボタンは盤面下端やフッターにあり、
+ * 手牌符のように縦に長い練習では押した位置のままだと盤面上部に出る
+ * 正解表示も次の問題も画面外に残るため。
  */
 export function useTrainingSession({
   feedbackDurationMs = 800,
@@ -76,6 +82,7 @@ export function useTrainingSession({
     (correct: boolean, onNext: () => void) => {
       if (showFeedback) return;
 
+      scrollToPracticeAnchor();
       setShowFeedback(true);
       setLastAnswerCorrect(correct);
       setTotalCount((c) => c + 1);
@@ -99,6 +106,7 @@ export function useTrainingSession({
     (onNext: () => void) => {
       if (showFeedback) return;
 
+      scrollToPracticeAnchor();
       // lastAnswerCorrect は undefined のまま（正誤の演出は出さず、正解表示だけを出す）
       setShowFeedback(true);
       setIsRevealed(true);
@@ -110,6 +118,7 @@ export function useTrainingSession({
   const proceed = useCallback(() => {
     const next = pendingNextRef.current;
     if (next === undefined) return;
+    scrollToPracticeAnchor();
     pendingNextRef.current = undefined;
     setShowFeedback(false);
     setIsRevealed(false);

@@ -15,7 +15,6 @@ import { useTimedSession } from "../_hooks/use-timed-session";
 import { useTrainingSession } from "../_hooks/use-training-session";
 import { TrainingRevealProvider } from "../_hooks/use-training-reveal";
 import type { PracticeBoardProps } from "./practice-board-props";
-import { scrollToPracticeAnchor } from "./scroll-anchor";
 import { practiceHref, practiceResultHref } from "./practice-catalog";
 
 /**
@@ -233,27 +232,6 @@ export function createTrainingView<
       [isRevealed, registerAdvance],
     );
 
-    // 回答・開示・次へ進むの操作は盤面下端やフッターにあるため、押した位置の
-    // ままだと盤面上部に出る正誤表示と、続けて差し替わる次の問題が画面外に残る。
-    // 縦に長い練習（手牌符など）で顕著なので、操作のたびに先頭へ戻す。
-    // 開示中も解説を読むために下へ戻っているので「次の問題へ」でも改めて戻す。
-    const handleAnswerFromTop = useCallback(
-      (correct: boolean, onNext: () => void) => {
-        scrollToPracticeAnchor();
-        handleAnswer(correct, onNext);
-      },
-      [handleAnswer],
-    );
-    const handleReveal = useCallback(() => {
-      if (advance === undefined) return;
-      scrollToPracticeAnchor();
-      reveal(advance);
-    }, [advance, reveal]);
-    const handleProceed = useCallback(() => {
-      scrollToPracticeAnchor();
-      proceed();
-    }, [proceed]);
-
     return (
       <TrainingShell
         title={t("title")}
@@ -261,18 +239,20 @@ export function createTrainingView<
         totalCount={totalCount}
         exitHref={practiceHref(slug)}
         maxWidth={maxWidth}
-        onReveal={handleReveal}
+        onReveal={() => {
+          if (advance) reveal(advance);
+        }}
         revealDisabled={showFeedback || advance === undefined}
         isRevealed={isRevealed}
-        onProceed={handleProceed}
+        onProceed={proceed}
       >
         <TrainingRevealProvider value={revealValue}>
           {renderBoard(
             {
               showFeedback,
               lastAnswerCorrect,
-              onAnswer: handleAnswerFromTop,
-              onProceed: handleProceed,
+              onAnswer: handleAnswer,
+              onProceed: proceed,
             },
             props,
             boardState,
