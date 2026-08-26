@@ -31,7 +31,7 @@ export function YakuListDisplay({ yakuDetails }: YakuListDisplayProps) {
           </li>
         ))}
       </ul>
-      <div className="border-t-2 border-amber-500/50 pt-2 flex items-center justify-between text-sm font-bold">
+      <div className="border-t-2 border-amber-500 pt-2 flex items-center justify-between text-sm font-bold">
         <span className="text-amber-900">
           {t("yakuTotalHan", { count: totalHan })}
         </span>

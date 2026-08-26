@@ -40,7 +40,7 @@ export function FuBreakdown({ details, answer }: FuBreakdownProps) {
         ))}
       </dl>
 
-      <div className="mt-1 flex justify-between border-t-2 border-border/40 pt-1.5 font-bold text-surface-900">
+      <div className="mt-1 flex justify-between border-t-2 border-border pt-1.5 font-bold text-surface-900">
         <span>{t("breakdownTotal")}</span>
         <span>{t("fuSuffix", { value: rawTotal })}</span>
       </div>
