@@ -64,45 +64,53 @@ const DEMO_AGARI_HIGHLIGHT = findAgariHighlight(
  * 和了牌の枠も盤面と同じ判定（{@link findAgariHighlight}）から出す。デモは
  * 押せない静的な再現なので行の markup は持たせているが、どの牌に枠が付くかを
  * ここで別に決めると盤面と食い違う。
+ *
+ * 回答行は 5 要素すべてを並べると 700px 近くになり、説明ページの本題である
+ * 開始ボタンが画面外へ押し出される。3 要素目の途中で高さを切り、下端を
+ * 背景へ溶かして「まだ続く」ことだけを見せる。
  */
 export function MentsuJantouFuHowToPlay() {
   return (
     <div className="space-y-4">
       <TehaiDisplay tehai={DEMO_FU_TEHAI} context={DEMO_FU_CONTEXT} />
 
-      {/* 要素ごとの符入力（未入力の状態） */}
-      <div className="space-y-2">
-        {DEMO_ITEMS.map((item) => (
-          <div
-            key={item.id}
-            className="space-y-2.5 rounded-xl border border-surface-200 bg-white p-3"
-          >
-            <div className="flex gap-0.5">
-              {item.tiles.map((tile, j) => (
-                <Hai
-                  key={j}
-                  hai={tile}
-                  size="sm"
-                  highlighted={
-                    DEMO_AGARI_HIGHLIGHT?.itemId === item.id &&
-                    DEMO_AGARI_HIGHLIGHT.tileIndex === j
-                  }
-                />
-              ))}
-            </div>
+      {/* 要素ごとの符入力（未入力の状態）。3 要素目の途中で切って背景へ溶かす。
+          切る位置（max-h）は 2 要素分 + 3 要素目の牌が見える高さで、マスクの
+          不透明部分（78% = 250px）はちょうど 2 要素目の下端で終わる */}
+      <div className="max-h-80 overflow-hidden [mask-image:linear-gradient(to_bottom,black_78%,transparent_100%)]">
+        <div className="space-y-2">
+          {DEMO_ITEMS.map((item) => (
+            <div
+              key={item.id}
+              className="space-y-2.5 rounded-xl border border-surface-200 bg-white p-3"
+            >
+              <div className="flex gap-0.5">
+                {item.tiles.map((tile, j) => (
+                  <Hai
+                    key={j}
+                    hai={tile}
+                    size="sm"
+                    highlighted={
+                      DEMO_AGARI_HIGHLIGHT?.itemId === item.id &&
+                      DEMO_AGARI_HIGHLIGHT.tileIndex === j
+                    }
+                  />
+                ))}
+              </div>
 
-            <div className="grid grid-cols-6 gap-1.5">
-              {FU_OPTIONS.map((fu) => (
-                <div
-                  key={fu}
-                  className="rounded-lg border border-surface-200 bg-white py-2.5 text-center text-sm font-bold text-surface-600"
-                >
-                  {fu}
-                </div>
-              ))}
+              <div className="grid grid-cols-6 gap-1.5">
+                {FU_OPTIONS.map((fu) => (
+                  <div
+                    key={fu}
+                    className="rounded-lg border border-surface-200 bg-white py-2.5 text-center text-sm font-bold text-surface-600"
+                  >
+                    {fu}
+                  </div>
+                ))}
+              </div>
             </div>
-          </div>
-        ))}
+          ))}
+        </div>
       </div>
     </div>
   );
