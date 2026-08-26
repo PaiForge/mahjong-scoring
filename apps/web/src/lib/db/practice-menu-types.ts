@@ -170,7 +170,7 @@ const PRACTICE_MENU_REGISTRY = [
     messageKey: "yakuHan",
     namespace: "yakuHanChallenge",
     hasProblemList: true,
-    hasSetup: false,
+    hasSetup: true,
   },
   {
     menuType: "mangan_score_calculation",
