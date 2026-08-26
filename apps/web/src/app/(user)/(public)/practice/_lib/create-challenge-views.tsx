@@ -169,6 +169,13 @@ export interface TrainingViewConfig<TProps, TState> {
   /** シェル内部ラッパーの max-w クラス（未指定時はシェルの既定値） */
   readonly maxWidth?: string;
   /**
+   * 練習名の右隣に置くヘルプ（{@link import("../_components/practice-help-button").PracticeHelpButton}）
+   *
+   * 盤面を見ても読み取れない出題のルール（何を符に数え、何を数えないか）を
+   * 置く場所。チャレンジ側には無い。
+   */
+  readonly help?: ReactNode;
+  /**
    * 回答後にフィードバック表示のまま停止し、ユーザーの操作を待つ
    *
    * 正解表示を突き合わせて読ませたい練習向け。正解・不正解のどちらでも止まる。
@@ -202,7 +209,7 @@ export function createTrainingView<
   TProps = Record<string, never>,
   TState = undefined,
 >(config: TrainingViewConfig<TProps, TState>): (props: TProps) => ReactNode {
-  const { slug, maxWidth, holdAfterAnswer, renderBoard } = config;
+  const { slug, maxWidth, help, holdAfterAnswer, renderBoard } = config;
   const { namespace } = practiceMenuBySlug(slug);
   const useBoardState =
     config.useBoardState ?? (() => undefined as unknown as TState);
@@ -236,6 +243,7 @@ export function createTrainingView<
     return (
       <TrainingShell
         title={t("title")}
+        titleAction={help}
         correctCount={correctCount}
         totalCount={totalCount}
         exitHref={practiceHref(slug)}

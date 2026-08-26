@@ -16,6 +16,13 @@ import {
 interface TrainingShellProps {
   /** 画面上部に表示する練習名（PageTitle に渡す） */
   readonly title: ReactNode;
+  /**
+   * 練習名の右隣に並べる操作要素（ヘルプボタン等）
+   *
+   * 時間無制限のトレーニングだけが持つ。チャレンジでは読ませている間も
+   * タイマーが進むため、同じ位置に置かない。
+   */
+  readonly titleAction?: ReactNode;
   /** 正解数 */
   readonly correctCount: number;
   /** 出題数 */
@@ -53,6 +60,7 @@ interface TrainingShellProps {
  */
 export function TrainingShell({
   title,
+  titleAction,
   correctCount,
   totalCount,
   exitHref,
@@ -78,7 +86,7 @@ export function TrainingShell({
 
   return (
     <ContentContainer id={PRACTICE_SCROLL_ANCHOR_ID} fillViewport>
-      <PageTitle>{title}</PageTitle>
+      <PageTitle action={titleAction}>{title}</PageTitle>
 
       <div className={`mx-auto space-y-8 ${maxWidth}`}>
         {/* Game content area */}
