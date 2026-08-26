@@ -35,6 +35,9 @@ interface TehaiDisplayProps {
 /**
  * 練習共通の手牌表示コンポーネント
  * 手牌表示
+ *
+ * 和了牌は下の情報欄に並べず、手牌の右へ間隔を空けて開示する（TehaiHand）。
+ * 実卓と同じ並びになり、情報欄で同じ牌を二度出さずに済む。
  */
 export const TehaiDisplay = memo(function TehaiDisplayComponent({
   tehai,
@@ -46,7 +49,7 @@ export const TehaiDisplay = memo(function TehaiDisplayComponent({
   const tCommon = useTranslations("common");
   const doraDisplay = useDoraDisplayMode();
   // 牌の並びは共有コンポーネント TehaiHand に委譲し、その自動スケール値を
-  // コンテキスト牌（和了牌・ドラ）にも同じ倍率で適用するため state で受け取る。
+  // コンテキスト牌（ドラ）にも同じ倍率で適用するため state で受け取る。
   const [scale, setScale] = useState(1);
 
   const doraTiles = useMemo(
@@ -64,7 +67,11 @@ export const TehaiDisplay = memo(function TehaiDisplayComponent({
 
   return (
     <div className="mt-4 rounded-xl border-3 border-ink bg-white p-2">
-      <TehaiHand tehai={tehai} onScaleChange={handleScaleChange} />
+      <TehaiHand
+        tehai={tehai}
+        agariHai={context.agariHai}
+        onScaleChange={handleScaleChange}
+      />
       <div className="mt-3 flex flex-wrap justify-center gap-4 text-xs">
         <div className="text-center">
           <span className="text-surface-400">{t("bakaze")}</span>
@@ -77,18 +84,6 @@ export const TehaiDisplay = memo(function TehaiDisplayComponent({
           <p className="mt-0.5 font-bold text-surface-900">
             {getKazeName(context.jikaze)}
           </p>
-        </div>
-        <div className="text-center">
-          <span className="text-surface-400">{t("agari")}</span>
-          <div
-            className="mt-0.5 flex justify-center"
-            style={{
-              transform: `scale(${scale})`,
-              transformOrigin: "center top",
-            }}
-          >
-            <Hai hai={context.agariHai} size="sm" />
-          </div>
         </div>
         <div className="text-center">
           <span className="text-surface-400">{t("agariType")}</span>
