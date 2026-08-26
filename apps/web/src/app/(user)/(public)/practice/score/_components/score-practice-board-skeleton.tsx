@@ -11,7 +11,7 @@ import { SkeletonBar } from "@/app/_components/skeleton-bar";
  * 練習ボードスケルトン
  *
  * 本体（ScorePracticeBoardInner の最終レンダリング）と同じ ContentContainer・
- * カードラッパー・space-y 構成を保つことで、実コンテンツ表示時の CLS を防ぐ。
+ * space-y 構成を保つことで、実コンテンツ表示時の CLS を防ぐ。
  * PageTitle は静的なため実際のタイトルを表示する。
  */
 export function ScorePracticeBoardSkeleton() {
@@ -22,32 +22,22 @@ export function ScorePracticeBoardSkeleton() {
       <PageTitle>{t("title")}</PageTitle>
 
       <div className="space-y-4 sm:space-y-6 md:space-y-8" aria-hidden>
-        {/* Question */}
-        <div className="rounded-xl border-3 border-ink bg-white p-2 sm:p-6">
-          <div className="space-y-6">
-            <SkeletonBar radius="lg" className="h-20" tone={100} />
-            <div className="grid grid-cols-2 gap-4">
-              <SkeletonBar radius="lg" className="h-20" tone={100} />
-              <SkeletonBar radius="lg" className="h-20" tone={100} />
-            </div>
-          </div>
-        </div>
+        {/* Question: 状況行 + 手牌が入る盤面ひと枠ぶんの高さ */}
+        <SkeletonBar radius="xl" className="mt-4 h-36" tone={100} />
 
         {/* Answer area: 翻・符・点数の select（各 label 付き）、回答するボタン、スキップリンク */}
-        <div className="rounded-xl border-3 border-ink bg-white p-4 sm:p-6">
-          <div className="space-y-5">
-            {["han", "fu", "score"].map((field) => (
-              <div key={field} className="space-y-2">
-                <SkeletonBar className="h-4 w-16" tone={100} />
-                <SkeletonBar radius="lg" className="h-12" tone={100} />
-              </div>
-            ))}
-            {/* 回答するボタン（実体は primary 色のため一段濃いトーンで表現） */}
-            <SkeletonBar radius="lg" className="h-12 w-full" />
-            {/* スキップ */}
-            <div className="flex justify-center pt-1">
+        <div className="space-y-5">
+          {["han", "fu", "score"].map((field) => (
+            <div key={field} className="space-y-2">
               <SkeletonBar className="h-4 w-16" tone={100} />
+              <SkeletonBar radius="lg" className="h-12" tone={100} />
             </div>
+          ))}
+          {/* 回答するボタン（実体は primary 色のため一段濃いトーンで表現） */}
+          <SkeletonBar radius="lg" className="h-12 w-full" />
+          {/* スキップ */}
+          <div className="flex justify-center pt-1">
+            <SkeletonBar className="h-4 w-16" tone={100} />
           </div>
         </div>
 

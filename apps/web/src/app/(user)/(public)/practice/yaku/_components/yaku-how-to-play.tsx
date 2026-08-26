@@ -58,11 +58,7 @@ export function YakuHowToPlay() {
 
   return (
     <div className="space-y-4">
-      <TehaiDisplay
-        tehai={DEMO_TEHAI}
-        context={DEMO_CONTEXT}
-        translationNamespace="yaku"
-      />
+      <TehaiDisplay tehai={DEMO_TEHAI} context={DEMO_CONTEXT} />
 
       {/* Instruction */}
       <QuestionPrompt>{t("selectYaku")}</QuestionPrompt>

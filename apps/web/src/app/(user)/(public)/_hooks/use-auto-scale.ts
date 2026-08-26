@@ -5,8 +5,12 @@ import { useEffect, useRef, useState } from "react";
 /**
  * ラッパー幅に基づいてコンテンツを自動スケーリングする
  * 自動スケーリング
+ *
+ * @param deps - 再計測のトリガ（表示内容が変わる値を渡す）
+ * @param maxScale - 拡大の上限。既定は等倍。同じ盤面に並ぶ別の行と
+ *   牌の大きさを揃えたい場合に、揃える相手の倍率を渡す
  */
-export function useAutoScale(deps: readonly unknown[]) {
+export function useAutoScale(deps: readonly unknown[], maxScale = 1) {
   const wrapperRef = useRef<HTMLDivElement>(null);
   const contentRef = useRef<HTMLDivElement>(null);
   const [scale, setScale] = useState(1);
@@ -20,8 +24,9 @@ export function useAutoScale(deps: readonly unknown[]) {
       content.style.transform = "scale(1)";
       const naturalWidth = content.scrollWidth;
       const availableWidth = wrapper.clientWidth;
-      const newScale =
+      const fitScale =
         naturalWidth > availableWidth ? availableWidth / naturalWidth : 1;
+      const newScale = Math.min(fitScale, maxScale);
       content.style.transform = `scale(${newScale})`;
       setScale(newScale);
     };
@@ -29,7 +34,7 @@ export function useAutoScale(deps: readonly unknown[]) {
     window.addEventListener("resize", update);
     return () => window.removeEventListener("resize", update);
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, deps);
+  }, [...deps, maxScale]);
 
   return { wrapperRef, contentRef, scale };
 }

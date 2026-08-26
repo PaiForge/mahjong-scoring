@@ -8,7 +8,7 @@ import { useRuleSettingsStore } from "@/app/_hooks/use-rule-settings-store";
 import { ChallengeSubmitButton } from "../../_components/challenge-submit-button";
 import { QuestionGeneratingPlaceholder } from "../../_components/question-generating-placeholder";
 import { useClientGeneratedQuestion } from "../../_hooks/use-client-generated-question";
-import { TehaiDisplay } from "./tehai-display";
+import { TehaiDisplay } from "../../_components/tehai-display";
 import { FuItemRow } from "./fu-item-row";
 import type { PracticeBoardProps } from "../../_lib/practice-board-props";
 
@@ -74,7 +74,11 @@ export function TehaiFuBoard({
 
   return (
     <div className="space-y-4">
-      <TehaiDisplay question={question} onScaleChange={setTileScale} />
+      <TehaiDisplay
+        tehai={question.tehai}
+        context={question.context}
+        onScaleChange={setTileScale}
+      />
 
       {/* Item list */}
       <div className="space-y-2">

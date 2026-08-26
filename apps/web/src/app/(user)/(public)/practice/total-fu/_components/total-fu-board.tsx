@@ -87,11 +87,7 @@ export function TotalFuBoard({
 
   return (
     <div className="space-y-4">
-      <TehaiDisplay
-        tehai={question.tehai}
-        context={question.context}
-        translationNamespace="totalFu"
-      />
+      <TehaiDisplay tehai={question.tehai} context={question.context} />
 
       <QuestionPrompt>{t("prompt")}</QuestionPrompt>
 

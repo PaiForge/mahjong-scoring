@@ -61,11 +61,7 @@ export function HanCountBoard({
 
   return (
     <div className="space-y-4">
-      <TehaiDisplay
-        tehai={question.tehai}
-        context={tehaiContextOf(question)}
-        translationNamespace="hanCountChallenge"
-      />
+      <TehaiDisplay tehai={question.tehai} context={tehaiContextOf(question)} />
 
       {/* Answer form（正解ハイライトも丸めた翻数で行う） */}
       <HanCountAnswerForm

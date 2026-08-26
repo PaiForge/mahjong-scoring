@@ -17,3 +17,7 @@ dist/
 # ローカル専用の設計メモ（作者のマシンにしか存在しない。参照は CLAUDE.md の
 # 「SPEC ファイルは足場」を参照）
 SPEC*.md
+
+# Vim swap files
+.*.sw?
+*.swp

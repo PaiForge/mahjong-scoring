@@ -51,11 +51,7 @@ export function HanCountHowToPlay() {
 
   return (
     <div className="space-y-4">
-      <TehaiDisplay
-        tehai={DEMO_TEHAI}
-        context={DEMO_CONTEXT}
-        translationNamespace="hanCountChallenge"
-      />
+      <TehaiDisplay tehai={DEMO_TEHAI} context={DEMO_CONTEXT} />
 
       {/* Instruction */}
       <QuestionPrompt>{t("selectHan")}</QuestionPrompt>
