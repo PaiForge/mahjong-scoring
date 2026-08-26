@@ -1,6 +1,7 @@
 "use client";
 
 import { memo, useCallback, useMemo, useState } from "react";
+import type { ReactNode } from "react";
 import { useTranslations } from "next-intl";
 import { getKazeName, isOya } from "@mahjong-scoring/core";
 import type { AgariContext, Tehai, HaiKindId } from "@mahjong-scoring/core";
@@ -12,6 +13,9 @@ import { InfoModal } from "@/app/(user)/_components/info-modal";
 import { useDoraDisplayMode } from "@/app/_hooks/use-display-settings-store";
 import { resolveDoraTiles } from "@/app/_lib/dora-display";
 
+/** 牌を含まない状況行の高さ（px）。リーチ棒とその名札が収まる高さ */
+const TEXT_ROW_HEIGHT = 22;
+
 /**
  * 出題盤面の手牌表示に必要なコンテキスト情報
  * 出題コンテキスト
@@ -22,9 +26,6 @@ import { resolveDoraTiles } from "@/app/_lib/dora-display";
  * ドラは常に「表示牌」で受け取る。表示牌のまま出すか、ドラそのものへ
  * 読み替えて出すかは表示設定で決まる。
  */
-/** 牌を含まない状況行の高さ（px）。リーチ棒とその名札が収まる高さ */
-const TEXT_ROW_HEIGHT = 22;
-
 export type TehaiContext = AgariContext & {
   readonly isRiichi?: boolean;
   readonly doraMarkers?: readonly HaiKindId[];
@@ -68,9 +69,14 @@ export const TehaiDisplay = memo(function TehaiDisplayComponent({
     () => resolveDoraTiles(context.doraMarkers ?? [], doraDisplay),
     [context.doraMarkers, doraDisplay],
   );
+  // 裏ドラはリーチしている出題でのみ見せる。ここで空にしておくことで、
+  // 描画の有無と状況行の高さ計算が同じ条件を見る。
   const uraDoraTiles = useMemo(
-    () => resolveDoraTiles(context.uraDoraMarkers ?? [], doraDisplay),
-    [context.uraDoraMarkers, doraDisplay],
+    () =>
+      context.isRiichi
+        ? resolveDoraTiles(context.uraDoraMarkers ?? [], doraDisplay)
+        : [],
+    [context.isRiichi, context.uraDoraMarkers, doraDisplay],
   );
 
   const handleScaleChange = useCallback(
@@ -120,10 +126,10 @@ export const TehaiDisplay = memo(function TehaiDisplayComponent({
           {context.isRiichi && <RiichiStick label={t("riichi")} />}
 
           {doraTiles.length > 0 && (
-            <div className="flex items-center gap-1">
-              <span className="text-xs text-white/70">
-                {t(isIndicator ? "doraIndicator" : "dora")}
-              </span>
+            <DoraGroup
+              label={t(isIndicator ? "doraIndicator" : "dora")}
+              tiles={doraTiles}
+            >
               <button
                 type="button"
                 onClick={() => setShowDoraInfo(true)}
@@ -132,25 +138,14 @@ export const TehaiDisplay = memo(function TehaiDisplayComponent({
               >
                 ?
               </button>
-              <div className="flex gap-0.5">
-                {doraTiles.map((tile, i) => (
-                  <Hai key={i} hai={tile} size="sm" />
-                ))}
-              </div>
-            </div>
+            </DoraGroup>
           )}
 
-          {context.isRiichi && uraDoraTiles.length > 0 && (
-            <div className="flex items-center gap-1">
-              <span className="text-xs text-white/70">
-                {t(isIndicator ? "uraDoraIndicator" : "uraDora")}
-              </span>
-              <div className="flex gap-0.5">
-                {uraDoraTiles.map((tile, i) => (
-                  <Hai key={`ura-${i}`} hai={tile} size="sm" />
-                ))}
-              </div>
-            </div>
+          {uraDoraTiles.length > 0 && (
+            <DoraGroup
+              label={t(isIndicator ? "uraDoraIndicator" : "uraDora")}
+              tiles={uraDoraTiles}
+            />
           )}
         </div>
       </div>
@@ -175,3 +170,25 @@ export const TehaiDisplay = memo(function TehaiDisplayComponent({
     </div>
   );
 });
+
+interface DoraGroupProps {
+  readonly label: string;
+  readonly tiles: readonly HaiKindId[];
+  /** ラベルの直後に挟む要素（ドラの見方を開く「?」ボタン） */
+  readonly children?: ReactNode;
+}
+
+/** 状況行のドラ・裏ドラ（名札 + 牌列） */
+function DoraGroup({ label, tiles, children }: DoraGroupProps) {
+  return (
+    <div className="flex items-center gap-1">
+      <span className="text-xs text-white/70">{label}</span>
+      {children}
+      <div className="flex gap-0.5">
+        {tiles.map((tile, i) => (
+          <Hai key={i} hai={tile} size="sm" />
+        ))}
+      </div>
+    </div>
+  );
+}
