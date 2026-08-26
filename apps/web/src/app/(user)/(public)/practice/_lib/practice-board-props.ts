@@ -11,6 +11,13 @@ export interface PracticeBoardProps {
   readonly showFeedback: boolean;
   /** カウントダウン中か（チャレンジのみ。トレーニングでは false） */
   readonly isCountingDown?: boolean;
+  /**
+   * トレーニングモードか（チャレンジでは未指定）
+   *
+   * 送信ボタンの語のように、同じ操作でも二つのモードで意味が変わる文言の出し分けに使う。
+   * トレーニングは回答後に正解を読ませるが、チャレンジは押した瞬間に次問題へ進む。
+   */
+  readonly isTraining?: boolean;
   /** 回答処理。正誤と次問題へ進むコールバックを渡す */
   readonly onAnswer: (correct: boolean, onNext: () => void) => void;
 }

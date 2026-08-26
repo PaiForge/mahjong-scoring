@@ -10,9 +10,16 @@ export const MentsuJantouFuTrainingView = createTrainingView({
   // 符目ごとの正解を突き合わせて読ませたいので、回答後は自動で次へ進めない
   holdAfterAnswer: true,
   help: <MentsuJantouFuHelp />,
-  renderBoard: ({ showFeedback, lastAnswerCorrect, onAnswer, onProceed }) => (
+  renderBoard: ({
+    showFeedback,
+    isTraining,
+    lastAnswerCorrect,
+    onAnswer,
+    onProceed,
+  }) => (
     <MentsuJantouFuBoard
       showFeedback={showFeedback}
+      isTraining={isTraining}
       lastAnswerCorrect={lastAnswerCorrect}
       onAnswer={onAnswer}
       onProceed={onProceed}

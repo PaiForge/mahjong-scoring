@@ -47,6 +47,7 @@ interface MentsuJantouFuBoardProps extends PracticeBoardProps {
 export function MentsuJantouFuBoard({
   showFeedback,
   isCountingDown = false,
+  isTraining = false,
   lastAnswerCorrect,
   onAnswer,
   onProceed,
@@ -100,13 +101,10 @@ export function MentsuJantouFuBoard({
     question.context.agariHai,
   );
   const allAnswered = answers.length > 0 && answers.every((a) => a !== "");
-  // 回答後に停止して正解を読ませるのはトレーニングだけなので、onProceed の有無が
-  // そのままモードの判別になる
-  const isTraining = onProceed !== undefined;
   // 回答後の停止中（トレーニングのみ）。行ごとの正解表示を残したまま操作を待つ。
   // 開示中の「次の問題へ」はシェルのフッターにあるため、ここには出さない
   const isHolding =
-    isTraining &&
+    onProceed !== undefined &&
     showFeedback &&
     !isRevealed &&
     lastAnswerCorrect !== undefined;

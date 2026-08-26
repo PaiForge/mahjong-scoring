@@ -561,6 +561,7 @@
     "learnLink": "役の種類を学ぶ",
     "selectYaku": "成立している役をすべて選択してください",
     "checkButton": "答え合わせ",
+    "answerButton": "回答する",
     "howToPlay": {
       "title": "問題方式",
       "lead": "このような問題が出題されます。"
