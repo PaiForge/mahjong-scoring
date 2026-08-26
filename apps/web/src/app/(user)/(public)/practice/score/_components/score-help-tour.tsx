@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useMemo, useCallback, useEffect, useRef } from "react";
+import { useState, useMemo, useCallback, useEffect } from "react";
 import { useTranslations } from "next-intl";
 import { generateValidScoreQuestion, isOya } from "@mahjong-scoring/core";
 import type {
@@ -30,57 +30,6 @@ import { Button } from "@/app/(user)/_components/button";
  */
 
 const noop = () => {};
-
-/**
- * 子要素の自然幅が枠を超える場合だけ、transform で縮小して横幅に収めるラッパー。
- * 牌は固定サイズ画像で xs より小さい区分が無いため、狭い画面（モーダル幅）でも
- * 手牌がはみ出さないよう、最後の調整としてスケールで吸収する。等倍時は無変化。
- */
-function FitToWidth({ children }: { children: React.ReactNode }) {
-  const outerRef = useRef<HTMLDivElement>(null);
-  const innerRef = useRef<HTMLDivElement>(null);
-  const [scale, setScale] = useState(1);
-  const [height, setHeight] = useState<number | undefined>(undefined);
-
-  useEffect(() => {
-    const outer = outerRef.current;
-    const inner = innerRef.current;
-    if (!outer || !inner) return;
-
-    const measure = () => {
-      const available = outer.clientWidth;
-      if (available === 0) return;
-      // 手牌は justify-center で左右対称にはみ出すため、scrollWidth（右側のはみ出しのみ）
-      // では実幅を過小評価する。中央対称を前提に実コンテンツ幅を復元する。
-      const natural = 2 * inner.scrollWidth - available;
-      // 緑ブロック自身の左右パディング(各8px)＋牌が枠に触れない余白を見込んで
-      // 固定ピクセルで内側に収める（比率だと狭幅でパディングを食い込む）。
-      const target = Math.max(0, available - 24);
-      const next = natural > target && target > 0 ? target / natural : 1;
-      setScale(next);
-      // transform はレイアウト高さを変えないため、縮小分を高さに反映して余白を防ぐ
-      setHeight(inner.offsetHeight * next);
-    };
-
-    measure();
-    const ro = new ResizeObserver(measure);
-    ro.observe(outer);
-    ro.observe(inner);
-    return () => ro.disconnect();
-  }, []);
-
-  return (
-    <div ref={outerRef} className="overflow-hidden" style={{ height }}>
-      <div
-        ref={innerRef}
-        className="w-full"
-        style={{ transform: `scale(${scale})`, transformOrigin: "top center" }}
-      >
-        {children}
-      </div>
-    </div>
-  );
-}
 
 /** 正解の点数計算結果から「全問正解」のユーザー回答を組み立てる（結果スライド用） */
 function buildCorrectAnswer(answer: ScoreQuestion["answer"]): UserAnswer {
@@ -136,14 +85,8 @@ export function ScoreHelpTour() {
         key: "question",
         title: t("help.slides.question.title"),
         caption: t("help.slides.question.caption"),
-        node: (
-          <div className="rounded-xl border-3 border-ink bg-white p-2">
-            {/* 牌サイズは xs 固定 + 狭い画面でも収まるよう FitToWidth で最終調整 */}
-            <FitToWidth>
-              <QuestionDisplay question={sample} size="xs" />
-            </FitToWidth>
-          </div>
-        ),
+        // 盤面は自前で枠を持ち、幅に合わせて牌を縮めるためそのまま置く
+        node: <QuestionDisplay question={sample} />,
       },
       {
         key: "answer",

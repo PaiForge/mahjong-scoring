@@ -23,6 +23,7 @@ import { resolveDoraTiles } from "@/app/_lib/dora-display";
 export type TehaiContext = AgariContext & {
   readonly isRiichi?: boolean;
   readonly doraMarkers?: readonly HaiKindId[];
+  /** 裏ドラ表示牌。リーチしている出題でのみ表示する */
   readonly uraDoraMarkers?: readonly HaiKindId[];
 };
 
@@ -122,7 +123,7 @@ export const TehaiDisplay = memo(function TehaiDisplayComponent({
           </div>
         )}
 
-        {uraDoraTiles.length > 0 && (
+        {context.isRiichi && uraDoraTiles.length > 0 && (
           <div className="flex items-center gap-1">
             <span className="text-xs text-white/70">
               {t(isIndicator ? "uraDoraIndicator" : "uraDora")}
