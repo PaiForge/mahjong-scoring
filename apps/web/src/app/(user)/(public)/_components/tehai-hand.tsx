@@ -7,7 +7,7 @@ import { useAutoScale } from "../_hooks/use-auto-scale";
 import { splitAgariHai } from "../_lib/agari-hai";
 
 /** size="sm" の牌の高さ（px）。globals.css の .h-hai-sm と合わせる */
-const HAI_HEIGHT = 45;
+export const HAI_SM_HEIGHT = 45;
 /** 和了牌ラベルが牌の上に足す高さ（px）。text-[10px] leading-none + mb-0.5 */
 const AGARI_LABEL_HEIGHT = 12;
 
@@ -70,7 +70,7 @@ export const TehaiHand = memo(function TehaiHandComponent({
       ref={wrapperRef}
       className="relative overflow-hidden"
       style={{
-        height: `${(HAI_HEIGHT + (agariLabel ? AGARI_LABEL_HEIGHT : 0)) * scale}px`,
+        height: `${(HAI_SM_HEIGHT + (agariLabel ? AGARI_LABEL_HEIGHT : 0)) * scale}px`,
       }}
     >
       <div
