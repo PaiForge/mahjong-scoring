@@ -143,10 +143,17 @@ export function QuestionDisplay({ question, size }: QuestionDisplayProps) {
             ))}
           </div>
 
+          {/* Agari hai (separated to the right, as it is shown on a real table) */}
+          <div
+            className={`flex shrink-0 ${haiSize === "xs" ? "ml-2" : "ml-4"}`}
+          >
+            <Hai hai={agariHai} size={haiSize} />
+          </div>
+
           {/* Other furo (bottom right) */}
           {otherFuroList.length > 0 && (
             <div
-              className={`flex shrink-0 ${haiSize === "xs" ? "ml-1" : "ml-2"}`}
+              className={`flex shrink-0 ${haiSize === "xs" ? "ml-4" : "ml-8"}`}
             >
               {otherFuroList.map((mentsu, index) => (
                 <Furo
@@ -163,17 +170,14 @@ export function QuestionDisplay({ question, size }: QuestionDisplayProps) {
 
       {/* Context info */}
       <div className="grid grid-cols-2 gap-4 text-sm">
-        {/* Tsumo/Ron + agari hai */}
+        {/* Tsumo/Ron (the agari hai itself is shown at the right of the hand) */}
         <div className="rounded-lg bg-surface-100 p-3">
           <div className="mb-1 text-xs text-surface-500">
             {t("question.win")}
           </div>
-          <div className="flex items-center gap-2">
-            <span className="text-xs font-bold">
-              {isTsumo ? t("question.tsumo") : t("question.ron")}
-            </span>
-            <Hai hai={agariHai} size={haiSize} highlighted />
-          </div>
+          <span className="text-xs font-bold">
+            {isTsumo ? t("question.tsumo") : t("question.ron")}
+          </span>
         </div>
 
         {/* Dora & ura dora */}
