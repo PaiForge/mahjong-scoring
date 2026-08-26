@@ -5,7 +5,7 @@ import { ContentContainer } from "@/app/(user)/_components/content-container";
 import { PageTitle } from "@/app/(user)/_components/page-title";
 import { SectionTitle } from "@/app/(user)/_components/section-title";
 import { createNamespaceMetadata } from "@/app/_lib/metadata";
-import { ScoreTable } from "./_components/score-table";
+import { ScoreTableFromQuery } from "./_components/score-table-from-query";
 import { SkeletonBar } from "@/app/_components/skeleton-bar";
 
 export async function generateMetadata(): Promise<Metadata> {
@@ -51,7 +51,7 @@ export default async function ReferenceScoreTablePage() {
             </div>
           }
         >
-          <ScoreTable />
+          <ScoreTableFromQuery />
         </Suspense>
       </div>
     </ContentContainer>

@@ -2,19 +2,15 @@
 
 import type { RefObject } from "react";
 import { useTranslations } from "next-intl";
-import { FU_VALUES } from "@mahjong-scoring/core";
 import type { calculateKoScore } from "@mahjong-scoring/core";
 import type { Role, WinType } from "@mahjong-scoring/core";
 import {
   DataTable,
   DataTableHeaderCell,
 } from "@/app/(user)/_components/data-table";
+import { HAN_COLS, FU_ROWS } from "../_lib/score-table-utils";
+import type { NormalCellHighlight } from "../_lib/score-table-utils";
 import { TsumoScore } from "./tsumo-score";
-
-/** 表の翻数列（1〜4翻） */
-export const HAN_COLS = [1, 2, 3, 4] as const;
-/** 表の符行（20〜110符） */
-export const FU_ROWS = FU_VALUES;
 
 const FREQUENT_FU = new Set([30, 40]);
 
@@ -24,7 +20,8 @@ interface NormalScoreTableProps {
   readonly activeTab: Role;
   readonly winType: WinType;
   readonly hiddenCells: Readonly<Record<string, boolean>>;
-  readonly highlightCellId: string | undefined;
+  /** ハイライト対象セル（翻の列 × 符の行）。未指定ならハイライトなし */
+  readonly highlight: NormalCellHighlight | undefined;
   readonly highlightRef: RefObject<HTMLTableCellElement | null>;
   readonly onToggleCell: (id: string) => void;
 }
@@ -34,14 +31,14 @@ interface NormalScoreTableProps {
  * 通常点数表
  *
  * セルのタップでぼかし表示を切り替える（暗記用）。
- * クエリ指定されたセルはハイライトし、初期表示時に画面中央へスクロールされる。
+ * highlight で指定されたセルはハイライトし、初期表示時に画面中央へスクロールされる。
  */
 export function NormalScoreTable({
   scoreGrid,
   activeTab,
   winType,
   hiddenCells,
-  highlightCellId,
+  highlight,
   highlightRef,
   onToggleCell,
 }: NormalScoreTableProps) {
@@ -90,7 +87,10 @@ export function NormalScoreTable({
 
               const cellId = `${activeTab}-${winType}-${han}han-${fu}fu`;
               const isHidden = !!hiddenCells[cellId];
-              const isHighlighted = cellId === highlightCellId;
+              const isHighlighted =
+                highlight !== undefined &&
+                highlight.han === han &&
+                highlight.fu === fu;
               const highlightClass = isHighlighted
                 ? " bg-amber-100 ring-2 ring-inset ring-amber-400"
                 : "";
