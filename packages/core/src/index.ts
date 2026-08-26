@@ -14,8 +14,11 @@ export { generateMentsuFuQuestion } from "./problem/mentsu-fu/generator";
 export type { MentsuFuQuestion } from "./problem/mentsu-fu/types";
 
 // === Problem: Tehai Fu ===
-export { generateTehaiFuQuestion } from "./problem/tehai-fu/generator";
-export type { TehaiFuQuestion, TehaiFuItem } from "./problem/tehai-fu/types";
+export { generateMentsuJantouFuQuestion } from "./problem/mentsu-jantou-fu/generator";
+export type {
+  MentsuJantouFuQuestion,
+  MentsuJantouFuItem,
+} from "./problem/mentsu-jantou-fu/types";
 
 // === Problem: Total Fu ===
 export { generateTotalFuQuestion } from "./problem/total-fu/generator";

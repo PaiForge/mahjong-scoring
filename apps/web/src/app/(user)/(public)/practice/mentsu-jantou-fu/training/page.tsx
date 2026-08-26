@@ -1,8 +1,8 @@
 /**
- * 手牌符練習 トレーニング
+ * 面子と雀頭の符計算 トレーニング
  *
  * @description
- * 手牌符練習のトレーニングモード。時間無制限・ミス無制限で反復練習でき、
+ * 面子と雀頭の符計算のトレーニングモード。時間無制限・ミス無制限で反復練習でき、
  * スコアはリーダーボードに記録しない。
  *
  * @flow
@@ -13,12 +13,12 @@
  */
 import type { Metadata } from "next";
 import { createPracticeTrainingMetadata } from "../../_lib/metadata";
-import { TehaiFuTrainingView } from "../_components/tehai-fu-training-view";
+import { MentsuJantouFuTrainingView } from "../_components/mentsu-jantou-fu-training-view";
 
 export async function generateMetadata(): Promise<Metadata> {
-  return createPracticeTrainingMetadata("tehaiFu");
+  return createPracticeTrainingMetadata("mentsuJantouFu");
 }
 
-export default function TehaiFuTrainingPage() {
-  return <TehaiFuTrainingView />;
+export default function MentsuJantouFuTrainingPage() {
+  return <MentsuJantouFuTrainingView />;
 }

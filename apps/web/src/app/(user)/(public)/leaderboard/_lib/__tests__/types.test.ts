@@ -26,7 +26,7 @@ describe("MODULES", () => {
       "jantou_fu",
       "machi_fu",
       "mentsu_fu",
-      "tehai_fu",
+      "mentsu_jantou_fu",
       "total_fu",
       "yaku",
       "score_table",

@@ -170,10 +170,10 @@
         "shortTitle": "面子の符",
         "description": "面子の種類（順子・刻子・槓子）と明暗に応じた符を答える練習"
       },
-      "tehaiFu": {
-        "title": "手牌の符計算",
-        "shortTitle": "手牌の符",
-        "description": "手牌の面子・雀頭ごとに符を漏れなく答える練習"
+      "mentsuJantouFu": {
+        "title": "面子と雀頭の符計算",
+        "shortTitle": "面子と雀頭の符",
+        "description": "手牌のすべての面子と雀頭について、要素ごとに符を答える練習"
       },
       "totalFu": {
         "title": "手牌の合計符",
@@ -464,10 +464,10 @@
       "fuUnit": "{value}符"
     }
   },
-  "tehaiFu": {
-    "title": "手牌の符計算",
+  "mentsuJantouFu": {
+    "title": "面子と雀頭の符計算",
     "generating": "問題を生成中...",
-    "description": "手牌全体の面子構成・雀頭から、各要素の符を漏れなく回答する総合練習",
+    "description": "手牌のすべての面子と雀頭について、要素ごとに符を答える練習",
     "pair": "雀頭",
     "checkButton": "答え合わせ",
     "nextQuestion": "次の問題へ",
@@ -477,7 +477,9 @@
       "title": "問題方式",
       "lead": "このような問題が出題されます。"
     },
-    "learnLink": "手牌の符について学ぶ",
+    "learnLink": "手牌の符について学ぶ"
+  },
+  "tehaiFu": {
     "learn": {
       "pageTitle": "手牌全体の符計算",
       "commonMistakesTitle": "手牌の符計算でよくある間違い",
@@ -1285,7 +1287,7 @@
       "jantouFu": "🀄",
       "machiFu": "🎯",
       "mentsuFu": "🧩",
-      "tehaiFu": "✨",
+      "mentsuJantouFu": "✨",
       "totalFu": "🧮",
       "yaku": "🏆",
       "scoreTable": "📈",

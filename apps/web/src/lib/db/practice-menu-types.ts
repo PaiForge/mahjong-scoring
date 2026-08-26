@@ -13,7 +13,7 @@
  * - 'jantou_fu': 雀頭の符計算
  * - 'machi_fu': 待ちの符計算
  * - 'mentsu_fu': 面子の符計算
- * - 'tehai_fu': 手牌の符計算
+ * - 'mentsu_jantou_fu': 面子と雀頭の符計算
  * - 'total_fu': 手牌の合計符
  * - 'yaku': 役判定
  * - 'score_table': 点数表早引き
@@ -117,10 +117,10 @@ const PRACTICE_MENU_REGISTRY = [
     hasSetup: false,
   },
   {
-    menuType: "tehai_fu",
-    slug: "tehai-fu",
-    messageKey: "tehaiFu",
-    namespace: "tehaiFu",
+    menuType: "mentsu_jantou_fu",
+    slug: "mentsu-jantou-fu",
+    messageKey: "mentsuJantouFu",
+    namespace: "mentsuJantouFu",
     hasProblemList: false,
     hasSetup: false,
   },

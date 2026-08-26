@@ -193,10 +193,10 @@ packages/eslint-config/ — 共通 ESLint 設定（PaiForge コーディング�
 
 練習種別により2つのパターンが存在する:
 
-| パターン     | 構成                           | 該当                                                      |
-| ------------ | ------------------------------ | --------------------------------------------------------- |
-| チャレンジ型 | 説明(page.tsx) → play → result | jantou-fu, mentsu-fu, machi-fu, tehai-fu, yaku, han-count |
-| 無限訓練型   | play のみ（result なし）       | score                                                     |
+| パターン     | 構成                           | 該当                                                              |
+| ------------ | ------------------------------ | ----------------------------------------------------------------- |
+| チャレンジ型 | 説明(page.tsx) → play → result | jantou-fu, mentsu-fu, machi-fu, mentsu-jantou-fu, yaku, han-count |
+| 無限訓練型   | play のみ（result なし）       | score                                                             |
 
 - `score-calculation`, `score-table` はチャレンジ型だが説明ページ（page.tsx）は未作成
 - `score` は終了条件がなく無限ループする訓練機能のため、result ページを持たない

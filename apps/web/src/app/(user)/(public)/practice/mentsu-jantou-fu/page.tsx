@@ -1,31 +1,31 @@
 import type { Metadata } from "next";
 import { createPracticeMetadata } from "../_lib/metadata";
 import { PracticeIntroContent } from "../_components/practice-intro-content";
-import { TehaiFuHowToPlay } from "./_components/tehai-fu-how-to-play";
+import { MentsuJantouFuHowToPlay } from "./_components/mentsu-jantou-fu-how-to-play";
 
 export async function generateMetadata(): Promise<Metadata> {
-  return createPracticeMetadata("tehai-fu");
+  return createPracticeMetadata("mentsu-jantou-fu");
 }
 
 /**
- * 手牌符練習 説明
+ * 面子と雀頭の符計算 説明
  *
  * @description
- * 手牌符練習の説明ページ。手牌の符計算についての概要を表示し、
+ * 面子と雀頭の符計算の説明ページ。要素ごとに符を答える練習の概要を表示し、
  * 練習開始および教本ページへのリンクを提供する。
  *
  * @flow
- * 1. ユーザーが練習一覧から手牌符を選択して遷移
+ * 1. ユーザーが練習一覧から面子と雀頭の符計算を選択して遷移
  * 2. 練習の説明と「開始」ボタン、教本ページへのリンクが表示される
  * 3. 「開始」を押すと play ページへ遷移
  */
-export default function TehaiFuPage() {
+export default function MentsuJantouFuPage() {
   return (
     <PracticeIntroContent
-      namespace="tehaiFu"
-      slug="tehai-fu"
+      namespace="mentsuJantouFu"
+      slug="mentsu-jantou-fu"
       showTraining
-      howToPlay={<TehaiFuHowToPlay />}
+      howToPlay={<MentsuJantouFuHowToPlay />}
     />
   );
 }

@@ -2,8 +2,11 @@
 
 import { useState, useCallback } from "react";
 import { useTranslations } from "next-intl";
-import { generateTehaiFuQuestion, retryGenerate } from "@mahjong-scoring/core";
-import type { TehaiFuQuestion } from "@mahjong-scoring/core";
+import {
+  generateMentsuJantouFuQuestion,
+  retryGenerate,
+} from "@mahjong-scoring/core";
+import type { MentsuJantouFuQuestion } from "@mahjong-scoring/core";
 import { useRuleSettingsStore } from "@/app/_hooks/use-rule-settings-store";
 import { Button } from "@/app/(user)/_components/button";
 import { ChallengeSubmitButton } from "../../_components/challenge-submit-button";
@@ -17,11 +20,13 @@ import type { PracticeBoardProps } from "../../_lib/practice-board-props";
 
 function generateQuestion(
   renfonpaiAs4Fu: boolean,
-): TehaiFuQuestion | undefined {
-  return retryGenerate(() => generateTehaiFuQuestion({ renfonpaiAs4Fu }));
+): MentsuJantouFuQuestion | undefined {
+  return retryGenerate(() =>
+    generateMentsuJantouFuQuestion({ renfonpaiAs4Fu }),
+  );
 }
 
-interface TehaiFuBoardProps extends PracticeBoardProps {
+interface MentsuJantouFuBoardProps extends PracticeBoardProps {
   /** 直前の回答が正解だったか（未回答時は undefined） */
   readonly lastAnswerCorrect?: boolean;
   /**
@@ -35,18 +40,18 @@ interface TehaiFuBoardProps extends PracticeBoardProps {
 }
 
 /**
- * 手牌符の出題盤面（手牌の提示と符目ごとの入力・一括判定）
+ * 面子と雀頭の符の出題盤面（手牌の提示と要素ごとの入力・一括判定）
  *
  * 出題状態と回答ロジックを内包し、チャレンジ・トレーニング両モードで共有する。
  */
-export function TehaiFuBoard({
+export function MentsuJantouFuBoard({
   showFeedback,
   isCountingDown = false,
   lastAnswerCorrect,
   onAnswer,
   onProceed,
-}: TehaiFuBoardProps) {
-  const t = useTranslations("tehaiFu");
+}: MentsuJantouFuBoardProps) {
+  const t = useTranslations("mentsuJantouFu");
   const renfonpaiAs4Fu = useRuleSettingsStore((s) => s.renfonpaiAs4Fu);
   const generate = useCallback(
     () => generateQuestion(renfonpaiAs4Fu),

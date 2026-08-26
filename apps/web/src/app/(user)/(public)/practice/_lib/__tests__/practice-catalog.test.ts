@@ -124,8 +124,8 @@ describe("practiceSlugFromHref", () => {
 
 describe("practiceMenuFromCatalog", () => {
   it("slug からカタログの 1 件を引く", () => {
-    expect(practiceMenuFromCatalog("tehai-fu")).toMatchObject({
-      slug: "tehai-fu",
+    expect(practiceMenuFromCatalog("mentsu-jantou-fu")).toMatchObject({
+      slug: "mentsu-jantou-fu",
       category: "fuCalculation",
       difficulty: "advanced",
     });

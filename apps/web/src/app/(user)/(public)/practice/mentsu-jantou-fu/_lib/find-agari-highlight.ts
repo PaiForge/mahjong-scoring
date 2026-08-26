@@ -1,5 +1,5 @@
 import { MentsuType } from "@mahjong-scoring/core";
-import type { TehaiFuQuestion } from "@mahjong-scoring/core";
+import type { MentsuJantouFuQuestion } from "@mahjong-scoring/core";
 
 /**
  * 和了牌を示す回答行と、その行の何枚目か
@@ -23,7 +23,7 @@ export interface AgariHighlight {
  * 決まらないため、どこにも付けない。
  */
 export function findAgariHighlight(
-  question: TehaiFuQuestion,
+  question: MentsuJantouFuQuestion,
 ): AgariHighlight | undefined {
   const { agariHai } = question.context;
   const holders = question.items.filter(

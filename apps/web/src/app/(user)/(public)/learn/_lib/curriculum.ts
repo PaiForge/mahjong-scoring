@@ -149,7 +149,7 @@ const CURRICULUM_REGISTRY = [
     slug: "tehai-fu",
     section: "fu",
     order: 60,
-    practiceHrefs: ["/practice/tehai-fu"],
+    practiceHrefs: ["/practice/mentsu-jantou-fu"],
     i18nKey: "learnCurriculum.chapters.tehaiFu",
   },
 ] as const satisfies readonly CurriculumChapterEntry[];

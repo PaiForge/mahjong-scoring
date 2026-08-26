@@ -6,7 +6,7 @@ import type { FuDetail } from "../../score/fu-calculator";
  * 手牌全体の合計符を答える問題
  * 合計符問題
  *
- * 手牌符（{@link ../tehai-fu/types}）が面子・雀頭ごとの符を個別に問うのに対し、
+ * 面子・雀頭符（{@link ../mentsu-jantou-fu/types}）が要素ごとの符を個別に問うのに対し、
  * こちらは副底・和了符・待ち符まで含めた手牌1枚あたり1つの答えを問う。
  */
 export interface TotalFuQuestion {
