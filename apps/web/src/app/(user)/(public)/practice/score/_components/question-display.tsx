@@ -11,6 +11,7 @@ import { useTranslations } from "next-intl";
 import { InfoModal } from "@/app/(user)/_components/info-modal";
 import { useDoraDisplayMode } from "@/app/_hooks/use-display-settings-store";
 import { resolveDoraTiles } from "@/app/_lib/dora-display";
+import { splitAgariHai } from "../../../_lib/agari-hai";
 
 /**
  * 手牌表示に必要な出題データの表示専用サブセット
@@ -77,11 +78,10 @@ export function QuestionDisplay({ question, size }: QuestionDisplayProps) {
     [question.uraDoraMarkers, doraDisplay],
   );
 
-  const closedWithoutAgari = useMemo(() => {
-    const index = tehai.closed.lastIndexOf(agariHai);
-    if (index === -1) return tehai.closed;
-    return [...tehai.closed.slice(0, index), ...tehai.closed.slice(index + 1)];
-  }, [tehai.closed, agariHai]);
+  const { closedTiles, separatedAgariHai } = useMemo(
+    () => splitAgariHai(tehai.closed, agariHai),
+    [tehai.closed, agariHai],
+  );
 
   const kantsuList = useMemo(
     () => tehai.exposed.filter((m) => m.type === MentsuType.Kantsu),
@@ -138,17 +138,19 @@ export function QuestionDisplay({ question, size }: QuestionDisplayProps) {
         <div className="flex w-full items-end justify-center">
           {/* Closed tiles (13) */}
           <div className="flex shrink-0">
-            {closedWithoutAgari.map((kindId, index) => (
+            {closedTiles.map((kindId, index) => (
               <Hai key={index} hai={kindId} size={haiSize} />
             ))}
           </div>
 
           {/* Agari hai (separated to the right, as it is shown on a real table) */}
-          <div
-            className={`flex shrink-0 ${haiSize === "xs" ? "ml-2" : "ml-4"}`}
-          >
-            <Hai hai={agariHai} size={haiSize} />
-          </div>
+          {separatedAgariHai !== undefined && (
+            <div
+              className={`flex shrink-0 ${haiSize === "xs" ? "ml-2" : "ml-4"}`}
+            >
+              <Hai hai={separatedAgariHai} size={haiSize} />
+            </div>
+          )}
 
           {/* Other furo (bottom right) */}
           {otherFuroList.length > 0 && (

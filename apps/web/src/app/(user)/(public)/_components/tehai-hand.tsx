@@ -4,6 +4,7 @@ import { memo, useEffect, useMemo } from "react";
 import type { HaiKindId, Tehai } from "@mahjong-scoring/core";
 import { Hai, Furo } from "@pai-forge/mahjong-react-ui";
 import { useAutoScale } from "../_hooks/use-auto-scale";
+import { splitAgariHai } from "../_lib/agari-hai";
 
 interface TehaiHandProps {
   /** 表示する手牌（純手牌 + 副露）。Tehai14 もそのまま渡せる。 */
@@ -37,24 +38,10 @@ export const TehaiHand = memo(function TehaiHandComponent({
 }: TehaiHandProps) {
   const { wrapperRef, contentRef, scale } = useAutoScale([tehai, agariHai]);
 
-  // 和了牌は純手牌に含まれている前提だが、含まれない手牌を渡されたときは
-  // 純手牌をそのまま出し、右側の開示を省く（牌を増やして 15 枚にしない）。
-  const { closedTiles, separatedAgariHai } = useMemo(() => {
-    if (agariHai === undefined) {
-      return { closedTiles: tehai.closed, separatedAgariHai: undefined };
-    }
-    const index = tehai.closed.lastIndexOf(agariHai);
-    if (index === -1) {
-      return { closedTiles: tehai.closed, separatedAgariHai: undefined };
-    }
-    return {
-      closedTiles: [
-        ...tehai.closed.slice(0, index),
-        ...tehai.closed.slice(index + 1),
-      ],
-      separatedAgariHai: agariHai,
-    };
-  }, [tehai.closed, agariHai]);
+  const { closedTiles, separatedAgariHai } = useMemo(
+    () => splitAgariHai(tehai.closed, agariHai),
+    [tehai.closed, agariHai],
+  );
 
   useEffect(() => {
     onScaleChange?.(scale);
