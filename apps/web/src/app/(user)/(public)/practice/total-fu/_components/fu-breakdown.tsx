@@ -30,7 +30,7 @@ export function FuBreakdown({ details, answer }: FuBreakdownProps) {
         {details.map((detail, i) => (
           <div
             key={i}
-            className="flex justify-between border-b-2 border-dashed border-border/40 py-1.5 last:border-0"
+            className="flex justify-between border-b-2 border-dashed border-border/60 py-1.5 last:border-0"
           >
             <dt className="text-surface-600">{detail.reason}</dt>
             <dd className="text-surface-800">

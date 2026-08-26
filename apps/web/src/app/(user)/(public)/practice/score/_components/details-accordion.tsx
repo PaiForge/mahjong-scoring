@@ -73,7 +73,7 @@ export function DetailsPanelRow({
             {items.map((detail, idx) => (
               <div
                 key={idx}
-                className="flex justify-between border-b-2 border-dashed border-border/40 py-1.5 last:border-0"
+                className="flex justify-between border-b-2 border-dashed border-border/60 py-1.5 last:border-0"
               >
                 <span>{detail.name}</span>
                 <span>
