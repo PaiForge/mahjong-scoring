@@ -19,6 +19,11 @@ interface ModalShellProps {
    * 管理画面のように別の見た目で使う場合はここで丸ごと差し替える。
    */
   readonly panelClassName?: string;
+  /**
+   * パネルの最大幅。既定はダイアログ向けの max-w-md。
+   * 表など幅が要るコンテンツではここだけ差し替える。
+   */
+  readonly widthClassName?: string;
 }
 
 /** パネル体裁の既定値（ユーザー向け画面の骨格） */
@@ -40,6 +45,7 @@ export function ModalShell({
   describedBy,
   label,
   panelClassName = DEFAULT_PANEL_CLASS,
+  widthClassName = "max-w-md",
 }: ModalShellProps) {
   const handleKeyDown = useCallback(
     (e: KeyboardEvent) => {
@@ -71,7 +77,7 @@ export function ModalShell({
       aria-label={label}
     >
       <div
-        className={`mx-4 w-full max-w-md space-y-6 ${panelClassName}`}
+        className={`mx-4 w-full space-y-6 ${widthClassName} ${panelClassName}`}
         onClick={(e) => e.stopPropagation()}
       >
         {children}

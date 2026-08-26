@@ -14,10 +14,14 @@ export const TOGGLE_GROUP_CONTAINER_CLASSES =
 /**
  * 選択肢1つ分
  *
+ * 左右の余白は狭い画面で一段詰める。トグルを 3 つ横に並べる画面
+ * （点数早見表）がモバイル幅では 1 行に収まらず、グループが 2 段に
+ * 折り返してしまうため。
+ *
  * @param isActive - 選択中かどうか
  */
 export function toggleItemClasses(isActive: boolean): string {
-  return `rounded-full px-3 py-1 text-xs font-bold transition-colors ${
+  return `whitespace-nowrap rounded-full px-2 py-1 text-xs font-bold transition-colors sm:px-3 ${
     isActive
       ? "bg-primary-700 text-white"
       : "text-surface-700 hover:bg-primary-100"

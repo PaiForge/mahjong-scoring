@@ -1,6 +1,7 @@
 import { describe, it, expect } from "vitest";
 import {
   FU_VALUES,
+  isFu,
   RON_SCORES_KO,
   RON_SCORES_OYA,
   TSUMO_SCORES_OYA_PART,
@@ -105,5 +106,25 @@ describe("FU_VALUES", () => {
       if (fu === 25) continue;
       expect(fu % 10).toBe(0);
     }
+  });
+});
+
+describe("isFu", () => {
+  it("FU_VALUES の値はすべて有効", () => {
+    for (const fu of FU_VALUES) {
+      expect(isFu(fu)).toBe(true);
+    }
+  });
+
+  it("15 は無効（20未満）", () => {
+    expect(isFu(15)).toBe(false);
+  });
+
+  it("35 は無効（10刻みに乗らない）", () => {
+    expect(isFu(35)).toBe(false);
+  });
+
+  it("120 は無効（110超）", () => {
+    expect(isFu(120)).toBe(false);
   });
 });

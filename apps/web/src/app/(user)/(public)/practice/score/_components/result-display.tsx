@@ -7,12 +7,14 @@ import type {
   UserAnswer,
   JudgementResult,
 } from "@mahjong-scoring/core";
-import { isMangan, getScoreLevelName } from "@mahjong-scoring/core";
+import { isMangan, isOya, getScoreLevelName } from "@mahjong-scoring/core";
 import { practiceHanTier } from "../_lib/han-tiers";
 import { formatScoreAnswer } from "../../_lib/format-score-answer";
 import { paymentToScoreTableAnswer } from "../../_lib/payment-adapter";
 import { DetailsPanelRow, DetailsToggleButton } from "./details-accordion";
 import type { DetailItem } from "./details-accordion";
+import { ScoreTableModalLink } from "./score-table-modal-link";
+import type { ScoreTableFocus } from "@/app/(user)/(public)/reference/score-table/_lib/score-table-utils";
 import { Button } from "@/app/(user)/_components/button";
 
 /** 結果テーブルの列数（項目名 / あなたの回答 / 正解）。展開行の colSpan に使う */
@@ -67,6 +69,15 @@ export function ResultDisplay({
     (key) => t(`form.options.${key}`),
     { ronSuffix: t("result.pointSuffix") },
   );
+
+  // 点数表モーダルに渡す「正解の位置」。満貫以上（5翻〜）では符は
+  // 使われず、区分行のハイライトに解決される（resolveScoreTableFocus）。
+  const scoreTableFocus: ScoreTableFocus = {
+    role: isOya(question.jikaze) ? "oya" : "ko",
+    winType: question.isTsumo ? "tsumo" : "ron",
+    han: answer.han,
+    fu: answer.fu,
+  };
 
   const getHanDisplay = (hanValue: number, levelName?: string) => {
     const tier = simplifyMangan ? practiceHanTier(hanValue) : undefined;
@@ -237,6 +248,11 @@ export function ResultDisplay({
             </tr>
           </tbody>
         </table>
+
+        {/* 正解が点数表のどこかを表で確かめる導線（モーダルで開き、出題ループを離脱しない） */}
+        <div className="mt-3 text-right text-sm">
+          <ScoreTableModalLink focus={scoreTableFocus} />
+        </div>
       </div>
 
       {/* Next button */}
