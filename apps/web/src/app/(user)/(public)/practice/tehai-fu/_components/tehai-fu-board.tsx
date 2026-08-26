@@ -11,6 +11,7 @@ import { QuestionGeneratingPlaceholder } from "../../_components/question-genera
 import { useClientGeneratedQuestion } from "../../_hooks/use-client-generated-question";
 import { useTrainingReveal } from "../../_hooks/use-training-reveal";
 import { TehaiDisplay } from "../../_components/tehai-display";
+import { findAgariHighlight } from "../_lib/find-agari-highlight";
 import { FuItemRow } from "./fu-item-row";
 import type { PracticeBoardProps } from "../../_lib/practice-board-props";
 
@@ -89,6 +90,7 @@ export function TehaiFuBoard({
     return <QuestionGeneratingPlaceholder label={t("generating")} />;
   }
 
+  const agariHighlight = findAgariHighlight(question);
   const allAnswered = answers.length > 0 && answers.every((a) => a !== "");
   // 回答後の停止中（トレーニングのみ）。行ごとの正解表示を残したまま操作を待つ。
   // 開示中の「次の問題へ」はシェルのフッターにあるため、ここには出さない
@@ -117,6 +119,11 @@ export function TehaiFuBoard({
             showFeedback={showFeedback}
             isRevealed={isRevealed}
             isCountingDown={isCountingDown}
+            highlightedTileIndex={
+              agariHighlight?.itemId === item.id
+                ? agariHighlight.tileIndex
+                : undefined
+            }
             onSelect={handleSelect}
             tileScale={tileScale}
           />
