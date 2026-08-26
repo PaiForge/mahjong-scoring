@@ -233,6 +233,7 @@
     "lives": "ライフ",
     "startButton": "スタート",
     "retryButton": "もう一度",
+    "changeSettingsButton": "設定を変更する",
     "backToList": "練習一覧に戻る",
     "ready": "準備はいいですか？",
     "readyDescription": "制限時間 {timeLimit} 秒以内にできるだけ多くの問題に正解してください。{mistakeLimit} 回間違えると終了です。",

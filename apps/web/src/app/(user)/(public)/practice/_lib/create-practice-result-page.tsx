@@ -24,7 +24,11 @@ import { LeaderboardSkeleton } from "../_components/leaderboard-skeleton";
 import { ResultBlockSkeleton } from "../_components/result-block-skeleton";
 import { SignUpCta } from "../_components/sign-up-cta";
 import { debugResultDelay } from "./debug-delay";
-import { practiceHref, practicePlayHref } from "./practice-catalog";
+import {
+  practiceHref,
+  practicePlayHref,
+  practiceSetupHref,
+} from "./practice-catalog";
 
 const PREVIEW_COUNT = 3;
 
@@ -43,6 +47,11 @@ export interface PracticeResultViewProps {
    * その場合は中間項目をリンクなしのテキストとして表示する。
    */
   readonly introHref?: string;
+  /**
+   * 出題設定へのリンク先（説明ページの設定セクション）。
+   * 出題設定を持たない練習では undefined で、「設定を変更する」ボタンを出さない。
+   */
+  readonly settingsHref?: string;
   /** 正答数（URL クエリ `?correct=` から親 Server Component が parse して渡す） */
   readonly correct: number;
   /** 総出題数（URL クエリ `?total=` から親 Server Component が parse して渡す） */
@@ -167,6 +176,7 @@ export function createPracticeResultPage(
         practiceTitle={practiceTitle}
         playHref={practicePlayHref(slug)}
         introHref={practiceHref(slug)}
+        settingsHref={practiceSetupHref(slug)}
         correct={Number.isFinite(correct) ? correct : 0}
         total={Number.isFinite(total) ? total : 0}
         promotionBlock={

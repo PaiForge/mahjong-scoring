@@ -1,10 +1,12 @@
+import Link from "next/link";
 import { getTranslations } from "next-intl/server";
 import { ContentContainer } from "@/app/(user)/_components/content-container";
 import { PageTitle } from "@/app/(user)/_components/page-title";
 import { LinkButton } from "@/app/(user)/_components/link-button";
-import { DumbbellIcon } from "@/app/(user)/_components/icons/dumbbell-icon";
+import { ArrowUturnLeftIcon } from "@/app/(user)/_components/icons/arrow-uturn-left-icon";
 import { RotateCcwIcon } from "@/app/(user)/_components/icons/rotate-ccw-icon";
 import { SectionTitle } from "@/app/(user)/_components/section-title";
+import { TEXT_LINK_MUTED_CLASSES } from "@/app/_components/_lib/link-classes";
 import type { PracticeResultViewProps } from "../_lib/create-practice-result-page";
 import { buildResultBreadcrumb } from "../_lib/result-breadcrumb";
 import { PRACTICE_SCROLL_HASH } from "../_lib/scroll-anchor";
@@ -31,7 +33,7 @@ import { ResultScoreBar } from "./result-score-bar";
  * 2. 「結果」セクション（ScoreBar） — 即時描画（親 page.tsx の searchParams から props で受け取る）
  * 3. `promotionBlock` — 昇級バナー（昇級時のみ。Suspense 境界）
  * 4. `resultBlock` — 経験値 / 登録 CTA（Suspense 境界）
- * 5. アクションボタン（もう一度 / 練習一覧に戻る） — 即時描画
+ * 5. アクションボタン（もう一度 / 設定を変更する）と練習一覧へのリンク — 即時描画
  * 6. `children` — 練習種別固有の追加コンテンツ（問題別フィードバック等）
  * 7. `leaderboardBlock` — リーダーボードプレビュー（Suspense 境界）
  */
@@ -39,6 +41,7 @@ export async function ResultView({
   practiceTitle,
   playHref,
   introHref,
+  settingsHref,
   correct,
   total,
   promotionBlock,
@@ -73,7 +76,10 @@ export async function ResultView({
         {/* 結果ブロック: 経験値 / 登録 CTA。Suspense + ResultBlockSkeleton で包まれている。 */}
         {resultBlock}
 
-        {/* アクションボタン（もう一度 / 練習一覧に戻る）。参考プロジェクト準拠で縦積み・全幅。 */}
+        {/* アクションボタン。参考プロジェクト準拠で縦積み・全幅。
+            「設定を変更する」は出題設定を持つ練習だけに出る（`settingsHref`）。
+            練習一覧へは戻り先であって次の行動ではないため、ボタンではなく
+            ボタン群の下の補助リンクに置く。 */}
         <div className="space-y-3">
           <LinkButton
             href={`${playHref}${PRACTICE_SCROLL_HASH}`}
@@ -83,10 +89,25 @@ export async function ResultView({
             <RotateCcwIcon className="size-4" />
             {tc("retryButton")}
           </LinkButton>
-          <LinkButton href="/practice" variant="neutral" size="lg" fullWidth>
-            <DumbbellIcon className="size-4" />
-            {tc("backToList")}
-          </LinkButton>
+          {settingsHref !== undefined && (
+            <LinkButton
+              href={settingsHref}
+              variant="neutral"
+              size="lg"
+              fullWidth
+            >
+              <ArrowUturnLeftIcon className="size-4" />
+              {tc("changeSettingsButton")}
+            </LinkButton>
+          )}
+          <p className="pt-1 text-center">
+            <Link
+              href="/practice"
+              className={`text-sm ${TEXT_LINK_MUTED_CLASSES}`}
+            >
+              {tc("backToList")}
+            </Link>
+          </p>
         </div>
 
         {/* 練習種別固有の追加コンテンツ（問題別フィードバック一覧など） */}

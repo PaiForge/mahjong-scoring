@@ -12,8 +12,6 @@ interface AnswerComparisonProps {
   readonly user: ReactNode;
   /** ユーザー回答が正解かどうか（回答値の文字色に反映する） */
   readonly isCorrect: boolean;
-  /** 2行の上に差し込む補足（役名など）。無い練習の方が多い */
-  readonly children?: ReactNode;
 }
 
 /**
@@ -29,13 +27,11 @@ export function AnswerComparison({
   correct,
   user,
   isCorrect,
-  children,
 }: AnswerComparisonProps) {
   const tResult = useTranslations(`${translationNamespace}.result`);
 
   return (
     <div className="space-y-1 text-sm">
-      {children}
       {/* ラベル幅を auto 列に揃え、2 行の値の左端を一致させる */}
       <dl className="grid grid-cols-[auto_1fr] gap-x-2 gap-y-1 text-surface-500">
         <dt className="font-medium">{tResult("correctAnswer")}:</dt>

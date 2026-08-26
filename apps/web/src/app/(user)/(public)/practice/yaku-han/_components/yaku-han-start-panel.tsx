@@ -7,7 +7,10 @@ import { useTranslations } from "next-intl";
 import { DEFAULT_YAKU_HAN_RANGE } from "@mahjong-scoring/core";
 import type { YakuHanRange } from "@mahjong-scoring/core";
 import { SectionTitle } from "@/app/(user)/_components/section-title";
-import { PRACTICE_SCROLL_HASH } from "../../_lib/scroll-anchor";
+import {
+  PRACTICE_SCROLL_HASH,
+  PRACTICE_SETUP_ANCHOR_ID,
+} from "../../_lib/scroll-anchor";
 
 /** 出題範囲の選択肢（表示順） */
 const RANGE_OPTIONS: readonly {
@@ -45,8 +48,9 @@ export function YakuHanStartPanel() {
 
   return (
     <div className="flex flex-col gap-6">
-      {/* 出題範囲の選択 */}
-      <div className="space-y-3">
+      {/* 出題範囲の選択。結果ページの「設定を変更する」がここへ直接送る
+          （scroll-mt はヘッダ分の逃がし） */}
+      <div id={PRACTICE_SETUP_ANCHOR_ID} className="scroll-mt-20 space-y-3">
         <SectionTitle>{tRange("label")}</SectionTitle>
         <div className="grid gap-2 sm:grid-cols-3">
           {RANGE_OPTIONS.map((option) => {

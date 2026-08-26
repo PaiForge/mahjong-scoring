@@ -17,6 +17,12 @@ interface ResultPageSkeletonProps {
    * 一覧を持たない練習や、出題数が分からない場面では 0（既定）にして枠自体を出さない。
    */
   readonly problemCount?: number;
+  /**
+   * 結果ページが「設定を変更する」ボタンを出すか（レジストリの `hasSetup`）。
+   * true の練習ではアクションボタンが 2 つ並ぶため、枠も 2 つ描いて
+   * 結果ページとの高さのずれを防ぐ。
+   */
+  readonly hasSetup?: boolean;
 }
 
 /**
@@ -24,7 +30,7 @@ interface ResultPageSkeletonProps {
  * 結果ページスケルトン
  *
  * 結果ページ（`ResultView`）と同じレイアウト（タイトル帯・結果見出し・スコアバー・
- * 経験値ブロック・アクションボタン・問題一覧・リーダーボード・パンくず）の
+ * 経験値ブロック・アクションボタン・練習一覧リンク・問題一覧・リーダーボード・パンくず）の
  * placeholder を描画する。次の 2 箇所から使う:
  *
  * 1. `ChallengeShell`（Client）— チャレンジ終了からリダイレクト開始までの間
@@ -37,6 +43,7 @@ export function ResultPageSkeleton({
   practiceTitle,
   breadcrumb,
   problemCount = 0,
+  hasSetup = false,
 }: ResultPageSkeletonProps) {
   return (
     <ContentContainer breadcrumb={breadcrumb}>
@@ -64,10 +71,16 @@ export function ResultPageSkeleton({
         {/* 経験値 / 登録 CTA */}
         <ResultBlockSkeleton />
 
-        {/* アクションボタン（もう一度 / 練習一覧に戻る）。ResultView と同じ縦積み・全幅。 */}
+        {/* アクションボタンと練習一覧へのリンク。ResultView と同じ縦積み・全幅。 */}
         <div aria-hidden="true" className="space-y-3">
           <SkeletonBar radius="lg" className="h-11 w-full" />
-          <SkeletonBar radius="lg" className="h-11 w-full" tone={100} />
+          {hasSetup && (
+            <SkeletonBar radius="lg" className="h-11 w-full" tone={100} />
+          )}
+          {/* 練習一覧へのリンク（pt-1 は ResultView 側の余白と合わせる） */}
+          <div className="pt-1">
+            <SkeletonBar className="mx-auto h-5 w-32" />
+          </div>
         </div>
 
         {/* 問題別フィードバック一覧（一覧を持つ練習のみ）。ResultView では

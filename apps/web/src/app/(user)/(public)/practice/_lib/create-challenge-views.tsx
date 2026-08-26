@@ -77,8 +77,14 @@ export function createChallengePlayView<
   config: ChallengePlayViewConfig<TResult, TProps, TState>,
 ): (props: TProps) => ReactNode {
   const { slug, maxWidth, renderBoard, showScoreCounter } = config;
-  const { namespace, menuType, hasProblemList, mistakeLimit, timeLimit } =
-    practiceMenuBySlug(slug);
+  const {
+    namespace,
+    menuType,
+    hasProblemList,
+    hasSetup,
+    mistakeLimit,
+    timeLimit,
+  } = practiceMenuBySlug(slug);
   // 問題別フィードバック一覧を持つ練習だけが問題結果を sessionStorage に積む。
   // 一覧の有無はレジストリが唯一の定義で、結果ページとそのスケルトン
   // （loading.tsx / ChallengeShell）も同じ旗を見る。
@@ -112,6 +118,7 @@ export function createChallengePlayView<
         exitHref={practiceHref(slug)}
         maxWidth={maxWidth}
         hasProblemList={hasProblemList}
+        hasSetup={hasSetup}
         showScoreCounter={showScoreCounter}
         onFinish={handleFinish}
       >
