@@ -16,6 +16,16 @@ export const FU_VALUES: readonly Fu[] = [
 ];
 
 /**
+ * 有効な符の値かどうかを判定する型ガード
+ * 符型ガード
+ *
+ * クエリパラメータ等の外部入力を `Fu` 型に絞り込むときに使う。
+ */
+export function isFu(value: number): value is Fu {
+  return FU_VALUES.some((fu) => fu === value);
+}
+
+/**
  * ロン和了時の点数選択肢（子）
  * 30符1翻(1000)〜役満(32000)
  * 子ロン点数リスト

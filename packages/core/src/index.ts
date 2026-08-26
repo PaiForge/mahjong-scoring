@@ -84,6 +84,7 @@ export {
 // === Score ===
 export {
   FU_VALUES,
+  isFu,
   RON_SCORES_KO,
   RON_SCORES_OYA,
   TSUMO_SCORES_OYA_PART,
