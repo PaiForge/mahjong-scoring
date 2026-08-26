@@ -28,7 +28,7 @@ interface Props {
  * `total` があっても枠を出さない（レジストリの `hasProblemList` を見る）。
  */
 export function PracticeResultLoadingFallback({ slug }: Props) {
-  const { namespace, hasProblemList } = practiceMenuBySlug(slug);
+  const { namespace, hasProblemList, hasSetup } = practiceMenuBySlug(slug);
   const t = useTranslations(namespace);
   const tc = useTranslations("challenge");
   const tp = useTranslations("practice");
@@ -47,6 +47,7 @@ export function PracticeResultLoadingFallback({ slug }: Props) {
         introHref: practiceHref(slug),
       })}
       problemCount={problemCount}
+      hasSetup={hasSetup}
     />
   );
 }

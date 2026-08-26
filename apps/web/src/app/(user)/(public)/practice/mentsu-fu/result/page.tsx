@@ -11,7 +11,7 @@
  * 2. スコア・正答率を表示
  * 3. 全期間リーダーボード上位3名を表示
  * 4. リーダーボード詳細ページへのリンク
- * 5. リトライまたは練習一覧に戻るボタン
+ * 5. リトライボタンと練習一覧へのリンク
  */
 import type { Metadata } from "next";
 import { ResultView } from "../../_components/result-view";

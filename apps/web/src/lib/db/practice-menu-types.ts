@@ -56,6 +56,12 @@ interface PracticeMenuEntry {
    */
   readonly hasProblemList: boolean;
   /**
+   * 説明ページに出題設定（親子・和了方法などの絞り込み）を持つか。
+   * true の練習は結果ページに「設定を変更する」ボタンを出し、説明ページの
+   * 設定セクションへ戻す。設定を持たない練習ではボタン自体を出さない。
+   */
+  readonly hasSetup: boolean;
+  /**
    * チャレンジのミス上限の上書き（省略時は共通の `MISTAKE_LIMIT`）。
    * ミス上限
    *
@@ -92,6 +98,7 @@ const PRACTICE_MENU_REGISTRY = [
     messageKey: "jantouFu",
     namespace: "jantouFu",
     hasProblemList: false,
+    hasSetup: false,
   },
   {
     menuType: "machi_fu",
@@ -99,6 +106,7 @@ const PRACTICE_MENU_REGISTRY = [
     messageKey: "machiFu",
     namespace: "machiFu",
     hasProblemList: false,
+    hasSetup: false,
   },
   {
     menuType: "mentsu_fu",
@@ -106,6 +114,7 @@ const PRACTICE_MENU_REGISTRY = [
     messageKey: "mentsuFu",
     namespace: "mentsuFu",
     hasProblemList: false,
+    hasSetup: false,
   },
   {
     menuType: "tehai_fu",
@@ -113,6 +122,7 @@ const PRACTICE_MENU_REGISTRY = [
     messageKey: "tehaiFu",
     namespace: "tehaiFu",
     hasProblemList: false,
+    hasSetup: false,
   },
   {
     menuType: "total_fu",
@@ -120,6 +130,7 @@ const PRACTICE_MENU_REGISTRY = [
     messageKey: "totalFu",
     namespace: "totalFu",
     hasProblemList: true,
+    hasSetup: false,
   },
   {
     menuType: "yaku",
@@ -127,6 +138,7 @@ const PRACTICE_MENU_REGISTRY = [
     messageKey: "yaku",
     namespace: "yaku",
     hasProblemList: false,
+    hasSetup: false,
   },
   {
     menuType: "score_table",
@@ -134,6 +146,7 @@ const PRACTICE_MENU_REGISTRY = [
     messageKey: "scoreTable",
     namespace: "scoreTableChallenge",
     hasProblemList: true,
+    hasSetup: true,
   },
   {
     menuType: "score_calculation",
@@ -141,6 +154,7 @@ const PRACTICE_MENU_REGISTRY = [
     messageKey: "scoreCalculation",
     namespace: "scoreCalculationChallenge",
     hasProblemList: true,
+    hasSetup: false,
   },
   {
     menuType: "han_count",
@@ -148,6 +162,7 @@ const PRACTICE_MENU_REGISTRY = [
     messageKey: "hanCount",
     namespace: "hanCountChallenge",
     hasProblemList: true,
+    hasSetup: false,
   },
   {
     menuType: "yaku_han",
@@ -155,6 +170,7 @@ const PRACTICE_MENU_REGISTRY = [
     messageKey: "yakuHan",
     namespace: "yakuHanChallenge",
     hasProblemList: true,
+    hasSetup: false,
   },
   {
     menuType: "mangan_score_calculation",
@@ -162,6 +178,7 @@ const PRACTICE_MENU_REGISTRY = [
     messageKey: "manganScoreCalculation",
     namespace: "manganScoreCalculationChallenge",
     hasProblemList: true,
+    hasSetup: false,
   },
   {
     menuType: "mangan_exam",
@@ -169,6 +186,7 @@ const PRACTICE_MENU_REGISTRY = [
     messageKey: "manganExam",
     namespace: "manganExamChallenge",
     hasProblemList: true,
+    hasSetup: false,
     // 昇級試験のためミス1回で強制終了（通常チャレンジは MISTAKE_LIMIT = 3）。
     // 「1ミスでアウト」をセッション側で強制することで、昇級判定は
     // ベストスコア >= 合格点の単純比較で成立する（RANK_REGISTRY 参照）
@@ -213,6 +231,7 @@ export interface PracticeMenuDescriptor {
   readonly messageKey: PracticeMenuMessageKey;
   readonly namespace: PracticeMenuNamespace;
   readonly hasProblemList: boolean;
+  readonly hasSetup: boolean;
   readonly mistakeLimit: number;
   readonly timeLimit: number;
   /** ルートのベースパス（説明ページの URL。play / result はこの配下） */

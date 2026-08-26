@@ -4,6 +4,7 @@ import {
   practiceMenuBySlug,
   type PracticeMenuSlug,
 } from "@/lib/db/practice-menu-types";
+import { PRACTICE_SETUP_HASH } from "./scroll-anchor";
 
 /**
  * 練習メニューのカタログ — 一覧の並び・難易度・教本リンクの単一の真実のソース
@@ -144,6 +145,18 @@ export function practicePlayHref(slug: PracticeMenuSlug): string {
 /** 練習のトレーニングページのパス */
 export function practiceTrainingHref(slug: PracticeMenuSlug): string {
   return `${practiceHref(slug)}/training`;
+}
+
+/**
+ * 練習の出題設定へのパス（説明ページの設定セクションへのアンカー付き）。
+ * 出題設定パス
+ *
+ * 出題設定を持たない練習（レジストリの `hasSetup` が false）は undefined を返す。
+ * 結果ページはこれが undefined なら「設定を変更する」ボタン自体を出さない。
+ */
+export function practiceSetupHref(slug: PracticeMenuSlug): string | undefined {
+  const { hasSetup, basePath } = practiceMenuBySlug(slug);
+  return hasSetup ? `${basePath}${PRACTICE_SETUP_HASH}` : undefined;
 }
 
 /** 練習の結果ページのパス */

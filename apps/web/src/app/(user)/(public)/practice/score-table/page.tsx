@@ -21,6 +21,7 @@ import { ContentContainer } from "@/app/(user)/_components/content-container";
 import { PageTitle } from "@/app/(user)/_components/page-title";
 import { SectionTitle } from "@/app/(user)/_components/section-title";
 import { createPracticeMetadata } from "../_lib/metadata";
+import { PRACTICE_SETUP_ANCHOR_ID } from "../_lib/scroll-anchor";
 import { ScoreTableHowToPlay } from "./_components/score-table-how-to-play";
 import { ScoreTableSetup } from "./_components/score-table-setup";
 
@@ -51,7 +52,8 @@ export default async function ScoreTablePage() {
           <ScoreTableHowToPlay />
         </HowToPlaySection>
 
-        <div className="space-y-4">
+        {/* 結果ページの「設定を変更する」がこの見出しへ直接送る（scroll-mt はヘッダ分の逃がし） */}
+        <div id={PRACTICE_SETUP_ANCHOR_ID} className="scroll-mt-20 space-y-4">
           <SectionTitle>{t("setup.title")}</SectionTitle>
           <ScoreTableSetup />
         </div>

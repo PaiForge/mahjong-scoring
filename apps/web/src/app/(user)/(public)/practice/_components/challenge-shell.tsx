@@ -81,6 +81,12 @@ interface ChallengeShellProps {
    * 結果ページとの高さのずれを防ぐ。
    */
   readonly hasProblemList?: boolean;
+  /**
+   * 結果ページが「設定を変更する」ボタンを表示するか。
+   * true の場合、終了後のスケルトンにもボタン枠を 2 つ描画して
+   * 結果ページとの高さのずれを防ぐ。
+   */
+  readonly hasSetup?: boolean;
   /** play 中に training と同じ正誤カウンタを表示するか */
   readonly showScoreCounter?: boolean;
   /** 練習終了時に呼び出されるコールバック（スコア保存等） */
@@ -109,6 +115,7 @@ export function ChallengeShell({
   maxWidth = "max-w-md",
   exitHref = "/practice",
   hasProblemList = false,
+  hasSetup = false,
   showScoreCounter = false,
   onFinish,
 }: ChallengeShellProps) {
@@ -191,6 +198,7 @@ export function ChallengeShell({
             ? (gameSession.finalResult?.totalCount ?? gameSession.totalCount)
             : 0
         }
+        hasSetup={hasSetup}
       />
     );
   }
