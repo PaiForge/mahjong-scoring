@@ -4,6 +4,7 @@ import { useId, useState } from "react";
 import { useTranslations } from "next-intl";
 import { ModalShell } from "@/app/_components/modal-shell";
 import { TEXT_LINK_CLASSES } from "@/app/_components/_lib/link-classes";
+import { TableIcon } from "@/app/(user)/_components/icons/table-icon";
 import { ScoreTable } from "@/app/(user)/(public)/reference/score-table/_components/score-table";
 import type { ScoreTableFocus } from "@/app/(user)/(public)/reference/score-table/_lib/score-table-utils";
 
@@ -32,9 +33,11 @@ export function ScoreTableModalLink({ focus }: ScoreTableModalLinkProps) {
     <>
       <button
         type="button"
-        className={TEXT_LINK_CLASSES}
+        className={`inline-flex items-center gap-1.5 ${TEXT_LINK_CLASSES}`}
         onClick={() => setIsOpen(true)}
       >
+        {/* 点数表ナビと同じアイコン。行き先が同じものだと一目で分かるようにする */}
+        <TableIcon className="size-4 shrink-0" />
         {t("result.viewScoreTable")}
       </button>
       <ModalShell

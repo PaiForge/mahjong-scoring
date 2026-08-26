@@ -17,7 +17,7 @@ export const TOGGLE_GROUP_CONTAINER_CLASSES =
  * @param isActive - 選択中かどうか
  */
 export function toggleItemClasses(isActive: boolean): string {
-  return `rounded-full px-3 py-1 text-xs font-bold transition-colors ${
+  return `whitespace-nowrap rounded-full px-3 py-1 text-xs font-bold transition-colors ${
     isActive
       ? "bg-primary-700 text-white"
       : "text-surface-700 hover:bg-primary-100"
