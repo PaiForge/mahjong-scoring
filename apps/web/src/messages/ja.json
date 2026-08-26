@@ -262,7 +262,8 @@
   "training": {
     "modeLabel": "トレーニング",
     "startButton": "トレーニング",
-    "skipButton": "スキップ",
+    "revealButton": "わからない",
+    "nextButton": "次の問題へ",
     "exitButton": "終了する",
     "exitToast": "練習を終了しました"
   },
@@ -1356,6 +1357,8 @@
     "han": "{count}翻",
     "fu": "{count}符",
     "selectScore": "点数を選択",
+    "revealedAnswer": "正解: {answer}",
+    "pointSuffix": "点",
     "fromKo": "子から",
     "fromOya": "親から",
     "all": "オール",

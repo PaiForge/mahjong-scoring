@@ -177,18 +177,21 @@ export interface TrainingViewConfig<TProps, TState> {
    * 盤面が必要とする追加状態を用意するフック
    *
    * チャレンジ側の {@link ChallengePlayViewConfig.useBoardState} と同じ役割。
-   * スキップは「無回答で次の問題へ進む」操作なので、出題状態をシェルと
-   * 同じ階層に置く必要があり、スキップを出す練習はこれで状態を引き上げる。
+   * 「わからない」は無回答で正解を開いてから次問題へ進む操作なので、
+   * 出題状態をシェルと同じ階層に置く必要があり、これを出す練習は
+   * このフックで状態を引き上げる。
    */
   readonly useBoardState?: (props: TProps) => TState;
   /**
-   * スキップ操作を取り出す（無回答で次問題へ進む練習向け）
+   * 「次の問題へ進む」操作を取り出す（「わからない」を出す練習向け）
    *
-   * 指定するとフッターにスキップリンクが出る。出題の生成待ちなど、
-   * まだ進めない状態では undefined を返すこと（リンクは無効化される）。
+   * 指定するとフッターに「わからない」リンクが出る。押すと無回答のまま
+   * 正解を開示（盤面は回答時と同じ showFeedback 表示）して停止し、
+   * 「次の問題へ」でこの操作を呼んで進む。出題の生成待ちなど、まだ
+   * 進めない状態では undefined を返すこと（リンクは無効化される）。
    * フィードバック表示中の無効化はファクトリ側で行う。
    */
-  readonly skipOf?: (state: TState) => (() => void) | undefined;
+  readonly advanceOf?: (state: TState) => (() => void) | undefined;
   /**
    * 盤面の描画
    *
@@ -209,7 +212,7 @@ export function createTrainingView<
   TProps = Record<string, never>,
   TState = undefined,
 >(config: TrainingViewConfig<TProps, TState>): (props: TProps) => ReactNode {
-  const { slug, maxWidth, holdOnIncorrect, skipOf, renderBoard } = config;
+  const { slug, maxWidth, holdOnIncorrect, advanceOf, renderBoard } = config;
   const { namespace } = practiceMenuBySlug(slug);
   const useBoardState =
     config.useBoardState ?? (() => undefined as unknown as TState);
@@ -222,13 +225,15 @@ export function createTrainingView<
       totalCount,
       showFeedback,
       lastAnswerCorrect,
+      isRevealed,
       handleAnswer,
+      reveal,
       proceed,
     } = useTrainingSession({ holdOnIncorrect });
 
-    // スキップを出す練習だけ、盤面の状態から「次へ進む」操作を取り出す。
-    // 正誤フィードバック中は次問題へ自動で進むためスキップさせない。
-    const skip = skipOf?.(boardState);
+    // 「わからない」を出す練習だけ、盤面の状態から「次へ進む」操作を取り出す。
+    // 正誤フィードバック中は次問題へ自動で進むため開示させない。
+    const advance = advanceOf?.(boardState);
 
     return (
       <TrainingShell
@@ -237,8 +242,15 @@ export function createTrainingView<
         totalCount={totalCount}
         exitHref={practiceHref(slug)}
         maxWidth={maxWidth}
-        onSkip={skipOf && (() => skip?.())}
-        skipDisabled={showFeedback || skip === undefined}
+        onReveal={
+          advanceOf &&
+          (() => {
+            if (advance) reveal(advance);
+          })
+        }
+        revealDisabled={showFeedback || advance === undefined}
+        isRevealed={isRevealed}
+        onProceed={proceed}
       >
         {renderBoard(
           {

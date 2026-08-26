@@ -1,12 +1,14 @@
 "use client";
 
 import { useCallback } from "react";
+import { useTranslations } from "next-intl";
 import { judgeScoreTableAnswer } from "@mahjong-scoring/core";
 import type {
   ScoreTableQuestion,
   ScoreTableUserAnswer,
 } from "@mahjong-scoring/core";
 import { FeedbackFrame } from "../../_components/feedback-frame";
+import { formatScoreAnswer } from "../../_lib/format-score-answer";
 import { ScoreTablePrompt } from "./score-table-prompt";
 import { ScoreTableAnswerForm } from "./score-table-answer-form";
 import type { ScoreTableQuestionResult } from "../_lib/types";
@@ -19,6 +21,13 @@ interface ScoreTableBoardProps extends RecordingPracticeBoardProps<ScoreTableQue
   readonly onAdvance: () => void;
   /** 直前の回答が正解だったか（フィードバック枠の色分けに使用） */
   readonly lastAnswerCorrect?: boolean;
+  /**
+   * 無回答の正解開示中（トレーニングの「わからない」）
+   *
+   * この練習の回答フィードバックは枠の色分けだけで正解値を出さないため、
+   * 開示中は問題カード内に正解の点数を明示する。
+   */
+  readonly isRevealed?: boolean;
 }
 
 /**
@@ -33,9 +42,12 @@ export function ScoreTableBoard({
   showFeedback,
   isCountingDown = false,
   lastAnswerCorrect,
+  isRevealed = false,
   onAnswer,
   onRecordResult,
 }: ScoreTableBoardProps) {
+  const t = useTranslations("scoreTableChallenge");
+
   const handleSubmit = useCallback(
     (userAnswer: ScoreTableUserAnswer) => {
       if (showFeedback) return;
@@ -73,6 +85,19 @@ export function ScoreTableBoard({
           han={question.han}
           fu={question.fu}
         />
+
+        {/* 正解開示（「わからない」押下時のみ）。ロンには単位が無いため「点」を付ける */}
+        {isRevealed && (
+          <p className="text-center text-lg font-bold text-surface-800">
+            {t("revealedAnswer", {
+              answer: formatScoreAnswer(
+                question.correctAnswer,
+                (key) => t(key),
+                { ronSuffix: t("pointSuffix") },
+              ),
+            })}
+          </p>
+        )}
       </FeedbackFrame>
 
       {/* Answer form */}

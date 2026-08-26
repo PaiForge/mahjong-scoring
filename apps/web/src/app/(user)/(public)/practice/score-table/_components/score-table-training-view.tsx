@@ -15,8 +15,8 @@ const EXIT_HREF = "/practice/score-table";
 /**
  * このビューだけ createTrainingView を使わずに手書きしている。
  *
- * スキップ自体はファクトリの `useBoardState` / `skipOf` で扱えるように
- * なったが、この練習は出題条件を URL クエリから読む（`useSearchParams`）。
+ * 「わからない」自体はファクトリの `useBoardState` / `advanceOf` で扱える
+ * ようになったが、この練習は出題条件を URL クエリから読む（`useSearchParams`）。
  * 状態を引き上げるとビュー全体が Suspense 境界の内側に入り、フォールバック
  * 側でもシェルを描いてプリレンダー HTML に見出し・終了リンクを残す必要が
  * あるため、境界の外殻ごとここで組み立てている。
@@ -28,7 +28,10 @@ function ScoreTableTrainingViewInner() {
     totalCount,
     showFeedback,
     lastAnswerCorrect,
+    isRevealed,
     handleAnswer,
+    reveal,
+    proceed,
   } = useTrainingSession();
   const generatorOptions = useScoreTableGeneratorOptions();
   const { question, advance } = useScoreTableQuestion(generatorOptions);
@@ -39,8 +42,12 @@ function ScoreTableTrainingViewInner() {
       correctCount={correctCount}
       totalCount={totalCount}
       exitHref={EXIT_HREF}
-      onSkip={advance}
-      skipDisabled={showFeedback || question === undefined}
+      onReveal={() => {
+        if (question !== undefined) reveal(advance);
+      }}
+      revealDisabled={showFeedback || question === undefined}
+      isRevealed={isRevealed}
+      onProceed={proceed}
     >
       {question === undefined ? (
         <ScoreTableGeneratingPlaceholder />
@@ -50,6 +57,7 @@ function ScoreTableTrainingViewInner() {
           onAdvance={advance}
           showFeedback={showFeedback}
           lastAnswerCorrect={lastAnswerCorrect}
+          isRevealed={isRevealed}
           onAnswer={handleAnswer}
         />
       )}
@@ -60,7 +68,7 @@ function ScoreTableTrainingViewInner() {
 /**
  * 出題条件の読み出し前に出すシェル
  *
- * スキップは盤面の `advance` に依存するため本体の外へ出せない。そのため
+ * 「わからない」は盤面の `advance` に依存するため本体の外へ出せない。そのため
  * ビュー全体が境界の内側になり、フォールバックでもシェルを描いて
  * プリレンダー HTML に見出し・スコア表示・終了リンクを残す。
  */
