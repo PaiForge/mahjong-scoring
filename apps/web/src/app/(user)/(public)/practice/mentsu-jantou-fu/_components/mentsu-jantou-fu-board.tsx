@@ -95,7 +95,10 @@ export function MentsuJantouFuBoard({
     return <QuestionGeneratingPlaceholder label={t("generating")} />;
   }
 
-  const agariHighlight = findAgariHighlight(question);
+  const agariHighlight = findAgariHighlight(
+    question.items,
+    question.context.agariHai,
+  );
   const allAnswered = answers.length > 0 && answers.every((a) => a !== "");
   // 回答後の停止中（トレーニングのみ）。行ごとの正解表示を残したまま操作を待つ。
   // 開示中の「次の問題へ」はシェルのフッターにあるため、ここには出さない

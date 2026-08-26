@@ -1,5 +1,16 @@
 import { MentsuType } from "@mahjong-scoring/core";
-import type { MentsuJantouFuQuestion } from "@mahjong-scoring/core";
+import type { HaiKindId, MentsuJantouFuItem } from "@mahjong-scoring/core";
+
+/**
+ * ハイライト位置の判定に要る回答行の情報
+ *
+ * 出題（{@link MentsuJantouFuItem}）だけでなく、説明ページの固定デモからも
+ * 同じ判定を通せるよう、符や元面子までは要求しない。
+ */
+export type AgariHighlightItem = Pick<
+  MentsuJantouFuItem,
+  "id" | "tiles" | "type" | "isOpen"
+>;
 
 /**
  * 和了牌を示す回答行と、その行の何枚目か
@@ -23,10 +34,10 @@ export interface AgariHighlight {
  * 決まらないため、どこにも付けない。
  */
 export function findAgariHighlight(
-  question: MentsuJantouFuQuestion,
+  items: readonly AgariHighlightItem[],
+  agariHai: HaiKindId,
 ): AgariHighlight | undefined {
-  const { agariHai } = question.context;
-  const holders = question.items.filter(
+  const holders = items.filter(
     (item) =>
       !item.isOpen &&
       item.type !== MentsuType.Kantsu &&
