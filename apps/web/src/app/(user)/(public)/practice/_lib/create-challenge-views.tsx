@@ -146,6 +146,8 @@ export function createChallengePlayView<
  * トレーニング盤面引数
  */
 export interface TrainingBoardArgs extends PracticeBoardProps {
+  /** トレーニングビューからの描画なので常に true */
+  readonly isTraining: true;
   readonly lastAnswerCorrect: boolean | undefined;
   /**
    * 回答後の停止状態から次問題へ進む
@@ -259,6 +261,7 @@ export function createTrainingView<
           {renderBoard(
             {
               showFeedback,
+              isTraining: true,
               lastAnswerCorrect,
               onAnswer: handleAnswer,
               onProceed: proceed,

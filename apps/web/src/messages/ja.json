@@ -470,6 +470,7 @@
     "description": "手牌のすべての面子と雀頭について、要素ごとに符を答える練習",
     "pair": "雀頭",
     "checkButton": "答え合わせ",
+    "answerButton": "回答する",
     "nextQuestion": "次の問題へ",
     "fuSuffix": "{value}符",
     "correctAnswer": "正解: {fu}符",
@@ -560,6 +561,7 @@
     "learnLink": "役の種類を学ぶ",
     "selectYaku": "成立している役をすべて選択してください",
     "checkButton": "答え合わせ",
+    "answerButton": "回答する",
     "howToPlay": {
       "title": "問題方式",
       "lead": "このような問題が出題されます。"

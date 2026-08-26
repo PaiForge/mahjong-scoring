@@ -38,6 +38,7 @@ function hanGroupKey(han: number): string {
 export function YakuBoard({
   showFeedback,
   isCountingDown = false,
+  isTraining = false,
   onAnswer,
 }: YakuBoardProps) {
   const t = useTranslations("yaku");
@@ -119,12 +120,12 @@ export function YakuBoard({
         ))}
       </div>
 
-      {/* Submit button */}
+      {/* Submit button（チャレンジは押した瞬間に次問題へ進むため「回答する」） */}
       <ChallengeSubmitButton
         disabled={!hasSelection || showFeedback || isCountingDown}
         onClick={handleSubmit}
       >
-        {t("checkButton")}
+        {isTraining ? t("checkButton") : t("answerButton")}
       </ChallengeSubmitButton>
     </div>
   );

@@ -47,6 +47,7 @@ interface MentsuJantouFuBoardProps extends PracticeBoardProps {
 export function MentsuJantouFuBoard({
   showFeedback,
   isCountingDown = false,
+  isTraining = false,
   lastAnswerCorrect,
   onAnswer,
   onProceed,
@@ -138,7 +139,8 @@ export function MentsuJantouFuBoard({
         ))}
       </div>
 
-      {/* Submit button（回答後の停止中は「次の問題へ」に差し替える） */}
+      {/* Submit button（回答後の停止中は「次の問題へ」に差し替える）。
+          チャレンジは押した瞬間に次問題へ進むため「答え合わせ」ではなく「回答する」 */}
       {isHolding ? (
         <div className="mt-4">
           <Button size="lg" fullWidth onClick={onProceed}>
@@ -150,7 +152,7 @@ export function MentsuJantouFuBoard({
           disabled={!allAnswered || showFeedback || isCountingDown}
           onClick={handleSubmit}
         >
-          {t("checkButton")}
+          {isTraining ? t("checkButton") : t("answerButton")}
         </ChallengeSubmitButton>
       )}
     </div>
