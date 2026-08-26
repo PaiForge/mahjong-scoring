@@ -1,14 +1,13 @@
 "use client";
 
 import { useCallback } from "react";
-import { useTranslations } from "next-intl";
 import { judgeScoreTableAnswer } from "@mahjong-scoring/core";
 import type {
   ScoreTableQuestion,
   ScoreTableUserAnswer,
 } from "@mahjong-scoring/core";
 import { FeedbackFrame } from "../../_components/feedback-frame";
-import { formatScoreAnswer } from "../../_lib/format-score-answer";
+import { RevealedScoreAnswer } from "../../_components/revealed-score-answer";
 import { useTrainingReveal } from "../../_hooks/use-training-reveal";
 import { ScoreTablePrompt } from "./score-table-prompt";
 import { ScoreTableAnswerForm } from "./score-table-answer-form";
@@ -39,8 +38,6 @@ export function ScoreTableBoard({
   onAnswer,
   onRecordResult,
 }: ScoreTableBoardProps) {
-  const t = useTranslations("scoreTableChallenge");
-
   const isRevealed = useTrainingReveal(onAdvance);
 
   const handleSubmit = useCallback(
@@ -81,19 +78,11 @@ export function ScoreTableBoard({
           fu={question.fu}
         />
 
-        {/* 正解開示（「わからない」押下時のみ）。この練習の回答フィードバックは
-            枠の色分けだけで正解値を出さないため、開示中は正解の点数を明示する。
-            ロンには単位が無いため「点」を付ける */}
         {isRevealed && (
-          <p className="text-center text-lg font-bold text-surface-800">
-            {t("revealedAnswer", {
-              answer: formatScoreAnswer(
-                question.correctAnswer,
-                (key) => t(key),
-                { ronSuffix: t("pointSuffix") },
-              ),
-            })}
-          </p>
+          <RevealedScoreAnswer
+            answer={question.correctAnswer}
+            translationNamespace="scoreTableChallenge"
+          />
         )}
       </FeedbackFrame>
 

@@ -8,6 +8,7 @@ import { useRuleSettingsStore } from "@/app/_hooks/use-rule-settings-store";
 import { ChallengeSubmitButton } from "../../_components/challenge-submit-button";
 import { QuestionGeneratingPlaceholder } from "../../_components/question-generating-placeholder";
 import { useClientGeneratedQuestion } from "../../_hooks/use-client-generated-question";
+import { useTrainingReveal } from "../../_hooks/use-training-reveal";
 import { TehaiDisplay } from "../../_components/tehai-display";
 import { FuItemRow } from "./fu-item-row";
 import type { PracticeBoardProps } from "../../_lib/practice-board-props";
@@ -45,6 +46,10 @@ export function TehaiFuBoard({
     setQuestion(q);
     setAnswers(q ? new Array(q.items.length).fill("") : []);
   }, [generate, setQuestion]);
+
+  const isRevealed = useTrainingReveal(
+    question === undefined ? undefined : advanceQuestion,
+  );
 
   const handleSubmit = useCallback(() => {
     if (!question || showFeedback) return;
@@ -89,6 +94,7 @@ export function TehaiFuBoard({
             item={item}
             answer={answers[idx]}
             showFeedback={showFeedback}
+            isRevealed={isRevealed}
             isCountingDown={isCountingDown}
             onSelect={handleSelect}
             tileScale={tileScale}
