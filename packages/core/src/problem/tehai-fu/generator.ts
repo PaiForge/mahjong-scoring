@@ -1,5 +1,6 @@
 import {
   MentsuType,
+  isYaochu,
   type HaiKindId,
   type CompletedMentsu,
 } from "@pai-forge/riichi-mahjong";
@@ -7,6 +8,10 @@ import type { TehaiFuQuestion, TehaiFuItem } from "./types";
 import { BAKAZE_OPTIONS, KAZEHAI } from "../../core/constants";
 import { randomBool, randomChoice } from "../../core/random";
 import { HaiUsageTracker } from "../../core/hai-tracker";
+import {
+  calculateMentsuFu,
+  isOpenMentsuForFu,
+} from "../../core/score-calculation";
 import { calculateJantouFu } from "../shared/jantou-fu";
 import { defaultIdGenerator, type IdGenerator } from "../../core/id";
 import {
@@ -14,6 +19,7 @@ import {
   generateMentsuSet,
   generatePairTile,
   pickAgariHai,
+  pickRonAgariHai,
 } from "../shared/hand-skeleton";
 
 /** 手牌符練習用の面子生成重み（20%順子, 50%刻子, 30%槓子） */
@@ -39,15 +45,6 @@ export function generateTehaiFuQuestion(
   const mentsuList = generateMentsuSet(tracker, TEHAI_FU_MENTSU_WEIGHTS);
   if (!mentsuList) return undefined;
 
-  const items: TehaiFuItem[] = mentsuList.map((result) => ({
-    id: idGen(),
-    tiles: [...result.mentsu.hais],
-    type: result.mentsu.type,
-    fu: result.fu,
-    isOpen: !!result.mentsu.furo,
-    originalMentsu: result.mentsu,
-  }));
-
   // 2. コンテキスト生成
   const bakaze = randomChoice(BAKAZE_OPTIONS);
   const jikaze = randomChoice(KAZEHAI);
@@ -55,6 +52,26 @@ export function generateTehaiFuQuestion(
   // 3. 雀頭を生成
   const headTile = generatePairTile(tracker);
   if (headTile === undefined) return undefined;
+
+  // 4. 和了状況を決める。ロンかツモかで刻子の明暗（＝符）が変わるため、
+  //    回答行の符を確定させる前に和了牌まで決めておく。
+  const isTsumo = randomBool(0.5);
+  const agariHai = isTsumo
+    ? pickAgariHai(mentsuList, headTile)
+    : pickRonAgariHai(mentsuList, headTile);
+  if (agariHai === undefined) return undefined;
+
+  // 5. 回答行を作る
+  const items: TehaiFuItem[] = mentsuList.map((result) => ({
+    id: idGen(),
+    tiles: [...result.mentsu.hais],
+    type: result.mentsu.type,
+    fu: mentsuFuInHand(result.mentsu, { agariHai, isTsumo }),
+    // 副露しているかどうか（手牌の右に晒して表示するか）。ロンで明刻に
+    // なった刻子は符の上では明でも、手牌では暗牌のまま並べる。
+    isOpen: !!result.mentsu.furo,
+    originalMentsu: result.mentsu,
+  }));
 
   items.push({
     id: idGen(),
@@ -64,7 +81,7 @@ export function generateTehaiFuQuestion(
     isOpen: false,
   });
 
-  // 4. Tehai14 を構築
+  // 6. Tehai14 を構築
   const closed: HaiKindId[] = [];
   const exposed: CompletedMentsu[] = [];
 
@@ -76,12 +93,10 @@ export function generateTehaiFuQuestion(
     }
   }
 
-  const agariHai = pickAgariHai(mentsuList, headTile);
-
   const tehai = finalizeTehai14(closed, exposed);
   if (tehai === undefined) return undefined;
 
-  // 5. 回答行（items）を手牌の表示順に並べ替える。
+  // 7. 回答行（items）を手牌の表示順に並べ替える。
   //    手牌は「昇順ソート済みの暗牌 → 副露（右側）」で表示されるため、
   //    暗牌側の面子・雀頭を牌の昇順で、続けて副露を tehai.exposed の順に並べる。
   //    これにより回答行が手牌の左から右の見た目と対応する。
@@ -90,9 +105,28 @@ export function generateTehaiFuQuestion(
   return {
     id: idGen(),
     tehai,
-    context: { bakaze, jikaze, agariHai, isTsumo: randomBool(0.5) },
+    context: { bakaze, jikaze, agariHai, isTsumo },
     items: orderedItems,
   };
+}
+
+/**
+ * 和了状況を織り込んだ、その面子の符
+ * 面子符（和了状況込み）
+ *
+ * 面子は和了牌が決まる前に生成されるため、生成時点の符は「ロンで完成した
+ * 刻子は明刻」の読み替えを含まない。符を答えさせる以上、ここで取り直す。
+ */
+function mentsuFuInHand(
+  mentsu: CompletedMentsu,
+  context: { readonly agariHai: HaiKindId; readonly isTsumo: boolean },
+): number {
+  if (mentsu.type === MentsuType.Shuntsu) return 0;
+  return calculateMentsuFu({
+    isKantsu: mentsu.type === MentsuType.Kantsu,
+    isOpen: isOpenMentsuForFu(mentsu, context),
+    isYaochu: isYaochu(mentsu.hais[0]),
+  });
 }
 
 /** その要素が手牌上で副露（右側）として表示されるか */

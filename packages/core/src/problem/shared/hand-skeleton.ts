@@ -145,11 +145,32 @@ export function generatePairTile(
 }
 
 /**
+ * 和了牌の候補（雀頭2枚と暗面子の牌）を列挙する
+ * 和了牌候補
+ *
+ * 副露牌は鳴いた時点で確定しており、アンカンは4枚すべて使い切るため、
+ * どちらも5枚目以降が存在せず和了牌にはなり得ない。
+ */
+function agariHaiCandidates(
+  mentsuList: readonly MentsuResult[],
+  pairTile: HaiKindId,
+): HaiKindId[] {
+  const candidates: HaiKindId[] = [pairTile, pairTile];
+  for (const r of mentsuList) {
+    const isOpen = !!r.mentsu.furo;
+    if (!isOpen && r.mentsu.type !== MentsuType.Kantsu) {
+      candidates.push(...r.mentsu.hais);
+    }
+  }
+  return candidates;
+}
+
+/**
  * 和了牌を手牌から選択する
  * 和了牌選択
  *
- * 副露牌は鳴いた時点で確定しており、アンカンは4枚すべて使い切るため、
- * どちらも5枚目以降が存在せず和了牌にはなり得ない。雀頭と暗面子（槓子以外）からのみ選ぶ。
+ * ツモ和了、または和了牌が符に影響しない練習向け。ロン和了の符を問う
+ * 出題では {@link pickRonAgariHai} を使うこと。
  *
  * @param mentsuList - 生成済みの面子（雀頭は含まない）
  * @param pairTile - 雀頭の牌種
@@ -158,12 +179,44 @@ export function pickAgariHai(
   mentsuList: readonly MentsuResult[],
   pairTile: HaiKindId,
 ): HaiKindId {
-  const candidates: HaiKindId[] = [pairTile, pairTile];
+  return randomChoice(agariHaiCandidates(mentsuList, pairTile));
+}
+
+/**
+ * ロン和了の和了牌を、符が一意に決まる牌に限って選択する
+ * ロン和了牌選択
+ *
+ * ロンで完成した刻子は明刻として数えるため、同じ牌種が暗刻と暗順子の
+ * 両方にある手（例: 二索の暗刻 + 一二三索）でロン牌をその牌種にすると、
+ * 「順子を完成させた（暗刻のまま4符）」とも「刻子を完成させた（明刻で2符）」
+ * とも読めて正解が定まらない。この曖昧な牌種を候補から外す。
+ *
+ * 候補が残らない手は出題として成立しないため undefined を返す（呼び出し側は
+ * 手牌ごと生成し直す）。曖昧になるのは暗刻の牌種だけで、その牌種は雀頭には
+ * 使えない（5枚目になる）ため、実際には雀頭が候補として必ず残る。
+ *
+ * @param mentsuList - 生成済みの面子（雀頭は含まない）
+ * @param pairTile - 雀頭の牌種
+ */
+export function pickRonAgariHai(
+  mentsuList: readonly MentsuResult[],
+  pairTile: HaiKindId,
+): HaiKindId | undefined {
+  const closedGroups = mentsuList
+    .filter((r) => !r.mentsu.furo && r.mentsu.type !== MentsuType.Kantsu)
+    .map((r) => r.mentsu.hais);
+
+  const ambiguous = new Set<HaiKindId>();
   for (const r of mentsuList) {
-    const isOpen = !!r.mentsu.furo;
-    if (!isOpen && r.mentsu.type !== MentsuType.Kantsu) {
-      candidates.push(...r.mentsu.hais);
-    }
+    if (r.mentsu.furo || r.mentsu.type !== MentsuType.Koutsu) continue;
+    const tile = r.mentsu.hais[0];
+    const groups = closedGroups.filter((hais) => hais.includes(tile)).length;
+    if (groups > 1) ambiguous.add(tile);
   }
+
+  const candidates = agariHaiCandidates(mentsuList, pairTile).filter(
+    (t) => !ambiguous.has(t),
+  );
+  if (candidates.length === 0) return undefined;
   return randomChoice(candidates);
 }
