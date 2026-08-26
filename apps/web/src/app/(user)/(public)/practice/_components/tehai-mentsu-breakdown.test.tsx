@@ -61,18 +61,16 @@ const CONTEXT = {
 } as const;
 
 describe("TehaiMentsuBreakdown", () => {
-  it("既定は閉じており、トグルで4面子1雀頭が開く", () => {
+  it("リンクを押すとモーダルで4面子1雀頭が開く", () => {
     render(<TehaiMentsuBreakdown tehai={MENTSU_TEHAI} context={CONTEXT} />);
 
-    const toggle = screen.getByRole("button", {
-      name: "mentsuBreakdownShow",
-    });
-    expect(toggle.getAttribute("aria-expanded")).toBe("false");
+    // 既定はモーダルが閉じており、牌は描画されない
+    expect(screen.queryByRole("dialog")).toBeNull();
     expect(screen.queryAllByTestId("hai")).toHaveLength(0);
 
-    fireEvent.click(toggle);
+    fireEvent.click(screen.getByRole("button", { name: "mentsuBreakdown" }));
 
-    expect(toggle.getAttribute("aria-expanded")).toBe("true");
+    expect(screen.getByRole("dialog")).toBeTruthy();
     // 手牌14枚が過不足なく描画される
     expect(screen.getAllByTestId("hai")).toHaveLength(14);
     // 4面子（順子3 + 刻子1）と雀頭のラベル
@@ -81,7 +79,16 @@ describe("TehaiMentsuBreakdown", () => {
     expect(screen.getAllByText("jantou")).toHaveLength(1);
   });
 
-  it("変則手（七対子）ではトグルごと描画しない", () => {
+  it("閉じるボタンでモーダルが閉じる", () => {
+    render(<TehaiMentsuBreakdown tehai={MENTSU_TEHAI} context={CONTEXT} />);
+
+    fireEvent.click(screen.getByRole("button", { name: "mentsuBreakdown" }));
+    fireEvent.click(screen.getByRole("button", { name: "close" }));
+
+    expect(screen.queryByRole("dialog")).toBeNull();
+  });
+
+  it("変則手（七対子）では導線ごと描画しない", () => {
     const { container } = render(
       <TehaiMentsuBreakdown
         tehai={CHIITOI_TEHAI}
