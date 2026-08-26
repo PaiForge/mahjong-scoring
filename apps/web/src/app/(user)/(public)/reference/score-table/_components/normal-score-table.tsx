@@ -23,7 +23,8 @@ interface NormalScoreTableProps {
   /** ハイライト対象セル（翻の列 × 符の行）。未指定ならハイライトなし */
   readonly highlight: NormalCellHighlight | undefined;
   readonly highlightRef: RefObject<HTMLTableCellElement | null>;
-  readonly onToggleCell: (id: string) => void;
+  /** セルタップでのぼかし切り替え。省略時はセルを非インタラクティブにする */
+  readonly onToggleCell: ((id: string) => void) | undefined;
 }
 
 /**
@@ -108,12 +109,19 @@ export function NormalScoreTable({
                 ? " bg-blue-100 ring-2 ring-inset ring-blue-500"
                 : "";
 
+              const interactiveClass =
+                onToggleCell === undefined ? "" : " cursor-pointer select-none";
+
               return (
                 <td
                   key={han}
                   ref={isHighlighted ? highlightRef : undefined}
-                  className={`px-4 py-3 cursor-pointer select-none${highlightClass}`}
-                  onClick={() => onToggleCell(cellId)}
+                  className={`px-4 py-3${interactiveClass}${highlightClass}`}
+                  onClick={
+                    onToggleCell === undefined
+                      ? undefined
+                      : () => onToggleCell(cellId)
+                  }
                 >
                   <span
                     className={`font-semibold text-primary-600 ${

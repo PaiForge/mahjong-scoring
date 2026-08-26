@@ -35,6 +35,11 @@ interface ScoreTableProps {
   readonly initialRole?: Role;
   /** focus なしでタブ初期値だけ指定する場合のロン/ツモ */
   readonly initialWinType?: WinType;
+  /**
+   * セルタップでのぼかし切り替え（暗記用）を有効にするか。
+   * 答え合わせの参照用モーダルでは誤タップで数字が消えないよう無効にする。
+   */
+  readonly blurToggleEnabled?: boolean;
 }
 
 /**
@@ -50,6 +55,7 @@ export function ScoreTable({
   focus,
   initialRole = "ko",
   initialWinType = "ron",
+  blurToggleEnabled = true,
 }: ScoreTableProps) {
   const t = useTranslations("scoreTable");
   const highlightRef = useRef<HTMLTableCellElement>(null);
@@ -170,7 +176,7 @@ export function ScoreTable({
             hiddenCells={hiddenCells}
             highlight={isFocusView ? focusTarget.normalCell : undefined}
             highlightRef={highlightRef}
-            onToggleCell={toggleCell}
+            onToggleCell={blurToggleEnabled ? toggleCell : undefined}
           />
         ) : (
           <HighScoreTable
@@ -179,7 +185,7 @@ export function ScoreTable({
             hiddenCells={hiddenCells}
             highlightKey={isFocusView ? focusTarget.highScoreKey : undefined}
             highlightRef={highlightRef}
-            onToggleCell={toggleCell}
+            onToggleCell={blurToggleEnabled ? toggleCell : undefined}
           />
         )}
       </div>

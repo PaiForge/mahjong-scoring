@@ -17,7 +17,8 @@ interface HighScoreTableProps {
   /** ハイライト対象の区分キー（HIGH_SCORES の nameKey）。未指定ならハイライトなし */
   readonly highlightKey: string | undefined;
   readonly highlightRef: RefObject<HTMLTableCellElement | null>;
-  readonly onToggleCell: (id: string) => void;
+  /** セルタップでのぼかし切り替え。省略時はセルを非インタラクティブにする */
+  readonly onToggleCell: ((id: string) => void) | undefined;
 }
 
 /**
@@ -73,8 +74,14 @@ export function HighScoreTable({
               {t("hanSuffix")}
             </td>
             <td
-              className="px-4 py-3 text-right cursor-pointer select-none"
-              onClick={() => onToggleCell(cellId)}
+              className={`px-4 py-3 text-right${
+                onToggleCell === undefined ? "" : " cursor-pointer select-none"
+              }`}
+              onClick={
+                onToggleCell === undefined
+                  ? undefined
+                  : () => onToggleCell(cellId)
+              }
             >
               <span
                 className={`font-semibold text-primary-600 ${

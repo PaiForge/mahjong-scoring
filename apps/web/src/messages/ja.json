@@ -697,7 +697,8 @@
         "roundUp": "切り上げ"
       },
       "next": "次の問題へ",
-      "pointSuffix": "点"
+      "pointSuffix": "点",
+      "viewScoreTable": "点数表で確認する"
     },
     "yaku": {
       "riichi": "立直",
