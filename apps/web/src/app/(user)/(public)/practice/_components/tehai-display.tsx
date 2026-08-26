@@ -22,8 +22,8 @@ import { resolveDoraTiles } from "@/app/_lib/dora-display";
  * ドラは常に「表示牌」で受け取る。表示牌のまま出すか、ドラそのものへ
  * 読み替えて出すかは表示設定で決まる。
  */
-/** 牌を含まない状況行の高さ（px）。text-sm の行送り */
-const TEXT_ROW_HEIGHT = 20;
+/** 牌を含まない状況行の高さ（px）。リーチ棒とその名札が収まる高さ */
+const TEXT_ROW_HEIGHT = 22;
 
 export type TehaiContext = AgariContext & {
   readonly isRiichi?: boolean;
