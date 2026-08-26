@@ -24,25 +24,36 @@ function renderShell(props: Partial<Parameters<typeof TrainingShell>[0]> = {}) {
   );
 }
 
-describe("TrainingShell スキップ", () => {
-  it("onSkip 指定時はスキップリンクを表示し、クリックで呼ぶ", () => {
-    const onSkip = vi.fn();
-    renderShell({ onSkip });
-    const skip = screen.getByRole("button", { name: "skipButton" });
-    fireEvent.click(skip);
-    expect(onSkip).toHaveBeenCalledTimes(1);
+describe("TrainingShell わからない（正解開示）", () => {
+  it("onReveal 指定時は「わからない」リンクを表示し、クリックで呼ぶ", () => {
+    const onReveal = vi.fn();
+    renderShell({ onReveal });
+    const reveal = screen.getByRole("button", { name: "revealButton" });
+    fireEvent.click(reveal);
+    expect(onReveal).toHaveBeenCalledTimes(1);
   });
 
-  it("onSkip 未指定時はスキップを表示しない", () => {
+  it("onReveal 未指定時は「わからない」を表示しない", () => {
     renderShell();
-    expect(screen.queryByRole("button", { name: "skipButton" })).toBeNull();
+    expect(screen.queryByRole("button", { name: "revealButton" })).toBeNull();
   });
 
-  it("skipDisabled 時はスキップを無効化する", () => {
-    const onSkip = vi.fn();
-    renderShell({ onSkip, skipDisabled: true });
-    const skip = screen.getByRole("button", { name: "skipButton" });
-    expect((skip as HTMLButtonElement).disabled).toBe(true);
+  it("revealDisabled 時は「わからない」を無効化する", () => {
+    const onReveal = vi.fn();
+    renderShell({ onReveal, revealDisabled: true });
+    const reveal = screen.getByRole("button", { name: "revealButton" });
+    expect((reveal as HTMLButtonElement).disabled).toBe(true);
+  });
+
+  it("開示中は同じ位置に「次の問題へ」を出し、クリックで onProceed を呼ぶ", () => {
+    const onReveal = vi.fn();
+    const onProceed = vi.fn();
+    renderShell({ onReveal, isRevealed: true, onProceed });
+
+    expect(screen.queryByRole("button", { name: "revealButton" })).toBeNull();
+    fireEvent.click(screen.getByRole("button", { name: "nextButton" }));
+    expect(onProceed).toHaveBeenCalledTimes(1);
+    expect(onReveal).not.toHaveBeenCalled();
   });
 });
 

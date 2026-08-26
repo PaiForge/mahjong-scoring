@@ -44,6 +44,7 @@ function ScorePracticeBoardInner() {
     generateNewQuestion,
     submitAnswer,
     nextQuestion,
+    revealAnswer,
   } = useScorePracticeStore();
 
   const isClient = useIsClient();
@@ -84,6 +85,12 @@ function ScorePracticeBoardInner() {
   const handleNext = useCallback(() => {
     nextQuestion();
   }, [nextQuestion]);
+
+  // 「わからない」: 無回答のまま正解を開示する（統計には入らない）。
+  // 旧仕様のスキップ（開示なしで次問題へ）は、開示後の「次の問題へ」連打で代替できる
+  const handleReveal = useCallback(() => {
+    revealAnswer();
+  }, [revealAnswer]);
 
   const handleSubmit = useCallback(
     (answer: UserAnswer) => {
@@ -134,8 +141,8 @@ function ScorePracticeBoardInner() {
           />
         )}
 
-        {/* Answer area */}
-        {isAnswered && userAnswer && judgementResult ? (
+        {/* Answer area（開示時は userAnswer / judgementResult なしで結果表示を出す） */}
+        {isAnswered ? (
           <ResultDisplay
             question={currentQuestion}
             userAnswer={userAnswer}
@@ -155,7 +162,7 @@ function ScorePracticeBoardInner() {
             requireYaku={requireYaku}
             simplifyMangan={simplifyMangan}
             requireFuForMangan={requireFuForMangan}
-            onSkip={handleNext}
+            onReveal={handleReveal}
           />
         )}
 

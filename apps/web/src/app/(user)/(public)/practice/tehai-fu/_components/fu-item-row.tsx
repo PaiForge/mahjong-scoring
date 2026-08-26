@@ -12,6 +12,13 @@ interface FuItemRowProps {
   readonly item: TehaiFuItem;
   readonly answer: string;
   readonly showFeedback: boolean;
+  /**
+   * 「わからない」で正解を開示中か
+   *
+   * 無回答のまま showFeedback が立つため、そのままだと全行が誤答の赤になる。
+   * 開示中は誤答の演出を出さず、正解の符だけを示す。
+   */
+  readonly isRevealed?: boolean;
   readonly isCountingDown: boolean;
   readonly onSelect: (index: number, value: string) => void;
   readonly tileScale?: number;
@@ -26,14 +33,15 @@ export const FuItemRow = memo(function FuItemRowComponent({
   item,
   answer,
   showFeedback,
+  isRevealed = false,
   isCountingDown,
   onSelect,
   tileScale,
 }: FuItemRowProps) {
   const t = useTranslations("tehaiFu");
   const answerNum = answer ? parseInt(answer) : undefined;
-  const isCorrect = showFeedback && answerNum === item.fu;
-  const isWrong = showFeedback && answerNum !== item.fu;
+  const isCorrect = showFeedback && !isRevealed && answerNum === item.fu;
+  const isWrong = showFeedback && !isRevealed && answerNum !== item.fu;
 
   const handleButtonClick = useCallback(
     (value: number) => {
@@ -72,18 +80,22 @@ export const FuItemRow = memo(function FuItemRowComponent({
   return (
     <div
       className={`space-y-2.5 rounded-xl border bg-white p-3 ${
-        showFeedback
-          ? isCorrect
+        !showFeedback || isRevealed
+          ? "border-surface-200"
+          : isCorrect
             ? "border-primary-500 bg-primary-50"
             : "border-destructive bg-destructive-subtle"
-          : "border-surface-200"
       }`}
     >
       {/* 面子の牌（左）と、誤答時の正解表示（右） */}
       <div className="flex min-w-0 items-center gap-2">
         {renderItemTiles()}
-        {isWrong && (
-          <span className="ml-auto shrink-0 text-xs font-bold text-destructive">
+        {(isWrong || isRevealed) && (
+          <span
+            className={`ml-auto shrink-0 text-xs font-bold ${
+              isRevealed ? "text-surface-600" : "text-destructive"
+            }`}
+          >
             {t("correctAnswer", { fu: item.fu })}
           </span>
         )}
@@ -99,7 +111,13 @@ export const FuItemRow = memo(function FuItemRowComponent({
             "rounded-lg border py-2.5 text-sm font-bold transition-colors";
 
           // bg-*-50 で統一（feedback-styles.ts や他練習の行ボーダーと一致させる）
-          if (showFeedback && isSelected) {
+          // 開示中は選択が無いため、正解の符のボタンを正解色で示す
+          if (isRevealed) {
+            buttonClass +=
+              opt === item.fu
+                ? " border-primary-500 bg-primary-50 text-primary-700"
+                : " border-surface-200 bg-white text-surface-600";
+          } else if (showFeedback && isSelected) {
             buttonClass += isCorrect
               ? " border-primary-500 bg-primary-50 text-primary-700"
               : " border-destructive bg-destructive-subtle text-destructive-strong";

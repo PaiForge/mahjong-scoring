@@ -24,7 +24,8 @@ interface ScorePracticeAnswerFormProps {
   readonly requireYaku?: boolean;
   readonly simplifyMangan?: boolean;
   readonly requireFuForMangan?: boolean;
-  readonly onSkip?: () => void;
+  /** 「わからない」操作（無回答のまま正解を開示する）。指定時のみリンクを出す */
+  readonly onReveal?: () => void;
 }
 
 /**
@@ -39,7 +40,7 @@ export function ScorePracticeAnswerForm({
   requireYaku = false,
   simplifyMangan = false,
   requireFuForMangan = false,
-  onSkip,
+  onReveal,
 }: ScorePracticeAnswerFormProps) {
   const t = useTranslations("score");
   const [han, setHan] = useState<number | undefined>(undefined);
@@ -250,11 +251,11 @@ export function ScorePracticeAnswerForm({
         {t("form.buttons.answer")}
       </Button>
 
-      {/* Skip */}
-      {onSkip && (
+      {/* Reveal（わからない）: 無回答のまま正解を開示する */}
+      {onReveal && (
         <PracticeFooterActions>
-          <PracticeFooterAction onClick={onSkip}>
-            {t("form.buttons.skip")}
+          <PracticeFooterAction onClick={onReveal}>
+            {t("form.buttons.reveal")}
           </PracticeFooterAction>
         </PracticeFooterActions>
       )}

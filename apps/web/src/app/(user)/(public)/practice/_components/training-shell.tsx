@@ -27,12 +27,21 @@ interface TrainingShellProps {
   /** 内部ラッパーの max-w クラス（既定: "max-w-md"） */
   readonly maxWidth?: string;
   /**
-   * 「スキップ」操作。指定時のみ、終了リンクの上にスキップリンクを表示する
-   * （無回答で次問題へ進む練習向け）。
+   * 「わからない」操作。指定時のみ、終了リンクの上に正解開示リンクを表示する
+   * （無回答で正解を開いてから次問題へ進む練習向け）。
    */
-  readonly onSkip?: () => void;
-  /** スキップを一時的に無効化する（フィードバック表示中など） */
-  readonly skipDisabled?: boolean;
+  readonly onReveal?: () => void;
+  /** 「わからない」を一時的に無効化する（フィードバック表示中・出題の生成待ちなど） */
+  readonly revealDisabled?: boolean;
+  /**
+   * 正解開示中。「わからない」と同じ位置に「次の問題へ」を表示する
+   *
+   * 位置を変えないのは、連続で開示して流したいとき（引き直し用途）に
+   * 同じ場所の連打で済ませるため。
+   */
+  readonly isRevealed?: boolean;
+  /** 開示状態から次問題へ進む（isRevealed 中のリンクが呼ぶ） */
+  readonly onProceed?: () => void;
 }
 
 /**
@@ -49,8 +58,10 @@ export function TrainingShell({
   exitHref,
   children,
   maxWidth = "max-w-md",
-  onSkip,
-  skipDisabled = false,
+  onReveal,
+  revealDisabled = false,
+  isRevealed = false,
+  onProceed,
 }: TrainingShellProps) {
   const tc = useTranslations("challenge");
   const tt = useTranslations("training");
@@ -81,13 +92,21 @@ export function TrainingShell({
           incorrectLabel={tc("incorrect")}
         />
 
-        {/* Skip / Exit: 参考プロジェクトに倣い、スコア下にまとめて縦に並べる */}
+        {/* Reveal / Exit: 参考プロジェクトに倣い、スコア下にまとめて縦に並べる */}
         <PracticeFooterActions>
-          {onSkip && (
-            <PracticeFooterAction onClick={onSkip} disabled={skipDisabled}>
-              {tt("skipButton")}
-            </PracticeFooterAction>
-          )}
+          {onReveal &&
+            (isRevealed ? (
+              <PracticeFooterAction onClick={() => onProceed?.()}>
+                {tt("nextButton")}
+              </PracticeFooterAction>
+            ) : (
+              <PracticeFooterAction
+                onClick={onReveal}
+                disabled={revealDisabled}
+              >
+                {tt("revealButton")}
+              </PracticeFooterAction>
+            ))}
           <PracticeFooterAction href={exitHref} onClick={handleExit}>
             {tt("exitButton")}
           </PracticeFooterAction>

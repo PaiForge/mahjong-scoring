@@ -17,7 +17,7 @@ interface ScorePracticeState {
   judgementResult: JudgementResult | undefined;
   /** 回答済みかどうか */
   isAnswered: boolean;
-  /** 出題ごとに増える連番。回答フォームの key に使い、スキップ時も入力をクリアする */
+  /** 出題ごとに増える連番。回答フォームの key に使い、次問題への遷移で入力をクリアする */
   questionSeq: number;
   /** 問題生成オプション */
   options: QuestionGeneratorOptions;
@@ -40,6 +40,13 @@ interface ScorePracticeActions {
   ) => void;
   /** 次の問題へ */
   nextQuestion: () => void;
+  /**
+   * 無回答のまま正解を開示する（「わからない」）
+   *
+   * 回答ではないため統計（total / correct）には含めない。
+   * 開示後は回答時と同じ結果表示から「次の問題へ」で進む。
+   */
+  revealAnswer: () => void;
   /** 統計をリセット */
   resetStats: () => void;
   /** オプションを更新 */
@@ -117,6 +124,16 @@ export const useScorePracticeStore = create<ScorePracticeStore>((set, get) => ({
 
   nextQuestion: () => {
     get().generateNewQuestion();
+  },
+
+  revealAnswer: () => {
+    const { currentQuestion, isAnswered } = get();
+    if (!currentQuestion || isAnswered) return;
+    set({
+      userAnswer: undefined,
+      judgementResult: undefined,
+      isAnswered: true,
+    });
   },
 
   resetStats: () => {

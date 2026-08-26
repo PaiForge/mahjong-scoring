@@ -5,6 +5,8 @@ import { QuestionGeneratingPlaceholder } from "../../_components/question-genera
 import { useTranslations } from "next-intl";
 import { useRuleSettingsStore } from "@/app/_hooks/use-rule-settings-store";
 import { FeedbackFrame } from "../../_components/feedback-frame";
+import { RevealedScoreAnswer } from "../../_components/revealed-score-answer";
+import { paymentToScoreTableAnswer } from "../../_lib/payment-adapter";
 import { useScoreQuestionBoard } from "../../_hooks/use-score-question-board";
 import { QuestionDisplay } from "../../score/_components/question-display";
 import { ScoreCalculationAnswerForm } from "./score-calculation-answer-form";
@@ -36,12 +38,13 @@ export function ScoreCalculationBoard({
     [renfonpaiAs4Fu, kiriageMangan],
   );
 
-  const { question, questionIndex, handleSubmit } = useScoreQuestionBoard({
-    generateOptions,
-    showFeedback,
-    onAnswer,
-    onRecordResult,
-  });
+  const { question, questionIndex, handleSubmit, isRevealed } =
+    useScoreQuestionBoard({
+      generateOptions,
+      showFeedback,
+      onAnswer,
+      onRecordResult,
+    });
 
   if (!question) {
     return <QuestionGeneratingPlaceholder label={t("generating")} />;
@@ -55,6 +58,13 @@ export function ScoreCalculationBoard({
         lastAnswerCorrect={lastAnswerCorrect}
       >
         <QuestionDisplay question={question} />
+
+        {isRevealed && (
+          <RevealedScoreAnswer
+            answer={paymentToScoreTableAnswer(question.answer.payment)}
+            translationNamespace="scoreCalculationChallenge"
+          />
+        )}
       </FeedbackFrame>
 
       {/* Answer form */}

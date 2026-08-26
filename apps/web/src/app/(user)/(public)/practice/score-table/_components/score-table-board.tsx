@@ -7,6 +7,8 @@ import type {
   ScoreTableUserAnswer,
 } from "@mahjong-scoring/core";
 import { FeedbackFrame } from "../../_components/feedback-frame";
+import { RevealedScoreAnswer } from "../../_components/revealed-score-answer";
+import { useTrainingReveal } from "../../_hooks/use-training-reveal";
 import { ScoreTablePrompt } from "./score-table-prompt";
 import { ScoreTableAnswerForm } from "./score-table-answer-form";
 import type { ScoreTableQuestionResult } from "../_lib/types";
@@ -36,6 +38,8 @@ export function ScoreTableBoard({
   onAnswer,
   onRecordResult,
 }: ScoreTableBoardProps) {
+  const isRevealed = useTrainingReveal(onAdvance);
+
   const handleSubmit = useCallback(
     (userAnswer: ScoreTableUserAnswer) => {
       if (showFeedback) return;
@@ -73,6 +77,13 @@ export function ScoreTableBoard({
           han={question.han}
           fu={question.fu}
         />
+
+        {isRevealed && (
+          <RevealedScoreAnswer
+            answer={question.correctAnswer}
+            translationNamespace="scoreTableChallenge"
+          />
+        )}
       </FeedbackFrame>
 
       {/* Answer form */}

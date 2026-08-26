@@ -16,6 +16,7 @@ import { YakuChip, getChipFeedbackState } from "./yaku-chip";
 import { QuestionGeneratingPlaceholder } from "../../_components/question-generating-placeholder";
 import { QuestionPrompt } from "../../_components/question-prompt";
 import { useClientGeneratedQuestion } from "../../_hooks/use-client-generated-question";
+import { useTrainingReveal } from "../../_hooks/use-training-reveal";
 import type { PracticeBoardProps } from "../../_lib/practice-board-props";
 
 function generateQuestion(): YakuQuestion | undefined {
@@ -47,6 +48,8 @@ export function YakuBoard({
     setQuestion(generateQuestion());
     setSelectedYaku(new Set());
   }, [setQuestion]);
+
+  useTrainingReveal(question === undefined ? undefined : advanceQuestion);
 
   const handleToggleYaku = useCallback(
     (yakuName: string) => {

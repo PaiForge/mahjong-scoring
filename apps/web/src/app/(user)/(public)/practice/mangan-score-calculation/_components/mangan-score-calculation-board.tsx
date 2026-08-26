@@ -4,6 +4,8 @@ import { useMemo } from "react";
 import { QuestionGeneratingPlaceholder } from "../../_components/question-generating-placeholder";
 import { useTranslations } from "next-intl";
 import { FeedbackFrame } from "../../_components/feedback-frame";
+import { RevealedScoreAnswer } from "../../_components/revealed-score-answer";
+import { paymentToScoreTableAnswer } from "../../_lib/payment-adapter";
 import { useScoreQuestionBoard } from "../../_hooks/use-score-question-board";
 import { QuestionDisplay } from "../../score/_components/question-display";
 import { YakuListDisplay } from "./yaku-list-display";
@@ -45,12 +47,13 @@ export function ManganScoreCalculationBoard({
     [playerType],
   );
 
-  const { question, questionIndex, handleSubmit } = useScoreQuestionBoard({
-    generateOptions,
-    showFeedback,
-    onAnswer,
-    onRecordResult,
-  });
+  const { question, questionIndex, handleSubmit, isRevealed } =
+    useScoreQuestionBoard({
+      generateOptions,
+      showFeedback,
+      onAnswer,
+      onRecordResult,
+    });
 
   if (!question) {
     return <QuestionGeneratingPlaceholder label={t("generating")} />;
@@ -64,6 +67,13 @@ export function ManganScoreCalculationBoard({
         lastAnswerCorrect={lastAnswerCorrect}
       >
         <QuestionDisplay question={question} />
+
+        {isRevealed && (
+          <RevealedScoreAnswer
+            answer={paymentToScoreTableAnswer(question.answer.payment)}
+            translationNamespace="manganScoreCalculationChallenge"
+          />
+        )}
       </FeedbackFrame>
 
       {/* Yaku list */}

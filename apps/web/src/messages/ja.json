@@ -262,7 +262,8 @@
   "training": {
     "modeLabel": "トレーニング",
     "startButton": "トレーニング",
-    "skipButton": "スキップ",
+    "revealButton": "わからない",
+    "nextButton": "次の問題へ",
     "exitButton": "終了する",
     "exitToast": "練習を終了しました"
   },
@@ -469,7 +470,6 @@
     "description": "手牌全体の面子構成・雀頭から、各要素の符を漏れなく回答する総合練習",
     "pair": "雀頭",
     "checkButton": "答え合わせ",
-    "skip": "スキップ",
     "nextQuestion": "次の問題へ",
     "fuSuffix": "{value}符",
     "correctAnswer": "正解: {fu}符",
@@ -670,7 +670,7 @@
       },
       "buttons": {
         "answer": "回答する",
-        "skip": "スキップ"
+        "reveal": "わからない"
       },
       "multiSelect": {
         "add": "役を追加",
@@ -686,7 +686,8 @@
     "result": {
       "title": {
         "correct": "正解！",
-        "incorrect": "不正解..."
+        "incorrect": "不正解...",
+        "revealed": "答え合わせ"
       },
       "headers": {
         "answer": "あなたの回答",
@@ -1356,6 +1357,8 @@
     "han": "{count}翻",
     "fu": "{count}符",
     "selectScore": "点数を選択",
+    "revealedAnswer": "正解: {answer}",
+    "pointSuffix": "点",
     "fromKo": "子から",
     "fromOya": "親から",
     "all": "オール",
@@ -1401,6 +1404,8 @@
     "fromOya": "親から",
     "all": "オール",
     "answer": "回答する",
+    "revealedAnswer": "正解: {answer}",
+    "pointSuffix": "点",
     "generating": "問題を生成中...",
     "howToPlay": {
       "title": "問題方式",
@@ -1477,6 +1482,8 @@
     "fromOya": "親から",
     "all": "オール",
     "answer": "回答する",
+    "revealedAnswer": "正解: {answer}",
+    "pointSuffix": "点",
     "generating": "問題を生成中...",
     "yakuListTitle": "成立役",
     "yakuHanSuffix": "{count}翻",

@@ -15,6 +15,7 @@ import { toScoreQuestionSnapshot } from "../_lib/score-question-result";
 import { paymentToScoreTableAnswer } from "../_lib/payment-adapter";
 import type { RecordingPracticeBoardProps } from "../_lib/practice-board-props";
 import { useGeneratedScoreQuestion } from "./use-generated-score-question";
+import { useTrainingReveal } from "./use-training-reveal";
 
 type GenerateOptions = Parameters<typeof generateValidScoreQuestion>[0];
 
@@ -32,6 +33,8 @@ interface UseScoreQuestionBoardResult {
   readonly question: ScoreQuestion | undefined;
   readonly questionIndex: number;
   readonly handleSubmit: (userAnswer: ScoreTableUserAnswer) => void;
+  /** 「わからない」で正解を開示中か（チャレンジでは常に false） */
+  readonly isRevealed: boolean;
 }
 
 /**
@@ -51,6 +54,10 @@ export function useScoreQuestionBoard({
 }: UseScoreQuestionBoardParams): UseScoreQuestionBoardResult {
   const { question, questionIndex, advanceQuestion } =
     useGeneratedScoreQuestion(generateOptions, maxRetries);
+
+  const isRevealed = useTrainingReveal(
+    question === undefined ? undefined : advanceQuestion,
+  );
 
   const handleSubmit = useCallback(
     (userAnswer: ScoreTableUserAnswer) => {
@@ -76,5 +83,5 @@ export function useScoreQuestionBoard({
     [showFeedback, question, onAnswer, advanceQuestion, onRecordResult],
   );
 
-  return { question, questionIndex, handleSubmit };
+  return { question, questionIndex, handleSubmit, isRevealed };
 }

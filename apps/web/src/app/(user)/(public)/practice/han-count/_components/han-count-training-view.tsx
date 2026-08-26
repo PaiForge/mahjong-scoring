@@ -12,9 +12,6 @@ export const HanCountTrainingView = createTrainingView<
   slug: "han-count",
   maxWidth: "max-w-2xl",
   useBoardState: () => useGeneratedScoreQuestion(),
-  // 出題の生成待ちは進める先が無いためスキップさせない
-  skipOf: ({ question, advanceQuestion }) =>
-    question === undefined ? undefined : advanceQuestion,
   renderBoard: ({ showFeedback, onAnswer }, _props, questionState) => (
     <HanCountBoard
       {...questionState}
