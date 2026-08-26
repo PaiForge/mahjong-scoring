@@ -16,8 +16,13 @@ interface TehaiMentsuBreakdownProps {
   readonly context: AgariContext;
 }
 
-/** 牌グループ1つ（面子 or 雀頭）とその種別ラベル */
-function TileGroup({
+/**
+ * 面子・雀頭1つ分の行
+ *
+ * 牌の並びを左、種別ラベルを右に置く。牌の枚数は面子により 2〜4 枚と
+ * 変わるため、牌側に槓子（4枚）分の幅を確保してラベルの左端を揃える。
+ */
+function TileRow({
   hais,
   label,
 }: {
@@ -25,8 +30,8 @@ function TileGroup({
   readonly label: string;
 }) {
   return (
-    <div className="flex flex-col items-center gap-1">
-      <div className="flex">
+    <div className="flex items-center gap-3">
+      <div className="flex w-hai-sm-x4 shrink-0">
         {hais.map((kindId, i) => (
           <Hai key={i} hai={kindId} size="sm" />
         ))}
@@ -89,15 +94,17 @@ export function TehaiMentsuBreakdown({
         title={t("mentsuBreakdown")}
         closeLabel={t("close")}
       >
-        <div className="flex flex-wrap gap-x-4 gap-y-3">
+        {/* 4面子を1行ずつ縦に積み、雀頭は最後に置く。面子から順に読ませ、
+            残りが雀頭だと分かる並びにする */}
+        <div className="flex flex-col gap-2">
           {structure.fourMentsu.map((mentsu, i) => (
-            <TileGroup
+            <TileRow
               key={i}
               hais={mentsu.hais}
               label={mentsuLabels[mentsu.type] ?? ""}
             />
           ))}
-          <TileGroup hais={structure.jantou.hais} label={t("jantou")} />
+          <TileRow hais={structure.jantou.hais} label={t("jantou")} />
         </div>
       </InfoModal>
     </div>
