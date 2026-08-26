@@ -85,7 +85,6 @@ export function ScoreHelpTour() {
         key: "question",
         title: t("help.slides.question.title"),
         caption: t("help.slides.question.caption"),
-        // 盤面は自前で枠を持ち、幅に合わせて牌を縮めるためそのまま置く
         node: <QuestionDisplay question={sample} />,
       },
       {
@@ -93,14 +92,12 @@ export function ScoreHelpTour() {
         title: t("help.slides.answer.title"),
         caption: t("help.slides.answer.caption"),
         node: (
-          <div className="rounded-xl border-3 border-ink bg-white p-4 sm:p-6">
-            <ScorePracticeAnswerForm
-              onSubmit={noop}
-              disabled
-              isTsumo={sample.isTsumo}
-              isOya={isOya(sample.jikaze)}
-            />
-          </div>
+          <ScorePracticeAnswerForm
+            onSubmit={noop}
+            disabled
+            isTsumo={sample.isTsumo}
+            isOya={isOya(sample.jikaze)}
+          />
         ),
       },
       {
@@ -108,14 +105,12 @@ export function ScoreHelpTour() {
         title: t("help.slides.result.title"),
         caption: t("help.slides.result.caption"),
         node: (
-          <div className="rounded-xl border-3 border-ink bg-white p-4 sm:p-6">
-            <ResultDisplay
-              question={sample}
-              userAnswer={buildCorrectAnswer(sample.answer)}
-              result={ALL_CORRECT}
-              onNext={noop}
-            />
-          </div>
+          <ResultDisplay
+            question={sample}
+            userAnswer={buildCorrectAnswer(sample.answer)}
+            result={ALL_CORRECT}
+            onNext={noop}
+          />
         ),
       },
     ];
