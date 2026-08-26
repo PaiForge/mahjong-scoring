@@ -17,7 +17,7 @@ interface ScorePracticeState {
   judgementResult: JudgementResult | undefined;
   /** 回答済みかどうか */
   isAnswered: boolean;
-  /** 出題ごとに増える連番。回答フォームの key に使い、スキップ時も入力をクリアする */
+  /** 出題ごとに増える連番。回答フォームの key に使い、次問題への遷移で入力をクリアする */
   questionSeq: number;
   /** 問題生成オプション */
   options: QuestionGeneratorOptions;

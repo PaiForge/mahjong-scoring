@@ -14,7 +14,7 @@ import type { RecordingPracticeBoardProps } from "../../_lib/practice-board-prop
 /**
  * 出題状態（{@link useGeneratedScoreQuestion} の戻り値）
  *
- * トレーニングのスキップはシェルのフッターから次問題へ進めるため、
+ * トレーニングの「わからない」はシェルのフッターから次問題へ進めるため、
  * 出題状態は盤面ではなく各ビューが持ち、盤面へは props で渡す。
  */
 export type HanCountQuestionState = ReturnType<

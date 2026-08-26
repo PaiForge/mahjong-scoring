@@ -5,7 +5,7 @@ import Link from "next/link";
 import { TEXT_LINK_MUTED_CLASSES } from "@/app/_components/_lib/link-classes";
 
 /**
- * 練習画面フッターの操作リンク1件（スキップ / 終了する / やめる）
+ * 練習画面フッターの操作リンク1件（わからない / 次の問題へ / 終了する / やめる）
  * 練習フッター操作
  *
  * 盤面の下に置く控えめなテキスト操作。`href` を渡すと `next/link` の
@@ -55,7 +55,7 @@ export function PracticeFooterAction(props: PracticeFooterActionProps) {
  * 練習画面フッターの操作リンクを縦に並べる枠
  * 練習フッター操作群
  *
- * 「スキップ」と「終了する」のように押し分けが必要な操作が並ぶため、
+ * 「わからない」と「終了する」のように押し分けが必要な操作が並ぶため、
  * タップ領域どうしの間に押し間違いを防ぐ余白（gap-3 = 12px）を必ず置く。
  * 練習ごとに余白を書き分けると同じ画面でも間隔がばらつくので、
  * フッター操作を出す箇所はすべてこれを通すこと。

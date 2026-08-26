@@ -470,7 +470,6 @@
     "description": "手牌全体の面子構成・雀頭から、各要素の符を漏れなく回答する総合練習",
     "pair": "雀頭",
     "checkButton": "答え合わせ",
-    "skip": "スキップ",
     "nextQuestion": "次の問題へ",
     "fuSuffix": "{value}符",
     "correctAnswer": "正解: {fu}符",
