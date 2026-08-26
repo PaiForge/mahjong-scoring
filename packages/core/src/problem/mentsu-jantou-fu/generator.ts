@@ -4,7 +4,7 @@ import {
   type HaiKindId,
   type CompletedMentsu,
 } from "@pai-forge/riichi-mahjong";
-import type { TehaiFuQuestion, TehaiFuItem } from "./types";
+import type { MentsuJantouFuQuestion, MentsuJantouFuItem } from "./types";
 import { BAKAZE_OPTIONS, KAZEHAI } from "../../core/constants";
 import { randomBool, randomChoice } from "../../core/random";
 import { HaiUsageTracker } from "../../core/hai-tracker";
@@ -22,27 +22,27 @@ import {
   pickRonAgariHai,
 } from "../shared/hand-skeleton";
 
-/** 手牌符練習用の面子生成重み（20%順子, 50%刻子, 30%槓子） */
-const TEHAI_FU_MENTSU_WEIGHTS = { shuntsu: 0.2, koutsu: 0.5 } as const;
+/** 面子と雀頭の符練習用の面子生成重み（20%順子, 50%刻子, 30%槓子） */
+const MENTSU_JANTOU_FU_WEIGHTS = { shuntsu: 0.2, koutsu: 0.5 } as const;
 
 /**
- * 手牌の符計算問題を生成する
- * 手牌符問題ジェネレータ
+ * 手牌のすべての面子と雀頭について、要素ごとの符を問う問題を生成する
+ * 面子・雀頭符問題ジェネレータ
  *
  * @param options.renfonpaiAs4Fu - 連風牌の雀頭を4符として扱うか（既定 false=2符）
  * @param options.idGen - 問題・回答行 ID の採番（既定 crypto.randomUUID）
  */
-export function generateTehaiFuQuestion(
+export function generateMentsuJantouFuQuestion(
   options: {
     readonly renfonpaiAs4Fu?: boolean;
     readonly idGen?: IdGenerator;
   } = {},
-): TehaiFuQuestion | undefined {
+): MentsuJantouFuQuestion | undefined {
   const { renfonpaiAs4Fu = false, idGen = defaultIdGenerator } = options;
   const tracker = new HaiUsageTracker();
 
   // 1. 4面子を生成
-  const mentsuList = generateMentsuSet(tracker, TEHAI_FU_MENTSU_WEIGHTS);
+  const mentsuList = generateMentsuSet(tracker, MENTSU_JANTOU_FU_WEIGHTS);
   if (!mentsuList) return undefined;
 
   // 2. コンテキスト生成
@@ -62,7 +62,7 @@ export function generateTehaiFuQuestion(
   if (agariHai === undefined) return undefined;
 
   // 5. 回答行を作る
-  const items: TehaiFuItem[] = mentsuList.map((result) => ({
+  const items: MentsuJantouFuItem[] = mentsuList.map((result) => ({
     id: idGen(),
     tiles: [...result.mentsu.hais],
     type: result.mentsu.type,
@@ -130,7 +130,7 @@ function mentsuFuInHand(
 }
 
 /** その要素が手牌上で副露（右側）として表示されるか */
-function isExposedItem(item: TehaiFuItem): boolean {
+function isExposedItem(item: MentsuJantouFuItem): boolean {
   return (
     (item.isOpen || item.type === MentsuType.Kantsu) && !!item.originalMentsu
   );
@@ -154,7 +154,9 @@ function compareTilesAsc(
  * 回答行を手牌の表示順（暗牌を牌の昇順 → 副露を生成順）に並べ替える
  * 手牌レイアウト整列
  */
-function orderItemsByHandLayout(items: readonly TehaiFuItem[]): TehaiFuItem[] {
+function orderItemsByHandLayout(
+  items: readonly MentsuJantouFuItem[],
+): MentsuJantouFuItem[] {
   const closedItems = items.filter((it) => !isExposedItem(it));
   const exposedItems = items.filter((it) => isExposedItem(it));
   closedItems.sort((a, b) => compareTilesAsc(a.tiles, b.tiles));

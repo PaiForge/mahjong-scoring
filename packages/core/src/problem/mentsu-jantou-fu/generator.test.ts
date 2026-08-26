@@ -1,17 +1,17 @@
 import { describe, it, expect } from "vitest";
 import { MentsuType, isYaochu } from "@pai-forge/riichi-mahjong";
-import { generateTehaiFuQuestion } from "./generator";
+import { generateMentsuJantouFuQuestion } from "./generator";
 import { expectGeneratesEventually, expectSampled } from "../../test/sampling";
-import type { TehaiFuItem } from "./types";
+import type { MentsuJantouFuItem } from "./types";
 
 /** その回答行が手牌の中の暗刻（副露していない刻子）か */
-function isClosedKoutsu(item: TehaiFuItem): boolean {
+function isClosedKoutsu(item: MentsuJantouFuItem): boolean {
   return item.type === MentsuType.Koutsu && !item.isOpen;
 }
 
-describe("generateTehaiFuQuestion", () => {
+describe("generateMentsuJantouFuQuestion", () => {
   it("試行すれば問題が生成される", () => {
-    expectGeneratesEventually(generateTehaiFuQuestion);
+    expectGeneratesEventually(generateMentsuJantouFuQuestion);
   });
 
   it("和了牌が槓子（カン）の牌種と一致しない", () => {
@@ -19,7 +19,7 @@ describe("generateTehaiFuQuestion", () => {
     // （例: 7筒アンカンなのに和了牌が7筒、という不正な問題を防ぐ回帰テスト）
     // 一方、暗刻＋チー等で同一牌種が手牌に4枚あっても和了は合法なので、
     // 「4枚あるか」ではなく「カンの牌種か」で判定する。
-    const questions = expectSampled(generateTehaiFuQuestion, {
+    const questions = expectSampled(generateMentsuJantouFuQuestion, {
       attempts: 2000,
       need: 2000,
     });
@@ -37,7 +37,7 @@ describe("generateTehaiFuQuestion", () => {
     // learn/tehai-fu「ロン牌を含む刻子の誤計上」で注意している形。
     // シャンポン待ちをロンした側の刻子は、手牌に2枚持っていても最後の1枚を
     // 他家から受けているため暗刻にはならない（中張牌なら4符ではなく2符）。
-    const questions = expectSampled(generateTehaiFuQuestion, {
+    const questions = expectSampled(generateMentsuJantouFuQuestion, {
       attempts: 3000,
       need: 3000,
     });
@@ -66,7 +66,7 @@ describe("generateTehaiFuQuestion", () => {
   it("ロン和了の和了牌は暗刻と暗順子に跨らない", () => {
     // 同じ牌種が暗刻と暗順子の両方にある手でその牌をロンすると、
     // どちらを完成させたかで刻子の符が 4 符とも 2 符とも読めてしまう。
-    const questions = expectSampled(generateTehaiFuQuestion, {
+    const questions = expectSampled(generateMentsuJantouFuQuestion, {
       attempts: 3000,
       need: 3000,
       where: (q) => !q.context.isTsumo,
@@ -88,7 +88,9 @@ describe("generateTehaiFuQuestion", () => {
   it("ID は注入した採番関数から取り、問題と回答行で重複しない", () => {
     // 採番を注入できるので、ID を含めて生成結果を決定的に検証できる。
     let seq = 0;
-    const question = generateTehaiFuQuestion({ idGen: () => `id-${seq++}` });
+    const question = generateMentsuJantouFuQuestion({
+      idGen: () => `id-${seq++}`,
+    });
 
     expect(question).toBeDefined();
     if (!question) return;

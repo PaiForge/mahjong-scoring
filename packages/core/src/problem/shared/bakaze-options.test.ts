@@ -3,7 +3,7 @@ import { BAKAZE_OPTIONS } from "../../core/constants";
 import { expectSampled } from "../../test/sampling";
 import { generateJantouFuQuestion } from "../jantou-fu/generator";
 import { generateScoreQuestion } from "../score/generator";
-import { generateTehaiFuQuestion } from "../tehai-fu/generator";
+import { generateMentsuJantouFuQuestion } from "../mentsu-jantou-fu/generator";
 import { generateTotalFuQuestion } from "../total-fu/generator";
 import { generateYakuQuestion } from "../yaku/generator";
 
@@ -16,7 +16,10 @@ import { generateYakuQuestion } from "../yaku/generator";
 describe("場風の候補", () => {
   const generators = [
     ["jantou-fu", () => generateJantouFuQuestion()?.context.bakaze],
-    ["tehai-fu", () => generateTehaiFuQuestion()?.context.bakaze],
+    [
+      "mentsu-jantou-fu",
+      () => generateMentsuJantouFuQuestion()?.context.bakaze,
+    ],
     ["total-fu", () => generateTotalFuQuestion()?.context.bakaze],
     ["yaku", () => generateYakuQuestion()?.context.bakaze],
     ["score", () => generateScoreQuestion()?.bakaze],
