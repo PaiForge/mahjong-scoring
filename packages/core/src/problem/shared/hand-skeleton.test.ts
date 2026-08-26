@@ -2,7 +2,12 @@ import { describe, expect, it } from "vitest";
 import { MentsuType, type HaiKindId } from "@pai-forge/riichi-mahjong";
 
 import { HaiUsageTracker } from "../../core/hai-tracker";
-import { generateMentsuSet, generatePairTile } from "./hand-skeleton";
+import {
+  generateMentsuSet,
+  generatePairTile,
+  pickRonAgariHai,
+} from "./hand-skeleton";
+import type { MentsuResult } from "../mentsu-fu/mentsu-factory";
 
 /** 34種すべてを4枚ずつ使い切ったトラッカー */
 function makeExhaustedTracker(): HaiUsageTracker {
@@ -102,5 +107,39 @@ describe("generateMentsuSet", () => {
         MentsuType.Kantsu,
       ]).toContain(mentsu.type);
     }
+  });
+});
+
+describe("pickRonAgariHai", () => {
+  /** 同じ牌種の暗刻と暗順子を含む面子リスト（二索の暗刻 + 一二三索） */
+  function ambiguousMentsuList(): MentsuResult[] {
+    return [
+      {
+        mentsu: { type: MentsuType.Koutsu, hais: [19, 19, 19] },
+        fu: 4,
+      },
+      {
+        mentsu: { type: MentsuType.Shuntsu, hais: [18, 19, 20] },
+        fu: 0,
+      },
+    ];
+  }
+
+  it("暗刻と暗順子に跨る牌種は和了牌に選ばない", () => {
+    const list = ambiguousMentsuList();
+    // 雀頭（一萬）と一二三索の一索・三索だけが候補に残る
+    for (let i = 0; i < 100; i++) {
+      expect(pickRonAgariHai(list, 0)).not.toBe(19);
+    }
+  });
+
+  it("跨らない暗刻の牌種は和了牌に選ばれうる（シャンポン待ち）", () => {
+    const list: MentsuResult[] = [
+      { mentsu: { type: MentsuType.Koutsu, hais: [19, 19, 19] }, fu: 4 },
+    ];
+    const picked = new Set<number | undefined>();
+    for (let i = 0; i < 100; i++) picked.add(pickRonAgariHai(list, 0));
+
+    expect(picked.has(19)).toBe(true);
   });
 });

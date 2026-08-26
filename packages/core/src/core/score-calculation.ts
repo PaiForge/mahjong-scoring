@@ -1,3 +1,8 @@
+import {
+  MentsuType,
+  type CompletedMentsu,
+  type HaiKindId,
+} from "@pai-forge/riichi-mahjong";
 import type { WinType } from "./roles";
 import { DISPLAY_TIERS, hanRangeOf, MANGAN_PLUS_TIERS } from "../score/tiers";
 
@@ -178,6 +183,33 @@ export function calculateMentsuFu(config: {
   if (!config.isOpen) fu *= 2;
   if (config.isYaochu) fu *= 2;
   return fu;
+}
+
+/**
+ * 符計算でその面子を明（副露と同じ扱い）として数えるかを判定する
+ * 面子明暗判定
+ *
+ * 副露していれば当然明。加えてロン和了では、和了牌を含む刻子も明刻として
+ * 数える。シャンポン待ちの片割れを他家から受けた形であり、手牌に2枚
+ * 持っていても最後の1枚は自力で引いていないため暗刻にはならない。
+ * 槓子はロンでは完成しないため、この読み替えの対象外。
+ *
+ * 手牌の符を面子ごとに出す箇所は、生成側・表示側を問わずこの判定を通すこと。
+ * 面子を作った時点の明暗をそのまま符にすると、ロン和了だけ符が過大になる。
+ */
+export function isOpenMentsuForFu(
+  mentsu: CompletedMentsu,
+  context: {
+    readonly agariHai: HaiKindId;
+    readonly isTsumo: boolean;
+  },
+): boolean {
+  if (mentsu.furo) return true;
+  return (
+    !context.isTsumo &&
+    mentsu.type === MentsuType.Koutsu &&
+    mentsu.hais.includes(context.agariHai)
+  );
 }
 
 /**

@@ -20,6 +20,12 @@ interface FuItemRowProps {
    */
   readonly isRevealed?: boolean;
   readonly isCountingDown: boolean;
+  /**
+   * 和了牌として枠を付ける牌の位置（この要素で和了していなければ undefined）
+   *
+   * 手牌表示で和了牌に付けるのと同じ枠を、回答行の牌にも付ける。
+   */
+  readonly highlightedTileIndex?: number;
   readonly onSelect: (index: number, value: string) => void;
   readonly tileScale?: number;
 }
@@ -35,6 +41,7 @@ export const FuItemRow = memo(function FuItemRowComponent({
   showFeedback,
   isRevealed = false,
   isCountingDown,
+  highlightedTileIndex,
   onSelect,
   tileScale,
 }: FuItemRowProps) {
@@ -67,7 +74,12 @@ export const FuItemRow = memo(function FuItemRowComponent({
       ) : (
         <div className="flex gap-0.5">
           {item.tiles.map((tile, i) => (
-            <Hai key={i} hai={tile} size="sm" />
+            <Hai
+              key={i}
+              hai={tile}
+              size="sm"
+              highlighted={i === highlightedTileIndex}
+            />
           ))}
         </div>
       );

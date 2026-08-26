@@ -5,7 +5,10 @@ import {
   type Kazehai,
   type ScoreDetail,
 } from "@pai-forge/riichi-mahjong";
-import { calculateMentsuFu } from "../core/score-calculation";
+import {
+  calculateMentsuFu,
+  isOpenMentsuForFu,
+} from "../core/score-calculation";
 import { jantouFuReasons } from "../problem/shared/jantou-fu";
 import { openLabel, yaochuLabel } from "../problem/shared/mentsu-labels";
 
@@ -86,13 +89,7 @@ export function convertScoreDetailToFuDetails(
       const isYao = isYaochu(mentsu.hais[0]);
 
       // 明暗の判定（ライブラリの符計算ロジックと同一）
-      let isOpen = !!mentsu.furo;
-      if (!isOpen && !config.isTsumo && mentsu.type === MentsuType.Koutsu) {
-        // ロン和了で、和了牌を含む刻子は明刻扱い（シャンポン待ち）
-        if (mentsu.hais.includes(config.agariHai)) {
-          isOpen = true;
-        }
-      }
+      const isOpen = isOpenMentsuForFu(mentsu, config);
 
       const fu = calculateMentsuFu({
         isKantsu: mentsu.type === MentsuType.Kantsu,
