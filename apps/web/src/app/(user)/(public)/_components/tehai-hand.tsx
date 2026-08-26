@@ -6,6 +6,11 @@ import { Hai, Furo } from "@pai-forge/mahjong-react-ui";
 import { useAutoScale } from "../_hooks/use-auto-scale";
 import { splitAgariHai } from "../_lib/agari-hai";
 
+/** size="sm" の牌の高さ（px）。globals.css の .h-hai-sm と合わせる */
+const HAI_HEIGHT = 45;
+/** 和了牌ラベルが牌の上に足す高さ（px）。text-[10px] leading-none + mb-0.5 */
+const AGARI_LABEL_HEIGHT = 12;
+
 interface TehaiHandProps {
   /** 表示する手牌（純手牌 + 副露）。Tehai14 もそのまま渡せる。 */
   readonly tehai: Pick<Tehai, "closed" | "exposed">;
@@ -14,6 +19,11 @@ interface TehaiHandProps {
    * 和了形ではない手牌（役の早見表など）では省略する。
    */
   readonly agariHai?: HaiKindId;
+  /**
+   * 和了牌に添えるラベル（「ツモ」「ロン」）。訳語は呼び出し側で解決する。
+   * この共有コンポーネントは牌の並びだけを負い、辞書の名前空間を知らない。
+   */
+  readonly agariLabel?: string;
   /** 自動スケール値の変化通知（コンテキスト牌などを同じ倍率で揃える用途） */
   readonly onScaleChange?: (scale: number) => void;
 }
@@ -28,15 +38,22 @@ interface TehaiHandProps {
  * 並びは実卓の開示に合わせる。理牌した純手牌を隙間なく並べ、間隔を空けて
  * 和了牌（ツモ牌・ロン牌）を右に置き、さらに広い間隔を空けて副露を並べる。
  * 和了牌を純手牌に混ぜたまま出すと、どの牌で和了したのかが並びから読めない。
- * ロン牌を横向きに倒す実卓の作法は採らない。牌の高さが変わって行が揃わず、
- * ツモ・ロンの別は盤面のテキストで示しているため。
+ * ロン牌を横向きに倒す実卓の作法は採らない。牌の高さが変わって行が揃わないため。
+ *
+ * 和了牌には枠を付け、ツモ・ロンの別をラベルとして真上に添える。牌そのものの
+ * そばに出ていれば、盤面の下に「和了牌」「和了」の欄を別に設けなくて済む。
  */
 export const TehaiHand = memo(function TehaiHandComponent({
   tehai,
   agariHai,
+  agariLabel,
   onScaleChange,
 }: TehaiHandProps) {
-  const { wrapperRef, contentRef, scale } = useAutoScale([tehai, agariHai]);
+  const { wrapperRef, contentRef, scale } = useAutoScale([
+    tehai,
+    agariHai,
+    agariLabel,
+  ]);
 
   const { closedTiles, separatedAgariHai } = useMemo(
     () => splitAgariHai(tehai.closed, agariHai),
@@ -51,7 +68,9 @@ export const TehaiHand = memo(function TehaiHandComponent({
     <div
       ref={wrapperRef}
       className="relative overflow-hidden"
-      style={{ height: `${45 * scale}px` }}
+      style={{
+        height: `${(HAI_HEIGHT + (agariLabel ? AGARI_LABEL_HEIGHT : 0)) * scale}px`,
+      }}
     >
       <div
         ref={contentRef}
@@ -64,8 +83,13 @@ export const TehaiHand = memo(function TehaiHandComponent({
           ))}
         </div>
         {separatedAgariHai !== undefined && (
-          <div className="flex shrink-0 ml-4">
-            <Hai hai={separatedAgariHai} size="sm" />
+          <div className="ml-4 flex shrink-0 flex-col items-center">
+            {agariLabel !== undefined && (
+              <span className="mb-0.5 text-[10px] font-bold leading-none text-surface-500">
+                {agariLabel}
+              </span>
+            )}
+            <Hai hai={separatedAgariHai} size="sm" highlighted />
           </div>
         )}
         {tehai.exposed.length > 0 && (

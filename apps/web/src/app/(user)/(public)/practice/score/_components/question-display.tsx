@@ -148,7 +148,7 @@ export function QuestionDisplay({ question, size }: QuestionDisplayProps) {
             <div
               className={`flex shrink-0 ${haiSize === "xs" ? "ml-2" : "ml-4"}`}
             >
-              <Hai hai={separatedAgariHai} size={haiSize} />
+              <Hai hai={separatedAgariHai} size={haiSize} highlighted />
             </div>
           )}
 

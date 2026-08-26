@@ -36,8 +36,9 @@ interface TehaiDisplayProps {
  * 練習共通の手牌表示コンポーネント
  * 手牌表示
  *
- * 和了牌は下の情報欄に並べず、手牌の右へ間隔を空けて開示する（TehaiHand）。
- * 実卓と同じ並びになり、情報欄で同じ牌を二度出さずに済む。
+ * 和了牌とツモ・ロンの別は下の情報欄に置かず、手牌の右に開示した和了牌へ
+ * まとめる（TehaiHand）。実卓と同じ並びになり、情報欄には手牌の外から来る
+ * 条件（場風・自風・リーチ・ドラ）だけが残る。
  */
 export const TehaiDisplay = memo(function TehaiDisplayComponent({
   tehai,
@@ -70,6 +71,7 @@ export const TehaiDisplay = memo(function TehaiDisplayComponent({
       <TehaiHand
         tehai={tehai}
         agariHai={context.agariHai}
+        agariLabel={context.isTsumo ? t("tsumo") : t("ron")}
         onScaleChange={handleScaleChange}
       />
       <div className="mt-3 flex flex-wrap justify-center gap-4 text-xs">
@@ -83,12 +85,6 @@ export const TehaiDisplay = memo(function TehaiDisplayComponent({
           <span className="text-surface-400">{t("jikaze")}</span>
           <p className="mt-0.5 font-bold text-surface-900">
             {getKazeName(context.jikaze)}
-          </p>
-        </div>
-        <div className="text-center">
-          <span className="text-surface-400">{t("agariType")}</span>
-          <p className="mt-0.5 font-bold text-surface-900">
-            {context.isTsumo ? t("tsumo") : t("ron")}
           </p>
         </div>
         {context.isRiichi && (
