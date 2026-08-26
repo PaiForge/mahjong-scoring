@@ -38,6 +38,63 @@ describe("useTrainingSession", () => {
     expect(result.current.showFeedback).toBe(false);
   });
 
+  describe("reveal", () => {
+    it("正解開示中は時間が経っても進まず、proceed で進む", () => {
+      const onNext = vi.fn();
+      const { result } = renderHook(() => useTrainingSession());
+
+      act(() => result.current.reveal(onNext));
+      act(() => vi.advanceTimersByTime(10_000));
+
+      // 正解を読む時間を確保するため、開示したまま止まる
+      expect(onNext).not.toHaveBeenCalled();
+      expect(result.current.showFeedback).toBe(true);
+      expect(result.current.isRevealed).toBe(true);
+      expect(result.current.lastAnswerCorrect).toBeUndefined();
+
+      act(() => result.current.proceed());
+
+      expect(onNext).toHaveBeenCalledTimes(1);
+      expect(result.current.showFeedback).toBe(false);
+      expect(result.current.isRevealed).toBe(false);
+    });
+
+    it("開示は回答ではないため正解数・出題数に含めない", () => {
+      const { result } = renderHook(() => useTrainingSession());
+
+      act(() => result.current.reveal(() => {}));
+      act(() => result.current.proceed());
+
+      expect(result.current.correctCount).toBe(0);
+      expect(result.current.totalCount).toBe(0);
+    });
+
+    it("フィードバック表示中の reveal は無視する", () => {
+      const onNext = vi.fn();
+      const { result } = renderHook(() => useTrainingSession());
+
+      act(() => result.current.handleAnswer(true, () => {}));
+      act(() => result.current.reveal(onNext));
+
+      expect(result.current.isRevealed).toBe(false);
+
+      act(() => vi.advanceTimersByTime(800));
+      act(() => result.current.proceed());
+
+      expect(onNext).not.toHaveBeenCalled();
+    });
+
+    it("開示中の handleAnswer は無視する", () => {
+      const { result } = renderHook(() => useTrainingSession());
+
+      act(() => result.current.reveal(() => {}));
+      act(() => result.current.handleAnswer(true, () => {}));
+
+      expect(result.current.totalCount).toBe(0);
+      expect(result.current.lastAnswerCorrect).toBeUndefined();
+    });
+  });
+
   describe("holdOnIncorrect", () => {
     it("不正解では時間が経っても進まず、proceed で進む", () => {
       const onNext = vi.fn();
