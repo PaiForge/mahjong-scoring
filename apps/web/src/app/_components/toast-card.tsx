@@ -22,15 +22,29 @@ const TONE_CLASSES: Record<Toast["type"], string> = {
   custom: "bg-card text-foreground",
 };
 
-/** 種類ごとの記号。線画アイコンを起こすほどの情報量ではないため文字で置く */
-const TONE_ICONS: Partial<Record<Toast["type"], string>> = {
-  success: "✓",
-  error: "✕",
-  blank: "ℹ",
+/**
+ * 種類ごとのアイコンの図形（丸で囲った記号）
+ *
+ * 記号を文字（✓ / ✕ / ℹ）で置くと、フォントによっては囲みの丸が無い
+ * ただの字形になり、アイコンに見えない（実機で "i" が裸で出ていた）。
+ * 図形として持てば環境によらず同じ形になる。
+ *
+ * 線画アイコンの外殻は `(user)/_components/icons/OutlineIcon` にあるが、
+ * このファイルは管理画面とも共有する `app/_components/` 側にあり、
+ * 依存の向きを一方向に保つため import できない。体裁（24 のビューボックス・
+ * 線幅 2・線端の丸め）は OutlineIcon に合わせて手で持つ。
+ */
+const TONE_ICON_PATHS: Partial<Record<Toast["type"], string>> = {
+  // 丸 + チェック
+  success: "M12 3a9 9 0 1 0 0 18 9 9 0 0 0 0-18M8 12.5l2.75 2.75L16 9.5",
+  // 丸 + バツ
+  error: "M12 3a9 9 0 1 0 0 18 9 9 0 0 0 0-18M9 9l6 6M15 9l-6 6",
+  // 丸 + i（点と縦棒）
+  blank: "M12 3a9 9 0 1 0 0 18 9 9 0 0 0 0-18M12 11v5.5M12 7.5v.01",
 };
 
 export function ToastCard({ toast }: { readonly toast: Toast }) {
-  const icon = TONE_ICONS[toast.type];
+  const iconPath = TONE_ICON_PATHS[toast.type];
 
   return (
     <div
@@ -41,10 +55,19 @@ export function ToastCard({ toast }: { readonly toast: Toast }) {
       } ${TONE_CLASSES[toast.type]}`}
       {...toast.ariaProps}
     >
-      {icon && (
-        <span aria-hidden="true" className="text-lg leading-none">
-          {icon}
-        </span>
+      {iconPath && (
+        <svg
+          aria-hidden="true"
+          className="size-5 shrink-0"
+          fill="none"
+          viewBox="0 0 24 24"
+          stroke="currentColor"
+          strokeWidth={2}
+          strokeLinecap="round"
+          strokeLinejoin="round"
+        >
+          <path d={iconPath} />
+        </svg>
       )}
       <p className="text-sm font-bold">{resolveValue(toast.message, toast)}</p>
     </div>

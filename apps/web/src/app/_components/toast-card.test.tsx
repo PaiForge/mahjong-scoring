@@ -38,6 +38,13 @@ describe("ToastCard", () => {
     expect(error.firstElementChild?.className).toContain("bg-destructive");
   });
 
+  it("種類ごとのアイコンを図形で描く（文字の字形に依存しない）", () => {
+    const { container } = render(<ToastCard toast={makeToast()} />);
+    const path = container.querySelector("svg path");
+    // 丸で囲った記号。丸（弧）を含むことまで見て、字形との取り違えを防ぐ
+    expect(path?.getAttribute("d")).toContain("a9 9 0");
+  });
+
   it("退出中は下へ引いて消える", () => {
     const { container } = render(
       <ToastCard toast={makeToast({ visible: false })} />,
