@@ -21,7 +21,6 @@ export const TehaiDisplay = memo(function TehaiDisplayComponent({
     <BaseTehaiDisplay
       tehai={question.tehai}
       context={question.context}
-      translationNamespace="tehaiFu"
       onScaleChange={onScaleChange}
     />
   );

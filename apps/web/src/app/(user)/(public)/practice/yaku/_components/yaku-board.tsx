@@ -80,11 +80,7 @@ export function YakuBoard({
 
   return (
     <div className="space-y-4">
-      <TehaiDisplay
-        tehai={question.tehai}
-        context={question.context}
-        translationNamespace="yaku"
-      />
+      <TehaiDisplay tehai={question.tehai} context={question.context} />
 
       {/* Instruction */}
       <QuestionPrompt>{t("selectYaku")}</QuestionPrompt>

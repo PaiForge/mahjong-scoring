@@ -42,6 +42,7 @@ interface TehaiHandProps {
  *
  * 和了牌には枠を付け、ツモ・ロンの別をラベルとして真上に添える。牌そのものの
  * そばに出ていれば、盤面の下に「和了牌」「和了」の欄を別に設けなくて済む。
+ * ラベルの色は濃い盤面（TehaiDisplay）に載る前提の白抜き。
  */
 export const TehaiHand = memo(function TehaiHandComponent({
   tehai,
@@ -85,7 +86,7 @@ export const TehaiHand = memo(function TehaiHandComponent({
         {separatedAgariHai !== undefined && (
           <div className="ml-4 flex shrink-0 flex-col items-center">
             {agariLabel !== undefined && (
-              <span className="mb-0.5 text-[10px] font-bold leading-none text-surface-500">
+              <span className="mb-0.5 text-[10px] font-bold leading-none text-white/70">
                 {agariLabel}
               </span>
             )}

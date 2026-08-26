@@ -32,11 +32,7 @@ export function TehaiFuHowToPlay() {
 
   return (
     <div className="space-y-4">
-      <TehaiDisplay
-        tehai={DEMO_FU_TEHAI}
-        context={DEMO_FU_CONTEXT}
-        translationNamespace="tehaiFu"
-      />
+      <TehaiDisplay tehai={DEMO_FU_TEHAI} context={DEMO_FU_CONTEXT} />
 
       {/* 要素ごとの符（正解をハイライト） */}
       <div className="space-y-2">

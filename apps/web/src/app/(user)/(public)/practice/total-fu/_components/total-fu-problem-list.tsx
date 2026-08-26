@@ -53,11 +53,7 @@ export function TotalFuProblemList({ results }: TotalFuProblemListProps) {
         return (
           <div className="space-y-3">
             {question && (
-              <TehaiDisplay
-                tehai={question.tehai}
-                context={question.context}
-                translationNamespace="totalFu"
-              />
+              <TehaiDisplay tehai={question.tehai} context={question.context} />
             )}
 
             <AnswerComparison

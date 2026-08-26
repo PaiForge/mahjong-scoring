@@ -36,11 +36,7 @@ export function TotalFuHowToPlay() {
 
   return (
     <div className="space-y-4">
-      <TehaiDisplay
-        tehai={DEMO_FU_TEHAI}
-        context={DEMO_FU_CONTEXT}
-        translationNamespace="totalFu"
-      />
+      <TehaiDisplay tehai={DEMO_FU_TEHAI} context={DEMO_FU_CONTEXT} />
 
       <QuestionPrompt>{t("prompt")}</QuestionPrompt>
 
