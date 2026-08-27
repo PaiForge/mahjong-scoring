@@ -13,6 +13,12 @@ interface AccordionCardProps {
    * そのカードまでスクロールする（他ページからの直リンク用）。
    */
   readonly anchorId?: string;
+  /**
+   * マウント直後に開いて、そのカードまでスクロールするか。
+   * URL のハッシュを使えない文脈（モーダルで開く一覧など）での `anchorId` 相当。
+   * 初期状態として一度だけ効くので、後から真に変えても開かない。
+   */
+  readonly autoOpen?: boolean;
   /** 展開時に表示する本文 */
   readonly children: ReactNode;
 }
@@ -27,16 +33,24 @@ interface AccordionCardProps {
  *
  * `anchorId` を渡すとハッシュ付きの直リンクに応答する。閉じたまま着地すると
  * 目当ての内容が見えないため、開いた上でカード先頭までスクロールする。
+ * `autoOpen` は同じ着地をハッシュなしで行う（モーダルで開く一覧など）。
  */
 export function AccordionCard({
   title,
   trailing,
   anchorId,
+  autoOpen = false,
   children,
 }: AccordionCardProps) {
-  const [isOpen, setIsOpen] = useState(false);
+  const [isOpen, setIsOpen] = useState(autoOpen);
   const panelId = useId();
   const rootRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    if (!autoOpen) return;
+    // 開いた状態でマウントされるので、スクロールだけをここで行う。
+    rootRef.current?.scrollIntoView({ behavior: "instant", block: "start" });
+  }, [autoOpen]);
 
   useEffect(() => {
     if (anchorId === undefined) return;

@@ -55,7 +55,7 @@ export type { IdGenerator } from "./core/id";
 
 // === Problem: Score ===
 export { generateValidScoreQuestion } from "./problem/score/generator";
-export { judgeAnswer } from "./problem/score/judgement";
+export { judgeAnswer, judgeYakuSelection } from "./problem/score/judgement";
 export {
   clampHanToYakuman,
   isMangan,
@@ -75,6 +75,8 @@ export type {
   QuestionGeneratorOptions,
   ScoreRange,
   YakuDetail,
+  YakuSelectionState,
+  YakuSelectionJudgement,
 } from "./problem/score/types";
 export {
   parseTehai,

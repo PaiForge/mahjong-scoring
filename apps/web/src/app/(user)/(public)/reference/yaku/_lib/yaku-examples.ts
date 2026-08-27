@@ -83,6 +83,14 @@ export const YAKU_EXAMPLES: Readonly<Record<string, readonly YakuExample[]>> = {
 };
 
 /**
+ * 早見表が役牌をひとまとめにしている項目名
+ *
+ * 点数計算は成立した役牌を牌ごとに返す（「役牌 白」など）が、早見表は
+ * 白・發・中の例を「役牌」1枚のカードに載せている。
+ */
+const YAKUHAI_ENTRY_NAME = "役牌";
+
+/**
  * 役一覧（早見表）に載る役かどうか
  * 早見表掲載判定
  *
@@ -94,4 +102,24 @@ export function hasYakuCheatsheetEntry(yakuName: string): boolean {
     !YAKU_CHEATSHEET_EXCLUDED.has(yakuName) &&
     YAKU_EXAMPLES[yakuName] !== undefined
   );
+}
+
+/**
+ * 点数計算が返す役名を早見表の項目名に解決する
+ * 早見表項目解決
+ *
+ * 「役牌 白」のように牌まで含んだ役名は「役牌」のカードへ寄せる。
+ * 早見表に載らない役（状況役）は undefined を返す。
+ */
+export function resolveYakuCheatsheetName(
+  yakuName: string,
+): string | undefined {
+  if (hasYakuCheatsheetEntry(yakuName)) return yakuName;
+  if (
+    yakuName.startsWith(YAKUHAI_ENTRY_NAME) &&
+    hasYakuCheatsheetEntry(YAKUHAI_ENTRY_NAME)
+  ) {
+    return YAKUHAI_ENTRY_NAME;
+  }
+  return undefined;
 }

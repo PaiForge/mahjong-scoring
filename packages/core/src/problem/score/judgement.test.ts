@@ -1,5 +1,5 @@
 import { describe, it, expect } from "vitest";
-import { judgeAnswer } from "./judgement";
+import { judgeAnswer, judgeYakuSelection } from "./judgement";
 import { isMangan, getScoreLevelName } from "../../score/tiers";
 import type { ScoreQuestion, UserAnswer } from "./types";
 import { ScoreLevel } from "../../core/constants";
@@ -420,6 +420,56 @@ describe("judgeAnswer", () => {
 
       expect(result.isYakuCorrect).toBe(true);
     });
+  });
+});
+
+describe("judgeYakuSelection", () => {
+  const yakuDetails: ScoreQuestion["yakuDetails"] = [
+    { name: "役牌 白", han: 1 },
+    { name: "混一色", han: 2 },
+    { name: "三暗刻", han: 2 },
+  ];
+
+  it("選んだ役ごとに正誤を返し、余分な役だけが incorrect になる", () => {
+    expect(
+      judgeYakuSelection(yakuDetails, [
+        "門前清自摸和",
+        "役牌 白",
+        "混一色",
+        "三暗刻",
+      ]),
+    ).toEqual([
+      { name: "役牌 白", state: "correct" },
+      { name: "混一色", state: "correct" },
+      { name: "三暗刻", state: "correct" },
+      { name: "門前清自摸和", state: "incorrect" },
+    ]);
+  });
+
+  it("選ばなかった正解の役を missed として正解の並び順のまま返す", () => {
+    expect(judgeYakuSelection(yakuDetails, ["混一色"])).toEqual([
+      { name: "役牌 白", state: "missed" },
+      { name: "混一色", state: "correct" },
+      { name: "三暗刻", state: "missed" },
+    ]);
+  });
+
+  it("ドラ等の判定除外役は missed に含めない", () => {
+    expect(
+      judgeYakuSelection(
+        [
+          { name: "断么九", han: 1 },
+          { name: "ドラ", han: 1 },
+        ],
+        ["断么九"],
+      ),
+    ).toEqual([{ name: "断么九", state: "correct" }]);
+  });
+
+  it("yakuDetails が undefined なら選んだ役はすべて incorrect", () => {
+    expect(judgeYakuSelection(undefined, ["平和"])).toEqual([
+      { name: "平和", state: "incorrect" },
+    ]);
   });
 });
 
