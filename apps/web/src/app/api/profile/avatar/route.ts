@@ -15,11 +15,13 @@ import {
 import { SHARP_DECODE_OPTIONS } from "@/lib/images/sharp-options";
 
 /**
- * アバター画像アップロードエンドポイント。
+ * アバター画像のアップロード（POST）・削除（DELETE）エンドポイント。
  *
- * 受け取った画像を検証し、Sharp で EXIF を除去して 256x256 の WebP に正規化したうえで
- * `avatars/${userId}/avatar.webp` に保存し、`profiles.avatar_url` を更新する。
- * Storage への書き込みは認証ユーザーのクライアント経由で行い、RLS（自分のフォルダのみ）で保護する。
+ * POST は受け取った画像を検証し、Sharp で EXIF を除去して 256x256 の WebP に正規化した
+ * うえで `avatars/${userId}/avatar.webp` に保存し、`profiles.avatar_url` を更新する。
+ * DELETE は同じパスのオブジェクトを消して `profiles.avatar_url` を NULL に戻す。
+ * Storage への書き込み・削除は認証ユーザーのクライアント経由で行い、
+ * RLS（自分のフォルダのみ）で保護する。
  *
  * アバターアップロードAPI
  */
@@ -27,6 +29,11 @@ import { SHARP_DECODE_OPTIONS } from "@/lib/images/sharp-options";
 const AVATAR_PIXEL_SIZE = 256;
 const AVATAR_WEBP_QUALITY = 85;
 const AVATAR_PATH_SUFFIX = "avatar.webp";
+
+/** Storage 上のアバターのパス。ユーザーごとに 1 枚で、上書き運用のため常に同じ。 */
+function avatarFilePath(userId: string): string {
+  return `${userId}/${AVATAR_PATH_SUFFIX}`;
+}
 
 export async function POST(request: Request) {
   const auth = await authorizeApiRequest(request, "uploadAvatar");
@@ -74,7 +81,7 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: "invalidImage" }, { status: 400 });
   }
 
-  const filePath = `${user.id}/${AVATAR_PATH_SUFFIX}`;
+  const filePath = avatarFilePath(user.id);
 
   const { error: uploadError } = await supabase.storage
     .from("avatars")
@@ -112,4 +119,33 @@ export async function POST(request: Request) {
   });
 
   return NextResponse.json({ success: true, avatarUrl });
+}
+
+export async function DELETE(request: Request) {
+  const auth = await authorizeApiRequest(request, "deleteAvatar");
+  if (!auth.ok) return auth.response;
+  const { user, supabase } = auth;
+
+  // 先に参照（profiles.avatar_url）を切る。Storage の削除に失敗しても残るのは
+  // 誰からも参照されないオブジェクトだけで、次のアップロードが同じパスを上書きする。
+  // 逆順にすると失敗時に「消えた画像を指す URL」が残り、一覧が壊れた画像を出す。
+  await db
+    .update(profiles)
+    .set({ avatarUrl: null, updatedAt: new Date() })
+    .where(eq(profiles.id, user.id));
+
+  // アップロードと同じ理由でランキングのキャッシュを捨てる（行にアバター URL を含む）。
+  revalidateTag(LEADERBOARD_CACHE_TAG, "default");
+
+  // Storage の削除は失敗しても操作全体を失敗させない（上のコメントの通り無害なため）。
+  await supabase.storage.from("avatars").remove([avatarFilePath(user.id)]);
+
+  logActivityEvent({
+    userId: user.id,
+    action: "delete_avatar",
+    targetType: "user",
+    targetId: user.id,
+  });
+
+  return NextResponse.json({ success: true });
 }
