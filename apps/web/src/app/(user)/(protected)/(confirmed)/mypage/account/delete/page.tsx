@@ -38,30 +38,32 @@ export default async function DeleteAccountPage() {
       <section className="space-y-4">
         <SectionTitle>{t("sectionTitle")}</SectionTitle>
 
-        <div className="space-y-6">
-          <div className="space-y-3">
-            <p className="text-sm leading-relaxed text-surface-600">
-              {t("warning")}
-            </p>
-            <ul className="list-disc space-y-1.5 pl-5 text-sm text-surface-600">
-              <li>{t("consequences.personalData")}</li>
-              <li>{t("consequences.scoresRemoved")}</li>
-              <li>{t("consequences.usernameLocked")}</li>
-            </ul>
-          </div>
-
-          <DeleteAccountButton />
-
-          <div>
-            <Link
-              href="/mypage/profile/edit"
-              className={`text-sm font-medium ${TEXT_LINK_CLASSES}`}
-            >
-              {t("backToProfile")}
-            </Link>
-          </div>
+        <div className="space-y-3">
+          <p className="text-sm leading-relaxed text-surface-600">
+            {t("warning")}
+          </p>
+          <ul className="list-disc space-y-1.5 pl-5 text-sm text-surface-600">
+            <li>{t("consequences.personalData")}</li>
+            <li>{t("consequences.scoresRemoved")}</li>
+            <li>{t("consequences.usernameLocked")}</li>
+          </ul>
         </div>
       </section>
+
+      <div className="mt-8">
+        <DeleteAccountButton />
+      </div>
+
+      {/* 破壊的操作の直下に戻るリンクを並べると誤クリックしやすいため、
+          プロフィール編集ページの退会リンクと同じ破線で区切って離す。 */}
+      <div className="mt-10 border-t-2 border-dashed border-border/40 pt-6 text-center">
+        <Link
+          href="/mypage/profile/edit"
+          className={`text-sm font-medium ${TEXT_LINK_CLASSES}`}
+        >
+          {t("backToProfile")}
+        </Link>
+      </div>
     </ContentContainer>
   );
 }
