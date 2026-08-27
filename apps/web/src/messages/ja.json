@@ -685,7 +685,7 @@
         "fromOya": "親"
       },
       "messages": {
-        "fuNotRequired": "※満貫以上のため符の入力は不要です"
+        "fuNotRequired": "満貫以上のため入力不要"
       },
       "options": {
         "hanSuffix": "翻",
