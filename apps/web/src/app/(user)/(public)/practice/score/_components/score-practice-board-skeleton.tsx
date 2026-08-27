@@ -11,14 +11,15 @@ import { SkeletonBar } from "@/app/_components/skeleton-bar";
  * 練習ボードスケルトン
  *
  * 本体（ScorePracticeBoardInner の最終レンダリング）と同じ ContentContainer・
- * space-y 構成を保つことで、実コンテンツ表示時の CLS を防ぐ。
+ * space-y 構成を保つことで、実コンテンツ表示時の CLS を防ぐ。`fillViewport` も
+ * 本体と揃える（スクロール先の id がカード領域に付く位置を変えないため）。
  * PageTitle は静的なため実際のタイトルを表示する。
  */
 export function ScorePracticeBoardSkeleton() {
   const t = useTranslations("score");
 
   return (
-    <ContentContainer id={PRACTICE_SCROLL_ANCHOR_ID}>
+    <ContentContainer id={PRACTICE_SCROLL_ANCHOR_ID} fillViewport>
       <PageTitle>{t("title")}</PageTitle>
 
       <div className="space-y-4 sm:space-y-6 md:space-y-8" aria-hidden>

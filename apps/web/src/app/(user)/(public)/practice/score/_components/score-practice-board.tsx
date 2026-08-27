@@ -132,7 +132,10 @@ function ScorePracticeBoardInner() {
   }
 
   return (
-    <ContentContainer id={PRACTICE_SCROLL_ANCHOR_ID}>
+    // fillViewport はスクロール先をタイトル帯ではなくカード領域（本文）に置く。
+    // 他の練習（challenge-shell / training-shell）と同じく、開始時も回答・開示・
+    // 次へのたびに盤面が画面最上部へ来る（タイトルはスクロールで画面外へ送る）。
+    <ContentContainer id={PRACTICE_SCROLL_ANCHOR_ID} fillViewport>
       <PageTitle>{t("title")}</PageTitle>
 
       {/* 要素間の余白を ContentContainer カードのパディング（p-4 sm:p-6 md:p-8）と同じ
