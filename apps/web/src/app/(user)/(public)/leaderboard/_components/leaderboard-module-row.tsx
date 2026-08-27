@@ -37,7 +37,7 @@ export async function LeaderboardModuleRow({
     <LinkRow
       href={buildDetailPath(period, module)}
       leading={
-        <span className="block py-0.5 text-lg" aria-hidden="true">
+        <span className="text-base" aria-hidden="true">
           {t(`moduleIcon.${msgKey}`)}
         </span>
       }

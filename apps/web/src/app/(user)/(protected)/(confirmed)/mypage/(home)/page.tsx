@@ -130,7 +130,7 @@ export default async function MyPage() {
               key={link.href}
               href={link.href}
               leading={
-                <span className="block py-0.5 text-lg" aria-hidden="true">
+                <span className="text-base" aria-hidden="true">
                   {link.icon}
                 </span>
               }

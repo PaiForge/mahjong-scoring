@@ -56,11 +56,7 @@ export default async function ReferenceHubPage() {
           <LinkRow
             key={link.href}
             href={link.href}
-            leading={
-              <span className="block py-0.5" aria-hidden="true">
-                {link.icon}
-              </span>
-            }
+            leading={<span aria-hidden="true">{link.icon}</span>}
             title={link.title}
             description={link.description}
           />

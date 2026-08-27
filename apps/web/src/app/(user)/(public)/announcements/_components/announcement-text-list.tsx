@@ -32,7 +32,7 @@ export function AnnouncementTextList({
           leading={
             // 日付は桁を揃えて縦に並べる。等幅数字にしないと行ごとに
             // タイトルの開始位置がずれ、リストの左端が波打って見える。
-            <span className="block py-0.5 text-xs tabular-nums text-muted-foreground">
+            <span className="text-xs tabular-nums text-muted-foreground">
               {formatPublishedDate(
                 announcement.publishedAt,
                 locale,

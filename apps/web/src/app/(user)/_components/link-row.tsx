@@ -59,7 +59,12 @@ export function LinkRow({
         href={href}
         className={`group -mx-2 flex items-start gap-3 rounded-lg px-2 py-3 transition-colors hover:bg-surface-50 ${FOCUS_RING_CLASSES}`}
       >
-        {leading !== undefined && <span className="shrink-0">{leading}</span>}
+        {/* 行頭・行末の要素はタイトル 1 行目の行ボックス（text-sm = 20px）に
+            中央揃えする。絵文字やアイコンは文字サイズで高さが変わるため、
+            上端揃えのままだとタイトルとの視覚的な高さがずれる。 */}
+        {leading !== undefined && (
+          <span className="flex min-h-5 shrink-0 items-center">{leading}</span>
+        )}
         <span className="min-w-0 flex-1">
           <span className={`block text-sm font-bold ${ROW_LINK_TITLE_CLASSES}`}>
             {title}
@@ -70,7 +75,9 @@ export function LinkRow({
             </span>
           )}
         </span>
-        {trailing !== undefined && <span className="shrink-0">{trailing}</span>}
+        {trailing !== undefined && (
+          <span className="flex min-h-5 shrink-0 items-center">{trailing}</span>
+        )}
       </Link>
     </li>
   );
