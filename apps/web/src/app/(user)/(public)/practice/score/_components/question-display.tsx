@@ -1,6 +1,7 @@
 "use client";
 
 import { useMemo } from "react";
+import type { ComponentProps } from "react";
 import type { HaiKindId, Tehai } from "@mahjong-scoring/core";
 import { TehaiDisplay } from "../../_components/tehai-display";
 import type { TehaiContext } from "../../_components/tehai-display";
@@ -24,6 +25,8 @@ export interface ScoreQuestionDisplayData extends TehaiContext {
 
 interface QuestionDisplayProps {
   readonly question: ScoreQuestionDisplayData;
+  /** モバイルでの盤面の広げ方（{@link TehaiDisplay} にそのまま渡す） */
+  readonly mobileFrame?: ComponentProps<typeof TehaiDisplay>["mobileFrame"];
 }
 
 /**
@@ -34,11 +37,20 @@ interface QuestionDisplayProps {
  * 平坦な出題データから手牌と盤面コンテキストを切り分けるだけで、
  * 見た目は持たない。
  */
-export function QuestionDisplay({ question }: QuestionDisplayProps) {
+export function QuestionDisplay({
+  question,
+  mobileFrame,
+}: QuestionDisplayProps) {
   const context = useMemo<TehaiContext>(() => {
     const { tehai: _tehai, ...rest } = question;
     return rest;
   }, [question]);
 
-  return <TehaiDisplay tehai={question.tehai} context={context} />;
+  return (
+    <TehaiDisplay
+      tehai={question.tehai}
+      context={context}
+      mobileFrame={mobileFrame}
+    />
+  );
 }

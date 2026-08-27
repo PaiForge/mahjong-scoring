@@ -115,6 +115,7 @@ export function MentsuJantouFuBoard({
         tehai={question.tehai}
         context={question.context}
         onScaleChange={setTileScale}
+        mobileFrame="fullBleed"
       />
 
       {/* Item list */}

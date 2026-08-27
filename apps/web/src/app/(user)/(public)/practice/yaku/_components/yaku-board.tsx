@@ -84,7 +84,11 @@ export function YakuBoard({
 
   return (
     <div className="space-y-4">
-      <TehaiDisplay tehai={question.tehai} context={question.context} />
+      <TehaiDisplay
+        tehai={question.tehai}
+        context={question.context}
+        mobileFrame="fullBleed"
+      />
 
       {/* Instruction */}
       <QuestionPrompt>{t("selectYaku")}</QuestionPrompt>
