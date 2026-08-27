@@ -83,6 +83,12 @@ export function ScorePracticeAnswerForm({
     ];
   }, [simplifyMangan, t]);
 
+  /** 符が不要なとき、符の select にそのまま描く注記（箱の高さを保つため） */
+  const fuNotRequiredOptions = useMemo(
+    () => [{ value: "", label: t("form.messages.fuNotRequired") }],
+    [t],
+  );
+
   const fuOptions = useMemo(
     () => [
       { value: "", label: t("form.placeholders.select") },
@@ -179,33 +185,29 @@ export function ScorePracticeAnswerForm({
         </select>
       </div>
 
-      {/* Fu input */}
-      {isFuRequired && (
-        <div>
-          <label className="mb-2 block text-sm font-bold text-surface-700">
-            {t("form.labels.fu")}
-          </label>
-          <select
-            value={fu ?? ""}
-            onChange={handleFuChange}
-            disabled={disabled}
-            required
-            className={selectClass(fu !== undefined)}
-          >
-            {fuOptions.map((option) => (
-              <option key={option.value} value={option.value}>
-                {option.label}
-              </option>
-            ))}
-          </select>
-        </div>
-      )}
-
-      {!isFuRequired && isMangan && (
-        <div className="text-sm italic text-surface-500">
-          {t("form.messages.fuNotRequired")}
-        </div>
-      )}
+      {/* Fu input
+          満貫以上で符が不要になっても、select を 1 行の注記に差し替えず disabled の
+          まま残す。差し替えるとブロックの高さが約 58px 縮み、翻数を選んだ直後に
+          触る「点数」と回答ボタンが指の下でせり上がる。注記は select の唯一の
+          option として同じ箱に描くため、高さは要素が同一であることで一致する。 */}
+      <div>
+        <label className="mb-2 block text-sm font-bold text-surface-700">
+          {t("form.labels.fu")}
+        </label>
+        <select
+          value={isFuRequired ? (fu ?? "") : ""}
+          onChange={handleFuChange}
+          disabled={disabled || !isFuRequired}
+          required={isFuRequired}
+          className={selectClass(isFuRequired ? fu !== undefined : true)}
+        >
+          {(isFuRequired ? fuOptions : fuNotRequiredOptions).map((option) => (
+            <option key={option.value} value={option.value}>
+              {option.label}
+            </option>
+          ))}
+        </select>
+      </div>
 
       {/* Score input */}
       <div>
