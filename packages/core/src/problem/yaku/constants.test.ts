@@ -118,12 +118,23 @@ describe("YAKU_DEFAULT_ORDER", () => {
     expect([...YAKU_DEFAULT_ORDER].sort()).toEqual([...SELECTABLE_YAKU].sort());
   });
 
-  it("頻出役が翻数順より前に来る", () => {
-    // 断么九 15.6% / 対々和 12.1% に対し 平和 0.4% / 一盃口 0.9%（20万問の実測）
+  it("実戦での頻出役が翻数順より前に来る", () => {
+    // 立直 41.5% / 断么九 22.0% / 平和 20.3% に対し
+    // 混全帯么九 0.83% / 三槓子 0.001%（天鳳鳳凰卓 2023 の集計）
     const posOf = (name: string) => YAKU_DEFAULT_ORDER.indexOf(name);
-    expect(posOf("断么九")).toBeLessThan(posOf("平和"));
-    expect(posOf("対々和")).toBeLessThan(posOf("一盃口"));
-    expect(posOf("役牌 白")).toBeLessThan(posOf("立直"));
+    expect(posOf("立直")).toBeLessThan(posOf("混全帯么九"));
+    expect(posOf("断么九")).toBeLessThan(posOf("混全帯么九"));
+    expect(posOf("平和")).toBeLessThan(posOf("一盃口"));
+    expect(posOf("七対子")).toBeLessThan(posOf("三槓子"));
+  });
+
+  it("役牌7種が連続する", () => {
+    const positions = ["白", "發", "中", "東", "南", "西", "北"].map((kaze) =>
+      YAKU_DEFAULT_ORDER.indexOf(`役牌 ${kaze}`),
+    );
+    expect(Math.max(...positions) - Math.min(...positions)).toBe(
+      positions.length - 1,
+    );
   });
 });
 
