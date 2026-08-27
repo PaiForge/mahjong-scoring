@@ -295,13 +295,6 @@
 .h-hai-xl { height: 101px; }
 .w-hai-xl { width: 72px; }
 
-/*
- * 面子1つ分の最大幅（面子分解で種別ラベルの左端を揃える用途）。最も広い形は
- * 明槓（縦3枚 32px + 横1枚 45px + Furo の gap-px 3本）。
- * w-hai-sm / w-hai-sm-rotated と連動させる
- */
-.w-mentsu-sm { width: 144px; }
-
 /* Rotated tile sizes (for Furo sideways tiles) */
 .h-hai-xs-rotated { height: 24px; }
 .w-hai-xs-rotated { width: 34px; }

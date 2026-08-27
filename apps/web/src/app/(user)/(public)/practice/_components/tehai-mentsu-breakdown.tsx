@@ -11,6 +11,10 @@ import type {
 } from "@mahjong-scoring/core";
 import { Hai, Furo } from "@pai-forge/mahjong-react-ui";
 import { TEXT_LINK_CLASSES } from "@/app/_components/_lib/link-classes";
+import {
+  DataTable,
+  DataTableHeaderCell,
+} from "@/app/(user)/_components/data-table";
 import { InfoModal } from "@/app/(user)/_components/info-modal";
 import { TilesIcon } from "@/app/(user)/_components/icons/tiles-icon";
 
@@ -25,8 +29,8 @@ interface TehaiMentsuBreakdownProps {
  * 面子・雀頭1つ分の行
  *
  * 牌の並びを左、種別ラベルを右に置く。面子の横幅は形により変わる
- * （順子3枚 〜 明槓の横牌入り4枚）ため、牌側に最も広い形の幅を確保して
- * ラベルの左端を揃える。横向きの牌は縦に短いので下端で揃える。
+ * （順子3枚 〜 明槓の横牌入り4枚）ため、桁揃えは表の列幅に任せる。
+ * 横向きの牌は縦に短いので下端で揃える。
  */
 function BreakdownRow({
   label,
@@ -36,10 +40,12 @@ function BreakdownRow({
   readonly children: React.ReactNode;
 }) {
   return (
-    <div className="flex items-center gap-3">
-      <div className="flex w-mentsu-sm shrink-0 items-end">{children}</div>
-      <span className="text-xs text-muted-foreground">{label}</span>
-    </div>
+    <tr className="bg-white">
+      <td className="px-4 py-2">
+        <div className="flex items-end">{children}</div>
+      </td>
+      <td className="px-4 py-2 text-right text-surface-600">{label}</td>
+    </tr>
   );
 }
 
@@ -83,6 +89,9 @@ function ClosedTiles({
  * 鳴き元の牌を倒して並べ（暗槓は両端が伏せ牌）、刻子・槓子のラベルは
  * 明暗を書き分ける。符内訳が「明刻子」と呼んでいる面子をここで単に
  * 「刻子」と出すと、同じ手牌の説明が2箇所で食い違って見える。
+ *
+ * 和了牌には枠を付ける。ツモ・ロンのどちらだったかは盤面が既に示して
+ * いるので、モーダル側で言い直さない。
  *
  * 出題中の画面には置かないこと。待ちや符を問う練習では分解が答えを
  * 割ってしまう。正解を開示する文脈（結果詳細）専用。
@@ -133,36 +142,42 @@ export function TehaiMentsuBreakdown({
         title={t("mentsuBreakdown")}
         closeLabel={t("close")}
       >
-        <p className="mb-3">
-          {t("mentsuBreakdownAgariNote", {
-            agari: context.isTsumo ? t("tsumo") : t("ron"),
-          })}
-        </p>
-        {/* 4面子を1行ずつ縦に積み、雀頭は最後に置く。面子から順に読ませ、
-            残りが雀頭だと分かる並びにする */}
-        <div className="flex flex-col gap-2">
-          {breakdown.fourMentsu.map((row, i) => (
-            <BreakdownRow key={i} label={mentsuLabel(row)}>
-              {row.isExposed ? (
-                <Furo mentsu={row.mentsu} furo={row.mentsu.furo} size="sm" />
-              ) : (
-                <ClosedTiles
-                  hais={row.mentsu.hais}
-                  agariHaiIndex={row.agariHaiIndex}
-                />
-              )}
+        <div className="space-y-3">
+          {/* 4面子を1行ずつ縦に積み、雀頭は最後に置く。面子から順に読ませ、
+              残りが雀頭だと分かる並びにする */}
+          <DataTable
+            header={
+              <>
+                <DataTableHeaderCell align="left">
+                  {t("mentsuBreakdownColHai")}
+                </DataTableHeaderCell>
+                <DataTableHeaderCell align="right">
+                  {t("mentsuBreakdownColType")}
+                </DataTableHeaderCell>
+              </>
+            }
+          >
+            {breakdown.fourMentsu.map((row, i) => (
+              <BreakdownRow key={i} label={mentsuLabel(row)}>
+                {row.isExposed ? (
+                  <Furo mentsu={row.mentsu} furo={row.mentsu.furo} size="sm" />
+                ) : (
+                  <ClosedTiles
+                    hais={row.mentsu.hais}
+                    agariHaiIndex={row.agariHaiIndex}
+                  />
+                )}
+              </BreakdownRow>
+            ))}
+            <BreakdownRow label={t("jantou")}>
+              <ClosedTiles
+                hais={breakdown.jantou.hais}
+                agariHaiIndex={breakdown.jantou.agariHaiIndex}
+              />
             </BreakdownRow>
-          ))}
-          <BreakdownRow label={t("jantou")}>
-            <ClosedTiles
-              hais={breakdown.jantou.hais}
-              agariHaiIndex={breakdown.jantou.agariHaiIndex}
-            />
-          </BreakdownRow>
+          </DataTable>
+          {hasRonMinkou && <p>{t("mentsuBreakdownMinkouNote")}</p>}
         </div>
-        {hasRonMinkou && (
-          <p className="mt-3">{t("mentsuBreakdownMinkouNote")}</p>
-        )}
       </InfoModal>
     </div>
   );

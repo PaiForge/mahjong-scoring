@@ -23,11 +23,11 @@ const REQUIRED_COMMON_KEYS = [
   "ankan",
   "minkan",
   "jantou",
-  // 注記（和了牌の枠・ロンで完成した刻子の扱い）
-  "mentsuBreakdownAgariNote",
+  // 表の見出し
+  "mentsuBreakdownColHai",
+  "mentsuBreakdownColType",
+  // 注記（ロンで完成した刻子の扱い）
   "mentsuBreakdownMinkouNote",
-  "tsumo",
-  "ron",
 ] as const;
 
 describe("i18n integrity: common（面子分解モーダル）", () => {
