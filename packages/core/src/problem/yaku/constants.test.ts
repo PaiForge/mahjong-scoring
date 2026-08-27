@@ -3,11 +3,11 @@ import { HaiKind } from "@pai-forge/riichi-mahjong";
 import {
   YAKU_NAME_MAP,
   SELECTABLE_YAKU,
-  SELECTABLE_YAKU_GROUPS,
+  YAKU_DEFAULT_ORDER,
+  normalizeYakuOrder,
   EXCLUDED_YAKU_FROM_ANSWER,
   getKazeYakuhaiDisplayName,
 } from "./constants";
-import { findYakuHanEntry, YAKUMAN_HAN } from "../yaku-han/constants";
 
 describe("YAKU_NAME_MAP", () => {
   it("三元牌の役牌が含まれる", () => {
@@ -113,86 +113,62 @@ describe("getKazeYakuhaiDisplayName", () => {
   });
 });
 
-describe("SELECTABLE_YAKU_GROUPS", () => {
-  it("選択可能な役を過不足なく振り分ける", () => {
-    const grouped = SELECTABLE_YAKU_GROUPS.flatMap((group) => group.names);
-
-    expect(grouped).toHaveLength(SELECTABLE_YAKU.length);
-    expect(new Set(grouped)).toEqual(new Set(SELECTABLE_YAKU));
+describe("YAKU_DEFAULT_ORDER", () => {
+  it("選択可能な役をちょうど1回ずつ含む", () => {
+    expect([...YAKU_DEFAULT_ORDER].sort()).toEqual([...SELECTABLE_YAKU].sort());
   });
 
-  it("同じ役が複数のグループに属さない", () => {
-    const grouped = SELECTABLE_YAKU_GROUPS.flatMap((group) => group.names);
+  it("頻出役が翻数順より前に来る", () => {
+    // 断么九 15.6% / 対々和 12.1% に対し 平和 0.4% / 一盃口 0.9%（20万問の実測）
+    const posOf = (name: string) => YAKU_DEFAULT_ORDER.indexOf(name);
+    expect(posOf("断么九")).toBeLessThan(posOf("平和"));
+    expect(posOf("対々和")).toBeLessThan(posOf("一盃口"));
+    expect(posOf("役牌 白")).toBeLessThan(posOf("立直"));
+  });
+});
 
-    expect(new Set(grouped).size).toBe(grouped.length);
+describe("normalizeYakuOrder", () => {
+  it("未保存（空）のときは既定順を返す", () => {
+    expect(normalizeYakuOrder([])).toEqual(YAKU_DEFAULT_ORDER);
   });
 
-  it("グループ内の並びが SELECTABLE_YAKU の並びを保つ", () => {
-    for (const group of SELECTABLE_YAKU_GROUPS) {
-      const indexes = group.names.map((name) => SELECTABLE_YAKU.indexOf(name));
-      expect(
-        [...indexes].sort((a, b) => a - b),
-        `${group.kind} の並び`,
-      ).toEqual(indexes);
-    }
+  it("保存された並びをそのまま尊重する", () => {
+    const saved = [...SELECTABLE_YAKU].reverse();
+    expect(normalizeYakuOrder(saved)).toEqual(saved);
   });
 
-  it("門前限定グループの役は鳴くと成立しない", () => {
-    const group = SELECTABLE_YAKU_GROUPS.find((g) => g.kind === "menzenOnly");
-
-    expect(group?.names).toEqual([
-      "立直",
-      "門前清自摸和",
-      "平和",
-      "一盃口",
-      "七対子",
-      "二盃口",
-    ]);
+  it("選べなくなった役を捨てる", () => {
+    const result = normalizeYakuOrder(["廃止された役", "断么九"]);
+    expect(result).not.toContain("廃止された役");
+    expect(result[0]).toBe("断么九");
   });
 
-  it("食い下がりグループの役は鳴くと翻数が下がる", () => {
-    const group = SELECTABLE_YAKU_GROUPS.find((g) => g.kind === "kuisagari");
+  it("並びに無い役を既定順の順序で末尾に足す", () => {
+    const result = normalizeYakuOrder(["清一色", "断么九"]);
+    expect(result.slice(0, 2)).toEqual(["清一色", "断么九"]);
 
-    // 門前3翻・鳴き2翻の混一色と、門前6翻・鳴き5翻の清一色が同じグループに入る
-    // （翻数ではなく鳴きの扱いで分類している）
-    expect(group?.names).toEqual([
-      "三色同順",
-      "一気通貫",
-      "混全帯么九",
-      "混一色",
-      "純全帯么九",
-      "清一色",
-    ]);
-    for (const name of group?.names ?? []) {
-      const entry = findYakuHanEntry(name);
-      expect(entry?.nakiHan, `${name} の鳴き翻数`).toBeDefined();
-      expect(entry?.nakiHan, `${name} は鳴くと下がる`).not.toBe(
-        entry?.menzenHan,
-      );
-    }
+    const appended = result.slice(2);
+    const expected = YAKU_DEFAULT_ORDER.filter(
+      (name) => name !== "清一色" && name !== "断么九",
+    );
+    expect(appended).toEqual(expected);
   });
 
-  it("食い下がりなしグループの役は鳴いても翻数が変わらない", () => {
-    const group = SELECTABLE_YAKU_GROUPS.find((g) => g.kind === "noKuisagari");
-
-    expect(group?.names).toContain("断么九");
-    expect(group?.names).toContain("役牌 白");
-    expect(group?.names).toContain("対々和");
-    for (const name of group?.names ?? []) {
-      const entry = findYakuHanEntry(name);
-      expect(entry?.nakiHan, `${name} の鳴き翻数`).toBe(entry?.menzenHan);
-      expect(entry?.menzenHan, `${name} の門前翻数`).not.toBe(YAKUMAN_HAN);
-    }
+  it("重複を取り除く", () => {
+    const result = normalizeYakuOrder(["断么九", "断么九", "清一色"]);
+    expect(result.slice(0, 2)).toEqual(["断么九", "清一色"]);
   });
 
-  it("役満グループは門前限定の役満も含む", () => {
-    const group = SELECTABLE_YAKU_GROUPS.find((g) => g.kind === "yakuman");
-
-    expect(group?.names).toContain("国士無双");
-    expect(group?.names).toContain("大三元");
-    for (const name of group?.names ?? []) {
-      expect(findYakuHanEntry(name)?.menzenHan, `${name} の翻数`).toBe(
-        YAKUMAN_HAN,
+  it("どんな入力でも全役をちょうど1回ずつ含む", () => {
+    for (const saved of [
+      [],
+      ["断么九"],
+      ["不明", "断么九", "断么九"],
+      [...SELECTABLE_YAKU].reverse(),
+    ]) {
+      const result = normalizeYakuOrder(saved);
+      expect([...result].sort(), `入力: ${JSON.stringify(saved)}`).toEqual(
+        [...SELECTABLE_YAKU].sort(),
       );
     }
   });

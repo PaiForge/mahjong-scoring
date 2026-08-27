@@ -30,9 +30,9 @@ export { generateYakuQuestion } from "./problem/yaku/generator";
 export { judgeYakuAnswer } from "./problem/yaku/judgement";
 export {
   SELECTABLE_YAKU,
-  SELECTABLE_YAKU_GROUPS,
+  YAKU_DEFAULT_ORDER,
+  normalizeYakuOrder,
 } from "./problem/yaku/constants";
-export type { YakuSelectGroupKind } from "./problem/yaku/constants";
 export type { YakuQuestion } from "./problem/yaku/types";
 
 // === Problem: Yaku Han ===
@@ -41,7 +41,6 @@ export {
   YAKU_HAN_ENTRIES,
   YAKUMAN_HAN,
   YAKUHAI_ENTRY_NAME,
-  findYakuHanEntry,
   groupYakuHanEntriesByMenzenHan,
   DEFAULT_YAKU_HAN_RANGE,
   getYakuHanEntries,

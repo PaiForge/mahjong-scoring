@@ -156,20 +156,3 @@ export function normalizeYakuHanRange(value: string | undefined): YakuHanRange {
  * 「役牌」1エントリに集約している。
  */
 export const YAKUHAI_ENTRY_NAME = "役牌";
-
-/**
- * 役の表示名から役エントリを引く
- * 役エントリ検索
- *
- * 「役牌 東」のように書き分けた表示名は {@link YAKUHAI_ENTRY_NAME} の
- * エントリへ解決する。この対応を表示側それぞれで書き直さないよう、
- * 名前解決はここに寄せること。
- */
-export function findYakuHanEntry(yakuName: string): YakuHanEntry | undefined {
-  const exact = YAKU_HAN_ENTRIES.find((entry) => entry.name === yakuName);
-  if (exact !== undefined) return exact;
-  if (yakuName.startsWith(YAKUHAI_ENTRY_NAME)) {
-    return YAKU_HAN_ENTRIES.find((entry) => entry.name === YAKUHAI_ENTRY_NAME);
-  }
-  return undefined;
-}
