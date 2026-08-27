@@ -67,7 +67,12 @@ export {
   MANGAN_PLUS_TIERS,
 } from "./score/tiers";
 export type { HanTier, HanRange } from "./score/tiers";
-export { resolveMentsuStructure } from "./score/mentsu-structure";
+export { resolveMentsuBreakdown } from "./score/mentsu-structure";
+export type {
+  MentsuBreakdown,
+  MentsuBreakdownRow,
+  JantouBreakdownRow,
+} from "./score/mentsu-structure";
 export type {
   ScoreQuestion,
   UserAnswer,
