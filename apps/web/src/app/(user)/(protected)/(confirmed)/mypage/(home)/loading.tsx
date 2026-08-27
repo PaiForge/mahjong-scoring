@@ -57,21 +57,21 @@ export default function Loading() {
           <HeatmapSkeleton />
         </section>
 
-        {/* カード（実: rounded-xl border-3 bg-card p-6。
-            アイコン(text-2xl) + 見出し(text-base) + 説明(text-sm)） */}
-        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-          <div className="rounded-xl border-3 border-ink bg-card p-6 shadow-sm">
-            <div className="flex h-8 items-center">
-              <SkeletonBar className="h-7 w-7" />
+        {/* 行リンク（実: LinkRow。絵文字(text-lg) + タイトル(text-sm) +
+            説明(text-xs) を py-3 の行に置き、破線で区切る） */}
+        <ul className="flex flex-col">
+          <li className="flex items-start gap-3 border-b border-dashed border-border/40 py-3 last:border-b-0">
+            <SkeletonBar radius="md" className="size-6 shrink-0" />
+            <div className="min-w-0 flex-1">
+              <div className="flex h-5 items-center">
+                <SkeletonBar className="h-3.5 w-28" />
+              </div>
+              <div className="mt-0.5 flex h-4 items-center">
+                <SkeletonBar className="h-3 w-5/6" tone={100} />
+              </div>
             </div>
-            <div className="mt-2 flex h-6 items-center">
-              <SkeletonBar className="h-4 w-28" />
-            </div>
-            <div className="mt-1 flex h-5 items-center">
-              <SkeletonBar className="h-3.5 w-5/6" />
-            </div>
-          </div>
-        </div>
+          </li>
+        </ul>
       </div>
     </ContentContainer>
   );
