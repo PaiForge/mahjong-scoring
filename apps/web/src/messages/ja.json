@@ -45,6 +45,7 @@
   },
   "deleteAccount": {
     "pageTitle": "退会",
+    "sectionTitle": "確認",
     "warning": "退会すると、このアカウントではログインできなくなります。この操作は取り消せません。",
     "consequences": {
       "personalData": "アバター・表示名・自己紹介・SNS などの個人情報は削除されます。",

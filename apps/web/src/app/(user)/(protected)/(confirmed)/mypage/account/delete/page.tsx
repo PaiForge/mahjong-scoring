@@ -10,6 +10,7 @@ import Link from "next/link";
 
 import { ContentContainer } from "@/app/(user)/_components/content-container";
 import { PageTitle } from "@/app/(user)/_components/page-title";
+import { SectionTitle } from "@/app/(user)/_components/section-title";
 import { createPrivateMetadata } from "@/app/_lib/metadata";
 import { requireConfirmedUser } from "@/lib/auth";
 
@@ -34,29 +35,33 @@ export default async function DeleteAccountPage() {
     >
       <PageTitle>{t("pageTitle")}</PageTitle>
 
-      <div className="mt-6 space-y-6">
-        <div className="space-y-3">
-          <p className="text-sm leading-relaxed text-surface-600">
-            {t("warning")}
-          </p>
-          <ul className="list-disc space-y-1.5 pl-5 text-sm text-surface-600">
-            <li>{t("consequences.personalData")}</li>
-            <li>{t("consequences.scoresRemoved")}</li>
-            <li>{t("consequences.usernameLocked")}</li>
-          </ul>
-        </div>
+      <section className="space-y-4">
+        <SectionTitle>{t("sectionTitle")}</SectionTitle>
 
-        <DeleteAccountButton />
+        <div className="space-y-6">
+          <div className="space-y-3">
+            <p className="text-sm leading-relaxed text-surface-600">
+              {t("warning")}
+            </p>
+            <ul className="list-disc space-y-1.5 pl-5 text-sm text-surface-600">
+              <li>{t("consequences.personalData")}</li>
+              <li>{t("consequences.scoresRemoved")}</li>
+              <li>{t("consequences.usernameLocked")}</li>
+            </ul>
+          </div>
 
-        <div>
-          <Link
-            href="/mypage/profile/edit"
-            className={`text-sm font-medium ${TEXT_LINK_CLASSES}`}
-          >
-            {t("backToProfile")}
-          </Link>
+          <DeleteAccountButton />
+
+          <div>
+            <Link
+              href="/mypage/profile/edit"
+              className={`text-sm font-medium ${TEXT_LINK_CLASSES}`}
+            >
+              {t("backToProfile")}
+            </Link>
+          </div>
         </div>
-      </div>
+      </section>
     </ContentContainer>
   );
 }
