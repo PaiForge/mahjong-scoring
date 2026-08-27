@@ -93,3 +93,30 @@ describe("ScoreAnswerForm autoSubmit", () => {
     expect(onSubmit).toHaveBeenCalledTimes(1);
   });
 });
+
+describe("ScoreAnswerForm のラベル", () => {
+  function renderForm(isTsumo: boolean) {
+    render(
+      <ScoreAnswerForm
+        isOya={false}
+        isTsumo={isTsumo}
+        han={3}
+        onSubmit={() => {}}
+        translationNamespace="x"
+      />,
+    );
+  }
+
+  it("点数の select をラベルから引ける", () => {
+    renderForm(false);
+
+    expect(screen.getByLabelText("selectScore")).toBeDefined();
+  });
+
+  it("子ツモの2つの select をそれぞれのラベルから引ける", () => {
+    renderForm(true);
+
+    expect(screen.getByLabelText("fromKo")).toBeDefined();
+    expect(screen.getByLabelText("fromOya")).toBeDefined();
+  });
+});

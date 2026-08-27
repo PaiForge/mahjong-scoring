@@ -12,6 +12,10 @@ interface ScoreOptionSelectProps {
   readonly disabled?: boolean;
   /** 各選択肢の後置文字列（親ツモの「オール」など） */
   readonly optionSuffix?: string;
+  /** 対応する `<label>` の `htmlFor` から参照させる id */
+  readonly id?: string;
+  /** 可視ラベルを持てない場合の代替名（子ツモの「子から」「親から」など） */
+  readonly ariaLabel?: string;
 }
 
 /**
@@ -25,9 +29,13 @@ export function ScoreOptionSelect({
   placeholder,
   disabled = false,
   optionSuffix = "",
+  id,
+  ariaLabel,
 }: ScoreOptionSelectProps) {
   return (
     <select
+      id={id}
+      aria-label={ariaLabel}
       value={value}
       onChange={(e) => onChange(e.target.value)}
       disabled={disabled}

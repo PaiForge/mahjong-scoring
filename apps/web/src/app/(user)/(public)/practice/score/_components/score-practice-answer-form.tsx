@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useMemo, useCallback } from "react";
+import { useState, useMemo, useCallback, useId } from "react";
 import { useTranslations } from "next-intl";
 import { FU_VALUES } from "@mahjong-scoring/core";
 import type { UserAnswer } from "@mahjong-scoring/core";
@@ -43,6 +43,11 @@ export function ScorePracticeAnswerForm({
   onReveal,
 }: ScorePracticeAnswerFormProps) {
   const t = useTranslations("score");
+  // ラベルと select を紐付ける id（読み上げで「翻数」「符」「点数」を名前として得るため）
+  const hanId = useId();
+  const fuId = useId();
+  const scoreId = useId();
+  const scoreLabelId = useId();
   const [han, setHan] = useState<number | undefined>(undefined);
   const [fu, setFu] = useState<number | undefined>(undefined);
   const [yakus, setYakus] = useState<string[]>([]);
@@ -167,10 +172,14 @@ export function ScorePracticeAnswerForm({
 
       {/* Han input */}
       <div>
-        <label className="mb-2 block text-sm font-bold text-surface-700">
+        <label
+          htmlFor={hanId}
+          className="mb-2 block text-sm font-bold text-surface-700"
+        >
           {t("form.labels.han")}
         </label>
         <select
+          id={hanId}
           value={han ?? ""}
           onChange={handleHanChange}
           disabled={disabled}
@@ -191,10 +200,14 @@ export function ScorePracticeAnswerForm({
           触る「点数」と回答ボタンが指の下でせり上がる。注記は select の唯一の
           option として同じ箱に描くため、高さは要素が同一であることで一致する。 */}
       <div>
-        <label className="mb-2 block text-sm font-bold text-surface-700">
+        <label
+          htmlFor={fuId}
+          className="mb-2 block text-sm font-bold text-surface-700"
+        >
           {t("form.labels.fu")}
         </label>
         <select
+          id={fuId}
           value={isFuRequired ? (fu ?? "") : ""}
           onChange={handleFuChange}
           disabled={disabled || !isFuRequired}
@@ -209,19 +222,30 @@ export function ScorePracticeAnswerForm({
         </select>
       </div>
 
-      {/* Score input */}
+      {/* Score input
+          子ツモは「点数」ラベル 1 つに対し select が 2 つあるため、
+          ラベルは group の名前として使い、各 select は「子」「親」で名付ける。 */}
       <div>
-        <label className="mb-2 block text-sm font-bold text-surface-700">
+        <label
+          htmlFor={availableScores.type === "koTsumo" ? undefined : scoreId}
+          id={scoreLabelId}
+          className="mb-2 block text-sm font-bold text-surface-700"
+        >
           {t("form.labels.score")}
         </label>
         {availableScores.type === "koTsumo" ? (
-          <div className="flex items-center gap-2">
+          <div
+            role="group"
+            aria-labelledby={scoreLabelId}
+            className="flex items-center gap-2"
+          >
             <div className="flex-1">
               <ScoreOptionSelect
                 value={scoreFromKo}
                 onChange={setScoreFromKo}
                 options={availableScores.koScores}
                 placeholder={t("form.placeholders.fromKo")}
+                ariaLabel={t("form.placeholders.fromKo")}
                 disabled={disabled}
               />
             </div>
@@ -232,12 +256,14 @@ export function ScorePracticeAnswerForm({
                 onChange={setScoreFromOya}
                 options={availableScores.oyaScores}
                 placeholder={t("form.placeholders.fromOya")}
+                ariaLabel={t("form.placeholders.fromOya")}
                 disabled={disabled}
               />
             </div>
           </div>
         ) : (
           <ScoreOptionSelect
+            id={scoreId}
             value={score}
             onChange={setScore}
             options={availableScores.scores}

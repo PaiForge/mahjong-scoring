@@ -5,55 +5,69 @@ import { ScorePracticeAnswerForm } from "./score-practice-answer-form";
 
 vi.mock("next-intl", async () => await import("@/test/intl-mock"));
 
-/** フォームに並ぶ select は上から 翻数・符・点数 の順 */
-const HAN = 0;
-const FU = 1;
-
-function renderForm(requireFuForMangan = false) {
+function renderForm(
+  props: Partial<{ requireFuForMangan: boolean; isTsumo: boolean }> = {},
+) {
   render(
     <ScorePracticeAnswerForm
       onSubmit={() => {}}
-      isTsumo={false}
+      isTsumo={props.isTsumo ?? false}
       isOya={false}
-      requireFuForMangan={requireFuForMangan}
+      requireFuForMangan={props.requireFuForMangan ?? false}
     />,
   );
-  return screen.getAllByRole("combobox") as HTMLSelectElement[];
+}
+
+/** ラベルから引く（紐付いていなければ取得に失敗する） */
+function select(label: string) {
+  return screen.getByLabelText(label) as HTMLSelectElement;
+}
+
+function selectHan(han: number) {
+  fireEvent.change(select("form.labels.han"), {
+    target: { value: String(han) },
+  });
 }
 
 describe("ScorePracticeAnswerForm", () => {
   it("満貫以上を選んでも符の select は残す（消すとブロックの高さが縮み、下の入力がせり上がる）", () => {
-    const selects = renderForm();
+    renderForm();
 
-    fireEvent.change(selects[HAN]!, {
-      target: { value: String(MANGAN_MIN_HAN) },
-    });
+    selectHan(MANGAN_MIN_HAN);
 
-    const fu = screen.getAllByRole("combobox")[FU]!;
+    const fu = select("form.labels.fu");
     expect(fu.disabled).toBe(true);
     expect(fu.textContent).toBe("form.messages.fuNotRequired");
   });
 
   it("「満貫以上も符を入力」が有効なら満貫以上でも符を選べる", () => {
-    const selects = renderForm(true);
+    renderForm({ requireFuForMangan: true });
 
-    fireEvent.change(selects[HAN]!, {
-      target: { value: String(MANGAN_MIN_HAN) },
-    });
+    selectHan(MANGAN_MIN_HAN);
 
-    const fu = screen.getAllByRole("combobox")[FU]!;
-    expect(fu.disabled).toBe(false);
+    expect(select("form.labels.fu").disabled).toBe(false);
   });
 
   it("満貫以上から翻数を戻すと、選んでいた符が復帰する", () => {
-    const selects = renderForm();
+    renderForm();
 
-    fireEvent.change(selects[FU]!, { target: { value: "40" } });
-    fireEvent.change(selects[HAN]!, {
-      target: { value: String(MANGAN_MIN_HAN) },
-    });
-    fireEvent.change(selects[HAN]!, { target: { value: "3" } });
+    fireEvent.change(select("form.labels.fu"), { target: { value: "40" } });
+    selectHan(MANGAN_MIN_HAN);
+    selectHan(3);
 
-    expect(screen.getAllByRole("combobox")[FU]!.value).toBe("40");
+    expect(select("form.labels.fu").value).toBe("40");
+  });
+
+  it("子ツモの2つの点数 select は「子」「親」で名付ける（ラベルは1つしかないため）", () => {
+    renderForm({ isTsumo: true });
+
+    selectHan(3);
+
+    expect(select("form.placeholders.fromKo")).toBeDefined();
+    expect(select("form.placeholders.fromOya")).toBeDefined();
+    // ラベルは 2 つの select をまとめる group の名前として使う
+    expect(
+      screen.getByRole("group", { name: "form.labels.score" }),
+    ).toBeDefined();
   });
 });
