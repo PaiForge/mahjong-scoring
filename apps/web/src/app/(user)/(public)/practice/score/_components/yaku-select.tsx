@@ -2,7 +2,7 @@
 
 import { useMemo } from "react";
 import { useTranslations } from "next-intl";
-import { YAKU_OPTIONS } from "@mahjong-scoring/core";
+import { SELECTABLE_YAKU_GROUPS } from "@mahjong-scoring/core";
 import { MultiSelect } from "./multi-select";
 
 const YAKU_TO_KEY: Readonly<Record<string, string>> = {
@@ -62,6 +62,7 @@ interface YakuSelectProps {
 export function YakuSelect({ value, onChange, disabled }: YakuSelectProps) {
   const t = useTranslations("score");
   const tYaku = useTranslations("score.yaku");
+  const tGroup = useTranslations("common.yakuSelectGroup");
 
   const multiSelectLabels = useMemo(
     () => ({
@@ -72,17 +73,22 @@ export function YakuSelect({ value, onChange, disabled }: YakuSelectProps) {
     [t],
   );
 
+  // 並びと区切りは役の選択練習（SELECTABLE_YAKU_GROUPS）と揃える。
+  // 36件を見出しなしで流すとスクロール中に現在地が分からなくなるため。
   const options = useMemo(
     () =>
-      YAKU_OPTIONS.map((yaku) => {
-        const key = YAKU_TO_KEY[yaku];
-        const label = key ? tYaku(key) : yaku;
-        return {
-          value: yaku,
-          label,
-        };
-      }),
-    [tYaku],
+      SELECTABLE_YAKU_GROUPS.flatMap((group) =>
+        group.names.map((yaku) => {
+          const key = YAKU_TO_KEY[yaku];
+          const label = key ? tYaku(key) : yaku;
+          return {
+            value: yaku,
+            label,
+            group: tGroup(group.kind),
+          };
+        }),
+      ),
+    [tYaku, tGroup],
   );
 
   return (

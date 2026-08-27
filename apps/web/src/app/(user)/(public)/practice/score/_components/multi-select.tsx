@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { Fragment, useState } from "react";
 
 import { ModalShell } from "@/app/_components/modal-shell";
 import { Button } from "@/app/(user)/_components/button";
@@ -8,6 +8,13 @@ import { Button } from "@/app/(user)/_components/button";
 interface MultiSelectOption {
   readonly value: string;
   readonly label: string;
+  /**
+   * 選択肢が属するグループの見出し。
+   *
+   * 同じ見出しの選択肢を連続して並べておくと、切り替わる位置に見出し行を挟む。
+   * 省略した選択肢には見出しを出さない。
+   */
+  readonly group?: string;
 }
 
 interface MultiSelectLabels {
@@ -139,29 +146,39 @@ export function MultiSelect({
             {labels.title}
           </h3>
           <div className="flex-1 overflow-y-auto rounded-lg border-3 border-ink">
-            {options.map((option) => {
+            {options.map((option, index) => {
               const isSelected = value.includes(option.value);
+              // 見出しはスクロール中も上端に残し、今どのグループを見ているか分かるようにする
+              const startsGroup =
+                option.group !== undefined &&
+                option.group !== options[index - 1]?.group;
               return (
-                <div
-                  key={option.value}
-                  onClick={() => toggleOption(option.value)}
-                  className={`cursor-pointer border-b-2 border-dashed border-border/40 px-4 py-3 text-sm transition-colors last:border-0 ${
-                    isSelected
-                      ? "bg-primary-100 font-medium text-primary-900"
-                      : "text-surface-700 hover:bg-surface-50"
-                  }`}
-                  role="option"
-                  aria-selected={isSelected}
-                >
-                  <div className="flex items-center justify-between">
-                    <span>{option.label}</span>
-                    {isSelected && (
-                      <span className="text-lg leading-none text-primary-600">
-                        &#10003;
-                      </span>
-                    )}
+                <Fragment key={option.value}>
+                  {startsGroup && (
+                    <p className="sticky top-0 z-10 border-b-2 border-dashed border-border/40 bg-surface-100 px-4 py-1.5 text-xs font-semibold text-surface-500">
+                      {option.group}
+                    </p>
+                  )}
+                  <div
+                    onClick={() => toggleOption(option.value)}
+                    className={`cursor-pointer border-b-2 border-dashed border-border/40 px-4 py-3 text-sm transition-colors last:border-0 ${
+                      isSelected
+                        ? "bg-primary-100 font-medium text-primary-900"
+                        : "text-surface-700 hover:bg-surface-50"
+                    }`}
+                    role="option"
+                    aria-selected={isSelected}
+                  >
+                    <div className="flex items-center justify-between">
+                      <span>{option.label}</span>
+                      {isSelected && (
+                        <span className="text-lg leading-none text-primary-600">
+                          &#10003;
+                        </span>
+                      )}
+                    </div>
                   </div>
-                </div>
+                </Fragment>
               );
             })}
           </div>

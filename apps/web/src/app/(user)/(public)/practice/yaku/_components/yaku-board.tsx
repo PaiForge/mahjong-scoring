@@ -36,6 +36,7 @@ export function YakuBoard({
   onAnswer,
 }: YakuBoardProps) {
   const t = useTranslations("yaku");
+  const tGroup = useTranslations("common.yakuSelectGroup");
   const [question, setQuestion] = useClientGeneratedQuestion(generateQuestion);
   const [selectedYaku, setSelectedYaku] = useState<Set<string>>(new Set());
 
@@ -92,7 +93,7 @@ export function YakuBoard({
         {SELECTABLE_YAKU_GROUPS.map((group) => (
           <div key={group.kind} className="space-y-1.5">
             <p className="text-xs font-semibold text-surface-400">
-              {t(`selectGroup.${group.kind}`)}
+              {tGroup(group.kind)}
             </p>
             <div className="flex flex-wrap gap-1.5">
               {group.names.map((yakuName) => (
