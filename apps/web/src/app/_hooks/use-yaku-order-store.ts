@@ -53,10 +53,3 @@ export function useYakuOrder(): readonly string[] {
     [isClient, saved],
   );
 }
-
-/** ユーザーが並べ替えたことがあるか（設定 UI のリセット可否に使う） */
-export function useHasCustomYakuOrder(): boolean {
-  const isClient = useIsClient();
-  const saved = useYakuOrderStore((s) => s.order);
-  return isClient && saved.length > 0;
-}
