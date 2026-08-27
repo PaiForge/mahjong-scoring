@@ -2,8 +2,10 @@ import type { ReactNode } from "react";
 import { HowToPlaySection } from "./how-to-play-section";
 import { PracticeStartCta } from "./practice-start-cta";
 import { buildPracticeStartCtaLabels } from "../_lib/practice-start-cta-labels";
+import Link from "next/link";
 import { getTranslations } from "next-intl/server";
 import { CurriculumToc } from "@/app/(user)/(public)/learn/_components/curriculum-toc";
+import { TEXT_LINK_CLASSES } from "@/app/_components/_lib/link-classes";
 import { getChapterBySlug } from "@/app/(user)/(public)/learn/_lib/curriculum";
 import type { PracticeMenuSlug } from "@/lib/db/practice-menu-types";
 import { ContentContainer } from "@/app/(user)/_components/content-container";
@@ -132,6 +134,17 @@ export async function PracticeIntroContent({
               readSlugs={NO_READ_SLUGS}
               nextSlug={undefined}
             />
+            {/* ダッシュボードの「教本の続き」と同じ、右端に置く目次への導線。
+                向こうは見出し（教本の続き）で文脈が確定するため「目次へ」で
+                済むが、ここは見出しが「関連記事」なので遷移先を明示する。 */}
+            <div className="text-right">
+              <Link
+                href="/learn"
+                className={`text-sm font-medium ${TEXT_LINK_CLASSES}`}
+              >
+                {tp("viewCurriculumToc")}
+              </Link>
+            </div>
           </div>
         )}
       </div>
