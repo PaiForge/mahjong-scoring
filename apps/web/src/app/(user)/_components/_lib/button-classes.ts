@@ -76,8 +76,11 @@ const VARIANT_CLASSES: Record<ButtonVariant, string> = {
   neutral: "border-ink bg-card text-surface-700 hover:bg-surface-100",
   danger: "border-ink bg-destructive text-white hover:bg-destructive/90",
   warning: "border-ink bg-warning text-white hover:bg-warning/90",
+  // 枠は他の variant と同じ ink。枠を destructive にすると、全 variant 共通の
+  // ハードシャドウ（3px 3px 0 var(--color-ink)）だけが緑のまま右下に残り、
+  // 赤枠の右と下に緑の帯が出る。危険であることは文字色と確認モーダルが伝える。
   dangerOutline:
-    "border-destructive bg-card text-destructive hover:bg-destructive-subtle",
+    "border-ink bg-card text-destructive hover:bg-destructive-subtle",
 };
 
 const DISABLED_CLASSES =
