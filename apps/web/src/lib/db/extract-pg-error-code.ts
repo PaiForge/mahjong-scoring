@@ -11,7 +11,7 @@ interface PgError extends Error {
 }
 
 function isPgError(err: unknown): err is PgError {
-  return err instanceof Error && 'code' in err && typeof err.code === 'string';
+  return err instanceof Error && "code" in err && typeof err.code === "string";
 }
 
 export function extractPgErrorCode(err: unknown): string | undefined {

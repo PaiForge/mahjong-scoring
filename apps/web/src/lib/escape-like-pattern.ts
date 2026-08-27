@@ -5,5 +5,5 @@
  * @param pattern - エスケープ対象の文字列
  */
 export function escapeLikePattern(pattern: string): string {
-  return pattern.replace(/[%_\\]/g, '\\$&');
+  return pattern.replace(/[%_\\]/g, "\\$&");
 }

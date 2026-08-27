@@ -7,5 +7,4 @@
  */
 // eslint-disable-next-line @typescript-eslint/no-empty-object-type
 export type ActionResult<T extends Record<string, unknown> = {}> =
-  | ({ success: true } & T)
-  | { error: string };
+  ({ success: true } & T) | { error: string };

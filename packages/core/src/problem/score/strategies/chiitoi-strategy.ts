@@ -1,4 +1,8 @@
-import { validateTehai14, type HaiKindId, type Tehai14 } from "@pai-forge/riichi-mahjong";
+import {
+  validateTehai14,
+  type HaiKindId,
+  type Tehai14,
+} from "@pai-forge/riichi-mahjong";
 import { randomChoice } from "../../../core/random";
 import { HaiUsageTracker } from "../../../core/hai-tracker";
 import { generateToitsu } from "../utils/shape-generator";

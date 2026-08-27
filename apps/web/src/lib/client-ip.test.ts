@@ -16,8 +16,7 @@ beforeEach(() => {
 describe("getClientIp", () => {
   it("returns the first IP from x-forwarded-for", async () => {
     mockHeaders.mockResolvedValue({
-      get: (name: string) =>
-        name === "x-forwarded-for" ? "1.2.3.4" : null,
+      get: (name: string) => (name === "x-forwarded-for" ? "1.2.3.4" : null),
     });
     expect(await getClientIp()).toBe("1.2.3.4");
   });
@@ -47,16 +46,14 @@ describe("getClientIp", () => {
 
   it("returns undefined when x-forwarded-for header is an empty string", async () => {
     mockHeaders.mockResolvedValue({
-      get: (name: string) =>
-        name === "x-forwarded-for" ? "" : null,
+      get: (name: string) => (name === "x-forwarded-for" ? "" : null),
     });
     expect(await getClientIp()).toBeUndefined();
   });
 
   it("returns undefined when the first entry is empty after splitting", async () => {
     mockHeaders.mockResolvedValue({
-      get: (name: string) =>
-        name === "x-forwarded-for" ? " , 5.6.7.8" : null,
+      get: (name: string) => (name === "x-forwarded-for" ? " , 5.6.7.8" : null),
     });
     expect(await getClientIp()).toBeUndefined();
   });

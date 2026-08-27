@@ -13,9 +13,15 @@ export function isHaiKindId(value: number): value is HaiKindId {
  * 数値が有効な牌種ID（0-33）かどうかを検証するスマートコンストラクタ
  * 牌種IDバリデーション
  */
-export function validateHaiKindId(value: number): Result<HaiKindId, RangeError> {
+export function validateHaiKindId(
+  value: number,
+): Result<HaiKindId, RangeError> {
   if (!isHaiKindId(value)) {
-    return err(new RangeError(`Invalid HaiKindId: ${value}. Expected integer in range 0-33.`));
+    return err(
+      new RangeError(
+        `Invalid HaiKindId: ${value}. Expected integer in range 0-33.`,
+      ),
+    );
   }
   return ok(value);
 }
