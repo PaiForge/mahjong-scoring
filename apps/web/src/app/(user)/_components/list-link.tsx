@@ -22,8 +22,6 @@ export function ListLinkContainer({
 
 interface ListLinkProps {
   readonly href: string;
-  /** 行頭のアイコン（絵文字など） */
-  readonly icon: ReactNode;
   readonly title: string;
   /** 右側のメタ情報（日付など） */
   readonly meta?: string;
@@ -33,14 +31,16 @@ interface ListLinkProps {
 
 /**
  * リストの 1 行（blindfold-chess の ListLink 準拠）。
- * アイコン + タイトル + バッジ + メタ + シェブロンの横並び。
+ * タイトル + バッジ + メタ + シェブロンの横並び。
+ *
+ * 行頭のアイコンは持たない。同種のものだけが並ぶリストでは全行が同じ絵文字に
+ * なり、1 ビットの情報も運ばないまま横幅と視線を取るため。
  */
-export function ListLink({ href, icon, title, meta, badge }: ListLinkProps) {
+export function ListLink({ href, title, meta, badge }: ListLinkProps) {
   return (
     <li className="border-b-2 border-dashed border-border/40 transition-colors last:border-b-0 hover:bg-primary-50">
       <Link href={href} className="block px-4 py-3">
         <div className="flex items-center gap-3">
-          <span className="flex-shrink-0 text-xl">{icon}</span>
           <div className="min-w-0 flex-1">
             <span className="block truncate font-bold text-foreground">
               {title}

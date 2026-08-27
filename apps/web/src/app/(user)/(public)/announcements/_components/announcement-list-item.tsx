@@ -26,7 +26,6 @@ export function AnnouncementListItem({
   return (
     <ListLink
       href={`/announcements/${announcement.slug}`}
-      icon="📢"
       title={announcement.title}
       meta={publishedDate}
       badge={
