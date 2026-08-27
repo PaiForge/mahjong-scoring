@@ -16,7 +16,7 @@ export interface YakuOption {
  * 役名を表示名に変換する関数を返すフック
  * 役表示名取得
  *
- * 選択肢・チップ・設定の並べ替えが同じ表示名を出すため、変換をここに寄せる。
+ * 選択肢・チップ・設定の並び替えが同じ表示名を出すため、変換をここに寄せる。
  * 同じ役が画面ごとに違う名前で出ないようにするのが目的。
  */
 export function useYakuLabel(): (yakuName: string) => string {

@@ -35,7 +35,7 @@ export function DisplaySettingsSection() {
         onChange={(checked) => setDoraDisplay(checked ? "actual" : "indicator")}
       />
 
-      {/* 36役を並べ替える UI は設定ページに置くと長すぎるため専用ページへ渡す */}
+      {/* 36役を並び替える UI は設定ページに置くと長すぎるため専用ページへ渡す */}
       <SettingLinkRow
         href={YAKU_ORDER_HREF}
         title={t("yakuOrderTitle")}

@@ -41,7 +41,7 @@ interface SortableYakuRowProps {
   readonly sortable: boolean;
 }
 
-/** 並べ替えできる 1 行。行全体をつまめるようにする（小さなハンドルは指で外しやすい） */
+/** 並び替えできる 1 行。行全体をつまめるようにする（小さなハンドルは指で外しやすい） */
 function SortableYakuRow({
   name,
   label,
@@ -63,7 +63,7 @@ function SortableYakuRow({
       style={{ transform: CSS.Transform.toString(transform), transition }}
       // touch-none は解錠中だけ付ける。付けたままだと一覧の上でブラウザの
       // 縦スクロールが起きず、スクロールのつもりの指の動きがすべて
-      // 並べ替えになる（実機で少し触っただけで行が動いていた）。
+      // 並び替えになる（実機で少し触っただけで行が動いていた）。
       className={`flex items-center gap-3 border-b-2 border-dashed border-border/40 bg-white px-4 py-3 last:border-0 ${
         sortable ? "touch-none" : ""
       } ${isDragging ? "relative z-10 shadow-hard" : ""}`}
@@ -108,15 +108,15 @@ function isSameOrder(a: readonly string[], b: readonly string[]): boolean {
 /**
  * 役の並び順設定セクション
  *
- * 役の選択練習と点数計算練習の選択肢の並びを、よく使う順に並べ替える。
+ * 役の選択練習と点数計算練習の選択肢の並びを、よく使う順に並び替える。
  * 出題内容も正解判定も変わらない。
  *
- * 施錠を挟むのは、指で触っただけで並びが変わるのを防ぐため。並べ替えを
+ * 施錠を挟むのは、指で触っただけで並びが変わるのを防ぐため。並び替えを
  * 成立させるには行に `touch-action: none` が要るが、張ったままだと一覧の上で
  * ページがスクロールできない。施錠中は読むだけの一覧に戻し、解錠したときだけ
  * つまめるようにして、この二律背反を状態で分ける。
  *
- * 解錠中の並べ替えは下書きに溜め、「保存」で初めて永続化する。即時保存だと
+ * 解錠中の並び替えは下書きに溜め、「保存」で初めて永続化する。即時保存だと
  * 保存された瞬間が画面のどこにも出ず、かといって保存ボタンを一覧の下に置くと
  * 36 行の先で見つからない。鍵と保存を一覧の上の追従バーに同居させ、
  * 操作とその結果を同じ場所に置く。
@@ -169,7 +169,7 @@ export function YakuOrderSection() {
   }, [savedOrder]);
 
   const handleRequestDiscard = useCallback(() => {
-    // 並べ替えていないなら確認を挟まない。誤って触れただけのタップまで
+    // 並び替えていないなら確認を挟まない。誤って触れただけのタップまで
     // 確認で止めると、何も失わない操作にモーダルを見せることになる。
     if (!hasUnsavedChanges) {
       setDraft(null);

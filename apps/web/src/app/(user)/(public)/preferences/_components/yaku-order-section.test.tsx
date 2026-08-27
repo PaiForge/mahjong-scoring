@@ -4,7 +4,7 @@
  * @description
  * - 初期状態: 施錠されていて、行に touch-action を張らない（ページをスクロールできる）
  * - 解錠中: 保存・取り消しが出て、行がつまめるようになる
- * - 保存するまで永続化しない / 取り消しは並べ替え済みのときだけ確認を挟む
+ * - 保存するまで永続化しない / 取り消しは並び替え済みのときだけ確認を挟む
  * - 既定順に戻して保存したときは既定順そのものを保存しない
  */
 import { beforeEach, describe, expect, it, vi } from "vitest";
@@ -99,7 +99,7 @@ describe("YakuOrderSection", () => {
     expect(mockToastSuccess).not.toHaveBeenCalled();
   });
 
-  it("並べ替えていなければ確認を挟まずに施錠へ戻す", () => {
+  it("並び替えていなければ確認を挟まずに施錠へ戻す", () => {
     useYakuOrderStore.getState().setOrder(CUSTOM_ORDER);
     render(<YakuOrderSection />);
 
@@ -110,7 +110,7 @@ describe("YakuOrderSection", () => {
     expect(isUnlocked()).toBe(false);
   });
 
-  it("並べ替えたあとの取り消しは確認してから下書きを捨てる", () => {
+  it("並び替えたあとの取り消しは確認してから下書きを捨てる", () => {
     useYakuOrderStore.getState().setOrder(CUSTOM_ORDER);
     render(<YakuOrderSection />);
 
@@ -118,7 +118,7 @@ describe("YakuOrderSection", () => {
     clickText("reset");
     clickText("cancel");
 
-    // 誤タップで並べ替えを失わないよう、破棄の前に一度止める
+    // 誤タップで並び替えを失わないよう、破棄の前に一度止める
     expect(screen.queryByRole("dialog")).not.toBeNull();
     expect(isUnlocked()).toBe(true);
 
