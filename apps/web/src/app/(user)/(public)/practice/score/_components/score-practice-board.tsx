@@ -139,7 +139,11 @@ function ScorePracticeBoardInner() {
           レスポンシブ値に揃え、最終要素である「終了する」の上下余白を均等にする。 */}
       <div className="space-y-4 sm:space-y-6 md:space-y-8">
         {/* Question */}
-        <QuestionDisplay question={currentQuestion} />
+        {/* 盤面はカードの先頭。タイトル帯との間に白帯が出ないよう上も詰める */}
+        <QuestionDisplay
+          question={currentQuestion}
+          mobileFrame="fullBleedFlushTop"
+        />
 
         {/* 面子分解は正解開示の一部。回答中に見せると符の答えが割れるため、
             回答後にのみ手牌の直下へ出す */}

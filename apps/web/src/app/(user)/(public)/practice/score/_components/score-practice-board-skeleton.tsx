@@ -22,8 +22,15 @@ export function ScorePracticeBoardSkeleton() {
       <PageTitle>{t("title")}</PageTitle>
 
       <div className="space-y-4 sm:space-y-6 md:space-y-8" aria-hidden>
-        {/* Question: 状況行 + 手牌が入る盤面ひと枠ぶんの高さ */}
-        <SkeletonBar radius="xl" className="mt-4 h-36" tone={100} />
+        {/* Question: 状況行 + 手牌が入る盤面ひと枠ぶんの高さ。
+            盤面は <sm で左右と上を詰めてカードの縁に付くため、同じ
+            `-mx-4 -mt-4` で位置と幅を合わせる
+            （角丸は radius が段階を持たないため <sm では実物より丸い） */}
+        <SkeletonBar
+          radius="xl"
+          className="-mx-4 -mt-4 h-36 sm:mx-0 sm:mt-4"
+          tone={100}
+        />
 
         {/* Answer area: 翻・符・点数の select（各 label 付き）、回答するボタン、わからないリンク */}
         <div className="space-y-5">

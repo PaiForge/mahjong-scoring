@@ -8,9 +8,10 @@ export const TotalFuTrainingView = createTrainingView({
   maxWidth: "max-w-lg",
   // 符の内訳を読ませたいので、回答後は自動で次へ進めない
   holdAfterAnswer: true,
-  renderBoard: ({ showFeedback, onAnswer, onProceed }) => (
+  renderBoard: ({ showFeedback, isTraining, onAnswer, onProceed }) => (
     <TotalFuBoard
       showFeedback={showFeedback}
+      isTraining={isTraining}
       onAnswer={onAnswer}
       onProceed={onProceed}
     />
