@@ -53,14 +53,15 @@ pnpm dev
 
 ### スクリプト一覧
 
-| コマンド         | 説明                       |
-| ---------------- | -------------------------- |
-| `pnpm dev`       | 全アプリを開発モードで起動 |
-| `pnpm build`     | 全アプリをビルド           |
-| `pnpm lint`      | リント実行                 |
-| `pnpm typecheck` | 型チェック                 |
-| `pnpm test`      | テスト実行                 |
-| `pnpm format`    | Prettier でフォーマット    |
+| コマンド            | 説明                                      |
+| ------------------- | ----------------------------------------- |
+| `pnpm dev`          | 全アプリを開発モードで起動                |
+| `pnpm build`        | 全アプリをビルド                          |
+| `pnpm lint`         | リント実行                                |
+| `pnpm typecheck`    | 型チェック                                |
+| `pnpm test`         | テスト実行                                |
+| `pnpm format`       | Prettier でフォーマット                   |
+| `pnpm format:check` | Prettier の整形漏れを検査（書き換えない） |
 
 ## コーディング規約
 
