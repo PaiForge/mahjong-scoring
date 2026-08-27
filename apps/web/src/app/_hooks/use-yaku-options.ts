@@ -17,7 +17,7 @@ export interface YakuOption {
  * 役表示名取得
  *
  * 選択肢・チップ・設定の並べ替えが同じ表示名を出すため、変換をここに寄せる。
- * 同じ画面で「場風 東」と「役牌 東」が混ざらないようにするのが目的。
+ * 同じ役が画面ごとに違う名前で出ないようにするのが目的。
  */
 export function useYakuLabel(): (yakuName: string) => string {
   const tYaku = useTranslations("score.yaku");
