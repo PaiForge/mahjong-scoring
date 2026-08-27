@@ -3,6 +3,7 @@
 import { useTranslations } from "next-intl";
 
 import { DemoChoiceCell } from "./demo-choice-cell";
+import { FU_CHOICE_LABEL_CLASSES } from "../_lib/fu-choice-classes";
 
 interface DemoFuChoiceGridProps {
   /** 表示する符の選択肢 */
@@ -30,7 +31,10 @@ export function DemoFuChoiceGrid({
   return (
     <div className={`grid ${columnsClassName} gap-3`}>
       {options.map((fu) => (
-        <DemoChoiceCell key={fu} className="text-2xl font-bold">
+        <DemoChoiceCell
+          key={fu}
+          className={`font-bold ${FU_CHOICE_LABEL_CLASSES}`}
+        >
           {t("fuOption", { value: fu })}
         </DemoChoiceCell>
       ))}

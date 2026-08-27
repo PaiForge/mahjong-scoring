@@ -4,6 +4,7 @@ import { useTranslations } from "next-intl";
 
 import { ChoiceButton } from "./choice-button";
 import { getChoiceFeedbackProps } from "../_lib/feedback-styles";
+import { FU_CHOICE_LABEL_CLASSES } from "../_lib/fu-choice-classes";
 
 interface FuChoiceGridProps {
   /** 表示する符の選択肢 */
@@ -47,7 +48,7 @@ export function FuChoiceGrid({
           key={fu}
           index={i}
           onSelect={onSelect}
-          className="text-2xl font-bold"
+          className={`font-bold ${FU_CHOICE_LABEL_CLASSES}`}
           {...getChoiceFeedbackProps({
             showFeedback,
             isCountingDown,
