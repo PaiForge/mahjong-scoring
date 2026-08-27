@@ -1,4 +1,9 @@
-import type { ScoreQuestion, UserAnswer, JudgementResult } from "./types";
+import type {
+  ScoreQuestion,
+  UserAnswer,
+  JudgementResult,
+  YakuSelectionJudgement,
+} from "./types";
 import { IGNORE_YAKU_FOR_JUDGEMENT } from "../../core/yaku-names";
 import {
   clampHanToYakuman,
@@ -30,6 +35,19 @@ function judgeScore(
 }
 
 /**
+ * 回答と突き合わせる正解の役名
+ * ドラ・裏ドラなど、役として選ばせないものは除外する
+ * 判定対象役名
+ */
+function expectedYakuNames(
+  answerYakuDetails: ScoreQuestion["yakuDetails"],
+): readonly string[] {
+  return (answerYakuDetails ?? [])
+    .map((d) => d.name)
+    .filter((name) => !IGNORE_YAKU_FOR_JUDGEMENT.includes(name));
+}
+
+/**
  * 役の判定
  * ドラ・裏ドラなどは無視して比較する
  * 役一致判定
@@ -38,13 +56,39 @@ function judgeYaku(
   answerYakuDetails: ScoreQuestion["yakuDetails"],
   userYakus: readonly string[],
 ): boolean {
-  if (!answerYakuDetails) return userYakus.length === 0;
+  return setsEqual(expectedYakuNames(answerYakuDetails), userYakus);
+}
 
-  const expectedYakus = answerYakuDetails
-    .map((d) => d.name)
-    .filter((name) => !IGNORE_YAKU_FOR_JUDGEMENT.includes(name));
+/**
+ * 役ひとつひとつの答え合わせ結果
+ * 役別判定
+ *
+ * 回答した役の集合が正解と一致するかだけを見る {@link judgeAnswer} と違い、
+ * 「選んで合っていた（correct）」「選んだが役ではない（incorrect）」
+ * 「正解だが選べなかった（missed）」を役ごとに返す。答え合わせの画面で
+ * 「1つ余分なだけなのに回答全体が間違いに見える」ことを防ぐために使う。
+ *
+ * 並び順は正解の役（正解の並び順）→ 余分に選んだ役（選択順）。回答と正解を
+ * 2列に並べて見せるとき、両列で同じ役が同じ順に並ぶようにするため。
+ *
+ * @param answerYakuDetails - 正解の役の内訳
+ * @param userYakus - ユーザーが選択した役名
+ */
+export function judgeYakuSelection(
+  answerYakuDetails: ScoreQuestion["yakuDetails"],
+  userYakus: readonly string[],
+): readonly YakuSelectionJudgement[] {
+  const expected = expectedYakuNames(answerYakuDetails);
 
-  return setsEqual(expectedYakus, userYakus);
+  const judgedExpected = expected.map((name): YakuSelectionJudgement => ({
+    name,
+    state: userYakus.includes(name) ? "correct" : "missed",
+  }));
+  const extra = userYakus
+    .filter((name) => !expected.includes(name))
+    .map((name): YakuSelectionJudgement => ({ name, state: "incorrect" }));
+
+  return [...judgedExpected, ...extra];
 }
 
 /**

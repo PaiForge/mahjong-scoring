@@ -66,6 +66,27 @@ export interface UserAnswer {
 }
 
 /**
+ * 役ひとつの答え合わせの状態
+ * 役別判定状態
+ *
+ * - `correct`: 選択して正解だった役
+ * - `incorrect`: 選択したが成立していない役
+ * - `missed`: 成立していたが選ばなかった役
+ */
+export type YakuSelectionState = "correct" | "incorrect" | "missed";
+
+/**
+ * 役ひとつの答え合わせ結果
+ * 役別判定
+ */
+export interface YakuSelectionJudgement {
+  /** 役名 */
+  readonly name: string;
+  /** その役の答え合わせの状態 */
+  readonly state: YakuSelectionState;
+}
+
+/**
  * 判定結果
  * 回答判定結果
  */
