@@ -5,7 +5,11 @@ import sharp from "sharp";
 import { logActivityEvent } from "@/lib/activity-log";
 import { authorizeApiRequest } from "@/lib/api-auth";
 import { db, profiles } from "@/lib/db";
-import { validateImageBinarySignature } from "@/lib/image-signature";
+import { validateImageBinarySignature } from "@/lib/images/binary-signature";
+import {
+  AVATAR_MAX_FILE_SIZE,
+  isAllowedImageMimeType,
+} from "@/lib/images/policy";
 import { SHARP_DECODE_OPTIONS } from "@/lib/images/sharp-options";
 
 /**
@@ -18,8 +22,6 @@ import { SHARP_DECODE_OPTIONS } from "@/lib/images/sharp-options";
  * アバターアップロードAPI
  */
 
-const ALLOWED_TYPES = ["image/jpeg", "image/png", "image/webp"];
-const MAX_SIZE = 5 * 1024 * 1024; // 5MiB（バケット上限と一致）
 const AVATAR_PIXEL_SIZE = 256;
 const AVATAR_WEBP_QUALITY = 85;
 const AVATAR_PATH_SUFFIX = "avatar.webp";
@@ -29,18 +31,24 @@ export async function POST(request: Request) {
   if (!auth.ok) return auth.response;
   const { user, supabase } = auth;
 
-  const formData = await request.formData();
+  let formData: FormData;
+  try {
+    formData = await request.formData();
+  } catch {
+    // 壊れた multipart を 500 にしない（送信側の誤りなので 400）
+    return NextResponse.json({ error: "invalidForm" }, { status: 400 });
+  }
   const file = formData.get("file");
 
   if (!(file instanceof File)) {
     return NextResponse.json({ error: "noFile" }, { status: 400 });
   }
 
-  if (!ALLOWED_TYPES.includes(file.type)) {
+  if (!isAllowedImageMimeType(file.type)) {
     return NextResponse.json({ error: "invalidType" }, { status: 400 });
   }
 
-  if (file.size > MAX_SIZE) {
+  if (file.size > AVATAR_MAX_FILE_SIZE) {
     return NextResponse.json({ error: "tooLarge" }, { status: 400 });
   }
 

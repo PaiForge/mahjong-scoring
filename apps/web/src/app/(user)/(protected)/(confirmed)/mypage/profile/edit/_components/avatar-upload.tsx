@@ -13,9 +13,10 @@ import {
 } from "@/lib/api-client";
 import { TEXT_LINK_CLASSES } from "@/app/_components/_lib/link-classes";
 import { useAuth } from "@/app/_contexts/auth-context";
-
-const ALLOWED_TYPES = ["image/jpeg", "image/png", "image/webp"];
-const MAX_SIZE = 5 * 1024 * 1024; // 5MB
+import {
+  AVATAR_MAX_FILE_SIZE,
+  isAllowedImageMimeType,
+} from "@/lib/images/policy";
 
 /**
  * アバターアップロード。ファイル選択時に即アップロードし、表示を差し替える。
@@ -39,11 +40,11 @@ export function AvatarUpload({
 
     setError(null);
 
-    if (!ALLOWED_TYPES.includes(file.type)) {
+    if (!isAllowedImageMimeType(file.type)) {
       setError(t("avatarInvalidType"));
       return;
     }
-    if (file.size > MAX_SIZE) {
+    if (file.size > AVATAR_MAX_FILE_SIZE) {
       setError(t("avatarTooLarge"));
       return;
     }
