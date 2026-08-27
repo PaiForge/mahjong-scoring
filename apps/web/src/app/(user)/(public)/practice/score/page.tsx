@@ -40,7 +40,7 @@ export default async function ScoreSetupPage() {
 
       {/* SectionTitle と各カードの間隔を space-y で統一（mt- の散在を避ける） */}
       <div className="space-y-4 sm:space-y-6 md:space-y-8">
-        <SectionTitle>{t("setupTitle")}</SectionTitle>
+        <SectionTitle>{tp("settingsTitle")}</SectionTitle>
         <ScoreSetupForm />
       </div>
     </ContentContainer>
