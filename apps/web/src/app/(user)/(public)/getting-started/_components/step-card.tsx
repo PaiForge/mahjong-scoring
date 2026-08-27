@@ -1,7 +1,7 @@
 import type { ReactNode } from "react";
 
 import Link from "next/link";
-import { TEXT_LINK_MUTED_CLASSES } from "@/app/_components/_lib/link-classes";
+import { TEXT_LINK_CLASSES } from "@/app/_components/_lib/link-classes";
 import { LinkButton } from "@/app/(user)/_components/link-button";
 
 interface StepCardProps {
@@ -45,10 +45,7 @@ export function StepCard({
         <LinkButton href={ctaHref}>{ctaLabel}</LinkButton>
         <div className="flex min-h-5 items-center">
           {subLabel && subHref ? (
-            <Link
-              href={subHref}
-              className={`text-sm ${TEXT_LINK_MUTED_CLASSES}`}
-            >
+            <Link href={subHref} className={`text-sm ${TEXT_LINK_CLASSES}`}>
               {subLabel}
             </Link>
           ) : null}

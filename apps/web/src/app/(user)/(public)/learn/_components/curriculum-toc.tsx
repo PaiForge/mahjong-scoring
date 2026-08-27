@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { getTranslations } from "next-intl/server";
 import { CheckIcon } from "@/app/(user)/_components/icons/check-icon";
-import { TEXT_LINK_MUTED_CLASSES } from "@/app/_components/_lib/link-classes";
+import { TEXT_LINK_CLASSES } from "@/app/_components/_lib/link-classes";
 import {
   chapterHref,
   getChapterI18nPath,
@@ -112,7 +112,7 @@ export async function CurriculumToc({
                   <span className="flex flex-wrap items-center gap-2">
                     <Link
                       href={chapterHref(ch.slug)}
-                      className={`text-sm font-bold ${TEXT_LINK_MUTED_CLASSES}`}
+                      className={`text-sm font-bold ${TEXT_LINK_CLASSES}`}
                     >
                       {t(`${path}.title`)}
                     </Link>

@@ -29,11 +29,15 @@ const LINK_DECORATION =
 
 const LINK_BASE = `${LINK_DECORATION} ${FOCUS_RING_CLASSES}`;
 
-/** 既定のテキストリンク。本文中のリンクや CTA 下の補助リンクに使う。 */
-export const TEXT_LINK_CLASSES = `text-link-primary decoration-primary-300 hover:text-primary-700 hover:decoration-primary-600 ${LINK_BASE}`;
-
-/** 控えめなテキストリンク。フッター・目次・補助導線など地の文に溶かしたい箇所に使う。 */
-export const TEXT_LINK_MUTED_CLASSES = `text-muted-foreground decoration-surface-300 hover:text-foreground hover:decoration-surface-500 ${LINK_BASE}`;
+/**
+ * テキストリンク。本文中のリンクもページ間の移動もすべてこれ 1 つで表す。
+ *
+ * 緑（primary）はボタン — 押して始める面 — の色として取ってあるため、
+ * リンクには使わない。「緑なら始まる / グレーの下線なら移動する」の 2 つに
+ * 絞ると、どちらを使うかを毎回考えずに済む。強調したい導線が出てきたら、
+ * それはリンクの色ではなくボタンで示すべきものと考える。
+ */
+export const TEXT_LINK_CLASSES = `text-muted-foreground decoration-surface-300 hover:text-foreground hover:decoration-surface-500 ${LINK_BASE}`;
 
 /**
  * 行全体がリンクになっている中のタイトル用（`LinkRow`）。

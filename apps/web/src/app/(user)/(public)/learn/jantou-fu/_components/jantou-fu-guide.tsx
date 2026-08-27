@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { getTranslations } from "next-intl/server";
 import { HaiKind } from "@mahjong-scoring/core";
-import { TEXT_LINK_MUTED_CLASSES } from "@/app/_components/_lib/link-classes";
+import { TEXT_LINK_CLASSES } from "@/app/_components/_lib/link-classes";
 import { SectionTitle } from "@/app/(user)/_components/section-title";
 import {
   PREFERENCE_ANCHORS,
@@ -130,7 +130,7 @@ export async function JantouFuGuide() {
               settingsLink: (chunks) => (
                 <Link
                   href={preferencesHref(PREFERENCE_ANCHORS.renfonpai)}
-                  className={TEXT_LINK_MUTED_CLASSES}
+                  className={TEXT_LINK_CLASSES}
                 >
                   {chunks}
                 </Link>

@@ -2,7 +2,6 @@ import Link from "next/link";
 import { BookIcon } from "@/app/(user)/_components/icons/book-icon";
 import { ChevronRightIcon } from "@/app/(user)/_components/icons/chevron-right-icon";
 import { TEXT_LINK_CLASSES } from "@/app/_components/_lib/link-classes";
-import { TEXT_LINK_MUTED_CLASSES } from "@/app/_components/_lib/link-classes";
 
 interface PracticeCardProps {
   href: string;
@@ -57,7 +56,7 @@ export function PracticeCard({
         {learnHref && learnLabel && (
           <Link
             href={learnHref}
-            className={`flex items-center gap-1 text-sm ${TEXT_LINK_MUTED_CLASSES}`}
+            className={`flex items-center gap-1 text-sm ${TEXT_LINK_CLASSES}`}
           >
             <BookIcon className="size-4" />
             {learnLabel}

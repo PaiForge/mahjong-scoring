@@ -9,7 +9,7 @@ import { UserIcon } from "./icons/user-icon";
 import { UserAvatar } from "./user-avatar";
 import { useAuth } from "@/app/_contexts/auth-context";
 import { SkeletonBar } from "@/app/_components/skeleton-bar";
-import { TEXT_LINK_MUTED_CLASSES } from "@/app/_components/_lib/link-classes";
+import { TEXT_LINK_CLASSES } from "@/app/_components/_lib/link-classes";
 
 /**
  * ヘッダー右側のアカウント表示。
@@ -67,7 +67,7 @@ export function AuthNavItem() {
       <div className="flex items-center gap-3 text-xs sm:gap-4 sm:text-sm">
         <Link
           href="/sign-in"
-          className={`font-medium whitespace-nowrap ${TEXT_LINK_MUTED_CLASSES}`}
+          className={`font-medium whitespace-nowrap ${TEXT_LINK_CLASSES}`}
         >
           {t("login")}
         </Link>

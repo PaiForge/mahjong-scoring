@@ -1,7 +1,7 @@
 "use client";
 
 import type { ReactNode } from "react";
-import { TEXT_LINK_MUTED_CLASSES } from "@/app/_components/_lib/link-classes";
+import { TEXT_LINK_CLASSES } from "@/app/_components/_lib/link-classes";
 
 interface ReferenceLinkButtonProps {
   /** 参照先のナビと同じアイコン（行き先が一目で分かるようにする） */
@@ -27,7 +27,7 @@ export function ReferenceLinkButton({
     <button
       type="button"
       onClick={onClick}
-      className={`inline-flex items-center gap-1 text-xs ${TEXT_LINK_MUTED_CLASSES}`}
+      className={`inline-flex items-center gap-1 text-xs ${TEXT_LINK_CLASSES}`}
     >
       {icon}
       {label}

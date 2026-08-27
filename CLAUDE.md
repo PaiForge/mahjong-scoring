@@ -121,8 +121,11 @@ packages/eslint-config/ — 共通 ESLint 設定（PaiForge コーディング�
 
 管理画面でも使うため `app/_components/` 側に置いている。
 
-本文中のリンクやページ間の補助導線は `TEXT_LINK_CLASSES`（既定・緑）/
-`TEXT_LINK_MUTED_CLASSES`（控えめ・グレー）を `className` に貼る。
+テキストリンクは `TEXT_LINK_CLASSES`（グレー + 常時下線）の 1 種類だけ。
+本文中のリンクもページ間の移動もこれを `className` に貼る。緑（primary）は
+ボタン＝「押して始める面」の色として取ってあるためリンクには使わない
+（緑なら始まる / グレーの下線なら移動する）。強調したい導線が出てきたら、
+リンクの色ではなくボタンで示す。
 `text-primary-* hover:underline` のようなリンクの class をページ側で直接書かない。
 リンク風の `<button>` にも同じ定数を使う。行全体がクリック対象になるもの
 （`LinkRow` 等）は行の中のタイトルに `ROW_LINK_TITLE_CLASSES` を使う
