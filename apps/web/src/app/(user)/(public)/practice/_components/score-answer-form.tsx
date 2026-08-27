@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useId } from "react";
 import { useTranslations } from "next-intl";
 import type { ScoreTableUserAnswer } from "@mahjong-scoring/core";
 import { Button } from "@/app/(user)/_components/button";
@@ -50,6 +50,10 @@ export function ScoreAnswerForm({
   autoSubmit = false,
 }: ScoreAnswerFormProps) {
   const t = useTranslations(translationNamespace);
+  // ラベルと select を紐付ける id（読み上げで見出しを名前として得るため）
+  const scoreId = useId();
+  const fromKoId = useId();
+  const fromOyaId = useId();
   const [score, setScore] = useState<string>("");
   const [scoreFromKo, setScoreFromKo] = useState<string>("");
   const [scoreFromOya, setScoreFromOya] = useState<string>("");
@@ -119,10 +123,14 @@ export function ScoreAnswerForm({
         <div>
           <div className="flex items-center gap-2">
             <div className="flex-1">
-              <label className="mb-2 block text-sm font-bold text-surface-700">
+              <label
+                htmlFor={fromKoId}
+                className="mb-2 block text-sm font-bold text-surface-700"
+              >
                 {t("fromKo")}
               </label>
               <ScoreOptionSelect
+                id={fromKoId}
                 value={scoreFromKo}
                 onChange={handleKoChange}
                 options={availableScores.koScores}
@@ -132,10 +140,14 @@ export function ScoreAnswerForm({
             </div>
             <span className="mt-6 font-medium text-surface-500">/</span>
             <div className="flex-1">
-              <label className="mb-2 block text-sm font-bold text-surface-700">
+              <label
+                htmlFor={fromOyaId}
+                className="mb-2 block text-sm font-bold text-surface-700"
+              >
                 {t("fromOya")}
               </label>
               <ScoreOptionSelect
+                id={fromOyaId}
                 value={scoreFromOya}
                 onChange={handleOyaChange}
                 options={availableScores.oyaScores}
@@ -147,10 +159,14 @@ export function ScoreAnswerForm({
         </div>
       ) : (
         <div>
-          <label className="mb-2 block text-sm font-bold text-surface-700">
+          <label
+            htmlFor={scoreId}
+            className="mb-2 block text-sm font-bold text-surface-700"
+          >
             {t("selectScore")}
           </label>
           <ScoreOptionSelect
+            id={scoreId}
             value={score}
             onChange={handleSingleChange}
             options={availableScores.scores}
