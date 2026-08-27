@@ -24,13 +24,11 @@ export default async function DeleteAccountPage() {
   await requireConfirmedUser();
   const t = await getTranslations("deleteAccount");
   const tMypage = await getTranslations("mypage");
-  const tProfile = await getTranslations("profileEdit");
 
   return (
     <ContentContainer
       breadcrumb={[
         { label: tMypage("pageTitle"), href: "/mypage" },
-        { label: tProfile("pageTitle"), href: "/mypage/profile/edit" },
         { label: t("pageTitle") },
       ]}
     >

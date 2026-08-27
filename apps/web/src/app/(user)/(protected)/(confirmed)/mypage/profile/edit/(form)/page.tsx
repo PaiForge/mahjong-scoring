@@ -61,7 +61,7 @@ export default async function ProfileEditPage({
 
       <div className="mt-10 border-t-2 border-dashed border-border/40 pt-6 text-center">
         <Link
-          href="/mypage/profile/edit/delete-account"
+          href="/mypage/account/delete"
           className={`text-sm ${TEXT_LINK_MUTED_CLASSES}`}
         >
           {t("deleteAccountLink")}
