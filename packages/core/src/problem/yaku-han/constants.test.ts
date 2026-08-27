@@ -3,6 +3,8 @@ import { describe, it, expect } from "vitest";
 import {
   YAKU_HAN_ENTRIES,
   YAKUMAN_HAN,
+  YAKUHAI_ENTRY_NAME,
+  findYakuHanEntry,
   groupYakuHanEntriesByMenzenHan,
 } from "./constants";
 import { YAKU_OPTION_GROUPS, YAKU_OPTIONS } from "../../core/yaku-names";
@@ -113,5 +115,35 @@ describe("groupYakuHanEntriesByMenzenHan", () => {
 
     expect(groups).toHaveLength(1);
     expect(groups[0]?.han).toBe(YAKUMAN_HAN);
+  });
+});
+
+describe("findYakuHanEntry", () => {
+  it("役名がそのまま登録されている役はそのエントリを返す", () => {
+    expect(findYakuHanEntry("混一色")?.name).toBe("混一色");
+    expect(findYakuHanEntry("国士無双")?.name).toBe("国士無双");
+  });
+
+  it("書き分けた役牌は「役牌」のエントリに解決する", () => {
+    for (const name of YAKUHAI_VARIANTS) {
+      expect(findYakuHanEntry(name)?.name, `${name} の解決先`).toBe(
+        YAKUHAI_ENTRY_NAME,
+      );
+    }
+  });
+
+  it("選択肢の全ての役がエントリに解決する", () => {
+    const unresolved = YAKU_OPTIONS.filter(
+      (name) => findYakuHanEntry(name) === undefined,
+    );
+
+    expect(
+      unresolved,
+      `エントリに解決できない役: ${unresolved.join(", ")}`,
+    ).toEqual([]);
+  });
+
+  it("登録されていない役名は undefined を返す", () => {
+    expect(findYakuHanEntry("存在しない役")).toBeUndefined();
   });
 });
