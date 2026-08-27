@@ -1,8 +1,10 @@
 import "server-only";
 
 import { eq } from "drizzle-orm";
+import { revalidateTag } from "next/cache";
 
 import type { ActionResult } from "@/lib/action-types";
+import { LEADERBOARD_CACHE_TAG } from "@/lib/cache-tags";
 
 import {
   challengeBestScores,
@@ -72,6 +74,11 @@ export async function deleteAccount(userId: string): Promise<ActionResult> {
       })
       .where(eq(profiles.id, userId));
   });
+
+  // 成績を消しても、ランキングのキャッシュ（5 分）には退会者の行が残る。
+  // しかもアバターの実体は直後に消えるため、捨てないと数分間「退会者の名前と
+  // 割れた画像」が一覧に出る。
+  revalidateTag(LEADERBOARD_CACHE_TAG, "default");
 
   // 3. アバター画像を Storage から削除（失敗しても退会は完了させる）。
   try {

@@ -1,8 +1,10 @@
 import { eq } from "drizzle-orm";
+import { revalidateTag } from "next/cache";
 import { NextResponse } from "next/server";
 import sharp from "sharp";
 
 import { logActivityEvent } from "@/lib/activity-log";
+import { LEADERBOARD_CACHE_TAG } from "@/lib/cache-tags";
 import { authorizeApiRequest } from "@/lib/api-auth";
 import { db, profiles } from "@/lib/db";
 import { validateImageBinarySignature } from "@/lib/images/binary-signature";
@@ -95,6 +97,12 @@ export async function POST(request: Request) {
     .update(profiles)
     .set({ avatarUrl, updatedAt: new Date() })
     .where(eq(profiles.id, user.id));
+
+  // ランキングのキャッシュ（5 分）は行にアバター URL を含むため、ここで捨てないと
+  // 一覧だけ古い画像を出し続ける。URL 末尾の ?t= は新しい URL が配られて初めて効く。
+  // キャッシュのキーは (種目・期間・ページ) 単位でユーザー単位ではないので、
+  // 一部だけを狙って捨てることはできない。アバター変更の頻度なら全体で購う。
+  revalidateTag(LEADERBOARD_CACHE_TAG, "default");
 
   logActivityEvent({
     userId: user.id,
