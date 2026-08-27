@@ -6,6 +6,7 @@ import { logActivityEvent } from "@/lib/activity-log";
 import { authorizeApiRequest } from "@/lib/api-auth";
 import { db, profiles } from "@/lib/db";
 import { validateImageBinarySignature } from "@/lib/image-signature";
+import { SHARP_DECODE_OPTIONS } from "@/lib/images/sharp-options";
 
 /**
  * アバター画像アップロードエンドポイント。
@@ -50,9 +51,11 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: "invalidType" }, { status: 400 });
   }
 
+  // バイト数の上限を通っても、巨大寸法（圧縮爆弾）やアニメーションの多フレームは
+  // デコード時に膨れ上がる。面積とフレーム数の上限は SHARP_DECODE_OPTIONS が持つ。
   let processed: Buffer;
   try {
-    processed = await sharp(Buffer.from(arrayBuffer), { failOn: "error" })
+    processed = await sharp(Buffer.from(arrayBuffer), SHARP_DECODE_OPTIONS)
       .rotate() // EXIF の回転を焼き込み、その他メタデータ（GPS等）は破棄
       .resize(AVATAR_PIXEL_SIZE, AVATAR_PIXEL_SIZE, { fit: "cover" })
       .webp({ quality: AVATAR_WEBP_QUALITY })
