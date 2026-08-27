@@ -1,0 +1,11 @@
+# 別リポジトリ（PaiForge/docs）が管理する submodule。ここで整形すると
+# 親リポジトリのコミットと無関係な差分が submodule 側に出る
+docs/
+
+# 生成物（それぞれのツールが自分の書式で吐き直すため、整形しても元に戻る）
+apps/web/drizzle/meta/
+apps/web/.next/
+**/dist/
+**/coverage/
+
+pnpm-lock.yaml
