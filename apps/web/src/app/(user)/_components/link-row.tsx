@@ -1,6 +1,11 @@
 import type { ReactNode } from "react";
 import Link from "next/link";
 
+import {
+  FOCUS_RING_CLASSES,
+  ROW_LINK_TITLE_CLASSES,
+} from "@/app/_components/_lib/link-classes";
+
 /**
  * 行リンクのリスト枠
  * 行リンクリスト
@@ -35,8 +40,9 @@ interface LinkRowProps {
  * 一覧を見に行くだけのリンクが同じ装いをすると、画面の重み付けが重要度と
  * 一致しなくなる。そういう行き先はこの行リンクで示す。
  *
- * 行全体が押せる面なので、タイトルにはテキストリンクの色や下線を付けない
- * （`TEXT_LINK_CLASSES` は地の文に混ざるリンクのためのもの）。
+ * 行全体が押せる面だが、タイトルには常時下線を引く（`ROW_LINK_TITLE_CLASSES`）。
+ * 日付や説明と並ぶ行の中では、下線が無いとただの文字に見えてリンクだと
+ * 分からない。hover の色変化だけではタッチ端末で一切見えない。
  */
 export function LinkRow({
   href,
@@ -51,11 +57,11 @@ export function LinkRow({
           リスト自体の左端は隣のセクションと揃えたままにする。 */}
       <Link
         href={href}
-        className="group -mx-2 flex items-start gap-3 rounded-lg px-2 py-3 transition-colors hover:bg-surface-50"
+        className={`group -mx-2 flex items-start gap-3 rounded-lg px-2 py-3 transition-colors hover:bg-surface-50 ${FOCUS_RING_CLASSES}`}
       >
         {leading !== undefined && <span className="shrink-0">{leading}</span>}
         <span className="min-w-0 flex-1">
-          <span className="block text-sm font-bold text-foreground transition-colors group-hover:text-primary-700">
+          <span className={`block text-sm font-bold ${ROW_LINK_TITLE_CLASSES}`}>
             {title}
           </span>
           {description !== undefined && (

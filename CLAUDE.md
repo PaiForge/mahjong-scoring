@@ -124,8 +124,10 @@ packages/eslint-config/ — 共通 ESLint 設定（PaiForge コーディング�
 本文中のリンクやページ間の補助導線は `TEXT_LINK_CLASSES`（既定・緑）/
 `TEXT_LINK_MUTED_CLASSES`（控えめ・グレー）を `className` に貼る。
 `text-primary-* hover:underline` のようなリンクの class をページ側で直接書かない。
-リンク風の `<button>` にも同じ定数を使う。カード全体がクリック対象になるもの
-（`LinkRow` 等）は「押せる面」なので対象外。
+リンク風の `<button>` にも同じ定数を使う。行全体がクリック対象になるもの
+（`LinkRow` 等）は行の中のタイトルに `ROW_LINK_TITLE_CLASSES` を使う
+（hover が行に追随する版）。下線は常時引く — hover でしか出ない
+アフォーダンスはタッチ端末では一切見えない。
 
 ## ローディング境界（loading.tsx）
 
