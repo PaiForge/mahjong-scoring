@@ -2,7 +2,7 @@
  * AvatarUpload の削除フローテスト
  *
  * @description
- * - アバター未設定: 削除の導線を出さない
+ * - アバター未設定: バツ印を出さない
  * - キャンセル: API を呼ばない
  * - 成功時: 初期アイコンへ戻し、ヘッダー用のプロフィールも再取得する
  * - 失敗時: 画像を残したままエラーを出す
@@ -64,6 +64,13 @@ function getButton(container: HTMLElement, label: string) {
   );
 }
 
+/** アバターに重ねたバツ印（ラベルしか持たないため aria-label で引く） */
+function getRemoveButton(container: HTMLElement) {
+  return container.querySelector<HTMLButtonElement>(
+    'button[aria-label="avatarRemove"]',
+  );
+}
+
 // ---------------------------------------------------------------------------
 // Tests
 // ---------------------------------------------------------------------------
@@ -73,10 +80,10 @@ describe("AvatarUpload の削除", () => {
     vi.clearAllMocks();
   });
 
-  it("アバター未設定のときは削除の導線を出さない", () => {
+  it("アバター未設定のときはバツ印を出さない", () => {
     const { container } = render(<AvatarUpload currentAvatarUrl={null} />);
 
-    expect(getButton(container, "avatarRemove")).toBeUndefined();
+    expect(getRemoveButton(container)).toBeNull();
   });
 
   it("確認モーダルをキャンセルすると API を呼ばない", () => {
@@ -84,7 +91,7 @@ describe("AvatarUpload の削除", () => {
       <AvatarUpload currentAvatarUrl={AVATAR_URL} />,
     );
 
-    fireEvent.click(getButton(container, "avatarRemove")!);
+    fireEvent.click(getRemoveButton(container)!);
     fireEvent.click(getButton(container, "avatarRemoveConfirmCancel")!);
 
     expect(mockCallApi).not.toHaveBeenCalled();
@@ -98,7 +105,7 @@ describe("AvatarUpload の削除", () => {
       <AvatarUpload currentAvatarUrl={AVATAR_URL} />,
     );
 
-    fireEvent.click(getButton(container, "avatarRemove")!);
+    fireEvent.click(getRemoveButton(container)!);
     await act(async () => {
       fireEvent.click(getButton(container, "avatarRemoveConfirmOk")!);
     });
@@ -107,7 +114,7 @@ describe("AvatarUpload の削除", () => {
       method: "DELETE",
     });
     expect(container.querySelector("img")).toBeNull();
-    expect(getButton(container, "avatarRemove")).toBeUndefined();
+    expect(getRemoveButton(container)).toBeNull();
     expect(mockRefreshProfile).toHaveBeenCalled();
     expect(mockToastSuccess).toHaveBeenCalledWith("avatarRemoved");
   });
@@ -119,7 +126,7 @@ describe("AvatarUpload の削除", () => {
       <AvatarUpload currentAvatarUrl={AVATAR_URL} />,
     );
 
-    fireEvent.click(getButton(container, "avatarRemove")!);
+    fireEvent.click(getRemoveButton(container)!);
     await act(async () => {
       fireEvent.click(getButton(container, "avatarRemoveConfirmOk")!);
     });
@@ -136,7 +143,7 @@ describe("AvatarUpload の削除", () => {
       <AvatarUpload currentAvatarUrl={AVATAR_URL} />,
     );
 
-    fireEvent.click(getButton(container, "avatarRemove")!);
+    fireEvent.click(getRemoveButton(container)!);
     await act(async () => {
       fireEvent.click(getButton(container, "avatarRemoveConfirmOk")!);
     });

@@ -1140,7 +1140,7 @@
     "avatarTooLarge": "ファイルサイズが大きすぎます（5MB まで）。",
     "avatarUploadFailed": "アバターのアップロードに失敗しました。",
     "avatarConversionFailed": "この画像は読み込めませんでした。別の画像を選んでください。",
-    "avatarRemove": "画像を削除",
+    "avatarRemove": "アバター画像を削除",
     "avatarRemoveConfirmTitle": "アバターを削除しますか？",
     "avatarRemoveConfirmMessage": "アップロードした画像を削除し、初期アイコンに戻します。この操作は取り消せません。",
     "avatarRemoveConfirmOk": "削除する",
