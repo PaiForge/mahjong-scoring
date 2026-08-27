@@ -146,3 +146,13 @@ export function normalizeYakuHanRange(value: string | undefined): YakuHanRange {
   }
   return DEFAULT_YAKU_HAN_RANGE;
 }
+
+/**
+ * 役牌をひとまとめに扱うときの役エントリ名
+ * 役牌エントリ名
+ *
+ * 選択肢側は「役牌 東」「役牌 白」のように風・三元牌を書き分けるが、
+ * 翻数と鳴きの扱いはどれも同じなので {@link YAKU_HAN_ENTRIES} では
+ * 「役牌」1エントリに集約している。
+ */
+export const YAKUHAI_ENTRY_NAME = "役牌";

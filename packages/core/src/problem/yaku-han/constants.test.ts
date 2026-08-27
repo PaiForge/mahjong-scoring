@@ -3,6 +3,7 @@ import { describe, it, expect } from "vitest";
 import {
   YAKU_HAN_ENTRIES,
   YAKUMAN_HAN,
+  YAKUHAI_ENTRY_NAME,
   groupYakuHanEntriesByMenzenHan,
 } from "./constants";
 import { YAKU_OPTION_GROUPS, YAKU_OPTIONS } from "../../core/yaku-names";
@@ -40,7 +41,7 @@ describe("YAKU_HAN_ENTRIES", () => {
   it("YAKU_OPTIONS に存在しない役を含まない（役牌のまとめを除く）", () => {
     const options = new Set<string>(YAKU_OPTIONS);
     const unknown = YAKU_HAN_ENTRIES.map((e) => e.name).filter(
-      (name) => !options.has(name) && name !== "役牌",
+      (name) => !options.has(name) && name !== YAKUHAI_ENTRY_NAME,
     );
 
     expect(unknown, `未知の役: ${unknown.join(", ")}`).toEqual([]);
@@ -51,7 +52,9 @@ describe("YAKU_HAN_ENTRIES", () => {
 
     for (const group of YAKU_OPTION_GROUPS) {
       for (const name of group.names) {
-        const entryName = YAKUHAI_VARIANTS.has(name) ? "役牌" : name;
+        const entryName = YAKUHAI_VARIANTS.has(name)
+          ? YAKUHAI_ENTRY_NAME
+          : name;
         expect(
           hanOf.get(entryName),
           `${name} のグループは ${group.han} 翻だが YAKU_HAN_ENTRIES と異なる`,

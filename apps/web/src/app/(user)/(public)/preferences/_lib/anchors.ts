@@ -23,3 +23,6 @@ export type PreferenceAnchor =
 export function preferencesHref(anchor: PreferenceAnchor): string {
   return `/preferences#${anchor}`;
 }
+
+/** 役の並び順ページ（設定の子ページ）。項目が多く設定ページ本体には収まらない。 */
+export const YAKU_ORDER_HREF = "/preferences/yaku-order";

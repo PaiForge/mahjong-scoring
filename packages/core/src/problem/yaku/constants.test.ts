@@ -3,6 +3,8 @@ import { HaiKind } from "@pai-forge/riichi-mahjong";
 import {
   YAKU_NAME_MAP,
   SELECTABLE_YAKU,
+  YAKU_DEFAULT_ORDER,
+  normalizeYakuOrder,
   EXCLUDED_YAKU_FROM_ANSWER,
   getKazeYakuhaiDisplayName,
 } from "./constants";
@@ -108,5 +110,77 @@ describe("getKazeYakuhaiDisplayName", () => {
 
   it("北風を正しく変換する", () => {
     expect(getKazeYakuhaiDisplayName(HaiKind.Pei)).toBe("役牌 北");
+  });
+});
+
+describe("YAKU_DEFAULT_ORDER", () => {
+  it("選択可能な役をちょうど1回ずつ含む", () => {
+    expect([...YAKU_DEFAULT_ORDER].sort()).toEqual([...SELECTABLE_YAKU].sort());
+  });
+
+  it("実戦での頻出役が翻数順より前に来る", () => {
+    // 立直 41.5% / 断么九 22.0% / 平和 20.3% に対し
+    // 混全帯么九 0.83% / 三槓子 0.001%（天鳳鳳凰卓 2023 の集計）
+    const posOf = (name: string) => YAKU_DEFAULT_ORDER.indexOf(name);
+    expect(posOf("立直")).toBeLessThan(posOf("混全帯么九"));
+    expect(posOf("断么九")).toBeLessThan(posOf("混全帯么九"));
+    expect(posOf("平和")).toBeLessThan(posOf("一盃口"));
+    expect(posOf("七対子")).toBeLessThan(posOf("三槓子"));
+  });
+
+  it("役牌7種が連続する", () => {
+    const positions = ["白", "發", "中", "東", "南", "西", "北"].map((kaze) =>
+      YAKU_DEFAULT_ORDER.indexOf(`役牌 ${kaze}`),
+    );
+    expect(Math.max(...positions) - Math.min(...positions)).toBe(
+      positions.length - 1,
+    );
+  });
+});
+
+describe("normalizeYakuOrder", () => {
+  it("未保存（空）のときは既定順を返す", () => {
+    expect(normalizeYakuOrder([])).toEqual(YAKU_DEFAULT_ORDER);
+  });
+
+  it("保存された並びをそのまま尊重する", () => {
+    const saved = [...SELECTABLE_YAKU].reverse();
+    expect(normalizeYakuOrder(saved)).toEqual(saved);
+  });
+
+  it("選べなくなった役を捨てる", () => {
+    const result = normalizeYakuOrder(["廃止された役", "断么九"]);
+    expect(result).not.toContain("廃止された役");
+    expect(result[0]).toBe("断么九");
+  });
+
+  it("並びに無い役を既定順の順序で末尾に足す", () => {
+    const result = normalizeYakuOrder(["清一色", "断么九"]);
+    expect(result.slice(0, 2)).toEqual(["清一色", "断么九"]);
+
+    const appended = result.slice(2);
+    const expected = YAKU_DEFAULT_ORDER.filter(
+      (name) => name !== "清一色" && name !== "断么九",
+    );
+    expect(appended).toEqual(expected);
+  });
+
+  it("重複を取り除く", () => {
+    const result = normalizeYakuOrder(["断么九", "断么九", "清一色"]);
+    expect(result.slice(0, 2)).toEqual(["断么九", "清一色"]);
+  });
+
+  it("どんな入力でも全役をちょうど1回ずつ含む", () => {
+    for (const saved of [
+      [],
+      ["断么九"],
+      ["不明", "断么九", "断么九"],
+      [...SELECTABLE_YAKU].reverse(),
+    ]) {
+      const result = normalizeYakuOrder(saved);
+      expect([...result].sort(), `入力: ${JSON.stringify(saved)}`).toEqual(
+        [...SELECTABLE_YAKU].sort(),
+      );
+    }
   });
 });

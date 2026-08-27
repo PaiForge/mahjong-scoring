@@ -4,8 +4,9 @@ import { useTranslations } from "next-intl";
 import { HaiKind } from "@mahjong-scoring/core";
 import { TehaiDisplay } from "../../_components/tehai-display";
 import { buildDemoTehai } from "../../_lib/demo-tehai";
-import { YakuChip } from "./yaku-chip";
 import { QuestionPrompt } from "../../_components/question-prompt";
+import { MultiSelect } from "@/app/(user)/_components/multi-select";
+import { useYakuLabel } from "@/app/_hooks/use-yaku-options";
 
 /**
  * デモ用の固定例: 断么九 + 一盃口
@@ -35,14 +36,8 @@ const DEMO_CONTEXT = {
   isTsumo: false,
 } as const;
 
-/** 選択肢の抜粋。実際の出題では全役から複数選択する。 */
-const DEMO_YAKU: readonly string[] = [
-  "断么九",
-  "一盃口",
-  "平和",
-  "三色同順",
-  "対々和",
-];
+/** この手で成立している役。実際の出題では全役から選ぶ。 */
+const DEMO_YAKU: readonly string[] = ["断么九", "一盃口"];
 
 const noop = () => {};
 
@@ -55,6 +50,8 @@ const noop = () => {};
  */
 export function YakuHowToPlay() {
   const t = useTranslations("yaku");
+  const tPicker = useTranslations("common.yakuPicker");
+  const labelOf = useYakuLabel();
 
   return (
     <div className="space-y-4">
@@ -63,20 +60,22 @@ export function YakuHowToPlay() {
       {/* Instruction */}
       <QuestionPrompt>{t("selectYaku")}</QuestionPrompt>
 
-      {/* Yaku chips（出題時と同じ未選択の並び） */}
-      <div className="flex flex-wrap justify-center gap-1.5">
-        {DEMO_YAKU.map((name) => (
-          <YakuChip
-            key={name}
-            yakuName={name}
-            isSelected={false}
-            feedbackState={undefined}
-            disabled
-            presentational
-            onToggle={noop}
-          />
-        ))}
-      </div>
+      {/* 選択欄（出題時と同じ形。押せないよう disabled で静止させる） */}
+      <MultiSelect
+        options={DEMO_YAKU.map((name) => ({
+          value: name,
+          label: labelOf(name),
+        }))}
+        value={DEMO_YAKU}
+        onChange={noop}
+        disabled
+        placeholder={tPicker("placeholder")}
+        labels={{
+          add: tPicker("add"),
+          title: tPicker("title"),
+          done: tPicker("done"),
+        }}
+      />
     </div>
   );
 }
