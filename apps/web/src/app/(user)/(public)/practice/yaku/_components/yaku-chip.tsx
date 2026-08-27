@@ -3,17 +3,13 @@
 import { memo, useCallback } from "react";
 
 interface YakuChipProps {
+  /** 役の識別子。表示には使わない（表示は label） */
   readonly yakuName: string;
+  /** 画面に出す表示名。選択モーダルと同じ名前を出すため呼び出し側で解決する */
+  readonly label: string;
   readonly isSelected: boolean;
   readonly feedbackState: "correct" | "incorrect" | "missed" | undefined;
   readonly disabled: boolean;
-  /**
-   * 静的なプレビュー用（押せないが、未選択の見た目のまま）
-   *
-   * `disabled` の減光はカウントダウン中など「今は押せない」ことを伝えるための
-   * もので、出題例のプレビューでは無効に見えてしまうため切り離す。
-   */
-  readonly presentational?: boolean;
   readonly onToggle: (yakuName: string) => void;
 }
 
@@ -23,10 +19,10 @@ interface YakuChipProps {
  */
 export const YakuChip = memo(function YakuChipComponent({
   yakuName,
+  label,
   isSelected,
   feedbackState,
   disabled,
-  presentational = false,
   onToggle,
 }: YakuChipProps) {
   const handleClick = useCallback(() => {
@@ -51,9 +47,7 @@ export const YakuChip = memo(function YakuChipComponent({
   }
 
   if (disabled && !feedbackState) {
-    chipClasses += presentational
-      ? " pointer-events-none"
-      : " opacity-50 pointer-events-none";
+    chipClasses += " opacity-50 pointer-events-none";
   }
 
   return (
@@ -63,7 +57,7 @@ export const YakuChip = memo(function YakuChipComponent({
       disabled={disabled && !feedbackState}
       className={chipClasses}
     >
-      {yakuName}
+      {label}
     </button>
   );
 });

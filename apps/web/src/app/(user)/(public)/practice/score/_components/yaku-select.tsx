@@ -2,52 +2,9 @@
 
 import { useMemo } from "react";
 import { useTranslations } from "next-intl";
-import { SELECTABLE_YAKU_GROUPS } from "@mahjong-scoring/core";
-import { MultiSelect } from "./multi-select";
 
-const YAKU_TO_KEY: Readonly<Record<string, string>> = {
-  立直: "riichi",
-  一発: "ippatsu",
-  門前清自摸和: "menzen_tsumo",
-  断么九: "tanyao",
-  平和: "pinfu",
-  一盃口: "iipeiko",
-  役牌: "yakuhai",
-  "役牌 東": "bakaze_ton",
-  "役牌 南": "jikaze_nan",
-  "役牌 西": "jikaze_sha",
-  "役牌 北": "jikaze_pei",
-  "役牌 白": "haku",
-  "役牌 發": "hatsu",
-  "役牌 中": "chun",
-  三色同順: "sanshoku_doujun",
-  一気通貫: "itsu",
-  混全帯么九: "chanta",
-  七対子: "chitoisu",
-  対々和: "toitoi",
-  三暗刻: "sanankou",
-  三色同刻: "sanshoku_doukou",
-  三槓子: "sankantsu",
-  小三元: "shosangen",
-  混老頭: "honroto",
-  ダブル立直: "double_riichi",
-  混一色: "honitsu",
-  純全帯么九: "junchan",
-  二盃口: "ryanpeiko",
-  清一色: "chinitsu",
-  国士無双: "kokushi",
-  四暗刻: "suanko",
-  大三元: "daisangen",
-  字一色: "tsuiso",
-  小四喜: "shousushi",
-  大四喜: "daisushi",
-  清老頭: "chinroto",
-  緑一色: "ryuiso",
-  九蓮宝燈: "chuuren",
-  四槓子: "sukantsu",
-  天和: "tenhou",
-  地和: "chihou",
-};
+import { MultiSelect } from "@/app/(user)/_components/multi-select";
+import { useYakuOptions } from "@/app/_hooks/use-yaku-options";
 
 interface YakuSelectProps {
   readonly value: readonly string[];
@@ -58,37 +15,21 @@ interface YakuSelectProps {
 /**
  * 役選択コンポーネント
  * 役選択
+ *
+ * 選択肢の並びは役の選択練習と共有する（設定で並べ替えられる）。
  */
 export function YakuSelect({ value, onChange, disabled }: YakuSelectProps) {
   const t = useTranslations("score");
-  const tYaku = useTranslations("score.yaku");
-  const tGroup = useTranslations("common.yakuSelectGroup");
+  const tPicker = useTranslations("common.yakuPicker");
+  const options = useYakuOptions();
 
-  const multiSelectLabels = useMemo(
+  const labels = useMemo(
     () => ({
-      add: t("form.multiSelect.add"),
-      title: t("form.multiSelect.title"),
-      done: t("form.multiSelect.done"),
+      add: tPicker("add"),
+      title: tPicker("title"),
+      done: tPicker("done"),
     }),
-    [t],
-  );
-
-  // 並びと区切りは役の選択練習（SELECTABLE_YAKU_GROUPS）と揃える。
-  // 36件を見出しなしで流すとスクロール中に現在地が分からなくなるため。
-  const options = useMemo(
-    () =>
-      SELECTABLE_YAKU_GROUPS.flatMap((group) =>
-        group.names.map((yaku) => {
-          const key = YAKU_TO_KEY[yaku];
-          const label = key ? tYaku(key) : yaku;
-          return {
-            value: yaku,
-            label,
-            group: tGroup(group.kind),
-          };
-        }),
-      ),
-    [tYaku, tGroup],
+    [tPicker],
   );
 
   return (
@@ -101,8 +42,8 @@ export function YakuSelect({ value, onChange, disabled }: YakuSelectProps) {
         value={value}
         onChange={onChange}
         disabled={disabled}
-        placeholder={t("form.placeholders.select")}
-        labels={multiSelectLabels}
+        placeholder={tPicker("placeholder")}
+        labels={labels}
       />
     </div>
   );
