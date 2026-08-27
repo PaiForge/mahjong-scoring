@@ -1,17 +1,28 @@
 import Link from "next/link";
 import { getLocale, getTranslations } from "next-intl/server";
 
-import { AnnouncementListItem } from "@/app/(user)/(public)/announcements/_components/announcement-list-item";
+import { AnnouncementTextList } from "@/app/(user)/(public)/announcements/_components/announcement-text-list";
 import { getPublishedAnnouncementsPaginated } from "@/app/(user)/(public)/announcements/_lib/queries";
-import { ListLinkContainer } from "@/app/(user)/_components/list-link";
 import { SectionTitle } from "@/app/(user)/_components/section-title";
 import { TEXT_LINK_CLASSES } from "@/app/_components/_lib/link-classes";
 
-const HOME_ANNOUNCEMENTS_LIMIT = 5;
+/**
+ * ダッシュボードに載せる件数。
+ *
+ * ここはお知らせの在庫を見せる場ではなく、更新に気づくための場なので、
+ * 学習導線（教本の続き・おすすめの練習）より縦を食わない長さに抑える。
+ * 全件は「すべて見る」から一覧ページへ。
+ */
+const HOME_ANNOUNCEMENTS_LIMIT = 3;
 
 /**
  * ダッシュボードのお知らせセクション。最新のお知らせを数件だけ載せる。
  * お知らせ（ダッシュボード）
+ *
+ * 一覧ページと違いお知らせはこのページの主役ではないため、枠を持たない
+ * `AnnouncementTextList` で出す。太枠 + 影のリストは「押して始める」練習
+ * カードと同じ重さなので、読むだけのお知らせがそれを着ると、画面の重み付けが
+ * 重要度の逆順になる。
  */
 export async function HomeAnnouncements() {
   const locale = await getLocale();
@@ -28,16 +39,11 @@ export async function HomeAnnouncements() {
         <p className="text-sm text-muted-foreground">{t("empty")}</p>
       ) : (
         <div className="space-y-4">
-          <ListLinkContainer>
-            {announcements.map((announcement) => (
-              <AnnouncementListItem
-                key={announcement.id}
-                announcement={announcement}
-                locale={locale}
-                pinnedLabel={t("pinned")}
-              />
-            ))}
-          </ListLinkContainer>
+          <AnnouncementTextList
+            announcements={announcements}
+            locale={locale}
+            pinnedLabel={t("pinned")}
+          />
           <div className="text-right">
             <Link
               href="/announcements"

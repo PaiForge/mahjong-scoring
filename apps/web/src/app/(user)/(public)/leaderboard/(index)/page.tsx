@@ -67,18 +67,19 @@ export default async function LeaderboardIndexPage({
       <Suspense
         key={period}
         fallback={
-          <div className="space-y-6">
-            <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
-              {Array.from({ length: 5 }).map((_, i) => (
-                <SkeletonBar
-                  radius="lg"
-                  key={i}
-                  className="h-24 w-full"
-                  tone={100}
-                />
-              ))}
-            </div>
-          </div>
+          // 実描画（LinkRow）と同じ 1 行あたりの高さ・破線区切りで並べ、
+          // データ到着時に行がずれないようにする。
+          <ul className="flex flex-col">
+            {Array.from({ length: 5 }).map((_, i) => (
+              <li
+                key={i}
+                className="flex items-center gap-3 border-b border-dashed border-border/40 py-3 last:border-b-0"
+              >
+                <SkeletonBar radius="md" className="size-6 shrink-0" />
+                <SkeletonBar className="h-4 w-32" tone={100} />
+              </li>
+            ))}
+          </ul>
         }
       >
         <LeaderboardTopContent period={period} />

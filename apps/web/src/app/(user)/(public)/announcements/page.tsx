@@ -10,14 +10,13 @@ import { notFound } from "next/navigation";
 import { getLocale, getTranslations } from "next-intl/server";
 
 import { ContentContainer } from "@/app/(user)/_components/content-container";
-import { ListLinkContainer } from "@/app/(user)/_components/list-link";
 import { PageTitle } from "@/app/(user)/_components/page-title";
 import { PaginationNav } from "@/app/(user)/_components/pagination-nav";
 import { SectionTitle } from "@/app/(user)/_components/section-title";
 import { createNamespaceMetadata } from "@/app/_lib/metadata";
 import { getPaginationData } from "@/lib/pagination";
 
-import { AnnouncementListItem } from "./_components/announcement-list-item";
+import { AnnouncementTextList } from "./_components/announcement-text-list";
 import {
   getPublishedAnnouncementCount,
   getPublishedAnnouncementsPaginated,
@@ -68,16 +67,11 @@ export default async function AnnouncementsPage({ searchParams }: Props) {
           <p className="text-sm text-muted-foreground">{t("empty")}</p>
         ) : (
           <div className="space-y-6">
-            <ListLinkContainer>
-              {items.map((announcement) => (
-                <AnnouncementListItem
-                  key={announcement.id}
-                  announcement={announcement}
-                  locale={locale}
-                  pinnedLabel={t("pinned")}
-                />
-              ))}
-            </ListLinkContainer>
+            <AnnouncementTextList
+              announcements={items}
+              locale={locale}
+              pinnedLabel={t("pinned")}
+            />
             <PaginationNav
               currentPage={currentPage}
               totalPages={totalPages}

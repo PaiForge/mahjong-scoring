@@ -2,7 +2,7 @@
 
 import type { ReactNode } from "react";
 import Link from "next/link";
-import { TEXT_LINK_MUTED_CLASSES } from "@/app/_components/_lib/link-classes";
+import { TEXT_LINK_CLASSES } from "@/app/_components/_lib/link-classes";
 
 /**
  * 練習画面フッターの操作リンク1件（わからない / 次の問題へ / 終了する / やめる）
@@ -24,7 +24,7 @@ type PracticeFooterActionProps = { readonly children: ReactNode } & (
   | { readonly onClick: () => void; readonly disabled?: boolean }
 );
 
-const ACTION_CLASSES = `inline-flex min-h-11 items-center justify-center px-4 text-sm ${TEXT_LINK_MUTED_CLASSES}`;
+const ACTION_CLASSES = `inline-flex min-h-11 items-center justify-center px-4 text-sm ${TEXT_LINK_CLASSES}`;
 
 export function PracticeFooterAction(props: PracticeFooterActionProps) {
   if ("href" in props) {

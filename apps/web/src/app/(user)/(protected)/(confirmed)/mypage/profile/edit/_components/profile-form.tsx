@@ -15,7 +15,7 @@ import { SectionTitle } from "@/app/(user)/_components/section-title";
 
 import { updateProfile } from "../_actions/update-profile";
 import { PROFILE_LIMITS } from "../_lib/profile-validation";
-import { TEXT_LINK_MUTED_CLASSES } from "@/app/_components/_lib/link-classes";
+import { TEXT_LINK_CLASSES } from "@/app/_components/_lib/link-classes";
 import { Button } from "@/app/(user)/_components/button";
 
 /** action が返す既知のエラーキー（profileEdit 名前空間に対応する文言がある） */
@@ -168,10 +168,7 @@ export function ProfileForm({
         </Button>
         {showSkip && (
           <div className="text-center">
-            <Link
-              href="/mypage"
-              className={`text-sm ${TEXT_LINK_MUTED_CLASSES}`}
-            >
+            <Link href="/mypage" className={`text-sm ${TEXT_LINK_CLASSES}`}>
               {t("skip")}
             </Link>
           </div>

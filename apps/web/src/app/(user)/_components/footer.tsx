@@ -2,7 +2,7 @@ import Link from "next/link";
 import { getTranslations } from "next-intl/server";
 
 import { BrandLogo } from "./brand-logo";
-import { TEXT_LINK_MUTED_CLASSES } from "@/app/_components/_lib/link-classes";
+import { TEXT_LINK_CLASSES } from "@/app/_components/_lib/link-classes";
 import { chapterHref } from "@/app/(user)/(public)/learn/_lib/curriculum";
 
 /**
@@ -24,7 +24,7 @@ export async function Footer() {
               <li>
                 <Link
                   href={chapterHref("about-this-app")}
-                  className={TEXT_LINK_MUTED_CLASSES}
+                  className={TEXT_LINK_CLASSES}
                 >
                   {t("aboutThisApp")}
                 </Link>
@@ -38,12 +38,12 @@ export async function Footer() {
             </h3>
             <ul className="space-y-2 text-sm text-muted-foreground">
               <li>
-                <Link href="/terms" className={TEXT_LINK_MUTED_CLASSES}>
+                <Link href="/terms" className={TEXT_LINK_CLASSES}>
                   {t("terms")}
                 </Link>
               </li>
               <li>
-                <Link href="/privacy" className={TEXT_LINK_MUTED_CLASSES}>
+                <Link href="/privacy" className={TEXT_LINK_CLASSES}>
                   {t("privacy")}
                 </Link>
               </li>

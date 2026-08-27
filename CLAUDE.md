@@ -99,6 +99,7 @@ packages/eslint-config/ — 共通 ESLint 設定（PaiForge コーディング�
 - `ContentContainer` — ページコンテンツの max-w-3xl ラッパー。全ページで統一して使用し CLS を防ぐ
 - `Sidebar` / `MobileHeader` / `MobileTabBar` — ナビゲーションシェル
 - `DataTable` / `DataTableHeaderCell` — データテーブルの外枠と見出しセル。表を作るときは直接 `<table>` を書かない
+- `LinkRow` / `LinkRowList` — 読む・見るためのリンク 1 行とその枠。太枠 + ハードシャドウ + 押し込みは「押して始める面」（練習・試験・登録）の記号なので、ページを読みに行くだけ / 一覧を見に行くだけの導線はカードにせずこれを使う
 - `SkeletonBar` — 読み込み中のプレースホルダ矩形。`animate-pulse` と背景色を直接書かない。角丸は `radius`（md / lg / xl / full）で指定し、`className` に `rounded*` を書かない
 - `PageTitleSkeleton` — 見出しのプレースホルダ帯。`PageTitle` / `AdminPageTitle` の子として置く
 - `SectionTitleSkeleton` — 見出しのプレースホルダ pill。矩形で代用せずこれを使う（`SectionTitle` 自身を描画するため実物と高さ・形が一致する）
@@ -113,18 +114,23 @@ packages/eslint-config/ — 共通 ESLint 設定（PaiForge コーディング�
 - `variant`（primary / secondary / neutral / danger / warning / dangerOutline）、`size`（sm / md / lg / xl）、`fullWidth`、`disabled` で指定する。`className` は余白などレイアウト調整用で、色・枠・影を上書きしない
 - 無効時は `disabled` を渡す。呼び出し側で `<span aria-disabled>` を書き分けない（`LinkButton` が span を描画する）
 - 外部リンクの `<a>` など上記に乗らない要素には `buttonClasses()` を直接使う
-- 「押せる面」（カード全体がリンクになっているもの。`ListLink` 等）はボタンではないため対象外
+- 「押せる面」（カード全体がリンクになっているもの。`LinkRow` 等）はボタンではないため対象外
 - 管理画面（`/admin`）は別のビジュアル言語のため対象外。`(user)/_components/` に置いているのはその意思表示でもある
 
 ### テキストリンク（`apps/web/src/app/_components/_lib/link-classes.ts`）
 
 管理画面でも使うため `app/_components/` 側に置いている。
 
-本文中のリンクやページ間の補助導線は `TEXT_LINK_CLASSES`（既定・緑）/
-`TEXT_LINK_MUTED_CLASSES`（控えめ・グレー）を `className` に貼る。
+テキストリンクは `TEXT_LINK_CLASSES`（グレー + 常時下線）の 1 種類だけ。
+本文中のリンクもページ間の移動もこれを `className` に貼る。緑（primary）は
+ボタン＝「押して始める面」の色として取ってあるためリンクには使わない
+（緑なら始まる / グレーの下線なら移動する）。強調したい導線が出てきたら、
+リンクの色ではなくボタンで示す。
 `text-primary-* hover:underline` のようなリンクの class をページ側で直接書かない。
-リンク風の `<button>` にも同じ定数を使う。カード全体がクリック対象になるもの
-（`ListLink` 等）は「押せる面」なので対象外。
+リンク風の `<button>` にも同じ定数を使う。行全体がクリック対象になるもの
+（`LinkRow` 等）は行の中のタイトルに `ROW_LINK_TITLE_CLASSES` を使う
+（hover が行に追随する版）。下線は常時引く — hover でしか出ない
+アフォーダンスはタッチ端末では一切見えない。
 
 ## ローディング境界（loading.tsx）
 

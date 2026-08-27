@@ -2,7 +2,7 @@
  * マイページトップ
  *
  * @description ログインユーザー専用のトップページ。EXP アクティビティヒートマップと
- *   各機能へのカードリンクを配置する。
+ *   各機能への行リンクを配置する。
  * @flow マイページ閲覧 → ヒートマップで日次アクティビティを確認 → マイレコードへ遷移
  */
 import type { Metadata } from "next";
@@ -10,6 +10,7 @@ import Link from "next/link";
 import { getTranslations } from "next-intl/server";
 
 import { ContentContainer } from "@/app/(user)/_components/content-container";
+import { LinkRow, LinkRowList } from "@/app/(user)/_components/link-row";
 import { PageTitle } from "@/app/(user)/_components/page-title";
 import { UserAvatar } from "@/app/(user)/_components/user-avatar";
 import { createPrivateMetadata } from "@/app/_lib/metadata";
@@ -56,7 +57,7 @@ export default async function MyPage() {
     totalWeeks: DESKTOP_WEEKS,
   });
 
-  const cards = [
+  const links = [
     {
       href: "/mypage/challenges",
       icon: "\uD83D\uDCCA",
@@ -121,23 +122,23 @@ export default async function MyPage() {
           <ExpActivityHeatmap data={heatmapData} layout={heatmapLayout} />
         </section>
 
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-          {cards.map((card) => (
-            <Link
-              key={card.href}
-              href={card.href}
-              className="press-sm group block rounded-xl border-3 border-ink bg-card p-6 shadow-sm hover:bg-primary-50"
-            >
-              <span className="text-2xl">{card.icon}</span>
-              <h2 className="mt-2 text-base font-semibold text-foreground">
-                {card.title}
-              </h2>
-              <p className="mt-1 text-sm text-muted-foreground">
-                {card.summary}
-              </p>
-            </Link>
+        {/* 各機能への導線。見に行くだけの行き先なので、太枠 + 影のカードでは
+            なく行リンクで並べる（プロフィールとヒートマップがこのページの主役）。 */}
+        <LinkRowList>
+          {links.map((link) => (
+            <LinkRow
+              key={link.href}
+              href={link.href}
+              leading={
+                <span className="text-base" aria-hidden="true">
+                  {link.icon}
+                </span>
+              }
+              title={link.title}
+              description={link.summary}
+            />
           ))}
-        </div>
+        </LinkRowList>
       </div>
     </ContentContainer>
   );

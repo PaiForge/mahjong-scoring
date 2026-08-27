@@ -6,7 +6,7 @@ import { LinkButton } from "@/app/(user)/_components/link-button";
 import { ArrowUturnLeftIcon } from "@/app/(user)/_components/icons/arrow-uturn-left-icon";
 import { RotateCcwIcon } from "@/app/(user)/_components/icons/rotate-ccw-icon";
 import { SectionTitle } from "@/app/(user)/_components/section-title";
-import { TEXT_LINK_MUTED_CLASSES } from "@/app/_components/_lib/link-classes";
+import { TEXT_LINK_CLASSES } from "@/app/_components/_lib/link-classes";
 import type { PracticeResultViewProps } from "../_lib/create-practice-result-page";
 import { buildResultBreadcrumb } from "../_lib/result-breadcrumb";
 import { PRACTICE_SCROLL_HASH } from "../_lib/scroll-anchor";
@@ -101,10 +101,7 @@ export async function ResultView({
             </LinkButton>
           )}
           <p className="pt-1 text-center">
-            <Link
-              href="/practice"
-              className={`text-sm ${TEXT_LINK_MUTED_CLASSES}`}
-            >
+            <Link href="/practice" className={`text-sm ${TEXT_LINK_CLASSES}`}>
               {tc("backToList")}
             </Link>
           </p>
