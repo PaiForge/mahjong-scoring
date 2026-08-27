@@ -16,6 +16,7 @@ import { DisplaySettingsSection } from "./_components/display-settings-section";
 import { MembersOnlyGate } from "./_components/members-only-gate";
 import { PrivacySettingsSection } from "./_components/privacy-settings-section";
 import { RuleSettingsSection } from "./_components/rule-settings-section";
+import { YakuOrderSection } from "./_components/yaku-order-section";
 
 export async function generateMetadata(): Promise<Metadata> {
   return createTitleOnlyMetadata("settings", "pageTitle");
@@ -39,6 +40,11 @@ export default async function PreferencesPage() {
             <section className="space-y-4">
               <SectionTitle>{t("displaySectionTitle")}</SectionTitle>
               <DisplaySettingsSection />
+            </section>
+
+            <section className="space-y-4">
+              <SectionTitle>{t("yakuOrderSectionTitle")}</SectionTitle>
+              <YakuOrderSection />
             </section>
 
             <section className="space-y-4">

@@ -12,6 +12,8 @@ export const PREFERENCE_ANCHORS = {
   kiriageMangan: "kiriage-mangan",
   /** ドラを表示牌ではなくドラそのもので表示するか */
   doraDisplay: "dora-display",
+  /** 役の選択肢をどの順で並べるか */
+  yakuOrder: "yaku-order",
   /** ランキングに自分を表示しないか */
   leaderboardVisibility: "leaderboard-visibility",
 } as const;
