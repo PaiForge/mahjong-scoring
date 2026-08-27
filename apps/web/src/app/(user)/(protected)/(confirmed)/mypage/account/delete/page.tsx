@@ -10,6 +10,7 @@ import Link from "next/link";
 
 import { ContentContainer } from "@/app/(user)/_components/content-container";
 import { PageTitle } from "@/app/(user)/_components/page-title";
+import { SectionTitle } from "@/app/(user)/_components/section-title";
 import { createPrivateMetadata } from "@/app/_lib/metadata";
 import { requireConfirmedUser } from "@/lib/auth";
 
@@ -24,19 +25,19 @@ export default async function DeleteAccountPage() {
   await requireConfirmedUser();
   const t = await getTranslations("deleteAccount");
   const tMypage = await getTranslations("mypage");
-  const tProfile = await getTranslations("profileEdit");
 
   return (
     <ContentContainer
       breadcrumb={[
         { label: tMypage("pageTitle"), href: "/mypage" },
-        { label: tProfile("pageTitle"), href: "/mypage/profile/edit" },
         { label: t("pageTitle") },
       ]}
     >
       <PageTitle>{t("pageTitle")}</PageTitle>
 
-      <div className="mt-6 space-y-6">
+      <section className="space-y-4">
+        <SectionTitle>{t("sectionTitle")}</SectionTitle>
+
         <div className="space-y-3">
           <p className="text-sm leading-relaxed text-surface-600">
             {t("warning")}
@@ -47,17 +48,21 @@ export default async function DeleteAccountPage() {
             <li>{t("consequences.usernameLocked")}</li>
           </ul>
         </div>
+      </section>
 
+      <div className="mt-8">
         <DeleteAccountButton />
+      </div>
 
-        <div>
-          <Link
-            href="/mypage/profile/edit"
-            className={`text-sm font-medium ${TEXT_LINK_CLASSES}`}
-          >
-            {t("backToProfile")}
-          </Link>
-        </div>
+      {/* 破壊的操作の直下に戻るリンクを並べると誤クリックしやすいため、
+          プロフィール編集ページの退会リンクと同じ破線で区切って離す。 */}
+      <div className="mt-10 border-t-2 border-dashed border-border/40 pt-6 text-center">
+        <Link
+          href="/mypage/profile/edit"
+          className={`text-sm font-medium ${TEXT_LINK_CLASSES}`}
+        >
+          {t("backToProfile")}
+        </Link>
       </div>
     </ContentContainer>
   );

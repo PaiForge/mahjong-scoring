@@ -48,7 +48,8 @@ export function DeleteAccountButton() {
     <>
       <Button
         variant="dangerOutline"
-        size="sm"
+        size="lg"
+        fullWidth
         onClick={() => setIsModalOpen(true)}
         disabled={isDeleting}
       >
