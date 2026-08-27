@@ -73,11 +73,16 @@ export function YakuHanBoard({
 
   return (
     <div className="mt-4 space-y-6">
-      <YakuHanPrompt
-        yakuName={question.yakuName}
-        isMenzen={question.isMenzen}
-        canNaki={question.canNaki}
-      />
+      {/* 出題を囲む枠。盤面では役名が白いカードの上に浮いてしまうため、
+          ここで面を与える（デモは「問題方式」セクションの枠が面になるため
+          持たせない） */}
+      <div className="rounded-xl border-3 border-ink bg-white py-8">
+        <YakuHanPrompt
+          yakuName={question.yakuName}
+          isMenzen={question.isMenzen}
+          canNaki={question.canNaki}
+        />
+      </div>
 
       <YakuHanAnswerForm
         correctHan={question.correctHan}
