@@ -11,6 +11,7 @@ import { getTranslations } from "next-intl/server";
 
 import { ContentContainer } from "@/app/(user)/_components/content-container";
 import { PageTitle } from "@/app/(user)/_components/page-title";
+import { SectionTitle } from "@/app/(user)/_components/section-title";
 import { createTitleOnlyMetadata } from "@/app/_lib/metadata";
 import { MembersOnlyGate } from "../_components/members-only-gate";
 import { YakuOrderSection } from "../_components/yaku-order-section";
@@ -34,7 +35,10 @@ export default async function YakuOrderPage() {
       <PageTitle>{tYakuOrder("pageTitle")}</PageTitle>
 
       <MembersOnlyGate redirectTo={YAKU_ORDER_HREF}>
-        <YakuOrderSection />
+        <section className="space-y-4">
+          <SectionTitle>{tYakuOrder("sectionTitle")}</SectionTitle>
+          <YakuOrderSection />
+        </section>
       </MembersOnlyGate>
     </ContentContainer>
   );
