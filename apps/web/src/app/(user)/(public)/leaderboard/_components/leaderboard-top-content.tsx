@@ -1,3 +1,4 @@
+import { LinkRowList } from "@/app/(user)/_components/link-row";
 import { getOptionalUser } from "@/lib/auth";
 import { isHiddenFromLeaderboard } from "@/lib/db/leaderboard-visibility";
 
@@ -8,7 +9,7 @@ import type {
   UserRankInfo,
 } from "../_lib/types";
 import { MODULES } from "../_lib/types";
-import { LeaderboardCard } from "./leaderboard-card";
+import { LeaderboardModuleRow } from "./leaderboard-module-row";
 import { ViewerHiddenNote } from "./viewer-hidden-note";
 
 interface LeaderboardTopContentProps {
@@ -17,7 +18,7 @@ interface LeaderboardTopContentProps {
 
 /**
  * リーダーボード一覧コンテンツ
- * 全モジュールのランキングカードを表示する
+ * 全モジュールのランキングを行リンクで並べる
  */
 export async function LeaderboardTopContent({
   period,
@@ -45,16 +46,16 @@ export async function LeaderboardTopContent({
     <div className="space-y-4">
       {viewerHidden ? <ViewerHiddenNote /> : undefined}
 
-      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
+      <LinkRowList>
         {MODULES.map((module) => (
-          <LeaderboardCard
+          <LeaderboardModuleRow
             key={module}
             module={module}
             period={period}
             rank={currentUserId ? rankMap.get(module) : undefined}
           />
         ))}
-      </div>
+      </LinkRowList>
     </div>
   );
 }
