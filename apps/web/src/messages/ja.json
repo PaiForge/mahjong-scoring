@@ -46,6 +46,13 @@
       "pageTitle": "役の並び順",
       "sectionTitle": "並べ替え",
       "description": "役を選ぶときの並び順です。ご自身で選びやすいように並び替えができます。",
+      "lockedLabel": "鍵をタップして並べ替え",
+      "editingLabel": "並べ替え中",
+      "unlockAria": "並べ替えを始める",
+      "lockAria": "並べ替えをやめる",
+      "save": "保存する",
+      "cancel": "取り消す",
+      "savedToast": "並び順を保存しました",
       "reset": "既定の順に戻す"
     },
     "yakuOrderTitle": "役の並び順",

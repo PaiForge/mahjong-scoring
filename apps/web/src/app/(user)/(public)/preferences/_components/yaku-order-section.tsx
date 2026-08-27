@@ -1,7 +1,8 @@
 "use client";
 
-import { useCallback, useId, useMemo } from "react";
+import { useCallback, useId, useMemo, useState } from "react";
 import { useTranslations } from "next-intl";
+import toast from "react-hot-toast";
 import {
   DndContext,
   KeyboardSensor,
@@ -20,11 +21,13 @@ import {
   verticalListSortingStrategy,
 } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
+import { YAKU_DEFAULT_ORDER } from "@mahjong-scoring/core";
 
 import { Button } from "@/app/(user)/_components/button";
+import { LockClosedIcon } from "@/app/(user)/_components/icons/lock-closed-icon";
+import { LockOpenIcon } from "@/app/(user)/_components/icons/lock-open-icon";
 import { useYakuLabel } from "@/app/_hooks/use-yaku-options";
 import {
-  useHasCustomYakuOrder,
   useYakuOrder,
   useYakuOrderStore,
 } from "@/app/_hooks/use-yaku-order-store";
@@ -33,10 +36,17 @@ interface SortableYakuRowProps {
   readonly name: string;
   readonly label: string;
   readonly position: number;
+  /** つまめるか。施錠中は指の動きをページのスクロールに渡す */
+  readonly sortable: boolean;
 }
 
 /** 並べ替えできる 1 行。行全体をつまめるようにする（小さなハンドルは指で外しやすい） */
-function SortableYakuRow({ name, label, position }: SortableYakuRowProps) {
+function SortableYakuRow({
+  name,
+  label,
+  position,
+  sortable,
+}: SortableYakuRowProps) {
   const {
     attributes,
     listeners,
@@ -44,23 +54,26 @@ function SortableYakuRow({ name, label, position }: SortableYakuRowProps) {
     transform,
     transition,
     isDragging,
-  } = useSortable({ id: name });
+  } = useSortable({ id: name, disabled: !sortable });
 
   return (
     <li
       ref={setNodeRef}
       style={{ transform: CSS.Transform.toString(transform), transition }}
-      className={`flex touch-none items-center gap-3 border-b-2 border-dashed border-border/40 bg-white px-4 py-3 last:border-0 ${
-        isDragging ? "relative z-10 shadow-hard" : ""
-      }`}
-      {...attributes}
-      {...listeners}
+      // touch-none は解錠中だけ付ける。付けたままだと一覧の上でブラウザの
+      // 縦スクロールが起きず、スクロールのつもりの指の動きがすべて
+      // 並べ替えになる（実機で少し触っただけで行が動いていた）。
+      className={`flex items-center gap-3 border-b-2 border-dashed border-border/40 bg-white px-4 py-3 last:border-0 ${
+        sortable ? "touch-none" : ""
+      } ${isDragging ? "relative z-10 shadow-hard" : ""}`}
+      {...(sortable ? attributes : {})}
+      {...(sortable ? listeners : {})}
     >
       <span className="w-6 shrink-0 text-right text-xs tabular-nums text-surface-400">
         {position}
       </span>
       <span className="flex-1 text-sm text-surface-900">{label}</span>
-      <GripIcon />
+      {sortable && <GripIcon />}
     </li>
   );
 }
@@ -86,21 +99,40 @@ function GripIcon() {
   );
 }
 
+/** 2 つの並びが同じ役を同じ順で持つか */
+function isSameOrder(a: readonly string[], b: readonly string[]): boolean {
+  return a.length === b.length && a.every((name, index) => name === b[index]);
+}
+
 /**
  * 役の並び順設定セクション
  *
  * 役の選択練習と点数計算練習の選択肢の並びを、よく使う順に並べ替える。
- * 既定は出現率の高い順で、並べ替えは端末ローカルに保存される。
  * 出題内容も正解判定も変わらない。
+ *
+ * 施錠を挟むのは、指で触っただけで並びが変わるのを防ぐため。並べ替えを
+ * 成立させるには行に `touch-action: none` が要るが、張ったままだと一覧の上で
+ * ページがスクロールできない。施錠中は読むだけの一覧に戻し、解錠したときだけ
+ * つまめるようにして、この二律背反を状態で分ける。
+ *
+ * 解錠中の並べ替えは下書きに溜め、「保存」で初めて永続化する。即時保存だと
+ * 保存された瞬間が画面のどこにも出ず、かといって保存ボタンを一覧の下に置くと
+ * 36 行の先で見つからない。鍵と保存を一覧の上の追従バーに同居させ、
+ * 操作とその結果を同じ場所に置く。
  */
 export function YakuOrderSection() {
   const t = useTranslations("settings.yakuOrder");
-  const order = useYakuOrder();
+  const savedOrder = useYakuOrder();
   const labelOf = useYakuLabel();
   const setOrder = useYakuOrderStore((s) => s.setOrder);
-  const reset = useYakuOrderStore((s) => s.reset);
-  const hasCustomOrder = useHasCustomYakuOrder();
+  const resetOrder = useYakuOrderStore((s) => s.reset);
   const describedBy = useId();
+
+  /** 解錠中の並び。null なら施錠中で、保存済みの並びをそのまま映す */
+  const [draft, setDraft] = useState<readonly string[] | null>(null);
+  const isEditing = draft !== null;
+  const items = useMemo(() => [...(draft ?? savedOrder)], [draft, savedOrder]);
+  const isDefaultOrder = isSameOrder(items, YAKU_DEFAULT_ORDER);
 
   const sensors = useSensors(
     // 指を置いただけでは動かさない。リストのスクロールと取り合いにならないようにする。
@@ -110,27 +142,79 @@ export function YakuOrderSection() {
     }),
   );
 
-  const handleDragEnd = useCallback(
-    (event: DragEndEvent) => {
-      const { active, over } = event;
-      if (over === null || active.id === over.id) return;
+  const handleDragEnd = useCallback((event: DragEndEvent) => {
+    const { active, over } = event;
+    if (over === null || active.id === over.id) return;
 
-      const from = order.indexOf(String(active.id));
-      const to = order.indexOf(String(over.id));
-      if (from === -1 || to === -1) return;
+    setDraft((current) => {
+      if (current === null) return current;
+      const from = current.indexOf(String(active.id));
+      const to = current.indexOf(String(over.id));
+      if (from === -1 || to === -1) return current;
+      return arrayMove([...current], from, to);
+    });
+  }, []);
 
-      setOrder(arrayMove([...order], from, to));
-    },
-    [order, setOrder],
-  );
+  const handleToggleLock = useCallback(() => {
+    // 施錠は下書きを捨てる。捨てるのは保存していない並びだけで、同じことをする
+    // 「取り消す」が隣にあるため「鍵を閉じたら元に戻る」で一貫する。
+    setDraft((current) => (current === null ? [...savedOrder] : null));
+  }, [savedOrder]);
 
-  const items = useMemo(() => [...order], [order]);
+  const handleSave = useCallback(() => {
+    if (draft === null) return;
+    // 既定順そのものは保存しない。保存してしまうと既定順を変えたときに
+    // その変更が届かなくなる（use-yaku-order-store の order を参照）。
+    if (isSameOrder(draft, YAKU_DEFAULT_ORDER)) {
+      resetOrder();
+    } else {
+      setOrder(draft);
+    }
+    setDraft(null);
+    toast.success(t("savedToast"));
+  }, [draft, resetOrder, setOrder, t]);
+
+  const handleResetToDefault = useCallback(() => {
+    // 施錠中に押されたときは解錠も兼ねる。戻した並びは保存前に見せたいので、
+    // 永続化せず下書きに置くところまでを行う。
+    setDraft([...YAKU_DEFAULT_ORDER]);
+  }, []);
 
   return (
     <div className="space-y-3">
       <p id={describedBy} className="text-sm leading-relaxed text-surface-600">
         {t("description")}
       </p>
+
+      {/* 一覧が 36 行あるため、鍵と保存は追従させないと画面外に出る。
+          画面下に固定すると MobileTabBar と重なるので上に置く
+          （このアプリの Header は sticky ではないので top-0 でよい）。 */}
+      <div className="sticky top-0 z-20 flex items-center gap-2 rounded-lg border-3 border-ink bg-white px-2 py-2 shadow-hard">
+        <button
+          type="button"
+          onClick={handleToggleLock}
+          aria-pressed={isEditing}
+          aria-label={isEditing ? t("lockAria") : t("unlockAria")}
+          className="flex size-11 shrink-0 items-center justify-center rounded-md text-ink"
+        >
+          {isEditing ? <LockOpenIcon /> : <LockClosedIcon />}
+        </button>
+
+        <span className="flex-1 text-sm font-bold text-surface-700">
+          {isEditing ? t("editingLabel") : t("lockedLabel")}
+        </span>
+
+        {isEditing && (
+          <>
+            <Button variant="neutral" size="sm" onClick={handleToggleLock}>
+              {t("cancel")}
+            </Button>
+            <Button variant="primary" size="sm" onClick={handleSave}>
+              {t("save")}
+            </Button>
+          </>
+        )}
+      </div>
 
       <div className="overflow-hidden rounded-lg border-3 border-ink bg-white">
         {/* id を渡さないと dnd-kit が内部カウンタで aria-describedby を振り、
@@ -150,6 +234,7 @@ export function YakuOrderSection() {
                   name={name}
                   label={labelOf(name)}
                   position={index + 1}
+                  sortable={isEditing}
                 />
               ))}
             </ul>
@@ -161,8 +246,8 @@ export function YakuOrderSection() {
         <Button
           variant="neutral"
           size="sm"
-          onClick={reset}
-          disabled={!hasCustomOrder}
+          onClick={handleResetToDefault}
+          disabled={isDefaultOrder}
         >
           {t("reset")}
         </Button>
