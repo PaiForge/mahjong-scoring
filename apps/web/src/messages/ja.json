@@ -617,6 +617,10 @@
     "oya": "親",
     "ron": "ロン",
     "tsumo": "ツモ",
+    "tsumoNote": {
+      "ko": "※ ツモの点数は 上段＝子から / 下段＝親から",
+      "oya": "※ ALL は全員から同じ点数"
+    },
     "fuHan": "符×翻",
     "fuSuffix": "符",
     "hanSuffix": "翻",

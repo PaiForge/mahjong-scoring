@@ -168,6 +168,13 @@ export function ScoreTable({
         </div>
       </div>
 
+      {/* ツモの2段表示（子は上下、親は ALL）の読み方を表の直前で補う */}
+      {winType === "tsumo" && (
+        <p className="mb-2 text-xs text-surface-500">
+          {isKo ? t("tsumoNote.ko") : t("tsumoNote.oya")}
+        </p>
+      )}
+
       {/* Table */}
       <div className="overflow-x-auto w-full">
         {viewMode === "normal" ? (
