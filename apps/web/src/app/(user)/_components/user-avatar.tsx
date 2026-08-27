@@ -21,13 +21,21 @@ export function UserAvatar({
   avatarUrl,
   name,
   size = "md",
+  bordered = true,
 }: {
   readonly avatarUrl: string | null;
   /** 表示名（フォールバックの頭文字・alt に使用） */
   readonly name: string;
   readonly size?: AvatarSize;
+  /**
+   * ブランド UI の太枠を描くか。既定は描く。
+   * ヘッダーのように 32px で出す場所では太枠が画像の面積をそのまま削り、
+   * 誰の顔かが分からなくなるため false にする。
+   */
+  readonly bordered?: boolean;
 }) {
   const { px, box, text } = SIZE_CONFIG[size];
+  const border = bordered ? "border-3 border-ink" : "";
 
   if (avatarUrl) {
     return (
@@ -36,14 +44,14 @@ export function UserAvatar({
         alt={name}
         width={px}
         height={px}
-        className={`${box} flex-shrink-0 rounded-full border-3 border-ink object-cover`}
+        className={`${box} ${border} flex-shrink-0 rounded-full object-cover`}
       />
     );
   }
 
   return (
     <div
-      className={`${box} flex flex-shrink-0 items-center justify-center rounded-full border-3 border-ink bg-surface-100 text-surface-500`}
+      className={`${box} ${border} flex flex-shrink-0 items-center justify-center rounded-full bg-surface-100 text-surface-500`}
       aria-hidden="true"
     >
       <span className={`${text} font-bold`}>

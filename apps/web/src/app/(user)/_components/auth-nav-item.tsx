@@ -16,6 +16,9 @@ import { TEXT_LINK_MUTED_CLASSES } from "@/app/_components/_lib/link-classes";
  * blindfold-chess の AuthStatusDisplay を移植。
  * 認証済み: アバター丸ボタン → ドロップダウン（マイページ/設定/ログアウト）。
  * アバターを設定していればその画像を、未設定ならユーザーアイコンを出す。
+ * 設定済みの画像だけは太枠を外す。32px では枠が画像の面積をそのまま削り、
+ * 誰の顔かが分からなくなるため。未設定時のアイコンは中身が線画で、
+ * 枠が無いと背景に溶けるので border-3 のまま置く。
  * 未認証: ログイン（テキストリンク）/ 新規登録（枠線のみのボタン）。
  * 同形のボタンを 2 つ並べるとセグメントに見えるため、押せる面は新規登録だけに絞る。
  * その新規登録も塗り + オフセット影のフル装備にはしない。ヘッダーは遷移の場であって
@@ -93,6 +96,7 @@ export function AuthNavItem() {
             avatarUrl={profile.avatarUrl}
             name={profile.name}
             size="sm"
+            bordered={false}
           />
         ) : (
           <span className="flex h-8 w-8 items-center justify-center rounded-full border-3 border-ink bg-primary-50 text-foreground">
