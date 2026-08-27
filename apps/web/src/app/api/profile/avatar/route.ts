@@ -1,11 +1,18 @@
 import { eq } from "drizzle-orm";
+import { revalidateTag } from "next/cache";
 import { NextResponse } from "next/server";
 import sharp from "sharp";
 
 import { logActivityEvent } from "@/lib/activity-log";
+import { LEADERBOARD_CACHE_TAG } from "@/lib/cache-tags";
 import { authorizeApiRequest } from "@/lib/api-auth";
 import { db, profiles } from "@/lib/db";
-import { validateImageBinarySignature } from "@/lib/image-signature";
+import { validateImageBinarySignature } from "@/lib/images/binary-signature";
+import {
+  AVATAR_MAX_FILE_SIZE,
+  isAllowedImageMimeType,
+} from "@/lib/images/policy";
+import { SHARP_DECODE_OPTIONS } from "@/lib/images/sharp-options";
 
 /**
  * アバター画像アップロードエンドポイント。
@@ -17,29 +24,33 @@ import { validateImageBinarySignature } from "@/lib/image-signature";
  * アバターアップロードAPI
  */
 
-const ALLOWED_TYPES = ["image/jpeg", "image/png", "image/webp"];
-const MAX_SIZE = 5 * 1024 * 1024; // 5MiB（バケット上限と一致）
 const AVATAR_PIXEL_SIZE = 256;
 const AVATAR_WEBP_QUALITY = 85;
 const AVATAR_PATH_SUFFIX = "avatar.webp";
 
 export async function POST(request: Request) {
-  const auth = await authorizeApiRequest("uploadAvatar");
+  const auth = await authorizeApiRequest(request, "uploadAvatar");
   if (!auth.ok) return auth.response;
   const { user, supabase } = auth;
 
-  const formData = await request.formData();
+  let formData: FormData;
+  try {
+    formData = await request.formData();
+  } catch {
+    // 壊れた multipart を 500 にしない（送信側の誤りなので 400）
+    return NextResponse.json({ error: "invalidForm" }, { status: 400 });
+  }
   const file = formData.get("file");
 
   if (!(file instanceof File)) {
     return NextResponse.json({ error: "noFile" }, { status: 400 });
   }
 
-  if (!ALLOWED_TYPES.includes(file.type)) {
+  if (!isAllowedImageMimeType(file.type)) {
     return NextResponse.json({ error: "invalidType" }, { status: 400 });
   }
 
-  if (file.size > MAX_SIZE) {
+  if (file.size > AVATAR_MAX_FILE_SIZE) {
     return NextResponse.json({ error: "tooLarge" }, { status: 400 });
   }
 
@@ -50,9 +61,11 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: "invalidType" }, { status: 400 });
   }
 
+  // バイト数の上限を通っても、巨大寸法（圧縮爆弾）やアニメーションの多フレームは
+  // デコード時に膨れ上がる。面積とフレーム数の上限は SHARP_DECODE_OPTIONS が持つ。
   let processed: Buffer;
   try {
-    processed = await sharp(Buffer.from(arrayBuffer), { failOn: "error" })
+    processed = await sharp(Buffer.from(arrayBuffer), SHARP_DECODE_OPTIONS)
       .rotate() // EXIF の回転を焼き込み、その他メタデータ（GPS等）は破棄
       .resize(AVATAR_PIXEL_SIZE, AVATAR_PIXEL_SIZE, { fit: "cover" })
       .webp({ quality: AVATAR_WEBP_QUALITY })
@@ -84,6 +97,12 @@ export async function POST(request: Request) {
     .update(profiles)
     .set({ avatarUrl, updatedAt: new Date() })
     .where(eq(profiles.id, user.id));
+
+  // ランキングのキャッシュ（5 分）は行にアバター URL を含むため、ここで捨てないと
+  // 一覧だけ古い画像を出し続ける。URL 末尾の ?t= は新しい URL が配られて初めて効く。
+  // キャッシュのキーは (種目・期間・ページ) 単位でユーザー単位ではないので、
+  // 一部だけを狙って捨てることはできない。アバター変更の頻度なら全体で購う。
+  revalidateTag(LEADERBOARD_CACHE_TAG, "default");
 
   logActivityEvent({
     userId: user.id,

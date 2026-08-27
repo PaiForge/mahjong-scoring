@@ -23,6 +23,7 @@
     "@supabase/ssr": "^0.12.4",
     "@supabase/supabase-js": "^2.112.2",
     "drizzle-orm": "^0.45.2",
+    "heic-to": "^1.5.2",
     "katex": "^0.18.2",
     "next": "^16.3.0",
     "next-intl": "^4.13.5",

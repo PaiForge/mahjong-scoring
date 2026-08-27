@@ -12,9 +12,13 @@ import {
   callApi,
 } from "@/lib/api-client";
 import { TEXT_LINK_CLASSES } from "@/app/_components/_lib/link-classes";
-
-const ALLOWED_TYPES = ["image/jpeg", "image/png", "image/webp"];
-const MAX_SIZE = 5 * 1024 * 1024; // 5MB
+import { useAuth } from "@/app/_contexts/auth-context";
+import { prepareImageForUpload } from "@/lib/client-images/prepare-image-for-upload";
+import { logExternalError } from "@/lib/log-error";
+import {
+  AVATAR_MAX_FILE_SIZE,
+  isAllowedImageMimeType,
+} from "@/lib/images/policy";
 
 /**
  * アバターアップロード。ファイル選択時に即アップロードし、表示を差し替える。
@@ -26,23 +30,46 @@ export function AvatarUpload({
   readonly currentAvatarUrl: string | null;
 }) {
   const t = useTranslations("profileEdit");
+  const { refreshProfile } = useAuth();
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [avatarUrl, setAvatarUrl] = useState<string | null>(currentAvatarUrl);
   const [isUploading, setIsUploading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
   const handleChange = async (e: ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (!file) return;
+    const original = e.target.files?.[0];
+    if (!original) return;
 
     setError(null);
 
-    if (!ALLOWED_TYPES.includes(file.type)) {
-      setError(t("avatarInvalidType"));
+    // 検証の前に正規化する。iPhone 既定の HEIC を JPEG へ変換し、大きすぎる
+    // 画像はブラウザ側で縮小する。すでに web 対応形式かつ上限内ならそのまま返る。
+    const prepared = await prepareImageForUpload(original);
+    if (!prepared.ok) {
+      // 記録する価値があるのはこちらのパイプラインが壊れたときだけ。
+      // ブラウザがデコードできないファイルを選ぶのはユーザーの操作であって
+      // バグではない。
+      if (prepared.reason === "encodeFailed") {
+        logExternalError(
+          "AvatarUpload",
+          `画像の変換に失敗しました (${original.type || "unknown"}, ${original.size}B)`,
+          prepared.reason,
+        );
+      }
+      setError(t("avatarConversionFailed"));
+      if (fileInputRef.current) fileInputRef.current.value = "";
       return;
     }
-    if (file.size > MAX_SIZE) {
+    const file = prepared.file;
+
+    if (!isAllowedImageMimeType(file.type)) {
+      setError(t("avatarInvalidType"));
+      if (fileInputRef.current) fileInputRef.current.value = "";
+      return;
+    }
+    if (file.size > AVATAR_MAX_FILE_SIZE) {
       setError(t("avatarTooLarge"));
+      if (fileInputRef.current) fileInputRef.current.value = "";
       return;
     }
 
@@ -72,6 +99,8 @@ export function AvatarUpload({
       }
 
       setAvatarUrl(result.data.avatarUrl);
+      // ヘッダーのアバターも同じ画面内で差し替える（リロードを待たせない）
+      void refreshProfile();
       toast.success(t("avatarUploaded"));
     } finally {
       setIsUploading(false);
@@ -132,7 +161,7 @@ export function AvatarUpload({
       <input
         ref={fileInputRef}
         type="file"
-        accept="image/jpeg,image/png,image/webp"
+        accept="image/jpeg,image/png,image/webp,image/heic,image/heif,.heic,.heif"
         onChange={handleChange}
         className="hidden"
       />

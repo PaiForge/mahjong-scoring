@@ -6,6 +6,7 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import { useTranslations } from "next-intl";
 import { toast } from "react-hot-toast";
 import { UserIcon } from "./icons/user-icon";
+import { UserAvatar } from "./user-avatar";
 import { useAuth } from "@/app/_contexts/auth-context";
 import { SkeletonBar } from "@/app/_components/skeleton-bar";
 import { TEXT_LINK_MUTED_CLASSES } from "@/app/_components/_lib/link-classes";
@@ -14,6 +15,7 @@ import { TEXT_LINK_MUTED_CLASSES } from "@/app/_components/_lib/link-classes";
  * ヘッダー右側のアカウント表示。
  * blindfold-chess の AuthStatusDisplay を移植。
  * 認証済み: アバター丸ボタン → ドロップダウン（マイページ/設定/ログアウト）。
+ * アバターを設定していればその画像を、未設定ならユーザーアイコンを出す。
  * 未認証: ログイン（テキストリンク）/ 新規登録（枠線のみのボタン）。
  * 同形のボタンを 2 つ並べるとセグメントに見えるため、押せる面は新規登録だけに絞る。
  * その新規登録も塗り + オフセット影のフル装備にはしない。ヘッダーは遷移の場であって
@@ -23,7 +25,7 @@ import { TEXT_LINK_MUTED_CLASSES } from "@/app/_components/_lib/link-classes";
 export function AuthNavItem() {
   const t = useTranslations("nav");
   const router = useRouter();
-  const { user, isLoading, signOut } = useAuth();
+  const { user, isLoading, profile, isProfileLoading, signOut } = useAuth();
   const [isOpen, setIsOpen] = useState(false);
   const containerRef = useRef<HTMLDivElement>(null);
 
@@ -48,7 +50,10 @@ export function AuthNavItem() {
     return () => document.removeEventListener("mousedown", handleMouseDown);
   }, []);
 
-  if (isLoading) {
+  // ログイン済みならプロフィール（アバター）が届くまでスケルトンを続ける。
+  // 先にユーザーアイコンを出すと、アバター設定済みの人には毎回アイコン →
+  // アバターの差し替わりが見えてしまう。
+  if (isLoading || (user && isProfileLoading)) {
     return (
       <SkeletonBar radius="full" className="h-8 w-8 border-3 border-ink" />
     );
@@ -83,9 +88,17 @@ export function AuthNavItem() {
         aria-expanded={isOpen}
         onClick={() => setIsOpen((prev) => !prev)}
       >
-        <span className="flex h-8 w-8 items-center justify-center rounded-full border-3 border-ink bg-primary-50 text-foreground">
-          <UserIcon className="size-5" />
-        </span>
+        {profile?.avatarUrl ? (
+          <UserAvatar
+            avatarUrl={profile.avatarUrl}
+            name={profile.name}
+            size="sm"
+          />
+        ) : (
+          <span className="flex h-8 w-8 items-center justify-center rounded-full border-3 border-ink bg-primary-50 text-foreground">
+            <UserIcon className="size-5" />
+          </span>
+        )}
       </button>
 
       {/* メニューは閉じていても mount したままにする（invisible + inert）。
