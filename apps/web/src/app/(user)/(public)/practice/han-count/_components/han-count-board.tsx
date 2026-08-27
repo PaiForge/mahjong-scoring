@@ -35,6 +35,7 @@ export function HanCountBoard({
   advanceQuestion,
   showFeedback,
   isCountingDown = false,
+  isTraining = false,
   onAnswer,
   onRecordResult,
 }: HanCountBoardProps) {
@@ -66,7 +67,7 @@ export function HanCountBoard({
       <TehaiDisplay
         tehai={question.tehai}
         context={tehaiContextOf(question)}
-        mobileFrame="fullBleed"
+        mobileFrame={isTraining ? "fullBleedFlushTop" : "fullBleed"}
       />
 
       {/* Answer form（正解ハイライトも丸めた翻数で行う） */}

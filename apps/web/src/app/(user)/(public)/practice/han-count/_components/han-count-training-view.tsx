@@ -12,10 +12,15 @@ export const HanCountTrainingView = createTrainingView<
   slug: "han-count",
   maxWidth: "max-w-2xl",
   useBoardState: () => useGeneratedScoreQuestion(),
-  renderBoard: ({ showFeedback, onAnswer }, _props, questionState) => (
+  renderBoard: (
+    { showFeedback, isTraining, onAnswer },
+    _props,
+    questionState,
+  ) => (
     <HanCountBoard
       {...questionState}
       showFeedback={showFeedback}
+      isTraining={isTraining}
       onAnswer={onAnswer}
     />
   ),

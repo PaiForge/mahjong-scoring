@@ -50,6 +50,7 @@ interface TotalFuBoardProps extends RecordingPracticeBoardProps<TotalFuQuestionR
 export function TotalFuBoard({
   showFeedback,
   isCountingDown = false,
+  isTraining = false,
   onAnswer,
   onProceed,
   onRecordResult,
@@ -92,7 +93,7 @@ export function TotalFuBoard({
       <TehaiDisplay
         tehai={question.tehai}
         context={question.context}
-        mobileFrame="fullBleed"
+        mobileFrame={isTraining ? "fullBleedFlushTop" : "fullBleed"}
       />
 
       <QuestionPrompt>{t("prompt")}</QuestionPrompt>

@@ -44,13 +44,17 @@ interface TehaiDisplayProps {
    *
    * - `"inset"`（既定）— 白カードの内側に収める。説明や一覧の中に置く盤面は
    *   地の文と幅が揃っている方が読みやすい
-   * - `"fullBleed"` — 左右を画面端まで。牌は枠に収まる倍率まで自動で縮むため、
-   *   狭い画面では盤面の幅がそのまま牌の大きさになる
+   * - `"fullBleed"` — 左右だけ画面端まで。牌は枠に収まる倍率まで自動で縮むため、
+   *   狭い画面では盤面の幅がそのまま牌の大きさになる。上には余白を残す
+   *   （チャレンジはタイマーとライフが盤面の上に載る）
+   * - `"fullBleedFlushTop"` — 上も詰めてカード上端の枠線に密着させる。盤面が
+   *   カードの先頭に来る画面（トレーニング・点数計算）用。ここで余白を残すと、
+   *   タイトル帯と盤面の間に用の無い白帯が出る
    *
    * 打ち消す余白は白カード（ContentContainer）の `p-4`。カードは <sm で
-   * フルブリードなので、`-mx-4` で盤面が画面端に届く。カード直下でなくても、
-   * 間に挟まるのが中央寄せ（`mx-auto max-w-md` 等）や `space-y-*` の
-   * ラッパーだけなら同じように働く。
+   * フルブリードなので、`-mx-4` で盤面が画面端に届き、`-mt-4` で上端に届く。
+   * カード直下でなくても、間に挟まるのが中央寄せ（`mx-auto max-w-md` 等）や
+   * `space-y-*` のラッパーだけなら同じように働く。
    */
   readonly mobileFrame?: MobileFrame;
 }
@@ -59,13 +63,16 @@ interface TehaiDisplayProps {
 type MobileFrame = keyof typeof MOBILE_FRAME_CLASSES;
 
 /**
- * 盤面の枠。広げるときは角丸と左右の枠線を落とし、左右のパディングも詰めて
- * 牌に幅を回す（白カード自身の <sm 表示と同じ作法）。
+ * 盤面の枠。広げるときは角丸と接する辺の枠線を落とし、左右のパディングも
+ * 詰めて牌に幅を回す（白カード自身の <sm 表示と同じ作法）。上端に密着させる
+ * ときは、カードの上枠（4px）と二重にならないよう自前の上枠も落とす。
  */
 const MOBILE_FRAME_CLASSES = {
   inset: "mt-4 rounded-xl border-3 p-3",
   fullBleed:
     "-mx-4 mt-4 rounded-none border-x-0 border-y-3 px-2 py-3 sm:mx-0 sm:rounded-xl sm:border-x-3 sm:px-3",
+  fullBleedFlushTop:
+    "-mx-4 -mt-4 rounded-none border-x-0 border-t-0 border-b-3 px-2 py-3 sm:mx-0 sm:mt-4 sm:rounded-xl sm:border-x-3 sm:border-t-3 sm:px-3",
 } as const;
 
 /**

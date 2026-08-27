@@ -87,7 +87,7 @@ export function YakuBoard({
       <TehaiDisplay
         tehai={question.tehai}
         context={question.context}
-        mobileFrame="fullBleed"
+        mobileFrame={isTraining ? "fullBleedFlushTop" : "fullBleed"}
       />
 
       {/* Instruction */}
