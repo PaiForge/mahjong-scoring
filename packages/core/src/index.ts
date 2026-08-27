@@ -67,7 +67,12 @@ export {
   MANGAN_PLUS_TIERS,
 } from "./score/tiers";
 export type { HanTier, HanRange } from "./score/tiers";
-export { resolveMentsuStructure } from "./score/mentsu-structure";
+export { resolveMentsuBreakdown } from "./score/mentsu-structure";
+export type {
+  MentsuBreakdown,
+  MentsuBreakdownRow,
+  JantouBreakdownRow,
+} from "./score/mentsu-structure";
 export type {
   ScoreQuestion,
   UserAnswer,
@@ -138,15 +143,20 @@ export { DEFAULT_RULE_SETTINGS } from "./rules/settings";
 export type { RuleSettings } from "./rules/settings";
 
 // === Re-exports from @pai-forge/riichi-mahjong ===
-export { HaiKind, MentsuType } from "@pai-forge/riichi-mahjong";
+export {
+  HaiKind,
+  MentsuType,
+  FuroType,
+  Tacha,
+} from "@pai-forge/riichi-mahjong";
 export { validateTehai14 } from "@pai-forge/riichi-mahjong";
 export type {
   Fu,
+  Furo,
   HaiKindId,
   Kazehai,
   Tehai,
   Tehai14,
   CompletedMentsu,
-  MentsuHouraStructure,
   Payment,
 } from "@pai-forge/riichi-mahjong";
