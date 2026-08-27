@@ -12,6 +12,7 @@ import {
   callApi,
 } from "@/lib/api-client";
 import { TEXT_LINK_CLASSES } from "@/app/_components/_lib/link-classes";
+import { useAuth } from "@/app/_contexts/auth-context";
 
 const ALLOWED_TYPES = ["image/jpeg", "image/png", "image/webp"];
 const MAX_SIZE = 5 * 1024 * 1024; // 5MB
@@ -26,6 +27,7 @@ export function AvatarUpload({
   readonly currentAvatarUrl: string | null;
 }) {
   const t = useTranslations("profileEdit");
+  const { refreshProfile } = useAuth();
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [avatarUrl, setAvatarUrl] = useState<string | null>(currentAvatarUrl);
   const [isUploading, setIsUploading] = useState(false);
@@ -72,6 +74,8 @@ export function AvatarUpload({
       }
 
       setAvatarUrl(result.data.avatarUrl);
+      // ヘッダーのアバターも同じ画面内で差し替える（リロードを待たせない）
+      void refreshProfile();
       toast.success(t("avatarUploaded"));
     } finally {
       setIsUploading(false);
