@@ -143,15 +143,20 @@ export { DEFAULT_RULE_SETTINGS } from "./rules/settings";
 export type { RuleSettings } from "./rules/settings";
 
 // === Re-exports from @pai-forge/riichi-mahjong ===
-export { HaiKind, MentsuType } from "@pai-forge/riichi-mahjong";
+export {
+  HaiKind,
+  MentsuType,
+  FuroType,
+  Tacha,
+} from "@pai-forge/riichi-mahjong";
 export { validateTehai14 } from "@pai-forge/riichi-mahjong";
 export type {
   Fu,
+  Furo,
   HaiKindId,
   Kazehai,
   Tehai,
   Tehai14,
   CompletedMentsu,
-  MentsuHouraStructure,
   Payment,
 } from "@pai-forge/riichi-mahjong";
