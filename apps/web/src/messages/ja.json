@@ -605,7 +605,8 @@
       "yakuman": "役満",
       "nakiHan": "鳴き{count}翻",
       "menzenOnly": "門前限定",
-      "nakiNote": "※ ラベルのない役は鳴いても翻数が変わりません"
+      "nakiNote": "※ ラベルのない役は鳴いても翻数が変わりません",
+      "inThisHand": "この手の役"
     }
   },
   "scoreTable": {
@@ -724,7 +725,15 @@
       },
       "next": "次の問題へ",
       "pointSuffix": "点",
-      "viewScoreTable": "点数表を確認"
+      "viewScoreTable": "点数表を確認",
+      "openInScoreTable": "点数表で見る",
+      "viewYakuList": "役一覧を確認",
+      "openYakuInList": "役一覧で見る",
+      "yakuJudgement": {
+        "correct": "正解",
+        "incorrect": "不正解",
+        "missed": "選び忘れ"
+      }
     },
     "yaku": {
       "riichi": "立直",

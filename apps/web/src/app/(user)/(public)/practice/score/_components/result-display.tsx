@@ -7,15 +7,25 @@ import type {
   UserAnswer,
   JudgementResult,
 } from "@mahjong-scoring/core";
-import { isMangan, isOya, getScoreLevelName } from "@mahjong-scoring/core";
+import {
+  isMangan,
+  isOya,
+  getScoreLevelName,
+  judgeYakuSelection,
+} from "@mahjong-scoring/core";
 import { practiceHanTier } from "../_lib/han-tiers";
 import { formatScoreAnswer } from "../../_lib/format-score-answer";
 import { paymentToScoreTableAnswer } from "../../_lib/payment-adapter";
 import { DetailsPanelRow, DetailsToggleButton } from "./details-accordion";
 import type { DetailItem } from "./details-accordion";
-import { ScoreTableModalLink } from "./score-table-modal-link";
+import { ScoreTableModal } from "./score-table-modal";
+import { ReferenceLinkButton } from "./reference-link-button";
+import { YakuCheatsheetModal } from "./yaku-cheatsheet-modal";
+import { YakuJudgementChips } from "./yaku-judgement-chips";
 import type { ScoreTableFocus } from "@/app/(user)/(public)/reference/score-table/_lib/score-table-utils";
 import { Button } from "@/app/(user)/_components/button";
+import { BookIcon } from "@/app/(user)/_components/icons/book-icon";
+import { TableIcon } from "@/app/(user)/_components/icons/table-icon";
 
 /** 結果テーブルの最大列数（項目名 / あなたの回答 / 正解）。展開行の colSpan に使う */
 const TABLE_COLUMN_COUNT = 3;
@@ -56,6 +66,26 @@ export function ResultDisplay({
   const scoreLevelName = getScoreLevelName(answer.scoreLevel);
   const [showFuDetails, setShowFuDetails] = useState(false);
   const [showYakuDetails, setShowYakuDetails] = useState(false);
+  // 役一覧モーダル。役をタップしたときはその役へ着地させる（一覧全体を見たい
+  // ときは undefined のまま開く）。
+  const [yakuListFocus, setYakuListFocus] = useState<string | undefined>(
+    undefined,
+  );
+  const [isYakuListOpen, setIsYakuListOpen] = useState(false);
+  // 点数表モーダル。点数そのものをタップしたときだけ正解のセルを
+  // ハイライトする（表への補助リンクからは素の表を開く）。
+  const [isScoreTableOpen, setIsScoreTableOpen] = useState(false);
+  const [isScoreTableHighlighted, setIsScoreTableHighlighted] = useState(false);
+
+  const openYakuList = (yakuName?: string) => {
+    setYakuListFocus(yakuName);
+    setIsYakuListOpen(true);
+  };
+
+  const openScoreTable = (highlighted: boolean) => {
+    setIsScoreTableHighlighted(highlighted);
+    setIsScoreTableOpen(true);
+  };
   const fuDetailsPanelId = useId();
   const yakuDetailsPanelId = useId();
 
@@ -67,6 +97,22 @@ export function ResultDisplay({
     question.fuDetails?.reduce((acc, curr) => acc + curr.fu, 0) ?? 0;
   const yakuTotal =
     question.yakuDetails?.reduce((acc, curr) => acc + curr.han, 0) ?? 0;
+
+  // 役は「合っていた / 余分だった / 選び忘れた」を役ごとに見せる。1つ余分なだけで
+  // 回答全体が赤くなると、合っていた役まで間違いに見えてしまうため。
+  const yakuJudgements = judgeYakuSelection(
+    question.yakuDetails,
+    userAnswer?.yakus ?? [],
+  );
+  const answeredYakuJudgements = yakuJudgements.filter(
+    (judgement) => judgement.state !== "missed",
+  );
+  const correctYakuJudgements = yakuJudgements.filter(
+    (judgement) => judgement.state !== "incorrect",
+  );
+  const correctYakuNames = correctYakuJudgements.map(
+    (judgement) => judgement.name,
+  );
 
   const yakuDetailItems: readonly DetailItem[] =
     question.yakuDetails?.map((d) => ({ name: d.name, value: d.han })) ?? [];
@@ -136,44 +182,34 @@ export function ResultDisplay({
             </tr>
           </thead>
           <tbody>
-            {/* Yaku（回答内容の行なので、開示時は出さない。正解の役は翻数行の内訳で見る） */}
-            {requireYaku &&
-              userAnswer !== undefined &&
-              result !== undefined && (
-                <tr>
-                  <td className="whitespace-nowrap py-2 pr-4 align-top text-surface-600">
-                    {t("form.labels.yaku")}
-                  </td>
-                  <td className="py-2 pr-4 align-top">
-                    <div className="flex flex-wrap gap-1">
-                      {userAnswer.yakus.length > 0 ? (
-                        userAnswer.yakus.map((yaku, idx) => (
-                          <span
-                            key={idx}
-                            className={`inline-block rounded-md border px-2 py-0.5 text-xs ${
-                              result.isYakuCorrect
-                                ? "border-primary-200 bg-primary-50 text-primary-700"
-                                : "border-destructive-subtle bg-destructive-subtle text-destructive-strong"
-                            }`}
-                          >
-                            {yaku}
-                          </span>
-                        ))
-                      ) : (
-                        <span className="text-sm text-surface-400">
-                          {t("result.details.none")}
-                        </span>
-                      )}
-                      <span
-                        className={`ml-1 ${result.isYakuCorrect ? "text-success" : "text-destructive"}`}
-                      >
-                        {result.isYakuCorrect ? "\u2713" : "\u2717"}
-                      </span>
-                    </div>
-                  </td>
-                  <td className="py-2 align-top font-bold text-surface-800" />
-                </tr>
-              )}
+            {/* Yaku（回答内容の行なので、開示時は出さない） */}
+            {requireYaku && userAnswer !== undefined && (
+              <tr>
+                <td className="whitespace-nowrap py-2 pr-4 align-top text-surface-600">
+                  {t("form.labels.yaku")}
+                </td>
+                <td className="py-2 pr-4 align-top">
+                  <YakuJudgementChips
+                    judgements={answeredYakuJudgements}
+                    emptyLabel={t("result.details.none")}
+                    onSelect={openYakuList}
+                  />
+                </td>
+                <td className="space-y-1.5 py-2 align-top">
+                  <YakuJudgementChips
+                    judgements={correctYakuJudgements}
+                    emptyLabel={t("result.details.none")}
+                    onSelect={openYakuList}
+                  />
+                  {/* 役をタップしても開けるが、それが分かるように一覧への導線も置く */}
+                  <ReferenceLinkButton
+                    icon={<BookIcon className="size-3.5 shrink-0" />}
+                    label={t("result.viewYakuList")}
+                    onClick={() => openYakuList()}
+                  />
+                </td>
+              </tr>
+            )}
 
             {/* Han */}
             <tr>
@@ -254,12 +290,12 @@ export function ResultDisplay({
 
             {/* Score */}
             <tr>
-              <td className="whitespace-nowrap py-2 pr-4 text-surface-600">
+              <td className="whitespace-nowrap py-2 pr-4 align-top text-surface-600">
                 {t("form.labels.score")}
               </td>
               {userAnswer !== undefined && result !== undefined && (
                 <td
-                  className={`py-2 pr-4 ${result.isScoreCorrect ? "text-success" : "text-destructive"}`}
+                  className={`py-2 pr-4 align-top ${result.isScoreCorrect ? "text-success" : "text-destructive"}`}
                 >
                   {userAnswer.scoreFromKo !== undefined
                     ? `${userAnswer.scoreFromKo}/${userAnswer.scoreFromOya}`
@@ -267,18 +303,41 @@ export function ResultDisplay({
                   {result.isScoreCorrect ? "\u2713" : "\u2717"}
                 </td>
               )}
-              <td className="py-2 font-bold text-surface-800">
-                {paymentDescription}
+              <td className="space-y-1.5 py-2 align-top">
+                {/* 押せることが見て分かるよう、常時点線の下線を敷く */}
+                <button
+                  type="button"
+                  onClick={() => openScoreTable(true)}
+                  title={t("result.openInScoreTable")}
+                  className="block cursor-pointer text-left font-bold text-surface-800 underline decoration-surface-400 decoration-dotted decoration-2 underline-offset-4 hover:decoration-primary-500"
+                >
+                  {paymentDescription}
+                </button>
+                {/* 点数をタップしても開けるが、それが分かるように表への導線も置く */}
+                <ReferenceLinkButton
+                  icon={<TableIcon className="size-3.5 shrink-0" />}
+                  label={t("result.viewScoreTable")}
+                  onClick={() => openScoreTable(false)}
+                />
               </td>
             </tr>
           </tbody>
         </table>
-
-        {/* 正解が点数表のどこかを表で確かめる導線（モーダルで開き、出題ループを離脱しない） */}
-        <div className="mt-3 text-right text-sm">
-          <ScoreTableModalLink focus={scoreTableFocus} />
-        </div>
       </div>
+
+      <ScoreTableModal
+        isOpen={isScoreTableOpen}
+        onClose={() => setIsScoreTableOpen(false)}
+        focus={scoreTableFocus}
+        highlighted={isScoreTableHighlighted}
+      />
+
+      <YakuCheatsheetModal
+        isOpen={isYakuListOpen}
+        onClose={() => setIsYakuListOpen(false)}
+        markedYakuNames={correctYakuNames}
+        focusedYakuName={yakuListFocus}
+      />
 
       {/* Next button */}
       <Button size="lg" fullWidth onClick={onNext}>
