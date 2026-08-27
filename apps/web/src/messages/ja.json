@@ -52,6 +52,10 @@
       "lockAria": "並べ替えをやめる",
       "save": "保存する",
       "cancel": "取り消す",
+      "discardTitle": "並べ替えを取り消しますか？",
+      "discardMessage": "保存していない並びは元に戻ります。",
+      "discardConfirm": "取り消す",
+      "discardCancel": "編集を続ける",
       "savedToast": "並び順を保存しました",
       "reset": "既定の順に戻す"
     },

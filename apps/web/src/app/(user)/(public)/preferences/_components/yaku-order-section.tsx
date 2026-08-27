@@ -24,6 +24,7 @@ import { CSS } from "@dnd-kit/utilities";
 import { YAKU_DEFAULT_ORDER } from "@mahjong-scoring/core";
 
 import { Button } from "@/app/(user)/_components/button";
+import { ConfirmationModal } from "@/app/(user)/_components/confirmation-modal";
 import { LockClosedIcon } from "@/app/(user)/_components/icons/lock-closed-icon";
 import { LockOpenIcon } from "@/app/(user)/_components/icons/lock-open-icon";
 import { useYakuLabel } from "@/app/_hooks/use-yaku-options";
@@ -119,6 +120,12 @@ function isSameOrder(a: readonly string[], b: readonly string[]): boolean {
  * 保存された瞬間が画面のどこにも出ず、かといって保存ボタンを一覧の下に置くと
  * 36 行の先で見つからない。鍵と保存を一覧の上の追従バーに同居させ、
  * 操作とその結果を同じ場所に置く。
+ *
+ * 追従バーは施錠中と解錠中で地の色を変える。施錠中に一覧と同じ白＋太枠で
+ * 置くと表の一部に見えて鍵に気づかないため、地色だけの静かな帯にする。
+ * 解錠中は琥珀（アプリで「本筋の隣に置く箱」に使っている色）の枠を出し、
+ * 一時的なモードに入っていることを主張する。枠の太さは両方 3 のまま
+ * 色だけを透明にして、切り替えで高さが動かないようにする。
  */
 export function YakuOrderSection() {
   const t = useTranslations("settings.yakuOrder");
@@ -130,9 +137,11 @@ export function YakuOrderSection() {
 
   /** 解錠中の並び。null なら施錠中で、保存済みの並びをそのまま映す */
   const [draft, setDraft] = useState<readonly string[] | null>(null);
+  const [isDiscardConfirmOpen, setIsDiscardConfirmOpen] = useState(false);
   const isEditing = draft !== null;
   const items = useMemo(() => [...(draft ?? savedOrder)], [draft, savedOrder]);
   const isDefaultOrder = isSameOrder(items, YAKU_DEFAULT_ORDER);
+  const hasUnsavedChanges = draft !== null && !isSameOrder(draft, savedOrder);
 
   const sensors = useSensors(
     // 指を置いただけでは動かさない。リストのスクロールと取り合いにならないようにする。
@@ -155,11 +164,28 @@ export function YakuOrderSection() {
     });
   }, []);
 
-  const handleToggleLock = useCallback(() => {
-    // 施錠は下書きを捨てる。捨てるのは保存していない並びだけで、同じことをする
-    // 「取り消す」が隣にあるため「鍵を閉じたら元に戻る」で一貫する。
-    setDraft((current) => (current === null ? [...savedOrder] : null));
+  const handleUnlock = useCallback(() => {
+    setDraft([...savedOrder]);
   }, [savedOrder]);
+
+  const handleRequestDiscard = useCallback(() => {
+    // 並べ替えていないなら確認を挟まない。誤って触れただけのタップまで
+    // 確認で止めると、何も失わない操作にモーダルを見せることになる。
+    if (!hasUnsavedChanges) {
+      setDraft(null);
+      return;
+    }
+    setIsDiscardConfirmOpen(true);
+  }, [hasUnsavedChanges]);
+
+  const handleConfirmDiscard = useCallback(() => {
+    setIsDiscardConfirmOpen(false);
+    setDraft(null);
+  }, []);
+
+  // 鍵を閉じる操作は「取り消す」と同じ経路を通す。見た目が違うだけで
+  // することは同じなので、確認の有無が食い違わないようにする。
+  const handleToggleLock = isEditing ? handleRequestDiscard : handleUnlock;
 
   const handleSave = useCallback(() => {
     if (draft === null) return;
@@ -171,6 +197,7 @@ export function YakuOrderSection() {
       setOrder(draft);
     }
     setDraft(null);
+    setIsDiscardConfirmOpen(false);
     toast.success(t("savedToast"));
   }, [draft, resetOrder, setOrder, t]);
 
@@ -189,24 +216,36 @@ export function YakuOrderSection() {
       {/* 一覧が 36 行あるため、鍵と保存は追従させないと画面外に出る。
           画面下に固定すると MobileTabBar と重なるので上に置く
           （このアプリの Header は sticky ではないので top-0 でよい）。 */}
-      <div className="sticky top-0 z-20 flex items-center gap-2 rounded-lg border-3 border-ink bg-white px-2 py-2 shadow-hard">
+      <div
+        className={`sticky top-0 z-20 flex items-center gap-2 rounded-lg border-3 px-2 py-2 ${
+          isEditing
+            ? "border-amber-500 bg-amber-50 shadow-hard"
+            : "border-transparent bg-surface-100"
+        }`}
+      >
         <button
           type="button"
           onClick={handleToggleLock}
           aria-pressed={isEditing}
           aria-label={isEditing ? t("lockAria") : t("unlockAria")}
-          className="flex size-11 shrink-0 items-center justify-center rounded-md text-ink"
+          className={`flex size-11 shrink-0 items-center justify-center rounded-md ${
+            isEditing ? "text-amber-700" : "text-surface-500"
+          }`}
         >
           {isEditing ? <LockOpenIcon /> : <LockClosedIcon />}
         </button>
 
-        <span className="flex-1 text-sm font-bold text-surface-700">
+        <span
+          className={`flex-1 text-sm ${
+            isEditing ? "font-bold text-amber-900" : "text-surface-600"
+          }`}
+        >
           {isEditing ? t("editingLabel") : t("lockedLabel")}
         </span>
 
         {isEditing && (
           <>
-            <Button variant="neutral" size="sm" onClick={handleToggleLock}>
+            <Button variant="neutral" size="sm" onClick={handleRequestDiscard}>
               {t("cancel")}
             </Button>
             <Button variant="primary" size="sm" onClick={handleSave}>
@@ -252,6 +291,17 @@ export function YakuOrderSection() {
           {t("reset")}
         </Button>
       </div>
+
+      <ConfirmationModal
+        isOpen={isDiscardConfirmOpen}
+        onClose={() => setIsDiscardConfirmOpen(false)}
+        onConfirm={handleConfirmDiscard}
+        title={t("discardTitle")}
+        message={t("discardMessage")}
+        confirmText={t("discardConfirm")}
+        cancelText={t("discardCancel")}
+        confirmVariant="danger"
+      />
     </div>
   );
 }
