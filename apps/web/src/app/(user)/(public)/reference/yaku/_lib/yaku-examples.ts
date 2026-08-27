@@ -1,3 +1,5 @@
+import { YAKUHAI_ENTRY_NAME } from "@mahjong-scoring/core";
+
 /**
  * 役チートシート用の例示手牌（Extended MSPZ 記法）
  *
@@ -81,14 +83,6 @@ export const YAKU_EXAMPLES: Readonly<Record<string, readonly YakuExample[]>> = {
   緑一色: [{ mspz: "234s234s666s888s66z" }],
   四槓子: [{ mspz: "55z(1111m)(2222p)(3333s)(4444z)" }],
 };
-
-/**
- * 早見表が役牌をひとまとめにしている項目名
- *
- * 点数計算は成立した役牌を牌ごとに返す（「役牌 白」など）が、早見表は
- * 白・發・中の例を「役牌」1枚のカードに載せている。
- */
-const YAKUHAI_ENTRY_NAME = "役牌";
 
 /**
  * 役一覧（早見表）に載る役かどうか
