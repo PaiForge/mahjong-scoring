@@ -6,7 +6,6 @@ import {
   generateYakuQuestion,
   judgeYakuAnswer,
   SELECTABLE_YAKU_GROUPS,
-  YAKUMAN_HAN,
   retryGenerate,
 } from "@mahjong-scoring/core";
 import type { YakuQuestion } from "@mahjong-scoring/core";
@@ -24,11 +23,6 @@ function generateQuestion(): YakuQuestion | undefined {
 }
 
 type YakuBoardProps = PracticeBoardProps;
-
-/** 翻数グループの i18n キー（役満だけ数値ではなく "yakuman"） */
-function hanGroupKey(han: number): string {
-  return han === YAKUMAN_HAN ? "yakuman" : String(han);
-}
 
 /**
  * 役判定の出題盤面（手牌の提示と役の複数選択・一括判定）
@@ -96,9 +90,9 @@ export function YakuBoard({
       {/* Yaku selection */}
       <div className="space-y-3">
         {SELECTABLE_YAKU_GROUPS.map((group) => (
-          <div key={group.han} className="space-y-1.5">
+          <div key={group.kind} className="space-y-1.5">
             <p className="text-xs font-semibold text-surface-400">
-              {t(`hanGroup.${hanGroupKey(group.han)}`)}
+              {t(`selectGroup.${group.kind}`)}
             </p>
             <div className="flex flex-wrap gap-1.5">
               {group.names.map((yakuName) => (
