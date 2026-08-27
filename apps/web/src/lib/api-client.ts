@@ -4,7 +4,8 @@
  *
  * サーバー側の契約は `lib/api-auth.ts` の `authorizeApiRequest` に一元化されており、
  * 失敗時は必ず `{ error: string }` を返す
- * （429 は `"rateLimited"`、401 は `"unauthorized"`、403 は `"banned"`）。
+ * （429 は `"rateLimited"`、401 は `"unauthorized"`、403 は `"banned"` または
+ * Origin 不一致の `"forbidden"`）。
  * このモジュールはその契約を消費する側の唯一の定義で、各呼び出し元が
  * `res.ok` 判定とエラーコード取り出しを書き直さずに済むようにする。
  */

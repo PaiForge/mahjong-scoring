@@ -27,7 +27,7 @@ const AVATAR_WEBP_QUALITY = 85;
 const AVATAR_PATH_SUFFIX = "avatar.webp";
 
 export async function POST(request: Request) {
-  const auth = await authorizeApiRequest("uploadAvatar");
+  const auth = await authorizeApiRequest(request, "uploadAvatar");
   if (!auth.ok) return auth.response;
   const { user, supabase } = auth;
 
