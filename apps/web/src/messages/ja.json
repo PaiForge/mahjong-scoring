@@ -50,6 +50,8 @@
       "editingLabel": "並び替え中",
       "unlockAria": "並び替えを始める",
       "lockAria": "並び替えをやめる",
+      "dragHint": "<handle></handle> を押したまま上下に動かすと並び替えができます",
+      "dragHandleAria": "つまんで並び替える",
       "save": "保存する",
       "cancel": "取り消す",
       "discardTitle": "並び替えを取り消しますか？",
@@ -57,7 +59,11 @@
       "discardConfirm": "取り消す",
       "discardCancel": "編集を続ける",
       "savedToast": "並び順を保存しました",
-      "reset": "既定の順に戻す"
+      "reset": "既定の順に戻す",
+      "resetTitle": "既定の並びに戻しますか？",
+      "resetConfirm": "戻す",
+      "resetCancel": "やめる",
+      "resetToast": "既定の並びに戻しました"
     },
     "yakuOrderTitle": "役の並び順",
     "yakuOrderDescription": "役を選ぶときの選択肢の並びを入れ替える"

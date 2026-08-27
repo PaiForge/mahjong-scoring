@@ -37,21 +37,33 @@ interface SortableYakuRowProps {
   readonly name: string;
   readonly label: string;
   readonly position: number;
-  /** つまめるか。施錠中は指の動きをページのスクロールに渡す */
+  /** つまめるか。施錠中はつまみ自体を出さない */
   readonly sortable: boolean;
+  /** つまみの読み上げ名 */
+  readonly handleLabel: string;
 }
 
-/** 並び替えできる 1 行。行全体をつまめるようにする（小さなハンドルは指で外しやすい） */
+/**
+ * 並び替えできる 1 行
+ *
+ * つまめるのは右端のつまみだけにする。行全体をつまめるようにすると、行に
+ * `touch-action: none` が要るぶん一覧の上でページがスクロールできなくなり、
+ * スクロールのつもりの指の動きがすべて並び替えになる（実機で確認）。
+ * つまみは行の余白へはみ出させて 44px の指の的を確保しつつ、
+ * 負のマージンで行の高さは変えない。
+ */
 function SortableYakuRow({
   name,
   label,
   position,
   sortable,
+  handleLabel,
 }: SortableYakuRowProps) {
   const {
     attributes,
     listeners,
     setNodeRef,
+    setActivatorNodeRef,
     transform,
     transition,
     isDragging,
@@ -61,33 +73,39 @@ function SortableYakuRow({
     <li
       ref={setNodeRef}
       style={{ transform: CSS.Transform.toString(transform), transition }}
-      // touch-none は解錠中だけ付ける。付けたままだと一覧の上でブラウザの
-      // 縦スクロールが起きず、スクロールのつもりの指の動きがすべて
-      // 並び替えになる（実機で少し触っただけで行が動いていた）。
       className={`flex items-center gap-3 border-b-2 border-dashed border-border/40 bg-white px-4 py-3 last:border-0 ${
-        sortable ? "touch-none" : ""
-      } ${isDragging ? "relative z-10 shadow-hard" : ""}`}
-      {...(sortable ? attributes : {})}
-      {...(sortable ? listeners : {})}
+        isDragging ? "relative z-10 shadow-hard" : ""
+      }`}
     >
       <span className="w-6 shrink-0 text-right text-xs tabular-nums text-surface-400">
         {position}
       </span>
       <span className="flex-1 text-sm text-surface-900">{label}</span>
-      {sortable && <GripIcon />}
+      {sortable && (
+        <button
+          type="button"
+          ref={setActivatorNodeRef}
+          aria-label={`${label} — ${handleLabel}`}
+          className="-my-3 flex size-11 shrink-0 touch-none cursor-grab items-center justify-center rounded-md text-surface-400 active:cursor-grabbing"
+          {...attributes}
+          {...listeners}
+        >
+          <GripIcon />
+        </button>
+      )}
     </li>
   );
 }
 
 /** つまめることを示す点線グリップ */
-function GripIcon() {
+function GripIcon({ className = "shrink-0" }: { readonly className?: string }) {
   return (
     <svg
       aria-hidden="true"
       width="16"
       height="16"
       viewBox="0 0 16 16"
-      className="shrink-0 text-surface-300"
+      className={className}
       fill="currentColor"
     >
       <circle cx="6" cy="4" r="1.4" />
@@ -111,10 +129,9 @@ function isSameOrder(a: readonly string[], b: readonly string[]): boolean {
  * 役の選択練習と点数計算練習の選択肢の並びを、よく使う順に並び替える。
  * 出題内容も正解判定も変わらない。
  *
- * 施錠を挟むのは、指で触っただけで並びが変わるのを防ぐため。並び替えを
- * 成立させるには行に `touch-action: none` が要るが、張ったままだと一覧の上で
- * ページがスクロールできない。施錠中は読むだけの一覧に戻し、解錠したときだけ
- * つまめるようにして、この二律背反を状態で分ける。
+ * 施錠を挟むのは、指で触っただけで並びが変わるのを防ぐため。施錠中は
+ * つまみを出さない読むだけの一覧に戻し、解錠したときだけつまめるようにする。
+ * つまめる範囲を右端のつまみに限るのは {@link SortableYakuRow} の理由による。
  *
  * 解錠中の並び替えは下書きに溜め、「保存」で初めて永続化する。即時保存だと
  * 保存された瞬間が画面のどこにも出ず、かといって保存ボタンを一覧の下に置くと
@@ -138,10 +155,14 @@ export function YakuOrderSection() {
   /** 解錠中の並び。null なら施錠中で、保存済みの並びをそのまま映す */
   const [draft, setDraft] = useState<readonly string[] | null>(null);
   const [isDiscardConfirmOpen, setIsDiscardConfirmOpen] = useState(false);
+  const [isResetConfirmOpen, setIsResetConfirmOpen] = useState(false);
   const isEditing = draft !== null;
   const items = useMemo(() => [...(draft ?? savedOrder)], [draft, savedOrder]);
-  const isDefaultOrder = isSameOrder(items, YAKU_DEFAULT_ORDER);
   const hasUnsavedChanges = draft !== null && !isSameOrder(draft, savedOrder);
+  // 戻す先が今の状態と同じなら押させない。保存済みが既定でも、下書きに
+  // 保存していない並び替えが残っていれば戻す意味がある。
+  const canResetToDefault =
+    !isSameOrder(savedOrder, YAKU_DEFAULT_ORDER) || hasUnsavedChanges;
 
   const sensors = useSensors(
     // 指を置いただけでは動かさない。リストのスクロールと取り合いにならないようにする。
@@ -201,11 +222,14 @@ export function YakuOrderSection() {
     toast.success(t("savedToast"));
   }, [draft, resetOrder, setOrder, t]);
 
-  const handleResetToDefault = useCallback(() => {
-    // 施錠中に押されたときは解錠も兼ねる。戻した並びは保存前に見せたいので、
-    // 永続化せず下書きに置くところまでを行う。
-    setDraft([...YAKU_DEFAULT_ORDER]);
-  }, []);
+  const handleConfirmReset = useCallback(() => {
+    // 既定順そのものは保存しない（handleSave と同じ理由）。空にすることで
+    // 既定順を変えたときにその変更が届く。
+    resetOrder();
+    setDraft(null);
+    setIsResetConfirmOpen(false);
+    toast.success(t("resetToast"));
+  }, [resetOrder, t]);
 
   return (
     <div className="space-y-3">
@@ -255,6 +279,17 @@ export function YakuOrderSection() {
         )}
       </div>
 
+      {/* つまめるのが右端だけなのは見ただけでは分からないため、解錠したときに
+          その場で言う。つまみの実物を文中に置き、一覧の同じ側（右）へ寄せて、
+          説明とその対象を目で結べるようにする */}
+      {isEditing && (
+        <p className="px-1 text-right text-xs leading-relaxed text-surface-500">
+          {t.rich("dragHint", {
+            handle: () => <GripIcon className="inline-block align-middle" />,
+          })}
+        </p>
+      )}
+
       <div className="overflow-hidden rounded-lg border-3 border-ink bg-white">
         {/* id を渡さないと dnd-kit が内部カウンタで aria-describedby を振り、
             SSR とクライアントでずれてハイドレーション不一致になる */}
@@ -274,6 +309,7 @@ export function YakuOrderSection() {
                   label={labelOf(name)}
                   position={index + 1}
                   sortable={isEditing}
+                  handleLabel={t("dragHandleAria")}
                 />
               ))}
             </ul>
@@ -285,12 +321,22 @@ export function YakuOrderSection() {
         <Button
           variant="neutral"
           size="sm"
-          onClick={handleResetToDefault}
-          disabled={isDefaultOrder}
+          onClick={() => setIsResetConfirmOpen(true)}
+          disabled={!canResetToDefault}
         >
           {t("reset")}
         </Button>
       </div>
+
+      <ConfirmationModal
+        isOpen={isResetConfirmOpen}
+        onClose={() => setIsResetConfirmOpen(false)}
+        onConfirm={handleConfirmReset}
+        title={t("resetTitle")}
+        confirmText={t("resetConfirm")}
+        cancelText={t("resetCancel")}
+        confirmVariant="danger"
+      />
 
       <ConfirmationModal
         isOpen={isDiscardConfirmOpen}

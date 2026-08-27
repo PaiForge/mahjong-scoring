@@ -10,7 +10,8 @@ interface ConfirmationModalProps {
   readonly onClose: () => void;
   readonly onConfirm: () => void;
   readonly title: string;
-  readonly message: string;
+  /** 見出しだけで足りるときは省く。無い注意書きを埋めるための文は置かない */
+  readonly message?: string;
   readonly confirmText: string;
   readonly cancelText: string;
   readonly confirmVariant?: "danger" | "warning" | "primary";
@@ -40,14 +41,16 @@ export function ConfirmationModal({
       isOpen={isOpen}
       onClose={onClose}
       labelledBy={titleId}
-      describedBy={messageId}
+      describedBy={message === undefined ? undefined : messageId}
     >
       <h3 id={titleId} className="text-xl font-bold text-surface-900">
         {title}
       </h3>
-      <p id={messageId} className="text-sm leading-relaxed text-surface-700">
-        {message}
-      </p>
+      {message !== undefined && (
+        <p id={messageId} className="text-sm leading-relaxed text-surface-700">
+          {message}
+        </p>
+      )}
       <div className="flex justify-end gap-3">
         <Button variant="neutral" onClick={onClose}>
           {cancelText}
