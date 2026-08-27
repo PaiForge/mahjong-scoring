@@ -563,7 +563,8 @@
     },
     "selectGroup": {
       "menzenOnly": "門前限定",
-      "nakiOk": "鳴いても成立する",
+      "kuisagari": "食い下がりあり",
+      "noKuisagari": "食い下がりなし",
       "yakuman": "役満"
     },
     "learn": {

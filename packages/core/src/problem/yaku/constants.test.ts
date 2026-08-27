@@ -150,23 +150,39 @@ describe("SELECTABLE_YAKU_GROUPS", () => {
     ]);
   });
 
-  it("鳴きグループの役は鳴いても成立し、役満ではない", () => {
-    const group = SELECTABLE_YAKU_GROUPS.find((g) => g.kind === "nakiOk");
+  it("食い下がりグループの役は鳴くと翻数が下がる", () => {
+    const group = SELECTABLE_YAKU_GROUPS.find((g) => g.kind === "kuisagari");
 
-    expect(group?.names.length).toBeGreaterThan(0);
+    // 門前3翻・鳴き2翻の混一色と、門前6翻・鳴き5翻の清一色が同じグループに入る
+    // （翻数ではなく鳴きの扱いで分類している）
+    expect(group?.names).toEqual([
+      "三色同順",
+      "一気通貫",
+      "混全帯么九",
+      "混一色",
+      "純全帯么九",
+      "清一色",
+    ]);
     for (const name of group?.names ?? []) {
       const entry = findYakuHanEntry(name);
       expect(entry?.nakiHan, `${name} の鳴き翻数`).toBeDefined();
-      expect(entry?.menzenHan, `${name} の門前翻数`).not.toBe(YAKUMAN_HAN);
+      expect(entry?.nakiHan, `${name} は鳴くと下がる`).not.toBe(
+        entry?.menzenHan,
+      );
     }
   });
 
-  it("食い下がり役は翻数ではなく鳴きの可否で分類される", () => {
-    const nakiOk = SELECTABLE_YAKU_GROUPS.find((g) => g.kind === "nakiOk");
+  it("食い下がりなしグループの役は鳴いても翻数が変わらない", () => {
+    const group = SELECTABLE_YAKU_GROUPS.find((g) => g.kind === "noKuisagari");
 
-    // 門前3翻・鳴き2翻の混一色と、門前6翻・鳴き5翻の清一色が同じグループに入る
-    expect(nakiOk?.names).toContain("混一色");
-    expect(nakiOk?.names).toContain("清一色");
+    expect(group?.names).toContain("断么九");
+    expect(group?.names).toContain("役牌 白");
+    expect(group?.names).toContain("対々和");
+    for (const name of group?.names ?? []) {
+      const entry = findYakuHanEntry(name);
+      expect(entry?.nakiHan, `${name} の鳴き翻数`).toBe(entry?.menzenHan);
+      expect(entry?.menzenHan, `${name} の門前翻数`).not.toBe(YAKUMAN_HAN);
+    }
   });
 
   it("役満グループは門前限定の役満も含む", () => {

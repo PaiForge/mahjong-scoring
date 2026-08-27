@@ -47,34 +47,47 @@ export const SELECTABLE_YAKU: readonly string[] = YAKU_OPTIONS;
 /**
  * 役選択の選択肢グループの区分
  * 役選択グループ区分
+ *
+ * - "menzenOnly": 門前限定役（鳴くと成立しない）
+ * - "kuisagari": 食い下がり役（鳴くと翻数が下がる）
+ * - "noKuisagari": 鳴いても翻数が変わらない役
+ * - "yakuman": 役満
  */
-export type YakuSelectGroupKind = "menzenOnly" | "nakiOk" | "yakuman";
+export type YakuSelectGroupKind =
+  "menzenOnly" | "kuisagari" | "noKuisagari" | "yakuman";
 
-/** 選択肢グループの表示順 */
+/** 選択肢グループの表示順（教本 /learn/yaku が門前限定 → 食い下がりの順に説明する） */
 const YAKU_SELECT_GROUP_ORDER: readonly YakuSelectGroupKind[] = [
   "menzenOnly",
-  "nakiOk",
+  "kuisagari",
+  "noKuisagari",
   "yakuman",
 ];
 
-/** 役が属する選択肢グループを判定する（役翻数エントリに解決できない役は undefined） */
+/**
+ * 役が属する選択肢グループを判定する（役翻数エントリに解決できない役は undefined）
+ *
+ * 役満を最初に判定するため、区分は単一の軸ではなく優先順位付きの分類になる
+ * （国士無双は門前限定だが "menzenOnly" ではなく "yakuman"）。
+ */
 function yakuSelectGroupKindOf(
   yakuName: string,
 ): YakuSelectGroupKind | undefined {
   const entry = findYakuHanEntry(yakuName);
   if (entry === undefined) return undefined;
   if (entry.menzenHan === YAKUMAN_HAN) return "yakuman";
-  return entry.nakiHan === undefined ? "menzenOnly" : "nakiOk";
+  if (entry.nakiHan === undefined) return "menzenOnly";
+  return entry.nakiHan === entry.menzenHan ? "noKuisagari" : "kuisagari";
 }
 
 /**
- * 選択可能役リストを鳴きの可否ごとに分けたもの（表示順）
+ * 選択可能役リストを鳴きの扱いごとに分けたもの（表示順）
  * 選択可能役グループ
  *
  * 翻数で区切らないのは、役選択が翻数を問わない出題であるうえ、
  * 選択肢が持てる翻数が門前の値に限られるため。食い下がり役（混一色など）を
  * 門前翻数の見出しの下に置くと、鳴いた手が出題されたときに見出しが
- * その手について偽になる。鳴きの可否は手牌によらない役の性質なので、
+ * その手について偽になる。鳴きの扱いは手牌によらない役の性質なので、
  * どの出題でも見出しが手牌と矛盾しない。
  *
  * グループ内の並びは {@link YAKU_OPTIONS}（翻数順）に従う。
