@@ -1,6 +1,14 @@
 import { describe, it, expect } from "vitest";
-import { YAKU_HAN_ENTRIES, parseTehai } from "@mahjong-scoring/core";
-import { YAKU_EXAMPLES, YAKU_CHEATSHEET_EXCLUDED } from "./yaku-examples";
+import {
+  YAKU_HAN_ENTRIES,
+  YAKU_OPTIONS,
+  parseTehai,
+} from "@mahjong-scoring/core";
+import {
+  YAKU_EXAMPLES,
+  YAKU_CHEATSHEET_EXCLUDED,
+  resolveYakuCheatsheetName,
+} from "./yaku-examples";
 
 /** 副露を含む手牌の有効牌数（槓子は4枚だが面子として3枚分で数える） */
 function effectiveTileCount(
@@ -46,5 +54,31 @@ describe("YAKU_EXAMPLES", () => {
         ).toBe(14);
       }
     }
+  });
+});
+
+describe("resolveYakuCheatsheetName", () => {
+  it("早見表にそのまま載っている役はその役名を返す", () => {
+    expect(resolveYakuCheatsheetName("混一色")).toBe("混一色");
+  });
+
+  it("牌まで含んだ役牌は「役牌」のカードに寄せる", () => {
+    expect(resolveYakuCheatsheetName("役牌 白")).toBe("役牌");
+    expect(resolveYakuCheatsheetName("役牌 東")).toBe("役牌");
+  });
+
+  it("早見表に載らない状況役は undefined を返す", () => {
+    expect(resolveYakuCheatsheetName("立直")).toBeUndefined();
+    expect(resolveYakuCheatsheetName("門前清自摸和")).toBeUndefined();
+  });
+
+  it("点数訓練で選べる役は、状況役を除いてすべて解決できる", () => {
+    const unresolved = YAKU_OPTIONS.filter(
+      (name) => resolveYakuCheatsheetName(name) === undefined,
+    );
+
+    expect([...unresolved].sort()).toEqual(
+      [...YAKU_CHEATSHEET_EXCLUDED].sort(),
+    );
   });
 });
