@@ -54,7 +54,7 @@ export default async function ScoreTablePage() {
 
         {/* 結果ページの「設定を変更する」がこの見出しへ直接送る（scroll-mt はヘッダ分の逃がし） */}
         <div id={PRACTICE_SETUP_ANCHOR_ID} className="scroll-mt-20 space-y-4">
-          <SectionTitle>{t("setup.title")}</SectionTitle>
+          <SectionTitle>{tp("settingsTitle")}</SectionTitle>
           <ScoreTableSetup />
         </div>
       </div>

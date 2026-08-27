@@ -48,10 +48,10 @@ export function YakuHanStartPanel() {
 
   return (
     <div className="flex flex-col gap-6">
-      {/* 出題範囲の選択。結果ページの「設定を変更する」がここへ直接送る
-          （scroll-mt はヘッダ分の逃がし） */}
+      {/* 出題範囲の選択。見出しは練習共通の「設定」（結果ページの
+          「設定を変更する」がここへ直接送る。scroll-mt はヘッダ分の逃がし） */}
       <div id={PRACTICE_SETUP_ANCHOR_ID} className="scroll-mt-20 space-y-3">
-        <SectionTitle>{tRange("label")}</SectionTitle>
+        <SectionTitle>{tp("settingsTitle")}</SectionTitle>
         <div className="grid gap-2 sm:grid-cols-3">
           {RANGE_OPTIONS.map((option) => {
             const isSelected = range === option.value;
