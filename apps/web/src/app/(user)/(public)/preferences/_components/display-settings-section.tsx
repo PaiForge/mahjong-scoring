@@ -3,6 +3,7 @@
 import { useTranslations } from "next-intl";
 
 import {
+  SettingLinkRow,
   SettingsCard,
   SettingToggleRow,
 } from "@/app/(user)/_components/setting-toggle-row";
@@ -10,7 +11,7 @@ import {
   useDisplaySettingsStore,
   useDoraDisplayMode,
 } from "@/app/_hooks/use-display-settings-store";
-import { PREFERENCE_ANCHORS } from "../_lib/anchors";
+import { PREFERENCE_ANCHORS, YAKU_ORDER_HREF } from "../_lib/anchors";
 
 /**
  * 表示設定セクション
@@ -32,6 +33,13 @@ export function DisplaySettingsSection() {
         description={t("doraDisplayDescription")}
         checked={doraDisplay === "actual"}
         onChange={(checked) => setDoraDisplay(checked ? "actual" : "indicator")}
+      />
+
+      {/* 36役を並べ替える UI は設定ページに置くと長すぎるため専用ページへ渡す */}
+      <SettingLinkRow
+        href={YAKU_ORDER_HREF}
+        title={t("yakuOrderTitle")}
+        description={t("yakuOrderDescription")}
       />
     </SettingsCard>
   );

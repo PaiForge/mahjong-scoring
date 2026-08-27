@@ -17,8 +17,11 @@ import { LinkButton } from "@/app/(user)/_components/link-button";
  */
 export function MembersOnlyGate({
   children,
+  redirectTo = "/preferences",
 }: {
   readonly children: ReactNode;
+  /** サインイン後に戻す先。設定の子ページから開いたときはそのページへ返す */
+  readonly redirectTo?: string;
 }) {
   const t = useTranslations("settings.membersGate");
   const { user, isLoading } = useAuth();
@@ -42,7 +45,7 @@ export function MembersOnlyGate({
           </div>
           <LinkButton href="/sign-up">{t("cta")}</LinkButton>
           <Link
-            href="/sign-in?redirect=/preferences"
+            href={`/sign-in?redirect=${encodeURIComponent(redirectTo)}`}
             className={`text-xs font-semibold ${TEXT_LINK_CLASSES}`}
           >
             {t("signInLink")}

@@ -28,7 +28,6 @@ import {
   useYakuOrder,
   useYakuOrderStore,
 } from "@/app/_hooks/use-yaku-order-store";
-import { PREFERENCE_ANCHORS } from "../_lib/anchors";
 
 interface SortableYakuRowProps {
   readonly name: string;
@@ -128,10 +127,7 @@ export function YakuOrderSection() {
   const items = useMemo(() => [...order], [order]);
 
   return (
-    <div
-      id={PREFERENCE_ANCHORS.yakuOrder}
-      className="scroll-mt-24 space-y-3 target:rounded-lg target:bg-primary-50"
-    >
+    <div className="space-y-3">
       <p id={describedBy} className="text-sm leading-relaxed text-surface-600">
         {t("description")}
       </p>

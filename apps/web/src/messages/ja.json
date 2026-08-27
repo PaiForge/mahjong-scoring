@@ -42,11 +42,13 @@
       "cta": "無料登録",
       "signInLink": "ログイン"
     },
-    "yakuOrderSectionTitle": "役の並び順",
     "yakuOrder": {
-      "description": "役を選ぶときの並び順です。よく使う役を上に動かすと探しやすくなります。出題内容も正解判定も変わりません。",
+      "pageTitle": "役の並び順",
+      "description": "役を選ぶときの並び順です。よく使う役を上に動かすと探しやすくなります。役の選択と点数計算の両方に効き、出題内容も正解判定も変わりません。",
       "reset": "既定の順に戻す"
-    }
+    },
+    "yakuOrderTitle": "役の並び順",
+    "yakuOrderDescription": "役を選ぶときの選択肢の並びを入れ替える"
   },
   "deleteAccount": {
     "pageTitle": "退会",

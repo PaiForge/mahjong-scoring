@@ -40,6 +40,7 @@ const EXCLUDED_PATHS: ReadonlyMap<string, string> = new Map([
   ["/sign-up", "認証フロー"],
   ["/sign-up/verify-email", "認証フロー（登録直後のみ意味を持つ）"],
   ["/preferences", "ユーザー個別設定。sitemap 掲載は判断保留"],
+  ["/preferences/yaku-order", "ユーザー個別設定（設定の子ページ）"],
   ["/leaderboard", "sitemap 掲載は判断保留（掲載するなら canonical も付ける）"],
 ]);
 

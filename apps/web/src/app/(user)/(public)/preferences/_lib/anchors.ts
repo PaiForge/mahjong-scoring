@@ -12,8 +12,6 @@ export const PREFERENCE_ANCHORS = {
   kiriageMangan: "kiriage-mangan",
   /** ドラを表示牌ではなくドラそのもので表示するか */
   doraDisplay: "dora-display",
-  /** 役の選択肢をどの順で並べるか */
-  yakuOrder: "yaku-order",
   /** ランキングに自分を表示しないか */
   leaderboardVisibility: "leaderboard-visibility",
 } as const;
@@ -25,3 +23,6 @@ export type PreferenceAnchor =
 export function preferencesHref(anchor: PreferenceAnchor): string {
   return `/preferences#${anchor}`;
 }
+
+/** 役の並び順ページ（設定の子ページ）。項目が多く設定ページ本体には収まらない。 */
+export const YAKU_ORDER_HREF = "/preferences/yaku-order";

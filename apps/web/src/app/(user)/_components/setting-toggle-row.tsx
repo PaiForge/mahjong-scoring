@@ -1,8 +1,13 @@
 "use client";
 
 import type { ReactNode } from "react";
+import Link from "next/link";
 
 import { SkeletonBar } from "@/app/_components/skeleton-bar";
+import {
+  FOCUS_RING_CLASSES,
+  ROW_LINK_TITLE_CLASSES,
+} from "@/app/_components/_lib/link-classes";
 
 /** 設定項目を並べるカード */
 export function SettingsCard({ children }: { readonly children: ReactNode }) {
@@ -84,5 +89,58 @@ export function SettingToggleRow({
         </label>
       )}
     </div>
+  );
+}
+
+interface SettingLinkRowProps {
+  readonly href: string;
+  readonly title: string;
+  /** 補足説明。辞書側の改行をそのまま出す */
+  readonly description?: string;
+}
+
+/**
+ * 別ページへ渡す設定行
+ * 設定リンク行
+ *
+ * その場で切り替えるには大きすぎる設定（項目が多い・並べ替えるなど）を
+ * 専用ページへ逃がす。設定ページを短く保つためのもので、行の形は
+ * {@link SettingToggleRow} と揃える（スイッチの位置に矢印が入る）。
+ */
+export function SettingLinkRow({
+  href,
+  title,
+  description,
+}: SettingLinkRowProps) {
+  return (
+    <Link
+      href={href}
+      className={`group flex items-center justify-between px-5 py-4 transition-colors hover:bg-surface-50 ${FOCUS_RING_CLASSES}`}
+    >
+      <span className="pr-4">
+        <span className={`block text-sm font-medium ${ROW_LINK_TITLE_CLASSES}`}>
+          {title}
+        </span>
+        {description !== undefined && (
+          <span className="mt-0.5 block whitespace-pre-line text-xs text-surface-500">
+            {description}
+          </span>
+        )}
+      </span>
+      <svg
+        aria-hidden="true"
+        width="20"
+        height="20"
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke="currentColor"
+        strokeWidth="2.5"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+        className="flex-shrink-0 text-surface-400"
+      >
+        <polyline points="9 18 15 12 9 6" />
+      </svg>
+    </Link>
   );
 }
