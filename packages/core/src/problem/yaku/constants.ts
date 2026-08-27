@@ -4,9 +4,9 @@ import {
   getYakuNameJa,
   SCORE_YAKU_NAME_MAP,
   SITUATIONAL_YAKU_KEYS,
-  YAKU_OPTION_GROUPS,
   YAKU_OPTIONS,
 } from "../../core/yaku-names";
+import { findYakuHanEntry, YAKUMAN_HAN } from "../yaku-han/constants";
 
 /**
  * 役練習では除外する英語キー
@@ -45,12 +45,49 @@ export const YAKU_NAME_MAP: Readonly<Record<string, string>> =
 export const SELECTABLE_YAKU: readonly string[] = YAKU_OPTIONS;
 
 /**
- * 選択可能役リストを翻数グループごとに分けたもの（表示順）
+ * 役選択の選択肢グループの区分
+ * 役選択グループ区分
+ */
+export type YakuSelectGroupKind = "menzenOnly" | "nakiOk" | "yakuman";
+
+/** 選択肢グループの表示順 */
+const YAKU_SELECT_GROUP_ORDER: readonly YakuSelectGroupKind[] = [
+  "menzenOnly",
+  "nakiOk",
+  "yakuman",
+];
+
+/** 役が属する選択肢グループを判定する（役翻数エントリに解決できない役は undefined） */
+function yakuSelectGroupKindOf(
+  yakuName: string,
+): YakuSelectGroupKind | undefined {
+  const entry = findYakuHanEntry(yakuName);
+  if (entry === undefined) return undefined;
+  if (entry.menzenHan === YAKUMAN_HAN) return "yakuman";
+  return entry.nakiHan === undefined ? "menzenOnly" : "nakiOk";
+}
+
+/**
+ * 選択可能役リストを鳴きの可否ごとに分けたもの（表示順）
  * 選択可能役グループ
  *
- * YAKU_OPTION_GROUPS と同一（単一ソース化）。
+ * 翻数で区切らないのは、役選択が翻数を問わない出題であるうえ、
+ * 選択肢が持てる翻数が門前の値に限られるため。食い下がり役（混一色など）を
+ * 門前翻数の見出しの下に置くと、鳴いた手が出題されたときに見出しが
+ * その手について偽になる。鳴きの可否は手牌によらない役の性質なので、
+ * どの出題でも見出しが手牌と矛盾しない。
+ *
+ * グループ内の並びは {@link YAKU_OPTIONS}（翻数順）に従う。
+ * 役満は門前限定のものと鳴いて成立するものが混在するが、翻数の桁が違い
+ * 探し方も別なので独立したグループとして残す。
  */
-export const SELECTABLE_YAKU_GROUPS = YAKU_OPTION_GROUPS;
+export const SELECTABLE_YAKU_GROUPS: readonly {
+  readonly kind: YakuSelectGroupKind;
+  readonly names: readonly string[];
+}[] = YAKU_SELECT_GROUP_ORDER.map((kind) => ({
+  kind,
+  names: YAKU_OPTIONS.filter((name) => yakuSelectGroupKindOf(name) === kind),
+}));
 
 /**
  * 正解から除外するライブラリ返却役名（状況役・偶然役）

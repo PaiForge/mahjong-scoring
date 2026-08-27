@@ -3,9 +3,11 @@ import { HaiKind } from "@pai-forge/riichi-mahjong";
 import {
   YAKU_NAME_MAP,
   SELECTABLE_YAKU,
+  SELECTABLE_YAKU_GROUPS,
   EXCLUDED_YAKU_FROM_ANSWER,
   getKazeYakuhaiDisplayName,
 } from "./constants";
+import { findYakuHanEntry, YAKUMAN_HAN } from "../yaku-han/constants";
 
 describe("YAKU_NAME_MAP", () => {
   it("三元牌の役牌が含まれる", () => {
@@ -108,5 +110,74 @@ describe("getKazeYakuhaiDisplayName", () => {
 
   it("北風を正しく変換する", () => {
     expect(getKazeYakuhaiDisplayName(HaiKind.Pei)).toBe("役牌 北");
+  });
+});
+
+describe("SELECTABLE_YAKU_GROUPS", () => {
+  it("選択可能な役を過不足なく振り分ける", () => {
+    const grouped = SELECTABLE_YAKU_GROUPS.flatMap((group) => group.names);
+
+    expect(grouped).toHaveLength(SELECTABLE_YAKU.length);
+    expect(new Set(grouped)).toEqual(new Set(SELECTABLE_YAKU));
+  });
+
+  it("同じ役が複数のグループに属さない", () => {
+    const grouped = SELECTABLE_YAKU_GROUPS.flatMap((group) => group.names);
+
+    expect(new Set(grouped).size).toBe(grouped.length);
+  });
+
+  it("グループ内の並びが SELECTABLE_YAKU の並びを保つ", () => {
+    for (const group of SELECTABLE_YAKU_GROUPS) {
+      const indexes = group.names.map((name) => SELECTABLE_YAKU.indexOf(name));
+      expect(
+        [...indexes].sort((a, b) => a - b),
+        `${group.kind} の並び`,
+      ).toEqual(indexes);
+    }
+  });
+
+  it("門前限定グループの役は鳴くと成立しない", () => {
+    const group = SELECTABLE_YAKU_GROUPS.find((g) => g.kind === "menzenOnly");
+
+    expect(group?.names).toEqual([
+      "立直",
+      "門前清自摸和",
+      "平和",
+      "一盃口",
+      "七対子",
+      "二盃口",
+    ]);
+  });
+
+  it("鳴きグループの役は鳴いても成立し、役満ではない", () => {
+    const group = SELECTABLE_YAKU_GROUPS.find((g) => g.kind === "nakiOk");
+
+    expect(group?.names.length).toBeGreaterThan(0);
+    for (const name of group?.names ?? []) {
+      const entry = findYakuHanEntry(name);
+      expect(entry?.nakiHan, `${name} の鳴き翻数`).toBeDefined();
+      expect(entry?.menzenHan, `${name} の門前翻数`).not.toBe(YAKUMAN_HAN);
+    }
+  });
+
+  it("食い下がり役は翻数ではなく鳴きの可否で分類される", () => {
+    const nakiOk = SELECTABLE_YAKU_GROUPS.find((g) => g.kind === "nakiOk");
+
+    // 門前3翻・鳴き2翻の混一色と、門前6翻・鳴き5翻の清一色が同じグループに入る
+    expect(nakiOk?.names).toContain("混一色");
+    expect(nakiOk?.names).toContain("清一色");
+  });
+
+  it("役満グループは門前限定の役満も含む", () => {
+    const group = SELECTABLE_YAKU_GROUPS.find((g) => g.kind === "yakuman");
+
+    expect(group?.names).toContain("国士無双");
+    expect(group?.names).toContain("大三元");
+    for (const name of group?.names ?? []) {
+      expect(findYakuHanEntry(name)?.menzenHan, `${name} の翻数`).toBe(
+        YAKUMAN_HAN,
+      );
+    }
   });
 });
