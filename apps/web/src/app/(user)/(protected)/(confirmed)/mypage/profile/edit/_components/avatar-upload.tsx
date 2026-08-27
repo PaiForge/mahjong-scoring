@@ -191,6 +191,12 @@ export function AvatarUpload({
           )}
         </button>
 
+        {/*
+          画像に重ねる削除バッジは、ボタンの太枠・ハードシャドウの体裁には
+          乗せない（アップロード UI で見慣れた小さな丸のバツ印のほうが
+          何をするボタンか一目で分かる）。白いリングは写真の上でも輪郭が
+          消えないようにするためのもの。
+        */}
         {avatarUrl && (
           <button
             type="button"
@@ -198,9 +204,9 @@ export function AvatarUpload({
             disabled={isBusy}
             aria-label={t("avatarRemove")}
             title={t("avatarRemove")}
-            className={`absolute -right-1 -top-1 flex h-8 w-8 items-center justify-center rounded-full border-3 border-ink bg-card text-surface-700 press-sm shadow-sm hover:bg-destructive hover:text-white disabled:cursor-not-allowed disabled:bg-surface-200 disabled:text-surface-400 disabled:opacity-60 disabled:shadow-none ${FOCUS_RING_CLASSES}`}
+            className={`absolute right-0.5 top-0.5 flex h-6 w-6 items-center justify-center rounded-full bg-surface-700 text-white shadow-sm ring-2 ring-white transition-colors hover:bg-surface-900 disabled:cursor-not-allowed disabled:opacity-50 ${FOCUS_RING_CLASSES}`}
           >
-            <XMarkIcon className="h-4 w-4" />
+            <XMarkIcon className="h-3.5 w-3.5" />
           </button>
         )}
       </div>
