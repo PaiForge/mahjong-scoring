@@ -9,14 +9,14 @@
  *
  * ユーザー名バリデーション
  */
-import { isReservedUsername } from './reserved-usernames';
+import { isReservedUsername } from "./reserved-usernames";
 
 const USERNAME_REGEX = /^[a-z](?:[a-z0-9]_?)*[a-z0-9]$/;
 const USERNAME_MIN_LENGTH = 2;
 const USERNAME_MAX_LENGTH = 20;
 
-export type UsernameFormatError = 'too_short' | 'too_long' | 'invalid_format';
-export type UsernameValidationError = UsernameFormatError | 'reserved';
+export type UsernameFormatError = "too_short" | "too_long" | "invalid_format";
+export type UsernameValidationError = UsernameFormatError | "reserved";
 
 /**
  * Validate username format only (length, characters, pattern).
@@ -25,15 +25,17 @@ export type UsernameValidationError = UsernameFormatError | 'reserved';
  *
  * ユーザー名フォーマットバリデーション
  */
-export function validateUsernameFormat(username: string): UsernameFormatError | undefined {
+export function validateUsernameFormat(
+  username: string,
+): UsernameFormatError | undefined {
   if (username.length < USERNAME_MIN_LENGTH) {
-    return 'too_short';
+    return "too_short";
   }
   if (username.length > USERNAME_MAX_LENGTH) {
-    return 'too_long';
+    return "too_long";
   }
   if (!USERNAME_REGEX.test(username)) {
-    return 'invalid_format';
+    return "invalid_format";
   }
   return undefined;
 }
@@ -44,13 +46,15 @@ export function validateUsernameFormat(username: string): UsernameFormatError | 
  *
  * ユーザー名バリデーション（予約語チェック込み）
  */
-export function validateUsername(username: string): UsernameValidationError | undefined {
+export function validateUsername(
+  username: string,
+): UsernameValidationError | undefined {
   const formatError = validateUsernameFormat(username);
   if (formatError) {
     return formatError;
   }
   if (isReservedUsername(username)) {
-    return 'reserved';
+    return "reserved";
   }
   return undefined;
 }

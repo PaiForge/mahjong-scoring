@@ -95,9 +95,7 @@ describe("sanitizeInternalRedirect", () => {
 
   describe("invalid: paths embedding absolute URLs", () => {
     it("rejects /path/http://evil.com as it embeds http:", () => {
-      expect(
-        sanitizeInternalRedirect("/path/http://evil.com"),
-      ).toBeUndefined();
+      expect(sanitizeInternalRedirect("/path/http://evil.com")).toBeUndefined();
     });
 
     it("rejects /redirect?next=https://evil.com", () => {
@@ -135,9 +133,7 @@ describe("sanitizeInternalRedirect", () => {
     });
 
     it("rejects CRLF injection attempt", () => {
-      expect(
-        sanitizeInternalRedirect("/\r\nSet-Cookie: x=1"),
-      ).toBeUndefined();
+      expect(sanitizeInternalRedirect("/\r\nSet-Cookie: x=1")).toBeUndefined();
     });
 
     it("rejects null byte embedded in path", () => {
@@ -175,9 +171,9 @@ describe("sanitizeInternalRedirect", () => {
     });
 
     it("accepts already percent-encoded Japanese path", () => {
-      expect(
-        sanitizeInternalRedirect("/%E6%97%A5%E6%9C%AC%E8%AA%9E"),
-      ).toBe("/%E6%97%A5%E6%9C%AC%E8%AA%9E");
+      expect(sanitizeInternalRedirect("/%E6%97%A5%E6%9C%AC%E8%AA%9E")).toBe(
+        "/%E6%97%A5%E6%9C%AC%E8%AA%9E",
+      );
     });
   });
 

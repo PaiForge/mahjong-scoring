@@ -123,18 +123,18 @@ describe("checkIpRateLimitGuard", () => {
     for (let i = 0; i < defaultConfig.maxRequests; i++) {
       checkIpRateLimitGuard("1.2.3.4", "signIn", defaultConfig);
     }
-    expect(
-      checkIpRateLimitGuard("1.2.3.4", "signIn", defaultConfig),
-    ).toEqual({ error: "rateLimited" });
+    expect(checkIpRateLimitGuard("1.2.3.4", "signIn", defaultConfig)).toEqual({
+      error: "rateLimited",
+    });
   });
 
   it('uses "unknown" bucket when ip is undefined', () => {
     for (let i = 0; i < defaultConfig.maxRequests; i++) {
       checkIpRateLimitGuard(undefined, "signIn", defaultConfig);
     }
-    expect(
-      checkIpRateLimitGuard(undefined, "signIn", defaultConfig),
-    ).toEqual({ error: "rateLimited" });
+    expect(checkIpRateLimitGuard(undefined, "signIn", defaultConfig)).toEqual({
+      error: "rateLimited",
+    });
   });
 
   it("does not affect named IP bucket when ip is undefined", () => {

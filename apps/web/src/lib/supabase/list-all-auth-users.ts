@@ -1,8 +1,8 @@
-import 'server-only';
+import "server-only";
 
-import type { SupabaseClient, User } from '@supabase/supabase-js';
+import type { SupabaseClient, User } from "@supabase/supabase-js";
 
-import { createAdminClient } from './admin';
+import { createAdminClient } from "./admin";
 
 const DEFAULT_PAGE_SIZE = 1000;
 const DEFAULT_MAX_PAGES = 100;

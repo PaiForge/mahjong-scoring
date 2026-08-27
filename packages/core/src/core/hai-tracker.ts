@@ -25,7 +25,9 @@ export class HaiUsageTracker {
    */
   use(kindId: HaiKindId, count: number = 1): Result<void, string> {
     if (!this.canUse(kindId, count)) {
-      return err(`牌種ID ${kindId} の使用枚数が上限を超えています (残り: ${4 - this.usage[kindId]}, 要求: ${count})`);
+      return err(
+        `牌種ID ${kindId} の使用枚数が上限を超えています (残り: ${4 - this.usage[kindId]}, 要求: ${count})`,
+      );
     }
     this.usage[kindId] += count;
     return ok(undefined);

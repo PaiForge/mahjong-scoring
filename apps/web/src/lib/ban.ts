@@ -1,6 +1,6 @@
-import 'server-only';
+import "server-only";
 
-import { getProfileCoreByUserId } from './db/queries';
+import { getProfileCoreByUserId } from "./db/queries";
 
 /**
  * ユーザーが BAN されているかチェックする。

@@ -26,7 +26,10 @@ export function isSupportedLocale(value: string): value is SupportedLocale {
  * 優先順位: 要求ロケール → DEFAULT_LOCALE → 配列の先頭。
  * `items` は空でない前提（呼び出し側で保証する）。
  */
-export function pickByLocale<T extends { locale: string }>(items: T[], locale: string): T {
+export function pickByLocale<T extends { locale: string }>(
+  items: T[],
+  locale: string,
+): T {
   return (
     items.find((item) => item.locale === locale) ??
     items.find((item) => item.locale === DEFAULT_LOCALE) ??
