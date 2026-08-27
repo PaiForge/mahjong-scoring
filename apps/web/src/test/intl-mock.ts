@@ -18,12 +18,29 @@
  * このモジュールはテスト専用。
  */
 
+/** 翻訳関数。`t(key)` と `t.rich(key, tags)` のどちらもキーを返す */
+interface StubTranslator {
+  (key: string): string;
+  /**
+   * リッチテキスト版。タグの中身は本物の辞書にしか無いため、ここでは
+   * 差し込む要素を描かずキーだけを返す。タグごと消えることで、
+   * テストは「どの文言が出ているか」だけを見る。
+   */
+  rich: (key: string) => string;
+}
+
+function createTranslator(): StubTranslator {
+  const t = (key: string) => key;
+  t.rich = (key: string) => key;
+  return t;
+}
+
 /** クライアントコンポーネント用（キーをそのまま返す） */
-export function useTranslations(): (key: string) => string {
-  return (key) => key;
+export function useTranslations(): StubTranslator {
+  return createTranslator();
 }
 
 /** サーバーコンポーネント用（キーをそのまま返す） */
-export function getTranslations(): Promise<(key: string) => string> {
-  return Promise.resolve((key) => key);
+export function getTranslations(): Promise<StubTranslator> {
+  return Promise.resolve(createTranslator());
 }

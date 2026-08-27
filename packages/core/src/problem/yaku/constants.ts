@@ -70,7 +70,7 @@ export const SELECTABLE_YAKU: readonly string[] = YAKU_OPTIONS;
  * 西北 各約2.1%）。西北は本来なら七対子の下だが、ラベルが揃っていて
  * ひとかたまりに見えるため7種を連続させる（離すと抜けに見える）。
  *
- * これは既定値でしかなく、ユーザーが並べ替えたときはそちらが優先される
+ * これは既定値でしかなく、ユーザーが並び替えたときはそちらが優先される
  * （{@link normalizeYakuOrder}）。
  */
 export const YAKU_DEFAULT_ORDER: readonly string[] = [

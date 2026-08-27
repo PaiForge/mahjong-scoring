@@ -16,7 +16,7 @@ interface YakuSelectProps {
  * 役選択コンポーネント
  * 役選択
  *
- * 選択肢の並びは役の選択練習と共有する（設定で並べ替えられる）。
+ * 選択肢の並びは役の選択練習と共有する（設定で並び替えられる）。
  */
 export function YakuSelect({ value, onChange, disabled }: YakuSelectProps) {
   const t = useTranslations("score");
