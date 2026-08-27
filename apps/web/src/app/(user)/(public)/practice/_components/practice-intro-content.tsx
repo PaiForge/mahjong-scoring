@@ -43,7 +43,7 @@ interface PracticeIntroContentProps {
 /**
  * 教本の読了状態を持たない空集合。
  *
- * 「関連する章」は読了チェックを出さないため、読了状態を引かない。ここで
+ * 「関連する教本の章」は読了チェックを出さないため、読了状態を引かない。ここで
  * 読了状態を取ると認証 Cookie に触れ、静的に配信できる練習説明ページが
  * 全ページ動的レンダリングに落ちる。読了の進捗を見せる場は `/learn` と
  * ダッシュボードが持つ。
@@ -55,7 +55,7 @@ const NO_READ_SLUGS: ReadonlySet<string> = new Set();
  * 練習説明共通
  *
  * @remarks
- * 「関連する章」の教本リンクはカタログの `learnChapter` から引く。練習ページ側で
+ * 「関連する教本の章」の教本リンクはカタログの `learnChapter` から引く。練習ページ側で
  * パスを渡したり表示可否を切り替えたりはしない（章との対応はカタログが正典）。
  * 見た目は目次（`CurriculumToc`）をそのまま使い、ダッシュボードの「教本の続き」
  * や `/learn` と同じ書式に揃える。ただし「次はここから」バッジは練習からの
@@ -71,7 +71,7 @@ export async function PracticeIntroContent({
   notice,
 }: PracticeIntroContentProps) {
   // 前提知識となる章はカタログが持つ。専用の章を持たない練習では
-  // 「関連する章」セクションごと出さない。
+  // 「関連する教本の章」セクションごと出さない。
   const learnChapter = practiceMenuFromCatalog(slug)?.learnChapter;
   const chapter = learnChapter ? getChapterBySlug(learnChapter) : undefined;
   const t = await getTranslations(namespace);
@@ -135,8 +135,8 @@ export async function PracticeIntroContent({
               nextSlug={undefined}
             />
             {/* ダッシュボードの「教本の続き」と同じ、右端に置く目次への導線。
-                向こうは見出し（教本の続き）で文脈が確定するため「目次へ」で
-                済むが、ここは見出しが「関連する章」なので遷移先を明示する。 */}
+                見出しが「教本の章」と言い切っているため、ここも向こうと同じく
+                「目次へ」で何の目次かが伝わる。 */}
             <div className="text-right">
               <Link
                 href="/learn"

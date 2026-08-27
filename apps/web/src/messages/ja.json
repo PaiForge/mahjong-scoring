@@ -224,8 +224,8 @@
     "orDivider": "または",
     "modeChallengeHint": "制限時間{timeLimit}秒・ミス{mistakeLimit}回で記録に挑戦",
     "modeTrainingHint": "時間無制限でじっくり反復練習",
-    "requiredKnowledge": "関連する章",
-    "viewCurriculumToc": "教本の目次へ"
+    "requiredKnowledge": "関連する教本の章",
+    "viewCurriculumToc": "目次へ"
   },
   "challenge": {
     "timeRemaining": "残り {seconds} 秒",
