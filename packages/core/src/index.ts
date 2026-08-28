@@ -90,6 +90,7 @@ export {
   parseHais,
   parseKazehai,
   haiIdToMspz,
+  haisToMspz,
   kazeIdToMspz,
   tehaiToMspz,
 } from "./problem/score/mspz-serializer";
