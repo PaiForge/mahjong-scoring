@@ -5,7 +5,7 @@ import {
   parseHais,
   parseTehai,
 } from "@mahjong-scoring/core";
-import type { YakuExampleSet } from "./yaku-examples";
+import type { YakuExampleHand, YakuExampleSet } from "./yaku-examples";
 import {
   YAKU_EXAMPLES,
   YAKU_CHEATSHEET_EXCLUDED,
@@ -27,24 +27,20 @@ function effectiveTileCount(
 function eachHand(examples: readonly YakuExampleSet[]): readonly {
   readonly form: "menzen" | "naki";
   readonly label: string;
-  readonly mspz: string;
+  readonly hand: YakuExampleHand;
 }[] {
   return examples.flatMap((example) => {
     const prefix = example.variant === undefined ? "" : `${example.variant}/`;
     const menzen = {
       form: "menzen",
       label: `${prefix}門前`,
-      mspz: example.menzen,
+      hand: example.menzen,
     } as const;
     return example.naki === undefined
       ? [menzen]
       : [
           menzen,
-          {
-            form: "naki",
-            label: `${prefix}鳴き`,
-            mspz: example.naki,
-          } as const,
+          { form: "naki", label: `${prefix}鳴き`, hand: example.naki } as const,
         ];
   });
 }
@@ -86,25 +82,6 @@ describe("YAKU_EXAMPLES", () => {
     }
   });
 
-  it("門前形のロン牌は、その門前形の純手牌に含まれる1枚である", () => {
-    for (const [name, examples] of Object.entries(YAKU_EXAMPLES)) {
-      for (const { menzen, menzenRonHai } of examples) {
-        if (menzenRonHai === undefined) continue;
-
-        const ronHais = parseHais(menzenRonHai);
-        expect(ronHais.length, `${name} のロン牌は1枚: ${menzenRonHai}`).toBe(
-          1,
-        );
-
-        const closed = parseTehai(menzen)?.closed ?? [];
-        expect(
-          closed.includes(ronHais[0]),
-          `${name} のロン牌 ${menzenRonHai} が門前形 ${menzen} に無い`,
-        ).toBe(true);
-      }
-    }
-  });
-
   it("例を複数持つ役は、牌の見出しを全ての例に重複なく付けている", () => {
     for (const [name, examples] of Object.entries(YAKU_EXAMPLES)) {
       expect(examples.length, `例が空: ${name}`).toBeGreaterThan(0);
@@ -123,13 +100,16 @@ describe("YAKU_EXAMPLES", () => {
 
   it("全ての例示手牌がパース可能で、有効牌数が14枚である", () => {
     for (const [name, examples] of Object.entries(YAKU_EXAMPLES)) {
-      for (const { label, mspz } of eachHand(examples)) {
-        const tehai = parseTehai(mspz);
-        expect(tehai, `パース失敗: ${name} / ${label} / ${mspz}`).toBeDefined();
+      for (const { label, hand } of eachHand(examples)) {
+        const tehai = parseTehai(hand.mspz);
+        expect(
+          tehai,
+          `パース失敗: ${name} / ${label} / ${hand.mspz}`,
+        ).toBeDefined();
         if (!tehai) continue;
         expect(
           effectiveTileCount(tehai),
-          `${name} / ${label} / ${mspz}: 有効牌数は14`,
+          `${name} / ${label} / ${hand.mspz}: 有効牌数は14`,
         ).toBe(14);
       }
     }
@@ -137,20 +117,42 @@ describe("YAKU_EXAMPLES", () => {
 
   it("門前形は副露を持たず、副露形は副露を持つ（暗槓は副露に数えない）", () => {
     for (const [name, examples] of Object.entries(YAKU_EXAMPLES)) {
-      for (const { form, label, mspz } of eachHand(examples)) {
-        const tehai = parseTehai(mspz);
+      for (const { form, label, hand } of eachHand(examples)) {
+        const tehai = parseTehai(hand.mspz);
         if (!tehai) continue;
         const furoCount = tehai.exposed.filter(
           (m) => m.furo !== undefined,
         ).length;
         if (form === "menzen") {
-          expect(furoCount, `${name} ${label} に副露がある: ${mspz}`).toBe(0);
+          expect(furoCount, `${name} ${label} に副露がある: ${hand.mspz}`).toBe(
+            0,
+          );
         } else {
           expect(
             furoCount,
-            `${name} ${label} に副露がない: ${mspz}`,
+            `${name} ${label} に副露がない: ${hand.mspz}`,
           ).toBeGreaterThan(0);
         }
+      }
+    }
+  });
+
+  it("和了牌は、その手牌の純手牌に含まれる1枚である", () => {
+    for (const [name, examples] of Object.entries(YAKU_EXAMPLES)) {
+      for (const { label, hand } of eachHand(examples)) {
+        if (hand.agari === undefined) continue;
+
+        const agariHais = parseHais(hand.agari.hai);
+        expect(
+          agariHais.length,
+          `${name} ${label} の和了牌は1枚: ${hand.agari.hai}`,
+        ).toBe(1);
+
+        const closed = parseTehai(hand.mspz)?.closed ?? [];
+        expect(
+          closed.includes(agariHais[0]),
+          `${name} ${label} の和了牌 ${hand.agari.hai} が純手牌 ${hand.mspz} に無い`,
+        ).toBe(true);
       }
     }
   });
