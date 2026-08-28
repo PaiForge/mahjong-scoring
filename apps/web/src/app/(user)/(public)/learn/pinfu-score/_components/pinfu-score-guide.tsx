@@ -25,7 +25,7 @@ import { FixedFuScoreTable } from "../../_components/fixed-fu-score-table";
 const PINFU_TABLE = { tsumoFu: 20, ronFu: 30, hanCols: [1, 2, 3, 4] } as const;
 
 /**
- * 平和での点数計算 — 点数の計算セクション第1章
+ * 平和での点数計算 — 点数の計算セクション第2章
  */
 export async function PinfuScoreGuide() {
   const [t, tChapter] = await Promise.all([

@@ -57,10 +57,10 @@ describe("getAdjacentChapters", () => {
     expect(next).toBeUndefined();
   });
 
-  it("places pinfu-score right after the fu section", () => {
+  it("places the score section right after the fu section", () => {
     const { prev, next } = getAdjacentChapters("tehai-fu");
     expect(prev?.slug).toBe("machi-fu");
-    expect(next?.slug).toBe("pinfu-score");
+    expect(next?.slug).toBe("chiitoitsu-score");
   });
 
   it("places yaku right after the mangan section and before fu", () => {

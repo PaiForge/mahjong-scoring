@@ -983,13 +983,13 @@
         "title": "役",
         "description": "翻数を数えるための役の基本"
       },
-      "pinfuScore": {
-        "title": "平和での点数計算",
-        "description": "ピンフの点数は「ツモなら20符・ロンなら30符」の2パターン"
-      },
       "chiitoitsuScore": {
         "title": "七対子での点数計算",
-        "description": "チートイツの符は常に25符。翻数だけで点数が決まる"
+        "description": "25符固定の特殊な役"
+      },
+      "pinfuScore": {
+        "title": "平和での点数計算",
+        "description": "ツモなら20符・ロンなら30符"
       }
     },
     "index": {
