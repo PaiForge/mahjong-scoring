@@ -24,6 +24,11 @@ interface TehaiHandProps {
    * この共有コンポーネントは牌の並びだけを負い、辞書の名前空間を知らない。
    */
   readonly agariLabel?: string;
+  /**
+   * 和了ラベルを載せる面の明暗。既定は濃い出題盤面（TehaiDisplay）。
+   * 早見表のような明るい面に置くときだけ "light" を渡す。
+   */
+  readonly agariLabelTone?: "dark" | "light";
   /** 自動スケール値の変化通知（コンテキスト牌などを同じ倍率で揃える用途） */
   readonly onScaleChange?: (scale: number) => void;
 }
@@ -42,12 +47,13 @@ interface TehaiHandProps {
  *
  * 和了牌には枠を付け、ツモ・ロンの別をラベルとして真上に添える。牌そのものの
  * そばに出ていれば、盤面の下に「和了牌」「和了」の欄を別に設けなくて済む。
- * ラベルの色は濃い盤面（TehaiDisplay）に載る前提の白抜き。
+ * ラベルの色は載せる面に合わせて `agariLabelTone` で切り替える。
  */
 export const TehaiHand = memo(function TehaiHandComponent({
   tehai,
   agariHai,
   agariLabel,
+  agariLabelTone = "dark",
   onScaleChange,
 }: TehaiHandProps) {
   const { wrapperRef, contentRef, scale } = useAutoScale([
@@ -86,7 +92,13 @@ export const TehaiHand = memo(function TehaiHandComponent({
         {separatedAgariHai !== undefined && (
           <div className="ml-4 flex shrink-0 flex-col items-center">
             {agariLabel !== undefined && (
-              <span className="mb-0.5 text-[10px] font-bold leading-none text-white/70">
+              <span
+                className={`mb-0.5 text-[10px] font-bold leading-none ${
+                  agariLabelTone === "light"
+                    ? "text-surface-500"
+                    : "text-white/70"
+                }`}
+              >
                 {agariLabel}
               </span>
             )}

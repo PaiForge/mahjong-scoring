@@ -618,6 +618,9 @@
       "yakuman": "役満",
       "nakiHan": "鳴き{count}翻",
       "menzenOnly": "門前限定",
+      "exampleMenzen": "門前",
+      "exampleNaki": "鳴き",
+      "exampleLabelSeparator": "・",
       "nakiNote": "※ ラベルのない役は鳴いても翻数が変わりません",
       "inThisHand": "この手の役"
     }
