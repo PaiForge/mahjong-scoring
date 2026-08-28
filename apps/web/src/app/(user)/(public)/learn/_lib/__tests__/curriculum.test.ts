@@ -48,15 +48,19 @@ describe("getAdjacentChapters", () => {
   });
 
   it("returns undefined next for the last chapter", () => {
-    const { prev, next } = getAdjacentChapters("pinfu-score");
-    expect(prev?.slug).toBe("tehai-fu");
+    // 末尾の章は章を足すたびに変わるため、slug を直書きせず CURRICULUM から引く
+    const sorted = [...CURRICULUM].sort((a, b) => a.order - b.order);
+    const last = sorted.at(-1)!;
+    const secondLast = sorted.at(-2)!;
+    const { prev, next } = getAdjacentChapters(last.slug);
+    expect(prev?.slug).toBe(secondLast.slug);
     expect(next).toBeUndefined();
   });
 
-  it("places pinfu-score right after the fu section", () => {
+  it("places the score section right after the fu section", () => {
     const { prev, next } = getAdjacentChapters("tehai-fu");
     expect(prev?.slug).toBe("machi-fu");
-    expect(next?.slug).toBe("pinfu-score");
+    expect(next?.slug).toBe("chiitoitsu-score");
   });
 
   it("places yaku right after the mangan section and before fu", () => {

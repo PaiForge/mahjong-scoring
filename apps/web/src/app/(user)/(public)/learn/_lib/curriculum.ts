@@ -153,13 +153,21 @@ const CURRICULUM_REGISTRY = [
     i18nKey: "learnCurriculum.chapters.tehaiFu",
   },
   {
-    slug: "pinfu-score",
+    slug: "chiitoitsu-score",
     section: "score",
     order: 70,
     // 対応する練習は自由練習（/practice/score の役絞り込み）だが、
     // practiceHrefs はカタログ登録済みの練習しか指せない（記録対象・
     // おすすめ導線の前提。practice-catalog.test.ts が固定している）。
-    // 導線は章本文（pinfu-score-guide.tsx）の CTA が持つ
+    // 導線は章本文（chiitoitsu-score-guide.tsx）の CTA が持つ
+    i18nKey: "learnCurriculum.chapters.chiitoitsuScore",
+  },
+  {
+    slug: "pinfu-score",
+    section: "score",
+    order: 80,
+    // 七対子の章と同じ理由で practiceHrefs を持たない（導線は
+    // pinfu-score-guide.tsx の CTA）
     i18nKey: "learnCurriculum.chapters.pinfuScore",
   },
 ] as const satisfies readonly CurriculumChapterEntry[];

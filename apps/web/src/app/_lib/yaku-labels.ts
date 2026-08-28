@@ -24,7 +24,7 @@ export const YAKU_TO_KEY: Readonly<Record<string, string>> = {
   三色同順: "sanshoku_doujun",
   一気通貫: "itsu",
   混全帯么九: "chanta",
-  七対子: "chitoisu",
+  七対子: "chiitoitsu",
   対々和: "toitoi",
   三暗刻: "sanankou",
   三色同刻: "sanshoku_doukou",

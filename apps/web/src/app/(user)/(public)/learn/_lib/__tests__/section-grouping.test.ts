@@ -90,9 +90,9 @@ describe("section grouping", () => {
     expect(yakuSlugs).toEqual(["yaku"]);
   });
 
-  it('places pinfu-score in the "score" section', () => {
+  it('places the score-calculation chapters in the "score" section', () => {
     const grouped = groupChaptersBySection();
     const scoreSlugs = grouped.get("score")?.map((c) => c.slug) ?? [];
-    expect(scoreSlugs).toEqual(["pinfu-score"]);
+    expect(scoreSlugs).toEqual(["chiitoitsu-score", "pinfu-score"]);
   });
 });

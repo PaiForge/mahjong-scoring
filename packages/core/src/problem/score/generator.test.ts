@@ -212,6 +212,20 @@ describe("オプション: requiredYaku", () => {
     }
   });
 
+  it("七対子は includeChiitoi 無しでも requiredYaku だけで出せる", () => {
+    // 七対子は既定の生成対象外（面子手しか作らない）。名指しされたときだけ
+    // 生成経路が開く、という generator.ts の分岐がここで固定される。
+    for (let i = 0; i < 20; i++) {
+      const question = generateValidScoreQuestion(
+        { requiredYaku: ["七対子"] },
+        500,
+      );
+      expect(question).toBeDefined();
+      const names = (question?.yakuDetails ?? []).map((yaku) => yaku.name);
+      expect(names).toContain("七対子");
+    }
+  });
+
   it("成立し得ない役名を指定すると生成に失敗する", () => {
     const question = generateValidScoreQuestion(
       { requiredYaku: ["存在しない役"] },
