@@ -788,7 +788,9 @@
     "board": {
       "correct": "正解！",
       "correctLabel": "正解",
-      "incorrectLabel": "不正解"
+      "incorrectLabel": "不正解",
+      "generationFailed": "この条件に合う問題を作れませんでした。出題条件を変えてお試しください。",
+      "backToSetup": "設定に戻る"
     },
     "result": {
       "title": {

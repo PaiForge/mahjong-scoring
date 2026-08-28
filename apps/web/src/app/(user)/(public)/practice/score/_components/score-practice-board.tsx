@@ -6,6 +6,7 @@ import { Suspense } from "react";
 import { isOya } from "@mahjong-scoring/core";
 import { toast } from "react-hot-toast";
 import { useTranslations } from "next-intl";
+import { Button } from "@/app/(user)/_components/button";
 import { ContentContainer } from "@/app/(user)/_components/content-container";
 import { PageTitle } from "@/app/(user)/_components/page-title";
 import { useScorePracticeStore } from "../_hooks/use-score-practice-store";
@@ -42,6 +43,7 @@ function ScorePracticeBoardInner() {
     userAnswer,
     judgementResult,
     isAnswered,
+    generationFailed,
     questionSeq,
     stats,
     generateNewQuestion,
@@ -124,6 +126,28 @@ function ScorePracticeBoardInner() {
       t,
     ],
   );
+
+  // 生成失敗: リトライを使い切っても出題条件に合う手牌を作れなかった。
+  // このときスケルトンを出し続けると操作手段が無いまま固まる（終了ボタンも
+  // 盤面の一部なので描かれない）ため、条件を変えて戻る導線を明示する。
+  if (isClient && generationFailed) {
+    return (
+      <ContentContainer id={PRACTICE_SCROLL_ANCHOR_ID} fillViewport>
+        <PageTitle>{t("title")}</PageTitle>
+        <div className="space-y-6 py-8 text-center">
+          <p className="text-sm leading-relaxed text-surface-700">
+            {t("board.generationFailed")}
+          </p>
+          <Button
+            variant="secondary"
+            onClick={() => router.push("/practice/score")}
+          >
+            {t("board.backToSetup")}
+          </Button>
+        </div>
+      </ContentContainer>
+    );
+  }
 
   // クライアントマウント前・問題生成前はどちらも本体と同形のスケルトンを表示し、
   // 実コンテンツへの差し替え時にレイアウトシフト（CLS）が起きないようにする。

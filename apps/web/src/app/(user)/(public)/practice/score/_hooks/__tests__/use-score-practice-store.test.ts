@@ -54,3 +54,50 @@ describe("useScorePracticeStore revealAnswer", () => {
     expect(useScorePracticeStore.getState().userAnswer).toBe(answer);
   });
 });
+
+describe("useScorePracticeStore generationFailed", () => {
+  beforeEach(() => {
+    useScorePracticeStore.setState({
+      currentQuestion: undefined,
+      userAnswer: undefined,
+      judgementResult: undefined,
+      isAnswered: false,
+      generationFailed: false,
+      options: {
+        includeFuro: true,
+        includeChiitoi: false,
+        allowedRanges: ["nonMangan", "manganPlus"],
+      },
+      stats: { total: 0, correct: 0 },
+    });
+  });
+
+  it("生成が失敗すると generationFailed が立つ", () => {
+    // minHan を満たす手は存在しないため、リトライを使い切って必ず失敗する
+    useScorePracticeStore.getState().setOptions({ minHan: 100 });
+
+    useScorePracticeStore.getState().generateNewQuestion();
+
+    const state = useScorePracticeStore.getState();
+    expect(state.currentQuestion).toBeUndefined();
+    expect(state.generationFailed).toBe(true);
+  });
+
+  it("生成が成功すると generationFailed は下りる", () => {
+    useScorePracticeStore.setState({ generationFailed: true });
+
+    useScorePracticeStore.getState().generateNewQuestion();
+
+    const state = useScorePracticeStore.getState();
+    expect(state.currentQuestion).toBeDefined();
+    expect(state.generationFailed).toBe(false);
+  });
+
+  it("setQuestion(undefined) は失敗扱いにしない（設定画面へ戻る前のクリア）", () => {
+    useScorePracticeStore.setState({ generationFailed: true });
+
+    useScorePracticeStore.getState().setQuestion(undefined);
+
+    expect(useScorePracticeStore.getState().generationFailed).toBe(false);
+  });
+});
