@@ -17,7 +17,7 @@ import { yakuAnchorId } from "../_lib/anchors";
 /** チートシートに表示する1役分の項目（役データと例示手牌を束ねる） */
 interface YakuCheatItem {
   readonly entry: YakuHanEntry;
-  readonly examples: YakuExampleSet;
+  readonly examples: readonly YakuExampleSet[];
 }
 
 /** チートシートに載せる役（除外役・例未定義を除く）を門前翻数ごとにグループ化する */
@@ -78,7 +78,7 @@ interface YakuCheatsheetProps {
  * 見出しで示し、鳴きの扱いはカード右端に併記する（門前限定役は「門前限定」
  * バッジ、食い下がり役は「鳴きN翻」。無表示は鳴いても翻数が変わらない役）。
  * 手牌の例はカードを開くと出題盤面と同じ `TehaiHand` で表示する（鳴いて
- * 成立する役は門前形と副露形の両方）。
+ * 成立する役は門前形と副露形の両方、役牌は三元牌それぞれの対）。
  * 立直・門前清自摸和は手牌の形を持たない状況役のため除外する。
  *
  * 役一覧ページと、点数訓練の答え合わせから開くモーダルで共有する。

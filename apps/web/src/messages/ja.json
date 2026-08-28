@@ -620,6 +620,7 @@
       "menzenOnly": "門前限定",
       "exampleMenzen": "門前",
       "exampleNaki": "鳴き",
+      "exampleVariant": "{variant}・{form}",
       "nakiNote": "※ ラベルのない役は鳴いても翻数が変わりません",
       "inThisHand": "この手の役"
     }
