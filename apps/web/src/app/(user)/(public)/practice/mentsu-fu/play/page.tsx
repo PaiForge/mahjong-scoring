@@ -16,8 +16,9 @@ export async function generateMetadata(): Promise<Metadata> {
  * @flow
  * 1. カウントダウンオーバーレイ（3, 2, 1）の後にタイマー開始
  * 2. 面子が表示され、符を選択
- * 3. 制限時間経過またはミス3回で終了
- * 4. スコアを保存し、result ページへリダイレクト
+ * 3. 問題別の回答結果を sessionStorage に保存
+ * 4. 制限時間経過またはミス3回で終了
+ * 5. スコアを保存し、result ページへリダイレクト
  */
 export default function MentsuFuPlayPage() {
   return <MentsuFuPlayView />;

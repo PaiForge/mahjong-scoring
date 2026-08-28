@@ -113,7 +113,7 @@ const PRACTICE_MENU_REGISTRY = [
     slug: "mentsu-fu",
     messageKey: "mentsuFu",
     namespace: "mentsuFu",
-    hasProblemList: false,
+    hasProblemList: true,
     hasSetup: false,
   },
   {

@@ -1,7 +1,9 @@
 "use client";
 
+import { useCallback } from "react";
 import { useTranslations } from "next-intl";
 import { generateMentsuFuQuestion } from "@mahjong-scoring/core";
+import type { MentsuFuQuestion } from "@mahjong-scoring/core";
 import { Furo } from "@pai-forge/mahjong-react-ui";
 import { FuChoiceGrid } from "../../_components/fu-choice-grid";
 import { PromptLabel } from "../../_components/prompt-label";
@@ -9,9 +11,11 @@ import { useFuChoiceBoard } from "../../_hooks/use-fu-choice-board";
 import { FU_OPTIONS } from "../../_lib/fu-options";
 import { QuestionGeneratingPlaceholder } from "../../_components/question-generating-placeholder";
 import { QuestionPrompt } from "../../_components/question-prompt";
-import type { PracticeBoardProps } from "../../_lib/practice-board-props";
+import { toQuestionResult } from "../_lib/types";
+import type { MentsuFuQuestionResult } from "../_lib/types";
+import type { RecordingPracticeBoardProps } from "../../_lib/practice-board-props";
 
-type MentsuFuBoardProps = PracticeBoardProps;
+type MentsuFuBoardProps = RecordingPracticeBoardProps<MentsuFuQuestionResult>;
 
 /**
  * 面子符の出題盤面（面子の提示と符の選択）
@@ -22,13 +26,20 @@ export function MentsuFuBoard({
   showFeedback,
   isCountingDown = false,
   onAnswer,
+  onRecordResult,
 }: MentsuFuBoardProps) {
   const t = useTranslations("mentsuFu");
+  const recordResult = useCallback(
+    (question: MentsuFuQuestion, fu: number) =>
+      onRecordResult?.(toQuestionResult(question, fu)),
+    [onRecordResult],
+  );
   const { question, selectedFu, handleSelect } = useFuChoiceBoard({
     generateQuestion: generateMentsuFuQuestion,
     options: FU_OPTIONS,
     showFeedback,
     onAnswer,
+    onRecordResult: recordResult,
   });
 
   if (!question) {
