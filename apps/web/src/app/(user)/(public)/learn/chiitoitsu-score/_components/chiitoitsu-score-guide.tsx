@@ -42,8 +42,6 @@ export async function ChiitoitsuScoreGuide() {
         <FixedFuScoreTable role="ko" {...CHIITOITSU_TABLE} />
         <FixedFuScoreTable role="oya" {...CHIITOITSU_TABLE} />
         <GuideNote>{t("noTsumoNote")}</GuideNote>
-
-        <GuideParagraph preLine>{t("onePatternBody3")}</GuideParagraph>
       </section>
 
       {/* コラム: 25符だけが10符刻みから外れている理由 */}
@@ -58,13 +56,6 @@ export async function ChiitoitsuScoreGuide() {
           {t.rich("columnBody", { br: () => <br /> })}
         </GuideParagraph>
       </HighlightPanel>
-
-      {/* なぜ25符固定なのか */}
-      <section className="space-y-4">
-        <SectionTitle>{t("whyTitle")}</SectionTitle>
-        <GuideParagraph preLine>{t("whyBody1")}</GuideParagraph>
-        <GuideParagraph preLine>{t("whyBody2")}</GuideParagraph>
-      </section>
 
       {/* 複合しても符は変わらない */}
       <section className="space-y-4">
