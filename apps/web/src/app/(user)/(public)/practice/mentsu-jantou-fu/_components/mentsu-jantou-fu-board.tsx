@@ -15,8 +15,10 @@ import { useClientGeneratedQuestion } from "../../_hooks/use-client-generated-qu
 import { useTrainingReveal } from "../../_hooks/use-training-reveal";
 import { TehaiDisplay } from "../../_components/tehai-display";
 import { findAgariHighlight } from "../_lib/find-agari-highlight";
+import { toQuestionResult } from "../_lib/types";
+import type { MentsuJantouFuQuestionResult } from "../_lib/types";
 import { FuItemRow } from "./fu-item-row";
-import type { PracticeBoardProps } from "../../_lib/practice-board-props";
+import type { RecordingPracticeBoardProps } from "../../_lib/practice-board-props";
 
 function generateQuestion(
   renfonpaiAs4Fu: boolean,
@@ -26,7 +28,7 @@ function generateQuestion(
   );
 }
 
-interface MentsuJantouFuBoardProps extends PracticeBoardProps {
+interface MentsuJantouFuBoardProps extends RecordingPracticeBoardProps<MentsuJantouFuQuestionResult> {
   /** 直前の回答が正解だったか（未回答時は undefined） */
   readonly lastAnswerCorrect?: boolean;
   /**
@@ -51,6 +53,7 @@ export function MentsuJantouFuBoard({
   lastAnswerCorrect,
   onAnswer,
   onProceed,
+  onRecordResult,
 }: MentsuJantouFuBoardProps) {
   const t = useTranslations("mentsuJantouFu");
   const renfonpaiAs4Fu = useRuleSettingsStore((s) => s.renfonpaiAs4Fu);
@@ -74,11 +77,20 @@ export function MentsuJantouFuBoard({
 
   const handleSubmit = useCallback(() => {
     if (!question || showFeedback) return;
+    const userFuList = question.items.map((_, idx) => parseInt(answers[idx]));
     const allCorrect = question.items.every(
-      (item, idx) => parseInt(answers[idx]) === item.fu,
+      (item, idx) => userFuList[idx] === item.fu,
     );
+    onRecordResult?.(toQuestionResult(question, userFuList));
     onAnswer(allCorrect, advanceQuestion);
-  }, [question, answers, showFeedback, onAnswer, advanceQuestion]);
+  }, [
+    question,
+    answers,
+    showFeedback,
+    onAnswer,
+    advanceQuestion,
+    onRecordResult,
+  ]);
 
   const handleSelect = useCallback(
     (idx: number, value: string) => {

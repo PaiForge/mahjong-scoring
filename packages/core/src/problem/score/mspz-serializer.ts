@@ -89,6 +89,18 @@ function bucketsToMspz(
 }
 
 /**
+ * 牌IDリストをMSPZ文字列に変換する
+ * 牌IDリスト→MSPZ変換
+ *
+ * {@link parseHais} の逆変換。面子や雀頭のように手牌の一部だけを保存して
+ * 読み戻す用途で使う。出力は花色ごとに昇順へ並べ直した正規形になるため、
+ * 元の並び順は保たれない。
+ */
+export function haisToMspz(hais: readonly HaiKindId[]): string {
+  return bucketsToMspz(bucketSortHais(hais));
+}
+
+/**
  * 手牌をMSPZ文字列に変換する
  * 手牌→MSPZ変換
  */

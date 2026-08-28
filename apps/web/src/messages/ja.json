@@ -499,6 +499,14 @@
     "nextQuestion": "次の問題へ",
     "fuSuffix": "{value}符",
     "correctAnswer": "正解: {fu}符",
+    "result": {
+      "problemDetails": "問題の詳細",
+      "correct": "正解",
+      "incorrect": "不正解",
+      "correctAnswer": "正解",
+      "yourAnswer": "あなたの回答",
+      "correctItemCount": "{correct}/{total} 正解"
+    },
     "howToPlay": {
       "title": "問題方式",
       "lead": "このような問題が出題されます。"
