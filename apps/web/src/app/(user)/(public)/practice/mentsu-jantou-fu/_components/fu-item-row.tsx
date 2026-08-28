@@ -2,10 +2,9 @@
 
 import { memo, useCallback } from "react";
 import { useTranslations } from "next-intl";
-import { MentsuType } from "@mahjong-scoring/core";
 import type { MentsuJantouFuItem } from "@mahjong-scoring/core";
-import { Hai, Furo } from "@pai-forge/mahjong-react-ui";
 import { FU_OPTIONS } from "../../_lib/fu-options";
+import { FuItemTiles } from "./fu-item-tiles";
 
 interface FuItemRowProps {
   readonly index: number;
@@ -57,38 +56,6 @@ export const FuItemRow = memo(function FuItemRowComponent({
     [onSelect, index],
   );
 
-  const scaleStyle =
-    tileScale !== undefined && tileScale < 1
-      ? { transform: `scale(${tileScale})`, transformOrigin: "left center" }
-      : undefined;
-
-  const renderItemTiles = () => {
-    const tiles =
-      item.originalMentsu &&
-      (item.isOpen || item.type === MentsuType.Kantsu) ? (
-        <Furo
-          mentsu={item.originalMentsu}
-          furo={item.originalMentsu.furo}
-          size="sm"
-        />
-      ) : (
-        <div className="flex gap-0.5">
-          {item.tiles.map((tile, i) => (
-            <Hai
-              key={i}
-              hai={tile}
-              size="sm"
-              highlighted={i === highlightedTileIndex}
-            />
-          ))}
-        </div>
-      );
-
-    if (!scaleStyle) return tiles;
-
-    return <div style={scaleStyle}>{tiles}</div>;
-  };
-
   return (
     <div
       className={`space-y-2.5 rounded-xl border bg-white p-3 ${
@@ -101,7 +68,11 @@ export const FuItemRow = memo(function FuItemRowComponent({
     >
       {/* 面子の牌（左）と、誤答時の正解表示（右） */}
       <div className="flex min-w-0 items-center gap-2">
-        {renderItemTiles()}
+        <FuItemTiles
+          item={item}
+          highlightedTileIndex={highlightedTileIndex}
+          scale={tileScale}
+        />
         {(isWrong || isRevealed) && (
           <span
             className={`ml-auto shrink-0 text-xs font-bold ${

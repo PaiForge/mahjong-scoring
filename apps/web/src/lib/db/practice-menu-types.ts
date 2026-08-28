@@ -121,7 +121,7 @@ const PRACTICE_MENU_REGISTRY = [
     slug: "mentsu-jantou-fu",
     messageKey: "mentsuJantouFu",
     namespace: "mentsuJantouFu",
-    hasProblemList: false,
+    hasProblemList: true,
     hasSetup: false,
   },
   {
