@@ -18,13 +18,15 @@ import { QuestionGeneratingPlaceholder } from "../../_components/question-genera
 import { QuestionPrompt } from "../../_components/question-prompt";
 import { useClientGeneratedQuestion } from "../../_hooks/use-client-generated-question";
 import { useTrainingReveal } from "../../_hooks/use-training-reveal";
-import type { PracticeBoardProps } from "../../_lib/practice-board-props";
+import { toQuestionResult } from "../_lib/types";
+import type { YakuQuestionResult } from "../_lib/types";
+import type { RecordingPracticeBoardProps } from "../../_lib/practice-board-props";
 
 function generateQuestion(): YakuQuestion | undefined {
   return retryGenerate(generateYakuQuestion);
 }
 
-type YakuBoardProps = PracticeBoardProps;
+type YakuBoardProps = RecordingPracticeBoardProps<YakuQuestionResult>;
 
 /**
  * 役判定の出題盤面（手牌の提示と役の複数選択・一括判定）
@@ -36,6 +38,7 @@ export function YakuBoard({
   isCountingDown = false,
   isTraining = false,
   onAnswer,
+  onRecordResult,
 }: YakuBoardProps) {
   const t = useTranslations("yaku");
   const yakuOrder = useYakuOrder();
@@ -68,11 +71,18 @@ export function YakuBoard({
 
   const handleSubmit = useCallback(() => {
     if (!question || showFeedback || selectedYaku.size === 0) return;
-    const isCorrect = judgeYakuAnswer(question.correctYakuNames, [
-      ...selectedYaku,
-    ]);
+    const selected = [...selectedYaku];
+    const isCorrect = judgeYakuAnswer(question.correctYakuNames, selected);
+    onRecordResult?.(toQuestionResult(question, selected, isCorrect));
     onAnswer(isCorrect, advanceQuestion);
-  }, [question, selectedYaku, showFeedback, onAnswer, advanceQuestion]);
+  }, [
+    question,
+    selectedYaku,
+    showFeedback,
+    onAnswer,
+    advanceQuestion,
+    onRecordResult,
+  ]);
 
   if (!question) {
     return <QuestionGeneratingPlaceholder label={t("generating")} />;

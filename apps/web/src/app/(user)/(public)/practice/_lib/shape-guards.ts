@@ -33,3 +33,14 @@ export function hasFieldTypes(
     ([key, type]) => typeof Reflect.get(value, key) === type,
   );
 }
+
+/**
+ * 値が文字列の配列かを判定する
+ * 文字列配列判定
+ *
+ * `hasFieldTypes` は typeof で表せる型しか見ないため、配列のフィールドは
+ * これを続けて呼ぶ。
+ */
+export function isStringArray(value: unknown): value is readonly string[] {
+  return Array.isArray(value) && value.every((v) => typeof v === "string");
+}

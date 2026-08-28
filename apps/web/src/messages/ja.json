@@ -612,6 +612,14 @@
     "selectYaku": "成立している役をすべて選択してください",
     "checkButton": "答え合わせ",
     "answerButton": "回答する",
+    "result": {
+      "problemDetails": "問題の詳細",
+      "correct": "正解",
+      "incorrect": "不正解",
+      "correctAnswer": "成立していた役",
+      "yourAnswer": "あなたの回答",
+      "none": "なし"
+    },
     "howToPlay": {
       "title": "問題方式",
       "lead": "このような問題が出題されます。"

@@ -137,7 +137,7 @@ const PRACTICE_MENU_REGISTRY = [
     slug: "yaku",
     messageKey: "yaku",
     namespace: "yaku",
-    hasProblemList: false,
+    hasProblemList: true,
     hasSetup: false,
   },
   {

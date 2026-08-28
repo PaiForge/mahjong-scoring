@@ -9,8 +9,14 @@ interface YakuChipProps {
   readonly label: string;
   readonly isSelected: boolean;
   readonly feedbackState: "correct" | "incorrect" | "missed" | undefined;
-  readonly disabled: boolean;
-  readonly onToggle: (yakuName: string) => void;
+  readonly disabled?: boolean;
+  /**
+   * 押したときの通知。省略すると表示専用（`<span>`）になる
+   *
+   * 結果ページの振り返りは押せない。ボタンのまま `disabled` で止めると、
+   * 選べる場所と選べない場所が同じ要素で出てしまう。
+   */
+  readonly onToggle?: (yakuName: string) => void;
 }
 
 /**
@@ -22,15 +28,16 @@ export const YakuChip = memo(function YakuChipComponent({
   label,
   isSelected,
   feedbackState,
-  disabled,
+  disabled = false,
   onToggle,
 }: YakuChipProps) {
   const handleClick = useCallback(() => {
-    onToggle(yakuName);
+    onToggle?.(yakuName);
   }, [yakuName, onToggle]);
 
   let chipClasses =
-    "inline-block rounded-full border px-3 py-1.5 text-xs font-medium transition-colors cursor-pointer select-none";
+    "inline-block rounded-full border px-3 py-1.5 text-xs font-medium transition-colors select-none";
+  if (onToggle) chipClasses += " cursor-pointer";
 
   if (feedbackState === "correct") {
     chipClasses += " border-primary-500 bg-primary-50 text-primary-700";
@@ -48,6 +55,10 @@ export const YakuChip = memo(function YakuChipComponent({
 
   if (disabled && !feedbackState) {
     chipClasses += " opacity-50 pointer-events-none";
+  }
+
+  if (!onToggle) {
+    return <span className={chipClasses}>{label}</span>;
   }
 
   return (
