@@ -16,14 +16,18 @@ import { GuideParagraph } from "../../_components/guide-paragraph";
  * 5翻以上は符が点数に関与しなくなる（満貫以上の章が受け持つ）ため4翻まで。
  * 2翻ツモの欄が空くのは表側の `isInvalidCell` が判定する。
  */
-const CHITOISU_TABLE = { tsumoFu: 25, ronFu: 25, hanCols: [2, 3, 4] } as const;
+const CHIITOITSU_TABLE = {
+  tsumoFu: 25,
+  ronFu: 25,
+  hanCols: [2, 3, 4],
+} as const;
 
 /**
  * 七対子での点数計算 — 点数の計算セクション第2章
  */
-export async function ChitoisuScoreGuide() {
+export async function ChiitoitsuScoreGuide() {
   const [t, tChapter] = await Promise.all([
-    getTranslations("chitoisuScore.learn"),
+    getTranslations("chiitoitsuScore.learn"),
     getTranslations("learnCurriculum.chapter"),
   ]);
 
@@ -35,8 +39,8 @@ export async function ChitoisuScoreGuide() {
         <GuideParagraph preLine>{t("onePatternBody1")}</GuideParagraph>
         <GuideParagraph preLine>{t("onePatternBody2")}</GuideParagraph>
 
-        <FixedFuScoreTable role="ko" {...CHITOISU_TABLE} />
-        <FixedFuScoreTable role="oya" {...CHITOISU_TABLE} />
+        <FixedFuScoreTable role="ko" {...CHIITOITSU_TABLE} />
+        <FixedFuScoreTable role="oya" {...CHIITOITSU_TABLE} />
         <GuideNote>{t("noTsumoNote")}</GuideNote>
 
         <GuideParagraph preLine>{t("onePatternBody3")}</GuideParagraph>

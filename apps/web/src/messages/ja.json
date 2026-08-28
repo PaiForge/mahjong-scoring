@@ -605,7 +605,7 @@
       "practiceCta": "平和の点数計算を練習する"
     }
   },
-  "chitoisuScore": {
+  "chiitoitsuScore": {
     "learn": {
       "pageTitle": "七対子での点数計算",
       "pageDescription": "七対子（チートイツ）の点数計算を解説。符はツモでもロンでも常に25符の1パターンで、翻数ごとの点数を早見表で覚えます。",
@@ -856,7 +856,7 @@
       "sanshoku_doujun": "三色同順",
       "itsu": "一気通貫",
       "chanta": "混全帯幺九",
-      "chitoisu": "七対子",
+      "chiitoitsu": "七対子",
       "toitoi": "対々和",
       "sanankou": "三暗刻",
       "honroto": "混老頭",
@@ -991,7 +991,7 @@
         "title": "平和での点数計算",
         "description": "ピンフの点数は「ツモなら20符・ロンなら30符」の2パターン"
       },
-      "chitoisuScore": {
+      "chiitoitsuScore": {
         "title": "七対子での点数計算",
         "description": "チートイツの符は常に25符。翻数だけで点数が決まる"
       }

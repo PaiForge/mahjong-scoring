@@ -9,16 +9,16 @@
  */
 import { createLearnMetadata } from "../_lib/metadata";
 import { LearnPageLayout } from "../_components/learn-page-layout";
-import { ChitoisuScoreGuide } from "./_components/chitoisu-score-guide";
+import { ChiitoitsuScoreGuide } from "./_components/chiitoitsu-score-guide";
 
 export function generateMetadata() {
-  return createLearnMetadata("chitoisu-score");
+  return createLearnMetadata("chiitoitsu-score");
 }
 
-export default function LearnChitoisuScorePage() {
+export default function LearnChiitoitsuScorePage() {
   return (
-    <LearnPageLayout slug="chitoisu-score" namespace="chitoisuScore.learn">
-      <ChitoisuScoreGuide />
+    <LearnPageLayout slug="chiitoitsu-score" namespace="chiitoitsuScore.learn">
+      <ChiitoitsuScoreGuide />
     </LearnPageLayout>
   );
 }

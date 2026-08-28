@@ -163,12 +163,12 @@ const CURRICULUM_REGISTRY = [
     i18nKey: "learnCurriculum.chapters.pinfuScore",
   },
   {
-    slug: "chitoisu-score",
+    slug: "chiitoitsu-score",
     section: "score",
     order: 80,
     // 平和の章と同じ理由で practiceHrefs を持たない（導線は
-    // chitoisu-score-guide.tsx の CTA）
-    i18nKey: "learnCurriculum.chapters.chitoisuScore",
+    // chiitoitsu-score-guide.tsx の CTA）
+    i18nKey: "learnCurriculum.chapters.chiitoitsuScore",
   },
 ] as const satisfies readonly CurriculumChapterEntry[];
 
