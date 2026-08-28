@@ -24,6 +24,15 @@ interface TehaiHandProps {
    * この共有コンポーネントは牌の並びだけを負い、辞書の名前空間を知らない。
    */
   readonly agariLabel?: string;
+  /**
+   * 純手牌の中の1枚だけに枠を付ける牌（同じ牌が複数あれば最初の1枚）。
+   *
+   * `agariHai` と違い並びから抜かない。和了形として開示するのではなく、
+   * 並んでいる牌のどれかを指し示したいときに使う（早見表の「この牌をロンした形」
+   * など）。牌を右に離すと和了形のカードだけ形が変わり、同じ表に並ぶ他のカードと
+   * 見え方が揃わない。`agariHai` とは併用しない。
+   */
+  readonly highlightedHai?: HaiKindId;
   /** 自動スケール値の変化通知（コンテキスト牌などを同じ倍率で揃える用途） */
   readonly onScaleChange?: (scale: number) => void;
 }
@@ -43,11 +52,15 @@ interface TehaiHandProps {
  * 和了牌には枠を付け、ツモ・ロンの別をラベルとして真上に添える。牌そのものの
  * そばに出ていれば、盤面の下に「和了牌」「和了」の欄を別に設けなくて済む。
  * ラベルの色は濃い盤面（TehaiDisplay）に載る前提の白抜き。
+ *
+ * 和了形として開示せず並びの中の1枚を指し示したいだけなら `highlightedHai` を使う
+ * （早見表のように、和了形でない手牌と同じ表に並ぶ場合）。
  */
 export const TehaiHand = memo(function TehaiHandComponent({
   tehai,
   agariHai,
   agariLabel,
+  highlightedHai,
   onScaleChange,
 }: TehaiHandProps) {
   const { wrapperRef, contentRef, scale } = useAutoScale([
@@ -59,6 +72,12 @@ export const TehaiHand = memo(function TehaiHandComponent({
   const { closedTiles, separatedAgariHai } = useMemo(
     () => splitAgariHai(tehai.closed, agariHai),
     [tehai.closed, agariHai],
+  );
+
+  const highlightedIndex = useMemo(
+    () =>
+      highlightedHai === undefined ? -1 : closedTiles.indexOf(highlightedHai),
+    [closedTiles, highlightedHai],
   );
 
   useEffect(() => {
@@ -80,7 +99,12 @@ export const TehaiHand = memo(function TehaiHandComponent({
       >
         <div className="flex shrink-0">
           {closedTiles.map((kindId, i) => (
-            <Hai key={i} hai={kindId} size="sm" />
+            <Hai
+              key={i}
+              hai={kindId}
+              size="sm"
+              highlighted={i === highlightedIndex}
+            />
           ))}
         </div>
         {separatedAgariHai !== undefined && (
