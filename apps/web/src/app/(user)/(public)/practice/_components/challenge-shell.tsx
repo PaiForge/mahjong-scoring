@@ -244,8 +244,15 @@ export function ChallengeShell({
           />
         </div>
 
-        {/* Game content area - overlay scoped here to keep status bar accessible */}
-        <div className="relative">
+        {/* Game content area - overlay scoped here to keep status bar accessible.
+
+            <sm では盤面が白カードの左右パディング（p-4）を打ち消して画面端まで
+            広がる（TehaiDisplay の fullBleed）。オーバーレイは inset-0 でこの箱を
+            覆うため、箱がパディングの内側のままだと盤面の左右 16px が覆われず、
+            手牌が両端だけ透けて見える。外側へ -mx-4 で広げ、同じ幅を px-4 で
+            戻すことで、中の要素の位置は変えずに箱だけを盤面と同じ幅にする
+            （sm 以上は盤面が広がらないので元に戻す）。 */}
+        <div className="relative -mx-4 px-4 sm:mx-0 sm:px-0">
           <div
             className={gameSession.isPaused ? "blur-sm select-none" : undefined}
           >
