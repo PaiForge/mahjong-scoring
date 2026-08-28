@@ -89,3 +89,25 @@ describe("parseModeFlagsFromParams", () => {
     });
   });
 });
+
+describe("parseGeneratorOptionsFromParams: yaku", () => {
+  it("yaku 未指定時は requiredYaku を undefined で明示する（マージで前回条件を残さない）", () => {
+    const result = parseGeneratorOptionsFromParams(new URLSearchParams());
+    expect("requiredYaku" in result).toBe(true);
+    expect(result.requiredYaku).toBeUndefined();
+  });
+
+  it("yaku のトークンを役名（日本語）へ解釈する", () => {
+    const result = parseGeneratorOptionsFromParams(
+      new URLSearchParams("yaku=pinfu&yaku=tanyao"),
+    );
+    expect(result.requiredYaku).toEqual(["平和", "断么九"]);
+  });
+
+  it("未知のトークンは捨て、有効なものだけ残す", () => {
+    const result = parseGeneratorOptionsFromParams(
+      new URLSearchParams("yaku=kokushi&yaku=pinfu"),
+    );
+    expect(result.requiredYaku).toEqual(["平和"]);
+  });
+});

@@ -4,6 +4,7 @@ import type {
 } from "@mahjong-scoring/core";
 
 import { RANGE_PARAM, parseRangeValues } from "../../_lib/range-params";
+import { YAKU_PARAM, parseYakuValues } from "./yaku-filter-params";
 
 /**
  * 無限練習（score）のクエリパラメータから問題生成オプションを組み立てる
@@ -11,12 +12,13 @@ import { RANGE_PARAM, parseRangeValues } from "../../_lib/range-params";
  *
  * - `ranges`: "non" / "plus" の複数指定。未指定時は両方
  * - `roles`: "oya" / "ko" の複数指定。未指定時は両方
+ * - `yaku`: 出題役トークンの複数指定（OR）。未指定時は絞り込みなし
  */
 export function parseGeneratorOptionsFromParams(
   params: URLSearchParams,
 ): Pick<
   QuestionGeneratorOptions,
-  "allowedRanges" | "includeParent" | "includeChild"
+  "allowedRanges" | "includeParent" | "includeChild" | "requiredYaku"
 > {
   const ranges = parseRangeValues(params.getAll(RANGE_PARAM));
   const allowedRanges: ScoreRange[] = [];
@@ -31,7 +33,16 @@ export function parseGeneratorOptionsFromParams(
     includeChild = rolesValues.includes("ko");
   }
 
-  return { allowedRanges, includeParent, includeChild };
+  const requiredYaku = parseYakuValues(params.getAll(YAKU_PARAM));
+
+  return {
+    allowedRanges,
+    includeParent,
+    includeChild,
+    // 未指定は undefined で明示的に上書きする（store の setOptions はマージの
+    // ため、キーを省略すると前回セッションの絞り込みが残る）
+    requiredYaku: requiredYaku.length > 0 ? requiredYaku : undefined,
+  };
 }
 
 /** 無限練習（score）の判定モードフラグ */

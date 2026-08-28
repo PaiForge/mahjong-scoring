@@ -91,11 +91,17 @@ export const useScorePracticeStore = create<ScorePracticeStore>((set, get) => ({
   generateNewQuestion: () => {
     const { options } = get();
     const { renfonpaiAs4Fu, kiriageMangan } = useRuleSettingsStore.getState();
-    const question = generateValidScoreQuestion({
-      ...options,
-      renfonpaiAs4Fu,
-      kiriageMangan,
-    });
+    const question = generateValidScoreQuestion(
+      {
+        ...options,
+        renfonpaiAs4Fu,
+        kiriageMangan,
+      },
+      // 既定の100回では、役の絞り込み（requiredYaku）で出現率2%の役を
+      // 指定したとき約13%の確率で取り逃す。500回なら0.004%（1回0.08ms実測
+      // なので最悪でも40ms）。allowlist の根拠は core の filterable-yaku.ts
+      500,
+    );
     set((state) => ({
       currentQuestion: question,
       userAnswer: undefined,

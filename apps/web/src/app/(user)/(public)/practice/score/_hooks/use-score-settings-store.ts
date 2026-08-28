@@ -15,6 +15,9 @@ interface SettingsState {
   /** 出題する点数範囲 */
   targetScoreRanges: ScoreRange[];
   setTargetScoreRanges: (ranges: ScoreRange[]) => void;
+  /** 出題する役（日本語役名、空 = 絞り込みなし） */
+  targetYaku: string[];
+  setTargetYaku: (yaku: string[]) => void;
   /** 正解時に自動で次の問題へ進むかどうか */
   autoNext: boolean;
   setAutoNext: (enabled: boolean) => void;
@@ -42,6 +45,8 @@ export const useScoreSettingsStore = create<SettingsState>()(
         set({ requireFuForMangan }),
       targetScoreRanges: ["nonMangan", "manganPlus"],
       setTargetScoreRanges: (targetScoreRanges) => set({ targetScoreRanges }),
+      targetYaku: [],
+      setTargetYaku: (targetYaku) => set({ targetYaku }),
       autoNext: false,
       setAutoNext: (autoNext) => set({ autoNext }),
       includeParent: true,

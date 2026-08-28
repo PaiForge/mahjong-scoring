@@ -1,15 +1,19 @@
 "use client";
 
-import { useState, useCallback } from "react";
+import { useState, useCallback, useMemo } from "react";
 import { SettingCard } from "../../_components/setting-card";
 import { SettingCardSkeleton } from "../../_components/setting-card-skeleton";
 import { toggleInArray } from "../../_lib/toggle-in-array";
 import { useRouter } from "next/navigation";
 import { useTranslations } from "next-intl";
+import { SCORE_FILTERABLE_YAKU } from "@mahjong-scoring/core";
 import type { ScoreRange } from "@mahjong-scoring/core";
 import { useScoreSettingsStore } from "../_hooks/use-score-settings-store";
 import { useScorePracticeStore } from "../_hooks/use-score-practice-store";
 import { InfoModal } from "@/app/(user)/_components/info-modal";
+import { MultiSelect } from "@/app/(user)/_components/multi-select";
+import { useYakuLabel } from "@/app/_hooks/use-yaku-options";
+import { yakuTokenOf, YAKU_PARAM } from "../_lib/yaku-filter-params";
 import { useIsClient } from "../../../../../_hooks/use-is-client";
 import { SettingToggle } from "./setting-toggle";
 import { SmallCheckbox } from "./small-checkbox";
@@ -42,7 +46,24 @@ export function ScoreSetupForm() {
     setIncludeParent,
     includeChild,
     setIncludeChild,
+    targetYaku,
+    setTargetYaku,
   } = useScoreSettingsStore();
+  const tPicker = useTranslations("common.yakuPicker");
+  const yakuLabelOf = useYakuLabel();
+
+  // 表示名の解決は回答フォームの役選択と同じ経路（useYakuLabel）を使う。
+  // 並びは allowlist の定義順（実戦出現率順）で固定し、ユーザーの並び替え
+  // 設定（useYakuOptions）は適用しない（選択肢が13個しかなく、探すコストより
+  // 2画面で並びが揃わない混乱のほうが小さいため）
+  const yakuFilterOptions = useMemo(
+    () =>
+      SCORE_FILTERABLE_YAKU.map((name) => ({
+        value: name,
+        label: yakuLabelOf(name),
+      })),
+    [yakuLabelOf],
+  );
 
   const handleStart = () => {
     const params = new URLSearchParams();
@@ -66,6 +87,10 @@ export function ScoreSetupForm() {
     }
     if (includeParent) params.append("roles", "oya");
     if (includeChild) params.append("roles", "ko");
+    for (const name of targetYaku) {
+      const token = yakuTokenOf(name);
+      if (token !== undefined) params.append(YAKU_PARAM, token);
+    }
 
     useScorePracticeStore.getState().setQuestion(undefined);
 
@@ -124,6 +149,9 @@ export function ScoreSetupForm() {
             <SettingCardSkeleton key={key} />
           ))}
         </div>
+
+        {/* 出題する役カード（ヘッダー＋MultiSelect の追加ボタン相当） */}
+        <SettingCardSkeleton />
 
         {/* Full-width start button（Button size="lg" の実寸 = 枠込み 50px） */}
         <div>
@@ -198,6 +226,27 @@ export function ScoreSetupForm() {
           />
         </SettingCard>
       </div>
+
+      {/* Target yaku: 選んだ役のいずれかが成立する手牌に絞る（空 = 絞り込みなし）。
+          選択肢は生成器が安定して作れる役（SCORE_FILTERABLE_YAKU）に限る */}
+      <SettingCard title={t("setup.targetYaku")}>
+        <MultiSelect
+          options={yakuFilterOptions}
+          value={targetYaku}
+          onChange={setTargetYaku}
+          placeholder={t("setup.yakuFilterPlaceholder")}
+          labels={{
+            add: tPicker("add"),
+            title: tPicker("title"),
+            done: tPicker("done"),
+          }}
+        />
+        {targetYaku.length >= 2 && (
+          <p className="text-xs text-surface-500">
+            {t("setup.yakuFilterNote")}
+          </p>
+        )}
+      </SettingCard>
 
       {/* Start button */}
       <div>

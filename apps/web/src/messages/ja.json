@@ -753,7 +753,10 @@
       "targetScore": "出題する点数",
       "nonMangan": "満貫未満",
       "manganPlus": "満貫以上",
-      "start": "開始する"
+      "start": "開始する",
+      "targetYaku": "出題する役",
+      "yakuFilterPlaceholder": "指定しない（すべての役から出題）",
+      "yakuFilterNote": "※ 複数選ぶと、いずれかが成立する手牌が出題されます"
     },
     "form": {
       "labels": {
@@ -833,6 +836,8 @@
       "nan": "南",
       "sha": "西",
       "pei": "北",
+      "jikaze": "自風牌",
+      "bakaze": "場風牌",
       "sanshoku_doujun": "三色同順",
       "itsu": "一気通貫",
       "chanta": "混全帯幺九",
