@@ -10,14 +10,14 @@ import type { YakuHanEntry } from "@mahjong-scoring/core";
 import { AccordionCard } from "@/app/(user)/_components/accordion-card";
 import { SectionTitle } from "@/app/(user)/_components/section-title";
 import { YAKU_EXAMPLES, hasYakuCheatsheetEntry } from "../_lib/yaku-examples";
-import type { YakuExample } from "../_lib/yaku-examples";
+import type { YakuExampleSet } from "../_lib/yaku-examples";
 import { YakuExampleList } from "./yaku-example-list";
 import { yakuAnchorId } from "../_lib/anchors";
 
 /** チートシートに表示する1役分の項目（役データと例示手牌を束ねる） */
 interface YakuCheatItem {
   readonly entry: YakuHanEntry;
-  readonly examples: readonly YakuExample[];
+  readonly examples: YakuExampleSet;
 }
 
 /** チートシートに載せる役（除外役・例未定義を除く）を門前翻数ごとにグループ化する */
@@ -32,7 +32,7 @@ function groupByMenzenHan(): readonly {
     han,
     items: entries.map((entry) => ({
       entry,
-      examples: YAKU_EXAMPLES[entry.name] ?? [],
+      examples: YAKU_EXAMPLES[entry.name],
     })),
   }));
 }
@@ -77,7 +77,8 @@ interface YakuCheatsheetProps {
  * 役名・翻数は core の `YAKU_HAN_ENTRIES` を単一ソースとする。翻数はセクション
  * 見出しで示し、鳴きの扱いはカード右端に併記する（門前限定役は「門前限定」
  * バッジ、食い下がり役は「鳴きN翻」。無表示は鳴いても翻数が変わらない役）。
- * 手牌の例はカードを開くと出題盤面と同じ `TehaiHand` で表示する。
+ * 手牌の例はカードを開くと出題盤面と同じ `TehaiHand` で表示する（鳴いて
+ * 成立する役は門前形と副露形の両方）。
  * 立直・門前清自摸和は手牌の形を持たない状況役のため除外する。
  *
  * 役一覧ページと、点数訓練の答え合わせから開くモーダルで共有する。

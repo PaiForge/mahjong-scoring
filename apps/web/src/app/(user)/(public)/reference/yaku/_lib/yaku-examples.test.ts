@@ -4,6 +4,7 @@ import {
   YAKU_OPTIONS,
   parseTehai,
 } from "@mahjong-scoring/core";
+import type { YakuExampleSet } from "./yaku-examples";
 import {
   YAKU_EXAMPLES,
   YAKU_CHEATSHEET_EXCLUDED,
@@ -21,13 +22,26 @@ function effectiveTileCount(
   return tehai.closed.length + exposedCount;
 }
 
+/** 例示手牌セットに入っている手牌をラベル付きで列挙する */
+function eachHand(
+  examples: YakuExampleSet,
+): readonly { readonly form: "menzen" | "naki"; readonly mspz: string }[] {
+  return examples.naki === undefined
+    ? [{ form: "menzen", mspz: examples.menzen }]
+    : [
+        { form: "menzen", mspz: examples.menzen },
+        { form: "naki", mspz: examples.naki },
+      ];
+}
+
 describe("YAKU_EXAMPLES", () => {
   it("除外役を除く全ての YAKU_HAN_ENTRIES に例示手牌が定義されている", () => {
     for (const entry of YAKU_HAN_ENTRIES) {
       if (YAKU_CHEATSHEET_EXCLUDED.has(entry.name)) continue;
-      const examples = YAKU_EXAMPLES[entry.name];
-      expect(examples, `例示手牌が未定義: ${entry.name}`).toBeDefined();
-      expect(examples?.length ?? 0, `例が空: ${entry.name}`).toBeGreaterThan(0);
+      expect(
+        YAKU_EXAMPLES[entry.name],
+        `例示手牌が未定義: ${entry.name}`,
+      ).toBeDefined();
     }
   });
 
@@ -42,16 +56,49 @@ describe("YAKU_EXAMPLES", () => {
     }
   });
 
+  it("鳴いて成立する役だけが副露形を持つ", () => {
+    for (const entry of YAKU_HAN_ENTRIES) {
+      const examples = YAKU_EXAMPLES[entry.name];
+      if (examples === undefined) continue;
+      expect(
+        examples.naki !== undefined,
+        entry.nakiHan === undefined
+          ? `門前限定役に副露形がある: ${entry.name}`
+          : `鳴いて成立する役に副露形がない: ${entry.name}`,
+      ).toBe(entry.nakiHan !== undefined);
+    }
+  });
+
   it("全ての例示手牌がパース可能で、有効牌数が14枚である", () => {
     for (const [name, examples] of Object.entries(YAKU_EXAMPLES)) {
-      for (const ex of examples) {
-        const tehai = parseTehai(ex.mspz);
-        expect(tehai, `パース失敗: ${name} / ${ex.mspz}`).toBeDefined();
+      for (const { form, mspz } of eachHand(examples)) {
+        const tehai = parseTehai(mspz);
+        expect(tehai, `パース失敗: ${name} / ${form} / ${mspz}`).toBeDefined();
         if (!tehai) continue;
         expect(
           effectiveTileCount(tehai),
-          `${name} / ${ex.mspz}: 有効牌数は14`,
+          `${name} / ${form} / ${mspz}: 有効牌数は14`,
         ).toBe(14);
+      }
+    }
+  });
+
+  it("門前形は副露を持たず、副露形は副露を持つ（暗槓は副露に数えない）", () => {
+    for (const [name, examples] of Object.entries(YAKU_EXAMPLES)) {
+      for (const { form, mspz } of eachHand(examples)) {
+        const tehai = parseTehai(mspz);
+        if (!tehai) continue;
+        const furoCount = tehai.exposed.filter(
+          (m) => m.furo !== undefined,
+        ).length;
+        if (form === "menzen") {
+          expect(furoCount, `${name} の門前形に副露がある: ${mspz}`).toBe(0);
+        } else {
+          expect(
+            furoCount,
+            `${name} の副露形に副露がない: ${mspz}`,
+          ).toBeGreaterThan(0);
+        }
       }
     }
   });
