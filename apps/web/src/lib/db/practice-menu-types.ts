@@ -97,7 +97,7 @@ const PRACTICE_MENU_REGISTRY = [
     slug: "jantou-fu",
     messageKey: "jantouFu",
     namespace: "jantouFu",
-    hasProblemList: false,
+    hasProblemList: true,
     hasSetup: false,
   },
   {

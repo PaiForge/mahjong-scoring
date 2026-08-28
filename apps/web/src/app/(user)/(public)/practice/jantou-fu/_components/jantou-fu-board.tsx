@@ -13,9 +13,11 @@ import { QuestionGeneratingPlaceholder } from "../../_components/question-genera
 import { QuestionPrompt } from "../../_components/question-prompt";
 import { useClientGeneratedQuestion } from "../../_hooks/use-client-generated-question";
 import { useTrainingReveal } from "../../_hooks/use-training-reveal";
-import type { PracticeBoardProps } from "../../_lib/practice-board-props";
+import { toQuestionResult } from "../_lib/types";
+import type { JantouFuQuestionResult } from "../_lib/types";
+import type { RecordingPracticeBoardProps } from "../../_lib/practice-board-props";
 
-type JantouFuBoardProps = PracticeBoardProps;
+type JantouFuBoardProps = RecordingPracticeBoardProps<JantouFuQuestionResult>;
 
 /**
  * 雀頭符の出題盤面（場風・自風の提示と4択）
@@ -27,6 +29,7 @@ export function JantouFuBoard({
   showFeedback,
   isCountingDown = false,
   onAnswer,
+  onRecordResult,
 }: JantouFuBoardProps) {
   const t = useTranslations("jantouFu");
   const renfonpaiAs4Fu = useRuleSettingsStore((s) => s.renfonpaiAs4Fu);
@@ -51,9 +54,10 @@ export function JantouFuBoard({
       if (showFeedback || !question) return;
       const choice = question.choices[index];
       setSelectedHai(choice.hai);
+      onRecordResult?.(toQuestionResult(question, choice));
       onAnswer(choice.isCorrect, advanceQuestion);
     },
-    [showFeedback, question, onAnswer, advanceQuestion],
+    [showFeedback, question, onAnswer, advanceQuestion, onRecordResult],
   );
 
   if (!question) {
