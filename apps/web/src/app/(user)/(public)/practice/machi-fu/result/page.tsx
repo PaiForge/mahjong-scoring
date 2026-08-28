@@ -9,16 +9,18 @@
  * @flow
  * 1. 練習終了後に自動リダイレクトされる
  * 2. スコア・正答率を表示
- * 3. 全期間リーダーボード上位3名を表示
- * 4. リーダーボード詳細ページへのリンク
- * 5. リトライボタンと練習一覧へのリンク
+ * 3. 問題別フィードバック一覧を表示（sessionStorage から読み取り、展開すると
+ *    出題された待ち形と正解・自分の回答を確認できる）
+ * 4. 全期間リーダーボード上位3名を表示
+ * 5. リーダーボード詳細ページへのリンク
+ * 6. リトライボタンと練習一覧へのリンク
  */
 import type { Metadata } from "next";
-import { ResultView } from "../../_components/result-view";
 import {
   createPracticeResultMetadata,
   createPracticeResultPage,
 } from "../../_lib/create-practice-result-page";
+import { MachiFuResultView } from "../_components/machi-fu-result-view";
 
 const SLUG = "machi-fu" as const;
 
@@ -28,4 +30,4 @@ export async function generateMetadata(): Promise<Metadata> {
 
 export const dynamic = "force-dynamic";
 
-export default createPracticeResultPage(ResultView, { slug: SLUG });
+export default createPracticeResultPage(MachiFuResultView, { slug: SLUG });

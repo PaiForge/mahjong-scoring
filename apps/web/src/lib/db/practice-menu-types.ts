@@ -105,7 +105,7 @@ const PRACTICE_MENU_REGISTRY = [
     slug: "machi-fu",
     messageKey: "machiFu",
     namespace: "machiFu",
-    hasProblemList: false,
+    hasProblemList: true,
     hasSetup: false,
   },
   {

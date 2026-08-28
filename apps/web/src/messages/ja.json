@@ -410,6 +410,13 @@
     "agariLabel": "和了牌",
     "questionPrompt": "この待ちの符は？",
     "fuOption": "{value}符",
+    "result": {
+      "problemDetails": "問題の詳細",
+      "correct": "正解",
+      "incorrect": "不正解",
+      "correctAnswer": "正解",
+      "yourAnswer": "あなたの回答"
+    },
     "howToPlay": {
       "title": "問題方式",
       "lead": "このような問題が出題されます。"
