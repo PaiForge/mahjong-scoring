@@ -79,8 +79,12 @@ interface PracticeLinkButtonProps {
  *
  * 押せることが一目で分かるよう塗りのプライマリボタンで示し、右端のチェブロンで
  * 画面遷移を伴うことを明示する。遷移待ち中はチェブロンがスピナーへ変わる。
+ *
+ * カタログ外の練習（自由練習の `/practice/score` 等）へ章本文から誘導する
+ * 場合にも使えるよう公開している。カタログ登録済みの練習への導線は
+ * `practiceHrefs` + {@link PracticeLinkList} が正規の経路。
  */
-function PracticeLinkButton({ href, label }: PracticeLinkButtonProps) {
+export function PracticeLinkButton({ href, label }: PracticeLinkButtonProps) {
   return (
     <LinkButton
       href={href}

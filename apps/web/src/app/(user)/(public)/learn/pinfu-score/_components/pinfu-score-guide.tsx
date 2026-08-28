@@ -8,6 +8,8 @@ import {
   PREFERENCE_ANCHORS,
   preferencesHref,
 } from "@/app/(user)/(public)/preferences/_lib/anchors";
+import { scorePracticePlayHref } from "@/app/(user)/(public)/practice/score/_lib/play-href";
+import { PracticeLinkButton } from "../../_components/practice-link-card";
 
 import { GuideNote } from "../../_components/guide-note";
 import { GuideParagraph } from "../../_components/guide-paragraph";
@@ -17,7 +19,10 @@ import { PinfuScoreTable } from "./pinfu-score-table";
  * 平和での点数計算 — 点数の計算セクション第1章
  */
 export async function PinfuScoreGuide() {
-  const t = await getTranslations("pinfuScore.learn");
+  const [t, tChapter] = await Promise.all([
+    getTranslations("pinfuScore.learn"),
+    getTranslations("learnCurriculum.chapter"),
+  ]);
 
   return (
     <div className="space-y-10">
@@ -74,6 +79,23 @@ export async function PinfuScoreGuide() {
         <GuideParagraph preLine>{t("compositeBody1")}</GuideParagraph>
         <GuideParagraph preLine>{t("compositeBody2")}</GuideParagraph>
         <GuideParagraph preLine>{t("compositeBody3")}</GuideParagraph>
+      </section>
+
+      {/* 対応する練習は自由練習（役絞り込み）でカタログ外のため、
+          共通レイアウトの practiceHrefs ではなく章本文が導線を持つ。
+          平和のみ・満貫未満 = 章の内容そのまま「必ず 20符 or 30符 ×
+          1〜4翻」の手牌だけが出題される */}
+      <section className="space-y-4">
+        <h2 className="text-base font-semibold text-surface-900">
+          {tChapter("practiceLinksTitle")}
+        </h2>
+        <PracticeLinkButton
+          href={scorePracticePlayHref({
+            yaku: ["平和"],
+            ranges: ["nonMangan"],
+          })}
+          label={t("practiceCta")}
+        />
       </section>
     </div>
   );

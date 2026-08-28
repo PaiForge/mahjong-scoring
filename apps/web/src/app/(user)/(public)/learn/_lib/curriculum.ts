@@ -156,10 +156,10 @@ const CURRICULUM_REGISTRY = [
     slug: "pinfu-score",
     section: "score",
     order: 70,
-    // 設定画面を挟まず、章の内容そのまま（平和のみ・満貫未満 = 必ず
-    // 20符 or 30符 × 1〜4翻）の出題で練習を開始する。score の設定画面は
-    // クエリを読まないため、リンク先は play 直
-    practiceHrefs: ["/practice/score/play?yaku=pinfu&ranges=non"],
+    // 対応する練習は自由練習（/practice/score の役絞り込み）だが、
+    // practiceHrefs はカタログ登録済みの練習しか指せない（記録対象・
+    // おすすめ導線の前提。practice-catalog.test.ts が固定している）。
+    // 導線は章本文（pinfu-score-guide.tsx）の CTA が持つ
     i18nKey: "learnCurriculum.chapters.pinfuScore",
   },
 ] as const satisfies readonly CurriculumChapterEntry[];
