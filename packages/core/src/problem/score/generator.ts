@@ -30,6 +30,10 @@ import type { AgariContext } from "../shared/agari-context";
 import { doubleWindJantouFu } from "../../rules/settings";
 import { applyKiriageMangan } from "../../score/calculator";
 import { isOya } from "../../core/kaze";
+import { SCORE_YAKU_NAME_MAP } from "../../core/yaku-names";
+
+/** 七対子の日本語表示名（`requiredYaku` / `yakuDetails.name` の語彙） */
+const CHIITOITSU = SCORE_YAKU_NAME_MAP.Chiitoitsu;
 
 /**
  * 点数レベルが許可範囲内かどうかを検証する
@@ -138,7 +142,14 @@ export function generateScoreQuestion(
   } = options;
 
   // 1. 手牌の生成（七対子 or 面子手）
-  const isChiitoi = includeChiitoi && randomBool(0.1);
+  //    七対子は既定では出さない（includeChiitoi）。ただし requiredYaku で
+  //    名指しされた場合は面子手をいくら作っても条件を満たせないため、
+  //    フラグに関係なく生成対象に含める。七対子しか要求されていないなら
+  //    毎回七対子を作る（10%抽選のままだと9割を捨てることになる）。
+  const chiitoiRequested = requiredYaku?.includes(CHIITOITSU) ?? false;
+  const chiitoiOnly = chiitoiRequested && requiredYaku?.length === 1;
+  const isChiitoi =
+    chiitoiOnly || ((includeChiitoi || chiitoiRequested) && randomBool(0.1));
   const tehaiResult = isChiitoi
     ? generateChiitoiTehai()
     : generateMentsuTehai(includeFuro);
