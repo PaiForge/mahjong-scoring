@@ -99,9 +99,10 @@ export const YAKU_EXAMPLES: Readonly<Record<string, YakuExampleSet>> = {
   },
   二盃口: { menzen: "112233m112233p55s" },
   // --- 6翻 ---
+  // 111m…999m を含む形は九蓮宝燈になってしまうため避けた形
   清一色: {
-    menzen: "111m234m567m789m99m",
-    naki: "111m234m567m99m[789m]",
+    menzen: "234m345m456m789m22m",
+    naki: "234m345m456m22m[789m]",
   },
   // --- 役満 ---
   国士無双: { menzen: "119m19p19s1234567z" },
