@@ -134,6 +134,7 @@ export function generateScoreQuestion(
     kiriageMangan = false,
     allowedRanges = ["nonMangan", "manganPlus"],
     minHan = 0,
+    requiredYaku,
   } = options;
 
   // 1. 手牌の生成（七対子 or 面子手）
@@ -207,11 +208,19 @@ export function generateScoreQuestion(
     });
   }
 
-  // 7. 点数帯・最小翻数の検証と組み立て
+  // 7. 点数帯・最小翻数・役の検証と組み立て
   //    minHan はリーチ・裏ドラ適用後の最終翻数で判定する（出題表示と一致させる）
   if (!validateScoreRange(finalAnswer.scoreLevel, allowedRanges))
     return undefined;
   if (finalAnswer.han < minHan) return undefined;
+  //    役の絞り込みも最終形の yakuDetails（役牌の照合・リーチ適用後）で判定する。
+  //    複数指定は OR（いずれか1つでも成立していれば出題）
+  if (
+    requiredYaku !== undefined &&
+    requiredYaku.length > 0 &&
+    !yakuDetails.some((yaku) => requiredYaku.includes(yaku.name))
+  )
+    return undefined;
 
   return assembleScoreQuestion({
     tehai,

@@ -1,6 +1,7 @@
 import { describe, it, expect } from "vitest";
 import { HaiKind } from "@pai-forge/riichi-mahjong";
 import { generateScoreQuestion, generateValidScoreQuestion } from "./generator";
+import { SCORE_FILTERABLE_YAKU } from "./filterable-yaku";
 import { ScoreLevel } from "../../core/constants";
 import { isMangan, MANGAN_MIN_HAN } from "../../score/tiers";
 import { expectGeneratesEventually, expectSampled } from "../../test/sampling";
@@ -179,6 +180,61 @@ describe("generateValidScoreQuestion", () => {
         expect(marker).toBeGreaterThanOrEqual(0);
         expect(marker).toBeLessThanOrEqual(33);
       }
+    }
+  });
+});
+
+describe("オプション: requiredYaku", () => {
+  it("指定した役が成立する問題のみ生成される", () => {
+    for (let i = 0; i < 20; i++) {
+      const question = generateValidScoreQuestion(
+        { requiredYaku: ["平和"] },
+        500,
+      );
+      expect(question).toBeDefined();
+      const names = (question?.yakuDetails ?? []).map((yaku) => yaku.name);
+      expect(names).toContain("平和");
+    }
+  });
+
+  it("複数指定は OR で解釈される（いずれかが成立していれば通る）", () => {
+    const targets = ["平和", "対々和"] as const;
+    for (let i = 0; i < 20; i++) {
+      const question = generateValidScoreQuestion(
+        { requiredYaku: [...targets] },
+        500,
+      );
+      expect(question).toBeDefined();
+      const names = new Set(
+        (question?.yakuDetails ?? []).map((yaku) => yaku.name),
+      );
+      expect(targets.some((target) => names.has(target))).toBe(true);
+    }
+  });
+
+  it("成立し得ない役名を指定すると生成に失敗する", () => {
+    const question = generateValidScoreQuestion(
+      { requiredYaku: ["存在しない役"] },
+      50,
+    );
+    expect(question).toBeUndefined();
+  });
+
+  it("空配列は「絞り込まない」として扱う", () => {
+    const question = generateValidScoreQuestion({ requiredYaku: [] });
+    expect(question).toBeDefined();
+  });
+
+  it("SCORE_FILTERABLE_YAKU のすべての役はリトライ500回以内に生成できる", () => {
+    // allowlist の収録基準（既定条件で出現率2%以上）の実効性を担保する。
+    // 生成器の分布を変えてこのテストが落ちた場合は filterable-yaku.ts の
+    // 実測を取り直して収録役を見直すこと。
+    for (const yaku of SCORE_FILTERABLE_YAKU) {
+      const question = generateValidScoreQuestion(
+        { requiredYaku: [yaku] },
+        500,
+      );
+      expect(question, `役「${yaku}」の問題を生成できない`).toBeDefined();
     }
   });
 });
