@@ -21,7 +21,7 @@ export interface NavItemDef {
 export const TAB_BAR_NAV_ITEMS: readonly NavItemDef[] = [
   { href: "/practice", labelKey: "practice", icon: <DumbbellIcon /> },
   { href: "/learn", labelKey: "learn", icon: <BookIcon /> },
-  // 早見表ハブではなく、対局中に最も使う点数表へ直接リンクする
+  // 対局中に片手で開くタブバーからは、早見表ハブを経由せず最も使う点数表へ直接飛ばす
   {
     href: "/reference/score-table",
     labelKey: "scoreTable",
@@ -32,9 +32,13 @@ export const TAB_BAR_NAV_ITEMS: readonly NavItemDef[] = [
 
 /**
  * ハンバーガードロワー用のナビゲーション項目。
- * タブバーの項目に加えて、ログイン不要の設定への導線を含める。
+ * 点数表へはタブバーから直接行けるため、ドロワー側は役一覧も含む早見表ハブへ送る。
+ * ログイン不要の設定への導線もここに含める。
  */
 export const DRAWER_NAV_ITEMS: readonly NavItemDef[] = [
-  ...TAB_BAR_NAV_ITEMS,
+  { href: "/practice", labelKey: "practice", icon: <DumbbellIcon /> },
+  { href: "/learn", labelKey: "learn", icon: <BookIcon /> },
+  { href: "/reference", labelKey: "reference", icon: <TableIcon /> },
+  { href: "/leaderboard", labelKey: "leaderboard", icon: <ChartIcon /> },
   { href: "/preferences", labelKey: "settings", icon: <SettingsIcon /> },
 ];
