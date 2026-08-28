@@ -43,7 +43,6 @@ export async function PinfuScoreGuide() {
 
         <FixedFuScoreTable role="ko" {...PINFU_TABLE} />
         <FixedFuScoreTable role="oya" {...PINFU_TABLE} />
-        <GuideNote>{t("noTsumoNote")}</GuideNote>
 
         <GuideParagraph preLine>{t("twoPatternsBody3")}</GuideParagraph>
       </section>

@@ -6,7 +6,6 @@ import { scorePracticePlayHref } from "@/app/(user)/(public)/practice/score/_lib
 import { PracticeLinkButton } from "../../_components/practice-link-card";
 
 import { FixedFuScoreTable } from "../../_components/fixed-fu-score-table";
-import { GuideNote } from "../../_components/guide-note";
 import { GuideParagraph } from "../../_components/guide-paragraph";
 
 /**
@@ -41,7 +40,6 @@ export async function ChiitoitsuScoreGuide() {
 
         <FixedFuScoreTable role="ko" {...CHIITOITSU_TABLE} />
         <FixedFuScoreTable role="oya" {...CHIITOITSU_TABLE} />
-        <GuideNote>{t("noTsumoNote")}</GuideNote>
       </section>
 
       {/* コラム: 25符だけが10符刻みから外れている理由 */}

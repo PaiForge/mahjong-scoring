@@ -67,11 +67,6 @@ export async function FixedFuScoreTable({
       <h3 className="text-xs font-semibold tracking-wider text-surface-400 uppercase">
         {isKo ? t("tableKo") : t("tableOya")}
       </h3>
-      {/* ツモ行の2段表示（子は上下、親は ALL）の読み方を表の直前で補う */}
-      <p className="text-xs text-surface-500">
-        {isKo ? t("tsumoNoteKo") : t("tsumoNoteOya")}
-      </p>
-
       {/* 翻が複数列並ぶため、狭い画面では表だけを横スクロールさせる */}
       <div className="w-full overflow-x-auto">
         <DataTable
