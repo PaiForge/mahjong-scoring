@@ -3,7 +3,7 @@
 import { useTranslations } from "next-intl";
 import { parseHais, parseTehai } from "@mahjong-scoring/core";
 import { TehaiHand } from "../../../_components/tehai-hand";
-import type { YakuExampleSet } from "../_lib/yaku-examples";
+import type { YakuExampleHand, YakuExampleSet } from "../_lib/yaku-examples";
 
 interface YakuExampleListProps {
   readonly examples: readonly YakuExampleSet[];
@@ -11,26 +11,26 @@ interface YakuExampleListProps {
 
 /** 例示手牌1つ。見出す相手がない例（形も牌も1通り）はラベルを持たない。 */
 function YakuExample({
-  mspz,
+  hand,
   label,
-  ronHai,
 }: {
-  readonly mspz: string;
+  readonly hand: YakuExampleHand;
   readonly label?: string;
-  readonly ronHai?: string;
 }) {
   const t = useTranslations("common");
 
-  const tehai = parseTehai(mspz);
+  const tehai = parseTehai(hand.mspz);
   if (!tehai) return null;
+
+  const { agari } = hand;
 
   return (
     <div className="space-y-1">
       {label && <p className="text-xs text-surface-400">{label}</p>}
       <TehaiHand
         tehai={tehai}
-        agariHai={ronHai === undefined ? undefined : parseHais(ronHai)[0]}
-        agariLabel={ronHai === undefined ? undefined : t("ron")}
+        agariHai={agari && parseHais(agari.hai)[0]}
+        agariLabel={agari && (agari.type === "tsumo" ? t("tsumo") : t("ron"))}
         agariLabelTone="light"
       />
     </div>
@@ -43,10 +43,9 @@ function YakuExample({
  *
  * 鳴いて成立する役は門前形と副露形を並べ、どちらの形でも成立することを
  * 手牌そのもので示す。役牌のように複数の牌で示す役は、牌ごとにその対を並べる。
- * 並びだけではその役と読めない門前形（対々和・混老頭・平和）はロンした牌を出す。
- * 和了牌を一番右に離して「ロン」を添える出し方は出題盤面と同じで、そちらで
- * 覚えた読み方がそのまま通る。並びの中の1枚に枠を付けるだけでは、その枠が
- * 何を指しているのかを別途言葉で補うことになる。
+ * 並びだけではその役と読めない例は和了牌まで出す（`YakuExampleHand.agari`）。
+ * 和了牌を一番右に離してツモ・ロンを添える出し方は出題盤面と同じで、そちらで
+ * 覚えた読み方がそのまま通る。
  *
  * ラベルは「牌・形」を1行に畳んで入れ子の見出しを作らない（役牌は3種×2形で
  * 6段になるため、階層を足すと手牌より見出しの方が目立つ）。
@@ -66,10 +65,9 @@ export function YakuExampleList({ examples }: YakuExampleListProps) {
   return (
     <div className="space-y-4">
       {examples.map((example) => (
-        <div key={example.variant ?? example.menzen} className="space-y-3">
+        <div key={example.variant ?? example.menzen.mspz} className="space-y-3">
           <YakuExample
-            mspz={example.menzen}
-            ronHai={example.menzenRonHai}
+            hand={example.menzen}
             label={label(
               example.variant,
               // 副露形と並ぶときだけ「門前」と断る（1つしか無い形は断る相手がない）
@@ -78,7 +76,7 @@ export function YakuExampleList({ examples }: YakuExampleListProps) {
           />
           {example.naki !== undefined && (
             <YakuExample
-              mspz={example.naki}
+              hand={example.naki}
               label={label(example.variant, t("exampleNaki"))}
             />
           )}
