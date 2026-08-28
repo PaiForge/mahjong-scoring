@@ -35,14 +35,25 @@ export const PRACTICE_SETUP_HASH = `#${PRACTICE_SETUP_ANCHOR_ID}`;
  *
  * マウント時と違い操作の続きとして動くので、どこへ運ばれたのかが分かるよう
  * 滑らかにスクロールする。動きを減らす設定の環境では即時に切り替える。
+ *
+ * 開始を次フレームまで遅らせるのは、呼び出し元がクリックハンドラだからで、
+ * その場で始めた smooth スクロールは直後の React のコミットに打ち消される。
+ * 回答すると押したボタン自身が `disabled` になり、ブラウザはフォーカスを外す。
+ * React はコミット中（flushMutationEffects）にそのボタンへフォーカスを戻し、
+ * この `focus()` は既定でフォーカス先を画面内へスクロールするため、進行中の
+ * スクロールアニメーションが中断されて押した位置に留まる。コミットは
+ * クリックイベントと同じタスクで同期的に終わるので、次フレームまで待てば
+ * フォーカス復元より後に始められる。
  */
 export function scrollToPracticeAnchor(): void {
   const prefersReducedMotion = window.matchMedia(
     "(prefers-reduced-motion: reduce)",
   ).matches;
 
-  document.getElementById(PRACTICE_SCROLL_ANCHOR_ID)?.scrollIntoView({
-    behavior: prefersReducedMotion ? "instant" : "smooth",
-    block: "start",
+  requestAnimationFrame(() => {
+    document.getElementById(PRACTICE_SCROLL_ANCHOR_ID)?.scrollIntoView({
+      behavior: prefersReducedMotion ? "instant" : "smooth",
+      block: "start",
+    });
   });
 }

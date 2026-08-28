@@ -8,6 +8,9 @@ import { PRACTICE_SCROLL_ANCHOR_ID } from "../_lib/scroll-anchor";
  * 回答ボタンは盤面下端にあるため、縦に長い練習では押した位置のままだと
  * 正誤表示も次の問題も画面外に残る。jsdom はレイアウトを持たないので、
  * スクロール先が練習セッションのアンカーであることだけを検証する。
+ *
+ * スクロールは React のコミット（フォーカス復元）より後に始めるため次フレームまで
+ * 遅らせている。フレームを進めてから検証すること。
  */
 describe("useTimedSession 出題の先頭へのスクロール", () => {
   let anchor: HTMLElement;
@@ -35,6 +38,7 @@ describe("useTimedSession 出題の先頭へのスクロール", () => {
 
     act(() => {
       result.current.gameSession.handleAnswer(true, () => {});
+      vi.advanceTimersToNextFrame();
     });
 
     expect(scrollIntoView.mock.instances).toContain(anchor);
@@ -46,10 +50,12 @@ describe("useTimedSession 出題の先頭へのスクロール", () => {
 
     act(() => {
       result.current.gameSession.handleAnswer(true, () => {});
+      vi.advanceTimersToNextFrame();
     });
     scrollIntoView.mockClear();
     act(() => {
       result.current.gameSession.handleAnswer(true, () => {});
+      vi.advanceTimersToNextFrame();
     });
 
     expect(scrollIntoView).not.toHaveBeenCalled();
