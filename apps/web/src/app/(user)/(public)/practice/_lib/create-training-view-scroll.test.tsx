@@ -1,5 +1,5 @@
 import { describe, expect, it, vi, beforeEach, afterEach } from "vitest";
-import { render, screen, fireEvent } from "@testing-library/react";
+import { render, screen, fireEvent, act } from "@testing-library/react";
 
 vi.mock("next-intl", async () => await import("@/test/intl-mock"));
 // チャレンジ側のファクトリが Server Action を参照するため、
@@ -17,6 +17,9 @@ import { PRACTICE_SCROLL_ANCHOR_ID } from "./scroll-anchor";
  * 押した位置のままだと正誤表示も次の問題も画面外に残る。
  * jsdom はレイアウトを持たないので、スクロール先が練習セッションの先頭
  * （ContentContainer のアンカー）であることだけを検証する。
+ *
+ * スクロールは React のコミット（フォーカス復元）より後に始めるため次フレームまで
+ * 遅らせている。クリック後にフレームを進めてから検証すること。
  */
 function renderTrainingView() {
   const advance = vi.fn();
@@ -46,6 +49,7 @@ describe("createTrainingView 出題の先頭へのスクロール", () => {
   let scrollIntoView: ReturnType<typeof vi.spyOn>;
 
   beforeEach(() => {
+    vi.useFakeTimers();
     scrollIntoView = vi
       .spyOn(Element.prototype, "scrollIntoView")
       .mockImplementation(() => {});
@@ -53,7 +57,15 @@ describe("createTrainingView 出題の先頭へのスクロール", () => {
 
   afterEach(() => {
     scrollIntoView.mockRestore();
+    vi.useRealTimers();
   });
+
+  /** 遅延させたスクロールを実行させる */
+  function flushFrame() {
+    act(() => {
+      vi.advanceTimersToNextFrame();
+    });
+  }
 
   function scrolledAnchorIds() {
     const targets = scrollIntoView.mock.instances as unknown as Element[];
@@ -64,6 +76,7 @@ describe("createTrainingView 出題の先頭へのスクロール", () => {
     renderTrainingView();
 
     fireEvent.click(screen.getByRole("button", { name: "submit" }));
+    flushFrame();
 
     expect(scrolledAnchorIds()).toContain(PRACTICE_SCROLL_ANCHOR_ID);
   });
@@ -72,6 +85,7 @@ describe("createTrainingView 出題の先頭へのスクロール", () => {
     renderTrainingView();
 
     fireEvent.click(screen.getByRole("button", { name: "revealButton" }));
+    flushFrame();
 
     expect(scrolledAnchorIds()).toContain(PRACTICE_SCROLL_ANCHOR_ID);
   });
@@ -81,8 +95,10 @@ describe("createTrainingView 出題の先頭へのスクロール", () => {
     renderTrainingView();
 
     fireEvent.click(screen.getByRole("button", { name: "revealButton" }));
+    flushFrame();
     scrollIntoView.mockClear();
     fireEvent.click(screen.getByRole("button", { name: "nextButton" }));
+    flushFrame();
 
     expect(scrolledAnchorIds()).toContain(PRACTICE_SCROLL_ANCHOR_ID);
   });
