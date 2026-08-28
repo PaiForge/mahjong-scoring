@@ -2,6 +2,7 @@ import { describe, it, expect } from "vitest";
 import {
   YAKU_HAN_ENTRIES,
   YAKU_OPTIONS,
+  parseHais,
   parseTehai,
 } from "@mahjong-scoring/core";
 import type { YakuExampleSet } from "./yaku-examples";
@@ -81,6 +82,25 @@ describe("YAKU_EXAMPLES", () => {
             ? `門前限定役に副露形がある: ${entry.name}`
             : `鳴いて成立する役に副露形がない: ${entry.name}`,
         ).toBe(entry.nakiHan !== undefined);
+      }
+    }
+  });
+
+  it("門前形のロン牌は、その門前形の純手牌に含まれる1枚である", () => {
+    for (const [name, examples] of Object.entries(YAKU_EXAMPLES)) {
+      for (const { menzen, menzenRonHai } of examples) {
+        if (menzenRonHai === undefined) continue;
+
+        const ronHais = parseHais(menzenRonHai);
+        expect(ronHais.length, `${name} のロン牌は1枚: ${menzenRonHai}`).toBe(
+          1,
+        );
+
+        const closed = parseTehai(menzen)?.closed ?? [];
+        expect(
+          closed.includes(ronHais[0]),
+          `${name} のロン牌 ${menzenRonHai} が門前形 ${menzen} に無い`,
+        ).toBe(true);
       }
     }
   });

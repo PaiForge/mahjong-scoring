@@ -39,6 +39,16 @@ export interface YakuExampleSet {
   readonly variant?: string;
   /** 門前形（Extended MSPZ 記法） */
   readonly menzen: string;
+  /**
+   * 門前形でロンした牌（MSPZ 記法で1枚）
+   *
+   * 並びだけではその役として読めない門前形だけが持つ。対々和・混老頭の門前形は
+   * 4つとも暗刻なので静止した並びとしては四暗刻と区別できず、平和も待ちの形が
+   * 分からなければ平和と確定しない。どちらも並びではなく和了牌で決まるので、
+   * ロンした牌に枠を付けて示す。副露形は明刻が入るぶん並びだけで確定するため
+   * 持たない。
+   */
+  readonly menzenRonHai?: string;
   /** 副露形（Extended MSPZ 記法）。門前限定役は持たない。 */
   readonly naki?: string;
 }
@@ -53,7 +63,8 @@ export const YAKU_EXAMPLES: Readonly<
   Record<string, readonly YakuExampleSet[]>
 > = {
   // --- 1翻 ---
-  平和: [{ menzen: "234m567m234p678p55s" }],
+  // 両面待ちのロンでないと平和にならないので和了牌まで示す
+  平和: [{ menzen: "234m567m234p678p55s", menzenRonHai: "6p" }],
   一盃口: [{ menzen: "234m234m567p789s11z" }],
   断么九: [
     {
@@ -103,6 +114,8 @@ export const YAKU_EXAMPLES: Readonly<
   対々和: [
     {
       menzen: "111m555p999s333z22m",
+      // シャンポン待ちをロンして1つが明刻にならないと四暗刻になる
+      menzenRonHai: "1m",
       naki: "111m555p22m[999s][333z]",
     },
   ],
@@ -133,6 +146,8 @@ export const YAKU_EXAMPLES: Readonly<
   混老頭: [
     {
       menzen: "111m999m111p999p11z",
+      // 対々和と同じく、ロンで1つが明刻にならないと四暗刻になる
+      menzenRonHai: "1m",
       naki: "111m999m111p11z[999p]",
     },
   ],
