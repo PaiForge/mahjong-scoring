@@ -17,6 +17,16 @@ interface ScorePracticeState {
   judgementResult: JudgementResult | undefined;
   /** 回答済みかどうか */
   isAnswered: boolean;
+  /**
+   * 直近の生成が問題を作れずに終わったか。
+   * 生成失敗フラグ
+   *
+   * `generateValidScoreQuestion` はリトライを使い切ると undefined を返す。
+   * 盤面は「問題が無い」を生成前（スケルトン）としか解釈しないため、
+   * このフラグ無しでは失敗時にスケルトンのまま固まり、終了導線も出ない。
+   * 出題条件を絞れるほど（役の指定等）この経路は現実に踏まれる。
+   */
+  generationFailed: boolean;
   /** 出題ごとに増える連番。回答フォームの key に使い、次問題への遷移で入力をクリアする */
   questionSeq: number;
   /** 問題生成オプション */
@@ -66,6 +76,7 @@ export const useScorePracticeStore = create<ScorePracticeStore>((set, get) => ({
   userAnswer: undefined,
   judgementResult: undefined,
   isAnswered: false,
+  generationFailed: false,
   questionSeq: 0,
   options: {
     includeFuro: true,
@@ -80,16 +91,23 @@ export const useScorePracticeStore = create<ScorePracticeStore>((set, get) => ({
   generateNewQuestion: () => {
     const { options } = get();
     const { renfonpaiAs4Fu, kiriageMangan } = useRuleSettingsStore.getState();
-    const question = generateValidScoreQuestion({
-      ...options,
-      renfonpaiAs4Fu,
-      kiriageMangan,
-    });
+    const question = generateValidScoreQuestion(
+      {
+        ...options,
+        renfonpaiAs4Fu,
+        kiriageMangan,
+      },
+      // 既定の100回では、役の絞り込み（requiredYaku）で出現率2%の役を
+      // 指定したとき約13%の確率で取り逃す。500回なら0.004%（1回0.08ms実測
+      // なので最悪でも40ms）。allowlist の根拠は core の filterable-yaku.ts
+      500,
+    );
     set((state) => ({
       currentQuestion: question,
       userAnswer: undefined,
       judgementResult: undefined,
       isAnswered: false,
+      generationFailed: question === undefined,
       questionSeq: state.questionSeq + 1,
     }));
   },
@@ -160,6 +178,8 @@ export const useScorePracticeStore = create<ScorePracticeStore>((set, get) => ({
       userAnswer: undefined,
       judgementResult: undefined,
       isAnswered: false,
+      // 設定画面へ戻る前のクリア（setQuestion(undefined)）は失敗ではない
+      generationFailed: false,
       questionSeq: state.questionSeq + 1,
     }));
   },

@@ -19,6 +19,8 @@ export const YAKU_TO_KEY: Readonly<Record<string, string>> = {
   "役牌 白": "haku",
   "役牌 發": "hatsu",
   "役牌 中": "chun",
+  自風牌: "jikaze",
+  場風牌: "bakaze",
   三色同順: "sanshoku_doujun",
   一気通貫: "itsu",
   混全帯么九: "chanta",

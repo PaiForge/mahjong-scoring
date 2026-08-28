@@ -48,9 +48,15 @@ describe("getAdjacentChapters", () => {
   });
 
   it("returns undefined next for the last chapter", () => {
+    const { prev, next } = getAdjacentChapters("pinfu-score");
+    expect(prev?.slug).toBe("tehai-fu");
+    expect(next).toBeUndefined();
+  });
+
+  it("places pinfu-score right after the fu section", () => {
     const { prev, next } = getAdjacentChapters("tehai-fu");
     expect(prev?.slug).toBe("machi-fu");
-    expect(next).toBeUndefined();
+    expect(next?.slug).toBe("pinfu-score");
   });
 
   it("places yaku right after the mangan section and before fu", () => {

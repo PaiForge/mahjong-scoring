@@ -132,6 +132,19 @@ export interface QuestionGeneratorOptions {
   /** 30符4翻・60符3翻を満貫に切り上げるか（切り上げ満貫、既定 false） */
   readonly kiriageMangan?: boolean;
   /**
+   * 出題する役（いずれか1つでも成立していれば出題。既定: 絞り込まない）
+   * 出題役の絞り込み
+   *
+   * 値は `yakuDetails.name` と同じ日本語表示名（役選択・判定と同じ語彙）。
+   * 複数指定は OR で解釈する。AND にすると同時に成立しない組
+   * （平和 + 対々和 等）でプールが即空になるため。
+   *
+   * 生成器は「ランダムに作って条件に合わなければ捨てる」方式なので、
+   * 出現率の低い役を指定するとリトライを使い切って生成に失敗しうる。
+   * UI から選ばせる場合は `SCORE_FILTERABLE_YAKU`（filterable-yaku.ts）に絞ること。
+   */
+  readonly requiredYaku?: readonly string[];
+  /**
    * 出題する最小翻数（既定: 制約なし）
    * 最小翻数
    *
