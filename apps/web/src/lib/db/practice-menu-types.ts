@@ -97,7 +97,7 @@ const PRACTICE_MENU_REGISTRY = [
     slug: "jantou-fu",
     messageKey: "jantouFu",
     namespace: "jantouFu",
-    hasProblemList: false,
+    hasProblemList: true,
     hasSetup: false,
   },
   {
@@ -105,7 +105,7 @@ const PRACTICE_MENU_REGISTRY = [
     slug: "machi-fu",
     messageKey: "machiFu",
     namespace: "machiFu",
-    hasProblemList: false,
+    hasProblemList: true,
     hasSetup: false,
   },
   {
@@ -113,7 +113,7 @@ const PRACTICE_MENU_REGISTRY = [
     slug: "mentsu-fu",
     messageKey: "mentsuFu",
     namespace: "mentsuFu",
-    hasProblemList: false,
+    hasProblemList: true,
     hasSetup: false,
   },
   {
@@ -137,7 +137,7 @@ const PRACTICE_MENU_REGISTRY = [
     slug: "yaku",
     messageKey: "yaku",
     namespace: "yaku",
-    hasProblemList: false,
+    hasProblemList: true,
     hasSetup: false,
   },
   {

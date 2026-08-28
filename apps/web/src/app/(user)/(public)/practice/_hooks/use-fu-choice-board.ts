@@ -19,6 +19,13 @@ interface UseFuChoiceBoardParams<TQuestion extends FuQuestion> extends Pick<
   readonly generateQuestion: () => TQuestion;
   /** 選択肢として並べる符（インデックスで選択される） */
   readonly options: readonly number[];
+  /**
+   * 回答を記録する（チャレンジの結果ページの問題別一覧用）
+   *
+   * そのとき出ていた問題と、選ばれた符を受け取る。記録しない練習と
+   * トレーニングでは渡らない。
+   */
+  readonly onRecordResult?: (question: TQuestion, fu: number) => void;
 }
 
 interface UseFuChoiceBoardResult<TQuestion extends FuQuestion> {
@@ -42,6 +49,7 @@ export function useFuChoiceBoard<TQuestion extends FuQuestion>({
   options,
   showFeedback,
   onAnswer,
+  onRecordResult,
 }: UseFuChoiceBoardParams<TQuestion>): UseFuChoiceBoardResult<TQuestion> {
   const [question, setQuestion] = useClientGeneratedQuestion(generateQuestion);
   const [selectedFu, setSelectedFu] = useState<number | undefined>(undefined);
@@ -58,9 +66,17 @@ export function useFuChoiceBoard<TQuestion extends FuQuestion>({
       if (showFeedback || !question) return;
       const fu = options[index];
       setSelectedFu(fu);
+      onRecordResult?.(question, fu);
       onAnswer(fu === question.answer, advanceQuestion);
     },
-    [showFeedback, options, onAnswer, question, advanceQuestion],
+    [
+      showFeedback,
+      options,
+      onAnswer,
+      question,
+      advanceQuestion,
+      onRecordResult,
+    ],
   );
 
   return { question, selectedFu, handleSelect };
