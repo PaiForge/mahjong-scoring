@@ -19,6 +19,8 @@ function YakuExample({
   readonly label?: string;
   readonly ronHai?: string;
 }) {
+  const t = useTranslations("common");
+
   const tehai = parseTehai(mspz);
   if (!tehai) return null;
 
@@ -27,7 +29,9 @@ function YakuExample({
       {label && <p className="text-xs text-surface-400">{label}</p>}
       <TehaiHand
         tehai={tehai}
-        highlightedHai={ronHai === undefined ? undefined : parseHais(ronHai)[0]}
+        agariHai={ronHai === undefined ? undefined : parseHais(ronHai)[0]}
+        agariLabel={ronHai === undefined ? undefined : t("ron")}
+        agariLabelTone="light"
       />
     </div>
   );
@@ -39,11 +43,12 @@ function YakuExample({
  *
  * 鳴いて成立する役は門前形と副露形を並べ、どちらの形でも成立することを
  * 手牌そのもので示す。役牌のように複数の牌で示す役は、牌ごとにその対を並べる。
- * 並びだけではその役と読めない門前形（対々和・混老頭・平和）はロンした牌に枠を
- * 付ける。牌を右に離して和了形として開示すると、その3枚だけ形が変わって同じ表に
- * 並ぶ他のカードと見え方が揃わないため、枠だけで示す。
+ * 並びだけではその役と読めない門前形（対々和・混老頭・平和）はロンした牌を出す。
+ * 和了牌を一番右に離して「ロン」を添える出し方は出題盤面と同じで、そちらで
+ * 覚えた読み方がそのまま通る。並びの中の1枚に枠を付けるだけでは、その枠が
+ * 何を指しているのかを別途言葉で補うことになる。
  *
- * ラベルは「牌・形・和了」を1行に畳んで入れ子の見出しを作らない（役牌は3種×2形で
+ * ラベルは「牌・形」を1行に畳んで入れ子の見出しを作らない（役牌は3種×2形で
  * 6段になるため、階層を足すと手牌より見出しの方が目立つ）。
  * 手牌は出題盤面と同じ TehaiHand で描画する。開閉は親の `AccordionCard` が担う。
  */
@@ -69,7 +74,6 @@ export function YakuExampleList({ examples }: YakuExampleListProps) {
               example.variant,
               // 副露形と並ぶときだけ「門前」と断る（1つしか無い形は断る相手がない）
               example.naki === undefined ? undefined : t("exampleMenzen"),
-              example.menzenRonHai === undefined ? undefined : t("exampleRon"),
             )}
           />
           {example.naki !== undefined && (
