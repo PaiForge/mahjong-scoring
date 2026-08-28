@@ -89,3 +89,42 @@ describe("i18n integrity: 練習ページの namespace", () => {
     );
   });
 });
+
+/**
+ * 結果ページの問題別フィードバック一覧（`ProblemListAccordion` /
+ * `AnswerComparison`）が引くラベルの検証。
+ *
+ * 一覧を出すかどうかはレジストリの `hasProblemList` が決めるため、旗を立てた
+ * 練習は辞書側にも `<namespace>.result` の一式が要る。next-intl のキー欠落は
+ * 結果ページを開くまで検出されず、しかも一覧はセッションを 1 本走らせないと
+ * 出ないため、ここで突き合わせる。
+ */
+describe("i18n integrity: 問題別フィードバック一覧の result.*", () => {
+  /** 一覧の共通部分（練習によらず必ず引く）キー */
+  const REQUIRED_RESULT_KEYS = [
+    "problemDetails",
+    "correct",
+    "incorrect",
+    "correctAnswer",
+    "yourAnswer",
+  ] as const;
+
+  const slugsWithProblemList = PRACTICE_MENU_SLUGS.filter(
+    (slug) => practiceMenuBySlug(slug).hasProblemList,
+  );
+
+  it.each(slugsWithProblemList)("%s が result.* を持つ", (slug) => {
+    const { namespace } = practiceMenuBySlug(slug);
+    const result = Reflect.get(messages[namespace] ?? {}, "result") as
+      Record<string, unknown> | undefined;
+
+    const missing = REQUIRED_RESULT_KEYS.filter(
+      (key) => typeof result?.[key] !== "string",
+    );
+
+    expect(
+      missing,
+      `${namespace}.result に不足: ${missing.join(", ")}`,
+    ).toEqual([]);
+  });
+});
