@@ -13,11 +13,11 @@ import {
 } from "@/app/(user)/_components/data-table";
 import { TsumoScore } from "@/app/(user)/(public)/reference/score-table/_components/tsumo-score";
 
-/** ピンフのロンの符。副底20符に門前ロンの加符が乗って30符になる */
-const RON_FU = 30;
-
 /** ピンフのツモの符。ツモ符が乗らず副底の20符のまま */
 const TSUMO_FU = 20;
+
+/** ピンフのロンの符。副底20符に門前ロンの加符が乗って30符になる */
+const RON_FU = 30;
 
 /**
  * 列に並べる翻数。
@@ -31,13 +31,16 @@ interface PinfuScoreTableProps {
 }
 
 /**
- * ピンフの点数表（ロン30符／ツモ20符 × 翻数）
+ * ピンフの点数表（ツモ20符／ロン30符 × 翻数）
  * ピンフ点数表
  *
  * ピンフの符は2通りしかないため、符×翻の早見表（`/reference/score-table`）から
- * 該当する2行だけを抜き出した形にしている。翻数を横に伸ばす向きも早見表と
- * 揃えてある（読む向きが表ごとに変わると、同じ値を探すのに読み替えが要る）。
- * 点数は早見表と同じ core の計算を通すので、表記が二重管理になることはない。
+ * 該当する2行だけを抜き出した形にしている。翻数を横に伸ばす向きも早見表と揃えて
+ * あり（読む向きが表ごとに変わると、同じ値を探すのに読み替えが要る）、点数は
+ * 早見表と同じ core の計算を通すので表記が二重管理になることもない。
+ *
+ * 行見出しは「ツモ」「ロン」だけにして符を書かない。どちらが何符かは表の直前の
+ * 本文が言っており、行見出しに重ねると狭い画面で表が横に伸びるだけになる。
  *
  * 切り上げ満貫は適用しない。教本は標準ルールで書き、差分はコラムで説明する
  * （連風牌を扱う雀頭の符の章と同じ方針）。
@@ -47,7 +50,6 @@ export async function PinfuScoreTable({ role }: PinfuScoreTableProps) {
   const isKo = role === "ko";
   const calculate = isKo ? calculateKoScore : calculateOyaScore;
 
-  const ronScores = HAN_COLS.map((han) => calculate(han, RON_FU).ron);
   // 1翻のツモは存在しない（ツモると門前清自摸和が必ず付いて2翻以上になる）
   const tsumoPayments: readonly (TsumoPayment | undefined)[] = HAN_COLS.map(
     (han) =>
@@ -55,6 +57,7 @@ export async function PinfuScoreTable({ role }: PinfuScoreTableProps) {
         ? undefined
         : calculate(han, TSUMO_FU).tsumo,
   );
+  const ronScores = HAN_COLS.map((han) => calculate(han, RON_FU).ron);
 
   return (
     <div className="space-y-2">
@@ -85,19 +88,6 @@ export async function PinfuScoreTable({ role }: PinfuScoreTableProps) {
         >
           <tr className="bg-white">
             <td className="px-4 py-3 text-left font-medium whitespace-nowrap text-surface-600">
-              {t("rowRon")}
-            </td>
-            {ronScores.map((ron, index) => (
-              <td
-                key={HAN_COLS[index]}
-                className="px-4 py-3 font-semibold text-primary-600"
-              >
-                {ron}
-              </td>
-            ))}
-          </tr>
-          <tr className="bg-white">
-            <td className="px-4 py-3 text-left font-medium whitespace-nowrap text-surface-600">
               {t("rowTsumo")}
             </td>
             {tsumoPayments.map((tsumo, index) => (
@@ -109,6 +99,19 @@ export async function PinfuScoreTable({ role }: PinfuScoreTableProps) {
                 ) : (
                   <span className="text-surface-400">-</span>
                 )}
+              </td>
+            ))}
+          </tr>
+          <tr className="bg-white">
+            <td className="px-4 py-3 text-left font-medium whitespace-nowrap text-surface-600">
+              {t("rowRon")}
+            </td>
+            {ronScores.map((ron, index) => (
+              <td
+                key={HAN_COLS[index]}
+                className="px-4 py-3 font-semibold text-primary-600"
+              >
+                {ron}
               </td>
             ))}
           </tr>
