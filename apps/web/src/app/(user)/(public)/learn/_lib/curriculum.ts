@@ -156,6 +156,10 @@ const CURRICULUM_REGISTRY = [
     slug: "pinfu-score",
     section: "score",
     order: 70,
+    // 設定画面を挟まず、章の内容そのまま（平和のみ・満貫未満 = 必ず
+    // 20符 or 30符 × 1〜4翻）の出題で練習を開始する。score の設定画面は
+    // クエリを読まないため、リンク先は play 直
+    practiceHrefs: ["/practice/score/play?yaku=pinfu&ranges=non"],
     i18nKey: "learnCurriculum.chapters.pinfuScore",
   },
 ] as const satisfies readonly CurriculumChapterEntry[];
