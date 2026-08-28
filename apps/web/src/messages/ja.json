@@ -590,14 +590,6 @@
       "twoPatternsBody1": "麻雀での頻出役は断么九（タンヤオ）と平和（ピンフ）です。\nここではまずピンフに対する点数計算を覚えます。",
       "twoPatternsBody2": "ピンフは、ツモの場合は20符、ロンの場合は30符というふうに大別できます。",
       "twoPatternsBody3": "タンヤオなど他の手役の場合は、40符や50符のケースも考えなければならないのですが、ピンフの場合は2パターンしかないので簡単です。",
-      "tableKo": "子の点数",
-      "tableOya": "親の点数",
-      "colWin": "和了",
-      "rowTsumo": "ツモ",
-      "rowRon": "ロン",
-      "hanUnit": "{value}翻",
-      "tsumoNoteKo": "※ ツモの点数は 上段＝子から / 下段＝親から",
-      "tsumoNoteOya": "※ ALL は全員から同じ点数",
       "noTsumoNote": "※ ピンフをツモると門前清自摸和（1翻）が必ず付くため、ツモに1翻の欄はありません。",
       "columnLabel": "コラム",
       "columnTitle": "切り上げ満貫",
@@ -1002,6 +994,16 @@
       "practiceLinkCta": "練習を始める",
       "practiceLinkChallengeCta": "{title}にチャレンジ",
       "updateFailedToast": "進捗の更新に失敗しました。再度お試しください。"
+    },
+    "scoreTable": {
+      "tableKo": "子の点数",
+      "tableOya": "親の点数",
+      "colWin": "和了",
+      "rowTsumo": "ツモ",
+      "rowRon": "ロン",
+      "hanUnit": "{value}翻",
+      "tsumoNoteKo": "※ ツモの点数は 上段＝子から / 下段＝親から",
+      "tsumoNoteOya": "※ ALL は全員から同じ点数"
     },
     "exampleTable": {
       "colTiles": "牌",

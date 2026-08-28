@@ -4,7 +4,6 @@ import {
   calculateOyaScore,
   isInvalidCell,
   type Role,
-  type TsumoPayment,
 } from "@mahjong-scoring/core";
 
 import {
@@ -13,51 +12,55 @@ import {
 } from "@/app/(user)/_components/data-table";
 import { TsumoScore } from "@/app/(user)/(public)/reference/score-table/_components/tsumo-score";
 
-/** ピンフのツモの符。ツモ符が乗らず副底の20符のまま */
-const TSUMO_FU = 20;
-
-/** ピンフのロンの符。副底20符に門前ロンの加符が乗って30符になる */
-const RON_FU = 30;
-
-/**
- * 列に並べる翻数。
- * 5翻以上は符が点数に関与しなくなる（満貫以上の章が受け持つ）ため4翻まで。
- */
-const HAN_COLS = [1, 2, 3, 4] as const;
-
-interface PinfuScoreTableProps {
+interface FixedFuScoreTableProps {
   /** 子・親のどちらの点数を表示するか */
   readonly role: Role;
+  /** ツモ和了時の符 */
+  readonly tsumoFu: number;
+  /** ロン和了時の符 */
+  readonly ronFu: number;
+  /** 列に並べる翻数（昇順） */
+  readonly hanCols: readonly number[];
 }
 
 /**
- * ピンフの点数表（ツモ20符／ロン30符 × 翻数）
- * ピンフ点数表
+ * 符が固定される役の点数表（ツモ／ロン × 翻数）
+ * 固定符点数表
  *
- * ピンフの符は2通りしかないため、符×翻の早見表（`/reference/score-table`）から
- * 該当する2行だけを抜き出した形にしている。翻数を横に伸ばす向きも早見表と揃えて
- * あり（読む向きが表ごとに変わると、同じ値を探すのに読み替えが要る）、点数は
- * 早見表と同じ core の計算を通すので表記が二重管理になることもない。
+ * 平和（ツモ20符・ロン30符）や七対子（常に25符）のように、符が数通りに
+ * 決まってしまう役の章で使う。符×翻の早見表（`/reference/score-table`）から
+ * 該当する2行だけを抜き出した形にしている。翻数を横に伸ばす向きも早見表と
+ * 揃えてあり（読む向きが表ごとに変わると、同じ値を探すのに読み替えが要る）、
+ * 点数は早見表と同じ core の計算を通すので表記が二重管理になることもない。
  *
- * 行見出しは「ツモ」「ロン」だけにして符を書かない。どちらが何符かは表の直前の
- * 本文が言っており、行見出しに重ねると狭い画面で表が横に伸びるだけになる。
+ * 行見出しは「ツモ」「ロン」だけにして符を書かない。どちらが何符かは表の
+ * 直前の本文が言っており、行見出しに重ねると狭い画面で表が横に伸びるだけに
+ * なる。符が1通りしかない役（七対子）でも同じ理由で行見出しは変えない。
+ *
+ * 存在しない符×翻の組（1翻20符・2翻25符ツモ等）は core の
+ * `isInvalidCell` が判定し、"-" を出す。章ごとに翻数の下限を書き分けない。
  *
  * 切り上げ満貫は適用しない。教本は標準ルールで書き、差分はコラムで説明する
  * （連風牌を扱う雀頭の符の章と同じ方針）。
  */
-export async function PinfuScoreTable({ role }: PinfuScoreTableProps) {
-  const t = await getTranslations("pinfuScore.learn");
+export async function FixedFuScoreTable({
+  role,
+  tsumoFu,
+  ronFu,
+  hanCols,
+}: FixedFuScoreTableProps) {
+  const t = await getTranslations("learnCurriculum.scoreTable");
   const isKo = role === "ko";
   const calculate = isKo ? calculateKoScore : calculateOyaScore;
 
-  // 1翻のツモは存在しない（ツモると門前清自摸和が必ず付いて2翻以上になる）
-  const tsumoPayments: readonly (TsumoPayment | undefined)[] = HAN_COLS.map(
-    (han) =>
-      isInvalidCell(han, TSUMO_FU, "tsumo")
-        ? undefined
-        : calculate(han, TSUMO_FU).tsumo,
+  const tsumoPayments = hanCols.map((han) =>
+    isInvalidCell(han, tsumoFu, "tsumo")
+      ? undefined
+      : calculate(han, tsumoFu).tsumo,
   );
-  const ronScores = HAN_COLS.map((han) => calculate(han, RON_FU).ron);
+  const ronScores = hanCols.map((han) =>
+    isInvalidCell(han, ronFu, "ron") ? undefined : calculate(han, ronFu).ron,
+  );
 
   return (
     <div className="space-y-2">
@@ -69,7 +72,7 @@ export async function PinfuScoreTable({ role }: PinfuScoreTableProps) {
         {isKo ? t("tsumoNoteKo") : t("tsumoNoteOya")}
       </p>
 
-      {/* 翻が4列並ぶため、狭い画面では表だけを横スクロールさせる */}
+      {/* 翻が複数列並ぶため、狭い画面では表だけを横スクロールさせる */}
       <div className="w-full overflow-x-auto">
         <DataTable
           tableClassName="text-center"
@@ -78,7 +81,7 @@ export async function PinfuScoreTable({ role }: PinfuScoreTableProps) {
               <DataTableHeaderCell align="left">
                 {t("colWin")}
               </DataTableHeaderCell>
-              {HAN_COLS.map((han) => (
+              {hanCols.map((han) => (
                 <DataTableHeaderCell key={han}>
                   {t("hanUnit", { value: han })}
                 </DataTableHeaderCell>
@@ -91,7 +94,7 @@ export async function PinfuScoreTable({ role }: PinfuScoreTableProps) {
               {t("rowTsumo")}
             </td>
             {tsumoPayments.map((tsumo, index) => (
-              <td key={HAN_COLS[index]} className="px-4 py-3">
+              <td key={hanCols[index]} className="px-4 py-3">
                 {tsumo ? (
                   <span className="font-semibold text-primary-600">
                     <TsumoScore payment={tsumo} />
@@ -108,10 +111,10 @@ export async function PinfuScoreTable({ role }: PinfuScoreTableProps) {
             </td>
             {ronScores.map((ron, index) => (
               <td
-                key={HAN_COLS[index]}
+                key={hanCols[index]}
                 className="px-4 py-3 font-semibold text-primary-600"
               >
-                {ron}
+                {ron ?? <span className="text-surface-400">-</span>}
               </td>
             ))}
           </tr>
