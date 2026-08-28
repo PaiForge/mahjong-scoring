@@ -7,9 +7,10 @@ import {
   parseKazehai,
   parseTehai,
 } from "@mahjong-scoring/core";
-import type { CompletedMentsu, Furo, HaiKindId } from "@mahjong-scoring/core";
+import type { CompletedMentsu, HaiKindId } from "@mahjong-scoring/core";
 import { ProblemListAccordion } from "../../_components/problem-list-accordion";
 import { TehaiDisplay } from "../../_components/tehai-display";
+import { buildMentsu } from "../../_lib/mentsu-serialization";
 import { findAgariHighlight } from "../_lib/find-agari-highlight";
 import type {
   MentsuJantouFuItemResult,
@@ -51,31 +52,6 @@ function restoreQuestion(result: MentsuJantouFuQuestionResult) {
   };
 }
 
-/**
- * 保存された牌と面子種別から、晒して見せるための面子を組み立てる
- * 面子復元
- *
- * 枚数が種別と合わない（保存形式が壊れている）ときは undefined を返し、
- * 牌を平らに並べる表示へ落とす。
- */
-function restoreMentsu(
-  type: MentsuType | "Pair",
-  tiles: readonly HaiKindId[],
-  furo: Furo | undefined,
-): CompletedMentsu | undefined {
-  if (type === MentsuType.Kantsu) {
-    const [a, b, c, d] = tiles;
-    if (d === undefined) return undefined;
-    return { type, hais: [a, b, c, d], furo };
-  }
-  if (type === MentsuType.Shuntsu || type === MentsuType.Koutsu) {
-    const [a, b, c] = tiles;
-    if (c === undefined) return undefined;
-    return { type, hais: [a, b, c], furo };
-  }
-  return undefined;
-}
-
 /** 保存された回答行を、出題中と同じ体裁で描ける形に戻す */
 function restoreItem(
   item: MentsuJantouFuItemResult,
@@ -88,7 +64,11 @@ function restoreItem(
     tiles,
     type: item.type,
     isOpen: item.isOpen,
-    originalMentsu: restoreMentsu(item.type, tiles, item.furo),
+    // 雀頭は面子ではないため晒す表示を持たない（牌を平らに並べる）
+    originalMentsu:
+      item.type === "Pair"
+        ? undefined
+        : buildMentsu(item.type, tiles, item.furo),
     correctFu: item.correctFu,
     userFu: item.userFu,
   };

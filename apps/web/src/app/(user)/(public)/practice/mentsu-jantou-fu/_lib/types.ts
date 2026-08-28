@@ -1,7 +1,5 @@
 import {
-  FuroType,
   MentsuType,
-  Tacha,
   haiIdToMspz,
   haisToMspz,
   kazeIdToMspz,
@@ -14,7 +12,11 @@ import {
 import { resultStorageKeyFor } from "@/lib/db/practice-menu-types";
 
 import { createSessionStorageParser } from "../../_lib/create-session-storage-parser";
-import { hasFieldTypes, isRecord } from "../../_lib/shape-guards";
+import {
+  hasValidOptionalFuro,
+  isCompletedMentsuType,
+} from "../../_lib/mentsu-serialization";
+import { hasFieldTypes } from "../../_lib/shape-guards";
 
 /** sessionStorage に保存する際のキー */
 export const RESULT_STORAGE_KEY = resultStorageKeyFor("mentsu-jantou-fu");
@@ -109,28 +111,13 @@ function toItemResult(
 }
 
 /**
- * 回答行に現れうる種別。完成面子と雀頭だけで、未完成面子（対子・塔子）は
- * 和了形を出題する以上あり得ない
+ * 値が回答行の種別として妥当か検証する
+ *
+ * 回答行は完成面子か雀頭のいずれか。未完成面子（対子・塔子）は和了形を
+ * 出題する以上あり得ない。
  */
-const ITEM_TYPES: readonly unknown[] = [
-  MentsuType.Shuntsu,
-  MentsuType.Koutsu,
-  MentsuType.Kantsu,
-  "Pair",
-];
-
-/** 値が回答行の種別として妥当か検証する */
 function isValidItemType(value: unknown): value is MentsuType | "Pair" {
-  return ITEM_TYPES.includes(value);
-}
-
-/** 値が Furo として妥当か検証する */
-function isValidFuro(value: unknown): value is Furo {
-  if (!isRecord(value)) return false;
-  return (
-    Object.values<unknown>(FuroType).includes(Reflect.get(value, "type")) &&
-    Object.values<unknown>(Tacha).includes(Reflect.get(value, "from"))
-  );
+  return value === "Pair" || isCompletedMentsuType(value);
 }
 
 /** 値が回答行の結果として妥当か検証する */
@@ -145,11 +132,9 @@ function isValidItemResult(value: unknown): value is MentsuJantouFuItemResult {
   ) {
     return false;
   }
-  if (!isValidItemType(Reflect.get(value, "type"))) return false;
-
-  // furo は鳴いた行にしか無い任意フィールド。あるなら形まで確かめる
-  const furo: unknown = Reflect.get(value, "furo");
-  return furo === undefined || isValidFuro(furo);
+  return (
+    isValidItemType(Reflect.get(value, "type")) && hasValidOptionalFuro(value)
+  );
 }
 
 /**
