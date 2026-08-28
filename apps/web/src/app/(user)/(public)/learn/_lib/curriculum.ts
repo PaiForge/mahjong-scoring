@@ -152,6 +152,12 @@ const CURRICULUM_REGISTRY = [
     practiceHrefs: ["/practice/mentsu-jantou-fu"],
     i18nKey: "learnCurriculum.chapters.tehaiFu",
   },
+  {
+    slug: "pinfu-score",
+    section: "score",
+    order: 70,
+    i18nKey: "learnCurriculum.chapters.pinfuScore",
+  },
 ] as const satisfies readonly CurriculumChapterEntry[];
 
 /** 章スラッグ — `/learn/<slug>` の slug 部分に対応 */
