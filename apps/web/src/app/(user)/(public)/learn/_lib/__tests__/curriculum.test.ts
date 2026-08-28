@@ -48,8 +48,12 @@ describe("getAdjacentChapters", () => {
   });
 
   it("returns undefined next for the last chapter", () => {
-    const { prev, next } = getAdjacentChapters("pinfu-score");
-    expect(prev?.slug).toBe("tehai-fu");
+    // 末尾の章は章を足すたびに変わるため、slug を直書きせず CURRICULUM から引く
+    const sorted = [...CURRICULUM].sort((a, b) => a.order - b.order);
+    const last = sorted.at(-1)!;
+    const secondLast = sorted.at(-2)!;
+    const { prev, next } = getAdjacentChapters(last.slug);
+    expect(prev?.slug).toBe(secondLast.slug);
     expect(next).toBeUndefined();
   });
 

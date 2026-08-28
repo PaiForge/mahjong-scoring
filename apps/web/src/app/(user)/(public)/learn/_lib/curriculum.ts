@@ -162,6 +162,14 @@ const CURRICULUM_REGISTRY = [
     // 導線は章本文（pinfu-score-guide.tsx）の CTA が持つ
     i18nKey: "learnCurriculum.chapters.pinfuScore",
   },
+  {
+    slug: "chitoisu-score",
+    section: "score",
+    order: 80,
+    // 平和の章と同じ理由で practiceHrefs を持たない（導線は
+    // chitoisu-score-guide.tsx の CTA）
+    i18nKey: "learnCurriculum.chapters.chitoisuScore",
+  },
 ] as const satisfies readonly CurriculumChapterEntry[];
 
 /** 章スラッグ — `/learn/<slug>` の slug 部分に対応 */
