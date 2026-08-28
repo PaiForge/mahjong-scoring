@@ -5,6 +5,7 @@ import {
   RANGE_TOKEN_MANGAN_PLUS,
   RANGE_TOKEN_NON_MANGAN,
 } from "../../_lib/range-params";
+import { MENZEN_ONLY_TOKEN, MENZEN_PARAM } from "./menzen-param";
 import { YAKU_PARAM, yakuTokenOf } from "./yaku-filter-params";
 
 /**
@@ -19,10 +20,12 @@ import { YAKU_PARAM, yakuTokenOf } from "./yaku-filter-params";
  *
  * @param picks.yaku 出題する役（日本語役名、OR）。allowlist 外の役は無視される
  * @param picks.ranges 出題する点数帯
+ * @param picks.menzenOnly 門前手だけに絞るか（既定: 副露ありも出す）
  */
 export function scorePracticePlayHref(picks: {
   readonly yaku?: readonly string[];
   readonly ranges?: readonly ScoreRange[];
+  readonly menzenOnly?: boolean;
 }): string {
   const params = new URLSearchParams();
 
@@ -38,6 +41,8 @@ export function scorePracticePlayHref(picks: {
     if (ranges.includes("manganPlus"))
       params.append(RANGE_PARAM, RANGE_TOKEN_MANGAN_PLUS);
   }
+
+  if (picks.menzenOnly === true) params.set(MENZEN_PARAM, MENZEN_ONLY_TOKEN);
 
   const query = params.toString();
   return query ? `/practice/score/play?${query}` : "/practice/score/play";

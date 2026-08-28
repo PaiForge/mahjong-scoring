@@ -91,6 +91,18 @@ describe("parseModeFlagsFromParams", () => {
 });
 
 describe("parseGeneratorOptionsFromParams: yaku", () => {
+  it("menzen=1 で門前手だけに絞る", () => {
+    const result = parseGeneratorOptionsFromParams(
+      new URLSearchParams("menzen=1"),
+    );
+    expect(result.includeFuro).toBe(false);
+  });
+
+  it("menzen 未指定時は副露ありも出す（マージで前回条件を残さない）", () => {
+    const result = parseGeneratorOptionsFromParams(new URLSearchParams(""));
+    expect(result.includeFuro).toBe(true);
+  });
+
   it("yaku 未指定時は requiredYaku を undefined で明示する（マージで前回条件を残さない）", () => {
     const result = parseGeneratorOptionsFromParams(new URLSearchParams());
     expect("requiredYaku" in result).toBe(true);
