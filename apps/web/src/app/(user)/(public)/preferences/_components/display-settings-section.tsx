@@ -10,6 +10,7 @@ import {
 import {
   useDisplaySettingsStore,
   useDoraDisplayMode,
+  useTermLinksEnabled,
 } from "@/app/_hooks/use-display-settings-store";
 import { PREFERENCE_ANCHORS, YAKU_ORDER_HREF } from "../_lib/anchors";
 
@@ -23,6 +24,8 @@ export function DisplaySettingsSection() {
   const t = useTranslations("settings");
   const doraDisplay = useDoraDisplayMode();
   const setDoraDisplay = useDisplaySettingsStore((s) => s.setDoraDisplay);
+  const termLinks = useTermLinksEnabled();
+  const setTermLinks = useDisplaySettingsStore((s) => s.setTermLinks);
 
   return (
     <SettingsCard>
@@ -33,6 +36,14 @@ export function DisplaySettingsSection() {
         description={t("doraDisplayDescription")}
         checked={doraDisplay === "actual"}
         onChange={(checked) => setDoraDisplay(checked ? "actual" : "indicator")}
+      />
+
+      <SettingToggleRow
+        id={PREFERENCE_ANCHORS.termLinks}
+        title={t("termLinksTitle")}
+        description={t("termLinksDescription")}
+        checked={termLinks}
+        onChange={setTermLinks}
       />
 
       {/* 36役を並び替える UI は設定ページに置くと長すぎるため専用ページへ渡す */}

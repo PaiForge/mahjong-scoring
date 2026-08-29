@@ -3,6 +3,7 @@
 import type { ReactNode } from "react";
 
 import { TEXT_LINK_CLASSES } from "@/app/_components/_lib/link-classes";
+import { useTermLinksEnabled } from "@/app/_hooks/use-display-settings-store";
 
 import { useTermModal } from "./glossary-term-modal-provider";
 
@@ -27,10 +28,16 @@ interface TermLinkProps {
  *
  * 修飾キー付きのクリックや中クリックは奪わない（新しいタブで開く操作を
  * 壊さない）。
+ *
+ * 設定で用語リンクを切っている読者には表示語だけを地の文として返す。
+ * 語を覚えた読者にとって、段落ごとに下線が入るのは読む妨げでしかない。
  */
 export function TermLink({ slug, href, children }: TermLinkProps) {
   const modal = useTermModal();
+  const enabled = useTermLinksEnabled();
   const opensModal = modal?.hasTerm(slug) ?? false;
+
+  if (!enabled) return <>{children}</>;
 
   return (
     <a

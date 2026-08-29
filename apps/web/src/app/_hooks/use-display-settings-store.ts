@@ -11,7 +11,19 @@ interface DisplaySettingsState {
   /** ドラを表示牌のまま出すか、ドラそのものに読み替えて出すか */
   doraDisplay: DoraDisplayMode;
   setDoraDisplay: (mode: DoraDisplayMode) => void;
+  /** 教本本文の語を用語リンクにするか */
+  termLinks: boolean;
+  setTermLinks: (enabled: boolean) => void;
 }
+
+/**
+ * 用語リンクは既定で出す。
+ *
+ * 語の意味を知らない読者にとっては本文の一部であり、初めて読む側が
+ * 設定を開いて有効化するとは考えにくい。用語を覚えて邪魔になった読者が
+ * 切る、という向きにしてある。
+ */
+const DEFAULT_TERM_LINKS_ENABLED = true;
 
 /**
  * 表示設定ストア（端末ローカル永続化）
@@ -26,6 +38,8 @@ export const useDisplaySettingsStore = create<DisplaySettingsState>()(
     (set) => ({
       doraDisplay: DEFAULT_DORA_DISPLAY_MODE,
       setDoraDisplay: (doraDisplay) => set({ doraDisplay }),
+      termLinks: DEFAULT_TERM_LINKS_ENABLED,
+      setTermLinks: (termLinks) => set({ termLinks }),
     }),
     {
       // 既定の浅いマージ（永続値を初期state へ上書き）により、
@@ -47,4 +61,18 @@ export function useDoraDisplayMode(): DoraDisplayMode {
   const isClient = useIsClient();
   const doraDisplay = useDisplaySettingsStore((s) => s.doraDisplay);
   return isClient ? doraDisplay : DEFAULT_DORA_DISPLAY_MODE;
+}
+
+/**
+ * 用語リンクの有効判定フック
+ *
+ * ハイドレーション完了までは既定値を返す（理由は {@link useDoraDisplayMode}
+ * と同じ）。サーバーが描いた HTML は常にリンク入りなので、クローラと
+ * JavaScript 無効の閲覧者にはこの設定に関わらず内部リンクが見える。
+ * 用語リンク有効判定
+ */
+export function useTermLinksEnabled(): boolean {
+  const isClient = useIsClient();
+  const termLinks = useDisplaySettingsStore((s) => s.termLinks);
+  return isClient ? termLinks : DEFAULT_TERM_LINKS_ENABLED;
 }
