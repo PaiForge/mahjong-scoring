@@ -11,7 +11,7 @@ import {
 } from "@/lib/ranks/belt-colors";
 import { rankRequiringMenu } from "@/lib/ranks/registry";
 import { practiceHref } from "@/app/(user)/(public)/practice/_lib/practice-catalog";
-import { PlayIcon } from "@/app/(user)/_components/icons/play-icon";
+import { ChevronRightIcon } from "@/app/(user)/_components/icons/chevron-right-icon";
 
 interface ExamCtaCardProps {
   /** 昇級試験の練習スラッグ（CURRICULUM の `examSlug`） */
@@ -84,9 +84,22 @@ export async function ExamCtaCard({ slug, lead }: ExamCtaCardProps) {
               </dd>
             </div>
           </dl>
-          <LinkButton href={practiceHref(slug)} size="lg" fullWidth>
-            <PlayIcon className="size-4" />
-            {t("examCta.start")}
+          {/* 遷移先は試験の説明ページ（問題方式のデモと合格条件を見て、
+              そこで初めてスタートする）。押した瞬間に試験が始まるわけでは
+              ないため、緑 + 再生アイコンの「押して始める面」にはしない。
+              白 + 右シェブロンで、詳細を見に行く導線であることを示す。
+
+              variant は secondary ではなく quiet。secondary も白地だが枠と
+              影が ink（緑）で、帯色で縁取ったこのカードの上では緑が
+              その級の色と競合して浮く。 */}
+          <LinkButton
+            href={practiceHref(slug)}
+            variant="quiet"
+            size="lg"
+            fullWidth
+          >
+            {t("examCta.viewRequirements")}
+            <ChevronRightIcon className="size-4" />
           </LinkButton>
         </div>
       </div>

@@ -19,7 +19,13 @@ import { FOCUS_RING_CLASSES } from "@/app/_components/_lib/link-classes";
 
 /** 塗り・文字色の系統 */
 export type ButtonVariant =
-  "primary" | "secondary" | "neutral" | "danger" | "warning" | "dangerOutline";
+  | "primary"
+  | "secondary"
+  | "neutral"
+  | "quiet"
+  | "danger"
+  | "warning"
+  | "dangerOutline";
 
 /**
  * 大きさ。
@@ -74,6 +80,18 @@ const VARIANT_CLASSES: Record<ButtonVariant, string> = {
   primary: "border-ink bg-primary-500 text-white hover:bg-primary-600",
   secondary: "border-ink bg-card text-primary-700 hover:bg-primary-50",
   neutral: "border-ink bg-card text-surface-700 hover:bg-surface-100",
+  // 白と調和させる控えめなボタン。枠・影・文字をすべてグレーで通し、緑を
+  // 一切載せない。帯色で縁取ったカードのように、緑が別の意味を持って
+  // しまう面の上に置く「詳細を見に行く」導線のための variant。
+  //
+  // 枠だけグレーにすると、全 variant 共通のハードシャドウ
+  // （3px 3px 0 var(--color-ink)）が緑のまま右下に残る（dangerOutline が
+  // 踏んだのと同じ罠）。静止時の影は `--skin-shadow-*` を要素側で立てて
+  // 差し替え（`shadow-*` は素の値ではなくこの変数を参照して展開される）、
+  // hover / active は press-* が読む `--press-shadow-color` で差し替える。
+  // サイズによって使う影が変わるため sm / md の両方を立てておく。
+  quiet:
+    "border-surface-300 bg-card text-surface-700 hover:bg-surface-50 [--skin-shadow-sm:3px_3px_0_var(--color-surface-300)] [--skin-shadow-md:4px_4px_0_var(--color-surface-300)] [--press-shadow-color:var(--color-surface-300)]",
   danger: "border-ink bg-destructive text-white hover:bg-destructive/90",
   warning: "border-ink bg-warning text-white hover:bg-warning/90",
   // 枠は他の variant と同じ ink。枠を destructive にすると、全 variant 共通の
