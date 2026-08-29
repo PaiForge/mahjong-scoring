@@ -1,5 +1,5 @@
 import { describe, it, expect } from "vitest";
-import { HaiKind } from "@pai-forge/riichi-mahjong";
+import { HaiKind, isMenzen } from "@pai-forge/riichi-mahjong";
 import { generateScoreQuestion, generateValidScoreQuestion } from "./generator";
 import { SCORE_FILTERABLE_YAKU } from "./filterable-yaku";
 import { ScoreLevel } from "../../core/constants";
@@ -181,6 +181,25 @@ describe("generateValidScoreQuestion", () => {
         expect(marker).toBeLessThanOrEqual(33);
       }
     }
+  });
+});
+
+describe("オプション: requireFuro", () => {
+  it("副露している手だけが生成される", () => {
+    for (let i = 0; i < 50; i++) {
+      const question = generateValidScoreQuestion({ requireFuro: true }, 500);
+      expect(question).toBeDefined();
+      expect(isMenzen(question!.tehai)).toBe(false);
+    }
+  });
+
+  it("既定では門前手も生成される", () => {
+    const questions = Array.from({ length: 200 }, () =>
+      generateValidScoreQuestion({}, 500),
+    );
+    expect(questions.some((q) => q !== undefined && isMenzen(q.tehai))).toBe(
+      true,
+    );
   });
 });
 

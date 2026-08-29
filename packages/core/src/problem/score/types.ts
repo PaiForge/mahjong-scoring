@@ -119,6 +119,16 @@ export type ScoreRange = "nonMangan" | "manganPlus";
 export interface QuestionGeneratorOptions {
   /** 副露を含めるかどうか */
   readonly includeFuro?: boolean;
+  /**
+   * 副露している手だけを出題するか（既定 false=門前も出す）
+   * 副露縛り
+   *
+   * `includeFuro` は「副露した手も混ぜるか」で、門前手を除く手段が無い。
+   * 鳴いた手だけを扱う出題（教本の副露の章など）はこちらを立てる。
+   * 生成器は門前手を作ったら捨てる方式なので、`includeFuro` が false だと
+   * どの手も条件を満たさず生成に失敗する。
+   */
+  readonly requireFuro?: boolean;
   /** 七対子を含めるかどうか */
   readonly includeChiitoi?: boolean;
   /** 出題する点数範囲 */
