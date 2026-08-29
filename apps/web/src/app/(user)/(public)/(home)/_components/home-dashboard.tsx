@@ -1,6 +1,5 @@
 import { getTranslations } from "next-intl/server";
 
-import { ExamCtaCard } from "@/app/(user)/(public)/learn/_components/exam-cta-card";
 import { fetchReadChapterSlugs } from "@/app/(user)/(public)/learn/_lib/progress";
 import { ContentContainer } from "@/app/(user)/_components/content-container";
 import { PageTitle } from "@/app/(user)/_components/page-title";
@@ -11,31 +10,30 @@ import { selectDashboardGuidance } from "../_lib/guidance";
 import { ComprehensivePracticeSection } from "./comprehensive-practice-section";
 import { ContinueLearningSection } from "./continue-learning-section";
 import { HomeAnnouncements } from "./home-announcements";
+import { ReadyExamLinks } from "./ready-exam-links";
 import { RecommendedPracticeSection } from "./recommended-practice-section";
 
 /**
  * ログイン済みユーザーのトップ（ダッシュボード）。
  * ダッシュボード
  *
- * 「昇級試験」→「教本の続き」→「おすすめの練習」→ お知らせ の順に並べる。
+ * 「教本の続き」→「おすすめの練習」→ お知らせ の順に並べる。
  * 再訪時に真っ先に必要なのは学習の再開点で、お知らせはその次だという判断。
  *
- * 昇級試験だけは再開点より前に出す。前提章を読み終えたときにしか現れず、
- * 受かればその級を取って消える一度きりの導線で、章の続きより先に案内する
- * 価値がある（毎回出続けるものではない）。
+ * 受験できる昇級試験は「教本の続き」の末尾にリンクとして添える
+ * （{@link ReadyExamLinks}）。前提章を読み終えた先にある行き先なので
+ * 学習の再開点の隣が収まりがよく、ページ先頭のカードにはしない。
  *
  * 学習導線は勧めるものがあるときだけ出す（`selectDashboardGuidance`）。
  * 教本を読み切って練習もひととおり終えたユーザーには、代わりに総合演習を出す。
  */
 export async function HomeDashboard() {
-  const [t, tDashboard, readSlugs, attemptedSlugs, achievedRankSlugs] =
-    await Promise.all([
-      getTranslations("nav"),
-      getTranslations("dashboard"),
-      fetchReadChapterSlugs(),
-      fetchAttemptedPracticeSlugs(),
-      fetchAchievedRankSlugs(),
-    ]);
+  const [t, readSlugs, attemptedSlugs, achievedRankSlugs] = await Promise.all([
+    getTranslations("nav"),
+    fetchReadChapterSlugs(),
+    fetchAttemptedPracticeSlugs(),
+    fetchAchievedRankSlugs(),
+  ]);
 
   const {
     nextChapter,
@@ -48,24 +46,26 @@ export async function HomeDashboard() {
     achievedRankSlugs,
   });
 
+  const examLinks =
+    readyExamSlugs.length > 0 ? (
+      <ReadyExamLinks slugs={readyExamSlugs} />
+    ) : undefined;
+
   return (
     <ContentContainer>
       <PageTitle>{t("home")}</PageTitle>
 
       <div className="space-y-8">
-        {readyExamSlugs.map((slug) => (
-          <ExamCtaCard
-            key={slug}
-            slug={slug}
-            lead={tDashboard("examReadyLead")}
-          />
-        ))}
-
-        {nextChapter && (
+        {nextChapter ? (
           <ContinueLearningSection
             readSlugs={readSlugs}
             nextChapter={nextChapter}
+            tailLink={examLinks}
           />
+        ) : (
+          // 全章読了済みで「教本の続き」が出ないときも、受験できる試験の
+          // 導線だけは残す（次に取れる級があることを知らせる場が他に無い）
+          examLinks
         )}
 
         {recommendedPracticeSlugs.length > 0 && (

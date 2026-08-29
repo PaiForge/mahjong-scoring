@@ -151,7 +151,6 @@
     "continueLearningTitle": "教本の続き",
     "viewAllChapters": "目次へ",
     "recommendedPracticeTitle": "おすすめの練習",
-    "examReadyLead": "前提となる教本の章を読み終えました。昇級試験に挑戦できます。",
     "comprehensivePracticeHint": "教本も練習もひととおり終えました。総合演習で仕上げましょう。",
     "viewAllPractices": "練習一覧へ",
     "todayPractice": "今日の練習",
@@ -2052,7 +2051,8 @@
       "title": "{rank} 昇級試験",
       "lead": "この章の内容を身につけたら、昇級試験に挑戦しましょう。",
       "criterionLabel": "合格基準",
-      "viewExam": "試験の内容を見る"
+      "viewExam": "試験の内容を見る",
+      "link": "{rank} 昇級試験へ"
     },
     "rankPassConditionsTitle": "{rank} 合格条件",
     "passConditions": "制限時間{timeLimit}秒以内に{minScore}問正解で合格（ミス{mistakeLimit}回で終了）"

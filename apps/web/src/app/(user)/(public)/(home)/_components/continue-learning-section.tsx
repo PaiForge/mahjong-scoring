@@ -1,3 +1,4 @@
+import type { ReactNode } from "react";
 import Link from "next/link";
 import { getTranslations } from "next-intl/server";
 
@@ -15,6 +16,14 @@ interface ContinueLearningSectionProps {
   readonly readSlugs: ReadonlySet<string>;
   /** 次に読む章 */
   readonly nextChapter: CurriculumChapter;
+  /**
+   * 末尾の行に目次へのリンクと並べて置く導線（受験できる昇級試験など）。
+   *
+   * セクションの本題（読みかけの位置）ではないが、教本を読み進めた先に
+   * ある行き先なのでここに同居させる。ランクを知らないままにするため
+   * スロットで受ける。
+   */
+  readonly tailLink?: ReactNode;
 }
 
 /**
@@ -31,6 +40,7 @@ interface ContinueLearningSectionProps {
 export async function ContinueLearningSection({
   readSlugs,
   nextChapter,
+  tailLink,
 }: ContinueLearningSectionProps) {
   const t = await getTranslations("dashboard");
 
@@ -51,7 +61,9 @@ export async function ContinueLearningSection({
         nextSlug={nextChapter.slug}
       />
 
-      <div className="text-right">
+      {/* 左に外への導線、右に目次。tailLink が無くても目次は右端に残る */}
+      <div className="flex flex-wrap items-center justify-between gap-3">
+        {tailLink ?? <span />}
         <Link
           href="/learn"
           className={`text-sm font-medium ${TEXT_LINK_CLASSES}`}
