@@ -16,7 +16,6 @@ export const ManganExamPlayView =
       <ManganExamBoard
         showFeedback={args.showFeedback}
         isCountingDown={args.isCountingDown}
-        lastAnswerCorrect={args.lastAnswerCorrect}
         onAnswer={args.onAnswer}
         onRecordResult={args.recordResult}
       />
