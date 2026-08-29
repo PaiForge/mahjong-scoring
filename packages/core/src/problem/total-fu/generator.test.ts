@@ -86,6 +86,27 @@ describe("generateTotalFuQuestion", () => {
     expect(question.id).toMatch(/^id-\d+$/);
   });
 
+  it("excludeRenfonpai で場風＝自風の局面を出題しない", () => {
+    // 連風牌が成立しない局面だけを出すことで、合計符が連風牌ルール
+    // （2符/4符）に左右されなくなる。昇級試験が依存する不変条件。
+    const questions = expectSampled(
+      () => generateTotalFuQuestion({ excludeRenfonpai: true }),
+      { attempts: 500, need: 200 },
+    );
+
+    for (const q of questions) {
+      expect(q.context.jikaze).not.toBe(q.context.bakaze);
+    }
+  });
+
+  it("既定では場風＝自風の局面も出題する", () => {
+    expectSampled(generateTotalFuQuestion, {
+      attempts: 2000,
+      need: 1,
+      where: (q) => q.context.jikaze === q.context.bakaze,
+    });
+  });
+
   it("連風牌の雀頭は renfonpaiAs4Fu で4符になる", () => {
     // ルール設定がライブラリまで届いているかの確認。
     // 連風牌（場風かつ自風）の雀頭を持つ問題だけを集めて比較する。
