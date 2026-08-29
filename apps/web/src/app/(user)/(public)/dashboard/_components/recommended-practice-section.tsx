@@ -30,9 +30,10 @@ interface RecommendedPracticeSectionProps {
 export async function RecommendedPracticeSection({
   slugs,
 }: RecommendedPracticeSectionProps) {
-  const [t, tPractice] = await Promise.all([
+  const [t, tPractice, tRanks] = await Promise.all([
     getTranslations("dashboard"),
     getTranslations("practice"),
+    getTranslations("ranks"),
   ]);
 
   const menus = slugs
@@ -58,8 +59,11 @@ export async function RecommendedPracticeSection({
             href={practiceHref(menu.slug)}
             title={tPractice(practiceTitleKey(menu.slug))}
             description={tPractice(practiceDescriptionKey(menu.slug))}
-            difficulty={menu.difficulty}
-            difficultyLabel={tPractice(`difficulty.${menu.difficulty}`)}
+            rank={
+              menu.rank
+                ? { slug: menu.rank, label: tRanks(`names.${menu.rank}`) }
+                : undefined
+            }
             startLabel={tPractice("start")}
           />
         ))}

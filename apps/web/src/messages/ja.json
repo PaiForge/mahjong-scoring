@@ -178,11 +178,6 @@
         "title": "点数計算"
       }
     },
-    "difficulty": {
-      "beginner": "初級",
-      "intermediate": "中級",
-      "advanced": "上級"
-    },
     "practices": {
       "jantouFu": {
         "title": "雀頭の符計算",

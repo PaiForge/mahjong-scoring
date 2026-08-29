@@ -5,7 +5,11 @@ import {
   CURRICULUM,
   CURRICULUM_CHAPTER_SLUGS,
 } from "@/app/(user)/(public)/learn/_lib/curriculum";
-import { PRACTICE_MENU_SLUGS } from "@/lib/db/practice-menu-types";
+import {
+  PRACTICE_MENU_SLUGS,
+  slugToMenuType,
+} from "@/lib/db/practice-menu-types";
+import { RANK_REGISTRY, rankRequiringMenu } from "@/lib/ranks/registry";
 import {
   isExamMenu,
   PRACTICE_CATALOG,
@@ -64,6 +68,41 @@ describe("PRACTICE_CATALOG", () => {
     for (const menu of PRACTICE_CATALOG) {
       if (menu.learnChapter === undefined) continue;
       expect(CURRICULUM_CHAPTER_SLUGS).toContain(menu.learnChapter);
+    }
+  });
+});
+
+describe("段級位との対応", () => {
+  it("昇級試験の段級位は、その試験を要件に持つ級と一致する", () => {
+    // 試験カードとカタログのピルが別々の級を名乗ると、道場から入った試験と
+    // 一覧で見た試験が違うものに見える。正典は段級位レジストリの要件。
+    for (const menu of PRACTICE_CATALOG) {
+      if (!isExamMenu(menu.slug)) continue;
+      const menuType = slugToMenuType(menu.slug);
+      expect(menuType, `${menu.slug}`).toBeDefined();
+      expect(rankRequiringMenu(menuType ?? "")?.rank.slug, `${menu.slug}`).toBe(
+        menu.rank,
+      );
+    }
+  });
+
+  it("段級位を持つ練習の前提章は、その級の前提章に含まれる", () => {
+    // 「4級の練習」と掲げたカードが 4級の受験に関係ない章へ送る、という
+    // ずれを防ぐ。章を持たない練習（翻数即答など）は級だけで判断する。
+    for (const menu of PRACTICE_CATALOG) {
+      if (menu.rank === undefined || menu.learnChapter === undefined) continue;
+      const rank = RANK_REGISTRY.find((entry) => entry.slug === menu.rank);
+      expect(rank?.learnChapterSlugs, `${menu.slug}`).toContain(
+        menu.learnChapter,
+      );
+    }
+  });
+
+  it("段級位名が辞書に存在する", () => {
+    const names: Record<string, string> = messages.ranks.names;
+    for (const menu of PRACTICE_CATALOG) {
+      if (menu.rank === undefined) continue;
+      expect(names[menu.rank], `${menu.slug}`).toBeTruthy();
     }
   });
 });
@@ -151,7 +190,7 @@ describe("practiceMenuFromCatalog", () => {
     expect(practiceMenuFromCatalog("mentsu-jantou-fu")).toMatchObject({
       slug: "mentsu-jantou-fu",
       category: "fuCalculation",
-      difficulty: "advanced",
+      rank: "kyu-4",
     });
   });
 });

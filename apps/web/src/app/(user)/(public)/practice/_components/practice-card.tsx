@@ -1,31 +1,30 @@
 import Link from "next/link";
+import { BeltPill } from "@/app/(user)/_components/belt-pill";
 import { BookIcon } from "@/app/(user)/_components/icons/book-icon";
 import { ChevronRightIcon } from "@/app/(user)/_components/icons/chevron-right-icon";
 import { TEXT_LINK_CLASSES } from "@/app/_components/_lib/link-classes";
+import type { RankSlug } from "@/lib/ranks/registry";
 
 interface PracticeCardProps {
   href: string;
   title: string;
   description: string;
-  difficulty: "beginner" | "intermediate" | "advanced";
-  difficultyLabel: string;
+  /**
+   * その練習が身につける段級位。どの級の範囲にも入らない練習は undefined で、
+   * ピルを出さない（「級なし」を表すラベルは出さない — 空白のままの方が、
+   * 級を持つカードの側が読み取りやすい）。
+   */
+  rank?: { readonly slug: RankSlug; readonly label: string };
   startLabel: string;
   learnHref?: string;
   learnLabel?: string;
 }
 
-const difficultyColor = {
-  beginner: "bg-success-subtle text-success-strong",
-  intermediate: "bg-warning-subtle text-warning-strong",
-  advanced: "bg-destructive-subtle text-destructive-strong",
-} as const;
-
 export function PracticeCard({
   href,
   title,
   description,
-  difficulty,
-  difficultyLabel,
+  rank,
   startLabel,
   learnHref,
   learnLabel,
@@ -33,13 +32,9 @@ export function PracticeCard({
   return (
     <div className="flex flex-col justify-between rounded-2xl border-3 border-ink bg-white p-5 shadow-sm transition-transform hover:-translate-y-1">
       <div>
-        <div className="flex items-center justify-between">
+        <div className="flex items-start justify-between gap-2">
           <h3 className="text-base font-bold text-surface-900">{title}</h3>
-          <span
-            className={`rounded-full border-2 border-ink px-2 py-0.5 text-xs font-bold ${difficultyColor[difficulty]}`}
-          >
-            {difficultyLabel}
-          </span>
+          {rank && <BeltPill slug={rank.slug} label={rank.label} />}
         </div>
         <p className="mt-2 text-sm font-medium text-surface-500">
           {description}

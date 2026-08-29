@@ -30,6 +30,7 @@ export async function generateMetadata(): Promise<Metadata> {
 function renderPracticeCards(
   practices: readonly PracticeMenu[],
   t: Awaited<ReturnType<typeof getTranslations<"practice">>>,
+  tRanks: Awaited<ReturnType<typeof getTranslations<"ranks">>>,
 ) {
   return practices.map((practice) => (
     <PracticeCard
@@ -37,8 +38,11 @@ function renderPracticeCards(
       href={practiceHref(practice.slug)}
       title={t(practiceTitleKey(practice.slug))}
       description={t(practiceDescriptionKey(practice.slug))}
-      difficulty={practice.difficulty}
-      difficultyLabel={t(`difficulty.${practice.difficulty}`)}
+      rank={
+        practice.rank
+          ? { slug: practice.rank, label: tRanks(`names.${practice.rank}`) }
+          : undefined
+      }
       startLabel={t("start")}
       learnHref={
         practice.learnChapter ? chapterHref(practice.learnChapter) : undefined
@@ -49,7 +53,10 @@ function renderPracticeCards(
 }
 
 export default async function PracticePage() {
-  const t = await getTranslations("practice");
+  const [t, tRanks] = await Promise.all([
+    getTranslations("practice"),
+    getTranslations("ranks"),
+  ]);
 
   return (
     <ContentContainer breadcrumb={[{ label: t("title") }]}>
@@ -62,15 +69,19 @@ export default async function PracticePage() {
 
         <div className="space-y-10">
           <PracticeCategorySection title={t("categories.fuCalculation.title")}>
-            {renderPracticeCards(practiceMenusByCategory("fuCalculation"), t)}
+            {renderPracticeCards(
+              practiceMenusByCategory("fuCalculation"),
+              t,
+              tRanks,
+            )}
           </PracticeCategorySection>
 
           <PracticeCategorySection title={t("categories.han.title")}>
-            {renderPracticeCards(practiceMenusByCategory("han"), t)}
+            {renderPracticeCards(practiceMenusByCategory("han"), t, tRanks)}
           </PracticeCategorySection>
 
           <PracticeCategorySection title={t("categories.scoring.title")}>
-            {renderPracticeCards(practiceMenusByCategory("scoring"), t)}
+            {renderPracticeCards(practiceMenusByCategory("scoring"), t, tRanks)}
           </PracticeCategorySection>
         </div>
 
