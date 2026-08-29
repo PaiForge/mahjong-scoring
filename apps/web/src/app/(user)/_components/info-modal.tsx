@@ -14,6 +14,11 @@ interface InfoModalProps {
   /**
    * 閉じるボタンの下に置く補足。本文でも主要動作でもない出口
    * （設定への導線など）を、閉じるボタンより前に割り込ませないための場所。
+   *
+   * 罫線で区切って出す。閉じるボタンより下にあるものが「押し忘れられた
+   * 2 つ目のアクション」ではなく付録だと、位置だけでは伝わらないため。
+   * 左寄せなのは、最も押される閉じるボタンの真下を空けておくため
+   * （外したときに章から設定ページへ飛ばされるのは代償が大きい）。
    */
   readonly footnote?: ReactNode;
 }
@@ -41,7 +46,11 @@ export function InfoModal({
           {closeLabel}
         </Button>
       </div>
-      {footnote !== undefined && <div className="text-xs">{footnote}</div>}
+      {footnote !== undefined && (
+        <div className="border-t-2 border-surface-100 pt-4 text-xs">
+          {footnote}
+        </div>
+      )}
     </ModalShell>
   );
 }
