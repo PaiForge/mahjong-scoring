@@ -6,6 +6,7 @@ import { practiceMenuBySlug } from "@/lib/db/practice-menu-types";
 import type { PracticeMenuSlug } from "@/lib/db/practice-menu-types";
 import {
   beltBorderClass,
+  beltButtonVarsClass,
   beltClass,
   beltForegroundClass,
 } from "@/lib/ranks/belt-colors";
@@ -74,19 +75,22 @@ export async function ExamCtaCard({ slug, lead }: ExamCtaCardProps) {
             </dt>
             <dd>{t(`criteria.${exam.rank.slug}`)}</dd>
           </dl>
-          {/* 遷移先は試験の説明ページ（問題方式のデモと合格条件を見て、
-              そこで初めてスタートする）。押した瞬間に試験が始まるわけでは
-              ないため、緑 + 再生アイコンの「押して始める面」にはしない。
-              白 + 右シェブロンで、詳細を見に行く導線であることを示す。
+          {/* variant は primary ではなく belt。緑で塗ると、級の名前を掲げて
+              帯色で縁取ったカードの中でそこだけが別の色になり、緑がその級の
+              色に見えてしまう。belt は面・文字・枠・影を `beltButtonVarsClass`
+              が立てた級の色で通すため、5級のカードならボタンも薄いオレンジに
+              なり、カードとボタンが同じ級の持ち物として読める。
 
-              variant は secondary ではなく quiet。secondary も白地だが枠と
-              影が ink（緑）で、帯色で縁取ったこのカードの上では緑が
-              その級の色と競合して浮く。 */}
+              再生アイコンではなく右シェブロンなのは、遷移先が試験の説明ページ
+              だから（問題方式のデモと合格条件を見て、そこで初めてスタートする）。
+              押した瞬間に試験が始まるわけではないことは、色の強さではなく
+              アイコンの向きで示す。 */}
           <LinkButton
             href={practiceHref(slug)}
-            variant="quiet"
+            variant="belt"
             size="lg"
             fullWidth
+            className={beltButtonVarsClass(exam.rank.slug)}
           >
             {t("examCta.viewExam")}
             <ChevronRightIcon className="size-4" />

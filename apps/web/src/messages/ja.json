@@ -149,7 +149,6 @@
     "title": "ダッシュボード",
     "description": "ここに学習進捗や最近のアクティビティが表示されます",
     "continueLearningTitle": "教本の続き",
-    "viewAllChapters": "目次へ",
     "recommendedPracticeTitle": "おすすめの練習",
     "comprehensivePracticeHint": "教本も練習もひととおり終えました。総合演習で仕上げましょう。",
     "viewAllPractices": "練習一覧へ",
@@ -263,8 +262,7 @@
     "modeChallengeHint": "制限時間{timeLimit}秒・ミス{mistakeLimit}回で記録に挑戦",
     "modeTrainingHint": "時間無制限でじっくり反復練習",
     "settingsTitle": "設定",
-    "requiredKnowledge": "関連する教本の章",
-    "viewCurriculumToc": "目次へ"
+    "requiredKnowledge": "関連する教本の章"
   },
   "challenge": {
     "timeRemaining": "残り {seconds} 秒",
@@ -1350,6 +1348,7 @@
     }
   },
   "learnCurriculum": {
+    "tocLink": "目次へ",
     "sections": {
       "foundation": "基礎",
       "mangan": "満貫以上の計算",

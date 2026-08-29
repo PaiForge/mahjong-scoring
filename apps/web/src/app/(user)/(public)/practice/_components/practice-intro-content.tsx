@@ -2,10 +2,9 @@ import type { ReactNode } from "react";
 import { HowToPlaySection } from "./how-to-play-section";
 import { PracticeStartCta } from "./practice-start-cta";
 import { buildPracticeStartCtaLabels } from "../_lib/practice-start-cta-labels";
-import Link from "next/link";
 import { getTranslations } from "next-intl/server";
 import { ChapterTocList } from "@/app/(user)/(public)/learn/_components/chapter-toc-list";
-import { TEXT_LINK_CLASSES } from "@/app/_components/_lib/link-classes";
+import { CurriculumTocLink } from "@/app/(user)/(public)/learn/_components/curriculum-toc-link";
 import type { CurriculumChapterSlug } from "@/app/(user)/(public)/learn/_lib/curriculum";
 import type { PracticeMenuSlug } from "@/lib/db/practice-menu-types";
 import { rankRequiringMenu } from "@/lib/ranks/registry";
@@ -148,17 +147,7 @@ export async function PracticeIntroContent({
           <div className="space-y-3">
             <SectionTitle>{chaptersTitle}</SectionTitle>
             <ChapterTocList slugs={chapterSlugs} readSlugs={NO_READ_SLUGS} />
-            {/* ダッシュボードの「教本の続き」と同じ、右端に置く目次への導線。
-                見出しが「教本の章」と言い切っているため、ここも向こうと同じく
-                「目次へ」で何の目次かが伝わる。 */}
-            <div className="text-right">
-              <Link
-                href="/learn"
-                className={`text-sm font-medium ${TEXT_LINK_CLASSES}`}
-              >
-                {tp("viewCurriculumToc")}
-              </Link>
-            </div>
+            <CurriculumTocLink />
           </div>
         )}
       </div>
