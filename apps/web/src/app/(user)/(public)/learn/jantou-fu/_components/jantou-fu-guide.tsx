@@ -12,7 +12,7 @@ import { ExampleTable } from "../../_components/example-table";
 import { GuideNote } from "../../_components/guide-note";
 import { FuSummaryTable } from "../../_components/fu-summary-table";
 import { GuideParagraph } from "../../_components/guide-paragraph";
-import { TileSet } from "../../_components/tile-set";
+import { TileSet } from "@/app/(user)/_components/tile-set";
 
 export async function JantouFuGuide() {
   const [t, tTable] = await Promise.all([

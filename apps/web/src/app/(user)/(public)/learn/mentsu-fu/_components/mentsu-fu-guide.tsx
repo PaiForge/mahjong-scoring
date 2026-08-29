@@ -4,7 +4,7 @@ import { SectionTitle } from "@/app/(user)/_components/section-title";
 import { ExampleTable } from "../../_components/example-table";
 import { FuSummaryTable } from "../../_components/fu-summary-table";
 import { GuideParagraph } from "../../_components/guide-paragraph";
-import { TileSet } from "../../_components/tile-set";
+import { TileSet } from "@/app/(user)/_components/tile-set";
 
 /** 暗槓は両端の牌を裏向きに描画する */
 const CLOSED_KANTSU_FACE_DOWN = [0, 3];
