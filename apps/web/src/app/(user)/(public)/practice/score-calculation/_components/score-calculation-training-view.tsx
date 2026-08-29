@@ -6,10 +6,10 @@ import { ScoreCalculationBoard } from "./score-calculation-board";
 export const ScoreCalculationTrainingView = createTrainingView({
   slug: "score-calculation",
   maxWidth: "max-w-lg",
-  renderBoard: ({ showFeedback, lastAnswerCorrect, onAnswer }) => (
+  renderBoard: ({ showFeedback, isTraining, onAnswer }) => (
     <ScoreCalculationBoard
       showFeedback={showFeedback}
-      lastAnswerCorrect={lastAnswerCorrect}
+      isTraining={isTraining}
       onAnswer={onAnswer}
     />
   ),
