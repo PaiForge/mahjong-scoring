@@ -18,6 +18,7 @@ import { requireConfirmedUser } from "@/lib/auth";
 import { getProfileCardByUserId } from "@/lib/db/queries";
 import { getExpHeatmapData } from "@/lib/db/get-exp-heatmap-data";
 import { getUserRankSlugs } from "@/lib/db/rank-queries";
+import { beltClass, beltForegroundClass } from "@/lib/ranks/belt-colors";
 import { highestRank } from "@/lib/ranks/registry";
 
 import { ExpActivityHeatmap } from "./_components/exp-activity-heatmap";
@@ -95,7 +96,8 @@ export default async function MyPage() {
               {currentRank && (
                 <Link
                   href="/dojo"
-                  className="inline-flex shrink-0 items-center gap-1 rounded-full border-2 border-ink bg-amber-100 px-2.5 py-0.5 text-xs font-bold text-surface-900 transition-colors hover:bg-amber-200"
+                  data-belt-slug={currentRank.slug}
+                  className={`inline-flex shrink-0 items-center gap-1 rounded-full border-2 border-ink px-2.5 py-0.5 text-xs font-bold transition-opacity hover:opacity-85 ${beltClass(currentRank.slug)} ${beltForegroundClass(currentRank.slug)}`}
                 >
                   <span aria-hidden="true">🎓</span>
                   {tRanks(`names.${currentRank.slug}`)}

@@ -17,48 +17,23 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { getTranslations } from "next-intl/server";
 
+import { AcademicCapIcon } from "@/app/(user)/_components/icons/academic-cap-icon";
 import { ContentContainer } from "@/app/(user)/_components/content-container";
 import { PageTitle } from "@/app/(user)/_components/page-title";
 import { SectionTitle } from "@/app/(user)/_components/section-title";
-import { CurriculumToc } from "@/app/(user)/(public)/learn/_components/curriculum-toc";
+import { ChapterTocList } from "@/app/(user)/(public)/learn/_components/chapter-toc-list";
 import { ExamCtaCard } from "@/app/(user)/(public)/learn/_components/exam-cta-card";
-import {
-  CURRICULUM_SECTIONS,
-  getChapterBySlug,
-  type CurriculumChapter,
-  type CurriculumSection,
-} from "@/app/(user)/(public)/learn/_lib/curriculum";
 import { fetchReadChapterSlugs } from "@/app/(user)/(public)/learn/_lib/progress";
 import { TEXT_LINK_CLASSES } from "@/app/_components/_lib/link-classes";
 import { createNamespaceMetadata } from "@/app/_lib/metadata";
 import { getOptionalUser } from "@/lib/auth";
 import { menuTypeToSlug } from "@/lib/db/practice-menu-types";
 import { getUserRankSlugs } from "@/lib/db/rank-queries";
-import {
-  highestRank,
-  nextRank,
-  type RankDefinition,
-} from "@/lib/ranks/registry";
+import { beltClass, beltForegroundClass } from "@/lib/ranks/belt-colors";
+import { highestRank, nextRank } from "@/lib/ranks/registry";
 
 export async function generateMetadata(): Promise<Metadata> {
   return createNamespaceMetadata("dojo", { path: "/dojo" });
-}
-
-/** 前提章をカリキュラムのセクション順にグルーピングする（表示順を保つ） */
-function groupChaptersBySection(
-  rank: RankDefinition,
-): readonly (readonly [CurriculumSection, readonly CurriculumChapter[]])[] {
-  const chapters = rank.learnChapterSlugs
-    .map(getChapterBySlug)
-    .filter((chapter) => chapter !== undefined);
-
-  return CURRICULUM_SECTIONS.map(
-    (section) =>
-      [
-        section,
-        chapters.filter((chapter) => chapter.section === section),
-      ] as const,
-  ).filter(([, sectionChapters]) => sectionChapters.length > 0);
 }
 
 export default async function DojoPage() {
@@ -85,10 +60,18 @@ export default async function DojoPage() {
         <section className="space-y-4">
           <SectionTitle>{t("currentRankTitle")}</SectionTitle>
           <div className="rounded-xl border-3 border-ink bg-white p-5 text-center">
-            <p className="text-3xl" aria-hidden="true">
-              🎓
-            </p>
-            <p className="mt-2 text-lg font-bold text-surface-900">
+            {/* 帯色そのものを面で見せる（参考プロジェクトの帯バッジ準拠）。
+                無級は淡いグレーで「まだ色が付いていない」ことを示す。 */}
+            <span
+              aria-hidden="true"
+              data-belt-slug={current?.slug ?? "unranked"}
+              className={`inline-flex size-16 items-center justify-center rounded-full border-3 border-ink ${beltClass(current?.slug)}`}
+            >
+              <AcademicCapIcon
+                className={`size-8 ${beltForegroundClass(current?.slug)}`}
+              />
+            </span>
+            <p className="mt-3 text-lg font-bold text-surface-900">
               {current ? tRanks(`names.${current.slug}`) : t("unranked")}
             </p>
             {!user && (
@@ -109,17 +92,10 @@ export default async function DojoPage() {
               <p className="text-sm leading-relaxed text-surface-500">
                 {t("chaptersLead")}
               </p>
-              <div className="space-y-6">
-                {groupChaptersBySection(next).map(([section, chapters]) => (
-                  <CurriculumToc
-                    key={section}
-                    section={section}
-                    chapters={chapters}
-                    readSlugs={readSlugs}
-                    nextSlug={undefined}
-                  />
-                ))}
-              </div>
+              <ChapterTocList
+                slugs={next.learnChapterSlugs}
+                readSlugs={readSlugs}
+              />
             </section>
 
             {next.requirements.map((requirement) => (

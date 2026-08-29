@@ -4,6 +4,7 @@ import { LinkButton } from "@/app/(user)/_components/link-button";
 import { SectionTitle } from "@/app/(user)/_components/section-title";
 import { practiceMenuBySlug } from "@/lib/db/practice-menu-types";
 import type { PracticeMenuSlug } from "@/lib/db/practice-menu-types";
+import { beltClass } from "@/lib/ranks/belt-colors";
 import { rankRequiringMenu } from "@/lib/ranks/registry";
 import { practiceHref } from "@/app/(user)/(public)/practice/_lib/practice-catalog";
 import { PlayIcon } from "@/app/(user)/_components/icons/play-icon";
@@ -41,32 +42,43 @@ export async function ExamCtaCard({ slug, lead }: ExamCtaCardProps) {
   return (
     <section className="space-y-4">
       <SectionTitle>{t("examCta.title", { rank: rankName })}</SectionTitle>
-      <div className="space-y-4 rounded-xl border-3 border-ink bg-white p-5">
-        <p className="text-sm leading-relaxed text-surface-700">
-          {lead ?? t("examCta.lead")}
-        </p>
-        <dl className="space-y-1 text-sm text-surface-700">
-          <div className="flex gap-2">
-            <dt className="shrink-0 font-bold">
-              {t("examCta.criterionLabel")}:
-            </dt>
-            <dd>{t(`criteria.${exam.rank.slug}`)}</dd>
-          </div>
-          <div className="flex gap-2">
-            <dt className="shrink-0 font-bold">{t("passConditionsTitle")}:</dt>
-            <dd>
-              {t("passConditions", {
-                timeLimit: menu.timeLimit,
-                minScore: exam.requirement.minScore,
-                mistakeLimit: menu.mistakeLimit,
-              })}
-            </dd>
-          </div>
-        </dl>
-        <LinkButton href={practiceHref(slug)} size="lg" fullWidth>
-          <PlayIcon className="size-4" />
-          {t("examCta.start")}
-        </LinkButton>
+      {/* カード上端の帯でどの級の試験かを色でも示す（参考プロジェクトの
+          ランクカード準拠）。角丸から帯をはみ出させないため overflow-hidden。 */}
+      <div className="overflow-hidden rounded-xl border-3 border-ink bg-white">
+        <div
+          aria-hidden="true"
+          data-belt-slug={exam.rank.slug}
+          className={`h-2 ${beltClass(exam.rank.slug)}`}
+        />
+        <div className="space-y-4 p-5">
+          <p className="text-sm leading-relaxed text-surface-700">
+            {lead ?? t("examCta.lead")}
+          </p>
+          <dl className="space-y-1 text-sm text-surface-700">
+            <div className="flex gap-2">
+              <dt className="shrink-0 font-bold">
+                {t("examCta.criterionLabel")}:
+              </dt>
+              <dd>{t(`criteria.${exam.rank.slug}`)}</dd>
+            </div>
+            <div className="flex gap-2">
+              <dt className="shrink-0 font-bold">
+                {t("passConditionsTitle")}:
+              </dt>
+              <dd>
+                {t("passConditions", {
+                  timeLimit: menu.timeLimit,
+                  minScore: exam.requirement.minScore,
+                  mistakeLimit: menu.mistakeLimit,
+                })}
+              </dd>
+            </div>
+          </dl>
+          <LinkButton href={practiceHref(slug)} size="lg" fullWidth>
+            <PlayIcon className="size-4" />
+            {t("examCta.start")}
+          </LinkButton>
+        </div>
       </div>
     </section>
   );
