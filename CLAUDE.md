@@ -192,7 +192,8 @@ packages/eslint-config/ — 共通 ESLint 設定（PaiForge コーディング�
 ## ルート構成
 
 ```
-/                           — LP（未ログイン）/ ダッシュボード（ログイン済み）
+/                           — LP（静的・cookie を読まない）。ログイン済みは proxy が /dashboard へ rewrite
+/dashboard                  — ダッシュボード（ログイン済みトップの実体。URL は「/」のまま表示される）
 /sign-in                    — ログイン（Google OAuth + メール）
 /sign-up                    — アカウント登録（Google OAuth + メール）
 /sign-up/verify-email       — メール確認待ち（確認メール再送機能付き）
