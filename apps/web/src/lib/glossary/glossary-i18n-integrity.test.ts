@@ -3,7 +3,12 @@ import { describe, expect, it } from "vitest";
 import messagesJson from "@/messages/ja.json";
 
 import { kanaRowOf } from "./kana";
-import { GLOSSARY_TERMS, GLOSSARY_TERM_SLUGS } from "./registry";
+import { collectTermSlugsInNamespace } from "./message-terms";
+import {
+  GLOSSARY_TERMS,
+  GLOSSARY_TERM_SLUGS,
+  isGlossaryTermSlug,
+} from "./registry";
 import { GLOSSARY_CATEGORIES } from "./types";
 
 /**
@@ -110,5 +115,20 @@ describe("関連語", () => {
       const related = term.related ?? [];
       expect(new Set(related).size, term.slug).toBe(related.length);
     }
+  });
+});
+
+describe("本文の用語マークアップ", () => {
+  /**
+   * 教本本文の `[[slug]]` は書き手が手で打つ。綴りを間違えても描画は
+   * 素のテキストに落ちて壊れないため、間違いに気づけるのはここだけ。
+   */
+  it("辞書のどこに書かれた slug も実在する", () => {
+    const unknown = Object.keys(messagesJson).flatMap((namespace) =>
+      collectTermSlugsInNamespace(namespace)
+        .filter((slug) => !isGlossaryTermSlug(slug))
+        .map((slug) => `${namespace}: ${slug}`),
+    );
+    expect(unknown).toEqual([]);
   });
 });
