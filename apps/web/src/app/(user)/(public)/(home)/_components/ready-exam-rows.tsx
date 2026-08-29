@@ -17,7 +17,7 @@ interface ReadyExamRowsProps {
  * 受験できる昇級試験への行リンク（ダッシュボード用）
  * 受験可能試験リンク
  *
- * Server Component。「教本の続き」の章の下に 1 行として置く。
+ * Server Component。「教本の続き」の末尾に 1 行として置く。
  *
  * @design 帯色のカードではなく行リンクで出す理由
  *
@@ -47,8 +47,8 @@ export async function ReadyExamRows({ slugs }: ReadyExamRowsProps) {
         <LinkRow
           key={slug}
           href={practiceHref(slug)}
-          // 道場（マイページの行リンク）と同じ帯のアイコン。すぐ上に並ぶ
-          // 教本の章の行と同じ見た目にならないよう、行頭で種類を示す
+          // 道場（マイページの行リンク）と同じ帯のアイコン。教本の章の
+          // 行と同じ見た目にならないよう、行頭で種類を示す
           leading={
             <span className="text-base" aria-hidden="true">
               🥋
