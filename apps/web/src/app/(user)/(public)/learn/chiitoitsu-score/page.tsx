@@ -17,7 +17,7 @@ export function generateMetadata() {
 
 export default function LearnChiitoitsuScorePage() {
   return (
-    <LearnPageLayout slug="chiitoitsu-score" namespace="chiitoitsuScore.learn">
+    <LearnPageLayout slug="chiitoitsu-score">
       <ChiitoitsuScoreGuide />
     </LearnPageLayout>
   );

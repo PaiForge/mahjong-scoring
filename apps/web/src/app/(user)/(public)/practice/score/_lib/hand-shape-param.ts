@@ -16,6 +16,14 @@ export const HAND_SHAPE_MENZEN = "menzen";
 /** 副露した手だけを出題することを表す URL トークン */
 export const HAND_SHAPE_FURO = "furo";
 
+/**
+ * 手の形そのもの（門前 / 副露）
+ *
+ * 絞り込み条件としての {@link HandShape} と違い「指定なし」を含まない。
+ * 教本の表のように、門前と副露のどちらかに必ず決まる文脈で使う。
+ */
+export type FixedHandShape = typeof HAND_SHAPE_MENZEN | typeof HAND_SHAPE_FURO;
+
 /** 手の形の絞り込み。undefined は絞り込みなし */
 export type HandShape =
   typeof HAND_SHAPE_MENZEN | typeof HAND_SHAPE_FURO | undefined;

@@ -6,11 +6,13 @@ import {
   DataTableRowHeaderCell,
 } from "@/app/(user)/_components/data-table";
 
+import type { FixedHandShape } from "@/app/(user)/(public)/practice/score/_lib/hand-shape-param";
+
 import { buildExtraFuRows } from "../_lib/extra-fu-rows";
 
 interface ExtraFuTableProps {
-  /** 門前手の表か（false なら副露した手の表） */
-  readonly isMenzen: boolean;
+  /** 門前手 / 副露した手のどちらの表か */
+  readonly handShape: FixedHandShape;
 }
 
 /**
@@ -21,9 +23,9 @@ interface ExtraFuTableProps {
  * 符も行のまとまりもここには書かない。読む向きは点数表と揃えて左の見出しが
  * 条件・右へ結果が伸びる形にしている。
  */
-export async function ExtraFuTable({ isMenzen }: ExtraFuTableProps) {
+export async function ExtraFuTable({ handShape }: ExtraFuTableProps) {
   const t = await getTranslations("learnCurriculum.scoreTable");
-  const rows = buildExtraFuRows(isMenzen);
+  const rows = buildExtraFuRows(handShape);
 
   return (
     <div className="w-full overflow-x-auto">

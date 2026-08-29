@@ -8,7 +8,7 @@ export function generateMetadata() {
 
 export default function LearnYakuPage() {
   return (
-    <LearnPageLayout slug="yaku" namespace="yaku.learn">
+    <LearnPageLayout slug="yaku">
       <YakuGuide />
     </LearnPageLayout>
   );

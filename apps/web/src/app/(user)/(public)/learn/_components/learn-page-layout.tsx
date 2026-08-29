@@ -7,6 +7,7 @@ import {
   getChapterBySlug,
   type CurriculumChapterSlug,
 } from "../_lib/curriculum";
+import { chapterNamespace } from "../_lib/metadata";
 import { isChapterRead } from "../_lib/progress";
 import { ChapterNav } from "./chapter-nav";
 import { ExamCtaCard } from "./exam-cta-card";
@@ -15,10 +16,8 @@ import { MarkAsReadButton } from "./mark-as-read-button";
 import { PracticeLinkList, PracticeLinkSection } from "./practice-link-card";
 
 interface LearnPageLayoutProps {
-  /** 対象章のスラッグ */
+  /** 対象章のスラッグ。辞書ネームスペースもここから導出する */
   readonly slug: CurriculumChapterSlug;
-  /** ページタイトル等の i18n ネームスペース（例: "jantouFu.learn"） */
-  readonly namespace: string;
   /** ガイドコンテンツ */
   readonly children: ReactNode;
 }
@@ -28,7 +27,7 @@ interface LearnPageLayoutProps {
  * 学習章レイアウト
  *
  * 章本文の前後に以下を描画する:
- * - ページタイトル（`{namespace}.pageTitle`）
+ * - ページタイトル（`<camelCase(slug)>.learn.pageTitle`）
  * - 章本文（children）
  * - 読了トグル（認証時）/ ログイン導線（未認証時）
  * - 対応練習へのリンク集（CURRICULUM の `practiceHrefs` を参照。0 件なら節ごと出さない）
@@ -36,11 +35,10 @@ interface LearnPageLayoutProps {
  */
 export async function LearnPageLayout({
   slug,
-  namespace,
   children,
 }: LearnPageLayoutProps) {
   const [t, tLearn] = await Promise.all([
-    getTranslations(namespace),
+    getTranslations(chapterNamespace(slug)),
     getTranslations("learnCurriculum.index"),
   ]);
   const chapter = getChapterBySlug(slug);

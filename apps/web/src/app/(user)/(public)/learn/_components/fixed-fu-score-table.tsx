@@ -1,10 +1,5 @@
 import { getTranslations } from "next-intl/server";
-import {
-  calculateKoScore,
-  calculateOyaScore,
-  isInvalidCell,
-  type Role,
-} from "@mahjong-scoring/core";
+import { type Role } from "@mahjong-scoring/core";
 
 import {
   DataTable,
@@ -13,15 +8,16 @@ import {
 } from "@/app/(user)/_components/data-table";
 import { TsumoScore } from "@/app/(user)/(public)/reference/score-table/_components/tsumo-score";
 
+import {
+  buildFixedFuRows,
+  type FixedFuTableShape,
+} from "../_lib/fixed-fu-rows";
+
 interface FixedFuScoreTableProps {
   /** 子・親のどちらの点数を表示するか */
   readonly role: Role;
-  /** ツモ和了時の符 */
-  readonly tsumoFu: number;
-  /** ロン和了時の符 */
-  readonly ronFu: number;
-  /** 列に並べる翻数（昇順） */
-  readonly hanCols: readonly number[];
+  /** 対象の役の符と翻数の並び（`_lib/fixed-fu-rows` が持つ） */
+  readonly shape: FixedFuTableShape;
 }
 
 /**
@@ -38,30 +34,16 @@ interface FixedFuScoreTableProps {
  * 直前の本文が言っており、行見出しに重ねると狭い画面で表が横に伸びるだけに
  * なる。符が1通りしかない役（七対子）でも同じ理由で行見出しは変えない。
  *
- * 存在しない符×翻の組（1翻20符・2翻25符ツモ等）は core の
- * `isInvalidCell` が判定し、"-" を出す。章ごとに翻数の下限を書き分けない。
- *
- * 切り上げ満貫は適用しない。教本は標準ルールで書き、差分はコラムで説明する
- * （連風牌を扱う雀頭の符の章と同じ方針）。
+ * 表に出す値は `_lib/fixed-fu-rows` の {@link buildFixedFuRows} が組み立てる。
+ * 存在しない組み合わせのセルは `undefined` で返るので "-" を出す。
  */
 export async function FixedFuScoreTable({
   role,
-  tsumoFu,
-  ronFu,
-  hanCols,
+  shape,
 }: FixedFuScoreTableProps) {
   const t = await getTranslations("learnCurriculum.scoreTable");
   const isKo = role === "ko";
-  const calculate = isKo ? calculateKoScore : calculateOyaScore;
-
-  const tsumoPayments = hanCols.map((han) =>
-    isInvalidCell(han, tsumoFu, "tsumo")
-      ? undefined
-      : calculate(han, tsumoFu).tsumo,
-  );
-  const ronScores = hanCols.map((han) =>
-    isInvalidCell(han, ronFu, "ron") ? undefined : calculate(han, ronFu).ron,
-  );
+  const rows = buildFixedFuRows(role, shape);
 
   return (
     <div className="space-y-2">
@@ -77,7 +59,7 @@ export async function FixedFuScoreTable({
               <DataTableHeaderCell align="left">
                 {t("colWin")}
               </DataTableHeaderCell>
-              {hanCols.map((han) => (
+              {shape.hanCols.map((han) => (
                 <DataTableHeaderCell key={han}>
                   {t("hanUnit", { value: han })}
                 </DataTableHeaderCell>
@@ -87,11 +69,11 @@ export async function FixedFuScoreTable({
         >
           <tr className="bg-white">
             <DataTableRowHeaderCell>{t("tsumo")}</DataTableRowHeaderCell>
-            {tsumoPayments.map((tsumo, index) => (
-              <td key={hanCols[index]} className="px-4 py-3">
-                {tsumo ? (
+            {rows.tsumo.map((cell) => (
+              <td key={cell.han} className="px-4 py-3">
+                {cell.score ? (
                   <span className="font-semibold text-primary-600">
-                    <TsumoScore payment={tsumo} />
+                    <TsumoScore payment={cell.score} />
                   </span>
                 ) : (
                   <span className="text-surface-400">-</span>
@@ -101,12 +83,12 @@ export async function FixedFuScoreTable({
           </tr>
           <tr className="bg-white">
             <DataTableRowHeaderCell>{t("ron")}</DataTableRowHeaderCell>
-            {ronScores.map((ron, index) => (
+            {rows.ron.map((cell) => (
               <td
-                key={hanCols[index]}
+                key={cell.han}
                 className="px-4 py-3 font-semibold text-primary-600"
               >
-                {ron ?? <span className="text-surface-400">-</span>}
+                {cell.score ?? <span className="text-surface-400">-</span>}
               </td>
             ))}
           </tr>

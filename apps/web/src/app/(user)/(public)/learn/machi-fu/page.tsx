@@ -8,7 +8,7 @@ export function generateMetadata() {
 
 export default function LearnMachiFuPage() {
   return (
-    <LearnPageLayout slug="machi-fu" namespace="machiFu.learn">
+    <LearnPageLayout slug="machi-fu">
       <MachiFuGuide />
     </LearnPageLayout>
   );

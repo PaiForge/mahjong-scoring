@@ -9,20 +9,8 @@ import {
 
 import { GuideColumn } from "../../_components/guide-column";
 import { FixedFuScoreTable } from "../../_components/fixed-fu-score-table";
+import { CHIITOITSU_SCORE_TABLE } from "../../_lib/fixed-fu-rows";
 import { GuideParagraph } from "../../_components/guide-paragraph";
-
-/**
- * 七対子の点数表の形。
- *
- * ツモ・ロンとも25符で変わらない。七対子は2翻からなので1翻の列は無く、
- * 5翻以上は符が点数に関与しなくなる（満貫以上の章が受け持つ）ため4翻まで。
- * 2翻ツモの欄が空くのは表側の `isInvalidCell` が判定する。
- */
-const CHIITOITSU_TABLE = {
-  tsumoFu: 25,
-  ronFu: 25,
-  hanCols: [2, 3, 4],
-} as const;
 
 /**
  * 七対子での点数計算 — 点数の計算セクション第1章
@@ -38,8 +26,8 @@ export async function ChiitoitsuScoreGuide() {
         <GuideParagraph preLine>{t("onePatternBody1")}</GuideParagraph>
         <GuideParagraph preLine>{t("onePatternBody2")}</GuideParagraph>
 
-        <FixedFuScoreTable role="ko" {...CHIITOITSU_TABLE} />
-        <FixedFuScoreTable role="oya" {...CHIITOITSU_TABLE} />
+        <FixedFuScoreTable role="ko" shape={CHIITOITSU_SCORE_TABLE} />
+        <FixedFuScoreTable role="oya" shape={CHIITOITSU_SCORE_TABLE} />
       </section>
 
       {/* コラム: 25符だけが10符刻みから外れている理由 */}

@@ -17,7 +17,7 @@ export function generateMetadata() {
 
 export default function LearnPinfuScorePage() {
   return (
-    <LearnPageLayout slug="pinfu-score" namespace="pinfuScore.learn">
+    <LearnPageLayout slug="pinfu-score">
       <PinfuScoreGuide />
     </LearnPageLayout>
   );

@@ -17,7 +17,7 @@ export function generateMetadata() {
 
 export default function LearnFuroScorePage() {
   return (
-    <LearnPageLayout slug="furo-score" namespace="furoScore.learn">
+    <LearnPageLayout slug="furo-score">
       <FuroScoreGuide />
     </LearnPageLayout>
   );

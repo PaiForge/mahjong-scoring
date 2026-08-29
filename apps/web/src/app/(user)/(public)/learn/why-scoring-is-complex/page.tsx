@@ -14,10 +14,7 @@ export default function LearnWhyScoringIsComplexPage() {
   return (
     <>
       <link rel="stylesheet" href={KATEX_CSS_HREF} />
-      <LearnPageLayout
-        slug="why-scoring-is-complex"
-        namespace="whyScoringIsComplex.learn"
-      >
+      <LearnPageLayout slug="why-scoring-is-complex">
         <WhyScoringIsComplexGuide />
       </LearnPageLayout>
     </>
