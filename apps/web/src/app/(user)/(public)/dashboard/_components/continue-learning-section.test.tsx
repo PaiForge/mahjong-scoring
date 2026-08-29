@@ -31,6 +31,15 @@ vi.mock("@/app/(user)/(public)/learn/_components/curriculum-toc", () => ({
   ),
 }));
 
+/**
+ * 目次リンクも async なサーバーコンポーネント。リンク先が `/learn` である
+ * ことは curriculum-toc-link.test.tsx が見るので、ここでは「セクションの
+ * どこに置かれたか」だけが分かれば足りる。
+ */
+vi.mock("@/app/(user)/(public)/learn/_components/curriculum-toc-link", () => ({
+  CurriculumTocLink: () => <a data-testid="toc-link" href="/learn" />,
+}));
+
 vi.mock(
   "@/app/(user)/(public)/learn/_components/curriculum-progress-bar",
   () => ({

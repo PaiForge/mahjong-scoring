@@ -6,6 +6,7 @@ import { practiceMenuBySlug } from "@/lib/db/practice-menu-types";
 import type { PracticeMenuSlug } from "@/lib/db/practice-menu-types";
 import {
   beltBorderClass,
+  beltButtonVarsClass,
   beltClass,
   beltForegroundClass,
 } from "@/lib/ranks/belt-colors";
@@ -79,14 +80,17 @@ export async function ExamCtaCard({ slug, lead }: ExamCtaCardProps) {
               ないため、緑 + 再生アイコンの「押して始める面」にはしない。
               白 + 右シェブロンで、詳細を見に行く導線であることを示す。
 
-              variant は secondary ではなく quiet。secondary も白地だが枠と
+              variant は secondary ではなく belt。secondary も白地だが枠と
               影が ink（緑）で、帯色で縁取ったこのカードの上では緑が
-              その級の色と競合して浮く。 */}
+              その級の色と競合して浮く。belt はその枠・影・文字を
+              `beltButtonVarsClass` が立てた級の色で塗るため、5級のカードなら
+              ボタンもオレンジになり、カードとボタンが同じ級の持ち物に見える。 */}
           <LinkButton
             href={practiceHref(slug)}
-            variant="quiet"
+            variant="belt"
             size="lg"
             fullWidth
+            className={beltButtonVarsClass(exam.rank.slug)}
           >
             {t("examCta.viewExam")}
             <ChevronRightIcon className="size-4" />

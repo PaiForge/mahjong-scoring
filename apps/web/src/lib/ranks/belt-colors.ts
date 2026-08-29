@@ -14,6 +14,18 @@ interface BeltColorClasses {
   readonly bg: string;
   /** 帯色でカードを縁取るときの枠 */
   readonly border: string;
+  /**
+   * 帯色のボタン（`buttonClasses({ variant: "belt" })`）が読む CSS 変数。
+   *
+   * ボタンは枠・文字・影・hover の 4 箇所を帯色で塗り分けるため、クラスを
+   * 4 本並べると級が増えるたびに 4 箇所へ同じ色を書くことになる。どこを
+   * どう塗るかはボタン側の知識なので、ここは色の値だけを変数で渡す。
+   *
+   * - `--belt-line` 枠とハードシャドウ（帯そのものの色）
+   * - `--belt-text` 白地に載せる文字（線と同じ色では細い字が読みにくい）
+   * - `--belt-tint` hover の淡い塗り
+   */
+  readonly buttonVars: string;
 }
 
 /**
@@ -36,8 +48,18 @@ interface BeltColorClasses {
  * （`SECTION_CATEGORY_COLOR_CLASS`）と同じ扱いで、同じ書き方に揃えている。
  */
 export const RANK_BELT_CLASSES: Readonly<Record<RankSlug, BeltColorClasses>> = {
-  "kyu-5": { bg: "bg-orange-500", border: "border-orange-500" },
-  "kyu-4": { bg: "bg-blue-500", border: "border-blue-500" },
+  "kyu-5": {
+    bg: "bg-orange-500",
+    border: "border-orange-500",
+    buttonVars:
+      "[--belt-line:var(--color-orange-500)] [--belt-text:var(--color-orange-700)] [--belt-tint:var(--color-orange-50)]",
+  },
+  "kyu-4": {
+    bg: "bg-blue-500",
+    border: "border-blue-500",
+    buttonVars:
+      "[--belt-line:var(--color-blue-500)] [--belt-text:var(--color-blue-700)] [--belt-tint:var(--color-blue-50)]",
+  },
 };
 
 /**
@@ -49,6 +71,10 @@ export const RANK_BELT_CLASSES: Readonly<Record<RankSlug, BeltColorClasses>> = {
 const UNRANKED_BELT_CLASSES: BeltColorClasses = {
   bg: "bg-surface-200",
   border: "border-surface-300",
+  // 塗りと枠が別の濃さなのは、淡いグレーの円を淡いグレーで縁取ると輪郭が
+  // 消えるため。ボタンは線を枠の側（surface-300）に合わせる
+  buttonVars:
+    "[--belt-line:var(--color-surface-300)] [--belt-text:var(--color-surface-700)] [--belt-tint:var(--color-surface-50)]",
 };
 
 function classesFor(slug: RankSlug | undefined): BeltColorClasses {
@@ -88,4 +114,18 @@ export function beltBorderClass(slug: RankSlug | undefined): string {
  */
 export function beltForegroundClass(slug: RankSlug | undefined): string {
   return slug === undefined ? "text-surface-500" : "text-white";
+}
+
+/**
+ * 帯色のボタン（`buttonClasses({ variant: "belt" })`）に渡す CSS 変数のクラス。
+ * 帯ボタン色
+ *
+ * ボタン自身の `className` に添えて使う。色・枠・影を上書きするクラスでは
+ * なく変数の定義だけなので、「className で色を上書きしない」という約束は
+ * 破っていない — 何をどう塗るかは `belt` variant が持ったままになる。
+ *
+ * @param slug 段級位スラッグ。未取得なら undefined
+ */
+export function beltButtonVarsClass(slug: RankSlug | undefined): string {
+  return classesFor(slug).buttonVars;
 }
