@@ -6,7 +6,10 @@ import {
   parseTehai,
 } from "@mahjong-scoring/core";
 
-import { parseTotalFuResults, toQuestionResult } from "../types";
+import {
+  parseFuQuestionResults,
+  toFuQuestionResult,
+} from "../fu-question-result";
 
 /** 保存形式として妥当な結果データ */
 const validResult = {
@@ -24,38 +27,38 @@ const validResult = {
   ],
 };
 
-describe("parseTotalFuResults", () => {
+describe("parseFuQuestionResults", () => {
   it("有効な JSON 文字列をパースできる", () => {
-    const results = parseTotalFuResults(JSON.stringify([validResult]));
+    const results = parseFuQuestionResults(JSON.stringify([validResult]));
     expect(results).toHaveLength(1);
     expect(results[0]).toEqual(validResult);
   });
 
   it("空配列の JSON 文字列は空配列を返す", () => {
-    expect(parseTotalFuResults("[]")).toEqual([]);
+    expect(parseFuQuestionResults("[]")).toEqual([]);
   });
 
   it("undefined は空配列を返す", () => {
-    expect(parseTotalFuResults(undefined)).toEqual([]);
+    expect(parseFuQuestionResults(undefined)).toEqual([]);
   });
 
   it("壊れた JSON は空配列を返す", () => {
-    expect(parseTotalFuResults("{")).toEqual([]);
+    expect(parseFuQuestionResults("{")).toEqual([]);
   });
 
   it("必須フィールドを欠く要素は除外する", () => {
     const { correctFu: _omitted, ...missingFu } = validResult;
     const raw = JSON.stringify([validResult, missingFu]);
-    expect(parseTotalFuResults(raw)).toHaveLength(1);
+    expect(parseFuQuestionResults(raw)).toHaveLength(1);
   });
 
   it("fuDetails の形が違う要素は除外する", () => {
     const broken = { ...validResult, fuDetails: [{ reason: "副底" }] };
-    expect(parseTotalFuResults(JSON.stringify([broken]))).toEqual([]);
+    expect(parseFuQuestionResults(JSON.stringify([broken]))).toEqual([]);
   });
 });
 
-describe("toQuestionResult", () => {
+describe("toFuQuestionResult", () => {
   /** 生成できるまで試す（牌の残数不足で undefined を返しうるため） */
   function generate() {
     for (let i = 0; i < 100; i++) {
@@ -67,19 +70,19 @@ describe("toQuestionResult", () => {
 
   it("出題を保存形式に変換し、パースを通過する", () => {
     const question = generate();
-    const result = toQuestionResult(question, question.answer);
+    const result = toFuQuestionResult(question, question.answer);
 
     expect(result.isCorrect).toBe(true);
     expect(result.correctFu).toBe(question.answer);
 
-    const parsed = parseTotalFuResults(JSON.stringify([result]));
+    const parsed = parseFuQuestionResults(JSON.stringify([result]));
     expect(parsed).toHaveLength(1);
   });
 
   it("保存形式から出題内容（手牌・風・和了牌）を復元できる", () => {
     // 結果ページはこの復元に依存して手牌を再表示する。
     const question = generate();
-    const result = toQuestionResult(question, 20);
+    const result = toFuQuestionResult(question, 20);
 
     const tehai = parseTehai(result.tehai);
     expect(tehai).toBeDefined();
@@ -94,7 +97,7 @@ describe("toQuestionResult", () => {
   it("正解と異なる符を渡すと不正解として記録する", () => {
     const question = generate();
     const wrongFu = question.answer === 20 ? 110 : 20;
-    const result = toQuestionResult(question, wrongFu);
+    const result = toFuQuestionResult(question, wrongFu);
 
     expect(result.isCorrect).toBe(false);
     expect(result.userFu).toBe(wrongFu);
