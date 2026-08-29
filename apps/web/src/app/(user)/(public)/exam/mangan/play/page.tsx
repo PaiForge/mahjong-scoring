@@ -1,4 +1,3 @@
-import { Suspense } from "react";
 import type { Metadata } from "next";
 import { createPracticePlayMetadata } from "@/app/(user)/(public)/practice/_lib/metadata";
 import { ManganExamPlayView } from "../_components/mangan-exam-play-view";
@@ -23,9 +22,5 @@ export async function generateMetadata(): Promise<Metadata> {
  * 5. スコアを保存し、result ページへリダイレクト
  */
 export default function ManganExamPlayPage() {
-  return (
-    <Suspense>
-      <ManganExamPlayView />
-    </Suspense>
-  );
+  return <ManganExamPlayView />;
 }
