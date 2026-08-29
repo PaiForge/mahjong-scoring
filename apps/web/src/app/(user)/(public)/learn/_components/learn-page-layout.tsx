@@ -70,6 +70,7 @@ export async function LearnPageLayout({
         <GlossaryTermModalProvider
           terms={termPreviews}
           viewDetailsLabel={tGlossary("viewDetails")}
+          turnOffLabel={tGlossary("turnOffTermLinks")}
           closeLabel={tGlossary("closeLabel")}
         >
           {children}

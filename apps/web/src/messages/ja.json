@@ -33,6 +33,8 @@
     "displaySectionTitle": "表示",
     "doraDisplayTitle": "ドラそのものを表示する",
     "doraDisplayDescription": "出題のドラを、表示牌ではなくドラそのもので表示します。\nオフのときは実際の麻雀と同じくドラ表示牌を表示します。",
+    "termLinksTitle": "教本の用語にリンクをつける",
+    "termLinksDescription": "教本の本文に出てくる麻雀用語をリンクにして、\nタップすると意味を確認できるようにします。\nオフのときはリンクにせず、そのままの文章で表示します。",
     "privacySectionTitle": "プライバシー",
     "leaderboardVisibilityTitle": "ランキングに表示しない",
     "leaderboardVisibilityDescription": "オンにすると、ランキングにあなたの名前と成績が表示されなくなります。\n成績の記録は残るので、オフに戻せば順位も元どおりです。",
@@ -760,6 +762,7 @@
     "learnTitle": "この用語が出てくる章",
     "readingLabel": "読み",
     "viewDetails": "用語ページを見る",
+    "turnOffTermLinks": "用語リンクをオフにする",
     "closeLabel": "閉じる",
     "backToIndex": "用語集へ戻る",
     "categories": {
