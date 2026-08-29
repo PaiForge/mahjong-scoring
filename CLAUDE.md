@@ -146,6 +146,16 @@ packages/eslint-config/ — 共通 ESLint 設定（PaiForge コーディング�
 - 複数の子ルートを 1 枚で受けるときは `practice/_components/practice-loading.tsx` のように
   `usePathname()` で振り分ける。index ページだけ固有にしたいときは page.tsx と loading.tsx を
   route group に退避する（`mypage/(home)`, `practice/(index)`, `admin/(dashboard)`）
+- **祖先に loading.tsx があると `notFound()` は 404 を返さない** — Suspense の
+  フォールバックを流し始めた時点でヘッダが確定するため、ページ本体でも
+  `generateMetadata` でも `notFound()` はソフト 404（200）になる（2026-08 に
+  本番ビルドで実測）。slug を事前に列挙できるルートは
+  `generateStaticParams` + `export const dynamicParams = false` で弾くこと。
+  未知の slug がページを描画する前にルーティングで落ちるため、本物の 404 に
+  なる（`/reference/glossary/[slug]` 参照）。列挙できない DB 由来のルート
+  （`/announcements/[slug]`, `/u/[username]`）は 200 のまま残るが、Next が
+  not-found の描画に `<meta name="robots" content="noindex">` を自動で入れる
+  ため索引はされない。ページ側で noindex を足す必要はない
 - ドロップダウン等のメニュー内 `<Link>` は閉じている間も mount したままにする（`invisible` + `inert`）。
   開くまで unmount しているとプリフェッチが開いてから始まり、すぐ押すとサーバ応答まで無反応になる。
   Next 16 の Segment Cache では動的ルートの prefetch に 2 往復（`/_tree` → loading 境界）かかる。
