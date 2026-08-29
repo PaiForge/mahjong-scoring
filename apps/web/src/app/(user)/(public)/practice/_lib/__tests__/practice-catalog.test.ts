@@ -20,6 +20,7 @@ import {
   practiceMenusByCategory,
   practiceSlugFromHref,
   practiceTitleKey,
+  rankExamHref,
 } from "../practice-catalog";
 
 describe("PRACTICE_CATALOG", () => {
@@ -98,12 +99,29 @@ describe("段級位との対応", () => {
     }
   });
 
-  it("段級位名が辞書に存在する", () => {
+  it("段級位ピルの行き先はその級の昇級試験", () => {
+    // カードが「4級」と名乗る以上、押した先も 4級 の話をしていること。
+    expect(rankExamHref("kyu-4")).toBe("/exam/fu");
+    expect(rankExamHref("kyu-5")).toBe("/exam/mangan");
+  });
+
+  it("段級位ピルの行き先は、その級を要件に持つ試験のカタログ上のパスと一致する", () => {
+    // 試験の URL を直書きせずレジストリの要件から引いていることを固定する
+    for (const menu of PRACTICE_CATALOG) {
+      if (!isExamMenu(menu.slug) || menu.rank === undefined) continue;
+      expect(rankExamHref(menu.rank), `${menu.slug}`).toBe(
+        practiceHref(menu.slug),
+      );
+    }
+  });
+
+  it("段級位名とリンクの読み上げ文が辞書に存在する", () => {
     const names: Record<string, string> = messages.ranks.names;
     for (const menu of PRACTICE_CATALOG) {
       if (menu.rank === undefined) continue;
       expect(names[menu.rank], `${menu.slug}`).toBeTruthy();
     }
+    expect(messages.ranks.examLink).toContain("{rank}");
   });
 });
 

@@ -1,10 +1,11 @@
 import type { CurriculumChapterSlug } from "@/app/(user)/(public)/learn/_lib/curriculum";
 import {
   isPracticeMenuSlug,
+  menuTypeToSlug,
   practiceMenuBySlug,
   type PracticeMenuSlug,
 } from "@/lib/db/practice-menu-types";
-import type { RankSlug } from "@/lib/ranks/registry";
+import { RANK_REGISTRY, type RankSlug } from "@/lib/ranks/registry";
 import { PRACTICE_SETUP_HASH } from "./scroll-anchor";
 
 /**
@@ -181,6 +182,31 @@ export function practiceMenusByCategory(
  */
 export function practiceHref(slug: PracticeMenuSlug): string {
   return practiceMenuBySlug(slug).basePath;
+}
+
+/**
+ * 段級位のピルを押した先 — その級の昇級試験の説明ページ
+ * 段級位の行き先
+ *
+ * 練習カードの段級位ピルが「4級」と名乗っている以上、押した先はその級の
+ * 話をしていなければならない。このアプリで級そのものを説明している場所は
+ * 試験の説明ページで、合格条件と出題形式がそこに揃っている（道場は
+ * 「次に取る級」しか出さないため、5級を持たない人が4級のピルを押すと
+ * 5級の話に着地してしまう）。
+ *
+ * 要件を 2 つ以上持つ級は、どの試験が「その級のページ」なのか決められない
+ * ため道場へ送る。現行の級はどちらも試験 1 つで、その分岐には入らない。
+ *
+ * @param slug 段級位スラッグ
+ */
+export function rankExamHref(slug: RankSlug): string {
+  const rank = RANK_REGISTRY.find((entry) => entry.slug === slug);
+  const exams = (rank?.requirements ?? []).filter(
+    (requirement) => requirement.type === "challenge_score",
+  );
+  const [only] = exams;
+  if (only === undefined || exams.length > 1) return "/dojo";
+  return practiceHref(menuTypeToSlug(only.menuType));
 }
 
 /** 練習のプレイページのパス */

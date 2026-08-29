@@ -14,6 +14,7 @@ import { createNamespaceMetadata } from "@/app/_lib/metadata";
 import { ComprehensivePracticeBanner } from "../_components/comprehensive-practice-banner";
 import { PracticeCard } from "../_components/practice-card";
 import { PracticeCategorySection } from "../_components/practice-category-section";
+import { practiceCardRank } from "../_lib/practice-card-rank";
 import {
   practiceDescriptionKey,
   practiceHref,
@@ -37,11 +38,7 @@ function renderPracticeCards(
       href={practiceHref(practice.slug)}
       title={t(practiceTitleKey(practice.slug))}
       description={t(practiceDescriptionKey(practice.slug))}
-      rank={
-        practice.rank
-          ? { slug: practice.rank, label: tRanks(`names.${practice.rank}`) }
-          : undefined
-      }
+      rank={practiceCardRank(practice.rank, tRanks)}
       startLabel={t("start")}
       learnHref={
         practice.learnChapter ? chapterHref(practice.learnChapter) : undefined

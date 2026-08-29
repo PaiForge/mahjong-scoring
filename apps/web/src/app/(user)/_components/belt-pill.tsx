@@ -12,6 +12,12 @@ interface BeltPillProps {
   readonly label: string;
   /** 指定するとリンクになる。押した先は段級位の説明が読める場所 */
   readonly href?: string;
+  /**
+   * リンクにしたときのアクセシブル名。級名だけでは行き先が読めない場所
+   * （練習カードの中に「4級」とだけ書かれた pill が置かれている等）で
+   * 「4級 昇級試験」のように補う。可視ラベルの級名を含めること。
+   */
+  readonly ariaLabel?: string;
 }
 
 const PILL_CLASSES =
@@ -32,7 +38,7 @@ const PILL_CLASSES =
  * ない。枠の ink は緑で、帯色の pill を縁取ると緑の輪が帯の一部に見え、
  * 5級（オレンジ）が「緑帯」に読めてしまう。
  */
-export function BeltPill({ slug, label, href }: BeltPillProps) {
+export function BeltPill({ slug, label, href, ariaLabel }: BeltPillProps) {
   const className = `${PILL_CLASSES} ${beltClass(slug)} ${beltForegroundClass(slug)}`;
 
   if (href === undefined) {
@@ -47,6 +53,7 @@ export function BeltPill({ slug, label, href }: BeltPillProps) {
   return (
     <Link
       href={href}
+      aria-label={ariaLabel}
       data-belt-slug={slug}
       className={`${className} transition-opacity hover:opacity-85`}
     >

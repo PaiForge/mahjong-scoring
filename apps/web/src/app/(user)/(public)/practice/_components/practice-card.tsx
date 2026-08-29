@@ -13,8 +13,17 @@ interface PracticeCardProps {
    * その練習が身につける段級位。どの級の範囲にも入らない練習は undefined で、
    * ピルを出さない（「級なし」を表すラベルは出さない — 空白のままの方が、
    * 級を持つカードの側が読み取りやすい）。
+   *
+   * ピルは押せる。「この練習は4級のため」と名乗っておいて 4級 が何なのかを
+   * 見に行けないと、ラベルが飾りになる。行き先は `rankExamHref`。
    */
-  rank?: { readonly slug: RankSlug; readonly label: string };
+  rank?: {
+    readonly slug: RankSlug;
+    readonly label: string;
+    readonly href: string;
+    /** リンクのアクセシブル名（「4級 昇級試験」） */
+    readonly ariaLabel: string;
+  };
   startLabel: string;
   learnHref?: string;
   learnLabel?: string;
@@ -34,7 +43,14 @@ export function PracticeCard({
       <div>
         <div className="flex items-start justify-between gap-2">
           <h3 className="text-base font-bold text-surface-900">{title}</h3>
-          {rank && <BeltPill slug={rank.slug} label={rank.label} />}
+          {rank && (
+            <BeltPill
+              slug={rank.slug}
+              label={rank.label}
+              href={rank.href}
+              ariaLabel={rank.ariaLabel}
+            />
+          )}
         </div>
         <p className="mt-2 text-sm font-medium text-surface-500">
           {description}
