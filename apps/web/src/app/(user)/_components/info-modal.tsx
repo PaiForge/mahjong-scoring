@@ -1,5 +1,7 @@
 "use client";
 
+import type { ReactNode } from "react";
+
 import { Button } from "./button";
 import { ModalShell } from "@/app/_components/modal-shell";
 
@@ -9,6 +11,11 @@ interface InfoModalProps {
   readonly title: string;
   readonly closeLabel: string;
   readonly children: React.ReactNode;
+  /**
+   * 閉じるボタンの下に置く補足。本文でも主要動作でもない出口
+   * （設定への導線など）を、閉じるボタンより前に割り込ませないための場所。
+   */
+  readonly footnote?: ReactNode;
 }
 
 /**
@@ -23,6 +30,7 @@ export function InfoModal({
   title,
   closeLabel,
   children,
+  footnote,
 }: InfoModalProps) {
   return (
     <ModalShell isOpen={isOpen} onClose={onClose} label={title}>
@@ -33,6 +41,7 @@ export function InfoModal({
           {closeLabel}
         </Button>
       </div>
+      {footnote !== undefined && <div className="text-xs">{footnote}</div>}
     </ModalShell>
   );
 }

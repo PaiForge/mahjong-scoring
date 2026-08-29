@@ -91,6 +91,16 @@ export function GlossaryTermModalProvider({
         onClose={() => setActiveSlug(undefined)}
         title={active?.term ?? ""}
         closeLabel={closeLabel}
+        footnote={
+          // 主役は語の意味なので、「用語ページを見る」と同じ強さで並べない。
+          // 閉じるボタンの下に小さく置き、探している人にだけ見つかる大きさにする
+          <Link
+            href={preferencesHref(PREFERENCE_ANCHORS.termLinks)}
+            className={TEXT_LINK_CLASSES}
+          >
+            {turnOffLabel}
+          </Link>
+        }
       >
         {active !== undefined && (
           <div className="space-y-3">
@@ -117,16 +127,6 @@ export function GlossaryTermModalProvider({
             <Link href={active.href} className={TEXT_LINK_CLASSES}>
               {viewDetailsLabel}
             </Link>
-            {/* 主役は語の意味なので、「詳しく見る」と同じ強さで並べない。
-                区切ってひとまわり小さくし、探している人にだけ見つかる大きさにする */}
-            <div className="border-t-2 border-surface-100 pt-3">
-              <Link
-                href={preferencesHref(PREFERENCE_ANCHORS.termLinks)}
-                className={`text-xs ${TEXT_LINK_CLASSES}`}
-              >
-                {turnOffLabel}
-              </Link>
-            </div>
           </div>
         )}
       </InfoModal>
