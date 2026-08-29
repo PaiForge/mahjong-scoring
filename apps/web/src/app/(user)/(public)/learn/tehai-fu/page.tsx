@@ -8,7 +8,7 @@ export function generateMetadata() {
 
 export default function LearnTehaiFuPage() {
   return (
-    <LearnPageLayout slug="tehai-fu" namespace="tehaiFu.learn">
+    <LearnPageLayout slug="tehai-fu">
       <TehaiFuGuide />
     </LearnPageLayout>
   );

@@ -8,7 +8,7 @@ export function generateMetadata() {
 
 export default function LearnManganKoTsumoPage() {
   return (
-    <LearnPageLayout slug="mangan-ko-tsumo" namespace="manganKoTsumo.learn">
+    <LearnPageLayout slug="mangan-ko-tsumo">
       <ManganKoTsumoGuide />
     </LearnPageLayout>
   );

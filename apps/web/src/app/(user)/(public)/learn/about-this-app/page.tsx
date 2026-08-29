@@ -8,7 +8,7 @@ export function generateMetadata() {
 
 export default function LearnAboutThisAppPage() {
   return (
-    <LearnPageLayout slug="about-this-app" namespace="aboutThisApp.learn">
+    <LearnPageLayout slug="about-this-app">
       <AboutThisAppGuide />
     </LearnPageLayout>
   );

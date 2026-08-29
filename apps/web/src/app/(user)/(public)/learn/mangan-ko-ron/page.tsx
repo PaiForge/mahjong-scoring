@@ -8,7 +8,7 @@ export function generateMetadata() {
 
 export default function LearnManganKoRonPage() {
   return (
-    <LearnPageLayout slug="mangan-ko-ron" namespace="manganKoRon.learn">
+    <LearnPageLayout slug="mangan-ko-ron">
       <ManganKoRonGuide />
     </LearnPageLayout>
   );

@@ -8,7 +8,7 @@ export function generateMetadata() {
 
 export default function LearnJantouFuPage() {
   return (
-    <LearnPageLayout slug="jantou-fu" namespace="jantouFu.learn">
+    <LearnPageLayout slug="jantou-fu">
       <JantouFuGuide />
     </LearnPageLayout>
   );

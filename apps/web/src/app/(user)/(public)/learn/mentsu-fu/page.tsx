@@ -8,7 +8,7 @@ export function generateMetadata() {
 
 export default function LearnMentsuFuPage() {
   return (
-    <LearnPageLayout slug="mentsu-fu" namespace="mentsuFu.learn">
+    <LearnPageLayout slug="mentsu-fu">
       <MentsuFuGuide />
     </LearnPageLayout>
   );

@@ -17,10 +17,7 @@ export function generateMetadata() {
 
 export default function LearnMenzenMentsuScorePage() {
   return (
-    <LearnPageLayout
-      slug="menzen-mentsu-score"
-      namespace="menzenMentsuScore.learn"
-    >
+    <LearnPageLayout slug="menzen-mentsu-score">
       <MenzenMentsuScoreGuide />
     </LearnPageLayout>
   );
