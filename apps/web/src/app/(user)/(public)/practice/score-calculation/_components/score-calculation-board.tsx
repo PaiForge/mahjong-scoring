@@ -4,7 +4,6 @@ import { useMemo } from "react";
 import { QuestionGeneratingPlaceholder } from "../../_components/question-generating-placeholder";
 import { useTranslations } from "next-intl";
 import { useRuleSettingsStore } from "@/app/_hooks/use-rule-settings-store";
-import { FeedbackFrame } from "../../_components/feedback-frame";
 import { RevealedScoreAnswer } from "../../_components/revealed-score-answer";
 import { paymentToScoreTableAnswer } from "../../_lib/payment-adapter";
 import { useScoreQuestionBoard } from "../../_hooks/use-score-question-board";
@@ -13,20 +12,23 @@ import { ScoreCalculationAnswerForm } from "./score-calculation-answer-form";
 import type { ScoreCalculationQuestionResult } from "../_lib/types";
 import type { RecordingPracticeBoardProps } from "../../_lib/practice-board-props";
 
-interface ScoreCalculationBoardProps extends RecordingPracticeBoardProps<ScoreCalculationQuestionResult> {
-  /** 直前の回答が正解だったか（フィードバック枠の色分けに使用） */
-  readonly lastAnswerCorrect?: boolean;
-}
+type ScoreCalculationBoardProps =
+  RecordingPracticeBoardProps<ScoreCalculationQuestionResult>;
 
 /**
  * 点数計算の出題盤面（手牌の提示と点数の回答）
  *
  * 出題状態と回答ロジックを内包し、チャレンジ・トレーニング両モードで共有する。
+ *
+ * 盤面は他の練習（`HanCountBoard` 等）と同じく、フィードバック枠で囲まずに
+ * 単体で置く。囲むと盤面自身の枠と二重になり、狭い画面ではそのぶん手牌が
+ * 小さくなる。正誤はチャレンジではライフ表示と正解/不正解カウンタが、
+ * トレーニングでは `TrainingShell` のカウンタが示す。
  */
 export function ScoreCalculationBoard({
   showFeedback,
   isCountingDown = false,
-  lastAnswerCorrect,
+  isTraining = false,
   onAnswer,
   onRecordResult,
 }: ScoreCalculationBoardProps) {
@@ -51,21 +53,19 @@ export function ScoreCalculationBoard({
   }
 
   return (
-    <div className="mt-6 space-y-6">
+    <div className="space-y-6">
       {/* Question display */}
-      <FeedbackFrame
-        showFeedback={showFeedback}
-        lastAnswerCorrect={lastAnswerCorrect}
-      >
-        <QuestionDisplay question={question} />
+      <QuestionDisplay
+        question={question}
+        mobileFrame={isTraining ? "fullBleedFlushTop" : "fullBleed"}
+      />
 
-        {isRevealed && (
-          <RevealedScoreAnswer
-            answer={paymentToScoreTableAnswer(question.answer.payment)}
-            translationNamespace="scoreCalculationChallenge"
-          />
-        )}
-      </FeedbackFrame>
+      {isRevealed && (
+        <RevealedScoreAnswer
+          answer={paymentToScoreTableAnswer(question.answer.payment)}
+          translationNamespace="scoreCalculationChallenge"
+        />
+      )}
 
       {/* Answer form */}
       <ScoreCalculationAnswerForm
