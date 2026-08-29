@@ -97,6 +97,7 @@ describe("section grouping", () => {
       "chiitoitsu-score",
       "pinfu-score",
       "menzen-mentsu-score",
+      "furo-score",
     ]);
   });
 });

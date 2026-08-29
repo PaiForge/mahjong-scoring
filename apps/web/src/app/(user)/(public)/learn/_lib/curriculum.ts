@@ -178,6 +178,14 @@ const CURRICULUM_REGISTRY = [
     // menzen-mentsu-score-guide.tsx の CTA）
     i18nKey: "learnCurriculum.chapters.menzenMentsuScore",
   },
+  {
+    slug: "furo-score",
+    section: "score",
+    order: 100,
+    // 点数の計算セクションの他の章と同じ理由で practiceHrefs を持たない
+    // （導線は furo-score-guide.tsx の CTA）
+    i18nKey: "learnCurriculum.chapters.furoScore",
+  },
 ] as const satisfies readonly CurriculumChapterEntry[];
 
 /** 章スラッグ — `/learn/<slug>` の slug 部分に対応 */
