@@ -69,7 +69,7 @@ export async function MenzenMentsuScoreGuide() {
         </h2>
         <PracticeLinkButton
           href={scorePracticePlayHref({
-            menzenOnly: true,
+            handShape: "menzen",
             ranges: ["nonMangan"],
           })}
           label={t("practiceCta")}

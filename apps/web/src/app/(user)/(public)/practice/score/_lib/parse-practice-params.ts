@@ -4,7 +4,12 @@ import type {
 } from "@mahjong-scoring/core";
 
 import { RANGE_PARAM, parseRangeValues } from "../../_lib/range-params";
-import { MENZEN_PARAM, parseMenzenOnly } from "./menzen-param";
+import {
+  HAND_SHAPE_FURO,
+  HAND_SHAPE_MENZEN,
+  HAND_SHAPE_PARAM,
+  parseHandShape,
+} from "./hand-shape-param";
 import { YAKU_PARAM, parseYakuValues } from "./yaku-filter-params";
 
 /**
@@ -14,7 +19,7 @@ import { YAKU_PARAM, parseYakuValues } from "./yaku-filter-params";
  * - `ranges`: "non" / "plus" の複数指定。未指定時は両方
  * - `roles`: "oya" / "ko" の複数指定。未指定時は両方
  * - `yaku`: 出題役トークンの複数指定（OR）。未指定時は絞り込みなし
- * - `menzen`: "1" で門前手だけに絞る。未指定時は副露ありも出す
+ * - `hand`: "menzen" / "furo" で手の形を絞る。未指定時は両方出す
  */
 export function parseGeneratorOptionsFromParams(
   params: URLSearchParams,
@@ -25,6 +30,7 @@ export function parseGeneratorOptionsFromParams(
   | "includeChild"
   | "requiredYaku"
   | "includeFuro"
+  | "requireFuro"
 > {
   const ranges = parseRangeValues(params.getAll(RANGE_PARAM));
   const allowedRanges: ScoreRange[] = [];
@@ -40,13 +46,15 @@ export function parseGeneratorOptionsFromParams(
   }
 
   const requiredYaku = parseYakuValues(params.getAll(YAKU_PARAM));
+  const handShape = parseHandShape(params.get(HAND_SHAPE_PARAM));
 
   return {
     allowedRanges,
     includeParent,
     includeChild,
     // requiredYaku と同じく、未指定でも明示的に既定値へ戻す
-    includeFuro: !parseMenzenOnly(params.get(MENZEN_PARAM)),
+    includeFuro: handShape !== HAND_SHAPE_MENZEN,
+    requireFuro: handShape === HAND_SHAPE_FURO,
     // 未指定は undefined で明示的に上書きする（store の setOptions はマージの
     // ため、キーを省略すると前回セッションの絞り込みが残る）
     requiredYaku: requiredYaku.length > 0 ? requiredYaku : undefined,
