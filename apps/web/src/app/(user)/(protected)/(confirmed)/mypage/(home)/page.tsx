@@ -10,6 +10,7 @@ import Link from "next/link";
 import { getTranslations } from "next-intl/server";
 
 import { ContentContainer } from "@/app/(user)/_components/content-container";
+import { BeltIcon } from "@/app/(user)/_components/icons/belt-icon";
 import { LinkRow, LinkRowList } from "@/app/(user)/_components/link-row";
 import { PageTitle } from "@/app/(user)/_components/page-title";
 import { UserAvatar } from "@/app/(user)/_components/user-avatar";
@@ -66,10 +67,10 @@ export default async function MyPage() {
       summary: t("cards.challenges.summary"),
     },
     {
-      // \u6BB5\u7D1A\u4F4D\u3092\u6301\u305F\u306A\u3044\u30E6\u30FC\u30B6\u30FC\u306B\u3082\u9053\u5834\u306E\u5B58\u5728\u3092\u77E5\u3089\u305B\u308B\u5C0E\u7DDA
-      // \uFF08\u30D8\u30C3\u30C0\u306E\u6BB5\u7D1A\u4F4D\u30D0\u30C3\u30B8\u306F\u53D6\u5F97\u6E08\u307F\u306E\u3068\u304D\u3057\u304B\u51FA\u306A\u3044\uFF09
+      // 段級位を持たないユーザーにも道場の存在を知らせる導線
+      // （ヘッダの段級位バッジは取得済みのときしか出ない）
       href: "/dojo",
-      icon: "\uD83C\uDF93",
+      icon: "\uD83E\uDD4B",
       title: t("cards.dojo.title"),
       summary: t("cards.dojo.summary"),
     },
@@ -99,7 +100,7 @@ export default async function MyPage() {
                   data-belt-slug={currentRank.slug}
                   className={`inline-flex shrink-0 items-center gap-1 rounded-full border-2 border-ink px-2.5 py-0.5 text-xs font-bold transition-opacity hover:opacity-85 ${beltClass(currentRank.slug)} ${beltForegroundClass(currentRank.slug)}`}
                 >
-                  <span aria-hidden="true">🎓</span>
+                  <BeltIcon className="size-3.5" />
                   {tRanks(`names.${currentRank.slug}`)}
                 </Link>
               )}

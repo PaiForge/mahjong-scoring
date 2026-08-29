@@ -17,7 +17,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { getTranslations } from "next-intl/server";
 
-import { AcademicCapIcon } from "@/app/(user)/_components/icons/academic-cap-icon";
+import { BeltBadge } from "@/app/(user)/_components/belt-badge";
 import { ContentContainer } from "@/app/(user)/_components/content-container";
 import { PageTitle } from "@/app/(user)/_components/page-title";
 import { SectionTitle } from "@/app/(user)/_components/section-title";
@@ -29,7 +29,6 @@ import { createNamespaceMetadata } from "@/app/_lib/metadata";
 import { getOptionalUser } from "@/lib/auth";
 import { menuTypeToSlug } from "@/lib/db/practice-menu-types";
 import { getUserRankSlugs } from "@/lib/db/rank-queries";
-import { beltClass, beltForegroundClass } from "@/lib/ranks/belt-colors";
 import { highestRank, nextRank } from "@/lib/ranks/registry";
 
 export async function generateMetadata(): Promise<Metadata> {
@@ -60,17 +59,7 @@ export default async function DojoPage() {
         <section className="space-y-4">
           <SectionTitle>{t("currentRankTitle")}</SectionTitle>
           <div className="rounded-xl border-3 border-ink bg-white p-5 text-center">
-            {/* 帯色そのものを面で見せる（参考プロジェクトの帯バッジ準拠）。
-                無級は淡いグレーで「まだ色が付いていない」ことを示す。 */}
-            <span
-              aria-hidden="true"
-              data-belt-slug={current?.slug ?? "unranked"}
-              className={`inline-flex size-16 items-center justify-center rounded-full border-3 border-ink ${beltClass(current?.slug)}`}
-            >
-              <AcademicCapIcon
-                className={`size-8 ${beltForegroundClass(current?.slug)}`}
-              />
-            </span>
+            <BeltBadge slug={current?.slug} size="lg" />
             <p className="mt-3 text-lg font-bold text-surface-900">
               {current ? tRanks(`names.${current.slug}`) : t("unranked")}
             </p>

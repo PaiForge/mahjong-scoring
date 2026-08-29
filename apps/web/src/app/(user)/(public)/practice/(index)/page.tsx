@@ -82,7 +82,7 @@ export default async function PracticePage() {
             href="/dojo"
             leading={
               <span className="text-base" aria-hidden="true">
-                🎓
+                🥋
               </span>
             }
             title={t("dojoRow.title")}
