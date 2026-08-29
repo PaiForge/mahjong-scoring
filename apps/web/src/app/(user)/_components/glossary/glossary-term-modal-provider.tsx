@@ -8,6 +8,10 @@ import { InfoModal } from "@/app/(user)/_components/info-modal";
 import { TileSet } from "@/app/(user)/_components/tile-set";
 import { TEXT_LINK_CLASSES } from "@/app/_components/_lib/link-classes";
 import type { GlossaryTermPreview } from "@/lib/glossary/queries";
+import {
+  PREFERENCE_ANCHORS,
+  preferencesHref,
+} from "@/app/(user)/(public)/preferences/_lib/anchors";
 
 interface TermModalContextValue {
   /** slug の用語を開く。未知の slug なら何もしない */
@@ -35,6 +39,8 @@ interface GlossaryTermModalProviderProps {
   /** 配下がリンクしている用語のプレビュー（slug をキーにする） */
   readonly terms: Readonly<Record<string, GlossaryTermPreview>>;
   readonly viewDetailsLabel: string;
+  /** 用語リンクを切る設定への導線の文言 */
+  readonly turnOffLabel: string;
   readonly closeLabel: string;
   readonly children: ReactNode;
 }
@@ -49,10 +55,17 @@ const MANY_TILES_THRESHOLD = 7;
  * リンクごとにモーダルを持たず、リンクは `openTerm(slug)` を投げるだけに
  * する。表示するデータは SSR の HTML に埋まっているため、開くのに
  * クライアントからの往復が要らない。
+ *
+ * 用語リンクを切る設定への導線もここに置く。リンクが邪魔だと感じるのは
+ * たいてい意図せずモーダルが開いた瞬間で、設定ページを自分から見に行く
+ * 読者しか辿り着けない状態では、いちばん困っている人に届かないため。
+ * その場で切らずに設定ページへ送るのは、設定が会員限定（未ログインでは
+ * 操作できない）で、切った後に戻す場所と揃わなくなるから。
  */
 export function GlossaryTermModalProvider({
   terms,
   viewDetailsLabel,
+  turnOffLabel,
   closeLabel,
   children,
 }: GlossaryTermModalProviderProps) {
@@ -104,6 +117,16 @@ export function GlossaryTermModalProvider({
             <Link href={active.href} className={TEXT_LINK_CLASSES}>
               {viewDetailsLabel}
             </Link>
+            {/* 主役は語の意味なので、「詳しく見る」と同じ強さで並べない。
+                区切ってひとまわり小さくし、探している人にだけ見つかる大きさにする */}
+            <div className="border-t-2 border-surface-100 pt-3">
+              <Link
+                href={preferencesHref(PREFERENCE_ANCHORS.termLinks)}
+                className={`text-xs ${TEXT_LINK_CLASSES}`}
+              >
+                {turnOffLabel}
+              </Link>
+            </div>
           </div>
         )}
       </InfoModal>
