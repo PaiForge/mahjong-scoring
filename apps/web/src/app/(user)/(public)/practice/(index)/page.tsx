@@ -10,7 +10,6 @@ import { chapterHref } from "@/app/(user)/(public)/learn/_lib/curriculum";
 import { ContentContainer } from "@/app/(user)/_components/content-container";
 import { LinkRow, LinkRowList } from "@/app/(user)/_components/link-row";
 import { PageTitle } from "@/app/(user)/_components/page-title";
-import { SectionTitle } from "@/app/(user)/_components/section-title";
 import { createNamespaceMetadata } from "@/app/_lib/metadata";
 import { ComprehensivePracticeBanner } from "../_components/comprehensive-practice-banner";
 import { PracticeCard } from "../_components/practice-card";
@@ -63,8 +62,9 @@ export default async function PracticePage() {
       <PageTitle>{t("title")}</PageTitle>
 
       <div className="space-y-8">
-        <SectionTitle>{t("menuTitle")}</SectionTitle>
-
+        {/* 総合演習には見出しを付けない。バナー自身が名前を持っており、
+            ここに h2 を足すと下のカテゴリ見出しと同じ pill が入れ子に並んで
+            「符の計算・翻数・点数計算が総合演習の下位」に見えてしまう。 */}
         <ComprehensivePracticeBanner />
 
         <div className="space-y-10">
