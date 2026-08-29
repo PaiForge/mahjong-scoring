@@ -1,5 +1,10 @@
 import { mentsuTehaiFu } from "@mahjong-scoring/core";
 
+import {
+  HAND_SHAPE_MENZEN,
+  type FixedHandShape,
+} from "@/app/(user)/(public)/practice/score/_lib/hand-shape-param";
+
 /**
  * 表に並べる「積み上げた符」の上限。
  * 60符ロン（積み上げ22〜30符）まで見せれば規則は伝わるため28符で止める。
@@ -30,13 +35,14 @@ export interface ExtraFuRow {
  * 副露の0符は食い平和形で、こちらは特例ではなく規則どおりの30符になるため
  * 表に含める。
  *
- * @param isMenzen 門前手の表か（false なら副露した手の表）
+ * @param handShape 門前手 / 副露した手のどちらの表か
  * @param maxExtraFu 表に並べる積み上げ符の上限
  */
 export function buildExtraFuRows(
-  isMenzen: boolean,
+  handShape: FixedHandShape,
   maxExtraFu: number = MAX_EXTRA_FU,
 ): readonly ExtraFuRow[] {
+  const isMenzen = handShape === HAND_SHAPE_MENZEN;
   const rows: ExtraFuRow[] = [];
   for (let extraFu = isMenzen ? 2 : 0; extraFu <= maxExtraFu; extraFu += 2) {
     const tsumoFu = mentsuTehaiFu(extraFu, { winType: "tsumo", isMenzen });

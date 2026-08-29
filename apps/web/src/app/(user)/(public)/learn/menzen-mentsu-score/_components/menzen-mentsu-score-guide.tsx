@@ -34,7 +34,7 @@ export async function MenzenMentsuScoreGuide() {
         <GuideParagraph preLine>{t("roundBody1")}</GuideParagraph>
         <GuideParagraph preLine>{t("roundBody2")}</GuideParagraph>
 
-        <ExtraFuTable isMenzen />
+        <ExtraFuTable handShape="menzen" />
 
         <GuideParagraph preLine>{t("roundBody3")}</GuideParagraph>
         <GuideParagraph preLine>{t("roundBody4")}</GuideParagraph>

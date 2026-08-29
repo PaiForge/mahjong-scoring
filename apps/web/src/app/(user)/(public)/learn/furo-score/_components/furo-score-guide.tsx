@@ -34,7 +34,7 @@ export async function FuroScoreGuide() {
         <GuideParagraph preLine>{t("roundBody1")}</GuideParagraph>
         <GuideParagraph preLine>{t("roundBody2")}</GuideParagraph>
 
-        <ExtraFuTable isMenzen={false} />
+        <ExtraFuTable handShape="furo" />
 
         <GuideParagraph preLine>{t("roundBody3")}</GuideParagraph>
       </section>
