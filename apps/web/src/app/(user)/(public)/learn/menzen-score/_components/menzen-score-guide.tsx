@@ -9,7 +9,7 @@ import { GuideParagraph } from "../../_components/guide-paragraph";
 import { ExtraFuTable } from "./extra-fu-table";
 
 /**
- * 門前のその他の手の点数計算 — 点数の計算セクション第3章
+ * 平和・七対子以外の門前手の点数計算 — 点数の計算セクション第3章
  */
 export async function MenzenScoreGuide() {
   const [t, tChapter] = await Promise.all([
