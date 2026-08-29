@@ -17,15 +17,7 @@ import { GuideColumn } from "../../_components/guide-column";
 import { GuideNote } from "../../_components/guide-note";
 import { GuideParagraph } from "../../_components/guide-paragraph";
 import { FixedFuScoreTable } from "../../_components/fixed-fu-score-table";
-
-/**
- * ピンフの点数表の形。
- *
- * ツモは副底20符のまま（ツモ符が乗らない）、ロンは門前ロンの加符が乗って
- * 30符。5翻以上は符が点数に関与しなくなる（満貫以上の章が受け持つ）ため
- * 4翻まで。1翻ツモの欄が空くのは表側の `isInvalidCell` が判定する。
- */
-const PINFU_TABLE = { tsumoFu: 20, ronFu: 30, hanCols: [1, 2, 3, 4] } as const;
+import { PINFU_SCORE_TABLE } from "../../_lib/fixed-fu-rows";
 
 /**
  * 平和での点数計算 — 点数の計算セクション第2章
@@ -41,8 +33,8 @@ export async function PinfuScoreGuide() {
         <GuideParagraph preLine>{t("twoPatternsBody1")}</GuideParagraph>
         <GuideParagraph preLine>{t("twoPatternsBody2")}</GuideParagraph>
 
-        <FixedFuScoreTable role="ko" {...PINFU_TABLE} />
-        <FixedFuScoreTable role="oya" {...PINFU_TABLE} />
+        <FixedFuScoreTable role="ko" shape={PINFU_SCORE_TABLE} />
+        <FixedFuScoreTable role="oya" shape={PINFU_SCORE_TABLE} />
 
         <GuideParagraph preLine>{t("twoPatternsBody3")}</GuideParagraph>
       </section>
