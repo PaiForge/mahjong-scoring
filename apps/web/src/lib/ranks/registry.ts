@@ -44,7 +44,14 @@ export interface ChallengeScoreRequirement {
   readonly type: "challenge_score";
   readonly menuType: PracticeMenuType;
   readonly leaderboardKey: string;
-  /** 合格に必要な正解数（制限時間内） */
+  /**
+   * 合格に必要な正解数（制限時間内）
+   *
+   * 判定はベストスコアとの比較なので、合格点に達した後のミスで終了した走行も
+   * 合格になる（10 問正解した直後の 11 問目でミスして終了 → スコア 10 →
+   * 合格）。「制限時間内に合格点まで正解した」という条件をそのまま表しており、
+   * 意図した挙動。
+   */
   readonly minScore: number;
 }
 
