@@ -6,8 +6,17 @@
  * 教本の章へ送る導線を持つ。文言は辞書（`glossary.terms.<slug>`）、構造は
  * 用語レジストリ（`lib/glossary/registry.ts`）が持つ。
  *
- * 全 slug を `generateStaticParams` で列挙して静的生成する。レジストリに
- * 無い slug は 404。
+ * 全 slug を `generateStaticParams` で列挙して静的生成し、`dynamicParams` を
+ * 切って「列挙した slug 以外は存在しない」ことを Next に伝える。用語は
+ * コードのレジストリが唯一の出所なので、実行時に増えることはない。
+ *
+ * @design dynamicParams = false — 本物の 404 を返すために要る
+ * 祖先に `loading.tsx` があるルートでは、ページ本体で `notFound()` を呼んでも
+ * ステータスは 200 になる。Suspense のフォールバックを流し始める時点で
+ * ヘッダが確定してしまうためで、`generateMetadata` 側で `notFound()` を
+ * 呼んでも変わらない（2026-08 に本番ビルドで実測）。`dynamicParams` を
+ * 切ると、未知の slug はページを描画する前にルーティングで弾かれるので、
+ * ソフト 404 にならずに 404 が返る。
  *
  * @flow
  * 用語集（/reference/glossary）の一覧、教本本文の用語リンクから開いた
@@ -40,6 +49,8 @@ interface GlossaryTermPageProps {
   readonly params: Promise<{ readonly slug: string }>;
 }
 
+export const dynamicParams = false;
+
 export function generateStaticParams(): { slug: string }[] {
   return GLOSSARY_TERM_SLUGS.map((slug) => ({ slug }));
 }
@@ -49,6 +60,9 @@ export async function generateMetadata({
 }: GlossaryTermPageProps): Promise<Metadata> {
   const { slug } = await params;
   const term = await getGlossaryTermViewBySlug(slug);
+  // 本番では dynamicParams = false が未知の slug をここへ通さない。
+  // 開発サーバーは列挙を無視して描画するため、その場合だけここを通る
+  // （本文が notFound() を呼び、Next が noindex を付けた 404 を描く）。
   if (!term) return {};
 
   return createMetadata({
