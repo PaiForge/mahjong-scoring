@@ -10,6 +10,7 @@ import Link from "next/link";
 import { getTranslations } from "next-intl/server";
 
 import { ContentContainer } from "@/app/(user)/_components/content-container";
+import { BeltIcon } from "@/app/(user)/_components/icons/belt-icon";
 import { LinkRow, LinkRowList } from "@/app/(user)/_components/link-row";
 import { PageTitle } from "@/app/(user)/_components/page-title";
 import { UserAvatar } from "@/app/(user)/_components/user-avatar";
@@ -18,6 +19,7 @@ import { requireConfirmedUser } from "@/lib/auth";
 import { getProfileCardByUserId } from "@/lib/db/queries";
 import { getExpHeatmapData } from "@/lib/db/get-exp-heatmap-data";
 import { getUserRankSlugs } from "@/lib/db/rank-queries";
+import { beltClass, beltForegroundClass } from "@/lib/ranks/belt-colors";
 import { highestRank } from "@/lib/ranks/registry";
 
 import { ExpActivityHeatmap } from "./_components/exp-activity-heatmap";
@@ -64,6 +66,14 @@ export default async function MyPage() {
       title: t("cards.challenges.title"),
       summary: t("cards.challenges.summary"),
     },
+    {
+      // 段級位を持たないユーザーにも道場の存在を知らせる導線
+      // （ヘッダの段級位バッジは取得済みのときしか出ない）
+      href: "/dojo",
+      icon: "\uD83E\uDD4B",
+      title: t("cards.dojo.title"),
+      summary: t("cards.dojo.summary"),
+    },
   ];
 
   return (
@@ -82,12 +92,19 @@ export default async function MyPage() {
               <h2 className="min-w-0 truncate text-lg font-semibold text-foreground">
                 {profileName || t("pageTitle")}
               </h2>
-              {/* 達成済みの最上位段級位。未達成なら何も出さない */}
+              {/* 達成済みの最上位段級位。未達成なら何も出さない。
+                  押すと道場（段級位のホーム）へ */}
               {currentRank && (
-                <span className="inline-flex shrink-0 items-center gap-1 rounded-full border-2 border-ink bg-amber-100 px-2.5 py-0.5 text-xs font-bold text-surface-900">
-                  <span aria-hidden="true">🎓</span>
+                <Link
+                  href="/dojo"
+                  data-belt-slug={currentRank.slug}
+                  // 帯バッジと同じ理由で ink の枠を付けない（緑の輪が帯色に
+                  // 混ざって見える）
+                  className={`inline-flex shrink-0 items-center gap-1 rounded-full px-2.5 py-0.5 text-xs font-bold transition-opacity hover:opacity-85 ${beltClass(currentRank.slug)} ${beltForegroundClass(currentRank.slug)}`}
+                >
+                  <BeltIcon className="size-3.5" />
                   {tRanks(`names.${currentRank.slug}`)}
-                </span>
+                </Link>
               )}
             </div>
             {profile?.username && (

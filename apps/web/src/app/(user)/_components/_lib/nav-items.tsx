@@ -1,3 +1,4 @@
+import { BeltIcon } from "../icons/belt-icon";
 import { DumbbellIcon } from "../icons/dumbbell-icon";
 import { BookIcon } from "../icons/book-icon";
 import { TableIcon } from "../icons/table-icon";
@@ -38,6 +39,7 @@ export const TAB_BAR_NAV_ITEMS: readonly NavItemDef[] = [
 export const DRAWER_NAV_ITEMS: readonly NavItemDef[] = [
   { href: "/practice", labelKey: "practice", icon: <DumbbellIcon /> },
   { href: "/learn", labelKey: "learn", icon: <BookIcon /> },
+  { href: "/dojo", labelKey: "dojo", icon: <BeltIcon /> },
   { href: "/reference", labelKey: "reference", icon: <TableIcon /> },
   { href: "/leaderboard", labelKey: "leaderboard", icon: <ChartIcon /> },
   { href: "/preferences", labelKey: "settings", icon: <SettingsIcon /> },

@@ -8,6 +8,7 @@
     "home": "ホーム",
     "practice": "練習",
     "learn": "教本",
+    "dojo": "道場",
     "scoreTable": "点数表",
     "reference": "早見表",
     "leaderboard": "ランキング",
@@ -150,6 +151,7 @@
     "continueLearningTitle": "教本の続き",
     "viewAllChapters": "目次へ",
     "recommendedPracticeTitle": "おすすめの練習",
+    "examReadyLead": "前提となる教本の章を読み終えました。昇級試験に挑戦できます。",
     "comprehensivePracticeHint": "教本も練習もひととおり終えました。総合演習で仕上げましょう。",
     "viewAllPractices": "練習一覧へ",
     "todayPractice": "今日の練習",
@@ -245,6 +247,10 @@
         "description": "役の表示なしで手牌から翻数を数え、満貫以上の点数を答える試験形式のチャレンジ。ミスは1回まで"
       }
     },
+    "dojoRow": {
+      "title": "昇級試験は道場で",
+      "description": "段級位の確認と昇級試験への挑戦は道場から"
+    },
     "comprehensiveBanner": {
       "title": "点数計算総合演習",
       "description": "翻数・役・符・点数全てをチェックできる問題に好きなだけ回答できます。麻雀の点数計算の総合練習として最適です。"
@@ -266,6 +272,7 @@
     "retryButton": "もう一度",
     "changeSettingsButton": "設定を変更する",
     "backToList": "練習一覧に戻る",
+    "backToDojo": "道場に戻る",
     "ready": "準備はいいですか？",
     "readyDescription": "制限時間 {timeLimit} 秒以内にできるだけ多くの問題に正解してください。{mistakeLimit} 回間違えると終了です。",
     "resultSectionTitle": "結果",
@@ -1558,6 +1565,10 @@
       "challenges": {
         "title": "マイレコード",
         "summary": "チャレンジモードの成績を確認できます"
+      },
+      "dojo": {
+        "title": "道場",
+        "summary": "段級位の確認と昇級試験への挑戦"
       }
     },
     "heatmap": {
@@ -1869,7 +1880,7 @@
       "hanCount": "🔢",
       "yakuHan": "🎴",
       "manganScoreCalculation": "💰",
-      "manganExam": "🎓"
+      "manganExam": "🥋"
     },
     "rankLabel": "{rank} 位",
     "notRanked": "未挑戦",
@@ -2004,6 +2015,20 @@
       "incorrect": "不正解"
     }
   },
+  "dojo": {
+    "title": "道場",
+    "description": "麻雀の点数計算の段級位制。昇級試験に合格して段級位を取得しましょう。",
+    "lead": "昇級試験に合格すると段級位が授与されます。教本で知識を身につけてから挑戦しましょう。",
+    "currentRankTitle": "現在の段級位",
+    "unranked": "無級",
+    "signInNote": "昇級を記録するにはアカウントが必要です。",
+    "signInLink": "ログインはこちら",
+    "chaptersTitle": "前提となる教本の章",
+    "chaptersLead": "昇級試験に必要な知識はこの章で身につきます。",
+    "examLead": "前提の章の内容を身につけたら、昇級試験に挑戦しましょう。",
+    "comingSoonTitle": "次の段級位",
+    "comingSoon": "取得できる段級位はすべて取得済みです。新しい段級位は準備中です。"
+  },
   "ranks": {
     "names": {
       "kyu-5": "5級"
@@ -2019,9 +2044,9 @@
       "title": "{rank} 昇級試験",
       "lead": "この章の内容を身につけたら、昇級試験に挑戦しましょう。",
       "criterionLabel": "合格基準",
-      "start": "試験を受ける"
+      "viewExam": "試験の内容を見る"
     },
-    "passConditionsTitle": "合格条件",
+    "rankPassConditionsTitle": "{rank} 合格条件",
     "passConditions": "制限時間{timeLimit}秒以内に{minScore}問正解で合格（ミス{mistakeLimit}回で終了）"
   },
   "manganExamChallenge": {

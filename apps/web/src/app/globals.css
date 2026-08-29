@@ -212,6 +212,11 @@
  * ボタン・カードなど「影が付いていて押せるもの」に付与する。
  * サフィックスは組み合わせる shadow-* に合わせる（press-md なら shadow-md）。
  * hover:bg-* と併用することが多いので background-color も一緒に遷移させる。
+ *
+ * 影の色は既定で ink だが、`--press-shadow-color` を要素側で立てると
+ * そちらが勝つ。枠を ink 以外にしたボタン（`buttonClasses` の quiet）は
+ * 静止時の `--skin-shadow-*` と併せてこれも差し替える — 片方だけ変えると
+ * hover / active の一瞬だけ緑の影に戻る。
  */
 @utility press-sm {
   transition:
@@ -221,12 +226,12 @@
 
   &:hover:not(:disabled) {
     transform: translate(2px, 2px);
-    box-shadow: 1px 1px 0 var(--color-ink);
+    box-shadow: 1px 1px 0 var(--press-shadow-color, var(--color-ink));
   }
 
   &:active:not(:disabled) {
     transform: translate(3px, 3px);
-    box-shadow: 0 0 0 var(--color-ink);
+    box-shadow: 0 0 0 var(--press-shadow-color, var(--color-ink));
   }
 
   @media (prefers-reduced-motion: reduce) {
@@ -242,12 +247,12 @@
 
   &:hover:not(:disabled) {
     transform: translate(2px, 2px);
-    box-shadow: 2px 2px 0 var(--color-ink);
+    box-shadow: 2px 2px 0 var(--press-shadow-color, var(--color-ink));
   }
 
   &:active:not(:disabled) {
     transform: translate(4px, 4px);
-    box-shadow: 0 0 0 var(--color-ink);
+    box-shadow: 0 0 0 var(--press-shadow-color, var(--color-ink));
   }
 
   @media (prefers-reduced-motion: reduce) {
@@ -263,12 +268,12 @@
 
   &:hover:not(:disabled) {
     transform: translate(3px, 3px);
-    box-shadow: 3px 3px 0 var(--color-ink);
+    box-shadow: 3px 3px 0 var(--press-shadow-color, var(--color-ink));
   }
 
   &:active:not(:disabled) {
     transform: translate(6px, 6px);
-    box-shadow: 0 0 0 var(--color-ink);
+    box-shadow: 0 0 0 var(--press-shadow-color, var(--color-ink));
   }
 
   @media (prefers-reduced-motion: reduce) {

@@ -4,10 +4,11 @@ import { PracticeStartCta } from "./practice-start-cta";
 import { buildPracticeStartCtaLabels } from "../_lib/practice-start-cta-labels";
 import Link from "next/link";
 import { getTranslations } from "next-intl/server";
-import { CurriculumToc } from "@/app/(user)/(public)/learn/_components/curriculum-toc";
+import { ChapterTocList } from "@/app/(user)/(public)/learn/_components/chapter-toc-list";
 import { TEXT_LINK_CLASSES } from "@/app/_components/_lib/link-classes";
-import { getChapterBySlug } from "@/app/(user)/(public)/learn/_lib/curriculum";
+import type { CurriculumChapterSlug } from "@/app/(user)/(public)/learn/_lib/curriculum";
 import type { PracticeMenuSlug } from "@/lib/db/practice-menu-types";
+import { rankRequiringMenu } from "@/lib/ranks/registry";
 import { ContentContainer } from "@/app/(user)/_components/content-container";
 import { PageTitle } from "@/app/(user)/_components/page-title";
 import { SectionTitle } from "@/app/(user)/_components/section-title";
@@ -15,6 +16,7 @@ import { LinkButton } from "@/app/(user)/_components/link-button";
 import { PlayIcon } from "@/app/(user)/_components/icons/play-icon";
 import { practiceMenuBySlug } from "@/lib/db/practice-menu-types";
 import {
+  isExamMenu,
   practiceMenuFromCatalog,
   practicePlayHref,
   practiceTrainingHref,
@@ -55,13 +57,18 @@ const NO_READ_SLUGS: ReadonlySet<string> = new Set();
  * 練習説明共通
  *
  * @remarks
- * 「関連する教本の章」の教本リンクはカタログの `learnChapter` から引く。練習ページ側で
- * パスを渡したり表示可否を切り替えたりはしない（章との対応はカタログが正典）。
- * 見た目は目次（`CurriculumToc`）をそのまま使い、ダッシュボードの「教本の続き」
- * や `/learn` と同じ書式に揃える。ただし「次はここから」バッジは練習からの
- * 導線では意味を持たないため出さない（`nextSlug` を渡さない）。
- * 章タイトル・説明文もカリキュラム側の文言をそのまま使うため、練習ごとの
- * リンク文言は持たない。
+ * 教本の章のセクションは、練習と昇級試験で見出しも中身の出どころも変わる。
+ *
+ * - 通常の練習は「関連する教本の章」。カタログの `learnChapter` が持つ 1 章で、
+ *   読んでおくと解きやすいという程度の関係
+ * - 昇級試験は「前提となる教本の章」。合格に必要な知識の全体なので、
+ *   段級位レジストリがそのランクに宣言した章をすべて出す（1 章ではない）。
+ *   道場が出す前提章と同じ集合・同じ見出しで、出どころも同じレジストリ
+ *
+ * どちらも練習ページ側でパスを渡したり表示可否を切り替えたりはしない。
+ * 見た目は目次（`ChapterTocList`）をそのまま使い、ダッシュボードの
+ * 「教本の続き」や `/learn` と同じ書式に揃える。章タイトル・説明文も
+ * カリキュラム側の文言をそのまま使うため、練習ごとのリンク文言は持たない。
  */
 export async function PracticeIntroContent({
   namespace,
@@ -70,22 +77,34 @@ export async function PracticeIntroContent({
   howToPlay,
   notice,
 }: PracticeIntroContentProps) {
-  // 前提知識となる章はカタログが持つ。専用の章を持たない練習では
-  // 「関連する教本の章」セクションごと出さない。
-  const learnChapter = practiceMenuFromCatalog(slug)?.learnChapter;
-  const chapter = learnChapter ? getChapterBySlug(learnChapter) : undefined;
   const t = await getTranslations(namespace);
   const tc = await getTranslations("challenge");
   const tp = await getTranslations("practice");
   const tt = await getTranslations("training");
+  const tDojo = await getTranslations("dojo");
+  const isExam = isExamMenu(slug);
+  // 昇級試験は練習一覧のカードにならず道場から入るため、親も道場にする
+  const parent = isExam
+    ? { label: tDojo("title"), href: "/dojo" }
+    : { label: tp("title"), href: "/practice" };
+
+  // 昇級試験は段級位レジストリの前提章をすべて、通常の練習はカタログの
+  // 関連章 1 件を出す。どちらも持たない練習ではセクションごと出さない。
+  // 見出しは道場と同じ文言を引く（同じ集合を別の名前で呼ばないため）。
+  const examRank = isExam
+    ? rankRequiringMenu(practiceMenuBySlug(slug).menuType)?.rank
+    : undefined;
+  const chapterSlugs: readonly CurriculumChapterSlug[] = examRank
+    ? examRank.learnChapterSlugs
+    : ([practiceMenuFromCatalog(slug)?.learnChapter].filter(
+        (chapterSlug) => chapterSlug !== undefined,
+      ) as readonly CurriculumChapterSlug[]);
+  const chaptersTitle = examRank
+    ? tDojo("chaptersTitle")
+    : tp("requiredKnowledge");
 
   return (
-    <ContentContainer
-      breadcrumb={[
-        { label: tp("title"), href: "/practice" },
-        { label: t("title") },
-      ]}
-    >
+    <ContentContainer breadcrumb={[parent, { label: t("title") }]}>
       <PageTitle>{t("title")}</PageTitle>
       {/* カード内のセクション間マージンは space-y で等間隔に統一する */}
       <div className="space-y-8">
@@ -125,15 +144,10 @@ export async function PracticeIntroContent({
           </LinkButton>
         )}
 
-        {chapter && (
+        {chapterSlugs.length > 0 && (
           <div className="space-y-3">
-            <SectionTitle>{tp("requiredKnowledge")}</SectionTitle>
-            <CurriculumToc
-              section={chapter.section}
-              chapters={[chapter]}
-              readSlugs={NO_READ_SLUGS}
-              nextSlug={undefined}
-            />
+            <SectionTitle>{chaptersTitle}</SectionTitle>
+            <ChapterTocList slugs={chapterSlugs} readSlugs={NO_READ_SLUGS} />
             {/* ダッシュボードの「教本の続き」と同じ、右端に置く目次への導線。
                 見出しが「教本の章」と言い切っているため、ここも向こうと同じく
                 「目次へ」で何の目次かが伝わる。 */}

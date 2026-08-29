@@ -1,8 +1,9 @@
 import { describe, expect, it } from "vitest";
 
 import messagesJson from "@/messages/ja.json";
+import { CURRICULUM } from "@/app/(user)/(public)/learn/_lib/curriculum";
 import { practiceMenuByType } from "@/lib/db/practice-menu-types";
-import { RANK_REGISTRY, RANK_SLUGS, isRankSlug } from "../registry";
+import { RANK_REGISTRY, RANK_SLUGS, isRankSlug, nextRank } from "../registry";
 
 describe("RANK_REGISTRY", () => {
   it("slug が一意である", () => {
@@ -33,6 +34,34 @@ describe("RANK_REGISTRY", () => {
     expect(requirement.menuType).toBe("mangan_exam");
     expect(requirement.minScore).toBe(10);
     expect(practiceMenuByType(requirement.menuType).mistakeLimit).toBe(1);
+  });
+
+  it("前提章がカリキュラムの表示順で並んでいる（道場がそのまま描画する）", () => {
+    const orderBySlug = new Map(
+      CURRICULUM.map((chapter) => [chapter.slug, chapter.order]),
+    );
+    for (const rank of RANK_REGISTRY) {
+      const orders = rank.learnChapterSlugs.map((slug) =>
+        orderBySlug.get(slug)!,
+      );
+      expect(orders, `${rank.slug} の前提章がカリキュラム順でない`).toEqual(
+        [...orders].sort((a, b) => a - b),
+      );
+      expect(
+        new Set(rank.learnChapterSlugs).size,
+        `${rank.slug} の前提章が重複している`,
+      ).toBe(rank.learnChapterSlugs.length);
+    }
+  });
+});
+
+describe("nextRank", () => {
+  it("未達成なら最下位のランクを返す", () => {
+    expect(nextRank([])?.slug).toBe("kyu-5");
+  });
+
+  it("全ランク達成済みなら undefined", () => {
+    expect(nextRank(RANK_SLUGS)).toBeUndefined();
   });
 });
 

@@ -1,3 +1,4 @@
+import type { CurriculumChapterSlug } from "@/app/(user)/(public)/learn/_lib/curriculum";
 import type { PracticeMenuType } from "@/lib/db/practice-menu-types";
 
 /**
@@ -67,6 +68,16 @@ interface RankDefinitionEntry {
   readonly level: number;
   /** すべて満たすと昇級（暗黙の AND） */
   readonly requirements: readonly RankRequirement[];
+  /**
+   * 受験前に読んでおく教本の章（カリキュラムの表示順で並べる）。
+   * 前提章
+   *
+   * 道場ページが「前提となる教本の章」として表示する。章側の `examSlug`
+   * （章末に試験 CTA を出す章）とは向きが違う関係で、互いの逆写像ではない —
+   * 試験 CTA は前提知識が揃う最後の章にだけ出すが、前提章はそれより前の
+   * 章も含む（5級なら満貫セクションの4章 + 役の章）。
+   */
+  readonly learnChapterSlugs: readonly CurriculumChapterSlug[];
 }
 
 /**
@@ -88,6 +99,13 @@ export const RANK_REGISTRY = [
         // 練習レジストリの mistakeLimit が強制する）
         minScore: 10,
       },
+    ],
+    learnChapterSlugs: [
+      "mangan-ko-ron",
+      "mangan-oya-ron",
+      "mangan-ko-tsumo",
+      "mangan-oya-tsumo",
+      "yaku",
     ],
   },
 ] as const satisfies readonly RankDefinitionEntry[];
@@ -122,6 +140,20 @@ export function highestRank(
   const achieved = new Set<string>(slugs);
   // RANK_REGISTRY は level 昇順のため、後ろから最初に見つかったものが最上位
   return [...RANK_REGISTRY].reverse().find((rank) => achieved.has(rank.slug));
+}
+
+/**
+ * 次に目指す段級位（level 昇順で最初の未達成ランク）を返す
+ * 次の段級位取得
+ *
+ * 道場ページが「次の目標」を表示するのに使う。全ランク達成済みなら
+ * undefined（道場は「新しい段級位は準備中」を出す）。
+ */
+export function nextRank(
+  slugs: readonly RankSlug[],
+): RankDefinition | undefined {
+  const achieved = new Set<string>(slugs);
+  return RANK_REGISTRY.find((rank) => !achieved.has(rank.slug));
 }
 
 /**

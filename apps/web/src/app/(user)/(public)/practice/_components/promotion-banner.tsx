@@ -1,8 +1,9 @@
 import { getTranslations } from "next-intl/server";
 
+import { BeltBadge } from "@/app/(user)/_components/belt-badge";
 import { getOptionalUser } from "@/lib/auth";
 import { getUserRankSlugs } from "@/lib/db/rank-queries";
-import type { RankSlug } from "@/lib/ranks/registry";
+import { highestRank, type RankSlug } from "@/lib/ranks/registry";
 
 interface PromotionBannerProps {
   /** URL クエリ由来の昇級候補スラッグ（表示前に user_ranks と突き合わせる） */
@@ -34,10 +35,9 @@ export async function PromotionBanner({ slugs }: PromotionBannerProps) {
       aria-live="polite"
       className="rounded-xl border-3 border-ink bg-primary-50 p-5 text-center"
     >
-      <p className="text-3xl" aria-hidden="true">
-        🎓
-      </p>
-      <h2 className="mt-2 text-lg font-bold text-primary-800">
+      {/* 授与された段級位の帯。複数同時に付与されうるため最上位の色で出す */}
+      <BeltBadge slug={highestRank(verified)?.slug} />
+      <h2 className="mt-3 text-lg font-bold text-primary-800">
         {t("promotion.title")}
       </h2>
       <div className="mt-1 space-y-0.5">

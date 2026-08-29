@@ -4,7 +4,10 @@ import { useTranslations } from "next-intl";
 import type { PracticeMenuSlug } from "@/lib/db/practice-menu-types";
 import { practiceMenuBySlug } from "@/lib/db/practice-menu-types";
 import { practiceHref } from "../_lib/practice-catalog";
-import { buildResultBreadcrumb } from "../_lib/result-breadcrumb";
+import {
+  buildResultBreadcrumb,
+  resultBreadcrumbParent,
+} from "../_lib/result-breadcrumb";
 import { ResultPageSkeleton } from "./result-page-skeleton";
 
 interface Props {
@@ -29,9 +32,11 @@ interface Props {
  */
 export function PracticeResultLoadingFallback({ slug }: Props) {
   const { namespace, hasProblemList, hasSetup } = practiceMenuBySlug(slug);
+  // 親一覧（練習一覧 or 道場）。実描画の ResultView と同じ判定で揃える
+  const parent = resultBreadcrumbParent(practiceHref(slug));
   const t = useTranslations(namespace);
   const tc = useTranslations("challenge");
-  const tp = useTranslations("practice");
+  const tParent = useTranslations(parent.namespace);
   const searchParams = useSearchParams();
   const practiceTitle = t("title");
   const total = Number(searchParams.get("total") ?? 0);
@@ -41,7 +46,8 @@ export function PracticeResultLoadingFallback({ slug }: Props) {
     <ResultPageSkeleton
       practiceTitle={practiceTitle}
       breadcrumb={buildResultBreadcrumb({
-        practiceListLabel: tp("title"),
+        parentLabel: tParent("title"),
+        parentHref: parent.href,
         practiceTitle,
         resultLabel: tc("resultSuffix"),
         introHref: practiceHref(slug),

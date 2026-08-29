@@ -35,7 +35,9 @@ export interface PracticeMenu {
   readonly category: PracticeCategory;
   readonly difficulty: PracticeDifficulty;
   /**
-   * 前提知識となる教本の章。専用の章を持たない練習（翻数即答など）は undefined。
+   * 関連する教本の章。専用の章を持たない練習（翻数即答など）は undefined。
+   * 昇級試験も持たない — 合格の前提となる章はランクの決定事項で、
+   * 段級位レジストリ（`RANK_REGISTRY` の `learnChapterSlugs`）が正典。
    *
    * 章側の `practiceHrefs`（その章を読んだら解く練習）とは向きも意味も違う関係で、
    * 互いの逆写像ではない。手牌の合計符のように「章の practiceHrefs には
@@ -93,10 +95,12 @@ export const PRACTICE_CATALOG: readonly PracticeMenu[] = [
   },
   { slug: "score-calculation", category: "scoring", difficulty: "advanced" },
   {
+    // 昇級試験の前提章は段級位レジストリ（`RANK_REGISTRY` の
+    // `learnChapterSlugs`）が持つため `learnChapter` を持たない。
+    // 合格に必要な章は 1 つではなく、どの章が要るかはランクの決定事項。
     slug: "mangan-exam",
     category: "scoring",
     difficulty: "advanced",
-    learnChapter: "yaku",
   },
 ] as const;
 
@@ -119,11 +123,30 @@ export function practiceMenuFromCatalog(
   return catalogBySlug.get(slug);
 }
 
-/** カテゴリに属する練習を一覧の表示順で返す */
+/**
+ * 練習が `/practice` の URL 名前空間の外（昇級試験の `/exam` 配下）に
+ * 住んでいるか。
+ * 昇級試験判定
+ *
+ * 昇級試験は記録・結果ページの仕組みを練習と共有するためカタログには
+ * 載るが、入口は道場（`/dojo`）が持つ。練習一覧のカードやパンくずの
+ * 「練習一覧 >」はこの判定で出し分ける。判定はレジストリの `basePath`
+ * から導出する — どの URL 名前空間に置くかの決定がそのまま所属の決定。
+ */
+export function isExamMenu(slug: PracticeMenuSlug): boolean {
+  return !practiceHref(slug).startsWith("/practice/");
+}
+
+/**
+ * カテゴリに属する練習を一覧の表示順で返す。
+ * 昇級試験は含まない（練習一覧のカードにせず、道場から入る）。
+ */
 export function practiceMenusByCategory(
   category: PracticeCategory,
 ): readonly PracticeMenu[] {
-  return PRACTICE_CATALOG.filter((menu) => menu.category === category);
+  return PRACTICE_CATALOG.filter(
+    (menu) => menu.category === category && !isExamMenu(menu.slug),
+  );
 }
 
 /**
