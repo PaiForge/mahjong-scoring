@@ -4,7 +4,11 @@ import {
   pickNextChapter,
 } from "@/app/(user)/(public)/learn/_lib/curriculum";
 import { practiceSlugFromHref } from "@/app/(user)/(public)/practice/_lib/practice-catalog";
-import type { PracticeMenuSlug } from "@/lib/db/practice-menu-types";
+import {
+  menuTypeToSlug,
+  type PracticeMenuSlug,
+} from "@/lib/db/practice-menu-types";
+import { nextRank, type RankSlug } from "@/lib/ranks/registry";
 
 /** ダッシュボードに出すおすすめ練習の上限。増やすと練習一覧の縮小版になる */
 const MAX_RECOMMENDED_PRACTICES = 2;
@@ -17,6 +21,13 @@ export interface DashboardGuidance {
   readonly recommendedPracticeSlugs: readonly PracticeMenuSlug[];
   /** 教本も練習も勧めるものが無いとき、総合演習へ誘導するか */
   readonly showComprehensivePractice: boolean;
+  /**
+   * 受験の準備が整った昇級試験（練習スラッグ）。整っていなければ空。
+   *
+   * 「次に取る段級位の前提章をすべて読み終えていて、まだその級を持っていない」
+   * ときだけ入る。
+   */
+  readonly readyExamSlugs: readonly PracticeMenuSlug[];
 }
 
 interface SelectDashboardGuidanceInput {
@@ -24,6 +35,41 @@ interface SelectDashboardGuidanceInput {
   readonly readSlugs: ReadonlySet<string>;
   /** 一度でも挑戦したことのある練習のスラッグ */
   readonly attemptedSlugs: ReadonlySet<PracticeMenuSlug>;
+  /** 取得済みの段級位 */
+  readonly achievedRankSlugs: readonly RankSlug[];
+}
+
+/**
+ * 次に取る段級位の前提章を読み終えているなら、その昇級試験を返す。
+ * 受験可能試験の判定
+ *
+ * @design 読了で出し分ける理由
+ *
+ * 昇級試験はミス1回で終了する、このアプリで唯一「落ちる」コンテンツ。
+ * 無条件にダッシュボードへ出すと、まだ何も読んでいない人に最初の行動として
+ * 落ちる試験を勧めることになる。前提章を読み終えた時点＝教材を一周した
+ * 時点で初めて出すことで、ダッシュボードの「次にやること」が
+ * 「章を読む → 練習する → 受験する」の順に自然に切り替わる。
+ *
+ * 練習の挑戦履歴までは条件にしない。前提章の読了が「教材を通した」線で、
+ * そこから先どれだけ練習してから受けるかは本人が決めればよい
+ * （カードは合格基準を示すだけで、その場では試験が始まらない）。
+ */
+function selectReadyExamSlugs(
+  readSlugs: ReadonlySet<string>,
+  achievedRankSlugs: readonly RankSlug[],
+): readonly PracticeMenuSlug[] {
+  const next = nextRank(achievedRankSlugs);
+  if (!next) return [];
+
+  const prerequisitesRead = next.learnChapterSlugs.every((slug) =>
+    readSlugs.has(slug),
+  );
+  if (!prerequisitesRead) return [];
+
+  return next.requirements.map((requirement) =>
+    menuTypeToSlug(requirement.menuType),
+  );
 }
 
 /**
@@ -45,8 +91,10 @@ interface SelectDashboardGuidanceInput {
 export function selectDashboardGuidance({
   readSlugs,
   attemptedSlugs,
+  achievedRankSlugs,
 }: SelectDashboardGuidanceInput): DashboardGuidance {
   const nextChapter = pickNextChapter(readSlugs);
+  const readyExamSlugs = selectReadyExamSlugs(readSlugs, achievedRankSlugs);
 
   const recommended: PracticeMenuSlug[] = [];
   const seen = new Set<PracticeMenuSlug>();
@@ -67,6 +115,7 @@ export function selectDashboardGuidance({
           nextChapter,
           recommendedPracticeSlugs: recommended,
           showComprehensivePractice: false,
+          readyExamSlugs,
         };
       }
     }
@@ -75,7 +124,12 @@ export function selectDashboardGuidance({
   return {
     nextChapter,
     recommendedPracticeSlugs: recommended,
+    // 受験できる試験があるなら、それが「次にやること」。総合演習は
+    // 勧めるものが本当に何も無いときのフォールバックなので譲る
     showComprehensivePractice:
-      nextChapter === undefined && recommended.length === 0,
+      nextChapter === undefined &&
+      recommended.length === 0 &&
+      readyExamSlugs.length === 0,
+    readyExamSlugs,
   };
 }
