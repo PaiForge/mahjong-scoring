@@ -1,15 +1,14 @@
 import type { ReactNode } from "react";
-import Link from "next/link";
 import { getTranslations } from "next-intl/server";
 
 import { CurriculumProgressBar } from "@/app/(user)/(public)/learn/_components/curriculum-progress-bar";
 import { CurriculumToc } from "@/app/(user)/(public)/learn/_components/curriculum-toc";
+import { CurriculumTocLink } from "@/app/(user)/(public)/learn/_components/curriculum-toc-link";
 import {
   CURRICULUM,
   type CurriculumChapter,
 } from "@/app/(user)/(public)/learn/_lib/curriculum";
 import { SectionTitle } from "@/app/(user)/_components/section-title";
-import { TEXT_LINK_CLASSES } from "@/app/_components/_lib/link-classes";
 
 interface ContinueLearningSectionProps {
   /** 読了済み章のスラッグ */
@@ -62,14 +61,7 @@ export async function ContinueLearningSection({
         nextSlug={nextChapter.slug}
       />
 
-      <div className="text-right">
-        <Link
-          href="/learn"
-          className={`text-sm font-medium ${TEXT_LINK_CLASSES}`}
-        >
-          {t("viewAllChapters")}
-        </Link>
-      </div>
+      <CurriculumTocLink />
 
       {trailingRow}
     </div>

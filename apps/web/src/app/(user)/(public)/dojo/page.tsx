@@ -22,6 +22,7 @@ import { ContentContainer } from "@/app/(user)/_components/content-container";
 import { PageTitle } from "@/app/(user)/_components/page-title";
 import { SectionTitle } from "@/app/(user)/_components/section-title";
 import { ChapterTocList } from "@/app/(user)/(public)/learn/_components/chapter-toc-list";
+import { CurriculumTocLink } from "@/app/(user)/(public)/learn/_components/curriculum-toc-link";
 import { ExamCtaCard } from "@/app/(user)/(public)/learn/_components/exam-cta-card";
 import { fetchReadChapterSlugs } from "@/app/(user)/(public)/learn/_lib/progress";
 import { TEXT_LINK_CLASSES } from "@/app/_components/_lib/link-classes";
@@ -85,6 +86,7 @@ export default async function DojoPage() {
                 slugs={next.learnChapterSlugs}
                 readSlugs={readSlugs}
               />
+              <CurriculumTocLink />
             </section>
 
             {next.requirements.map((requirement) => (
