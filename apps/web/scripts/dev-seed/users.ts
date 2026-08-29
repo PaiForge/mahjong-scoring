@@ -58,6 +58,13 @@ export interface SeedUser {
  * 管理者と一般ユーザーを分けているのは、「管理者でないユーザーが
  * `/admin` にアクセスすると 404」という経路を同じシードのまま
  * 確認できるようにするため。
+ *
+ * 一般ユーザーは参考プロジェクト（blindfold-chess）と同じく
+ * alice / bob / carol … の並びで、確認したい状態の数だけ増やす。
+ * 状態を名前に埋める（`kyu4@example.local` のような）付け方をしない —
+ * 段級位が増えるたびに名前を付け直すことになるうえ、そのユーザーが
+ * 昇級すると名前が嘘になる。名前はただの識別子として置き、どの状態を
+ * 表しているかはこの表のコメントで示す。
  */
 export const SEED_USERS: readonly SeedUser[] = [
   {
@@ -66,18 +73,24 @@ export const SEED_USERS: readonly SeedUser[] = [
     displayName: "管理者（シード）",
     isAdmin: true,
   },
+  // 無級。段級位を1つも持たない状態（道場は5級の試験を勧める）
   {
-    email: "user@example.local",
-    username: "seed_user",
-    displayName: "一般ユーザー（シード）",
-    // 5級。道場・ダッシュボードが次の級（4級）の試験を出す状態
+    email: "alice@example.local",
+    username: "seed_alice",
+    displayName: "アリス（シード）",
+  },
+  // 5級。道場・ダッシュボードが次の級（4級）の試験を出す状態
+  {
+    email: "bob@example.local",
+    username: "seed_bob",
+    displayName: "ボブ（シード）",
     ranks: ["kyu-5"],
   },
+  // 最上位の級。道場は「新しい段級位は準備中」を出す
   {
-    email: "kyu4@example.local",
-    username: "seed_kyu4",
-    displayName: "4級ユーザー（シード）",
-    // 最上位の級を持つ状態。道場は「新しい段級位は準備中」を出す
+    email: "carol@example.local",
+    username: "seed_carol",
+    displayName: "キャロル（シード）",
     ranks: ["kyu-5", "kyu-4"],
   },
 ];
