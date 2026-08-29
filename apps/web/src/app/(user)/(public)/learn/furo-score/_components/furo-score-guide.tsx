@@ -2,7 +2,10 @@ import { getTranslations } from "next-intl/server";
 
 import { SectionTitle } from "@/app/(user)/_components/section-title";
 import { scorePracticePlayHref } from "@/app/(user)/(public)/practice/score/_lib/play-href";
-import { PracticeLinkButton } from "../../_components/practice-link-card";
+import {
+  PracticeLinkButton,
+  PracticeLinkSection,
+} from "../../_components/practice-link-card";
 
 import { GuideColumn } from "../../_components/guide-column";
 import { ExtraFuTable } from "../../_components/extra-fu-table";
@@ -12,10 +15,7 @@ import { GuideParagraph } from "../../_components/guide-paragraph";
  * 鳴いた手の点数計算 — 点数の計算セクション第4章
  */
 export async function FuroScoreGuide() {
-  const [t, tChapter] = await Promise.all([
-    getTranslations("furoScore.learn"),
-    getTranslations("learnCurriculum.chapter"),
-  ]);
+  const t = await getTranslations("furoScore.learn");
 
   return (
     <div className="space-y-10">
@@ -51,10 +51,7 @@ export async function FuroScoreGuide() {
 
       {/* 対応する練習は自由練習（副露縛り）でカタログ外のため、
           共通レイアウトの practiceHrefs ではなく章本文が導線を持つ */}
-      <section className="space-y-4">
-        <h2 className="text-base font-semibold text-surface-900">
-          {tChapter("practiceLinksTitle")}
-        </h2>
+      <PracticeLinkSection>
         <PracticeLinkButton
           href={scorePracticePlayHref({
             handShape: "furo",
@@ -62,7 +59,7 @@ export async function FuroScoreGuide() {
           })}
           label={t("practiceCta")}
         />
-      </section>
+      </PracticeLinkSection>
     </div>
   );
 }

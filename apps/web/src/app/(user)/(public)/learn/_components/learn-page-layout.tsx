@@ -12,7 +12,7 @@ import { ChapterNav } from "./chapter-nav";
 import { ExamCtaCard } from "./exam-cta-card";
 import { LoginPromptCta } from "./login-prompt-cta";
 import { MarkAsReadButton } from "./mark-as-read-button";
-import { PracticeLinkList } from "./practice-link-card";
+import { PracticeLinkList, PracticeLinkSection } from "./practice-link-card";
 
 interface LearnPageLayoutProps {
   /** 対象章のスラッグ */
@@ -31,7 +31,7 @@ interface LearnPageLayoutProps {
  * - ページタイトル（`{namespace}.pageTitle`）
  * - 章本文（children）
  * - 読了トグル（認証時）/ ログイン導線（未認証時）
- * - 対応練習へのリンク集（CURRICULUM の `practiceHrefs` を参照）
+ * - 対応練習へのリンク集（CURRICULUM の `practiceHrefs` を参照。0 件なら節ごと出さない）
  * - 前後章へのリンク
  */
 export async function LearnPageLayout({
@@ -72,7 +72,11 @@ export async function LearnPageLayout({
           )}
         </div>
 
-        <PracticeLinkList hrefs={practiceHrefs} />
+        {practiceHrefs.length > 0 && (
+          <PracticeLinkSection>
+            <PracticeLinkList hrefs={practiceHrefs} />
+          </PracticeLinkSection>
+        )}
 
         {/* 練習で腕試し → 昇級試験、の順。試験を持つ章（CURRICULUM の examSlug）のみ */}
         {chapter?.examSlug && <ExamCtaCard slug={chapter.examSlug} />}

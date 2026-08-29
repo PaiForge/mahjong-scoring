@@ -2,7 +2,10 @@ import { getTranslations } from "next-intl/server";
 
 import { SectionTitle } from "@/app/(user)/_components/section-title";
 import { scorePracticePlayHref } from "@/app/(user)/(public)/practice/score/_lib/play-href";
-import { PracticeLinkButton } from "../../_components/practice-link-card";
+import {
+  PracticeLinkButton,
+  PracticeLinkSection,
+} from "../../_components/practice-link-card";
 
 import { GuideColumn } from "../../_components/guide-column";
 import { GuideParagraph } from "../../_components/guide-paragraph";
@@ -12,10 +15,7 @@ import { ExtraFuTable } from "../../_components/extra-fu-table";
  * 平和以外の門前面子手の点数計算 — 点数の計算セクション第3章
  */
 export async function MenzenMentsuScoreGuide() {
-  const [t, tChapter] = await Promise.all([
-    getTranslations("menzenMentsuScore.learn"),
-    getTranslations("learnCurriculum.chapter"),
-  ]);
+  const t = await getTranslations("menzenMentsuScore.learn");
 
   return (
     <div className="space-y-10">
@@ -55,10 +55,7 @@ export async function MenzenMentsuScoreGuide() {
           出題は門前・満貫未満に絞る（七対子は既定で生成対象外なので
           門前の面子手だけが出る）。この章で扱わない平和も混ざるが、
           直前の章で扱い終えているので腕試しとして成立する */}
-      <section className="space-y-4">
-        <h2 className="text-base font-semibold text-surface-900">
-          {tChapter("practiceLinksTitle")}
-        </h2>
+      <PracticeLinkSection>
         <PracticeLinkButton
           href={scorePracticePlayHref({
             handShape: "menzen",
@@ -66,7 +63,7 @@ export async function MenzenMentsuScoreGuide() {
           })}
           label={t("practiceCta")}
         />
-      </section>
+      </PracticeLinkSection>
     </div>
   );
 }
