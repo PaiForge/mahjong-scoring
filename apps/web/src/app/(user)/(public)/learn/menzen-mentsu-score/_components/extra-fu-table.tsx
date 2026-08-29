@@ -16,7 +16,7 @@ import { buildExtraFuRows } from "../_lib/extra-fu-rows";
  * 左の見出しが条件・右へ結果が伸びる形にしている。
  */
 export async function ExtraFuTable() {
-  const t = await getTranslations("menzenScore.learn");
+  const t = await getTranslations("menzenMentsuScore.learn");
   const rows = buildExtraFuRows();
 
   return (

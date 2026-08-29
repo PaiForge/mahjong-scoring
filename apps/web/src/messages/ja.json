@@ -621,7 +621,7 @@
       "practiceCta": "七対子の点数計算を練習する"
     }
   },
-  "menzenScore": {
+  "menzenMentsuScore": {
     "learn": {
       "pageTitle": "平和以外の門前面子手の点数計算",
       "pageDescription": "平和以外の門前の面子手の点数計算を解説。ツモは30符から・ロンは40符から始まり、面子・雀頭・待ちで積み上げた符を10符単位で切るだけで符が決まります。",
@@ -1015,7 +1015,7 @@
         "title": "平和での点数計算",
         "description": "ツモなら20符・ロンなら30符"
       },
-      "menzenScore": {
+      "menzenMentsuScore": {
         "title": "平和以外の門前面子手の点数計算",
         "description": "ツモは30符から・ロンは40符から"
       }

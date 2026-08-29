@@ -96,7 +96,7 @@ describe("section grouping", () => {
     expect(scoreSlugs).toEqual([
       "chiitoitsu-score",
       "pinfu-score",
-      "menzen-score",
+      "menzen-mentsu-score",
     ]);
   });
 });

@@ -171,12 +171,12 @@ const CURRICULUM_REGISTRY = [
     i18nKey: "learnCurriculum.chapters.pinfuScore",
   },
   {
-    slug: "menzen-score",
+    slug: "menzen-mentsu-score",
     section: "score",
     order: 90,
     // 七対子・平和の章と同じ理由で practiceHrefs を持たない（導線は
-    // menzen-score-guide.tsx の CTA）
-    i18nKey: "learnCurriculum.chapters.menzenScore",
+    // menzen-mentsu-score-guide.tsx の CTA）
+    i18nKey: "learnCurriculum.chapters.menzenMentsuScore",
   },
 ] as const satisfies readonly CurriculumChapterEntry[];
 

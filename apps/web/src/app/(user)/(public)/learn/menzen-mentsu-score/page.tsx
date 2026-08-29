@@ -9,16 +9,19 @@
  */
 import { createLearnMetadata } from "../_lib/metadata";
 import { LearnPageLayout } from "../_components/learn-page-layout";
-import { MenzenScoreGuide } from "./_components/menzen-score-guide";
+import { MenzenMentsuScoreGuide } from "./_components/menzen-mentsu-score-guide";
 
 export function generateMetadata() {
-  return createLearnMetadata("menzen-score");
+  return createLearnMetadata("menzen-mentsu-score");
 }
 
-export default function LearnMenzenScorePage() {
+export default function LearnMenzenMentsuScorePage() {
   return (
-    <LearnPageLayout slug="menzen-score" namespace="menzenScore.learn">
-      <MenzenScoreGuide />
+    <LearnPageLayout
+      slug="menzen-mentsu-score"
+      namespace="menzenMentsuScore.learn"
+    >
+      <MenzenMentsuScoreGuide />
     </LearnPageLayout>
   );
 }

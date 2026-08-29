@@ -11,9 +11,9 @@ import { ExtraFuTable } from "./extra-fu-table";
 /**
  * 平和以外の門前面子手の点数計算 — 点数の計算セクション第3章
  */
-export async function MenzenScoreGuide() {
+export async function MenzenMentsuScoreGuide() {
   const [t, tChapter] = await Promise.all([
-    getTranslations("menzenScore.learn"),
+    getTranslations("menzenMentsuScore.learn"),
     getTranslations("learnCurriculum.chapter"),
   ]);
 
