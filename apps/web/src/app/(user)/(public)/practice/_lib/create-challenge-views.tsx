@@ -49,12 +49,6 @@ export interface ChallengePlayViewConfig<TResult, TProps, TState> {
    * ビュー先頭で無条件に呼ばれる。
    */
   readonly useBoardState?: (props: TProps) => TState;
-  /**
-   * play 中に training と同じ正誤カウンタを表示する
-   *
-   * 既定では従来どおりスコア数値 + ライフ表示のみ。
-   */
-  readonly showScoreCounter?: boolean;
   /** 盤面の描画 */
   readonly renderBoard: (
     args: ChallengeBoardArgs<TResult>,
@@ -77,7 +71,7 @@ export function createChallengePlayView<
 >(
   config: ChallengePlayViewConfig<TResult, TProps, TState>,
 ): (props: TProps) => ReactNode {
-  const { slug, maxWidth, renderBoard, showScoreCounter } = config;
+  const { slug, maxWidth, renderBoard } = config;
   const {
     namespace,
     menuType,
@@ -120,7 +114,6 @@ export function createChallengePlayView<
         maxWidth={maxWidth}
         hasProblemList={hasProblemList}
         hasSetup={hasSetup}
-        showScoreCounter={showScoreCounter}
         onFinish={handleFinish}
       >
         {renderBoard(

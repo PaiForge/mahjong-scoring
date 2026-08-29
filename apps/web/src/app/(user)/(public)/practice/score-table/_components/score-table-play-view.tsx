@@ -51,7 +51,6 @@ export const ScoreTablePlayView = createChallengePlayView<
   Record<string, never>
 >({
   slug: "score-table",
-  showScoreCounter: true,
   renderBoard: (args) => (
     <Suspense fallback={<ScoreTableGeneratingPlaceholder />}>
       <ScoreTableBoardFromQuery args={args} />

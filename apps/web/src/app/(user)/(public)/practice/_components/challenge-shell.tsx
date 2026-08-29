@@ -90,8 +90,6 @@ interface ChallengeShellProps {
    * 結果ページとの高さのずれを防ぐ。
    */
   readonly hasSetup?: boolean;
-  /** play 中に training と同じ正誤カウンタを表示するか */
-  readonly showScoreCounter?: boolean;
   /** 練習終了時に呼び出されるコールバック（スコア保存等） */
   readonly onFinish?: (
     args: FinishCallbackArgs,
@@ -119,7 +117,6 @@ export function ChallengeShell({
   exitHref = "/practice",
   hasProblemList = false,
   hasSetup = false,
-  showScoreCounter = false,
   onFinish,
 }: ChallengeShellProps) {
   const tc = useTranslations("challenge");
@@ -278,32 +275,28 @@ export function ChallengeShell({
           </BoardOverlay>
         </div>
 
-        {showScoreCounter ? (
-          // TrainingShell と同じく、盤面・正誤カウンタ・終了操作を 8 (32px) 間隔で並べる。
-          <div className="mt-8 space-y-8">
-            <ScoreCounter
-              correct={gameSession.correctCount}
-              incorrect={gameSession.incorrectCount}
-              correctLabel={tc("correct")}
-              incorrectLabel={tc("incorrect")}
-            />
+        {/* Footer: 正誤カウンタと終了操作。TrainingShell と同じく盤面から
+            8 (32px) 間隔で並べる。
 
-            <PracticeFooterActions>
-              <PracticeFooterAction onClick={handleQuitClick}>
-                {tc("quitButton")}
-              </PracticeFooterAction>
-            </PracticeFooterActions>
-          </div>
-        ) : (
-          /* Quit button */
-          <div className="mt-6">
-            <PracticeFooterActions>
-              <PracticeFooterAction onClick={handleQuitClick}>
-                {tc("quitButton")}
-              </PracticeFooterAction>
-            </PracticeFooterActions>
-          </div>
-        )}
+            カウンタはチャレンジでも常に出す。回答の正誤を選択肢の色分けで
+            返せる練習（符・翻・役）と返せない練習（点数系は select 回答）が
+            あり、出す練習だけカウンタを置くと画面の作りが練習ごとに変わる。
+            トレーニングも同じ位置に同じものを置いているので、モードを
+            またいでも下端の並びが動かない。 */}
+        <div className="mt-8 space-y-8">
+          <ScoreCounter
+            correct={gameSession.correctCount}
+            incorrect={gameSession.incorrectCount}
+            correctLabel={tc("correct")}
+            incorrectLabel={tc("incorrect")}
+          />
+
+          <PracticeFooterActions>
+            <PracticeFooterAction onClick={handleQuitClick}>
+              {tc("quitButton")}
+            </PracticeFooterAction>
+          </PracticeFooterActions>
+        </div>
       </div>
 
       <QuitConfirmModal
