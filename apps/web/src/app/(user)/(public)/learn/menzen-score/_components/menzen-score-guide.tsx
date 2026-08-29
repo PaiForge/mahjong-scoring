@@ -9,7 +9,7 @@ import { GuideParagraph } from "../../_components/guide-paragraph";
 import { ExtraFuTable } from "./extra-fu-table";
 
 /**
- * 平和・七対子以外の門前手の点数計算 — 点数の計算セクション第3章
+ * 平和以外の門前面子手の点数計算 — 点数の計算セクション第3章
  */
 export async function MenzenScoreGuide() {
   const [t, tChapter] = await Promise.all([
@@ -60,8 +60,9 @@ export async function MenzenScoreGuide() {
 
       {/* 対応する練習は自由練習（門前縛り）でカタログ外のため、
           共通レイアウトの practiceHrefs ではなく章本文が導線を持つ。
-          出題は門前・満貫未満に絞る。平和と七対子も混ざるが、そこまでの
-          章で扱い終えているので、点数の計算セクション3章分の総合練習になる */}
+          出題は門前・満貫未満に絞る（七対子は既定で生成対象外なので
+          門前の面子手だけが出る）。この章で扱わない平和も混ざるが、
+          直前の章で扱い終えているので腕試しとして成立する */}
       <section className="space-y-4">
         <h2 className="text-base font-semibold text-surface-900">
           {tChapter("practiceLinksTitle")}
