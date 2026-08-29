@@ -2051,8 +2051,7 @@
       "title": "{rank} 昇級試験",
       "lead": "この章の内容を身につけたら、昇級試験に挑戦しましょう。",
       "criterionLabel": "合格基準",
-      "viewExam": "試験の内容を見る",
-      "link": "{rank} 昇級試験へ"
+      "viewExam": "試験の内容を見る"
     },
     "rankPassConditionsTitle": "{rank} 合格条件",
     "passConditions": "制限時間{timeLimit}秒以内に{minScore}問正解で合格（ミス{mistakeLimit}回で終了）"

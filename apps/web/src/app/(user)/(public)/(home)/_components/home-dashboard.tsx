@@ -10,7 +10,7 @@ import { selectDashboardGuidance } from "../_lib/guidance";
 import { ComprehensivePracticeSection } from "./comprehensive-practice-section";
 import { ContinueLearningSection } from "./continue-learning-section";
 import { HomeAnnouncements } from "./home-announcements";
-import { ReadyExamLinks } from "./ready-exam-links";
+import { ReadyExamRows } from "./ready-exam-rows";
 import { RecommendedPracticeSection } from "./recommended-practice-section";
 
 /**
@@ -20,8 +20,8 @@ import { RecommendedPracticeSection } from "./recommended-practice-section";
  * 「教本の続き」→「おすすめの練習」→ お知らせ の順に並べる。
  * 再訪時に真っ先に必要なのは学習の再開点で、お知らせはその次だという判断。
  *
- * 受験できる昇級試験は「教本の続き」の末尾にリンクとして添える
- * （{@link ReadyExamLinks}）。前提章を読み終えた先にある行き先なので
+ * 受験できる昇級試験は「教本の続き」の中に行リンクとして添える
+ * （{@link ReadyExamRows}）。前提章を読み終えた先にある行き先なので
  * 学習の再開点の隣が収まりがよく、ページ先頭のカードにはしない。
  *
  * 学習導線は勧めるものがあるときだけ出す（`selectDashboardGuidance`）。
@@ -46,9 +46,9 @@ export async function HomeDashboard() {
     achievedRankSlugs,
   });
 
-  const examLinks =
+  const examRows =
     readyExamSlugs.length > 0 ? (
-      <ReadyExamLinks slugs={readyExamSlugs} />
+      <ReadyExamRows slugs={readyExamSlugs} />
     ) : undefined;
 
   return (
@@ -60,12 +60,12 @@ export async function HomeDashboard() {
           <ContinueLearningSection
             readSlugs={readSlugs}
             nextChapter={nextChapter}
-            tailLink={examLinks}
+            trailingRow={examRows}
           />
         ) : (
           // 全章読了済みで「教本の続き」が出ないときも、受験できる試験の
           // 導線だけは残す（次に取れる級があることを知らせる場が他に無い）
-          examLinks
+          examRows
         )}
 
         {recommendedPracticeSlugs.length > 0 && (
