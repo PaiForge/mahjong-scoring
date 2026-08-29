@@ -2043,9 +2043,9 @@
       "title": "{rank} 昇級試験",
       "lead": "この章の内容を身につけたら、昇級試験に挑戦しましょう。",
       "criterionLabel": "合格基準",
-      "viewRequirements": "受験の要件を確認する"
+      "viewExam": "試験の内容を見る"
     },
-    "passConditionsTitle": "合格条件",
+    "rankPassConditionsTitle": "{rank} 合格条件",
     "passConditions": "制限時間{timeLimit}秒以内に{minScore}問正解で合格（ミス{mistakeLimit}回で終了）"
   },
   "manganExamChallenge": {

@@ -64,25 +64,15 @@ export async function ExamCtaCard({ slug, lead }: ExamCtaCardProps) {
           <p className="text-sm leading-relaxed text-surface-700">
             {lead ?? t("examCta.lead")}
           </p>
-          <dl className="space-y-1 text-sm text-surface-700">
-            <div className="flex gap-2">
-              <dt className="shrink-0 font-bold">
-                {t("examCta.criterionLabel")}:
-              </dt>
-              <dd>{t(`criteria.${exam.rank.slug}`)}</dd>
-            </div>
-            <div className="flex gap-2">
-              <dt className="shrink-0 font-bold">
-                {t("passConditionsTitle")}:
-              </dt>
-              <dd>
-                {t("passConditions", {
-                  timeLimit: menu.timeLimit,
-                  minScore: exam.requirement.minScore,
-                  mistakeLimit: menu.mistakeLimit,
-                })}
-              </dd>
-            </div>
+          {/* 合格基準（何ができれば受かるか）だけを置く。合格条件（制限時間・
+              問題数・ミス上限）は遷移先の試験ページが持つ — 開始直前に必ず
+              目に入る場所に 1 箇所だけあればよく、両方に出すと数字が二重管理に
+              見えるうえ、このカードが「読む前に読む注意書き」で埋まる。 */}
+          <dl className="flex gap-2 text-sm text-surface-700">
+            <dt className="shrink-0 font-bold">
+              {t("examCta.criterionLabel")}:
+            </dt>
+            <dd>{t(`criteria.${exam.rank.slug}`)}</dd>
           </dl>
           {/* 遷移先は試験の説明ページ（問題方式のデモと合格条件を見て、
               そこで初めてスタートする）。押した瞬間に試験が始まるわけでは
@@ -98,7 +88,7 @@ export async function ExamCtaCard({ slug, lead }: ExamCtaCardProps) {
             size="lg"
             fullWidth
           >
-            {t("examCta.viewRequirements")}
+            {t("examCta.viewExam")}
             <ChevronRightIcon className="size-4" />
           </LinkButton>
         </div>
