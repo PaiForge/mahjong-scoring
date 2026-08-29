@@ -9,6 +9,7 @@ import {
 import {
   DataTable,
   DataTableHeaderCell,
+  DataTableRowHeaderCell,
 } from "@/app/(user)/_components/data-table";
 import { TsumoScore } from "@/app/(user)/(public)/reference/score-table/_components/tsumo-score";
 
@@ -85,9 +86,7 @@ export async function FixedFuScoreTable({
           }
         >
           <tr className="bg-white">
-            <td className="px-4 py-3 text-left font-medium whitespace-nowrap text-surface-600">
-              {t("tsumo")}
-            </td>
+            <DataTableRowHeaderCell>{t("tsumo")}</DataTableRowHeaderCell>
             {tsumoPayments.map((tsumo, index) => (
               <td key={hanCols[index]} className="px-4 py-3">
                 {tsumo ? (
@@ -101,9 +100,7 @@ export async function FixedFuScoreTable({
             ))}
           </tr>
           <tr className="bg-white">
-            <td className="px-4 py-3 text-left font-medium whitespace-nowrap text-surface-600">
-              {t("ron")}
-            </td>
+            <DataTableRowHeaderCell>{t("ron")}</DataTableRowHeaderCell>
             {ronScores.map((ron, index) => (
               <td
                 key={hanCols[index]}

@@ -45,6 +45,28 @@ export function DataTableHeaderCell({
   return <th className={mergedClassName}>{children}</th>;
 }
 
+interface DataTableRowHeaderCellProps {
+  readonly children: ReactNode;
+}
+
+/**
+ * データテーブルの行見出しセル
+ * テーブル行見出しセル
+ *
+ * 行の左端に置く見出し。ヘッダー行（{@link DataTableHeaderCell}）と違い本文の
+ * 一部なので `td` で描き、値のセルより弱いコントラストにして左揃えで固定する。
+ * 折り返すと表が縦に伸びて行の対応が読みにくくなるため、改行させない。
+ */
+export function DataTableRowHeaderCell({
+  children,
+}: DataTableRowHeaderCellProps) {
+  return (
+    <td className="px-4 py-3 text-left font-medium whitespace-nowrap text-surface-600">
+      {children}
+    </td>
+  );
+}
+
 interface DataTableProps {
   /** ヘッダー行の中身（{@link DataTableHeaderCell} を並べる） */
   readonly header: ReactNode;
