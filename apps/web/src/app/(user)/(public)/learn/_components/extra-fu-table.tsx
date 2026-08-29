@@ -7,17 +7,22 @@ import {
 
 import { buildExtraFuRows } from "../_lib/extra-fu-rows";
 
+interface ExtraFuTableProps {
+  /** 門前手の表か（false なら副露した手の表） */
+  readonly isMenzen: boolean;
+}
+
 /**
  * 積み上げた符から符を引く対応表
  * 積み上げ符対応表
  *
- * 行は `buildExtraFuRows`（core の `menzenFu` 由来）が組み立てるので、
- * 符も行のまとまりもここには書かない。読む向きは他の章の点数表と揃えて
- * 左の見出しが条件・右へ結果が伸びる形にしている。
+ * 行は `buildExtraFuRows`（core の `mentsuTehaiFu` 由来）が組み立てるので、
+ * 符も行のまとまりもここには書かない。読む向きは点数表と揃えて左の見出しが
+ * 条件・右へ結果が伸びる形にしている。
  */
-export async function ExtraFuTable() {
-  const t = await getTranslations("menzenMentsuScore.learn");
-  const rows = buildExtraFuRows();
+export async function ExtraFuTable({ isMenzen }: ExtraFuTableProps) {
+  const t = await getTranslations("learnCurriculum.scoreTable");
+  const rows = buildExtraFuRows(isMenzen);
 
   return (
     <div className="w-full overflow-x-auto">
@@ -28,8 +33,8 @@ export async function ExtraFuTable() {
             <DataTableHeaderCell align="left">
               {t("colExtraFu")}
             </DataTableHeaderCell>
-            <DataTableHeaderCell>{t("colTsumo")}</DataTableHeaderCell>
-            <DataTableHeaderCell>{t("colRon")}</DataTableHeaderCell>
+            <DataTableHeaderCell>{t("tsumo")}</DataTableHeaderCell>
+            <DataTableHeaderCell>{t("ron")}</DataTableHeaderCell>
           </>
         }
       >

@@ -6,7 +6,7 @@ import { scorePracticePlayHref } from "@/app/(user)/(public)/practice/score/_lib
 import { PracticeLinkButton } from "../../_components/practice-link-card";
 
 import { GuideParagraph } from "../../_components/guide-paragraph";
-import { ExtraFuTable } from "./extra-fu-table";
+import { ExtraFuTable } from "../../_components/extra-fu-table";
 
 /**
  * 平和以外の門前面子手の点数計算 — 点数の計算セクション第3章
@@ -34,7 +34,7 @@ export async function MenzenMentsuScoreGuide() {
         <GuideParagraph preLine>{t("roundBody1")}</GuideParagraph>
         <GuideParagraph preLine>{t("roundBody2")}</GuideParagraph>
 
-        <ExtraFuTable />
+        <ExtraFuTable isMenzen />
 
         <GuideParagraph preLine>{t("roundBody3")}</GuideParagraph>
         <GuideParagraph preLine>{t("roundBody4")}</GuideParagraph>
