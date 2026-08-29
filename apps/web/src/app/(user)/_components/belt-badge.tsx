@@ -25,6 +25,11 @@ const ICON_SIZE_CLASS = { md: "size-6", lg: "size-8" } as const;
  * 白で抜くことで、級の色が主役になる。無級は淡いグレーの円 + グレーの紋章で、
  * 「まだ色が付いていない」ことが読み取れる。
  *
+ * このアプリの太枠（`border-3 border-ink`）はここでは付けない。枠の ink は
+ * 緑で、帯色の円を縁取ると緑の輪が帯の一部に見え、5級（オレンジ）が
+ * 「緑帯」に読めてしまう。色そのものが情報である以上、輪郭より色の純度を
+ * 優先する。
+ *
  * 段級位名は添えない。名前をどう見せるか（見出し・ピル・文中）は場ごとに
  * 違うため、呼び出し側が持つ。
  */
@@ -33,7 +38,7 @@ export function BeltBadge({ slug, size = "md" }: BeltBadgeProps) {
     <span
       aria-hidden="true"
       data-belt-slug={slug ?? "unranked"}
-      className={`inline-flex items-center justify-center rounded-full border-3 border-ink ${CIRCLE_SIZE_CLASS[size]} ${beltClass(slug)}`}
+      className={`inline-flex items-center justify-center rounded-full ${CIRCLE_SIZE_CLASS[size]} ${beltClass(slug)}`}
     >
       <BeltIcon
         className={`${ICON_SIZE_CLASS[size]} ${beltForegroundClass(slug)}`}

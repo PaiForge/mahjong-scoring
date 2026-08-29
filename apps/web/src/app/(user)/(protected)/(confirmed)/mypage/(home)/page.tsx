@@ -98,7 +98,9 @@ export default async function MyPage() {
                 <Link
                   href="/dojo"
                   data-belt-slug={currentRank.slug}
-                  className={`inline-flex shrink-0 items-center gap-1 rounded-full border-2 border-ink px-2.5 py-0.5 text-xs font-bold transition-opacity hover:opacity-85 ${beltClass(currentRank.slug)} ${beltForegroundClass(currentRank.slug)}`}
+                  // 帯バッジと同じ理由で ink の枠を付けない（緑の輪が帯色に
+                  // 混ざって見える）
+                  className={`inline-flex shrink-0 items-center gap-1 rounded-full px-2.5 py-0.5 text-xs font-bold transition-opacity hover:opacity-85 ${beltClass(currentRank.slug)} ${beltForegroundClass(currentRank.slug)}`}
                 >
                   <BeltIcon className="size-3.5" />
                   {tRanks(`names.${currentRank.slug}`)}
