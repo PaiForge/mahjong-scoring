@@ -1,4 +1,6 @@
 import { PRACTICE_MENU_SLUGS } from "@/lib/db/practice-menu-types";
+import { GLOSSARY_TERM_SLUGS } from "@/lib/glossary/registry";
+import { GLOSSARY_PATH, glossaryTermHref } from "@/lib/glossary/routes";
 
 import {
   chapterHref,
@@ -25,6 +27,7 @@ export const STATIC_SITEMAP_ROUTE_DEFS = [
   { url: "/practice/score", changeFrequency: "monthly", priority: 0.8 },
   { url: "/reference/score-table", changeFrequency: "monthly", priority: 0.7 },
   { url: "/reference/yaku", changeFrequency: "monthly", priority: 0.7 },
+  { url: GLOSSARY_PATH, changeFrequency: "monthly", priority: 0.7 },
   { url: "/announcements", changeFrequency: "daily", priority: 0.5 },
   { url: "/terms", changeFrequency: "yearly", priority: 0.2 },
   { url: "/privacy", changeFrequency: "yearly", priority: 0.2 },
@@ -37,6 +40,17 @@ export const LEARN_SITEMAP_PATHS: readonly string[] =
 /** 練習説明ページのパス一覧（`/practice/<slug>`） */
 export const PRACTICE_SITEMAP_PATHS: readonly string[] =
   PRACTICE_MENU_SLUGS.map(practiceHref);
+
+/**
+ * 用語ページのパス一覧（`/reference/glossary/<slug>`）
+ *
+ * INDEXABLE_PATHS には入れない。seo-coverage.test.ts はパスを page.tsx の
+ * ディレクトリ名に突き合わせるため、動的セグメント（`[slug]`）で受ける
+ * ページは解決できない（お知らせ詳細と同じ理由）。用語が辞書に揃っている
+ * ことは `lib/glossary/glossary-i18n-integrity.test.ts` が別途保証する。
+ */
+export const GLOSSARY_SITEMAP_PATHS: readonly string[] =
+  GLOSSARY_TERM_SLUGS.map(glossaryTermHref);
 
 /**
  * DB に依存しない indexable パスの全集合（トップは "/" に正規化済み）。

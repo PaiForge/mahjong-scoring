@@ -1,5 +1,5 @@
 import type { HaiKindId } from "@mahjong-scoring/core";
-import { TileSet } from "../../_components/tile-set";
+import { TileSet } from "@/app/(user)/_components/tile-set";
 
 /** 5枚並ぶ双碰待ちでも表の幅に収まる大きさ */
 const MACHI_TILE_SIZE = "xs";
