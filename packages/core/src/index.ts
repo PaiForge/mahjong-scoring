@@ -71,11 +71,11 @@ export {
 } from "./score/tiers";
 export type { HanTier, HanRange } from "./score/tiers";
 export {
-  menzenFu,
+  mentsuTehaiFu,
   FUTEI_FU,
   TSUMO_AGARI_FU,
   MENZEN_RON_AGARI_FU,
-} from "./score/menzen-fu";
+} from "./score/mentsu-tehai-fu";
 export { resolveMentsuBreakdown } from "./score/mentsu-structure";
 export type {
   MentsuBreakdown,

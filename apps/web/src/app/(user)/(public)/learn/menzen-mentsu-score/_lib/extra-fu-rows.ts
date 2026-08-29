@@ -1,4 +1,4 @@
-import { menzenFu } from "@mahjong-scoring/core";
+import { mentsuTehaiFu } from "@mahjong-scoring/core";
 
 /**
  * 表に並べる「積み上げた符」の上限。
@@ -24,7 +24,7 @@ export interface ExtraFuRow {
  *
  * 積み上がる符はすべて偶数（面子 4/8/16/32・雀頭 2/4・待ち 2）なので
  * 2刻みで走査し、ツモ・ロンの符がどちらも同じ並びを1行にまとめる。
- * 符そのものは core の `menzenFu` から引くので、表に符を直書きしない。
+ * 符そのものは core の `mentsuTehaiFu` から引くので、表に符を直書きしない。
  *
  * 積み上げ0符（平和）は含めない。平和はツモ20符・ロン30符の特例で、
  * この規則の外にある別の章が受け持つ。
@@ -36,8 +36,11 @@ export function buildExtraFuRows(
 ): readonly ExtraFuRow[] {
   const rows: ExtraFuRow[] = [];
   for (let extraFu = 2; extraFu <= maxExtraFu; extraFu += 2) {
-    const tsumoFu = menzenFu(extraFu, "tsumo");
-    const ronFu = menzenFu(extraFu, "ron");
+    const tsumoFu = mentsuTehaiFu(extraFu, {
+      winType: "tsumo",
+      isMenzen: true,
+    });
+    const ronFu = mentsuTehaiFu(extraFu, { winType: "ron", isMenzen: true });
     const last = rows.at(-1);
     if (
       last !== undefined &&
