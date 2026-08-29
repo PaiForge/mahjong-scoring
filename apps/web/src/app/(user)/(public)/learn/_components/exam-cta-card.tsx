@@ -4,7 +4,11 @@ import { LinkButton } from "@/app/(user)/_components/link-button";
 import { SectionTitle } from "@/app/(user)/_components/section-title";
 import { practiceMenuBySlug } from "@/lib/db/practice-menu-types";
 import type { PracticeMenuSlug } from "@/lib/db/practice-menu-types";
-import { beltClass } from "@/lib/ranks/belt-colors";
+import {
+  beltBorderClass,
+  beltClass,
+  beltForegroundClass,
+} from "@/lib/ranks/belt-colors";
 import { rankRequiringMenu } from "@/lib/ranks/registry";
 import { practiceHref } from "@/app/(user)/(public)/practice/_lib/practice-catalog";
 import { PlayIcon } from "@/app/(user)/_components/icons/play-icon";
@@ -41,15 +45,21 @@ export async function ExamCtaCard({ slug, lead }: ExamCtaCardProps) {
 
   return (
     <section className="space-y-4">
-      <SectionTitle>{t("examCta.title", { rank: rankName })}</SectionTitle>
-      {/* カード上端の帯でどの級の試験かを色でも示す（参考プロジェクトの
-          ランクカード準拠）。角丸から帯をはみ出させないため overflow-hidden。 */}
-      <div className="overflow-hidden rounded-xl border-3 border-ink bg-white">
-        <div
-          aria-hidden="true"
-          data-belt-slug={exam.rank.slug}
-          className={`h-2 ${beltClass(exam.rank.slug)}`}
-        />
+      {/* 見出しも級の色。このアプリで唯一「特定の段級位のもの」である見出しで、
+          既定の緑のままだと隣のオレンジの枠と競合して見える */}
+      <SectionTitle
+        toneClass={`${beltClass(exam.rank.slug)} ${beltForegroundClass(exam.rank.slug)}`}
+      >
+        {t("examCta.title", { rank: rankName })}
+      </SectionTitle>
+      {/* どの級の試験かを枠の色でも示す。既定の ink（緑）は使わない — 級名を
+          掲げたカードが緑枠だと、緑がその級の色に見えてしまう。
+          参考プロジェクトのランクカードは細い枠に加えて上端に帯を敷くが、
+          こちらは枠自体が 3px あり、帯を足すと上辺だけ厚い不揃いに見える。 */}
+      <div
+        data-belt-slug={exam.rank.slug}
+        className={`rounded-xl border-3 bg-white ${beltBorderClass(exam.rank.slug)}`}
+      >
         <div className="space-y-4 p-5">
           <p className="text-sm leading-relaxed text-surface-700">
             {lead ?? t("examCta.lead")}
