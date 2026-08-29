@@ -2,7 +2,7 @@ import { getTranslations } from "next-intl/server";
 import { HaiKind } from "@mahjong-scoring/core";
 import { Divider } from "@/app/(user)/_components/divider";
 import { SectionTitle } from "@/app/(user)/_components/section-title";
-import { ExampleCard } from "../../_components/example-card";
+import { ExampleCard } from "@/app/(user)/_components/example-card";
 import { GuideOrderedList } from "../../_components/guide-ordered-list";
 import { GuideParagraph } from "../../_components/guide-paragraph";
 import { GuideSubsectionTitle } from "../../_components/guide-subsection-title";

@@ -7,10 +7,10 @@ interface ExampleCardProps {
 }
 
 /**
- * 教本の例示カード（白背景・角丸・枠線）
+ * 例示カード（白背景・角丸・枠線）
  * 例示カード
  *
- * 各ガイドで頻出する例示ブロックの枠スタイルを一元化する。
+ * 教本の章と用語集で頻出する例示ブロックの枠スタイルを一元化する。
  */
 export function ExampleCard({
   children,

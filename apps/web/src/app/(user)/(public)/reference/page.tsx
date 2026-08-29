@@ -7,16 +7,19 @@
  * カードにはしない。
  *
  * @flow
- * 行リンクから点数表（/reference/score-table）・役一覧（/reference/yaku）へ遷移する。
+ * 行リンクから点数表（/reference/score-table）・役一覧（/reference/yaku）・
+ * 用語集（/reference/glossary）へ遷移する。
  */
 import type { Metadata } from "next";
 import { getTranslations } from "next-intl/server";
 import { TableIcon } from "@/app/(user)/_components/icons/table-icon";
 import { BookIcon } from "@/app/(user)/_components/icons/book-icon";
+import { MagnifyingGlassIcon } from "@/app/(user)/_components/icons/magnifying-glass-icon";
 import { ContentContainer } from "@/app/(user)/_components/content-container";
 import { LinkRow, LinkRowList } from "@/app/(user)/_components/link-row";
 import { PageTitle } from "@/app/(user)/_components/page-title";
 import { createNamespaceMetadata } from "@/app/_lib/metadata";
+import { GLOSSARY_PATH } from "@/lib/glossary/routes";
 
 export async function generateMetadata(): Promise<Metadata> {
   return createNamespaceMetadata("reference", { path: "/reference" });
@@ -44,6 +47,12 @@ export default async function ReferenceHubPage() {
       title: t("yaku.title"),
       description: t("yaku.description"),
       icon: <BookIcon className="size-5 text-primary-600" />,
+    },
+    {
+      href: GLOSSARY_PATH,
+      title: t("glossary.title"),
+      description: t("glossary.description"),
+      icon: <MagnifyingGlassIcon className="size-5 text-primary-600" />,
     },
   ];
 

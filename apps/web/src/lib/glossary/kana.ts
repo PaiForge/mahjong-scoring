@@ -95,3 +95,30 @@ export function kanaRowOf(reading: string): KanaRow | undefined {
   const normalized = KANA_NORMALIZE[head] ?? head;
   return KANA_ROWS.find((row) => KANA_ROW_MEMBERS[row].includes(normalized));
 }
+
+/** 行 → アンカー id に使うローマ字 */
+const KANA_ROW_ROMAJI: Readonly<Record<KanaRow, string>> = {
+  あ: "a",
+  か: "ka",
+  さ: "sa",
+  た: "ta",
+  な: "na",
+  は: "ha",
+  ま: "ma",
+  や: "ya",
+  ら: "ra",
+  わ: "wa",
+};
+
+/**
+ * 五十音行の見出しに付けるアンカー id を返す。
+ * 五十音行アンカー
+ *
+ * 用語集トップの行ナビ（`#kana-ka`）の飛び先になる。id にかなをそのまま
+ * 入れると URL でパーセントエンコードされて読めなくなるためローマ字にする。
+ *
+ * @param row 対象の行
+ */
+export function kanaAnchorId(row: KanaRow): string {
+  return `kana-${KANA_ROW_ROMAJI[row]}`;
+}
