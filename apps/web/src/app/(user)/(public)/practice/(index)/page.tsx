@@ -8,6 +8,7 @@ import type { Metadata } from "next";
 import { getTranslations } from "next-intl/server";
 import { chapterHref } from "@/app/(user)/(public)/learn/_lib/curriculum";
 import { ContentContainer } from "@/app/(user)/_components/content-container";
+import { LinkRow, LinkRowList } from "@/app/(user)/_components/link-row";
 import { PageTitle } from "@/app/(user)/_components/page-title";
 import { SectionTitle } from "@/app/(user)/_components/section-title";
 import { createNamespaceMetadata } from "@/app/_lib/metadata";
@@ -72,6 +73,22 @@ export default async function PracticePage() {
             {renderPracticeCards(practiceMenusByCategory("scoring"), t)}
           </PracticeCategorySection>
         </div>
+
+        {/* 昇級試験は練習カードにしない（合格ラインを持ち段級位が授与される、
+            練習とは種類の違うコンテンツ）。入口は道場が持つため、ここは
+            見に行くだけの行リンクで送る。 */}
+        <LinkRowList>
+          <LinkRow
+            href="/dojo"
+            leading={
+              <span className="text-base" aria-hidden="true">
+                🎓
+              </span>
+            }
+            title={t("dojoRow.title")}
+            description={t("dojoRow.description")}
+          />
+        </LinkRowList>
       </div>
     </ContentContainer>
   );

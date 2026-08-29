@@ -1,8 +1,36 @@
 import type { BreadcrumbItem } from "@/app/(user)/_components/breadcrumb";
 
+/** 結果ページのパンくず・戻り導線の親一覧（練習一覧または道場） */
+export interface ResultBreadcrumbParent {
+  readonly href: "/practice" | "/dojo";
+  /** ラベル（`<namespace>.title`）を引く翻訳 namespace */
+  readonly namespace: "practice" | "dojo";
+}
+
+/**
+ * 結果ページの親一覧を説明ページ URL から決める
+ * 結果親一覧決定
+ *
+ * 昇級試験は `/exam` 配下に住み練習一覧のカードにならないため、親を
+ * 道場にする。ラベルは server / client で翻訳 API が異なるため、
+ * 呼び出し側が `namespace` の `title` を引いて渡す。
+ *
+ * @param introHref 説明ページの URL。持たない練習は undefined
+ *   （説明ページを持たない練習は必ず `/practice` 配下なので練習一覧になる）
+ */
+export function resultBreadcrumbParent(
+  introHref: string | undefined,
+): ResultBreadcrumbParent {
+  return introHref?.startsWith("/exam") === true
+    ? { href: "/dojo", namespace: "dojo" }
+    : { href: "/practice", namespace: "practice" };
+}
+
 interface ResultBreadcrumbArgs {
-  /** 練習一覧のラベル（`practice.title`） */
-  readonly practiceListLabel: string;
+  /** 親一覧のラベル（`resultBreadcrumbParent` の namespace の `title`） */
+  readonly parentLabel: string;
+  /** 親一覧の URL（`resultBreadcrumbParent` の href） */
+  readonly parentHref: string;
   /** 練習名（各練習の `title`） */
   readonly practiceTitle: string;
   /** 結果ページを表すラベル（`challenge.resultSuffix`） */
@@ -24,13 +52,14 @@ interface ResultBreadcrumbArgs {
  * 集約する。両者のパンくずが食い違ってレイアウトがずれるのを防ぐ。
  */
 export function buildResultBreadcrumb({
-  practiceListLabel,
+  parentLabel,
+  parentHref,
   practiceTitle,
   resultLabel,
   introHref,
 }: ResultBreadcrumbArgs): readonly BreadcrumbItem[] {
   return [
-    { label: practiceListLabel, href: "/practice" },
+    { label: parentLabel, href: parentHref },
     introHref
       ? { label: practiceTitle, href: introHref }
       : { label: practiceTitle },

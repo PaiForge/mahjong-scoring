@@ -119,11 +119,30 @@ export function practiceMenuFromCatalog(
   return catalogBySlug.get(slug);
 }
 
-/** カテゴリに属する練習を一覧の表示順で返す */
+/**
+ * 練習が `/practice` の URL 名前空間の外（昇級試験の `/exam` 配下）に
+ * 住んでいるか。
+ * 昇級試験判定
+ *
+ * 昇級試験は記録・結果ページの仕組みを練習と共有するためカタログには
+ * 載るが、入口は道場（`/dojo`）が持つ。練習一覧のカードやパンくずの
+ * 「練習一覧 >」はこの判定で出し分ける。判定はレジストリの `basePath`
+ * から導出する — どの URL 名前空間に置くかの決定がそのまま所属の決定。
+ */
+export function isExamMenu(slug: PracticeMenuSlug): boolean {
+  return !practiceHref(slug).startsWith("/practice/");
+}
+
+/**
+ * カテゴリに属する練習を一覧の表示順で返す。
+ * 昇級試験は含まない（練習一覧のカードにせず、道場から入る）。
+ */
 export function practiceMenusByCategory(
   category: PracticeCategory,
 ): readonly PracticeMenu[] {
-  return PRACTICE_CATALOG.filter((menu) => menu.category === category);
+  return PRACTICE_CATALOG.filter(
+    (menu) => menu.category === category && !isExamMenu(menu.slug),
+  );
 }
 
 /**

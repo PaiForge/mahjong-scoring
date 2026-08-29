@@ -8,7 +8,10 @@ import { RotateCcwIcon } from "@/app/(user)/_components/icons/rotate-ccw-icon";
 import { SectionTitle } from "@/app/(user)/_components/section-title";
 import { TEXT_LINK_CLASSES } from "@/app/_components/_lib/link-classes";
 import type { PracticeResultViewProps } from "../_lib/create-practice-result-page";
-import { buildResultBreadcrumb } from "../_lib/result-breadcrumb";
+import {
+  buildResultBreadcrumb,
+  resultBreadcrumbParent,
+} from "../_lib/result-breadcrumb";
 import { PRACTICE_SCROLL_HASH } from "../_lib/scroll-anchor";
 import { ResultScoreBar } from "./result-score-bar";
 
@@ -50,12 +53,15 @@ export async function ResultView({
   children,
 }: PracticeResultViewProps) {
   const tc = await getTranslations("challenge");
-  const tp = await getTranslations("practice");
+  // 親一覧（練習一覧 or 道場）。昇級試験の結果は道場へ帰す
+  const parent = resultBreadcrumbParent(introHref);
+  const tParent = await getTranslations(parent.namespace);
 
   return (
     <ContentContainer
       breadcrumb={buildResultBreadcrumb({
-        practiceListLabel: tp("title"),
+        parentLabel: tParent("title"),
+        parentHref: parent.href,
         practiceTitle,
         resultLabel: tc("resultSuffix"),
         introHref,
@@ -101,8 +107,8 @@ export async function ResultView({
             </LinkButton>
           )}
           <p className="pt-1 text-center">
-            <Link href="/practice" className={`text-sm ${TEXT_LINK_CLASSES}`}>
-              {tc("backToList")}
+            <Link href={parent.href} className={`text-sm ${TEXT_LINK_CLASSES}`}>
+              {tc(parent.namespace === "dojo" ? "backToDojo" : "backToList")}
             </Link>
           </p>
         </div>

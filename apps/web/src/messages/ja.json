@@ -245,6 +245,10 @@
         "description": "役の表示なしで手牌から翻数を数え、満貫以上の点数を答える試験形式のチャレンジ。ミスは1回まで"
       }
     },
+    "dojoRow": {
+      "title": "昇級試験は道場で",
+      "description": "段級位の確認と昇級試験への挑戦は道場から"
+    },
     "comprehensiveBanner": {
       "title": "点数計算総合演習",
       "description": "翻数・役・符・点数全てをチェックできる問題に好きなだけ回答できます。麻雀の点数計算の総合練習として最適です。"
@@ -266,6 +270,7 @@
     "retryButton": "もう一度",
     "changeSettingsButton": "設定を変更する",
     "backToList": "練習一覧に戻る",
+    "backToDojo": "道場に戻る",
     "ready": "準備はいいですか？",
     "readyDescription": "制限時間 {timeLimit} 秒以内にできるだけ多くの問題に正解してください。{mistakeLimit} 回間違えると終了です。",
     "resultSectionTitle": "結果",

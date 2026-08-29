@@ -7,6 +7,7 @@ import {
 } from "@/app/(user)/(public)/learn/_lib/curriculum";
 import { PRACTICE_MENU_SLUGS } from "@/lib/db/practice-menu-types";
 import {
+  isExamMenu,
   PRACTICE_CATALOG,
   PRACTICE_CATEGORIES,
   practiceDescriptionKey,
@@ -28,12 +29,25 @@ describe("PRACTICE_CATALOG", () => {
     expect(new Set(slugs).size).toBe(slugs.length);
   });
 
-  it("カテゴリ別に分けると全件を過不足なく覆う", () => {
-    const total = PRACTICE_CATEGORIES.reduce(
-      (sum, category) => sum + practiceMenusByCategory(category).length,
-      0,
-    );
-    expect(total).toBe(PRACTICE_CATALOG.length);
+  it("カテゴリ別の一覧は昇級試験を除く全件を過不足なく覆う", () => {
+    // 昇級試験は道場（/dojo）から入るため練習一覧のカードにしない。
+    // それ以外がカテゴリの表示から漏れると一覧から静かに消えるため固定する。
+    const listed = PRACTICE_CATEGORIES.flatMap((category) =>
+      practiceMenusByCategory(category).map((menu) => menu.slug),
+    ).sort();
+    const expected = PRACTICE_CATALOG.map((menu) => menu.slug)
+      .filter((slug) => !isExamMenu(slug))
+      .sort();
+    expect(listed).toEqual(expected);
+  });
+
+  it("昇級試験は /exam 配下に住み、練習一覧のカードにならない", () => {
+    expect(isExamMenu("mangan-exam")).toBe(true);
+    expect(isExamMenu("jantou-fu")).toBe(false);
+    for (const category of PRACTICE_CATEGORIES) {
+      const slugs = practiceMenusByCategory(category).map((menu) => menu.slug);
+      expect(slugs).not.toContain("mangan-exam");
+    }
   });
 
   it("前提章はカリキュラムに存在する章を指す", () => {

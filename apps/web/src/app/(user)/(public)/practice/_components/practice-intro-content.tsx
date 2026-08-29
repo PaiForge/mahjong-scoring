@@ -15,6 +15,7 @@ import { LinkButton } from "@/app/(user)/_components/link-button";
 import { PlayIcon } from "@/app/(user)/_components/icons/play-icon";
 import { practiceMenuBySlug } from "@/lib/db/practice-menu-types";
 import {
+  isExamMenu,
   practiceMenuFromCatalog,
   practicePlayHref,
   practiceTrainingHref,
@@ -78,14 +79,14 @@ export async function PracticeIntroContent({
   const tc = await getTranslations("challenge");
   const tp = await getTranslations("practice");
   const tt = await getTranslations("training");
+  // 昇級試験は練習一覧のカードにならず道場から入るため、親も道場にする
+  const tDojo = await getTranslations("dojo");
+  const parent = isExamMenu(slug)
+    ? { label: tDojo("title"), href: "/dojo" }
+    : { label: tp("title"), href: "/practice" };
 
   return (
-    <ContentContainer
-      breadcrumb={[
-        { label: tp("title"), href: "/practice" },
-        { label: t("title") },
-      ]}
-    >
+    <ContentContainer breadcrumb={[parent, { label: t("title") }]}>
       <PageTitle>{t("title")}</PageTitle>
       {/* カード内のセクション間マージンは space-y で等間隔に統一する */}
       <div className="space-y-8">
