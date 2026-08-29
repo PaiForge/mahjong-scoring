@@ -1,5 +1,6 @@
 import {
   calculateScoreForTehai,
+  type Kazehai,
   type ScoreResult,
   type Tehai14,
 } from "@pai-forge/riichi-mahjong";
@@ -46,6 +47,28 @@ function calculateFuSource(
 }
 
 /**
+ * 出題しうる自風を返す
+ * 自風候補
+ *
+ * `excludeRenfonpai` が立つと場風と同じ風を落とし、連風牌（場風＝自風）が
+ * 成立しない局面だけを出題する。連風牌の雀頭を2符とするか4符とするかは
+ * ローカルルールで割れており（{@link doubleWindJantouFu}）、その1点だけで
+ * 手牌の合計符が変わってしまうため、答えを1つに定めたい出題
+ * （端末ごとのルール設定に左右されてはならない昇級試験）が使う。
+ *
+ * 雀頭が連風牌の手だけを弾く形にはしない。ライブラリは符が最大になる面子
+ * 構成を選ぶため、「選ばれた構成の雀頭は連風牌でないが、別の解釈では
+ * 連風牌の雀頭が立ち、4符ルールではそちらが選ばれる」手が残りうる。
+ * 場風＝自風の局面ごと出題しなければ、どの解釈をとっても連風牌は現れない。
+ */
+function jikazeOptions(
+  bakaze: Kazehai,
+  excludeRenfonpai: boolean,
+): readonly Kazehai[] {
+  return excludeRenfonpai ? KAZEHAI.filter((kaze) => kaze !== bakaze) : KAZEHAI;
+}
+
+/**
  * 手牌全体の合計符を答える問題を生成する（生成不可能な場合は undefined を返す）
  * 合計符問題ジェネレータ
  *
@@ -53,15 +76,21 @@ function calculateFuSource(
  * ライブラリの符計算がそのまま扱うため、ここでは分岐を持たない。
  *
  * @param options.renfonpaiAs4Fu - 連風牌の雀頭を4符として扱うか（既定 false=2符）
+ * @param options.excludeRenfonpai - 場風＝自風の局面を出題しないか（既定 false）
  * @param options.idGen - 問題 ID の採番（既定 crypto.randomUUID）
  */
 export function generateTotalFuQuestion(
   options: {
     readonly renfonpaiAs4Fu?: boolean;
+    readonly excludeRenfonpai?: boolean;
     readonly idGen?: IdGenerator;
   } = {},
 ): TotalFuQuestion | undefined {
-  const { renfonpaiAs4Fu = false, idGen = defaultIdGenerator } = options;
+  const {
+    renfonpaiAs4Fu = false,
+    excludeRenfonpai = false,
+    idGen = defaultIdGenerator,
+  } = options;
 
   // 1. 手牌の生成（七対子 or 面子手）
   const tehaiResult = randomBool(CHIITOI_RATE)
@@ -70,11 +99,12 @@ export function generateTotalFuQuestion(
   if (!tehaiResult) return undefined;
 
   // 2. 和了状況の決定
+  const bakaze = randomChoice(BAKAZE_OPTIONS);
   const context: AgariContext = {
     agariHai: tehaiResult.agariHai,
     isTsumo: randomBool(0.5),
-    bakaze: randomChoice(BAKAZE_OPTIONS),
-    jikaze: randomChoice(KAZEHAI),
+    bakaze,
+    jikaze: randomChoice(jikazeOptions(bakaze, excludeRenfonpai)),
   };
 
   // 3. 符の算出（ライブラリ境界）

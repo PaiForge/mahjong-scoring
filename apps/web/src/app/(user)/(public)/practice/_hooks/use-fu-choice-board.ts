@@ -15,8 +15,11 @@ interface UseFuChoiceBoardParams<TQuestion extends FuQuestion> extends Pick<
   PracticeBoardProps,
   "showFeedback" | "onAnswer"
 > {
-  /** 問題を 1 問生成する */
-  readonly generateQuestion: () => TQuestion;
+  /**
+   * 問題を 1 問生成する。生成に失敗しうる出題（合計符など）は undefined を
+   * 返してよく、盤面は問題が揃うまでプレースホルダを描く
+   */
+  readonly generateQuestion: () => TQuestion | undefined;
   /** 選択肢として並べる符（インデックスで選択される） */
   readonly options: readonly number[];
   /**
@@ -34,6 +37,8 @@ interface UseFuChoiceBoardResult<TQuestion extends FuQuestion> {
   /** 直前に選択された符（未選択時は undefined） */
   readonly selectedFu: number | undefined;
   readonly handleSelect: (index: number) => void;
+  /** 「わからない」で正解を開示中か（チャレンジでは常に false） */
+  readonly isRevealed: boolean;
 }
 
 /**
@@ -59,7 +64,9 @@ export function useFuChoiceBoard<TQuestion extends FuQuestion>({
     setSelectedFu(undefined);
   }, [generateQuestion, setQuestion]);
 
-  useTrainingReveal(question === undefined ? undefined : advanceQuestion);
+  const isRevealed = useTrainingReveal(
+    question === undefined ? undefined : advanceQuestion,
+  );
 
   const handleSelect = useCallback(
     (index: number) => {
@@ -79,5 +86,5 @@ export function useFuChoiceBoard<TQuestion extends FuQuestion>({
     ],
   );
 
-  return { question, selectedFu, handleSelect };
+  return { question, selectedFu, handleSelect, isRevealed };
 }

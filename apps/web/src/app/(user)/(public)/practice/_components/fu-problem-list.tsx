@@ -2,15 +2,17 @@
 
 import { useTranslations } from "next-intl";
 import { parseHais, parseKazehai, parseTehai } from "@mahjong-scoring/core";
-import { AnswerComparison } from "../../_components/answer-comparison";
-import { ProblemListAccordion } from "../../_components/problem-list-accordion";
-import { TehaiDisplay } from "../../_components/tehai-display";
-import { TehaiMentsuBreakdown } from "../../_components/tehai-mentsu-breakdown";
-import type { TotalFuQuestionResult } from "../_lib/types";
+import { AnswerComparison } from "./answer-comparison";
+import { ProblemListAccordion } from "./problem-list-accordion";
+import { TehaiDisplay } from "./tehai-display";
+import { TehaiMentsuBreakdown } from "./tehai-mentsu-breakdown";
 import { FuBreakdown } from "./fu-breakdown";
+import type { FuQuestionResult } from "../_lib/fu-question-result";
 
-interface TotalFuProblemListProps {
-  readonly results: readonly TotalFuQuestionResult[];
+interface FuProblemListProps {
+  readonly results: readonly FuQuestionResult[];
+  /** 練習の翻訳名前空間（例: "totalFu"） */
+  readonly translationNamespace: string;
 }
 
 /**
@@ -20,7 +22,7 @@ interface TotalFuProblemListProps {
  * MSPZ のパースに失敗した場合は undefined を返し、手牌の再表示だけを諦める
  * （符の内訳と回答の比較は文字列に依存しないため表示できる）。
  */
-function restoreQuestion(result: TotalFuQuestionResult) {
+function restoreQuestion(result: FuQuestionResult) {
   const tehai = parseTehai(result.tehai);
   const agariHai = parseHais(result.agariHai)[0];
   const bakaze = parseKazehai(result.bakaze);
@@ -33,19 +35,22 @@ function restoreQuestion(result: TotalFuQuestionResult) {
 }
 
 /**
- * 合計符練習の問題別フィードバック一覧
+ * 手牌の合計符を答える出題の問題別フィードバック一覧
  * 合計符問題一覧
  *
  * 各問をアコーディオン形式で表示し、展開すると出題された手牌・符の内訳・
- * 正解とユーザー回答を確認できる。
+ * 正解とユーザー回答を確認できる。合計符を答える練習と昇級試験で共有する。
  */
-export function TotalFuProblemList({ results }: TotalFuProblemListProps) {
-  const t = useTranslations("totalFu");
+export function FuProblemList({
+  results,
+  translationNamespace,
+}: FuProblemListProps) {
+  const t = useTranslations(translationNamespace);
 
   return (
     <ProblemListAccordion
       results={results}
-      translationNamespace="totalFu"
+      translationNamespace={translationNamespace}
       isCorrect={(r) => r.isCorrect}
       renderSummary={(result) => t("fuSuffix", { value: result.correctFu })}
       renderDetail={(result) => {
@@ -67,13 +72,17 @@ export function TotalFuProblemList({ results }: TotalFuProblemListProps) {
             )}
 
             <AnswerComparison
-              translationNamespace="totalFu"
+              translationNamespace={translationNamespace}
               isCorrect={result.isCorrect}
               correct={t("fuSuffix", { value: result.correctFu })}
               user={t("fuSuffix", { value: result.userFu })}
             />
 
-            <FuBreakdown details={result.fuDetails} answer={result.correctFu} />
+            <FuBreakdown
+              details={result.fuDetails}
+              answer={result.correctFu}
+              translationNamespace={translationNamespace}
+            />
           </div>
         );
       }}

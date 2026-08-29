@@ -82,6 +82,22 @@ describe("ContinueLearningSection", () => {
     expect(progress.getAttribute("data-total")).toBe(String(CURRICULUM.length));
   });
 
+  it("章の下のスロットを描画する（目次リンクは残る）", async () => {
+    const { getByTestId, container } = render(
+      await ContinueLearningSection({
+        readSlugs: new Set(),
+        nextChapter: jantouFu,
+        trailingRow: <a data-testid="trailing" href="/exam/fu" />,
+      }),
+    );
+
+    expect(getByTestId("trailing")).toBeDefined();
+    const hrefs = Array.from(container.querySelectorAll("a")).map((a) =>
+      a.getAttribute("href"),
+    );
+    expect(hrefs).toEqual(expect.arrayContaining(["/exam/fu", "/learn"]));
+  });
+
   it("目次ページへのリンクを持つ", async () => {
     const { container } = render(
       await ContinueLearningSection({

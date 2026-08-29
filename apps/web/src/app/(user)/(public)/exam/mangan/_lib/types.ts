@@ -21,6 +21,17 @@ export const RESULT_STORAGE_KEY = resultStorageKeyFor("mangan-exam");
  * 意図的にルール設定（連風牌4符・切り上げ満貫）を含めない: どちらも
  * 5翻以上の点数には影響しないため、端末ローカル設定に関係なく全受験者が
  * 同一条件になる。この独立性は `__tests__/exam-options.test.ts` が守る。
+ *
+ * @remarks 合格ラインを調整するときの前提
+ *
+ * この条件で生成される問題の区分の内訳（実測）:
+ * 満貫 48% / 跳満 33% / 倍満 12% / 三倍満 1% / 役満（数え含む）6%。
+ * 役満の 6% は「役一覧なしで 13 翻を数える」問題で、事実上の高難度枠。
+ *
+ * 合格ライン（`RANK_REGISTRY` の `minScore`）と制限時間
+ * （`PRACTICE_MENU_REGISTRY` の `timeLimit`）を動かすときは、平均難易度が
+ * この内訳で決まっていることを踏まえること。出題条件を変えれば内訳ごと
+ * 変わるため、そちらを触ったら数値も取り直す。
  */
 export const EXAM_GENERATE_OPTIONS = {
   allowedRanges: ["manganPlus"],

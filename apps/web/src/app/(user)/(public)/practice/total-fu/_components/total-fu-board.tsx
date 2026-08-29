@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useState } from "react";
+import { useCallback } from "react";
 import { useTranslations } from "next-intl";
 import {
   FU_VALUES,
@@ -9,23 +9,16 @@ import {
 } from "@mahjong-scoring/core";
 import type { TotalFuQuestion } from "@mahjong-scoring/core";
 import { useRuleSettingsStore } from "@/app/_hooks/use-rule-settings-store";
-import { toQuestionResult } from "../_lib/types";
+import { toFuQuestionResult } from "../_lib/types";
 import type { TotalFuQuestionResult } from "../_lib/types";
 import { FuChoiceGrid } from "../../_components/fu-choice-grid";
 import { QuestionGeneratingPlaceholder } from "../../_components/question-generating-placeholder";
-import { useClientGeneratedQuestion } from "../../_hooks/use-client-generated-question";
-import { useTrainingReveal } from "../../_hooks/use-training-reveal";
+import { useFuChoiceBoard } from "../../_hooks/use-fu-choice-board";
 import { TehaiDisplay } from "../../_components/tehai-display";
-import { FuBreakdown } from "./fu-breakdown";
+import { FuBreakdown } from "../../_components/fu-breakdown";
 import { QuestionPrompt } from "../../_components/question-prompt";
 import { Button } from "@/app/(user)/_components/button";
 import type { RecordingPracticeBoardProps } from "../../_lib/practice-board-props";
-
-function generateQuestion(
-  renfonpaiAs4Fu: boolean,
-): TotalFuQuestion | undefined {
-  return retryGenerate(() => generateTotalFuQuestion({ renfonpaiAs4Fu }));
-}
 
 interface TotalFuBoardProps extends RecordingPracticeBoardProps<TotalFuQuestionResult> {
   /**
@@ -57,32 +50,22 @@ export function TotalFuBoard({
 }: TotalFuBoardProps) {
   const t = useTranslations("totalFu");
   const renfonpaiAs4Fu = useRuleSettingsStore((s) => s.renfonpaiAs4Fu);
-  const generate = useCallback(
-    () => generateQuestion(renfonpaiAs4Fu),
+  const generateQuestion = useCallback(
+    () => retryGenerate(() => generateTotalFuQuestion({ renfonpaiAs4Fu })),
     [renfonpaiAs4Fu],
   );
-  const [question, setQuestion] = useClientGeneratedQuestion(generate);
-  const [selectedFu, setSelectedFu] = useState<number | undefined>(undefined);
-
-  const advanceQuestion = useCallback(() => {
-    setQuestion(generate());
-    setSelectedFu(undefined);
-  }, [generate, setQuestion]);
-
-  const isRevealed = useTrainingReveal(
-    question === undefined ? undefined : advanceQuestion,
+  const recordResult = useCallback(
+    (question: TotalFuQuestion, fu: number) =>
+      onRecordResult?.(toFuQuestionResult(question, fu)),
+    [onRecordResult],
   );
-
-  const handleSelect = useCallback(
-    (index: number) => {
-      if (showFeedback || !question) return;
-      const fu = FU_VALUES[index];
-      setSelectedFu(fu);
-      onRecordResult?.(toQuestionResult(question, fu));
-      onAnswer(fu === question.answer, advanceQuestion);
-    },
-    [showFeedback, question, onAnswer, advanceQuestion, onRecordResult],
-  );
+  const { question, selectedFu, handleSelect, isRevealed } = useFuChoiceBoard({
+    generateQuestion,
+    options: FU_VALUES,
+    showFeedback,
+    onAnswer,
+    onRecordResult: recordResult,
+  });
 
   if (!question) {
     return <QuestionGeneratingPlaceholder label={t("generating")} />;
@@ -111,7 +94,11 @@ export function TotalFuBoard({
 
       {showFeedback && (onProceed !== undefined || isRevealed) && (
         <>
-          <FuBreakdown details={question.fuDetails} answer={question.answer} />
+          <FuBreakdown
+            details={question.fuDetails}
+            answer={question.answer}
+            translationNamespace="totalFu"
+          />
           {/* 開示中の「次の問題へ」はシェルのフッターにあるため、ここには出さない */}
           {onProceed !== undefined && !isRevealed && (
             <Button size="lg" fullWidth onClick={onProceed}>

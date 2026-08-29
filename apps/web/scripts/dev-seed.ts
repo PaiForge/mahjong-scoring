@@ -78,8 +78,12 @@ async function main() {
 
   for (const user of SEED_USERS) {
     const userId = await ensureSeedUser(admin, db, user);
-    const role = user.isAdmin ? " (admin ロール付与)" : "";
-    console.log(`  ${user.username.padEnd(12)} → ${userId}${role}`);
+    const notes = [
+      user.isAdmin ? "admin ロール付与" : undefined,
+      user.ranks?.length ? `段級位: ${user.ranks.join(", ")}` : undefined,
+    ].filter((note) => note !== undefined);
+    const suffix = notes.length > 0 ? ` (${notes.join(" / ")})` : "";
+    console.log(`  ${user.username.padEnd(12)} → ${userId}${suffix}`);
     console.log(
       `  ${"".padEnd(12)}   ${user.email} / ${SEED_PASSWORD} でサインイン`,
     );

@@ -79,6 +79,13 @@ export const PRACTICE_CATALOG: readonly PracticeMenu[] = [
     difficulty: "advanced",
     learnChapter: "tehai-fu",
   },
+  {
+    // 昇級試験の前提章は段級位レジストリ（`RANK_REGISTRY` の
+    // `learnChapterSlugs`）が持つため `learnChapter` を持たない
+    slug: "fu-exam",
+    category: "fuCalculation",
+    difficulty: "advanced",
+  },
   { slug: "yaku-han", category: "han", difficulty: "beginner" },
   {
     slug: "yaku",

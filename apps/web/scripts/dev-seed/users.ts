@@ -6,11 +6,27 @@
  * 「ログインしてすぐ使えるユーザー」を作る。プロフィール作成は
  * アプリ側と同じくアプリ層の責務（`registerUsername`）なので、
  * ここでもサインアップ経路と同じ順序（createUser → profiles INSERT）で作る。
+ *
+ * 段級位を持つユーザーは `user_ranks` に直接行を入れて作る。合格判定
+ * （`checkAndGrantRanks`）を通すには、その級の昇級試験のベストスコアを
+ * `challenge_best_scores` に捏造することになり、シードが「試験に受かった
+ * ことにする」ための偽の記録を持つ。段級位の表示を確認したいだけなので、
+ * 付与記録そのものを置く（admin ロールを直接入れているのと同じ立て付け）。
  */
 import type { SupabaseClient } from "@supabase/supabase-js";
 import type { PostgresJsDatabase } from "drizzle-orm/postgres-js";
 
-import { profiles, userRoles } from "../../src/lib/db/schema";
+import {
+  learnChapterReads,
+  profiles,
+  userRanks,
+  userRoles,
+} from "../../src/lib/db/schema";
+import {
+  RANK_REGISTRY,
+  nextRank,
+  type RankSlug,
+} from "../../src/lib/ranks/registry";
 
 export interface SeedUser {
   readonly email: string;
@@ -25,6 +41,15 @@ export interface SeedUser {
    * 投入先をローカルに限定しているため自動化してよい。
    */
   readonly isAdmin?: boolean;
+  /**
+   * 付与する段級位（`user_ranks` の行）。
+   *
+   * 実際の受験と同じく、下位の級も併せて持たせること（4級のユーザーは
+   * 5級も持つ）。マイページ・道場が出すのは最上位の級だが、道場の
+   * 「次の段級位」は未取得の最下位を選ぶため、5級を飛ばすと4級を
+   * 持ちながら5級の試験を勧められる状態になる。
+   */
+  readonly ranks?: readonly RankSlug[];
 }
 
 /**
@@ -33,6 +58,13 @@ export interface SeedUser {
  * 管理者と一般ユーザーを分けているのは、「管理者でないユーザーが
  * `/admin` にアクセスすると 404」という経路を同じシードのまま
  * 確認できるようにするため。
+ *
+ * 一般ユーザーは参考プロジェクト（blindfold-chess）と同じく
+ * alice / bob / carol … の並びで、確認したい状態の数だけ増やす。
+ * 状態を名前に埋める（`kyu4@example.local` のような）付け方をしない —
+ * 段級位が増えるたびに名前を付け直すことになるうえ、そのユーザーが
+ * 昇級すると名前が嘘になる。名前はただの識別子として置き、どの状態を
+ * 表しているかはこの表のコメントで示す。
  */
 export const SEED_USERS: readonly SeedUser[] = [
   {
@@ -41,10 +73,25 @@ export const SEED_USERS: readonly SeedUser[] = [
     displayName: "管理者（シード）",
     isAdmin: true,
   },
+  // 無級。段級位を1つも持たない状態（道場は5級の試験を勧める）
   {
-    email: "user@example.local",
-    username: "seed_user",
-    displayName: "一般ユーザー（シード）",
+    email: "alice@example.local",
+    username: "seed_alice",
+    displayName: "アリス（シード）",
+  },
+  // 5級。道場・ダッシュボードが次の級（4級）の試験を出す状態
+  {
+    email: "bob@example.local",
+    username: "seed_bob",
+    displayName: "ボブ（シード）",
+    ranks: ["kyu-5"],
+  },
+  // 最上位の級。道場は「新しい段級位は準備中」を出す
+  {
+    email: "carol@example.local",
+    username: "seed_carol",
+    displayName: "キャロル（シード）",
+    ranks: ["kyu-5", "kyu-4"],
   },
 ];
 
@@ -83,7 +130,44 @@ export async function ensureSeedUser(
       .onConflictDoNothing();
   }
 
+  if (user.ranks && user.ranks.length > 0) {
+    await db
+      .insert(userRanks)
+      .values(user.ranks.map((rankSlug) => ({ userId, rankSlug })))
+      .onConflictDoNothing();
+
+    await db
+      .insert(learnChapterReads)
+      .values(
+        readChaptersFor(user.ranks).map((chapterSlug) => ({
+          userId,
+          chapterSlug,
+        })),
+      )
+      .onConflictDoNothing();
+  }
+
   return userId;
+}
+
+/**
+ * 段級位を持つユーザーが読み終えていることにする章
+ * シード読了章
+ *
+ * 取得済みの級の前提章に加えて、次に取る級の前提章も読了にする。
+ * ダッシュボードの昇級試験カードは「次の級の前提章をすべて読んだ人」に
+ * だけ出るため、これが無いと5級のシードユーザーでダッシュボードから
+ * 4級の試験に辿り着けない（道場からは読了に関係なく辿り着ける）。
+ *
+ * 章の一覧は段級位レジストリから引く。級を足しても、その級の前提章が
+ * 自動で読了に入る。
+ */
+function readChaptersFor(ranks: readonly RankSlug[]): readonly string[] {
+  const held = RANK_REGISTRY.filter((rank) => ranks.includes(rank.slug));
+  const next = nextRank(ranks);
+  const target = next === undefined ? held : [...held, next];
+
+  return [...new Set(target.flatMap((rank) => rank.learnChapterSlugs))];
 }
 
 /**

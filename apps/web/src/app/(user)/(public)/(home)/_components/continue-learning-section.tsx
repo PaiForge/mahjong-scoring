@@ -1,3 +1,4 @@
+import type { ReactNode } from "react";
 import Link from "next/link";
 import { getTranslations } from "next-intl/server";
 
@@ -15,6 +16,15 @@ interface ContinueLearningSectionProps {
   readonly readSlugs: ReadonlySet<string>;
   /** 次に読む章 */
   readonly nextChapter: CurriculumChapter;
+  /**
+   * セクションの末尾に添える行リンク（受験できる昇級試験など）。
+   *
+   * 本題（読みかけの位置 → 目次へ）を最後まで通したあとに置く。教本を
+   * 読み進めた先にある行き先なのでこのセクションに同居させるが、
+   * 章と目次の間に割り込ませない。ランクを知らないままにするため
+   * スロットで受ける。
+   */
+  readonly trailingRow?: ReactNode;
 }
 
 /**
@@ -31,6 +41,7 @@ interface ContinueLearningSectionProps {
 export async function ContinueLearningSection({
   readSlugs,
   nextChapter,
+  trailingRow,
 }: ContinueLearningSectionProps) {
   const t = await getTranslations("dashboard");
 
@@ -59,6 +70,8 @@ export async function ContinueLearningSection({
           {t("viewAllChapters")}
         </Link>
       </div>
+
+      {trailingRow}
     </div>
   );
 }
