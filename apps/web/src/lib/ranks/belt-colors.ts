@@ -17,19 +17,19 @@ interface BeltColorClasses {
   /**
    * 帯色のボタン（`buttonClasses({ variant: "belt" })`）が読む CSS 変数。
    *
-   * ボタンは塗り・hover・枠とハードシャドウの 3 箇所を帯色で塗り分けるため、
-   * クラスを並べると級が増えるたびに 3 箇所へ同じ色を書くことになる。どこを
-   * どう塗るかはボタン側の知識なので、ここは色の値だけを変数で渡す。
+   * ボタンは塗り・hover・文字・枠とハードシャドウの 4 箇所を帯色で塗り分ける
+   * ため、クラスを並べると級が増えるたびに 4 箇所へ同じ色を書くことになる。
+   * どこをどう塗るかはボタン側の知識なので、ここは色の値だけを変数で渡す。
    *
-   * - `--belt-fill` 塗り
-   * - `--belt-fill-hover` hover の塗り（1 段濃い）
-   * - `--belt-edge` 枠とハードシャドウ（さらに 1 段濃い）
+   * - `--belt-fill` 塗り（100 — 帯色の淡い側）
+   * - `--belt-fill-hover` hover の塗り（200）
+   * - `--belt-text` 淡い塗りに載せる文字（800）
+   * - `--belt-edge` 枠とハードシャドウ（500 — 帯そのものの色）
    *
-   * 塗りに帯そのもの（`bg` の 500）ではなく 700 を使うのは、白文字の
-   * コントラストのため。orange-500 に白は 2.8:1 で、太字 14px に必要な
-   * 4.5:1 に届かない（アプリの既存のボタンで最も低い destructive でも
-   * 3.9:1）。700 なら orange で 5.2:1・blue で 6.8:1 で、warning
-   * （5.0:1）と同じ水準に収まる。
+   * 塗りが帯そのもの（`bg` の 500）ではなく 100 なのは、白いカードの中で
+   * 500 の面が濃く浮くため。帯の色は枠とハードシャドウが持ち、面は同じ色相の
+   * 淡い側に寝かせる。文字は 800 で、静止時 6.4:1（orange）/ 7.2:1（blue）、
+   * hover でも 5.4:1 / 6.2:1 と AA を保つ。
    */
   readonly buttonVars: string;
 }
@@ -58,13 +58,13 @@ export const RANK_BELT_CLASSES: Readonly<Record<RankSlug, BeltColorClasses>> = {
     bg: "bg-orange-500",
     border: "border-orange-500",
     buttonVars:
-      "[--belt-fill:var(--color-orange-700)] [--belt-fill-hover:var(--color-orange-800)] [--belt-edge:var(--color-orange-900)]",
+      "[--belt-fill:var(--color-orange-100)] [--belt-fill-hover:var(--color-orange-200)] [--belt-text:var(--color-orange-800)] [--belt-edge:var(--color-orange-500)]",
   },
   "kyu-4": {
     bg: "bg-blue-500",
     border: "border-blue-500",
     buttonVars:
-      "[--belt-fill:var(--color-blue-700)] [--belt-fill-hover:var(--color-blue-800)] [--belt-edge:var(--color-blue-900)]",
+      "[--belt-fill:var(--color-blue-100)] [--belt-fill-hover:var(--color-blue-200)] [--belt-text:var(--color-blue-800)] [--belt-edge:var(--color-blue-500)]",
   },
 };
 
@@ -78,10 +78,10 @@ const UNRANKED_BELT_CLASSES: BeltColorClasses = {
   bg: "bg-surface-200",
   border: "border-surface-300",
   // 塗りと枠が別の濃さなのは、淡いグレーの円を淡いグレーで縁取ると輪郭が
-  // 消えるため。ボタンは白文字が載る面なので、淡いグレーではなく
-  // 色付きの級と同じ濃さ（600〜800）に合わせる
+  // 消えるため。ボタンも同じ理由で、面（surface-100）より枠（surface-300）を
+  // 濃くする
   buttonVars:
-    "[--belt-fill:var(--color-surface-600)] [--belt-fill-hover:var(--color-surface-700)] [--belt-edge:var(--color-surface-800)]",
+    "[--belt-fill:var(--color-surface-100)] [--belt-fill-hover:var(--color-surface-200)] [--belt-text:var(--color-surface-700)] [--belt-edge:var(--color-surface-300)]",
 };
 
 function classesFor(slug: RankSlug | undefined): BeltColorClasses {

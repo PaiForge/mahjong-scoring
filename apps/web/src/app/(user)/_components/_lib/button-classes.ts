@@ -80,14 +80,18 @@ const VARIANT_CLASSES: Record<ButtonVariant, string> = {
   primary: "border-ink bg-primary-500 text-white hover:bg-primary-600",
   secondary: "border-ink bg-card text-primary-700 hover:bg-primary-50",
   neutral: "border-ink bg-card text-surface-700 hover:bg-surface-100",
-  // 段級位の帯色で塗り潰したボタン。塗り・hover・枠・影をすべて帯色で通し、
-  // 緑を一切載せない。5級のカードの中のボタンはオレンジ、4級なら青になる。
-  // primary の緑をその級の色に置き換えたもの、と読めばよい。
+  // 段級位の帯色をまとったボタン。塗り・hover・文字・枠・影をすべて帯色で
+  // 通し、緑を一切載せない。5級のカードの中のボタンはオレンジ、4級なら青。
+  //
+  // 面は帯色の淡い側で、帯そのものの濃さは枠とハードシャドウが持つ。濃い色で
+  // 塗り潰すと、白いカードの中でボタンだけが重く浮いて先に目に入る
+  // （このボタンは章や合格基準を読んだ後に押すもので、カードの主役ではない）。
+  // 淡い面 + 濃い枠なら、級の色であることは保ったまま重さだけが下がる。
   //
   // 色そのものは持たず `--belt-*` を読むだけにしてある。級ごとの値は
   // `lib/ranks/belt-colors.ts` が正典で、呼び出し側が `beltButtonVarsClass()`
   // を className に添えて立てる（級が増えても触るのは向こう 1 箇所）。
-  // 変数が無い面に置かれたときは primary に落ちて既定の見た目になる。
+  // 変数が無い面に置かれたときは緑の淡い側に落ちて既定の見た目になる。
   //
   // 枠と影も帯色にする。他の色付き variant（danger / warning）は枠を ink の
   // ままにしているが、この variant が着くのは帯色で縁取ったカードの中で、
@@ -97,7 +101,7 @@ const VARIANT_CLASSES: Record<ButtonVariant, string> = {
   // を要素側で立てて差し替え（`shadow-*` は素の値ではなくこの変数を参照して
   // 展開される）、hover / active は press-* が読む `--press-shadow-color` で
   // 差し替える。サイズによって使う影が変わるため sm / md の両方を立てておく。
-  belt: "border-[color:var(--belt-edge,var(--color-ink))] bg-[color:var(--belt-fill,var(--color-primary-500))] text-white hover:bg-[color:var(--belt-fill-hover,var(--color-primary-600))] [--skin-shadow-sm:3px_3px_0_var(--belt-edge,var(--color-ink))] [--skin-shadow-md:4px_4px_0_var(--belt-edge,var(--color-ink))] [--press-shadow-color:var(--belt-edge,var(--color-ink))]",
+  belt: "border-[color:var(--belt-edge,var(--color-ink))] bg-[color:var(--belt-fill,var(--color-primary-50))] text-[color:var(--belt-text,var(--color-primary-800))] hover:bg-[color:var(--belt-fill-hover,var(--color-primary-100))] [--skin-shadow-sm:3px_3px_0_var(--belt-edge,var(--color-ink))] [--skin-shadow-md:4px_4px_0_var(--belt-edge,var(--color-ink))] [--press-shadow-color:var(--belt-edge,var(--color-ink))]",
   danger: "border-ink bg-destructive text-white hover:bg-destructive/90",
   warning: "border-ink bg-warning text-white hover:bg-warning/90",
   // 枠は他の variant と同じ ink。枠を destructive にすると、全 variant 共通の
