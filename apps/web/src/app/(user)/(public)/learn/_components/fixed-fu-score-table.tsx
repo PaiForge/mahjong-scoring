@@ -86,7 +86,7 @@ export async function FixedFuScoreTable({
         >
           <tr className="bg-white">
             <td className="px-4 py-3 text-left font-medium whitespace-nowrap text-surface-600">
-              {t("rowTsumo")}
+              {t("tsumo")}
             </td>
             {tsumoPayments.map((tsumo, index) => (
               <td key={hanCols[index]} className="px-4 py-3">
@@ -102,7 +102,7 @@ export async function FixedFuScoreTable({
           </tr>
           <tr className="bg-white">
             <td className="px-4 py-3 text-left font-medium whitespace-nowrap text-surface-600">
-              {t("rowRon")}
+              {t("ron")}
             </td>
             {ronScores.map((ron, index) => (
               <td

@@ -131,6 +131,7 @@ export function generateScoreQuestion(
 ): ScoreQuestion | undefined {
   const {
     includeFuro = true,
+    requireFuro = false,
     includeChiitoi = false,
     includeParent = true,
     includeChild = true,
@@ -155,6 +156,8 @@ export function generateScoreQuestion(
     : generateMentsuTehai(includeFuro);
   if (!tehaiResult) return undefined;
   const { tehai, agariHai } = tehaiResult;
+  //    副露縛りは手を作った直後に判定する（点数計算まで進めてから捨てない）
+  if (requireFuro && isMenzen(tehai)) return undefined;
 
   // 2. 和了状況の決定
   const isTsumo = randomBool(0.5);

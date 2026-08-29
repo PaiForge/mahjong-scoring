@@ -5,6 +5,7 @@ import {
   RANGE_TOKEN_MANGAN_PLUS,
   RANGE_TOKEN_NON_MANGAN,
 } from "../../_lib/range-params";
+import { HAND_SHAPE_PARAM, type HandShape } from "./hand-shape-param";
 import { YAKU_PARAM, yakuTokenOf } from "./yaku-filter-params";
 
 /**
@@ -19,10 +20,12 @@ import { YAKU_PARAM, yakuTokenOf } from "./yaku-filter-params";
  *
  * @param picks.yaku 出題する役（日本語役名、OR）。allowlist 外の役は無視される
  * @param picks.ranges 出題する点数帯
+ * @param picks.handShape 手の形の絞り込み（既定: 門前・副露の両方）
  */
 export function scorePracticePlayHref(picks: {
   readonly yaku?: readonly string[];
   readonly ranges?: readonly ScoreRange[];
+  readonly handShape?: HandShape;
 }): string {
   const params = new URLSearchParams();
 
@@ -38,6 +41,9 @@ export function scorePracticePlayHref(picks: {
     if (ranges.includes("manganPlus"))
       params.append(RANGE_PARAM, RANGE_TOKEN_MANGAN_PLUS);
   }
+
+  if (picks.handShape !== undefined)
+    params.set(HAND_SHAPE_PARAM, picks.handShape);
 
   const query = params.toString();
   return query ? `/practice/score/play?${query}` : "/practice/score/play";
