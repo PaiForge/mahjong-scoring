@@ -23,7 +23,7 @@ interface BeltColorClasses {
  * @description
  * 道場の現在の段級位バッジ・昇級試験カード・マイページの段級位ピルが引く。
  * 参考プロジェクト（blindfold-chess）の帯色体系に合わせており、5級は
- * オレンジ。級が増えるたびにここへ 1 行足す（`Record<RankSlug, ...>` なので
+ * オレンジ・4級は青。級が増えるたびにここへ 1 行足す（`Record<RankSlug, ...>` なので
  * 追加漏れはコンパイルで落ちる）。
  *
  * @design セマンティックトークンではなく Tailwind の既定色を直接使う理由
@@ -37,6 +37,7 @@ interface BeltColorClasses {
  */
 export const RANK_BELT_CLASSES: Readonly<Record<RankSlug, BeltColorClasses>> = {
   "kyu-5": { bg: "bg-orange-500", border: "border-orange-500" },
+  "kyu-4": { bg: "bg-blue-500", border: "border-blue-500" },
 };
 
 /**

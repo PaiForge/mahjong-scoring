@@ -115,6 +115,25 @@ export const RANK_REGISTRY = [
       "yaku",
     ],
   },
+  {
+    // 合格基準: 手牌の符が計算できること
+    slug: "kyu-4",
+    level: 20,
+    requirements: [
+      {
+        type: "challenge_score",
+        menuType: "fu_exam",
+        leaderboardKey: "default",
+        // 合格条件: 昇級試験で制限時間以内に6問正解（ミスは1回で終了 —
+        // 練習レジストリの mistakeLimit が強制する）。
+        // 5級（10問）より少ないのは1問の重さが違うため: あちらは翻数を
+        // 数えて点数を引くだけだが、こちらは副底から待ち符までを積み上げて
+        // 切り上げる手数が要る
+        minScore: 6,
+      },
+    ],
+    learnChapterSlugs: ["jantou-fu", "mentsu-fu", "machi-fu", "tehai-fu"],
+  },
 ] as const satisfies readonly RankDefinitionEntry[];
 
 /** 段級位スラッグ */

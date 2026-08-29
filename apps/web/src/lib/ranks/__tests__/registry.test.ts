@@ -24,17 +24,23 @@ describe("RANK_REGISTRY", () => {
     }
   });
 
-  it("5級の合格条件: 昇級試験でミス1回・10問正解（プロダクト仕様の固定）", () => {
-    // 「1ミスでアウト」は要件側でなく練習レジストリの mistakeLimit が強制する
-    // 分業になっている。試験の mistakeLimit を緩めると、要件の minScore 比較の
-    // 意味（ノーミス相当で10問正解）が変わってしまうため、ここで突き合わせる。
-    const kyu5 = RANK_REGISTRY.find((rank) => rank.slug === "kyu-5");
-    expect(kyu5).toBeDefined();
-    const requirement = kyu5!.requirements[0]!;
-    expect(requirement.menuType).toBe("mangan_exam");
-    expect(requirement.minScore).toBe(10);
-    expect(practiceMenuByType(requirement.menuType).mistakeLimit).toBe(1);
-  });
+  // 「1ミスでアウト」は要件側でなく練習レジストリの mistakeLimit が強制する
+  // 分業になっている。試験の mistakeLimit を緩めると、要件の minScore 比較の
+  // 意味（ノーミス相当で N 問正解）が変わってしまうため、ここで突き合わせる。
+  it.each([
+    { slug: "kyu-5", menuType: "mangan_exam", minScore: 10 },
+    { slug: "kyu-4", menuType: "fu_exam", minScore: 6 },
+  ])(
+    "$slug の合格条件: $menuType でミス1回・$minScore 問正解（プロダクト仕様の固定）",
+    ({ slug, menuType, minScore }) => {
+      const rank = RANK_REGISTRY.find((entry) => entry.slug === slug);
+      expect(rank).toBeDefined();
+      const requirement = rank!.requirements[0]!;
+      expect(requirement.menuType).toBe(menuType);
+      expect(requirement.minScore).toBe(minScore);
+      expect(practiceMenuByType(requirement.menuType).mistakeLimit).toBe(1);
+    },
+  );
 
   it("前提章がカリキュラムの表示順で並んでいる（道場がそのまま描画する）", () => {
     const orderBySlug = new Map(

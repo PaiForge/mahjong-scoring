@@ -12,7 +12,7 @@ import { join } from "node:path";
 import { generateTotalFuQuestion, retryGenerate } from "@mahjong-scoring/core";
 import { describe, expect, it } from "vitest";
 
-import { EXAM_GENERATE_OPTIONS } from "../types";
+import { EXAM_GENERATE_OPTIONS, EXAM_GENERATION_MAX_RETRIES } from "../types";
 
 describe("EXAM_GENERATE_OPTIONS", () => {
   it("連風牌（場風＝自風）の局面を出題しない", () => {
@@ -21,12 +21,19 @@ describe("EXAM_GENERATE_OPTIONS", () => {
 
   it("この条件で生成した問題は場風と自風が必ず異なる", () => {
     for (let i = 0; i < 50; i++) {
-      const question = retryGenerate(() =>
-        generateTotalFuQuestion(EXAM_GENERATE_OPTIONS),
+      const question = retryGenerate(
+        () => generateTotalFuQuestion(EXAM_GENERATE_OPTIONS),
+        EXAM_GENERATION_MAX_RETRIES,
       );
       expect(question).toBeDefined();
       expect(question!.context.jikaze).not.toBe(question!.context.bakaze);
     }
+  });
+
+  it("生成予算が既定より大きい（盤面が生成待ちで固まらない）", () => {
+    // 1回の試行あたりの成立率は約44%。既定の10では約0.3%/問で生成に失敗し、
+    // 試験1回ぶんでは約3%が「答えられない問題」に当たる
+    expect(EXAM_GENERATION_MAX_RETRIES).toBeGreaterThanOrEqual(100);
   });
 
   it("ルール設定（連風牌4符）を出題条件に含めない", () => {

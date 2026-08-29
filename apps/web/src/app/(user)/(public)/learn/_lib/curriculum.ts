@@ -150,6 +150,8 @@ const CURRICULUM_REGISTRY = [
     section: "fu",
     order: 60,
     practiceHrefs: ["/practice/mentsu-jantou-fu"],
+    // 符のセクションの前3章と本章で4級試験の前提知識が揃う
+    examSlug: "fu-exam",
     i18nKey: "learnCurriculum.chapters.tehaiFu",
   },
   {

@@ -33,3 +33,16 @@ export const RESULT_STORAGE_KEY = resultStorageKeyFor("fu-exam");
 export const EXAM_GENERATE_OPTIONS = {
   excludeRenfonpai: true,
 } as const satisfies Parameters<typeof generateTotalFuQuestion>[0];
+
+/**
+ * 昇級試験の出題の生成リトライ予算
+ * 試験出題リトライ予算
+ *
+ * 合計符の出題は1回の試行あたり約44%しか成立せず（牌の残数不足・役なしの手を
+ * 弾くため）、`retryGenerate` の既定予算10では約0.3%/問で生成に失敗する。
+ * 失敗した問題は盤面がプレースホルダのまま固まり、タイマーだけが進む。
+ * 10問前後を解く試験では1回の受験あたり約3%がそれに当たる計算で、合否が
+ * 記録に残る試験としては許容できない。100 なら失敗確率は実質ゼロで、
+ * 平均試行回数は2〜3回のままなので生成コストも増えない。
+ */
+export const EXAM_GENERATION_MAX_RETRIES = 100;

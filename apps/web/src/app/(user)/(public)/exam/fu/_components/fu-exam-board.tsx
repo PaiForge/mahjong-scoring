@@ -14,7 +14,11 @@ import { QuestionPrompt } from "@/app/(user)/(public)/practice/_components/quest
 import { TehaiDisplay } from "@/app/(user)/(public)/practice/_components/tehai-display";
 import { useFuChoiceBoard } from "@/app/(user)/(public)/practice/_hooks/use-fu-choice-board";
 import type { RecordingPracticeBoardProps } from "@/app/(user)/(public)/practice/_lib/practice-board-props";
-import { EXAM_GENERATE_OPTIONS, toFuQuestionResult } from "../_lib/types";
+import {
+  EXAM_GENERATE_OPTIONS,
+  EXAM_GENERATION_MAX_RETRIES,
+  toFuQuestionResult,
+} from "../_lib/types";
 import type { FuExamQuestionResult } from "../_lib/types";
 
 type FuExamBoardProps = RecordingPracticeBoardProps<FuExamQuestionResult>;
@@ -39,7 +43,11 @@ export function FuExamBoard({
 }: FuExamBoardProps) {
   const t = useTranslations("fuExamChallenge");
   const generateQuestion = useCallback(
-    () => retryGenerate(() => generateTotalFuQuestion(EXAM_GENERATE_OPTIONS)),
+    () =>
+      retryGenerate(
+        () => generateTotalFuQuestion(EXAM_GENERATE_OPTIONS),
+        EXAM_GENERATION_MAX_RETRIES,
+      ),
     [],
   );
   const recordResult = useCallback(
