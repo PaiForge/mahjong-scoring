@@ -35,6 +35,7 @@ describe("MODULES", () => {
       "yaku_han",
       "mangan_score_calculation",
       "mangan_exam",
+      "fu_exam",
     ]);
   });
 });

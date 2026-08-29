@@ -245,6 +245,11 @@
         "title": "昇級試験：満貫以上の点数計算",
         "shortTitle": "満貫試験",
         "description": "役の表示なしで手牌から翻数を数え、満貫以上の点数を答える試験形式のチャレンジ。ミスは1回まで"
+      },
+      "fuExam": {
+        "title": "昇級試験：手牌の合計符",
+        "shortTitle": "符試験",
+        "description": "手牌全体の符を合計し、切り上げ後の符を答える試験形式のチャレンジ。ミスは1回まで"
       }
     },
     "dojoRow": {
@@ -1880,7 +1885,8 @@
       "hanCount": "🔢",
       "yakuHan": "🎴",
       "manganScoreCalculation": "💰",
-      "manganExam": "🥋"
+      "manganExam": "🥋",
+      "fuExam": "🎓"
     },
     "rankLabel": "{rank} 位",
     "notRanked": "未挑戦",
@@ -2048,6 +2054,28 @@
     },
     "rankPassConditionsTitle": "{rank} 合格条件",
     "passConditions": "制限時間{timeLimit}秒以内に{minScore}問正解で合格（ミス{mistakeLimit}回で終了）"
+  },
+  "fuExamChallenge": {
+    "title": "昇級試験：手牌の合計符",
+    "description": "手牌全体の符を合計し、切り上げ後の符を答える試験形式のドリルです。ミスは1回までです",
+    "prompt": "この手牌は何符？",
+    "generating": "問題を生成中...",
+    "fuOption": "{value}符",
+    "fuSuffix": "{value}符",
+    "breakdownTitle": "符の内訳",
+    "breakdownTotal": "合計",
+    "roundUp": "切り上げ",
+    "howToPlay": {
+      "title": "問題方式",
+      "lead": "このような問題が出題されます。副底・和了符・面子符・雀頭符・待ち符をすべて足し、10符単位に切り上げた符を答えます。"
+    },
+    "result": {
+      "problemDetails": "問題の詳細",
+      "correctAnswer": "正解",
+      "yourAnswer": "あなたの回答",
+      "correct": "正解",
+      "incorrect": "不正解"
+    }
   },
   "manganExamChallenge": {
     "title": "昇級試験：満貫以上の点数計算",

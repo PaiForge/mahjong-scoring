@@ -22,6 +22,7 @@
  * - 'yaku_han': 役の翻数
  * - 'mangan_score_calculation': 満貫以上の点数計算
  * - 'mangan_exam': 昇級試験（満貫以上の点数計算・役表示なし・ミス1回で終了）
+ * - 'fu_exam': 昇級試験（手牌の合計符・ミス1回で終了）
  *
  * `practice/score` は自由練習のため記録対象外。
  */
@@ -193,6 +194,17 @@ const PRACTICE_MENU_REGISTRY = [
     mistakeLimit: 1,
     // 試験は /practice ではなく /exam の URL 名前空間に置く
     basePath: "/exam/mangan",
+  },
+  {
+    menuType: "fu_exam",
+    slug: "fu-exam",
+    messageKey: "fuExam",
+    namespace: "fuExamChallenge",
+    hasProblemList: true,
+    hasSetup: false,
+    // 昇級試験のためミス1回で強制終了（mangan_exam と同じ理由。RANK_REGISTRY 参照）
+    mistakeLimit: 1,
+    basePath: "/exam/fu",
   },
 ] as const satisfies readonly PracticeMenuEntry[];
 

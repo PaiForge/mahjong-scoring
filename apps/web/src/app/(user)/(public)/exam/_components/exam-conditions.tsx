@@ -2,9 +2,17 @@ import { getTranslations } from "next-intl/server";
 
 import { HighlightPanel } from "@/app/(user)/_components/highlight-panel";
 import { SectionTitle } from "@/app/(user)/_components/section-title";
-import { practiceMenuBySlug } from "@/lib/db/practice-menu-types";
+import {
+  practiceMenuBySlug,
+  type PracticeMenuSlug,
+} from "@/lib/db/practice-menu-types";
 import { beltClass, beltForegroundClass } from "@/lib/ranks/belt-colors";
 import { rankRequiringMenu } from "@/lib/ranks/registry";
+
+interface ExamConditionsProps {
+  /** 昇級試験の練習スラッグ（例: "mangan-exam"） */
+  readonly slug: PracticeMenuSlug;
+}
 
 /**
  * 昇級試験の合格条件セクション
@@ -12,7 +20,8 @@ import { rankRequiringMenu } from "@/lib/ranks/registry";
  *
  * Server Component。説明ページの開始ボタン直前に置き、通常チャレンジとの
  * ルール差（ミス1回で終了・合格ライン）を開始前に必ず伝える。数値は
- * レジストリ（練習: 制限時間・ミス上限 / ランク: 合格点）が正典。
+ * レジストリ（練習: 制限時間・ミス上限 / ランク: 合格点）が正典で、級ごとの
+ * 差はすべてレジストリ側にあるため、この components は試験ごとに書き分けない。
  *
  * @remarks
  * このページは段級位の入口（道場・教本章末の試験カード）から来る。カード側は
@@ -25,8 +34,8 @@ import { rankRequiringMenu } from "@/lib/ranks/registry";
  * オレンジの「5級 昇級試験」を押した先がオレンジの「5級 合格条件」で
  * 受かるようにする。
  */
-export async function ManganExamConditions() {
-  const menu = practiceMenuBySlug("mangan-exam");
+export async function ExamConditions({ slug }: ExamConditionsProps) {
+  const menu = practiceMenuBySlug(slug);
   const exam = rankRequiringMenu(menu.menuType);
   if (!exam) return undefined;
 
