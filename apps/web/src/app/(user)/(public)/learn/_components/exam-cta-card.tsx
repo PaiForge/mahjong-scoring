@@ -11,6 +11,12 @@ import { PlayIcon } from "@/app/(user)/_components/icons/play-icon";
 interface ExamCtaCardProps {
   /** 昇級試験の練習スラッグ（CURRICULUM の `examSlug`） */
   readonly slug: PracticeMenuSlug;
+  /**
+   * リード文の上書き（翻訳済み文字列）。既定の `ranks.examCta.lead` は
+   * 「この章の内容を〜」と章末を前提にした文言のため、教本の外
+   * （道場ページ等）から使うときはここで差し替える。
+   */
+  readonly lead?: string;
 }
 
 /**
@@ -24,7 +30,7 @@ interface ExamCtaCardProps {
  * どのランクの要件にも紐付かない練習が指定された場合は何も描画しない
  * （試験の廃止時に CTA だけ残る事故を防ぐ）。
  */
-export async function ExamCtaCard({ slug }: ExamCtaCardProps) {
+export async function ExamCtaCard({ slug, lead }: ExamCtaCardProps) {
   const menu = practiceMenuBySlug(slug);
   const exam = rankRequiringMenu(menu.menuType);
   if (!exam) return undefined;
@@ -37,7 +43,7 @@ export async function ExamCtaCard({ slug }: ExamCtaCardProps) {
       <SectionTitle>{t("examCta.title", { rank: rankName })}</SectionTitle>
       <div className="space-y-4 rounded-xl border-3 border-ink bg-white p-5">
         <p className="text-sm leading-relaxed text-surface-700">
-          {t("examCta.lead")}
+          {lead ?? t("examCta.lead")}
         </p>
         <dl className="space-y-1 text-sm text-surface-700">
           <div className="flex gap-2">
