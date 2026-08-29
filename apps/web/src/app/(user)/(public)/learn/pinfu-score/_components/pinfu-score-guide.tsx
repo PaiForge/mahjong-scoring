@@ -3,14 +3,17 @@ import { getTranslations } from "next-intl/server";
 
 import { TEXT_LINK_CLASSES } from "@/app/_components/_lib/link-classes";
 import { SectionTitle } from "@/app/(user)/_components/section-title";
-import { HighlightPanel } from "@/app/(user)/_components/highlight-panel";
 import {
   PREFERENCE_ANCHORS,
   preferencesHref,
 } from "@/app/(user)/(public)/preferences/_lib/anchors";
 import { scorePracticePlayHref } from "@/app/(user)/(public)/practice/score/_lib/play-href";
-import { PracticeLinkButton } from "../../_components/practice-link-card";
+import {
+  PracticeLinkButton,
+  PracticeLinkSection,
+} from "../../_components/practice-link-card";
 
+import { GuideColumn } from "../../_components/guide-column";
 import { GuideNote } from "../../_components/guide-note";
 import { GuideParagraph } from "../../_components/guide-paragraph";
 import { FixedFuScoreTable } from "../../_components/fixed-fu-score-table";
@@ -28,10 +31,7 @@ const PINFU_TABLE = { tsumoFu: 20, ronFu: 30, hanCols: [1, 2, 3, 4] } as const;
  * 平和での点数計算 — 点数の計算セクション第2章
  */
 export async function PinfuScoreGuide() {
-  const [t, tChapter] = await Promise.all([
-    getTranslations("pinfuScore.learn"),
-    getTranslations("learnCurriculum.chapter"),
-  ]);
+  const t = await getTranslations("pinfuScore.learn");
 
   return (
     <div className="space-y-10">
@@ -48,31 +48,23 @@ export async function PinfuScoreGuide() {
       </section>
 
       {/* コラム: 切り上げ満貫 — 表の4翻の行だけがルールで変わる */}
-      <HighlightPanel>
-        <div className="mb-2 inline-flex items-center rounded-full bg-amber-200/70 px-2.5 py-0.5 text-xs font-semibold tracking-wide text-amber-800">
-          {t("columnLabel")}
-        </div>
-        <h3 className="mb-2 text-sm font-semibold text-surface-900">
-          {t("columnTitle")}
-        </h3>
-        <div className="space-y-2">
-          <GuideParagraph>
-            {t.rich("columnBody", { br: () => <br /> })}
-          </GuideParagraph>
-          <GuideNote>
-            {t.rich("columnSettingsNote", {
-              settingsLink: (chunks) => (
-                <Link
-                  href={preferencesHref(PREFERENCE_ANCHORS.kiriageMangan)}
-                  className={TEXT_LINK_CLASSES}
-                >
-                  {chunks}
-                </Link>
-              ),
-            })}
-          </GuideNote>
-        </div>
-      </HighlightPanel>
+      <GuideColumn label={t("columnLabel")} title={t("columnTitle")}>
+        <GuideParagraph>
+          {t.rich("columnBody", { br: () => <br /> })}
+        </GuideParagraph>
+        <GuideNote>
+          {t.rich("columnSettingsNote", {
+            settingsLink: (chunks) => (
+              <Link
+                href={preferencesHref(PREFERENCE_ANCHORS.kiriageMangan)}
+                className={TEXT_LINK_CLASSES}
+              >
+                {chunks}
+              </Link>
+            ),
+          })}
+        </GuideNote>
+      </GuideColumn>
 
       {/* なぜ20符・30符なのか */}
       <section className="space-y-4">
@@ -93,10 +85,7 @@ export async function PinfuScoreGuide() {
           共通レイアウトの practiceHrefs ではなく章本文が導線を持つ。
           平和のみ・満貫未満 = 章の内容そのまま「必ず 20符 or 30符 ×
           1〜4翻」の手牌だけが出題される */}
-      <section className="space-y-4">
-        <h2 className="text-base font-semibold text-surface-900">
-          {tChapter("practiceLinksTitle")}
-        </h2>
+      <PracticeLinkSection>
         <PracticeLinkButton
           href={scorePracticePlayHref({
             yaku: ["平和"],
@@ -104,7 +93,7 @@ export async function PinfuScoreGuide() {
           })}
           label={t("practiceCta")}
         />
-      </section>
+      </PracticeLinkSection>
     </div>
   );
 }

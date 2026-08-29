@@ -3,6 +3,7 @@ import { getTranslations } from "next-intl/server";
 import {
   DataTable,
   DataTableHeaderCell,
+  DataTableRowHeaderCell,
 } from "@/app/(user)/_components/data-table";
 
 import { buildExtraFuRows } from "../_lib/extra-fu-rows";
@@ -40,11 +41,11 @@ export async function ExtraFuTable({ isMenzen }: ExtraFuTableProps) {
       >
         {rows.map((row) => (
           <tr key={row.from} className="bg-white">
-            <td className="px-4 py-3 text-left font-medium whitespace-nowrap text-surface-600">
+            <DataTableRowHeaderCell>
               {row.from === row.to
                 ? t("fuUnit", { value: row.from })
                 : t("fuRange", { from: row.from, to: row.to })}
-            </td>
+            </DataTableRowHeaderCell>
             <td className="px-4 py-3 font-semibold text-primary-600">
               {t("fuUnit", { value: row.tsumoFu })}
             </td>

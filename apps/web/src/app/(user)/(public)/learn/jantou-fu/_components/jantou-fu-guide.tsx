@@ -7,12 +7,12 @@ import {
   PREFERENCE_ANCHORS,
   preferencesHref,
 } from "@/app/(user)/(public)/preferences/_lib/anchors";
+import { GuideColumn } from "../../_components/guide-column";
 import { ExampleTable } from "../../_components/example-table";
 import { GuideNote } from "../../_components/guide-note";
 import { FuSummaryTable } from "../../_components/fu-summary-table";
 import { GuideParagraph } from "../../_components/guide-paragraph";
 import { TileSet } from "../../_components/tile-set";
-import { HighlightPanel } from "@/app/(user)/_components/highlight-panel";
 
 export async function JantouFuGuide() {
   const [t, tTable] = await Promise.all([
@@ -114,31 +114,23 @@ export async function JantouFuGuide() {
       </section>
 
       {/* Column: renfonpai */}
-      <HighlightPanel>
-        <div className="mb-2 inline-flex items-center rounded-full bg-amber-200/70 px-2.5 py-0.5 text-xs font-semibold tracking-wide text-amber-800">
-          {t("columnLabel")}
-        </div>
-        <h3 className="mb-2 text-sm font-semibold text-surface-900">
-          {t("columnTitle")}
-        </h3>
-        <div className="space-y-2">
-          <GuideParagraph>
-            {t.rich("columnBody", { br: () => <br /> })}
-          </GuideParagraph>
-          <GuideNote>
-            {t.rich("columnSettingsNote", {
-              settingsLink: (chunks) => (
-                <Link
-                  href={preferencesHref(PREFERENCE_ANCHORS.renfonpai)}
-                  className={TEXT_LINK_CLASSES}
-                >
-                  {chunks}
-                </Link>
-              ),
-            })}
-          </GuideNote>
-        </div>
-      </HighlightPanel>
+      <GuideColumn label={t("columnLabel")} title={t("columnTitle")}>
+        <GuideParagraph>
+          {t.rich("columnBody", { br: () => <br /> })}
+        </GuideParagraph>
+        <GuideNote>
+          {t.rich("columnSettingsNote", {
+            settingsLink: (chunks) => (
+              <Link
+                href={preferencesHref(PREFERENCE_ANCHORS.renfonpai)}
+                className={TEXT_LINK_CLASSES}
+              >
+                {chunks}
+              </Link>
+            ),
+          })}
+        </GuideNote>
+      </GuideColumn>
 
       {/* Summary table */}
       <FuSummaryTable
