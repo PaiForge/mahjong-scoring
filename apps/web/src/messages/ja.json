@@ -1564,6 +1564,10 @@
       "challenges": {
         "title": "マイレコード",
         "summary": "チャレンジモードの成績を確認できます"
+      },
+      "dojo": {
+        "title": "道場",
+        "summary": "段級位の確認と昇級試験への挑戦"
       }
     },
     "heatmap": {
