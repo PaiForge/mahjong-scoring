@@ -35,7 +35,9 @@ export interface PracticeMenu {
   readonly category: PracticeCategory;
   readonly difficulty: PracticeDifficulty;
   /**
-   * 前提知識となる教本の章。専用の章を持たない練習（翻数即答など）は undefined。
+   * 関連する教本の章。専用の章を持たない練習（翻数即答など）は undefined。
+   * 昇級試験も持たない — 合格の前提となる章はランクの決定事項で、
+   * 段級位レジストリ（`RANK_REGISTRY` の `learnChapterSlugs`）が正典。
    *
    * 章側の `practiceHrefs`（その章を読んだら解く練習）とは向きも意味も違う関係で、
    * 互いの逆写像ではない。手牌の合計符のように「章の practiceHrefs には
@@ -93,10 +95,12 @@ export const PRACTICE_CATALOG: readonly PracticeMenu[] = [
   },
   { slug: "score-calculation", category: "scoring", difficulty: "advanced" },
   {
+    // 昇級試験の前提章は段級位レジストリ（`RANK_REGISTRY` の
+    // `learnChapterSlugs`）が持つため `learnChapter` を持たない。
+    // 合格に必要な章は 1 つではなく、どの章が要るかはランクの決定事項。
     slug: "mangan-exam",
     category: "scoring",
     difficulty: "advanced",
-    learnChapter: "yaku",
   },
 ] as const;
 

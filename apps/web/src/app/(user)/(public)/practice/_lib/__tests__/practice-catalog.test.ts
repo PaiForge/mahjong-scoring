@@ -41,6 +41,16 @@ describe("PRACTICE_CATALOG", () => {
     expect(listed).toEqual(expected);
   });
 
+  it("昇級試験は learnChapter を持たない（前提章は段級位レジストリが正典）", () => {
+    // カタログにも 1 章だけ持たせると、説明ページが「前提となる教本の章」に
+    // ランクの前提章の一部しか出さない状態に戻る（役の章だけが出て、
+    // 満貫セクションの 4 章が落ちる）。二重の出どころを作らないよう固定する。
+    for (const menu of PRACTICE_CATALOG) {
+      if (!isExamMenu(menu.slug)) continue;
+      expect(menu.learnChapter, `${menu.slug}`).toBeUndefined();
+    }
+  });
+
   it("昇級試験は /exam 配下に住み、練習一覧のカードにならない", () => {
     expect(isExamMenu("mangan-exam")).toBe(true);
     expect(isExamMenu("jantou-fu")).toBe(false);
