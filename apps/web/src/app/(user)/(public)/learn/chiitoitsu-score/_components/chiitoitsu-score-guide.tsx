@@ -1,10 +1,10 @@
 import { getTranslations } from "next-intl/server";
 
 import { SectionTitle } from "@/app/(user)/_components/section-title";
-import { HighlightPanel } from "@/app/(user)/_components/highlight-panel";
 import { scorePracticePlayHref } from "@/app/(user)/(public)/practice/score/_lib/play-href";
 import { PracticeLinkButton } from "../../_components/practice-link-card";
 
+import { GuideColumn } from "../../_components/guide-column";
 import { FixedFuScoreTable } from "../../_components/fixed-fu-score-table";
 import { GuideParagraph } from "../../_components/guide-paragraph";
 
@@ -43,17 +43,11 @@ export async function ChiitoitsuScoreGuide() {
       </section>
 
       {/* コラム: 25符だけが10符刻みから外れている理由 */}
-      <HighlightPanel>
-        <div className="mb-2 inline-flex items-center rounded-full bg-amber-200/70 px-2.5 py-0.5 text-xs font-semibold tracking-wide text-amber-800">
-          {t("columnLabel")}
-        </div>
-        <h3 className="mb-2 text-sm font-semibold text-surface-900">
-          {t("columnTitle")}
-        </h3>
+      <GuideColumn label={t("columnLabel")} title={t("columnTitle")}>
         <GuideParagraph>
           {t.rich("columnBody", { br: () => <br /> })}
         </GuideParagraph>
-      </HighlightPanel>
+      </GuideColumn>
 
       {/* 複合しても符は変わらない */}
       <section className="space-y-4">

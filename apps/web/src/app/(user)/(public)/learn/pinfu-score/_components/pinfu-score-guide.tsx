@@ -3,7 +3,6 @@ import { getTranslations } from "next-intl/server";
 
 import { TEXT_LINK_CLASSES } from "@/app/_components/_lib/link-classes";
 import { SectionTitle } from "@/app/(user)/_components/section-title";
-import { HighlightPanel } from "@/app/(user)/_components/highlight-panel";
 import {
   PREFERENCE_ANCHORS,
   preferencesHref,
@@ -11,6 +10,7 @@ import {
 import { scorePracticePlayHref } from "@/app/(user)/(public)/practice/score/_lib/play-href";
 import { PracticeLinkButton } from "../../_components/practice-link-card";
 
+import { GuideColumn } from "../../_components/guide-column";
 import { GuideNote } from "../../_components/guide-note";
 import { GuideParagraph } from "../../_components/guide-paragraph";
 import { FixedFuScoreTable } from "../../_components/fixed-fu-score-table";
@@ -48,31 +48,23 @@ export async function PinfuScoreGuide() {
       </section>
 
       {/* コラム: 切り上げ満貫 — 表の4翻の行だけがルールで変わる */}
-      <HighlightPanel>
-        <div className="mb-2 inline-flex items-center rounded-full bg-amber-200/70 px-2.5 py-0.5 text-xs font-semibold tracking-wide text-amber-800">
-          {t("columnLabel")}
-        </div>
-        <h3 className="mb-2 text-sm font-semibold text-surface-900">
-          {t("columnTitle")}
-        </h3>
-        <div className="space-y-2">
-          <GuideParagraph>
-            {t.rich("columnBody", { br: () => <br /> })}
-          </GuideParagraph>
-          <GuideNote>
-            {t.rich("columnSettingsNote", {
-              settingsLink: (chunks) => (
-                <Link
-                  href={preferencesHref(PREFERENCE_ANCHORS.kiriageMangan)}
-                  className={TEXT_LINK_CLASSES}
-                >
-                  {chunks}
-                </Link>
-              ),
-            })}
-          </GuideNote>
-        </div>
-      </HighlightPanel>
+      <GuideColumn label={t("columnLabel")} title={t("columnTitle")}>
+        <GuideParagraph>
+          {t.rich("columnBody", { br: () => <br /> })}
+        </GuideParagraph>
+        <GuideNote>
+          {t.rich("columnSettingsNote", {
+            settingsLink: (chunks) => (
+              <Link
+                href={preferencesHref(PREFERENCE_ANCHORS.kiriageMangan)}
+                className={TEXT_LINK_CLASSES}
+              >
+                {chunks}
+              </Link>
+            ),
+          })}
+        </GuideNote>
+      </GuideColumn>
 
       {/* なぜ20符・30符なのか */}
       <section className="space-y-4">
