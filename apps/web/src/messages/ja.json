@@ -537,6 +537,7 @@
     "title": "面子と雀頭の符計算",
     "generating": "問題を生成中...",
     "description": "手牌のすべての面子と雀頭について、要素ごとに符を答える練習",
+    "questionPrompt": "面子と雀頭それぞれの符は？",
     "pair": "雀頭",
     "checkButton": "答え合わせ",
     "answerButton": "回答する",
@@ -1228,6 +1229,7 @@
     },
     "board": {
       "correct": "正解！",
+      "questionPrompt": "この和了の点数を計算してください",
       "correctLabel": "正解",
       "incorrectLabel": "不正解",
       "generationFailed": "この条件に合う問題を作れませんでした。出題条件を変えてお試しください。",
@@ -2005,6 +2007,7 @@
   "scoreCalculationChallenge": {
     "title": "点数計算練習",
     "description": "手牌・和了牌・風牌・ドラなどの情報から正しい点数を答える練習です",
+    "questionPrompt": "この和了の点数は？",
     "oya": "親",
     "ko": "子",
     "tsumo": "ツモ",
@@ -2182,6 +2185,7 @@
   "manganScoreCalculationChallenge": {
     "title": "満貫以上点数計算ドリル",
     "description": "役と翻数が表示された満貫以上の手牌から正しい点数を答えるドリルです",
+    "questionPrompt": "この和了の点数は？",
     "oya": "親",
     "ko": "子",
     "tsumo": "ツモ",

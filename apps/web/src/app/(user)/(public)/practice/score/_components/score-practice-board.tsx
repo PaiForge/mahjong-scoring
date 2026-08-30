@@ -23,6 +23,7 @@ import {
 } from "../_lib/parse-practice-params";
 import { QuestionDisplay } from "./question-display";
 import { TehaiMentsuBreakdown } from "../../_components/tehai-mentsu-breakdown";
+import { QuestionPrompt } from "../../_components/question-prompt";
 import { ScorePracticeAnswerForm } from "./score-practice-answer-form";
 import { ScorePracticeBoardSkeleton } from "./score-practice-board-skeleton";
 import { ResultDisplay } from "./result-display";
@@ -193,17 +194,23 @@ function ScorePracticeBoardInner() {
             requireFuForMangan={requireFuForMangan}
           />
         ) : (
-          <ScorePracticeAnswerForm
-            key={questionSeq}
-            onSubmit={handleSubmit}
-            disabled={isAnswered}
-            isTsumo={currentQuestion.isTsumo}
-            isOya={isOya(currentQuestion.jikaze)}
-            requireYaku={requireYaku}
-            simplifyMangan={simplifyMangan}
-            requireFuForMangan={requireFuForMangan}
-            onReveal={handleReveal}
-          />
+          /* 出題文はフォームの見出しなので、盤面全体の余白ではなく
+             フォームと近い間隔で組にする */
+          <div className="space-y-4">
+            <QuestionPrompt>{t("board.questionPrompt")}</QuestionPrompt>
+
+            <ScorePracticeAnswerForm
+              key={questionSeq}
+              onSubmit={handleSubmit}
+              disabled={isAnswered}
+              isTsumo={currentQuestion.isTsumo}
+              isOya={isOya(currentQuestion.jikaze)}
+              requireYaku={requireYaku}
+              simplifyMangan={simplifyMangan}
+              requireFuForMangan={requireFuForMangan}
+              onReveal={handleReveal}
+            />
+          </div>
         )}
 
         {/* Footer: 正解 / 不正解 カウンタ（旧・上部の "0 / 0" を移設） */}

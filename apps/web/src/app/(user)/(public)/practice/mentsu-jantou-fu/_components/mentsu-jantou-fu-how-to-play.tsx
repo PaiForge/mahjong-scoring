@@ -1,7 +1,9 @@
 "use client";
 
+import { useTranslations } from "next-intl";
 import { HaiKind, MentsuType } from "@mahjong-scoring/core";
 import { Hai } from "@pai-forge/mahjong-react-ui";
+import { QuestionPrompt } from "../../_components/question-prompt";
 import { TehaiDisplay } from "../../_components/tehai-display";
 import { DEMO_FU_CONTEXT, DEMO_FU_TEHAI } from "../../_lib/demo-tehai";
 import { FU_OPTIONS } from "../../_lib/fu-options";
@@ -70,9 +72,13 @@ const DEMO_AGARI_HIGHLIGHT = findAgariHighlight(
  * 背景へ溶かして「まだ続く」ことだけを見せる。
  */
 export function MentsuJantouFuHowToPlay() {
+  const t = useTranslations("mentsuJantouFu");
+
   return (
     <div className="space-y-4">
       <TehaiDisplay tehai={DEMO_FU_TEHAI} context={DEMO_FU_CONTEXT} />
+
+      <QuestionPrompt>{t("questionPrompt")}</QuestionPrompt>
 
       {/* 要素ごとの符入力（未入力の状態）。3 要素目の途中で切って背景へ溶かす。
           切る位置（max-h）は 2 要素分 + 3 要素目の牌が見える高さで、マスクの
