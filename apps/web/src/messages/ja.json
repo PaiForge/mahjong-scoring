@@ -2263,6 +2263,9 @@
     "selectHan": "合計翻数を選択してください",
     "hanOption": "{count}翻",
     "yakuman": "役満",
+    "yakumanNote": "13翻以上は役満",
+    "breakdownTitle": "翻数の内訳",
+    "breakdownTotal": "合計",
     "howToPlay": {
       "title": "問題方式",
       "lead": "このような問題が出題されます。"
