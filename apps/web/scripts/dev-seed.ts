@@ -24,6 +24,8 @@ import {
   LOCAL_SUPABASE_DATABASE_URL,
   resolveMigrationDatabaseUrl,
 } from "./_lib/database-url";
+import { reseedChallengeResults } from "./dev-seed/challenge-results";
+import type { ScoredSeedUser } from "./dev-seed/challenge-results";
 import { SEED_PASSWORD, SEED_USERS, ensureSeedUser } from "./dev-seed/users";
 
 dotenv.config({ path: [".env.local", ".env"] });
@@ -76,8 +78,15 @@ const admin = createClient(supabaseUrl, serviceRoleKey, {
 async function main() {
   console.log("dev-seed: シードユーザーを投入します...");
 
+  const scored: ScoredSeedUser[] = [];
+
   for (const user of SEED_USERS) {
     const userId = await ensureSeedUser(admin, db, user);
+    scored.push({ userId, username: user.username });
+
+    // ランキング要員は状態を持たず触ることもないので、1 人ずつは出さない。
+    if (user.fillsRanking) continue;
+
     const notes = [
       user.isAdmin ? "admin ロール付与" : undefined,
       user.ranks?.length ? `段級位: ${user.ranks.join(", ")}` : undefined,
@@ -88,6 +97,15 @@ async function main() {
       `  ${"".padEnd(12)}   ${user.email} / ${SEED_PASSWORD} でサインイン`,
     );
   }
+
+  const fillerCount = SEED_USERS.filter((user) => user.fillsRanking).length;
+  console.log(`  ランキング要員 ${fillerCount} 人（パスワードは共通）`);
+
+  console.log("dev-seed: チャレンジ成績を投入します...");
+  const inserted = await reseedChallengeResults(db, scored);
+  console.log(
+    `  challenge_results ${inserted} 件 + 導出したベストスコアを投入しました`,
+  );
 }
 
 main()

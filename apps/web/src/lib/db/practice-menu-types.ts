@@ -27,7 +27,14 @@
  * `practice/score` は自由練習のため記録対象外。
  */
 
-import { CHALLENGE_TIME_LIMIT, MISTAKE_LIMIT } from "@mahjong-scoring/core";
+// バレル（`@mahjong-scoring/core`）ではなく定数のモジュールを直に指す。
+// バレルは ESM 専用の @pai-forge/riichi-mahjong を引き込み、tsx が CJS として
+// 解決する開発スクリプト（`scripts/dev-seed.ts`）から読めなくなるため。
+// このモジュールはランキングの練習種別一覧の出所なので、スクリプト側も読む。
+import {
+  CHALLENGE_TIME_LIMIT,
+  MISTAKE_LIMIT,
+} from "@mahjong-scoring/core/challenge/constants";
 
 // ---------------------------------------------------------------------------
 // Registry — single source of truth
