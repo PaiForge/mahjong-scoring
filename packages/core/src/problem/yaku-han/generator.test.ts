@@ -25,9 +25,6 @@ describe("generateYakuHanQuestion", () => {
       expect(entry).toBeDefined();
       if (!entry) continue;
 
-      // canNaki はデータ（nakiHan の有無）と一致する
-      expect(q.canNaki).toBe(entry.nakiHan !== undefined);
-
       if (q.isMenzen) {
         expect(q.correctHan).toBe(entry.menzenHan);
       } else {

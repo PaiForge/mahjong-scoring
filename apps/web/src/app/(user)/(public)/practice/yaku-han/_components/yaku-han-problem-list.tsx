@@ -22,9 +22,9 @@ export function YakuHanProblemList({ results }: YakuHanProblemListProps) {
   const hanLabel = (han: number) =>
     isYakuman(han) ? t("yakuman") : t("hanOption", { count: han });
 
-  // 門前限定役は状態ラベルを出さない（出題時と表示を揃える）
+  // 門前限定役も含め常に付ける（出題時のバッジと表示を揃える）
   const stateLabel = (r: YakuHanQuestionResult) =>
-    r.canNaki ? `（${r.isMenzen ? t("menzen") : t("naki")}）` : "";
+    `（${r.isMenzen ? t("menzen") : t("naki")}）`;
 
   return (
     <ProblemListAccordion

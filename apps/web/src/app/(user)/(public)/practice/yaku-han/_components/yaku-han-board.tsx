@@ -57,7 +57,6 @@ export function YakuHanBoard({
       onRecordResult?.({
         yakuName: question.yakuName,
         isMenzen: question.isMenzen,
-        canNaki: question.canNaki,
         correctHan,
         userHan,
         isCorrect,
@@ -80,7 +79,6 @@ export function YakuHanBoard({
         <YakuHanPrompt
           yakuName={question.yakuName}
           isMenzen={question.isMenzen}
-          canNaki={question.canNaki}
         />
       </div>
 

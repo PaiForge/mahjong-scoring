@@ -15,14 +15,12 @@ export function generateYakuHanQuestion(
 ): YakuHanQuestion {
   const entry = randomChoice(getYakuHanEntries(range));
   const nakiHan = entry.nakiHan;
-  const canNaki = nakiHan !== undefined;
   // 鳴ける役のみ 50% で鳴き状態を出題する（門前限定役は常に門前）
-  const playNaki = canNaki && randomBool(0.5);
+  const playNaki = nakiHan !== undefined && randomBool(0.5);
 
   return {
     yakuName: entry.name,
     isMenzen: !playNaki,
-    canNaki,
     correctHan: playNaki ? nakiHan : entry.menzenHan,
   };
 }

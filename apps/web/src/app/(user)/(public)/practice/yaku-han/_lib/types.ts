@@ -15,8 +15,6 @@ export interface YakuHanQuestionResult {
   readonly yakuName: string;
   /** 門前で出題されたか（false は鳴き） */
   readonly isMenzen: boolean;
-  /** 鳴ける役か（門前限定役は状態ラベルを表示しない） */
-  readonly canNaki: boolean;
   /** 正解の翻数 */
   readonly correctHan: number;
   /** ユーザーが選択した翻数 */
@@ -33,7 +31,6 @@ function isValidQuestionResult(value: unknown): value is YakuHanQuestionResult {
   return hasFieldTypes(value, {
     yakuName: "string",
     isMenzen: "boolean",
-    canNaki: "boolean",
     correctHan: "number",
     userHan: "number",
     isCorrect: "boolean",
