@@ -168,18 +168,22 @@
     "progressSignInPrompt": "サインインすると学習履歴を記録できます",
     "categories": {
       "fuCalculation": {
-        "title": "符の計算"
+        "title": "符の計算",
+        "short": "符"
       },
       "han": {
-        "title": "翻数"
+        "title": "翻数",
+        "short": "翻数"
       },
       "scoring": {
-        "title": "点数計算"
+        "title": "点数計算",
+        "short": "点数"
       }
     },
-    "rankFilter": {
-      "label": "段級位で絞り込む",
-      "all": "すべて"
+    "filter": {
+      "label": "練習を絞り込む",
+      "all": "すべて",
+      "listHeading": "練習メニュー"
     },
     "practices": {
       "jantouFu": {

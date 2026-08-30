@@ -161,7 +161,7 @@ export async function PracticeIntroContent({
         {examRank && (
           <LinkRowList>
             <LinkRow
-              href={practiceListHref(examRank.slug)}
+              href={practiceListHref({ kind: "rank", value: examRank.slug })}
               leading={
                 <span className="text-base" aria-hidden="true">
                   ✏️

@@ -14,6 +14,7 @@ import {
   RANK_SLUGS,
   rankRequiringMenu,
 } from "@/lib/ranks/registry";
+import type { PracticeListFilter } from "../practice-catalog";
 import {
   isExamMenu,
   PRACTICE_CATALOG,
@@ -21,7 +22,8 @@ import {
   practiceDescriptionKey,
   practiceHref,
   practiceMenuFromCatalog,
-  practiceMenusByCategory,
+  listedPracticeMenus,
+  matchesPracticeFilter,
   practiceListHref,
   practiceSlugFromHref,
   practiceTitleKey,
@@ -39,12 +41,12 @@ describe("PRACTICE_CATALOG", () => {
     expect(new Set(slugs).size).toBe(slugs.length);
   });
 
-  it("カテゴリ別の一覧は昇級試験を除く全件を過不足なく覆う", () => {
+  it("一覧は昇級試験を除く全件を過不足なく覆う", () => {
     // 昇級試験は道場（/dojo）から入るため練習一覧のカードにしない。
-    // それ以外がカテゴリの表示から漏れると一覧から静かに消えるため固定する。
-    const listed = PRACTICE_CATEGORIES.flatMap((category) =>
-      practiceMenusByCategory(category).map((menu) => menu.slug),
-    ).sort();
+    // それ以外が一覧から漏れると静かに消えるため固定する。
+    const listed = listedPracticeMenus()
+      .map((menu) => menu.slug)
+      .sort();
     const expected = PRACTICE_CATALOG.map((menu) => menu.slug)
       .filter((slug) => !isExamMenu(slug))
       .sort();
@@ -64,10 +66,9 @@ describe("PRACTICE_CATALOG", () => {
   it("昇級試験は /exam 配下に住み、練習一覧のカードにならない", () => {
     expect(isExamMenu("mangan-exam")).toBe(true);
     expect(isExamMenu("jantou-fu")).toBe(false);
-    for (const category of PRACTICE_CATEGORIES) {
-      const slugs = practiceMenusByCategory(category).map((menu) => menu.slug);
-      expect(slugs).not.toContain("mangan-exam");
-    }
+    const slugs = listedPracticeMenus().map((menu) => menu.slug);
+    expect(slugs).not.toContain("mangan-exam");
+    expect(slugs).not.toContain("fu-exam");
   });
 
   it("前提章はカリキュラムに存在する章を指す", () => {
@@ -182,22 +183,36 @@ describe("practiceHref", () => {
 });
 
 describe("practiceListHref", () => {
-  it("段級位を渡すとその級で絞った練習一覧のパスになる", () => {
+  it("絞り込みを渡すとその条件で絞った練習一覧のパスになる", () => {
     // 昇級試験のページが「その級の練習」として開くリンク。クエリ名は
     // 一覧のフィルタと同じ定数から組み立てる
     expect(practiceListHref()).toBe("/practice");
-    expect(practiceListHref("kyu-4")).toBe("/practice?rank=kyu-4");
-    expect(practiceListHref("kyu-5")).toBe("/practice?rank=kyu-5");
+    expect(practiceListHref({ kind: "rank", value: "kyu-4" })).toBe(
+      "/practice?rank=kyu-4",
+    );
+    expect(practiceListHref({ kind: "category", value: "han" })).toBe(
+      "/practice?category=han",
+    );
   });
 
-  it("すべての段級位に、絞り込んで 1 件以上残る練習がある", () => {
-    // 級を選んだ先が空の一覧になっていないこと。試験ページからの導線が
-    // 「練習メニュー」と名乗って何も出ない状態を防ぐ
-    for (const rank of RANK_SLUGS) {
-      const listed = PRACTICE_CATEGORIES.flatMap((category) =>
-        practiceMenusByCategory(category).filter((menu) => menu.rank === rank),
+  it("どの選択肢を選んでも 1 件以上残る", () => {
+    // 級と分野は直交していないため 2 軸の AND にはしていない（4級 × 翻数 が
+    // 0 件になる）。1 本の排他選択である限り空振りは起きないことを固定する。
+    const menus = listedPracticeMenus();
+    const filters: PracticeListFilter[] = [
+      ...RANK_SLUGS.map((value) => ({ kind: "rank" as const, value })),
+      ...PRACTICE_CATEGORIES.map((value) => ({
+        kind: "category" as const,
+        value,
+      })),
+    ];
+    for (const filter of filters) {
+      const listed = menus.filter((menu) =>
+        matchesPracticeFilter(filter, menu),
       );
-      expect(listed.length, rank).toBeGreaterThan(0);
+      expect(listed.length, `${filter.kind}=${filter.value}`).toBeGreaterThan(
+        0,
+      );
     }
   });
 });

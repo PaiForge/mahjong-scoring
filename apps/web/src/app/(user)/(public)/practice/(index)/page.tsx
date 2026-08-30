@@ -1,9 +1,10 @@
 /**
  * 練習一覧
  *
- * @description 練習一覧ページ。符計算・翻数の各練習をカテゴリ別に表示し、
- * 段級位で絞り込める。絞り込みは URL のクエリ（`?rank=kyu-4`）が持ち、
- * 昇級試験のページから「この試験の練習」として級を指定して開かれる。
+ * @description 練習一覧ページ。すべての練習を 1 つのグリッドに並べ、段級位
+ * （5級 / 4級）か分野（符 / 翻数 / 点数）のどちらか 1 つで絞り込める。
+ * 絞り込みは URL のクエリ（`?rank=kyu-4` / `?category=han`）が持ち、
+ * 昇級試験のページから級を指定して開かれる。
  * @flow 練習カードから各練習の説明ページまたはプレイページへ遷移する。
  */
 import type { Metadata } from "next";
@@ -17,15 +18,15 @@ import { RANK_SLUGS } from "@/lib/ranks/registry";
 import { ComprehensivePracticeBanner } from "../_components/comprehensive-practice-banner";
 import { PracticeCard } from "../_components/practice-card";
 import {
-  PracticeRankFilter,
-  type PracticeFilterSection,
-} from "../_components/practice-rank-filter";
+  PracticeFilter,
+  type PracticeFilterItem,
+} from "../_components/practice-filter";
 import { practiceCardRank } from "../_lib/practice-card-rank";
 import {
+  listedPracticeMenus,
   PRACTICE_CATEGORIES,
   practiceDescriptionKey,
   practiceHref,
-  practiceMenusByCategory,
   practiceTitleKey,
 } from "../_lib/practice-catalog";
 
@@ -41,29 +42,26 @@ export default async function PracticePage() {
 
   // カードはここで全件描画し、絞り込みは表示するかどうかの判断だけを
   // クライアントに渡す（プリレンダーされた HTML に全カードが載るように）
-  const sections: readonly PracticeFilterSection[] = PRACTICE_CATEGORIES.map(
-    (category) => ({
-      key: category,
-      title: t(`categories.${category}.title`),
-      cards: practiceMenusByCategory(category).map((practice) => ({
-        key: practice.slug,
-        rank: practice.rank,
-        card: (
-          <PracticeCard
-            href={practiceHref(practice.slug)}
-            title={t(practiceTitleKey(practice.slug))}
-            description={t(practiceDescriptionKey(practice.slug))}
-            rank={practiceCardRank(practice.rank, tRanks)}
-            startLabel={t("start")}
-            learnHref={
-              practice.learnChapter
-                ? chapterHref(practice.learnChapter)
-                : undefined
-            }
-            learnLabel={practice.learnChapter ? t("learn") : undefined}
-          />
-        ),
-      })),
+  const items: readonly PracticeFilterItem[] = listedPracticeMenus().map(
+    (practice) => ({
+      key: practice.slug,
+      rank: practice.rank,
+      category: practice.category,
+      card: (
+        <PracticeCard
+          href={practiceHref(practice.slug)}
+          title={t(practiceTitleKey(practice.slug))}
+          description={t(practiceDescriptionKey(practice.slug))}
+          rank={practiceCardRank(practice.rank, tRanks)}
+          startLabel={t("start")}
+          learnHref={
+            practice.learnChapter
+              ? chapterHref(practice.learnChapter)
+              : undefined
+          }
+          learnLabel={practice.learnChapter ? t("learn") : undefined}
+        />
+      ),
     }),
   );
 
@@ -73,20 +71,26 @@ export default async function PracticePage() {
 
       <div className="space-y-8">
         {/* 総合演習には見出しを付けない。バナー自身が名前を持っており、
-            ここに h2 を足すと下のカテゴリ見出しと同じ pill が入れ子に並んで
-            「符の計算・翻数・点数計算が総合演習の下位」に見えてしまう。 */}
+            ここに h2 を足すと絞り込みの一覧に見出しが割り込む */}
         <ComprehensivePracticeBanner />
 
-        <PracticeRankFilter
-          sections={sections}
-          filterLabel={t("rankFilter.label")}
-          options={[
-            { label: t("rankFilter.all") },
+        <PracticeFilter
+          items={items}
+          filterLabel={t("filter.label")}
+          listHeading={t("filter.listHeading")}
+          optionGroups={[
+            [{ label: t("filter.all") }],
             // 級の並びはレジストリの順（5級 → 4級 の学習順）。一覧の
             // 並びも学習順なので、選択肢だけ級位の数字順にはしない
-            ...RANK_SLUGS.map((rank) => ({
-              rank,
+            RANK_SLUGS.map((rank) => ({
+              filter: { kind: "rank" as const, value: rank },
               label: tRanks(`names.${rank}`),
+            })),
+            // 分野は 1 本のトグルに 6 つ並ぶため、見出しに使っていた
+            // 「符の計算」ではなく短い名前を使う（狭い画面で折り返さない）
+            PRACTICE_CATEGORIES.map((category) => ({
+              filter: { kind: "category" as const, value: category },
+              label: t(`categories.${category}.short`),
             })),
           ]}
         />

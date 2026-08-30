@@ -28,6 +28,13 @@ import { PRACTICE_SETUP_HASH } from "./scroll-anchor";
 export const PRACTICE_CATEGORIES = ["fuCalculation", "han", "scoring"] as const;
 export type PracticeCategory = (typeof PRACTICE_CATEGORIES)[number];
 
+const categorySet: ReadonlySet<string> = new Set(PRACTICE_CATEGORIES);
+
+/** 値が有効な練習カテゴリかを判定する型ガード（URL クエリの検証用） */
+export function isPracticeCategory(value: string): value is PracticeCategory {
+  return categorySet.has(value);
+}
+
 /** カタログ 1 件分 */
 export interface PracticeMenu {
   readonly slug: PracticeMenuSlug;
@@ -162,15 +169,16 @@ export function isExamMenu(slug: PracticeMenuSlug): boolean {
 }
 
 /**
- * カテゴリに属する練習を一覧の表示順で返す。
- * 昇級試験は含まない（練習一覧のカードにせず、道場から入る）。
+ * 練習一覧に並べる練習を表示順で返す。
+ * 一覧掲載練習
+ *
+ * 昇級試験は含まない（練習カードにせず、道場から入る）。カテゴリごとの
+ * 見出しは持たず 1 つのグリッドに並べるため、返すのは平坦な 1 本の配列。
+ * カタログの並び自体がカテゴリ順（符 → 翻数 → 点数）なので、絞り込みを
+ * 解除したときも分野ごとに固まって見える。
  */
-export function practiceMenusByCategory(
-  category: PracticeCategory,
-): readonly PracticeMenu[] {
-  return PRACTICE_CATALOG.filter(
-    (menu) => menu.category === category && !isExamMenu(menu.slug),
-  );
+export function listedPracticeMenus(): readonly PracticeMenu[] {
+  return PRACTICE_CATALOG.filter((menu) => !isExamMenu(menu.slug));
 }
 
 /**
@@ -185,24 +193,72 @@ export function practiceHref(slug: PracticeMenuSlug): string {
 }
 
 /**
- * 練習一覧を段級位で絞るクエリパラメータ名。
+ * 練習一覧の絞り込みを表すクエリパラメータ名。
  *
  * サーバーでは読まない（`searchParams` を読むとルートが動的になり、初回表示が
  * `loading.tsx` のスケルトンを経由する）。読むのは一覧のフィルタ
- * （`PracticeRankFilter`）だけで、それ以外はここを通してリンクを組み立てる。
+ * （`PracticeFilter`）だけで、それ以外はここを通してリンクを組み立てる。
  */
 export const PRACTICE_RANK_PARAM = "rank";
+export const PRACTICE_CATEGORY_PARAM = "category";
 
 /**
- * 練習一覧のパス。段級位を渡すとその級で絞った状態で開く。
+ * 練習一覧の絞り込み条件 — 段級位か分野のどちらか一方
+ * 一覧の絞り込み
+ *
+ * @design 2 軸を掛け合わせない理由
+ *
+ * 級と分野は直交していない（4級 = 符の計算、5級 = 翻数 + 点数計算の一部）。
+ * 2 軸の AND にすると 4級 × 翻数 のように 0 件になる組み合わせが過半を占め、
+ * 操作の半分が空の一覧に着地する。選べるのは常に 1 つだけにして、どれを
+ * 押しても必ず 1 件以上残るようにしている。
+ */
+export type PracticeListFilter =
+  | { readonly kind: "rank"; readonly value: RankSlug }
+  | { readonly kind: "category"; readonly value: PracticeCategory };
+
+/**
+ * 練習一覧のパス。絞り込みを渡すとその条件で絞った状態で開く。
  * 練習一覧パス
  *
- * @param rank 絞り込む段級位。省略すると絞り込みなし
+ * @param filter 絞り込み条件。省略すると絞り込みなし
  */
-export function practiceListHref(rank?: RankSlug): string {
-  return rank === undefined
-    ? "/practice"
-    : `/practice?${PRACTICE_RANK_PARAM}=${rank}`;
+export function practiceListHref(filter?: PracticeListFilter): string {
+  if (filter === undefined) return "/practice";
+  const param =
+    filter.kind === "rank" ? PRACTICE_RANK_PARAM : PRACTICE_CATEGORY_PARAM;
+  return `/practice?${param}=${filter.value}`;
+}
+
+/**
+ * 絞り込み条件が同じものを指しているか。
+ * 絞り込み比較
+ *
+ * トグルの選択状態（どのチップが現在地か）の判定に使う。
+ */
+export function isSamePracticeFilter(
+  a: PracticeListFilter | undefined,
+  b: PracticeListFilter | undefined,
+): boolean {
+  if (a === undefined || b === undefined) return a === b;
+  return a.kind === b.kind && a.value === b.value;
+}
+
+/**
+ * 練習が絞り込み条件に合致するか。条件が無ければすべて合致する。
+ * 絞り込み判定
+ *
+ * @param filter 絞り込み条件
+ * @param menu 判定する練習の段級位と分野
+ */
+export function matchesPracticeFilter(
+  filter: PracticeListFilter | undefined,
+  menu: { readonly rank?: RankSlug; readonly category: PracticeCategory },
+): boolean {
+  if (filter === undefined) return true;
+  return filter.kind === "rank"
+    ? menu.rank === filter.value
+    : menu.category === filter.value;
 }
 
 /**
