@@ -2,12 +2,8 @@
 
 import { useTranslations } from "next-intl";
 import type { YakuDetail } from "@mahjong-scoring/core";
-import {
-  DataTable,
-  DataTableHeaderCell,
-  DataTableRowHeaderCell,
-} from "@/app/(user)/_components/data-table";
 import { useYakuOrder } from "@/app/_hooks/use-yaku-order-store";
+import { BreakdownTable } from "../../_components/breakdown-table";
 import { orderYakuDetails } from "../../_lib/order-yaku-details";
 
 interface HanBreakdownProps {
@@ -29,7 +25,7 @@ interface HanBreakdownProps {
  * （{@link orderYakuDetails}）。問題ごとに立直の現れる位置が変わると、
  * 結果を続けて読むときに目が迷う。
  *
- * 合計が正解と一致しない場合（例: 16翻 → 役満）は丸めの行を出す。
+ * 合計が正解と一致しない場合（例: 16翻 → 役満）は丸めの補足を出す。
  */
 export function HanBreakdown({ yakuDetails, correctHan }: HanBreakdownProps) {
   const t = useTranslations("hanCountChallenge");
@@ -41,47 +37,22 @@ export function HanBreakdown({ yakuDetails, correctHan }: HanBreakdownProps) {
   const rawTotal = ordered.reduce((sum, detail) => sum + detail.han, 0);
 
   return (
-    <div className="space-y-1.5">
-      <p className="text-sm font-medium text-surface-500">
-        {t("breakdownTitle")}
-      </p>
-
-      <DataTable
-        header={
+    <BreakdownTable
+      title={t("breakdownTitle")}
+      rows={ordered.map((detail) => ({
+        label: detail.name,
+        value: t("hanOption", { count: detail.han }),
+      }))}
+      totalLabel={t("breakdownTotal")}
+      totalValue={t("hanOption", { count: rawTotal })}
+      note={
+        rawTotal === correctHan ? undefined : (
           <>
-            <DataTableHeaderCell align="left">
-              {t("breakdownColYaku")}
-            </DataTableHeaderCell>
-            <DataTableHeaderCell align="right">
-              {t("breakdownColHan")}
-            </DataTableHeaderCell>
+            {t("hanOption", { count: rawTotal })} &rarr; {t("yakuman")}（
+            {t("yakumanNote")}）
           </>
-        }
-      >
-        {ordered.map((detail, i) => (
-          <tr key={i} className="bg-white">
-            <DataTableRowHeaderCell>{detail.name}</DataTableRowHeaderCell>
-            <td className="px-4 py-3 text-right text-surface-800">
-              {t("hanOption", { count: detail.han })}
-            </td>
-          </tr>
-        ))}
-        <tr className="bg-primary-50">
-          <td className="px-4 py-3 text-left font-bold whitespace-nowrap text-surface-900">
-            {t("breakdownTotal")}
-          </td>
-          <td className="px-4 py-3 text-right font-bold text-surface-900">
-            {t("hanOption", { count: rawTotal })}
-          </td>
-        </tr>
-      </DataTable>
-
-      {rawTotal !== correctHan && (
-        <p className="text-right text-xs text-surface-500">
-          {t("hanOption", { count: rawTotal })} &rarr; {t("yakuman")}（
-          {t("yakumanNote")}）
-        </p>
-      )}
-    </div>
+        )
+      }
+    />
   );
 }
