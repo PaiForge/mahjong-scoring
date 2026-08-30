@@ -50,7 +50,41 @@ export interface SeedUser {
    * 持ちながら5級の試験を勧められる状態になる。
    */
   readonly ranks?: readonly RankSlug[];
+  /**
+   * ランキングの母集団を埋めるためだけのユーザー。
+   *
+   * 確認したい状態を持たないため、投入ログではサインイン情報を並べず
+   * 人数だけを出す（{@link RANKING_FILLERS} 参照）。
+   */
+  readonly fillsRanking?: boolean;
 }
+
+/**
+ * ランキングの母集団を作るためだけのユーザー。
+ * ランキング要員
+ *
+ * 名前付きのユーザー（alice 以下）は「確認したい状態」を 1 人ずつ表すが、
+ * ランキングは母集団の大きさそのものが確認対象になる — 上位3位のメダル、
+ * ページ送り、1 ページに収まらない自分の順位を出す「あなた」の行は、
+ * どれも人数が足りないと画面に出ない。状態を持たないこの一群がその人数を
+ * 埋める。名前付きの 4 人と合わせて 24 人になり、1 ページ 20 件の
+ * ページ送りに 2 ページ目ができる。
+ *
+ * 状態を持たないので連番で名前を付けてよい（状態を名前に埋めるなという
+ * 下の注意は、状態を持つユーザーについてのもの）。
+ */
+const RANKING_FILLERS: readonly SeedUser[] = Array.from(
+  { length: 20 },
+  (_, index) => {
+    const suffix = String(index + 1).padStart(2, "0");
+    return {
+      email: `player${suffix}@example.local`,
+      username: `seed_player${suffix}`,
+      displayName: `プレイヤー${suffix}（シード）`,
+      fillsRanking: true,
+    };
+  },
+);
 
 /**
  * 投入するユーザー一覧。
@@ -65,6 +99,9 @@ export interface SeedUser {
  * 段級位が増えるたびに名前を付け直すことになるうえ、そのユーザーが
  * 昇級すると名前が嘘になる。名前はただの識別子として置き、どの状態を
  * 表しているかはこの表のコメントで示す。
+ *
+ * 末尾に {@link RANKING_FILLERS} を足している。こちらは状態を表さず、
+ * ランキングに人数を与えるためだけの一群。
  */
 export const SEED_USERS: readonly SeedUser[] = [
   {
@@ -93,6 +130,7 @@ export const SEED_USERS: readonly SeedUser[] = [
     displayName: "キャロル（シード）",
     ranks: ["kyu-5", "kyu-4"],
   },
+  ...RANKING_FILLERS,
 ];
 
 /** シードユーザー共通のパスワード（`password_requirements = letters_digits` を満たす） */

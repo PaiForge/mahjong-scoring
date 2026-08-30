@@ -1,6 +1,7 @@
 import { memo } from "react";
 
 import type { RankedLeaderboardRow } from "@/lib/db/leaderboard-queries";
+import { leaderboardRowClassName } from "../_lib/podium";
 import { LeaderboardRowCells } from "./leaderboard-row-cells";
 
 interface LeaderboardTableRowProps {
@@ -17,11 +18,7 @@ export const LeaderboardTableRow = memo(function LeaderboardTableRowComponent({
   isCurrentUser,
 }: LeaderboardTableRowProps) {
   return (
-    <tr
-      className={`border-b-2 border-dashed border-border/40 last:border-b-0 transition-colors ${
-        isCurrentUser ? "bg-primary-50" : "hover:bg-surface-50"
-      }`}
-    >
+    <tr className={leaderboardRowClassName({ rank: row.rank, isCurrentUser })}>
       <LeaderboardRowCells row={row} />
     </tr>
   );

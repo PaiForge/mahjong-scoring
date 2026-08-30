@@ -1,32 +1,38 @@
+import { getTranslations } from "next-intl/server";
+
+import { getMedalEmoji } from "../_lib/podium";
+
 interface RankBadgeProps {
   readonly rank: number;
 }
 
-const PODIUM_STYLES: Record<number, string> = {
-  1: "bg-amber-100 text-amber-800 font-bold",
-  2: "bg-gray-100 text-gray-600 font-bold",
-  3: "bg-orange-100 text-orange-700 font-bold",
-};
-
 /**
  * 順位バッジ
- * 上位3位に特別なスタイルを適用する順位表示コンポーネント
+ * 上位3位はメダル、それ以降は順位の数字を表示する
+ *
+ * メダルは絵文字そのものが順位を語るため、数字は併記しない。読み上げには
+ * 「1 位」と伝わるよう aria-label を付ける（絵文字の既定の読みは環境依存で、
+ * 英語名が読まれることもある）。
  */
-export function RankBadge({ rank }: RankBadgeProps) {
-  const podiumStyle = PODIUM_STYLES[rank];
+export async function RankBadge({ rank }: RankBadgeProps) {
+  const medal = getMedalEmoji(rank);
 
-  if (podiumStyle) {
+  if (medal !== undefined) {
+    const t = await getTranslations("leaderboard");
+
     return (
       <span
-        className={`inline-flex items-center justify-center w-8 h-8 rounded-full text-sm ${podiumStyle}`}
+        className="inline-flex size-8 items-center justify-center text-xl"
+        role="img"
+        aria-label={t("rankLabel", { rank })}
       >
-        {rank}
+        {medal}
       </span>
     );
   }
 
   return (
-    <span className="inline-flex items-center justify-center w-8 h-8 text-surface-400 text-sm font-medium">
+    <span className="inline-flex size-8 items-center justify-center text-sm font-medium text-surface-400">
       {rank}
     </span>
   );
