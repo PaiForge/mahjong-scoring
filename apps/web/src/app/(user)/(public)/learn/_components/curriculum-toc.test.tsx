@@ -245,12 +245,12 @@ describe("CurriculumToc", () => {
     }
   });
 
-  it("places the next-chapter badge next to the chapter title link", async () => {
+  it("places the next-chapter badge at the right end of the row, where the read check sits", async () => {
     const { container } = render(
       await CurriculumToc({
         section,
         chapters,
-        readSlugs: new Set<string>(),
+        readSlugs: new Set(["why-scoring-is-complex"]),
         nextSlug: "about-this-app",
       }),
     );
@@ -258,15 +258,23 @@ describe("CurriculumToc", () => {
     const nextRow = container.querySelector(
       '[data-chapter-slug="about-this-app"]',
     );
-    expect(nextRow).not.toBeNull();
-
-    const link = nextRow?.querySelector("a");
-    const badge = nextRow?.querySelector(".bg-amber-200");
-    expect(link).not.toBeNull();
+    const badge = nextRow?.querySelector(
+      '[data-testid="curriculum-next-badge"]',
+    );
     expect(badge).not.toBeNull();
-    // Badge must be a sibling of the link (inline with the title), not in a
-    // separate upper row.
-    expect(badge?.parentElement).toBe(link?.parentElement);
+    // Badge is the row's last child (right end), not inline with the title.
+    expect(badge?.parentElement).toBe(nextRow);
+    expect(nextRow?.lastElementChild).toBe(badge);
+    expect(nextRow?.querySelector("a")?.parentElement).not.toBe(nextRow);
+
+    // Same slot as the read check, so both marks line up in one column.
+    const readRow = container.querySelector(
+      '[data-chapter-slug="why-scoring-is-complex"]',
+    );
+    const mark = readRow?.querySelector(
+      '[data-testid="curriculum-achieved-mark"]',
+    );
+    expect(readRow?.lastElementChild).toBe(mark);
   });
 
   it("applies the section-specific bullet color class", async () => {
