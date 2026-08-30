@@ -2,11 +2,10 @@
 
 import type { ReactNode } from "react";
 import { useTranslations } from "next-intl";
-import { parseHais, parseKazehai, parseTehai } from "@mahjong-scoring/core";
-import type { HaiKindId, ScoreTableAnswer } from "@mahjong-scoring/core";
-import type { ScoreQuestionDisplayData } from "../score/_components/question-display";
+import type { ScoreTableAnswer } from "@mahjong-scoring/core";
 import { QuestionDisplay } from "../score/_components/question-display";
 import type { ScoreQuestionResult } from "../_lib/score-question-result";
+import { restoreScoreQuestion } from "../_lib/score-question-result";
 import { AnswerComparison } from "./answer-comparison";
 import { ProblemListAccordion } from "./problem-list-accordion";
 import { TehaiMentsuBreakdown } from "./tehai-mentsu-breakdown";
@@ -25,48 +24,6 @@ interface ScoreProblemListProps {
     answer: ScoreTableAnswer,
     t: (key: string) => string,
   ) => string;
-}
-
-/**
- * MSPZ 文字列のドラ表示牌リストを牌IDに復元する
- * ドラ表示牌復元
- */
-function parseMarkers(
-  markers: readonly string[] | undefined,
-): readonly HaiKindId[] | undefined {
-  return markers?.flatMap((marker) => parseHais(marker));
-}
-
-/**
- * 保存された結果から出題内容を復元する
- * 出題復元
- *
- * MSPZ のパースに失敗した場合は undefined を返し、手牌の再表示だけを諦める
- * （正誤と回答の比較は出題スナップショットに依存しないため表示できる）。
- * スナップショットを保存する前の旧データも同様に undefined になる。
- */
-function restoreQuestion(
-  result: ScoreQuestionResult,
-): ScoreQuestionDisplayData | undefined {
-  const snapshot = result.question;
-  if (!snapshot) return undefined;
-
-  const tehai = parseTehai(snapshot.tehai);
-  const agariHai = parseHais(snapshot.agariHai)[0];
-  const bakaze = parseKazehai(snapshot.bakaze);
-  const jikaze = parseKazehai(snapshot.jikaze);
-  if (!tehai || agariHai === undefined || !bakaze || !jikaze) return undefined;
-
-  return {
-    tehai,
-    agariHai,
-    isTsumo: result.isTsumo,
-    jikaze,
-    bakaze,
-    doraMarkers: parseMarkers(snapshot.doraMarkers) ?? [],
-    isRiichi: snapshot.isRiichi,
-    uraDoraMarkers: parseMarkers(snapshot.uraDoraMarkers),
-  };
 }
 
 /**
@@ -100,7 +57,7 @@ export function ScoreProblemList({
         return summary;
       }}
       renderDetail={(result) => {
-        const question = restoreQuestion(result);
+        const question = restoreScoreQuestion(result.question, result.isTsumo);
 
         return (
           <div className="space-y-3">

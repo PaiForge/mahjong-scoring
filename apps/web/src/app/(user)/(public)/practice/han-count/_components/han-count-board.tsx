@@ -10,6 +10,7 @@ import { TehaiDisplay } from "../../_components/tehai-display";
 import { useRegisterAdvance } from "../../_hooks/use-training-mode";
 import { HanCountAnswerForm } from "./han-count-answer-form";
 import type { HanCountQuestionResult } from "../_lib/types";
+import { toHanCountQuestionResult } from "../_lib/types";
 import type { RecordingPracticeBoardProps } from "../../_lib/practice-board-props";
 
 /**
@@ -49,11 +50,10 @@ export function HanCountBoard({
 
       // 選択肢は 1〜13 のため、14翻以上（役満+ドラ・ダブル役満等）の正解は
       // 役満（13翻）に丸めて判定・記録する。丸めないと正解できない問題になる
-      const correctHan = clampHanToYakuman(question.answer.han);
-      const isCorrect = userHan === correctHan;
+      const result = toHanCountQuestionResult(question, userHan);
 
-      onRecordResult?.({ correctHan, userHan, isCorrect });
-      onAnswer(isCorrect, advanceQuestion);
+      onRecordResult?.(result);
+      onAnswer(result.isCorrect, advanceQuestion);
     },
     [showFeedback, question, onAnswer, advanceQuestion, onRecordResult],
   );
