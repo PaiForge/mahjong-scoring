@@ -134,6 +134,25 @@ export const RANK_REGISTRY = [
     ],
     learnChapterSlugs: ["jantou-fu", "mentsu-fu", "machi-fu", "tehai-fu"],
   },
+  {
+    // 合格基準: 七対子の場合における点数計算ができること
+    slug: "kyu-3",
+    level: 30,
+    requirements: [
+      {
+        type: "challenge_score",
+        menuType: "chiitoitsu_exam",
+        leaderboardKey: "default",
+        // 合格条件: 昇級試験で制限時間以内に8問正解（ミスは1回で終了 —
+        // 練習レジストリの mistakeLimit が強制する）。
+        // 1問の中身は5級（10問）と同じ「翻数を数えて点数を引く」だが、
+        // 満貫未満は点数の刻みが細かく、選択肢が満貫以上の倍近くある
+        // （子ロンで 20 対 10）。1問あたりの読み取りが重いぶん問題数を下げる
+        minScore: 8,
+      },
+    ],
+    learnChapterSlugs: ["chiitoitsu-score"],
+  },
 ] as const satisfies readonly RankDefinitionEntry[];
 
 /** 段級位スラッグ */

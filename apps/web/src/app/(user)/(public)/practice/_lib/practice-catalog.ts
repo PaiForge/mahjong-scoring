@@ -115,15 +115,18 @@ export const PRACTICE_CATALOG: readonly PracticeMenu[] = [
     learnChapter: "yaku",
   },
   { slug: "han-count", category: "han", rank: "kyu-5" },
-  // 点数表早引きと点数即答は満貫未満の点数を扱う。現行の段級位（5級=満貫
-  // 以上の点数計算 / 4級=手牌の符）のどちらの範囲でもないため級を持たない。
-  // 3級以降を定義したらそこに寄せる
-  { slug: "score-table", category: "scoring" },
+  // 満貫未満の点数を引く練習。その最初の級が3級（七対子＝25符の行を引く）
+  // なのでそこに寄せている。上の級（平和・面子手）でも同じ表を引くが、
+  // ピルは「次に取る級のための練習はどれか」を読ませるものなので、
+  // その練習を最初に必要とする級を載せる
+  { slug: "score-table", category: "scoring", rank: "kyu-3" },
   {
     slug: "mangan-score-calculation",
     category: "scoring",
     rank: "kyu-5",
   },
+  // 符の計算から点数までを通しで解く総まとめ。3級（七対子）の範囲を超えて
+  // 面子手の符を要求するため、扱う級を定義するまで級を持たない
   { slug: "score-calculation", category: "scoring" },
   {
     // 昇級試験の前提章は段級位レジストリ（`RANK_REGISTRY` の
@@ -137,6 +140,7 @@ export const PRACTICE_CATALOG: readonly PracticeMenu[] = [
     // 昇級試験の前提章は段級位レジストリが持つ（他の試験と同じ理由）
     slug: "chiitoitsu-exam",
     category: "scoring",
+    rank: "kyu-3",
   },
 ] as const;
 

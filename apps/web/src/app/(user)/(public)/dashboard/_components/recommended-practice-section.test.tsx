@@ -67,8 +67,9 @@ describe("RecommendedPracticeSection", () => {
   });
 
   it("段級位を持たない練習にはピルを出さない", async () => {
+    // 点数計算練習はどの級の範囲にも入っていない（カタログ参照）
     const { container } = render(
-      await RecommendedPracticeSection({ slugs: ["score-table"] }),
+      await RecommendedPracticeSection({ slugs: ["score-calculation"] }),
     );
 
     expect(container.querySelector("[data-belt-slug]")).toBeNull();
