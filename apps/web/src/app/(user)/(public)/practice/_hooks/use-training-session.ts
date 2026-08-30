@@ -1,7 +1,17 @@
 "use client";
 
 import { useCallback, useMemo, useRef, useState } from "react";
+
+import { useAutoAdvanceOnCorrect } from "@/app/_hooks/use-training-settings-store";
 import { scrollToPracticeAnchor } from "../_lib/scroll-anchor";
+
+/**
+ * 正解を自動で流すときにフィードバックを見せる時間（ms）
+ *
+ * チャレンジ（{@link useTimedSession}）の既定と同じ長さ。同じ「正解の
+ * フラッシュ」が練習のモードによって速さを変えないため。
+ */
+const AUTO_ADVANCE_FEEDBACK_MS = 800;
 
 /**
  * トレーニングセッション状態
@@ -26,14 +36,16 @@ export interface TrainingSessionState {
    *
    * {@link handleAnswer} で立ち、{@link proceed} で解除される。
    * 「次の問題へ」を出す側（シェル）と、回答ボタンを引っ込める側（盤面）が
-   * 同じ状態を見るための旗。
+   * 同じ状態を見るための旗。正解を自動で流す設定のときは、正解の
+   * フィードバック中も立たない（押す操作が無いため）。
    */
   readonly isHolding: boolean;
   /**
    * 回答処理。正解表示を出したまま停止し、{@link proceed} の呼び出しを待つ
    *
-   * 正解・不正解のどちらでも止まる。正解でも止めるのは、合っていた根拠
-   * （符の内訳や符目ごとの正解）を確認する時間がトレーニングでは要るため。
+   * 既定では正解・不正解のどちらでも止まる。正解でも止めるのは、合っていた
+   * 根拠（符の内訳や符目ごとの正解）を確認する時間がトレーニングでは要るため。
+   * 設定（{@link useAutoAdvanceOnCorrect}）で正解時だけ自動遷移にできる。
    */
   readonly handleAnswer: (correct: boolean, onNext: () => void) => void;
   /**
@@ -55,9 +67,10 @@ export interface TrainingSessionState {
  * 練習のトレーニングセッション管理
  *
  * 時間無制限・ミス無制限の反復練習用。正解数と出題数のみを集計する。
- * チャレンジと違い、回答すると正解表示を出したまま必ず停止し、ユーザーが
+ * チャレンジと違い、回答すると正解表示を出したまま停止し、ユーザーが
  * 「次の問題へ」を押すまで次の問題に変わらない（答え合わせのための時間を
- * 自動遷移で奪わないため）。
+ * 自動遷移で奪わないため）。設定で正解時だけ自動遷移にでき、その場合も
+ * 不正解では止まる。
  *
  * 盤面の表示が切り替わる操作（回答・開示・次へ進む）では、あわせて練習の
  * 先頭へスクロールして戻す。これらのボタンは盤面下端やフッターにあり、
@@ -69,11 +82,13 @@ export function useTrainingSession(): TrainingSessionState {
   const [totalCount, setTotalCount] = useState(0);
   const [showFeedback, setShowFeedback] = useState(false);
   const [isRevealed, setIsRevealed] = useState(false);
+  const [isHolding, setIsHolding] = useState(false);
   const [lastAnswerCorrect, setLastAnswerCorrect] = useState<
     boolean | undefined
   >(undefined);
   // 停止（回答後の停止・正解開示）からの「次へ進む」処理。proceed が呼ばれるまで保持する
   const pendingNextRef = useRef<(() => void) | undefined>(undefined);
+  const autoAdvanceOnCorrect = useAutoAdvanceOnCorrect();
 
   const handleAnswer = useCallback(
     (correct: boolean, onNext: () => void) => {
@@ -84,9 +99,21 @@ export function useTrainingSession(): TrainingSessionState {
       setLastAnswerCorrect(correct);
       setTotalCount((c) => c + 1);
       if (correct) setCorrectCount((c) => c + 1);
+
+      // 自動遷移は正解のときだけ。間違えた問題は答え合わせのために必ず止める
+      if (correct && autoAdvanceOnCorrect) {
+        setTimeout(() => {
+          setShowFeedback(false);
+          setLastAnswerCorrect(undefined);
+          onNext();
+        }, AUTO_ADVANCE_FEEDBACK_MS);
+        return;
+      }
+
+      setIsHolding(true);
       pendingNextRef.current = onNext;
     },
-    [showFeedback],
+    [showFeedback, autoAdvanceOnCorrect],
   );
 
   const reveal = useCallback(
@@ -109,11 +136,10 @@ export function useTrainingSession(): TrainingSessionState {
     pendingNextRef.current = undefined;
     setShowFeedback(false);
     setIsRevealed(false);
+    setIsHolding(false);
     setLastAnswerCorrect(undefined);
     next();
   }, []);
-
-  const isHolding = showFeedback && !isRevealed;
 
   return useMemo(
     () => ({

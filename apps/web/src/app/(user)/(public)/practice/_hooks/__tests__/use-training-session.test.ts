@@ -1,11 +1,13 @@
 import { act, renderHook } from "@testing-library/react";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
+import { useTrainingSettingsStore } from "@/app/_hooks/use-training-settings-store";
 import { useTrainingSession } from "../use-training-session";
 
 describe("useTrainingSession", () => {
   beforeEach(() => {
     vi.useFakeTimers();
+    useTrainingSettingsStore.setState({ autoAdvanceOnCorrect: false });
   });
 
   afterEach(() => {
@@ -141,6 +143,46 @@ describe("useTrainingSession", () => {
 
       expect(result.current.totalCount).toBe(0);
       expect(result.current.showFeedback).toBe(false);
+    });
+  });
+
+  describe("正解時の自動遷移設定", () => {
+    beforeEach(() => {
+      useTrainingSettingsStore.setState({ autoAdvanceOnCorrect: true });
+    });
+
+    it("正解はフィードバックのあと自動で次問題へ進む", () => {
+      const onNext = vi.fn();
+      const { result } = renderHook(() => useTrainingSession());
+
+      act(() => result.current.handleAnswer(true, onNext));
+
+      // 押す操作が無いので「次の問題へ」は出さない
+      expect(result.current.isHolding).toBe(false);
+      expect(result.current.showFeedback).toBe(true);
+      expect(onNext).not.toHaveBeenCalled();
+
+      act(() => vi.advanceTimersByTime(800));
+
+      expect(onNext).toHaveBeenCalledTimes(1);
+      expect(result.current.showFeedback).toBe(false);
+      expect(result.current.lastAnswerCorrect).toBeUndefined();
+    });
+
+    it("不正解は設定に関わらず止まる（答え合わせのため）", () => {
+      const onNext = vi.fn();
+      const { result } = renderHook(() => useTrainingSession());
+
+      act(() => result.current.handleAnswer(false, onNext));
+      act(() => vi.advanceTimersByTime(10_000));
+
+      expect(onNext).not.toHaveBeenCalled();
+      expect(result.current.isHolding).toBe(true);
+
+      act(() => result.current.proceed());
+
+      expect(onNext).toHaveBeenCalledTimes(1);
+      expect(result.current.isHolding).toBe(false);
     });
   });
 });
