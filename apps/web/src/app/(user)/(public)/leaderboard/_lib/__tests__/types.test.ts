@@ -36,6 +36,7 @@ describe("MODULES", () => {
       "mangan_score_calculation",
       "mangan_exam",
       "fu_exam",
+      "chiitoitsu_exam",
     ]);
   });
 });
