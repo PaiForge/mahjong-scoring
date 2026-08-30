@@ -45,6 +45,11 @@ export function MentsuFuProblemList({ results }: MentsuFuProblemListProps) {
               isCorrect={result.isCorrect}
               correct={fuLabel(result.correctFu)}
               user={fuLabel(result.userFu)}
+              difference={{
+                correct: result.correctFu,
+                user: result.userFu,
+                format: fuLabel,
+              }}
             />
           </div>
         );

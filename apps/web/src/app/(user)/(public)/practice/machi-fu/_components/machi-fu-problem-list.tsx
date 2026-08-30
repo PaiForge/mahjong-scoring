@@ -44,6 +44,11 @@ export function MachiFuProblemList({ results }: MachiFuProblemListProps) {
               isCorrect={result.isCorrect}
               correct={fuLabel(result.correctFu)}
               user={fuLabel(result.userFu)}
+              difference={{
+                correct: result.correctFu,
+                user: result.userFu,
+                format: fuLabel,
+              }}
             />
           </div>
         );

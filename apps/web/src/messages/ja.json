@@ -1255,6 +1255,8 @@
       },
       "details": {
         "none": "なし",
+        "yakuTitle": "翻数の内訳",
+        "fuTitle": "符の内訳",
         "total": "合計",
         "roundUp": "切り上げ"
       },
@@ -1941,6 +1943,8 @@
     "showDetailInfo": "詳細情報を表示",
     "loading": "読み込み中",
     "answerCheck": "答え合わせ",
+    "difference": "過不足",
+    "noDifference": "なし",
     "dora": "ドラ",
     "doraIndicator": "ドラ表",
     "uraDora": "裏ドラ",

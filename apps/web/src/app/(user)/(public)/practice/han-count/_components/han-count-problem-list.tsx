@@ -55,6 +55,11 @@ export function HanCountProblemList({ results }: HanCountProblemListProps) {
               isCorrect={result.isCorrect}
               correct={hanCountLabel(result.correctHan, t)}
               user={hanCountLabel(result.userHan, t)}
+              difference={{
+                correct: result.correctHan,
+                user: result.userHan,
+                format: (value) => t("hanOption", { count: value }),
+              }}
             />
 
             {result.question && (

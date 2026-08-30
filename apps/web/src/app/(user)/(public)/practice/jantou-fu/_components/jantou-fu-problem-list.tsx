@@ -49,6 +49,11 @@ export function JantouFuProblemList({ results }: JantouFuProblemListProps) {
           isCorrect={result.isCorrect}
           correct={haiWithFu(parseHais(result.correctHai)[0], result.correctFu)}
           user={haiWithFu(parseHais(result.selectedHai)[0], result.selectedFu)}
+          difference={{
+            correct: result.correctFu,
+            user: result.selectedFu,
+            format: (value) => t("fu", { value }),
+          }}
         />
       )}
     />

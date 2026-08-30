@@ -76,6 +76,11 @@ export function FuProblemList({
               isCorrect={result.isCorrect}
               correct={t("fuSuffix", { value: result.correctFu })}
               user={t("fuSuffix", { value: result.userFu })}
+              difference={{
+                correct: result.correctFu,
+                user: result.userFu,
+                format: (value) => t("fuSuffix", { value }),
+              }}
             />
 
             <FuBreakdown

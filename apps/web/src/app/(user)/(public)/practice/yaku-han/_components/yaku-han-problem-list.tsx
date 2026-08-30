@@ -40,6 +40,11 @@ export function YakuHanProblemList({ results }: YakuHanProblemListProps) {
           isCorrect={result.isCorrect}
           correct={hanLabel(result.correctHan)}
           user={hanLabel(result.userHan)}
+          difference={{
+            correct: result.correctHan,
+            user: result.userHan,
+            format: (value) => t("hanOption", { count: value }),
+          }}
         />
       )}
     />
