@@ -6,6 +6,7 @@ import type { ScoreRange, ScoreTableUserAnswer } from "@mahjong-scoring/core";
 import { Button } from "@/app/(user)/_components/button";
 import { useRuleSettingsStore } from "@/app/_hooks/use-rule-settings-store";
 import { getAvailableScores } from "../score/_lib/get-available-scores";
+import { useTrainingMode } from "../_hooks/use-training-mode";
 import { ScoreOptionSelect } from "./score-option-select";
 
 interface ScoreAnswerFormProps {
@@ -53,6 +54,8 @@ export function ScoreAnswerForm({
   autoSubmit = false,
 }: ScoreAnswerFormProps) {
   const t = useTranslations(translationNamespace);
+  // トレーニングの回答後は、シェルが同じ位置に「次の問題へ」を出す
+  const { isHolding } = useTrainingMode();
   // ラベルと select を紐付ける id（読み上げで見出しを名前として得るため）
   const scoreId = useId();
   const fromKoId = useId();
@@ -181,7 +184,7 @@ export function ScoreAnswerForm({
       )}
 
       {/* 自動送信時は「回答する」ボタンを表示しない（選択完了で送信扱い） */}
-      {!autoSubmit && (
+      {!autoSubmit && !isHolding && (
         <Button type="submit" size="lg" fullWidth disabled={disabled}>
           {t("answer")}
         </Button>

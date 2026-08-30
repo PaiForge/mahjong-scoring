@@ -3,6 +3,7 @@
 import { type ReactNode, useCallback } from "react";
 import { useTranslations } from "next-intl";
 import { toast } from "react-hot-toast";
+import { Button } from "@/app/(user)/_components/button";
 import { ContentContainer } from "@/app/(user)/_components/content-container";
 import { PageTitle } from "@/app/(user)/_components/page-title";
 import { useScrollToElement } from "../_hooks/use-scroll-to-element";
@@ -47,7 +48,14 @@ interface TrainingShellProps {
    * 同じ場所の連打で済ませるため。
    */
   readonly isRevealed?: boolean;
-  /** 開示状態から次問題へ進む（isRevealed 中のリンクが呼ぶ） */
+  /**
+   * 回答後の停止中。盤面の直下に「次の問題へ」ボタンを表示する
+   *
+   * 開示中と違ってフッターのリンクではなくボタンで出すのは、答え合わせのあと
+   * 必ず通る導線であり、回答ボタンと同じ位置で受けるため。
+   */
+  readonly isHolding?: boolean;
+  /** 停止状態から次問題へ進む（「次の問題へ」が呼ぶ） */
   readonly onProceed?: () => void;
 }
 
@@ -69,6 +77,7 @@ export function TrainingShell({
   onReveal,
   revealDisabled = false,
   isRevealed = false,
+  isHolding = false,
   onProceed,
 }: TrainingShellProps) {
   const tc = useTranslations("challenge");
@@ -90,7 +99,18 @@ export function TrainingShell({
 
       <div className={`mx-auto space-y-8 ${maxWidth}`}>
         {/* Game content area */}
-        <div>{children}</div>
+        <div>
+          {children}
+
+          {/* 回答後は自動で進まず、答え合わせを読み終えてから押してもらう */}
+          {isHolding && onProceed && (
+            <div className="mt-4">
+              <Button size="lg" fullWidth onClick={onProceed}>
+                {tt("nextButton")}
+              </Button>
+            </div>
+          )}
+        </div>
 
         {/* Footer: 正解 / 不正解 カウンタ（score/play と同じくアイコン付きで下部に表示） */}
         <ScoreCounter

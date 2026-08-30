@@ -3,7 +3,7 @@
 import { Suspense, useCallback, useMemo, useState } from "react";
 import { useTranslations } from "next-intl";
 import { useTrainingSession } from "../../_hooks/use-training-session";
-import { TrainingRevealProvider } from "../../_hooks/use-training-reveal";
+import { TrainingModeProvider } from "../../_hooks/use-training-mode";
 import { TrainingShell } from "../../_components/training-shell";
 import { ScoreTableBoard } from "./score-table-board";
 import { ScoreTableGeneratingPlaceholder } from "./score-table-generating-placeholder";
@@ -29,6 +29,7 @@ function ScoreTableTrainingViewInner() {
     showFeedback,
     lastAnswerCorrect,
     isRevealed,
+    isHolding,
     handleAnswer,
     reveal,
     proceed,
@@ -44,9 +45,9 @@ function ScoreTableTrainingViewInner() {
     (next: (() => void) | undefined) => setRegisteredAdvance(() => next),
     [],
   );
-  const revealValue = useMemo(
-    () => ({ isRevealed, registerAdvance }),
-    [isRevealed, registerAdvance],
+  const trainingMode = useMemo(
+    () => ({ isRevealed, isHolding, registerAdvance }),
+    [isRevealed, isHolding, registerAdvance],
   );
 
   return (
@@ -60,9 +61,10 @@ function ScoreTableTrainingViewInner() {
       }}
       revealDisabled={showFeedback || registeredAdvance === undefined}
       isRevealed={isRevealed}
+      isHolding={isHolding}
       onProceed={proceed}
     >
-      <TrainingRevealProvider value={revealValue}>
+      <TrainingModeProvider value={trainingMode}>
         {question === undefined ? (
           <ScoreTableGeneratingPlaceholder />
         ) : (
@@ -74,7 +76,7 @@ function ScoreTableTrainingViewInner() {
             onAnswer={handleAnswer}
           />
         )}
-      </TrainingRevealProvider>
+      </TrainingModeProvider>
     </TrainingShell>
   );
 }

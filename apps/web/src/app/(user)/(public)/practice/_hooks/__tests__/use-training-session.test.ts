@@ -16,26 +16,12 @@ describe("useTrainingSession", () => {
     const { result } = renderHook(() => useTrainingSession());
 
     act(() => result.current.handleAnswer(true, () => {}));
-    act(() => vi.advanceTimersByTime(800));
+    act(() => result.current.proceed());
     act(() => result.current.handleAnswer(false, () => {}));
-    act(() => vi.advanceTimersByTime(800));
+    act(() => result.current.proceed());
 
     expect(result.current.correctCount).toBe(1);
     expect(result.current.totalCount).toBe(2);
-  });
-
-  it("既定では不正解でも一定時間後に自動で次問題へ進む", () => {
-    const onNext = vi.fn();
-    const { result } = renderHook(() => useTrainingSession());
-
-    act(() => result.current.handleAnswer(false, onNext));
-    expect(result.current.showFeedback).toBe(true);
-    expect(onNext).not.toHaveBeenCalled();
-
-    act(() => vi.advanceTimersByTime(800));
-
-    expect(onNext).toHaveBeenCalledTimes(1);
-    expect(result.current.showFeedback).toBe(false);
   });
 
   describe("reveal", () => {
@@ -50,6 +36,8 @@ describe("useTrainingSession", () => {
       expect(onNext).not.toHaveBeenCalled();
       expect(result.current.showFeedback).toBe(true);
       expect(result.current.isRevealed).toBe(true);
+      // 開示は回答後の停止とは別の状態（盤面の回答ボタンは残す）
+      expect(result.current.isHolding).toBe(false);
       expect(result.current.lastAnswerCorrect).toBeUndefined();
 
       act(() => result.current.proceed());
@@ -78,7 +66,6 @@ describe("useTrainingSession", () => {
 
       expect(result.current.isRevealed).toBe(false);
 
-      act(() => vi.advanceTimersByTime(800));
       act(() => result.current.proceed());
 
       expect(onNext).not.toHaveBeenCalled();
@@ -95,12 +82,10 @@ describe("useTrainingSession", () => {
     });
   });
 
-  describe("holdAfterAnswer", () => {
+  describe("回答後の停止", () => {
     it("不正解では時間が経っても進まず、proceed で進む", () => {
       const onNext = vi.fn();
-      const { result } = renderHook(() =>
-        useTrainingSession({ holdAfterAnswer: true }),
-      );
+      const { result } = renderHook(() => useTrainingSession());
 
       act(() => result.current.handleAnswer(false, onNext));
       act(() => vi.advanceTimersByTime(10_000));
@@ -108,20 +93,20 @@ describe("useTrainingSession", () => {
       // 解説を読む時間を確保するため、フィードバックを出したまま止まる
       expect(onNext).not.toHaveBeenCalled();
       expect(result.current.showFeedback).toBe(true);
+      expect(result.current.isHolding).toBe(true);
       expect(result.current.lastAnswerCorrect).toBe(false);
 
       act(() => result.current.proceed());
 
       expect(onNext).toHaveBeenCalledTimes(1);
       expect(result.current.showFeedback).toBe(false);
+      expect(result.current.isHolding).toBe(false);
       expect(result.current.lastAnswerCorrect).toBeUndefined();
     });
 
     it("正解でも時間が経っても進まず、proceed で進む", () => {
       const onNext = vi.fn();
-      const { result } = renderHook(() =>
-        useTrainingSession({ holdAfterAnswer: true }),
-      );
+      const { result } = renderHook(() => useTrainingSession());
 
       act(() => result.current.handleAnswer(true, onNext));
       act(() => vi.advanceTimersByTime(10_000));
@@ -140,9 +125,7 @@ describe("useTrainingSession", () => {
 
     it("停止中の proceed は一度しか効かない", () => {
       const onNext = vi.fn();
-      const { result } = renderHook(() =>
-        useTrainingSession({ holdAfterAnswer: true }),
-      );
+      const { result } = renderHook(() => useTrainingSession());
 
       act(() => result.current.handleAnswer(false, onNext));
       act(() => result.current.proceed());
@@ -152,9 +135,7 @@ describe("useTrainingSession", () => {
     });
 
     it("停止していないときの proceed は何もしない", () => {
-      const { result } = renderHook(() =>
-        useTrainingSession({ holdAfterAnswer: true }),
-      );
+      const { result } = renderHook(() => useTrainingSession());
 
       act(() => result.current.proceed());
 

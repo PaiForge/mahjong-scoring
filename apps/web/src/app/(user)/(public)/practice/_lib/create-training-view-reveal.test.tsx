@@ -8,7 +8,10 @@ vi.mock("../_actions/save-practice-result", () => ({
   savePracticeResult: vi.fn(),
 }));
 
-import { useTrainingReveal } from "../_hooks/use-training-reveal";
+import {
+  useRegisterAdvance,
+  useTrainingMode,
+} from "../_hooks/use-training-mode";
 import { createTrainingView } from "./create-challenge-views";
 
 /**
@@ -18,7 +21,8 @@ import { createTrainingView } from "./create-challenge-views";
  */
 function renderTrainingView(advance: (() => void) | undefined) {
   function Board({ showFeedback }: { readonly showFeedback: boolean }) {
-    const isRevealed = useTrainingReveal(advance);
+    useRegisterAdvance(advance);
+    const { isRevealed } = useTrainingMode();
     return (
       <div>
         board feedback:{String(showFeedback)} revealed:{String(isRevealed)}

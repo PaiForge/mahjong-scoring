@@ -57,6 +57,22 @@ describe("TrainingShell わからない（正解開示）", () => {
   });
 });
 
+describe("TrainingShell 回答後の停止", () => {
+  it("停止中は盤面の直下に「次の問題へ」を出し、クリックで onProceed を呼ぶ", () => {
+    const onProceed = vi.fn();
+    renderShell({ isHolding: true, onProceed });
+
+    fireEvent.click(screen.getByRole("button", { name: "nextButton" }));
+    expect(onProceed).toHaveBeenCalledTimes(1);
+  });
+
+  it("停止していないときは「次の問題へ」を出さない", () => {
+    renderShell({ onProceed: vi.fn() });
+
+    expect(screen.queryByRole("button", { name: "nextButton" })).toBeNull();
+  });
+});
+
 describe("TrainingShell 終了", () => {
   it("終了リンクを押すとチャレンジと同じく終了トーストを出す", () => {
     toastSpy.mockClear();

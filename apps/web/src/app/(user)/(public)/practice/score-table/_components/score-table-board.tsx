@@ -8,7 +8,10 @@ import type {
 } from "@mahjong-scoring/core";
 import { FeedbackFrame } from "../../_components/feedback-frame";
 import { RevealedScoreAnswer } from "../../_components/revealed-score-answer";
-import { useTrainingReveal } from "../../_hooks/use-training-reveal";
+import {
+  useRegisterAdvance,
+  useTrainingMode,
+} from "../../_hooks/use-training-mode";
 import { ScoreTablePrompt } from "./score-table-prompt";
 import { ScoreTableAnswerForm } from "./score-table-answer-form";
 import type { ScoreTableQuestionResult } from "../_lib/types";
@@ -38,7 +41,9 @@ export function ScoreTableBoard({
   onAnswer,
   onRecordResult,
 }: ScoreTableBoardProps) {
-  const isRevealed = useTrainingReveal(onAdvance);
+  useRegisterAdvance(onAdvance);
+  // トレーニングでは開示時だけでなく回答後の停止中も正解を出す（答え合わせ用）
+  const { isRevealed, isHolding } = useTrainingMode();
 
   const handleSubmit = useCallback(
     (userAnswer: ScoreTableUserAnswer) => {
@@ -78,7 +83,7 @@ export function ScoreTableBoard({
           fu={question.fu}
         />
 
-        {isRevealed && (
+        {(isRevealed || isHolding) && (
           <RevealedScoreAnswer
             answer={question.correctAnswer}
             translationNamespace="scoreTableChallenge"

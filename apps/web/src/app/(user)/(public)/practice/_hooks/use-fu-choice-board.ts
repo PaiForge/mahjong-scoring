@@ -4,7 +4,7 @@ import { useCallback, useState } from "react";
 
 import type { PracticeBoardProps } from "../_lib/practice-board-props";
 import { useClientGeneratedQuestion } from "./use-client-generated-question";
-import { useTrainingReveal } from "./use-training-reveal";
+import { useRegisterAdvance } from "./use-training-mode";
 
 /** 符を答える練習の問題が満たすべき最小の形 */
 interface FuQuestion {
@@ -37,8 +37,6 @@ interface UseFuChoiceBoardResult<TQuestion extends FuQuestion> {
   /** 直前に選択された符（未選択時は undefined） */
   readonly selectedFu: number | undefined;
   readonly handleSelect: (index: number) => void;
-  /** 「わからない」で正解を開示中か（チャレンジでは常に false） */
-  readonly isRevealed: boolean;
 }
 
 /**
@@ -64,9 +62,7 @@ export function useFuChoiceBoard<TQuestion extends FuQuestion>({
     setSelectedFu(undefined);
   }, [generateQuestion, setQuestion]);
 
-  const isRevealed = useTrainingReveal(
-    question === undefined ? undefined : advanceQuestion,
-  );
+  useRegisterAdvance(question === undefined ? undefined : advanceQuestion);
 
   const handleSelect = useCallback(
     (index: number) => {
@@ -86,5 +82,5 @@ export function useFuChoiceBoard<TQuestion extends FuQuestion>({
     ],
   );
 
-  return { question, selectedFu, handleSelect, isRevealed };
+  return { question, selectedFu, handleSelect };
 }

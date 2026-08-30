@@ -13,7 +13,7 @@ import { useRecordedResults } from "../_hooks/use-recorded-results";
 import { useSaveOnFinish } from "../_hooks/use-save-on-finish";
 import { useTimedSession } from "../_hooks/use-timed-session";
 import { useTrainingSession } from "../_hooks/use-training-session";
-import { TrainingRevealProvider } from "../_hooks/use-training-reveal";
+import { TrainingModeProvider } from "../_hooks/use-training-mode";
 import type { PracticeBoardProps } from "./practice-board-props";
 import { practiceHref, practiceResultHref } from "./practice-catalog";
 
@@ -142,13 +142,6 @@ export interface TrainingBoardArgs extends PracticeBoardProps {
   /** トレーニングビューからの描画なので常に true */
   readonly isTraining: true;
   readonly lastAnswerCorrect: boolean | undefined;
-  /**
-   * 回答後の停止状態から次問題へ進む
-   *
-   * `holdAfterAnswer` を指定した練習だけが意味を持つ。盤面は正解表示の下に
-   * この操作を呼ぶボタンを置く。
-   */
-  readonly onProceed: () => void;
 }
 
 /**
@@ -170,13 +163,6 @@ export interface TrainingViewConfig<TProps, TState> {
    * 置く場所。チャレンジ側には無い。
    */
   readonly help?: ReactNode;
-  /**
-   * 回答後にフィードバック表示のまま停止し、ユーザーの操作を待つ
-   *
-   * 正解表示を突き合わせて読ませたい練習向け。正解・不正解のどちらでも止まる。
-   * 既定は自動で次問題へ進む。
-   */
-  readonly holdAfterAnswer?: boolean;
   /**
    * 盤面が必要とする追加状態を用意するフック
    *
@@ -204,7 +190,7 @@ export function createTrainingView<
   TProps = Record<string, never>,
   TState = undefined,
 >(config: TrainingViewConfig<TProps, TState>): (props: TProps) => ReactNode {
-  const { slug, maxWidth, help, holdAfterAnswer, renderBoard } = config;
+  const { slug, maxWidth, help, renderBoard } = config;
   const { namespace } = practiceMenuBySlug(slug);
   const useBoardState =
     config.useBoardState ?? (() => undefined as unknown as TState);
@@ -218,10 +204,11 @@ export function createTrainingView<
       showFeedback,
       lastAnswerCorrect,
       isRevealed,
+      isHolding,
       handleAnswer,
       reveal,
       proceed,
-    } = useTrainingSession({ holdAfterAnswer });
+    } = useTrainingSession();
 
     // 「次へ進む」操作は盤面が持つ（出題の差し替えと入力欄のリセットを含む）ため、
     // useTrainingReveal 経由で登録してもらう。生成待ちの間は undefined になる。
@@ -230,9 +217,9 @@ export function createTrainingView<
       (next: (() => void) | undefined) => setAdvance(() => next),
       [],
     );
-    const revealValue = useMemo(
-      () => ({ isRevealed, registerAdvance }),
-      [isRevealed, registerAdvance],
+    const trainingMode = useMemo(
+      () => ({ isRevealed, isHolding, registerAdvance }),
+      [isRevealed, isHolding, registerAdvance],
     );
 
     return (
@@ -248,21 +235,21 @@ export function createTrainingView<
         }}
         revealDisabled={showFeedback || advance === undefined}
         isRevealed={isRevealed}
+        isHolding={isHolding}
         onProceed={proceed}
       >
-        <TrainingRevealProvider value={revealValue}>
+        <TrainingModeProvider value={trainingMode}>
           {renderBoard(
             {
               showFeedback,
               isTraining: true,
               lastAnswerCorrect,
               onAnswer: handleAnswer,
-              onProceed: proceed,
             },
             props,
             boardState,
           )}
-        </TrainingRevealProvider>
+        </TrainingModeProvider>
       </TrainingShell>
     );
   }

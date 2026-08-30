@@ -7,7 +7,7 @@ import { QuestionGeneratingPlaceholder } from "../../_components/question-genera
 import { useTranslations } from "next-intl";
 import type { useGeneratedScoreQuestion } from "../../_hooks/use-generated-score-question";
 import { TehaiDisplay } from "../../_components/tehai-display";
-import { useTrainingReveal } from "../../_hooks/use-training-reveal";
+import { useRegisterAdvance } from "../../_hooks/use-training-mode";
 import { HanCountAnswerForm } from "./han-count-answer-form";
 import type { HanCountQuestionResult } from "../_lib/types";
 import type { RecordingPracticeBoardProps } from "../../_lib/practice-board-props";
@@ -41,7 +41,7 @@ export function HanCountBoard({
 }: HanCountBoardProps) {
   const t = useTranslations("hanCountChallenge");
 
-  useTrainingReveal(question === undefined ? undefined : advanceQuestion);
+  useRegisterAdvance(question === undefined ? undefined : advanceQuestion);
 
   const handleSubmit = useCallback(
     (userHan: number) => {
