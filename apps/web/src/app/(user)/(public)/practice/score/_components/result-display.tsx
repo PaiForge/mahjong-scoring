@@ -238,6 +238,7 @@ export function ResultDisplay({
             </tr>
             {yakuDetailItems.length > 0 && showYakuDetails && (
               <DetailsPanelRow
+                title={t("result.details.yakuTitle")}
                 items={yakuDetailItems}
                 total={yakuTotal}
                 suffix={t("form.options.hanSuffix")}
@@ -276,6 +277,7 @@ export function ResultDisplay({
                 </tr>
                 {question.fuDetails && showFuDetails && (
                   <DetailsPanelRow
+                    title={t("result.details.fuTitle")}
                     items={fuDetailItems}
                     total={fuTotal}
                     suffix={t("form.options.fuSuffix")}

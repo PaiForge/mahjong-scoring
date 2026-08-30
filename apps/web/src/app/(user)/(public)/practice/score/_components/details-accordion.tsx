@@ -2,6 +2,8 @@
 
 import { useTranslations } from "next-intl";
 
+import { DetailTable } from "../../_components/detail-table";
+
 interface DetailItem {
   readonly name: string;
   readonly value: number;
@@ -14,6 +16,8 @@ interface DetailsToggleButtonProps {
 }
 
 interface DetailsPanelRowProps {
+  /** 内訳の見出し（「翻数の内訳」「符の内訳」） */
+  readonly title: string;
   readonly items: readonly DetailItem[];
   readonly total: number;
   readonly suffix: string;
@@ -53,8 +57,13 @@ export function DetailsToggleButton({
 /**
  * 詳細アコーディオンの展開パネル行
  * 符詳細・役詳細の展開表示
+ *
+ * 表そのものは {@link DetailTable} に委ねる。同じ内訳を結果ページの問題別
+ * フィードバックでも出しており、出題直後とあとから見返すときで体裁が
+ * 変わらないようにする。
  */
 export function DetailsPanelRow({
+  title,
   items,
   total,
   suffix,
@@ -64,40 +73,27 @@ export function DetailsPanelRow({
   roundUpLabel,
 }: DetailsPanelRowProps) {
   const t = useTranslations("score");
+  const withSuffix = (value: number) => `${value}${suffix}`;
 
   return (
     <tr id={panelId}>
       <td colSpan={colSpan} className="py-2">
-        <div className="rounded-md bg-white px-2 py-0 text-xs text-surface-600">
-          <div>
-            {items.map((detail, idx) => (
-              <div
-                key={idx}
-                className="flex justify-between border-b-2 border-dashed border-border/60 py-1.5 last:border-0"
-              >
-                <span>{detail.name}</span>
-                <span>
-                  {detail.value}
-                  {suffix}
-                </span>
-              </div>
-            ))}
-          </div>
-          <div className="mt-0 flex justify-between border-t-2 border-border pb-1.5 pt-1.5 font-bold">
-            <span>{t("result.details.total")}</span>
-            <span>
-              {total}
-              {suffix}
-            </span>
-          </div>
-          {roundedTotal !== undefined && total !== roundedTotal && (
-            <div className="mt-1 text-right text-[10px] text-surface-400">
-              {total}
-              {suffix} → {roundedTotal}
-              {suffix} ({roundUpLabel})
-            </div>
-          )}
-        </div>
+        <DetailTable
+          title={title}
+          rows={items.map((detail) => ({
+            label: detail.name,
+            value: withSuffix(detail.value),
+          }))}
+          total={{
+            label: t("result.details.total"),
+            value: withSuffix(total),
+          }}
+          note={
+            roundedTotal !== undefined && total !== roundedTotal
+              ? `${withSuffix(total)} \u2192 ${withSuffix(roundedTotal)}（${roundUpLabel}）`
+              : undefined
+          }
+        />
       </td>
     </tr>
   );
