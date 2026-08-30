@@ -16,6 +16,7 @@ import { DisplaySettingsSection } from "../_components/display-settings-section"
 import { MembersOnlyGate } from "../_components/members-only-gate";
 import { PrivacySettingsSection } from "../_components/privacy-settings-section";
 import { RuleSettingsSection } from "../_components/rule-settings-section";
+import { TrainingSettingsSection } from "../_components/training-settings-section";
 
 export async function generateMetadata(): Promise<Metadata> {
   return createTitleOnlyMetadata("settings", "pageTitle");
@@ -34,6 +35,11 @@ export default async function PreferencesPage() {
             <section className="space-y-4">
               <SectionTitle>{t("rulesSectionTitle")}</SectionTitle>
               <RuleSettingsSection />
+            </section>
+
+            <section className="space-y-4">
+              <SectionTitle>{t("trainingSectionTitle")}</SectionTitle>
+              <TrainingSettingsSection />
             </section>
 
             <section className="space-y-4">

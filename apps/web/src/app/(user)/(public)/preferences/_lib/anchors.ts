@@ -10,6 +10,8 @@ export const PREFERENCE_ANCHORS = {
   renfonpai: "renfonpai",
   /** 30符4翻・60符3翻を満貫に切り上げるか（切り上げ満貫） */
   kiriageMangan: "kiriage-mangan",
+  /** トレーニングで正解したとき自動で次の問題へ進むか */
+  autoAdvanceOnCorrect: "auto-advance-on-correct",
   /** ドラを表示牌ではなくドラそのもので表示するか */
   doraDisplay: "dora-display",
   /** 教本本文の語を用語リンクにするか */
