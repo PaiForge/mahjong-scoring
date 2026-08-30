@@ -22,6 +22,12 @@ interface ProblemListSkeletonProps {
  * 点数系練習の行見出し（「親・ツモ・3翻・40符」等）は画面幅が狭いと折り返して
  * 50px を超えることがある。その場合だけ実物がわずかに高くなるが、一覧全体の
  * 高さを確保できていれば十分なため許容する。
+ *
+ * 各行は実物（`AccordionCard`）の `border-3 border-ink` を写さない。スケルトンは
+ * 灰色の矩形だけで面を示す表現に統一しており、ここだけ苔緑の枠を持つと
+ * リーダーボードや経験値の矩形から浮いて、読み込み中の画面が実物より
+ * 賑やかに見える。高さは `h-[50px]`（border-box）で確保しているため、
+ * 枠を外しても実物との高さは一致したまま。
  */
 export function ProblemListSkeleton({ count }: ProblemListSkeletonProps) {
   if (count <= 0) return undefined;
@@ -35,12 +41,7 @@ export function ProblemListSkeleton({ count }: ProblemListSkeletonProps) {
       <SkeletonBar className="h-5 w-24" />
       <div className="space-y-2">
         {Array.from({ length: count }, (_, index) => (
-          <SkeletonBar
-            radius="lg"
-            key={index}
-            className="h-[50px] border-3 border-ink"
-            tone={50}
-          />
+          <SkeletonBar radius="lg" key={index} className="h-[50px]" />
         ))}
       </div>
     </div>
