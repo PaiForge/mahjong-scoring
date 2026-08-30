@@ -1,92 +1,54 @@
-"use client";
-
-import { memo, useCallback } from "react";
-
 interface YakuChipProps {
-  /** 役の識別子。表示には使わない（表示は label） */
-  readonly yakuName: string;
   /** 画面に出す表示名。選択モーダルと同じ名前を出すため呼び出し側で解決する */
   readonly label: string;
-  readonly isSelected: boolean;
-  readonly feedbackState: "correct" | "incorrect" | "missed" | undefined;
-  readonly disabled?: boolean;
-  /**
-   * 押したときの通知。省略すると表示専用（`<span>`）になる
-   *
-   * 結果ページの振り返りは押せない。ボタンのまま `disabled` で止めると、
-   * 選べる場所と選べない場所が同じ要素で出てしまう。
-   */
-  readonly onToggle?: (yakuName: string) => void;
+  /** その役をどう扱ったか（{@link getChipFeedbackState} が決める） */
+  readonly feedbackState: YakuChipFeedbackState;
 }
 
 /**
- * 役選択チップ
- * 役チップ
+ * 答え合わせでのその役の扱い
+ * 役チップ状態
+ *
+ * `correct` は選べた役、`incorrect` は余分に選んだ役、`missed` は選び忘れた役。
  */
-export const YakuChip = memo(function YakuChipComponent({
-  yakuName,
-  label,
-  isSelected,
-  feedbackState,
-  disabled = false,
-  onToggle,
-}: YakuChipProps) {
-  const handleClick = useCallback(() => {
-    onToggle?.(yakuName);
-  }, [yakuName, onToggle]);
+export type YakuChipFeedbackState = "correct" | "incorrect" | "missed";
 
-  let chipClasses =
-    "inline-block rounded-full border px-3 py-1.5 text-xs font-medium transition-colors select-none";
-  if (onToggle) chipClasses += " cursor-pointer";
+const CHIP_CLASSES: Readonly<Record<YakuChipFeedbackState, string>> = {
+  correct: "border-primary-500 bg-primary-50 text-primary-700",
+  incorrect: "border-destructive bg-destructive-subtle text-destructive-strong",
+  missed: "border-warning bg-warning-subtle text-warning-strong",
+};
 
-  if (feedbackState === "correct") {
-    chipClasses += " border-primary-500 bg-primary-50 text-primary-700";
-  } else if (feedbackState === "incorrect") {
-    chipClasses +=
-      " border-destructive bg-destructive-subtle text-destructive-strong";
-  } else if (feedbackState === "missed") {
-    chipClasses += " border-warning bg-warning-subtle text-warning-strong";
-  } else if (isSelected) {
-    chipClasses += " border-primary-500 bg-primary-50 text-primary-700";
-  } else {
-    chipClasses +=
-      " border-surface-200 bg-white text-surface-600 hover:border-primary-300";
-  }
-
-  if (disabled && !feedbackState) {
-    chipClasses += " opacity-50 pointer-events-none";
-  }
-
-  if (!onToggle) {
-    return <span className={chipClasses}>{label}</span>;
-  }
-
+/**
+ * 答え合わせの役チップ
+ * 役チップ
+ *
+ * 表示専用。役を選ぶのは {@link import("./yaku-picker").YakuPicker } の
+ * 役目で、答え合わせで並ぶこのチップは押せない。
+ */
+export function YakuChip({ label, feedbackState }: YakuChipProps) {
   return (
-    <button
-      type="button"
-      onClick={handleClick}
-      disabled={disabled && !feedbackState}
-      className={chipClasses}
+    <span
+      className={`inline-block rounded-full border px-3 py-1.5 text-xs font-medium select-none ${CHIP_CLASSES[feedbackState]}`}
     >
       {label}
-    </button>
+    </span>
   );
-});
+}
 
 /**
  * 各役のフィードバック状態を計算する
  * フィードバック状態計算
+ *
+ * 答え合わせに並ぶ役は「選んだ役」か「成立していた役」のどちらかなので、
+ * 3つの状態のいずれかに必ず当てはまる。
  */
 export function getChipFeedbackState(
   yakuName: string,
   selectedYaku: ReadonlySet<string>,
   correctYakuNames: readonly string[],
-): "correct" | "incorrect" | "missed" | undefined {
-  const isSelected = selectedYaku.has(yakuName);
+): YakuChipFeedbackState {
   const isCorrect = correctYakuNames.includes(yakuName);
-
-  if (isSelected && isCorrect) return "correct";
-  if (isSelected && !isCorrect) return "incorrect";
-  if (!isSelected && isCorrect) return "missed";
-  return undefined;
+  if (selectedYaku.has(yakuName)) return isCorrect ? "correct" : "incorrect";
+  return "missed";
 }

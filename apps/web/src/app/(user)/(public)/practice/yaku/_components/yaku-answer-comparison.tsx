@@ -45,9 +45,7 @@ export function YakuAnswerComparison({
         {ordered.map((yakuName) => (
           <YakuChip
             key={yakuName}
-            yakuName={yakuName}
             label={labelOf(yakuName)}
-            isSelected={selected.has(yakuName)}
             feedbackState={getChipFeedbackState(
               yakuName,
               selected,
