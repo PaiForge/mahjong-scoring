@@ -38,6 +38,7 @@ describe("MODULES", () => {
       "fu_exam",
       "chiitoitsu_exam",
       "pinfu_exam",
+      "fu_score_exam",
     ]);
   });
 });

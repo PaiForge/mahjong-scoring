@@ -260,6 +260,11 @@
         "title": "昇級試験：平和の点数計算",
         "shortTitle": "平和試験",
         "description": "役の表示なしで平和の手牌から翻数を数え、ツモ20符・ロン30符の点数を答える試験形式のチャレンジ。ミスは1回まで"
+      },
+      "fuScoreExam": {
+        "title": "昇級試験：30〜50符の点数計算",
+        "shortTitle": "30〜50符試験",
+        "description": "役も符も表示なしで、面子手の手牌から符を積み上げ、翻数を数えて点数を答える試験形式のチャレンジ。鳴いた手も出る。ミスは1回まで"
       }
     },
     "dojoRow": {
@@ -1898,7 +1903,8 @@
       "manganExam": "🥋",
       "fuExam": "🎓",
       "chiitoitsuExam": "📝",
-      "pinfuExam": "🍀"
+      "pinfuExam": "🍀",
+      "fuScoreExam": "🧮"
     },
     "rankLabel": "{rank} 位",
     "notRanked": "未挑戦",
@@ -2092,6 +2098,34 @@
     "howToPlay": {
       "title": "問題方式",
       "lead": "このような問題が出題されます。副底・和了符・面子符・雀頭符・待ち符をすべて足し、10符単位に切り上げた符を答えます。"
+    },
+    "result": {
+      "problemDetails": "問題の詳細",
+      "correctAnswer": "正解",
+      "yourAnswer": "あなたの回答",
+      "correct": "正解",
+      "incorrect": "不正解"
+    }
+  },
+  "fuScoreExamChallenge": {
+    "title": "昇級試験：30〜50符の点数計算",
+    "description": "役も符も表示なしで、面子手の手牌から符を積み上げ、翻数を数えて点数を答える試験形式のドリルです。鳴いた手も出ます。ミスは1回までです",
+    "oya": "親",
+    "ko": "子",
+    "tsumo": "ツモ",
+    "ron": "ロン",
+    "han": "{count}翻",
+    "fu": "{count}符",
+    "questionPrompt": "この和了の点数を回答してください",
+    "selectScore": "点数を選択",
+    "fromKo": "子から",
+    "fromOya": "親から",
+    "all": "オール",
+    "answer": "回答する",
+    "generating": "問題を生成中...",
+    "howToPlay": {
+      "title": "問題方式",
+      "lead": "満貫未満・30〜50符で和了した手牌が出題されます。役も符も表示されないため、符を自分で積み上げ、翻数を数えて点数表から点数を答えます。鳴いた手も出ます。"
     },
     "result": {
       "problemDetails": "問題の詳細",

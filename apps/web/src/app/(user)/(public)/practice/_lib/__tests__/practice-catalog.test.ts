@@ -71,6 +71,7 @@ describe("PRACTICE_CATALOG", () => {
     expect(slugs).not.toContain("fu-exam");
     expect(slugs).not.toContain("chiitoitsu-exam");
     expect(slugs).not.toContain("pinfu-exam");
+    expect(slugs).not.toContain("fu-score-exam");
   });
 
   it("前提章はカリキュラムに存在する章を指す", () => {

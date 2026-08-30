@@ -150,6 +150,11 @@ export const PRACTICE_CATALOG: readonly PracticeMenu[] = [
     category: "scoring",
     rank: "kyu-2",
   },
+  {
+    // 昇級試験の前提章は段級位レジストリが持つ（他の試験と同じ理由）
+    slug: "fu-score-exam",
+    category: "scoring",
+  },
 ] as const;
 
 /**
