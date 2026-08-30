@@ -185,6 +185,27 @@ export function practiceHref(slug: PracticeMenuSlug): string {
 }
 
 /**
+ * 練習一覧を段級位で絞るクエリパラメータ名。
+ *
+ * サーバーでは読まない（`searchParams` を読むとルートが動的になり、初回表示が
+ * `loading.tsx` のスケルトンを経由する）。読むのは一覧のフィルタ
+ * （`PracticeRankFilter`）だけで、それ以外はここを通してリンクを組み立てる。
+ */
+export const PRACTICE_RANK_PARAM = "rank";
+
+/**
+ * 練習一覧のパス。段級位を渡すとその級で絞った状態で開く。
+ * 練習一覧パス
+ *
+ * @param rank 絞り込む段級位。省略すると絞り込みなし
+ */
+export function practiceListHref(rank?: RankSlug): string {
+  return rank === undefined
+    ? "/practice"
+    : `/practice?${PRACTICE_RANK_PARAM}=${rank}`;
+}
+
+/**
  * 段級位のピルを押した先 — その級の昇級試験の説明ページ
  * 段級位の行き先
  *

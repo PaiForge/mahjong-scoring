@@ -177,6 +177,10 @@
         "title": "点数計算"
       }
     },
+    "rankFilter": {
+      "label": "段級位で絞り込む",
+      "all": "すべて"
+    },
     "practices": {
       "jantouFu": {
         "title": "雀頭の符計算",
