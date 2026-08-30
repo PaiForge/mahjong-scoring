@@ -31,8 +31,12 @@ interface CurriculumTocProps {
  *
  * - セクション bullet は `size-4`（カテゴリ色）＋右側にラベル（`<p>`、見出し要素は使わない）
  * - 章は bullet なし / `pl-7` インデントで配置し「タイトル Link + description」を表示
- * - 「次はここから」バッジは章タイトル横にインライン、`aria-current="step"` も付与
+ * - 「次はここから」バッジは行の右端、`aria-current="step"` も付与
  * - 読了済み章は行の右端に緑丸のチェック（白抜き・枠なし）
+ *
+ * バッジとチェックは同じ右端の位置に出す（読了済みの章が「次」になることは
+ * ないため排他）。行の中で状態を示す印は右端の 1 列に揃え、左側はタイトルと
+ * 説明文だけが縦に並ぶようにする。
  *
  * @remarks
  * サーバーコンポーネント。Props だけから描画が決まるため Server Action による
@@ -109,25 +113,26 @@ export async function CurriculumToc({
                   />
                 )}
                 <span className="flex min-w-0 flex-1 flex-col gap-2">
-                  <span className="flex flex-wrap items-center gap-2">
-                    <Link
-                      href={chapterHref(ch.slug)}
-                      className={`text-sm font-bold ${TEXT_LINK_CLASSES}`}
-                    >
-                      {t(`${path}.title`)}
-                    </Link>
-                    {isNext && (
-                      <span className="inline-flex shrink-0 items-center rounded-full border-2 border-ink bg-amber-200 px-2 py-0.5 text-[11px] font-bold text-amber-900">
-                        {tIndex("nextChapterBadge")}
-                      </span>
-                    )}
-                  </span>
+                  <Link
+                    href={chapterHref(ch.slug)}
+                    className={`text-sm font-bold ${TEXT_LINK_CLASSES}`}
+                  >
+                    {t(`${path}.title`)}
+                  </Link>
                   {/* リンク色 (muted-foreground = surface-500) と並ぶため、
                       説明文は同系のまま一段淡くして主従を付ける。 */}
                   <span className="text-xs text-surface-400">
                     {t(`${path}.description`)}
                   </span>
                 </span>
+                {isNext && (
+                  <span
+                    data-testid="curriculum-next-badge"
+                    className="mt-0.5 inline-flex h-6 shrink-0 items-center rounded-full border-2 border-ink bg-amber-200 px-2 text-[11px] leading-none font-bold text-amber-900"
+                  >
+                    {tIndex("nextChapterBadge")}
+                  </span>
+                )}
                 {isRead && (
                   <span
                     role="img"
