@@ -2,6 +2,8 @@
 
 import { useTranslations } from "next-intl";
 
+import { QuestionPrompt } from "../../_components/question-prompt";
+
 interface ScoreTablePromptProps {
   readonly isOya: boolean;
   readonly isTsumo: boolean;
@@ -28,10 +30,6 @@ export function ScoreTablePrompt({
 
   return (
     <>
-      <p className="text-center text-sm font-medium text-surface-500">
-        {t("questionLabel")}
-      </p>
-
       <div className="flex justify-center gap-6">
         <span className="text-2xl font-bold text-surface-900">
           {isOya ? t("oya") : t("ko")}
@@ -51,6 +49,8 @@ export function ScoreTablePrompt({
           </span>
         )}
       </div>
+
+      <QuestionPrompt>{t("questionLabel")}</QuestionPrompt>
     </>
   );
 }

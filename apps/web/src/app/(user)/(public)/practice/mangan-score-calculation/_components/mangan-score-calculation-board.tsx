@@ -2,6 +2,7 @@
 
 import { useMemo } from "react";
 import { QuestionGeneratingPlaceholder } from "../../_components/question-generating-placeholder";
+import { QuestionPrompt } from "../../_components/question-prompt";
 import { useTranslations } from "next-intl";
 import { RevealedScoreAnswer } from "../../_components/revealed-score-answer";
 import { paymentToScoreTableAnswer } from "../../_lib/payment-adapter";
@@ -83,6 +84,8 @@ export function ManganScoreCalculationBoard({
       {question.yakuDetails && question.yakuDetails.length > 0 && (
         <YakuListDisplay yakuDetails={question.yakuDetails} />
       )}
+
+      <QuestionPrompt>{t("questionPrompt")}</QuestionPrompt>
 
       {/* Answer form */}
       <ManganScoreCalculationAnswerForm

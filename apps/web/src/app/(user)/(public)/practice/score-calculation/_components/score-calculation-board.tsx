@@ -2,6 +2,7 @@
 
 import { useMemo } from "react";
 import { QuestionGeneratingPlaceholder } from "../../_components/question-generating-placeholder";
+import { QuestionPrompt } from "../../_components/question-prompt";
 import { useTranslations } from "next-intl";
 import { useRuleSettingsStore } from "@/app/_hooks/use-rule-settings-store";
 import { RevealedScoreAnswer } from "../../_components/revealed-score-answer";
@@ -69,6 +70,8 @@ export function ScoreCalculationBoard({
           translationNamespace="scoreCalculationChallenge"
         />
       )}
+
+      <QuestionPrompt>{t("questionPrompt")}</QuestionPrompt>
 
       {/* Answer form */}
       <ScoreCalculationAnswerForm

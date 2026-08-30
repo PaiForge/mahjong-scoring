@@ -10,6 +10,7 @@ import type { MentsuJantouFuQuestion } from "@mahjong-scoring/core";
 import { useRuleSettingsStore } from "@/app/_hooks/use-rule-settings-store";
 import { ChallengeSubmitButton } from "../../_components/challenge-submit-button";
 import { QuestionGeneratingPlaceholder } from "../../_components/question-generating-placeholder";
+import { QuestionPrompt } from "../../_components/question-prompt";
 import { useClientGeneratedQuestion } from "../../_hooks/use-client-generated-question";
 import {
   useRegisterAdvance,
@@ -111,6 +112,8 @@ export function MentsuJantouFuBoard({
         onScaleChange={setTileScale}
         mobileFrame={isTraining ? "fullBleedFlushTop" : "fullBleed"}
       />
+
+      <QuestionPrompt>{t("questionPrompt")}</QuestionPrompt>
 
       {/* Item list */}
       <div className="space-y-2">

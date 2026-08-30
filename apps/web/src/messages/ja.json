@@ -385,7 +385,7 @@
     "description": "場風・自風を確認して、雀頭の符を答えてください",
     "bakaze": "場風",
     "jikaze": "自風",
-    "selectCorrectHead": "2符以上の雀頭はどれ？",
+    "selectCorrectHead": "2符以上の雀頭を選択してください",
     "fu": "{value} 符",
     "result": {
       "problemDetails": "問題の詳細",
@@ -438,7 +438,7 @@
     "description": "待ち形と和了牌を確認して、待ちの符を答えてください",
     "machiLabel": "待ち形",
     "agariLabel": "和了牌",
-    "questionPrompt": "この待ちの符は？",
+    "questionPrompt": "この待ちの符を回答してください",
     "fuOption": "{value}符",
     "result": {
       "problemDetails": "問題の詳細",
@@ -485,7 +485,7 @@
     "generating": "問題を生成中...",
     "description": "面子の種類（順子・刻子・槓子）と明暗に応じた符を答えてください",
     "mentsuLabel": "面子",
-    "questionPrompt": "この面子の符は？",
+    "questionPrompt": "この面子の符を回答してください",
     "fuOption": "{value}符",
     "result": {
       "problemDetails": "問題の詳細",
@@ -537,6 +537,7 @@
     "title": "面子と雀頭の符計算",
     "generating": "問題を生成中...",
     "description": "手牌のすべての面子と雀頭について、要素ごとに符を答える練習",
+    "questionPrompt": "それぞれの符を回答してください",
     "pair": "雀頭",
     "checkButton": "答え合わせ",
     "answerButton": "回答する",
@@ -687,7 +688,7 @@
   "totalFu": {
     "title": "手牌の合計符",
     "description": "手牌全体の符を合計し、切り上げ後の符を一発で答える練習",
-    "prompt": "この手牌は何符？",
+    "prompt": "この手牌の合計符を回答してください",
     "generating": "問題を生成中...",
     "fuOption": "{value}符",
     "fuSuffix": "{value}符",
@@ -1228,6 +1229,7 @@
     },
     "board": {
       "correct": "正解！",
+      "questionPrompt": "この和了の点数を回答してください",
       "correctLabel": "正解",
       "incorrectLabel": "不正解",
       "generationFailed": "この条件に合う問題を作れませんでした。出題条件を変えてお試しください。",
@@ -1977,7 +1979,7 @@
     "fromOya": "親から",
     "all": "オール",
     "answer": "回答する",
-    "questionLabel": "この条件の点数は？",
+    "questionLabel": "この条件の点数を回答してください",
     "howToPlay": {
       "title": "問題方式",
       "lead": "このような問題が出題されます。"
@@ -2005,6 +2007,7 @@
   "scoreCalculationChallenge": {
     "title": "点数計算練習",
     "description": "手牌・和了牌・風牌・ドラなどの情報から正しい点数を答える練習です",
+    "questionPrompt": "この和了の点数を回答してください",
     "oya": "親",
     "ko": "子",
     "tsumo": "ツモ",
@@ -2079,7 +2082,7 @@
   "fuExamChallenge": {
     "title": "昇級試験：手牌の合計符",
     "description": "手牌全体の符を合計し、切り上げ後の符を答える試験形式のドリルです。ミスは1回までです",
-    "prompt": "この手牌は何符？",
+    "prompt": "この手牌の合計符を回答してください",
     "generating": "問題を生成中...",
     "fuOption": "{value}符",
     "fuSuffix": "{value}符",
@@ -2107,6 +2110,7 @@
     "ron": "ロン",
     "han": "{count}翻",
     "fu": "{count}符",
+    "questionPrompt": "この和了の点数を回答してください",
     "selectScore": "点数を選択",
     "fromKo": "子から",
     "fromOya": "親から",
@@ -2134,6 +2138,7 @@
     "ron": "ロン",
     "han": "{count}翻",
     "fu": "{count}符",
+    "questionPrompt": "この和了の点数を回答してください",
     "selectScore": "点数を選択",
     "fromKo": "子から",
     "fromOya": "親から",
@@ -2161,6 +2166,7 @@
     "ron": "ロン",
     "han": "{count}翻",
     "fu": "{count}符",
+    "questionPrompt": "この和了の点数を回答してください",
     "selectScore": "点数を選択",
     "fromKo": "子から",
     "fromOya": "親から",
@@ -2182,6 +2188,7 @@
   "manganScoreCalculationChallenge": {
     "title": "満貫以上点数計算ドリル",
     "description": "役と翻数が表示された満貫以上の手牌から正しい点数を答えるドリルです",
+    "questionPrompt": "この和了の点数を回答してください",
     "oya": "親",
     "ko": "子",
     "tsumo": "ツモ",
