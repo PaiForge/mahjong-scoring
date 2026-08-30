@@ -174,6 +174,10 @@ const CURRICULUM_REGISTRY = [
     order: 80,
     // 七対子の章と同じ理由で practiceHrefs を持たない（導線は
     // pinfu-score-guide.tsx の CTA）
+    //
+    // 2級試験の前提知識はこの章だけで揃う（符はツモ20符・ロン30符の
+    // 2通りで、翻数の数え方は5級までで済んでいる）
+    examSlug: "pinfu-exam",
     i18nKey: "learnCurriculum.chapters.pinfuScore",
   },
   {
