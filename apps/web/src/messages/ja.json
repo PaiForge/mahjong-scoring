@@ -2045,6 +2045,10 @@
       "message": "{rank}に昇級しました"
     },
     "examLink": "{rank} 昇級試験",
+    "practiceLink": {
+      "title": "{rank}の練習メニュー",
+      "description": "試験に出る内容を練習で身につける"
+    },
     "examCta": {
       "title": "{rank} 昇級試験",
       "lead": "この章の内容を身につけたら、昇級試験に挑戦しましょう。",

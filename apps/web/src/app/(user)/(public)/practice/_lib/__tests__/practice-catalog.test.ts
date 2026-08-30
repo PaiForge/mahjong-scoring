@@ -9,7 +9,11 @@ import {
   PRACTICE_MENU_SLUGS,
   slugToMenuType,
 } from "@/lib/db/practice-menu-types";
-import { RANK_REGISTRY, rankRequiringMenu } from "@/lib/ranks/registry";
+import {
+  RANK_REGISTRY,
+  RANK_SLUGS,
+  rankRequiringMenu,
+} from "@/lib/ranks/registry";
 import {
   isExamMenu,
   PRACTICE_CATALOG,
@@ -18,6 +22,7 @@ import {
   practiceHref,
   practiceMenuFromCatalog,
   practiceMenusByCategory,
+  practiceListHref,
   practiceSlugFromHref,
   practiceTitleKey,
   rankExamHref,
@@ -122,6 +127,8 @@ describe("段級位との対応", () => {
       expect(names[menu.rank], `${menu.slug}`).toBeTruthy();
     }
     expect(messages.ranks.examLink).toContain("{rank}");
+    expect(messages.ranks.practiceLink.title).toContain("{rank}");
+    expect(messages.ranks.practiceLink.description).toBeTruthy();
   });
 });
 
@@ -171,6 +178,27 @@ describe("i18n キーの導出", () => {
 describe("practiceHref", () => {
   it("slug から練習ページのパスを作る", () => {
     expect(practiceHref("jantou-fu")).toBe("/practice/jantou-fu");
+  });
+});
+
+describe("practiceListHref", () => {
+  it("段級位を渡すとその級で絞った練習一覧のパスになる", () => {
+    // 昇級試験のページが「その級の練習」として開くリンク。クエリ名は
+    // 一覧のフィルタと同じ定数から組み立てる
+    expect(practiceListHref()).toBe("/practice");
+    expect(practiceListHref("kyu-4")).toBe("/practice?rank=kyu-4");
+    expect(practiceListHref("kyu-5")).toBe("/practice?rank=kyu-5");
+  });
+
+  it("すべての段級位に、絞り込んで 1 件以上残る練習がある", () => {
+    // 級を選んだ先が空の一覧になっていないこと。試験ページからの導線が
+    // 「練習メニュー」と名乗って何も出ない状態を防ぐ
+    for (const rank of RANK_SLUGS) {
+      const listed = PRACTICE_CATEGORIES.flatMap((category) =>
+        practiceMenusByCategory(category).filter((menu) => menu.rank === rank),
+      );
+      expect(listed.length, rank).toBeGreaterThan(0);
+    }
   });
 });
 
