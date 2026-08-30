@@ -47,36 +47,47 @@ function ScorePracticeBoardInner() {
     generationFailed,
     questionSeq,
     stats,
-    generateNewQuestion,
     submitAnswer,
     nextQuestion,
     revealAnswer,
   } = useScorePracticeStore();
 
   const isClient = useIsClient();
-  const initializedRef = useRef(false);
+  // 出題条件を適用済みのクエリ文字列。undefined はこの盤面でまだ一度も
+  // 初期化していないことを表す
+  const appliedQueryRef = useRef<string | undefined>(undefined);
 
   // 練習開始直後（最初の問題が用意されたら）、グローバルヘッダ分のオフセットを
   // 解消して問題を画面上部へ表示する
   useScrollToElement(PRACTICE_SCROLL_ANCHOR_ID, Boolean(currentQuestion));
 
-  const initializeQuestion = useCallback(() => {
-    if (initializedRef.current) return;
-    initializedRef.current = true;
-
-    const params = new URLSearchParams(searchParams.toString());
-    useScorePracticeStore
-      .getState()
-      .setOptions(parseGeneratorOptionsFromParams(params));
-
-    generateNewQuestion();
-  }, [searchParams, generateNewQuestion]);
-
+  // 出題条件はストア（モジュールスコープで、ページを離れても破棄されない）へ
+  // 移し替えてから問題を作る。判定を「クエリが変わったか」だけで行うのが要点:
+  //
+  // - 「問題がまだ無いか」で見ると、前回の練習の問題が残っている限り初期化が
+  //   走らず、教本から `?yaku=chiitoitsu` で入っても絞り込みが無視されて
+  //   前回の問題（回答済みならその結果表示）がそのまま出る。ストアを空に
+  //   戻すのは設定画面の「開始」だけなので、それ以外の経路で離れると必ず踏む
+  // - マウント一度きりで見ると、同じ play のままクエリだけ変える遷移
+  //   （平和の練習 → 七対子の練習）で条件が入れ替わらない
+  // - 逆に「問題がまだ無いか」を条件に足すと、生成失敗（generationFailed）の
+  //   ときに問題が入らないまま初期化を呼び続けて止まらなくなる
   useEffect(() => {
-    if (isClient && !currentQuestion) {
-      initializeQuestion();
-    }
-  }, [isClient, currentQuestion, initializeQuestion]);
+    if (!isClient) return;
+
+    const query = searchParams.toString();
+    if (appliedQueryRef.current === query) return;
+    appliedQueryRef.current = query;
+
+    const store = useScorePracticeStore.getState();
+    store.setOptions(
+      parseGeneratorOptionsFromParams(new URLSearchParams(query)),
+    );
+    // 統計も同じストアに載っている。ここで戻さないと、別の条件で入り直した
+    // 練習の頭から前回の成績がカウンタに出たままになる
+    store.resetStats();
+    store.generateNewQuestion();
+  }, [isClient, searchParams]);
 
   const { requireYaku, simplifyMangan, requireFuForMangan, autoNext } =
     parseModeFlagsFromParams(new URLSearchParams(searchParams.toString()));
