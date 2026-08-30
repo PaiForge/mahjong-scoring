@@ -4,6 +4,7 @@ import { PracticeStartCta } from "./practice-start-cta";
 import { buildPracticeStartCtaLabels } from "../_lib/practice-start-cta-labels";
 import { getTranslations } from "next-intl/server";
 import { ChapterTocList } from "@/app/(user)/(public)/learn/_components/chapter-toc-list";
+import { LinkRow, LinkRowList } from "@/app/(user)/_components/link-row";
 import { CurriculumTocLink } from "@/app/(user)/(public)/learn/_components/curriculum-toc-link";
 import type { CurriculumChapterSlug } from "@/app/(user)/(public)/learn/_lib/curriculum";
 import type { PracticeMenuSlug } from "@/lib/db/practice-menu-types";
@@ -16,6 +17,7 @@ import { PlayIcon } from "@/app/(user)/_components/icons/play-icon";
 import { practiceMenuBySlug } from "@/lib/db/practice-menu-types";
 import {
   isExamMenu,
+  practiceListHref,
   practiceMenuFromCatalog,
   practicePlayHref,
   practiceTrainingHref,
@@ -81,6 +83,7 @@ export async function PracticeIntroContent({
   const tp = await getTranslations("practice");
   const tt = await getTranslations("training");
   const tDojo = await getTranslations("dojo");
+  const tRanks = await getTranslations("ranks");
   const isExam = isExamMenu(slug);
   // 昇級試験は練習一覧のカードにならず道場から入るため、親も道場にする
   const parent = isExam
@@ -149,6 +152,27 @@ export async function PracticeIntroContent({
             <ChapterTocList slugs={chapterSlugs} readSlugs={NO_READ_SLUGS} />
             <CurriculumTocLink />
           </div>
+        )}
+
+        {/* 前提章の下に「その級の練習」への行リンクを置く。試験に落ちた人が
+            次に行く先は教本の読み直しだけではなく、同じ範囲を数える練習でも
+            ある。ダッシュボードが試験へ送るのと同じ行リンクで、押しても
+            試験は始まらないことを見た目の重みでも揃える。 */}
+        {examRank && (
+          <LinkRowList>
+            <LinkRow
+              href={practiceListHref({ kind: "rank", value: examRank.slug })}
+              leading={
+                <span className="text-base" aria-hidden="true">
+                  ✏️
+                </span>
+              }
+              title={tRanks("practiceLink.title", {
+                rank: tRanks(`names.${examRank.slug}`),
+              })}
+              description={tRanks("practiceLink.description")}
+            />
+          </LinkRowList>
         )}
       </div>
     </ContentContainer>

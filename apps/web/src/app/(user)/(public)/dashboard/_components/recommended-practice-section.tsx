@@ -2,6 +2,7 @@ import Link from "next/link";
 import { getTranslations } from "next-intl/server";
 
 import { PracticeCard } from "@/app/(user)/(public)/practice/_components/practice-card";
+import { practiceCardRank } from "@/app/(user)/(public)/practice/_lib/practice-card-rank";
 import {
   practiceDescriptionKey,
   practiceHref,
@@ -30,9 +31,10 @@ interface RecommendedPracticeSectionProps {
 export async function RecommendedPracticeSection({
   slugs,
 }: RecommendedPracticeSectionProps) {
-  const [t, tPractice] = await Promise.all([
+  const [t, tPractice, tRanks] = await Promise.all([
     getTranslations("dashboard"),
     getTranslations("practice"),
+    getTranslations("ranks"),
   ]);
 
   const menus = slugs
@@ -58,8 +60,7 @@ export async function RecommendedPracticeSection({
             href={practiceHref(menu.slug)}
             title={tPractice(practiceTitleKey(menu.slug))}
             description={tPractice(practiceDescriptionKey(menu.slug))}
-            difficulty={menu.difficulty}
-            difficultyLabel={tPractice(`difficulty.${menu.difficulty}`)}
+            rank={practiceCardRank(menu.rank, tRanks)}
             startLabel={tPractice("start")}
           />
         ))}

@@ -161,7 +161,6 @@
   },
   "practice": {
     "title": "練習",
-    "menuTitle": "総合練習",
     "description": "符計算の基礎から点数申告まで、段階的にマスターできる練習を用意しています",
     "start": "スタート",
     "learn": "教本を読む",
@@ -169,19 +168,22 @@
     "progressSignInPrompt": "サインインすると学習履歴を記録できます",
     "categories": {
       "fuCalculation": {
-        "title": "符の計算"
+        "title": "符の計算",
+        "short": "符"
       },
       "han": {
-        "title": "翻数"
+        "title": "翻数",
+        "short": "翻数"
       },
       "scoring": {
-        "title": "点数計算"
+        "title": "点数計算",
+        "short": "点数"
       }
     },
-    "difficulty": {
-      "beginner": "初級",
-      "intermediate": "中級",
-      "advanced": "上級"
+    "filter": {
+      "label": "練習を絞り込む",
+      "all": "すべて",
+      "listHeading": "練習メニュー"
     },
     "practices": {
       "jantouFu": {
@@ -2045,6 +2047,11 @@
     "promotion": {
       "title": "昇級おめでとうございます！",
       "message": "{rank}に昇級しました"
+    },
+    "examLink": "{rank} 昇級試験",
+    "practiceLink": {
+      "title": "{rank}の練習メニュー",
+      "description": "試験に出る内容を練習で身につける"
     },
     "examCta": {
       "title": "{rank} 昇級試験",

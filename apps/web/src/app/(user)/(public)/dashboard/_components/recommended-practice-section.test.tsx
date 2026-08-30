@@ -44,13 +44,34 @@ describe("RecommendedPracticeSection", () => {
     expect(hrefs.some((href) => href.startsWith("/learn/"))).toBe(false);
   });
 
-  it("難易度ラベルを練習一覧と同じキーから引く", async () => {
-    const { getByText } = render(
+  it("段級位ピルを練習一覧と同じ辞書から引く", async () => {
+    const { container } = render(
       await RecommendedPracticeSection({ slugs: ["jantou-fu"] }),
     );
 
-    // jantou-fu はカタログ上 beginner
-    expect(getByText("difficulty.beginner")).toBeTruthy();
+    // jantou-fu はカタログ上 4級の練習
+    const pill = container.querySelector("[data-belt-slug]");
+    expect(pill?.getAttribute("data-belt-slug")).toBe("kyu-4");
+    expect(pill?.textContent).toContain("names.kyu-4");
+  });
+
+  it("段級位ピルは対応する昇級試験へのリンクになっている", async () => {
+    const { container } = render(
+      await RecommendedPracticeSection({ slugs: ["jantou-fu"] }),
+    );
+
+    const pill = container.querySelector("a[data-belt-slug]");
+    expect(pill?.getAttribute("href")).toBe("/exam/fu");
+    // 級名だけでは行き先が読めないため、リンクの名前は行き先まで含める
+    expect(pill?.getAttribute("aria-label")).toBe("examLink");
+  });
+
+  it("段級位を持たない練習にはピルを出さない", async () => {
+    const { container } = render(
+      await RecommendedPracticeSection({ slugs: ["score-table"] }),
+    );
+
+    expect(container.querySelector("[data-belt-slug]")).toBeNull();
   });
 
   it("勧める練習が無ければ何も描画しない", async () => {
