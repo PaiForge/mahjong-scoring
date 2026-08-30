@@ -4,7 +4,7 @@ import { useTranslations } from "next-intl";
 import { YAKUMAN_HAN } from "@mahjong-scoring/core";
 import type { YakuDetail } from "@mahjong-scoring/core";
 import { useYakuOrder } from "@/app/_hooks/use-yaku-order-store";
-import { BreakdownTable } from "../../_components/breakdown-table";
+import { DetailTable } from "../../_components/detail-table";
 import { orderYakuDetails } from "../../_lib/order-yaku-details";
 
 interface HanBreakdownProps {
@@ -42,14 +42,16 @@ export function HanBreakdown({ yakuDetails, correctHan }: HanBreakdownProps) {
     correctHan === YAKUMAN_HAN && rawTotal > correctHan;
 
   return (
-    <BreakdownTable
+    <DetailTable
       title={t("breakdownTitle")}
       rows={ordered.map((detail) => ({
         label: detail.name,
         value: t("hanOption", { count: detail.han }),
       }))}
-      totalLabel={t("breakdownTotal")}
-      totalValue={t("hanOption", { count: rawTotal })}
+      total={{
+        label: t("breakdownTotal"),
+        value: t("hanOption", { count: rawTotal }),
+      }}
       note={
         isClampedToYakuman ? (
           <>

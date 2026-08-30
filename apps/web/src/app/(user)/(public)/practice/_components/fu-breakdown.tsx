@@ -2,7 +2,7 @@
 
 import { useTranslations } from "next-intl";
 import type { FuDetail } from "@mahjong-scoring/core";
-import { BreakdownTable } from "./breakdown-table";
+import { DetailTable } from "./detail-table";
 
 interface FuBreakdownProps {
   /** 切り上げ前の符の内訳 */
@@ -33,14 +33,16 @@ export function FuBreakdown({
   const rawTotal = details.reduce((sum, detail) => sum + detail.fu, 0);
 
   return (
-    <BreakdownTable
+    <DetailTable
       title={t("breakdownTitle")}
       rows={details.map((detail) => ({
         label: detail.reason,
         value: t("fuSuffix", { value: detail.fu }),
       }))}
-      totalLabel={t("breakdownTotal")}
-      totalValue={t("fuSuffix", { value: rawTotal })}
+      total={{
+        label: t("breakdownTotal"),
+        value: t("fuSuffix", { value: rawTotal }),
+      }}
       note={
         rawTotal === answer ? undefined : (
           <>
