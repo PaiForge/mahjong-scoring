@@ -44,24 +44,27 @@ interface DetailTableProps {
  * 列見出しも置かない（2列しかなく、名前と値は見れば分かる）。行区切りの
  * 破線と、最後を締める実線だけで読ませる。
  *
+ * 濃さは見出し（何の表か）> 合計 > 値 > 名前の順。中身が見出しより濃いと
+ * 表の切れ目が読めず、いくつも積むと1枚の帳票のように見えてしまう。
+ *
  * 値は右端で揃える（符・翻・点数は桁が揃う方が読みやすい）。役のチップの
  * ように自分で flex を張る値は、セルいっぱいに広がってそのまま左から並ぶ。
  */
 export function DetailTable({ title, rows, total, note }: DetailTableProps) {
   return (
     <div className="space-y-1.5">
-      <p className="text-sm font-medium text-surface-500">{title}</p>
+      <p className="text-sm font-bold text-surface-900">{title}</p>
 
       <table className="w-full text-sm">
         <tbody className="divide-y-2 divide-dashed divide-surface-200">
           {rows.map((row, i) => (
             <tr key={i}>
-              <td className="py-2 pr-4 text-left align-top whitespace-nowrap text-surface-600">
+              <td className="py-2 pr-4 text-left align-top whitespace-nowrap text-surface-500">
                 {row.label}
               </td>
               <td
                 className={`py-2 text-right align-top ${
-                  row.tone ? TONE_CLASSES[row.tone] : "text-surface-800"
+                  row.tone ? TONE_CLASSES[row.tone] : "text-surface-600"
                 }`}
               >
                 {row.value}
@@ -72,10 +75,10 @@ export function DetailTable({ title, rows, total, note }: DetailTableProps) {
             // 合計の実線は tr ではなくセルに置く。tbody の divide-dashed は
             // セレクタの詳細度が高く、tr 側に border-solid を書いても破線に負ける
             <tr>
-              <td className="border-t-2 border-solid border-ink py-2 pr-4 text-left font-bold whitespace-nowrap text-surface-900">
+              <td className="border-t-2 border-solid border-ink py-2 pr-4 text-left font-bold whitespace-nowrap text-surface-700">
                 {total.label}
               </td>
-              <td className="border-t-2 border-solid border-ink py-2 text-right font-bold text-surface-900">
+              <td className="border-t-2 border-solid border-ink py-2 text-right font-bold text-surface-700">
                 {total.value}
               </td>
             </tr>
