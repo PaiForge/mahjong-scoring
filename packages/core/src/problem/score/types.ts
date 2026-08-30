@@ -139,6 +139,21 @@ export interface QuestionGeneratorOptions {
   readonly includeChild?: boolean;
   /** 連風牌の雀頭を4符として扱うか（既定 false=2符） */
   readonly renfonpaiAs4Fu?: boolean;
+  /**
+   * 場風＝自風の局面を出題しないか（既定 false）
+   * 連風牌除外
+   *
+   * 連風牌の雀頭を2符とするか4符とするかはローカルルールで割れており
+   * （`renfonpaiAs4Fu`）、その1点だけで符が、ひいては点数が変わる。答えを
+   * 1つに定めたい出題（端末ごとのルール設定に左右されてはならない昇級試験）
+   * が立てる。
+   *
+   * 雀頭が連風牌の手だけを弾く形にはしない。ライブラリは符が最大になる面子
+   * 構成を選ぶため、「選ばれた構成の雀頭は連風牌でないが、別の解釈では
+   * 連風牌の雀頭が立ち、4符ルールではそちらが選ばれる」手が残りうる。
+   * 場風＝自風の局面ごと出題しなければ、どの解釈をとっても連風牌は現れない。
+   */
+  readonly excludeRenfonpai?: boolean;
   /** 30符4翻・60符3翻を満貫に切り上げるか（切り上げ満貫、既定 false） */
   readonly kiriageMangan?: boolean;
   /**

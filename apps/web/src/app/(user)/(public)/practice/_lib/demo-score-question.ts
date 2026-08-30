@@ -44,6 +44,39 @@ export const DEMO_MENTSU_HAND: DemoHand = {
 };
 
 /**
+ * 役牌の暗刻を持つ面子手のデモ牌姿（發發發 234m 567m 345p 55s）
+ *
+ * 子・門前ロン（三筒の両面待ち）で和了した形。符が副底20 + 三元牌の暗刻8 +
+ * 門前ロン10 = 38符 → 切り上げて40符、役は役牌（發）の1翻だけで 1翻40符 =
+ * 1300点になる。
+ *
+ * {@link DEMO_MENTSU_HAND} と違って符を自分で積み上げないと点数が出ない形を
+ * 選んでいる。あちらは平和で符が20符・30符に固定されるため、符から点数までを
+ * 通しで解く出題（30〜50符の昇級試験）のデモにはならない。ロンなのは、
+ * ツモだと門前清自摸和が乗って翻数が上がり、符の話が霞むため。
+ */
+export const DEMO_YAKUHAI_KOUTSU_HAND: DemoHand = {
+  closed: [
+    HaiKind.Hatsu,
+    HaiKind.Hatsu,
+    HaiKind.Hatsu,
+    HaiKind.ManZu2,
+    HaiKind.ManZu3,
+    HaiKind.ManZu4,
+    HaiKind.ManZu5,
+    HaiKind.ManZu6,
+    HaiKind.ManZu7,
+    HaiKind.PinZu3,
+    HaiKind.PinZu4,
+    HaiKind.PinZu5,
+    HaiKind.SouZu5,
+    HaiKind.SouZu5,
+  ],
+  agariHai: HaiKind.PinZu3,
+  isTsumo: false,
+};
+
+/**
  * 七対子のデモ牌姿（22m 55m 33p 77p 44s 88s 中中）
  *
  * 子・ロンで和了した形。七対子だけが成立する（么九牌の対子があるため断么九は

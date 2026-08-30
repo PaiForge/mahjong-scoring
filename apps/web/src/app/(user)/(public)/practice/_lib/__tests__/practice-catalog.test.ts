@@ -9,11 +9,7 @@ import {
   PRACTICE_MENU_SLUGS,
   slugToMenuType,
 } from "@/lib/db/practice-menu-types";
-import {
-  RANK_REGISTRY,
-  RANK_SLUGS,
-  rankRequiringMenu,
-} from "@/lib/ranks/registry";
+import { RANK_REGISTRY, rankRequiringMenu } from "@/lib/ranks/registry";
 import type { PracticeListFilter } from "../practice-catalog";
 import {
   isExamMenu,
@@ -23,6 +19,7 @@ import {
   practiceHref,
   practiceMenuFromCatalog,
   listedPracticeMenus,
+  listedPracticeRanks,
   matchesPracticeFilter,
   practiceListHref,
   practiceSlugFromHref,
@@ -71,6 +68,7 @@ describe("PRACTICE_CATALOG", () => {
     expect(slugs).not.toContain("fu-exam");
     expect(slugs).not.toContain("chiitoitsu-exam");
     expect(slugs).not.toContain("pinfu-exam");
+    expect(slugs).not.toContain("fu-score-exam");
   });
 
   it("前提章はカリキュラムに存在する章を指す", () => {
@@ -113,6 +111,7 @@ describe("段級位との対応", () => {
     expect(rankExamHref("kyu-5")).toBe("/exam/mangan");
     expect(rankExamHref("kyu-3")).toBe("/exam/chiitoitsu");
     expect(rankExamHref("kyu-2")).toBe("/exam/pinfu");
+    expect(rankExamHref("kyu-1")).toBe("/exam/fu-score");
   });
 
   it("段級位ピルの行き先は、その級を要件に持つ試験のカタログ上のパスと一致する", () => {
@@ -202,9 +201,13 @@ describe("practiceListHref", () => {
   it("どの選択肢を選んでも 1 件以上残る", () => {
     // 級と分野は直交していないため 2 軸の AND にはしていない（4級 × 翻数 が
     // 0 件になる）。1 本の排他選択である限り空振りは起きないことを固定する。
+    // 級の選択肢は全段級位ではなく一覧の中身から導く（`listedPracticeRanks`）
     const menus = listedPracticeMenus();
     const filters: PracticeListFilter[] = [
-      ...RANK_SLUGS.map((value) => ({ kind: "rank" as const, value })),
+      ...listedPracticeRanks().map((value) => ({
+        kind: "rank" as const,
+        value,
+      })),
       ...PRACTICE_CATEGORIES.map((value) => ({
         kind: "category" as const,
         value,

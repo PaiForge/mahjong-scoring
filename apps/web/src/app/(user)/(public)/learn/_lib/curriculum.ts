@@ -194,6 +194,10 @@ const CURRICULUM_REGISTRY = [
     order: 100,
     // 点数の計算セクションの他の章と同じ理由で practiceHrefs を持たない
     // （導線は furo-score-guide.tsx の CTA）
+    //
+    // 1級試験の前提知識は門前の面子手の章と本章で揃う。試験 CTA は
+    // 前提が揃う最後の章に出すため、門前の章ではなくこちらに持たせる
+    examSlug: "fu-score-exam",
     i18nKey: "learnCurriculum.chapters.furoScore",
   },
 ] as const satisfies readonly CurriculumChapterEntry[];

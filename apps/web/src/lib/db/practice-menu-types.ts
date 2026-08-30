@@ -25,6 +25,7 @@
  * - 'fu_exam': 昇級試験（手牌の合計符・ミス1回で終了）
  * - 'chiitoitsu_exam': 昇級試験（七対子の点数計算・役表示なし・ミス1回で終了）
  * - 'pinfu_exam': 昇級試験（平和の点数計算・役表示なし・ミス1回で終了）
+ * - 'fu_score_exam': 昇級試験（30〜50符の点数計算・役表示なし・ミス1回で終了）
  *
  * `practice/score` は自由練習のため記録対象外。
  */
@@ -236,6 +237,17 @@ const PRACTICE_MENU_REGISTRY = [
     // 昇級試験のためミス1回で強制終了（mangan_exam と同じ理由。RANK_REGISTRY 参照）
     mistakeLimit: 1,
     basePath: "/exam/pinfu",
+  },
+  {
+    menuType: "fu_score_exam",
+    slug: "fu-score-exam",
+    messageKey: "fuScoreExam",
+    namespace: "fuScoreExamChallenge",
+    hasProblemList: true,
+    hasSetup: false,
+    // 昇級試験のためミス1回で強制終了（mangan_exam と同じ理由。RANK_REGISTRY 参照）
+    mistakeLimit: 1,
+    basePath: "/exam/fu-score",
   },
 ] as const satisfies readonly PracticeMenuEntry[];
 
