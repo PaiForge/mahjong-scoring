@@ -4,6 +4,7 @@ import { useTranslations } from "next-intl";
 import { QuestionGeneratingPlaceholder } from "@/app/(user)/(public)/practice/_components/question-generating-placeholder";
 import { useScoreQuestionBoard } from "@/app/(user)/(public)/practice/_hooks/use-score-question-board";
 import { QuestionDisplay } from "@/app/(user)/(public)/practice/score/_components/question-display";
+import { QuestionPrompt } from "@/app/(user)/(public)/practice/_components/question-prompt";
 import { ManganExamAnswerForm } from "./mangan-exam-answer-form";
 import type { ManganExamQuestionResult } from "../_lib/types";
 import {
@@ -55,6 +56,8 @@ export function ManganExamBoard({
     <div className="space-y-6">
       {/* Question display */}
       <QuestionDisplay question={question} mobileFrame="fullBleed" />
+
+      <QuestionPrompt>{t("questionPrompt")}</QuestionPrompt>
 
       {/* Answer form */}
       <ManganExamAnswerForm

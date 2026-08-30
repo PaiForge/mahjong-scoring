@@ -1,6 +1,8 @@
+import { getTranslations } from "next-intl/server";
 import { HaiKind } from "@mahjong-scoring/core";
 import { QuestionDisplay } from "../../score/_components/question-display";
 import { buildDemoScoreQuestion } from "../../_lib/demo-score-question";
+import { QuestionPrompt } from "../../_components/question-prompt";
 import { YakuListDisplay } from "./yaku-list-display";
 
 /**
@@ -26,13 +28,17 @@ const DEMO_QUESTION = buildDemoScoreQuestion({
  *
  * 実際の出題盤面（手牌・状況・役一覧の提示）を静的に再現し、出題形式を端的に示す。
  */
-export function ManganScoreCalculationHowToPlay() {
+export async function ManganScoreCalculationHowToPlay() {
+  const t = await getTranslations("manganScoreCalculationChallenge");
+
   return (
     <div className="space-y-4">
       <QuestionDisplay question={DEMO_QUESTION} />
       {DEMO_QUESTION.yakuDetails && (
         <YakuListDisplay yakuDetails={DEMO_QUESTION.yakuDetails} />
       )}
+
+      <QuestionPrompt>{t("questionPrompt")}</QuestionPrompt>
     </div>
   );
 }

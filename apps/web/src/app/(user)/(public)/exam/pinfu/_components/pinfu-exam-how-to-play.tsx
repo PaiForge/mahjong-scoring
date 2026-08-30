@@ -1,5 +1,7 @@
+import { getTranslations } from "next-intl/server";
 import { HaiKind } from "@mahjong-scoring/core";
 import { QuestionDisplay } from "@/app/(user)/(public)/practice/score/_components/question-display";
+import { QuestionPrompt } from "@/app/(user)/(public)/practice/_components/question-prompt";
 import { buildDemoScoreQuestion } from "@/app/(user)/(public)/practice/_lib/demo-score-question";
 
 /**
@@ -21,6 +23,14 @@ const DEMO_QUESTION = buildDemoScoreQuestion({
  * 実際の出題盤面（手牌・状況のみ。役一覧なし）を静的に再現し、
  * 「翻数は自分で数え、符はツモ20符・ロン30符」という出題形式を端的に示す。
  */
-export function PinfuExamHowToPlay() {
-  return <QuestionDisplay question={DEMO_QUESTION} />;
+export async function PinfuExamHowToPlay() {
+  const t = await getTranslations("pinfuExamChallenge");
+
+  return (
+    <div className="space-y-4">
+      <QuestionDisplay question={DEMO_QUESTION} />
+
+      <QuestionPrompt>{t("questionPrompt")}</QuestionPrompt>
+    </div>
+  );
 }

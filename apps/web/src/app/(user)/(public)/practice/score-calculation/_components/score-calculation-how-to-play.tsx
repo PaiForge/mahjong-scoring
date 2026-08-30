@@ -1,6 +1,8 @@
+import { getTranslations } from "next-intl/server";
 import { HaiKind } from "@mahjong-scoring/core";
 import { QuestionDisplay } from "../../score/_components/question-display";
 import { buildDemoScoreQuestion } from "../../_lib/demo-score-question";
+import { QuestionPrompt } from "../../_components/question-prompt";
 
 /**
  * デモ用の固定例: 平和 + 断么九 + 門前清自摸和（子・門前ツモ・両面待ち）
@@ -18,6 +20,14 @@ const DEMO_QUESTION = buildDemoScoreQuestion({
  *
  * 実際の出題盤面（手牌・状況の提示）を静的に再現し、出題形式を端的に示す。
  */
-export function ScoreCalculationHowToPlay() {
-  return <QuestionDisplay question={DEMO_QUESTION} />;
+export async function ScoreCalculationHowToPlay() {
+  const t = await getTranslations("scoreCalculationChallenge");
+
+  return (
+    <div className="space-y-4">
+      <QuestionDisplay question={DEMO_QUESTION} />
+
+      <QuestionPrompt>{t("questionPrompt")}</QuestionPrompt>
+    </div>
+  );
 }
