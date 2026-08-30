@@ -20,6 +20,7 @@ const SCORE_PROBLEM_LIST_NAMESPACES = [
   "manganScoreCalculationChallenge",
   "manganExamChallenge",
   "chiitoitsuExamChallenge",
+  "pinfuExamChallenge",
 ] as const;
 
 /** 一覧チェーンが t() で引くキー（ドットはネスト） */
