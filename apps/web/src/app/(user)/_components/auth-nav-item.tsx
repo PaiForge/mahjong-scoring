@@ -116,7 +116,7 @@ export function AuthNavItem() {
         role="menu"
         inert={!isOpen}
         aria-hidden={!isOpen}
-        className={`absolute right-0 top-full z-50 mt-2 w-48 overflow-hidden rounded-xl border-3 border-ink bg-card shadow-sm ${isOpen ? "" : "invisible"}`}
+        className={`absolute right-0 top-full z-50 mt-2 w-48 overflow-hidden rounded-xl border-3 border-ink bg-card ${isOpen ? "" : "invisible"}`}
       >
         <Link
           href="/mypage"

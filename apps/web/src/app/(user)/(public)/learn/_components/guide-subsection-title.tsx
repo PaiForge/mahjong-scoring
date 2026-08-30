@@ -22,7 +22,7 @@ export function GuideSubsectionTitle({
       {number !== undefined && (
         <span
           aria-hidden
-          className="flex size-7 shrink-0 items-center justify-center rounded-full bg-primary-500 text-sm text-white shadow-2xs"
+          className="flex size-7 shrink-0 items-center justify-center rounded-full bg-primary-500 text-sm text-white"
         >
           {number}
         </span>

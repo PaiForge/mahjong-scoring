@@ -80,7 +80,7 @@ interface DataTableProps {
  * データテーブルの外枠
  * データテーブル
  *
- * 太枠＋オフセット影・ヘッダー行の背景・破線の行区切りというアプリ共通の表の体裁を
+ * 太枠・ヘッダー行の背景・破線の行区切りというアプリ共通の表の体裁を
  * 1 箇所に集約する。教本の早見表と点数表リファレンスで共有する。
  * サーバー / クライアントどちらのコンポーネントからも使える。
  */
@@ -94,7 +94,7 @@ export function DataTable({
     .join(" ");
 
   return (
-    <div className="overflow-hidden rounded-xl border-3 border-ink shadow-sm">
+    <div className="overflow-hidden rounded-xl border-3 border-ink">
       <table className={className}>
         <thead>
           <tr className="border-b-3 border-ink bg-primary-50">{header}</tr>
