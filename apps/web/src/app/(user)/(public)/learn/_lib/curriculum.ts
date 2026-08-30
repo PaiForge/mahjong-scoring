@@ -162,6 +162,10 @@ const CURRICULUM_REGISTRY = [
     // practiceHrefs はカタログ登録済みの練習しか指せない（記録対象・
     // おすすめ導線の前提。practice-catalog.test.ts が固定している）。
     // 導線は章本文（chiitoitsu-score-guide.tsx）の CTA が持つ
+    //
+    // 3級試験の前提知識はこの章だけで揃う（符は25符固定で、翻数の数え方は
+    // 5級までで済んでいる）
+    examSlug: "chiitoitsu-exam",
     i18nKey: "learnCurriculum.chapters.chiitoitsuScore",
   },
   {

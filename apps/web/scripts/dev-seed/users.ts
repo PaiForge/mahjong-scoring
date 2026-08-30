@@ -128,7 +128,7 @@ export const SEED_USERS: readonly SeedUser[] = [
     email: "carol@example.local",
     username: "seed_carol",
     displayName: "キャロル（シード）",
-    ranks: ["kyu-5", "kyu-4"],
+    ranks: ["kyu-5", "kyu-4", "kyu-3"],
   },
   ...RANKING_FILLERS,
 ];

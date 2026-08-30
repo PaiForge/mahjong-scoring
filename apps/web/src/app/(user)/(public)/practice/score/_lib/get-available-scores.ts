@@ -1,3 +1,4 @@
+import type { ScoreRange } from "@mahjong-scoring/core";
 import {
   koScoreFromBasePoints,
   oyaScoreFromBasePoints,
@@ -16,14 +17,14 @@ import { MANGAN_MIN_HAN } from "./han-tiers";
  * @param han - 選択された翻数（未選択の場合は undefined）
  * @param isOya - 親かどうか
  * @param isTsumo - ツモかどうか
- * @param manganOnly - true の場合、翻数にかかわらず満貫以上の点数のみ返す
+ * @param scoreRange - 指定すると、翻数にかかわらずその点数帯の点数のみ返す
  * @param kiriageMangan - 切り上げ満貫を採用しているか（3翻でも満貫がありうる）
  */
 export function getAvailableScores(
   han: number | undefined,
   isOya: boolean,
   isTsumo: boolean,
-  manganOnly?: boolean,
+  scoreRange?: ScoreRange,
   kiriageMangan?: boolean,
 ): AvailableScores {
   const isKoTsumo = isTsumo && !isOya;
@@ -31,18 +32,18 @@ export function getAvailableScores(
   if (isKoTsumo) {
     return {
       type: "koTsumo",
-      koScores: filterByHan(
+      koScores: filterScores(
         TSUMO_SCORES_KO_PART,
         han,
         "tsumoKo",
-        manganOnly,
+        scoreRange,
         kiriageMangan,
       ),
-      oyaScores: filterByHan(
+      oyaScores: filterScores(
         TSUMO_SCORES_OYA_PART,
         han,
         "tsumoOya",
-        manganOnly,
+        scoreRange,
         kiriageMangan,
       ),
     };
@@ -51,11 +52,11 @@ export function getAvailableScores(
   if (isOya && isTsumo) {
     return {
       type: "single",
-      scores: filterByHan(
+      scores: filterScores(
         TSUMO_SCORES_OYA_PART,
         han,
         "tsumoOyaAll",
-        manganOnly,
+        scoreRange,
         kiriageMangan,
       ),
     };
@@ -64,11 +65,11 @@ export function getAvailableScores(
   if (isOya) {
     return {
       type: "single",
-      scores: filterByHan(
+      scores: filterScores(
         RON_SCORES_OYA,
         han,
         "ronOya",
-        manganOnly,
+        scoreRange,
         kiriageMangan,
       ),
     };
@@ -76,7 +77,13 @@ export function getAvailableScores(
 
   return {
     type: "single",
-    scores: filterByHan(RON_SCORES_KO, han, "ronKo", manganOnly, kiriageMangan),
+    scores: filterScores(
+      RON_SCORES_KO,
+      han,
+      "ronKo",
+      scoreRange,
+      kiriageMangan,
+    ),
   };
 }
 
@@ -116,17 +123,23 @@ const MANGAN_THRESHOLDS: Readonly<Record<ScoreCategory, number>> = (() => {
   };
 })();
 
-function filterByHan(
+function filterScores(
   scores: readonly number[],
   han: number | undefined,
   category: ScoreCategory,
-  manganOnly?: boolean,
+  scoreRange?: ScoreRange,
   kiriageMangan?: boolean,
 ): readonly number[] {
   const threshold = MANGAN_THRESHOLDS[category];
 
-  if (manganOnly) {
+  // 点数帯が決まっている出題（昇級試験）は翻数を見ない。翻数で絞ると
+  // 選択肢の個数そのものが翻数のヒントになるうえ、切り上げ満貫の設定
+  // （下の `boundary`）で選択肢が端末ごとに変わってしまう
+  if (scoreRange === "manganPlus") {
     return scores.filter((s) => s >= threshold);
+  }
+  if (scoreRange === "nonMangan") {
+    return scores.filter((s) => s < threshold);
   }
 
   if (han === undefined) return scores;

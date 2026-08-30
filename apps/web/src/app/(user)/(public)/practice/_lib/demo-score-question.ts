@@ -6,28 +6,71 @@ import type {
 } from "@mahjong-scoring/core";
 
 /**
- * 遊び方デモで共有する手牌（234m 567m 345p 678s 55s）
+ * 遊び方デモの牌姿（純手牌と和了牌、和了方法）
+ * デモ牌姿
+ */
+interface DemoHand {
+  readonly closed: readonly HaiKindId[];
+  readonly agariHai: HaiKindId;
+  readonly isTsumo: boolean;
+}
+
+/**
+ * 面子手のデモ牌姿（234m 567m 345p 678s 55s）
  *
  * 子・門前ツモ・両面待ちで和了した形。平和 + 断么九 + 門前清自摸和が確定する
  * ため、点数計算ドリルと満貫以上ドリルの双方のデモに使える（満貫以上側は
  * ドラと立直を足して5翻にする）。
  */
-const DEMO_CLOSED: readonly HaiKindId[] = [
-  HaiKind.ManZu2,
-  HaiKind.ManZu3,
-  HaiKind.ManZu4,
-  HaiKind.ManZu5,
-  HaiKind.ManZu6,
-  HaiKind.ManZu7,
-  HaiKind.PinZu3,
-  HaiKind.PinZu4,
-  HaiKind.PinZu5,
-  HaiKind.SouZu6,
-  HaiKind.SouZu7,
-  HaiKind.SouZu8,
-  HaiKind.SouZu5,
-  HaiKind.SouZu5,
-];
+export const DEMO_MENTSU_HAND: DemoHand = {
+  closed: [
+    HaiKind.ManZu2,
+    HaiKind.ManZu3,
+    HaiKind.ManZu4,
+    HaiKind.ManZu5,
+    HaiKind.ManZu6,
+    HaiKind.ManZu7,
+    HaiKind.PinZu3,
+    HaiKind.PinZu4,
+    HaiKind.PinZu5,
+    HaiKind.SouZu6,
+    HaiKind.SouZu7,
+    HaiKind.SouZu8,
+    HaiKind.SouZu5,
+    HaiKind.SouZu5,
+  ],
+  agariHai: HaiKind.PinZu3,
+  isTsumo: true,
+};
+
+/**
+ * 七対子のデモ牌姿（22m 55m 33p 77p 44s 88s 中中）
+ *
+ * 子・ロンで和了した形。七対子だけが成立する（么九牌の対子があるため断么九は
+ * 付かず、7つの対子はすべて別の牌）。ロンなのは、ツモだと門前清自摸和が
+ * 乗って翻数が上がるため — 七対子の試験は満貫未満の出題に限っており、
+ * デモの牌姿もその範囲に収める。
+ */
+export const DEMO_CHIITOITSU_HAND: DemoHand = {
+  closed: [
+    HaiKind.ManZu2,
+    HaiKind.ManZu2,
+    HaiKind.ManZu5,
+    HaiKind.ManZu5,
+    HaiKind.PinZu3,
+    HaiKind.PinZu3,
+    HaiKind.PinZu7,
+    HaiKind.PinZu7,
+    HaiKind.SouZu4,
+    HaiKind.SouZu4,
+    HaiKind.SouZu8,
+    HaiKind.SouZu8,
+    HaiKind.Chun,
+    HaiKind.Chun,
+  ],
+  agariHai: HaiKind.Chun,
+  isTsumo: false,
+};
 
 interface DemoScoreQuestionOptions {
   /**
@@ -38,6 +81,8 @@ interface DemoScoreQuestionOptions {
   readonly isRiichi: boolean;
   /** 役一覧を提示する出題形式のときだけ渡す */
   readonly yakuDetails?: readonly YakuDetail[];
+  /** 牌姿の差し替え（既定は面子手）。七対子のように別の形を見せる出題が渡す */
+  readonly hand?: DemoHand;
 }
 
 /**
@@ -51,12 +96,14 @@ interface DemoScoreQuestionOptions {
 export function buildDemoScoreQuestion(
   options: DemoScoreQuestionOptions,
 ): ScoreQuestion {
+  const { hand = DEMO_MENTSU_HAND, ...rest } = options;
+
   return {
-    tehai: { closed: [...DEMO_CLOSED], exposed: [] },
-    agariHai: HaiKind.PinZu3,
-    isTsumo: true,
+    tehai: { closed: [...hand.closed], exposed: [] },
+    agariHai: hand.agariHai,
+    isTsumo: hand.isTsumo,
     jikaze: HaiKind.Nan,
     bakaze: HaiKind.Ton,
-    ...options,
+    ...rest,
   } as unknown as ScoreQuestion;
 }

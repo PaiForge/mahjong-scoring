@@ -69,6 +69,7 @@ describe("PRACTICE_CATALOG", () => {
     const slugs = listedPracticeMenus().map((menu) => menu.slug);
     expect(slugs).not.toContain("mangan-exam");
     expect(slugs).not.toContain("fu-exam");
+    expect(slugs).not.toContain("chiitoitsu-exam");
   });
 
   it("前提章はカリキュラムに存在する章を指す", () => {
@@ -109,6 +110,7 @@ describe("段級位との対応", () => {
     // カードが「4級」と名乗る以上、押した先も 4級 の話をしていること。
     expect(rankExamHref("kyu-4")).toBe("/exam/fu");
     expect(rankExamHref("kyu-5")).toBe("/exam/mangan");
+    expect(rankExamHref("kyu-3")).toBe("/exam/chiitoitsu");
   });
 
   it("段級位ピルの行き先は、その級を要件に持つ試験のカタログ上のパスと一致する", () => {
