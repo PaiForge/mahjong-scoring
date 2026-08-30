@@ -37,6 +37,7 @@ describe("MODULES", () => {
       "mangan_exam",
       "fu_exam",
       "chiitoitsu_exam",
+      "pinfu_exam",
     ]);
   });
 });

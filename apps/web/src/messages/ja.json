@@ -255,6 +255,11 @@
         "title": "昇級試験：七対子の点数計算",
         "shortTitle": "七対子試験",
         "description": "役の表示なしで七対子の手牌から翻数を数え、25符の点数を答える試験形式のチャレンジ。ミスは1回まで"
+      },
+      "pinfuExam": {
+        "title": "昇級試験：平和の点数計算",
+        "shortTitle": "平和試験",
+        "description": "役の表示なしで平和の手牌から翻数を数え、ツモ20符・ロン30符の点数を答える試験形式のチャレンジ。ミスは1回まで"
       }
     },
     "dojoRow": {
@@ -1892,7 +1897,8 @@
       "manganScoreCalculation": "💰",
       "manganExam": "🥋",
       "fuExam": "🎓",
-      "chiitoitsuExam": "📝"
+      "chiitoitsuExam": "📝",
+      "pinfuExam": "🍀"
     },
     "rankLabel": "{rank} 位",
     "notRanked": "未挑戦",
@@ -2045,12 +2051,14 @@
     "names": {
       "kyu-5": "5級",
       "kyu-4": "4級",
-      "kyu-3": "3級"
+      "kyu-3": "3級",
+      "kyu-2": "2級"
     },
     "criteria": {
       "kyu-5": "満貫以上の点数計算ができること",
       "kyu-4": "手牌の符の計算ができること",
-      "kyu-3": "七対子の場合における点数計算ができること"
+      "kyu-3": "七対子の場合における点数計算ができること",
+      "kyu-2": "平和の場合における点数計算ができること"
     },
     "promotion": {
       "title": "昇級おめでとうございます！",
@@ -2083,6 +2091,33 @@
     "howToPlay": {
       "title": "問題方式",
       "lead": "このような問題が出題されます。副底・和了符・面子符・雀頭符・待ち符をすべて足し、10符単位に切り上げた符を答えます。"
+    },
+    "result": {
+      "problemDetails": "問題の詳細",
+      "correctAnswer": "正解",
+      "yourAnswer": "あなたの回答",
+      "correct": "正解",
+      "incorrect": "不正解"
+    }
+  },
+  "pinfuExamChallenge": {
+    "title": "昇級試験：平和の点数計算",
+    "description": "役の表示なしで平和の手牌から翻数を数え、ツモ20符・ロン30符の点数を答える試験形式のドリルです。ミスは1回までです",
+    "oya": "親",
+    "ko": "子",
+    "tsumo": "ツモ",
+    "ron": "ロン",
+    "han": "{count}翻",
+    "fu": "{count}符",
+    "selectScore": "点数を選択",
+    "fromKo": "子から",
+    "fromOya": "親から",
+    "all": "オール",
+    "answer": "回答する",
+    "generating": "問題を生成中...",
+    "howToPlay": {
+      "title": "問題方式",
+      "lead": "平和で和了した手牌が出題されます。役は表示されないため、翻数を自分で数え、ツモなら20符・ロンなら30符の点数表から点数を答えます。"
     },
     "result": {
       "problemDetails": "問題の詳細",

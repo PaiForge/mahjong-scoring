@@ -125,9 +125,11 @@ export const PRACTICE_CATALOG: readonly PracticeMenu[] = [
     category: "scoring",
     rank: "kyu-5",
   },
-  // 符の計算から点数までを通しで解く総まとめ。3級（七対子）の範囲を超えて
-  // 面子手の符を要求するため、扱う級を定義するまで級を持たない
-  { slug: "score-calculation", category: "scoring" },
+  // 符の計算から点数までを通しで解く総まとめ。符が固定される役だけを扱う
+  // 3級までは出番が無く、平和（2級）で「ツモなら20符・ロンなら30符」と
+  // 和了方法から符を出し始めるところから実戦的な練習になる。
+  // 面子手・副露の級を定義したら置き直す余地はある
+  { slug: "score-calculation", category: "scoring", rank: "kyu-2" },
   {
     // 昇級試験の前提章は段級位レジストリ（`RANK_REGISTRY` の
     // `learnChapterSlugs`）が持つため `learnChapter` を持たない。
@@ -141,6 +143,12 @@ export const PRACTICE_CATALOG: readonly PracticeMenu[] = [
     slug: "chiitoitsu-exam",
     category: "scoring",
     rank: "kyu-3",
+  },
+  {
+    // 昇級試験の前提章は段級位レジストリが持つ（他の試験と同じ理由）
+    slug: "pinfu-exam",
+    category: "scoring",
+    rank: "kyu-2",
   },
 ] as const;
 

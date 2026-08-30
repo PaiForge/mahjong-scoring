@@ -155,6 +155,20 @@ export interface QuestionGeneratorOptions {
    */
   readonly requiredYaku?: readonly string[];
   /**
+   * 出題する符（既定: 制約なし）
+   * 出題符の絞り込み
+   *
+   * 符が固定される役だけを出す出題（七対子・平和の昇級試験など）が渡す。
+   * `requiredYaku` だけでは足りない — 役の判定（`detectYaku`）と点数計算
+   * （`calculateScoreForTehai`）は手牌の解釈を独立に選ぶため、面子の取り方が
+   * 複数ある手では両者が食い違いうる。例えば 999m 111p 222p 333p + 単騎 は
+   * 「順子3つ + 雀頭（平和・一盃口）」とも「暗刻3つ（単騎待ち）」とも読め、
+   * 役には平和が立つのに点数は暗刻側の 50符 で出る。平和を名指しした出題の
+   * 約 0.05% がこれに当たり、「平和なのに 20/30符 ではない」問題になる。
+   * `allowedFu` は最終的な点数計算の符で弾くので、この食い違いごと落とせる。
+   */
+  readonly allowedFu?: readonly number[];
+  /**
    * 出題する最小翻数（既定: 制約なし）
    * 最小翻数
    *

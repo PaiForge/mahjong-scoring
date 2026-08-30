@@ -56,7 +56,8 @@ interface BeltColorClasses {
  * @description
  * 道場の現在の段級位バッジ・昇級試験カード・マイページの段級位ピルが引く。
  * 参考プロジェクト（blindfold-chess）の帯色体系に合わせており、5級は
- * オレンジ・4級は青・3級は黄。級が増えるたびにここへ 1 行足す
+ * オレンジ・4級は青・3級は黄（2級だけは下のコメントの理由で参考元と違う）。
+ * 級が増えるたびにここへ 1 行足す
  * （`Record<RankSlug, ...>` なので追加漏れはコンパイルで落ちる）。
  *
  * @design セマンティックトークンではなく Tailwind の既定色を直接使う理由
@@ -95,6 +96,18 @@ export const RANK_BELT_CLASSES: Readonly<Record<RankSlug, BeltColorClasses>> = {
     tintText: "text-yellow-800",
     buttonVars:
       "[--belt-fill:var(--color-yellow-100)] [--belt-fill-hover:var(--color-yellow-200)] [--belt-text:var(--color-yellow-800)] [--belt-edge:var(--color-yellow-600)]",
+  },
+  // 参考プロジェクトの2級は緑だが、このアプリの緑はブランドとボタン
+  // （押して始める面）の色として取ってあるため帯には回せない — 級を掲げた
+  // カードが緑を着ると、その級の色が緑に見えるうえボタンと同じ色になる。
+  // 帯色として未使用で、黄（3級）とも青（4級）とも十分離れている紫を充てる
+  "kyu-2": {
+    bg: "bg-purple-500",
+    border: "border-purple-500",
+    tint: "bg-purple-100",
+    tintText: "text-purple-800",
+    buttonVars:
+      "[--belt-fill:var(--color-purple-100)] [--belt-fill-hover:var(--color-purple-200)] [--belt-text:var(--color-purple-800)] [--belt-edge:var(--color-purple-500)]",
   },
 };
 
