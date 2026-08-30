@@ -13,6 +13,19 @@ interface AnswerComparisonProps {
   readonly user: ReactNode;
   /** ユーザー回答が正解かどうか（回答値の文字色に反映する） */
   readonly isCorrect: boolean;
+  /**
+   * 過不足を出すための正解と回答の値。数値で答える練習（符・翻）が渡す。
+   * 渡すと「過不足」の行が最後に付く
+   */
+  readonly difference?: AnswerDifference;
+}
+
+/** 過不足の計算に使う正解と回答の値、そして単位の付け方 */
+interface AnswerDifference {
+  readonly correct: number;
+  readonly user: number;
+  /** 値に単位を付ける（`(3) => "3翻"` など。差の絶対値に対して呼ばれる） */
+  readonly format: (value: number) => string;
 }
 
 /**
@@ -24,13 +37,19 @@ interface AnswerComparisonProps {
  * 呼び出し側に任せ、ここは並べ方と正誤の色分けだけを持つ。
  *
  * 表そのものは {@link DetailTable} に委ねる。同じ詳細の中に並ぶ符・翻の内訳と
- * 同じ形（白カードの中の名前と値の表）にして、詳細の中で見た目を割らない。
+ * 同じ形（名前と値の表）にして、詳細の中で見た目を割らない。
+ *
+ * 数値で答える練習は `difference` を渡して「過不足」の行で締める。内訳の
+ * 合計行と同じ位置に同じ体裁の行が来るので、2つの表の丈が揃うだけでなく、
+ * 「何翻ずれていたのか」がその場で読める。役の選択のように差が数値に
+ * ならない練習は渡さない（過不足はチップの色が示している）。
  */
 export function AnswerComparison({
   translationNamespace,
   correct,
   user,
   isCorrect,
+  difference,
 }: AnswerComparisonProps) {
   const tResult = useTranslations(`${translationNamespace}.result`);
   const tCommon = useTranslations("common");
@@ -38,6 +57,12 @@ export function AnswerComparison({
   return (
     <DetailTable
       title={tCommon("answerCheck")}
+      total={
+        difference && {
+          label: tCommon("difference"),
+          value: formatDifference(difference, tCommon("noDifference")),
+        }
+      }
       rows={[
         { label: tResult("correctAnswer"), value: correct },
         {
@@ -49,4 +74,20 @@ export function AnswerComparison({
       ]}
     />
   );
+}
+
+/**
+ * 過不足を符号付きの文字列にする
+ * 過不足整形
+ *
+ * 差は「回答 − 正解」で、多く数えていれば +、足りなければ −。
+ * 記号は演算子のマイナス（U+2212）で、ハイフンより横棒が長く数字と釣り合う。
+ */
+function formatDifference(
+  { correct, user, format }: AnswerDifference,
+  noDifferenceLabel: string,
+): string {
+  const diff = user - correct;
+  if (diff === 0) return noDifferenceLabel;
+  return `${diff > 0 ? "+" : "\u2212"}${format(Math.abs(diff))}`;
 }
