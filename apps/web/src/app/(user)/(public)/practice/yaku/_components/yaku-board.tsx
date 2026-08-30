@@ -8,16 +8,17 @@ import {
   retryGenerate,
 } from "@mahjong-scoring/core";
 import type { YakuQuestion } from "@mahjong-scoring/core";
-import { useYakuOrder } from "@/app/_hooks/use-yaku-order-store";
-import { useYakuLabel } from "@/app/_hooks/use-yaku-options";
 import { ChallengeSubmitButton } from "../../_components/challenge-submit-button";
 import { TehaiDisplay } from "../../_components/tehai-display";
-import { YakuChip, getChipFeedbackState } from "./yaku-chip";
+import { YakuAnswerComparison } from "./yaku-answer-comparison";
 import { YakuPicker } from "./yaku-picker";
 import { QuestionGeneratingPlaceholder } from "../../_components/question-generating-placeholder";
 import { QuestionPrompt } from "../../_components/question-prompt";
 import { useClientGeneratedQuestion } from "../../_hooks/use-client-generated-question";
-import { useRegisterAdvance } from "../../_hooks/use-training-mode";
+import {
+  useRegisterAdvance,
+  useTrainingMode,
+} from "../../_hooks/use-training-mode";
 import { toQuestionResult } from "../_lib/types";
 import type { YakuQuestionResult } from "../_lib/types";
 import type { RecordingPracticeBoardProps } from "../../_lib/practice-board-props";
@@ -26,23 +27,30 @@ function generateQuestion(): YakuQuestion | undefined {
   return retryGenerate(generateYakuQuestion);
 }
 
-type YakuBoardProps = RecordingPracticeBoardProps<YakuQuestionResult>;
+interface YakuBoardProps extends RecordingPracticeBoardProps<YakuQuestionResult> {
+  /** 直前の回答が正解だったか。トレーニングの答え合わせの色に使う */
+  readonly lastAnswerCorrect?: boolean;
+}
 
 /**
  * 役判定の出題盤面（手牌の提示と役の複数選択・一括判定）
  *
  * 出題状態と回答ロジックを内包し、チャレンジ・トレーニング両モードで共有する。
+ *
+ * 答え合わせはトレーニングでだけ、回答した問題と「わからない」で開示した問題に
+ * 対して表示する。チャレンジは制限時間内に解き続ける形式で、成立していた役を
+ * 出しても読む間もなく次の問題へ変わってしまうため出さない。振り返りは結果
+ * ページの問題別フィードバック一覧で行う。
  */
 export function YakuBoard({
   showFeedback,
   isCountingDown = false,
   isTraining = false,
+  lastAnswerCorrect,
   onAnswer,
   onRecordResult,
 }: YakuBoardProps) {
   const t = useTranslations("yaku");
-  const yakuOrder = useYakuOrder();
-  const labelOf = useYakuLabel();
   const [question, setQuestion] = useClientGeneratedQuestion(generateQuestion);
   const [selectedYaku, setSelectedYaku] = useState<Set<string>>(new Set());
 
@@ -52,6 +60,10 @@ export function YakuBoard({
   }, [setQuestion]);
 
   useRegisterAdvance(question === undefined ? undefined : advanceQuestion);
+
+  // 答え合わせはトレーニングで止まっている間だけ出す（開示・回答後のどちらでも）
+  const { isRevealed, isHolding } = useTrainingMode();
+  const showAnswer = isRevealed || isHolding;
 
   const handleToggleYaku = useCallback(
     (yakuName: string) => {
@@ -101,30 +113,19 @@ export function YakuBoard({
       {/* Instruction */}
       <QuestionPrompt>{t("selectYaku")}</QuestionPrompt>
 
-      {/* 回答中はリストから選ぶ。答え合わせでは全役を並べて正誤を示す
-          （選び忘れた正解役は、選択済みの欄だけでは見えないため） */}
-      {showFeedback ? (
-        <div className="flex flex-wrap gap-1.5">
-          {yakuOrder.map((yakuName) => (
-            <YakuChip
-              key={yakuName}
-              yakuName={yakuName}
-              label={labelOf(yakuName)}
-              isSelected={selectedYaku.has(yakuName)}
-              feedbackState={getChipFeedbackState(
-                yakuName,
-                selectedYaku,
-                question.correctYakuNames,
-              )}
-              disabled
-              onToggle={handleToggleYaku}
-            />
-          ))}
-        </div>
+      {/* 回答中はリストから選ぶ。止まって答え合わせをする間は、結果ページの
+          問題別フィードバックと同じ対比表に差し替える（自分が選んだ役は
+          その表の中に並ぶため、選択欄と二重に出さない） */}
+      {showAnswer ? (
+        <YakuAnswerComparison
+          correctYakuNames={question.correctYakuNames}
+          selectedYakuNames={[...selectedYaku]}
+          isCorrect={lastAnswerCorrect}
+        />
       ) : (
         <YakuPicker
           selected={selectedYaku}
-          disabled={isCountingDown}
+          disabled={isCountingDown || showFeedback}
           onToggle={handleToggleYaku}
         />
       )}

@@ -6,10 +6,11 @@ import { YakuBoard } from "./yaku-board";
 export const YakuTrainingView = createTrainingView({
   slug: "yaku",
   maxWidth: "max-w-2xl",
-  renderBoard: ({ showFeedback, isTraining, onAnswer }) => (
+  renderBoard: ({ showFeedback, isTraining, lastAnswerCorrect, onAnswer }) => (
     <YakuBoard
       showFeedback={showFeedback}
       isTraining={isTraining}
+      lastAnswerCorrect={lastAnswerCorrect}
       onAnswer={onAnswer}
     />
   ),
