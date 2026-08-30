@@ -51,6 +51,20 @@
   --color-warning-strong: #78350f;
 
   /*
+   * 表彰台の色（金・銀・銅）。ランキング上位3位を区別するためだけの色で、
+   * 成否や注意といった意味は持たないため状態色とは別に置く
+   * （状態色の項が「順位メダルは対象外」と書いているのがここ）。
+   *
+   * 素の amber / gray / orange では金属に見えず、3色が同じ明るさで並んで
+   * 順序が読めなかった。彩度と明度を金 > 銅 > 銀 の順に落とすことで、
+   * 色相を追わなくても 1 位が最も目立つ。値は blindfold-chess の
+   * podium トークンと同じ。
+   */
+  --color-podium-gold: #e6b422;
+  --color-podium-silver: #b0b3b8;
+  --color-podium-bronze: #c17f3f;
+
+  /*
    * Semantic トークン（blindfold-chess のトークン体系に準拠）。
    * ニュートラルは麻雀のスレート系（surface-*）にマッピングし、
    * primary / ring / link は麻雀の緑を維持する。
@@ -288,32 +302,74 @@
  */
 
 /* Tile sizes */
-.h-hai-xs { height: 34px; }
-.w-hai-xs { width: 24px; }
-.h-hai-sm { height: 45px; }
-.w-hai-sm { width: 32px; }
-.h-hai-md { height: 62px; }
-.w-hai-md { width: 44px; }
-.h-hai-lg { height: 78px; }
-.w-hai-lg { width: 56px; }
-.h-hai-xl { height: 101px; }
-.w-hai-xl { width: 72px; }
+.h-hai-xs {
+  height: 34px;
+}
+.w-hai-xs {
+  width: 24px;
+}
+.h-hai-sm {
+  height: 45px;
+}
+.w-hai-sm {
+  width: 32px;
+}
+.h-hai-md {
+  height: 62px;
+}
+.w-hai-md {
+  width: 44px;
+}
+.h-hai-lg {
+  height: 78px;
+}
+.w-hai-lg {
+  width: 56px;
+}
+.h-hai-xl {
+  height: 101px;
+}
+.w-hai-xl {
+  width: 72px;
+}
 
 /* Rotated tile sizes (for Furo sideways tiles) */
-.h-hai-xs-rotated { height: 24px; }
-.w-hai-xs-rotated { width: 34px; }
-.h-hai-sm-rotated { height: 32px; }
-.w-hai-sm-rotated { width: 45px; }
-.h-hai-md-rotated { height: 44px; }
-.w-hai-md-rotated { width: 62px; }
-.h-hai-lg-rotated { height: 56px; }
-.w-hai-lg-rotated { width: 78px; }
-.h-hai-xl-rotated { height: 72px; }
-.w-hai-xl-rotated { width: 101px; }
+.h-hai-xs-rotated {
+  height: 24px;
+}
+.w-hai-xs-rotated {
+  width: 34px;
+}
+.h-hai-sm-rotated {
+  height: 32px;
+}
+.w-hai-sm-rotated {
+  width: 45px;
+}
+.h-hai-md-rotated {
+  height: 44px;
+}
+.w-hai-md-rotated {
+  width: 62px;
+}
+.h-hai-lg-rotated {
+  height: 56px;
+}
+.w-hai-lg-rotated {
+  width: 78px;
+}
+.h-hai-xl-rotated {
+  height: 72px;
+}
+.w-hai-xl-rotated {
+  width: 101px;
+}
 
 /* Shadows */
 .shadow-hai {
-  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.15), inset 0 1px 0 rgba(255, 255, 255, 0.5);
+  box-shadow:
+    0 1px 2px rgba(0, 0, 0, 0.15),
+    inset 0 1px 0 rgba(255, 255, 255, 0.5);
 }
 .shadow-hai-back {
   box-shadow: 0 1px 2px rgba(0, 0, 0, 0.15);
@@ -323,9 +379,21 @@
  * Tailwind v4 only generates classes found in scanned source files.
  * node_modules is not scanned, and @source does not work with Turbopack dev,
  * so we define the missing classes here. */
-.inline-flex { display: inline-flex; }
-.items-end { align-items: flex-end; }
-.gap-px { gap: 1px; }
-.box-border { box-sizing: border-box; }
-.ml-4 { margin-left: 1rem; }
-.visible { visibility: visible; }
+.inline-flex {
+  display: inline-flex;
+}
+.items-end {
+  align-items: flex-end;
+}
+.gap-px {
+  gap: 1px;
+}
+.box-border {
+  box-sizing: border-box;
+}
+.ml-4 {
+  margin-left: 1rem;
+}
+.visible {
+  visibility: visible;
+}
