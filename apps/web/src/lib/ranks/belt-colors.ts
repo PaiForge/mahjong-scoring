@@ -26,7 +26,7 @@ interface BeltColorClasses {
    * 淡い塗り（`tint`）の上に載せる文字（800）。
    *
    * `foreground`（白）は帯そのものの濃い色に載せる前提なので、淡い面では
-   * 読めない。静止時 6.4:1（orange）/ 7.2:1（blue）で AA を満たす。
+   * 読めない。100 の面に載せた 800 は 4 色いずれも 6.3:1 以上で AA を満たす。
    */
   readonly tintText: string;
   /**
@@ -43,8 +43,8 @@ interface BeltColorClasses {
    *
    * 塗りが帯そのもの（`bg` の 500）ではなく 100 なのは、白いカードの中で
    * 500 の面が濃く浮くため。帯の色は枠とハードシャドウが持ち、面は同じ色相の
-   * 淡い側に寝かせる。文字は 800 で、静止時 6.4:1（orange）/ 7.2:1（blue）、
-   * hover でも 5.4:1 / 6.2:1 と AA を保つ。
+   * 淡い側に寝かせる。文字は 800 で、静止時（100 の面）6.3:1 以上・
+   * hover（200 の面）5.4:1 以上と、4 色いずれも AA を保つ。
    */
   readonly buttonVars: string;
 }
@@ -56,8 +56,7 @@ interface BeltColorClasses {
  * @description
  * 道場の現在の段級位バッジ・昇級試験カード・マイページの段級位ピルが引く。
  * 参考プロジェクト（blindfold-chess）の帯色体系に合わせており、5級は
- * オレンジ・4級は青・3級は黄（2級だけは下のコメントの理由で参考元と違う）。
- * 級が増えるたびにここへ 1 行足す
+ * オレンジ・4級は青・3級は黄・2級は緑。級が増えるたびにここへ 1 行足す
  * （`Record<RankSlug, ...>` なので追加漏れはコンパイルで落ちる）。
  *
  * @design セマンティックトークンではなく Tailwind の既定色を直接使う理由
@@ -86,28 +85,29 @@ export const RANK_BELT_CLASSES: Readonly<Record<RankSlug, BeltColorClasses>> = {
     buttonVars:
       "[--belt-fill:var(--color-blue-100)] [--belt-fill-hover:var(--color-blue-200)] [--belt-text:var(--color-blue-800)] [--belt-edge:var(--color-blue-500)]",
   },
-  // 黄だけ帯そのものの色が 500 ではなく 600。yellow-500 に白を載せると
-  // 1.9:1 しか出ず、帯色の pill（`beltForegroundClass` が白を返す）が読めない。
-  // 600 なら 2.9:1 で、既に出荷している orange-500 の 2.8:1 と同水準に収まる
+  // 黄は他の級と同じく 500。yellow-500 に白を載せると 1.9:1 しか出ないが、
+  // 帯色は「級を見分ける色」であって帯の上の文字で読ませるものではない
+  // （級名は pill の中だけでなく必ず地の文か見出しにも出る）。600 に落として
+  // 3級だけ色の明度が他の級とずれるより、参考プロジェクトと同じ帯色を保つ
   "kyu-3": {
-    bg: "bg-yellow-600",
-    border: "border-yellow-600",
+    bg: "bg-yellow-500",
+    border: "border-yellow-500",
     tint: "bg-yellow-100",
     tintText: "text-yellow-800",
     buttonVars:
-      "[--belt-fill:var(--color-yellow-100)] [--belt-fill-hover:var(--color-yellow-200)] [--belt-text:var(--color-yellow-800)] [--belt-edge:var(--color-yellow-600)]",
+      "[--belt-fill:var(--color-yellow-100)] [--belt-fill-hover:var(--color-yellow-200)] [--belt-text:var(--color-yellow-800)] [--belt-edge:var(--color-yellow-500)]",
   },
-  // 参考プロジェクトの2級は緑だが、このアプリの緑はブランドとボタン
-  // （押して始める面）の色として取ってあるため帯には回せない — 級を掲げた
-  // カードが緑を着ると、その級の色が緑に見えるうえボタンと同じ色になる。
-  // 帯色として未使用で、黄（3級）とも青（4級）とも十分離れている紫を充てる
+  // 緑帯だけは Tailwind 既定の green-*（#22c55e）で、ブランドの primary-*
+  // （#00904a）ではない。ブランドの緑はボタン＝「押して始める面」の色として
+  // 取ってあり、帯に同じ色を回すと級のカードがボタンと同じ色を着てしまう。
+  // green-500 は明度も彩度も高く黄緑寄りで、深緑のブランド色とは見分けが付く
   "kyu-2": {
-    bg: "bg-purple-500",
-    border: "border-purple-500",
-    tint: "bg-purple-100",
-    tintText: "text-purple-800",
+    bg: "bg-green-500",
+    border: "border-green-500",
+    tint: "bg-green-100",
+    tintText: "text-green-800",
     buttonVars:
-      "[--belt-fill:var(--color-purple-100)] [--belt-fill-hover:var(--color-purple-200)] [--belt-text:var(--color-purple-800)] [--belt-edge:var(--color-purple-500)]",
+      "[--belt-fill:var(--color-green-100)] [--belt-fill-hover:var(--color-green-200)] [--belt-text:var(--color-green-800)] [--belt-edge:var(--color-green-500)]",
   },
 };
 
