@@ -15,7 +15,7 @@ interface ModalShellProps {
   /** aria-label（labelledBy を使わない場合） */
   readonly label?: string;
   /**
-   * パネル（白い箱）の体裁。既定はユーザー向け画面の骨格（太枠＋オフセット影）。
+   * パネル（白い箱）の体裁。既定はユーザー向け画面の骨格（太枠）。
    * 管理画面のように別の見た目で使う場合はここで丸ごと差し替える。
    */
   readonly panelClassName?: string;
@@ -27,8 +27,7 @@ interface ModalShellProps {
 }
 
 /** パネル体裁の既定値（ユーザー向け画面の骨格） */
-const DEFAULT_PANEL_CLASS =
-  "rounded-2xl border-4 border-ink bg-white p-6 shadow-lg";
+const DEFAULT_PANEL_CLASS = "rounded-2xl border-4 border-ink bg-white p-6";
 
 /**
  * モーダル共通シェル

@@ -107,6 +107,20 @@ packages/eslint-config/ — 共通 ESLint 設定（PaiForge コーディング�
 - `HighlightPanel` — 地の文から浮かせて読ませる琥珀色の囲み（教本のコラム・計算手順・注意書き）。`border-amber-500 bg-amber-50/60` の一式をページ側で直接書かない
 - `SettingsCard` / `SettingToggleRow` — 設定ページの項目カードとトグル行。設定項目を足すときに `<input type="checkbox">` とスイッチの markup を書き起こさない
 
+### 影
+
+影は「押せる」の記号。`shadow-*` を持つのは次の 2 つだけ。
+
+- 押せる面 — ボタン（`buttonClasses()` が `press-*` と一緒に付ける）、カード全体が
+  リンクになっているもの、トグルのつまみ
+- 最外の白カード（`ContentContainer` の `sm:shadow-lg`）— 地の斜線から浮かせる 1 枚
+
+押せないもの（表示だけのカード・表・見出し pill・モーダルパネル・トースト・
+アイコンの丸）には付けない。区切りは太枠（`border-3` / `border-4 border-ink`）が
+持つ。マイページのカードが既定の姿。
+
+管理画面（`data-skin="plain"`）は別のビジュアル言語のため対象外。
+
 ### ボタン（`apps/web/src/app/(user)/_components/`）
 
 - `Button` — `<button>` のボタン。`LinkButton` — `next/link` のボタン

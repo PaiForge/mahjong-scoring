@@ -39,7 +39,7 @@ export function PracticeCard({
   learnLabel,
 }: PracticeCardProps) {
   return (
-    <div className="flex flex-col justify-between rounded-2xl border-3 border-ink bg-white p-5 shadow-sm transition-transform hover:-translate-y-1">
+    <div className="flex flex-col justify-between rounded-2xl border-3 border-ink bg-white p-5 transition-transform hover:-translate-y-1">
       <div>
         <div className="flex items-start justify-between gap-2">
           <h3 className="text-base font-bold text-surface-900">{title}</h3>

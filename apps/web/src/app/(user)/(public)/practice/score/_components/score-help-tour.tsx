@@ -172,7 +172,7 @@ export function ScoreHelpTour() {
           aria-label={t("help.title")}
         >
           <div
-            className="flex max-h-[85vh] w-full max-w-lg flex-col overflow-hidden rounded-xl bg-white shadow-xl"
+            className="flex max-h-[85vh] w-full max-w-lg flex-col overflow-hidden rounded-xl bg-white"
             onClick={(e) => e.stopPropagation()}
           >
             {/* Header */}

@@ -33,7 +33,7 @@ export function FeedbackFrame({
 
   return (
     <div
-      className={`rounded-xl border-3 shadow-sm transition-colors ${className} ${borderClass}`}
+      className={`rounded-xl border-3 transition-colors ${className} ${borderClass}`}
     >
       {children}
     </div>

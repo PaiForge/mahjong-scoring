@@ -23,7 +23,7 @@ interface SectionTitleProps {
 }
 
 /**
- * セクション見出し。濃い緑の pill に白抜きで置き、右下にオフセット影を落とす。
+ * セクション見出し。濃い緑の pill に白抜きで置く。
  * 下線ではなく塊として見せることで、太枠のカードと同じ骨格に揃う。
  */
 export function SectionTitle({
@@ -32,12 +32,9 @@ export function SectionTitle({
   variant = "filled",
   toneClass,
 }: SectionTitleProps) {
-  // 影はスケルトンだけ持たない（実物の色が決まっていない段階で影だけ落ちると浮く）
-  const shadow = variant === "placeholder" ? "" : "shadow-xs";
-
   return (
     <h2
-      className={`inline-block rounded-full px-5 py-1.5 text-base md:text-lg font-bold leading-normal ${toneClass ?? VARIANT_CLASS[variant]} ${shadow} ${className}`}
+      className={`inline-block rounded-full px-5 py-1.5 text-base md:text-lg font-bold leading-normal ${toneClass ?? VARIANT_CLASS[variant]} ${className}`}
     >
       {children}
     </h2>
