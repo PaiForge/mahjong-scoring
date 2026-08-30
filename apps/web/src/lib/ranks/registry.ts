@@ -153,6 +153,25 @@ export const RANK_REGISTRY = [
     ],
     learnChapterSlugs: ["chiitoitsu-score"],
   },
+  {
+    // 合格基準: 平和の場合における点数計算ができること
+    slug: "kyu-2",
+    level: 40,
+    requirements: [
+      {
+        type: "challenge_score",
+        menuType: "pinfu_exam",
+        leaderboardKey: "default",
+        // 合格条件: 昇級試験で制限時間以内に8問正解（ミスは1回で終了 —
+        // 練習レジストリの mistakeLimit が強制する）。
+        // 3級と同じ8問。1問の中身は「ツモなら20符・ロンなら30符」の
+        // 場合分けが1つ増えるぶんだけ重いが、そこは級が1つ上がったぶんの
+        // 難度差として吸収する（問題数は揃え、扱う役だけを進める）
+        minScore: 8,
+      },
+    ],
+    learnChapterSlugs: ["pinfu-score"],
+  },
 ] as const satisfies readonly RankDefinitionEntry[];
 
 /** 段級位スラッグ */

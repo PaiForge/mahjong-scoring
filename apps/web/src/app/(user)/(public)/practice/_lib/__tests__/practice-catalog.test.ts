@@ -70,6 +70,7 @@ describe("PRACTICE_CATALOG", () => {
     expect(slugs).not.toContain("mangan-exam");
     expect(slugs).not.toContain("fu-exam");
     expect(slugs).not.toContain("chiitoitsu-exam");
+    expect(slugs).not.toContain("pinfu-exam");
   });
 
   it("前提章はカリキュラムに存在する章を指す", () => {
@@ -111,6 +112,7 @@ describe("段級位との対応", () => {
     expect(rankExamHref("kyu-4")).toBe("/exam/fu");
     expect(rankExamHref("kyu-5")).toBe("/exam/mangan");
     expect(rankExamHref("kyu-3")).toBe("/exam/chiitoitsu");
+    expect(rankExamHref("kyu-2")).toBe("/exam/pinfu");
   });
 
   it("段級位ピルの行き先は、その級を要件に持つ試験のカタログ上のパスと一致する", () => {

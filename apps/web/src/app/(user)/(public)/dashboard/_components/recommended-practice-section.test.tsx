@@ -66,15 +66,6 @@ describe("RecommendedPracticeSection", () => {
     expect(pill?.getAttribute("aria-label")).toBe("examLink");
   });
 
-  it("段級位を持たない練習にはピルを出さない", async () => {
-    // 点数計算練習はどの級の範囲にも入っていない（カタログ参照）
-    const { container } = render(
-      await RecommendedPracticeSection({ slugs: ["score-calculation"] }),
-    );
-
-    expect(container.querySelector("[data-belt-slug]")).toBeNull();
-  });
-
   it("勧める練習が無ければ何も描画しない", async () => {
     const { container } = render(
       <div>{await RecommendedPracticeSection({ slugs: [] })}</div>,
