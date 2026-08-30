@@ -138,6 +138,51 @@ describe("generateScoreQuestion", () => {
       expect(questions.length).toBeGreaterThanOrEqual(1);
     });
   });
+
+  describe("オプション: allowedFu", () => {
+    it("指定した符の問題のみ生成される", () => {
+      const questions = expectSampled(
+        () => generateScoreQuestion({ allowedFu: [20, 30] }),
+        { attempts: 3000, need: 5 },
+      );
+
+      for (const question of questions) {
+        expect([20, 30]).toContain(question.answer.fu);
+      }
+    });
+
+    it("役の判定と点数計算で解釈が割れた手を落とす", () => {
+      // allowedFu が存在する理由の裏付け: 平和を名指ししただけでは、役には
+      // 平和が立つのに点数は暗刻側の解釈（40符・50符）で出る手が混ざる
+      const split = expectSampled(
+        () =>
+          generateScoreQuestion({
+            requiredYaku: ["平和"],
+            includeFuro: false,
+          }),
+        {
+          attempts: 600000,
+          need: 1,
+          where: (q) => q.answer.fu !== 20 && q.answer.fu !== 30,
+        },
+      );
+      expect(split.length).toBeGreaterThanOrEqual(1);
+
+      // 同じ条件に allowedFu を足すと、その手は出題されなくなる
+      const filtered = expectSampled(
+        () =>
+          generateScoreQuestion({
+            requiredYaku: ["平和"],
+            includeFuro: false,
+            allowedFu: [20, 30],
+          }),
+        { attempts: 3000, need: 20 },
+      );
+      for (const question of filtered) {
+        expect([20, 30]).toContain(question.answer.fu);
+      }
+    });
+  });
 });
 
 describe("generateValidScoreQuestion", () => {
