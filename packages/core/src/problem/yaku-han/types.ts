@@ -26,11 +26,6 @@ export interface YakuHanQuestion {
   readonly yakuName: string;
   /** true: 門前、false: 鳴き（副露） */
   readonly isMenzen: boolean;
-  /**
-   * 鳴ける役かどうか。
-   * false（門前限定役）の場合、門前/鳴きの状態提示は意味を持たないため UI 側はラベルを出さない。
-   */
-  readonly canNaki: boolean;
   /** 正解の翻数（役満は 13） */
   readonly correctHan: number;
 }

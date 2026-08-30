@@ -20,7 +20,7 @@ export async function YakuHanHowToPlay() {
 
   return (
     <div className="space-y-4">
-      <YakuHanPrompt yakuName={DEMO_YAKU} isMenzen={DEMO_IS_MENZEN} canNaki />
+      <YakuHanPrompt yakuName={DEMO_YAKU} isMenzen={DEMO_IS_MENZEN} />
 
       <QuestionPrompt>{t("selectHan")}</QuestionPrompt>
     </div>
