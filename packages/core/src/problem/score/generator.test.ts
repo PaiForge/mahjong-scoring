@@ -84,6 +84,32 @@ describe("generateScoreQuestion", () => {
     });
   });
 
+  describe("オプション: excludeRenfonpai", () => {
+    it("true の場合、場風と自風が一致する局面を出題しない", () => {
+      const questions = expectSampled(
+        () => generateScoreQuestion({ excludeRenfonpai: true }),
+        { attempts: 300, need: 5 },
+      );
+
+      for (const question of questions) {
+        expect(question.bakaze).not.toBe(question.jikaze);
+      }
+    });
+
+    it("親（自風＝東）の出題を残す（場風を落として自風は落とさない）", () => {
+      // 自風の側を落とす向きだと親が出るのは南場だけになり、親の点数表を
+      // 引く問題が細る。生成器はその逆向きで連風牌を避ける
+      const questions = expectSampled(
+        () => generateScoreQuestion({ excludeRenfonpai: true }),
+        { attempts: 600, need: 20 },
+      );
+
+      expect(
+        questions.some((question) => question.jikaze === HaiKind.Ton),
+      ).toBe(true);
+    });
+  });
+
   describe("オプション: allowedRanges", () => {
     it("nonMangan のみの場合、通常点数の問題のみ生成される", () => {
       const questions = expectSampled(
