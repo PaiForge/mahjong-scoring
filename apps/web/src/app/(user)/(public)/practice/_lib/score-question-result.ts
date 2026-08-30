@@ -1,8 +1,20 @@
-import { haiIdToMspz, kazeIdToMspz, tehaiToMspz } from "@mahjong-scoring/core";
-import type { ScoreQuestion, ScoreTableAnswer } from "@mahjong-scoring/core";
+import {
+  haiIdToMspz,
+  kazeIdToMspz,
+  parseHais,
+  parseKazehai,
+  parseTehai,
+  tehaiToMspz,
+} from "@mahjong-scoring/core";
+import type {
+  HaiKindId,
+  ScoreQuestion,
+  ScoreTableAnswer,
+} from "@mahjong-scoring/core";
 
+import type { ScoreQuestionDisplayData } from "../score/_components/question-display";
 import { createSessionStorageParser } from "./create-session-storage-parser";
-import { hasFieldTypes, isRecord } from "./shape-guards";
+import { hasFieldTypes, isRecord, isStringArray } from "./shape-guards";
 
 /**
  * 出題内容のスナップショット（結果ページでの手牌再表示用）
@@ -85,13 +97,6 @@ function hasValidAnswerType(value: unknown): boolean {
   return typeof typeValue === "string" && VALID_ANSWER_TYPES.has(typeValue);
 }
 
-/** 値が文字列のみの配列かを判定する */
-function isStringArray(value: unknown): value is readonly string[] {
-  return (
-    Array.isArray(value) && value.every((item) => typeof item === "string")
-  );
-}
-
 /**
  * 値が ScoreQuestionSnapshot として妥当か検証する
  * 出題スナップショットバリデーション
@@ -99,7 +104,7 @@ function isStringArray(value: unknown): value is readonly string[] {
  * MSPZ として解釈できるかまでは見ない（表示時のパースが失敗したら
  * 手牌の再表示だけを諦める）。ここでは形だけを確かめる。
  */
-function isValidQuestionSnapshot(value: unknown): boolean {
+export function isValidScoreQuestionSnapshot(value: unknown): boolean {
   if (
     !hasFieldTypes(value, {
       tehai: "string",
@@ -140,7 +145,7 @@ function isValidQuestionResult(value: unknown): value is ScoreQuestionResult {
   const question: unknown = Reflect.get(value, "question");
   return (
     (fu === undefined || typeof fu === "number") &&
-    (question === undefined || isValidQuestionSnapshot(question)) &&
+    (question === undefined || isValidScoreQuestionSnapshot(question)) &&
     hasValidAnswerType(Reflect.get(value, "correctAnswer")) &&
     hasValidAnswerType(Reflect.get(value, "userAnswer"))
   );
@@ -155,3 +160,48 @@ export const parseQuestionResults: (
 ) => readonly ScoreQuestionResult[] = createSessionStorageParser(
   isValidQuestionResult,
 );
+
+/**
+ * MSPZ 文字列のドラ表示牌リストを牌IDに復元する
+ * ドラ表示牌復元
+ */
+function parseMarkers(
+  markers: readonly string[] | undefined,
+): readonly HaiKindId[] | undefined {
+  return markers?.flatMap((marker) => parseHais(marker));
+}
+
+/**
+ * 保存された出題スナップショットから手牌表示用のデータを復元する
+ * 出題復元
+ *
+ * MSPZ のパースに失敗した場合は undefined を返し、手牌の再表示だけを諦める
+ * （正誤と回答の比較はスナップショットに依存しないため表示できる）。
+ * スナップショットを保存する前の旧データも同様に undefined になる。
+ *
+ * ツモ・ロンの別を引数で受け取るのは、練習によって置き場所が違うため
+ * （点数系は結果の直下、翻数即答はスナップショットの中）。
+ */
+export function restoreScoreQuestion(
+  snapshot: ScoreQuestionSnapshot | undefined,
+  isTsumo: boolean,
+): ScoreQuestionDisplayData | undefined {
+  if (!snapshot) return undefined;
+
+  const tehai = parseTehai(snapshot.tehai);
+  const agariHai = parseHais(snapshot.agariHai)[0];
+  const bakaze = parseKazehai(snapshot.bakaze);
+  const jikaze = parseKazehai(snapshot.jikaze);
+  if (!tehai || agariHai === undefined || !bakaze || !jikaze) return undefined;
+
+  return {
+    tehai,
+    agariHai,
+    isTsumo,
+    jikaze,
+    bakaze,
+    doraMarkers: parseMarkers(snapshot.doraMarkers) ?? [],
+    isRiichi: snapshot.isRiichi,
+    uraDoraMarkers: parseMarkers(snapshot.uraDoraMarkers),
+  };
+}
