@@ -14,7 +14,6 @@ import { ContentContainer } from "@/app/(user)/_components/content-container";
 import { LinkRow, LinkRowList } from "@/app/(user)/_components/link-row";
 import { PageTitle } from "@/app/(user)/_components/page-title";
 import { createNamespaceMetadata } from "@/app/_lib/metadata";
-import { RANK_SLUGS } from "@/lib/ranks/registry";
 import { ComprehensivePracticeBanner } from "../_components/comprehensive-practice-banner";
 import { PracticeCard } from "../_components/practice-card";
 import {
@@ -24,6 +23,7 @@ import {
 import { practiceCardRank } from "../_lib/practice-card-rank";
 import {
   listedPracticeMenus,
+  listedPracticeRanks,
   PRACTICE_CATEGORIES,
   practiceDescriptionKey,
   practiceHref,
@@ -81,8 +81,10 @@ export default async function PracticePage() {
           optionGroups={[
             [{ label: t("filter.all") }],
             // 級の並びはレジストリの順（5級 → 4級 の学習順）。一覧の
-            // 並びも学習順なので、選択肢だけ級位の数字順にはしない
-            RANK_SLUGS.map((rank) => ({
+            // 並びも学習順なので、選択肢だけ級位の数字順にはしない。
+            // 昇級試験だけで完結する級（1級）は一覧に並ぶ練習を持たないため
+            // 選択肢にも出ない
+            listedPracticeRanks().map((rank) => ({
               filter: { kind: "rank" as const, value: rank },
               label: tRanks(`names.${rank}`),
             })),

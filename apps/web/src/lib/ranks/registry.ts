@@ -172,6 +172,28 @@ export const RANK_REGISTRY = [
     ],
     learnChapterSlugs: ["pinfu-score"],
   },
+  {
+    // 合格基準: 30〜50符の場合の点数計算ができること
+    slug: "kyu-1",
+    level: 50,
+    requirements: [
+      {
+        type: "challenge_score",
+        menuType: "fu_score_exam",
+        leaderboardKey: "default",
+        // 合格条件: 昇級試験で制限時間以内に4問正解（ミスは1回で終了 —
+        // 練習レジストリの mistakeLimit が強制する）。
+        // 下の級より問題数が少ないのは1問の重さが違うため: 3級・2級は符が
+        // 役で決まっていて翻数を数えるだけだが、この級は副底から待ち符までを
+        // 積み上げて切り上げ、そのうえで翻数を数えて点数表を引く。4級の
+        // 符だけの試験（6問）にさらに翻数と表引きが乗る
+        minScore: 4,
+      },
+    ],
+    // 面子手の点数計算は門前と副露の2章に分かれており、どちらの手も
+    // 出題される（`EXAM_GENERATE_OPTIONS` 参照）
+    learnChapterSlugs: ["menzen-mentsu-score", "furo-score"],
+  },
 ] as const satisfies readonly RankDefinitionEntry[];
 
 /** 段級位スラッグ */

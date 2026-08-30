@@ -56,7 +56,7 @@ interface BeltColorClasses {
  * @description
  * 道場の現在の段級位バッジ・昇級試験カード・マイページの段級位ピルが引く。
  * 参考プロジェクト（blindfold-chess）の帯色体系に合わせており、5級は
- * オレンジ・4級は青・3級は黄・2級は緑。級が増えるたびにここへ 1 行足す
+ * オレンジ・4級は青・3級は黄・2級は緑・1級は茶。級が増えるたびにここへ 1 行足す
  * （`Record<RankSlug, ...>` なので追加漏れはコンパイルで落ちる）。
  *
  * @design セマンティックトークンではなく Tailwind の既定色を直接使う理由
@@ -108,6 +108,19 @@ export const RANK_BELT_CLASSES: Readonly<Record<RankSlug, BeltColorClasses>> = {
     tintText: "text-green-800",
     buttonVars:
       "[--belt-fill:var(--color-green-100)] [--belt-fill-hover:var(--color-green-200)] [--belt-text:var(--color-green-800)] [--belt-edge:var(--color-green-500)]",
+  },
+  // 茶帯だけは帯そのものの色が 500 ではなく amber-800。Tailwind に茶の
+  // スケールは無く、参考プロジェクトの茶（#92400e）がちょうど amber-800 に
+  // あたる。500 に寝かせると 3級 の黄と見分けが付かなくなるため、色相ではなく
+  // 明度で分けている（帯色は級を見分けるためのものなので、隣の級と混ざる方が
+  // スケールの揃いより困る）。淡い側は同じ理由で 100 ではなく 200 を使う
+  "kyu-1": {
+    bg: "bg-amber-800",
+    border: "border-amber-800",
+    tint: "bg-amber-200",
+    tintText: "text-amber-900",
+    buttonVars:
+      "[--belt-fill:var(--color-amber-200)] [--belt-fill-hover:var(--color-amber-300)] [--belt-text:var(--color-amber-900)] [--belt-edge:var(--color-amber-800)]",
   },
 };
 

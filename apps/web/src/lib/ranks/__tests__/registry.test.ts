@@ -32,6 +32,7 @@ describe("RANK_REGISTRY", () => {
     { slug: "kyu-4", menuType: "fu_exam", minScore: 6 },
     { slug: "kyu-3", menuType: "chiitoitsu_exam", minScore: 8 },
     { slug: "kyu-2", menuType: "pinfu_exam", minScore: 8 },
+    { slug: "kyu-1", menuType: "fu_score_exam", minScore: 4 },
   ])(
     "$slug の合格条件: $menuType でミス1回・$minScore 問正解（プロダクト仕様の固定）",
     ({ slug, menuType, minScore }) => {
