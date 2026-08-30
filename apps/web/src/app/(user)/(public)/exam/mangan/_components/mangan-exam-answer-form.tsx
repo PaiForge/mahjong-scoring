@@ -20,7 +20,7 @@ interface ManganExamAnswerFormProps {
  * 昇級試験回答フォーム
  *
  * 点数のみを select で回答する。役は表示されないため、手牌から翻数を
- * 自分で数えて点数を導く。選択肢は `manganOnly` で満貫以上に固定し、
+ * 自分で数えて点数を導く。選択肢は `scoreRange` で満貫以上に固定し、
  * 選択肢の個数が翻数のヒントにならないようにする。
  */
 export function ManganExamAnswerForm({
@@ -40,7 +40,7 @@ export function ManganExamAnswerForm({
       onSubmit={onSubmit}
       disabled={disabled}
       translationNamespace="manganExamChallenge"
-      manganOnly
+      scoreRange="manganPlus"
     />
   );
 }

@@ -2,7 +2,7 @@
 
 import { useState, useId } from "react";
 import { useTranslations } from "next-intl";
-import type { ScoreTableUserAnswer } from "@mahjong-scoring/core";
+import type { ScoreRange, ScoreTableUserAnswer } from "@mahjong-scoring/core";
 import { Button } from "@/app/(user)/_components/button";
 import { useRuleSettingsStore } from "@/app/_hooks/use-rule-settings-store";
 import { getAvailableScores } from "../score/_lib/get-available-scores";
@@ -19,8 +19,11 @@ interface ScoreAnswerFormProps {
   readonly disabled?: boolean;
   /** i18n の翻訳ネームスペース */
   readonly translationNamespace: string;
-  /** 満貫以上の点数のみ表示する */
-  readonly manganOnly?: boolean;
+  /**
+   * 点数の選択肢をこの点数帯に固定する（省略時は翻数から絞る）。
+   * 出題が点数帯を固定している練習（昇級試験）が渡す。
+   */
+  readonly scoreRange?: ScoreRange;
   /**
    * 選択完了時に自動送信する（「回答する」ボタンを押さずに送信扱いにする）。
    * 単一選択は値が選ばれた時点、子ツモは2つとも選ばれた時点で送信する。
@@ -46,7 +49,7 @@ export function ScoreAnswerForm({
   onSubmit,
   disabled = false,
   translationNamespace,
-  manganOnly,
+  scoreRange,
   autoSubmit = false,
 }: ScoreAnswerFormProps) {
   const t = useTranslations(translationNamespace);
@@ -66,7 +69,7 @@ export function ScoreAnswerForm({
     han,
     isOya,
     isTsumo,
-    manganOnly,
+    scoreRange,
     kiriageMangan,
   );
 

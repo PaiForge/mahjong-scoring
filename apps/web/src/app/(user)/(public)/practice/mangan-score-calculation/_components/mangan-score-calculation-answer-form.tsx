@@ -38,7 +38,7 @@ export function ManganScoreCalculationAnswerForm({
       onSubmit={onSubmit}
       disabled={disabled}
       translationNamespace="manganScoreCalculationChallenge"
-      manganOnly
+      scoreRange="manganPlus"
     />
   );
 }
