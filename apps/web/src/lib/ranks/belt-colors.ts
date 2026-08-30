@@ -15,6 +15,21 @@ interface BeltColorClasses {
   /** 帯色でカードを縁取るときの枠 */
   readonly border: string;
   /**
+   * 帯色でカードの面を染めるときの塗り（100 — 帯色の淡い側）。
+   *
+   * 帯そのものの色（`bg` の 500）は白いカードの中で濃く浮くため、面には
+   * 使わない。帯の色は枠が持ち、面は同じ色相の淡い側に寝かせる
+   * （`buttonVars` の `--belt-fill` と同じ考え方）。
+   */
+  readonly tint: string;
+  /**
+   * 淡い塗り（`tint`）の上に載せる文字（800）。
+   *
+   * `foreground`（白）は帯そのものの濃い色に載せる前提なので、淡い面では
+   * 読めない。静止時 6.4:1（orange）/ 7.2:1（blue）で AA を満たす。
+   */
+  readonly tintText: string;
+  /**
    * 帯色のボタン（`buttonClasses({ variant: "belt" })`）が読む CSS 変数。
    *
    * ボタンは塗り・hover・文字・枠とハードシャドウの 4 箇所を帯色で塗り分ける
@@ -57,12 +72,16 @@ export const RANK_BELT_CLASSES: Readonly<Record<RankSlug, BeltColorClasses>> = {
   "kyu-5": {
     bg: "bg-orange-500",
     border: "border-orange-500",
+    tint: "bg-orange-100",
+    tintText: "text-orange-800",
     buttonVars:
       "[--belt-fill:var(--color-orange-100)] [--belt-fill-hover:var(--color-orange-200)] [--belt-text:var(--color-orange-800)] [--belt-edge:var(--color-orange-500)]",
   },
   "kyu-4": {
     bg: "bg-blue-500",
     border: "border-blue-500",
+    tint: "bg-blue-100",
+    tintText: "text-blue-800",
     buttonVars:
       "[--belt-fill:var(--color-blue-100)] [--belt-fill-hover:var(--color-blue-200)] [--belt-text:var(--color-blue-800)] [--belt-edge:var(--color-blue-500)]",
   },
@@ -77,6 +96,8 @@ export const RANK_BELT_CLASSES: Readonly<Record<RankSlug, BeltColorClasses>> = {
 const UNRANKED_BELT_CLASSES: BeltColorClasses = {
   bg: "bg-surface-200",
   border: "border-surface-300",
+  tint: "bg-surface-100",
+  tintText: "text-surface-700",
   // 塗りと枠が別の濃さなのは、淡いグレーの円を淡いグレーで縁取ると輪郭が
   // 消えるため。ボタンも同じ理由で、面（surface-100）より枠（surface-300）を
   // 濃くする
@@ -110,6 +131,25 @@ export function beltClass(slug: RankSlug | undefined): string {
  */
 export function beltBorderClass(slug: RankSlug | undefined): string {
   return classesFor(slug).border;
+}
+
+/**
+ * 帯色でカードの面を染めるときの、塗りと文字色のクラス。
+ * 帯淡色取得
+ *
+ * 段級位そのものを主題にした面（結果ページの昇級バナー）は、このアプリ既定の
+ * `bg-primary-50` + `text-primary-800`（どちらも緑）ではなくこれで塗る。枠と
+ * 同じ理由で、級を掲げた面が別の色を着ていると、その色がその級の色に見えて
+ * しまう（5級の昇級を緑の面で祝うと緑帯に読める）。
+ *
+ * 塗りと文字を 1 度に返すのは、この 2 つが必ず対で使われるため — 面だけ帯色に
+ * して文字を緑のまま置くと、オレンジの上に緑の見出しが載る。
+ *
+ * @param slug 段級位スラッグ。未取得なら undefined
+ */
+export function beltTintClasses(slug: RankSlug | undefined): string {
+  const { tint, tintText } = classesFor(slug);
+  return `${tint} ${tintText}`;
 }
 
 /**

@@ -30,6 +30,7 @@ import { createNamespaceMetadata } from "@/app/_lib/metadata";
 import { getOptionalUser } from "@/lib/auth";
 import { menuTypeToSlug } from "@/lib/db/practice-menu-types";
 import { getUserRankSlugs } from "@/lib/db/rank-queries";
+import { beltBorderClass } from "@/lib/ranks/belt-colors";
 import { highestRank, nextRank } from "@/lib/ranks/registry";
 
 export async function generateMetadata(): Promise<Metadata> {
@@ -59,7 +60,15 @@ export default async function DojoPage() {
 
         <section className="space-y-4">
           <SectionTitle>{t("currentRankTitle")}</SectionTitle>
-          <div className="rounded-xl border-3 border-ink bg-white p-5 text-center">
+          {/* 枠は帯色。昇級試験カード（ExamCtaCard）と同じ理由で、級を掲げた
+              カードに既定の ink（緑）を回すと緑がその級の色に見えてしまう
+              — 5級の帯（オレンジ）を緑で囲むと帯が緑に染まって読める。
+              無級のときは帯色そのものが淡いグレーなので枠もグレーになり、
+              「まだ色が付いていない」という円の意味とカードが揃う。 */}
+          <div
+            data-belt-slug={current?.slug ?? "unranked"}
+            className={`rounded-xl border-3 bg-white p-5 text-center ${beltBorderClass(current?.slug)}`}
+          >
             <BeltBadge slug={current?.slug} size="lg" />
             <p className="mt-3 text-lg font-bold text-surface-900">
               {current ? tRanks(`names.${current.slug}`) : t("unranked")}

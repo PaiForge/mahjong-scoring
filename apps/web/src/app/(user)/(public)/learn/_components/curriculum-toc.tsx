@@ -32,7 +32,7 @@ interface CurriculumTocProps {
  * - セクション bullet は `size-4`（カテゴリ色）＋右側にラベル（`<p>`、見出し要素は使わない）
  * - 章は bullet なし / `pl-7` インデントで配置し「タイトル Link + description」を表示
  * - 「次はここから」バッジは章タイトル横にインライン、`aria-current="step"` も付与
- * - 読了済み章は行の右端に CheckIcon
+ * - 読了済み章は行の右端に緑丸のチェック（白抜き・枠なし）
  *
  * @remarks
  * サーバーコンポーネント。Props だけから描画が決まるため Server Action による
@@ -129,11 +129,14 @@ export async function CurriculumToc({
                   </span>
                 </span>
                 {isRead && (
-                  <CheckIcon
-                    className="mt-1 size-4 shrink-0 text-primary-600"
-                    data-testid="curriculum-achieved-mark"
+                  <span
+                    role="img"
                     aria-label={tChapter("markedAsRead")}
-                  />
+                    data-testid="curriculum-achieved-mark"
+                    className="mt-0.5 inline-flex size-6 shrink-0 items-center justify-center rounded-full bg-primary-500 text-white"
+                  >
+                    <CheckIcon className="size-3.5" />
+                  </span>
                 )}
               </li>
             );

@@ -96,7 +96,6 @@ export function AuthNavItem() {
             avatarUrl={profile.avatarUrl}
             name={profile.name}
             size="sm"
-            bordered={false}
           />
         ) : (
           <span className="flex h-8 w-8 items-center justify-center rounded-full border-3 border-ink bg-primary-50 text-foreground">

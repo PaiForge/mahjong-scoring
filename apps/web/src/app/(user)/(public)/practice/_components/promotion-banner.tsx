@@ -3,6 +3,7 @@ import { getTranslations } from "next-intl/server";
 import { BeltBadge } from "@/app/(user)/_components/belt-badge";
 import { getOptionalUser } from "@/lib/auth";
 import { getUserRankSlugs } from "@/lib/db/rank-queries";
+import { beltBorderClass, beltTintClasses } from "@/lib/ranks/belt-colors";
 import { highestRank, type RankSlug } from "@/lib/ranks/registry";
 
 interface PromotionBannerProps {
@@ -29,17 +30,20 @@ export async function PromotionBanner({ slugs }: PromotionBannerProps) {
   if (verified.length === 0) return undefined;
 
   const t = await getTranslations("ranks");
+  // 授与された段級位。複数同時に付与されうるため最上位の色で出す
+  const awarded = highestRank(verified)?.slug;
 
   return (
+    /* 枠も面も帯色。既定の ink（緑）と bg-primary-50 で祝うと、緑が授与
+       された級の色に見えてしまう（5級はオレンジ）。見出しの色は section の
+       文字色を継いで帯色の濃い側になる。 */
     <section
       aria-live="polite"
-      className="rounded-xl border-3 border-ink bg-primary-50 p-5 text-center"
+      data-belt-slug={awarded ?? "unranked"}
+      className={`rounded-xl border-3 p-5 text-center ${beltBorderClass(awarded)} ${beltTintClasses(awarded)}`}
     >
-      {/* 授与された段級位の帯。複数同時に付与されうるため最上位の色で出す */}
-      <BeltBadge slug={highestRank(verified)?.slug} />
-      <h2 className="mt-3 text-lg font-bold text-primary-800">
-        {t("promotion.title")}
-      </h2>
+      <BeltBadge slug={awarded} />
+      <h2 className="mt-3 text-lg font-bold">{t("promotion.title")}</h2>
       <div className="mt-1 space-y-0.5">
         {verified.map((slug) => (
           <p key={slug} className="font-medium text-surface-700">
