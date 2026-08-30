@@ -17,18 +17,10 @@ import { useFuChoiceBoard } from "../../_hooks/use-fu-choice-board";
 import { TehaiDisplay } from "../../_components/tehai-display";
 import { FuBreakdown } from "../../_components/fu-breakdown";
 import { QuestionPrompt } from "../../_components/question-prompt";
-import { Button } from "@/app/(user)/_components/button";
+import { useTrainingMode } from "../../_hooks/use-training-mode";
 import type { RecordingPracticeBoardProps } from "../../_lib/practice-board-props";
 
-interface TotalFuBoardProps extends RecordingPracticeBoardProps<TotalFuQuestionResult> {
-  /**
-   * 回答後の停止状態から次問題へ進む操作
-   *
-   * 指定した場合のみ、回答後に符の内訳と「次の問題へ」ボタンを出して停止する
-   * （自動で進まないトレーニングモード向け）。チャレンジでは指定しない。
-   */
-  readonly onProceed?: () => void;
-}
+type TotalFuBoardProps = RecordingPracticeBoardProps<TotalFuQuestionResult>;
 
 /**
  * 合計符の出題盤面（手牌の提示と符の選択）
@@ -45,7 +37,6 @@ export function TotalFuBoard({
   isCountingDown = false,
   isTraining = false,
   onAnswer,
-  onProceed,
   onRecordResult,
 }: TotalFuBoardProps) {
   const t = useTranslations("totalFu");
@@ -59,13 +50,15 @@ export function TotalFuBoard({
       onRecordResult?.(toFuQuestionResult(question, fu)),
     [onRecordResult],
   );
-  const { question, selectedFu, handleSelect, isRevealed } = useFuChoiceBoard({
+  const { question, selectedFu, handleSelect } = useFuChoiceBoard({
     generateQuestion,
     options: FU_VALUES,
     showFeedback,
     onAnswer,
     onRecordResult: recordResult,
   });
+  // 内訳はトレーニングで止まっている間だけ出す（開示・回答後のどちらでも）
+  const { isRevealed, isHolding } = useTrainingMode();
 
   if (!question) {
     return <QuestionGeneratingPlaceholder label={t("generating")} />;
@@ -92,20 +85,12 @@ export function TotalFuBoard({
         translationNamespace="totalFu"
       />
 
-      {showFeedback && (onProceed !== undefined || isRevealed) && (
-        <>
-          <FuBreakdown
-            details={question.fuDetails}
-            answer={question.answer}
-            translationNamespace="totalFu"
-          />
-          {/* 開示中の「次の問題へ」はシェルのフッターにあるため、ここには出さない */}
-          {onProceed !== undefined && !isRevealed && (
-            <Button size="lg" fullWidth onClick={onProceed}>
-              {t("nextQuestion")}
-            </Button>
-          )}
-        </>
+      {(isRevealed || isHolding) && (
+        <FuBreakdown
+          details={question.fuDetails}
+          answer={question.answer}
+          translationNamespace="totalFu"
+        />
       )}
     </div>
   );

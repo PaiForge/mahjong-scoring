@@ -8,7 +8,7 @@ vi.mock("../_actions/save-practice-result", () => ({
   savePracticeResult: vi.fn(),
 }));
 
-import { useTrainingReveal } from "../_hooks/use-training-reveal";
+import { useRegisterAdvance } from "../_hooks/use-training-mode";
 import { createTrainingView } from "./create-challenge-views";
 import { PRACTICE_SCROLL_ANCHOR_ID } from "./scroll-anchor";
 
@@ -29,7 +29,7 @@ function renderTrainingView() {
   }: {
     readonly onAnswer: (correct: boolean, onNext: () => void) => void;
   }) {
-    useTrainingReveal(advance);
+    useRegisterAdvance(advance);
     return (
       <button type="button" onClick={() => onAnswer(true, advance)}>
         submit

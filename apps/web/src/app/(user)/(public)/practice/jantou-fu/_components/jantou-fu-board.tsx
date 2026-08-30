@@ -12,7 +12,7 @@ import { getChoiceFeedbackProps } from "../../_lib/feedback-styles";
 import { QuestionGeneratingPlaceholder } from "../../_components/question-generating-placeholder";
 import { QuestionPrompt } from "../../_components/question-prompt";
 import { useClientGeneratedQuestion } from "../../_hooks/use-client-generated-question";
-import { useTrainingReveal } from "../../_hooks/use-training-reveal";
+import { useRegisterAdvance } from "../../_hooks/use-training-mode";
 import { toQuestionResult } from "../_lib/types";
 import type { JantouFuQuestionResult } from "../_lib/types";
 import type { RecordingPracticeBoardProps } from "../../_lib/practice-board-props";
@@ -47,7 +47,7 @@ export function JantouFuBoard({
     setSelectedHai(undefined);
   }, [generateQuestion, setQuestion]);
 
-  useTrainingReveal(question === undefined ? undefined : advanceQuestion);
+  useRegisterAdvance(question === undefined ? undefined : advanceQuestion);
 
   const handleChoiceSelect = useCallback(
     (index: number) => {

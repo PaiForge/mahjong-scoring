@@ -17,7 +17,7 @@ import { YakuPicker } from "./yaku-picker";
 import { QuestionGeneratingPlaceholder } from "../../_components/question-generating-placeholder";
 import { QuestionPrompt } from "../../_components/question-prompt";
 import { useClientGeneratedQuestion } from "../../_hooks/use-client-generated-question";
-import { useTrainingReveal } from "../../_hooks/use-training-reveal";
+import { useRegisterAdvance } from "../../_hooks/use-training-mode";
 import { toQuestionResult } from "../_lib/types";
 import type { YakuQuestionResult } from "../_lib/types";
 import type { RecordingPracticeBoardProps } from "../../_lib/practice-board-props";
@@ -51,7 +51,7 @@ export function YakuBoard({
     setSelectedYaku(new Set());
   }, [setQuestion]);
 
-  useTrainingReveal(question === undefined ? undefined : advanceQuestion);
+  useRegisterAdvance(question === undefined ? undefined : advanceQuestion);
 
   const handleToggleYaku = useCallback(
     (yakuName: string) => {
