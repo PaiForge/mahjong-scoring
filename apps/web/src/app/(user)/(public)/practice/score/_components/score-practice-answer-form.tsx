@@ -10,10 +10,6 @@ import { getAvailableScores } from "../_lib/get-available-scores";
 import { MANGAN_MIN_HAN, PRACTICE_HAN_TIERS } from "../_lib/han-tiers";
 import { getSelectClass } from "../../_lib/select-class";
 import { ScoreOptionSelect } from "../../_components/score-option-select";
-import {
-  PracticeFooterAction,
-  PracticeFooterActions,
-} from "../../_components/practice-footer-actions";
 import { Button } from "@/app/(user)/_components/button";
 
 interface ScorePracticeAnswerFormProps {
@@ -24,8 +20,6 @@ interface ScorePracticeAnswerFormProps {
   readonly requireYaku?: boolean;
   readonly simplifyMangan?: boolean;
   readonly requireFuForMangan?: boolean;
-  /** 「わからない」操作（無回答のまま正解を開示する）。指定時のみリンクを出す */
-  readonly onReveal?: () => void;
 }
 
 /**
@@ -40,7 +34,6 @@ export function ScorePracticeAnswerForm({
   requireYaku = false,
   simplifyMangan = false,
   requireFuForMangan = false,
-  onReveal,
 }: ScorePracticeAnswerFormProps) {
   const t = useTranslations("score");
   // ラベルと select を紐付ける id（読み上げで「翻数」「符」「点数」を名前として得るため）
@@ -278,15 +271,6 @@ export function ScorePracticeAnswerForm({
       <Button type="submit" size="lg" fullWidth disabled={disabled}>
         {t("form.buttons.answer")}
       </Button>
-
-      {/* Reveal（わからない）: 無回答のまま正解を開示する */}
-      {onReveal && (
-        <PracticeFooterActions>
-          <PracticeFooterAction onClick={onReveal}>
-            {t("form.buttons.reveal")}
-          </PracticeFooterAction>
-        </PracticeFooterActions>
-      )}
     </form>
   );
 }

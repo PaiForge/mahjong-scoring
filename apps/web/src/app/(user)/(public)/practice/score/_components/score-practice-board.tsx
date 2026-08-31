@@ -37,6 +37,7 @@ import {
 function ScorePracticeBoardInner() {
   const t = useTranslations("score");
   const tc = useTranslations("challenge");
+  const tt = useTranslations("training");
   const router = useRouter();
   const searchParams = useSearchParams();
   const {
@@ -219,7 +220,6 @@ function ScorePracticeBoardInner() {
               requireYaku={requireYaku}
               simplifyMangan={simplifyMangan}
               requireFuForMangan={requireFuForMangan}
-              onReveal={handleReveal}
             />
           </div>
         )}
@@ -232,8 +232,15 @@ function ScorePracticeBoardInner() {
           incorrectLabel={t("board.incorrectLabel")}
         />
 
-        {/* Quit button */}
+        {/* Reveal / Quit: 他の練習（training-shell）と同じく、カウンタの下に
+            「わからない」→「終了する」の順で縦に並べる。回答フォームの直下に
+            置くと、この練習だけ正解開示の位置が違うことになる。
+            回答・開示後も消さずに無効化して残すのは、終了リンクの位置を
+            動かさないため */}
         <PracticeFooterActions>
+          <PracticeFooterAction onClick={handleReveal} disabled={isAnswered}>
+            {tt("revealButton")}
+          </PracticeFooterAction>
           <PracticeFooterAction onClick={handleBackToSetup}>
             {tc("quitButton")}
           </PracticeFooterAction>
