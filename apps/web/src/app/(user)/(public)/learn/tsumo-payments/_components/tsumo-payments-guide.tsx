@@ -3,9 +3,8 @@ import { getTranslations } from "next-intl/server";
 import { SectionTitle } from "@/app/(user)/_components/section-title";
 
 import { GuideColumn } from "../../_components/guide-column";
-import { GuideNote } from "../../_components/guide-note";
 import { GuideParagraph } from "../../_components/guide-paragraph";
-import { TsumoPaymentComparison } from "./tsumo-payment-comparison";
+import { TsumoCarryoverDiagram } from "./tsumo-carryover-diagram";
 import { TsumoSplitTable } from "./tsumo-split-table";
 
 /**
@@ -18,10 +17,11 @@ import { TsumoSplitTable } from "./tsumo-split-table";
 const EXAMPLE_FU = 30;
 
 /**
- * 支払いを場面ごとに展開して見せるときの翻数
+ * 図に使う翻数
  *
- * 30符3翻は 1000 / 2000 で、基本符の1つ分・2つ分が切り上げでずれずにそのまま
- * 出る。口数の話をする図で切り上げの端数が混ざると、見せたい構造が濁る。
+ * 30符3翻は 1000 / 2000 と 2000 オールで、どちらも切り上げの端数を含まない。
+ * 「下段をそのまま持っていく」ことだけを見せたい図なので、端数で目が
+ * 止まらない組を選ぶ。
  */
 const EXAMPLE_HAN = 3;
 
@@ -45,24 +45,15 @@ export async function TsumoPaymentsGuide() {
         <GuideParagraph preLine>{t("splitBody4")}</GuideParagraph>
       </section>
 
-      {/* 本題。表で2列を突き合わせず、支払いを場面ごとに展開して理由から示す */}
+      {/* 本題。結論をそのまま図にする（表で一致を探させない） */}
       <section className="space-y-4">
         <SectionTitle>{t("roleTitle")}</SectionTitle>
         <GuideParagraph preLine>{t("roleBody1")}</GuideParagraph>
+
+        <TsumoCarryoverDiagram fu={EXAMPLE_FU} han={EXAMPLE_HAN} />
+
         <GuideParagraph preLine>{t("roleBody2")}</GuideParagraph>
-
-        <TsumoPaymentComparison fu={EXAMPLE_FU} han={EXAMPLE_HAN} />
-        <GuideNote>{t("sharedAmountNote")}</GuideNote>
-
         <GuideParagraph preLine>{t("roleBody3")}</GuideParagraph>
-        <GuideParagraph preLine>{t("roleBody4")}</GuideParagraph>
-      </section>
-
-      {/* 実益のまとめ */}
-      <section className="space-y-4">
-        <SectionTitle>{t("summaryTitle")}</SectionTitle>
-        <GuideParagraph preLine>{t("summaryBody1")}</GuideParagraph>
-        <GuideParagraph preLine>{t("summaryBody2")}</GuideParagraph>
       </section>
 
       {/* コラム: 3口を足すとロンになるのか、という当然の疑問に答える */}
