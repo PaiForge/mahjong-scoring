@@ -5,8 +5,10 @@ import { logExternalError } from "@/lib/log-error";
 import { isPracticeMenuType } from "@/lib/db/practice-menu-types";
 import type { PracticeMenuType } from "@/lib/db/practice-menu-types";
 import { checkAndGrantRanks } from "@/lib/db/rank-evaluation";
+import { getUserRankSlugs } from "@/lib/db/rank-queries";
 import { saveChallengeResult } from "@/lib/db/save-challenge-result";
-import type { RankSlug } from "@/lib/ranks/registry";
+import { evaluateExamEligibility } from "@/lib/ranks/exam-eligibility";
+import { rankRequiringMenu, type RankSlug } from "@/lib/ranks/registry";
 
 /**
  * `savePracticeResult` の戻り値
@@ -17,6 +19,9 @@ import type { RankSlug } from "@/lib/ranks/registry";
  *   昇級判定自体が失敗した場合も保存は成功として返し、`grantedRanks` は空になる。
  * - `{ success: true, skipped: 'anonymous' }`: 未ログインユーザーによる呼び出し。
  *   エラーではなく「期待された no-op」を表す。呼び出し側は静かに無視すること。
+ * - `{ success: false, error: 'exam_locked' }`: 受験資格のない昇級試験の結果。
+ *   保存しない（UI は資格のない試験を開始させないため、通常は直接呼び出しでしか
+ *   起きない）。
  * - `{ success: false, error }`: それ以外の失敗（バリデーション・DB エラー等）。
  */
 export type SaveResultResponse =
@@ -71,6 +76,22 @@ export async function savePracticeResult(
         `[savePracticeResult] invalid leaderboardKey: ${leaderboardKey}`,
       );
       return { success: false, error: "invalid_leaderboard_key" };
+    }
+
+    // 昇級試験は受験資格（次に取る級の試験か、達成済みの級の再挑戦）が
+    // ないと保存しない。飛び級の禁止はページ側のガードだけでなくここでも
+    // 強制する — 資格外の合格スコアがベストスコアに積まれると、順番が
+    // 来たときに無受験で昇級してしまうため。段級位の取得は試験のときだけ
+    // 行う（それ以外の練習の保存に余計なクエリを足さない）
+    if (rankRequiringMenu(menuType) !== undefined) {
+      const eligibility = evaluateExamEligibility(
+        menuType,
+        await getUserRankSlugs(user.id),
+      );
+      if (eligibility?.kind === "locked") {
+        console.warn(`[savePracticeResult] exam locked: ${menuType}`);
+        return { success: false, error: "exam_locked" };
+      }
     }
 
     const { challengeResultId } = await saveChallengeResult({

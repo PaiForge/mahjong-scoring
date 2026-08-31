@@ -2,19 +2,32 @@ import "server-only";
 
 import { and, eq, inArray } from "drizzle-orm";
 
-import type { RankRequirement, RankSlug } from "@/lib/ranks/registry";
-import { RANK_REGISTRY } from "@/lib/ranks/registry";
+import type {
+  RankDefinition,
+  RankRequirement,
+  RankSlug,
+} from "@/lib/ranks/registry";
+import { nextRank } from "@/lib/ranks/registry";
 import { db } from "./index";
+import { getUserRankSlugs } from "./rank-queries";
 import { challengeBestScores, userRanks } from "./schema";
 
 /**
- * 昇級判定 — 未達成ランクの要件評価と付与
+ * 昇級判定 — 次の級の要件評価と付与
  * 昇級判定
  *
  * @description
- * チャレンジ結果の保存後に呼ばれ、未達成の全ランクを独立に評価して
- * 要件を満たしたものを `user_ranks` に付与する。下位ランクの未達成が
- * 上位ランクの評価をブロックしない（skip-grant 許容）。
+ * チャレンジ結果の保存後に呼ばれ、「次に取る級」（level 昇順で最初の
+ * 未達成ランク）だけを評価して、要件を満たしていれば `user_ranks` に
+ * 付与する。段級位は飛び級できない — 上位ランクの要件を先に満たしても、
+ * 順番が来て（= 下位をすべて取り、その級が「次」になり）その級の試験を
+ * 受け直すまで付与されない。上位試験のスコア自体が積まれないことは
+ * `savePracticeResult` の受験資格ガード（`evaluateExamEligibility`）が
+ * 保証する。
+ *
+ * 過去の仕様（全ランク独立評価）で飛び番に付与されたユーザーは剥奪しない。
+ * 「次に取る級」は最下位の未達成なので、飛ばした級を順に埋めていく形で
+ * 再開する。
  *
  * @design 評価関数は要件 `type` ごとに登録する
  *
@@ -78,31 +91,40 @@ export function evaluateRankRequirements(
 }
 
 /**
- * 未達成ランクを評価し、要件を満たしたものを付与する
+ * 付与できるランクを選ぶ（次の級が要件を満たしていればその1件）
+ * 付与ランク選定
+ *
+ * 昇級判定の純粋な芯。評価対象は常に「次に取る級」1件だけで、上位ランクの
+ * 要件を満たすスコアがあっても選ばれない（飛び級の禁止）。全ランク達成済み、
+ * または次の級の要件未達なら undefined。
+ */
+export function selectGrantableRank(
+  achievedSlugs: readonly RankSlug[],
+  ctx: RankEvalContext,
+): RankDefinition | undefined {
+  const next = nextRank(achievedSlugs);
+  if (next === undefined) return undefined;
+  return evaluateRankRequirements(ctx, next.requirements) ? next : undefined;
+}
+
+/**
+ * 次の級の要件を評価し、満たしていれば付与する
  * 昇級判定実行
  *
- * @returns 今回新たに付与されたランクの slug（付与順不同）。
- *   既達成・要件未達なら空配列。
+ * @returns 今回新たに付与されたランクの slug（0 件または 1 件）。
+ *   飛び級はないため複数付与は起きないが、呼び出し側の互換のため配列で返す。
  */
 export async function checkAndGrantRanks(
   userId: string,
 ): Promise<readonly RankSlug[]> {
-  // 1. 達成済みランクを除いた評価対象を決める
-  const achievedRows = await db
-    .select({ rankSlug: userRanks.rankSlug })
-    .from(userRanks)
-    .where(eq(userRanks.userId, userId));
-  const achieved = new Set(achievedRows.map((row) => row.rankSlug));
-  const unachieved = RANK_REGISTRY.filter((rank) => !achieved.has(rank.slug));
-  if (unachieved.length === 0) return [];
+  // 1. 達成済みランクから「次に取る級」を決める
+  const achieved = await getUserRankSlugs(userId);
+  const next = nextRank(achieved);
+  if (next === undefined) return [];
 
-  // 2. 評価に必要なベストスコアを1クエリで取得する
+  // 2. 次の級の評価に必要なベストスコアだけを取得する
   const menuTypes = [
-    ...new Set(
-      unachieved.flatMap((rank) =>
-        rank.requirements.map((requirement) => requirement.menuType),
-      ),
-    ),
+    ...new Set(next.requirements.map((requirement) => requirement.menuType)),
   ];
   const bestRows = await db
     .select({
@@ -128,22 +150,17 @@ export async function checkAndGrantRanks(
       bestScores.get(bestScoreKey(menuType, leaderboardKey)),
   };
 
-  // 3. 要件を満たしたランクを冪等に付与する。並行実行と競合した場合は
+  // 3. 要件を満たしていれば冪等に付与する。並行実行と競合した場合は
   //    onConflictDoNothing + returning により「実際に挿入できた側」だけが
   //    付与として報告される
-  const qualified = unachieved.filter((rank) =>
-    evaluateRankRequirements(ctx, rank.requirements),
-  );
-  if (qualified.length === 0) return [];
+  const grantable = selectGrantableRank(achieved, ctx);
+  if (grantable === undefined) return [];
 
   const inserted = await db
     .insert(userRanks)
-    .values(qualified.map((rank) => ({ userId, rankSlug: rank.slug })))
+    .values({ userId, rankSlug: grantable.slug })
     .onConflictDoNothing()
     .returning({ rankSlug: userRanks.rankSlug });
 
-  const qualifiedSlugs = new Set<string>(qualified.map((rank) => rank.slug));
-  return inserted
-    .map((row) => row.rankSlug)
-    .filter((slug): slug is RankSlug => qualifiedSlugs.has(slug));
+  return inserted.length > 0 ? [grantable.slug] : [];
 }

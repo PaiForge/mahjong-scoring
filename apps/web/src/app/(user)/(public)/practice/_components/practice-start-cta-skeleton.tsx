@@ -7,8 +7,16 @@ import {
   PRACTICE_START_CTA_FRAME_CLASS,
 } from "./practice-start-cta";
 
-/** `LinkButton size="lg"` の実寸（py-3 + text-sm + border-3 = 50px） */
-const START_BUTTON_HEIGHT_CLASS = "h-[50px]";
+/**
+ * `LinkButton size="lg"` の実寸（py-3 の 24px + text-sm の行 20px +
+ * border-3 の 6px = 50px）
+ * 開始ボタン高さ
+ *
+ * 開始ボタンの場所を確保するスケルトンはこの高さを共有する（このファイルの
+ * ものと、昇級試験の受験ゲート・説明ページのスケルトン）。ボタンの寸法が
+ * 変わったときに直す場所を 1 つにするため。
+ */
+export const START_BUTTON_HEIGHT_CLASS = "h-[50px]";
 
 /**
  * 練習の開始導線の読み込み中スケルトン
@@ -18,6 +26,10 @@ const START_BUTTON_HEIGHT_CLASS = "h-[50px]";
  * 確保して CLS を防ぐ。並び・間隔は CTA と同じクラス定数を共有するため、
  * 導線の構成を変えてもスケルトンだけ取り残されることがない。
  * OR 区切りの破線は文字を持たないため実物をそのまま描画する。
+ *
+ * ボタンは実物の苔緑の太枠（`border-ink`）を写さず灰色の矩形にする
+ * （`ProblemListSkeleton` と同じ理由 — 読み込み中の画面が実物より賑やかに
+ * 見えるため）。高さは border-box なので枠を外しても実物と一致する。
  */
 export function PracticeStartCtaSkeleton() {
   return (
@@ -25,7 +37,7 @@ export function PracticeStartCtaSkeleton() {
       <div className={PRACTICE_START_CTA_BLOCK_CLASS}>
         <SkeletonBar
           radius="lg"
-          className={`${START_BUTTON_HEIGHT_CLASS} w-full border-3 border-ink`}
+          className={`${START_BUTTON_HEIGHT_CLASS} w-full`}
         />
         <SkeletonBar className="h-4 w-48 max-w-full" tone={100} />
       </div>
@@ -39,7 +51,7 @@ export function PracticeStartCtaSkeleton() {
       <div className={PRACTICE_START_CTA_BLOCK_CLASS}>
         <SkeletonBar
           radius="lg"
-          className={`${START_BUTTON_HEIGHT_CLASS} w-full border-3 border-ink`}
+          className={`${START_BUTTON_HEIGHT_CLASS} w-full`}
         />
         <SkeletonBar className="h-4 w-48 max-w-full" tone={100} />
       </div>

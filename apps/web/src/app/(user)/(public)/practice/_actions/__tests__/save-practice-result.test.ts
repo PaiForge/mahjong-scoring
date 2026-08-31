@@ -4,10 +4,12 @@ const {
   mockGetOptionalVerifiedUser,
   mockSaveChallengeResult,
   mockCheckAndGrantRanks,
+  mockGetUserRankSlugs,
 } = vi.hoisted(() => ({
   mockGetOptionalVerifiedUser: vi.fn(),
   mockSaveChallengeResult: vi.fn(),
   mockCheckAndGrantRanks: vi.fn(),
+  mockGetUserRankSlugs: vi.fn(),
 }));
 
 vi.mock("server-only", () => ({}));
@@ -22,6 +24,10 @@ vi.mock("../../../../../../lib/db/save-challenge-result", () => ({
 
 vi.mock("../../../../../../lib/db/rank-evaluation", () => ({
   checkAndGrantRanks: mockCheckAndGrantRanks,
+}));
+
+vi.mock("../../../../../../lib/db/rank-queries", () => ({
+  getUserRankSlugs: mockGetUserRankSlugs,
 }));
 
 import { savePracticeResult } from "../save-practice-result";
@@ -99,11 +105,74 @@ describe("savePracticeResult", () => {
     });
   });
 
+  describe("exam eligibility guard", () => {
+    beforeEach(() => {
+      mockGetOptionalVerifiedUser.mockResolvedValue({ id: "user-123" });
+      mockSaveChallengeResult.mockResolvedValue({ challengeResultId: "cr-1" });
+      mockCheckAndGrantRanks.mockResolvedValue([]);
+    });
+
+    it("受験資格のない昇級試験は exam_locked で保存しない", async () => {
+      // 無級のユーザーが2級の試験（pinfu_exam）の結果を送ってきた場合
+      mockGetUserRankSlugs.mockResolvedValue([]);
+
+      const result = await savePracticeResult(
+        "pinfu_exam",
+        "default",
+        validFields,
+      );
+
+      expect(result).toEqual({ success: false, error: "exam_locked" });
+      expect(mockSaveChallengeResult).not.toHaveBeenCalled();
+    });
+
+    it("次に取る級の試験は保存する", async () => {
+      mockGetUserRankSlugs.mockResolvedValue(["kyu-5"]);
+
+      const result = await savePracticeResult(
+        "fu_exam",
+        "default",
+        validFields,
+      );
+
+      expect(result).toEqual({
+        success: true,
+        challengeResultId: "cr-1",
+        grantedRanks: [],
+      });
+    });
+
+    it("達成済みの級の試験は再挑戦として保存する", async () => {
+      mockGetUserRankSlugs.mockResolvedValue(["kyu-5"]);
+
+      const result = await savePracticeResult(
+        "mangan_exam",
+        "default",
+        validFields,
+      );
+
+      expect(result).toEqual({
+        success: true,
+        challengeResultId: "cr-1",
+        grantedRanks: [],
+      });
+    });
+
+    it("昇級試験でない練習では段級位を照会しない", async () => {
+      await savePracticeResult("jantou_fu", "default", validFields);
+
+      expect(mockGetUserRankSlugs).not.toHaveBeenCalled();
+      expect(mockSaveChallengeResult).toHaveBeenCalled();
+    });
+  });
+
   describe("successful save", () => {
     beforeEach(() => {
       mockGetOptionalVerifiedUser.mockResolvedValue({ id: "user-123" });
       mockSaveChallengeResult.mockResolvedValue({ challengeResultId: "cr-1" });
       mockCheckAndGrantRanks.mockResolvedValue([]);
+      // 既定は無級（mangan_exam を受験できる状態）
+      mockGetUserRankSlugs.mockResolvedValue([]);
     });
 
     it("returns success: true with challengeResultId", async () => {
