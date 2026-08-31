@@ -2,6 +2,8 @@
 
 import { usePathname } from "next/navigation";
 
+import { useTranslations } from "next-intl";
+
 import { PageSkeleton } from "@/app/(user)/_components/page-skeleton";
 import type { PracticeMenuSlug } from "@/lib/db/practice-menu-types";
 import { practiceMenuBySlug } from "@/lib/db/practice-menu-types";
@@ -10,7 +12,13 @@ import {
   ExamIntroSkeleton,
   type ExamDemoHeight,
 } from "../../exam/_components/exam-intro-skeleton";
-import { practiceHref, practiceResultHref } from "../_lib/practice-catalog";
+import {
+  practiceHref,
+  practicePlayHref,
+  practiceResultHref,
+  practiceTrainingHref,
+} from "../_lib/practice-catalog";
+import { PracticePlayLoadingFallback } from "./practice-play-loading-fallback";
 import { PracticeResultLoadingFallback } from "./practice-result-loading-fallback";
 
 interface Props {
@@ -32,6 +40,7 @@ interface Props {
  * スケルトンへ振り分ける。
  *
  * - result: 結果ページと同じ形（`PracticeResultLoadingFallback`）
+ * - play / training: 解いている画面と同じ形（`PracticePlayLoadingFallback`）
  * - 昇級試験の説明: 試験の説明ページと同じ形（`ExamIntroSkeleton`）。汎用の
  *   `PageSkeleton` は読み物の形で、問題方式のプレビューだけで 250px ある
  *   試験の説明ページとは高さが 2〜3 倍ずれる
@@ -43,16 +52,26 @@ interface Props {
  */
 export function PracticeLoading({ slug, demoHeight }: Props) {
   const pathname = usePathname();
+  const menu = practiceMenuBySlug(slug);
+  const t = useTranslations(menu.namespace);
 
   const isResult = new RegExp(`^${practiceResultHref(slug)}/?$`).test(pathname);
   if (isResult) {
     return <PracticeResultLoadingFallback slug={slug} />;
   }
 
+  // 解いている画面。見出しは実物と同じ練習名を出す
+  const isPlaying = [practicePlayHref(slug), practiceTrainingHref(slug)].some(
+    (href) => new RegExp(`^${href}/?$`).test(pathname),
+  );
+  if (isPlaying) {
+    return <PracticePlayLoadingFallback practiceTitle={t("title")} />;
+  }
+
   // 昇級試験の説明ページ。前提章の数は段級位レジストリが持つため、
   // 章の行数まで実物と揃う
   const isIntro = new RegExp(`^${practiceHref(slug)}/?$`).test(pathname);
-  const exam = rankRequiringMenu(practiceMenuBySlug(slug).menuType);
+  const exam = rankRequiringMenu(menu.menuType);
   if (isIntro && exam) {
     return (
       <ExamIntroSkeleton
