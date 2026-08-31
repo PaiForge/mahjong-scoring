@@ -5,7 +5,7 @@ import { SectionTitle } from "@/app/(user)/_components/section-title";
 import { GuideColumn } from "../../_components/guide-column";
 import { GuideNote } from "../../_components/guide-note";
 import { GuideParagraph } from "../../_components/guide-paragraph";
-import { TsumoRoleTable } from "./tsumo-role-table";
+import { TsumoPaymentComparison } from "./tsumo-payment-comparison";
 import { TsumoSplitTable } from "./tsumo-split-table";
 
 /**
@@ -16,6 +16,14 @@ import { TsumoSplitTable } from "./tsumo-split-table";
  * 「切り上げ前は2倍・表では必ずしもそうならない」がこの1枚で両方見える。
  */
 const EXAMPLE_FU = 30;
+
+/**
+ * 支払いを場面ごとに展開して見せるときの翻数
+ *
+ * 30符3翻は 1000 / 2000 で、基本符の1つ分・2つ分が切り上げでずれずにそのまま
+ * 出る。口数の話をする図で切り上げの端数が混ざると、見せたい構造が濁る。
+ */
+const EXAMPLE_HAN = 3;
 
 /**
  * ツモの表は子ツモだけ覚えればいい — 点数記憶術セクション第2章
@@ -37,16 +45,17 @@ export async function TsumoPaymentsGuide() {
         <GuideParagraph preLine>{t("splitBody4")}</GuideParagraph>
       </section>
 
-      {/* 本題。こちらは切り上げ後も例外なく一致する */}
+      {/* 本題。表で2列を突き合わせず、支払いを場面ごとに展開して理由から示す */}
       <section className="space-y-4">
         <SectionTitle>{t("roleTitle")}</SectionTitle>
         <GuideParagraph preLine>{t("roleBody1")}</GuideParagraph>
         <GuideParagraph preLine>{t("roleBody2")}</GuideParagraph>
 
-        <TsumoRoleTable fu={EXAMPLE_FU} caption={t("roleTableCaption")} />
-        <GuideNote>{t("linkedColumnNote")}</GuideNote>
+        <TsumoPaymentComparison fu={EXAMPLE_FU} han={EXAMPLE_HAN} />
+        <GuideNote>{t("sharedAmountNote")}</GuideNote>
 
         <GuideParagraph preLine>{t("roleBody3")}</GuideParagraph>
+        <GuideParagraph preLine>{t("roleBody4")}</GuideParagraph>
       </section>
 
       {/* 実益のまとめ */}

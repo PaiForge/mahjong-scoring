@@ -67,42 +67,66 @@ export function buildTsumoSplitRows(fu: number): readonly TsumoSplitRow[] {
   });
 }
 
-/** 子のツモと親のツモを突き合わせた1行 */
-export interface TsumoRoleRow {
-  readonly han: number;
-  /** 子の和了。上段＝子ひとりから / 下段＝親から */
-  readonly ko: TsumoPayment;
-  /** 子の和了で親が払う額。親の和了で全員が払う額と一致する */
-  readonly fromOya: number;
-  /** 親の和了。全員が同額（オール） */
-  readonly oya: TsumoPayment;
+/** ツモの支払い1口ぶん */
+export interface TsumoPaymentEntry {
+  /** 誰が出すか */
+  readonly payer: "ko" | "oya";
+  readonly amount: number;
+  /**
+   * 子の和了・親の和了の両方に現れる額か。
+   * どちらの場面でも「基本符の2つ分」にあたる支払いがこれで、章はここを指す。
+   */
+  readonly shared: boolean;
+}
+
+/** 子が和了った場合と親が和了った場合の支払いを突き合わせたもの */
+export interface TsumoComparison {
+  /** 子の和了。和了っていない3人（子・子・親）が出す */
+  readonly koWin: readonly TsumoPaymentEntry[];
+  /** 親の和了。和了っていない3人（子・子・子）が出す */
+  readonly oyaWin: readonly TsumoPaymentEntry[];
+  /** 両方に現れる額（基本符の2つ分） */
+  readonly sharedAmount: number;
+  /** 基本符の1つ分。子ひとりが出す額にあたる */
+  readonly unitAmount: number;
 }
 
 /**
- * 子のツモと親のツモを1行に並べる
- * ツモの親子対応
+ * ツモの支払いを、子の和了・親の和了の2場面に展開する
+ * ツモ支払いの対比
  *
- * 子の和了で親が払う額と、親の和了で全員が払う額は、どちらも「基本符の2倍」で
- * まったく同じ式から出る。切り上げも同じ値に効くので、表に載る数字も必ず一致する
- * （この一致は `__tests__/tsumo-payment-rows.test.ts` が全ての符×翻で固定する）。
+ * 点数表は「1000/2000」のように和了者から見た2つの数字で書くが、場に出ている
+ * のは3人ぶんの支払いで、その数え方は基本符を1つ分としたときの口数で決まる。
+ * 子は1つ分、親は2つ分。子が和了れば親だけが2つ分を出し、親が和了れば親が
+ * 受け取るので子3人とも2つ分を出す。向きが逆でも「親がからむ支払い」は
+ * どちらも2つ分なので、同じ額になる。
  *
- * 一致する2つを別々の列に出すのは、章の主張を目で確かめられるようにするため。
- * 子ツモの下段を抜き出した列を挟むことで、「下段」と「親ツモのオール」が
- * 同じ数字であることを、セルの中を読み解かずに突き合わせられる。
+ * 表で2列を突き合わせると「たまたま同じ数字が並んでいる」ようにしか見えない
+ * ため、支払いを場面ごとに展開して、同じ額が同じ理由で出ていることを示す形に
+ * している。
  *
  * @param fu 対象の符
+ * @param han 対象の翻数
  */
-export function buildTsumoRoleRows(fu: number): readonly TsumoRoleRow[] {
-  return HAN_COLS.flatMap((han) => {
-    if (isInvalidCell(han, fu, "tsumo")) return [];
-    const { fromKo, fromOya } = koTsumoOf(han, fu);
-    return [
-      {
-        han,
-        ko: { type: "koTsumo", fromKo, fromOya } satisfies TsumoPayment,
-        fromOya,
-        oya: calculateOyaScore(han, fu).tsumo,
-      },
-    ];
-  });
+export function buildTsumoComparison(fu: number, han: number): TsumoComparison {
+  const { fromKo, fromOya } = koTsumoOf(han, fu);
+  const oya = calculateOyaScore(han, fu).tsumo;
+  if (oya.type !== "oyaTsumo") {
+    throw new Error("calculateOyaScore が親ツモ以外の支払いを返した");
+  }
+
+  return {
+    koWin: [
+      { payer: "ko", amount: fromKo, shared: false },
+      { payer: "ko", amount: fromKo, shared: false },
+      { payer: "oya", amount: fromOya, shared: true },
+    ],
+    oyaWin: [
+      { payer: "ko", amount: oya.all, shared: true },
+      { payer: "ko", amount: oya.all, shared: true },
+      { payer: "ko", amount: oya.all, shared: true },
+    ],
+    sharedAmount: fromOya,
+    unitAmount: fromKo,
+  };
 }

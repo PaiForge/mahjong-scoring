@@ -8,7 +8,10 @@ import {
 
 import { HAN_COLS } from "@/app/(user)/(public)/reference/score-table/_lib/score-table-utils";
 
-import { buildTsumoRoleRows, buildTsumoSplitRows } from "../tsumo-payment-rows";
+import {
+  buildTsumoComparison,
+  buildTsumoSplitRows,
+} from "../tsumo-payment-rows";
 
 /**
  * この章の主張そのものの検査。
@@ -81,24 +84,40 @@ describe("buildTsumoSplitRows", () => {
   });
 });
 
-describe("buildTsumoRoleRows", () => {
-  it("親ツモのオール額として子ツモの親払い額をそのまま持つ", () => {
-    for (const row of buildTsumoRoleRows(30)) {
-      if (row.oya.type !== "oyaTsumo") throw new Error("型が違う");
-      expect(row.oya.all).toBe(row.fromOya);
+describe("buildTsumoComparison", () => {
+  it("30符3翻は 1つ分1000点・2つ分2000点に展開される", () => {
+    const c = buildTsumoComparison(30, 3);
+    expect(c.unitAmount).toBe(1000);
+    expect(c.sharedAmount).toBe(2000);
+  });
+
+  it("子の和了は子2人と親、親の和了は子3人が出す", () => {
+    const c = buildTsumoComparison(30, 3);
+    expect(c.koWin.map((e) => e.payer)).toEqual(["ko", "ko", "oya"]);
+    expect(c.oyaWin.map((e) => e.payer)).toEqual(["ko", "ko", "ko"]);
+  });
+
+  /**
+   * 章は「色の付いた支払いはどれも同じ額」と書いている。色を敷くのは shared の
+   * 口なので、shared に立つ額が本当に1種類であることを固定しておく。
+   */
+  it("shared が立つ支払いはすべて同じ額になる", () => {
+    for (const fu of [20, 25, 30, 40, 50, 60]) {
+      for (const han of [2, 3, 4]) {
+        const c = buildTsumoComparison(fu, han);
+        const shared = [...c.koWin, ...c.oyaWin]
+          .filter((e) => e.shared)
+          .map((e) => e.amount);
+        expect(new Set(shared)).toEqual(new Set([c.sharedAmount]));
+        // 子の和了の親1口 + 親の和了の3口
+        expect(shared).toHaveLength(4);
+      }
     }
   });
 
-  it("30符は 300/500・500/1000・1000/2000・2000/3900 と並ぶ", () => {
-    expect(
-      buildTsumoRoleRows(30).map((row) =>
-        row.ko.type === "koTsumo" ? [row.ko.fromKo, row.ko.fromOya] : undefined,
-      ),
-    ).toEqual([
-      [300, 500],
-      [500, 1000],
-      [1000, 2000],
-      [2000, 3900],
-    ]);
+  it("子ひとりの出す額は shared の額と別に持つ（切り上げでずれる場合がある）", () => {
+    const c = buildTsumoComparison(30, 1);
+    expect(c.unitAmount).toBe(300);
+    expect(c.sharedAmount).toBe(500);
   });
 });
