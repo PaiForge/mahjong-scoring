@@ -2090,7 +2090,7 @@
     "rankPassConditionsTitle": "{rank} 合格条件",
     "passConditions": "制限時間{timeLimit}秒以内に{minScore}問正解で合格（ミス{mistakeLimit}回で終了）",
     "examGate": {
-      "signUpButton": "アカウント登録して受験する",
+      "signUpButton": "アカウント登録に進む",
       "signUpNote": "昇級試験の受験にはアカウントが必要です。",
       "signInLink": "ログインはこちら",
       "locked": "この試験は{rank}の昇級試験です。先に{requiredRank}の昇級試験に合格すると受験できます。",
