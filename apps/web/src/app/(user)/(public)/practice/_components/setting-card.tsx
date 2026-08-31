@@ -5,11 +5,14 @@ import type { ReactNode } from "react";
  *
  * 読み込み中スケルトン（{@link ./setting-card-skeleton}）が同じ寸法を
  * 再現する必要があるため、クラス文字列をここから引けるようにしておく。
+ * ただしスケルトンは色（苔緑の枠・淡緑の帯）を写さず灰色に置き換えるので、
+ * 寸法だけの `*_SHAPE_CLASS` と、それに色を足した実物用とに分けている。
  */
-export const SETTING_CARD_FRAME_CLASS =
-  "flex flex-col overflow-hidden rounded-xl border-3 border-ink bg-white";
-export const SETTING_CARD_HEADER_CLASS =
-  "border-b-3 border-ink bg-primary-50 px-4 py-3";
+export const SETTING_CARD_FRAME_SHAPE_CLASS =
+  "flex flex-col overflow-hidden rounded-xl border-3";
+export const SETTING_CARD_FRAME_CLASS = `${SETTING_CARD_FRAME_SHAPE_CLASS} border-ink bg-white`;
+export const SETTING_CARD_HEADER_SHAPE_CLASS = "border-b-3 px-4 py-3";
+export const SETTING_CARD_HEADER_CLASS = `${SETTING_CARD_HEADER_SHAPE_CLASS} border-ink bg-primary-50`;
 export const SETTING_CARD_BODY_CLASS = "flex flex-col gap-3 p-3";
 
 interface SettingCardProps {

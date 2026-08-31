@@ -43,11 +43,10 @@ export default async function ReferenceScoreTablePage() {
                   <SkeletonBar key={i} className="h-8 w-20" />
                 ))}
               </div>
-              <SkeletonBar
-                radius="xl"
-                className="h-[400px] w-full border-3 border-ink"
-                tone={50}
-              />
+              {/* 実物の表は苔緑の太枠（border-ink）を持つが、スケルトンは
+                  灰色の矩形だけで面を示す（ProblemListSkeleton と同じ理由）。
+                  枠は border-box なので高さ 400px は変わらない */}
+              <SkeletonBar radius="xl" className="h-[400px] w-full" tone={50} />
             </div>
           }
         >

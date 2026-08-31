@@ -124,10 +124,12 @@ export function ScoreSetupForm() {
   if (!mounted) {
     // 本体と同じ構造（設定カード＝トグル4行、2カラムのチェックボックスカード、
     // フル幅ボタン）でスケルトンを描画し、実 UI 表示時の CLS を防ぐ。
+    // 実 UI の苔緑の太枠（border-ink）は写さず灰色にする（ProblemListSkeleton と
+    // 同じ理由）。枠は border-box なので寸法は実 UI と一致したまま。
     return (
       <div className="space-y-4 sm:space-y-6 md:space-y-8">
         {/* Settings card: トグル4行 */}
-        <div className="overflow-hidden rounded-xl border-3 border-ink bg-white">
+        <div className="overflow-hidden rounded-xl border-3 border-surface-100 bg-surface-50">
           <div className="flex flex-col">
             {["requireYaku", "simplifyMangan", "requireFu", "autoNext"].map(
               (key, i) => (
@@ -155,10 +157,7 @@ export function ScoreSetupForm() {
 
         {/* Full-width start button（Button size="lg" の実寸 = 枠込み 50px） */}
         <div>
-          <SkeletonBar
-            radius="lg"
-            className="h-[50px] w-full border-3 border-ink"
-          />
+          <SkeletonBar radius="lg" className="h-[50px] w-full" />
         </div>
       </div>
     );
