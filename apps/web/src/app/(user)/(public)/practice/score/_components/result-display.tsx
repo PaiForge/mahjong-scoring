@@ -146,26 +146,11 @@ export function ResultDisplay({
 
   return (
     <div className="space-y-4">
-      {/* Correct/Incorrect banner（開示時は正誤を出さず中立の見出しにする） */}
-      <div
-        className={`rounded-lg py-3 text-center ${
-          result === undefined
-            ? "bg-surface-100 text-surface-700"
-            : result.isCorrect
-              ? "bg-success-subtle text-success-strong"
-              : "bg-destructive-subtle text-destructive-strong"
-        }`}
-      >
-        <div className="text-base font-bold">
-          {result === undefined
-            ? t("result.title.revealed")
-            : result.isCorrect
-              ? t("result.title.correct")
-              : t("result.title.incorrect")}
-        </div>
-      </div>
-
-      {/* Detail table */}
+      {/* Detail table
+          回答全体の正誤を名乗る見出し・バナーは置かない。「あなたの回答」と
+          「正解」を並べた時点で合っていたかは読めば分かり、行ごとの ✓/✗ と
+          下部の正解/不正解カウンタが既に判定を持っている。全幅の色帯や
+          見出し行を足すと、いちばん読ませたいこの表より判定が強く出る。 */}
       <div className="rounded-lg bg-surface-50 p-4">
         <table className="w-full text-sm">
           <thead>
