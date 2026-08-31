@@ -2,7 +2,9 @@ import { getTranslations } from "next-intl/server";
 
 import { SectionTitle } from "@/app/(user)/_components/section-title";
 
+import { ChapterLink } from "../../_components/chapter-link";
 import { GuideColumn } from "../../_components/guide-column";
+import { GuideNote } from "../../_components/guide-note";
 import { GuideParagraph } from "../../_components/guide-paragraph";
 import { TsumoCarryoverDiagram } from "./tsumo-carryover-diagram";
 import { TsumoSplitTable } from "./tsumo-split-table";
@@ -26,6 +28,17 @@ const EXAMPLE_FU = 30;
 const EXAMPLE_HAN = 3;
 
 /**
+ * 2つ目の例に使う符と翻
+ *
+ * 40符2翻の子ツモは 700 / 1300。上段の2倍は 1400 なので、前の節で見た
+ * 「切り上げると1つ分と2つ分の関係が崩れる」がまさに起きている手にあたる。
+ * それでも下段と親ツモのオールは一致するので、1つ目の例が端数の無い組
+ * （30符3翻）だったことによる「たまたま揃っただけでは」という疑いを、
+ * この1枚が同時に潰す。
+ */
+const SECOND_EXAMPLE = { fu: 40, han: 2 } as const;
+
+/**
  * ツモの表は子ツモだけ覚えればいい — 点数記憶術セクション第2章
  */
 export async function TsumoPaymentsGuide() {
@@ -40,6 +53,11 @@ export async function TsumoPaymentsGuide() {
         <GuideParagraph preLine>{t("splitBody2")}</GuideParagraph>
 
         <TsumoSplitTable fu={EXAMPLE_FU} caption={t("splitTableCaption")} />
+        <GuideNote>
+          {t.rich("ceilNote", {
+            link: () => <ChapterLink slug="why-scoring-is-complex" />,
+          })}
+        </GuideNote>
 
         <GuideParagraph preLine>{t("splitBody3")}</GuideParagraph>
         <GuideParagraph preLine>{t("splitBody4")}</GuideParagraph>
@@ -54,6 +72,13 @@ export async function TsumoPaymentsGuide() {
 
         <GuideParagraph preLine>{t("roleBody2")}</GuideParagraph>
         <GuideParagraph preLine>{t("roleBody3")}</GuideParagraph>
+
+        <TsumoCarryoverDiagram
+          fu={SECOND_EXAMPLE.fu}
+          han={SECOND_EXAMPLE.han}
+        />
+
+        <GuideParagraph preLine>{t("roleBody4")}</GuideParagraph>
       </section>
 
       {/* コラム: 3口を足すとロンになるのか、という当然の疑問に答える */}
