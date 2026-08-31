@@ -4,11 +4,7 @@ import { useState } from "react";
 
 import { ModalShell } from "@/app/_components/modal-shell";
 import { Button } from "@/app/(user)/_components/button";
-
-interface MultiSelectOption {
-  readonly value: string;
-  readonly label: string;
-}
+import { SelectOptionList, type SelectOption } from "./select-option-list";
 
 interface MultiSelectLabels {
   readonly add: string;
@@ -17,7 +13,7 @@ interface MultiSelectLabels {
 }
 
 interface MultiSelectProps {
-  readonly options: readonly MultiSelectOption[];
+  readonly options: readonly SelectOption[];
   readonly value: readonly string[];
   readonly onChange: (value: string[]) => void;
   readonly placeholder: string;
@@ -138,33 +134,13 @@ export function MultiSelect({
           <h3 className="mb-4 text-lg font-bold text-surface-900">
             {labels.title}
           </h3>
-          <div className="flex-1 overflow-y-auto rounded-lg border-3 border-ink">
-            {options.map((option) => {
-              const isSelected = value.includes(option.value);
-              return (
-                <div
-                  key={option.value}
-                  onClick={() => toggleOption(option.value)}
-                  className={`cursor-pointer border-b-2 border-dashed border-border/40 px-4 py-3 text-sm transition-colors last:border-0 ${
-                    isSelected
-                      ? "bg-primary-100 font-medium text-primary-900"
-                      : "text-surface-700 hover:bg-surface-50"
-                  }`}
-                  role="option"
-                  aria-selected={isSelected}
-                >
-                  <div className="flex items-center justify-between">
-                    <span>{option.label}</span>
-                    {isSelected && (
-                      <span className="text-lg leading-none text-primary-600">
-                        &#10003;
-                      </span>
-                    )}
-                  </div>
-                </div>
-              );
-            })}
-          </div>
+          <SelectOptionList
+            options={options}
+            value={value}
+            onToggle={toggleOption}
+            label={labels.title}
+            className="flex-1"
+          />
           <div className="mt-4 flex justify-end">
             <Button onClick={() => setIsModalOpen(false)}>{labels.done}</Button>
           </div>
