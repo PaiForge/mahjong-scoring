@@ -1,6 +1,5 @@
-import { NextResponse } from "next/server";
-
 import type { ViewerProfileResponse } from "@/app/_lib/viewer-profile";
+import { jsonPrivate } from "@/lib/api-response";
 import { getOptionalUser } from "@/lib/auth";
 import { getProfileCardByUserId } from "@/lib/db/queries";
 import { logExternalError } from "@/lib/log-error";
@@ -24,7 +23,7 @@ export async function GET() {
     const profile = await getProfileCardByUserId(user.id);
     if (!profile) return jsonPrivate(empty);
 
-    return jsonPrivate({
+    return jsonPrivate<ViewerProfileResponse>({
       profile: {
         avatarUrl: profile.avatarUrl ?? null,
         name: profile.displayName ?? profile.username,
@@ -34,13 +33,4 @@ export async function GET() {
     logExternalError("GET /api/profile/me", "プロフィールの取得に失敗", error);
     return jsonPrivate(empty);
   }
-}
-
-/**
- * ユーザーごとに異なる応答なので、共有キャッシュに乗らないよう明示する。
- */
-function jsonPrivate(body: ViewerProfileResponse): NextResponse {
-  return NextResponse.json(body, {
-    headers: { "Cache-Control": "private, no-store" },
-  });
 }

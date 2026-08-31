@@ -1,6 +1,5 @@
-import { NextResponse } from "next/server";
-
 import type { ViewerRanksResponse } from "@/app/_lib/viewer-ranks";
+import { jsonPrivate } from "@/lib/api-response";
 import { getOptionalUser } from "@/lib/auth";
 import { getUserRankSlugs } from "@/lib/db/rank-queries";
 import { logExternalError } from "@/lib/log-error";
@@ -19,23 +18,13 @@ import { logExternalError } from "@/lib/log-error";
 export async function GET() {
   try {
     const user = await getOptionalUser();
-    if (!user) return jsonPrivate({ rankSlugs: [] });
+    if (!user) return jsonPrivate<ViewerRanksResponse>({ rankSlugs: [] });
 
-    return jsonPrivate({ rankSlugs: await getUserRankSlugs(user.id) });
+    return jsonPrivate<ViewerRanksResponse>({
+      rankSlugs: await getUserRankSlugs(user.id),
+    });
   } catch (error) {
     logExternalError("GET /api/ranks/me", "段級位の取得に失敗", error);
-    return NextResponse.json(
-      { error: "unknown" },
-      { status: 500, headers: { "Cache-Control": "private, no-store" } },
-    );
+    return jsonPrivate({ error: "unknown" }, { status: 500 });
   }
-}
-
-/**
- * ユーザーごとに異なる応答なので、共有キャッシュに乗らないよう明示する。
- */
-function jsonPrivate(body: ViewerRanksResponse): NextResponse {
-  return NextResponse.json(body, {
-    headers: { "Cache-Control": "private, no-store" },
-  });
 }
