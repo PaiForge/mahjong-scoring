@@ -44,6 +44,7 @@ export {
   groupYakuHanEntriesByMenzenHan,
   DEFAULT_YAKU_HAN_RANGE,
   getYakuHanEntries,
+  isKuisagariEntry,
   normalizeYakuHanRange,
 } from "./problem/yaku-han/constants";
 export type { YakuHanRange } from "./problem/yaku-han/constants";
@@ -58,7 +59,11 @@ export type { IdGenerator } from "./core/id";
 // === Problem: Score ===
 export { generateValidScoreQuestion } from "./problem/score/generator";
 export { SCORE_FILTERABLE_YAKU } from "./problem/score/filterable-yaku";
-export { judgeAnswer, judgeYakuSelection } from "./problem/score/judgement";
+export {
+  judgeAnswer,
+  judgeYakuName,
+  judgeYakuSelection,
+} from "./problem/score/judgement";
 export {
   clampHanToYakuman,
   isMangan,

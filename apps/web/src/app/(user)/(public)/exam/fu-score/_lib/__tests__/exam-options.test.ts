@@ -9,10 +9,10 @@
  * ここでは出題条件のデータと、生成される問題が実際に「30〜50符・満貫未満・
  * 連風牌なし」に収まること、盤面がルール設定ストアを読まないことを守る。
  */
-import { readFileSync, readdirSync } from "node:fs";
-import { join } from "node:path";
 import { generateValidScoreQuestion } from "@mahjong-scoring/core";
 import { describe, expect, it } from "vitest";
+
+import { expectRuleSettingsIndependence } from "../../../_lib/__tests__/expect-rule-settings-independence";
 
 import { EXAM_GENERATE_OPTIONS } from "../types";
 
@@ -58,16 +58,7 @@ describe("EXAM_GENERATE_OPTIONS", () => {
 });
 
 describe("試験盤面のルール設定非依存", () => {
-  it("_components 配下のモジュールがルール設定ストアを import しない", () => {
-    // 点数計算ドリルの盤面を雛形にコピーすると use-rule-settings-store の
-    // import ごと持ち込みやすいため、構造で守る
-    const componentsDir = join(__dirname, "..", "..", "_components");
-    for (const file of readdirSync(componentsDir)) {
-      const source = readFileSync(join(componentsDir, file), "utf8");
-      expect(
-        source.includes("use-rule-settings-store"),
-        `${file} がルール設定ストアを import している`,
-      ).toBe(false);
-    }
+  it("盤面を構成するモジュールがルール設定ストアを import しない", () => {
+    expectRuleSettingsIndependence("fu-score");
   });
 });

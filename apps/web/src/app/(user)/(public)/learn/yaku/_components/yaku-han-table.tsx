@@ -2,9 +2,9 @@ import Link from "next/link";
 import { getTranslations } from "next-intl/server";
 import {
   YAKU_HAN_ENTRIES,
-  YAKUMAN_HAN,
   groupYakuHanEntriesByMenzenHan,
 } from "@mahjong-scoring/core";
+import { yakuHanLabel } from "@/app/_lib/yaku-han-label";
 import {
   DataTable,
   DataTableHeaderCell,
@@ -30,8 +30,7 @@ export async function YakuHanTable() {
 
   const groups = groupYakuHanEntriesByMenzenHan(YAKU_HAN_ENTRIES);
 
-  const hanLabel = (han: number) =>
-    han === YAKUMAN_HAN ? t("yakuman") : t("hanUnit", { count: han });
+  const hanLabel = (han: number) => yakuHanLabel(han, t);
 
   return (
     <DataTable

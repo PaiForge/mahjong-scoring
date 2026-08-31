@@ -1,19 +1,10 @@
-import {
-  haiIdToMspz,
-  kazeIdToMspz,
-  parseHais,
-  parseKazehai,
-  parseTehai,
-  tehaiToMspz,
-} from "@mahjong-scoring/core";
-import type {
-  HaiKindId,
-  ScoreQuestion,
-  ScoreTableAnswer,
-} from "@mahjong-scoring/core";
+import { haiIdToMspz, kazeIdToMspz, tehaiToMspz } from "@mahjong-scoring/core";
+import type { ScoreQuestion, ScoreTableAnswer } from "@mahjong-scoring/core";
 
 import type { ScoreQuestionDisplayData } from "../score/_components/question-display";
 import { createSessionStorageParser } from "./create-session-storage-parser";
+import { parseMarkers, parseQuestionTiles } from "./parse-question-tiles";
+import type { QuestionTilesSnapshot } from "./parse-question-tiles";
 import { hasFieldTypes, isRecord, isStringArray } from "./shape-guards";
 
 /**
@@ -24,15 +15,7 @@ import { hasFieldTypes, isRecord, isStringArray } from "./shape-guards";
  * 往復できないため、total-fu 練習と同様に牌はすべて MSPZ 文字列に落として
  * 保存する。
  */
-export interface ScoreQuestionSnapshot {
-  /** 手牌（Extended MSPZ。和了牌を含む14枚 + 副露・暗槓） */
-  readonly tehai: string;
-  /** 和了牌（MSPZ） */
-  readonly agariHai: string;
-  /** 場風（MSPZ） */
-  readonly bakaze: string;
-  /** 自風（MSPZ） */
-  readonly jikaze: string;
+export interface ScoreQuestionSnapshot extends QuestionTilesSnapshot {
   /** ドラ表示牌（MSPZ） */
   readonly doraMarkers: readonly string[];
   /** リーチ有無 */
@@ -162,16 +145,6 @@ export const parseQuestionResults: (
 );
 
 /**
- * MSPZ 文字列のドラ表示牌リストを牌IDに復元する
- * ドラ表示牌復元
- */
-function parseMarkers(
-  markers: readonly string[] | undefined,
-): readonly HaiKindId[] | undefined {
-  return markers?.flatMap((marker) => parseHais(marker));
-}
-
-/**
  * 保存された出題スナップショットから手牌表示用のデータを復元する
  * 出題復元
  *
@@ -188,18 +161,12 @@ export function restoreScoreQuestion(
 ): ScoreQuestionDisplayData | undefined {
   if (!snapshot) return undefined;
 
-  const tehai = parseTehai(snapshot.tehai);
-  const agariHai = parseHais(snapshot.agariHai)[0];
-  const bakaze = parseKazehai(snapshot.bakaze);
-  const jikaze = parseKazehai(snapshot.jikaze);
-  if (!tehai || agariHai === undefined || !bakaze || !jikaze) return undefined;
+  const tiles = parseQuestionTiles(snapshot);
+  if (!tiles) return undefined;
 
   return {
-    tehai,
-    agariHai,
+    ...tiles,
     isTsumo,
-    jikaze,
-    bakaze,
     doraMarkers: parseMarkers(snapshot.doraMarkers) ?? [],
     isRiichi: snapshot.isRiichi,
     uraDoraMarkers: parseMarkers(snapshot.uraDoraMarkers),

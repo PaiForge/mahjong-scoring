@@ -3,10 +3,11 @@
 import { useTranslations } from "next-intl";
 import {
   YAKU_HAN_ENTRIES,
-  YAKUMAN_HAN,
   groupYakuHanEntriesByMenzenHan,
+  isKuisagariEntry,
 } from "@mahjong-scoring/core";
 import type { YakuHanEntry } from "@mahjong-scoring/core";
+import { yakuHanLabel } from "@/app/_lib/yaku-han-label";
 import { AccordionCard } from "@/app/(user)/_components/accordion-card";
 import { SectionTitle } from "@/app/(user)/_components/section-title";
 import { YAKU_EXAMPLES, hasYakuCheatsheetEntry } from "../_lib/yaku-examples";
@@ -35,11 +36,6 @@ function groupByMenzenHan(): readonly {
       examples: YAKU_EXAMPLES[entry.name],
     })),
   }));
-}
-
-/** 食い下がり役（門前と鳴きで翻数が変わる）かどうか */
-function isKuisagari(entry: YakuHanEntry): boolean {
-  return entry.nakiHan !== undefined && entry.nakiHan !== entry.menzenHan;
 }
 
 /** 門前限定役（鳴くと成立しない）かどうか */
@@ -92,8 +88,7 @@ export function YakuCheatsheet({
 
   const groups = groupByMenzenHan();
 
-  const groupLabel = (han: number) =>
-    han === YAKUMAN_HAN ? t("yakuman") : t("hanUnit", { count: han });
+  const groupLabel = (han: number) => yakuHanLabel(han, t);
 
   /**
    * カード右端の鳴きラベル。
@@ -109,7 +104,7 @@ export function YakuCheatsheet({
         </span>
       );
     }
-    if (isKuisagari(entry) && entry.nakiHan !== undefined) {
+    if (isKuisagariEntry(entry) && entry.nakiHan !== undefined) {
       return (
         <span className="text-sm text-surface-500">
           {t("nakiHan", { count: entry.nakiHan })}

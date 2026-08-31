@@ -1,7 +1,7 @@
 "use client";
 
 import { useTranslations } from "next-intl";
-import { parseHais, parseKazehai, parseTehai } from "@mahjong-scoring/core";
+import { parseQuestionTiles } from "../_lib/parse-question-tiles";
 import { AnswerComparison } from "./answer-comparison";
 import { ProblemListAccordion } from "./problem-list-accordion";
 import { TehaiDisplay } from "./tehai-display";
@@ -23,15 +23,10 @@ interface FuProblemListProps {
  * （符の内訳と回答の比較は文字列に依存しないため表示できる）。
  */
 function restoreQuestion(result: FuQuestionResult) {
-  const tehai = parseTehai(result.tehai);
-  const agariHai = parseHais(result.agariHai)[0];
-  const bakaze = parseKazehai(result.bakaze);
-  const jikaze = parseKazehai(result.jikaze);
-  if (!tehai || agariHai === undefined || !bakaze || !jikaze) return undefined;
-  return {
-    tehai,
-    context: { bakaze, jikaze, agariHai, isTsumo: result.isTsumo },
-  };
+  const tiles = parseQuestionTiles(result);
+  if (!tiles) return undefined;
+  const { tehai, ...context } = tiles;
+  return { tehai, context: { ...context, isTsumo: result.isTsumo } };
 }
 
 /**
