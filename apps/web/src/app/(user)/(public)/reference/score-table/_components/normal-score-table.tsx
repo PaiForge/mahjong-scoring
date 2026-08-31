@@ -39,8 +39,8 @@ interface NormalScoreTableProps {
  * highlight で指定されたセルは、符の行見出し・翻の列見出しとあわせて
  * クロスヘア状にハイライトし、初期表示時に画面中央へスクロールされる。
  * 配色は `_lib/table-highlight` が持つ（早見表と教本で同じ塗りを使うため）。
- * 頻出符の行見出しと同じ琥珀だが、あちらは文字色だけ・こちらは塗りつぶしで
- * 役割を分けている。
+ * 頻出符（30・40符）の行見出しは太字で示す。色で示すと、表の中に「注目」の
+ * 合図が2種類あることになり、ハイライトと見分けが付かなくなる。
  */
 export function NormalScoreTable({
   scoreGrid,
@@ -86,13 +86,20 @@ export function NormalScoreTable({
         return (
           <tr key={fu} className="bg-white">
             <td
-              className={`px-4 py-3 text-left font-medium ${
+              // 太さは頻出符かどうかだけで決め、塗りはハイライトかどうかだけで
+              // 決める。1つの三項に混ぜると、ハイライトされた頻出符が頻出の
+              // 印を失う（40符はその両方に当たる）。
+              className={[
+                "px-4 py-3 text-left",
+                isFrequent ? "font-bold text-surface-900" : "font-medium",
                 isFuHighlighted
                   ? TABLE_HIGHLIGHT_HEADER_CLASS
                   : isFrequent
-                    ? "text-amber-700"
-                    : "text-surface-600"
-              }`}
+                    ? ""
+                    : "text-surface-600",
+              ]
+                .filter(Boolean)
+                .join(" ")}
             >
               {fu}
             </td>

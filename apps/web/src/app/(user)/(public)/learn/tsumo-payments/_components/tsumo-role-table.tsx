@@ -5,10 +5,7 @@ import {
   DataTableHeaderCell,
   DataTableRowHeaderCell,
 } from "@/app/(user)/_components/data-table";
-import {
-  TABLE_HIGHLIGHT_CELL_CLASS,
-  TABLE_HIGHLIGHT_HEADER_CLASS,
-} from "@/app/(user)/_components/_lib/table-highlight";
+import { TABLE_HIGHLIGHT_CELL_CLASS } from "@/app/(user)/_components/_lib/table-highlight";
 import { TsumoScore } from "@/app/(user)/(public)/reference/score-table/_components/tsumo-score";
 
 import { buildTsumoRoleRows } from "../_lib/tsumo-payment-rows";
@@ -25,7 +22,9 @@ interface TsumoRoleTableProps {
  * ツモの親子対応表
  *
  * 中央に「子ツモのうち親が払う額」だけを素の数字で抜き出した列を置き、
- * 右の親ツモと同じ色で塗る。子ツモのセルは上下2段なので、そのまま隣の
+ * 右の親ツモと同じ色で塗る。塗るのは値のセルだけで、列見出しには広げない
+ * （見出しまで塗ると列そのものを選んでいるように見え、「この2列の値が一致
+ * している」という話が読み取りにくくなる）。子ツモのセルは上下2段なので、そのまま隣の
  * 親ツモと見比べると下段だけを目で拾う必要があるが、抜き出した列を挟めば
  * 同じ数字が横に並ぶ。色の付いた2列が常に同じ数字になっている、という形が
  * この章の主張そのものになる。
@@ -51,12 +50,8 @@ export async function TsumoRoleTable({ fu, caption }: TsumoRoleTableProps) {
                 {t("colHan")}
               </DataTableHeaderCell>
               <DataTableHeaderCell>{t("colKoTsumo")}</DataTableHeaderCell>
-              <DataTableHeaderCell className={TABLE_HIGHLIGHT_HEADER_CLASS}>
-                {t("colOyaPays")}
-              </DataTableHeaderCell>
-              <DataTableHeaderCell className={TABLE_HIGHLIGHT_HEADER_CLASS}>
-                {t("colOyaTsumo")}
-              </DataTableHeaderCell>
+              <DataTableHeaderCell>{t("colOyaPays")}</DataTableHeaderCell>
+              <DataTableHeaderCell>{t("colOyaTsumo")}</DataTableHeaderCell>
             </>
           }
         >

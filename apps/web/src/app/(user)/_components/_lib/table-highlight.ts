@@ -10,23 +10,29 @@
  * 色相にすると、読者は画面ごとに注目の合図を覚え直すことになる。緑は
  * 「押せる面」と正解フィードバックに、朱は満貫以上に取ってあるため使わない。
  *
- * 頻出符の行見出し（`text-amber-700`）と色相は同じだが、あちらは文字色だけ、
- * こちらは塗りつぶし。両者が同じ表に同時に出るので、ハイライト側で文字色
- * だけを使う形にしないこと（見分けが塗りの有無だけになっているため）。
+ 濃さはコラムの囲みに合わせて最も薄い段に取る。ハイライトは行や列をまるごと
+ * 覆うので、1段濃くするだけで表の地より塗りのほうが目立ち、肝心の数字が
+ * 読みにくくなる。強く指したいときは濃さではなく枠線
+ * （{@link TABLE_HIGHLIGHT_FOCUS_CLASS}）を足すこと。
+ *
+ * 表の中で琥珀を使うのはハイライトだけ。頻出符の行見出しはかつて
+ * `text-amber-700` だったが、同じ表に「注目」の合図が2種類あることになるため
+ * 太字へ寄せた。表に琥珀を足すときは、それが「いま参照している場所」の意味に
+ * なっているか確かめること。
  *
  * Tailwind はソース中のリテラルなクラス名しか検出しないので、色を変えるときも
  * 文字列を組み立てず、ここの定数を書き換えること。
  */
 
 /** ハイライトされたセル・行の塗り */
-export const TABLE_HIGHLIGHT_CELL_CLASS = "bg-amber-100";
+export const TABLE_HIGHLIGHT_CELL_CLASS = "bg-amber-50";
 
 /** ハイライトされた行見出し・列見出しの塗りと文字色 */
-export const TABLE_HIGHLIGHT_HEADER_CLASS = "bg-amber-100 text-amber-900";
+export const TABLE_HIGHLIGHT_HEADER_CLASS = "bg-amber-50 text-amber-900";
 
 /**
  * 注目している当のセルの塗り。
  * 行・列のハイライトと交わる1マスなので、枠線を足して交点だと分かるようにする。
  */
 export const TABLE_HIGHLIGHT_FOCUS_CLASS =
-  "bg-amber-100 ring-2 ring-inset ring-amber-500";
+  "bg-amber-50 ring-2 ring-inset ring-amber-500";
