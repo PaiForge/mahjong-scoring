@@ -1,16 +1,12 @@
 "use client";
 
 import { useTranslations } from "next-intl";
-import {
-  MentsuType,
-  parseHais,
-  parseKazehai,
-  parseTehai,
-} from "@mahjong-scoring/core";
+import { MentsuType, parseHais } from "@mahjong-scoring/core";
 import type { CompletedMentsu, HaiKindId } from "@mahjong-scoring/core";
 import { ProblemListAccordion } from "../../_components/problem-list-accordion";
 import { TehaiDisplay } from "../../_components/tehai-display";
 import { buildMentsu } from "../../_lib/mentsu-serialization";
+import { parseQuestionTiles } from "../../_lib/parse-question-tiles";
 import { findAgariHighlight } from "../_lib/find-agari-highlight";
 import type {
   MentsuJantouFuItemResult,
@@ -41,15 +37,10 @@ interface RestoredItem {
  * （回答行の符の比較は手牌の復元に依存しないため表示できる）。
  */
 function restoreQuestion(result: MentsuJantouFuQuestionResult) {
-  const tehai = parseTehai(result.tehai);
-  const agariHai = parseHais(result.agariHai)[0];
-  const bakaze = parseKazehai(result.bakaze);
-  const jikaze = parseKazehai(result.jikaze);
-  if (!tehai || agariHai === undefined || !bakaze || !jikaze) return undefined;
-  return {
-    tehai,
-    context: { bakaze, jikaze, agariHai, isTsumo: result.isTsumo },
-  };
+  const tiles = parseQuestionTiles(result);
+  if (!tiles) return undefined;
+  const { tehai, ...context } = tiles;
+  return { tehai, context: { ...context, isTsumo: result.isTsumo } };
 }
 
 /** 保存された回答行を、出題中と同じ体裁で描ける形に戻す */

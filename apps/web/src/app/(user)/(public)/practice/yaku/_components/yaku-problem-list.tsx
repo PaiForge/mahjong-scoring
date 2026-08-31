@@ -1,6 +1,9 @@
 "use client";
 
-import { parseHais, parseKazehai, parseTehai } from "@mahjong-scoring/core";
+import {
+  parseMarkers,
+  parseQuestionTiles,
+} from "../../_lib/parse-question-tiles";
 import { ProblemListAccordion } from "../../_components/problem-list-accordion";
 import { TehaiDisplay } from "../../_components/tehai-display";
 import type { YakuQuestionResult } from "../_lib/types";
@@ -18,20 +21,16 @@ interface YakuProblemListProps {
  * （役の対比は文字列に依存しないため表示できる）。
  */
 function restoreQuestion(result: YakuQuestionResult) {
-  const tehai = parseTehai(result.tehai);
-  const agariHai = parseHais(result.agariHai)[0];
-  const bakaze = parseKazehai(result.bakaze);
-  const jikaze = parseKazehai(result.jikaze);
-  if (!tehai || agariHai === undefined || !bakaze || !jikaze) return undefined;
+  const tiles = parseQuestionTiles(result);
+  if (!tiles) return undefined;
+  const { tehai, ...context } = tiles;
   return {
     tehai,
     context: {
-      bakaze,
-      jikaze,
-      agariHai,
+      ...context,
       isTsumo: result.isTsumo,
       isRiichi: result.isRiichi,
-      doraMarkers: result.doraMarkers.flatMap((marker) => parseHais(marker)),
+      doraMarkers: parseMarkers(result.doraMarkers) ?? [],
     },
   };
 }
