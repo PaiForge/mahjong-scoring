@@ -70,5 +70,6 @@ const SECTION_LABEL_WIDTH_CLASS: Readonly<Record<CurriculumSection, string>> = {
   mangan: "w-32",
   yaku: "w-8",
   fu: "w-20",
-  score: "w-20",
+  score: "w-24",
+  memorization: "w-20",
 };

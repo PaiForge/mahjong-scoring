@@ -11,12 +11,14 @@
 import { describe, expect, it } from "vitest";
 
 import messagesJson from "@/messages/ja.json";
+import { collectTermSlugs } from "@/lib/glossary/term-markup";
 
 import {
   CURRICULUM,
   CURRICULUM_SECTIONS,
   getChapterI18nPath,
 } from "../curriculum";
+import { chapterNamespace } from "../metadata";
 
 const messages = messagesJson as unknown as {
   readonly learnCurriculum: {
@@ -130,5 +132,47 @@ describe("i18n integrity: index keys", () => {
   it.each(requiredIndexKeys)("has learnCurriculum.index.%s", (key) => {
     expect(messages.learnCurriculum.index[key]).toBeTypeOf("string");
     expect(messages.learnCurriculum.index[key]).not.toBe("");
+  });
+});
+
+/**
+ * コラム本文（`columnBody*`）に用語マークアップを書かせない検査
+ *
+ * コラムは改行を `<br>` にするため、章ページが `t.rich(...)` で描く。
+ * `t.rich` の戻り値は文字列ではなく要素なので、`GuideParagraph` の用語リンク
+ * 変換が働かず、`[[slug|表示語]]` がそのまま読者の画面に出る。書いた側は
+ * リンクにしたつもりでいるうえ、型でも lint でも落ちないため、辞書の側で止める。
+ *
+ * 用語に触れたいコラムは、マークアップを本文（`GuideParagraph` に文字列で
+ * 渡す段落）へ移すこと。
+ */
+describe("i18n integrity: コラム本文に用語マークアップを置かない", () => {
+  const columnBodies = CURRICULUM.flatMap((chapter) => {
+    const namespace = chapterNamespace(chapter.slug);
+    const node = namespace
+      .split(".")
+      .reduce<unknown>(
+        (acc, seg) => (acc as Record<string, unknown> | undefined)?.[seg],
+        messagesJson,
+      );
+    if (typeof node !== "object" || node === null) return [];
+
+    return Object.entries(node as Record<string, unknown>)
+      .filter(
+        ([key, value]) =>
+          key.startsWith("columnBody") && typeof value === "string",
+      )
+      .map(([key, value]) => ({
+        name: `${namespace}.${key}`,
+        text: value as string,
+      }));
+  });
+
+  it("検査対象のコラム本文が1つ以上ある", () => {
+    expect(columnBodies.length).toBeGreaterThan(0);
+  });
+
+  it.each(columnBodies)("$name に [[...]] が無い", ({ text }) => {
+    expect(collectTermSlugs(text)).toEqual([]);
   });
 });

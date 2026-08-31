@@ -167,4 +167,5 @@ const SECTION_CATEGORY_COLOR_CLASS: Readonly<
   fu: "bg-primary-500",
   yaku: "bg-amber-500",
   score: "bg-sky-500",
+  memorization: "bg-violet-500",
 };

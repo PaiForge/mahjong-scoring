@@ -100,4 +100,11 @@ describe("section grouping", () => {
       "furo-score",
     ]);
   });
+
+  it('places the memorization chapters in the "memorization" section', () => {
+    const grouped = groupChaptersBySection();
+    const memorizationSlugs =
+      grouped.get("memorization")?.map((c) => c.slug) ?? [];
+    expect(memorizationSlugs).toEqual(["fu-doubling", "tsumo-payments"]);
+  });
 });

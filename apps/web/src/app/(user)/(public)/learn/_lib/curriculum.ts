@@ -21,6 +21,7 @@ export const CURRICULUM_SECTIONS = [
   "yaku",
   "fu",
   "score",
+  "memorization",
 ] as const;
 export type CurriculumSection = (typeof CURRICULUM_SECTIONS)[number];
 
@@ -199,6 +200,26 @@ const CURRICULUM_REGISTRY = [
     // 前提が揃う最後の章に出すため、門前の章ではなくこちらに持たせる
     examSlug: "fu-score-exam",
     i18nKey: "learnCurriculum.chapters.furoScore",
+  },
+  {
+    slug: "fu-doubling",
+    section: "memorization",
+    // 点数の計算セクション（〜100）から番号を離す。記憶術セクションは
+    // 章を足していく前提なので、基礎側が伸びても番号がぶつからないようにする
+    order: 200,
+    // 点数表早引きの満貫未満だけ。この章が減らすのはまさにその範囲の暗記量で、
+    // 符×翻を1マスずつ引く練習がそのまま腕試しになる
+    practiceHrefs: [scoreTablePracticeHref({ ranges: ["nonMangan"] })],
+    i18nKey: "learnCurriculum.chapters.fuDoubling",
+  },
+  {
+    slug: "tsumo-payments",
+    section: "memorization",
+    order: 210,
+    // ツモに絞った点数表早引き。この章が要らなくする暗記はまさに親ツモの列で、
+    // ツモのセルを引く練習がそのまま腕試しになる
+    practiceHrefs: [scoreTablePracticeHref({ wins: ["tsumo"] })],
+    i18nKey: "learnCurriculum.chapters.tsumoPayments",
   },
 ] as const satisfies readonly CurriculumChapterEntry[];
 
