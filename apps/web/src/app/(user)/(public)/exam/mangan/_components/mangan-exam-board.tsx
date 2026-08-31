@@ -5,7 +5,7 @@ import { QuestionGeneratingPlaceholder } from "@/app/(user)/(public)/practice/_c
 import { useScoreQuestionBoard } from "@/app/(user)/(public)/practice/_hooks/use-score-question-board";
 import { QuestionDisplay } from "@/app/(user)/(public)/practice/score/_components/question-display";
 import { QuestionPrompt } from "@/app/(user)/(public)/practice/_components/question-prompt";
-import { ManganExamAnswerForm } from "./mangan-exam-answer-form";
+import { ScoreExamAnswerForm } from "../../_components/score-exam-answer-form";
 import type { ManganExamQuestionResult } from "../_lib/types";
 import {
   EXAM_GENERATE_OPTIONS,
@@ -27,6 +27,9 @@ type ManganExamBoardProps =
  * 囲まずに単体で置く。ミス1回で終了する試験では正誤はライフ表示が示し、
  * 答え合わせは結果ページの問題別フィードバック一覧で行うため、盤面の外に
  * もう一枚枠を重ねる理由がない（狭い画面では二重枠のぶん手牌も小さくなる）。
+ *
+ * 回答は点数のみを select で選ぶ。受験者は数えた翻数から直接点数を導く
+ * （5翻以上は符を問わない）。選択肢は満貫以上（`manganPlus`）に固定する。
  *
  * ルール設定ストア（連風牌4符・切り上げ満貫）を意図的に読まない:
  * 出題は `EXAM_GENERATE_OPTIONS`（5翻以上）に固定されており、どちらの設定も
@@ -60,11 +63,13 @@ export function ManganExamBoard({
       <QuestionPrompt>{t("questionPrompt")}</QuestionPrompt>
 
       {/* Answer form */}
-      <ManganExamAnswerForm
+      <ScoreExamAnswerForm
         question={question}
         questionIndex={questionIndex}
         onSubmit={handleSubmit}
         disabled={showFeedback || isCountingDown}
+        translationNamespace="manganExamChallenge"
+        scoreRange="manganPlus"
       />
     </div>
   );

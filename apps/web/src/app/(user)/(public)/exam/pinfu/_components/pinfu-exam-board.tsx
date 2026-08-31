@@ -5,7 +5,7 @@ import { QuestionGeneratingPlaceholder } from "@/app/(user)/(public)/practice/_c
 import { useScoreQuestionBoard } from "@/app/(user)/(public)/practice/_hooks/use-score-question-board";
 import { QuestionDisplay } from "@/app/(user)/(public)/practice/score/_components/question-display";
 import { QuestionPrompt } from "@/app/(user)/(public)/practice/_components/question-prompt";
-import { PinfuExamAnswerForm } from "./pinfu-exam-answer-form";
+import { ScoreExamAnswerForm } from "../../_components/score-exam-answer-form";
 import type { PinfuExamQuestionResult } from "../_lib/types";
 import {
   EXAM_GENERATE_OPTIONS,
@@ -22,6 +22,10 @@ type PinfuExamBoardProps = RecordingPracticeBoardProps<PinfuExamQuestionResult>;
  * `ChiitoitsuExamBoard` と同じ構図で、違うのは出題条件だけ。役一覧は
  * 表示しない — 受験者が手牌から翻数を自力で数えるのが試験の要件で、
  * 平和が成立していること自体が最初の1翻ぶんの判断にあたる。
+ *
+ * 回答は点数のみを select で選ぶ。平和は符が役で決まるので、受験者は
+ * ツモなら20符・ロンなら30符の点数表に数えた翻数を当てて点数を導く。
+ * 選択肢は満貫未満（`nonMangan`）に固定する。
  *
  * ルール設定ストア（連風牌4符・切り上げ満貫）を意図的に読まない
  * （`EXAM_GENERATE_OPTIONS` 参照）。
@@ -54,11 +58,13 @@ export function PinfuExamBoard({
       <QuestionPrompt>{t("questionPrompt")}</QuestionPrompt>
 
       {/* Answer form */}
-      <PinfuExamAnswerForm
+      <ScoreExamAnswerForm
         question={question}
         questionIndex={questionIndex}
         onSubmit={handleSubmit}
         disabled={showFeedback || isCountingDown}
+        translationNamespace="pinfuExamChallenge"
+        scoreRange="nonMangan"
       />
     </div>
   );

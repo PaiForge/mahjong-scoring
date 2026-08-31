@@ -5,7 +5,7 @@ import { QuestionGeneratingPlaceholder } from "@/app/(user)/(public)/practice/_c
 import { useScoreQuestionBoard } from "@/app/(user)/(public)/practice/_hooks/use-score-question-board";
 import { QuestionDisplay } from "@/app/(user)/(public)/practice/score/_components/question-display";
 import { QuestionPrompt } from "@/app/(user)/(public)/practice/_components/question-prompt";
-import { ChiitoitsuExamAnswerForm } from "./chiitoitsu-exam-answer-form";
+import { ScoreExamAnswerForm } from "../../_components/score-exam-answer-form";
 import type { ChiitoitsuExamQuestionResult } from "../_lib/types";
 import { EXAM_GENERATE_OPTIONS } from "../_lib/types";
 import type { RecordingPracticeBoardProps } from "@/app/(user)/(public)/practice/_lib/practice-board-props";
@@ -21,6 +21,9 @@ type ChiitoitsuExamBoardProps =
  * 選択肢の点数帯だけ。役一覧は表示しない — 受験者が手牌から翻数を自力で
  * 数えるのが試験の要件で、七対子が成立していること自体が最初の1翻ぶんの
  * 判断にあたる。
+ *
+ * 回答は点数のみを select で選ぶ。七対子は常に25符なので、受験者は数えた翻数を
+ * 25符の点数表に当てて点数を導く。選択肢は満貫未満（`nonMangan`）に固定する。
  *
  * ルール設定ストア（連風牌4符・切り上げ満貫）を意図的に読まない:
  * 七対子は雀頭を持たず符も常に25符なので、どちらの設定も出題にも点数にも
@@ -53,11 +56,13 @@ export function ChiitoitsuExamBoard({
       <QuestionPrompt>{t("questionPrompt")}</QuestionPrompt>
 
       {/* Answer form */}
-      <ChiitoitsuExamAnswerForm
+      <ScoreExamAnswerForm
         question={question}
         questionIndex={questionIndex}
         onSubmit={handleSubmit}
         disabled={showFeedback || isCountingDown}
+        translationNamespace="chiitoitsuExamChallenge"
+        scoreRange="nonMangan"
       />
     </div>
   );
