@@ -33,7 +33,7 @@ export function ScorePracticeBoardSkeleton() {
           tone={100}
         />
 
-        {/* Answer area: 翻・符・点数の select（各 label 付き）、回答するボタン、わからないリンク */}
+        {/* Answer area: 翻・符・点数の select（各 label 付き）と回答するボタン */}
         <div className="space-y-5">
           {["han", "fu", "score"].map((field) => (
             <div key={field} className="space-y-2">
@@ -43,10 +43,6 @@ export function ScorePracticeBoardSkeleton() {
           ))}
           {/* 回答するボタン（実体は primary 色のため一段濃いトーンで表現） */}
           <SkeletonBar radius="lg" className="h-12 w-full" />
-          {/* わからない */}
-          <div className="flex justify-center pt-1">
-            <SkeletonBar className="h-4 w-16" tone={100} />
-          </div>
         </div>
 
         {/* Footer: 正解 / 不正解 カウンタ */}
@@ -59,8 +55,9 @@ export function ScorePracticeBoardSkeleton() {
           ))}
         </div>
 
-        {/* Quit button */}
-        <div className="flex justify-center">
+        {/* Footer actions: わからない / 終了する（本体の gap-3 に合わせる） */}
+        <div className="flex flex-col items-center gap-3">
+          <SkeletonBar className="h-5 w-20" tone={100} />
           <SkeletonBar className="h-5 w-20" tone={100} />
         </div>
       </div>

@@ -1231,8 +1231,7 @@
         "all": "オール"
       },
       "buttons": {
-        "answer": "回答する",
-        "reveal": "わからない"
+        "answer": "回答する"
       }
     },
     "board": {
