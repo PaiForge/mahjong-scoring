@@ -3,11 +3,11 @@
 import { useTranslations } from "next-intl";
 import {
   YAKU_HAN_ENTRIES,
-  YAKUMAN_HAN,
   groupYakuHanEntriesByMenzenHan,
   isKuisagariEntry,
 } from "@mahjong-scoring/core";
 import type { YakuHanEntry } from "@mahjong-scoring/core";
+import { yakuHanLabel } from "@/app/_lib/yaku-han-label";
 import { AccordionCard } from "@/app/(user)/_components/accordion-card";
 import { SectionTitle } from "@/app/(user)/_components/section-title";
 import { YAKU_EXAMPLES, hasYakuCheatsheetEntry } from "../_lib/yaku-examples";
@@ -88,8 +88,7 @@ export function YakuCheatsheet({
 
   const groups = groupByMenzenHan();
 
-  const groupLabel = (han: number) =>
-    han === YAKUMAN_HAN ? t("yakuman") : t("hanUnit", { count: han });
+  const groupLabel = (han: number) => yakuHanLabel(han, t);
 
   /**
    * カード右端の鳴きラベル。
