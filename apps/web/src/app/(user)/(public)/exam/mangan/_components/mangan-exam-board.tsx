@@ -1,76 +1,25 @@
 "use client";
 
-import { useTranslations } from "next-intl";
-import { QuestionGeneratingPlaceholder } from "@/app/(user)/(public)/practice/_components/question-generating-placeholder";
-import { useScoreQuestionBoard } from "@/app/(user)/(public)/practice/_hooks/use-score-question-board";
-import { QuestionDisplay } from "@/app/(user)/(public)/practice/score/_components/question-display";
-import { QuestionPrompt } from "@/app/(user)/(public)/practice/_components/question-prompt";
-import { ScoreExamAnswerForm } from "../../_components/score-exam-answer-form";
-import type { ManganExamQuestionResult } from "../_lib/types";
+import { createScoreExamBoard } from "../../_lib/create-score-exam-board";
 import {
   EXAM_GENERATE_OPTIONS,
   EXAM_GENERATION_MAX_RETRIES,
 } from "../_lib/types";
-import type { RecordingPracticeBoardProps } from "@/app/(user)/(public)/practice/_lib/practice-board-props";
-
-type ManganExamBoardProps =
-  RecordingPracticeBoardProps<ManganExamQuestionResult>;
 
 /**
  * 昇級試験（満貫以上の点数計算）の出題盤面（手牌の提示と点数の回答）
  * 昇級試験盤面
  *
- * `ManganScoreCalculationBoard` と同じ構図だが、役一覧を表示しない
- * （受験者が手牌から翻数を自力で数えるのが試験の要件）。
+ * 測っているのは「手牌から翻数を数え、そのまま点数を導く」ところまで。
+ * 5翻以上は符が点数に効かないので、符の積み上げは問わない。
+ * 回答の選択肢は満貫以上（`manganPlus`）に固定する。
  *
- * 盤面は他のチャレンジ（`FuExamBoard` 等）と同じく、フィードバック枠で
- * 囲まずに単体で置く。ミス1回で終了する試験では正誤はライフ表示が示し、
- * 答え合わせは結果ページの問題別フィードバック一覧で行うため、盤面の外に
- * もう一枚枠を重ねる理由がない（狭い画面では二重枠のぶん手牌も小さくなる）。
- *
- * 回答は点数のみを select で選ぶ。受験者は数えた翻数から直接点数を導く
- * （5翻以上は符を問わない）。選択肢は満貫以上（`manganPlus`）に固定する。
- *
- * ルール設定ストア（連風牌4符・切り上げ満貫）を意図的に読まない:
- * 出題は `EXAM_GENERATE_OPTIONS`（5翻以上）に固定されており、どちらの設定も
- * 点数に影響しないため、端末設定に関係なく全受験者が同一条件になる。
+ * 平和と並んで成立率が低い出題条件なので、生成予算を既定より大きく取る
+ * （`EXAM_GENERATION_MAX_RETRIES` 参照）。
  */
-export function ManganExamBoard({
-  showFeedback,
-  isCountingDown = false,
-  onAnswer,
-  onRecordResult,
-}: ManganExamBoardProps) {
-  const t = useTranslations("manganExamChallenge");
-
-  const { question, questionIndex, handleSubmit } = useScoreQuestionBoard({
-    generateOptions: EXAM_GENERATE_OPTIONS,
-    maxRetries: EXAM_GENERATION_MAX_RETRIES,
-    showFeedback,
-    onAnswer,
-    onRecordResult,
-  });
-
-  if (!question) {
-    return <QuestionGeneratingPlaceholder label={t("generating")} />;
-  }
-
-  return (
-    <div className="space-y-6">
-      {/* Question display */}
-      <QuestionDisplay question={question} mobileFrame="fullBleed" />
-
-      <QuestionPrompt>{t("questionPrompt")}</QuestionPrompt>
-
-      {/* Answer form */}
-      <ScoreExamAnswerForm
-        question={question}
-        questionIndex={questionIndex}
-        onSubmit={handleSubmit}
-        disabled={showFeedback || isCountingDown}
-        translationNamespace="manganExamChallenge"
-        scoreRange="manganPlus"
-      />
-    </div>
-  );
-}
+export const ManganExamBoard = createScoreExamBoard({
+  translationNamespace: "manganExamChallenge",
+  generateOptions: EXAM_GENERATE_OPTIONS,
+  scoreRange: "manganPlus",
+  maxRetries: EXAM_GENERATION_MAX_RETRIES,
+});

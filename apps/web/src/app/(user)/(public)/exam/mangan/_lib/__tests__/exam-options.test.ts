@@ -28,16 +28,26 @@ describe("EXAM_GENERATE_OPTIONS", () => {
 });
 
 describe("試験盤面のルール設定非依存", () => {
-  it("_components 配下のモジュールがルール設定ストアを import しない", () => {
+  it("盤面を構成するモジュールがルール設定ストアを import しない", () => {
     // mangan-score-calculation の盤面を雛形にコピーすると
     // use-rule-settings-store の import ごと持ち込みやすいため、構造で守る
-    const componentsDir = join(__dirname, "..", "..", "_components");
-    for (const file of readdirSync(componentsDir)) {
-      const source = readFileSync(join(componentsDir, file), "utf8");
-      expect(
-        source.includes("use-rule-settings-store"),
-        `${file} がルール設定ストアを import している`,
-      ).toBe(false);
+    // 盤面の中身は exam/_lib の共通ファクトリと exam/_components にあるため、
+    // 級ごとの _components だけでなく共通レイヤも一緒に検査する
+    const examRoot = join(__dirname, "..", "..", "..");
+    const dirs = [
+      join(__dirname, "..", "..", "_components"),
+      join(examRoot, "_components"),
+      join(examRoot, "_lib"),
+    ];
+    for (const dir of dirs) {
+      for (const file of readdirSync(dir, { withFileTypes: true })) {
+        if (!file.isFile()) continue;
+        const source = readFileSync(join(dir, file.name), "utf8");
+        expect(
+          source.includes("use-rule-settings-store"),
+          `${file.name} がルール設定ストアを import している`,
+        ).toBe(false);
+      }
     }
   });
 });

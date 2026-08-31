@@ -19,7 +19,7 @@ import { useRegisterAdvance } from "./use-training-mode";
 
 type GenerateOptions = Parameters<typeof generateValidScoreQuestion>[0];
 
-interface UseScoreQuestionBoardParams extends Pick<
+export interface UseScoreQuestionBoardParams extends Pick<
   RecordingPracticeBoardProps<ScoreQuestionResult>,
   "showFeedback" | "onAnswer" | "onRecordResult"
 > {
