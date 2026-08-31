@@ -98,6 +98,7 @@ describe("section grouping", () => {
       "pinfu-score",
       "menzen-mentsu-score",
       "furo-score",
+      "fu-doubling",
     ]);
   });
 });

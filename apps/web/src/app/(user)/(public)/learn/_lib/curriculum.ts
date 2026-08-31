@@ -200,6 +200,15 @@ const CURRICULUM_REGISTRY = [
     examSlug: "fu-score-exam",
     i18nKey: "learnCurriculum.chapters.furoScore",
   },
+  {
+    slug: "fu-doubling",
+    section: "score",
+    order: 110,
+    // 点数表早引きの満貫未満だけ。この章が減らすのはまさにその範囲の暗記量で、
+    // 符×翻を1マスずつ引く練習がそのまま腕試しになる
+    practiceHrefs: [scoreTablePracticeHref({ ranges: ["nonMangan"] })],
+    i18nKey: "learnCurriculum.chapters.fuDoubling",
+  },
 ] as const satisfies readonly CurriculumChapterEntry[];
 
 /** 章スラッグ — `/learn/<slug>` の slug 部分に対応 */
