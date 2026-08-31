@@ -52,6 +52,14 @@ interface ExamIntroSkeletonProps {
  * ページ見出しの帯（`PageTitle`）は文字を入れずに描く。実物の見出しは
  * 試験名だが、帯の高さは文字の有無で変わらないため、この 1 行のために
  * クライアント側で辞書を読む必要はない。
+ *
+ * @design 実物の色を写さない
+ *
+ * 実物のプレビュー枠と開始ボタンは苔緑の太枠（`border-ink`）、合格条件は
+ * 琥珀の枠と面（`HighlightPanel`）だが、スケルトンはどれも灰色の矩形に
+ * する。読み込み中の画面が実物より賑やかに見えてしまうため
+ * （`ProblemListSkeleton` と同じ理由）。高さは border-box なので、枠を
+ * 外しても・枠の色だけ替えても実物と一致したまま。
  */
 export function ExamIntroSkeleton({
   demoHeight = "standard",
@@ -66,8 +74,7 @@ export function ExamIntroSkeleton({
       </PageTitle>
 
       <div className="space-y-8">
-        {/* 問題方式（見出し + リード文 + プレビュー）。枠と余白は実物の
-            HowToPlaySection と同じで、中身だけを伏せる */}
+        {/* 問題方式（見出し + リード文 + プレビュー） */}
         <div className="space-y-4">
           <SectionTitleSkeleton width="w-20" />
           <p className="text-sm">
@@ -77,15 +84,17 @@ export function ExamIntroSkeleton({
           </p>
           <SkeletonBar
             radius="xl"
-            className={`${EXAM_DEMO_HEIGHT[demoHeight]} w-full border-3 border-ink`}
+            className={`${EXAM_DEMO_HEIGHT[demoHeight]} w-full`}
             tone={100}
           />
         </div>
 
-        {/* 合格条件（帯色の見出し + 琥珀パネル）。パネルの枠は実物と同じ */}
+        {/* 合格条件（見出し + パネル） */}
         <div className="space-y-3">
           <SectionTitleSkeleton width="w-28" />
-          <div className="rounded-xl border-3 border-amber-500 bg-amber-50/60 p-5">
+          {/* 実物は琥珀の枠と面（`HighlightPanel`）。スケルトンは灰色に
+              置き換える。枠の太さだけ残して高さを合わせる */}
+          <div className="rounded-xl border-3 border-surface-100 bg-surface-50 p-5">
             <p className="text-sm">
               <SkeletonBar as="span" className="inline-block w-4/5" tone={100}>
                 &nbsp;
@@ -99,7 +108,7 @@ export function ExamIntroSkeleton({
         <div className={PRACTICE_START_CTA_BLOCK_CLASS}>
           <SkeletonBar
             radius="lg"
-            className={`${START_BUTTON_HEIGHT_CLASS} w-full border-3 border-ink`}
+            className={`${START_BUTTON_HEIGHT_CLASS} w-full`}
           />
           <p className="text-xs">
             <SkeletonBar as="span" className="inline-block w-56" tone={100}>

@@ -26,6 +26,10 @@ export const START_BUTTON_HEIGHT_CLASS = "h-[50px]";
  * 確保して CLS を防ぐ。並び・間隔は CTA と同じクラス定数を共有するため、
  * 導線の構成を変えてもスケルトンだけ取り残されることがない。
  * OR 区切りの破線は文字を持たないため実物をそのまま描画する。
+ *
+ * ボタンは実物の苔緑の太枠（`border-ink`）を写さず灰色の矩形にする
+ * （`ProblemListSkeleton` と同じ理由 — 読み込み中の画面が実物より賑やかに
+ * 見えるため）。高さは border-box なので枠を外しても実物と一致する。
  */
 export function PracticeStartCtaSkeleton() {
   return (
@@ -33,7 +37,7 @@ export function PracticeStartCtaSkeleton() {
       <div className={PRACTICE_START_CTA_BLOCK_CLASS}>
         <SkeletonBar
           radius="lg"
-          className={`${START_BUTTON_HEIGHT_CLASS} w-full border-3 border-ink`}
+          className={`${START_BUTTON_HEIGHT_CLASS} w-full`}
         />
         <SkeletonBar className="h-4 w-48 max-w-full" tone={100} />
       </div>
@@ -47,7 +51,7 @@ export function PracticeStartCtaSkeleton() {
       <div className={PRACTICE_START_CTA_BLOCK_CLASS}>
         <SkeletonBar
           radius="lg"
-          className={`${START_BUTTON_HEIGHT_CLASS} w-full border-3 border-ink`}
+          className={`${START_BUTTON_HEIGHT_CLASS} w-full`}
         />
         <SkeletonBar className="h-4 w-48 max-w-full" tone={100} />
       </div>
