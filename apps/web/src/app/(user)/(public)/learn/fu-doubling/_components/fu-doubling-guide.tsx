@@ -20,7 +20,7 @@ const MENZEN_PAIR = { low: 30, high: 60 } as const;
 const PINFU_TSUMO_PAIR = { low: 20, high: 40 } as const;
 
 /**
- * 符が倍になると1翻分 — 点数の計算セクション第5章
+ * 符が倍になるのは1翻上がるのと同じ — 点数記憶術セクション第1章
  */
 export async function FuDoublingGuide() {
   const t = await getTranslations("fuDoubling.learn");

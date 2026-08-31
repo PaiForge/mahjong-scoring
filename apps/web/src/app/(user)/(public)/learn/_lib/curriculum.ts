@@ -21,6 +21,7 @@ export const CURRICULUM_SECTIONS = [
   "yaku",
   "fu",
   "score",
+  "memorization",
 ] as const;
 export type CurriculumSection = (typeof CURRICULUM_SECTIONS)[number];
 
@@ -202,8 +203,10 @@ const CURRICULUM_REGISTRY = [
   },
   {
     slug: "fu-doubling",
-    section: "score",
-    order: 110,
+    section: "memorization",
+    // 点数の計算セクション（〜100）から番号を離す。記憶術セクションは
+    // 章を足していく前提なので、基礎側が伸びても番号がぶつからないようにする
+    order: 200,
     // 点数表早引きの満貫未満だけ。この章が減らすのはまさにその範囲の暗記量で、
     // 符×翻を1マスずつ引く練習がそのまま腕試しになる
     practiceHrefs: [scoreTablePracticeHref({ ranges: ["nonMangan"] })],

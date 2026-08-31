@@ -98,7 +98,13 @@ describe("section grouping", () => {
       "pinfu-score",
       "menzen-mentsu-score",
       "furo-score",
-      "fu-doubling",
     ]);
+  });
+
+  it('places fu-doubling in the "memorization" section', () => {
+    const grouped = groupChaptersBySection();
+    const memorizationSlugs =
+      grouped.get("memorization")?.map((c) => c.slug) ?? [];
+    expect(memorizationSlugs).toEqual(["fu-doubling"]);
   });
 });
