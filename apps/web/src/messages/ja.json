@@ -2092,8 +2092,7 @@
     "examGate": {
       "signUpButton": "アカウント登録に進む",
       "signUpNote": "昇級試験の受験にはアカウントが必要です。",
-      "signInLink": "ログインはこちら",
-      "locked": "この試験は{rank}の昇級試験です。先に{requiredRank}の昇級試験に合格すると受験できます。",
+      "locked": "この試験は{rank}の昇級試験です。昇級試験は下の級から順に受けるため、次に受けられるのは{requiredRank}の昇級試験です。",
       "dojoButton": "道場で次の目標を確認する"
     }
   },

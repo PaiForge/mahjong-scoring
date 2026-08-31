@@ -1,10 +1,8 @@
 "use client";
 
-import Link from "next/link";
 import { useEffect, useState, type ReactNode } from "react";
 import { useTranslations } from "next-intl";
 
-import { TEXT_LINK_CLASSES } from "@/app/_components/_lib/link-classes";
 import { SkeletonBar } from "@/app/_components/skeleton-bar";
 import { useAuth } from "@/app/_contexts/auth-context";
 import { fetchViewerRankSlugs } from "@/app/_lib/viewer-ranks";
@@ -36,7 +34,7 @@ function BlockedCta({
   reason,
   children,
 }: {
-  readonly reason: ReactNode;
+  readonly reason: string;
   readonly children: ReactNode;
 }) {
   return (
@@ -108,17 +106,11 @@ export function ExamStartGate({ slug, playHref }: ExamStartGateProps) {
   }
 
   if (!user) {
+    // ログインの導線はここには置かない。遷移先の登録ページが「すでに
+    // アカウントをお持ちの方」の導線を持っており、ここにも出すと同じ
+    // 分岐を 2 画面続けて見せることになる
     return (
-      <BlockedCta
-        reason={
-          <>
-            {t("examGate.signUpNote")}{" "}
-            <Link href="/sign-in" className={TEXT_LINK_CLASSES}>
-              {t("examGate.signInLink")}
-            </Link>
-          </>
-        }
-      >
+      <BlockedCta reason={t("examGate.signUpNote")}>
         <LinkButton href="/sign-up" variant="secondary" size="lg" fullWidth>
           {t("examGate.signUpButton")}
           <ChevronRightIcon className="size-4" />

@@ -93,11 +93,17 @@ describe("ExamStartGate", () => {
       expect(startButton()).toBeNull();
     });
 
-    it("理由とログインの導線を添える", async () => {
+    it("理由を添える", async () => {
       renderGate();
 
-      expect(await screen.findByText(/examGate.signUpNote/)).toBeTruthy();
-      expect(document.querySelector('a[href="/sign-in"]')).not.toBeNull();
+      expect(await screen.findByText("examGate.signUpNote")).toBeTruthy();
+    });
+
+    it("ログインの導線は置かない（登録ページ側が持つ）", async () => {
+      renderGate();
+
+      await screen.findByText("examGate.signUpButton");
+      expect(document.querySelector('a[href="/sign-in"]')).toBeNull();
     });
 
     it("登録ボタンを緑（試験開始の色）で塗らない", async () => {
