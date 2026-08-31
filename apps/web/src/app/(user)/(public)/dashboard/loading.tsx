@@ -1,3 +1,4 @@
+import { CurriculumProgressBarSkeleton } from "@/app/(user)/(public)/learn/_components/curriculum-progress-bar-skeleton";
 import { PageTitleSkeleton } from "@/app/_components/page-title-skeleton";
 import { SkeletonBar } from "@/app/_components/skeleton-bar";
 import { ContentContainer } from "@/app/(user)/_components/content-container";
@@ -31,7 +32,10 @@ export default function Loading() {
         {/* 教本の続き: 進捗バー(40px) + 章カード(93px) + リンク行(24px) + 試験行(62px) */}
         <div className="space-y-4">
           <SectionTitleSkeleton width="w-32" />
-          <SkeletonBar radius="lg" className="h-10 w-full" tone={100} />
+          {/* 実体は /learn と同じ CurriculumProgressBar なので、スケルトンも
+              同じものを使う。矩形 1 枚で代用すると高さは合っていても
+              「ラベル行 + 細いトラック」というバーの形が出ない */}
+          <CurriculumProgressBarSkeleton />
           <SkeletonBar radius="xl" className="h-[93px] w-full" tone={100} />
           <div className="flex justify-end">
             <SkeletonBar className="h-5 w-28" tone={100} />
