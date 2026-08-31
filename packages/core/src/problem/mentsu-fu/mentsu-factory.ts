@@ -8,7 +8,13 @@ import {
 } from "@pai-forge/riichi-mahjong";
 import { pickMentsuType } from "../shared/pick-mentsu-type";
 import { SUIT_BASES } from "../../core/constants";
-import { randomBool, randomInt, randomChoice } from "../../core/random";
+import {
+  randomBool,
+  randomInt,
+  randomChoice,
+  defaultRandomSource,
+  type RandomSource,
+} from "../../core/random";
 import { calculateMentsuFu } from "../../core/score-calculation";
 import { isHaiKindId } from "../../core/type-guards";
 import { randomSimple, randomYaochu } from "../shared/tile-random";
@@ -25,10 +31,14 @@ export interface MentsuResult {
 /**
  * ランダムな順子を生成する（0符）
  * 順子生成
+ *
+ * @param rng - 乱数供給源（既定 `Math.random`）
  */
-export function createRandomShuntsu(): MentsuResult | undefined {
-  const base = randomChoice(SUIT_BASES);
-  const start = randomInt(0, 6);
+export function createRandomShuntsu(
+  rng: RandomSource = defaultRandomSource,
+): MentsuResult | undefined {
+  const base = randomChoice(SUIT_BASES, rng);
+  const start = randomInt(0, 6, rng);
   const t1 = base + start;
   const t2 = base + start + 1;
   const t3 = base + start + 2;
@@ -37,7 +47,7 @@ export function createRandomShuntsu(): MentsuResult | undefined {
     return undefined;
   }
 
-  const isFuro = randomBool(0.5);
+  const isFuro = randomBool(0.5, rng);
   const hais = [t1, t2, t3] as const;
 
   const mentsu: Shuntsu = isFuro
@@ -54,12 +64,16 @@ export function createRandomShuntsu(): MentsuResult | undefined {
 /**
  * ランダムな刻子を生成する（2〜8符）
  * 刻子生成
+ *
+ * @param rng - 乱数供給源（既定 `Math.random`）
  */
-export function createRandomKoutsu(): MentsuResult {
-  const isYaochu = randomBool(0.5);
-  const isOpen = randomBool(0.5);
+export function createRandomKoutsu(
+  rng: RandomSource = defaultRandomSource,
+): MentsuResult {
+  const isYaochu = randomBool(0.5, rng);
+  const isOpen = randomBool(0.5, rng);
 
-  const tile = isYaochu ? randomYaochu() : randomSimple();
+  const tile = isYaochu ? randomYaochu(rng) : randomSimple(rng);
   const hais = [tile, tile, tile] as const;
 
   const mentsu: Koutsu = isOpen
@@ -78,12 +92,16 @@ export function createRandomKoutsu(): MentsuResult {
 /**
  * ランダムな槓子を生成する（8〜32符）
  * 槓子生成
+ *
+ * @param rng - 乱数供給源（既定 `Math.random`）
  */
-export function createRandomKantsu(): MentsuResult {
-  const isYaochu = randomBool(0.5);
-  const isOpen = randomBool(0.5);
+export function createRandomKantsu(
+  rng: RandomSource = defaultRandomSource,
+): MentsuResult {
+  const isYaochu = randomBool(0.5, rng);
+  const isOpen = randomBool(0.5, rng);
 
-  const tile = isYaochu ? randomYaochu() : randomSimple();
+  const tile = isYaochu ? randomYaochu(rng) : randomSimple(rng);
   const hais = [tile, tile, tile, tile] as const;
 
   const mentsu: Kantsu = isOpen
@@ -115,16 +133,18 @@ export interface MentsuWeights {
  * 面子ランダム生成
  *
  * @param weights - 面子種別の確率重み
+ * @param rng - 乱数供給源（既定 `Math.random`）
  */
 export function createRandomMentsu(
   weights: Readonly<MentsuWeights>,
+  rng: RandomSource = defaultRandomSource,
 ): MentsuResult {
-  switch (pickMentsuType(weights)) {
+  switch (pickMentsuType(weights, rng)) {
     case "shuntsu":
-      return createRandomShuntsu() ?? createRandomKoutsu();
+      return createRandomShuntsu(rng) ?? createRandomKoutsu(rng);
     case "koutsu":
-      return createRandomKoutsu();
+      return createRandomKoutsu(rng);
     case "kantsu":
-      return createRandomKantsu();
+      return createRandomKantsu(rng);
   }
 }

@@ -1,4 +1,8 @@
-import { randomFloat } from "../../core/random";
+import {
+  randomFloat,
+  defaultRandomSource,
+  type RandomSource,
+} from "../../core/random";
 import type { MentsuWeights } from "../mentsu-fu/mentsu-factory";
 
 /** 面子の種別 */
@@ -12,9 +16,13 @@ export type MentsuKind = "shuntsu" | "koutsu" | "kantsu";
  * 呼び出し側で決める（用途によって優先順位が違うため）。
  *
  * @param weights - 順子・刻子の確率（残りが槓子）
+ * @param rng - 乱数供給源（既定 `Math.random`）
  */
-export function pickMentsuType(weights: Readonly<MentsuWeights>): MentsuKind {
-  const r = randomFloat();
+export function pickMentsuType(
+  weights: Readonly<MentsuWeights>,
+  rng: RandomSource = defaultRandomSource,
+): MentsuKind {
+  const r = randomFloat(rng);
   if (r < weights.shuntsu) return "shuntsu";
   if (r < weights.shuntsu + weights.koutsu) return "koutsu";
   return "kantsu";
