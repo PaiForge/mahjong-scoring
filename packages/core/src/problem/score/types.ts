@@ -5,6 +5,7 @@ import type {
   ScoreResult,
 } from "@pai-forge/riichi-mahjong";
 import type { FuDetail } from "../../score/fu-calculator";
+import type { RandomSource } from "../../core/random";
 
 /**
  * 役の内訳詳細
@@ -193,4 +194,6 @@ export interface QuestionGeneratorOptions {
    * 符の知識を前提にしない出題（昇級試験等）が組める。
    */
   readonly minHan?: number;
+  /** 乱数供給源。既定: Math.random */
+  readonly rng?: RandomSource;
 }

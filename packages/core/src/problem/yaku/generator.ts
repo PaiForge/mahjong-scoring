@@ -12,7 +12,12 @@ import {
 } from "./constants";
 import { BAKAZE_OPTIONS, KAZEHAI } from "../../core/constants";
 import { defaultIdGenerator, type IdGenerator } from "../../core/id";
-import { randomBool, randomChoice } from "../../core/random";
+import {
+  randomBool,
+  randomChoice,
+  defaultRandomSource,
+  type RandomSource,
+} from "../../core/random";
 import { HaiUsageTracker } from "../../core/hai-tracker";
 import { generateDoraMarkers } from "../shared/dora-utils";
 import { countHaiInTehai } from "../../core/hai-count";
@@ -59,35 +64,39 @@ const YAKU_MENTSU_WEIGHTS = { shuntsu: 0.5, koutsu: 0.3 } as const;
  * 役選択練習の問題を生成する
  * ランダムな手牌を構築し、成立する役を正解として返す
  * 役選択問題ジェネレータ
+ *
+ * @param idGen - 問題 ID の採番（既定 crypto.randomUUID）
+ * @param rng - 乱数供給源（既定 Math.random）
  */
 export function generateYakuQuestion(
   idGen: IdGenerator = defaultIdGenerator,
+  rng: RandomSource = defaultRandomSource,
 ): YakuQuestion | undefined {
   const tracker = new HaiUsageTracker();
 
   // 1. 4面子を生成
-  const mentsuList = generateMentsuSet(tracker, YAKU_MENTSU_WEIGHTS);
+  const mentsuList = generateMentsuSet(tracker, YAKU_MENTSU_WEIGHTS, 4, rng);
   if (!mentsuList) return undefined;
 
   // 2. コンテキスト生成
-  const bakaze = randomChoice(BAKAZE_OPTIONS);
-  const jikaze = randomChoice(KAZEHAI);
+  const bakaze = randomChoice(BAKAZE_OPTIONS, rng);
+  const jikaze = randomChoice(KAZEHAI, rng);
 
   // 3. 雀頭を生成
-  const headTile = generatePairTile(tracker);
+  const headTile = generatePairTile(tracker, rng);
   if (headTile === undefined) return undefined;
 
   // 4. Tehai14 を構築
   const validTehai = buildTehai14(mentsuList, headTile);
   if (validTehai === undefined) return undefined;
 
-  const agariHai = pickAgariHai(mentsuList, headTile);
+  const agariHai = pickAgariHai(mentsuList, headTile, rng);
   const menzen = isMenzen(validTehai);
-  const isTsumo = randomBool(0.5);
-  const isRiichi = menzen && randomBool(0.2);
+  const isTsumo = randomBool(0.5, rng);
+  const isRiichi = menzen && randomBool(0.2, rng);
 
   const kantsuCount = countKantsu(validTehai);
-  const doraMarkers = generateDoraMarkers(kantsuCount);
+  const doraMarkers = generateDoraMarkers(kantsuCount, rng);
 
   try {
     // detectYaku で手牌役を取得

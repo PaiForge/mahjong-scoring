@@ -6,7 +6,12 @@ import {
 } from "@pai-forge/riichi-mahjong";
 import { BAKAZE_OPTIONS, KAZEHAI } from "../../core/constants";
 import { defaultIdGenerator, type IdGenerator } from "../../core/id";
-import { randomBool, randomChoice } from "../../core/random";
+import {
+  randomBool,
+  randomChoice,
+  defaultRandomSource,
+  type RandomSource,
+} from "../../core/random";
 import { convertScoreDetailToFuDetails } from "../../score/fu-calculator";
 import { generateChiitoiTehai } from "../score/strategies/chiitoi-strategy";
 import { generateMentsuTehai } from "../score/strategies/mentsu-strategy";
@@ -78,33 +83,36 @@ function jikazeOptions(
  * @param options.renfonpaiAs4Fu - 連風牌の雀頭を4符として扱うか（既定 false=2符）
  * @param options.excludeRenfonpai - 場風＝自風の局面を出題しないか（既定 false）
  * @param options.idGen - 問題 ID の採番（既定 crypto.randomUUID）
+ * @param options.rng - 乱数供給源（既定 Math.random）
  */
 export function generateTotalFuQuestion(
   options: {
     readonly renfonpaiAs4Fu?: boolean;
     readonly excludeRenfonpai?: boolean;
     readonly idGen?: IdGenerator;
+    readonly rng?: RandomSource;
   } = {},
 ): TotalFuQuestion | undefined {
   const {
     renfonpaiAs4Fu = false,
     excludeRenfonpai = false,
     idGen = defaultIdGenerator,
+    rng = defaultRandomSource,
   } = options;
 
   // 1. 手牌の生成（七対子 or 面子手）
-  const tehaiResult = randomBool(CHIITOI_RATE)
-    ? generateChiitoiTehai()
-    : generateMentsuTehai(true);
+  const tehaiResult = randomBool(CHIITOI_RATE, rng)
+    ? generateChiitoiTehai(rng)
+    : generateMentsuTehai(true, rng);
   if (!tehaiResult) return undefined;
 
   // 2. 和了状況の決定
-  const bakaze = randomChoice(BAKAZE_OPTIONS);
+  const bakaze = randomChoice(BAKAZE_OPTIONS, rng);
   const context: AgariContext = {
     agariHai: tehaiResult.agariHai,
-    isTsumo: randomBool(0.5),
+    isTsumo: randomBool(0.5, rng),
     bakaze,
-    jikaze: randomChoice(jikazeOptions(bakaze, excludeRenfonpai)),
+    jikaze: randomChoice(jikazeOptions(bakaze, excludeRenfonpai), rng),
   };
 
   // 3. 符の算出（ライブラリ境界）

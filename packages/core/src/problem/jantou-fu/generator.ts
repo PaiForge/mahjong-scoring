@@ -1,6 +1,11 @@
 import { HaiKind, type HaiKindId } from "@pai-forge/riichi-mahjong";
 import type { JantouFuQuestion } from "./types";
-import { randomChoice, shuffle } from "../../core/random";
+import {
+  randomChoice,
+  shuffle,
+  defaultRandomSource,
+  type RandomSource,
+} from "../../core/random";
 import { BAKAZE_OPTIONS, KAZEHAI, SANGENHAI } from "../../core/constants";
 import { isHaiKindId } from "../../core/type-guards";
 import { calculateJantouFu } from "../shared/jantou-fu";
@@ -25,16 +30,22 @@ const NUMBER_TILES: readonly HaiKindId[] = Array.from(
  *
  * @param options.renfonpaiAs4Fu - 連風牌の雀頭を4符として扱うか（既定 false=2符）
  * @param options.idGen - 問題 ID の採番（既定 crypto.randomUUID）
+ * @param options.rng - 乱数供給源（既定 Math.random）
  */
 export function generateJantouFuQuestion(
   options: {
     readonly renfonpaiAs4Fu?: boolean;
     readonly idGen?: IdGenerator;
+    readonly rng?: RandomSource;
   } = {},
 ): JantouFuQuestion {
-  const { renfonpaiAs4Fu = false, idGen = defaultIdGenerator } = options;
-  const bakaze = randomChoice(BAKAZE_OPTIONS);
-  const jikaze = randomChoice(KAZEHAI);
+  const {
+    renfonpaiAs4Fu = false,
+    idGen = defaultIdGenerator,
+    rng = defaultRandomSource,
+  } = options;
+  const bakaze = randomChoice(BAKAZE_OPTIONS, rng);
+  const jikaze = randomChoice(KAZEHAI, rng);
 
   // 符の値は calculateJantouFu（雀頭符ルールの唯一の定義）から引く。
   // このジェネレータが持つのは候補の列挙だけ。
@@ -47,24 +58,27 @@ export function generateJantouFuQuestion(
     ...(bakaze === jikaze ? [bakaze] : [bakaze, jikaze]),
   ];
 
-  const correct = randomChoice(correctCandidates);
+  const correct = randomChoice(correctCandidates, rng);
 
   // 不正解候補（0符）: オタ風と数牌
   const incorrectCandidates: HaiKindId[] = KAZEHAI.filter(
     (kaze) => kaze !== bakaze && kaze !== jikaze,
   );
-  incorrectCandidates.push(...shuffle(NUMBER_TILES).slice(0, 10));
+  incorrectCandidates.push(...shuffle(NUMBER_TILES, rng).slice(0, 10));
 
-  const selectedIncorrect = shuffle(incorrectCandidates).slice(0, 3);
+  const selectedIncorrect = shuffle(incorrectCandidates, rng).slice(0, 3);
 
-  const choices = shuffle([
-    { hai: correct, isCorrect: true, fu: fuOf(correct) },
-    ...selectedIncorrect.map((hai) => ({
-      hai,
-      isCorrect: false,
-      fu: fuOf(hai),
-    })),
-  ]);
+  const choices = shuffle(
+    [
+      { hai: correct, isCorrect: true, fu: fuOf(correct) },
+      ...selectedIncorrect.map((hai) => ({
+        hai,
+        isCorrect: false,
+        fu: fuOf(hai),
+      })),
+    ],
+    rng,
+  );
 
   return {
     id: idGen(),

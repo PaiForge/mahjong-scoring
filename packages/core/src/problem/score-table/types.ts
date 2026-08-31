@@ -6,6 +6,7 @@
 import type { Role, WinType } from "../../core/roles";
 import type { ScoreRange } from "../score/types";
 import type { IdGenerator } from "../../core/id";
+import type { RandomSource } from "../../core/random";
 import type { TsumoPayment } from "../../core/score-calculation";
 
 /**
@@ -76,4 +77,6 @@ export interface ScoreTableGeneratorOptions {
   readonly kiriageMangan?: boolean;
   /** 問題 ID の採番。既定: crypto.randomUUID */
   readonly idGen?: IdGenerator;
+  /** 乱数供給源。既定: Math.random */
+  readonly rng?: RandomSource;
 }

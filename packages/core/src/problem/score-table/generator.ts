@@ -1,4 +1,4 @@
-import { randomChoice } from "../../core/random";
+import { randomChoice, defaultRandomSource } from "../../core/random";
 import {
   calculateKoScore,
   calculateOyaScore,
@@ -169,6 +169,7 @@ export function generateScoreTableQuestion(
   const ranges = options?.ranges ?? ["nonMangan"];
   const kiriageMangan = options?.kiriageMangan ?? false;
   const idGen = options?.idGen ?? defaultIdGenerator;
+  const rng = options?.rng ?? defaultRandomSource;
 
   const pairs = enumerateRoleWinPairs(
     roles.length > 0 ? roles : ["oya", "ko"],
@@ -190,7 +191,7 @@ export function generateScoreTableQuestion(
     combinations.push(...buildManganPlusCombinations(pairs));
   }
 
-  const { isOya, isTsumo, han, fu, range } = randomChoice(combinations);
+  const { isOya, isTsumo, han, fu, range } = randomChoice(combinations, rng);
   // 満貫未満は必ず符を持つ。fu の有無で型を絞り込み、型アサーションを避ける。
   const correctAnswer =
     range === "nonMangan" && fu !== undefined
