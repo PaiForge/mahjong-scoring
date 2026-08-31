@@ -7,10 +7,17 @@ import { YakuBoard } from "./yaku-board";
 export const YakuPlayView = createChallengePlayView<YakuQuestionResult>({
   slug: "yaku",
   maxWidth: "max-w-2xl",
-  renderBoard: ({ showFeedback, isCountingDown, onAnswer, recordResult }) => (
+  renderBoard: ({
+    showFeedback,
+    isCountingDown,
+    lastAnswerCorrect,
+    onAnswer,
+    recordResult,
+  }) => (
     <YakuBoard
       showFeedback={showFeedback}
       isCountingDown={isCountingDown}
+      lastAnswerCorrect={lastAnswerCorrect}
       onAnswer={onAnswer}
       onRecordResult={recordResult}
     />

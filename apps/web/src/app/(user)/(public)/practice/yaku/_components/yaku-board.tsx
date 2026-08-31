@@ -54,10 +54,12 @@ export function YakuBoard({
   const t = useTranslations("yaku");
   const [question, setQuestion] = useClientGeneratedQuestion(generateQuestion);
   const [selectedYaku, setSelectedYaku] = useState<Set<string>>(new Set());
+  const [questionIndex, setQuestionIndex] = useState(0);
 
   const advanceQuestion = useCallback(() => {
     setQuestion(generateQuestion());
     setSelectedYaku(new Set());
+    setQuestionIndex((index) => index + 1);
   }, [setQuestion]);
 
   useRegisterAdvance(question === undefined ? undefined : advanceQuestion);
@@ -128,14 +130,18 @@ export function YakuBoard({
           <YakuSelectList
             selected={selectedYaku}
             disabled={isCountingDown || showFeedback}
+            questionIndex={questionIndex}
             onToggle={handleToggleYaku}
           />
 
           {/* 選択中の役（一覧をスクロールすると選んだ役が視界から出るため、
-              回答する直前に何を選んだのかをボタンの上で読ませる） */}
+              回答する直前に何を選んだのかをボタンの上で読ませる）。
+              回答した瞬間はこの箱が正誤の色に光る */}
           <YakuSelectedChips
             selected={selectedYaku}
             disabled={isCountingDown || showFeedback}
+            showFeedback={showFeedback}
+            lastAnswerCorrect={lastAnswerCorrect}
             onRemove={handleToggleYaku}
           />
         </>

@@ -20,6 +20,13 @@ interface SelectValueBoxProps {
   readonly onOpen?: () => void;
   /** 開くボタン（＋）の説明。`onOpen` を渡すときだけ使う */
   readonly openLabel?: string;
+  /**
+   * 枠線と背景のクラス（既定: 白地に ink の枠）
+   *
+   * 回答の正誤を箱の色で示す練習が、フィードバック中だけ差し替える。
+   * 枠線と背景は必ずこの1つで決まる（渡すと disabled の灰色にも勝つ）。
+   */
+  readonly frameClasses?: string;
 }
 
 /**
@@ -38,6 +45,7 @@ export function SelectValueBox({
   onRemove,
   onOpen,
   openLabel,
+  frameClasses,
 }: SelectValueBoxProps) {
   const labelOf = (val: string) =>
     options.find((option) => option.value === val)?.label ?? val;
@@ -45,9 +53,12 @@ export function SelectValueBox({
 
   return (
     <div
-      className={`flex min-h-[46px] w-full flex-wrap items-center gap-2 rounded-lg border-3 border-ink bg-white px-2 py-2 ${
-        disabled ? "cursor-not-allowed bg-surface-100" : ""
-      } ${canOpen ? "cursor-pointer" : ""}`}
+      className={`flex min-h-[46px] w-full flex-wrap items-center gap-2 rounded-lg border-3 px-2 py-2 transition-colors ${
+        frameClasses ??
+        (disabled ? "border-ink bg-surface-100" : "border-ink bg-white")
+      } ${disabled ? "cursor-not-allowed" : ""} ${
+        canOpen ? "cursor-pointer" : ""
+      }`}
       {...(canOpen
         ? {
             role: "button",

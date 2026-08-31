@@ -1,5 +1,6 @@
 "use client";
 
+import { useEffect, useRef } from "react";
 import { useTranslations } from "next-intl";
 
 import { SelectOptionList } from "@/app/(user)/_components/select-option-list";
@@ -9,6 +10,13 @@ interface YakuSelectListProps {
   readonly selected: ReadonlySet<string>;
   readonly disabled: boolean;
   readonly onToggle: (yakuName: string) => void;
+  /**
+   * 出題ごとに変わる番号
+   *
+   * 変わると一覧を先頭へ戻す。前の問題で下の方までスクロールしていると、
+   * 次の問題が出ても一覧はその位置のままで、毎回上まで戻す手間がかかる。
+   */
+  readonly questionIndex?: number;
   /**
    * 静止画として見せるプレビューか（説明ページの「問題方式」）
    *
@@ -32,13 +40,20 @@ export function YakuSelectList({
   selected,
   disabled,
   onToggle,
+  questionIndex,
   preview = false,
 }: YakuSelectListProps) {
   const t = useTranslations("common.yakuPicker");
   const options = useYakuOptions();
+  const listRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    listRef.current?.scrollTo({ top: 0 });
+  }, [questionIndex]);
 
   const list = (
     <SelectOptionList
+      ref={listRef}
       options={options}
       value={[...selected]}
       onToggle={onToggle}
