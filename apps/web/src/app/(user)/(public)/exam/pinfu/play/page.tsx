@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { createPracticePlayMetadata } from "@/app/(user)/(public)/practice/_lib/metadata";
+import { redirectUnlessExamEligible } from "../../_lib/exam-guard";
 import { PinfuExamPlayView } from "../_components/pinfu-exam-play-view";
 
 export async function generateMetadata(): Promise<Metadata> {
@@ -22,6 +23,10 @@ export async function generateMetadata(): Promise<Metadata> {
  * 4. 問題別の回答結果を sessionStorage に保存
  * 5. スコアを保存し、result ページへリダイレクト
  */
-export default function PinfuExamPlayPage() {
+// 受験ガードが cookie を読むため動的レンダリングを明示する
+export const dynamic = "force-dynamic";
+
+export default async function PinfuExamPlayPage() {
+  await redirectUnlessExamEligible("pinfu-exam");
   return <PinfuExamPlayView />;
 }
