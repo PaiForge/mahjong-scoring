@@ -44,6 +44,7 @@ export {
   groupYakuHanEntriesByMenzenHan,
   DEFAULT_YAKU_HAN_RANGE,
   getYakuHanEntries,
+  isKuisagariEntry,
   normalizeYakuHanRange,
 } from "./problem/yaku-han/constants";
 export type { YakuHanRange } from "./problem/yaku-han/constants";

@@ -5,6 +5,7 @@ import {
   YAKU_HAN_ENTRIES,
   YAKUMAN_HAN,
   groupYakuHanEntriesByMenzenHan,
+  isKuisagariEntry,
 } from "@mahjong-scoring/core";
 import type { YakuHanEntry } from "@mahjong-scoring/core";
 import { AccordionCard } from "@/app/(user)/_components/accordion-card";
@@ -35,11 +36,6 @@ function groupByMenzenHan(): readonly {
       examples: YAKU_EXAMPLES[entry.name],
     })),
   }));
-}
-
-/** 食い下がり役（門前と鳴きで翻数が変わる）かどうか */
-function isKuisagari(entry: YakuHanEntry): boolean {
-  return entry.nakiHan !== undefined && entry.nakiHan !== entry.menzenHan;
 }
 
 /** 門前限定役（鳴くと成立しない）かどうか */
@@ -109,7 +105,7 @@ export function YakuCheatsheet({
         </span>
       );
     }
-    if (isKuisagari(entry) && entry.nakiHan !== undefined) {
+    if (isKuisagariEntry(entry) && entry.nakiHan !== undefined) {
       return (
         <span className="text-sm text-surface-500">
           {t("nakiHan", { count: entry.nakiHan })}

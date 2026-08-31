@@ -115,8 +115,15 @@ function isYakumanEntry(entry: YakuHanEntry): boolean {
   return entry.menzenHan === YAKUMAN_HAN;
 }
 
-/** 食い下がり役（門前と鳴きで翻数が変わる役）かどうか */
-function isKuisagariEntry(entry: YakuHanEntry): boolean {
+/**
+ * 食い下がり役（門前と鳴きで翻数が変わる役）かどうか
+ * 食い下がり判定
+ *
+ * `nakiHan` を持たない役は鳴くと成立しない門前限定役であり、食い下がりでは
+ * ない。門前と鳴きで翻数が同じ役（`nakiHan === menzenHan`）も、鳴いても
+ * 損をしないので食い下がりには数えない。
+ */
+export function isKuisagariEntry(entry: YakuHanEntry): boolean {
   return entry.nakiHan !== undefined && entry.nakiHan !== entry.menzenHan;
 }
 
