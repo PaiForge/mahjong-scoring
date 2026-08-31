@@ -135,10 +135,13 @@ export function YakuBoard({
           />
 
           {/* 選択中の役（一覧をスクロールすると選んだ役が視界から出るため、
-              回答する直前に何を選んだのかをボタンの上で読ませる） */}
+              回答する直前に何を選んだのかをボタンの上で読ませる）。
+              回答した瞬間はこの箱が正誤の色に光る */}
           <YakuSelectedChips
             selected={selectedYaku}
             disabled={isCountingDown || showFeedback}
+            showFeedback={showFeedback}
+            lastAnswerCorrect={lastAnswerCorrect}
             onRemove={handleToggleYaku}
           />
         </>
