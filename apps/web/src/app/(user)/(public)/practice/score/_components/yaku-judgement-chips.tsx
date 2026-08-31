@@ -6,18 +6,7 @@ import type {
   YakuSelectionState,
 } from "@mahjong-scoring/core";
 import { resolveYakuCheatsheetName } from "@/app/(user)/(public)/reference/yaku/_lib/yaku-examples";
-
-/**
- * 役チップの配色
- *
- * 役判定練習（`practice/yaku` の `YakuChip`）と同じ意味づけ:
- * 緑 = 選んで合っていた / 赤 = 選んだが成立していない / 黄 = 選び忘れ。
- */
-const CHIP_CLASSES: Record<YakuSelectionState, string> = {
-  correct: "border-primary-500 bg-primary-50 text-primary-700",
-  incorrect: "border-destructive bg-destructive-subtle text-destructive-strong",
-  missed: "border-warning bg-warning-subtle text-warning-strong",
-};
+import { YAKU_SELECTION_CLASSES } from "../../_lib/yaku-selection-classes";
 
 /** 色だけに頼らず正誤が読めるようにチップへ添える記号 */
 const CHIP_MARKS: Record<YakuSelectionState, string | undefined> = {
@@ -68,7 +57,7 @@ export function YakuJudgementChips({
     <div className="flex flex-wrap gap-1">
       {judgements.map((judgement) => {
         const mark = CHIP_MARKS[judgement.state];
-        const className = `${CHIP_BASE_CLASSES} ${CHIP_CLASSES[judgement.state]}`;
+        const className = `${CHIP_BASE_CLASSES} ${YAKU_SELECTION_CLASSES[judgement.state]}`;
         const content = (
           <>
             {judgement.name}

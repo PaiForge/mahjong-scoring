@@ -58,7 +58,11 @@ export type { IdGenerator } from "./core/id";
 // === Problem: Score ===
 export { generateValidScoreQuestion } from "./problem/score/generator";
 export { SCORE_FILTERABLE_YAKU } from "./problem/score/filterable-yaku";
-export { judgeAnswer, judgeYakuSelection } from "./problem/score/judgement";
+export {
+  judgeAnswer,
+  judgeYakuName,
+  judgeYakuSelection,
+} from "./problem/score/judgement";
 export {
   clampHanToYakuman,
   isMangan,

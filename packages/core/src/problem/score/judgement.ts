@@ -3,6 +3,7 @@ import type {
   UserAnswer,
   JudgementResult,
   YakuSelectionJudgement,
+  YakuSelectionState,
 } from "./types";
 import { IGNORE_YAKU_FOR_JUDGEMENT } from "../../core/yaku-names";
 import {
@@ -79,16 +80,32 @@ export function judgeYakuSelection(
   userYakus: readonly string[],
 ): readonly YakuSelectionJudgement[] {
   const expected = expectedYakuNames(answerYakuDetails);
+  const extra = userYakus.filter((name) => !expected.includes(name));
 
-  const judgedExpected = expected.map((name): YakuSelectionJudgement => ({
+  return [...expected, ...extra].map((name): YakuSelectionJudgement => ({
     name,
-    state: userYakus.includes(name) ? "correct" : "missed",
+    state: judgeYakuName(name, userYakus, expected),
   }));
-  const extra = userYakus
-    .filter((name) => !expected.includes(name))
-    .map((name): YakuSelectionJudgement => ({ name, state: "incorrect" }));
+}
 
-  return [...judgedExpected, ...extra];
+/**
+ * 役ひとつの答え合わせの状態を決める
+ * 役別判定
+ *
+ * 選んで成立していれば `correct`、選んだが成立していなければ `incorrect`、
+ * 選ばなかったものは `missed`。答え合わせに並ぶ役は「選んだ役」か「成立して
+ * いた役」のどちらかなので、この 3 つで必ず尽きる。
+ *
+ * 役ごとに状態を持たせるのは、1 つ余分に選んだだけで回答全体が誤りとして
+ * 表示されると、合っていた役まで間違いに見えてしまうため。
+ */
+export function judgeYakuName(
+  yakuName: string,
+  userYakus: readonly string[],
+  expectedYakus: readonly string[],
+): YakuSelectionState {
+  if (!userYakus.includes(yakuName)) return "missed";
+  return expectedYakus.includes(yakuName) ? "correct" : "incorrect";
 }
 
 /**
