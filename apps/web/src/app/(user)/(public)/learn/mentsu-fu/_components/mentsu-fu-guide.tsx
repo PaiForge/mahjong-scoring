@@ -1,7 +1,7 @@
-import { getTranslations } from "next-intl/server";
 import { HaiKind } from "@mahjong-scoring/core";
 import { SectionTitle } from "@/app/(user)/_components/section-title";
 import { ExampleTable } from "../../_components/example-table";
+import { loadExampleTableColumns } from "../../_lib/example-table-columns";
 import { FuSummaryTable } from "../../_components/fu-summary-table";
 import { GuideParagraph } from "../../_components/guide-paragraph";
 import { TileSet } from "@/app/(user)/_components/tile-set";
@@ -10,18 +10,7 @@ import { TileSet } from "@/app/(user)/_components/tile-set";
 const CLOSED_KANTSU_FACE_DOWN = [0, 3];
 
 export async function MentsuFuGuide() {
-  const [t, tTable] = await Promise.all([
-    getTranslations("mentsuFu.learn"),
-    getTranslations("learnCurriculum.exampleTable"),
-  ]);
-
-  const formatFu = (value: number) => t("fuUnit", { value });
-  const tableColumns = {
-    colTiles: tTable("colTiles"),
-    colKind: tTable("colKind"),
-    colFu: tTable("colFu"),
-    formatFu,
-  };
+  const { t, tableColumns } = await loadExampleTableColumns("mentsuFu.learn");
 
   return (
     <div className="space-y-10">
@@ -176,7 +165,7 @@ export async function MentsuFuGuide() {
         title={t("summaryTitle")}
         colType={t("colType")}
         colFu={t("colFu")}
-        formatFu={formatFu}
+        formatFu={tableColumns.formatFu}
         rows={[
           { label: t("rowShuntsu"), fu: 0 },
           { label: t("rowOpenSimpleKoutsu"), fu: 2 },

@@ -1,26 +1,17 @@
-import { getTranslations } from "next-intl/server";
 import { HaiKind } from "@mahjong-scoring/core";
 import { SectionTitle } from "@/app/(user)/_components/section-title";
 import { ExampleTable } from "../../_components/example-table";
+import { loadExampleTableColumns } from "../../_lib/example-table-columns";
 import { FuSummaryTable } from "../../_components/fu-summary-table";
 import { GuideNote } from "../../_components/guide-note";
 import { GuideParagraph } from "../../_components/guide-paragraph";
 import { MachiTiles } from "./machi-tiles";
 
 export async function MachiFuGuide() {
-  const [t, tTable] = await Promise.all([
-    getTranslations("machiFu.learn"),
-    getTranslations("learnCurriculum.exampleTable"),
-  ]);
-
-  const formatFu = (value: number) => t("fuUnit", { value });
   // 待ちは手の内と和了牌を並べるため、牌の列だけ他章の「牌」から見出しを差し替える。
-  const tableColumns = {
-    colTiles: t("colMachi"),
-    colKind: tTable("colKind"),
-    colFu: tTable("colFu"),
-    formatFu,
-  };
+  const { t, tableColumns } = await loadExampleTableColumns("machiFu.learn", {
+    colTilesKey: "colMachi",
+  });
 
   return (
     <div className="space-y-10">
@@ -110,7 +101,7 @@ export async function MachiFuGuide() {
         title={t("summaryTitle")}
         colType={t("colType")}
         colFu={t("colFu")}
-        formatFu={formatFu}
+        formatFu={tableColumns.formatFu}
         rows={[
           { label: t("rowKanchan"), fu: 2 },
           { label: t("rowPenchan"), fu: 2 },

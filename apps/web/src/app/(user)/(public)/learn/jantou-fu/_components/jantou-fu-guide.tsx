@@ -1,5 +1,4 @@
 import Link from "next/link";
-import { getTranslations } from "next-intl/server";
 import { HaiKind } from "@mahjong-scoring/core";
 import { TEXT_LINK_CLASSES } from "@/app/_components/_lib/link-classes";
 import { SectionTitle } from "@/app/(user)/_components/section-title";
@@ -9,24 +8,14 @@ import {
 } from "@/app/(user)/(public)/preferences/_lib/anchors";
 import { GuideColumn } from "../../_components/guide-column";
 import { ExampleTable } from "../../_components/example-table";
+import { loadExampleTableColumns } from "../../_lib/example-table-columns";
 import { GuideNote } from "../../_components/guide-note";
 import { FuSummaryTable } from "../../_components/fu-summary-table";
 import { GuideParagraph } from "../../_components/guide-paragraph";
 import { TileSet } from "@/app/(user)/_components/tile-set";
 
 export async function JantouFuGuide() {
-  const [t, tTable] = await Promise.all([
-    getTranslations("jantouFu.learn"),
-    getTranslations("learnCurriculum.exampleTable"),
-  ]);
-
-  const formatFu = (value: number) => t("fuUnit", { value });
-  const tableColumns = {
-    colTiles: tTable("colTiles"),
-    colKind: tTable("colKind"),
-    colFu: tTable("colFu"),
-    formatFu,
-  };
+  const { t, tableColumns } = await loadExampleTableColumns("jantouFu.learn");
 
   return (
     <div className="space-y-10">
@@ -137,7 +126,7 @@ export async function JantouFuGuide() {
         title={t("summaryTitle")}
         colType={t("colType")}
         colFu={t("colFu")}
-        formatFu={formatFu}
+        formatFu={tableColumns.formatFu}
         rows={[
           { label: t("rowSangen"), fu: 2 },
           { label: t("rowBakaze"), fu: 2 },
