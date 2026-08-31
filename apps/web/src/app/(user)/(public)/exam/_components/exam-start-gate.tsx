@@ -13,6 +13,10 @@ import {
   practiceMenuBySlug,
   type PracticeMenuSlug,
 } from "@/lib/db/practice-menu-types";
+import {
+  PRACTICE_START_CTA_BLOCK_CLASS,
+  PRACTICE_START_CTA_HINT_CLASS,
+} from "../../practice/_components/practice-start-cta";
 import { beltButtonVarsClass } from "@/lib/ranks/belt-colors";
 import { evaluateExamEligibility } from "@/lib/ranks/exam-eligibility";
 import type { RankSlug } from "@/lib/ranks/registry";
@@ -25,10 +29,16 @@ interface ExamStartGateProps {
 }
 
 /**
- * 受験できないときの「理由 → 次の行き先」の 1 組
+ * 受験できないときの「次の行き先 + 理由」の 1 組
  *
- * 理由を先に置く。ボタンだけを差し替えると、開始ボタンがあるはずの位置に
- * 別の遷移先が座っているように見え、押してから初めて受験できないと分かる。
+ * 理由をボタンの下に置く。上に置くと、認証と段級位が解決した瞬間にボタン
+ * 自身が理由の高さぶん下へ飛ぶ（解決前のスケルトンはボタン 1 個ぶんしか
+ * 場所を取れない — どの状態になるかは解決するまで分からないため）。下なら
+ * ボタンの位置はどの状態でも同じで、スケルトンと厳密に一致する。
+ *
+ * 並びも余白も通常の開始導線（`PracticeStartCta` の「ボタン + 補足文」）と
+ * 同じものを使う。受験できるときと同じ形のまま、ボタンの行き先と補足文
+ * だけが変わって見える。
  */
 function BlockedCta({
   reason,
@@ -38,9 +48,9 @@ function BlockedCta({
   readonly children: ReactNode;
 }) {
   return (
-    <div className="space-y-3">
-      <p className="text-sm leading-relaxed text-surface-700">{reason}</p>
+    <div className={PRACTICE_START_CTA_BLOCK_CLASS}>
       {children}
+      <p className={`${PRACTICE_START_CTA_HINT_CLASS} text-center`}>{reason}</p>
     </div>
   );
 }
@@ -99,8 +109,11 @@ export function ExamStartGate({ slug, playHref }: ExamStartGateProps) {
     };
   }, [user]);
 
-  // 認証状態・段級位の解決中。開始ボタン（lg）と同じ高さの矩形で場所を
-  // 確保し、確定後のレイアウトシフトを防ぐ
+  // 認証状態・段級位の解決中。どの状態に確定してもボタンは同じ位置・同じ
+  // 大きさで座るため、ボタン 1 個ぶんの矩形が実物と一致する
+  // （`size="lg"` のボタンの実測が 50px。border-3 の 6px + py-3 の 24px +
+  // text-sm の行 20px）。受験できない状態で増えるのはボタンの下の補足文で、
+  // ボタン自身は動かない
   if (isLoading || (user && !hasFetched)) {
     return <SkeletonBar radius="lg" className="h-[50px] w-full" />;
   }

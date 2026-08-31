@@ -93,10 +93,15 @@ describe("ExamStartGate", () => {
       expect(startButton()).toBeNull();
     });
 
-    it("理由を添える", async () => {
-      renderGate();
+    it("理由をボタンの下に添える", async () => {
+      const { container } = renderGate();
 
-      expect(await screen.findByText("examGate.signUpNote")).toBeTruthy();
+      const reason = await screen.findByText("examGate.signUpNote");
+      const block = container.firstElementChild;
+      // ボタンが先、理由が後。逆にすると解決時にボタンが理由の高さぶん
+      // 飛び、スケルトン（ボタン1個ぶん）と一致しなくなる
+      expect(block?.firstElementChild?.tagName).toBe("A");
+      expect(block?.lastElementChild).toBe(reason);
     });
 
     it("ログインの導線は置かない（登録ページ側が持つ）", async () => {
