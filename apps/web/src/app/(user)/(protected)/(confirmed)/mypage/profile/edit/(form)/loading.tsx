@@ -10,6 +10,10 @@ const SNS_FIELDS = ["x", "instagram", "youtube"] as const;
 /**
  * プロフィール編集ページのローディング状態。
  * 実描画（アバター → 基本情報 → SNS → 保存ボタン → 退会リンク）に合わせる。
+ *
+ * アバターは実描画の苔緑の太枠（`border-ink`）を写さず、灰色の円だけで示す
+ * （`ProblemListSkeleton` と同じ理由 — 読み込み中の画面が実物より賑やかに
+ * 見えるため）。枠は border-box なので、外しても直径 96px は変わらない。
  * ローディング
  */
 export default function Loading() {
@@ -23,10 +27,7 @@ export default function Loading() {
       <div className="space-y-8">
         {/* アバター（実: 中央寄せの円 + 画像選択リンク + ヒント） */}
         <div className="flex flex-col items-center gap-3">
-          <SkeletonBar
-            radius="full"
-            className="h-24 w-24 border-3 border-ink"
-          />
+          <SkeletonBar radius="full" className="h-24 w-24" />
           <SkeletonBar className="h-4 w-20" />
           <SkeletonBar className="h-3 w-56" />
         </div>

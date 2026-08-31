@@ -31,6 +31,11 @@ const LEGEND_LEVELS = [0, 1, 2, 3, 4] as const;
  * 7 日バーチャート / 凡例 / 詳細パネル）を同じ寸法で描画し、データ到着時に
  * レイアウトが動かないようにする。マス目のトーンは活動なし（レベル 0）の
  * `bg-surface-200` と同じで、実描画の「まだ塗られていない状態」に一致する。
+ *
+ * 詳細パネルの枠は実物の苔緑（`border-ink`）を写さず灰色にする。スケルトンは
+ * 灰色の矩形だけで面を示す（`ProblemListSkeleton` と同じ理由 — 読み込み中の
+ * 画面が実物より賑やかに見えるため）。枠は border-box なので、色だけ替えても
+ * 高さは実物と一致したまま。
  */
 export function HeatmapSkeleton() {
   return (
@@ -91,7 +96,7 @@ export function HeatmapSkeleton() {
       </div>
 
       {/* 詳細パネル。実描画は未選択時もプレースホルダ文を出すため枠ごと再現する */}
-      <div className="rounded-lg border-3 border-ink bg-surface-50 p-4">
+      <div className="rounded-lg border-3 border-surface-100 bg-surface-50 p-4">
         <div className="flex h-5 items-center">
           <SkeletonBar className="h-3.5 w-full max-w-[264px]" />
         </div>

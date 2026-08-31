@@ -12,6 +12,11 @@ import { HeatmapSkeleton } from "./_components/heatmap-skeleton";
  * 実描画（`page.tsx`）と同じ枠・同じ行の高さで組み、データ到着時に
  * レイアウトが動かないようにする。文字の矩形は行ボックス（text-lg なら 28px 等）
  * を持つラッパーに入れ、矩形自体はフォントサイズ相当にとどめる。
+ *
+ * 実描画のカードは苔緑の太枠（`border-ink`）だが、スケルトンは灰色の枠と面に
+ * 置き換える（`ProblemListSkeleton` と同じ理由 — 読み込み中の画面が実物より
+ * 賑やかに見えるため）。枠は border-box なので、色だけ替えても・アバターの枠を
+ * 外しても高さは実描画と一致したまま。
  */
 export default function Loading() {
   return (
@@ -25,11 +30,8 @@ export default function Loading() {
         {/* プロフィールカード（実: flex items-center gap-4 border-3 bg-card p-4。
             アバター(lg=80px) + 表示名(text-lg) + @username(text-sm)
             + 公開プロフィール/編集リンク。リンクはモバイル幅で 2 行に折り返す） */}
-        <section className="flex items-center gap-4 rounded-lg border-3 border-ink bg-card p-4">
-          <SkeletonBar
-            radius="full"
-            className="h-20 w-20 flex-shrink-0 border-3 border-ink"
-          />
+        <section className="flex items-center gap-4 rounded-lg border-3 border-surface-100 bg-surface-50 p-4">
+          <SkeletonBar radius="full" className="h-20 w-20 flex-shrink-0" />
           <div className="min-w-0">
             {/* 表示名: text-lg = 28px 行 */}
             <div className="flex h-7 items-center">
@@ -50,7 +52,7 @@ export default function Loading() {
         </section>
 
         {/* アクティビティヒートマップ（実: border-3 bg-card p-4、見出しは text-sm + mb-3） */}
-        <section className="rounded-lg border-3 border-ink bg-card p-4">
+        <section className="rounded-lg border-3 border-surface-100 bg-surface-50 p-4">
           <div className="mb-3 flex h-5 items-center">
             <SkeletonBar className="h-3.5 w-28" />
           </div>

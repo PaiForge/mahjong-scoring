@@ -6,10 +6,16 @@ import {
   CompactTableHeaderCell,
   CompactTableRow,
 } from "./compact-table";
-/** KPIカード1枚分のスケルトン */
+/**
+ * KPIカード1枚分のスケルトン
+ *
+ * 実物のカードは苔緑の太枠（`border-ink`）だが、スケルトンは灰色にする
+ * （`ProblemListSkeleton` と同じ理由 — 読み込み中の画面が実物より賑やかに
+ * 見えるため）。枠は border-box なので、色だけ替えても高さは実物と一致する。
+ */
 function StatsCardSkeleton() {
   return (
-    <div className="bg-surface-50 border-3 border-ink rounded-lg p-4">
+    <div className="bg-surface-50 border-3 border-surface-100 rounded-lg p-4">
       <SkeletonBar className="h-3 w-20 mb-3" />
       <SkeletonBar className="h-8 w-16 mb-2" />
       <SkeletonBar className="h-3 w-28" />
