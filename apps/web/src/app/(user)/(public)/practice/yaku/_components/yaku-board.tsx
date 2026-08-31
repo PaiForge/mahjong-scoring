@@ -11,7 +11,7 @@ import type { YakuQuestion } from "@mahjong-scoring/core";
 import { ChallengeSubmitButton } from "../../_components/challenge-submit-button";
 import { TehaiDisplay } from "../../_components/tehai-display";
 import { YakuAnswerComparison } from "./yaku-answer-comparison";
-import { YakuPicker } from "./yaku-picker";
+import { YakuSelectList } from "./yaku-select-list";
 import { QuestionGeneratingPlaceholder } from "../../_components/question-generating-placeholder";
 import { QuestionPrompt } from "../../_components/question-prompt";
 import { useClientGeneratedQuestion } from "../../_hooks/use-client-generated-question";
@@ -113,7 +113,7 @@ export function YakuBoard({
       {/* Instruction */}
       <QuestionPrompt>{t("selectYaku")}</QuestionPrompt>
 
-      {/* 回答中はリストから選ぶ。止まって答え合わせをする間は、結果ページの
+      {/* 回答中は一覧から選ぶ。止まって答え合わせをする間は、結果ページの
           問題別フィードバックと同じ対比表に差し替える（自分が選んだ役は
           その表の中に並ぶため、選択欄と二重に出さない） */}
       {showAnswer ? (
@@ -123,7 +123,7 @@ export function YakuBoard({
           isCorrect={lastAnswerCorrect}
         />
       ) : (
-        <YakuPicker
+        <YakuSelectList
           selected={selectedYaku}
           disabled={isCountingDown || showFeedback}
           onToggle={handleToggleYaku}

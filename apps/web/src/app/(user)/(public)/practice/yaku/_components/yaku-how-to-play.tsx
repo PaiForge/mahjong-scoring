@@ -5,8 +5,7 @@ import { HaiKind } from "@mahjong-scoring/core";
 import { TehaiDisplay } from "../../_components/tehai-display";
 import { buildDemoTehai } from "../../_lib/demo-tehai";
 import { QuestionPrompt } from "../../_components/question-prompt";
-import { MultiSelect } from "@/app/(user)/_components/multi-select";
-import { useYakuLabel } from "@/app/_hooks/use-yaku-options";
+import { YakuSelectList } from "./yaku-select-list";
 
 /**
  * デモ用の固定例: 断么九 + 一盃口
@@ -36,8 +35,8 @@ const DEMO_CONTEXT = {
   isTsumo: false,
 } as const;
 
-/** この手で成立している役。実際の出題では全役から選ぶ。 */
-const DEMO_YAKU: readonly string[] = ["断么九", "一盃口"];
+/** この手で成立している役。全役の一覧の中で選択済みにして見せる */
+const DEMO_SELECTED: ReadonlySet<string> = new Set(["断么九", "一盃口"]);
 
 const noop = () => {};
 
@@ -50,8 +49,6 @@ const noop = () => {};
  */
 export function YakuHowToPlay() {
   const t = useTranslations("yaku");
-  const tPicker = useTranslations("common.yakuPicker");
-  const labelOf = useYakuLabel();
 
   return (
     <div className="space-y-4">
@@ -61,21 +58,7 @@ export function YakuHowToPlay() {
       <QuestionPrompt>{t("selectYaku")}</QuestionPrompt>
 
       {/* 選択欄（出題時と同じ形。押せないよう disabled で静止させる） */}
-      <MultiSelect
-        options={DEMO_YAKU.map((name) => ({
-          value: name,
-          label: labelOf(name),
-        }))}
-        value={DEMO_YAKU}
-        onChange={noop}
-        disabled
-        placeholder={tPicker("placeholder")}
-        labels={{
-          add: tPicker("add"),
-          title: tPicker("title"),
-          done: tPicker("done"),
-        }}
-      />
+      <YakuSelectList selected={DEMO_SELECTED} disabled onToggle={noop} />
     </div>
   );
 }
