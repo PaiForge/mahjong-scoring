@@ -31,6 +31,17 @@
  * 通せば付くが、そちらは `createdAt` を現在時刻で固定するため、このシードが
  * 作りたい期間の散らばりが失われる。EXP の画面を見たいときは実際に
  * 練習を 1 回走らせること。
+ *
+ * @design 昇級試験のスコアは宣言された段級位と整合させる
+ *
+ * 昇級試験のメニューにも成績を入れる（試験もランキングの対象で、成績が
+ * 無いと試験のランキングが空になるため）が、スコアは「その試験に対応する
+ * 級を保持 → 合格ライン以上 / 未保持 → 合格ライン未満」に制約する。
+ * 未保持の級の合格スコアは「試験に受かったことにする偽の記録」
+ * （`users.ts` 冒頭で避けると宣言している状態そのもの）であり、その
+ * ユーザーが次に昇級判定（`checkAndGrantRanks`）を通った瞬間、捏造記録を
+ * 根拠に唐突な昇級として発火する — 実際に seed_admin がこれで練習の
+ * 結果画面から5級に昇級した。
  */
 import { inArray, sql } from "drizzle-orm";
 import type { PostgresJsDatabase } from "drizzle-orm/postgres-js";
@@ -42,6 +53,7 @@ import {
 } from "../../src/lib/db/practice-menu-types";
 import { rankingOrderSql } from "../../src/lib/db/ranking-order";
 import { challengeBestScores, challengeResults } from "../../src/lib/db/schema";
+import { rankRequiringMenu, type RankSlug } from "../../src/lib/ranks/registry";
 
 /** 現時点でランキングを細分化していないため、キーは 1 種類だけ */
 const LEADERBOARD_KEY = "default";
@@ -53,6 +65,8 @@ const PREVIOUS_PERIOD_SPAN_DAYS = 20;
 export interface ScoredSeedUser {
   readonly userId: string;
   readonly username: string;
+  /** 宣言された段級位。昇級試験のスコアを合否と整合させるのに使う */
+  readonly ranks: readonly RankSlug[];
 }
 
 /**
@@ -125,12 +139,39 @@ function resultsFor(
       userId: user.userId,
       menuType,
       leaderboardKey: LEADERBOARD_KEY,
-      score: randomInt(random(), 5, 34),
+      score: scoreFor(user, menuType, random()),
       incorrectAnswers,
       timeTaken,
       createdAt,
     };
   });
+}
+
+/** 通常練習のスコア範囲（合格ラインの制約を受けない従来からの値） */
+const PRACTICE_SCORE_RANGE = { min: 5, max: 34 } as const;
+
+/**
+ * 1 走行ぶんのスコアを決める
+ * シードスコア決定
+ *
+ * 昇級試験のメニューだけ、その試験に対応する級の保持で範囲を分ける:
+ * 保持していれば合格ライン（`minScore`）以上、していなければ未満。
+ * ファイル冒頭の「昇級試験のスコアは宣言された段級位と整合させる」参照。
+ * 乱数は種類を問わず 1 回だけ消費するので、通常練習の値は従来と変わらない。
+ */
+function scoreFor(
+  user: ScoredSeedUser,
+  menuType: PracticeMenuType,
+  value: number,
+): number {
+  const exam = rankRequiringMenu(menuType);
+  if (exam === undefined) {
+    return randomInt(value, PRACTICE_SCORE_RANGE.min, PRACTICE_SCORE_RANGE.max);
+  }
+
+  return user.ranks.includes(exam.rank.slug)
+    ? randomInt(value, exam.requirement.minScore, PRACTICE_SCORE_RANGE.max)
+    : randomInt(value, 0, exam.requirement.minScore - 1);
 }
 
 /**

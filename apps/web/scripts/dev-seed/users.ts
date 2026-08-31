@@ -14,6 +14,7 @@
  * 付与記録そのものを置く（admin ロールを直接入れているのと同じ立て付け）。
  */
 import type { SupabaseClient } from "@supabase/supabase-js";
+import { eq } from "drizzle-orm";
 import type { PostgresJsDatabase } from "drizzle-orm/postgres-js";
 
 import {
@@ -168,21 +169,27 @@ export async function ensureSeedUser(
       .onConflictDoNothing();
   }
 
+  // シードは段級位と読了の権威ソース: 宣言された状態へ消して入れ直す。
+  // チャレンジ成績（challenge-results.ts）と同じ方針で、シードユーザーと
+  // して実際に受験・読了した記録は残らない。追記だけ（onConflictDoNothing）
+  // だと、シードユーザーで遊んで付いた級が再シード後も残り、「無級の
+  // 管理者」等のフィクスチャが壊れたままになる
+  await db.delete(userRanks).where(eq(userRanks.userId, userId));
+  await db
+    .delete(learnChapterReads)
+    .where(eq(learnChapterReads.userId, userId));
+
   if (user.ranks && user.ranks.length > 0) {
     await db
       .insert(userRanks)
-      .values(user.ranks.map((rankSlug) => ({ userId, rankSlug })))
-      .onConflictDoNothing();
+      .values(user.ranks.map((rankSlug) => ({ userId, rankSlug })));
 
-    await db
-      .insert(learnChapterReads)
-      .values(
-        readChaptersFor(user.ranks).map((chapterSlug) => ({
-          userId,
-          chapterSlug,
-        })),
-      )
-      .onConflictDoNothing();
+    await db.insert(learnChapterReads).values(
+      readChaptersFor(user.ranks).map((chapterSlug) => ({
+        userId,
+        chapterSlug,
+      })),
+    );
   }
 
   return userId;
