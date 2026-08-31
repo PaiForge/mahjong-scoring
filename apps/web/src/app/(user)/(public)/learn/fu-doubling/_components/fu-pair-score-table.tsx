@@ -6,6 +6,7 @@ import {
   DataTableHeaderCell,
   DataTableRowHeaderCell,
 } from "@/app/(user)/_components/data-table";
+import { TABLE_HIGHLIGHT_CELL_CLASS } from "@/app/(user)/_components/_lib/table-highlight";
 import { HAN_COLS } from "@/app/(user)/(public)/reference/score-table/_lib/score-table-utils";
 import { TsumoScore } from "@/app/(user)/(public)/reference/score-table/_components/tsumo-score";
 
@@ -78,7 +79,9 @@ export async function FuPairScoreTable({
       {cells.map((cell) => (
         <td
           key={cell.han}
-          className={`px-4 py-3${cell.linked ? " bg-blue-100" : ""}`}
+          className={`px-4 py-3${
+            cell.linked ? ` ${TABLE_HIGHLIGHT_CELL_CLASS}` : ""
+          }`}
         >
           {renderCell(cell)}
         </td>

@@ -7,6 +7,7 @@ import {
   PracticeLinkSection,
 } from "../../_components/practice-link-card";
 
+import { ChapterLink } from "../../_components/chapter-link";
 import { GuideColumn } from "../../_components/guide-column";
 import { GuideParagraph } from "../../_components/guide-paragraph";
 import { ExtraFuTable } from "../../_components/extra-fu-table";
@@ -31,7 +32,13 @@ export async function MenzenMentsuScoreGuide() {
       {/* 積み上げた符を10で切るという1つの規則と、その対応表 */}
       <section className="space-y-4">
         <SectionTitle>{t("roundTitle")}</SectionTitle>
-        <GuideParagraph preLine>{t("roundBody1")}</GuideParagraph>
+        <GuideParagraph preLine>
+          {t.rich("roundBody1", {
+            mentsuLink: () => <ChapterLink slug="mentsu-fu" />,
+            jantouLink: () => <ChapterLink slug="jantou-fu" />,
+            machiLink: () => <ChapterLink slug="machi-fu" />,
+          })}
+        </GuideParagraph>
         <GuideParagraph preLine>{t("roundBody2")}</GuideParagraph>
 
         <ExtraFuTable handShape="menzen" />

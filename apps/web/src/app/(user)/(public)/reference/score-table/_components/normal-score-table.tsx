@@ -8,6 +8,10 @@ import {
   DataTable,
   DataTableHeaderCell,
 } from "@/app/(user)/_components/data-table";
+import {
+  TABLE_HIGHLIGHT_FOCUS_CLASS,
+  TABLE_HIGHLIGHT_HEADER_CLASS,
+} from "@/app/(user)/_components/_lib/table-highlight";
 import { HAN_COLS, FU_ROWS } from "../_lib/score-table-utils";
 import type { NormalCellHighlight } from "../_lib/score-table-utils";
 import { TsumoScore } from "./tsumo-score";
@@ -34,8 +38,9 @@ interface NormalScoreTableProps {
  * セルのタップでぼかし表示を切り替える（暗記用）。
  * highlight で指定されたセルは、符の行見出し・翻の列見出しとあわせて
  * クロスヘア状にハイライトし、初期表示時に画面中央へスクロールされる。
- * ハイライトの青は「参照している場所」を指す色で、頻出符の琥珀
- * （行見出しの強調）や正解フィードバックの緑と役割を分けている。
+ * 配色は `_lib/table-highlight` が持つ（早見表と教本で同じ塗りを使うため）。
+ * 頻出符（30・40符）の行見出しは太字で示す。色で示すと、表の中に「注目」の
+ * 合図が2種類あることになり、ハイライトと見分けが付かなくなる。
  */
 export function NormalScoreTable({
   scoreGrid,
@@ -62,7 +67,9 @@ export function NormalScoreTable({
             <DataTableHeaderCell
               key={han}
               className={
-                highlight?.han === han ? "bg-blue-100 text-blue-700" : undefined
+                highlight?.han === han
+                  ? TABLE_HIGHLIGHT_HEADER_CLASS
+                  : undefined
               }
             >
               {han}
@@ -79,13 +86,20 @@ export function NormalScoreTable({
         return (
           <tr key={fu} className="bg-white">
             <td
-              className={`px-4 py-3 text-left font-medium ${
+              // 太さは頻出符かどうかだけで決め、塗りはハイライトかどうかだけで
+              // 決める。1つの三項に混ぜると、ハイライトされた頻出符が頻出の
+              // 印を失う（40符はその両方に当たる）。
+              className={[
+                "px-4 py-3 text-left",
+                isFrequent ? "font-bold text-surface-900" : "font-medium",
                 isFuHighlighted
-                  ? "bg-blue-100 text-blue-700"
+                  ? TABLE_HIGHLIGHT_HEADER_CLASS
                   : isFrequent
-                    ? "text-amber-700"
-                    : "text-surface-600"
-              }`}
+                    ? ""
+                    : "text-surface-600",
+              ]
+                .filter(Boolean)
+                .join(" ")}
             >
               {fu}
             </td>
@@ -106,7 +120,7 @@ export function NormalScoreTable({
                 highlight.han === han &&
                 highlight.fu === fu;
               const highlightClass = isHighlighted
-                ? " bg-blue-100 ring-2 ring-inset ring-blue-500"
+                ? ` ${TABLE_HIGHLIGHT_FOCUS_CLASS}`
                 : "";
 
               const interactiveClass =

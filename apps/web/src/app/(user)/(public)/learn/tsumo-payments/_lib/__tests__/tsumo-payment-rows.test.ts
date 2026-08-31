@@ -8,7 +8,7 @@ import {
 
 import { HAN_COLS } from "@/app/(user)/(public)/reference/score-table/_lib/score-table-utils";
 
-import { buildTsumoRoleRows, buildTsumoSplitRows } from "../tsumo-payment-rows";
+import { buildTsumoSplitRows } from "../tsumo-payment-rows";
 
 /**
  * この章の主張そのものの検査。
@@ -78,27 +78,5 @@ describe("buildTsumoSplitRows", () => {
 
   it("存在しない組は行ごと落とす（20符ツモの1翻）", () => {
     expect(buildTsumoSplitRows(20).map((row) => row.han)).toEqual([2, 3, 4]);
-  });
-});
-
-describe("buildTsumoRoleRows", () => {
-  it("親ツモのオール額として子ツモの親払い額をそのまま持つ", () => {
-    for (const row of buildTsumoRoleRows(30)) {
-      if (row.oya.type !== "oyaTsumo") throw new Error("型が違う");
-      expect(row.oya.all).toBe(row.fromOya);
-    }
-  });
-
-  it("30符は 300/500・500/1000・1000/2000・2000/3900 と並ぶ", () => {
-    expect(
-      buildTsumoRoleRows(30).map((row) =>
-        row.ko.type === "koTsumo" ? [row.ko.fromKo, row.ko.fromOya] : undefined,
-      ),
-    ).toEqual([
-      [300, 500],
-      [500, 1000],
-      [1000, 2000],
-      [2000, 3900],
-    ]);
   });
 });

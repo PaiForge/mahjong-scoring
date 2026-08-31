@@ -1,7 +1,6 @@
 import {
   calculateBasePoints,
   calculateKoScore,
-  calculateOyaScore,
   isInvalidCell,
   type TsumoPayment,
 } from "@mahjong-scoring/core";
@@ -62,46 +61,6 @@ export function buildTsumoSplitRows(fu: number): readonly TsumoSplitRow[] {
           fromOya: base * 2,
         } satisfies TsumoPayment,
         actual: { type: "koTsumo", fromKo, fromOya } satisfies TsumoPayment,
-      },
-    ];
-  });
-}
-
-/** 子のツモと親のツモを突き合わせた1行 */
-export interface TsumoRoleRow {
-  readonly han: number;
-  /** 子の和了。上段＝子ひとりから / 下段＝親から */
-  readonly ko: TsumoPayment;
-  /** 子の和了で親が払う額。親の和了で全員が払う額と一致する */
-  readonly fromOya: number;
-  /** 親の和了。全員が同額（オール） */
-  readonly oya: TsumoPayment;
-}
-
-/**
- * 子のツモと親のツモを1行に並べる
- * ツモの親子対応
- *
- * 子の和了で親が払う額と、親の和了で全員が払う額は、どちらも「基本符の2倍」で
- * まったく同じ式から出る。切り上げも同じ値に効くので、表に載る数字も必ず一致する
- * （この一致は `__tests__/tsumo-payment-rows.test.ts` が全ての符×翻で固定する）。
- *
- * 一致する2つを別々の列に出すのは、章の主張を目で確かめられるようにするため。
- * 子ツモの下段を抜き出した列を挟むことで、「下段」と「親ツモのオール」が
- * 同じ数字であることを、セルの中を読み解かずに突き合わせられる。
- *
- * @param fu 対象の符
- */
-export function buildTsumoRoleRows(fu: number): readonly TsumoRoleRow[] {
-  return HAN_COLS.flatMap((han) => {
-    if (isInvalidCell(han, fu, "tsumo")) return [];
-    const { fromKo, fromOya } = koTsumoOf(han, fu);
-    return [
-      {
-        han,
-        ko: { type: "koTsumo", fromKo, fromOya } satisfies TsumoPayment,
-        fromOya,
-        oya: calculateOyaScore(han, fu).tsumo,
       },
     ];
   });
