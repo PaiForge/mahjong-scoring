@@ -9,6 +9,13 @@ interface YakuSelectListProps {
   readonly selected: ReadonlySet<string>;
   readonly disabled: boolean;
   readonly onToggle: (yakuName: string) => void;
+  /**
+   * 静止画として見せるプレビューか（説明ページの「問題方式」）
+   *
+   * 低い枠に収め、スクロールを止めて下端をぼかす。読む人はまだ練習を
+   * 始めておらず、この場で役を探すことはないため。
+   */
+  readonly preview?: boolean;
 }
 
 /**
@@ -17,10 +24,7 @@ interface YakuSelectListProps {
  *
  * 出題ごとに何度も選ぶ欄なので、モーダルを開いて閉じる操作を挟まず、一覧を
  * ページに出したままにする。全役を並べると縦に長いため、枠の中で一覧自身が
- * スクロールする。
- *
- * 2 列に並べる。役名はどれも短く、狭い画面でも 1 行に 2 つ収まるので、
- * 同じ高さで倍の役が見え、目的の役までのスクロールが半分で済む。
+ * スクロールする。行の姿はモーダルの選択肢（点数計算の役選択）と共通。
  *
  * 並びは設定で並び替えられ、点数計算練習の役選択と同じ順になる。
  */
@@ -28,19 +32,32 @@ export function YakuSelectList({
   selected,
   disabled,
   onToggle,
+  preview = false,
 }: YakuSelectListProps) {
   const t = useTranslations("common.yakuPicker");
   const options = useYakuOptions();
 
-  return (
+  const list = (
     <SelectOptionList
       options={options}
       value={[...selected]}
       onToggle={onToggle}
       disabled={disabled}
       label={t("title")}
-      columns={2}
-      className="h-[34dvh] min-h-52 max-h-[32rem] sm:h-[46dvh]"
+      scrollable={!preview}
+      className={
+        preview ? "h-48" : "h-[34dvh] max-h-[32rem] min-h-52 sm:h-[46dvh]"
+      }
     />
+  );
+
+  if (!preview) return list;
+
+  return (
+    <div className="relative">
+      {list}
+      {/* 枠の内側だけをぼかす（続きがあることを示す。枠線には掛けない） */}
+      <div className="pointer-events-none absolute inset-x-[3px] bottom-[3px] h-12 rounded-b-md bg-gradient-to-t from-white to-transparent" />
+    </div>
   );
 }

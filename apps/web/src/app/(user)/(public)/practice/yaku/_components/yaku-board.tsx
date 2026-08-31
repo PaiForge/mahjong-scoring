@@ -12,6 +12,7 @@ import { ChallengeSubmitButton } from "../../_components/challenge-submit-button
 import { TehaiDisplay } from "../../_components/tehai-display";
 import { YakuAnswerComparison } from "./yaku-answer-comparison";
 import { YakuSelectList } from "./yaku-select-list";
+import { YakuSelectedChips } from "./yaku-selected-chips";
 import { QuestionGeneratingPlaceholder } from "../../_components/question-generating-placeholder";
 import { QuestionPrompt } from "../../_components/question-prompt";
 import { useClientGeneratedQuestion } from "../../_hooks/use-client-generated-question";
@@ -123,11 +124,21 @@ export function YakuBoard({
           isCorrect={lastAnswerCorrect}
         />
       ) : (
-        <YakuSelectList
-          selected={selectedYaku}
-          disabled={isCountingDown || showFeedback}
-          onToggle={handleToggleYaku}
-        />
+        <>
+          <YakuSelectList
+            selected={selectedYaku}
+            disabled={isCountingDown || showFeedback}
+            onToggle={handleToggleYaku}
+          />
+
+          {/* 選択中の役（一覧をスクロールすると選んだ役が視界から出るため、
+              回答する直前に何を選んだのかをボタンの上で読ませる） */}
+          <YakuSelectedChips
+            selected={selectedYaku}
+            disabled={isCountingDown || showFeedback}
+            onRemove={handleToggleYaku}
+          />
+        </>
       )}
 
       {/* Submit button（チャレンジは押した瞬間に次問題へ進むため「回答する」） */}

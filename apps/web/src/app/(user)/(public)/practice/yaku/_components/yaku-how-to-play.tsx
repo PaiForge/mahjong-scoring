@@ -6,6 +6,7 @@ import { TehaiDisplay } from "../../_components/tehai-display";
 import { buildDemoTehai } from "../../_lib/demo-tehai";
 import { QuestionPrompt } from "../../_components/question-prompt";
 import { YakuSelectList } from "./yaku-select-list";
+import { YakuSelectedChips } from "./yaku-selected-chips";
 
 /**
  * デモ用の固定例: 断么九 + 一盃口
@@ -58,7 +59,14 @@ export function YakuHowToPlay() {
       <QuestionPrompt>{t("selectYaku")}</QuestionPrompt>
 
       {/* 選択欄（出題時と同じ形。押せないよう disabled で静止させる） */}
-      <YakuSelectList selected={DEMO_SELECTED} disabled onToggle={noop} />
+      <YakuSelectList
+        selected={DEMO_SELECTED}
+        disabled
+        preview
+        onToggle={noop}
+      />
+
+      <YakuSelectedChips selected={DEMO_SELECTED} disabled onRemove={noop} />
     </div>
   );
 }
