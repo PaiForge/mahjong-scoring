@@ -96,18 +96,13 @@ export function groupYakuHanEntriesByMenzenHan(
   readonly han: number;
   readonly entries: readonly YakuHanEntry[];
 }[] {
-  const order: number[] = [];
-  const map = new Map<number, YakuHanEntry[]>();
-  for (const entry of entries) {
-    let group = map.get(entry.menzenHan);
-    if (group === undefined) {
-      group = [];
-      map.set(entry.menzenHan, group);
-      order.push(entry.menzenHan);
-    }
-    group.push(entry);
-  }
-  return order.map((han) => ({ han, entries: map.get(han) ?? [] }));
+  // 並びは Set の挿入順（= entries の出現順）がそのまま持つ。翻数の一覧と
+  // グループの中身を別々の入れ物で持つと、片方だけ直す変更で静かに乖離する。
+  const hansInOrder = [...new Set(entries.map((entry) => entry.menzenHan))];
+  return hansInOrder.map((han) => ({
+    han,
+    entries: entries.filter((entry) => entry.menzenHan === han),
+  }));
 }
 
 /** 役満（13翻）かどうか */
