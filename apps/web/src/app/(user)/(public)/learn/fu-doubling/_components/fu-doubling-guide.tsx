@@ -2,6 +2,7 @@ import { getTranslations } from "next-intl/server";
 
 import { SectionTitle } from "@/app/(user)/_components/section-title";
 
+import { ChapterLink } from "../../_components/chapter-link";
 import { GuideColumn } from "../../_components/guide-column";
 import { GuideNote } from "../../_components/guide-note";
 import { GuideParagraph } from "../../_components/guide-paragraph";
@@ -35,6 +36,12 @@ export async function FuDoublingGuide() {
         <BlockMath
           latex={String.raw`\text{符} \times 2^{(\text{翻数} + 2)} \times 4`}
         />
+
+        <GuideNote>
+          {t.rich("sourceNote", {
+            link: () => <ChapterLink slug="why-scoring-is-complex" />,
+          })}
+        </GuideNote>
 
         <GuideParagraph preLine>{t("hanBody2")}</GuideParagraph>
 
