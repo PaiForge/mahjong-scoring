@@ -17,7 +17,15 @@ const X_USERNAME_PATTERN = /^[a-zA-Z0-9_]+$/;
 const INSTAGRAM_USERNAME_PATTERN = /^[a-zA-Z0-9._]+$/;
 const YOUTUBE_HANDLE_PATTERN = /^[a-zA-Z0-9._-]+$/;
 
-/** フォームからの生入力（すべて文字列） */
+/**
+ * フォームからの生入力（すべて文字列）
+ * プロフィール生入力
+ *
+ * 空欄は null ではなく空文字。編集フォームの初期値もこの形で受け取り、
+ * 入力された値をそのまま Server Action へ渡す。DB 保存用の形
+ * （空文字を null に寄せた {@link NormalizedProfile}）への変換は
+ * {@link normalizeAndValidateProfile} が担う。
+ */
 export interface ProfileInput {
   readonly displayName: string;
   readonly bio: string;

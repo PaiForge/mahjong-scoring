@@ -15,6 +15,7 @@ import { SectionTitle } from "@/app/(user)/_components/section-title";
 
 import { updateProfile } from "../_actions/update-profile";
 import { PROFILE_LIMITS } from "../_lib/profile-validation";
+import type { ProfileInput } from "../_lib/profile-validation";
 import { TEXT_LINK_CLASSES } from "@/app/_components/_lib/link-classes";
 import { Button } from "@/app/(user)/_components/button";
 
@@ -30,14 +31,6 @@ const KNOWN_ERROR_KEYS = new Set([
   "banned",
 ]);
 
-export interface ProfileFormInitial {
-  readonly displayName: string;
-  readonly bio: string;
-  readonly xUsername: string;
-  readonly instagramUsername: string;
-  readonly youtubeHandle: string;
-}
-
 /**
  * プロフィール（表示名・自己紹介・SNS）編集フォーム。アバターは別コンポーネント。
  * プロフィール編集フォーム
@@ -46,7 +39,8 @@ export function ProfileForm({
   initial,
   showSkip,
 }: {
-  readonly initial: ProfileFormInitial;
+  /** 各欄の初期値。空欄は null ではなく空文字で渡す */
+  readonly initial: ProfileInput;
   readonly showSkip: boolean;
 }) {
   const t = useTranslations("profileEdit");
