@@ -7,8 +7,16 @@ import {
   PRACTICE_START_CTA_FRAME_CLASS,
 } from "./practice-start-cta";
 
-/** `LinkButton size="lg"` の実寸（py-3 + text-sm + border-3 = 50px） */
-const START_BUTTON_HEIGHT_CLASS = "h-[50px]";
+/**
+ * `LinkButton size="lg"` の実寸（py-3 の 24px + text-sm の行 20px +
+ * border-3 の 6px = 50px）
+ * 開始ボタン高さ
+ *
+ * 開始ボタンの場所を確保するスケルトンはこの高さを共有する（このファイルの
+ * ものと、昇級試験の受験ゲート・説明ページのスケルトン）。ボタンの寸法が
+ * 変わったときに直す場所を 1 つにするため。
+ */
+export const START_BUTTON_HEIGHT_CLASS = "h-[50px]";
 
 /**
  * 練習の開始導線の読み込み中スケルトン

@@ -17,6 +17,7 @@ import {
   PRACTICE_START_CTA_BLOCK_CLASS,
   PRACTICE_START_CTA_HINT_CLASS,
 } from "../../practice/_components/practice-start-cta";
+import { START_BUTTON_HEIGHT_CLASS } from "../../practice/_components/practice-start-cta-skeleton";
 import { beltButtonVarsClass } from "@/lib/ranks/belt-colors";
 import { evaluateExamEligibility } from "@/lib/ranks/exam-eligibility";
 import type { RankSlug } from "@/lib/ranks/registry";
@@ -110,12 +111,15 @@ export function ExamStartGate({ slug, playHref }: ExamStartGateProps) {
   }, [user]);
 
   // 認証状態・段級位の解決中。どの状態に確定してもボタンは同じ位置・同じ
-  // 大きさで座るため、ボタン 1 個ぶんの矩形が実物と一致する
-  // （`size="lg"` のボタンの実測が 50px。border-3 の 6px + py-3 の 24px +
-  // text-sm の行 20px）。受験できない状態で増えるのはボタンの下の補足文で、
-  // ボタン自身は動かない
+  // 大きさで座るため、ボタン 1 個ぶんの矩形が実物と一致する。受験できない
+  // 状態で増えるのはボタンの下の補足文で、ボタン自身は動かない
   if (isLoading || (user && !hasFetched)) {
-    return <SkeletonBar radius="lg" className="h-[50px] w-full" />;
+    return (
+      <SkeletonBar
+        radius="lg"
+        className={`${START_BUTTON_HEIGHT_CLASS} w-full`}
+      />
+    );
   }
 
   if (!user) {
