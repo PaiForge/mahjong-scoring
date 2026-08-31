@@ -55,7 +55,11 @@ vi.mock("../schema", async () => await import("@/test/schema-mock"));
 
 vi.mock("drizzle-orm", async () => await import("@/test/drizzle-orm-mock"));
 
-import { getAllTimeRanking, getMonthlyRanking } from "../leaderboard-queries";
+import {
+  getAllTimeRanking,
+  getMonthlyRanking,
+  startOfCurrentMonth,
+} from "../leaderboard-queries";
 import { notHiddenFromLeaderboard } from "../leaderboard-visibility";
 import {
   getUserAllTimeRankedRow,
@@ -85,6 +89,42 @@ function rawRankedRow(overrides: Record<string, unknown> = {}) {
     ...overrides,
   };
 }
+
+describe("startOfCurrentMonth", () => {
+  it("当月1日の UTC 0 時を返す", () => {
+    expect(
+      startOfCurrentMonth(new Date("2026-08-15T12:34:56.789Z")).toISOString(),
+    ).toBe("2026-08-01T00:00:00.000Z");
+  });
+
+  it("月初の瞬間そのものを渡してもその月に留まる", () => {
+    expect(
+      startOfCurrentMonth(new Date("2026-08-01T00:00:00.000Z")).toISOString(),
+    ).toBe("2026-08-01T00:00:00.000Z");
+  });
+
+  it("月末最後のミリ秒でもまだ当月を指す", () => {
+    expect(
+      startOfCurrentMonth(new Date("2026-08-31T23:59:59.999Z")).toISOString(),
+    ).toBe("2026-08-01T00:00:00.000Z");
+  });
+
+  it("年をまたぐ（1月は前年12月へ戻らない）", () => {
+    expect(
+      startOfCurrentMonth(new Date("2027-01-01T00:00:00.000Z")).toISOString(),
+    ).toBe("2027-01-01T00:00:00.000Z");
+  });
+
+  // 月の境界は UTC で切る。ヒートマップ（JST 基準）とは基準が異なるため、
+  // JST では翌月に入っていても月間ランキングはまだ前月を集計する。
+  // 現行仕様であり、変えるならランキングの母集団定義ごと変わる。
+  it("JST では翌月でも UTC がまだ当月なら当月を指す", () => {
+    // JST 2026-09-01 08:30 = UTC 2026-08-31 23:30
+    expect(
+      startOfCurrentMonth(new Date("2026-08-31T23:30:00.000Z")).toISOString(),
+    ).toBe("2026-08-01T00:00:00.000Z");
+  });
+});
 
 describe("getAllTimeRanking", () => {
   beforeEach(() => {
