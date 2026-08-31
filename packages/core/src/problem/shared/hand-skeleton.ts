@@ -5,7 +5,11 @@ import {
   type HaiKindId,
   type Tehai14,
 } from "@pai-forge/riichi-mahjong";
-import { randomChoice } from "../../core/random";
+import {
+  randomChoice,
+  defaultRandomSource,
+  type RandomSource,
+} from "../../core/random";
 import { randomHaiKindId } from "./tile-random";
 import type { HaiUsageTracker } from "../../core/hai-tracker";
 import {
@@ -81,11 +85,13 @@ export function buildTehai14(
  * @param tracker - 牌の使用状況トラッカー（呼び出し側が用意した同一インスタンスを更新する）
  * @param weights - 面子種別の確率重み
  * @param count - 生成する面子数（既定 4）
+ * @param rng - 乱数供給源（既定 `Math.random`）
  */
 export function generateMentsuSet(
   tracker: HaiUsageTracker,
   weights: Readonly<MentsuWeights>,
   count = 4,
+  rng: RandomSource = defaultRandomSource,
 ): MentsuResult[] | undefined {
   const results: MentsuResult[] = [];
 
@@ -93,7 +99,7 @@ export function generateMentsuSet(
     let found: MentsuResult | undefined;
 
     for (let retry = 0; retry < MAX_RETRY; retry++) {
-      const result = createRandomMentsu(weights);
+      const result = createRandomMentsu(weights, rng);
       const tiles = result.mentsu.hais;
 
       const tempCount = new Map<HaiKindId, number>();
@@ -131,12 +137,14 @@ export function generateMentsuSet(
  * 雀頭牌生成
  *
  * @param tracker - 牌の使用状況トラッカー（生成成功時に2枚使用登録する）
+ * @param rng - 乱数供給源（既定 `Math.random`）
  */
 export function generatePairTile(
   tracker: HaiUsageTracker,
+  rng: RandomSource = defaultRandomSource,
 ): HaiKindId | undefined {
   for (let retry = 0; retry < MAX_RETRY; retry++) {
-    const t = randomHaiKindId();
+    const t = randomHaiKindId(rng);
     // canUse と use で同じ上限判定を二重に持たない。use は確保できない場合
     // 使用枚数を変えずに Err を返すので、その結果だけで分岐できる。
     if (tracker.use(t, 2).isOk()) return t;
@@ -174,12 +182,14 @@ function agariHaiCandidates(
  *
  * @param mentsuList - 生成済みの面子（雀頭は含まない）
  * @param pairTile - 雀頭の牌種
+ * @param rng - 乱数供給源（既定 `Math.random`）
  */
 export function pickAgariHai(
   mentsuList: readonly MentsuResult[],
   pairTile: HaiKindId,
+  rng: RandomSource = defaultRandomSource,
 ): HaiKindId {
-  return randomChoice(agariHaiCandidates(mentsuList, pairTile));
+  return randomChoice(agariHaiCandidates(mentsuList, pairTile), rng);
 }
 
 /**
@@ -197,10 +207,12 @@ export function pickAgariHai(
  *
  * @param mentsuList - 生成済みの面子（雀頭は含まない）
  * @param pairTile - 雀頭の牌種
+ * @param rng - 乱数供給源（既定 `Math.random`）
  */
 export function pickRonAgariHai(
   mentsuList: readonly MentsuResult[],
   pairTile: HaiKindId,
+  rng: RandomSource = defaultRandomSource,
 ): HaiKindId | undefined {
   const closedGroups = mentsuList
     .filter((r) => !r.mentsu.furo && r.mentsu.type !== MentsuType.Kantsu)
@@ -218,5 +230,5 @@ export function pickRonAgariHai(
     (t) => !ambiguous.has(t),
   );
   if (candidates.length === 0) return undefined;
-  return randomChoice(candidates);
+  return randomChoice(candidates, rng);
 }

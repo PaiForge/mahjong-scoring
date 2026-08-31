@@ -5,6 +5,7 @@ import { SCORE_FILTERABLE_YAKU } from "./filterable-yaku";
 import { ScoreLevel } from "../../core/constants";
 import { isMangan, MANGAN_MIN_HAN } from "../../score/tiers";
 import { expectGeneratesEventually, expectSampled } from "../../test/sampling";
+import { seededRandom } from "../../test/seeded-random";
 
 describe("generateScoreQuestion", () => {
   it("試行すれば問題が生成される", () => {
@@ -340,5 +341,43 @@ describe("オプション: requiredYaku", () => {
       );
       expect(question, `役「${yaku}」の問題を生成できない`).toBeDefined();
     }
+  });
+});
+
+describe("RandomSource の注入", () => {
+  /** 生成に成功する最小のシードを探す（生成器は条件次第で undefined を返す） */
+  function firstSuccessfulSeed(): number {
+    for (let seed = 0; seed < 500; seed++) {
+      if (generateScoreQuestion({ rng: seededRandom(seed) })) return seed;
+    }
+    throw new Error("固定シードで1問も生成できない");
+  }
+
+  it("同じシードなら手牌・和了状況・正解まで同一の問題を生成する", () => {
+    const seed = firstSuccessfulSeed();
+
+    const first = generateScoreQuestion({ rng: seededRandom(seed) });
+    const second = generateScoreQuestion({ rng: seededRandom(seed) });
+
+    expect(first).toBeDefined();
+    expect(second).toEqual(first);
+  });
+
+  it("生成に失敗するシードでも同じシードなら同じく失敗する", () => {
+    const seed = 1234;
+    const first = generateScoreQuestion({ rng: seededRandom(seed) });
+    const second = generateScoreQuestion({ rng: seededRandom(seed) });
+
+    expect(second).toEqual(first);
+  });
+
+  it("シードが違えば違う手牌が出る（供給源が生成経路の隅まで届いている）", () => {
+    const hands = new Set<string>();
+    for (let seed = 0; seed < 60; seed++) {
+      const question = generateScoreQuestion({ rng: seededRandom(seed) });
+      if (question) hands.add(JSON.stringify(question.tehai));
+    }
+
+    expect(hands.size).toBeGreaterThan(1);
   });
 });

@@ -55,6 +55,8 @@ export { retryGenerate } from "./problem/retry-generate";
 export type { KazeContext, AgariContext } from "./problem/shared/agari-context";
 export { defaultIdGenerator } from "./core/id";
 export type { IdGenerator } from "./core/id";
+export { defaultRandomSource } from "./core/random";
+export type { RandomSource } from "./core/random";
 
 // === Problem: Score ===
 export { generateValidScoreQuestion } from "./problem/score/generator";

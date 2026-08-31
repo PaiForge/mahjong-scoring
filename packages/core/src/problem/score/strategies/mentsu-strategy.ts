@@ -4,8 +4,12 @@ import {
   type Tehai14,
   type CompletedMentsu,
 } from "@pai-forge/riichi-mahjong";
-import { randomChoice } from "../../../core/random";
-import { randomInt } from "../../../core/random";
+import {
+  randomChoice,
+  randomInt,
+  defaultRandomSource,
+  type RandomSource,
+} from "../../../core/random";
 import { HaiUsageTracker } from "../../../core/hai-tracker";
 import { finalizeTehai14, isExposedMentsu } from "../../shared/hand-skeleton";
 import {
@@ -58,9 +62,11 @@ export interface MentsuTehaiResult {
  * 面子手生成
  *
  * @param includeFuro - 副露を含めるかどうか
+ * @param rng - 乱数供給源（既定 `Math.random`）
  */
 export function generateMentsuTehai(
   includeFuro: boolean,
+  rng: RandomSource = defaultRandomSource,
 ): MentsuTehaiResult | undefined {
   const tracker = new HaiUsageTracker();
   const closedHais: HaiKindId[] = [];
@@ -68,7 +74,7 @@ export function generateMentsuTehai(
   const structuralMentsu: MentsuShape[] = [];
 
   // 副露の数を決定（0-2）
-  const furoCount = includeFuro ? randomInt(0, 2) : 0;
+  const furoCount = includeFuro ? randomInt(0, 2, rng) : 0;
 
   // 4面子を生成
   for (let i = 0; i < 4; i++) {
@@ -77,6 +83,7 @@ export function generateMentsuTehai(
       tracker,
       SCORE_MENTSU_WEIGHTS,
       isFuro,
+      rng,
     );
 
     if (!mentsu) return undefined;
@@ -95,7 +102,7 @@ export function generateMentsuTehai(
   }
 
   // 雀頭を生成
-  const toitsuHai = generateToitsu(tracker);
+  const toitsuHai = generateToitsu(tracker, rng);
   if (toitsuHai === undefined) return undefined;
   closedHais.push(toitsuHai, toitsuHai);
 
@@ -125,7 +132,7 @@ export function generateMentsuTehai(
   );
 
   // 和了牌を決定
-  const selected = randomChoice(candidates);
+  const selected = randomChoice(candidates, rng);
   const agariHai = selected.hai;
   const agariTarget = selected.target;
 

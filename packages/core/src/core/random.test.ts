@@ -105,3 +105,49 @@ describe("shuffle", () => {
     expect(shuffle([1])).toEqual([1]);
   });
 });
+
+describe("RandomSource の注入", () => {
+  /** 与えた数列を順に返す供給源（尽きたら先頭へ戻る） */
+  function sequence(values: readonly number[]): () => number {
+    let i = 0;
+    return () => values[i++ % values.length];
+  }
+
+  it("randomFloat は注入した供給源の値をそのまま返す", () => {
+    const rng = sequence([0.1, 0.9]);
+    expect(randomFloat(rng)).toBe(0.1);
+    expect(randomFloat(rng)).toBe(0.9);
+  });
+
+  it("randomInt は供給源が同じなら同じ値を返す", () => {
+    expect(randomInt(0, 9, () => 0)).toBe(0);
+    expect(randomInt(0, 9, () => 0.99)).toBe(9);
+    expect(randomInt(5, 5, () => 0.5)).toBe(5);
+  });
+
+  it("randomBool は供給源の値と閾値の比較だけで決まる", () => {
+    expect(randomBool(0.5, () => 0.49)).toBe(true);
+    expect(randomBool(0.5, () => 0.5)).toBe(false);
+  });
+
+  it("randomChoice は供給源が同じなら同じ要素を選ぶ", () => {
+    const arr = ["a", "b", "c", "d"] as const;
+    expect(randomChoice(arr, () => 0)).toBe("a");
+    expect(randomChoice(arr, () => 0.99)).toBe("d");
+  });
+
+  it("shuffle は同じ供給源なら同じ並びを返す（決定論的）", () => {
+    const arr = [1, 2, 3, 4, 5];
+    const first = shuffle(arr, sequence([0.1, 0.7, 0.3, 0.9]));
+    const second = shuffle(arr, sequence([0.1, 0.7, 0.3, 0.9]));
+
+    expect(first).toEqual(second);
+    expect([...first].sort()).toEqual(arr);
+  });
+
+  it("既定の供給源は Math.random（引数なしでも動く）", () => {
+    const v = randomFloat();
+    expect(v).toBeGreaterThanOrEqual(0);
+    expect(v).toBeLessThan(1);
+  });
+});

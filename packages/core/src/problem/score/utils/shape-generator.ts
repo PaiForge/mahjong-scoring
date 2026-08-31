@@ -10,7 +10,12 @@ import {
 } from "@pai-forge/riichi-mahjong";
 import { SUIT_BASES } from "../../../core/constants";
 import { pickMentsuType } from "../../shared/pick-mentsu-type";
-import { randomBool, randomChoice } from "../../../core/random";
+import {
+  randomBool,
+  randomChoice,
+  defaultRandomSource,
+  type RandomSource,
+} from "../../../core/random";
 import { validateHaiKindId } from "../../../core/type-guards";
 import type { HaiUsageTracker } from "../../../core/hai-tracker";
 import type { MentsuWeights } from "../../mentsu-fu/mentsu-factory";
@@ -21,10 +26,12 @@ import type { MentsuWeights } from "../../mentsu-fu/mentsu-factory";
  *
  * @param tracker - 牌使用状況トラッカー
  * @param furo - 副露（チー）として生成するかどうか
+ * @param rng - 乱数供給源（既定 `Math.random`）
  */
 export function generateShuntsu(
   tracker: HaiUsageTracker,
   furo: boolean = false,
+  rng: RandomSource = defaultRandomSource,
 ): Shuntsu | undefined {
   const bases: number[] = [];
 
@@ -53,7 +60,7 @@ export function generateShuntsu(
 
   if (bases.length === 0) return undefined;
 
-  const startValue = randomChoice(bases);
+  const startValue = randomChoice(bases, rng);
   const startResult = validateHaiKindId(startValue);
   const h2Result = validateHaiKindId(startValue + 1);
   const h3Result = validateHaiKindId(startValue + 2);
@@ -85,12 +92,14 @@ export function generateShuntsu(
  *
  * @param tracker - 牌使用状況トラッカー
  * @param furo - 副露（ポン）として生成するかどうか
+ * @param rng - 乱数供給源（既定 `Math.random`）
  */
 export function generateKoutsu(
   tracker: HaiUsageTracker,
   furo: boolean = false,
+  rng: RandomSource = defaultRandomSource,
 ): Koutsu | undefined {
-  const hai = pickTrackableTile(tracker, 3);
+  const hai = pickTrackableTile(tracker, 3, rng);
   if (hai === undefined) return undefined;
 
   const hais = [hai, hai, hai] as const;
@@ -100,7 +109,10 @@ export function generateKoutsu(
         hais,
         furo: {
           type: FuroType.Pon,
-          from: randomChoice([Tacha.Kamicha, Tacha.Toimen, Tacha.Shimocha]),
+          from: randomChoice(
+            [Tacha.Kamicha, Tacha.Toimen, Tacha.Shimocha],
+            rng,
+          ),
         },
       }
     : { type: MentsuType.Koutsu, hais };
@@ -112,12 +124,14 @@ export function generateKoutsu(
  *
  * @param tracker - 牌使用状況トラッカー
  * @param furo - 副露（大明槓）として生成するかどうか
+ * @param rng - 乱数供給源（既定 `Math.random`）
  */
 export function generateKantsu(
   tracker: HaiUsageTracker,
   furo: boolean = false,
+  rng: RandomSource = defaultRandomSource,
 ): Kantsu | undefined {
-  const hai = pickTrackableTile(tracker, 4);
+  const hai = pickTrackableTile(tracker, 4, rng);
   if (hai === undefined) return undefined;
 
   const hais = [hai, hai, hai, hai] as const;
@@ -126,8 +140,11 @@ export function generateKantsu(
         type: MentsuType.Kantsu,
         hais,
         furo: {
-          type: randomBool(0.5) ? FuroType.Daiminkan : FuroType.Kakan,
-          from: randomChoice([Tacha.Kamicha, Tacha.Toimen, Tacha.Shimocha]),
+          type: randomBool(0.5, rng) ? FuroType.Daiminkan : FuroType.Kakan,
+          from: randomChoice(
+            [Tacha.Kamicha, Tacha.Toimen, Tacha.Shimocha],
+            rng,
+          ),
         },
       }
     : { type: MentsuType.Kantsu, hais };
@@ -143,22 +160,30 @@ export function generateKantsu(
  * @param tracker - 牌使用状況トラッカー
  * @param weights - 面子種別の確率重み
  * @param furo - 副露として生成するかどうか
+ * @param rng - 乱数供給源（既定 `Math.random`）
  */
 export function generateWeightedMentsu(
   tracker: HaiUsageTracker,
   weights: Readonly<MentsuWeights>,
   furo: boolean = false,
+  rng: RandomSource = defaultRandomSource,
 ): CompletedMentsu | undefined {
-  switch (pickMentsuType(weights)) {
+  switch (pickMentsuType(weights, rng)) {
     case "shuntsu":
-      return generateShuntsu(tracker, furo) ?? generateKoutsu(tracker, furo);
+      return (
+        generateShuntsu(tracker, furo, rng) ??
+        generateKoutsu(tracker, furo, rng)
+      );
     case "koutsu":
-      return generateKoutsu(tracker, furo) ?? generateShuntsu(tracker, furo);
+      return (
+        generateKoutsu(tracker, furo, rng) ??
+        generateShuntsu(tracker, furo, rng)
+      );
     case "kantsu":
       return (
-        generateKantsu(tracker, furo) ??
-        generateKoutsu(tracker, furo) ??
-        generateShuntsu(tracker, furo)
+        generateKantsu(tracker, furo, rng) ??
+        generateKoutsu(tracker, furo, rng) ??
+        generateShuntsu(tracker, furo, rng)
       );
   }
 }
@@ -168,11 +193,13 @@ export function generateWeightedMentsu(
  * 雀頭生成
  *
  * @param tracker - 牌使用状況トラッカー
+ * @param rng - 乱数供給源（既定 `Math.random`）
  */
 export function generateToitsu(
   tracker: HaiUsageTracker,
+  rng: RandomSource = defaultRandomSource,
 ): HaiKindId | undefined {
-  return pickTrackableTile(tracker, 2);
+  return pickTrackableTile(tracker, 2, rng);
 }
 
 /**
@@ -184,10 +211,12 @@ export function generateToitsu(
  *
  * @param tracker - 牌使用状況トラッカー（成功時に count 枚使用登録する）
  * @param count - 必要枚数（刻子=3, 槓子=4, 対子=2）
+ * @param rng - 乱数供給源（既定 `Math.random`）
  */
 function pickTrackableTile(
   tracker: HaiUsageTracker,
   count: number,
+  rng: RandomSource = defaultRandomSource,
 ): HaiKindId | undefined {
   const validHais: HaiKindId[] = [];
   for (let i = 0; i < 34; i++) {
@@ -199,7 +228,7 @@ function pickTrackableTile(
 
   if (validHais.length === 0) return undefined;
 
-  const hai = randomChoice(validHais);
+  const hai = randomChoice(validHais, rng);
   if (tracker.use(hai, count).isErr()) return undefined;
   return hai;
 }

@@ -6,7 +6,12 @@ import {
 } from "@pai-forge/riichi-mahjong";
 import type { MentsuJantouFuQuestion, MentsuJantouFuItem } from "./types";
 import { BAKAZE_OPTIONS, KAZEHAI } from "../../core/constants";
-import { randomBool, randomChoice } from "../../core/random";
+import {
+  randomBool,
+  randomChoice,
+  defaultRandomSource,
+  type RandomSource,
+} from "../../core/random";
 import { HaiUsageTracker } from "../../core/hai-tracker";
 import {
   calculateMentsuFu,
@@ -31,34 +36,45 @@ const MENTSU_JANTOU_FU_WEIGHTS = { shuntsu: 0.2, koutsu: 0.5 } as const;
  *
  * @param options.renfonpaiAs4Fu - 連風牌の雀頭を4符として扱うか（既定 false=2符）
  * @param options.idGen - 問題・回答行 ID の採番（既定 crypto.randomUUID）
+ * @param options.rng - 乱数供給源（既定 Math.random）
  */
 export function generateMentsuJantouFuQuestion(
   options: {
     readonly renfonpaiAs4Fu?: boolean;
     readonly idGen?: IdGenerator;
+    readonly rng?: RandomSource;
   } = {},
 ): MentsuJantouFuQuestion | undefined {
-  const { renfonpaiAs4Fu = false, idGen = defaultIdGenerator } = options;
+  const {
+    renfonpaiAs4Fu = false,
+    idGen = defaultIdGenerator,
+    rng = defaultRandomSource,
+  } = options;
   const tracker = new HaiUsageTracker();
 
   // 1. 4面子を生成
-  const mentsuList = generateMentsuSet(tracker, MENTSU_JANTOU_FU_WEIGHTS);
+  const mentsuList = generateMentsuSet(
+    tracker,
+    MENTSU_JANTOU_FU_WEIGHTS,
+    4,
+    rng,
+  );
   if (!mentsuList) return undefined;
 
   // 2. コンテキスト生成
-  const bakaze = randomChoice(BAKAZE_OPTIONS);
-  const jikaze = randomChoice(KAZEHAI);
+  const bakaze = randomChoice(BAKAZE_OPTIONS, rng);
+  const jikaze = randomChoice(KAZEHAI, rng);
 
   // 3. 雀頭を生成
-  const headTile = generatePairTile(tracker);
+  const headTile = generatePairTile(tracker, rng);
   if (headTile === undefined) return undefined;
 
   // 4. 和了状況を決める。ロンかツモかで刻子の明暗（＝符）が変わるため、
   //    回答行の符を確定させる前に和了牌まで決めておく。
-  const isTsumo = randomBool(0.5);
+  const isTsumo = randomBool(0.5, rng);
   const agariHai = isTsumo
-    ? pickAgariHai(mentsuList, headTile)
-    : pickRonAgariHai(mentsuList, headTile);
+    ? pickAgariHai(mentsuList, headTile, rng)
+    : pickRonAgariHai(mentsuList, headTile, rng);
   if (agariHai === undefined) return undefined;
 
   // 5. 回答行を作る

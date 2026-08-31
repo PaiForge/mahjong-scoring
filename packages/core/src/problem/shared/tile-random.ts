@@ -1,6 +1,11 @@
 import { HaiKind, type HaiKindId } from "@pai-forge/riichi-mahjong";
 import { SUIT_BASES } from "../../core/constants";
-import { randomInt, randomChoice } from "../../core/random";
+import {
+  randomInt,
+  randomChoice,
+  defaultRandomSource,
+  type RandomSource,
+} from "../../core/random";
 import { isHaiKindId, validateHaiKindId } from "../../core/type-guards";
 
 /**
@@ -26,10 +31,14 @@ const YAOCHU: readonly HaiKindId[] = [
 /**
  * ランダムな中張牌（2〜8）を生成する
  * 中張牌生成
+ *
+ * @param rng - 乱数供給源（既定 `Math.random`）
  */
-export function randomSimple(): HaiKindId {
-  const base = randomChoice(SUIT_BASES);
-  const num = randomInt(2, 8);
+export function randomSimple(
+  rng: RandomSource = defaultRandomSource,
+): HaiKindId {
+  const base = randomChoice(SUIT_BASES, rng);
+  const num = randomInt(2, 8, rng);
   const id = base + num - 1;
   return validateHaiKindId(id).unwrapOr(HaiKind.ManZu5);
 }
@@ -37,17 +46,25 @@ export function randomSimple(): HaiKindId {
 /**
  * ランダムな么九牌（1,9,字牌）を生成する
  * 么九牌生成
+ *
+ * @param rng - 乱数供給源（既定 `Math.random`）
  */
-export function randomYaochu(): HaiKindId {
-  return randomChoice(YAOCHU);
+export function randomYaochu(
+  rng: RandomSource = defaultRandomSource,
+): HaiKindId {
+  return randomChoice(YAOCHU, rng);
 }
 
 /**
  * 全34種からランダムな牌種IDを生成する
  * ランダム牌種生成
+ *
+ * @param rng - 乱数供給源（既定 `Math.random`）
  */
-export function randomHaiKindId(): HaiKindId {
-  return validateHaiKindId(randomInt(0, 33)).unwrapOr(HaiKind.ManZu1);
+export function randomHaiKindId(
+  rng: RandomSource = defaultRandomSource,
+): HaiKindId {
+  return validateHaiKindId(randomInt(0, 33, rng)).unwrapOr(HaiKind.ManZu1);
 }
 
 /**
@@ -55,11 +72,15 @@ export function randomHaiKindId(): HaiKindId {
  * 相違牌生成
  *
  * @param exclude - 除外する牌種ID
+ * @param rng - 乱数供給源（既定 `Math.random`）
  */
-export function randomHaiKindIdExcluding(exclude: HaiKindId): HaiKindId {
-  let hai = randomHaiKindId();
+export function randomHaiKindIdExcluding(
+  exclude: HaiKindId,
+  rng: RandomSource = defaultRandomSource,
+): HaiKindId {
+  let hai = randomHaiKindId(rng);
   while (hai === exclude) {
-    hai = randomHaiKindId();
+    hai = randomHaiKindId(rng);
   }
   return hai;
 }

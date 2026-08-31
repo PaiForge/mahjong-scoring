@@ -8,7 +8,12 @@ import {
   type Tehai14,
 } from "@pai-forge/riichi-mahjong";
 import { BAKAZE_OPTIONS, ScoreLevel, KAZEHAI } from "../../core/constants";
-import { randomBool, randomChoice } from "../../core/random";
+import {
+  randomBool,
+  randomChoice,
+  defaultRandomSource,
+  type RandomSource,
+} from "../../core/random";
 
 import type {
   ScoreQuestion,
@@ -62,12 +67,16 @@ function validateScoreRange(
  * 出題する自風を選択する
  * 自風選択
  */
-function selectJikaze(includeParent: boolean, includeChild: boolean): Kazehai {
+function selectJikaze(
+  includeParent: boolean,
+  includeChild: boolean,
+  rng: RandomSource,
+): Kazehai {
   let candidates: readonly Kazehai[] = KAZEHAI;
   if (!includeParent) candidates = candidates.filter((k) => k !== HaiKind.Ton);
   if (!includeChild) candidates = candidates.filter((k) => k === HaiKind.Ton);
   if (candidates.length === 0) candidates = KAZEHAI;
-  return randomChoice(candidates);
+  return randomChoice(candidates, rng);
 }
 
 /**
@@ -84,11 +93,15 @@ function selectJikaze(includeParent: boolean, includeChild: boolean): Kazehai {
  * 点数は親と子で別の表を引くため、親の出題が細るのは出題として困る。
  * 場風は東南の2択しかなく、片方を落としても必ず候補が残る。
  */
-function selectBakaze(jikaze: Kazehai, excludeRenfonpai: boolean): Kazehai {
+function selectBakaze(
+  jikaze: Kazehai,
+  excludeRenfonpai: boolean,
+  rng: RandomSource,
+): Kazehai {
   const candidates = excludeRenfonpai
     ? BAKAZE_OPTIONS.filter((kaze) => kaze !== jikaze)
     : BAKAZE_OPTIONS;
-  return randomChoice(candidates);
+  return randomChoice(candidates, rng);
 }
 
 /**
@@ -163,6 +176,7 @@ export function generateScoreQuestion(
     minHan = 0,
     requiredYaku,
     allowedFu,
+    rng = defaultRandomSource,
   } = options;
 
   // 1. 手牌の生成（七対子 or 面子手）
@@ -173,21 +187,22 @@ export function generateScoreQuestion(
   const chiitoiRequested = requiredYaku?.includes(CHIITOITSU) ?? false;
   const chiitoiOnly = chiitoiRequested && requiredYaku?.length === 1;
   const isChiitoi =
-    chiitoiOnly || ((includeChiitoi || chiitoiRequested) && randomBool(0.1));
+    chiitoiOnly ||
+    ((includeChiitoi || chiitoiRequested) && randomBool(0.1, rng));
   const tehaiResult = isChiitoi
-    ? generateChiitoiTehai()
-    : generateMentsuTehai(includeFuro);
+    ? generateChiitoiTehai(rng)
+    : generateMentsuTehai(includeFuro, rng);
   if (!tehaiResult) return undefined;
   const { tehai, agariHai } = tehaiResult;
   //    副露縛りは手を作った直後に判定する（点数計算まで進めてから捨てない）
   if (requireFuro && isMenzen(tehai)) return undefined;
 
   // 2. 和了状況の決定
-  const isTsumo = randomBool(0.5);
-  const jikaze = selectJikaze(includeParent, includeChild);
-  const bakaze = selectBakaze(jikaze, excludeRenfonpai);
+  const isTsumo = randomBool(0.5, rng);
+  const jikaze = selectJikaze(includeParent, includeChild, rng);
+  const bakaze = selectBakaze(jikaze, excludeRenfonpai, rng);
   const kantsuCount = countKantsu(tehai);
-  const doraMarkers = generateDoraMarkers(kantsuCount);
+  const doraMarkers = generateDoraMarkers(kantsuCount, rng);
 
   // 3. 点数・役の計算（ライブラリ境界）
   const scored = computeScoreAndYaku(tehai, {
@@ -220,15 +235,15 @@ export function generateScoreQuestion(
   // 5. リーチ・裏ドラの適用（門前のみ、確率20%）
   //    リーチの抽選はここが唯一の判定。isRiichi が true の問題は必ず
   //    立直の翻と裏ドラ表示牌を持つ（出題表示と正解が食い違わない）。
-  const isRiichi = isMenzen(tehai) && randomBool(0.2);
+  const isRiichi = isMenzen(tehai) && randomBool(0.2, rng);
   let uraDoraMarkers: readonly HaiKindId[] | undefined;
   if (isRiichi) {
-    const markers = generateDoraMarkers(kantsuCount);
+    const markers = generateDoraMarkers(kantsuCount, rng);
     const riichiRes = applyRiichiAndUraDora({
       tehai,
       currentAnswer: finalAnswer,
       uraDoraMarkers: markers,
-      isDoubleRiichi: randomBool(0.1),
+      isDoubleRiichi: randomBool(0.1, rng),
       isTsumo,
       jikaze,
     });

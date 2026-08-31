@@ -1,6 +1,12 @@
 import type { MachiFuQuestion } from "./types";
 import { defaultIdGenerator, type IdGenerator } from "../../core/id";
-import { randomBool, randomInt, randomChoice } from "../../core/random";
+import {
+  randomBool,
+  randomInt,
+  randomChoice,
+  defaultRandomSource,
+  type RandomSource,
+} from "../../core/random";
 import { isHaiKindId } from "../../core/type-guards";
 import { SUIT_BASES } from "../../core/constants";
 import {
@@ -12,10 +18,13 @@ import {
  * 両面待ちを生成（0符）
  * 両面待ち生成
  */
-function createRyanmen(idGen: IdGenerator): MachiFuQuestion | undefined {
-  const base = randomChoice(SUIT_BASES);
+function createRyanmen(
+  idGen: IdGenerator,
+  rng: RandomSource,
+): MachiFuQuestion | undefined {
+  const base = randomChoice(SUIT_BASES, rng);
   // start: 2〜7 → 牌 [start, start+1] で待ち [start-1] or [start+2]
-  const start = randomInt(2, 7);
+  const start = randomInt(2, 7, rng);
 
   const t1 = base + start - 1;
   const t2 = base + start;
@@ -31,7 +40,7 @@ function createRyanmen(idGen: IdGenerator): MachiFuQuestion | undefined {
     return undefined;
   }
 
-  const agari = randomBool(0.5) ? wait1 : wait2;
+  const agari = randomBool(0.5, rng) ? wait1 : wait2;
 
   return {
     id: idGen(),
@@ -45,9 +54,12 @@ function createRyanmen(idGen: IdGenerator): MachiFuQuestion | undefined {
  * 辺張待ちを生成（2符）
  * 辺張待ち生成
  */
-function createPenchan(idGen: IdGenerator): MachiFuQuestion | undefined {
-  const base = randomChoice(SUIT_BASES);
-  const isLow = randomBool(0.5); // 12待ち3 or 89待ち7
+function createPenchan(
+  idGen: IdGenerator,
+  rng: RandomSource,
+): MachiFuQuestion | undefined {
+  const base = randomChoice(SUIT_BASES, rng);
+  const isLow = randomBool(0.5, rng); // 12待ち3 or 89待ち7
 
   const t1 = isLow ? base : base + 7;
   const t2 = isLow ? base + 1 : base + 8;
@@ -69,9 +81,12 @@ function createPenchan(idGen: IdGenerator): MachiFuQuestion | undefined {
  * 嵌張待ちを生成（2符）
  * 嵌張待ち生成
  */
-function createKanchan(idGen: IdGenerator): MachiFuQuestion | undefined {
-  const base = randomChoice(SUIT_BASES);
-  const center = randomInt(2, 8); // 間の牌は 2〜8
+function createKanchan(
+  idGen: IdGenerator,
+  rng: RandomSource,
+): MachiFuQuestion | undefined {
+  const base = randomChoice(SUIT_BASES, rng);
+  const center = randomInt(2, 8, rng); // 間の牌は 2〜8
 
   const t1 = base + center - 2;
   const t2 = base + center;
@@ -93,8 +108,8 @@ function createKanchan(idGen: IdGenerator): MachiFuQuestion | undefined {
  * 単騎待ちを生成（2符）
  * 単騎待ち生成
  */
-function createTanki(idGen: IdGenerator): MachiFuQuestion {
-  const hai = randomHaiKindId();
+function createTanki(idGen: IdGenerator, rng: RandomSource): MachiFuQuestion {
+  const hai = randomHaiKindId(rng);
 
   return {
     id: idGen(),
@@ -108,11 +123,11 @@ function createTanki(idGen: IdGenerator): MachiFuQuestion {
  * 双碰待ちを生成（0符）
  * 双碰待ち生成
  */
-function createShanpon(idGen: IdGenerator): MachiFuQuestion {
-  const t1 = randomHaiKindId();
-  const t2 = randomHaiKindIdExcluding(t1);
+function createShanpon(idGen: IdGenerator, rng: RandomSource): MachiFuQuestion {
+  const t1 = randomHaiKindId(rng);
+  const t2 = randomHaiKindIdExcluding(t1, rng);
 
-  const agari = randomBool(0.5) ? t1 : t2;
+  const agari = randomBool(0.5, rng) ? t1 : t2;
 
   // 2つの対子は牌種の昇順で並べる。他の待ち形は牌の並びが形そのもの
   // （両面なら 67s のように昇順）なので、双碰だけ順不同にしない。
@@ -129,9 +144,13 @@ function createShanpon(idGen: IdGenerator): MachiFuQuestion {
 /**
  * 待ちの符計算問題を生成する
  * 待ち符問題ジェネレータ
+ *
+ * @param idGen - 問題 ID の採番（既定 crypto.randomUUID）
+ * @param rng - 乱数供給源（既定 Math.random）
  */
 export function generateMachiFuQuestion(
   idGen: IdGenerator = defaultIdGenerator,
+  rng: RandomSource = defaultRandomSource,
 ): MachiFuQuestion {
   const patterns = [
     createRyanmen,
@@ -143,5 +162,5 @@ export function generateMachiFuQuestion(
 
   // 各パターンを等確率で出題する。順子系パターン（両面・辺張・嵌張）は
   // 牌範囲の検証に失敗しうるため、フォールバックとして常に成功する単騎を使う。
-  return randomChoice(patterns)(idGen) ?? createTanki(idGen);
+  return randomChoice(patterns, rng)(idGen, rng) ?? createTanki(idGen, rng);
 }

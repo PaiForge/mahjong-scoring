@@ -116,7 +116,7 @@ export async function getUserMonthlyRankedRow(
   menuType: string,
   leaderboardKey: string,
 ): Promise<RankedLeaderboardRow | undefined> {
-  const periodStart = startOfCurrentMonth();
+  const periodStart = startOfCurrentMonth(new Date());
 
   const [row] = await db.execute<RawRankedRow>(
     buildRankedRowQuery(
