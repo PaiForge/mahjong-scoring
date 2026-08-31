@@ -101,10 +101,10 @@ describe("section grouping", () => {
     ]);
   });
 
-  it('places fu-doubling in the "memorization" section', () => {
+  it('places the memorization chapters in the "memorization" section', () => {
     const grouped = groupChaptersBySection();
     const memorizationSlugs =
       grouped.get("memorization")?.map((c) => c.slug) ?? [];
-    expect(memorizationSlugs).toEqual(["fu-doubling"]);
+    expect(memorizationSlugs).toEqual(["fu-doubling", "tsumo-payments"]);
   });
 });

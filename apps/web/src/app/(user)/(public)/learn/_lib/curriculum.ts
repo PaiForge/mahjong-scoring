@@ -212,6 +212,15 @@ const CURRICULUM_REGISTRY = [
     practiceHrefs: [scoreTablePracticeHref({ ranges: ["nonMangan"] })],
     i18nKey: "learnCurriculum.chapters.fuDoubling",
   },
+  {
+    slug: "tsumo-payments",
+    section: "memorization",
+    order: 210,
+    // ツモに絞った点数表早引き。この章が要らなくする暗記はまさに親ツモの列で、
+    // ツモのセルを引く練習がそのまま腕試しになる
+    practiceHrefs: [scoreTablePracticeHref({ wins: ["tsumo"] })],
+    i18nKey: "learnCurriculum.chapters.tsumoPayments",
+  },
 ] as const satisfies readonly CurriculumChapterEntry[];
 
 /** 章スラッグ — `/learn/<slug>` の slug 部分に対応 */
