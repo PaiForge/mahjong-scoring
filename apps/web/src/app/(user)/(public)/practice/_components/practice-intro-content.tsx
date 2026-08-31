@@ -1,4 +1,5 @@
 import type { ReactNode } from "react";
+import { ExamStartGate } from "@/app/(user)/(public)/exam/_components/exam-start-gate";
 import { HowToPlaySection } from "./how-to-play-section";
 import { PracticeStartCta } from "./practice-start-cta";
 import { buildPracticeStartCtaLabels } from "../_lib/practice-start-cta-labels";
@@ -134,6 +135,14 @@ export async function PracticeIntroContent({
               { challenge: tc, practice: tp, training: tt },
               practiceMenuBySlug(slug),
             )}
+          />
+        ) : isExam ? (
+          /* 昇級試験は受験資格（次に取る級か、達成済みの級の再挑戦）で
+             開始ボタンを出し分ける。ゲートはクライアント側の表示制御で、
+             静的配信を保ったまま未ログイン・資格なしの案内を出す */
+          <ExamStartGate
+            slug={slug}
+            playHref={`${practicePlayHref(slug)}${PRACTICE_SCROLL_HASH}`}
           />
         ) : (
           <LinkButton
