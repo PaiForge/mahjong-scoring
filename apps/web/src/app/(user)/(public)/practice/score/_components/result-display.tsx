@@ -61,7 +61,6 @@ export function ResultDisplay({
   requireFuForMangan = false,
 }: ResultDisplayProps) {
   const t = useTranslations("score");
-  const tCommon = useTranslations("common");
   const { answer } = question;
   const isManganOrAbove = isMangan(answer.scoreLevel);
   const scoreLevelName = getScoreLevelName(answer.scoreLevel);
@@ -148,35 +147,11 @@ export function ResultDisplay({
   return (
     <div className="space-y-4">
       {/* Detail table
-          判定は表の見出しの隣のチップに畳む。全幅の色帯にすると、いちばん
-          読ませたい表より判定が強く出るうえ、面を太枠で作る他の画面から
-          浮いてしまう。正誤は行ごとの ✓/✗ と下部の正解/不正解カウンタが
-          支えているため、ここは「何の表か」を名乗るのが主で、判定は添え物でよい。
-          無回答の開示（result なし）ではチップを出さず、見出しだけが残る。 */}
-      <div className="space-y-2 rounded-lg bg-surface-50 p-4">
-        <div className="flex items-center justify-between gap-2">
-          <p className="text-sm font-bold text-surface-900">
-            {tCommon("answerCheck")}
-          </p>
-          {result !== undefined && (
-            <span
-              className={`inline-flex shrink-0 items-center gap-1 rounded-md border px-2 py-0.5 text-xs font-bold ${
-                result.isCorrect
-                  ? "border-success bg-success-subtle text-success-strong"
-                  : "border-destructive bg-destructive-subtle text-destructive-strong"
-              }`}
-            >
-              {/* 色だけに頼らず読めるよう記号を添える（役チップと同じ形） */}
-              <span aria-hidden="true">
-                {result.isCorrect ? "\u2713" : "\u2717"}
-              </span>
-              {result.isCorrect
-                ? t("result.title.correct")
-                : t("result.title.incorrect")}
-            </span>
-          )}
-        </div>
-
+          回答全体の正誤を名乗る見出し・バナーは置かない。「あなたの回答」と
+          「正解」を並べた時点で合っていたかは読めば分かり、行ごとの ✓/✗ と
+          下部の正解/不正解カウンタが既に判定を持っている。全幅の色帯や
+          見出し行を足すと、いちばん読ませたいこの表より判定が強く出る。 */}
+      <div className="rounded-lg bg-surface-50 p-4">
         <table className="w-full text-sm">
           <thead>
             <tr className="border-b-3 border-ink">

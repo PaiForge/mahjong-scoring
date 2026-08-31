@@ -1243,10 +1243,6 @@
       "backToSetup": "設定に戻る"
     },
     "result": {
-      "title": {
-        "correct": "正解",
-        "incorrect": "不正解"
-      },
       "headers": {
         "answer": "あなたの回答",
         "correct": "正解"
