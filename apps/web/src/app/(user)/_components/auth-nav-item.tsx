@@ -56,10 +56,10 @@ export function AuthNavItem() {
   // ログイン済みならプロフィール（アバター）が届くまでスケルトンを続ける。
   // 先にユーザーアイコンを出すと、アバター設定済みの人には毎回アイコン →
   // アバターの差し替わりが見えてしまう。
+  // 実物のアバターは苔緑の太枠（border-ink）を持つが、スケルトンは灰色の円だけで
+  // 示す（ProblemListSkeleton と同じ理由）。枠は border-box なので直径は変わらない。
   if (isLoading || (user && isProfileLoading)) {
-    return (
-      <SkeletonBar radius="full" className="h-8 w-8 border-3 border-ink" />
-    );
+    return <SkeletonBar radius="full" className="h-8 w-8" />;
   }
 
   if (!user) {
