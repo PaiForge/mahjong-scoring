@@ -19,8 +19,11 @@ const TONE_CLASSES: Readonly<Record<DetailTone, string>> = {
 };
 
 interface DetailTableProps {
-  /** カードの見出し（「答え合わせ」「翻数の内訳」など） */
-  readonly title: string;
+  /**
+   * カードの見出し（「答え合わせ」「翻数の内訳」など）。
+   * 詳細がこの表 1 枚だけで、何の表かが見出しなしでも明らかなときは省く
+   */
+  readonly title?: string;
   readonly rows: readonly DetailTableRow[];
   /** 実線で締める最終行（内訳の合計）。持たない表もある */
   readonly total?: Omit<DetailTableRow, "tone">;
@@ -53,7 +56,9 @@ interface DetailTableProps {
 export function DetailTable({ title, rows, total, note }: DetailTableProps) {
   return (
     <div className="space-y-1.5">
-      <p className="text-sm font-bold text-surface-900">{title}</p>
+      {title !== undefined && (
+        <p className="text-sm font-bold text-surface-900">{title}</p>
+      )}
 
       <table className="w-full text-sm">
         <tbody className="divide-y-2 divide-dashed divide-surface-200">

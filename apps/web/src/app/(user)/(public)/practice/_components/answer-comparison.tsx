@@ -23,6 +23,12 @@ interface AnswerComparisonProps {
    * 渡すと「過不足」の行が最後に付く
    */
   readonly difference?: AnswerDifference;
+  /**
+   * 「答え合わせ」の見出しを出すか（既定: true）。
+   * 詳細がこの表 1 枚だけで、見出しがなくても何の表かが明らかな練習は
+   * false にして詳細を軽くする
+   */
+  readonly showTitle?: boolean;
 }
 
 /** 過不足の計算に使う正解と回答の値、そして単位の付け方 */
@@ -47,7 +53,9 @@ interface AnswerDifference {
  * 数値で答える練習は `difference` を渡して「過不足」の行で締める。内訳の
  * 合計行と同じ位置に同じ体裁の行が来るので、2つの表の丈が揃うだけでなく、
  * 「何翻ずれていたのか」がその場で読める。役の選択のように差が数値に
- * ならない練習は渡さない（過不足はチップの色が示している）。
+ * ならない練習は渡さない（過不足はチップの色が示している）。雀頭符のように
+ * 牌で答えて符が数段階しかない練習も渡さない（正解と回答の符が並んだ時点で
+ * 差は読み取れており、行を足しても情報が増えない）。
  */
 export function AnswerComparison({
   translationNamespace,
@@ -55,13 +63,14 @@ export function AnswerComparison({
   user,
   isCorrect,
   difference,
+  showTitle = true,
 }: AnswerComparisonProps) {
   const tResult = useTranslations(`${translationNamespace}.result`);
   const tCommon = useTranslations("common");
 
   return (
     <DetailTable
-      title={tCommon("answerCheck")}
+      title={showTitle ? tCommon("answerCheck") : undefined}
       total={
         difference && {
           label: tCommon("difference"),

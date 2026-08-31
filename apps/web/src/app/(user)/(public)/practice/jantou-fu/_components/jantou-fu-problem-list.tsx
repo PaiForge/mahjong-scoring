@@ -44,16 +44,14 @@ export function JantouFuProblemList({ results }: JantouFuProblemListProps) {
         return `${getKazeName(bakaze)}${tCommon("round")} ${getKazeName(jikaze)}${tCommon("wind")}`;
       }}
       renderDetail={(result) => (
+        // 詳細は正解と回答の 2 行だけ。牌と符が並んだ時点で差まで読み取れる
+        // ので、「答え合わせ」の見出しも「過不足」の行も足さない
         <AnswerComparison
           translationNamespace="jantouFu"
           isCorrect={result.isCorrect}
           correct={haiWithFu(parseHais(result.correctHai)[0], result.correctFu)}
           user={haiWithFu(parseHais(result.selectedHai)[0], result.selectedFu)}
-          difference={{
-            correct: result.correctFu,
-            user: result.selectedFu,
-            format: (value) => t("fu", { value }),
-          }}
+          showTitle={false}
         />
       )}
     />
