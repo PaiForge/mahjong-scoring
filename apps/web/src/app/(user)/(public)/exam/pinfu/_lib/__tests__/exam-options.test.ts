@@ -10,10 +10,10 @@
  * 「平和・20符または30符・満貫未満」に収まること、盤面がルール設定ストアを
  * 読まないことを守る。
  */
-import { readFileSync, readdirSync } from "node:fs";
-import { join } from "node:path";
 import { generateValidScoreQuestion } from "@mahjong-scoring/core";
 import { describe, expect, it } from "vitest";
+
+import { expectRuleSettingsIndependence } from "../../../_lib/__tests__/expect-rule-settings-independence";
 
 import { EXAM_GENERATE_OPTIONS, EXAM_GENERATION_MAX_RETRIES } from "../types";
 
@@ -58,25 +58,6 @@ describe("EXAM_GENERATE_OPTIONS", () => {
 
 describe("試験盤面のルール設定非依存", () => {
   it("盤面を構成するモジュールがルール設定ストアを import しない", () => {
-    // 点数計算ドリルの盤面を雛形にコピーすると use-rule-settings-store の
-    // import ごと持ち込みやすいため、構造で守る
-    // 盤面の中身は exam/_lib の共通ファクトリと exam/_components にあるため、
-    // 級ごとの _components だけでなく共通レイヤも一緒に検査する
-    const examRoot = join(__dirname, "..", "..", "..");
-    const dirs = [
-      join(__dirname, "..", "..", "_components"),
-      join(examRoot, "_components"),
-      join(examRoot, "_lib"),
-    ];
-    for (const dir of dirs) {
-      for (const file of readdirSync(dir, { withFileTypes: true })) {
-        if (!file.isFile()) continue;
-        const source = readFileSync(join(dir, file.name), "utf8");
-        expect(
-          source.includes("use-rule-settings-store"),
-          `${file.name} がルール設定ストアを import している`,
-        ).toBe(false);
-      }
-    }
+    expectRuleSettingsIndependence("pinfu");
   });
 });

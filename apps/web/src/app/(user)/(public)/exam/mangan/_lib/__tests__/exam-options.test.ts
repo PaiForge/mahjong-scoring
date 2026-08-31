@@ -8,10 +8,10 @@
  * 連風牌4符・切り上げ満貫はどちらも5翻未満の点数にしか影響しない。
  * ここでは出題条件のデータと、盤面がルール設定ストアを読まないことを守る。
  */
-import { readFileSync, readdirSync } from "node:fs";
-import { join } from "node:path";
 import { MANGAN_MIN_HAN } from "@mahjong-scoring/core";
 import { describe, expect, it } from "vitest";
+
+import { expectRuleSettingsIndependence } from "../../../_lib/__tests__/expect-rule-settings-independence";
 
 import { EXAM_GENERATE_OPTIONS } from "../types";
 
@@ -29,25 +29,6 @@ describe("EXAM_GENERATE_OPTIONS", () => {
 
 describe("試験盤面のルール設定非依存", () => {
   it("盤面を構成するモジュールがルール設定ストアを import しない", () => {
-    // mangan-score-calculation の盤面を雛形にコピーすると
-    // use-rule-settings-store の import ごと持ち込みやすいため、構造で守る
-    // 盤面の中身は exam/_lib の共通ファクトリと exam/_components にあるため、
-    // 級ごとの _components だけでなく共通レイヤも一緒に検査する
-    const examRoot = join(__dirname, "..", "..", "..");
-    const dirs = [
-      join(__dirname, "..", "..", "_components"),
-      join(examRoot, "_components"),
-      join(examRoot, "_lib"),
-    ];
-    for (const dir of dirs) {
-      for (const file of readdirSync(dir, { withFileTypes: true })) {
-        if (!file.isFile()) continue;
-        const source = readFileSync(join(dir, file.name), "utf8");
-        expect(
-          source.includes("use-rule-settings-store"),
-          `${file.name} がルール設定ストアを import している`,
-        ).toBe(false);
-      }
-    }
+    expectRuleSettingsIndependence("mangan");
   });
 });
