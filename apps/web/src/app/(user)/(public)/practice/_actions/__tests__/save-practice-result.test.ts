@@ -189,6 +189,23 @@ describe("savePracticeResult", () => {
       });
     });
 
+    it("昇級試験でない練習では昇級判定を走らせない", async () => {
+      // 昇級バナーは必ずその試験の結果画面に出る（無関係な練習の結果画面に
+      // 唐突に出ない）ことの保証。判定クエリの節約でもある
+      const result = await savePracticeResult(
+        "jantou_fu",
+        "default",
+        validFields,
+      );
+
+      expect(mockCheckAndGrantRanks).not.toHaveBeenCalled();
+      expect(result).toEqual({
+        success: true,
+        challengeResultId: "cr-1",
+        grantedRanks: [],
+      });
+    });
+
     it("昇級判定の結果を grantedRanks として返す", async () => {
       mockCheckAndGrantRanks.mockResolvedValue(["kyu-5"]);
 
