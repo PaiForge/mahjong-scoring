@@ -4,11 +4,8 @@ import { useState } from "react";
 
 import { ModalShell } from "@/app/_components/modal-shell";
 import { Button } from "@/app/(user)/_components/button";
-
-interface MultiSelectOption {
-  readonly value: string;
-  readonly label: string;
-}
+import { SelectOptionList, type SelectOption } from "./select-option-list";
+import { SelectValueBox } from "./select-value-box";
 
 interface MultiSelectLabels {
   readonly add: string;
@@ -17,7 +14,7 @@ interface MultiSelectLabels {
 }
 
 interface MultiSelectProps {
-  readonly options: readonly MultiSelectOption[];
+  readonly options: readonly SelectOption[];
   readonly value: readonly string[];
   readonly onChange: (value: string[]) => void;
   readonly placeholder: string;
@@ -53,80 +50,18 @@ export function MultiSelect({
     }
   };
 
-  const getLabel = (val: string) => {
-    return options.find((opt) => opt.value === val)?.label ?? val;
-  };
-
   return (
     <div className={`w-full ${className}`}>
       {/* Chips display / trigger */}
-      <div
-        className={`flex min-h-[46px] w-full flex-wrap items-center gap-2 rounded-lg border-3 border-ink bg-white px-2 py-2 ${
-          disabled ? "cursor-not-allowed bg-surface-100" : "cursor-pointer"
-        }`}
-        onClick={() => !disabled && setIsModalOpen(true)}
-        role="button"
-        tabIndex={disabled ? -1 : 0}
-        onKeyDown={(e) => {
-          if (!disabled && (e.key === "Enter" || e.key === " ")) {
-            setIsModalOpen(true);
-          }
-        }}
-      >
-        {value.length > 0 ? (
-          <>
-            {value.map((v) => (
-              <span
-                key={v}
-                onClick={(e) => e.stopPropagation()}
-                onKeyDown={(e) => e.stopPropagation()}
-                className="inline-flex items-center rounded-md bg-primary-100 px-2 py-1 text-sm text-primary-800"
-                role="listitem"
-              >
-                {getLabel(v)}
-                {!disabled && (
-                  <button
-                    type="button"
-                    onClick={() => handleRemove(v)}
-                    className="ml-2 text-primary-600 hover:text-primary-900 focus:outline-none"
-                  >
-                    &times;
-                  </button>
-                )}
-              </span>
-            ))}
-          </>
-        ) : (
-          <span className="px-1 text-sm text-surface-400">{placeholder}</span>
-        )}
-
-        {!disabled && value.length > 0 && (
-          <button
-            type="button"
-            onClick={(e) => {
-              e.stopPropagation();
-              setIsModalOpen(true);
-            }}
-            className="ml-auto rounded-full p-1 text-surface-400 transition-colors hover:bg-surface-100 hover:text-surface-600"
-            title={labels.add}
-          >
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              width="20"
-              height="20"
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              strokeWidth="2"
-              strokeLinecap="round"
-              strokeLinejoin="round"
-            >
-              <line x1="12" y1="5" x2="12" y2="19" />
-              <line x1="5" y1="12" x2="19" y2="12" />
-            </svg>
-          </button>
-        )}
-      </div>
+      <SelectValueBox
+        options={options}
+        value={value}
+        placeholder={placeholder}
+        disabled={disabled}
+        onRemove={handleRemove}
+        onOpen={() => setIsModalOpen(true)}
+        openLabel={labels.add}
+      />
 
       {/* Modal */}
       <ModalShell
@@ -138,33 +73,13 @@ export function MultiSelect({
           <h3 className="mb-4 text-lg font-bold text-surface-900">
             {labels.title}
           </h3>
-          <div className="flex-1 overflow-y-auto rounded-lg border-3 border-ink">
-            {options.map((option) => {
-              const isSelected = value.includes(option.value);
-              return (
-                <div
-                  key={option.value}
-                  onClick={() => toggleOption(option.value)}
-                  className={`cursor-pointer border-b-2 border-dashed border-border/40 px-4 py-3 text-sm transition-colors last:border-0 ${
-                    isSelected
-                      ? "bg-primary-100 font-medium text-primary-900"
-                      : "text-surface-700 hover:bg-surface-50"
-                  }`}
-                  role="option"
-                  aria-selected={isSelected}
-                >
-                  <div className="flex items-center justify-between">
-                    <span>{option.label}</span>
-                    {isSelected && (
-                      <span className="text-lg leading-none text-primary-600">
-                        &#10003;
-                      </span>
-                    )}
-                  </div>
-                </div>
-              );
-            })}
-          </div>
+          <SelectOptionList
+            options={options}
+            value={value}
+            onToggle={toggleOption}
+            label={labels.title}
+            className="flex-1"
+          />
           <div className="mt-4 flex justify-end">
             <Button onClick={() => setIsModalOpen(false)}>{labels.done}</Button>
           </div>

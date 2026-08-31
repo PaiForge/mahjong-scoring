@@ -23,7 +23,7 @@ const CHIP_CLASSES: Readonly<Record<YakuChipFeedbackState, string>> = {
  * 答え合わせの役チップ
  * 役チップ
  *
- * 表示専用。役を選ぶのは {@link import("./yaku-picker").YakuPicker } の
+ * 表示専用。役を選ぶのは {@link import("./yaku-select-list").YakuSelectList } の
  * 役目で、答え合わせで並ぶこのチップは押せない。
  */
 export function YakuChip({ label, feedbackState }: YakuChipProps) {

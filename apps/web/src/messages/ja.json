@@ -1973,7 +1973,8 @@
       "title": "役を選択",
       "add": "役を追加",
       "done": "完了",
-      "placeholder": "選択してください"
+      "placeholder": "選択してください",
+      "emptySelection": "まだ選んでいません"
     }
   },
   "scoreTableChallenge": {
