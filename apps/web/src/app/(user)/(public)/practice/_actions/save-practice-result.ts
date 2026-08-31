@@ -15,7 +15,8 @@ import { rankRequiringMenu, type RankSlug } from "@/lib/ranks/registry";
  * 練習結果保存レスポンス
  *
  * - `{ success: true, challengeResultId, grantedRanks }`: 認証済みユーザーの保存成功。
- *   `grantedRanks` は今回の保存を機に新たに付与された段級位（通常は空配列）。
+ *   `grantedRanks` は今回の保存を機に新たに付与された段級位。昇級判定は
+ *   昇級試験の保存でだけ走るため、それ以外の練習では常に空配列。
  *   昇級判定自体が失敗した場合も保存は成功として返し、`grantedRanks` は空になる。
  * - `{ success: true, skipped: 'anonymous' }`: 未ログインユーザーによる呼び出し。
  *   エラーではなく「期待された no-op」を表す。呼び出し側は静かに無視すること。
@@ -83,7 +84,8 @@ export async function savePracticeResult(
     // 強制する — 資格外の合格スコアがベストスコアに積まれると、順番が
     // 来たときに無受験で昇級してしまうため。段級位の取得は試験のときだけ
     // 行う（それ以外の練習の保存に余計なクエリを足さない）
-    if (rankRequiringMenu(menuType) !== undefined) {
+    const isExamMenu = rankRequiringMenu(menuType) !== undefined;
+    if (isExamMenu) {
       const eligibility = evaluateExamEligibility(
         menuType,
         await getUserRankSlugs(user.id),
@@ -103,18 +105,26 @@ export async function savePracticeResult(
       timeTaken: Math.round(challengeFields.timeTaken),
     });
 
-    // 昇級判定はベストスコア更新のコミット後に実行する。
+    // 昇級判定は、どこかの級の要件が参照するベストスコアを動かしうる保存
+    // （= 昇級試験の保存）のときだけ、ベストスコア更新のコミット後に実行する。
+    // それ以外の練習で走らせない — 昇級バナーは必ずその試験の結果画面に出る
+    // （無関係な練習の結果画面に唐突に出ない）ことを保証し、無関係な保存に
+    // 判定クエリを足さない。
     // 判定の失敗が結果保存を壊さないよう、失敗時は空配列で握りつぶす
-    // （次回の保存時に再評価されるため取りこぼしにはならない）
+    // （その級は「次に取る級」のまま残って試験を受け直せるため、次回の
+    // 受験時に再評価され取りこぼしにはならない。判定はベストスコア基準
+    // なので、受け直しの走行自体が不合格でも過去の合格記録で付与される）
     let grantedRanks: readonly RankSlug[] = [];
-    try {
-      grantedRanks = await checkAndGrantRanks(user.id);
-    } catch (error) {
-      logExternalError(
-        "checkAndGrantRanks",
-        `${menuType}: rank evaluation failed`,
-        error,
-      );
+    if (isExamMenu) {
+      try {
+        grantedRanks = await checkAndGrantRanks(user.id);
+      } catch (error) {
+        logExternalError(
+          "checkAndGrantRanks",
+          `${menuType}: rank evaluation failed`,
+          error,
+        );
+      }
     }
 
     return { success: true, challengeResultId, grantedRanks };
