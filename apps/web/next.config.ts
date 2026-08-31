@@ -13,6 +13,47 @@ const securityHeaders = [
   },
 ];
 
+type RemotePattern = NonNullable<
+  NonNullable<NextConfig["images"]>["remotePatterns"]
+>[number];
+
+/**
+ * Supabase Storage（アバター）の画像ホスト
+ *
+ * `*.supabase.co` のようなワイルドカードにはしない。Supabase の公開ストレージは
+ * どのプロジェクトも `/storage/v1/object/public/**` という同じパス構造を持つため、
+ * サブドメインをワイルドカードにすると「第三者が作った任意の Supabase
+ * プロジェクトの画像を、このサイトの /_next/image 経由で取得・変換・配信する」
+ * ことまで許してしまう。画像最適化の CPU・帯域・関数実行時間を他人のコンテンツに
+ * 使われ、自ドメインが第三者コンテンツの配信元にもなる。
+ *
+ * 自プロジェクトのホストは NEXT_PUBLIC_SUPABASE_URL から導く。プロジェクト参照を
+ * ここに直書きすると環境ごとに食い違うため。ローカル開発の
+ * http://127.0.0.1:54321 も同じ 1 本で賄える。
+ *
+ * 未設定・不正値なら Supabase のパターンを足さない（アバターが表示されなくなるが、
+ * 任意のホストを開けるよりよい）。この変数は getSupabasePublicEnv() が未設定時に
+ * 例外を投げる必須変数なので、実際には設定されている前提でよい。
+ */
+function supabaseImagePatterns(): RemotePattern[] {
+  const raw = process.env.NEXT_PUBLIC_SUPABASE_URL;
+  if (!raw) return [];
+
+  try {
+    const { protocol, hostname, port } = new URL(raw);
+    return [
+      {
+        protocol: protocol === "http:" ? "http" : "https",
+        hostname,
+        ...(port ? { port } : {}),
+        pathname: "/storage/v1/object/public/**",
+      },
+    ];
+  } catch {
+    return [];
+  }
+}
+
 const nextConfig: NextConfig = {
   reactStrictMode: true,
   // next dev による AGENTS.md / CLAUDE.md の自動生成を無効化する。
@@ -24,18 +65,7 @@ const nextConfig: NextConfig = {
         protocol: "https",
         hostname: "lh3.googleusercontent.com",
       },
-      {
-        protocol: "https",
-        hostname: "*.supabase.co",
-        pathname: "/storage/v1/object/public/**",
-      },
-      {
-        // ローカル開発の Supabase Storage（アバター等）
-        protocol: "http",
-        hostname: "127.0.0.1",
-        port: "54321",
-        pathname: "/storage/v1/object/public/**",
-      },
+      ...supabaseImagePatterns(),
     ],
   },
   transpilePackages: [
