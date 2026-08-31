@@ -1,9 +1,8 @@
 import { HaiKind } from "@mahjong-scoring/core";
 
-import type { GlossaryTermEntry } from "../types";
+import { CLOSED_KANTSU_FACE_DOWN } from "@/app/(user)/_components/_lib/face-down-tiles";
 
-/** 暗槓は両端の牌を裏向きに描画する */
-const CLOSED_KANTSU_FACE_DOWN = [0, 3];
+import type { GlossaryTermEntry } from "../types";
 
 /** 鳴きと門前の用語（分類 `naki`） */
 export const NAKI_TERMS = [

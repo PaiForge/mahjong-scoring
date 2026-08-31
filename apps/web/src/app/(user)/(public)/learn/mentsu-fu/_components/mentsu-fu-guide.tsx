@@ -1,13 +1,11 @@
 import { HaiKind } from "@mahjong-scoring/core";
+import { CLOSED_KANTSU_FACE_DOWN } from "@/app/(user)/_components/_lib/face-down-tiles";
 import { SectionTitle } from "@/app/(user)/_components/section-title";
 import { ExampleTable } from "../../_components/example-table";
 import { loadExampleTableColumns } from "../../_lib/example-table-columns";
 import { FuSummaryTable } from "../../_components/fu-summary-table";
 import { GuideParagraph } from "../../_components/guide-paragraph";
 import { TileSet } from "@/app/(user)/_components/tile-set";
-
-/** 暗槓は両端の牌を裏向きに描画する */
-const CLOSED_KANTSU_FACE_DOWN = [0, 3];
 
 export async function MentsuFuGuide() {
   const { t, tableColumns } = await loadExampleTableColumns("mentsuFu.learn");
