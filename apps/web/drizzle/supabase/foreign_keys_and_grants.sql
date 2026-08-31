@@ -1,6 +1,35 @@
 -- Foreign Keys and Grants
 -- Applied by scripts/migrate.ts on Supabase environments.
 
+-- =============================================================================
+-- クライアントロールの既定権限を落とす（以降の GRANT だけを有効にするため）
+-- =============================================================================
+-- Supabase は `ALTER DEFAULT PRIVILEGES IN SCHEMA public GRANT ALL ON TABLES
+-- TO anon, authenticated, service_role` を既定で持つ。public に作った表は
+-- 何も書かなくても anon / authenticated に全権限が付いた状態で生まれ、
+-- publishable key だけで PostgREST（/rest/v1/<table>）越しに読み書きできる。
+--
+-- つまりこのファイルの GRANT 文は「権限を与えている」のではなく、既定で全部
+-- 付いているものに註釈を書いていただけだった。GRANT 行を消しても権限は減らない。
+-- 実際に効かせるには、先に全部剥がしてから必要な分だけ付け直す必要がある。
+--
+-- 新しい表が増えても閉じたままになるよう、表を列挙せず public スキーマ全体を
+-- 走査する。クライアントに見せたい表は、以下の GRANT に明示的に足すこと。
+DO $$
+DECLARE
+  target regclass;
+BEGIN
+  FOR target IN
+    SELECT c.oid::regclass
+    FROM pg_class c
+    JOIN pg_namespace n ON n.oid = c.relnamespace
+    WHERE n.nspname = 'public' AND c.relkind IN ('r', 'p', 'v', 'm')
+  LOOP
+    EXECUTE format('REVOKE ALL ON %s FROM anon, authenticated', target);
+  END LOOP;
+END;
+$$;
+
 -- profiles.id → auth.users(id)
 DO $$
 BEGIN
@@ -34,7 +63,10 @@ BEGIN
 END;
 $$;
 
-GRANT SELECT, INSERT ON TABLE public.challenge_results TO authenticated;
+-- 書き込みは savePracticeResult（サーバーの直 DB 接続）のみ。クライアントに
+-- INSERT を許すと、リーダーボードと昇級判定の入力を publishable key だけで
+-- 捏造できてしまう。
+GRANT SELECT ON TABLE public.challenge_results TO authenticated;
 
 -- =============================================================================
 -- challenge_best_scores
@@ -53,7 +85,9 @@ BEGIN
 END;
 $$;
 
-GRANT SELECT, INSERT, UPDATE ON TABLE public.challenge_best_scores TO authenticated;
+-- 同上。この表はリーダーボードの表示元（leaderboard-queries.ts）であり、
+-- 昇級判定（rank-evaluation.ts）が参照するスコアの正典でもある。
+GRANT SELECT ON TABLE public.challenge_best_scores TO authenticated;
 
 -- =============================================================================
 -- moderation_actions
@@ -193,3 +227,12 @@ $$;
 
 -- Writes are service-role only (rank evaluation runs server-side).
 GRANT SELECT ON TABLE public.user_ranks TO authenticated;
+
+-- =============================================================================
+-- user_roles
+-- =============================================================================
+-- 管理者判定の根拠となる表。クライアントロールには一切の権限を持たせない。
+-- Supabase は `ALTER DEFAULT PRIVILEGES IN SCHEMA public GRANT ALL ON TABLES
+-- TO anon, authenticated, service_role` を既定で持つため、GRANT を書かなかった
+-- 表にも全権限が自動で付く。明示的に REVOKE しない限り閉じない。
+REVOKE ALL ON TABLE public.user_roles FROM anon, authenticated;
