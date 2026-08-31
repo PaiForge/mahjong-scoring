@@ -39,9 +39,12 @@ DROP POLICY IF EXISTS "challenge_results_select" ON "challenge_results";
 CREATE POLICY "challenge_results_select" ON "challenge_results"
   FOR SELECT USING (auth.uid() = user_id);
 
+-- INSERT ポリシーは意図的に持たない。書き込みは savePracticeResult
+-- （サーバーの直 DB 接続、RLS バイパス）のみ。own-row の WITH CHECK は
+-- 「誰の行か」しか見ず「スコアが正しいか」は見ないため、クライアントに
+-- INSERT を許すと満点行をいくらでも積める。GRANT と二重に閉じる
+-- （既に付与済みの DB からポリシーを取り除くため DROP は残す）。
 DROP POLICY IF EXISTS "challenge_results_insert" ON "challenge_results";
-CREATE POLICY "challenge_results_insert" ON "challenge_results"
-  FOR INSERT WITH CHECK (auth.uid() = user_id);
 
 -- =============================================================================
 -- challenge_best_scores
@@ -52,13 +55,11 @@ DROP POLICY IF EXISTS "challenge_best_scores_select" ON "challenge_best_scores";
 CREATE POLICY "challenge_best_scores_select" ON "challenge_best_scores"
   FOR SELECT USING (auth.uid() = user_id);
 
+-- INSERT / UPDATE ポリシーは意図的に持たない（challenge_results と同じ理由）。
+-- この表はリーダーボードの表示元であり昇級判定が読むスコアの正典なので、
+-- 値を書けるのはサーバーだけにする。
 DROP POLICY IF EXISTS "challenge_best_scores_insert" ON "challenge_best_scores";
-CREATE POLICY "challenge_best_scores_insert" ON "challenge_best_scores"
-  FOR INSERT WITH CHECK (auth.uid() = user_id);
-
 DROP POLICY IF EXISTS "challenge_best_scores_update" ON "challenge_best_scores";
-CREATE POLICY "challenge_best_scores_update" ON "challenge_best_scores"
-  FOR UPDATE USING (auth.uid() = user_id);
 
 -- =============================================================================
 -- moderation_actions

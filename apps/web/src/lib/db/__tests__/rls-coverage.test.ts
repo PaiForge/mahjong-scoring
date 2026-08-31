@@ -33,6 +33,28 @@ const RLS_SQL = readFileSync(
   join(WEB_ROOT, "drizzle", "supabase", "rls_policies.sql"),
   "utf8",
 );
+const GRANTS_SQL = readFileSync(
+  join(WEB_ROOT, "drizzle", "supabase", "foreign_keys_and_grants.sql"),
+  "utf8",
+);
+
+/**
+ * クライアントロールに書き込みを許してよい表。
+ *
+ * ここに無い表への INSERT / UPDATE / DELETE は、サーバー（Drizzle の直 DB 接続）
+ * だけが行う。特に challenge_results / challenge_best_scores を足してはいけない
+ * — own-row の RLS は「誰の行か」しか見ず「スコアが正しいか」は見ないため、
+ * 書き込みを許した時点でリーダーボードと昇級判定の入力が publishable key だけで
+ * 捏造できるようになる（2026-09 の監査で実際にこの状態だった）。
+ */
+const CLIENT_WRITABLE_TABLES: readonly string[] = [
+  // 本人のプロフィール。登録・編集はクライアントの Supabase セッションで行う
+  "profiles",
+  // 章の読了マーク。値は「読んだ」の有無だけで、順位や資格に影響しない
+  "learn_chapter_reads",
+];
+
+const WRITE_PRIVILEGES = ["INSERT", "UPDATE", "DELETE"] as const;
 
 /** `pgTable("name", ...)` の第 1 引数を集める */
 function declaredTables(source: string): string[] {
@@ -65,4 +87,34 @@ describe("RLS coverage", () => {
   it.each(tables)("%s は RLS が有効化されている", (table) => {
     expect(enabled).toContain(table);
   });
+
+  /**
+   * GRANT 文を消しても権限は減らない。Supabase の既定権限が全表に全権限を
+   * 付けているため、先に REVOKE していない限り GRANT 文は註釈にすぎない。
+   * この一括 REVOKE が消えると、以下の検査も含めて全部が無意味になる。
+   */
+  it("クライアントロールの既定権限を一括 REVOKE している", () => {
+    expect(GRANTS_SQL).toMatch(/REVOKE ALL ON %s FROM anon, authenticated/);
+  });
+
+  it.each(WRITE_PRIVILEGES)(
+    "%s を許可しているのは許可リストの表だけ",
+    (privilege) => {
+      const granted = [
+        ...GRANTS_SQL.matchAll(
+          /^GRANT\s+([A-Z, ]+?)\s+ON TABLE public\.([a-z0-9_]+)\s+TO\s+([a-z, ]+);/gm,
+        ),
+      ]
+        .filter(
+          (match) =>
+            match[1]!.includes(privilege) &&
+            /\b(anon|authenticated)\b/.test(match[3]!),
+        )
+        .map((match) => match[2]!);
+
+      expect(
+        granted.filter((table) => !CLIENT_WRITABLE_TABLES.includes(table)),
+      ).toEqual([]);
+    },
+  );
 });
