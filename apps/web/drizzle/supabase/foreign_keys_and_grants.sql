@@ -193,3 +193,12 @@ $$;
 
 -- Writes are service-role only (rank evaluation runs server-side).
 GRANT SELECT ON TABLE public.user_ranks TO authenticated;
+
+-- =============================================================================
+-- user_roles
+-- =============================================================================
+-- 管理者判定の根拠となる表。クライアントロールには一切の権限を持たせない。
+-- Supabase は `ALTER DEFAULT PRIVILEGES IN SCHEMA public GRANT ALL ON TABLES
+-- TO anon, authenticated, service_role` を既定で持つため、GRANT を書かなかった
+-- 表にも全権限が自動で付く。明示的に REVOKE しない限り閉じない。
+REVOKE ALL ON TABLE public.user_roles FROM anon, authenticated;

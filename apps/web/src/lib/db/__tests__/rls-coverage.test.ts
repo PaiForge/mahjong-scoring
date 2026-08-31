@@ -1,0 +1,68 @@
+import { readFileSync } from "node:fs";
+import { dirname, join } from "node:path";
+import { fileURLToPath } from "node:url";
+
+import { describe, expect, it } from "vitest";
+
+/**
+ * RLS の不変条件: `schema.ts` が宣言するすべてのテーブルは、
+ * `drizzle/supabase/rls_policies.sql` で RLS が有効化されている。
+ *
+ * Supabase は `ALTER DEFAULT PRIVILEGES IN SCHEMA public GRANT ALL ON TABLES
+ * TO anon, authenticated, service_role` を既定で持つ。つまり新しいテーブルは
+ * 作られた瞬間から publishable key だけで PostgREST（`/rest/v1/<table>`）越しに
+ * 読み書きできる状態で生まれる。RLS を有効化するまで閉じない。
+ *
+ * この不変条件が破れると、たとえば `user_roles` のように「管理者かどうか」を
+ * 決めるだけの表が全公開になり、一般ユーザーが自分に admin 行を INSERT できる。
+ * 実際に 2026-09 の監査でこの状態だった（ローカルの Supabase に対して
+ * `GET /rest/v1/user_roles` が匿名で 200 + 全行を返し、`SET ROLE authenticated`
+ * での admin 行 INSERT も通ることを実測で確認した）。
+ *
+ * アプリ自身のクエリは Drizzle の直 DB 接続で RLS をバイパスするため、
+ * この穴は画面を触っても一切気づけない。だから静的に検査する。
+ *
+ * 有効化の宣言だけを見て、ポリシーの中身までは見ない。「何を許すか」は
+ * テーブルごとの判断だが、「RLS を有効にし忘れない」は例外のない規約のため。
+ */
+const DB_DIR = dirname(dirname(fileURLToPath(import.meta.url)));
+const WEB_ROOT = join(DB_DIR, "..", "..", "..");
+
+const SCHEMA_SQL = readFileSync(join(DB_DIR, "schema.ts"), "utf8");
+const RLS_SQL = readFileSync(
+  join(WEB_ROOT, "drizzle", "supabase", "rls_policies.sql"),
+  "utf8",
+);
+
+/** `pgTable("name", ...)` の第 1 引数を集める */
+function declaredTables(source: string): string[] {
+  return [...source.matchAll(/pgTable\(\s*"([a-z0-9_]+)"/g)].map(
+    (match) => match[1]!,
+  );
+}
+
+/** `ALTER TABLE "name" ENABLE ROW LEVEL SECURITY` の対象を集める */
+function rlsEnabledTables(sql: string): Set<string> {
+  return new Set(
+    [
+      ...sql.matchAll(
+        /ALTER TABLE\s+"([a-z0-9_]+)"\s+ENABLE ROW LEVEL SECURITY/gi,
+      ),
+    ].map((match) => match[1]!),
+  );
+}
+
+describe("RLS coverage", () => {
+  const tables = declaredTables(SCHEMA_SQL);
+  const enabled = rlsEnabledTables(RLS_SQL);
+
+  it("schema.ts からテーブルを抽出できている", () => {
+    // 正規表現が壊れて 0 件になると、以下の検査が素通りしてしまう
+    expect(tables.length).toBeGreaterThan(0);
+    expect(tables).toContain("user_roles");
+  });
+
+  it.each(tables)("%s は RLS が有効化されている", (table) => {
+    expect(enabled).toContain(table);
+  });
+});

@@ -148,3 +148,21 @@ ALTER TABLE "user_ranks" ENABLE ROW LEVEL SECURITY;
 DROP POLICY IF EXISTS "user_ranks_select" ON "user_ranks";
 CREATE POLICY "user_ranks_select" ON "user_ranks"
   FOR SELECT USING (auth.uid() = user_id);
+
+-- =============================================================================
+-- user_roles
+-- =============================================================================
+-- 管理者判定（`requireAdmin()`）の唯一の根拠となる表。クライアントからは
+-- 読み書きとも一切許可しない。ロールの付与は DB へ直接 INSERT する運用
+-- （README / CLAUDE.md 参照）で、アプリは直 DB 接続で読むため RLS を通らない。
+--
+-- `USING (false)` は WITH CHECK を省略しているため INSERT にも適用される
+-- （Postgres は WITH CHECK 省略時に USING 式を新規行の検査にも使う）。
+-- GRANT を剥がすだけでは不十分 — Supabase の `ALTER DEFAULT PRIVILEGES` が
+-- 新規テーブルに anon / authenticated への全権限を自動付与するため、
+-- 表を作り直しただけで再び開く。RLS 側にも拒否を宣言して二重に閉じる。
+ALTER TABLE "user_roles" ENABLE ROW LEVEL SECURITY;
+
+DROP POLICY IF EXISTS "user_roles_deny_all" ON "user_roles";
+CREATE POLICY "user_roles_deny_all" ON "user_roles"
+  USING (false);
