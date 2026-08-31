@@ -11,8 +11,13 @@ interface AnswerComparisonProps {
   readonly correct: ReactNode;
   /** ユーザー回答の表示内容 */
   readonly user: ReactNode;
-  /** ユーザー回答が正解かどうか（回答値の文字色に反映する） */
-  readonly isCorrect: boolean;
+  /**
+   * ユーザー回答が正解かどうか（回答値の文字色に反映する）
+   *
+   * トレーニングで無回答のまま正解を開示したときは undefined を渡す。
+   * 答えていない回答欄に正誤の色を乗せないため、本文色のままになる。
+   */
+  readonly isCorrect: boolean | undefined;
   /**
    * 過不足を出すための正解と回答の値。数値で答える練習（符・翻）が渡す。
    * 渡すと「過不足」の行が最後に付く
@@ -69,7 +74,12 @@ export function AnswerComparison({
           label: tResult("yourAnswer"),
           value: user,
           // 正誤の色は回答値だけに乗せる（ラベルは常に中立色）
-          tone: isCorrect ? "correct" : "incorrect",
+          tone:
+            isCorrect === undefined
+              ? undefined
+              : isCorrect
+                ? "correct"
+                : "incorrect",
         },
       ]}
     />
