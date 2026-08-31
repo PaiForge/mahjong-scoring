@@ -15,9 +15,7 @@ export default function UserLayout({
           最大幅・余白は ContentContainer 側が持つ。 */}
       <main className="flex flex-1 flex-col">{children}</main>
       <Footer />
-      {/* 固定の MobileTabBar がフッターを覆わないようにするスペーサー。
-          ここも背景を敷かず、main と同じ body の下地を見せる。 */}
-      <div className="h-14 md:h-0" />
+      {/* 下端のスペーサーは MobileTabBar 自身が持つ（セッション中はタブバーごと消える）。 */}
       <MobileTabBar />
     </div>
   );

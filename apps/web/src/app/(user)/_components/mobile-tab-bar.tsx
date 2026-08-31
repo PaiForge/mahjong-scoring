@@ -5,6 +5,7 @@ import { usePathname } from "next/navigation";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { useTranslations } from "next-intl";
 import { TAB_BAR_NAV_ITEMS } from "./_lib/nav-items";
+import { isSessionRoute } from "./_lib/session-routes";
 
 const SCROLL_DEAD_ZONE = 10;
 
@@ -32,32 +33,43 @@ export function MobileTabBar() {
     return () => window.removeEventListener("scroll", handleScroll);
   }, [handleScroll]);
 
+  // 出題セッション中は上スクロールで迫り出してくるタブバーが解答の邪魔になるため、
+  // 下端のスペーサーごと畳んで画面をセッションに明け渡す。
+  if (isSessionRoute(pathname)) {
+    return undefined;
+  }
+
   return (
-    <nav
-      className={`md:hidden fixed bottom-0 left-0 right-0 z-40 border-t-4 border-ink bg-card pb-[env(safe-area-inset-bottom)] transition-transform duration-300 ${
-        isVisible ? "translate-y-0" : "translate-y-full"
-      }`}
-    >
-      <ul className="flex items-stretch px-2 py-1">
-        {TAB_BAR_NAV_ITEMS.map((item) => {
-          const isActive = pathname === item.href;
-          return (
-            <li key={item.href} className="flex-1">
-              <Link
-                href={item.href}
-                className={`flex w-full flex-col items-center gap-0.5 px-3 py-1 text-xs transition-colors ${
-                  isActive
-                    ? "text-primary"
-                    : "text-muted-foreground hover:text-foreground"
-                }`}
-              >
-                {item.icon}
-                <span>{t(item.labelKey)}</span>
-              </Link>
-            </li>
-          );
-        })}
-      </ul>
-    </nav>
+    <>
+      {/* 固定の nav がフッターを覆わないようにするスペーサー。
+          背景を敷かず、main と同じ body の下地を見せる。 */}
+      <div className="h-14 md:h-0" />
+      <nav
+        className={`md:hidden fixed bottom-0 left-0 right-0 z-40 border-t-4 border-ink bg-card pb-[env(safe-area-inset-bottom)] transition-transform duration-300 ${
+          isVisible ? "translate-y-0" : "translate-y-full"
+        }`}
+      >
+        <ul className="flex items-stretch px-2 py-1">
+          {TAB_BAR_NAV_ITEMS.map((item) => {
+            const isActive = pathname === item.href;
+            return (
+              <li key={item.href} className="flex-1">
+                <Link
+                  href={item.href}
+                  className={`flex w-full flex-col items-center gap-0.5 px-3 py-1 text-xs transition-colors ${
+                    isActive
+                      ? "text-primary"
+                      : "text-muted-foreground hover:text-foreground"
+                  }`}
+                >
+                  {item.icon}
+                  <span>{t(item.labelKey)}</span>
+                </Link>
+              </li>
+            );
+          })}
+        </ul>
+      </nav>
+    </>
   );
 }
