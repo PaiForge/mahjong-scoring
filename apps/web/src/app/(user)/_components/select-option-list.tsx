@@ -1,5 +1,7 @@
 "use client";
 
+import type { Ref } from "react";
+
 /** 選択肢 1 件 */
 export interface SelectOption {
   readonly value: string;
@@ -27,6 +29,8 @@ interface SelectOptionListProps {
    * 囲みと配色は上書きしない
    */
   readonly className?: string;
+  /** スクロール位置を操作するための枠への参照 */
+  readonly ref?: Ref<HTMLDivElement>;
 }
 
 /**
@@ -45,9 +49,11 @@ export function SelectOptionList({
   label,
   scrollable = true,
   className = "",
+  ref,
 }: SelectOptionListProps) {
   return (
     <div
+      ref={ref}
       role="listbox"
       aria-multiselectable
       aria-label={label}

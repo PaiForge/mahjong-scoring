@@ -54,10 +54,12 @@ export function YakuBoard({
   const t = useTranslations("yaku");
   const [question, setQuestion] = useClientGeneratedQuestion(generateQuestion);
   const [selectedYaku, setSelectedYaku] = useState<Set<string>>(new Set());
+  const [questionIndex, setQuestionIndex] = useState(0);
 
   const advanceQuestion = useCallback(() => {
     setQuestion(generateQuestion());
     setSelectedYaku(new Set());
+    setQuestionIndex((index) => index + 1);
   }, [setQuestion]);
 
   useRegisterAdvance(question === undefined ? undefined : advanceQuestion);
@@ -128,6 +130,7 @@ export function YakuBoard({
           <YakuSelectList
             selected={selectedYaku}
             disabled={isCountingDown || showFeedback}
+            questionIndex={questionIndex}
             onToggle={handleToggleYaku}
           />
 
