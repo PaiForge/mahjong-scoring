@@ -5,6 +5,10 @@ import {
   DataTableHeaderCell,
   DataTableRowHeaderCell,
 } from "@/app/(user)/_components/data-table";
+import {
+  TABLE_HIGHLIGHT_CELL_CLASS,
+  TABLE_HIGHLIGHT_HEADER_CLASS,
+} from "@/app/(user)/_components/_lib/table-highlight";
 import { TsumoScore } from "@/app/(user)/(public)/reference/score-table/_components/tsumo-score";
 
 import { buildTsumoRoleRows } from "../_lib/tsumo-payment-rows";
@@ -26,8 +30,8 @@ interface TsumoRoleTableProps {
  * 同じ数字が横に並ぶ。色の付いた2列が常に同じ数字になっている、という形が
  * この章の主張そのものになる。
  *
- * 青は早見表で「参照している場所」を指す色で、頻出符の琥珀や正解の緑とは
- * 役割が違う。色だけに頼らないよう、表の下に凡例を添える文言を章側が持つ。
+ * 塗りは早見表と同じ `_lib/table-highlight`（「ここに注目」の琥珀）を使う。
+ * 色だけに頼らないよう、表の下に凡例を添える文言を章側が持つ。
  */
 export async function TsumoRoleTable({ fu, caption }: TsumoRoleTableProps) {
   const t = await getTranslations("learnCurriculum.scoreTable");
@@ -47,10 +51,10 @@ export async function TsumoRoleTable({ fu, caption }: TsumoRoleTableProps) {
                 {t("colHan")}
               </DataTableHeaderCell>
               <DataTableHeaderCell>{t("colKoTsumo")}</DataTableHeaderCell>
-              <DataTableHeaderCell className="bg-blue-100 text-blue-700">
+              <DataTableHeaderCell className={TABLE_HIGHLIGHT_HEADER_CLASS}>
                 {t("colOyaPays")}
               </DataTableHeaderCell>
-              <DataTableHeaderCell className="bg-blue-100 text-blue-700">
+              <DataTableHeaderCell className={TABLE_HIGHLIGHT_HEADER_CLASS}>
                 {t("colOyaTsumo")}
               </DataTableHeaderCell>
             </>
@@ -64,10 +68,14 @@ export async function TsumoRoleTable({ fu, caption }: TsumoRoleTableProps) {
               <td className="px-4 py-3 font-semibold text-primary-600">
                 <TsumoScore payment={row.ko} />
               </td>
-              <td className="bg-blue-100 px-4 py-3 font-semibold text-primary-600">
+              <td
+                className={`px-4 py-3 font-semibold text-primary-600 ${TABLE_HIGHLIGHT_CELL_CLASS}`}
+              >
                 {row.fromOya}
               </td>
-              <td className="bg-blue-100 px-4 py-3 font-semibold text-primary-600">
+              <td
+                className={`px-4 py-3 font-semibold text-primary-600 ${TABLE_HIGHLIGHT_CELL_CLASS}`}
+              >
                 <TsumoScore payment={row.oya} />
               </td>
             </tr>

@@ -8,6 +8,7 @@ import {
   DataTable,
   DataTableHeaderCell,
 } from "@/app/(user)/_components/data-table";
+import { TABLE_HIGHLIGHT_CELL_CLASS } from "@/app/(user)/_components/_lib/table-highlight";
 import { TsumoScore } from "./tsumo-score";
 
 interface HighScoreTableProps {
@@ -61,7 +62,7 @@ export function HighScoreTable({
         return (
           <tr
             key={item.nameKey}
-            className={isHighlighted ? "bg-blue-100" : "bg-white"}
+            className={isHighlighted ? TABLE_HIGHLIGHT_CELL_CLASS : "bg-white"}
           >
             <td
               ref={isHighlighted ? highlightRef : undefined}
