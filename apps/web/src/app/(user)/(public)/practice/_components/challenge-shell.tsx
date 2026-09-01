@@ -211,9 +211,23 @@ export function ChallengeShell({
     <ContentContainer id={PRACTICE_SCROLL_ANCHOR_ID} fillViewport>
       <PageTitle>{title}</PageTitle>
 
-      {/* Countdown overlay */}
+      {/* カウントダウンのスモーク。
+
+          高さは inset-0 に加えて min-h-lvh でも押さえる。iOS の Chrome / Safari は
+          スクロールに合わせて上下のツールバーを畳み、畳んだぶんだけ表示領域が縦に
+          伸びるが、fixed 要素の基準になるレイアウトビューポートは「ツールバーが
+          出ている状態」の高さのままになる。inset-0 だけだと畳んだ差分が画面下端に
+          帯として残り、そこだけ盤面が素通しで見える。lvh（ツールバーを畳んだときの
+          最大の高さ）を下限にすると、どちらの状態でも下端まで届く — ツールバーが
+          出ている間は画面外へはみ出すだけで見えない。lvh を解さないブラウザは
+          この宣言を捨てて inset-0 の高さに戻るだけなので後退しない。
+
+          この画面は開始直後に useScrollToElement が縦にスクロールするため、必ず
+          ツールバーが畳まれた状態に入る。他の全画面オーバーレイ（ModalShell /
+          NavMenu）は useBodyScrollLock で背面を止めていてツールバーが動かないため、
+          同じ形をしていてもこの症状が出ない。 */}
       {gameSession.isCountingDown && (
-        <div className="fixed inset-0 z-30 flex items-center justify-center bg-white/80 backdrop-blur-sm">
+        <div className="fixed inset-0 z-30 flex min-h-lvh items-center justify-center bg-white/80 backdrop-blur-sm">
           <span className="text-6xl font-bold text-primary-500 animate-pulse">
             {gameSession.countdownValue}
           </span>
