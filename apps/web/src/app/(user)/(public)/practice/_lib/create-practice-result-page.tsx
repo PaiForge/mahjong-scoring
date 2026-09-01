@@ -242,7 +242,13 @@ async function AsyncResultBlock({
     tryFetchScoreComparison(user.id, menuType, grantId),
   ]);
 
-  return <RecordSection expInfo={expInfo} comparison={comparison} />;
+  return (
+    <RecordSection
+      expInfo={expInfo}
+      comparison={comparison}
+      menuType={menuType}
+    />
+  );
 }
 
 /**
