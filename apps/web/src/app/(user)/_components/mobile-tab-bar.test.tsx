@@ -1,6 +1,7 @@
 import { describe, expect, it, vi } from "vitest";
 import { render, screen } from "@testing-library/react";
 import { NextIntlClientProvider } from "next-intl";
+import { useBodyScrollLock } from "@/app/_hooks/use-body-scroll-lock";
 import { MobileTabBar } from "./mobile-tab-bar";
 
 const mockPathname = vi.hoisted(() => vi.fn<() => string>());
@@ -9,7 +10,13 @@ vi.mock("next/navigation", () => ({
   usePathname: mockPathname,
 }));
 
-function renderAt(pathname: string) {
+/** 画面を覆う UI が開いている状態を作る（モーダル・ドロワーと同じ経路で） */
+function OpenOverlay() {
+  useBodyScrollLock(true);
+  return null;
+}
+
+function renderAt(pathname: string, overlay = false) {
   mockPathname.mockReturnValue(pathname);
   render(
     <NextIntlClientProvider
@@ -25,6 +32,7 @@ function renderAt(pathname: string) {
       }}
     >
       <MobileTabBar />
+      {overlay && <OpenOverlay />}
     </NextIntlClientProvider>,
   );
 }
@@ -52,6 +60,15 @@ describe("MobileTabBar", () => {
     renderAt("/exam/fu/play");
 
     expect(screen.queryByRole("navigation")).toBeNull();
+  });
+
+  it("オーバーレイが開いている間は引っ込める", () => {
+    renderAt("/practice", true);
+
+    // 半透明のオーバーレイの下に不透明なタブバーが残ると透けて見えるため、
+    // md 未満でも出さない（md 以上は元から md:hidden で消えている）。
+    expect(screen.getByRole("navigation").className).toContain("hidden");
+    expect(screen.getByRole("navigation").className).not.toContain("md:hidden");
   });
 
   it("結果ページでは描画する", () => {

@@ -4,6 +4,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { useTranslations } from "next-intl";
+import { useIsOverlayOpen } from "@/app/_hooks/use-body-scroll-lock";
 import { TAB_BAR_NAV_ITEMS } from "./_lib/nav-items";
 import { isSessionRoute } from "./_lib/session-routes";
 
@@ -13,6 +14,7 @@ export function MobileTabBar() {
   const pathname = usePathname();
   const t = useTranslations("nav");
   const [isVisible, setIsVisible] = useState(true);
+  const isOverlayOpen = useIsOverlayOpen();
   const lastScrollY = useRef(0);
 
   const handleScroll = useCallback(() => {
@@ -44,10 +46,15 @@ export function MobileTabBar() {
       {/* 固定の nav がフッターを覆わないようにするスペーサー。
           背景を敷かず、main と同じ body の下地を見せる。 */}
       <div className="h-14 md:h-0" />
+      {/* モーダル・ドロワーが開いている間は display:none で引っ込める。
+          オーバーレイ（bg-black/50）は半透明なので、不透明なタブバーが下に
+          残っていると薄まった帯として透け、下端だけ覆えていないように見える。
+          z-index はすでにオーバーレイ（z-50）が上なので上げても直らない。
+          スペーサーは残す — 高さが変わると背面の本文が動いて透けて見えるため。 */}
       <nav
-        className={`md:hidden fixed bottom-0 left-0 right-0 z-40 border-t-4 border-ink bg-card pb-[env(safe-area-inset-bottom)] transition-transform duration-300 ${
-          isVisible ? "translate-y-0" : "translate-y-full"
-        }`}
+        className={`fixed bottom-0 left-0 right-0 z-40 border-t-4 border-ink bg-card pb-[env(safe-area-inset-bottom)] transition-transform duration-300 ${
+          isOverlayOpen ? "hidden" : "md:hidden"
+        } ${isVisible ? "translate-y-0" : "translate-y-full"}`}
       >
         <ul className="flex items-stretch px-2 py-1">
           {TAB_BAR_NAV_ITEMS.map((item) => {
