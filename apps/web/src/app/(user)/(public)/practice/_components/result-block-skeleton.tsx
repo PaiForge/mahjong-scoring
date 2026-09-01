@@ -7,13 +7,10 @@ import { ResultBlockSection } from "./result-block-section";
  * 結果ブロックスケルトン
  *
  * Server Component 取得完了前の placeholder。実分岐（`SignUpCta` /
- * ログイン済みの記録セクション）と同じ `ResultBlockSection` に載せることで、
- * どの分岐に解決しても「SectionTitle + 本文」の輪郭と最小高さが一致し、
- * CLS を 0 に抑える。最小高さの根拠は `ResultBlockSection` を参照。
- *
- * 注意: ログイン済みで `grant` クエリが無い場合（スコア保存に失敗した等）は
- * `AsyncResultBlock` が何も描画しないため、この最小高さが丸ごと消える。
- * 発生条件が限られるため、一般的なケースの CLS を優先してこの挙動を許容する。
+ * `RecordSection`）と同じ `ResultBlockSection` に載せることで、どの分岐に
+ * 解決しても「SectionTitle + 本文」の輪郭と最小高さが一致し、CLS を 0 に
+ * 抑える。ログイン済みで grant が無い場合も `RecordSection` が必ず描画される
+ * ため、スケルトンだけあって実体が消える分岐は存在しない。
  */
 export function ResultBlockSkeleton() {
   return (

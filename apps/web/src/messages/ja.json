@@ -323,6 +323,14 @@
       "description": "アカウントを作成すると獲得した経験値が保存され、上達を確認できます。",
       "cta": "無料登録",
       "signInLink": "ログイン"
+    },
+    "record": {
+      "sectionTitle": "あなたの記録",
+      "bestLabel": "これまでのベスト",
+      "lastLabel": "前回",
+      "scoreUnit": "{score} 問",
+      "newBest": "自己ベスト更新！",
+      "firstRecord": "今回が最初の記録です。次回からは過去の自分の記録と比較できます。"
     }
   },
   "training": {
