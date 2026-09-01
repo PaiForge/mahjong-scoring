@@ -27,6 +27,7 @@ function operator(op: string) {
 export const and = operator("and");
 export const or = operator("or");
 export const eq = operator("eq");
+export const ne = operator("ne");
 export const gte = operator("gte");
 export const lte = operator("lte");
 export const asc = operator("asc");
