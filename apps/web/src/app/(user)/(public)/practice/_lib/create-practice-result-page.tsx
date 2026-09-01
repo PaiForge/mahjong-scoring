@@ -9,15 +9,20 @@ import { getLeaderboard } from "@/app/(user)/(public)/leaderboard/_actions/get-l
 import type { LeaderboardModule } from "@/app/(user)/(public)/leaderboard/_lib/types";
 import type { RankedLeaderboardRow } from "@/lib/db/leaderboard-queries";
 import { buildDetailPath } from "@/app/(user)/(public)/leaderboard/_lib/types";
-import type { PracticeMenuSlug } from "@/lib/db/practice-menu-types";
+import type {
+  PracticeMenuSlug,
+  PracticeMenuType,
+} from "@/lib/db/practice-menu-types";
 import { practiceMenuBySlug } from "@/lib/db/practice-menu-types";
 import { getExpInfoByChallengeResultId } from "@/lib/db/save-exp";
+import type { ScoreComparison } from "@/lib/db/score-comparison-queries";
+import { getScoreComparison } from "@/lib/db/score-comparison-queries";
 import { getOptionalUser } from "@/lib/auth";
 import { logExternalError } from "@/lib/log-error";
 
 import { isRankSlug } from "@/lib/ranks/registry";
 
-import { ExpGainDisplay } from "../_components/exp-gain-display";
+import { RecordSection } from "../_components/record-section";
 import { PromotionBanner } from "../_components/promotion-banner";
 import { LeaderboardPreview } from "../_components/leaderboard-preview";
 import { LeaderboardSkeleton } from "../_components/leaderboard-skeleton";
@@ -127,7 +132,7 @@ interface PracticeResultPageProps {
  *    - これらは URL クエリ (`?correct=&total=&time=`) のみで描画可能
  *
  * 2. **`<Suspense fallback={<ResultBlockSkeleton />}>`**
- *    - `AsyncResultBlock`: 認証判定 + grant からの EXP 取得 + `ExpGainDisplay` or `SignUpCta` 描画
+ *    - `AsyncResultBlock`: 認証判定 + EXP / 過去記録比較の取得 + `RecordSection` or `SignUpCta` 描画
  *
  * 3. **`<Suspense fallback={<LeaderboardSkeleton />}>`**
  *    - `AsyncLeaderboardBlock`: `getLeaderboard()` を呼んで `LeaderboardPreview` を描画
@@ -189,7 +194,7 @@ export function createPracticeResultPage(
         }
         resultBlock={
           <Suspense fallback={<ResultBlockSkeleton />}>
-            <AsyncResultBlock grantId={grantId} />
+            <AsyncResultBlock grantId={grantId} menuType={menuType} />
           </Suspense>
         }
         leaderboardBlock={
@@ -203,18 +208,24 @@ export function createPracticeResultPage(
 }
 
 /**
- * 経験値セクション / 登録 CTA を非同期に解決して描画する
+ * 記録セクション / 登録 CTA を非同期に解決して描画する
  * 非同期結果ブロック
  *
- * 認証状態の判定と EXP 取得を内包し、ストリーミング境界内で完結させる。
- * ログイン済みで grant 付き → `ExpGainDisplay`
- * ログイン済みで grant なし → なし（`Suspense` 解決後に空になる）
+ * 認証状態の判定と EXP・過去記録比較の取得を内包し、ストリーミング境界内で
+ * 完結させる。
+ * ログイン済み → `RecordSection`（EXP は grant があるときだけ、過去記録比較は常に）
  * 未ログイン → `SignUpCta`
+ *
+ * ログイン済みで grant が無い場合（スコア保存に失敗した等）も比較だけの
+ * `RecordSection` を描画する — どの分岐でも 1 セクションが必ず現れることで、
+ * `ResultBlockSkeleton` との置換でレイアウトが動かない。
  */
 async function AsyncResultBlock({
   grantId,
+  menuType,
 }: {
   readonly grantId: string | undefined;
+  readonly menuType: PracticeMenuType;
 }) {
   // デバッグ用: `DEBUG_RESULT_DELAY_MS` が設定されていれば指定 ms 待機。
   // 本番では no-op（debugResultDelay 内で NODE_ENV をチェック）。
@@ -226,14 +237,12 @@ async function AsyncResultBlock({
     return <SignUpCta />;
   }
 
-  if (!grantId) {
-    return undefined;
-  }
+  const [expInfo, comparison] = await Promise.all([
+    grantId ? tryFetchExpInfo(user.id, grantId) : undefined,
+    tryFetchScoreComparison(user.id, menuType, grantId),
+  ]);
 
-  const expInfo = await tryFetchExpInfo(user.id, grantId);
-  if (!expInfo) return undefined;
-
-  return <ExpGainDisplay expInfo={expInfo} />;
+  return <RecordSection expInfo={expInfo} comparison={comparison} />;
 }
 
 /**
@@ -279,6 +288,23 @@ async function tryFetchExpInfo(userId: string, challengeResultId: string) {
     logExternalError(
       "createPracticeResultPage",
       "failed to fetch exp info",
+      error,
+    );
+    return undefined;
+  }
+}
+
+async function tryFetchScoreComparison(
+  userId: string,
+  menuType: PracticeMenuType,
+  currentResultId: string | undefined,
+): Promise<ScoreComparison | undefined> {
+  try {
+    return await getScoreComparison(userId, menuType, currentResultId);
+  } catch (error) {
+    logExternalError(
+      "createPracticeResultPage",
+      "failed to fetch score comparison",
       error,
     );
     return undefined;
