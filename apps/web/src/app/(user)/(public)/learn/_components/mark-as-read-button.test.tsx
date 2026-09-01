@@ -51,12 +51,15 @@ import { MarkAsReadButton } from "./mark-as-read-button";
 /**
  * ConfirmationModal 内のボタンを label（i18n キー）で取得する。
  * useTranslations のモックが key をそのまま返すため、label = key でマッチできる。
+ *
+ * 探索先が render の container ではなく document.body なのは、ModalShell が
+ * body へポータルするため（呼び出し元の DOM 位置には現れない）。
  */
 function getModalButton(
-  container: HTMLElement,
+  root: HTMLElement,
   label: string,
 ): HTMLButtonElement | undefined {
-  const buttons = Array.from(container.querySelectorAll("button"));
+  const buttons = Array.from(root.querySelectorAll("button"));
   return buttons.find((b) => b.textContent?.includes(label)) as
     HTMLButtonElement | undefined;
 }
@@ -154,7 +157,7 @@ describe("MarkAsReadButton", () => {
   });
 
   it("opens the confirmation modal before unmarking a read chapter", async () => {
-    const { container, getAllByRole } = render(
+    const { getAllByRole } = render(
       <MarkAsReadButton slug="jantou-fu" initialRead={true} />,
     );
     const toggleBtn = getAllByRole("button").find(
@@ -166,14 +169,14 @@ describe("MarkAsReadButton", () => {
     });
 
     // モーダルが開いており、確認テキストが表示されている
-    expect(container.textContent).toContain("unmarkConfirmTitle");
-    expect(container.textContent).toContain("unmarkConfirmMessage");
+    expect(document.body.textContent).toContain("unmarkConfirmTitle");
+    expect(document.body.textContent).toContain("unmarkConfirmMessage");
     // この時点ではまだサーバーは呼ばれない
     expect(mockUnmarkChapterRead).not.toHaveBeenCalled();
   });
 
   it("cancels unmarking when the user presses the cancel button", async () => {
-    const { container, getAllByRole } = render(
+    const { getAllByRole } = render(
       <MarkAsReadButton slug="jantou-fu" initialRead={true} />,
     );
     const toggleBtn = getAllByRole("button").find(
@@ -184,7 +187,7 @@ describe("MarkAsReadButton", () => {
       fireEvent.click(toggleBtn);
     });
 
-    const cancelBtn = getModalButton(container, "unmarkConfirmCancel");
+    const cancelBtn = getModalButton(document.body, "unmarkConfirmCancel");
     expect(cancelBtn).toBeDefined();
 
     await act(async () => {
@@ -195,13 +198,13 @@ describe("MarkAsReadButton", () => {
     // トグルボタンのラベルは既読のまま
     expect(toggleBtn.textContent).toContain("unmarkAsReadCta");
     // モーダルは閉じている
-    expect(container.textContent).not.toContain("unmarkConfirmTitle");
+    expect(document.body.textContent).not.toContain("unmarkConfirmTitle");
   });
 
   it("proceeds with unmark when the user confirms", async () => {
     mockUnmarkChapterRead.mockResolvedValue({ success: true });
 
-    const { container, getAllByRole } = render(
+    const { getAllByRole } = render(
       <MarkAsReadButton slug="jantou-fu" initialRead={true} />,
     );
     const toggleBtn = getAllByRole("button").find(
@@ -212,7 +215,7 @@ describe("MarkAsReadButton", () => {
       fireEvent.click(toggleBtn);
     });
 
-    const confirmBtn = getModalButton(container, "unmarkConfirmOk");
+    const confirmBtn = getModalButton(document.body, "unmarkConfirmOk");
     expect(confirmBtn).toBeDefined();
 
     await act(async () => {
@@ -229,7 +232,7 @@ describe("MarkAsReadButton", () => {
       error: "invalid-slug",
     });
 
-    const { container, getAllByRole } = render(
+    const { getAllByRole } = render(
       <MarkAsReadButton slug="jantou-fu" initialRead={true} />,
     );
     const toggleBtn = getAllByRole("button").find(
@@ -240,7 +243,7 @@ describe("MarkAsReadButton", () => {
       fireEvent.click(toggleBtn);
     });
 
-    const confirmBtn = getModalButton(container, "unmarkConfirmOk");
+    const confirmBtn = getModalButton(document.body, "unmarkConfirmOk");
     await act(async () => {
       fireEvent.click(confirmBtn!);
     });

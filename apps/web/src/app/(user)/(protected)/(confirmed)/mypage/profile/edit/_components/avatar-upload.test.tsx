@@ -58,8 +58,9 @@ const AVATAR_URL = "https://example.test/avatars/user-1/avatar.webp";
  * ボタンを label（i18n キー）で取得する。
  * useTranslations のモックが key をそのまま返すため、label = key でマッチできる。
  */
-function getButton(container: HTMLElement, label: string) {
-  return Array.from(container.querySelectorAll("button")).find(
+/** ConfirmationModal は body へポータルされるため、探索先に document.body を渡す。 */
+function getButton(root: HTMLElement, label: string) {
+  return Array.from(root.querySelectorAll("button")).find(
     (b) => b.textContent?.trim() === label,
   );
 }
@@ -92,7 +93,7 @@ describe("AvatarUpload の削除", () => {
     );
 
     fireEvent.click(getRemoveButton(container)!);
-    fireEvent.click(getButton(container, "avatarRemoveConfirmCancel")!);
+    fireEvent.click(getButton(document.body, "avatarRemoveConfirmCancel")!);
 
     expect(mockCallApi).not.toHaveBeenCalled();
     expect(container.querySelector("img")).not.toBeNull();
@@ -107,7 +108,7 @@ describe("AvatarUpload の削除", () => {
 
     fireEvent.click(getRemoveButton(container)!);
     await act(async () => {
-      fireEvent.click(getButton(container, "avatarRemoveConfirmOk")!);
+      fireEvent.click(getButton(document.body, "avatarRemoveConfirmOk")!);
     });
 
     expect(mockCallApi).toHaveBeenCalledWith("/api/profile/avatar", {
@@ -128,7 +129,7 @@ describe("AvatarUpload の削除", () => {
 
     fireEvent.click(getRemoveButton(container)!);
     await act(async () => {
-      fireEvent.click(getButton(container, "avatarRemoveConfirmOk")!);
+      fireEvent.click(getButton(document.body, "avatarRemoveConfirmOk")!);
     });
 
     expect(container.textContent).toContain("avatarRemoveFailed");
@@ -145,7 +146,7 @@ describe("AvatarUpload の削除", () => {
 
     fireEvent.click(getRemoveButton(container)!);
     await act(async () => {
-      fireEvent.click(getButton(container, "avatarRemoveConfirmOk")!);
+      fireEvent.click(getButton(document.body, "avatarRemoveConfirmOk")!);
     });
 
     expect(container.textContent).toContain("rateLimited");
