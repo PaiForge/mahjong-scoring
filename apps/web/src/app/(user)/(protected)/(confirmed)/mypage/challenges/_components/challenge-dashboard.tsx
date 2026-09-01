@@ -55,7 +55,9 @@ const selectClassName =
 interface ChallengeDashboardProps {
   /** サーバーサイドでプリフェッチした利用可能メニュー種別 */
   readonly initialMenuTypes: readonly PracticeMenuType[];
-  /** サーバーサイドでプリフェッチした初期セッションデータ（デフォルト期間・先頭メニュー） */
+  /** 初期選択の練習種別（`?menu=` の指定、無ければ先頭メニュー） */
+  readonly initialMenu: PracticeMenuType | undefined;
+  /** サーバーサイドでプリフェッチした初期セッションデータ（デフォルト期間・初期選択メニュー） */
   readonly initialSessions: {
     readonly current: readonly ChallengeSession[];
     readonly previous: readonly ChallengeSession[];
@@ -70,6 +72,7 @@ interface ChallengeDashboardProps {
  */
 export function ChallengeDashboard({
   initialMenuTypes,
+  initialMenu,
   initialSessions,
 }: ChallengeDashboardProps) {
   const t = useTranslations("mypage.challenges");
@@ -87,7 +90,7 @@ export function ChallengeDashboard({
     chartData,
     tableRows,
     hasMoreResults,
-  } = useDashboardData({ initialMenuTypes, initialSessions });
+  } = useDashboardData({ initialMenuTypes, initialMenu, initialSessions });
 
   const comparisonLabel = getComparisonLabel(selectedPeriod, t);
   const navigablePrevPeriod = getNavigablePreviousPeriod(selectedPeriod);

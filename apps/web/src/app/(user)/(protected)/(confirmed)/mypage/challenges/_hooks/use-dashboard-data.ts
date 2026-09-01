@@ -31,6 +31,11 @@ const TABLE_DISPLAY_LIMIT = 5;
 interface UseDashboardDataOptions {
   /** サーバーサイドでプリフェッチした利用可能メニュー種別 */
   readonly initialMenuTypes: readonly PracticeMenuType[];
+  /**
+   * 初期選択の練習種別。`initialSessions` がどの種別のデータかを表すため、
+   * プリフェッチと同じ値を渡すこと（食い違うと初回描画だけ別種別のデータが出る）。
+   */
+  readonly initialMenu: PracticeMenuType | undefined;
   /** サーバーサイドでプリフェッチした初期セッションデータ */
   readonly initialSessions: {
     readonly current: readonly ChallengeSession[];
@@ -45,14 +50,12 @@ interface UseDashboardDataOptions {
  */
 export function useDashboardData({
   initialMenuTypes,
+  initialMenu,
   initialSessions,
 }: UseDashboardDataOptions) {
-  const firstMenu =
-    initialMenuTypes.length > 0 ? initialMenuTypes[0] : undefined;
-
   const [selectedMenu, setSelectedMenu] = useState<
     PracticeMenuType | undefined
-  >(firstMenu);
+  >(initialMenu);
   const [selectedPeriod, setSelectedPeriod] = useState<DatePeriod>("thisWeek");
   const [availableMenuTypes] = useState<PracticeMenuType[] | undefined>([
     ...initialMenuTypes,
