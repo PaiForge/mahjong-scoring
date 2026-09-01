@@ -23,7 +23,7 @@ export function AdminModalShell(
     <ModalShell
       {...props}
       skin="plain"
-      panelClassName="rounded-xl bg-white p-6 shadow-xl"
+      panelClassName="space-y-6 rounded-xl bg-white p-6 shadow-xl"
     />
   );
 }

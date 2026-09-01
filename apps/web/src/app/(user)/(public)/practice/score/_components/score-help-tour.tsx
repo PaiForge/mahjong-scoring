@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useMemo, useCallback, useEffect } from "react";
+import { useState, useMemo, useCallback } from "react";
 import { useTranslations } from "next-intl";
 import { generateValidScoreQuestion, isOya } from "@mahjong-scoring/core";
 import type {
@@ -11,7 +11,7 @@ import type {
 import { QuestionDisplay } from "./question-display";
 import { ScorePracticeAnswerForm } from "./score-practice-answer-form";
 import { ResultDisplay } from "./result-display";
-import { useBodyScrollLock } from "@/app/_hooks/use-body-scroll-lock";
+import { ModalShell } from "@/app/_components/modal-shell";
 import { Button } from "@/app/(user)/_components/button";
 
 /**
@@ -22,6 +22,8 @@ import { Button } from "@/app/(user)/_components/button";
  * 「開始する」後のプレイ画面（問題 → 回答 → 結果）を実コンポーネントで
  * プレビューするカルーセルモーダルを開く。スクリーンショットではなく実物を
  * 描画するため、UI 変更に自動追従する。
+ * シェル（オーバーレイ・Escape・スクロールロック・body へのポータル）は
+ * ModalShell に委譲し、パネルの中身（ヘッダー・スライド・フッター）だけを持つ。
  *
  * @flow
  * 1. PageTitle の「?」ボタンを押すとモーダルが開く（初回開封時にサンプル問題を生成）
@@ -126,18 +128,6 @@ export function ScoreHelpTour() {
     [total],
   );
 
-  useBodyScrollLock(isOpen);
-
-  // Esc で閉じる
-  useEffect(() => {
-    if (!isOpen) return;
-    const onKeyDown = (e: KeyboardEvent) => {
-      if (e.key === "Escape") close();
-    };
-    document.addEventListener("keydown", onKeyDown);
-    return () => document.removeEventListener("keydown", onKeyDown);
-  }, [isOpen, close]);
-
   const current = slides[index];
 
   return (
@@ -163,18 +153,17 @@ export function ScoreHelpTour() {
         </svg>
       </button>
 
-      {isOpen && current && (
-        <div
-          className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4"
-          onClick={close}
-          role="dialog"
-          aria-modal="true"
-          aria-label={t("help.title")}
-        >
-          <div
-            className="flex max-h-[85vh] w-full max-w-lg flex-col overflow-hidden rounded-xl bg-white"
-            onClick={(e) => e.stopPropagation()}
-          >
+      {/* ヘッダー・本文・フッターの区画をパネル自身の flex で組むため、
+          既定のパネル体裁（p-6 / space-y-6 / 太枠）は使わず丸ごと差し替える。 */}
+      <ModalShell
+        isOpen={isOpen}
+        onClose={close}
+        label={t("help.title")}
+        widthClassName="max-w-lg"
+        panelClassName="flex max-h-[85vh] flex-col overflow-hidden rounded-xl bg-white"
+      >
+        {current !== undefined && (
+          <>
             {/* Header */}
             <div className="flex items-center justify-between border-b-2 border-dashed border-border/40 px-5 py-3">
               <h3 className="text-base font-bold text-surface-900">
@@ -243,9 +232,9 @@ export function ScoreHelpTour() {
                 </Button>
               )}
             </div>
-          </div>
-        </div>
-      )}
+          </>
+        )}
+      </ModalShell>
     </>
   );
 }

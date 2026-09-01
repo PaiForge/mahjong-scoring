@@ -19,7 +19,9 @@ interface ModalShellProps {
   readonly label?: string;
   /**
    * パネル（白い箱）の体裁。既定はユーザー向け画面の骨格（太枠）。
-   * 管理画面のように別の見た目で使う場合はここで丸ごと差し替える。
+   * 内側の余白・子要素の間隔（p-6 / space-y-6）も体裁の一部としてここが持つ。
+   * 管理画面のように別の見た目で使う場合や、ヘルプツアーのようにパネル内で
+   * 独自のレイアウトを組む場合はここで丸ごと差し替える。
    */
   readonly panelClassName?: string;
   /**
@@ -38,7 +40,8 @@ interface ModalShellProps {
 }
 
 /** パネル体裁の既定値（ユーザー向け画面の骨格） */
-const DEFAULT_PANEL_CLASS = "rounded-2xl border-4 border-ink bg-white p-6";
+const DEFAULT_PANEL_CLASS =
+  "space-y-6 rounded-2xl border-4 border-ink bg-white p-6";
 
 /**
  * モーダル共通シェル
@@ -99,7 +102,7 @@ export function ModalShell({
       aria-label={label}
     >
       <div
-        className={`mx-4 w-full space-y-6 ${widthClassName} ${panelClassName}`}
+        className={`mx-4 w-full ${widthClassName} ${panelClassName}`}
         onClick={(e) => e.stopPropagation()}
       >
         {children}
