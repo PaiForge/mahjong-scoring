@@ -35,6 +35,7 @@ export const MODULE_WEIGHT: Readonly<Record<string, number>> = {
   chiitoitsu_exam: 1,
   pinfu_exam: 1,
   fu_score_exam: 1,
+  score_exam: 1,
 };
 
 /**

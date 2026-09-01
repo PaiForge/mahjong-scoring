@@ -1,6 +1,6 @@
 import { describe, it, expect } from "vitest";
 import type { ScoreResult } from "@pai-forge/riichi-mahjong";
-import { applyKiriageMangan } from "./calculator";
+import { applyKiriageMangan, clampDoubleYakuman } from "./calculator";
 import { ScoreLevel } from "../core/constants";
 
 describe("applyKiriageMangan", () => {
@@ -90,6 +90,55 @@ describe("applyKiriageMangan", () => {
       payment: { type: "ron", amount: 8000 },
     };
     expect(applyKiriageMangan(result, { isTsumo: false, isOya: false })).toBe(
+      result,
+    );
+  });
+});
+
+describe("clampDoubleYakuman", () => {
+  it("ダブル役満の子ロンを役満の32000点に丸める", () => {
+    const result: ScoreResult = {
+      han: 26,
+      fu: 40,
+      scoreLevel: ScoreLevel.DoubleYakuman,
+      payment: { type: "ron", amount: 64000 },
+    };
+    expect(
+      clampDoubleYakuman(result, { isTsumo: false, isOya: false }),
+    ).toEqual({
+      // 翻・符は丸めない（役の内訳は実際の翻数のまま残す）
+      han: 26,
+      fu: 40,
+      scoreLevel: ScoreLevel.Yakuman,
+      payment: { type: "ron", amount: 32000 },
+    });
+  });
+
+  it("ダブル役満の子ツモを8000/16000に丸める", () => {
+    const result: ScoreResult = {
+      han: 27,
+      fu: 50,
+      scoreLevel: ScoreLevel.DoubleYakuman,
+      payment: { type: "koTsumo", amount: [16000, 32000] },
+    };
+    expect(clampDoubleYakuman(result, { isTsumo: true, isOya: false })).toEqual(
+      {
+        han: 27,
+        fu: 50,
+        scoreLevel: ScoreLevel.Yakuman,
+        payment: { type: "koTsumo", amount: [8000, 16000] },
+      },
+    );
+  });
+
+  it("役満以下の結果はそのまま返す", () => {
+    const result: ScoreResult = {
+      han: 13,
+      fu: 40,
+      scoreLevel: ScoreLevel.Yakuman,
+      payment: { type: "ron", amount: 32000 },
+    };
+    expect(clampDoubleYakuman(result, { isTsumo: false, isOya: false })).toBe(
       result,
     );
   });

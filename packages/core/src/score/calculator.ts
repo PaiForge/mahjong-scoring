@@ -6,7 +6,7 @@ import {
   MANGAN_BASE_POINTS,
 } from "../core/score-calculation";
 import { ScoreLevel } from "../core/constants";
-import { scoreTierForHan } from "./tiers";
+import { scoreTierForHan, YAKUMAN_HAN } from "./tiers";
 
 /**
  * 翻数が変わった場合の点数を再計算する
@@ -76,6 +76,55 @@ function buildPayment(
 }
 
 /**
+ * ダブル役満の結果を役満の点数に丸める
+ * ダブル役満丸め
+ *
+ * 26翻以上も役満として扱う、というアプリ全体の決定
+ * （{@link clampHanToYakuman} / `DISPLAY_TIERS` 参照）の点数側の実装。
+ * 翻数の表示・判定は `clampHanToYakuman` が丸めるが、点数計算はライブラリが
+ * ダブル役満の基本符（16000）で払いを組むため、丸めないと 64000 のような
+ * どの点数リスト（`RON_SCORES_KO` 等）にも無い点数が正解になる。
+ *
+ * 翻・符は変えない（役の内訳は実際の翻数のまま残す）。変えるのは点数区分と
+ * 支払いだけで、切り上げ満貫の適用と同じ形。
+ */
+export function clampDoubleYakuman(
+  result: Readonly<ScoreResult>,
+  config: {
+    readonly isTsumo: boolean;
+    readonly isOya: boolean;
+  },
+): ScoreResult {
+  if (result.scoreLevel !== ScoreLevel.DoubleYakuman) return result;
+  const yakuman = scoreTierForHan(YAKUMAN_HAN);
+  if (!yakuman) return result;
+  return {
+    ...result,
+    scoreLevel: yakuman.level,
+    payment: buildPayment(yakuman.basePoints, config),
+  };
+}
+
+/**
+ * 切り上げ満貫で点数が変わる結果かどうかを判定する
+ * 切り上げ満貫対象判定
+ *
+ * 30符4翻・60符3翻（基本符1920）が該当する。標準ルールでは満貫未満だが、
+ * 切り上げ満貫ルールでは満貫の点数になる — つまり同じ手牌の正解が採用ルール
+ * によって割れる唯一の境界。
+ *
+ * 適用する側（{@link applyKiriageMangan}）だけでなく、避ける側もこの述語を
+ * 使う。出題からこの境界を外したい問題生成（`excludeKiriageBoundary`）が
+ * 閾値を再実装すると、片方だけが改訂されて黙ってずれるため。
+ */
+export function isKiriageManganTarget(result: Readonly<ScoreResult>): boolean {
+  if (result.scoreLevel !== ScoreLevel.Normal) return false;
+  return (
+    calculateBasePoints(result.han, result.fu) >= KIRIAGE_MANGAN_BASE_POINTS
+  );
+}
+
+/**
  * 切り上げ満貫を適用する
  * 切り上げ満貫適用
  *
@@ -90,9 +139,7 @@ export function applyKiriageMangan(
     readonly isOya: boolean;
   },
 ): ScoreResult {
-  if (result.scoreLevel !== ScoreLevel.Normal) return result;
-  if (calculateBasePoints(result.han, result.fu) < KIRIAGE_MANGAN_BASE_POINTS)
-    return result;
+  if (!isKiriageManganTarget(result)) return result;
   return {
     ...result,
     scoreLevel: ScoreLevel.Mangan,

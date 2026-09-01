@@ -11,20 +11,31 @@ import {
 import { MANGAN_MIN_HAN } from "./han-tiers";
 
 /**
+ * 回答の選択肢を固定する範囲
+ * 選択肢範囲
+ *
+ * 点数帯（満貫未満 / 満貫以上）に加えて、絞らない `"all"` を持つ。
+ * `undefined`（範囲を渡さない）とは別物で、`undefined` は「翻数から絞る」、
+ * `"all"` は「その親子・ツモロンで取りうる全点数を出す」。出題範囲を絞らない
+ * 試験（どんな手でも出す試験）が `"all"` を渡す。
+ */
+export type ScoreOptionRange = ScoreRange | "all";
+
+/**
  * 利用可能な点数リストを取得する
  * 翻数・親子・ツモロンに応じてフィルタリングした点数候補を返す
  *
  * @param han - 選択された翻数（未選択の場合は undefined）
  * @param isOya - 親かどうか
  * @param isTsumo - ツモかどうか
- * @param scoreRange - 指定すると、翻数にかかわらずその点数帯の点数のみ返す
+ * @param scoreRange - 指定すると、翻数にかかわらずその範囲の点数のみ返す
  * @param kiriageMangan - 切り上げ満貫を採用しているか（3翻でも満貫がありうる）
  */
 export function getAvailableScores(
   han: number | undefined,
   isOya: boolean,
   isTsumo: boolean,
-  scoreRange?: ScoreRange,
+  scoreRange?: ScoreOptionRange,
   kiriageMangan?: boolean,
 ): AvailableScores {
   const isKoTsumo = isTsumo && !isOya;
@@ -127,14 +138,17 @@ function filterScores(
   scores: readonly number[],
   han: number | undefined,
   category: ScoreCategory,
-  scoreRange?: ScoreRange,
+  scoreRange?: ScoreOptionRange,
   kiriageMangan?: boolean,
 ): readonly number[] {
   const threshold = MANGAN_THRESHOLDS[category];
 
-  // 点数帯が決まっている出題（昇級試験）は翻数を見ない。翻数で絞ると
+  // 範囲が決まっている出題（昇級試験）は翻数を見ない。翻数で絞ると
   // 選択肢の個数そのものが翻数のヒントになるうえ、切り上げ満貫の設定
   // （下の `boundary`）で選択肢が端末ごとに変わってしまう
+  if (scoreRange === "all") {
+    return scores;
+  }
   if (scoreRange === "manganPlus") {
     return scores.filter((s) => s >= threshold);
   }

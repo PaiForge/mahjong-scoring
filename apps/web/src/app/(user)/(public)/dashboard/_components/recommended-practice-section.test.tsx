@@ -63,7 +63,8 @@ describe("RecommendedPracticeSection", () => {
     const pill = container.querySelector("a[data-belt-slug]");
     expect(pill?.getAttribute("href")).toBe("/exam/fu");
     // 級名だけでは行き先が読めないため、リンクの名前は行き先まで含める
-    expect(pill?.getAttribute("aria-label")).toBe("examLink");
+    // （級は「昇級試験」、段は「昇段試験」と種別で引き分ける）
+    expect(pill?.getAttribute("aria-label")).toBe("examTitle.kyu");
   });
 
   it("勧める練習が無ければ何も描画しない", async () => {

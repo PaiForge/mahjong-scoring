@@ -56,8 +56,9 @@ interface BeltColorClasses {
  * @description
  * 道場の現在の段級位バッジ・昇級試験カード・マイページの段級位ピルが引く。
  * 参考プロジェクト（blindfold-chess）の帯色体系に合わせており、5級は
- * オレンジ・4級は青・3級は黄・2級は緑・1級は茶。級が増えるたびにここへ 1 行足す
- * （`Record<RankSlug, ...>` なので追加漏れはコンパイルで落ちる）。
+ * オレンジ・4級は青・3級は黄・2級は緑・1級は茶・初段は黒。段級位が増える
+ * たびにここへ 1 行足す（`Record<RankSlug, ...>` なので追加漏れはコンパイルで
+ * 落ちる）。
  *
  * @design セマンティックトークンではなく Tailwind の既定色を直接使う理由
  *
@@ -121,6 +122,18 @@ export const RANK_BELT_CLASSES: Readonly<Record<RankSlug, BeltColorClasses>> = {
     tintText: "text-amber-900",
     buttonVars:
       "[--belt-fill:var(--color-amber-200)] [--belt-fill-hover:var(--color-amber-300)] [--belt-text:var(--color-amber-900)] [--belt-edge:var(--color-amber-800)]",
+  },
+  // 黒帯。参考プロジェクトの黒（#1c1917）がそのまま stone-900 にあたる。
+  // 純黒（#000）にしないのは、このアプリの文字色（ink）と同じく黒に寄せた
+  // 有彩色のほうが白いカードの上で硬くならないため。淡い側は他の級と同じ
+  // 100 だと帯の黒との差が開きすぎるので 200 を使う（茶と同じ扱い）
+  "dan-1": {
+    bg: "bg-stone-900",
+    border: "border-stone-900",
+    tint: "bg-stone-200",
+    tintText: "text-stone-900",
+    buttonVars:
+      "[--belt-fill:var(--color-stone-200)] [--belt-fill-hover:var(--color-stone-300)] [--belt-text:var(--color-stone-900)] [--belt-edge:var(--color-stone-900)]",
   },
 };
 

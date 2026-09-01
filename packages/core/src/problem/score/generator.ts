@@ -33,7 +33,11 @@ import { retryGenerate } from "../retry-generate";
 import { countKantsu } from "../shared/count-kantsu";
 import type { AgariContext } from "../shared/agari-context";
 import { doubleWindJantouFu } from "../../rules/settings";
-import { applyKiriageMangan } from "../../score/calculator";
+import {
+  applyKiriageMangan,
+  clampDoubleYakuman,
+  isKiriageManganTarget,
+} from "../../score/calculator";
 import { isOya } from "../../core/kaze";
 import { SCORE_YAKU_NAME_MAP } from "../../core/yaku-names";
 
@@ -172,6 +176,7 @@ export function generateScoreQuestion(
     renfonpaiAs4Fu = false,
     excludeRenfonpai = false,
     kiriageMangan = false,
+    excludeKiriageBoundary = false,
     allowedRanges = ["nonMangan", "manganPlus"],
     minHan = 0,
     requiredYaku,
@@ -252,7 +257,21 @@ export function generateScoreQuestion(
     yakuDetails = [...yakuDetails, ...riichiRes.additionalYakuDetails];
   }
 
-  // 6. 切り上げ満貫の適用（30符4翻・60符3翻を満貫の点数に切り上げ）
+  // 6. ダブル役満の点数を役満に丸める（26翻以上も役満として扱うアプリ全体の
+  //    決定に点数を合わせる。丸めないと 64000 のようにどの点数リストにも
+  //    無い点数が正解になり、選択肢から選べない問題が出る）
+  finalAnswer = clampDoubleYakuman(finalAnswer, {
+    isTsumo,
+    isOya: isOya(jikaze),
+  });
+
+  // 7. 切り上げ満貫で点数が割れる手（30符4翻・60符3翻）の除外
+  //    切り上げる前の結果で判定する。切り上げた後は満貫になっていて
+  //    「境界だった」ことが読めなくなるため
+  if (excludeKiriageBoundary && isKiriageManganTarget(finalAnswer))
+    return undefined;
+
+  // 8. 切り上げ満貫の適用（30符4翻・60符3翻を満貫の点数に切り上げ）
   if (kiriageMangan) {
     finalAnswer = applyKiriageMangan(finalAnswer, {
       isTsumo,
@@ -260,7 +279,7 @@ export function generateScoreQuestion(
     });
   }
 
-  // 7. 点数帯・最小翻数・符・役の検証と組み立て
+  // 9. 点数帯・最小翻数・符・役の検証と組み立て
   //    minHan はリーチ・裏ドラ適用後の最終翻数で判定する（出題表示と一致させる）
   if (!validateScoreRange(finalAnswer.scoreLevel, allowedRanges))
     return undefined;

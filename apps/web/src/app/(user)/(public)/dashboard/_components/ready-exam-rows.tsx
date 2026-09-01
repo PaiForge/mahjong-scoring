@@ -6,7 +6,7 @@ import {
   practiceMenuBySlug,
   type PracticeMenuSlug,
 } from "@/lib/db/practice-menu-types";
-import { rankRequiringMenu } from "@/lib/ranks/registry";
+import { rankRequiringMenu, rankTier } from "@/lib/ranks/registry";
 
 interface ReadyExamRowsProps {
   /** 受験できる昇級試験の練習スラッグ */
@@ -54,7 +54,9 @@ export async function ReadyExamRows({ slugs }: ReadyExamRowsProps) {
               🥋
             </span>
           }
-          title={t("examCta.title", { rank: t(`names.${rankSlug}`) })}
+          title={t(`examTitle.${rankTier(rankSlug)}`, {
+            rank: t(`names.${rankSlug}`),
+          })}
           description={`${t("examCta.criterionLabel")}: ${t(`criteria.${rankSlug}`)}`}
         />
       ))}

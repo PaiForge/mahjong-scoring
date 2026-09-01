@@ -4,7 +4,7 @@ import { BeltBadge } from "@/app/(user)/_components/belt-badge";
 import { getOptionalUser } from "@/lib/auth";
 import { getUserRankSlugs } from "@/lib/db/rank-queries";
 import { beltBorderClass, beltTintClasses } from "@/lib/ranks/belt-colors";
-import { highestRank, type RankSlug } from "@/lib/ranks/registry";
+import { highestRank, rankTier, type RankSlug } from "@/lib/ranks/registry";
 
 interface PromotionBannerProps {
   /** URL クエリ由来の昇級候補スラッグ（表示前に user_ranks と突き合わせる） */
@@ -43,11 +43,17 @@ export async function PromotionBanner({ slugs }: PromotionBannerProps) {
       className={`rounded-xl border-3 p-5 text-center ${beltBorderClass(awarded)} ${beltTintClasses(awarded)}`}
     >
       <BeltBadge slug={awarded} />
-      <h2 className="mt-3 text-lg font-bold">{t("promotion.title")}</h2>
+      {/* 見出しは最上位の段級位の種別で出す（級と段が同時に付いたときは
+          上の段の言い方に寄せる）。行ごとの文はそれぞれの種別で出す */}
+      <h2 className="mt-3 text-lg font-bold">
+        {t(`promotion.title.${rankTier(awarded ?? verified[0])}`)}
+      </h2>
       <div className="mt-1 space-y-0.5">
         {verified.map((slug) => (
           <p key={slug} className="font-medium text-surface-700">
-            {t("promotion.message", { rank: t(`names.${slug}`) })}
+            {t(`promotion.message.${rankTier(slug)}`, {
+              rank: t(`names.${slug}`),
+            })}
           </p>
         ))}
       </div>

@@ -10,7 +10,7 @@ import {
   beltClass,
   beltForegroundClass,
 } from "@/lib/ranks/belt-colors";
-import { rankRequiringMenu } from "@/lib/ranks/registry";
+import { rankRequiringMenu, rankTier } from "@/lib/ranks/registry";
 import { practiceHref } from "@/app/(user)/(public)/practice/_lib/practice-catalog";
 import { ChevronRightIcon } from "@/app/(user)/_components/icons/chevron-right-icon";
 
@@ -51,7 +51,7 @@ export async function ExamCtaCard({ slug, lead }: ExamCtaCardProps) {
       <SectionTitle
         toneClass={`${beltClass(exam.rank.slug)} ${beltForegroundClass(exam.rank.slug)}`}
       >
-        {t("examCta.title", { rank: rankName })}
+        {t(`examTitle.${rankTier(exam.rank.slug)}`, { rank: rankName })}
       </SectionTitle>
       {/* どの級の試験かを枠の色でも示す。既定の ink（緑）は使わない — 級名を
           掲げたカードが緑枠だと、緑がその級の色に見えてしまう。

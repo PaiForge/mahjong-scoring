@@ -86,17 +86,22 @@ export default async function DojoPage() {
 
         {next ? (
           <>
-            <section className="space-y-4">
-              <SectionTitle>{t("chaptersTitle")}</SectionTitle>
-              <p className="text-sm leading-relaxed text-surface-500">
-                {t("chaptersLead")}
-              </p>
-              <ChapterTocList
-                slugs={next.learnChapterSlugs}
-                readSlugs={readSlugs}
-              />
-              <CurriculumTocLink />
-            </section>
+            {/* 前提章を持たない段級位（教本の章がまだ無いもの）では節ごと
+                出さない。見出しとリード文だけが残ると「この章で身につきます」
+                と言いながら章が1つも無い面になる */}
+            {next.learnChapterSlugs.length > 0 && (
+              <section className="space-y-4">
+                <SectionTitle>{t("chaptersTitle")}</SectionTitle>
+                <p className="text-sm leading-relaxed text-surface-500">
+                  {t("chaptersLead")}
+                </p>
+                <ChapterTocList
+                  slugs={next.learnChapterSlugs}
+                  readSlugs={readSlugs}
+                />
+                <CurriculumTocLink />
+              </section>
+            )}
 
             {next.requirements.map((requirement) => (
               <ExamCtaCard
