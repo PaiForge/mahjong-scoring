@@ -2,6 +2,7 @@ import type { ReactNode } from "react";
 
 import Link from "next/link";
 import { TEXT_LINK_CLASSES } from "@/app/_components/_lib/link-classes";
+import { SUB_LINK_GAP } from "@/app/_components/_lib/spacing";
 import { LinkButton } from "@/app/(user)/_components/link-button";
 
 interface StepCardProps {
@@ -41,7 +42,9 @@ export function StepCard({
       </div>
       <h2 className="text-lg font-semibold text-surface-900">{title}</h2>
       <p className="text-sm leading-relaxed text-surface-500">{description}</p>
-      <div className="mt-auto flex w-full flex-col items-center gap-3 pt-2">
+      <div
+        className={`mt-auto flex w-full flex-col items-center ${SUB_LINK_GAP} pt-2`}
+      >
         <LinkButton href={ctaHref}>{ctaLabel}</LinkButton>
         <div className="flex min-h-5 items-center">
           {subLabel && subHref ? (

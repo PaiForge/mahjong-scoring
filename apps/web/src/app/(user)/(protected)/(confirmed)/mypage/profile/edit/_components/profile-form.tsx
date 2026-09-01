@@ -17,6 +17,7 @@ import { updateProfile } from "../_actions/update-profile";
 import { PROFILE_LIMITS } from "../_lib/profile-validation";
 import type { ProfileInput } from "../_lib/profile-validation";
 import { TEXT_LINK_CLASSES } from "@/app/_components/_lib/link-classes";
+import { SUB_LINK_GAP } from "@/app/_components/_lib/spacing";
 import { Button } from "@/app/(user)/_components/button";
 
 /** action が返す既知のエラーキー（profileEdit 名前空間に対応する文言がある） */
@@ -156,7 +157,7 @@ export function ProfileForm({
 
       {error && <p className="text-sm text-destructive">{error}</p>}
 
-      <div className="space-y-3">
+      <div className={`flex flex-col ${SUB_LINK_GAP}`}>
         <Button type="submit" size="lg" fullWidth disabled={isSubmitting}>
           {isSubmitting ? t("submitting") : t("submit")}
         </Button>

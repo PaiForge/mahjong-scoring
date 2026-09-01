@@ -14,12 +14,15 @@ import type { ReactNode } from "react";
  * 分岐追加のたびに「全部の最大高さを実測して揃え直す」作業が発生するため。
  *
  * 高さの根拠（2026-09 に puppeteer で実測）:
- * - 登録 CTA（未ログイン）: 幅 390px で 240px（縦積みが最大）、sm 以上では
+ * - 登録 CTA（未ログイン）: 幅 390px で 248px（縦積みが最大）、sm 以上では
  *   横並びになり 220px 未満
  * - 記録セクション（EXP + 比較、バッジなし）: 約 175px
  * - 同・レベルアップ + 自己ベスト更新の両バッジ付き: 約 260px。この稀な
  *   最大変種まで包含すると通常変種の余白が大きくなりすぎるため許容し、
- *   よく出る変種（上 2 つ）を包含する 240px / 220px を採る
+ *   よく出る変種（上 2 つ）を包含する 248px / 220px を採る
+ *
+ * CTA の高さは中のボタンと補助リンクの間隔（`SUB_LINK_GAP`）に連動する。
+ * あの余白を変えたらここも測り直すこと。
  */
 interface ResultBlockSectionProps {
   readonly children: ReactNode;
@@ -34,7 +37,7 @@ export function ResultBlockSection(props: ResultBlockSectionProps) {
     <section
       aria-hidden={props["aria-hidden"]}
       data-testid={props["data-testid"]}
-      className="min-h-[240px] sm:min-h-[220px] space-y-3"
+      className="min-h-[248px] sm:min-h-[220px] space-y-3"
     >
       {props.children}
     </section>

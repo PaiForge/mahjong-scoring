@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { getTranslations } from "next-intl/server";
 import { TEXT_LINK_CLASSES } from "@/app/_components/_lib/link-classes";
+import { SUB_LINK_GAP } from "@/app/_components/_lib/spacing";
 import { LinkButton } from "@/app/(user)/_components/link-button";
 import { SectionTitle } from "@/app/(user)/_components/section-title";
 import { ResultBlockSection } from "./result-block-section";
@@ -37,7 +38,9 @@ export async function SignUpCta() {
               {t("signUpCta.description")}
             </p>
           </div>
-          <div className="flex w-full flex-col items-center gap-2 sm:w-auto sm:items-end">
+          <div
+            className={`flex w-full flex-col items-center ${SUB_LINK_GAP} sm:w-auto sm:items-end`}
+          >
             <LinkButton
               href="/sign-up"
               fullWidth

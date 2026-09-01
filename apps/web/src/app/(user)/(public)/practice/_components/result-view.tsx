@@ -7,6 +7,7 @@ import { ArrowUturnLeftIcon } from "@/app/(user)/_components/icons/arrow-uturn-l
 import { RotateCcwIcon } from "@/app/(user)/_components/icons/rotate-ccw-icon";
 import { SectionTitle } from "@/app/(user)/_components/section-title";
 import { TEXT_LINK_CLASSES } from "@/app/_components/_lib/link-classes";
+import { SUB_LINK_GAP } from "@/app/_components/_lib/spacing";
 import type { PracticeResultViewProps } from "../_lib/create-practice-result-page";
 import {
   buildResultBreadcrumb,
@@ -85,28 +86,34 @@ export async function ResultView({
         {/* アクションボタン。参考プロジェクト準拠で縦積み・全幅。
             「設定を変更する」は出題設定を持つ練習だけに出る（`settingsHref`）。
             練習一覧へは戻り先であって次の行動ではないため、ボタンではなく
-            ボタン群の下の補助リンクに置く。 */}
-        <div className="space-y-3">
-          <LinkButton
-            href={`${playHref}${PRACTICE_SCROLL_HASH}`}
-            size="lg"
-            fullWidth
-          >
-            <RotateCcwIcon className="size-4" />
-            {tc("retryButton")}
-          </LinkButton>
-          {settingsHref !== undefined && (
+            ボタン群の下の補助リンクに置く。
+
+            余白は入れ子の gap で表す。内側 gap-3 がボタン同士のリズム、
+            外側 gap-4 が「ボタン群 → 補助リンク」の境界。リンク側に
+            padding を足して差を作らない（SUB_LINK_GAP 参照）。 */}
+        <div className={`flex flex-col ${SUB_LINK_GAP}`}>
+          <div className="flex flex-col gap-3">
             <LinkButton
-              href={settingsHref}
-              variant="neutral"
+              href={`${playHref}${PRACTICE_SCROLL_HASH}`}
               size="lg"
               fullWidth
             >
-              <ArrowUturnLeftIcon className="size-4" />
-              {tc("changeSettingsButton")}
+              <RotateCcwIcon className="size-4" />
+              {tc("retryButton")}
             </LinkButton>
-          )}
-          <p className="pt-1 text-center">
+            {settingsHref !== undefined && (
+              <LinkButton
+                href={settingsHref}
+                variant="neutral"
+                size="lg"
+                fullWidth
+              >
+                <ArrowUturnLeftIcon className="size-4" />
+                {tc("changeSettingsButton")}
+              </LinkButton>
+            )}
+          </div>
+          <p className="text-center">
             <Link href={parent.href} className={`text-sm ${TEXT_LINK_CLASSES}`}>
               {tc(parent.namespace === "dojo" ? "backToDojo" : "backToList")}
             </Link>
