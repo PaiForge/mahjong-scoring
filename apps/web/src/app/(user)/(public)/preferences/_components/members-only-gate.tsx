@@ -6,6 +6,7 @@ import { useTranslations } from "next-intl";
 
 import { useAuth } from "@/app/_contexts/auth-context";
 import { TEXT_LINK_CLASSES } from "@/app/_components/_lib/link-classes";
+import { SUB_LINK_GAP } from "@/app/_components/_lib/spacing";
 import { LinkButton } from "@/app/(user)/_components/link-button";
 
 /**
@@ -38,7 +39,9 @@ export function MembersOnlyGate({
       </div>
 
       {showCta && (
-        <div className="absolute inset-0 z-10 flex flex-col items-center justify-center gap-3 p-4 text-center">
+        <div
+          className={`absolute inset-0 z-10 flex flex-col items-center justify-center ${SUB_LINK_GAP} p-4 text-center`}
+        >
           <div>
             <p className="font-semibold text-surface-900">{t("title")}</p>
             <p className="mt-1 text-sm text-surface-600">{t("description")}</p>

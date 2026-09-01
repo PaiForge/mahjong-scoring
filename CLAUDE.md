@@ -176,6 +176,22 @@ packages/eslint-config/ — 共通 ESLint 設定（PaiForge コーディング�
   `router.prefetch()` で先読みする案は Link 自身のプリフェッチと干渉して逆に遅くなったので使わない
   （`auth-nav-item.tsx` 参照）
 
+## ボタンの下の補助リンクの余白（`apps/web/src/app/_components/_lib/spacing.ts`）
+
+ボタンの下に「移動するだけ」のテキストリンクを添える構造（結果画面の
+「練習一覧に戻る」、登録 CTA の「ログイン」、設定ゲートの「ログイン」、
+プロフィール編集の「スキップ」）の間隔は `SUB_LINK_GAP`（`gap-4` = 16px）に
+統一する。押し間違いを防ぐ縦のタップ間隔として `PracticeFooterActions` が
+定めている `gap-3`（12px）より一段広く、「ボタンの一部ではない」ことを
+距離で示す値。
+
+- **必ず gap で当てる。** リンク側に `pt-*` / `mt-*` を足して差を作らない —
+  親の `space-y-*` との合算になり、実際の余白がその場所の親によって変わる
+- ボタンが複数並ぶときは、ボタン群を `gap-3` の内側コンテナに包み、その外側に
+  `SUB_LINK_GAP` を当てる（`result-view.tsx` が既定の姿）
+- 結果画面の登録 CTA の高さはこの余白に連動する。値を変えたら
+  `ResultBlockSection` の `min-h` を実測し直すこと
+
 ## 角丸
 
 素の `rounded` は Tailwind の非推奨トークン `--radius`（0.25rem 固定）を参照しており、
