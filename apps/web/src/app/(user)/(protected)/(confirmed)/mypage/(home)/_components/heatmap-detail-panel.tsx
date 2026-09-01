@@ -31,14 +31,18 @@ export function HeatmapDetailPanel({
   /**
    * menuType キーをラベル文字列に解決する。
    *
-   * - 既知キー (`PracticeMenuType`) は i18n から取得（snake_case → camelCase 変換）
+   * - 既知キー (`PracticeMenuType`) は i18n から取得（snake_case → camelCase 変換）。
+   *   `practice.practices.<key>` は `title` / `shortTitle` / `description` を持つ
+   *   オブジェクトなので、末端の `shortTitle` まで指定すること。オブジェクトを
+   *   指すキーを渡すと next-intl は訳文ではなくキーのパス
+   *   （`practice.practices.jantouFu`）をそのまま描画する
    * - `'unknown'` は専用ラベル `noActivity` のコンテキスト外で出ないので `?` 表示
    * - それ以外（= MODULE_WEIGHT に追加されたが i18n 未登録のキー）は
    *   `console.warn` で開発者に通知しつつ `[?] key` と可視マーカーで描画する
    */
   function getMenuTypeLabel(moduleKey: string): string {
     if (isPracticeMenuType(moduleKey)) {
-      return tMenu(menuTypeToMessageKey(moduleKey));
+      return tMenu(`${menuTypeToMessageKey(moduleKey)}.shortTitle`);
     }
     if (moduleKey === "unknown") {
       return `[?] ${moduleKey}`;
