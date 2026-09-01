@@ -318,6 +318,7 @@
     },
     "quitButton": "終了する",
     "signUpCta": {
+      "sectionTitle": "スコアの記録",
       "message": "無料登録するとスコアが記録されます",
       "description": "アカウントを作成すると獲得した経験値が保存され、上達を確認できます。",
       "cta": "無料登録",

@@ -1,6 +1,7 @@
 import { getTranslations } from "next-intl/server";
 import type { ExpInfo } from "@mahjong-scoring/core";
 import { SectionTitle } from "@/app/(user)/_components/section-title";
+import { ResultBlockSection } from "./result-block-section";
 
 interface ExpGainDisplayProps {
   readonly expInfo: ExpInfo;
@@ -13,13 +14,15 @@ interface ExpGainDisplayProps {
  * サーバーコンポーネント。`ExpInfo` を props で受け取り、描画のみを行う。
  * 他のセクションと統一感を持たせるため、角丸カードではなく
  * `SectionTitle` 配下のフラットなレイアウトで構成する。
+ * 未ログイン分岐（`SignUpCta`）とシルエットを揃えるため
+ * `ResultBlockSection` に載せる。
  */
 export async function ExpGainDisplay({ expInfo }: ExpGainDisplayProps) {
   const t = await getTranslations("exp");
   const { earnedExp, level, levelUp, progressPercent } = expInfo;
 
   return (
-    <section className="min-h-[180px] space-y-3">
+    <ResultBlockSection>
       <SectionTitle>{t("label")}</SectionTitle>
 
       <div className="flex items-center justify-between">
@@ -48,6 +51,6 @@ export async function ExpGainDisplay({ expInfo }: ExpGainDisplayProps) {
           {t("levelUp")}
         </span>
       )}
-    </section>
+    </ResultBlockSection>
   );
 }
