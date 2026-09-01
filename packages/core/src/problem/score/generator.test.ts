@@ -3,7 +3,7 @@ import { HaiKind, isMenzen } from "@pai-forge/riichi-mahjong";
 import { generateScoreQuestion, generateValidScoreQuestion } from "./generator";
 import { SCORE_FILTERABLE_YAKU } from "./filterable-yaku";
 import { ScoreLevel } from "../../core/constants";
-import { isMangan, MANGAN_MIN_HAN } from "../../score/tiers";
+import { isMangan, MANGAN_MIN_HAN, MANGAN_PLUS_TIERS } from "../../score/tiers";
 import { isKiriageManganTarget } from "../../score/calculator";
 import {
   expectGeneratesEventually,
@@ -11,6 +11,13 @@ import {
   sample,
 } from "../../test/sampling";
 import { seededRandom } from "../../test/seeded-random";
+
+/** ダブル役満の区分に入る最小翻数（丸めの検証で狙い撃つ翻数） */
+const DOUBLE_YAKUMAN_MIN_HAN = (() => {
+  const tier = MANGAN_PLUS_TIERS.find((t) => t.key === "doubleYakuman");
+  if (!tier) throw new Error("MANGAN_PLUS_TIERS にダブル役満の区分がない");
+  return tier.minHan;
+})();
 
 describe("generateScoreQuestion", () => {
   it("試行すれば問題が生成される", () => {
@@ -113,6 +120,34 @@ describe("generateScoreQuestion", () => {
       expect(
         questions.some((question) => question.jikaze === HaiKind.Ton),
       ).toBe(true);
+    });
+  });
+
+  describe("ダブル役満の丸め", () => {
+    it("正解の点数区分がダブル役満にならない", () => {
+      // 26翻以上も役満として扱うアプリ全体の決定（clampHanToYakuman）に
+      // 点数を合わせる。丸めないと 64000 のようにどの点数リストにも無い
+      // 点数が正解になり、選択肢から選べない問題が出る
+      const questions = expectSampled(() => generateScoreQuestion(), {
+        attempts: 2000,
+        need: 500,
+      });
+
+      for (const question of questions) {
+        expect(question.answer.scoreLevel).not.toBe(ScoreLevel.DoubleYakuman);
+      }
+    });
+
+    it("26翻以上の手でも役満の支払いになる", () => {
+      // シードは呼び出しの外で作る（呼ぶたびに作り直すと毎回同じ手が出る）
+      const rng = seededRandom(20260901);
+      const [question] = expectSampled(() => generateScoreQuestion({ rng }), {
+        attempts: 40000,
+        need: 1,
+        where: (candidate) => candidate.answer.han >= DOUBLE_YAKUMAN_MIN_HAN,
+      });
+
+      expect(question.answer.scoreLevel).toBe(ScoreLevel.Yakuman);
     });
   });
 

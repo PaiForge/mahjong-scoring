@@ -6,7 +6,7 @@ import {
   MANGAN_BASE_POINTS,
 } from "../core/score-calculation";
 import { ScoreLevel } from "../core/constants";
-import { scoreTierForHan } from "./tiers";
+import { scoreTierForHan, YAKUMAN_HAN } from "./tiers";
 
 /**
  * 翻数が変わった場合の点数を再計算する
@@ -73,6 +73,36 @@ function buildPayment(
     };
   }
   return { type: "ron", amount: ceilTo100(basePoints * (isOya ? 6 : 4)) };
+}
+
+/**
+ * ダブル役満の結果を役満の点数に丸める
+ * ダブル役満丸め
+ *
+ * 26翻以上も役満として扱う、というアプリ全体の決定
+ * （{@link clampHanToYakuman} / `DISPLAY_TIERS` 参照）の点数側の実装。
+ * 翻数の表示・判定は `clampHanToYakuman` が丸めるが、点数計算はライブラリが
+ * ダブル役満の基本符（16000）で払いを組むため、丸めないと 64000 のような
+ * どの点数リスト（`RON_SCORES_KO` 等）にも無い点数が正解になる。
+ *
+ * 翻・符は変えない（役の内訳は実際の翻数のまま残す）。変えるのは点数区分と
+ * 支払いだけで、切り上げ満貫の適用と同じ形。
+ */
+export function clampDoubleYakuman(
+  result: Readonly<ScoreResult>,
+  config: {
+    readonly isTsumo: boolean;
+    readonly isOya: boolean;
+  },
+): ScoreResult {
+  if (result.scoreLevel !== ScoreLevel.DoubleYakuman) return result;
+  const yakuman = scoreTierForHan(YAKUMAN_HAN);
+  if (!yakuman) return result;
+  return {
+    ...result,
+    scoreLevel: yakuman.level,
+    payment: buildPayment(yakuman.basePoints, config),
+  };
 }
 
 /**
