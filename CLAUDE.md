@@ -191,6 +191,8 @@ packages/eslint-config/ — 共通 ESLint 設定（PaiForge コーディング�
   `SUB_LINK_GAP` を当てる（`result-view.tsx` が既定の姿）
 - 結果画面の登録 CTA の高さはこの余白に連動する。値を変えたら
   `ResultBlockSection` の `min-h` を実測し直すこと
+- 余白の定数を増やすときの方針（役割ベースで育てる・値ベースの表を作らない・
+  構造まで同じならコンポーネントに昇格）は `spacing.ts` のモジュール TSDoc を参照
 
 ## 角丸
 
