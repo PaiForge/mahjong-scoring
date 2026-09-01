@@ -2,7 +2,6 @@
 
 import type { ComponentType } from "react";
 import { useTranslations } from "next-intl";
-import type { ScoreRange } from "@mahjong-scoring/core";
 import { QuestionGeneratingPlaceholder } from "@/app/(user)/(public)/practice/_components/question-generating-placeholder";
 import { QuestionPrompt } from "@/app/(user)/(public)/practice/_components/question-prompt";
 import { useScoreQuestionBoard } from "@/app/(user)/(public)/practice/_hooks/use-score-question-board";
@@ -10,6 +9,7 @@ import type { UseScoreQuestionBoardParams } from "@/app/(user)/(public)/practice
 import type { RecordingPracticeBoardProps } from "@/app/(user)/(public)/practice/_lib/practice-board-props";
 import type { ScoreQuestionResult } from "@/app/(user)/(public)/practice/_lib/score-question-result";
 import { QuestionDisplay } from "@/app/(user)/(public)/practice/score/_components/question-display";
+import type { ScoreOptionRange } from "@/app/(user)/(public)/practice/score/_lib/get-available-scores";
 import { ScoreExamAnswerForm } from "../_components/score-exam-answer-form";
 
 interface CreateScoreExamBoardConfig {
@@ -18,10 +18,11 @@ interface CreateScoreExamBoardConfig {
   /** 出題条件（各級の `_lib/types.ts` の `EXAM_GENERATE_OPTIONS`） */
   readonly generateOptions: UseScoreQuestionBoardParams["generateOptions"];
   /**
-   * 回答の選択肢を固定する点数帯。`generateOptions.allowedRanges` と揃えること
-   * （揃っていないと正解が選択肢に無い問題が出る）。
+   * 回答の選択肢を固定する範囲。`generateOptions.allowedRanges` と揃えること
+   * （揃っていないと正解が選択肢に無い問題が出る）。点数帯を絞らない出題は
+   * `"all"` を渡す。
    */
-  readonly scoreRange: ScoreRange;
+  readonly scoreRange: ScoreOptionRange;
   /**
    * 生成の最大試行回数。成立率が低い出題条件（平和・満貫以上）だけが上書きする。
    * 省略時は `useScoreQuestionBoard` の既定値。
