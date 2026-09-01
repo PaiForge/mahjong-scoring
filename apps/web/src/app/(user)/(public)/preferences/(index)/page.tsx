@@ -12,6 +12,7 @@ import { ContentContainer } from "@/app/(user)/_components/content-container";
 import { PageTitle } from "@/app/(user)/_components/page-title";
 import { SectionTitle } from "@/app/(user)/_components/section-title";
 import { createTitleOnlyMetadata } from "@/app/_lib/metadata";
+import { AnchorScroll } from "../_components/anchor-scroll";
 import { DisplaySettingsSection } from "../_components/display-settings-section";
 import { MembersOnlyGate } from "../_components/members-only-gate";
 import { PrivacySettingsSection } from "../_components/privacy-settings-section";
@@ -27,6 +28,7 @@ export default async function PreferencesPage() {
 
   return (
     <ContentContainer breadcrumb={[{ label: t("pageTitle") }]}>
+      <AnchorScroll />
       <PageTitle>{t("pageTitle")}</PageTitle>
 
       <div className="space-y-8">
