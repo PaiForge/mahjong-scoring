@@ -39,16 +39,16 @@ export function MachiFuProblemList({ results }: MachiFuProblemListProps) {
               <MachiFuPrompt tiles={tiles} agariHai={agariHai} />
             )}
 
+            {/*
+              回答は 0 符か 2 符の二択で、正解と回答が並んだ時点で差まで読み
+              取れる。「答え合わせ」の見出しも「過不足」の行も足さない
+            */}
             <AnswerComparison
               translationNamespace="machiFu"
               isCorrect={result.isCorrect}
               correct={fuLabel(result.correctFu)}
               user={fuLabel(result.userFu)}
-              difference={{
-                correct: result.correctFu,
-                user: result.userFu,
-                format: fuLabel,
-              }}
+              showTitle={false}
             />
           </div>
         );
