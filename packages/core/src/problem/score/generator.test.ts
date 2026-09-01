@@ -4,7 +4,12 @@ import { generateScoreQuestion, generateValidScoreQuestion } from "./generator";
 import { SCORE_FILTERABLE_YAKU } from "./filterable-yaku";
 import { ScoreLevel } from "../../core/constants";
 import { isMangan, MANGAN_MIN_HAN } from "../../score/tiers";
-import { expectGeneratesEventually, expectSampled } from "../../test/sampling";
+import { isKiriageManganTarget } from "../../score/calculator";
+import {
+  expectGeneratesEventually,
+  expectSampled,
+  sample,
+} from "../../test/sampling";
 import { seededRandom } from "../../test/seeded-random";
 
 describe("generateScoreQuestion", () => {
@@ -108,6 +113,31 @@ describe("generateScoreQuestion", () => {
       expect(
         questions.some((question) => question.jikaze === HaiKind.Ton),
       ).toBe(true);
+    });
+  });
+
+  describe("オプション: excludeKiriageBoundary", () => {
+    it("true の場合、切り上げ満貫で点数が割れる手を出題しない", () => {
+      const questions = expectSampled(
+        () => generateScoreQuestion({ excludeKiriageBoundary: true }),
+        { attempts: 2000, need: 300 },
+      );
+
+      for (const question of questions) {
+        expect(isKiriageManganTarget(question.answer)).toBe(false);
+      }
+    });
+
+    it("既定（false）では切り上げ満貫の境界の手も出題される", () => {
+      // 除外オプションが「もともと出ないものを外している」だけでないことの対照。
+      // 30符4翻・60符3翻はプールの約 1% なので試行を多めに取る
+      const boundary = sample(() => generateScoreQuestion(), {
+        attempts: 4000,
+        need: 1,
+        where: (question) => isKiriageManganTarget(question.answer),
+      });
+
+      expect(boundary.length).toBe(1);
     });
   });
 

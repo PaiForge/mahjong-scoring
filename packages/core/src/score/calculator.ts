@@ -76,6 +76,25 @@ function buildPayment(
 }
 
 /**
+ * 切り上げ満貫で点数が変わる結果かどうかを判定する
+ * 切り上げ満貫対象判定
+ *
+ * 30符4翻・60符3翻（基本符1920）が該当する。標準ルールでは満貫未満だが、
+ * 切り上げ満貫ルールでは満貫の点数になる — つまり同じ手牌の正解が採用ルール
+ * によって割れる唯一の境界。
+ *
+ * 適用する側（{@link applyKiriageMangan}）だけでなく、避ける側もこの述語を
+ * 使う。出題からこの境界を外したい問題生成（`excludeKiriageBoundary`）が
+ * 閾値を再実装すると、片方だけが改訂されて黙ってずれるため。
+ */
+export function isKiriageManganTarget(result: Readonly<ScoreResult>): boolean {
+  if (result.scoreLevel !== ScoreLevel.Normal) return false;
+  return (
+    calculateBasePoints(result.han, result.fu) >= KIRIAGE_MANGAN_BASE_POINTS
+  );
+}
+
+/**
  * 切り上げ満貫を適用する
  * 切り上げ満貫適用
  *
@@ -90,9 +109,7 @@ export function applyKiriageMangan(
     readonly isOya: boolean;
   },
 ): ScoreResult {
-  if (result.scoreLevel !== ScoreLevel.Normal) return result;
-  if (calculateBasePoints(result.han, result.fu) < KIRIAGE_MANGAN_BASE_POINTS)
-    return result;
+  if (!isKiriageManganTarget(result)) return result;
   return {
     ...result,
     scoreLevel: ScoreLevel.Mangan,
