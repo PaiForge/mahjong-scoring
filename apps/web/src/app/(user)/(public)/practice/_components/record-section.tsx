@@ -1,6 +1,9 @@
+import Link from "next/link";
 import { getTranslations } from "next-intl/server";
 import type { ExpInfo } from "@mahjong-scoring/core";
 import { SectionTitle } from "@/app/(user)/_components/section-title";
+import { TEXT_LINK_CLASSES } from "@/app/_components/_lib/link-classes";
+import type { PracticeMenuType } from "@/lib/db/practice-menu-types";
 import type { ScoreComparison } from "@/lib/db/score-comparison-queries";
 import { ExpGainDisplay } from "./exp-gain-display";
 import { ResultBlockSection } from "./result-block-section";
@@ -10,6 +13,8 @@ interface RecordSectionProps {
   readonly expInfo: ExpInfo | undefined;
   /** 過去記録との比較サマリ。取得に失敗した場合は undefined */
   readonly comparison: ScoreComparison | undefined;
+  /** マイレコードへの導線で、この練習種別を選択した状態で開くために使う */
+  readonly menuType: PracticeMenuType;
 }
 
 /**
@@ -28,10 +33,16 @@ interface RecordSectionProps {
  * - 今回がこれまでのベストを上回っていれば「自己ベスト更新！」バッジを出す
  *   （描画時点で今回のスコアは保存済みのため、比較クエリ側で今回分を除外して
  *   「これまでのベスト」を求めている。`getScoreComparison` 参照）
+ *
+ * 末尾にマイレコード（`/mypage/challenges`）への導線を置く。ここは
+ * 「自分の記録を見た直後」で、推移・平均・全履歴を見に行く動機が最も高い
+ * 場所であり、マイページを開かないと存在に気づけない機能への入口になる。
+ * 見に行くだけの移動なのでボタンではなくテキストリンクにする。
  */
 export async function RecordSection({
   expInfo,
   comparison,
+  menuType,
 }: RecordSectionProps) {
   const t = await getTranslations("challenge");
   const { currentScore, previousBestScore, previousScore } = comparison ?? {};
@@ -89,6 +100,15 @@ export async function RecordSection({
           {t("record.newBest")}
         </span>
       )}
+
+      <p>
+        <Link
+          href={`/mypage/challenges?menu=${menuType}`}
+          className={`text-sm ${TEXT_LINK_CLASSES}`}
+        >
+          {t("record.viewMyRecords")}
+        </Link>
+      </p>
     </ResultBlockSection>
   );
 }

@@ -330,7 +330,8 @@
       "lastLabel": "前回",
       "scoreUnit": "{score} 問",
       "newBest": "自己ベスト更新！",
-      "firstRecord": "今回が最初の記録です。次回からは過去の自分の記録と比較できます。"
+      "firstRecord": "今回が最初の記録です。次回からは過去の自分の記録と比較できます。",
+      "viewMyRecords": "マイレコードで推移を見る"
     }
   },
   "training": {
