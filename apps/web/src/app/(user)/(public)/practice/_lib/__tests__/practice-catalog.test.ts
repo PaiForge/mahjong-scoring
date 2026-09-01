@@ -130,7 +130,8 @@ describe("段級位との対応", () => {
       if (menu.rank === undefined) continue;
       expect(names[menu.rank], `${menu.slug}`).toBeTruthy();
     }
-    expect(messages.ranks.examLink).toContain("{rank}");
+    expect(messages.ranks.examTitle.kyu).toContain("{rank}");
+    expect(messages.ranks.examTitle.dan).toContain("{rank}");
     expect(messages.ranks.practiceLink.title).toContain("{rank}");
     expect(messages.ranks.practiceLink.description).toBeTruthy();
   });

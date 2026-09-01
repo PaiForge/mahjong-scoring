@@ -62,6 +62,9 @@ function selectReadyExamSlugs(
   const next = nextRank(achievedRankSlugs);
   if (!next) return [];
 
+  // 前提章を持たない段級位（教本の章がまだ無いもの）では条件が空になり、
+  // 読了を待たずにカードが出る。読むべき章が無い以上は正しい振る舞いで、
+  // 章を足せば自動的に「読み終えてから」に戻る
   const prerequisitesRead = next.learnChapterSlugs.every((slug) =>
     readSlugs.has(slug),
   );

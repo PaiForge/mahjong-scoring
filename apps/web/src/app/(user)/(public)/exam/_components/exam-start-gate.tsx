@@ -20,7 +20,7 @@ import {
 import { START_BUTTON_HEIGHT_CLASS } from "../../practice/_components/practice-start-cta-skeleton";
 import { beltButtonVarsClass } from "@/lib/ranks/belt-colors";
 import { evaluateExamEligibility } from "@/lib/ranks/exam-eligibility";
-import type { RankSlug } from "@/lib/ranks/registry";
+import { rankTier, type RankSlug } from "@/lib/ranks/registry";
 
 interface ExamStartGateProps {
   /** 昇級試験の練習スラッグ（例: "pinfu-exam"） */
@@ -145,7 +145,9 @@ export function ExamStartGate({ slug, playHref }: ExamStartGateProps) {
     return (
       <BlockedCta
         reason={t("examGate.locked", {
-          rank: t(`names.${eligibility.rank.slug}`),
+          examTitle: t(`examTitle.${rankTier(eligibility.rank.slug)}`, {
+            rank: t(`names.${eligibility.rank.slug}`),
+          }),
           requiredRank: t(`names.${eligibility.requiredRank.slug}`),
         })}
       >

@@ -1,6 +1,6 @@
 import type { getTranslations } from "next-intl/server";
 
-import type { RankSlug } from "@/lib/ranks/registry";
+import { rankTier, type RankSlug } from "@/lib/ranks/registry";
 
 import { rankExamHref } from "./practice-catalog";
 
@@ -27,7 +27,7 @@ export function practiceCardRank(
     slug: rank,
     label,
     href: rankExamHref(rank),
-    // pill には級名しか出ないため、リンクとしての名前は行き先まで含める
-    ariaLabel: tRanks("examLink", { rank: label }),
+    // pill には段級位名しか出ないため、リンクとしての名前は行き先まで含める
+    ariaLabel: tRanks(`examTitle.${rankTier(rank)}`, { rank: label }),
   };
 }

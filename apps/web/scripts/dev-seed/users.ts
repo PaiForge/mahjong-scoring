@@ -124,12 +124,12 @@ export const SEED_USERS: readonly SeedUser[] = [
     displayName: "ボブ（シード）",
     ranks: ["kyu-5"],
   },
-  // 最上位の級。道場は「新しい段級位は準備中」を出す
+  // 最上位の段級位。道場は「新しい段級位は準備中」を出す
   {
     email: "carol@example.local",
     username: "seed_carol",
     displayName: "キャロル（シード）",
-    ranks: ["kyu-5", "kyu-4", "kyu-3", "kyu-2", "kyu-1"],
+    ranks: ["kyu-5", "kyu-4", "kyu-3", "kyu-2", "kyu-1", "dan-1"],
   },
   ...RANKING_FILLERS,
 ];

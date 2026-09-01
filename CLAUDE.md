@@ -271,7 +271,7 @@ packages/eslint-config/ — 共通 ESLint 設定（PaiForge コーディング�
 pnpm --filter web db:seed:dev
 ```
 
-管理者（`admin@example.local`）と一般ユーザー3人（`alice@`（無級）/ `bob@`（5級）/ `carol@`（最上位の級）、いずれも `example.local`）を投入する。パスワードはいずれも `devpass1`、メール確認済みなのでそのままサインインできる。冪等なので何度実行してもよい。DB と Supabase の両方がローカルホストでなければ実行を拒否する。実装は `apps/web/scripts/dev-seed.ts`。
+管理者（`admin@example.local`）と一般ユーザー3人（`alice@`（無級）/ `bob@`（5級）/ `carol@`（最上位の段級位）、いずれも `example.local`）を投入する。パスワードはいずれも `devpass1`、メール確認済みなのでそのままサインインできる。冪等なので何度実行してもよい。DB と Supabase の両方がローカルホストでなければ実行を拒否する。実装は `apps/web/scripts/dev-seed.ts`。
 
 段級位を持つユーザーには `user_ranks` と前提章の読了（次に取る級の前提章を含む）が入る。道場の「現在の段級位 / 次の段級位」とダッシュボードの昇級試験カードを、ログインするだけで確認できる。
 

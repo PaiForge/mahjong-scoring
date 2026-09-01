@@ -121,21 +121,24 @@ export function ExamIntroSkeleton({
             章がセクションをまたぐ試験（満貫以上 + 役）では見出しが 2 つに
             割れるが、ここは 1 セクションぶんで描く — どのセクションに
             属するかまで再現するとカリキュラム全体をクライアントへ
-            持ち込むことになり、遅くする側の代償が大きい */}
-        <div className="space-y-3">
-          <SectionTitleSkeleton width="w-40" />
-          <div className="space-y-6">
-            <CurriculumTocSkeleton
-              chapterCount={chapterCount}
-              labelWidthClassName="w-24"
-            />
+            持ち込むことになり、遅くする側の代償が大きい。
+            前提章を持たない試験では実物が節ごと出ないため、ここも出さない */}
+        {chapterCount > 0 && (
+          <div className="space-y-3">
+            <SectionTitleSkeleton width="w-40" />
+            <div className="space-y-6">
+              <CurriculumTocSkeleton
+                chapterCount={chapterCount}
+                labelWidthClassName="w-24"
+              />
+            </div>
+            <div className="text-right text-sm">
+              <SkeletonBar as="span" className="inline-block w-16" tone={100}>
+                &nbsp;
+              </SkeletonBar>
+            </div>
           </div>
-          <div className="text-right text-sm">
-            <SkeletonBar as="span" className="inline-block w-16" tone={100}>
-              &nbsp;
-            </SkeletonBar>
-          </div>
-        </div>
+        )}
 
         {/* その級の練習メニューへの行リンク（タイトル + 説明の 2 段） */}
         <div className="flex flex-col">

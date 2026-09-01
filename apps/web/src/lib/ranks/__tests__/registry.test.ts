@@ -3,7 +3,13 @@ import { describe, expect, it } from "vitest";
 import messagesJson from "@/messages/ja.json";
 import { CURRICULUM } from "@/app/(user)/(public)/learn/_lib/curriculum";
 import { practiceMenuByType } from "@/lib/db/practice-menu-types";
-import { RANK_REGISTRY, RANK_SLUGS, isRankSlug, nextRank } from "../registry";
+import {
+  RANK_REGISTRY,
+  RANK_SLUGS,
+  isRankSlug,
+  nextRank,
+  rankTier,
+} from "../registry";
 
 describe("RANK_REGISTRY", () => {
   it("slug が一意である", () => {
@@ -33,6 +39,7 @@ describe("RANK_REGISTRY", () => {
     { slug: "kyu-3", menuType: "chiitoitsu_exam", minScore: 8 },
     { slug: "kyu-2", menuType: "pinfu_exam", minScore: 8 },
     { slug: "kyu-1", menuType: "fu_score_exam", minScore: 4 },
+    { slug: "dan-1", menuType: "score_exam", minScore: 4 },
   ])(
     "$slug の合格条件: $menuType でミス1回・$minScore 問正解（プロダクト仕様の固定）",
     ({ slug, menuType, minScore }) => {
@@ -94,6 +101,36 @@ describe("i18n integrity: ranks", () => {
       expect(keys).toEqual([...RANK_SLUGS].sort());
     },
   );
+});
+
+describe("rankTier", () => {
+  it("級には kyu、段には dan を返す", () => {
+    expect(rankTier("kyu-1")).toBe("kyu");
+    expect(rankTier("dan-1")).toBe("dan");
+  });
+
+  it("種別ごとの文言が辞書に揃っている", () => {
+    // `rankTier` の戻り値はそのまま i18n のキーの末尾になるため、
+    // 種別を足したら文言も足す必要がある
+    const tiers = [...new Set(RANK_SLUGS.map(rankTier))].sort();
+    const messages = messagesJson as unknown as {
+      readonly ranks: {
+        readonly examTitle: Record<string, unknown>;
+        readonly promotion: {
+          readonly title: Record<string, unknown>;
+          readonly message: Record<string, unknown>;
+        };
+      };
+    };
+
+    for (const section of [
+      messages.ranks.examTitle,
+      messages.ranks.promotion.title,
+      messages.ranks.promotion.message,
+    ]) {
+      expect(Object.keys(section).sort()).toEqual(tiers);
+    }
+  });
 });
 
 describe("isRankSlug", () => {
