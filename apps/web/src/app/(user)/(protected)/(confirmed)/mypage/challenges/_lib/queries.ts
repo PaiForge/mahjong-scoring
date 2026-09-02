@@ -5,7 +5,7 @@
  * Server Action からもサーバーコンポーネントからも呼び出せるプレーン関数。
  */
 
-import { and, count, desc, eq, gte, lt } from "drizzle-orm";
+import { and, count, desc, eq, gte, lt, notInArray } from "drizzle-orm";
 
 import { db } from "@/lib/db";
 import { DEFAULT_PAGE_SIZE, getPaginationData } from "@/lib/pagination";
@@ -13,6 +13,7 @@ import type { PracticeMenuType } from "@/lib/db/practice-menu-types";
 import { isPracticeMenuType } from "@/lib/db/practice-menu-types";
 import { challengeResults } from "@/lib/db/schema";
 
+import { EXCLUDED_MENU_TYPES, isMyRecordMenuType } from "./menu-scope";
 import type { ChallengeSession } from "./types";
 
 /**
@@ -24,7 +25,10 @@ export async function getChallengeResultsPaginated(
   page: number = 1,
   menuType?: PracticeMenuType,
 ): Promise<{ items: ChallengeSession[]; totalPages: number }> {
-  const conditions = [eq(challengeResults.userId, userId)];
+  const conditions = [
+    eq(challengeResults.userId, userId),
+    notInArray(challengeResults.menuType, EXCLUDED_MENU_TYPES),
+  ];
   if (menuType) {
     conditions.push(eq(challengeResults.menuType, menuType));
   }
@@ -164,9 +168,14 @@ export async function fetchAvailableMenuTypes(
   const rows = await db
     .selectDistinct({ menuType: challengeResults.menuType })
     .from(challengeResults)
-    .where(eq(challengeResults.userId, userId));
+    .where(
+      and(
+        eq(challengeResults.userId, userId),
+        notInArray(challengeResults.menuType, EXCLUDED_MENU_TYPES),
+      ),
+    );
 
   return rows
     .map((r) => r.menuType)
-    .filter((m): m is PracticeMenuType => isPracticeMenuType(m));
+    .filter((m): m is PracticeMenuType => isMyRecordMenuType(m));
 }

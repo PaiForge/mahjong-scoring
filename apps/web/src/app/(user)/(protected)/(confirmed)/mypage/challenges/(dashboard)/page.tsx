@@ -16,10 +16,9 @@ import { PageTitle } from "@/app/(user)/_components/page-title";
 import { createPrivateMetadata } from "@/app/_lib/metadata";
 import { requireConfirmedUser } from "@/lib/auth";
 
-import { isPracticeMenuType } from "@/lib/db/practice-menu-types";
-
 import { ChallengeDashboard } from "../_components/challenge-dashboard";
 import { getPeriodRange, getPreviousPeriodRange } from "../_lib/period-utils";
+import { isMyRecordMenuType } from "../_lib/menu-scope";
 import {
   fetchAvailableMenuTypes,
   fetchChallengeSessions,
@@ -52,7 +51,7 @@ export default async function ChallengesPage({
   // （空のダッシュボードを開かせない）
   const rawMenu = (await searchParams).menu;
   const requestedMenu =
-    typeof rawMenu === "string" && isPracticeMenuType(rawMenu)
+    typeof rawMenu === "string" && isMyRecordMenuType(rawMenu)
       ? availableMenuTypes.find((menu) => menu === rawMenu)
       : undefined;
 
