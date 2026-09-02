@@ -65,7 +65,12 @@ export function PracticeLoading({ slug, demoHeight }: Props) {
     (href) => new RegExp(`^${href}/?$`).test(pathname),
   );
   if (isPlaying) {
-    return <PracticePlayLoadingFallback practiceTitle={t("title")} />;
+    return (
+      <PracticePlayLoadingFallback
+        practiceTitle={t("title")}
+        mistakeLimit={menu.mistakeLimit}
+      />
+    );
   }
 
   // 昇級試験の説明ページ。前提章の数は段級位レジストリが持つため、

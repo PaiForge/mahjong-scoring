@@ -26,6 +26,14 @@ const TIMER_SIZE_CLASS = "size-12";
 interface PracticePlayLoadingFallbackProps {
   /** 練習名（実物の見出しと同じ文字列） */
   readonly practiceTitle: string;
+  /**
+   * 残機の数（レジストリの `mistakeLimit`）。
+   *
+   * 通常のチャレンジは 3 だが昇級試験は 1。ハートの数がそのまま
+   * 「あと何回間違えられるか」を示すため、固定値で描くと試験のスケルトンが
+   * 実物より 2 個多い残機を見せてしまう。
+   */
+  readonly mistakeLimit: number;
 }
 
 /**
@@ -50,6 +58,7 @@ interface PracticePlayLoadingFallbackProps {
  */
 export function PracticePlayLoadingFallback({
   practiceTitle,
+  mistakeLimit,
 }: PracticePlayLoadingFallbackProps) {
   return (
     <ContentContainer fillViewport>
@@ -63,7 +72,7 @@ export function PracticePlayLoadingFallback({
             <SkeletonBar className="size-6" tone={100} />
           </div>
           <div className="flex items-center gap-1">
-            {Array.from({ length: 3 }).map((_, index) => (
+            {Array.from({ length: mistakeLimit }).map((_, index) => (
               <SkeletonBar key={index} radius="full" className="size-5" />
             ))}
           </div>
