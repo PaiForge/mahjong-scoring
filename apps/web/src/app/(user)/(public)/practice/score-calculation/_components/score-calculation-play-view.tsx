@@ -8,9 +8,16 @@ export const ScoreCalculationPlayView =
   createChallengePlayView<ScoreCalculationQuestionResult>({
     slug: "score-calculation",
     maxWidth: "max-w-lg",
-    renderBoard: ({ showFeedback, isCountingDown, onAnswer, recordResult }) => (
+    renderBoard: ({
+      showFeedback,
+      lastAnswerCorrect,
+      isCountingDown,
+      onAnswer,
+      recordResult,
+    }) => (
       <ScoreCalculationBoard
         showFeedback={showFeedback}
+        lastAnswerCorrect={lastAnswerCorrect}
         isCountingDown={isCountingDown}
         onAnswer={onAnswer}
         onRecordResult={recordResult}
