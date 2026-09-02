@@ -120,3 +120,66 @@ describe("ScoreAnswerForm のラベル", () => {
     expect(screen.getByLabelText("fromOya")).toBeDefined();
   });
 });
+
+describe("ScoreAnswerForm の正誤フィードバック", () => {
+  function renderForm(props: {
+    isTsumo?: boolean;
+    showFeedback?: boolean;
+    lastAnswerCorrect?: boolean;
+  }) {
+    render(
+      <ScoreAnswerForm
+        isOya={false}
+        isTsumo={props.isTsumo ?? false}
+        han={3}
+        onSubmit={() => {}}
+        translationNamespace="x"
+        disabled={props.showFeedback}
+        showFeedback={props.showFeedback}
+        lastAnswerCorrect={props.lastAnswerCorrect}
+      />,
+    );
+  }
+
+  it("未回答では正誤の色を付けない", () => {
+    renderForm({});
+
+    const select = screen.getByRole("combobox");
+    expect(select.className).toContain("border-ink");
+    expect(select.className).not.toContain("border-success");
+    expect(select.className).not.toContain("border-destructive");
+  });
+
+  it("正解の直後は緑に染まり、disabled のグレーを被せない", () => {
+    renderForm({ showFeedback: true, lastAnswerCorrect: true });
+
+    const select = screen.getByRole("combobox");
+    expect(select.className).toContain("border-success");
+    expect(select.className).toContain("bg-success-subtle");
+    // 回答を送ると select は disabled になるため、グレーを残すと正誤の地を塗り潰す
+    expect(select.className).not.toContain("disabled:bg-surface-100");
+  });
+
+  it("不正解の直後は赤に染まる", () => {
+    renderForm({ showFeedback: true, lastAnswerCorrect: false });
+
+    const select = screen.getByRole("combobox");
+    expect(select.className).toContain("border-destructive");
+    expect(select.className).toContain("bg-destructive-subtle");
+  });
+
+  it("無回答の正解開示中（lastAnswerCorrect が undefined）は色を付けない", () => {
+    renderForm({ showFeedback: true });
+
+    const select = screen.getByRole("combobox");
+    expect(select.className).toContain("border-ink");
+  });
+
+  it("子ツモは2つの select をまとめて同じ色にする", () => {
+    renderForm({ isTsumo: true, showFeedback: true, lastAnswerCorrect: false });
+
+    for (const select of screen.getAllByRole("combobox")) {
+      expect(select.className).toContain("border-destructive");
+    }
+  });
+});
