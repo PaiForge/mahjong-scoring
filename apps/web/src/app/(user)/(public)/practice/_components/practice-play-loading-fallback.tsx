@@ -2,8 +2,8 @@ import { ContentContainer } from "@/app/(user)/_components/content-container";
 import { PageTitle } from "@/app/(user)/_components/page-title";
 import { SkeletonBar } from "@/app/_components/skeleton-bar";
 import { useScrollToElement } from "../_hooks/use-scroll-to-element";
-import { BOARD_AREA_HEIGHT } from "../_lib/board-area-height";
 import type { PlayBoardHeight } from "../_lib/board-area-height";
+import { PlayBoardSkeleton } from "./play-board-skeleton";
 import { PRACTICE_SCROLL_ANCHOR_ID } from "../_lib/scroll-anchor";
 
 /**
@@ -76,16 +76,7 @@ export function PracticePlayLoadingFallback({
           </div>
         </div>
 
-        {/* 盤面と選択肢。<sm では実物の盤面が白カードの左右パディング（p-4）を
-            打ち消して画面端まで広がる（`TehaiDisplay` の fullBleed）ため、
-            同じだけ外へ出して角も落とす。ここを内側に収めたままだと、
-            スケルトンの矩形だけ両端が 16px ずつ内側に立つ。
-            状態バーとの間隔（実測 16px）は盤面側の `mt-4` が持つ */}
-        <SkeletonBar
-          radius="fullBleed"
-          className={`${BOARD_AREA_HEIGHT[boardHeight]} -mx-4 mt-4 w-auto sm:mx-0 sm:w-full`}
-          tone={100}
-        />
+        <PlayBoardSkeleton boardHeight={boardHeight} />
 
         {/* フッター: 正誤カウンタ + 終了する */}
         <div className="mt-8 space-y-8">
