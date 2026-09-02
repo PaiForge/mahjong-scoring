@@ -6,6 +6,7 @@ import { LeaderboardSkeleton } from "./leaderboard-skeleton";
 import { ProblemListSkeleton } from "./problem-list-skeleton";
 import { ResultBlockSkeleton } from "./result-block-skeleton";
 import { SkeletonBar } from "@/app/_components/skeleton-bar";
+import { SUB_LINK_GAP } from "@/app/_components/_lib/spacing";
 
 interface ResultPageSkeletonProps {
   /** 結果ページと同じ練習名を表示してタイトル帯を一致させる */
@@ -71,16 +72,20 @@ export function ResultPageSkeleton({
         {/* 経験値 / 登録 CTA */}
         <ResultBlockSkeleton />
 
-        {/* アクションボタンと練習一覧へのリンク。ResultView と同じ縦積み・全幅。 */}
-        <div aria-hidden="true" className="space-y-3">
-          <SkeletonBar radius="lg" className="h-11 w-full" />
-          {hasSetup && (
-            <SkeletonBar radius="lg" className="h-11 w-full" tone={100} />
-          )}
-          {/* 練習一覧へのリンク（pt-1 は ResultView 側の余白と合わせる） */}
-          <div className="pt-1">
-            <SkeletonBar className="mx-auto h-5 w-32" />
+        {/* アクションボタンと練習一覧へのリンク。ResultView と同じ入れ子で組む —
+            内側 gap-3 がボタン同士のリズム、外側 SUB_LINK_GAP が「ボタン群 →
+            補助リンク」の境界。矩形の寸法も実物の実測値をそのまま置く:
+            ボタンは lg（border-3 の 3px×2 + py-3 の 12px×2 + text-sm 20px = 50px）、
+            補助リンクは text-sm の <p> 1 行ぶん 24px。ここが 44px + space-y-3 の
+            ままだと、スケルトンから実体へ替わるときにボタンから下が 10px 沈む。 */}
+        <div aria-hidden="true" className={`flex flex-col ${SUB_LINK_GAP}`}>
+          <div className="flex flex-col gap-3">
+            <SkeletonBar radius="lg" className="h-[50px] w-full" />
+            {hasSetup && (
+              <SkeletonBar radius="lg" className="h-[50px] w-full" tone={100} />
+            )}
           </div>
+          <SkeletonBar className="mx-auto h-6 w-32" />
         </div>
 
         {/* 問題別フィードバック一覧（一覧を持つ練習のみ）。ResultView では
