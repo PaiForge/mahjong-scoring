@@ -20,6 +20,7 @@ import {
 } from "@/lib/db/practice-menu-types";
 import { requireConfirmedUser } from "@/lib/auth";
 
+import { isMyRecordMenuType } from "../_lib/menu-scope";
 import { getChallengeResultsPaginated } from "../_lib/queries";
 import { ResultsTable } from "./_components/results-table";
 
@@ -46,7 +47,7 @@ export default async function ChallengeResultsPage({ searchParams }: Props) {
 
   const menuParam = typeof params.menu === "string" ? params.menu : undefined;
   const menuType: PracticeMenuType | undefined =
-    menuParam && isPracticeMenuType(menuParam) ? menuParam : undefined;
+    menuParam && isMyRecordMenuType(menuParam) ? menuParam : undefined;
 
   const { items, totalPages } = await getChallengeResultsPaginated(
     user.id,

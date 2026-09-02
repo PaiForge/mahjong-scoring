@@ -58,7 +58,7 @@ export function PracticeResultLoadingFallback({ slug }: Props) {
       })}
       problemCount={problemCount}
       hasSetup={hasSetup}
-      hasLeaderboard={!isExamMenuType(menuType)}
+      variant={isExamMenuType(menuType) ? "exam" : "practice"}
     />
   );
 }

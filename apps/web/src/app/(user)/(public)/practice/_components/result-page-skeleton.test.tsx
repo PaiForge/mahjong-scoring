@@ -4,29 +4,31 @@ import { render } from "@testing-library/react";
 import { ResultPageSkeleton } from "./result-page-skeleton";
 
 /**
- * ランキングを持たない練習（昇級試験）でリーダーボードの枠を描くと、実体に
- * 替わった瞬間にページがその高さぶん縮む。旗の既定値と分岐だけを検査する。
+ * 昇級試験の結果ページに無い枠（記録の節・ランキング）を描くと、実体に
+ * 替わった瞬間にページがその高さぶん縮む。variant の既定値と分岐を検査する。
  */
-describe("ResultPageSkeleton のリーダーボード枠", () => {
-  function renderSkeleton(hasLeaderboard?: boolean) {
+describe("ResultPageSkeleton の variant", () => {
+  function renderSkeleton(variant?: "practice" | "exam") {
     return render(
       <ResultPageSkeleton
         practiceTitle="x"
         breadcrumb={[]}
-        {...(hasLeaderboard === undefined ? {} : { hasLeaderboard })}
+        {...(variant === undefined ? {} : { variant })}
       />,
     );
   }
 
-  it("既定では枠を描く（ランキングを持つ練習）", () => {
+  it("既定（練習）は記録の節とランキングの枠を描く", () => {
     const { queryByTestId } = renderSkeleton();
 
+    expect(queryByTestId("result-block-skeleton")).not.toBeNull();
     expect(queryByTestId("leaderboard-skeleton")).not.toBeNull();
   });
 
-  it("hasLeaderboard が false なら枠を描かない", () => {
-    const { queryByTestId } = renderSkeleton(false);
+  it("試験は記録の節とランキングの枠を描かない", () => {
+    const { queryByTestId } = renderSkeleton("exam");
 
+    expect(queryByTestId("result-block-skeleton")).toBeNull();
     expect(queryByTestId("leaderboard-skeleton")).toBeNull();
   });
 });

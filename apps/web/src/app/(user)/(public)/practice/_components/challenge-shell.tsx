@@ -91,11 +91,11 @@ interface ChallengeShellProps {
    */
   readonly hasSetup?: boolean;
   /**
-   * 結果ページがリーダーボードプレビューを表示するか。
-   * false の場合は終了後のスケルトンからも枠を落として、結果ページとの
-   * 高さのずれを防ぐ。
+   * 結果ページの種類（`ResultPageSkeleton` の `variant`）。
+   * 昇級試験は結果の節の形が違い、記録の節とランキングを持たないため、
+   * 終了後のスケルトンも同じ形にして結果ページとの高さのずれを防ぐ。
    */
-  readonly hasLeaderboard?: boolean;
+  readonly resultVariant?: "practice" | "exam";
   /** 練習終了時に呼び出されるコールバック（スコア保存等） */
   readonly onFinish?: (
     args: FinishCallbackArgs,
@@ -123,7 +123,7 @@ export function ChallengeShell({
   exitHref = "/practice",
   hasProblemList = false,
   hasSetup = false,
-  hasLeaderboard = true,
+  resultVariant = "practice",
   onFinish,
 }: ChallengeShellProps) {
   const tc = useTranslations("challenge");
@@ -227,7 +227,7 @@ export function ChallengeShell({
             : 0
         }
         hasSetup={hasSetup}
-        hasLeaderboard={hasLeaderboard}
+        variant={resultVariant}
       />
     );
   }

@@ -334,6 +334,21 @@
       "viewMyRecords": "マイレコードで推移を見る"
     }
   },
+  "examResult": {
+    "pass": "合格",
+    "fail": "不合格",
+    "scoreLine": "{correct} 問正解 / 合格ライン {minScore} 問",
+    "remaining": "あと {count} 問",
+    "correctLabel": "正解数",
+    "correctValue": "{count} 問",
+    "averageTimeLabel": "平均回答時間",
+    "averageTimeValue": "{seconds} 秒",
+    "averageTimeNone": "—",
+    "requiredPaceLabel": "合格ペース",
+    "requiredPaceValue": "{seconds} 秒/問",
+    "endedByMistake": "{n} 問目の誤答で終了",
+    "endedByTime": "制限時間まで解答"
+  },
   "training": {
     "modeLabel": "トレーニング",
     "startButton": "トレーニング",

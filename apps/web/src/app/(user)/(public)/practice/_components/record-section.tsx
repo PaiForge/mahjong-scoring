@@ -38,6 +38,9 @@ interface RecordSectionProps {
  * 「自分の記録を見た直後」で、推移・平均・全履歴を見に行く動機が最も高い
  * 場所であり、マイページを開かないと存在に気づけない機能への入口になる。
  * 見に行くだけの移動なのでボタンではなくテキストリンクにする。
+ *
+ * 昇級試験の結果ページにはこのセクション自体が無い（EXP も過去記録も
+ * 持たないため。`createPracticeResultPage` 参照）。
  */
 export async function RecordSection({
   expInfo,

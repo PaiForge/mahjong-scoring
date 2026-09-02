@@ -7,11 +7,9 @@ import { useTranslations } from "next-intl";
 
 import { SectionTitle } from "@/app/(user)/_components/section-title";
 import type { PracticeMenuType } from "@/lib/db/practice-menu-types";
-import {
-  isPracticeMenuType,
-  menuTypeToMessageKey,
-} from "@/lib/db/practice-menu-types";
+import { menuTypeToMessageKey } from "@/lib/db/practice-menu-types";
 
+import { isMyRecordMenuType } from "../_lib/menu-scope";
 import {
   getComparisonLabel,
   getNavigablePreviousPeriod,
@@ -106,7 +104,7 @@ export function ChallengeDashboard({
   const handleMenuChange = useCallback(
     (e: React.ChangeEvent<HTMLSelectElement>) => {
       const value = e.target.value;
-      if (isPracticeMenuType(value)) setSelectedMenu(value);
+      if (isMyRecordMenuType(value)) setSelectedMenu(value);
     },
     [setSelectedMenu],
   );

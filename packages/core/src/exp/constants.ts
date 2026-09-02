@@ -11,12 +11,15 @@
  *
  * キーは `menuType`（練習種別）。このテーブルに登録されていない menuType は
  * EXP 付与対象外（`calculateExp` が `undefined` を返す）となる。
- * 現時点で提供中のチャレンジ練習はすべて有効化済み（重みはいずれも 1）。
+ * 提供中のチャレンジ練習はすべて有効化済み（重みはいずれも 1）。
  * 将来追加する練習は、難易度を決めてから明示的にここへ追記して opt-in すること。
  *
+ * 昇級試験（`*_exam`）は意図して載せない。EXP は同じ練習を繰り返すことへの
+ * 報酬で、試験の成果は段級位という別の報酬が表す。二重に払わない。
+ *
  * core は web のレジストリに依存できないためキーは string 型だが、
- * `PRACTICE_MENU_REGISTRY` との網羅性は web 側の
- * `lib/db/__tests__/exp-module-weight.test.ts` が検証している。
+ * `PRACTICE_MENU_REGISTRY` との対応（練習は全件登録・試験は全件未登録）は
+ * web 側の `lib/db/__tests__/exp-module-weight.test.ts` が検証している。
  */
 export const MODULE_WEIGHT: Readonly<Record<string, number>> = {
   jantou_fu: 1,
@@ -30,12 +33,6 @@ export const MODULE_WEIGHT: Readonly<Record<string, number>> = {
   han_count: 1,
   yaku_han: 1,
   mangan_score_calculation: 1,
-  mangan_exam: 1,
-  fu_exam: 1,
-  chiitoitsu_exam: 1,
-  pinfu_exam: 1,
-  fu_score_exam: 1,
-  score_exam: 1,
 };
 
 /**

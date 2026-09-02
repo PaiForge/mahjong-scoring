@@ -34,10 +34,15 @@ import { ResultScoreBar } from "./result-score-bar";
  *
  * 表示順:
  * 1. PageTitle（練習名） — 即時描画
- * 2. 「結果」セクション（ScoreBar） — 即時描画（親 page.tsx の searchParams から props で受け取る）
+ * 2. 「結果」セクション — 即時描画（親 page.tsx の searchParams から props で受け取る）。
+ *    既定は正解 / 不正解の積み上げ棒（`ResultScoreBar`）。`summary` を渡した
+ *    練習（昇級試験の合否サマリ）はそれで差し替える
  * 3. `promotionBlock` — 昇級バナー（昇級時のみ。Suspense 境界）
- * 4. `resultBlock` — 経験値 / 登録 CTA（Suspense 境界）
- * 5. アクションボタン（もう一度 / 設定を変更する）と練習一覧へのリンク — 即時描画
+ * 4. `resultBlock` — 経験値 / 登録 CTA（Suspense 境界）。
+ *    記録を持たない練習（昇級試験）では undefined で、節ごと出ない
+ * 5. アクションボタン（もう一度 / 設定を変更する）と親一覧へのリンク — 即時描画。
+ *    `primaryAction` が "parent" のとき（昇級試験の合格）は主ボタンが親一覧
+ *    （道場）になり、「もう一度」が補助リンクへ下がる
  * 6. `children` — 練習種別固有の追加コンテンツ（問題別フィードバック等）
  * 7. `leaderboardBlock` — リーダーボードプレビュー（Suspense 境界）。
  *    ランキングを持たない練習（昇級試験）では undefined で、節ごと出ない
@@ -49,7 +54,9 @@ export async function ResultView({
   settingsHref,
   correct,
   total,
+  primaryAction = "retry",
   promotionBlock,
+  summary,
   resultBlock,
   leaderboardBlock,
   children,
@@ -75,7 +82,7 @@ export async function ResultView({
       <div className="space-y-8">
         <section className="space-y-3">
           <SectionTitle>{tc("resultSectionTitle")}</SectionTitle>
-          <ResultScoreBar correct={correct} total={total} />
+          {summary ?? <ResultScoreBar correct={correct} total={total} />}
         </section>
 
         {/* 昇級バナー: 今回の保存で段級位が付与されたときだけ現れる（Suspense 境界） */}
@@ -94,14 +101,21 @@ export async function ResultView({
             padding を足して差を作らない（SUB_LINK_GAP 参照）。 */}
         <div className={`flex flex-col ${SUB_LINK_GAP}`}>
           <div className="flex flex-col gap-3">
-            <LinkButton
-              href={`${playHref}${PRACTICE_SCROLL_HASH}`}
-              size="lg"
-              fullWidth
-            >
-              <RotateCcwIcon className="size-4" />
-              {tc("retryButton")}
-            </LinkButton>
+            {primaryAction === "parent" ? (
+              <LinkButton href={parent.href} size="lg" fullWidth>
+                <ArrowUturnLeftIcon className="size-4" />
+                {tc(parent.namespace === "dojo" ? "backToDojo" : "backToList")}
+              </LinkButton>
+            ) : (
+              <LinkButton
+                href={`${playHref}${PRACTICE_SCROLL_HASH}`}
+                size="lg"
+                fullWidth
+              >
+                <RotateCcwIcon className="size-4" />
+                {tc("retryButton")}
+              </LinkButton>
+            )}
             {settingsHref !== undefined && (
               <LinkButton
                 href={settingsHref}
@@ -115,9 +129,21 @@ export async function ResultView({
             )}
           </div>
           <p className="text-center">
-            <Link href={parent.href} className={`text-sm ${TEXT_LINK_CLASSES}`}>
-              {tc(parent.namespace === "dojo" ? "backToDojo" : "backToList")}
-            </Link>
+            {primaryAction === "parent" ? (
+              <Link
+                href={`${playHref}${PRACTICE_SCROLL_HASH}`}
+                className={`text-sm ${TEXT_LINK_CLASSES}`}
+              >
+                {tc("retryButton")}
+              </Link>
+            ) : (
+              <Link
+                href={parent.href}
+                className={`text-sm ${TEXT_LINK_CLASSES}`}
+              >
+                {tc(parent.namespace === "dojo" ? "backToDojo" : "backToList")}
+              </Link>
+            )}
           </p>
         </div>
 
