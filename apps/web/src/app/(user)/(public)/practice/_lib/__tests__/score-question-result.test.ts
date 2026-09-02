@@ -232,6 +232,35 @@ describe("parseQuestionResults", () => {
       expect(results).toHaveLength(1);
     });
 
+    it("役の内訳を持つスナップショットをパースできる", () => {
+      const snapshot = {
+        ...validSnapshot,
+        yakuDetails: [
+          { name: "立直", han: 1 },
+          { name: "清一色", han: 6 },
+        ],
+      };
+      const raw = JSON.stringify([{ ...validResult, question: snapshot }]);
+      const results = parseQuestionResults(raw);
+      expect(results[0]?.question?.yakuDetails).toEqual(snapshot.yakuDetails);
+    });
+
+    it("役の内訳が無いスナップショット（旧データ）も許容される", () => {
+      const raw = JSON.stringify([{ ...validResult, question: validSnapshot }]);
+      const results = parseQuestionResults(raw);
+      expect(results).toHaveLength(1);
+      expect(results[0]?.question?.yakuDetails).toBeUndefined();
+    });
+
+    it("役の内訳の形が壊れているスナップショットを持つ要素はフィルタされる", () => {
+      const invalid = {
+        ...validResult,
+        question: { ...validSnapshot, yakuDetails: [{ name: "立直" }] },
+      };
+      const raw = JSON.stringify([invalid]);
+      expect(parseQuestionResults(raw)).toEqual([]);
+    });
+
     it("tehai が文字列でないスナップショットを持つ要素はフィルタされる", () => {
       const invalid = {
         ...validResult,
@@ -274,6 +303,8 @@ describe("toScoreQuestionSnapshot", () => {
       doraMarkers: ["1m"],
       isRiichi: true,
       uraDoraMarkers: undefined,
+      // 役の内訳は結果ページの翻数内訳に使う。持たない出題では空配列
+      yakuDetails: question.yakuDetails ?? [],
     });
   });
 

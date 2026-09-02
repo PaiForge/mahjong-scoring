@@ -37,7 +37,9 @@ import {
   applyKiriageMangan,
   clampDoubleYakuman,
   isKiriageManganTarget,
+  recalculateScore,
 } from "../../score/calculator";
+import { countDoraInTehai } from "../../core/dora";
 import { isOya } from "../../core/kaze";
 import { SCORE_YAKU_NAME_MAP } from "../../core/yaku-names";
 
@@ -255,6 +257,31 @@ export function generateScoreQuestion(
     finalAnswer = riichiRes.answer;
     uraDoraMarkers = markers;
     yakuDetails = [...yakuDetails, ...riichiRes.additionalYakuDetails];
+  }
+
+  // 5.5. 翻数を役の内訳に合わせる
+  //
+  //    ライブラリの `detectYaku` と `calculateScoreForTehai` は同じ手牌で
+  //    食い違うことがある。門前の清一色（6翻）・混一色（3翻）・混全帯么九
+  //    （2翻）を含む手で、後者が副露のときの値で数えて 1〜2 翻少なくなる。
+  //    30000 手の生成で 19 件（0.06%）、いずれも門前で、うち 2 件は点数帯まで
+  //    変わっていた（跳満と出すべき手を満貫にする等）。
+  //
+  //    門前の手に門前の翻を与える `detectYaku` の方がルール上正しいので、
+  //    内訳の合計を翻数の正典にする。役牌の照合（`reconcileYakuhai`）と同じ
+  //    考え方で、内訳と翻数と点数が画面上で必ず一致することも保証される
+  //    （結果ページが役の内訳を出すため、ここがずれると見えてしまう）。
+  //
+  //    この時点の `yakuDetails` は表ドラを持たない（`assembleScoreQuestion`
+  //    が後で足す）ため、合計にはドラの翻を明示的に加える。
+  const doraHan = countDoraInTehai(tehai, doraMarkers);
+  const detailsHan =
+    yakuDetails.reduce((total, yaku) => total + yaku.han, 0) + doraHan;
+  if (detailsHan !== finalAnswer.han) {
+    finalAnswer = recalculateScore(finalAnswer, detailsHan, {
+      isTsumo,
+      isOya: isOya(jikaze),
+    });
   }
 
   // 6. ダブル役満の点数を役満に丸める（26翻以上も役満として扱うアプリ全体の

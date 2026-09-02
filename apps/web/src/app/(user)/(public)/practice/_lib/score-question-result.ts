@@ -1,5 +1,9 @@
 import { haiIdToMspz, kazeIdToMspz, tehaiToMspz } from "@mahjong-scoring/core";
-import type { ScoreQuestion, ScoreTableAnswer } from "@mahjong-scoring/core";
+import type {
+  ScoreQuestion,
+  ScoreTableAnswer,
+  YakuDetail,
+} from "@mahjong-scoring/core";
 
 import type { ScoreQuestionDisplayData } from "../score/_components/question-display";
 import { createSessionStorageParser } from "./create-session-storage-parser";
@@ -22,6 +26,14 @@ export interface ScoreQuestionSnapshot extends QuestionTilesSnapshot {
   readonly isRiichi?: boolean;
   /** 裏ドラ表示牌（MSPZ） */
   readonly uraDoraMarkers?: readonly string[];
+  /**
+   * 役の内訳（ドラ・裏ドラを含む）
+   *
+   * 各役の翻数を合計すると出題の翻数になる（出題側で揃えている。core の
+   * `han-consistency.test.ts` 参照）。結果ページで「なぜその翻数になるのか」を
+   * 示すために持つ。この項目を保存する前の旧データには存在しないため任意。
+   */
+  readonly yakuDetails?: readonly YakuDetail[];
 }
 
 /**
@@ -65,7 +77,21 @@ export function toScoreQuestionSnapshot(
     doraMarkers: question.doraMarkers.map(haiIdToMspz),
     isRiichi: question.isRiichi,
     uraDoraMarkers: question.uraDoraMarkers?.map(haiIdToMspz),
+    yakuDetails: question.yakuDetails ?? [],
   };
+}
+
+/**
+ * 値が YakuDetail の配列として妥当か検証する
+ * 役内訳バリデーション
+ */
+export function isValidYakuDetails(
+  value: unknown,
+): value is readonly YakuDetail[] {
+  if (!Array.isArray(value)) return false;
+  return value.every((detail: unknown) =>
+    hasFieldTypes(detail, { name: "string", han: "number" }),
+  );
 }
 
 const VALID_ANSWER_TYPES = new Set(["ron", "oyaTsumo", "koTsumo"]);
@@ -100,10 +126,13 @@ export function isValidScoreQuestionSnapshot(value: unknown): boolean {
   }
   const isRiichi: unknown = Reflect.get(value, "isRiichi");
   const uraDoraMarkers: unknown = Reflect.get(value, "uraDoraMarkers");
+  // 役の内訳は保存を始める前の旧データに存在しないため任意
+  const yakuDetails: unknown = Reflect.get(value, "yakuDetails");
   return (
     isStringArray(Reflect.get(value, "doraMarkers")) &&
     (isRiichi === undefined || typeof isRiichi === "boolean") &&
-    (uraDoraMarkers === undefined || isStringArray(uraDoraMarkers))
+    (uraDoraMarkers === undefined || isStringArray(uraDoraMarkers)) &&
+    (yakuDetails === undefined || isValidYakuDetails(yakuDetails))
   );
 }
 
