@@ -19,6 +19,7 @@ import {
   practiceTrainingHref,
 } from "../_lib/practice-catalog";
 import { PracticePlayLoadingFallback } from "./practice-play-loading-fallback";
+import type { PlayBoardHeight } from "./practice-play-loading-fallback";
 import { PracticeResultLoadingFallback } from "./practice-result-loading-fallback";
 
 interface Props {
@@ -29,6 +30,11 @@ interface Props {
    * デモは試験ごとに違うため、そのルートの loading.tsx が指定する。
    */
   readonly demoHeight?: ExamDemoHeight;
+  /**
+   * 解いている画面の盤面エリアの高さ。選択肢の数で変わるため、
+   * そのルートの loading.tsx が指定する。
+   */
+  readonly boardHeight?: PlayBoardHeight;
 }
 
 /**
@@ -50,7 +56,7 @@ interface Props {
  * （境界が入れ子になり、プリフェッチが外側しか取らないため内側が機能しない）。
  * pathname で振り分けるためクライアントコンポーネント。
  */
-export function PracticeLoading({ slug, demoHeight }: Props) {
+export function PracticeLoading({ slug, demoHeight, boardHeight }: Props) {
   const pathname = usePathname();
   const menu = practiceMenuBySlug(slug);
   const t = useTranslations(menu.namespace);
@@ -65,7 +71,13 @@ export function PracticeLoading({ slug, demoHeight }: Props) {
     (href) => new RegExp(`^${href}/?$`).test(pathname),
   );
   if (isPlaying) {
-    return <PracticePlayLoadingFallback practiceTitle={t("title")} />;
+    return (
+      <PracticePlayLoadingFallback
+        practiceTitle={t("title")}
+        mistakeLimit={menu.mistakeLimit}
+        boardHeight={boardHeight}
+      />
+    );
   }
 
   // 昇級試験の説明ページ。前提章の数は段級位レジストリが持つため、
