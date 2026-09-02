@@ -1,11 +1,7 @@
 import { getTranslations } from "next-intl/server";
 import { type Role } from "@mahjong-scoring/core";
 
-import {
-  DataTable,
-  DataTableHeaderCell,
-  DataTableRowHeaderCell,
-} from "@/app/(user)/_components/data-table";
+import { HanRowsTable } from "../../_components/han-rows-table";
 
 import { buildHanDoublingRows } from "../_lib/fu-doubling-rows";
 
@@ -40,32 +36,21 @@ export async function HanDoublingTable({
       <h3 className="text-xs font-semibold tracking-wider text-surface-400 uppercase">
         {caption}
       </h3>
-      <div className="w-full overflow-x-auto">
-        <DataTable
-          tableClassName="text-center"
-          header={
-            <>
-              <DataTableHeaderCell align="left">
-                {t("colHan")}
-              </DataTableHeaderCell>
-              <DataTableHeaderCell>{t("colBeforeCeil")}</DataTableHeaderCell>
-              <DataTableHeaderCell>{t("colScore")}</DataTableHeaderCell>
-            </>
-          }
-        >
-          {rows.map((row) => (
-            <tr key={row.han} className="bg-white">
-              <DataTableRowHeaderCell>
-                {t("hanUnit", { value: row.han })}
-              </DataTableRowHeaderCell>
-              <td className="px-4 py-3 text-surface-500">{row.beforeCeil}</td>
-              <td className="px-4 py-3 font-semibold text-primary-600">
-                {row.ron}
-              </td>
-            </tr>
-          ))}
-        </DataTable>
-      </div>
+      <HanRowsTable
+        rows={rows}
+        columns={[
+          {
+            header: t("colBeforeCeil"),
+            render: (row) => row.beforeCeil,
+            className: "text-surface-500",
+          },
+          {
+            header: t("colScore"),
+            render: (row) => row.ron,
+            className: "font-semibold text-primary-600",
+          },
+        ]}
+      />
     </div>
   );
 }

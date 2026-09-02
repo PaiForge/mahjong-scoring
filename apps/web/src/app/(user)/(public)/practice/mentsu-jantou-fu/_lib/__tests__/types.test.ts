@@ -7,6 +7,8 @@ import {
   parseTehai,
 } from "@mahjong-scoring/core";
 
+import { generateOrThrow } from "@/test/generate-or-throw";
+
 import { parseMentsuJantouFuResults, toQuestionResult } from "../types";
 
 /** 保存形式として妥当な結果データ */
@@ -94,11 +96,7 @@ describe("parseMentsuJantouFuResults", () => {
 describe("toQuestionResult", () => {
   /** 生成できるまで試す（牌の残数不足で undefined を返しうるため） */
   function generate() {
-    for (let i = 0; i < 100; i++) {
-      const question = generateMentsuJantouFuQuestion();
-      if (question) return question;
-    }
-    throw new Error("問題を生成できなかった");
+    return generateOrThrow(generateMentsuJantouFuQuestion, 100);
   }
 
   /** 出題どおりに全行を答えた場合の回答 */

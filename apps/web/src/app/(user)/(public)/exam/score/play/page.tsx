@@ -1,10 +1,12 @@
 import type { Metadata } from "next";
 import { createPracticePlayMetadata } from "@/app/(user)/(public)/practice/_lib/metadata";
-import { redirectUnlessExamEligible } from "../../_lib/exam-guard";
+import { createExamPlayPage } from "../../_lib/create-exam-play-page";
 import { ScoreExamPlayView } from "../_components/score-exam-play-view";
 
+const SLUG = "score-exam" as const;
+
 export async function generateMetadata(): Promise<Metadata> {
-  return createPracticePlayMetadata("scoreExamChallenge");
+  return createPracticePlayMetadata(SLUG);
 }
 
 /**
@@ -27,7 +29,4 @@ export async function generateMetadata(): Promise<Metadata> {
 // 受験ガードが cookie を読むため動的レンダリングを明示する
 export const dynamic = "force-dynamic";
 
-export default async function ScoreExamPlayPage() {
-  await redirectUnlessExamEligible("score-exam");
-  return <ScoreExamPlayView />;
-}
+export default createExamPlayPage(ScoreExamPlayView, { slug: SLUG });

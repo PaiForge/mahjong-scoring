@@ -3,7 +3,7 @@ import { createPracticePlayMetadata } from "../../_lib/metadata";
 import { MachiFuPlayView } from "../_components/machi-fu-play-view";
 
 export async function generateMetadata(): Promise<Metadata> {
-  return createPracticePlayMetadata("machiFu");
+  return createPracticePlayMetadata("machi-fu");
 }
 
 /**

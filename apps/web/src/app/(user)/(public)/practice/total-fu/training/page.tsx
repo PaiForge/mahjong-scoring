@@ -16,7 +16,7 @@ import { createPracticeTrainingMetadata } from "../../_lib/metadata";
 import { TotalFuTrainingView } from "../_components/total-fu-training-view";
 
 export async function generateMetadata(): Promise<Metadata> {
-  return createPracticeTrainingMetadata("totalFu");
+  return createPracticeTrainingMetadata("total-fu");
 }
 
 export default function TotalFuTrainingPage() {

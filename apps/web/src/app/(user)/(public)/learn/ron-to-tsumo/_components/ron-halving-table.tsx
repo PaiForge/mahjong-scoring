@@ -1,11 +1,8 @@
 import { getTranslations } from "next-intl/server";
 
-import {
-  DataTable,
-  DataTableHeaderCell,
-  DataTableRowHeaderCell,
-} from "@/app/(user)/_components/data-table";
 import { TsumoScore } from "@/app/(user)/(public)/reference/score-table/_components/tsumo-score";
+
+import { HanRowsTable } from "../../_components/han-rows-table";
 
 import { buildRonHalvingRows } from "../_lib/ron-halving-rows";
 
@@ -34,36 +31,26 @@ export async function RonHalvingTable({ fu, caption }: RonHalvingTableProps) {
   return (
     <div className="space-y-2">
       <p className="text-sm font-semibold text-surface-700">{caption}</p>
-      <div className="overflow-x-auto">
-        <DataTable
-          tableClassName="text-center"
-          header={
-            <>
-              <DataTableHeaderCell align="left">
-                {t("colHan")}
-              </DataTableHeaderCell>
-              <DataTableHeaderCell>{t("colKoRon")}</DataTableHeaderCell>
-              <DataTableHeaderCell>{t("colDerived")}</DataTableHeaderCell>
-              <DataTableHeaderCell>{t("colActualPay")}</DataTableHeaderCell>
-            </>
-          }
-        >
-          {rows.map((row) => (
-            <tr key={row.han} className="bg-white">
-              <DataTableRowHeaderCell>
-                {t("hanUnit", { value: row.han })}
-              </DataTableRowHeaderCell>
-              <td className="px-4 py-3 text-surface-500">{row.ron}</td>
-              <td className="px-4 py-3 font-semibold text-primary-600">
-                <TsumoScore payment={row.derived} />
-              </td>
-              <td className="px-4 py-3 text-surface-700">
-                <TsumoScore payment={row.actual} />
-              </td>
-            </tr>
-          ))}
-        </DataTable>
-      </div>
+      <HanRowsTable
+        rows={rows}
+        columns={[
+          {
+            header: t("colKoRon"),
+            render: (row) => row.ron,
+            className: "text-surface-500",
+          },
+          {
+            header: t("colDerived"),
+            render: (row) => <TsumoScore payment={row.derived} />,
+            className: "font-semibold text-primary-600",
+          },
+          {
+            header: t("colActualPay"),
+            render: (row) => <TsumoScore payment={row.actual} />,
+            className: "text-surface-700",
+          },
+        ]}
+      />
     </div>
   );
 }

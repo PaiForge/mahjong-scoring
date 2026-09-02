@@ -1,11 +1,8 @@
 import { getTranslations } from "next-intl/server";
 
-import {
-  DataTable,
-  DataTableHeaderCell,
-  DataTableRowHeaderCell,
-} from "@/app/(user)/_components/data-table";
 import { TsumoScore } from "@/app/(user)/(public)/reference/score-table/_components/tsumo-score";
+
+import { HanRowsTable } from "../../_components/han-rows-table";
 
 import { buildTsumoSplitRows } from "../_lib/tsumo-payment-rows";
 
@@ -34,34 +31,21 @@ export async function TsumoSplitTable({ fu, caption }: TsumoSplitTableProps) {
       <h3 className="text-xs font-semibold tracking-wider text-surface-400 uppercase">
         {caption}
       </h3>
-      <div className="w-full overflow-x-auto">
-        <DataTable
-          tableClassName="text-center"
-          header={
-            <>
-              <DataTableHeaderCell align="left">
-                {t("colHan")}
-              </DataTableHeaderCell>
-              <DataTableHeaderCell>{t("colBeforeCeil")}</DataTableHeaderCell>
-              <DataTableHeaderCell>{t("colActualPay")}</DataTableHeaderCell>
-            </>
-          }
-        >
-          {rows.map((row) => (
-            <tr key={row.han} className="bg-white">
-              <DataTableRowHeaderCell>
-                {t("hanUnit", { value: row.han })}
-              </DataTableRowHeaderCell>
-              <td className="px-4 py-3 text-surface-500">
-                <TsumoScore payment={row.beforeCeil} />
-              </td>
-              <td className="px-4 py-3 font-semibold text-primary-600">
-                <TsumoScore payment={row.actual} />
-              </td>
-            </tr>
-          ))}
-        </DataTable>
-      </div>
+      <HanRowsTable
+        rows={rows}
+        columns={[
+          {
+            header: t("colBeforeCeil"),
+            render: (row) => <TsumoScore payment={row.beforeCeil} />,
+            className: "text-surface-500",
+          },
+          {
+            header: t("colActualPay"),
+            render: (row) => <TsumoScore payment={row.actual} />,
+            className: "font-semibold text-primary-600",
+          },
+        ]}
+      />
     </div>
   );
 }

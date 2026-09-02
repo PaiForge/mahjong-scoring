@@ -6,6 +6,8 @@ import {
   parseTehai,
 } from "@mahjong-scoring/core";
 
+import { generateOrThrow } from "@/test/generate-or-throw";
+
 import {
   parseFuQuestionResults,
   toFuQuestionResult,
@@ -61,11 +63,7 @@ describe("parseFuQuestionResults", () => {
 describe("toFuQuestionResult", () => {
   /** 生成できるまで試す（牌の残数不足で undefined を返しうるため） */
   function generate() {
-    for (let i = 0; i < 100; i++) {
-      const question = generateTotalFuQuestion();
-      if (question) return question;
-    }
-    throw new Error("問題を生成できなかった");
+    return generateOrThrow(generateTotalFuQuestion, 100);
   }
 
   it("出題を保存形式に変換し、パースを通過する", () => {

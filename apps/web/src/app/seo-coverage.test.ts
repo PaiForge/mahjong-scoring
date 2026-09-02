@@ -47,6 +47,7 @@ const EXCLUDED_PATHS: ReadonlyMap<string, string> = new Map([
 /** ページソースにこれが含まれていれば noindex（検索除外）を宣言しているとみなす */
 const NOINDEX_MARKERS = [
   "createPracticePlayMetadata(",
+  "createFreePracticePlayMetadata(",
   "createPracticeTrainingMetadata(",
   "createPracticeResultMetadata(",
   "createPrivateMetadata(",

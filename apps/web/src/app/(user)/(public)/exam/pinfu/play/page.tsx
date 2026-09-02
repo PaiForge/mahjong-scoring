@@ -1,10 +1,12 @@
 import type { Metadata } from "next";
 import { createPracticePlayMetadata } from "@/app/(user)/(public)/practice/_lib/metadata";
-import { redirectUnlessExamEligible } from "../../_lib/exam-guard";
+import { createExamPlayPage } from "../../_lib/create-exam-play-page";
 import { PinfuExamPlayView } from "../_components/pinfu-exam-play-view";
 
+const SLUG = "pinfu-exam" as const;
+
 export async function generateMetadata(): Promise<Metadata> {
-  return createPracticePlayMetadata("pinfuExamChallenge");
+  return createPracticePlayMetadata(SLUG);
 }
 
 /**
@@ -26,7 +28,4 @@ export async function generateMetadata(): Promise<Metadata> {
 // 受験ガードが cookie を読むため動的レンダリングを明示する
 export const dynamic = "force-dynamic";
 
-export default async function PinfuExamPlayPage() {
-  await redirectUnlessExamEligible("pinfu-exam");
-  return <PinfuExamPlayView />;
-}
+export default createExamPlayPage(PinfuExamPlayView, { slug: SLUG });

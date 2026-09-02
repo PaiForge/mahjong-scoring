@@ -44,6 +44,26 @@ function sampleWhere(
   });
 }
 
+/**
+ * 生成した問題がどれも点数表の無効なマスに当たらないことを検証する
+ *
+ * 「1翻20符」「ロン20符」のように点数表に存在しない組み合わせを出題しては
+ * ならない、というジェネレータの中心的な保証。条件を変えて何度も確かめる
+ * ため、試行回数と出題条件だけを変えて呼ぶ。
+ */
+function expectNoInvalidCells(
+  attempts: number,
+  options?: Readonly<ScoreTableGeneratorOptions>,
+): void {
+  for (let i = 0; i < attempts; i++) {
+    const question = generateScoreTableQuestion(options);
+    const winType = question.isTsumo ? "tsumo" : "ron";
+    expect(question.fu).toBeDefined();
+    if (question.fu === undefined) continue;
+    expect(isInvalidCell(question.han, question.fu, winType)).toBe(false);
+  }
+}
+
 describe("generateScoreTableQuestion", () => {
   describe("デフォルトオプションでの問題生成", () => {
     it("問題が生成できること", () => {
@@ -88,13 +108,7 @@ describe("generateScoreTableQuestion", () => {
 
   describe("無効な組み合わせが生成されないこと", () => {
     it("100回生成しても isInvalidCell に該当する組み合わせが出ないこと", () => {
-      for (let i = 0; i < 100; i++) {
-        const question = generateScoreTableQuestion();
-        const winType = question.isTsumo ? "tsumo" : "ron";
-        expect(question.fu).toBeDefined();
-        if (question.fu === undefined) continue;
-        expect(isInvalidCell(question.han, question.fu, winType)).toBe(false);
-      }
+      expectNoInvalidCells(100);
     });
 
     it("1翻20符が生成されないこと", () => {
@@ -337,28 +351,16 @@ describe("generateScoreTableQuestion", () => {
 
   describe("buildValidCombinations（間接テスト）", () => {
     it("500回生成しても無効な組み合わせが一度も出ないこと", () => {
-      for (let i = 0; i < 500; i++) {
-        const question = generateScoreTableQuestion();
-        const winType = question.isTsumo ? "tsumo" : "ron";
-        expect(question.fu).toBeDefined();
-        if (question.fu === undefined) continue;
-        expect(isInvalidCell(question.han, question.fu, winType)).toBe(false);
-      }
+      expectNoInvalidCells(500);
     });
 
     it("カスタム範囲でも無効な組み合わせが出ないこと", () => {
-      for (let i = 0; i < 200; i++) {
-        const question = generateScoreTableQuestion({
-          minHan: 1,
-          maxHan: 3,
-          minFu: 20,
-          maxFu: 110,
-        });
-        const winType = question.isTsumo ? "tsumo" : "ron";
-        expect(question.fu).toBeDefined();
-        if (question.fu === undefined) continue;
-        expect(isInvalidCell(question.han, question.fu, winType)).toBe(false);
-      }
+      expectNoInvalidCells(200, {
+        minHan: 1,
+        maxHan: 3,
+        minFu: 20,
+        maxFu: 110,
+      });
     });
   });
 });

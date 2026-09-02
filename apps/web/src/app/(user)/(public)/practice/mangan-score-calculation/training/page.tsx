@@ -16,7 +16,7 @@ import { createPracticeTrainingMetadata } from "../../_lib/metadata";
 import { ManganScoreCalculationTrainingView } from "../_components/mangan-score-calculation-training-view";
 
 export async function generateMetadata(): Promise<Metadata> {
-  return createPracticeTrainingMetadata("manganScoreCalculationChallenge");
+  return createPracticeTrainingMetadata("mangan-score-calculation");
 }
 
 export default function ManganScoreCalculationTrainingPage() {

@@ -16,7 +16,7 @@ import { createPracticeTrainingMetadata } from "../../_lib/metadata";
 import { YakuHanTrainingView } from "../_components/yaku-han-training-view";
 
 export async function generateMetadata(): Promise<Metadata> {
-  return createPracticeTrainingMetadata("yakuHanChallenge");
+  return createPracticeTrainingMetadata("yaku-han");
 }
 
 export default function YakuHanTrainingPage() {

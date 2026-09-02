@@ -44,10 +44,10 @@ describe("createPracticeMetadata", () => {
 });
 
 describe("createPracticePlayMetadata", () => {
-  it("noindex, follow で canonical を持たない", async () => {
+  it("辞書ネームスペースを slug から導出し、noindex, follow で canonical を持たない", async () => {
     setupTranslations({ jantouFu: { title: "雀頭符" } });
 
-    const metadata = await createPracticePlayMetadata("jantouFu");
+    const metadata = await createPracticePlayMetadata("jantou-fu");
 
     expect(metadata).toMatchObject({
       title: `雀頭符 - ${SITE_NAME}`,
@@ -59,13 +59,13 @@ describe("createPracticePlayMetadata", () => {
 });
 
 describe("createPracticeTrainingMetadata", () => {
-  it("説明付きで noindex, follow", async () => {
+  it("辞書ネームスペースを slug から導出し、説明付きで noindex, follow", async () => {
     setupTranslations({
       jantouFu: { title: "雀頭符", description: "説明" },
     });
 
     await expect(
-      createPracticeTrainingMetadata("jantouFu"),
+      createPracticeTrainingMetadata("jantou-fu"),
     ).resolves.toMatchObject({
       title: `雀頭符 - ${SITE_NAME}`,
       description: "説明",

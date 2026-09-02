@@ -3,7 +3,7 @@ import { createPracticePlayMetadata } from "../../_lib/metadata";
 import { TotalFuPlayView } from "../_components/total-fu-play-view";
 
 export async function generateMetadata(): Promise<Metadata> {
-  return createPracticePlayMetadata("totalFu");
+  return createPracticePlayMetadata("total-fu");
 }
 
 /**
