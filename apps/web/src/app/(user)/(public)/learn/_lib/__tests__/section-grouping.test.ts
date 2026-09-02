@@ -105,6 +105,10 @@ describe("section grouping", () => {
     const grouped = groupChaptersBySection();
     const memorizationSlugs =
       grouped.get("memorization")?.map((c) => c.slug) ?? [];
-    expect(memorizationSlugs).toEqual(["fu-doubling", "tsumo-payments"]);
+    expect(memorizationSlugs).toEqual([
+      "fu-doubling",
+      "tsumo-payments",
+      "ron-to-tsumo",
+    ]);
   });
 });
