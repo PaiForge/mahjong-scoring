@@ -4,8 +4,9 @@ import {
   parseHais,
   parseKazehai,
   parseTehai,
-  retryGenerate,
 } from "@mahjong-scoring/core";
+
+import { generateOrThrow } from "@/test/generate-or-throw";
 
 import { parseYakuResults, toQuestionResult } from "../types";
 
@@ -55,9 +56,7 @@ describe("parseYakuResults", () => {
 describe("toQuestionResult", () => {
   /** 生成できるまで試す（牌の残数不足で undefined を返しうるため） */
   function generate() {
-    const question = retryGenerate(generateYakuQuestion);
-    if (!question) throw new Error("問題を生成できなかった");
-    return question;
+    return generateOrThrow(generateYakuQuestion);
   }
 
   it("選んだ役と正誤を記録し、パースを通過する", () => {
