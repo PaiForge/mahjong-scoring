@@ -1,6 +1,7 @@
 "use client";
 
 import { getSelectClass } from "../_lib/select-class";
+import type { SelectFeedbackState } from "../_lib/select-class";
 
 interface ScoreOptionSelectProps {
   readonly value: string;
@@ -16,6 +17,11 @@ interface ScoreOptionSelectProps {
   readonly id?: string;
   /** 可視ラベルを持てない場合の代替名（子ツモの「子から」「親から」など） */
   readonly ariaLabel?: string;
+  /**
+   * 回答直後に枠と地の色で返す正誤（{@link getSelectClass} 参照）。
+   * 正誤を返さない画面では省略する。
+   */
+  readonly feedback?: SelectFeedbackState;
 }
 
 /**
@@ -31,6 +37,7 @@ export function ScoreOptionSelect({
   optionSuffix = "",
   id,
   ariaLabel,
+  feedback,
 }: ScoreOptionSelectProps) {
   return (
     <select
@@ -40,7 +47,7 @@ export function ScoreOptionSelect({
       onChange={(e) => onChange(e.target.value)}
       disabled={disabled}
       required
-      className={getSelectClass(value !== "")}
+      className={getSelectClass(value !== "", feedback)}
     >
       <option value="" disabled>
         {placeholder}
