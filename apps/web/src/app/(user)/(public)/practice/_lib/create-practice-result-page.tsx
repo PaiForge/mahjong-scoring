@@ -13,7 +13,10 @@ import type {
   PracticeMenuSlug,
   PracticeMenuType,
 } from "@/lib/db/practice-menu-types";
-import { practiceMenuBySlug } from "@/lib/db/practice-menu-types";
+import {
+  isExamMenuType,
+  practiceMenuBySlug,
+} from "@/lib/db/practice-menu-types";
 import { getExpInfoByChallengeResultId } from "@/lib/db/save-exp";
 import type { ScoreComparison } from "@/lib/db/score-comparison-queries";
 import { getScoreComparison } from "@/lib/db/score-comparison-queries";
@@ -77,8 +80,10 @@ export interface PracticeResultViewProps {
    * リーダーボードプレビューのブロック。
    * `<Suspense fallback={<LeaderboardSkeleton />}>` で包まれた
    * 非同期ツリーを Server 側で組み立てて渡す。
+   *
+   * ランキングを持たない練習（昇級試験）では undefined で、節ごと出さない。
    */
-  readonly leaderboardBlock: React.ReactNode;
+  readonly leaderboardBlock?: React.ReactNode;
   /**
    * 練習種別ごとの追加コンテンツ（問題別フィードバック一覧など）。
    * 現状はカスタムビュー (`createCustomResultView`) のみが使用する。
@@ -136,6 +141,7 @@ interface PracticeResultPageProps {
  *
  * 3. **`<Suspense fallback={<LeaderboardSkeleton />}>`**
  *    - `AsyncLeaderboardBlock`: `getLeaderboard()` を呼んで `LeaderboardPreview` を描画
+ *    - ランキングを持たない練習（昇級試験）では境界ごと出さない
  *
  * 2 と 3 は互いに並列に解決され、遅い方に全体が引っ張られないストリーミング表示となる。
  */
@@ -145,6 +151,9 @@ export function createPracticeResultPage(
 ) {
   const { slug } = config;
   const { menuType, namespace } = practiceMenuBySlug(slug);
+  // 昇級試験はランキングを持たないためプレビューも出さない
+  // （`MODULES` から外れているので詳細ページへの導線も無い）
+  const hasLeaderboard = !isExamMenuType(menuType);
 
   return async function PracticeResultPage({
     searchParams,
@@ -198,9 +207,11 @@ export function createPracticeResultPage(
           </Suspense>
         }
         leaderboardBlock={
-          <Suspense fallback={<LeaderboardSkeleton />}>
-            <AsyncLeaderboardBlock module={menuType} />
-          </Suspense>
+          hasLeaderboard ? (
+            <Suspense fallback={<LeaderboardSkeleton />}>
+              <AsyncLeaderboardBlock module={menuType} />
+            </Suspense>
+          ) : undefined
         }
       />
     );

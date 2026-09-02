@@ -1,5 +1,10 @@
 import { describe, expect, it } from "vitest";
 
+import {
+  PRACTICE_MENU_TYPES,
+  isExamMenuType,
+} from "@/lib/db/practice-menu-types";
+
 import { isValidModule, isValidPeriod } from "../validators";
 
 describe("isValidPeriod", () => {
@@ -67,5 +72,14 @@ describe("isValidModule", () => {
     it("returns false for unknown module", () => {
       expect(isValidModule("unknown")).toBe(false);
     });
+
+    // 練習種別としては実在するが、ランキングを持たない。ここを通すと
+    // 一覧から外した試験の詳細ページが直 URL で開けたままになる
+    it.each(PRACTICE_MENU_TYPES.filter(isExamMenuType))(
+      "returns false for the exam module %s",
+      (exam) => {
+        expect(isValidModule(exam)).toBe(false);
+      },
+    );
   });
 });

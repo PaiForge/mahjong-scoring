@@ -1,6 +1,11 @@
 import { describe, expect, it } from "vitest";
 
 import {
+  PRACTICE_MENU_TYPES,
+  isExamMenuType,
+} from "@/lib/db/practice-menu-types";
+
+import {
   MODULES,
   PAGE_SIZE,
   VALID_PERIODS,
@@ -34,13 +39,17 @@ describe("MODULES", () => {
       "han_count",
       "yaku_han",
       "mangan_score_calculation",
-      "mangan_exam",
-      "fu_exam",
-      "chiitoitsu_exam",
-      "pinfu_exam",
-      "fu_score_exam",
-      "score_exam",
     ]);
+  });
+
+  it("昇級試験を含まない", () => {
+    // 試験の成果は段級位が表す。ランキングにも並べると物差しが 2 本になる
+    const exams = PRACTICE_MENU_TYPES.filter(isExamMenuType);
+
+    expect(exams.length).toBeGreaterThan(0);
+    for (const exam of exams) {
+      expect(MODULES).not.toContain(exam);
+    }
   });
 });
 

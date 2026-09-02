@@ -1,5 +1,6 @@
 import type { CurriculumChapterSlug } from "@/app/(user)/(public)/learn/_lib/curriculum";
 import {
+  isExamMenuType,
   isPracticeMenuSlug,
   menuTypeToSlug,
   practiceMenuBySlug,
@@ -190,11 +191,13 @@ export function practiceMenuFromCatalog(
  *
  * 昇級試験は記録・結果ページの仕組みを練習と共有するためカタログには
  * 載るが、入口は道場（`/dojo`）が持つ。練習一覧のカードやパンくずの
- * 「練習一覧 >」はこの判定で出し分ける。判定はレジストリの `basePath`
- * から導出する — どの URL 名前空間に置くかの決定がそのまま所属の決定。
+ * 「練習一覧 >」はこの判定で出し分ける。
+ *
+ * 判定そのものはレジストリの {@link isExamMenuType} が持つ。slug で引く
+ * 呼び出し側のための入口で、規則を二重に持たないよう委譲するだけにする。
  */
 export function isExamMenu(slug: PracticeMenuSlug): boolean {
-  return !practiceHref(slug).startsWith("/practice/");
+  return isExamMenuType(practiceMenuBySlug(slug).menuType);
 }
 
 /**

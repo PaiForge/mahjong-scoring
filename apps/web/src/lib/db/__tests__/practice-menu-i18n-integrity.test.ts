@@ -3,9 +3,12 @@
  *
  * @description
  * 練習種別は `menuTypeToMessageKey()` で camelCase のキーに変換され、
- * 練習一覧（`practice.practices`）とランキングアイコンの2つの名前空間から
- * 参照される。レジストリに1行足しても JSON の追記漏れは実行時まで
- * 検出されないため、ここで突き合わせる。
+ * 練習一覧（`practice.practices`）から参照される。レジストリに1行足しても
+ * JSON の追記漏れは実行時まで検出されないため、ここで突き合わせる。
+ *
+ * ランキングアイコン（`leaderboard.moduleIcon`）はレジストリ全件ではなく
+ * ランキングを持つ練習だけを持つため、突き合わせはランキング側の
+ * `leaderboard/_lib/__tests__/module-icon-i18n.test.ts` が行う。
  *
  * 練習名は `practice.practices.<key>.title`（正式名）と `.shortTitle`
  * （マイページ・ランキングで使う短い名）の2つを持つ。
@@ -25,15 +28,11 @@ import {
 
 const messages = messagesJson as unknown as {
   readonly practice: { readonly practices: Record<string, unknown> };
-  readonly leaderboard: {
-    readonly moduleIcon: Record<string, unknown>;
-  };
 } & Record<string, { readonly title?: unknown } | undefined>;
 
 /** 練習種別ごとのキーを持つ名前空間 */
 const NAMESPACES = [
   ["practice.practices", messages.practice.practices],
-  ["leaderboard.moduleIcon", messages.leaderboard.moduleIcon],
 ] as const;
 
 describe.each(NAMESPACES)("i18n integrity: %s", (namespace, entries) => {
