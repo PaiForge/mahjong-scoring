@@ -19,7 +19,7 @@ import {
   practiceTrainingHref,
 } from "../_lib/practice-catalog";
 import { PracticePlayLoadingFallback } from "./practice-play-loading-fallback";
-import type { PlayBoardHeight } from "./practice-play-loading-fallback";
+import type { PlayBoardHeight } from "../_lib/board-area-height";
 import { PracticeResultLoadingFallback } from "./practice-result-loading-fallback";
 
 interface Props {

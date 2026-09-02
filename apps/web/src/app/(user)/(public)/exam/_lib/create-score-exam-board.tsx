@@ -78,7 +78,13 @@ export function createScoreExamBoard(
     });
 
     if (!question) {
-      return <QuestionGeneratingPlaceholder label={t("generating")} />;
+      // 出来上がった盤面と同じ高さで待つ（`loading.tsx` のフォールバックと同値）
+      return (
+        <QuestionGeneratingPlaceholder
+          label={t("generating")}
+          boardHeight="standard"
+        />
+      );
     }
 
     return (

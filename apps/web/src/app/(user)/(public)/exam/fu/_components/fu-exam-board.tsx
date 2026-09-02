@@ -64,7 +64,13 @@ export function FuExamBoard({
   });
 
   if (!question) {
-    return <QuestionGeneratingPlaceholder label={t("generating")} />;
+    // 選択肢が 11 個並ぶぶん他の試験より高い（`loading.tsx` と同じ tall）
+    return (
+      <QuestionGeneratingPlaceholder
+        label={t("generating")}
+        boardHeight="tall"
+      />
+    );
   }
 
   return (
