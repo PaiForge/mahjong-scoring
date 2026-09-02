@@ -10,6 +10,18 @@ import { hasFieldTypes, isStringArray } from "../../_lib/shape-guards";
 export const RESULT_STORAGE_KEY = resultStorageKeyFor("yaku");
 
 /**
+ * 役判定の出題の生成リトライ予算
+ * 出題リトライ予算
+ *
+ * 役判定の出題は1回の試行あたり約48%しか成立せず（牌の残数不足・役なしの手を
+ * 弾くため。20万回の実測で失敗率52.2%）、`retryGenerate` の既定予算10では
+ * 約0.15%/問で生成に失敗する。失敗した問題は盤面がプレースホルダのまま固まり、
+ * チャレンジのタイマーだけが進む。100 なら失敗確率は 6e-29 で実質ゼロになり、
+ * 平均試行回数は2回前後のままなので生成コストも増えない。
+ */
+export const QUESTION_GENERATION_MAX_RETRIES = 100;
+
+/**
  * 役選択練習の1問ごとの結果データ
  * 役選択問題結果
  *

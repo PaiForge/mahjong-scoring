@@ -9,6 +9,7 @@ import {
 } from "@mahjong-scoring/core";
 import type { TotalFuQuestion } from "@mahjong-scoring/core";
 import { useRuleSettingsStore } from "@/app/_hooks/use-rule-settings-store";
+import { QUESTION_GENERATION_MAX_RETRIES } from "../_lib/types";
 import { toFuQuestionResult } from "../_lib/types";
 import type { TotalFuQuestionResult } from "../_lib/types";
 import { FuChoiceGrid } from "../../_components/fu-choice-grid";
@@ -42,7 +43,11 @@ export function TotalFuBoard({
   const t = useTranslations("totalFu");
   const renfonpaiAs4Fu = useRuleSettingsStore((s) => s.renfonpaiAs4Fu);
   const generateQuestion = useCallback(
-    () => retryGenerate(() => generateTotalFuQuestion({ renfonpaiAs4Fu })),
+    () =>
+      retryGenerate(
+        () => generateTotalFuQuestion({ renfonpaiAs4Fu }),
+        QUESTION_GENERATION_MAX_RETRIES,
+      ),
     [renfonpaiAs4Fu],
   );
   const recordResult = useCallback(
