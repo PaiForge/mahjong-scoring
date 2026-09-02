@@ -56,6 +56,24 @@ describe("parseQuestionResults", () => {
     expect(results[0]?.correctAnswer.type).toBe("oyaTsumo");
   });
 
+  it("回答の支払い額が欠落した要素はフィルタされる", () => {
+    // 判別子（type）だけを見ていた頃は素通りし、結果ページで点数が
+    // undefined として描かれていた
+    const invalid = { ...validResult, correctAnswer: { type: "ron" } };
+    const raw = JSON.stringify([invalid]);
+    expect(parseQuestionResults(raw)).toEqual([]);
+  });
+
+  it("回答の支払い額が判別子と食い違う要素はフィルタされる", () => {
+    // koTsumo なのに oyaTsumo の形（all）を持つ行
+    const invalid = {
+      ...validResult,
+      userAnswer: { type: "koTsumo", all: 4000 },
+    };
+    const raw = JSON.stringify([invalid]);
+    expect(parseQuestionResults(raw)).toEqual([]);
+  });
+
   it("undefined を渡すと空配列を返す", () => {
     const results = parseQuestionResults(undefined);
     expect(results).toEqual([]);

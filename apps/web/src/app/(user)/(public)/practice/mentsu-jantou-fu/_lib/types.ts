@@ -11,12 +11,13 @@ import {
 
 import { resultStorageKeyFor } from "@/lib/db/practice-menu-types";
 
+import { z } from "zod";
+
 import { createSessionStorageParser } from "../../_lib/create-session-storage-parser";
 import {
-  hasValidOptionalFuro,
-  isCompletedMentsuType,
-} from "../../_lib/mentsu-serialization";
-import { hasFieldTypes } from "../../_lib/shape-guards";
+  completedMentsuTypeSchema,
+  furoSchema,
+} from "../../_lib/result-schemas";
 
 /** sessionStorage に保存する際のキー */
 export const RESULT_STORAGE_KEY = resultStorageKeyFor("mentsu-jantou-fu");
@@ -111,54 +112,39 @@ function toItemResult(
 }
 
 /**
- * 値が回答行の種別として妥当か検証する
+ * 回答行の種別のスキーマ
  *
  * 回答行は完成面子か雀頭のいずれか。未完成面子（対子・塔子）は和了形を
  * 出題する以上あり得ない。
  */
-function isValidItemType(value: unknown): value is MentsuType | "Pair" {
-  return value === "Pair" || isCompletedMentsuType(value);
-}
+const itemTypeSchema: z.ZodType<MentsuType | "Pair"> = z.union([
+  z.literal("Pair"),
+  completedMentsuTypeSchema,
+]);
 
-/** 値が回答行の結果として妥当か検証する */
-function isValidItemResult(value: unknown): value is MentsuJantouFuItemResult {
-  if (
-    !hasFieldTypes(value, {
-      tiles: "string",
-      isOpen: "boolean",
-      correctFu: "number",
-      userFu: "number",
-    })
-  ) {
-    return false;
-  }
-  return (
-    isValidItemType(Reflect.get(value, "type")) && hasValidOptionalFuro(value)
-  );
-}
+/** 回答行の結果のスキーマ */
+const itemResultSchema: z.ZodType<MentsuJantouFuItemResult> = z.object({
+  tiles: z.string(),
+  type: itemTypeSchema,
+  isOpen: z.boolean(),
+  furo: furoSchema.optional(),
+  correctFu: z.number(),
+  userFu: z.number(),
+});
 
 /**
  * sessionStorage から取得した値が MentsuJantouFuQuestionResult として妥当か検証する
  * 面子雀頭符問題結果バリデーション
  */
-function isValidQuestionResult(
-  value: unknown,
-): value is MentsuJantouFuQuestionResult {
-  if (
-    !hasFieldTypes(value, {
-      tehai: "string",
-      agariHai: "string",
-      bakaze: "string",
-      jikaze: "string",
-      isTsumo: "boolean",
-      isCorrect: "boolean",
-    })
-  ) {
-    return false;
-  }
-  const items: unknown = Reflect.get(value, "items");
-  return Array.isArray(items) && items.every(isValidItemResult);
-}
+const questionResultSchema: z.ZodType<MentsuJantouFuQuestionResult> = z.object({
+  tehai: z.string(),
+  agariHai: z.string(),
+  bakaze: z.string(),
+  jikaze: z.string(),
+  isTsumo: z.boolean(),
+  items: z.array(itemResultSchema),
+  isCorrect: z.boolean(),
+});
 
 /**
  * sessionStorage から問題結果を安全にパースする
@@ -166,6 +152,5 @@ function isValidQuestionResult(
  */
 export const parseMentsuJantouFuResults: (
   raw: string | undefined,
-) => readonly MentsuJantouFuQuestionResult[] = createSessionStorageParser(
-  isValidQuestionResult,
-);
+) => readonly MentsuJantouFuQuestionResult[] =
+  createSessionStorageParser(questionResultSchema);

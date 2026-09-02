@@ -3,8 +3,9 @@ import type { MachiFuQuestion } from "@mahjong-scoring/core";
 
 import { resultStorageKeyFor } from "@/lib/db/practice-menu-types";
 
+import { z } from "zod";
+
 import { createSessionStorageParser } from "../../_lib/create-session-storage-parser";
-import { hasFieldTypes } from "../../_lib/shape-guards";
 
 /** sessionStorage に保存する際のキー */
 export const RESULT_STORAGE_KEY = resultStorageKeyFor("machi-fu");
@@ -56,15 +57,13 @@ export function toQuestionResult(
  * sessionStorage から取得した値が MachiFuQuestionResult として妥当か検証する
  * 待ち符問題結果バリデーション
  */
-function isValidQuestionResult(value: unknown): value is MachiFuQuestionResult {
-  return hasFieldTypes(value, {
-    tiles: "string",
-    agariHai: "string",
-    correctFu: "number",
-    userFu: "number",
-    isCorrect: "boolean",
-  });
-}
+const questionResultSchema: z.ZodType<MachiFuQuestionResult> = z.object({
+  tiles: z.string(),
+  agariHai: z.string(),
+  correctFu: z.number(),
+  userFu: z.number(),
+  isCorrect: z.boolean(),
+});
 
 /**
  * sessionStorage から問題結果を安全にパースする
@@ -72,6 +71,5 @@ function isValidQuestionResult(value: unknown): value is MachiFuQuestionResult {
  */
 export const parseMachiFuResults: (
   raw: string | undefined,
-) => readonly MachiFuQuestionResult[] = createSessionStorageParser(
-  isValidQuestionResult,
-);
+) => readonly MachiFuQuestionResult[] =
+  createSessionStorageParser(questionResultSchema);

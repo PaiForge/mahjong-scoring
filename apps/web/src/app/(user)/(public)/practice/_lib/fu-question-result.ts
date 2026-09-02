@@ -6,8 +6,10 @@ import {
   type TotalFuQuestion,
 } from "@mahjong-scoring/core";
 
+import { z } from "zod";
+
 import { createSessionStorageParser } from "./create-session-storage-parser";
-import { hasFieldTypes } from "./shape-guards";
+import { fuDetailSchema } from "./result-schemas";
 
 /**
  * 手牌の合計符を答える出題の1問ごとの結果データ
@@ -62,35 +64,21 @@ export function toFuQuestionResult(
   };
 }
 
-/** 値が FuDetail の配列として妥当か検証する */
-function isValidFuDetails(value: unknown): value is readonly FuDetail[] {
-  if (!Array.isArray(value)) return false;
-  return value.every((detail: unknown) =>
-    hasFieldTypes(detail, { reason: "string", fu: "number" }),
-  );
-}
-
 /**
  * sessionStorage から取得した値が FuQuestionResult として妥当か検証する
  * 合計符問題結果バリデーション
  */
-function isValidQuestionResult(value: unknown): value is FuQuestionResult {
-  if (
-    !hasFieldTypes(value, {
-      tehai: "string",
-      agariHai: "string",
-      bakaze: "string",
-      jikaze: "string",
-      isTsumo: "boolean",
-      correctFu: "number",
-      userFu: "number",
-      isCorrect: "boolean",
-    })
-  ) {
-    return false;
-  }
-  return isValidFuDetails(Reflect.get(value, "fuDetails"));
-}
+const questionResultSchema: z.ZodType<FuQuestionResult> = z.object({
+  tehai: z.string(),
+  agariHai: z.string(),
+  bakaze: z.string(),
+  jikaze: z.string(),
+  isTsumo: z.boolean(),
+  correctFu: z.number(),
+  userFu: z.number(),
+  isCorrect: z.boolean(),
+  fuDetails: z.array(fuDetailSchema),
+});
 
 /**
  * sessionStorage から問題結果を安全にパースする
@@ -98,6 +86,5 @@ function isValidQuestionResult(value: unknown): value is FuQuestionResult {
  */
 export const parseFuQuestionResults: (
   raw: string | undefined,
-) => readonly FuQuestionResult[] = createSessionStorageParser(
-  isValidQuestionResult,
-);
+) => readonly FuQuestionResult[] =
+  createSessionStorageParser(questionResultSchema);

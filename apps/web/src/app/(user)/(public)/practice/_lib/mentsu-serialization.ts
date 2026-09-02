@@ -1,13 +1,8 @@
-import {
-  FuroType,
-  MentsuType,
-  Tacha,
-  haisToMspz,
-  parseHais,
-} from "@mahjong-scoring/core";
+import { MentsuType, haisToMspz, parseHais } from "@mahjong-scoring/core";
 import type { CompletedMentsu, Furo, HaiKindId } from "@mahjong-scoring/core";
+import { z } from "zod";
 
-import { hasFieldTypes, isRecord } from "./shape-guards";
+import { completedMentsuTypeSchema, furoSchema } from "./result-schemas";
 
 /**
  * 面子の保存形
@@ -72,48 +67,13 @@ export function buildMentsu(
 }
 
 /**
- * 完成面子の種別。未完成面子（対子・塔子）は和了形の一部として出題されない
- */
-const COMPLETED_MENTSU_TYPES: readonly unknown[] = [
-  MentsuType.Shuntsu,
-  MentsuType.Koutsu,
-  MentsuType.Kantsu,
-];
-
-/** 値が完成面子の種別として妥当か検証する */
-export function isCompletedMentsuType(value: unknown): value is MentsuType {
-  return COMPLETED_MENTSU_TYPES.includes(value);
-}
-
-/** 値が Furo として妥当か検証する */
-export function isValidFuro(value: unknown): value is Furo {
-  if (!isRecord(value)) return false;
-  return (
-    Object.values<unknown>(FuroType).includes(Reflect.get(value, "type")) &&
-    Object.values<unknown>(Tacha).includes(Reflect.get(value, "from"))
-  );
-}
-
-/**
- * 任意フィールドの furo が妥当か検証する
- * 副露フィールド検証
+ * 値が SerializedMentsu として妥当か検証するスキーマ
+ * 面子保存形スキーマ
  *
- * 鳴いていない面子は furo を持たないため、無い場合も妥当とする。
+ * 鳴いていない面子は `furo` を持たないため任意フィールドとして見る。
  */
-export function hasValidOptionalFuro(value: unknown): boolean {
-  const furo: unknown = isRecord(value)
-    ? Reflect.get(value, "furo")
-    : undefined;
-  return furo === undefined || isValidFuro(furo);
-}
-
-/** 値が SerializedMentsu として妥当か検証する */
-export function isValidSerializedMentsu(
-  value: unknown,
-): value is SerializedMentsu {
-  if (!hasFieldTypes(value, { tiles: "string" })) return false;
-  return (
-    isCompletedMentsuType(Reflect.get(value, "type")) &&
-    hasValidOptionalFuro(value)
-  );
-}
+export const serializedMentsuSchema: z.ZodType<SerializedMentsu> = z.object({
+  tiles: z.string(),
+  type: completedMentsuTypeSchema,
+  furo: furoSchema.optional(),
+});

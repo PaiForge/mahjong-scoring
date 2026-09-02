@@ -3,8 +3,9 @@ import type { YakuQuestion } from "@mahjong-scoring/core";
 
 import { resultStorageKeyFor } from "@/lib/db/practice-menu-types";
 
+import { z } from "zod";
+
 import { createSessionStorageParser } from "../../_lib/create-session-storage-parser";
-import { hasFieldTypes, isStringArray } from "../../_lib/shape-guards";
 
 /** sessionStorage に保存する際のキー */
 export const RESULT_STORAGE_KEY = resultStorageKeyFor("yaku");
@@ -81,26 +82,18 @@ export function toQuestionResult(
  * sessionStorage から取得した値が YakuQuestionResult として妥当か検証する
  * 役選択問題結果バリデーション
  */
-function isValidQuestionResult(value: unknown): value is YakuQuestionResult {
-  if (
-    !hasFieldTypes(value, {
-      tehai: "string",
-      bakaze: "string",
-      jikaze: "string",
-      agariHai: "string",
-      isTsumo: "boolean",
-      isRiichi: "boolean",
-      isCorrect: "boolean",
-    })
-  ) {
-    return false;
-  }
-  return (
-    isStringArray(Reflect.get(value, "doraMarkers")) &&
-    isStringArray(Reflect.get(value, "correctYakuNames")) &&
-    isStringArray(Reflect.get(value, "selectedYakuNames"))
-  );
-}
+const questionResultSchema: z.ZodType<YakuQuestionResult> = z.object({
+  tehai: z.string(),
+  bakaze: z.string(),
+  jikaze: z.string(),
+  agariHai: z.string(),
+  isTsumo: z.boolean(),
+  isRiichi: z.boolean(),
+  doraMarkers: z.array(z.string()),
+  correctYakuNames: z.array(z.string()),
+  selectedYakuNames: z.array(z.string()),
+  isCorrect: z.boolean(),
+});
 
 /**
  * sessionStorage から問題結果を安全にパースする
@@ -108,6 +101,5 @@ function isValidQuestionResult(value: unknown): value is YakuQuestionResult {
  */
 export const parseYakuResults: (
   raw: string | undefined,
-) => readonly YakuQuestionResult[] = createSessionStorageParser(
-  isValidQuestionResult,
-);
+) => readonly YakuQuestionResult[] =
+  createSessionStorageParser(questionResultSchema);

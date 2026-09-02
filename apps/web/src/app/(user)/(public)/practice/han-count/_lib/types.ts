@@ -3,14 +3,15 @@ import type { ScoreQuestion, YakuDetail } from "@mahjong-scoring/core";
 
 import { resultStorageKeyFor } from "@/lib/db/practice-menu-types";
 
+import { z } from "zod";
+
 import { createSessionStorageParser } from "../../_lib/create-session-storage-parser";
+import { yakuDetailSchema } from "../../_lib/result-schemas";
 import type { ScoreQuestionSnapshot } from "../../_lib/score-question-result";
 import {
-  isValidScoreQuestionSnapshot,
-  isValidYakuDetails,
+  scoreQuestionSnapshotSchema,
   toScoreQuestionSnapshot,
 } from "../../_lib/score-question-result";
-import { hasFieldTypes } from "../../_lib/shape-guards";
 
 /** sessionStorage に保存する際のキー */
 export const RESULT_STORAGE_KEY = resultStorageKeyFor("han-count");
@@ -80,37 +81,33 @@ export function toHanCountQuestionResult(
 }
 
 /**
- * 値が HanCountQuestionSnapshot として妥当か検証する
- * 翻数出題スナップショットバリデーション
+ * 値が HanCountQuestionSnapshot として妥当か検証するスキーマ
+ * 翻数出題スナップショットスキーマ
+ *
+ * 点数系共通のスナップショットに、この練習だけが必須にしている 2 つ
+ * （ツモ・ロンの別と役の内訳）を重ねる。
  */
-function isValidQuestionSnapshot(value: unknown): boolean {
-  if (!isValidScoreQuestionSnapshot(value)) return false;
-  return (
-    hasFieldTypes(value, { isTsumo: "boolean" }) &&
-    isValidYakuDetails(Reflect.get(value, "yakuDetails"))
+const questionSnapshotSchema: z.ZodType<HanCountQuestionSnapshot> =
+  z.intersection(
+    scoreQuestionSnapshotSchema,
+    z.object({
+      isTsumo: z.boolean(),
+      yakuDetails: z.array(yakuDetailSchema),
+    }),
   );
-}
 
 /**
  * sessionStorage から取得した値が HanCountQuestionResult として妥当か検証する
  * 翻数問題結果バリデーション
+ *
+ * 出題スナップショットは保存を始める前の旧データに存在しないため任意。
  */
-function isValidQuestionResult(
-  value: unknown,
-): value is HanCountQuestionResult {
-  if (
-    !hasFieldTypes(value, {
-      correctHan: "number",
-      userHan: "number",
-      isCorrect: "boolean",
-    })
-  ) {
-    return false;
-  }
-  // 出題スナップショットは保存を始める前の旧データに存在しないため任意
-  const question: unknown = Reflect.get(value, "question");
-  return question === undefined || isValidQuestionSnapshot(question);
-}
+const questionResultSchema: z.ZodType<HanCountQuestionResult> = z.object({
+  correctHan: z.number(),
+  userHan: z.number(),
+  isCorrect: z.boolean(),
+  question: questionSnapshotSchema.optional(),
+});
 
 /**
  * sessionStorage から問題結果を安全にパースする
@@ -118,6 +115,5 @@ function isValidQuestionResult(
  */
 export const parseHanCountResults: (
   raw: string | undefined,
-) => readonly HanCountQuestionResult[] = createSessionStorageParser(
-  isValidQuestionResult,
-);
+) => readonly HanCountQuestionResult[] =
+  createSessionStorageParser(questionResultSchema);
