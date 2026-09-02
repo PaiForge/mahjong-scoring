@@ -40,23 +40,18 @@ const EXAMPLE_HAN = 4;
 const SECOND_EXAMPLE = { fu: 70, han: 1 } as const;
 
 /**
- * ツモは子のロンを半分ずつにすれば出る — 点数記憶術セクション第3章
+ * ツモは子のロンを半分ずつにすれば出る — 点数記憶術セクション第2章
  */
 export async function RonToTsumoGuide() {
   const t = await getTranslations("ronToTsumo.learn");
 
   return (
     <div className="space-y-10">
-      {/* 前章の「2倍するとずれる」を受けて、逆向きなら崩れないことを示す */}
+      {/* ツモの2段表記の導入と、ロンとの比。記憶の連鎖はここから始まる */}
       <section className="space-y-4">
         <SectionTitle>{t("divideTitle")}</SectionTitle>
-        <GuideParagraph>
-          {t.rich("divideBody1", {
-            link: () => <ChapterLink slug="tsumo-payments" />,
-          })}
-        </GuideParagraph>
+        <GuideParagraph preLine>{t("divideBody1")}</GuideParagraph>
         <GuideParagraph preLine>{t("divideBody2")}</GuideParagraph>
-        <GuideParagraph preLine>{t("divideBody3")}</GuideParagraph>
 
         <BlockMath
           latex={String.raw`\text{子のロン} : \text{親が出す} : \text{子が出す} = 4 : 2 : 1`}
@@ -68,6 +63,7 @@ export async function RonToTsumoGuide() {
           })}
         </GuideNote>
 
+        <GuideParagraph preLine>{t("divideBody3")}</GuideParagraph>
         <GuideParagraph preLine>{t("divideBody4")}</GuideParagraph>
       </section>
 
