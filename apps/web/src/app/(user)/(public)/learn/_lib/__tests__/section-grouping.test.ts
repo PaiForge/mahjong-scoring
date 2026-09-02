@@ -107,8 +107,8 @@ describe("section grouping", () => {
       grouped.get("memorization")?.map((c) => c.slug) ?? [];
     expect(memorizationSlugs).toEqual([
       "fu-doubling",
-      "tsumo-payments",
       "ron-to-tsumo",
+      "tsumo-payments",
     ]);
   });
 });
