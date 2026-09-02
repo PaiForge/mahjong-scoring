@@ -130,6 +130,23 @@ export function ChallengeShell({
   // 練習開始直後、グローバルヘッダ分のオフセットを解消して盤面を画面上部へ表示する
   useScrollToElement(PRACTICE_SCROLL_ANCHOR_ID);
 
+  // 終了して結果スケルトンに差し替わる瞬間に、ページ先頭へ戻す。
+  //
+  // セッション中は上のスクロールでグローバルヘッダとタイトル帯（約 128px）を
+  // 画面外へ送っている。その位置のまま結果スケルトンへ差し替わると、直後の
+  // 結果ページへの遷移で Next がページ先頭までスクロールを戻すため、ほぼ同じ
+  // 見た目のスケルトンがヘッダのぶんだけ下へ飛んだように見える。スケルトンに
+  // 切り替わる時点で戻しておけば、遷移の前後で位置が一致して飛ばない。
+  //
+  // 戻す先を結果ページ側に合わせる（ヘッダを画面外に残したまま遷移する）のでは
+  // なく先頭にするのは、結果ページが読む画面で、タイトル帯とパンくずが見えて
+  // いる状態が着地点として正しいため。
+  const isFinished = gameSession.isFinished;
+  useEffect(() => {
+    if (!isFinished) return;
+    window.scrollTo({ top: 0, behavior: "instant" });
+  }, [isFinished]);
+
   const wasPausedBeforeQuitRef = useRef(false);
 
   const handleQuitOpen = useCallback(() => {
