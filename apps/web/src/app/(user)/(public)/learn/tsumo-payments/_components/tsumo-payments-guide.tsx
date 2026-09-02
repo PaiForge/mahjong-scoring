@@ -39,17 +39,21 @@ const EXAMPLE_HAN = 3;
 const SECOND_EXAMPLE = { fu: 40, han: 2 } as const;
 
 /**
- * ツモの表は子ツモだけ覚えればいい — 点数記憶術セクション第2章
+ * 親ツモの列は覚えなくていい — 点数記憶術セクション第3章
  */
 export async function TsumoPaymentsGuide() {
   const t = await getTranslations("tsumoPayments.learn");
 
   return (
     <div className="space-y-10">
-      {/* 子ツモの2つの数字の関係。切り上げで崩れることまで正直に書く */}
+      {/* 前章から受け取る値の確認。切り上げで崩れることまで正直に書く */}
       <section className="space-y-4">
         <SectionTitle>{t("splitTitle")}</SectionTitle>
-        <GuideParagraph preLine>{t("splitBody1")}</GuideParagraph>
+        <GuideParagraph preLine>
+          {t.rich("splitBody1", {
+            link: () => <ChapterLink slug="ron-to-tsumo" />,
+          })}
+        </GuideParagraph>
         <GuideParagraph preLine>{t("splitBody2")}</GuideParagraph>
 
         <TsumoSplitTable fu={EXAMPLE_FU} caption={t("splitTableCaption")} />

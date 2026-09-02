@@ -213,9 +213,18 @@ const CURRICULUM_REGISTRY = [
     i18nKey: "learnCurriculum.chapters.fuDoubling",
   },
   {
-    slug: "tsumo-payments",
+    slug: "ron-to-tsumo",
     section: "memorization",
     order: 210,
+    // 子ツモに絞った点数表早引き。この章が導出できるようにするのはまさに
+    // 子ツモの2つの数字で、そのセルを引く練習がそのまま腕試しになる
+    practiceHrefs: [scoreTablePracticeHref({ roles: ["ko"], wins: ["tsumo"] })],
+    i18nKey: "learnCurriculum.chapters.ronToTsumo",
+  },
+  {
+    slug: "tsumo-payments",
+    section: "memorization",
+    order: 220,
     // ツモに絞った点数表早引き。この章が要らなくする暗記はまさに親ツモの列で、
     // ツモのセルを引く練習がそのまま腕試しになる
     practiceHrefs: [scoreTablePracticeHref({ wins: ["tsumo"] })],
