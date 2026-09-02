@@ -125,6 +125,7 @@ export { getKazeName, isOya } from "./core/kaze";
 export { getDoraFromIndicator } from "./core/dora";
 export {
   calculateBasePoints,
+  ceilTo100,
   calculateKoScore,
   calculateOyaScore,
   koScoreFromBasePoints,
