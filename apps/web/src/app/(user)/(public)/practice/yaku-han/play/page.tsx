@@ -3,7 +3,7 @@ import { createPracticePlayMetadata } from "../../_lib/metadata";
 import { YakuHanPlayView } from "../_components/yaku-han-play-view";
 
 export async function generateMetadata(): Promise<Metadata> {
-  return createPracticePlayMetadata("yakuHanChallenge");
+  return createPracticePlayMetadata("yaku-han");
 }
 
 /**

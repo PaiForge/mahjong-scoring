@@ -3,7 +3,7 @@ import { createPracticePlayMetadata } from "../../_lib/metadata";
 import { HanCountPlayView } from "../_components/han-count-play-view";
 
 export async function generateMetadata(): Promise<Metadata> {
-  return createPracticePlayMetadata("hanCountChallenge");
+  return createPracticePlayMetadata("han-count");
 }
 
 /**

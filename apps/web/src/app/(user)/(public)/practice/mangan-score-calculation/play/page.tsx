@@ -4,7 +4,7 @@ import { createPracticePlayMetadata } from "../../_lib/metadata";
 import { ManganScoreCalculationPlayView } from "../_components/mangan-score-calculation-play-view";
 
 export async function generateMetadata(): Promise<Metadata> {
-  return createPracticePlayMetadata("manganScoreCalculationChallenge");
+  return createPracticePlayMetadata("mangan-score-calculation");
 }
 
 /**

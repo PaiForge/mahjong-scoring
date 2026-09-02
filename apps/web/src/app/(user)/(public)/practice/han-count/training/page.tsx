@@ -16,7 +16,7 @@ import { createPracticeTrainingMetadata } from "../../_lib/metadata";
 import { HanCountTrainingView } from "../_components/han-count-training-view";
 
 export async function generateMetadata(): Promise<Metadata> {
-  return createPracticeTrainingMetadata("hanCountChallenge");
+  return createPracticeTrainingMetadata("han-count");
 }
 
 export default function HanCountTrainingPage() {

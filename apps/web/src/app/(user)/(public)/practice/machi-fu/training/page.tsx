@@ -16,7 +16,7 @@ import { createPracticeTrainingMetadata } from "../../_lib/metadata";
 import { MachiFuTrainingView } from "../_components/machi-fu-training-view";
 
 export async function generateMetadata(): Promise<Metadata> {
-  return createPracticeTrainingMetadata("machiFu");
+  return createPracticeTrainingMetadata("machi-fu");
 }
 
 export default function MachiFuTrainingPage() {

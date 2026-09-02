@@ -3,7 +3,7 @@ import { createPracticePlayMetadata } from "../../_lib/metadata";
 import { ScoreTablePlayView } from "../_components/score-table-play-view";
 
 export async function generateMetadata(): Promise<Metadata> {
-  return createPracticePlayMetadata("scoreTableChallenge");
+  return createPracticePlayMetadata("score-table");
 }
 
 /**

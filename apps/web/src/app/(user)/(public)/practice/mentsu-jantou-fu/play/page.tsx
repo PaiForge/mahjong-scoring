@@ -3,7 +3,7 @@ import { createPracticePlayMetadata } from "../../_lib/metadata";
 import { MentsuJantouFuPlayView } from "../_components/mentsu-jantou-fu-play-view";
 
 export async function generateMetadata(): Promise<Metadata> {
-  return createPracticePlayMetadata("mentsuJantouFu");
+  return createPracticePlayMetadata("mentsu-jantou-fu");
 }
 
 /**

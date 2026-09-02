@@ -16,7 +16,7 @@ import { createPracticeTrainingMetadata } from "../../_lib/metadata";
 import { MentsuJantouFuTrainingView } from "../_components/mentsu-jantou-fu-training-view";
 
 export async function generateMetadata(): Promise<Metadata> {
-  return createPracticeTrainingMetadata("mentsuJantouFu");
+  return createPracticeTrainingMetadata("mentsu-jantou-fu");
 }
 
 export default function MentsuJantouFuTrainingPage() {

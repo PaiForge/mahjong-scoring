@@ -16,7 +16,7 @@ import { createPracticeTrainingMetadata } from "../../_lib/metadata";
 import { ScoreCalculationTrainingView } from "../_components/score-calculation-training-view";
 
 export async function generateMetadata(): Promise<Metadata> {
-  return createPracticeTrainingMetadata("scoreCalculationChallenge");
+  return createPracticeTrainingMetadata("score-calculation");
 }
 
 export default function ScoreCalculationTrainingPage() {

@@ -49,9 +49,35 @@ export async function createPracticeMetadata(
  * タイトルのみ + noindex。説明ページ（canonical を持つ側）と検索結果で
  * 競合させないための指定で、play ページはすべてこれを使うこと。
  *
- * @param namespace - 翻訳名前空間（例: "jantouFu"）
+ * 辞書ネームスペースは `createPracticeMetadata` と同じくレジストリから引く。
+ * play ページの View（`createChallengePlayView`）も slug を持っているため、
+ * namespace を別に受け取ると同じ練習の識別子が 1 ページに 2 つ並び、
+ * コピペで「View は雀頭・タイトルは待ち」の食い違いが typecheck を通る。
+ *
+ * @param slug - 練習のスラッグ
  */
 export async function createPracticePlayMetadata(
+  slug: PracticeMenuSlug,
+): Promise<Metadata> {
+  return {
+    ...(await createTitleOnlyMetadata(practiceMenuBySlug(slug).namespace)),
+    robots: PRACTICE_SUBPAGE_ROBOTS,
+  };
+}
+
+/**
+ * レジストリに載らない自由練習のプレイページの metadata を生成する。
+ * 自由練習プレイページメタデータ生成
+ *
+ * `/practice/score` 専用。この練習は成績を記録せずランキングにも載らないため
+ * `PRACTICE_MENU_REGISTRY` に無く、slug から namespace を引けない。
+ *
+ * 新しい練習でこれを使わないこと — 記録対象の練習はレジストリに 1 行足して
+ * `createPracticePlayMetadata` を使う。
+ *
+ * @param namespace - 翻訳名前空間（例: "score"）
+ */
+export async function createFreePracticePlayMetadata(
   namespace: string,
 ): Promise<Metadata> {
   return {
@@ -65,14 +91,16 @@ export async function createPracticePlayMetadata(
  * トレーニングページメタデータ生成
  *
  * タイトル + 説明 + noindex。training ページはすべてこれを使うこと。
+ * 辞書ネームスペースはレジストリから引く（理由は
+ * {@link createPracticePlayMetadata} と同じ）。
  *
- * @param namespace - 翻訳名前空間（例: "jantouFu"）
+ * @param slug - 練習のスラッグ
  */
 export async function createPracticeTrainingMetadata(
-  namespace: string,
+  slug: PracticeMenuSlug,
 ): Promise<Metadata> {
   return {
-    ...(await createNamespaceMetadata(namespace)),
+    ...(await createNamespaceMetadata(practiceMenuBySlug(slug).namespace)),
     robots: PRACTICE_SUBPAGE_ROBOTS,
   };
 }

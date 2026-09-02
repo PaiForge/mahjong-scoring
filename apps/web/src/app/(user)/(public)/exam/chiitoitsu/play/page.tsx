@@ -1,10 +1,12 @@
 import type { Metadata } from "next";
 import { createPracticePlayMetadata } from "@/app/(user)/(public)/practice/_lib/metadata";
-import { redirectUnlessExamEligible } from "../../_lib/exam-guard";
+import { createExamPlayPage } from "../../_lib/create-exam-play-page";
 import { ChiitoitsuExamPlayView } from "../_components/chiitoitsu-exam-play-view";
 
+const SLUG = "chiitoitsu-exam" as const;
+
 export async function generateMetadata(): Promise<Metadata> {
-  return createPracticePlayMetadata("chiitoitsuExamChallenge");
+  return createPracticePlayMetadata(SLUG);
 }
 
 /**
@@ -25,7 +27,4 @@ export async function generateMetadata(): Promise<Metadata> {
 // 受験ガードが cookie を読むため動的レンダリングを明示する
 export const dynamic = "force-dynamic";
 
-export default async function ChiitoitsuExamPlayPage() {
-  await redirectUnlessExamEligible("chiitoitsu-exam");
-  return <ChiitoitsuExamPlayView />;
-}
+export default createExamPlayPage(ChiitoitsuExamPlayView, { slug: SLUG });
