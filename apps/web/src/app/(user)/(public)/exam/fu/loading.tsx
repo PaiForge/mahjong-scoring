@@ -5,6 +5,9 @@ import { PracticeLoading } from "@/app/(user)/(public)/practice/_components/prac
  * slug は同ディレクトリの page.tsx と揃える。
  */
 export default function Loading() {
-  // 合計符の試験のデモだけ手牌の下に符の内訳が付き、他の試験より高い
-  return <PracticeLoading slug="fu-exam" demoHeight="tall" />;
+  // 合計符の試験だけ、説明ページのデモは符の内訳が付き、出題画面は選択肢が
+  // 11 個並ぶ。どちらも他の試験より高い
+  return (
+    <PracticeLoading slug="fu-exam" demoHeight="tall" boardHeight="tall" />
+  );
 }

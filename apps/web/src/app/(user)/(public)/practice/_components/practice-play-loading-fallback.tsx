@@ -7,15 +7,24 @@ import { SkeletonBar } from "@/app/_components/skeleton-bar";
  * 盤面エリア高さ
  *
  * `ChallengeShell` の中身（手牌の盤面 + 設問 + 選択肢）の高さ。牌の画像と
- * 選択肢の数で決まり、行数や文字数からは導けないため実測値を持つ
- * （2026-08 に幅 512px の列で計測: 満貫以上 347px / 七対子 356px /
- * 合計符 489px）。真ん中を取っている。
+ * 選択肢の数で決まり、行数や文字数からは導けないため実測値を名前で持つ
+ * （2026-09 に幅 512px の列で計測）。
+ *
+ * - `standard`: 点数を select で答える試験（満貫以上 356px / 七対子 356px /
+ *   平和 356px / 符+点数 342px / 点数 350px）。真ん中を取っている
+ * - `tall`: 合計符の試験。選択肢が 11 個並ぶため実測 478px と一段高い
  *
  * この 1 箇所がずれてもページ全体の高さは動かない。play 画面の
  * `ContentContainer` は `fillViewport` で、中身に関わらず画面の高さまで
- * 伸びるため（実測 1081px で一定）。ずれるのはフッターの縦位置だけ。
+ * 伸びるため。ずれるのはフッターの縦位置だけ。
  */
-const BOARD_AREA_HEIGHT_CLASS = "h-[356px]";
+const BOARD_AREA_HEIGHT = {
+  standard: "h-[356px]",
+  tall: "h-[478px]",
+} as const;
+
+/** 盤面エリアの高さの種類 */
+export type PlayBoardHeight = keyof typeof BOARD_AREA_HEIGHT;
 
 /**
  * 状態バーの高さ（`ChallengeShell` の実測 48px）。円形タイマー
@@ -34,6 +43,8 @@ interface PracticePlayLoadingFallbackProps {
    * 実物より 2 個多い残機を見せてしまう。
    */
   readonly mistakeLimit: number;
+  /** 盤面エリアの高さ（既定 standard。{@link BOARD_AREA_HEIGHT} 参照） */
+  readonly boardHeight?: PlayBoardHeight;
 }
 
 /**
@@ -59,6 +70,7 @@ interface PracticePlayLoadingFallbackProps {
 export function PracticePlayLoadingFallback({
   practiceTitle,
   mistakeLimit,
+  boardHeight = "standard",
 }: PracticePlayLoadingFallbackProps) {
   return (
     <ContentContainer fillViewport>
@@ -81,7 +93,7 @@ export function PracticePlayLoadingFallback({
         {/* 盤面と選択肢 */}
         <SkeletonBar
           radius="xl"
-          className={`${BOARD_AREA_HEIGHT_CLASS} w-full`}
+          className={`${BOARD_AREA_HEIGHT[boardHeight]} w-full`}
           tone={100}
         />
 
