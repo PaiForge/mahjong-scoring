@@ -105,7 +105,11 @@ export const DEMO_CHIITOITSU_HAND: DemoHand = {
   isTsumo: false,
 };
 
-interface DemoScoreQuestionOptions {
+/**
+ * 遊び方デモ用の出題を組み立てるための指定
+ * デモ出題オプション
+ */
+export interface DemoScoreQuestionOptions {
   /**
    * ドラ表示牌。`ManZu1` なら二萬がドラで手牌に乗り、`SouZu1` なら二索が
    * ドラで手牌に乗らない。デモで見せたい翻数に合わせて選ぶ。
