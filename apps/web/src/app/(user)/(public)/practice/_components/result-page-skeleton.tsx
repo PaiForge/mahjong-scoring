@@ -25,11 +25,13 @@ interface ResultPageSkeletonProps {
    */
   readonly hasSetup?: boolean;
   /**
-   * 結果ページがリーダーボードプレビューを出すか。
-   * ランキングを持たない練習（昇級試験）では false で、枠ごと出さない
-   * （出すと実体に替わった瞬間にページが 310px 縮む）。
+   * 結果ページの種類（既定 "practice"）。
+   *
+   * 昇級試験（"exam"）は「結果」節が合否サマリで、経験値 / 過去記録の節と
+   * ランキングプレビューを持たない。実体に無い枠を描くと、替わった瞬間に
+   * ページがその高さぶん縮む。
    */
-  readonly hasLeaderboard?: boolean;
+  readonly variant?: "practice" | "exam";
 }
 
 /**
@@ -51,33 +53,24 @@ export function ResultPageSkeleton({
   breadcrumb,
   problemCount = 0,
   hasSetup = false,
-  hasLeaderboard = true,
+  variant = "practice",
 }: ResultPageSkeletonProps) {
+  const isExam = variant === "exam";
   return (
     <ContentContainer breadcrumb={breadcrumb}>
       <PageTitle>{practiceTitle}</PageTitle>
 
       {/* 結果ページ（ResultView）と同じ space-y-8 で間隔を揃え、遷移時のズレを防ぐ */}
       <div className="space-y-8">
-        {/* 「結果」見出し + スコアバー（ResultScoreBar と同じ構造） */}
+        {/* 「結果」見出し + 中身。練習はスコアバー（ResultScoreBar）、
+            試験は合否サマリ（ExamResultSummary）と同じ構造 */}
         <section aria-hidden="true" className="space-y-3">
           <SectionTitleSkeleton />
-          <div className="w-full space-y-3">
-            <SkeletonBar className="h-8 w-full" tone={100} />
-            {/* 凡例（正解 / 不正解）と正答率。実物と同じ flex-wrap にして
-                狭い幅での折り返し（＝高さの増加）まで一致させる。 */}
-            <div className="flex flex-wrap items-center justify-between gap-3">
-              <div className="flex items-center gap-4">
-                <SkeletonBar className="h-4 w-20" />
-                <SkeletonBar className="h-4 w-24" />
-              </div>
-              <SkeletonBar className="h-4 w-16" />
-            </div>
-          </div>
+          {isExam ? <ExamResultSummarySkeleton /> : <ResultScoreBarSkeleton />}
         </section>
 
-        {/* 経験値 / 登録 CTA */}
-        <ResultBlockSkeleton />
+        {/* 経験値 / 登録 CTA（試験は持たない） */}
+        {!isExam && <ResultBlockSkeleton />}
 
         {/* アクションボタンと練習一覧へのリンク。ResultView と同じ入れ子で組む —
             内側 gap-3 がボタン同士のリズム、外側 SUB_LINK_GAP が「ボタン群 →
@@ -99,9 +92,60 @@ export function ResultPageSkeleton({
             children スロットとしてアクションボタンとリーダーボードの間に入る。 */}
         <ProblemListSkeleton count={problemCount} />
 
-        {/* リーダーボードプレビュー（ランキングを持つ練習のみ） */}
-        {hasLeaderboard && <LeaderboardSkeleton />}
+        {/* リーダーボードプレビュー（試験は持たない） */}
+        {!isExam && <LeaderboardSkeleton />}
       </div>
     </ContentContainer>
+  );
+}
+
+/** `ResultScoreBar` の placeholder（棒 + 凡例 + 正答率） */
+function ResultScoreBarSkeleton() {
+  return (
+    <div className="w-full space-y-3">
+      <SkeletonBar className="h-8 w-full" tone={100} />
+      {/* 凡例（正解 / 不正解）と正答率。実物と同じ flex-wrap にして
+          狭い幅での折り返し（＝高さの増加）まで一致させる。 */}
+      <div className="flex flex-wrap items-center justify-between gap-3">
+        <div className="flex items-center gap-4">
+          <SkeletonBar className="h-4 w-20" />
+          <SkeletonBar className="h-4 w-24" />
+        </div>
+        <SkeletonBar className="h-4 w-16" />
+      </div>
+    </div>
+  );
+}
+
+/**
+ * `ExamResultSummary` の placeholder
+ *
+ * 合否パネル（3 行の中で一番高い不合格時の形: 合否 + 正解数の行 +
+ * 「あと N 問」）、正解数と平均回答時間の 2 行、終わり方の 1 行。合格時は
+ * 「あと N 問」が無く 28px 低いが、実体はその時点で確定しているので
+ * 高い方に合わせる（縮む方向のずれは伸びる方向より目立たない）。
+ * 実物の枠と面（success / destructive）は写さず灰色にする
+ * （`ExamIntroSkeleton` と同じ理由）。
+ */
+function ExamResultSummarySkeleton() {
+  return (
+    <div className="space-y-4">
+      <div className="rounded-xl border-3 border-surface-100 bg-surface-50 p-5">
+        <div className="flex flex-col items-center">
+          <SkeletonBar className="h-8 w-20" tone={100} />
+          <SkeletonBar className="mt-1 h-5 w-48 max-w-full" tone={100} />
+          <SkeletonBar className="mt-2 h-7 w-24" tone={100} />
+        </div>
+      </div>
+      <div className="space-y-2">
+        {Array.from({ length: 2 }).map((_, i) => (
+          <div key={i} className="flex items-center justify-between">
+            <SkeletonBar className="h-5 w-24" tone={100} />
+            <SkeletonBar className="h-5 w-16" tone={100} />
+          </div>
+        ))}
+      </div>
+      <SkeletonBar className="h-4 w-32" tone={100} />
+    </div>
   );
 }
