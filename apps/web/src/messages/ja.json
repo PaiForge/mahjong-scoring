@@ -332,6 +332,11 @@
       "newBest": "自己ベスト更新！",
       "firstRecord": "今回が最初の記録です。次回からは過去の自分の記録と比較できます。",
       "viewMyRecords": "マイレコードで推移を見る"
+    },
+    "yakuBreakdown": {
+      "title": "翻数の内訳",
+      "total": "合計",
+      "han": "{count}翻"
     }
   },
   "examResult": {

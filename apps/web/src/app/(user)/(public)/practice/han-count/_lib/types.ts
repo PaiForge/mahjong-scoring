@@ -7,6 +7,7 @@ import { createSessionStorageParser } from "../../_lib/create-session-storage-pa
 import type { ScoreQuestionSnapshot } from "../../_lib/score-question-result";
 import {
   isValidScoreQuestionSnapshot,
+  isValidYakuDetails,
   toScoreQuestionSnapshot,
 } from "../../_lib/score-question-result";
 import { hasFieldTypes } from "../../_lib/shape-guards";
@@ -76,14 +77,6 @@ export function toHanCountQuestionResult(
       yakuDetails: question.yakuDetails ?? [],
     },
   };
-}
-
-/** 値が YakuDetail の配列として妥当か検証する */
-function isValidYakuDetails(value: unknown): value is readonly YakuDetail[] {
-  if (!Array.isArray(value)) return false;
-  return value.every((detail: unknown) =>
-    hasFieldTypes(detail, { name: "string", han: "number" }),
-  );
 }
 
 /**

@@ -3,9 +3,7 @@
 import { useTranslations } from "next-intl";
 import { YAKUMAN_HAN } from "@mahjong-scoring/core";
 import type { YakuDetail } from "@mahjong-scoring/core";
-import { useYakuOrder } from "@/app/_hooks/use-yaku-order-store";
-import { DetailTable } from "../../_components/detail-table";
-import { orderYakuDetails } from "../../_lib/order-yaku-details";
+import { YakuBreakdown } from "../../_components/yaku-breakdown";
 
 interface HanBreakdownProps {
   /** 役の内訳（ドラ・裏ドラを含む） */
@@ -15,47 +13,32 @@ interface HanBreakdownProps {
 }
 
 /**
- * 翻数の内訳表示
- * 翻内訳表示
+ * 翻数即答練習の翻数内訳表示
+ * 翻内訳表示（翻数即答）
  *
- * 回答後のフィードバックとして、成立していた役とその翻数、合計を示す。
- * 「何翻だったか」だけでは翻数の数え間違いを直せない — どの役を見落とし、
- * どの役を数えすぎたのかは内訳を並べて初めて分かる。
+ * 表そのものは点数系の問題別一覧と共通の {@link YakuBreakdown}。この練習だけが
+ * 持つのは役満への丸めの補足で、13翻に丸めた正解と内訳の合計が食い違うときに
+ * 「16翻 → 役満」と示す。
  *
- * 並びはライブラリが役を判定した順ではなく、役選択練習の選択肢と同じ順
- * （{@link orderYakuDetails}）。問題ごとに立直の現れる位置が変わると、
- * 結果を続けて読むときに目が迷う。
- *
- * 合計が正解と一致しない場合（例: 16翻 → 役満）は丸めの補足を出す。
+ * 合計が正解と食い違うのは役満への丸めだけ（翻数と内訳は出題側で揃えている。
+ * core の `han-consistency.test.ts` 参照）。それ以外で食い違ったら丸めの補足は
+ * 嘘になるので出さない。
  */
 export function HanBreakdown({ yakuDetails, correctHan }: HanBreakdownProps) {
   const t = useTranslations("hanCountChallenge");
-  const yakuOrder = useYakuOrder();
+  const tBreakdown = useTranslations("challenge.yakuBreakdown");
 
-  if (yakuDetails.length === 0) return undefined;
-
-  const ordered = orderYakuDetails(yakuDetails, yakuOrder);
-  const rawTotal = ordered.reduce((sum, detail) => sum + detail.han, 0);
-  // 内訳の合計と正解が食い違うのは役満への丸めだけ。それ以外で食い違ったら
-  // （役の判定と点数計算が別の解釈を採った手など）丸めの補足は嘘になるので出さない
+  const rawTotal = yakuDetails.reduce((sum, detail) => sum + detail.han, 0);
   const isClampedToYakuman =
     correctHan === YAKUMAN_HAN && rawTotal > correctHan;
 
   return (
-    <DetailTable
-      title={t("breakdownTitle")}
-      rows={ordered.map((detail) => ({
-        label: detail.name,
-        value: t("hanOption", { count: detail.han }),
-      }))}
-      total={{
-        label: t("breakdownTotal"),
-        value: t("hanOption", { count: rawTotal }),
-      }}
+    <YakuBreakdown
+      yakuDetails={yakuDetails}
       note={
         isClampedToYakuman ? (
           <>
-            {t("hanOption", { count: rawTotal })} &rarr; {t("yakuman")}（
+            {tBreakdown("han", { count: rawTotal })} &rarr; {t("yakuman")}（
             {t("yakumanNote")}）
           </>
         ) : undefined
