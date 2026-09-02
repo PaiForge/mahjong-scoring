@@ -120,10 +120,11 @@ function ResultScoreBarSkeleton() {
 /**
  * `ExamResultSummary` の placeholder
  *
- * 合否パネル（3 行の中で一番高い不合格時の形: 合否 + 正解数の行 +
- * 「あと N 問」）、正解数と平均回答時間の 2 行、終わり方の 1 行。合格時は
- * 「あと N 問」が無く 28px 低いが、実体はその時点で確定しているので
- * 高い方に合わせる（縮む方向のずれは伸びる方向より目立たない）。
+ * 一番高い形（時間切れで不合格）に合わせる: 合否パネルは合否 + 正解数の行 +
+ * 「あと N 問」、その下に正解数・平均回答時間・合格ペースの 3 行、終わり方の
+ * 1 行。実測（幅 390px）で時間切れ不合格 310px / 誤答で不合格 282px /
+ * 合格 246px。実体はその時点で確定しているので、伸びる方向のずれが出ない
+ * 高い方に合わせる（縮む方は伸びるより目立たない）。
  * 実物の枠と面（success / destructive）は写さず灰色にする
  * （`ExamIntroSkeleton` と同じ理由）。
  */
@@ -138,7 +139,7 @@ function ExamResultSummarySkeleton() {
         </div>
       </div>
       <div className="space-y-2">
-        {Array.from({ length: 2 }).map((_, i) => (
+        {Array.from({ length: 3 }).map((_, i) => (
           <div key={i} className="flex items-center justify-between">
             <SkeletonBar className="h-5 w-24" tone={100} />
             <SkeletonBar className="h-5 w-16" tone={100} />
