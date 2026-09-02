@@ -1,26 +1,31 @@
 import { ContentContainer } from "@/app/(user)/_components/content-container";
 import { PageTitle } from "@/app/(user)/_components/page-title";
 import { SkeletonBar } from "@/app/_components/skeleton-bar";
+import { useScrollToElement } from "../_hooks/use-scroll-to-element";
+import { PRACTICE_SCROLL_ANCHOR_ID } from "../_lib/scroll-anchor";
 
 /**
  * 盤面と選択肢のまとまりの高さ
  * 盤面エリア高さ
  *
  * `ChallengeShell` の中身（手牌の盤面 + 設問 + 選択肢）の高さ。牌の画像と
- * 選択肢の数で決まり、行数や文字数からは導けないため実測値を名前で持つ
- * （2026-09 に幅 512px の列で計測）。
+ * 選択肢の数で決まり、行数や文字数からは導けないため実測値を名前で持つ。
  *
- * - `standard`: 点数を select で答える試験（満貫以上 356px / 七対子 356px /
- *   平和 356px / 符+点数 342px / 点数 350px）。真ん中を取っている
- * - `tall`: 合計符の試験。選択肢が 11 個並ぶため実測 478px と一段高い
+ * 牌は列の幅に合わせて縮むため、高さは幅で変わる。狭い画面のぶんも持たないと
+ * モバイルで 20〜30px ずれるので、列が 358px になる <sm と 512px になる sm 以上の
+ * 2 点で測った値を持つ（2026-09 実測）。
+ *
+ * - `standard`: 点数を select で答える試験。<sm 326〜336px / sm 以上 347〜356px。
+ *   どちらも真ん中を取っている
+ * - `tall`: 合計符の試験。選択肢が 11 個並ぶため一段高い（<sm 458px / sm 以上 489px）
  *
  * この 1 箇所がずれてもページ全体の高さは動かない。play 画面の
  * `ContentContainer` は `fillViewport` で、中身に関わらず画面の高さまで
  * 伸びるため。ずれるのはフッターの縦位置だけ。
  */
 const BOARD_AREA_HEIGHT = {
-  standard: "h-[356px]",
-  tall: "h-[478px]",
+  standard: "h-[331px] sm:h-[351px]",
+  tall: "h-[458px] sm:h-[489px]",
 } as const;
 
 /** 盤面エリアの高さの種類 */
@@ -72,8 +77,14 @@ export function PracticePlayLoadingFallback({
   mistakeLimit,
   boardHeight = "standard",
 }: PracticePlayLoadingFallbackProps) {
+  // 実物（`ChallengeShell`）と同じ位置まで送っておく。ここで送らないと、
+  // 中身が届いた瞬間にグローバルヘッダとタイトル帯のぶん（実測 128px）
+  // 画面が跳ね上がる。URL のハッシュ（`#practice-session`）だけでは効かない —
+  // ストリーミングで後から現れる要素にブラウザはスクロールし直さない
+  useScrollToElement(PRACTICE_SCROLL_ANCHOR_ID);
+
   return (
-    <ContentContainer fillViewport>
+    <ContentContainer id={PRACTICE_SCROLL_ANCHOR_ID} fillViewport>
       <PageTitle>{practiceTitle}</PageTitle>
 
       <div className="mx-auto max-w-lg">
@@ -90,10 +101,14 @@ export function PracticePlayLoadingFallback({
           </div>
         </div>
 
-        {/* 盤面と選択肢 */}
+        {/* 盤面と選択肢。<sm では実物の盤面が白カードの左右パディング（p-4）を
+            打ち消して画面端まで広がる（`TehaiDisplay` の fullBleed）ため、
+            同じだけ外へ出して角も落とす。ここを内側に収めたままだと、
+            スケルトンの矩形だけ両端が 16px ずつ内側に立つ。
+            状態バーとの間隔（実測 16px）は盤面側の `mt-4` が持つ */}
         <SkeletonBar
-          radius="xl"
-          className={`${BOARD_AREA_HEIGHT[boardHeight]} w-full`}
+          radius="fullBleed"
+          className={`${BOARD_AREA_HEIGHT[boardHeight]} -mx-4 mt-4 w-auto sm:mx-0 sm:w-full`}
           tone={100}
         />
 

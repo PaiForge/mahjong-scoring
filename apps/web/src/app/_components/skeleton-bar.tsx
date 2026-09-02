@@ -32,6 +32,12 @@ const RADIUS_CLASS = {
   xl: "rounded-xl",
   /** pill・円（アバター、トグル、細いバー） */
   full: "rounded-full",
+  /**
+   * モバイルで画面端まで広がる盤面（`TehaiDisplay` の `fullBleed` と同じ姿）。
+   * 端に接する側の角を落とし、白カードの内側へ戻る sm 以上で xl に戻す。
+   * 幅を外へ出すのは呼び出し側（`-mx-4 sm:mx-0`）の仕事。
+   */
+  fullBleed: "rounded-none sm:rounded-xl",
 } as const;
 
 /** スケルトンの濃さ。数字が大きいほど濃い */
