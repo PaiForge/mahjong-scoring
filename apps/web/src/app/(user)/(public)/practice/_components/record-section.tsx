@@ -15,13 +15,6 @@ interface RecordSectionProps {
   readonly comparison: ScoreComparison | undefined;
   /** マイレコードへの導線で、この練習種別を選択した状態で開くために使う */
   readonly menuType: PracticeMenuType;
-  /**
-   * 過去記録との比較とマイレコードへの導線を出すか（既定 true）。
-   *
-   * 反復を前提としない練習（昇級試験）では false。試験の成果は段級位が表す
-   * ものなので、前回・ベストと並べて「伸ばす対象」に見せない。
-   */
-  readonly showHistory?: boolean;
 }
 
 /**
@@ -46,23 +39,20 @@ interface RecordSectionProps {
  * 場所であり、マイページを開かないと存在に気づけない機能への入口になる。
  * 見に行くだけの移動なのでボタンではなくテキストリンクにする。
  *
- * `showHistory` が false（昇級試験）のときは比較も導線も出さず、獲得経験値
- * だけが残る。マイレコードは試験を扱わないため、導線を残すと記録の無い
- * 種別を開かせることになる。
+ * 昇級試験の結果ページにはこのセクション自体が無い（EXP も過去記録も
+ * 持たないため。`createPracticeResultPage` 参照）。
  */
 export async function RecordSection({
   expInfo,
   comparison,
   menuType,
-  showHistory = true,
 }: RecordSectionProps) {
   const t = await getTranslations("challenge");
-  const history = showHistory ? comparison : undefined;
-  const { currentScore, previousBestScore, previousScore } = history ?? {};
+  const { currentScore, previousBestScore, previousScore } = comparison ?? {};
 
   const hasHistory =
     previousBestScore !== undefined || previousScore !== undefined;
-  const isFirstRecord = history !== undefined && !hasHistory;
+  const isFirstRecord = comparison !== undefined && !hasHistory;
   const isNewBest =
     currentScore !== undefined &&
     previousBestScore !== undefined &&
@@ -114,16 +104,14 @@ export async function RecordSection({
         </span>
       )}
 
-      {showHistory && (
-        <p>
-          <Link
-            href={`/mypage/challenges?menu=${menuType}`}
-            className={`text-sm ${TEXT_LINK_CLASSES}`}
-          >
-            {t("record.viewMyRecords")}
-          </Link>
-        </p>
-      )}
+      <p>
+        <Link
+          href={`/mypage/challenges?menu=${menuType}`}
+          className={`text-sm ${TEXT_LINK_CLASSES}`}
+        >
+          {t("record.viewMyRecords")}
+        </Link>
+      </p>
     </ResultBlockSection>
   );
 }

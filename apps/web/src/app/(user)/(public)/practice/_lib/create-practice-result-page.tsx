@@ -23,7 +23,8 @@ import { getScoreComparison } from "@/lib/db/score-comparison-queries";
 import { getOptionalUser } from "@/lib/auth";
 import { logExternalError } from "@/lib/log-error";
 
-import { isRankSlug } from "@/lib/ranks/registry";
+import { isRankSlug, rankRequiringMenu } from "@/lib/ranks/registry";
+import { ExamResultSummary } from "@/app/(user)/(public)/exam/_components/exam-result-summary";
 
 import { RecordSection } from "../_components/record-section";
 import { PromotionBanner } from "../_components/promotion-banner";
@@ -71,11 +72,18 @@ export interface PracticeResultViewProps {
    */
   readonly promotionBlock?: React.ReactNode;
   /**
+   * 「結果」節の中身の差し替え。省略時は正解 / 不正解の積み上げ棒
+   * （`ResultScoreBar`）。昇級試験は合否サマリ（`ExamResultSummary`）を渡す。
+   */
+  readonly summary?: React.ReactNode;
+  /**
    * 経験値セクション / 登録 CTA のブロック。
    * `<Suspense fallback={<ResultBlockSkeleton />}>` で包まれた
    * 非同期ツリーを Server 側で組み立てて渡す。
+   *
+   * EXP も過去記録も持たない練習（昇級試験）では undefined で、節ごと出さない。
    */
-  readonly resultBlock: React.ReactNode;
+  readonly resultBlock?: React.ReactNode;
   /**
    * リーダーボードプレビューのブロック。
    * `<Suspense fallback={<LeaderboardSkeleton />}>` で包まれた
@@ -150,11 +158,18 @@ export function createPracticeResultPage(
   config: ResultPageConfig,
 ) {
   const { slug } = config;
-  const { menuType, namespace } = practiceMenuBySlug(slug);
+  const { menuType, namespace, timeLimit } = practiceMenuBySlug(slug);
   // 昇級試験は「繰り返し伸ばす」種類の練習ではないため、成績を横に並べる
-  // 機能をどれも持たない。ランキングのプレビューも、過去記録との比較と
-  // マイレコードへの導線も出さない
-  const hasRecords = !isExamMenuType(menuType);
+  // 機能をどれも持たない。EXP も付与せず、ランキングのプレビューも、
+  // 過去記録との比較とマイレコードへの導線も出さない。代わりに「結果」節を
+  // 合否サマリに差し替える（合格ラインは段級位レジストリが持つ）
+  const isExam = isExamMenuType(menuType);
+  const examMinScore = isExam
+    ? rankRequiringMenu(menuType)?.requirement.minScore
+    : undefined;
+  if (isExam && examMinScore === undefined) {
+    throw new Error(`昇級試験 ${slug} の合格ラインが RANK_REGISTRY に無い`);
+  }
 
   return async function PracticeResultPage({
     searchParams,
@@ -183,8 +198,14 @@ export function createPracticeResultPage(
 
     const rawCorrect = resolvedSearchParams.correct;
     const rawTotal = resolvedSearchParams.total;
+    const rawTime = resolvedSearchParams.time;
     const correct = Number(typeof rawCorrect === "string" ? rawCorrect : 0);
     const total = Number(typeof rawTotal === "string" ? rawTotal : 0);
+    // 回答に使った時間（ms）。play 画面の `useFinishRedirect` が付ける
+    const elapsedMs = Number(typeof rawTime === "string" ? rawTime : 0);
+    const safeCorrect = Number.isFinite(correct) ? correct : 0;
+    const safeTotal = Number.isFinite(total) ? total : 0;
+    const safeElapsedMs = Number.isFinite(elapsedMs) ? elapsedMs : 0;
 
     return (
       <ResultView
@@ -192,8 +213,19 @@ export function createPracticeResultPage(
         playHref={practicePlayHref(slug)}
         introHref={practiceHref(slug)}
         settingsHref={practiceSetupHref(slug)}
-        correct={Number.isFinite(correct) ? correct : 0}
-        total={Number.isFinite(total) ? total : 0}
+        correct={safeCorrect}
+        total={safeTotal}
+        summary={
+          examMinScore !== undefined ? (
+            <ExamResultSummary
+              correct={safeCorrect}
+              total={safeTotal}
+              elapsedMs={safeElapsedMs}
+              minScore={examMinScore}
+              timeLimitSec={timeLimit}
+            />
+          ) : undefined
+        }
         promotionBlock={
           promotedSlugs.length > 0 ? (
             // バナーは付加情報のため fallback は出さない（解決後に現れる）
@@ -203,20 +235,18 @@ export function createPracticeResultPage(
           ) : undefined
         }
         resultBlock={
-          <Suspense fallback={<ResultBlockSkeleton />}>
-            <AsyncResultBlock
-              grantId={grantId}
-              menuType={menuType}
-              showHistory={hasRecords}
-            />
-          </Suspense>
+          isExam ? undefined : (
+            <Suspense fallback={<ResultBlockSkeleton />}>
+              <AsyncResultBlock grantId={grantId} menuType={menuType} />
+            </Suspense>
+          )
         }
         leaderboardBlock={
-          hasRecords ? (
+          isExam ? undefined : (
             <Suspense fallback={<LeaderboardSkeleton />}>
               <AsyncLeaderboardBlock module={menuType} />
             </Suspense>
-          ) : undefined
+          )
         }
       />
     );
@@ -229,25 +259,20 @@ export function createPracticeResultPage(
  *
  * 認証状態の判定と EXP・過去記録比較の取得を内包し、ストリーミング境界内で
  * 完結させる。
- * ログイン済み → `RecordSection`（EXP は grant があるときだけ、過去記録比較は
- * `showHistory` の練習でだけ）
+ * ログイン済み → `RecordSection`（EXP は grant があるときだけ、過去記録比較は常に）
  * 未ログイン → `SignUpCta`
  *
  * ログイン済みで grant が無い場合（スコア保存に失敗した等）も比較だけの
  * `RecordSection` を描画する — どの分岐でも 1 セクションが必ず現れることで、
  * `ResultBlockSkeleton` との置換でレイアウトが動かない。
- *
- * 比較を出さない練習では問い合わせ自体を投げない（描画に使わない結果を
- * 待つと、その分だけ境界の解決が遅れる）。
+ * 昇級試験はこのブロック自体を持たない（factory 側で undefined）。
  */
 async function AsyncResultBlock({
   grantId,
   menuType,
-  showHistory,
 }: {
   readonly grantId: string | undefined;
   readonly menuType: PracticeMenuType;
-  readonly showHistory: boolean;
 }) {
   // デバッグ用: `DEBUG_RESULT_DELAY_MS` が設定されていれば指定 ms 待機。
   // 本番では no-op（debugResultDelay 内で NODE_ENV をチェック）。
@@ -261,9 +286,7 @@ async function AsyncResultBlock({
 
   const [expInfo, comparison] = await Promise.all([
     grantId ? tryFetchExpInfo(user.id, grantId) : undefined,
-    showHistory
-      ? tryFetchScoreComparison(user.id, menuType, grantId)
-      : undefined,
+    tryFetchScoreComparison(user.id, menuType, grantId),
   ]);
 
   return (
@@ -271,7 +294,6 @@ async function AsyncResultBlock({
       expInfo={expInfo}
       comparison={comparison}
       menuType={menuType}
-      showHistory={showHistory}
     />
   );
 }
