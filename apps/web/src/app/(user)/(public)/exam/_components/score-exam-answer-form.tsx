@@ -14,6 +14,10 @@ interface ScoreExamAnswerFormProps {
   readonly questionIndex: number;
   readonly onSubmit: (answer: ScoreTableUserAnswer) => void;
   readonly disabled?: boolean;
+  /** 正誤フィードバック表示中か（セッションから受け取る） */
+  readonly showFeedback?: boolean;
+  /** 直前の回答が正解だったか（未回答は undefined） */
+  readonly lastAnswerCorrect?: boolean;
   /** i18n の翻訳ネームスペース（例: "manganExamChallenge"） */
   readonly translationNamespace: string;
   /** 選択肢を固定する範囲。出題条件と揃える（{@link ScoreExamAnswerForm} 参照） */
@@ -34,12 +38,17 @@ interface ScoreExamAnswerFormProps {
  * 同じ土俵で比較するため、選択肢は端末設定に依存してはならない。
  *
  * 親子・ツモロンの別は出題（`question`）から導くので、呼び出し側は渡さない。
+ *
+ * 回答直後は select の枠と地が正誤を返すが、正解の点数はその場では出さない。
+ * 試験の答え合わせは結果ページの問題別フィードバック一覧の役目。
  */
 export function ScoreExamAnswerForm({
   question,
   questionIndex,
   onSubmit,
   disabled = false,
+  showFeedback = false,
+  lastAnswerCorrect,
   translationNamespace,
   scoreRange,
 }: ScoreExamAnswerFormProps) {
@@ -51,6 +60,8 @@ export function ScoreExamAnswerForm({
       key={questionIndex}
       onSubmit={onSubmit}
       disabled={disabled}
+      showFeedback={showFeedback}
+      lastAnswerCorrect={lastAnswerCorrect}
       translationNamespace={translationNamespace}
       scoreRange={scoreRange}
     />

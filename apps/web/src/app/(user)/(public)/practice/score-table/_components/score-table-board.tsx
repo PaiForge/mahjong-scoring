@@ -22,8 +22,6 @@ interface ScoreTableBoardProps extends RecordingPracticeBoardProps<ScoreTableQue
   readonly question: ScoreTableQuestion;
   /** 次の問題へ進む（回答後の遷移に使用） */
   readonly onAdvance: () => void;
-  /** 直前の回答が正解だったか（フィードバック枠の色分けに使用） */
-  readonly lastAnswerCorrect?: boolean;
 }
 
 /**
