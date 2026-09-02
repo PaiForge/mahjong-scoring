@@ -15,6 +15,7 @@ export const ChiitoitsuExamPlayView =
     renderBoard: (args) => (
       <ChiitoitsuExamBoard
         showFeedback={args.showFeedback}
+        lastAnswerCorrect={args.lastAnswerCorrect}
         isCountingDown={args.isCountingDown}
         onAnswer={args.onAnswer}
         onRecordResult={args.recordResult}

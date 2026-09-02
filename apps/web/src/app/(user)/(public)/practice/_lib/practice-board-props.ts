@@ -9,6 +9,14 @@
 export interface PracticeBoardProps {
   /** 正誤フィードバック表示中か（セッションから受け取る） */
   readonly showFeedback: boolean;
+  /**
+   * 直前の回答が正解だったか（未回答・無回答の正解開示中は undefined）
+   *
+   * 正誤を自分で判定できる盤面（選択肢と正解を持つ符・翻・役）は受け取らなくてよい。
+   * 点数を select で答える盤面のように、回答そのものからは色を決められない
+   * ものが受け取る。
+   */
+  readonly lastAnswerCorrect?: boolean;
   /** カウントダウン中か（チャレンジのみ。トレーニングでは false） */
   readonly isCountingDown?: boolean;
   /**

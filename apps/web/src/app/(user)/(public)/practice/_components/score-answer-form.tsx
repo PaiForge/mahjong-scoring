@@ -22,6 +22,13 @@ interface ScoreAnswerFormProps {
   /** i18n の翻訳ネームスペース */
   readonly translationNamespace: string;
   /**
+   * 正誤フィードバック表示中か（セッションから受け取る）。
+   * 回答した select の枠と地を正誤の色にする。
+   */
+  readonly showFeedback?: boolean;
+  /** 直前の回答が正解だったか（未回答・無回答の正解開示中は undefined） */
+  readonly lastAnswerCorrect?: boolean;
+  /**
    * 点数の選択肢をこの範囲に固定する（省略時は翻数から絞る）。
    * 出題が範囲を固定している練習（昇級試験）が渡す。
    */
@@ -40,6 +47,13 @@ interface ScoreAnswerFormProps {
  *
  * 点数のみを select で回答する。翻・符・親子・ツモロンの判定は呼び出し元が行う。
  *
+ * 回答直後は select 自身の枠と地の色で正誤を返す
+ * （{@link import("../_lib/select-class").getSelectClass} 参照）。
+ * 選択肢を1つずつ染め分けられない代わりに、押した select がそのまま答えになる。
+ * 正解の点数は出さない — 答え合わせは結果ページの問題別フィードバック一覧の役目で、
+ * トレーニングでは {@link import("./revealed-score-answer").RevealedScoreAnswer} が
+ * 別に出す。
+ *
  * @remarks
  * 問題が変わったときの入力リセットは、呼び出し元が `key` に問題の識別子を
  * 渡して再マウントさせることで行う（`useEffect` での state リセットはしない）。
@@ -53,6 +67,8 @@ export function ScoreAnswerForm({
   translationNamespace,
   scoreRange,
   autoSubmit = false,
+  showFeedback = false,
+  lastAnswerCorrect,
 }: ScoreAnswerFormProps) {
   const t = useTranslations(translationNamespace);
   // トレーニングの回答後は、シェルが同じ位置に「次の問題へ」を出す
@@ -67,6 +83,9 @@ export function ScoreAnswerForm({
 
   const isKoTsumo = isTsumo && !isOya;
   const isOyaTsumo = isTsumo && isOya;
+  // 子ツモの2つの select は片方だけを染めない。正誤判定は
+  // 「子から / 親から」を合わせた1つの回答に対して下るため
+  const feedback = { showFeedback, lastAnswerCorrect };
 
   const kiriageMangan = useRuleSettingsStore((s) => s.kiriageMangan);
   const availableScores = getAvailableScores(
@@ -143,6 +162,7 @@ export function ScoreAnswerForm({
                 options={availableScores.koScores}
                 placeholder={t("selectScore")}
                 disabled={disabled}
+                feedback={feedback}
               />
             </div>
             <span className="mt-6 font-medium text-surface-500">/</span>
@@ -160,6 +180,7 @@ export function ScoreAnswerForm({
                 options={availableScores.oyaScores}
                 placeholder={t("selectScore")}
                 disabled={disabled}
+                feedback={feedback}
               />
             </div>
           </div>
@@ -180,6 +201,7 @@ export function ScoreAnswerForm({
             placeholder={t("selectScore")}
             disabled={disabled}
             optionSuffix={isOyaTsumo ? t("all") : ""}
+            feedback={feedback}
           />
         </div>
       )}

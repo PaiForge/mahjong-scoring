@@ -42,9 +42,11 @@ interface CreateScoreExamBoardConfig {
  * どの級も役一覧を表示しない。受験者が手牌から翻数（級によっては符も）を自力で
  * 数えるのが試験の要件であり、役を出すと最初の判断を肩代わりしてしまうため。
  *
- * 盤面はフィードバック枠で囲まずに単体で置く。ミス1回で終了する試験では正誤は
- * ライフ表示が示し、答え合わせは結果ページの問題別フィードバック一覧で行うため、
- * 盤面の外にもう一枚枠を重ねる理由がない（狭い画面では二重枠のぶん手牌も小さくなる）。
+ * 盤面はフィードバック枠で囲まずに単体で置く。盤面が自前で枠を持つため二重枠に
+ * なり、狭い画面ではそのぶん手牌が小さくなる。正誤は回答した select 自身の枠と
+ * 地の色が返し（{@link ScoreExamAnswerForm} 参照）、選択肢を持つ試験（符）が
+ * 選択肢ボタンを染めるのと同じ配色・同じタイミングになる。正解そのものは出さず、
+ * 答え合わせは結果ページの問題別フィードバック一覧で行う。
  *
  * @remarks
  * ルール設定ストア（連風牌4符・切り上げ満貫）を読まないことがこの盤面の不変条件。
@@ -60,6 +62,7 @@ export function createScoreExamBoard(
 
   function ScoreExamBoard({
     showFeedback,
+    lastAnswerCorrect,
     isCountingDown = false,
     onAnswer,
     onRecordResult,
@@ -89,6 +92,8 @@ export function createScoreExamBoard(
           questionIndex={questionIndex}
           onSubmit={handleSubmit}
           disabled={showFeedback || isCountingDown}
+          showFeedback={showFeedback}
+          lastAnswerCorrect={lastAnswerCorrect}
           translationNamespace={translationNamespace}
           scoreRange={scoreRange}
         />

@@ -13,6 +13,10 @@ interface ScoreCalculationAnswerFormProps {
   readonly questionIndex: number;
   readonly onSubmit: (answer: ScoreTableUserAnswer) => void;
   readonly disabled?: boolean;
+  /** 正誤フィードバック表示中か（セッションから受け取る） */
+  readonly showFeedback?: boolean;
+  /** 直前の回答が正解だったか（未回答・無回答の正解開示中は undefined） */
+  readonly lastAnswerCorrect?: boolean;
 }
 
 /**
@@ -26,6 +30,8 @@ export function ScoreCalculationAnswerForm({
   questionIndex,
   onSubmit,
   disabled = false,
+  showFeedback = false,
+  lastAnswerCorrect,
 }: ScoreCalculationAnswerFormProps) {
   const oya = isOya(question.jikaze);
 
@@ -37,6 +43,8 @@ export function ScoreCalculationAnswerForm({
       key={questionIndex}
       onSubmit={onSubmit}
       disabled={disabled}
+      showFeedback={showFeedback}
+      lastAnswerCorrect={lastAnswerCorrect}
       translationNamespace="scoreCalculationChallenge"
     />
   );

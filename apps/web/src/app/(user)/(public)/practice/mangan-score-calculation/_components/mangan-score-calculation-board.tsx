@@ -30,12 +30,13 @@ interface ManganScoreCalculationBoardProps extends RecordingPracticeBoardProps<M
  *
  * 盤面は他の練習（`HanCountBoard` 等）と同じく、フィードバック枠で囲まずに
  * 単体で置く。囲むと盤面自身の枠と二重になり、狭い画面ではそのぶん手牌が
- * 小さくなる。正誤はチャレンジではライフ表示と正解/不正解カウンタが、
- * トレーニングでは `TrainingShell` のカウンタが示す。
+ * 小さくなる。回答直後の正誤は、回答した select 自身の枠と地の色が返す
+ * （選択肢を持つ練習が選択肢ボタンを染めるのと同じ配色・同じタイミング）。
  */
 export function ManganScoreCalculationBoard({
   playerType,
   showFeedback,
+  lastAnswerCorrect,
   isCountingDown = false,
   isTraining = false,
   onAnswer,
@@ -93,6 +94,8 @@ export function ManganScoreCalculationBoard({
         questionIndex={questionIndex}
         onSubmit={handleSubmit}
         disabled={showFeedback || isCountingDown}
+        showFeedback={showFeedback}
+        lastAnswerCorrect={lastAnswerCorrect}
       />
     </div>
   );
