@@ -151,9 +151,10 @@ export function createPracticeResultPage(
 ) {
   const { slug } = config;
   const { menuType, namespace } = practiceMenuBySlug(slug);
-  // 昇級試験はランキングを持たないためプレビューも出さない
-  // （`MODULES` から外れているので詳細ページへの導線も無い）
-  const hasLeaderboard = !isExamMenuType(menuType);
+  // 昇級試験は「繰り返し伸ばす」種類の練習ではないため、成績を横に並べる
+  // 機能をどれも持たない。ランキングのプレビューも、過去記録との比較と
+  // マイレコードへの導線も出さない
+  const hasRecords = !isExamMenuType(menuType);
 
   return async function PracticeResultPage({
     searchParams,
@@ -203,11 +204,15 @@ export function createPracticeResultPage(
         }
         resultBlock={
           <Suspense fallback={<ResultBlockSkeleton />}>
-            <AsyncResultBlock grantId={grantId} menuType={menuType} />
+            <AsyncResultBlock
+              grantId={grantId}
+              menuType={menuType}
+              showHistory={hasRecords}
+            />
           </Suspense>
         }
         leaderboardBlock={
-          hasLeaderboard ? (
+          hasRecords ? (
             <Suspense fallback={<LeaderboardSkeleton />}>
               <AsyncLeaderboardBlock module={menuType} />
             </Suspense>
@@ -224,19 +229,25 @@ export function createPracticeResultPage(
  *
  * 認証状態の判定と EXP・過去記録比較の取得を内包し、ストリーミング境界内で
  * 完結させる。
- * ログイン済み → `RecordSection`（EXP は grant があるときだけ、過去記録比較は常に）
+ * ログイン済み → `RecordSection`（EXP は grant があるときだけ、過去記録比較は
+ * `showHistory` の練習でだけ）
  * 未ログイン → `SignUpCta`
  *
  * ログイン済みで grant が無い場合（スコア保存に失敗した等）も比較だけの
  * `RecordSection` を描画する — どの分岐でも 1 セクションが必ず現れることで、
  * `ResultBlockSkeleton` との置換でレイアウトが動かない。
+ *
+ * 比較を出さない練習では問い合わせ自体を投げない（描画に使わない結果を
+ * 待つと、その分だけ境界の解決が遅れる）。
  */
 async function AsyncResultBlock({
   grantId,
   menuType,
+  showHistory,
 }: {
   readonly grantId: string | undefined;
   readonly menuType: PracticeMenuType;
+  readonly showHistory: boolean;
 }) {
   // デバッグ用: `DEBUG_RESULT_DELAY_MS` が設定されていれば指定 ms 待機。
   // 本番では no-op（debugResultDelay 内で NODE_ENV をチェック）。
@@ -250,7 +261,9 @@ async function AsyncResultBlock({
 
   const [expInfo, comparison] = await Promise.all([
     grantId ? tryFetchExpInfo(user.id, grantId) : undefined,
-    tryFetchScoreComparison(user.id, menuType, grantId),
+    showHistory
+      ? tryFetchScoreComparison(user.id, menuType, grantId)
+      : undefined,
   ]);
 
   return (
@@ -258,6 +271,7 @@ async function AsyncResultBlock({
       expInfo={expInfo}
       comparison={comparison}
       menuType={menuType}
+      showHistory={showHistory}
     />
   );
 }
