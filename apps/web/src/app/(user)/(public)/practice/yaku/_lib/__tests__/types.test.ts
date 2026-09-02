@@ -8,7 +8,11 @@ import {
 
 import { generateOrThrow } from "@/test/generate-or-throw";
 
-import { parseYakuResults, toQuestionResult } from "../types";
+import {
+  QUESTION_GENERATION_MAX_RETRIES,
+  parseYakuResults,
+  toQuestionResult,
+} from "../types";
 
 /** 保存形式として妥当な結果データ */
 const validResult = {
@@ -53,10 +57,19 @@ describe("parseYakuResults", () => {
   });
 });
 
+describe("QUESTION_GENERATION_MAX_RETRIES", () => {
+  it("既定予算では出題生成が確率的に失敗するため、十分な予算を取っている", () => {
+    expect(QUESTION_GENERATION_MAX_RETRIES).toBeGreaterThanOrEqual(100);
+  });
+});
+
 describe("toQuestionResult", () => {
   /** 生成できるまで試す（牌の残数不足で undefined を返しうるため） */
   function generate() {
-    return generateOrThrow(generateYakuQuestion);
+    return generateOrThrow(
+      generateYakuQuestion,
+      QUESTION_GENERATION_MAX_RETRIES,
+    );
   }
 
   it("選んだ役と正誤を記録し、パースを通過する", () => {

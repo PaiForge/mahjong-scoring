@@ -8,6 +8,8 @@ import {
 
 import { generateOrThrow } from "@/test/generate-or-throw";
 
+import { QUESTION_GENERATION_MAX_RETRIES } from "../../total-fu/_lib/types";
+
 import {
   parseFuQuestionResults,
   toFuQuestionResult,
@@ -63,7 +65,10 @@ describe("parseFuQuestionResults", () => {
 describe("toFuQuestionResult", () => {
   /** 生成できるまで試す（牌の残数不足で undefined を返しうるため） */
   function generate() {
-    return generateOrThrow(generateTotalFuQuestion, 100);
+    return generateOrThrow(
+      generateTotalFuQuestion,
+      QUESTION_GENERATION_MAX_RETRIES,
+    );
   }
 
   it("出題を保存形式に変換し、パースを通過する", () => {

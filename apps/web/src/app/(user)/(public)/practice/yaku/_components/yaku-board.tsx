@@ -20,12 +20,15 @@ import {
   useRegisterAdvance,
   useTrainingMode,
 } from "../../_hooks/use-training-mode";
-import { toQuestionResult } from "../_lib/types";
+import {
+  QUESTION_GENERATION_MAX_RETRIES,
+  toQuestionResult,
+} from "../_lib/types";
 import type { YakuQuestionResult } from "../_lib/types";
 import type { RecordingPracticeBoardProps } from "../../_lib/practice-board-props";
 
 function generateQuestion(): YakuQuestion | undefined {
-  return retryGenerate(generateYakuQuestion);
+  return retryGenerate(generateYakuQuestion, QUESTION_GENERATION_MAX_RETRIES);
 }
 
 interface YakuBoardProps extends RecordingPracticeBoardProps<YakuQuestionResult> {
