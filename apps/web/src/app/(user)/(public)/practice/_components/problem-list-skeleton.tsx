@@ -14,10 +14,10 @@ interface ProblemListSkeletonProps {
  * チャレンジ終了直後の `ResultPageSkeleton` でも同じものを使い、
  * 遷移前後で一覧の領域が一致するようにしている。
  *
- * 寸法は `ProblemListAccordion` の実装に合わせる:
+ * 寸法は `ProblemListAccordion` の実装に合わせる（2026-09 に puppeteer で実測）:
  * - 外枠 `mt-8 w-full space-y-2`
  * - 見出しラベル: `text-sm` の 1 行 = 20px
- * - 各行: border 2px + `p-3` 24px + `text-base` 1 行 24px = 50px
+ * - 各行: `border-3` の 3px×2 + `p-3` の 12px×2 + `text-base` 1 行 24px = 54px
  *
  * 点数系練習の行見出し（「親・ツモ・3翻・40符」等）は画面幅が狭いと折り返して
  * 50px を超えることがある。その場合だけ実物がわずかに高くなるが、一覧全体の
@@ -41,7 +41,7 @@ export function ProblemListSkeleton({ count }: ProblemListSkeletonProps) {
       <SkeletonBar className="h-5 w-24" />
       <div className="space-y-2">
         {Array.from({ length: count }, (_, index) => (
-          <SkeletonBar radius="lg" key={index} className="h-[50px]" />
+          <SkeletonBar radius="lg" key={index} className="h-[54px]" />
         ))}
       </div>
     </div>
