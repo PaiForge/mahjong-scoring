@@ -4,6 +4,7 @@ import { useCallback, useMemo, useState, type ReactNode } from "react";
 import { useTranslations } from "next-intl";
 import type { PracticeMenuSlug } from "@/lib/db/practice-menu-types";
 import {
+  isExamMenuType,
   practiceMenuBySlug,
   resultStorageKeyFor,
 } from "@/lib/db/practice-menu-types";
@@ -86,6 +87,9 @@ export function createChallengePlayView<
   const resultStorageKey = hasProblemList
     ? resultStorageKeyFor(slug)
     : undefined;
+  // 昇級試験はランキングを持たないため、結果ページにプレビューが出ない。
+  // 終了後のスケルトンからも枠を落として高さを揃える
+  const hasLeaderboard = !isExamMenuType(menuType);
   const useBoardState =
     config.useBoardState ?? (() => undefined as unknown as TState);
 
@@ -114,6 +118,7 @@ export function createChallengePlayView<
         maxWidth={maxWidth}
         hasProblemList={hasProblemList}
         hasSetup={hasSetup}
+        hasLeaderboard={hasLeaderboard}
         onFinish={handleFinish}
       >
         {renderBoard(

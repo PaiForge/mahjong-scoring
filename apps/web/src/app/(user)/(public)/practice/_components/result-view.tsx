@@ -39,7 +39,8 @@ import { ResultScoreBar } from "./result-score-bar";
  * 4. `resultBlock` — 経験値 / 登録 CTA（Suspense 境界）
  * 5. アクションボタン（もう一度 / 設定を変更する）と練習一覧へのリンク — 即時描画
  * 6. `children` — 練習種別固有の追加コンテンツ（問題別フィードバック等）
- * 7. `leaderboardBlock` — リーダーボードプレビュー（Suspense 境界）
+ * 7. `leaderboardBlock` — リーダーボードプレビュー（Suspense 境界）。
+ *    ランキングを持たない練習（昇級試験）では undefined で、節ごと出ない
  */
 export async function ResultView({
   practiceTitle,

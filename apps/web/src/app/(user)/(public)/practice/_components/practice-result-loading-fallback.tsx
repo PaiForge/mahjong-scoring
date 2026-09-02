@@ -2,7 +2,10 @@ import { useSearchParams } from "next/navigation";
 import { useTranslations } from "next-intl";
 
 import type { PracticeMenuSlug } from "@/lib/db/practice-menu-types";
-import { practiceMenuBySlug } from "@/lib/db/practice-menu-types";
+import {
+  isExamMenuType,
+  practiceMenuBySlug,
+} from "@/lib/db/practice-menu-types";
 import { practiceHref } from "../_lib/practice-catalog";
 import {
   buildResultBreadcrumb,
@@ -31,7 +34,8 @@ interface Props {
  * `total` があっても枠を出さない（レジストリの `hasProblemList` を見る）。
  */
 export function PracticeResultLoadingFallback({ slug }: Props) {
-  const { namespace, hasProblemList, hasSetup } = practiceMenuBySlug(slug);
+  const { menuType, namespace, hasProblemList, hasSetup } =
+    practiceMenuBySlug(slug);
   // 親一覧（練習一覧 or 道場）。実描画の ResultView と同じ判定で揃える
   const parent = resultBreadcrumbParent(practiceHref(slug));
   const t = useTranslations(namespace);
@@ -54,6 +58,7 @@ export function PracticeResultLoadingFallback({ slug }: Props) {
       })}
       problemCount={problemCount}
       hasSetup={hasSetup}
+      hasLeaderboard={!isExamMenuType(menuType)}
     />
   );
 }

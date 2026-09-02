@@ -24,6 +24,12 @@ interface ResultPageSkeletonProps {
    * 結果ページとの高さのずれを防ぐ。
    */
   readonly hasSetup?: boolean;
+  /**
+   * 結果ページがリーダーボードプレビューを出すか。
+   * ランキングを持たない練習（昇級試験）では false で、枠ごと出さない
+   * （出すと実体に替わった瞬間にページが 310px 縮む）。
+   */
+  readonly hasLeaderboard?: boolean;
 }
 
 /**
@@ -45,6 +51,7 @@ export function ResultPageSkeleton({
   breadcrumb,
   problemCount = 0,
   hasSetup = false,
+  hasLeaderboard = true,
 }: ResultPageSkeletonProps) {
   return (
     <ContentContainer breadcrumb={breadcrumb}>
@@ -92,8 +99,8 @@ export function ResultPageSkeleton({
             children スロットとしてアクションボタンとリーダーボードの間に入る。 */}
         <ProblemListSkeleton count={problemCount} />
 
-        {/* リーダーボードプレビュー */}
-        <LeaderboardSkeleton />
+        {/* リーダーボードプレビュー（ランキングを持つ練習のみ） */}
+        {hasLeaderboard && <LeaderboardSkeleton />}
       </div>
     </ContentContainer>
   );

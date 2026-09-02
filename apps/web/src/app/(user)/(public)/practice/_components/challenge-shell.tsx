@@ -90,6 +90,12 @@ interface ChallengeShellProps {
    * 結果ページとの高さのずれを防ぐ。
    */
   readonly hasSetup?: boolean;
+  /**
+   * 結果ページがリーダーボードプレビューを表示するか。
+   * false の場合は終了後のスケルトンからも枠を落として、結果ページとの
+   * 高さのずれを防ぐ。
+   */
+  readonly hasLeaderboard?: boolean;
   /** 練習終了時に呼び出されるコールバック（スコア保存等） */
   readonly onFinish?: (
     args: FinishCallbackArgs,
@@ -117,6 +123,7 @@ export function ChallengeShell({
   exitHref = "/practice",
   hasProblemList = false,
   hasSetup = false,
+  hasLeaderboard = true,
   onFinish,
 }: ChallengeShellProps) {
   const tc = useTranslations("challenge");
@@ -220,6 +227,7 @@ export function ChallengeShell({
             : 0
         }
         hasSetup={hasSetup}
+        hasLeaderboard={hasLeaderboard}
       />
     );
   }
