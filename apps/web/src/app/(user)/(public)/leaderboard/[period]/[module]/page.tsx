@@ -34,7 +34,7 @@ import { LeaderboardDetailContent } from "../../_components/leaderboard-detail-c
 import type { LeaderboardModule, LeaderboardPeriod } from "../../_lib/types";
 import { PlayIcon } from "@/app/(user)/_components/icons/play-icon";
 import { buildChallengePath, slugToModule } from "../../_lib/types";
-import { isValidPeriod } from "../../_lib/validators";
+import { isValidModule, isValidPeriod } from "../../_lib/validators";
 import { SkeletonBar } from "@/app/_components/skeleton-bar";
 
 export const dynamic = "force-dynamic";
@@ -60,8 +60,10 @@ function validateParams(
 ): ValidatedParams | undefined {
   if (!isValidPeriod(periodStr)) return undefined;
 
+  // 練習種別として実在するだけでは足りない。ランキングを持たない練習
+  // （昇級試験）のスラッグはここで落とす
   const resolvedModule = slugToModule(moduleSlug);
-  if (!resolvedModule) return undefined;
+  if (!resolvedModule || !isValidModule(resolvedModule)) return undefined;
 
   return { period: periodStr, module: resolvedModule };
 }

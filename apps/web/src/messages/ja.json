@@ -2023,13 +2023,7 @@
       "scoreCalculation": "🎲",
       "hanCount": "🔢",
       "yakuHan": "🎴",
-      "manganScoreCalculation": "💰",
-      "manganExam": "🥋",
-      "fuExam": "🎓",
-      "chiitoitsuExam": "📝",
-      "pinfuExam": "🍀",
-      "fuScoreExam": "🧮",
-      "scoreExam": "🏅"
+      "manganScoreCalculation": "💰"
     },
     "rankLabel": "{rank} 位",
     "notRanked": "未挑戦",

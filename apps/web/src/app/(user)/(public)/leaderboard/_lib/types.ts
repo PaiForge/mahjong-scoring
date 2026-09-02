@@ -5,6 +5,7 @@ import type {
 } from "@/lib/db/practice-menu-types";
 import {
   PRACTICE_MENU_TYPES,
+  isExamMenuType,
   menuTypeToSlug,
   practiceMenuBySlug,
   slugToMenuType,
@@ -34,7 +35,23 @@ export type LeaderboardModule = PracticeMenuType;
  */
 export type LeaderboardModuleSlug = PracticeMenuSlug;
 
-export const MODULES: readonly LeaderboardModule[] = PRACTICE_MENU_TYPES;
+/**
+ * ランキングを持つ練習種別（一覧の並び順そのもの）
+ * ランキング対象
+ *
+ * 昇級試験は含まない。試験の成果は段級位（`RANK_REGISTRY`）という恒久的な
+ * 記録で表現されるものなので、同じ成績をランキングにも並べると達成の物差しが
+ * 2 本になる。加えて試験はミス1回で終了するためスコアが合格ライン付近に
+ * 詰まりやすく、母集団も受験資格を満たした人に限られるため、順位が実力の
+ * 順序を表さない。
+ *
+ * 一覧（`LeaderboardTopContent`）と自分の順位の一括取得（`getUserRanks`）は
+ * どちらもここを唯一の出所にしている。詳細ページの URL を塞ぐのは
+ * {@link import("./validators").isValidModule}。
+ */
+export const MODULES: readonly LeaderboardModule[] = PRACTICE_MENU_TYPES.filter(
+  (menuType) => !isExamMenuType(menuType),
+);
 
 /**
  * リーダーボード結果
@@ -96,6 +113,6 @@ export function buildDetailPath(
  */
 export function buildChallengePath(module: LeaderboardModule): string {
   const slug = moduleToSlug(module);
-  // basePath 上書き（/exam 配下の昇級試験等）にも追随する
+  // URL はレジストリの basePath が持つ（`/practice/<slug>` を組み立てない）
   return `${practiceMenuBySlug(slug).basePath}/play`;
 }
