@@ -441,6 +441,21 @@ export function practiceMenuByType(
 }
 
 /**
+ * 昇級試験の練習種別か
+ * 昇級試験判定（種別キー）
+ *
+ * 判定はレジストリの `basePath` から導く — どの URL 名前空間に置くかの決定が
+ * そのまま所属の決定。昇級試験は記録・結果ページの仕組みを練習と共有するため
+ * レジストリには載るが、`/practice` の外（`/exam` 配下）に住む。
+ *
+ * 「試験を通常の練習と同じ土俵に載せない」判断はすべてこの述語を見る
+ * （練習一覧のカード・ランキング・結果ページのランキングプレビュー）。
+ */
+export function isExamMenuType(menuType: PracticeMenuType): boolean {
+  return !practiceMenuByType(menuType).basePath.startsWith("/practice/");
+}
+
+/**
  * 練習結果を sessionStorage に保存する際のキーを導出する
  * 結果ストレージキー
  *
