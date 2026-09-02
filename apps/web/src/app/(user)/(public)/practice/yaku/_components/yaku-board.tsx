@@ -100,7 +100,12 @@ export function YakuBoard({
   ]);
 
   if (!question) {
-    return <QuestionGeneratingPlaceholder label={t("generating")} />;
+    return (
+      <QuestionGeneratingPlaceholder
+        label={t("generating")}
+        boardHeight="yaku"
+      />
+    );
   }
 
   const hasSelection = selectedYaku.size > 0;

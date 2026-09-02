@@ -95,7 +95,12 @@ export function MentsuJantouFuBoard({
   );
 
   if (!question) {
-    return <QuestionGeneratingPlaceholder label={t("generating")} />;
+    return (
+      <QuestionGeneratingPlaceholder
+        label={t("generating")}
+        boardHeight="mentsuJantouFu"
+      />
+    );
   }
 
   const agariHighlight = findAgariHighlight(

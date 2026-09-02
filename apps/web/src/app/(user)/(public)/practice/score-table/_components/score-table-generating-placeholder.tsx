@@ -12,5 +12,10 @@ import { QuestionGeneratingPlaceholder } from "../../_components/question-genera
  */
 export function ScoreTableGeneratingPlaceholder() {
   const t = useTranslations("scoreTableChallenge");
-  return <QuestionGeneratingPlaceholder label={t("generating")} />;
+  return (
+    <QuestionGeneratingPlaceholder
+      label={t("generating")}
+      boardHeight="scoreTable"
+    />
+  );
 }

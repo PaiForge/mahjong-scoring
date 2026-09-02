@@ -59,7 +59,12 @@ export function HanCountBoard({
   );
 
   if (!question) {
-    return <QuestionGeneratingPlaceholder label={t("generating")} />;
+    return (
+      <QuestionGeneratingPlaceholder
+        label={t("generating")}
+        boardHeight="hanCount"
+      />
+    );
   }
 
   return (

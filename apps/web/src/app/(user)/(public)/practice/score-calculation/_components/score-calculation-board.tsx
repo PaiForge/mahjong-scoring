@@ -54,7 +54,12 @@ export function ScoreCalculationBoard({
   const showAnswer = isRevealed || isHolding;
 
   if (!question) {
-    return <QuestionGeneratingPlaceholder label={t("generating")} />;
+    return (
+      <QuestionGeneratingPlaceholder
+        label={t("generating")}
+        boardHeight="scoreCalculation"
+      />
+    );
   }
 
   return (

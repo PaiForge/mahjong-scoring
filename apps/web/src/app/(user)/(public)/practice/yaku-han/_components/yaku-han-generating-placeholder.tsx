@@ -12,5 +12,10 @@ import { QuestionGeneratingPlaceholder } from "../../_components/question-genera
  */
 export function YakuHanGeneratingPlaceholder() {
   const t = useTranslations("yakuHanChallenge");
-  return <QuestionGeneratingPlaceholder label={t("generating")} />;
+  return (
+    <QuestionGeneratingPlaceholder
+      label={t("generating")}
+      boardHeight="yakuHan"
+    />
+  );
 }

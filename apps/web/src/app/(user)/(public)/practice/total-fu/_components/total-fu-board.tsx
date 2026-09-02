@@ -61,7 +61,12 @@ export function TotalFuBoard({
   const { isRevealed, isHolding } = useTrainingMode();
 
   if (!question) {
-    return <QuestionGeneratingPlaceholder label={t("generating")} />;
+    return (
+      <QuestionGeneratingPlaceholder
+        label={t("generating")}
+        boardHeight="totalFu"
+      />
+    );
   }
 
   return (

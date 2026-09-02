@@ -2,34 +2,9 @@ import { ContentContainer } from "@/app/(user)/_components/content-container";
 import { PageTitle } from "@/app/(user)/_components/page-title";
 import { SkeletonBar } from "@/app/_components/skeleton-bar";
 import { useScrollToElement } from "../_hooks/use-scroll-to-element";
+import { BOARD_AREA_HEIGHT } from "../_lib/board-area-height";
+import type { PlayBoardHeight } from "../_lib/board-area-height";
 import { PRACTICE_SCROLL_ANCHOR_ID } from "../_lib/scroll-anchor";
-
-/**
- * 盤面と選択肢のまとまりの高さ
- * 盤面エリア高さ
- *
- * `ChallengeShell` の中身（手牌の盤面 + 設問 + 選択肢）の高さ。牌の画像と
- * 選択肢の数で決まり、行数や文字数からは導けないため実測値を名前で持つ。
- *
- * 牌は列の幅に合わせて縮むため、高さは幅で変わる。狭い画面のぶんも持たないと
- * モバイルで 20〜30px ずれるので、列が 358px になる <sm と 512px になる sm 以上の
- * 2 点で測った値を持つ（2026-09 実測）。
- *
- * - `standard`: 点数を select で答える試験。<sm 326〜336px / sm 以上 347〜356px。
- *   どちらも真ん中を取っている
- * - `tall`: 合計符の試験。選択肢が 11 個並ぶため一段高い（<sm 458px / sm 以上 489px）
- *
- * この 1 箇所がずれてもページ全体の高さは動かない。play 画面の
- * `ContentContainer` は `fillViewport` で、中身に関わらず画面の高さまで
- * 伸びるため。ずれるのはフッターの縦位置だけ。
- */
-const BOARD_AREA_HEIGHT = {
-  standard: "h-[331px] sm:h-[351px]",
-  tall: "h-[458px] sm:h-[489px]",
-} as const;
-
-/** 盤面エリアの高さの種類 */
-export type PlayBoardHeight = keyof typeof BOARD_AREA_HEIGHT;
 
 /**
  * 状態バーの高さ（`ChallengeShell` の実測 48px）。円形タイマー
@@ -75,7 +50,7 @@ interface PracticePlayLoadingFallbackProps {
 export function PracticePlayLoadingFallback({
   practiceTitle,
   mistakeLimit,
-  boardHeight = "standard",
+  boardHeight = "scoreExam",
 }: PracticePlayLoadingFallbackProps) {
   // 実物（`ChallengeShell`）と同じ位置まで送っておく。ここで送らないと、
   // 中身が届いた瞬間にグローバルヘッダとタイトル帯のぶん（実測 128px）
