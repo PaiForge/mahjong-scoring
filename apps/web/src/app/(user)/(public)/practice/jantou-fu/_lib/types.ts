@@ -3,8 +3,9 @@ import type { JantouFuChoice, JantouFuQuestion } from "@mahjong-scoring/core";
 
 import { resultStorageKeyFor } from "@/lib/db/practice-menu-types";
 
+import { z } from "zod";
+
 import { createSessionStorageParser } from "../../_lib/create-session-storage-parser";
-import { hasFieldTypes } from "../../_lib/shape-guards";
 
 /** sessionStorage に保存する際のキー */
 export const RESULT_STORAGE_KEY = resultStorageKeyFor("jantou-fu");
@@ -61,19 +62,15 @@ export function toQuestionResult(
  * sessionStorage から取得した値が JantouFuQuestionResult として妥当か検証する
  * 雀頭符問題結果バリデーション
  */
-function isValidQuestionResult(
-  value: unknown,
-): value is JantouFuQuestionResult {
-  return hasFieldTypes(value, {
-    bakaze: "string",
-    jikaze: "string",
-    correctHai: "string",
-    correctFu: "number",
-    selectedHai: "string",
-    selectedFu: "number",
-    isCorrect: "boolean",
-  });
-}
+const questionResultSchema: z.ZodType<JantouFuQuestionResult> = z.object({
+  bakaze: z.string(),
+  jikaze: z.string(),
+  correctHai: z.string(),
+  correctFu: z.number(),
+  selectedHai: z.string(),
+  selectedFu: z.number(),
+  isCorrect: z.boolean(),
+});
 
 /**
  * sessionStorage から問題結果を安全にパースする
@@ -81,6 +78,5 @@ function isValidQuestionResult(
  */
 export const parseJantouFuResults: (
   raw: string | undefined,
-) => readonly JantouFuQuestionResult[] = createSessionStorageParser(
-  isValidQuestionResult,
-);
+) => readonly JantouFuQuestionResult[] =
+  createSessionStorageParser(questionResultSchema);

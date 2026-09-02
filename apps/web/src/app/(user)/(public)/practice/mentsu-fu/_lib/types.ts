@@ -2,13 +2,14 @@ import type { MentsuFuQuestion } from "@mahjong-scoring/core";
 
 import { resultStorageKeyFor } from "@/lib/db/practice-menu-types";
 
+import { z } from "zod";
+
 import { createSessionStorageParser } from "../../_lib/create-session-storage-parser";
 import {
-  isValidSerializedMentsu,
+  serializedMentsuSchema,
   toSerializedMentsu,
   type SerializedMentsu,
 } from "../../_lib/mentsu-serialization";
-import { hasFieldTypes } from "../../_lib/shape-guards";
 
 /** sessionStorage に保存する際のキー */
 export const RESULT_STORAGE_KEY = resultStorageKeyFor("mentsu-fu");
@@ -49,20 +50,12 @@ export function toQuestionResult(
  * sessionStorage から取得した値が MentsuFuQuestionResult として妥当か検証する
  * 面子符問題結果バリデーション
  */
-function isValidQuestionResult(
-  value: unknown,
-): value is MentsuFuQuestionResult {
-  if (
-    !hasFieldTypes(value, {
-      correctFu: "number",
-      userFu: "number",
-      isCorrect: "boolean",
-    })
-  ) {
-    return false;
-  }
-  return isValidSerializedMentsu(Reflect.get(value, "mentsu"));
-}
+const questionResultSchema: z.ZodType<MentsuFuQuestionResult> = z.object({
+  mentsu: serializedMentsuSchema,
+  correctFu: z.number(),
+  userFu: z.number(),
+  isCorrect: z.boolean(),
+});
 
 /**
  * sessionStorage から問題結果を安全にパースする
@@ -70,6 +63,5 @@ function isValidQuestionResult(
  */
 export const parseMentsuFuResults: (
   raw: string | undefined,
-) => readonly MentsuFuQuestionResult[] = createSessionStorageParser(
-  isValidQuestionResult,
-);
+) => readonly MentsuFuQuestionResult[] =
+  createSessionStorageParser(questionResultSchema);

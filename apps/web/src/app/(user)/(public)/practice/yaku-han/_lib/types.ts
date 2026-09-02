@@ -1,7 +1,8 @@
 import { resultStorageKeyFor } from "@/lib/db/practice-menu-types";
 
+import { z } from "zod";
+
 import { createSessionStorageParser } from "../../_lib/create-session-storage-parser";
-import { hasFieldTypes } from "../../_lib/shape-guards";
 
 /** sessionStorage に保存する際のキー */
 export const RESULT_STORAGE_KEY = resultStorageKeyFor("yaku-han");
@@ -27,15 +28,13 @@ export interface YakuHanQuestionResult {
  * sessionStorage から取得した値が YakuHanQuestionResult として妥当か検証する
  * 役翻数問題結果バリデーション
  */
-function isValidQuestionResult(value: unknown): value is YakuHanQuestionResult {
-  return hasFieldTypes(value, {
-    yakuName: "string",
-    isMenzen: "boolean",
-    correctHan: "number",
-    userHan: "number",
-    isCorrect: "boolean",
-  });
-}
+const questionResultSchema: z.ZodType<YakuHanQuestionResult> = z.object({
+  yakuName: z.string(),
+  isMenzen: z.boolean(),
+  correctHan: z.number(),
+  userHan: z.number(),
+  isCorrect: z.boolean(),
+});
 
 /**
  * sessionStorage から問題結果を安全にパースする
@@ -43,6 +42,5 @@ function isValidQuestionResult(value: unknown): value is YakuHanQuestionResult {
  */
 export const parseYakuHanResults: (
   raw: string | undefined,
-) => readonly YakuHanQuestionResult[] = createSessionStorageParser(
-  isValidQuestionResult,
-);
+) => readonly YakuHanQuestionResult[] =
+  createSessionStorageParser(questionResultSchema);

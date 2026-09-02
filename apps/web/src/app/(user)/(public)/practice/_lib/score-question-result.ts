@@ -6,10 +6,12 @@ import type {
 } from "@mahjong-scoring/core";
 
 import type { ScoreQuestionDisplayData } from "../score/_components/question-display";
+import { z } from "zod";
+
 import { createSessionStorageParser } from "./create-session-storage-parser";
 import { parseMarkers, parseQuestionTiles } from "./parse-question-tiles";
 import type { QuestionTilesSnapshot } from "./parse-question-tiles";
-import { hasFieldTypes, isRecord, isStringArray } from "./shape-guards";
+import { scoreTableAnswerSchema, yakuDetailSchema } from "./result-schemas";
 
 /**
  * 出題内容のスナップショット（結果ページでの手牌再表示用）
@@ -82,86 +84,44 @@ export function toScoreQuestionSnapshot(
 }
 
 /**
- * 値が YakuDetail の配列として妥当か検証する
- * 役内訳バリデーション
- */
-export function isValidYakuDetails(
-  value: unknown,
-): value is readonly YakuDetail[] {
-  if (!Array.isArray(value)) return false;
-  return value.every((detail: unknown) =>
-    hasFieldTypes(detail, { name: "string", han: "number" }),
-  );
-}
-
-const VALID_ANSWER_TYPES = new Set(["ron", "oyaTsumo", "koTsumo"]);
-
-/**
- * 回答オブジェクトの type フィールドが有効かを判定する
- * 回答型判定
- */
-function hasValidAnswerType(value: unknown): boolean {
-  if (!isRecord(value)) return false;
-  const typeValue: unknown = Reflect.get(value, "type");
-  return typeof typeValue === "string" && VALID_ANSWER_TYPES.has(typeValue);
-}
-
-/**
- * 値が ScoreQuestionSnapshot として妥当か検証する
- * 出題スナップショットバリデーション
+ * 値が ScoreQuestionSnapshot として妥当か検証するスキーマ
+ * 出題スナップショットスキーマ
  *
  * MSPZ として解釈できるかまでは見ない（表示時のパースが失敗したら
  * 手牌の再表示だけを諦める）。ここでは形だけを確かめる。
+ *
+ * リーチ・裏ドラ・役の内訳は、それらを保存し始める前の旧データに存在しない
+ * ため任意フィールドとして見る。
  */
-export function isValidScoreQuestionSnapshot(value: unknown): boolean {
-  if (
-    !hasFieldTypes(value, {
-      tehai: "string",
-      agariHai: "string",
-      bakaze: "string",
-      jikaze: "string",
-    })
-  ) {
-    return false;
-  }
-  const isRiichi: unknown = Reflect.get(value, "isRiichi");
-  const uraDoraMarkers: unknown = Reflect.get(value, "uraDoraMarkers");
-  // 役の内訳は保存を始める前の旧データに存在しないため任意
-  const yakuDetails: unknown = Reflect.get(value, "yakuDetails");
-  return (
-    isStringArray(Reflect.get(value, "doraMarkers")) &&
-    (isRiichi === undefined || typeof isRiichi === "boolean") &&
-    (uraDoraMarkers === undefined || isStringArray(uraDoraMarkers)) &&
-    (yakuDetails === undefined || isValidYakuDetails(yakuDetails))
-  );
-}
+export const scoreQuestionSnapshotSchema: z.ZodType<ScoreQuestionSnapshot> =
+  z.object({
+    tehai: z.string(),
+    agariHai: z.string(),
+    bakaze: z.string(),
+    jikaze: z.string(),
+    doraMarkers: z.array(z.string()),
+    isRiichi: z.boolean().optional(),
+    uraDoraMarkers: z.array(z.string()).optional(),
+    yakuDetails: z.array(yakuDetailSchema).optional(),
+  });
 
 /**
  * sessionStorage から取得した値が ScoreQuestionResult として妥当か検証する
  * 問題結果バリデーション
+ *
+ * 符は満貫以上の問題で省略され、出題スナップショットは保存を始める前の旧
+ * データに存在しないため、どちらも任意フィールドとして見る。
  */
-function isValidQuestionResult(value: unknown): value is ScoreQuestionResult {
-  if (
-    !hasFieldTypes(value, {
-      isOya: "boolean",
-      isTsumo: "boolean",
-      han: "number",
-      isCorrect: "boolean",
-    })
-  ) {
-    return false;
-  }
-  // 符は満貫以上の問題で省略されるため、任意フィールドとして個別に見る
-  const fu: unknown = Reflect.get(value, "fu");
-  // 出題スナップショットは保存を始める前の旧データに存在しないため任意
-  const question: unknown = Reflect.get(value, "question");
-  return (
-    (fu === undefined || typeof fu === "number") &&
-    (question === undefined || isValidScoreQuestionSnapshot(question)) &&
-    hasValidAnswerType(Reflect.get(value, "correctAnswer")) &&
-    hasValidAnswerType(Reflect.get(value, "userAnswer"))
-  );
-}
+const questionResultSchema: z.ZodType<ScoreQuestionResult> = z.object({
+  isOya: z.boolean(),
+  isTsumo: z.boolean(),
+  han: z.number(),
+  fu: z.number().optional(),
+  correctAnswer: scoreTableAnswerSchema,
+  userAnswer: scoreTableAnswerSchema,
+  isCorrect: z.boolean(),
+  question: scoreQuestionSnapshotSchema.optional(),
+});
 
 /**
  * sessionStorage から問題結果を安全にパースする
@@ -169,9 +129,8 @@ function isValidQuestionResult(value: unknown): value is ScoreQuestionResult {
  */
 export const parseQuestionResults: (
   raw: string | undefined,
-) => readonly ScoreQuestionResult[] = createSessionStorageParser(
-  isValidQuestionResult,
-);
+) => readonly ScoreQuestionResult[] =
+  createSessionStorageParser(questionResultSchema);
 
 /**
  * 保存された出題スナップショットから手牌表示用のデータを復元する
