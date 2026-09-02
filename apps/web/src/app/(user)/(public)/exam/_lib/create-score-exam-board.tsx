@@ -82,7 +82,7 @@ export function createScoreExamBoard(
       return (
         <QuestionGeneratingPlaceholder
           label={t("generating")}
-          boardHeight="standard"
+          boardHeight="scoreExam"
         />
       );
     }

@@ -68,7 +68,7 @@ export function FuExamBoard({
     return (
       <QuestionGeneratingPlaceholder
         label={t("generating")}
-        boardHeight="tall"
+        boardHeight="fuExam"
       />
     );
   }

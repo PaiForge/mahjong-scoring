@@ -67,7 +67,12 @@ export function YakuHanBoard({
   );
 
   if (!question) {
-    return <QuestionGeneratingPlaceholder label={t("generating")} />;
+    return (
+      <QuestionGeneratingPlaceholder
+        label={t("generating")}
+        boardHeight="yakuHan"
+      />
+    );
   }
 
   return (

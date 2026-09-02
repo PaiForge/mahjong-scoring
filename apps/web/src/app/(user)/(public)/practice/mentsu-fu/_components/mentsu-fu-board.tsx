@@ -43,7 +43,12 @@ export function MentsuFuBoard({
   });
 
   if (!question) {
-    return <QuestionGeneratingPlaceholder label={t("generating")} />;
+    return (
+      <QuestionGeneratingPlaceholder
+        label={t("generating")}
+        boardHeight="mentsuFu"
+      />
+    );
   }
 
   return (

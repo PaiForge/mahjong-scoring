@@ -7,11 +7,12 @@ interface QuestionGeneratingPlaceholderProps {
   /**
    * 盤面エリアの高さ（{@link BOARD_AREA_HEIGHT} 参照）。
    *
-   * 渡すと、出来上がった盤面と同じ高さの場所を確保して待つ。渡さない盤面は
-   * 文言のぶんの高さしか取らないため、盤面が現れた瞬間にその差だけ画面が
-   * 伸びる（実測で最小 121px・最大 687px）。
+   * 出来上がった盤面と同じ高さの場所を確保して待つために要る。任意にすると
+   * 新しい盤面が渡し忘れたまま通ってしまい、盤面が現れた瞬間にその差だけ
+   * 画面が伸びる（渡していなかった頃の実測で最小 121px・最大 687px）ため、
+   * 必須にして型で強制する。
    */
-  readonly boardHeight?: PlayBoardHeight;
+  readonly boardHeight: PlayBoardHeight;
 }
 
 /**
@@ -22,8 +23,8 @@ interface QuestionGeneratingPlaceholderProps {
  * クライアントの効果で作るため、盤面が現れるまでに必ず 1 フレームここを通る。
  * 成立率の低い出題（満貫以上・平和）は生成に何十回も試行するぶんさらに長い。
  *
- * `boardHeight` を渡すと `loading.tsx` のフォールバックと同じ高さで待つので、
- * スケルトン → 生成中 → 実体 のどこでも画面が動かない。
+ * `loading.tsx` のフォールバックと同じ表（{@link BOARD_AREA_HEIGHT}）から高さを
+ * 取るので、スケルトン → 生成中 → 実体 のどこでも画面が動かない。
  */
 export function QuestionGeneratingPlaceholder({
   label,
@@ -31,11 +32,7 @@ export function QuestionGeneratingPlaceholder({
 }: QuestionGeneratingPlaceholderProps) {
   return (
     <div
-      className={`flex items-center justify-center ${
-        boardHeight === undefined
-          ? "py-20"
-          : `${BOARD_AREA_HEIGHT[boardHeight]} mt-4`
-      }`}
+      className={`mt-4 flex items-center justify-center ${BOARD_AREA_HEIGHT[boardHeight]}`}
     >
       <div className="text-surface-500">{label}</div>
     </div>

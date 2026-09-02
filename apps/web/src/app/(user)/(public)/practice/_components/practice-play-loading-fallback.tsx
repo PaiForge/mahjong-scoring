@@ -50,7 +50,7 @@ interface PracticePlayLoadingFallbackProps {
 export function PracticePlayLoadingFallback({
   practiceTitle,
   mistakeLimit,
-  boardHeight = "standard",
+  boardHeight = "scoreExam",
 }: PracticePlayLoadingFallbackProps) {
   // 実物（`ChallengeShell`）と同じ位置まで送っておく。ここで送らないと、
   // 中身が届いた瞬間にグローバルヘッダとタイトル帯のぶん（実測 128px）

@@ -63,7 +63,12 @@ export function ManganScoreCalculationBoard({
   const showAnswer = isRevealed || isHolding;
 
   if (!question) {
-    return <QuestionGeneratingPlaceholder label={t("generating")} />;
+    return (
+      <QuestionGeneratingPlaceholder
+        label={t("generating")}
+        boardHeight="manganScoreCalculation"
+      />
+    );
   }
 
   return (
