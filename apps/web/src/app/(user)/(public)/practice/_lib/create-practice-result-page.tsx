@@ -61,6 +61,14 @@ export interface PracticeResultViewProps {
    * 出題設定を持たない練習では undefined で、「設定を変更する」ボタンを出さない。
    */
   readonly settingsHref?: string;
+  /**
+   * 主ボタンの役割（既定 "retry"）。
+   *
+   * 練習は「もう一度」が主ボタンで、親一覧への戻りは補助リンク。昇級試験に
+   * 合格したときは逆で、次に行くのは道場（次の級）であり再挑戦は主導線では
+   * ないため "parent" にして主従を入れ替える。不合格なら練習と同じ "retry"。
+   */
+  readonly primaryAction?: "retry" | "parent";
   /** 正答数（URL クエリ `?correct=` から親 Server Component が parse して渡す） */
   readonly correct: number;
   /** 総出題数（URL クエリ `?total=` から親 Server Component が parse して渡す） */
@@ -215,6 +223,12 @@ export function createPracticeResultPage(
         settingsHref={practiceSetupHref(slug)}
         correct={safeCorrect}
         total={safeTotal}
+        // 合格したら主ボタンは道場へ。合否の判定は summary 側と同じ規則
+        primaryAction={
+          examMinScore !== undefined && safeCorrect >= examMinScore
+            ? "parent"
+            : "retry"
+        }
         summary={
           examMinScore !== undefined ? (
             <ExamResultSummary
