@@ -70,6 +70,8 @@ export function useScoreQuestionBoard({
         correctAnswer,
         userAnswer,
         isCorrect,
+        // 「26翻 → 役満」のような役満止まりの注記に使う
+        yakumanMultiplier: question.answer.yakumanMultiplier,
         // 結果ページで出題内容（手牌・ドラ）を再表示するために保存する
         question: toScoreQuestionSnapshot(question),
       });
