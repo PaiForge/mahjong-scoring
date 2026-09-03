@@ -43,6 +43,8 @@
  * 根拠に唐突な昇級として発火する — 実際に seed_admin がこれで練習の
  * 結果画面から5級に昇級した。
  */
+import { mulberry32 } from "@mahjong-scoring/core";
+import type { RandomSource } from "@mahjong-scoring/core";
 import { inArray, sql } from "drizzle-orm";
 import type { PostgresJsDatabase } from "drizzle-orm/postgres-js";
 
@@ -248,16 +250,9 @@ function hashSeed(text: string): number {
   return hash >>> 0;
 }
 
-/** 種から決まる 0 以上 1 未満の値を返す関数を作る（mulberry32） */
-function pseudoRandom(seed: string): () => number {
-  let state = hashSeed(seed);
-  return () => {
-    state = (state + 0x6d2b79f5) >>> 0;
-    let t = state;
-    t = Math.imul(t ^ (t >>> 15), t | 1);
-    t ^= t + Math.imul(t ^ (t >>> 7), t | 61);
-    return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
-  };
+/** 文字列の種から決まる 0 以上 1 未満の値を返す関数を作る */
+function pseudoRandom(seed: string): RandomSource {
+  return mulberry32(hashSeed(seed));
 }
 
 /** 0〜1 の値を min〜max（両端を含む）の整数へ写す */
