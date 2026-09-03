@@ -13,6 +13,28 @@ export type RandomSource = () => number;
 export const defaultRandomSource: RandomSource = () => Math.random();
 
 /**
+ * シードから決まる乱数供給源を作る（mulberry32）
+ * シード付き乱数
+ *
+ * 同じシードなら常に同じ数列を返す。乱数を回すと結果が実行のたびに変わって
+ * しまう場面 — ジェネレータの出力を値として比較するテスト、実行のたびに
+ * 順位が入れ替わっては困る開発用シード — で `Math.random` の代わりに使う。
+ * 統計的な性質はその用途に足りればよく、本番の乱数を置き換えるものではない。
+ *
+ * @param seed - 数列を決めるシード（32bit 整数として扱う）
+ */
+export function mulberry32(seed: number): RandomSource {
+  let state = seed >>> 0;
+  return () => {
+    state = (state + 0x6d2b79f5) >>> 0;
+    let t = state;
+    t = Math.imul(t ^ (t >>> 15), t | 1);
+    t ^= t + Math.imul(t ^ (t >>> 7), t | 61);
+    return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
+  };
+}
+
+/**
  * 0以上1未満の乱数を返す
  * 乱数取得
  *

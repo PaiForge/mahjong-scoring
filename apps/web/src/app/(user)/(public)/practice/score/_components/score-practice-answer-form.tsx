@@ -5,6 +5,7 @@ import { useTranslations } from "next-intl";
 import {
   allowsDoubleYakuman,
   FU_VALUES,
+  paymentKindOf,
   YAKUMAN_HAN,
 } from "@mahjong-scoring/core";
 import type { UserAnswer } from "@mahjong-scoring/core";
@@ -57,7 +58,8 @@ export function ScorePracticeAnswerForm({
 
   const isMangan = han !== undefined && han >= MANGAN_MIN_HAN;
   const isFuRequired = !isMangan || requireFuForMangan;
-  const isKoTsumo = isTsumo && !isOya;
+  const paymentKind = paymentKindOf(isOya, isTsumo);
+  const isKoTsumo = paymentKind === "koTsumo";
 
   // ダブル役満を採用したルールでは、翻数・点数の選択肢にダブル役満を足す
   const allowDoubleYakuman = allowsDoubleYakuman(useYakumanRules());
@@ -286,7 +288,9 @@ export function ScorePracticeAnswerForm({
             options={availableScores.scores}
             placeholder={t("form.placeholders.select")}
             disabled={disabled}
-            optionSuffix={isOya && isTsumo ? t("form.options.all") : ""}
+            optionSuffix={
+              paymentKind === "oyaTsumo" ? t("form.options.all") : ""
+            }
           />
         )}
       </div>

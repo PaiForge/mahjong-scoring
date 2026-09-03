@@ -55,7 +55,7 @@ export { retryGenerate } from "./problem/retry-generate";
 export type { KazeContext, AgariContext } from "./problem/shared/agari-context";
 export { defaultIdGenerator } from "./core/id";
 export type { IdGenerator } from "./core/id";
-export { defaultRandomSource } from "./core/random";
+export { defaultRandomSource, mulberry32 } from "./core/random";
 export type { RandomSource } from "./core/random";
 
 // === Problem: Score ===
@@ -147,8 +147,8 @@ export type {
 } from "./problem/score-table/types";
 
 // === Core: 立場・和了方法 ===
-export { isRole, isWinType } from "./core/roles";
-export type { Role, WinType } from "./core/roles";
+export { isRole, isWinType, paymentKindOf } from "./core/roles";
+export type { PaymentKind, Role, WinType } from "./core/roles";
 
 // === Challenge ===
 export { CHALLENGE_TIME_LIMIT, MISTAKE_LIMIT } from "./challenge/constants";

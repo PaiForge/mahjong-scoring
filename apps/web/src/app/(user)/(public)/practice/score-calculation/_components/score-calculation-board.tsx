@@ -13,7 +13,7 @@ import { paymentToScoreTableAnswer } from "../../_lib/payment-adapter";
 import { useScoreQuestionBoard } from "../../_hooks/use-score-question-board";
 import { useTrainingMode } from "../../_hooks/use-training-mode";
 import { QuestionDisplay } from "../../score/_components/question-display";
-import { ScoreCalculationAnswerForm } from "./score-calculation-answer-form";
+import { ScoreChallengeAnswerForm } from "../../_components/score-challenge-answer-form";
 import type { ScoreCalculationQuestionResult } from "../_lib/types";
 import type { RecordingPracticeBoardProps } from "../../_lib/practice-board-props";
 
@@ -84,13 +84,14 @@ export function ScoreCalculationBoard({
       <QuestionPrompt>{t("questionPrompt")}</QuestionPrompt>
 
       {/* Answer form */}
-      <ScoreCalculationAnswerForm
+      <ScoreChallengeAnswerForm
         question={question}
         questionIndex={questionIndex}
         onSubmit={handleSubmit}
         disabled={showFeedback || isCountingDown}
         showFeedback={showFeedback}
         lastAnswerCorrect={lastAnswerCorrect}
+        translationNamespace="scoreCalculationChallenge"
       />
     </div>
   );

@@ -1,11 +1,11 @@
 import { eq } from "drizzle-orm";
 import { revalidateTag } from "next/cache";
-import { NextResponse } from "next/server";
 import sharp from "sharp";
 
 import { logActivityEvent } from "@/lib/activity-log";
 import { LEADERBOARD_CACHE_TAG } from "@/lib/cache-tags";
 import { authorizeApiRequest } from "@/lib/api-auth";
+import { jsonPrivate } from "@/lib/api-response";
 import { db, profiles } from "@/lib/db";
 import { validateImageBinarySignature } from "@/lib/images/binary-signature";
 import {
@@ -45,27 +45,27 @@ export async function POST(request: Request) {
     formData = await request.formData();
   } catch {
     // 壊れた multipart を 500 にしない（送信側の誤りなので 400）
-    return NextResponse.json({ error: "invalidForm" }, { status: 400 });
+    return jsonPrivate({ error: "invalidForm" }, { status: 400 });
   }
   const file = formData.get("file");
 
   if (!(file instanceof File)) {
-    return NextResponse.json({ error: "noFile" }, { status: 400 });
+    return jsonPrivate({ error: "noFile" }, { status: 400 });
   }
 
   if (!isAllowedImageMimeType(file.type)) {
-    return NextResponse.json({ error: "invalidType" }, { status: 400 });
+    return jsonPrivate({ error: "invalidType" }, { status: 400 });
   }
 
   if (file.size > AVATAR_MAX_FILE_SIZE) {
-    return NextResponse.json({ error: "tooLarge" }, { status: 400 });
+    return jsonPrivate({ error: "tooLarge" }, { status: 400 });
   }
 
   const arrayBuffer = await file.arrayBuffer();
 
   // 拡張子・Content-Type 偽装対策にバイナリ先頭を検証する。
   if (!validateImageBinarySignature(arrayBuffer, file.type)) {
-    return NextResponse.json({ error: "invalidType" }, { status: 400 });
+    return jsonPrivate({ error: "invalidType" }, { status: 400 });
   }
 
   // バイト数の上限を通っても、巨大寸法（圧縮爆弾）やアニメーションの多フレームは
@@ -78,7 +78,7 @@ export async function POST(request: Request) {
       .webp({ quality: AVATAR_WEBP_QUALITY })
       .toBuffer();
   } catch {
-    return NextResponse.json({ error: "invalidImage" }, { status: 400 });
+    return jsonPrivate({ error: "invalidImage" }, { status: 400 });
   }
 
   const filePath = avatarFilePath(user.id);
@@ -91,7 +91,7 @@ export async function POST(request: Request) {
     });
 
   if (uploadError) {
-    return NextResponse.json({ error: "uploadFailed" }, { status: 500 });
+    return jsonPrivate({ error: "uploadFailed" }, { status: 500 });
   }
 
   // 同一パスを上書きするため URL は不変。キャッシュバストにタイムスタンプを付与する。
@@ -118,7 +118,7 @@ export async function POST(request: Request) {
     targetId: user.id,
   });
 
-  return NextResponse.json({ success: true, avatarUrl });
+  return jsonPrivate({ success: true, avatarUrl });
 }
 
 export async function DELETE(request: Request) {
@@ -147,5 +147,5 @@ export async function DELETE(request: Request) {
     targetId: user.id,
   });
 
-  return NextResponse.json({ success: true });
+  return jsonPrivate({ success: true });
 }

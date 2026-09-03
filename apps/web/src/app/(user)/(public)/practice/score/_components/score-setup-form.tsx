@@ -14,6 +14,16 @@ import { InfoModal } from "@/app/(user)/_components/info-modal";
 import { MultiSelect } from "@/app/(user)/_components/multi-select";
 import { useYakuLabel } from "@/app/_hooks/use-yaku-options";
 import { yakuTokenOf, YAKU_PARAM } from "../_lib/yaku-filter-params";
+import {
+  RANGE_PARAM,
+  RANGE_TOKEN_MANGAN_PLUS,
+  RANGE_TOKEN_NON_MANGAN,
+} from "../../_lib/range-params";
+import {
+  ROLE_PARAM,
+  ROLE_TOKEN_KO,
+  ROLE_TOKEN_OYA,
+} from "../../_lib/role-params";
 import { useIsClient } from "../../../../../_hooks/use-is-client";
 import { SettingToggle } from "./setting-toggle";
 import { SmallCheckbox } from "./small-checkbox";
@@ -81,12 +91,12 @@ export function ScoreSetupForm() {
     }
     if (targetScoreRanges.length > 0 && targetScoreRanges.length < 2) {
       if (targetScoreRanges.includes("nonMangan"))
-        params.append("ranges", "non");
+        params.append(RANGE_PARAM, RANGE_TOKEN_NON_MANGAN);
       if (targetScoreRanges.includes("manganPlus"))
-        params.append("ranges", "plus");
+        params.append(RANGE_PARAM, RANGE_TOKEN_MANGAN_PLUS);
     }
-    if (includeParent) params.append("roles", "oya");
-    if (includeChild) params.append("roles", "ko");
+    if (includeParent) params.append(ROLE_PARAM, ROLE_TOKEN_OYA);
+    if (includeChild) params.append(ROLE_PARAM, ROLE_TOKEN_KO);
     for (const name of targetYaku) {
       const token = yakuTokenOf(name);
       if (token !== undefined) params.append(YAKU_PARAM, token);

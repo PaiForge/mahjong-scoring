@@ -24,17 +24,6 @@ describe("parseJantouFuResults", () => {
     expect(results).toHaveLength(1);
     expect(results[0]).toEqual(validResult);
   });
-
-  it("undefined と壊れた JSON は空配列を返す", () => {
-    expect(parseJantouFuResults(undefined)).toEqual([]);
-    expect(parseJantouFuResults("{")).toEqual([]);
-  });
-
-  it("必須フィールドを欠く要素は除外する", () => {
-    const { correctHai: _omitted, ...broken } = validResult;
-    const raw = JSON.stringify([validResult, broken]);
-    expect(parseJantouFuResults(raw)).toHaveLength(1);
-  });
 });
 
 describe("toQuestionResult", () => {

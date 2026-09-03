@@ -4,6 +4,7 @@ import type {
 } from "@mahjong-scoring/core";
 
 import { RANGE_PARAM, parseRangeValues } from "../../_lib/range-params";
+import { ROLE_PARAM, parseRoleValues } from "../../_lib/role-params";
 import {
   HAND_SHAPE_FURO,
   HAND_SHAPE_MENZEN,
@@ -37,21 +38,15 @@ export function parseGeneratorOptionsFromParams(
   if (ranges.includeNonMangan) allowedRanges.push("nonMangan");
   if (ranges.includeManganPlus) allowedRanges.push("manganPlus");
 
-  let includeParent = true;
-  let includeChild = true;
-  const rolesValues = params.getAll("roles");
-  if (rolesValues.length > 0) {
-    includeParent = rolesValues.includes("oya");
-    includeChild = rolesValues.includes("ko");
-  }
+  const roles = parseRoleValues(params.getAll(ROLE_PARAM));
 
   const requiredYaku = parseYakuValues(params.getAll(YAKU_PARAM));
   const handShape = parseHandShape(params.get(HAND_SHAPE_PARAM));
 
   return {
     allowedRanges,
-    includeParent,
-    includeChild,
+    includeParent: roles.includeOya,
+    includeChild: roles.includeKo,
     // requiredYaku と同じく、未指定でも明示的に既定値へ戻す
     includeFuro: handShape !== HAND_SHAPE_MENZEN,
     requireFuro: handShape === HAND_SHAPE_FURO,

@@ -2,6 +2,7 @@
 
 import { useState, useId } from "react";
 import { useTranslations } from "next-intl";
+import { paymentKindOf } from "@mahjong-scoring/core";
 import type { ScoreTableUserAnswer } from "@mahjong-scoring/core";
 import { Button } from "@/app/(user)/_components/button";
 import { useRuleSettingsStore } from "@/app/_hooks/use-rule-settings-store";
@@ -88,8 +89,9 @@ export function ScoreAnswerForm({
   const [scoreFromKo, setScoreFromKo] = useState<string>("");
   const [scoreFromOya, setScoreFromOya] = useState<string>("");
 
-  const isKoTsumo = isTsumo && !isOya;
-  const isOyaTsumo = isTsumo && isOya;
+  const paymentKind = paymentKindOf(isOya, isTsumo);
+  const isKoTsumo = paymentKind === "koTsumo";
+  const isOyaTsumo = paymentKind === "oyaTsumo";
   // 子ツモの2つの select は片方だけを染めない。正誤判定は
   // 「子から / 親から」を合わせた1つの回答に対して下るため
   const feedback = { showFeedback, lastAnswerCorrect };

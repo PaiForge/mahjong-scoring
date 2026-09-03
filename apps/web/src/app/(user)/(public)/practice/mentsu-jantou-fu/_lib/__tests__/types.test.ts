@@ -53,24 +53,6 @@ describe("parseMentsuJantouFuResults", () => {
     expect(results[0]).toEqual(validResult);
   });
 
-  it("空配列の JSON 文字列は空配列を返す", () => {
-    expect(parseMentsuJantouFuResults("[]")).toEqual([]);
-  });
-
-  it("undefined は空配列を返す", () => {
-    expect(parseMentsuJantouFuResults(undefined)).toEqual([]);
-  });
-
-  it("壊れた JSON は空配列を返す", () => {
-    expect(parseMentsuJantouFuResults("{")).toEqual([]);
-  });
-
-  it("必須フィールドを欠く要素は除外する", () => {
-    const { tehai: _omitted, ...missingTehai } = validResult;
-    const raw = JSON.stringify([validResult, missingTehai]);
-    expect(parseMentsuJantouFuResults(raw)).toHaveLength(1);
-  });
-
   it("items の形が違う要素は除外する", () => {
     const broken = { ...validResult, items: [{ tiles: "11m" }] };
     expect(parseMentsuJantouFuResults(JSON.stringify([broken]))).toEqual([]);

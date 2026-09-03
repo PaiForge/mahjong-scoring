@@ -11,6 +11,12 @@ import {
   RANGE_TOKEN_NON_MANGAN,
   parseRangeValues,
 } from "../../_lib/range-params";
+import {
+  ROLE_PARAM,
+  ROLE_TOKEN_KO,
+  ROLE_TOKEN_OYA,
+  parseRoleValues,
+} from "../../_lib/role-params";
 
 /**
  * 点数表早引きの出題絞り込み選択
@@ -24,9 +30,6 @@ export interface ScoreTableSelection {
   readonly includeNonMangan: boolean;
   readonly includeManganPlus: boolean;
 }
-
-/** 親/子を指定するクエリパラメータ名 */
-export const ROLE_PARAM = "roles";
 
 /** ツモ/ロンを指定するクエリパラメータ名 */
 export const WIN_PARAM = "wins";
@@ -91,13 +94,13 @@ export function hasSelectionParams(params: RawSearchParams): boolean {
 export function searchParamsToSelection(
   params: RawSearchParams,
 ): ScoreTableSelection {
-  const roles = valuesOf(params[ROLE_PARAM]);
+  const roles = parseRoleValues(valuesOf(params[ROLE_PARAM]));
   const wins = valuesOf(params[WIN_PARAM]);
   const ranges = parseRangeValues(valuesOf(params[RANGE_PARAM]));
 
   return {
-    includeOya: roles.length === 0 || roles.includes("oya"),
-    includeKo: roles.length === 0 || roles.includes("ko"),
+    includeOya: roles.includeOya,
+    includeKo: roles.includeKo,
     includeTsumo: wins.length === 0 || wins.includes("tsumo"),
     includeRon: wins.length === 0 || wins.includes("ron"),
     includeNonMangan: ranges.includeNonMangan,
@@ -137,8 +140,8 @@ export function selectionToQueryString(selection: ScoreTableSelection): string {
   const params = new URLSearchParams();
 
   if (!(selection.includeOya && selection.includeKo)) {
-    if (selection.includeOya) params.append(ROLE_PARAM, "oya");
-    if (selection.includeKo) params.append(ROLE_PARAM, "ko");
+    if (selection.includeOya) params.append(ROLE_PARAM, ROLE_TOKEN_OYA);
+    if (selection.includeKo) params.append(ROLE_PARAM, ROLE_TOKEN_KO);
   }
   if (!(selection.includeTsumo && selection.includeRon)) {
     if (selection.includeTsumo) params.append(WIN_PARAM, "tsumo");

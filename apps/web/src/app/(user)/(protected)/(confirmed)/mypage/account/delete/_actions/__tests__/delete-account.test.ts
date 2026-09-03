@@ -4,25 +4,14 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 // Mocks
 // ---------------------------------------------------------------------------
 
-const {
-  mockEnforceIpRateLimit,
-  mockAuthenticateAndCheckBan,
-  mockDeleteAccount,
-  mockLogActivityEvent,
-} = vi.hoisted(() => ({
-  mockEnforceIpRateLimit: vi.fn(),
-  mockAuthenticateAndCheckBan: vi.fn(),
+const { mockDeleteAccount, mockLogActivityEvent } = vi.hoisted(() => ({
   mockDeleteAccount: vi.fn(),
   mockLogActivityEvent: vi.fn(),
 }));
 
-vi.mock("@/lib/rate-limit-ip", () => ({
-  enforceIpRateLimit: mockEnforceIpRateLimit,
-}));
+vi.mock("@/lib/rate-limit-ip", async () => await import("@/test/auth-mocks"));
 
-vi.mock("@/lib/auth", () => ({
-  authenticateAndCheckBan: mockAuthenticateAndCheckBan,
-}));
+vi.mock("@/lib/auth", async () => await import("@/test/auth-mocks"));
 
 vi.mock("@/lib/users/delete-account", () => ({
   deleteAccount: mockDeleteAccount,
@@ -32,19 +21,21 @@ vi.mock("@/lib/activity-log", () => ({
   logActivityEvent: mockLogActivityEvent,
 }));
 
+import {
+  AUTHENTICATED_USER as USER,
+  mockAuthenticateAndCheckBan,
+  mockEnforceIpRateLimit,
+  setupAuthorized,
+} from "@/test/auth-mocks";
+
 import { deleteOwnAccount } from "../delete-account";
 
 // ---------------------------------------------------------------------------
 // Helpers
 // ---------------------------------------------------------------------------
 
-const USER = { id: "user-123", email: "user@example.com" };
-
 /** 認証もレートリミットも通過した状態にする */
-function authorized() {
-  mockEnforceIpRateLimit.mockResolvedValue(undefined);
-  mockAuthenticateAndCheckBan.mockResolvedValue({ user: USER });
-}
+const authorized = setupAuthorized;
 
 // ---------------------------------------------------------------------------
 // Tests

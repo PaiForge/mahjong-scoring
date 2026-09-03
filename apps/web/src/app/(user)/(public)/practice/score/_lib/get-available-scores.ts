@@ -4,6 +4,7 @@ import {
   oyaScoreFromBasePoints,
   MANGAN_BASE_POINTS,
   MANGAN_PLUS_TIERS,
+  paymentKindOf,
   RON_SCORES_KO,
   RON_SCORES_OYA,
   TSUMO_SCORES_KO_PART,
@@ -43,14 +44,14 @@ export function getAvailableScores(
   kiriageMangan?: boolean,
   doubleYakuman?: boolean,
 ): AvailableScores {
-  const isKoTsumo = isTsumo && !isOya;
+  const paymentKind = paymentKindOf(isOya, isTsumo);
   const scoresFor = (
     scores: readonly number[],
     category: ScoreCategory,
   ): readonly number[] =>
     doubleYakuman ? [...scores, DOUBLE_YAKUMAN_SCORES[category]] : scores;
 
-  if (isKoTsumo) {
+  if (paymentKind === "koTsumo") {
     return {
       type: "koTsumo",
       koScores: filterScores(
@@ -70,7 +71,7 @@ export function getAvailableScores(
     };
   }
 
-  if (isOya && isTsumo) {
+  if (paymentKind === "oyaTsumo") {
     return {
       type: "single",
       scores: filterScores(

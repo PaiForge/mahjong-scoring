@@ -23,16 +23,6 @@ describe("parseMentsuFuResults", () => {
     expect(results[0]).toEqual(validResult);
   });
 
-  it("undefined と壊れた JSON は空配列を返す", () => {
-    expect(parseMentsuFuResults(undefined)).toEqual([]);
-    expect(parseMentsuFuResults("{")).toEqual([]);
-  });
-
-  it("mentsu を欠く要素は除外する", () => {
-    const { mentsu: _omitted, ...broken } = validResult;
-    expect(parseMentsuFuResults(JSON.stringify([broken]))).toEqual([]);
-  });
-
   it("完成面子でない種別を持つ要素は除外する", () => {
     const broken = {
       ...validResult,

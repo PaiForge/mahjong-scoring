@@ -5,7 +5,7 @@ import {
   DEFAULT_DORA_DISPLAY_MODE,
   type DoraDisplayMode,
 } from "@/app/_lib/dora-display";
-import { useIsClient } from "./use-is-client";
+import { useHydrated } from "./use-hydrated";
 
 interface DisplaySettingsState {
   /** ドラを表示牌のまま出すか、ドラそのものに読み替えて出すか */
@@ -52,27 +52,23 @@ export const useDisplaySettingsStore = create<DisplaySettingsState>()(
 /**
  * ドラの表示モード取得フック
  *
- * ハイドレーション完了までは既定値を返す。永続値は localStorage から
- * ストア生成時に同期的に載るため、そのまま読むと SSR 済みの HTML
- * （＝常に既定値）と初回クライアントレンダーがずれる。
+ * ハイドレーション完了までは既定値を返す（理由は {@link useHydrated} 参照）。
  * ドラ表示モード
  */
 export function useDoraDisplayMode(): DoraDisplayMode {
-  const isClient = useIsClient();
   const doraDisplay = useDisplaySettingsStore((s) => s.doraDisplay);
-  return isClient ? doraDisplay : DEFAULT_DORA_DISPLAY_MODE;
+  return useHydrated(doraDisplay, DEFAULT_DORA_DISPLAY_MODE);
 }
 
 /**
  * 用語リンクの有効判定フック
  *
- * ハイドレーション完了までは既定値を返す（理由は {@link useDoraDisplayMode}
- * と同じ）。サーバーが描いた HTML は常にリンク入りなので、クローラと
+ * ハイドレーション完了までは既定値を返す（理由は {@link useHydrated} 参照）。
+ * サーバーが描いた HTML は常にリンク入りなので、クローラと
  * JavaScript 無効の閲覧者にはこの設定に関わらず内部リンクが見える。
  * 用語リンク有効判定
  */
 export function useTermLinksEnabled(): boolean {
-  const isClient = useIsClient();
   const termLinks = useDisplaySettingsStore((s) => s.termLinks);
-  return isClient ? termLinks : DEFAULT_TERM_LINKS_ENABLED;
+  return useHydrated(termLinks, DEFAULT_TERM_LINKS_ENABLED);
 }
