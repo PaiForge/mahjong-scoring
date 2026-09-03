@@ -38,6 +38,11 @@ interface ScoreProblemListProps {
  * 順に並べる。要約行は「子・ロン・6翻・70符」としか言わないので、間違えた人が
  * 数え直すには符と翻それぞれの根拠が要る。翻数の内訳は翻数即答練習の結果ページと
  * 同じ表（{@link YakuBreakdown}）を使う。
+ *
+ * ただし翻数の内訳は既定で閉じておく。ここで問われているのは点数であって
+ * 翻ではなく、開いたままだと役の行数だけ答え合わせが下へ流れる。出題直後の
+ * 結果表示（点数計算練習）でも翻の内訳は ▼ で開く扱いなので、見返すときも
+ * 同じ操作になる。
  */
 export function ScoreProblemList({
   results,
@@ -73,7 +78,10 @@ export function ScoreProblemList({
             )}
             {/* 役の内訳。保存を始める前の旧データには無いため任意 */}
             {result.question?.yakuDetails !== undefined && (
-              <YakuBreakdown yakuDetails={result.question.yakuDetails} />
+              <YakuBreakdown
+                yakuDetails={result.question.yakuDetails}
+                collapsible
+              />
             )}
 
             <AnswerComparison
