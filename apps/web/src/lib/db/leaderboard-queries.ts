@@ -220,17 +220,22 @@ async function getPeriodRanking(
 /**
  * 月間ランキングを取得する
  * 月間ランキング取得
+ *
+ * @param now - 「今」として扱う時刻。同一リクエスト内で一覧と自分の順位が
+ *   別々の「今」を見ないよう、呼び出し側で1回だけ生成して両方へ渡す
+ *   （{@link startOfCurrentMonth} 参照）
  */
 export async function getMonthlyRanking(
   menuType: string,
   leaderboardKey: string,
   offset: number,
   limit: number,
+  now: Date,
 ): Promise<LeaderboardPage> {
   return getPeriodRanking(
     menuType,
     leaderboardKey,
-    startOfCurrentMonth(new Date()),
+    startOfCurrentMonth(now),
     offset,
     limit,
   );

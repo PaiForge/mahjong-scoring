@@ -26,10 +26,11 @@ function getCachedRanking(
   period: LeaderboardPeriod,
   offset: number,
   limit: number,
+  now: Date,
 ) {
   return unstable_cache(
     async () => {
-      const { getRanking } = getQueriesForPeriod(period);
+      const { getRanking } = getQueriesForPeriod(period, now);
       return getRanking(module, LEADERBOARD_KEY, offset, limit);
     },
     [
@@ -75,12 +76,17 @@ export async function getLeaderboard(
 
   const { limit, offset } = getPaginationData(page, 0, PAGE_SIZE);
 
+  // 一覧と「自分の順位」で同じ「今」を使う。別々に現在時刻を読むと、
+  // 月替わりの瞬間に一覧が前月・自分の順位が当月（またはその逆）になる。
+  const now = new Date();
+
   try {
     const { rows, total } = await getCachedRanking(
       module,
       period,
       offset,
       limit,
+      now,
     );
 
     const leaderboardRows: RankedLeaderboardRow[] = rows.map((r, i) => ({
@@ -93,7 +99,7 @@ export async function getLeaderboard(
       currentUserId &&
       !leaderboardRows.some((r) => r.userId === currentUserId)
     ) {
-      const { getUserRankedRow } = getQueriesForPeriod(period);
+      const { getUserRankedRow } = getQueriesForPeriod(period, now);
       currentUserRank = await getUserRankedRow(
         currentUserId,
         module,

@@ -110,13 +110,18 @@ export async function getUserAllTimeRankedRow(
 /**
  * 月間ランキングにおけるユーザーのランク付き行を取得する
  * 月間ユーザーランク行取得
+ *
+ * @param now - 「今」として扱う時刻。一覧を引く {@link getMonthlyRanking} と
+ *   同じ値を渡すこと。別々に現在時刻を読むと、月替わりの瞬間に一覧と自分の
+ *   順位が違う月を集計する
  */
 export async function getUserMonthlyRankedRow(
   userId: string,
   menuType: string,
   leaderboardKey: string,
+  now: Date,
 ): Promise<RankedLeaderboardRow | undefined> {
-  const periodStart = startOfCurrentMonth(new Date());
+  const periodStart = startOfCurrentMonth(now);
 
   const [row] = await db.execute<RawRankedRow>(
     buildRankedRowQuery(

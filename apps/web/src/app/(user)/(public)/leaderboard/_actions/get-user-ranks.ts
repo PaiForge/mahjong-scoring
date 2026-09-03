@@ -29,10 +29,11 @@ export async function getUserRanks(
   }
 
   const userId = user.id;
+  const now = new Date();
 
   return unstable_cache(
     async () => {
-      const { getUserRankedRow } = getQueriesForPeriod(period);
+      const { getUserRankedRow } = getQueriesForPeriod(period, now);
 
       const results = await Promise.allSettled(
         MODULES.map(async (module) => {
