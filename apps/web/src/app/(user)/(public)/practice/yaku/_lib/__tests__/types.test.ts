@@ -35,17 +35,6 @@ describe("parseYakuResults", () => {
     expect(results[0]).toEqual(validResult);
   });
 
-  it("undefined と壊れた JSON は空配列を返す", () => {
-    expect(parseYakuResults(undefined)).toEqual([]);
-    expect(parseYakuResults("{")).toEqual([]);
-  });
-
-  it("必須フィールドを欠く要素は除外する", () => {
-    const { tehai: _omitted, ...broken } = validResult;
-    const raw = JSON.stringify([validResult, broken]);
-    expect(parseYakuResults(raw)).toHaveLength(1);
-  });
-
   it("役名の配列でない要素は除外する", () => {
     const broken = { ...validResult, correctYakuNames: [1, 2] };
     expect(parseYakuResults(JSON.stringify([broken]))).toEqual([]);

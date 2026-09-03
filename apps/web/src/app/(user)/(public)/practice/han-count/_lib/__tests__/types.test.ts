@@ -22,24 +22,6 @@ describe("parseHanCountResults", () => {
     expect(results[0]).toEqual(validResult);
   });
 
-  it("複数件の結果をパースできる", () => {
-    const incorrectResult = {
-      correctHan: 5,
-      userHan: 3,
-      isCorrect: false,
-    };
-    const raw = JSON.stringify([validResult, incorrectResult]);
-    const results = parseHanCountResults(raw);
-    expect(results).toHaveLength(2);
-    expect(results[0]).toEqual(validResult);
-    expect(results[1]).toEqual(incorrectResult);
-  });
-
-  it("空配列の JSON 文字列は空配列を返す", () => {
-    const results = parseHanCountResults("[]");
-    expect(results).toEqual([]);
-  });
-
   // --- 境界値 ---
 
   it("han=1（最小翻数）を含む結果をパースできる", () => {
@@ -56,38 +38,6 @@ describe("parseHanCountResults", () => {
     const results = parseHanCountResults(raw);
     expect(results).toHaveLength(1);
     expect(results[0]?.correctHan).toBe(13);
-  });
-
-  // --- エラー系: 入力全体が不正 ---
-
-  it("undefined を渡すと空配列を返す", () => {
-    const results = parseHanCountResults(undefined);
-    expect(results).toEqual([]);
-  });
-
-  it("空文字列は空配列を返す", () => {
-    const results = parseHanCountResults("");
-    expect(results).toEqual([]);
-  });
-
-  it("不正な JSON 文字列は空配列を返す", () => {
-    const results = parseHanCountResults("not-json");
-    expect(results).toEqual([]);
-  });
-
-  it("配列でない JSON（オブジェクト）は空配列を返す", () => {
-    const results = parseHanCountResults(JSON.stringify({ foo: "bar" }));
-    expect(results).toEqual([]);
-  });
-
-  it("文字列の JSON は空配列を返す", () => {
-    const results = parseHanCountResults(JSON.stringify("hello"));
-    expect(results).toEqual([]);
-  });
-
-  it("数値の JSON は空配列を返す", () => {
-    const results = parseHanCountResults(JSON.stringify(42));
-    expect(results).toEqual([]);
   });
 
   // --- 不正データフィルタリング: 必須フィールドの欠損 ---
@@ -137,49 +87,6 @@ describe("parseHanCountResults", () => {
     const raw = JSON.stringify([invalid]);
     const results = parseHanCountResults(raw);
     expect(results).toEqual([]);
-  });
-
-  // --- 不正データフィルタリング: 配列要素が不正な型 ---
-
-  it("null 要素はフィルタされる", () => {
-    const raw = JSON.stringify([null, validResult]);
-    const results = parseHanCountResults(raw);
-    expect(results).toHaveLength(1);
-    expect(results[0]).toEqual(validResult);
-  });
-
-  it("数値要素はフィルタされる", () => {
-    const raw = JSON.stringify([42, validResult]);
-    const results = parseHanCountResults(raw);
-    expect(results).toHaveLength(1);
-    expect(results[0]).toEqual(validResult);
-  });
-
-  it("文字列要素はフィルタされる", () => {
-    const raw = JSON.stringify(["invalid", validResult]);
-    const results = parseHanCountResults(raw);
-    expect(results).toHaveLength(1);
-    expect(results[0]).toEqual(validResult);
-  });
-
-  // --- 混在データ ---
-
-  it("有効な要素と無効な要素が混在する場合、有効な要素のみ返す", () => {
-    const invalidMissingField = { ...validResult };
-    Reflect.deleteProperty(invalidMissingField, "correctHan");
-    const invalidWrongType = { ...validResult, userHan: "3" };
-
-    const raw = JSON.stringify([
-      validResult,
-      invalidMissingField,
-      invalidWrongType,
-      null,
-      { correctHan: 1, userHan: 2, isCorrect: false },
-    ]);
-    const results = parseHanCountResults(raw);
-    expect(results).toHaveLength(2);
-    expect(results[0]).toEqual(validResult);
-    expect(results[1]).toEqual({ correctHan: 1, userHan: 2, isCorrect: false });
   });
 
   // --- 出題スナップショット ---

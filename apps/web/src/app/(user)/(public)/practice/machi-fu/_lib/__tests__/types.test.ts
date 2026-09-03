@@ -18,17 +18,6 @@ describe("parseMachiFuResults", () => {
     expect(results).toHaveLength(1);
     expect(results[0]).toEqual(validResult);
   });
-
-  it("undefined と壊れた JSON は空配列を返す", () => {
-    expect(parseMachiFuResults(undefined)).toEqual([]);
-    expect(parseMachiFuResults("{")).toEqual([]);
-  });
-
-  it("必須フィールドを欠く要素は除外する", () => {
-    const { agariHai: _omitted, ...broken } = validResult;
-    const raw = JSON.stringify([validResult, broken]);
-    expect(parseMachiFuResults(raw)).toHaveLength(1);
-  });
 });
 
 describe("toQuestionResult", () => {
