@@ -1,7 +1,7 @@
 import { create } from "zustand";
 import { persist } from "zustand/middleware";
 
-import { useIsClient } from "./use-is-client";
+import { useHydrated } from "./use-hydrated";
 
 interface TrainingSettingsState {
   /** トレーニングで正解したとき、答え合わせを挟まず次の問題へ進むか */
@@ -45,15 +45,12 @@ export const useTrainingSettingsStore = create<TrainingSettingsState>()(
 /**
  * 正解時の自動遷移が有効かの判定フック
  *
- * ハイドレーション完了までは既定値を返す。永続値は localStorage から
- * ストア生成時に同期的に載るため、そのまま読むと SSR 済みの HTML
- * （＝常に既定値）と初回クライアントレンダーがずれる。
+ * ハイドレーション完了までは既定値を返す（理由は {@link useHydrated} 参照）。
  * 正解時自動遷移の判定
  */
 export function useAutoAdvanceOnCorrect(): boolean {
-  const isClient = useIsClient();
   const autoAdvanceOnCorrect = useTrainingSettingsStore(
     (s) => s.autoAdvanceOnCorrect,
   );
-  return isClient ? autoAdvanceOnCorrect : DEFAULT_AUTO_ADVANCE_ON_CORRECT;
+  return useHydrated(autoAdvanceOnCorrect, DEFAULT_AUTO_ADVANCE_ON_CORRECT);
 }

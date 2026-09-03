@@ -3,7 +3,7 @@ import { create } from "zustand";
 import { persist } from "zustand/middleware";
 import { normalizeYakuOrder, YAKU_DEFAULT_ORDER } from "@mahjong-scoring/core";
 
-import { useIsClient } from "./use-is-client";
+import { useHydrated } from "./use-hydrated";
 
 interface YakuOrderState {
   /**
@@ -42,14 +42,10 @@ export const useYakuOrderStore = create<YakuOrderState>()(
  *
  * 保存値は {@link normalizeYakuOrder} を通すため、選択できる全役を
  * ちょうど1回ずつ含む。ハイドレーション完了までは既定順を返す
- * （永続値はストア生成時に同期的に載るため、そのまま読むと SSR 済みの
- * HTML と初回クライアントレンダーがずれる）。
+ * （理由は {@link useHydrated} 参照）。
  */
 export function useYakuOrder(): readonly string[] {
-  const isClient = useIsClient();
   const saved = useYakuOrderStore((s) => s.order);
-  return useMemo(
-    () => (isClient ? normalizeYakuOrder(saved) : YAKU_DEFAULT_ORDER),
-    [isClient, saved],
-  );
+  const normalized = useMemo(() => normalizeYakuOrder(saved), [saved]);
+  return useHydrated(normalized, YAKU_DEFAULT_ORDER);
 }
