@@ -1,12 +1,11 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
-const { mockGetTranslations } = vi.hoisted(() => ({
-  mockGetTranslations: vi.fn(),
-}));
+vi.mock(
+  "next-intl/server",
+  async () => await import("@/test/intl-namespace-mock"),
+);
 
-vi.mock("next-intl/server", () => ({
-  getTranslations: mockGetTranslations,
-}));
+import { setupTranslations } from "@/test/intl-namespace-mock";
 
 import { SITE_NAME } from "@/app/_lib/metadata";
 
@@ -15,13 +14,6 @@ import {
   createPracticePlayMetadata,
   createPracticeTrainingMetadata,
 } from "../metadata";
-
-/** 名前空間ごとの辞書を引く翻訳関数を組み立てる */
-function setupTranslations(dict: Record<string, Record<string, string>>) {
-  mockGetTranslations.mockImplementation((namespace: string) =>
-    Promise.resolve((key: string) => dict[namespace]?.[key] ?? `?${key}`),
-  );
-}
 
 beforeEach(() => {
   vi.clearAllMocks();
