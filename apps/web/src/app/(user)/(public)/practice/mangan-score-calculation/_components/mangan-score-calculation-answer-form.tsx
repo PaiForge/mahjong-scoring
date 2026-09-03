@@ -1,10 +1,11 @@
 "use client";
 
-import { isOya } from "@mahjong-scoring/core";
+import { allowsDoubleYakuman, isOya } from "@mahjong-scoring/core";
 import type {
   ScoreQuestion,
   ScoreTableUserAnswer,
 } from "@mahjong-scoring/core";
+import { useYakumanRules } from "@/app/_hooks/use-rule-settings-store";
 import { ScoreAnswerForm } from "../../_components/score-answer-form";
 
 interface ManganScoreCalculationAnswerFormProps {
@@ -34,6 +35,8 @@ export function ManganScoreCalculationAnswerForm({
   lastAnswerCorrect,
 }: ManganScoreCalculationAnswerFormProps) {
   const oya = isOya(question.jikaze);
+  // ダブル役満採用時のみ、その点数（子64000点等）を選択肢に足す
+  const allowDoubleYakuman = allowsDoubleYakuman(useYakumanRules());
 
   return (
     <ScoreAnswerForm
@@ -47,6 +50,7 @@ export function ManganScoreCalculationAnswerForm({
       lastAnswerCorrect={lastAnswerCorrect}
       translationNamespace="manganScoreCalculationChallenge"
       scoreRange="manganPlus"
+      allowDoubleYakuman={allowDoubleYakuman}
     />
   );
 }

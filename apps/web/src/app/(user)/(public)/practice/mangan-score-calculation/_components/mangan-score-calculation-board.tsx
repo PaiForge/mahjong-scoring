@@ -6,6 +6,7 @@ import { QuestionPrompt } from "../../_components/question-prompt";
 import { useTranslations } from "next-intl";
 import { RevealedScoreAnswer } from "../../_components/revealed-score-answer";
 import { paymentToScoreTableAnswer } from "../../_lib/payment-adapter";
+import { useYakumanRules } from "@/app/_hooks/use-rule-settings-store";
 import { useScoreQuestionBoard } from "../../_hooks/use-score-question-board";
 import { useTrainingMode } from "../../_hooks/use-training-mode";
 import { QuestionDisplay } from "../../score/_components/question-display";
@@ -44,12 +45,14 @@ export function ManganScoreCalculationBoard({
 }: ManganScoreCalculationBoardProps) {
   const t = useTranslations("manganScoreCalculationChallenge");
 
+  const yakumanRules = useYakumanRules();
   const generateOptions = useMemo(
     () => ({
       allowedRanges: ["manganPlus" as const],
+      yakumanRules,
       ...playerTypeToOptions(playerType),
     }),
-    [playerType],
+    [playerType, yakumanRules],
   );
 
   const { question, questionIndex, handleSubmit } = useScoreQuestionBoard({
