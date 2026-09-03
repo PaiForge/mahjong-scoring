@@ -163,14 +163,13 @@ function agariHaiCandidates(
   mentsuList: readonly MentsuResult[],
   pairTile: HaiKindId,
 ): HaiKindId[] {
-  const candidates: HaiKindId[] = [pairTile, pairTile];
-  for (const r of mentsuList) {
-    const isOpen = !!r.mentsu.furo;
-    if (!isOpen && r.mentsu.type !== MentsuType.Kantsu) {
-      candidates.push(...r.mentsu.hais);
-    }
-  }
-  return candidates;
+  return [
+    pairTile,
+    pairTile,
+    ...mentsuList
+      .filter((r) => !isExposedMentsu(r.mentsu))
+      .flatMap((r) => r.mentsu.hais),
+  ];
 }
 
 /**
