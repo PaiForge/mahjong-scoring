@@ -214,7 +214,7 @@ export function pickRonAgariHai(
   rng: RandomSource = defaultRandomSource,
 ): HaiKindId | undefined {
   const closedGroups = mentsuList
-    .filter((r) => !r.mentsu.furo && r.mentsu.type !== MentsuType.Kantsu)
+    .filter((r) => !isExposedMentsu(r.mentsu))
     .map((r) => r.mentsu.hais);
 
   const ambiguous = new Set<HaiKindId>();
