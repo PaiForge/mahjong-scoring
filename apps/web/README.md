@@ -13,8 +13,8 @@
 [Supabase CLI](https://supabase.com/docs/guides/local-development) はこのアプリの
 devDependency として同梱されているため（`pnpm install` で入ります）、個別に
 インストールする必要はありません。`supabase/config.toml` は CLI のバージョンと
-結合しているので、グローバルインストール版ではなく `apps/web` から
-`pnpm supabase ...` で同梱版を実行してください。
+結合しているので、グローバルインストール版ではなく、リポジトリルートまたは
+`apps/web` から `pnpm supabase ...` で同梱版を実行してください。
 
 ### セットアップ
 
@@ -22,7 +22,7 @@ devDependency として同梱されているため（`pnpm install` で入りま
 # 依存パッケージのインストール（モノレポのルートで実行）
 pnpm install
 
-# Supabase ローカル環境の起動（apps/web で実行。初回は Docker イメージのダウンロードが行われます）
+# Supabase ローカル環境の起動（リポジトリルートまたは apps/web で実行。初回は Docker イメージのダウンロードが行われます）
 pnpm supabase start
 ```
 
