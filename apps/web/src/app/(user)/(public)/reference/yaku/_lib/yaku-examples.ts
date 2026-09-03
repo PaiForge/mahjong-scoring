@@ -1,4 +1,5 @@
 import { YAKUHAI_ENTRY_NAME } from "@mahjong-scoring/core";
+import type { WinType } from "@mahjong-scoring/core";
 
 /**
  * 役チートシート用の例示手牌（Extended MSPZ 記法）
@@ -14,7 +15,7 @@ import { YAKUHAI_ENTRY_NAME } from "@mahjong-scoring/core";
 
 /** 和了の仕方 */
 export interface YakuExampleAgari {
-  readonly type: "ron" | "tsumo";
+  readonly type: WinType;
   /** 和了牌（MSPZ 記法で1枚） */
   readonly hai: string;
 }
