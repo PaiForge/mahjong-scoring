@@ -17,6 +17,11 @@ import { setsEqual } from "../shared/set-equal";
 /**
  * 点数の判定
  * 点数一致判定
+ *
+ * 支払い形ごとに突き合わせるフィールドが決まるという規則は、点数表早引きの
+ * judgeScoreTableAnswer（`problem/score-table/judgement.ts`）と同じ。
+ * 扱う形が違うため共通化していない（理由はあちらの TSDoc に書いた）。
+ * 突き合わせ方そのものを変えるときは両方を直すこと。
  */
 function judgeScore(
   payment: ScoreQuestion["answer"]["payment"],
