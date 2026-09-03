@@ -9,29 +9,19 @@
  */
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
-const {
-  mockEnforceIpRateLimit,
-  mockAuthenticateAndCheckBan,
-  mockLogActivityEvent,
-  mockRevalidateTag,
-  mockUpdate,
-} = vi.hoisted(() => ({
-  mockEnforceIpRateLimit: vi.fn(),
-  mockAuthenticateAndCheckBan: vi.fn(),
-  mockLogActivityEvent: vi.fn(),
-  mockRevalidateTag: vi.fn(),
-  mockUpdate: vi.fn(),
-}));
+const { mockLogActivityEvent, mockRevalidateTag, mockUpdate } = vi.hoisted(
+  () => ({
+    mockLogActivityEvent: vi.fn(),
+    mockRevalidateTag: vi.fn(),
+    mockUpdate: vi.fn(),
+  }),
+);
 
 vi.mock("next/cache", () => ({ revalidateTag: mockRevalidateTag }));
 
-vi.mock("@/lib/rate-limit-ip", () => ({
-  enforceIpRateLimit: mockEnforceIpRateLimit,
-}));
+vi.mock("@/lib/rate-limit-ip", async () => await import("@/test/auth-mocks"));
 
-vi.mock("@/lib/auth", () => ({
-  authenticateAndCheckBan: mockAuthenticateAndCheckBan,
-}));
+vi.mock("@/lib/auth", async () => await import("@/test/auth-mocks"));
 
 vi.mock("@/lib/activity-log", () => ({
   logActivityEvent: mockLogActivityEvent,
@@ -45,6 +35,7 @@ vi.mock("@/lib/db", async () => ({
 vi.mock("drizzle-orm", async () => await import("@/test/drizzle-orm-mock"));
 
 import { createQueryChain } from "@/test/drizzle-mock";
+import { setupAuthorized } from "@/test/auth-mocks";
 import { LEADERBOARD_CACHE_TAG } from "@/lib/cache-tags";
 
 import { updateProfile } from "../update-profile";
@@ -59,8 +50,7 @@ const VALID_INPUT = {
 
 beforeEach(() => {
   vi.clearAllMocks();
-  mockEnforceIpRateLimit.mockResolvedValue(undefined);
-  mockAuthenticateAndCheckBan.mockResolvedValue({ user: { id: "user-1" } });
+  setupAuthorized();
   mockUpdate.mockReturnValue(createQueryChain(undefined));
 });
 
