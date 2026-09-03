@@ -37,14 +37,16 @@ describe("EXAM_GENERATE_OPTIONS", () => {
     expect(EXAM_GENERATE_OPTIONS.includeChiitoi).toBe(true);
   });
 
-  it("答えが割れる局面（連風牌・切り上げ満貫の境界）を出題しない", () => {
+  it("答えが割れる局面（連風牌・切り上げ満貫・役満ルールの境界）を出題しない", () => {
     expect(EXAM_GENERATE_OPTIONS.excludeRenfonpai).toBe(true);
     expect(EXAM_GENERATE_OPTIONS.excludeKiriageBoundary).toBe(true);
+    expect(EXAM_GENERATE_OPTIONS.excludeYakumanRuleBoundary).toBe(true);
   });
 
-  it("ルール設定（連風牌4符・切り上げ満貫）を出題条件に含めない", () => {
+  it("ルール設定（連風牌4符・切り上げ満貫・ダブル役満）を出題条件に含めない", () => {
     expect(EXAM_GENERATE_OPTIONS).not.toHaveProperty("renfonpaiAs4Fu");
     expect(EXAM_GENERATE_OPTIONS).not.toHaveProperty("kiriageMangan");
+    expect(EXAM_GENERATE_OPTIONS).not.toHaveProperty("yakumanRules");
   });
 
   it("この条件で生成した問題は連風牌も切り上げ満貫の境界も含まない", () => {

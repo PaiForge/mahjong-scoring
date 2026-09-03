@@ -17,7 +17,7 @@ export const RESULT_STORAGE_KEY = resultStorageKeyFor("score-exam");
  * 時点で測るものが変わる。七対子（`includeChiitoi`）は既定が false のため
  * ここだけ明示的に開ける — 平和・面子手・副露手は既定で出る。
  *
- * 残る2つは範囲の絞り込みではなく、答えが1つに定まらない手を落とすための
+ * 残る3つは範囲の絞り込みではなく、答えが1つに定まらない手を落とすための
  * 条件:
  *
  * - `excludeRenfonpai: true` — 場風＝自風の局面を出さない。連風牌の雀頭を
@@ -28,10 +28,14 @@ export const RESULT_STORAGE_KEY = resultStorageKeyFor("score-exam");
  *   点数帯を絞る下の級では選択肢が満貫未満／以上のどちらかに固定されていて
  *   切り上げた側を選べないため露出しなかったが、選択肢を全点数に開く
  *   この試験では受験者の設定次第で正解が変わってしまう
+ * - `excludeYakumanRuleBoundary: true` — 役満ルール（ダブル役満の形・
+ *   複合役満の合算）の採否で正解が割れる手（四暗刻単騎・複合役満等）を
+ *   出さない
  *
- * ルール設定（連風牌4符・切り上げ満貫）そのものは意図的に含めない。上の2つで
- * 割れる局面ごと出題から外してあるため、端末ローカル設定に関係なく全受験者が
- * 同一条件になる。この独立性は `__tests__/exam-options.test.ts` が守る。
+ * ルール設定（連風牌4符・切り上げ満貫・ダブル役満）そのものは意図的に
+ * 含めない。上の3つで割れる局面ごと出題から外してあるため、端末ローカル設定に
+ * 関係なく全受験者が同一条件になる。この独立性は
+ * `__tests__/exam-options.test.ts` が守る。
  *
  * @remarks 合格ラインを調整するときの前提
  *
@@ -51,4 +55,5 @@ export const EXAM_GENERATE_OPTIONS = {
   includeChiitoi: true,
   excludeRenfonpai: true,
   excludeKiriageBoundary: true,
+  excludeYakumanRuleBoundary: true,
 } as const satisfies QuestionGeneratorOptions;
