@@ -83,4 +83,83 @@ describe("getAvailableScores", () => {
       );
     });
   });
+
+  describe("ダブル役満採用時", () => {
+    it("子ロンの選択肢に 64000 が足される", () => {
+      const available = getAvailableScores(
+        26,
+        false,
+        false,
+        undefined,
+        false,
+        true,
+      );
+
+      expect(available.type).toBe("single");
+      if (available.type !== "single") return;
+      expect(available.scores).toContain(64000);
+    });
+
+    it("親ロンの選択肢に 96000 が足される", () => {
+      const available = getAvailableScores(
+        26,
+        true,
+        false,
+        undefined,
+        false,
+        true,
+      );
+
+      expect(available.type).toBe("single");
+      if (available.type !== "single") return;
+      expect(available.scores).toContain(96000);
+    });
+
+    it("子ツモの選択肢に 16000 / 32000 が足される", () => {
+      const available = getAvailableScores(
+        26,
+        false,
+        true,
+        undefined,
+        false,
+        true,
+      );
+
+      expect(available.type).toBe("koTsumo");
+      if (available.type !== "koTsumo") return;
+      expect(available.koScores).toContain(16000);
+      expect(available.oyaScores).toContain(32000);
+    });
+
+    it("親ツモの選択肢に 32000 オールが足される", () => {
+      const available = getAvailableScores(
+        26,
+        true,
+        true,
+        undefined,
+        false,
+        true,
+      );
+
+      expect(available.type).toBe("single");
+      if (available.type !== "single") return;
+      expect(available.scores).toContain(32000);
+    });
+
+    it("採用しないとき（既定）は選択肢が変わらない", () => {
+      const withoutFlag = getAvailableScores(13, false, false);
+      const explicitOff = getAvailableScores(
+        13,
+        false,
+        false,
+        undefined,
+        false,
+        false,
+      );
+
+      expect(explicitOff).toEqual(withoutFlag);
+      if (withoutFlag.type !== "single") return;
+      expect(withoutFlag.scores).not.toContain(64000);
+    });
+  });
 });

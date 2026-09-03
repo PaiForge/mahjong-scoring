@@ -3,6 +3,7 @@ import {
   koScoreFromBasePoints,
   oyaScoreFromBasePoints,
   MANGAN_BASE_POINTS,
+  MANGAN_PLUS_TIERS,
   RON_SCORES_KO,
   RON_SCORES_OYA,
   TSUMO_SCORES_KO_PART,
@@ -30,6 +31,9 @@ export type ScoreOptionRange = ScoreRange | "all";
  * @param isTsumo - ツモかどうか
  * @param scoreRange - 指定すると、翻数にかかわらずその範囲の点数のみ返す
  * @param kiriageMangan - 切り上げ満貫を採用しているか（3翻でも満貫がありうる）
+ * @param doubleYakuman - ダブル役満を採用したルールでの出題か。採用時のみ
+ *   ダブル役満の点数（子64000点等）を選択肢に足す。昇級試験は端末ローカル
+ *   設定で選択肢が変わってはならないため渡さない
  */
 export function getAvailableScores(
   han: number | undefined,
@@ -37,21 +41,27 @@ export function getAvailableScores(
   isTsumo: boolean,
   scoreRange?: ScoreOptionRange,
   kiriageMangan?: boolean,
+  doubleYakuman?: boolean,
 ): AvailableScores {
   const isKoTsumo = isTsumo && !isOya;
+  const scoresFor = (
+    scores: readonly number[],
+    category: ScoreCategory,
+  ): readonly number[] =>
+    doubleYakuman ? [...scores, DOUBLE_YAKUMAN_SCORES[category]] : scores;
 
   if (isKoTsumo) {
     return {
       type: "koTsumo",
       koScores: filterScores(
-        TSUMO_SCORES_KO_PART,
+        scoresFor(TSUMO_SCORES_KO_PART, "tsumoKo"),
         han,
         "tsumoKo",
         scoreRange,
         kiriageMangan,
       ),
       oyaScores: filterScores(
-        TSUMO_SCORES_OYA_PART,
+        scoresFor(TSUMO_SCORES_OYA_PART, "tsumoOya"),
         han,
         "tsumoOya",
         scoreRange,
@@ -64,7 +74,7 @@ export function getAvailableScores(
     return {
       type: "single",
       scores: filterScores(
-        TSUMO_SCORES_OYA_PART,
+        scoresFor(TSUMO_SCORES_OYA_PART, "tsumoOyaAll"),
         han,
         "tsumoOyaAll",
         scoreRange,
@@ -77,7 +87,7 @@ export function getAvailableScores(
     return {
       type: "single",
       scores: filterScores(
-        RON_SCORES_OYA,
+        scoresFor(RON_SCORES_OYA, "ronOya"),
         han,
         "ronOya",
         scoreRange,
@@ -89,7 +99,7 @@ export function getAvailableScores(
   return {
     type: "single",
     scores: filterScores(
-      RON_SCORES_KO,
+      scoresFor(RON_SCORES_KO, "ronKo"),
       han,
       "ronKo",
       scoreRange,
@@ -125,6 +135,27 @@ type ScoreCategory =
 const MANGAN_THRESHOLDS: Readonly<Record<ScoreCategory, number>> = (() => {
   const ko = koScoreFromBasePoints(MANGAN_BASE_POINTS);
   const oya = oyaScoreFromBasePoints(MANGAN_BASE_POINTS);
+  return {
+    ronKo: ko.ron,
+    ronOya: oya.ron,
+    tsumoKo: ko.tsumo.fromKo,
+    tsumoOya: ko.tsumo.fromOya,
+    tsumoOyaAll: oya.tsumo.all,
+  };
+})();
+
+/**
+ * ダブル役満採用時に選択肢へ足す点数
+ *
+ * 64000 等を直書きせず、ダブル役満の基本符（core の `MANGAN_PLUS_TIERS`）
+ * から満貫のしきい値と同じ式で導出する。点数リスト（`RON_SCORES_KO` 等）は
+ * 役満（32000等）までしか持たないため、採用時にカテゴリごとの1点を足す。
+ */
+const DOUBLE_YAKUMAN_SCORES: Readonly<Record<ScoreCategory, number>> = (() => {
+  const tier = MANGAN_PLUS_TIERS.find((t) => t.key === "doubleYakuman");
+  if (!tier) throw new Error("MANGAN_PLUS_TIERS にダブル役満の区分がない");
+  const ko = koScoreFromBasePoints(tier.basePoints);
+  const oya = oyaScoreFromBasePoints(tier.basePoints);
   return {
     ronKo: ko.ron,
     ronOya: oya.ron,
