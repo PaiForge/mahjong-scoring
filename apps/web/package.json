@@ -8,6 +8,7 @@
     "build": "next build",
     "start": "next start",
     "lint": "eslint .",
+    "email:generate": "tsx scripts/generate-email-templates.ts",
     "og:generate": "tsx scripts/generate-og-image.ts",
     "icons:generate": "tsx scripts/generate-icons.ts",
     "typecheck": "tsc --noEmit",
