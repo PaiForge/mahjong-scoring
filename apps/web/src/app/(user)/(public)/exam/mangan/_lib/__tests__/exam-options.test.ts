@@ -6,6 +6,8 @@
  * （leaderboardKey を分けずに全受験者のベストスコアを同じ土俵で比較するため）。
  * その前提が成り立つのは出題が5翻以上に限定されている場合のみ:
  * 連風牌4符・切り上げ満貫はどちらも5翻未満の点数にしか影響しない。
+ * ダブル役満・複合役満の設定は5翻以上の点数に影響するため、採否で正解が
+ * 割れる手は境界除外（excludeYakumanRuleBoundary）で出題から外す。
  * ここでは出題条件のデータと、盤面がルール設定ストアを読まないことを守る。
  */
 import { MANGAN_MIN_HAN } from "@mahjong-scoring/core";
@@ -21,9 +23,14 @@ describe("EXAM_GENERATE_OPTIONS", () => {
     expect(EXAM_GENERATE_OPTIONS.allowedRanges).toEqual(["manganPlus"]);
   });
 
-  it("ルール設定（連風牌4符・切り上げ満貫）を出題条件に含めない", () => {
+  it("ルール設定（連風牌4符・切り上げ満貫・ダブル役満）を出題条件に含めない", () => {
     expect(EXAM_GENERATE_OPTIONS).not.toHaveProperty("renfonpaiAs4Fu");
     expect(EXAM_GENERATE_OPTIONS).not.toHaveProperty("kiriageMangan");
+    expect(EXAM_GENERATE_OPTIONS).not.toHaveProperty("yakumanRules");
+  });
+
+  it("役満ルールの採否で正解が割れる手を出題しない", () => {
+    expect(EXAM_GENERATE_OPTIONS.excludeYakumanRuleBoundary).toBe(true);
   });
 });
 

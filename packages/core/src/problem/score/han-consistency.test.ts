@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest";
 
 import { generateValidScoreQuestion } from "./generator";
+import { ALL_YAKUMAN_RULES_ENABLED } from "../../rules/settings";
 import type { QuestionGeneratorOptions } from "./types";
 
 /**
@@ -21,6 +22,8 @@ const CASES: readonly (readonly [string, QuestionGeneratorOptions])[] = [
   // 清一色・混一色が出るのは満貫以上。食い違いが最も出やすい条件
   ["満貫以上", { allowedRanges: ["manganPlus"], minHan: 5 }],
   ["満貫未満", { allowedRanges: ["nonMangan"] }],
+  // ダブル役満（26翻の役）が内訳と翻数の両方に正しく乗ることの保証
+  ["役満ルール全有効", { yakumanRules: ALL_YAKUMAN_RULES_ENABLED }],
 ];
 
 describe.each(CASES)("翻数と役の内訳の整合性: %s", (_label, options) => {

@@ -112,10 +112,17 @@ export function judgeYakuName(
  * 簡略化された翻数を取得する
  * 5翻以上をクラスごとの代表値（区分の最小翻数）に変換する
  * 翻数簡略化
+ *
+ * ダブル役満区分（26翻〜）の代表値は、ダブル役満をルールとして採用して
+ * いない出題では役満（13翻）に丸める。採用している出題では役満と
+ * ダブル役満は別の答えなので丸めない（丸めると 26 翻の正解に 13 翻と
+ * 答えても正解になってしまう）。
  */
-function getSimplifiedHan(han: number): number {
-  // ダブル役満区分（26翻〜）の代表値も役満に丸める
-  return clampHanToYakuman(scoreTierForHan(han)?.minHan ?? han);
+function getSimplifiedHan(han: number, allowDoubleYakuman: boolean): number {
+  const representative = scoreTierForHan(han)?.minHan ?? han;
+  return allowDoubleYakuman
+    ? representative
+    : clampHanToYakuman(representative);
 }
 
 /**
@@ -127,6 +134,8 @@ function getSimplifiedHan(han: number): number {
  * @param requireYaku - 役の判定を必須とするかどうか
  * @param simplifyMangan - 満貫以上の翻数を簡略化するかどうか
  * @param requireFuForMangan - 満貫以上でも符の判定を必須とするかどうか
+ * @param allowDoubleYakuman - ダブル役満を採用したルールでの出題かどうか。
+ *   採用時は 26 翻を役満（13翻）へ丸めずに別の答えとして判定する
  */
 export function judgeAnswer(
   question: Readonly<ScoreQuestion>,
@@ -134,6 +143,7 @@ export function judgeAnswer(
   requireYaku: boolean = false,
   simplifyMangan: boolean = false,
   requireFuForMangan: boolean = false,
+  allowDoubleYakuman: boolean = false,
 ): JudgementResult {
   const { answer } = question;
   const isManganOrAbove = isMangan(answer.scoreLevel);
@@ -154,7 +164,8 @@ export function judgeAnswer(
       answer.han >= MANGAN_MIN_HAN
     ) {
       isHanCorrect =
-        getSimplifiedHan(userAnswer.han) === getSimplifiedHan(answer.han);
+        getSimplifiedHan(userAnswer.han, allowDoubleYakuman) ===
+        getSimplifiedHan(answer.han, allowDoubleYakuman);
     }
   }
 

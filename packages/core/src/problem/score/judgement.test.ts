@@ -264,6 +264,49 @@ describe("judgeAnswer", () => {
       expect(result.isHanCorrect).toBe(true);
     });
 
+    describe("ダブル役満採用時（allowDoubleYakuman）", () => {
+      it("26翻の正解に13翻（役満）と答えると不正解", () => {
+        // ダブル役満を採用したルールでは役満とダブル役満は別の答え。
+        // 採用時に 26 翻を役満へ丸めると、この誤答が正解になってしまう
+        const question = makeQuestion({
+          han: 26,
+          fu: 30,
+          scoreLevel: ScoreLevel.DoubleYakuman,
+          payment: { type: "ron", amount: 64000 },
+        });
+        const answer: UserAnswer = { han: 13, fu: 30, score: 64000, yakus: [] };
+        const result = judgeAnswer(question, answer, false, true, false, true);
+
+        expect(result.isHanCorrect).toBe(false);
+      });
+
+      it("26翻の正解に26翻（ダブル役満）と答えると正解", () => {
+        const question = makeQuestion({
+          han: 27,
+          fu: 30,
+          scoreLevel: ScoreLevel.DoubleYakuman,
+          payment: { type: "ron", amount: 64000 },
+        });
+        const answer: UserAnswer = { han: 26, fu: 30, score: 64000, yakus: [] };
+        const result = judgeAnswer(question, answer, false, true, false, true);
+
+        expect(result.isHanCorrect).toBe(true);
+      });
+
+      it("13翻の正解に26翻（ダブル役満）と答えると不正解", () => {
+        const question = makeQuestion({
+          han: 14,
+          fu: 30,
+          scoreLevel: ScoreLevel.Yakuman,
+          payment: { type: "ron", amount: 32000 },
+        });
+        const answer: UserAnswer = { han: 26, fu: 30, score: 32000, yakus: [] };
+        const result = judgeAnswer(question, answer, false, true, false, true);
+
+        expect(result.isHanCorrect).toBe(false);
+      });
+    });
+
     it("4翻以下は簡略化されない", () => {
       const question = makeQuestion({
         han: 3,

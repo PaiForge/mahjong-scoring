@@ -39,6 +39,12 @@ interface ScoreAnswerFormProps {
    * 有効時は送信ボタンを表示しない。
    */
   readonly autoSubmit?: boolean;
+  /**
+   * ダブル役満を採用したルールでの出題か。採用時はダブル役満の点数
+   * （子64000点等）を選択肢に足す。端末のルール設定で選択肢が変わっては
+   * ならない出題（昇級試験）は渡さない（既定 false）。
+   */
+  readonly allowDoubleYakuman?: boolean;
 }
 
 /**
@@ -69,6 +75,7 @@ export function ScoreAnswerForm({
   autoSubmit = false,
   showFeedback = false,
   lastAnswerCorrect,
+  allowDoubleYakuman = false,
 }: ScoreAnswerFormProps) {
   const t = useTranslations(translationNamespace);
   // トレーニングの回答後は、シェルが同じ位置に「次の問題へ」を出す
@@ -94,6 +101,7 @@ export function ScoreAnswerForm({
     isTsumo,
     scoreRange,
     kiriageMangan,
+    allowDoubleYakuman,
   );
 
   // 単一選択（ロン / 親ツモ）の値から回答を送信する

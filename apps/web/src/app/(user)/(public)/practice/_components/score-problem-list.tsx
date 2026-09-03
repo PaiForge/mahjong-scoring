@@ -2,6 +2,7 @@
 
 import type { ReactNode } from "react";
 import { useTranslations } from "next-intl";
+import { YAKUMAN_HAN } from "@mahjong-scoring/core";
 import type { ScoreTableAnswer } from "@mahjong-scoring/core";
 import { QuestionDisplay } from "../score/_components/question-display";
 import type { ScoreQuestionResult } from "../_lib/score-question-result";
@@ -51,6 +52,8 @@ export function ScoreProblemList({
   formatAnswer,
 }: ScoreProblemListProps) {
   const t = useTranslations(translationNamespace);
+  // 役満止まりの注記は内訳表（challenge.yakuBreakdown）と同じ語彙で組む
+  const tBreakdown = useTranslations("challenge.yakuBreakdown");
 
   return (
     <ProblemListAccordion
@@ -80,6 +83,7 @@ export function ScoreProblemList({
             {result.question?.yakuDetails !== undefined && (
               <YakuBreakdown
                 yakuDetails={result.question.yakuDetails}
+                note={buildCapNote(result, tBreakdown)}
                 collapsible
               />
             )}
@@ -95,4 +99,35 @@ export function ScoreProblemList({
       }}
     />
   );
+}
+
+/**
+ * 翻数の内訳の合計が支払いに反映されない分の注記を組み立てる
+ * 役満止まり注記
+ *
+ * 役満手に役牌・リーチの翻が乗った手や、合算しない設定の複合役満では、
+ * 内訳の合計（例: 26翻）が支払い（役満1つ分）を超える。内訳をそのまま
+ * 信じて点数を引くと合わないため、「26翻 → 役満」の形で打ち止め先を示す。
+ *
+ * 打ち止め先は保存された役満単位（{@link ScoreQuestionResult.yakumanMultiplier}）
+ * から導く。単位を保存する前の旧データでは判定できないため注記を出さない。
+ */
+function buildCapNote(
+  result: ScoreQuestionResult,
+  t: (key: string, values?: Record<string, number>) => string,
+): ReactNode {
+  const { yakumanMultiplier } = result;
+  if (yakumanMultiplier === undefined) return undefined;
+
+  const details = result.question?.yakuDetails;
+  if (details === undefined) return undefined;
+  const rawTotal = details.reduce((sum, detail) => sum + detail.han, 0);
+
+  // 支払いに対応する翻数（役満13翻 × 単位。数え役満は役満1つ分）
+  const capHan = YAKUMAN_HAN * Math.max(yakumanMultiplier, 1);
+  if (rawTotal <= capHan || rawTotal < YAKUMAN_HAN) return undefined;
+
+  const capLabel = yakumanMultiplier >= 2 ? t("doubleYakuman") : t("yakuman");
+  const note = `${t("han", { count: rawTotal })} → ${capLabel}`;
+  return yakumanMultiplier >= 2 ? note : `${note}（${t("cappedNote")}）`;
 }

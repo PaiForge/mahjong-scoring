@@ -2,12 +2,19 @@
 
 import { useState, useMemo, useCallback, useId } from "react";
 import { useTranslations } from "next-intl";
-import { FU_VALUES } from "@mahjong-scoring/core";
+import {
+  allowsDoubleYakuman,
+  FU_VALUES,
+  YAKUMAN_HAN,
+} from "@mahjong-scoring/core";
 import type { UserAnswer } from "@mahjong-scoring/core";
 import { YakuSelect } from "./yaku-select";
-import { useRuleSettingsStore } from "@/app/_hooks/use-rule-settings-store";
+import {
+  useRuleSettingsStore,
+  useYakumanRules,
+} from "@/app/_hooks/use-rule-settings-store";
 import { getAvailableScores } from "../_lib/get-available-scores";
-import { MANGAN_MIN_HAN, PRACTICE_HAN_TIERS } from "../_lib/han-tiers";
+import { MANGAN_MIN_HAN, practiceHanTiers } from "../_lib/han-tiers";
 import { getSelectClass } from "../../_lib/select-class";
 import { ScoreOptionSelect } from "../../_components/score-option-select";
 import { Button } from "@/app/(user)/_components/button";
@@ -52,12 +59,17 @@ export function ScorePracticeAnswerForm({
   const isFuRequired = !isMangan || requireFuForMangan;
   const isKoTsumo = isTsumo && !isOya;
 
+  // ダブル役満を採用したルールでは、翻数・点数の選択肢にダブル役満を足す
+  const allowDoubleYakuman = allowsDoubleYakuman(useYakumanRules());
+
   const hanOptions = useMemo(() => {
-    // 満貫以上の区分は翻数しきい値の昇順で並べる（PRACTICE_HAN_TIERS は降順）
-    const manganPlusOptions = [...PRACTICE_HAN_TIERS].reverse().map((tier) => ({
-      value: tier.minHan,
-      label: t(`form.options.${tier.key}`),
-    }));
+    // 満貫以上の区分は翻数しきい値の昇順で並べる（practiceHanTiers は降順）
+    const manganPlusOptions = [...practiceHanTiers(allowDoubleYakuman)]
+      .reverse()
+      .map((tier) => ({
+        value: tier.minHan,
+        label: t(`form.options.${tier.key}`),
+      }));
 
     if (simplifyMangan) {
       return [
@@ -70,16 +82,20 @@ export function ScorePracticeAnswerForm({
       ];
     }
 
-    const yakumanOption = manganPlusOptions[manganPlusOptions.length - 1]!;
+    // 簡略化しないモードでは役満未満は数値で出し、役満以上
+    // （役満・ダブル役満採用時はダブル役満も）だけ区分名で出す
+    const yakumanPlusOptions = manganPlusOptions.filter(
+      (option) => option.value >= YAKUMAN_HAN,
+    );
     return [
       { value: "", label: t("form.placeholders.select") },
-      ...Array.from({ length: yakumanOption.value - 1 }, (_, i) => ({
+      ...Array.from({ length: YAKUMAN_HAN - 1 }, (_, i) => ({
         value: i + 1,
         label: `${i + 1}${t("form.options.hanSuffix")}`,
       })),
-      yakumanOption,
+      ...yakumanPlusOptions,
     ];
-  }, [simplifyMangan, t]);
+  }, [simplifyMangan, allowDoubleYakuman, t]);
 
   /** 符が不要なとき、符の select にそのまま描く注記（箱の高さを保つため） */
   const fuNotRequiredOptions = useMemo(
@@ -116,8 +132,16 @@ export function ScorePracticeAnswerForm({
 
   const kiriageMangan = useRuleSettingsStore((s) => s.kiriageMangan);
   const availableScores = useMemo(
-    () => getAvailableScores(han, isOya, isTsumo, undefined, kiriageMangan),
-    [han, isOya, isTsumo, kiriageMangan],
+    () =>
+      getAvailableScores(
+        han,
+        isOya,
+        isTsumo,
+        undefined,
+        kiriageMangan,
+        allowDoubleYakuman,
+      ),
+    [han, isOya, isTsumo, kiriageMangan, allowDoubleYakuman],
   );
 
   const handleSubmit = (e: React.FormEvent) => {

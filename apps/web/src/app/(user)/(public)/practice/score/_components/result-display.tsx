@@ -8,11 +8,13 @@ import type {
   JudgementResult,
 } from "@mahjong-scoring/core";
 import {
+  allowsDoubleYakuman,
   isMangan,
   isOya,
   getScoreLevelName,
   judgeYakuSelection,
 } from "@mahjong-scoring/core";
+import { useYakumanRules } from "@/app/_hooks/use-rule-settings-store";
 import { practiceHanTier } from "../_lib/han-tiers";
 import { formatScoreAnswer } from "../../_lib/format-score-answer";
 import { paymentToScoreTableAnswer } from "../../_lib/payment-adapter";
@@ -62,6 +64,8 @@ export function ResultDisplay({
 }: ResultDisplayProps) {
   const t = useTranslations("score");
   const { answer } = question;
+  // ダブル役満採用時は 26 翻を役満へ丸めず「ダブル役満」と表示する
+  const allowDoubleYakuman = allowsDoubleYakuman(useYakumanRules());
   const isManganOrAbove = isMangan(answer.scoreLevel);
   const scoreLevelName = getScoreLevelName(answer.scoreLevel);
   const [showFuDetails, setShowFuDetails] = useState(false);
@@ -137,7 +141,9 @@ export function ResultDisplay({
   };
 
   const getHanDisplay = (hanValue: number, levelName?: string) => {
-    const tier = simplifyMangan ? practiceHanTier(hanValue) : undefined;
+    const tier = simplifyMangan
+      ? practiceHanTier(hanValue, allowDoubleYakuman)
+      : undefined;
     if (tier) {
       return levelName ?? t(`form.options.${tier.key}`);
     }

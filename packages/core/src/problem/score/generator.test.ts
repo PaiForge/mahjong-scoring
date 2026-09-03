@@ -1,10 +1,16 @@
 import { describe, it, expect } from "vitest";
-import { HaiKind, isMenzen } from "@pai-forge/riichi-mahjong";
+import {
+  HaiKind,
+  detectYaku,
+  getYakumanMultiplier,
+  isMenzen,
+} from "@pai-forge/riichi-mahjong";
 import { generateScoreQuestion, generateValidScoreQuestion } from "./generator";
 import { SCORE_FILTERABLE_YAKU } from "./filterable-yaku";
 import { ScoreLevel } from "../../core/constants";
 import { isMangan, MANGAN_MIN_HAN, MANGAN_PLUS_TIERS } from "../../score/tiers";
 import { isKiriageManganTarget } from "../../score/calculator";
+import { ALL_YAKUMAN_RULES_ENABLED } from "../../rules/settings";
 import {
   expectGeneratesEventually,
   expectSampled,
@@ -123,11 +129,11 @@ describe("generateScoreQuestion", () => {
     });
   });
 
-  describe("ダブル役満の丸め", () => {
+  describe("役満ルール既定（ダブル役満なし）", () => {
     it("正解の点数区分がダブル役満にならない", () => {
-      // 26翻以上も役満として扱うアプリ全体の決定（clampHanToYakuman）に
-      // 点数を合わせる。丸めないと 64000 のようにどの点数リストにも無い
-      // 点数が正解になり、選択肢から選べない問題が出る
+      // yakumanRules を渡さない既定ではダブル役満・複合の合算を採用しない。
+      // 64000 のようにどの点数リスト（RON_SCORES_KO 等）にも無い点数が
+      // 正解になり、選択肢から選べない問題が出ないことの保証
       const questions = expectSampled(() => generateScoreQuestion(), {
         attempts: 2000,
         need: 500,
@@ -148,6 +154,77 @@ describe("generateScoreQuestion", () => {
       });
 
       expect(question.answer.scoreLevel).toBe(ScoreLevel.Yakuman);
+    });
+  });
+
+  describe("オプション: yakumanRules", () => {
+    it("全ルール有効なら26翻以上の手はダブル役満の支払いになる", () => {
+      const rng = seededRandom(20260902);
+      const [question] = expectSampled(
+        () =>
+          generateScoreQuestion({
+            rng,
+            yakumanRules: ALL_YAKUMAN_RULES_ENABLED,
+          }),
+        {
+          attempts: 40000,
+          need: 1,
+          where: (candidate) => candidate.answer.han >= DOUBLE_YAKUMAN_MIN_HAN,
+        },
+      );
+
+      expect(question.answer.scoreLevel).toBe(ScoreLevel.DoubleYakuman);
+      expect(question.answer.yakumanMultiplier).toBe(2);
+    });
+
+    it("トリプル役満以上（役満3個分〜）は出題しない", () => {
+      // 点数選択肢のリストはダブル役満まで。ランダム生成では実質出ない手
+      // だが、生成器の防波堤が機能していることをサンプリングで確かめる
+      const questions = expectSampled(
+        () =>
+          generateScoreQuestion({
+            yakumanRules: ALL_YAKUMAN_RULES_ENABLED,
+          }),
+        { attempts: 2000, need: 500 },
+      );
+
+      for (const question of questions) {
+        expect(question.answer.yakumanMultiplier).toBeLessThanOrEqual(2);
+      }
+    });
+  });
+
+  describe("オプション: excludeYakumanRuleBoundary", () => {
+    it("true の場合、役満ルールの採否で点数が割れる手を出題しない", () => {
+      // 「全ルール有効なら26翻以上」テストと同じシードを使う。あちらで
+      // ダブル役満になる手が同じ列から出ることが分かっているので、境界除外が
+      // その手を落とすことを同条件で確かめられる
+      const rng = seededRandom(20260902);
+      const questions = expectSampled(
+        () =>
+          generateScoreQuestion({
+            rng,
+            excludeYakumanRuleBoundary: true,
+          }),
+        { attempts: 40000, need: 500 },
+      );
+
+      for (const question of questions) {
+        // 境界の定義どおりに検証する: 全ルール有効として数え直したとき
+        // 役満2個分以上になる手（= ルールの採否で点数が割れる手）が
+        // 出題に残っていないこと
+        const allOnResult = detectYaku(question.tehai, {
+          agariHai: question.agariHai,
+          bakaze: question.bakaze,
+          jikaze: question.jikaze,
+          doraMarkers: question.doraMarkers,
+          isTsumo: question.isTsumo,
+          ruleConfig: ALL_YAKUMAN_RULES_ENABLED,
+        });
+        expect(
+          getYakumanMultiplier(allOnResult, ALL_YAKUMAN_RULES_ENABLED),
+        ).toBeLessThan(2);
+      }
     });
   });
 

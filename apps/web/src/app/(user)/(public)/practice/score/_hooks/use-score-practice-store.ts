@@ -5,7 +5,12 @@ import type {
   JudgementResult,
   QuestionGeneratorOptions,
 } from "@mahjong-scoring/core";
-import { generateValidScoreQuestion, judgeAnswer } from "@mahjong-scoring/core";
+import {
+  allowsDoubleYakuman,
+  generateValidScoreQuestion,
+  judgeAnswer,
+  toYakumanRuleConfig,
+} from "@mahjong-scoring/core";
 import { useRuleSettingsStore } from "@/app/_hooks/use-rule-settings-store";
 
 interface ScorePracticeState {
@@ -96,6 +101,7 @@ export const useScorePracticeStore = create<ScorePracticeStore>((set, get) => ({
         ...options,
         renfonpaiAs4Fu,
         kiriageMangan,
+        yakumanRules: toYakumanRuleConfig(useRuleSettingsStore.getState()),
       },
       // 既定の100回では、役の絞り込み（requiredYaku）で出現率2%の役を
       // 指定したとき約13%の確率で取り逃す。500回なら0.004%（1回0.08ms実測
@@ -127,6 +133,8 @@ export const useScorePracticeStore = create<ScorePracticeStore>((set, get) => ({
       requireYaku,
       simplifyMangan,
       requireFuForMangan,
+      // ダブル役満採用時は 26 翻を役満へ丸めずに別の答えとして判定する
+      allowsDoubleYakuman(toYakumanRuleConfig(useRuleSettingsStore.getState())),
     );
 
     set({

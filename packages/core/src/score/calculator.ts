@@ -48,6 +48,10 @@ export function recalculateScore(
     fu,
     scoreLevel,
     payment: buildPayment(basePoints, { isTsumo, isOya }),
+    // 翻数の増減（リーチ・役牌補正）で成立している役満役は変わらないため、
+    // 役満単位は元の結果から引き継ぐ。役満手の最終的な点数区分・支払いは
+    // alignYakumanScore がこの値から組み直す
+    yakumanMultiplier: originalResult.yakumanMultiplier,
   };
 }
 
@@ -76,28 +80,47 @@ function buildPayment(
 }
 
 /**
- * ダブル役満の結果を役満の点数に丸める
- * ダブル役満丸め
+ * 役満手の点数区分と支払いを役満単位に揃える
+ * 役満点数整合
  *
- * 26翻以上も役満として扱う、というアプリ全体の決定
- * （{@link clampHanToYakuman} / `DISPLAY_TIERS` 参照）の点数側の実装。
- * 翻数の表示・判定は `clampHanToYakuman` が丸めるが、点数計算はライブラリが
- * ダブル役満の基本符（16000）で払いを組むため、丸めないと 64000 のような
- * どの点数リスト（`RON_SCORES_KO` 等）にも無い点数が正解になる。
+ * リーチ・役牌照合の後付け翻で {@link recalculateScore} を通った結果は、
+ * 翻数由来の区分（`scoreTierForHan`）で支払いが組まれており、役満手では
+ * ルール設定と食い違いうる。例:
  *
- * 翻・符は変えない（役の内訳は実際の翻数のまま残す）。変えるのは点数区分と
- * 支払いだけで、切り上げ満貫の適用と同じ形。
+ * - 複合役満（字一色13+大三元13=26翻）に役牌補正が乗ると翻数だけで
+ *   ダブル役満の支払いになるが、複合の合算が無効なら役満1つ分が正しい
+ * - 役満役なしで26翻以上に達した手（数え）はダブル役満にならない
+ *
+ * 支払いが役満何個分か（{@link ScoreResult.yakumanMultiplier}）はライブラリが
+ * ルール設定込みで確定させた値なので、役満役を含む手はこの値から支払いを
+ * 組み直し、数え役満は役満の支払いに丸める。翻・符・役の内訳は変えない
+ * （内訳は事実のまま残す。切り上げ満貫の適用と同じ形）。
  */
-export function clampDoubleYakuman(
+export function alignYakumanScore(
   result: Readonly<ScoreResult>,
   config: {
     readonly isTsumo: boolean;
     readonly isOya: boolean;
   },
 ): ScoreResult {
-  if (result.scoreLevel !== ScoreLevel.DoubleYakuman) return result;
   const yakuman = scoreTierForHan(YAKUMAN_HAN);
   if (!yakuman) return result;
+
+  // 役満役あり: 支払いは役満単位で固定（後付けの翻に左右されない）
+  if (result.yakumanMultiplier >= 1) {
+    const tier = scoreTierForHan(YAKUMAN_HAN * result.yakumanMultiplier);
+    return {
+      ...result,
+      scoreLevel: tier?.level ?? yakuman.level,
+      payment: buildPayment(
+        yakuman.basePoints * result.yakumanMultiplier,
+        config,
+      ),
+    };
+  }
+
+  // 役満役なし（数え）: 翻数が26以上に達しても役満止まり
+  if (result.scoreLevel !== ScoreLevel.DoubleYakuman) return result;
   return {
     ...result,
     scoreLevel: yakuman.level,

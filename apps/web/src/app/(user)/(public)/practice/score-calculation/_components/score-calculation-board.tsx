@@ -4,7 +4,10 @@ import { useMemo } from "react";
 import { QuestionGeneratingPlaceholder } from "../../_components/question-generating-placeholder";
 import { QuestionPrompt } from "../../_components/question-prompt";
 import { useTranslations } from "next-intl";
-import { useRuleSettingsStore } from "@/app/_hooks/use-rule-settings-store";
+import {
+  useRuleSettingsStore,
+  useYakumanRules,
+} from "@/app/_hooks/use-rule-settings-store";
 import { RevealedScoreAnswer } from "../../_components/revealed-score-answer";
 import { paymentToScoreTableAnswer } from "../../_lib/payment-adapter";
 import { useScoreQuestionBoard } from "../../_hooks/use-score-question-board";
@@ -38,9 +41,10 @@ export function ScoreCalculationBoard({
   const t = useTranslations("scoreCalculationChallenge");
   const renfonpaiAs4Fu = useRuleSettingsStore((s) => s.renfonpaiAs4Fu);
   const kiriageMangan = useRuleSettingsStore((s) => s.kiriageMangan);
+  const yakumanRules = useYakumanRules();
   const generateOptions = useMemo(
-    () => ({ renfonpaiAs4Fu, kiriageMangan }),
-    [renfonpaiAs4Fu, kiriageMangan],
+    () => ({ renfonpaiAs4Fu, kiriageMangan, yakumanRules }),
+    [renfonpaiAs4Fu, kiriageMangan, yakumanRules],
   );
 
   const { question, questionIndex, handleSubmit } = useScoreQuestionBoard({

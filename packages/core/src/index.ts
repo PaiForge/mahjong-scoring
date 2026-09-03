@@ -158,8 +158,13 @@ export { calculateExp, getLevel, getLevelProgress } from "./exp";
 export type { ExpInfo } from "./exp";
 
 // === Rules ===
-export { DEFAULT_RULE_SETTINGS } from "./rules/settings";
-export type { RuleSettings } from "./rules/settings";
+export {
+  DEFAULT_RULE_SETTINGS,
+  ALL_YAKUMAN_RULES_ENABLED,
+  toYakumanRuleConfig,
+  allowsDoubleYakuman,
+} from "./rules/settings";
+export type { RuleSettings, YakumanRuleSettings } from "./rules/settings";
 
 // === Re-exports from @pai-forge/riichi-mahjong ===
 export {
@@ -178,4 +183,5 @@ export type {
   Tehai14,
   CompletedMentsu,
   Payment,
+  YakumanRuleConfig,
 } from "@pai-forge/riichi-mahjong";

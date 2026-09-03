@@ -58,6 +58,15 @@ export interface ScoreQuestionResult {
   /** 正誤 */
   readonly isCorrect: boolean;
   /**
+   * 支払いが役満何個分か（0 = 役満役なし、1 = 役満、2 = ダブル役満）。
+   *
+   * 翻数の内訳の合計が正解の支払いより大きいとき（役満に役牌・リーチの翻が
+   * 乗った手、合算しない設定の複合役満）に「26翻 → 役満」の注記を出すために
+   * 持つ。この項目を保存する前の旧データには存在しないため任意で、無い場合は
+   * 注記を諦める
+   */
+  readonly yakumanMultiplier?: number;
+  /**
    * 出題内容。結果ページで手牌・ドラを再表示するために持つ。
    * この項目を保存する前の旧データには存在しないため任意
    */
@@ -120,6 +129,7 @@ const questionResultSchema: z.ZodType<ScoreQuestionResult> = z.object({
   correctAnswer: scoreTableAnswerSchema,
   userAnswer: scoreTableAnswerSchema,
   isCorrect: z.boolean(),
+  yakumanMultiplier: z.number().optional(),
   question: scoreQuestionSnapshotSchema.optional(),
 });
 

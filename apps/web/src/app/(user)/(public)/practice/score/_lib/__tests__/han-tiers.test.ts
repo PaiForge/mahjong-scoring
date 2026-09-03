@@ -2,13 +2,13 @@ import { describe, expect, it } from "vitest";
 
 import {
   MANGAN_MIN_HAN,
-  PRACTICE_HAN_TIERS,
   practiceHanTier,
+  practiceHanTiers,
 } from "../han-tiers";
 
-describe("PRACTICE_HAN_TIERS", () => {
-  it("excludes doubleYakuman so 26 翻以上も役満として扱われる", () => {
-    expect(PRACTICE_HAN_TIERS.map((tier) => tier.key)).toEqual([
+describe("practiceHanTiers", () => {
+  it("既定（ダブル役満なし）では doubleYakuman を除き、26翻以上も役満として扱う", () => {
+    expect(practiceHanTiers(false).map((tier) => tier.key)).toEqual([
       "yakuman",
       "sanbaiman",
       "baiman",
@@ -18,8 +18,19 @@ describe("PRACTICE_HAN_TIERS", () => {
   });
 
   it("keeps the 翻数しきい値 that the answer form offers", () => {
-    expect(PRACTICE_HAN_TIERS.map((tier) => tier.minHan)).toEqual([
+    expect(practiceHanTiers(false).map((tier) => tier.minHan)).toEqual([
       13, 11, 8, 6, 5,
+    ]);
+  });
+
+  it("ダブル役満採用時は doubleYakuman を含む", () => {
+    expect(practiceHanTiers(true).map((tier) => tier.key)).toEqual([
+      "doubleYakuman",
+      "yakuman",
+      "sanbaiman",
+      "baiman",
+      "haneman",
+      "mangan",
     ]);
   });
 });
@@ -52,5 +63,10 @@ describe("practiceHanTier", () => {
   it("caps at yakuman for ダブル役満相当の翻数", () => {
     expect(practiceHanTier(26)?.key).toBe("yakuman");
     expect(practiceHanTier(39)?.key).toBe("yakuman");
+  });
+
+  it("ダブル役満採用時は26翻以上を doubleYakuman に割り当てる", () => {
+    expect(practiceHanTier(26, true)?.key).toBe("doubleYakuman");
+    expect(practiceHanTier(25, true)?.key).toBe("yakuman");
   });
 });

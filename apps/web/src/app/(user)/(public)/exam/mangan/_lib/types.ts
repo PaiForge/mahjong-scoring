@@ -20,7 +20,10 @@ export const RESULT_STORAGE_KEY = resultStorageKeyFor("mangan-exam");
  *
  * 意図的にルール設定（連風牌4符・切り上げ満貫）を含めない: どちらも
  * 5翻以上の点数には影響しないため、端末ローカル設定に関係なく全受験者が
- * 同一条件になる。この独立性は `__tests__/exam-options.test.ts` が守る。
+ * 同一条件になる。ダブル役満・複合役満の設定は5翻以上の点数に影響するため、
+ * `excludeYakumanRuleBoundary` で採否によって正解が割れる手（四暗刻単騎・
+ * 複合役満等）ごと出題から外す。この独立性は
+ * `__tests__/exam-options.test.ts` が守る。
  *
  * @remarks 合格ラインを調整するときの前提
  *
@@ -36,6 +39,7 @@ export const RESULT_STORAGE_KEY = resultStorageKeyFor("mangan-exam");
 export const EXAM_GENERATE_OPTIONS = {
   allowedRanges: ["manganPlus"],
   minHan: MANGAN_MIN_HAN,
+  excludeYakumanRuleBoundary: true,
 } as const satisfies QuestionGeneratorOptions;
 
 /**
