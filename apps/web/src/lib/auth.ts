@@ -136,6 +136,15 @@ export async function redirectIfAuthenticated(to = "/mypage"): Promise<void> {
 }
 
 /**
+ * 認証ゲートが返すエラーコード
+ *
+ * 未認証が `"unauthorized"`、BAN が `"banned"`。
+ * {@link authenticateAndCheckBan} の結果をそのまま返すアクションは、
+ * `ActionResult` の union にこの型を含める。
+ */
+export type AuthGateErrorCode = "unauthorized" | "banned";
+
+/**
  * 認証 + BAN チェックガード（Server Actions 用）。
  * 認証済みかつ BAN されていないユーザーを返す。
  * 認証+BANガード
@@ -147,7 +156,7 @@ export async function redirectIfAuthenticated(to = "/mypage"): Promise<void> {
  * エラーコードは未認証が `"unauthorized"`、BAN が `"banned"`。
  */
 export async function authenticateAndCheckBan(): Promise<
-  { user: AuthUser } | { error: "unauthorized" | "banned" }
+  { user: AuthUser } | { error: AuthGateErrorCode }
 > {
   const user = await getOptionalVerifiedUser();
 

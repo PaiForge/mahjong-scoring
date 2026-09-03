@@ -3,16 +3,29 @@
 import { useState } from "react";
 import type { ActionResult } from "@/lib/action-types";
 
-interface SubmitConfig {
+/**
+ * Server Action のエラーコードに加えて、`mapError` が受け取りうるコード
+ *
+ * 例外（ネットワーク断など）はどのアクションのコードにも当てはまらないため、
+ * `"unknown"` として同じ変換関数に流す。
+ */
+type SubmitErrorCode<E extends string> = E | "unknown";
+
+interface SubmitConfig<E extends string> {
   /**
    * クライアント側の事前検証。エラーメッセージを返すと送信せずに表示する
    * （ローディング状態にはしない）。
    */
   readonly validate?: () => string | undefined;
   /** 実行する Server Action */
-  readonly action: () => Promise<ActionResult>;
-  /** サーバーエラーコード（または例外時の "unknown"）をメッセージに変換する */
-  readonly mapError: (code: string) => string;
+  readonly action: () => Promise<ActionResult<E>>;
+  /**
+   * サーバーエラーコード（または例外時の `"unknown"`）をメッセージに変換する。
+   *
+   * `code` はアクションが返しうるコードに閉じているため、綴りを間違えた
+   * 突き合わせ（`code === "rateLimted"`）はコンパイルエラーになる。
+   */
+  readonly mapError: (code: SubmitErrorCode<E>) => string;
   /** 成功時の処理（画面遷移・状態更新など） */
   readonly onSuccess: () => void | Promise<void>;
   /**
@@ -32,18 +45,18 @@ interface SubmitConfig {
 export function useAuthFormSubmit(): {
   readonly error: string;
   readonly isLoading: boolean;
-  readonly submit: (config: SubmitConfig) => Promise<void>;
+  readonly submit: <E extends string>(config: SubmitConfig<E>) => Promise<void>;
 } {
   const [error, setError] = useState("");
   const [isLoading, setIsLoading] = useState(false);
 
-  const submit = async ({
+  const submit = async <E extends string>({
     validate,
     action,
     mapError,
     onSuccess,
     stopLoadingOnSuccess = false,
-  }: SubmitConfig) => {
+  }: SubmitConfig<E>) => {
     setError("");
 
     const validationError = validate?.();

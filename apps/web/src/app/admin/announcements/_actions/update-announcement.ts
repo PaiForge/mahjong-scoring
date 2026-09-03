@@ -12,14 +12,22 @@ import {
 } from "../_lib/announcement-row";
 import {
   type AnnouncementInput,
+  type AnnouncementValidationError,
   isUniqueViolation,
   validateAnnouncement,
 } from "../_lib/validation";
 
+/** お知らせ更新の失敗理由 */
+export type UpdateAnnouncementError =
+  | AnnouncementValidationError
+  | "errorSaveFailed"
+  | "errorNotFound"
+  | "errorDuplicate";
+
 export async function updateAnnouncement(
   id: string,
   data: AnnouncementInput,
-): Promise<ActionResult<{ id: string }>> {
+): Promise<ActionResult<UpdateAnnouncementError, { id: string }>> {
   const admin = await requireAdminActor("errorSaveFailed");
   if ("error" in admin) {
     return admin;

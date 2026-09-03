@@ -3,10 +3,23 @@
 import { SITE_URL } from "@/config";
 import type { ActionResult } from "@/lib/action-types";
 import { enforceIpRateLimit } from "@/lib/rate-limit-ip";
+import type { RateLimitErrorCode } from "@/lib/rate-limit-ip";
 import { createClient } from "@/lib/supabase/server";
 import { getPasswordValidationError } from "@/lib/validations/password";
+import type { PasswordValidationErrorKey } from "@/lib/validations/password";
 
-export type SignUpResult = ActionResult;
+/**
+ * サインアップの失敗理由
+ *
+ * パスワード起因の失敗は `password:<キー>` 形式で返し、クライアント側の
+ * {@link parsePasswordActionError} が翻訳キーに戻す。
+ */
+export type SignUpError =
+  | RateLimitErrorCode
+  | `password:${PasswordValidationErrorKey}`
+  | "signUpFailed";
+
+export type SignUpResult = ActionResult<SignUpError>;
 
 /**
  * メールアドレス/パスワードによるサインアップ Server Action。

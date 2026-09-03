@@ -2,9 +2,13 @@
 
 import type { ActionResult } from "@/lib/action-types";
 import { enforceIpRateLimit } from "@/lib/rate-limit-ip";
+import type { RateLimitErrorCode } from "@/lib/rate-limit-ip";
 import { createClient } from "@/lib/supabase/server";
 
-export type ResendEmailResult = ActionResult;
+/** 確認メール再送の失敗理由 */
+export type ResendEmailError = RateLimitErrorCode | "resendFailed";
+
+export type ResendEmailResult = ActionResult<ResendEmailError>;
 
 /**
  * 確認メール再送 Server Action。

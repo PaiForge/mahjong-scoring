@@ -8,7 +8,12 @@ import type { ActionResult } from "@/lib/action-types";
 import { announcements, db } from "@/lib/db";
 import { requireAdminActor } from "@/app/admin/_lib/auth";
 
-export async function deleteAnnouncement(id: string): Promise<ActionResult> {
+/** お知らせ削除の失敗理由 */
+export type DeleteAnnouncementError = "errorDeleteFailed" | "errorNotFound";
+
+export async function deleteAnnouncement(
+  id: string,
+): Promise<ActionResult<DeleteAnnouncementError>> {
   const admin = await requireAdminActor("errorDeleteFailed");
   if ("error" in admin) {
     return admin;

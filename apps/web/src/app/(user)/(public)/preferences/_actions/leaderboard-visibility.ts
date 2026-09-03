@@ -5,12 +5,19 @@ import { eq } from "drizzle-orm";
 
 import type { ActionResult } from "@/lib/action-types";
 import { authenticateAndCheckBan, getOptionalUser } from "@/lib/auth";
+import type { AuthGateErrorCode } from "@/lib/auth";
 import { LEADERBOARD_CACHE_TAG } from "@/lib/cache-tags";
 import { db, profiles } from "@/lib/db";
 import { isHiddenFromLeaderboard } from "@/lib/db/leaderboard-visibility";
 import { enforceIpRateLimit } from "@/lib/rate-limit-ip";
+import type { RateLimitErrorCode } from "@/lib/rate-limit-ip";
 
-export type SetLeaderboardVisibilityResult = ActionResult;
+/** ランキング非表示設定の失敗理由 */
+export type SetLeaderboardVisibilityError =
+  RateLimitErrorCode | AuthGateErrorCode | "updateFailed";
+
+export type SetLeaderboardVisibilityResult =
+  ActionResult<SetLeaderboardVisibilityError>;
 
 /**
  * ログイン中のユーザーがランキング非表示にしているかを返す Server Action。

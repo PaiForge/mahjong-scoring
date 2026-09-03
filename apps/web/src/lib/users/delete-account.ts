@@ -33,7 +33,12 @@ import { createAdminClient } from "@/lib/supabase/admin";
  *
  * アカウント退会
  */
-export async function deleteAccount(userId: string): Promise<ActionResult> {
+/** 退会処理そのものの失敗理由 */
+export type DeleteAccountError = "deleteFailed";
+
+export async function deleteAccount(
+  userId: string,
+): Promise<ActionResult<DeleteAccountError>> {
   const adminClient = createAdminClient();
 
   // 1. auth ユーザーをソフトデリート（ログイン不可化）。失敗時は以降を実行しない。

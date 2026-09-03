@@ -19,7 +19,12 @@ import { recordModerationAction } from "../_lib/moderation";
  *
  * ユーザーBAN解除
  */
-export async function unbanUser(targetUserId: string): Promise<ActionResult> {
+/** BAN 解除の失敗理由 */
+export type UnbanUserError = "unauthorized" | "unbanFailed";
+
+export async function unbanUser(
+  targetUserId: string,
+): Promise<ActionResult<UnbanUserError>> {
   const admin = await requireAdminActor("unauthorized");
   if ("error" in admin) {
     return admin;

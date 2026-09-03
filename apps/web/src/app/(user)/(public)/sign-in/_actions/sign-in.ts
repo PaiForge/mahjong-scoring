@@ -3,9 +3,17 @@
 import type { ActionResult } from "@/lib/action-types";
 import { logCurrentUserEvent } from "@/lib/activity-log";
 import { enforceIpRateLimit } from "@/lib/rate-limit-ip";
+import type { RateLimitErrorCode } from "@/lib/rate-limit-ip";
 import { createClient } from "@/lib/supabase/server";
 
-export type SignInResult = ActionResult;
+/**
+ * サインインの失敗理由
+ *
+ * アカウント列挙を防ぐため、認証失敗は理由を分けず `invalidCredentials` に畳む。
+ */
+export type SignInError = RateLimitErrorCode | "invalidCredentials";
+
+export type SignInResult = ActionResult<SignInError>;
 
 /**
  * メールアドレス/パスワードによるサインイン Server Action。

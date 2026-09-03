@@ -13,6 +13,18 @@ export interface AnnouncementInput {
   readonly pinned: boolean;
 }
 
+/**
+ * お知らせ入力のバリデーションエラー（admin.announcements の i18n キー）
+ */
+export type AnnouncementValidationError =
+  | "errorSlugRequired"
+  | "errorSlugFormat"
+  | "errorTitleRequired"
+  | "errorContentRequired"
+  | "errorLocaleInvalid"
+  | "errorStatusInvalid"
+  | "errorPublishedAtRequired";
+
 const VALID_STATUSES: readonly string[] = ["draft", "published"];
 const SLUG_PATTERN = /^[a-z0-9][a-z0-9-]*$/;
 
@@ -22,7 +34,7 @@ const SLUG_PATTERN = /^[a-z0-9][a-z0-9-]*$/;
  */
 export function validateAnnouncement(
   data: AnnouncementInput,
-): string | undefined {
+): AnnouncementValidationError | undefined {
   if (!data.slug) {
     return "errorSlugRequired";
   }

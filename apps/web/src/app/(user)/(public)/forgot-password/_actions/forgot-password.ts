@@ -3,9 +3,18 @@
 import { SITE_URL } from "@/config";
 import type { ActionResult } from "@/lib/action-types";
 import { enforceIpRateLimit } from "@/lib/rate-limit-ip";
+import type { RateLimitErrorCode } from "@/lib/rate-limit-ip";
 import { createClient } from "@/lib/supabase/server";
 
-export type ForgotPasswordResult = ActionResult;
+/**
+ * パスワードリセットメール送信の失敗理由
+ *
+ * アカウント列挙を防ぐため送信結果は成功に畳んでおり、レートリミット以外の
+ * 失敗を返さない。
+ */
+export type ForgotPasswordError = RateLimitErrorCode;
+
+export type ForgotPasswordResult = ActionResult<ForgotPasswordError>;
 
 /**
  * パスワードリセットメール送信 Server Action。

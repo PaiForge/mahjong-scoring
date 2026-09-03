@@ -3,10 +3,18 @@
 import type { ActionResult } from "@/lib/action-types";
 import { logCurrentUserEvent } from "@/lib/activity-log";
 import { enforceIpRateLimit } from "@/lib/rate-limit-ip";
+import type { RateLimitErrorCode } from "@/lib/rate-limit-ip";
 import { createClient } from "@/lib/supabase/server";
 import { getPasswordValidationError } from "@/lib/validations/password";
+import type { PasswordValidationErrorKey } from "@/lib/validations/password";
 
-export type ResetPasswordResult = ActionResult;
+/** パスワード再設定の失敗理由 */
+export type ResetPasswordError =
+  | RateLimitErrorCode
+  | `password:${PasswordValidationErrorKey}`
+  | "updateFailed";
+
+export type ResetPasswordResult = ActionResult<ResetPasswordError>;
 
 /**
  * パスワード再設定 Server Action。
