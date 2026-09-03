@@ -76,6 +76,12 @@ export function getPreviousPeriodLabel(period: DatePeriod): string {
 /**
  * 凡例クリックで遷移可能な前の期間を返す。不可なら undefined。
  * 遷移可能な前期間
+ *
+ * 同ファイルの {@link getComparisonLabel} などは戻り値が `string` のため、
+ * 分岐が漏れると「undefined を返しうる」ことになって型検査で落ちる。
+ * この関数は戻り値に `undefined` を含むので同じ守りが効かない
+ * （漏れたケースは黙って「遷移不可」に落ちる）。default で `never` を
+ * 受け止め、DatePeriod にケースが増えたらここが壊れるようにしてある。
  */
 export function getNavigablePreviousPeriod(
   period: DatePeriod,
@@ -85,8 +91,14 @@ export function getNavigablePreviousPeriod(
       return "lastWeek";
     case "thisMonth":
       return "lastMonth";
-    default:
+    // さらに前の期間は期間選択に無いため遷移先を持たない
+    case "lastWeek":
+    case "lastMonth":
       return undefined;
+    default: {
+      const exhaustive: never = period;
+      return exhaustive;
+    }
   }
 }
 

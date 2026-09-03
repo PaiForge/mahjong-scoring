@@ -55,6 +55,8 @@ vi.mock("../schema", async () => await import("@/test/schema-mock"));
 
 vi.mock("drizzle-orm", async () => await import("@/test/drizzle-orm-mock"));
 
+import { gte } from "drizzle-orm";
+
 import {
   getAllTimeRanking,
   getMonthlyRanking,
@@ -69,6 +71,13 @@ import {
 // ---------------------------------------------------------------------------
 // Tests
 // ---------------------------------------------------------------------------
+
+/**
+ * テストで固定する「今」
+ *
+ * 月間クエリは境界を引数で受け取るため、実行時の実時刻に左右されない。
+ */
+const NOW = new Date("2026-08-15T12:00:00.000Z");
 
 /**
  * SQL が返す生のランキング行（snake_case）を組み立てる
@@ -255,7 +264,7 @@ describe("getMonthlyRanking", () => {
       [{ count: 1 }],
     );
 
-    const result = await getMonthlyRanking("jantou_fu", "default", 0, 20);
+    const result = await getMonthlyRanking("jantou_fu", "default", 0, 20, NOW);
 
     expect(result.rows).toHaveLength(1);
     expect(result.rows[0]).toMatchObject({
@@ -270,7 +279,7 @@ describe("getMonthlyRanking", () => {
   it("returns empty results when no monthly data", async () => {
     setupSelectChains([], []);
 
-    const result = await getMonthlyRanking("jantou_fu", "default", 0, 20);
+    const result = await getMonthlyRanking("jantou_fu", "default", 0, 20, NOW);
 
     expect(result.rows).toEqual([]);
     expect(result.total).toBe(0);
@@ -279,13 +288,31 @@ describe("getMonthlyRanking", () => {
   it("applies the visibility filter to both the rows query and the count query", async () => {
     setupSelectChains([], [{ count: 0 }]);
 
-    await getMonthlyRanking("jantou_fu", "default", 0, 20);
+    await getMonthlyRanking("jantou_fu", "default", 0, 20, NOW);
 
     expect(selectChains).toHaveLength(2);
     for (const chain of selectChains) {
       expect(chain.innerJoin).toHaveBeenCalled();
       expect(chain.where).toHaveBeenCalledWith(notHiddenFromLeaderboard());
     }
+  });
+
+  // 実行時の実時刻を読んでいたら、この境界はテスト実行月に振れてしまう
+  it("集計境界を引数の now から導く", async () => {
+    setupSelectChains([], [{ count: 0 }]);
+
+    await getMonthlyRanking(
+      "jantou_fu",
+      "default",
+      0,
+      20,
+      new Date("2026-08-31T23:30:00.000Z"),
+    );
+
+    expect(gte).toHaveBeenCalledWith(
+      expect.anything(),
+      new Date("2026-08-01T00:00:00.000Z"),
+    );
   });
 });
 
@@ -398,6 +425,7 @@ describe("getUserMonthlyRankedRow", () => {
       "user-c",
       "jantou_fu",
       "default",
+      NOW,
     );
 
     expect(result).toEqual({
@@ -419,8 +447,27 @@ describe("getUserMonthlyRankedRow", () => {
       "user-absent",
       "jantou_fu",
       "default",
+      NOW,
     );
 
     expect(result).toBeUndefined();
+  });
+
+  // 一覧（getMonthlyRanking）と同じ now から同じ境界が出ることが、
+  // 月替わりの瞬間に両者が違う月を集計しない根拠になる
+  it("集計境界を引数の now から導く", async () => {
+    mockExecute.mockResolvedValue([]);
+
+    await getUserMonthlyRankedRow(
+      "user-c",
+      "jantou_fu",
+      "default",
+      new Date("2026-08-31T23:30:00.000Z"),
+    );
+
+    expect(gte).toHaveBeenCalledWith(
+      expect.anything(),
+      new Date("2026-08-01T00:00:00.000Z"),
+    );
   });
 });

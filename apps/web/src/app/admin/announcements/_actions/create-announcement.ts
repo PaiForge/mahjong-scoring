@@ -27,11 +27,13 @@ export async function createAnnouncement(
     return { error: validationError };
   }
 
+  const now = new Date();
+
   let inserted: { id: string };
   try {
     [inserted] = await db
       .insert(announcements)
-      .values(toAnnouncementRow(data))
+      .values(toAnnouncementRow(data, now))
       .returning({ id: announcements.id });
   } catch (err: unknown) {
     if (isUniqueViolation(err)) {
