@@ -11,7 +11,7 @@ import { useScoreQuestionBoard } from "../../_hooks/use-score-question-board";
 import { useTrainingMode } from "../../_hooks/use-training-mode";
 import { QuestionDisplay } from "../../score/_components/question-display";
 import { YakuListDisplay } from "./yaku-list-display";
-import { ManganScoreCalculationAnswerForm } from "./mangan-score-calculation-answer-form";
+import { ScoreChallengeAnswerForm } from "../../_components/score-challenge-answer-form";
 import type {
   ManganScoreCalculationQuestionResult,
   PlayerType,
@@ -97,13 +97,15 @@ export function ManganScoreCalculationBoard({
       <QuestionPrompt>{t("questionPrompt")}</QuestionPrompt>
 
       {/* Answer form */}
-      <ManganScoreCalculationAnswerForm
+      <ScoreChallengeAnswerForm
         question={question}
         questionIndex={questionIndex}
         onSubmit={handleSubmit}
         disabled={showFeedback || isCountingDown}
         showFeedback={showFeedback}
         lastAnswerCorrect={lastAnswerCorrect}
+        translationNamespace="manganScoreCalculationChallenge"
+        scoreRange="manganPlus"
       />
     </div>
   );
