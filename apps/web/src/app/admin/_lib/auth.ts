@@ -52,9 +52,9 @@ export async function requireAdmin(): Promise<AuthResult> {
  *
  * @param failureError - 認証失敗時に返すエラーキー
  */
-export async function requireAdminActor(
-  failureError: string,
-): Promise<{ readonly actorId: string } | { readonly error: string }> {
+export async function requireAdminActor<E extends string>(
+  failureError: E,
+): Promise<{ readonly actorId: string } | { readonly error: E }> {
   const result = await requireAdmin();
   if ("error" in result) {
     return { error: failureError };

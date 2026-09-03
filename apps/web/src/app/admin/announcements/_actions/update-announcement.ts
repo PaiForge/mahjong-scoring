@@ -12,14 +12,22 @@ import {
 } from "../_lib/announcement-row";
 import {
   type AnnouncementInput,
+  type AnnouncementValidationError,
   isUniqueViolation,
   validateAnnouncement,
 } from "../_lib/validation";
 
+/** お知らせ更新の失敗理由 */
+export type UpdateAnnouncementError =
+  | AnnouncementValidationError
+  | "errorSaveFailed"
+  | "errorNotFound"
+  | "errorDuplicate";
+
 export async function updateAnnouncement(
   id: string,
   data: AnnouncementInput,
-): Promise<ActionResult<{ id: string }>> {
+): Promise<ActionResult<UpdateAnnouncementError, { id: string }>> {
   const admin = await requireAdminActor("errorSaveFailed");
   if ("error" in admin) {
     return admin;
@@ -30,8 +38,9 @@ export async function updateAnnouncement(
     return { error: validationError };
   }
 
+  // pinnedAt も引く。ピン留めが続いている行の時刻を動かさないために要る
   const [existing] = await db
-    .select({ id: announcements.id })
+    .select({ id: announcements.id, pinnedAt: announcements.pinnedAt })
     .from(announcements)
     .where(eq(announcements.id, id))
     .limit(1);
@@ -46,7 +55,13 @@ export async function updateAnnouncement(
   try {
     await db
       .update(announcements)
-      .set({ ...toAnnouncementRow(data, now), updatedAt: now })
+      .set({
+        ...toAnnouncementRow(data, {
+          now,
+          currentPinnedAt: existing.pinnedAt,
+        }),
+        updatedAt: now,
+      })
       .where(eq(announcements.id, id));
   } catch (err: unknown) {
     if (isUniqueViolation(err)) {

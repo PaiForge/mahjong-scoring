@@ -6,16 +6,26 @@ import { revalidateTag } from "next/cache";
 import type { ActionResult } from "@/lib/action-types";
 import { logActivityEvent } from "@/lib/activity-log";
 import { authenticateAndCheckBan } from "@/lib/auth";
+import type { AuthGateErrorCode } from "@/lib/auth";
 import { LEADERBOARD_CACHE_TAG } from "@/lib/cache-tags";
 import { db, profiles } from "@/lib/db";
 import { enforceIpRateLimit } from "@/lib/rate-limit-ip";
+import type { RateLimitErrorCode } from "@/lib/rate-limit-ip";
 
 import {
   type ProfileInput,
+  type ProfileValidationError,
   normalizeAndValidateProfile,
 } from "../_lib/profile-validation";
 
-export type UpdateProfileResult = ActionResult;
+/** プロフィール更新の失敗理由 */
+export type UpdateProfileError =
+  | RateLimitErrorCode
+  | AuthGateErrorCode
+  | ProfileValidationError
+  | "updateFailed";
+
+export type UpdateProfileResult = ActionResult<UpdateProfileError>;
 
 /**
  * プロフィール（表示名・自己紹介・SNS）の更新 Server Action。

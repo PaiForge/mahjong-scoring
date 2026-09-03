@@ -3,8 +3,11 @@
 import type { ActionResult } from "@/lib/action-types";
 import { logActivityEvent } from "@/lib/activity-log";
 import { authenticateAndCheckBan } from "@/lib/auth";
+import type { AuthGateErrorCode } from "@/lib/auth";
 import { enforceIpRateLimit } from "@/lib/rate-limit-ip";
+import type { RateLimitErrorCode } from "@/lib/rate-limit-ip";
 import { deleteAccount } from "@/lib/users/delete-account";
+import type { DeleteAccountError } from "@/lib/users/delete-account";
 
 /**
  * アカウント退会 Server Action。
@@ -14,7 +17,13 @@ import { deleteAccount } from "@/lib/users/delete-account";
  *
  * 退会アクション
  */
-export async function deleteOwnAccount(): Promise<ActionResult> {
+/** 退会の失敗理由 */
+export type DeleteOwnAccountError =
+  RateLimitErrorCode | AuthGateErrorCode | DeleteAccountError;
+
+export async function deleteOwnAccount(): Promise<
+  ActionResult<DeleteOwnAccountError>
+> {
   const rateLimited = await enforceIpRateLimit("deleteAccount");
   if (rateLimited) {
     return rateLimited;

@@ -19,10 +19,14 @@ import { recordModerationAction } from "../_lib/moderation";
  *
  * ユーザーBAN
  */
+/** BAN の失敗理由 */
+export type BanUserError =
+  "unauthorized" | "cannotBanSelf" | "invalidReason" | "banFailed";
+
 export async function banUser(
   targetUserId: string,
   reason: string,
-): Promise<ActionResult> {
+): Promise<ActionResult<BanUserError>> {
   const admin = await requireAdminActor("unauthorized");
   if ("error" in admin) {
     return admin;

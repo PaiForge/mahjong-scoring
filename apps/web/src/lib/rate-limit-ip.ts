@@ -93,11 +93,18 @@ export const IP_RATE_LIMITS = {
  * @param key - アクションキー（例: `'signIn'`）
  * @param config - レートリミット設定
  */
+/**
+ * レートリミット超過を表すエラーコード
+ *
+ * これを返すアクションは `ActionResult` の union にこの型を含める。
+ */
+export type RateLimitErrorCode = "rateLimited";
+
 export function checkIpRateLimitGuard(
   ip: string | undefined,
   key: string,
   config: Readonly<IpRateLimitConfig>,
-): { error: "rateLimited" } | undefined {
+): { error: RateLimitErrorCode } | undefined {
   const effectiveIp = ip ?? "unknown";
   const { allowed } = checkIpRateLimit(effectiveIp, key, config);
   if (!allowed) {
@@ -118,7 +125,7 @@ export function checkIpRateLimitGuard(
 export async function enforceIpRateLimit(
   key: keyof typeof IP_RATE_LIMITS,
   config: Readonly<IpRateLimitConfig> = IP_RATE_LIMITS[key],
-): Promise<{ error: "rateLimited" } | undefined> {
+): Promise<{ error: RateLimitErrorCode } | undefined> {
   const { getClientIp } = await import("./client-ip");
   const ip = await getClientIp();
   return checkIpRateLimitGuard(ip, key, config);

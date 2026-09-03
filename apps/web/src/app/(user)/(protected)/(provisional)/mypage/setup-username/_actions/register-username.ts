@@ -5,8 +5,11 @@ import { db, profiles } from "@/lib/db";
 import { extractPgErrorCode } from "@/lib/db/extract-pg-error-code";
 import { profileExistsByUserId } from "@/lib/db/queries";
 import { authenticateAndCheckBan } from "@/lib/auth";
+import type { AuthGateErrorCode } from "@/lib/auth";
 import { enforceIpRateLimit } from "@/lib/rate-limit-ip";
+import type { RateLimitErrorCode } from "@/lib/rate-limit-ip";
 import { validateUsername } from "@/lib/username";
+import type { UsernameValidationError } from "@/lib/username";
 
 const PG_UNIQUE_VIOLATION = "23505";
 
@@ -19,10 +22,19 @@ const PG_UNIQUE_VIOLATION = "23505";
  * @param username - 希望するユーザー名（前後の空白は呼び出し側で除去済みでもよい）
  * @param displayName - 表示名。未指定なら username を流用する
  */
+/** ユーザー名登録の失敗理由 */
+export type RegisterUsernameError =
+  | RateLimitErrorCode
+  | AuthGateErrorCode
+  | UsernameValidationError
+  | "username_required"
+  | "username_already_set"
+  | "username_taken";
+
 export async function registerUsername(
   username: string,
   displayName?: string,
-): Promise<ActionResult> {
+): Promise<ActionResult<RegisterUsernameError>> {
   const rateLimited = await enforceIpRateLimit("username");
   if (rateLimited) {
     return rateLimited;

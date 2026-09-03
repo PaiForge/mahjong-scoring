@@ -10,13 +10,18 @@ import {
 } from "../_lib/announcement-row";
 import {
   type AnnouncementInput,
+  type AnnouncementValidationError,
   isUniqueViolation,
   validateAnnouncement,
 } from "../_lib/validation";
 
+/** お知らせ作成の失敗理由 */
+export type CreateAnnouncementError =
+  AnnouncementValidationError | "errorSaveFailed" | "errorDuplicate";
+
 export async function createAnnouncement(
   data: AnnouncementInput,
-): Promise<ActionResult<{ id: string }>> {
+): Promise<ActionResult<CreateAnnouncementError, { id: string }>> {
   const admin = await requireAdminActor("errorSaveFailed");
   if ("error" in admin) {
     return admin;
@@ -33,7 +38,8 @@ export async function createAnnouncement(
   try {
     [inserted] = await db
       .insert(announcements)
-      .values(toAnnouncementRow(data, now))
+      // 新規作成なので、引き継ぐピン留め時刻は無い
+      .values(toAnnouncementRow(data, { now, currentPinnedAt: null }))
       .returning({ id: announcements.id });
   } catch (err: unknown) {
     if (isUniqueViolation(err)) {
