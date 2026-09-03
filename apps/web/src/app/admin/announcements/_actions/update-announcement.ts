@@ -40,10 +40,13 @@ export async function updateAnnouncement(
     return { error: "errorNotFound" };
   }
 
+  // 行の各時刻（ピン留め・更新）を1つの「今」から揃える
+  const now = new Date();
+
   try {
     await db
       .update(announcements)
-      .set({ ...toAnnouncementRow(data), updatedAt: new Date() })
+      .set({ ...toAnnouncementRow(data, now), updatedAt: now })
       .where(eq(announcements.id, id));
   } catch (err: unknown) {
     if (isUniqueViolation(err)) {
