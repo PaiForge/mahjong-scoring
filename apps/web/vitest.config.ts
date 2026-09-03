@@ -3,7 +3,9 @@ import { resolve } from "node:path";
 
 export default defineConfig({
   test: {
-    include: ["src/**/*.test.{ts,tsx}"],
+    // scripts/ も含めるのは、コミット済みの生成物（Supabase の認証メール
+    // テンプレート）が定義とズレていないかを生成側の隣で検査するため。
+    include: ["src/**/*.test.{ts,tsx}", "scripts/**/*.test.ts"],
     environment: "jsdom",
     setupFiles: ["src/test/setup.ts"],
     globals: true,

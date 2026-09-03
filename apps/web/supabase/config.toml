@@ -191,8 +191,11 @@ otp_length = 6
 otp_expiry = 3600
 
 # メール件名・本文のサイト名は src/messages/ja.json の metadata.siteName を正典とする。
-# Supabase は config.toml / テンプレート HTML を直接読むため定数 import ができない。
-# サイト名を変更したら ja.json と以下の subject / templates/*.html を必ず揃えること。
+# Supabase は config.toml を直接読むため定数 import ができず、以下の subject だけは
+# 手で持つ。templates/*.html は scripts/generate-email-templates.ts の生成物で、
+# subject と同じ文字列を <title> に出す（文言は scripts/email-templates/contents.ts）。
+# サイト名や件名を変更したら ja.json・contents.ts・以下の subject を揃え、
+# pnpm --filter web email:generate でテンプレートを作り直すこと。
 [auth.email.template.confirmation]
 subject = "麻雀点数計算 - メールアドレスの確認"
 content_path = "./supabase/templates/confirmation.html"
