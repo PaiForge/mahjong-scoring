@@ -30,8 +30,9 @@ export async function updateAnnouncement(
     return { error: validationError };
   }
 
+  // pinnedAt も引く。ピン留めが続いている行の時刻を動かさないために要る
   const [existing] = await db
-    .select({ id: announcements.id })
+    .select({ id: announcements.id, pinnedAt: announcements.pinnedAt })
     .from(announcements)
     .where(eq(announcements.id, id))
     .limit(1);
@@ -46,7 +47,13 @@ export async function updateAnnouncement(
   try {
     await db
       .update(announcements)
-      .set({ ...toAnnouncementRow(data, now), updatedAt: now })
+      .set({
+        ...toAnnouncementRow(data, {
+          now,
+          currentPinnedAt: existing.pinnedAt,
+        }),
+        updatedAt: now,
+      })
       .where(eq(announcements.id, id));
   } catch (err: unknown) {
     if (isUniqueViolation(err)) {

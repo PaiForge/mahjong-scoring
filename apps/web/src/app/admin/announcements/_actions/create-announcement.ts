@@ -33,7 +33,8 @@ export async function createAnnouncement(
   try {
     [inserted] = await db
       .insert(announcements)
-      .values(toAnnouncementRow(data, now))
+      // 新規作成なので、引き継ぐピン留め時刻は無い
+      .values(toAnnouncementRow(data, { now, currentPinnedAt: null }))
       .returning({ id: announcements.id });
   } catch (err: unknown) {
     if (isUniqueViolation(err)) {
