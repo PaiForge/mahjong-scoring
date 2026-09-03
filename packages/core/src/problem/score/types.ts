@@ -3,6 +3,7 @@ import type {
   Tehai14,
   Kazehai,
   ScoreResult,
+  YakumanRuleConfig,
 } from "@pai-forge/riichi-mahjong";
 import type { FuDetail } from "../../score/fu-calculator";
 import type { RandomSource } from "../../core/random";
@@ -157,6 +158,31 @@ export interface QuestionGeneratorOptions {
   readonly excludeRenfonpai?: boolean;
   /** 30符4翻・60符3翻を満貫に切り上げるか（切り上げ満貫、既定 false） */
   readonly kiriageMangan?: boolean;
+  /**
+   * 役満ルール設定（ダブル役満の形・複合役満の合算。既定: すべて無効）
+   * 役満ルール
+   *
+   * ライブラリの `YakumanRuleConfig` をそのまま受ける。アプリの
+   * `RuleSettings` からは `toYakumanRuleConfig` で変換して渡すこと
+   * （フラグの対応関係をここで再実装しない）。
+   */
+  readonly yakumanRules?: YakumanRuleConfig;
+  /**
+   * 役満ルールの採否で正解の点数が割れる手を出題しないか（既定 false）
+   * 役満ルール境界除外
+   *
+   * 四暗刻単騎・大四喜・国士十三面・純正九蓮・複合役満は、ダブル役満系の
+   * ルール設定次第で正解が役満（32000等）とダブル役満（64000等）に割れる。
+   * `excludeRenfonpai` / `excludeKiriageBoundary` と同じ理由で、答えを1つに
+   * 定めたい出題（端末ごとのルール設定に左右されてはならない昇級試験）が
+   * 立てる。
+   *
+   * 形を列挙して弾くのではなく「全ルール有効時に役満2個分以上になる手」を
+   * 弾く。全ルール無効時の役満手の支払いは常に役満1つ分なので、これが
+   * 「有効・無効で点数が割れる手」と同値であり、将来ルールのフラグが
+   * 増えても判定が漏れない。
+   */
+  readonly excludeYakumanRuleBoundary?: boolean;
   /**
    * 切り上げ満貫で点数が割れる手（30符4翻・60符3翻）を出題しないか（既定 false）
    * 切り上げ満貫境界除外

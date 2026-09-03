@@ -2,9 +2,11 @@ import {
   HaiKind,
   calculateScoreForTehai,
   detectYaku,
+  getYakumanMultiplier,
   isMenzen,
   type HaiKindId,
   type Kazehai,
+  type RuleConfig,
   type Tehai14,
 } from "@pai-forge/riichi-mahjong";
 import { BAKAZE_OPTIONS, ScoreLevel, KAZEHAI } from "../../core/constants";
@@ -32,10 +34,13 @@ import {
 import { retryGenerate } from "../retry-generate";
 import { countKantsu } from "../shared/count-kantsu";
 import type { AgariContext } from "../shared/agari-context";
-import { doubleWindJantouFu } from "../../rules/settings";
 import {
+  ALL_YAKUMAN_RULES_ENABLED,
+  doubleWindJantouFu,
+} from "../../rules/settings";
+import {
+  alignYakumanScore,
   applyKiriageMangan,
-  clampDoubleYakuman,
   isKiriageManganTarget,
   recalculateScore,
 } from "../../score/calculator";
@@ -119,7 +124,7 @@ function selectBakaze(
  */
 interface ScoringInput extends AgariContext {
   readonly doraMarkers: readonly HaiKindId[];
-  readonly ruleConfig: { readonly doubleWindJantouFu: 2 | 4 };
+  readonly ruleConfig: RuleConfig;
 }
 
 /**
@@ -155,6 +160,7 @@ function computeScoreAndYaku(
       jikaze,
       doraMarkers,
       isTsumo,
+      ruleConfig,
     });
     return { answer, yakuResult };
   } catch {
@@ -179,6 +185,8 @@ export function generateScoreQuestion(
     excludeRenfonpai = false,
     kiriageMangan = false,
     excludeKiriageBoundary = false,
+    yakumanRules,
+    excludeYakumanRuleBoundary = false,
     allowedRanges = ["nonMangan", "manganPlus"],
     minHan = 0,
     requiredYaku,
@@ -220,6 +228,7 @@ export function generateScoreQuestion(
     doraMarkers,
     ruleConfig: {
       doubleWindJantouFu: doubleWindJantouFu(renfonpaiAs4Fu),
+      ...yakumanRules,
     },
   });
   if (!scored) return undefined;
@@ -284,13 +293,43 @@ export function generateScoreQuestion(
     });
   }
 
-  // 6. ダブル役満の点数を役満に丸める（26翻以上も役満として扱うアプリ全体の
-  //    決定に点数を合わせる。丸めないと 64000 のようにどの点数リストにも
-  //    無い点数が正解になり、選択肢から選べない問題が出る）
-  finalAnswer = clampDoubleYakuman(finalAnswer, {
+  // 6. 役満手の支払いを役満単位に揃える（リーチ・役牌の後付け翻で
+  //    翻数由来の区分に流れた支払いを、ルール設定込みでライブラリが確定
+  //    させた役満単位へ戻す。数え26翻超えの役満止まりもここで丸める）
+  finalAnswer = alignYakumanScore(finalAnswer, {
     isTsumo,
     isOya: isOya(jikaze),
   });
+
+  // 6.1. トリプル役満以上（役満3個分〜）は出題しない
+  //     点数選択肢のリスト（RON_SCORES_KO 等）はダブル役満までしか持たず、
+  //     選択肢から選べない問題になるため。ランダム生成では実質出ない手
+  //     （大四喜ダブル+字一色 等）だが、防波堤として明示的に弾く
+  if (finalAnswer.yakumanMultiplier >= 3) return undefined;
+
+  // 6.2. 役満ルールの採否で正解が割れる手の除外
+  //     役満役を含む手に限り、全ルール有効として数え直したときに役満2個分
+  //     以上になるか（= 全ルール無効時と点数が割れるか）で判定する。
+  //     判定理由と同値性は QuestionGeneratorOptions の
+  //     excludeYakumanRuleBoundary の TSDoc を参照
+  if (excludeYakumanRuleBoundary && finalAnswer.yakumanMultiplier >= 1) {
+    try {
+      const allOnResult = detectYaku(tehai, {
+        agariHai,
+        bakaze,
+        jikaze,
+        doraMarkers,
+        isTsumo,
+        ruleConfig: ALL_YAKUMAN_RULES_ENABLED,
+      });
+      if (getYakumanMultiplier(allOnResult, ALL_YAKUMAN_RULES_ENABLED) >= 2)
+        return undefined;
+    } catch {
+      // ライブラリ境界の防御（computeScoreAndYaku と同じ扱い）。
+      // 判定できない手はルールに依存しないと言い切れないため出題しない
+      return undefined;
+    }
+  }
 
   // 7. 切り上げ満貫で点数が割れる手（30符4翻・60符3翻）の除外
   //    切り上げる前の結果で判定する。切り上げた後は満貫になっていて
