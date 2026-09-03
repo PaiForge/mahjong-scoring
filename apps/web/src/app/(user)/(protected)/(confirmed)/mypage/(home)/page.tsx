@@ -35,7 +35,7 @@ export default async function MyPage() {
   const { user } = await requireConfirmedUser();
   const [profile, heatmapData, rankSlugs] = await Promise.all([
     getProfileCardByUserId(user.id),
-    getExpHeatmapData(user.id),
+    getExpHeatmapData(user.id, new Date()),
     getUserRankSlugs(user.id),
   ]);
   const profileName = profile?.displayName ?? profile?.username ?? "";

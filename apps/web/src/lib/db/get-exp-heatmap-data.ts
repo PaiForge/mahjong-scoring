@@ -40,9 +40,16 @@ const HEATMAP_CACHE_TTL_SECONDS = 60;
  *
  * `idx_exp_events_user_created(user_id, created_at)` をレンジスキャンで活用する。
  * 日次グループ化は JST (Asia/Tokyo) で行うため、日本時間 0 時を日付境界として扱える。
+ *
+ * @param now - 「今」として扱う時刻。ここから JST の当日を決め、表示範囲の
+ *   両端を導く。内部で現在時刻を読むと、JST の日付境界（UTC+9）を
+ *   テストで固定できず、クエリ範囲の検証が実行時刻に左右される
  */
-async function fetchExpHeatmapData(userId: string): Promise<ExpHeatmapData> {
-  const jstToday = getJstTodayDate(new Date());
+async function fetchExpHeatmapData(
+  userId: string,
+  now: Date,
+): Promise<ExpHeatmapData> {
+  const jstToday = getJstTodayDate(now);
   const { startDate, endDate } = getHeatmapDateRangeForWeeks(
     jstToday,
     DESKTOP_WEEKS,
@@ -109,12 +116,15 @@ async function fetchExpHeatmapData(userId: string): Promise<ExpHeatmapData> {
  * `unstable_cache` で per-user タグを付与しているため、
  * 新しい EXP 付与時は `save-challenge-result.ts` 側で `revalidateTag` を呼ぶ。
  * TTL は防御的に 60 秒とし、`revalidateTag` が失敗しても極端に古い値が残らないようにする。
+ *
+ * @param now - 「今」として扱う時刻。呼び出し側で1回だけ生成して渡す
  */
 export async function getExpHeatmapData(
   userId: string,
+  now: Date,
 ): Promise<ExpHeatmapData> {
   const cached = unstable_cache(
-    (uid: string) => fetchExpHeatmapData(uid),
+    (uid: string) => fetchExpHeatmapData(uid, now),
     ["exp-heatmap-data", userId],
     {
       tags: [expHeatmapCacheTag(userId)],

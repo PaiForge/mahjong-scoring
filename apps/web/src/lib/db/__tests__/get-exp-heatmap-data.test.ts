@@ -1,4 +1,4 @@
-import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
+import { beforeEach, describe, expect, it, vi } from "vitest";
 
 const { mockGte, mockLte } = vi.hoisted(() => ({
   mockGte: vi.fn(),
@@ -58,6 +58,9 @@ describe("expHeatmapCacheTag", () => {
   });
 });
 
+/** テストで固定する「今」（JST では 2026-04-15） */
+const NOW = new Date("2026-04-15T03:00:00.000Z");
+
 describe("getExpHeatmapData", () => {
   const mockGroupBy = vi.fn();
   const mockWhere = vi.fn();
@@ -88,7 +91,7 @@ describe("getExpHeatmapData", () => {
   });
 
   it("returns daily totals and module breakdowns", async () => {
-    const result = await getExpHeatmapData("user-123");
+    const result = await getExpHeatmapData("user-123", NOW);
 
     expect(result.daily).toEqual({
       "2026-04-01": 150,
@@ -101,7 +104,7 @@ describe("getExpHeatmapData", () => {
   });
 
   it("calls db.select twice (daily + module)", async () => {
-    await getExpHeatmapData("user-123");
+    await getExpHeatmapData("user-123", NOW);
 
     expect(mockDb.select).toHaveBeenCalledTimes(2);
     expect(mockFrom).toHaveBeenCalledTimes(2);
@@ -113,7 +116,7 @@ describe("getExpHeatmapData", () => {
     mockGroupBy.mockReset();
     mockGroupBy.mockResolvedValue([]);
 
-    const result = await getExpHeatmapData("user-123");
+    const result = await getExpHeatmapData("user-123", NOW);
 
     expect(result.daily).toEqual({});
     expect(result.dailyByModule).toEqual({});
@@ -127,7 +130,7 @@ describe("getExpHeatmapData", () => {
         { date: "2026-04-01", menuType: "jantou_fu", total: null },
       ]);
 
-    const result = await getExpHeatmapData("user-123");
+    const result = await getExpHeatmapData("user-123", NOW);
 
     expect(result.daily).toEqual({ "2026-04-01": 0 });
     expect(result.dailyByModule).toEqual({ "2026-04-01": { jantou_fu: 0 } });
@@ -141,7 +144,7 @@ describe("getExpHeatmapData", () => {
         { date: "2026-04-01", menuType: null, total: "100" },
       ]);
 
-    const result = await getExpHeatmapData("user-123");
+    const result = await getExpHeatmapData("user-123", NOW);
 
     expect(result.dailyByModule).toEqual({ "2026-04-01": { unknown: 100 } });
   });
@@ -150,7 +153,7 @@ describe("getExpHeatmapData", () => {
     mockGroupBy.mockReset();
     mockGroupBy.mockRejectedValue(new Error("Connection refused"));
 
-    await expect(getExpHeatmapData("user-123")).rejects.toThrow(
+    await expect(getExpHeatmapData("user-123", NOW)).rejects.toThrow(
       "Connection refused",
     );
   });
@@ -163,7 +166,7 @@ describe("getExpHeatmapData", () => {
       ])
       .mockResolvedValueOnce([]);
 
-    const result = await getExpHeatmapData("user-123");
+    const result = await getExpHeatmapData("user-123", NOW);
 
     expect(result.daily).toEqual({ "2026-04-01": 50 });
   });
@@ -190,7 +193,7 @@ describe("getExpHeatmapData", () => {
         });
       });
 
-    await getExpHeatmapData("user-123");
+    await getExpHeatmapData("user-123", NOW);
 
     expect(callOrder[0]).toBe("daily-start");
     expect(callOrder[1]).toBe("module-start");
@@ -206,7 +209,7 @@ describe("getExpHeatmapData", () => {
         { date: "2026-04-01", menuType: "yaku", total: "80" },
       ]);
 
-    const result = await getExpHeatmapData("user-123");
+    const result = await getExpHeatmapData("user-123", NOW);
 
     expect(result.dailyByModule["2026-04-01"]).toEqual({
       jantou_fu: 100,
@@ -230,29 +233,20 @@ describe("getExpHeatmapData", () => {
         { date: "2026-01-02", menuType: "jantou_fu", total: "42" },
       ]);
 
-    const result = await getExpHeatmapData("user-123");
+    const result = await getExpHeatmapData("user-123", NOW);
 
     expect(result.daily).toEqual({ "2026-01-02": 42 });
     expect(result.dailyByModule).toEqual({ "2026-01-02": { jantou_fu: 42 } });
   });
 
   describe("JST query bounds (regression: Reviewer-found UTC drift bug)", () => {
-    afterEach(() => {
-      vi.useRealTimers();
-    });
-
     it("binds gte to start-of-JST-day 00:00+09:00 and lte to end-of-JST-day 23:59:59.999+09:00", async () => {
       // Mid-day JST (UTC 03:00 = 12:00 JST) → today = 2026-04-10
-      vi.useFakeTimers();
-      vi.setSystemTime(new Date("2026-04-10T03:00:00Z"));
-      mockGte.mockClear();
-      mockLte.mockClear();
       mockGroupBy.mockReset();
       mockGroupBy.mockResolvedValue([]);
 
-      await getExpHeatmapData("user-123");
+      await getExpHeatmapData("user-123", new Date("2026-04-10T03:00:00Z"));
 
-      // Both queries each pass gte+lte once => 2 gte, 2 lte calls (same values)
       expect(mockGte).toHaveBeenCalled();
       expect(mockLte).toHaveBeenCalled();
 
@@ -280,14 +274,10 @@ describe("getExpHeatmapData", () => {
     it("rolls the query window into the next JST day when UTC is still on the prior day", async () => {
       // 2026-01-01T20:00:00Z = 2026-01-02 05:00 JST. A naive UTC-local calc would
       // place endDate at 2026-01-01; the fix must yield 2026-01-02.
-      vi.useFakeTimers();
-      vi.setSystemTime(new Date("2026-01-01T20:00:00Z"));
-      mockGte.mockClear();
-      mockLte.mockClear();
       mockGroupBy.mockReset();
       mockGroupBy.mockResolvedValue([]);
 
-      await getExpHeatmapData("user-123");
+      await getExpHeatmapData("user-123", new Date("2026-01-01T20:00:00Z"));
 
       const lteArg = mockLte.mock.calls[0][1] as Date;
       // JST end-of-day for 2026-01-02
@@ -295,14 +285,10 @@ describe("getExpHeatmapData", () => {
     });
 
     it("passes identical bounds to both daily and module queries", async () => {
-      vi.useFakeTimers();
-      vi.setSystemTime(new Date("2026-04-10T03:00:00Z"));
-      mockGte.mockClear();
-      mockLte.mockClear();
       mockGroupBy.mockReset();
       mockGroupBy.mockResolvedValue([]);
 
-      await getExpHeatmapData("user-123");
+      await getExpHeatmapData("user-123", new Date("2026-04-10T03:00:00Z"));
 
       // whereClause is built once in fetchExpHeatmapData, so gte/lte are called once each.
       // Both db.select() calls receive the same whereClause object.
