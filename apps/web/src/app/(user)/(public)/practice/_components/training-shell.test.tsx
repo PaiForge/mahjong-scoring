@@ -3,6 +3,12 @@ import { render, screen, fireEvent } from "@testing-library/react";
 
 vi.mock("next-intl", async () => await import("@/test/intl-mock"));
 
+// チャレンジ導線が出題条件のクエリを引き継ぐため、シェルは検索パラメータを読む
+let currentQuery = "";
+vi.mock("next/navigation", () => ({
+  useSearchParams: () => new URLSearchParams(currentQuery),
+}));
+
 import { takeToastOnArrival } from "@/app/_components/_lib/toast-on-arrival";
 import { TrainingShell } from "./training-shell";
 
@@ -13,6 +19,8 @@ function renderShell(props: Partial<Parameters<typeof TrainingShell>[0]> = {}) {
       correctCount={0}
       totalCount={0}
       exitHref="/practice/score-table"
+      challengeHref="/practice/score-table/play"
+      challengeRules={{ timeLimit: 60, mistakeLimit: 3 }}
       {...props}
     >
       <div>body</div>
@@ -77,6 +85,27 @@ describe("TrainingShell 終了", () => {
     // その場では出さず、遷移先の説明ページに着いてから出す
     expect(takeToastOnArrival("/practice/score-table")?.message).toBe(
       "exitToast",
+    );
+  });
+});
+
+describe("TrainingShell チャレンジ導線", () => {
+  it("末尾にチャレンジへのボタンを出す", () => {
+    currentQuery = "";
+    renderShell();
+
+    const cta = screen.getByRole("link", { name: /challengeButton/ });
+    expect(cta.getAttribute("href")).toBe("/practice/score-table/play");
+  });
+
+  it("出題条件のクエリを付けたままチャレンジへ渡す", () => {
+    // 絞った条件で練習していた人が、全条件のチャレンジに着地しないこと
+    currentQuery = "roles=ko&wins=ron";
+    renderShell();
+
+    const cta = screen.getByRole("link", { name: /challengeButton/ });
+    expect(cta.getAttribute("href")).toBe(
+      "/practice/score-table/play?roles=ko&wins=ron",
     );
   });
 });

@@ -16,7 +16,11 @@ import { useTimedSession } from "../_hooks/use-timed-session";
 import { useTrainingSession } from "../_hooks/use-training-session";
 import { TrainingModeProvider } from "../_hooks/use-training-mode";
 import type { PracticeBoardProps } from "./practice-board-props";
-import { practiceHref, practiceResultHref } from "./practice-catalog";
+import {
+  practiceHref,
+  practicePlayHref,
+  practiceResultHref,
+} from "./practice-catalog";
 
 /**
  * チャレンジ盤面の描画に渡される状態
@@ -196,7 +200,8 @@ export function createTrainingView<
   TState = undefined,
 >(config: TrainingViewConfig<TProps, TState>): (props: TProps) => ReactNode {
   const { slug, maxWidth, help, renderBoard } = config;
-  const { namespace } = practiceMenuBySlug(slug);
+  // チャレンジ側のセッションルールは CTA の補足文（制限時間・ミス上限）に出す
+  const { namespace, mistakeLimit, timeLimit } = practiceMenuBySlug(slug);
   const useBoardState =
     config.useBoardState ?? (() => undefined as unknown as TState);
 
@@ -234,6 +239,8 @@ export function createTrainingView<
         correctCount={correctCount}
         totalCount={totalCount}
         exitHref={practiceHref(slug)}
+        challengeHref={practicePlayHref(slug)}
+        challengeRules={{ timeLimit, mistakeLimit }}
         maxWidth={maxWidth}
         onReveal={() => {
           if (advance) reveal(advance);

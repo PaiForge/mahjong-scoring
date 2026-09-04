@@ -2,6 +2,7 @@ import { describe, expect, it, vi, beforeEach, afterEach } from "vitest";
 import { render, screen, fireEvent, act } from "@testing-library/react";
 
 vi.mock("next-intl", async () => await import("@/test/intl-mock"));
+vi.mock("next/navigation", async () => await import("@/test/navigation-mock"));
 // チャレンジ側のファクトリが Server Action を参照するため、
 // クライアントから import できるようスタブに差し替える（トレーニングでは未使用）。
 vi.mock("../_actions/save-practice-result", () => ({

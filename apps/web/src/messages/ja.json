@@ -374,7 +374,8 @@
     "revealButton": "わからない",
     "nextButton": "次の問題へ",
     "exitButton": "終了する",
-    "exitToast": "練習を終了しました"
+    "exitToast": "練習を終了しました",
+    "challengeButton": "チャレンジに挑戦"
   },
   "exp": {
     "label": "経験値",
