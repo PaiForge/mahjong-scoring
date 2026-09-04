@@ -15,7 +15,7 @@ export const SCORE_CALCULATION_DEMO_QUESTION = buildDemoScoreQuestion({
 });
 
 /**
- * 点数計算練習の「問題方式」ビジュアルデモ
+ * 点数即答の「問題方式」ビジュアルデモ
  * 点数計算 遊び方デモ
  *
  * 実際の出題盤面（手牌・状況の提示）を静的に再現し、出題形式を端的に示す。
