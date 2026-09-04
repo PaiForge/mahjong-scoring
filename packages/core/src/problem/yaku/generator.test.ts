@@ -2,6 +2,8 @@ import { describe, it, expect } from "vitest";
 import { MentsuType } from "@pai-forge/riichi-mahjong";
 import { generateYakuQuestion } from "./generator";
 import { countKantsu } from "../shared/count-kantsu";
+import { listTehaiHais } from "../../core/hai-count";
+import { expectHaiUsageWithinLimit } from "../../test/tile-usage";
 import { SELECTABLE_YAKU } from "./constants";
 import {
   expectGeneratesEventually,
@@ -48,6 +50,26 @@ describe("generateYakuQuestion", () => {
 
     for (const question of questions) {
       expect(question.correctYakuNames).toContain("立直");
+    }
+  });
+
+  it("手牌とドラ表示牌を合わせても同じ牌が5枚にならない", () => {
+    // 表示牌も山から取る 1 枚。手牌で使い切った牌種が表示牌にも出ると、
+    // その牌が 5 枚要る盤面になる（実物の麻雀では起こり得ない）。
+    const questions = expectSampled(generateYakuQuestion, {
+      need: 200,
+      attempts: 400,
+    });
+
+    for (const question of questions) {
+      expectHaiUsageWithinLimit(
+        [
+          ...listTehaiHais(question.tehai),
+          ...question.context.doraMarkers,
+          ...(question.context.uraDoraMarkers ?? []),
+        ],
+        "役判定の出題",
+      );
     }
   });
 

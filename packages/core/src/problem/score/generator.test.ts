@@ -7,6 +7,8 @@ import {
 } from "@pai-forge/riichi-mahjong";
 import { generateScoreQuestion, generateValidScoreQuestion } from "./generator";
 import { countKantsu } from "../shared/count-kantsu";
+import { listTehaiHais } from "../../core/hai-count";
+import { expectHaiUsageWithinLimit } from "../../test/tile-usage";
 import { SCORE_FILTERABLE_YAKU } from "./filterable-yaku";
 import { ScoreLevel } from "../../core/constants";
 import { isMangan, MANGAN_MIN_HAN, MANGAN_PLUS_TIERS } from "../../score/tiers";
@@ -386,6 +388,26 @@ describe("generateValidScoreQuestion", () => {
       expect(question.uraDoraMarkers).toBeDefined();
       // 裏ドラは表ドラの下に伏せてある牌なので、槓で表が増えれば裏も増える
       expect(question.uraDoraMarkers).toHaveLength(question.doraMarkers.length);
+    }
+  });
+
+  it("手牌とドラ表示牌を合わせても同じ牌が5枚にならない", () => {
+    // 表示牌も山から取る 1 枚。手牌で使い切った牌種が表示牌にも出ると、
+    // その牌が 5 枚要る盤面になる（実物の麻雀では起こり得ない）。
+    const questions = expectSampled(generateValidScoreQuestion, {
+      need: 200,
+      attempts: 400,
+    });
+
+    for (const question of questions) {
+      expectHaiUsageWithinLimit(
+        [
+          ...listTehaiHais(question.tehai),
+          ...question.doraMarkers,
+          ...(question.uraDoraMarkers ?? []),
+        ],
+        "点数計算の出題",
+      );
     }
   });
 

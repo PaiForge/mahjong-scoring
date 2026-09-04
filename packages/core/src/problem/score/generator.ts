@@ -45,6 +45,7 @@ import {
   recalculateScore,
 } from "../../score/calculator";
 import { countDoraInTehai } from "../../core/dora";
+import { listTehaiHais } from "../../core/hai-count";
 import { isOya } from "../../core/kaze";
 import { SCORE_YAKU_NAME_MAP } from "../../core/yaku-names";
 
@@ -217,7 +218,10 @@ export function generateScoreQuestion(
   const jikaze = selectJikaze(includeParent, includeChild, rng);
   const bakaze = selectBakaze(jikaze, excludeRenfonpai, rng);
   const kantsuCount = countKantsu(tehai);
-  const doraMarkers = generateDoraMarkers(kantsuCount, rng);
+  // 表示牌は山から取る 1 枚なので、手牌が使い切った牌種は選ばせない
+  const handHais = listTehaiHais(tehai);
+  const doraMarkers = generateDoraMarkers(kantsuCount, handHais, rng);
+  if (!doraMarkers) return undefined;
 
   // 3. 点数・役の計算（ライブラリ境界）
   const scored = computeScoreAndYaku(tehai, {
@@ -254,7 +258,13 @@ export function generateScoreQuestion(
   const isRiichi = isMenzen(tehai) && randomBool(0.2, rng);
   let uraDoraMarkers: readonly HaiKindId[] | undefined;
   if (isRiichi) {
-    const markers = generateDoraMarkers(kantsuCount, rng);
+    // 裏ドラは表ドラの下に伏せてある別の牌。表ドラも使用済みに含める
+    const markers = generateDoraMarkers(
+      kantsuCount,
+      [...handHais, ...doraMarkers],
+      rng,
+    );
+    if (!markers) return undefined;
     const riichiRes = applyRiichiAndUraDora({
       tehai,
       currentAnswer: finalAnswer,
