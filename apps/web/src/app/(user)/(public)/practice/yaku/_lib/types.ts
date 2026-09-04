@@ -46,6 +46,13 @@ export interface YakuQuestionResult {
    * 1 つの文字列にまとめると花色ごとに並べ替えられ、出題時と順が変わる。
    */
   readonly doraMarkers: readonly string[];
+  /**
+   * 裏ドラ表示牌（1 枚 1 要素の MSPZ）
+   *
+   * リーチしている問題だけが持つ。この項目を保存する前の旧データにも
+   * 存在しないため任意。
+   */
+  readonly uraDoraMarkers?: readonly string[];
   /** 成立していた役 */
   readonly correctYakuNames: readonly string[];
   /** ユーザーが選んだ役 */
@@ -72,6 +79,7 @@ export function toQuestionResult(
     isTsumo: context.isTsumo,
     isRiichi: context.isRiichi,
     doraMarkers: context.doraMarkers.map(haiIdToMspz),
+    uraDoraMarkers: context.uraDoraMarkers?.map(haiIdToMspz),
     correctYakuNames: [...question.correctYakuNames],
     selectedYakuNames: [...selectedYakuNames],
     isCorrect,
@@ -90,6 +98,7 @@ const questionResultSchema: z.ZodType<YakuQuestionResult> = z.object({
   isTsumo: z.boolean(),
   isRiichi: z.boolean(),
   doraMarkers: z.array(z.string()),
+  uraDoraMarkers: z.array(z.string()).optional(),
   correctYakuNames: z.array(z.string()),
   selectedYakuNames: z.array(z.string()),
   isCorrect: z.boolean(),

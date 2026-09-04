@@ -97,6 +97,11 @@ export function generateYakuQuestion(
 
   const kantsuCount = countKantsu(validTehai);
   const doraMarkers = generateDoraMarkers(kantsuCount, rng);
+  // 裏ドラは立直の手だけがめくる。役の正解には効かないが、リーチ棒と表ドラだけ
+  // 出して裏ドラが無い盤面は実戦にない見え方になるため出題データに持たせる。
+  const uraDoraMarkers = isRiichi
+    ? generateDoraMarkers(kantsuCount, rng)
+    : undefined;
 
   try {
     // detectYaku で手牌役を取得
@@ -149,6 +154,7 @@ export function generateYakuQuestion(
         isTsumo,
         isRiichi,
         doraMarkers,
+        uraDoraMarkers,
       },
       correctYakuNames: yakuNames,
     };

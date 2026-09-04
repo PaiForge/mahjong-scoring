@@ -50,6 +50,32 @@ describe("generateYakuQuestion", () => {
     }
   });
 
+  it("リーチの問題だけが裏ドラ表示牌を持ち、枚数は表ドラと揃う", () => {
+    // 実際の麻雀と同じく、裏ドラをめくるのは立直している手だけ。表示牌の
+    // 枚数は槓の数で決まるため表ドラと同数になる。
+    const questions = expectSampled(generateYakuQuestion, {
+      need: 5,
+      attempts: 1000,
+      where: (q) => q.context.isRiichi,
+    });
+
+    for (const question of questions) {
+      expect(question.context.uraDoraMarkers).toHaveLength(
+        question.context.doraMarkers.length,
+      );
+    }
+
+    const notRiichi = expectSampled(generateYakuQuestion, {
+      need: 5,
+      attempts: 1000,
+      where: (q) => !q.context.isRiichi,
+    });
+
+    for (const question of notRiichi) {
+      expect(question.context.uraDoraMarkers).toBeUndefined();
+    }
+  });
+
   it("生成された問題の tehai と context フィールドが正しい型を持つ", () => {
     const question = generateOne(generateYakuQuestion);
 
