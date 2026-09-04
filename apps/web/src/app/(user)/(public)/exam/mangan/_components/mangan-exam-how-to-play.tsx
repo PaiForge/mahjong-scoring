@@ -1,5 +1,6 @@
 import { HaiKind } from "@mahjong-scoring/core";
 import { createScoreExamHowToPlay } from "../../_lib/create-exam-how-to-play";
+import type { ScoreExamHowToPlayConfig } from "../../_lib/create-exam-how-to-play";
 
 /**
  * 昇級試験（満貫以上の点数計算）の「問題方式」ビジュアルデモ
@@ -12,9 +13,11 @@ import { createScoreExamHowToPlay } from "../../_lib/create-exam-how-to-play";
  * 満貫以上ドリルと同じ手牌を使う。裏ドラ表示牌は出題と同じくリーチの手なので
  * 添えるが、手牌に乗らない一筒（表示牌は九筒）にして翻数を変えない。
  */
-export const ManganExamHowToPlay = createScoreExamHowToPlay({
+export const MANGAN_EXAM_DEMO = {
   translationNamespace: "manganExamChallenge",
   doraMarkers: [HaiKind.ManZu1],
   uraDoraMarkers: [HaiKind.PinZu9],
   isRiichi: true,
-});
+} satisfies ScoreExamHowToPlayConfig;
+
+export const ManganExamHowToPlay = createScoreExamHowToPlay(MANGAN_EXAM_DEMO);

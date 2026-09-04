@@ -1,6 +1,7 @@
 import { HaiKind } from "@mahjong-scoring/core";
 import { DEMO_YAKUHAI_KOUTSU_HAND } from "@/app/(user)/(public)/practice/_lib/demo-score-question";
 import { createScoreExamHowToPlay } from "../../_lib/create-exam-how-to-play";
+import type { ScoreExamHowToPlayConfig } from "../../_lib/create-exam-how-to-play";
 
 /**
  * 昇段試験（あらゆる手の点数計算）の「問題方式」ビジュアルデモ
@@ -14,9 +15,11 @@ import { createScoreExamHowToPlay } from "../../_lib/create-exam-how-to-play";
  * なく、「どんな手でも出る」ことは静止した1例では見せられない（文言が
  * 受け持つ）。
  */
-export const ScoreExamHowToPlay = createScoreExamHowToPlay({
+export const SCORE_EXAM_DEMO = {
   translationNamespace: "scoreExamChallenge",
   hand: DEMO_YAKUHAI_KOUTSU_HAND,
   doraMarkers: [HaiKind.SouZu1],
   isRiichi: false,
-});
+} satisfies ScoreExamHowToPlayConfig;
+
+export const ScoreExamHowToPlay = createScoreExamHowToPlay(SCORE_EXAM_DEMO);

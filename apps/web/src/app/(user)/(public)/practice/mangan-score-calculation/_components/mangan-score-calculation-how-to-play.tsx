@@ -11,7 +11,7 @@ import { YakuListDisplay } from "./yaku-list-display";
  * 二萬（表示牌は一萬）にして5翻に届かせる。裏ドラ表示牌は出題と同じくリーチの
  * 手なので添えるが、手牌に乗らない一筒（表示牌は九筒）にして翻数を変えない。
  */
-const DEMO_QUESTION = buildDemoScoreQuestion({
+export const MANGAN_SCORE_CALCULATION_DEMO_QUESTION = buildDemoScoreQuestion({
   doraMarkers: [HaiKind.ManZu1],
   uraDoraMarkers: [HaiKind.PinZu9],
   isRiichi: true,
@@ -35,9 +35,11 @@ export async function ManganScoreCalculationHowToPlay() {
 
   return (
     <div className="space-y-4">
-      <QuestionDisplay question={DEMO_QUESTION} />
-      {DEMO_QUESTION.yakuDetails && (
-        <YakuListDisplay yakuDetails={DEMO_QUESTION.yakuDetails} />
+      <QuestionDisplay question={MANGAN_SCORE_CALCULATION_DEMO_QUESTION} />
+      {MANGAN_SCORE_CALCULATION_DEMO_QUESTION.yakuDetails && (
+        <YakuListDisplay
+          yakuDetails={MANGAN_SCORE_CALCULATION_DEMO_QUESTION.yakuDetails}
+        />
       )}
 
       <QuestionPrompt>{t("questionPrompt")}</QuestionPrompt>

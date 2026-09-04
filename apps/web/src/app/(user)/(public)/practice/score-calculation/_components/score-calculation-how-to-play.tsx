@@ -9,7 +9,7 @@ import { QuestionPrompt } from "../../_components/question-prompt";
  * 手牌・状況から点数を読み取る出題形式を示すため、ドラは手牌に乗らない
  * 二索（表示牌は一索）にして翻数を増やさない。
  */
-const DEMO_QUESTION = buildDemoScoreQuestion({
+export const SCORE_CALCULATION_DEMO_QUESTION = buildDemoScoreQuestion({
   doraMarkers: [HaiKind.SouZu1],
   isRiichi: false,
 });
@@ -25,7 +25,7 @@ export async function ScoreCalculationHowToPlay() {
 
   return (
     <div className="space-y-4">
-      <QuestionDisplay question={DEMO_QUESTION} />
+      <QuestionDisplay question={SCORE_CALCULATION_DEMO_QUESTION} />
 
       <QuestionPrompt>{t("questionPrompt")}</QuestionPrompt>
     </div>
