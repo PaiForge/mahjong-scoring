@@ -20,8 +20,6 @@ vi.mock("@/app/_contexts/auth-context", () => ({ useAuth: mockUseAuth }));
 
 vi.mock("next-intl", async () => await import("@/test/intl-mock"));
 
-vi.mock("react-hot-toast", () => ({ toast: { success: vi.fn() } }));
-
 vi.mock("next/navigation", () => ({ useRouter: () => ({ push: vi.fn() }) }));
 
 vi.mock("next/link", () => ({
