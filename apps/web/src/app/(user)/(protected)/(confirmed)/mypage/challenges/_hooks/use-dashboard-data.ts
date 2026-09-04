@@ -14,7 +14,7 @@ import type { PracticeMenuType } from "@/lib/db/practice-menu-types";
 import { getChallengeSessions } from "../_actions/get-challenge-sessions";
 import {
   buildChartData,
-  computePercentChange,
+  computeAbsoluteChange,
   computeStats,
   toSessionRows,
 } from "../_lib/dashboard-utils";
@@ -113,13 +113,14 @@ export function useDashboardData({
   );
 
   const bestScoreComparison = useMemo(
-    () => computePercentChange(currentStats.bestScore, previousStats.bestScore),
+    () =>
+      computeAbsoluteChange(currentStats.bestScore, previousStats.bestScore),
     [currentStats.bestScore, previousStats.bestScore],
   );
 
   const avgScoreComparison = useMemo(
     () =>
-      computePercentChange(
+      computeAbsoluteChange(
         currentStats.avgCompletionScore,
         previousStats.avgCompletionScore,
       ),
