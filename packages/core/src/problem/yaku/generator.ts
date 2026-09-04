@@ -20,8 +20,7 @@ import {
 } from "../../core/random";
 import { HaiUsageTracker } from "../../core/hai-tracker";
 import { generateDoraMarkers } from "../shared/dora-utils";
-import { countHaiInTehai, listTehaiHais } from "../../core/hai-count";
-import { countKantsu } from "../shared/count-kantsu";
+import { countHaiInTehai } from "../../core/hai-count";
 import {
   buildTehai14,
   generateMentsuSet,
@@ -95,18 +94,11 @@ export function generateYakuQuestion(
   const isTsumo = randomBool(0.5, rng);
   const isRiichi = menzen && randomBool(0.2, rng);
 
-  const kantsuCount = countKantsu(validTehai);
-  // 表示牌は山から取る 1 枚なので、手牌が使い切った牌種は選ばせない
-  const handHais = listTehaiHais(validTehai);
-  const doraMarkers = generateDoraMarkers(kantsuCount, handHais, rng);
-  if (!doraMarkers) return undefined;
   // 裏ドラは立直の手だけがめくる。役の正解には効かないが、リーチ棒と表ドラだけ
   // 出して裏ドラが無い盤面は実戦にない見え方になるため出題データに持たせる。
-  // 表ドラの下に伏せてある別の牌なので、表ドラも使用済みに含める。
-  const uraDoraMarkers = isRiichi
-    ? generateDoraMarkers(kantsuCount, [...handHais, ...doraMarkers], rng)
-    : undefined;
-  if (isRiichi && !uraDoraMarkers) return undefined;
+  const markers = generateDoraMarkers(validTehai, isRiichi, rng);
+  if (!markers) return undefined;
+  const { doraMarkers, uraDoraMarkers } = markers;
 
   try {
     // detectYaku で手牌役を取得

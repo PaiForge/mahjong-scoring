@@ -1,54 +1,133 @@
 import { describe, it, expect } from "vitest";
-import { HaiKind, type HaiKindId } from "@pai-forge/riichi-mahjong";
+import {
+  HaiKind,
+  MentsuType,
+  validateTehai14,
+} from "@pai-forge/riichi-mahjong";
+import type {
+  CompletedMentsu,
+  HaiKindId,
+  Tehai14,
+} from "@pai-forge/riichi-mahjong";
 import { generateDoraMarkers } from "./dora-utils";
-import { validateHaiKindId } from "../../core/type-guards";
 
-/** 全34牌種 */
-const ALL_KINDS: readonly HaiKindId[] = Array.from({ length: 34 }, (_, i) => {
-  const result = validateHaiKindId(i);
-  if (result.isErr()) throw new Error(`牌種ID ${i} が不正`);
+/** 検証済みの手牌を組む（固定値なので失敗しない） */
+function tehaiOf(input: {
+  readonly closed: readonly HaiKindId[];
+  readonly exposed: readonly CompletedMentsu[];
+}): Tehai14 {
+  const result = validateTehai14({
+    closed: [...input.closed],
+    exposed: [...input.exposed],
+  });
+  if (result.isErr()) throw new Error("テスト用の手牌が不正");
   return result.value;
+}
+
+/** 123m 456m 789m 234s 55s（槓子なし） */
+const NO_KANTSU = tehaiOf({
+  closed: [
+    HaiKind.ManZu1,
+    HaiKind.ManZu2,
+    HaiKind.ManZu3,
+    HaiKind.ManZu4,
+    HaiKind.ManZu5,
+    HaiKind.ManZu6,
+    HaiKind.ManZu7,
+    HaiKind.ManZu8,
+    HaiKind.ManZu9,
+    HaiKind.SouZu2,
+    HaiKind.SouZu3,
+    HaiKind.SouZu4,
+    HaiKind.SouZu5,
+    HaiKind.SouZu5,
+  ],
+  exposed: [],
 });
 
-/** 指定の牌を n 枚並べる */
-function repeat(hai: HaiKindId, count: number): HaiKindId[] {
-  return Array.from({ length: count }, () => hai);
+/** 123m 456m 789m 22s + 五筒の暗槓（五筒を使い切っている） */
+const PINZU5_ANKAN = tehaiOf({
+  closed: [
+    HaiKind.ManZu1,
+    HaiKind.ManZu2,
+    HaiKind.ManZu3,
+    HaiKind.ManZu4,
+    HaiKind.ManZu5,
+    HaiKind.ManZu6,
+    HaiKind.ManZu7,
+    HaiKind.ManZu8,
+    HaiKind.ManZu9,
+    HaiKind.SouZu2,
+    HaiKind.SouZu2,
+  ],
+  exposed: [
+    {
+      type: MentsuType.Kantsu,
+      hais: [HaiKind.PinZu5, HaiKind.PinZu5, HaiKind.PinZu5, HaiKind.PinZu5],
+    },
+  ],
+});
+
+/** 123m 456m 789m 22s + 五筒の暗刻（五筒が 1 枚だけ山に残る） */
+const PINZU5_KOUTSU = tehaiOf({
+  closed: [
+    HaiKind.ManZu1,
+    HaiKind.ManZu2,
+    HaiKind.ManZu3,
+    HaiKind.ManZu4,
+    HaiKind.ManZu5,
+    HaiKind.ManZu6,
+    HaiKind.ManZu7,
+    HaiKind.ManZu8,
+    HaiKind.ManZu9,
+    HaiKind.PinZu5,
+    HaiKind.PinZu5,
+    HaiKind.PinZu5,
+    HaiKind.SouZu2,
+    HaiKind.SouZu2,
+  ],
+  exposed: [],
+});
+
+/** 生成できるまで試す（山が尽きることは無いので 1 回で返る） */
+function generate(tehai: Tehai14, isRiichi: boolean) {
+  const markers = generateDoraMarkers(tehai, isRiichi);
+  if (!markers) throw new Error("ドラ表示牌を生成できなかった");
+  return markers;
 }
 
 describe("generateDoraMarkers", () => {
   it("表示牌の枚数は 1 + 槓子数", () => {
-    expect(generateDoraMarkers(0, [])).toHaveLength(1);
-    expect(generateDoraMarkers(1, [])).toHaveLength(2);
-    expect(generateDoraMarkers(4, [])).toHaveLength(5);
+    expect(generate(NO_KANTSU, false).doraMarkers).toHaveLength(1);
+    expect(generate(PINZU5_ANKAN, false).doraMarkers).toHaveLength(2);
   });
 
-  it("すでに4枚使われている牌種は選ばない", () => {
-    // 五筒を暗槓した手で五筒がドラ表示牌になると、その牌が5枚要ることになる。
-    const used = repeat(HaiKind.PinZu5, 4);
+  it("裏ドラ表示牌はリーチの手だけが持ち、枚数は表ドラと同じ", () => {
+    expect(generate(NO_KANTSU, false).uraDoraMarkers).toBeUndefined();
+    expect(generate(NO_KANTSU, true).uraDoraMarkers).toHaveLength(1);
+    expect(generate(PINZU5_ANKAN, true).uraDoraMarkers).toHaveLength(2);
+  });
 
+  it("手牌が使い切った牌種は表示牌に選ばない", () => {
+    // 五筒を暗槓した手で五筒がドラ表示牌になると、その牌が5枚要ることになる。
     for (let i = 0; i < 500; i++) {
-      const markers = generateDoraMarkers(3, used);
-      expect(markers).toBeDefined();
-      expect(markers).not.toContain(HaiKind.PinZu5);
+      const { doraMarkers, uraDoraMarkers } = generate(PINZU5_ANKAN, true);
+      expect(doraMarkers).not.toContain(HaiKind.PinZu5);
+      expect(uraDoraMarkers).not.toContain(HaiKind.PinZu5);
     }
   });
 
-  it("表示牌どうしでも同じ牌種が4枚を超えない", () => {
-    // 五筒だけ 1 枚残し、他の33種は使い切った山。2枚目の表示牌は取れない。
-    const used = [
-      ...ALL_KINDS.filter((kind) => kind !== HaiKind.PinZu5).flatMap((kind) =>
-        repeat(kind, 4),
-      ),
-      ...repeat(HaiKind.PinZu5, 3),
-    ];
-
-    expect(generateDoraMarkers(0, used)).toEqual([HaiKind.PinZu5]);
-    expect(generateDoraMarkers(1, used)).toBeUndefined();
-  });
-
-  it("使える牌が尽きていれば undefined を返す", () => {
-    const used = ALL_KINDS.flatMap((kind) => repeat(kind, 4));
-
-    expect(generateDoraMarkers(0, used)).toBeUndefined();
+  it("表ドラと裏ドラを通しても同じ牌種が4枚を超えない", () => {
+    // 五筒の暗刻で山には五筒が 1 枚だけ。表ドラに出たら裏ドラには出ない。
+    for (let i = 0; i < 2000; i++) {
+      const { doraMarkers, uraDoraMarkers = [] } = generate(
+        PINZU5_KOUTSU,
+        true,
+      );
+      const pinzu5 = [...doraMarkers, ...uraDoraMarkers].filter(
+        (hai) => hai === HaiKind.PinZu5,
+      );
+      expect(pinzu5.length).toBeLessThanOrEqual(1);
+    }
   });
 });
