@@ -5,10 +5,10 @@ import type { DemoScoreQuestionOptions } from "@/app/(user)/(public)/practice/_l
 import { buildDemoScoreQuestion } from "@/app/(user)/(public)/practice/_lib/demo-score-question";
 import { QuestionDisplay } from "@/app/(user)/(public)/practice/score/_components/question-display";
 
-interface ScoreExamHowToPlayConfig extends DemoScoreQuestionOptions {
+export type ScoreExamHowToPlayConfig = DemoScoreQuestionOptions & {
   /** i18n の翻訳ネームスペース（例: "manganExamChallenge"） */
   readonly translationNamespace: string;
-}
+};
 
 /**
  * 昇級試験（点数計算）の「問題方式」ビジュアルデモを生成するファクトリー関数

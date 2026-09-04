@@ -5,11 +5,13 @@ import type {
   YakuDetail,
 } from "@mahjong-scoring/core";
 
+import { buildDemoTehai } from "./demo-tehai";
+
 /**
  * 遊び方デモの牌姿（純手牌と和了牌、和了方法）
  * デモ牌姿
  */
-interface DemoHand {
+export interface DemoHand {
   readonly closed: readonly HaiKindId[];
   readonly agariHai: HaiKindId;
   readonly isTsumo: boolean;
@@ -108,33 +110,44 @@ export const DEMO_CHIITOITSU_HAND: DemoHand = {
 /**
  * 遊び方デモ用の出題を組み立てるための指定
  * デモ出題オプション
+ *
+ * リーチの有無と裏ドラ表示牌は対で決まる。出題はリーチしている手には必ず
+ * 裏ドラも出す（盤面に裏ドラが無いリーチの手は実戦にない）ため、
+ * `isRiichi` が真なら `uraDoraMarkers` を必須にし、渡し忘れを型で落とす。
+ * リーチしていない手は盤面に裏ドラを出さないので持たせない。
  */
-export interface DemoScoreQuestionOptions {
+export type DemoScoreQuestionOptions = {
   /**
    * ドラ表示牌。`ManZu1` なら二萬がドラで手牌に乗り、`SouZu1` なら二索が
    * ドラで手牌に乗らない。デモで見せたい翻数に合わせて選ぶ。
    */
   readonly doraMarkers: readonly HaiKindId[];
-  /**
-   * 裏ドラ表示牌。出題はリーチしている手には必ず裏ドラも出すため、
-   * `isRiichi` が真のデモは必ず渡す（リーチしていない手では盤面に出ない）。
-   * デモで見せたい翻数を変えたくないなら、手牌に乗らない牌を選ぶ。
-   */
-  readonly uraDoraMarkers?: readonly HaiKindId[];
-  readonly isRiichi: boolean;
   /** 役一覧を提示する出題形式のときだけ渡す */
   readonly yakuDetails?: readonly YakuDetail[];
   /** 牌姿の差し替え（既定は面子手）。七対子のように別の形を見せる出題が渡す */
   readonly hand?: DemoHand;
-}
+} & (
+  | {
+      readonly isRiichi: true;
+      /**
+       * 裏ドラ表示牌。デモで見せたい翻数を変えたくないなら、手牌に乗らない
+       * 牌を選ぶ
+       */
+      readonly uraDoraMarkers: readonly HaiKindId[];
+    }
+  | {
+      readonly isRiichi: false;
+      readonly uraDoraMarkers?: never;
+    }
+);
 
 /**
  * 遊び方デモ用の出題を組み立てる
  * デモ出題生成
  *
- * `ScoreQuestion` は Tehai14（ブランド型）を含むため、リポジトリのテスト同様
- * `as unknown as` で静的構築する（`QuestionDisplay` は描画にのみ使うため
- * 検証不要）。
+ * 手牌は {@link buildDemoTehai} で検証する（牌姿を書き間違えると投げる）。
+ * 正解（`answer`）は描画に要らないため持たず、`ScoreQuestion` への
+ * 型付けはリポジトリのテスト同様 `as unknown as` で行う。
  */
 export function buildDemoScoreQuestion(
   options: DemoScoreQuestionOptions,
@@ -142,7 +155,7 @@ export function buildDemoScoreQuestion(
   const { hand = DEMO_MENTSU_HAND, ...rest } = options;
 
   return {
-    tehai: { closed: [...hand.closed], exposed: [] },
+    tehai: buildDemoTehai(hand.closed),
     agariHai: hand.agariHai,
     isTsumo: hand.isTsumo,
     jikaze: HaiKind.Nan,
