@@ -2,6 +2,7 @@ import {
   calculateKoScore,
   calculateOyaScore,
   isInvalidCell,
+  type Fu,
   type Role,
   type TsumoPayment,
 } from "@mahjong-scoring/core";
@@ -14,9 +15,9 @@ import {
  */
 export interface FixedFuTableShape {
   /** ツモ和了時の符 */
-  readonly tsumoFu: number;
+  readonly tsumoFu: Fu;
   /** ロン和了時の符 */
-  readonly ronFu: number;
+  readonly ronFu: Fu;
   /** 列に並べる翻数（昇順） */
   readonly hanCols: readonly number[];
 }

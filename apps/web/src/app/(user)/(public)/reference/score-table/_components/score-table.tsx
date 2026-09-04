@@ -6,6 +6,7 @@ import {
   calculateKoScore,
   calculateOyaScore,
   isInvalidCell,
+  type RoleScore,
 } from "@mahjong-scoring/core";
 import { ToggleGroup } from "@/app/(user)/_components/toggle-group";
 import { useRuleSettingsStore } from "@/app/_hooks/use-rule-settings-store";
@@ -83,7 +84,7 @@ export function ScoreTable({
 
   /** 符・翻の点数計算結果グリッド（activeTab / winType / 切り上げ満貫設定に依存） */
   const scoreGrid = useMemo(() => {
-    const grid = new Map<string, ReturnType<typeof calculateKoScore>>();
+    const grid = new Map<string, RoleScore>();
     for (const fu of FU_ROWS) {
       for (const han of HAN_COLS) {
         if (!isInvalidCell(han, fu, winType)) {

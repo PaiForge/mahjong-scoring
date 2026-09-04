@@ -2,8 +2,7 @@
 
 import type { RefObject } from "react";
 import { useTranslations } from "next-intl";
-import type { calculateKoScore } from "@mahjong-scoring/core";
-import type { Role, WinType } from "@mahjong-scoring/core";
+import type { Role, RoleScore, WinType } from "@mahjong-scoring/core";
 import {
   DataTable,
   DataTableHeaderCell,
@@ -20,7 +19,7 @@ const FREQUENT_FU = new Set([30, 40]);
 
 interface NormalScoreTableProps {
   /** `${han}-${fu}` → 点数計算結果のグリッド */
-  readonly scoreGrid: ReadonlyMap<string, ReturnType<typeof calculateKoScore>>;
+  readonly scoreGrid: ReadonlyMap<string, RoleScore>;
   readonly activeTab: Role;
   readonly winType: WinType;
   readonly hiddenCells: Readonly<Record<string, boolean>>;

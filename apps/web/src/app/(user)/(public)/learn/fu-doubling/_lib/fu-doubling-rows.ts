@@ -6,13 +6,14 @@ import {
   isFu,
   isInvalidCell,
   type Role,
+  type RoleScore,
   type WinType,
 } from "@mahjong-scoring/core";
 
 import { HAN_COLS } from "@/app/(user)/(public)/reference/score-table/_lib/score-table-utils";
 
-/** 点数表のセル1つ分の計算結果（子・親で同じ形） */
-type CellScore = ReturnType<typeof calculateKoScore>;
+/** 点数表のセル1つ分の計算結果（子・親でツモの形だけが違う） */
+type CellScore = RoleScore;
 
 /**
  * 符と翻を指定して点数表のセルを引く。存在しない組は undefined。
@@ -28,6 +29,9 @@ function scoreAt(
   winType: WinType,
 ): CellScore | undefined {
   if (!HAN_COLS.some((h) => h === han)) return undefined;
+  // 符の組（{@link FuPair}）の `high` は掛け算で作るため、表の行として
+  // 実在する符かは呼び出し側では保証されない
+  if (!isFu(fu)) return undefined;
   if (isInvalidCell(han, fu, winType)) return undefined;
   return role === "ko" ? calculateKoScore(han, fu) : calculateOyaScore(han, fu);
 }
