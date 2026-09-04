@@ -19,9 +19,13 @@ interface HanCountProblemListProps {
  * 翻数問題一覧
  *
  * 各問をアコーディオン形式で表示し、展開すると出題された手牌・面子の取り方・
- * 正解とユーザー回答・翻数の内訳を確認できる。翻数だけを突き合わせても
+ * 翻数の内訳・正解とユーザー回答を確認できる。翻数だけを突き合わせても
  * 見直しにならない（どの役を数え落としたのかが分からない）ため、出題を
  * そのまま再現したうえで内訳まで並べる。
+ *
+ * 並び順は点数系の問題別一覧（{@link import("../../_components/score-problem-list").ScoreProblemList}）
+ * と同じ「手牌 → 面子の内訳 → 翻数の内訳 → 答え合わせ」。練習ごとに内訳と
+ * 答え合わせが入れ替わると、結果を続けて見返すときに毎回目で探し直すことになる。
  */
 export function HanCountProblemList({ results }: HanCountProblemListProps) {
   const t = useTranslations("hanCountChallenge");
@@ -50,6 +54,13 @@ export function HanCountProblemList({ results }: HanCountProblemListProps) {
               </>
             )}
 
+            {result.question && (
+              <HanBreakdown
+                yakuDetails={result.question.yakuDetails}
+                correctHan={result.correctHan}
+              />
+            )}
+
             <AnswerComparison
               translationNamespace="hanCountChallenge"
               isCorrect={result.isCorrect}
@@ -61,13 +72,6 @@ export function HanCountProblemList({ results }: HanCountProblemListProps) {
                 format: (value) => t("hanOption", { count: value }),
               }}
             />
-
-            {result.question && (
-              <HanBreakdown
-                yakuDetails={result.question.yakuDetails}
-                correctHan={result.correctHan}
-              />
-            )}
           </div>
         );
       }}

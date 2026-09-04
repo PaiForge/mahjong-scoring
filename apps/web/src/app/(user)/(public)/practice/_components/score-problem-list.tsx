@@ -40,10 +40,9 @@ interface ScoreProblemListProps {
  * 数え直すには符と翻それぞれの根拠が要る。翻数の内訳は翻数即答練習の結果ページと
  * 同じ表（{@link YakuBreakdown}）を使う。
  *
- * ただし翻数の内訳は既定で閉じておく。ここで問われているのは点数であって
- * 翻ではなく、開いたままだと役の行数だけ答え合わせが下へ流れる。出題直後の
- * 結果表示（点数計算練習）でも翻の内訳は ▼ で開く扱いなので、見返すときも
- * 同じ操作になる。
+ * 翻数の内訳は既定で閉じている（{@link YakuBreakdown} が常に閉じて始まる）。
+ * ここで問われているのは点数であって翻ではなく、開いたままだと役の行数だけ
+ * 答え合わせが下へ流れる。
  */
 export function ScoreProblemList({
   results,
@@ -84,7 +83,6 @@ export function ScoreProblemList({
               <YakuBreakdown
                 yakuDetails={result.question.yakuDetails}
                 note={buildCapNote(result, tBreakdown)}
-                collapsible
               />
             )}
 
