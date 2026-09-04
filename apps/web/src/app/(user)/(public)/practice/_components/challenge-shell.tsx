@@ -91,11 +91,12 @@ interface ChallengeShellProps {
    */
   readonly hasSetup?: boolean;
   /**
-   * 結果ページの種類（`ResultPageSkeleton` の `variant`）。
+   * この練習が昇級試験か。
    * 昇級試験は結果の節の形が違い、記録の節とランキングを持たないため、
    * 終了後のスケルトンも同じ形にして結果ページとの高さのずれを防ぐ。
+   * 中断の確認モーダルとトーストの文言（試験 / チャレンジ）もここで選ぶ。
    */
-  readonly resultVariant?: "practice" | "exam";
+  readonly variant?: "practice" | "exam";
   /** 練習終了時に呼び出されるコールバック（スコア保存等） */
   readonly onFinish?: (
     args: FinishCallbackArgs,
@@ -123,7 +124,7 @@ export function ChallengeShell({
   exitHref = "/practice",
   hasProblemList = false,
   hasSetup = false,
-  resultVariant = "practice",
+  variant = "practice",
   onFinish,
 }: ChallengeShellProps) {
   const tc = useTranslations("challenge");
@@ -177,6 +178,7 @@ export function ChallengeShell({
   } = useQuitConfirm({
     onOpen: handleQuitOpen,
     onCancel: handleQuitCancelResume,
+    variant,
     exitHref,
   });
 
@@ -227,7 +229,7 @@ export function ChallengeShell({
             : 0
         }
         hasSetup={hasSetup}
-        variant={resultVariant}
+        variant={variant}
       />
     );
   }
@@ -342,6 +344,7 @@ export function ChallengeShell({
         isOpen={isQuitModalOpen}
         onConfirm={handleQuitConfirm}
         onCancel={handleQuitCancel}
+        variant={variant}
       />
     </ContentContainer>
   );

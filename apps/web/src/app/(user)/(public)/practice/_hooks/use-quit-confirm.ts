@@ -16,6 +16,12 @@ interface UseQuitConfirmOptions {
    * トレーニングの「終了」と同じく元の説明ページへ戻す。
    */
   readonly exitHref?: string;
+  /**
+   * 中断する対象。トーストの文言を選ぶ（チャレンジ / 試験）。
+   * モーダルの見出しも同じ区別で出し分けるため、{@link
+   * import("../_components/quit-confirm-modal").QuitConfirmModal} にも同じ値を渡すこと。
+   */
+  readonly variant?: "practice" | "exam";
 }
 
 interface UseQuitConfirmReturn {
@@ -35,6 +41,7 @@ export function useQuitConfirm({
   onOpen,
   onCancel: onCancelCallback,
   exitHref = "/practice",
+  variant = "practice",
 }: UseQuitConfirmOptions = {}): UseQuitConfirmReturn {
   const tc = useTranslations("challenge");
   const router = useRouter();
@@ -54,9 +61,9 @@ export function useQuitConfirm({
     setIsQuitModalOpen(false);
     // 遷移先に着いてから出す。ここで出すと表示時間が遷移の裏で減り、
     // 視線も切り替わる本文側にあるため見落とされる
-    toastOnArrival(exitHref, tc("quit.toast"));
+    toastOnArrival(exitHref, tc(`quit.${variant}.toast`));
     router.push(exitHref);
-  }, [tc, router, exitHref]);
+  }, [tc, router, exitHref, variant]);
 
   return {
     isQuitModalOpen,

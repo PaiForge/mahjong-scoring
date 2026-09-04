@@ -92,8 +92,9 @@ export function createChallengePlayView<
     ? resultStorageKeyFor(slug)
     : undefined;
   // 昇級試験は結果ページの形が違う（合否サマリ・記録の節とランキング無し）。
-  // 終了後のスケルトンも同じ形にして高さを揃える
-  const resultVariant = isExamMenuType(menuType) ? "exam" : "practice";
+  // 終了後のスケルトンも同じ形にして高さを揃える。中断時の文言も
+  // 「チャレンジ」ではなく「試験」で出す
+  const variant = isExamMenuType(menuType) ? "exam" : "practice";
   const useBoardState =
     config.useBoardState ?? (() => undefined as unknown as TState);
 
@@ -122,7 +123,7 @@ export function createChallengePlayView<
         maxWidth={maxWidth}
         hasProblemList={hasProblemList}
         hasSetup={hasSetup}
-        resultVariant={resultVariant}
+        variant={variant}
         onFinish={handleFinish}
       >
         {renderBoard(
