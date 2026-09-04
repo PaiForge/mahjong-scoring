@@ -40,8 +40,6 @@ import {
   doubleWindJantouFu,
 } from "../../rules/settings";
 import {
-  alignYakumanScore,
-  applyKiriageMangan,
   isKiriageManganTarget,
   recalculateScore,
 } from "../../score/calculator";
@@ -223,30 +221,35 @@ export function generateScoreQuestion(
   const { doraMarkers, uraDoraMarkers } = markers;
 
   // 3. 点数・役の計算（ライブラリ境界）
+  //    切り上げ満貫を含むルール設定はライブラリに渡し、点数区分・支払いの
+  //    導出をすべてライブラリ側で行う。後付けの翻で再計算する経路
+  //    （役牌の照合・リーチ・内訳合わせ）にも同じ設定を渡すこと
+  const ruleConfig: RuleConfig = {
+    doubleWindJantouFu: doubleWindJantouFu(renfonpaiAs4Fu),
+    kiriageMangan,
+    ...yakumanRules,
+  };
   const scored = computeScoreAndYaku(tehai, {
     agariHai,
     isTsumo,
     jikaze,
     bakaze,
     doraMarkers,
-    ruleConfig: {
-      doubleWindJantouFu: doubleWindJantouFu(renfonpaiAs4Fu),
-      ...yakumanRules,
-    },
+    ruleConfig,
   });
   if (!scored) return undefined;
 
   // 4. 役牌の照合と補正
   let yakuDetails: YakuDetail[] = buildYakuDetailsFromResult(scored.yakuResult);
-  const reconciled = reconcileYakuhai(
+  const reconciled = reconcileYakuhai({
     tehai,
-    scored.yakuResult,
-    yakuDetails,
-    scored.answer,
+    yakuResult: scored.yakuResult,
+    answer: scored.answer,
     bakaze,
     jikaze,
     isTsumo,
-  );
+    ruleConfig,
+  });
   let finalAnswer = reconciled.answer;
   yakuDetails = [...yakuDetails, ...reconciled.additionalYakuDetails];
   if (finalAnswer.han === 0) return undefined;
@@ -260,6 +263,7 @@ export function generateScoreQuestion(
       isDoubleRiichi: randomBool(0.1, rng),
       isTsumo,
       jikaze,
+      ruleConfig,
     });
     finalAnswer = riichiRes.answer;
     yakuDetails = [...yakuDetails, ...riichiRes.additionalYakuDetails];
@@ -286,24 +290,17 @@ export function generateScoreQuestion(
     finalAnswer = recalculateScore(finalAnswer, detailsHan, {
       isTsumo,
       isOya: isOya(jikaze),
+      ruleConfig,
     });
   }
 
-  // 6. 役満手の支払いを役満単位に揃える（リーチ・役牌の後付け翻で
-  //    翻数由来の区分に流れた支払いを、ルール設定込みでライブラリが確定
-  //    させた役満単位へ戻す。数え26翻超えの役満止まりもここで丸める）
-  finalAnswer = alignYakumanScore(finalAnswer, {
-    isTsumo,
-    isOya: isOya(jikaze),
-  });
-
-  // 6.1. トリプル役満以上（役満3個分〜）は出題しない
+  // 6. トリプル役満以上（役満3個分〜）は出題しない
   //     点数選択肢のリスト（RON_SCORES_KO 等）はダブル役満までしか持たず、
   //     選択肢から選べない問題になるため。ランダム生成では実質出ない手
   //     （大四喜ダブル+字一色 等）だが、防波堤として明示的に弾く
   if (finalAnswer.yakumanMultiplier >= 3) return undefined;
 
-  // 6.2. 役満ルールの採否で正解が割れる手の除外
+  // 7. 役満ルールの採否で正解が割れる手の除外
   //     役満役を含む手に限り、全ルール有効として数え直したときに役満2個分
   //     以上になるか（= 全ルール無効時と点数が割れるか）で判定する。
   //     判定理由と同値性は QuestionGeneratorOptions の
@@ -321,19 +318,11 @@ export function generateScoreQuestion(
       return undefined;
   }
 
-  // 7. 切り上げ満貫で点数が割れる手（30符4翻・60符3翻）の除外
-  //    切り上げる前の結果で判定する。切り上げた後は満貫になっていて
-  //    「境界だった」ことが読めなくなるため
+  // 8. 切り上げ満貫で点数が割れる手（30符4翻・60符3翻）の除外
+  //    判定は翻数と符だけで行うため、切り上げ満貫を有効にして計算した
+  //    結果（区分が既に満貫）でも境界の手を落とせる
   if (excludeKiriageBoundary && isKiriageManganTarget(finalAnswer))
     return undefined;
-
-  // 8. 切り上げ満貫の適用（30符4翻・60符3翻を満貫の点数に切り上げ）
-  if (kiriageMangan) {
-    finalAnswer = applyKiriageMangan(finalAnswer, {
-      isTsumo,
-      isOya: isOya(jikaze),
-    });
-  }
 
   // 9. 点数帯・最小翻数・符・役の検証と組み立て
   //    minHan はリーチ・裏ドラ適用後の最終翻数で判定する（出題表示と一致させる）
