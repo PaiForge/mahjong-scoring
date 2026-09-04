@@ -241,7 +241,7 @@
       },
       "scoreCalculation": {
         "title": "点数即答",
-        "shortTitle": "点数計算",
+        "shortTitle": "点数即答",
         "description": "手牌から点数を読み取って素早く回答するチャレンジ練習"
       },
       "hanCount": {
@@ -2179,7 +2179,7 @@
     }
   },
   "scoreCalculationChallenge": {
-    "title": "点数計算練習",
+    "title": "点数即答",
     "description": "手牌・和了牌・風牌・ドラなどの情報から正しい点数を答える練習です",
     "questionPrompt": "この和了の点数を回答してください",
     "oya": "親",

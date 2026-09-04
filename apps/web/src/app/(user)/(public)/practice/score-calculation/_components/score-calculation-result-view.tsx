@@ -2,7 +2,7 @@ import { createCustomResultView } from "../../_lib/create-custom-result-view";
 import { RESULT_STORAGE_KEY } from "../_lib/types";
 
 /**
- * 点数計算練習専用の結果画面コンポーネント
+ * 点数即答専用の結果画面コンポーネント
  * 点数計算結果表示
  *
  * 共通 `ResultView` をラップし、問題別フィードバック一覧を children として
