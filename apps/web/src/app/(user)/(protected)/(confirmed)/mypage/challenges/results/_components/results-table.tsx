@@ -5,10 +5,10 @@ import {
   CompactTableRow,
 } from "../../_components/compact-table";
 import { formatDate, getMissColorClass } from "../../_lib/dashboard-utils";
-import type { ChallengeSession } from "../../_lib/types";
+import type { ChallengeAttempt } from "../../_lib/types";
 
 interface ResultsTableProps {
-  readonly items: readonly ChallengeSession[];
+  readonly items: readonly ChallengeAttempt[];
   readonly emptyMessage: string;
   readonly headers: {
     readonly date: string;

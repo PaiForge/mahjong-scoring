@@ -27,10 +27,10 @@ export function isDatePeriod(value: unknown): value is DatePeriod {
 }
 
 /**
- * チャレンジセッション1件分のデータ
- * チャレンジセッション
+ * チャレンジ1件分のデータ
+ * チャレンジ
  */
-export interface ChallengeSession {
+export interface ChallengeAttempt {
   readonly id: string;
   readonly menuType: PracticeMenuType;
   readonly score: number;
@@ -60,10 +60,10 @@ export interface ChartDataPoint {
 }
 
 /**
- * セッション履歴テーブルの1行
- * セッション履歴行
+ * チャレンジ履歴テーブルの1行
+ * チャレンジ履歴行
  */
-export interface SessionRow {
+export interface AttemptRow {
   readonly date: string;
   readonly correctAnswers: string;
   readonly incorrectAnswers: number;

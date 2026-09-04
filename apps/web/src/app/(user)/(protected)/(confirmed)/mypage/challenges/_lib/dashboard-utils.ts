@@ -3,10 +3,10 @@ import type { useTranslations } from "next-intl";
 import { practiceMenuByType } from "@/lib/db/practice-menu-types";
 
 import type {
-  ChallengeSession,
+  ChallengeAttempt,
   ChartDataPoint,
   DatePeriod,
-  SessionRow,
+  AttemptRow,
 } from "./types";
 
 /**
@@ -103,29 +103,29 @@ export function getNavigablePreviousPeriod(
 }
 
 /**
- * 完走判定: ミス上限に達せず終了したセッション
+ * 完走判定: ミス上限に達せず終了したチャレンジ
  * 完走判定
  *
  * ミス上限は練習ごとに異なる（昇級試験は1回）ため、全体定数ではなく
  * その練習のレジストリ値と突き合わせる。
  */
-export function isCompletedSession(session: ChallengeSession): boolean {
+export function isCompletedAttempt(attempt: ChallengeAttempt): boolean {
   return (
-    session.incorrectAnswers < practiceMenuByType(session.menuType).mistakeLimit
+    attempt.incorrectAnswers < practiceMenuByType(attempt.menuType).mistakeLimit
   );
 }
 
 /**
- * セッション配列からベストスコアと平均完走スコアを算出する
+ * チャレンジ配列からベストスコアと平均完走スコアを算出する
  * 統計算出
  */
-export function computeStats(sessions: readonly ChallengeSession[]) {
-  const scores = sessions.map((s) => s.score);
+export function computeStats(attempts: readonly ChallengeAttempt[]) {
+  const scores = attempts.map((s) => s.score);
 
   const bestScore = scores.length > 0 ? Math.max(...scores) : undefined;
 
-  const completedScores = sessions
-    .filter(isCompletedSession)
+  const completedScores = attempts
+    .filter(isCompletedAttempt)
     .map((s) => s.score);
 
   const avgCompletionScore =
@@ -133,7 +133,7 @@ export function computeStats(sessions: readonly ChallengeSession[]) {
       ? completedScores.reduce((sum, v) => sum + v, 0) / completedScores.length
       : undefined;
 
-  return { bestScore, avgCompletionScore, totalSessions: sessions.length };
+  return { bestScore, avgCompletionScore, totalAttempts: attempts.length };
 }
 
 /**
@@ -161,18 +161,18 @@ interface DailyAggregation {
 }
 
 /**
- * セッションを日ごとに集約して平均スコアを算出する
+ * チャレンジを日ごとに集約して平均スコアを算出する
  * 日別集約
  */
 export function aggregateByDay(
-  sessions: readonly ChallengeSession[],
+  attempts: readonly ChallengeAttempt[],
 ): DailyAggregation[] {
   const dailyMap = new Map<
     string,
     { total: number; count: number; dateLabel: string }
   >();
 
-  for (const s of sessions) {
+  for (const s of attempts) {
     const d = new Date(s.createdAt);
     const dateKey = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`;
     const existing = dailyMap.get(dateKey);
@@ -208,14 +208,14 @@ export function getMissColorClass(incorrectAnswers: number): string {
 }
 
 /**
- * セッション配列からテーブル表示用の行データを生成する
+ * チャレンジ配列からテーブル表示用の行データを生成する
  * テーブル行変換
  */
-export function toSessionRows(
-  sessions: readonly ChallengeSession[],
+export function toAttemptRows(
+  attempts: readonly ChallengeAttempt[],
   limit = 5,
-): SessionRow[] {
-  return sessions.slice(0, limit).map((s) => ({
+): AttemptRow[] {
+  return attempts.slice(0, limit).map((s) => ({
     date: formatDate(s.createdAt),
     correctAnswers: String(s.score),
     incorrectAnswers: s.incorrectAnswers,
@@ -227,11 +227,11 @@ export function toSessionRows(
  * チャートデータ生成
  */
 export function buildChartData(
-  currentSessions: readonly ChallengeSession[],
-  previousSessions: readonly ChallengeSession[],
+  currentAttempts: readonly ChallengeAttempt[],
+  previousAttempts: readonly ChallengeAttempt[],
 ): ChartDataPoint[] {
-  const currentDaily = aggregateByDay(currentSessions);
-  const previousDaily = aggregateByDay(previousSessions);
+  const currentDaily = aggregateByDay(currentAttempts);
+  const previousDaily = aggregateByDay(previousAttempts);
 
   const allDateKeys = new Set([
     ...currentDaily.map((d) => d.dateKey),

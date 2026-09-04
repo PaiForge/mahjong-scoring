@@ -11,19 +11,19 @@ import {
 
 import type { PracticeMenuType } from "@/lib/db/practice-menu-types";
 
-import { getChallengeSessions } from "../_actions/get-challenge-sessions";
+import { getChallengeAttempts } from "../_actions/get-challenge-attempts";
 import {
   buildChartData,
   computeAbsoluteChange,
   computeStats,
-  toSessionRows,
+  toAttemptRows,
 } from "../_lib/dashboard-utils";
 import { getPeriodRange, getPreviousPeriodRange } from "../_lib/period-utils";
 import type {
-  ChallengeSession,
+  ChallengeAttempt,
   ChartDataPoint,
   DatePeriod,
-  SessionRow,
+  AttemptRow,
 } from "../_lib/types";
 
 const TABLE_DISPLAY_LIMIT = 5;
@@ -32,14 +32,14 @@ interface UseDashboardDataOptions {
   /** サーバーサイドでプリフェッチした利用可能メニュー種別 */
   readonly initialMenuTypes: readonly PracticeMenuType[];
   /**
-   * 初期選択の練習種別。`initialSessions` がどの種別のデータかを表すため、
+   * 初期選択の練習種別。`initialAttempts` がどの種別のデータかを表すため、
    * プリフェッチと同じ値を渡すこと（食い違うと初回描画だけ別種別のデータが出る）。
    */
   readonly initialMenu: PracticeMenuType | undefined;
-  /** サーバーサイドでプリフェッチした初期セッションデータ */
-  readonly initialSessions: {
-    readonly current: readonly ChallengeSession[];
-    readonly previous: readonly ChallengeSession[];
+  /** サーバーサイドでプリフェッチした初期チャレンジデータ */
+  readonly initialAttempts: {
+    readonly current: readonly ChallengeAttempt[];
+    readonly previous: readonly ChallengeAttempt[];
   };
 }
 
@@ -51,7 +51,7 @@ interface UseDashboardDataOptions {
 export function useDashboardData({
   initialMenuTypes,
   initialMenu,
-  initialSessions,
+  initialAttempts,
 }: UseDashboardDataOptions) {
   const [selectedMenu, setSelectedMenu] = useState<
     PracticeMenuType | undefined
@@ -60,18 +60,18 @@ export function useDashboardData({
   const [availableMenuTypes] = useState<PracticeMenuType[] | undefined>([
     ...initialMenuTypes,
   ]);
-  const [currentSessions, setCurrentSessions] = useState<ChallengeSession[]>([
-    ...initialSessions.current,
+  const [currentAttempts, setCurrentAttempts] = useState<ChallengeAttempt[]>([
+    ...initialAttempts.current,
   ]);
-  const [previousSessions, setPreviousSessions] = useState<ChallengeSession[]>([
-    ...initialSessions.previous,
+  const [previousAttempts, setPreviousAttempts] = useState<ChallengeAttempt[]>([
+    ...initialAttempts.previous,
   ]);
   const [isPending, startTransition] = useTransition();
 
   // 初期データがプリフェッチ済みなので初回 fetch をスキップするためのフラグ
   const isInitialMount = useRef(true);
 
-  const fetchSessions = useCallback(() => {
+  const fetchAttempts = useCallback(() => {
     if (!selectedMenu) return;
 
     // 初回マウント時はサーバーサイドのプリフェッチデータを使用
@@ -86,30 +86,30 @@ export function useDashboardData({
     const previousRange = getPreviousPeriodRange(selectedPeriod, now);
 
     startTransition(async () => {
-      const result = await getChallengeSessions(
+      const result = await getChallengeAttempts(
         selectedMenu,
         currentRange.start,
         currentRange.end,
         previousRange.start,
         previousRange.end,
       );
-      setCurrentSessions(result.current);
-      setPreviousSessions(result.previous);
+      setCurrentAttempts(result.current);
+      setPreviousAttempts(result.previous);
     });
   }, [selectedMenu, selectedPeriod]);
 
   useEffect(() => {
-    fetchSessions();
-  }, [fetchSessions]);
+    fetchAttempts();
+  }, [fetchAttempts]);
 
   const currentStats = useMemo(
-    () => computeStats(currentSessions),
-    [currentSessions],
+    () => computeStats(currentAttempts),
+    [currentAttempts],
   );
 
   const previousStats = useMemo(
-    () => computeStats(previousSessions),
-    [previousSessions],
+    () => computeStats(previousAttempts),
+    [previousAttempts],
   );
 
   const bestScoreComparison = useMemo(
@@ -128,16 +128,16 @@ export function useDashboardData({
   );
 
   const chartData: ChartDataPoint[] = useMemo(
-    () => buildChartData(currentSessions, previousSessions),
-    [currentSessions, previousSessions],
+    () => buildChartData(currentAttempts, previousAttempts),
+    [currentAttempts, previousAttempts],
   );
 
-  const tableRows: SessionRow[] = useMemo(
-    () => toSessionRows(currentSessions, TABLE_DISPLAY_LIMIT),
-    [currentSessions],
+  const tableRows: AttemptRow[] = useMemo(
+    () => toAttemptRows(currentAttempts, TABLE_DISPLAY_LIMIT),
+    [currentAttempts],
   );
 
-  const hasMoreResults = currentSessions.length > TABLE_DISPLAY_LIMIT;
+  const hasMoreResults = currentAttempts.length > TABLE_DISPLAY_LIMIT;
 
   return {
     selectedMenu,

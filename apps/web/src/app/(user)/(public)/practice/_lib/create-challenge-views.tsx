@@ -100,7 +100,7 @@ export function createChallengePlayView<
   function ChallengePlayView(props: TProps) {
     const t = useTranslations(namespace);
     const boardState = useBoardState(props);
-    // セッションルール（制限時間・ミス上限）はレジストリが正典。
+    // チャレンジのルール（制限時間・ミス上限）はレジストリが正典。
     // 練習ごとの上書き（昇級試験のミス1回等）もここ経由で効く
     const { gameSession, timerControl } = useTimedSession({
       mistakeLimit,
@@ -200,7 +200,7 @@ export function createTrainingView<
   TState = undefined,
 >(config: TrainingViewConfig<TProps, TState>): (props: TProps) => ReactNode {
   const { slug, maxWidth, help, renderBoard } = config;
-  // チャレンジ側のセッションルールは CTA の補足文（制限時間・ミス上限）に出す
+  // チャレンジ側のルール（制限時間・ミス上限）は CTA の補足文に出す
   const { namespace, mistakeLimit, timeLimit } = practiceMenuBySlug(slug);
   const useBoardState =
     config.useBoardState ?? (() => undefined as unknown as TState);

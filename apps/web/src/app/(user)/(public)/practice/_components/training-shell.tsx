@@ -39,7 +39,7 @@ interface TrainingShellProps {
    * 出題条件のクエリは付けずに渡す（今の URL のものを CTA が引き継ぐ）。
    */
   readonly challengeHref: string;
-  /** チャレンジのセッションルール（CTA の補足文に出す制限時間・ミス上限） */
+  /** チャレンジのルール（CTA の補足文に出す制限時間・ミス上限） */
   readonly challengeRules: TrainingChallengeRules;
   /** 練習本体のUI */
   readonly children: ReactNode;
