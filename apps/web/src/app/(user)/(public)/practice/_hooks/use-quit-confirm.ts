@@ -3,7 +3,7 @@
 import { useCallback, useState } from "react";
 import { useRouter } from "next/navigation";
 import { useTranslations } from "next-intl";
-import { toast } from "react-hot-toast";
+import { toastOnArrival } from "@/app/_components/_lib/toast-on-arrival";
 
 interface UseQuitConfirmOptions {
   /** モーダルを開いたときに呼ばれるコールバック（タイマー一時停止等） */
@@ -52,7 +52,9 @@ export function useQuitConfirm({
 
   const handleQuitConfirm = useCallback(() => {
     setIsQuitModalOpen(false);
-    toast(tc("quit.toast"));
+    // 遷移先に着いてから出す。ここで出すと表示時間が遷移の裏で減り、
+    // 視線も切り替わる本文側にあるため見落とされる
+    toastOnArrival(exitHref, tc("quit.toast"));
     router.push(exitHref);
   }, [tc, router, exitHref]);
 

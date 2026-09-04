@@ -2,7 +2,7 @@
 
 import { type ReactNode, useCallback } from "react";
 import { useTranslations } from "next-intl";
-import { toast } from "react-hot-toast";
+import { toastOnArrival } from "@/app/_components/_lib/toast-on-arrival";
 import { Button } from "@/app/(user)/_components/button";
 import { ContentContainer } from "@/app/(user)/_components/content-container";
 import { PageTitle } from "@/app/(user)/_components/page-title";
@@ -87,11 +87,11 @@ export function TrainingShell({
   useScrollToElement(PRACTICE_SCROLL_ANCHOR_ID);
 
   // チャレンジを「やめる」で抜けたときと同じく、終了したことをトーストで返す。
-  // トーストの表示自体はルートレイアウトの GlobalToaster が担うため、
-  // 遷移後の説明ページでも消えずに残る。
+  // 遷移先の説明ページに着いてから出す（ここで出すと表示時間が遷移の裏で減り、
+  // 視線も切り替わる本文側にあるため見落とされる）。
   const handleExit = useCallback(() => {
-    toast(tt("exitToast"));
-  }, [tt]);
+    toastOnArrival(exitHref, tt("exitToast"));
+  }, [exitHref, tt]);
 
   return (
     <ContentContainer id={PRACTICE_SCROLL_ANCHOR_ID} fillViewport>

@@ -3,11 +3,7 @@ import { render, screen, fireEvent } from "@testing-library/react";
 
 vi.mock("next-intl", async () => await import("@/test/intl-mock"));
 
-const toastSpy = vi.fn();
-vi.mock("react-hot-toast", () => ({
-  toast: (message: string) => toastSpy(message),
-}));
-
+import { takeToastOnArrival } from "@/app/_components/_lib/toast-on-arrival";
 import { TrainingShell } from "./training-shell";
 
 function renderShell(props: Partial<Parameters<typeof TrainingShell>[0]> = {}) {
@@ -74,11 +70,11 @@ describe("TrainingShell 回答後の停止", () => {
 });
 
 describe("TrainingShell 終了", () => {
-  it("終了リンクを押すとチャレンジと同じく終了トーストを出す", () => {
-    toastSpy.mockClear();
+  it("終了リンクを押すとチャレンジと同じく終了トーストを預ける", () => {
     renderShell();
 
     fireEvent.click(screen.getByRole("link", { name: "exitButton" }));
-    expect(toastSpy).toHaveBeenCalledWith("exitToast");
+    // その場では出さず、遷移先の説明ページに着いてから出す
+    expect(takeToastOnArrival("/practice/score-table")).toBe("exitToast");
   });
 });
