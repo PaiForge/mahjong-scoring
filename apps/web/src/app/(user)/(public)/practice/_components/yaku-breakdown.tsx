@@ -13,11 +13,6 @@ interface YakuBreakdownProps {
   readonly yakuDetails: readonly YakuDetail[];
   /** 合計の後に効く丸めの補足（役満止まりなど）。持たない画面もある */
   readonly note?: ReactNode;
-  /**
-   * 見出しを押して開く形にし、既定で閉じておくか。
-   * 内訳そのものが答えである画面（翻数即答）では閉じない
-   */
-  readonly collapsible?: boolean;
 }
 
 /**
@@ -37,16 +32,13 @@ interface YakuBreakdownProps {
  * （{@link import("./fu-breakdown").FuBreakdown} は練習ごとに符の呼び名が
  * 変わりうるため名前空間を受け取るが、役の内訳は常にこの 3 語で足りる）。
  *
- * `collapsible` を渡すと既定で閉じる（{@link CollapsibleDetail}）。翻数が
- * 答えの一部でしかない点数系の問題別一覧では、内訳を開いたままにすると
- * 答え合わせが下へ押し出されるため閉じる。翻数即答のように内訳そのものが
- * 答えの画面では渡さない。
+ * 常に既定で閉じる（{@link CollapsibleDetail}）。この表が出るのはどれも
+ * 問題別詳細の中で、答え合わせより上に積まれる位置だからで、開いたままだと
+ * 役の行数だけ答え合わせが下へ流れる。翻数即答のように内訳が答えそのものの
+ * 練習でも同じ — 答えは要約行と答え合わせが言うので、内訳は数え直したい人が
+ * 開く。開き方が練習によって変わらないことのほうが、1 タップ省くより効く。
  */
-export function YakuBreakdown({
-  yakuDetails,
-  note,
-  collapsible = false,
-}: YakuBreakdownProps) {
+export function YakuBreakdown({ yakuDetails, note }: YakuBreakdownProps) {
   const t = useTranslations("challenge.yakuBreakdown");
   const yakuOrder = useYakuOrder();
 
@@ -55,20 +47,17 @@ export function YakuBreakdown({
   const ordered = orderYakuDetails(yakuDetails, yakuOrder);
   const total = ordered.reduce((sum, detail) => sum + detail.han, 0);
 
-  const table = (
-    <DetailTable
-      // 開閉式では見出しが開閉ボタンになるため、表側の見出しは出さない
-      title={collapsible ? undefined : t("title")}
-      rows={ordered.map((detail) => ({
-        label: detail.name,
-        value: t("han", { count: detail.han }),
-      }))}
-      total={{ label: t("total"), value: t("han", { count: total }) }}
-      note={note}
-    />
+  return (
+    <CollapsibleDetail title={t("title")}>
+      <DetailTable
+        // 見出しは開閉ボタンが持つため、表側の見出しは出さない
+        rows={ordered.map((detail) => ({
+          label: detail.name,
+          value: t("han", { count: detail.han }),
+        }))}
+        total={{ label: t("total"), value: t("han", { count: total }) }}
+        note={note}
+      />
+    </CollapsibleDetail>
   );
-
-  if (!collapsible) return table;
-
-  return <CollapsibleDetail title={t("title")}>{table}</CollapsibleDetail>;
 }

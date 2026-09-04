@@ -10,15 +10,8 @@ const YAKU_DETAILS = [
 ] as const;
 
 describe("YakuBreakdown", () => {
-  it("既定では表をそのまま出す（内訳が答えの画面用）", () => {
+  it("閉じた状態で始まり、見出しを押すと開く", () => {
     render(<YakuBreakdown yakuDetails={YAKU_DETAILS} />);
-
-    expect(screen.getByText("立直")).toBeTruthy();
-    expect(screen.queryByRole("button")).toBeNull();
-  });
-
-  it("collapsible では閉じた状態で始まり、見出しを押すと開く", () => {
-    render(<YakuBreakdown yakuDetails={YAKU_DETAILS} collapsible />);
 
     const toggle = screen.getByRole("button");
     expect(toggle.getAttribute("aria-expanded")).toBe("false");
@@ -32,9 +25,7 @@ describe("YakuBreakdown", () => {
   });
 
   it("役が無ければ開閉の見出しごと出さない", () => {
-    const { container } = render(
-      <YakuBreakdown yakuDetails={[]} collapsible />,
-    );
+    const { container } = render(<YakuBreakdown yakuDetails={[]} />);
 
     expect(container.textContent).toBe("");
   });
