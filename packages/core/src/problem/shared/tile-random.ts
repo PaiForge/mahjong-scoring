@@ -1,5 +1,6 @@
 import { HaiKind, type HaiKindId } from "@pai-forge/riichi-mahjong";
-import { SUIT_BASES } from "../../core/constants";
+import { ALL_HAI_KINDS, SUIT_BASES } from "../../core/constants";
+import type { HaiUsageTracker } from "../../core/hai-tracker";
 import {
   randomInt,
   randomChoice,
@@ -64,7 +65,32 @@ export function randomYaochu(
 export function randomHaiKindId(
   rng: RandomSource = defaultRandomSource,
 ): HaiKindId {
-  return validateHaiKindId(randomInt(0, 33, rng)).unwrapOr(HaiKind.ManZu1);
+  return randomChoice(ALL_HAI_KINDS, rng);
+}
+
+/**
+ * トラッカーで count 枚使える牌種からランダムに 1 つ選び、使用登録する
+ * 使用可能牌の抽選
+ *
+ * 同じ牌は 4 枚しかない、という制約を守って牌を引く唯一の入口。手牌の
+ * 面子・雀頭（刻子=3, 槓子=4, 対子=2）も、山から取るドラ表示牌（1）も
+ * ここを通る。候補が無い、または使用登録に失敗した場合は undefined を返す。
+ *
+ * @param tracker - 牌使用状況トラッカー（成功時に count 枚使用登録する）
+ * @param count - 必要枚数
+ * @param rng - 乱数供給源（既定 `Math.random`）
+ */
+export function pickAvailableHai(
+  tracker: HaiUsageTracker,
+  count: number,
+  rng: RandomSource = defaultRandomSource,
+): HaiKindId | undefined {
+  const candidates = ALL_HAI_KINDS.filter((hai) => tracker.canUse(hai, count));
+  if (candidates.length === 0) return undefined;
+
+  const hai = randomChoice(candidates, rng);
+  if (tracker.use(hai, count).isErr()) return undefined;
+  return hai;
 }
 
 /**
