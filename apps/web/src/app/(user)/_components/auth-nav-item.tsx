@@ -4,12 +4,12 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { useTranslations } from "next-intl";
-import { toast } from "react-hot-toast";
 import { UserIcon } from "./icons/user-icon";
 import { UserAvatar } from "./user-avatar";
 import { useAuth } from "@/app/_contexts/auth-context";
 import { SkeletonBar } from "@/app/_components/skeleton-bar";
 import { TEXT_LINK_CLASSES } from "@/app/_components/_lib/link-classes";
+import { toastOnArrival } from "@/app/_components/_lib/toast-on-arrival";
 
 /**
  * ヘッダー右側のアカウント表示。
@@ -35,7 +35,8 @@ export function AuthNavItem() {
   const handleSignOut = useCallback(async () => {
     setIsOpen(false);
     await signOut();
-    toast.success(t("signOutSuccess"));
+    // トップに着いてから出す（ここで出すと表示時間が遷移の裏で減る）
+    toastOnArrival("/", t("signOutSuccess"), "success");
     router.push("/");
   }, [signOut, t, router]);
 

@@ -75,6 +75,8 @@ describe("TrainingShell 終了", () => {
 
     fireEvent.click(screen.getByRole("link", { name: "exitButton" }));
     // その場では出さず、遷移先の説明ページに着いてから出す
-    expect(takeToastOnArrival("/practice/score-table")).toBe("exitToast");
+    expect(takeToastOnArrival("/practice/score-table")?.message).toBe(
+      "exitToast",
+    );
   });
 });

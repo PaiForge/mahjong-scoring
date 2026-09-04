@@ -31,6 +31,17 @@ describe("GlobalToaster 遷移してから出すトースト", () => {
     expect(await screen.findByText("練習を終了しました")).toBeTruthy();
   });
 
+  it("success で預けたものは濃い塗りの成功トーストで出す", async () => {
+    pathname = "/mypage/account/delete";
+    const { rerender } = render(<GlobalToaster />);
+
+    toastOnArrival("/", "退会が完了しました", "success");
+    navigateTo("/", rerender);
+
+    const card = (await screen.findByText("退会が完了しました")).closest("div");
+    expect(card?.className).toContain("bg-success");
+  });
+
   it("預けた先とは違うページへ着いたら出さない", async () => {
     pathname = "/practice/jantou-fu/play";
     const { rerender } = render(<GlobalToaster />);

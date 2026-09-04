@@ -20,10 +20,20 @@
  * 直接呼ぶこと。着地を待てないまま宙に浮く。
  */
 
-interface PendingToast {
+/**
+ * 出し方。{@link import("../toast-card").ToastCard} の 2 段の強さに対応する。
+ * notice は淡い塗りの報告（既定）、success は濃い塗りの完了。
+ */
+export type ArrivalToastTone = "notice" | "success";
+
+export interface ArrivalToast {
+  readonly message: string;
+  readonly tone: ArrivalToastTone;
+}
+
+interface PendingToast extends ArrivalToast {
   /** 着地したと判定する pathname */
   readonly pathname: string;
-  readonly message: string;
 }
 
 /**
@@ -38,16 +48,21 @@ function pathnameOf(href: string): string {
 }
 
 /** 遷移先 `href` に着いたら `message` を出すよう預ける */
-export function toastOnArrival(href: string, message: string): void {
-  pending = { pathname: pathnameOf(href), message };
+export function toastOnArrival(
+  href: string,
+  message: string,
+  tone: ArrivalToastTone = "notice",
+): void {
+  pending = { pathname: pathnameOf(href), message, tone };
 }
 
 /**
  * 預かりを取り出す（着地先が違えば捨てるだけ）。
  * pathname が変わるたびに呼ぶ前提で、呼べば必ず空になる。
  */
-export function takeToastOnArrival(pathname: string): string | null {
+export function takeToastOnArrival(pathname: string): ArrivalToast | null {
   const queued = pending;
   pending = null;
-  return queued?.pathname === pathname ? queued.message : null;
+  if (queued?.pathname !== pathname) return null;
+  return { message: queued.message, tone: queued.tone };
 }

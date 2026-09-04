@@ -6,6 +6,7 @@ import { useTranslations } from "next-intl";
 import { useRouter } from "next/navigation";
 import { toast } from "react-hot-toast";
 
+import { toastOnArrival } from "@/app/_components/_lib/toast-on-arrival";
 import { Button } from "@/app/(user)/_components/button";
 import { ConfirmationModal } from "@/app/(user)/_components/confirmation-modal";
 import { useAuth } from "@/app/_contexts/auth-context";
@@ -40,7 +41,8 @@ export function DeleteAccountButton() {
     }
 
     await signOut();
-    toast.success(t("successToast"));
+    // トップに着いてから出す（ここで出すと表示時間が遷移の裏で減る）
+    toastOnArrival("/", t("successToast"), "success");
     router.push("/");
   };
 
