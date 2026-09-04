@@ -13,12 +13,25 @@ import { resolveValue, type Toast } from "react-hot-toast";
  *
  * 配色は状態色トークン（success / destructive / warning）をそのまま引く。
  * 意味を持つ色なので green-* / red-* のような素の色は使わない。
+ *
+ * 強さは 2 段に分かれる。success / error は濃い塗りに白文字で「判定」を返し、
+ * blank は淡い塗りに濃い文字で「報告」を返す（「練習を終了しました」等、
+ * 正誤でも破壊的操作でもないもの）。太枠の ink が両者を束ねるため、
+ * 強さが違っても同じ部品に見える。
+ *
+ * blank に琥珀（warning-subtle）を引くのは、白（bg-card）だと下地の白カードと
+ * 同化して出たことに気づけないため。トーン名は warning だが、このアプリの琥珀は
+ * 警告ではなく「注目させる」の色として運用しており（教本の HighlightPanel、
+ * カリキュラムの「次はここから」、ベータ告知バナー）、ベータ告知バナーは
+ * まさに同じ subtle + strong の組で警告でない告知を出している。
+ * 同じ #fef3c7 を指す info トークンを別に立てても名前が 2 つになるだけなので
+ * 増やさない。
  */
 const TONE_CLASSES: Record<Toast["type"], string> = {
   success: "bg-success text-success-foreground",
   error: "bg-destructive text-destructive-foreground",
   loading: "bg-card text-foreground",
-  blank: "bg-card text-foreground",
+  blank: "bg-warning-subtle text-warning-strong",
   custom: "bg-card text-foreground",
 };
 

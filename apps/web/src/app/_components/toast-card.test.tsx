@@ -38,6 +38,13 @@ describe("ToastCard", () => {
     expect(error.firstElementChild?.className).toContain("bg-destructive");
   });
 
+  it("報告（blank）は白ではなく淡い琥珀で塗り、下地の白カードと同化させない", () => {
+    const { container } = render(<ToastCard toast={makeToast()} />);
+    const className = container.firstElementChild?.className ?? "";
+    expect(className).toContain("bg-warning-subtle");
+    expect(className).not.toContain("bg-card");
+  });
+
   it("種類ごとのアイコンを図形で描く（文字の字形に依存しない）", () => {
     const { container } = render(<ToastCard toast={makeToast()} />);
     const path = container.querySelector("svg path");
