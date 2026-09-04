@@ -29,12 +29,21 @@ const DEMO_TEHAI = buildDemoTehai([
   HaiKind.SouZu8,
 ]);
 
+/**
+ * デモの和了状況。実際の出題と同じくドラ表示牌を出し、リーチしているので
+ * 裏ドラ表示牌も添える（出題は必ず両方を盤面に出す）。
+ *
+ * 表示牌はどちらも手牌に乗らない牌を選んでいる（一索→二索、九筒→一筒）。
+ * ドラが乗ると上の 3 翻の例と食い違うため。
+ */
 const DEMO_CONTEXT = {
   bakaze: HaiKind.Ton,
   jikaze: HaiKind.Nan,
   agariHai: HaiKind.SouZu8,
   isTsumo: true,
   isRiichi: true,
+  doraMarkers: [HaiKind.SouZu1],
+  uraDoraMarkers: [HaiKind.PinZu9],
 } as const;
 
 /**
