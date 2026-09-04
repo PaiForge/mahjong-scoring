@@ -7,7 +7,9 @@ import {
   type HaiKindId,
   type Kazehai,
   type RuleConfig,
+  type ScoreResult,
   type Tehai14,
+  type YakuResult,
 } from "@pai-forge/riichi-mahjong";
 import { BAKAZE_OPTIONS, ScoreLevel, KAZEHAI } from "../../core/constants";
 import {
@@ -45,6 +47,7 @@ import {
 } from "../../score/calculator";
 import { countDoraInTehai } from "../../core/dora";
 import { isOya } from "../../core/kaze";
+import { isFu } from "../../score/constants";
 import { SCORE_YAKU_NAME_MAP } from "../../core/yaku-names";
 
 /** 七対子の日本語表示名（`requiredYaku` / `yakuDetails.name` の語彙） */
@@ -130,41 +133,38 @@ interface ScoringInput extends AgariContext {
  * ライブラリで点数と役を計算する
  * 点数役計算
  *
- * `calculateScoreForTehai` / `detectYaku` は例外を投げうるため、
- * ライブラリ境界であるこの関数内でのみ try/catch で防御し undefined に変換する。
+ * 役が1つも成立しない手（形式和了）は `calculateScoreForTehai` が Err で
+ * 返す。和了できない手は出題にならないため undefined に変換する。
  */
 function computeScoreAndYaku(
   tehai: Tehai14,
   context: ScoringInput,
 ):
   | {
-      readonly answer: ReturnType<typeof calculateScoreForTehai>;
-      readonly yakuResult: ReturnType<typeof detectYaku>;
+      readonly answer: ScoreResult;
+      readonly yakuResult: YakuResult;
     }
   | undefined {
   const { agariHai, isTsumo, jikaze, bakaze, doraMarkers, ruleConfig } =
     context;
-  try {
-    const answer = calculateScoreForTehai(tehai, {
-      agariHai,
-      isTsumo,
-      jikaze,
-      bakaze,
-      doraMarkers,
-      ruleConfig,
-    });
-    const yakuResult = detectYaku(tehai, {
-      agariHai,
-      bakaze,
-      jikaze,
-      doraMarkers,
-      isTsumo,
-      ruleConfig,
-    });
-    return { answer, yakuResult };
-  } catch {
-    return undefined;
-  }
+  const answer = calculateScoreForTehai(tehai, {
+    agariHai,
+    isTsumo,
+    jikaze,
+    bakaze,
+    doraMarkers,
+    ruleConfig,
+  });
+  if (answer.isErr()) return undefined;
+  const yakuResult = detectYaku(tehai, {
+    agariHai,
+    bakaze,
+    jikaze,
+    doraMarkers,
+    isTsumo,
+    ruleConfig,
+  });
+  return { answer: answer.value, yakuResult };
 }
 
 /**
@@ -310,22 +310,16 @@ export function generateScoreQuestion(
   //     判定理由と同値性は QuestionGeneratorOptions の
   //     excludeYakumanRuleBoundary の TSDoc を参照
   if (excludeYakumanRuleBoundary && finalAnswer.yakumanMultiplier >= 1) {
-    try {
-      const allOnResult = detectYaku(tehai, {
-        agariHai,
-        bakaze,
-        jikaze,
-        doraMarkers,
-        isTsumo,
-        ruleConfig: ALL_YAKUMAN_RULES_ENABLED,
-      });
-      if (getYakumanMultiplier(allOnResult, ALL_YAKUMAN_RULES_ENABLED) >= 2)
-        return undefined;
-    } catch {
-      // ライブラリ境界の防御（computeScoreAndYaku と同じ扱い）。
-      // 判定できない手はルールに依存しないと言い切れないため出題しない
+    const allOnResult = detectYaku(tehai, {
+      agariHai,
+      bakaze,
+      jikaze,
+      doraMarkers,
+      isTsumo,
+      ruleConfig: ALL_YAKUMAN_RULES_ENABLED,
+    });
+    if (getYakumanMultiplier(allOnResult, ALL_YAKUMAN_RULES_ENABLED) >= 2)
       return undefined;
-    }
   }
 
   // 7. 切り上げ満貫で点数が割れる手（30符4翻・60符3翻）の除外
@@ -347,8 +341,10 @@ export function generateScoreQuestion(
   if (!validateScoreRange(finalAnswer.scoreLevel, allowedRanges))
     return undefined;
   if (finalAnswer.han < minHan) return undefined;
-  //    符は点数計算が実際に採った解釈の符で判定する。役の判定とは解釈が
-  //    分かれうるため（`allowedFu` 参照）、yakuDetails 側では弾けない
+  //    回答の符選択肢（FU_VALUES）に無い符は出題しない。么九牌の暗槓を複数
+  //    含む手は 110符を超えることがあり（ライブラリの `Fu` は170符まで）、
+  //    選択肢から選べない問題になるため
+  if (!isFu(finalAnswer.fu)) return undefined;
   if (allowedFu !== undefined && !allowedFu.includes(finalAnswer.fu))
     return undefined;
   //    役の絞り込みも最終形の yakuDetails（役牌の照合・リーチ適用後）で判定する。

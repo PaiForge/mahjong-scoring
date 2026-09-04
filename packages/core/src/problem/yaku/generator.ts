@@ -100,64 +100,58 @@ export function generateYakuQuestion(
   if (!markers) return undefined;
   const { doraMarkers, uraDoraMarkers } = markers;
 
-  try {
-    // detectYaku で手牌役を取得
-    const yakuResult = detectYaku(validTehai, {
-      agariHai,
+  // detectYaku で手牌役を取得
+  const yakuResult = detectYaku(validTehai, {
+    agariHai,
+    bakaze,
+    jikaze,
+    doraMarkers: [],
+    isTsumo,
+  });
+
+  const yakuNames: string[] = [];
+
+  // ライブラリ返却の役名を日本語に変換
+  for (const [yakuName] of yakuResult) {
+    if (EXCLUDED_YAKU_FROM_ANSWER.has(yakuName)) continue;
+
+    const jaName = YAKU_NAME_MAP[yakuName];
+    if (jaName) {
+      yakuNames.push(jaName);
+    }
+  }
+
+  // 風牌の役牌を手動判定（ライブラリが返さないため）
+  const kazeYakuhai = detectKazeYakuhai(validTehai, bakaze, jikaze);
+  for (const name of kazeYakuhai) {
+    if (!yakuNames.includes(name)) {
+      yakuNames.push(name);
+    }
+  }
+
+  // 立直の追加（ライブラリは立直を判定しない）
+  if (isRiichi) {
+    yakuNames.push("立直");
+  }
+
+  // 門前清自摸和はライブラリが返すはずだが念のため確認
+  // （detectYaku に isTsumo を渡しているので返るはず）
+
+  // 役がない場合はリトライ
+  if (yakuNames.length === 0) return undefined;
+
+  return {
+    id: idGen(),
+    tehai: validTehai,
+    context: {
       bakaze,
       jikaze,
-      doraMarkers: [],
+      agariHai,
       isTsumo,
-    });
-
-    const yakuNames: string[] = [];
-
-    // ライブラリ返却の役名を日本語に変換
-    for (const [yakuName] of yakuResult) {
-      if (EXCLUDED_YAKU_FROM_ANSWER.has(yakuName)) continue;
-
-      const jaName = YAKU_NAME_MAP[yakuName];
-      if (jaName) {
-        yakuNames.push(jaName);
-      }
-    }
-
-    // 風牌の役牌を手動判定（ライブラリが返さないため）
-    const kazeYakuhai = detectKazeYakuhai(validTehai, bakaze, jikaze);
-    for (const name of kazeYakuhai) {
-      if (!yakuNames.includes(name)) {
-        yakuNames.push(name);
-      }
-    }
-
-    // 立直の追加（ライブラリは立直を判定しない）
-    if (isRiichi) {
-      yakuNames.push("立直");
-    }
-
-    // 門前清自摸和はライブラリが返すはずだが念のため確認
-    // （detectYaku に isTsumo を渡しているので返るはず）
-
-    // 役がない場合はリトライ
-    if (yakuNames.length === 0) return undefined;
-
-    return {
-      id: idGen(),
-      tehai: validTehai,
-      context: {
-        bakaze,
-        jikaze,
-        agariHai,
-        isTsumo,
-        isRiichi,
-        doraMarkers,
-        uraDoraMarkers,
-      },
-      correctYakuNames: yakuNames,
-    };
-  } catch {
-    // ライブラリ（detectYaku）はエッジケースの手牌で例外を投げることがあるため、
-    // 広範な catch で捕捉し、リトライに委ねる
-    return undefined;
-  }
+      isRiichi,
+      doraMarkers,
+      uraDoraMarkers,
+    },
+    correctYakuNames: yakuNames,
+  };
 }
