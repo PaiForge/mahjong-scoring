@@ -3,6 +3,7 @@
 import { Suspense } from "react";
 import { useSearchParams } from "next/navigation";
 import { useTranslations } from "next-intl";
+import { InfinityIcon } from "@/app/(user)/_components/icons/infinity-icon";
 import { PlayIcon } from "@/app/(user)/_components/icons/play-icon";
 import { LinkButton } from "@/app/(user)/_components/link-button";
 import {
@@ -10,7 +11,7 @@ import {
   PRACTICE_START_CTA_HINT_CLASS,
 } from "./practice-start-cta";
 
-/** チャレンジのセッションルール（補足文に差し込む） */
+/** チャレンジのルール（補足文に差し込む制限時間・ミス上限） */
 export interface TrainingChallengeRules {
   readonly timeLimit: number;
   readonly mistakeLimit: number;
@@ -58,16 +59,30 @@ function ChallengeButtonWithQuery({ href }: { readonly href: string }) {
  *
  * ボタンと補足文の構成・間隔は説明ページの開始導線
  * （{@link import("./practice-start-cta").PracticeStartCta}）とクラスを共有し、
- * 「緑のボタン + その下の補足」という同じ姿で出す。
+ * 「緑のボタン + その下の補足」という同じ姿で出す。その上に、今はどちらの
+ * モードに居るのかと誘い文句を 2 行だけ置く。
  */
 export function TrainingChallengeCta({
   challengeHref,
   challengeRules,
 }: TrainingChallengeCtaProps) {
   const tp = useTranslations("practice");
+  const tt = useTranslations("training");
 
   return (
-    <div className="border-t-2 border-dashed border-border/40 pt-8">
+    <div className="space-y-4 border-t-2 border-dashed border-border/40 pt-8">
+      {/* 今どちらのモードに居るかを示してから誘う。トレーニングは終了条件が
+          無く、解き続けているうちに記録を取っているつもりになりやすい */}
+      <div className="space-y-1 text-center">
+        <p className="inline-flex items-center gap-1.5 text-xs text-surface-400">
+          <InfinityIcon className="size-3.5" />
+          {tt("modeActive")}
+        </p>
+        <p className="text-sm font-bold text-surface-900">
+          {tt("challengePrompt")}
+        </p>
+      </div>
+
       <div className={PRACTICE_START_CTA_BLOCK_CLASS}>
         {/* プリレンダー時はクエリ無しの href を出し、hydrate 後に差し替える */}
         <Suspense fallback={<ChallengeButton href={challengeHref} />}>

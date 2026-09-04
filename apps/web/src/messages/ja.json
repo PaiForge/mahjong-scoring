@@ -310,8 +310,6 @@
     "changeSettingsButton": "設定を変更する",
     "backToList": "練習一覧に戻る",
     "backToDojo": "道場に戻る",
-    "ready": "準備はいいですか？",
-    "readyDescription": "制限時間 {timeLimit} 秒以内にできるだけ多くの問題に正解してください。{mistakeLimit} 回間違えると終了です。",
     "resultSectionTitle": "結果",
     "resultAccuracy": "正答率 {accuracy}%",
     "gameOverMistakes": "ミス {limit} 回で終了",
@@ -375,7 +373,9 @@
     "nextButton": "次の問題へ",
     "exitButton": "終了する",
     "exitToast": "練習を終了しました",
-    "challengeButton": "チャレンジに挑戦"
+    "modeActive": "トレーニングモードで練習中",
+    "challengePrompt": "準備はいいですか？",
+    "challengeButton": "チャレンジを始める"
   },
   "exp": {
     "label": "経験値",
