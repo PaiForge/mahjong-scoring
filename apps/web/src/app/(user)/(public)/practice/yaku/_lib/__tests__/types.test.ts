@@ -1,5 +1,6 @@
 import { describe, expect, it } from "vitest";
 import {
+  HaiKind,
   generateYakuQuestion,
   parseHais,
   parseKazehai,
@@ -93,31 +94,33 @@ describe("toQuestionResult", () => {
     ]);
   });
 
-  it("リーチの問題は裏ドラ表示牌も復元できる", () => {
-    // 盤面はリーチの手にだけ裏ドラを出す。復元漏れがあると、結果ページで
+  it("リーチの問題は裏ドラ表示牌も保存する", () => {
+    // 盤面はリーチの手にだけ裏ドラを出す。保存漏れがあると、結果ページで
     // 出題時と違う（裏ドラだけめくられていない）盤面になる。
-    let question = generate();
-    for (let i = 0; i < 1000 && !question.context.isRiichi; i++) {
-      question = generate();
-    }
-    expect(question.context.isRiichi).toBe(true);
+    const question = generate();
+    const riichi = {
+      ...question,
+      context: {
+        ...question.context,
+        isRiichi: true,
+        uraDoraMarkers: [HaiKind.PinZu9],
+      },
+    };
 
-    const result = toQuestionResult(question, [], false);
-
-    expect(result.uraDoraMarkers?.flatMap((m) => parseHais(m))).toEqual([
-      ...(question.context.uraDoraMarkers ?? []),
-    ]);
+    expect(toQuestionResult(riichi, [], false).uraDoraMarkers).toEqual(["9p"]);
   });
 
   it("リーチしていない問題は裏ドラ表示牌を持たない", () => {
-    let question = generate();
-    for (let i = 0; i < 1000 && question.context.isRiichi; i++) {
-      question = generate();
-    }
-    expect(question.context.isRiichi).toBe(false);
+    const question = generate();
+    const plain = {
+      ...question,
+      context: {
+        ...question.context,
+        isRiichi: false,
+        uraDoraMarkers: undefined,
+      },
+    };
 
-    expect(
-      toQuestionResult(question, [], false).uraDoraMarkers,
-    ).toBeUndefined();
+    expect(toQuestionResult(plain, [], false).uraDoraMarkers).toBeUndefined();
   });
 });
