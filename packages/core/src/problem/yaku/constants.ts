@@ -16,8 +16,11 @@ import {
 const YAKU_DRILL_EXCLUDED_KEYS: ReadonlySet<string> = new Set([
   ...SITUATIONAL_YAKU_KEYS,
   "Riichi",
-  // 風牌の役牌は getKazeYakuhaiDisplayName で個別に処理する
+  // 風牌の役牌はライブラリが "Bakaze" / "Jikaze" で返す。この練習では
+  // 風ごとの表示名（役牌 東 等）に getKazeYakuhaiDisplayName で引き直す
   "Yakuhai",
+  "Bakaze",
+  "Jikaze",
   "Ton",
   "Nan",
   "Sha",
@@ -152,8 +155,11 @@ export const EXCLUDED_YAKU_FROM_ANSWER: ReadonlySet<string> = new Set(
 
 /**
  * 風牌の牌種IDが場風・自風として役牌になる場合の表示名を返す
- * ライブラリは風牌の役牌を YakuResult に含めないため、手牌の刻子/槓子から手動で判定する
  * 風牌役牌表示名取得
+ *
+ * ライブラリは場風・自風の役牌を "Bakaze" / "Jikaze" として返し、どの風
+ * だったかは局面（場風・自風）から引く。この練習は「役牌 東」のように
+ * 風ごとの選択肢で答えさせるため、その表示名に変換する。
  *
  * 表示名は SCORE_YAKU_NAME_MAP が唯一の定義。ここは風牌 → 英語キーの
  * 変換（{@link getKeyForKazehai}）を挟んで引き直すだけで、独自の対応表は持たない。

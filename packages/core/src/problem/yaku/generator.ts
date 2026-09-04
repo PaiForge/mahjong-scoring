@@ -1,9 +1,4 @@
-import {
-  detectYaku,
-  isMenzen,
-  type Kazehai,
-  type Tehai14,
-} from "@pai-forge/riichi-mahjong";
+import { detectYaku, isMenzen } from "@pai-forge/riichi-mahjong";
 import type { YakuQuestion } from "./types";
 import {
   YAKU_NAME_MAP,
@@ -20,41 +15,12 @@ import {
 } from "../../core/random";
 import { HaiUsageTracker } from "../../core/hai-tracker";
 import { generateDoraMarkers } from "../shared/dora-utils";
-import { countHaiInTehai } from "../../core/hai-count";
 import {
   buildTehai14,
   generateMentsuSet,
   generatePairTile,
   pickAgariHai,
 } from "../shared/hand-skeleton";
-
-/**
- * 風牌の役牌を手動で判定し、表示名のリストを返す
- * ライブラリの detectYaku は風牌役牌を返さないため補完する
- * 風牌役牌判定
- */
-function detectKazeYakuhai(
-  tehai: Tehai14,
-  bakaze: Kazehai,
-  jikaze: Kazehai,
-): string[] {
-  const result: string[] = [];
-  const kazesToCheck = new Set<Kazehai>([bakaze, jikaze]);
-
-  for (const kaze of kazesToCheck) {
-    const count = countHaiInTehai(tehai, kaze);
-    if (count >= 3) {
-      const displayName = getKazeYakuhaiDisplayName(kaze);
-      if (displayName) {
-        // 連風牌（場風と自風が同じ）の場合、Set により1回だけ追加される。
-        // この練習は役「名」の選択のみを問うため、翻数（2翻分）は問わない。
-        result.push(displayName);
-      }
-    }
-  }
-
-  return result;
-}
 
 /** 役練習用の面子生成重み（50%順子, 30%刻子, 20%槓子） */
 const YAKU_MENTSU_WEIGHTS = { shuntsu: 0.5, koutsu: 0.3 } as const;
@@ -115,17 +81,18 @@ export function generateYakuQuestion(
   for (const [yakuName] of yakuResult) {
     if (EXCLUDED_YAKU_FROM_ANSWER.has(yakuName)) continue;
 
-    const jaName = YAKU_NAME_MAP[yakuName];
-    if (jaName) {
+    // 場風・自風はライブラリが "Bakaze" / "Jikaze" で返す。この練習は
+    // 「役牌 東」のように風ごとの選択肢で答えさせるため、局面の風に
+    // 引き直す。連風牌（場風＝自風）は両方が同じ表示名になるので 1 つに
+    // まとめる（役「名」の選択のみを問い、翻数は問わない）
+    const jaName =
+      yakuName === "Bakaze"
+        ? getKazeYakuhaiDisplayName(bakaze)
+        : yakuName === "Jikaze"
+          ? getKazeYakuhaiDisplayName(jikaze)
+          : YAKU_NAME_MAP[yakuName];
+    if (jaName && !yakuNames.includes(jaName)) {
       yakuNames.push(jaName);
-    }
-  }
-
-  // 風牌の役牌を手動判定（ライブラリが返さないため）
-  const kazeYakuhai = detectKazeYakuhai(validTehai, bakaze, jikaze);
-  for (const name of kazeYakuhai) {
-    if (!yakuNames.includes(name)) {
-      yakuNames.push(name);
     }
   }
 

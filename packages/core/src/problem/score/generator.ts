@@ -25,7 +25,7 @@ import type {
   ScoreRange,
   YakuDetail,
 } from "./types";
-import { reconcileYakuhai, applyRiichiAndUraDora } from "./utils/reconciler";
+import { applyRiichiAndUraDora } from "./utils/reconciler";
 import { generateMentsuTehai } from "./strategies/mentsu-strategy";
 import { generateChiitoiTehai } from "./strategies/chiitoi-strategy";
 import { generateDoraMarkers } from "../shared/dora-utils";
@@ -223,7 +223,7 @@ export function generateScoreQuestion(
   // 3. 点数・役の計算（ライブラリ境界）
   //    切り上げ満貫を含むルール設定はライブラリに渡し、点数区分・支払いの
   //    導出をすべてライブラリ側で行う。後付けの翻で再計算する経路
-  //    （役牌の照合・リーチ・内訳合わせ）にも同じ設定を渡すこと
+  //    （リーチ・内訳合わせ）にも同じ設定を渡すこと
   const ruleConfig: RuleConfig = {
     doubleWindJantouFu: doubleWindJantouFu(renfonpaiAs4Fu),
     kiriageMangan,
@@ -239,22 +239,12 @@ export function generateScoreQuestion(
   });
   if (!scored) return undefined;
 
-  // 4. 役牌の照合と補正
+  //    役牌（三元牌・場風・自風）はライブラリが判定して返すので、ここで
+  //    手牌を数えて補完しない。補完すると二重に数える
+  let finalAnswer = scored.answer;
   let yakuDetails: YakuDetail[] = buildYakuDetailsFromResult(scored.yakuResult);
-  const reconciled = reconcileYakuhai({
-    tehai,
-    yakuResult: scored.yakuResult,
-    answer: scored.answer,
-    bakaze,
-    jikaze,
-    isTsumo,
-    ruleConfig,
-  });
-  let finalAnswer = reconciled.answer;
-  yakuDetails = [...yakuDetails, ...reconciled.additionalYakuDetails];
-  if (finalAnswer.han === 0) return undefined;
 
-  // 5. リーチ・裏ドラの適用
+  // 4. リーチ・裏ドラの適用
   if (isRiichi && uraDoraMarkers) {
     const riichiRes = applyRiichiAndUraDora({
       tehai,
@@ -269,11 +259,11 @@ export function generateScoreQuestion(
     yakuDetails = [...yakuDetails, ...riichiRes.additionalYakuDetails];
   }
 
-  // 5.5. 翻数を役の内訳に合わせる
+  // 5. 翻数を役の内訳に合わせる
   //
-  //    内訳の合計を翻数の正典にする。役牌の照合（`reconcileYakuhai`）と同じ
-  //    考え方で、内訳と翻数と点数が画面上で必ず一致することを保証する
-  //    （結果ページが役の内訳を出すため、ここがずれると見えてしまう）。
+  //    内訳の合計を翻数の正典にし、内訳と翻数と点数が画面上で必ず一致する
+  //    ことを保証する（結果ページが役の内訳を出すため、ここがずれると
+  //    見えてしまう）。
   //
   //    ライブラリ 0.5 までは `detectYaku` と `calculateScoreForTehai` が同じ
   //    手牌で食い違うことがあった（門前の清一色・混一色・混全帯么九を含む手で

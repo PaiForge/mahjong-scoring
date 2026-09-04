@@ -17,6 +17,12 @@ export const SCORE_YAKU_NAME_MAP: Readonly<Record<string, string>> = {
   Rinshan: "嶺上開花",
   Chankan: "槍槓",
   Yakuhai: "役牌",
+  // 場風・自風はライブラリが局面から判定して返す（0.8.0〜）。点数練習の
+  // 内訳ではどの風かを出さず「場風牌 / 自風牌」と表示する。役選択練習は
+  // 風ごとの選択肢（役牌 東 等）を使うため、getKazeYakuhaiDisplayName で
+  // 風の名前に引き直す
+  Bakaze: "場風牌",
+  Jikaze: "自風牌",
   Ton: "役牌 東",
   Nan: "役牌 南",
   Sha: "役牌 西",

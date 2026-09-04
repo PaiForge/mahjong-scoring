@@ -2,9 +2,9 @@ import { describe, it, expect } from "vitest";
 import { MentsuType } from "@pai-forge/riichi-mahjong";
 import { generateYakuQuestion } from "./generator";
 import { countKantsu } from "../shared/count-kantsu";
-import { listTehaiHais } from "../../core/hai-count";
+import { countHaiInTehai, listTehaiHais } from "../../core/hai-count";
 import { expectHaiUsageWithinLimit } from "../../test/tile-usage";
-import { SELECTABLE_YAKU } from "./constants";
+import { getKazeYakuhaiDisplayName, SELECTABLE_YAKU } from "./constants";
 import {
   expectGeneratesEventually,
   expectSampled,
@@ -50,6 +50,27 @@ describe("generateYakuQuestion", () => {
 
     for (const question of questions) {
       expect(question.correctYakuNames).toContain("立直");
+    }
+  });
+
+  it("場風の刻子があれば風ごとの表示名（役牌 東 等）が正解に1回だけ含まれる", () => {
+    // ライブラリは場風の役牌を "Bakaze" で返す。この練習は風ごとの選択肢で
+    // 答えさせるため局面の風に引き直す。連風牌では場風・自風が同じ表示名に
+    // なるので、重複して並ばないこと
+    const questions = expectSampled(generateYakuQuestion, {
+      need: 10,
+      attempts: 2000,
+      where: (q) => countHaiInTehai(q.tehai, q.context.bakaze) >= 3,
+    });
+
+    for (const question of questions) {
+      const name = getKazeYakuhaiDisplayName(question.context.bakaze);
+      expect(question.correctYakuNames.filter((n) => n === name)).toHaveLength(
+        1,
+      );
+      expect(new Set(question.correctYakuNames).size).toBe(
+        question.correctYakuNames.length,
+      );
     }
   });
 

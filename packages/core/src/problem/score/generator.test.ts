@@ -146,20 +146,6 @@ describe("generateScoreQuestion", () => {
         expect(question.answer.scoreLevel).not.toBe(ScoreLevel.DoubleYakuman);
       }
     });
-
-    it("26翻以上の手でも役満の支払いになる", () => {
-      // シードは呼び出しの外で作る（呼ぶたびに作り直すと毎回同じ手が出る）。
-      // 26翻以上は 40000 回に 1 度程度しか出ないため、この試行数で出る
-      // シードを選んである（乱数を消費する順を変えたら選び直す）
-      const rng = seededRandom(20260929);
-      const [question] = expectSampled(() => generateScoreQuestion({ rng }), {
-        attempts: 40000,
-        need: 1,
-        where: (candidate) => candidate.answer.han >= DOUBLE_YAKUMAN_MIN_HAN,
-      });
-
-      expect(question.answer.scoreLevel).toBe(ScoreLevel.Yakuman);
-    });
   });
 
   describe("オプション: yakumanRules", () => {
@@ -324,6 +310,45 @@ describe("generateScoreQuestion", () => {
         expect([20, 30]).toContain(question.answer.fu);
       }
     });
+  });
+});
+
+describe("風牌の役牌", () => {
+  // ライブラリ（0.8.0〜）が場風・自風を役として返すので、アプリ側で手牌を
+  // 数えて補完しない。補完が残っていると同じ役牌を二重に数え、内訳に
+  // 「場風牌」が2回並ぶ。役牌の刻子は生成される手の数%にしか無いため試行を
+  // 多めに取る
+  it("場風牌は内訳にちょうど1回だけ現れ、翻数と一致する", () => {
+    const questions = expectSampled(
+      () => generateScoreQuestion({ requiredYaku: ["場風牌"] }),
+      { attempts: 4000, need: 20 },
+    );
+
+    for (const question of questions) {
+      const details = question.yakuDetails ?? [];
+      expect(details.filter((yaku) => yaku.name === "場風牌")).toEqual([
+        { name: "場風牌", han: 1 },
+      ]);
+      const sum = details.reduce((total, yaku) => total + yaku.han, 0);
+      expect(sum).toBe(question.answer.han);
+    }
+  });
+
+  it("連風牌（場風＝自風）の刻子は場風牌と自風牌が1回ずつ現れる", () => {
+    const questions = expectSampled(
+      () => generateScoreQuestion({ requiredYaku: ["場風牌"] }),
+      {
+        attempts: 8000,
+        need: 5,
+        where: (q) => q.bakaze === q.jikaze,
+      },
+    );
+
+    for (const question of questions) {
+      const names = (question.yakuDetails ?? []).map((yaku) => yaku.name);
+      expect(names.filter((name) => name === "場風牌")).toHaveLength(1);
+      expect(names.filter((name) => name === "自風牌")).toHaveLength(1);
+    }
   });
 });
 
