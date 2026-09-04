@@ -1,6 +1,7 @@
 import { HaiKind } from "@mahjong-scoring/core";
 import { DEMO_CHIITOITSU_HAND } from "@/app/(user)/(public)/practice/_lib/demo-score-question";
 import { createScoreExamHowToPlay } from "../../_lib/create-exam-how-to-play";
+import type { ScoreExamHowToPlayConfig } from "../../_lib/create-exam-how-to-play";
 
 /**
  * 昇級試験（七対子の点数計算）の「問題方式」ビジュアルデモ
@@ -12,9 +13,12 @@ import { createScoreExamHowToPlay } from "../../_lib/create-exam-how-to-play";
  * 固定例は七対子 + ドラ2（二萬）= 4翻25符。ドラ表示牌を一萬にして手牌の
  * 二萬対子をドラに乗せている。
  */
-export const ChiitoitsuExamHowToPlay = createScoreExamHowToPlay({
+export const CHIITOITSU_EXAM_DEMO = {
   translationNamespace: "chiitoitsuExamChallenge",
   hand: DEMO_CHIITOITSU_HAND,
   doraMarkers: [HaiKind.ManZu1],
   isRiichi: false,
-});
+} satisfies ScoreExamHowToPlayConfig;
+
+export const ChiitoitsuExamHowToPlay =
+  createScoreExamHowToPlay(CHIITOITSU_EXAM_DEMO);

@@ -6,6 +6,9 @@ import {
   isMenzen,
 } from "@pai-forge/riichi-mahjong";
 import { generateScoreQuestion, generateValidScoreQuestion } from "./generator";
+import { countKantsu } from "../shared/count-kantsu";
+import { listTehaiHais } from "../../core/hai-count";
+import { expectHaiUsageWithinLimit } from "../../test/tile-usage";
 import { SCORE_FILTERABLE_YAKU } from "./filterable-yaku";
 import { ScoreLevel } from "../../core/constants";
 import { isMangan, MANGAN_MIN_HAN, MANGAN_PLUS_TIERS } from "../../score/tiers";
@@ -145,8 +148,10 @@ describe("generateScoreQuestion", () => {
     });
 
     it("26翻以上の手でも役満の支払いになる", () => {
-      // シードは呼び出しの外で作る（呼ぶたびに作り直すと毎回同じ手が出る）
-      const rng = seededRandom(20260901);
+      // シードは呼び出しの外で作る（呼ぶたびに作り直すと毎回同じ手が出る）。
+      // 26翻以上は 40000 回に 1 度程度しか出ないため、この試行数で出る
+      // シードを選んである（乱数を消費する順を変えたら選び直す）
+      const rng = seededRandom(20260929);
       const [question] = expectSampled(() => generateScoreQuestion({ rng }), {
         attempts: 40000,
         need: 1,
@@ -383,6 +388,55 @@ describe("generateValidScoreQuestion", () => {
         ),
       ).toBe(true);
       expect(question.uraDoraMarkers).toBeDefined();
+      // 裏ドラは表ドラの下に伏せてある牌なので、槓で表が増えれば裏も増える
+      expect(question.uraDoraMarkers).toHaveLength(question.doraMarkers.length);
+    }
+  });
+
+  it("手牌とドラ表示牌を合わせても同じ牌が5枚にならない", () => {
+    // 表示牌も山から取る 1 枚。手牌で使い切った牌種が表示牌にも出ると、
+    // その牌が 5 枚要る盤面になる（実物の麻雀では起こり得ない）。
+    const questions = expectSampled(generateValidScoreQuestion, {
+      need: 200,
+      attempts: 400,
+    });
+
+    for (const question of questions) {
+      expectHaiUsageWithinLimit(
+        [
+          ...listTehaiHais(question.tehai),
+          ...question.doraMarkers,
+          ...(question.uraDoraMarkers ?? []),
+        ],
+        "点数計算の出題",
+      );
+    }
+  });
+
+  it("槓子のある問題はその数だけドラ表示牌が増える", () => {
+    // カン 1 回につき新ドラが 1 枚めくられる（表示牌は 1 + 槓子数）。
+    // 暗槓は門前のままなので、リーチが乗れば裏ドラも同じ枚数になる。
+    const kantsuQuestions = expectSampled(generateValidScoreQuestion, {
+      need: 5,
+      attempts: 1000,
+      where: (q) => countKantsu(q.tehai) > 0,
+    });
+
+    for (const question of kantsuQuestions) {
+      expect(question.doraMarkers).toHaveLength(
+        1 + countKantsu(question.tehai),
+      );
+    }
+
+    // 槓が無ければ 1 枚だけ
+    const noKantsu = expectSampled(generateValidScoreQuestion, {
+      need: 5,
+      attempts: 1000,
+      where: (q) => countKantsu(q.tehai) === 0,
+    });
+
+    for (const question of noKantsu) {
+      expect(question.doraMarkers).toHaveLength(1);
     }
   });
 

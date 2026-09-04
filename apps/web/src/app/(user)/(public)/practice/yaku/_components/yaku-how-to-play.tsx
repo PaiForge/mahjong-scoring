@@ -29,11 +29,20 @@ const DEMO_TEHAI = buildDemoTehai([
   HaiKind.SouZu5,
 ]);
 
+/**
+ * デモの和了状況。実際の出題と同じくリーチの有無とドラ表示牌を盤面に出す
+ * （どちらもこの練習の出題では必ず提示される）。
+ *
+ * ドラは役ではないので選ぶ役は変わらない。表示牌は手牌に乗らない一索
+ * （ドラは二索）にして、ドラを役と取り違えたまま数える余地を残さない。
+ */
 const DEMO_CONTEXT = {
   bakaze: HaiKind.Ton,
   jikaze: HaiKind.Nan,
   agariHai: HaiKind.SouZu5,
   isTsumo: false,
+  isRiichi: false,
+  doraMarkers: [HaiKind.SouZu1],
 } as const;
 
 /** この手で成立している役。全役の一覧の中で選択済みにして見せる */

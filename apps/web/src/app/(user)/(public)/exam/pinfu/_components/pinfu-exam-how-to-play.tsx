@@ -1,5 +1,6 @@
 import { HaiKind } from "@mahjong-scoring/core";
 import { createScoreExamHowToPlay } from "../../_lib/create-exam-how-to-play";
+import type { ScoreExamHowToPlayConfig } from "../../_lib/create-exam-how-to-play";
 
 /**
  * 昇級試験（平和の点数計算）の「問題方式」ビジュアルデモ
@@ -13,8 +14,10 @@ import { createScoreExamHowToPlay } from "../../_lib/create-exam-how-to-play";
  * ドラ表示牌を一索にして手牌に乗らないようにしている（乗せると翻数が上がり、
  * 満貫未満という出題条件から外れやすい）。
  */
-export const PinfuExamHowToPlay = createScoreExamHowToPlay({
+export const PINFU_EXAM_DEMO = {
   translationNamespace: "pinfuExamChallenge",
   doraMarkers: [HaiKind.SouZu1],
   isRiichi: false,
-});
+} satisfies ScoreExamHowToPlayConfig;
+
+export const PinfuExamHowToPlay = createScoreExamHowToPlay(PINFU_EXAM_DEMO);

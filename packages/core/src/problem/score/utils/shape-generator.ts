@@ -19,6 +19,7 @@ import {
 import { validateHaiKindId } from "../../../core/type-guards";
 import type { HaiUsageTracker } from "../../../core/hai-tracker";
 import type { MentsuWeights } from "../../mentsu-fu/mentsu-factory";
+import { pickAvailableHai } from "../../shared/tile-random";
 
 /**
  * 順子を生成する（数牌のみ）
@@ -99,7 +100,7 @@ export function generateKoutsu(
   furo: boolean = false,
   rng: RandomSource = defaultRandomSource,
 ): Koutsu | undefined {
-  const hai = pickTrackableTile(tracker, 3, rng);
+  const hai = pickAvailableHai(tracker, 3, rng);
   if (hai === undefined) return undefined;
 
   const hais = [hai, hai, hai] as const;
@@ -131,7 +132,7 @@ export function generateKantsu(
   furo: boolean = false,
   rng: RandomSource = defaultRandomSource,
 ): Kantsu | undefined {
-  const hai = pickTrackableTile(tracker, 4, rng);
+  const hai = pickAvailableHai(tracker, 4, rng);
   if (hai === undefined) return undefined;
 
   const hais = [hai, hai, hai, hai] as const;
@@ -199,36 +200,5 @@ export function generateToitsu(
   tracker: HaiUsageTracker,
   rng: RandomSource = defaultRandomSource,
 ): HaiKindId | undefined {
-  return pickTrackableTile(tracker, 2, rng);
-}
-
-/**
- * トラッカーで count 枚使用可能な牌をランダムに1つ選び、使用登録する
- * 使用可能牌の抽選
- *
- * 全34種から count 枚確保できる牌を収集し、ランダムに1つ選んで使用登録する。
- * 候補が無い、または使用登録に失敗した場合は undefined を返す。
- *
- * @param tracker - 牌使用状況トラッカー（成功時に count 枚使用登録する）
- * @param count - 必要枚数（刻子=3, 槓子=4, 対子=2）
- * @param rng - 乱数供給源（既定 `Math.random`）
- */
-function pickTrackableTile(
-  tracker: HaiUsageTracker,
-  count: number,
-  rng: RandomSource = defaultRandomSource,
-): HaiKindId | undefined {
-  const validHais: HaiKindId[] = [];
-  for (let i = 0; i < 34; i++) {
-    const result = validateHaiKindId(i);
-    if (result.isOk() && tracker.canUse(result.value, count)) {
-      validHais.push(result.value);
-    }
-  }
-
-  if (validHais.length === 0) return undefined;
-
-  const hai = randomChoice(validHais, rng);
-  if (tracker.use(hai, count).isErr()) return undefined;
-  return hai;
+  return pickAvailableHai(tracker, 2, rng);
 }

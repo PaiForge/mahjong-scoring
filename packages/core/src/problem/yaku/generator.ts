@@ -21,7 +21,6 @@ import {
 import { HaiUsageTracker } from "../../core/hai-tracker";
 import { generateDoraMarkers } from "../shared/dora-utils";
 import { countHaiInTehai } from "../../core/hai-count";
-import { countKantsu } from "../shared/count-kantsu";
 import {
   buildTehai14,
   generateMentsuSet,
@@ -95,8 +94,11 @@ export function generateYakuQuestion(
   const isTsumo = randomBool(0.5, rng);
   const isRiichi = menzen && randomBool(0.2, rng);
 
-  const kantsuCount = countKantsu(validTehai);
-  const doraMarkers = generateDoraMarkers(kantsuCount, rng);
+  // 裏ドラは立直の手だけがめくる。役の正解には効かないが、リーチ棒と表ドラだけ
+  // 出して裏ドラが無い盤面は実戦にない見え方になるため出題データに持たせる。
+  const markers = generateDoraMarkers(validTehai, isRiichi, rng);
+  if (!markers) return undefined;
+  const { doraMarkers, uraDoraMarkers } = markers;
 
   try {
     // detectYaku で手牌役を取得
@@ -149,6 +151,7 @@ export function generateYakuQuestion(
         isTsumo,
         isRiichi,
         doraMarkers,
+        uraDoraMarkers,
       },
       correctYakuNames: yakuNames,
     };

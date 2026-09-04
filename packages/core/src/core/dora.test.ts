@@ -188,6 +188,39 @@ describe("countDoraInTehai", () => {
     expect(countDoraInTehai(tehai, [HaiKind.ManZu4])).toBe(3);
   });
 
+  it("槓子のドラは4枚として数える", () => {
+    // カンした牌がドラだと、その面子だけで4翻になる（表ドラ・裏ドラとも同じ）。
+    const tehai = {
+      closed: [
+        HaiKind.ManZu1,
+        HaiKind.ManZu2,
+        HaiKind.ManZu3,
+        HaiKind.PinZu1,
+        HaiKind.PinZu2,
+        HaiKind.PinZu3,
+        HaiKind.SouZu1,
+        HaiKind.SouZu2,
+        HaiKind.SouZu3,
+        HaiKind.Ton,
+        HaiKind.Ton,
+      ],
+      exposed: [
+        {
+          type: "Kantsu",
+          hais: [
+            HaiKind.ManZu5,
+            HaiKind.ManZu5,
+            HaiKind.ManZu5,
+            HaiKind.ManZu5,
+          ],
+        },
+      ],
+    } as unknown as Tehai14;
+
+    // 表示牌: 四萬 → ドラ: 五萬（暗槓に4枚）
+    expect(countDoraInTehai(tehai, [HaiKind.ManZu4])).toBe(4);
+  });
+
   it("複数のドラ表示牌を処理する", () => {
     const tehai = {
       closed: [

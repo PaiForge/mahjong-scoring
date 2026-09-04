@@ -32,7 +32,6 @@ import {
   buildYakuDetailsFromResult,
 } from "./assemble-question";
 import { retryGenerate } from "../retry-generate";
-import { countKantsu } from "../shared/count-kantsu";
 import type { AgariContext } from "../shared/agari-context";
 import {
   ALL_YAKUMAN_RULES_ENABLED,
@@ -213,11 +212,15 @@ export function generateScoreQuestion(
   if (requireFuro && isMenzen(tehai)) return undefined;
 
   // 2. 和了状況の決定
+  //    リーチの抽選はここが唯一の判定（門前のみ、確率20%）。isRiichi が true の
+  //    問題は必ず裏ドラ表示牌と立直の翻を持つ（出題表示と正解が食い違わない）
   const isTsumo = randomBool(0.5, rng);
   const jikaze = selectJikaze(includeParent, includeChild, rng);
   const bakaze = selectBakaze(jikaze, excludeRenfonpai, rng);
-  const kantsuCount = countKantsu(tehai);
-  const doraMarkers = generateDoraMarkers(kantsuCount, rng);
+  const isRiichi = isMenzen(tehai) && randomBool(0.2, rng);
+  const markers = generateDoraMarkers(tehai, isRiichi, rng);
+  if (!markers) return undefined;
+  const { doraMarkers, uraDoraMarkers } = markers;
 
   // 3. 点数・役の計算（ライブラリ境界）
   const scored = computeScoreAndYaku(tehai, {
@@ -248,23 +251,17 @@ export function generateScoreQuestion(
   yakuDetails = [...yakuDetails, ...reconciled.additionalYakuDetails];
   if (finalAnswer.han === 0) return undefined;
 
-  // 5. リーチ・裏ドラの適用（門前のみ、確率20%）
-  //    リーチの抽選はここが唯一の判定。isRiichi が true の問題は必ず
-  //    立直の翻と裏ドラ表示牌を持つ（出題表示と正解が食い違わない）。
-  const isRiichi = isMenzen(tehai) && randomBool(0.2, rng);
-  let uraDoraMarkers: readonly HaiKindId[] | undefined;
-  if (isRiichi) {
-    const markers = generateDoraMarkers(kantsuCount, rng);
+  // 5. リーチ・裏ドラの適用
+  if (isRiichi && uraDoraMarkers) {
     const riichiRes = applyRiichiAndUraDora({
       tehai,
       currentAnswer: finalAnswer,
-      uraDoraMarkers: markers,
+      uraDoraMarkers,
       isDoubleRiichi: randomBool(0.1, rng),
       isTsumo,
       jikaze,
     });
     finalAnswer = riichiRes.answer;
-    uraDoraMarkers = markers;
     yakuDetails = [...yakuDetails, ...riichiRes.additionalYakuDetails];
   }
 

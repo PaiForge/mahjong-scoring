@@ -5,6 +5,15 @@ import {
 } from "@pai-forge/riichi-mahjong";
 import { isHaiKindId } from "./type-guards";
 
+/**
+ * 全34牌種（萬子・筒子・索子 各9 + 字牌7）。ID の昇順
+ * 全牌種
+ *
+ * 「34 種を走査する」場所はすべてここから引く。`0..33` のループと
+ * `validateHaiKindId` の組を各所に書かない。
+ */
+export const ALL_HAI_KINDS: readonly HaiKindId[] = Object.values(HaiKind);
+
 /** 風牌（Kazehai） */
 export const KAZEHAI: readonly Kazehai[] = [
   HaiKind.Ton,

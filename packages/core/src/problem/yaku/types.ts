@@ -13,6 +13,14 @@ export interface YakuQuestion {
   readonly context: AgariContext & {
     readonly isRiichi: boolean;
     readonly doraMarkers: readonly HaiKindId[];
+    /**
+     * 裏ドラ表示牌。実際の麻雀と同じくリーチしている手だけが持つ
+     * （`isRiichi` が偽なら常に undefined）。
+     *
+     * 役の正解には効かない（裏ドラは役ではない）が、リーチの手で裏ドラだけ
+     * めくられていない盤面は実戦にない見え方になるため出題データに含める。
+     */
+    readonly uraDoraMarkers?: readonly HaiKindId[];
   };
   /** 正解となる役名（日本語表示名）のリスト */
   readonly correctYakuNames: readonly string[];

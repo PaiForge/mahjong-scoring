@@ -311,6 +311,7 @@ describe("toScoreQuestionSnapshot", () => {
     const question = buildDemoScoreQuestion({
       doraMarkers: [HaiKind.ManZu1],
       isRiichi: true,
+      uraDoraMarkers: [HaiKind.PinZu9],
     });
     const snapshot = toScoreQuestionSnapshot(question);
     expect(snapshot).toEqual({
@@ -320,7 +321,7 @@ describe("toScoreQuestionSnapshot", () => {
       jikaze: "2z",
       doraMarkers: ["1m"],
       isRiichi: true,
-      uraDoraMarkers: undefined,
+      uraDoraMarkers: ["9p"],
       // 役の内訳は結果ページの翻数内訳に使う。持たない出題では空配列
       yakuDetails: question.yakuDetails ?? [],
     });

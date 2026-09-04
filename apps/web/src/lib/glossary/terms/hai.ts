@@ -126,7 +126,17 @@ export const HAI_TERMS = [
   {
     slug: "dora",
     category: "hai",
-    related: ["han", "yaku"],
+    related: ["han", "yaku", "uradora", "kandora"],
     learnSlugs: ["yaku"],
+  },
+  {
+    slug: "uradora",
+    category: "hai",
+    related: ["dora", "kandora", "riichi", "han"],
+  },
+  {
+    slug: "kandora",
+    category: "hai",
+    related: ["dora", "uradora", "kan", "kantsu"],
   },
 ] as const satisfies readonly GlossaryTermEntry[];

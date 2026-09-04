@@ -1,6 +1,7 @@
 import { HaiKind } from "@mahjong-scoring/core";
 import { DEMO_YAKUHAI_KOUTSU_HAND } from "@/app/(user)/(public)/practice/_lib/demo-score-question";
 import { createScoreExamHowToPlay } from "../../_lib/create-exam-how-to-play";
+import type { ScoreExamHowToPlayConfig } from "../../_lib/create-exam-how-to-play";
 
 /**
  * 昇級試験（30〜50符の点数計算）の「問題方式」ビジュアルデモ
@@ -13,9 +14,12 @@ import { createScoreExamHowToPlay } from "../../_lib/create-exam-how-to-play";
  * ドラ表示牌を一索にして手牌に乗らないようにしている（乗せると翻数が上がり、
  * 符から点数を出すという主題が霞む）。
  */
-export const FuScoreExamHowToPlay = createScoreExamHowToPlay({
+export const FU_SCORE_EXAM_DEMO = {
   translationNamespace: "fuScoreExamChallenge",
   hand: DEMO_YAKUHAI_KOUTSU_HAND,
   doraMarkers: [HaiKind.SouZu1],
   isRiichi: false,
-});
+} satisfies ScoreExamHowToPlayConfig;
+
+export const FuScoreExamHowToPlay =
+  createScoreExamHowToPlay(FU_SCORE_EXAM_DEMO);

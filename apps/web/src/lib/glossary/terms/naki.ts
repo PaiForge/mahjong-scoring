@@ -62,7 +62,7 @@ export const NAKI_TERMS = [
         captionKey: "ankanExample",
       },
     ],
-    related: ["kantsu", "ankan", "minkan", "furo"],
+    related: ["kantsu", "ankan", "minkan", "furo", "kandora"],
     learnSlugs: ["mentsu-fu"],
   },
   {

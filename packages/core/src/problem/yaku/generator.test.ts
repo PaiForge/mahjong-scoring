@@ -1,6 +1,9 @@
 import { describe, it, expect } from "vitest";
 import { MentsuType } from "@pai-forge/riichi-mahjong";
 import { generateYakuQuestion } from "./generator";
+import { countKantsu } from "../shared/count-kantsu";
+import { listTehaiHais } from "../../core/hai-count";
+import { expectHaiUsageWithinLimit } from "../../test/tile-usage";
 import { SELECTABLE_YAKU } from "./constants";
 import {
   expectGeneratesEventually,
@@ -47,6 +50,67 @@ describe("generateYakuQuestion", () => {
 
     for (const question of questions) {
       expect(question.correctYakuNames).toContain("立直");
+    }
+  });
+
+  it("手牌とドラ表示牌を合わせても同じ牌が5枚にならない", () => {
+    // 表示牌も山から取る 1 枚。手牌で使い切った牌種が表示牌にも出ると、
+    // その牌が 5 枚要る盤面になる（実物の麻雀では起こり得ない）。
+    const questions = expectSampled(generateYakuQuestion, {
+      need: 200,
+      attempts: 400,
+    });
+
+    for (const question of questions) {
+      expectHaiUsageWithinLimit(
+        [
+          ...listTehaiHais(question.tehai),
+          ...question.context.doraMarkers,
+          ...(question.context.uraDoraMarkers ?? []),
+        ],
+        "役判定の出題",
+      );
+    }
+  });
+
+  it("槓子のある問題はその数だけドラ表示牌が増える", () => {
+    // カン 1 回につき新ドラが 1 枚めくられる（表示牌は 1 + 槓子数）。
+    const questions = expectSampled(generateYakuQuestion, {
+      need: 5,
+      attempts: 1000,
+      where: (q) => countKantsu(q.tehai) > 0,
+    });
+
+    for (const question of questions) {
+      expect(question.context.doraMarkers).toHaveLength(
+        1 + countKantsu(question.tehai),
+      );
+    }
+  });
+
+  it("リーチの問題だけが裏ドラ表示牌を持ち、枚数は表ドラと揃う", () => {
+    // 実際の麻雀と同じく、裏ドラをめくるのは立直している手だけ。表示牌の
+    // 枚数は槓の数で決まるため表ドラと同数になる。
+    const questions = expectSampled(generateYakuQuestion, {
+      need: 5,
+      attempts: 1000,
+      where: (q) => q.context.isRiichi,
+    });
+
+    for (const question of questions) {
+      expect(question.context.uraDoraMarkers).toHaveLength(
+        question.context.doraMarkers.length,
+      );
+    }
+
+    const notRiichi = expectSampled(generateYakuQuestion, {
+      need: 5,
+      attempts: 1000,
+      where: (q) => !q.context.isRiichi,
+    });
+
+    for (const question of notRiichi) {
+      expect(question.context.uraDoraMarkers).toBeUndefined();
     }
   });
 

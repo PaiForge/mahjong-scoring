@@ -31,6 +31,7 @@ function restoreQuestion(result: YakuQuestionResult) {
       isTsumo: result.isTsumo,
       isRiichi: result.isRiichi,
       doraMarkers: parseMarkers(result.doraMarkers) ?? [],
+      uraDoraMarkers: parseMarkers(result.uraDoraMarkers),
     },
   };
 }

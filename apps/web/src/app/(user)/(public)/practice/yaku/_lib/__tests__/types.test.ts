@@ -1,5 +1,6 @@
 import { describe, expect, it } from "vitest";
 import {
+  HaiKind,
   generateYakuQuestion,
   parseHais,
   parseKazehai,
@@ -91,5 +92,35 @@ describe("toQuestionResult", () => {
     expect(result.doraMarkers.flatMap((m) => parseHais(m))).toEqual([
       ...question.context.doraMarkers,
     ]);
+  });
+
+  it("リーチの問題は裏ドラ表示牌も保存する", () => {
+    // 盤面はリーチの手にだけ裏ドラを出す。保存漏れがあると、結果ページで
+    // 出題時と違う（裏ドラだけめくられていない）盤面になる。
+    const question = generate();
+    const riichi = {
+      ...question,
+      context: {
+        ...question.context,
+        isRiichi: true,
+        uraDoraMarkers: [HaiKind.PinZu9],
+      },
+    };
+
+    expect(toQuestionResult(riichi, [], false).uraDoraMarkers).toEqual(["9p"]);
+  });
+
+  it("リーチしていない問題は裏ドラ表示牌を持たない", () => {
+    const question = generate();
+    const plain = {
+      ...question,
+      context: {
+        ...question.context,
+        isRiichi: false,
+        uraDoraMarkers: undefined,
+      },
+    };
+
+    expect(toQuestionResult(plain, [], false).uraDoraMarkers).toBeUndefined();
   });
 });
