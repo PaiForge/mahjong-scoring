@@ -101,7 +101,7 @@ export const AGARI_TERMS = [
   {
     slug: "riichi",
     category: "agari",
-    related: ["menzen", "tenpai", "yaku", "han"],
+    related: ["menzen", "tenpai", "yaku", "han", "uradora"],
     learnSlugs: ["yaku"],
   },
 ] as const satisfies readonly GlossaryTermEntry[];
