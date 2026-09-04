@@ -19,6 +19,45 @@ const RANKING_ORDER = [
   { key: "timeTaken", sqlName: "time_taken", direction: "asc" },
 ] as const;
 
+/**
+ * 順位決定に使う成績の値
+ * ランキング成績値
+ *
+ * {@link RankingColumns} の列に対応する、TypeScript 側で持ち回る値の形。
+ */
+export type RankingValues = {
+  readonly [K in (typeof RANKING_ORDER)[number]["key"]]: number;
+};
+
+/**
+ * 候補の成績が既存の成績より上位かを判定する
+ * ベスト更新判定（TypeScript）
+ *
+ * {@link excludedRanksBetter} が SQL で行う判定と同じものを、DB を介さずに
+ * 行う。結果画面の「自己ベスト更新！」の表示条件と `challenge_best_scores`
+ * の更新条件がどちらも RANKING_ORDER から導出されるため、スコアが同点でも
+ * ミスが少なくて実際にベストが更新された回に、表示だけ出ないということが
+ * 起きない。
+ *
+ * @param candidate - 今回の成績
+ * @param current - 比較対象（これまでのベスト）
+ */
+export function ranksBetter(
+  candidate: RankingValues,
+  current: RankingValues,
+): boolean {
+  for (const entry of RANKING_ORDER) {
+    const candidateValue = candidate[entry.key];
+    const currentValue = current[entry.key];
+    if (candidateValue === currentValue) continue;
+    return entry.direction === "desc"
+      ? candidateValue > currentValue
+      : candidateValue < currentValue;
+  }
+  // 全項目が同値なら「上位」ではない（SQL 側のタプル比較 `>` と同じ扱い）
+  return false;
+}
+
 /** 順位決定に使う列の集合。ランキング対象のテーブル・サブクエリが満たす形 */
 export type RankingColumns = {
   readonly [K in (typeof RANKING_ORDER)[number]["key"]]: PgColumn;

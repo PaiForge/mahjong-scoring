@@ -137,16 +137,21 @@ export function computeStats(sessions: readonly ChallengeSession[]) {
 }
 
 /**
- * 現在値と前期間値の変化率を計算する
- * 変化率計算
+ * 現在値と前期間値の差を、その統計値と同じ単位で計算する
+ * 前期間差計算
+ *
+ * 変化率ではなく差を返す。統計値は正解数のような小さな整数で、百分率にすると
+ * 1 → 3 が「+200%」に見え、前期間が 0 なら百分率自体が定義できない。結果画面
+ * の記録セクションと同じ理由（`@/lib/challenge/signed-delta` 参照）。
+ *
+ * どちらかの期間に比較できる値が無ければ undefined（増減行を出さない）。
  */
-export function computePercentChange(
+export function computeAbsoluteChange(
   current: number | undefined,
   previous: number | undefined,
 ): number | undefined {
-  if (current === undefined || previous === undefined || previous === 0)
-    return undefined;
-  return ((current - previous) / previous) * 100;
+  if (current === undefined || previous === undefined) return undefined;
+  return current - previous;
 }
 
 interface DailyAggregation {

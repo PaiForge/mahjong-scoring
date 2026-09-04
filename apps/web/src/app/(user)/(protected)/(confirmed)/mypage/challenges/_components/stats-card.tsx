@@ -1,7 +1,20 @@
+import {
+  DELTA_TONE_CLASSES,
+  formatSignedDelta,
+  signedDeltaTone,
+} from "@/lib/challenge/signed-delta";
+
 interface ComparisonData {
-  readonly percentChange: number | undefined;
-  readonly absoluteChange: number | undefined;
+  /**
+   * 前期間との差。統計値と同じ単位（正解数なら「問」）の実数で、比較できる
+   * 前期間の値が無ければ undefined（増減行を出さない）。百分率ではない理由は
+   * `@/lib/challenge/signed-delta` 参照。
+   */
+  readonly change: number | undefined;
+  /** 「先週比」などの比較対象ラベル */
   readonly label: string;
+  /** 表示する小数桁数。`value` 自身の書式に合わせる（既定 0） */
+  readonly fractionDigits?: number;
 }
 
 interface StatsCardProps {
@@ -22,35 +35,15 @@ export function StatsCard({
   comparison,
 }: StatsCardProps) {
   const renderComparison = () => {
-    if (!comparison) return null;
+    if (!comparison || comparison.change === undefined) return null;
 
-    const { percentChange, absoluteChange, label: compLabel } = comparison;
-
-    if (percentChange === undefined && absoluteChange === undefined)
-      return null;
-
-    const displayValue =
-      percentChange !== undefined
-        ? `${Math.abs(Math.round(percentChange * 10) / 10)}%`
-        : `${Math.abs(absoluteChange ?? 0)}`;
-
-    const changeValue = percentChange ?? absoluteChange ?? 0;
-
-    if (changeValue === 0) {
-      return (
-        <p className="text-xs text-muted-foreground mt-1">
-          &mdash; {compLabel}
-        </p>
-      );
-    }
-
-    const isPositive = changeValue > 0;
+    const { change, label: compLabel, fractionDigits = 0 } = comparison;
 
     return (
       <p
-        className={`text-xs mt-1 ${isPositive ? "text-success" : "text-destructive"}`}
+        className={`text-xs mt-1 ${DELTA_TONE_CLASSES[signedDeltaTone(change, fractionDigits)]}`}
       >
-        {isPositive ? "\u25B2" : "\u25BC"} {displayValue} {compLabel}
+        {compLabel} {formatSignedDelta(change, fractionDigits)}
       </p>
     );
   };

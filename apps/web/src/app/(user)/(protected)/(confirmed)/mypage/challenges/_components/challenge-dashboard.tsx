@@ -183,8 +183,7 @@ export function ChallengeDashboard({
                   : "-"
               }
               comparison={{
-                percentChange: bestScoreComparison,
-                absoluteChange: undefined,
+                change: bestScoreComparison,
                 label: comparisonLabel,
               }}
             />
@@ -197,9 +196,10 @@ export function ChallengeDashboard({
               }
               tooltip={t("avgScoreTooltip")}
               comparison={{
-                percentChange: avgScoreComparison,
-                absoluteChange: undefined,
+                change: avgScoreComparison,
                 label: comparisonLabel,
+                // 値自身が `toFixed(1)` のため、増減も小数第 1 位で揃える
+                fractionDigits: 1,
               }}
             />
           </div>

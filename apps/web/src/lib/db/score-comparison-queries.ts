@@ -4,6 +4,8 @@ import { and, desc, eq, lte, ne } from "drizzle-orm";
 
 import { db } from "./index";
 import type { PracticeMenuType } from "./practice-menu-types";
+import type { RankingValues } from "./ranking-order";
+import { rankingOrder } from "./ranking-order";
 import { challengeResults } from "./schema";
 
 /**
@@ -14,24 +16,40 @@ import { challengeResults } from "./schema";
 const LEADERBOARD_KEY = "default";
 
 /**
+ * 比較に使う 1 回分の成績
+ * 比較用成績
+ *
+ * スコアだけでなくミス数・所要時間も持つ。「自己ベスト更新」の判定が
+ * ランキングと同じ順序規則（{@link rankingOrder}）で行われるため。
+ */
+export type ScoreRecord = RankingValues;
+
+/**
  * 今回の記録と過去の自己記録の比較サマリ
  * スコア比較
  *
- * 結果ページの記録セクションで「これまでのベスト」「前回」との比較を
- * 表示するための値。比較対象が存在しない項目は undefined。
+ * 結果ページの記録セクションで「今回」「前回」「これまでのベスト」を
+ * 並べるための値。該当する記録が存在しない項目は undefined。
  */
 export interface ScoreComparison {
   /**
-   * 今回のスコア。`challenge_results` の該当行（= `grant` クエリの
+   * 今回の成績。`challenge_results` の該当行（= `grant` クエリの
    * challengeResultId）から取得する。行が特定できない場合
    * （保存失敗・URL 直叩き等）は undefined で、比較の基準点なしとして扱う。
    */
-  readonly currentScore: number | undefined;
-  /** 今回を除いた、これまでのベストスコア。過去の記録が無ければ undefined */
-  readonly previousBestScore: number | undefined;
-  /** 前回（今回の直前の記録）のスコア。過去の記録が無ければ undefined */
-  readonly previousScore: number | undefined;
+  readonly current: ScoreRecord | undefined;
+  /** 今回を除いた、これまでのベスト。過去の記録が無ければ undefined */
+  readonly previousBest: ScoreRecord | undefined;
+  /** 前回（今回の直前の記録）。過去の記録が無ければ undefined */
+  readonly previousLast: ScoreRecord | undefined;
 }
+
+/** 比較に使う成績の列。今回・過去のどのクエリでも同じ形を返す */
+const scoreColumns = {
+  score: challengeResults.score,
+  incorrectAnswers: challengeResults.incorrectAnswers,
+  timeTaken: challengeResults.timeTaken,
+} as const;
 
 /**
  * 練習種別ごとの過去記録との比較サマリを取得する
@@ -41,6 +59,10 @@ export interface ScoreComparison {
  * ため、「これまでのベスト」「前回」は今回の行を除外して求める。除外は id の
  * 不一致に加えて createdAt でも絞る — 古い結果 URL を開き直したとき、今回より
  * 後に走った記録が「前回」として混ざらないようにするため。
+ *
+ * ベストは `challenge_best_scores` を見ない。今回の保存で既に UPSERT 済みで、
+ * 「今回より前のベスト」を答えられなくなっているため、追記専用の
+ * `challenge_results` から順位規則で引き直す。
  *
  * @param userId - 対象ユーザー
  * @param menuType - 練習種別
@@ -70,13 +92,14 @@ export async function getScoreComparison(
 
   const [bestRows, lastRows] = await Promise.all([
     db
-      .select({ score: challengeResults.score })
+      .select(scoreColumns)
       .from(challengeResults)
       .where(pastWhere)
-      .orderBy(desc(challengeResults.score))
+      // ランキングと同じ順序（スコア降順 → ミス昇順 → 所要時間昇順）
+      .orderBy(...rankingOrder(challengeResults))
       .limit(1),
     db
-      .select({ score: challengeResults.score })
+      .select(scoreColumns)
       .from(challengeResults)
       .where(pastWhere)
       .orderBy(desc(challengeResults.createdAt))
@@ -84,9 +107,15 @@ export async function getScoreComparison(
   ]);
 
   return {
-    currentScore: current?.score,
-    previousBestScore: bestRows[0]?.score,
-    previousScore: lastRows[0]?.score,
+    current: current
+      ? {
+          score: current.score,
+          incorrectAnswers: current.incorrectAnswers,
+          timeTaken: current.timeTaken,
+        }
+      : undefined,
+    previousBest: bestRows[0],
+    previousLast: lastRows[0],
   };
 }
 
@@ -105,8 +134,8 @@ async function fetchCurrentResult(
   const rows = await db
     .select({
       id: challengeResults.id,
-      score: challengeResults.score,
       createdAt: challengeResults.createdAt,
+      ...scoreColumns,
     })
     .from(challengeResults)
     .where(

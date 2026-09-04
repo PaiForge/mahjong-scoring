@@ -336,11 +336,12 @@
     },
     "record": {
       "sectionTitle": "あなたの記録",
-      "bestLabel": "これまでのベスト",
+      "thisTimeLabel": "今回",
       "lastLabel": "前回",
+      "bestLabel": "これまでのベスト",
       "scoreUnit": "{score} 問",
       "newBest": "自己ベスト更新！",
-      "firstRecord": "今回が最初の記録です。次回からは過去の自分の記録と比較できます。",
+      "firstRecord": "初めての記録",
       "viewMyRecords": "マイレコードで推移を見る"
     },
     "yakuBreakdown": {

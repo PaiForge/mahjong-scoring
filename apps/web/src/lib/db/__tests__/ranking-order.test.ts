@@ -5,6 +5,7 @@ import {
   excludedRanksBetter,
   rankingOrder,
   rankingOrderSql,
+  ranksBetter,
 } from "../ranking-order";
 import { challengeBestScores } from "../schema";
 
@@ -63,5 +64,34 @@ describe("excludedRanksBetter", () => {
         '("challenge_best_scores"."score", -"challenge_best_scores"."incorrect_answers", ' +
         '-"challenge_best_scores"."time_taken")',
     );
+  });
+});
+
+describe("ranksBetter", () => {
+  const best = { score: 10, incorrectAnswers: 1, timeTaken: 60 };
+
+  it("スコアが高ければ上位", () => {
+    expect(ranksBetter({ ...best, score: 11 }, best)).toBe(true);
+    expect(ranksBetter({ ...best, score: 9 }, best)).toBe(false);
+  });
+
+  it("同点ならミスが少ない方が上位", () => {
+    expect(ranksBetter({ ...best, incorrectAnswers: 0 }, best)).toBe(true);
+    expect(ranksBetter({ ...best, incorrectAnswers: 2 }, best)).toBe(false);
+  });
+
+  it("同点・同ミスなら速い方が上位", () => {
+    expect(ranksBetter({ ...best, timeTaken: 59 }, best)).toBe(true);
+    expect(ranksBetter({ ...best, timeTaken: 61 }, best)).toBe(false);
+  });
+
+  it("上位の項目が優先される（ミスが多くてもスコアが高ければ上位）", () => {
+    expect(
+      ranksBetter({ score: 11, incorrectAnswers: 3, timeTaken: 90 }, best),
+    ).toBe(true);
+  });
+
+  it("全項目が同値なら上位ではない", () => {
+    expect(ranksBetter(best, best)).toBe(false);
   });
 });
