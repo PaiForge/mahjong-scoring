@@ -5,10 +5,10 @@ import {
   CompactTableRow,
 } from "./compact-table";
 import { getMissColorClass } from "../_lib/dashboard-utils";
-import type { SessionRow } from "../_lib/types";
+import type { AttemptRow } from "../_lib/types";
 
-interface SessionHistoryTableProps {
-  readonly sessions: readonly SessionRow[];
+interface AttemptHistoryTableProps {
+  readonly attempts: readonly AttemptRow[];
   readonly emptyMessage: string;
   readonly headers: {
     readonly date: string;
@@ -18,15 +18,15 @@ interface SessionHistoryTableProps {
 }
 
 /**
- * 直近のセッション履歴を表示するテーブル。ミス数に応じて色分けする。
- * セッション履歴テーブル
+ * 直近のチャレンジ履歴を表示するテーブル。ミス数に応じて色分けする。
+ * チャレンジ履歴テーブル
  */
-export function SessionHistoryTable({
-  sessions,
+export function AttemptHistoryTable({
+  attempts,
   emptyMessage,
   headers,
-}: SessionHistoryTableProps) {
-  if (sessions.length === 0) {
+}: AttemptHistoryTableProps) {
+  if (attempts.length === 0) {
     return (
       <div className="flex items-center justify-center h-24 text-surface-500 text-sm">
         {emptyMessage}
@@ -48,19 +48,19 @@ export function SessionHistoryTable({
         </>
       }
     >
-      {sessions.map((session) => (
+      {attempts.map((attempt) => (
         <CompactTableRow
-          key={`${session.date}-${session.correctAnswers}-${session.incorrectAnswers}`}
+          key={`${attempt.date}-${attempt.correctAnswers}-${attempt.incorrectAnswers}`}
         >
-          <CompactTableCell>{session.date}</CompactTableCell>
+          <CompactTableCell>{attempt.date}</CompactTableCell>
           <CompactTableCell align="right">
-            {session.correctAnswers}
+            {attempt.correctAnswers}
           </CompactTableCell>
           <CompactTableCell
             align="right"
-            className={getMissColorClass(session.incorrectAnswers)}
+            className={getMissColorClass(attempt.incorrectAnswers)}
           >
-            {session.incorrectAnswers}
+            {attempt.incorrectAnswers}
           </CompactTableCell>
         </CompactTableRow>
       ))}

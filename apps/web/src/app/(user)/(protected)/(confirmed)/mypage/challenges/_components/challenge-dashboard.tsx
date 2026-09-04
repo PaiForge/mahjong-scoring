@@ -15,14 +15,14 @@ import {
   getNavigablePreviousPeriod,
   getPreviousPeriodLabel,
 } from "../_lib/dashboard-utils";
-import type { ChallengeSession, DatePeriod } from "../_lib/types";
+import type { ChallengeAttempt, DatePeriod } from "../_lib/types";
 import { isDatePeriod } from "../_lib/types";
 import { useDashboardData } from "../_hooks/use-dashboard-data";
 import {
   DashboardContentSkeleton,
   DashboardSkeleton,
 } from "./dashboard-skeleton";
-import { SessionHistoryTable } from "./session-history-table";
+import { AttemptHistoryTable } from "./attempt-history-table";
 import { StatsCard } from "./stats-card";
 import { SkeletonBar } from "@/app/_components/skeleton-bar";
 import { TEXT_LINK_CLASSES } from "@/app/_components/_lib/link-classes";
@@ -55,10 +55,10 @@ interface ChallengeDashboardProps {
   readonly initialMenuTypes: readonly PracticeMenuType[];
   /** 初期選択の練習種別（`?menu=` の指定、無ければ先頭メニュー） */
   readonly initialMenu: PracticeMenuType | undefined;
-  /** サーバーサイドでプリフェッチした初期セッションデータ（デフォルト期間・初期選択メニュー） */
-  readonly initialSessions: {
-    readonly current: readonly ChallengeSession[];
-    readonly previous: readonly ChallengeSession[];
+  /** サーバーサイドでプリフェッチした初期チャレンジデータ（デフォルト期間・初期選択メニュー） */
+  readonly initialAttempts: {
+    readonly current: readonly ChallengeAttempt[];
+    readonly previous: readonly ChallengeAttempt[];
   };
 }
 
@@ -71,7 +71,7 @@ interface ChallengeDashboardProps {
 export function ChallengeDashboard({
   initialMenuTypes,
   initialMenu,
-  initialSessions,
+  initialAttempts,
 }: ChallengeDashboardProps) {
   const t = useTranslations("mypage.challenges");
   const tPractices = useTranslations("practice.practices");
@@ -88,7 +88,7 @@ export function ChallengeDashboard({
     chartData,
     tableRows,
     hasMoreResults,
-  } = useDashboardData({ initialMenuTypes, initialMenu, initialSessions });
+  } = useDashboardData({ initialMenuTypes, initialMenu, initialAttempts });
 
   const comparisonLabel = getComparisonLabel(selectedPeriod, t);
   const navigablePrevPeriod = getNavigablePreviousPeriod(selectedPeriod);
@@ -222,10 +222,10 @@ export function ChallengeDashboard({
 
           <div className="space-y-4">
             <h3 className="text-sm md:text-base font-medium text-surface-500">
-              {t("sessionHistory")}
+              {t("recentHistory")}
             </h3>
-            <SessionHistoryTable
-              sessions={tableRows}
+            <AttemptHistoryTable
+              attempts={tableRows}
               emptyMessage={t("noData")}
               headers={{
                 date: t("tableDate"),

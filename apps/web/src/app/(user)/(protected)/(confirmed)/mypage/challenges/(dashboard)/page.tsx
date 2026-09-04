@@ -2,7 +2,7 @@
  * マイレコード
  *
  * @description ログインユーザーのチャレンジモード成績をダッシュボード形式で閲覧する。
- *   KPIカード（ベストスコア・平均スコア）、スコア推移チャート、直近セッション履歴を表示。
+ *   KPIカード（ベストスコア・平均スコア）、スコア推移チャート、直近チャレンジ履歴を表示。
  *   期間と練習種別でフィルタリング可能。
  *   `?menu=<練習種別>` で開くと、その種別を選択した状態で表示する
  *   （練習結果ページの「記録」セクションからの導線で使う）。
@@ -21,7 +21,7 @@ import { getPeriodRange, getPreviousPeriodRange } from "../_lib/period-utils";
 import { isMyRecordMenuType } from "../_lib/menu-scope";
 import {
   fetchAvailableMenuTypes,
-  fetchChallengeSessions,
+  fetchChallengeAttempts,
 } from "../_lib/queries";
 
 export async function generateMetadata(): Promise<Metadata> {
@@ -61,16 +61,16 @@ export default async function ChallengesPage({
     requestedMenu ??
     (availableMenuTypes.length > 0 ? availableMenuTypes[0] : undefined);
 
-  let initialSessions: {
-    current: Awaited<ReturnType<typeof fetchChallengeSessions>>["current"];
-    previous: Awaited<ReturnType<typeof fetchChallengeSessions>>["previous"];
+  let initialAttempts: {
+    current: Awaited<ReturnType<typeof fetchChallengeAttempts>>["current"];
+    previous: Awaited<ReturnType<typeof fetchChallengeAttempts>>["previous"];
   } = { current: [], previous: [] };
 
   if (initialMenu) {
     const now = new Date();
     const currentRange = getPeriodRange(DEFAULT_PERIOD, now);
     const previousRange = getPreviousPeriodRange(DEFAULT_PERIOD, now);
-    initialSessions = await fetchChallengeSessions(
+    initialAttempts = await fetchChallengeAttempts(
       user.id,
       initialMenu,
       currentRange.start,
@@ -92,7 +92,7 @@ export default async function ChallengesPage({
       <ChallengeDashboard
         initialMenuTypes={availableMenuTypes}
         initialMenu={initialMenu}
-        initialSessions={initialSessions}
+        initialAttempts={initialAttempts}
       />
     </ContentContainer>
   );

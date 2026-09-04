@@ -13,6 +13,10 @@ import {
   PracticeFooterAction,
   PracticeFooterActions,
 } from "./practice-footer-actions";
+import {
+  TrainingChallengeCta,
+  type TrainingChallengeRules,
+} from "./training-challenge-cta";
 
 interface TrainingShellProps {
   /** 画面上部に表示する練習名（PageTitle に渡す） */
@@ -30,6 +34,13 @@ interface TrainingShellProps {
   readonly totalCount: number;
   /** 「終了」リンクの遷移先（練習説明ページ等） */
   readonly exitHref: string;
+  /**
+   * 末尾に出す「チャレンジに挑戦」の遷移先（練習の play ページ）。
+   * 出題条件のクエリは付けずに渡す（今の URL のものを CTA が引き継ぐ）。
+   */
+  readonly challengeHref: string;
+  /** チャレンジのルール（CTA の補足文に出す制限時間・ミス上限） */
+  readonly challengeRules: TrainingChallengeRules;
   /** 練習本体のUI */
   readonly children: ReactNode;
   /** 内部ラッパーの max-w クラス（既定: "max-w-md"） */
@@ -72,6 +83,8 @@ export function TrainingShell({
   correctCount,
   totalCount,
   exitHref,
+  challengeHref,
+  challengeRules,
   children,
   maxWidth = "max-w-md",
   onReveal,
@@ -139,6 +152,14 @@ export function TrainingShell({
             {tt("exitButton")}
           </PracticeFooterAction>
         </PracticeFooterActions>
+
+        {/* チャレンジへの切り替えは最後に置く。トレーニング中の操作
+            （わからない / 終了する）より前に出すと、解いている最中の
+            視線の先に「別のモードへ行くボタン」が居座るため */}
+        <TrainingChallengeCta
+          challengeHref={challengeHref}
+          challengeRules={challengeRules}
+        />
       </div>
     </ContentContainer>
   );

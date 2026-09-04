@@ -310,8 +310,6 @@
     "changeSettingsButton": "設定を変更する",
     "backToList": "練習一覧に戻る",
     "backToDojo": "道場に戻る",
-    "ready": "準備はいいですか？",
-    "readyDescription": "制限時間 {timeLimit} 秒以内にできるだけ多くの問題に正解してください。{mistakeLimit} 回間違えると終了です。",
     "resultSectionTitle": "結果",
     "resultAccuracy": "正答率 {accuracy}%",
     "gameOverMistakes": "ミス {limit} 回で終了",
@@ -320,13 +318,19 @@
     "resume": "再開",
     "resultSuffix": "結果",
     "quit": {
-      "title": "練習を終了しますか？",
       "message": "現在の進捗は保存されません。",
-      "confirm": "やめる",
+      "confirm": "中止する",
       "cancel": "続ける",
-      "toast": "練習を終了しました"
+      "practice": {
+        "title": "チャレンジを中止しますか？",
+        "toast": "チャレンジを中止しました"
+      },
+      "exam": {
+        "title": "試験を中止しますか？",
+        "toast": "試験を中止しました"
+      }
     },
-    "quitButton": "終了する",
+    "quitButton": "中止する",
     "signUpCta": {
       "sectionTitle": "スコアの記録",
       "message": "無料登録するとスコアが記録されます",
@@ -374,7 +378,10 @@
     "revealButton": "わからない",
     "nextButton": "次の問題へ",
     "exitButton": "終了する",
-    "exitToast": "練習を終了しました"
+    "exitToast": "トレーニングを終了しました",
+    "modeActive": "トレーニングモードで練習中",
+    "challengePrompt": "準備はいいですか？",
+    "challengeButton": "チャレンジを始める"
   },
   "exp": {
     "label": "経験値",
@@ -1316,6 +1323,7 @@
   "score": {
     "title": "点数計算総合演習",
     "description": "翻数・符から最終的な点数を算出する実戦形式の練習",
+    "exitToast": "総合演習を終了しました",
     "help": {
       "label": "この練習の進め方を見る",
       "title": "練習の進め方",
@@ -1798,10 +1806,10 @@
       "noData": "データがありません",
       "bestScore": "ベストスコア",
       "avgScore": "平均スコア",
-      "avgScoreTooltip": "ミス上限に達せず終了（完走）したセッションの平均スコア",
+      "avgScoreTooltip": "ミス上限に達せず終了（完走）したチャレンジの平均スコア",
       "scoreTrend": "スコア推移",
       "scoreUnit": "スコア",
-      "sessionHistory": "直近の履歴",
+      "recentHistory": "直近の履歴",
       "viewAllResults": "すべての結果を見る",
       "tableDate": "日時",
       "tableCorrectAnswers": "正解数",

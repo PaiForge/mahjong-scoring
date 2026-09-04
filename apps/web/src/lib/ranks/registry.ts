@@ -21,9 +21,9 @@ import type { PracticeMenuType } from "@/lib/db/practice-menu-types";
  *
  * @design 昇級要件が「ベストスコア >= minScore」だけで成立する理由
  *
- * ミス許容などのセッションルールは練習レジストリ側
+ * ミス許容などのチャレンジのルールは練習レジストリ側
  * （`PRACTICE_MENU_REGISTRY` の `mistakeLimit`）で強制する。例えば昇級試験
- * （mangan_exam）はミス1回で強制終了するため、セッションはミス0〜1でしか
+ * （mangan_exam）はミス1回で強制終了するため、チャレンジはミス0〜1でしか
  * 終われず、「ベストスコア >= 合格点」⟺「制限時間内に合格点まで正解した
  * 走行が存在する」が常に成立する。
  *

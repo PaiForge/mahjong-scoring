@@ -14,7 +14,7 @@ import { isPracticeMenuType } from "@/lib/db/practice-menu-types";
 import { challengeResults } from "@/lib/db/schema";
 
 import { EXCLUDED_MENU_TYPES, isMyRecordMenuType } from "./menu-scope";
-import type { ChallengeSession } from "./types";
+import type { ChallengeAttempt } from "./types";
 
 /**
  * ページネーション付きでチャレンジ結果を取得する
@@ -24,7 +24,7 @@ export async function getChallengeResultsPaginated(
   userId: string,
   page: number = 1,
   menuType?: PracticeMenuType,
-): Promise<{ items: ChallengeSession[]; totalPages: number }> {
+): Promise<{ items: ChallengeAttempt[]; totalPages: number }> {
   const conditions = [
     eq(challengeResults.userId, userId),
     notInArray(challengeResults.menuType, EXCLUDED_MENU_TYPES),
@@ -67,24 +67,24 @@ export async function getChallengeResultsPaginated(
   );
 
   const items = rows.flatMap((row) => {
-    const session = toChallengeSession(row);
-    return session ? [session] : [];
+    const attempt = toChallengeAttempt(row);
+    return attempt ? [attempt] : [];
   });
 
   return { items, totalPages };
 }
 
 /**
- * Drizzle の行データを ChallengeSession に変換する
- * セッション行変換
+ * Drizzle の行データを ChallengeAttempt に変換する
+ * チャレンジ行変換
  */
-function toChallengeSession(row: {
+function toChallengeAttempt(row: {
   id: string;
   menuType: string;
   score: number;
   incorrectAnswers: number;
   createdAt: Date;
-}): ChallengeSession | undefined {
+}): ChallengeAttempt | undefined {
   if (!isPracticeMenuType(row.menuType)) return undefined;
   return {
     id: row.id,
@@ -96,14 +96,14 @@ function toChallengeSession(row: {
 }
 
 /**
- * 指定範囲のチャレンジセッションを取得するヘルパー
- * セッション範囲取得
+ * 指定範囲のチャレンジを取得するヘルパー
+ * チャレンジ範囲取得
  */
-async function querySessionsByRange(
+async function queryAttemptsByRange(
   userId: string,
   menuType: string,
   range: { start: Date; end: Date },
-): Promise<ChallengeSession[]> {
+): Promise<ChallengeAttempt[]> {
   const rows = await db
     .select({
       id: challengeResults.id,
@@ -124,16 +124,16 @@ async function querySessionsByRange(
     .orderBy(desc(challengeResults.createdAt));
 
   return rows.flatMap((row) => {
-    const session = toChallengeSession(row);
-    return session ? [session] : [];
+    const attempt = toChallengeAttempt(row);
+    return attempt ? [attempt] : [];
   });
 }
 
 /**
- * 指定メニュー・期間のチャレンジセッション一覧を取得する
- * チャレンジセッション取得
+ * 指定メニュー・期間のチャレンジ一覧を取得する
+ * チャレンジ取得
  */
-export async function fetchChallengeSessions(
+export async function fetchChallengeAttempts(
   userId: string,
   menuType: PracticeMenuType,
   currentRangeStart: Date,
@@ -141,15 +141,15 @@ export async function fetchChallengeSessions(
   previousRangeStart: Date,
   previousRangeEnd: Date,
 ): Promise<{
-  current: ChallengeSession[];
-  previous: ChallengeSession[];
+  current: ChallengeAttempt[];
+  previous: ChallengeAttempt[];
 }> {
   const currentRange = { start: currentRangeStart, end: currentRangeEnd };
   const previousRange = { start: previousRangeStart, end: previousRangeEnd };
 
   const [currentRows, previousRows] = await Promise.all([
-    querySessionsByRange(userId, menuType, currentRange),
-    querySessionsByRange(userId, menuType, previousRange),
+    queryAttemptsByRange(userId, menuType, currentRange),
+    queryAttemptsByRange(userId, menuType, previousRange),
   ]);
 
   return {

@@ -39,7 +39,6 @@ const SETUP_HREF = "/practice/score";
 
 function ScorePracticeBoardInner() {
   const t = useTranslations("score");
-  const tc = useTranslations("challenge");
   const tt = useTranslations("training");
   const router = useRouter();
   const searchParams = useSearchParams();
@@ -101,9 +100,10 @@ function ScorePracticeBoardInner() {
     // 離脱したことをトーストで知らせてから設定画面へ戻す。トーストは
     // 設定画面に着いてから出す（ここで出すと表示時間が遷移の裏で減り、
     // 視線も切り替わる本文側にあるため見落とされる）。
-    toastOnArrival(SETUP_HREF, tc("quit.toast"));
+    // 文言はこの練習のもの — チャレンジでもトレーニングでもないため
+    toastOnArrival(SETUP_HREF, t("exitToast"));
     router.push(SETUP_HREF);
-  }, [router, tc]);
+  }, [router, t]);
 
   // 回答・開示・次へ進むのボタンはいずれも縦に長い盤面の下端にあり、押した位置の
   // ままだと手牌も結果表示も画面外に残る。他の練習（セッションフック）と同じく、
@@ -247,7 +247,7 @@ function ScorePracticeBoardInner() {
             {tt("revealButton")}
           </PracticeFooterAction>
           <PracticeFooterAction onClick={handleBackToSetup}>
-            {tc("quitButton")}
+            {tt("exitButton")}
           </PracticeFooterAction>
         </PracticeFooterActions>
       </div>

@@ -28,8 +28,8 @@ function ScoreChartSkeleton() {
   return <SkeletonBar radius="lg" className="h-[250px] w-full" />;
 }
 
-/** セッション履歴テーブルのスケルトン */
-function SessionHistoryTableSkeleton() {
+/** チャレンジ履歴テーブルのスケルトン */
+function AttemptHistoryTableSkeleton() {
   return (
     <CompactTable
       head={
@@ -79,7 +79,7 @@ export function DashboardContentSkeleton() {
 
       <div className="space-y-4">
         <SkeletonBar className="h-6 w-28" />
-        <SessionHistoryTableSkeleton />
+        <AttemptHistoryTableSkeleton />
       </div>
     </>
   );

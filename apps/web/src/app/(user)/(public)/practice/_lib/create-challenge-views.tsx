@@ -16,7 +16,11 @@ import { useTimedSession } from "../_hooks/use-timed-session";
 import { useTrainingSession } from "../_hooks/use-training-session";
 import { TrainingModeProvider } from "../_hooks/use-training-mode";
 import type { PracticeBoardProps } from "./practice-board-props";
-import { practiceHref, practiceResultHref } from "./practice-catalog";
+import {
+  practiceHref,
+  practicePlayHref,
+  practiceResultHref,
+} from "./practice-catalog";
 
 /**
  * チャレンジ盤面の描画に渡される状態
@@ -88,15 +92,16 @@ export function createChallengePlayView<
     ? resultStorageKeyFor(slug)
     : undefined;
   // 昇級試験は結果ページの形が違う（合否サマリ・記録の節とランキング無し）。
-  // 終了後のスケルトンも同じ形にして高さを揃える
-  const resultVariant = isExamMenuType(menuType) ? "exam" : "practice";
+  // 終了後のスケルトンも同じ形にして高さを揃える。中断時の文言も
+  // 「チャレンジ」ではなく「試験」で出す
+  const variant = isExamMenuType(menuType) ? "exam" : "practice";
   const useBoardState =
     config.useBoardState ?? (() => undefined as unknown as TState);
 
   function ChallengePlayView(props: TProps) {
     const t = useTranslations(namespace);
     const boardState = useBoardState(props);
-    // セッションルール（制限時間・ミス上限）はレジストリが正典。
+    // チャレンジのルール（制限時間・ミス上限）はレジストリが正典。
     // 練習ごとの上書き（昇級試験のミス1回等）もここ経由で効く
     const { gameSession, timerControl } = useTimedSession({
       mistakeLimit,
@@ -118,7 +123,7 @@ export function createChallengePlayView<
         maxWidth={maxWidth}
         hasProblemList={hasProblemList}
         hasSetup={hasSetup}
-        resultVariant={resultVariant}
+        variant={variant}
         onFinish={handleFinish}
       >
         {renderBoard(
@@ -196,7 +201,8 @@ export function createTrainingView<
   TState = undefined,
 >(config: TrainingViewConfig<TProps, TState>): (props: TProps) => ReactNode {
   const { slug, maxWidth, help, renderBoard } = config;
-  const { namespace } = practiceMenuBySlug(slug);
+  // チャレンジ側のルール（制限時間・ミス上限）は CTA の補足文に出す
+  const { namespace, mistakeLimit, timeLimit } = practiceMenuBySlug(slug);
   const useBoardState =
     config.useBoardState ?? (() => undefined as unknown as TState);
 
@@ -234,6 +240,8 @@ export function createTrainingView<
         correctCount={correctCount}
         totalCount={totalCount}
         exitHref={practiceHref(slug)}
+        challengeHref={practicePlayHref(slug)}
+        challengeRules={{ timeLimit, mistakeLimit }}
         maxWidth={maxWidth}
         onReveal={() => {
           if (advance) reveal(advance);
