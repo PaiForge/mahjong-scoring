@@ -115,6 +115,12 @@ export interface DemoScoreQuestionOptions {
    * ドラで手牌に乗らない。デモで見せたい翻数に合わせて選ぶ。
    */
   readonly doraMarkers: readonly HaiKindId[];
+  /**
+   * 裏ドラ表示牌。出題はリーチしている手には必ず裏ドラも出すため、
+   * `isRiichi` が真のデモは必ず渡す（リーチしていない手では盤面に出ない）。
+   * デモで見せたい翻数を変えたくないなら、手牌に乗らない牌を選ぶ。
+   */
+  readonly uraDoraMarkers?: readonly HaiKindId[];
   readonly isRiichi: boolean;
   /** 役一覧を提示する出題形式のときだけ渡す */
   readonly yakuDetails?: readonly YakuDetail[];

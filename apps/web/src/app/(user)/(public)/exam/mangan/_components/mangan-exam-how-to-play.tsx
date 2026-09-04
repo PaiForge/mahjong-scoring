@@ -9,10 +9,12 @@ import { createScoreExamHowToPlay } from "../../_lib/create-exam-how-to-play";
  * 「翻数は自分で数える」出題形式を端的に示す。
  *
  * 固定例は立直 + 門前清自摸和 + 断么九 + 平和 + ドラ1 = 5翻（満貫）。
- * 満貫以上ドリルと同じ手牌を使う。
+ * 満貫以上ドリルと同じ手牌を使う。裏ドラ表示牌は出題と同じくリーチの手なので
+ * 添えるが、手牌に乗らない一筒（表示牌は九筒）にして翻数を変えない。
  */
 export const ManganExamHowToPlay = createScoreExamHowToPlay({
   translationNamespace: "manganExamChallenge",
   doraMarkers: [HaiKind.ManZu1],
+  uraDoraMarkers: [HaiKind.PinZu9],
   isRiichi: true,
 });
