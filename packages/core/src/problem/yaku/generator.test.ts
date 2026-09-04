@@ -1,6 +1,7 @@
 import { describe, it, expect } from "vitest";
 import { MentsuType } from "@pai-forge/riichi-mahjong";
 import { generateYakuQuestion } from "./generator";
+import { countKantsu } from "../shared/count-kantsu";
 import { SELECTABLE_YAKU } from "./constants";
 import {
   expectGeneratesEventually,
@@ -47,6 +48,21 @@ describe("generateYakuQuestion", () => {
 
     for (const question of questions) {
       expect(question.correctYakuNames).toContain("立直");
+    }
+  });
+
+  it("槓子のある問題はその数だけドラ表示牌が増える", () => {
+    // カン 1 回につき新ドラが 1 枚めくられる（表示牌は 1 + 槓子数）。
+    const questions = expectSampled(generateYakuQuestion, {
+      need: 5,
+      attempts: 1000,
+      where: (q) => countKantsu(q.tehai) > 0,
+    });
+
+    for (const question of questions) {
+      expect(question.context.doraMarkers).toHaveLength(
+        1 + countKantsu(question.tehai),
+      );
     }
   });
 
