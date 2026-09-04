@@ -2,6 +2,7 @@ import {
   calculateKoScore,
   ceilTo100,
   isInvalidCell,
+  type Fu,
   type TsumoPayment,
 } from "@mahjong-scoring/core";
 
@@ -58,7 +59,7 @@ export interface RonHalvingRow {
  *
  * @param fu 対象の符
  */
-export function buildRonHalvingRows(fu: number): readonly RonHalvingRow[] {
+export function buildRonHalvingRows(fu: Fu): readonly RonHalvingRow[] {
   return HAN_COLS.flatMap((han) => {
     if (isInvalidCell(han, fu, "ron")) return [];
     if (isInvalidCell(han, fu, "tsumo")) return [];

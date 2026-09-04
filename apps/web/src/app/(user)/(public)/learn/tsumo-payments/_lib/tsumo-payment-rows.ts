@@ -2,27 +2,11 @@ import {
   calculateBasePoints,
   calculateKoScore,
   isInvalidCell,
+  type Fu,
   type TsumoPayment,
 } from "@mahjong-scoring/core";
 
 import { HAN_COLS } from "@/app/(user)/(public)/reference/score-table/_lib/score-table-utils";
-
-/**
- * 子のツモ支払いを取り出す。
- *
- * `calculateKoScore` の戻り値は子ツモ・親ツモの union なので、子の計算だと
- * 分かっている箇所でも型の上では絞り込みが要る。その1回きりの手当てをここに閉じる。
- */
-function koTsumoOf(
-  han: number,
-  fu: number,
-): { readonly fromKo: number; readonly fromOya: number } {
-  const { tsumo } = calculateKoScore(han, fu);
-  if (tsumo.type !== "koTsumo") {
-    throw new Error("calculateKoScore が子ツモ以外の支払いを返した");
-  }
-  return { fromKo: tsumo.fromKo, fromOya: tsumo.fromOya };
-}
 
 /** 切り上げ前と実際の支払いを並べた1行 */
 export interface TsumoSplitRow {
@@ -47,11 +31,11 @@ export interface TsumoSplitRow {
  *
  * @param fu 対象の符
  */
-export function buildTsumoSplitRows(fu: number): readonly TsumoSplitRow[] {
+export function buildTsumoSplitRows(fu: Fu): readonly TsumoSplitRow[] {
   return HAN_COLS.flatMap((han) => {
     if (isInvalidCell(han, fu, "tsumo")) return [];
     const base = calculateBasePoints(han, fu);
-    const { fromKo, fromOya } = koTsumoOf(han, fu);
+    const { fromKo, fromOya } = calculateKoScore(han, fu).tsumo;
     return [
       {
         han,

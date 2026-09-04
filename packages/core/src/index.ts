@@ -128,13 +128,11 @@ export {
   ceilTo100,
   calculateKoScore,
   calculateOyaScore,
-  koScoreFromBasePoints,
-  oyaScoreFromBasePoints,
-  MANGAN_BASE_POINTS,
+  calculateTierScore,
   isInvalidCell,
   HIGH_SCORES,
 } from "./core/score-calculation";
-export type { TsumoPayment } from "./core/score-calculation";
+export type { RoleScore, TsumoPayment } from "./core/score-calculation";
 
 // === Problem: Score Table Practice ===
 export { generateScoreTableQuestion } from "./problem/score-table/generator";

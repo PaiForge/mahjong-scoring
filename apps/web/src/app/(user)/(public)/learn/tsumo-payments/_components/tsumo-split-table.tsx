@@ -1,4 +1,5 @@
 import { getTranslations } from "next-intl/server";
+import type { Fu } from "@mahjong-scoring/core";
 
 import { TsumoScore } from "@/app/(user)/(public)/reference/score-table/_components/tsumo-score";
 
@@ -8,7 +9,7 @@ import { buildTsumoSplitRows } from "../_lib/tsumo-payment-rows";
 
 interface TsumoSplitTableProps {
   /** 対象の符。4翻でも満貫に届かない符を渡すこと（30符など） */
-  readonly fu: number;
+  readonly fu: Fu;
   /** 表の上に出す見出し */
   readonly caption: string;
 }

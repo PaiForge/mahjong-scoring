@@ -7,6 +7,7 @@ import type { Role, WinType } from "../../core/roles";
 import type { ScoreRange } from "../score/types";
 import type { IdGenerator } from "../../core/id";
 import type { RandomSource } from "../../core/random";
+import type { Fu } from "@pai-forge/riichi-mahjong";
 import type { TsumoPayment } from "../../core/score-calculation";
 
 /**
@@ -41,7 +42,7 @@ export interface ScoreTableQuestion {
    * 符。満貫以上（manganPlus）の問題では点数が符に依存しないため `undefined`。
    * 満貫未満の問題では必ず数値が入る。
    */
-  readonly fu?: number;
+  readonly fu?: Fu;
   readonly correctAnswer: ScoreTableAnswer;
 }
 

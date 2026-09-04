@@ -1,8 +1,6 @@
 import type { ScoreRange } from "@mahjong-scoring/core";
 import {
-  koScoreFromBasePoints,
-  oyaScoreFromBasePoints,
-  MANGAN_BASE_POINTS,
+  calculateTierScore,
   MANGAN_PLUS_TIERS,
   paymentKindOf,
   RON_SCORES_KO,
@@ -128,14 +126,18 @@ type ScoreCategory =
   "ronKo" | "ronOya" | "tsumoKo" | "tsumoOya" | "tsumoOyaAll";
 
 /**
- * 満貫の点数（選択肢を満貫以上に絞る際のしきい値）
+ * 満貫以上の点数区分の点数をカテゴリごとに引く
  *
- * 8000 / 12000 等を直書きせず、満貫の基本符から core と同じ式で導出する。
+ * 8000 / 12000 / 64000 等を直書きせず、core の区分テーブル
+ * （`MANGAN_PLUS_TIERS`）からライブラリに計算させる。
  * 親ツモは「全員から同額」なので tsumoOya と tsumoOyaAll は同じ値になる。
  */
-const MANGAN_THRESHOLDS: Readonly<Record<ScoreCategory, number>> = (() => {
-  const ko = koScoreFromBasePoints(MANGAN_BASE_POINTS);
-  const oya = oyaScoreFromBasePoints(MANGAN_BASE_POINTS);
+function tierScoresByCategory(
+  tierKey: string,
+): Readonly<Record<ScoreCategory, number>> {
+  const tier = MANGAN_PLUS_TIERS.find((t) => t.key === tierKey);
+  if (!tier) throw new Error(`MANGAN_PLUS_TIERS に ${tierKey} の区分がない`);
+  const { ko, oya } = calculateTierScore(tier);
   return {
     ronKo: ko.ron,
     ronOya: oya.ron,
@@ -143,28 +145,18 @@ const MANGAN_THRESHOLDS: Readonly<Record<ScoreCategory, number>> = (() => {
     tsumoOya: ko.tsumo.fromOya,
     tsumoOyaAll: oya.tsumo.all,
   };
-})();
+}
+
+/** 満貫の点数（選択肢を満貫以上に絞る際のしきい値） */
+const MANGAN_THRESHOLDS = tierScoresByCategory("mangan");
 
 /**
  * ダブル役満採用時に選択肢へ足す点数
  *
- * 64000 等を直書きせず、ダブル役満の基本符（core の `MANGAN_PLUS_TIERS`）
- * から満貫のしきい値と同じ式で導出する。点数リスト（`RON_SCORES_KO` 等）は
- * 役満（32000等）までしか持たないため、採用時にカテゴリごとの1点を足す。
+ * 点数リスト（`RON_SCORES_KO` 等）は役満（32000等）までしか持たないため、
+ * 採用時にカテゴリごとの1点を足す。
  */
-const DOUBLE_YAKUMAN_SCORES: Readonly<Record<ScoreCategory, number>> = (() => {
-  const tier = MANGAN_PLUS_TIERS.find((t) => t.key === "doubleYakuman");
-  if (!tier) throw new Error("MANGAN_PLUS_TIERS にダブル役満の区分がない");
-  const ko = koScoreFromBasePoints(tier.basePoints);
-  const oya = oyaScoreFromBasePoints(tier.basePoints);
-  return {
-    ronKo: ko.ron,
-    ronOya: oya.ron,
-    tsumoKo: ko.tsumo.fromKo,
-    tsumoOya: ko.tsumo.fromOya,
-    tsumoOyaAll: oya.tsumo.all,
-  };
-})();
+const DOUBLE_YAKUMAN_SCORES = tierScoresByCategory("doubleYakuman");
 
 function filterScores(
   scores: readonly number[],

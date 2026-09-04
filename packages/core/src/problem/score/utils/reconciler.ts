@@ -3,6 +3,7 @@ import {
   type HaiKindId,
   type Tehai14,
   type Kazehai,
+  type RuleConfig,
   type ScoreResult,
 } from "@pai-forge/riichi-mahjong";
 import type { YakuDetail } from "../types";
@@ -25,16 +26,22 @@ interface ReconcileYakuhaiResult {
  * 役牌照合ロジック
  * ライブラリの判定結果と手牌の実態を比較し、不足分があれば修正する
  * 役牌照合
+ *
+ * 翻が増えた分の点数はライブラリに再計算させる。切り上げ満貫のように
+ * 点数区分に効くルール設定は `ruleConfig` で渡し、元の点数計算と同じ
+ * 設定で再計算する。
  */
-export function reconcileYakuhai(
-  tehai: Tehai14,
-  yakuResult: readonly (readonly [string, number])[],
-  yakuDetails: readonly YakuDetail[],
-  answer: ScoreResult,
-  bakaze: Kazehai,
-  jikaze: Kazehai,
-  isTsumo: boolean,
-): ReconcileYakuhaiResult {
+export function reconcileYakuhai(input: {
+  readonly tehai: Tehai14;
+  readonly yakuResult: readonly (readonly [string, number])[];
+  readonly answer: ScoreResult;
+  readonly bakaze: Kazehai;
+  readonly jikaze: Kazehai;
+  readonly isTsumo: boolean;
+  readonly ruleConfig?: RuleConfig;
+}): ReconcileYakuhaiResult {
+  const { tehai, yakuResult, answer, bakaze, jikaze, isTsumo, ruleConfig } =
+    input;
   let extraYakuhaiHan = 0;
   const additionalYakuDetails: YakuDetail[] = [];
 
@@ -84,6 +91,7 @@ export function reconcileYakuhai(
     const newAnswer = recalculateScore(answer, newHan, {
       isTsumo,
       isOya: isOya(jikaze),
+      ruleConfig,
     });
     return { answer: newAnswer, additionalYakuDetails };
   }
@@ -117,6 +125,8 @@ export function applyRiichiAndUraDora(input: {
   readonly isDoubleRiichi: boolean;
   readonly isTsumo: boolean;
   readonly jikaze: Kazehai;
+  /** 点数区分に効くルール設定（切り上げ満貫）。元の点数計算と同じものを渡す */
+  readonly ruleConfig?: RuleConfig;
 }): ApplyRiichiResult {
   const {
     tehai,
@@ -125,6 +135,7 @@ export function applyRiichiAndUraDora(input: {
     isDoubleRiichi,
     isTsumo,
     jikaze,
+    ruleConfig,
   } = input;
 
   const riichiHan = isDoubleRiichi ? 2 : 1;
@@ -142,6 +153,7 @@ export function applyRiichiAndUraDora(input: {
   const answer = recalculateScore(currentAnswer, newHan, {
     isTsumo,
     isOya: isOya(jikaze),
+    ruleConfig,
   });
 
   return { answer, additionalYakuDetails };

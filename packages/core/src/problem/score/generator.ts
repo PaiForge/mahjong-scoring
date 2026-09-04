@@ -7,7 +7,9 @@ import {
   type HaiKindId,
   type Kazehai,
   type RuleConfig,
+  type ScoreResult,
   type Tehai14,
+  type YakuResult,
 } from "@pai-forge/riichi-mahjong";
 import { BAKAZE_OPTIONS, ScoreLevel, KAZEHAI } from "../../core/constants";
 import {
@@ -38,13 +40,12 @@ import {
   doubleWindJantouFu,
 } from "../../rules/settings";
 import {
-  alignYakumanScore,
-  applyKiriageMangan,
   isKiriageManganTarget,
   recalculateScore,
 } from "../../score/calculator";
 import { countDoraInTehai } from "../../core/dora";
 import { isOya } from "../../core/kaze";
+import { isFu } from "../../score/constants";
 import { SCORE_YAKU_NAME_MAP } from "../../core/yaku-names";
 
 /** 七対子の日本語表示名（`requiredYaku` / `yakuDetails.name` の語彙） */
@@ -130,41 +131,38 @@ interface ScoringInput extends AgariContext {
  * ライブラリで点数と役を計算する
  * 点数役計算
  *
- * `calculateScoreForTehai` / `detectYaku` は例外を投げうるため、
- * ライブラリ境界であるこの関数内でのみ try/catch で防御し undefined に変換する。
+ * 役が1つも成立しない手（形式和了）は `calculateScoreForTehai` が Err で
+ * 返す。和了できない手は出題にならないため undefined に変換する。
  */
 function computeScoreAndYaku(
   tehai: Tehai14,
   context: ScoringInput,
 ):
   | {
-      readonly answer: ReturnType<typeof calculateScoreForTehai>;
-      readonly yakuResult: ReturnType<typeof detectYaku>;
+      readonly answer: ScoreResult;
+      readonly yakuResult: YakuResult;
     }
   | undefined {
   const { agariHai, isTsumo, jikaze, bakaze, doraMarkers, ruleConfig } =
     context;
-  try {
-    const answer = calculateScoreForTehai(tehai, {
-      agariHai,
-      isTsumo,
-      jikaze,
-      bakaze,
-      doraMarkers,
-      ruleConfig,
-    });
-    const yakuResult = detectYaku(tehai, {
-      agariHai,
-      bakaze,
-      jikaze,
-      doraMarkers,
-      isTsumo,
-      ruleConfig,
-    });
-    return { answer, yakuResult };
-  } catch {
-    return undefined;
-  }
+  const answer = calculateScoreForTehai(tehai, {
+    agariHai,
+    isTsumo,
+    jikaze,
+    bakaze,
+    doraMarkers,
+    ruleConfig,
+  });
+  if (answer.isErr()) return undefined;
+  const yakuResult = detectYaku(tehai, {
+    agariHai,
+    bakaze,
+    jikaze,
+    doraMarkers,
+    isTsumo,
+    ruleConfig,
+  });
+  return { answer: answer.value, yakuResult };
 }
 
 /**
@@ -223,30 +221,35 @@ export function generateScoreQuestion(
   const { doraMarkers, uraDoraMarkers } = markers;
 
   // 3. 点数・役の計算（ライブラリ境界）
+  //    切り上げ満貫を含むルール設定はライブラリに渡し、点数区分・支払いの
+  //    導出をすべてライブラリ側で行う。後付けの翻で再計算する経路
+  //    （役牌の照合・リーチ・内訳合わせ）にも同じ設定を渡すこと
+  const ruleConfig: RuleConfig = {
+    doubleWindJantouFu: doubleWindJantouFu(renfonpaiAs4Fu),
+    kiriageMangan,
+    ...yakumanRules,
+  };
   const scored = computeScoreAndYaku(tehai, {
     agariHai,
     isTsumo,
     jikaze,
     bakaze,
     doraMarkers,
-    ruleConfig: {
-      doubleWindJantouFu: doubleWindJantouFu(renfonpaiAs4Fu),
-      ...yakumanRules,
-    },
+    ruleConfig,
   });
   if (!scored) return undefined;
 
   // 4. 役牌の照合と補正
   let yakuDetails: YakuDetail[] = buildYakuDetailsFromResult(scored.yakuResult);
-  const reconciled = reconcileYakuhai(
+  const reconciled = reconcileYakuhai({
     tehai,
-    scored.yakuResult,
-    yakuDetails,
-    scored.answer,
+    yakuResult: scored.yakuResult,
+    answer: scored.answer,
     bakaze,
     jikaze,
     isTsumo,
-  );
+    ruleConfig,
+  });
   let finalAnswer = reconciled.answer;
   yakuDetails = [...yakuDetails, ...reconciled.additionalYakuDetails];
   if (finalAnswer.han === 0) return undefined;
@@ -260,6 +263,7 @@ export function generateScoreQuestion(
       isDoubleRiichi: randomBool(0.1, rng),
       isTsumo,
       jikaze,
+      ruleConfig,
     });
     finalAnswer = riichiRes.answer;
     yakuDetails = [...yakuDetails, ...riichiRes.additionalYakuDetails];
@@ -267,16 +271,15 @@ export function generateScoreQuestion(
 
   // 5.5. 翻数を役の内訳に合わせる
   //
-  //    ライブラリの `detectYaku` と `calculateScoreForTehai` は同じ手牌で
-  //    食い違うことがある。門前の清一色（6翻）・混一色（3翻）・混全帯么九
-  //    （2翻）を含む手で、後者が副露のときの値で数えて 1〜2 翻少なくなる。
-  //    30000 手の生成で 19 件（0.06%）、いずれも門前で、うち 2 件は点数帯まで
-  //    変わっていた（跳満と出すべき手を満貫にする等）。
-  //
-  //    門前の手に門前の翻を与える `detectYaku` の方がルール上正しいので、
   //    内訳の合計を翻数の正典にする。役牌の照合（`reconcileYakuhai`）と同じ
-  //    考え方で、内訳と翻数と点数が画面上で必ず一致することも保証される
+  //    考え方で、内訳と翻数と点数が画面上で必ず一致することを保証する
   //    （結果ページが役の内訳を出すため、ここがずれると見えてしまう）。
+  //
+  //    ライブラリ 0.5 までは `detectYaku` と `calculateScoreForTehai` が同じ
+  //    手牌で食い違うことがあった（門前の清一色・混一色・混全帯么九を含む手で
+  //    後者が副露のときの値で数え、30000 手中 19 件で 1〜2 翻少なかった）。
+  //    0.6 で両者の解釈が統一されて以降は一致するはずだが、内訳と翻数の
+  //    一致は画面の前提なので、この補正は防波堤として残す。
   //
   //    この時点の `yakuDetails` は表ドラを持たない（`assembleScoreQuestion`
   //    が後で足す）ため、合計にはドラの翻を明示的に加える。
@@ -287,68 +290,49 @@ export function generateScoreQuestion(
     finalAnswer = recalculateScore(finalAnswer, detailsHan, {
       isTsumo,
       isOya: isOya(jikaze),
+      ruleConfig,
     });
   }
 
-  // 6. 役満手の支払いを役満単位に揃える（リーチ・役牌の後付け翻で
-  //    翻数由来の区分に流れた支払いを、ルール設定込みでライブラリが確定
-  //    させた役満単位へ戻す。数え26翻超えの役満止まりもここで丸める）
-  finalAnswer = alignYakumanScore(finalAnswer, {
-    isTsumo,
-    isOya: isOya(jikaze),
-  });
-
-  // 6.1. トリプル役満以上（役満3個分〜）は出題しない
+  // 6. トリプル役満以上（役満3個分〜）は出題しない
   //     点数選択肢のリスト（RON_SCORES_KO 等）はダブル役満までしか持たず、
   //     選択肢から選べない問題になるため。ランダム生成では実質出ない手
   //     （大四喜ダブル+字一色 等）だが、防波堤として明示的に弾く
   if (finalAnswer.yakumanMultiplier >= 3) return undefined;
 
-  // 6.2. 役満ルールの採否で正解が割れる手の除外
+  // 7. 役満ルールの採否で正解が割れる手の除外
   //     役満役を含む手に限り、全ルール有効として数え直したときに役満2個分
   //     以上になるか（= 全ルール無効時と点数が割れるか）で判定する。
   //     判定理由と同値性は QuestionGeneratorOptions の
   //     excludeYakumanRuleBoundary の TSDoc を参照
   if (excludeYakumanRuleBoundary && finalAnswer.yakumanMultiplier >= 1) {
-    try {
-      const allOnResult = detectYaku(tehai, {
-        agariHai,
-        bakaze,
-        jikaze,
-        doraMarkers,
-        isTsumo,
-        ruleConfig: ALL_YAKUMAN_RULES_ENABLED,
-      });
-      if (getYakumanMultiplier(allOnResult, ALL_YAKUMAN_RULES_ENABLED) >= 2)
-        return undefined;
-    } catch {
-      // ライブラリ境界の防御（computeScoreAndYaku と同じ扱い）。
-      // 判定できない手はルールに依存しないと言い切れないため出題しない
+    const allOnResult = detectYaku(tehai, {
+      agariHai,
+      bakaze,
+      jikaze,
+      doraMarkers,
+      isTsumo,
+      ruleConfig: ALL_YAKUMAN_RULES_ENABLED,
+    });
+    if (getYakumanMultiplier(allOnResult, ALL_YAKUMAN_RULES_ENABLED) >= 2)
       return undefined;
-    }
   }
 
-  // 7. 切り上げ満貫で点数が割れる手（30符4翻・60符3翻）の除外
-  //    切り上げる前の結果で判定する。切り上げた後は満貫になっていて
-  //    「境界だった」ことが読めなくなるため
+  // 8. 切り上げ満貫で点数が割れる手（30符4翻・60符3翻）の除外
+  //    判定は翻数と符だけで行うため、切り上げ満貫を有効にして計算した
+  //    結果（区分が既に満貫）でも境界の手を落とせる
   if (excludeKiriageBoundary && isKiriageManganTarget(finalAnswer))
     return undefined;
-
-  // 8. 切り上げ満貫の適用（30符4翻・60符3翻を満貫の点数に切り上げ）
-  if (kiriageMangan) {
-    finalAnswer = applyKiriageMangan(finalAnswer, {
-      isTsumo,
-      isOya: isOya(jikaze),
-    });
-  }
 
   // 9. 点数帯・最小翻数・符・役の検証と組み立て
   //    minHan はリーチ・裏ドラ適用後の最終翻数で判定する（出題表示と一致させる）
   if (!validateScoreRange(finalAnswer.scoreLevel, allowedRanges))
     return undefined;
   if (finalAnswer.han < minHan) return undefined;
-  //    符は点数計算が実際に採った解釈の符で判定する。役の判定とは解釈が
-  //    分かれうるため（`allowedFu` 参照）、yakuDetails 側では弾けない
+  //    回答の符選択肢（FU_VALUES）に無い符は出題しない。么九牌の暗槓を複数
+  //    含む手は 110符を超えることがあり（ライブラリの `Fu` は170符まで）、
+  //    選択肢から選べない問題になるため
+  if (!isFu(finalAnswer.fu)) return undefined;
   if (allowedFu !== undefined && !allowedFu.includes(finalAnswer.fu))
     return undefined;
   //    役の絞り込みも最終形の yakuDetails（役牌の照合・リーチ適用後）で判定する。

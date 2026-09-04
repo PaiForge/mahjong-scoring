@@ -92,15 +92,14 @@ function reconcile(
   han: number,
   kaze: { readonly bakaze?: Kazehai; readonly jikaze?: Kazehai } = {},
 ) {
-  return reconcileYakuhai(
+  return reconcileYakuhai({
     tehai,
-    detected.yakuResult,
-    detected.yakuDetails,
-    makeScoreResult({ han }),
-    kaze.bakaze ?? HaiKind.Ton,
-    kaze.jikaze ?? HaiKind.Nan,
-    false,
-  );
+    yakuResult: detected.yakuResult,
+    answer: makeScoreResult({ han }),
+    bakaze: kaze.bakaze ?? HaiKind.Ton,
+    jikaze: kaze.jikaze ?? HaiKind.Nan,
+    isTsumo: false,
+  });
 }
 
 describe("reconcileYakuhai", () => {

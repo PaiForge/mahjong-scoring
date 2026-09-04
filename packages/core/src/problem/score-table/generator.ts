@@ -1,3 +1,4 @@
+import type { Fu } from "@pai-forge/riichi-mahjong";
 import { randomChoice, defaultRandomSource } from "../../core/random";
 import {
   calculateKoScore,
@@ -30,7 +31,7 @@ const MANGAN_PLUS_HAN_VALUES: readonly number[] = Array.from(
  * 指定範囲内の符候補を取得する
  * 符候補フィルタ
  */
-function getFuCandidates(minFu: number, maxFu: number): readonly number[] {
+function getFuCandidates(minFu: number, maxFu: number): readonly Fu[] {
   return FU_VALUES.filter((fu) => fu >= minFu && fu <= maxFu);
 }
 
@@ -42,7 +43,7 @@ function buildCorrectAnswer(
   isOya: boolean,
   isTsumo: boolean,
   han: number,
-  fu: number,
+  fu: Fu,
   kiriageMangan: boolean,
 ): ScoreTableAnswer {
   const result = isOya
@@ -87,7 +88,7 @@ interface QuestionParams {
   readonly isTsumo: boolean;
   readonly han: number;
   /** 満貫未満のみ設定。満貫以上では undefined */
-  readonly fu?: number;
+  readonly fu?: Fu;
   readonly range: "nonMangan" | "manganPlus";
 }
 
@@ -115,7 +116,7 @@ function enumerateRoleWinPairs(
 function buildNonManganCombinations(
   pairs: ReadonlyArray<{ isOya: boolean; isTsumo: boolean }>,
   hanRange: readonly number[],
-  fuCandidates: readonly number[],
+  fuCandidates: readonly Fu[],
 ): readonly QuestionParams[] {
   const combinations: QuestionParams[] = [];
   for (const { isOya, isTsumo } of pairs) {

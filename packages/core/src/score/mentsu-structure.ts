@@ -163,48 +163,47 @@ export function resolveMentsuBreakdown(
   const tehai14 = validateTehai14(tehai);
   if (tehai14.isErr()) return undefined;
 
-  try {
-    const { detail } = calculateScoreForTehai(tehai14.value, {
-      agariHai: context.agariHai,
-      isTsumo: context.isTsumo,
-      jikaze: context.jikaze,
-      bakaze: context.bakaze,
-      doraMarkers: [],
-    });
-    if (detail?.structure.type !== "Mentsu") return undefined;
+  const score = calculateScoreForTehai(tehai14.value, {
+    agariHai: context.agariHai,
+    isTsumo: context.isTsumo,
+    jikaze: context.jikaze,
+    bakaze: context.bakaze,
+    doraMarkers: [],
+  });
+  // 役なしで点数計算が成立しない手牌。分解表示だけを諦める
+  if (score.isErr()) return undefined;
 
-    const { structure } = detail;
-    const agari = locateAgariHai(structure, detail.machiType, context.agariHai);
+  const { detail } = score.value;
+  if (detail?.structure.type !== "Mentsu") return undefined;
 
-    const toRow = (
-      mentsu: CompletedMentsu,
-      index: number,
-    ): MentsuBreakdownRow => ({
-      mentsu,
-      isOpen: isOpenMentsuForFu(mentsu, context),
-      isExposed: isExposedMentsu(mentsu),
-      agariHaiIndex: agari?.mentsuIndex === index ? agari.haiIndex : undefined,
-    });
+  const { structure } = detail;
+  const agari = locateAgariHai(structure, detail.machiType, context.agariHai);
 
-    const [first, second, third, fourth] = structure.fourMentsu;
+  const toRow = (
+    mentsu: CompletedMentsu,
+    index: number,
+  ): MentsuBreakdownRow => ({
+    mentsu,
+    isOpen: isOpenMentsuForFu(mentsu, context),
+    isExposed: isExposedMentsu(mentsu),
+    agariHaiIndex: agari?.mentsuIndex === index ? agari.haiIndex : undefined,
+  });
 
-    return {
-      fourMentsu: [
-        toRow(first, 0),
-        toRow(second, 1),
-        toRow(third, 2),
-        toRow(fourth, 3),
-      ],
-      jantou: {
-        hais: structure.jantou.hais,
-        agariHaiIndex:
-          agari !== undefined && agari.mentsuIndex === undefined
-            ? agari.haiIndex
-            : undefined,
-      },
-    };
-  } catch {
-    // 役なし等で点数計算が成立しない手牌。分解表示だけを諦める
-    return undefined;
-  }
+  const [first, second, third, fourth] = structure.fourMentsu;
+
+  return {
+    fourMentsu: [
+      toRow(first, 0),
+      toRow(second, 1),
+      toRow(third, 2),
+      toRow(fourth, 3),
+    ],
+    jantou: {
+      hais: structure.jantou.hais,
+      agariHaiIndex:
+        agari !== undefined && agari.mentsuIndex === undefined
+          ? agari.haiIndex
+          : undefined,
+    },
+  };
 }

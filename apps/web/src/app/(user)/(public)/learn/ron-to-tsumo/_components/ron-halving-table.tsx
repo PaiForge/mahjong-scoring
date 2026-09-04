@@ -1,4 +1,5 @@
 import { getTranslations } from "next-intl/server";
+import type { Fu } from "@mahjong-scoring/core";
 
 import { TsumoScore } from "@/app/(user)/(public)/reference/score-table/_components/tsumo-score";
 
@@ -8,7 +9,7 @@ import { buildRonHalvingRows } from "../_lib/ron-halving-rows";
 
 interface RonHalvingTableProps {
   /** 対象の符。ロンとツモが両方ある符を渡すこと（20符には行が無い） */
-  readonly fu: number;
+  readonly fu: Fu;
   /** 表の上に出す見出し */
   readonly caption: string;
 }

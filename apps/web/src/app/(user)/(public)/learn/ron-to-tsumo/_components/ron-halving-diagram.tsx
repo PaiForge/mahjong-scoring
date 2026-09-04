@@ -1,5 +1,5 @@
 import { getTranslations } from "next-intl/server";
-import { calculateKoScore } from "@mahjong-scoring/core";
+import { calculateKoScore, type Fu } from "@mahjong-scoring/core";
 
 import { ArrowRightIcon } from "@/app/(user)/_components/icons/arrow-right-icon";
 import { TABLE_HIGHLIGHT_CELL_CLASS } from "@/app/(user)/_components/_lib/table-highlight";
@@ -8,7 +8,7 @@ import { TsumoScore } from "@/app/(user)/(public)/reference/score-table/_compone
 import { deriveKoTsumoFromRon } from "../_lib/ron-halving-rows";
 
 interface RonHalvingDiagramProps {
-  readonly fu: number;
+  readonly fu: Fu;
   readonly han: number;
 }
 

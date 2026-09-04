@@ -12,6 +12,7 @@ import {
   defaultRandomSource,
   type RandomSource,
 } from "../../core/random";
+import { isFu } from "../../score/constants";
 import { convertScoreDetailToFuDetails } from "../../score/fu-calculator";
 import { generateChiitoiTehai } from "../score/strategies/chiitoi-strategy";
 import { generateMentsuTehai } from "../score/strategies/mentsu-strategy";
@@ -26,8 +27,8 @@ const CHIITOI_RATE = 0.12;
  * 符計算のみを目的とした点数計算
  * 符目的の点数計算
  *
- * `calculateScoreForTehai` は例外を投げうるため、ライブラリ境界である
- * この関数内でのみ try/catch で防御し undefined に変換する。
+ * 役が無い手（形式和了）は `calculateScoreForTehai` が Err で返す。
+ * 和了できない手は出題にならないため undefined に変換する。
  * ドラは符に影響しないため表示・計算とも扱わない（空配列を渡す）。
  */
 function calculateFuSource(
@@ -35,20 +36,17 @@ function calculateFuSource(
   context: AgariContext,
   renfonpaiAs4Fu: boolean,
 ): ScoreResult | undefined {
-  try {
-    return calculateScoreForTehai(tehai, {
-      agariHai: context.agariHai,
-      isTsumo: context.isTsumo,
-      jikaze: context.jikaze,
-      bakaze: context.bakaze,
-      doraMarkers: [],
-      ruleConfig: {
-        doubleWindJantouFu: doubleWindJantouFu(renfonpaiAs4Fu),
-      },
-    });
-  } catch {
-    return undefined;
-  }
+  const result = calculateScoreForTehai(tehai, {
+    agariHai: context.agariHai,
+    isTsumo: context.isTsumo,
+    jikaze: context.jikaze,
+    bakaze: context.bakaze,
+    doraMarkers: [],
+    ruleConfig: {
+      doubleWindJantouFu: doubleWindJantouFu(renfonpaiAs4Fu),
+    },
+  });
+  return result.isErr() ? undefined : result.value;
 }
 
 /**
@@ -122,6 +120,11 @@ export function generateTotalFuQuestion(
   // 役が無い手はそもそも和了できず、出題として成立しない。
   // 平和ツモの20符もライブラリ側の役判定に依存するため、ここで弾いておく。
   if (score.han === 0) return undefined;
+
+  // 回答の選択肢（FU_VALUES）に無い符は出題しない。么九牌の暗槓を複数含む手は
+  // 110符を超えることがあり（ライブラリの `Fu` は170符まで）、選択肢から
+  // 選べない問題になるため
+  if (!isFu(score.detail.fuResult.total)) return undefined;
 
   return {
     id: idGen(),
