@@ -3,6 +3,7 @@ import { getTranslations } from "next-intl/server";
 
 import { PracticeCard } from "@/app/(user)/(public)/practice/_components/practice-card";
 import { practiceCardRank } from "@/app/(user)/(public)/practice/_lib/practice-card-rank";
+import { practiceCardVisual } from "@/app/(user)/(public)/practice/_lib/practice-card-visual";
 import {
   practiceDescriptionKey,
   practiceHref,
@@ -57,7 +58,7 @@ export async function RecommendedPracticeSection({
         {menus.map((menu) => (
           <PracticeCard
             key={menu.slug}
-            slug={menu.slug}
+            visual={practiceCardVisual(menu.slug, tPractice)}
             href={practiceHref(menu.slug)}
             title={tPractice(practiceTitleKey(menu.slug))}
             description={tPractice(practiceDescriptionKey(menu.slug))}

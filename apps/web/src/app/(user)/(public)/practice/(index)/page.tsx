@@ -21,6 +21,7 @@ import {
   type PracticeFilterItem,
 } from "../_components/practice-filter";
 import { practiceCardRank } from "../_lib/practice-card-rank";
+import { practiceCardVisual } from "../_lib/practice-card-visual";
 import {
   listedPracticeMenus,
   listedPracticeRanks,
@@ -49,7 +50,7 @@ export default async function PracticePage() {
       category: practice.category,
       card: (
         <PracticeCard
-          slug={practice.slug}
+          visual={practiceCardVisual(practice.slug, t)}
           href={practiceHref(practice.slug)}
           title={t(practiceTitleKey(practice.slug))}
           description={t(practiceDescriptionKey(practice.slug))}

@@ -1,78 +1,75 @@
-import { HaiKind } from "@mahjong-scoring/core";
-import type { HaiKindId } from "@mahjong-scoring/core";
-
 import { TileSet } from "@/app/(user)/_components/tile-set";
-import type { PracticeMenuSlug } from "@/lib/db/practice-menu-types";
 
-/** カードに載せる例示 1 件 */
-interface CardVisual {
-  /** 手の内に並べる牌 */
-  readonly tiles: readonly HaiKindId[];
-  /**
-   * 和了牌。待ちの練習だけが持つ。待ちは「どの形にどの牌が来たか」で
-   * 決まるため、手の内と分けて描かないと形が読めない。
-   */
-  readonly agariHai?: HaiKindId;
-}
-
-/**
- * 練習カードの例示牌 — 練習名を 1 つの具体例で言い直したもの
- * カードの例示牌
- *
- * @description
- * 「雀頭の符計算」と読むより中中の 2 枚を見る方が速い、という 1 行の説明を
- * 牌で置き換える。全練習には付けない — 手牌 1 つでは何を問われるか伝わらない
- * 練習（合計符・点数計算）に無理に付けると、盤面の縮小版が並ぶだけで
- * カード同士の区別が付かなくなる。持たない練習は何も描かない。
- *
- * 例に選ぶのはその練習の代表形 1 つだけで、符の値は載せない。ここは答えを
- * 教える場所ではなく、練習の対象が何かを見せる場所。
- */
-const PRACTICE_CARD_VISUALS: Partial<Record<PracticeMenuSlug, CardVisual>> = {
-  // 雀頭 = 同じ牌 2 枚。役牌の対子を出す（符が付く側の代表）
-  "jantou-fu": { tiles: [HaiKind.Chun, HaiKind.Chun] },
-  // 嵌張待ち。5 種の待ちのうち、手の内と和了牌の関係が最も一目で分かる形
-  "machi-fu": {
-    tiles: [HaiKind.SouZu3, HaiKind.SouZu5],
-    agariHai: HaiKind.SouZu4,
-  },
-  // 幺九牌の暗刻。同じ牌 3 枚で、雀頭の 2 枚と枚数で見分けが付く
-  "mentsu-fu": {
-    tiles: [HaiKind.ManZu1, HaiKind.ManZu1, HaiKind.ManZu1],
-  },
-};
+import type {
+  PracticeCardVisual as CardVisual,
+  ResolvedSubject,
+} from "../_lib/practice-card-visual";
 
 interface PracticeCardVisualProps {
-  readonly slug: PracticeMenuSlug;
+  readonly visual: CardVisual;
 }
 
 /**
- * 練習カードの例示牌の帯
- * 例示牌の帯
+ * 練習カードの例示の帯
+ * 例示の帯
  *
- * 例示を持たない練習では何も描かない（カードの高さが揃わないが、
- * 空の帯を置くと「例示が出るはずの場所が空いている」ように見える）。
+ * `出題で見えるもの → 答えの単位` を 1 行で描く。何をどう例示するかは
+ * `practiceCardVisual` が決め、ここは受け取ったものを並べるだけ。
  *
- * 卓と同じ濃い緑を敷くのは、この帯が実際の出題盤面の一部と同じものだと
- * 見せるため。牌は読み上げには載せない（練習名と説明文が同じことを
- * 言っており、牌の名前を並べても情報は増えない）。
+ * 卓と同じ濃い緑を敷くのは、この帯が出題盤面の縮図だと見せるため。高さは
+ * 中身によらず固定で、隣り合うカードの帯の位置が揃う。
+ *
+ * 読み上げには載せない（練習名と説明文が同じことを言っており、牌の名前や
+ * 「符は？」を読み上げても情報は増えない）。
  */
-export function PracticeCardVisual({ slug }: PracticeCardVisualProps) {
-  const visual = PRACTICE_CARD_VISUALS[slug];
-  if (visual === undefined) return undefined;
-
+export function PracticeCardVisual({ visual }: PracticeCardVisualProps) {
   return (
     <div
       aria-hidden="true"
-      className="mt-4 flex items-center justify-center gap-1.5 rounded-lg bg-primary-800 px-3 py-2"
+      className="mt-4 flex h-16 items-center justify-center gap-2 rounded-lg bg-primary-800 px-3"
     >
-      <TileSet tiles={visual.tiles} />
-      {visual.agariHai !== undefined && (
+      <SubjectContent subject={visual.subject} />
+      <span className="text-sm text-white/50">→</span>
+      <span className="text-sm font-bold text-white">{visual.unitLabel}</span>
+    </div>
+  );
+}
+
+/** 帯の左側 */
+function SubjectContent({ subject }: { readonly subject: ResolvedSubject }) {
+  if (subject.kind === "labels") {
+    return (
+      <span className="flex items-center gap-1.5">
+        {subject.pill !== undefined && (
+          // 出題盤面（YakuHanPrompt）と同じ、鳴きの状態を表す琥珀色のピル
+          <span className="rounded-full bg-amber-50 px-2 py-0.5 text-[10px] font-semibold text-amber-700">
+            {subject.pill}
+          </span>
+        )}
+        <span className="text-sm font-bold text-white">{subject.text}</span>
+      </span>
+    );
+  }
+
+  const size = subject.size ?? "sm";
+  return (
+    <span className="flex items-center gap-1.5">
+      {/* まとまりの間は牌と牌の間より広く空ける。面子と雀頭が 1 続きの
+          5 枚に見えると、要素ごとに答える練習だと読めない */}
+      <span className="flex items-center gap-3">
+        {subject.groups.map((group, i) => (
+          <TileSet key={i} tiles={group} size={size} />
+        ))}
+      </span>
+      {subject.agariHai !== undefined && (
         <>
           <span className="text-sm text-white/80">+</span>
-          <TileSet tiles={[visual.agariHai]} />
+          <TileSet tiles={[subject.agariHai]} size={size} />
         </>
       )}
-    </div>
+      {subject.elided === true && (
+        <span className="text-sm text-white/60">…</span>
+      )}
+    </span>
   );
 }

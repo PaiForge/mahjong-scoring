@@ -3,13 +3,16 @@ import { BeltPill } from "@/app/(user)/_components/belt-pill";
 import { BookIcon } from "@/app/(user)/_components/icons/book-icon";
 import { ChevronRightIcon } from "@/app/(user)/_components/icons/chevron-right-icon";
 import { TEXT_LINK_CLASSES } from "@/app/_components/_lib/link-classes";
-import type { PracticeMenuSlug } from "@/lib/db/practice-menu-types";
 import type { RankSlug } from "@/lib/ranks/registry";
+import type { PracticeCardVisual as CardVisual } from "../_lib/practice-card-visual";
 import { PracticeCardVisual } from "./practice-card-visual";
 
 interface PracticeCardProps {
-  /** どの練習のカードか。例示牌をこれで引く（{@link PracticeCardVisual}） */
-  slug: PracticeMenuSlug;
+  /**
+   * 「何を見て何を答えるか」を写した例示の帯。`practiceCardVisual()` で
+   * 組み立てる。一覧に並ぶ練習はすべて持つ
+   */
+  visual?: CardVisual;
   href: string;
   title: string;
   description: string;
@@ -34,7 +37,7 @@ interface PracticeCardProps {
 }
 
 export function PracticeCard({
-  slug,
+  visual,
   href,
   title,
   description,
@@ -60,7 +63,7 @@ export function PracticeCard({
         <p className="mt-2 text-sm font-medium text-surface-500">
           {description}
         </p>
-        <PracticeCardVisual slug={slug} />
+        {visual && <PracticeCardVisual visual={visual} />}
       </div>
       <div className="mt-4 flex items-center justify-between">
         <Link
