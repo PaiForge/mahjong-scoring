@@ -12,8 +12,8 @@ type PracticeTranslator = Awaited<
 /** 答えの単位。帯の右端に「符は？」の形で出す */
 type AnswerUnit = "fu" | "han" | "score" | "yaku";
 
-/** 牌を伴わない出題の文言（符と翻の組・点数区分） */
-type SubjectMessageKey = "fuHan" | "mangan";
+/** 帯に出す短い文言のキー（`practice.cardExample.*`） */
+type LabelKey = "naki" | "yakuName" | "fuHan" | "manganHan";
 
 /** 帯の左側 — その練習の出題で実際に目にするもの */
 type Subject =
@@ -42,13 +42,19 @@ type Subject =
       /** 牌が出ず、文言だけが出る出題 */
       readonly kind: "labels";
       /** 状態を表すピル（鳴き）。持たない出題もある */
-      readonly pill?: SubjectMessageKey | "naki";
-      readonly text: SubjectMessageKey | "yakuName";
+      readonly pill?: LabelKey;
+      readonly text: LabelKey;
     };
 
 interface CatalogVisual {
   readonly subject: Subject;
   readonly unit: AnswerUnit;
+  /**
+   * 答えの単位に添える、出題があらかじめ示している値。満貫以上の点数計算は
+   * 手牌のほかに役と翻数が示されており、点数はその翻数だけで決まる
+   * （符を数えない）。手牌だけを写すとその前提が落ちる。
+   */
+  readonly note?: LabelKey;
 }
 
 /**
@@ -134,10 +140,12 @@ const PRACTICE_CARD_VISUALS: Partial<Record<PracticeMenuSlug, CatalogVisual>> =
       subject: { kind: "labels", text: "fuHan" },
       unit: "score",
     },
-    // 満貫以上は符を数えない。区分の名前がそのまま出題になる
+    // 断幺九・平和・一盃口・三色同順で門前 5翻（満貫）の手。翻数は先に
+    // 示されるため、手牌と一緒にその翻数も出す
     "mangan-score-calculation": {
-      subject: { kind: "labels", text: "mangan" },
+      subject: { kind: "hand", mspz: "234m23455p223344s" },
       unit: "score",
+      note: "manganHan",
     },
     "score-calculation": {
       subject: { kind: "hand", mspz: "123456m789p23455s" },
@@ -150,6 +158,8 @@ export interface PracticeCardVisual {
   readonly subject: ResolvedSubject;
   /** 答えの単位（「符は？」） */
   readonly unitLabel: string;
+  /** 単位に添える出題の前提（「5翻」）。持たない練習の方が多い */
+  readonly note?: string;
 }
 
 /** 文言を引き終えた帯の左側 */
@@ -187,6 +197,8 @@ export function practiceCardVisual(
   return {
     subject: resolveSubject(visual.subject, t),
     unitLabel: t(`cardExample.units.${visual.unit}`),
+    note:
+      visual.note === undefined ? undefined : t(`cardExample.${visual.note}`),
   };
 }
 

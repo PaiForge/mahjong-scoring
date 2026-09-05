@@ -15,7 +15,6 @@ import {
   isExamMenu,
   PRACTICE_CATALOG,
   PRACTICE_CATEGORIES,
-  practiceDescriptionKey,
   practiceHref,
   practiceMenuFromCatalog,
   listedPracticeMenus,
@@ -165,17 +164,14 @@ describe("章と練習の対応", () => {
 });
 
 describe("i18n キーの導出", () => {
-  it("全練習の名前と説明が辞書に存在する", () => {
-    const practices: Record<string, { title: string; description: string }> =
+  it("全練習の名前が辞書に存在する", () => {
+    const practices: Record<string, { title: string }> =
       messages.practice.practices;
     for (const menu of PRACTICE_CATALOG) {
       const titleKey = practiceTitleKey(menu.slug);
-      const descriptionKey = practiceDescriptionKey(menu.slug);
       // "practices.<messageKey>.title" の messageKey 部分を取り出して引く
       const messageKey = titleKey.split(".")[1] ?? "";
       expect(practices[messageKey]?.title).toBeTruthy();
-      expect(practices[messageKey]?.description).toBeTruthy();
-      expect(descriptionKey).toBe(`practices.${messageKey}.description`);
     }
   });
 });

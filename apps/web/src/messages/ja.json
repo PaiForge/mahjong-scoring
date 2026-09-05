@@ -175,7 +175,7 @@
   "practice": {
     "title": "練習",
     "description": "符計算の基礎から点数申告まで、段階的にマスターできる練習を用意しています",
-    "start": "スタート",
+    "detail": "くわしく見る",
     "learn": "教本を読む",
     "cardExample": {
       "units": {
@@ -187,7 +187,7 @@
       "naki": "鳴き",
       "yakuName": "混一色",
       "fuHan": "30符 4翻",
-      "mangan": "満貫"
+      "manganHan": "5翻"
     },
     "progress": "学習の進捗",
     "progressSignInPrompt": "サインインすると学習履歴を記録できます",
@@ -213,88 +213,71 @@
     "practices": {
       "jantouFu": {
         "title": "雀頭の符計算",
-        "shortTitle": "雀頭の符",
-        "description": "雀頭（アタマ）の牌種に応じた符を答える練習"
+        "shortTitle": "雀頭の符"
       },
       "machiFu": {
         "title": "待ちの符計算",
-        "shortTitle": "待ちの符",
-        "description": "待ち形（両面・嵌張・辺張・単騎・双碰）の符を答える練習"
+        "shortTitle": "待ちの符"
       },
       "mentsuFu": {
         "title": "面子の符計算",
-        "shortTitle": "面子の符",
-        "description": "面子の種類（順子・刻子・槓子）と明暗に応じた符を答える練習"
+        "shortTitle": "面子の符"
       },
       "mentsuJantouFu": {
         "title": "面子と雀頭の符計算",
-        "shortTitle": "面子と雀頭の符",
-        "description": "手牌のすべての面子と雀頭について、要素ごとに符を答える練習"
+        "shortTitle": "面子と雀頭の符"
       },
       "totalFu": {
         "title": "手牌の合計符",
-        "shortTitle": "手牌の合計符",
-        "description": "手牌全体の符を合計し、切り上げ後の符を一発で答える練習"
+        "shortTitle": "手牌の合計符"
       },
       "yakuHan": {
         "title": "役の翻数",
-        "shortTitle": "役の翻数",
-        "description": "役名と鳴きの有無から翻数を答える練習。食い下がりを覚えよう"
+        "shortTitle": "役の翻数"
       },
       "yaku": {
         "title": "役の選択",
-        "shortTitle": "役",
-        "description": "手牌から成立する役をすべて選択する練習"
+        "shortTitle": "役"
       },
       "scoreTable": {
         "title": "点数表早引き",
-        "shortTitle": "点数表早引き",
-        "description": "点数表を暗記するチャレンジ練習"
+        "shortTitle": "点数表早引き"
       },
       "scoreCalculation": {
         "title": "点数即答",
-        "shortTitle": "点数即答",
-        "description": "手牌から点数を読み取って素早く回答するチャレンジ練習"
+        "shortTitle": "点数即答"
       },
       "hanCount": {
         "title": "翻数即答",
-        "shortTitle": "翻数即答",
-        "description": "手牌から合計翻数を素早く回答するチャレンジ練習"
+        "shortTitle": "翻数即答"
       },
       "manganScoreCalculation": {
         "title": "満貫以上点数計算",
-        "shortTitle": "満貫以上点数計算",
-        "description": "役と翻数が表示された満貫以上の手牌から点数を答えるチャレンジ練習"
+        "shortTitle": "満貫以上点数計算"
       },
       "manganExam": {
         "title": "昇級試験：満貫以上の点数計算",
-        "shortTitle": "満貫試験",
-        "description": "役の表示なしで手牌から翻数を数え、満貫以上の点数を答える試験形式のチャレンジ。ミスは1回まで"
+        "shortTitle": "満貫試験"
       },
       "fuExam": {
         "title": "昇級試験：手牌の合計符",
-        "shortTitle": "符試験",
-        "description": "手牌全体の符を合計し、切り上げ後の符を答える試験形式のチャレンジ。ミスは1回まで"
+        "shortTitle": "符試験"
       },
       "chiitoitsuExam": {
         "title": "昇級試験：七対子の点数計算",
-        "shortTitle": "七対子試験",
-        "description": "役の表示なしで七対子の手牌から翻数を数え、25符の点数を答える試験形式のチャレンジ。ミスは1回まで"
+        "shortTitle": "七対子試験"
       },
       "pinfuExam": {
         "title": "昇級試験：平和の点数計算",
-        "shortTitle": "平和試験",
-        "description": "役の表示なしで平和の手牌から翻数を数え、ツモ20符・ロン30符の点数を答える試験形式のチャレンジ。ミスは1回まで"
+        "shortTitle": "平和試験"
       },
       "fuScoreExam": {
         "title": "昇級試験：30〜50符の点数計算",
-        "shortTitle": "30〜50符試験",
-        "description": "役も符も表示なしで、面子手の手牌から符を積み上げ、翻数を数えて点数を答える試験形式のチャレンジ。鳴いた手も出る。ミスは1回まで"
+        "shortTitle": "30〜50符試験"
       },
       "scoreExam": {
         "title": "昇段試験：点数計算",
-        "shortTitle": "点数計算試験",
-        "description": "役も符も表示なしで、どんな手牌でも点数を答える試験形式のチャレンジ。平和も七対子も鳴いた手も満貫以上も出る。ミスは1回まで"
+        "shortTitle": "点数計算試験"
       }
     },
     "dojoRow": {

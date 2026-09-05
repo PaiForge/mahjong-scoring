@@ -5,7 +5,6 @@ import { PracticeCard } from "@/app/(user)/(public)/practice/_components/practic
 import { practiceCardRank } from "@/app/(user)/(public)/practice/_lib/practice-card-rank";
 import { practiceCardVisual } from "@/app/(user)/(public)/practice/_lib/practice-card-visual";
 import {
-  practiceDescriptionKey,
   practiceHref,
   practiceMenuFromCatalog,
   practiceTitleKey,
@@ -61,9 +60,8 @@ export async function RecommendedPracticeSection({
             visual={practiceCardVisual(menu.slug, tPractice)}
             href={practiceHref(menu.slug)}
             title={tPractice(practiceTitleKey(menu.slug))}
-            description={tPractice(practiceDescriptionKey(menu.slug))}
             rank={practiceCardRank(menu.rank, tRanks)}
-            startLabel={tPractice("start")}
+            detailLabel={tPractice("detail")}
           />
         ))}
       </div>

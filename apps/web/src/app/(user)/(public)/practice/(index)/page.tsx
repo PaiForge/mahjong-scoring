@@ -26,7 +26,6 @@ import {
   listedPracticeMenus,
   listedPracticeRanks,
   PRACTICE_CATEGORIES,
-  practiceDescriptionKey,
   practiceHref,
   practiceTitleKey,
 } from "../_lib/practice-catalog";
@@ -53,9 +52,8 @@ export default async function PracticePage() {
           visual={practiceCardVisual(practice.slug, t)}
           href={practiceHref(practice.slug)}
           title={t(practiceTitleKey(practice.slug))}
-          description={t(practiceDescriptionKey(practice.slug))}
           rank={practiceCardRank(practice.rank, tRanks)}
-          startLabel={t("start")}
+          detailLabel={t("detail")}
           learnHref={
             practice.learnChapter
               ? chapterHref(practice.learnChapter)

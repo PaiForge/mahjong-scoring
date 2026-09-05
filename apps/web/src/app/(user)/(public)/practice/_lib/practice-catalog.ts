@@ -19,7 +19,7 @@ import { PRACTICE_SETUP_HASH } from "./scroll-anchor";
  *
  * @design 導出できるものは持たない
  * href・i18n キーは slug から導出する（`practiceHref` / `practiceTitleKey` /
- * `practiceDescriptionKey`）。教本へのリンクも章スラッグだけを持ち、パスは
+ * `practiceTitleKey`）。教本へのリンクも章スラッグだけを持ち、パスは
  * `chapterHref()` に任せる。slug と messageKey の対応は
  * `lib/db/practice-menu-types.ts` のレジストリが正典で、そこに載らない練習
  * （記録対象外の `/practice/score`）はカタログにも含めない。
@@ -368,11 +368,6 @@ export function practiceResultHref(slug: PracticeMenuSlug): string {
 /** 練習名の i18n キー（`getTranslations("practice")` スコープ内で使う） */
 export function practiceTitleKey(slug: PracticeMenuSlug): string {
   return `practices.${practiceMenuBySlug(slug).messageKey}.title`;
-}
-
-/** 練習の説明文の i18n キー（`getTranslations("practice")` スコープ内で使う） */
-export function practiceDescriptionKey(slug: PracticeMenuSlug): string {
-  return `practices.${practiceMenuBySlug(slug).messageKey}.description`;
 }
 
 /**

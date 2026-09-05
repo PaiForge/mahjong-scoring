@@ -31,8 +31,25 @@ export function PracticeCardVisual({ visual }: PracticeCardVisualProps) {
       className="mt-4 flex h-20 flex-col items-center justify-center gap-1.5 overflow-hidden rounded-lg bg-primary-800 px-3"
     >
       <SubjectContent subject={visual.subject} />
-      <span className="text-xs font-bold text-white">{visual.unitLabel}</span>
+      <span className="flex items-center gap-1.5">
+        {visual.note !== undefined && <VisualPill label={visual.note} />}
+        <span className="text-xs font-bold text-white">{visual.unitLabel}</span>
+      </span>
     </div>
+  );
+}
+
+/**
+ * 出題があらかじめ示している値のピル（鳴き・翻数）
+ *
+ * 琥珀色は出題盤面が同じ役割で使っている色（`YakuHanPrompt` の鳴きバッジ、
+ * 満貫以上の役一覧）。手牌や選択肢ではなく「前提として与えられているもの」の色。
+ */
+function VisualPill({ label }: { readonly label: string }) {
+  return (
+    <span className="rounded-full bg-amber-50 px-2 py-0.5 text-[10px] font-semibold text-amber-700">
+      {label}
+    </span>
   );
 }
 
@@ -53,12 +70,7 @@ function SubjectContent({ subject }: { readonly subject: ResolvedSubject }) {
   if (subject.kind === "labels") {
     return (
       <span className="flex items-center gap-1.5">
-        {subject.pill !== undefined && (
-          // 出題盤面（YakuHanPrompt）と同じ、鳴きの状態を表す琥珀色のピル
-          <span className="rounded-full bg-amber-50 px-2 py-0.5 text-[10px] font-semibold text-amber-700">
-            {subject.pill}
-          </span>
-        )}
+        {subject.pill !== undefined && <VisualPill label={subject.pill} />}
         <span className="text-sm font-bold text-white">{subject.text}</span>
       </span>
     );
