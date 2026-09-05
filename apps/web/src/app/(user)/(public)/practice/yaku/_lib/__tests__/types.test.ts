@@ -3,10 +3,9 @@ import {
   HaiKind,
   generateYakuQuestion,
   parseHais,
-  parseKazehai,
-  parseTehai,
 } from "@mahjong-scoring/core";
 
+import { expectRestoresQuestion } from "@/test/expect-restores-question";
 import { generateOrThrow } from "@/test/generate-or-throw";
 
 import {
@@ -80,13 +79,7 @@ describe("toQuestionResult", () => {
     const question = generate();
     const result = toQuestionResult(question, [], false);
 
-    const tehai = parseTehai(result.tehai);
-    expect(tehai?.closed.length).toBe(question.tehai.closed.length);
-    expect(tehai?.exposed.length).toBe(question.tehai.exposed.length);
-
-    expect(parseKazehai(result.bakaze)).toBe(question.context.bakaze);
-    expect(parseKazehai(result.jikaze)).toBe(question.context.jikaze);
-    expect(parseHais(result.agariHai)[0]).toBe(question.context.agariHai);
+    expectRestoresQuestion(result, question);
     expect(result.isTsumo).toBe(question.context.isTsumo);
     expect(result.isRiichi).toBe(question.context.isRiichi);
     expect(result.doraMarkers.flatMap((m) => parseHais(m))).toEqual([
