@@ -49,3 +49,42 @@ export function createQueryChain(resolveValue?: unknown): QueryChainMock {
 
   return chain as QueryChainMock;
 }
+
+/** 呼び出し順に結果を返す `db.select()` のテスト用制御器 */
+export interface SelectSequenceMock {
+  /** `db.select` に設定する関数 */
+  readonly select: (...args: unknown[]) => QueryChainMock;
+  /** 呼び出された順に作られたチェーン */
+  readonly chains: readonly QueryChainMock[];
+  /** 次のテストで返す結果列を設定し、呼び出し履歴を初期化する */
+  setResults(...results: unknown[][]): void;
+}
+
+/**
+ * 呼び出し順に異なる結果を返す `db.select()` モックを作る。
+ *
+ * 一覧と件数、今回・ベスト・前回など、1つの処理が複数の select を発行する
+ * クエリのテストで使う。結果列を使い切った後は空配列を返す。
+ */
+export function createSelectSequenceMock(): SelectSequenceMock {
+  let callIndex = 0;
+  let returnValues: unknown[][] = [];
+  let chains: QueryChainMock[] = [];
+
+  return {
+    select: (..._args: unknown[]) => {
+      const resolveValue = returnValues[callIndex++] ?? [];
+      const chain = createQueryChain(resolveValue);
+      chains.push(chain);
+      return chain;
+    },
+    get chains() {
+      return chains;
+    },
+    setResults(...results) {
+      callIndex = 0;
+      returnValues = results;
+      chains = [];
+    },
+  };
+}
