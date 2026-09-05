@@ -4,19 +4,12 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 // Mocks
 // ---------------------------------------------------------------------------
 
-const {
-  mockGetOptionalVerifiedUser,
-  mockInsert,
-  mockValues,
-  mockOnConflictDoNothing,
-  mockRevalidatePath,
-} = vi.hoisted(() => ({
-  mockGetOptionalVerifiedUser: vi.fn(),
-  mockInsert: vi.fn(),
-  mockValues: vi.fn(),
-  mockOnConflictDoNothing: vi.fn(),
-  mockRevalidatePath: vi.fn(),
-}));
+const { mockGetOptionalVerifiedUser, mockInsert, mockRevalidatePath } =
+  vi.hoisted(() => ({
+    mockGetOptionalVerifiedUser: vi.fn(),
+    mockInsert: vi.fn(),
+    mockRevalidatePath: vi.fn(),
+  }));
 
 vi.mock("@/lib/auth", () => ({
   getOptionalVerifiedUser: mockGetOptionalVerifiedUser,
@@ -34,16 +27,20 @@ vi.mock("next/cache", () => ({
   revalidatePath: mockRevalidatePath,
 }));
 
+import { createQueryChain, type QueryChainMock } from "@/test/drizzle-mock";
+
 import { markChapterRead } from "../mark-chapter-read";
 
 // ---------------------------------------------------------------------------
 // Helpers
 // ---------------------------------------------------------------------------
 
+let insertChain: QueryChainMock;
+
 function setupInsertChain() {
-  mockOnConflictDoNothing.mockResolvedValue(undefined);
-  mockValues.mockReturnValue({ onConflictDoNothing: mockOnConflictDoNothing });
-  mockInsert.mockReturnValue({ values: mockValues });
+  insertChain = createQueryChain();
+  insertChain.onConflictDoNothing.mockResolvedValue(undefined);
+  mockInsert.mockReturnValue(insertChain);
 }
 
 // ---------------------------------------------------------------------------
@@ -114,11 +111,11 @@ describe("markChapterRead", () => {
       await markChapterRead("mentsu-fu");
 
       expect(mockInsert).toHaveBeenCalledTimes(1);
-      expect(mockValues).toHaveBeenCalledWith({
+      expect(insertChain.values).toHaveBeenCalledWith({
         userId: "user-123",
         chapterSlug: "mentsu-fu",
       });
-      expect(mockOnConflictDoNothing).toHaveBeenCalledTimes(1);
+      expect(insertChain.onConflictDoNothing).toHaveBeenCalledTimes(1);
     });
 
     it("revalidates both /learn and /learn/<slug>", async () => {

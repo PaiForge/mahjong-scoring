@@ -4,17 +4,12 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 // Mocks
 // ---------------------------------------------------------------------------
 
-const {
-  mockGetOptionalVerifiedUser,
-  mockDelete,
-  mockWhere,
-  mockRevalidatePath,
-} = vi.hoisted(() => ({
-  mockGetOptionalVerifiedUser: vi.fn(),
-  mockDelete: vi.fn(),
-  mockWhere: vi.fn(),
-  mockRevalidatePath: vi.fn(),
-}));
+const { mockGetOptionalVerifiedUser, mockDelete, mockRevalidatePath } =
+  vi.hoisted(() => ({
+    mockGetOptionalVerifiedUser: vi.fn(),
+    mockDelete: vi.fn(),
+    mockRevalidatePath: vi.fn(),
+  }));
 
 vi.mock("@/lib/auth", () => ({
   getOptionalVerifiedUser: mockGetOptionalVerifiedUser,
@@ -34,15 +29,20 @@ vi.mock("next/cache", () => ({
   revalidatePath: mockRevalidatePath,
 }));
 
+import { createQueryChain, type QueryChainMock } from "@/test/drizzle-mock";
+
 import { unmarkChapterRead } from "../unmark-chapter-read";
 
 // ---------------------------------------------------------------------------
 // Helpers
 // ---------------------------------------------------------------------------
 
+let deleteChain: QueryChainMock;
+
 function setupDeleteChain() {
-  mockWhere.mockResolvedValue(undefined);
-  mockDelete.mockReturnValue({ where: mockWhere });
+  deleteChain = createQueryChain();
+  deleteChain.where.mockResolvedValue(undefined);
+  mockDelete.mockReturnValue(deleteChain);
 }
 
 // ---------------------------------------------------------------------------
@@ -121,7 +121,7 @@ describe("unmarkChapterRead", () => {
       await unmarkChapterRead("machi-fu");
 
       expect(mockDelete).toHaveBeenCalledTimes(1);
-      expect(mockWhere).toHaveBeenCalledTimes(1);
+      expect(deleteChain.where).toHaveBeenCalledTimes(1);
     });
 
     it("revalidates both /learn and /learn/<slug>", async () => {
