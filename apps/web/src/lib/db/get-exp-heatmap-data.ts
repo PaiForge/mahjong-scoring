@@ -28,6 +28,44 @@ export interface ExpHeatmapData {
   readonly dailyByModule: Record<string, Record<string, number>>;
 }
 
+interface DailyExpRow {
+  readonly date: string | Date;
+  readonly total: string | number | null;
+}
+
+interface ModuleExpRow extends DailyExpRow {
+  readonly menuType: string | null;
+}
+
+function heatmapDateKey(date: string | Date): string {
+  return typeof date === "string" ? date : formatDate(date);
+}
+
+/**
+ * DB の集計行をヒートマップ表示用データへ変換する。
+ * 経験値ヒートマップ行変換
+ */
+export function toExpHeatmapData(
+  dailyRows: readonly DailyExpRow[],
+  moduleRows: readonly ModuleExpRow[],
+): ExpHeatmapData {
+  const daily = Object.fromEntries(
+    dailyRows.map((row) => [heatmapDateKey(row.date), Number(row.total) || 0]),
+  );
+
+  const dailyByModule: Record<string, Record<string, number>> = {};
+  for (const row of moduleRows) {
+    const dateKey = heatmapDateKey(row.date);
+    const totals = dailyByModule[dateKey] ?? {};
+    dailyByModule[dateKey] = {
+      ...totals,
+      [row.menuType ?? "unknown"]: Number(row.total) || 0,
+    };
+  }
+
+  return { daily, dailyByModule };
+}
+
 /** ヒートマップキャッシュの per-user タグ名を返す。 */
 export function expHeatmapCacheTag(userId: string): string {
   return `exp-heatmap:${userId}`;
@@ -89,25 +127,7 @@ async function fetchExpHeatmapData(
       .groupBy(dateExpr, expEvents.menuType),
   ]);
 
-  const daily: Record<string, number> = {};
-  for (const row of dailyRows) {
-    const dateStr =
-      typeof row.date === "string" ? row.date : formatDate(new Date(row.date));
-    daily[dateStr] = Number(row.total) || 0;
-  }
-
-  const dailyByModule: Record<string, Record<string, number>> = {};
-  for (const row of moduleRows) {
-    const dateStr =
-      typeof row.date === "string" ? row.date : formatDate(new Date(row.date));
-    const moduleKey = row.menuType ?? "unknown";
-    if (!dailyByModule[dateStr]) {
-      dailyByModule[dateStr] = {};
-    }
-    dailyByModule[dateStr][moduleKey] = Number(row.total) || 0;
-  }
-
-  return { daily, dailyByModule };
+  return toExpHeatmapData(dailyRows, moduleRows);
 }
 
 /**

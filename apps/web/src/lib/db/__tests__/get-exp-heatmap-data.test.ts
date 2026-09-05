@@ -44,9 +44,52 @@ vi.mock("../schema", () => ({
 }));
 
 import { db } from "../index";
-import { expHeatmapCacheTag, getExpHeatmapData } from "../get-exp-heatmap-data";
+import {
+  expHeatmapCacheTag,
+  getExpHeatmapData,
+  toExpHeatmapData,
+} from "../get-exp-heatmap-data";
 
 const mockDb = vi.mocked(db);
+
+describe("toExpHeatmapData", () => {
+  it("DB 行の日付、数値、NULL、練習種別内訳を純粋に変換する", () => {
+    expect(
+      toExpHeatmapData(
+        [
+          { date: new Date("2026-04-01T00:00:00Z"), total: "150" },
+          { date: "2026-04-02", total: null },
+        ],
+        [
+          { date: "2026-04-01", menuType: "jantou_fu", total: "100" },
+          { date: "2026-04-01", menuType: "machi_fu", total: 50 },
+          { date: "2026-04-02", menuType: null, total: null },
+        ],
+      ),
+    ).toEqual({
+      daily: { "2026-04-01": 150, "2026-04-02": 0 },
+      dailyByModule: {
+        "2026-04-01": { jantou_fu: 100, machi_fu: 50 },
+        "2026-04-02": { unknown: 0 },
+      },
+    });
+  });
+
+  it("入力を変更しない", () => {
+    const dailyRows = Object.freeze([
+      Object.freeze({ date: "2026-04-01", total: "10" }),
+    ]);
+    const moduleRows = Object.freeze([
+      Object.freeze({
+        date: "2026-04-01",
+        menuType: "jantou_fu",
+        total: "10",
+      }),
+    ]);
+
+    expect(() => toExpHeatmapData(dailyRows, moduleRows)).not.toThrow();
+  });
+});
 
 describe("expHeatmapCacheTag", () => {
   it("returns a per-user tag", () => {
