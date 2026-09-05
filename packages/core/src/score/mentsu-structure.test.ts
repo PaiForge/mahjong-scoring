@@ -21,19 +21,36 @@ const TSUMO_CONTEXT = {
   jikaze: HaiKind.Nan,
 } as const;
 
+/** 東場・南家のロン和了 */
+const RON_CONTEXT = {
+  isTsumo: false,
+  bakaze: HaiKind.Ton,
+  jikaze: HaiKind.Nan,
+} as const;
+
+/**
+ * 234m 456p 678s
+ *
+ * 面子の明暗や和了牌の位置を見るテストは、注目する面子以外を固定したい。
+ * この 3 順子を土台にして、ケースごとの差分（刻子・槓子・雀頭）だけを足す。
+ */
+const THREE_SHUNTSU = [
+  HaiKind.ManZu2,
+  HaiKind.ManZu3,
+  HaiKind.ManZu4,
+  HaiKind.PinZu4,
+  HaiKind.PinZu5,
+  HaiKind.PinZu6,
+  HaiKind.SouZu6,
+  HaiKind.SouZu7,
+  HaiKind.SouZu8,
+] as const;
+
 describe("resolveMentsuBreakdown", () => {
   it("面子手は 4面子1雀頭 の構造を返す", () => {
     // 234m 456p 678s 白白白 + 99m（白の役あり）
     const tehai = makeTehai([
-      HaiKind.ManZu2,
-      HaiKind.ManZu3,
-      HaiKind.ManZu4,
-      HaiKind.PinZu4,
-      HaiKind.PinZu5,
-      HaiKind.PinZu6,
-      HaiKind.SouZu6,
-      HaiKind.SouZu7,
-      HaiKind.SouZu8,
+      ...THREE_SHUNTSU,
       HaiKind.Haku,
       HaiKind.Haku,
       HaiKind.Haku,
@@ -112,15 +129,7 @@ describe("resolveMentsuBreakdown", () => {
 
   it("14枚でない手牌は undefined を返す", () => {
     const tehai = makeTehai([
-      HaiKind.ManZu2,
-      HaiKind.ManZu3,
-      HaiKind.ManZu4,
-      HaiKind.PinZu4,
-      HaiKind.PinZu5,
-      HaiKind.PinZu6,
-      HaiKind.SouZu6,
-      HaiKind.SouZu7,
-      HaiKind.SouZu8,
+      ...THREE_SHUNTSU,
       HaiKind.Haku,
       HaiKind.Haku,
       HaiKind.Haku,
@@ -138,15 +147,7 @@ describe("resolveMentsuBreakdown", () => {
   it("役なしの手牌は undefined を返す（点数計算の例外を握りつぶす）", () => {
     // 234m 456p 678s 東東東 + 99m のロン和了。東は場風でも自風でもなく役がない
     const tehai = makeTehai([
-      HaiKind.ManZu2,
-      HaiKind.ManZu3,
-      HaiKind.ManZu4,
-      HaiKind.PinZu4,
-      HaiKind.PinZu5,
-      HaiKind.PinZu6,
-      HaiKind.SouZu6,
-      HaiKind.SouZu7,
-      HaiKind.SouZu8,
+      ...THREE_SHUNTSU,
       HaiKind.Ton,
       HaiKind.Ton,
       HaiKind.Ton,
@@ -175,19 +176,7 @@ describe("resolveMentsuBreakdown", () => {
     it("副露した刻子は明かつ晒され、副露のメタ情報を持つ", () => {
       // 234m 456p 678s + 99m + 白ポン
       const tehai: Tehai = {
-        closed: [
-          HaiKind.ManZu2,
-          HaiKind.ManZu3,
-          HaiKind.ManZu4,
-          HaiKind.PinZu4,
-          HaiKind.PinZu5,
-          HaiKind.PinZu6,
-          HaiKind.SouZu6,
-          HaiKind.SouZu7,
-          HaiKind.SouZu8,
-          HaiKind.ManZu9,
-          HaiKind.ManZu9,
-        ],
+        closed: [...THREE_SHUNTSU, HaiKind.ManZu9, HaiKind.ManZu9],
         exposed: [PON_HAKU],
       };
 
@@ -206,15 +195,7 @@ describe("resolveMentsuBreakdown", () => {
 
     it("門前ツモの刻子は暗かつ晒されない", () => {
       const tehai = makeTehai([
-        HaiKind.ManZu2,
-        HaiKind.ManZu3,
-        HaiKind.ManZu4,
-        HaiKind.PinZu4,
-        HaiKind.PinZu5,
-        HaiKind.PinZu6,
-        HaiKind.SouZu6,
-        HaiKind.SouZu7,
-        HaiKind.SouZu8,
+        ...THREE_SHUNTSU,
         HaiKind.Haku,
         HaiKind.Haku,
         HaiKind.Haku,
@@ -238,15 +219,7 @@ describe("resolveMentsuBreakdown", () => {
     it("ロンで完成した刻子は手牌の中にあっても明として数える", () => {
       // 234m 456p 678s 白白白 + 中中 で白をロン（シャンポン待ち）
       const tehai = makeTehai([
-        HaiKind.ManZu2,
-        HaiKind.ManZu3,
-        HaiKind.ManZu4,
-        HaiKind.PinZu4,
-        HaiKind.PinZu5,
-        HaiKind.PinZu6,
-        HaiKind.SouZu6,
-        HaiKind.SouZu7,
-        HaiKind.SouZu8,
+        ...THREE_SHUNTSU,
         HaiKind.Haku,
         HaiKind.Haku,
         HaiKind.Haku,
@@ -255,10 +228,8 @@ describe("resolveMentsuBreakdown", () => {
       ]);
 
       const breakdown = resolveMentsuBreakdown(tehai, {
+        ...RON_CONTEXT,
         agariHai: HaiKind.Haku,
-        isTsumo: false,
-        bakaze: HaiKind.Ton,
-        jikaze: HaiKind.Nan,
       });
 
       const haku = breakdown?.fourMentsu.find(
@@ -309,15 +280,7 @@ describe("resolveMentsuBreakdown", () => {
   describe("和了牌の位置", () => {
     /** 234m 456p 678s + 中中中 + 白白 をベースにした手牌 */
     const BASE = [
-      HaiKind.ManZu2,
-      HaiKind.ManZu3,
-      HaiKind.ManZu4,
-      HaiKind.PinZu4,
-      HaiKind.PinZu5,
-      HaiKind.PinZu6,
-      HaiKind.SouZu6,
-      HaiKind.SouZu7,
-      HaiKind.SouZu8,
+      ...THREE_SHUNTSU,
       HaiKind.Chun,
       HaiKind.Chun,
       HaiKind.Chun,
@@ -344,10 +307,8 @@ describe("resolveMentsuBreakdown", () => {
 
     it("嵌張待ちは順子の真ん中に付く", () => {
       const breakdown = resolveMentsuBreakdown(makeTehai(BASE), {
+        ...RON_CONTEXT,
         agariHai: HaiKind.ManZu3,
-        isTsumo: false,
-        bakaze: HaiKind.Ton,
-        jikaze: HaiKind.Nan,
       });
 
       expect(agariAt(breakdown)).toEqual({
@@ -370,10 +331,8 @@ describe("resolveMentsuBreakdown", () => {
 
     it("単騎待ちは雀頭に付く", () => {
       const breakdown = resolveMentsuBreakdown(makeTehai(BASE), {
+        ...RON_CONTEXT,
         agariHai: HaiKind.Haku,
-        isTsumo: false,
-        bakaze: HaiKind.Ton,
-        jikaze: HaiKind.Nan,
       });
 
       expect(breakdown?.jantou.agariHaiIndex).toBe(1);
@@ -402,10 +361,8 @@ describe("resolveMentsuBreakdown", () => {
       ]);
 
       const breakdown = resolveMentsuBreakdown(tehai, {
+        ...RON_CONTEXT,
         agariHai: HaiKind.Chun,
-        isTsumo: false,
-        bakaze: HaiKind.Ton,
-        jikaze: HaiKind.Nan,
       });
 
       expect(agariAt(breakdown)).toEqual({
