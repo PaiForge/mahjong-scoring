@@ -61,7 +61,13 @@ export const HAI_TERMS = [
         captionKey: "kazehaiOrder",
       },
     ],
-    related: ["jihai", "sangenpai", "yakuhai"],
+    related: ["jihai", "sangenpai", "yakuhai", "otakaze"],
+  },
+  {
+    slug: "otakaze",
+    category: "hai",
+    related: ["kazehai", "yakuhai"],
+    learnSlugs: ["jantou-fu"],
   },
   {
     slug: "sangenpai",
