@@ -1,20 +1,15 @@
-import Link from "next/link";
 import { getTranslations } from "next-intl/server";
 
-import { TEXT_LINK_CLASSES } from "@/app/_components/_lib/link-classes";
 import { SectionTitle } from "@/app/(user)/_components/section-title";
-import {
-  PREFERENCE_ANCHORS,
-  preferencesHref,
-} from "@/app/(user)/(public)/preferences/_lib/anchors";
+import { PREFERENCE_ANCHORS } from "@/app/(user)/(public)/preferences/_lib/anchors";
 import { scorePracticePlayHref } from "@/app/(user)/(public)/practice/score/_lib/play-href";
 import {
   PracticeLinkButton,
   PracticeLinkSection,
 } from "../../_components/practice-link-card";
 
-import { GuideColumn } from "../../_components/guide-column";
-import { GuideNote } from "../../_components/guide-note";
+import { ChapterColumn } from "../../_components/chapter-column";
+import { PreferenceSettingsNote } from "../../_components/preference-settings-note";
 import { GuideParagraph } from "../../_components/guide-paragraph";
 import { FixedFuScoreTable } from "../../_components/fixed-fu-score-table";
 import { PINFU_SCORE_TABLE } from "../../_lib/fixed-fu-rows";
@@ -40,23 +35,12 @@ export async function PinfuScoreGuide() {
       </section>
 
       {/* コラム: 切り上げ満貫 — 表の4翻の行だけがルールで変わる */}
-      <GuideColumn label={t("columnLabel")} title={t("columnTitle")}>
-        <GuideParagraph>
-          {t.rich("columnBody", { br: () => <br /> })}
-        </GuideParagraph>
-        <GuideNote>
-          {t.rich("columnSettingsNote", {
-            settingsLink: (chunks) => (
-              <Link
-                href={preferencesHref(PREFERENCE_ANCHORS.kiriageMangan)}
-                className={TEXT_LINK_CLASSES}
-              >
-                {chunks}
-              </Link>
-            ),
-          })}
-        </GuideNote>
-      </GuideColumn>
+      <ChapterColumn t={t}>
+        <PreferenceSettingsNote
+          t={t}
+          anchor={PREFERENCE_ANCHORS.kiriageMangan}
+        />
+      </ChapterColumn>
 
       {/* なぜ20符・30符なのか */}
       <section className="space-y-4">

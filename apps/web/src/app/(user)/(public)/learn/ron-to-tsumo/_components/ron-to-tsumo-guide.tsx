@@ -3,7 +3,7 @@ import { getTranslations } from "next-intl/server";
 import { SectionTitle } from "@/app/(user)/_components/section-title";
 
 import { ChapterLink } from "../../_components/chapter-link";
-import { GuideColumn } from "../../_components/guide-column";
+import { ChapterColumn } from "../../_components/chapter-column";
 import { GuideNote } from "../../_components/guide-note";
 import { GuideOrderedList } from "../../_components/guide-ordered-list";
 import { GuideParagraph } from "../../_components/guide-paragraph";
@@ -100,11 +100,7 @@ export async function RonToTsumoGuide() {
       </section>
 
       {/* コラム: 同じ理屈で親ロンも出せそうに見える、という当然の期待に答える */}
-      <GuideColumn label={t("columnLabel")} title={t("columnTitle")}>
-        <GuideParagraph>
-          {t.rich("columnBody", { br: () => <br /> })}
-        </GuideParagraph>
-      </GuideColumn>
+      <ChapterColumn t={t} />
     </div>
   );
 }

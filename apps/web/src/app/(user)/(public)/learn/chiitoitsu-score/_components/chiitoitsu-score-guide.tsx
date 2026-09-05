@@ -7,7 +7,7 @@ import {
   PracticeLinkSection,
 } from "../../_components/practice-link-card";
 
-import { GuideColumn } from "../../_components/guide-column";
+import { ChapterColumn } from "../../_components/chapter-column";
 import { FixedFuScoreTable } from "../../_components/fixed-fu-score-table";
 import { CHIITOITSU_SCORE_TABLE } from "../../_lib/fixed-fu-rows";
 import { GuideParagraph } from "../../_components/guide-paragraph";
@@ -31,11 +31,7 @@ export async function ChiitoitsuScoreGuide() {
       </section>
 
       {/* コラム: 25符だけが10符刻みから外れている理由 */}
-      <GuideColumn label={t("columnLabel")} title={t("columnTitle")}>
-        <GuideParagraph>
-          {t.rich("columnBody", { br: () => <br /> })}
-        </GuideParagraph>
-      </GuideColumn>
+      <ChapterColumn t={t} />
 
       {/* 複合しても符は変わらない */}
       <section className="space-y-4">

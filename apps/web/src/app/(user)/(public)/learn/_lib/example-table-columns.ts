@@ -1,6 +1,6 @@
 import { getTranslations } from "next-intl/server";
 
-type GuideTranslator = Awaited<ReturnType<typeof getTranslations<string>>>;
+import type { GuideTranslator } from "./guide-translator";
 
 /** {@link ExampleTable} に渡す列見出しと符の書式（章のあいだで使い回す） */
 interface ExampleTableColumns {
