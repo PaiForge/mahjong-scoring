@@ -3,9 +3,10 @@ import { renderHook } from "@testing-library/react";
 import { useSaveOnFinish } from "./use-save-on-finish";
 import type { FinishCallbackArgs } from "./use-finish-redirect";
 
-vi.mock("../_actions/save-practice-result", () => ({
-  savePracticeResult: vi.fn(),
-}));
+vi.mock(
+  "../_actions/save-practice-result",
+  async () => await import("@/test/save-practice-result-mock"),
+);
 
 async function importMockedAction() {
   const mod = await import("../_actions/save-practice-result");
