@@ -477,7 +477,7 @@
       "labelBakaze": "場風（東）",
       "labelJikaze": "自風（南）",
       "noFuTitle": "符がつかない雀頭 → 0符",
-      "noFuBody": "[[shuupai|数牌]]やオタ風（場風でも自風でもない[[kazehai|風牌]]）を[[jantou|雀頭]]にした場合、符は加算されません。",
+      "noFuBody": "[[shuupai|数牌]]や[[otakaze|オタ風]]を[[jantou|雀頭]]にした場合、符は加算されません。",
       "noFuExamples": "0符の例",
       "labelSuuhaiManzu": "数牌（一萬）",
       "labelSuuhaiPinzu": "数牌（五筒）",
@@ -1007,6 +1007,11 @@
         "term": "風牌",
         "reading": "カゼハイ",
         "definition": "東・南・西・北の4種類の字牌。自分の席に対応する自風と、その場に対応する場風にあたるものを刻子にすると1翻の役になる。"
+      },
+      "otakaze": {
+        "term": "オタ風",
+        "reading": "オタカゼ",
+        "definition": "場風でも自風でもない風牌。刻子にしても役牌にはならず、雀頭にしても符は付かない。"
       },
       "sangenpai": {
         "term": "三元牌",
