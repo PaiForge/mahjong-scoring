@@ -4,11 +4,20 @@ import { BookIcon } from "@/app/(user)/_components/icons/book-icon";
 import { ChevronRightIcon } from "@/app/(user)/_components/icons/chevron-right-icon";
 import { TEXT_LINK_CLASSES } from "@/app/_components/_lib/link-classes";
 import type { RankSlug } from "@/lib/ranks/registry";
+import type { PracticeCardVisual as CardVisual } from "../_lib/practice-card-visual";
+import { PracticeCardVisual } from "./practice-card-visual";
 
 interface PracticeCardProps {
+  /**
+   * 「何を見て何を答えるか」を写した例示の帯。`practiceCardVisual()` で
+   * 組み立てる。一覧に並ぶ練習はすべて持つ。
+   *
+   * 説明文を置かないのはこの帯があるため。「雀頭（アタマ）の牌種に応じた
+   * 符を答える練習」は、練習名と帯が並んだ時点で読む必要が無くなる。
+   */
+  visual?: CardVisual;
   href: string;
   title: string;
-  description: string;
   /**
    * その練習が身につける段級位。どの級の範囲にも入らない練習は undefined で、
    * ピルを出さない（「級なし」を表すラベルは出さない — 空白のままの方が、
@@ -24,17 +33,19 @@ interface PracticeCardProps {
     /** リンクのアクセシブル名（「4級 昇級試験」） */
     readonly ariaLabel: string;
   };
-  startLabel: string;
+  /** カードの行き先を表すリンクの文言（「くわしく見る」） */
+  detailLabel: string;
   learnHref?: string;
+  /** 教本アイコンのアクセシブル名（「教本を読む」）。アイコンに文字は添えない */
   learnLabel?: string;
 }
 
 export function PracticeCard({
+  visual,
   href,
   title,
-  description,
   rank,
-  startLabel,
+  detailLabel,
   learnHref,
   learnLabel,
 }: PracticeCardProps) {
@@ -43,36 +54,43 @@ export function PracticeCard({
       <div>
         <div className="flex items-start justify-between gap-2">
           <h3 className="text-base font-bold text-surface-900">{title}</h3>
-          {rank && (
-            <BeltPill
-              slug={rank.slug}
-              label={rank.label}
-              href={rank.href}
-              ariaLabel={rank.ariaLabel}
-            />
-          )}
+          {/* 教本アイコンと段級位ピルは同じ「練習名に添うもの」なので右端に
+              まとめる。どちらもリンクのため、間隔は押し間違いが起きない
+              幅（gap-3 = 12px）を取る */}
+          <div className="flex shrink-0 items-center gap-3">
+            {learnHref && learnLabel && (
+              // 丸で囲むのは押せることを示すため。アイコンだけを地に置くと
+              // 見出しの装飾に見える。太枠（border-3 border-ink）にしないのは
+              // 隣の段級位ピルが枠を持たないため（`BeltPill` の TSDoc 参照）
+              <Link
+                href={learnHref}
+                aria-label={learnLabel}
+                title={learnLabel}
+                className="flex size-8 items-center justify-center rounded-full border-2 border-surface-200 text-surface-400 transition-colors hover:border-surface-400 hover:text-surface-700"
+              >
+                <BookIcon className="size-4" />
+              </Link>
+            )}
+            {rank && (
+              <BeltPill
+                slug={rank.slug}
+                label={rank.label}
+                href={rank.href}
+                ariaLabel={rank.ariaLabel}
+              />
+            )}
+          </div>
         </div>
-        <p className="mt-2 text-sm font-medium text-surface-500">
-          {description}
-        </p>
+        {visual && <PracticeCardVisual visual={visual} />}
       </div>
-      <div className="mt-4 flex items-center justify-between">
+      <div className="mt-4 flex justify-end">
         <Link
           href={href}
           className={`flex items-center text-sm font-bold ${TEXT_LINK_CLASSES}`}
         >
-          {startLabel}
+          {detailLabel}
           <ChevronRightIcon className="ml-1 size-4" />
         </Link>
-        {learnHref && learnLabel && (
-          <Link
-            href={learnHref}
-            className={`flex items-center gap-1 text-sm ${TEXT_LINK_CLASSES}`}
-          >
-            <BookIcon className="size-4" />
-            {learnLabel}
-          </Link>
-        )}
       </div>
     </div>
   );
