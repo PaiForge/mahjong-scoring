@@ -10,6 +10,7 @@ import { enforceIpRateLimit } from "@/lib/rate-limit-ip";
 import type { RateLimitErrorCode } from "@/lib/rate-limit-ip";
 import { validateUsername } from "@/lib/username";
 import type { UsernameValidationError } from "@/lib/username";
+import { validateDisplayName } from "@/lib/validations/profile";
 
 const PG_UNIQUE_VIOLATION = "23505";
 
@@ -29,7 +30,8 @@ export type RegisterUsernameError =
   | UsernameValidationError
   | "username_required"
   | "username_already_set"
-  | "username_taken";
+  | "username_taken"
+  | "display_name_too_long";
 
 export async function registerUsername(
   username: string,
@@ -56,6 +58,12 @@ export async function registerUsername(
   const validationError = validateUsername(trimmedUsername);
   if (validationError) {
     return { error: validationError };
+  }
+
+  // 入力欄の maxLength はフォーム経由の入力しか止められない。表示名は
+  // プロフィール編集と同じ行を書くので、上限も編集側と同じ規則で弾く。
+  if (validateDisplayName(trimmedDisplayName)) {
+    return { error: "display_name_too_long" };
   }
 
   // 二重作成を防ぐ（プロフィールが既にあるなら登録済み）

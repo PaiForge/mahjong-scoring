@@ -7,6 +7,7 @@ type UsernameValidationMessageKey =
   | "validation.reserved"
   | "validation.taken"
   | "validation.alreadySet"
+  | "validation.displayNameTooLong"
   | "validation.rateLimited"
   | "validation.unauthorized"
   | "validation.banned"
@@ -32,6 +33,8 @@ export function usernameValidationMessageKey(
       return "validation.taken";
     case "username_already_set":
       return "validation.alreadySet";
+    case "display_name_too_long":
+      return "validation.displayNameTooLong";
     case "rateLimited":
       return "validation.rateLimited";
     case "unauthorized":
