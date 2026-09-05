@@ -7,6 +7,7 @@ import { useTranslations } from "next-intl";
 import { useRouter } from "next/navigation";
 
 import { validateUsername } from "@/lib/username";
+import { PROFILE_LIMITS } from "@/lib/validations/profile";
 
 import { registerUsername } from "../_actions/register-username";
 import { usernameValidationMessageKey } from "../_lib/username-validation-message";
@@ -99,7 +100,7 @@ export function UsernameForm() {
         value={displayName}
         onChange={setDisplayName}
         placeholder={t("displayNamePlaceholder")}
-        maxLength={50}
+        maxLength={PROFILE_LIMITS.displayName}
       >
         <ul className="mt-2 list-inside list-disc">
           <li className="text-xs text-surface-500">

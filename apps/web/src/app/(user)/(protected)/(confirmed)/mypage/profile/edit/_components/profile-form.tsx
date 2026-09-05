@@ -14,8 +14,8 @@ import toast from "react-hot-toast";
 import { SectionTitle } from "@/app/(user)/_components/section-title";
 
 import { updateProfile } from "../_actions/update-profile";
-import { PROFILE_LIMITS } from "../_lib/profile-validation";
-import type { ProfileInput } from "../_lib/profile-validation";
+import { PROFILE_LIMITS } from "@/lib/validations/profile";
+import type { ProfileInput } from "@/lib/validations/profile";
 import { TEXT_LINK_CLASSES } from "@/app/_components/_lib/link-classes";
 import { SUB_LINK_GAP } from "@/app/_components/_lib/spacing";
 import { Button } from "@/app/(user)/_components/button";
