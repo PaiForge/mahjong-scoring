@@ -2,15 +2,16 @@ import { afterEach, describe, expect, it, vi } from "vitest";
 import { render, screen } from "@testing-library/react";
 import { toast } from "react-hot-toast";
 
-let pathname = "/practice/jantou-fu/play";
-vi.mock("next/navigation", () => ({ usePathname: () => pathname }));
+vi.mock("next/navigation", async () => await import("@/test/navigation-mock"));
+
+import { setPathname } from "@/test/navigation-mock";
 
 import { GlobalToaster } from "./global-toaster";
 import { toastOnArrival } from "./_lib/toast-on-arrival";
 
 /** 出したいトーストを預けたうえで、`to` へ遷移したことにする */
 function navigateTo(to: string, rerender: (ui: React.ReactElement) => void) {
-  pathname = to;
+  setPathname(to);
   rerender(<GlobalToaster />);
 }
 
@@ -21,7 +22,7 @@ afterEach(() => {
 
 describe("GlobalToaster 遷移してから出すトースト", () => {
   it("預けただけでは出さず、着地して pathname が変わってから出す", async () => {
-    pathname = "/practice/jantou-fu/play";
+    setPathname("/practice/jantou-fu/play");
     const { rerender } = render(<GlobalToaster />);
 
     toastOnArrival("/practice/jantou-fu", "練習を終了しました");
@@ -32,7 +33,7 @@ describe("GlobalToaster 遷移してから出すトースト", () => {
   });
 
   it("success で預けたものは濃い塗りの成功トーストで出す", async () => {
-    pathname = "/mypage/account/delete";
+    setPathname("/mypage/account/delete");
     const { rerender } = render(<GlobalToaster />);
 
     toastOnArrival("/", "退会が完了しました", "success");
@@ -43,7 +44,7 @@ describe("GlobalToaster 遷移してから出すトースト", () => {
   });
 
   it("預けた先とは違うページへ着いたら出さない", async () => {
-    pathname = "/practice/jantou-fu/play";
+    setPathname("/practice/jantou-fu/play");
     const { rerender } = render(<GlobalToaster />);
 
     toastOnArrival("/practice/jantou-fu", "練習を終了しました");

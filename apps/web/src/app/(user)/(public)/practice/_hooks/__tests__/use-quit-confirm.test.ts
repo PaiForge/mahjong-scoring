@@ -2,9 +2,7 @@ import { act, renderHook } from "@testing-library/react";
 import { describe, expect, it, vi } from "vitest";
 
 vi.mock("next-intl", async () => await import("@/test/intl-mock"));
-vi.mock("next/navigation", () => ({
-  useRouter: () => ({ push: vi.fn() }),
-}));
+vi.mock("next/navigation", async () => await import("@/test/navigation-mock"));
 
 import { takeToastOnArrival } from "@/app/_components/_lib/toast-on-arrival";
 import { useQuitConfirm } from "../use-quit-confirm";

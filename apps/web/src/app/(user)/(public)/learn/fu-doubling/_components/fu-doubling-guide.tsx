@@ -3,7 +3,7 @@ import { getTranslations } from "next-intl/server";
 import { SectionTitle } from "@/app/(user)/_components/section-title";
 
 import { ChapterLink } from "../../_components/chapter-link";
-import { GuideColumn } from "../../_components/guide-column";
+import { ChapterColumn } from "../../_components/chapter-column";
 import { GuideNote } from "../../_components/guide-note";
 import { GuideParagraph } from "../../_components/guide-paragraph";
 import { BlockMath } from "../../_components/math";
@@ -108,11 +108,7 @@ export async function FuDoublingGuide() {
       </section>
 
       {/* コラム: 七対子の「50符1翻」はこの規則の実例そのもの */}
-      <GuideColumn label={t("columnLabel")} title={t("columnTitle")}>
-        <GuideParagraph>
-          {t.rich("columnBody", { br: () => <br /> })}
-        </GuideParagraph>
-      </GuideColumn>
+      <ChapterColumn t={t} />
     </div>
   );
 }

@@ -3,11 +3,10 @@ import { render, screen, fireEvent } from "@testing-library/react";
 
 vi.mock("next-intl", async () => await import("@/test/intl-mock"));
 vi.mock("next/navigation", async () => await import("@/test/navigation-mock"));
-// チャレンジ側のファクトリが Server Action を参照するため、
-// クライアントから import できるようスタブに差し替える（トレーニングでは未使用）。
-vi.mock("../_actions/save-practice-result", () => ({
-  savePracticeResult: vi.fn(),
-}));
+vi.mock(
+  "../_actions/save-practice-result",
+  async () => await import("@/test/save-practice-result-mock"),
+);
 
 import {
   useRegisterAdvance,

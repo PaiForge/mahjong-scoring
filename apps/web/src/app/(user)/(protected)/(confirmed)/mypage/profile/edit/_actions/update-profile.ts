@@ -16,7 +16,7 @@ import {
   type ProfileInput,
   type ProfileValidationError,
   normalizeAndValidateProfile,
-} from "../_lib/profile-validation";
+} from "@/lib/validations/profile";
 
 /** プロフィール更新の失敗理由 */
 export type UpdateProfileError =

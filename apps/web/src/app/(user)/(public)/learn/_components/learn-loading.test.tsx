@@ -3,11 +3,9 @@ import { render } from "@testing-library/react";
 import { CURRICULUM } from "../_lib/curriculum";
 import { LearnLoading } from "./learn-loading";
 
-const pathname = vi.hoisted(() => ({ value: "/learn" }));
+vi.mock("next/navigation", async () => await import("@/test/navigation-mock"));
 
-vi.mock("next/navigation", () => ({
-  usePathname: () => pathname.value,
-}));
+import { setPathname } from "@/test/navigation-mock";
 
 function chapterRowCount(container: HTMLElement) {
   return container.querySelectorAll(
@@ -21,14 +19,14 @@ function hasChapterSkeleton(container: HTMLElement) {
 
 describe("LearnLoading", () => {
   it("目次（/learn）では目次のスケルトンを出す", () => {
-    pathname.value = "/learn";
+    setPathname("/learn");
     const { container } = render(<LearnLoading />);
     expect(chapterRowCount(container)).toBe(CURRICULUM.length);
     expect(hasChapterSkeleton(container)).toBeNull();
   });
 
   it("章ページでは章ページのスケルトンを出す", () => {
-    pathname.value = "/learn/jantou-fu";
+    setPathname("/learn/jantou-fu");
     const { container } = render(<LearnLoading />);
     expect(hasChapterSkeleton(container)).not.toBeNull();
     expect(chapterRowCount(container)).toBe(0);

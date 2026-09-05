@@ -1,11 +1,7 @@
 import { describe, expect, it } from "vitest";
-import {
-  generateTotalFuQuestion,
-  parseHais,
-  parseKazehai,
-  parseTehai,
-} from "@mahjong-scoring/core";
+import { generateTotalFuQuestion } from "@mahjong-scoring/core";
 
+import { expectRestoresQuestion } from "@/test/expect-restores-question";
 import { generateOrThrow } from "@/test/generate-or-throw";
 
 import { QUESTION_GENERATION_MAX_RETRIES } from "../../total-fu/_lib/types";
@@ -87,14 +83,7 @@ describe("toFuQuestionResult", () => {
     const question = generate();
     const result = toFuQuestionResult(question, 20);
 
-    const tehai = parseTehai(result.tehai);
-    expect(tehai).toBeDefined();
-    expect(tehai?.closed.length).toBe(question.tehai.closed.length);
-    expect(tehai?.exposed.length).toBe(question.tehai.exposed.length);
-
-    expect(parseKazehai(result.bakaze)).toBe(question.context.bakaze);
-    expect(parseKazehai(result.jikaze)).toBe(question.context.jikaze);
-    expect(parseHais(result.agariHai)[0]).toBe(question.context.agariHai);
+    expectRestoresQuestion(result, question);
   });
 
   it("正解と異なる符を渡すと不正解として記録する", () => {

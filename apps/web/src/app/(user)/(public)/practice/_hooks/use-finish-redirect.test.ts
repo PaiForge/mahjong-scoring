@@ -14,11 +14,9 @@ import { useGameTimer } from "./use-game-timer";
  * `grant` クエリ付きで実行されることを検証する。
  */
 
-const pushMock = vi.fn();
+vi.mock("next/navigation", async () => await import("@/test/navigation-mock"));
 
-vi.mock("next/navigation", () => ({
-  useRouter: () => ({ push: pushMock }),
-}));
+import { routerPush } from "@/test/navigation-mock";
 
 interface SessionHookResult {
   session: ReturnType<typeof useTimedSession>;
@@ -43,7 +41,7 @@ function useSession(
 describe("useFinishRedirect integration", () => {
   beforeEach(() => {
     vi.useFakeTimers();
-    pushMock.mockClear();
+    routerPush.mockClear();
   });
 
   afterEach(() => {
@@ -80,8 +78,8 @@ describe("useFinishRedirect integration", () => {
         totalCount: 3,
       }),
     );
-    expect(pushMock).toHaveBeenCalledTimes(1);
-    expect(pushMock).toHaveBeenCalledWith(
+    expect(routerPush).toHaveBeenCalledTimes(1);
+    expect(routerPush).toHaveBeenCalledWith(
       expect.stringContaining("grant=cr-gameover"),
     );
   });
@@ -102,8 +100,8 @@ describe("useFinishRedirect integration", () => {
     });
 
     expect(result.current.onFinish).toHaveBeenCalledTimes(1);
-    expect(pushMock).toHaveBeenCalledTimes(1);
-    expect(pushMock).toHaveBeenCalledWith(
+    expect(routerPush).toHaveBeenCalledTimes(1);
+    expect(routerPush).toHaveBeenCalledWith(
       expect.stringContaining("grant=cr-timeout"),
     );
   });
@@ -173,8 +171,8 @@ describe("useFinishRedirect integration", () => {
     }
 
     expect(result.current.onFinish).toHaveBeenCalledTimes(1);
-    expect(pushMock).toHaveBeenCalledTimes(1);
-    const pushedUrl = pushMock.mock.calls[0]?.[0] as string;
+    expect(routerPush).toHaveBeenCalledTimes(1);
+    const pushedUrl = routerPush.mock.calls[0]?.[0] as string;
     expect(pushedUrl).toContain("grant=cr-shell-gameover");
   });
 });

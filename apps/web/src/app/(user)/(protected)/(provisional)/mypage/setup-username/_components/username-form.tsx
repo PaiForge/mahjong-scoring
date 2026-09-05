@@ -6,7 +6,8 @@ import { ProfileTextField } from "@/app/(user)/(protected)/_components/profile-t
 import { useTranslations } from "next-intl";
 import { useRouter } from "next/navigation";
 
-import { validateUsername } from "@/lib/username";
+import { USERNAME_MAX_LENGTH, validateUsername } from "@/lib/username";
+import { PROFILE_LIMITS } from "@/lib/validations/profile";
 
 import { registerUsername } from "../_actions/register-username";
 import { usernameValidationMessageKey } from "../_lib/username-validation-message";
@@ -81,7 +82,7 @@ export function UsernameForm() {
         value={username}
         onChange={handleUsernameChange}
         placeholder={t("usernamePlaceholder")}
-        maxLength={20}
+        maxLength={USERNAME_MAX_LENGTH}
         required
         autoFocus
       >
@@ -99,7 +100,7 @@ export function UsernameForm() {
         value={displayName}
         onChange={setDisplayName}
         placeholder={t("displayNamePlaceholder")}
-        maxLength={50}
+        maxLength={PROFILE_LIMITS.displayName}
       >
         <ul className="mt-2 list-inside list-disc">
           <li className="text-xs text-surface-500">

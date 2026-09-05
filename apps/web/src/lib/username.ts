@@ -13,7 +13,14 @@ import { isReservedUsername } from "./reserved-usernames";
 
 const USERNAME_REGEX = /^[a-z](?:[a-z0-9]_?)*[a-z0-9]$/;
 const USERNAME_MIN_LENGTH = 2;
-const USERNAME_MAX_LENGTH = 20;
+
+/**
+ * ユーザー名の最大長。
+ *
+ * 入力欄の `maxLength` もここから引くこと。フォーム側に数値を書き写すと、
+ * 上限を変えたときに入力欄と {@link validateUsernameFormat} が静かに食い違う。
+ */
+export const USERNAME_MAX_LENGTH = 20;
 
 export type UsernameFormatError = "too_short" | "too_long" | "invalid_format";
 export type UsernameValidationError = UsernameFormatError | "reserved";

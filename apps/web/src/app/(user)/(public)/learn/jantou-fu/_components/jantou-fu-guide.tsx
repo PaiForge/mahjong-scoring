@@ -1,15 +1,10 @@
-import Link from "next/link";
 import { HaiKind } from "@mahjong-scoring/core";
-import { TEXT_LINK_CLASSES } from "@/app/_components/_lib/link-classes";
 import { SectionTitle } from "@/app/(user)/_components/section-title";
-import {
-  PREFERENCE_ANCHORS,
-  preferencesHref,
-} from "@/app/(user)/(public)/preferences/_lib/anchors";
-import { GuideColumn } from "../../_components/guide-column";
+import { PREFERENCE_ANCHORS } from "@/app/(user)/(public)/preferences/_lib/anchors";
+import { ChapterColumn } from "../../_components/chapter-column";
+import { PreferenceSettingsNote } from "../../_components/preference-settings-note";
 import { ExampleTable } from "../../_components/example-table";
 import { loadExampleTableColumns } from "../../_lib/example-table-columns";
-import { GuideNote } from "../../_components/guide-note";
 import { FuSummaryTable } from "../../_components/fu-summary-table";
 import { GuideParagraph } from "../../_components/guide-paragraph";
 import { TileSet } from "@/app/(user)/_components/tile-set";
@@ -103,23 +98,9 @@ export async function JantouFuGuide() {
       </section>
 
       {/* Column: renfonpai */}
-      <GuideColumn label={t("columnLabel")} title={t("columnTitle")}>
-        <GuideParagraph>
-          {t.rich("columnBody", { br: () => <br /> })}
-        </GuideParagraph>
-        <GuideNote>
-          {t.rich("columnSettingsNote", {
-            settingsLink: (chunks) => (
-              <Link
-                href={preferencesHref(PREFERENCE_ANCHORS.renfonpai)}
-                className={TEXT_LINK_CLASSES}
-              >
-                {chunks}
-              </Link>
-            ),
-          })}
-        </GuideNote>
-      </GuideColumn>
+      <ChapterColumn t={t}>
+        <PreferenceSettingsNote t={t} anchor={PREFERENCE_ANCHORS.renfonpai} />
+      </ChapterColumn>
 
       {/* Summary table */}
       <FuSummaryTable

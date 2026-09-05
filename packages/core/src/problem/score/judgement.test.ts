@@ -370,60 +370,44 @@ describe("judgeAnswer", () => {
   });
 
   describe("requireYaku", () => {
+    /**
+     * 断么九 + 平和（2翻30符2000点）。
+     * 役の判定だけを見る 3 つのテストは、同じ手を別々の回答で採点する。
+     */
+    const TANYAO_PINFU = makeQuestion({
+      yakuDetails: [
+        { name: "断么九", han: 1 },
+        { name: "平和", han: 1 },
+      ],
+    });
+
     it("requireYaku=false の場合、役は常に正解扱い", () => {
-      const question = makeQuestion({
-        han: 2,
-        fu: 30,
-        payment: { type: "ron", amount: 2000 },
-        yakuDetails: [
-          { name: "断么九", han: 1 },
-          { name: "平和", han: 1 },
-        ],
-      });
       const answer: UserAnswer = { han: 2, fu: 30, score: 2000, yakus: [] };
-      const result = judgeAnswer(question, answer, false);
+      const result = judgeAnswer(TANYAO_PINFU, answer, false);
 
       expect(result.isYakuCorrect).toBe(true);
     });
 
     it("requireYaku=true で正しい役を回答した場合 isYakuCorrect が true", () => {
-      const question = makeQuestion({
-        han: 2,
-        fu: 30,
-        payment: { type: "ron", amount: 2000 },
-        yakuDetails: [
-          { name: "断么九", han: 1 },
-          { name: "平和", han: 1 },
-        ],
-      });
       const answer: UserAnswer = {
         han: 2,
         fu: 30,
         score: 2000,
         yakus: ["断么九", "平和"],
       };
-      const result = judgeAnswer(question, answer, true);
+      const result = judgeAnswer(TANYAO_PINFU, answer, true);
 
       expect(result.isYakuCorrect).toBe(true);
     });
 
     it("requireYaku=true で役が不足する場合 isYakuCorrect が false", () => {
-      const question = makeQuestion({
-        han: 2,
-        fu: 30,
-        payment: { type: "ron", amount: 2000 },
-        yakuDetails: [
-          { name: "断么九", han: 1 },
-          { name: "平和", han: 1 },
-        ],
-      });
       const answer: UserAnswer = {
         han: 2,
         fu: 30,
         score: 2000,
         yakus: ["断么九"],
       };
-      const result = judgeAnswer(question, answer, true);
+      const result = judgeAnswer(TANYAO_PINFU, answer, true);
 
       expect(result.isYakuCorrect).toBe(false);
     });

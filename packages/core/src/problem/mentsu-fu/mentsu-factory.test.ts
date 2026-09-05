@@ -22,6 +22,36 @@ function isYaochuTile(tile: number): boolean {
   return tile % 9 === 0 || tile % 9 === 8 || tile >= 27;
 }
 
+/**
+ * 明暗 × 中張/么九 の 4 通りすべてで、生成された面子の符が表どおりか確かめる。
+ *
+ * 刻子と槓子で確かめたいことは同じ（明は暗の半分・么九は中張の倍）で、
+ * 違うのは生成関数と符の表だけ。4 通りの網羅も含めて片方だけ直すと、
+ * もう片方が緩いまま残る。
+ */
+function expectFuByOpenAndYaochu(
+  generate: () => {
+    readonly fu: number;
+    readonly mentsu: { readonly hais: readonly number[] };
+  },
+  expected: Readonly<Record<string, number>>,
+): void {
+  const seen = new Set<string>();
+
+  for (let i = 0; i < 300; i++) {
+    const result = generate();
+    const key = comboKey(
+      "furo" in result.mentsu,
+      isYaochuTile(result.mentsu.hais[0]),
+    );
+    seen.add(key);
+    expect(result.fu).toBe(expected[key]);
+  }
+
+  // 4通りのどれかが一度も出ないと、その行は検証されないまま pass する
+  expect([...seen].sort()).toEqual(Object.keys(expected).sort());
+}
+
 describe("createRandomShuntsu", () => {
   it("順子は常に0符", () => {
     for (const result of shuntsuSamples()) {
@@ -67,26 +97,12 @@ describe("createRandomKoutsu", () => {
   });
 
   it("明刻は暗刻の半分の符", () => {
-    const expected: Readonly<Record<string, number>> = {
+    expectFuByOpenAndYaochu(createRandomKoutsu, {
       "open-chunchan": 2,
       "closed-chunchan": 4,
       "open-yaochu": 4,
       "closed-yaochu": 8,
-    };
-    const seen = new Set<string>();
-
-    for (let i = 0; i < 300; i++) {
-      const result = createRandomKoutsu();
-      const key = comboKey(
-        "furo" in result.mentsu,
-        isYaochuTile(result.mentsu.hais[0]),
-      );
-      seen.add(key);
-      expect(result.fu).toBe(expected[key]);
-    }
-
-    // 4通りのどれかが一度も出ないと、その行は検証されないまま pass する
-    expect([...seen].sort()).toEqual(Object.keys(expected).sort());
+    });
   });
 });
 
@@ -111,25 +127,11 @@ describe("createRandomKantsu", () => {
   });
 
   it("明槓は暗槓の半分の符", () => {
-    const expected: Readonly<Record<string, number>> = {
+    expectFuByOpenAndYaochu(createRandomKantsu, {
       "open-chunchan": 8,
       "closed-chunchan": 16,
       "open-yaochu": 16,
       "closed-yaochu": 32,
-    };
-    const seen = new Set<string>();
-
-    for (let i = 0; i < 300; i++) {
-      const result = createRandomKantsu();
-      const key = comboKey(
-        "furo" in result.mentsu,
-        isYaochuTile(result.mentsu.hais[0]),
-      );
-      seen.add(key);
-      expect(result.fu).toBe(expected[key]);
-    }
-
-    // 4通りのどれかが一度も出ないと、その行は検証されないまま pass する
-    expect([...seen].sort()).toEqual(Object.keys(expected).sort());
+    });
   });
 });
