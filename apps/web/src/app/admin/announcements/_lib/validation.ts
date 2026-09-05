@@ -25,6 +25,19 @@ export type AnnouncementValidationError =
   | "errorStatusInvalid"
   | "errorPublishedAtRequired";
 
+/**
+ * 各フィールドの最大長。
+ *
+ * 入力欄の `maxLength` もここから引くこと。DB 側は
+ * `announcements.slug` / `.title` がいずれも `varchar(255)` で、
+ * フォームに数値を書き写すと超過した入力が検証まで届かず
+ * Postgres のエラーになる。
+ */
+export const ANNOUNCEMENT_LIMITS = {
+  slug: 255,
+  title: 255,
+} as const;
+
 const VALID_STATUSES: readonly string[] = ["draft", "published"];
 const SLUG_PATTERN = /^[a-z0-9][a-z0-9-]*$/;
 
@@ -38,10 +51,13 @@ export function validateAnnouncement(
   if (!data.slug) {
     return "errorSlugRequired";
   }
-  if (data.slug.length > 255 || !SLUG_PATTERN.test(data.slug)) {
+  if (
+    data.slug.length > ANNOUNCEMENT_LIMITS.slug ||
+    !SLUG_PATTERN.test(data.slug)
+  ) {
     return "errorSlugFormat";
   }
-  if (!data.title || data.title.length > 255) {
+  if (!data.title || data.title.length > ANNOUNCEMENT_LIMITS.title) {
     return "errorTitleRequired";
   }
   if (!data.content) {

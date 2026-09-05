@@ -8,6 +8,7 @@ import { toast } from "react-hot-toast";
 import { SUPPORTED_LOCALES } from "@/i18n/locales";
 
 import { createAnnouncement } from "../_actions/create-announcement";
+import { ANNOUNCEMENT_LIMITS } from "../_lib/validation";
 import { updateAnnouncement } from "../_actions/update-announcement";
 
 export interface AnnouncementFormDefaults {
@@ -116,7 +117,7 @@ export function AnnouncementForm({
             onChange={(e) => setSlug(e.target.value)}
             placeholder={t("slugPlaceholder")}
             readOnly={lockSlug}
-            maxLength={255}
+            maxLength={ANNOUNCEMENT_LIMITS.slug}
             className={`${inputClass} ${lockSlug ? "cursor-not-allowed bg-surface-100" : ""}`}
           />
         </div>
@@ -147,7 +148,7 @@ export function AnnouncementForm({
           value={title}
           onChange={(e) => setTitle(e.target.value)}
           placeholder={t("titlePlaceholder")}
-          maxLength={255}
+          maxLength={ANNOUNCEMENT_LIMITS.title}
           className={inputClass}
         />
       </div>
