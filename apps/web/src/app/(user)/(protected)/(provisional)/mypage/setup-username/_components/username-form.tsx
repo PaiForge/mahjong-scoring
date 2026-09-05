@@ -9,6 +9,7 @@ import { useRouter } from "next/navigation";
 import { validateUsername } from "@/lib/username";
 
 import { registerUsername } from "../_actions/register-username";
+import { usernameValidationMessageKey } from "../_lib/username-validation-message";
 import { Button } from "@/app/(user)/_components/button";
 
 /**
@@ -26,30 +27,8 @@ export function UsernameForm() {
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   const getValidationMessage = useCallback(
-    (errorKey: string): string => {
-      switch (errorKey) {
-        case "too_short":
-          return t("validation.tooShort");
-        case "too_long":
-          return t("validation.tooLong");
-        case "invalid_format":
-          return t("validation.invalidFormat");
-        case "reserved":
-          return t("validation.reserved");
-        case "username_taken":
-          return t("validation.taken");
-        case "username_already_set":
-          return t("validation.alreadySet");
-        case "rateLimited":
-          return t("validation.rateLimited");
-        case "unauthorized":
-          return t("validation.unauthorized");
-        case "banned":
-          return t("validation.banned");
-        default:
-          return t("validation.error");
-      }
-    },
+    (errorKey: Parameters<typeof usernameValidationMessageKey>[0]): string =>
+      t(usernameValidationMessageKey(errorKey)),
     [t],
   );
 
