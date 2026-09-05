@@ -27,8 +27,15 @@ interface Entry {
 
 const store = new Map<string, Entry>();
 
-function cleanup() {
-  const now = Date.now();
+/**
+ * 期限切れの記録を捨てる。
+ *
+ * 時刻を引数で受けるのは、呼び出し元の判定と同じ瞬間を見るため。ここで
+ * 時計を読み直すと、掃除と許可判定がミリ秒単位でずれた時刻を見ることになり、
+ * ちょうど境界に当たった記録を「掃除では期限切れ、判定では有効」と
+ * 食い違って扱いうる。
+ */
+function cleanup(now: number) {
   for (const [key, entry] of store) {
     if (now >= entry.resetAt) {
       store.delete(key);
@@ -44,15 +51,25 @@ export function _resetStore() {
 /**
  * 指定 IP・アクションの組み合わせがレートリミット内かを判定する。
  * IPレートリミットチェック
+ *
+ * @param ip - クライアント IP
+ * @param action - アクションキー（例: `'signIn'`）
+ * @param config - レートリミット設定
+ * @param now - 判定に使う現在時刻（ミリ秒）。既定は `Date.now()`
+ *
+ * `now` を引数に出しているのは、ウィンドウの境界（`resetAt` ちょうど）で
+ * 許可するか拒むかという、この関数の一番きわどい分岐をテストが直接
+ * 指定できるようにするため。時計を関数の中だけで読んでいると、境界の検証に
+ * タイマーの差し替えが要る上、掃除と判定で別々の時刻を見る余地が残る。
  */
 export function checkIpRateLimit(
   ip: string,
   action: string,
   config: Readonly<IpRateLimitConfig>,
+  now: number = Date.now(),
 ): { allowed: boolean } {
-  cleanup();
+  cleanup(now);
 
-  const now = Date.now();
   const key = `${ip}:${action}`;
   const entry = store.get(key);
 
