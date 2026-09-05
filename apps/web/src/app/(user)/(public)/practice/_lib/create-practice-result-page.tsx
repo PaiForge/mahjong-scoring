@@ -325,12 +325,17 @@ async function AsyncResultBlock({
     ),
   ]);
 
-  // 取得できなかったものは「無い」に倒す。`RecordSection` は行を残したまま
-  // 「—」を出すため、欠けても他の分岐と同じ高さのセクションが 1 つ現れる。
+  // 比較サマリは取得の成否ごと渡す。失敗を「無い」に倒すと、3 行すべてが
+  // 「—」になってまだ 1 回も走っていない人の画面と区別がつかなくなるため、
+  // 断りを出すかどうかは `RecordSection` が決める。
+  //
+  // EXP は倒してよい。付与そのものが無い回（`?grant=` を持たない訪問）が
+  // 普通にあり、そのときも表示は出ないため、読めなかった回だけが
+  // 何かを主張することにはならない。
   return (
     <RecordSection
       expInfo={fetchedExpInfo?.ok ? fetchedExpInfo.value : undefined}
-      comparison={fetchedComparison.ok ? fetchedComparison.value : undefined}
+      comparison={fetchedComparison}
       menuType={menuType}
     />
   );

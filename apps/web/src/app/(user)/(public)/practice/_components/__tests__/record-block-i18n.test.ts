@@ -24,9 +24,10 @@ const REQUIRED_RECORD_KEYS = [
   "newBest",
   "firstRecord",
   "viewMyRecords",
-  // 読み込み失敗
+  // 読み込み失敗（ブロック全体 / 過去記録の行だけ）
   "loadFailed",
   "loadFailedDescription",
+  "comparisonLoadFailed",
 ] as const;
 
 describe("i18n integrity: challenge.record（結果ブロック）", () => {

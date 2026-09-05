@@ -343,7 +343,8 @@
       "firstRecord": "初めての記録",
       "viewMyRecords": "マイレコードで推移を見る",
       "loadFailed": "記録を読み込めませんでした",
-      "loadFailedDescription": "時間をおいてページを再読み込みしてください。"
+      "loadFailedDescription": "時間をおいてページを再読み込みしてください。",
+      "comparisonLoadFailed": "過去の記録を読み込めませんでした"
     },
     "yakuBreakdown": {
       "title": "翻数の内訳",

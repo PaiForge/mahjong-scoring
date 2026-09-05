@@ -35,13 +35,15 @@ export interface RecordView {
  * クエリからもコンポーネントからも切り離してあるため、バッジの判定規則を
  * DB も JSX も用意せずにテストできる。
  *
- * @param comparison - 比較サマリ。取得に失敗した場合は undefined で、
- *   すべての行が「—」になる（記録セクションの輪郭は変わらない）
+ * 取得できた比較サマリだけを受け取る。取得に失敗した場合は呼び出し側
+ * （`RecordSection`）が行そのものを断りに差し替えるため、ここへは来ない。
+ * 失敗を undefined として渡せるようにすると、「まだ記録が無い」と
+ * 「訊けなかった」がどちらも同じ「—」の並びになって区別できなくなる。
+ *
+ * @param comparison - 比較サマリ
  */
-export function deriveRecordView(
-  comparison: ScoreComparison | undefined,
-): RecordView {
-  const { current, previousBest, previousLast } = comparison ?? {};
+export function deriveRecordView(comparison: ScoreComparison): RecordView {
+  const { current, previousBest, previousLast } = comparison;
 
   const status: RecordStatus = !current
     ? "none"
