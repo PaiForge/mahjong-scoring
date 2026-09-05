@@ -18,10 +18,8 @@ import {
   practiceMenuBySlug,
 } from "@/lib/db/practice-menu-types";
 import { getExpInfoByChallengeResultId } from "@/lib/db/save-exp";
-import type { ScoreComparison } from "@/lib/db/score-comparison-queries";
 import { getScoreComparison } from "@/lib/db/score-comparison-queries";
 import { getOptionalUser } from "@/lib/auth";
-import { logExternalError } from "@/lib/log-error";
 
 import { isRankSlug, rankRequiringMenu } from "@/lib/ranks/registry";
 import { ExamResultSummary } from "@/app/(user)/(public)/exam/_components/exam-result-summary";
@@ -33,6 +31,7 @@ import { LeaderboardSkeleton } from "../_components/leaderboard-skeleton";
 import { ResultBlockSkeleton } from "../_components/result-block-skeleton";
 import { SignUpCta } from "../_components/sign-up-cta";
 import { debugResultDelay } from "./debug-delay";
+import { tryFetch } from "./try-fetch";
 import {
   practiceHref,
   practicePlayHref,
@@ -40,6 +39,9 @@ import {
 } from "./practice-catalog";
 
 const PREVIEW_COUNT = 3;
+
+/** 取得失敗のログに付ける発生箇所タグ */
+const LOG_TAG = "createPracticeResultPage";
 
 /**
  * 結果ページ View Component の props 型
@@ -292,21 +294,36 @@ async function AsyncResultBlock({
   // 本番では no-op（debugResultDelay 内で NODE_ENV をチェック）。
   await debugResultDelay();
 
-  const user = await resolveCurrentUser();
+  const user = await tryFetch(LOG_TAG, "failed to resolve user", () =>
+    getOptionalUser(),
+  );
 
-  if (!user) {
+  // 認証状態を訊けなかったときは未ログインと同じ扱いにする。ログイン済みの人に
+  // 登録 CTA を見せることになるが、記録セクションは中身がすべて欠けるため、
+  // 空欄だけの記録より CTA の方がまだ読める面になる。
+  if (!user.ok || !user.value) {
     return <SignUpCta />;
   }
 
-  const [expInfo, comparison] = await Promise.all([
-    grantId ? tryFetchExpInfo(user.id, grantId) : undefined,
-    tryFetchScoreComparison(user.id, menuType, grantId),
+  const userId = user.value.id;
+
+  const [fetchedExpInfo, fetchedComparison] = await Promise.all([
+    grantId
+      ? tryFetch(LOG_TAG, "failed to fetch exp info", () =>
+          getExpInfoByChallengeResultId(userId, grantId),
+        )
+      : undefined,
+    tryFetch(LOG_TAG, "failed to fetch score comparison", () =>
+      getScoreComparison(userId, menuType, grantId),
+    ),
   ]);
 
+  // 取得できなかったものは「無い」に倒す。`RecordSection` は行を残したまま
+  // 「—」を出すため、欠けても他の分岐と同じ高さのセクションが 1 つ現れる。
   return (
     <RecordSection
-      expInfo={expInfo}
-      comparison={comparison}
+      expInfo={fetchedExpInfo?.ok ? fetchedExpInfo.value : undefined}
+      comparison={fetchedComparison.ok ? fetchedComparison.value : undefined}
       menuType={menuType}
     />
   );
@@ -333,47 +350,4 @@ async function AsyncLeaderboardBlock({
   const detailPath = buildDetailPath("all-time", module);
 
   return <LeaderboardPreview rows={previewRows} detailPath={detailPath} />;
-}
-
-async function resolveCurrentUser() {
-  try {
-    return await getOptionalUser();
-  } catch (error) {
-    logExternalError(
-      "createPracticeResultPage",
-      "failed to resolve user",
-      error,
-    );
-    return undefined;
-  }
-}
-
-async function tryFetchExpInfo(userId: string, challengeResultId: string) {
-  try {
-    return await getExpInfoByChallengeResultId(userId, challengeResultId);
-  } catch (error) {
-    logExternalError(
-      "createPracticeResultPage",
-      "failed to fetch exp info",
-      error,
-    );
-    return undefined;
-  }
-}
-
-async function tryFetchScoreComparison(
-  userId: string,
-  menuType: PracticeMenuType,
-  currentResultId: string | undefined,
-): Promise<ScoreComparison | undefined> {
-  try {
-    return await getScoreComparison(userId, menuType, currentResultId);
-  } catch (error) {
-    logExternalError(
-      "createPracticeResultPage",
-      "failed to fetch score comparison",
-      error,
-    );
-    return undefined;
-  }
 }

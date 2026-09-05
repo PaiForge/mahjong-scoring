@@ -1,4 +1,4 @@
-import { describe, it, expect, beforeEach, afterEach, vi } from "vitest";
+import { describe, it, expect, beforeEach } from "vitest";
 import {
   checkIpRateLimit,
   checkIpRateLimitGuard,
@@ -11,25 +11,26 @@ const defaultConfig: IpRateLimitConfig = {
   windowMs: 60_000,
 };
 
+/**
+ * 判定の基準時刻。`checkIpRateLimit` は現在時刻を引数で受け取るため、
+ * 時間の経過はタイマーの差し替えではなく渡す値で表す。
+ */
+const T0 = 1_700_000_000_000;
+
 beforeEach(() => {
   _resetStore();
-  vi.useFakeTimers();
-});
-
-afterEach(() => {
-  vi.useRealTimers();
 });
 
 describe("checkIpRateLimit", () => {
   it("allows the first request", () => {
-    expect(checkIpRateLimit("1.2.3.4", "signIn", defaultConfig)).toEqual({
+    expect(checkIpRateLimit("1.2.3.4", "signIn", defaultConfig, T0)).toEqual({
       allowed: true,
     });
   });
 
   it("allows requests up to maxRequests", () => {
     for (let i = 0; i < defaultConfig.maxRequests; i++) {
-      expect(checkIpRateLimit("1.2.3.4", "signIn", defaultConfig)).toEqual({
+      expect(checkIpRateLimit("1.2.3.4", "signIn", defaultConfig, T0)).toEqual({
         allowed: true,
       });
     }
@@ -37,68 +38,99 @@ describe("checkIpRateLimit", () => {
 
   it("denies requests exceeding maxRequests within the window", () => {
     for (let i = 0; i < defaultConfig.maxRequests; i++) {
-      checkIpRateLimit("1.2.3.4", "signIn", defaultConfig);
+      checkIpRateLimit("1.2.3.4", "signIn", defaultConfig, T0);
     }
-    expect(checkIpRateLimit("1.2.3.4", "signIn", defaultConfig)).toEqual({
+    expect(checkIpRateLimit("1.2.3.4", "signIn", defaultConfig, T0)).toEqual({
       allowed: false,
     });
+  });
+
+  it("still denies one millisecond before the window ends", () => {
+    for (let i = 0; i < defaultConfig.maxRequests; i++) {
+      checkIpRateLimit("1.2.3.4", "signIn", defaultConfig, T0);
+    }
+
+    const justBeforeReset = T0 + defaultConfig.windowMs - 1;
+
+    expect(
+      checkIpRateLimit("1.2.3.4", "signIn", defaultConfig, justBeforeReset),
+    ).toEqual({ allowed: false });
   });
 
   it("resets the window after windowMs elapses", () => {
     for (let i = 0; i < defaultConfig.maxRequests; i++) {
-      checkIpRateLimit("1.2.3.4", "signIn", defaultConfig);
+      checkIpRateLimit("1.2.3.4", "signIn", defaultConfig, T0);
     }
-    expect(checkIpRateLimit("1.2.3.4", "signIn", defaultConfig)).toEqual({
+    expect(checkIpRateLimit("1.2.3.4", "signIn", defaultConfig, T0)).toEqual({
       allowed: false,
     });
 
-    vi.advanceTimersByTime(defaultConfig.windowMs);
-
-    expect(checkIpRateLimit("1.2.3.4", "signIn", defaultConfig)).toEqual({
-      allowed: true,
-    });
+    expect(
+      checkIpRateLimit(
+        "1.2.3.4",
+        "signIn",
+        defaultConfig,
+        T0 + defaultConfig.windowMs,
+      ),
+    ).toEqual({ allowed: true });
   });
 
   it("tracks different IPs independently", () => {
     for (let i = 0; i < defaultConfig.maxRequests; i++) {
-      checkIpRateLimit("1.2.3.4", "signIn", defaultConfig);
+      checkIpRateLimit("1.2.3.4", "signIn", defaultConfig, T0);
     }
-    expect(checkIpRateLimit("1.2.3.4", "signIn", defaultConfig)).toEqual({
+    expect(checkIpRateLimit("1.2.3.4", "signIn", defaultConfig, T0)).toEqual({
       allowed: false,
     });
 
-    expect(checkIpRateLimit("5.6.7.8", "signIn", defaultConfig)).toEqual({
+    expect(checkIpRateLimit("5.6.7.8", "signIn", defaultConfig, T0)).toEqual({
       allowed: true,
     });
   });
 
   it("tracks different actions independently", () => {
     for (let i = 0; i < defaultConfig.maxRequests; i++) {
-      checkIpRateLimit("1.2.3.4", "signIn", defaultConfig);
+      checkIpRateLimit("1.2.3.4", "signIn", defaultConfig, T0);
     }
-    expect(checkIpRateLimit("1.2.3.4", "signIn", defaultConfig)).toEqual({
+    expect(checkIpRateLimit("1.2.3.4", "signIn", defaultConfig, T0)).toEqual({
       allowed: false,
     });
 
-    expect(checkIpRateLimit("1.2.3.4", "signUp", defaultConfig)).toEqual({
+    expect(checkIpRateLimit("1.2.3.4", "signUp", defaultConfig, T0)).toEqual({
       allowed: true,
     });
   });
 
   it("cleans up expired entries on subsequent calls", () => {
-    checkIpRateLimit("1.2.3.4", "signIn", defaultConfig);
-    checkIpRateLimit("5.6.7.8", "signIn", defaultConfig);
-
-    vi.advanceTimersByTime(defaultConfig.windowMs);
+    checkIpRateLimit("1.2.3.4", "signIn", defaultConfig, T0);
+    checkIpRateLimit("5.6.7.8", "signIn", defaultConfig, T0);
 
     // This call triggers cleanup; expired entries should be removed.
     // The new entry for a different IP should be allowed with count 1.
-    expect(checkIpRateLimit("9.9.9.9", "signIn", defaultConfig)).toEqual({
-      allowed: true,
-    });
+    expect(
+      checkIpRateLimit(
+        "9.9.9.9",
+        "signIn",
+        defaultConfig,
+        T0 + defaultConfig.windowMs,
+      ),
+    ).toEqual({ allowed: true });
   });
 
   it("allows exactly maxRequests=1", () => {
+    const strictConfig: IpRateLimitConfig = {
+      maxRequests: 1,
+      windowMs: 10_000,
+    };
+    expect(checkIpRateLimit("1.2.3.4", "test", strictConfig, T0)).toEqual({
+      allowed: true,
+    });
+    expect(checkIpRateLimit("1.2.3.4", "test", strictConfig, T0)).toEqual({
+      allowed: false,
+    });
+  });
+
+  it("reads the clock itself when no time is given", () => {
     const strictConfig: IpRateLimitConfig = {
       maxRequests: 1,
       windowMs: 10_000,
@@ -151,15 +183,15 @@ describe("checkIpRateLimitGuard", () => {
 describe("_resetStore", () => {
   it("clears all stored entries", () => {
     for (let i = 0; i < defaultConfig.maxRequests; i++) {
-      checkIpRateLimit("1.2.3.4", "signIn", defaultConfig);
+      checkIpRateLimit("1.2.3.4", "signIn", defaultConfig, T0);
     }
-    expect(checkIpRateLimit("1.2.3.4", "signIn", defaultConfig)).toEqual({
+    expect(checkIpRateLimit("1.2.3.4", "signIn", defaultConfig, T0)).toEqual({
       allowed: false,
     });
 
     _resetStore();
 
-    expect(checkIpRateLimit("1.2.3.4", "signIn", defaultConfig)).toEqual({
+    expect(checkIpRateLimit("1.2.3.4", "signIn", defaultConfig, T0)).toEqual({
       allowed: true,
     });
   });
