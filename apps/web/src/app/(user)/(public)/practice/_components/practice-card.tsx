@@ -53,31 +53,33 @@ export function PracticeCard({
     <div className="flex flex-col justify-between rounded-2xl border-3 border-ink bg-white p-5 transition-transform hover:-translate-y-1">
       <div>
         <div className="flex items-start justify-between gap-2">
-          <h3 className="flex items-center gap-1 text-base font-bold text-surface-900">
-            {title}
+          <h3 className="text-base font-bold text-surface-900">{title}</h3>
+          {/* 教本アイコンと段級位ピルは同じ「練習名に添うもの」なので右端に
+              まとめる。どちらもリンクのため、間隔は押し間違いが起きない
+              幅（gap-3 = 12px）を取る */}
+          <div className="flex shrink-0 items-center gap-3">
             {learnHref && learnLabel && (
-              // 教本は練習と並ぶ別の行き先ではなく、その練習名に付いている
-              // 参照先。名前の隣にアイコンだけで置き、カードの下の導線は
-              // 練習ページへの 1 本に保つ。文字を添えると、同じ重さの
-              // 行き先が 2 つあるように読める
+              // 丸で囲むのは押せることを示すため。アイコンだけを地に置くと
+              // 見出しの装飾に見える。太枠（border-3 border-ink）にしないのは
+              // 隣の段級位ピルが枠を持たないため（`BeltPill` の TSDoc 参照）
               <Link
                 href={learnHref}
                 aria-label={learnLabel}
                 title={learnLabel}
-                className="-m-1 rounded-md p-1 text-surface-400 transition-colors hover:text-surface-700"
+                className="flex size-8 items-center justify-center rounded-full border-2 border-surface-200 text-surface-400 transition-colors hover:border-surface-400 hover:text-surface-700"
               >
-                <BookIcon className="size-5" />
+                <BookIcon className="size-4" />
               </Link>
             )}
-          </h3>
-          {rank && (
-            <BeltPill
-              slug={rank.slug}
-              label={rank.label}
-              href={rank.href}
-              ariaLabel={rank.ariaLabel}
-            />
-          )}
+            {rank && (
+              <BeltPill
+                slug={rank.slug}
+                label={rank.label}
+                href={rank.href}
+                ariaLabel={rank.ariaLabel}
+              />
+            )}
+          </div>
         </div>
         {visual && <PracticeCardVisual visual={visual} />}
       </div>
