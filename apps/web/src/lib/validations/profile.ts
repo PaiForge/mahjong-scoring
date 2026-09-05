@@ -60,6 +60,22 @@ export type ProfileValidationResult =
   | { readonly ok: true; readonly value: NormalizedProfile }
   | { readonly ok: false; readonly error: ProfileValidationError };
 
+/**
+ * 表示名の長さを検証する。
+ *
+ * プロフィール編集と初回のユーザー名登録は、入り口も返すエラーの形も違うが
+ * 表示名に課す規則は同じ。規則をここに 1 つだけ持ち、両方から呼ぶ。
+ *
+ * @param displayName - トリム済みの表示名
+ */
+export function validateDisplayName(
+  displayName: string,
+): "displayNameTooLong" | undefined {
+  return displayName.length > PROFILE_LIMITS.displayName
+    ? "displayNameTooLong"
+    : undefined;
+}
+
 /** 先頭の @ を除去してトリムする（SNS ハンドルの正規化） */
 function normalizeHandle(raw: string): string {
   return raw.trim().replace(/^@+/, "");
@@ -73,8 +89,9 @@ export function normalizeAndValidateProfile(
   input: ProfileInput,
 ): ProfileValidationResult {
   const displayName = input.displayName.trim();
-  if (displayName.length > PROFILE_LIMITS.displayName) {
-    return { ok: false, error: "displayNameTooLong" };
+  const displayNameError = validateDisplayName(displayName);
+  if (displayNameError) {
+    return { ok: false, error: displayNameError };
   }
 
   const bio = input.bio.trim();

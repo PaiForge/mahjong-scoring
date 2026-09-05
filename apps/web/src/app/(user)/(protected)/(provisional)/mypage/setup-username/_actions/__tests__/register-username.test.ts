@@ -35,6 +35,8 @@ import {
   setupAuthorized,
 } from "@/test/auth-mocks";
 
+import { PROFILE_LIMITS } from "@/lib/validations/profile";
+
 import { registerUsername } from "../register-username";
 
 // ---------------------------------------------------------------------------
@@ -145,6 +147,48 @@ describe("registerUsername", () => {
 
       expect(result).toEqual({ error: expected });
       expect(mockInsert).not.toHaveBeenCalled();
+    });
+  });
+
+  describe("displayName validation", () => {
+    // 入力欄の maxLength は devtools や Server Action の直接呼び出しでは効かない。
+    // displayName は varchar(255) なので、ここで弾かないと 50 文字超が保存できる。
+    it('returns { error: "display_name_too_long" } for a displayName over the limit', async () => {
+      authorized();
+
+      const result = await registerUsername(
+        "alice",
+        "a".repeat(PROFILE_LIMITS.displayName + 1),
+      );
+
+      expect(result).toEqual({ error: "display_name_too_long" });
+      expect(mockProfileExistsByUserId).not.toHaveBeenCalled();
+      expect(mockInsert).not.toHaveBeenCalled();
+    });
+
+    it("accepts a displayName exactly at the limit", async () => {
+      authorized();
+      const displayName = "a".repeat(PROFILE_LIMITS.displayName);
+
+      const result = await registerUsername("alice", displayName);
+
+      expect(result).toEqual({ success: true });
+      expect(mockValues).toHaveBeenCalledWith({
+        id: USER.id,
+        username: "alice",
+        displayName,
+      });
+    });
+
+    it("measures the trimmed displayName", async () => {
+      authorized();
+
+      const result = await registerUsername(
+        "alice",
+        `  ${"a".repeat(PROFILE_LIMITS.displayName)}  `,
+      );
+
+      expect(result).toEqual({ success: true });
     });
   });
 
