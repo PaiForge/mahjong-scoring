@@ -5,6 +5,7 @@ import { useEffect, useState } from "react";
 import { useTranslations } from "next-intl";
 
 import { resendEmail } from "../_actions/resend-email";
+import { resendEmailMessageKey } from "../_lib/resend-email-message";
 import { Button } from "@/app/(user)/_components/button";
 
 const COOLDOWN_SECONDS = 60;
@@ -33,13 +34,7 @@ export function ResendEmailButton({ email }: { readonly email: string }) {
       const result = await resendEmail(email);
 
       if ("error" in result) {
-        switch (result.error) {
-          case "rateLimited":
-            setMessage(t("rateLimited"));
-            break;
-          default:
-            setMessage(t("resendError"));
-        }
+        setMessage(t(resendEmailMessageKey(result.error)));
       } else {
         setMessage(t("resendSuccess"));
         setCooldown(COOLDOWN_SECONDS);
