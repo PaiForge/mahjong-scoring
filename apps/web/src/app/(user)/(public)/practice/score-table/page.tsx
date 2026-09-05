@@ -14,6 +14,7 @@
  * 2. 問題方式のデモと出題設定（3カード）が表示される
  * 3. 設定を選び「開始」または「トレーニング」で play / training へ遷移
  */
+import { PRACTICE_SLUG } from "@/lib/db/practice-menu-types";
 import type { Metadata } from "next";
 import { HowToPlaySection } from "../_components/how-to-play-section";
 import { getTranslations } from "next-intl/server";
@@ -26,7 +27,7 @@ import { ScoreTableHowToPlay } from "./_components/score-table-how-to-play";
 import { ScoreTableSetup } from "./_components/score-table-setup";
 
 export async function generateMetadata(): Promise<Metadata> {
-  return createPracticeMetadata("score-table");
+  return createPracticeMetadata(PRACTICE_SLUG.scoreTable);
 }
 
 export default async function ScoreTablePage() {

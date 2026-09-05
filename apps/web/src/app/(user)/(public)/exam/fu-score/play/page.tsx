@@ -1,9 +1,10 @@
+import { PRACTICE_SLUG } from "@/lib/db/practice-menu-types";
 import type { Metadata } from "next";
 import { createPracticePlayMetadata } from "@/app/(user)/(public)/practice/_lib/metadata";
 import { createExamPlayPage } from "../../_lib/create-exam-play-page";
 import { FuScoreExamPlayView } from "../_components/fu-score-exam-play-view";
 
-const SLUG = "fu-score-exam" as const;
+const SLUG = PRACTICE_SLUG.fuScoreExam;
 
 export async function generateMetadata(): Promise<Metadata> {
   return createPracticePlayMetadata(SLUG);

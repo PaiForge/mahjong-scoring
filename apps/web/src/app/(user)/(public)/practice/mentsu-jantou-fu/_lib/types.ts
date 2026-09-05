@@ -9,7 +9,10 @@ import {
   type MentsuJantouFuQuestion,
 } from "@mahjong-scoring/core";
 
-import { resultStorageKeyFor } from "@/lib/db/practice-menu-types";
+import {
+  PRACTICE_SLUG,
+  resultStorageKeyFor,
+} from "@/lib/db/practice-menu-types";
 
 import { z } from "zod";
 
@@ -20,7 +23,9 @@ import {
 } from "../../_lib/result-schemas";
 
 /** sessionStorage に保存する際のキー */
-export const RESULT_STORAGE_KEY = resultStorageKeyFor("mentsu-jantou-fu");
+export const RESULT_STORAGE_KEY = resultStorageKeyFor(
+  PRACTICE_SLUG.mentsuJantouFu,
+);
 
 /**
  * 回答行 1 つ（面子 1 つ、または雀頭）の結果データ

@@ -24,6 +24,7 @@
  * 回答フォームは `ScoreAnswerForm` を共有し、器（ディレクトリと出題条件）だけを
  * 分ける。
  */
+import { PRACTICE_SLUG } from "@/lib/db/practice-menu-types";
 import type { Metadata } from "next";
 import { createPracticeMetadata } from "@/app/(user)/(public)/practice/_lib/metadata";
 import { PracticeIntroContent } from "@/app/(user)/(public)/practice/_components/practice-intro-content";
@@ -31,16 +32,16 @@ import { ExamConditions } from "../_components/exam-conditions";
 import { ChiitoitsuExamHowToPlay } from "./_components/chiitoitsu-exam-how-to-play";
 
 export async function generateMetadata(): Promise<Metadata> {
-  return createPracticeMetadata("chiitoitsu-exam");
+  return createPracticeMetadata(PRACTICE_SLUG.chiitoitsuExam);
 }
 
 export default function ChiitoitsuExamPage() {
   return (
     <PracticeIntroContent
       namespace="chiitoitsuExamChallenge"
-      slug="chiitoitsu-exam"
+      slug={PRACTICE_SLUG.chiitoitsuExam}
       howToPlay={<ChiitoitsuExamHowToPlay />}
-      notice={<ExamConditions slug="chiitoitsu-exam" />}
+      notice={<ExamConditions slug={PRACTICE_SLUG.chiitoitsuExam} />}
     />
   );
 }

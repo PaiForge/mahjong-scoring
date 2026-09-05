@@ -1,10 +1,11 @@
+import { PRACTICE_SLUG } from "@/lib/db/practice-menu-types";
 import type { Metadata } from "next";
 import { createPracticeMetadata } from "../_lib/metadata";
 import { PracticeIntroContent } from "../_components/practice-intro-content";
 import { YakuHowToPlay } from "./_components/yaku-how-to-play";
 
 export async function generateMetadata(): Promise<Metadata> {
-  return createPracticeMetadata("yaku");
+  return createPracticeMetadata(PRACTICE_SLUG.yaku);
 }
 
 /**
@@ -23,7 +24,7 @@ export default function YakuPage() {
   return (
     <PracticeIntroContent
       namespace="yaku"
-      slug="yaku"
+      slug={PRACTICE_SLUG.yaku}
       showTraining
       howToPlay={<YakuHowToPlay />}
     />

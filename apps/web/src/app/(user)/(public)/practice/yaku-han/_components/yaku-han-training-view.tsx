@@ -1,5 +1,6 @@
 "use client";
 
+import { PRACTICE_SLUG } from "@/lib/db/practice-menu-types";
 import { Suspense } from "react";
 
 import { createTrainingView } from "../../_lib/create-challenge-views";
@@ -22,7 +23,7 @@ function YakuHanBoardFromQuery({ args }: { readonly args: TrainingBoardArgs }) {
 }
 
 export const YakuHanTrainingView = createTrainingView({
-  slug: "yaku-han",
+  slug: PRACTICE_SLUG.yakuHan,
   maxWidth: "max-w-2xl",
   renderBoard: (args) => (
     <Suspense fallback={<YakuHanGeneratingPlaceholder />}>

@@ -1,10 +1,11 @@
+import { PRACTICE_SLUG } from "@/lib/db/practice-menu-types";
 import { Suspense } from "react";
 import type { Metadata } from "next";
 import { createPracticePlayMetadata } from "../../_lib/metadata";
 import { ManganScoreCalculationPlayView } from "../_components/mangan-score-calculation-play-view";
 
 export async function generateMetadata(): Promise<Metadata> {
-  return createPracticePlayMetadata("mangan-score-calculation");
+  return createPracticePlayMetadata(PRACTICE_SLUG.manganScoreCalculation);
 }
 
 /**

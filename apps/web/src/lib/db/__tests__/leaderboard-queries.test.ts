@@ -1,6 +1,9 @@
 import { describe, expect, it, vi, beforeEach } from "vitest";
 
-import { createQueryChain, type QueryChainMock } from "@/test/drizzle-mock";
+import {
+  createQueryChain,
+  createSelectSequenceMock,
+} from "@/test/drizzle-mock";
 
 // ---------------------------------------------------------------------------
 // Hoisted mocks
@@ -10,28 +13,12 @@ const { mockExecute } = vi.hoisted(() => ({
   mockExecute: vi.fn(),
 }));
 
-let selectCallIndex = 0;
-let selectReturnValues: unknown[][] = [];
-/** `db.select()` が返したチェーンを呼ばれた順に控える（一覧側=0 / 件数側=1） */
-let selectChains: QueryChainMock[] = [];
-
-function setupSelectChains(...chains: unknown[][]) {
-  selectCallIndex = 0;
-  selectReturnValues = chains;
-  selectChains = [];
-}
+const selectSequence = createSelectSequenceMock();
 
 vi.mock("../index", () => ({
   db: {
     get select() {
-      return (..._args: unknown[]) => {
-        const idx = selectCallIndex++;
-        const resolveValue =
-          idx < selectReturnValues.length ? selectReturnValues[idx] : [];
-        const chain = createQueryChain(resolveValue);
-        selectChains.push(chain);
-        return chain;
-      };
+      return selectSequence.select;
     },
     get selectDistinctOn() {
       return (..._args: unknown[]) => {
@@ -138,11 +125,11 @@ describe("startOfCurrentMonth", () => {
 describe("getAllTimeRanking", () => {
   beforeEach(() => {
     vi.clearAllMocks();
-    selectCallIndex = 0;
+    selectSequence.setResults();
   });
 
   it("returns rows with null coalesced to undefined", async () => {
-    setupSelectChains(
+    selectSequence.setResults(
       // First select: data rows
       [
         {
@@ -192,7 +179,7 @@ describe("getAllTimeRanking", () => {
   });
 
   it("returns total count from the count query", async () => {
-    setupSelectChains(
+    selectSequence.setResults(
       [
         {
           userId: "user-a",
@@ -213,7 +200,7 @@ describe("getAllTimeRanking", () => {
   });
 
   it("returns total 0 when count row is missing", async () => {
-    setupSelectChains([], []);
+    selectSequence.setResults([], []);
 
     const result = await getAllTimeRanking("jantou_fu", "default", 0, 20);
 
@@ -223,12 +210,12 @@ describe("getAllTimeRanking", () => {
 
   // 一覧だけ絞ると total が実際の行数より多くなり、末尾に空ページができる
   it("applies the visibility filter to both the rows query and the count query", async () => {
-    setupSelectChains([], [{ count: 0 }]);
+    selectSequence.setResults([], [{ count: 0 }]);
 
     await getAllTimeRanking("jantou_fu", "default", 0, 20);
 
-    expect(selectChains).toHaveLength(2);
-    for (const chain of selectChains) {
+    expect(selectSequence.chains).toHaveLength(2);
+    for (const chain of selectSequence.chains) {
       expect(chain.innerJoin).toHaveBeenCalled();
       expect(chain.where).toHaveBeenCalledWith(
         expect.objectContaining({
@@ -243,11 +230,11 @@ describe("getAllTimeRanking", () => {
 describe("getMonthlyRanking", () => {
   beforeEach(() => {
     vi.clearAllMocks();
-    selectCallIndex = 0;
+    selectSequence.setResults();
   });
 
   it("returns rows with null coalesced to undefined", async () => {
-    setupSelectChains(
+    selectSequence.setResults(
       // First select (outer query with data rows)
       [
         {
@@ -277,7 +264,7 @@ describe("getMonthlyRanking", () => {
   });
 
   it("returns empty results when no monthly data", async () => {
-    setupSelectChains([], []);
+    selectSequence.setResults([], []);
 
     const result = await getMonthlyRanking("jantou_fu", "default", 0, 20, NOW);
 
@@ -286,12 +273,12 @@ describe("getMonthlyRanking", () => {
   });
 
   it("applies the visibility filter to both the rows query and the count query", async () => {
-    setupSelectChains([], [{ count: 0 }]);
+    selectSequence.setResults([], [{ count: 0 }]);
 
     await getMonthlyRanking("jantou_fu", "default", 0, 20, NOW);
 
-    expect(selectChains).toHaveLength(2);
-    for (const chain of selectChains) {
+    expect(selectSequence.chains).toHaveLength(2);
+    for (const chain of selectSequence.chains) {
       expect(chain.innerJoin).toHaveBeenCalled();
       expect(chain.where).toHaveBeenCalledWith(notHiddenFromLeaderboard());
     }
@@ -299,7 +286,7 @@ describe("getMonthlyRanking", () => {
 
   // 実行時の実時刻を読んでいたら、この境界はテスト実行月に振れてしまう
   it("集計境界を引数の now から導く", async () => {
-    setupSelectChains([], [{ count: 0 }]);
+    selectSequence.setResults([], [{ count: 0 }]);
 
     await getMonthlyRanking(
       "jantou_fu",

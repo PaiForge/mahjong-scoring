@@ -1,14 +1,17 @@
 import { haiIdToMspz, kazeIdToMspz, tehaiToMspz } from "@mahjong-scoring/core";
 import type { YakuQuestion } from "@mahjong-scoring/core";
 
-import { resultStorageKeyFor } from "@/lib/db/practice-menu-types";
+import {
+  PRACTICE_SLUG,
+  resultStorageKeyFor,
+} from "@/lib/db/practice-menu-types";
 
 import { z } from "zod";
 
 import { createSessionStorageParser } from "../../_lib/create-session-storage-parser";
 
 /** sessionStorage に保存する際のキー */
-export const RESULT_STORAGE_KEY = resultStorageKeyFor("yaku");
+export const RESULT_STORAGE_KEY = resultStorageKeyFor(PRACTICE_SLUG.yaku);
 
 /**
  * 役判定の出題の生成リトライ予算

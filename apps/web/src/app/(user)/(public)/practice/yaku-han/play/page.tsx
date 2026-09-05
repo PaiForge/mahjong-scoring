@@ -1,9 +1,10 @@
+import { PRACTICE_SLUG } from "@/lib/db/practice-menu-types";
 import type { Metadata } from "next";
 import { createPracticePlayMetadata } from "../../_lib/metadata";
 import { YakuHanPlayView } from "../_components/yaku-han-play-view";
 
 export async function generateMetadata(): Promise<Metadata> {
-  return createPracticePlayMetadata("yaku-han");
+  return createPracticePlayMetadata(PRACTICE_SLUG.yakuHan);
 }
 
 /**

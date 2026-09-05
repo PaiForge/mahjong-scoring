@@ -1,5 +1,6 @@
 "use client";
 
+import { PRACTICE_SLUG } from "@/lib/db/practice-menu-types";
 import { createChallengePlayView } from "@/app/(user)/(public)/practice/_lib/create-challenge-views";
 import { ChiitoitsuExamBoard } from "./chiitoitsu-exam-board";
 import type { ChiitoitsuExamQuestionResult } from "../_lib/types";
@@ -10,7 +11,7 @@ import type { ChiitoitsuExamQuestionResult } from "../_lib/types";
  */
 export const ChiitoitsuExamPlayView =
   createChallengePlayView<ChiitoitsuExamQuestionResult>({
-    slug: "chiitoitsu-exam",
+    slug: PRACTICE_SLUG.chiitoitsuExam,
     maxWidth: "max-w-lg",
     renderBoard: (args) => (
       <ChiitoitsuExamBoard

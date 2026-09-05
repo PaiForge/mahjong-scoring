@@ -6,6 +6,7 @@ import { describe, expect, it } from "vitest";
 
 import { INDEXABLE_PATHS } from "@/app/_lib/sitemap-routes";
 import {
+  PRACTICE_SLUG,
   PRACTICE_MENU_SLUGS,
   practiceMenuBySlug,
 } from "@/lib/db/practice-menu-types";
@@ -91,7 +92,14 @@ function declaresCanonical(source: string, urlPath: string): boolean {
     (slug) => practiceMenuBySlug(slug).basePath === urlPath,
   );
   if (practiceSlug) {
-    return source.includes(`createPracticeMetadata("${practiceSlug}")`);
+    const slugKey = Object.entries(PRACTICE_SLUG).find(
+      ([, slug]) => slug === practiceSlug,
+    )?.[0];
+    return (
+      source.includes(`createPracticeMetadata("${practiceSlug}")`) ||
+      (slugKey !== undefined &&
+        source.includes(`createPracticeMetadata(PRACTICE_SLUG.${slugKey})`))
+    );
   }
   // path オプション（path: "/x"）と createTitleOnlyMetadata の第 3 引数
   // （, "/x"）の両方を受ける

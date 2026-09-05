@@ -11,12 +11,13 @@
  * 3. 符を選んで判定、符の内訳を確認してから次の問題へ進む
  * 4. 「終了」を押すと説明ページへ戻る
  */
+import { PRACTICE_SLUG } from "@/lib/db/practice-menu-types";
 import type { Metadata } from "next";
 import { createPracticeTrainingMetadata } from "../../_lib/metadata";
 import { TotalFuTrainingView } from "../_components/total-fu-training-view";
 
 export async function generateMetadata(): Promise<Metadata> {
-  return createPracticeTrainingMetadata("total-fu");
+  return createPracticeTrainingMetadata(PRACTICE_SLUG.totalFu);
 }
 
 export default function TotalFuTrainingPage() {

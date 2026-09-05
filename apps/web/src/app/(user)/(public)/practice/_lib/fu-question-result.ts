@@ -9,7 +9,11 @@ import {
 import { z } from "zod";
 
 import { createSessionStorageParser } from "./create-session-storage-parser";
-import { fuDetailSchema } from "./result-schemas";
+import {
+  fuAnswerResultSchema,
+  fuDetailSchema,
+  type FuAnswerResult,
+} from "./result-schemas";
 
 /**
  * 手牌の合計符を答える出題の1問ごとの結果データ
@@ -23,7 +27,7 @@ import { fuDetailSchema } from "./result-schemas";
  * 結果の形・組み立て・パースは練習ごとに持たず、点数系の
  * {@link ./score-question-result} と同じくここに一本化する。
  */
-export interface FuQuestionResult {
+export interface FuQuestionResult extends FuAnswerResult {
   /** 手牌（Extended MSPZ。副露・暗槓を含む） */
   readonly tehai: string;
   /** 和了牌（MSPZ） */
@@ -33,11 +37,6 @@ export interface FuQuestionResult {
   /** 自風（MSPZ） */
   readonly jikaze: string;
   readonly isTsumo: boolean;
-  /** 正解の符（切り上げ後） */
-  readonly correctFu: number;
-  /** ユーザーが選んだ符 */
-  readonly userFu: number;
-  readonly isCorrect: boolean;
   /** 切り上げ前の符の内訳 */
   readonly fuDetails: readonly FuDetail[];
 }
@@ -68,17 +67,15 @@ export function toFuQuestionResult(
  * sessionStorage から取得した値が FuQuestionResult として妥当か検証する
  * 合計符問題結果バリデーション
  */
-const questionResultSchema: z.ZodType<FuQuestionResult> = z.object({
-  tehai: z.string(),
-  agariHai: z.string(),
-  bakaze: z.string(),
-  jikaze: z.string(),
-  isTsumo: z.boolean(),
-  correctFu: z.number(),
-  userFu: z.number(),
-  isCorrect: z.boolean(),
-  fuDetails: z.array(fuDetailSchema),
-});
+const questionResultSchema: z.ZodType<FuQuestionResult> =
+  fuAnswerResultSchema.extend({
+    tehai: z.string(),
+    agariHai: z.string(),
+    bakaze: z.string(),
+    jikaze: z.string(),
+    isTsumo: z.boolean(),
+    fuDetails: z.array(fuDetailSchema),
+  });
 
 /**
  * sessionStorage から問題結果を安全にパースする

@@ -1,9 +1,10 @@
+import { PRACTICE_SLUG } from "@/lib/db/practice-menu-types";
 import type { Metadata } from "next";
 import { createPracticePlayMetadata } from "@/app/(user)/(public)/practice/_lib/metadata";
 import { createExamPlayPage } from "../../_lib/create-exam-play-page";
 import { ChiitoitsuExamPlayView } from "../_components/chiitoitsu-exam-play-view";
 
-const SLUG = "chiitoitsu-exam" as const;
+const SLUG = PRACTICE_SLUG.chiitoitsuExam;
 
 export async function generateMetadata(): Promise<Metadata> {
   return createPracticePlayMetadata(SLUG);

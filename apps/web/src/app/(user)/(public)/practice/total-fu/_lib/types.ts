@@ -1,7 +1,10 @@
-import { resultStorageKeyFor } from "@/lib/db/practice-menu-types";
+import {
+  PRACTICE_SLUG,
+  resultStorageKeyFor,
+} from "@/lib/db/practice-menu-types";
 
 /** sessionStorage に保存する際のキー */
-export const RESULT_STORAGE_KEY = resultStorageKeyFor("total-fu");
+export const RESULT_STORAGE_KEY = resultStorageKeyFor(PRACTICE_SLUG.totalFu);
 
 /**
  * 合計符の出題の生成リトライ予算

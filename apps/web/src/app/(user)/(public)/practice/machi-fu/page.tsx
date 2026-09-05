@@ -1,10 +1,11 @@
+import { PRACTICE_SLUG } from "@/lib/db/practice-menu-types";
 import type { Metadata } from "next";
 import { createPracticeMetadata } from "../_lib/metadata";
 import { PracticeIntroContent } from "../_components/practice-intro-content";
 import { MachiFuHowToPlay } from "./_components/machi-fu-how-to-play";
 
 export async function generateMetadata(): Promise<Metadata> {
-  return createPracticeMetadata("machi-fu");
+  return createPracticeMetadata(PRACTICE_SLUG.machiFu);
 }
 
 /**
@@ -23,7 +24,7 @@ export default function MachiFuPage() {
   return (
     <PracticeIntroContent
       namespace="machiFu"
-      slug="machi-fu"
+      slug={PRACTICE_SLUG.machiFu}
       showTraining
       howToPlay={<MachiFuHowToPlay />}
     />

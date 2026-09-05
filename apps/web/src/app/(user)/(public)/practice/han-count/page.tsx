@@ -10,20 +10,21 @@
  * 2. 練習の説明と「開始」ボタンが表示される
  * 3. 「開始」を押すと play ページへ遷移
  */
+import { PRACTICE_SLUG } from "@/lib/db/practice-menu-types";
 import type { Metadata } from "next";
 import { createPracticeMetadata } from "../_lib/metadata";
 import { PracticeIntroContent } from "../_components/practice-intro-content";
 import { HanCountHowToPlay } from "./_components/han-count-how-to-play";
 
 export async function generateMetadata(): Promise<Metadata> {
-  return createPracticeMetadata("han-count");
+  return createPracticeMetadata(PRACTICE_SLUG.hanCount);
 }
 
 export default function HanCountPage() {
   return (
     <PracticeIntroContent
       namespace="hanCountChallenge"
-      slug="han-count"
+      slug={PRACTICE_SLUG.hanCount}
       showTraining
       howToPlay={<HanCountHowToPlay />}
     />

@@ -1,35 +1,19 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
-import { createQueryChain, type QueryChainMock } from "@/test/drizzle-mock";
+import { createSelectSequenceMock } from "@/test/drizzle-mock";
 
 // ---------------------------------------------------------------------------
 // Mock setup
 // ---------------------------------------------------------------------------
 
-let selectCallIndex = 0;
-let selectReturnValues: unknown[][] = [];
-/** `db.select()` が返したチェーンを呼ばれた順に控える */
-let selectChains: QueryChainMock[] = [];
-
-function setupSelectChains(...chains: unknown[][]) {
-  selectCallIndex = 0;
-  selectReturnValues = chains;
-  selectChains = [];
-}
+const selectSequence = createSelectSequenceMock();
 
 vi.mock("server-only", () => ({}));
 
 vi.mock("../index", () => ({
   db: {
     get select() {
-      return (..._args: unknown[]) => {
-        const idx = selectCallIndex++;
-        const resolveValue =
-          idx < selectReturnValues.length ? selectReturnValues[idx] : [];
-        const chain = createQueryChain(resolveValue);
-        selectChains.push(chain);
-        return chain;
-      };
+      return selectSequence.select;
     },
   },
 }));
@@ -66,7 +50,7 @@ describe("getScoreComparison", () => {
   });
 
   it("grant あり: 今回・ベスト・前回の 3 クエリで比較サマリを返す", async () => {
-    setupSelectChains([CURRENT_ROW], [BEST_SCORE], [LAST_SCORE]);
+    selectSequence.setResults([CURRENT_ROW], [BEST_SCORE], [LAST_SCORE]);
 
     const result = await getScoreComparison(USER_ID, MENU_TYPE, CURRENT_ID);
 
@@ -75,26 +59,26 @@ describe("getScoreComparison", () => {
       previousBest: BEST_SCORE,
       previousLast: LAST_SCORE,
     });
-    expect(selectChains).toHaveLength(3);
+    expect(selectSequence.chains).toHaveLength(3);
     // 過去記録の絞り込みに今回の行の除外条件（id / createdAt）が入る
     expect(ne).toHaveBeenCalledWith("id", CURRENT_ID);
     expect(lte).toHaveBeenCalledWith("created_at", CURRENT_ROW.createdAt);
   });
 
   it("ベストはランキングと同じ順序で引く", async () => {
-    setupSelectChains([CURRENT_ROW], [BEST_SCORE], [LAST_SCORE]);
+    selectSequence.setResults([CURRENT_ROW], [BEST_SCORE], [LAST_SCORE]);
 
     await getScoreComparison(USER_ID, MENU_TYPE, CURRENT_ID);
 
     // 「これまでのベスト」は自己ベスト更新の判定と同じ順序規則で決まる。
     // スコア降順だけで引くと、同点でミスが少ない回がベストにならない
-    expect(selectChains[1].orderBy).toHaveBeenCalledWith(
+    expect(selectSequence.chains[1].orderBy).toHaveBeenCalledWith(
       { op: "desc", args: ["score"] },
       { op: "asc", args: ["incorrect_answers"] },
       { op: "asc", args: ["time_taken"] },
     );
     // 「前回」は時系列で最新の 1 件
-    expect(selectChains[2].orderBy).toHaveBeenCalledWith({
+    expect(selectSequence.chains[2].orderBy).toHaveBeenCalledWith({
       op: "desc",
       args: ["created_at"],
     });
@@ -103,7 +87,7 @@ describe("getScoreComparison", () => {
   });
 
   it("grant ありでも今回の行が特定できなければ基準点なしで過去記録だけ返す", async () => {
-    setupSelectChains([], [BEST_SCORE], [LAST_SCORE]);
+    selectSequence.setResults([], [BEST_SCORE], [LAST_SCORE]);
 
     const result = await getScoreComparison(USER_ID, MENU_TYPE, CURRENT_ID);
 
@@ -118,7 +102,7 @@ describe("getScoreComparison", () => {
   });
 
   it("grant なし: 今回の行を引かず 2 クエリで過去記録だけ返す", async () => {
-    setupSelectChains([LAST_SCORE], [LAST_SCORE]);
+    selectSequence.setResults([LAST_SCORE], [LAST_SCORE]);
 
     const result = await getScoreComparison(USER_ID, MENU_TYPE, undefined);
 
@@ -127,11 +111,11 @@ describe("getScoreComparison", () => {
       previousBest: LAST_SCORE,
       previousLast: LAST_SCORE,
     });
-    expect(selectChains).toHaveLength(2);
+    expect(selectSequence.chains).toHaveLength(2);
   });
 
   it("過去記録が無ければベスト・前回とも undefined", async () => {
-    setupSelectChains([CURRENT_ROW], [], []);
+    selectSequence.setResults([CURRENT_ROW], [], []);
 
     const result = await getScoreComparison(USER_ID, MENU_TYPE, CURRENT_ID);
 

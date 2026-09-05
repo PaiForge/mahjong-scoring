@@ -1,5 +1,6 @@
 "use client";
 
+import { PRACTICE_SLUG } from "@/lib/db/practice-menu-types";
 import { createChallengePlayView } from "@/app/(user)/(public)/practice/_lib/create-challenge-views";
 import { ManganExamBoard } from "./mangan-exam-board";
 import type { ManganExamQuestionResult } from "../_lib/types";
@@ -10,7 +11,7 @@ import type { ManganExamQuestionResult } from "../_lib/types";
  */
 export const ManganExamPlayView =
   createChallengePlayView<ManganExamQuestionResult>({
-    slug: "mangan-exam",
+    slug: PRACTICE_SLUG.manganExam,
     maxWidth: "max-w-lg",
     renderBoard: (args) => (
       <ManganExamBoard

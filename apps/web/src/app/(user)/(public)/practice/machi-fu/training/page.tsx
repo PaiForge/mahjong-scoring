@@ -11,12 +11,13 @@
  * 3. 回答ごとにフィードバックを挟んで次の問題へ自動で進む
  * 4. 「終了」を押すと説明ページへ戻る
  */
+import { PRACTICE_SLUG } from "@/lib/db/practice-menu-types";
 import type { Metadata } from "next";
 import { createPracticeTrainingMetadata } from "../../_lib/metadata";
 import { MachiFuTrainingView } from "../_components/machi-fu-training-view";
 
 export async function generateMetadata(): Promise<Metadata> {
-  return createPracticeTrainingMetadata("machi-fu");
+  return createPracticeTrainingMetadata(PRACTICE_SLUG.machiFu);
 }
 
 export default function MachiFuTrainingPage() {
