@@ -49,6 +49,7 @@ export default async function PracticePage() {
       category: practice.category,
       card: (
         <PracticeCard
+          slug={practice.slug}
           href={practiceHref(practice.slug)}
           title={t(practiceTitleKey(practice.slug))}
           description={t(practiceDescriptionKey(practice.slug))}

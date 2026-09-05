@@ -57,6 +57,7 @@ export async function RecommendedPracticeSection({
         {menus.map((menu) => (
           <PracticeCard
             key={menu.slug}
+            slug={menu.slug}
             href={practiceHref(menu.slug)}
             title={tPractice(practiceTitleKey(menu.slug))}
             description={tPractice(practiceDescriptionKey(menu.slug))}
