@@ -10,20 +10,21 @@
  * 2. 練習の説明と「開始」ボタンが表示される
  * 3. 「開始」を押すと play ページへ遷移
  */
+import { PRACTICE_SLUG } from "@/lib/db/practice-menu-types";
 import type { Metadata } from "next";
 import { createPracticeMetadata } from "../_lib/metadata";
 import { PracticeIntroContent } from "../_components/practice-intro-content";
 import { JantouFuHowToPlay } from "./_components/jantou-fu-how-to-play";
 
 export async function generateMetadata(): Promise<Metadata> {
-  return createPracticeMetadata("jantou-fu");
+  return createPracticeMetadata(PRACTICE_SLUG.jantouFu);
 }
 
 export default function JantouFuPage() {
   return (
     <PracticeIntroContent
       namespace="jantouFu"
-      slug="jantou-fu"
+      slug={PRACTICE_SLUG.jantouFu}
       showTraining
       howToPlay={<JantouFuHowToPlay />}
     />

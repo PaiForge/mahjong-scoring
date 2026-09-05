@@ -1,3 +1,4 @@
+import { PRACTICE_SLUG } from "@/lib/db/practice-menu-types";
 import { PracticeLoading } from "@/app/(user)/(public)/practice/_components/practice-loading";
 
 /**
@@ -5,5 +6,5 @@ import { PracticeLoading } from "@/app/(user)/(public)/practice/_components/prac
  * slug は同ディレクトリの page.tsx と揃える。
  */
 export default function Loading() {
-  return <PracticeLoading slug="pinfu-exam" />;
+  return <PracticeLoading slug={PRACTICE_SLUG.pinfuExam} />;
 }

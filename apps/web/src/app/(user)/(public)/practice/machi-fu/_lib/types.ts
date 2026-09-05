@@ -1,14 +1,17 @@
 import { haiIdToMspz, haisToMspz } from "@mahjong-scoring/core";
 import type { MachiFuQuestion } from "@mahjong-scoring/core";
 
-import { resultStorageKeyFor } from "@/lib/db/practice-menu-types";
+import {
+  PRACTICE_SLUG,
+  resultStorageKeyFor,
+} from "@/lib/db/practice-menu-types";
 
 import { z } from "zod";
 
 import { createSessionStorageParser } from "../../_lib/create-session-storage-parser";
 
 /** sessionStorage に保存する際のキー */
-export const RESULT_STORAGE_KEY = resultStorageKeyFor("machi-fu");
+export const RESULT_STORAGE_KEY = resultStorageKeyFor(PRACTICE_SLUG.machiFu);
 
 /**
  * 待ち符練習の1問ごとの結果データ

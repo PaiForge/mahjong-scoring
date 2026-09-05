@@ -22,6 +22,7 @@
  * 「1級は取れたが初段はまだ」という状態が表せない。段級位1つにつき試験1つ、
  * が段級位レジストリの前提でもある。
  */
+import { PRACTICE_SLUG } from "@/lib/db/practice-menu-types";
 import type { Metadata } from "next";
 import { createPracticeMetadata } from "@/app/(user)/(public)/practice/_lib/metadata";
 import { PracticeIntroContent } from "@/app/(user)/(public)/practice/_components/practice-intro-content";
@@ -29,16 +30,16 @@ import { ExamConditions } from "../_components/exam-conditions";
 import { ScoreExamHowToPlay } from "./_components/score-exam-how-to-play";
 
 export async function generateMetadata(): Promise<Metadata> {
-  return createPracticeMetadata("score-exam");
+  return createPracticeMetadata(PRACTICE_SLUG.scoreExam);
 }
 
 export default function ScoreExamPage() {
   return (
     <PracticeIntroContent
       namespace="scoreExamChallenge"
-      slug="score-exam"
+      slug={PRACTICE_SLUG.scoreExam}
       howToPlay={<ScoreExamHowToPlay />}
-      notice={<ExamConditions slug="score-exam" />}
+      notice={<ExamConditions slug={PRACTICE_SLUG.scoreExam} />}
     />
   );
 }

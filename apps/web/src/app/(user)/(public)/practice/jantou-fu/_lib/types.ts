@@ -1,14 +1,17 @@
 import { haiIdToMspz, kazeIdToMspz } from "@mahjong-scoring/core";
 import type { JantouFuChoice, JantouFuQuestion } from "@mahjong-scoring/core";
 
-import { resultStorageKeyFor } from "@/lib/db/practice-menu-types";
+import {
+  PRACTICE_SLUG,
+  resultStorageKeyFor,
+} from "@/lib/db/practice-menu-types";
 
 import { z } from "zod";
 
 import { createSessionStorageParser } from "../../_lib/create-session-storage-parser";
 
 /** sessionStorage に保存する際のキー */
-export const RESULT_STORAGE_KEY = resultStorageKeyFor("jantou-fu");
+export const RESULT_STORAGE_KEY = resultStorageKeyFor(PRACTICE_SLUG.jantouFu);
 
 /**
  * 雀頭符練習の1問ごとの結果データ

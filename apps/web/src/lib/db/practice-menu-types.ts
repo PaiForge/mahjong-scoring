@@ -100,13 +100,39 @@ interface PracticeMenuEntry {
 }
 
 /**
+ * 練習ルートで使う URL スラッグの正典。
+ *
+ * Next.js の規約上、各 `page.tsx` / `loading.tsx` は個別ファイルとして残るが、
+ * metadata・画面設定・結果保存キーへ渡す識別子はここから参照する。
+ */
+export const PRACTICE_SLUG = {
+  jantouFu: "jantou-fu",
+  machiFu: "machi-fu",
+  mentsuFu: "mentsu-fu",
+  mentsuJantouFu: "mentsu-jantou-fu",
+  totalFu: "total-fu",
+  yaku: "yaku",
+  scoreTable: "score-table",
+  scoreCalculation: "score-calculation",
+  hanCount: "han-count",
+  yakuHan: "yaku-han",
+  manganScoreCalculation: "mangan-score-calculation",
+  manganExam: "mangan-exam",
+  fuExam: "fu-exam",
+  chiitoitsuExam: "chiitoitsu-exam",
+  pinfuExam: "pinfu-exam",
+  fuScoreExam: "fu-score-exam",
+  scoreExam: "score-exam",
+} as const;
+
+/**
  * 練習種別レジストリ
  * 新しい練習の追加はここに1行追加するだけでよい。
  */
 const PRACTICE_MENU_REGISTRY = [
   {
     menuType: "jantou_fu",
-    slug: "jantou-fu",
+    slug: PRACTICE_SLUG.jantouFu,
     messageKey: "jantouFu",
     namespace: "jantouFu",
     hasProblemList: true,
@@ -114,7 +140,7 @@ const PRACTICE_MENU_REGISTRY = [
   },
   {
     menuType: "machi_fu",
-    slug: "machi-fu",
+    slug: PRACTICE_SLUG.machiFu,
     messageKey: "machiFu",
     namespace: "machiFu",
     hasProblemList: true,
@@ -122,7 +148,7 @@ const PRACTICE_MENU_REGISTRY = [
   },
   {
     menuType: "mentsu_fu",
-    slug: "mentsu-fu",
+    slug: PRACTICE_SLUG.mentsuFu,
     messageKey: "mentsuFu",
     namespace: "mentsuFu",
     hasProblemList: true,
@@ -130,7 +156,7 @@ const PRACTICE_MENU_REGISTRY = [
   },
   {
     menuType: "mentsu_jantou_fu",
-    slug: "mentsu-jantou-fu",
+    slug: PRACTICE_SLUG.mentsuJantouFu,
     messageKey: "mentsuJantouFu",
     namespace: "mentsuJantouFu",
     hasProblemList: true,
@@ -138,7 +164,7 @@ const PRACTICE_MENU_REGISTRY = [
   },
   {
     menuType: "total_fu",
-    slug: "total-fu",
+    slug: PRACTICE_SLUG.totalFu,
     messageKey: "totalFu",
     namespace: "totalFu",
     hasProblemList: true,
@@ -146,7 +172,7 @@ const PRACTICE_MENU_REGISTRY = [
   },
   {
     menuType: "yaku",
-    slug: "yaku",
+    slug: PRACTICE_SLUG.yaku,
     messageKey: "yaku",
     namespace: "yaku",
     hasProblemList: true,
@@ -154,7 +180,7 @@ const PRACTICE_MENU_REGISTRY = [
   },
   {
     menuType: "score_table",
-    slug: "score-table",
+    slug: PRACTICE_SLUG.scoreTable,
     messageKey: "scoreTable",
     namespace: "scoreTableChallenge",
     hasProblemList: true,
@@ -162,7 +188,7 @@ const PRACTICE_MENU_REGISTRY = [
   },
   {
     menuType: "score_calculation",
-    slug: "score-calculation",
+    slug: PRACTICE_SLUG.scoreCalculation,
     messageKey: "scoreCalculation",
     namespace: "scoreCalculationChallenge",
     hasProblemList: true,
@@ -170,7 +196,7 @@ const PRACTICE_MENU_REGISTRY = [
   },
   {
     menuType: "han_count",
-    slug: "han-count",
+    slug: PRACTICE_SLUG.hanCount,
     messageKey: "hanCount",
     namespace: "hanCountChallenge",
     hasProblemList: true,
@@ -178,7 +204,7 @@ const PRACTICE_MENU_REGISTRY = [
   },
   {
     menuType: "yaku_han",
-    slug: "yaku-han",
+    slug: PRACTICE_SLUG.yakuHan,
     messageKey: "yakuHan",
     namespace: "yakuHanChallenge",
     hasProblemList: true,
@@ -186,7 +212,7 @@ const PRACTICE_MENU_REGISTRY = [
   },
   {
     menuType: "mangan_score_calculation",
-    slug: "mangan-score-calculation",
+    slug: PRACTICE_SLUG.manganScoreCalculation,
     messageKey: "manganScoreCalculation",
     namespace: "manganScoreCalculationChallenge",
     hasProblemList: true,
@@ -194,7 +220,7 @@ const PRACTICE_MENU_REGISTRY = [
   },
   {
     menuType: "mangan_exam",
-    slug: "mangan-exam",
+    slug: PRACTICE_SLUG.manganExam,
     messageKey: "manganExam",
     namespace: "manganExamChallenge",
     hasProblemList: true,
@@ -208,7 +234,7 @@ const PRACTICE_MENU_REGISTRY = [
   },
   {
     menuType: "fu_exam",
-    slug: "fu-exam",
+    slug: PRACTICE_SLUG.fuExam,
     messageKey: "fuExam",
     namespace: "fuExamChallenge",
     hasProblemList: true,
@@ -219,7 +245,7 @@ const PRACTICE_MENU_REGISTRY = [
   },
   {
     menuType: "chiitoitsu_exam",
-    slug: "chiitoitsu-exam",
+    slug: PRACTICE_SLUG.chiitoitsuExam,
     messageKey: "chiitoitsuExam",
     namespace: "chiitoitsuExamChallenge",
     hasProblemList: true,
@@ -230,7 +256,7 @@ const PRACTICE_MENU_REGISTRY = [
   },
   {
     menuType: "pinfu_exam",
-    slug: "pinfu-exam",
+    slug: PRACTICE_SLUG.pinfuExam,
     messageKey: "pinfuExam",
     namespace: "pinfuExamChallenge",
     hasProblemList: true,
@@ -241,7 +267,7 @@ const PRACTICE_MENU_REGISTRY = [
   },
   {
     menuType: "fu_score_exam",
-    slug: "fu-score-exam",
+    slug: PRACTICE_SLUG.fuScoreExam,
     messageKey: "fuScoreExam",
     namespace: "fuScoreExamChallenge",
     hasProblemList: true,
@@ -252,7 +278,7 @@ const PRACTICE_MENU_REGISTRY = [
   },
   {
     menuType: "score_exam",
-    slug: "score-exam",
+    slug: PRACTICE_SLUG.scoreExam,
     messageKey: "scoreExam",
     namespace: "scoreExamChallenge",
     hasProblemList: true,

@@ -1,10 +1,11 @@
+import { PRACTICE_SLUG } from "@/lib/db/practice-menu-types";
 import type { Metadata } from "next";
 import { createPracticeMetadata } from "../_lib/metadata";
 import { PracticeIntroContent } from "../_components/practice-intro-content";
 import { MentsuFuHowToPlay } from "./_components/mentsu-fu-how-to-play";
 
 export async function generateMetadata(): Promise<Metadata> {
-  return createPracticeMetadata("mentsu-fu");
+  return createPracticeMetadata(PRACTICE_SLUG.mentsuFu);
 }
 
 /**
@@ -23,7 +24,7 @@ export default function MentsuFuPage() {
   return (
     <PracticeIntroContent
       namespace="mentsuFu"
-      slug="mentsu-fu"
+      slug={PRACTICE_SLUG.mentsuFu}
       showTraining
       howToPlay={<MentsuFuHowToPlay />}
     />

@@ -12,6 +12,7 @@
  * 3. 問題別フィードバック一覧を表示（sessionStorage から読み取り、展開式アコーディオン）
  * 4. リトライボタンと道場へのリンク
  */
+import { PRACTICE_SLUG } from "@/lib/db/practice-menu-types";
 import type { Metadata } from "next";
 import {
   createPracticeResultMetadata,
@@ -19,7 +20,7 @@ import {
 } from "@/app/(user)/(public)/practice/_lib/create-practice-result-page";
 import { ManganExamResultView } from "../_components/mangan-exam-result-view";
 
-const SLUG = "mangan-exam" as const;
+const SLUG = PRACTICE_SLUG.manganExam;
 
 export async function generateMetadata(): Promise<Metadata> {
   return createPracticeResultMetadata(SLUG);

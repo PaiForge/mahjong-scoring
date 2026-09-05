@@ -1,10 +1,11 @@
+import { PRACTICE_SLUG } from "@/lib/db/practice-menu-types";
 import type { Metadata } from "next";
 import { createPracticeMetadata } from "../_lib/metadata";
 import { PracticeIntroContent } from "../_components/practice-intro-content";
 import { TotalFuHowToPlay } from "./_components/total-fu-how-to-play";
 
 export async function generateMetadata(): Promise<Metadata> {
-  return createPracticeMetadata("total-fu");
+  return createPracticeMetadata(PRACTICE_SLUG.totalFu);
 }
 
 /**
@@ -24,7 +25,7 @@ export default function TotalFuPage() {
   return (
     <PracticeIntroContent
       namespace="totalFu"
-      slug="total-fu"
+      slug={PRACTICE_SLUG.totalFu}
       showTraining
       howToPlay={<TotalFuHowToPlay />}
     />

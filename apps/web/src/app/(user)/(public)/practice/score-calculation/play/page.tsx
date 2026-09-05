@@ -1,9 +1,10 @@
+import { PRACTICE_SLUG } from "@/lib/db/practice-menu-types";
 import type { Metadata } from "next";
 import { createPracticePlayMetadata } from "../../_lib/metadata";
 import { ScoreCalculationPlayView } from "../_components/score-calculation-play-view";
 
 export async function generateMetadata(): Promise<Metadata> {
-  return createPracticePlayMetadata("score-calculation");
+  return createPracticePlayMetadata(PRACTICE_SLUG.scoreCalculation);
 }
 
 /**

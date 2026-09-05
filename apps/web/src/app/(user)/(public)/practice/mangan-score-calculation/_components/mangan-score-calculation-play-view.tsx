@@ -1,5 +1,6 @@
 "use client";
 
+import { PRACTICE_SLUG } from "@/lib/db/practice-menu-types";
 import { useSearchParams } from "next/navigation";
 
 import { createChallengePlayView } from "../../_lib/create-challenge-views";
@@ -17,7 +18,7 @@ export const ManganScoreCalculationPlayView = createChallengePlayView<
   Record<string, never>,
   PlayerType
 >({
-  slug: "mangan-score-calculation",
+  slug: PRACTICE_SLUG.manganScoreCalculation,
   maxWidth: "max-w-lg",
   useBoardState: () => {
     const searchParams = useSearchParams();

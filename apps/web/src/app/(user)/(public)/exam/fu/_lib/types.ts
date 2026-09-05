@@ -1,5 +1,8 @@
 import type { generateTotalFuQuestion } from "@mahjong-scoring/core";
-import { resultStorageKeyFor } from "@/lib/db/practice-menu-types";
+import {
+  PRACTICE_SLUG,
+  resultStorageKeyFor,
+} from "@/lib/db/practice-menu-types";
 
 export type { FuQuestionResult as FuExamQuestionResult } from "@/app/(user)/(public)/practice/_lib/fu-question-result";
 export {
@@ -8,7 +11,7 @@ export {
 } from "@/app/(user)/(public)/practice/_lib/fu-question-result";
 
 /** sessionStorage に保存する際のキー */
-export const RESULT_STORAGE_KEY = resultStorageKeyFor("fu-exam");
+export const RESULT_STORAGE_KEY = resultStorageKeyFor(PRACTICE_SLUG.fuExam);
 
 /**
  * 昇級試験（手牌の合計符）の出題条件

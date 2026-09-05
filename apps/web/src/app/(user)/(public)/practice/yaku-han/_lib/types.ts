@@ -1,11 +1,14 @@
-import { resultStorageKeyFor } from "@/lib/db/practice-menu-types";
+import {
+  PRACTICE_SLUG,
+  resultStorageKeyFor,
+} from "@/lib/db/practice-menu-types";
 
 import { z } from "zod";
 
 import { createSessionStorageParser } from "../../_lib/create-session-storage-parser";
 
 /** sessionStorage に保存する際のキー */
-export const RESULT_STORAGE_KEY = resultStorageKeyFor("yaku-han");
+export const RESULT_STORAGE_KEY = resultStorageKeyFor(PRACTICE_SLUG.yakuHan);
 
 /**
  * 役翻数練習の1問ごとの結果データ

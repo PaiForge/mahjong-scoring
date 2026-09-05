@@ -10,13 +10,18 @@ import { ScoreTableGeneratingPlaceholder } from "./score-table-generating-placeh
 import { useScoreTableGeneratorOptions } from "../_hooks/use-score-table-query-selection";
 import { useScoreTableQuestion } from "../_hooks/use-score-table-question";
 import { practiceHref, practicePlayHref } from "../../_lib/practice-catalog";
-import { practiceMenuBySlug } from "@/lib/db/practice-menu-types";
+import {
+  PRACTICE_SLUG,
+  practiceMenuBySlug,
+} from "@/lib/db/practice-menu-types";
 
 /** シェルの体裁を揃えるための定数（本体とフォールバックで共有する） */
-const EXIT_HREF = practiceHref("score-table");
-const CHALLENGE_HREF = practicePlayHref("score-table");
+const EXIT_HREF = practiceHref(PRACTICE_SLUG.scoreTable);
+const CHALLENGE_HREF = practicePlayHref(PRACTICE_SLUG.scoreTable);
 /** チャレンジ導線の補足文に出すルール（制限時間・ミス上限） */
-const { timeLimit, mistakeLimit } = practiceMenuBySlug("score-table");
+const { timeLimit, mistakeLimit } = practiceMenuBySlug(
+  PRACTICE_SLUG.scoreTable,
+);
 const CHALLENGE_RULES = { timeLimit, mistakeLimit };
 
 /**

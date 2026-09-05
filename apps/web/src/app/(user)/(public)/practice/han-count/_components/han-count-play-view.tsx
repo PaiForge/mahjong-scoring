@@ -1,5 +1,6 @@
 "use client";
 
+import { PRACTICE_SLUG } from "@/lib/db/practice-menu-types";
 import { createChallengePlayView } from "../../_lib/create-challenge-views";
 import { useGeneratedScoreQuestion } from "../../_hooks/use-generated-score-question";
 import { HanCountBoard } from "./han-count-board";
@@ -11,7 +12,7 @@ export const HanCountPlayView = createChallengePlayView<
   Record<string, never>,
   HanCountQuestionState
 >({
-  slug: "han-count",
+  slug: PRACTICE_SLUG.hanCount,
   maxWidth: "max-w-2xl",
   useBoardState: () => useGeneratedScoreQuestion(),
   renderBoard: (

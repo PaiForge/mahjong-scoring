@@ -12,6 +12,7 @@
  * 2. 問題方式デモと出題範囲セレクタ、「開始」「トレーニング」ボタンが表示される
  * 3. 範囲を選んで「開始」を押すと play ページへ遷移（range クエリ付き）
  */
+import { PRACTICE_SLUG } from "@/lib/db/practice-menu-types";
 import type { Metadata } from "next";
 import { HowToPlaySection } from "../_components/how-to-play-section";
 import { getTranslations } from "next-intl/server";
@@ -22,7 +23,7 @@ import { YakuHanHowToPlay } from "./_components/yaku-han-how-to-play";
 import { YakuHanStartPanel } from "./_components/yaku-han-start-panel";
 
 export async function generateMetadata(): Promise<Metadata> {
-  return createPracticeMetadata("yaku-han");
+  return createPracticeMetadata(PRACTICE_SLUG.yakuHan);
 }
 
 export default async function YakuHanPage() {

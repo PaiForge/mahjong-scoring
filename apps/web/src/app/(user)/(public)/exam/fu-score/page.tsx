@@ -22,6 +22,7 @@
  * 「2級は取れたが1級はまだ」という状態が表せない。級ごとに1つの試験、が
  * 段級位レジストリの前提でもある。
  */
+import { PRACTICE_SLUG } from "@/lib/db/practice-menu-types";
 import type { Metadata } from "next";
 import { createPracticeMetadata } from "@/app/(user)/(public)/practice/_lib/metadata";
 import { PracticeIntroContent } from "@/app/(user)/(public)/practice/_components/practice-intro-content";
@@ -29,16 +30,16 @@ import { ExamConditions } from "../_components/exam-conditions";
 import { FuScoreExamHowToPlay } from "./_components/fu-score-exam-how-to-play";
 
 export async function generateMetadata(): Promise<Metadata> {
-  return createPracticeMetadata("fu-score-exam");
+  return createPracticeMetadata(PRACTICE_SLUG.fuScoreExam);
 }
 
 export default function FuScoreExamPage() {
   return (
     <PracticeIntroContent
       namespace="fuScoreExamChallenge"
-      slug="fu-score-exam"
+      slug={PRACTICE_SLUG.fuScoreExam}
       howToPlay={<FuScoreExamHowToPlay />}
-      notice={<ExamConditions slug="fu-score-exam" />}
+      notice={<ExamConditions slug={PRACTICE_SLUG.fuScoreExam} />}
     />
   );
 }

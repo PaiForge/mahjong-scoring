@@ -13,6 +13,7 @@
  *    出題された手牌・符の内訳・回答の比較を確認できる）
  * 4. リトライボタンと道場へのリンク
  */
+import { PRACTICE_SLUG } from "@/lib/db/practice-menu-types";
 import type { Metadata } from "next";
 import {
   createPracticeResultMetadata,
@@ -20,7 +21,7 @@ import {
 } from "@/app/(user)/(public)/practice/_lib/create-practice-result-page";
 import { FuExamResultView } from "../_components/fu-exam-result-view";
 
-const SLUG = "fu-exam" as const;
+const SLUG = PRACTICE_SLUG.fuExam;
 
 export async function generateMetadata(): Promise<Metadata> {
   return createPracticeResultMetadata(SLUG);

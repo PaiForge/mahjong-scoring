@@ -11,12 +11,13 @@
  * 3. 点数を回答して判定、フィードバックを挟んで次の問題へ進む
  * 4. 「終了」を押すと説明ページへ戻る
  */
+import { PRACTICE_SLUG } from "@/lib/db/practice-menu-types";
 import type { Metadata } from "next";
 import { createPracticeTrainingMetadata } from "../../_lib/metadata";
 import { ScoreTableTrainingView } from "../_components/score-table-training-view";
 
 export async function generateMetadata(): Promise<Metadata> {
-  return createPracticeTrainingMetadata("score-table");
+  return createPracticeTrainingMetadata(PRACTICE_SLUG.scoreTable);
 }
 
 export default function ScoreTableTrainingPage() {

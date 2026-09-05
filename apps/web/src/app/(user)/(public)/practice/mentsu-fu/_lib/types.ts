@@ -1,6 +1,9 @@
 import type { MentsuFuQuestion } from "@mahjong-scoring/core";
 
-import { resultStorageKeyFor } from "@/lib/db/practice-menu-types";
+import {
+  PRACTICE_SLUG,
+  resultStorageKeyFor,
+} from "@/lib/db/practice-menu-types";
 
 import { z } from "zod";
 
@@ -12,7 +15,7 @@ import {
 } from "../../_lib/mentsu-serialization";
 
 /** sessionStorage に保存する際のキー */
-export const RESULT_STORAGE_KEY = resultStorageKeyFor("mentsu-fu");
+export const RESULT_STORAGE_KEY = resultStorageKeyFor(PRACTICE_SLUG.mentsuFu);
 
 /**
  * 面子符練習の1問ごとの結果データ

@@ -1,8 +1,13 @@
-import { resultStorageKeyFor } from "@/lib/db/practice-menu-types";
+import {
+  PRACTICE_SLUG,
+  resultStorageKeyFor,
+} from "@/lib/db/practice-menu-types";
 
 export type { ScoreQuestionResult as ScoreCalculationQuestionResult } from "../../_lib/score-question-result";
 export { parseQuestionResults } from "../../_lib/score-question-result";
 export { paymentToScoreTableAnswer } from "../../_lib/payment-adapter";
 
 /** sessionStorage に保存する際のキー */
-export const RESULT_STORAGE_KEY = resultStorageKeyFor("score-calculation");
+export const RESULT_STORAGE_KEY = resultStorageKeyFor(
+  PRACTICE_SLUG.scoreCalculation,
+);

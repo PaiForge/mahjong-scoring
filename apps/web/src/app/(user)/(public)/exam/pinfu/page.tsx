@@ -21,6 +21,7 @@
  * ベストスコアを見るので、混ぜると「3級は取れたが2級はまだ」という状態が
  * 表せない。級ごとに1つの試験、が段級位レジストリの前提でもある。
  */
+import { PRACTICE_SLUG } from "@/lib/db/practice-menu-types";
 import type { Metadata } from "next";
 import { createPracticeMetadata } from "@/app/(user)/(public)/practice/_lib/metadata";
 import { PracticeIntroContent } from "@/app/(user)/(public)/practice/_components/practice-intro-content";
@@ -28,16 +29,16 @@ import { ExamConditions } from "../_components/exam-conditions";
 import { PinfuExamHowToPlay } from "./_components/pinfu-exam-how-to-play";
 
 export async function generateMetadata(): Promise<Metadata> {
-  return createPracticeMetadata("pinfu-exam");
+  return createPracticeMetadata(PRACTICE_SLUG.pinfuExam);
 }
 
 export default function PinfuExamPage() {
   return (
     <PracticeIntroContent
       namespace="pinfuExamChallenge"
-      slug="pinfu-exam"
+      slug={PRACTICE_SLUG.pinfuExam}
       howToPlay={<PinfuExamHowToPlay />}
-      notice={<ExamConditions slug="pinfu-exam" />}
+      notice={<ExamConditions slug={PRACTICE_SLUG.pinfuExam} />}
     />
   );
 }

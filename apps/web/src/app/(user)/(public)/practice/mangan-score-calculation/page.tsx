@@ -10,20 +10,21 @@
  * 2. 問題方式のデモと「開始」「トレーニング」ボタンが表示される
  * 3. 「開始」を押すと play ページへ遷移
  */
+import { PRACTICE_SLUG } from "@/lib/db/practice-menu-types";
 import type { Metadata } from "next";
 import { createPracticeMetadata } from "../_lib/metadata";
 import { PracticeIntroContent } from "../_components/practice-intro-content";
 import { ManganScoreCalculationHowToPlay } from "./_components/mangan-score-calculation-how-to-play";
 
 export async function generateMetadata(): Promise<Metadata> {
-  return createPracticeMetadata("mangan-score-calculation");
+  return createPracticeMetadata(PRACTICE_SLUG.manganScoreCalculation);
 }
 
 export default function ManganScoreCalculationPage() {
   return (
     <PracticeIntroContent
       namespace="manganScoreCalculationChallenge"
-      slug="mangan-score-calculation"
+      slug={PRACTICE_SLUG.manganScoreCalculation}
       showTraining
       howToPlay={<ManganScoreCalculationHowToPlay />}
     />

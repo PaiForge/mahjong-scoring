@@ -25,6 +25,7 @@
  * （`useFuChoiceBoard`）・結果の一覧（`FuProblemList`）は練習と共有する
  * （満貫の昇級試験と同じ構図）。
  */
+import { PRACTICE_SLUG } from "@/lib/db/practice-menu-types";
 import type { Metadata } from "next";
 import { createPracticeMetadata } from "@/app/(user)/(public)/practice/_lib/metadata";
 import { PracticeIntroContent } from "@/app/(user)/(public)/practice/_components/practice-intro-content";
@@ -32,16 +33,16 @@ import { ExamConditions } from "../_components/exam-conditions";
 import { FuExamHowToPlay } from "./_components/fu-exam-how-to-play";
 
 export async function generateMetadata(): Promise<Metadata> {
-  return createPracticeMetadata("fu-exam");
+  return createPracticeMetadata(PRACTICE_SLUG.fuExam);
 }
 
 export default function FuExamPage() {
   return (
     <PracticeIntroContent
       namespace="fuExamChallenge"
-      slug="fu-exam"
+      slug={PRACTICE_SLUG.fuExam}
       howToPlay={<FuExamHowToPlay />}
-      notice={<ExamConditions slug="fu-exam" />}
+      notice={<ExamConditions slug={PRACTICE_SLUG.fuExam} />}
     />
   );
 }

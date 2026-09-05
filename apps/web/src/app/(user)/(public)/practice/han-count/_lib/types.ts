@@ -1,7 +1,10 @@
 import { clampHanToYakuman } from "@mahjong-scoring/core";
 import type { ScoreQuestion, YakuDetail } from "@mahjong-scoring/core";
 
-import { resultStorageKeyFor } from "@/lib/db/practice-menu-types";
+import {
+  PRACTICE_SLUG,
+  resultStorageKeyFor,
+} from "@/lib/db/practice-menu-types";
 
 import { z } from "zod";
 
@@ -14,7 +17,7 @@ import {
 } from "../../_lib/score-question-result";
 
 /** sessionStorage に保存する際のキー */
-export const RESULT_STORAGE_KEY = resultStorageKeyFor("han-count");
+export const RESULT_STORAGE_KEY = resultStorageKeyFor(PRACTICE_SLUG.hanCount);
 
 /**
  * 翻数即答練習の出題スナップショット

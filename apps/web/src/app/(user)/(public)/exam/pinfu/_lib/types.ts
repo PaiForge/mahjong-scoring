@@ -1,12 +1,15 @@
 import type { QuestionGeneratorOptions } from "@mahjong-scoring/core";
-import { resultStorageKeyFor } from "@/lib/db/practice-menu-types";
+import {
+  PRACTICE_SLUG,
+  resultStorageKeyFor,
+} from "@/lib/db/practice-menu-types";
 
 export type { ScoreQuestionResult as PinfuExamQuestionResult } from "@/app/(user)/(public)/practice/_lib/score-question-result";
 export { parseQuestionResults } from "@/app/(user)/(public)/practice/_lib/score-question-result";
 export { paymentToScoreTableAnswer } from "@/app/(user)/(public)/practice/_lib/payment-adapter";
 
 /** sessionStorage に保存する際のキー */
-export const RESULT_STORAGE_KEY = resultStorageKeyFor("pinfu-exam");
+export const RESULT_STORAGE_KEY = resultStorageKeyFor(PRACTICE_SLUG.pinfuExam);
 
 /**
  * 平和の符（ツモは副底のまま、ロンは門前加符が乗る）

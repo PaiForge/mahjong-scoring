@@ -1,5 +1,6 @@
 "use client";
 
+import { PRACTICE_SLUG } from "@/lib/db/practice-menu-types";
 import { Suspense } from "react";
 
 import { createChallengePlayView } from "../../_lib/create-challenge-views";
@@ -42,7 +43,7 @@ export const YakuHanPlayView = createChallengePlayView<
   YakuHanQuestionResult,
   Record<string, never>
 >({
-  slug: "yaku-han",
+  slug: PRACTICE_SLUG.yakuHan,
   maxWidth: "max-w-2xl",
   renderBoard: (args) => (
     <Suspense fallback={<YakuHanGeneratingPlaceholder />}>

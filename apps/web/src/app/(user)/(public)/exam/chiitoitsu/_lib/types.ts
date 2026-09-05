@@ -1,12 +1,17 @@
 import type { QuestionGeneratorOptions } from "@mahjong-scoring/core";
-import { resultStorageKeyFor } from "@/lib/db/practice-menu-types";
+import {
+  PRACTICE_SLUG,
+  resultStorageKeyFor,
+} from "@/lib/db/practice-menu-types";
 
 export type { ScoreQuestionResult as ChiitoitsuExamQuestionResult } from "@/app/(user)/(public)/practice/_lib/score-question-result";
 export { parseQuestionResults } from "@/app/(user)/(public)/practice/_lib/score-question-result";
 export { paymentToScoreTableAnswer } from "@/app/(user)/(public)/practice/_lib/payment-adapter";
 
 /** sessionStorage に保存する際のキー */
-export const RESULT_STORAGE_KEY = resultStorageKeyFor("chiitoitsu-exam");
+export const RESULT_STORAGE_KEY = resultStorageKeyFor(
+  PRACTICE_SLUG.chiitoitsuExam,
+);
 
 /**
  * 昇級試験（七対子の点数計算）の出題条件

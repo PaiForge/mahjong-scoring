@@ -15,6 +15,7 @@
  * 5. リーダーボード詳細ページへのリンク
  * 6. リトライボタンと練習一覧へのリンク
  */
+import { PRACTICE_SLUG } from "@/lib/db/practice-menu-types";
 import type { Metadata } from "next";
 import {
   createPracticeResultMetadata,
@@ -22,7 +23,7 @@ import {
 } from "../../_lib/create-practice-result-page";
 import { JantouFuResultView } from "../_components/jantou-fu-result-view";
 
-const SLUG = "jantou-fu" as const;
+const SLUG = PRACTICE_SLUG.jantouFu;
 
 export async function generateMetadata(): Promise<Metadata> {
   return createPracticeResultMetadata(SLUG);

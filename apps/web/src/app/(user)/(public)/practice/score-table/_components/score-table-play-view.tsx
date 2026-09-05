@@ -1,5 +1,6 @@
 "use client";
 
+import { PRACTICE_SLUG } from "@/lib/db/practice-menu-types";
 import { Suspense } from "react";
 
 import { createChallengePlayView } from "../../_lib/create-challenge-views";
@@ -50,7 +51,7 @@ export const ScoreTablePlayView = createChallengePlayView<
   ScoreTableQuestionResult,
   Record<string, never>
 >({
-  slug: "score-table",
+  slug: PRACTICE_SLUG.scoreTable,
   renderBoard: (args) => (
     <Suspense fallback={<ScoreTableGeneratingPlaceholder />}>
       <ScoreTableBoardFromQuery args={args} />
