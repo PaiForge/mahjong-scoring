@@ -1,3 +1,4 @@
+import { TehaiHand } from "@/app/(user)/(public)/_components/tehai-hand";
 import { TileSet } from "@/app/(user)/_components/tile-set";
 
 import type {
@@ -13,11 +14,12 @@ interface PracticeCardVisualProps {
  * 練習カードの例示の帯
  * 例示の帯
  *
- * `出題で見えるもの → 答えの単位` を 1 行で描く。何をどう例示するかは
+ * `出題で見えるもの` の下に `答えの単位` を置く。何をどう例示するかは
  * `practiceCardVisual` が決め、ここは受け取ったものを並べるだけ。
  *
  * 卓と同じ濃い緑を敷くのは、この帯が出題盤面の縮図だと見せるため。高さは
- * 中身によらず固定で、隣り合うカードの帯の位置が揃う。
+ * 中身によらず固定で、手牌が入るカードとそうでないカードで帯の位置が
+ * ずれない。
  *
  * 読み上げには載せない（練習名と説明文が同じことを言っており、牌の名前や
  * 「符は？」を読み上げても情報は増えない）。
@@ -26,17 +28,28 @@ export function PracticeCardVisual({ visual }: PracticeCardVisualProps) {
   return (
     <div
       aria-hidden="true"
-      className="mt-4 flex h-16 items-center justify-center gap-2 rounded-lg bg-primary-800 px-3"
+      className="mt-4 flex h-20 flex-col items-center justify-center gap-1.5 overflow-hidden rounded-lg bg-primary-800 px-3"
     >
       <SubjectContent subject={visual.subject} />
-      <span className="text-sm text-white/50">→</span>
-      <span className="text-sm font-bold text-white">{visual.unitLabel}</span>
+      <span className="text-xs font-bold text-white">{visual.unitLabel}</span>
     </div>
   );
 }
 
-/** 帯の左側 */
+/** 帯の上段 */
 function SubjectContent({ subject }: { readonly subject: ResolvedSubject }) {
+  if (subject.kind === "hand") {
+    return (
+      // 手牌は出題盤面と同じ TehaiHand が描く（牌の出し方の単一実装）。
+      // 幅いっぱいまで自動で縮むため、カードの幅が変わっても 14 枚が
+      // 途切れない。max-w は 14 枚の等倍幅で、これ以上大きくならない
+      // カード（ダッシュボードの 1 枚表示）では中央に寄る
+      <div className="mx-auto w-full max-w-md">
+        <TehaiHand tehai={{ closed: subject.tiles, exposed: [] }} />
+      </div>
+    );
+  }
+
   if (subject.kind === "labels") {
     return (
       <span className="flex items-center gap-1.5">
@@ -66,9 +79,6 @@ function SubjectContent({ subject }: { readonly subject: ResolvedSubject }) {
           <span className="text-sm text-white/80">+</span>
           <TileSet tiles={[subject.agariHai]} size={size} />
         </>
-      )}
-      {subject.elided === true && (
-        <span className="text-sm text-white/60">…</span>
       )}
     </span>
   );

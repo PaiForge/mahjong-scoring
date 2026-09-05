@@ -1,6 +1,6 @@
 import type { getTranslations } from "next-intl/server";
 
-import { HaiKind } from "@mahjong-scoring/core";
+import { HaiKind, parseHais } from "@mahjong-scoring/core";
 import type { HaiKindId } from "@mahjong-scoring/core";
 
 import type { PracticeMenuSlug } from "@/lib/db/practice-menu-types";
@@ -23,13 +23,20 @@ type Subject =
       readonly groups: readonly (readonly HaiKindId[])[];
       /** 和了牌。待ちの練習だけが持ち、手の内と分けて描く */
       readonly agariHai?: HaiKindId;
-      /**
-       * 末尾に「…」を付けて手牌の一部であることを示すか。手牌 14 枚は
-       * カードの幅に入らないため、手牌全体を見て答える練習はこの形で示す。
-       */
-      readonly elided?: boolean;
       /** 牌の大きさ。3 枚を超えるものは 1 段小さくして幅に収める */
       readonly size?: "xs" | "sm";
+    }
+  | {
+      /**
+       * 手牌全体を見て答える練習。14 枚を並べる。
+       *
+       * 一部を抜き出して「…」で省くこともできるが、それでは手牌を見て
+       * 答える練習だと伝わらない（何枚から何を探すのかが出題の中身のため）。
+       * 牌はカードの幅に合わせて縮む。
+       */
+      readonly kind: "hand";
+      /** 手牌の MSPZ 表記。読めるように文字列で持ち、牌 ID へは引くときに直す */
+      readonly mspz: string;
     }
   | {
       /** 牌が出ず、文言だけが出る出題 */
@@ -100,14 +107,10 @@ const PRACTICE_CARD_VISUALS: Partial<Record<PracticeMenuSlug, CatalogVisual>> =
       },
       unit: "fu",
     },
-    // 手牌全体の符。数える対象が符の付く暗刻であることを 3 枚で示す
+    // 符の付く暗刻を 2 つ持つ手。符を拾う対象が手牌のどこにあるかを見せる。
+    // 字牌に東を使うのは、白が白紙の牌で「画像が出ていない」ように見えるため
     "total-fu": {
-      subject: {
-        kind: "tiles",
-        groups: [[HaiKind.PinZu9, HaiKind.PinZu9, HaiKind.PinZu9]],
-        elided: true,
-        size: "xs",
-      },
+      subject: { kind: "hand", mspz: "23499m111p789s111z" },
       unit: "fu",
     },
     // 役名と鳴きの状態だけが出る唯一の練習。牌は 1 枚も出ない。
@@ -116,23 +119,14 @@ const PRACTICE_CARD_VISUALS: Partial<Record<PracticeMenuSlug, CatalogVisual>> =
       subject: { kind: "labels", pill: "naki", text: "yakuName" },
       unit: "han",
     },
+    // 順子だけの門前手。役が 1 つに定まらない手を出す（すべて選ぶ練習のため）
     yaku: {
-      subject: {
-        kind: "tiles",
-        groups: [[HaiKind.PinZu2, HaiKind.PinZu3, HaiKind.PinZu4]],
-        elided: true,
-        size: "xs",
-      },
+      subject: { kind: "hand", mspz: "234567m23455p678s" },
       unit: "yaku",
     },
-    // 翻を生む役牌の刻子を先頭に置く（合計符の暗刻と描き分ける）
+    // 翻を生む役牌（中）の刻子を持つ手。数える対象は符ではなく役だと示す
     "han-count": {
-      subject: {
-        kind: "tiles",
-        groups: [[HaiKind.Hatsu, HaiKind.Hatsu, HaiKind.Hatsu]],
-        elided: true,
-        size: "xs",
-      },
+      subject: { kind: "hand", mspz: "234m456p67899s777z" },
       unit: "han",
     },
     // 符と翻から表を引く練習。手牌は出ず、引くための 2 つの数だけが出る
@@ -146,12 +140,7 @@ const PRACTICE_CARD_VISUALS: Partial<Record<PracticeMenuSlug, CatalogVisual>> =
       unit: "score",
     },
     "score-calculation": {
-      subject: {
-        kind: "tiles",
-        groups: [[HaiKind.SouZu3, HaiKind.SouZu4, HaiKind.SouZu5]],
-        elided: true,
-        size: "xs",
-      },
+      subject: { kind: "hand", mspz: "123456m789p23455s" },
       unit: "score",
     },
   };
@@ -166,6 +155,10 @@ export interface PracticeCardVisual {
 /** 文言を引き終えた帯の左側 */
 export type ResolvedSubject =
   | Extract<Subject, { kind: "tiles" }>
+  | {
+      readonly kind: "hand";
+      readonly tiles: readonly HaiKindId[];
+    }
   | {
       readonly kind: "labels";
       readonly pill?: string;
@@ -191,20 +184,26 @@ export function practiceCardVisual(
   const visual = PRACTICE_CARD_VISUALS[slug];
   if (visual === undefined) return undefined;
 
-  const { subject } = visual;
   return {
-    subject:
-      subject.kind === "tiles"
-        ? subject
-        : {
-            kind: "labels",
-            pill:
-              subject.pill === undefined
-                ? undefined
-                : t(`cardExample.${subject.pill}`),
-            text: t(`cardExample.${subject.text}`),
-          },
+    subject: resolveSubject(visual.subject, t),
     unitLabel: t(`cardExample.units.${visual.unit}`),
+  };
+}
+
+/** 帯の左側の文言と牌を引く */
+function resolveSubject(
+  subject: Subject,
+  t: PracticeTranslator,
+): ResolvedSubject {
+  if (subject.kind === "tiles") return subject;
+  if (subject.kind === "hand") {
+    return { kind: "hand", tiles: parseHais(subject.mspz) };
+  }
+  return {
+    kind: "labels",
+    pill:
+      subject.pill === undefined ? undefined : t(`cardExample.${subject.pill}`),
+    text: t(`cardExample.${subject.text}`),
   };
 }
 
