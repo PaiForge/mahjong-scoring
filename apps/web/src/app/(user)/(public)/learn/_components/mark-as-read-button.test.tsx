@@ -14,11 +14,10 @@ import { render, act, fireEvent } from "@testing-library/react";
 // Mocks (hoisted)
 // ---------------------------------------------------------------------------
 
-const { mockMarkChapterRead, mockUnmarkChapterRead, mockPush, mockToastError } =
+const { mockMarkChapterRead, mockUnmarkChapterRead, mockToastError } =
   vi.hoisted(() => ({
     mockMarkChapterRead: vi.fn(),
     mockUnmarkChapterRead: vi.fn(),
-    mockPush: vi.fn(),
     mockToastError: vi.fn(),
   }));
 
@@ -30,9 +29,7 @@ vi.mock("../_actions/unmark-chapter-read", () => ({
   unmarkChapterRead: mockUnmarkChapterRead,
 }));
 
-vi.mock("next/navigation", () => ({
-  useRouter: () => ({ push: mockPush }),
-}));
+vi.mock("next/navigation", async () => await import("@/test/navigation-mock"));
 
 vi.mock("next-intl", async () => await import("@/test/intl-mock"));
 
@@ -41,6 +38,8 @@ vi.mock("react-hot-toast", () => ({
     error: mockToastError,
   },
 }));
+
+import { routerPush } from "@/test/navigation-mock";
 
 import { MarkAsReadButton } from "./mark-as-read-button";
 
@@ -148,7 +147,7 @@ describe("MarkAsReadButton", () => {
     });
 
     const expectedRedirect = encodeURIComponent("/learn/jantou-fu");
-    expect(mockPush).toHaveBeenCalledWith(
+    expect(routerPush).toHaveBeenCalledWith(
       `/sign-in?redirect=${expectedRedirect}`,
     );
     expect(mockToastError).not.toHaveBeenCalled();

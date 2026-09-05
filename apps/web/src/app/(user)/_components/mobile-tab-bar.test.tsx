@@ -4,11 +4,9 @@ import { NextIntlClientProvider } from "next-intl";
 import { useBodyScrollLock } from "@/app/_hooks/use-body-scroll-lock";
 import { MobileTabBar } from "./mobile-tab-bar";
 
-const mockPathname = vi.hoisted(() => vi.fn<() => string>());
+vi.mock("next/navigation", async () => await import("@/test/navigation-mock"));
 
-vi.mock("next/navigation", () => ({
-  usePathname: mockPathname,
-}));
+import { setPathname } from "@/test/navigation-mock";
 
 /** 画面を覆う UI が開いている状態を作る（モーダル・ドロワーと同じ経路で） */
 function OpenOverlay() {
@@ -17,7 +15,7 @@ function OpenOverlay() {
 }
 
 function renderAt(pathname: string, overlay = false) {
-  mockPathname.mockReturnValue(pathname);
+  setPathname(pathname);
   render(
     <NextIntlClientProvider
       locale="ja"
