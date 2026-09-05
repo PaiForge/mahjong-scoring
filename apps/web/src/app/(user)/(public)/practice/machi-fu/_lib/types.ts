@@ -9,6 +9,10 @@ import {
 import { z } from "zod";
 
 import { createSessionStorageParser } from "../../_lib/create-session-storage-parser";
+import {
+  fuAnswerResultSchema,
+  type FuAnswerResult,
+} from "../../_lib/result-schemas";
 
 /** sessionStorage に保存する際のキー */
 export const RESULT_STORAGE_KEY = resultStorageKeyFor(PRACTICE_SLUG.machiFu);
@@ -21,7 +25,7 @@ export const RESULT_STORAGE_KEY = resultStorageKeyFor(PRACTICE_SLUG.machiFu);
  * 符は待ちの形（両面・嵌張・辺張・単騎・双碰）で決まるので、符だけ並べても
  * 振り返りにならない。
  */
-export interface MachiFuQuestionResult {
+export interface MachiFuQuestionResult extends FuAnswerResult {
   /**
    * 待ち形を構成する牌（MSPZ）
    *
@@ -32,11 +36,6 @@ export interface MachiFuQuestionResult {
   readonly tiles: string;
   /** 和了牌（MSPZ） */
   readonly agariHai: string;
-  /** 正解の符 */
-  readonly correctFu: number;
-  /** ユーザーが選んだ符 */
-  readonly userFu: number;
-  readonly isCorrect: boolean;
 }
 
 /**
@@ -60,13 +59,11 @@ export function toQuestionResult(
  * sessionStorage から取得した値が MachiFuQuestionResult として妥当か検証する
  * 待ち符問題結果バリデーション
  */
-const questionResultSchema: z.ZodType<MachiFuQuestionResult> = z.object({
-  tiles: z.string(),
-  agariHai: z.string(),
-  correctFu: z.number(),
-  userFu: z.number(),
-  isCorrect: z.boolean(),
-});
+const questionResultSchema: z.ZodType<MachiFuQuestionResult> =
+  fuAnswerResultSchema.extend({
+    tiles: z.string(),
+    agariHai: z.string(),
+  });
 
 /**
  * sessionStorage から問題結果を安全にパースする

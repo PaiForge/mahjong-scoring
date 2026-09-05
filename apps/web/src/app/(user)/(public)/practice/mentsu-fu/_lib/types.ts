@@ -9,6 +9,10 @@ import { z } from "zod";
 
 import { createSessionStorageParser } from "../../_lib/create-session-storage-parser";
 import {
+  fuAnswerResultSchema,
+  type FuAnswerResult,
+} from "../../_lib/result-schemas";
+import {
   serializedMentsuSchema,
   toSerializedMentsu,
   type SerializedMentsu,
@@ -24,13 +28,8 @@ export const RESULT_STORAGE_KEY = resultStorageKeyFor(PRACTICE_SLUG.mentsuFu);
  * 結果ページで出題された面子を再表示するため、面子そのものを保存形で持つ。
  * 符は明暗と牌の種類で決まるので、符だけ並べても振り返りにならない。
  */
-export interface MentsuFuQuestionResult {
+export interface MentsuFuQuestionResult extends FuAnswerResult {
   readonly mentsu: SerializedMentsu;
-  /** 正解の符 */
-  readonly correctFu: number;
-  /** ユーザーが選んだ符 */
-  readonly userFu: number;
-  readonly isCorrect: boolean;
 }
 
 /**
@@ -53,12 +52,10 @@ export function toQuestionResult(
  * sessionStorage から取得した値が MentsuFuQuestionResult として妥当か検証する
  * 面子符問題結果バリデーション
  */
-const questionResultSchema: z.ZodType<MentsuFuQuestionResult> = z.object({
-  mentsu: serializedMentsuSchema,
-  correctFu: z.number(),
-  userFu: z.number(),
-  isCorrect: z.boolean(),
-});
+const questionResultSchema: z.ZodType<MentsuFuQuestionResult> =
+  fuAnswerResultSchema.extend({
+    mentsu: serializedMentsuSchema,
+  });
 
 /**
  * sessionStorage から問題結果を安全にパースする

@@ -47,6 +47,20 @@ export const fuDetailSchema: z.ZodType<FuDetail> = z.object({
   fu: z.number(),
 });
 
+/** 符を数値で回答する問題に共通する正解・回答・正誤 */
+export interface FuAnswerResult {
+  readonly correctFu: number;
+  readonly userFu: number;
+  readonly isCorrect: boolean;
+}
+
+/** 符を数値で回答する問題に共通する結果スキーマ */
+export const fuAnswerResultSchema = z.object({
+  correctFu: z.number(),
+  userFu: z.number(),
+  isCorrect: z.boolean(),
+}) satisfies z.ZodType<FuAnswerResult>;
+
 /** 役の内訳 1 件 */
 export const yakuDetailSchema: z.ZodType<YakuDetail> = z.object({
   name: z.string(),
