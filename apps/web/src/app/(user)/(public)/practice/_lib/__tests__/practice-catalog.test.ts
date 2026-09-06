@@ -21,6 +21,7 @@ import {
   listedPracticeRanks,
   matchesPracticeFilter,
   practiceListHref,
+  parsePracticeHref,
   practiceSlugFromHref,
   practiceTitleKey,
   rankExamHref,
@@ -218,6 +219,35 @@ describe("practiceListHref", () => {
         0,
       );
     }
+  });
+});
+
+describe("parsePracticeHref", () => {
+  it("昇級試験の説明ページ（/exam/<級>）を解く", () => {
+    expect(parsePracticeHref("/exam/mangan")).toEqual({
+      slug: "mangan-exam",
+      mode: "intro",
+    });
+  });
+
+  it("模試（/exam/<級>/training）を解く", () => {
+    expect(parsePracticeHref("/exam/mangan/training")).toEqual({
+      slug: "mangan-exam",
+      mode: "training",
+    });
+    expect(practiceSlugFromHref("/exam/mangan/training")).toBe("mangan-exam");
+  });
+
+  it("練習のトレーニングも解く", () => {
+    expect(parsePracticeHref("/practice/total-fu/training#practice")).toEqual({
+      slug: "total-fu",
+      mode: "training",
+    });
+  });
+
+  it("play / result は解かない", () => {
+    expect(parsePracticeHref("/exam/mangan/play")).toBeUndefined();
+    expect(parsePracticeHref("/exam/mangan/result")).toBeUndefined();
   });
 });
 

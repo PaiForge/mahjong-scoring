@@ -65,6 +65,18 @@ describe("selectDashboardGuidance", () => {
     expect(guidance.recommendedPracticeSlugs).toEqual(["mentsu-fu"]);
   });
 
+  it("章が昇級試験の模試へ送っていても、おすすめの練習には出さない", () => {
+    // 満貫の章は 5 級の模試へ送る。試験は走行を記録しないため「挑戦済み」に
+    // ならず、除外しないと何度受けても勧め続けてしまう
+    const guidance = selectDashboardGuidance({
+      readSlugs: new Set(["mangan-ko-ron"]),
+      attemptedSlugs: NO_ATTEMPTS,
+      achievedRankSlugs: NO_RANKS,
+    });
+
+    expect(guidance.recommendedPracticeSlugs).toEqual([]);
+  });
+
   it("勧める練習は 2 件までに絞る", () => {
     const guidance = selectDashboardGuidance({
       readSlugs: new Set(CURRICULUM_CHAPTER_SLUGS),

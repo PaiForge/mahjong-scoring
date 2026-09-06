@@ -1641,6 +1641,7 @@
       "practiceLinksTitle": "この章に対応する練習",
       "practiceLinkCta": "練習を始める",
       "practiceLinkChallengeCta": "{title}にチャレンジ",
+      "examTrainingLinkCta": "{examTitle}の模試を受ける",
       "updateFailedToast": "進捗の更新に失敗しました。再度お試しください。"
     },
     "scoreTable": {
