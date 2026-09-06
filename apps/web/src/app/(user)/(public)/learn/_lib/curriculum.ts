@@ -60,37 +60,42 @@ const CURRICULUM_REGISTRY = [
     order: 20,
     i18nKey: "learnCurriculum.chapters.whyScoringIsComplex",
   },
+  // 満貫のセクションは役割ごとに読む（子のロン → 子のツモ → 親のロン →
+  // 親のツモ）。和了方法ごと（ロン2章 → ツモ2章）ではないのは、点数表早引きの
+  // 土俵が親子で分かれていて、和了方法では分かれないため。この順なら
+  // ツモの章を読み終えた時点でその役割の満貫以上がちょうど揃い、練習が
+  // 「読んだ範囲だけ」を出題できる。本文の参照（親は子の1.5倍、ツモの合計は
+  // ロンと同じ）も参照先が直前の章になる
   {
     slug: "mangan-ko-ron",
     section: "mangan",
     order: 21,
-    // 子の満貫以上。ツモとロンで土俵を分けないため（同じ点数の表裏で、
-    // 片方だけ覚える練習は暗記の単位として不自然）、子のツモの章とこの
-    // バリアントを共有する
-    practiceHrefs: [practiceHref("score-table", "ko_mangan_plus")],
+    // 練習リンクを持たない。この時点で読んだのは子のロンだけで、
+    // 子・満貫以上の練習は子のツモも出すため（次の章で揃う）
     i18nKey: "learnCurriculum.chapters.manganKoRon",
-  },
-  {
-    slug: "mangan-oya-ron",
-    section: "mangan",
-    order: 22,
-    // 親の満貫以上（子・ロンの章と同じ理由）
-    practiceHrefs: [practiceHref("score-table", "oya_mangan_plus")],
-    i18nKey: "learnCurriculum.chapters.manganOyaRon",
   },
   {
     slug: "mangan-ko-tsumo",
     section: "mangan",
-    order: 23,
-    // 子の満貫以上（子・ロンの章と同じ土俵）
+    order: 22,
+    // ここで子の満貫以上（ロン・ツモ）が揃うので、同じ範囲の練習へ送る。
+    // ツモとロンで土俵を分けないのは、同じ点数の表裏で、片方だけ覚える
+    // 練習が暗記の単位として不自然なため
     practiceHrefs: [practiceHref("score-table", "ko_mangan_plus")],
     i18nKey: "learnCurriculum.chapters.manganKoTsumo",
+  },
+  {
+    slug: "mangan-oya-ron",
+    section: "mangan",
+    order: 23,
+    // 練習リンクを持たない（子のロンの章と同じ理由。次の章で親が揃う）
+    i18nKey: "learnCurriculum.chapters.manganOyaRon",
   },
   {
     slug: "mangan-oya-tsumo",
     section: "mangan",
     order: 24,
-    // 親の満貫以上（親・ロンの章と同じ土俵）
+    // ここで親の満貫以上が揃う（子のツモの章と同じ理由）
     practiceHrefs: [practiceHref("score-table", "oya_mangan_plus")],
     i18nKey: "learnCurriculum.chapters.manganOyaTsumo",
   },

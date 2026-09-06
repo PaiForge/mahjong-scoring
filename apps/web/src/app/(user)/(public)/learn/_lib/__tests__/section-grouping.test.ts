@@ -58,13 +58,16 @@ describe("section grouping", () => {
     }
   });
 
-  it('places the four mangan chapters in the "mangan" section in that order', () => {
+  it('places the four mangan chapters in the "mangan" section by role', () => {
+    // 役割ごと（子のロン → 子のツモ → 親のロン → 親のツモ）。和了方法ごとに
+    // 戻すと、点数表早引きの土俵（親子で分かれる）が章の切れ目と合わなくなり、
+    // 読んだ範囲だけを出す練習へ送れなくなる
     const grouped = groupChaptersBySection();
     const manganSlugs = grouped.get("mangan")?.map((c) => c.slug) ?? [];
     expect(manganSlugs).toEqual([
       "mangan-ko-ron",
-      "mangan-oya-ron",
       "mangan-ko-tsumo",
+      "mangan-oya-ron",
       "mangan-oya-tsumo",
     ]);
   });

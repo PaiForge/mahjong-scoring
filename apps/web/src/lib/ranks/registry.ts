@@ -108,8 +108,8 @@ export const RANK_REGISTRY = [
     },
     learnChapterSlugs: [
       "mangan-ko-ron",
-      "mangan-oya-ron",
       "mangan-ko-tsumo",
+      "mangan-oya-ron",
       "mangan-oya-tsumo",
       "yaku",
     ],
