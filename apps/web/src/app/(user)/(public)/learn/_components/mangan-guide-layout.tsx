@@ -10,6 +10,13 @@ interface ManganGuideLayoutProps {
   readonly namespace: string;
   /** body2 と body3 の間に差し込む点数表 */
   readonly table: ReactNode;
+  /**
+   * 共通の節のあとに続ける章固有の節
+   *
+   * 4章に共通するのは「表とその読み方」までで、その先に足すものは章ごとに
+   * 違う。子のツモだけが持つ導出の節（ロンを半分にする）がこれを使う。
+   */
+  readonly children?: ReactNode;
 }
 
 /**
@@ -18,11 +25,12 @@ interface ManganGuideLayoutProps {
  *
  * 4章（子ロン・親ロン・子ツモ・親ツモ）で共通の構成。
  * 本文は bodyTitle / body1 / body2 / body3 の4キーを持つ前提で、
- * 章ごとの違いは名前空間と差し込む点数表だけ。
+ * 章ごとの違いは名前空間と差し込む点数表、それに続く章固有の節だけ。
  */
 export async function ManganGuideLayout({
   namespace,
   table,
+  children,
 }: ManganGuideLayoutProps) {
   const t = await getTranslations(namespace);
 
@@ -35,6 +43,8 @@ export async function ManganGuideLayout({
         {table}
         <GuideParagraph preLine>{t("body3")}</GuideParagraph>
       </section>
+
+      {children}
     </div>
   );
 }
