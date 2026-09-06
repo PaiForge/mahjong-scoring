@@ -7,13 +7,14 @@ import { createChallengePlayView } from "../../_lib/create-challenge-views";
 import type { ChallengeBoardArgs } from "../../_lib/create-challenge-views";
 import { YakuHanBoard } from "./yaku-han-board";
 import { YakuHanGeneratingPlaceholder } from "./yaku-han-generating-placeholder";
-import { useYakuHanRangeQuery } from "../_hooks/use-yaku-han-range-query";
+import { useVariantQuery } from "../../_hooks/use-variant-query";
+import { YAKU_HAN_VARIANT_RANGES } from "../_lib/variants";
 import type { YakuHanQuestionResult } from "../_lib/types";
 
 /**
- * URL の出題範囲で盤面を描く
+ * URL のバリアント（出題範囲）で盤面を描く
  *
- * 範囲を `useSearchParams()` で読むため、静的ルートではこのサブツリーだけが
+ * バリアントを `useSearchParams()` で読むため、静的ルートではこのサブツリーだけが
  * クライアント描画になる。シェル（タイトル・タイマー・ライフ）は
  * プリレンダーされたまま残る。
  */
@@ -22,7 +23,7 @@ function YakuHanBoardFromQuery({
 }: {
   readonly args: ChallengeBoardArgs<YakuHanQuestionResult>;
 }) {
-  const range = useYakuHanRangeQuery();
+  const range = YAKU_HAN_VARIANT_RANGES[useVariantQuery(PRACTICE_SLUG.yakuHan)];
 
   return (
     <YakuHanBoard

@@ -7,7 +7,7 @@ import { TrainingModeProvider } from "../../_hooks/use-training-mode";
 import { TrainingShell } from "../../_components/training-shell";
 import { ScoreTableBoard } from "./score-table-board";
 import { ScoreTableGeneratingPlaceholder } from "./score-table-generating-placeholder";
-import { useScoreTableGeneratorOptions } from "../_hooks/use-score-table-query-selection";
+import { useScoreTableGeneratorOptions } from "../_hooks/use-score-table-generator-options";
 import { useScoreTableQuestion } from "../_hooks/use-score-table-question";
 import { practiceHref, practicePlayHref } from "../../_lib/practice-catalog";
 import {
@@ -27,7 +27,7 @@ const CHALLENGE_RULES = { timeLimit, mistakeLimit };
 /**
  * このビューだけ createTrainingView を使わずに手書きしている。
  *
- * この練習は出題条件を URL クエリから読む（`useSearchParams`）。
+ * この練習は出題条件（バリアント）を URL クエリから読む（`useSearchParams`）。
  * 状態を引き上げるとビュー全体が Suspense 境界の内側に入り、フォールバック
  * 側でもシェルを描いてプリレンダー HTML に見出し・終了リンクを残す必要が
  * あるため、境界の外殻ごとここで組み立てている。

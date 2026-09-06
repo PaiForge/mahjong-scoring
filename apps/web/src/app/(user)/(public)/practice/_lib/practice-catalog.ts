@@ -3,13 +3,14 @@ import {
   DEFAULT_VARIANT,
   isExamMenuType,
   isPracticeMenuSlug,
+  isPracticeVariantOf,
   menuTypeToSlug,
   practiceMenuBySlug,
   type PracticeMenuSlug,
 } from "@/lib/db/practice-menu-types";
 import { RANK_REGISTRY, type RankSlug } from "@/lib/ranks/registry";
 import { PRACTICE_SETUP_HASH } from "./scroll-anchor";
-import { variantQuery } from "./variant-param";
+import { VARIANT_PARAM, variantQuery } from "./variant-param";
 
 /**
  * 練習メニューのカタログ — 一覧の並び・段級位・教本リンクの単一の真実のソース
@@ -242,8 +243,30 @@ export function listedPracticeRanks(): readonly RankSlug[] {
  * 練習はレジストリの `basePath` が上書きする。パスを直に組み立てず
  * 必ずここを通すこと（play / result は `practicePlayHref` 等を使う）。
  */
-export function practiceHref(slug: PracticeMenuSlug): string {
-  return practiceMenuBySlug(slug).basePath;
+export function practiceHref(slug: PracticeMenuSlug, variant?: string): string {
+  const { basePath } = practiceMenuBySlug(slug);
+  // バリアントを渡されたときだけ付ける（説明ページはバリアント無しでも開ける。
+  // 選択パネルが URL のバリアントを初期選択にする）
+  return variant === undefined
+    ? basePath
+    : `${basePath}${variantQuery(slug, variant)}`;
+}
+
+/**
+ * 練習ページへのパスからバリアントを取り出す
+ * バリアント抽出
+ *
+ * 教本の `practiceHrefs` はバリアント付きのものがある（例:
+ * `/practice/score-table?variant=all`）。リンクのラベルにバリアント名を
+ * 添えるのに使う。指定が無い・不正・その練習がバリアントを持たないなら undefined。
+ */
+export function practiceVariantFromHref(href: string): string | undefined {
+  const slug = practiceSlugFromHref(href);
+  if (slug === undefined || !practiceMenuBySlug(slug).hasSetup)
+    return undefined;
+  const query = href.split("?")[1]?.split("#")[0] ?? "";
+  const raw = new URLSearchParams(query).get(VARIANT_PARAM) ?? undefined;
+  return raw !== undefined && isPracticeVariantOf(slug, raw) ? raw : undefined;
 }
 
 /**
