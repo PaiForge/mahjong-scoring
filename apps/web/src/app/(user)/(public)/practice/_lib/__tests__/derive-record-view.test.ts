@@ -65,9 +65,16 @@ describe("deriveRecordView", () => {
     expect(view.diffFromLast).toBeUndefined();
   });
 
-  // 比較サマリの取得に失敗した場合。行は残り、値だけが「—」になる
-  it("比較サマリが無くても全項目 undefined で返す", () => {
-    expect(deriveRecordView(undefined)).toEqual({
+  // 訊けた上で 1 件も無かった場合。取得失敗はここへ来ず、行ごと断りに
+  // 差し替わる（`RecordSection` が分ける）
+  it("記録が 1 件も無ければ全項目 undefined で返す", () => {
+    expect(
+      deriveRecordView({
+        current: undefined,
+        previousBest: undefined,
+        previousLast: undefined,
+      }),
+    ).toEqual({
       status: "none",
       currentScore: undefined,
       previousBestScore: undefined,

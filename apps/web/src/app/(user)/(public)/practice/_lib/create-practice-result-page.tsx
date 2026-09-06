@@ -29,6 +29,7 @@ import { PromotionBanner } from "../_components/promotion-banner";
 import { LeaderboardPreview } from "../_components/leaderboard-preview";
 import { LeaderboardSkeleton } from "../_components/leaderboard-skeleton";
 import { ResultBlockSkeleton } from "../_components/result-block-skeleton";
+import { RecordUnavailable } from "../_components/record-unavailable";
 import { SignUpCta } from "../_components/sign-up-cta";
 import { debugResultDelay } from "./debug-delay";
 import { tryFetch } from "./try-fetch";
@@ -155,7 +156,8 @@ interface PracticeResultPageProps {
  *    - これらは URL クエリ (`?correct=&total=&time=`) のみで描画可能
  *
  * 2. **`<Suspense fallback={<ResultBlockSkeleton />}>`**
- *    - `AsyncResultBlock`: 認証判定 + EXP / 過去記録比較の取得 + `RecordSection` or `SignUpCta` 描画
+ *    - `AsyncResultBlock`: 認証判定 + EXP / 過去記録比較の取得 +
+ *      `RecordSection` / `SignUpCta` / `RecordUnavailable` のいずれかを描画
  *
  * 3. **`<Suspense fallback={<LeaderboardSkeleton />}>`**
  *    - `AsyncLeaderboardBlock`: `getLeaderboard()` を呼んで `LeaderboardPreview` を描画
@@ -277,6 +279,7 @@ export function createPracticeResultPage(
  * 完結させる。
  * ログイン済み → `RecordSection`（EXP は grant があるときだけ、過去記録比較は常に）
  * 未ログイン → `SignUpCta`
+ * 認証状態を訊けなかった → `RecordUnavailable`
  *
  * ログイン済みで grant が無い場合（スコア保存に失敗した等）も比較だけの
  * `RecordSection` を描画する — どの分岐でも 1 セクションが必ず現れることで、
@@ -298,10 +301,14 @@ async function AsyncResultBlock({
     getOptionalUser(),
   );
 
-  // 認証状態を訊けなかったときは未ログインと同じ扱いにする。ログイン済みの人に
-  // 登録 CTA を見せることになるが、記録セクションは中身がすべて欠けるため、
-  // 空欄だけの記録より CTA の方がまだ読める面になる。
-  if (!user.ok || !user.value) {
+  // 認証状態を訊けなかったときは、ログイン済みかどうかが判らない。登録 CTA に
+  // 倒すとログイン済みの人へ「登録するとスコアが記録されます」と言うことになり、
+  // 記録されている側の人を誤解させる。読み込めなかったとだけ伝える。
+  if (!user.ok) {
+    return <RecordUnavailable />;
+  }
+
+  if (!user.value) {
     return <SignUpCta />;
   }
 
@@ -318,12 +325,17 @@ async function AsyncResultBlock({
     ),
   ]);
 
-  // 取得できなかったものは「無い」に倒す。`RecordSection` は行を残したまま
-  // 「—」を出すため、欠けても他の分岐と同じ高さのセクションが 1 つ現れる。
+  // 比較サマリは取得の成否ごと渡す。失敗を「無い」に倒すと、3 行すべてが
+  // 「—」になってまだ 1 回も走っていない人の画面と区別がつかなくなるため、
+  // 断りを出すかどうかは `RecordSection` が決める。
+  //
+  // EXP は倒してよい。付与そのものが無い回（`?grant=` を持たない訪問）が
+  // 普通にあり、そのときも表示は出ないため、読めなかった回だけが
+  // 何かを主張することにはならない。
   return (
     <RecordSection
       expInfo={fetchedExpInfo?.ok ? fetchedExpInfo.value : undefined}
-      comparison={fetchedComparison.ok ? fetchedComparison.value : undefined}
+      comparison={fetchedComparison}
       menuType={menuType}
     />
   );

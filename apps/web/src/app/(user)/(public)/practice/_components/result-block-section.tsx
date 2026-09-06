@@ -5,8 +5,8 @@ import type { ReactNode } from "react";
  * 結果ブロック枠
  *
  * `AsyncResultBlock` が描画する全分岐（未ログインの登録 CTA / ログイン済みの
- * 記録セクション）と、その Suspense fallback（`ResultBlockSkeleton`）が
- * 共有するシルエット。「SectionTitle + 本文」を同じ最小高さの `<section>` に
+ * 記録セクション / 認証状態を訊けなかったときの読み込み失敗）と、その
+ * Suspense fallback（`ResultBlockSkeleton`）が共有するシルエット。「SectionTitle + 本文」を同じ最小高さの `<section>` に
  * 収めることで、fallback からどの分岐へ置き換わってもレイアウトが動かず、
  * CLS を構造的に 0 に保つ。
  *
@@ -21,8 +21,11 @@ import type { ReactNode } from "react";
  *   実測時の 2 行版 175px にスコア 1 行（約 28px）を足した約 203px、EXP の
  *   レベルアップ表示が出る回でも約 245px で、いずれも 248px に収まる
  *
- * したがって最小高さを決めているのは登録 CTA の方であり、記録セクションの
- * 分岐は高さに影響しない。CTA 側のレイアウトを変えたときだけ測り直せばよい。
+ * - 読み込み失敗（`RecordUnavailable`）: 見出し行と 2 行の断りだけで、
+ *   記録セクションより低い
+ *
+ * したがって最小高さを決めているのは登録 CTA の方であり、他の分岐は高さに
+ * 影響しない。CTA 側のレイアウトを変えたときだけ測り直せばよい。
  *
  * CTA の高さは中のボタンと補助リンクの間隔（`SUB_LINK_GAP`）に連動する。
  * あの余白を変えたらここも測り直すこと。

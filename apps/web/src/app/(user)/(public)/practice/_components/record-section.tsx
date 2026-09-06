@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { getTranslations } from "next-intl/server";
 import type { ExpInfo } from "@mahjong-scoring/core";
+import { HighlightPanel } from "@/app/(user)/_components/highlight-panel";
 import { SectionTitle } from "@/app/(user)/_components/section-title";
 import { TEXT_LINK_CLASSES } from "@/app/_components/_lib/link-classes";
 import {
@@ -11,14 +12,20 @@ import {
 import type { PracticeMenuType } from "@/lib/db/practice-menu-types";
 import type { ScoreComparison } from "@/lib/db/score-comparison-queries";
 import { deriveRecordView } from "../_lib/derive-record-view";
+import type { Fetched } from "../_lib/try-fetch";
 import { ExpGainDisplay } from "./exp-gain-display";
 import { ResultBlockSection } from "./result-block-section";
 
 interface RecordSectionProps {
   /** 獲得経験値。今回の保存（grant）が無い・取得に失敗した場合は undefined */
   readonly expInfo: ExpInfo | undefined;
-  /** 過去記録との比較サマリ。取得に失敗した場合は undefined */
-  readonly comparison: ScoreComparison | undefined;
+  /**
+   * 過去記録との比較サマリ。取得に失敗していれば `ok: false`。
+   *
+   * 失敗を「比較できる記録が無い」に畳まないのは、畳むと 3 行すべてが「—」に
+   * なり、まだ 1 回も走っていない人の画面と同じ見た目になるため。
+   */
+  readonly comparison: Fetched<ScoreComparison>;
   /** マイレコードへの導線で、この練習種別を選択した状態で開くために使う */
   readonly menuType: PracticeMenuType;
 }
@@ -57,15 +64,15 @@ export async function RecordSection({
   menuType,
 }: RecordSectionProps) {
   const t = await getTranslations("challenge");
-  const view = deriveRecordView(comparison);
+  const view = comparison.ok ? deriveRecordView(comparison.value) : undefined;
 
   const badge =
-    view.status === "newBest"
+    view?.status === "newBest"
       ? {
           label: t("record.newBest"),
           className: "bg-primary-100 text-primary-700",
         }
-      : view.status === "first"
+      : view?.status === "first"
         ? {
             label: t("record.firstRecord"),
             className: "bg-surface-100 text-surface-600",
@@ -90,18 +97,26 @@ export async function RecordSection({
 
       {expInfo && <ExpGainDisplay expInfo={expInfo} />}
 
-      <dl className="space-y-2 text-sm">
-        <RecordRow label={t("record.thisTimeLabel")}>
-          {formatScore(view.currentScore)}
-          <DiffFromLast diff={view.diffFromLast} />
-        </RecordRow>
-        <RecordRow label={t("record.lastLabel")}>
-          {formatScore(view.previousLastScore)}
-        </RecordRow>
-        <RecordRow label={t("record.bestLabel")}>
-          {formatScore(view.previousBestScore)}
-        </RecordRow>
-      </dl>
+      {view ? (
+        <dl className="space-y-2 text-sm">
+          <RecordRow label={t("record.thisTimeLabel")}>
+            {formatScore(view.currentScore)}
+            <DiffFromLast diff={view.diffFromLast} />
+          </RecordRow>
+          <RecordRow label={t("record.lastLabel")}>
+            {formatScore(view.previousLastScore)}
+          </RecordRow>
+          <RecordRow label={t("record.bestLabel")}>
+            {formatScore(view.previousBestScore)}
+          </RecordRow>
+        </dl>
+      ) : (
+        <HighlightPanel>
+          <p className="text-sm font-semibold text-surface-900">
+            {t("record.comparisonLoadFailed")}
+          </p>
+        </HighlightPanel>
+      )}
 
       <p className="text-center">
         <Link
