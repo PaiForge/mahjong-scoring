@@ -8,6 +8,7 @@ import {
   practiceMenuBySlug,
   resultStorageKeyFor,
 } from "@/lib/db/practice-menu-types";
+import { useSubmitExamOnFinish } from "@/app/(user)/(public)/exam/_hooks/use-submit-exam-on-finish";
 import { ChallengeShell } from "../_components/challenge-shell";
 import { TrainingShell } from "../_components/training-shell";
 import { useRecordedResults } from "../_hooks/use-recorded-results";
@@ -95,6 +96,11 @@ export function createChallengePlayView<
   // 終了後のスケルトンも同じ形にして高さを揃える。中断時の文言も
   // 「チャレンジ」ではなく「試験」で出す
   const variant = isExamMenuType(menuType) ? "exam" : "practice";
+  // 終了時の処理も試験と練習で分かれる — 練習は結果を記録し、試験は記録せず
+  // 採点だけする。どちらを使うかはコンポーネント生成時に固定されるため、
+  // フックの呼び出し順は毎レンダー同じ
+  const useFinishHandler =
+    variant === "exam" ? useSubmitExamOnFinish : useSaveOnFinish;
   const useBoardState =
     config.useBoardState ?? (() => undefined as unknown as TState);
 
@@ -107,7 +113,7 @@ export function createChallengePlayView<
       mistakeLimit,
       timeLimit,
     });
-    const handleFinish = useSaveOnFinish(menuType);
+    const handleFinish = useFinishHandler(menuType);
     const { recordResult } = useRecordedResults<TResult>(
       resultStorageKey,
       gameSession.isFinished,

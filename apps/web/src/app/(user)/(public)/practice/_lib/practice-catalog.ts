@@ -323,19 +323,12 @@ export function matchesPracticeFilter(
  * 「次に取る級」しか出さないため、5級を持たない人が4級のピルを押すと
  * 5級の話に着地してしまう）。
  *
- * 要件を 2 つ以上持つ級は、どの試験が「その級のページ」なのか決められない
- * ため道場へ送る。現行の級はどちらも試験 1 つで、その分岐には入らない。
- *
  * @param slug 段級位スラッグ
  */
 export function rankExamHref(slug: RankSlug): string {
   const rank = RANK_REGISTRY.find((entry) => entry.slug === slug);
-  const exams = (rank?.requirements ?? []).filter(
-    (requirement) => requirement.type === "challenge_score",
-  );
-  const [only] = exams;
-  if (only === undefined || exams.length > 1) return "/dojo";
-  return practiceHref(menuTypeToSlug(only.menuType));
+  if (rank === undefined) return "/dojo";
+  return practiceHref(menuTypeToSlug(rank.exam.menuType));
 }
 
 /** 練習のプレイページのパス */

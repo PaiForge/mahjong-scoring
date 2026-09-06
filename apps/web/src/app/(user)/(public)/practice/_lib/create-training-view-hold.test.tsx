@@ -7,6 +7,10 @@ vi.mock(
   "../_actions/save-practice-result",
   async () => await import("@/test/save-practice-result-mock"),
 );
+vi.mock(
+  "@/app/(user)/(public)/exam/_actions/submit-exam-result",
+  async () => await import("@/test/submit-exam-result-mock"),
+);
 
 import { ChallengeSubmitButton } from "../_components/challenge-submit-button";
 import { useRegisterAdvance } from "../_hooks/use-training-mode";

@@ -13,6 +13,9 @@ import { savePracticeResult } from "../_actions/save-practice-result";
  * 練習終了時にチャレンジ結果を保存するコールバックを返す
  * 終了時スコア保存フック
  *
+ * 昇級試験には使わない（試験は記録を残さず採点だけする —
+ * `exam/_hooks/use-submit-exam-on-finish.ts`）。
+ *
  * 認証チェックは Server Action 側が行う（cookie ベースの Supabase サーバークライアントが
  * 唯一の信頼できる認証ソース）。クライアント側で認証状態を先読みしない。
  * 過去に認証コンテキストの初期ロード中にチャレンジが終了した場合の競合条件で、
@@ -46,10 +49,7 @@ export function useSaveOnFinish(
           // 匿名ユーザー: 期待される no-op（エラーではない）
           return undefined;
         }
-        return {
-          grant: result.challengeResultId,
-          promoted: result.grantedRanks,
-        };
+        return { grant: result.challengeResultId };
       } catch (error: unknown) {
         logExternalError("savePracticeResult", menuType, error);
         return undefined;

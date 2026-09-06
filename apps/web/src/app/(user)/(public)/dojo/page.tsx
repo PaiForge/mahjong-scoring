@@ -103,13 +103,10 @@ export default async function DojoPage() {
               </section>
             )}
 
-            {next.requirements.map((requirement) => (
-              <ExamCtaCard
-                key={requirement.menuType}
-                slug={menuTypeToSlug(requirement.menuType)}
-                lead={t("examLead")}
-              />
-            ))}
+            <ExamCtaCard
+              slug={menuTypeToSlug(next.exam.menuType)}
+              lead={t("examLead")}
+            />
           </>
         ) : (
           <section className="space-y-4">

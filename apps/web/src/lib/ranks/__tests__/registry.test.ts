@@ -21,13 +21,9 @@ describe("RANK_REGISTRY", () => {
     expect(levels).toEqual([...new Set(levels)].sort((a, b) => a - b));
   });
 
-  it("全ランクが最低1つの要件を持つ（要件なしの昇級素通りを防ぐ）", () => {
-    for (const rank of RANK_REGISTRY) {
-      expect(
-        rank.requirements.length,
-        `${rank.slug} に要件がない`,
-      ).toBeGreaterThan(0);
-    }
+  it("試験が級ごとに一意である（1 つの試験が 2 つの級を決めない）", () => {
+    const menuTypes = RANK_REGISTRY.map((rank) => rank.exam.menuType);
+    expect(new Set(menuTypes).size).toBe(menuTypes.length);
   });
 
   // 「1ミスでアウト」は要件側でなく練習レジストリの mistakeLimit が強制する
@@ -45,10 +41,9 @@ describe("RANK_REGISTRY", () => {
     ({ slug, menuType, minScore }) => {
       const rank = RANK_REGISTRY.find((entry) => entry.slug === slug);
       expect(rank).toBeDefined();
-      const requirement = rank!.requirements[0]!;
-      expect(requirement.menuType).toBe(menuType);
-      expect(requirement.minScore).toBe(minScore);
-      expect(practiceMenuByType(requirement.menuType).mistakeLimit).toBe(1);
+      expect(rank!.exam.menuType).toBe(menuType);
+      expect(rank!.exam.minScore).toBe(minScore);
+      expect(practiceMenuByType(rank!.exam.menuType).mistakeLimit).toBe(1);
     },
   );
 
