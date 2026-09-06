@@ -1,6 +1,8 @@
 import type { Metadata } from "next";
+import { getTranslations } from "next-intl/server";
 
 import {
+  createMetadata,
   createNamespaceMetadata,
   createTitleOnlyMetadata,
 } from "@/app/_lib/metadata";
@@ -9,7 +11,7 @@ import {
   type PracticeMenuSlug,
 } from "@/lib/db/practice-menu-types";
 
-import { practiceHref } from "./practice-catalog";
+import { isExamMenu, practiceHref } from "./practice-catalog";
 
 /**
  * play / training / result 用の robots 指定。
@@ -94,13 +96,30 @@ export async function createFreePracticePlayMetadata(
  * 辞書ネームスペースはレジストリから引く（理由は
  * {@link createPracticePlayMetadata} と同じ）。
  *
+ * 昇級試験のスラッグなら模試（`/exam/<級>/training`）。タイトルは画面の見出しと
+ * 同じく試験名に「（模試）」を添え、説明は付けない（試験の説明文は
+ * 「ミスは1回まで」のように本番のルールを述べていて模試には当てはまらない）。
+ *
  * @param slug - 練習のスラッグ
  */
 export async function createPracticeTrainingMetadata(
   slug: PracticeMenuSlug,
 ): Promise<Metadata> {
+  const { namespace } = practiceMenuBySlug(slug);
+  if (isExamMenu(slug)) {
+    const [t, tExamTraining] = await Promise.all([
+      getTranslations(namespace),
+      getTranslations("examTraining"),
+    ]);
+    return {
+      ...createMetadata({
+        title: tExamTraining("pageTitle", { title: t("title") }),
+      }),
+      robots: PRACTICE_SUBPAGE_ROBOTS,
+    };
+  }
   return {
-    ...(await createNamespaceMetadata(practiceMenuBySlug(slug).namespace)),
+    ...(await createNamespaceMetadata(namespace)),
     robots: PRACTICE_SUBPAGE_ROBOTS,
   };
 }
