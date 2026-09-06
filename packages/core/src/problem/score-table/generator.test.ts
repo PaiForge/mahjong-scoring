@@ -413,3 +413,32 @@ describe("切り上げ満貫オプション", () => {
     expect(question.correctAnswer).toEqual({ type: "ron", score: 7700 });
   });
 });
+
+describe("オプション: excludeKiriageBoundary", () => {
+  /** 切り上げ満貫で正解が割れるセル（30符4翻・60符3翻） */
+  const isBoundary = (question: ScoreTableQuestion): boolean =>
+    (question.han === 4 && question.fu === 30) ||
+    (question.han === 3 && question.fu === 60);
+
+  it("true の場合、30符4翻・60符3翻を出題しない", () => {
+    const options = { maxHan: 4, excludeKiriageBoundary: true } as const;
+    for (let i = 0; i < 500; i++) {
+      expect(isBoundary(generateScoreTableQuestion(options))).toBe(false);
+    }
+  });
+
+  it("既定（false）では境界のセルも出題される", () => {
+    // 除外オプションが「もともと出ないものを外している」だけでないことの対照
+    expect(findQuestion({ maxHan: 4 }, isBoundary, 1000)).toBeDefined();
+  });
+
+  it("境界以外のセルは除外の影響を受けない", () => {
+    expect(
+      findQuestion(
+        { maxHan: 4, excludeKiriageBoundary: true },
+        (question) => question.han === 4 && question.fu === 40,
+        1000,
+      ),
+    ).toBeDefined();
+  });
+});

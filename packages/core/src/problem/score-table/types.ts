@@ -76,6 +76,16 @@ export interface ScoreTableGeneratorOptions {
   readonly ranges?: readonly ScoreRange[];
   /** 30符4翻・60符3翻を満貫に切り上げるか（切り上げ満貫、既定 false） */
   readonly kiriageMangan?: boolean;
+  /**
+   * 切り上げ満貫で点数が割れるセル（30符4翻・60符3翻）を出題しないか（既定 false）
+   * 切り上げ満貫境界除外
+   *
+   * この 2 セルは標準ルールなら満貫未満、切り上げ満貫ルールなら満貫と、
+   * 採用ルールによって正解が割れる。答えを 1 つに定めたい出題（端末ごとの
+   * ルール設定に左右されてはならない、記録が残るチャレンジ）が立てる。
+   * 点数計算の `QuestionGeneratorOptions.excludeKiriageBoundary` の点数表版。
+   */
+  readonly excludeKiriageBoundary?: boolean;
   /** 問題 ID の採番。既定: crypto.randomUUID */
   readonly idGen?: IdGenerator;
   /** 乱数供給源。既定: Math.random */
