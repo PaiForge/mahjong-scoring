@@ -3,7 +3,10 @@ import {
   PRACTICE_MENU_TYPES,
   isExamMenuType,
   isPracticeMenuType,
+  isPracticeVariant,
 } from "@/lib/db/practice-menu-types";
+
+import type { RecordBoard } from "./types";
 
 /**
  * マイレコードが扱わない練習種別（昇級試験）
@@ -32,4 +35,18 @@ export const EXCLUDED_MENU_TYPES: PracticeMenuType[] =
  */
 export function isMyRecordMenuType(value: string): value is PracticeMenuType {
   return isPracticeMenuType(value) && !isExamMenuType(value);
+}
+
+/**
+ * マイレコードが扱う土俵かを判定する
+ * マイレコード土俵判定
+ *
+ * 練習種別が対象で、かつバリアントがその練習の列挙にあるか。Server Action は
+ * 任意の値で呼べるため、他の練習のバリアント名を名乗った土俵はここで弾く。
+ */
+export function isMyRecordBoard(board: RecordBoard): boolean {
+  return (
+    isMyRecordMenuType(board.menuType) &&
+    isPracticeVariant(board.menuType, board.variant)
+  );
 }

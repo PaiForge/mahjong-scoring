@@ -27,12 +27,33 @@ export function isDatePeriod(value: unknown): value is DatePeriod {
 }
 
 /**
+ * マイレコードの土俵 — 練習種別と出題設定のバリアントの組
+ * 記録の土俵
+ *
+ * 記録は (menuType, leaderboardKey) 単位に積まれ、推移・平均・ベストも
+ * 同じ単位で見る。バリアントが違えば難易度が違うため、同じ練習でも
+ * 混ぜて平均を取らない。設定を持たない練習の `variant` は `DEFAULT_VARIANT`。
+ */
+export interface RecordBoard {
+  readonly menuType: PracticeMenuType;
+  /** 出題設定のバリアント（= `leaderboard_key`） */
+  readonly variant: string;
+}
+
+/**
+ * 土俵を 1 つの文字列キーにする（select の value・Map のキー用）
+ * 土俵キー
+ */
+export function recordBoardKey(board: RecordBoard): string {
+  return `${board.menuType}:${board.variant}`;
+}
+
+/**
  * チャレンジ1件分のデータ
  * チャレンジ
  */
-export interface ChallengeAttempt {
+export interface ChallengeAttempt extends RecordBoard {
   readonly id: string;
-  readonly menuType: PracticeMenuType;
   readonly score: number;
   readonly incorrectAnswers: number;
   readonly createdAt: Date;

@@ -32,6 +32,12 @@
  * 作りたい期間の散らばりが失われる。EXP の画面を見たいときは実際に
  * 練習を 1 回走らせること。
  *
+ * @design 土俵（練習種別 × バリアント）ごとに成績を入れる
+ *
+ * バリアントを持つ練習（役の翻数・点数表早引き）は設定ごとに別のランキング・
+ * 別のベストを持つ。どの土俵も空にならないよう、レジストリの `variants` を
+ * すべて回して 1 土俵ずつ 2 件入れる。
+ *
  * @design 昇級試験には成績を入れない
  *
  * 試験の走行は本番でも記録されない（合否だけを判定し、成果は `user_ranks`
@@ -51,9 +57,6 @@ import {
 } from "../../src/lib/db/practice-menu-types";
 import { rankingOrderSql } from "../../src/lib/db/ranking-order";
 import { challengeBestScores, challengeResults } from "../../src/lib/db/schema";
-
-/** 現時点でランキングを細分化していないため、キーは 1 種類だけ */
-const LEADERBOARD_KEY = "default";
 
 /** 前月側の成績を月初から何日さかのぼった範囲に置くか */
 const PREVIOUS_PERIOD_SPAN_DAYS = 20;
@@ -95,7 +98,9 @@ export async function reseedChallengeResults(
   );
   const rows = users.flatMap((user) =>
     recordedMenuTypes.flatMap((menuType) =>
-      resultsFor(user, menuType, new Date()),
+      practiceMenuByType(menuType).variants.flatMap((variant) =>
+        resultsFor(user, menuType, variant, new Date()),
+      ),
     ),
   );
 
@@ -106,25 +111,27 @@ export async function reseedChallengeResults(
 }
 
 /**
- * 1 人 × 1 練習種別ぶんの成績（前月・当月の 2 件）を組み立てる
+ * 1 人 × 1 土俵ぶんの成績（前月・当月の 2 件）を組み立てる
  * 成績組み立て
  */
 function resultsFor(
   user: ScoredSeedUser,
   menuType: PracticeMenuType,
+  variant: string,
   now: Date,
 ): (typeof challengeResults.$inferInsert)[] {
   const menu = practiceMenuByType(menuType);
   const monthStart = startOfMonthUtc(now);
+  const board = `${menuType}:${variant}`;
 
   return [
-    { period: "previous", createdAt: dateBefore(monthStart, user, menuType) },
+    { period: "previous", createdAt: dateBefore(monthStart, user, board) },
     {
       period: "current",
-      createdAt: dateBetween(monthStart, now, user, menuType),
+      createdAt: dateBetween(monthStart, now, user, board),
     },
   ].map(({ period, createdAt }) => {
-    const random = pseudoRandom(`${user.username}:${menuType}:${period}`);
+    const random = pseudoRandom(`${user.username}:${board}:${period}`);
 
     // ミスは練習ごとの上限まで。
     const incorrectAnswers = randomInt(random(), 0, menu.mistakeLimit);
@@ -137,7 +144,7 @@ function resultsFor(
     return {
       userId: user.userId,
       menuType,
-      leaderboardKey: LEADERBOARD_KEY,
+      leaderboardKey: variant,
       score: randomInt(random(), SCORE_RANGE.min, SCORE_RANGE.max),
       incorrectAnswers,
       timeTaken,
@@ -190,9 +197,9 @@ function startOfMonthUtc(now: Date): Date {
 function dateBefore(
   monthStart: Date,
   user: ScoredSeedUser,
-  menuType: PracticeMenuType,
+  board: string,
 ): Date {
-  const random = pseudoRandom(`${user.username}:${menuType}:before`);
+  const random = pseudoRandom(`${user.username}:${board}:before`);
   const daysBack = randomInt(random(), 1, PREVIOUS_PERIOD_SPAN_DAYS);
   return new Date(monthStart.getTime() - daysBack * 24 * 60 * 60 * 1000);
 }
@@ -202,9 +209,9 @@ function dateBetween(
   monthStart: Date,
   now: Date,
   user: ScoredSeedUser,
-  menuType: PracticeMenuType,
+  board: string,
 ): Date {
-  const random = pseudoRandom(`${user.username}:${menuType}:within-month`);
+  const random = pseudoRandom(`${user.username}:${board}:within-month`);
   const span = now.getTime() - monthStart.getTime();
   return new Date(monthStart.getTime() + Math.floor(random() * span));
 }

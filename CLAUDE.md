@@ -270,6 +270,26 @@ packages/eslint-config/ — 共通 ESLint 設定（PaiForge コーディング�
 - `score-calculation`, `score-table` はチャレンジ型だが説明ページ（page.tsx）は未作成
 - `score` は終了条件がなく無限ループする訓練機能のため、result ページを持たない
 
+## 出題設定（バリアント）と記録の土俵
+
+チャレンジの記録は `(menu_type, leaderboard_key)` の土俵ごとに積まれ、ランキング・
+マイレコード・自己ベストの比較もその単位で引く。`leaderboard_key` は出題設定の
+**バリアント**で、`PRACTICE_MENU_REGISTRY` の `variants` に列挙したキー
+（設定を持たない練習は `DEFAULT_VARIANT` = `"default"`）。
+
+- **練習の設定は、レジストリに列挙した少数のバリアントから 1 つ選ぶ形に限る。**
+  チェックボックスの自由な組み合わせは作らない — 列挙できない設定は土俵に
+  名前を付けて並べることも比較することもできない
+- バリアントのキーは URL の `?variant=`・`leaderboard_key`・辞書キー
+  （`<namespace>.variants.<key>.{label,hint}`）で同じ文字列を使う。変換の表を持たない
+- 読む側は必ず `resolvePracticeVariant()` で正規化する（未指定・不正値は先頭の既定）。
+  盤面・保存・結果ページ・ランキングが同じ URL から同じ土俵に着地するため
+- 説明ページの選択 UI は共通の `VariantStartPanel`。練習ごとに設定 UI を書かない
+- `/preferences` のルール設定（連風牌4符・切り上げ満貫等）は端末ローカルで、
+  `leaderboard_key` に載せない（端末を変えた瞬間に記録が別の土俵へ飛ぶ）
+- 昇級試験は記録を残さない（`submitExamResult` が合否だけ判定して `user_ranks` に
+  付与する）。`savePracticeResult` は試験の menuType を入口で弾く
+
 ## 認証（Email + Google OAuth）
 
 ### 環境変数

@@ -9,12 +9,16 @@ import { and, count, desc, eq, gte, lt, notInArray } from "drizzle-orm";
 
 import { db } from "@/lib/db";
 import { DEFAULT_PAGE_SIZE, getPaginationData } from "@/lib/pagination";
-import type { PracticeMenuType } from "@/lib/db/practice-menu-types";
-import { isPracticeMenuType } from "@/lib/db/practice-menu-types";
+import {
+  PRACTICE_MENU_TYPES,
+  isPracticeMenuType,
+  isPracticeVariant,
+  practiceMenuByType,
+} from "@/lib/db/practice-menu-types";
 import { challengeResults } from "@/lib/db/schema";
 
-import { EXCLUDED_MENU_TYPES, isMyRecordMenuType } from "./menu-scope";
-import type { ChallengeAttempt } from "./types";
+import { EXCLUDED_MENU_TYPES, isMyRecordBoard } from "./menu-scope";
+import type { ChallengeAttempt, RecordBoard } from "./types";
 
 /**
  * ページネーション付きでチャレンジ結果を取得する
@@ -23,14 +27,17 @@ import type { ChallengeAttempt } from "./types";
 export async function getChallengeResultsPaginated(
   userId: string,
   page: number = 1,
-  menuType?: PracticeMenuType,
+  board?: RecordBoard,
 ): Promise<{ items: ChallengeAttempt[]; totalPages: number }> {
   const conditions = [
     eq(challengeResults.userId, userId),
     notInArray(challengeResults.menuType, EXCLUDED_MENU_TYPES),
   ];
-  if (menuType) {
-    conditions.push(eq(challengeResults.menuType, menuType));
+  if (board) {
+    conditions.push(
+      eq(challengeResults.menuType, board.menuType),
+      eq(challengeResults.leaderboardKey, board.variant),
+    );
   }
 
   const whereClause = and(...conditions);
@@ -49,6 +56,7 @@ export async function getChallengeResultsPaginated(
       .select({
         id: challengeResults.id,
         menuType: challengeResults.menuType,
+        leaderboardKey: challengeResults.leaderboardKey,
         score: challengeResults.score,
         incorrectAnswers: challengeResults.incorrectAnswers,
         createdAt: challengeResults.createdAt,
@@ -77,18 +85,24 @@ export async function getChallengeResultsPaginated(
 /**
  * Drizzle の行データを ChallengeAttempt に変換する
  * チャレンジ行変換
+ *
+ * menu_type / leaderboard_key は varchar なので、レジストリから外れた過去の
+ * 値（消した練習・消したバリアント）は読み飛ばす。
  */
 function toChallengeAttempt(row: {
   id: string;
   menuType: string;
+  leaderboardKey: string;
   score: number;
   incorrectAnswers: number;
   createdAt: Date;
 }): ChallengeAttempt | undefined {
   if (!isPracticeMenuType(row.menuType)) return undefined;
+  if (!isPracticeVariant(row.menuType, row.leaderboardKey)) return undefined;
   return {
     id: row.id,
     menuType: row.menuType,
+    variant: row.leaderboardKey,
     score: row.score,
     incorrectAnswers: row.incorrectAnswers,
     createdAt: row.createdAt,
@@ -101,13 +115,14 @@ function toChallengeAttempt(row: {
  */
 async function queryAttemptsByRange(
   userId: string,
-  menuType: string,
+  board: RecordBoard,
   range: { start: Date; end: Date },
 ): Promise<ChallengeAttempt[]> {
   const rows = await db
     .select({
       id: challengeResults.id,
       menuType: challengeResults.menuType,
+      leaderboardKey: challengeResults.leaderboardKey,
       score: challengeResults.score,
       incorrectAnswers: challengeResults.incorrectAnswers,
       createdAt: challengeResults.createdAt,
@@ -116,7 +131,8 @@ async function queryAttemptsByRange(
     .where(
       and(
         eq(challengeResults.userId, userId),
-        eq(challengeResults.menuType, menuType),
+        eq(challengeResults.menuType, board.menuType),
+        eq(challengeResults.leaderboardKey, board.variant),
         gte(challengeResults.createdAt, range.start),
         lt(challengeResults.createdAt, range.end),
       ),
@@ -130,12 +146,12 @@ async function queryAttemptsByRange(
 }
 
 /**
- * 指定メニュー・期間のチャレンジ一覧を取得する
+ * 指定した土俵・期間のチャレンジ一覧を取得する
  * チャレンジ取得
  */
 export async function fetchChallengeAttempts(
   userId: string,
-  menuType: PracticeMenuType,
+  board: RecordBoard,
   currentRangeStart: Date,
   currentRangeEnd: Date,
   previousRangeStart: Date,
@@ -148,8 +164,8 @@ export async function fetchChallengeAttempts(
   const previousRange = { start: previousRangeStart, end: previousRangeEnd };
 
   const [currentRows, previousRows] = await Promise.all([
-    queryAttemptsByRange(userId, menuType, currentRange),
-    queryAttemptsByRange(userId, menuType, previousRange),
+    queryAttemptsByRange(userId, board, currentRange),
+    queryAttemptsByRange(userId, board, previousRange),
   ]);
 
   return {
@@ -159,14 +175,20 @@ export async function fetchChallengeAttempts(
 }
 
 /**
- * ユーザーが記録を持つメニュー種別の一覧を返す
- * 利用可能メニュー取得
+ * ユーザーが記録を持つ土俵（練習種別 × バリアント）の一覧を返す
+ * 利用可能土俵取得
+ *
+ * 並びは練習一覧と同じ（レジストリの練習順 → バリアントの列挙順）。
+ * DB の DISTINCT は順序を持たないため、ここで揃える。
  */
-export async function fetchAvailableMenuTypes(
+export async function fetchAvailableBoards(
   userId: string,
-): Promise<PracticeMenuType[]> {
+): Promise<RecordBoard[]> {
   const rows = await db
-    .selectDistinct({ menuType: challengeResults.menuType })
+    .selectDistinct({
+      menuType: challengeResults.menuType,
+      leaderboardKey: challengeResults.leaderboardKey,
+    })
     .from(challengeResults)
     .where(
       and(
@@ -175,7 +197,17 @@ export async function fetchAvailableMenuTypes(
       ),
     );
 
-  return rows
-    .map((r) => r.menuType)
-    .filter((m): m is PracticeMenuType => isMyRecordMenuType(m));
+  const boards = rows.flatMap((row) => {
+    if (!isPracticeMenuType(row.menuType)) return [];
+    const board: RecordBoard = {
+      menuType: row.menuType,
+      variant: row.leaderboardKey,
+    };
+    return isMyRecordBoard(board) ? [board] : [];
+  });
+
+  const order = (board: RecordBoard): number =>
+    PRACTICE_MENU_TYPES.indexOf(board.menuType) * 100 +
+    practiceMenuByType(board.menuType).variants.indexOf(board.variant);
+  return boards.sort((a, b) => order(a) - order(b));
 }

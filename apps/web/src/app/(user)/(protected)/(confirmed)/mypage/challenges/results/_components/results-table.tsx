@@ -5,7 +5,7 @@ import {
   CompactTableRow,
 } from "../../_components/compact-table";
 import { formatDate, getMissColorClass } from "../../_lib/dashboard-utils";
-import type { ChallengeAttempt } from "../../_lib/types";
+import type { ChallengeAttempt, RecordBoard } from "../../_lib/types";
 
 interface ResultsTableProps {
   readonly items: readonly ChallengeAttempt[];
@@ -16,8 +16,8 @@ interface ResultsTableProps {
     readonly correctAnswers: string;
     readonly incorrectAnswers: string;
   };
-  /** menuType を表示ラベルへ変換する（i18n は呼び出し元の名前空間で行う） */
-  readonly getMenuLabel: (menuType: string) => string;
+  /** 土俵（練習種別 × バリアント）を表示ラベルへ変換する（i18n は呼び出し元で行う） */
+  readonly getBoardLabel: (board: RecordBoard) => string;
 }
 
 /**
@@ -28,7 +28,7 @@ export function ResultsTable({
   items,
   emptyMessage,
   headers,
-  getMenuLabel,
+  getBoardLabel,
 }: ResultsTableProps) {
   if (items.length === 0) {
     return <p className="text-surface-500 text-center py-8">{emptyMessage}</p>;
@@ -52,7 +52,7 @@ export function ResultsTable({
       {items.map((item) => (
         <CompactTableRow key={item.id}>
           <CompactTableCell>{formatDate(item.createdAt)}</CompactTableCell>
-          <CompactTableCell>{getMenuLabel(item.menuType)}</CompactTableCell>
+          <CompactTableCell>{getBoardLabel(item)}</CompactTableCell>
           <CompactTableCell align="right">{item.score}</CompactTableCell>
           <CompactTableCell
             align="right"

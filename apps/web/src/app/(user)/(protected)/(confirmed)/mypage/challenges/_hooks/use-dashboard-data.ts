@@ -9,8 +9,6 @@ import {
   useTransition,
 } from "react";
 
-import type { PracticeMenuType } from "@/lib/db/practice-menu-types";
-
 import { getChallengeAttempts } from "../_actions/get-challenge-attempts";
 import {
   buildChartData,
@@ -24,18 +22,19 @@ import type {
   ChartDataPoint,
   DatePeriod,
   AttemptRow,
+  RecordBoard,
 } from "../_lib/types";
 
 const TABLE_DISPLAY_LIMIT = 5;
 
 interface UseDashboardDataOptions {
-  /** サーバーサイドでプリフェッチした利用可能メニュー種別 */
-  readonly initialMenuTypes: readonly PracticeMenuType[];
+  /** サーバーサイドでプリフェッチした、記録を持つ土俵の一覧 */
+  readonly initialBoards: readonly RecordBoard[];
   /**
-   * 初期選択の練習種別。`initialAttempts` がどの種別のデータかを表すため、
-   * プリフェッチと同じ値を渡すこと（食い違うと初回描画だけ別種別のデータが出る）。
+   * 初期選択の土俵。`initialAttempts` がどの土俵のデータかを表すため、
+   * プリフェッチと同じ値を渡すこと（食い違うと初回描画だけ別の土俵のデータが出る）。
    */
-  readonly initialMenu: PracticeMenuType | undefined;
+  readonly initialBoard: RecordBoard | undefined;
   /** サーバーサイドでプリフェッチした初期チャレンジデータ */
   readonly initialAttempts: {
     readonly current: readonly ChallengeAttempt[];
@@ -49,16 +48,16 @@ interface UseDashboardDataOptions {
  * ダッシュボードデータフック
  */
 export function useDashboardData({
-  initialMenuTypes,
-  initialMenu,
+  initialBoards,
+  initialBoard,
   initialAttempts,
 }: UseDashboardDataOptions) {
-  const [selectedMenu, setSelectedMenu] = useState<
-    PracticeMenuType | undefined
-  >(initialMenu);
+  const [selectedBoard, setSelectedBoard] = useState<RecordBoard | undefined>(
+    initialBoard,
+  );
   const [selectedPeriod, setSelectedPeriod] = useState<DatePeriod>("thisWeek");
-  const [availableMenuTypes] = useState<PracticeMenuType[] | undefined>([
-    ...initialMenuTypes,
+  const [availableBoards] = useState<RecordBoard[] | undefined>([
+    ...initialBoards,
   ]);
   const [currentAttempts, setCurrentAttempts] = useState<ChallengeAttempt[]>([
     ...initialAttempts.current,
@@ -72,7 +71,7 @@ export function useDashboardData({
   const isInitialMount = useRef(true);
 
   const fetchAttempts = useCallback(() => {
-    if (!selectedMenu) return;
+    if (!selectedBoard) return;
 
     // 初回マウント時はサーバーサイドのプリフェッチデータを使用
     if (isInitialMount.current) {
@@ -87,7 +86,7 @@ export function useDashboardData({
 
     startTransition(async () => {
       const result = await getChallengeAttempts(
-        selectedMenu,
+        selectedBoard,
         currentRange.start,
         currentRange.end,
         previousRange.start,
@@ -96,7 +95,7 @@ export function useDashboardData({
       setCurrentAttempts(result.current);
       setPreviousAttempts(result.previous);
     });
-  }, [selectedMenu, selectedPeriod]);
+  }, [selectedBoard, selectedPeriod]);
 
   useEffect(() => {
     fetchAttempts();
@@ -140,12 +139,12 @@ export function useDashboardData({
   const hasMoreResults = currentAttempts.length > TABLE_DISPLAY_LIMIT;
 
   return {
-    selectedMenu,
-    setSelectedMenu,
+    selectedBoard,
+    setSelectedBoard,
     selectedPeriod,
     setSelectedPeriod,
     isLoading: isPending,
-    availableMenuTypes,
+    availableBoards,
     currentStats,
     bestScoreComparison,
     avgScoreComparison,
