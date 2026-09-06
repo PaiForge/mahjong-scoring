@@ -138,14 +138,14 @@ describe("段級位との対応", () => {
 });
 
 describe("章と練習の対応", () => {
-  it("満貫の 4 章は点数表早引きの満貫以上バリアントへ送る", () => {
-    // 章が扱う親子と、送り先のバリアントの親子を一致させる。ツモとロンは
-    // 同じ点数の表裏なので土俵を分けず、子（親）の章は 2 つとも同じ
-    // バリアントを指す
+  it("満貫の章は、その役割の点数が揃った章からだけ練習へ送る", () => {
+    // 点数表早引きの土俵は親子で分かれ、和了方法では分かれない。ロンだけを
+    // 読んだ時点で送るとツモの問題が出てしまうので、ツモの章まで読んで
+    // その役割が揃ってから送る。章の並びは section-grouping.test.ts が守る
     const expected = {
-      "mangan-ko-ron": "ko_mangan_plus",
-      "mangan-oya-ron": "oya_mangan_plus",
+      "mangan-ko-ron": undefined,
       "mangan-ko-tsumo": "ko_mangan_plus",
+      "mangan-oya-ron": undefined,
       "mangan-oya-tsumo": "oya_mangan_plus",
     } as const;
 
@@ -153,6 +153,10 @@ describe("章と練習の対応", () => {
       const hrefs =
         CURRICULUM.find((chapter) => chapter.slug === slug)?.practiceHrefs ??
         [];
+      if (variant === undefined) {
+        expect(hrefs, slug).toEqual([]);
+        continue;
+      }
       expect(hrefs, slug).toHaveLength(1);
       expect(practiceSlugFromHref(hrefs[0]!), slug).toBe("score-table");
       expect(practiceVariantFromHref(hrefs[0]!), slug).toBe(variant);
