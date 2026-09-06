@@ -1,13 +1,13 @@
-import type {
-  HaiKindId,
-  Tehai14,
-  Kazehai,
-  RuleConfig,
-  ScoreResult,
+import {
+  countDora,
+  type HaiKindId,
+  type Tehai14,
+  type Kazehai,
+  type RuleConfig,
+  type ScoreResult,
 } from "@pai-forge/riichi-mahjong";
 import type { YakuDetail } from "../types";
 import { recalculateScore } from "../../../score/calculator";
-import { countDoraInTehai } from "../../../core/dora";
 import { isOya } from "../../../core/kaze";
 
 /**
@@ -53,7 +53,7 @@ export function applyRiichiAndUraDora(input: {
   const riichiName = isDoubleRiichi ? "ダブル立直" : "立直";
 
   // 裏ドラ翻数は表示牌から手牌を照合して算出する（表示牌と翻数の不一致を防ぐ）
-  const uraHan = countDoraInTehai(tehai, uraDoraMarkers);
+  const uraHan = countDora(tehai, uraDoraMarkers);
 
   const additionalYakuDetails: readonly YakuDetail[] = [
     { name: riichiName, han: riichiHan },

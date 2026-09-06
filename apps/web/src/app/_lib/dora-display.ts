@@ -1,4 +1,4 @@
-import { getDoraFromIndicator } from "@mahjong-scoring/core";
+import { getDoraNext } from "@mahjong-scoring/core";
 import type { HaiKindId } from "@mahjong-scoring/core";
 
 /**
@@ -18,7 +18,8 @@ export const DEFAULT_DORA_DISPLAY_MODE: DoraDisplayMode = "indicator";
 /**
  * ドラ表示牌の並びを、表示モードに応じて実際に描画する牌へ変換する
  *
- * 表示牌からドラを導けない牌（想定外の id）は描画対象から落とす。
+ * 表示牌からドラを導く規則（9 の次は 1、北の次は東、中の次は白）は
+ * ライブラリの `getDoraNext` に委ね、正解判定側と同じ計算を使う。
  */
 export function resolveDoraTiles(
   markers: readonly HaiKindId[],
@@ -26,8 +27,5 @@ export function resolveDoraTiles(
 ): readonly HaiKindId[] {
   if (mode === "indicator") return markers;
 
-  return markers.flatMap((marker) => {
-    const dora = getDoraFromIndicator(marker);
-    return dora.isOk() ? [dora.value] : [];
-  });
+  return markers.map(getDoraNext);
 }

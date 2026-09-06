@@ -1,6 +1,7 @@
 import {
   HaiKind,
   calculateScoreForTehai,
+  countDora,
   detectYaku,
   getYakumanMultiplier,
   isMenzen,
@@ -43,7 +44,6 @@ import {
   isKiriageManganTarget,
   recalculateScore,
 } from "../../score/calculator";
-import { countDoraInTehai } from "../../core/dora";
 import { isOya } from "../../core/kaze";
 import { isFu } from "../../score/constants";
 import { SCORE_YAKU_NAME_MAP } from "../../core/yaku-names";
@@ -273,7 +273,7 @@ export function generateScoreQuestion(
   //
   //    この時点の `yakuDetails` は表ドラを持たない（`assembleScoreQuestion`
   //    が後で足す）ため、合計にはドラの翻を明示的に加える。
-  const doraHan = countDoraInTehai(tehai, doraMarkers);
+  const doraHan = countDora(tehai, doraMarkers);
   const detailsHan =
     yakuDetails.reduce((total, yaku) => total + yaku.han, 0) + doraHan;
   if (detailsHan !== finalAnswer.han) {

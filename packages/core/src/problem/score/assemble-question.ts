@@ -1,11 +1,11 @@
 import {
+  countDora,
   type HaiKindId,
   type Kazehai,
   type ScoreResult,
   type Tehai14,
 } from "@pai-forge/riichi-mahjong";
 import { convertScoreDetailToFuDetails } from "../../score/fu-calculator";
-import { countDoraInTehai } from "../../core/dora";
 import { getYakuNameJa } from "../../core/yaku-names";
 import type { ScoreQuestion, YakuDetail } from "./types";
 
@@ -68,7 +68,7 @@ export function assembleScoreQuestion(
 
   const yakuDetails = [...baseYakuDetails];
 
-  const doraHan = countDoraInTehai(tehai, doraMarkers);
+  const doraHan = countDora(tehai, doraMarkers);
   if (doraHan > 0 && !yakuDetails.find((d) => d.name === "ドラ")) {
     yakuDetails.push({ name: "ドラ", han: doraHan });
   }

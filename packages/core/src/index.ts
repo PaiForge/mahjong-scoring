@@ -122,7 +122,6 @@ export {
 // === Core ===
 export { YAKU_OPTIONS } from "./core/yaku-names";
 export { getKazeName, isOya } from "./core/kaze";
-export { getDoraFromIndicator, countDoraInTehai } from "./core/dora";
 export {
   calculateBasePoints,
   ceilTo100,
@@ -171,7 +170,11 @@ export {
   FuroType,
   Tacha,
 } from "@pai-forge/riichi-mahjong";
-export { validateTehai14 } from "@pai-forge/riichi-mahjong";
+export {
+  validateTehai14,
+  countDora,
+  getDoraNext,
+} from "@pai-forge/riichi-mahjong";
 export type {
   Fu,
   Furo,
