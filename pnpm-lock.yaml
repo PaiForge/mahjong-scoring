@@ -59,6 +59,9 @@ importers:
       drizzle-orm:
         specifier: ^0.45.2
         version: 0.45.2(postgres@3.4.9)
+      env-ribbon:
+        specifier: ^0.1.0
+        version: 0.1.0(react@19.2.8)
       heic-to:
         specifier: ^1.5.2
         version: 1.5.2
@@ -2537,6 +2540,11 @@ packages:
   entities@8.0.0:
     resolution: {integrity: sha512-zwfzJecQ/Uej6tusMqwAqU/6KL2XaB2VZ2Jg54Je6ahNBGNH6Ek6g3jjNCF0fG9EWQKGZNddNjU5F1ZQn/sBnA==}
     engines: {node: '>=20.19.0'}
+
+  env-ribbon@0.1.0:
+    resolution: {integrity: sha512-27kvgaDkpzhIuFTV6zZuaO96TyKsB/rerlG1ni0MPidOPkT59y39G0bs0HVzxuHimHKeNf5l0Ln4JXtMyrMRkQ==}
+    peerDependencies:
+      react: ^18.0.0 || ^19.0.0
 
   es-abstract-get@1.0.0:
     resolution: {integrity: sha512-6PMWXpdhshVvFp+FoWYs1EvG1Nj0tvk0dZM+XcK0xMEM1czRVcP6ohqPWHy6qPagSpC8j4+p89WXlT+xXJs/fg==}
@@ -5986,6 +5994,10 @@ snapshots:
       tapable: 2.3.3
 
   entities@8.0.0: {}
+
+  env-ribbon@0.1.0(react@19.2.8):
+    dependencies:
+      react: 19.2.8
 
   es-abstract-get@1.0.0:
     dependencies:
