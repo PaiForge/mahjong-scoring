@@ -23,6 +23,23 @@ const ICON_SIZE = 192;
 const APPLE_ICON_SIZE = 180;
 
 /**
+ * ホーム画面アイコンの地色。globals.css の `--color-primary-500` と揃える。
+ *
+ * iOS は apple-touch-icon の透過を黒で塗って角丸マスクをかけるため、
+ * 透明のまま出すと黒地にロゴが浮いた別物になる。ブランドグリーンを敷けば
+ * OGP（緑の地に白いカード）と同じ見え方になり、白い牌の輪郭も出る。
+ */
+const APPLE_ICON_BACKGROUND = { r: 0, g: 144, b: 74, alpha: 1 } as const;
+
+/**
+ * 地色に対してロゴが占める割合。
+ *
+ * iOS はアイコンを角丸（スーパー楕円）で切り抜くので、隅まで図版を伸ばすと
+ * 四隅が欠ける。地色の余白を残して内側に収める。
+ */
+const APPLE_ICON_LOGO_RATIO = 0.78;
+
+/**
  * PNG を ICO コンテナに束ねる。
  *
  * ICO は「6 バイトのヘッダ + 16 バイト × 枚数のディレクトリ + 各画像データ」。
@@ -69,6 +86,24 @@ async function main(): Promise<void> {
       .png()
       .toBuffer();
 
+  /** ホーム画面アイコン。他の 2 つと違い、地色を敷いた上にロゴを載せる。 */
+  const renderAppleIcon = async (): Promise<Buffer> => {
+    const logoSize = Math.round(APPLE_ICON_SIZE * APPLE_ICON_LOGO_RATIO);
+    const offset = Math.round((APPLE_ICON_SIZE - logoSize) / 2);
+
+    return sharp({
+      create: {
+        width: APPLE_ICON_SIZE,
+        height: APPLE_ICON_SIZE,
+        channels: 4,
+        background: APPLE_ICON_BACKGROUND,
+      },
+    })
+      .composite([{ input: await render(logoSize), left: offset, top: offset }])
+      .png()
+      .toBuffer();
+  };
+
   const icoEntries = await Promise.all(
     ICO_SIZES.map(async (size) => ({ size, data: await render(size) })),
   );
@@ -76,7 +111,7 @@ async function main(): Promise<void> {
   const outputs: readonly [string, Buffer][] = [
     [join(webRoot, "src/app/favicon.ico"), buildIco(icoEntries)],
     [join(webRoot, "src/app/icon.png"), await render(ICON_SIZE)],
-    [join(webRoot, "src/app/apple-icon.png"), await render(APPLE_ICON_SIZE)],
+    [join(webRoot, "src/app/apple-icon.png"), await renderAppleIcon()],
   ];
 
   for (const [dest, data] of outputs) {
