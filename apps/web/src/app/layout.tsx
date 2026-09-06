@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import dynamic from "next/dynamic";
+import { EnvironmentRibbon } from "env-ribbon";
 import { NextIntlClientProvider } from "next-intl";
 import { getLocale } from "next-intl/server";
 import { GoogleAnalytics } from "@next/third-parties/google";
@@ -45,6 +46,7 @@ export default async function RootLayout({
           <GlobalToaster />
         </NextIntlClientProvider>
         {gaId && <GoogleAnalytics gaId={gaId} />}
+        <EnvironmentRibbon />
       </body>
     </html>
   );
