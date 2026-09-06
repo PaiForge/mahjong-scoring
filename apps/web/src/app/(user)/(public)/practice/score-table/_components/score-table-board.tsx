@@ -35,6 +35,7 @@ export function ScoreTableBoard({
   onAdvance,
   showFeedback,
   isCountingDown = false,
+  isTraining = false,
   lastAnswerCorrect,
   onAnswer,
   onRecordResult,
@@ -94,6 +95,7 @@ export function ScoreTableBoard({
         question={question}
         onSubmit={handleSubmit}
         disabled={showFeedback || isCountingDown}
+        isTraining={isTraining}
       />
     </div>
   );

@@ -24,6 +24,12 @@ interface RuleSettingsState extends RuleSettings {
  * 連風牌の符など、点数計算のローカルルール差分を保持する。
  * 練習機能横断で参照されるため、機能ローカルではなくアプリ共通に置く。
  * ルール設定ストア
+ *
+ * 端末ごとの値なので記録の土俵（`leaderboard_key`）には載せない。記録が
+ * 残るチャレンジは、設定の採否で正解が割れる手を出題から落とし、点数の
+ * 選択肢を設定に依らない集合に固定することで設定から独立させる
+ * （`practice/_lib/rule-boundary.ts`）。昇級試験はそもそもこのストアを
+ * 読まない。
  */
 export const useRuleSettingsStore = create<RuleSettingsState>()(
   persist(

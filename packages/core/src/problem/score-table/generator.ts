@@ -53,6 +53,22 @@ function buildCorrectAnswer(
 }
 
 /**
+ * 切り上げ満貫で点数が割れるセルか（30符4翻・60符3翻）
+ * 切り上げ境界セル判定
+ *
+ * 閾値を持たず、切り上げの有無で点数が変わるかをライブラリに両方計算させて
+ * 比べる（点数計算側の `isKiriageManganTarget` と同じ方針。閾値を再実装すると
+ * ライブラリの定義と黙ってずれる）。親子・ツモロンは区分に影響しないので
+ * 子ロンで代表させる。
+ */
+function isKiriageBoundaryCell(han: number, fu: Fu): boolean {
+  return (
+    calculateKoScore(han, fu, { kiriageMangan: false }).ron !==
+    calculateKoScore(han, fu, { kiriageMangan: true }).ron
+  );
+}
+
+/**
  * 翻数から満貫以上の点数帯（HIGH_SCORES の1行）を引く
  * 満貫以上帯の特定
  */
@@ -117,15 +133,16 @@ function buildNonManganCombinations(
   pairs: ReadonlyArray<{ isOya: boolean; isTsumo: boolean }>,
   hanRange: readonly number[],
   fuCandidates: readonly Fu[],
+  excludeKiriageBoundary: boolean,
 ): readonly QuestionParams[] {
   const combinations: QuestionParams[] = [];
   for (const { isOya, isTsumo } of pairs) {
     const winType = isTsumo ? "tsumo" : "ron";
     for (const han of hanRange) {
       for (const fu of fuCandidates) {
-        if (!isInvalidCell(han, fu, winType)) {
-          combinations.push({ isOya, isTsumo, han, fu, range: "nonMangan" });
-        }
+        if (isInvalidCell(han, fu, winType)) continue;
+        if (excludeKiriageBoundary && isKiriageBoundaryCell(han, fu)) continue;
+        combinations.push({ isOya, isTsumo, han, fu, range: "nonMangan" });
       }
     }
   }
@@ -169,6 +186,7 @@ export function generateScoreTableQuestion(
   // 後方互換: 未指定時は満貫未満のみ（従来の振る舞い）
   const ranges = options?.ranges ?? ["nonMangan"];
   const kiriageMangan = options?.kiriageMangan ?? false;
+  const excludeKiriageBoundary = options?.excludeKiriageBoundary ?? false;
   const idGen = options?.idGen ?? defaultIdGenerator;
   const rng = options?.rng ?? defaultRandomSource;
 
@@ -185,7 +203,12 @@ export function generateScoreTableQuestion(
     );
     const fuCandidates = getFuCandidates(minFu, maxFu);
     combinations.push(
-      ...buildNonManganCombinations(pairs, hanRange, fuCandidates),
+      ...buildNonManganCombinations(
+        pairs,
+        hanRange,
+        fuCandidates,
+        excludeKiriageBoundary,
+      ),
     );
   }
   if (ranges.includes("manganPlus")) {

@@ -3,6 +3,7 @@ import { render, screen, fireEvent, within } from "@testing-library/react";
 
 vi.mock("next-intl", async () => await import("@/test/intl-mock"));
 
+import { useRuleSettingsStore } from "@/app/_hooks/use-rule-settings-store";
 import { ScoreAnswerForm } from "./score-answer-form";
 
 function firstRealOptionValue(select: HTMLElement): string {
@@ -181,5 +182,45 @@ describe("ScoreAnswerForm の正誤フィードバック", () => {
     for (const select of screen.getAllByRole("combobox")) {
       expect(select.className).toContain("border-destructive");
     }
+  });
+});
+
+describe("ScoreAnswerForm fixedRules", () => {
+  function renderOptions(props: {
+    readonly fixedRules?: boolean;
+    readonly allowDoubleYakuman?: boolean;
+  }): readonly string[] {
+    const { unmount } = render(
+      <ScoreAnswerForm
+        isOya={false}
+        isTsumo={false}
+        han={3}
+        onSubmit={vi.fn()}
+        translationNamespace="x"
+        {...props}
+      />,
+    );
+    const values = within(screen.getByRole("combobox"))
+      .getAllByRole("option")
+      .map((o) => (o as HTMLOptionElement).value)
+      .filter((v) => v !== "");
+    unmount();
+    return values;
+  }
+
+  it("端末の切り上げ満貫・ダブル役満の設定で選択肢が変わらない", () => {
+    useRuleSettingsStore.setState({ kiriageMangan: false });
+    const standard = renderOptions({ fixedRules: true });
+
+    // 設定を変えても（3翻の選択肢が満貫まで広がる・64000 が増える）固定される
+    useRuleSettingsStore.setState({ kiriageMangan: true });
+    const fixed = renderOptions({ fixedRules: true, allowDoubleYakuman: true });
+    expect(fixed).toEqual(standard);
+
+    // 固定しなければ設定が効く（対照）
+    const device = renderOptions({ allowDoubleYakuman: true });
+    expect(device).not.toEqual(standard);
+
+    useRuleSettingsStore.setState({ kiriageMangan: false });
   });
 });

@@ -46,6 +46,17 @@ interface ScoreAnswerFormProps {
    * ならない出題（昇級試験）は渡さない（既定 false）。
    */
   readonly allowDoubleYakuman?: boolean;
+  /**
+   * 選択肢を端末のルール設定（切り上げ満貫・ダブル役満）に依らない集合に
+   * 固定する（既定 false）。
+   * ルール固定
+   *
+   * 記録が残るチャレンジと昇級試験が立てる。設定で選択肢の個数が変わると
+   * 同じ土俵の中で有利不利が出るため（`_lib/rule-boundary.ts` 参照）。
+   * true のとき `allowDoubleYakuman` は無視され、切り上げ満貫も無効として
+   * 絞り込む。
+   */
+  readonly fixedRules?: boolean;
 }
 
 /**
@@ -77,6 +88,7 @@ export function ScoreAnswerForm({
   showFeedback = false,
   lastAnswerCorrect,
   allowDoubleYakuman = false,
+  fixedRules = false,
 }: ScoreAnswerFormProps) {
   const t = useTranslations(translationNamespace);
   // トレーニングの回答後は、シェルが同じ位置に「次の問題へ」を出す
@@ -96,14 +108,14 @@ export function ScoreAnswerForm({
   // 「子から / 親から」を合わせた1つの回答に対して下るため
   const feedback = { showFeedback, lastAnswerCorrect };
 
-  const kiriageMangan = useRuleSettingsStore((s) => s.kiriageMangan);
+  const deviceKiriageMangan = useRuleSettingsStore((s) => s.kiriageMangan);
   const availableScores = getAvailableScores(
     han,
     isOya,
     isTsumo,
     scoreRange,
-    kiriageMangan,
-    allowDoubleYakuman,
+    fixedRules ? false : deviceKiriageMangan,
+    fixedRules ? false : allowDoubleYakuman,
   );
 
   // 単一選択（ロン / 親ツモ）の値から回答を送信する

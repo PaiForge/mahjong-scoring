@@ -9,7 +9,6 @@ export const ManganScoreCalculationTrainingView = createTrainingView({
   maxWidth: "max-w-lg",
   renderBoard: ({ showFeedback, lastAnswerCorrect, isTraining, onAnswer }) => (
     <ManganScoreCalculationBoard
-      playerType="random"
       showFeedback={showFeedback}
       lastAnswerCorrect={lastAnswerCorrect}
       isTraining={isTraining}
