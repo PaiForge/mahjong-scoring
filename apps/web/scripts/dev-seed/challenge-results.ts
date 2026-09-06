@@ -44,8 +44,11 @@
  * が表す）。ランキング・マイレコードも試験を扱わないので、行を作っても
  * どこにも出ない。
  */
-import { mulberry32 } from "@mahjong-scoring/core";
-import type { RandomSource } from "@mahjong-scoring/core";
+// バレル（`@mahjong-scoring/core`）ではなく乱数のモジュールを直に指す。
+// バレルは ESM 専用の @pai-forge/riichi-mahjong を引き込み、tsx が CJS として
+// 解決するこのスクリプトから読めなくなる（`practice-menu-types.ts` と同じ理由）。
+import { mulberry32 } from "@mahjong-scoring/core/core/random";
+import type { RandomSource } from "@mahjong-scoring/core/core/random";
 import { inArray, sql } from "drizzle-orm";
 import type { PostgresJsDatabase } from "drizzle-orm/postgres-js";
 
