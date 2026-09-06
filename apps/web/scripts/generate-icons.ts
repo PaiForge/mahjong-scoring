@@ -23,21 +23,26 @@ const ICON_SIZE = 192;
 const APPLE_ICON_SIZE = 180;
 
 /**
- * ホーム画面アイコンの地色。globals.css の `--color-primary-500` と揃える。
+ * アイコンの地色。globals.css の `--color-primary-500` と揃える。
  *
- * iOS は apple-touch-icon の透過を黒で塗って角丸マスクをかけるため、
- * 透明のまま出すと黒地にロゴが浮いた別物になる。ブランドグリーンを敷けば
- * OGP（緑の地に白いカード）と同じ見え方になり、白い牌の輪郭も出る。
+ * ロゴ本体は白い牌なので、透過のまま出すと敷かれる地の色に左右される。
+ * iOS は apple-touch-icon の透過を黒で塗るため黒地に浮いた別物になり、
+ * ブラウザのタブではライトテーマの地に牌の面が溶ける。ブランドグリーンを
+ * 敷けばどこでも同じ見え方になり、OGP（緑の地に白いカード）とも揃う。
  */
-const APPLE_ICON_BACKGROUND = { r: 0, g: 144, b: 74, alpha: 1 } as const;
+const ICON_BACKGROUND = { r: 0, g: 144, b: 74, alpha: 1 } as const;
 
 /**
- * 地色に対してロゴが占める割合。
+ * 地色に対してロゴが占める割合。用途で 2 つに分かれる。
  *
- * iOS はアイコンを角丸（スーパー楕円）で切り抜くので、隅まで図版を伸ばすと
- * 四隅が欠ける。地色の余白を残して内側に収める。
+ * iOS はホーム画面アイコンを角丸（スーパー楕円）で切り抜くので、隅まで
+ * 図版を伸ばすと四隅が欠ける。地色の余白を残して内側に収める。
+ *
+ * ブラウザのタブは切り抜かないため、同じだけ余白を取ると 16px で図版が
+ * 潰れる（最小サイズでこそ図版に画素を割きたい）。窮屈に見えない程度の
+ * 余白だけ残す。
  */
-const APPLE_ICON_LOGO_RATIO = 0.78;
+const LOGO_RATIO = { appleIcon: 0.78, tab: 0.9 } as const;
 
 /**
  * PNG を ICO コンテナに束ねる。
@@ -75,7 +80,7 @@ async function main(): Promise<void> {
   const webRoot = join(dirname(fileURLToPath(import.meta.url)), "..");
   const source = readFileSync(join(webRoot, "public/logo.png"));
 
-  const render = (size: number): Promise<Buffer> =>
+  const renderLogo = (size: number): Promise<Buffer> =>
     sharp(source)
       .resize(size, size, {
         fit: "contain",
@@ -86,32 +91,43 @@ async function main(): Promise<void> {
       .png()
       .toBuffer();
 
-  /** ホーム画面アイコン。他の 2 つと違い、地色を敷いた上にロゴを載せる。 */
-  const renderAppleIcon = async (): Promise<Buffer> => {
-    const logoSize = Math.round(APPLE_ICON_SIZE * APPLE_ICON_LOGO_RATIO);
-    const offset = Math.round((APPLE_ICON_SIZE - logoSize) / 2);
+  /** 地色を敷いた正方形の中央にロゴを載せる。 */
+  const renderIcon = async (size: number, ratio: number): Promise<Buffer> => {
+    const logoSize = Math.round(size * ratio);
+    const offset = Math.round((size - logoSize) / 2);
 
     return sharp({
       create: {
-        width: APPLE_ICON_SIZE,
-        height: APPLE_ICON_SIZE,
+        width: size,
+        height: size,
         channels: 4,
-        background: APPLE_ICON_BACKGROUND,
+        background: ICON_BACKGROUND,
       },
     })
-      .composite([{ input: await render(logoSize), left: offset, top: offset }])
+      .composite([
+        { input: await renderLogo(logoSize), left: offset, top: offset },
+      ])
       .png()
       .toBuffer();
   };
 
   const icoEntries = await Promise.all(
-    ICO_SIZES.map(async (size) => ({ size, data: await render(size) })),
+    ICO_SIZES.map(async (size) => ({
+      size,
+      data: await renderIcon(size, LOGO_RATIO.tab),
+    })),
   );
 
   const outputs: readonly [string, Buffer][] = [
     [join(webRoot, "src/app/favicon.ico"), buildIco(icoEntries)],
-    [join(webRoot, "src/app/icon.png"), await render(ICON_SIZE)],
-    [join(webRoot, "src/app/apple-icon.png"), await renderAppleIcon()],
+    [
+      join(webRoot, "src/app/icon.png"),
+      await renderIcon(ICON_SIZE, LOGO_RATIO.tab),
+    ],
+    [
+      join(webRoot, "src/app/apple-icon.png"),
+      await renderIcon(APPLE_ICON_SIZE, LOGO_RATIO.appleIcon),
+    ],
   ];
 
   for (const [dest, data] of outputs) {
