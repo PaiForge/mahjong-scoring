@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { countDoraInTehai } from "@mahjong-scoring/core";
+import { countDora } from "@mahjong-scoring/core";
 import type { ScoreQuestion, YakuDetail } from "@mahjong-scoring/core";
 
 import { CHIITOITSU_EXAM_DEMO } from "@/app/(user)/(public)/exam/chiitoitsu/_components/chiitoitsu-exam-how-to-play";
@@ -74,17 +74,13 @@ describe("遊び方デモの牌姿とドラ", () => {
   it.each(DEMOS)(
     "$name: 表ドラは TSDoc の主張どおりに乗る",
     ({ question, doraHan }) => {
-      expect(countDoraInTehai(question.tehai, question.doraMarkers)).toBe(
-        doraHan,
-      );
+      expect(countDora(question.tehai, question.doraMarkers)).toBe(doraHan);
     },
   );
 
   it.each(DEMOS)("$name: 裏ドラは手牌に乗らない", ({ question }) => {
     // どのデモも翻数の説明を裏ドラ抜きで書いている
-    expect(
-      countDoraInTehai(question.tehai, question.uraDoraMarkers ?? []),
-    ).toBe(0);
+    expect(countDora(question.tehai, question.uraDoraMarkers ?? [])).toBe(0);
   });
 
   it.each(DEMOS)(
@@ -103,7 +99,7 @@ describe("遊び方デモの牌姿とドラ", () => {
     );
 
     expect(doraDetail?.han).toBe(
-      countDoraInTehai(question.tehai, question.doraMarkers),
+      countDora(question.tehai, question.doraMarkers),
     );
   });
 });
