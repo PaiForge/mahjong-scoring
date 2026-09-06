@@ -5,9 +5,13 @@ import {
   type Fu,
 } from "@mahjong-scoring/core";
 
-import { ArrowRightIcon } from "@/app/(user)/_components/icons/arrow-right-icon";
-import { TABLE_HIGHLIGHT_CELL_CLASS } from "@/app/(user)/_components/_lib/table-highlight";
 import { TsumoScore } from "@/app/(user)/(public)/reference/score-table/_components/tsumo-score";
+
+import {
+  DerivationArrow,
+  DerivationFigure,
+  DerivationStep,
+} from "../../_components/derivation-figure";
 
 interface TsumoCarryoverDiagramProps {
   readonly fu: Fu;
@@ -39,42 +43,21 @@ export async function TsumoCarryoverDiagram({
   const oya = calculateOyaScore(han, fu).tsumo;
 
   return (
-    <figure className="space-y-3 rounded-xl border-3 border-ink bg-white p-5">
-      <figcaption className="text-xs font-semibold tracking-wider text-surface-400 uppercase">
-        {t("diagramCaption", { fu, han })}
-      </figcaption>
-
-      {/* 狭い画面では矢印を下向きにして縦に積む */}
-      <div className="flex flex-col items-center gap-3 sm:flex-row sm:justify-center sm:gap-6">
-        <div className="flex flex-col items-center gap-1">
-          <span className="text-xs font-medium text-surface-500">
-            {t("diagramKoLabel")}
-          </span>
-          <span className="text-lg font-semibold text-surface-900">
-            <TsumoScore payment={ko} dimFromKo />
-          </span>
-        </div>
-
-        <div className="flex flex-col items-center gap-0.5 text-surface-500">
-          <ArrowRightIcon className="size-6 rotate-90 sm:rotate-0" />
-          <span className="text-xs font-medium">{t("diagramArrowLabel")}</span>
-        </div>
-
-        <div className="flex flex-col items-center gap-1">
-          <span className="text-xs font-medium text-surface-500">
-            {t("diagramOyaLabel")}
-          </span>
-          <span
-            className={`rounded-md px-3 py-1 text-lg font-bold text-primary-700 ${TABLE_HIGHLIGHT_CELL_CLASS}`}
-          >
-            <TsumoScore payment={oya} />
-          </span>
-        </div>
-      </div>
-
-      <p className="text-center text-sm leading-relaxed text-surface-600">
-        {t("diagramNote")}
-      </p>
-    </figure>
+    <DerivationFigure
+      caption={t("diagramCaption", { fu, han })}
+      footer={
+        <p className="text-center text-sm leading-relaxed text-surface-600">
+          {t("diagramNote")}
+        </p>
+      }
+    >
+      <DerivationStep label={t("diagramKoLabel")}>
+        <TsumoScore payment={ko} dimFromKo />
+      </DerivationStep>
+      <DerivationArrow label={t("diagramArrowLabel")} />
+      <DerivationStep label={t("diagramOyaLabel")} highlighted>
+        <TsumoScore payment={oya} />
+      </DerivationStep>
+    </DerivationFigure>
   );
 }

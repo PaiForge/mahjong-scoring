@@ -1,11 +1,15 @@
 import { getTranslations } from "next-intl/server";
 import type { TsumoPayment } from "@mahjong-scoring/core";
 
-import { ArrowRightIcon } from "@/app/(user)/_components/icons/arrow-right-icon";
-import { TABLE_HIGHLIGHT_CELL_CLASS } from "@/app/(user)/_components/_lib/table-highlight";
 import { TsumoScore } from "@/app/(user)/(public)/reference/score-table/_components/tsumo-score";
 
 import { deriveKoTsumoFromRon } from "../_lib/ko-tsumo-halving";
+import {
+  DerivationArrow,
+  DerivationFigure,
+  DerivationResult,
+  DerivationStep,
+} from "./derivation-figure";
 
 interface HalvingDiagramProps {
   /** 図の上に出す見出し（どの符・翻、どの区分の話かを言う） */
@@ -48,68 +52,23 @@ export async function HalvingDiagram({
   }
 
   return (
-    <figure className="space-y-3 rounded-xl border-3 border-ink bg-white p-5">
-      <figcaption className="text-xs font-semibold tracking-wider text-surface-400 uppercase">
-        {caption}
-      </figcaption>
-
-      {/* 狭い画面では矢印を下向きにして縦に積む */}
-      <div className="flex flex-col items-center gap-3 sm:flex-row sm:justify-center sm:gap-5">
-        <DiagramStep label={t("ronLabel")} value={ron} />
-        <DiagramArrow label={t("arrowLabel")} />
-        <DiagramStep
-          label={t("oyaLabel")}
-          value={derived.fromOya}
-          highlighted
-        />
-        <DiagramArrow label={t("arrowLabel")} />
-        <DiagramStep label={t("koLabel")} value={derived.fromKo} highlighted />
-      </div>
-
-      <div className="flex items-center justify-center gap-3 border-t-2 border-dashed border-surface-200 pt-3">
-        <span className="text-xs font-medium text-surface-500">
-          {t("resultLabel")}
-        </span>
-        <span className="text-lg font-semibold text-surface-900">
+    <DerivationFigure
+      caption={caption}
+      footer={
+        <DerivationResult label={t("resultLabel")}>
           <TsumoScore payment={payment} />
-        </span>
-      </div>
-    </figure>
-  );
-}
-
-/** 鎖の1項。導出の途中で出た数字を、何を指す額なのかと一緒に置く */
-function DiagramStep({
-  label,
-  value,
-  highlighted = false,
-}: {
-  readonly label: string;
-  readonly value: number;
-  readonly highlighted?: boolean;
-}) {
-  return (
-    <div className="flex flex-col items-center gap-1">
-      <span className="text-xs font-medium text-surface-500">{label}</span>
-      <span
-        className={
-          highlighted
-            ? `rounded-md px-3 py-1 text-lg font-bold text-primary-700 ${TABLE_HIGHLIGHT_CELL_CLASS}`
-            : "px-3 py-1 text-lg font-semibold text-surface-900"
-        }
-      >
-        {value}
-      </span>
-    </div>
-  );
-}
-
-/** 鎖のつなぎ目。矢印の下に、そこで何をしたのかを書く */
-function DiagramArrow({ label }: { readonly label: string }) {
-  return (
-    <div className="flex flex-col items-center gap-0.5 text-surface-500">
-      <ArrowRightIcon className="size-6 rotate-90 sm:rotate-0" />
-      <span className="text-xs font-medium">{label}</span>
-    </div>
+        </DerivationResult>
+      }
+    >
+      <DerivationStep label={t("ronLabel")}>{ron}</DerivationStep>
+      <DerivationArrow label={t("arrowLabel")} />
+      <DerivationStep label={t("oyaLabel")} highlighted>
+        {derived.fromOya}
+      </DerivationStep>
+      <DerivationArrow label={t("arrowLabel")} />
+      <DerivationStep label={t("koLabel")} highlighted>
+        {derived.fromKo}
+      </DerivationStep>
+    </DerivationFigure>
   );
 }
