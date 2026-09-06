@@ -64,6 +64,7 @@ function ScoreTableTrainingViewInner() {
   return (
     <TrainingShell
       title={t("title")}
+      slug={PRACTICE_SLUG.scoreTable}
       correctCount={correctCount}
       totalCount={totalCount}
       exitHref={EXIT_HREF}
@@ -107,6 +108,7 @@ function ScoreTableTrainingFallback() {
   return (
     <TrainingShell
       title={t("title")}
+      slug={PRACTICE_SLUG.scoreTable}
       correctCount={0}
       totalCount={0}
       exitHref={EXIT_HREF}

@@ -202,6 +202,10 @@ export interface TrainingViewConfig<TProps, TState> {
 /**
  * トレーニングモード（時間無制限・非記録）の本体ビューを生成するファクトリ
  * トレーニングビュー生成
+ *
+ * 昇級試験のスラッグを渡すと模試になる。仕組みは練習のトレーニングと同じで、
+ * 違うのは見出し（試験名に「（模試）」を添える）と、シェルの文言・末尾の
+ * 導線が「チャレンジ」ではなく「本番の試験」を指すことだけ。
  */
 export function createTrainingView<
   TProps = Record<string, never>,
@@ -209,12 +213,15 @@ export function createTrainingView<
 >(config: TrainingViewConfig<TProps, TState>): (props: TProps) => ReactNode {
   const { slug, maxWidth, help, renderBoard } = config;
   // チャレンジ側のルール（制限時間・ミス上限）は CTA の補足文に出す
-  const { namespace, mistakeLimit, timeLimit } = practiceMenuBySlug(slug);
+  const { namespace, menuType, mistakeLimit, timeLimit } =
+    practiceMenuBySlug(slug);
+  const variant = isExamMenuType(menuType) ? "exam" : "practice";
   const useBoardState =
     config.useBoardState ?? (() => undefined as unknown as TState);
 
   function TrainingView(props: TProps) {
     const t = useTranslations(namespace);
+    const tExamTraining = useTranslations("examTraining");
     const boardState = useBoardState(props);
     const {
       correctCount,
@@ -242,7 +249,15 @@ export function createTrainingView<
 
     return (
       <TrainingShell
-        title={t("title")}
+        // 模試は本番と同じ試験名で始まる見出しになるため、模試だと分かる
+        // 添え字を付ける（タイマーが無いだけでは本番と見分けにくい）
+        title={
+          variant === "exam"
+            ? tExamTraining("pageTitle", { title: t("title") })
+            : t("title")
+        }
+        slug={slug}
+        variant={variant}
         titleAction={help}
         correctCount={correctCount}
         totalCount={totalCount}

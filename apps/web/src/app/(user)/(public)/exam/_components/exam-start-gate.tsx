@@ -27,31 +27,39 @@ interface ExamStartGateProps {
   readonly slug: PracticeMenuSlug;
   /** 開始ボタンのリンク先（説明ページ側で組み立てて渡す） */
   readonly playHref: string;
+  /**
+   * 開始ボタンの文言（既定は `challenge.startButton`）。
+   *
+   * 模試の画面末尾から本番へ送るときは「本番の試験を始める」のように、
+   * 今いる場所との対比が読める文言に差し替える。受験できないときの導線
+   * （登録・道場）の文言は変わらない。
+   */
+  readonly startLabel?: string;
 }
 
 /**
- * 受験できないときの「次の行き先 + 理由」の 1 組
+ * 「ボタン + その下の補足文」の 1 組
  *
- * 理由をボタンの下に置く。上に置くと、認証と段級位が解決した瞬間にボタン
- * 自身が理由の高さぶん下へ飛ぶ（解決前のスケルトンはボタン 1 個ぶんしか
- * 場所を取れない — どの状態になるかは解決するまで分からないため）。下なら
+ * 補足文をボタンの下に置く。上に置くと、認証と段級位が解決した瞬間にボタン
+ * 自身が補足文の高さぶん下へ飛ぶ（解決前のスケルトンはどの状態になるか
+ * 分からないため、状態によって変わる部分をボタンの上に置けない）。下なら
  * ボタンの位置はどの状態でも同じで、スケルトンと厳密に一致する。
  *
  * 並びも余白も通常の開始導線（`PracticeStartCta` の「ボタン + 補足文」）と
- * 同じものを使う。受験できるときと同じ形のまま、ボタンの行き先と補足文
- * だけが変わって見える。
+ * 同じものを使う。受験できるときは本番のルール、できないときはその理由が
+ * 補足文に入り、ボタンの行き先と補足文だけが変わって見える。
  */
-function BlockedCta({
-  reason,
+function CtaBlock({
+  hint,
   children,
 }: {
-  readonly reason: string;
+  readonly hint: string;
   readonly children: ReactNode;
 }) {
   return (
     <div className={PRACTICE_START_CTA_BLOCK_CLASS}>
       {children}
-      <p className={`${PRACTICE_START_CTA_HINT_CLASS} text-center`}>{reason}</p>
+      <p className={`${PRACTICE_START_CTA_HINT_CLASS} text-center`}>{hint}</p>
     </div>
   );
 }
@@ -65,6 +73,14 @@ function BlockedCta({
  * 切り替える。未ログインはアカウント登録、未達成の上位級の試験は道場への
  * 導線に差し替え、それ以外（次に取る級・達成済みの級の再挑戦）は通常の
  * 開始ボタンを出す。
+ *
+ * 開始ボタンの下には本番のルール（制限時間・ミス上限・合格で段級位）を
+ * 添える。説明ページでは隣に模試の導線（時間無制限・記録なし）が並ぶため、
+ * 2 つのボタンの違いが補足文で読める。模試の画面末尾でも同じ形で出す。
+ *
+ * ゲートは模試（`/exam/<級>/training`）には掛けない。模試は記録も段級位の
+ * 付与も無く、ガードが守っているもの（級の順序）に触れないため。未ログイン
+ * でも受けられる。
  *
  * @design 受験できないときの導線を緑にしない
  *
@@ -87,9 +103,14 @@ function BlockedCta({
  * 行う。そのため段級位の取得に失敗したときは開始ボタンへ fail-open して
  * よい — 資格がなければ開始した先でサーバーが説明ページへ戻す。
  */
-export function ExamStartGate({ slug, playHref }: ExamStartGateProps) {
+export function ExamStartGate({
+  slug,
+  playHref,
+  startLabel,
+}: ExamStartGateProps) {
   const t = useTranslations("ranks");
   const tc = useTranslations("challenge");
+  const tExamTraining = useTranslations("examTraining");
   const { user, isLoading } = useAuth();
   // undefined は「未取得または取得失敗」。取得完了は hasFetched で区別する
   const [rankSlugs, setRankSlugs] = useState<readonly RankSlug[] | undefined>(
@@ -111,14 +132,17 @@ export function ExamStartGate({ slug, playHref }: ExamStartGateProps) {
   }, [user]);
 
   // 認証状態・段級位の解決中。どの状態に確定してもボタンは同じ位置・同じ
-  // 大きさで座るため、ボタン 1 個ぶんの矩形が実物と一致する。受験できない
-  // 状態で増えるのはボタンの下の補足文で、ボタン自身は動かない
+  // 大きさで座り、その下に補足文が 1 行付くため、ボタン 1 個ぶんの矩形と
+  // 補足文 1 行ぶんの帯（`PracticeStartCtaSkeleton` と同じ組）が実物と一致する
   if (isLoading || (user && !hasFetched)) {
     return (
-      <SkeletonBar
-        radius="lg"
-        className={`${START_BUTTON_HEIGHT_CLASS} w-full`}
-      />
+      <div className={PRACTICE_START_CTA_BLOCK_CLASS}>
+        <SkeletonBar
+          radius="lg"
+          className={`${START_BUTTON_HEIGHT_CLASS} w-full`}
+        />
+        <SkeletonBar className="h-4 w-48 max-w-full" tone={100} />
+      </div>
     );
   }
 
@@ -127,12 +151,12 @@ export function ExamStartGate({ slug, playHref }: ExamStartGateProps) {
     // アカウントをお持ちの方」の導線を持っており、ここにも出すと同じ
     // 分岐を 2 画面続けて見せることになる
     return (
-      <BlockedCta reason={t("examGate.signUpNote")}>
+      <CtaBlock hint={t("examGate.signUpNote")}>
         <LinkButton href="/sign-up" variant="secondary" size="lg" fullWidth>
           {t("examGate.signUpButton")}
           <ChevronRightIcon className="size-4" />
         </LinkButton>
-      </BlockedCta>
+      </CtaBlock>
     );
   }
 
@@ -143,8 +167,8 @@ export function ExamStartGate({ slug, playHref }: ExamStartGateProps) {
 
   if (eligibility?.kind === "locked") {
     return (
-      <BlockedCta
-        reason={t("examGate.locked", {
+      <CtaBlock
+        hint={t("examGate.locked", {
           examTitle: t(`examTitle.${rankTier(eligibility.rank.slug)}`, {
             rank: t(`names.${eligibility.rank.slug}`),
           }),
@@ -163,14 +187,18 @@ export function ExamStartGate({ slug, playHref }: ExamStartGateProps) {
           {t("examGate.dojoButton")}
           <ChevronRightIcon className="size-4" />
         </LinkButton>
-      </BlockedCta>
+      </CtaBlock>
     );
   }
 
+  // 本番のルール（制限時間・ミス上限）はレジストリが正典
+  const { timeLimit, mistakeLimit } = practiceMenuBySlug(slug);
   return (
-    <LinkButton href={playHref} size="lg" fullWidth>
-      <PlayIcon className="size-4" />
-      {tc("startButton")}
-    </LinkButton>
+    <CtaBlock hint={tExamTraining("realExamHint", { timeLimit, mistakeLimit })}>
+      <LinkButton href={playHref} size="lg" fullWidth>
+        <PlayIcon className="size-4" />
+        {startLabel ?? tc("startButton")}
+      </LinkButton>
+    </CtaBlock>
   );
 }

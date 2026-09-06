@@ -9,6 +9,16 @@ vi.mock("next/navigation", () => ({
   useSearchParams: () => new URLSearchParams(currentQuery),
 }));
 
+// 模試の末尾は本番の受験ゲート（認証と段級位を読む）になる
+const { mockUseAuth, mockFetchViewerRankSlugs } = vi.hoisted(() => ({
+  mockUseAuth: vi.fn(),
+  mockFetchViewerRankSlugs: vi.fn(),
+}));
+vi.mock("@/app/_contexts/auth-context", () => ({ useAuth: mockUseAuth }));
+vi.mock("@/app/_lib/viewer-ranks", () => ({
+  fetchViewerRankSlugs: mockFetchViewerRankSlugs,
+}));
+
 import { takeToastOnArrival } from "@/app/_components/_lib/toast-on-arrival";
 import { TrainingShell } from "./training-shell";
 
@@ -16,6 +26,7 @@ function renderShell(props: Partial<Parameters<typeof TrainingShell>[0]> = {}) {
   return render(
     <TrainingShell
       title="t"
+      slug="score-table"
       correctCount={0}
       totalCount={0}
       exitHref="/practice/score-table"
@@ -107,5 +118,46 @@ describe("TrainingShell チャレンジ導線", () => {
     expect(cta.getAttribute("href")).toBe(
       "/practice/score-table/play?roles=ko&wins=ron",
     );
+  });
+});
+
+describe("TrainingShell 模試（昇級試験のトレーニング）", () => {
+  function renderExamShell() {
+    return renderShell({
+      slug: "mangan-exam",
+      variant: "exam",
+      exitHref: "/exam/mangan",
+      challengeHref: "/exam/mangan/play",
+      challengeRules: { timeLimit: 60, mistakeLimit: 1 },
+    });
+  }
+
+  it("末尾の導線は「チャレンジ」ではなく本番の試験を指す", async () => {
+    mockUseAuth.mockReturnValue({ user: { id: "user-1" }, isLoading: false });
+    mockFetchViewerRankSlugs.mockResolvedValue([]);
+    renderExamShell();
+
+    expect(screen.getByText("modeActive")).toBeTruthy();
+    expect(screen.getByText("realExamPrompt")).toBeTruthy();
+    const cta = await screen.findByRole("link", { name: /realExamButton/ });
+    expect(cta.getAttribute("href")).toBe("/exam/mangan/play");
+    expect(screen.queryByRole("link", { name: /challengeButton/ })).toBeNull();
+  });
+
+  it("未ログインなら本番のボタンではなく登録の導線を出す", async () => {
+    // 押した先でサーバーに説明ページへ戻される緑のボタンを出さない
+    mockUseAuth.mockReturnValue({ user: undefined, isLoading: false });
+    renderExamShell();
+
+    expect(await screen.findByText("examGate.signUpButton")).toBeTruthy();
+    expect(document.querySelector('a[href="/exam/mangan/play"]')).toBeNull();
+  });
+
+  it("終了トーストは模試の文言で預ける", () => {
+    mockUseAuth.mockReturnValue({ user: undefined, isLoading: false });
+    renderExamShell();
+
+    fireEvent.click(screen.getByRole("link", { name: "exitButton" }));
+    expect(takeToastOnArrival("/exam/mangan")?.message).toBe("exitToast");
   });
 });

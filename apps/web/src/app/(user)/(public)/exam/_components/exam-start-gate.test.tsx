@@ -181,6 +181,33 @@ describe("ExamStartGate", () => {
     expect(await screen.findByText("startButton")).toBeTruthy();
   });
 
+  it("受験できるときも本番のルールをボタンの下に添える", async () => {
+    mockFetchViewerRankSlugs.mockResolvedValue(["kyu-5", "kyu-4", "kyu-3"]);
+
+    const { container } = renderGate();
+
+    const hint = await screen.findByText("realExamHint");
+    const block = container.firstElementChild;
+    // 受験できないときの理由と同じ位置（ボタンの下）に座る
+    expect(block?.firstElementChild).toBe(startButton());
+    expect(block?.lastElementChild).toBe(hint);
+  });
+
+  it("開始ボタンの文言を差し替えられる（模試の末尾から本番へ送るとき）", async () => {
+    mockFetchViewerRankSlugs.mockResolvedValue(["kyu-5", "kyu-4", "kyu-3"]);
+
+    render(
+      <ExamStartGate
+        slug="pinfu-exam"
+        playHref={PLAY_HREF}
+        startLabel="本番の試験を始める"
+      />,
+    );
+
+    expect(await screen.findByText("本番の試験を始める")).toBeTruthy();
+    expect(screen.queryByText("startButton")).toBeNull();
+  });
+
   it("段級位の取得に失敗したら開始ボタンへ fail-open する", async () => {
     mockFetchViewerRankSlugs.mockResolvedValue(undefined);
 

@@ -11,6 +11,11 @@ vi.mock(
   "@/app/(user)/(public)/exam/_actions/submit-exam-result",
   async () => await import("@/test/submit-exam-result-mock"),
 );
+// シェル末尾の受験ゲート（模試のみ描く）が認証コンテキストを静的に引く
+vi.mock(
+  "@/app/_contexts/auth-context",
+  async () => await import("@/test/auth-context-mock"),
+);
 
 import { ChallengeSubmitButton } from "../_components/challenge-submit-button";
 import { useRegisterAdvance } from "../_hooks/use-training-mode";
