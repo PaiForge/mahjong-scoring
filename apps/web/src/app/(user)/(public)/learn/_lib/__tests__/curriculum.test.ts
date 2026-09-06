@@ -1,11 +1,6 @@
 import { describe, expect, it } from "vitest";
 
 import {
-  isExamMenu,
-  parsePracticeHref,
-} from "@/app/(user)/(public)/practice/_lib/practice-catalog";
-
-import {
   CURRICULUM,
   CURRICULUM_CHAPTER_SLUGS,
   CURRICULUM_SECTIONS,
@@ -130,40 +125,23 @@ describe("CURRICULUM", () => {
     }
   });
 
-  it("has practice hrefs built from a registry base path (説明ページか training)", () => {
+  it("uses `/practice/` prefixed hrefs for every practice link", () => {
+    for (const chapter of CURRICULUM) {
+      for (const href of chapter.practiceHrefs ?? []) {
+        expect(href.startsWith("/practice/")).toBe(true);
+      }
+    }
+  });
+
+  it("has practice hrefs with only lowercase kebab-case slugs after /practice/", () => {
     // 不正な文字を含む href が紛れ込むと CHECK 制約や i18n キー解決が失敗する
-    // 先回り検知のための健全性テスト。練習は `/practice/<slug>`、昇級試験は
-    // `/exam/<級>` を基点に、模試なら `/training` が付く。
-    // 出題条件のクエリ文字列（例: `?variant=all`）は許容する。
-    const segmentPattern =
-      /^\/(?:practice|exam)\/[a-z0-9]+(?:-[a-z0-9]+)*(?:\/training)?(?:\?[^#]*)?$/;
+    // 先回り検知のための健全性テスト。
+    // 出題条件のクエリ文字列（例: `?roles=ko&wins=ron&ranges=plus`）は許容する。
+    const segmentPattern = /^\/practice\/[a-z0-9]+(?:-[a-z0-9]+)*(?:\?[^#]*)?$/;
     for (const chapter of CURRICULUM) {
       for (const href of chapter.practiceHrefs ?? []) {
         expect(href).toMatch(segmentPattern);
       }
-    }
-  });
-
-  it("training へ送るのは昇級試験の模試だけ", () => {
-    // 練習のトレーニングは説明ページ（チャレンジ / トレーニングを選ぶ場）へ
-    // 送る。模試は説明ページで本番と並ぶが、章が勧めたいのは本番ではなく
-    // 腕試しの側なので、模試だけは直接 training へ送る
-    for (const chapter of CURRICULUM) {
-      for (const href of chapter.practiceHrefs ?? []) {
-        const target = parsePracticeHref(href);
-        expect(target).toBeDefined();
-        if (target?.mode === "training") {
-          expect(isExamMenu(target.slug)).toBe(true);
-        }
-      }
-    }
-  });
-
-  it("満貫の 4 章は 5 級の模試へ送る", () => {
-    const manganChapters = CURRICULUM.filter((c) => c.section === "mangan");
-    expect(manganChapters).toHaveLength(4);
-    for (const chapter of manganChapters) {
-      expect(chapter.practiceHrefs).toEqual(["/exam/mangan/training"]);
     }
   });
 

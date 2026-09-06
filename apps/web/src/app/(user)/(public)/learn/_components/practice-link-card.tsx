@@ -1,13 +1,11 @@
 import type { ReactNode } from "react";
 import { getTranslations } from "next-intl/server";
 import {
-  isExamMenu,
-  parsePracticeHref,
+  practiceSlugFromHref,
   practiceTitleKey,
   practiceVariantFromHref,
 } from "@/app/(user)/(public)/practice/_lib/practice-catalog";
 import { practiceMenuBySlug } from "@/lib/db/practice-menu-types";
-import { rankRequiringMenu, rankTier } from "@/lib/ranks/registry";
 import { ChevronRightIcon } from "@/app/(user)/_components/icons/chevron-right-icon";
 import { LinkButton } from "@/app/(user)/_components/link-button";
 
@@ -38,40 +36,18 @@ interface PracticeLinkListProps {
  * バリアント付きの href（`?variant=`）は練習名にバリアント名を添える
  * （「点数表早引き（子・満貫未満）にチャレンジ」）。同じ練習へ違う設定で
  * 送る章が並ぶため、リンクだけで違いが読めるようにする。
- *
- * 昇級試験の模試（`/exam/<級>/training`）へ送る href は「5級 昇級試験の
- * 模試を受ける」のように級名で呼ぶ。練習名（「昇級試験：満貫以上の
- * 点数計算」）を入れると試験名と「模試」が並んで冗長で、章末の試験カードが
- * 級名で名乗っているのとも揃わないため。
  */
 export async function PracticeLinkList({ hrefs }: PracticeLinkListProps) {
   if (hrefs.length === 0) return undefined;
 
   const t = await getTranslations("learnCurriculum.chapter");
   const tPractice = await getTranslations("practice");
-  const tRanks = await getTranslations("ranks");
   const tAll = await getTranslations();
   const tVariantLabel = (namespace: string, variant: string) =>
     tAll(`${namespace}.variants.${variant}.label`);
 
   const items = hrefs.map((href) => {
-    const target = parsePracticeHref(href);
-    const slug = target?.slug;
-    const exam =
-      slug && target?.mode === "training" && isExamMenu(slug)
-        ? rankRequiringMenu(practiceMenuBySlug(slug).menuType)
-        : undefined;
-    if (exam) {
-      return {
-        href,
-        label: t("examTrainingLinkCta", {
-          examTitle: tRanks(`examTitle.${rankTier(exam.rank.slug)}`, {
-            rank: tRanks(`names.${exam.rank.slug}`),
-          }),
-        }),
-      };
-    }
-
+    const slug = practiceSlugFromHref(href);
     const titleKey = slug ? practiceTitleKey(slug) : undefined;
     const variant = practiceVariantFromHref(href);
     const variantLabel =

@@ -21,9 +21,9 @@ import {
   listedPracticeRanks,
   matchesPracticeFilter,
   practiceListHref,
-  parsePracticeHref,
   practiceSlugFromHref,
   practiceTitleKey,
+  practiceVariantFromHref,
   rankExamHref,
 } from "../practice-catalog";
 
@@ -138,6 +138,27 @@ describe("段級位との対応", () => {
 });
 
 describe("章と練習の対応", () => {
+  it("満貫の 4 章は点数表早引きの満貫以上バリアントへ送る", () => {
+    // 章が扱う親子と、送り先のバリアントの親子を一致させる。ツモとロンは
+    // 同じ点数の表裏なので土俵を分けず、子（親）の章は 2 つとも同じ
+    // バリアントを指す
+    const expected = {
+      "mangan-ko-ron": "ko_mangan_plus",
+      "mangan-oya-ron": "oya_mangan_plus",
+      "mangan-ko-tsumo": "ko_mangan_plus",
+      "mangan-oya-tsumo": "oya_mangan_plus",
+    } as const;
+
+    for (const [slug, variant] of Object.entries(expected)) {
+      const hrefs =
+        CURRICULUM.find((chapter) => chapter.slug === slug)?.practiceHrefs ??
+        [];
+      expect(hrefs, slug).toHaveLength(1);
+      expect(practiceSlugFromHref(hrefs[0]!), slug).toBe("score-table");
+      expect(practiceVariantFromHref(hrefs[0]!), slug).toBe(variant);
+    }
+  });
+
   it("章の practiceHrefs はカタログに載っている練習を指す", () => {
     for (const chapter of CURRICULUM) {
       for (const href of chapter.practiceHrefs ?? []) {
@@ -219,35 +240,6 @@ describe("practiceListHref", () => {
         0,
       );
     }
-  });
-});
-
-describe("parsePracticeHref", () => {
-  it("昇級試験の説明ページ（/exam/<級>）を解く", () => {
-    expect(parsePracticeHref("/exam/mangan")).toEqual({
-      slug: "mangan-exam",
-      mode: "intro",
-    });
-  });
-
-  it("模試（/exam/<級>/training）を解く", () => {
-    expect(parsePracticeHref("/exam/mangan/training")).toEqual({
-      slug: "mangan-exam",
-      mode: "training",
-    });
-    expect(practiceSlugFromHref("/exam/mangan/training")).toBe("mangan-exam");
-  });
-
-  it("練習のトレーニングも解く", () => {
-    expect(parsePracticeHref("/practice/total-fu/training#practice")).toEqual({
-      slug: "total-fu",
-      mode: "training",
-    });
-  });
-
-  it("play / result は解かない", () => {
-    expect(parsePracticeHref("/exam/mangan/play")).toBeUndefined();
-    expect(parsePracticeHref("/exam/mangan/result")).toBeUndefined();
   });
 });
 

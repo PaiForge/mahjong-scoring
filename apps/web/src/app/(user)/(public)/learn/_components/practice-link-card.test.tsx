@@ -67,20 +67,6 @@ describe("PracticeLinkList", () => {
   });
 });
 
-describe("PracticeLinkList: 昇級試験の模試へのリンク", () => {
-  it("練習名ではなく級名で「〜の模試を受ける」と呼ぶ", async () => {
-    const { container } = render(
-      await PracticeLinkList({ hrefs: ["/exam/mangan/training"] }),
-    );
-    const anchor = container.querySelector("a");
-    expect(anchor!.getAttribute("href")).toBe("/exam/mangan/training");
-    // examTrainingLinkCta(examTitle.kyu(names.kyu-5))
-    expect(container.textContent).toContain("examTrainingLinkCta(");
-    expect(container.textContent).toContain("names.kyu-5");
-    expect(container.textContent).not.toContain("practices.manganExam.title");
-  });
-});
-
 describe("PracticeLinkList: link href rendering", () => {
   it("renders a link with the provided href via the list", async () => {
     const { container } = render(
