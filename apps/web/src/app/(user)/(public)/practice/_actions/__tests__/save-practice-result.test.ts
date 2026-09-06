@@ -92,6 +92,56 @@ describe("savePracticeResult", () => {
     });
   });
 
+  describe("invalid leaderboardKey", () => {
+    beforeEach(() => {
+      mockGetOptionalVerifiedUser.mockResolvedValue({ id: "user-123" });
+      mockSaveChallengeResult.mockResolvedValue({ challengeResultId: "cr-1" });
+    });
+
+    it("その練習に無いバリアントは invalid_leaderboard_key", async () => {
+      const result = await savePracticeResult(
+        "jantou_fu",
+        "kuisagari",
+        validFields,
+      );
+
+      expect(result).toEqual({
+        success: false,
+        error: "invalid_leaderboard_key",
+      });
+      expect(mockSaveChallengeResult).not.toHaveBeenCalled();
+    });
+
+    it("バリアントを持つ練習では default を受け付けない", async () => {
+      const result = await savePracticeResult(
+        "yaku_han",
+        "default",
+        validFields,
+      );
+
+      expect(result).toEqual({
+        success: false,
+        error: "invalid_leaderboard_key",
+      });
+    });
+
+    it("レジストリに列挙したバリアントは受け付ける", async () => {
+      const result = await savePracticeResult(
+        "yaku_han",
+        "no_kuisagari",
+        validFields,
+      );
+
+      expect(result).toEqual({ success: true, challengeResultId: "cr-1" });
+      expect(mockSaveChallengeResult).toHaveBeenCalledWith(
+        expect.objectContaining({
+          menuType: "yaku_han",
+          leaderboardKey: "no_kuisagari",
+        }),
+      );
+    });
+  });
+
   describe("exam is not recorded", () => {
     beforeEach(() => {
       mockGetOptionalVerifiedUser.mockResolvedValue({ id: "user-123" });

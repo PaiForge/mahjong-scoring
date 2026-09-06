@@ -32,6 +32,7 @@ function useSession(
     isFinished: session.gameSession.isFinished,
     finalResult: session.gameSession.finalResult,
     elapsedMs: 0,
+    slug: "jantou-fu",
     resultPath: "/practice/jantou-fu/result",
     onFinish,
   });
@@ -76,7 +77,12 @@ describe("useFinishRedirect integration", () => {
         correctCount: 0,
         incorrectCount: 3,
         totalCount: 3,
+        // 設定を持たない練習は既定の土俵
+        variant: "default",
       }),
+    );
+    expect(routerPush).toHaveBeenCalledWith(
+      expect.stringContaining("variant=default"),
     );
     expect(routerPush).toHaveBeenCalledTimes(1);
     expect(routerPush).toHaveBeenCalledWith(
@@ -129,6 +135,7 @@ describe("useFinishRedirect integration", () => {
       isFinished: session.gameSession.isFinished,
       finalResult: session.gameSession.finalResult,
       elapsedMs,
+      slug: "jantou-fu",
       resultPath: "/practice/jantou-fu/result",
       onFinish,
     });

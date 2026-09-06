@@ -68,11 +68,21 @@ interface PracticeMenuEntry {
    */
   readonly hasProblemList: boolean;
   /**
-   * 説明ページに出題設定（親子・和了方法などの絞り込み）を持つか。
-   * true の練習は結果ページに「設定を変更する」ボタンを出し、説明ページの
-   * 設定セクションへ戻す。設定を持たない練習ではボタン自体を出さない。
+   * 出題設定のバリアント（省略時は設定を持たない）。
+   * バリアント
+   *
+   * 練習の出題設定は、ここに列挙した少数のバリアントから 1 つを選ぶ形に
+   * 限る。自由な組み合わせ（チェックボックス等）は作らない — 記録が残る
+   * チャレンジは、設定ごとに別のランキング・別のベストスコアを持つ必要が
+   * あり、列挙できない設定は名前を付けて並べることも比較することも
+   * できないため。
+   *
+   * バリアントのキーはそのまま `challenge_results.leaderboard_key` になり、
+   * URL の `?variant=` とラベルの辞書キー（`<namespace>.variants.<key>`）
+   * にも使う。先頭が既定（URL に指定が無いとき・不正なときに使う）。
+   * 設定を持たない練習の leaderboard_key は {@link DEFAULT_VARIANT}。
    */
-  readonly hasSetup: boolean;
+  readonly variants?: readonly [string, ...string[]];
   /**
    * チャレンジのミス上限の上書き（省略時は共通の `MISTAKE_LIMIT`）。
    * ミス上限
@@ -126,6 +136,15 @@ export const PRACTICE_SLUG = {
 } as const;
 
 /**
+ * 出題設定を持たない練習の `leaderboard_key`
+ * 既定バリアント
+ *
+ * バリアントを持つ練習のキーと同じ列に入るため、バリアント名としても
+ * 予約する（`variants` に "default" を含めない）。
+ */
+export const DEFAULT_VARIANT = "default";
+
+/**
  * 練習種別レジストリ
  * 新しい練習の追加はここに1行追加するだけでよい。
  */
@@ -136,7 +155,6 @@ const PRACTICE_MENU_REGISTRY = [
     messageKey: "jantouFu",
     namespace: "jantouFu",
     hasProblemList: true,
-    hasSetup: false,
   },
   {
     menuType: "machi_fu",
@@ -144,7 +162,6 @@ const PRACTICE_MENU_REGISTRY = [
     messageKey: "machiFu",
     namespace: "machiFu",
     hasProblemList: true,
-    hasSetup: false,
   },
   {
     menuType: "mentsu_fu",
@@ -152,7 +169,6 @@ const PRACTICE_MENU_REGISTRY = [
     messageKey: "mentsuFu",
     namespace: "mentsuFu",
     hasProblemList: true,
-    hasSetup: false,
   },
   {
     menuType: "mentsu_jantou_fu",
@@ -160,7 +176,6 @@ const PRACTICE_MENU_REGISTRY = [
     messageKey: "mentsuJantouFu",
     namespace: "mentsuJantouFu",
     hasProblemList: true,
-    hasSetup: false,
   },
   {
     menuType: "total_fu",
@@ -168,7 +183,6 @@ const PRACTICE_MENU_REGISTRY = [
     messageKey: "totalFu",
     namespace: "totalFu",
     hasProblemList: true,
-    hasSetup: false,
   },
   {
     menuType: "yaku",
@@ -176,7 +190,6 @@ const PRACTICE_MENU_REGISTRY = [
     messageKey: "yaku",
     namespace: "yaku",
     hasProblemList: true,
-    hasSetup: false,
   },
   {
     menuType: "score_table",
@@ -184,7 +197,9 @@ const PRACTICE_MENU_REGISTRY = [
     messageKey: "scoreTable",
     namespace: "scoreTableChallenge",
     hasProblemList: true,
-    hasSetup: true,
+    // 難易度が単調に上がる順。子から覚えるのが定石で、満貫以上は覚える量が
+    // 少ないため単独のバリアントにしない（「全部」で表の全体を引く）
+    variants: ["ko_non_mangan", "oya_non_mangan", "all"],
   },
   {
     menuType: "score_calculation",
@@ -192,7 +207,6 @@ const PRACTICE_MENU_REGISTRY = [
     messageKey: "scoreCalculation",
     namespace: "scoreCalculationChallenge",
     hasProblemList: true,
-    hasSetup: false,
   },
   {
     menuType: "han_count",
@@ -200,7 +214,6 @@ const PRACTICE_MENU_REGISTRY = [
     messageKey: "hanCount",
     namespace: "hanCountChallenge",
     hasProblemList: true,
-    hasSetup: false,
   },
   {
     menuType: "yaku_han",
@@ -208,7 +221,7 @@ const PRACTICE_MENU_REGISTRY = [
     messageKey: "yakuHan",
     namespace: "yakuHanChallenge",
     hasProblemList: true,
-    hasSetup: true,
+    variants: ["no_kuisagari", "kuisagari", "all"],
   },
   {
     menuType: "mangan_score_calculation",
@@ -216,7 +229,6 @@ const PRACTICE_MENU_REGISTRY = [
     messageKey: "manganScoreCalculation",
     namespace: "manganScoreCalculationChallenge",
     hasProblemList: true,
-    hasSetup: false,
   },
   {
     menuType: "mangan_exam",
@@ -224,7 +236,6 @@ const PRACTICE_MENU_REGISTRY = [
     messageKey: "manganExam",
     namespace: "manganExamChallenge",
     hasProblemList: true,
-    hasSetup: false,
     // 昇級試験のためミス1回で強制終了（通常チャレンジは MISTAKE_LIMIT = 3）。
     // 「1ミスでアウト」をセッション側で強制することで、昇級判定は
     // ベストスコア >= 合格点の単純比較で成立する（RANK_REGISTRY 参照）
@@ -238,7 +249,6 @@ const PRACTICE_MENU_REGISTRY = [
     messageKey: "fuExam",
     namespace: "fuExamChallenge",
     hasProblemList: true,
-    hasSetup: false,
     // 昇級試験のためミス1回で強制終了（mangan_exam と同じ理由。RANK_REGISTRY 参照）
     mistakeLimit: 1,
     basePath: "/exam/fu",
@@ -249,7 +259,6 @@ const PRACTICE_MENU_REGISTRY = [
     messageKey: "chiitoitsuExam",
     namespace: "chiitoitsuExamChallenge",
     hasProblemList: true,
-    hasSetup: false,
     // 昇級試験のためミス1回で強制終了（mangan_exam と同じ理由。RANK_REGISTRY 参照）
     mistakeLimit: 1,
     basePath: "/exam/chiitoitsu",
@@ -260,7 +269,6 @@ const PRACTICE_MENU_REGISTRY = [
     messageKey: "pinfuExam",
     namespace: "pinfuExamChallenge",
     hasProblemList: true,
-    hasSetup: false,
     // 昇級試験のためミス1回で強制終了（mangan_exam と同じ理由。RANK_REGISTRY 参照）
     mistakeLimit: 1,
     basePath: "/exam/pinfu",
@@ -271,7 +279,6 @@ const PRACTICE_MENU_REGISTRY = [
     messageKey: "fuScoreExam",
     namespace: "fuScoreExamChallenge",
     hasProblemList: true,
-    hasSetup: false,
     // 昇級試験のためミス1回で強制終了（mangan_exam と同じ理由。RANK_REGISTRY 参照）
     mistakeLimit: 1,
     basePath: "/exam/fu-score",
@@ -282,7 +289,6 @@ const PRACTICE_MENU_REGISTRY = [
     messageKey: "scoreExam",
     namespace: "scoreExamChallenge",
     hasProblemList: true,
-    hasSetup: false,
     // 昇段試験のためミス1回で強制終了（mangan_exam と同じ理由。RANK_REGISTRY 参照）
     mistakeLimit: 1,
     // 出題範囲を絞らない試験なので、範囲を名乗る他の試験と違って
@@ -314,6 +320,22 @@ export type PracticeMenuNamespace =
   (typeof PRACTICE_MENU_REGISTRY)[number]["namespace"];
 
 /**
+ * ある練習のバリアントキーの union
+ * バリアント型
+ *
+ * バリアントを持つ練習は列挙したキー、持たない練習は `DEFAULT_VARIANT`。
+ * 練習側の「バリアント → 出題オプション」の表を `Record<PracticeVariantOf<slug>, …>`
+ * で型付けすると、レジストリにバリアントを足したときに表の追記漏れが
+ * コンパイルエラーになる。
+ */
+export type PracticeVariantOf<S extends PracticeMenuSlug> =
+  Extract<(typeof PRACTICE_MENU_REGISTRY)[number], { slug: S }> extends {
+    readonly variants: readonly (infer V extends string)[];
+  }
+    ? V
+    : typeof DEFAULT_VARIANT;
+
+/**
  * 練習種別の全情報
  * 練習種別記述子
  *
@@ -326,7 +348,17 @@ export interface PracticeMenuDescriptor {
   readonly messageKey: PracticeMenuMessageKey;
   readonly namespace: PracticeMenuNamespace;
   readonly hasProblemList: boolean;
+  /**
+   * 出題設定を持つか（= バリアントを列挙しているか）。
+   * true の練習は説明ページにバリアントの選択を出し、結果ページに
+   * 「設定を変更する」ボタンを出す。
+   */
   readonly hasSetup: boolean;
+  /**
+   * 選べるバリアント（設定を持たない練習は `[DEFAULT_VARIANT]` の 1 件）。
+   * 先頭が既定。
+   */
+  readonly variants: readonly [string, ...string[]];
   readonly mistakeLimit: number;
   readonly timeLimit: number;
   /** ルートのベースパス（説明ページの URL。play / result はこの配下） */
@@ -378,6 +410,8 @@ function resolveDescriptor(
   const overrides: PracticeMenuEntry = entry;
   return {
     ...entry,
+    hasSetup: overrides.variants !== undefined,
+    variants: overrides.variants ?? [DEFAULT_VARIANT],
     mistakeLimit: overrides.mistakeLimit ?? MISTAKE_LIMIT,
     timeLimit: overrides.timeLimit ?? CHALLENGE_TIME_LIMIT,
     basePath: overrides.basePath ?? `/practice/${entry.slug}`,
@@ -490,4 +524,53 @@ export function isExamMenuType(menuType: PracticeMenuType): boolean {
  */
 export function resultStorageKeyFor(slug: PracticeMenuSlug): string {
   return `${slug}-results`;
+}
+
+/**
+ * 値がその練習で選べるバリアントかを判定する
+ * バリアント判定
+ *
+ * 保存の入口（`savePracticeResult`）が `(menuType, leaderboardKey)` の組で
+ * 検証するのに使う。menuType と無関係にキーだけを見ると、他の練習の
+ * バリアント名を名乗った記録が別の土俵に紛れ込む。
+ */
+export function isPracticeVariant(
+  menuType: PracticeMenuType,
+  value: string,
+): boolean {
+  return practiceMenuByType(menuType).variants.includes(value);
+}
+
+/**
+ * 値がその練習のバリアントかを判定する型ガード（slug 版）
+ * バリアント型ガード
+ *
+ * `PracticeVariantOf<S>` へ絞るので、練習側の「バリアント → 出題オプション」の
+ * 表をそのまま引ける。
+ */
+export function isPracticeVariantOf<S extends PracticeMenuSlug>(
+  slug: S,
+  value: string,
+): value is PracticeVariantOf<S> {
+  return practiceMenuBySlug(slug).variants.includes(value);
+}
+
+/**
+ * URL 等から来た値をその練習のバリアントに正規化する
+ * バリアント正規化
+ *
+ * 未指定・不正値は先頭（既定）に落とす。盤面の出題・終了時の保存・
+ * 結果ページの表示がすべてここを通ることで、同じ URL から同じ土俵に
+ * 着地する（盤面は既定で出題したのに保存は不正なキーで弾かれる、という
+ * 食い違いを作らない）。
+ */
+export function resolvePracticeVariant<S extends PracticeMenuSlug>(
+  slug: S,
+  raw: string | undefined,
+): PracticeVariantOf<S> {
+  if (raw !== undefined && isPracticeVariantOf(slug, raw)) return raw;
+  const fallback = practiceMenuBySlug(slug).variants[0];
+  if (isPracticeVariantOf(slug, fallback)) return fallback;
+  // variants[0] は列挙そのものなので必ず通る。型の絞り込みのためだけの残余
+  throw new Error(`Unreachable: ${slug} の既定バリアントが列挙に無い`);
 }

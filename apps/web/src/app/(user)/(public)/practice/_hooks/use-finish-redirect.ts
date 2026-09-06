@@ -2,6 +2,8 @@
 
 import { useEffect, useRef } from "react";
 import { useRouter } from "next/navigation";
+import type { PracticeMenuSlug } from "@/lib/db/practice-menu-types";
+import { VARIANT_PARAM, readVariantFromLocation } from "../_lib/variant-param";
 import type { FinalResult } from "./use-timed-session";
 
 /** 練習終了時に呼び出されるコールバックの引数 */
@@ -10,6 +12,11 @@ export interface FinishCallbackArgs {
   readonly incorrectCount: number;
   readonly totalCount: number;
   readonly elapsedMs: number;
+  /**
+   * 走った出題設定のバリアント（URL の `?variant=` を正規化した値）。
+   * 記録の土俵（`leaderboard_key`）になる。設定を持たない練習は `DEFAULT_VARIANT`
+   */
+  readonly variant: string;
 }
 
 /**
@@ -41,6 +48,8 @@ interface UseFinishRedirectOptions {
   readonly finalResult: FinalResult | undefined;
   /** 経過時間（ミリ秒） */
   readonly elapsedMs: number;
+  /** 練習のスラッグ。URL のバリアントを正規化するのに使う */
+  readonly slug: PracticeMenuSlug;
   /** リダイレクト先パス（例: "/practice/jantou-fu/result"） */
   readonly resultPath: string;
   /**
@@ -61,11 +70,17 @@ interface UseFinishRedirectOptions {
  *
  * `finalResult` が確定（undefined でない）かつ `isFinished` が true のとき、
  * `onFinish` コールバックを実行してからリダイレクトする。
+ *
+ * 出題設定のバリアントは終了の瞬間に URL から読み、`onFinish` の引数と
+ * 結果ページの URL（`?variant=`）の両方へ同じ値を渡す。結果ページはこれで
+ * 「もう一度」のリンク・過去記録の比較・ランキングのプレビューを同じ土俵に
+ * 向ける。
  */
 export function useFinishRedirect({
   isFinished,
   finalResult,
   elapsedMs,
+  slug,
   resultPath,
   onFinish,
 }: UseFinishRedirectOptions) {
@@ -77,6 +92,7 @@ export function useFinishRedirect({
     savedRef.current = true;
 
     const { correctCount, incorrectCount, totalCount } = finalResult;
+    const variant = readVariantFromLocation(slug);
 
     const buildResultUrl = (result?: FinishCallbackResult): string => {
       const params = new URLSearchParams({
@@ -84,9 +100,10 @@ export function useFinishRedirect({
         total: totalCount.toString(),
         time: elapsedMs.toString(),
       });
+      params.set(VARIANT_PARAM, variant);
       if (result?.grant) params.set("grant", result.grant);
-      for (const slug of result?.promoted ?? []) {
-        params.append("promoted", slug);
+      for (const rankSlug of result?.promoted ?? []) {
+        params.append("promoted", rankSlug);
       }
       return `${resultPath}?${params.toString()}`;
     };
@@ -95,7 +112,13 @@ export function useFinishRedirect({
       try {
         const result = onFinish
           ? await Promise.resolve(
-              onFinish({ correctCount, incorrectCount, totalCount, elapsedMs }),
+              onFinish({
+                correctCount,
+                incorrectCount,
+                totalCount,
+                elapsedMs,
+                variant,
+              }),
             )
           : undefined;
         router.push(buildResultUrl(result ?? undefined));
@@ -104,5 +127,5 @@ export function useFinishRedirect({
         router.push(buildResultUrl());
       }
     })();
-  }, [isFinished, finalResult, elapsedMs, resultPath, router, onFinish]);
+  }, [isFinished, finalResult, elapsedMs, slug, resultPath, router, onFinish]);
 }

@@ -122,6 +122,7 @@ export function createChallengePlayView<
     return (
       <ChallengeShell
         title={t("title")}
+        slug={slug}
         gameSession={gameSession}
         timerControl={timerControl}
         resultPath={practiceResultHref(slug)}

@@ -21,6 +21,7 @@ function makeArgs(
     incorrectCount: 2,
     totalCount: 7,
     elapsedMs: 30000,
+    variant: "default",
     ...overrides,
   };
 }
@@ -35,7 +36,7 @@ describe("useSaveOnFinish", () => {
     vi.spyOn(console, "error").mockImplementation(() => undefined);
   });
 
-  it("menuType が savePracticeResult に正しく渡される", async () => {
+  it("menuType と variant が savePracticeResult に正しく渡される", async () => {
     const { result } = renderHook(() => useSaveOnFinish("jantou_fu"));
     await result.current(makeArgs());
 
@@ -44,6 +45,17 @@ describe("useSaveOnFinish", () => {
       incorrectAnswers: 2,
       timeTaken: 30,
     });
+  });
+
+  it("終了時の variant がそのまま leaderboardKey になる", async () => {
+    const { result } = renderHook(() => useSaveOnFinish("yaku_han"));
+    await result.current(makeArgs({ variant: "kuisagari" }));
+
+    expect(mockedSave).toHaveBeenCalledWith(
+      "yaku_han",
+      "kuisagari",
+      expect.anything(),
+    );
   });
 
   it("totalCount === 0 の場合 savePracticeResult が呼ばれない", async () => {

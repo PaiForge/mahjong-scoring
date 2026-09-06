@@ -5,6 +5,7 @@ import { logExternalError } from "@/lib/log-error";
 import {
   isExamMenuType,
   isPracticeMenuType,
+  isPracticeVariant,
 } from "@/lib/db/practice-menu-types";
 import type { PracticeMenuType } from "@/lib/db/practice-menu-types";
 import { saveChallengeResult } from "@/lib/db/save-challenge-result";
@@ -26,8 +27,6 @@ export type SaveResultResponse =
   | { readonly success: true; readonly skipped: "anonymous" }
   | { readonly success: false; readonly error: string };
 
-const ALLOWED_LEADERBOARD_KEYS: ReadonlySet<string> = new Set(["default"]);
-
 export interface ChallengeFields {
   readonly score: number;
   readonly incorrectAnswers: number;
@@ -43,7 +42,8 @@ export interface ChallengeFields {
  * ランキング・マイレコード・EXP に紛れ込む経路を保存の入口で塞ぐため。
  *
  * @param menuType - 練習種別
- * @param leaderboardKey - ランキングセグメントキー
+ * @param leaderboardKey - ランキングセグメントキー（= 出題設定のバリアント。
+ *   レジストリの `variants`、設定を持たない練習は `DEFAULT_VARIANT`）
  * @param challengeFields - スコア、誤答数、経過時間
  */
 export async function savePracticeResult(
@@ -68,7 +68,9 @@ export async function savePracticeResult(
       return { success: false, error: "invalid_menu_type" };
     }
 
-    if (!ALLOWED_LEADERBOARD_KEYS.has(leaderboardKey)) {
+    // キー単独ではなく (menuType, key) の組で検証する。他の練習のバリアント名を
+    // 名乗った記録が別の土俵に紛れ込まないように
+    if (!isPracticeVariant(menuType, leaderboardKey)) {
       console.warn(
         `[savePracticeResult] invalid leaderboardKey: ${leaderboardKey}`,
       );

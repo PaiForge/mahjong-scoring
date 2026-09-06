@@ -2,6 +2,7 @@
 
 import { type ReactNode, memo, useEffect, useRef, useCallback } from "react";
 import { useTranslations } from "next-intl";
+import type { PracticeMenuSlug } from "@/lib/db/practice-menu-types";
 import { ContentContainer } from "@/app/(user)/_components/content-container";
 import { PageTitle } from "@/app/(user)/_components/page-title";
 import { BoardOverlay } from "@/app/(user)/_components/board-overlay";
@@ -67,6 +68,8 @@ interface ChallengeShellProps {
   readonly gameSession: GameSessionState;
   /** ChallengeShell 内でタイマーを制御するためのインターフェース */
   readonly timerControl: TimerControl;
+  /** 練習のスラッグ（終了時に URL のバリアントを正規化するのに使う） */
+  readonly slug: PracticeMenuSlug;
   /** リザルトページへのパス（例: "/practice/jantou-fu/result"） */
   readonly resultPath: string;
   /**
@@ -116,6 +119,7 @@ interface ChallengeShellProps {
  */
 export function ChallengeShell({
   title,
+  slug,
   gameSession,
   timerControl,
   resultPath,
@@ -205,6 +209,7 @@ export function ChallengeShell({
     isFinished: gameSession.isFinished,
     finalResult: gameSession.finalResult,
     elapsedMs,
+    slug,
     resultPath,
     onFinish,
   });

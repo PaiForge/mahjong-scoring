@@ -1,5 +1,6 @@
 import type { CurriculumChapterSlug } from "@/app/(user)/(public)/learn/_lib/curriculum";
 import {
+  DEFAULT_VARIANT,
   isExamMenuType,
   isPracticeMenuSlug,
   menuTypeToSlug,
@@ -8,6 +9,7 @@ import {
 } from "@/lib/db/practice-menu-types";
 import { RANK_REGISTRY, type RankSlug } from "@/lib/ranks/registry";
 import { PRACTICE_SETUP_HASH } from "./scroll-anchor";
+import { variantQuery } from "./variant-param";
 
 /**
  * 練習メニューのカタログ — 一覧の並び・段級位・教本リンクの単一の真実のソース
@@ -331,14 +333,26 @@ export function rankExamHref(slug: RankSlug): string {
   return practiceHref(menuTypeToSlug(rank.exam.menuType));
 }
 
-/** 練習のプレイページのパス */
-export function practicePlayHref(slug: PracticeMenuSlug): string {
-  return `${practiceHref(slug)}/play`;
+/**
+ * 練習のプレイページのパス
+ * プレイページパス
+ *
+ * バリアントを持つ練習は `?variant=` を付ける（省略時はその練習の既定）。
+ * 持たない練習では `variant` を渡しても付かない。
+ */
+export function practicePlayHref(
+  slug: PracticeMenuSlug,
+  variant?: string,
+): string {
+  return `${practiceHref(slug)}/play${variantQuery(slug, variant ?? DEFAULT_VARIANT)}`;
 }
 
-/** 練習のトレーニングページのパス */
-export function practiceTrainingHref(slug: PracticeMenuSlug): string {
-  return `${practiceHref(slug)}/training`;
+/** 練習のトレーニングページのパス（バリアントの扱いは {@link practicePlayHref} と同じ） */
+export function practiceTrainingHref(
+  slug: PracticeMenuSlug,
+  variant?: string,
+): string {
+  return `${practiceHref(slug)}/training${variantQuery(slug, variant ?? DEFAULT_VARIANT)}`;
 }
 
 /**
@@ -347,10 +361,15 @@ export function practiceTrainingHref(slug: PracticeMenuSlug): string {
  *
  * 出題設定を持たない練習（レジストリの `hasSetup` が false）は undefined を返す。
  * 結果ページはこれが undefined なら「設定を変更する」ボタン自体を出さない。
+ * `variant` を渡すと説明ページの選択パネルがそれを初期選択にする。
  */
-export function practiceSetupHref(slug: PracticeMenuSlug): string | undefined {
+export function practiceSetupHref(
+  slug: PracticeMenuSlug,
+  variant?: string,
+): string | undefined {
   const { hasSetup, basePath } = practiceMenuBySlug(slug);
-  return hasSetup ? `${basePath}${PRACTICE_SETUP_HASH}` : undefined;
+  if (!hasSetup) return undefined;
+  return `${basePath}${variantQuery(slug, variant ?? DEFAULT_VARIANT)}${PRACTICE_SETUP_HASH}`;
 }
 
 /** 練習の結果ページのパス */
