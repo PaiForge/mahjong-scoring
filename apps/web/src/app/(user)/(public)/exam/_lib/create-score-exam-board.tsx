@@ -4,8 +4,11 @@ import type { ComponentType } from "react";
 import { useTranslations } from "next-intl";
 import { QuestionGeneratingPlaceholder } from "@/app/(user)/(public)/practice/_components/question-generating-placeholder";
 import { QuestionPrompt } from "@/app/(user)/(public)/practice/_components/question-prompt";
+import { RevealedScoreAnswer } from "@/app/(user)/(public)/practice/_components/revealed-score-answer";
 import { useScoreQuestionBoard } from "@/app/(user)/(public)/practice/_hooks/use-score-question-board";
 import type { UseScoreQuestionBoardParams } from "@/app/(user)/(public)/practice/_hooks/use-score-question-board";
+import { useTrainingMode } from "@/app/(user)/(public)/practice/_hooks/use-training-mode";
+import { paymentToScoreTableAnswer } from "@/app/(user)/(public)/practice/_lib/payment-adapter";
 import type { RecordingPracticeBoardProps } from "@/app/(user)/(public)/practice/_lib/practice-board-props";
 import type { ScoreQuestionResult } from "@/app/(user)/(public)/practice/_lib/score-question-result";
 import { QuestionDisplay } from "@/app/(user)/(public)/practice/score/_components/question-display";
@@ -45,14 +48,21 @@ interface CreateScoreExamBoardConfig {
  * 盤面はフィードバック枠で囲まずに単体で置く。盤面が自前で枠を持つため二重枠に
  * なり、狭い画面ではそのぶん手牌が小さくなる。正誤は回答した select 自身の枠と
  * 地の色が返し（{@link ScoreExamAnswerForm} 参照）、選択肢を持つ試験（符）が
- * 選択肢ボタンを染めるのと同じ配色・同じタイミングになる。正解そのものは出さず、
- * 答え合わせは結果ページの問題別フィードバック一覧で行う。
+ * 選択肢ボタンを染めるのと同じ配色・同じタイミングになる。本番の試験では正解
+ * そのものは出さず、答え合わせは結果ページの問題別フィードバック一覧で行う。
+ *
+ * 同じ盤面を模試（`/exam/<級>/training`。時間無制限・記録なしのトレーニング）
+ * でも描く。模試では回答後の停止中と「わからない」の開示中に正解の点数を
+ * 出題の直下に出す（練習の点数計算ドリルと同じ答え合わせ）。出題条件・
+ * 選択肢は本番と同じで、違うのは答え合わせの有無だけ。
  *
  * @remarks
  * ルール設定ストア（連風牌4符・切り上げ満貫）を読まないことがこの盤面の不変条件。
  * 合格ラインは全受験者に同じ 1 本で、出題も選択肢も端末ローカルの設定に
- * 依存してはならない（設定を変えた端末で有利にも不利にもならないこと）。各級の
- * `_lib/__tests__/exam-options.test.ts` がこのモジュールを含めて import を検査する。
+ * 依存してはならない（設定を変えた端末で有利にも不利にもならないこと）。模試も
+ * 本番と同じ問題・同じ選択肢で解けることに意味があるため、この不変条件は
+ * 模試でも崩さない。各級の `_lib/__tests__/exam-options.test.ts` がこのモジュールを
+ * 含めて import を検査する。
  */
 export function createScoreExamBoard(
   config: CreateScoreExamBoardConfig,
@@ -64,6 +74,7 @@ export function createScoreExamBoard(
     showFeedback,
     lastAnswerCorrect,
     isCountingDown = false,
+    isTraining = false,
     onAnswer,
     onRecordResult,
   }: RecordingPracticeBoardProps<ScoreQuestionResult>) {
@@ -76,6 +87,10 @@ export function createScoreExamBoard(
       onAnswer,
       onRecordResult,
     });
+    // 模試では開示時だけでなく回答後の停止中も正解を出す（答え合わせ用）。
+    // 本番の試験ではどちらも立たない（トレーニングのビューだけが提供する）
+    const { isRevealed, isHolding } = useTrainingMode();
+    const showAnswer = isRevealed || isHolding;
 
     if (!question) {
       // 出来上がった盤面と同じ高さで待つ（`loading.tsx` のフォールバックと同値）
@@ -89,7 +104,17 @@ export function createScoreExamBoard(
 
     return (
       <div className="space-y-6">
-        <QuestionDisplay question={question} mobileFrame="fullBleed" />
+        <QuestionDisplay
+          question={question}
+          mobileFrame={isTraining ? "fullBleedFlushTop" : "fullBleed"}
+        />
+
+        {showAnswer && (
+          <RevealedScoreAnswer
+            answer={paymentToScoreTableAnswer(question.answer.payment)}
+            translationNamespace={translationNamespace}
+          />
+        )}
 
         <QuestionPrompt>{t("questionPrompt")}</QuestionPrompt>
 
