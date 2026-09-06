@@ -34,8 +34,8 @@ interface ScoreExamAnswerFormProps {
  * 選択肢は必ず `scoreRange` で固定する（点数帯に絞る試験は帯を、絞らない試験は
  * `"all"` を渡す）。翻数から絞ると選択肢の個数がそのまま翻数のヒントになり、
  * さらに切り上げ満貫が効く境界（30符4翻など）では端末ローカルのルール設定で
- * 選択肢が受験者ごとに変わってしまう。試験は leaderboardKey を分けずに全受験者を
- * 同じ土俵で比較するため、選択肢は端末設定に依存してはならない。
+ * 選択肢が受験者ごとに変わってしまう。合格ラインは全受験者に同じ 1 本なので、
+ * 選択肢は端末設定に依存してはならない（`fixedRules`）。
  *
  * 親子・ツモロンの別は出題（`question`）から導くので、呼び出し側は渡さない。
  *
@@ -64,6 +64,7 @@ export function ScoreExamAnswerForm({
       lastAnswerCorrect={lastAnswerCorrect}
       translationNamespace={translationNamespace}
       scoreRange={scoreRange}
+      fixedRules
     />
   );
 }

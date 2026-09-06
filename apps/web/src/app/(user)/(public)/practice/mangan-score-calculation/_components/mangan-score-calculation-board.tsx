@@ -12,17 +12,12 @@ import { useTrainingMode } from "../../_hooks/use-training-mode";
 import { QuestionDisplay } from "../../score/_components/question-display";
 import { YakuListDisplay } from "./yaku-list-display";
 import { ScoreChallengeAnswerForm } from "../../_components/score-challenge-answer-form";
-import type {
-  ManganScoreCalculationQuestionResult,
-  PlayerType,
-} from "../_lib/types";
-import { playerTypeToOptions } from "../_lib/types";
+import type { ManganScoreCalculationQuestionResult } from "../_lib/types";
 import type { RecordingPracticeBoardProps } from "../../_lib/practice-board-props";
+import { ruleBoundaryExclusions } from "../../_lib/rule-boundary";
 
-interface ManganScoreCalculationBoardProps extends RecordingPracticeBoardProps<ManganScoreCalculationQuestionResult> {
-  /** 出題する親/子の種別（チャレンジは URL クエリで指定、トレーニングは既定値） */
-  readonly playerType: PlayerType;
-}
+type ManganScoreCalculationBoardProps =
+  RecordingPracticeBoardProps<ManganScoreCalculationQuestionResult>;
 
 /**
  * 満貫以上点数計算の出題盤面（手牌・役一覧の提示と点数の回答）
@@ -35,7 +30,6 @@ interface ManganScoreCalculationBoardProps extends RecordingPracticeBoardProps<M
  * （選択肢を持つ練習が選択肢ボタンを染めるのと同じ配色・同じタイミング）。
  */
 export function ManganScoreCalculationBoard({
-  playerType,
   showFeedback,
   lastAnswerCorrect,
   isCountingDown = false,
@@ -46,13 +40,15 @@ export function ManganScoreCalculationBoard({
   const t = useTranslations("manganScoreCalculationChallenge");
 
   const yakumanRules = useYakumanRules();
+  // チャレンジ（記録あり）では、ルール設定の採否で正解が割れる手を出題から
+  // 落とす（理由は `_lib/rule-boundary.ts`）
   const generateOptions = useMemo(
     () => ({
       allowedRanges: ["manganPlus" as const],
       yakumanRules,
-      ...playerTypeToOptions(playerType),
+      ...ruleBoundaryExclusions(isTraining),
     }),
-    [playerType, yakumanRules],
+    [yakumanRules, isTraining],
   );
 
   const { question, questionIndex, handleSubmit } = useScoreQuestionBoard({
@@ -106,6 +102,7 @@ export function ManganScoreCalculationBoard({
         lastAnswerCorrect={lastAnswerCorrect}
         translationNamespace="manganScoreCalculationChallenge"
         scoreRange="manganPlus"
+        isTraining={isTraining}
       />
     </div>
   );

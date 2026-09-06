@@ -26,12 +26,21 @@ export function useScoreTableVariant(): PracticeVariantOf<"score-table"> {
  * play / training の盤面が使う。`useScoreTableQuestion` の依存に渡るため、
  * 参照が毎レンダー変わらないようメモ化する。バリアントの絞り込みに加えて、
  * ローカルルール設定（切り上げ満貫）も出題オプションへ反映する。
+ *
+ * チャレンジ（`isTraining` が false）では、切り上げ満貫の採否で正解が割れる
+ * セル（60符3翻）を出題から落とす（理由は `_lib/rule-boundary.ts`）。
  */
-export function useScoreTableGeneratorOptions(): ScoreTableGeneratorOptions {
+export function useScoreTableGeneratorOptions(
+  isTraining: boolean,
+): ScoreTableGeneratorOptions {
   const variant = useScoreTableVariant();
   const kiriageMangan = useRuleSettingsStore((s) => s.kiriageMangan);
   return useMemo(
-    () => ({ ...SCORE_TABLE_VARIANT_OPTIONS[variant], kiriageMangan }),
-    [variant, kiriageMangan],
+    () => ({
+      ...SCORE_TABLE_VARIANT_OPTIONS[variant],
+      kiriageMangan,
+      excludeKiriageBoundary: !isTraining,
+    }),
+    [variant, kiriageMangan, isTraining],
   );
 }

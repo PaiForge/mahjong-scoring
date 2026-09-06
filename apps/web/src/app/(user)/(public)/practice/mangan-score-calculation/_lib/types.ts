@@ -11,36 +11,3 @@ export { paymentToScoreTableAnswer } from "../../_lib/payment-adapter";
 export const RESULT_STORAGE_KEY = resultStorageKeyFor(
   PRACTICE_SLUG.manganScoreCalculation,
 );
-
-/**
- * player クエリパラメータの型
- * プレイヤー種別
- */
-export type PlayerType = "child" | "parent" | "random";
-
-/**
- * player クエリパラメータをパースする
- * プレイヤー種別パース
- */
-export function parsePlayerType(value: string | undefined): PlayerType {
-  if (value === "child" || value === "parent") return value;
-  return "random";
-}
-
-/**
- * PlayerType から includeParent / includeChild オプションを導出する
- * プレイヤー種別オプション変換
- */
-export function playerTypeToOptions(playerType: PlayerType): {
-  includeParent: boolean;
-  includeChild: boolean;
-} {
-  switch (playerType) {
-    case "child":
-      return { includeParent: false, includeChild: true };
-    case "parent":
-      return { includeParent: true, includeChild: false };
-    case "random":
-      return { includeParent: true, includeChild: true };
-  }
-}

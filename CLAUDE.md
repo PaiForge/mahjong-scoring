@@ -286,7 +286,10 @@ packages/eslint-config/ — 共通 ESLint 設定（PaiForge コーディング�
   盤面・保存・結果ページ・ランキングが同じ URL から同じ土俵に着地するため
 - 説明ページの選択 UI は共通の `VariantStartPanel`。練習ごとに設定 UI を書かない
 - `/preferences` のルール設定（連風牌4符・切り上げ満貫等）は端末ローカルで、
-  `leaderboard_key` に載せない（端末を変えた瞬間に記録が別の土俵へ飛ぶ）
+  `leaderboard_key` に載せない（端末を変えた瞬間に記録が別の土俵へ飛ぶ）。
+  代わりにチャレンジ（記録あり）では設定で正解が割れる手を出題から落とし、
+  点数の選択肢を設定に依らない集合に固定する（`practice/_lib/rule-boundary.ts`）。
+  トレーニングは設定どおりに出題する
 - 昇級試験は記録を残さない（`submitExamResult` が合否だけ判定して `user_ranks` に
   付与する）。`savePracticeResult` は試験の menuType を入口で弾く
 

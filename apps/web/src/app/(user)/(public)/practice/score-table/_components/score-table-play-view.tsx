@@ -23,7 +23,7 @@ function ScoreTableBoardFromQuery({
 }: {
   readonly args: ChallengeBoardArgs<ScoreTableQuestionResult>;
 }) {
-  const generatorOptions = useScoreTableGeneratorOptions();
+  const generatorOptions = useScoreTableGeneratorOptions(false);
   const { question, advance } = useScoreTableQuestion(generatorOptions);
 
   if (!question) {

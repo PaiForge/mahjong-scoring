@@ -45,7 +45,7 @@ function ScoreTableTrainingViewInner() {
     reveal,
     proceed,
   } = useTrainingSession();
-  const generatorOptions = useScoreTableGeneratorOptions();
+  const generatorOptions = useScoreTableGeneratorOptions(true);
   const { question, advance } = useScoreTableQuestion(generatorOptions);
 
   // 盤面から登録される「次へ進む」操作（ファクトリ版と同じ配線）
@@ -86,6 +86,7 @@ function ScoreTableTrainingViewInner() {
             onAdvance={advance}
             showFeedback={showFeedback}
             lastAnswerCorrect={lastAnswerCorrect}
+            isTraining
             onAnswer={handleAnswer}
           />
         )}

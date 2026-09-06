@@ -16,6 +16,7 @@ import { QuestionDisplay } from "../../score/_components/question-display";
 import { ScoreChallengeAnswerForm } from "../../_components/score-challenge-answer-form";
 import type { ScoreCalculationQuestionResult } from "../_lib/types";
 import type { RecordingPracticeBoardProps } from "../../_lib/practice-board-props";
+import { ruleBoundaryExclusions } from "../../_lib/rule-boundary";
 
 type ScoreCalculationBoardProps =
   RecordingPracticeBoardProps<ScoreCalculationQuestionResult>;
@@ -42,9 +43,16 @@ export function ScoreCalculationBoard({
   const renfonpaiAs4Fu = useRuleSettingsStore((s) => s.renfonpaiAs4Fu);
   const kiriageMangan = useRuleSettingsStore((s) => s.kiriageMangan);
   const yakumanRules = useYakumanRules();
+  // チャレンジ（記録あり）では、ルール設定の採否で正解が割れる手を出題から
+  // 落とす（理由は `_lib/rule-boundary.ts`）
   const generateOptions = useMemo(
-    () => ({ renfonpaiAs4Fu, kiriageMangan, yakumanRules }),
-    [renfonpaiAs4Fu, kiriageMangan, yakumanRules],
+    () => ({
+      renfonpaiAs4Fu,
+      kiriageMangan,
+      yakumanRules,
+      ...ruleBoundaryExclusions(isTraining),
+    }),
+    [renfonpaiAs4Fu, kiriageMangan, yakumanRules, isTraining],
   );
 
   const { question, questionIndex, handleSubmit } = useScoreQuestionBoard({
@@ -92,6 +100,7 @@ export function ScoreCalculationBoard({
         showFeedback={showFeedback}
         lastAnswerCorrect={lastAnswerCorrect}
         translationNamespace="scoreCalculationChallenge"
+        isTraining={isTraining}
       />
     </div>
   );
