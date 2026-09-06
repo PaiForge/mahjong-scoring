@@ -382,6 +382,16 @@
     "challengePrompt": "準備はいいですか？",
     "challengeButton": "チャレンジを始める"
   },
+  "examTraining": {
+    "pageTitle": "{title}（模試）",
+    "startButton": "模試を受ける",
+    "hint": "時間無制限・記録なし・1問ごとに答え合わせ",
+    "realExamButton": "本番の試験を始める",
+    "realExamHint": "制限時間{timeLimit}秒・ミス{mistakeLimit}回で終了・合格で段級位を取得",
+    "modeActive": "模試を受験中",
+    "realExamPrompt": "本番の試験に進みますか？",
+    "exitToast": "模試を終了しました"
+  },
   "exp": {
     "label": "経験値",
     "earned": "+{amount} EXP",

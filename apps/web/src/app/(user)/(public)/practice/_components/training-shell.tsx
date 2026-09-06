@@ -6,6 +6,7 @@ import { toastOnArrival } from "@/app/_components/_lib/toast-on-arrival";
 import { Button } from "@/app/(user)/_components/button";
 import { ContentContainer } from "@/app/(user)/_components/content-container";
 import { PageTitle } from "@/app/(user)/_components/page-title";
+import type { PracticeMenuSlug } from "@/lib/db/practice-menu-types";
 import { useScrollToElement } from "../_hooks/use-scroll-to-element";
 import { PRACTICE_SCROLL_ANCHOR_ID } from "../_lib/scroll-anchor";
 import { ScoreCounter } from "./score-counter";
@@ -16,11 +17,21 @@ import {
 import {
   TrainingChallengeCta,
   type TrainingChallengeRules,
+  type TrainingVariant,
 } from "./training-challenge-cta";
 
 interface TrainingShellProps {
   /** 画面上部に表示する練習名（PageTitle に渡す） */
   readonly title: ReactNode;
+  /** 練習のスラッグ。末尾のチャレンジ導線（模試なら本番の受験ゲート）が使う */
+  readonly slug: PracticeMenuSlug;
+  /**
+   * 練習のトレーニングか、昇級試験の模試か（既定 practice）。
+   *
+   * 模試は終了トーストと末尾の導線の文言を「チャレンジ」ではなく「本番の
+   * 試験」で出す。それ以外（タイマー無し・正解を読ませて次へ）は同じ。
+   */
+  readonly variant?: TrainingVariant;
   /**
    * 練習名の右隣に並べる操作要素（ヘルプボタン等）
    *
@@ -79,6 +90,8 @@ interface TrainingShellProps {
  */
 export function TrainingShell({
   title,
+  slug,
+  variant = "practice",
   titleAction,
   correctCount,
   totalCount,
@@ -95,6 +108,7 @@ export function TrainingShell({
 }: TrainingShellProps) {
   const tc = useTranslations("challenge");
   const tt = useTranslations("training");
+  const tExamTraining = useTranslations("examTraining");
 
   // 練習開始直後、グローバルヘッダ分のオフセットを解消して盤面を画面上部へ表示する
   useScrollToElement(PRACTICE_SCROLL_ANCHOR_ID);
@@ -102,9 +116,11 @@ export function TrainingShell({
   // チャレンジを「やめる」で抜けたときと同じく、終了したことをトーストで返す。
   // 遷移先の説明ページに着いてから出す（ここで出すと表示時間が遷移の裏で減り、
   // 視線も切り替わる本文側にあるため見落とされる）。
+  const exitToast =
+    variant === "exam" ? tExamTraining("exitToast") : tt("exitToast");
   const handleExit = useCallback(() => {
-    toastOnArrival(exitHref, tt("exitToast"));
-  }, [exitHref, tt]);
+    toastOnArrival(exitHref, exitToast);
+  }, [exitHref, exitToast]);
 
   return (
     <ContentContainer id={PRACTICE_SCROLL_ANCHOR_ID} fillViewport>
@@ -159,6 +175,8 @@ export function TrainingShell({
         <TrainingChallengeCta
           challengeHref={challengeHref}
           challengeRules={challengeRules}
+          slug={slug}
+          variant={variant}
         />
       </div>
     </ContentContainer>
