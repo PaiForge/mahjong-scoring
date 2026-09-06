@@ -2190,6 +2190,14 @@
       "incorrect": "不正解"
     },
     "variants": {
+      "ko_mangan_plus": {
+        "label": "子・満貫以上",
+        "hint": "子の点数を満貫〜役満の5段階で引く"
+      },
+      "oya_mangan_plus": {
+        "label": "親・満貫以上",
+        "hint": "親の点数を満貫〜役満の5段階で引く"
+      },
       "ko_non_mangan": {
         "label": "子・満貫未満",
         "hint": "子の点数表を 20〜60符 × 1〜3翻で引く"
