@@ -1,7 +1,7 @@
 import {
   nextRank,
   rankRequiringMenu,
-  type ChallengeScoreRequirement,
+  type ExamRequirement,
   type RankDefinition,
   type RankSlug,
 } from "./registry";
@@ -14,7 +14,7 @@ interface ExamEligibilityBase {
   /** その試験が昇級試験になっているランク */
   readonly rank: RankDefinition;
   /** そのランクの合格要件（合格点の表示等に使う） */
-  readonly requirement: ChallengeScoreRequirement;
+  readonly requirement: ExamRequirement;
 }
 
 /** 次に取る級の試験 — 受験できる */
@@ -22,7 +22,7 @@ export interface ExamEligible extends ExamEligibilityBase {
   readonly kind: "eligible";
 }
 
-/** 達成済みの級の試験 — 再挑戦（ランキング更新）として受験できる */
+/** 達成済みの級の試験 — 再挑戦（腕試し。合否は級に影響しない）として受験できる */
 export interface ExamRetryable extends ExamEligibilityBase {
   readonly kind: "retryable";
 }
@@ -52,7 +52,7 @@ export type ExamEligibility = ExamEligible | ExamRetryable | ExamLocked;
  *
  * 純関数でクライアント・サーバーどちらからも使える。表示の出し分け
  * （試験説明ページの開始ボタン）と強制（play ページのリダイレクト・
- * `savePracticeResult` の保存拒否）の両方がこの1つの判定を使い、
+ * `submitExamResult` の採点拒否）の両方がこの1つの判定を使い、
  * 基準が食い違わないようにする。
  *
  * 過去の仕様で級が飛び番で付与されたユーザー（例: 5級と2級のみ保持）は

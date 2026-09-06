@@ -70,9 +70,7 @@ function selectReadyExamSlugs(
   );
   if (!prerequisitesRead) return [];
 
-  return next.requirements.map((requirement) =>
-    menuTypeToSlug(requirement.menuType),
-  );
+  return [menuTypeToSlug(next.exam.menuType)];
 }
 
 /**

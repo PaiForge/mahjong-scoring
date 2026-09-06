@@ -7,13 +7,12 @@ import { LEADERBOARD_CACHE_TAG } from "@/lib/cache-tags";
 
 import { getQueriesForPeriod } from "../_lib/period-queries";
 import type { LeaderboardPeriod, UserRankInfo } from "../_lib/types";
-import { MODULES } from "../_lib/types";
+import { BOARDS } from "../_lib/types";
 
 const REVALIDATE_SECONDS = 300; // 5 minutes
-const LEADERBOARD_KEY = "default";
 
 /**
- * 認証済みユーザーの全モジュールにおけるランクを一括取得する。
+ * 認証済みユーザーの全土俵（練習 × バリアント）におけるランクを一括取得する。
  * 未認証の場合は空配列を返す。
  * ユーザーランク一括取得
  *
@@ -36,14 +35,14 @@ export async function getUserRanks(
       const { getUserRankedRow } = getQueriesForPeriod(period, now);
 
       const results = await Promise.allSettled(
-        MODULES.map(async (module) => {
+        BOARDS.map(async (board) => {
           const result = await getUserRankedRow(
             userId,
-            module,
-            LEADERBOARD_KEY,
+            board.module,
+            board.variant,
           );
           if (!result) return undefined;
-          return { module, rank: result.rank } satisfies UserRankInfo;
+          return { ...board, rank: result.rank } satisfies UserRankInfo;
         }),
       );
 

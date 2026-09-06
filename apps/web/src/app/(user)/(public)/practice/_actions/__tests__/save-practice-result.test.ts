@@ -1,16 +1,11 @@
 import { describe, expect, it, vi, beforeEach } from "vitest";
 
-const {
-  mockGetOptionalVerifiedUser,
-  mockSaveChallengeResult,
-  mockCheckAndGrantRanks,
-  mockGetUserRankSlugs,
-} = vi.hoisted(() => ({
-  mockGetOptionalVerifiedUser: vi.fn(),
-  mockSaveChallengeResult: vi.fn(),
-  mockCheckAndGrantRanks: vi.fn(),
-  mockGetUserRankSlugs: vi.fn(),
-}));
+const { mockGetOptionalVerifiedUser, mockSaveChallengeResult } = vi.hoisted(
+  () => ({
+    mockGetOptionalVerifiedUser: vi.fn(),
+    mockSaveChallengeResult: vi.fn(),
+  }),
+);
 
 vi.mock("server-only", () => ({}));
 
@@ -20,14 +15,6 @@ vi.mock("@/lib/auth", () => ({
 
 vi.mock("../../../../../../lib/db/save-challenge-result", () => ({
   saveChallengeResult: mockSaveChallengeResult,
-}));
-
-vi.mock("../../../../../../lib/db/rank-evaluation", () => ({
-  checkAndGrantRanks: mockCheckAndGrantRanks,
-}));
-
-vi.mock("../../../../../../lib/db/rank-queries", () => ({
-  getUserRankSlugs: mockGetUserRankSlugs,
 }));
 
 import { savePracticeResult } from "../save-practice-result";
@@ -105,74 +92,84 @@ describe("savePracticeResult", () => {
     });
   });
 
-  describe("exam eligibility guard", () => {
+  describe("invalid leaderboardKey", () => {
     beforeEach(() => {
       mockGetOptionalVerifiedUser.mockResolvedValue({ id: "user-123" });
       mockSaveChallengeResult.mockResolvedValue({ challengeResultId: "cr-1" });
-      mockCheckAndGrantRanks.mockResolvedValue([]);
     });
 
-    it("受験資格のない昇級試験は exam_locked で保存しない", async () => {
-      // 無級のユーザーが2級の試験（pinfu_exam）の結果を送ってきた場合
-      mockGetUserRankSlugs.mockResolvedValue([]);
-
+    it("その練習に無いバリアントは invalid_leaderboard_key", async () => {
       const result = await savePracticeResult(
-        "pinfu_exam",
-        "default",
+        "jantou_fu",
+        "kuisagari",
         validFields,
       );
 
-      expect(result).toEqual({ success: false, error: "exam_locked" });
+      expect(result).toEqual({
+        success: false,
+        error: "invalid_leaderboard_key",
+      });
       expect(mockSaveChallengeResult).not.toHaveBeenCalled();
     });
 
-    it("次に取る級の試験は保存する", async () => {
-      mockGetUserRankSlugs.mockResolvedValue(["kyu-5"]);
-
+    it("バリアントを持つ練習では default を受け付けない", async () => {
       const result = await savePracticeResult(
-        "fu_exam",
+        "yaku_han",
         "default",
         validFields,
       );
 
       expect(result).toEqual({
-        success: true,
-        challengeResultId: "cr-1",
-        grantedRanks: [],
+        success: false,
+        error: "invalid_leaderboard_key",
       });
     });
 
-    it("達成済みの級の試験は再挑戦として保存する", async () => {
-      mockGetUserRankSlugs.mockResolvedValue(["kyu-5"]);
-
+    it("レジストリに列挙したバリアントは受け付ける", async () => {
       const result = await savePracticeResult(
-        "mangan_exam",
-        "default",
+        "yaku_han",
+        "no_kuisagari",
         validFields,
       );
 
-      expect(result).toEqual({
-        success: true,
-        challengeResultId: "cr-1",
-        grantedRanks: [],
-      });
+      expect(result).toEqual({ success: true, challengeResultId: "cr-1" });
+      expect(mockSaveChallengeResult).toHaveBeenCalledWith(
+        expect.objectContaining({
+          menuType: "yaku_han",
+          leaderboardKey: "no_kuisagari",
+        }),
+      );
+    });
+  });
+
+  describe("exam is not recorded", () => {
+    beforeEach(() => {
+      mockGetOptionalVerifiedUser.mockResolvedValue({ id: "user-123" });
+      mockSaveChallengeResult.mockResolvedValue({ challengeResultId: "cr-1" });
     });
 
-    it("昇級試験でない練習では段級位を照会しない", async () => {
-      await savePracticeResult("jantou_fu", "default", validFields);
+    it.each(["mangan_exam", "pinfu_exam", "score_exam"] as const)(
+      "昇級試験 %s の走行は exam_not_recorded で保存しない",
+      async (menuType) => {
+        const result = await savePracticeResult(
+          menuType,
+          "default",
+          validFields,
+        );
 
-      expect(mockGetUserRankSlugs).not.toHaveBeenCalled();
-      expect(mockSaveChallengeResult).toHaveBeenCalled();
-    });
+        expect(result).toEqual({
+          success: false,
+          error: "exam_not_recorded",
+        });
+        expect(mockSaveChallengeResult).not.toHaveBeenCalled();
+      },
+    );
   });
 
   describe("successful save", () => {
     beforeEach(() => {
       mockGetOptionalVerifiedUser.mockResolvedValue({ id: "user-123" });
       mockSaveChallengeResult.mockResolvedValue({ challengeResultId: "cr-1" });
-      mockCheckAndGrantRanks.mockResolvedValue([]);
-      // 既定は無級（mangan_exam を受験できる状態）
-      mockGetUserRankSlugs.mockResolvedValue([]);
     });
 
     it("returns success: true with challengeResultId", async () => {
@@ -182,61 +179,7 @@ describe("savePracticeResult", () => {
         validFields,
       );
 
-      expect(result).toEqual({
-        success: true,
-        challengeResultId: "cr-1",
-        grantedRanks: [],
-      });
-    });
-
-    it("昇級試験でない練習では昇級判定を走らせない", async () => {
-      // 昇級バナーは必ずその試験の結果画面に出る（無関係な練習の結果画面に
-      // 唐突に出ない）ことの保証。判定クエリの節約でもある
-      const result = await savePracticeResult(
-        "jantou_fu",
-        "default",
-        validFields,
-      );
-
-      expect(mockCheckAndGrantRanks).not.toHaveBeenCalled();
-      expect(result).toEqual({
-        success: true,
-        challengeResultId: "cr-1",
-        grantedRanks: [],
-      });
-    });
-
-    it("昇級判定の結果を grantedRanks として返す", async () => {
-      mockCheckAndGrantRanks.mockResolvedValue(["kyu-5"]);
-
-      const result = await savePracticeResult(
-        "mangan_exam",
-        "default",
-        validFields,
-      );
-
-      expect(result).toEqual({
-        success: true,
-        challengeResultId: "cr-1",
-        grantedRanks: ["kyu-5"],
-      });
-      expect(mockCheckAndGrantRanks).toHaveBeenCalledWith("user-123");
-    });
-
-    it("昇級判定の失敗は保存を壊さない（grantedRanks は空で成功を返す）", async () => {
-      mockCheckAndGrantRanks.mockRejectedValue(new Error("db down"));
-
-      const result = await savePracticeResult(
-        "mangan_exam",
-        "default",
-        validFields,
-      );
-
-      expect(result).toEqual({
-        success: true,
-        challengeResultId: "cr-1",
-        grantedRanks: [],
-      });
+      expect(result).toEqual({ success: true, challengeResultId: "cr-1" });
     });
 
     it("calls saveChallengeResult with rounded values", async () => {

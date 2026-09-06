@@ -1,4 +1,10 @@
-import type { LeaderboardModule, LeaderboardPeriod } from "./types";
+import { isPracticeVariant } from "@/lib/db/practice-menu-types";
+
+import type {
+  LeaderboardBoard,
+  LeaderboardModule,
+  LeaderboardPeriod,
+} from "./types";
 import { MODULES, VALID_PERIODS } from "./types";
 
 const validPeriodSet: ReadonlySet<string> = new Set(VALID_PERIODS);
@@ -23,4 +29,19 @@ export function isValidPeriod(value: string): value is LeaderboardPeriod {
  */
 export function isValidModule(value: string): value is LeaderboardModule {
   return validModuleSet.has(value);
+}
+
+/**
+ * 土俵のバリデーション
+ * 土俵判定
+ *
+ * ランキングを持つ練習で、かつバリアントがその練習の列挙にあるか。
+ * Server Action はクライアントから任意の値で呼べるため、他の練習の
+ * バリアント名を名乗った土俵はここで落とす。
+ */
+export function isValidBoard(board: LeaderboardBoard): boolean {
+  return (
+    isValidModule(board.module) &&
+    isPracticeVariant(board.module, board.variant)
+  );
 }

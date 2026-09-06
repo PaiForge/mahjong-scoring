@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { getTranslations } from "next-intl/server";
 
-import type { LeaderboardModule, LeaderboardPeriod } from "../_lib/types";
+import type { LeaderboardBoard, LeaderboardPeriod } from "../_lib/types";
 import { VALID_PERIODS, buildDetailPath } from "../_lib/types";
 import {
   TOGGLE_GROUP_CONTAINER_CLASSES,
@@ -10,7 +10,7 @@ import {
 
 interface PeriodSelectorProps {
   readonly currentPeriod: LeaderboardPeriod;
-  readonly module: LeaderboardModule;
+  readonly board: LeaderboardBoard;
 }
 
 /**
@@ -19,7 +19,7 @@ interface PeriodSelectorProps {
  */
 export async function PeriodSelector({
   currentPeriod,
-  module: mod,
+  board,
 }: PeriodSelectorProps) {
   const t = await getTranslations("leaderboard");
 
@@ -28,7 +28,7 @@ export async function PeriodSelector({
       {VALID_PERIODS.map((p) => (
         <Link
           key={p}
-          href={buildDetailPath(p, mod)}
+          href={buildDetailPath(p, board)}
           className={toggleItemClasses(currentPeriod === p)}
         >
           {t(`period.${p}`)}

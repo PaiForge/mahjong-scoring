@@ -2,7 +2,7 @@ import { getTranslations } from "next-intl/server";
 import { getPaginationData } from "@/lib/pagination";
 
 import type {
-  LeaderboardModule,
+  LeaderboardBoard,
   LeaderboardPeriod,
   LeaderboardResult,
 } from "../_lib/types";
@@ -12,7 +12,7 @@ import { LeaderboardTable } from "./leaderboard-table";
 import { PeriodSelector } from "./period-selector";
 
 interface LeaderboardDetailContentProps {
-  readonly module: LeaderboardModule;
+  readonly board: LeaderboardBoard;
   readonly currentUserId: string | undefined;
   readonly data: LeaderboardResult;
   readonly currentPage: number;
@@ -26,7 +26,7 @@ interface LeaderboardDetailContentProps {
  * 期間切り替え・ページネーション付きランキング表示
  */
 export async function LeaderboardDetailContent({
-  module: mod,
+  board,
   currentUserId,
   data,
   currentPage,
@@ -46,7 +46,7 @@ export async function LeaderboardDetailContent({
     <div className="space-y-6">
       <div className="flex items-center justify-between gap-4">
         <p className="text-sm text-surface-500">{periodLabel}</p>
-        <PeriodSelector currentPeriod={period} module={mod} />
+        <PeriodSelector currentPeriod={period} board={board} />
       </div>
 
       <div>

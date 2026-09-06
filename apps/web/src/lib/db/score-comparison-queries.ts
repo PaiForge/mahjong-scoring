@@ -9,13 +9,6 @@ import { rankingOrder } from "./ranking-order";
 import { challengeResults } from "./schema";
 
 /**
- * ランキングセグメントキー。現状は全練習で `"default"` 固定
- * （`savePracticeResult` の `ALLOWED_LEADERBOARD_KEYS` 参照）。
- * キーが増えたとき、設定の異なるスコア同士を比較しないための条件。
- */
-const LEADERBOARD_KEY = "default";
-
-/**
  * 比較に使う 1 回分の成績
  * 比較用成績
  *
@@ -66,22 +59,30 @@ const scoreColumns = {
  *
  * @param userId - 対象ユーザー
  * @param menuType - 練習種別
+ * @param leaderboardKey - 土俵（出題設定のバリアント）。設定の異なる走行は
+ *   難易度が違うため、同じ練習でも比較の母集団に混ぜない
  * @param currentResultId - 今回の `challenge_results.id`（`grant` クエリ由来）。
  *   未指定・他人の行・他練習の行の場合は基準点なしで過去記録だけを返す
  */
 export async function getScoreComparison(
   userId: string,
   menuType: PracticeMenuType,
+  leaderboardKey: string,
   currentResultId: string | undefined,
 ): Promise<ScoreComparison> {
   const current = currentResultId
-    ? await fetchCurrentResult(userId, menuType, currentResultId)
+    ? await fetchCurrentResult(
+        userId,
+        menuType,
+        leaderboardKey,
+        currentResultId,
+      )
     : undefined;
 
   const pastWhere = and(
     eq(challengeResults.userId, userId),
     eq(challengeResults.menuType, menuType),
-    eq(challengeResults.leaderboardKey, LEADERBOARD_KEY),
+    eq(challengeResults.leaderboardKey, leaderboardKey),
     ...(current
       ? [
           ne(challengeResults.id, current.id),
@@ -123,12 +124,13 @@ export async function getScoreComparison(
  * 今回の記録行を取得する
  * 今回記録取得
  *
- * `grant` クエリはユーザーが書き換えられるため、本人の行かつ同じ練習種別の
- * 行であることを条件に含める。一致しなければ undefined。
+ * `grant` クエリはユーザーが書き換えられるため、本人の行かつ同じ土俵
+ * （練習種別とバリアント）の行であることを条件に含める。一致しなければ undefined。
  */
 async function fetchCurrentResult(
   userId: string,
   menuType: PracticeMenuType,
+  leaderboardKey: string,
   currentResultId: string,
 ) {
   const rows = await db
@@ -143,6 +145,7 @@ async function fetchCurrentResult(
         eq(challengeResults.id, currentResultId),
         eq(challengeResults.userId, userId),
         eq(challengeResults.menuType, menuType),
+        eq(challengeResults.leaderboardKey, leaderboardKey),
       ),
     )
     .limit(1);

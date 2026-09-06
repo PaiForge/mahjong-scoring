@@ -6,12 +6,14 @@ import {
 } from "@/lib/db/practice-menu-types";
 
 import {
+  BOARDS,
   MODULES,
   PAGE_SIZE,
   VALID_PERIODS,
   buildChallengePath,
   buildDetailPath,
   moduleToSlug,
+  resolveBoard,
   slugToModule,
 } from "../types";
 
@@ -97,24 +99,68 @@ describe("slugToModule", () => {
 
 describe("buildDetailPath", () => {
   it("builds correct path for all-time jantou_fu", () => {
-    expect(buildDetailPath("all-time", "jantou_fu")).toBe(
-      "/leaderboard/all-time/jantou-fu",
-    );
+    expect(
+      buildDetailPath("all-time", { module: "jantou_fu", variant: "default" }),
+    ).toBe("/leaderboard/all-time/jantou-fu");
   });
 
   it("builds correct path for monthly yaku", () => {
-    expect(buildDetailPath("monthly", "yaku")).toBe(
-      "/leaderboard/monthly/yaku",
-    );
+    expect(
+      buildDetailPath("monthly", { module: "yaku", variant: "default" }),
+    ).toBe("/leaderboard/monthly/yaku");
+  });
+
+  it("バリアントを持つ練習は ?variant= で土俵を指す", () => {
+    expect(
+      buildDetailPath("all-time", { module: "yaku_han", variant: "kuisagari" }),
+    ).toBe("/leaderboard/all-time/yaku-han?variant=kuisagari");
   });
 });
 
 describe("buildChallengePath", () => {
   it("builds correct path for jantou_fu", () => {
-    expect(buildChallengePath("jantou_fu")).toBe("/practice/jantou-fu/play");
+    expect(
+      buildChallengePath({ module: "jantou_fu", variant: "default" }),
+    ).toBe("/practice/jantou-fu/play");
   });
 
-  it("builds correct path for yaku", () => {
-    expect(buildChallengePath("yaku")).toBe("/practice/yaku/play");
+  it("バリアントを持つ練習はそのバリアントで play を開く", () => {
+    expect(buildChallengePath({ module: "score_table", variant: "all" })).toBe(
+      "/practice/score-table/play?variant=all",
+    );
+  });
+});
+
+describe("BOARDS", () => {
+  it("ランキング対象の練習 × バリアントを列挙順に並べる", () => {
+    const yakuHan = BOARDS.filter((board) => board.module === "yaku_han");
+    expect(yakuHan.map((board) => board.variant)).toEqual([
+      "no_kuisagari",
+      "kuisagari",
+      "all",
+    ]);
+    const jantouFu = BOARDS.filter((board) => board.module === "jantou_fu");
+    expect(jantouFu.map((board) => board.variant)).toEqual(["default"]);
+  });
+
+  it("昇級試験の土俵を持たない", () => {
+    expect(BOARDS.some((board) => board.module === "mangan_exam")).toBe(false);
+  });
+});
+
+describe("resolveBoard", () => {
+  it("バリアントを既定に正規化する", () => {
+    expect(resolveBoard("yaku-han", undefined)).toEqual({
+      module: "yaku_han",
+      variant: "no_kuisagari",
+    });
+    expect(resolveBoard("yaku-han", "bogus")?.variant).toBe("no_kuisagari");
+    expect(resolveBoard("yaku-han", "all")?.variant).toBe("all");
+    expect(resolveBoard("jantou-fu", "all")?.variant).toBe("default");
+  });
+
+  it("ランキングを持たない練習・未知のスラッグは undefined", () => {
+    expect(resolveBoard("mangan-exam", undefined)).toBeUndefined();
+    expect(resolveBoard("nope", undefined)).toBeUndefined();
   });
 });

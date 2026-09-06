@@ -3,11 +3,12 @@ import { getTranslations } from "next-intl/server";
 import { LinkRow } from "@/app/(user)/_components/link-row";
 import { menuTypeToMessageKey } from "@/lib/db/practice-menu-types";
 
-import type { LeaderboardModule, LeaderboardPeriod } from "../_lib/types";
+import type { LeaderboardBoard, LeaderboardPeriod } from "../_lib/types";
 import { buildDetailPath } from "../_lib/types";
+import { boardTitle } from "../_lib/board-title";
 
 interface LeaderboardModuleRowProps {
-  readonly module: LeaderboardModule;
+  readonly board: LeaderboardBoard;
   readonly period: LeaderboardPeriod;
   readonly rank: number | undefined;
 }
@@ -16,7 +17,8 @@ interface LeaderboardModuleRowProps {
  * リーダーボード一覧の 1 行
  * ランキング行
  *
- * モジュール名と自分の順位を出し、押すとそのモジュールの詳細ランキングへ移る。
+ * 土俵名（練習名 + バリアント）と自分の順位を出し、押すとその土俵の詳細
+ * ランキングへ移る。
  * ランキングは見に行くもので押して始めるものではないため、太枠 + 影のカードでは
  * なく行リンクで並べる。
  *
@@ -24,24 +26,23 @@ interface LeaderboardModuleRowProps {
  * アイコンは置かない、という判断の裏返し）。
  */
 export async function LeaderboardModuleRow({
-  module,
+  board,
   period,
   rank,
 }: LeaderboardModuleRowProps) {
   const t = await getTranslations("leaderboard");
-  const tPractices = await getTranslations("practice.practices");
 
-  const msgKey = menuTypeToMessageKey(module);
+  const msgKey = menuTypeToMessageKey(board.module);
 
   return (
     <LinkRow
-      href={buildDetailPath(period, module)}
+      href={buildDetailPath(period, board)}
       leading={
         <span className="text-base" aria-hidden="true">
           {t(`moduleIcon.${msgKey}`)}
         </span>
       }
-      title={tPractices(`${msgKey}.shortTitle`)}
+      title={await boardTitle(board)}
       trailing={
         rank !== undefined ? (
           <span className="text-sm font-bold tabular-nums text-primary-600">

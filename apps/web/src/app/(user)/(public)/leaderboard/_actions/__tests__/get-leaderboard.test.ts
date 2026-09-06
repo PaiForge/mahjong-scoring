@@ -30,6 +30,9 @@ vi.mock("../../_lib/period-queries", () => ({
 
 import { getLeaderboard } from "../get-leaderboard";
 
+/** 設定を持たない練習の土俵 */
+const JANTOU_FU = { module: "jantou_fu", variant: "default" } as const;
+
 // ---------------------------------------------------------------------------
 // Fixtures
 // ---------------------------------------------------------------------------
@@ -95,7 +98,7 @@ describe("getLeaderboard", () => {
   describe("input validation", () => {
     it("returns empty result for invalid module", async () => {
       const result = await getLeaderboard(
-        "invalid" as "jantou_fu",
+        { module: "invalid" as "jantou_fu", variant: "default" },
         "all-time",
         1,
       );
@@ -108,11 +111,7 @@ describe("getLeaderboard", () => {
     });
 
     it("returns empty result for invalid period", async () => {
-      const result = await getLeaderboard(
-        "jantou_fu",
-        "weekly" as "all-time",
-        1,
-      );
+      const result = await getLeaderboard(JANTOU_FU, "weekly" as "all-time", 1);
 
       expect(result).toEqual({
         rows: [],
@@ -122,7 +121,7 @@ describe("getLeaderboard", () => {
     });
 
     it("returns empty result for page < 1", async () => {
-      const result = await getLeaderboard("jantou_fu", "all-time", 0);
+      const result = await getLeaderboard(JANTOU_FU, "all-time", 0);
 
       expect(result).toEqual({
         rows: [],
@@ -132,7 +131,7 @@ describe("getLeaderboard", () => {
     });
 
     it("returns empty result for negative page", async () => {
-      const result = await getLeaderboard("jantou_fu", "monthly", -1);
+      const result = await getLeaderboard(JANTOU_FU, "monthly", -1);
 
       expect(result).toEqual({
         rows: [],
@@ -142,7 +141,11 @@ describe("getLeaderboard", () => {
     });
 
     it("does not call ranking queries when module is invalid", async () => {
-      await getLeaderboard("invalid" as "jantou_fu", "all-time", 1);
+      await getLeaderboard(
+        { module: "invalid" as "jantou_fu", variant: "default" },
+        "all-time",
+        1,
+      );
 
       expect(mockGetRanking).not.toHaveBeenCalled();
     });
@@ -154,7 +157,7 @@ describe("getLeaderboard", () => {
 
   describe("basic retrieval", () => {
     it("returns rows with computed rank (page 1)", async () => {
-      const result = await getLeaderboard("jantou_fu", "all-time", 1);
+      const result = await getLeaderboard(JANTOU_FU, "all-time", 1);
 
       expect(result.rows).toHaveLength(2);
       expect(result.rows[0]).toMatchObject({ userId: "user-1", rank: 1 });
@@ -162,7 +165,7 @@ describe("getLeaderboard", () => {
     });
 
     it("returns totalCount from the query", async () => {
-      const result = await getLeaderboard("jantou_fu", "all-time", 1);
+      const result = await getLeaderboard(JANTOU_FU, "all-time", 1);
 
       expect(result.totalCount).toBe(2);
     });
@@ -191,7 +194,7 @@ describe("getLeaderboard", () => {
         }),
       );
 
-      const result = await getLeaderboard("jantou_fu", "all-time", 2);
+      const result = await getLeaderboard(JANTOU_FU, "all-time", 2);
 
       // Page 2 with PAGE_SIZE=20 means offset=20, so first row rank = 21
       expect(result.rows[0]).toMatchObject({ rank: 21, userId: "user-21" });
@@ -216,7 +219,7 @@ describe("getLeaderboard", () => {
         }),
       );
 
-      const result = await getLeaderboard("jantou_fu", "monthly", 3);
+      const result = await getLeaderboard(JANTOU_FU, "monthly", 3);
 
       expect(result.rows[0]).toMatchObject({ rank: 41, userId: "user-41" });
     });
@@ -228,13 +231,13 @@ describe("getLeaderboard", () => {
 
   describe("currentUserRank", () => {
     it("is undefined when no currentUserId is provided", async () => {
-      const result = await getLeaderboard("jantou_fu", "all-time", 1);
+      const result = await getLeaderboard(JANTOU_FU, "all-time", 1);
 
       expect(result.currentUserRank).toBeUndefined();
     });
 
     it("is undefined when the current user appears in the page rows", async () => {
-      const result = await getLeaderboard("jantou_fu", "all-time", 1, "user-1");
+      const result = await getLeaderboard(JANTOU_FU, "all-time", 1, "user-1");
 
       expect(result.currentUserRank).toBeUndefined();
       expect(mockGetUserRankedRow).not.toHaveBeenCalled();
@@ -243,12 +246,7 @@ describe("getLeaderboard", () => {
     it("fetches user ranked row when the current user is not in the page rows", async () => {
       mockGetUserRankedRow.mockResolvedValue(rankedRow);
 
-      const result = await getLeaderboard(
-        "jantou_fu",
-        "all-time",
-        1,
-        "user-99",
-      );
+      const result = await getLeaderboard(JANTOU_FU, "all-time", 1, "user-99");
 
       expect(mockGetUserRankedRow).toHaveBeenCalledWith(
         "user-99",
@@ -262,7 +260,7 @@ describe("getLeaderboard", () => {
       mockGetUserRankedRow.mockResolvedValue(undefined);
 
       const result = await getLeaderboard(
-        "jantou_fu",
+        JANTOU_FU,
         "all-time",
         1,
         "user-not-found",
@@ -280,7 +278,7 @@ describe("getLeaderboard", () => {
     it("returns empty result when ranking query throws", async () => {
       mockGetRanking.mockRejectedValue(new Error("DB connection lost"));
 
-      const result = await getLeaderboard("jantou_fu", "all-time", 1);
+      const result = await getLeaderboard(JANTOU_FU, "all-time", 1);
 
       expect(result).toEqual({
         rows: [],
@@ -292,12 +290,7 @@ describe("getLeaderboard", () => {
     it("returns empty result when getUserRankedRow throws", async () => {
       mockGetUserRankedRow.mockRejectedValue(new Error("Query timeout"));
 
-      const result = await getLeaderboard(
-        "jantou_fu",
-        "all-time",
-        1,
-        "user-99",
-      );
+      const result = await getLeaderboard(JANTOU_FU, "all-time", 1, "user-99");
 
       expect(result).toEqual({
         rows: [],

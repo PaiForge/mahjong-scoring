@@ -2,7 +2,7 @@
  * チャレンジ全履歴
  *
  * @description チャレンジモードの全チャレンジ結果をページネーション付きテーブルで表示する。
- *   メニュー種別によるフィルタリングが可能。
+ *   土俵（練習種別 × バリアント）によるフィルタリングが可能（`?menu=&variant=`）。
  * @flow ダッシュボード「すべての結果を見る」 → 全履歴閲覧 → ページ遷移 → メニュー絞り込み
  */
 import type { Metadata } from "next";
@@ -13,15 +13,11 @@ import { PageTitle } from "@/app/(user)/_components/page-title";
 import { PaginationNav } from "@/app/(user)/_components/pagination-nav";
 import { SectionTitle } from "@/app/(user)/_components/section-title";
 import { createPrivateMetadata } from "@/app/_lib/metadata";
-import type { PracticeMenuType } from "@/lib/db/practice-menu-types";
-import {
-  isPracticeMenuType,
-  menuTypeToMessageKey,
-} from "@/lib/db/practice-menu-types";
 import { requireConfirmedUser } from "@/lib/auth";
 
-import { isMyRecordMenuType } from "../_lib/menu-scope";
+import { boardLabel } from "../_lib/board-label";
 import { getChallengeResultsPaginated } from "../_lib/queries";
+import { resolveRequestedBoard } from "../_lib/requested-board";
 import { ResultsTable } from "./_components/results-table";
 
 interface Props {
@@ -36,7 +32,7 @@ export default async function ChallengeResultsPage({ searchParams }: Props) {
   const t = await getTranslations("mypage.challengeResults");
   const tChallenges = await getTranslations("mypage.challenges");
   const tMypage = await getTranslations("mypage");
-  const tPractices = await getTranslations("practice.practices");
+  const tRoot = await getTranslations();
   const params = await searchParams;
 
   const { user } = await requireConfirmedUser();
@@ -45,14 +41,12 @@ export default async function ChallengeResultsPage({ searchParams }: Props) {
     typeof params.page === "string" ? parseInt(params.page, 10) : 1;
   const page = Number.isFinite(pageParam) && pageParam > 0 ? pageParam : 1;
 
-  const menuParam = typeof params.menu === "string" ? params.menu : undefined;
-  const menuType: PracticeMenuType | undefined =
-    menuParam && isMyRecordMenuType(menuParam) ? menuParam : undefined;
+  const board = resolveRequestedBoard(params);
 
   const { items, totalPages } = await getChallengeResultsPaginated(
     user.id,
     page,
-    menuType,
+    board,
   );
 
   const currentPage = Math.max(1, Math.min(page, totalPages || 1));
@@ -60,7 +54,10 @@ export default async function ChallengeResultsPage({ searchParams }: Props) {
   const buildHref = (p: number) => {
     const urlParams = new URLSearchParams();
     if (p > 1) urlParams.set("page", String(p));
-    if (menuType) urlParams.set("menu", menuType);
+    if (board) {
+      urlParams.set("menu", board.menuType);
+      urlParams.set("variant", board.variant);
+    }
     const qs = urlParams.toString();
     return `/mypage/challenges/results${qs ? `?${qs}` : ""}`;
   };
@@ -86,11 +83,7 @@ export default async function ChallengeResultsPage({ searchParams }: Props) {
             correctAnswers: t("tableCorrectAnswers"),
             incorrectAnswers: t("tableIncorrectAnswers"),
           }}
-          getMenuLabel={(type) =>
-            isPracticeMenuType(type)
-              ? tPractices(`${menuTypeToMessageKey(type)}.shortTitle`)
-              : type
-          }
+          getBoardLabel={(item) => boardLabel(item, tRoot)}
         />
 
         <PaginationNav

@@ -2,22 +2,20 @@
 
 import { getOptionalUser } from "@/lib/auth";
 import { logExternalError } from "@/lib/log-error";
-import type { PracticeMenuType } from "@/lib/db/practice-menu-types";
-
-import type { ChallengeAttempt } from "../_lib/types";
-import { isMyRecordMenuType } from "../_lib/menu-scope";
+import type { ChallengeAttempt, RecordBoard } from "../_lib/types";
+import { isMyRecordBoard } from "../_lib/menu-scope";
 import { fetchChallengeAttempts } from "../_lib/queries";
 
 /**
- * 指定メニュー・期間のチャレンジ一覧を取得する
+ * 指定した土俵・期間のチャレンジ一覧を取得する
  * チャレンジ取得アクション
  *
- * 練習種別はクライアントから渡るため、マイレコードが扱わない種別
- * （昇級試験）はここでも弾く。画面から選べなくても、このアクションを
- * 直接呼べば試験の履歴を引けてしまう。
+ * 土俵はクライアントから渡るため、マイレコードが扱わない種別
+ * （昇級試験）と、その練習に無いバリアントはここでも弾く。画面から
+ * 選べなくても、このアクションを直接呼べば引けてしまう。
  */
 export async function getChallengeAttempts(
-  menuType: PracticeMenuType,
+  board: RecordBoard,
   currentRangeStart: Date,
   currentRangeEnd: Date,
   previousRangeStart: Date,
@@ -29,13 +27,13 @@ export async function getChallengeAttempts(
   try {
     const user = await getOptionalUser();
 
-    if (!user || !isMyRecordMenuType(menuType)) {
+    if (!user || !isMyRecordBoard(board)) {
       return { current: [], previous: [] };
     }
 
     return await fetchChallengeAttempts(
       user.id,
-      menuType,
+      board,
       currentRangeStart,
       currentRangeEnd,
       previousRangeStart,

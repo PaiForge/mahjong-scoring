@@ -3,7 +3,9 @@ import { getTranslations } from "next-intl/server";
 import {
   practiceSlugFromHref,
   practiceTitleKey,
+  practiceVariantFromHref,
 } from "@/app/(user)/(public)/practice/_lib/practice-catalog";
+import { practiceMenuBySlug } from "@/lib/db/practice-menu-types";
 import { ChevronRightIcon } from "@/app/(user)/_components/icons/chevron-right-icon";
 import { LinkButton } from "@/app/(user)/_components/link-button";
 
@@ -30,20 +32,36 @@ interface PracticeLinkListProps {
  * 場合に「キー文字列自体」を返す仕様のため、辞書漏れがユーザーに視覚的に露出する
  * リスクがある。ここでは `t.has()` で存在確認し、ミスヒット時は汎用 CTA ラベル
  * （`learnCurriculum.chapter.practiceLinkCta`）に fallback する。
+ *
+ * バリアント付きの href（`?variant=`）は練習名にバリアント名を添える
+ * （「点数表早引き（子・満貫未満）にチャレンジ」）。同じ練習へ違う設定で
+ * 送る章が並ぶため、リンクだけで違いが読めるようにする。
  */
 export async function PracticeLinkList({ hrefs }: PracticeLinkListProps) {
   if (hrefs.length === 0) return undefined;
 
   const t = await getTranslations("learnCurriculum.chapter");
   const tPractice = await getTranslations("practice");
+  const tAll = await getTranslations();
+  const tVariantLabel = (namespace: string, variant: string) =>
+    tAll(`${namespace}.variants.${variant}.label`);
 
   const items = hrefs.map((href) => {
     const slug = practiceSlugFromHref(href);
     const titleKey = slug ? practiceTitleKey(slug) : undefined;
+    const variant = practiceVariantFromHref(href);
+    const variantLabel =
+      slug && variant
+        ? tVariantLabel(practiceMenuBySlug(slug).namespace, variant)
+        : undefined;
     // 練習名が引けたときは「<練習名>にチャレンジ」、引けないときは汎用 CTA。
     const label =
       titleKey && tPractice.has(titleKey)
-        ? t("practiceLinkChallengeCta", { title: tPractice(titleKey) })
+        ? t("practiceLinkChallengeCta", {
+            title: variantLabel
+              ? `${tPractice(titleKey)}（${variantLabel}）`
+              : tPractice(titleKey),
+          })
         : t("practiceLinkCta");
     return { href, label };
   });

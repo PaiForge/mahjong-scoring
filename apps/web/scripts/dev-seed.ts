@@ -82,7 +82,7 @@ async function main() {
 
   for (const user of SEED_USERS) {
     const userId = await ensureSeedUser(admin, db, user);
-    scored.push({ userId, username: user.username, ranks: user.ranks ?? [] });
+    scored.push({ userId, username: user.username });
 
     // ランキング要員は状態を持たず触ることもないので、1 人ずつは出さない。
     if (user.fillsRanking) continue;

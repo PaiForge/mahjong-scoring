@@ -6,17 +6,15 @@ import dynamic from "next/dynamic";
 import { useTranslations } from "next-intl";
 
 import { SectionTitle } from "@/app/(user)/_components/section-title";
-import type { PracticeMenuType } from "@/lib/db/practice-menu-types";
-import { menuTypeToMessageKey } from "@/lib/db/practice-menu-types";
 
-import { isMyRecordMenuType } from "../_lib/menu-scope";
+import { boardLabel } from "../_lib/board-label";
 import {
   getComparisonLabel,
   getNavigablePreviousPeriod,
   getPreviousPeriodLabel,
 } from "../_lib/dashboard-utils";
-import type { ChallengeAttempt, DatePeriod } from "../_lib/types";
-import { isDatePeriod } from "../_lib/types";
+import type { ChallengeAttempt, DatePeriod, RecordBoard } from "../_lib/types";
+import { isDatePeriod, recordBoardKey } from "../_lib/types";
 import { useDashboardData } from "../_hooks/use-dashboard-data";
 import {
   DashboardContentSkeleton,
@@ -51,11 +49,11 @@ const selectClassName =
   "px-3 py-2 rounded-lg border-3 border-ink bg-surface-50 text-surface-900 text-sm focus:outline-none focus:ring-2 focus:ring-primary-400";
 
 interface ChallengeDashboardProps {
-  /** サーバーサイドでプリフェッチした利用可能メニュー種別 */
-  readonly initialMenuTypes: readonly PracticeMenuType[];
-  /** 初期選択の練習種別（`?menu=` の指定、無ければ先頭メニュー） */
-  readonly initialMenu: PracticeMenuType | undefined;
-  /** サーバーサイドでプリフェッチした初期チャレンジデータ（デフォルト期間・初期選択メニュー） */
+  /** サーバーサイドでプリフェッチした、記録を持つ土俵の一覧 */
+  readonly initialBoards: readonly RecordBoard[];
+  /** 初期選択の土俵（`?menu=&variant=` の指定、無ければ先頭） */
+  readonly initialBoard: RecordBoard | undefined;
+  /** サーバーサイドでプリフェッチした初期チャレンジデータ（デフォルト期間・初期選択の土俵） */
   readonly initialAttempts: {
     readonly current: readonly ChallengeAttempt[];
     readonly previous: readonly ChallengeAttempt[];
@@ -69,26 +67,26 @@ interface ChallengeDashboardProps {
  * ダッシュボード
  */
 export function ChallengeDashboard({
-  initialMenuTypes,
-  initialMenu,
+  initialBoards,
+  initialBoard,
   initialAttempts,
 }: ChallengeDashboardProps) {
   const t = useTranslations("mypage.challenges");
-  const tPractices = useTranslations("practice.practices");
+  const tRoot = useTranslations();
   const {
-    selectedMenu,
-    setSelectedMenu,
+    selectedBoard,
+    setSelectedBoard,
     selectedPeriod,
     setSelectedPeriod,
     isLoading,
-    availableMenuTypes,
+    availableBoards,
     currentStats,
     bestScoreComparison,
     avgScoreComparison,
     chartData,
     tableRows,
     hasMoreResults,
-  } = useDashboardData({ initialMenuTypes, initialMenu, initialAttempts });
+  } = useDashboardData({ initialBoards, initialBoard, initialAttempts });
 
   const comparisonLabel = getComparisonLabel(selectedPeriod, t);
   const navigablePrevPeriod = getNavigablePreviousPeriod(selectedPeriod);
@@ -101,12 +99,15 @@ export function ChallengeDashboard({
     [setSelectedPeriod],
   );
 
-  const handleMenuChange = useCallback(
+  const handleBoardChange = useCallback(
     (e: React.ChangeEvent<HTMLSelectElement>) => {
-      const value = e.target.value;
-      if (isMyRecordMenuType(value)) setSelectedMenu(value);
+      // select の value は土俵キー。一覧に無い値（改竄）は無視する
+      const board = (availableBoards ?? []).find(
+        (candidate) => recordBoardKey(candidate) === e.target.value,
+      );
+      if (board) setSelectedBoard(board);
     },
-    [setSelectedMenu],
+    [availableBoards, setSelectedBoard],
   );
 
   // useCallback ではなく useMemo を使用: undefined を返すケースがあるため
@@ -118,23 +119,23 @@ export function ChallengeDashboard({
     [navigablePrevPeriod, setSelectedPeriod],
   );
 
-  const menuOptions = useMemo(
+  const boardOptions = useMemo(
     () =>
-      (availableMenuTypes ?? []).map((type) => ({
-        value: type,
-        label: tPractices(`${menuTypeToMessageKey(type)}.shortTitle`),
+      (availableBoards ?? []).map((board) => ({
+        value: recordBoardKey(board),
+        label: boardLabel(board, tRoot),
       })),
-    [availableMenuTypes, tPractices],
+    [availableBoards, tRoot],
   );
 
   if (
-    availableMenuTypes === undefined ||
-    (isLoading && availableMenuTypes.length === 0)
+    availableBoards === undefined ||
+    (isLoading && availableBoards.length === 0)
   ) {
     return <DashboardSkeleton />;
   }
 
-  if (availableMenuTypes.length === 0) {
+  if (availableBoards.length === 0) {
     return (
       <div className="text-center py-12 text-surface-500">
         <p>{t("noData")}</p>
@@ -159,11 +160,11 @@ export function ChallengeDashboard({
       </select>
 
       <select
-        value={selectedMenu ?? ""}
-        onChange={handleMenuChange}
+        value={selectedBoard ? recordBoardKey(selectedBoard) : ""}
+        onChange={handleBoardChange}
         className={`block w-full sm:w-64 ${selectClassName}`}
       >
-        {menuOptions.map((opt) => (
+        {boardOptions.map((opt) => (
           <option key={opt.value} value={opt.value}>
             {opt.label}
           </option>

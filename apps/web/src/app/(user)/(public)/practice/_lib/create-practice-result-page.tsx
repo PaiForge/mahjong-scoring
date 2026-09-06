@@ -6,7 +6,7 @@ import { getTranslations } from "next-intl/server";
 import { createResultMetadata } from "@/app/_lib/metadata";
 
 import { getLeaderboard } from "@/app/(user)/(public)/leaderboard/_actions/get-leaderboard";
-import type { LeaderboardModule } from "@/app/(user)/(public)/leaderboard/_lib/types";
+import type { LeaderboardBoard } from "@/app/(user)/(public)/leaderboard/_lib/types";
 import type { RankedLeaderboardRow } from "@/lib/db/leaderboard-queries";
 import { buildDetailPath } from "@/app/(user)/(public)/leaderboard/_lib/types";
 import type {
@@ -16,6 +16,7 @@ import type {
 import {
   isExamMenuType,
   practiceMenuBySlug,
+  resolvePracticeVariant,
 } from "@/lib/db/practice-menu-types";
 import { getExpInfoByChallengeResultId } from "@/lib/db/save-exp";
 import { getScoreComparison } from "@/lib/db/score-comparison-queries";
@@ -38,6 +39,7 @@ import {
   practicePlayHref,
   practiceSetupHref,
 } from "./practice-catalog";
+import { VARIANT_PARAM } from "./variant-param";
 
 const PREVIEW_COUNT = 3;
 
@@ -76,6 +78,11 @@ export interface PracticeResultViewProps {
   readonly correct: number;
   /** 総出題数（URL クエリ `?total=` から親 Server Component が parse して渡す） */
   readonly total: number;
+  /**
+   * 走った出題設定のバリアントの表示名（「設定: 食い下がりなし」の形）。
+   * 設定を持たない練習では undefined で、行自体を出さない。
+   */
+  readonly variantLabel?: string;
   /**
    * 昇級バナーのブロック（昇級がなければ undefined）。
    * URL クエリ `?promoted=` 由来の候補を `user_ranks` と突き合わせて描画する
@@ -170,7 +177,7 @@ export function createPracticeResultPage(
   config: ResultPageConfig,
 ) {
   const { slug } = config;
-  const { menuType, namespace, timeLimit } = practiceMenuBySlug(slug);
+  const { menuType, namespace, timeLimit, hasSetup } = practiceMenuBySlug(slug);
   // 昇級試験は「繰り返し伸ばす」種類の練習ではないため、成績を横に並べる
   // 機能をどれも持たない。EXP も付与せず、ランキングのプレビューも、
   // 過去記録との比較とマイレコードへの導線も出さない。代わりに「結果」節を
@@ -188,11 +195,23 @@ export function createPracticeResultPage(
   }: PracticeResultPageProps) {
     // 即時描画に必要な最小限のデータだけ親で解決する。
     // URL クエリ (`searchParams`) と、練習名（翻訳キー）。
-    const [resolvedSearchParams, t] = await Promise.all([
+    const [resolvedSearchParams, t, tp] = await Promise.all([
       searchParams,
       getTranslations(namespace),
+      getTranslations("practice"),
     ]);
     const practiceTitle = t("title");
+
+    // 走った土俵。play 画面の `useFinishRedirect` が `?variant=` で付ける。
+    // 未指定・不正値は既定に落ちる（盤面・保存と同じ正規化）
+    const rawVariant = resolvedSearchParams[VARIANT_PARAM];
+    const variant = resolvePracticeVariant(
+      slug,
+      typeof rawVariant === "string" ? rawVariant : undefined,
+    );
+    const variantLabel = hasSetup
+      ? tp("variantLabel", { label: t(`variants.${variant}.label`) })
+      : undefined;
 
     const rawGrant = resolvedSearchParams.grant;
     const grantId = typeof rawGrant === "string" ? rawGrant : undefined;
@@ -222,11 +241,12 @@ export function createPracticeResultPage(
     return (
       <ResultView
         practiceTitle={practiceTitle}
-        playHref={practicePlayHref(slug)}
+        playHref={practicePlayHref(slug, variant)}
         introHref={practiceHref(slug)}
-        settingsHref={practiceSetupHref(slug)}
+        settingsHref={practiceSetupHref(slug, variant)}
         correct={safeCorrect}
         total={safeTotal}
+        variantLabel={variantLabel}
         // 合格したら主ボタンは道場へ。合否の判定は summary 側と同じ規則
         primaryAction={
           examMinScore !== undefined && safeCorrect >= examMinScore
@@ -255,14 +275,18 @@ export function createPracticeResultPage(
         resultBlock={
           isExam ? undefined : (
             <Suspense fallback={<ResultBlockSkeleton />}>
-              <AsyncResultBlock grantId={grantId} menuType={menuType} />
+              <AsyncResultBlock
+                grantId={grantId}
+                menuType={menuType}
+                variant={variant}
+              />
             </Suspense>
           )
         }
         leaderboardBlock={
           isExam ? undefined : (
             <Suspense fallback={<LeaderboardSkeleton />}>
-              <AsyncLeaderboardBlock module={menuType} />
+              <AsyncLeaderboardBlock board={{ module: menuType, variant }} />
             </Suspense>
           )
         }
@@ -289,9 +313,11 @@ export function createPracticeResultPage(
 async function AsyncResultBlock({
   grantId,
   menuType,
+  variant,
 }: {
   readonly grantId: string | undefined;
   readonly menuType: PracticeMenuType;
+  readonly variant: string;
 }) {
   // デバッグ用: `DEBUG_RESULT_DELAY_MS` が設定されていれば指定 ms 待機。
   // 本番では no-op（debugResultDelay 内で NODE_ENV をチェック）。
@@ -321,7 +347,7 @@ async function AsyncResultBlock({
         )
       : undefined,
     tryFetch(LOG_TAG, "failed to fetch score comparison", () =>
-      getScoreComparison(userId, menuType, grantId),
+      getScoreComparison(userId, menuType, variant, grantId),
     ),
   ]);
 
@@ -337,6 +363,7 @@ async function AsyncResultBlock({
       expInfo={fetchedExpInfo?.ok ? fetchedExpInfo.value : undefined}
       comparison={fetchedComparison}
       menuType={menuType}
+      variant={variant}
     />
   );
 }
@@ -346,20 +373,20 @@ async function AsyncResultBlock({
  * 非同期リーダーボード
  */
 async function AsyncLeaderboardBlock({
-  module,
+  board,
 }: {
-  readonly module: LeaderboardModule;
+  readonly board: LeaderboardBoard;
 }) {
   // デバッグ用: `DEBUG_RESULT_DELAY_MS` が設定されていれば指定 ms 待機。
   // 本番では no-op（debugResultDelay 内で NODE_ENV をチェック）。
   await debugResultDelay();
 
-  const { rows } = await getLeaderboard(module, "all-time", 1);
+  const { rows } = await getLeaderboard(board, "all-time", 1);
   const previewRows = rows.slice(
     0,
     PREVIEW_COUNT,
   ) satisfies readonly RankedLeaderboardRow[];
-  const detailPath = buildDetailPath("all-time", module);
+  const detailPath = buildDetailPath("all-time", board);
 
   return <LeaderboardPreview rows={previewRows} detailPath={detailPath} />;
 }

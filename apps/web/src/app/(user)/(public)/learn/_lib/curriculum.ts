@@ -1,6 +1,6 @@
 import type { PracticeMenuSlug } from "@/lib/db/practice-menu-types";
 
-import { scoreTablePracticeHref } from "../../practice/score-table/_lib/options";
+import { practiceHref } from "../../practice/_lib/practice-catalog";
 
 /**
  * 学習カリキュラム — 章メタデータのレジストリ
@@ -64,52 +64,36 @@ const CURRICULUM_REGISTRY = [
     slug: "mangan-ko-ron",
     section: "mangan",
     order: 21,
-    practiceHrefs: [
-      scoreTablePracticeHref({
-        roles: ["ko"],
-        wins: ["ron"],
-        ranges: ["manganPlus"],
-      }),
-    ],
+    // 満貫以上だけのバリアントは無い（覚える量が少なく単独の土俵にしない）
+    // ため、満貫以上を含む「全部」へ送る。模試ができたらそちらへ差し替える
+    practiceHrefs: [practiceHref("score-table", "all")],
     i18nKey: "learnCurriculum.chapters.manganKoRon",
   },
   {
     slug: "mangan-oya-ron",
     section: "mangan",
     order: 22,
-    practiceHrefs: [
-      scoreTablePracticeHref({
-        roles: ["oya"],
-        wins: ["ron"],
-        ranges: ["manganPlus"],
-      }),
-    ],
+    // 満貫以上だけのバリアントは無い（覚える量が少なく単独の土俵にしない）
+    // ため、満貫以上を含む「全部」へ送る。模試ができたらそちらへ差し替える
+    practiceHrefs: [practiceHref("score-table", "all")],
     i18nKey: "learnCurriculum.chapters.manganOyaRon",
   },
   {
     slug: "mangan-ko-tsumo",
     section: "mangan",
     order: 23,
-    practiceHrefs: [
-      scoreTablePracticeHref({
-        roles: ["ko"],
-        wins: ["tsumo"],
-        ranges: ["manganPlus"],
-      }),
-    ],
+    // 満貫以上だけのバリアントは無い（覚える量が少なく単独の土俵にしない）
+    // ため、満貫以上を含む「全部」へ送る。模試ができたらそちらへ差し替える
+    practiceHrefs: [practiceHref("score-table", "all")],
     i18nKey: "learnCurriculum.chapters.manganKoTsumo",
   },
   {
     slug: "mangan-oya-tsumo",
     section: "mangan",
     order: 24,
-    practiceHrefs: [
-      scoreTablePracticeHref({
-        roles: ["oya"],
-        wins: ["tsumo"],
-        ranges: ["manganPlus"],
-      }),
-    ],
+    // 満貫以上だけのバリアントは無い（覚える量が少なく単独の土俵にしない）
+    // ため、満貫以上を含む「全部」へ送る。模試ができたらそちらへ差し替える
+    practiceHrefs: [practiceHref("score-table", "all")],
     i18nKey: "learnCurriculum.chapters.manganOyaTsumo",
   },
   {
@@ -208,26 +192,29 @@ const CURRICULUM_REGISTRY = [
     // 章を足していく前提なので、基礎側が伸びても番号がぶつからないようにする
     order: 200,
     // 点数表早引きの満貫未満だけ。この章が減らすのはまさにその範囲の暗記量で、
-    // 符×翻を1マスずつ引く練習がそのまま腕試しになる
-    practiceHrefs: [scoreTablePracticeHref({ ranges: ["nonMangan"] })],
+    // 符×翻を1マスずつ引く練習がそのまま腕試しになる。子から覚えるのが定石
+    // なので子のバリアントへ送る
+    practiceHrefs: [practiceHref("score-table", "ko_non_mangan")],
     i18nKey: "learnCurriculum.chapters.fuDoubling",
   },
   {
     slug: "ron-to-tsumo",
     section: "memorization",
     order: 210,
-    // 子ツモに絞った点数表早引き。この章が導出できるようにするのはまさに
-    // 子ツモの2つの数字で、そのセルを引く練習がそのまま腕試しになる
-    practiceHrefs: [scoreTablePracticeHref({ roles: ["ko"], wins: ["tsumo"] })],
+    // 子に絞った点数表早引き。この章が導出できるようにするのはまさに
+    // 子ツモの2つの数字で、子のセルを引く練習がそのまま腕試しになる
+    // （ツモだけに絞るバリアントは持たない — ロンとツモは同じセルの表裏）
+    practiceHrefs: [practiceHref("score-table", "ko_non_mangan")],
     i18nKey: "learnCurriculum.chapters.ronToTsumo",
   },
   {
     slug: "tsumo-payments",
     section: "memorization",
     order: 220,
-    // ツモに絞った点数表早引き。この章が要らなくする暗記はまさに親ツモの列で、
-    // ツモのセルを引く練習がそのまま腕試しになる
-    practiceHrefs: [scoreTablePracticeHref({ wins: ["tsumo"] })],
+    // 点数表早引きの全部。この章が要らなくする暗記はまさに親ツモの列で、
+    // 親子のセルを引く練習がそのまま腕試しになる
+    // （ツモだけに絞るバリアントは持たない — ロンとツモは同じセルの表裏）
+    practiceHrefs: [practiceHref("score-table", "all")],
     i18nKey: "learnCurriculum.chapters.tsumoPayments",
   },
 ] as const satisfies readonly CurriculumChapterEntry[];

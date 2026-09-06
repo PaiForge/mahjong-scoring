@@ -1,13 +1,16 @@
 import type { CurriculumChapterSlug } from "@/app/(user)/(public)/learn/_lib/curriculum";
 import {
+  DEFAULT_VARIANT,
   isExamMenuType,
   isPracticeMenuSlug,
+  isPracticeVariantOf,
   menuTypeToSlug,
   practiceMenuBySlug,
   type PracticeMenuSlug,
 } from "@/lib/db/practice-menu-types";
 import { RANK_REGISTRY, type RankSlug } from "@/lib/ranks/registry";
 import { PRACTICE_SETUP_HASH } from "./scroll-anchor";
+import { VARIANT_PARAM, variantQuery } from "./variant-param";
 
 /**
  * 練習メニューのカタログ — 一覧の並び・段級位・教本リンクの単一の真実のソース
@@ -240,8 +243,30 @@ export function listedPracticeRanks(): readonly RankSlug[] {
  * 練習はレジストリの `basePath` が上書きする。パスを直に組み立てず
  * 必ずここを通すこと（play / result は `practicePlayHref` 等を使う）。
  */
-export function practiceHref(slug: PracticeMenuSlug): string {
-  return practiceMenuBySlug(slug).basePath;
+export function practiceHref(slug: PracticeMenuSlug, variant?: string): string {
+  const { basePath } = practiceMenuBySlug(slug);
+  // バリアントを渡されたときだけ付ける（説明ページはバリアント無しでも開ける。
+  // 選択パネルが URL のバリアントを初期選択にする）
+  return variant === undefined
+    ? basePath
+    : `${basePath}${variantQuery(slug, variant)}`;
+}
+
+/**
+ * 練習ページへのパスからバリアントを取り出す
+ * バリアント抽出
+ *
+ * 教本の `practiceHrefs` はバリアント付きのものがある（例:
+ * `/practice/score-table?variant=all`）。リンクのラベルにバリアント名を
+ * 添えるのに使う。指定が無い・不正・その練習がバリアントを持たないなら undefined。
+ */
+export function practiceVariantFromHref(href: string): string | undefined {
+  const slug = practiceSlugFromHref(href);
+  if (slug === undefined || !practiceMenuBySlug(slug).hasSetup)
+    return undefined;
+  const query = href.split("?")[1]?.split("#")[0] ?? "";
+  const raw = new URLSearchParams(query).get(VARIANT_PARAM) ?? undefined;
+  return raw !== undefined && isPracticeVariantOf(slug, raw) ? raw : undefined;
 }
 
 /**
@@ -323,29 +348,34 @@ export function matchesPracticeFilter(
  * 「次に取る級」しか出さないため、5級を持たない人が4級のピルを押すと
  * 5級の話に着地してしまう）。
  *
- * 要件を 2 つ以上持つ級は、どの試験が「その級のページ」なのか決められない
- * ため道場へ送る。現行の級はどちらも試験 1 つで、その分岐には入らない。
- *
  * @param slug 段級位スラッグ
  */
 export function rankExamHref(slug: RankSlug): string {
   const rank = RANK_REGISTRY.find((entry) => entry.slug === slug);
-  const exams = (rank?.requirements ?? []).filter(
-    (requirement) => requirement.type === "challenge_score",
-  );
-  const [only] = exams;
-  if (only === undefined || exams.length > 1) return "/dojo";
-  return practiceHref(menuTypeToSlug(only.menuType));
+  if (rank === undefined) return "/dojo";
+  return practiceHref(menuTypeToSlug(rank.exam.menuType));
 }
 
-/** 練習のプレイページのパス */
-export function practicePlayHref(slug: PracticeMenuSlug): string {
-  return `${practiceHref(slug)}/play`;
+/**
+ * 練習のプレイページのパス
+ * プレイページパス
+ *
+ * バリアントを持つ練習は `?variant=` を付ける（省略時はその練習の既定）。
+ * 持たない練習では `variant` を渡しても付かない。
+ */
+export function practicePlayHref(
+  slug: PracticeMenuSlug,
+  variant?: string,
+): string {
+  return `${practiceHref(slug)}/play${variantQuery(slug, variant ?? DEFAULT_VARIANT)}`;
 }
 
-/** 練習のトレーニングページのパス */
-export function practiceTrainingHref(slug: PracticeMenuSlug): string {
-  return `${practiceHref(slug)}/training`;
+/** 練習のトレーニングページのパス（バリアントの扱いは {@link practicePlayHref} と同じ） */
+export function practiceTrainingHref(
+  slug: PracticeMenuSlug,
+  variant?: string,
+): string {
+  return `${practiceHref(slug)}/training${variantQuery(slug, variant ?? DEFAULT_VARIANT)}`;
 }
 
 /**
@@ -354,10 +384,15 @@ export function practiceTrainingHref(slug: PracticeMenuSlug): string {
  *
  * 出題設定を持たない練習（レジストリの `hasSetup` が false）は undefined を返す。
  * 結果ページはこれが undefined なら「設定を変更する」ボタン自体を出さない。
+ * `variant` を渡すと説明ページの選択パネルがそれを初期選択にする。
  */
-export function practiceSetupHref(slug: PracticeMenuSlug): string | undefined {
+export function practiceSetupHref(
+  slug: PracticeMenuSlug,
+  variant?: string,
+): string | undefined {
   const { hasSetup, basePath } = practiceMenuBySlug(slug);
-  return hasSetup ? `${basePath}${PRACTICE_SETUP_HASH}` : undefined;
+  if (!hasSetup) return undefined;
+  return `${basePath}${variantQuery(slug, variant ?? DEFAULT_VARIANT)}${PRACTICE_SETUP_HASH}`;
 }
 
 /** 練習の結果ページのパス */

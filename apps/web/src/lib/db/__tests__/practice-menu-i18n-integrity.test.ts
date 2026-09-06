@@ -127,3 +127,40 @@ describe("i18n integrity: 問題別フィードバック一覧の result.*", () 
     ).toEqual([]);
   });
 });
+
+/**
+ * バリアント選択パネル（`VariantStartPanel`）・結果ページ・ランキングが引く
+ * `<namespace>.variants.<key>.{label,hint}` の検証。
+ *
+ * バリアントの語彙はレジストリの `variants` が正典で、辞書はそれに追随する。
+ * 過不足の両方を見る — 不足はキー文字列がそのまま画面に出る、余分は
+ * 「レジストリから外したのに辞書だけ残っている」状態。
+ */
+describe("i18n integrity: バリアントの variants.*", () => {
+  it.each(PRACTICE_MENU_SLUGS)("%s の variants が列挙と一致する", (slug) => {
+    const { namespace, hasSetup, variants } = practiceMenuBySlug(slug);
+    const section = Reflect.get(messages[namespace] ?? {}, "variants") as
+      | Record<string, { readonly label?: unknown; readonly hint?: unknown }>
+      | undefined;
+
+    if (!hasSetup) {
+      expect(
+        section,
+        `${namespace}.variants は設定を持たない練習には不要`,
+      ).toBeUndefined();
+      return;
+    }
+
+    expect(Object.keys(section ?? {}).sort()).toEqual([...variants].sort());
+    for (const key of variants) {
+      expect(
+        typeof section?.[key]?.label,
+        `${namespace}.variants.${key}.label`,
+      ).toBe("string");
+      expect(
+        typeof section?.[key]?.hint,
+        `${namespace}.variants.${key}.hint`,
+      ).toBe("string");
+    }
+  });
+});

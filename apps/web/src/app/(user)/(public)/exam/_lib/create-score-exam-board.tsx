@@ -50,8 +50,8 @@ interface CreateScoreExamBoardConfig {
  *
  * @remarks
  * ルール設定ストア（連風牌4符・切り上げ満貫）を読まないことがこの盤面の不変条件。
- * 試験は `leaderboardKey` を分けずに全受験者のベストスコアを同じ土俵で比較するため、
- * 出題も選択肢も端末ローカルの設定に依存してはならない。各級の
+ * 合格ラインは全受験者に同じ 1 本で、出題も選択肢も端末ローカルの設定に
+ * 依存してはならない（設定を変えた端末で有利にも不利にもならないこと）。各級の
  * `_lib/__tests__/exam-options.test.ts` がこのモジュールを含めて import を検査する。
  */
 export function createScoreExamBoard(

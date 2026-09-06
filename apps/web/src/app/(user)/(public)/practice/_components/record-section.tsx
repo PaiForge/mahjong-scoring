@@ -28,6 +28,8 @@ interface RecordSectionProps {
   readonly comparison: Fetched<ScoreComparison>;
   /** マイレコードへの導線で、この練習種別を選択した状態で開くために使う */
   readonly menuType: PracticeMenuType;
+  /** 同上。この土俵（バリアント）を選択した状態で開く */
+  readonly variant: string;
 }
 
 /**
@@ -62,6 +64,7 @@ export async function RecordSection({
   expInfo,
   comparison,
   menuType,
+  variant,
 }: RecordSectionProps) {
   const t = await getTranslations("challenge");
   const view = comparison.ok ? deriveRecordView(comparison.value) : undefined;
@@ -120,7 +123,7 @@ export async function RecordSection({
 
       <p className="text-center">
         <Link
-          href={`/mypage/challenges?menu=${menuType}`}
+          href={`/mypage/challenges?menu=${menuType}&variant=${encodeURIComponent(variant)}`}
           className={`text-sm ${TEXT_LINK_CLASSES}`}
         >
           <span aria-hidden="true">📈</span> {t("record.viewMyRecords")}

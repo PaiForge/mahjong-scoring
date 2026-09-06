@@ -40,7 +40,7 @@ export const LEARN_SITEMAP_PATHS: readonly string[] =
 
 /** 練習説明ページのパス一覧（`/practice/<slug>`） */
 export const PRACTICE_SITEMAP_PATHS: readonly string[] =
-  PRACTICE_MENU_SLUGS.map(practiceHref);
+  PRACTICE_MENU_SLUGS.map((slug) => practiceHref(slug));
 
 /**
  * 用語ページのパス一覧（`/reference/glossary/<slug>`）

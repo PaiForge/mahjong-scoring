@@ -5,7 +5,11 @@ import {
   isExamMenuType,
 } from "@/lib/db/practice-menu-types";
 
-import { EXCLUDED_MENU_TYPES, isMyRecordMenuType } from "../menu-scope";
+import {
+  EXCLUDED_MENU_TYPES,
+  isMyRecordBoard,
+  isMyRecordMenuType,
+} from "../menu-scope";
 
 describe("マイレコードの対象種別", () => {
   it("昇級試験をすべて除外対象に持つ", () => {
@@ -32,5 +36,30 @@ describe("マイレコードの対象種別", () => {
   it("練習種別ではない値は対象外", () => {
     expect(isMyRecordMenuType("unknown")).toBe(false);
     expect(isMyRecordMenuType("")).toBe(false);
+  });
+});
+
+describe("マイレコードの土俵", () => {
+  it("練習の列挙にあるバリアントだけを対象にする", () => {
+    expect(isMyRecordBoard({ menuType: "jantou_fu", variant: "default" })).toBe(
+      true,
+    );
+    expect(isMyRecordBoard({ menuType: "yaku_han", variant: "all" })).toBe(
+      true,
+    );
+    // バリアントを持つ練習に default は無い
+    expect(isMyRecordBoard({ menuType: "yaku_han", variant: "default" })).toBe(
+      false,
+    );
+    // 他の練習のバリアント名は通さない
+    expect(isMyRecordBoard({ menuType: "jantou_fu", variant: "all" })).toBe(
+      false,
+    );
+  });
+
+  it("昇級試験の土俵は対象外", () => {
+    expect(
+      isMyRecordBoard({ menuType: "mangan_exam", variant: "default" }),
+    ).toBe(false);
   });
 });

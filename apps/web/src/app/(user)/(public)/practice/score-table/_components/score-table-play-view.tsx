@@ -7,14 +7,14 @@ import { createChallengePlayView } from "../../_lib/create-challenge-views";
 import type { ChallengeBoardArgs } from "../../_lib/create-challenge-views";
 import { ScoreTableBoard } from "./score-table-board";
 import { ScoreTableGeneratingPlaceholder } from "./score-table-generating-placeholder";
-import { useScoreTableGeneratorOptions } from "../_hooks/use-score-table-query-selection";
+import { useScoreTableGeneratorOptions } from "../_hooks/use-score-table-generator-options";
 import { useScoreTableQuestion } from "../_hooks/use-score-table-question";
 import type { ScoreTableQuestionResult } from "../_lib/types";
 
 /**
- * URL の出題条件で盤面を描く
+ * URL のバリアント（出題条件）で盤面を描く
  *
- * 条件を `useSearchParams()` で読むため、静的ルートではこのサブツリーだけが
+ * バリアントを `useSearchParams()` で読むため、静的ルートではこのサブツリーだけが
  * クライアント描画になる。シェル（タイトル・タイマー・ライフ）は
  * プリレンダーされたまま残る。
  */

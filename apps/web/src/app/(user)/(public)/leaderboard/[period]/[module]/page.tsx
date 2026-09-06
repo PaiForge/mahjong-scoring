@@ -3,7 +3,9 @@
  *
  * @description
  * リーダーボード詳細ページ。
- * 特定の練習モジュール・期間のランキングをページネーション付きで表示する。
+ * 特定の土俵（練習モジュール × 出題設定のバリアント）・期間のランキングを
+ * ページネーション付きで表示する。バリアントは `?variant=` で受ける
+ * （バリアントを持たない練習では付かない）。
  * 全期間ランキングは `challenge_best_scores` テーブル、
  * 月間ランキングは `challenge_results` テーブルから集計する。
  *
@@ -27,14 +29,13 @@ import { SectionTitle } from "@/app/(user)/_components/section-title";
 import { createMetadata } from "@/app/_lib/metadata";
 import { getOptionalUser } from "@/lib/auth";
 import { isHiddenFromLeaderboard } from "@/lib/db/leaderboard-visibility";
-import { menuTypeToMessageKey } from "@/lib/db/practice-menu-types";
-
 import { getLeaderboard } from "../../_actions/get-leaderboard";
 import { LeaderboardDetailContent } from "../../_components/leaderboard-detail-content";
-import type { LeaderboardModule, LeaderboardPeriod } from "../../_lib/types";
+import { boardTitle } from "../../_lib/board-title";
+import type { LeaderboardBoard, LeaderboardPeriod } from "../../_lib/types";
 import { PlayIcon } from "@/app/(user)/_components/icons/play-icon";
-import { buildChallengePath, slugToModule } from "../../_lib/types";
-import { isValidModule, isValidPeriod } from "../../_lib/validators";
+import { buildChallengePath, resolveBoard } from "../../_lib/types";
+import { isValidPeriod } from "../../_lib/validators";
 import { SkeletonBar } from "@/app/_components/skeleton-bar";
 
 export const dynamic = "force-dynamic";
@@ -46,39 +47,43 @@ interface LeaderboardDetailPageProps {
   }>;
   searchParams: Promise<{
     page?: string;
+    variant?: string;
   }>;
 }
 
 interface ValidatedParams {
   readonly period: LeaderboardPeriod;
-  readonly module: LeaderboardModule;
+  readonly board: LeaderboardBoard;
 }
 
 function validateParams(
   periodStr: string,
   moduleSlug: string,
+  rawVariant: string | undefined,
 ): ValidatedParams | undefined {
   if (!isValidPeriod(periodStr)) return undefined;
 
   // 練習種別として実在するだけでは足りない。ランキングを持たない練習
-  // （昇級試験）のスラッグはここで落とす
-  const resolvedModule = slugToModule(moduleSlug);
-  if (!resolvedModule || !isValidModule(resolvedModule)) return undefined;
+  // （昇級試験）のスラッグはここで落とす。バリアントは既定に正規化される
+  const board = resolveBoard(moduleSlug, rawVariant);
+  if (!board) return undefined;
 
-  return { period: periodStr, module: resolvedModule };
+  return { period: periodStr, board };
 }
 
 export async function generateMetadata({
   params,
+  searchParams,
 }: LeaderboardDetailPageProps): Promise<Metadata> {
-  const { period, module: moduleSlug } = await params;
-  const validated = validateParams(period, moduleSlug);
+  const [{ period, module: moduleSlug }, { variant }] = await Promise.all([
+    params,
+    searchParams,
+  ]);
+  const validated = validateParams(period, moduleSlug, variant);
   if (!validated) return {};
 
   const t = await getTranslations("leaderboard");
-  const tPractices = await getTranslations("practice.practices");
-  const msgKey = menuTypeToMessageKey(validated.module);
-  const title = tPractices(`${msgKey}.shortTitle`);
+  const title = await boardTitle(validated.board);
   const periodLabel = t(`period.${validated.period}`);
 
   return createMetadata({
@@ -88,11 +93,11 @@ export async function generateMetadata({
 
 async function DetailContent({
   period,
-  module: mod,
+  board,
   page,
 }: {
   readonly period: LeaderboardPeriod;
-  readonly module: LeaderboardModule;
+  readonly board: LeaderboardBoard;
   readonly page: number;
 }) {
   const user = await getOptionalUser();
@@ -106,7 +111,7 @@ async function DetailContent({
   // ランキング全体に ROW_NUMBER を回すため、undefined が返ると分かっている
   // 呼び出しは投げない。
   const data = await getLeaderboard(
-    mod,
+    board,
     period,
     page,
     viewerHidden ? undefined : currentUserId,
@@ -114,7 +119,7 @@ async function DetailContent({
 
   return (
     <LeaderboardDetailContent
-      module={mod}
+      board={board}
       currentUserId={currentUserId}
       data={data}
       currentPage={page}
@@ -129,18 +134,16 @@ export default async function LeaderboardDetailPage({
   searchParams,
 }: LeaderboardDetailPageProps) {
   const { period, module: moduleSlug } = await params;
-  const { page: pageParam } = await searchParams;
+  const { page: pageParam, variant } = await searchParams;
 
-  const validated = validateParams(period, moduleSlug);
+  const validated = validateParams(period, moduleSlug, variant);
   if (!validated) notFound();
 
   const page = Math.max(1, parseInt(pageParam ?? "1", 10) || 1);
   const t = await getTranslations("leaderboard");
-  const tPractices = await getTranslations("practice.practices");
 
-  const moduleMsgKey = menuTypeToMessageKey(validated.module);
-  const moduleTitle = tPractices(`${moduleMsgKey}.shortTitle`);
-  const challengePath = buildChallengePath(validated.module);
+  const moduleTitle = await boardTitle(validated.board);
+  const challengePath = buildChallengePath(validated.board);
 
   return (
     <ContentContainer
@@ -166,7 +169,7 @@ export default async function LeaderboardDetailPage({
       >
         <DetailContent
           period={validated.period}
-          module={validated.module}
+          board={validated.board}
           page={page}
         />
       </Suspense>
