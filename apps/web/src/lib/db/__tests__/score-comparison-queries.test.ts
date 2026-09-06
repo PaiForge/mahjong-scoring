@@ -52,7 +52,12 @@ describe("getScoreComparison", () => {
   it("grant あり: 今回・ベスト・前回の 3 クエリで比較サマリを返す", async () => {
     selectSequence.setResults([CURRENT_ROW], [BEST_SCORE], [LAST_SCORE]);
 
-    const result = await getScoreComparison(USER_ID, MENU_TYPE, CURRENT_ID);
+    const result = await getScoreComparison(
+      USER_ID,
+      MENU_TYPE,
+      "default",
+      CURRENT_ID,
+    );
 
     expect(result).toEqual({
       current: CURRENT_SCORE,
@@ -68,7 +73,7 @@ describe("getScoreComparison", () => {
   it("ベストはランキングと同じ順序で引く", async () => {
     selectSequence.setResults([CURRENT_ROW], [BEST_SCORE], [LAST_SCORE]);
 
-    await getScoreComparison(USER_ID, MENU_TYPE, CURRENT_ID);
+    await getScoreComparison(USER_ID, MENU_TYPE, "default", CURRENT_ID);
 
     // 「これまでのベスト」は自己ベスト更新の判定と同じ順序規則で決まる。
     // スコア降順だけで引くと、同点でミスが少ない回がベストにならない
@@ -89,7 +94,12 @@ describe("getScoreComparison", () => {
   it("grant ありでも今回の行が特定できなければ基準点なしで過去記録だけ返す", async () => {
     selectSequence.setResults([], [BEST_SCORE], [LAST_SCORE]);
 
-    const result = await getScoreComparison(USER_ID, MENU_TYPE, CURRENT_ID);
+    const result = await getScoreComparison(
+      USER_ID,
+      MENU_TYPE,
+      "default",
+      CURRENT_ID,
+    );
 
     expect(result).toEqual({
       current: undefined,
@@ -104,7 +114,12 @@ describe("getScoreComparison", () => {
   it("grant なし: 今回の行を引かず 2 クエリで過去記録だけ返す", async () => {
     selectSequence.setResults([LAST_SCORE], [LAST_SCORE]);
 
-    const result = await getScoreComparison(USER_ID, MENU_TYPE, undefined);
+    const result = await getScoreComparison(
+      USER_ID,
+      MENU_TYPE,
+      "default",
+      undefined,
+    );
 
     expect(result).toEqual({
       current: undefined,
@@ -117,7 +132,12 @@ describe("getScoreComparison", () => {
   it("過去記録が無ければベスト・前回とも undefined", async () => {
     selectSequence.setResults([CURRENT_ROW], [], []);
 
-    const result = await getScoreComparison(USER_ID, MENU_TYPE, CURRENT_ID);
+    const result = await getScoreComparison(
+      USER_ID,
+      MENU_TYPE,
+      "default",
+      CURRENT_ID,
+    );
 
     expect(result).toEqual({
       current: CURRENT_SCORE,

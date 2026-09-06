@@ -7,22 +7,21 @@ import { getPaginationData } from "@/lib/pagination";
 
 import { getQueriesForPeriod } from "../_lib/period-queries";
 import type {
-  LeaderboardModule,
+  LeaderboardBoard,
   LeaderboardPeriod,
   LeaderboardResult,
 } from "../_lib/types";
 import { PAGE_SIZE } from "../_lib/types";
-import { isValidModule, isValidPeriod } from "../_lib/validators";
+import { isValidBoard, isValidPeriod } from "../_lib/validators";
 
 // ---------------------------------------------------------------------------
 // Cached ranking data (shared across all users)
 // ---------------------------------------------------------------------------
 
 const REVALIDATE_SECONDS = 300; // 5 minutes
-const LEADERBOARD_KEY = "default";
 
 function getCachedRanking(
-  module: LeaderboardModule,
+  board: LeaderboardBoard,
   period: LeaderboardPeriod,
   offset: number,
   limit: number,
@@ -31,12 +30,12 @@ function getCachedRanking(
   return unstable_cache(
     async () => {
       const { getRanking } = getQueriesForPeriod(period, now);
-      return getRanking(module, LEADERBOARD_KEY, offset, limit);
+      return getRanking(board.module, board.variant, offset, limit);
     },
     [
       "leaderboard-ranking",
-      module,
-      LEADERBOARD_KEY,
+      board.module,
+      board.variant,
       period,
       String(offset),
       String(limit),
@@ -59,18 +58,18 @@ const EMPTY_RESULT: LeaderboardResult = {
  * リーダーボードデータを取得する
  * リーダーボード取得
  *
- * @param module - 練習種別
+ * @param board - 土俵（練習種別とバリアント）
  * @param period - 期間（all-time / monthly）
  * @param page - ページ番号（1始まり）
  * @param currentUserId - 現在のユーザーID（任意）
  */
 export async function getLeaderboard(
-  module: LeaderboardModule,
+  board: LeaderboardBoard,
   period: LeaderboardPeriod,
   page: number,
   currentUserId?: string,
 ): Promise<LeaderboardResult> {
-  if (!isValidModule(module) || !isValidPeriod(period) || page < 1) {
+  if (!isValidBoard(board) || !isValidPeriod(period) || page < 1) {
     return EMPTY_RESULT;
   }
 
@@ -82,7 +81,7 @@ export async function getLeaderboard(
 
   try {
     const { rows, total } = await getCachedRanking(
-      module,
+      board,
       period,
       offset,
       limit,
@@ -102,8 +101,8 @@ export async function getLeaderboard(
       const { getUserRankedRow } = getQueriesForPeriod(period, now);
       currentUserRank = await getUserRankedRow(
         currentUserId,
-        module,
-        LEADERBOARD_KEY,
+        board.module,
+        board.variant,
       );
     }
 

@@ -20,8 +20,8 @@ interface ResultPageSkeletonProps {
   readonly problemCount?: number;
   /**
    * 結果ページが「設定を変更する」ボタンを出すか（レジストリの `hasSetup`）。
-   * true の練習ではアクションボタンが 2 つ並ぶため、枠も 2 つ描いて
-   * 結果ページとの高さのずれを防ぐ。
+   * true の練習ではアクションボタンが 2 つ並び、「結果」節に走った設定名の
+   * 行が入るため、枠も同じだけ描いて結果ページとの高さのずれを防ぐ。
    */
   readonly hasSetup?: boolean;
   /**
@@ -66,6 +66,8 @@ export function ResultPageSkeleton({
             試験は合否サマリ（ExamResultSummary）と同じ構造 */}
         <section aria-hidden="true" className="space-y-3">
           <SectionTitleSkeleton />
+          {/* 設定を持つ練習は走った設定名の 1 行（text-sm = 20px）が入る */}
+          {hasSetup && <SkeletonBar className="h-5 w-40" tone={100} />}
           {isExam ? <ExamResultSummarySkeleton /> : <ResultScoreBarSkeleton />}
         </section>
 

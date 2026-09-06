@@ -35,6 +35,7 @@ import { ResultScoreBar } from "./result-score-bar";
  * 表示順:
  * 1. PageTitle（練習名） — 即時描画
  * 2. 「結果」セクション — 即時描画（親 page.tsx の searchParams から props で受け取る）。
+ *    設定を持つ練習は走った設定名（`variantLabel`）を 1 行添える。
  *    既定は正解 / 不正解の積み上げ棒（`ResultScoreBar`）。`summary` を渡した
  *    練習（昇級試験の合否サマリ）はそれで差し替える
  * 3. `promotionBlock` — 昇級バナー（昇級時のみ。Suspense 境界）
@@ -54,6 +55,7 @@ export async function ResultView({
   settingsHref,
   correct,
   total,
+  variantLabel,
   primaryAction = "retry",
   promotionBlock,
   summary,
@@ -82,6 +84,10 @@ export async function ResultView({
       <div className="space-y-8">
         <section className="space-y-3">
           <SectionTitle>{tc("resultSectionTitle")}</SectionTitle>
+          {/* 走った出題設定。設定を持つ練習だけ 1 行（スケルトンも同じ行を持つ） */}
+          {variantLabel !== undefined && (
+            <p className="text-sm text-surface-500">{variantLabel}</p>
+          )}
           {summary ?? <ResultScoreBar correct={correct} total={total} />}
         </section>
 
