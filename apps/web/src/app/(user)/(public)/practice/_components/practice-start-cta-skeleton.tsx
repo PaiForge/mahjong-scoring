@@ -2,9 +2,8 @@ import { SkeletonBar } from "@/app/_components/skeleton-bar";
 
 import {
   PRACTICE_START_CTA_BLOCK_CLASS,
-  PRACTICE_START_CTA_DIVIDER_CLASS,
-  PRACTICE_START_CTA_DIVIDER_LINE_CLASS,
   PRACTICE_START_CTA_FRAME_CLASS,
+  PracticeStartCtaDivider,
 } from "./practice-start-cta";
 
 /**
@@ -25,7 +24,9 @@ export const START_BUTTON_HEIGHT_CLASS = "h-[50px]";
  * ストアが hydrate されるまでの間、{@link PracticeStartCta} と同じ寸法の枠を
  * 確保して CLS を防ぐ。並び・間隔は CTA と同じクラス定数を共有するため、
  * 導線の構成を変えてもスケルトンだけ取り残されることがない。
- * OR 区切りの破線は文字を持たないため実物をそのまま描画する。
+ * OR 区切りの破線は文字を持たないため実物（`PracticeStartCtaDivider`）を
+ * そのまま描画する。昇級試験の説明ページ（本番 / 模試）のスケルトンも
+ * 同じ 3 ブロックなのでこれを使う。
  *
  * ボタンは実物の苔緑の太枠（`border-ink`）を写さず灰色の矩形にする
  * （`ProblemListSkeleton` と同じ理由 — 読み込み中の画面が実物より賑やかに
@@ -42,11 +43,7 @@ export function PracticeStartCtaSkeleton() {
         <SkeletonBar className="h-4 w-48 max-w-full" tone={100} />
       </div>
 
-      <div className={PRACTICE_START_CTA_DIVIDER_CLASS}>
-        <span className={PRACTICE_START_CTA_DIVIDER_LINE_CLASS} />
-        <SkeletonBar className="h-4 w-8" tone={100} />
-        <span className={PRACTICE_START_CTA_DIVIDER_LINE_CLASS} />
-      </div>
+      <PracticeStartCtaDivider />
 
       <div className={PRACTICE_START_CTA_BLOCK_CLASS}>
         <SkeletonBar

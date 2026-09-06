@@ -1,5 +1,5 @@
 import type { ReactNode } from "react";
-import { ExamStartGate } from "@/app/(user)/(public)/exam/_components/exam-start-gate";
+import { ExamStartCta } from "@/app/(user)/(public)/exam/_components/exam-start-cta";
 import { HowToPlaySection } from "./how-to-play-section";
 import { PracticeStartCta } from "./practice-start-cta";
 import { buildPracticeStartCtaLabels } from "../_lib/practice-start-cta-labels";
@@ -30,7 +30,10 @@ interface PracticeIntroContentProps {
   readonly namespace: string;
   /** 練習スラッグ（例: "jantou-fu"） */
   readonly slug: PracticeMenuSlug;
-  /** トレーニングモードへのボタンを表示するかどうか（デフォルト: false） */
+  /**
+   * トレーニングモードへのボタンを表示するかどうか（デフォルト: false）。
+   * 昇級試験は常に模試（トレーニング）の導線を持つため、この旗を見ない。
+   */
   readonly showTraining?: boolean;
   /**
    * 問題方式（遊び方）のビジュアルデモ。渡された場合は説明文の代わりに
@@ -127,7 +130,17 @@ export async function PracticeIntroContent({
 
         {notice}
 
-        {showTraining ? (
+        {isExam ? (
+          /* 昇級試験は本番 / 模試の 2 本。本番は受験資格（次に取る級か、
+             達成済みの級の再挑戦）でボタンを出し分ける。ゲートはクライアント
+             側の表示制御で、静的配信を保ったまま未ログイン・資格なしの案内を
+             出す。模試は誰でも受けられる */
+          <ExamStartCta
+            slug={slug}
+            playHref={`${practicePlayHref(slug)}${PRACTICE_SCROLL_HASH}`}
+            trainingHref={`${practiceTrainingHref(slug)}${PRACTICE_SCROLL_HASH}`}
+          />
+        ) : showTraining ? (
           <PracticeStartCta
             playHref={`${practicePlayHref(slug)}${PRACTICE_SCROLL_HASH}`}
             trainingHref={`${practiceTrainingHref(slug)}${PRACTICE_SCROLL_HASH}`}
@@ -135,14 +148,6 @@ export async function PracticeIntroContent({
               { challenge: tc, practice: tp, training: tt },
               practiceMenuBySlug(slug),
             )}
-          />
-        ) : isExam ? (
-          /* 昇級試験は受験資格（次に取る級か、達成済みの級の再挑戦）で
-             開始ボタンを出し分ける。ゲートはクライアント側の表示制御で、
-             静的配信を保ったまま未ログイン・資格なしの案内を出す */
-          <ExamStartGate
-            slug={slug}
-            playHref={`${practicePlayHref(slug)}${PRACTICE_SCROLL_HASH}`}
           />
         ) : (
           <LinkButton

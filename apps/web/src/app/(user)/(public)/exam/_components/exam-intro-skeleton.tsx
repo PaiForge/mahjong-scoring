@@ -3,8 +3,7 @@ import { PageTitle } from "@/app/(user)/_components/page-title";
 import { SectionTitleSkeleton } from "@/app/(user)/_components/section-title-skeleton";
 import { SkeletonBar } from "@/app/_components/skeleton-bar";
 import { CurriculumTocSkeleton } from "../../learn/_components/curriculum-toc-skeleton";
-import { PRACTICE_START_CTA_BLOCK_CLASS } from "../../practice/_components/practice-start-cta";
-import { START_BUTTON_HEIGHT_CLASS } from "../../practice/_components/practice-start-cta-skeleton";
+import { PracticeStartCtaSkeleton } from "../../practice/_components/practice-start-cta-skeleton";
 
 /**
  * 問題方式のプレビュー（デモ盤面）の高さ
@@ -44,10 +43,10 @@ interface ExamIntroSkeletonProps {
  *
  * 並びは `PracticeIntroContent` の実物と同じ順で、高さは実物の部品と定数から
  * 取る — 見出しは `SectionTitleSkeleton`、章の目次は `CurriculumTocSkeleton`
- * （実物の `CurriculumToc` と座標・行の骨格を共有する）、開始ボタンは
- * `START_BUTTON_HEIGHT_CLASS`。固定の `h-*` で近似すると、文字サイズや
- * ブレークポイントの変更に付いていけず静かにずれる。実測値を書き写して
- * いるのは {@link EXAM_DEMO_HEIGHT} だけ。
+ * （実物の `CurriculumToc` と座標・行の骨格を共有する）、開始導線（本番 /
+ * 模試）は練習と同じ `PracticeStartCtaSkeleton`。固定の `h-*` で近似すると、
+ * 文字サイズやブレークポイントの変更に付いていけず静かにずれる。実測値を
+ * 書き写しているのは {@link EXAM_DEMO_HEIGHT} だけ。
  *
  * ページ見出しの帯（`PageTitle`）は文字を入れずに描く。実物の見出しは
  * 試験名だが、帯の高さは文字の有無で変わらないため、この 1 行のために
@@ -103,19 +102,10 @@ export function ExamIntroSkeleton({
           </div>
         </div>
 
-        {/* 開始導線（ボタン + 補足文）。受験資格が確定するまで ExamStartGate も
-            同じ寸法の矩形を出すため、境界が外れてもボタンの位置は動かない */}
-        <div className={PRACTICE_START_CTA_BLOCK_CLASS}>
-          <SkeletonBar
-            radius="lg"
-            className={`${START_BUTTON_HEIGHT_CLASS} w-full`}
-          />
-          <p className="text-xs">
-            <SkeletonBar as="span" className="inline-block w-56" tone={100}>
-              &nbsp;
-            </SkeletonBar>
-          </p>
-        </div>
+        {/* 開始導線（本番 / または / 模試）。受験資格が確定するまで
+            ExamStartGate も本番のブロックと同じ寸法の矩形を出すため、境界が
+            外れてもボタンの位置は動かない */}
+        <PracticeStartCtaSkeleton />
 
         {/* 前提となる教本の章。行の骨格は実物の目次と共有する。
             章がセクションをまたぐ試験（満貫以上 + 役）では見出しが 2 つに
