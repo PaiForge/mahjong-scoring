@@ -30,6 +30,18 @@ interface VariantStartPanelProps {
 const OPTION_FRAME_CLASS =
   "flex flex-col items-start gap-1 rounded-xl border p-4 text-left";
 
+/**
+ * 選択肢を並べるグリッド（実物とスケルトンで共有）
+ * バリアント選択グリッド
+ *
+ * 3 つまでは 1 行に収める。4 つ以上は 2 列にする — 点数表早引きのように
+ * 子・親が対になっているバリアントを 3 列に流し込むと、対の片方だけが次の行に
+ * こぼれて並びが読めなくなるため。狭い画面では常に 1 列。
+ */
+function optionGridClass(count: number): string {
+  return `grid gap-2 ${count > 3 ? "sm:grid-cols-2" : "sm:grid-cols-3"}`;
+}
+
 function VariantOptions({ slug }: VariantStartPanelProps) {
   const { namespace, variants, timeLimit, mistakeLimit } =
     practiceMenuBySlug(slug);
@@ -44,7 +56,7 @@ function VariantOptions({ slug }: VariantStartPanelProps) {
 
   return (
     <>
-      <div className="grid gap-2 sm:grid-cols-3">
+      <div className={optionGridClass(variants.length)}>
         {variants.map((option) => {
           const isSelected = variant === option;
           return (
@@ -90,7 +102,7 @@ function VariantOptions({ slug }: VariantStartPanelProps) {
 function VariantOptionsSkeleton({ count }: { readonly count: number }) {
   return (
     <>
-      <div className="grid gap-2 sm:grid-cols-3">
+      <div className={optionGridClass(count)}>
         {Array.from({ length: count }, (_, i) => (
           <div
             key={i}

@@ -2,10 +2,10 @@ import type { CurriculumChapterSlug } from "@/app/(user)/(public)/learn/_lib/cur
 import {
   DEFAULT_VARIANT,
   isExamMenuType,
+  isPracticeMenuSlug,
   isPracticeVariantOf,
   menuTypeToSlug,
   practiceMenuBySlug,
-  PRACTICE_MENU_SLUGS,
   type PracticeMenuSlug,
 } from "@/lib/db/practice-menu-types";
 import { RANK_REGISTRY, type RankSlug } from "@/lib/ranks/registry";
@@ -406,53 +406,21 @@ export function practiceTitleKey(slug: PracticeMenuSlug): string {
 }
 
 /**
- * 練習へのパスが指している先
- * 練習パスの行き先
- *
- * - `intro`: 説明ページ（`/practice/<slug>` や昇級試験の `/exam/<級>`）
- * - `training`: トレーニング / 模試（`.../training`）
- */
-export interface PracticeHrefTarget {
-  readonly slug: PracticeMenuSlug;
-  readonly mode: "intro" | "training";
-}
-
-/**
- * 練習へのパスから練習と行き先を取り出す。
- * 練習パス解析
- *
- * 教本の `practiceHrefs` が指せるのは、説明ページ（`practiceHref()`）と
- * トレーニング / 模試（`practiceTrainingHref()`）の 2 つ。パスの形は
- * レジストリの `basePath` から導き、昇級試験の `/exam/<級>` も同じ規則で
- * 解ける（`/practice/` の前置きを決め打ちすると試験の模試へのリンクが
- * 解決できず、教本のリンクの練習名が出ない）。
- *
- * クエリ付きのものがある（例: `/practice/score-table?variant=all`）ため、
- * クエリとハッシュを落としてから判定する。play / result や未登録の
- * パスは undefined。
- *
- * @param href 練習へのパス
- */
-export function parsePracticeHref(
-  href: string,
-): PracticeHrefTarget | undefined {
-  const pathOnly = (href.split(/[?#]/)[0] ?? "").replace(/\/$/, "");
-  for (const slug of PRACTICE_MENU_SLUGS) {
-    const base = practiceHref(slug);
-    if (pathOnly === base) return { slug, mode: "intro" };
-    if (pathOnly === `${base}/training`) return { slug, mode: "training" };
-  }
-  return undefined;
-}
-
-/**
- * 練習へのパスから slug を取り出す（{@link parsePracticeHref} の slug だけ）。
+ * `/practice/<slug>` 形式のパスから slug を取り出す。
  * 練習スラッグ抽出
  *
- * @param href 練習へのパス
+ * 教本の `practiceHrefs` はクエリ付きのものがある（例:
+ * `/practice/score-table?roles=ko&wins=ron&ranges=plus`）ため、クエリと
+ * ハッシュを落としてから判定する。練習ページ以外や未登録の slug は undefined。
+ *
+ * @param href 練習ページへのパス
  */
 export function practiceSlugFromHref(
   href: string,
 ): PracticeMenuSlug | undefined {
-  return parsePracticeHref(href)?.slug;
+  const pathOnly = href.split(/[?#]/)[0] ?? "";
+  const match = /^\/practice\/([a-z0-9-]+)\/?$/.exec(pathOnly);
+  const slug = match?.[1];
+  if (slug === undefined || !isPracticeMenuSlug(slug)) return undefined;
+  return slug;
 }

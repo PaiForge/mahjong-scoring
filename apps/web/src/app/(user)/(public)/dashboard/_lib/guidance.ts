@@ -3,10 +3,7 @@ import {
   type CurriculumChapter,
   pickNextChapter,
 } from "@/app/(user)/(public)/learn/_lib/curriculum";
-import {
-  isExamMenu,
-  practiceSlugFromHref,
-} from "@/app/(user)/(public)/practice/_lib/practice-catalog";
+import { practiceSlugFromHref } from "@/app/(user)/(public)/practice/_lib/practice-catalog";
 import {
   menuTypeToSlug,
   type PracticeMenuSlug,
@@ -111,11 +108,6 @@ export function selectDashboardGuidance({
     for (const href of chapter.practiceHrefs ?? []) {
       const slug = practiceSlugFromHref(href);
       if (slug === undefined) continue;
-      // 章が昇級試験の模試へ送っていても、おすすめの練習には出さない。
-      // 試験は走行を記録しないので「挑戦済み」に永遠にならず、模試を
-      // 何度受けても勧め続けてしまう。試験への導線は受験の準備が整った
-      // ときの試験カード（`readyExamSlugs`）が持つ
-      if (isExamMenu(slug)) continue;
       if (attemptedSlugs.has(slug) || seen.has(slug)) continue;
       seen.add(slug);
       recommended.push(slug);

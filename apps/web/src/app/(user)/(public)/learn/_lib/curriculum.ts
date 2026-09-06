@@ -1,9 +1,6 @@
 import type { PracticeMenuSlug } from "@/lib/db/practice-menu-types";
 
-import {
-  practiceHref,
-  practiceTrainingHref,
-} from "../../practice/_lib/practice-catalog";
+import { practiceHref } from "../../practice/_lib/practice-catalog";
 
 /**
  * 学習カリキュラム — 章メタデータのレジストリ
@@ -39,12 +36,6 @@ interface CurriculumChapterEntry {
   readonly slug: string;
   readonly section: CurriculumSection;
   readonly order: number;
-  /**
-   * この章を読んだら解く練習へのパス。説明ページ（`practiceHref()`）か
-   * トレーニング / 模試（`practiceTrainingHref()`）で組み、文字列を手で
-   * 組み立てない。カタログに載る練習（記録対象）しか指せない
-   * （practice-catalog.test.ts が固定している）。
-   */
   readonly practiceHrefs?: readonly string[];
   /**
    * この章の読了が前提となる昇級試験（練習スラッグ）。
@@ -73,35 +64,34 @@ const CURRICULUM_REGISTRY = [
     slug: "mangan-ko-ron",
     section: "mangan",
     order: 21,
-    // 満貫の 4 章で 5 級試験の出題範囲（満貫以上の点数）がちょうど揃うため、
-    // 練習ではなく 5 級の模試（本番と同じ出題・時間無制限・記録なし）へ送る。
-    // 点数表早引きに満貫以上だけのバリアントは無く（覚える量が少なく単独の
-    // 土俵にしない）、「全部」へ送ると章の範囲外の符×翻が混ざる
-    practiceHrefs: [practiceTrainingHref("mangan-exam")],
+    // 子の満貫以上。ツモとロンで土俵を分けないため（同じ点数の表裏で、
+    // 片方だけ覚える練習は暗記の単位として不自然）、子のツモの章とこの
+    // バリアントを共有する
+    practiceHrefs: [practiceHref("score-table", "ko_mangan_plus")],
     i18nKey: "learnCurriculum.chapters.manganKoRon",
   },
   {
     slug: "mangan-oya-ron",
     section: "mangan",
     order: 22,
-    // 5 級の模試へ送る（満貫（子・ロン）の章と同じ理由）
-    practiceHrefs: [practiceTrainingHref("mangan-exam")],
+    // 親の満貫以上（子・ロンの章と同じ理由）
+    practiceHrefs: [practiceHref("score-table", "oya_mangan_plus")],
     i18nKey: "learnCurriculum.chapters.manganOyaRon",
   },
   {
     slug: "mangan-ko-tsumo",
     section: "mangan",
     order: 23,
-    // 5 級の模試へ送る（満貫（子・ロン）の章と同じ理由）
-    practiceHrefs: [practiceTrainingHref("mangan-exam")],
+    // 子の満貫以上（子・ロンの章と同じ土俵）
+    practiceHrefs: [practiceHref("score-table", "ko_mangan_plus")],
     i18nKey: "learnCurriculum.chapters.manganKoTsumo",
   },
   {
     slug: "mangan-oya-tsumo",
     section: "mangan",
     order: 24,
-    // 5 級の模試へ送る（満貫（子・ロン）の章と同じ理由）
-    practiceHrefs: [practiceTrainingHref("mangan-exam")],
+    // 親の満貫以上（親・ロンの章と同じ土俵）
+    practiceHrefs: [practiceHref("score-table", "oya_mangan_plus")],
     i18nKey: "learnCurriculum.chapters.manganOyaTsumo",
   },
   {

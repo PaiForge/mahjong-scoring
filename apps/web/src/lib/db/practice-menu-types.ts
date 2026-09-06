@@ -197,9 +197,18 @@ const PRACTICE_MENU_REGISTRY = [
     messageKey: "scoreTable",
     namespace: "scoreTableChallenge",
     hasProblemList: true,
-    // 難易度が単調に上がる順。子から覚えるのが定石で、満貫以上は覚える量が
-    // 少ないため単独のバリアントにしない（「全部」で表の全体を引く）
-    variants: ["ko_non_mangan", "oya_non_mangan", "all"],
+    // 難易度が単調に上がる順。満貫以上は覚える量が少なく（親子それぞれ
+    // 満貫〜役満の5段階だけ）、満貫未満は符×翻の表を引く。どちらの帯も
+    // 子から覚えるのが定石なので子・親の順。「全部」は表の全体を引く完成形。
+    // 満貫以上を先に置くのは教本の並びとも揃う — 満貫の章（点数の章より前）が
+    // この2つへ送り、点数表の暗記に入る前に満貫以上だけを先に引かせる
+    variants: [
+      "ko_mangan_plus",
+      "oya_mangan_plus",
+      "ko_non_mangan",
+      "oya_non_mangan",
+      "all",
+    ],
   },
   {
     menuType: "score_calculation",
