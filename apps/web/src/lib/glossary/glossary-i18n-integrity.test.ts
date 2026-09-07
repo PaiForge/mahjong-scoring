@@ -9,7 +9,7 @@ import {
   GLOSSARY_TERM_SLUGS,
   isGlossaryTermSlug,
 } from "./registry";
-import { GLOSSARY_CATEGORIES } from "./types";
+import { GLOSSARY_CATEGORIES, isMentsuExample } from "./types";
 
 /**
  * 用語レジストリと辞書（ja.json）の整合性検証
@@ -78,6 +78,23 @@ describe("分類", () => {
   );
 });
 
+/**
+ * 明暗を名乗る用語と、その例示が鳴いた面子であるべきか
+ *
+ * 中張牌の明刻と暗刻は、牌を裸で並べると同じ絵になる。例示を面子として
+ * 持てば描き分けは `Furo` が引き受けるが、牌の配列に書き戻せば区別は
+ * また消える。語の名前が明暗を名乗っている用語だけをここで押さえる。
+ */
+const NAKI_IN_EXAMPLE: Readonly<Record<string, boolean>> = {
+  furo: true,
+  pon: true,
+  chii: true,
+  minkou: true,
+  minkan: true,
+  ankou: false,
+  ankan: false,
+};
+
 describe("例示牌", () => {
   it("captionKey は辞書に実在する", () => {
     for (const term of GLOSSARY_TERMS) {
@@ -91,16 +108,18 @@ describe("例示牌", () => {
     }
   });
 
-  it("faceDownIndexes は並べる牌の範囲に収まる", () => {
-    for (const term of GLOSSARY_TERMS) {
-      for (const example of term.examples ?? []) {
-        for (const index of example.faceDownIndexes ?? []) {
-          expect(index, `${term.slug}`).toBeGreaterThanOrEqual(0);
-          expect(index, `${term.slug}`).toBeLessThan(example.tiles.length);
-        }
+  it.each(Object.entries(NAKI_IN_EXAMPLE))(
+    "%s の例示は鳴きの有無まで描いている",
+    (slug, isFuro) => {
+      const [example] = GLOSSARY_TERMS.find((term) => term.slug === slug)
+        ?.examples ?? [undefined];
+
+      if (example === undefined || !isMentsuExample(example)) {
+        throw new Error(`${slug} の例示が面子ではない`);
       }
-    }
-  });
+      expect(example.mentsu.furo !== undefined).toBe(isFuro);
+    },
+  );
 });
 
 describe("関連語", () => {

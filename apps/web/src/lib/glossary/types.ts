@@ -1,4 +1,4 @@
-import type { HaiKindId } from "@mahjong-scoring/core";
+import type { CompletedMentsu, HaiKindId } from "@mahjong-scoring/core";
 
 import type { CurriculumChapterSlug } from "@/app/(user)/(public)/learn/_lib/curriculum";
 
@@ -22,25 +22,57 @@ export const GLOSSARY_CATEGORIES = [
 export type GlossaryCategory = (typeof GLOSSARY_CATEGORIES)[number];
 
 /**
- * 用語に添える手牌の例
- * 用語の例示牌
- *
- * 語の定義だけでは形が伝わらない用語（順子・両面・暗槓など）に、実際の牌を
- * 並べて見せる。牌そのものが説明なので、文章の言い換えを captionKey に
- * 入れないこと（「順子の例」ではなく「萬子の 2・3・4」のように、その並びが
- * 何であるかを補う）。
+ * 用語に添える例の共通部分
  */
-export interface GlossaryTermExample {
-  /** 並べる牌。左から順に描画する */
-  readonly tiles: readonly HaiKindId[];
-  /** 裏向きで描画する位置（暗槓の両端など） */
-  readonly faceDownIndexes?: readonly number[];
+interface GlossaryTermExampleBase {
   /**
    * 牌の下に添える短い注記のキー（`glossary.captions.<key>`）。
    * 注記が要らない例では省く。実在するキーかは
    * `glossary-i18n-integrity.test.ts` が検査する。
    */
   readonly captionKey?: string;
+}
+
+/**
+ * 牌を並べて見せる例
+ * 用語の例示牌
+ *
+ * 牌の種類（么九牌・風牌など）や、面子に切り出せない形（雀頭・待ちの形・
+ * 14 枚の手牌）を見せるための並び。
+ */
+export interface GlossaryTilesExample extends GlossaryTermExampleBase {
+  /** 並べる牌。左から順に描画する */
+  readonly tiles: readonly HaiKindId[];
+}
+
+/**
+ * 面子 1 つを卓上の並びで見せる例
+ * 用語の例示面子
+ *
+ * 明刻・明槓は鳴いた 1 枚を横向きに、暗槓は両端を伏せて置く。この並びは
+ * 面子そのものから決まるので、牌の位置ではなく面子を持たせる。牌を裸で
+ * 並べると中張牌の明刻と暗刻が同じ絵になってしまう。
+ */
+export interface GlossaryMentsuExample extends GlossaryTermExampleBase {
+  readonly mentsu: CompletedMentsu;
+}
+
+/**
+ * 用語に添える例
+ * 用語の例示
+ *
+ * 語の定義だけでは形が伝わらない用語（順子・両面・暗槓など）に、実物を
+ * 並べて見せる。牌そのものが説明なので、文章の言い換えを captionKey に
+ * 入れないこと（「順子の例」ではなく「萬子の 2・3・4」のように、その並びが
+ * 何であるかを補う）。
+ */
+export type GlossaryTermExample = GlossaryTilesExample | GlossaryMentsuExample;
+
+/** 面子として並べる例か（`tiles` の例と描き分ける） */
+export function isMentsuExample(
+  example: GlossaryTermExample,
+): example is GlossaryMentsuExample {
+  return "mentsu" in example;
 }
 
 /**

@@ -5,7 +5,7 @@ import {
   exampleMinkan,
   exampleMinkou,
   exampleShuntsu,
-} from "@/app/(user)/_components/_lib/example-mentsu";
+} from "@/lib/example-mentsu";
 import { SectionTitle } from "@/app/(user)/_components/section-title";
 import { ExampleTable } from "../../_components/example-table";
 import { loadExampleTableColumns } from "../../_lib/example-table-columns";

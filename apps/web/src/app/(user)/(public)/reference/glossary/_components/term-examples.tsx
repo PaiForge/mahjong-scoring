@@ -1,7 +1,9 @@
 import { getTranslations } from "next-intl/server";
 
 import { ExampleCard } from "@/app/(user)/_components/example-card";
+import { MentsuSet } from "@/app/(user)/_components/mentsu-set";
 import { TileSet } from "@/app/(user)/_components/tile-set";
+import { isMentsuExample } from "@/lib/glossary/types";
 import type { GlossaryTermExample } from "@/lib/glossary/types";
 
 interface TermExamplesProps {
@@ -30,11 +32,16 @@ export async function TermExamples({ examples }: TermExamplesProps) {
       {examples.map((example, index) => (
         <ExampleCard key={index} spacing="space-y-2">
           <div className="overflow-x-auto">
-            <TileSet
-              tiles={example.tiles}
-              faceDownIndexes={example.faceDownIndexes}
-              size={example.tiles.length >= MANY_TILES_THRESHOLD ? "xs" : "sm"}
-            />
+            {isMentsuExample(example) ? (
+              <MentsuSet mentsu={example.mentsu} />
+            ) : (
+              <TileSet
+                tiles={example.tiles}
+                size={
+                  example.tiles.length >= MANY_TILES_THRESHOLD ? "xs" : "sm"
+                }
+              />
+            )}
           </div>
           {example.captionKey !== undefined && (
             <p className="text-xs text-surface-500">
