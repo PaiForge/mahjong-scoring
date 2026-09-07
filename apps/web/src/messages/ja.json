@@ -1839,6 +1839,8 @@
       "scoreUnit": "スコア",
       "recentHistory": "直近の履歴",
       "viewAllResults": "すべての結果を見る",
+      "tryChallenge": "この種目にチャレンジ",
+      "goToPractice": "練習一覧へ",
       "tableDate": "日時",
       "tableCorrectAnswers": "正解数",
       "tableIncorrectAnswers": "ミス数",

@@ -24,6 +24,10 @@ import { AttemptHistoryTable } from "./attempt-history-table";
 import { StatsCard } from "./stats-card";
 import { SkeletonBar } from "@/app/_components/skeleton-bar";
 import { TEXT_LINK_CLASSES } from "@/app/_components/_lib/link-classes";
+import { LinkButton } from "@/app/(user)/_components/link-button";
+import { PlayIcon } from "@/app/(user)/_components/icons/play-icon";
+import { practicePlayHref } from "@/app/(user)/(public)/practice/_lib/practice-catalog";
+import { menuTypeToSlug } from "@/lib/db/practice-menu-types";
 
 const ScoreChart = dynamic(
   () => import("./score-chart").then((mod) => mod.ScoreChart),
@@ -137,8 +141,13 @@ export function ChallengeDashboard({
 
   if (availableBoards.length === 0) {
     return (
-      <div className="text-center py-12 text-surface-500">
-        <p>{t("noData")}</p>
+      <div className="py-12 text-center">
+        <p className="text-surface-500">{t("noData")}</p>
+        {/* 記録が 1 件も無い人にとって、このページは行き止まりになる。
+            記録を作れる唯一の場所である練習一覧へ送る */}
+        <LinkButton href="/practice" className="mt-6">
+          {t("goToPractice")}
+        </LinkButton>
       </div>
     );
   }
@@ -246,6 +255,25 @@ export function ChallengeDashboard({
             )}
           </div>
         </>
+      )}
+
+      {/* 見ている土俵をそのまま解き直す導線。選択中のバリアントで play を
+          開くため、記録が積まれている土俵と着地する土俵が一致する。
+          読み込み中も出しっぱなしにするのは、リンク先が選択した土俵だけで
+          決まり、成績の取得を待つ必要が無いため */}
+      {selectedBoard && (
+        <div className="pt-4 border-t-2 border-dashed border-border/40">
+          <LinkButton
+            href={practicePlayHref(
+              menuTypeToSlug(selectedBoard.menuType),
+              selectedBoard.variant,
+            )}
+            fullWidth
+          >
+            <PlayIcon className="size-4" />
+            {t("tryChallenge")}
+          </LinkButton>
+        </div>
       )}
     </div>
   );
