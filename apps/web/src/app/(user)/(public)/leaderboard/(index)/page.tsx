@@ -23,10 +23,10 @@ import { PageTitle } from "@/app/(user)/_components/page-title";
 import { SectionTitle } from "@/app/(user)/_components/section-title";
 import { createTitleOnlyMetadata } from "@/app/_lib/metadata";
 
+import { LeaderboardRowListSkeleton } from "../_components/leaderboard-row-list-skeleton";
 import { LeaderboardTopContent } from "../_components/leaderboard-top-content";
 import type { LeaderboardPeriod } from "../_lib/types";
 import { isValidPeriod } from "../_lib/validators";
-import { SkeletonBar } from "@/app/_components/skeleton-bar";
 
 export const dynamic = "force-dynamic";
 
@@ -63,24 +63,7 @@ export default async function LeaderboardIndexPage({
 
       <SectionTitle>{t("allModulesSection")}</SectionTitle>
 
-      <Suspense
-        key={period}
-        fallback={
-          // 実描画（LinkRow）と同じ 1 行あたりの高さ・破線区切りで並べ、
-          // データ到着時に行がずれないようにする。
-          <ul className="flex flex-col">
-            {Array.from({ length: 5 }).map((_, i) => (
-              <li
-                key={i}
-                className="flex items-center gap-3 border-b border-dashed border-border/40 py-3 last:border-b-0"
-              >
-                <SkeletonBar radius="md" className="size-6 shrink-0" />
-                <SkeletonBar className="h-4 w-32" tone={100} />
-              </li>
-            ))}
-          </ul>
-        }
-      >
+      <Suspense key={period} fallback={<LeaderboardRowListSkeleton />}>
         <LeaderboardTopContent period={period} />
       </Suspense>
     </ContentContainer>
