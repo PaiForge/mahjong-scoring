@@ -62,7 +62,6 @@ export default async function LeaderboardIndexPage({
       <PageTitle>{t("title")}</PageTitle>
 
       <SectionTitle>{t("allModulesSection")}</SectionTitle>
-      <p className="text-sm text-surface-500">{t("description")}</p>
 
       <Suspense
         key={period}

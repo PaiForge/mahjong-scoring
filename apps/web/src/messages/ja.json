@@ -2087,7 +2087,6 @@
   },
   "leaderboard": {
     "title": "ランキング",
-    "description": "トッププレイヤーのスコアを確認できます",
     "allModulesSection": "種目別ランキング",
     "periodLabel": "期間",
     "period": {

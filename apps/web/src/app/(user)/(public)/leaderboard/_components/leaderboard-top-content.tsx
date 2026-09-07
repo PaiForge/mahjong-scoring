@@ -6,7 +6,6 @@ import { getUserRanks } from "../_actions/get-user-ranks";
 import type { LeaderboardPeriod, UserRankInfo } from "../_lib/types";
 import { BOARDS, boardKey } from "../_lib/types";
 import { LeaderboardModuleRow } from "./leaderboard-module-row";
-import { ViewerHiddenNote } from "./viewer-hidden-note";
 
 interface LeaderboardTopContentProps {
   readonly period: LeaderboardPeriod;
@@ -15,6 +14,10 @@ interface LeaderboardTopContentProps {
 /**
  * リーダーボード一覧コンテンツ
  * 全土俵（練習 × バリアント）のランキングを行リンクで並べる
+ *
+ * ランキング非表示中の案内（`ViewerHiddenNote`）はここでは出さない。
+ * 順位が出ない土俵の表（詳細ページ）で必ず目に入るため、一覧にも置くと
+ * 同じ知らせを二度読ませることになる。
  */
 export async function LeaderboardTopContent({
   period,
@@ -39,19 +42,15 @@ export async function LeaderboardTopContent({
   );
 
   return (
-    <div className="space-y-4">
-      {viewerHidden ? <ViewerHiddenNote /> : undefined}
-
-      <LinkRowList>
-        {BOARDS.map((board) => (
-          <LeaderboardModuleRow
-            key={boardKey(board)}
-            board={board}
-            period={period}
-            rank={currentUserId ? rankMap.get(boardKey(board)) : undefined}
-          />
-        ))}
-      </LinkRowList>
-    </div>
+    <LinkRowList>
+      {BOARDS.map((board) => (
+        <LeaderboardModuleRow
+          key={boardKey(board)}
+          board={board}
+          period={period}
+          rank={currentUserId ? rankMap.get(boardKey(board)) : undefined}
+        />
+      ))}
+    </LinkRowList>
   );
 }
