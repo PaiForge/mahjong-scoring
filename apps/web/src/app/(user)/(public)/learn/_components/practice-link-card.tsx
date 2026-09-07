@@ -6,8 +6,7 @@ import {
   practiceVariantFromHref,
 } from "@/app/(user)/(public)/practice/_lib/practice-catalog";
 import { practiceMenuBySlug } from "@/lib/db/practice-menu-types";
-import { ChevronRightIcon } from "@/app/(user)/_components/icons/chevron-right-icon";
-import { LinkButton } from "@/app/(user)/_components/link-button";
+import { PracticeLinkButton } from "@/app/(user)/_components/practice-link-button";
 
 interface PracticeLinkListProps {
   /** `/practice/<slug>` 形式のリンク集 */
@@ -108,38 +107,5 @@ export async function PracticeLinkSection({
       </h2>
       {children}
     </section>
-  );
-}
-
-interface PracticeLinkButtonProps {
-  readonly href: string;
-  /** ボタンに表示する CTA ラベル */
-  readonly label: string;
-}
-
-/**
- * 練習への導線ボタン
- * 練習リンクボタン
- *
- * 押せることが一目で分かるよう塗りのプライマリボタンで示し、右端のチェブロンで
- * 画面遷移を伴うことを明示する。遷移待ち中はチェブロンがスピナーへ変わる。
- *
- * カタログ外の練習（自由練習の `/practice/score` 等）へ章本文から誘導する
- * 場合にも使えるよう公開している。カタログ登録済みの練習への導線は
- * `practiceHrefs` + {@link PracticeLinkList} が正規の経路。
- */
-export function PracticeLinkButton({ href, label }: PracticeLinkButtonProps) {
-  return (
-    <LinkButton
-      href={href}
-      size="lg"
-      fullWidth
-      className="gap-3"
-      trailingIcon={<ChevronRightIcon className="size-5" />}
-    >
-      {/* ラベルに残り幅を持たせ、チェブロンをボタンの右端へ寄せる
-          （justify-* を className で足しても基底の justify-center には勝てない）。 */}
-      <span className="min-w-0 flex-1 text-center">{label}</span>
-    </LinkButton>
   );
 }

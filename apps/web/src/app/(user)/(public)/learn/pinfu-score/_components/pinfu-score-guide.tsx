@@ -3,10 +3,8 @@ import { getTranslations } from "next-intl/server";
 import { SectionTitle } from "@/app/(user)/_components/section-title";
 import { PREFERENCE_ANCHORS } from "@/app/(user)/(public)/preferences/_lib/anchors";
 import { scorePracticePlayHref } from "@/app/(user)/(public)/practice/score/_lib/play-href";
-import {
-  PracticeLinkButton,
-  PracticeLinkSection,
-} from "../../_components/practice-link-card";
+import { PracticeLinkButton } from "@/app/(user)/_components/practice-link-button";
+import { PracticeLinkSection } from "../../_components/practice-link-card";
 
 import { ChapterColumn } from "../../_components/chapter-column";
 import { PreferenceSettingsNote } from "../../_components/preference-settings-note";

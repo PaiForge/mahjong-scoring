@@ -4,6 +4,7 @@ import { PageTitle } from "@/app/(user)/_components/page-title";
 import { SectionTitleSkeleton } from "@/app/(user)/_components/section-title-skeleton";
 import { PageTitleSkeleton } from "@/app/_components/page-title-skeleton";
 import { SkeletonBar } from "@/app/_components/skeleton-bar";
+import { PracticeLinkButtonSkeleton } from "@/app/(user)/_components/practice-link-button";
 
 /**
  * 学習章ページ（`/learn/<slug>`）の読み込み中スケルトン
@@ -62,7 +63,7 @@ export function LearnChapterSkeleton() {
                 &nbsp;
               </SkeletonBar>
             </p>
-            <SkeletonBar radius="lg" tone={100} className="h-12 w-full" />
+            <PracticeLinkButtonSkeleton />
           </div>
 
           {/* 前後章ナビ */}
