@@ -1,6 +1,6 @@
 import { HaiKind } from "@mahjong-scoring/core";
 
-import { CLOSED_KANTSU_FACE_DOWN } from "@/app/(user)/_components/_lib/face-down-tiles";
+import { exampleAnkan, exampleMinkan } from "@/lib/example-mentsu";
 
 import type { GlossaryTermEntry } from "../types";
 
@@ -60,12 +60,11 @@ export const TEHAI_TERMS = [
     category: "tehai",
     examples: [
       {
-        tiles: [HaiKind.SouZu5, HaiKind.SouZu5, HaiKind.SouZu5, HaiKind.SouZu5],
+        mentsu: exampleMinkan(HaiKind.SouZu5),
         captionKey: "minkanExample",
       },
       {
-        tiles: [HaiKind.PinZu7, HaiKind.PinZu7, HaiKind.PinZu7, HaiKind.PinZu7],
-        faceDownIndexes: CLOSED_KANTSU_FACE_DOWN,
+        mentsu: exampleAnkan(HaiKind.PinZu7),
         captionKey: "ankanExample",
       },
     ],

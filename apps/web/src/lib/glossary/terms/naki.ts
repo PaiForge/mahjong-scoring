@@ -1,6 +1,12 @@
 import { HaiKind } from "@mahjong-scoring/core";
 
-import { CLOSED_KANTSU_FACE_DOWN } from "@/app/(user)/_components/_lib/face-down-tiles";
+import {
+  exampleAnkan,
+  exampleAnkou,
+  exampleChii,
+  exampleMinkan,
+  exampleMinkou,
+} from "@/lib/example-mentsu";
 
 import type { GlossaryTermEntry } from "../types";
 
@@ -17,7 +23,7 @@ export const NAKI_TERMS = [
     category: "naki",
     examples: [
       {
-        tiles: [HaiKind.PinZu8, HaiKind.PinZu8, HaiKind.PinZu8],
+        mentsu: exampleMinkou(HaiKind.PinZu8),
         captionKey: "ponExample",
       },
     ],
@@ -29,7 +35,7 @@ export const NAKI_TERMS = [
     category: "naki",
     examples: [
       {
-        tiles: [HaiKind.PinZu8, HaiKind.PinZu8, HaiKind.PinZu8],
+        mentsu: exampleMinkou(HaiKind.PinZu8),
         captionKey: "ponExample",
       },
     ],
@@ -41,7 +47,7 @@ export const NAKI_TERMS = [
     category: "naki",
     examples: [
       {
-        tiles: [HaiKind.ManZu4, HaiKind.ManZu5, HaiKind.ManZu6],
+        mentsu: exampleChii([HaiKind.ManZu4, HaiKind.ManZu5, HaiKind.ManZu6]),
         captionKey: "chiiExample",
       },
     ],
@@ -53,12 +59,11 @@ export const NAKI_TERMS = [
     category: "naki",
     examples: [
       {
-        tiles: [HaiKind.SouZu5, HaiKind.SouZu5, HaiKind.SouZu5, HaiKind.SouZu5],
+        mentsu: exampleMinkan(HaiKind.SouZu5),
         captionKey: "minkanExample",
       },
       {
-        tiles: [HaiKind.PinZu7, HaiKind.PinZu7, HaiKind.PinZu7, HaiKind.PinZu7],
-        faceDownIndexes: CLOSED_KANTSU_FACE_DOWN,
+        mentsu: exampleAnkan(HaiKind.PinZu7),
         captionKey: "ankanExample",
       },
     ],
@@ -70,7 +75,7 @@ export const NAKI_TERMS = [
     category: "naki",
     examples: [
       {
-        tiles: [HaiKind.ManZu1, HaiKind.ManZu1, HaiKind.ManZu1],
+        mentsu: exampleAnkou(HaiKind.ManZu1),
         captionKey: "ankouYaochu",
       },
     ],
@@ -82,7 +87,7 @@ export const NAKI_TERMS = [
     category: "naki",
     examples: [
       {
-        tiles: [HaiKind.ManZu5, HaiKind.ManZu5, HaiKind.ManZu5],
+        mentsu: exampleMinkou(HaiKind.ManZu5),
         captionKey: "minkouChunchan",
       },
     ],
@@ -94,8 +99,7 @@ export const NAKI_TERMS = [
     category: "naki",
     examples: [
       {
-        tiles: [HaiKind.PinZu9, HaiKind.PinZu9, HaiKind.PinZu9, HaiKind.PinZu9],
-        faceDownIndexes: CLOSED_KANTSU_FACE_DOWN,
+        mentsu: exampleAnkan(HaiKind.PinZu9),
         captionKey: "ankanYaochu",
       },
     ],
@@ -107,7 +111,7 @@ export const NAKI_TERMS = [
     category: "naki",
     examples: [
       {
-        tiles: [HaiKind.Chun, HaiKind.Chun, HaiKind.Chun, HaiKind.Chun],
+        mentsu: exampleMinkan(HaiKind.Chun),
         captionKey: "minkanYaochu",
       },
     ],

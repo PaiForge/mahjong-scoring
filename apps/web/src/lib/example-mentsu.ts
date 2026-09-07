@@ -38,6 +38,17 @@ export function exampleShuntsu(
   return { type: MentsuType.Shuntsu, hais };
 }
 
+/** 例示用のチー（鳴いて作った順子。1 枚が横向きになる） */
+export function exampleChii(
+  hais: readonly [HaiKindId, HaiKindId, HaiKindId],
+): CompletedMentsu {
+  return {
+    type: MentsuType.Shuntsu,
+    hais,
+    furo: { type: FuroType.Chi, from: EXAMPLE_FURO_FROM },
+  };
+}
+
 /** 例示用の明刻（ポンで作った刻子。1 枚が横向きになる） */
 export function exampleMinkou(hai: HaiKindId): CompletedMentsu {
   return {

@@ -1,6 +1,6 @@
 import { getTranslations } from "next-intl/server";
 
-import type { HaiKindId } from "@mahjong-scoring/core";
+import type { CompletedMentsu, HaiKindId } from "@mahjong-scoring/core";
 
 import { kanaRowOf, type KanaRow } from "./kana";
 import {
@@ -11,6 +11,7 @@ import {
   type GlossaryTermSlug,
 } from "./registry";
 import { glossaryTermHref } from "./routes";
+import { isMentsuExample } from "./types";
 
 /**
  * 文言を解決済みの用語
@@ -31,6 +32,17 @@ export interface GlossaryTermView extends GlossaryTerm {
 }
 
 /**
+ * プレビューに載せる例 1 組
+ *
+ * 用語データの例（{@link GlossaryTermExample}）から注記だけを解決した形。
+ * 面子の例は牌の位置ではなく面子のまま渡す（並びは描画側の `Furo` が決める）。
+ */
+export type GlossaryTermPreviewExample = { readonly caption?: string } & (
+  | { readonly tiles: readonly HaiKindId[] }
+  | { readonly mentsu: CompletedMentsu }
+);
+
+/**
  * モーダルに埋め込む軽量な用語データ
  * 用語プレビュー
  *
@@ -44,11 +56,7 @@ export interface GlossaryTermPreview {
   readonly reading: string;
   readonly definition: string;
   readonly href: string;
-  readonly example?: {
-    readonly tiles: readonly HaiKindId[];
-    readonly faceDownIndexes?: readonly number[];
-    readonly caption?: string;
-  };
+  readonly example?: GlossaryTermPreviewExample;
 }
 
 /** 読み順（五十音）で並べ替える */
@@ -138,10 +146,9 @@ export async function resolveTermPreviews(
       ...(example
         ? {
             example: {
-              tiles: example.tiles,
-              ...(example.faceDownIndexes
-                ? { faceDownIndexes: example.faceDownIndexes }
-                : {}),
+              ...(isMentsuExample(example)
+                ? { mentsu: example.mentsu }
+                : { tiles: example.tiles }),
               ...(example.captionKey
                 ? { caption: t(`captions.${example.captionKey}`) }
                 : {}),

@@ -5,6 +5,7 @@ import { createContext, useContext, useMemo, useState } from "react";
 import type { ReactNode } from "react";
 
 import { InfoModal } from "@/app/(user)/_components/info-modal";
+import { MentsuSet } from "@/app/(user)/_components/mentsu-set";
 import { TileSet } from "@/app/(user)/_components/tile-set";
 import { TEXT_LINK_CLASSES } from "@/app/_components/_lib/link-classes";
 import type { GlossaryTermPreview } from "@/lib/glossary/queries";
@@ -108,15 +109,18 @@ export function GlossaryTermModalProvider({
             <p>{active.definition}</p>
             {active.example !== undefined && (
               <div className="overflow-x-auto">
-                <TileSet
-                  tiles={active.example.tiles}
-                  faceDownIndexes={active.example.faceDownIndexes}
-                  size={
-                    active.example.tiles.length >= MANY_TILES_THRESHOLD
-                      ? "xs"
-                      : "sm"
-                  }
-                />
+                {"mentsu" in active.example ? (
+                  <MentsuSet mentsu={active.example.mentsu} />
+                ) : (
+                  <TileSet
+                    tiles={active.example.tiles}
+                    size={
+                      active.example.tiles.length >= MANY_TILES_THRESHOLD
+                        ? "xs"
+                        : "sm"
+                    }
+                  />
+                )}
               </div>
             )}
             {active.example?.caption !== undefined && (
