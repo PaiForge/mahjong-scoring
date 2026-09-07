@@ -593,7 +593,7 @@
       "shuntsuExamples": "順子の例",
       "shuntsuLabel": "順子",
       "koutsuTitle": "刻子 → 2〜8符",
-      "koutsuBody": "[[koutsu|刻子]]は、鳴いているか（[[minkou|明刻]]）・手の内か（[[ankou|暗刻]]）、そして中張牌か么九牌かによって符が変わります。",
+      "koutsuBody": "[[koutsu|刻子]]は、鳴いているか（[[minkou|明刻]]）・手の内か（[[ankou|暗刻]]）、そして中張牌か么九牌かによって符が変わります。下の例で1枚だけ横向きになっているのが鳴いた印で、これが付いているものが明刻です。",
       "koutsuExamples": "刻子の例",
       "koutsuOpenSimpleLabel": "中張牌の明刻",
       "koutsuClosedSimpleLabel": "中張牌の暗刻",
