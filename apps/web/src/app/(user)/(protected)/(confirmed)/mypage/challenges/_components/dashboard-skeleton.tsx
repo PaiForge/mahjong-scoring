@@ -1,5 +1,6 @@
 import { SectionTitleSkeleton } from "@/app/(user)/_components/section-title-skeleton";
 import { SkeletonBar } from "@/app/_components/skeleton-bar";
+import { PracticeLinkButtonSkeleton } from "@/app/(user)/_components/practice-link-button";
 import {
   CompactTable,
   CompactTableCell,
@@ -98,6 +99,13 @@ export function DashboardSkeleton() {
       <SkeletonBar radius="lg" className="h-[38px] w-full sm:w-48" />
       <SkeletonBar radius="lg" className="h-[38px] w-full sm:w-64" />
       <DashboardContentSkeleton />
+
+      {/* 「<土俵名>にチャレンジ」ボタン。記録を 1 件も持たない人にだけ出ない
+          （実描画はそのとき空表示に差し替わる）が、記録があるのが常態なので
+          場所を確保しておく */}
+      <div className="pt-4 border-t-2 border-dashed border-border/40">
+        <PracticeLinkButtonSkeleton />
+      </div>
     </div>
   );
 }
