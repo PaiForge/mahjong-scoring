@@ -3,15 +3,15 @@
  *
  * @description
  * リーダーボード一覧ページ。
- * 全練習モジュールのランキングカードを一覧表示する。
+ * 全土俵（練習 × 出題設定）のランキングを分野ごとの行リンクで並べる。
  * クエリパラメータ `period` で全期間 / 月間を切り替え可能。
- * ログイン中のユーザーには各モジュールでの自分の順位を表示する。
+ * ログイン中のユーザーには各土俵での自分の順位を表示する。
  *
  * @flow
  * 1. ユーザーがランキングページにアクセス
- * 2. 全モジュールのカード一覧を表示（デフォルトは全期間）
- * 3. 各カードにユーザーの順位を表示（ログイン時）
- * 4. カードクリックで詳細ページへ遷移
+ * 2. 分野（符の計算 / 翻数 / 点数計算）ごとに土俵の一覧を表示（既定は総合）
+ * 3. 各行にユーザーの順位を表示（ログイン時）
+ * 4. 行を押すとその土俵の詳細ランキングへ遷移
  */
 import type { Metadata } from "next";
 import { Suspense } from "react";
@@ -20,7 +20,6 @@ import { getTranslations } from "next-intl/server";
 
 import { ContentContainer } from "@/app/(user)/_components/content-container";
 import { PageTitle } from "@/app/(user)/_components/page-title";
-import { SectionTitle } from "@/app/(user)/_components/section-title";
 import { createTitleOnlyMetadata } from "@/app/_lib/metadata";
 
 import { LeaderboardRowListSkeleton } from "../_components/leaderboard-row-list-skeleton";
@@ -55,13 +54,8 @@ export default async function LeaderboardIndexPage({
   const t = await getTranslations("leaderboard");
 
   return (
-    <ContentContainer
-      className="space-y-6"
-      breadcrumb={[{ label: t("title") }]}
-    >
+    <ContentContainer breadcrumb={[{ label: t("title") }]}>
       <PageTitle>{t("title")}</PageTitle>
-
-      <SectionTitle>{t("allModulesSection")}</SectionTitle>
 
       <Suspense key={period} fallback={<LeaderboardRowListSkeleton />}>
         <LeaderboardTopContent period={period} />

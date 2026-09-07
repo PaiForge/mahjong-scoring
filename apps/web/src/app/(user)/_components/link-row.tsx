@@ -95,8 +95,6 @@ export function LinkRow({
 }
 
 interface LinkRowSkeletonProps {
-  /** 行頭に絵文字・アイコンを持つリストか（`LinkRow` の `leading` に対応） */
-  readonly leading?: boolean;
   /** タイトルのプレースホルダ幅（Tailwind の `w-*` クラス） */
   readonly titleWidthClassName?: string;
   /** 行末のプレースホルダ幅。行末要素を持たないリストでは省く */
@@ -110,19 +108,17 @@ interface LinkRowSkeletonProps {
  * 枠と余白（`ROW_ITEM_CLASSES` / `ROW_INNER_CLASSES`）を実物と共有するため、
  * 片方だけ余白を触っても行の高さがずれない。
  *
- * 高さは行頭要素（`text-base` の絵文字 = 24px）が決めるため、行頭を持つ
- * リストでは 24px の矩形を置き、タイトル・行末（行ボックス 20px）と
- * 中央揃えで並べる。これで実物と同じ 1 行 48px になる。
+ * 矩形の高さはタイトルの行ボックス（`text-sm` = 20px）に合わせる。実物の
+ * 行頭・行末も同じ行ボックスに中央揃えされるため、これで 1 行の高さが一致する。
+ * 行頭に絵文字を持つリスト（`text-base` = 24px）はここでは扱わない。
  */
 export function LinkRowSkeleton({
-  leading = false,
   titleWidthClassName = "w-40",
   trailingWidthClassName,
 }: LinkRowSkeletonProps) {
   return (
     <li className={ROW_ITEM_CLASSES}>
       <div className={`items-center ${ROW_INNER_CLASSES}`}>
-        {leading && <SkeletonBar radius="md" className="size-6 shrink-0" />}
         <span className="min-w-0 flex-1">
           <SkeletonBar className={`h-5 ${titleWidthClassName}`} tone={100} />
         </span>
