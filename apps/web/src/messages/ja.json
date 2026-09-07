@@ -2102,7 +2102,7 @@
     },
     "emptyState": "まだスコアが記録されていません。最初の記録を作りましょう！",
     "yourRank": "あなた",
-    "viewerHidden": "ランキングに表示しない設定のため、あなたの順位は出ていません。",
+    "viewerHidden": "ランキングに表示しない設定です",
     "viewerHiddenLink": "設定を変更する",
     "pagination": {
       "label": "ランキングページ送り",
