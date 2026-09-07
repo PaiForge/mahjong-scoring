@@ -4,6 +4,7 @@ import { EnvironmentRibbon } from "env-ribbon";
 import { NextIntlClientProvider } from "next-intl";
 import { getLocale } from "next-intl/server";
 import { GoogleAnalytics } from "@next/third-parties/google";
+import { ScrollReset } from "@/app/_components/scroll-reset";
 import { AuthProvider } from "@/app/_contexts/auth-context";
 import {
   buildSocialCard,
@@ -41,6 +42,7 @@ export default async function RootLayout({
   return (
     <html lang={locale}>
       <body className="min-h-screen overflow-x-hidden">
+        <ScrollReset />
         <NextIntlClientProvider>
           <AuthProvider>{children}</AuthProvider>
           <GlobalToaster />
