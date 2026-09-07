@@ -2,10 +2,8 @@ import { getTranslations } from "next-intl/server";
 
 import { SectionTitle } from "@/app/(user)/_components/section-title";
 import { scorePracticePlayHref } from "@/app/(user)/(public)/practice/score/_lib/play-href";
-import {
-  PracticeLinkButton,
-  PracticeLinkSection,
-} from "../../_components/practice-link-card";
+import { PracticeLinkButton } from "@/app/(user)/_components/practice-link-button";
+import { PracticeLinkSection } from "../../_components/practice-link-card";
 
 import { ChapterLink } from "../../_components/chapter-link";
 import { GuideColumn } from "../../_components/guide-column";

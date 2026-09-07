@@ -25,8 +25,8 @@ import { StatsCard } from "./stats-card";
 import { SkeletonBar } from "@/app/_components/skeleton-bar";
 import { TEXT_LINK_CLASSES } from "@/app/_components/_lib/link-classes";
 import { LinkButton } from "@/app/(user)/_components/link-button";
-import { PlayIcon } from "@/app/(user)/_components/icons/play-icon";
-import { practicePlayHref } from "@/app/(user)/(public)/practice/_lib/practice-catalog";
+import { PracticeLinkButton } from "@/app/(user)/_components/practice-link-button";
+import { practiceHref } from "@/app/(user)/(public)/practice/_lib/practice-catalog";
 import { menuTypeToSlug } from "@/lib/db/practice-menu-types";
 
 const ScoreChart = dynamic(
@@ -257,22 +257,26 @@ export function ChallengeDashboard({
         </>
       )}
 
-      {/* 見ている土俵をそのまま解き直す導線。選択中のバリアントで play を
-          開くため、記録が積まれている土俵と着地する土俵が一致する。
+      {/* 見ている土俵をそのまま解き直す導線。
+          行き先は play ではなく練習の説明ページにする — 記録を眺めていた人が
+          押した次の瞬間にカウントダウンが始まるのは重く、チャレンジと
+          トレーニングのどちらで解き直すかもここでは決まっていない。
+          選択中のバリアントを `?variant=` で運ぶので、説明ページの
+          選択パネルはその設定を選んだ状態で開く（記録が積まれている土俵と
+          そのまま始めたときの土俵が一致する）。
           読み込み中も出しっぱなしにするのは、リンク先が選択した土俵だけで
           決まり、成績の取得を待つ必要が無いため */}
       {selectedBoard && (
         <div className="pt-4 border-t-2 border-dashed border-border/40">
-          <LinkButton
-            href={practicePlayHref(
+          <PracticeLinkButton
+            href={practiceHref(
               menuTypeToSlug(selectedBoard.menuType),
               selectedBoard.variant,
             )}
-            fullWidth
-          >
-            <PlayIcon className="size-4" />
-            {t("tryChallenge")}
-          </LinkButton>
+            label={t("tryChallenge", {
+              title: boardLabel(selectedBoard, tRoot),
+            })}
+          />
         </div>
       )}
     </div>
