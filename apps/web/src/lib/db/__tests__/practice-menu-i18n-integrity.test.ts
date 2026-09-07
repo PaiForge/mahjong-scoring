@@ -6,10 +6,6 @@
  * 練習一覧（`practice.practices`）から参照される。レジストリに1行足しても
  * JSON の追記漏れは実行時まで検出されないため、ここで突き合わせる。
  *
- * ランキングアイコン（`leaderboard.moduleIcon`）はレジストリ全件ではなく
- * ランキングを持つ練習だけを持つため、突き合わせはランキング側の
- * `leaderboard/_lib/__tests__/module-icon-i18n.test.ts` が行う。
- *
  * 練習名は `practice.practices.<key>.title`（正式名）と `.shortTitle`
  * （マイページ・ランキングで使う短い名）の2つを持つ。
  *

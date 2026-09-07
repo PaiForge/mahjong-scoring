@@ -31,12 +31,13 @@ import { getOptionalUser } from "@/lib/auth";
 import { isHiddenFromLeaderboard } from "@/lib/db/leaderboard-visibility";
 import { getLeaderboard } from "../../_actions/get-leaderboard";
 import { LeaderboardDetailContent } from "../../_components/leaderboard-detail-content";
+import { LeaderboardTableSkeleton } from "../../_components/leaderboard-table-skeleton";
+import { PeriodSelector } from "../../_components/period-selector";
 import { boardTitle } from "../../_lib/board-title";
 import type { LeaderboardBoard, LeaderboardPeriod } from "../../_lib/types";
 import { PlayIcon } from "@/app/(user)/_components/icons/play-icon";
 import { buildChallengePath, resolveBoard } from "../../_lib/types";
 import { isValidPeriod } from "../../_lib/validators";
-import { SkeletonBar } from "@/app/_components/skeleton-bar";
 
 export const dynamic = "force-dynamic";
 
@@ -119,11 +120,9 @@ async function DetailContent({
 
   return (
     <LeaderboardDetailContent
-      board={board}
       currentUserId={currentUserId}
       data={data}
       currentPage={page}
-      period={period}
       viewerHidden={viewerHidden}
     />
   );
@@ -157,15 +156,22 @@ export default async function LeaderboardDetailPage({
 
       <SectionTitle>{moduleTitle}</SectionTitle>
 
+      {/* 期間の表示と切り替えは URL だけで決まる。ランキングの取得を待つ
+          必要が無いため Suspense の外に置く（中に入れると、読み込み中は
+          消えていて表と一緒に現れ、そのぶん下の内容が動く）。 */}
+      <div className="flex items-center justify-between gap-4">
+        <p className="text-sm text-surface-500">
+          {t(`period.${validated.period}`)}
+        </p>
+        <PeriodSelector
+          currentPeriod={validated.period}
+          board={validated.board}
+        />
+      </div>
+
       <Suspense
         key={`${validated.period}:${page}`}
-        fallback={
-          <div className="space-y-4">
-            {Array.from({ length: 5 }).map((_, i) => (
-              <SkeletonBar key={i} className="h-12 w-full" tone={100} />
-            ))}
-          </div>
-        }
+        fallback={<LeaderboardTableSkeleton />}
       >
         <DetailContent
           period={validated.period}

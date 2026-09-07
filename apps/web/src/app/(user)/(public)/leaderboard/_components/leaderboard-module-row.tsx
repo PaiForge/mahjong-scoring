@@ -1,7 +1,6 @@
 import { getTranslations } from "next-intl/server";
 
 import { LinkRow } from "@/app/(user)/_components/link-row";
-import { menuTypeToMessageKey } from "@/lib/db/practice-menu-types";
 
 import type { LeaderboardBoard, LeaderboardPeriod } from "../_lib/types";
 import { buildDetailPath } from "../_lib/types";
@@ -22,8 +21,9 @@ interface LeaderboardModuleRowProps {
  * ランキングは見に行くもので押して始めるものではないため、太枠 + 影のカードでは
  * なく行リンクで並べる。
  *
- * 行頭の絵文字はモジュールごとに違うので残す（同じ絵文字が並ぶだけの
- * アイコンは置かない、という判断の裏返し）。
+ * 行頭には何も置かない。種目ごとに違う記号を 1 つ選ぼうとしても、記号で
+ * 表せるのはせいぜい分野（符 / 翻数 / 点数）までで種目そのものではない。
+ * その分野は一覧側が見出しで括るため、行はタイトルと順位だけを持つ。
  */
 export async function LeaderboardModuleRow({
   board,
@@ -32,16 +32,9 @@ export async function LeaderboardModuleRow({
 }: LeaderboardModuleRowProps) {
   const t = await getTranslations("leaderboard");
 
-  const msgKey = menuTypeToMessageKey(board.module);
-
   return (
     <LinkRow
       href={buildDetailPath(period, board)}
-      leading={
-        <span className="text-base" aria-hidden="true">
-          {t(`moduleIcon.${msgKey}`)}
-        </span>
-      }
       title={await boardTitle(board)}
       trailing={
         rank !== undefined ? (
