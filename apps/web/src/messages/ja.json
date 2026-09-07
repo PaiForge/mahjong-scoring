@@ -600,7 +600,7 @@
       "koutsuOpenYaochuLabel": "么九牌の明刻",
       "koutsuClosedYaochuLabel": "么九牌の暗刻",
       "kantsuTitle": "槓子 → 8〜32符",
-      "kantsuBody": "[[kantsu|槓子]]の符は、牌の種類と明暗がそろった刻子の4倍です。たとえば中張牌の[[minkou|明刻]]は2符なので、その4倍にあたる中張牌の[[minkan|明槓]]は8符になります。[[ankan|暗槓]]が明槓の倍、么九牌が中張牌の倍という関係は刻子と同じです。暗槓は手の内だけで作るため、下の例でも両端を伏せた形で並べています。",
+      "kantsuBody": "[[kantsu|槓子]]の符は、牌の種類と明暗がそろった刻子の4倍です。たとえば中張牌の[[minkou|明刻]]は2符なので、その4倍にあたる中張牌の[[minkan|明槓]]は8符になります。\n[[ankan|暗槓]]が明槓の倍、么九牌が中張牌の倍という関係は刻子と同じです。暗槓は手の内だけで作るため、下の例でも両端を伏せた形で並べています。",
       "kantsuExamples": "槓子の例",
       "kantsuOpenSimpleLabel": "中張牌の明槓",
       "kantsuClosedSimpleLabel": "中張牌の暗槓",

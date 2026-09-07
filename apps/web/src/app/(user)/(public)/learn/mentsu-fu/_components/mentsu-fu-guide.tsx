@@ -86,7 +86,7 @@ export async function MentsuFuGuide() {
       {/* Kantsu: 8-32 fu */}
       <section className="space-y-4">
         <SectionTitle>{t("kantsuTitle")}</SectionTitle>
-        <GuideParagraph>{t("kantsuBody")}</GuideParagraph>
+        <GuideParagraph preLine>{t("kantsuBody")}</GuideParagraph>
 
         <ExampleTable
           title={t("kantsuExamples")}
