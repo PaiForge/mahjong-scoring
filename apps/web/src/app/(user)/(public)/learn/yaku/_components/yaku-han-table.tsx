@@ -36,9 +36,7 @@ export async function YakuHanTable() {
     <DataTable
       header={
         <>
-          <DataTableHeaderCell align="left">
-            <span className="whitespace-nowrap">{t("colHan")}</span>
-          </DataTableHeaderCell>
+          <DataTableHeaderCell align="left">{t("colHan")}</DataTableHeaderCell>
           <DataTableHeaderCell align="left">
             {t("colYakuList")}
           </DataTableHeaderCell>

@@ -16,9 +16,27 @@ export const DATA_TABLE_ALIGN_CLASS = {
 /** データテーブルのセル配置 */
 export type DataTableAlign = keyof typeof DATA_TABLE_ALIGN_CLASS;
 
+/**
+ * セルの余白クラスの対応表
+ *
+ * 既定は左右 px-4。列の多い数表（点数早見表）は狭い画面でこれだと横に収まらず、
+ * はみ出した分をブラウザが見出しの折り返しで吸収してしまう
+ * （「符＼翻」が「符＼」と「翻」の2行に割れる）。そういう表は `dense` を選び、
+ * sm 未満でだけ左右を詰めて列そのものを細くする。
+ */
+export const DATA_TABLE_CELL_PADDING = {
+  default: "px-4 py-3",
+  dense: "px-2 py-3 sm:px-4",
+} as const;
+
+/** データテーブルのセル余白 */
+export type DataTableDensity = keyof typeof DATA_TABLE_CELL_PADDING;
+
 interface DataTableHeaderCellProps {
   /** セルの配置（既定は表の text-align に従う） */
   readonly align?: DataTableAlign;
+  /** セルの余白（既定は px-4。狭い画面で収まらない数表は "dense"） */
+  readonly density?: DataTableDensity;
   /** 追加クラス（ハイライト等）。レイアウトの上書きには使わない */
   readonly className?: string;
   readonly children: ReactNode;
@@ -27,16 +45,23 @@ interface DataTableHeaderCellProps {
 /**
  * データテーブルのヘッダーセル
  * テーブル見出しセル
+ *
+ * 見出しは「符＼翻」「3翻」のように、それ以上分けると意味を失う短い語なので
+ * 改行させない（{@link DataTableRowHeaderCell} と同じ理由）。列見出しは表の中で
+ * 一番縮められる列でもあるため、放っておくとブラウザは幅の不足をここの折り返しで
+ * 吸収し、語が途中で割れる。幅が足りない表は折り返しではなく
+ * {@link DATA_TABLE_CELL_PADDING} の `dense` で列を細くして合わせる。
  */
 export function DataTableHeaderCell({
   align = "center",
+  density = "default",
   className,
   children,
 }: DataTableHeaderCellProps) {
   const mergedClassName = [
-    "px-4 py-3",
+    DATA_TABLE_CELL_PADDING[density],
     DATA_TABLE_ALIGN_CLASS[align],
-    "font-bold text-surface-700",
+    "font-bold whitespace-nowrap text-surface-700",
     className,
   ]
     .filter(Boolean)
