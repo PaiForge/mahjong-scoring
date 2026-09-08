@@ -30,10 +30,7 @@ export default async function ReferenceScoreTablePage() {
       <PageTitle>{t("pageTitle")}</PageTitle>
 
       <div className="space-y-6">
-        <div className="space-y-3">
-          <SectionTitle>{t("tableTitle")}</SectionTitle>
-          <p className="text-sm text-surface-500">{t("pageDescription")}</p>
-        </div>
+        <SectionTitle>{t("tableTitle")}</SectionTitle>
 
         <Suspense
           fallback={
