@@ -6,6 +6,7 @@ import type { Role, RoleScore, WinType } from "@mahjong-scoring/core";
 import {
   DataTable,
   DataTableHeaderCell,
+  DATA_TABLE_CELL_PADDING,
 } from "@/app/(user)/_components/data-table";
 import {
   TABLE_HIGHLIGHT_FOCUS_CLASS,
@@ -57,7 +58,7 @@ export function NormalScoreTable({
       tableClassName="text-center"
       header={
         <>
-          <DataTableHeaderCell align="left">
+          <DataTableHeaderCell align="left" density="dense">
             {t("fuSuffix")}
             {"＼"}
             {t("hanSuffix")}
@@ -65,6 +66,7 @@ export function NormalScoreTable({
           {HAN_COLS.map((han) => (
             <DataTableHeaderCell
               key={han}
+              density="dense"
               className={
                 highlight?.han === han
                   ? TABLE_HIGHLIGHT_HEADER_CLASS
@@ -89,7 +91,8 @@ export function NormalScoreTable({
               // 決める。1つの三項に混ぜると、ハイライトされた頻出符が頻出の
               // 印を失う（40符はその両方に当たる）。
               className={[
-                "px-4 py-3 text-left",
+                DATA_TABLE_CELL_PADDING.dense,
+                "text-left",
                 isFrequent ? "font-bold text-surface-900" : "font-medium",
                 isFuHighlighted
                   ? TABLE_HIGHLIGHT_HEADER_CLASS
@@ -106,7 +109,10 @@ export function NormalScoreTable({
               const score = scoreGrid.get(`${han}-${fu}`);
               if (!score) {
                 return (
-                  <td key={han} className="px-4 py-3 text-surface-400">
+                  <td
+                    key={han}
+                    className={`${DATA_TABLE_CELL_PADDING.dense} text-surface-400`}
+                  >
                     -
                   </td>
                 );
@@ -129,7 +135,7 @@ export function NormalScoreTable({
                 <td
                   key={han}
                   ref={isHighlighted ? highlightRef : undefined}
-                  className={`px-4 py-3${interactiveClass}${highlightClass}`}
+                  className={`${DATA_TABLE_CELL_PADDING.dense}${interactiveClass}${highlightClass}`}
                   onClick={
                     onToggleCell === undefined
                       ? undefined
