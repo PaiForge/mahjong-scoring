@@ -941,7 +941,6 @@
   "glossary": {
     "title": "用語集",
     "description": "点数計算に出てくる麻雀の専門用語を、意味と手牌の例で引けるようにまとめています。",
-    "lead": "教本を読んでいて意味が分からない言葉が出てきたら、ここで引いてください。分類からでも、五十音からでも探せます。",
     "categoryIndexTitle": "分類から探す",
     "kanaIndexTitle": "五十音から探す",
     "kanaRowHeading": "{row}行",
@@ -1318,7 +1317,6 @@
   },
   "scoreTable": {
     "pageTitle": "点数早見表",
-    "tableTitle": "点数表",
     "pageDescription": "親・子のロン／ツモ点数を符×翻の一覧で確認できます",
     "ko": "子",
     "oya": "親",

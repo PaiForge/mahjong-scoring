@@ -58,10 +58,6 @@ export default async function GlossaryIndexPage() {
         <PageTitle>{t("title")}</PageTitle>
 
         <div className="space-y-10">
-          <p className="text-sm leading-relaxed text-surface-700">
-            {t("lead")}
-          </p>
-
           <section className="space-y-4">
             <SectionTitle>{t("categoryIndexTitle")}</SectionTitle>
             <CategoryTermIndex terms={terms} />
