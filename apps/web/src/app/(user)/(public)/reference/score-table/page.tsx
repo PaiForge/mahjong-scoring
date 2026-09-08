@@ -3,10 +3,9 @@ import { Suspense } from "react";
 import { getTranslations } from "next-intl/server";
 import { ContentContainer } from "@/app/(user)/_components/content-container";
 import { PageTitle } from "@/app/(user)/_components/page-title";
-import { SectionTitle } from "@/app/(user)/_components/section-title";
 import { createNamespaceMetadata } from "@/app/_lib/metadata";
 import { ScoreTableFromQuery } from "./_components/score-table-from-query";
-import { SkeletonBar } from "@/app/_components/skeleton-bar";
+import { ScoreTableSkeleton } from "./_components/score-table-skeleton";
 
 export async function generateMetadata(): Promise<Metadata> {
   return createNamespaceMetadata("scoreTable", {
@@ -29,30 +28,9 @@ export default async function ReferenceScoreTablePage() {
     >
       <PageTitle>{t("pageTitle")}</PageTitle>
 
-      <div className="space-y-6">
-        <div className="space-y-3">
-          <SectionTitle>{t("tableTitle")}</SectionTitle>
-          <p className="text-sm text-surface-500">{t("pageDescription")}</p>
-        </div>
-
-        <Suspense
-          fallback={
-            <div className="w-full space-y-3">
-              <div className="flex justify-end gap-2">
-                {Array.from({ length: 3 }, (_, i) => (
-                  <SkeletonBar key={i} className="h-8 w-20" />
-                ))}
-              </div>
-              {/* 実物の表は苔緑の太枠（border-ink）を持つが、スケルトンは
-                  灰色の矩形だけで面を示す（ProblemListSkeleton と同じ理由）。
-                  枠は border-box なので高さ 400px は変わらない */}
-              <SkeletonBar radius="xl" className="h-[400px] w-full" tone={50} />
-            </div>
-          }
-        >
-          <ScoreTableFromQuery />
-        </Suspense>
-      </div>
+      <Suspense fallback={<ScoreTableSkeleton />}>
+        <ScoreTableFromQuery />
+      </Suspense>
     </ContentContainer>
   );
 }
