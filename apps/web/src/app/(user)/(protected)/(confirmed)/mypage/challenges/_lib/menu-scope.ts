@@ -4,6 +4,7 @@ import {
   isExamMenuType,
   isPracticeMenuType,
   isPracticeVariant,
+  practiceMenuByType,
 } from "@/lib/db/practice-menu-types";
 
 import type { RecordBoard } from "./types";
@@ -49,4 +50,36 @@ export function isMyRecordBoard(board: RecordBoard): boolean {
     isMyRecordMenuType(board.menuType) &&
     isPracticeVariant(board.menuType, board.variant)
   );
+}
+
+/**
+ * DB の DISTINCT 行からマイレコードの土俵一覧を組み立てる
+ * 土俵一覧組み立て
+ *
+ * `menu_type` / `leaderboard_key` は varchar なので、レジストリから外れた行
+ * （消した練習・消したバリアント・昇級試験）は読み飛ばす。並びは練習一覧と
+ * 同じ（レジストリの練習順 → バリアントの列挙順）。DB の DISTINCT は順序を
+ * 持たないため、ここで揃える。
+ *
+ * @param rows - 土俵ごとに 1 行の DISTINCT 結果
+ */
+export function toRecordBoards(
+  rows: readonly {
+    readonly menuType: string;
+    readonly leaderboardKey: string;
+  }[],
+): RecordBoard[] {
+  const boards = rows.flatMap((row) => {
+    if (!isPracticeMenuType(row.menuType)) return [];
+    const board: RecordBoard = {
+      menuType: row.menuType,
+      variant: row.leaderboardKey,
+    };
+    return isMyRecordBoard(board) ? [board] : [];
+  });
+
+  const order = (board: RecordBoard): number =>
+    PRACTICE_MENU_TYPES.indexOf(board.menuType) * 100 +
+    practiceMenuByType(board.menuType).variants.indexOf(board.variant);
+  return boards.toSorted((a, b) => order(a) - order(b));
 }

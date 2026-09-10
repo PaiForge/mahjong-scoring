@@ -10,14 +10,12 @@ import { and, count, desc, eq, gte, lt, notInArray } from "drizzle-orm";
 import { db } from "@/lib/db";
 import { DEFAULT_PAGE_SIZE, getPaginationData } from "@/lib/pagination";
 import {
-  PRACTICE_MENU_TYPES,
   isPracticeMenuType,
   isPracticeVariant,
-  practiceMenuByType,
 } from "@/lib/db/practice-menu-types";
 import { challengeResults } from "@/lib/db/schema";
 
-import { EXCLUDED_MENU_TYPES, isMyRecordBoard } from "./menu-scope";
+import { EXCLUDED_MENU_TYPES, toRecordBoards } from "./menu-scope";
 import type { ChallengeAttempt, RecordBoard } from "./types";
 
 /**
@@ -178,8 +176,7 @@ export async function fetchChallengeAttempts(
  * ユーザーが記録を持つ土俵（練習種別 × バリアント）の一覧を返す
  * 利用可能土俵取得
  *
- * 並びは練習一覧と同じ（レジストリの練習順 → バリアントの列挙順）。
- * DB の DISTINCT は順序を持たないため、ここで揃える。
+ * 行の検証と並び順（練習一覧と同じ）は `toRecordBoards` が決める。
  */
 export async function fetchAvailableBoards(
   userId: string,
@@ -197,17 +194,5 @@ export async function fetchAvailableBoards(
       ),
     );
 
-  const boards = rows.flatMap((row) => {
-    if (!isPracticeMenuType(row.menuType)) return [];
-    const board: RecordBoard = {
-      menuType: row.menuType,
-      variant: row.leaderboardKey,
-    };
-    return isMyRecordBoard(board) ? [board] : [];
-  });
-
-  const order = (board: RecordBoard): number =>
-    PRACTICE_MENU_TYPES.indexOf(board.menuType) * 100 +
-    practiceMenuByType(board.menuType).variants.indexOf(board.variant);
-  return boards.sort((a, b) => order(a) - order(b));
+  return toRecordBoards(rows);
 }

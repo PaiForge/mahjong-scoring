@@ -9,6 +9,7 @@ import {
   EXCLUDED_MENU_TYPES,
   isMyRecordBoard,
   isMyRecordMenuType,
+  toRecordBoards,
 } from "../menu-scope";
 
 describe("マイレコードの対象種別", () => {
@@ -61,5 +62,51 @@ describe("マイレコードの土俵", () => {
     expect(
       isMyRecordBoard({ menuType: "mangan_exam", variant: "default" }),
     ).toBe(false);
+  });
+});
+
+describe("土俵一覧の組み立て", () => {
+  it("練習一覧と同じ順（レジストリの練習順 → バリアントの列挙順）に並べる", () => {
+    // DISTINCT の結果は順序を持たないので、わざと逆順で渡す
+    const rows = [
+      { menuType: "yaku_han", leaderboardKey: "all" },
+      { menuType: "yaku_han", leaderboardKey: "no_kuisagari" },
+      { menuType: "score_table", leaderboardKey: "ko_non_mangan" },
+      { menuType: "score_table", leaderboardKey: "ko_mangan_plus" },
+      { menuType: "jantou_fu", leaderboardKey: "default" },
+    ];
+
+    expect(toRecordBoards(rows)).toEqual([
+      { menuType: "jantou_fu", variant: "default" },
+      { menuType: "score_table", variant: "ko_mangan_plus" },
+      { menuType: "score_table", variant: "ko_non_mangan" },
+      { menuType: "yaku_han", variant: "no_kuisagari" },
+      { menuType: "yaku_han", variant: "all" },
+    ]);
+  });
+
+  it("レジストリから外れた行と昇級試験の行は読み飛ばす", () => {
+    const rows = [
+      { menuType: "removed_practice", leaderboardKey: "default" },
+      { menuType: "yaku_han", leaderboardKey: "removed_variant" },
+      { menuType: "mangan_exam", leaderboardKey: "default" },
+      { menuType: "machi_fu", leaderboardKey: "default" },
+    ];
+
+    expect(toRecordBoards(rows)).toEqual([
+      { menuType: "machi_fu", variant: "default" },
+    ]);
+  });
+
+  it("渡された行を書き換えない", () => {
+    const rows = [
+      { menuType: "yaku_han", leaderboardKey: "all" },
+      { menuType: "jantou_fu", leaderboardKey: "default" },
+    ];
+    const snapshot = structuredClone(rows);
+
+    toRecordBoards(rows);
+
+    expect(rows).toEqual(snapshot);
   });
 });
