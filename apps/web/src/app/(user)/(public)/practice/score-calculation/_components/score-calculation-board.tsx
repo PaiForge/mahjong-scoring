@@ -1,5 +1,6 @@
 "use client";
 
+import { isOya } from "@mahjong-scoring/core";
 import { useMemo } from "react";
 import { QuestionGeneratingPlaceholder } from "../../_components/question-generating-placeholder";
 import { QuestionPrompt } from "../../_components/question-prompt";
@@ -10,6 +11,7 @@ import {
 } from "@/app/_hooks/use-rule-settings-store";
 import { RevealedScoreAnswer } from "../../_components/revealed-score-answer";
 import { paymentToScoreTableAnswer } from "../../_lib/payment-adapter";
+import { scoreTableFocusOf } from "../../_lib/score-table-focus";
 import { useScoreQuestionBoard } from "../../_hooks/use-score-question-board";
 import { useTrainingMode } from "../../_hooks/use-training-mode";
 import { QuestionDisplay } from "../../score/_components/question-display";
@@ -89,6 +91,12 @@ export function ScoreCalculationBoard({
             <RevealedScoreAnswer
               answer={paymentToScoreTableAnswer(question.answer.payment)}
               translationNamespace="scoreCalculationChallenge"
+              scoreTableFocus={scoreTableFocusOf({
+                isOya: isOya(question.jikaze),
+                isTsumo: question.isTsumo,
+                han: question.answer.han,
+                fu: question.answer.fu,
+              })}
             />
           ) : undefined
         }

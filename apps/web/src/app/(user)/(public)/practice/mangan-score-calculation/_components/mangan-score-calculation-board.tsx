@@ -1,11 +1,13 @@
 "use client";
 
+import { isOya } from "@mahjong-scoring/core";
 import { useMemo } from "react";
 import { QuestionGeneratingPlaceholder } from "../../_components/question-generating-placeholder";
 import { QuestionPrompt } from "../../_components/question-prompt";
 import { useTranslations } from "next-intl";
 import { RevealedScoreAnswer } from "../../_components/revealed-score-answer";
 import { paymentToScoreTableAnswer } from "../../_lib/payment-adapter";
+import { scoreTableFocusOf } from "../../_lib/score-table-focus";
 import { useYakumanRules } from "@/app/_hooks/use-rule-settings-store";
 import { useScoreQuestionBoard } from "../../_hooks/use-score-question-board";
 import { useTrainingMode } from "../../_hooks/use-training-mode";
@@ -90,6 +92,12 @@ export function ManganScoreCalculationBoard({
             <RevealedScoreAnswer
               answer={paymentToScoreTableAnswer(question.answer.payment)}
               translationNamespace="manganScoreCalculationChallenge"
+              scoreTableFocus={scoreTableFocusOf({
+                isOya: isOya(question.jikaze),
+                isTsumo: question.isTsumo,
+                han: question.answer.han,
+                fu: question.answer.fu,
+              })}
             />
           ) : undefined
         }
