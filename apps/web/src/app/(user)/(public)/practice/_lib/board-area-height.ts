@@ -29,8 +29,12 @@ export const BOARD_AREA_HEIGHT = {
   jantouFu: "h-[320px]",
   machiFu: "h-[339px] sm:h-[343px]",
   mentsuFu: "h-[305px] sm:h-[313px]",
-  /** 面子と雀頭を 1 問で答えるため、符目の行が縦に積み上がって最も高い */
-  mentsuJantouFu: "h-[871px] sm:h-[887px]",
+  /**
+   * 面子と雀頭を 1 問で答えるため、符目の行が縦に積み上がって最も高い。
+   * 手牌の行の高さが鳴きの有無で変わるため出題ごとに揺れる
+   * （実測 802〜818px / 814〜822px）。中央の値を置く
+   */
+  mentsuJantouFu: "h-[810px] sm:h-[818px]",
   totalFu: "h-[450px] sm:h-[482px]",
   yaku: "h-[577px] sm:h-[738px]",
   /** 選択肢が広い画面で横に並ぶぶん、sm 以上の方が低い */

@@ -187,15 +187,13 @@ const SHAPES: Readonly<Record<PlayBoardHeight, () => ReactNode>> = {
       />
     </div>
   ),
-  // 手牌の符。符目ごとの行が 5 つ積み上がって最も高い
+  // 手牌の符。符目ごとの行が 5 つ積み上がって最も高い。最後の行を選んだ
+  // 時点で送信するため送信ボタンは無い
   mentsuJantouFu: () => (
     <div className="mt-4 space-y-4">
       <BoardRect heightClass="h-[95px] sm:h-[114px]" />
       <Prompt />
       <Rows count={5} itemClass="h-[125px] w-full" />
-      <div className="mt-4">
-        <SubmitButton />
-      </div>
     </div>
   ),
   // 合計符。選択肢は 3 列 11 個
