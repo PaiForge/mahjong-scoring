@@ -198,16 +198,6 @@ export function aggregateByDay(
 }
 
 /**
- * ミス数に応じたカラークラスを返す
- * ミスカラークラス
- */
-export function getMissColorClass(incorrectAnswers: number): string {
-  if (incorrectAnswers === 0) return "text-foreground";
-  if (incorrectAnswers <= 1) return "text-warning";
-  return "text-destructive";
-}
-
-/**
  * チャレンジ配列からテーブル表示用の行データを生成する
  * テーブル行変換
  */

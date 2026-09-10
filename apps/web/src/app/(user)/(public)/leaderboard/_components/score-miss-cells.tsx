@@ -1,5 +1,5 @@
 import type { RankedLeaderboardRow } from "@/lib/db/leaderboard-queries";
-import { getMissColorClass } from "../_lib/miss-color";
+import { getMissColorClass } from "@/app/(user)/_components/_lib/miss-color";
 
 interface ScoreMissCellsProps {
   readonly row: RankedLeaderboardRow;
