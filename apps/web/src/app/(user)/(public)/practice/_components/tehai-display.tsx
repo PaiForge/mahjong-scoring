@@ -6,7 +6,11 @@ import { useTranslations } from "next-intl";
 import { getKazeName, isOya } from "@mahjong-scoring/core";
 import type { AgariContext, Tehai, HaiKindId } from "@mahjong-scoring/core";
 import { Hai } from "@pai-forge/mahjong-react-ui";
-import { TehaiHand, HAI_SM_HEIGHT } from "../../_components/tehai-hand";
+import {
+  TehaiHand,
+  HAI_SM_HEIGHT,
+  REFERENCE_HAND_WIDTH,
+} from "../../_components/tehai-hand";
 import { useAutoScale } from "../../_hooks/use-auto-scale";
 import { RiichiStick } from "./riichi-stick";
 import { InfoModal } from "@/app/(user)/_components/info-modal";
@@ -130,11 +134,16 @@ export const TehaiDisplay = memo(function TehaiDisplayComponent({
   // 手牌と揃い、狭い画面でも「東場 西家 子」が 2 行に割れない。
   // 手牌より状況行の方が長くなる手（槓が多くドラが増える）だけは、
   // 収まる倍率まで自分でさらに縮む。
+  // 行の高さは手牌と同じ基準幅から決める（TehaiHand 参照）。手牌の倍率で
+  // 決めると手ごとに揺れる
   const {
     wrapperRef: infoWrapperRef,
     contentRef: infoContentRef,
-    scale: infoScale,
-  } = useAutoScale([context, doraTiles, uraDoraTiles], scale);
+    referenceScale,
+  } = useAutoScale([context, doraTiles, uraDoraTiles], {
+    maxScale: scale,
+    referenceWidth: REFERENCE_HAND_WIDTH,
+  });
 
   const oya = isOya(context.jikaze);
 
@@ -145,7 +154,7 @@ export const TehaiDisplay = memo(function TehaiDisplayComponent({
       <div
         ref={infoWrapperRef}
         className="relative mb-3 overflow-hidden"
-        style={{ height: `${infoRowHeight * infoScale}px` }}
+        style={{ height: `${infoRowHeight * referenceScale}px` }}
       >
         <div
           ref={infoContentRef}
