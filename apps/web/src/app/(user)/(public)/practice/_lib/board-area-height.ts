@@ -1,7 +1,7 @@
 import type { PracticeMenuSlug } from "@/lib/db/practice-menu-types";
 
-/** 点数を select で答える試験 5 種。構図が同じで高さも揃う（実測 326〜356px） */
-const SCORE_EXAM = "h-[331px] sm:h-[351px]";
+/** 点数を select で答える試験 5 種。構図が同じで高さも揃う（実測 322〜352px） */
+const SCORE_EXAM = "h-[327px] sm:h-[347px]";
 
 /**
  * 解いている画面の盤面エリア（手牌 + 設問 + 選択肢）の高さ
@@ -24,8 +24,8 @@ export const BOARD_AREA_HEIGHT = {
   scoreExam: SCORE_EXAM,
   /** 合計符の試験。選択肢が 11 個並ぶため一段高い */
   fuExam: "h-[458px] sm:h-[489px]",
-  scoreCalculation: "h-[336px] sm:h-[350px]",
-  manganScoreCalculation: "h-[510px] sm:h-[507px]",
+  scoreCalculation: "h-[332px] sm:h-[346px]",
+  manganScoreCalculation: "h-[506px] sm:h-[503px]",
   jantouFu: "h-[320px]",
   machiFu: "h-[339px] sm:h-[343px]",
   mentsuFu: "h-[305px] sm:h-[313px]",

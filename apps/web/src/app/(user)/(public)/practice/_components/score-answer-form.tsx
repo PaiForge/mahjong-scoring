@@ -165,8 +165,11 @@ export function ScoreAnswerForm({
     }
   };
 
+  // 送信ボタンの上の余白は他の回答ボタン（ChallengeSubmitButton の mt-4）と
+  // シェルの「次の問題へ」（mt-4）に合わせる。ここだけ広いと、トレーニングで
+  // 送信ボタンが「次の問題へ」に入れ替わる瞬間にその差だけ下が動く
   return (
-    <form onSubmit={handleSubmit} className="space-y-5">
+    <form onSubmit={handleSubmit} className="space-y-4">
       {availableScores.type === "koTsumo" ? (
         <div>
           <div className="flex items-center gap-2">
