@@ -7,7 +7,6 @@ import type {
   ScoreTableUserAnswer,
 } from "@mahjong-scoring/core";
 import { FeedbackFrame } from "../../_components/feedback-frame";
-import { RevealedScoreAnswer } from "../../_components/revealed-score-answer";
 import {
   useRegisterAdvance,
   useTrainingMode,
@@ -41,8 +40,10 @@ export function ScoreTableBoard({
   onRecordResult,
 }: ScoreTableBoardProps) {
   useRegisterAdvance(onAdvance);
-  // トレーニングでは開示時だけでなく回答後の停止中も正解を出す（答え合わせ用）
+  // トレーニングでは開示時だけでなく回答後の停止中も正解を出す（答え合わせ用）。
+  // 正解のときは出さない — 選んだ値がそのまま正解で、枠の色が正誤を示している
   const { isRevealed, isHolding } = useTrainingMode();
+  const showAnswer = (isRevealed || isHolding) && lastAnswerCorrect !== true;
 
   const handleSubmit = useCallback(
     (userAnswer: ScoreTableUserAnswer) => {
@@ -80,14 +81,8 @@ export function ScoreTableBoard({
           isTsumo={question.isTsumo}
           han={question.han}
           fu={question.fu}
+          revealedAnswer={showAnswer ? question.correctAnswer : undefined}
         />
-
-        {(isRevealed || isHolding) && (
-          <RevealedScoreAnswer
-            answer={question.correctAnswer}
-            translationNamespace="scoreTableChallenge"
-          />
-        )}
       </FeedbackFrame>
 
       {/* Answer form */}

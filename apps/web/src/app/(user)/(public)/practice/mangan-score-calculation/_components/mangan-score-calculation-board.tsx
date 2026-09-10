@@ -57,9 +57,10 @@ export function ManganScoreCalculationBoard({
     onAnswer,
     onRecordResult,
   });
-  // トレーニングでは開示時だけでなく回答後の停止中も正解を出す（答え合わせ用）
+  // トレーニングでは開示時だけでなく回答後の停止中も正解を出す（答え合わせ用）。
+  // 正解のときは出さない — 選んだ値がそのまま正解で、select の色が正誤を示している
   const { isRevealed, isHolding } = useTrainingMode();
-  const showAnswer = isRevealed || isHolding;
+  const showAnswer = (isRevealed || isHolding) && lastAnswerCorrect !== true;
 
   if (!question) {
     return (
@@ -78,19 +79,23 @@ export function ManganScoreCalculationBoard({
         mobileFrame={isTraining ? "fullBleedFlushTop" : "fullBleed"}
       />
 
-      {showAnswer && (
-        <RevealedScoreAnswer
-          answer={paymentToScoreTableAnswer(question.answer.payment)}
-          translationNamespace="manganScoreCalculationChallenge"
-        />
-      )}
-
       {/* Yaku list */}
       {question.yakuDetails && question.yakuDetails.length > 0 && (
         <YakuListDisplay yakuDetails={question.yakuDetails} />
       )}
 
-      <QuestionPrompt>{t("questionPrompt")}</QuestionPrompt>
+      <QuestionPrompt
+        replacement={
+          showAnswer ? (
+            <RevealedScoreAnswer
+              answer={paymentToScoreTableAnswer(question.answer.payment)}
+              translationNamespace="manganScoreCalculationChallenge"
+            />
+          ) : undefined
+        }
+      >
+        {t("questionPrompt")}
+      </QuestionPrompt>
 
       {/* Answer form */}
       <ScoreChallengeAnswerForm
