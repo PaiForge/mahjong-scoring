@@ -15,6 +15,7 @@ import { ChiitoitsuExamBoard } from "./chiitoitsu-exam-board";
 export const ChiitoitsuExamTrainingView = createTrainingView({
   slug: PRACTICE_SLUG.chiitoitsuExam,
   maxWidth: "max-w-lg",
+  hasSubmitButton: true,
   renderBoard: ({ showFeedback, lastAnswerCorrect, isTraining, onAnswer }) => (
     <ChiitoitsuExamBoard
       showFeedback={showFeedback}

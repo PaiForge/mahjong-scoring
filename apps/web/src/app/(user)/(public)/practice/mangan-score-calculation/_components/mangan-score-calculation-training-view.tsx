@@ -7,6 +7,7 @@ import { ManganScoreCalculationBoard } from "./mangan-score-calculation-board";
 export const ManganScoreCalculationTrainingView = createTrainingView({
   slug: PRACTICE_SLUG.manganScoreCalculation,
   maxWidth: "max-w-lg",
+  hasSubmitButton: true,
   renderBoard: ({ showFeedback, lastAnswerCorrect, isTraining, onAnswer }) => (
     <ManganScoreCalculationBoard
       showFeedback={showFeedback}

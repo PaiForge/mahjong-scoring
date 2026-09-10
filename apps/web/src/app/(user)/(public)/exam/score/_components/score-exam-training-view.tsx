@@ -15,6 +15,7 @@ import { ScoreExamBoard } from "./score-exam-board";
 export const ScoreExamTrainingView = createTrainingView({
   slug: PRACTICE_SLUG.scoreExam,
   maxWidth: "max-w-lg",
+  hasSubmitButton: true,
   renderBoard: ({ showFeedback, lastAnswerCorrect, isTraining, onAnswer }) => (
     <ScoreExamBoard
       showFeedback={showFeedback}

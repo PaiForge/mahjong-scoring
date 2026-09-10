@@ -86,6 +86,35 @@ describe("TrainingShell 回答後の停止", () => {
 
     expect(screen.queryByRole("button", { name: "nextButton" })).toBeNull();
   });
+
+  it("回答ボタンを持たない盤面では、停止していない間も不可視のボタンで場所を取る", () => {
+    // 現れた瞬間にカウンタ以下が押し下げられないため。
+    // 支援技術と Tab には見せない（inert / aria-hidden）
+    renderShell({ onProceed: vi.fn() });
+
+    const reserved = screen.getByRole("button", {
+      name: "nextButton",
+      hidden: true,
+    });
+    expect(reserved.parentElement?.className).toContain("invisible");
+    expect(reserved.parentElement?.hasAttribute("inert")).toBe(true);
+  });
+
+  it("回答ボタンを持つ盤面では場所を取らない（回答ボタンと入れ替わる）", () => {
+    renderShell({ onProceed: vi.fn(), hasSubmitButton: true });
+
+    expect(
+      screen.queryByRole("button", { name: "nextButton", hidden: true }),
+    ).toBeNull();
+  });
+
+  it("回答ボタンを持つ盤面でも停止中は「次の問題へ」を出す", () => {
+    const onProceed = vi.fn();
+    renderShell({ isHolding: true, onProceed, hasSubmitButton: true });
+
+    fireEvent.click(screen.getByRole("button", { name: "nextButton" }));
+    expect(onProceed).toHaveBeenCalledTimes(1);
+  });
 });
 
 describe("TrainingShell 終了", () => {

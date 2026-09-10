@@ -49,6 +49,7 @@ function renderTrainingView(advance: () => void) {
 
   const TrainingView = createTrainingView({
     slug: "han-count",
+    hasSubmitButton: true,
     renderBoard: ({ showFeedback, onAnswer }) => (
       <Board showFeedback={showFeedback} onAnswer={onAnswer} />
     ),

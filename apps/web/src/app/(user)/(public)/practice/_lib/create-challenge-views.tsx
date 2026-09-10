@@ -174,6 +174,11 @@ export interface TrainingViewConfig<TProps, TState> {
   /** シェル内部ラッパーの max-w クラス（未指定時はシェルの既定値） */
   readonly maxWidth?: string;
   /**
+   * 盤面が自前の回答ボタンを持つか（{@link import("../_components/training-shell").TrainingShell} の `hasSubmitButton`
+   * にそのまま渡す）。選択肢をタップした瞬間に確定する練習は指定しない
+   */
+  readonly hasSubmitButton?: boolean;
+  /**
    * 練習名の右隣に置くヘルプ（{@link import("../_components/practice-help-button").PracticeHelpButton}）
    *
    * 盤面を見ても読み取れない出題のルール（何を符に数え、何を数えないか）を
@@ -211,7 +216,7 @@ export function createTrainingView<
   TProps = Record<string, never>,
   TState = undefined,
 >(config: TrainingViewConfig<TProps, TState>): (props: TProps) => ReactNode {
-  const { slug, maxWidth, help, renderBoard } = config;
+  const { slug, maxWidth, hasSubmitButton, help, renderBoard } = config;
   // チャレンジ側のルール（制限時間・ミス上限）は CTA の補足文に出す
   const { namespace, menuType, mistakeLimit, timeLimit } =
     practiceMenuBySlug(slug);
@@ -272,6 +277,7 @@ export function createTrainingView<
         isRevealed={isRevealed}
         isHolding={isHolding}
         onProceed={proceed}
+        hasSubmitButton={hasSubmitButton}
       >
         <TrainingModeProvider value={trainingMode}>
           {renderBoard(
