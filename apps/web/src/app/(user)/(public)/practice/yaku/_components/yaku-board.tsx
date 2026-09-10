@@ -11,7 +11,7 @@ import type { YakuQuestion } from "@mahjong-scoring/core";
 import { ChallengeSubmitButton } from "../../_components/challenge-submit-button";
 import { TehaiDisplay } from "../../_components/tehai-display";
 import { YakuAnswerComparison } from "./yaku-answer-comparison";
-import { YakuSelectList } from "./yaku-select-list";
+import { YAKU_LIST_HEIGHT_CLASSES, YakuSelectList } from "./yaku-select-list";
 import { YakuSelectedChips } from "./yaku-selected-chips";
 import { QuestionGeneratingPlaceholder } from "../../_components/question-generating-placeholder";
 import { QuestionPrompt } from "../../_components/question-prompt";
@@ -124,36 +124,38 @@ export function YakuBoard({
       {/* Instruction */}
       <QuestionPrompt>{t("selectYaku")}</QuestionPrompt>
 
-      {/* 回答中は一覧から選ぶ。止まって答え合わせをする間は、結果ページの
-          問題別フィードバックと同じ対比表に差し替える（自分が選んだ役は
-          その表の中に並ぶため、選択欄と二重に出さない） */}
+      {/* 回答中は一覧から選ぶ。止まって答え合わせをする間は、一覧の場所に
+          結果ページの問題別フィードバックと同じ対比表を出す。枠は一覧と同じ
+          高さにして、入れ替えで盤面の丈を変えない（変えると押したばかりの
+          ボタンとその下が動く）。表が枠より長ければ枠の中でスクロールする */}
       {showAnswer ? (
-        <YakuAnswerComparison
-          correctYakuNames={question.correctYakuNames}
-          selectedYakuNames={[...selectedYaku]}
-          isCorrect={lastAnswerCorrect}
-        />
+        <div className={`overflow-y-auto ${YAKU_LIST_HEIGHT_CLASSES}`}>
+          <YakuAnswerComparison
+            correctYakuNames={question.correctYakuNames}
+            selectedYakuNames={[...selectedYaku]}
+            isCorrect={lastAnswerCorrect}
+          />
+        </div>
       ) : (
-        <>
-          <YakuSelectList
-            selected={selectedYaku}
-            disabled={isCountingDown || showFeedback}
-            questionIndex={questionIndex}
-            onToggle={handleToggleYaku}
-          />
-
-          {/* 選択中の役（一覧をスクロールすると選んだ役が視界から出るため、
-              回答する直前に何を選んだのかをボタンの上で読ませる）。
-              回答した瞬間はこの箱が正誤の色に光る */}
-          <YakuSelectedChips
-            selected={selectedYaku}
-            disabled={isCountingDown || showFeedback}
-            showFeedback={showFeedback}
-            lastAnswerCorrect={lastAnswerCorrect}
-            onRemove={handleToggleYaku}
-          />
-        </>
+        <YakuSelectList
+          selected={selectedYaku}
+          disabled={isCountingDown || showFeedback}
+          questionIndex={questionIndex}
+          onToggle={handleToggleYaku}
+        />
       )}
+
+      {/* 選択中の役（一覧をスクロールすると選んだ役が視界から出るため、
+          回答する直前に何を選んだのかをボタンの上で読ませる）。
+          回答した瞬間はこの箱が正誤の色に光る。停止中も残す — 対比表の
+          「あなたの回答」と重なるが、消すと盤面の丈がその分縮む */}
+      <YakuSelectedChips
+        selected={selectedYaku}
+        disabled={isCountingDown || showFeedback}
+        showFeedback={showFeedback}
+        lastAnswerCorrect={lastAnswerCorrect}
+        onRemove={handleToggleYaku}
+      />
 
       {/* Submit button（チャレンジは押した瞬間に次問題へ進むため「回答する」） */}
       <ChallengeSubmitButton

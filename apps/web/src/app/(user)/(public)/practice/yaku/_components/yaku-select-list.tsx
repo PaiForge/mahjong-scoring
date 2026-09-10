@@ -6,6 +6,18 @@ import { useTranslations } from "next-intl";
 import { SelectOptionList } from "@/app/(user)/_components/select-option-list";
 import { useYakuOptions } from "@/app/_hooks/use-yaku-options";
 
+/**
+ * 一覧の枠の高さ
+ * 役一覧の高さ
+ *
+ * 全役を並べると縦に長いため、画面の高さに対する割合で枠を決めて中を
+ * スクロールさせる。トレーニングの停止中に一覧と入れ替わる答え合わせ
+ * （{@link import("./yaku-board").YakuBoard}）も同じ高さの枠に入れる。
+ * 入れ替えで盤面の丈が変わると、押したばかりのボタンとその下が動くため。
+ */
+export const YAKU_LIST_HEIGHT_CLASSES =
+  "h-[34dvh] max-h-[32rem] min-h-52 sm:h-[46dvh]";
+
 interface YakuSelectListProps {
   readonly selected: ReadonlySet<string>;
   readonly disabled: boolean;
@@ -60,9 +72,7 @@ export function YakuSelectList({
       disabled={disabled}
       label={t("title")}
       scrollable={!preview}
-      className={
-        preview ? "h-48" : "h-[34dvh] max-h-[32rem] min-h-52 sm:h-[46dvh]"
-      }
+      className={preview ? "h-48" : YAKU_LIST_HEIGHT_CLASSES}
     />
   );
 
