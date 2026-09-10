@@ -92,17 +92,14 @@ function SubmitButton() {
 }
 
 /**
- * 点数を select で答える回答フォーム（`space-y-4` にラベル + select と送信
- * ボタン）。実測 140px で、幅によらない
+ * 点数を select で答える回答フォーム（ラベル + select）。選択した時点で
+ * 送信するため送信ボタンは無い。実測 74px で、幅によらない
  */
 function ScoreAnswerForm() {
   return (
-    <div className="space-y-4">
-      <div>
-        <SkeletonBar className="mb-2 h-4 w-24" tone={100} />
-        <SkeletonBar radius="lg" className="h-[50px] w-full" tone={100} />
-      </div>
-      <SubmitButton />
+    <div>
+      <SkeletonBar className="mb-2 h-4 w-24" tone={100} />
+      <SkeletonBar radius="lg" className="h-[50px] w-full" tone={100} />
     </div>
   );
 }
@@ -119,7 +116,7 @@ function ScoreAnswerForm() {
  * 違うと部品の高さが合っていても位置がずれる。
  */
 const SHAPES: Readonly<Record<PlayBoardHeight, () => ReactNode>> = {
-  // 昇級試験 5 種。盤面 / 設問 / ラベル + select / 送信ボタン
+  // 昇級試験 5 種。盤面 / 設問 / ラベル + select
   scoreExam: () => (
     <div className="mt-4 space-y-6">
       <BoardRect heightClass="h-[124px] sm:h-[136px]" />

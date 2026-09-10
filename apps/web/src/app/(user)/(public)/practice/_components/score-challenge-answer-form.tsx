@@ -35,7 +35,8 @@ interface ScoreChallengeAnswerFormProps {
  * 点数計算チャレンジ回答フォーム
  *
  * 点数のみを select で回答する。親子・ツモロンの別は出題（`question`）から
- * 導くので、呼び出し側は渡さない。
+ * 導くので、呼び出し側は渡さない。選択が揃った時点で送信し、「回答する」
+ * ボタンは置かない（理由は {@link ScoreAnswerForm} の `autoSubmit`）。
  *
  * トレーニングでは、選択肢にダブル役満の点数（子64000点等）を端末のルール
  * 設定に従って足す。チャレンジ（記録あり）では選択肢を設定に依らない集合に
@@ -72,6 +73,7 @@ export function ScoreChallengeAnswerForm({
       translationNamespace={translationNamespace}
       scoreRange={scoreRange}
       allowDoubleYakuman={allowDoubleYakuman}
+      autoSubmit
       fixedRules={!isTraining}
     />
   );

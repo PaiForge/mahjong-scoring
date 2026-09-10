@@ -9,13 +9,12 @@ import { ScoreExamBoard } from "./score-exam-board";
  * 昇段試験模試
  *
  * 本番と同じ盤面（出題条件・回答形式）を時間無制限・記録なしで解く。
- * 回答後は正解を読ませてから次へ進む。模試の仕組み（見出し・終了・本番への
+ * 回答後は正解と翻数の内訳を読ませてから次へ進む。模試の仕組み（見出し・終了・本番への
  * 導線）は `createTrainingView` が試験のスラッグから組む。
  */
 export const ScoreExamTrainingView = createTrainingView({
   slug: PRACTICE_SLUG.scoreExam,
   maxWidth: "max-w-lg",
-  hasSubmitButton: true,
   renderBoard: ({ showFeedback, lastAnswerCorrect, isTraining, onAnswer }) => (
     <ScoreExamBoard
       showFeedback={showFeedback}
