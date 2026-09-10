@@ -5,6 +5,7 @@ import type { ScoreTableAnswer } from "@mahjong-scoring/core";
 
 import { QuestionPrompt } from "../../_components/question-prompt";
 import { RevealedScoreAnswer } from "../../_components/revealed-score-answer";
+import { scoreTableFocusOf } from "../../_lib/score-table-focus";
 
 interface ScoreTablePromptProps {
   readonly isOya: boolean;
@@ -14,7 +15,8 @@ interface ScoreTablePromptProps {
   readonly fu?: number;
   /**
    * 開示する正解。指定時は出題文の行をこれに差し替える
-   * （トレーニングの「わからない」と不正解のあと）
+   * （トレーニングの「わからない」と不正解のあと）。正解の点数は押すと
+   * この条件のセルをハイライトした点数早見表が開く
    */
   readonly revealedAnswer?: ScoreTableAnswer;
 }
@@ -64,6 +66,7 @@ export function ScoreTablePrompt({
             <RevealedScoreAnswer
               answer={revealedAnswer}
               translationNamespace="scoreTableChallenge"
+              scoreTableFocus={scoreTableFocusOf({ isOya, isTsumo, han, fu })}
             />
           )
         }
