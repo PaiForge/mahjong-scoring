@@ -59,6 +59,28 @@ export interface GlossaryTermPreview {
   readonly example?: GlossaryTermPreviewExample;
 }
 
+/**
+ * 用語の構造に辞書の文言を重ねて表示用語にする
+ * 表示用語変換
+ *
+ * 一覧と用語ページの両方がこの形を作る。読みは五十音行の根拠でもあるので、
+ * 辞書から 1 度引いた値を `reading` と `kanaRow` の両方に使う。
+ */
+function toGlossaryTermView(
+  term: GlossaryTerm,
+  t: Awaited<ReturnType<typeof getTranslations>>,
+): GlossaryTermView {
+  const reading = t(`terms.${term.slug}.reading`);
+  return {
+    ...term,
+    term: t(`terms.${term.slug}.term`),
+    reading,
+    definition: t(`terms.${term.slug}.definition`),
+    kanaRow: kanaRowOf(reading),
+    href: glossaryTermHref(term.slug),
+  };
+}
+
 /** 読み順（五十音）で並べ替える */
 function byReading(a: GlossaryTermView, b: GlossaryTermView): number {
   return a.reading.localeCompare(b.reading, "ja");
@@ -75,17 +97,9 @@ export async function getGlossaryTermViews(): Promise<
 > {
   const t = await getTranslations("glossary");
 
-  return GLOSSARY_TERMS.map((term) => {
-    const reading = t(`terms.${term.slug}.reading`);
-    return {
-      ...term,
-      term: t(`terms.${term.slug}.term`),
-      reading,
-      definition: t(`terms.${term.slug}.definition`),
-      kanaRow: kanaRowOf(reading),
-      href: glossaryTermHref(term.slug),
-    };
-  }).sort(byReading);
+  return GLOSSARY_TERMS.map((term) => toGlossaryTermView(term, t)).sort(
+    byReading,
+  );
 }
 
 /**
@@ -102,16 +116,7 @@ export async function getGlossaryTermViewBySlug(
   if (!term) return undefined;
 
   const t = await getTranslations("glossary");
-  const reading = t(`terms.${term.slug}.reading`);
-
-  return {
-    ...term,
-    term: t(`terms.${term.slug}.term`),
-    reading,
-    definition: t(`terms.${term.slug}.definition`),
-    kanaRow: kanaRowOf(reading),
-    href: glossaryTermHref(term.slug),
-  };
+  return toGlossaryTermView(term, t);
 }
 
 /**
