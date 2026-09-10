@@ -348,6 +348,7 @@
       "comparisonLoadFailed": "過去の記録を読み込めませんでした"
     },
     "openInScoreTable": "点数表で見る",
+    "openInYakuList": "役一覧で見る",
     "yakuBreakdown": {
       "title": "翻数の内訳",
       "total": "合計",

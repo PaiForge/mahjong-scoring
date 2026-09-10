@@ -5,8 +5,8 @@ type DetailTone = "correct" | "incorrect";
 
 /** 名前と値の1行 */
 export interface DetailTableRow {
-  /** 行の見出し（役名・符の理由・「正解」など） */
-  readonly label: string;
+  /** 行の見出し（役名・符の理由・「正解」など）。役一覧を開くボタンにもなる */
+  readonly label: ReactNode;
   /** 表示する値。単位まで含めた文字列か、牌・チップ・リンクを含む要素 */
   readonly value: ReactNode;
   /** 値の色（既定は本文色） */

@@ -5,6 +5,7 @@ import { judgeYakuName } from "@mahjong-scoring/core";
 import { useYakuOrder } from "@/app/_hooks/use-yaku-order-store";
 import { useYakuLabel } from "@/app/_hooks/use-yaku-options";
 import { AnswerComparison } from "../../_components/answer-comparison";
+import { useYakuCheatsheetModal } from "../../_hooks/use-yaku-cheatsheet-modal";
 import { YakuChip } from "./yaku-chip";
 
 interface YakuAnswerComparisonProps {
@@ -25,6 +26,11 @@ interface YakuAnswerComparisonProps {
  * チップの状態は core の `judgeYakuName` が決め、選べた役は緑、選び忘れは黄、
  * 余分に選んだ役は赤になる。「成立していた役」の行に選び忘れも並ぶので、
  * 自分が選んだ役の欄だけでは見えない取りこぼしもこの表で読める。
+ *
+ * 早見表に載る役のチップは押せて、役一覧モーダルがその役に着地する
+ * （点数計算の無限訓練の答え合わせと同じ導線）。選び忘れた役・余分に
+ * 選んだ役ほど「どんな形の役だったか」を確かめたくなるため。成立していた
+ * 役には一覧内で目印が付く。
  */
 export function YakuAnswerComparison({
   correctYakuNames,
@@ -32,8 +38,11 @@ export function YakuAnswerComparison({
   isCorrect,
 }: YakuAnswerComparisonProps) {
   const t = useTranslations("yaku");
+  const tChallenge = useTranslations("challenge");
   const labelOf = useYakuLabel();
   const yakuOrder = useYakuOrder();
+  const { canOpenYakuCheatsheet, openYakuCheatsheet, yakuCheatsheetModal } =
+    useYakuCheatsheetModal(correctYakuNames);
 
   /** 役名を表示順に並べてチップにする（選択順・判定順のばらつきを見せない） */
   const chips = (names: readonly string[]) => {
@@ -51,6 +60,12 @@ export function YakuAnswerComparison({
               selectedYakuNames,
               correctYakuNames,
             )}
+            onSelect={
+              canOpenYakuCheatsheet(yakuName)
+                ? () => openYakuCheatsheet(yakuName)
+                : undefined
+            }
+            title={tChallenge("openInYakuList")}
           />
         ))}
       </span>
@@ -58,11 +73,14 @@ export function YakuAnswerComparison({
   };
 
   return (
-    <AnswerComparison
-      translationNamespace="yaku"
-      isCorrect={isCorrect}
-      correct={chips(correctYakuNames)}
-      user={chips(selectedYakuNames)}
-    />
+    <>
+      <AnswerComparison
+        translationNamespace="yaku"
+        isCorrect={isCorrect}
+        correct={chips(correctYakuNames)}
+        user={chips(selectedYakuNames)}
+      />
+      {yakuCheatsheetModal}
+    </>
   );
 }

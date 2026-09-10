@@ -1,9 +1,12 @@
 "use client";
 
+import { useMemo } from "react";
 import type { ReactNode } from "react";
 import { useTranslations } from "next-intl";
 import type { YakuDetail } from "@mahjong-scoring/core";
 import { useYakuOrder } from "@/app/_hooks/use-yaku-order-store";
+import { TEXT_LINK_CLASSES } from "@/app/_components/_lib/link-classes";
+import { useYakuCheatsheetModal } from "../_hooks/use-yaku-cheatsheet-modal";
 import { CollapsibleDetail } from "./collapsible-detail";
 import { DetailTable } from "./detail-table";
 import { orderYakuDetails } from "../_lib/order-yaku-details";
@@ -32,6 +35,11 @@ interface YakuBreakdownProps {
  * （{@link import("./fu-breakdown").FuBreakdown} は練習ごとに符の呼び名が
  * 変わりうるため名前空間を受け取るが、役の内訳は常にこの 3 語で足りる）。
  *
+ * 早見表に載る役の行は役名を押せて、役一覧モーダルがその役に着地する
+ * （役判定の答え合わせ・点数計算の結果表示と同じ導線）。数え落とした役が
+ * どんな形だったかは、名前と翻数だけでは思い出せない。状況役・ドラの行は
+ * 一覧に無いため文字のまま。
+ *
  * 常に既定で閉じる（{@link CollapsibleDetail}）。この表が出るのはどれも
  * 問題別詳細の中で、答え合わせより上に積まれる位置だからで、開いたままだと
  * 役の行数だけ答え合わせが下へ流れる。翻数即答のように内訳が答えそのものの
@@ -40,7 +48,14 @@ interface YakuBreakdownProps {
  */
 export function YakuBreakdown({ yakuDetails, note }: YakuBreakdownProps) {
   const t = useTranslations("challenge.yakuBreakdown");
+  const tChallenge = useTranslations("challenge");
   const yakuOrder = useYakuOrder();
+  const yakuNames = useMemo(
+    () => yakuDetails.map((detail) => detail.name),
+    [yakuDetails],
+  );
+  const { canOpenYakuCheatsheet, openYakuCheatsheet, yakuCheatsheetModal } =
+    useYakuCheatsheetModal(yakuNames);
 
   if (yakuDetails.length === 0) return undefined;
 
@@ -48,16 +63,30 @@ export function YakuBreakdown({ yakuDetails, note }: YakuBreakdownProps) {
   const total = ordered.reduce((sum, detail) => sum + detail.han, 0);
 
   return (
-    <CollapsibleDetail title={t("title")}>
-      <DetailTable
-        // 見出しは開閉ボタンが持つため、表側の見出しは出さない
-        rows={ordered.map((detail) => ({
-          label: detail.name,
-          value: t("han", { count: detail.han }),
-        }))}
-        total={{ label: t("total"), value: t("han", { count: total }) }}
-        note={note}
-      />
-    </CollapsibleDetail>
+    <>
+      <CollapsibleDetail title={t("title")}>
+        <DetailTable
+          // 見出しは開閉ボタンが持つため、表側の見出しは出さない
+          rows={ordered.map((detail) => ({
+            label: canOpenYakuCheatsheet(detail.name) ? (
+              <button
+                type="button"
+                onClick={() => openYakuCheatsheet(detail.name)}
+                title={tChallenge("openInYakuList")}
+                className={TEXT_LINK_CLASSES}
+              >
+                {detail.name}
+              </button>
+            ) : (
+              detail.name
+            ),
+            value: t("han", { count: detail.han }),
+          }))}
+          total={{ label: t("total"), value: t("han", { count: total }) }}
+          note={note}
+        />
+      </CollapsibleDetail>
+      {yakuCheatsheetModal}
+    </>
   );
 }

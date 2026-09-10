@@ -24,6 +24,19 @@ describe("YakuBreakdown", () => {
     expect(screen.getByText("混一色")).toBeTruthy();
   });
 
+  it("早見表に載る役の名前を押すと役一覧モーダルが開き、状況役は押せない", () => {
+    render(<YakuBreakdown yakuDetails={YAKU_DETAILS} />);
+    fireEvent.click(screen.getByRole("button", { name: "title" }));
+
+    // 立直は状況役で一覧に無いため文字のまま
+    expect(screen.queryByRole("button", { name: "立直" })).toBeNull();
+    expect(screen.queryByRole("dialog")).toBeNull();
+
+    fireEvent.click(screen.getByRole("button", { name: "混一色" }));
+
+    expect(screen.getByRole("dialog")).toBeTruthy();
+  });
+
   it("役が無ければ開閉の見出しごと出さない", () => {
     const { container } = render(<YakuBreakdown yakuDetails={[]} />);
 
