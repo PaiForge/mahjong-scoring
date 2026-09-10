@@ -39,6 +39,10 @@ interface ScoreExamAnswerFormProps {
  *
  * 親子・ツモロンの別は出題（`question`）から導くので、呼び出し側は渡さない。
  *
+ * 選択が揃った時点で送信し、「回答する」ボタンは置かない（理由は
+ * {@link ScoreAnswerForm} の `autoSubmit`。点数を select で答える練習と
+ * 同じ作法）。
+ *
  * 回答直後は select の枠と地が正誤を返すが、正解の点数はその場では出さない。
  * 試験の答え合わせは結果ページの問題別フィードバック一覧の役目。
  */
@@ -64,6 +68,7 @@ export function ScoreExamAnswerForm({
       lastAnswerCorrect={lastAnswerCorrect}
       translationNamespace={translationNamespace}
       scoreRange={scoreRange}
+      autoSubmit
       fixedRules
     />
   );
