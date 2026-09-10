@@ -51,9 +51,12 @@ export function SelectValueBox({
     options.find((option) => option.value === val)?.label ?? val;
   const canOpen = onOpen !== undefined && !disabled;
 
+  // 高さは select と同じ 46px。チップ 1 行（28px）が枠 6px と上下の余白に
+  // ちょうど収まる余白（py-1.5 = 12px）にする。余白を広げると最初のチップを
+  // 足した瞬間に箱が伸び、下の送信ボタンが動く
   return (
     <div
-      className={`flex min-h-[46px] w-full flex-wrap items-center gap-2 rounded-lg border-3 px-2 py-2 transition-colors ${
+      className={`flex min-h-[46px] w-full flex-wrap items-center gap-2 rounded-lg border-3 px-2 py-1.5 transition-colors ${
         frameClasses ??
         (disabled ? "border-ink bg-surface-100" : "border-ink bg-white")
       } ${disabled ? "cursor-not-allowed" : ""} ${
@@ -80,11 +83,18 @@ export function SelectValueBox({
             role="listitem"
           >
             {labelOf(v)}
-            {onRemove && !disabled && (
+            {/* 無効中は × を押せなくするが幅は残す。消すとチップが細くなって
+                行の折り返しが変わり、回答した瞬間に箱の高さが変わる */}
+            {onRemove && (
               <button
                 type="button"
                 onClick={() => onRemove(v)}
-                className="ml-2 text-primary-600 hover:text-primary-900 focus:outline-none"
+                disabled={disabled}
+                aria-hidden={disabled}
+                tabIndex={disabled ? -1 : undefined}
+                className={`ml-2 text-primary-600 hover:text-primary-900 focus:outline-none ${
+                  disabled ? "invisible" : ""
+                }`}
               >
                 &times;
               </button>
