@@ -1,6 +1,6 @@
 "use client";
 
-import { useId, useState } from "react";
+import { useState } from "react";
 import { useTranslations } from "next-intl";
 import type {
   ScoreQuestion,
@@ -18,7 +18,7 @@ import { useYakumanRules } from "@/app/_hooks/use-rule-settings-store";
 import { practiceHanTier } from "../_lib/han-tiers";
 import { formatScoreAnswer } from "../../_lib/format-score-answer";
 import { paymentToScoreTableAnswer } from "../../_lib/payment-adapter";
-import { DetailsPanelRow, DetailsToggleButton } from "./details-accordion";
+import { DetailsPanelRow } from "./details-accordion";
 import type { DetailItem } from "./details-accordion";
 import { ScoreTableModal } from "./score-table-modal";
 import { ReferenceLinkButton } from "./reference-link-button";
@@ -68,8 +68,6 @@ export function ResultDisplay({
   const allowDoubleYakuman = allowsDoubleYakuman(useYakumanRules());
   const isManganOrAbove = isMangan(answer.scoreLevel);
   const scoreLevelName = getScoreLevelName(answer.scoreLevel);
-  const [showFuDetails, setShowFuDetails] = useState(false);
-  const [showYakuDetails, setShowYakuDetails] = useState(false);
   // 役一覧モーダル。役をタップしたときはその役へ着地させる（一覧全体を見たい
   // ときは undefined のまま開く）。
   const [yakuListFocus, setYakuListFocus] = useState<string | undefined>(
@@ -90,8 +88,6 @@ export function ResultDisplay({
     setIsScoreTableHighlighted(highlighted);
     setIsScoreTableOpen(true);
   };
-  const fuDetailsPanelId = useId();
-  const yakuDetailsPanelId = useId();
 
   // 無回答の正解開示では「あなたの回答」列を出さない
   const columnCount =
@@ -218,22 +214,15 @@ export function ResultDisplay({
               <td className="py-2 font-bold text-surface-800">
                 {getHanDisplay(answer.han)}
                 {!simplifyMangan && scoreLevelName && ` (${scoreLevelName})`}
-                {yakuDetailItems.length > 0 && (
-                  <DetailsToggleButton
-                    isOpen={showYakuDetails}
-                    onToggle={() => setShowYakuDetails(!showYakuDetails)}
-                    panelId={yakuDetailsPanelId}
-                  />
-                )}
               </td>
             </tr>
-            {yakuDetailItems.length > 0 && showYakuDetails && (
+            {/* 翻数の内訳。閉じた状態から始める（理由は CollapsibleDetail） */}
+            {yakuDetailItems.length > 0 && (
               <DetailsPanelRow
                 title={t("result.details.yakuTitle")}
                 items={yakuDetailItems}
                 total={yakuTotal}
                 suffix={t("form.options.hanSuffix")}
-                panelId={yakuDetailsPanelId}
                 colSpan={columnCount}
               />
             )}
@@ -257,22 +246,14 @@ export function ResultDisplay({
                   <td className="py-2 font-bold text-surface-800">
                     {answer.fu}
                     {t("form.options.fuSuffix")}
-                    {question.fuDetails && (
-                      <DetailsToggleButton
-                        isOpen={showFuDetails}
-                        onToggle={() => setShowFuDetails(!showFuDetails)}
-                        panelId={fuDetailsPanelId}
-                      />
-                    )}
                   </td>
                 </tr>
-                {question.fuDetails && showFuDetails && (
+                {question.fuDetails && (
                   <DetailsPanelRow
                     title={t("result.details.fuTitle")}
                     items={fuDetailItems}
                     total={fuTotal}
                     suffix={t("form.options.fuSuffix")}
-                    panelId={fuDetailsPanelId}
                     colSpan={columnCount}
                     roundedTotal={answer.fu}
                     roundUpLabel={t("result.details.roundUp")}

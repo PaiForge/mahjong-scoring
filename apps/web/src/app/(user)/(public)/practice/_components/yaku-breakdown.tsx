@@ -40,11 +40,7 @@ interface YakuBreakdownProps {
  * どんな形だったかは、名前と翻数だけでは思い出せない。状況役・ドラの行は
  * 一覧に無いため文字のまま。
  *
- * 常に既定で閉じる（{@link CollapsibleDetail}）。この表が出るのはどれも
- * 問題別詳細の中で、答え合わせより上に積まれる位置だからで、開いたままだと
- * 役の行数だけ答え合わせが下へ流れる。翻数即答のように内訳が答えそのものの
- * 練習でも同じ — 答えは要約行と答え合わせが言うので、内訳は数え直したい人が
- * 開く。開き方が練習によって変わらないことのほうが、1 タップ省くより効く。
+ * 常に既定で閉じる（理由は {@link CollapsibleDetail}。符の内訳も同じ）。
  */
 export function YakuBreakdown({ yakuDetails, note }: YakuBreakdownProps) {
   const t = useTranslations("challenge.yakuBreakdown");
