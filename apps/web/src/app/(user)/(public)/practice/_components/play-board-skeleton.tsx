@@ -10,6 +10,8 @@ import { START_BUTTON_HEIGHT_CLASS } from "./practice-start-cta-skeleton";
  * 実物（`TehaiDisplay` の `fullBleed`）は <sm で白カードの左右パディングを
  * 打ち消して画面端まで広がり、端に接する角も落ちる。同じだけ外へ出す。
  * 高さは牌が列の幅に合わせて縮むぶん幅で変わるので 2 点で測った値を持つ。
+ * 手の中身では変わらない（`TehaiHand` 参照）。状況行にドラを出す盤面は
+ * 124px / 144px、出さない盤面（符の練習）は 106px / 121px の 2 種類だけ。
  */
 function BoardRect({ heightClass }: { readonly heightClass: string }) {
   return (
@@ -119,7 +121,7 @@ const SHAPES: Readonly<Record<PlayBoardHeight, () => ReactNode>> = {
   // 昇級試験 5 種。盤面 / 設問 / ラベル + select
   scoreExam: () => (
     <div className="mt-4 space-y-6">
-      <BoardRect heightClass="h-[124px] sm:h-[136px]" />
+      <BoardRect heightClass="h-[124px] sm:h-[144px]" />
       <Prompt />
       <ScoreAnswerForm />
     </div>
@@ -127,7 +129,7 @@ const SHAPES: Readonly<Record<PlayBoardHeight, () => ReactNode>> = {
   // 合計符の試験。選択肢は 3 列 11 個
   fuExam: () => (
     <div className="mt-4 space-y-4">
-      <BoardRect heightClass="h-[106px] sm:h-[114px]" />
+      <BoardRect heightClass="h-[106px] sm:h-[121px]" />
       <Prompt />
       <Choices
         columns="grid-cols-3"
@@ -139,7 +141,7 @@ const SHAPES: Readonly<Record<PlayBoardHeight, () => ReactNode>> = {
   // 点数計算。試験と同じ構図で盤面だけ少し高い
   scoreCalculation: () => (
     <div className="mt-4 space-y-6">
-      <BoardRect heightClass="h-[124px] sm:h-[140px]" />
+      <BoardRect heightClass="h-[124px] sm:h-[144px]" />
       <Prompt />
       <ScoreAnswerForm />
     </div>
@@ -187,21 +189,19 @@ const SHAPES: Readonly<Record<PlayBoardHeight, () => ReactNode>> = {
       />
     </div>
   ),
-  // 手牌の符。符目ごとの行が 5 つ積み上がって最も高い
+  // 手牌の符。符目ごとの行が 5 つ積み上がって最も高い。最後の行を選んだ
+  // 時点で送信するため送信ボタンは無い
   mentsuJantouFu: () => (
     <div className="mt-4 space-y-4">
-      <BoardRect heightClass="h-[95px] sm:h-[114px]" />
+      <BoardRect heightClass="h-[106px] sm:h-[121px]" />
       <Prompt />
-      <Rows count={5} itemClass="h-[125px] w-full" />
-      <div className="mt-4">
-        <SubmitButton />
-      </div>
+      <Rows count={5} itemClass="h-[123px] w-full" />
     </div>
   ),
   // 合計符。選択肢は 3 列 11 個
   totalFu: () => (
     <div className="mt-4 space-y-4">
-      <BoardRect heightClass="h-[106px] sm:h-[117px]" />
+      <BoardRect heightClass="h-[106px] sm:h-[121px]" />
       <Prompt />
       <Choices
         columns="grid-cols-3"
@@ -213,7 +213,7 @@ const SHAPES: Readonly<Record<PlayBoardHeight, () => ReactNode>> = {
   // 役判定。役の一覧パネルと選択中のチップ行、送信ボタン
   yaku: () => (
     <div className="mt-4 space-y-4">
-      <BoardRect heightClass="h-[110px] sm:h-[144px]" />
+      <BoardRect heightClass="h-[124px] sm:h-[144px]" />
       <Prompt />
       <Panel heightClass="h-[287px] sm:h-[414px]" />
       <SkeletonBar className="h-[46px] w-full" tone={100} />
@@ -225,7 +225,7 @@ const SHAPES: Readonly<Record<PlayBoardHeight, () => ReactNode>> = {
   // 翻数即答。設問文は選択肢と同じ節の中にあり、盤面の直後には無い
   hanCount: () => (
     <div className="mt-4 space-y-4">
-      <BoardRect heightClass="h-[117px] sm:h-[144px]" />
+      <BoardRect heightClass="h-[124px] sm:h-[144px]" />
       <div className="space-y-3">
         <Prompt />
         <SkeletonBar

@@ -8,8 +8,24 @@ import { splitAgariHai } from "../_lib/agari-hai";
 
 /** size="sm" の牌の高さ（px）。globals.css の .h-hai-sm と合わせる */
 export const HAI_SM_HEIGHT = 45;
+/** size="sm" の牌の幅（px）。globals.css の .w-hai-sm と合わせる */
+const HAI_SM_WIDTH = 32;
 /** 和了牌ラベルが牌の上に足す高さ（px）。text-[10px] leading-none + mb-0.5 */
 const AGARI_LABEL_HEIGHT = 12;
+/** 和了牌を純手牌から離す間隔（px）。`ml-4` */
+const AGARI_GAP = 16;
+
+/**
+ * 行の高さの基準にする手の自然幅（px）
+ * 基準手牌幅
+ *
+ * 門前の 13 枚に間隔を空けて和了牌を置いた、最も普通の並び。行の高さは
+ * この幅が収まる倍率で決め、鳴きが多くてこれより広い手はその高さの中で
+ * さらに縮める（{@link TehaiHand} 参照）。状況行（{@link import("../practice/_components/tehai-display").TehaiDisplay}）も
+ * 同じ基準で高さを決め、手牌と行の高さの関係を一定に保つ。
+ */
+export const REFERENCE_HAND_WIDTH =
+  13 * HAI_SM_WIDTH + AGARI_GAP + HAI_SM_WIDTH;
 
 interface TehaiHandProps {
   /** 表示する手牌（純手牌 + 副露）。Tehai14 もそのまま渡せる。 */
@@ -48,6 +64,14 @@ interface TehaiHandProps {
  * 和了牌には枠を付け、ツモ・ロンの別をラベルとして真上に添える。牌そのものの
  * そばに出ていれば、盤面の下に「和了牌」「和了」の欄を別に設けなくて済む。
  * ラベルの色は載せる面に合わせて `agariLabelTone` で切り替える。
+ *
+ * 行の高さは幅から決め、手の中身では変えない。牌は幅に収まる倍率まで縮む
+ * ため、「収まる倍率 × 牌の高さ」で行の高さを決めると、鳴きの数と種類で
+ * 自然幅が変わるたびに行の高さが揺れる（幅 390px で 36〜42px）。出題が
+ * 変わるたびに下の選択肢が動き、制限時間の中で「さっきボタンがあった場所」を
+ * 押す操作が外れる。基準の手（{@link REFERENCE_HAND_WIDTH}）が収まる倍率で
+ * 行の高さを固定し、それより広い手は行の中で左下を軸にさらに縮める。余る
+ * 隙間は牌の上に出る（基準より広い手だけ、幅 390px で最大 10px 程度）。
  */
 export const TehaiHand = memo(function TehaiHandComponent({
   tehai,
@@ -56,11 +80,10 @@ export const TehaiHand = memo(function TehaiHandComponent({
   agariLabelTone = "dark",
   onScaleChange,
 }: TehaiHandProps) {
-  const { wrapperRef, contentRef, scale } = useAutoScale([
-    tehai,
-    agariHai,
-    agariLabel,
-  ]);
+  const { wrapperRef, contentRef, scale, referenceScale } = useAutoScale(
+    [tehai, agariHai, agariLabel],
+    { referenceWidth: REFERENCE_HAND_WIDTH },
+  );
 
   const { closedTiles, separatedAgariHai } = useMemo(
     () => splitAgariHai(tehai.closed, agariHai),
@@ -76,13 +99,13 @@ export const TehaiHand = memo(function TehaiHandComponent({
       ref={wrapperRef}
       className="relative overflow-hidden"
       style={{
-        height: `${(HAI_SM_HEIGHT + (agariLabel ? AGARI_LABEL_HEIGHT : 0)) * scale}px`,
+        height: `${(HAI_SM_HEIGHT + (agariLabel ? AGARI_LABEL_HEIGHT : 0)) * referenceScale}px`,
       }}
     >
       <div
         ref={contentRef}
-        className="absolute left-0 top-0 flex items-end whitespace-nowrap"
-        style={{ transformOrigin: "left top" }}
+        className="absolute bottom-0 left-0 flex items-end whitespace-nowrap"
+        style={{ transformOrigin: "left bottom" }}
       >
         <div className="flex shrink-0">
           {closedTiles.map((kindId, i) => (

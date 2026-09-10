@@ -8,7 +8,6 @@ import {
 } from "@mahjong-scoring/core";
 import type { MentsuJantouFuQuestion } from "@mahjong-scoring/core";
 import { useRuleSettingsStore } from "@/app/_hooks/use-rule-settings-store";
-import { ChallengeSubmitButton } from "../../_components/challenge-submit-button";
 import { QuestionGeneratingPlaceholder } from "../../_components/question-generating-placeholder";
 import { QuestionPrompt } from "../../_components/question-prompt";
 import { useClientGeneratedQuestion } from "../../_hooks/use-client-generated-question";
@@ -38,6 +37,21 @@ type MentsuJantouFuBoardProps =
  * 面子と雀頭の符の出題盤面（手牌の提示と要素ごとの入力・一括判定）
  *
  * 出題状態と回答ロジックを内包し、チャレンジ・トレーニング両モードで共有する。
+ *
+ * 最後の要素を選んだ時点で送信し、「回答する」ボタンは置かない。各行は
+ * 単一選択で行数は出題が決めるため「全行が埋まった」という完成点が盤面から
+ * 決まり、子ツモの点数（「子から / 親から」の 2 つが揃ったら送信。
+ * {@link import("../../_components/score-answer-form").ScoreAnswerForm} の
+ * `autoSubmit`）と同じ構造になる。全行が埋まるまで無効なボタンは、有効に
+ * なった瞬間に押す以外の使い道が無く、制限時間の中では同じ答えをもう一度
+ * 言う 1 タップがそのまま持ち時間を削る。
+ *
+ * 最後に触った行がそのまま確定になるので、埋め終えてからの見直しはできない。
+ * 単一選択の盤面（雀頭符・面子符・待ち符・合計符・翻数即答）が 1 タップで
+ * 確定するのと同じ割り切りで、直したい行は最後の行を選ぶ前に直す。
+ *
+ * 役判定だけは「回答する」ボタンが残る。成立する役の個数は出題ごとに違い
+ * 解く側にも分からないため、「全部選んだ」という完成点が盤面から決まらない。
  */
 export function MentsuJantouFuBoard({
   showFeedback,
@@ -65,33 +79,29 @@ export function MentsuJantouFuBoard({
   useRegisterAdvance(question === undefined ? undefined : advanceQuestion);
   const { isRevealed } = useTrainingMode();
 
-  const handleSubmit = useCallback(() => {
-    if (!question || showFeedback) return;
-    const userFuList = question.items.map((_, idx) => parseInt(answers[idx]));
-    const allCorrect = question.items.every(
-      (item, idx) => userFuList[idx] === item.fu,
-    );
-    onRecordResult?.(toQuestionResult(question, userFuList));
-    onAnswer(allCorrect, advanceQuestion);
-  }, [
-    question,
-    answers,
-    showFeedback,
-    onAnswer,
-    advanceQuestion,
-    onRecordResult,
-  ]);
+  const submit = useCallback(
+    (answered: MentsuJantouFuQuestion, filled: readonly string[]) => {
+      const userFuList = answered.items.map((_, idx) => parseInt(filled[idx]));
+      const allCorrect = answered.items.every(
+        (item, idx) => userFuList[idx] === item.fu,
+      );
+      onRecordResult?.(toQuestionResult(answered, userFuList));
+      onAnswer(allCorrect, advanceQuestion);
+    },
+    [onAnswer, advanceQuestion, onRecordResult],
+  );
 
+  // 選んだ結果を先に確定してから「全行が埋まったか」を見る。関数型の更新に
+  // 送信を混ぜると StrictMode の二重呼び出しで 2 回送ることになる
   const handleSelect = useCallback(
     (idx: number, value: string) => {
-      if (showFeedback) return;
-      setAnswers((prev) => {
-        const next = [...prev];
-        next[idx] = value;
-        return next;
-      });
+      if (!question || showFeedback) return;
+      const next = answers.map((a, i) => (i === idx ? value : a));
+      setAnswers(next);
+      if (question.items.every((_, i) => next[i] !== ""))
+        submit(question, next);
     },
-    [showFeedback],
+    [question, answers, showFeedback, submit],
   );
 
   if (!question) {
@@ -107,8 +117,6 @@ export function MentsuJantouFuBoard({
     question.items,
     question.context.agariHai,
   );
-  const allAnswered = answers.length > 0 && answers.every((a) => a !== "");
-
   return (
     <div className="space-y-4">
       <TehaiDisplay
@@ -141,15 +149,6 @@ export function MentsuJantouFuBoard({
           />
         ))}
       </div>
-
-      {/* Submit button（トレーニングの回答後はシェルの「次の問題へ」に入れ替わる）。
-          チャレンジは押した瞬間に次問題へ進むため「答え合わせ」ではなく「回答する」 */}
-      <ChallengeSubmitButton
-        disabled={!allAnswered || showFeedback || isCountingDown}
-        onClick={handleSubmit}
-      >
-        {isTraining ? t("checkButton") : t("answerButton")}
-      </ChallengeSubmitButton>
     </div>
   );
 }

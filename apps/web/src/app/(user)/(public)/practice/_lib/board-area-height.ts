@@ -1,7 +1,11 @@
 import type { PracticeMenuSlug } from "@/lib/db/practice-menu-types";
 
-/** 点数を select で答える試験 5 種。構図が同じで高さも揃う（実測 256〜286px） */
-const SCORE_EXAM = "h-[261px] sm:h-[281px]";
+/**
+ * 点数を select で答える試験 5 種。構図が同じで高さも揃う。点数即答と同じ
+ * 部品の並びなので値も同じ。模試（`/exam/<級>/training`）は盤面をカード上端に
+ * 密着させて上枠を落とすぶん <sm で 3px 低いが、表は本番の値を持つ
+ */
+const SCORE_EXAM = "h-[266px] sm:h-[286px]";
 
 /**
  * 解いている画面の盤面エリア（手牌 + 設問 + 選択肢）の高さ
@@ -9,9 +13,13 @@ const SCORE_EXAM = "h-[261px] sm:h-[281px]";
  *
  * 牌の画像と選択肢の数で決まり、行数や文字数からは導けないため実測値を名前で
  * 持つ。牌も選択肢も列の幅に合わせて畳まれるので高さは幅で変わる。片方しか
- * 持たないと最大 161px ずれるため（役判定の 577px と 738px）、列が 358px に
+ * 持たないと最大 147px ずれるため（役判定の 591px と 738px）、列が 358px に
  * なる <sm と 512px 以上になる sm 以上の 2 点で測った値を持つ（2026-09 実測、
  * 幅 390px / 1280px）。盤面を作り替えたら測り直すこと。
+ *
+ * 手牌の段は幅から高さを決めるため（`TehaiHand` 参照）、同じ幅なら出題が
+ * 変わっても盤面の高さは変わらない。例外は満貫以上点数計算（成立役の一覧の
+ * 行数で変わる）だけ。
  *
  * この値は「盤面がまだ無い間に場所を確保する」全員が共有する:
  *
@@ -24,15 +32,19 @@ export const BOARD_AREA_HEIGHT = {
   scoreExam: SCORE_EXAM,
   /** 合計符の試験。選択肢が 11 個並ぶため一段高い */
   fuExam: "h-[458px] sm:h-[489px]",
-  scoreCalculation: "h-[266px] sm:h-[280px]",
-  manganScoreCalculation: "h-[440px] sm:h-[437px]",
+  scoreCalculation: "h-[266px] sm:h-[286px]",
+  /**
+   * 成立役の一覧の行数で変わる（実測 426〜522px）ため一致させられない。
+   * 最も低い側（役 1 行）に置く。理由はスケルトン側の `manganScoreCalculation` 参照
+   */
+  manganScoreCalculation: "h-[426px] sm:h-[446px]",
   jantouFu: "h-[320px]",
   machiFu: "h-[339px] sm:h-[343px]",
   mentsuFu: "h-[305px] sm:h-[313px]",
   /** 面子と雀頭を 1 問で答えるため、符目の行が縦に積み上がって最も高い */
-  mentsuJantouFu: "h-[871px] sm:h-[887px]",
-  totalFu: "h-[450px] sm:h-[482px]",
-  yaku: "h-[577px] sm:h-[738px]",
+  mentsuJantouFu: "h-[805px] sm:h-[820px]",
+  totalFu: "h-[458px] sm:h-[489px]",
+  yaku: "h-[591px] sm:h-[738px]",
   /** 選択肢が広い画面で横に並ぶぶん、sm 以上の方が低い */
   hanCount: "h-[428px] sm:h-[382px]",
   /** 手牌を持たず条件だけを出すため最も低い */
