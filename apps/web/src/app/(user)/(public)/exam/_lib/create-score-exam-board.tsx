@@ -4,6 +4,7 @@ import type { ComponentType } from "react";
 import { useTranslations } from "next-intl";
 import { QuestionGeneratingPlaceholder } from "@/app/(user)/(public)/practice/_components/question-generating-placeholder";
 import { QuestionPrompt } from "@/app/(user)/(public)/practice/_components/question-prompt";
+import { YakuBreakdown } from "@/app/(user)/(public)/practice/_components/yaku-breakdown";
 import { RevealedScoreAnswer } from "@/app/(user)/(public)/practice/_components/revealed-score-answer";
 import { useScoreQuestionBoard } from "@/app/(user)/(public)/practice/_hooks/use-score-question-board";
 import type { UseScoreQuestionBoardParams } from "@/app/(user)/(public)/practice/_hooks/use-score-question-board";
@@ -11,6 +12,7 @@ import { useTrainingMode } from "@/app/(user)/(public)/practice/_hooks/use-train
 import { paymentToScoreTableAnswer } from "@/app/(user)/(public)/practice/_lib/payment-adapter";
 import type { RecordingPracticeBoardProps } from "@/app/(user)/(public)/practice/_lib/practice-board-props";
 import type { ScoreQuestionResult } from "@/app/(user)/(public)/practice/_lib/score-question-result";
+import { buildYakumanCapNote } from "@/app/(user)/(public)/practice/_lib/yakuman-cap-note";
 import { QuestionDisplay } from "@/app/(user)/(public)/practice/score/_components/question-display";
 import type { ScoreOptionRange } from "@/app/(user)/(public)/practice/score/_lib/get-available-scores";
 import { ScoreExamAnswerForm } from "../_components/score-exam-answer-form";
@@ -46,15 +48,24 @@ interface CreateScoreExamBoardConfig {
  * 数えるのが試験の要件であり、役を出すと最初の判断を肩代わりしてしまうため。
  *
  * 盤面はフィードバック枠で囲まずに単体で置く。盤面が自前で枠を持つため二重枠に
- * なり、狭い画面ではそのぶん手牌が小さくなる。正誤は回答した select 自身の枠と
- * 地の色が返し（{@link ScoreExamAnswerForm} 参照）、選択肢を持つ試験（符）が
- * 選択肢ボタンを染めるのと同じ配色・同じタイミングになる。本番の試験では正解
- * そのものは出さず、答え合わせは結果ページの問題別フィードバック一覧で行う。
+ * なり、狭い画面ではそのぶん手牌が小さくなる。回答は select を選んだ時点で
+ * 確定し（{@link ScoreExamAnswerForm} 参照。「回答する」ボタンは無い）、正誤は
+ * その select 自身の枠と地の色が返す。選択肢を持つ試験（符）が選択肢ボタンを
+ * タップで確定し、そのボタンを染めるのと同じ作法・同じ配色・同じタイミングに
+ * なる。本番の試験では正解そのものは出さず、答え合わせは結果ページの問題別
+ * フィードバック一覧で行う。
  *
  * 同じ盤面を模試（`/exam/<級>/training`。時間無制限・記録なしのトレーニング）
- * でも描く。模試では回答後の停止中と「わからない」の開示中に正解の点数を
- * 出題の直下に出す（練習の点数計算ドリルと同じ答え合わせ）。出題条件・
- * 選択肢は本番と同じで、違うのは答え合わせの有無だけ。
+ * でも描く。模試では回答後の停止中と「わからない」の開示中に、正解の点数を
+ * 出題の直下に（練習の点数計算ドリルと同じ答え合わせ）、翻数の内訳
+ * （{@link YakuBreakdown}）を回答欄の下に出す。試験は役一覧を出さないので、
+ * 点数を間違えたとき「点数表の引き間違い」と「翻数の数え間違い」を
+ * 内訳なしには切り分けられない。表と置き場所は翻数即答練習のトレーニング
+ * （選択肢の下・閉じた状態から）と同じで、既に見た手を振り返る操作が画面で
+ * 変わらない。役満止まりの注記は結果ページの問題別詳細と同じ
+ * （{@link buildYakumanCapNote}）。本番の試験では出さない — 読ませている間も
+ * タイマーが進むうえ、内訳は結果ページの問題別詳細が引き受ける。
+ * 出題条件・選択肢は本番と同じで、違うのは答え合わせの有無だけ。
  *
  * @remarks
  * ルール設定ストア（連風牌4符・切り上げ満貫）を読まないことがこの盤面の不変条件。
@@ -79,6 +90,7 @@ export function createScoreExamBoard(
     onRecordResult,
   }: RecordingPracticeBoardProps<ScoreQuestionResult>) {
     const t = useTranslations(translationNamespace);
+    const tBreakdown = useTranslations("challenge.yakuBreakdown");
 
     const { question, questionIndex, handleSubmit } = useScoreQuestionBoard({
       generateOptions,
@@ -87,11 +99,13 @@ export function createScoreExamBoard(
       onAnswer,
       onRecordResult,
     });
-    // 模試では開示時だけでなく回答後の停止中も正解を出す（答え合わせ用）。
+    // 模試では開示時だけでなく回答後の停止中も答え合わせを出す。
     // 本番の試験ではどちらも立たない（トレーニングのビューだけが提供する）。
-    // 正解のときは出さない — 選んだ値がそのまま正解で、select の色が正誤を示している
+    // 翻数の内訳は正解でも出す（数え方を確かめたい局面）が、正解の点数は
+    // 出さない — 選んだ値がそのまま正解で、select の色が正誤を示している
     const { isRevealed, isHolding } = useTrainingMode();
-    const showAnswer = (isRevealed || isHolding) && lastAnswerCorrect !== true;
+    const showBreakdown = isRevealed || isHolding;
+    const showAnswer = showBreakdown && lastAnswerCorrect !== true;
 
     if (!question) {
       // 出来上がった盤面と同じ高さで待つ（`loading.tsx` のフォールバックと同値）
@@ -133,6 +147,17 @@ export function createScoreExamBoard(
           translationNamespace={translationNamespace}
           scoreRange={scoreRange}
         />
+
+        {showBreakdown && (
+          <YakuBreakdown
+            yakuDetails={question.yakuDetails ?? []}
+            note={buildYakumanCapNote(
+              question.yakuDetails,
+              question.answer.yakumanMultiplier,
+              tBreakdown,
+            )}
+          />
+        )}
       </div>
     );
   }
