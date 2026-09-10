@@ -118,3 +118,20 @@ describe("ResultDisplay", () => {
     expect(openedModalTitle()).toBe("pageTitle");
   });
 });
+
+describe("ResultDisplay の内訳", () => {
+  it("翻数の内訳は他の練習と同じ器で閉じた状態から始まり、見出しを押すと開く", () => {
+    renderResult();
+
+    const toggle = screen.getByRole("button", {
+      name: "result.details.yakuTitle",
+    });
+    expect(toggle.getAttribute("aria-expanded")).toBe("false");
+    expect(screen.queryByText("result.details.total")).toBeNull();
+
+    fireEvent.click(toggle);
+
+    expect(toggle.getAttribute("aria-expanded")).toBe("true");
+    expect(screen.getByText("result.details.total")).toBeTruthy();
+  });
+});

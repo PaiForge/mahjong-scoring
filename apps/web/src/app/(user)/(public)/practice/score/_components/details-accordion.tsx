@@ -2,17 +2,12 @@
 
 import { useTranslations } from "next-intl";
 
+import { CollapsibleDetail } from "../../_components/collapsible-detail";
 import { DetailTable } from "../../_components/detail-table";
 
 interface DetailItem {
   readonly name: string;
   readonly value: number;
-}
-
-interface DetailsToggleButtonProps {
-  readonly isOpen: boolean;
-  readonly onToggle: () => void;
-  readonly panelId: string;
 }
 
 interface DetailsPanelRowProps {
@@ -21,53 +16,29 @@ interface DetailsPanelRowProps {
   readonly items: readonly DetailItem[];
   readonly total: number;
   readonly suffix: string;
-  readonly panelId: string;
   readonly colSpan: number;
   readonly roundedTotal?: number;
   readonly roundUpLabel?: string;
 }
 
 /**
- * 詳細アコーディオンの開閉ボタン
- *
- * 開閉ボタンとパネルはコンポーネントを分けている。パネルは `<tr>` なので
- * `<tbody>` の直下にしか置けず、セル内に置くボタンと同じ要素にまとめると
- * `<td>` の中に `<tr>` が入り hydration error になるため。
- * 呼び出し側で `<td>` の中にこれを置き、その行の直後に
- * {@link DetailsPanelRow} を置くこと。
- */
-export function DetailsToggleButton({
-  isOpen,
-  onToggle,
-  panelId,
-}: DetailsToggleButtonProps) {
-  return (
-    <button
-      type="button"
-      onClick={onToggle}
-      aria-expanded={isOpen}
-      aria-controls={panelId}
-      className="ml-2 text-xs font-normal text-primary-600 hover:text-primary-800 focus:outline-none"
-    >
-      {isOpen ? "\u25B2" : "\u25BC"}
-    </button>
-  );
-}
-
-/**
- * 詳細アコーディオンの展開パネル行
+ * 結果表の中に置く内訳の行
  * 符詳細・役詳細の展開表示
  *
- * 表そのものは {@link DetailTable} に委ねる。同じ内訳を結果ページの問題別
- * フィードバックでも出しており、出題直後とあとから見返すときで体裁が
- * 変わらないようにする。
+ * 翻数・符の行の直後に置き、その値の内訳を閉じた状態から開かせる。開閉の
+ * 器は他の練習の内訳と同じ {@link CollapsibleDetail}（▶ が回る見出し・
+ * 既定で閉じる）で、表そのものは {@link DetailTable} に委ねる。同じ内訳を
+ * 翻数即答や合計符のトレーニング・結果ページの問題別フィードバックでも
+ * 出しており、練習によって内訳の開き方や体裁が変わらないようにする。
+ *
+ * `<tr>` なので `<tbody>` の直下に置くこと（セルの中に置くと hydration
+ * error になる）。
  */
 export function DetailsPanelRow({
   title,
   items,
   total,
   suffix,
-  panelId,
   colSpan,
   roundedTotal,
   roundUpLabel,
@@ -76,27 +47,28 @@ export function DetailsPanelRow({
   const withSuffix = (value: number) => `${value}${suffix}`;
 
   return (
-    <tr id={panelId}>
+    <tr>
       <td colSpan={colSpan} className="py-2">
-        <DetailTable
-          title={title}
-          rows={items.map((detail) => ({
-            label: detail.name,
-            value: withSuffix(detail.value),
-          }))}
-          total={{
-            label: t("result.details.total"),
-            value: withSuffix(total),
-          }}
-          note={
-            roundedTotal !== undefined && total !== roundedTotal
-              ? `${withSuffix(total)} \u2192 ${withSuffix(roundedTotal)}（${roundUpLabel}）`
-              : undefined
-          }
-        />
+        <CollapsibleDetail title={title}>
+          <DetailTable
+            rows={items.map((detail) => ({
+              label: detail.name,
+              value: withSuffix(detail.value),
+            }))}
+            total={{
+              label: t("result.details.total"),
+              value: withSuffix(total),
+            }}
+            note={
+              roundedTotal !== undefined && total !== roundedTotal
+                ? `${withSuffix(total)} → ${withSuffix(roundedTotal)}（${roundUpLabel}）`
+                : undefined
+            }
+          />
+        </CollapsibleDetail>
       </td>
     </tr>
   );
 }
 
-export type { DetailItem, DetailsToggleButtonProps, DetailsPanelRowProps };
+export type { DetailItem, DetailsPanelRowProps };
