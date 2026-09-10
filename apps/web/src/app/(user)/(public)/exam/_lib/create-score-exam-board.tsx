@@ -88,9 +88,10 @@ export function createScoreExamBoard(
       onRecordResult,
     });
     // 模試では開示時だけでなく回答後の停止中も正解を出す（答え合わせ用）。
-    // 本番の試験ではどちらも立たない（トレーニングのビューだけが提供する）
+    // 本番の試験ではどちらも立たない（トレーニングのビューだけが提供する）。
+    // 正解のときは出さない — 選んだ値がそのまま正解で、select の色が正誤を示している
     const { isRevealed, isHolding } = useTrainingMode();
-    const showAnswer = isRevealed || isHolding;
+    const showAnswer = (isRevealed || isHolding) && lastAnswerCorrect !== true;
 
     if (!question) {
       // 出来上がった盤面と同じ高さで待つ（`loading.tsx` のフォールバックと同値）
@@ -109,14 +110,18 @@ export function createScoreExamBoard(
           mobileFrame={isTraining ? "fullBleedFlushTop" : "fullBleed"}
         />
 
-        {showAnswer && (
-          <RevealedScoreAnswer
-            answer={paymentToScoreTableAnswer(question.answer.payment)}
-            translationNamespace={translationNamespace}
-          />
-        )}
-
-        <QuestionPrompt>{t("questionPrompt")}</QuestionPrompt>
+        <QuestionPrompt
+          replacement={
+            showAnswer ? (
+              <RevealedScoreAnswer
+                answer={paymentToScoreTableAnswer(question.answer.payment)}
+                translationNamespace={translationNamespace}
+              />
+            ) : undefined
+          }
+        >
+          {t("questionPrompt")}
+        </QuestionPrompt>
 
         <ScoreExamAnswerForm
           question={question}
