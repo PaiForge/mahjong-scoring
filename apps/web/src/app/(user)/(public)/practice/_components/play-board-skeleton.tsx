@@ -92,12 +92,12 @@ function SubmitButton() {
 }
 
 /**
- * 点数を select で答える回答フォーム（`space-y-5` にラベル + select と送信
- * ボタン）。実測 144px で、幅によらない
+ * 点数を select で答える回答フォーム（`space-y-4` にラベル + select と送信
+ * ボタン）。実測 140px で、幅によらない
  */
 function ScoreAnswerForm() {
   return (
-    <div className="space-y-5">
+    <div className="space-y-4">
       <div>
         <SkeletonBar className="mb-2 h-4 w-24" tone={100} />
         <SkeletonBar radius="lg" className="h-[50px] w-full" tone={100} />
