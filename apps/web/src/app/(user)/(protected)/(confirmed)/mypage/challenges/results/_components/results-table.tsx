@@ -4,7 +4,8 @@ import {
   CompactTableHeaderCell,
   CompactTableRow,
 } from "../../_components/compact-table";
-import { formatDate, getMissColorClass } from "../../_lib/dashboard-utils";
+import { getMissColorClass } from "@/app/(user)/_components/_lib/miss-color";
+import { formatDate } from "../../_lib/dashboard-utils";
 import type { ChallengeAttempt, RecordBoard } from "../../_lib/types";
 
 interface ResultsTableProps {

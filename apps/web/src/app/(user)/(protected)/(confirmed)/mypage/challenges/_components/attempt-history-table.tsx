@@ -4,7 +4,7 @@ import {
   CompactTableHeaderCell,
   CompactTableRow,
 } from "./compact-table";
-import { getMissColorClass } from "../_lib/dashboard-utils";
+import { getMissColorClass } from "@/app/(user)/_components/_lib/miss-color";
 import type { AttemptRow } from "../_lib/types";
 
 interface AttemptHistoryTableProps {
