@@ -15,6 +15,7 @@ import { ManganExamBoard } from "./mangan-exam-board";
 export const ManganExamTrainingView = createTrainingView({
   slug: PRACTICE_SLUG.manganExam,
   maxWidth: "max-w-lg",
+  hasSubmitButton: true,
   renderBoard: ({ showFeedback, lastAnswerCorrect, isTraining, onAnswer }) => (
     <ManganExamBoard
       showFeedback={showFeedback}

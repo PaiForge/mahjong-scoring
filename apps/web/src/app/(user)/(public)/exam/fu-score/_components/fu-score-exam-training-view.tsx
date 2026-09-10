@@ -15,6 +15,7 @@ import { FuScoreExamBoard } from "./fu-score-exam-board";
 export const FuScoreExamTrainingView = createTrainingView({
   slug: PRACTICE_SLUG.fuScoreExam,
   maxWidth: "max-w-lg",
+  hasSubmitButton: true,
   renderBoard: ({ showFeedback, lastAnswerCorrect, isTraining, onAnswer }) => (
     <FuScoreExamBoard
       showFeedback={showFeedback}

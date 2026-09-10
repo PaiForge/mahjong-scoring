@@ -8,6 +8,7 @@ import { MentsuJantouFuHelp } from "./mentsu-jantou-fu-help";
 export const MentsuJantouFuTrainingView = createTrainingView({
   slug: PRACTICE_SLUG.mentsuJantouFu,
   maxWidth: "max-w-lg",
+  hasSubmitButton: true,
   help: <MentsuJantouFuHelp />,
   renderBoard: ({ showFeedback, isTraining, onAnswer }) => (
     <MentsuJantouFuBoard

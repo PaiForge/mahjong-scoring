@@ -61,9 +61,10 @@ export function ScoreCalculationBoard({
     onAnswer,
     onRecordResult,
   });
-  // トレーニングでは開示時だけでなく回答後の停止中も正解を出す（答え合わせ用）
+  // トレーニングでは開示時だけでなく回答後の停止中も正解を出す（答え合わせ用）。
+  // 正解のときは出さない — 選んだ値がそのまま正解で、select の色が正誤を示している
   const { isRevealed, isHolding } = useTrainingMode();
-  const showAnswer = isRevealed || isHolding;
+  const showAnswer = (isRevealed || isHolding) && lastAnswerCorrect !== true;
 
   if (!question) {
     return (
@@ -82,14 +83,18 @@ export function ScoreCalculationBoard({
         mobileFrame={isTraining ? "fullBleedFlushTop" : "fullBleed"}
       />
 
-      {showAnswer && (
-        <RevealedScoreAnswer
-          answer={paymentToScoreTableAnswer(question.answer.payment)}
-          translationNamespace="scoreCalculationChallenge"
-        />
-      )}
-
-      <QuestionPrompt>{t("questionPrompt")}</QuestionPrompt>
+      <QuestionPrompt
+        replacement={
+          showAnswer ? (
+            <RevealedScoreAnswer
+              answer={paymentToScoreTableAnswer(question.answer.payment)}
+              translationNamespace="scoreCalculationChallenge"
+            />
+          ) : undefined
+        }
+      >
+        {t("questionPrompt")}
+      </QuestionPrompt>
 
       {/* Answer form */}
       <ScoreChallengeAnswerForm

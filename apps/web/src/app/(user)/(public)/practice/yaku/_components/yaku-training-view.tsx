@@ -7,6 +7,7 @@ import { YakuBoard } from "./yaku-board";
 export const YakuTrainingView = createTrainingView({
   slug: PRACTICE_SLUG.yaku,
   maxWidth: "max-w-2xl",
+  hasSubmitButton: true,
   renderBoard: ({ showFeedback, isTraining, lastAnswerCorrect, onAnswer }) => (
     <YakuBoard
       showFeedback={showFeedback}

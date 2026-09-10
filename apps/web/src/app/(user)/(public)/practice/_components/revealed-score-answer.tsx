@@ -13,12 +13,18 @@ interface RevealedScoreAnswerProps {
 }
 
 /**
- * 「わからない」で開示した正解の点数
+ * トレーニングで開示する正解の点数
  * 正解開示表示
  *
  * 点数を答える練習（点数表早引き・点数計算）は選択肢を持たないため、回答の
- * フィードバックだけでは正解値が分からない。開示中はこれを出題のすぐ下に
- * 置いて正解を示す。ロンの点数には単位が無いため「点」を付ける。
+ * フィードバックだけでは正解値が分からない。「わからない」と不正解のあとに
+ * 出題文の行と差し替えて出す（{@link import("./question-prompt").QuestionPrompt}
+ * の `replacement`）。正解のときは出さない — 選んだ値がそのまま正解で、
+ * 枠の色が正誤を示している。
+ *
+ * 出題文と同じ 1 行（20px）に収めるため行間を `leading-5` に詰める。行を
+ * 高くすると差し替えた瞬間に回答欄が動く。ロンの点数には単位が無いため
+ * 「点」を付ける。
  */
 export function RevealedScoreAnswer({
   answer,
@@ -27,7 +33,7 @@ export function RevealedScoreAnswer({
   const t = useTranslations(translationNamespace);
 
   return (
-    <p className="text-center text-lg font-bold text-surface-800">
+    <p className="text-center text-base leading-5 font-bold text-surface-800">
       {t("revealedAnswer", {
         answer: formatScoreAnswer(answer, (key) => t(key), {
           ronSuffix: t("pointSuffix"),

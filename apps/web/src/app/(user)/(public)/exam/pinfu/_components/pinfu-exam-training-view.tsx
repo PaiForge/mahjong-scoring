@@ -15,6 +15,7 @@ import { PinfuExamBoard } from "./pinfu-exam-board";
 export const PinfuExamTrainingView = createTrainingView({
   slug: PRACTICE_SLUG.pinfuExam,
   maxWidth: "max-w-lg",
+  hasSubmitButton: true,
   renderBoard: ({ showFeedback, lastAnswerCorrect, isTraining, onAnswer }) => (
     <PinfuExamBoard
       showFeedback={showFeedback}

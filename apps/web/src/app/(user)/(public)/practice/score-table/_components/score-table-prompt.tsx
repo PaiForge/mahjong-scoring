@@ -1,8 +1,10 @@
 "use client";
 
 import { useTranslations } from "next-intl";
+import type { ScoreTableAnswer } from "@mahjong-scoring/core";
 
 import { QuestionPrompt } from "../../_components/question-prompt";
+import { RevealedScoreAnswer } from "../../_components/revealed-score-answer";
 
 interface ScoreTablePromptProps {
   readonly isOya: boolean;
@@ -10,6 +12,11 @@ interface ScoreTablePromptProps {
   readonly han: number;
   /** 符。満貫以上は点数が符に依存しないため省く */
   readonly fu?: number;
+  /**
+   * 開示する正解。指定時は出題文の行をこれに差し替える
+   * （トレーニングの「わからない」と不正解のあと）
+   */
+  readonly revealedAnswer?: ScoreTableAnswer;
 }
 
 /**
@@ -25,6 +32,7 @@ export function ScoreTablePrompt({
   isTsumo,
   han,
   fu,
+  revealedAnswer,
 }: ScoreTablePromptProps) {
   const t = useTranslations("scoreTableChallenge");
 
@@ -50,7 +58,18 @@ export function ScoreTablePrompt({
         )}
       </div>
 
-      <QuestionPrompt>{t("questionLabel")}</QuestionPrompt>
+      <QuestionPrompt
+        replacement={
+          revealedAnswer === undefined ? undefined : (
+            <RevealedScoreAnswer
+              answer={revealedAnswer}
+              translationNamespace="scoreTableChallenge"
+            />
+          )
+        }
+      >
+        {t("questionLabel")}
+      </QuestionPrompt>
     </>
   );
 }

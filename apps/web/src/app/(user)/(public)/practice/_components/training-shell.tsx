@@ -79,6 +79,19 @@ interface TrainingShellProps {
   readonly isHolding?: boolean;
   /** 停止状態から次問題へ進む（「次の問題へ」が呼ぶ） */
   readonly onProceed?: () => void;
+  /**
+   * 盤面が自前の回答ボタン（「回答する」）を持つか（既定 false）
+   *
+   * 持つ盤面は停止中に回答ボタンを引っ込め、シェルが同じ位置に
+   * 「次の問題へ」を出す。ボタン同士が入れ替わるので高さは変わらない
+   * （{@link import("./challenge-submit-button").ChallengeSubmitButton} /
+   * {@link import("./score-answer-form").ScoreAnswerForm} 参照）。
+   *
+   * 持たない盤面（選択肢をタップした瞬間に確定する練習・自動送信の select）
+   * には入れ替わる相手が無い。停止していない間もボタン 1 つ分の場所を空けて
+   * おき、「次の問題へ」が現れた瞬間にカウンタ以下が押し下げられないようにする。
+   */
+  readonly hasSubmitButton?: boolean;
 }
 
 /**
@@ -105,6 +118,7 @@ export function TrainingShell({
   isRevealed = false,
   isHolding = false,
   onProceed,
+  hasSubmitButton = false,
 }: TrainingShellProps) {
   const tc = useTranslations("challenge");
   const tt = useTranslations("training");
@@ -122,6 +136,8 @@ export function TrainingShell({
     toastOnArrival(exitHref, exitToast);
   }, [exitHref, exitToast]);
 
+  const showsProceed = isHolding && onProceed !== undefined;
+
   return (
     <ContentContainer id={PRACTICE_SCROLL_ANCHOR_ID} fillViewport>
       <PageTitle action={titleAction}>{title}</PageTitle>
@@ -131,9 +147,15 @@ export function TrainingShell({
         <div>
           {children}
 
-          {/* 回答後は自動で進まず、答え合わせを読み終えてから押してもらう */}
-          {isHolding && onProceed && (
-            <div className="mt-4">
+          {/* 回答後は自動で進まず、答え合わせを読み終えてから押してもらう。
+              回答ボタンを持たない盤面では、停止していない間も同じボタンを
+              不可視のまま置いて場所を取る（現れた瞬間に下が動かないため） */}
+          {(showsProceed || !hasSubmitButton) && (
+            <div
+              className={`mt-4 ${showsProceed ? "" : "invisible"}`}
+              inert={!showsProceed}
+              aria-hidden={!showsProceed}
+            >
               <Button size="lg" fullWidth onClick={onProceed}>
                 {tt("nextButton")}
               </Button>
