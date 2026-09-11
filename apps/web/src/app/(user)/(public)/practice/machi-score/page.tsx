@@ -19,6 +19,7 @@ import { ContentContainer } from "@/app/(user)/_components/content-container";
 import { HighlightPanel } from "@/app/(user)/_components/highlight-panel";
 import { PageTitle } from "@/app/(user)/_components/page-title";
 import { SectionTitle } from "@/app/(user)/_components/section-title";
+import { MachiScoreHelpTour } from "./_components/machi-score-help-tour";
 import { MachiScoreSetupForm } from "./_components/machi-score-setup-form";
 
 export async function generateMetadata(): Promise<Metadata> {
@@ -41,7 +42,7 @@ export default async function MachiScoreSetupPage() {
         { label: t("title") },
       ]}
     >
-      <PageTitle>{t("title")}</PageTitle>
+      <PageTitle action={<MachiScoreHelpTour />}>{t("title")}</PageTitle>
 
       <div className="space-y-4 sm:space-y-6 md:space-y-8">
         <SectionTitle>{tp("settingsTitle")}</SectionTitle>

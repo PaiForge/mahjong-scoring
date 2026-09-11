@@ -1,6 +1,6 @@
 "use client";
 
-import { Suspense, useEffect, useRef } from "react";
+import { Suspense, useEffect, useRef, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useTranslations } from "next-intl";
 import { toast } from "react-hot-toast";
@@ -10,6 +10,7 @@ import { toastOnArrival } from "@/app/_components/_lib/toast-on-arrival";
 import { useYakumanRules } from "@/app/_hooks/use-rule-settings-store";
 import { Button } from "@/app/(user)/_components/button";
 import { ContentContainer } from "@/app/(user)/_components/content-container";
+import { InfoModal } from "@/app/(user)/_components/info-modal";
 import { PageTitle } from "@/app/(user)/_components/page-title";
 import { useIsClient } from "../../../../../_hooks/use-is-client";
 import { useScrollToElement } from "../../_hooks/use-scroll-to-element";
@@ -45,6 +46,7 @@ function MachiScoreBoardInner() {
   const t = useTranslations("machiScore");
   const tScore = useTranslations("score");
   const tt = useTranslations("training");
+  const tCommon = useTranslations("common");
   const router = useRouter();
   const searchParams = useSearchParams();
   const {
@@ -71,6 +73,8 @@ function MachiScoreBoardInner() {
 
   const isClient = useIsClient();
   const appliedQueryRef = useRef<string | undefined>(undefined);
+  // マスの答え方（まとめて選ぶ・列ごと選ぶ・役なし）の説明モーダル
+  const [showCellsHelp, setShowCellsHelp] = useState(false);
   const allowDoubleYakuman = allowsDoubleYakuman(useYakumanRules());
 
   useScrollToElement(PRACTICE_SCROLL_ANCHOR_ID, Boolean(currentQuestion));
@@ -260,10 +264,20 @@ function MachiScoreBoardInner() {
 
         {phase === "cells" && (
           <div className="space-y-4">
-            <QuestionPrompt>{t("cells.prompt")}</QuestionPrompt>
-            <p className="text-center text-xs text-surface-500">
-              {t("cells.hint")}
-            </p>
+            {/* 出題文の右端に「?」を置き、マスの操作（まとめて選ぶ・列ごと
+                選ぶ・役なし）の説明をモーダルで出す。本文に書くと画面が
+                長くなるため（盤面のドラ横の「?」と同じ作法） */}
+            <div className="flex items-center justify-center gap-1.5">
+              <QuestionPrompt>{t("cells.prompt")}</QuestionPrompt>
+              <button
+                type="button"
+                onClick={() => setShowCellsHelp(true)}
+                className="inline-flex size-5 shrink-0 items-center justify-center rounded-full text-xs text-surface-400 transition-colors hover:bg-surface-200 hover:text-surface-600"
+                aria-label={tCommon("showDetailInfo")}
+              >
+                ?
+              </button>
+            </div>
 
             <WaitCellGrid
               question={currentQuestion}
@@ -340,6 +354,21 @@ function MachiScoreBoardInner() {
             onNext={handleNext}
           />
         )}
+
+        <InfoModal
+          isOpen={showCellsHelp}
+          onClose={() => setShowCellsHelp(false)}
+          title={t("cells.help.title")}
+          closeLabel={tCommon("close")}
+        >
+          <ul className="list-disc space-y-2 pl-5 text-sm leading-relaxed text-surface-700">
+            <li>{t("cells.help.select")}</li>
+            <li>{t("cells.help.batch")}</li>
+            <li>{t("cells.help.column")}</li>
+            <li>{t("cells.help.clear")}</li>
+            <li>{t("cells.help.noYaku")}</li>
+          </ul>
+        </InfoModal>
 
         <ScoreCounter
           correct={stats.correct}
