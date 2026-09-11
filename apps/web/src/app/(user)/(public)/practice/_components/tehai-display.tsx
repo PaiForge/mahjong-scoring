@@ -189,8 +189,6 @@ export const TehaiDisplay = memo(function TehaiDisplayComponent({
               <HelpIconButton
                 onClick={() => setShowDoraInfo(true)}
                 label={t("showDetailInfo")}
-                tone="dark"
-                size="sm"
               />
             </DoraGroup>
           )}

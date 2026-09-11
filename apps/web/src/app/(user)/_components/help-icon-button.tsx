@@ -1,22 +1,8 @@
-/** 置く面ごとの配色。`light` は白い面、`dark` は濃い緑の盤面 */
-const TONE_CLASSES = {
-  light: "bg-ink text-white hover:bg-primary-700",
-  dark: "bg-white text-ink hover:bg-primary-100",
-} as const;
-
-/** 大きさ。`md` が既定。`sm` は牌の状況行のような背の低い行に添えるとき */
-const SIZE_CLASSES = {
-  sm: "size-5 text-xs",
-  md: "size-6 text-sm",
-} as const;
-
 interface HelpIconButtonProps {
   readonly onClick: () => void;
   /** 読み上げ名。何のヘルプかが分かる文言にする（「この練習の進め方を見る」等） */
   readonly label: string;
-  readonly tone?: keyof typeof TONE_CLASSES;
-  readonly size?: keyof typeof SIZE_CLASSES;
-  /** 余白などレイアウト調整用。色・形は上書きしない */
+  /** 余白などレイアウト調整用。色・形・大きさは上書きしない */
   readonly className?: string;
 }
 
@@ -26,15 +12,16 @@ interface HelpIconButtonProps {
  *
  * 設定項目の補足、盤面のドラの見方、練習の進め方（カルーセル / ツアー）など、
  * 「押すと説明が出る」入口はすべてこれ。素の「?」の文字や線画のアイコンは
- * 地の文に紛れて押せることが伝わらないため、塗りの丸に白抜きの太字で出す
- * （見出し pill と同じ「濃い緑に白抜き」の語彙）。ページ側で「?」の
- * ボタンを書き起こさない。
+ * 地の文に紛れて押せることが伝わらないため、送信ボタンと同じ緑の塗りの丸に
+ * 白抜きの太字で出す（緑 = 押せる面の記号）。ページ側で「?」のボタンを
+ * 書き起こさない。
+ *
+ * 大きさは添える文字に合わせる（em 指定）。見出しの横なら見出しの文字に、
+ * 出題文の横なら出題文に、状況行なら状況行の文字に揃う。
  */
 export function HelpIconButton({
   onClick,
   label,
-  tone = "light",
-  size = "md",
   className = "",
 }: HelpIconButtonProps) {
   return (
@@ -42,7 +29,7 @@ export function HelpIconButton({
       type="button"
       onClick={onClick}
       aria-label={label}
-      className={`inline-flex shrink-0 items-center justify-center rounded-full font-bold leading-none transition-colors ${TONE_CLASSES[tone]} ${SIZE_CLASSES[size]} ${className}`}
+      className={`inline-flex size-[1.25em] shrink-0 items-center justify-center rounded-full bg-primary-500 text-[0.75em] font-bold leading-none text-white transition-colors hover:bg-primary-600 ${className}`}
     >
       ?
     </button>

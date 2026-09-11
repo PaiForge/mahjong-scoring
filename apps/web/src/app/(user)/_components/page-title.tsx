@@ -28,7 +28,9 @@ export function PageTitle({
   if (!action) return heading;
 
   return (
-    <div className="flex items-center justify-center gap-2">
+    // 文字サイズは包む側にも置く。操作要素（HelpIconButton）は em で大きさを
+    // 決めるため、見出しと同じサイズを継承させて文字に揃える
+    <div className="flex items-center justify-center gap-2 text-xl md:text-2xl">
       {heading}
       {action}
     </div>
