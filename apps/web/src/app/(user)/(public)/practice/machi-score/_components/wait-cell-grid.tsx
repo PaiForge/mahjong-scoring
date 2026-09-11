@@ -8,6 +8,7 @@ import type {
 import { Hai } from "@pai-forge/mahjong-react-ui";
 import { TEXT_LINK_CLASSES } from "@/app/_components/_lib/link-classes";
 import { cellKeyOf, type MachiCellRef } from "../_hooks/use-machi-score-store";
+import { MACHI_SCORE_TOUR_ID } from "../_lib/tour-ids";
 
 interface WaitCellGridProps {
   readonly question: MachiScoreQuestion;
@@ -78,6 +79,7 @@ export function WaitCellGrid({
           disabled={disabled}
           onClick={() => onSelectColumn(isTsumo)}
           className={`text-xs ${TEXT_LINK_CLASSES}`}
+          data-tour-id={isTsumo ? MACHI_SCORE_TOUR_ID.selectColumn : undefined}
         >
           {t("selectColumn")}
         </button>
@@ -86,7 +88,7 @@ export function WaitCellGrid({
   );
 
   return (
-    <div className="overflow-x-auto">
+    <div className="overflow-x-auto" data-tour-id={MACHI_SCORE_TOUR_ID.cells}>
       <table className="w-full table-fixed border-separate border-spacing-0">
         <thead>
           <tr>

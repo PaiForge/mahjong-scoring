@@ -37,6 +37,10 @@ interface ScorePracticeAnswerFormProps {
   readonly secondaryAction?: {
     readonly label: string;
     readonly onClick: () => void;
+    /** フォーム全体は使えるがこの操作だけ選べないとき（ツモには「役なし」が無い等） */
+    readonly disabled?: boolean;
+    /** ヘルプツアーが照らすための `data-tour-id` */
+    readonly tourId?: string;
   };
 }
 
@@ -317,8 +321,9 @@ export function ScorePracticeAnswerForm({
           variant="secondary"
           size="lg"
           fullWidth
-          disabled={disabled}
+          disabled={disabled || secondaryAction.disabled}
           onClick={secondaryAction.onClick}
+          data-tour-id={secondaryAction.tourId}
         >
           {secondaryAction.label}
         </Button>

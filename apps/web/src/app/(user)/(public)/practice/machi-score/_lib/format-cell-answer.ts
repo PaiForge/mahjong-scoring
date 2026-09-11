@@ -32,14 +32,21 @@ function formatHan(
     : `${han}${t("form.options.hanSuffix")}`;
 }
 
-/** 支払いの表示（ロン「n点」・親ツモ「nオール」・子ツモ「a/b」） */
+/**
+ * 支払いの表示（ロン「n点」・親ツモ「nオール」・子ツモ「a/b」）
+ *
+ * ツモは支払いの内訳や「オール」が単位を兼ねるため「点」を付けない
+ * （`formatScoreAnswer` と同じ表記）。
+ */
 function formatPayment(
   answer: UserAnswer,
+  isOyaTsumo: boolean,
   { t }: FormatCellAnswerOptions,
 ): string {
   if (answer.scoreFromKo !== undefined) {
     return `${answer.scoreFromKo}/${answer.scoreFromOya}`;
   }
+  if (isOyaTsumo) return `${answer.score}${t("form.options.all")}`;
   return `${answer.score}${t("result.pointSuffix")}`;
 }
 
@@ -62,9 +69,8 @@ export function formatCellAnswer(
     user.fu !== undefined
       ? `${user.fu}${options.t("form.options.fuSuffix")}`
       : undefined;
-  const payment = formatPayment(user, options);
-  const all = options.isOyaTsumo ? options.t("form.options.all") : "";
-  return [han, fu, `${payment}${all}`].filter(Boolean).join(" ");
+  const payment = formatPayment(user, options.isOyaTsumo, options);
+  return [han, fu, payment].filter(Boolean).join(" ");
 }
 
 /**

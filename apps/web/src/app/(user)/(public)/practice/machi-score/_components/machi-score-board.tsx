@@ -1,6 +1,6 @@
 "use client";
 
-import { Suspense, useEffect, useRef, useState } from "react";
+import { Suspense, useEffect, useRef } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useTranslations } from "next-intl";
 import { toast } from "react-hot-toast";
@@ -10,7 +10,6 @@ import { toastOnArrival } from "@/app/_components/_lib/toast-on-arrival";
 import { useYakumanRules } from "@/app/_hooks/use-rule-settings-store";
 import { Button } from "@/app/(user)/_components/button";
 import { ContentContainer } from "@/app/(user)/_components/content-container";
-import { InfoModal } from "@/app/(user)/_components/info-modal";
 import { PageTitle } from "@/app/(user)/_components/page-title";
 import { useIsClient } from "../../../../../_hooks/use-is-client";
 import { useScrollToElement } from "../../_hooks/use-scroll-to-element";
@@ -36,9 +35,11 @@ import {
   useMachiScoreStore,
 } from "../_hooks/use-machi-score-store";
 import { formatCellAnswer } from "../_lib/format-cell-answer";
+import { MACHI_SCORE_TOUR_ID } from "../_lib/tour-ids";
 import { MachiPicker } from "./machi-picker";
 import { MachiScoreBoardSkeleton } from "./machi-score-board-skeleton";
 import { MachiScoreResult } from "./machi-score-result";
+import { MachiScoreSpotlightTour } from "./machi-score-spotlight-tour";
 import { TenpaiDisplay } from "./tenpai-display";
 import { WaitCellGrid } from "./wait-cell-grid";
 
@@ -46,7 +47,6 @@ function MachiScoreBoardInner() {
   const t = useTranslations("machiScore");
   const tScore = useTranslations("score");
   const tt = useTranslations("training");
-  const tCommon = useTranslations("common");
   const router = useRouter();
   const searchParams = useSearchParams();
   const {
@@ -73,8 +73,6 @@ function MachiScoreBoardInner() {
 
   const isClient = useIsClient();
   const appliedQueryRef = useRef<string | undefined>(undefined);
-  // マスの答え方（まとめて選ぶ・列ごと選ぶ・役なし）の説明モーダル
-  const [showCellsHelp, setShowCellsHelp] = useState(false);
   const allowDoubleYakuman = allowsDoubleYakuman(useYakumanRules());
 
   useScrollToElement(PRACTICE_SCROLL_ANCHOR_ID, Boolean(currentQuestion));
@@ -196,15 +194,18 @@ function MachiScoreBoardInner() {
 
   return (
     <ContentContainer id={PRACTICE_SCROLL_ANCHOR_ID} fillViewport>
-      <PageTitle>{t("title")}</PageTitle>
+      <PageTitle action={<MachiScoreSpotlightTour />}>{t("title")}</PageTitle>
 
       <div className="space-y-4 sm:space-y-6 md:space-y-8">
-        {/* 裏ドラは待ちを答えるまで伏せる */}
-        <TenpaiDisplay
-          question={currentQuestion}
-          showUraDora={phase !== "machi"}
-          mobileFrame="fullBleedFlushTop"
-        />
+        {/* 裏ドラは待ちを答えるまで伏せる。ツアーの対象にするため div で包む
+            （盤面は <sm で負のマージンを持つので、包んだ div も同じ幅になる） */}
+        <div data-tour-id={MACHI_SCORE_TOUR_ID.board}>
+          <TenpaiDisplay
+            question={currentQuestion}
+            showUraDora={phase !== "machi"}
+            mobileFrame="fullBleedFlushTop"
+          />
+        </div>
 
         {phase === "machi" && (
           <div className="space-y-4">
@@ -230,11 +231,13 @@ function MachiScoreBoardInner() {
               {t("machi.prompt")}
             </QuestionPrompt>
 
-            <MachiPicker
-              selected={selectedMachi}
-              onToggle={toggleMachi}
-              judgement={machiJudgement}
-            />
+            <div data-tour-id={MACHI_SCORE_TOUR_ID.picker}>
+              <MachiPicker
+                selected={selectedMachi}
+                onToggle={toggleMachi}
+                judgement={machiJudgement}
+              />
+            </div>
 
             {/* 選択数の行は判定後も高さを残す。消すとボタンとフッターが
                 判定の瞬間に上へずれる */}
@@ -244,40 +247,29 @@ function MachiScoreBoardInner() {
                   ? ""
                   : t("machi.selectedCount", { count: selectedMachi.length })}
               </p>
-              {machiJudgement ? (
-                <Button size="lg" fullWidth onClick={handleProceed}>
-                  {t("machi.proceed")}
-                </Button>
-              ) : (
-                <Button
-                  size="lg"
-                  fullWidth
-                  onClick={handleSubmitMachi}
-                  disabled={selectedMachi.length === 0}
-                >
-                  {t("machi.submit")}
-                </Button>
-              )}
+              <div data-tour-id={MACHI_SCORE_TOUR_ID.machiSubmit}>
+                {machiJudgement ? (
+                  <Button size="lg" fullWidth onClick={handleProceed}>
+                    {t("machi.proceed")}
+                  </Button>
+                ) : (
+                  <Button
+                    size="lg"
+                    fullWidth
+                    onClick={handleSubmitMachi}
+                    disabled={selectedMachi.length === 0}
+                  >
+                    {t("machi.submit")}
+                  </Button>
+                )}
+              </div>
             </div>
           </div>
         )}
 
         {phase === "cells" && (
           <div className="space-y-4">
-            {/* 出題文の右端に「?」を置き、マスの操作（まとめて選ぶ・列ごと
-                選ぶ・役なし）の説明をモーダルで出す。本文に書くと画面が
-                長くなるため（盤面のドラ横の「?」と同じ作法） */}
-            <div className="flex items-center justify-center gap-1.5">
-              <QuestionPrompt>{t("cells.prompt")}</QuestionPrompt>
-              <button
-                type="button"
-                onClick={() => setShowCellsHelp(true)}
-                className="inline-flex size-5 shrink-0 items-center justify-center rounded-full text-xs text-surface-400 transition-colors hover:bg-surface-200 hover:text-surface-600"
-                aria-label={tCommon("showDetailInfo")}
-              >
-                ?
-              </button>
-            </div>
+            <QuestionPrompt>{t("cells.prompt")}</QuestionPrompt>
 
             <WaitCellGrid
               question={currentQuestion}
@@ -288,39 +280,41 @@ function MachiScoreBoardInner() {
               onSelectColumn={selectColumn}
             />
 
-            {/* 回答フォームは選択の組み合わせごとに作り直す（入力を持ち越さない） */}
-            {selectedIsTsumo === undefined ? (
-              <p className="rounded-lg border-3 border-dashed border-surface-300 p-4 text-center text-sm text-surface-500">
-                {t("cells.noSelection")}
+            {/* 回答欄はマスを選ぶ前も無効状態で置いておく。選んだ瞬間に欄が
+                現れて下のボタンが押し下げられるのを避け、ヘルプツアーが
+                いつでも照らせるようにするため。フォームは選択の組み合わせ
+                ごとに作り直す（入力を持ち越さない） */}
+            <div
+              className="space-y-3 rounded-lg bg-surface-50 p-4"
+              data-tour-id={MACHI_SCORE_TOUR_ID.answerForm}
+            >
+              <p className="text-sm font-bold text-surface-700">
+                {selectedIsTsumo === undefined
+                  ? t("cells.noSelection")
+                  : t("cells.selectedCells", {
+                      count: selectedCells.length,
+                      method: t(selectedIsTsumo ? "cells.tsumo" : "cells.ron"),
+                    })}
               </p>
-            ) : (
-              <div className="space-y-3 rounded-lg bg-surface-50 p-4">
-                <p className="text-sm font-bold text-surface-700">
-                  {t("cells.selectedCells", {
-                    count: selectedCells.length,
-                    method: t(selectedIsTsumo ? "cells.tsumo" : "cells.ron"),
-                  })}
-                </p>
-                <ScorePracticeAnswerForm
-                  key={`${questionSeq}:${selectedCells.map(cellKeyOf).join(",")}`}
-                  onSubmit={handleAssignScore}
-                  isTsumo={selectedIsTsumo}
-                  isOya={isOyaQuestion}
-                  requireYaku={requireYaku}
-                  simplifyMangan={simplifyMangan}
-                  requireFuForMangan={requireFuForMangan}
-                  submitLabel={t("cells.assign")}
-                  secondaryAction={
-                    selectedIsTsumo
-                      ? undefined
-                      : {
-                          label: t("cells.noYaku"),
-                          onClick: handleAssignNoYaku,
-                        }
-                  }
-                />
-              </div>
-            )}
+              <ScorePracticeAnswerForm
+                key={`${questionSeq}:${selectedCells.map(cellKeyOf).join(",")}`}
+                onSubmit={handleAssignScore}
+                disabled={selectedIsTsumo === undefined}
+                isTsumo={selectedIsTsumo ?? true}
+                isOya={isOyaQuestion}
+                requireYaku={requireYaku}
+                simplifyMangan={simplifyMangan}
+                requireFuForMangan={requireFuForMangan}
+                submitLabel={t("cells.assign")}
+                secondaryAction={{
+                  label: t("cells.noYaku"),
+                  onClick: handleAssignNoYaku,
+                  // 「役なし」はロンにしか無い。ツモの列を選んでいる間は押せない
+                  disabled: selectedIsTsumo !== false,
+                  tourId: MACHI_SCORE_TOUR_ID.noYaku,
+                }}
+              />
+            </div>
 
             <div className="space-y-2">
               {remaining > 0 && (
@@ -328,14 +322,16 @@ function MachiScoreBoardInner() {
                   {t("cells.remaining", { count: remaining })}
                 </p>
               )}
-              <Button
-                size="lg"
-                fullWidth
-                onClick={handleSubmitCells}
-                disabled={remaining > 0}
-              >
-                {t("cells.submit")}
-              </Button>
+              <div data-tour-id={MACHI_SCORE_TOUR_ID.cellsSubmit}>
+                <Button
+                  size="lg"
+                  fullWidth
+                  onClick={handleSubmitCells}
+                  disabled={remaining > 0}
+                >
+                  {t("cells.submit")}
+                </Button>
+              </div>
             </div>
           </div>
         )}
@@ -354,21 +350,6 @@ function MachiScoreBoardInner() {
             onNext={handleNext}
           />
         )}
-
-        <InfoModal
-          isOpen={showCellsHelp}
-          onClose={() => setShowCellsHelp(false)}
-          title={t("cells.help.title")}
-          closeLabel={tCommon("close")}
-        >
-          <ul className="list-disc space-y-2 pl-5 text-sm leading-relaxed text-surface-700">
-            <li>{t("cells.help.select")}</li>
-            <li>{t("cells.help.batch")}</li>
-            <li>{t("cells.help.column")}</li>
-            <li>{t("cells.help.clear")}</li>
-            <li>{t("cells.help.noYaku")}</li>
-          </ul>
-        </InfoModal>
 
         <ScoreCounter
           correct={stats.correct}

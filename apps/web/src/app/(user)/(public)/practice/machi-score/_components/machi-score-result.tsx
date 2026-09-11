@@ -15,6 +15,7 @@ import { HighlightPanel } from "@/app/(user)/_components/highlight-panel";
 import { ResultDisplay } from "../../score/_components/result-display";
 import { TehaiMentsuBreakdown } from "../../_components/tehai-mentsu-breakdown";
 import { correctCellAnswerOf } from "../_lib/format-cell-answer";
+import { MACHI_SCORE_TOUR_ID } from "../_lib/tour-ids";
 import {
   cellKeyOf,
   listCellRefs,
@@ -111,7 +112,10 @@ export function MachiScoreResult({
       </div>
 
       {/* 待ち × ツモ/ロン の一覧 */}
-      <div className="space-y-2">
+      <div
+        className="space-y-2"
+        data-tour-id={MACHI_SCORE_TOUR_ID.resultSummary}
+      >
         <div className="flex items-baseline justify-between">
           <h3 className="text-sm font-bold text-surface-700">
             {t("summaryTitle")}
@@ -186,7 +190,10 @@ export function MachiScoreResult({
 
       {/* 選んだマスの内訳 */}
       {focusedQuestion ? (
-        <div className="space-y-4">
+        <div
+          className="space-y-4"
+          data-tour-id={MACHI_SCORE_TOUR_ID.resultDetail}
+        >
           <TehaiMentsuBreakdown
             tehai={focusedQuestion.tehai}
             context={focusedQuestion}
