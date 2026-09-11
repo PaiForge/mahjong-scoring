@@ -6,7 +6,7 @@
  * 同じ値で引く。段階によって存在しない要素があり、ツアーは無いものを飛ばす。
  */
 export const MACHI_SCORE_TOUR_ID = {
-  /** 聴牌形の盤面 */
+  /** 聴牌形の盤面（待ちを読む段階だけ。あとの段階では印を外す） */
   board: "machi-score-board",
   /** 待ち牌を選ぶ牌の一覧 */
   picker: "machi-score-picker",
