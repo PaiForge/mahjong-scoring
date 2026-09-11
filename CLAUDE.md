@@ -272,10 +272,14 @@ packages/eslint-config/ — 共通 ESLint 設定（PaiForge コーディング�
 | パターン     | 構成                           | 該当                                                              |
 | ------------ | ------------------------------ | ----------------------------------------------------------------- |
 | チャレンジ型 | 説明(page.tsx) → play → result | jantou-fu, mentsu-fu, machi-fu, mentsu-jantou-fu, yaku, han-count |
-| 無限訓練型   | play のみ（result なし）       | score                                                             |
+| 無限訓練型   | play のみ（result なし）       | score, machi-score                                                |
 
 - `score-calculation`, `score-table` はチャレンジ型だが説明ページ（page.tsx）は未作成
-- `score` は終了条件がなく無限ループする訓練機能のため、result ページを持たない
+- `score` / `machi-score` は終了条件がなく無限ループする訓練機能のため、result ページを持たない。
+  どちらも `PRACTICE_MENU_REGISTRY` に載らず、練習一覧のバナー（`comprehensive-practice-banner.tsx`）と
+  `sitemap-routes.ts` の手書きの 1 行で参照する
+- `machi-score`（待ち別点数計算）は 1 問を「待ち牌を選ぶ → 待ち × ツモ/ロン のマスに点数を当てはめる →
+  答え合わせ」の 3 段階で解く。設定画面・回答フォーム・結果表は `score` のものを共有し、設定の保存名だけ分ける
 
 ## 出題設定（バリアント）と記録の土俵
 
