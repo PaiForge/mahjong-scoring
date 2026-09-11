@@ -3,7 +3,8 @@ import { render, screen, fireEvent } from "@testing-library/react";
 
 vi.mock("next-intl", async () => await import("@/test/intl-mock"));
 
-// チャレンジ導線が出題条件のクエリを引き継ぐため、シェルは検索パラメータを読む
+// 「終了」とチャレンジ導線が出題設定（バリアント）を引き継ぐため、シェルは
+// 検索パラメータを読む
 let currentQuery = "";
 vi.mock("next/navigation", () => ({
   useSearchParams: () => new URLSearchParams(currentQuery),
@@ -29,8 +30,6 @@ function renderShell(props: Partial<Parameters<typeof TrainingShell>[0]> = {}) {
       slug="score-table"
       correctCount={0}
       totalCount={0}
-      exitHref="/practice/score-table"
-      challengeHref="/practice/score-table/play"
       challengeRules={{ timeLimit: 60, mistakeLimit: 3 }}
       {...props}
     >
@@ -119,6 +118,7 @@ describe("TrainingShell 回答後の停止", () => {
 
 describe("TrainingShell 終了", () => {
   it("終了リンクを押すとチャレンジと同じく終了トーストを預ける", () => {
+    currentQuery = "";
     renderShell();
 
     fireEvent.click(screen.getByRole("link", { name: "exitButton" }));
@@ -127,25 +127,62 @@ describe("TrainingShell 終了", () => {
       "exitToast",
     );
   });
+
+  it("今の出題設定を持って説明ページへ戻る", () => {
+    // 説明ページの選択パネルは URL のバリアントを初期選択にする。
+    // 落とすと、終了した瞬間に選んでいた設定が既定に戻る
+    currentQuery = "variant=oya_mangan_plus";
+    renderShell();
+
+    const exit = screen.getByRole("link", { name: "exitButton" });
+    expect(exit.getAttribute("href")).toBe(
+      "/practice/score-table?variant=oya_mangan_plus",
+    );
+  });
+
+  it("設定が未指定なら既定の設定を明示して説明ページへ戻る", () => {
+    // 盤面は既定で出題していたので、戻った先の初期選択もそれに揃える
+    currentQuery = "";
+    renderShell();
+
+    const exit = screen.getByRole("link", { name: "exitButton" });
+    expect(exit.getAttribute("href")).toBe(
+      "/practice/score-table?variant=ko_mangan_plus",
+    );
+  });
 });
 
 describe("TrainingShell チャレンジ導線", () => {
-  it("末尾にチャレンジへのボタンを出す", () => {
+  it("末尾にチャレンジへのボタンを出す（設定が未指定なら既定の設定）", () => {
     currentQuery = "";
     renderShell();
 
     const cta = screen.getByRole("link", { name: /challengeButton/ });
-    expect(cta.getAttribute("href")).toBe("/practice/score-table/play");
+    expect(cta.getAttribute("href")).toBe(
+      "/practice/score-table/play?variant=ko_mangan_plus",
+    );
   });
 
-  it("出題条件のクエリを付けたままチャレンジへ渡す", () => {
-    // 絞った条件で練習していた人が、全条件のチャレンジに着地しないこと
-    currentQuery = "roles=ko&wins=ron";
+  it("今の出題設定を付けたままチャレンジへ渡す", () => {
+    // 絞った設定で練習していた人が、既定の設定のチャレンジに着地しないこと。
+    // クエリを継ぎ足すのではなくパスを組み直す（既定が付いたパスに二重に
+    // 付くと `?variant=a?variant=b` の不正値になり、既定に落ちていた）
+    currentQuery = "variant=oya_mangan_plus";
     renderShell();
 
     const cta = screen.getByRole("link", { name: /challengeButton/ });
     expect(cta.getAttribute("href")).toBe(
-      "/practice/score-table/play?roles=ko&wins=ron",
+      "/practice/score-table/play?variant=oya_mangan_plus",
+    );
+  });
+
+  it("不正な設定は既定に正規化して渡す", () => {
+    currentQuery = "variant=bogus";
+    renderShell();
+
+    const cta = screen.getByRole("link", { name: /challengeButton/ });
+    expect(cta.getAttribute("href")).toBe(
+      "/practice/score-table/play?variant=ko_mangan_plus",
     );
   });
 });
@@ -155,8 +192,6 @@ describe("TrainingShell 模試（昇級試験のトレーニング）", () => {
     return renderShell({
       slug: "mangan-exam",
       variant: "exam",
-      exitHref: "/exam/mangan",
-      challengeHref: "/exam/mangan/play",
       challengeRules: { timeLimit: 60, mistakeLimit: 1 },
     });
   }

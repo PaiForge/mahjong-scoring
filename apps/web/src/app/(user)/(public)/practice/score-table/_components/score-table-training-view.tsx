@@ -9,16 +9,12 @@ import { ScoreTableBoard } from "./score-table-board";
 import { ScoreTableGeneratingPlaceholder } from "./score-table-generating-placeholder";
 import { useScoreTableGeneratorOptions } from "../_hooks/use-score-table-generator-options";
 import { useScoreTableQuestion } from "../_hooks/use-score-table-question";
-import { practiceHref, practicePlayHref } from "../../_lib/practice-catalog";
 import {
   PRACTICE_SLUG,
   practiceMenuBySlug,
 } from "@/lib/db/practice-menu-types";
 
-/** シェルの体裁を揃えるための定数（本体とフォールバックで共有する） */
-const EXIT_HREF = practiceHref(PRACTICE_SLUG.scoreTable);
-const CHALLENGE_HREF = practicePlayHref(PRACTICE_SLUG.scoreTable);
-/** チャレンジ導線の補足文に出すルール（制限時間・ミス上限） */
+/** チャレンジ導線の補足文に出すルール（制限時間・ミス上限。本体とフォールバックで共有） */
 const { timeLimit, mistakeLimit } = practiceMenuBySlug(
   PRACTICE_SLUG.scoreTable,
 );
@@ -67,8 +63,6 @@ function ScoreTableTrainingViewInner() {
       slug={PRACTICE_SLUG.scoreTable}
       correctCount={correctCount}
       totalCount={totalCount}
-      exitHref={EXIT_HREF}
-      challengeHref={CHALLENGE_HREF}
       challengeRules={CHALLENGE_RULES}
       onReveal={() => {
         if (registeredAdvance) reveal(registeredAdvance);
@@ -111,8 +105,6 @@ function ScoreTableTrainingFallback() {
       slug={PRACTICE_SLUG.scoreTable}
       correctCount={0}
       totalCount={0}
-      exitHref={EXIT_HREF}
-      challengeHref={CHALLENGE_HREF}
       challengeRules={CHALLENGE_RULES}
     >
       <ScoreTableGeneratingPlaceholder />

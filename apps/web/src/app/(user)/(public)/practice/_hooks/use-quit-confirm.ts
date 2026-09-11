@@ -11,11 +11,13 @@ interface UseQuitConfirmOptions {
   /** モーダルをキャンセルで閉じたときに呼ばれるコールバック（タイマー再開等） */
   readonly onCancel?: () => void;
   /**
-   * 「やめる」確定時の遷移先（既定: "/practice"）。
-   * 説明ページを持つ練習では各練習の説明ページ（例: "/practice/jantou-fu"）を渡し、
-   * トレーニングの「終了」と同じく元の説明ページへ戻す。
+   * 「やめる」確定時の遷移先（練習の説明ページ）を返す。
+   *
+   * 文字列ではなく関数で受けるのは、確定の瞬間に今の URL の出題設定
+   * （バリアント）を読んで説明ページの URL に載せるため — 描画時に固定すると、
+   * サーバーでは URL を読めず既定の設定で戻すリンクになる。
    */
-  readonly exitHref?: string;
+  readonly resolveExitHref: () => string;
   /**
    * 中断する対象。トーストの文言を選ぶ（チャレンジ / 試験）。
    * モーダルの見出しも同じ区別で出し分けるため、{@link
@@ -40,9 +42,9 @@ interface UseQuitConfirmReturn {
 export function useQuitConfirm({
   onOpen,
   onCancel: onCancelCallback,
-  exitHref = "/practice",
+  resolveExitHref,
   variant = "practice",
-}: UseQuitConfirmOptions = {}): UseQuitConfirmReturn {
+}: UseQuitConfirmOptions): UseQuitConfirmReturn {
   const tc = useTranslations("challenge");
   const router = useRouter();
   const [isQuitModalOpen, setIsQuitModalOpen] = useState(false);
@@ -59,11 +61,12 @@ export function useQuitConfirm({
 
   const handleQuitConfirm = useCallback(() => {
     setIsQuitModalOpen(false);
+    const exitHref = resolveExitHref();
     // 遷移先に着いてから出す。ここで出すと表示時間が遷移の裏で減り、
     // 視線も切り替わる本文側にあるため見落とされる
     toastOnArrival(exitHref, tc(`quit.${variant}.toast`));
     router.push(exitHref);
-  }, [tc, router, exitHref, variant]);
+  }, [tc, router, resolveExitHref, variant]);
 
   return {
     isQuitModalOpen,
