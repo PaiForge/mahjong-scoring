@@ -288,6 +288,10 @@
       "title": "点数計算総合演習",
       "description": "翻数・役・符・点数全てをチェックできる問題に好きなだけ回答できます。麻雀の点数計算の総合練習として最適です。"
     },
+    "machiScoreBanner": {
+      "title": "待ち別点数計算",
+      "description": "聴牌形から待ち牌を読み、待ちごとにツモ・ロンの点数を答えます。高目・安目まで含めた実戦さながらの練習です。"
+    },
     "orDivider": "または",
     "modeChallengeHint": "制限時間{timeLimit}秒・ミス{mistakeLimit}回で記録に挑戦",
     "modeTrainingHint": "時間無制限・1問ごとに答え合わせして反復練習",
@@ -1338,6 +1342,69 @@
     "yakuman": "役満",
     "kiriageManganActive": "※ 現在、切り上げ満貫が有効になっています。",
     "kiriageManganActiveLink": "設定を変更する"
+  },
+  "machiScore": {
+    "title": "待ち別点数計算",
+    "description": "聴牌形から待ち牌を読み、待ちごとにツモ・ロンの点数を答える実戦形式の練習",
+    "exitToast": "待ち別点数計算を終了しました",
+    "notes": {
+      "title": "出題範囲について",
+      "mentsuOnly": "面子手のみ出題します（七対子・国士無双は出ません）",
+      "multiWait": "2 面待ち以上の聴牌形だけを出題します",
+      "noYaku": "役が無くロンできない待ちは「役なし」と答えます"
+    },
+    "machi": {
+      "prompt": "待ち牌をすべて選んでください",
+      "selectedCount": "{count} 種類を選択中",
+      "submit": "待ちを回答する",
+      "proceed": "点数計算へ進む",
+      "correct": "正解！待ちは {count} 種類です",
+      "incorrect": "不正解。正解の待ちを確認して点数計算へ進みましょう",
+      "marks": {
+        "correct": "正解",
+        "extra": "待ちではない",
+        "missed": "見落とし"
+      },
+      "suits": {
+        "manzu": "萬子",
+        "pinzu": "筒子",
+        "souzu": "索子",
+        "jihai": "字牌"
+      }
+    },
+    "cells": {
+      "prompt": "待ちごとにツモ・ロンの点数を回答してください",
+      "hint": "マスを押して選び、同じ点数になるマスはまとめて回答できます",
+      "wait": "待ち",
+      "tsumo": "ツモ",
+      "ron": "ロン",
+      "selectColumn": "すべて選ぶ",
+      "unanswered": "未回答",
+      "noSelection": "上の表からマスを選ぶと、ここに回答欄が出ます",
+      "selectedCells": "選択中: {count} マス（{method}）",
+      "assign": "選んだマスに当てはめる",
+      "noYaku": "役なし（ロンできない）",
+      "noYakuShort": "役なし",
+      "submit": "回答する",
+      "remaining": "未回答のマスがあと {count} つあります"
+    },
+    "result": {
+      "machiCorrect": "待ち牌は正解でした",
+      "machiIncorrect": "待ち牌は不正解でした",
+      "machiRevealed": "正解の待ち牌",
+      "summaryTitle": "待ちごとの結果",
+      "detailHint": "マスを押すと内訳を確認できます",
+      "yourAnswer": "あなたの回答",
+      "noYakuDetail": "この待ちは役が無く、ロンでは和了れません。",
+      "noYakuAnswered": "「役なし」と回答"
+    },
+    "board": {
+      "correct": "正解！",
+      "correctLabel": "正解",
+      "incorrectLabel": "不正解",
+      "generationFailed": "この条件に合う問題を作れませんでした。出題条件を変えてお試しください。",
+      "backToSetup": "設定に戻る"
+    }
   },
   "score": {
     "title": "点数計算総合演習",

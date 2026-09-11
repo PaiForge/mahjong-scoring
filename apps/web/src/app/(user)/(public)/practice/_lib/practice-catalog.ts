@@ -176,6 +176,14 @@ export const PRACTICE_CATALOG: readonly PracticeMenu[] = [
  */
 export const COMPREHENSIVE_PRACTICE_HREF = "/practice/score";
 
+/**
+ * 記録を取らない待ち別点数計算（`/practice/machi-score`）のパス。
+ *
+ * 総合演習と同じく無限に解ける訓練で、レジストリにもカタログにも載らない。
+ * 練習一覧のバナーが参照する。
+ */
+export const MACHI_SCORE_PRACTICE_HREF = "/practice/machi-score";
+
 const catalogBySlug: ReadonlyMap<PracticeMenuSlug, PracticeMenu> = new Map(
   PRACTICE_CATALOG.map((menu) => [menu.slug, menu]),
 );
