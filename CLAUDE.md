@@ -133,6 +133,10 @@ packages/eslint-config/ — 共通 ESLint 設定（PaiForge コーディング�
 - `icons/OutlineIcon` — 線画アイコンの svg 外殻。新しい線画アイコンはこれを使う
 - `HighlightPanel` — 地の文から浮かせて読ませる琥珀色の囲み（教本のコラム・計算手順・注意書き）。`border-amber-500 bg-amber-50/60` の一式をページ側で直接書かない
 - `SettingsCard` / `SettingToggleRow` — 設定ページの項目カードとトグル行。設定項目を足すときに `<input type="checkbox">` とスイッチの markup を書き起こさない
+- 練習のヘルプ（`practice/_components/`）は 2 種類。`HelpTourModal` は設定画面の「?」から、開始前に
+  流れを実コンポーネントのカルーセルで通しで見せる。`SpotlightTour`（driver.js）は play 画面の「?」から、
+  今画面にある要素を順に照らして 1〜2 文で説明する。段階で画面が変わる練習は全段階の手順を渡し、
+  無い要素はツアーが飛ばす（`data-tour-id` で対象を引く）。説明を文章のモーダルで読ませない
 
 ### 影
 
