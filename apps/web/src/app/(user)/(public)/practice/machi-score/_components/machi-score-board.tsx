@@ -232,15 +232,19 @@ function MachiScoreBoardInner() {
               judgement={machiJudgement}
             />
 
-            {machiJudgement ? (
-              <Button size="lg" fullWidth onClick={handleProceed}>
-                {t("machi.proceed")}
-              </Button>
-            ) : (
-              <div className="space-y-2">
-                <p className="text-center text-xs text-surface-500">
-                  {t("machi.selectedCount", { count: selectedMachi.length })}
-                </p>
+            {/* 選択数の行は判定後も高さを残す。消すとボタンとフッターが
+                判定の瞬間に上へずれる */}
+            <div className="space-y-2">
+              <p className="min-h-4 text-center text-xs leading-4 text-surface-500">
+                {machiJudgement
+                  ? ""
+                  : t("machi.selectedCount", { count: selectedMachi.length })}
+              </p>
+              {machiJudgement ? (
+                <Button size="lg" fullWidth onClick={handleProceed}>
+                  {t("machi.proceed")}
+                </Button>
+              ) : (
                 <Button
                   size="lg"
                   fullWidth
@@ -249,8 +253,8 @@ function MachiScoreBoardInner() {
                 >
                   {t("machi.submit")}
                 </Button>
-              </div>
-            )}
+              )}
+            </div>
           </div>
         )}
 
