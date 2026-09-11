@@ -83,8 +83,10 @@ interface MachiPickerProps {
  * 待ち牌選択
  *
  * 種類ごとに 1 行、狭い画面では 9 列がそのまま収まるよう牌を縮めて出す。
- * 判定後は選んだ牌ごとに「正解 / 待ちではない / 見落とし」を牌の下に添え、
- * 1 枚余分なだけで全体が赤くならないようにする。
+ * 判定後は牌ごとに枠の色で「正解（緑）/ 待ちではない（赤）/ 見落とし
+ * （緑の破線）」を示し、1 枚余分なだけで全体が赤くならないようにする。
+ * 文字は添えない — 牌の下に 1 行足すと選択肢の高さが変わり、判定の瞬間に
+ * 下のボタンがずれる。
  */
 export const MachiPicker = memo(function MachiPickerComponent({
   selected,
@@ -120,16 +122,6 @@ export const MachiPicker = memo(function MachiPickerComponent({
                 <span className="origin-center scale-75 sm:scale-100">
                   <Hai hai={hai} size="sm" />
                 </span>
-                {/* 判定後だけ牌の下に状態を添える。空でも高さを取って行を揃える */}
-                {judged && (
-                  <span
-                    className={`mt-0.5 h-3 text-[10px] font-bold leading-none ${
-                      mark === "extra" ? "text-destructive" : "text-success"
-                    }`}
-                  >
-                    {mark ? t(`marks.${mark}`) : ""}
-                  </span>
-                )}
               </button>
             );
           })}

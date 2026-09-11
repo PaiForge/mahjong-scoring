@@ -81,7 +81,7 @@ export async function MachiScorePracticeBanner() {
   return (
     <EndlessPracticeBanner
       href={MACHI_SCORE_PRACTICE_HREF}
-      emoji="🀄"
+      emoji="♾️"
       title={t("machiScoreBanner.title")}
       description={t("machiScoreBanner.description")}
     />

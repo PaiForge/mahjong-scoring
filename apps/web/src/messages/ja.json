@@ -1360,11 +1360,6 @@
       "proceed": "点数計算へ進む",
       "correct": "正解！待ちは {count} 種類です",
       "incorrect": "不正解。正解の待ちを確認して点数計算へ進みましょう",
-      "marks": {
-        "correct": "正解",
-        "extra": "待ちではない",
-        "missed": "見落とし"
-      },
       "suits": {
         "manzu": "萬子",
         "pinzu": "筒子",
