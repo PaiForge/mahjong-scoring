@@ -8,6 +8,7 @@ import { ContentContainer } from "@/app/(user)/_components/content-container";
 import { PageTitle } from "@/app/(user)/_components/page-title";
 import type { PracticeMenuSlug } from "@/lib/db/practice-menu-types";
 import { useScrollToElement } from "../_hooks/use-scroll-to-element";
+import { practiceHref } from "../_lib/practice-catalog";
 import { PRACTICE_SCROLL_ANCHOR_ID } from "../_lib/scroll-anchor";
 import { ScoreCounter } from "./score-counter";
 import {
@@ -19,11 +20,15 @@ import {
   type TrainingChallengeRules,
   type TrainingVariant,
 } from "./training-challenge-cta";
+import { WithUrlVariant } from "./with-url-variant";
 
 interface TrainingShellProps {
   /** 画面上部に表示する練習名（PageTitle に渡す） */
   readonly title: ReactNode;
-  /** 練習のスラッグ。末尾のチャレンジ導線（模試なら本番の受験ゲート）が使う */
+  /**
+   * 練習のスラッグ。「終了」リンク（説明ページ）と末尾のチャレンジ導線
+   * （play ページ。模試なら本番の受験ゲート）の遷移先をここから組む
+   */
   readonly slug: PracticeMenuSlug;
   /**
    * 練習のトレーニングか、昇級試験の模試か（既定 practice）。
@@ -43,13 +48,6 @@ interface TrainingShellProps {
   readonly correctCount: number;
   /** 出題数 */
   readonly totalCount: number;
-  /** 「終了」リンクの遷移先（練習説明ページ等） */
-  readonly exitHref: string;
-  /**
-   * 末尾に出す「チャレンジに挑戦」の遷移先（練習の play ページ）。
-   * 出題条件のクエリは付けずに渡す（今の URL のものを CTA が引き継ぐ）。
-   */
-  readonly challengeHref: string;
   /** チャレンジのルール（CTA の補足文に出す制限時間・ミス上限） */
   readonly challengeRules: TrainingChallengeRules;
   /** 練習本体のUI */
@@ -108,8 +106,6 @@ export function TrainingShell({
   titleAction,
   correctCount,
   totalCount,
-  exitHref,
-  challengeHref,
   challengeRules,
   children,
   maxWidth = "max-w-md",
@@ -129,12 +125,13 @@ export function TrainingShell({
 
   // チャレンジを「やめる」で抜けたときと同じく、終了したことをトーストで返す。
   // 遷移先の説明ページに着いてから出す（ここで出すと表示時間が遷移の裏で減り、
-  // 視線も切り替わる本文側にあるため見落とされる）。
+  // 視線も切り替わる本文側にあるため見落とされる）。着地の判定はパスだけなので、
+  // 預ける href にバリアントは要らない
   const exitToast =
     variant === "exam" ? tExamTraining("exitToast") : tt("exitToast");
   const handleExit = useCallback(() => {
-    toastOnArrival(exitHref, exitToast);
-  }, [exitHref, exitToast]);
+    toastOnArrival(practiceHref(slug), exitToast);
+  }, [slug, exitToast]);
 
   const showsProceed = isHolding && onProceed !== undefined;
 
@@ -186,16 +183,24 @@ export function TrainingShell({
                 {tt("revealButton")}
               </PracticeFooterAction>
             ))}
-          <PracticeFooterAction href={exitHref} onClick={handleExit}>
-            {tt("exitButton")}
-          </PracticeFooterAction>
+          {/* 説明ページの選択パネルは URL のバリアントを初期選択にする。
+              今の設定を持って戻らないと、終了した瞬間に選び直しになる */}
+          <WithUrlVariant slug={slug}>
+            {(urlVariant) => (
+              <PracticeFooterAction
+                href={practiceHref(slug, urlVariant)}
+                onClick={handleExit}
+              >
+                {tt("exitButton")}
+              </PracticeFooterAction>
+            )}
+          </WithUrlVariant>
         </PracticeFooterActions>
 
         {/* チャレンジへの切り替えは最後に置く。トレーニング中の操作
             （わからない / 終了する）より前に出すと、解いている最中の
             視線の先に「別のモードへ行くボタン」が居座るため */}
         <TrainingChallengeCta
-          challengeHref={challengeHref}
           challengeRules={challengeRules}
           slug={slug}
           variant={variant}
