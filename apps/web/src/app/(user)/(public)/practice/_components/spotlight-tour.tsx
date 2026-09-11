@@ -31,8 +31,6 @@ interface SpotlightTourLabels {
 interface SpotlightTourProps {
   readonly steps: readonly SpotlightStep[];
   readonly labels: SpotlightTourLabels;
-  /** 「?」の見た目（{@link HelpTourButton} と同じ） */
-  readonly variant?: "title" | "inline";
 }
 
 /**
@@ -49,11 +47,7 @@ interface SpotlightTourProps {
  * （{@link import("./help-tour-modal").HelpTourModal}）とは役割が違う。
  * こちらは解いている最中に「この操作は何か」を実物の上で答える。
  */
-export function SpotlightTour({
-  steps,
-  labels,
-  variant = "title",
-}: SpotlightTourProps) {
+export function SpotlightTour({ steps, labels }: SpotlightTourProps) {
   const driverRef = useRef<ReturnType<typeof driver> | undefined>(undefined);
   const pathname = usePathname();
 
@@ -94,11 +88,5 @@ export function SpotlightTour({
     instance.drive();
   };
 
-  return (
-    <HelpTourButton
-      onClick={startTour}
-      label={labels.label}
-      variant={variant}
-    />
-  );
+  return <HelpTourButton onClick={startTour} label={labels.label} />;
 }

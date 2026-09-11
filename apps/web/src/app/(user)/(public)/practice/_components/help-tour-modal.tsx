@@ -4,6 +4,7 @@ import { useCallback, useState } from "react";
 import type { ReactNode } from "react";
 import { ModalShell } from "@/app/_components/modal-shell";
 import { Button } from "@/app/(user)/_components/button";
+import { HelpIconButton } from "@/app/(user)/_components/help-icon-button";
 
 /**
  * ヘルプツアーの 1 枚
@@ -27,56 +28,17 @@ interface HelpTourButtonProps {
   readonly onClick: () => void;
   /** aria-label（「この練習の進め方を見る」など） */
   readonly label: string;
-  /**
-   * 見た目。`title` は PageTitle の右端に置く丸いアイコン、`inline` は
-   * 出題文や見出しの横に添える小さな「?」（設定トグルの「?」と同じ形）
-   */
-  readonly variant?: "title" | "inline";
 }
 
 /**
  * ヘルプツアーを開く「?」ボタン
  * ツアー起動ボタン
+ *
+ * 見た目は共通の {@link HelpIconButton}。設定画面の PageTitle の右端にも、
+ * 出題文の横にも同じものを置く。
  */
-export function HelpTourButton({
-  onClick,
-  label,
-  variant = "title",
-}: HelpTourButtonProps) {
-  if (variant === "inline") {
-    return (
-      <button
-        type="button"
-        onClick={onClick}
-        aria-label={label}
-        className="inline-flex size-5 shrink-0 items-center justify-center rounded-full text-xs text-surface-400 transition-colors hover:bg-surface-200 hover:text-surface-600"
-      >
-        ?
-      </button>
-    );
-  }
-  return (
-    <button
-      type="button"
-      onClick={onClick}
-      aria-label={label}
-      className="text-surface-400 transition-colors hover:text-surface-600"
-    >
-      <svg
-        xmlns="http://www.w3.org/2000/svg"
-        viewBox="0 0 20 20"
-        fill="currentColor"
-        className="h-5 w-5"
-        aria-hidden
-      >
-        <path
-          fillRule="evenodd"
-          d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.94 6.94a1.5 1.5 0 112.12 2.12c-.2.2-.42.36-.64.5-.42.28-.92.6-.92 1.19v.25a.75.75 0 001.5 0c0-.04.02-.08.06-.11.16-.13.36-.26.56-.39.32-.21.68-.46.98-.76a3 3 0 10-5.12-2.12.75.75 0 001.5 0c0-.21.06-.41.16-.58zM10 14.5a1 1 0 100-2 1 1 0 000 2z"
-          clipRule="evenodd"
-        />
-      </svg>
-    </button>
-  );
+export function HelpTourButton({ onClick, label }: HelpTourButtonProps) {
+  return <HelpIconButton onClick={onClick} label={label} />;
 }
 
 interface HelpTourModalProps {

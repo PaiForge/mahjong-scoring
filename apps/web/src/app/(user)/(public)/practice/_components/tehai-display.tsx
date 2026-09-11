@@ -18,6 +18,7 @@ import {
 } from "../../_components/tehai-hand";
 import { useAutoScale } from "../../_hooks/use-auto-scale";
 import { RiichiStick } from "./riichi-stick";
+import { HelpIconButton } from "@/app/(user)/_components/help-icon-button";
 import { InfoModal } from "@/app/(user)/_components/info-modal";
 import { useDoraDisplayMode } from "@/app/_hooks/use-display-settings-store";
 import { resolveDoraTiles } from "@/app/_lib/dora-display";
@@ -185,14 +186,12 @@ export const TehaiDisplay = memo(function TehaiDisplayComponent({
               label={t(isIndicator ? "doraIndicator" : "dora")}
               tiles={doraTiles}
             >
-              <button
-                type="button"
+              <HelpIconButton
                 onClick={() => setShowDoraInfo(true)}
-                className="inline-flex size-4 items-center justify-center rounded-full text-[10px] text-white/70 transition-colors hover:bg-white/20 hover:text-white"
-                aria-label={t("showDetailInfo")}
-              >
-                ?
-              </button>
+                label={t("showDetailInfo")}
+                tone="dark"
+                size="sm"
+              />
             </DoraGroup>
           )}
 

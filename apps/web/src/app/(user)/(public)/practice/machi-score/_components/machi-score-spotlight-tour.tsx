@@ -85,7 +85,6 @@ export function MachiScoreSpotlightTour() {
 
   return (
     <SpotlightTour
-      variant="inline"
       steps={steps}
       labels={{
         label: t("label"),
