@@ -194,7 +194,7 @@ function MachiScoreBoardInner() {
 
   return (
     <ContentContainer id={PRACTICE_SCROLL_ANCHOR_ID} fillViewport>
-      <PageTitle action={<MachiScoreSpotlightTour />}>{t("title")}</PageTitle>
+      <PageTitle>{t("title")}</PageTitle>
 
       <div className="space-y-4 sm:space-y-6 md:space-y-8">
         {/* 裏ドラは待ちを答えるまで伏せる。ツアーの対象にするため div で包む
@@ -209,27 +209,32 @@ function MachiScoreBoardInner() {
 
         {phase === "machi" && (
           <div className="space-y-4">
-            <QuestionPrompt
-              replacement={
-                machiJudgement && (
-                  <p
-                    className={`text-center text-sm font-bold ${
-                      machiJudgement.isCorrect
-                        ? "text-success"
-                        : "text-destructive"
-                    }`}
-                  >
-                    {machiJudgement.isCorrect
-                      ? t("machi.correct", {
-                          count: machiJudgement.correct.length,
-                        })
-                      : t("machi.incorrect")}
-                  </p>
-                )
-              }
-            >
-              {t("machi.prompt")}
-            </QuestionPrompt>
+            {/* 出題文の右端にヘルプツアーの「?」を添える。説明する操作は
+                この下に並ぶので、ページの見出しより入口として近い */}
+            <div className="flex items-center justify-center gap-1.5">
+              <QuestionPrompt
+                replacement={
+                  machiJudgement && (
+                    <p
+                      className={`text-center text-sm font-bold ${
+                        machiJudgement.isCorrect
+                          ? "text-success"
+                          : "text-destructive"
+                      }`}
+                    >
+                      {machiJudgement.isCorrect
+                        ? t("machi.correct", {
+                            count: machiJudgement.correct.length,
+                          })
+                        : t("machi.incorrect")}
+                    </p>
+                  )
+                }
+              >
+                {t("machi.prompt")}
+              </QuestionPrompt>
+              <MachiScoreSpotlightTour />
+            </div>
 
             <div data-tour-id={MACHI_SCORE_TOUR_ID.picker}>
               <MachiPicker
@@ -269,7 +274,10 @@ function MachiScoreBoardInner() {
 
         {phase === "cells" && (
           <div className="space-y-4">
-            <QuestionPrompt>{t("cells.prompt")}</QuestionPrompt>
+            <div className="flex items-center justify-center gap-1.5">
+              <QuestionPrompt>{t("cells.prompt")}</QuestionPrompt>
+              <MachiScoreSpotlightTour />
+            </div>
 
             <WaitCellGrid
               question={currentQuestion}
@@ -348,6 +356,7 @@ function MachiScoreBoardInner() {
             simplifyMangan={simplifyMangan}
             requireFuForMangan={requireFuForMangan}
             onNext={handleNext}
+            helpAction={<MachiScoreSpotlightTour />}
           />
         )}
 

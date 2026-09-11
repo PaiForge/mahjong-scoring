@@ -27,15 +27,34 @@ interface HelpTourButtonProps {
   readonly onClick: () => void;
   /** aria-label（「この練習の進め方を見る」など） */
   readonly label: string;
+  /**
+   * 見た目。`title` は PageTitle の右端に置く丸いアイコン、`inline` は
+   * 出題文や見出しの横に添える小さな「?」（設定トグルの「?」と同じ形）
+   */
+  readonly variant?: "title" | "inline";
 }
 
 /**
  * ヘルプツアーを開く「?」ボタン
  * ツアー起動ボタン
- *
- * 設定画面の PageTitle の右端に置く。
  */
-export function HelpTourButton({ onClick, label }: HelpTourButtonProps) {
+export function HelpTourButton({
+  onClick,
+  label,
+  variant = "title",
+}: HelpTourButtonProps) {
+  if (variant === "inline") {
+    return (
+      <button
+        type="button"
+        onClick={onClick}
+        aria-label={label}
+        className="inline-flex size-5 shrink-0 items-center justify-center rounded-full text-xs text-surface-400 transition-colors hover:bg-surface-200 hover:text-surface-600"
+      >
+        ?
+      </button>
+    );
+  }
   return (
     <button
       type="button"

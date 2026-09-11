@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import type { ReactNode } from "react";
 import { useTranslations } from "next-intl";
 import type {
   JudgementResult,
@@ -34,6 +35,8 @@ interface MachiScoreResultProps {
   readonly simplifyMangan: boolean;
   readonly requireFuForMangan: boolean;
   readonly onNext: () => void;
+  /** 「待ちごとの結果」の見出しの横に添える操作（ヘルプツアーの「?」） */
+  readonly helpAction?: ReactNode;
 }
 
 /** マスの結果の配色。判定が無い（開示）ときは中立 */
@@ -68,6 +71,7 @@ export function MachiScoreResult({
   simplifyMangan,
   requireFuForMangan,
   onNext,
+  helpAction,
 }: MachiScoreResultProps) {
   const t = useTranslations("machiScore.result");
   const tCells = useTranslations("machiScore.cells");
@@ -117,9 +121,12 @@ export function MachiScoreResult({
         data-tour-id={MACHI_SCORE_TOUR_ID.resultSummary}
       >
         <div className="flex items-baseline justify-between">
-          <h3 className="text-sm font-bold text-surface-700">
-            {t("summaryTitle")}
-          </h3>
+          <span className="flex items-center gap-1.5">
+            <h3 className="text-sm font-bold text-surface-700">
+              {t("summaryTitle")}
+            </h3>
+            {helpAction}
+          </span>
           <span className="text-xs text-surface-500">{t("detailHint")}</span>
         </div>
         <div className="overflow-x-auto">
