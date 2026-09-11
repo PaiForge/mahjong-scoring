@@ -2,6 +2,7 @@
 
 import { memo, useCallback, useMemo, useState } from "react";
 import type { ReactNode } from "react";
+import Link from "next/link";
 import { useTranslations } from "next-intl";
 import { getKazeName, isOya } from "@mahjong-scoring/core";
 import type {
@@ -18,8 +19,13 @@ import {
 } from "../../_components/tehai-hand";
 import { useAutoScale } from "../../_hooks/use-auto-scale";
 import { RiichiStick } from "./riichi-stick";
+import { TEXT_LINK_CLASSES } from "@/app/_components/_lib/link-classes";
 import { HelpIconButton } from "@/app/(user)/_components/help-icon-button";
 import { InfoModal } from "@/app/(user)/_components/info-modal";
+import {
+  PREFERENCE_ANCHORS,
+  preferencesHref,
+} from "@/app/(user)/(public)/preferences/_lib/anchors";
 import { useDoraDisplayMode } from "@/app/_hooks/use-display-settings-store";
 import { resolveDoraTiles } from "@/app/_lib/dora-display";
 
@@ -220,6 +226,17 @@ export const TehaiDisplay = memo(function TehaiDisplayComponent({
         onClose={() => setShowDoraInfo(false)}
         title={t("doraInfoTitle")}
         closeLabel={t("close")}
+        footnote={
+          // 表示牌のまま出すかドラそのものに読み替えるかは設定で切り替える。
+          // 本文で「設定から変えられる」と言うだけでは辿り着けないので、
+          // その項目へ直接飛ぶリンクを閉じるボタンの下に置く
+          <Link
+            href={preferencesHref(PREFERENCE_ANCHORS.doraDisplay)}
+            className={TEXT_LINK_CLASSES}
+          >
+            {t("doraInfoSettingsLink")}
+          </Link>
+        }
       >
         <p className="whitespace-pre-line">
           {t(isIndicator ? "doraInfoIndicator" : "doraInfoActual")}
