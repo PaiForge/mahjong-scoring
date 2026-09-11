@@ -28,6 +28,16 @@ interface ScorePracticeAnswerFormProps {
   readonly requireYaku?: boolean;
   readonly simplifyMangan?: boolean;
   readonly requireFuForMangan?: boolean;
+  /** 回答ボタンの文言。既定は「回答する」 */
+  readonly submitLabel?: string;
+  /**
+   * 回答ボタンの下に添える第 2 の操作（「役なし」など、翻・符・点数を
+   * 入力せずに済ませる回答）。指定したときだけ描く
+   */
+  readonly secondaryAction?: {
+    readonly label: string;
+    readonly onClick: () => void;
+  };
 }
 
 /**
@@ -42,6 +52,8 @@ export function ScorePracticeAnswerForm({
   requireYaku = false,
   simplifyMangan = false,
   requireFuForMangan = false,
+  submitLabel,
+  secondaryAction,
 }: ScorePracticeAnswerFormProps) {
   const t = useTranslations("score");
   // ラベルと select を紐付ける id（読み上げで「翻数」「符」「点数」を名前として得るため）
@@ -297,8 +309,20 @@ export function ScorePracticeAnswerForm({
 
       {/* Submit */}
       <Button type="submit" size="lg" fullWidth disabled={disabled}>
-        {t("form.buttons.answer")}
+        {submitLabel ?? t("form.buttons.answer")}
       </Button>
+      {secondaryAction && (
+        <Button
+          type="button"
+          variant="secondary"
+          size="lg"
+          fullWidth
+          disabled={disabled}
+          onClick={secondaryAction.onClick}
+        >
+          {secondaryAction.label}
+        </Button>
+      )}
     </form>
   );
 }
