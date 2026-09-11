@@ -17,7 +17,7 @@ import { useTimedSession } from "../_hooks/use-timed-session";
 import { useTrainingSession } from "../_hooks/use-training-session";
 import { TrainingModeProvider } from "../_hooks/use-training-mode";
 import type { PracticeBoardProps } from "./practice-board-props";
-import { practiceHref, practiceResultHref } from "./practice-catalog";
+import { practiceResultHref } from "./practice-catalog";
 
 /**
  * チャレンジ盤面の描画に渡される状態
@@ -122,7 +122,6 @@ export function createChallengePlayView<
         gameSession={gameSession}
         timerControl={timerControl}
         resultPath={practiceResultHref(slug)}
-        exitHref={practiceHref(slug)}
         maxWidth={maxWidth}
         hasProblemList={hasProblemList}
         hasSetup={hasSetup}
