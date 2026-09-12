@@ -1445,8 +1445,7 @@
       "summaryTitle": "待ちごとの結果",
       "detailHint": "マスを押すと内訳を確認できます",
       "yourAnswer": "あなたの回答",
-      "noYakuDetail": "この待ちは役が無く、ロンでは和了れません。",
-      "noYakuAnswered": "「役なし」と回答"
+      "noYakuDetail": "この待ちは役が無く、ロンでは和了れません。"
     },
     "board": {
       "correct": "正解！",
@@ -1540,6 +1539,7 @@
         "answer": "あなたの回答",
         "correct": "正解"
       },
+      "unanswered": "—",
       "details": {
         "none": "なし",
         "yakuTitle": "翻数の内訳",

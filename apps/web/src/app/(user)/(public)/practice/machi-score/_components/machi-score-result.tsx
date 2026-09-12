@@ -212,16 +212,16 @@ export function MachiScoreResult({
               focusedAnswer?.kind === "score" ? focusedAnswer.answer : undefined
             }
             result={focusedAnswer?.kind === "score" ? focusedResult : undefined}
+            // 「役なし」と答えたマスは翻・符・点数を持たないので、一言で列に出す
+            answerSummary={
+              focusedAnswer?.kind === "noYaku"
+                ? tCells("noYakuShort")
+                : undefined
+            }
             requireYaku={requireYaku}
             simplifyMangan={simplifyMangan}
             requireFuForMangan={requireFuForMangan}
           />
-          {/* 「役なし」と答えたマスは結果表に「あなたの回答」列が無いので、ここで示す */}
-          {focusedAnswer?.kind === "noYaku" && (
-            <p className="text-sm text-destructive">
-              {t("yourAnswer")}: {t("noYakuAnswered")} {"✗"}
-            </p>
-          )}
         </div>
       ) : (
         <HighlightPanel>

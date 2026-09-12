@@ -29,10 +29,8 @@ import { Button } from "@/app/(user)/_components/button";
 import { BookIcon } from "@/app/(user)/_components/icons/book-icon";
 import { TableIcon } from "@/app/(user)/_components/icons/table-icon";
 
-/** 結果テーブルの最大列数（項目名 / あなたの回答 / 正解）。展開行の colSpan に使う */
+/** 結果テーブルの列数（項目名 / あなたの回答 / 正解）。展開行の colSpan に使う */
 const TABLE_COLUMN_COUNT = 3;
-/** 無回答の正解開示時の列数（項目名 / 正解） */
-const REVEALED_COLUMN_COUNT = 2;
 
 interface ResultDisplayProps {
   readonly question: ScoreQuestion;
@@ -40,6 +38,12 @@ interface ResultDisplayProps {
   readonly userAnswer?: UserAnswer;
   /** 判定結果。無回答の正解開示（「わからない」）では undefined */
   readonly result?: JudgementResult;
+  /**
+   * 翻・符・点数の形を取らない回答の一言（待ち別点数計算の「役なし」）。
+   * `userAnswer` の代わりに「あなたの回答」列の翻数の行へ ✗ 付きで出す
+   * （役なしは翻数が無いという主張なので、その行に置く）。他の行は未回答
+   */
+  readonly answerSummary?: string;
   /**
    * 「次の問題へ」を押したときの処理。省略すると次へのボタンを描かない
    * （待ち別点数計算のように、複数の結果を並べた外側が 1 つのボタンを持つ場合）
@@ -54,13 +58,16 @@ interface ResultDisplayProps {
  * 回答結果表示コンポーネント
  * 結果表示
  *
- * `userAnswer` / `result` が無い場合は無回答の正解開示として描画する:
- * バナーは正誤ではなく中立の「答え合わせ」、「あなたの回答」列は列ごと省く。
+ * `userAnswer` / `result` が無い場合は無回答の正解開示として描画する。
+ * 「あなたの回答」列は落とさず各行に未回答の印を出す — 列数を変えると
+ * 正解の列が中央へ動き、回答したときと開示したときで同じ値を別の場所に
+ * 探すことになる。
  */
 export function ResultDisplay({
   question,
   userAnswer,
   result,
+  answerSummary,
   onNext,
   requireYaku = false,
   simplifyMangan = false,
@@ -93,9 +100,17 @@ export function ResultDisplay({
     setIsScoreTableOpen(true);
   };
 
-  // 無回答の正解開示では「あなたの回答」列を出さない
-  const columnCount =
-    userAnswer !== undefined ? TABLE_COLUMN_COUNT : REVEALED_COLUMN_COUNT;
+  // 判定付きの回答。無回答の開示では両方無い
+  const judged =
+    userAnswer !== undefined && result !== undefined
+      ? { answer: userAnswer, result }
+      : undefined;
+  // 「あなたの回答」の未回答セル（開示のときの各行）
+  const unansweredCell = (
+    <td className="py-2 pr-4 align-top text-surface-400">
+      {t("result.unanswered")}
+    </td>
+  );
 
   const fuTotal =
     question.fuDetails?.reduce((acc, curr) => acc + curr.fu, 0) ?? 0;
@@ -162,30 +177,32 @@ export function ResultDisplay({
           <thead>
             <tr className="border-b-3 border-ink">
               <th className="pb-3 pr-4 pt-2 text-left font-bold text-surface-600" />
-              {userAnswer !== undefined && (
-                <th className="pb-3 pr-4 pt-2 text-left font-bold text-surface-600">
-                  {t("result.headers.answer")}
-                </th>
-              )}
+              <th className="pb-3 pr-4 pt-2 text-left font-bold text-surface-600">
+                {t("result.headers.answer")}
+              </th>
               <th className="pb-3 pt-2 text-left font-bold text-surface-600">
                 {t("result.headers.correct")}
               </th>
             </tr>
           </thead>
           <tbody>
-            {/* Yaku（回答内容の行なので、開示時は出さない） */}
-            {requireYaku && userAnswer !== undefined && (
+            {/* Yaku */}
+            {requireYaku && (
               <tr>
                 <td className="whitespace-nowrap py-2 pr-4 align-top text-surface-600">
                   {t("form.labels.yaku")}
                 </td>
-                <td className="py-2 pr-4 align-top">
-                  <YakuJudgementChips
-                    judgements={answeredYakuJudgements}
-                    emptyLabel={t("result.details.none")}
-                    onSelect={openYakuList}
-                  />
-                </td>
+                {judged ? (
+                  <td className="py-2 pr-4 align-top">
+                    <YakuJudgementChips
+                      judgements={answeredYakuJudgements}
+                      emptyLabel={t("result.details.none")}
+                      onSelect={openYakuList}
+                    />
+                  </td>
+                ) : (
+                  unansweredCell
+                )}
                 <td className="space-y-1.5 py-2 align-top">
                   <YakuJudgementChips
                     judgements={correctYakuJudgements}
@@ -207,13 +224,19 @@ export function ResultDisplay({
               <td className="whitespace-nowrap py-2 pr-4 text-surface-600">
                 {t("form.labels.han")}
               </td>
-              {userAnswer !== undefined && result !== undefined && (
+              {judged ? (
                 <td
-                  className={`py-2 pr-4 ${result.isHanCorrect ? "text-success" : "text-destructive"}`}
+                  className={`py-2 pr-4 ${judged.result.isHanCorrect ? "text-success" : "text-destructive"}`}
                 >
-                  {getHanDisplay(userAnswer.han)}{" "}
-                  {result.isHanCorrect ? "\u2713" : "\u2717"}
+                  {getHanDisplay(judged.answer.han)}{" "}
+                  {judged.result.isHanCorrect ? "\u2713" : "\u2717"}
                 </td>
+              ) : answerSummary !== undefined ? (
+                <td className="py-2 pr-4 text-destructive">
+                  {answerSummary} {"\u2717"}
+                </td>
+              ) : (
+                unansweredCell
               )}
               <td className="py-2 font-bold text-surface-800">
                 {getHanDisplay(answer.han)}
@@ -227,7 +250,7 @@ export function ResultDisplay({
                 items={yakuDetailItems}
                 total={yakuTotal}
                 suffix={t("form.options.hanSuffix")}
-                colSpan={columnCount}
+                colSpan={TABLE_COLUMN_COUNT}
               />
             )}
 
@@ -238,14 +261,16 @@ export function ResultDisplay({
                   <td className="whitespace-nowrap py-2 pr-4 text-surface-600">
                     {t("form.labels.fu")}
                   </td>
-                  {userAnswer !== undefined && result !== undefined && (
+                  {judged ? (
                     <td
-                      className={`py-2 pr-4 ${result.isFuCorrect ? "text-success" : "text-destructive"}`}
+                      className={`py-2 pr-4 ${judged.result.isFuCorrect ? "text-success" : "text-destructive"}`}
                     >
-                      {userAnswer.fu ?? "-"}
+                      {judged.answer.fu ?? "-"}
                       {t("form.options.fuSuffix")}{" "}
-                      {result.isFuCorrect ? "\u2713" : "\u2717"}
+                      {judged.result.isFuCorrect ? "\u2713" : "\u2717"}
                     </td>
+                  ) : (
+                    unansweredCell
                   )}
                   <td className="py-2 font-bold text-surface-800">
                     {answer.fu}
@@ -258,7 +283,7 @@ export function ResultDisplay({
                     items={fuDetailItems}
                     total={fuTotal}
                     suffix={t("form.options.fuSuffix")}
-                    colSpan={columnCount}
+                    colSpan={TABLE_COLUMN_COUNT}
                     roundedTotal={answer.fu}
                     roundUpLabel={t("result.details.roundUp")}
                   />
@@ -271,15 +296,17 @@ export function ResultDisplay({
               <td className="whitespace-nowrap py-2 pr-4 align-top text-surface-600">
                 {t("form.labels.score")}
               </td>
-              {userAnswer !== undefined && result !== undefined && (
+              {judged ? (
                 <td
-                  className={`py-2 pr-4 align-top ${result.isScoreCorrect ? "text-success" : "text-destructive"}`}
+                  className={`py-2 pr-4 align-top ${judged.result.isScoreCorrect ? "text-success" : "text-destructive"}`}
                 >
-                  {userAnswer.scoreFromKo !== undefined
-                    ? `${userAnswer.scoreFromKo}/${userAnswer.scoreFromOya}`
-                    : `${userAnswer.score}${t("result.pointSuffix")}`}{" "}
-                  {result.isScoreCorrect ? "\u2713" : "\u2717"}
+                  {judged.answer.scoreFromKo !== undefined
+                    ? `${judged.answer.scoreFromKo}/${judged.answer.scoreFromOya}`
+                    : `${judged.answer.score}${t("result.pointSuffix")}`}{" "}
+                  {judged.result.isScoreCorrect ? "\u2713" : "\u2717"}
                 </td>
+              ) : (
+                unansweredCell
               )}
               <td className="space-y-1.5 py-2 align-top">
                 {/* 押せることが見て分かるよう、常時点線の下線を敷く */}
