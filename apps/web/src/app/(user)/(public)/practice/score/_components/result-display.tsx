@@ -121,10 +121,7 @@ export function ResultDisplay({
 
   // 役は「合っていた / 余分だった / 選び忘れた」を役ごとに見せる。1つ余分なだけで
   // 回答全体が赤くなると、合っていた役まで間違いに見えてしまうため。
-  const yakuJudgements = judgeYakuSelection(
-    question.yakuDetails,
-    userAnswer?.yakus ?? [],
-  );
+  const yakuJudgements = judgeYakuSelection(question, userAnswer?.yakus ?? []);
   const answeredYakuJudgements = yakuJudgements.filter(
     (judgement) => judgement.state !== "missed",
   );

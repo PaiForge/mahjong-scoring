@@ -3,6 +3,7 @@ import { judgeAnswer, judgeYakuSelection } from "./judgement";
 import { isMangan, getScoreLevelName } from "../../score/tiers";
 import type { ScoreQuestion, UserAnswer } from "./types";
 import { ScoreLevel } from "../../core/constants";
+import { HaiKind } from "@pai-forge/riichi-mahjong";
 
 /**
  * テスト用のScoreQuestionを構築するヘルパー
@@ -456,10 +457,11 @@ describe("judgeYakuSelection", () => {
     { name: "混一色", han: 2 },
     { name: "三暗刻", han: 2 },
   ];
+  const source = { yakuDetails, bakaze: HaiKind.Ton, jikaze: HaiKind.Nan };
 
   it("選んだ役ごとに正誤を返し、余分な役だけが incorrect になる", () => {
     expect(
-      judgeYakuSelection(yakuDetails, [
+      judgeYakuSelection(source, [
         "門前清自摸和",
         "役牌 白",
         "混一色",
@@ -474,7 +476,7 @@ describe("judgeYakuSelection", () => {
   });
 
   it("選ばなかった正解の役を missed として正解の並び順のまま返す", () => {
-    expect(judgeYakuSelection(yakuDetails, ["混一色"])).toEqual([
+    expect(judgeYakuSelection(source, ["混一色"])).toEqual([
       { name: "役牌 白", state: "missed" },
       { name: "混一色", state: "correct" },
       { name: "三暗刻", state: "missed" },
@@ -484,19 +486,89 @@ describe("judgeYakuSelection", () => {
   it("ドラ等の判定除外役は missed に含めない", () => {
     expect(
       judgeYakuSelection(
-        [
-          { name: "断么九", han: 1 },
-          { name: "ドラ", han: 1 },
-        ],
+        {
+          yakuDetails: [
+            { name: "断么九", han: 1 },
+            { name: "ドラ", han: 1 },
+          ],
+          bakaze: HaiKind.Ton,
+          jikaze: HaiKind.Nan,
+        },
         ["断么九"],
       ),
     ).toEqual([{ name: "断么九", state: "correct" }]);
   });
 
   it("yakuDetails が undefined なら選んだ役はすべて incorrect", () => {
-    expect(judgeYakuSelection(undefined, ["平和"])).toEqual([
-      { name: "平和", state: "incorrect" },
+    expect(
+      judgeYakuSelection(
+        { yakuDetails: undefined, bakaze: HaiKind.Ton, jikaze: HaiKind.Nan },
+        ["平和"],
+      ),
+    ).toEqual([{ name: "平和", state: "incorrect" }]);
+  });
+
+  // 内訳は「場風牌 / 自風牌」で持つが、選択肢は風ごとの 1 つ（東 等）しか無い。
+  // 内訳の名前のまま比べると風牌の役牌は選びようがなく必ず不正解になる
+  it("場風牌・自風牌は局面の風の名前（役牌 東 等）で判定し、その名前で返す", () => {
+    expect(
+      judgeYakuSelection(
+        {
+          yakuDetails: [
+            { name: "場風牌", han: 1 },
+            { name: "自風牌", han: 1 },
+          ],
+          bakaze: HaiKind.Ton,
+          jikaze: HaiKind.Nan,
+        },
+        ["役牌 東", "役牌 南"],
+      ),
+    ).toEqual([
+      { name: "役牌 東", state: "correct" },
+      { name: "役牌 南", state: "correct" },
     ]);
+  });
+
+  it("連風牌（場風＝自風）は 1 つの名前にまとめ、その風を 1 回選べば正解", () => {
+    const renfonpai = {
+      yakuDetails: [
+        { name: "場風牌", han: 1 },
+        { name: "自風牌", han: 1 },
+      ],
+      bakaze: HaiKind.Ton,
+      jikaze: HaiKind.Ton,
+    };
+    expect(judgeYakuSelection(renfonpai, ["役牌 東"])).toEqual([
+      { name: "役牌 東", state: "correct" },
+    ]);
+    expect(judgeYakuSelection(renfonpai, [])).toEqual([
+      { name: "役牌 東", state: "missed" },
+    ]);
+  });
+});
+
+describe("judgeAnswer の役の判定（風牌）", () => {
+  it("連風牌の手に東を 1 つ選んだ回答は役が正解になる", () => {
+    const question = makeQuestion({
+      han: 2,
+      fu: 40,
+      payment: { type: "ron", amount: 2600 },
+      yakuDetails: [
+        { name: "場風牌", han: 1 },
+        { name: "自風牌", han: 1 },
+      ],
+    });
+    const answer: UserAnswer = {
+      han: 2,
+      fu: 40,
+      score: 2600,
+      yakus: ["役牌 東"],
+    };
+    expect(judgeAnswer(question, answer, true).isYakuCorrect).toBe(true);
+    expect(
+      judgeAnswer(question, { ...answer, yakus: ["役牌 南"] }, true)
+        .isYakuCorrect,
+    ).toBe(false);
   });
 });
 
