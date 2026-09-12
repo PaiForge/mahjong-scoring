@@ -14,8 +14,6 @@ export const MACHI_SCORE_TOUR_ID = {
   machiSubmit: "machi-score-machi-submit",
   /** 待ち × ツモ/ロン のマス表 */
   cells: "machi-score-cells",
-  /** 列の「すべて選ぶ」 */
-  selectColumn: "machi-score-select-column",
   /** 翻・符・点数の回答欄 */
   answerForm: "machi-score-answer-form",
   /** 「役なし」ボタン */

@@ -46,12 +46,6 @@ export function MachiScoreSpotlightTour() {
       description: t("cells.description"),
     },
     {
-      targetId: MACHI_SCORE_TOUR_ID.selectColumn,
-      title: t("selectColumn.title"),
-      description: t("selectColumn.description"),
-      align: "center",
-    },
-    {
       targetId: MACHI_SCORE_TOUR_ID.answerForm,
       title: t("answerForm.title"),
       description: t("answerForm.description"),
