@@ -79,7 +79,6 @@ export function WaitCellGrid({
           disabled={disabled}
           onClick={() => onSelectColumn(isTsumo)}
           className={`text-xs ${TEXT_LINK_CLASSES}`}
-          data-tour-id={isTsumo ? MACHI_SCORE_TOUR_ID.selectColumn : undefined}
         >
           {t("selectColumn")}
         </button>
