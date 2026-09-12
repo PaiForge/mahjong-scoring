@@ -63,6 +63,16 @@ interface MachiScoreState {
   generationFailed: boolean;
   /** 出題ごとに増える連番。回答フォームの key に使い、次問題への遷移で入力をクリアする */
   questionSeq: number;
+  /**
+   * 列（ツモ / ロン）ごとの回答欄を作り直す連番。`assignAnswer` で当てはめた
+   * 列だけ増え、盤面はこれを key にしてその列の入力を空に戻す
+   *
+   * 回答欄の入力は当てはめるまでどのマスにも入っていない。選択を解いたり
+   * 別の列を押したりした拍子に欄ごと作り直すと、誤タップ 1 回で入力が
+   * 失われるので、入力を捨ててよいのは「当てはめて回答がマスに移った」
+   * ときと次の問題に進んだとき（`questionSeq`）に限る
+   */
+  draftSeq: Readonly<Record<"tsumo" | "ron", number>>;
   options: MachiScoreGeneratorOptions;
   /** 待ち牌として選んでいる牌 */
   selectedMachi: readonly HaiKindId[];
@@ -150,6 +160,7 @@ export const useMachiScoreStore = create<MachiScoreStore>((set, get) => ({
   currentQuestion: undefined,
   generationFailed: false,
   questionSeq: 0,
+  draftSeq: { tsumo: 0, ron: 0 },
   options: {
     includeFuro: true,
     allowedRanges: ["nonMangan", "manganPlus"],
@@ -235,11 +246,17 @@ export const useMachiScoreStore = create<MachiScoreStore>((set, get) => ({
   },
 
   assignAnswer: (answer) => {
-    const { phase, selectedCells, cellAnswers } = get();
+    const { phase, selectedCells, cellAnswers, draftSeq } = get();
     if (phase !== "cells" || selectedCells.length === 0) return;
     const next: Record<string, MachiCellAnswer> = { ...cellAnswers };
     for (const cell of selectedCells) next[cellKeyOf(cell)] = answer;
-    set({ cellAnswers: next, selectedCells: [] });
+    // 選択中のマスは同じ列に限られる（toggleCell が保証する）
+    const column = selectedCells[0].isTsumo ? "tsumo" : "ron";
+    set({
+      cellAnswers: next,
+      selectedCells: [],
+      draftSeq: { ...draftSeq, [column]: draftSeq[column] + 1 },
+    });
   },
 
   submitCells: (mode) => {

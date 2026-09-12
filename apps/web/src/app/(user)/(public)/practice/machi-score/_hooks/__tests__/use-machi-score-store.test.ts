@@ -146,6 +146,22 @@ describe("useMachiScoreStore", () => {
     expect(state.selectedCells).toEqual([]);
   });
 
+  it("当てはめた列の回答欄だけ作り直す連番が増える", () => {
+    const question = answerMachiCorrectly();
+    const answer: UserAnswer = { han: 1, fu: 30, score: 1000, yakus: [] };
+    const before = useMachiScoreStore.getState().draftSeq;
+
+    useMachiScoreStore
+      .getState()
+      .toggleCell({ agariHai: question.waits[0].agariHai, isTsumo: false });
+    useMachiScoreStore.getState().assignAnswer({ kind: "score", answer });
+
+    expect(useMachiScoreStore.getState().draftSeq).toEqual({
+      tsumo: before.tsumo,
+      ron: before.ron + 1,
+    });
+  });
+
   it("待ちも全マスも正解なら正解として数える", () => {
     const question = answerMachiCorrectly();
     for (const cell of listCellRefs(question)) {

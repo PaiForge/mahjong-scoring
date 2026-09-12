@@ -1394,7 +1394,7 @@
       },
       "cellsSubmit": {
         "title": "回答する",
-        "description": "全マスが埋まると押せます。まとめて答え合わせします。"
+        "description": "全マスが埋まり、回答中のマスが無くなると押せます。まとめて答え合わせします。"
       },
       "resultSummary": {
         "title": "マスごとの結果",
@@ -1436,7 +1436,8 @@
       "noYaku": "役なし（ロンできない）",
       "noYakuShort": "役なし",
       "submit": "回答する",
-      "remaining": "未回答のマスがあと {count} つあります"
+      "remaining": "未回答のマスがあと {count} つあります",
+      "selecting": "選んだマスに当てはめるか、選択を解くと回答できます"
     },
     "result": {
       "machiCorrect": "待ち牌は正解でした",
