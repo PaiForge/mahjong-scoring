@@ -3,6 +3,7 @@
 import type { ReactNode } from "react";
 import { useTranslations } from "next-intl";
 import { AccordionCard } from "@/app/(user)/_components/accordion-card";
+import { JudgementMark } from "./judgement-mark";
 
 interface ProblemListAccordionProps<T> {
   readonly results: readonly T[];
@@ -59,30 +60,16 @@ export function ProblemListAccordion<T>({
                 </>
               }
               trailing={
-                <>
-                  {correct ? (
-                    <svg
-                      className="size-3 text-primary-500"
-                      viewBox="0 0 24 24"
-                      fill="currentColor"
-                    >
-                      <path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z" />
-                    </svg>
-                  ) : (
-                    <svg
-                      className="size-3 text-destructive"
-                      viewBox="0 0 24 24"
-                      fill="currentColor"
-                    >
-                      <path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z" />
-                    </svg>
-                  )}
-                  <span
-                    className={`text-sm font-medium ${correct ? "text-primary-500" : "text-destructive"}`}
-                  >
-                    {correct ? tResult("correct") : tResult("incorrect")}
-                  </span>
-                </>
+                // 記号と語を同じ色で並べる（語が正誤を言うので記号は装飾）
+                <span
+                  className={`inline-flex items-center gap-1 text-sm font-medium ${correct ? "text-success" : "text-destructive"}`}
+                >
+                  <JudgementMark
+                    verdict={correct ? "correct" : "incorrect"}
+                    tone="inherit"
+                  />
+                  {correct ? tResult("correct") : tResult("incorrect")}
+                </span>
               }
             >
               {renderDetail(result, index)}

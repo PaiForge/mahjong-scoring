@@ -7,12 +7,16 @@ import type {
 } from "@mahjong-scoring/core";
 import { resolveYakuCheatsheetName } from "@/app/(user)/(public)/reference/yaku/_lib/yaku-examples";
 import { YAKU_SELECTION_CLASSES } from "../../_lib/yaku-selection-classes";
+import { JudgementMark } from "../../_components/judgement-mark";
+import type { JudgementVerdict } from "../../_components/judgement-mark";
 
-/** 色だけに頼らず正誤が読めるようにチップへ添える記号 */
-const CHIP_MARKS: Record<YakuSelectionState, string | undefined> = {
-  correct: "✓",
-  incorrect: "✗",
-  // 選び忘れは記号ではなく「選び忘れ」の語を添える（見落としが本題なので明示する）
+/**
+ * 色だけに頼らず正誤が読めるようにチップへ添える記号。選び忘れは記号では
+ * なく「選び忘れ」の語を添える（見落としが本題なので明示する）
+ */
+const CHIP_MARKS: Record<YakuSelectionState, JudgementVerdict | undefined> = {
+  correct: "correct",
+  incorrect: "incorrect",
   missed: undefined,
 };
 
@@ -75,7 +79,8 @@ export function YakuJudgementChips({
               </span>
             ) : (
               <>
-                <span aria-hidden="true">{mark}</span>
+                {/* チップは既に色付きの枠なので記号は裸の線画で、色はチップの文字色に従う */}
+                <JudgementMark verdict={mark} tone="inherit" />
                 <span className="sr-only">
                   {t(`yakuJudgement.${judgement.state}`)}
                 </span>

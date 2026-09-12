@@ -17,9 +17,17 @@ describe("YakuJudgementChips", () => {
       />,
     );
 
-    expect(screen.getByText("混一色").textContent).toContain("✓");
-    expect(screen.getByText("三暗刻").textContent).toContain("✓");
-    expect(screen.getByText("門前清自摸和").textContent).toContain("✗");
+    // 記号は線画（文字ではない）。読み上げは sr-only の語が担う
+    expect(screen.getByText("混一色").querySelector("svg")).not.toBeNull();
+    expect(screen.getByText("混一色").textContent).toContain(
+      "yakuJudgement.correct",
+    );
+    expect(screen.getByText("三暗刻").textContent).toContain(
+      "yakuJudgement.correct",
+    );
+    expect(screen.getByText("門前清自摸和").textContent).toContain(
+      "yakuJudgement.incorrect",
+    );
   });
 
   it("状態ごとに色を変える", () => {

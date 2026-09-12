@@ -2243,6 +2243,8 @@
     "showDetailInfo": "詳細情報を表示",
     "loading": "読み込み中",
     "answerCheck": "答え合わせ",
+    "correct": "正解",
+    "incorrect": "不正解",
     "difference": "過不足",
     "noDifference": "なし",
     "dora": "ドラ",
