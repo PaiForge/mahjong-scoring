@@ -34,7 +34,7 @@ function renderGrid(
 }
 
 describe("WaitCellGrid の選択中の表示", () => {
-  it("1 つだけ選んだマスは「回答中」", () => {
+  it("1 つだけ選んだマスは「回答中」、同じ列の未回答は「同じ回答にする」、他の列は「未回答」のまま", () => {
     const question = seedQuestion();
     renderGrid(question, [
       { agariHai: question.waits[0].agariHai, isTsumo: true },
@@ -46,10 +46,22 @@ describe("WaitCellGrid の選択中の表示", () => {
     expect(
       screen.queryByRole("button", { name: "answeringTogether" }),
     ).toBeNull();
-    // 残りのマスは未回答のまま
-    expect(screen.getAllByRole("button", { name: "unanswered" })).toHaveLength(
-      question.waits.length * 2 - 1,
+    expect(screen.getAllByRole("button", { name: "joinable" })).toHaveLength(
+      question.waits.length - 1,
     );
+    expect(screen.getAllByRole("button", { name: "unanswered" })).toHaveLength(
+      question.waits.length,
+    );
+  });
+
+  it("何も選んでいなければ全マスが「未回答」", () => {
+    const question = seedQuestion();
+    renderGrid(question, []);
+
+    expect(screen.getAllByRole("button", { name: "unanswered" })).toHaveLength(
+      question.waits.length * 2,
+    );
+    expect(screen.queryByRole("button", { name: "joinable" })).toBeNull();
   });
 
   it("縦に隣り合う選択中のマスは rowSpan で 1 つにつながり「まとめて回答中」を 1 つだけ出す", () => {

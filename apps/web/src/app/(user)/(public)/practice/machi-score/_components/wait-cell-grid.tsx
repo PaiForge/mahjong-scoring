@@ -20,12 +20,31 @@ interface WaitCellGridProps {
   readonly disabled?: boolean;
 }
 
-/** マスの枠と背景。選択中は緑、回答済みは太枠、未回答は破線 */
-function cellClasses(isSelected: boolean, isAnswered: boolean): string {
-  if (isSelected) return "border-primary-500 bg-primary-50 text-surface-900";
-  if (isAnswered) return "border-ink bg-white text-surface-900";
-  return "border-dashed border-surface-300 bg-surface-50 text-surface-400";
-}
+/** マスの状態（描画の見た目とラベルを決める） */
+type CellState =
+  /** 回答済み。緑で塗る（決めた面） */
+  | "answered"
+  /** 回答中（選択中）。琥珀で塗る（今触っている面） */
+  | "answering"
+  /** 未回答で、選択中のマスと同じ列。押すと選択に加わり同じ回答になる */
+  | "joinable"
+  /** 未回答 */
+  | "unanswered";
+
+/**
+ * マスの枠と背景
+ *
+ * 回答済みが緑（決めた面）、回答中が琥珀（今触っている面）。答えを入れる
+ * 前の状態を緑にすると「済んだ」ように見えるため、進行中の色は
+ * HighlightPanel と同じ琥珀に寄せる。同じ列の未回答は琥珀の破線で
+ * 「回答中に加われる」ことを示し、他の列の未回答は灰の破線のまま。
+ */
+const CELL_CLASSES: Readonly<Record<CellState, string>> = {
+  answered: "border-primary-500 bg-primary-50 text-surface-900",
+  answering: "border-amber-500 bg-amber-50 text-surface-900",
+  joinable: "border-dashed border-amber-400 bg-amber-50/40 text-surface-700",
+  unanswered: "border-dashed border-surface-300 bg-surface-50 text-surface-400",
+};
 
 /**
  * 待ち × ツモ/ロン のマスの表
@@ -38,15 +57,16 @@ function cellClasses(isSelected: boolean, isAnswered: boolean): string {
  * マスを組むこと自体がこの練習の中身なので、全部同じと決め打ちする
  * 近道を用意しない。
  *
- * 選択中のマスは「回答中」。同じ列で縦に隣り合う選択中のマスは `rowSpan`
- * で 1 つのマスにつなげ「まとめて回答中」を 1 つだけ出す — 「未回答 /
- * 未回答」と割れていたものが押した瞬間に 1 枚になることで、これらが同じ
- * 答えになる（1 回の入力で済む）と見た目で伝える。文言だけだと
- * 「選択中: 2 マス」と同じで読み飛ばされる。当てはめると 1 マスずつに戻る
- * （答え合わせは別々に ✓/✗ が付くため、塊は選択中だけの姿）。塊を押すと
- * 塊ごと選択が解ける — 1 枚になったものの一部だけを外す操作は作れず、
- * 2〜3 マスなら選び直しは安い。間を空けて選んだ（真ん中を跨ぐ）場合は
- * つながらず、それぞれが「まとめて回答中」になる。
+ * 選択中のマスは「回答中」。同じ列の未回答のマスは「同じ回答にする」に
+ * 変わり、押すと選択に加わる — 「未回答」のままだと、両方を押さなければ
+ * まとめられることに気づけない。同じ列で縦に隣り合う選択中のマスは
+ * `rowSpan` で 1 つのマスにつなげ「まとめて回答中」を 1 つだけ出す —
+ * 割れていたものが押した瞬間に 1 枚になることで、これらが同じ答えになる
+ * （1 回の入力で済む）と見た目で伝える。文言だけだと読み飛ばされる。
+ * 当てはめると 1 マスずつに戻る（答え合わせは別々に ✓/✗ が付くため、
+ * 塊は選択中だけの姿）。塊を押すと塊ごと選択が解ける — 1 枚になったものの
+ * 一部だけを外す操作は作れず、2〜3 マスなら選び直しは安い。間を空けて
+ * 選んだ（真ん中を跨ぐ）場合はつながらず、それぞれが「まとめて回答中」になる。
  */
 export function WaitCellGrid({
   question,
@@ -58,6 +78,8 @@ export function WaitCellGrid({
 }: WaitCellGridProps) {
   const t = useTranslations("machiScore.cells");
   const selectedKeys = new Set(selectedCells.map(cellKeyOf));
+  // 選択中のマスは同じ列に限られる（ストアが保証する）ので先頭で列が決まる
+  const selectedIsTsumo = selectedCells[0]?.isTsumo;
 
   // 縦に隣り合う選択中のマスの塊。先頭のキーに塊の全マスを持たせ、先頭以外は
   // absorbed に入れて td を描かない（rowSpan が行をまたぐ）
@@ -80,8 +102,8 @@ export function WaitCellGrid({
     flush();
   }
 
-  const buttonClasses = (isSelected: boolean, isAnswered: boolean) =>
-    `press-sm flex h-full min-h-14 w-full items-center justify-center rounded-lg border-3 px-2 py-2 text-center text-sm font-bold leading-snug ${cellClasses(isSelected, isAnswered)}`;
+  const buttonClasses = (state: CellState) =>
+    `press-sm flex h-full min-h-14 w-full items-center justify-center rounded-lg border-3 px-2 py-2 text-center text-sm font-bold leading-snug ${CELL_CLASSES[state]}`;
 
   const renderCell = (cell: MachiCellRef) => {
     const key = cellKeyOf(cell);
@@ -100,7 +122,7 @@ export function WaitCellGrid({
             onClick={() => {
               for (const member of run) onToggleCell(member);
             }}
-            className={buttonClasses(true, false)}
+            className={buttonClasses("answering")}
           >
             {t("answeringTogether")}
           </button>
@@ -110,6 +132,13 @@ export function WaitCellGrid({
 
     const answer = cellAnswers[key];
     const isSelected = selectedKeys.has(key);
+    const state: CellState = answer
+      ? "answered"
+      : isSelected
+        ? "answering"
+        : selectedIsTsumo === cell.isTsumo
+          ? "joinable"
+          : "unanswered";
     return (
       <td key={key} className="h-px p-1 sm:p-1.5">
         <button
@@ -117,13 +146,9 @@ export function WaitCellGrid({
           disabled={disabled}
           aria-pressed={isSelected}
           onClick={() => onToggleCell(cell)}
-          className={buttonClasses(isSelected, answer !== undefined)}
+          className={buttonClasses(state)}
         >
-          {answer
-            ? formatAnswer(answer, cell.isTsumo)
-            : isSelected
-              ? t("answering")
-              : t("unanswered")}
+          {answer ? formatAnswer(answer, cell.isTsumo) : t(state)}
         </button>
       </td>
     );
