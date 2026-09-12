@@ -130,10 +130,13 @@ describe("ResultDisplay の無回答", () => {
     expect(screen.getAllByText("result.unanswered")).toHaveLength(4);
   });
 
-  it("answerSummary は翻数の行に ✗ 付きで出し、他の行は未回答のまま", () => {
+  it("answerSummary は翻数の行に不正解の記号付きで出し、他の行は未回答のまま", () => {
     render(<ResultDisplay question={question} answerSummary="役なし" />);
 
-    expect(screen.getByText("役なし ✗")).toBeTruthy();
+    const cell = screen.getByText("役なし", { exact: false });
+    expect(
+      cell.querySelector('[role="img"][aria-label="incorrect"]'),
+    ).not.toBeNull();
     // 符・点数の 2 行
     expect(screen.getAllByText("result.unanswered")).toHaveLength(2);
   });

@@ -1,3 +1,5 @@
+import { JudgementMark } from "./judgement-mark";
+
 interface ScoreCounterProps {
   readonly correct: number;
   readonly incorrect: number;
@@ -10,8 +12,8 @@ interface ScoreCounterProps {
 /**
  * 正解数・不正解数のカウンタ（blindfold-chess の ScoreCounter 準拠）。
  *
- * 数字とスラッシュではなく、丸いアイコンバッジ（✓ / ✗）と数値を併置する。
- * プレイ画面下部（フッター）に置く想定。
+ * 数字とスラッシュではなく、丸いアイコンバッジ（{@link JudgementMark} の
+ * badge）と数値を併置する。プレイ画面下部（フッター）に置く想定。
  */
 export function ScoreCounter({
   correct,
@@ -26,24 +28,8 @@ export function ScoreCounter({
         className="flex items-center gap-3"
         aria-label={`${correctLabel}: ${correct}`}
       >
-        <span
-          className="rounded-full border-2 border-ink bg-success-subtle p-2 text-success-strong"
-          aria-hidden
-        >
-          <svg
-            xmlns="http://www.w3.org/2000/svg"
-            viewBox="0 0 24 24"
-            fill="none"
-            stroke="currentColor"
-            strokeWidth="3"
-            className="h-4 w-4"
-          >
-            <path
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              d="M5 13l4 4L19 7"
-            />
-          </svg>
+        <span aria-hidden>
+          <JudgementMark verdict="correct" variant="badge" />
         </span>
         <span className="font-mono text-xl font-bold tabular-nums text-surface-700">
           {correct}
@@ -53,24 +39,8 @@ export function ScoreCounter({
         className="flex items-center gap-3"
         aria-label={`${incorrectLabel}: ${incorrect}`}
       >
-        <span
-          className="rounded-full border-2 border-ink bg-destructive-subtle p-2 text-destructive-strong"
-          aria-hidden
-        >
-          <svg
-            xmlns="http://www.w3.org/2000/svg"
-            viewBox="0 0 24 24"
-            fill="none"
-            stroke="currentColor"
-            strokeWidth="3"
-            className="h-4 w-4"
-          >
-            <path
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              d="M6 6l12 12M18 6L6 18"
-            />
-          </svg>
+        <span aria-hidden>
+          <JudgementMark verdict="incorrect" variant="badge" />
         </span>
         <span className="font-mono text-xl font-bold tabular-nums text-surface-700">
           {incorrect}

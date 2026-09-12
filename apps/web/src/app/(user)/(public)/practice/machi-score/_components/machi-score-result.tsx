@@ -15,6 +15,7 @@ import { Button } from "@/app/(user)/_components/button";
 import { HighlightPanel } from "@/app/(user)/_components/highlight-panel";
 import { ResultDisplay } from "../../score/_components/result-display";
 import { TehaiMentsuBreakdown } from "../../_components/tehai-mentsu-breakdown";
+import { JudgementMark } from "../../_components/judgement-mark";
 import { correctCellAnswerOf } from "../_lib/format-cell-answer";
 import { MACHI_SCORE_TOUR_ID } from "../_lib/tour-ids";
 import {
@@ -76,6 +77,7 @@ export function MachiScoreResult({
   const t = useTranslations("machiScore.result");
   const tCells = useTranslations("machiScore.cells");
   const tScore = useTranslations("score");
+  const tCommon = useTranslations("common");
   const cells = listCellRefs(question);
   const [focused, setFocused] = useState<MachiCellRef>(cells[0]);
 
@@ -174,8 +176,20 @@ export function MachiScoreResult({
                         >
                           <span className="text-sm font-bold text-surface-900">
                             {formatAnswer(correct, isTsumo)}
-                            {result !== undefined &&
-                              (result.isCorrect ? " ✓" : " ✗")}
+                            {result !== undefined && (
+                              <>
+                                {/* 狭いマスで記号だけが次の行に落ちないよう、直前の語と分けない */}
+                                {"\u00A0"}
+                                <JudgementMark
+                                  verdict={
+                                    result.isCorrect ? "correct" : "incorrect"
+                                  }
+                                  label={tCommon(
+                                    result.isCorrect ? "correct" : "incorrect",
+                                  )}
+                                />
+                              </>
+                            )}
                           </span>
                           {result !== undefined &&
                             !result.isCorrect &&
@@ -235,7 +249,12 @@ export function MachiScoreResult({
               }`}
             >
               {t("yourAnswer")}: {formatAnswer(focusedAnswer, focused.isTsumo)}{" "}
-              {focusedResult.isCorrect ? "✓" : "✗"}
+              <JudgementMark
+                verdict={focusedResult.isCorrect ? "correct" : "incorrect"}
+                label={tCommon(
+                  focusedResult.isCorrect ? "correct" : "incorrect",
+                )}
+              />
             </p>
           )}
         </HighlightPanel>

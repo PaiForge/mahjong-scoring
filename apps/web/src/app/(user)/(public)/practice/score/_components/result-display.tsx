@@ -22,6 +22,7 @@ import { DetailsPanelRow } from "./details-accordion";
 import type { DetailItem } from "./details-accordion";
 import { ScoreTableModal } from "./score-table-modal";
 import { ReferenceLinkButton } from "../../_components/reference-link-button";
+import { JudgementMark } from "../../_components/judgement-mark";
 import { YakuCheatsheetModal } from "./yaku-cheatsheet-modal";
 import { YakuJudgementChips } from "./yaku-judgement-chips";
 import type { ScoreTableFocus } from "@/app/(user)/(public)/reference/score-table/_lib/score-table-utils";
@@ -74,6 +75,7 @@ export function ResultDisplay({
   requireFuForMangan = false,
 }: ResultDisplayProps) {
   const t = useTranslations("score");
+  const tCommon = useTranslations("common");
   const { answer } = question;
   // ダブル役満採用時は 26 翻を役満へ丸めず「ダブル役満」と表示する
   const allowDoubleYakuman = allowsDoubleYakuman(useYakumanRules());
@@ -236,11 +238,22 @@ export function ResultDisplay({
                   className={`py-2 pr-4 text-right ${judged.result.isHanCorrect ? "text-success" : "text-destructive"}`}
                 >
                   {getHanDisplay(judged.answer.han)}{" "}
-                  {judged.result.isHanCorrect ? "\u2713" : "\u2717"}
+                  <JudgementMark
+                    verdict={
+                      judged.result.isHanCorrect ? "correct" : "incorrect"
+                    }
+                    label={tCommon(
+                      judged.result.isHanCorrect ? "correct" : "incorrect",
+                    )}
+                  />
                 </td>
               ) : answerSummary !== undefined ? (
                 <td className="py-2 pr-4 text-right text-destructive">
-                  {answerSummary} {"\u2717"}
+                  {answerSummary}{" "}
+                  <JudgementMark
+                    verdict="incorrect"
+                    label={tCommon("incorrect")}
+                  />
                 </td>
               ) : (
                 unansweredCell
@@ -274,7 +287,14 @@ export function ResultDisplay({
                     >
                       {judged.answer.fu ?? "-"}
                       {t("form.options.fuSuffix")}{" "}
-                      {judged.result.isFuCorrect ? "\u2713" : "\u2717"}
+                      <JudgementMark
+                        verdict={
+                          judged.result.isFuCorrect ? "correct" : "incorrect"
+                        }
+                        label={tCommon(
+                          judged.result.isFuCorrect ? "correct" : "incorrect",
+                        )}
+                      />
                     </td>
                   ) : (
                     unansweredCell
@@ -310,7 +330,14 @@ export function ResultDisplay({
                   {judged.answer.scoreFromKo !== undefined
                     ? `${judged.answer.scoreFromKo}/${judged.answer.scoreFromOya}`
                     : `${judged.answer.score}${t("result.pointSuffix")}`}{" "}
-                  {judged.result.isScoreCorrect ? "\u2713" : "\u2717"}
+                  <JudgementMark
+                    verdict={
+                      judged.result.isScoreCorrect ? "correct" : "incorrect"
+                    }
+                    label={tCommon(
+                      judged.result.isScoreCorrect ? "correct" : "incorrect",
+                    )}
+                  />
                 </td>
               ) : (
                 unansweredCell
