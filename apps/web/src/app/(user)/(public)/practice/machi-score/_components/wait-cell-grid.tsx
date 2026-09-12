@@ -6,7 +6,6 @@ import type {
   MachiScoreQuestion,
 } from "@mahjong-scoring/core";
 import { Hai } from "@pai-forge/mahjong-react-ui";
-import { TEXT_LINK_CLASSES } from "@/app/_components/_lib/link-classes";
 import { cellKeyOf, type MachiCellRef } from "../_hooks/use-machi-score-store";
 import { MACHI_SCORE_TOUR_ID } from "../_lib/tour-ids";
 
@@ -18,7 +17,6 @@ interface WaitCellGridProps {
   /** 回答を 1 行にする（親ツモの「オール」など表示の都合は呼び出し側が持つ） */
   readonly formatAnswer: (answer: MachiCellAnswer, isTsumo: boolean) => string;
   readonly onToggleCell: (cell: MachiCellRef) => void;
-  readonly onSelectColumn: (isTsumo: boolean) => void;
   readonly disabled?: boolean;
 }
 
@@ -34,8 +32,11 @@ function cellClasses(isSelected: boolean, isAnswered: boolean): string {
  * 待ちマス表
  *
  * 行が待ち牌、列が和了方法。マスを押すと選択に入り、回答フォームで入れた
- * 点数が選択中のマスすべてに当てはまる。列の見出しの「すべて選ぶ」で
- * 未回答のマスを列ごと選べる（3 面待ちで全部同じ点数のときに 1 回で済む）。
+ * 点数が選択中のマスすべてに当てはまる。同じ列のマスは押して足していく
+ * だけで、列ごとまとめて選ぶ入口は置かない — 待ちは 2〜3 面がほとんどで
+ * 省けるのは 1〜2 タップにすぎず、「どの待ちが同じ点数か」を決めて
+ * マスを組むこと自体がこの練習の中身なので、全部同じと決め打ちする
+ * 近道を用意しない。
  */
 export function WaitCellGrid({
   question,
@@ -43,7 +44,6 @@ export function WaitCellGrid({
   selectedCells,
   formatAnswer,
   onToggleCell,
-  onSelectColumn,
   disabled = false,
 }: WaitCellGridProps) {
   const t = useTranslations("machiScore.cells");
@@ -70,19 +70,9 @@ export function WaitCellGrid({
 
   const renderColumnHeader = (isTsumo: boolean) => (
     <th scope="col" className="px-1 pb-2 text-center align-bottom">
-      <div className="flex flex-col items-center gap-1">
-        <span className="text-sm font-bold text-surface-700">
-          {t(isTsumo ? "tsumo" : "ron")}
-        </span>
-        <button
-          type="button"
-          disabled={disabled}
-          onClick={() => onSelectColumn(isTsumo)}
-          className={`text-xs ${TEXT_LINK_CLASSES}`}
-        >
-          {t("selectColumn")}
-        </button>
-      </div>
+      <span className="text-sm font-bold text-surface-700">
+        {t(isTsumo ? "tsumo" : "ron")}
+      </span>
     </th>
   );
 

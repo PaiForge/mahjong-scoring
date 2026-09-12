@@ -212,8 +212,8 @@ export function ScorePracticeAnswerForm({
     <form onSubmit={handleSubmit} className="space-y-5">
       {/* Yaku input
           「役なし」はロンにしか無い回答なので、「役」のラベル行の右端に
-          添える（渡されたときだけ）。マス表の「すべて選ぶ」と同じリンク風の
-          ボタンで、押した瞬間に回答が確定する。役の回答が不要な設定でも
+          添える（渡されたときだけ）。リンク風のボタンで、押した瞬間に回答が
+          確定する。役の回答が不要な設定でも
           reserveYakuRow ならラベル行だけを出し、ツモとロンでフォームの
           高さが変わらないようにする */}
       {(() => {

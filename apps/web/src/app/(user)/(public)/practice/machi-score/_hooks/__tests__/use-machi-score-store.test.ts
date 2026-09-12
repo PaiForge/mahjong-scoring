@@ -96,7 +96,11 @@ describe("useMachiScoreStore", () => {
 
   it("1 つの回答を選択中のマスすべてに当てはめ、回答済みのマスを押すと回答が消える", () => {
     const question = answerMachiCorrectly();
-    useMachiScoreStore.getState().selectColumn(true);
+    for (const wait of question.waits) {
+      useMachiScoreStore
+        .getState()
+        .toggleCell({ agariHai: wait.agariHai, isTsumo: true });
+    }
     const answer: UserAnswer = { han: 1, fu: 30, score: 1000, yakus: [] };
     useMachiScoreStore.getState().assignAnswer({ kind: "score", answer });
 
@@ -182,7 +186,9 @@ describe("useMachiScoreStore", () => {
 
   it("次の問題へ進むと入力はすべて初期化される", () => {
     const question = answerMachiCorrectly();
-    useMachiScoreStore.getState().selectColumn(true);
+    useMachiScoreStore
+      .getState()
+      .toggleCell({ agariHai: question.waits[0].agariHai, isTsumo: false });
     useMachiScoreStore.getState().assignAnswer({ kind: "noYaku" });
     useMachiScoreStore.getState().nextQuestion();
 
