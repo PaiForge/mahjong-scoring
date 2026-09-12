@@ -104,6 +104,62 @@ describe("MachiScoreBoard の回答欄", () => {
     expect(hanSelect().value).toBe("3");
   });
 
+  it("3 面待ち以上でツモ列をまとめて当てはめると、当てはめた後も 1 つの塊のまま", async () => {
+    await visitCells();
+    // 3 面待ち以上が出るまで作り直す
+    for (let i = 0; i < 60; i++) {
+      const q = useMachiScoreStore.getState().currentQuestion;
+      if (q && q.waits.length >= 3) break;
+      act(() => {
+        useMachiScoreStore.getState().nextQuestion();
+      });
+      const store = useMachiScoreStore.getState();
+      const question = store.currentQuestion;
+      if (!question) throw new Error("問題が無い");
+      act(() => {
+        for (const wait of question.waits) store.toggleMachi(wait.agariHai);
+        useMachiScoreStore.getState().submitMachi();
+        useMachiScoreStore.getState().proceedToCells();
+      });
+    }
+    const question = useMachiScoreStore.getState().currentQuestion;
+    if (!question || question.waits.length < 3) {
+      throw new Error("3 面待ち以上の問題を作れなかった");
+    }
+
+    // ツモ列を全部選ぶ（1 行目のツモ → 残りは「同じ回答にする」）
+    fireEvent.click(firstRowCells()[0]);
+    for (const joinable of screen.getAllByRole("button", {
+      name: "joinable",
+    })) {
+      fireEvent.click(joinable);
+    }
+    expect(
+      screen.getByRole("group", { name: "answeringTogether" }).closest("td")
+        ?.rowSpan,
+    ).toBe(question.waits.length);
+
+    act(() => {
+      useMachiScoreStore.getState().assignAnswer({
+        kind: "score",
+        answer: {
+          han: 2,
+          fu: 30,
+          scoreFromKo: 300,
+          scoreFromOya: 500,
+          yakus: [],
+        },
+      });
+    });
+
+    // 当てはめた後も塊は割れず、回答の文字（支払い）が 1 つだけ出る
+    const answered = screen
+      .getAllByRole("button")
+      .filter((button) => button.textContent?.includes("300/500"));
+    expect(answered).toHaveLength(1);
+    expect(answered[0].closest("td")?.rowSpan).toBe(question.waits.length);
+  });
+
   it("当てはめると、その列の欄は空に戻る", async () => {
     await visitCells();
     const [tsumo] = firstRowCells();
