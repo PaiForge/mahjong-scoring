@@ -47,14 +47,11 @@ export default async function MachiScoreSetupPage() {
         <SectionTitle>{tp("settingsTitle")}</SectionTitle>
         <MachiScoreSetupForm>
           {/* 出題範囲は始める前に読ませたい告知ではなく、始めたあとで
-              「なぜこの形しか出ないのか」を引くための脚注。琥珀の囲みは
-              使わず、開始ボタンの下に小さく置く */}
-          <div className="text-xs leading-relaxed text-surface-500">
-            <p className="font-bold">{t("notes.title")}</p>
-            <ul className="mt-1 list-disc space-y-0.5 pl-4">
-              <li>{t("notes.mentsuOnly")}</li>
-              <li>{t("notes.multiWait")}</li>
-            </ul>
+              「なぜこの形しか出ないのか」を引くための脚注。見出しも箇条書きの
+              点も立てず、※ の但し書きとして開始ボタンの下に小さく置く */}
+          <div className="space-y-0.5 text-xs leading-relaxed text-surface-500">
+            <p>{t("notes.mentsuOnly")}</p>
+            <p>{t("notes.multiWait")}</p>
           </div>
         </MachiScoreSetupForm>
       </div>
