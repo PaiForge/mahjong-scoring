@@ -21,7 +21,7 @@ import { paymentToScoreTableAnswer } from "../../_lib/payment-adapter";
 import { DetailsPanelRow } from "./details-accordion";
 import type { DetailItem } from "./details-accordion";
 import { ScoreTableModal } from "./score-table-modal";
-import { ReferenceLinkButton } from "./reference-link-button";
+import { ReferenceLinkButton } from "../../_components/reference-link-button";
 import { YakuCheatsheetModal } from "./yaku-cheatsheet-modal";
 import { YakuJudgementChips } from "./yaku-judgement-chips";
 import type { ScoreTableFocus } from "@/app/(user)/(public)/reference/score-table/_lib/score-table-utils";
