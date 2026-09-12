@@ -37,6 +37,16 @@ function cellClasses(isSelected: boolean, isAnswered: boolean): string {
  * 省けるのは 1〜2 タップにすぎず、「どの待ちが同じ点数か」を決めて
  * マスを組むこと自体がこの練習の中身なので、全部同じと決め打ちする
  * 近道を用意しない。
+ *
+ * 選択中のマスは「回答中」。同じ列で縦に隣り合う選択中のマスは `rowSpan`
+ * で 1 つのマスにつなげ「まとめて回答中」を 1 つだけ出す — 「未回答 /
+ * 未回答」と割れていたものが押した瞬間に 1 枚になることで、これらが同じ
+ * 答えになる（1 回の入力で済む）と見た目で伝える。文言だけだと
+ * 「選択中: 2 マス」と同じで読み飛ばされる。当てはめると 1 マスずつに戻る
+ * （答え合わせは別々に ✓/✗ が付くため、塊は選択中だけの姿）。塊を押すと
+ * 塊ごと選択が解ける — 1 枚になったものの一部だけを外す操作は作れず、
+ * 2〜3 マスなら選び直しは安い。間を空けて選んだ（真ん中を跨ぐ）場合は
+ * つながらず、それぞれが「まとめて回答中」になる。
  */
 export function WaitCellGrid({
   question,
@@ -49,20 +59,71 @@ export function WaitCellGrid({
   const t = useTranslations("machiScore.cells");
   const selectedKeys = new Set(selectedCells.map(cellKeyOf));
 
+  // 縦に隣り合う選択中のマスの塊。先頭のキーに塊の全マスを持たせ、先頭以外は
+  // absorbed に入れて td を描かない（rowSpan が行をまたぐ）
+  const runs = new Map<string, readonly MachiCellRef[]>();
+  const absorbed = new Set<string>();
+  for (const isTsumo of [true, false]) {
+    let run: MachiCellRef[] = [];
+    const flush = () => {
+      if (run.length >= 2) {
+        runs.set(cellKeyOf(run[0]), run);
+        for (const cell of run.slice(1)) absorbed.add(cellKeyOf(cell));
+      }
+      run = [];
+    };
+    for (const wait of question.waits) {
+      const cell = { agariHai: wait.agariHai, isTsumo };
+      if (selectedKeys.has(cellKeyOf(cell))) run.push(cell);
+      else flush();
+    }
+    flush();
+  }
+
+  const buttonClasses = (isSelected: boolean, isAnswered: boolean) =>
+    `press-sm flex h-full min-h-14 w-full items-center justify-center rounded-lg border-3 px-2 py-2 text-center text-sm font-bold leading-snug ${cellClasses(isSelected, isAnswered)}`;
+
   const renderCell = (cell: MachiCellRef) => {
     const key = cellKeyOf(cell);
+    if (absorbed.has(key)) return null;
+
+    const run = runs.get(key);
+    if (run) {
+      return (
+        // td の h-px は、行をまたいだセルの高さいっぱいにボタンを伸ばすため
+        // （table のセル内で h-full を効かせるには td 自身に高さが要る）
+        <td key={key} rowSpan={run.length} className="h-px p-1 sm:p-1.5">
+          <button
+            type="button"
+            disabled={disabled}
+            aria-pressed
+            onClick={() => {
+              for (const member of run) onToggleCell(member);
+            }}
+            className={buttonClasses(true, false)}
+          >
+            {t("answeringTogether")}
+          </button>
+        </td>
+      );
+    }
+
     const answer = cellAnswers[key];
     const isSelected = selectedKeys.has(key);
     return (
-      <td key={key} className="p-1 sm:p-1.5">
+      <td key={key} className="h-px p-1 sm:p-1.5">
         <button
           type="button"
           disabled={disabled}
           aria-pressed={isSelected}
           onClick={() => onToggleCell(cell)}
-          className={`press-sm flex min-h-14 w-full items-center justify-center rounded-lg border-3 px-2 py-2 text-center text-sm font-bold leading-snug ${cellClasses(isSelected, answer !== undefined)}`}
+          className={buttonClasses(isSelected, answer !== undefined)}
         >
-          {answer ? formatAnswer(answer, cell.isTsumo) : t("unanswered")}
+          {answer
+            ? formatAnswer(answer, cell.isTsumo)
+            : isSelected
+              ? t("answering")
+              : t("unanswered")}
         </button>
       </td>
     );
