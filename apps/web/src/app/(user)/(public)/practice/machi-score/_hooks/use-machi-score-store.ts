@@ -103,8 +103,6 @@ interface MachiScoreActions {
    * 移す（列をまたいでまとめて答えることはできない）。
    */
   toggleCell: (cell: MachiCellRef) => void;
-  /** 列（ツモ / ロン）の未回答マスをすべて選ぶ */
-  selectColumn: (isTsumo: boolean) => void;
   /** 選択中のマスすべてに同じ回答を当てはめ、選択を解く */
   assignAnswer: (answer: MachiCellAnswer) => void;
   /** 全マスの回答を判定して答え合わせへ進む */
@@ -242,16 +240,6 @@ export const useMachiScoreStore = create<MachiScoreStore>((set, get) => ({
 
     const sameColumn = selectedCells.every((c) => c.isTsumo === cell.isTsumo);
     set({ selectedCells: sameColumn ? [...selectedCells, cell] : [cell] });
-  },
-
-  selectColumn: (isTsumo) => {
-    const { currentQuestion, phase, cellAnswers } = get();
-    if (!currentQuestion || phase !== "cells") return;
-    set({
-      selectedCells: listCellRefs(currentQuestion).filter(
-        (cell) => cell.isTsumo === isTsumo && !(cellKeyOf(cell) in cellAnswers),
-      ),
-    });
   },
 
   assignAnswer: (answer) => {

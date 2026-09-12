@@ -64,7 +64,6 @@ function MachiScoreBoardInner() {
     submitMachi,
     proceedToCells,
     toggleCell,
-    selectColumn,
     assignAnswer,
     submitCells,
     nextQuestion,
@@ -291,7 +290,6 @@ function MachiScoreBoardInner() {
               selectedCells={selectedCells}
               formatAnswer={formatAnswer}
               onToggleCell={toggleCell}
-              onSelectColumn={selectColumn}
             />
 
             {/* 回答欄はマスを選ぶ前も無効状態で置いておく。選んだ瞬間に欄が

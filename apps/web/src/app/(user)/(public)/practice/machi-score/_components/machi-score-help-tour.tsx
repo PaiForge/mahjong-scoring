@@ -145,7 +145,6 @@ export function MachiScoreHelpTour() {
               selectedCells={ronCells}
               formatAnswer={formatAnswer}
               onToggleCell={noop}
-              onSelectColumn={noop}
               disabled
             />
           </div>
