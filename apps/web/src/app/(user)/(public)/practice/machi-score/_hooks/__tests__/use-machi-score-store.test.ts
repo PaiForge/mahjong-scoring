@@ -94,7 +94,7 @@ describe("useMachiScoreStore", () => {
     ]);
   });
 
-  it("1 つの回答を選択中のマスすべてに当てはめ、回答済みのマスを押すと回答が消える", () => {
+  it("1 つの回答を選択中のマスすべてに当てはめ、回答済みのマスを押しても回答は残り、当てはめ直すと置き換わる", () => {
     const question = answerMachiCorrectly();
     for (const wait of question.waits) {
       useMachiScoreStore
@@ -113,13 +113,37 @@ describe("useMachiScoreStore", () => {
       });
     }
 
+    // 回答済みを押す → 選択に入るだけで回答はそのまま（誤タップで消えない）
     const cell = { agariHai: question.waits[0].agariHai, isTsumo: true };
     state.toggleCell(cell);
     state = useMachiScoreStore.getState();
-    expect(
-      state.cellAnswers[machiCellKey(cell.agariHai, true)],
-    ).toBeUndefined();
+    expect(state.cellAnswers[machiCellKey(cell.agariHai, true)]).toEqual({
+      kind: "score",
+      answer,
+    });
     expect(state.selectedCells).toEqual([cell]);
+
+    // もう一度押すと選択が外れ、回答は変わらない
+    state.toggleCell(cell);
+    state = useMachiScoreStore.getState();
+    expect(state.selectedCells).toEqual([]);
+    expect(state.cellAnswers[machiCellKey(cell.agariHai, true)]).toEqual({
+      kind: "score",
+      answer,
+    });
+
+    // 選び直して当てはめると置き換わる
+    const replaced: UserAnswer = { han: 2, fu: 40, score: 2600, yakus: [] };
+    state.toggleCell(cell);
+    useMachiScoreStore
+      .getState()
+      .assignAnswer({ kind: "score", answer: replaced });
+    state = useMachiScoreStore.getState();
+    expect(state.cellAnswers[machiCellKey(cell.agariHai, true)]).toEqual({
+      kind: "score",
+      answer: replaced,
+    });
+    expect(state.selectedCells).toEqual([]);
   });
 
   it("待ちも全マスも正解なら正解として数える", () => {

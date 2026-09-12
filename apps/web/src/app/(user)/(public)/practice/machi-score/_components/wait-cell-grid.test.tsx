@@ -54,6 +54,30 @@ describe("WaitCellGrid の選択中の表示", () => {
     );
   });
 
+  it("回答済みのマスを選ぶと、回答の文字を残したまま回答中の見た目になる", () => {
+    const question = seedQuestion();
+    const cell = { agariHai: question.waits[0].agariHai, isTsumo: true };
+    render(
+      <WaitCellGrid
+        question={question}
+        cellAnswers={{
+          [cellKeyOf(cell)]: {
+            kind: "score",
+            answer: { han: 1, fu: 30, score: 1000, yakus: [] },
+          },
+        }}
+        selectedCells={[cell]}
+        formatAnswer={() => "1翻 30符 1000点"}
+        onToggleCell={vi.fn()}
+      />,
+    );
+
+    const button = screen.getByRole("button", { name: "1翻 30符 1000点" });
+    expect(button.getAttribute("aria-pressed")).toBe("true");
+    expect(button.className).toContain("border-amber-500");
+    expect(screen.queryByRole("button", { name: "answering" })).toBeNull();
+  });
+
   it("何も選んでいなければ全マスが「未回答」", () => {
     const question = seedQuestion();
     renderGrid(question, []);

@@ -98,9 +98,11 @@ interface MachiScoreActions {
   /**
    * マスの選択を切り替える
    *
-   * 回答済みのマスを押すと回答を消して選択し直す。ツモとロンでは回答の形
-   * （翻の有無・支払いの形）が違うため、別の列のマスを押すと選択をそちらへ
-   * 移す（列をまたいでまとめて答えることはできない）。
+   * 回答済みのマスを押しても回答は消さない — 選択に入るだけで、置き換わる
+   * のはその状態で `assignAnswer` したときだけ。押した瞬間に消す形だと
+   * 誤タップ 1 回で入力が失われ、確認や鍵で守る羽目になる。ツモとロンでは
+   * 回答の形（翻の有無・支払いの形）が違うため、別の列のマスを押すと
+   * 選択をそちらへ移す（列をまたいでまとめて答えることはできない）。
    */
   toggleCell: (cell: MachiCellRef) => void;
   /** 選択中のマスすべてに同じ回答を当てはめ、選択を解く */
@@ -219,19 +221,9 @@ export const useMachiScoreStore = create<MachiScoreStore>((set, get) => ({
   },
 
   toggleCell: (cell) => {
-    const { phase, selectedCells, cellAnswers } = get();
+    const { phase, selectedCells } = get();
     if (phase !== "cells") return;
     const key = cellKeyOf(cell);
-
-    if (key in cellAnswers) {
-      const { [key]: _removed, ...rest } = cellAnswers;
-      const sameColumn = selectedCells.every((c) => c.isTsumo === cell.isTsumo);
-      set({
-        cellAnswers: rest,
-        selectedCells: sameColumn ? [...selectedCells, cell] : [cell],
-      });
-      return;
-    }
 
     if (selectedCells.some((c) => cellKeyOf(c) === key)) {
       set({ selectedCells: selectedCells.filter((c) => cellKeyOf(c) !== key) });
