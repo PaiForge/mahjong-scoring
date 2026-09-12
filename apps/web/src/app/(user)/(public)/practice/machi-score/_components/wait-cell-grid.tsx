@@ -5,6 +5,7 @@ import type {
   MachiCellAnswer,
   MachiScoreQuestion,
 } from "@mahjong-scoring/core";
+import { haiIdToMspz } from "@mahjong-scoring/core";
 import { Hai } from "@pai-forge/mahjong-react-ui";
 import { cellKeyOf, type MachiCellRef } from "../_hooks/use-machi-score-store";
 import { MACHI_SCORE_TOUR_ID } from "../_lib/tour-ids";
@@ -51,6 +52,39 @@ const CELL_CLASSES: Readonly<Record<CellState, string>> = {
 };
 
 /**
+ * 回答の同一性のキー。同じ回答のマスを 1 つの塊にするために使う
+ *
+ * 表示の文字ではなく中身で比べる — 役を答える設定では翻・符・点数が同じでも
+ * 役の組が違う回答があり、それを 1 つにすると当てはめ直しで片方の役が
+ * 消える。
+ */
+function answerKey(answer: MachiCellAnswer): string {
+  if (answer.kind === "noYaku") return "noYaku";
+  const { han, fu, score, scoreFromKo, scoreFromOya, yakus } = answer.answer;
+  return JSON.stringify([
+    han,
+    fu,
+    score,
+    scoreFromKo,
+    scoreFromOya,
+    [...yakus].sort(),
+  ]);
+}
+
+/**
+ * 縦に隣り合うマスの塊
+ *
+ * - `answering`: 選択中のマス。見た目は 1 枚だが行ごとに押せて、押した行
+ *   だけ選択から外れる
+ * - `answered`: 未選択で回答が同じマス。1 つのボタンで、押すと塊ごと
+ *   選択に入る
+ */
+interface CellRun {
+  readonly kind: "answering" | "answered";
+  readonly cells: readonly MachiCellRef[];
+}
+
+/**
  * 待ち × ツモ/ロン のマスの表
  * 待ちマス表
  *
@@ -67,10 +101,23 @@ const CELL_CLASSES: Readonly<Record<CellState, string>> = {
  * `rowSpan` で 1 つのマスにつなげ「まとめて回答中」を 1 つだけ出す —
  * 割れていたものが押した瞬間に 1 枚になることで、これらが同じ答えになる
  * （1 回の入力で済む）と見た目で伝える。文言だけだと読み飛ばされる。
- * 当てはめると 1 マスずつに戻る（答え合わせは別々に ✓/✗ が付くため、
- * 塊は選択中だけの姿）。塊を押すと塊ごと選択が解ける — 1 枚になったものの
- * 一部だけを外す操作は作れず、2〜3 マスなら選び直しは安い。間を空けて
- * 選んだ（真ん中を跨ぐ）場合はつながらず、それぞれが「まとめて回答中」になる。
+ * 間を空けて選んだ（真ん中を跨ぐ）場合はつながらず、それぞれが塊になる。
+ *
+ * 当てはめた後も、縦に隣り合っていて回答が同じマスは 1 つの塊にして
+ * 回答の文字を 1 回だけ出す。当てはめた瞬間に 1 枚だったものが 2 枚に
+ * 割れると「まとめて答えた」実感と食い違うし、同じ文字を並べても
+ * 「この待ちは同じ点数」以上のことは言わない。判定は「まとめて当てはめた
+ * 記録」ではなく回答の同一性 — 別々に答えて同じになったものも意味は同じ
+ * で、記録を持たずに済む。塊を押すと塊ごと選択に入り、当てはめ直すと
+ * 全部に効く（まとめて答えたものはまとめて直したい）。
+ *
+ * 一方で「まとめて答えたが実は 1 つだけ違った」を直す道が要る（待ちごとに
+ * 点数が違うのがこの練習の肝）。選択中の塊は見た目こそ 1 枚だが行ごとに
+ * 押せて、押した行だけ選択から外れる — 他の行を外して当てはめれば、その
+ * 1 つだけ変わって塊が割れる。引き換えに「塊を押すと全部解ける」は無く、
+ * 全部解くには行ごとに押すか、他の列を押して選択を移す。全部解く場面は
+ * 当てはめるより少ない。答え合わせは別々に ✓/✗ が付くため、塊は回答中の
+ * 姿にとどめる。
  */
 export function WaitCellGrid({
   question,
@@ -85,23 +132,39 @@ export function WaitCellGrid({
   // 選択中のマスは同じ列に限られる（ストアが保証する）ので先頭で列が決まる
   const selectedIsTsumo = selectedCells[0]?.isTsumo;
 
-  // 縦に隣り合う選択中のマスの塊。先頭のキーに塊の全マスを持たせ、先頭以外は
-  // absorbed に入れて td を描かない（rowSpan が行をまたぐ）
-  const runs = new Map<string, readonly MachiCellRef[]>();
+  // 縦に隣り合う塊。先頭のキーに塊を持たせ、先頭以外は absorbed に入れて
+  // td を描かない（rowSpan が行をまたぐ）。塊になる条件は「どちらも選択中」
+  // か「どちらも未選択の回答済みで回答が同じ」
+  const runs = new Map<string, CellRun>();
   const absorbed = new Set<string>();
   for (const isTsumo of [true, false]) {
     let run: MachiCellRef[] = [];
+    let runGroup: string | undefined;
     const flush = () => {
       if (run.length >= 2) {
-        runs.set(cellKeyOf(run[0]), run);
+        runs.set(cellKeyOf(run[0]), {
+          kind: runGroup === "answering" ? "answering" : "answered",
+          cells: run,
+        });
         for (const cell of run.slice(1)) absorbed.add(cellKeyOf(cell));
       }
       run = [];
+      runGroup = undefined;
     };
     for (const wait of question.waits) {
       const cell = { agariHai: wait.agariHai, isTsumo };
-      if (selectedKeys.has(cellKeyOf(cell))) run.push(cell);
-      else flush();
+      const key = cellKeyOf(cell);
+      const answer = cellAnswers[key];
+      const group = selectedKeys.has(key)
+        ? "answering"
+        : answer
+          ? `answered:${answerKey(answer)}`
+          : undefined;
+      if (group === undefined || group !== runGroup) flush();
+      if (group !== undefined) {
+        run.push(cell);
+        runGroup = group;
+      }
     }
     flush();
   }
@@ -109,30 +172,86 @@ export function WaitCellGrid({
   const buttonClasses = (state: CellState) =>
     `press-sm flex h-full min-h-14 w-full items-center justify-center rounded-lg border-3 px-2 py-2 text-center text-sm font-bold leading-snug ${CELL_CLASSES[state]}`;
 
+  /** 塊の文字。全マスの回答が同じならその回答、そうでなければ「まとめて回答中」 */
+  const runLabel = (run: CellRun) => {
+    const [first] = run.cells;
+    const answer = cellAnswers[cellKeyOf(first)];
+    if (!answer) return t("answeringTogether");
+    const key = answerKey(answer);
+    const allSame = run.cells.every((cell) => {
+      const other = cellAnswers[cellKeyOf(cell)];
+      return other !== undefined && answerKey(other) === key;
+    });
+    return allSame
+      ? formatAnswer(answer, first.isTsumo)
+      : t("answeringTogether");
+  };
+
+  const renderRun = (key: string, run: CellRun) => {
+    const label = runLabel(run);
+    if (run.kind === "answered") {
+      return (
+        // td の h-px は、行をまたいだセルの高さいっぱいにボタンを伸ばすため
+        // （table のセル内で h-full を効かせるには td 自身に高さが要る）
+        <td key={key} rowSpan={run.cells.length} className="h-px p-1 sm:p-1.5">
+          <button
+            type="button"
+            disabled={disabled}
+            aria-pressed={false}
+            onClick={() => {
+              for (const member of run.cells) onToggleCell(member);
+            }}
+            className={buttonClasses("answered")}
+          >
+            {label}
+          </button>
+        </td>
+      );
+    }
+    return (
+      <td key={key} rowSpan={run.cells.length} className="h-px p-1 sm:p-1.5">
+        {/* 見た目は 1 枚のマス、押す単位は行。枠と文字は外側の div が持ち、
+            行ごとの button は透明で積む（文字は読み上げから外し、行の
+            button が「何を外すか」を名乗る）。押し込みの演出は外側に付ける
+            （:hover / :active は押した行の祖先にも当たる） */}
+        <div
+          role="group"
+          aria-label={label}
+          className={`relative flex h-full min-h-14 w-full flex-col overflow-hidden rounded-lg border-3 ${CELL_CLASSES.answering} ${disabled ? "" : "press-sm"}`}
+        >
+          {run.cells.map((member, i) => (
+            <button
+              key={cellKeyOf(member)}
+              type="button"
+              disabled={disabled}
+              aria-pressed
+              aria-label={t("removeFromSelection", {
+                hai: haiIdToMspz(member.agariHai),
+              })}
+              onClick={() => onToggleCell(member)}
+              className={`min-h-14 w-full flex-1 ${i > 0 ? "border-t-2 border-dashed border-amber-300" : ""}`}
+            />
+          ))}
+          {/* 文字の背後だけ塗って、行の区切り線が文字を横切らないようにする */}
+          <span
+            aria-hidden="true"
+            className="pointer-events-none absolute inset-0 flex items-center justify-center px-2 text-center text-sm font-bold leading-snug"
+          >
+            <span className="rounded-md bg-amber-50 px-1.5 py-0.5">
+              {label}
+            </span>
+          </span>
+        </div>
+      </td>
+    );
+  };
+
   const renderCell = (cell: MachiCellRef) => {
     const key = cellKeyOf(cell);
     if (absorbed.has(key)) return null;
 
     const run = runs.get(key);
-    if (run) {
-      return (
-        // td の h-px は、行をまたいだセルの高さいっぱいにボタンを伸ばすため
-        // （table のセル内で h-full を効かせるには td 自身に高さが要る）
-        <td key={key} rowSpan={run.length} className="h-px p-1 sm:p-1.5">
-          <button
-            type="button"
-            disabled={disabled}
-            aria-pressed
-            onClick={() => {
-              for (const member of run) onToggleCell(member);
-            }}
-            className={buttonClasses("answering")}
-          >
-            {t("answeringTogether")}
-          </button>
-        </td>
-      );
-    }
+    if (run) return renderRun(key, run);
 
     const answer = cellAnswers[key];
     const isSelected = selectedKeys.has(key);

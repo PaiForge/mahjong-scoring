@@ -1432,6 +1432,7 @@
       "answering": "回答中",
       "answeringTogether": "まとめて回答中",
       "joinable": "同じ回答にする",
+      "removeFromSelection": "{hai} を選択から外す",
       "assign": "選んだマスに当てはめる",
       "noYaku": "役なし（ロンできない）",
       "noYakuShort": "役なし",
