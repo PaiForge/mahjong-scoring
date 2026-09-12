@@ -1390,11 +1390,7 @@
       },
       "answerForm": {
         "title": "回答欄",
-        "description": "選んだマスに当てはめる翻・符・点数を入れます。"
-      },
-      "noYaku": {
-        "title": "役なし",
-        "description": "役が無くロンできない待ちは、ロンのマスでこれを選びます。"
+        "description": "選んだマスに当てはめる翻・符・点数を入れます。役が無くロンできない待ちは、ロンのマスを選ぶと出る「役なし」にチェックを入れます。"
       },
       "cellsSubmit": {
         "title": "回答する",
@@ -1516,7 +1512,8 @@
         "fromOya": "親"
       },
       "messages": {
-        "fuNotRequired": "満貫以上のため入力不要"
+        "fuNotRequired": "満貫以上のため入力不要",
+        "noYakuNotRequired": "役なしのため入力不要"
       },
       "options": {
         "hanSuffix": "翻",

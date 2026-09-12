@@ -9,6 +9,7 @@ import {
   YAKUMAN_HAN,
 } from "@mahjong-scoring/core";
 import type { UserAnswer } from "@mahjong-scoring/core";
+import { SmallCheckbox } from "./small-checkbox";
 import { YakuSelect } from "./yaku-select";
 import {
   useRuleSettingsStore,
@@ -31,16 +32,15 @@ interface ScorePracticeAnswerFormProps {
   /** 回答ボタンの文言。既定は「回答する」 */
   readonly submitLabel?: string;
   /**
-   * 回答ボタンの下に添える第 2 の操作（「役なし」など、翻・符・点数を
-   * 入力せずに済ませる回答）。指定したときだけ描く
+   * 「役なし（ロンできない）」を回答として選べるようにする。指定すると翻数の
+   * ラベル行の右端にチェックボックスを出し、入れると翻・符・点数の入力が
+   * 不要になって回答ボタンで `onSubmit` が呼ばれる。ロンにしか無い回答
+   * なので、ツモのマスを答えるときは渡さない（渡さなければ行の高さは
+   * 変わらず、ラベル行の右側が空くだけ）
    */
-  readonly secondaryAction?: {
+  readonly noYaku?: {
     readonly label: string;
-    readonly onClick: () => void;
-    /** フォーム全体は使えるがこの操作だけ選べないとき（ツモには「役なし」が無い等） */
-    readonly disabled?: boolean;
-    /** ヘルプツアーが照らすための `data-tour-id` */
-    readonly tourId?: string;
+    readonly onSubmit: () => void;
   };
 }
 
@@ -57,7 +57,7 @@ export function ScorePracticeAnswerForm({
   simplifyMangan = false,
   requireFuForMangan = false,
   submitLabel,
-  secondaryAction,
+  noYaku,
 }: ScorePracticeAnswerFormProps) {
   const t = useTranslations("score");
   // ラベルと select を紐付ける id（読み上げで「翻数」「符」「点数」を名前として得るため）
@@ -71,9 +71,11 @@ export function ScorePracticeAnswerForm({
   const [score, setScore] = useState<string>("");
   const [scoreFromKo, setScoreFromKo] = useState<string>("");
   const [scoreFromOya, setScoreFromOya] = useState<string>("");
+  // 「役なし」を選ぶと翻・符・点数は入力不要になる（満貫で符が不要になるのと同じ扱い）
+  const [isNoYaku, setIsNoYaku] = useState(false);
 
   const isMangan = han !== undefined && han >= MANGAN_MIN_HAN;
-  const isFuRequired = !isMangan || requireFuForMangan;
+  const isFuRequired = !isNoYaku && (!isMangan || requireFuForMangan);
   const paymentKind = paymentKindOf(isOya, isTsumo);
   const isKoTsumo = paymentKind === "koTsumo";
 
@@ -118,6 +120,11 @@ export function ScorePracticeAnswerForm({
   /** 符が不要なとき、符の select にそのまま描く注記（箱の高さを保つため） */
   const fuNotRequiredOptions = useMemo(
     () => [{ value: "", label: t("form.messages.fuNotRequired") }],
+    [t],
+  );
+  /** 役なしのとき、翻・符の select にそのまま描く注記（同上） */
+  const noYakuNotRequiredOptions = useMemo(
+    () => [{ value: "", label: t("form.messages.noYakuNotRequired") }],
     [t],
   );
 
@@ -165,6 +172,10 @@ export function ScorePracticeAnswerForm({
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
 
+    if (isNoYaku) {
+      noYaku?.onSubmit();
+      return;
+    }
     if (han === undefined) return;
     if (isFuRequired && fu === undefined) return;
 
@@ -205,23 +216,38 @@ export function ScorePracticeAnswerForm({
         <YakuSelect value={yakus} onChange={setYakus} disabled={disabled} />
       )}
 
-      {/* Han input */}
+      {/* Han input
+          「役なし」はロンにしか無い回答なので、翻数のラベル行の右端に
+          チェックボックスとして添える（渡されたときだけ）。行を増やさないため、
+          ツモとロンでフォームの高さが変わらない。入れると翻数の select も
+          注記の 1 択に差し替えて無効にする（符が不要になるときと同じ作法） */}
       <div>
-        <label
-          htmlFor={hanId}
-          className="mb-2 block text-sm font-bold text-surface-700"
-        >
-          {t("form.labels.han")}
-        </label>
+        <div className="mb-2 flex items-center justify-between gap-3">
+          <label
+            htmlFor={hanId}
+            className="block text-sm font-bold text-surface-700"
+          >
+            {t("form.labels.han")}
+          </label>
+          {noYaku && (
+            <SmallCheckbox
+              checked={isNoYaku}
+              onChange={setIsNoYaku}
+              label={noYaku.label}
+              disabled={disabled}
+              compact
+            />
+          )}
+        </div>
         <select
           id={hanId}
-          value={han ?? ""}
+          value={isNoYaku ? "" : (han ?? "")}
           onChange={handleHanChange}
-          disabled={disabled}
-          required
-          className={selectClass(han !== undefined)}
+          disabled={disabled || isNoYaku}
+          required={!isNoYaku}
+          className={selectClass(isNoYaku ? true : han !== undefined)}
         >
-          {hanOptions.map((option) => (
+          {(isNoYaku ? noYakuNotRequiredOptions : hanOptions).map((option) => (
             <option key={option.value} value={option.value}>
               {option.label}
             </option>
@@ -249,7 +275,12 @@ export function ScorePracticeAnswerForm({
           required={isFuRequired}
           className={selectClass(isFuRequired ? fu !== undefined : true)}
         >
-          {(isFuRequired ? fuOptions : fuNotRequiredOptions).map((option) => (
+          {(isFuRequired
+            ? fuOptions
+            : isNoYaku
+              ? noYakuNotRequiredOptions
+              : fuNotRequiredOptions
+          ).map((option) => (
             <option key={option.value} value={option.value}>
               {option.label}
             </option>
@@ -278,10 +309,14 @@ export function ScorePracticeAnswerForm({
               <ScoreOptionSelect
                 value={scoreFromKo}
                 onChange={setScoreFromKo}
-                options={availableScores.koScores}
-                placeholder={t("form.placeholders.fromKo")}
+                options={isNoYaku ? [] : availableScores.koScores}
+                placeholder={
+                  isNoYaku
+                    ? t("form.messages.noYakuNotRequired")
+                    : t("form.placeholders.fromKo")
+                }
                 ariaLabel={t("form.placeholders.fromKo")}
-                disabled={disabled}
+                disabled={disabled || isNoYaku}
               />
             </div>
             <span className="font-medium text-surface-500">/</span>
@@ -289,10 +324,14 @@ export function ScorePracticeAnswerForm({
               <ScoreOptionSelect
                 value={scoreFromOya}
                 onChange={setScoreFromOya}
-                options={availableScores.oyaScores}
-                placeholder={t("form.placeholders.fromOya")}
+                options={isNoYaku ? [] : availableScores.oyaScores}
+                placeholder={
+                  isNoYaku
+                    ? t("form.messages.noYakuNotRequired")
+                    : t("form.placeholders.fromOya")
+                }
                 ariaLabel={t("form.placeholders.fromOya")}
-                disabled={disabled}
+                disabled={disabled || isNoYaku}
               />
             </div>
           </div>
@@ -301,9 +340,13 @@ export function ScorePracticeAnswerForm({
             id={scoreId}
             value={score}
             onChange={setScore}
-            options={availableScores.scores}
-            placeholder={t("form.placeholders.select")}
-            disabled={disabled}
+            options={isNoYaku ? [] : availableScores.scores}
+            placeholder={
+              isNoYaku
+                ? t("form.messages.noYakuNotRequired")
+                : t("form.placeholders.select")
+            }
+            disabled={disabled || isNoYaku}
             optionSuffix={
               paymentKind === "oyaTsumo" ? t("form.options.all") : ""
             }
@@ -315,19 +358,6 @@ export function ScorePracticeAnswerForm({
       <Button type="submit" size="lg" fullWidth disabled={disabled}>
         {submitLabel ?? t("form.buttons.answer")}
       </Button>
-      {secondaryAction && (
-        <Button
-          type="button"
-          variant="secondary"
-          size="lg"
-          fullWidth
-          disabled={disabled || secondaryAction.disabled}
-          onClick={secondaryAction.onClick}
-          data-tour-id={secondaryAction.tourId}
-        >
-          {secondaryAction.label}
-        </Button>
-      )}
     </form>
   );
 }

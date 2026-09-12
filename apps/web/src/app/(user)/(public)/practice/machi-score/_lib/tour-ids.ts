@@ -16,8 +16,6 @@ export const MACHI_SCORE_TOUR_ID = {
   cells: "machi-score-cells",
   /** 翻・符・点数の回答欄 */
   answerForm: "machi-score-answer-form",
-  /** 「役なし」ボタン */
-  noYaku: "machi-score-no-yaku",
   /** 全マスの回答ボタン */
   cellsSubmit: "machi-score-cells-submit",
   /** 答え合わせのマス一覧 */

@@ -71,3 +71,35 @@ describe("ScorePracticeAnswerForm", () => {
     ).toBeDefined();
   });
 });
+
+describe("ScorePracticeAnswerForm 役なし", () => {
+  it("noYaku を渡すとチェックボックスが出て、入れると翻・符・点数が入力不要になり回答で onSubmit が呼ばれる", () => {
+    const onSubmit = vi.fn();
+    const onSubmitScore = vi.fn();
+    render(
+      <ScorePracticeAnswerForm
+        onSubmit={onSubmitScore}
+        isTsumo={false}
+        isOya={false}
+        noYaku={{ label: "役なし", onSubmit }}
+      />,
+    );
+
+    fireEvent.click(screen.getByLabelText("役なし"));
+
+    const han = select("form.labels.han");
+    expect(han.disabled).toBe(true);
+    expect(han.textContent).toBe("form.messages.noYakuNotRequired");
+    expect(select("form.labels.fu").disabled).toBe(true);
+    expect(select("form.labels.score").disabled).toBe(true);
+
+    fireEvent.click(screen.getByText("form.buttons.answer"));
+    expect(onSubmit).toHaveBeenCalledTimes(1);
+    expect(onSubmitScore).not.toHaveBeenCalled();
+  });
+
+  it("noYaku を渡さなければチェックボックスは出ない（ツモのマス）", () => {
+    renderForm({ isTsumo: true });
+    expect(screen.queryByRole("checkbox")).toBeNull();
+  });
+});

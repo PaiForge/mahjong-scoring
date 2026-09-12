@@ -320,13 +320,12 @@ function MachiScoreBoardInner() {
                 simplifyMangan={simplifyMangan}
                 requireFuForMangan={requireFuForMangan}
                 submitLabel={t("cells.assign")}
-                secondaryAction={{
-                  label: t("cells.noYaku"),
-                  onClick: handleAssignNoYaku,
-                  // 「役なし」はロンにしか無い。ツモの列を選んでいる間は押せない
-                  disabled: selectedIsTsumo !== false,
-                  tourId: MACHI_SCORE_TOUR_ID.noYaku,
-                }}
+                // 「役なし」はロンにしか無い回答なので、ロンの列を選んでいる間だけ出す
+                noYaku={
+                  selectedIsTsumo === false
+                    ? { label: t("cells.noYaku"), onSubmit: handleAssignNoYaku }
+                    : undefined
+                }
               />
             </div>
 

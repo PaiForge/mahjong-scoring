@@ -14,8 +14,9 @@ import { MACHI_SCORE_TOUR_ID } from "../_lib/tour-ids";
  * 説明したい操作は出題文の下に並ぶので、ページの見出しより出題文の横の方が
  * 「この画面の操作」の入口として近い。段階（待ち牌の選択 / マスへの当てはめ / 答え合わせ）
  * ごとに存在する要素が違うため、全段階の手順をまとめて渡し、無い要素は
- * ツアーが飛ばす。マスの段階の回答欄と「役なし」は、マスを選ぶ前も
- * 無効状態で描いてあるので常に案内できる。
+ * ツアーが飛ばす。マスの段階の回答欄は、マスを選ぶ前も無効状態で
+ * 描いてあるので常に案内できる（「役なし」はロンのマスを選んだときだけ
+ * 回答欄に現れるため、回答欄の説明の中で触れる）。
  */
 export function MachiScoreSpotlightTour() {
   const t = useTranslations("machiScore.tour");
@@ -49,12 +50,6 @@ export function MachiScoreSpotlightTour() {
       targetId: MACHI_SCORE_TOUR_ID.answerForm,
       title: t("answerForm.title"),
       description: t("answerForm.description"),
-      side: "top",
-    },
-    {
-      targetId: MACHI_SCORE_TOUR_ID.noYaku,
-      title: t("noYaku.title"),
-      description: t("noYaku.description"),
       side: "top",
     },
     {
