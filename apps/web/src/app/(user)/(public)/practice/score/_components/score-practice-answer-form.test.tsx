@@ -72,6 +72,45 @@ describe("ScorePracticeAnswerForm", () => {
   });
 });
 
+describe("ScorePracticeAnswerForm の回答ボタン", () => {
+  const submitButton = () =>
+    screen.getByRole("button", { name: "form.buttons.answer" });
+
+  it("翻・符・点数が揃うまで押せない（揃っていないのに押せて何も起きない状態を作らない）", () => {
+    renderForm({ isTsumo: false });
+    expect(submitButton().hasAttribute("disabled")).toBe(true);
+
+    selectHan(3);
+    expect(submitButton().hasAttribute("disabled")).toBe(true);
+
+    fireEvent.change(select("form.labels.fu"), { target: { value: "30" } });
+    expect(submitButton().hasAttribute("disabled")).toBe(true);
+
+    const scoreSelect = select("form.labels.score");
+    const firstScore = Array.from(scoreSelect.options).find(
+      (option) => option.value !== "",
+    );
+    fireEvent.change(scoreSelect, { target: { value: firstScore?.value } });
+    expect(submitButton().hasAttribute("disabled")).toBe(false);
+  });
+
+  it("子ツモは子・親の両方の点数が入るまで押せない", () => {
+    renderForm({ isTsumo: true });
+    selectHan(3);
+    fireEvent.change(select("form.labels.fu"), { target: { value: "30" } });
+
+    const ko = select("form.placeholders.fromKo");
+    const oya = select("form.placeholders.fromOya");
+    const firstOf = (s: HTMLSelectElement) =>
+      Array.from(s.options).find((option) => option.value !== "")?.value;
+    fireEvent.change(ko, { target: { value: firstOf(ko) } });
+    expect(submitButton().hasAttribute("disabled")).toBe(true);
+
+    fireEvent.change(oya, { target: { value: firstOf(oya) } });
+    expect(submitButton().hasAttribute("disabled")).toBe(false);
+  });
+});
+
 describe("ScorePracticeAnswerForm 役なし", () => {
   it("noYaku を渡すとボタンが出て、押した時点で onSelect が呼ばれる（回答ボタンを経由しない）", () => {
     const onSelect = vi.fn();
