@@ -44,7 +44,7 @@ describe("WaitCellGrid の選択中の表示", () => {
       1,
     );
     expect(
-      screen.queryByRole("button", { name: "answeringTogether" }),
+      screen.queryByRole("group", { name: "answeringTogether" }),
     ).toBeNull();
     expect(screen.getAllByRole("button", { name: "joinable" })).toHaveLength(
       question.waits.length - 1,
@@ -96,7 +96,7 @@ describe("WaitCellGrid の選択中の表示", () => {
     }));
     renderGrid(question, tsumoCells);
 
-    const merged = screen.getByRole("button", { name: "answeringTogether" });
+    const merged = screen.getByRole("group", { name: "answeringTogether" });
     expect(merged.closest("td")?.rowSpan).toBe(question.waits.length);
     expect(screen.queryByRole("button", { name: "answering" })).toBeNull();
     // ロン列は 1 マスずつ残る
@@ -105,7 +105,7 @@ describe("WaitCellGrid の選択中の表示", () => {
     );
   });
 
-  it("塊を押すと塊の全マスの選択が解ける", () => {
+  it("選択中の塊は行ごとに押せて、押した行だけ選択から外れる", () => {
     const question = seedQuestion();
     const tsumoCells = question.waits.map((wait) => ({
       agariHai: wait.agariHai,
@@ -113,10 +113,114 @@ describe("WaitCellGrid の選択中の表示", () => {
     }));
     const onToggleCell = renderGrid(question, tsumoCells);
 
-    fireEvent.click(screen.getByRole("button", { name: "answeringTogether" }));
+    const rows = screen.getAllByRole("button", { name: /removeFromSelection/ });
+    expect(rows).toHaveLength(question.waits.length);
+    fireEvent.click(rows[1]);
 
+    expect(onToggleCell.mock.calls.map(([cell]) => cellKeyOf(cell))).toEqual([
+      cellKeyOf(tsumoCells[1]),
+    ]);
+  });
+
+  it("縦に隣り合う回答済みのマスは回答が同じなら 1 つの塊になり、押すと塊ごと選択に入る", () => {
+    const question = seedQuestion();
+    const tsumoCells = question.waits.map((wait) => ({
+      agariHai: wait.agariHai,
+      isTsumo: true,
+    }));
+    const onToggleCell = vi.fn();
+    // 別々の参照でも中身が同じなら同じ回答
+    const cellAnswers = Object.fromEntries(
+      tsumoCells.map((cell) => [
+        cellKeyOf(cell),
+        {
+          kind: "score" as const,
+          answer: { han: 1, fu: 30, score: 1000, yakus: [] },
+        },
+      ]),
+    );
+    render(
+      <WaitCellGrid
+        question={question}
+        cellAnswers={cellAnswers}
+        selectedCells={[]}
+        formatAnswer={() => "1翻 30符 1000点"}
+        onToggleCell={onToggleCell}
+      />,
+    );
+
+    const merged = screen.getByRole("button", { name: "1翻 30符 1000点" });
+    expect(merged.closest("td")?.rowSpan).toBe(question.waits.length);
+    expect(merged.className).toContain("border-primary-500");
+
+    fireEvent.click(merged);
     expect(onToggleCell.mock.calls.map(([cell]) => cellKeyOf(cell))).toEqual(
       tsumoCells.map(cellKeyOf),
     );
+  });
+
+  it("回答済みでも回答が違えば塊にならない", () => {
+    const question = seedQuestion();
+    const tsumoCells = question.waits.map((wait) => ({
+      agariHai: wait.agariHai,
+      isTsumo: true,
+    }));
+    const cellAnswers = Object.fromEntries(
+      tsumoCells.map((cell, i) => [
+        cellKeyOf(cell),
+        {
+          kind: "score" as const,
+          answer: { han: i + 1, fu: 30, score: 1000 * (i + 1), yakus: [] },
+        },
+      ]),
+    );
+    render(
+      <WaitCellGrid
+        question={question}
+        cellAnswers={cellAnswers}
+        selectedCells={[]}
+        formatAnswer={(answer) =>
+          answer.kind === "score" ? `${answer.answer.han}翻` : "役なし"
+        }
+        onToggleCell={vi.fn()}
+      />,
+    );
+
+    for (let i = 0; i < question.waits.length; i++) {
+      const cell = screen.getByRole("button", { name: `${i + 1}翻` });
+      expect(cell.closest("td")?.rowSpan).toBe(1);
+    }
+  });
+
+  it("回答済みの塊を選び直すと、回答の文字を残したまま琥珀の塊になる", () => {
+    const question = seedQuestion();
+    const tsumoCells = question.waits.map((wait) => ({
+      agariHai: wait.agariHai,
+      isTsumo: true,
+    }));
+    const answer = {
+      kind: "score" as const,
+      answer: { han: 1, fu: 30, score: 1000, yakus: [] },
+    };
+    render(
+      <WaitCellGrid
+        question={question}
+        cellAnswers={Object.fromEntries(
+          tsumoCells.map((cell) => [cellKeyOf(cell), answer]),
+        )}
+        selectedCells={tsumoCells}
+        formatAnswer={() => "1翻 30符 1000点"}
+        onToggleCell={vi.fn()}
+      />,
+    );
+
+    const group = screen.getByRole("group", { name: "1翻 30符 1000点" });
+    expect(group.className).toContain("border-amber-500");
+    expect(
+      screen.queryByRole("group", { name: "answeringTogether" }),
+    ).toBeNull();
+    expect(
+      screen.getAllByRole("button", { name: /removeFromSelection/ }),
+    ).toHaveLength(question.waits.length);
   });
 });
