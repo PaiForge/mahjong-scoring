@@ -26,7 +26,6 @@ import { JudgementMark } from "../../_components/judgement-mark";
 import { YakuCheatsheetModal } from "./yaku-cheatsheet-modal";
 import { YakuJudgementChips } from "./yaku-judgement-chips";
 import type { ScoreTableFocus } from "@/app/(user)/(public)/reference/score-table/_lib/score-table-utils";
-import { Button } from "@/app/(user)/_components/button";
 import { BookIcon } from "@/app/(user)/_components/icons/book-icon";
 import { TableIcon } from "@/app/(user)/_components/icons/table-icon";
 
@@ -45,11 +44,6 @@ interface ResultDisplayProps {
    * （役なしは翻数が無いという主張なので、その行に置く）。他の行は未回答
    */
   readonly answerSummary?: string;
-  /**
-   * 「次の問題へ」を押したときの処理。省略すると次へのボタンを描かない
-   * （待ち別点数計算のように、複数の結果を並べた外側が 1 つのボタンを持つ場合）
-   */
-  readonly onNext?: () => void;
   readonly requireYaku?: boolean;
   readonly simplifyMangan?: boolean;
   readonly requireFuForMangan?: boolean;
@@ -69,7 +63,6 @@ export function ResultDisplay({
   userAnswer,
   result,
   answerSummary,
-  onNext,
   requireYaku = false,
   simplifyMangan = false,
   requireFuForMangan = false,
@@ -376,13 +369,6 @@ export function ResultDisplay({
         markedYakuNames={correctYakuNames}
         focusedYakuName={yakuListFocus}
       />
-
-      {/* Next button */}
-      {onNext && (
-        <Button size="lg" fullWidth onClick={onNext}>
-          {t("result.next")}
-        </Button>
-      )}
     </div>
   );
 }

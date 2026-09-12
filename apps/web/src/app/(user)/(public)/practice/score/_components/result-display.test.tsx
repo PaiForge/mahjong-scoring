@@ -56,7 +56,6 @@ function renderResult() {
       question={question}
       userAnswer={userAnswer}
       result={result}
-      onNext={() => {}}
       requireYaku
     />,
   );
