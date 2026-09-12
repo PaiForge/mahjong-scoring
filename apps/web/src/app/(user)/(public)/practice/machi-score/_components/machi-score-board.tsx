@@ -54,6 +54,7 @@ function MachiScoreBoardInner() {
     phase,
     generationFailed,
     questionSeq,
+    draftSeq,
     selectedMachi,
     machiJudgement,
     selectedCells,
@@ -189,6 +190,7 @@ function MachiScoreBoardInner() {
   ).length;
   // 選択中のマスは同じ列に限られる（ストアが保証する）ので先頭で列が決まる
   const selectedIsTsumo = selectedCells[0]?.isTsumo;
+  const isSelecting = selectedIsTsumo !== undefined;
   const isAnswering = phase !== "result";
 
   return (
@@ -292,52 +294,65 @@ function MachiScoreBoardInner() {
               onToggleCell={toggleCell}
             />
 
-            {/* 回答欄はマスを選んだときだけ出す。選ぶ前から無効の欄を置くと
+            {/* 回答欄はマスを選んだときだけ見せる。選ぶ前から無効の欄を置くと
                 「押すと欄が出る」という因果が見えず、何を選べば答えられるのか
                 が伝わらない。選んだマスは表の色（琥珀）と塊で分かるので、
                 「選択中: n マス」の見出しは持たない。ヘルプツアーは選択が無い間
-                この欄を飛ばす。
-                フォームは列（ツモ / ロン）ごとに作り直す — 列が変わると回答の
-                形（支払いの形・役なしの有無）が変わるため。同じ列にマスを
-                足したり外したりしても入力は持ち越す: マスを 1 つ選んで入力
-                してから「同じ回答にする」を押すと入力が消え、そのまま
-                「当てはめる」を押しても何も起きず、次にロンを押した時点で
-                ツモが未回答に戻る（入力したはずの回答が消えたように見える）
-                事故があった。当てはめると選択が解けて欄ごと消えるので、次の
-                選択は新しいフォームから始まる */}
-            {selectedIsTsumo !== undefined && (
-              <div
-                className="rounded-lg bg-surface-50 p-4"
-                data-tour-id={MACHI_SCORE_TOUR_ID.answerForm}
-              >
-                <ScorePracticeAnswerForm
-                  key={`${questionSeq}:${selectedIsTsumo}`}
-                  onSubmit={handleAssignScore}
-                  isTsumo={selectedIsTsumo}
-                  isOya={isOyaQuestion}
-                  requireYaku={requireYaku}
-                  simplifyMangan={simplifyMangan}
-                  requireFuForMangan={requireFuForMangan}
-                  submitLabel={t("cells.assign")}
-                  // 「役なし」はロンにしか無い回答なので、ロンの列を選んでいる間だけ出す。
-                  // 置き場の「役」の行は常に出し、ツモとロンで高さを変えない
-                  reserveYakuRow
-                  noYaku={
-                    selectedIsTsumo === false
-                      ? {
-                          label: t("cells.noYaku"),
-                          onSelect: handleAssignNoYaku,
-                        }
-                      : undefined
+                この欄を飛ばす（data-tour-id は見えている欄にだけ付ける）。
+                欄は列（ツモ / ロン）ごとに 1 つずつ、1 問の間ずっと mount した
+                まま hidden で出し入れする — 回答の形（支払いの形・役なしの
+                有無）が列で違うため欄は分けるが、入力は当てはめるまでどの
+                マスにも入っていないので、選択を解いた・別の列を押したの拍子に
+                欄を作り直すと誤タップ 1 回で入力が失われる。作り直すのは
+                当てはめて回答がマスに移ったとき（draftSeq）と次の問題
+                （questionSeq）だけ */}
+            {(["tsumo", "ron"] as const).map((column) => {
+              const isTsumo = column === "tsumo";
+              const isShown = selectedIsTsumo === isTsumo;
+              return (
+                <div
+                  key={column}
+                  hidden={!isShown}
+                  className="rounded-lg bg-surface-50 p-4"
+                  data-tour-id={
+                    isShown ? MACHI_SCORE_TOUR_ID.answerForm : undefined
                   }
-                />
-              </div>
-            )}
+                >
+                  <ScorePracticeAnswerForm
+                    key={`${questionSeq}:${draftSeq[column]}`}
+                    onSubmit={handleAssignScore}
+                    isTsumo={isTsumo}
+                    isOya={isOyaQuestion}
+                    requireYaku={requireYaku}
+                    simplifyMangan={simplifyMangan}
+                    requireFuForMangan={requireFuForMangan}
+                    submitLabel={t("cells.assign")}
+                    // 「役なし」はロンにしか無い回答なので、ロンの欄にだけ出す。
+                    // 置き場の「役」の行は常に出し、ツモとロンで高さを変えない
+                    reserveYakuRow
+                    noYaku={
+                      isTsumo
+                        ? undefined
+                        : {
+                            label: t("cells.noYaku"),
+                            onSelect: handleAssignNoYaku,
+                          }
+                    }
+                  />
+                </div>
+              );
+            })}
 
+            {/* 「回答する」はマスを選んでいる間（回答中）も押させない。
+                回答中は入力の途中で、押せると入力を捨てて古い回答で答え合わせに
+                進んでしまう。何をすれば押せるかを注記で言う（選択中なら当てはめ
+                るか解く、未回答が残るならその数） */}
             <div className="space-y-2">
-              {remaining > 0 && (
+              {(isSelecting || remaining > 0) && (
                 <p className="text-center text-xs text-surface-500">
-                  {t("cells.remaining", { count: remaining })}
+                  {isSelecting
+                    ? t("cells.selecting")
+                    : t("cells.remaining", { count: remaining })}
                 </p>
               )}
               <div data-tour-id={MACHI_SCORE_TOUR_ID.cellsSubmit}>
@@ -345,7 +360,7 @@ function MachiScoreBoardInner() {
                   size="lg"
                   fullWidth
                   onClick={handleSubmitCells}
-                  disabled={remaining > 0}
+                  disabled={remaining > 0 || isSelecting}
                 >
                   {t("cells.submit")}
                 </Button>
