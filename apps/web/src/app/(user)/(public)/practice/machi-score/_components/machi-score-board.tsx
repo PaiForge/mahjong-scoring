@@ -320,7 +320,9 @@ function MachiScoreBoardInner() {
                 simplifyMangan={simplifyMangan}
                 requireFuForMangan={requireFuForMangan}
                 submitLabel={t("cells.assign")}
-                // 「役なし」はロンにしか無い回答なので、ロンの列を選んでいる間だけ出す
+                // 「役なし」はロンにしか無い回答なので、ロンの列を選んでいる間だけ出す。
+                // 置き場の「役」の行は常に出し、ツモとロンで高さを変えない
+                reserveYakuRow
                 noYaku={
                   selectedIsTsumo === false
                     ? { label: t("cells.noYaku"), onSubmit: handleAssignNoYaku }

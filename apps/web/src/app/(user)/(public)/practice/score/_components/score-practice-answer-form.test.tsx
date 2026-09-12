@@ -81,6 +81,7 @@ describe("ScorePracticeAnswerForm 役なし", () => {
         onSubmit={onSubmitScore}
         isTsumo={false}
         isOya={false}
+        reserveYakuRow
         noYaku={{ label: "役なし", onSubmit }}
       />,
     );
@@ -100,6 +101,19 @@ describe("ScorePracticeAnswerForm 役なし", () => {
 
   it("noYaku を渡さなければチェックボックスは出ない（ツモのマス）", () => {
     renderForm({ isTsumo: true });
+    expect(screen.queryByRole("checkbox")).toBeNull();
+  });
+
+  it("役の回答が不要でも reserveYakuRow なら「役」のラベル行だけ出す（高さを揃えるため）", () => {
+    render(
+      <ScorePracticeAnswerForm
+        onSubmit={() => {}}
+        isTsumo
+        isOya={false}
+        reserveYakuRow
+      />,
+    );
+    expect(screen.getByText("form.labels.yaku")).toBeTruthy();
     expect(screen.queryByRole("checkbox")).toBeNull();
   });
 });

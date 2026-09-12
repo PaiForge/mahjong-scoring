@@ -10,7 +10,7 @@ import {
 } from "@mahjong-scoring/core";
 import type { UserAnswer } from "@mahjong-scoring/core";
 import { SmallCheckbox } from "./small-checkbox";
-import { YakuSelect } from "./yaku-select";
+import { YakuLabelRow, YakuSelect } from "./yaku-select";
 import {
   useRuleSettingsStore,
   useYakumanRules,
@@ -32,11 +32,17 @@ interface ScorePracticeAnswerFormProps {
   /** 回答ボタンの文言。既定は「回答する」 */
   readonly submitLabel?: string;
   /**
-   * 「役なし（ロンできない）」を回答として選べるようにする。指定すると翻数の
-   * ラベル行の右端にチェックボックスを出し、入れると翻・符・点数の入力が
+   * 「役」のラベル行を役の回答が不要でも出す。「役なし」のチェックボックスの
+   * 置き場をツモ・ロンの別によらず確保し、フォームの高さを変えないため
+   * （待ち別点数計算が立てる。総合演習は役の回答が必要なときだけ行が出る）
+   */
+  readonly reserveYakuRow?: boolean;
+  /**
+   * 「役なし（ロンできない）」を回答として選べるようにする。指定すると「役」の
+   * ラベル行の右端にチェックボックスを出し、入れると役・翻・符・点数の入力が
    * 不要になって回答ボタンで `onSubmit` が呼ばれる。ロンにしか無い回答
-   * なので、ツモのマスを答えるときは渡さない（渡さなければ行の高さは
-   * 変わらず、ラベル行の右側が空くだけ）
+   * なので、ツモのマスを答えるときは渡さない（`reserveYakuRow` と組めば
+   * 行の高さは変わらず、ラベル行の右側が空くだけ）
    */
   readonly noYaku?: {
     readonly label: string;
@@ -57,6 +63,7 @@ export function ScorePracticeAnswerForm({
   simplifyMangan = false,
   requireFuForMangan = false,
   submitLabel,
+  reserveYakuRow = false,
   noYaku,
 }: ScorePracticeAnswerFormProps) {
   const t = useTranslations("score");
@@ -211,34 +218,43 @@ export function ScorePracticeAnswerForm({
 
   return (
     <form onSubmit={handleSubmit} className="space-y-5">
-      {/* Yaku input */}
-      {requireYaku && (
-        <YakuSelect value={yakus} onChange={setYakus} disabled={disabled} />
-      )}
-
-      {/* Han input
-          「役なし」はロンにしか無い回答なので、翻数のラベル行の右端に
-          チェックボックスとして添える（渡されたときだけ）。行を増やさないため、
-          ツモとロンでフォームの高さが変わらない。入れると翻数の select も
-          注記の 1 択に差し替えて無効にする（符が不要になるときと同じ作法） */}
-      <div>
-        <div className="mb-2 flex items-center justify-between gap-3">
-          <label
-            htmlFor={hanId}
-            className="block text-sm font-bold text-surface-700"
-          >
-            {t("form.labels.han")}
-          </label>
-          {noYaku && (
-            <SmallCheckbox
-              checked={isNoYaku}
-              onChange={setIsNoYaku}
-              label={noYaku.label}
-              disabled={disabled}
-              compact
+      {/* Yaku input
+          「役なし」はロンにしか無い回答なので、「役」のラベル行の右端に
+          チェックボックスとして添える（渡されたときだけ）。役の回答が不要な
+          設定でも reserveYakuRow ならラベル行だけを出し、ツモとロンで
+          フォームの高さが変わらないようにする */}
+      {(() => {
+        const noYakuCheckbox = noYaku && (
+          <SmallCheckbox
+            checked={isNoYaku}
+            onChange={setIsNoYaku}
+            label={noYaku.label}
+            disabled={disabled}
+            compact
+          />
+        );
+        if (requireYaku) {
+          return (
+            <YakuSelect
+              value={yakus}
+              onChange={setYakus}
+              disabled={disabled || isNoYaku}
+              labelAction={noYakuCheckbox}
             />
-          )}
-        </div>
+          );
+        }
+        return reserveYakuRow ? <YakuLabelRow action={noYakuCheckbox} /> : null;
+      })()}
+
+      {/* Han input（役なしのときは注記の 1 択に差し替えて無効にする。
+          符が不要になるときと同じ作法） */}
+      <div>
+        <label
+          htmlFor={hanId}
+          className="mb-2 block text-sm font-bold text-surface-700"
+        >
+          {t("form.labels.han")}
+        </label>
         <select
           id={hanId}
           value={isNoYaku ? "" : (han ?? "")}
