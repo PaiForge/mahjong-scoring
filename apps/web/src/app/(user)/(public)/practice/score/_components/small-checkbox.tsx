@@ -2,40 +2,19 @@ interface SmallCheckboxProps {
   readonly checked: boolean;
   readonly onChange: (checked: boolean) => void;
   readonly label: string;
-  readonly disabled?: boolean;
-  /**
-   * 余白を持たない行内向け。ラベル行の右端など、他の文字と同じ高さの中に
-   * 収めるときに使う（既定の余白付きは設定カードの 1 行として使う）
-   */
-  readonly compact?: boolean;
-  /** ヘルプツアーが照らすための `data-tour-id` */
-  readonly tourId?: string;
 }
 
 export function SmallCheckbox({
   checked,
   onChange,
   label,
-  disabled = false,
-  compact = false,
-  tourId,
 }: SmallCheckboxProps) {
   return (
-    <label
-      data-tour-id={tourId}
-      // 行内向けは枠も余白も持たず、箱の 20px がそのまま行の高さになる
-      // （ラベルの 1 行と同じ高さ。2px の枠でも隣の行が動く）
-      className={`group flex cursor-pointer items-center transition-all ${
-        compact
-          ? "gap-2"
-          : "gap-3 rounded-lg border border-transparent px-2 py-1.5 hover:bg-surface-50"
-      } ${disabled ? "cursor-not-allowed opacity-50" : ""}`}
-    >
+    <label className="group flex cursor-pointer items-center gap-3 rounded-lg border border-transparent px-2 py-1.5 transition-all hover:bg-surface-50">
       <div className="relative flex items-center justify-center">
         <input
           type="checkbox"
           checked={checked}
-          disabled={disabled}
           onChange={(e) => onChange(e.target.checked)}
           className="peer size-5 cursor-pointer appearance-none rounded-sm border-2 border-ink bg-white transition-all checked:border-primary-500 checked:bg-primary-500 hover:border-surface-400 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-offset-1"
         />

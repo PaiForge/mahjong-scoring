@@ -9,7 +9,6 @@ import {
   YAKUMAN_HAN,
 } from "@mahjong-scoring/core";
 import type { UserAnswer } from "@mahjong-scoring/core";
-import { SmallCheckbox } from "./small-checkbox";
 import { YakuLabelRow, YakuSelect } from "./yaku-select";
 import {
   useRuleSettingsStore,
@@ -20,6 +19,7 @@ import { MANGAN_MIN_HAN, practiceHanTiers } from "../_lib/han-tiers";
 import { getSelectClass } from "../../_lib/select-class";
 import { ScoreOptionSelect } from "../../_components/score-option-select";
 import { Button } from "@/app/(user)/_components/button";
+import { TEXT_LINK_CLASSES } from "@/app/_components/_lib/link-classes";
 
 interface ScorePracticeAnswerFormProps {
   readonly onSubmit: (answer: UserAnswer) => void;
@@ -39,14 +39,17 @@ interface ScorePracticeAnswerFormProps {
   readonly reserveYakuRow?: boolean;
   /**
    * 「役なし（ロンできない）」を回答として選べるようにする。指定すると「役」の
-   * ラベル行の右端にチェックボックスを出し、入れると役・翻・符・点数の入力が
-   * 不要になって回答ボタンで `onSubmit` が呼ばれる。ロンにしか無い回答
-   * なので、ツモのマスを答えるときは渡さない（`reserveYakuRow` と組めば
-   * 行の高さは変わらず、ラベル行の右側が空くだけ）
+   * ラベル行の右端にリンク風のボタンを出し、押した時点で `onSelect` を呼ぶ。
+   * 役なしは押した瞬間に回答として完結する（翻・符・点数に入れるものが
+   * 無い）ので、回答ボタンを経由させない — チェックボックスにして回答
+   * ボタンで確定させる形は、チェックだけで答えたつもりになるうえ、選択中の
+   * マスを足すとフォームが作り直されてチェックが黙って外れた。ロンにしか
+   * 無い回答なので、ツモのマスを答えるときは渡さない（`reserveYakuRow` と
+   * 組めば行の高さは変わらず、ラベル行の右側が空くだけ）
    */
   readonly noYaku?: {
     readonly label: string;
-    readonly onSubmit: () => void;
+    readonly onSelect: () => void;
   };
 }
 
@@ -78,11 +81,9 @@ export function ScorePracticeAnswerForm({
   const [score, setScore] = useState<string>("");
   const [scoreFromKo, setScoreFromKo] = useState<string>("");
   const [scoreFromOya, setScoreFromOya] = useState<string>("");
-  // 「役なし」を選ぶと翻・符・点数は入力不要になる（満貫で符が不要になるのと同じ扱い）
-  const [isNoYaku, setIsNoYaku] = useState(false);
 
   const isMangan = han !== undefined && han >= MANGAN_MIN_HAN;
-  const isFuRequired = !isNoYaku && (!isMangan || requireFuForMangan);
+  const isFuRequired = !isMangan || requireFuForMangan;
   const paymentKind = paymentKindOf(isOya, isTsumo);
   const isKoTsumo = paymentKind === "koTsumo";
 
@@ -127,11 +128,6 @@ export function ScorePracticeAnswerForm({
   /** 符が不要なとき、符の select にそのまま描く注記（箱の高さを保つため） */
   const fuNotRequiredOptions = useMemo(
     () => [{ value: "", label: t("form.messages.fuNotRequired") }],
-    [t],
-  );
-  /** 役なしのとき、翻・符の select にそのまま描く注記（同上） */
-  const noYakuNotRequiredOptions = useMemo(
-    () => [{ value: "", label: t("form.messages.noYakuNotRequired") }],
     [t],
   );
 
@@ -179,10 +175,6 @@ export function ScorePracticeAnswerForm({
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
 
-    if (isNoYaku) {
-      noYaku?.onSubmit();
-      return;
-    }
     if (han === undefined) return;
     if (isFuRequired && fu === undefined) return;
 
@@ -220,34 +212,35 @@ export function ScorePracticeAnswerForm({
     <form onSubmit={handleSubmit} className="space-y-5">
       {/* Yaku input
           「役なし」はロンにしか無い回答なので、「役」のラベル行の右端に
-          チェックボックスとして添える（渡されたときだけ）。役の回答が不要な
-          設定でも reserveYakuRow ならラベル行だけを出し、ツモとロンで
-          フォームの高さが変わらないようにする */}
+          添える（渡されたときだけ）。マス表の「すべて選ぶ」と同じリンク風の
+          ボタンで、押した瞬間に回答が確定する。役の回答が不要な設定でも
+          reserveYakuRow ならラベル行だけを出し、ツモとロンでフォームの
+          高さが変わらないようにする */}
       {(() => {
-        const noYakuCheckbox = noYaku && (
-          <SmallCheckbox
-            checked={isNoYaku}
-            onChange={setIsNoYaku}
-            label={noYaku.label}
+        const noYakuButton = noYaku && (
+          <button
+            type="button"
             disabled={disabled}
-            compact
-          />
+            onClick={noYaku.onSelect}
+            className={`text-xs ${TEXT_LINK_CLASSES}`}
+          >
+            {noYaku.label}
+          </button>
         );
         if (requireYaku) {
           return (
             <YakuSelect
               value={yakus}
               onChange={setYakus}
-              disabled={disabled || isNoYaku}
-              labelAction={noYakuCheckbox}
+              disabled={disabled}
+              labelAction={noYakuButton}
             />
           );
         }
-        return reserveYakuRow ? <YakuLabelRow action={noYakuCheckbox} /> : null;
+        return reserveYakuRow ? <YakuLabelRow action={noYakuButton} /> : null;
       })()}
 
-      {/* Han input（役なしのときは注記の 1 択に差し替えて無効にする。
-          符が不要になるときと同じ作法） */}
+      {/* Han input */}
       <div>
         <label
           htmlFor={hanId}
@@ -257,13 +250,13 @@ export function ScorePracticeAnswerForm({
         </label>
         <select
           id={hanId}
-          value={isNoYaku ? "" : (han ?? "")}
+          value={han ?? ""}
           onChange={handleHanChange}
-          disabled={disabled || isNoYaku}
-          required={!isNoYaku}
-          className={selectClass(isNoYaku ? true : han !== undefined)}
+          disabled={disabled}
+          required
+          className={selectClass(han !== undefined)}
         >
-          {(isNoYaku ? noYakuNotRequiredOptions : hanOptions).map((option) => (
+          {hanOptions.map((option) => (
             <option key={option.value} value={option.value}>
               {option.label}
             </option>
@@ -291,12 +284,7 @@ export function ScorePracticeAnswerForm({
           required={isFuRequired}
           className={selectClass(isFuRequired ? fu !== undefined : true)}
         >
-          {(isFuRequired
-            ? fuOptions
-            : isNoYaku
-              ? noYakuNotRequiredOptions
-              : fuNotRequiredOptions
-          ).map((option) => (
+          {(isFuRequired ? fuOptions : fuNotRequiredOptions).map((option) => (
             <option key={option.value} value={option.value}>
               {option.label}
             </option>
@@ -325,14 +313,10 @@ export function ScorePracticeAnswerForm({
               <ScoreOptionSelect
                 value={scoreFromKo}
                 onChange={setScoreFromKo}
-                options={isNoYaku ? [] : availableScores.koScores}
-                placeholder={
-                  isNoYaku
-                    ? t("form.messages.noYakuNotRequired")
-                    : t("form.placeholders.fromKo")
-                }
+                options={availableScores.koScores}
+                placeholder={t("form.placeholders.fromKo")}
                 ariaLabel={t("form.placeholders.fromKo")}
-                disabled={disabled || isNoYaku}
+                disabled={disabled}
               />
             </div>
             <span className="font-medium text-surface-500">/</span>
@@ -340,14 +324,10 @@ export function ScorePracticeAnswerForm({
               <ScoreOptionSelect
                 value={scoreFromOya}
                 onChange={setScoreFromOya}
-                options={isNoYaku ? [] : availableScores.oyaScores}
-                placeholder={
-                  isNoYaku
-                    ? t("form.messages.noYakuNotRequired")
-                    : t("form.placeholders.fromOya")
-                }
+                options={availableScores.oyaScores}
+                placeholder={t("form.placeholders.fromOya")}
                 ariaLabel={t("form.placeholders.fromOya")}
-                disabled={disabled || isNoYaku}
+                disabled={disabled}
               />
             </div>
           </div>
@@ -356,13 +336,9 @@ export function ScorePracticeAnswerForm({
             id={scoreId}
             value={score}
             onChange={setScore}
-            options={isNoYaku ? [] : availableScores.scores}
-            placeholder={
-              isNoYaku
-                ? t("form.messages.noYakuNotRequired")
-                : t("form.placeholders.select")
-            }
-            disabled={disabled || isNoYaku}
+            options={availableScores.scores}
+            placeholder={t("form.placeholders.select")}
+            disabled={disabled}
             optionSuffix={
               paymentKind === "oyaTsumo" ? t("form.options.all") : ""
             }
