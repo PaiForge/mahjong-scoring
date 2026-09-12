@@ -184,10 +184,12 @@ export function ResultDisplay({
           <thead>
             <tr className="border-b-3 border-ink">
               <th className="pb-3 pr-4 pt-2 text-left font-bold text-surface-600" />
-              <th className="pb-3 pr-4 pt-2 text-right font-bold text-surface-600">
+              {/* 見出しは折り返さない。役のチップが列幅を取ると
+                  「あなたの回答」が 2 行に割れて表の頭が崩れる */}
+              <th className="whitespace-nowrap pb-3 pr-4 pt-2 text-right font-bold text-surface-600">
                 {t("result.headers.answer")}
               </th>
-              <th className="pb-3 pt-2 text-right font-bold text-surface-600">
+              <th className="whitespace-nowrap pb-3 pt-2 text-right font-bold text-surface-600">
                 {t("result.headers.correct")}
               </th>
             </tr>
