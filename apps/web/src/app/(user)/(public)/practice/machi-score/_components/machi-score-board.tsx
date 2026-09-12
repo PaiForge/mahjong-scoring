@@ -292,42 +292,40 @@ function MachiScoreBoardInner() {
               onToggleCell={toggleCell}
             />
 
-            {/* 回答欄はマスを選ぶ前も無効状態で置いておく。選んだ瞬間に欄が
-                現れて下のボタンが押し下げられるのを避け、ヘルプツアーが
-                いつでも照らせるようにするため。フォームは選択の組み合わせ
-                ごとに作り直す（入力を持ち越さない） */}
-            <div
-              className="space-y-3 rounded-lg bg-surface-50 p-4"
-              data-tour-id={MACHI_SCORE_TOUR_ID.answerForm}
-            >
-              <p className="text-sm font-bold text-surface-700">
-                {selectedIsTsumo === undefined
-                  ? t("cells.noSelection")
-                  : t("cells.selectedCells", {
-                      count: selectedCells.length,
-                      method: t(selectedIsTsumo ? "cells.tsumo" : "cells.ron"),
-                    })}
-              </p>
-              <ScorePracticeAnswerForm
-                key={`${questionSeq}:${selectedCells.map(cellKeyOf).join(",")}`}
-                onSubmit={handleAssignScore}
-                disabled={selectedIsTsumo === undefined}
-                isTsumo={selectedIsTsumo ?? true}
-                isOya={isOyaQuestion}
-                requireYaku={requireYaku}
-                simplifyMangan={simplifyMangan}
-                requireFuForMangan={requireFuForMangan}
-                submitLabel={t("cells.assign")}
-                // 「役なし」はロンにしか無い回答なので、ロンの列を選んでいる間だけ出す。
-                // 置き場の「役」の行は常に出し、ツモとロンで高さを変えない
-                reserveYakuRow
-                noYaku={
-                  selectedIsTsumo === false
-                    ? { label: t("cells.noYaku"), onSelect: handleAssignNoYaku }
-                    : undefined
-                }
-              />
-            </div>
+            {/* 回答欄はマスを選んだときだけ出す。選ぶ前から無効の欄を置くと
+                「押すと欄が出る」という因果が見えず、何を選べば答えられるのか
+                が伝わらない。選んだマスは表の色（琥珀）と塊で分かるので、
+                「選択中: n マス」の見出しは持たない。フォームは選択の
+                組み合わせごとに作り直す（入力を持ち越さない）。ヘルプツアーは
+                選択が無い間この欄を飛ばす */}
+            {selectedIsTsumo !== undefined && (
+              <div
+                className="rounded-lg bg-surface-50 p-4"
+                data-tour-id={MACHI_SCORE_TOUR_ID.answerForm}
+              >
+                <ScorePracticeAnswerForm
+                  key={`${questionSeq}:${selectedCells.map(cellKeyOf).join(",")}`}
+                  onSubmit={handleAssignScore}
+                  isTsumo={selectedIsTsumo}
+                  isOya={isOyaQuestion}
+                  requireYaku={requireYaku}
+                  simplifyMangan={simplifyMangan}
+                  requireFuForMangan={requireFuForMangan}
+                  submitLabel={t("cells.assign")}
+                  // 「役なし」はロンにしか無い回答なので、ロンの列を選んでいる間だけ出す。
+                  // 置き場の「役」の行は常に出し、ツモとロンで高さを変えない
+                  reserveYakuRow
+                  noYaku={
+                    selectedIsTsumo === false
+                      ? {
+                          label: t("cells.noYaku"),
+                          onSelect: handleAssignNoYaku,
+                        }
+                      : undefined
+                  }
+                />
+              </div>
+            )}
 
             <div className="space-y-2">
               {remaining > 0 && (
