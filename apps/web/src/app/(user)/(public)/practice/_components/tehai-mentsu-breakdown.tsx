@@ -10,7 +10,7 @@ import type {
   Tehai,
 } from "@mahjong-scoring/core";
 import { Hai, Furo } from "@pai-forge/mahjong-react-ui";
-import { TEXT_LINK_CLASSES } from "@/app/_components/_lib/link-classes";
+import { ReferenceLinkButton } from "./reference-link-button";
 import {
   DataTable,
   DataTableHeaderCell,
@@ -76,9 +76,18 @@ function ClosedTiles({
  * 面子分解表示
  *
  * 結果の問題詳細で、理牌された手牌を「4面子1雀頭」に分けて見せる導線。
- * 右寄せの「面子分解」リンクを押すとモーダルで分解を開く。どの牌が
- * どの面子を構成するかが並びから読めるようになり、符・翻の内訳と
+ * 右寄せの「面子分解」リンク（{@link ReferenceLinkButton}。答え合わせの表の
+ * 「点数表を確認」等と同じ補助リンクの姿）を押すとモーダルで分解を開く。
+ * どの牌がどの面子を構成するかが並びから読めるようになり、符・翻の内訳と
  * 手牌が結びつく。
+ *
+ * 置き場所は手牌の直下が基本（点数計算総合演習）。手牌そのものの分け方
+ * なので、手牌から離すほど何を分けたのかが読みにくい。待ち別点数計算だけは
+ * 手牌の直下に置けない — 分解は和了牌と和了方法で決まり、同じ聴牌形でも
+ * 待ちごとに完成形が違うため、上に出ている 13 枚の聴牌形には 1 つの分解が
+ * 対応しない。あちらは「選んだマスの内訳」の先頭、そのマスの答え合わせの
+ * 表の直上に置く（内訳の一部として、どの和了形の分解かが選んだマスから
+ * 分かる）。2 画面で位置が違うのは揃え忘れではなくこの制約による。
  *
  * 分解は resolveMentsuBreakdown が返す、ライブラリが点数計算で採用した
  * 構造に基づく。面子分解は一意ではなく、独自に分解すると符内訳と
@@ -128,14 +137,11 @@ export function TehaiMentsuBreakdown({
 
   return (
     <div className="flex justify-end">
-      <button
-        type="button"
-        className={`inline-flex items-center gap-1.5 text-sm ${TEXT_LINK_CLASSES}`}
+      <ReferenceLinkButton
+        icon={<TilesIcon className="size-3.5 shrink-0" />}
+        label={t("mentsuBreakdown")}
         onClick={() => setIsOpen(true)}
-      >
-        <TilesIcon className="size-4 shrink-0" />
-        {t("mentsuBreakdown")}
-      </button>
+      />
       <InfoModal
         isOpen={isOpen}
         onClose={() => setIsOpen(false)}

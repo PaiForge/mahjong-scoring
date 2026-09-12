@@ -11,6 +11,7 @@ import type {
 import { QuestionDisplay } from "./question-display";
 import { ScorePracticeAnswerForm } from "./score-practice-answer-form";
 import { ResultDisplay } from "./result-display";
+import { Button } from "@/app/(user)/_components/button";
 import {
   HelpTourButton,
   HelpTourModal,
@@ -106,12 +107,17 @@ export function ScoreHelpTour() {
         title: t("help.slides.result.title"),
         caption: t("help.slides.result.caption"),
         node: (
-          <ResultDisplay
-            question={sample}
-            userAnswer={buildCorrectAnswer(sample.answer)}
-            result={ALL_CORRECT}
-            onNext={noop}
-          />
+          // 盤面と同じ組み方（表の下に「次の問題へ」）
+          <div className="space-y-4 sm:space-y-6">
+            <ResultDisplay
+              question={sample}
+              userAnswer={buildCorrectAnswer(sample.answer)}
+              result={ALL_CORRECT}
+            />
+            <Button size="lg" fullWidth onClick={noop}>
+              {t("result.next")}
+            </Button>
+          </div>
         ),
       },
     ];
