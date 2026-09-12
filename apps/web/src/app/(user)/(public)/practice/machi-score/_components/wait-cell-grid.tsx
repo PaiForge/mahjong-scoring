@@ -24,7 +24,11 @@ interface WaitCellGridProps {
 type CellState =
   /** 回答済み。緑で塗る（決めた面） */
   | "answered"
-  /** 回答中（選択中）。琥珀で塗る（今触っている面） */
+  /**
+   * 回答中（選択中）。琥珀で塗る（今触っている面）。回答済みのマスを
+   * 選び直したときもこれで、回答の文字はそのまま残す（当てはめるまで
+   * 何も変わっていないことを見せる）
+   */
   | "answering"
   /** 未回答で、選択中のマスと同じ列。押すと選択に加わり同じ回答になる */
   | "joinable"
@@ -132,10 +136,10 @@ export function WaitCellGrid({
 
     const answer = cellAnswers[key];
     const isSelected = selectedKeys.has(key);
-    const state: CellState = answer
-      ? "answered"
-      : isSelected
-        ? "answering"
+    const state: CellState = isSelected
+      ? "answering"
+      : answer
+        ? "answered"
         : selectedIsTsumo === cell.isTsumo
           ? "joinable"
           : "unanswered";
