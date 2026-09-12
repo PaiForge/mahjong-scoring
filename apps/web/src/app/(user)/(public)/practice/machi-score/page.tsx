@@ -5,7 +5,7 @@
  * 待ち別点数計算の設定ページ。エンドレス自由練習形式で、聴牌形から待ち牌を
  * 読み、待ちごとにツモ・ロンの点数を答える練習。設定項目は点数計算総合演習と
  * 同じで、保存先だけを分けている。出題範囲の但し書き（面子手のみ・2 面待ち
- * 以上・役なしの扱い）を開始ボタンの上に出す。
+ * 以上）は脚注として開始ボタンの下に出す。
  *
  * @flow
  * 1. ユーザーが練習一覧のバナーから遷移
@@ -16,7 +16,6 @@ import type { Metadata } from "next";
 import { getTranslations } from "next-intl/server";
 import { createNamespaceMetadata } from "@/app/_lib/metadata";
 import { ContentContainer } from "@/app/(user)/_components/content-container";
-import { HighlightPanel } from "@/app/(user)/_components/highlight-panel";
 import { PageTitle } from "@/app/(user)/_components/page-title";
 import { SectionTitle } from "@/app/(user)/_components/section-title";
 import { MachiScoreHelpTour } from "./_components/machi-score-help-tour";
@@ -47,16 +46,13 @@ export default async function MachiScoreSetupPage() {
       <div className="space-y-4 sm:space-y-6 md:space-y-8">
         <SectionTitle>{tp("settingsTitle")}</SectionTitle>
         <MachiScoreSetupForm>
-          <HighlightPanel>
-            <p className="text-sm font-bold text-surface-800">
-              {t("notes.title")}
-            </p>
-            <ul className="mt-2 list-disc space-y-1 pl-5 text-sm leading-relaxed text-surface-700">
-              <li>{t("notes.mentsuOnly")}</li>
-              <li>{t("notes.multiWait")}</li>
-              <li>{t("notes.noYaku")}</li>
-            </ul>
-          </HighlightPanel>
+          {/* 出題範囲は始める前に読ませたい告知ではなく、始めたあとで
+              「なぜこの形しか出ないのか」を引くための脚注。見出しも箇条書きの
+              点も立てず、※ の但し書きとして開始ボタンの下に小さく置く */}
+          <div className="space-y-0.5 text-xs leading-relaxed text-surface-500">
+            <p>{t("notes.mentsuOnly")}</p>
+            <p>{t("notes.multiWait")}</p>
+          </div>
         </MachiScoreSetupForm>
       </div>
     </ContentContainer>

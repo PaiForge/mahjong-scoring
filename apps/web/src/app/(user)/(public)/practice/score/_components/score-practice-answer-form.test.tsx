@@ -73,8 +73,8 @@ describe("ScorePracticeAnswerForm", () => {
 });
 
 describe("ScorePracticeAnswerForm 役なし", () => {
-  it("noYaku を渡すとチェックボックスが出て、入れると翻・符・点数が入力不要になり回答で onSubmit が呼ばれる", () => {
-    const onSubmit = vi.fn();
+  it("noYaku を渡すとボタンが出て、押した時点で onSelect が呼ばれる（回答ボタンを経由しない）", () => {
+    const onSelect = vi.fn();
     const onSubmitScore = vi.fn();
     render(
       <ScorePracticeAnswerForm
@@ -82,26 +82,37 @@ describe("ScorePracticeAnswerForm 役なし", () => {
         isTsumo={false}
         isOya={false}
         reserveYakuRow
-        noYaku={{ label: "役なし", onSubmit }}
+        noYaku={{ label: "役なし", onSelect }}
       />,
     );
 
-    fireEvent.click(screen.getByLabelText("役なし"));
-
-    const han = select("form.labels.han");
-    expect(han.disabled).toBe(true);
-    expect(han.textContent).toBe("form.messages.noYakuNotRequired");
-    expect(select("form.labels.fu").disabled).toBe(true);
-    expect(select("form.labels.score").disabled).toBe(true);
-
-    fireEvent.click(screen.getByText("form.buttons.answer"));
-    expect(onSubmit).toHaveBeenCalledTimes(1);
+    fireEvent.click(screen.getByRole("button", { name: "役なし" }));
+    expect(onSelect).toHaveBeenCalledTimes(1);
     expect(onSubmitScore).not.toHaveBeenCalled();
   });
 
-  it("noYaku を渡さなければチェックボックスは出ない（ツモのマス）", () => {
+  it("フォームが無効なら「役なし」も押せない", () => {
+    const onSelect = vi.fn();
+    render(
+      <ScorePracticeAnswerForm
+        onSubmit={() => {}}
+        isTsumo={false}
+        isOya={false}
+        disabled
+        reserveYakuRow
+        noYaku={{ label: "役なし", onSelect }}
+      />,
+    );
+
+    const button = screen.getByRole("button", { name: "役なし" });
+    expect(button.hasAttribute("disabled")).toBe(true);
+    fireEvent.click(button);
+    expect(onSelect).not.toHaveBeenCalled();
+  });
+
+  it("noYaku を渡さなければボタンは出ない（ツモのマス）", () => {
     renderForm({ isTsumo: true });
-    expect(screen.queryByRole("checkbox")).toBeNull();
+    expect(screen.queryByRole("button", { name: "役なし" })).toBeNull();
   });
 
   it("役の回答が不要でも reserveYakuRow なら「役」のラベル行だけ出す（高さを揃えるため）", () => {
@@ -114,6 +125,6 @@ describe("ScorePracticeAnswerForm 役なし", () => {
       />,
     );
     expect(screen.getByText("form.labels.yaku")).toBeTruthy();
-    expect(screen.queryByRole("checkbox")).toBeNull();
+    expect(screen.queryByRole("button", { name: "役なし" })).toBeNull();
   });
 });

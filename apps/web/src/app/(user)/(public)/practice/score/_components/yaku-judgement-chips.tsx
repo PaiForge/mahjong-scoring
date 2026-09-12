@@ -32,6 +32,11 @@ interface YakuJudgementChipsProps {
    * タップ対象にしない。
    */
   readonly onSelect?: (cheatsheetYakuName: string) => void;
+  /**
+   * チップの寄せ方。結果表の値の列は右端で揃えるので `end` を渡す
+   * （チップ列は flex なのでセルの text-align に従わない）
+   */
+  readonly align?: "start" | "end";
 }
 
 /**
@@ -46,6 +51,7 @@ export function YakuJudgementChips({
   judgements,
   emptyLabel,
   onSelect,
+  align = "start",
 }: YakuJudgementChipsProps) {
   const t = useTranslations("score.result");
 
@@ -54,7 +60,9 @@ export function YakuJudgementChips({
   }
 
   return (
-    <div className="flex flex-wrap gap-1">
+    <div
+      className={`flex flex-wrap gap-1 ${align === "end" ? "justify-end" : ""}`}
+    >
       {judgements.map((judgement) => {
         const mark = CHIP_MARKS[judgement.state];
         const className = `${CHIP_BASE_CLASSES} ${YAKU_SELECTION_CLASSES[judgement.state]}`;

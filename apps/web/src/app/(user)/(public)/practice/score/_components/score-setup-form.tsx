@@ -46,7 +46,7 @@ interface ScoreSetupFormProps {
   readonly onStart?: () => void;
   /** 出題する役の絞り込みカードを出すか（既定 true） */
   readonly showYakuFilter?: boolean;
-  /** 開始ボタンの上に差し込む内容（出題範囲の但し書きなど） */
+  /** 開始ボタンの下に添える注記（出題範囲の但し書きなど） */
   readonly children?: ReactNode;
 }
 
@@ -189,6 +189,10 @@ export function ScoreSetupForm({
         <div>
           <SkeletonBar radius="lg" className="h-[50px] w-full" />
         </div>
+
+        {/* 注記は静的なテキストなのでスケルトンでもそのまま描く
+            （mounted の前後で高さが変わらない） */}
+        {children}
       </div>
     );
   }
@@ -279,8 +283,6 @@ export function ScoreSetupForm({
         </SettingCard>
       )}
 
-      {children}
-
       {/* Start button */}
       <div>
         <Button
@@ -294,6 +296,8 @@ export function ScoreSetupForm({
           {t("setup.start")}
         </Button>
       </div>
+
+      {children}
 
       <InfoModal
         isOpen={showSimplifyInfo}

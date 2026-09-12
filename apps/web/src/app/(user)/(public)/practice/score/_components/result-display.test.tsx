@@ -119,6 +119,26 @@ describe("ResultDisplay", () => {
   });
 });
 
+describe("ResultDisplay の無回答", () => {
+  it("開示でも「あなたの回答」列を残し、各行に未回答の印を出す（正解の列が動かない）", () => {
+    render(<ResultDisplay question={question} requireYaku />);
+
+    expect(
+      screen.getByRole("columnheader", { name: "result.headers.answer" }),
+    ).toBeTruthy();
+    // 役・翻数・符・点数の 4 行
+    expect(screen.getAllByText("result.unanswered")).toHaveLength(4);
+  });
+
+  it("answerSummary は翻数の行に ✗ 付きで出し、他の行は未回答のまま", () => {
+    render(<ResultDisplay question={question} answerSummary="役なし" />);
+
+    expect(screen.getByText("役なし ✗")).toBeTruthy();
+    // 符・点数の 2 行
+    expect(screen.getAllByText("result.unanswered")).toHaveLength(2);
+  });
+});
+
 describe("ResultDisplay の内訳", () => {
   it("翻数の内訳は他の練習と同じ器で閉じた状態から始まり、見出しを押すと開く", () => {
     renderResult();

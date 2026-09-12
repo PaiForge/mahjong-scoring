@@ -8,7 +8,7 @@ import { MultiSelect } from "@/app/(user)/_components/multi-select";
 import { useYakuOptions } from "@/app/_hooks/use-yaku-options";
 
 interface YakuLabelRowProps {
-  /** ラベルの右端に添える操作（「役なし」のチェックボックス） */
+  /** ラベルの右端に添える操作（「役なし」のボタン） */
   readonly action?: ReactNode;
 }
 
@@ -17,8 +17,8 @@ interface YakuLabelRowProps {
  * 役ラベル行
  *
  * 役の select の見出しであると同時に、「役なし（ロンできない）」の
- * チェックボックスを置く行でもある。役の回答が不要な設定でも、待ち別点数
- * 計算はこの行だけを出してチェックの置き場にする（役の select は無い）。
+ * ボタンを置く行でもある。役の回答が不要な設定でも、待ち別点数計算は
+ * この行だけを出してボタンの置き場にする（役の select は無い）。
  */
 export function YakuLabelRow({ action }: YakuLabelRowProps) {
   const t = useTranslations("score");

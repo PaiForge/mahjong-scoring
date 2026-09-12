@@ -325,7 +325,7 @@ function MachiScoreBoardInner() {
                 reserveYakuRow
                 noYaku={
                   selectedIsTsumo === false
-                    ? { label: t("cells.noYaku"), onSubmit: handleAssignNoYaku }
+                    ? { label: t("cells.noYaku"), onSelect: handleAssignNoYaku }
                     : undefined
                 }
               />
