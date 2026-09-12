@@ -27,6 +27,7 @@
     "@pai-forge/mahjong-react-ui": "^0.3.0",
     "@supabase/ssr": "^0.12.4",
     "@supabase/supabase-js": "^2.112.2",
+    "driver.js": "^1.8.0",
     "drizzle-orm": "^0.45.2",
     "env-ribbon": "^0.1.0",
     "heic-to": "^1.5.2",

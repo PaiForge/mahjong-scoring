@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useCallback, useMemo } from "react";
+import { useState, useMemo, type ReactNode } from "react";
 import { SettingCard } from "../../_components/setting-card";
 import { SettingCardSkeleton } from "../../_components/setting-card-skeleton";
 import { toggleInArray } from "../../_lib/toggle-in-array";
@@ -31,16 +31,46 @@ import { SkeletonBar } from "@/app/_components/skeleton-bar";
 import { PlayIcon } from "@/app/(user)/_components/icons/play-icon";
 import { Button } from "@/app/(user)/_components/button";
 
+interface ScoreSetupFormProps {
+  /**
+   * 設定の保存先。既定は点数計算総合演習のもの。待ち別点数計算は自分の
+   * ストアを渡し、同じ画面で別の保存名の設定を編集する
+   */
+  readonly settingsStore?: typeof useScoreSettingsStore;
+  /** 「開始する」で遷移する play ページのパス。既定は総合演習 */
+  readonly playPath?: string;
+  /**
+   * 「開始する」で遷移する直前に呼ぶ処理。前回の問題をストアから消して
+   * play ページを初期状態から始めるために使う。既定は総合演習のストアを消す
+   */
+  readonly onStart?: () => void;
+  /** 出題する役の絞り込みカードを出すか（既定 true） */
+  readonly showYakuFilter?: boolean;
+  /** 開始ボタンの上に差し込む内容（出題範囲の但し書きなど） */
+  readonly children?: ReactNode;
+}
+
 /**
  * 点数計算練習の設定画面
  * 練習設定画面
+ *
+ * 点数計算総合演習と待ち別点数計算で共有する。設定項目（役の回答・満貫の
+ * 簡略化・符の入力・自動で次へ・親子・点数帯）は同じで、保存先と遷移先だけが
+ * 練習ごとに違う。
  */
-export function ScoreSetupForm() {
+export function ScoreSetupForm({
+  settingsStore = useScoreSettingsStore,
+  playPath = "/practice/score/play",
+  onStart = () => useScorePracticeStore.getState().setQuestion(undefined),
+  showYakuFilter = true,
+  children,
+}: ScoreSetupFormProps = {}) {
   const t = useTranslations("score");
   const tCommon = useTranslations("common");
   const router = useRouter();
   const mounted = useIsClient();
   const [showSimplifyInfo, setShowSimplifyInfo] = useState(false);
+  const useSettingsStore = settingsStore;
   const {
     requireYaku,
     setRequireYaku,
@@ -58,7 +88,7 @@ export function ScoreSetupForm() {
     setIncludeChild,
     targetYaku,
     setTargetYaku,
-  } = useScoreSettingsStore();
+  } = useSettingsStore();
   const tPicker = useTranslations("common.yakuPicker");
   const yakuLabelOf = useYakuLabel();
 
@@ -97,36 +127,26 @@ export function ScoreSetupForm() {
     }
     if (includeParent) params.append(ROLE_PARAM, ROLE_TOKEN_OYA);
     if (includeChild) params.append(ROLE_PARAM, ROLE_TOKEN_KO);
-    for (const name of targetYaku) {
-      const token = yakuTokenOf(name);
-      if (token !== undefined) params.append(YAKU_PARAM, token);
+    if (showYakuFilter) {
+      for (const name of targetYaku) {
+        const token = yakuTokenOf(name);
+        if (token !== undefined) params.append(YAKU_PARAM, token);
+      }
     }
 
-    useScorePracticeStore.getState().setQuestion(undefined);
+    onStart();
 
     const queryString = params.toString();
-    router.push(
-      queryString
-        ? `/practice/score/play?${queryString}`
-        : "/practice/score/play",
-    );
+    router.push(queryString ? `${playPath}?${queryString}` : playPath);
   };
 
-  const handleToggleRange = useCallback(
-    (range: ScoreRange) => {
-      const current = useScoreSettingsStore.getState().targetScoreRanges;
-      setTargetScoreRanges(toggleInArray(current, range));
-    },
-    [setTargetScoreRanges],
-  );
-
-  const handleToggleNonMangan = useCallback(() => {
-    handleToggleRange("nonMangan");
-  }, [handleToggleRange]);
-
-  const handleToggleManganPlus = useCallback(() => {
-    handleToggleRange("manganPlus");
-  }, [handleToggleRange]);
+  // メモ化は React Compiler に任せる（ストアが props で差し替わるため、
+  // 手書きの useCallback は依存の追跡をコンパイラが保証できない）
+  const handleToggleRange = (range: ScoreRange) => {
+    setTargetScoreRanges(toggleInArray(targetScoreRanges, range));
+  };
+  const handleToggleNonMangan = () => handleToggleRange("nonMangan");
+  const handleToggleManganPlus = () => handleToggleRange("manganPlus");
 
   const isDisabled =
     targetScoreRanges.length === 0 || (!includeParent && !includeChild);
@@ -163,7 +183,7 @@ export function ScoreSetupForm() {
         </div>
 
         {/* 出題する役カード（ヘッダー＋MultiSelect の追加ボタン相当） */}
-        <SettingCardSkeleton />
+        {showYakuFilter && <SettingCardSkeleton />}
 
         {/* Full-width start button（Button size="lg" の実寸 = 枠込み 50px） */}
         <div>
@@ -238,24 +258,28 @@ export function ScoreSetupForm() {
 
       {/* Target yaku: 選んだ役のいずれかが成立する手牌に絞る（空 = 絞り込みなし）。
           選択肢は生成器が安定して作れる役（SCORE_FILTERABLE_YAKU）に限る */}
-      <SettingCard title={t("setup.targetYaku")}>
-        <MultiSelect
-          options={yakuFilterOptions}
-          value={targetYaku}
-          onChange={setTargetYaku}
-          placeholder={t("setup.yakuFilterPlaceholder")}
-          labels={{
-            add: tPicker("add"),
-            title: tPicker("title"),
-            done: tPicker("done"),
-          }}
-        />
-        {targetYaku.length >= 2 && (
-          <p className="text-xs text-surface-500">
-            {t("setup.yakuFilterNote")}
-          </p>
-        )}
-      </SettingCard>
+      {showYakuFilter && (
+        <SettingCard title={t("setup.targetYaku")}>
+          <MultiSelect
+            options={yakuFilterOptions}
+            value={targetYaku}
+            onChange={setTargetYaku}
+            placeholder={t("setup.yakuFilterPlaceholder")}
+            labels={{
+              add: tPicker("add"),
+              title: tPicker("title"),
+              done: tPicker("done"),
+            }}
+          />
+          {targetYaku.length >= 2 && (
+            <p className="text-xs text-surface-500">
+              {t("setup.yakuFilterNote")}
+            </p>
+          )}
+        </SettingCard>
+      )}
+
+      {children}
 
       {/* Start button */}
       <div>

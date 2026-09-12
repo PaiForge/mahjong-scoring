@@ -14,7 +14,10 @@ import { ContentContainer } from "@/app/(user)/_components/content-container";
 import { LinkRow, LinkRowList } from "@/app/(user)/_components/link-row";
 import { PageTitle } from "@/app/(user)/_components/page-title";
 import { createNamespaceMetadata } from "@/app/_lib/metadata";
-import { ComprehensivePracticeBanner } from "../_components/comprehensive-practice-banner";
+import {
+  ComprehensivePracticeBanner,
+  MachiScorePracticeBanner,
+} from "../_components/comprehensive-practice-banner";
 import { PracticeCard } from "../_components/practice-card";
 import {
   PracticeFilter,
@@ -70,9 +73,13 @@ export default async function PracticePage() {
       <PageTitle>{t("title")}</PageTitle>
 
       <div className="space-y-8">
-        {/* 総合演習には見出しを付けない。バナー自身が名前を持っており、
-            ここに h2 を足すと絞り込みの一覧に見出しが割り込む */}
-        <ComprehensivePracticeBanner />
+        {/* 終わりのない訓練（総合演習・待ち別点数計算）には見出しを付けない。
+            バナー自身が名前を持っており、ここに h2 を足すと絞り込みの一覧に
+            見出しが割り込む */}
+        <div className="space-y-4">
+          <ComprehensivePracticeBanner />
+          <MachiScorePracticeBanner />
+        </div>
 
         <PracticeFilter
           items={items}

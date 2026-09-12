@@ -1,169 +1,32 @@
 import {
-  HaiKind,
-  calculateScoreForTehai,
-  countDora,
   detectYaku,
   getYakumanMultiplier,
   isMenzen,
-  type HaiKindId,
-  type Kazehai,
   type RuleConfig,
-  type ScoreResult,
-  type Tehai14,
-  type YakuResult,
 } from "@pai-forge/riichi-mahjong";
-import { BAKAZE_OPTIONS, ScoreLevel, KAZEHAI } from "../../core/constants";
-import {
-  randomBool,
-  randomChoice,
-  defaultRandomSource,
-  type RandomSource,
-} from "../../core/random";
+import { randomBool, defaultRandomSource } from "../../core/random";
 
-import type {
-  ScoreQuestion,
-  QuestionGeneratorOptions,
-  ScoreRange,
-  YakuDetail,
-} from "./types";
-import { applyRiichiAndUraDora } from "./utils/reconciler";
+import type { ScoreQuestion, QuestionGeneratorOptions } from "./types";
 import { generateMentsuTehai } from "./strategies/mentsu-strategy";
 import { generateChiitoiTehai } from "./strategies/chiitoi-strategy";
 import { generateDoraMarkers } from "../shared/dora-utils";
-import {
-  assembleScoreQuestion,
-  buildYakuDetailsFromResult,
-} from "./assemble-question";
+import { selectBakaze, selectJikaze } from "../shared/kaze-select";
 import { retryGenerate } from "../retry-generate";
-import type { AgariContext } from "../shared/agari-context";
 import {
   ALL_YAKUMAN_RULES_ENABLED,
   doubleWindJantouFu,
 } from "../../rules/settings";
-import {
-  isKiriageManganTarget,
-  recalculateScore,
-} from "../../score/calculator";
-import { isOya } from "../../core/kaze";
+import { isKiriageManganTarget } from "../../score/calculator";
 import { isFu } from "../../score/constants";
 import { SCORE_YAKU_NAME_MAP } from "../../core/yaku-names";
+import {
+  buildScoreQuestion,
+  isScoreLevelAllowed,
+  type RiichiInput,
+} from "./build-question";
 
 /** 七対子の日本語表示名（`requiredYaku` / `yakuDetails.name` の語彙） */
 const CHIITOITSU = SCORE_YAKU_NAME_MAP.Chiitoitsu;
-
-/**
- * 点数レベルが許可範囲内かどうかを検証する
- * 点数範囲検証
- */
-function validateScoreRange(
-  scoreLevel: string,
-  allowedRanges: readonly ScoreRange[],
-): boolean {
-  if (
-    allowedRanges.length === 1 &&
-    allowedRanges[0] === "nonMangan" &&
-    scoreLevel !== ScoreLevel.Normal
-  )
-    return false;
-  if (
-    allowedRanges.length === 1 &&
-    allowedRanges[0] === "manganPlus" &&
-    scoreLevel === ScoreLevel.Normal
-  )
-    return false;
-  return true;
-}
-
-/**
- * 出題する自風を選択する
- * 自風選択
- */
-function selectJikaze(
-  includeParent: boolean,
-  includeChild: boolean,
-  rng: RandomSource,
-): Kazehai {
-  let candidates: readonly Kazehai[] = KAZEHAI;
-  if (!includeParent) candidates = candidates.filter((k) => k !== HaiKind.Ton);
-  if (!includeChild) candidates = candidates.filter((k) => k === HaiKind.Ton);
-  if (candidates.length === 0) candidates = KAZEHAI;
-  return randomChoice(candidates, rng);
-}
-
-/**
- * 出題する場風を選択する
- * 場風選択
- *
- * `excludeRenfonpai` が立つと自風と同じ風を落とし、連風牌（場風＝自風）が
- * 成立しない局面だけを出題する（理由は `QuestionGeneratorOptions` の
- * `excludeRenfonpai` に書いてある）。
- *
- * 合計符の出題（`generateTotalFuQuestion`）は逆に場風を先に決めて自風を
- * 落とすが、点数の出題では向きを変えている。あちらの向きだと自風が場風以外の
- * 3択になり、親（東）が出るのは南場のときだけ — 全体の 1/6 にまで下がる。
- * 点数は親と子で別の表を引くため、親の出題が細るのは出題として困る。
- * 場風は東南の2択しかなく、片方を落としても必ず候補が残る。
- */
-function selectBakaze(
-  jikaze: Kazehai,
-  excludeRenfonpai: boolean,
-  rng: RandomSource,
-): Kazehai {
-  const candidates = excludeRenfonpai
-    ? BAKAZE_OPTIONS.filter((kaze) => kaze !== jikaze)
-    : BAKAZE_OPTIONS;
-  return randomChoice(candidates, rng);
-}
-
-/**
- * 点数・役計算の入力
- * 点数計算入力
- *
- * 共通の和了状況（{@link AgariContext}）に、点数計算にだけ必要なドラ表示牌と
- * ルール設定を足したもの。
- */
-interface ScoringInput extends AgariContext {
-  readonly doraMarkers: readonly HaiKindId[];
-  readonly ruleConfig: RuleConfig;
-}
-
-/**
- * ライブラリで点数と役を計算する
- * 点数役計算
- *
- * 役が1つも成立しない手（形式和了）は `calculateScoreForTehai` が Err で
- * 返す。和了できない手は出題にならないため undefined に変換する。
- */
-function computeScoreAndYaku(
-  tehai: Tehai14,
-  context: ScoringInput,
-):
-  | {
-      readonly answer: ScoreResult;
-      readonly yakuResult: YakuResult;
-    }
-  | undefined {
-  const { agariHai, isTsumo, jikaze, bakaze, doraMarkers, ruleConfig } =
-    context;
-  const answer = calculateScoreForTehai(tehai, {
-    agariHai,
-    isTsumo,
-    jikaze,
-    bakaze,
-    doraMarkers,
-    ruleConfig,
-  });
-  if (answer.isErr()) return undefined;
-  const yakuResult = detectYaku(tehai, {
-    agariHai,
-    bakaze,
-    jikaze,
-    doraMarkers,
-    isTsumo,
-    ruleConfig,
-  });
-  return { answer: answer.value, yakuResult };
-}
 
 /**
  * 点数計算練習の問題を1つ生成する（生成不可能な場合は undefined を返す）
@@ -219,6 +82,10 @@ export function generateScoreQuestion(
   const markers = generateDoraMarkers(tehai, isRiichi, rng);
   if (!markers) return undefined;
   const { doraMarkers, uraDoraMarkers } = markers;
+  const riichi: RiichiInput | undefined =
+    isRiichi && uraDoraMarkers
+      ? { isDouble: randomBool(0.1, rng), uraDoraMarkers }
+      : undefined;
 
   // 3. 点数・役の計算（ライブラリ境界）
   //    切り上げ満貫を含むルール設定はライブラリに渡し、点数区分・支払いの
@@ -229,68 +96,23 @@ export function generateScoreQuestion(
     kiriageMangan,
     ...yakumanRules,
   };
-  const scored = computeScoreAndYaku(tehai, {
+  const built = buildScoreQuestion({
+    tehai,
     agariHai,
     isTsumo,
     jikaze,
     bakaze,
     doraMarkers,
     ruleConfig,
+    riichi,
   });
-  if (!scored) return undefined;
+  //    役なし（形式和了）とトリプル役満以上はどちらも出題にならない
+  if (built.isErr()) return undefined;
+  const question = built.value;
+  const finalAnswer = question.answer;
+  const yakuDetails = question.yakuDetails ?? [];
 
-  //    役牌（三元牌・場風・自風）はライブラリが判定して返すので、ここで
-  //    手牌を数えて補完しない。補完すると二重に数える
-  let finalAnswer = scored.answer;
-  let yakuDetails: YakuDetail[] = buildYakuDetailsFromResult(scored.yakuResult);
-
-  // 4. リーチ・裏ドラの適用
-  if (isRiichi && uraDoraMarkers) {
-    const riichiRes = applyRiichiAndUraDora({
-      tehai,
-      currentAnswer: finalAnswer,
-      uraDoraMarkers,
-      isDoubleRiichi: randomBool(0.1, rng),
-      isTsumo,
-      jikaze,
-      ruleConfig,
-    });
-    finalAnswer = riichiRes.answer;
-    yakuDetails = [...yakuDetails, ...riichiRes.additionalYakuDetails];
-  }
-
-  // 5. 翻数を役の内訳に合わせる
-  //
-  //    内訳の合計を翻数の正典にし、内訳と翻数と点数が画面上で必ず一致する
-  //    ことを保証する（結果ページが役の内訳を出すため、ここがずれると
-  //    見えてしまう）。
-  //
-  //    ライブラリ 0.5 までは `detectYaku` と `calculateScoreForTehai` が同じ
-  //    手牌で食い違うことがあった（門前の清一色・混一色・混全帯么九を含む手で
-  //    後者が副露のときの値で数え、30000 手中 19 件で 1〜2 翻少なかった）。
-  //    0.6 で両者の解釈が統一されて以降は一致するはずだが、内訳と翻数の
-  //    一致は画面の前提なので、この補正は防波堤として残す。
-  //
-  //    この時点の `yakuDetails` は表ドラを持たない（`assembleScoreQuestion`
-  //    が後で足す）ため、合計にはドラの翻を明示的に加える。
-  const doraHan = countDora(tehai, doraMarkers);
-  const detailsHan =
-    yakuDetails.reduce((total, yaku) => total + yaku.han, 0) + doraHan;
-  if (detailsHan !== finalAnswer.han) {
-    finalAnswer = recalculateScore(finalAnswer, detailsHan, {
-      isTsumo,
-      isOya: isOya(jikaze),
-      ruleConfig,
-    });
-  }
-
-  // 6. トリプル役満以上（役満3個分〜）は出題しない
-  //     点数選択肢のリスト（RON_SCORES_KO 等）はダブル役満までしか持たず、
-  //     選択肢から選べない問題になるため。ランダム生成では実質出ない手
-  //     （大四喜ダブル+字一色 等）だが、防波堤として明示的に弾く
-  if (finalAnswer.yakumanMultiplier >= 3) return undefined;
-
-  // 7. 役満ルールの採否で正解が割れる手の除外
+  // 4. 役満ルールの採否で正解が割れる手の除外
   //     役満役を含む手に限り、全ルール有効として数え直したときに役満2個分
   //     以上になるか（= 全ルール無効時と点数が割れるか）で判定する。
   //     判定理由と同値性は QuestionGeneratorOptions の
@@ -308,15 +130,15 @@ export function generateScoreQuestion(
       return undefined;
   }
 
-  // 8. 切り上げ満貫で点数が割れる手（30符4翻・60符3翻）の除外
+  // 5. 切り上げ満貫で点数が割れる手（30符4翻・60符3翻）の除外
   //    判定は翻数と符だけで行うため、切り上げ満貫を有効にして計算した
   //    結果（区分が既に満貫）でも境界の手を落とせる
   if (excludeKiriageBoundary && isKiriageManganTarget(finalAnswer))
     return undefined;
 
-  // 9. 点数帯・最小翻数・符・役の検証と組み立て
+  // 6. 点数帯・最小翻数・符・役の検証
   //    minHan はリーチ・裏ドラ適用後の最終翻数で判定する（出題表示と一致させる）
-  if (!validateScoreRange(finalAnswer.scoreLevel, allowedRanges))
+  if (!isScoreLevelAllowed(finalAnswer.scoreLevel, allowedRanges))
     return undefined;
   if (finalAnswer.han < minHan) return undefined;
   //    回答の符選択肢（FU_VALUES）に無い符は出題しない。么九牌の暗槓を複数
@@ -325,8 +147,8 @@ export function generateScoreQuestion(
   if (!isFu(finalAnswer.fu)) return undefined;
   if (allowedFu !== undefined && !allowedFu.includes(finalAnswer.fu))
     return undefined;
-  //    役の絞り込みも最終形の yakuDetails（役牌の照合・リーチ適用後）で判定する。
-  //    複数指定は OR（いずれか1つでも成立していれば出題）
+  //    役の絞り込みも最終形の yakuDetails（役牌の照合・リーチ・ドラ適用後）で
+  //    判定する。複数指定は OR（いずれか1つでも成立していれば出題）
   if (
     requiredYaku !== undefined &&
     requiredYaku.length > 0 &&
@@ -334,19 +156,7 @@ export function generateScoreQuestion(
   )
     return undefined;
 
-  return assembleScoreQuestion({
-    tehai,
-    agariHai,
-    isTsumo,
-    jikaze,
-    bakaze,
-    doraMarkers,
-    isRiichi,
-    uraDoraMarkers,
-    answer: finalAnswer,
-    originalAnswer: scored.answer,
-    yakuDetails,
-  });
+  return question;
 }
 
 /**

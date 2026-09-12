@@ -133,6 +133,13 @@ packages/eslint-config/ — 共通 ESLint 設定（PaiForge コーディング�
 - `icons/OutlineIcon` — 線画アイコンの svg 外殻。新しい線画アイコンはこれを使う
 - `HighlightPanel` — 地の文から浮かせて読ませる琥珀色の囲み（教本のコラム・計算手順・注意書き）。`border-amber-500 bg-amber-50/60` の一式をページ側で直接書かない
 - `SettingsCard` / `SettingToggleRow` — 設定ページの項目カードとトグル行。設定項目を足すときに `<input type="checkbox">` とスイッチの markup を書き起こさない
+- `HelpIconButton` — 「押すと説明が出る」入口の「?」（設定の補足・ドラの見方・練習の進め方）。送信ボタンと
+  同じ緑の塗りの丸に白抜きの太字で、大きさは添える文字に合わせて em で決まる。素の「?」の文字や線画の
+  アイコンをページ側で書かない（地の文に紛れて押せることが伝わらない）
+- 練習のヘルプ（`practice/_components/`）は 2 種類。`HelpTourModal` は設定画面の「?」から、開始前に
+  流れを実コンポーネントのカルーセルで通しで見せる。`SpotlightTour`（driver.js）は play 画面の「?」から、
+  今画面にある要素を順に照らして 1〜2 文で説明する。段階で画面が変わる練習は全段階の手順を渡し、
+  無い要素はツアーが飛ばす（`data-tour-id` で対象を引く）。説明を文章のモーダルで読ませない
 
 ### 影
 
@@ -272,10 +279,14 @@ packages/eslint-config/ — 共通 ESLint 設定（PaiForge コーディング�
 | パターン     | 構成                           | 該当                                                              |
 | ------------ | ------------------------------ | ----------------------------------------------------------------- |
 | チャレンジ型 | 説明(page.tsx) → play → result | jantou-fu, mentsu-fu, machi-fu, mentsu-jantou-fu, yaku, han-count |
-| 無限訓練型   | play のみ（result なし）       | score                                                             |
+| 無限訓練型   | play のみ（result なし）       | score, machi-score                                                |
 
 - `score-calculation`, `score-table` はチャレンジ型だが説明ページ（page.tsx）は未作成
-- `score` は終了条件がなく無限ループする訓練機能のため、result ページを持たない
+- `score` / `machi-score` は終了条件がなく無限ループする訓練機能のため、result ページを持たない。
+  どちらも `PRACTICE_MENU_REGISTRY` に載らず、練習一覧のバナー（`comprehensive-practice-banner.tsx`）と
+  `sitemap-routes.ts` の手書きの 1 行で参照する
+- `machi-score`（待ち別点数計算）は 1 問を「待ち牌を選ぶ → 待ち × ツモ/ロン のマスに点数を当てはめる →
+  答え合わせ」の 3 段階で解く。設定画面・回答フォーム・結果表は `score` のものを共有し、設定の保存名だけ分ける
 
 ## 出題設定（バリアント）と記録の土俵
 

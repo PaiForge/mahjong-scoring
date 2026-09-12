@@ -1,4 +1,4 @@
-import type { HaiKindId, Tehai14 } from "@pai-forge/riichi-mahjong";
+import type { HaiKindId, Tehai } from "@pai-forge/riichi-mahjong";
 import { listTehaiHais } from "../../core/hai-count";
 import { HaiUsageTracker } from "../../core/hai-tracker";
 import { defaultRandomSource, type RandomSource } from "../../core/random";
@@ -28,18 +28,22 @@ export interface DoraMarkers {
  * 表ドラを引いたぶんも数に入れたうえで裏ドラを引くため、表と裏を通しても
  * 4 枚を超えない。
  *
+ * 聴牌形（13 枚）からも引ける。待ち牌は手牌の外にあるため、ここでは
+ * 除外されない — 「待ち牌が表示牌に取られて和了れない」状態を避けるのは
+ * 呼び出し側の責務（待ち別点数計算の生成器を参照）。
+ *
  * @param tehai - 出題する手牌（副露・槓子を含む）
  * @param isRiichi - リーチしている手か。真なら裏ドラ表示牌も返す
  * @param rng - 乱数供給源（既定 `Math.random`）
  * @returns 表示牌の一式。使える牌が尽きた場合は undefined
  */
 export function generateDoraMarkers(
-  tehai: Tehai14,
+  tehai: Readonly<Tehai>,
   isRiichi: boolean,
   rng: RandomSource = defaultRandomSource,
 ): DoraMarkers | undefined {
-  // 山の残りを手牌から起こす。Tehai14 は牌の枚数を検証済みなので登録は
-  // 失敗しないはずだが、握り潰さず生成を諦める（手牌生成側と同じ作法）
+  // 山の残りを手牌から起こす。検証済みの手牌なら登録は失敗しないはずだが、
+  // 握り潰さず生成を諦める（手牌生成側と同じ作法）
   const wall = new HaiUsageTracker();
   for (const hai of listTehaiHais(tehai)) {
     if (wall.use(hai).isErr()) return undefined;

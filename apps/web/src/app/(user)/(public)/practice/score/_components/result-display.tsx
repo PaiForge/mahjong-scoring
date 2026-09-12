@@ -40,7 +40,11 @@ interface ResultDisplayProps {
   readonly userAnswer?: UserAnswer;
   /** 判定結果。無回答の正解開示（「わからない」）では undefined */
   readonly result?: JudgementResult;
-  readonly onNext: () => void;
+  /**
+   * 「次の問題へ」を押したときの処理。省略すると次へのボタンを描かない
+   * （待ち別点数計算のように、複数の結果を並べた外側が 1 つのボタンを持つ場合）
+   */
+  readonly onNext?: () => void;
   readonly requireYaku?: boolean;
   readonly simplifyMangan?: boolean;
   readonly requireFuForMangan?: boolean;
@@ -314,9 +318,11 @@ export function ResultDisplay({
       />
 
       {/* Next button */}
-      <Button size="lg" fullWidth onClick={onNext}>
-        {t("result.next")}
-      </Button>
+      {onNext && (
+        <Button size="lg" fullWidth onClick={onNext}>
+          {t("result.next")}
+        </Button>
+      )}
     </div>
   );
 }
