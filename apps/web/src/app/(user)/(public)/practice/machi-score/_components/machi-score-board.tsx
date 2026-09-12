@@ -295,16 +295,23 @@ function MachiScoreBoardInner() {
             {/* 回答欄はマスを選んだときだけ出す。選ぶ前から無効の欄を置くと
                 「押すと欄が出る」という因果が見えず、何を選べば答えられるのか
                 が伝わらない。選んだマスは表の色（琥珀）と塊で分かるので、
-                「選択中: n マス」の見出しは持たない。フォームは選択の
-                組み合わせごとに作り直す（入力を持ち越さない）。ヘルプツアーは
-                選択が無い間この欄を飛ばす */}
+                「選択中: n マス」の見出しは持たない。ヘルプツアーは選択が無い間
+                この欄を飛ばす。
+                フォームは列（ツモ / ロン）ごとに作り直す — 列が変わると回答の
+                形（支払いの形・役なしの有無）が変わるため。同じ列にマスを
+                足したり外したりしても入力は持ち越す: マスを 1 つ選んで入力
+                してから「同じ回答にする」を押すと入力が消え、そのまま
+                「当てはめる」を押しても何も起きず、次にロンを押した時点で
+                ツモが未回答に戻る（入力したはずの回答が消えたように見える）
+                事故があった。当てはめると選択が解けて欄ごと消えるので、次の
+                選択は新しいフォームから始まる */}
             {selectedIsTsumo !== undefined && (
               <div
                 className="rounded-lg bg-surface-50 p-4"
                 data-tour-id={MACHI_SCORE_TOUR_ID.answerForm}
               >
                 <ScorePracticeAnswerForm
-                  key={`${questionSeq}:${selectedCells.map(cellKeyOf).join(",")}`}
+                  key={`${questionSeq}:${selectedIsTsumo}`}
                   onSubmit={handleAssignScore}
                   isTsumo={selectedIsTsumo}
                   isOya={isOyaQuestion}

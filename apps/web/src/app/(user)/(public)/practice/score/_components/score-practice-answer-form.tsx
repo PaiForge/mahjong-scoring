@@ -172,6 +172,16 @@ export function ScorePracticeAnswerForm({
     [han, isOya, isTsumo, kiriageMangan, allowDoubleYakuman],
   );
 
+  // 入力が揃うまで回答ボタンを押せなくする。押せるのに何も起きない状態を
+  // 作らないため — HTML の required は iOS Safari では効かず、揃っていない
+  // 入力で押すと黙って何も起きなかった
+  const isComplete =
+    han !== undefined &&
+    (!isFuRequired || fu !== undefined) &&
+    (isKoTsumo
+      ? !isNaN(parseInt(scoreFromKo, 10)) && !isNaN(parseInt(scoreFromOya, 10))
+      : !isNaN(parseInt(score, 10)));
+
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
 
@@ -347,7 +357,12 @@ export function ScorePracticeAnswerForm({
       </div>
 
       {/* Submit */}
-      <Button type="submit" size="lg" fullWidth disabled={disabled}>
+      <Button
+        type="submit"
+        size="lg"
+        fullWidth
+        disabled={disabled || !isComplete}
+      >
         {submitLabel ?? t("form.buttons.answer")}
       </Button>
     </form>
