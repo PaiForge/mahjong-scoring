@@ -128,11 +128,17 @@ function MachiScoreBoardInner() {
     proceedToCells();
   };
 
+  // 当てはめると選択が解けて回答欄が消え、下にあった「回答する」が欄の
+  // 高さぶん上へ跳ぶ。押した位置に留まると表もボタンも画面外になるので、
+  // 他の切り替え操作と同じく盤面の先頭へ戻す（当てはめた結果の塊と、次に
+  // 押す「回答する」が表の下に見える）
   const handleAssignScore = (answer: UserAnswer) => {
+    scrollToPracticeAnchor();
     assignAnswer({ kind: "score", answer });
   };
 
   const handleAssignNoYaku = () => {
+    scrollToPracticeAnchor();
     assignAnswer({ kind: "noYaku" });
   };
 
