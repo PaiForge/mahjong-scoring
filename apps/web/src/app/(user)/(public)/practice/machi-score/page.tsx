@@ -54,7 +54,6 @@ export default async function MachiScoreSetupPage() {
             <ul className="mt-2 list-disc space-y-1 pl-5 text-sm leading-relaxed text-surface-700">
               <li>{t("notes.mentsuOnly")}</li>
               <li>{t("notes.multiWait")}</li>
-              <li>{t("notes.noYaku")}</li>
             </ul>
           </HighlightPanel>
         </MachiScoreSetupForm>
