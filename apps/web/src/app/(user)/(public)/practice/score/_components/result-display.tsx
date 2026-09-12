@@ -107,7 +107,7 @@ export function ResultDisplay({
       : undefined;
   // 「あなたの回答」の未回答セル（開示のときの各行）
   const unansweredCell = (
-    <td className="py-2 pr-4 align-top text-surface-400">
+    <td className="py-2 pr-4 text-right align-top text-surface-400">
       {t("result.unanswered")}
     </td>
   );
@@ -171,16 +171,21 @@ export function ResultDisplay({
           回答全体の正誤を名乗る見出し・バナーは置かない。「あなたの回答」と
           「正解」を並べた時点で合っていたかは読めば分かり、行ごとの ✓/✗ と
           下部の正解/不正解カウンタが既に判定を持っている。全幅の色帯や
-          見出し行を足すと、いちばん読ませたいこの表より判定が強く出る。 */}
+          見出し行を足すと、いちばん読ませたいこの表より判定が強く出る。
+
+          値の 2 列は右端で揃える（項目名は左）。内訳の行は全幅で
+          DetailTable が値を右端に置くので、正解の「2翻」の真下に内訳の
+          「1翻 / 1翻 / 合計 2翻」が並び、縦に足し算が読める。左寄せだと
+          正解は列の中ほど、内訳の合計は右端と、同じ数字が別の縦位置に出る */}
       <div className="rounded-lg bg-surface-50 p-4">
         <table className="w-full text-sm">
           <thead>
             <tr className="border-b-3 border-ink">
               <th className="pb-3 pr-4 pt-2 text-left font-bold text-surface-600" />
-              <th className="pb-3 pr-4 pt-2 text-left font-bold text-surface-600">
+              <th className="pb-3 pr-4 pt-2 text-right font-bold text-surface-600">
                 {t("result.headers.answer")}
               </th>
-              <th className="pb-3 pt-2 text-left font-bold text-surface-600">
+              <th className="pb-3 pt-2 text-right font-bold text-surface-600">
                 {t("result.headers.correct")}
               </th>
             </tr>
@@ -193,9 +198,10 @@ export function ResultDisplay({
                   {t("form.labels.yaku")}
                 </td>
                 {judged ? (
-                  <td className="py-2 pr-4 align-top">
+                  <td className="py-2 pr-4 text-right align-top">
                     <YakuJudgementChips
                       judgements={answeredYakuJudgements}
+                      align="end"
                       emptyLabel={t("result.details.none")}
                       onSelect={openYakuList}
                     />
@@ -203,9 +209,10 @@ export function ResultDisplay({
                 ) : (
                   unansweredCell
                 )}
-                <td className="space-y-1.5 py-2 align-top">
+                <td className="space-y-1.5 py-2 text-right align-top">
                   <YakuJudgementChips
                     judgements={correctYakuJudgements}
+                    align="end"
                     emptyLabel={t("result.details.none")}
                     onSelect={openYakuList}
                   />
@@ -226,19 +233,19 @@ export function ResultDisplay({
               </td>
               {judged ? (
                 <td
-                  className={`py-2 pr-4 ${judged.result.isHanCorrect ? "text-success" : "text-destructive"}`}
+                  className={`py-2 pr-4 text-right ${judged.result.isHanCorrect ? "text-success" : "text-destructive"}`}
                 >
                   {getHanDisplay(judged.answer.han)}{" "}
                   {judged.result.isHanCorrect ? "\u2713" : "\u2717"}
                 </td>
               ) : answerSummary !== undefined ? (
-                <td className="py-2 pr-4 text-destructive">
+                <td className="py-2 pr-4 text-right text-destructive">
                   {answerSummary} {"\u2717"}
                 </td>
               ) : (
                 unansweredCell
               )}
-              <td className="py-2 font-bold text-surface-800">
+              <td className="py-2 text-right font-bold text-surface-800">
                 {getHanDisplay(answer.han)}
                 {!simplifyMangan && scoreLevelName && ` (${scoreLevelName})`}
               </td>
@@ -263,7 +270,7 @@ export function ResultDisplay({
                   </td>
                   {judged ? (
                     <td
-                      className={`py-2 pr-4 ${judged.result.isFuCorrect ? "text-success" : "text-destructive"}`}
+                      className={`py-2 pr-4 text-right ${judged.result.isFuCorrect ? "text-success" : "text-destructive"}`}
                     >
                       {judged.answer.fu ?? "-"}
                       {t("form.options.fuSuffix")}{" "}
@@ -272,7 +279,7 @@ export function ResultDisplay({
                   ) : (
                     unansweredCell
                   )}
-                  <td className="py-2 font-bold text-surface-800">
+                  <td className="py-2 text-right font-bold text-surface-800">
                     {answer.fu}
                     {t("form.options.fuSuffix")}
                   </td>
@@ -298,7 +305,7 @@ export function ResultDisplay({
               </td>
               {judged ? (
                 <td
-                  className={`py-2 pr-4 align-top ${judged.result.isScoreCorrect ? "text-success" : "text-destructive"}`}
+                  className={`py-2 pr-4 text-right align-top ${judged.result.isScoreCorrect ? "text-success" : "text-destructive"}`}
                 >
                   {judged.answer.scoreFromKo !== undefined
                     ? `${judged.answer.scoreFromKo}/${judged.answer.scoreFromOya}`
@@ -308,13 +315,13 @@ export function ResultDisplay({
               ) : (
                 unansweredCell
               )}
-              <td className="space-y-1.5 py-2 align-top">
+              <td className="space-y-1.5 py-2 text-right align-top">
                 {/* 押せることが見て分かるよう、常時点線の下線を敷く */}
                 <button
                   type="button"
                   onClick={() => openScoreTable(true)}
                   title={t("result.openInScoreTable")}
-                  className="block cursor-pointer text-left font-bold text-surface-800 underline decoration-surface-400 decoration-dotted decoration-2 underline-offset-4 hover:decoration-primary-500"
+                  className="ml-auto block cursor-pointer text-right font-bold text-surface-800 underline decoration-surface-400 decoration-dotted decoration-2 underline-offset-4 hover:decoration-primary-500"
                 >
                   {paymentDescription}
                 </button>
