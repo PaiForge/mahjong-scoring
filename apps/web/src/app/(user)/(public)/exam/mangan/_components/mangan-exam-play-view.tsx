@@ -7,7 +7,7 @@ import type { ManganExamQuestionResult } from "../_lib/types";
 
 /**
  * 昇級試験（満貫以上の点数計算）本体
- * 昇級試験ドリル
+ * 昇級試験
  */
 export const ManganExamPlayView =
   createChallengePlayView<ManganExamQuestionResult>({

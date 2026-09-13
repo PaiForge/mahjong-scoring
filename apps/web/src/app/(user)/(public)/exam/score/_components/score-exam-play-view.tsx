@@ -7,7 +7,7 @@ import type { ScoreExamQuestionResult } from "../_lib/types";
 
 /**
  * 昇段試験（あらゆる手の点数計算）本体
- * 昇段試験ドリル
+ * 昇段試験
  */
 export const ScoreExamPlayView =
   createChallengePlayView<ScoreExamQuestionResult>({
