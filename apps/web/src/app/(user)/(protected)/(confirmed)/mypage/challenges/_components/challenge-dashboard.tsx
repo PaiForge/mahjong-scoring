@@ -24,6 +24,7 @@ import { AttemptHistoryTable } from "./attempt-history-table";
 import { StatsCard } from "./stats-card";
 import { SkeletonBar } from "@/app/_components/skeleton-bar";
 import { TEXT_LINK_CLASSES } from "@/app/_components/_lib/link-classes";
+import { SUB_LINK_GAP } from "@/app/_components/_lib/spacing";
 import { LinkButton } from "@/app/(user)/_components/link-button";
 import { PracticeLinkButton } from "@/app/(user)/_components/practice-link-button";
 import { practiceHref } from "@/app/(user)/(public)/practice/_lib/practice-catalog";
@@ -273,7 +274,9 @@ export function ChallengeDashboard({
           読み込み中も出しっぱなしにするのは、リンク先が選択した土俵だけで
           決まり、成績の取得を待つ必要が無いため */}
       {selectedBoard && (
-        <div className="pt-4 border-t-2 border-dashed border-border/40">
+        <div
+          className={`flex flex-col ${SUB_LINK_GAP} border-t-2 border-dashed border-border/40 pt-4`}
+        >
           <PracticeLinkButton
             href={practiceHref(
               menuTypeToSlug(selectedBoard.menuType),
@@ -283,6 +286,16 @@ export function ChallengeDashboard({
               title: boardLabel(selectedBoard, tRoot),
             })}
           />
+          {/* 見ている土俵以外へ移りたい人の出口。押して始める面はボタンが
+              持っているので、こちらは移動するだけのテキストリンクにする。
+              間隔は結果画面と同じ SUB_LINK_GAP（リンク側に mt-* を足さない）。
+              記録が 1 件も無いときの空表示と同じ「練習一覧へ」を使う —
+              行き先が同じものを別の名前で呼ばない */}
+          <p className="text-center">
+            <Link href="/practice" className={`text-sm ${TEXT_LINK_CLASSES}`}>
+              {t("goToPractice")}
+            </Link>
+          </p>
         </div>
       )}
     </div>
