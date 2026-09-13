@@ -7,7 +7,7 @@ import type { FuExamQuestionResult } from "../_lib/types";
 
 /**
  * 昇級試験（手牌の合計符）本体
- * 昇級試験ドリル
+ * 昇級試験
  */
 export const FuExamPlayView = createChallengePlayView<FuExamQuestionResult>({
   slug: PRACTICE_SLUG.fuExam,

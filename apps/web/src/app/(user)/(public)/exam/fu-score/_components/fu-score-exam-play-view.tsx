@@ -7,7 +7,7 @@ import type { FuScoreExamQuestionResult } from "../_lib/types";
 
 /**
  * 昇級試験（30〜50符の点数計算）本体
- * 昇級試験ドリル
+ * 昇級試験
  */
 export const FuScoreExamPlayView =
   createChallengePlayView<FuScoreExamQuestionResult>({
