@@ -2,8 +2,10 @@
 
 import { useTranslations } from "next-intl";
 import type { YakuDetail } from "@mahjong-scoring/core";
+import { useYakuOrder } from "@/app/_hooks/use-yaku-order-store";
 
 import { DetailTable } from "../../_components/detail-table";
+import { orderYakuDetails } from "../../_lib/order-yaku-details";
 
 interface YakuListDisplayProps {
   readonly yakuDetails: readonly YakuDetail[];
@@ -21,6 +23,11 @@ interface YakuListDisplayProps {
  * 結果とで違う体裁・違う語で読ませない。見出しだけは練習側の「成立役」を
  * 使う（「翻数の内訳」は伏せてあったものを開く側の言い方で、最初から
  * 見えている条件には合わない）。
+ *
+ * 並びも結果ページと同じく、役選択練習の選択肢と同じ順（設定の役の並び順、
+ * {@link orderYakuDetails}）に載せ替える。出題の役はライブラリが判定した順で
+ * 届くため、そのまま出すと問題ごとに同じ役の位置が変わり、制限時間の中で
+ * 翻数を拾う目が迷う。
  *
  * 結果ページの {@link import("../../_components/yaku-breakdown").YakuBreakdown}
  * そのものは使わない。あれは折りたたんで閉じた状態から始まり（与件が閉じて
@@ -43,14 +50,16 @@ interface YakuListDisplayProps {
 export function YakuListDisplay({ yakuDetails }: YakuListDisplayProps) {
   const t = useTranslations("manganScoreCalculationChallenge");
   const tBreakdown = useTranslations("challenge.yakuBreakdown");
+  const yakuOrder = useYakuOrder();
 
-  const totalHan = yakuDetails.reduce((sum, yaku) => sum + yaku.han, 0);
+  const ordered = orderYakuDetails(yakuDetails, yakuOrder);
+  const totalHan = ordered.reduce((sum, yaku) => sum + yaku.han, 0);
 
   return (
     <div className="rounded-lg border-3 border-ink bg-surface-50 p-3">
       <DetailTable
         title={t("yakuListTitle")}
-        rows={yakuDetails.map((yaku) => ({
+        rows={ordered.map((yaku) => ({
           label: yaku.name,
           value: tBreakdown("han", { count: yaku.han }),
         }))}
