@@ -67,8 +67,8 @@ pnpm dev
 
 コーディング規約は `docs/` submodule で一元管理されています。
 
-- [docs/coding-standards.md](docs/coding-standards.md)
-- [docs/extended-mspz.md](docs/extended-mspz.md)
+- [coding-standards.md](https://github.com/PaiForge/docs/blob/main/coding-standards.md)（ローカルでは `docs/coding-standards.md`）
+- [extended-mspz.md](https://github.com/PaiForge/docs/blob/main/extended-mspz.md)（ローカルでは `docs/extended-mspz.md`）
 
 submodule を最新に更新するには:
 
