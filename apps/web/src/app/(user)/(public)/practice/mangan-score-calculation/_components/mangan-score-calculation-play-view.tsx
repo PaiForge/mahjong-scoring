@@ -7,8 +7,8 @@ import { ManganScoreCalculationBoard } from "./mangan-score-calculation-board";
 import type { ManganScoreCalculationQuestionResult } from "../_lib/types";
 
 /**
- * 満貫以上点数計算ドリル本体
- * 満貫以上点数計算ドリル
+ * 満貫以上の点数計算 本体
+ * 満貫以上の点数計算
  */
 export const ManganScoreCalculationPlayView =
   createChallengePlayView<ManganScoreCalculationQuestionResult>({

@@ -252,8 +252,8 @@
         "shortTitle": "翻数即答"
       },
       "manganScoreCalculation": {
-        "title": "満貫以上点数計算",
-        "shortTitle": "満貫以上点数計算"
+        "title": "満貫以上の点数計算",
+        "shortTitle": "満貫以上"
       },
       "manganExam": {
         "title": "昇級試験：満貫以上の点数計算",
@@ -2598,8 +2598,8 @@
     }
   },
   "manganScoreCalculationChallenge": {
-    "title": "満貫以上点数計算ドリル",
-    "description": "役と翻数が表示された満貫以上の手牌から正しい点数を答えるドリルです",
+    "title": "満貫以上の点数計算",
+    "description": "役と翻数が表示された満貫以上の手牌から正しい点数を答える練習です",
     "questionPrompt": "この和了の点数を回答してください",
     "oya": "親",
     "ko": "子",
