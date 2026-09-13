@@ -83,9 +83,7 @@ export function generateScoreQuestion(
   if (!markers) return undefined;
   const { doraMarkers, uraDoraMarkers } = markers;
   const riichi: RiichiInput | undefined =
-    isRiichi && uraDoraMarkers
-      ? { isDouble: randomBool(0.1, rng), uraDoraMarkers }
-      : undefined;
+    isRiichi && uraDoraMarkers ? { uraDoraMarkers } : undefined;
 
   // 3. 点数・役の計算（ライブラリ境界）
   //    切り上げ満貫を含むルール設定はライブラリに渡し、点数区分・支払いの

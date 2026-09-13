@@ -200,7 +200,7 @@ export function generateMachiScoreQuestion(
 
   const riichi: RiichiInput | undefined =
     wantsRiichi && uraDoraMarkers && !hasNoYakuRon
-      ? { isDouble: randomBool(0.1, rng), uraDoraMarkers }
+      ? { uraDoraMarkers }
       : undefined;
   const scoredWaits = riichi ? scoreAll(riichi) : withoutRiichi;
   if (!scoredWaits) return undefined;

@@ -39,10 +39,19 @@ interface ScoringInput extends AgariContext {
  * リーチはライブラリの概念ではなく、翻と裏ドラをアプリ側で後付けする。
  * 裏ドラ表示牌はリーチしている手だけが持つため、リーチと同じ構造体に置いて
  * 「リーチしているのに裏ドラ表示牌が無い」状態を型で作れなくする。
+ *
+ * ダブル立直は出題しない（常に立直の 1 翻）。以前は生成器がリーチの 1 割を
+ * ダブル立直として 2 翻を足していたが、盤面が持つ情報はリーチ棒 1 本だけで
+ * 「一巡目のリーチか」は手牌からも状況からも読めない。解答者はリーチと
+ * 解釈するしかなく、そう答えると翻数が必ず 1 つずれて不正解になる。
+ * 総合演習では役の判定がダブル立直を無視するため「立直」を選んでも余分な
+ * 役として不正解になり、正しく答える手段が無かった。出題するなら盤面に
+ * 「ダブルリーチ」の表示を足し、問題の型と保存済み結果のスキーマにも
+ * ダブルかどうかを持たせる必要があり、実戦での出現率に見合わない。
+ * 設定で正解が割れる手を出題から落とすのと同じ方針で、見えない条件で
+ * 正解が変わる手は出さない。
  */
 export interface RiichiInput {
-  /** ダブル立直か（立直の 1 翻ではなく 2 翻を足す） */
-  readonly isDouble: boolean;
   readonly uraDoraMarkers: readonly HaiKindId[];
 }
 
@@ -160,7 +169,6 @@ export function buildScoreQuestion(
       tehai,
       currentAnswer: finalAnswer,
       uraDoraMarkers: riichi.uraDoraMarkers,
-      isDoubleRiichi: riichi.isDouble,
       isTsumo,
       jikaze,
       ruleConfig,
