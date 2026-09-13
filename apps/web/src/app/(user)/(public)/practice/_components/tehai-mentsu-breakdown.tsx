@@ -101,6 +101,10 @@ function ClosedTiles({
  * 動くのが最も目立つ。並びは結果ページの問題詳細と同じ「面子分解 →
  * 内訳」に揃える。
  *
+ * リンクのタップ領域は 1 行ぶん（`hitArea="row"`）取る。表の外で 1 行を
+ * 占め、すぐ下に翻数・符の内訳の開閉行と「次の問題へ」が続くため、文字の
+ * 高さだけでは隣の行やボタンに指が流れる（{@link import("./collapsible-detail").CollapsibleDetail} と同じ理由）。
+ *
  * 分解は resolveMentsuBreakdown が返す、ライブラリが点数計算で採用した
  * 構造に基づく。面子分解は一意ではなく、独自に分解すると符内訳と
  * 食い違う分割を出しかねないため。変則手（七対子・国士無双）や
@@ -155,6 +159,7 @@ export function TehaiMentsuBreakdown({
   return (
     <div className="flex justify-end">
       <ReferenceLinkButton
+        hitArea="row"
         icon={<TilesIcon className="size-3.5 shrink-0" />}
         label={t("mentsuBreakdown")}
         trailing={

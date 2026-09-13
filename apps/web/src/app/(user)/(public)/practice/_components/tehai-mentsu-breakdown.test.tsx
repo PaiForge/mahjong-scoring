@@ -122,6 +122,13 @@ describe("TehaiMentsuBreakdown", () => {
     expect(screen.queryByRole("dialog")).toBeNull();
   });
 
+  it("隣の行やボタンへの押し間違いを防ぐタップ領域（min-h-11）を確保する", () => {
+    render(<TehaiMentsuBreakdown tehai={MENTSU_TEHAI} context={CONTEXT} />);
+    expect(
+      screen.getByRole("button", { name: "mentsuBreakdown" }).className,
+    ).toContain("min-h-11");
+  });
+
   it("変則手（七対子）では導線ごと描画しない", () => {
     const { container } = render(
       <TehaiMentsuBreakdown
