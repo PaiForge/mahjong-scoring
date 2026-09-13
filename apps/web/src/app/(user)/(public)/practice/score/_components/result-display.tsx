@@ -15,7 +15,9 @@ import {
   judgeYakuSelection,
 } from "@mahjong-scoring/core";
 import { useYakumanRules } from "@/app/_hooks/use-rule-settings-store";
+import { useYakuOrder } from "@/app/_hooks/use-yaku-order-store";
 import { practiceHanTier } from "../_lib/han-tiers";
+import { orderYakuDetails } from "../../_lib/order-yaku-details";
 import { formatScoreAnswer } from "../../_lib/format-score-answer";
 import { paymentToScoreTableAnswer } from "../../_lib/payment-adapter";
 import { DetailsPanelRow } from "./details-accordion";
@@ -69,6 +71,7 @@ export function ResultDisplay({
 }: ResultDisplayProps) {
   const t = useTranslations("score");
   const tCommon = useTranslations("common");
+  const yakuOrder = useYakuOrder();
   const { answer } = question;
   // ダブル役満採用時は 26 翻を役満へ丸めず「ダブル役満」と表示する
   const allowDoubleYakuman = allowsDoubleYakuman(useYakumanRules());
@@ -125,8 +128,12 @@ export function ResultDisplay({
     (judgement) => judgement.name,
   );
 
-  const yakuDetailItems: readonly DetailItem[] =
-    question.yakuDetails?.map((d) => ({ name: d.name, value: d.han })) ?? [];
+  // 翻数の内訳は結果ページの内訳表と同じく、設定の役の並び順に載せ替える
+  // （ライブラリの判定順のままだと問題ごとに同じ役の位置が変わる）
+  const yakuDetailItems: readonly DetailItem[] = orderYakuDetails(
+    question.yakuDetails ?? [],
+    yakuOrder,
+  ).map((d) => ({ name: d.name, value: d.han }));
   const fuDetailItems: readonly DetailItem[] =
     question.fuDetails?.map((d) => ({ name: d.reason, value: d.fu })) ?? [];
 
