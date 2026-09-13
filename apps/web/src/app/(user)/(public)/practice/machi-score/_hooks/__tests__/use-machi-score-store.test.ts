@@ -1,9 +1,6 @@
+import { correctAnswerOf } from "@mahjong-scoring/core/test/score-answer";
 import { beforeEach, describe, expect, it } from "vitest";
-import type {
-  MachiCellJudgementMode,
-  ScoreQuestion,
-  UserAnswer,
-} from "@mahjong-scoring/core";
+import type { MachiCellJudgementMode, UserAnswer } from "@mahjong-scoring/core";
 import {
   generateValidMachiScoreQuestion,
   machiCellKey,
@@ -17,19 +14,6 @@ const MODE: MachiCellJudgementMode = {
   requireFuForMangan: false,
   allowDoubleYakuman: false,
 };
-
-/** 出題の正解からそのまま作った回答 */
-function correctAnswerOf(cell: ScoreQuestion): UserAnswer {
-  const { payment } = cell.answer;
-  const base = { han: cell.answer.han, fu: cell.answer.fu, yakus: [] };
-  return payment.type === "koTsumo"
-    ? {
-        ...base,
-        scoreFromKo: payment.amount[0],
-        scoreFromOya: payment.amount[1],
-      }
-    : { ...base, score: payment.amount };
-}
 
 /** 各テストで出題済みの状態を作る（生成器は core の実物を使う） */
 function seedQuestion() {

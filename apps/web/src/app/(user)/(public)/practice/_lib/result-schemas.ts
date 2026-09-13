@@ -1,4 +1,5 @@
 import { z } from "zod";
+import type { QuestionTilesSnapshot } from "./parse-question-tiles";
 
 import { FuroType, MentsuType, Tacha } from "@mahjong-scoring/core";
 import type {
@@ -84,3 +85,11 @@ export const scoreTableAnswerSchema: z.ZodType<ScoreTableAnswer> =
       fromOya: z.number(),
     }),
   ]);
+
+/** 結果画面で共通に復元する牌の保存形式。 */
+export const questionTilesSnapshotSchema = z.object({
+  tehai: z.string(),
+  agariHai: z.string(),
+  bakaze: z.string(),
+  jikaze: z.string(),
+}) satisfies z.ZodType<QuestionTilesSnapshot>;

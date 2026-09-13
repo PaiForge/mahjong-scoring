@@ -3,6 +3,7 @@ import type {
   ScoreQuestion,
   UserAnswer,
 } from "@mahjong-scoring/core";
+import { scoreAnswerToUserAnswer } from "../../_lib/payment-adapter";
 import { practiceHanTier } from "../../score/_lib/han-tiers";
 
 /**
@@ -84,18 +85,5 @@ export function correctCellAnswerOf(
   cell: Readonly<ScoreQuestion> | undefined,
 ): MachiCellAnswer {
   if (!cell) return { kind: "noYaku" };
-  const { han, fu, payment } = cell.answer;
-  const yakus: readonly string[] = [];
-  const base = { han, fu, yakus };
-  if (payment.type === "koTsumo") {
-    return {
-      kind: "score",
-      answer: {
-        ...base,
-        scoreFromKo: payment.amount[0],
-        scoreFromOya: payment.amount[1],
-      },
-    };
-  }
-  return { kind: "score", answer: { ...base, score: payment.amount } };
+  return { kind: "score", answer: scoreAnswerToUserAnswer(cell.answer) };
 }

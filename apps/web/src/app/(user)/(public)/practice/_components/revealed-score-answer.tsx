@@ -2,7 +2,13 @@
 
 import { useState } from "react";
 import { useTranslations } from "next-intl";
-import type { ScoreTableAnswer } from "@mahjong-scoring/core";
+import {
+  isOya,
+  type ScoreQuestion,
+  type ScoreTableAnswer,
+} from "@mahjong-scoring/core";
+import { paymentToScoreTableAnswer } from "../_lib/payment-adapter";
+import { scoreTableFocusOf } from "../_lib/score-table-focus";
 import type { ScoreTableFocus } from "@/app/(user)/(public)/reference/score-table/_lib/score-table-utils";
 
 import { formatScoreAnswer } from "../_lib/format-score-answer";
@@ -86,5 +92,27 @@ export function RevealedScoreAnswer({
         />
       )}
     </>
+  );
+}
+
+/** 点数問題の正解と、その点数表上の位置を表示する。 */
+export function RevealedScoreQuestionAnswer({
+  question,
+  translationNamespace,
+}: {
+  readonly question: ScoreQuestion;
+  readonly translationNamespace: string;
+}) {
+  return (
+    <RevealedScoreAnswer
+      answer={paymentToScoreTableAnswer(question.answer.payment)}
+      translationNamespace={translationNamespace}
+      scoreTableFocus={scoreTableFocusOf({
+        isOya: isOya(question.jikaze),
+        isTsumo: question.isTsumo,
+        han: question.answer.han,
+        fu: question.answer.fu,
+      })}
+    />
   );
 }

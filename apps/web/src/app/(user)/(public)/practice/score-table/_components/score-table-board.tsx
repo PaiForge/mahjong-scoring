@@ -9,7 +9,7 @@ import type {
 import { FeedbackFrame } from "../../_components/feedback-frame";
 import {
   useRegisterAdvance,
-  useTrainingMode,
+  useTrainingAnswerVisibility,
 } from "../../_hooks/use-training-mode";
 import { ScoreTablePrompt } from "./score-table-prompt";
 import { ScoreTableAnswerForm } from "./score-table-answer-form";
@@ -42,8 +42,7 @@ export function ScoreTableBoard({
   useRegisterAdvance(onAdvance);
   // トレーニングでは開示時だけでなく回答後の停止中も正解を出す（答え合わせ用）。
   // 正解のときは出さない — 選んだ値がそのまま正解で、枠の色が正誤を示している
-  const { isRevealed, isHolding } = useTrainingMode();
-  const showAnswer = (isRevealed || isHolding) && lastAnswerCorrect !== true;
+  const { showAnswer } = useTrainingAnswerVisibility(lastAnswerCorrect);
 
   const handleSubmit = useCallback(
     (userAnswer: ScoreTableUserAnswer) => {

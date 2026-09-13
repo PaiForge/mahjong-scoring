@@ -1,6 +1,5 @@
 "use client";
 
-import { isOya } from "@mahjong-scoring/core";
 import { useMemo } from "react";
 import { QuestionGeneratingPlaceholder } from "../../_components/question-generating-placeholder";
 import { QuestionPrompt } from "../../_components/question-prompt";
@@ -9,12 +8,10 @@ import {
   useRuleSettingsStore,
   useYakumanRules,
 } from "@/app/_hooks/use-rule-settings-store";
-import { RevealedScoreAnswer } from "../../_components/revealed-score-answer";
+import { RevealedScoreQuestionAnswer } from "../../_components/revealed-score-answer";
 import { TehaiMentsuBreakdown } from "../../_components/tehai-mentsu-breakdown";
-import { paymentToScoreTableAnswer } from "../../_lib/payment-adapter";
-import { scoreTableFocusOf } from "../../_lib/score-table-focus";
 import { useScoreQuestionBoard } from "../../_hooks/use-score-question-board";
-import { useTrainingMode } from "../../_hooks/use-training-mode";
+import { useTrainingAnswerVisibility } from "../../_hooks/use-training-mode";
 import { QuestionDisplay } from "../../score/_components/question-display";
 import { ScoreChallengeAnswerForm } from "../../_components/score-challenge-answer-form";
 import type { ScoreCalculationQuestionResult } from "../_lib/types";
@@ -66,10 +63,8 @@ export function ScoreCalculationBoard({
   });
   // トレーニングでは開示時だけでなく回答後の停止中も正解を出す（答え合わせ用）。
   // 正解のときは出さない — 選んだ値がそのまま正解で、select の色が正誤を示している
-  const { isRevealed, isHolding } = useTrainingMode();
-  const showAnswer = (isRevealed || isHolding) && lastAnswerCorrect !== true;
-  // 面子分解は正解でも出す（自分の読み方が合っていたかを確かめる局面）
-  const showBreakdown = isRevealed || isHolding;
+  const { showAnswer, showBreakdown } =
+    useTrainingAnswerVisibility(lastAnswerCorrect);
 
   if (!question) {
     return (
@@ -91,15 +86,9 @@ export function ScoreCalculationBoard({
       <QuestionPrompt
         replacement={
           showAnswer ? (
-            <RevealedScoreAnswer
-              answer={paymentToScoreTableAnswer(question.answer.payment)}
+            <RevealedScoreQuestionAnswer
+              question={question}
               translationNamespace="scoreCalculationChallenge"
-              scoreTableFocus={scoreTableFocusOf({
-                isOya: isOya(question.jikaze),
-                isTsumo: question.isTsumo,
-                han: question.answer.han,
-                fu: question.answer.fu,
-              })}
             />
           ) : undefined
         }

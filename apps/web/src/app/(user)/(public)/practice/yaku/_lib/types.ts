@@ -1,3 +1,5 @@
+import { questionTilesSnapshotSchema } from "../../_lib/result-schemas";
+import type { QuestionTilesSnapshot } from "../../_lib/parse-question-tiles";
 import { haiIdToMspz, kazeIdToMspz, tehaiToMspz } from "@mahjong-scoring/core";
 import type { YakuQuestion } from "@mahjong-scoring/core";
 
@@ -32,15 +34,7 @@ export const QUESTION_GENERATION_MAX_RETRIES = 100;
  * 結果ページで手牌を再表示するため、出題そのものを MSPZ 文字列として持つ。
  * 役の成否はリーチとドラにも依存するので、手牌だけでなく和了状況一式を残す。
  */
-export interface YakuQuestionResult {
-  /** 手牌（Extended MSPZ。副露・暗槓を含む） */
-  readonly tehai: string;
-  /** 場風（MSPZ） */
-  readonly bakaze: string;
-  /** 自風（MSPZ） */
-  readonly jikaze: string;
-  /** 和了牌（MSPZ） */
-  readonly agariHai: string;
+export interface YakuQuestionResult extends QuestionTilesSnapshot {
   readonly isTsumo: boolean;
   readonly isRiichi: boolean;
   /**
@@ -94,10 +88,7 @@ export function toQuestionResult(
  * 役選択問題結果バリデーション
  */
 const questionResultSchema: z.ZodType<YakuQuestionResult> = z.object({
-  tehai: z.string(),
-  bakaze: z.string(),
-  jikaze: z.string(),
-  agariHai: z.string(),
+  ...questionTilesSnapshotSchema.shape,
   isTsumo: z.boolean(),
   isRiichi: z.boolean(),
   doraMarkers: z.array(z.string()),

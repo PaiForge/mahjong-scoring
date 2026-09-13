@@ -1,3 +1,4 @@
+import type { QuestionTilesSnapshot } from "../../_lib/parse-question-tiles";
 import {
   MentsuType,
   haiIdToMspz,
@@ -18,6 +19,7 @@ import { z } from "zod";
 
 import { createSessionStorageParser } from "../../_lib/create-session-storage-parser";
 import {
+  questionTilesSnapshotSchema,
   completedMentsuTypeSchema,
   furoSchema,
 } from "../../_lib/result-schemas";
@@ -58,15 +60,7 @@ export interface MentsuJantouFuItemResult {
  * 持つ。sessionStorage を経由する都合上、ブランド型（Tehai14 等）はそのまま
  * 往復できないため、牌はすべて文字列に落として保存する。
  */
-export interface MentsuJantouFuQuestionResult {
-  /** 手牌（Extended MSPZ。副露・暗槓を含む） */
-  readonly tehai: string;
-  /** 和了牌（MSPZ） */
-  readonly agariHai: string;
-  /** 場風（MSPZ） */
-  readonly bakaze: string;
-  /** 自風（MSPZ） */
-  readonly jikaze: string;
+export interface MentsuJantouFuQuestionResult extends QuestionTilesSnapshot {
   readonly isTsumo: boolean;
   /** 手牌の表示順に並んだ回答行 */
   readonly items: readonly MentsuJantouFuItemResult[];
@@ -142,10 +136,7 @@ const itemResultSchema: z.ZodType<MentsuJantouFuItemResult> = z.object({
  * 面子雀頭符問題結果バリデーション
  */
 const questionResultSchema: z.ZodType<MentsuJantouFuQuestionResult> = z.object({
-  tehai: z.string(),
-  agariHai: z.string(),
-  bakaze: z.string(),
-  jikaze: z.string(),
+  ...questionTilesSnapshotSchema.shape,
   isTsumo: z.boolean(),
   items: z.array(itemResultSchema),
   isCorrect: z.boolean(),
