@@ -16,13 +16,24 @@ interface Props {
 /** 終了前。renderHook の initialProps の型を Props に固定する */
 const NOT_FINISHED: Props = { finalResult: undefined };
 
+const FINISHED_AT = 1_700_000_000_000;
+
 function finished(reason: FinalResult["reason"]): FinalResult {
-  return { correctCount: 1, incorrectCount: 0, totalCount: 1, reason };
+  return {
+    correctCount: 1,
+    incorrectCount: 0,
+    totalCount: 1,
+    reason,
+    finishedAt: FINISHED_AT,
+  };
 }
 
+/** 保存された一覧。回 ID 付きの封筒に包まれている */
 function saved(): readonly Row[] {
   const raw = sessionStorage.getItem(KEY);
-  return raw === null ? [] : (JSON.parse(raw) as Row[]);
+  return raw === null
+    ? []
+    : (JSON.parse(raw) as { readonly results: Row[] }).results;
 }
 
 describe("useRecordedResults", () => {
@@ -53,6 +64,24 @@ describe("useRecordedResults", () => {
     rerender({ finalResult: finished("timeUp") });
 
     expect(saved()).toEqual([{ id: "a" }, { id: "pending" }]);
+  });
+
+  it("終了時刻を回 ID として一覧と一緒に保存する", () => {
+    // 結果ページは URL の `?run=` と一致する回の一覧だけを読む
+    const { result, rerender } = renderHook(
+      ({ finalResult }: Props) => useRecordedResults<Row>(KEY, finalResult),
+      { initialProps: NOT_FINISHED },
+    );
+    act(() => {
+      result.current.recordResult({ id: "a" });
+    });
+
+    rerender({ finalResult: finished("mistakeLimit") });
+
+    expect(JSON.parse(sessionStorage.getItem(KEY) ?? "")).toEqual({
+      run: FINISHED_AT,
+      results: [{ id: "a" }],
+    });
   });
 
   it("ミス上限で終わると、出題中だった問題は保存しない", () => {

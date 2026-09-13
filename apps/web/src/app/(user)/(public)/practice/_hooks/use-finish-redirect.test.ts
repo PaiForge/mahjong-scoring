@@ -92,6 +92,10 @@ describe("useFinishRedirect integration", () => {
     expect(routerPush).toHaveBeenCalledWith(
       expect.stringContaining("reason=mistakeLimit"),
     );
+    // 結果ページは回 ID で sessionStorage の一覧がこの回のものか確かめる
+    expect(routerPush).toHaveBeenCalledWith(
+      expect.stringMatching(/[?&]run=\d+/),
+    );
   });
 
   it("時間切れで終了したとき onFinish が呼ばれ grant 付き URL に push される", async () => {

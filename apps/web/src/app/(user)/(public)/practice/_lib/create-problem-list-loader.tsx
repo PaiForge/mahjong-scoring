@@ -36,10 +36,11 @@ export function createProblemListLoader<TListProps extends ProblemListProps>(
 ): (props: ProblemListLoaderProps & Omit<TListProps, "results">) => ReactNode {
   function ProblemListLoader({
     storageKey,
+    runId,
     expectedCount,
     ...extraProps
   }: ProblemListLoaderProps & Omit<TListProps, "results">) {
-    const results = useSessionStorageResult(storageKey, parse);
+    const results = useSessionStorageResult(storageKey, runId, parse);
     if (results === undefined) {
       return <ProblemListSkeleton count={expectedCount} />;
     }
