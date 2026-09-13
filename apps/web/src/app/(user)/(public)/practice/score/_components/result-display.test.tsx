@@ -156,4 +156,21 @@ describe("ResultDisplay の内訳", () => {
     expect(toggle.getAttribute("aria-expanded")).toBe("true");
     expect(screen.getByText("result.details.total")).toBeTruthy();
   });
+
+  it("項目ごとに tbody を分け、内訳の行は翻数の行と同じ tbody に入る（罫線が項目の境目にだけ引かれる）", () => {
+    renderResult();
+
+    const tbodyOf = (text: string) => screen.getByText(text).closest("tbody");
+    const yaku = tbodyOf("form.labels.yaku");
+    const han = tbodyOf("form.labels.han");
+    const score = tbodyOf("form.labels.score");
+    const hanDetail = screen
+      .getByRole("button", { name: "result.details.yakuTitle" })
+      .closest("tbody");
+
+    expect(han).not.toBeNull();
+    expect(hanDetail).toBe(han);
+    expect(yaku).not.toBe(han);
+    expect(score).not.toBe(han);
+  });
 });

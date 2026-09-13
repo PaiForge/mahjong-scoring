@@ -168,9 +168,18 @@ export function ResultDisplay({
           値の 2 列は右端で揃える（項目名は左）。内訳の行は全幅で
           DetailTable が値を右端に置くので、正解の「2翻」の真下に内訳の
           「1翻 / 1翻 / 合計 2翻」が並び、縦に足し算が読める。左寄せだと
-          正解は列の中ほど、内訳の合計は右端と、同じ数字が別の縦位置に出る */}
+          正解は列の中ほど、内訳の合計は右端と、同じ数字が別の縦位置に出る
+
+          罫線は項目（役・翻数・符・点数）の境目にだけ引く。項目ごとに
+          `<tbody>` を分け、tbody 同士の境目を実線にする。翻数とその内訳の
+          行は同じ tbody に入るので、開いた内訳がどの行に付く注釈かを線が
+          言う。行ごとに引くと内訳の行の上下にも線が入り、内訳が独立した
+          項目に見える。縦の罫線は引かない — 内訳の行は全幅（colSpan）
+          なので開くたびに縦線が途切れて壊れて見えるし、アプリの表
+          （DataTable / DetailTable）はどれも縦線を持たない。回答と正解は
+          色（正誤の色 / 太字）で既に分かれている */}
       <div className="rounded-lg bg-surface-50 p-4">
-        <table className="w-full text-sm">
+        <table className="w-full text-sm [&>tbody+tbody]:border-t-2 [&>tbody+tbody]:border-surface-200">
           <thead>
             <tr className="border-b-3 border-ink">
               <th className="pb-3 pr-4 pt-2 text-left font-bold text-surface-600" />
@@ -184,9 +193,9 @@ export function ResultDisplay({
               </th>
             </tr>
           </thead>
-          <tbody>
-            {/* Yaku */}
-            {requireYaku && (
+          {/* Yaku */}
+          {requireYaku && (
+            <tbody>
               <tr>
                 <td className="whitespace-nowrap py-2 pr-4 align-top text-surface-600">
                   {t("form.labels.yaku")}
@@ -218,9 +227,11 @@ export function ResultDisplay({
                   />
                 </td>
               </tr>
-            )}
+            </tbody>
+          )}
 
-            {/* Han */}
+          {/* Han */}
+          <tbody>
             <tr>
               <td className="whitespace-nowrap py-2 pr-4 text-surface-600">
                 {t("form.labels.han")}
@@ -265,52 +276,54 @@ export function ResultDisplay({
                 colSpan={TABLE_COLUMN_COUNT}
               />
             )}
+          </tbody>
 
-            {/* Fu */}
-            {(!isManganOrAbove || requireFuForMangan) && (
-              <>
-                <tr>
-                  <td className="whitespace-nowrap py-2 pr-4 text-surface-600">
-                    {t("form.labels.fu")}
+          {/* Fu */}
+          {(!isManganOrAbove || requireFuForMangan) && (
+            <tbody>
+              <tr>
+                <td className="whitespace-nowrap py-2 pr-4 text-surface-600">
+                  {t("form.labels.fu")}
+                </td>
+                {judged ? (
+                  <td
+                    className={`py-2 pr-4 text-right ${judged.result.isFuCorrect ? "text-success" : "text-destructive"}`}
+                  >
+                    {judged.answer.fu ?? "-"}
+                    {t("form.options.fuSuffix")}{" "}
+                    <JudgementMark
+                      verdict={
+                        judged.result.isFuCorrect ? "correct" : "incorrect"
+                      }
+                      label={tCommon(
+                        judged.result.isFuCorrect ? "correct" : "incorrect",
+                      )}
+                    />
                   </td>
-                  {judged ? (
-                    <td
-                      className={`py-2 pr-4 text-right ${judged.result.isFuCorrect ? "text-success" : "text-destructive"}`}
-                    >
-                      {judged.answer.fu ?? "-"}
-                      {t("form.options.fuSuffix")}{" "}
-                      <JudgementMark
-                        verdict={
-                          judged.result.isFuCorrect ? "correct" : "incorrect"
-                        }
-                        label={tCommon(
-                          judged.result.isFuCorrect ? "correct" : "incorrect",
-                        )}
-                      />
-                    </td>
-                  ) : (
-                    unansweredCell
-                  )}
-                  <td className="py-2 text-right font-bold text-surface-800">
-                    {answer.fu}
-                    {t("form.options.fuSuffix")}
-                  </td>
-                </tr>
-                {question.fuDetails && (
-                  <DetailsPanelRow
-                    title={t("result.details.fuTitle")}
-                    items={fuDetailItems}
-                    total={fuTotal}
-                    suffix={t("form.options.fuSuffix")}
-                    colSpan={TABLE_COLUMN_COUNT}
-                    roundedTotal={answer.fu}
-                    roundUpLabel={t("result.details.roundUp")}
-                  />
+                ) : (
+                  unansweredCell
                 )}
-              </>
-            )}
+                <td className="py-2 text-right font-bold text-surface-800">
+                  {answer.fu}
+                  {t("form.options.fuSuffix")}
+                </td>
+              </tr>
+              {question.fuDetails && (
+                <DetailsPanelRow
+                  title={t("result.details.fuTitle")}
+                  items={fuDetailItems}
+                  total={fuTotal}
+                  suffix={t("form.options.fuSuffix")}
+                  colSpan={TABLE_COLUMN_COUNT}
+                  roundedTotal={answer.fu}
+                  roundUpLabel={t("result.details.roundUp")}
+                />
+              )}
+            </tbody>
+          )}
 
-            {/* Score */}
+          {/* Score */}
+          <tbody>
             <tr>
               <td className="whitespace-nowrap py-2 pr-4 align-top text-surface-600">
                 {t("form.labels.score")}
