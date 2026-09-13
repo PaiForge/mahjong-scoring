@@ -3,11 +3,8 @@
 import { useState, useMemo, useCallback } from "react";
 import { useTranslations } from "next-intl";
 import { generateValidScoreQuestion, isOya } from "@mahjong-scoring/core";
-import type {
-  ScoreQuestion,
-  UserAnswer,
-  JudgementResult,
-} from "@mahjong-scoring/core";
+import type { ScoreQuestion, JudgementResult } from "@mahjong-scoring/core";
+import { scoreAnswerToUserAnswer } from "../../_lib/payment-adapter";
 import { QuestionDisplay } from "./question-display";
 import { ScorePracticeAnswerForm } from "./score-practice-answer-form";
 import { ResultDisplay } from "./result-display";
@@ -34,22 +31,6 @@ import type { HelpTourSlide } from "../../_components/help-tour-modal";
  */
 
 const noop = () => {};
-
-/** 正解の点数計算結果から「全問正解」のユーザー回答を組み立てる（結果スライド用） */
-function buildCorrectAnswer(answer: ScoreQuestion["answer"]): UserAnswer {
-  const { han, fu, payment } = answer;
-  if (payment.type === "koTsumo") {
-    return {
-      han,
-      fu,
-      scoreFromKo: payment.amount[0],
-      scoreFromOya: payment.amount[1],
-      yakus: [],
-    };
-  }
-  // ron / oyaTsumo はどちらも単一の点数
-  return { han, fu, score: payment.amount, yakus: [] };
-}
 
 const ALL_CORRECT: JudgementResult = {
   isCorrect: true,
@@ -111,7 +92,7 @@ export function ScoreHelpTour() {
           <div className="space-y-4 sm:space-y-6">
             <ResultDisplay
               question={sample}
-              userAnswer={buildCorrectAnswer(sample.answer)}
+              userAnswer={scoreAnswerToUserAnswer(sample.answer)}
               result={ALL_CORRECT}
             />
             <Button size="lg" fullWidth onClick={noop}>
