@@ -1951,7 +1951,7 @@
       "noData": "データがありません",
       "bestScore": "ベストスコア",
       "avgScore": "平均スコア",
-      "avgScoreTooltip": "ミス上限に達せず終了（完走）したチャレンジの平均スコア",
+      "avgScoreInfo": "ミス上限に達せず終了（完走）したチャレンジの平均スコア",
       "scoreTrend": "スコア推移",
       "scoreUnit": "スコア",
       "recentHistory": "直近の履歴",

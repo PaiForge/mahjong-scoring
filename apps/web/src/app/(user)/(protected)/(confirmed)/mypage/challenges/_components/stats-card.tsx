@@ -1,3 +1,10 @@
+"use client";
+
+import { useState } from "react";
+import { useTranslations } from "next-intl";
+
+import { HelpIconButton } from "@/app/(user)/_components/help-icon-button";
+import { InfoModal } from "@/app/(user)/_components/info-modal";
 import {
   DELTA_TONE_CLASSES,
   formatSignedDelta,
@@ -20,7 +27,13 @@ interface ComparisonData {
 interface StatsCardProps {
   readonly label: string;
   readonly value: string;
-  readonly tooltip?: string;
+  /**
+   * 統計値の定義の補足。ラベルの右の「?」を押すと開く。
+   *
+   * 指定すると `label` を見出しにしたモーダルで出すため、
+   * 値が何を数えたものかを 1〜2 文で書く。
+   */
+  readonly info?: string;
   readonly comparison?: ComparisonData;
 }
 
@@ -28,12 +41,10 @@ interface StatsCardProps {
  * KPI表示カード。ベストスコアや平均スコアなどの統計値を表示する。
  * 統計カード
  */
-export function StatsCard({
-  label,
-  value,
-  tooltip,
-  comparison,
-}: StatsCardProps) {
+export function StatsCard({ label, value, info, comparison }: StatsCardProps) {
+  const tCommon = useTranslations("common");
+  const [isInfoOpen, setIsInfoOpen] = useState(false);
+
   const renderComparison = () => {
     if (!comparison || comparison.change === undefined) return null;
 
@@ -50,24 +61,31 @@ export function StatsCard({
 
   return (
     <div className="bg-surface-50 border-3 border-ink rounded-lg p-4 min-w-0">
-      <p className="text-xs text-surface-500 mb-1">
+      {/* ラベルと「?」は inline-flex で並べる。「?」を text-xs の行の中に
+          流し込むと、1.25em の丸が行ボックスを 1px 押し広げて補足のある
+          カードだけラベル行が高くなる */}
+      <p className="mb-1 flex items-center gap-1 text-xs text-surface-500">
         {label}
-        {tooltip && (
-          <span className="relative inline-block ml-1 group">
-            <span
-              className="inline-flex items-center justify-center w-4 h-4 rounded-full border-2 border-ink text-surface-500 cursor-help text-[10px] leading-none"
-              aria-label={tooltip}
-            >
-              i
-            </span>
-            <span className="absolute bottom-full left-1/2 -translate-x-1/2 mb-1 px-2 py-1 text-xs rounded-md bg-surface-800 text-white whitespace-normal w-48 text-center opacity-0 pointer-events-none group-hover:opacity-100 group-hover:pointer-events-auto transition-opacity z-10">
-              {tooltip}
-            </span>
-          </span>
+        {info !== undefined && (
+          <HelpIconButton
+            onClick={() => setIsInfoOpen(true)}
+            label={tCommon("showDetailInfo")}
+          />
         )}
       </p>
       <p className="text-2xl font-bold text-surface-900">{value}</p>
       {renderComparison()}
+
+      {info !== undefined && (
+        <InfoModal
+          isOpen={isInfoOpen}
+          onClose={() => setIsInfoOpen(false)}
+          title={label}
+          closeLabel={tCommon("close")}
+        >
+          {info}
+        </InfoModal>
+      )}
     </div>
   );
 }

@@ -210,7 +210,7 @@ export function ChallengeDashboard({
                   ? currentStats.avgCompletionScore.toFixed(1)
                   : "-"
               }
-              tooltip={t("avgScoreTooltip")}
+              info={t("avgScoreInfo")}
               comparison={{
                 change: avgScoreComparison,
                 label: comparisonLabel,
