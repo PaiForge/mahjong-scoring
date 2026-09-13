@@ -65,7 +65,6 @@ describe("applyRiichiAndUraDora", () => {
       tehai: makeRiichiTehai(),
       currentAnswer: makeScoreResult({ han: 1 }),
       uraDoraMarkers: [NO_HIT_MARKER],
-      isDoubleRiichi: false,
       isTsumo: false,
       jikaze: HaiKind.Nan,
     });
@@ -74,29 +73,12 @@ describe("applyRiichiAndUraDora", () => {
     expect(result.additionalYakuDetails).toEqual([{ name: "立直", han: 1 }]);
   });
 
-  it("ダブル立直で2翻が加算される", () => {
-    const result = applyRiichiAndUraDora({
-      tehai: makeRiichiTehai(),
-      currentAnswer: makeScoreResult({ han: 1 }),
-      uraDoraMarkers: [NO_HIT_MARKER],
-      isDoubleRiichi: true,
-      isTsumo: false,
-      jikaze: HaiKind.Nan,
-    });
-
-    expect(result.answer.han).toBe(3);
-    expect(result.additionalYakuDetails).toEqual([
-      { name: "ダブル立直", han: 2 },
-    ]);
-  });
-
   it("裏ドラ翻数が表示牌と手牌の照合結果に一致する", () => {
     // 中の表示牌 → ドラは白（三元牌はループする）。手牌は白の暗刻なので3枚。
     const result = applyRiichiAndUraDora({
       tehai: makeRiichiTehai(),
       currentAnswer: makeScoreResult({ han: 1 }),
       uraDoraMarkers: [HaiKind.Chun],
-      isDoubleRiichi: false,
       isTsumo: false,
       jikaze: HaiKind.Nan,
     });
@@ -114,7 +96,6 @@ describe("applyRiichiAndUraDora", () => {
       tehai: makeRiichiTehai(),
       currentAnswer: makeScoreResult({ han: 1 }),
       uraDoraMarkers: [HaiKind.ManZu1, HaiKind.Chun],
-      isDoubleRiichi: false,
       isTsumo: false,
       jikaze: HaiKind.Nan,
     });
@@ -131,7 +112,6 @@ describe("applyRiichiAndUraDora", () => {
       tehai: makeRiichiTehai(),
       currentAnswer: makeScoreResult({ han: 1 }),
       uraDoraMarkers: [NO_HIT_MARKER],
-      isDoubleRiichi: false,
       isTsumo: false,
       jikaze: HaiKind.Nan,
     });
