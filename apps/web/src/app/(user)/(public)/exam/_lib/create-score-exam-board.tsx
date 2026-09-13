@@ -9,7 +9,7 @@ import { YakuBreakdown } from "@/app/(user)/(public)/practice/_components/yaku-b
 import { RevealedScoreAnswer } from "@/app/(user)/(public)/practice/_components/revealed-score-answer";
 import { useScoreQuestionBoard } from "@/app/(user)/(public)/practice/_hooks/use-score-question-board";
 import type { UseScoreQuestionBoardParams } from "@/app/(user)/(public)/practice/_hooks/use-score-question-board";
-import { useTrainingMode } from "@/app/(user)/(public)/practice/_hooks/use-training-mode";
+import { useTrainingAnswerVisibility } from "@/app/(user)/(public)/practice/_hooks/use-training-mode";
 import { paymentToScoreTableAnswer } from "@/app/(user)/(public)/practice/_lib/payment-adapter";
 import type { RecordingPracticeBoardProps } from "@/app/(user)/(public)/practice/_lib/practice-board-props";
 import type { ScoreQuestionResult } from "@/app/(user)/(public)/practice/_lib/score-question-result";
@@ -104,9 +104,8 @@ export function createScoreExamBoard(
     // 本番の試験ではどちらも立たない（トレーニングのビューだけが提供する）。
     // 翻数の内訳は正解でも出す（数え方を確かめたい局面）が、正解の点数は
     // 出さない — 選んだ値がそのまま正解で、select の色が正誤を示している
-    const { isRevealed, isHolding } = useTrainingMode();
-    const showBreakdown = isRevealed || isHolding;
-    const showAnswer = showBreakdown && lastAnswerCorrect !== true;
+    const { showAnswer, showBreakdown } =
+      useTrainingAnswerVisibility(lastAnswerCorrect);
 
     if (!question) {
       // 出来上がった盤面と同じ高さで待つ（`loading.tsx` のフォールバックと同値）
