@@ -17,6 +17,11 @@ import { ResultDisplay } from "../../score/_components/result-display";
 import { TehaiMentsuBreakdown } from "../../_components/tehai-mentsu-breakdown";
 import { JudgementMark } from "../../_components/judgement-mark";
 import { correctCellAnswerOf } from "../_lib/format-cell-answer";
+import {
+  groupAdjacentCells,
+  indexRuns,
+  resultCellKey,
+} from "../_lib/cell-runs";
 import { MACHI_SCORE_TOUR_ID } from "../_lib/tour-ids";
 import {
   cellKeyOf,
@@ -61,6 +66,16 @@ function cellClasses(
  * 上に待ち牌の正誤、次に待ち × ツモ/ロン の一覧（正解と、外していれば
  * 自分の回答）、下に選んだマスの内訳（点数計算総合演習と同じ結果表 +
  * 面子分解）を出す。マスは多いと 6 つ以上あるため内訳は 1 つずつ見せる。
+ *
+ * 一覧では、縦に隣り合っていて正解・内訳・自分の回答がすべて同じマス
+ * （{@link resultCellKey}）を回答の段階と同じく `rowSpan` で 1 つの塊にする。
+ * この表は「待ちによって何が変わるか」を読ませる場所で、中身が同じマスが
+ * 割れて並ぶと違いが無いところに目が行く。回答の段階で「塊 = 同じ回答」と
+ * 見せているので、答え合わせで同じ塊が割れると「まとめて答えた」実感とも
+ * 食い違う。塊にするかはまとめて答えたかの記録ではなく中身の同一性で
+ * 決める（別々に答えて同じになったものも同じ塊）。塊を押すと内訳が 1 つ
+ * 出るが、面子分解だけは和了牌ごとに違うため、塊の内訳には和了牌ごとの
+ * 分解リンクを牌付きで並べる。
  */
 export function MachiScoreResult({
   question,
@@ -86,8 +101,20 @@ export function MachiScoreResult({
     return cell.isTsumo ? wait?.tsumo : wait?.ron;
   };
 
-  const focusedKey = cellKeyOf(focused);
-  const focusedQuestion = cellQuestionOf(focused);
+  // 正解・内訳・回答がすべて同じで縦に隣り合うマスの塊。先頭のマスで引き、
+  // 先頭以外は td を描かない（rowSpan が行をまたぐ）
+  const runs = groupAdjacentCells(question, (cell) =>
+    resultCellKey(cellQuestionOf(cell), cellAnswers[cellKeyOf(cell)]),
+  );
+  const { runAt, absorbed } = indexRuns(runs);
+  // 選んでいる塊。塊のどのマスを押しても同じ内訳なので、先頭のマスで代表する
+  const focusedRun =
+    runs.find((run) =>
+      run.cells.some((c) => cellKeyOf(c) === cellKeyOf(focused)),
+    ) ?? runs[0];
+  const focusedCell = focusedRun.cells[0];
+  const focusedKey = cellKeyOf(focusedCell);
+  const focusedQuestion = cellQuestionOf(focusedCell);
   const focusedAnswer = cellAnswers[focusedKey];
   const focusedResult = cellResults?.[focusedKey];
 
@@ -163,16 +190,24 @@ export function MachiScoreResult({
                   {[true, false].map((isTsumo) => {
                     const cell = { agariHai: wait.agariHai, isTsumo };
                     const key = cellKeyOf(cell);
+                    if (absorbed.has(key)) return null;
+                    const run = runAt.get(key);
                     const result = cellResults?.[key];
                     const answer = cellAnswers[key];
                     const correct = correctCellAnswerOf(cellQuestionOf(cell));
                     return (
-                      <td key={key} className="p-1 sm:p-1.5">
+                      // td の h-px は、行をまたいだセルの高さいっぱいにボタンを
+                      // 伸ばすため（WaitCellGrid と同じ）
+                      <td
+                        key={key}
+                        rowSpan={run?.cells.length ?? 1}
+                        className="h-px p-1 sm:p-1.5"
+                      >
                         <button
                           type="button"
                           aria-pressed={key === focusedKey}
                           onClick={() => setFocused(cell)}
-                          className={`flex min-h-14 w-full flex-col items-center justify-center rounded-lg border-3 px-2 py-2 text-center leading-snug ${cellClasses(key === focusedKey, result)}`}
+                          className={`flex h-full min-h-14 w-full flex-col items-center justify-center rounded-lg border-3 px-2 py-2 text-center leading-snug ${cellClasses(key === focusedKey, result)}`}
                         >
                           <span className="text-sm font-bold text-surface-900">
                             {formatAnswer(correct, isTsumo)}
@@ -215,10 +250,20 @@ export function MachiScoreResult({
           className="space-y-4"
           data-tour-id={MACHI_SCORE_TOUR_ID.resultDetail}
         >
-          <TehaiMentsuBreakdown
-            tehai={focusedQuestion.tehai}
-            context={focusedQuestion}
-          />
+          {/* 面子分解は和了牌ごとに違うので、塊なら和了牌の数だけ並べる */}
+          <div className="flex flex-wrap justify-end gap-x-4 gap-y-1">
+            {focusedRun.cells.map((cell) => {
+              const cellQuestion = cellQuestionOf(cell);
+              return cellQuestion ? (
+                <TehaiMentsuBreakdown
+                  key={cellKeyOf(cell)}
+                  tehai={cellQuestion.tehai}
+                  context={cellQuestion}
+                  showAgariHai={focusedRun.cells.length > 1}
+                />
+              ) : null;
+            })}
+          </div>
           <ResultDisplay
             key={focusedKey}
             question={focusedQuestion}
@@ -248,7 +293,8 @@ export function MachiScoreResult({
                 focusedResult.isCorrect ? "text-success" : "text-destructive"
               }`}
             >
-              {t("yourAnswer")}: {formatAnswer(focusedAnswer, focused.isTsumo)}{" "}
+              {t("yourAnswer")}:{" "}
+              {formatAnswer(focusedAnswer, focusedCell.isTsumo)}{" "}
               <JudgementMark
                 verdict={focusedResult.isCorrect ? "correct" : "incorrect"}
                 label={tCommon(

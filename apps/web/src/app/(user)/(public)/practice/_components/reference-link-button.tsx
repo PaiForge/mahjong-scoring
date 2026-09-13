@@ -13,6 +13,11 @@ interface ReferenceLinkButtonProps extends Pick<
    */
   readonly icon: ReactNode;
   readonly label: string;
+  /**
+   * 文字の後ろに添えるもの（面子分解の和了牌など）。同じ文字のリンクが
+   * 並ぶときに、どれを指すかを言い分けるために使う
+   */
+  readonly trailing?: ReactNode;
 }
 
 /**
@@ -30,6 +35,7 @@ interface ReferenceLinkButtonProps extends Pick<
 export function ReferenceLinkButton({
   icon,
   label,
+  trailing,
   ...buttonProps
 }: ReferenceLinkButtonProps) {
   return (
@@ -40,6 +46,7 @@ export function ReferenceLinkButton({
     >
       {icon}
       {label}
+      {trailing}
     </button>
   );
 }
