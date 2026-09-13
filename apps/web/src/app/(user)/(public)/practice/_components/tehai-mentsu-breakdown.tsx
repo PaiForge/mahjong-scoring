@@ -23,6 +23,12 @@ interface TehaiMentsuBreakdownProps {
   readonly tehai: Pick<Tehai, "closed" | "exposed">;
   /** 和了状況。分割の解決（= 点数計算と同じ構造選択）に使う */
   readonly context: AgariContext;
+  /**
+   * リンクの文字の後ろに和了牌を添えるか。同じ手牌の分解リンクが和了牌
+   * ごとに並ぶとき（待ち別点数計算で塊になったマスの内訳）だけ true にし、
+   * どの和了形の分解かを牌で言い分ける。1 つしか無いときは添えない
+   */
+  readonly showAgariHai?: boolean;
 }
 
 /**
@@ -100,7 +106,10 @@ function ClosedTiles({
  * 「刻子」と出すと、同じ手牌の説明が2箇所で食い違って見える。
  *
  * 和了牌には枠を付ける。ツモ・ロンのどちらだったかは盤面が既に示して
- * いるので、モーダル側で言い直さない。
+ * いるので、モーダル側で言い直さない。待ち別点数計算で正解も回答も同じ
+ * マスが 1 つの塊になると、塊の内訳には和了牌の数だけこの導線が並ぶ
+ * （分解だけは和了牌ごとに違うため）。そのときは `showAgariHai` で
+ * リンクの後ろに和了牌を添え、どれがどの和了形かを言い分ける。
  *
  * 出題中の画面には置かないこと。待ちや符を問う練習では分解が答えを
  * 割ってしまう。正解を開示する文脈（結果詳細）専用。
@@ -108,6 +117,7 @@ function ClosedTiles({
 export function TehaiMentsuBreakdown({
   tehai,
   context,
+  showAgariHai = false,
 }: TehaiMentsuBreakdownProps) {
   const t = useTranslations("common");
   const [isOpen, setIsOpen] = useState(false);
@@ -140,6 +150,9 @@ export function TehaiMentsuBreakdown({
       <ReferenceLinkButton
         icon={<TilesIcon className="size-3.5 shrink-0" />}
         label={t("mentsuBreakdown")}
+        trailing={
+          showAgariHai ? <Hai hai={context.agariHai} size="xs" /> : undefined
+        }
         onClick={() => setIsOpen(true)}
       />
       <InfoModal

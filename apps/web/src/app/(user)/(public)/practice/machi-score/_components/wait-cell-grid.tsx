@@ -8,6 +8,8 @@ import type {
 import { haiIdToMspz } from "@mahjong-scoring/core";
 import { Hai } from "@pai-forge/mahjong-react-ui";
 import { cellKeyOf, type MachiCellRef } from "../_hooks/use-machi-score-store";
+import { answerKey, groupAdjacentCells, indexRuns } from "../_lib/cell-runs";
+import type { CellRun } from "../_lib/cell-runs";
 import { MACHI_SCORE_TOUR_ID } from "../_lib/tour-ids";
 
 interface WaitCellGridProps {
@@ -52,37 +54,14 @@ const CELL_CLASSES: Readonly<Record<CellState, string>> = {
 };
 
 /**
- * 回答の同一性のキー。同じ回答のマスを 1 つの塊にするために使う
- *
- * 表示の文字ではなく中身で比べる — 役を答える設定では翻・符・点数が同じでも
- * 役の組が違う回答があり、それを 1 つにすると当てはめ直しで片方の役が
- * 消える。
- */
-function answerKey(answer: MachiCellAnswer): string {
-  if (answer.kind === "noYaku") return "noYaku";
-  const { han, fu, score, scoreFromKo, scoreFromOya, yakus } = answer.answer;
-  return JSON.stringify([
-    han,
-    fu,
-    score,
-    scoreFromKo,
-    scoreFromOya,
-    [...yakus].sort(),
-  ]);
-}
-
-/**
- * 縦に隣り合うマスの塊
+ * 塊のグループ
  *
  * - `answering`: 選択中のマス。見た目は 1 枚だが行ごとに押せて、押した行
  *   だけ選択から外れる
- * - `answered`: 未選択で回答が同じマス。1 つのボタンで、押すと塊ごと
- *   選択に入る
+ * - `answered:<回答キー>`: 未選択で回答が同じマス。1 つのボタンで、押すと
+ *   塊ごと選択に入る
  */
-interface CellRun {
-  readonly kind: "answering" | "answered";
-  readonly cells: readonly MachiCellRef[];
-}
+type RunGroup = "answering" | `answered:${string}`;
 
 /**
  * 待ち × ツモ/ロン のマスの表
@@ -134,46 +113,25 @@ export function WaitCellGrid({
 
   // 縦に隣り合う塊。先頭のキーに塊を持たせ、先頭以外は absorbed に入れて
   // td を描かない（rowSpan が行をまたぐ）。塊になる条件は「どちらも選択中」
-  // か「どちらも未選択の回答済みで回答が同じ」
-  const runs = new Map<string, CellRun>();
-  const absorbed = new Set<string>();
-  for (const isTsumo of [true, false]) {
-    let run: MachiCellRef[] = [];
-    let runGroup: string | undefined;
-    const flush = () => {
-      if (run.length >= 2) {
-        runs.set(cellKeyOf(run[0]), {
-          kind: runGroup === "answering" ? "answering" : "answered",
-          cells: run,
-        });
-        for (const cell of run.slice(1)) absorbed.add(cellKeyOf(cell));
-      }
-      run = [];
-      runGroup = undefined;
-    };
-    for (const wait of question.waits) {
-      const cell = { agariHai: wait.agariHai, isTsumo };
+  // か「どちらも未選択の回答済みで回答が同じ」。1 マスだけのものは塊と
+  // して扱わず、単体のマスとして描く
+  const { runAt: runs, absorbed } = indexRuns(
+    groupAdjacentCells<RunGroup>(question, (cell) => {
       const key = cellKeyOf(cell);
       const answer = cellAnswers[key];
-      const group = selectedKeys.has(key)
+      return selectedKeys.has(key)
         ? "answering"
         : answer
           ? `answered:${answerKey(answer)}`
           : undefined;
-      if (group === undefined || group !== runGroup) flush();
-      if (group !== undefined) {
-        run.push(cell);
-        runGroup = group;
-      }
-    }
-    flush();
-  }
+    }).filter((run) => run.cells.length >= 2),
+  );
 
   const buttonClasses = (state: CellState) =>
     `press-sm flex h-full min-h-14 w-full items-center justify-center rounded-lg border-3 px-2 py-2 text-center text-sm font-bold leading-snug ${CELL_CLASSES[state]}`;
 
   /** 塊の文字。全マスの回答が同じならその回答、そうでなければ「まとめて回答中」 */
-  const runLabel = (run: CellRun) => {
+  const runLabel = (run: CellRun<RunGroup>) => {
     const [first] = run.cells;
     const answer = cellAnswers[cellKeyOf(first)];
     if (!answer) return t("answeringTogether");
@@ -187,9 +145,9 @@ export function WaitCellGrid({
       : t("answeringTogether");
   };
 
-  const renderRun = (key: string, run: CellRun) => {
+  const renderRun = (key: string, run: CellRun<RunGroup>) => {
     const label = runLabel(run);
-    if (run.kind === "answered") {
+    if (run.group !== "answering") {
       return (
         // td の h-px は、行をまたいだセルの高さいっぱいにボタンを伸ばすため
         // （table のセル内で h-full を効かせるには td 自身に高さが要る）
