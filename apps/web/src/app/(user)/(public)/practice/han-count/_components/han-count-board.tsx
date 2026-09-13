@@ -7,6 +7,7 @@ import { QuestionGeneratingPlaceholder } from "../../_components/question-genera
 import { useTranslations } from "next-intl";
 import type { useGeneratedScoreQuestion } from "../../_hooks/use-generated-score-question";
 import { TehaiDisplay } from "../../_components/tehai-display";
+import { TehaiMentsuBreakdown } from "../../_components/tehai-mentsu-breakdown";
 import {
   useRegisterAdvance,
   useTrainingMode,
@@ -103,6 +104,13 @@ export function HanCountBoard({
         onSubmit={handleSubmit}
         disabled={showFeedback || isCountingDown}
       />
+
+      {/* 面子分解は正解開示の一部。回答中に見せると符や待ちの答えが割れるため
+          止まっている間だけ出す（結果ページの問題詳細と同じ材料）。置き場所が
+          手牌の直下ではなく末尾なのは、開示の瞬間に回答欄を動かさないため */}
+      {showBreakdown && (
+        <TehaiMentsuBreakdown tehai={question.tehai} context={question} />
+      )}
 
       {showBreakdown && (
         <HanBreakdown
