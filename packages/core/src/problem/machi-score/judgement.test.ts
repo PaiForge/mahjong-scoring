@@ -7,7 +7,7 @@ import {
   type MachiCellJudgementMode,
 } from "./judgement";
 import type { MachiScoreQuestion } from "./types";
-import type { ScoreQuestion, UserAnswer } from "../score/types";
+import { correctAnswerOf } from "../../test/score-answer";
 import { ALL_HAI_KINDS } from "../../core/constants";
 import { expectSampled, generateOne } from "../../test/sampling";
 
@@ -17,19 +17,6 @@ const MODE: MachiCellJudgementMode = {
   requireFuForMangan: false,
   allowDoubleYakuman: false,
 };
-
-/** 出題の正解からそのまま作った回答 */
-function correctAnswerOf(cell: ScoreQuestion): UserAnswer {
-  const { payment } = cell.answer;
-  const base = { han: cell.answer.han, fu: cell.answer.fu, yakus: [] };
-  return payment.type === "koTsumo"
-    ? {
-        ...base,
-        scoreFromKo: payment.amount[0],
-        scoreFromOya: payment.amount[1],
-      }
-    : { ...base, score: payment.amount };
-}
 
 /** 役なしのロン待ちを持つ出題を 1 つ取る */
 function questionWithNoYakuRon(): MachiScoreQuestion {
