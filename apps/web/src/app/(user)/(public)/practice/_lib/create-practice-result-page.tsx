@@ -32,6 +32,11 @@ import { LeaderboardSkeleton } from "../_components/leaderboard-skeleton";
 import { ResultBlockSkeleton } from "../_components/result-block-skeleton";
 import { RecordUnavailable } from "../_components/record-unavailable";
 import { SignUpCta } from "../_components/sign-up-cta";
+import {
+  FINISH_REASON_PARAM,
+  listedProblemCount,
+  parseFinishReason,
+} from "./finish-reason";
 import { debugResultDelay } from "./debug-delay";
 import { tryFetch } from "./try-fetch";
 import {
@@ -78,6 +83,12 @@ export interface PracticeResultViewProps {
   readonly correct: number;
   /** 総出題数（URL クエリ `?total=` から親 Server Component が parse して渡す） */
   readonly total: number;
+  /**
+   * 問題別フィードバック一覧に並ぶ問題数（{@link listedProblemCount}）。
+   * 時間切れで終わったチャレンジでは `total` より 1 つ多い（答えられなかった
+   * 最後の問題も載る）。一覧の読み込み中に確保するスケルトンの行数に使う
+   */
+  readonly listedProblemCount: number;
   /**
    * 走った出題設定のバリアントの表示名（「設定: 食い下がりなし」の形）。
    * 設定を持たない練習では undefined で、行自体を出さない。
@@ -236,6 +247,9 @@ export function createPracticeResultPage(
     const elapsedMs = Number(typeof rawTime === "string" ? rawTime : 0);
     const safeCorrect = Number.isFinite(correct) ? correct : 0;
     const safeTotal = Number.isFinite(total) ? total : 0;
+    const finishReason = parseFinishReason(
+      resolvedSearchParams[FINISH_REASON_PARAM],
+    );
     const safeElapsedMs = Number.isFinite(elapsedMs) ? elapsedMs : 0;
 
     return (
@@ -246,6 +260,7 @@ export function createPracticeResultPage(
         settingsHref={practiceSetupHref(slug, variant)}
         correct={safeCorrect}
         total={safeTotal}
+        listedProblemCount={listedProblemCount(safeTotal, finishReason)}
         variantLabel={variantLabel}
         // 合格したら主ボタンは道場へ。合否の判定は summary 側と同じ規則
         primaryAction={

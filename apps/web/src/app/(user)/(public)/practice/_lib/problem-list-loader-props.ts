@@ -9,7 +9,8 @@ export interface ProblemListLoaderProps {
   /** sessionStorage のキー */
   readonly storageKey: string;
   /**
-   * 出題数（URL クエリ `?total=`）。
+   * 一覧に並ぶ問題数（URL クエリ `?total=` と `?reason=` から
+   * `listedProblemCount` で出す）。
    * sessionStorage の読み取り完了までに確保する placeholder の行数に使う。
    */
   readonly expectedCount: number;

@@ -3,6 +3,7 @@
 import { useEffect, useRef } from "react";
 import { useRouter } from "next/navigation";
 import type { PracticeMenuSlug } from "@/lib/db/practice-menu-types";
+import { FINISH_REASON_PARAM } from "../_lib/finish-reason";
 import { VARIANT_PARAM, readVariantFromLocation } from "../_lib/variant-param";
 import type { FinalResult } from "./use-timed-session";
 
@@ -72,7 +73,8 @@ interface UseFinishRedirectOptions {
  * `onFinish` コールバックを実行してからリダイレクトする。
  *
  * 出題設定のバリアントは終了の瞬間に URL から読み、`onFinish` の引数と
- * 結果ページの URL（`?variant=`）の両方へ同じ値を渡す。結果ページはこれで
+ * 結果ページの URL（`?variant=`）の両方へ同じ値を渡す。終了理由
+ * （`?reason=`）も URL に載せる。結果ページはこれで
  * 「もう一度」のリンク・過去記録の比較・ランキングのプレビューを同じ土俵に
  * 向ける。
  */
@@ -91,7 +93,7 @@ export function useFinishRedirect({
     if (!isFinished || !finalResult || savedRef.current) return;
     savedRef.current = true;
 
-    const { correctCount, incorrectCount, totalCount } = finalResult;
+    const { correctCount, incorrectCount, totalCount, reason } = finalResult;
     const variant = readVariantFromLocation(slug);
 
     const buildResultUrl = (result?: FinishCallbackResult): string => {
@@ -101,6 +103,9 @@ export function useFinishRedirect({
         time: elapsedMs.toString(),
       });
       params.set(VARIANT_PARAM, variant);
+      // 結果ページは時間切れなら問題別一覧に最後の 1 問（回答なし）が
+      // 足されるので、スケルトンの行数を合わせるために理由も渡す
+      params.set(FINISH_REASON_PARAM, reason);
       if (result?.grant) params.set("grant", result.grant);
       for (const rankSlug of result?.promoted ?? []) {
         params.append("promoted", rankSlug);
