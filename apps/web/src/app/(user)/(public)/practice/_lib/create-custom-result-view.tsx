@@ -56,18 +56,21 @@ export function createCustomResultView(
     // `children` スロットには sessionStorage 読み取り付きの Loader を差し込む。
     // 渡す props は primitive のみで、関数は一切渡さない。
     // `expectedCount` は一覧に並ぶ問題数（URL クエリ由来）で、Loader が
-    // 読み取り完了までの placeholder の行数に使う。
+    // 読み取り完了までの placeholder の行数に使う。`runId` は URL の回 ID で、
+    // Loader が保存の回 ID と突き合わせる。
     return (
       <ResultView {...props}>
         {config.translationNamespace !== undefined ? (
           <ScoreProblemListLoader
             storageKey={storageKey}
+            runId={props.runId}
             expectedCount={props.listedProblemCount}
             translationNamespace={config.translationNamespace}
           />
         ) : (
           <config.ProblemListLoader
             storageKey={storageKey}
+            runId={props.runId}
             expectedCount={props.listedProblemCount}
           />
         )}

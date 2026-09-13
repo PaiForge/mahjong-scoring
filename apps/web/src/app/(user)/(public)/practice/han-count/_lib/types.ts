@@ -126,6 +126,6 @@ const questionResultSchema: z.ZodType<HanCountQuestionResult> = z.object({
  * 翻数問題結果パース
  */
 export const parseHanCountResults: (
-  raw: string | undefined,
+  stored: unknown,
 ) => readonly HanCountQuestionResult[] =
   createSessionStorageParser(questionResultSchema);

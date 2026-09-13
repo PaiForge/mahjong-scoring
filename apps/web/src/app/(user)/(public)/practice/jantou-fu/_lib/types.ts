@@ -86,6 +86,6 @@ const questionResultSchema: z.ZodType<JantouFuQuestionResult> = z.object({
  * 雀頭符問題結果パース
  */
 export const parseJantouFuResults: (
-  raw: string | undefined,
+  stored: unknown,
 ) => readonly JantouFuQuestionResult[] =
   createSessionStorageParser(questionResultSchema);

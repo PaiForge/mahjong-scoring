@@ -14,7 +14,7 @@ const validResult = {
 
 describe("parseMachiFuResults", () => {
   it("有効な JSON 文字列をパースできる", () => {
-    const results = parseMachiFuResults(JSON.stringify([validResult]));
+    const results = parseMachiFuResults([validResult]);
     expect(results).toHaveLength(1);
     expect(results[0]).toEqual(validResult);
   });
@@ -26,7 +26,7 @@ describe("toQuestionResult", () => {
     const result = toQuestionResult(question, question.answer);
 
     expect(result.outcome).toBe("correct");
-    expect(parseMachiFuResults(JSON.stringify([result]))).toHaveLength(1);
+    expect(parseMachiFuResults([result])).toHaveLength(1);
   });
 
   it("保存形式から待ち形と和了牌を出題時の並びのまま復元できる", () => {
@@ -47,6 +47,6 @@ describe("toQuestionResult", () => {
 
     expect(result.outcome).toBe("timeUp");
     expect(result.userFu).toBeUndefined();
-    expect(parseMachiFuResults(JSON.stringify([result]))).toHaveLength(1);
+    expect(parseMachiFuResults([result])).toHaveLength(1);
   });
 });

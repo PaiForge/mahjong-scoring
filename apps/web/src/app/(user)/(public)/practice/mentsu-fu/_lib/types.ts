@@ -67,6 +67,6 @@ const questionResultSchema: z.ZodType<MentsuFuQuestionResult> =
  * 面子符問題結果パース
  */
 export const parseMentsuFuResults: (
-  raw: string | undefined,
+  stored: unknown,
 ) => readonly MentsuFuQuestionResult[] =
   createSessionStorageParser(questionResultSchema);

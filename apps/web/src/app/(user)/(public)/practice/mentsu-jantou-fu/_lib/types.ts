@@ -156,6 +156,6 @@ const questionResultSchema: z.ZodType<MentsuJantouFuQuestionResult> = z.object({
  * 面子雀頭符問題結果パース
  */
 export const parseMentsuJantouFuResults: (
-  raw: string | undefined,
+  stored: unknown,
 ) => readonly MentsuJantouFuQuestionResult[] =
   createSessionStorageParser(questionResultSchema);

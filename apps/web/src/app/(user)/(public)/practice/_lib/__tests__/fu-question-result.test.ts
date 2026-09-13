@@ -29,7 +29,7 @@ const validResult = {
 
 describe("parseFuQuestionResults", () => {
   it("有効な JSON 文字列をパースできる", () => {
-    const results = parseFuQuestionResults(JSON.stringify([validResult]));
+    const results = parseFuQuestionResults([validResult]);
     expect(results).toHaveLength(1);
     expect(results[0]).toEqual(validResult);
   });
@@ -48,13 +48,13 @@ describe("parseFuQuestionResults", () => {
 
   it("必須フィールドを欠く要素は除外する", () => {
     const { correctFu: _omitted, ...missingFu } = validResult;
-    const raw = JSON.stringify([validResult, missingFu]);
+    const raw = [validResult, missingFu];
     expect(parseFuQuestionResults(raw)).toHaveLength(1);
   });
 
   it("fuDetails の形が違う要素は除外する", () => {
     const broken = { ...validResult, fuDetails: [{ reason: "副底" }] };
-    expect(parseFuQuestionResults(JSON.stringify([broken]))).toEqual([]);
+    expect(parseFuQuestionResults([broken])).toEqual([]);
   });
 });
 
@@ -74,7 +74,7 @@ describe("toFuQuestionResult", () => {
     expect(result.outcome).toBe("correct");
     expect(result.correctFu).toBe(question.answer);
 
-    const parsed = parseFuQuestionResults(JSON.stringify([result]));
+    const parsed = parseFuQuestionResults([result]);
     expect(parsed).toHaveLength(1);
   });
 
@@ -103,6 +103,6 @@ describe("toFuQuestionResult", () => {
     expect(result.outcome).toBe("timeUp");
     expect(result.userFu).toBeUndefined();
     expect(result.correctFu).toBe(question.answer);
-    expect(parseFuQuestionResults(JSON.stringify([result]))).toHaveLength(1);
+    expect(parseFuQuestionResults([result])).toHaveLength(1);
   });
 });

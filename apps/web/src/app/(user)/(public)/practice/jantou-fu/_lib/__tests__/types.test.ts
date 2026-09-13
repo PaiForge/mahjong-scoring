@@ -20,7 +20,7 @@ const validResult = {
 
 describe("parseJantouFuResults", () => {
   it("有効な JSON 文字列をパースできる", () => {
-    const results = parseJantouFuResults(JSON.stringify([validResult]));
+    const results = parseJantouFuResults([validResult]);
     expect(results).toHaveLength(1);
     expect(results[0]).toEqual(validResult);
   });
@@ -36,7 +36,7 @@ describe("toQuestionResult", () => {
 
     expect(result.outcome).toBe("correct");
     expect(result.selectedHai).toBe(result.correctHai);
-    expect(parseJantouFuResults(JSON.stringify([result]))).toHaveLength(1);
+    expect(parseJantouFuResults([result])).toHaveLength(1);
   });
 
   it("誤答でも正解の雀頭とその符を残す", () => {
@@ -76,6 +76,6 @@ describe("toQuestionResult", () => {
     expect(result.selectedFu).toBeUndefined();
     expect(parseHais(result.correctHai)[0]).toBe(correct.hai);
     expect(result.correctFu).toBe(correct.fu);
-    expect(parseJantouFuResults(JSON.stringify([result]))).toHaveLength(1);
+    expect(parseJantouFuResults([result])).toHaveLength(1);
   });
 });

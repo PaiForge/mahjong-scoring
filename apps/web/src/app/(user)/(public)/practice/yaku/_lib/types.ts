@@ -118,6 +118,6 @@ const questionResultSchema: z.ZodType<YakuQuestionResult> = z.object({
  * 役選択問題結果パース
  */
 export const parseYakuResults: (
-  raw: string | undefined,
+  stored: unknown,
 ) => readonly YakuQuestionResult[] =
   createSessionStorageParser(questionResultSchema);

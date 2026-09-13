@@ -26,6 +26,12 @@ export interface FinalResult {
   readonly totalCount: number;
   /** 終わった理由。時間切れなら出題中の問題が答えられないまま残っている */
   readonly reason: FinishReason;
+  /**
+   * 終わった時刻（`Date.now()`）。この回（チャレンジ 1 回分）の ID として、
+   * 結果一覧の保存（`useRecordedResults`）と結果ページの URL
+   * （`useFinishRedirect` の `?run=`）の両方に同じ値を渡す
+   */
+  readonly finishedAt: number;
 }
 
 /** ゲームロジック状態（タイマー値を含まない、ユーザー操作時のみ変化） */
@@ -114,6 +120,7 @@ export function useTimedSession({
       incorrectCount: incorrect,
       totalCount: correct + incorrect,
       reason: "timeUp",
+      finishedAt: Date.now(),
     });
     setIsFinished(true);
   }, []);
@@ -161,6 +168,7 @@ export function useTimedSession({
             incorrectCount: newIncorrectCount,
             totalCount: newCorrectCount + newIncorrectCount,
             reason: "mistakeLimit",
+            finishedAt: Date.now(),
           });
           setIsFinished(true);
           setShowFeedback(false);

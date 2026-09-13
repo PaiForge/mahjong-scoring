@@ -75,6 +75,6 @@ const questionResultSchema: z.ZodType<MachiFuQuestionResult> =
  * 待ち符問題結果パース
  */
 export const parseMachiFuResults: (
-  raw: string | undefined,
+  stored: unknown,
 ) => readonly MachiFuQuestionResult[] =
   createSessionStorageParser(questionResultSchema);

@@ -37,6 +37,7 @@ import {
   listedProblemCount,
   parseFinishReason,
 } from "./finish-reason";
+import { RUN_PARAM, parseRunId } from "./challenge-run";
 import { debugResultDelay } from "./debug-delay";
 import { tryFetch } from "./try-fetch";
 import {
@@ -89,6 +90,12 @@ export interface PracticeResultViewProps {
    * 最後の問題も載る）。一覧の読み込み中に確保するスケルトンの行数に使う
    */
   readonly listedProblemCount: number;
+  /**
+   * この回の ID（URL クエリ `?run=`。play 画面の `useFinishRedirect` が終了
+   * 時刻を付ける）。問題別フィードバック一覧は sessionStorage の保存が
+   * この回のものであるときだけ出す。付いていない・壊れているときは undefined
+   */
+  readonly runId: number | undefined;
   /**
    * 走った出題設定のバリアントの表示名（「設定: 食い下がりなし」の形）。
    * 設定を持たない練習では undefined で、行自体を出さない。
@@ -251,6 +258,7 @@ export function createPracticeResultPage(
       resolvedSearchParams[FINISH_REASON_PARAM],
     );
     const safeElapsedMs = Number.isFinite(elapsedMs) ? elapsedMs : 0;
+    const runId = parseRunId(resolvedSearchParams[RUN_PARAM]);
 
     return (
       <ResultView
@@ -261,6 +269,7 @@ export function createPracticeResultPage(
         correct={safeCorrect}
         total={safeTotal}
         listedProblemCount={listedProblemCount(safeTotal, finishReason)}
+        runId={runId}
         variantLabel={variantLabel}
         // 合格したら主ボタンは道場へ。合否の判定は summary 側と同じ規則
         primaryAction={

@@ -1,59 +1,68 @@
 import { renderHook } from "@testing-library/react";
 import { afterEach, describe, expect, it } from "vitest";
 
+import { packStoredResults } from "../../_lib/challenge-run";
 import { useSessionStorageResult } from "../use-session-storage-result";
 
 const KEY = "test-results";
+const RUN = 1_700_000_000_000;
 
-/** 生文字列をそのまま1要素の配列にするだけのパーサ */
-const parse = (raw: string | undefined): readonly string[] =>
-  raw === undefined ? [] : [raw];
+/** デコード済みの配列の要素を文字列にするだけのパーサ */
+const parse = (stored: unknown): readonly string[] =>
+  Array.isArray(stored) ? stored.map(String) : [];
 
 afterEach(() => {
   sessionStorage.clear();
 });
 
 describe("useSessionStorageResult", () => {
-  it("保存された値を読み取り、sessionStorage からは削除する", () => {
-    sessionStorage.setItem(KEY, "stored");
+  it("回 ID が一致する保存を読み取り、sessionStorage には残す", () => {
+    // ブラウザバックやリロードで再マウントしても同じ一覧を読めるように、
+    // 読んだ後も消さない
+    sessionStorage.setItem(KEY, packStoredResults(RUN, ["stored"]));
 
-    const { result } = renderHook(() => useSessionStorageResult(KEY, parse));
+    const { result } = renderHook(() =>
+      useSessionStorageResult(KEY, RUN, parse),
+    );
 
     expect(result.current).toEqual(["stored"]);
-    expect(sessionStorage.getItem(KEY)).toBeNull();
+    expect(sessionStorage.getItem(KEY)).not.toBeNull();
   });
 
-  it("値が無ければ空配列を返す", () => {
-    const { result } = renderHook(() => useSessionStorageResult(KEY, parse));
+  it("別の回の保存なら空配列を返す", () => {
+    sessionStorage.setItem(KEY, packStoredResults(RUN, ["stored"]));
+
+    const { result } = renderHook(() =>
+      useSessionStorageResult(KEY, RUN + 1, parse),
+    );
 
     expect(result.current).toEqual([]);
   });
 
-  it("効果が再実行されても読み取り済みの値を保つ", () => {
-    // 破壊的読み取り（removeItem）のため、素朴な実装では2回目の効果が
-    // 空の sessionStorage を読んで結果を消してしまう。React StrictMode の
-    // 二重実行で実際に起き、結果ページの問題別一覧が表示されなくなった。
-    sessionStorage.setItem(KEY, "stored");
+  it("回 ID が分からなければ空配列を返す", () => {
+    sessionStorage.setItem(KEY, packStoredResults(RUN, ["stored"]));
 
-    const { result, rerender } = renderHook(
-      ({ p }: { p: typeof parse }) => useSessionStorageResult(KEY, p),
-      { initialProps: { p: parse } },
+    const { result } = renderHook(() =>
+      useSessionStorageResult(KEY, undefined, parse),
     );
 
-    expect(result.current).toEqual(["stored"]);
+    expect(result.current).toEqual([]);
+  });
 
-    // parse の参照を変えて効果を再実行させる
-    rerender({ p: (raw: string | undefined) => parse(raw) });
+  it("値が無ければ空配列を返す", () => {
+    const { result } = renderHook(() =>
+      useSessionStorageResult(KEY, RUN, parse),
+    );
 
-    expect(result.current).toEqual(["stored"]);
+    expect(result.current).toEqual([]);
   });
 
   it("キーが変われば新しいキーを読み直す", () => {
-    sessionStorage.setItem("a", "value-a");
-    sessionStorage.setItem("b", "value-b");
+    sessionStorage.setItem("a", packStoredResults(RUN, ["value-a"]));
+    sessionStorage.setItem("b", packStoredResults(RUN, ["value-b"]));
 
     const { result, rerender } = renderHook(
-      ({ key }: { key: string }) => useSessionStorageResult(key, parse),
+      ({ key }: { key: string }) => useSessionStorageResult(key, RUN, parse),
       { initialProps: { key: "a" } },
     );
 

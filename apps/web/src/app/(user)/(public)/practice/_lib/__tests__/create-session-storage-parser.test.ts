@@ -23,30 +23,25 @@ const validRow = { label: "a", count: 1 };
  * 担当で、そちらでこの契約を再検証しないこと。
  */
 describe("createSessionStorageParser", () => {
-  describe("入力全体が配列として読めない場合", () => {
+  describe("入力全体が配列でない場合", () => {
     it.each([
       ["undefined", undefined],
-      ["空文字列", ""],
-      ["壊れた JSON", "{"],
-      ["配列でない JSON（オブジェクト）", JSON.stringify({ foo: "bar" })],
-      ["配列でない JSON（文字列）", JSON.stringify("hello")],
-      ["配列でない JSON（数値）", JSON.stringify(42)],
-    ])("%s は空配列を返す", (_label, raw) => {
-      expect(parseRows(raw)).toEqual([]);
+      ["オブジェクト", { foo: "bar" }],
+      ["文字列", "hello"],
+      ["数値", 42],
+    ])("%s は空配列を返す", (_label, stored) => {
+      expect(parseRows(stored)).toEqual([]);
     });
 
-    it("空配列の JSON 文字列は空配列を返す", () => {
-      expect(parseRows("[]")).toEqual([]);
+    it("空配列は空配列を返す", () => {
+      expect(parseRows([])).toEqual([]);
     });
   });
 
   describe("要素の選別", () => {
     it("妥当な要素を並び順のまま返す", () => {
       const second = { label: "b", count: 2 };
-      expect(parseRows(JSON.stringify([validRow, second]))).toEqual([
-        validRow,
-        second,
-      ]);
+      expect(parseRows([validRow, second])).toEqual([validRow, second]);
     });
 
     it.each([
@@ -56,7 +51,7 @@ describe("createSessionStorageParser", () => {
       ["数値", 42],
       ["文字列", "invalid"],
     ])("%s 要素は除外し、妥当な要素だけ返す", (_label, broken) => {
-      const results = parseRows(JSON.stringify([broken, validRow]));
+      const results = parseRows([broken, validRow]);
       expect(results).toEqual([validRow]);
     });
   });
@@ -65,6 +60,6 @@ describe("createSessionStorageParser", () => {
     // 選別であって整形ではない。zod の出力を返すと未知のキーが消え、
     // スキーマを更新するまでの間だけ保存された結果が壊れて見える。
     const withExtra = { ...validRow, note: "後から足したフィールド" };
-    expect(parseRows(JSON.stringify([withExtra]))[0]).toEqual(withExtra);
+    expect(parseRows([withExtra])[0]).toEqual(withExtra);
   });
 });

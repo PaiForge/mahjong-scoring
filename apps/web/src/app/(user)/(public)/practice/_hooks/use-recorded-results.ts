@@ -1,6 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useRef } from "react";
+import { packStoredResults } from "../_lib/challenge-run";
 import type { FinalResult } from "./use-timed-session";
 
 /**
@@ -8,7 +9,9 @@ import type { FinalResult } from "./use-timed-session";
  * 問題結果の記録
  *
  * チャレンジ型練習の play view が共通で用いる。答えた問題の結果を ref に
- * push し、終了が確定した時点で storageKey へ JSON 保存する。
+ * push し、終了が確定した時点で storageKey へ JSON 保存する。保存する形は
+ * 回 ID（終了時刻）付きの封筒（{@link packStoredResults}）で、結果ページは
+ * URL の `?run=` と一致する回の一覧だけを読む。
  *
  * 出題中の問題は `presentQuestion` で「回答なし」の形を預かっておく。
  * 制限時間で終わったときは、その問題を答えられなかった問題として末尾に
@@ -47,7 +50,10 @@ export function useRecordedResults<T>(
       finalResult.reason === "timeUp" && pending !== undefined
         ? [...resultsRef.current, pending]
         : resultsRef.current;
-    sessionStorage.setItem(storageKey, JSON.stringify(results));
+    sessionStorage.setItem(
+      storageKey,
+      packStoredResults(finalResult.finishedAt, results),
+    );
   }, [storageKey, finalResult]);
 
   return { recordResult, presentQuestion };

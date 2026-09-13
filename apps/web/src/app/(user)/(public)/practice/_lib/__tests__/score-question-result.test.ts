@@ -22,7 +22,7 @@ describe("parseQuestionResults", () => {
   };
 
   it("有効な JSON 文字列をパースできる", () => {
-    const raw = JSON.stringify([validResult]);
+    const raw = [validResult];
     const results = parseQuestionResults(raw);
     expect(results).toHaveLength(1);
     expect(results[0]).toEqual(validResult);
@@ -38,7 +38,7 @@ describe("parseQuestionResults", () => {
       userAnswer: { type: "koTsumo", fromKo: 1000, fromOya: 2000 },
       outcome: "correct",
     };
-    const raw = JSON.stringify([validResult, koTsumoResult]);
+    const raw = [validResult, koTsumoResult];
     const results = parseQuestionResults(raw);
     expect(results).toHaveLength(2);
   });
@@ -53,7 +53,7 @@ describe("parseQuestionResults", () => {
       userAnswer: { type: "oyaTsumo", all: 4000 },
       outcome: "correct",
     };
-    const raw = JSON.stringify([oyaTsumoResult]);
+    const raw = [oyaTsumoResult];
     const results = parseQuestionResults(raw);
     expect(results).toHaveLength(1);
     expect(results[0]?.correctAnswer.type).toBe("oyaTsumo");
@@ -63,7 +63,7 @@ describe("parseQuestionResults", () => {
     // 判別子（type）だけを見ていた頃は素通りし、結果ページで点数が
     // undefined として描かれていた
     const invalid = { ...validResult, correctAnswer: { type: "ron" } };
-    const raw = JSON.stringify([invalid]);
+    const raw = [invalid];
     expect(parseQuestionResults(raw)).toEqual([]);
   });
 
@@ -73,7 +73,7 @@ describe("parseQuestionResults", () => {
       ...validResult,
       userAnswer: { type: "koTsumo", all: 4000 },
     };
-    const raw = JSON.stringify([invalid]);
+    const raw = [invalid];
     expect(parseQuestionResults(raw)).toEqual([]);
   });
 
@@ -93,19 +93,19 @@ describe("parseQuestionResults", () => {
   });
 
   it("配列でない JSON は空配列を返す", () => {
-    const results = parseQuestionResults(JSON.stringify({ foo: "bar" }));
+    const results = parseQuestionResults({ foo: "bar" });
     expect(results).toEqual([]);
   });
 
   it("文字列の JSON は空配列を返す", () => {
-    const results = parseQuestionResults(JSON.stringify("hello"));
+    const results = parseQuestionResults("hello");
     expect(results).toEqual([]);
   });
 
   it("isOya が欠落した要素はフィルタされる", () => {
     const invalid = { ...validResult };
     Reflect.deleteProperty(invalid, "isOya");
-    const raw = JSON.stringify([invalid]);
+    const raw = [invalid];
     const results = parseQuestionResults(raw);
     expect(results).toEqual([]);
   });
@@ -113,7 +113,7 @@ describe("parseQuestionResults", () => {
   it("isTsumo が欠落した要素はフィルタされる", () => {
     const invalid = { ...validResult };
     Reflect.deleteProperty(invalid, "isTsumo");
-    const raw = JSON.stringify([invalid]);
+    const raw = [invalid];
     const results = parseQuestionResults(raw);
     expect(results).toEqual([]);
   });
@@ -121,7 +121,7 @@ describe("parseQuestionResults", () => {
   it("han が欠落した要素はフィルタされる", () => {
     const invalid = { ...validResult };
     Reflect.deleteProperty(invalid, "han");
-    const raw = JSON.stringify([invalid]);
+    const raw = [invalid];
     const results = parseQuestionResults(raw);
     expect(results).toEqual([]);
   });
@@ -130,7 +130,7 @@ describe("parseQuestionResults", () => {
     // 満貫以上の問題は符を持たないため、fu の欠落は妥当な結果とみなす。
     const manganPlus = { ...validResult };
     Reflect.deleteProperty(manganPlus, "fu");
-    const raw = JSON.stringify([manganPlus]);
+    const raw = [manganPlus];
     const results = parseQuestionResults(raw);
     expect(results).toHaveLength(1);
     expect(results[0]!.fu).toBeUndefined();
@@ -138,7 +138,7 @@ describe("parseQuestionResults", () => {
 
   it("fu が数値でない（文字列等）要素はフィルタされる", () => {
     const invalid = { ...validResult, fu: "30" };
-    const raw = JSON.stringify([invalid]);
+    const raw = [invalid];
     const results = parseQuestionResults(raw);
     expect(results).toEqual([]);
   });
@@ -146,7 +146,7 @@ describe("parseQuestionResults", () => {
   it("outcome が欠落した要素はフィルタされる", () => {
     const invalid = { ...validResult };
     Reflect.deleteProperty(invalid, "outcome");
-    const raw = JSON.stringify([invalid]);
+    const raw = [invalid];
     const results = parseQuestionResults(raw);
     expect(results).toEqual([]);
   });
@@ -154,7 +154,7 @@ describe("parseQuestionResults", () => {
   it("correctAnswer が欠落した要素はフィルタされる", () => {
     const invalid = { ...validResult };
     Reflect.deleteProperty(invalid, "correctAnswer");
-    const raw = JSON.stringify([invalid]);
+    const raw = [invalid];
     const results = parseQuestionResults(raw);
     expect(results).toEqual([]);
   });
@@ -162,7 +162,7 @@ describe("parseQuestionResults", () => {
   it("userAnswer が欠落した要素は時間切れ（回答なし）として許容される", () => {
     const timeUp = { ...validResult, outcome: "timeUp" };
     Reflect.deleteProperty(timeUp, "userAnswer");
-    const results = parseQuestionResults(JSON.stringify([timeUp]));
+    const results = parseQuestionResults([timeUp]);
     expect(results).toHaveLength(1);
   });
 
@@ -171,7 +171,7 @@ describe("parseQuestionResults", () => {
       ...validResult,
       correctAnswer: { type: "invalid", score: 1000 },
     };
-    const raw = JSON.stringify([invalid]);
+    const raw = [invalid];
     const results = parseQuestionResults(raw);
     expect(results).toEqual([]);
   });
@@ -181,7 +181,7 @@ describe("parseQuestionResults", () => {
       ...validResult,
       userAnswer: { type: "unknown", score: 1000 },
     };
-    const raw = JSON.stringify([invalid]);
+    const raw = [invalid];
     const results = parseQuestionResults(raw);
     expect(results).toEqual([]);
   });
@@ -189,7 +189,7 @@ describe("parseQuestionResults", () => {
   it("有効な要素と無効な要素が混在する場合、有効な要素のみ返す", () => {
     const invalid = { ...validResult };
     Reflect.deleteProperty(invalid, "han");
-    const raw = JSON.stringify([validResult, invalid]);
+    const raw = [validResult, invalid];
     const results = parseQuestionResults(raw);
     expect(results).toHaveLength(1);
     expect(results[0]).toEqual(validResult);
@@ -197,26 +197,26 @@ describe("parseQuestionResults", () => {
 
   it("han が文字列の場合はフィルタされる", () => {
     const invalid = { ...validResult, han: "3" };
-    const raw = JSON.stringify([invalid]);
+    const raw = [invalid];
     const results = parseQuestionResults(raw);
     expect(results).toEqual([]);
   });
 
   it("isOya が文字列の場合はフィルタされる", () => {
     const invalid = { ...validResult, isOya: "true" };
-    const raw = JSON.stringify([invalid]);
+    const raw = [invalid];
     const results = parseQuestionResults(raw);
     expect(results).toEqual([]);
   });
 
   it("null 要素はフィルタされる", () => {
-    const raw = JSON.stringify([null, validResult]);
+    const raw = [null, validResult];
     const results = parseQuestionResults(raw);
     expect(results).toHaveLength(1);
   });
 
   it("数値要素はフィルタされる", () => {
-    const raw = JSON.stringify([42, validResult]);
+    const raw = [42, validResult];
     const results = parseQuestionResults(raw);
     expect(results).toHaveLength(1);
   });
@@ -233,7 +233,7 @@ describe("parseQuestionResults", () => {
     };
 
     it("スナップショット付きの結果をパースできる", () => {
-      const raw = JSON.stringify([{ ...validResult, question: validSnapshot }]);
+      const raw = [{ ...validResult, question: validSnapshot }];
       const results = parseQuestionResults(raw);
       expect(results).toHaveLength(1);
       expect(results[0]?.question).toEqual(validSnapshot);
@@ -247,7 +247,7 @@ describe("parseQuestionResults", () => {
         jikaze: validSnapshot.jikaze,
         doraMarkers: validSnapshot.doraMarkers,
       };
-      const raw = JSON.stringify([{ ...validResult, question: snapshot }]);
+      const raw = [{ ...validResult, question: snapshot }];
       const results = parseQuestionResults(raw);
       expect(results).toHaveLength(1);
     });
@@ -260,13 +260,13 @@ describe("parseQuestionResults", () => {
           { name: "清一色", han: 6 },
         ],
       };
-      const raw = JSON.stringify([{ ...validResult, question: snapshot }]);
+      const raw = [{ ...validResult, question: snapshot }];
       const results = parseQuestionResults(raw);
       expect(results[0]?.question?.yakuDetails).toEqual(snapshot.yakuDetails);
     });
 
     it("役の内訳が無いスナップショット（旧データ）も許容される", () => {
-      const raw = JSON.stringify([{ ...validResult, question: validSnapshot }]);
+      const raw = [{ ...validResult, question: validSnapshot }];
       const results = parseQuestionResults(raw);
       expect(results).toHaveLength(1);
       expect(results[0]?.question?.yakuDetails).toBeUndefined();
@@ -277,7 +277,7 @@ describe("parseQuestionResults", () => {
         ...validResult,
         question: { ...validSnapshot, yakuDetails: [{ name: "立直" }] },
       };
-      const raw = JSON.stringify([invalid]);
+      const raw = [invalid];
       expect(parseQuestionResults(raw)).toEqual([]);
     });
 
@@ -286,7 +286,7 @@ describe("parseQuestionResults", () => {
         ...validResult,
         question: { ...validSnapshot, tehai: 42 },
       };
-      const raw = JSON.stringify([invalid]);
+      const raw = [invalid];
       expect(parseQuestionResults(raw)).toEqual([]);
     });
 
@@ -295,14 +295,14 @@ describe("parseQuestionResults", () => {
         ...validResult,
         question: { ...validSnapshot, doraMarkers: ["1m", 3] },
       };
-      const raw = JSON.stringify([invalid]);
+      const raw = [invalid];
       expect(parseQuestionResults(raw)).toEqual([]);
     });
 
     it("doraMarkers が欠落したスナップショットを持つ要素はフィルタされる", () => {
       const invalid = { ...validResult, question: { ...validSnapshot } };
       Reflect.deleteProperty(invalid.question, "doraMarkers");
-      const raw = JSON.stringify([invalid]);
+      const raw = [invalid];
       expect(parseQuestionResults(raw)).toEqual([]);
     });
   });
@@ -344,7 +344,7 @@ describe("toScoreQuestionSnapshot", () => {
       question: toScoreQuestionSnapshot(question),
     };
     // JSON.stringify が undefined の任意項目を落とした形が実際の保存形
-    const results = parseQuestionResults(JSON.stringify([result]));
+    const results = parseQuestionResults([result]);
     expect(results).toHaveLength(1);
     expect(results[0]?.question?.tehai).toBe("234567m345p55678s");
   });
@@ -360,7 +360,7 @@ describe("toScoreQuestionResult", () => {
     expect(result.userAnswer).toEqual(correct);
     expect(result.han).toBe(question.answer.han);
     expect(result.question?.tehai).toBeDefined();
-    expect(parseQuestionResults(JSON.stringify([result]))).toHaveLength(1);
+    expect(parseQuestionResults([result])).toHaveLength(1);
   });
 
   it("違う支払いを答えれば不正解として記録する", () => {
@@ -376,6 +376,6 @@ describe("toScoreQuestionResult", () => {
 
     expect(result.outcome).toBe("timeUp");
     expect(result.userAnswer).toBeUndefined();
-    expect(parseQuestionResults(JSON.stringify([result]))).toHaveLength(1);
+    expect(parseQuestionResults([result])).toHaveLength(1);
   });
 });
