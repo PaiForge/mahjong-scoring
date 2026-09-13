@@ -13,6 +13,7 @@ import { FuChoiceGrid } from "@/app/(user)/(public)/practice/_components/fu-choi
 import { QuestionGeneratingPlaceholder } from "@/app/(user)/(public)/practice/_components/question-generating-placeholder";
 import { QuestionPrompt } from "@/app/(user)/(public)/practice/_components/question-prompt";
 import { TehaiDisplay } from "@/app/(user)/(public)/practice/_components/tehai-display";
+import { TehaiMentsuBreakdown } from "@/app/(user)/(public)/practice/_components/tehai-mentsu-breakdown";
 import { useFuChoiceBoard } from "@/app/(user)/(public)/practice/_hooks/use-fu-choice-board";
 import { useTrainingMode } from "@/app/(user)/(public)/practice/_hooks/use-training-mode";
 import type { RecordingPracticeBoardProps } from "@/app/(user)/(public)/practice/_lib/practice-board-props";
@@ -103,6 +104,16 @@ export function FuExamBoard({
         columnsClassName="grid-cols-3"
         translationNamespace="fuExamChallenge"
       />
+
+      {/* 面子分解は正解開示の一部。回答中に見せると符や待ちの答えが割れるため
+          止まっている間だけ出す（結果ページの問題詳細と同じ材料）。置き場所が
+          手牌の直下ではなく末尾なのは、開示の瞬間に回答欄を動かさないため */}
+      {(isRevealed || isHolding) && (
+        <TehaiMentsuBreakdown
+          tehai={question.tehai}
+          context={question.context}
+        />
+      )}
 
       {(isRevealed || isHolding) && (
         <FuBreakdown

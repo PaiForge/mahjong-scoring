@@ -10,6 +10,7 @@ import {
   useYakumanRules,
 } from "@/app/_hooks/use-rule-settings-store";
 import { RevealedScoreAnswer } from "../../_components/revealed-score-answer";
+import { TehaiMentsuBreakdown } from "../../_components/tehai-mentsu-breakdown";
 import { paymentToScoreTableAnswer } from "../../_lib/payment-adapter";
 import { scoreTableFocusOf } from "../../_lib/score-table-focus";
 import { useScoreQuestionBoard } from "../../_hooks/use-score-question-board";
@@ -67,6 +68,8 @@ export function ScoreCalculationBoard({
   // 正解のときは出さない — 選んだ値がそのまま正解で、select の色が正誤を示している
   const { isRevealed, isHolding } = useTrainingMode();
   const showAnswer = (isRevealed || isHolding) && lastAnswerCorrect !== true;
+  // 面子分解は正解でも出す（自分の読み方が合っていたかを確かめる局面）
+  const showBreakdown = isRevealed || isHolding;
 
   if (!question) {
     return (
@@ -115,6 +118,13 @@ export function ScoreCalculationBoard({
         translationNamespace="scoreCalculationChallenge"
         isTraining={isTraining}
       />
+
+      {/* 面子分解は正解開示の一部。回答中に見せると符や待ちの答えが割れるため
+          止まっている間だけ出す（結果ページの問題詳細と同じ材料）。置き場所が
+          手牌の直下ではなく末尾なのは、開示の瞬間に回答欄を動かさないため */}
+      {showBreakdown && (
+        <TehaiMentsuBreakdown tehai={question.tehai} context={question} />
+      )}
     </div>
   );
 }

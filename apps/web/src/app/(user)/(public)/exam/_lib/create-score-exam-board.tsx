@@ -4,6 +4,7 @@ import type { ComponentType } from "react";
 import { useTranslations } from "next-intl";
 import { QuestionGeneratingPlaceholder } from "@/app/(user)/(public)/practice/_components/question-generating-placeholder";
 import { QuestionPrompt } from "@/app/(user)/(public)/practice/_components/question-prompt";
+import { TehaiMentsuBreakdown } from "@/app/(user)/(public)/practice/_components/tehai-mentsu-breakdown";
 import { YakuBreakdown } from "@/app/(user)/(public)/practice/_components/yaku-breakdown";
 import { RevealedScoreAnswer } from "@/app/(user)/(public)/practice/_components/revealed-score-answer";
 import { useScoreQuestionBoard } from "@/app/(user)/(public)/practice/_hooks/use-score-question-board";
@@ -147,6 +148,13 @@ export function createScoreExamBoard(
           translationNamespace={translationNamespace}
           scoreRange={scoreRange}
         />
+
+        {/* 面子分解は正解開示の一部。回答中に見せると符の答えが割れるため
+            止まっている間だけ出す（結果ページの問題詳細と同じ材料）。置き場所が
+            手牌の直下ではなく末尾なのは、開示の瞬間に回答欄を動かさないため */}
+        {showBreakdown && (
+          <TehaiMentsuBreakdown tehai={question.tehai} context={question} />
+        )}
 
         {showBreakdown && (
           <YakuBreakdown
