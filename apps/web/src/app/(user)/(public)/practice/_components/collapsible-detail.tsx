@@ -37,6 +37,11 @@ interface CollapsibleDetailProps {
  * 同じ約束で、早見表を開くリンク（表のアイコン）と動作を言い分ける。
  * 閉じている間は本文を描画しない。
  *
+ * 開閉ボタンのタップ領域は 1 行ぶん（`hitArea="row"`）取る。この器は表の
+ * 外で 1 行を占め、トレーニングの答え合わせでは直下に全幅の「次の問題へ」が
+ * 続く。文字の高さだけを当たり判定にすると、内訳を開こうとした指が外れて
+ * ボタンに吸われ、読みたかった内訳ごと次の問題に流れる。
+ *
  * 器なので見出しの文言は持たない。何の内訳かは中身を知る呼び出し側が渡す。
  */
 export function CollapsibleDetail({ title, children }: CollapsibleDetailProps) {
@@ -47,6 +52,7 @@ export function CollapsibleDetail({ title, children }: CollapsibleDetailProps) {
     <div className="space-y-1.5">
       <div className="flex justify-end">
         <ReferenceLinkButton
+          hitArea="row"
           onClick={() => setIsOpen((prev) => !prev)}
           aria-expanded={isOpen}
           aria-controls={panelId}

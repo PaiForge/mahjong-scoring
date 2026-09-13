@@ -18,6 +18,20 @@ interface ReferenceLinkButtonProps extends Pick<
    * 並ぶときに、どれを指すかを言い分けるために使う
    */
   readonly trailing?: ReactNode;
+  /**
+   * タップ領域の取り方（既定 `text`）
+   *
+   * - `text` — 文字の高さぶんだけ。答え合わせの表の中で値の直下に添える
+   *   ときの姿で、表の行間を広げない
+   * - `row` — `min-h-11`（44px）で 1 行ぶんの領域を確保する。盤面の末尾や
+   *   結果一覧のように、リンクが表の外で 1 行を占め、直下に「次の問題へ」
+   *   などの大きなボタンが続く場所で使う。文字の高さ（16px）だけを
+   *   当たり判定にすると、外れた指がそのままボタンに吸われて内訳を読めなく
+   *   なる。見た目は文字と下線のままで、広がるのは押せる範囲だけ
+   *   （{@link import("./practice-footer-actions").PracticeFooterAction} と
+   *   同じ約束）
+   */
+  readonly hitArea?: "text" | "row";
 }
 
 /**
@@ -36,13 +50,16 @@ export function ReferenceLinkButton({
   icon,
   label,
   trailing,
+  hitArea = "text",
   ...buttonProps
 }: ReferenceLinkButtonProps) {
+  const hitAreaClass = hitArea === "row" ? " min-h-11" : "";
+
   return (
     <button
       type="button"
       {...buttonProps}
-      className={`inline-flex items-center gap-1 text-xs ${TEXT_LINK_CLASSES}`}
+      className={`inline-flex items-center gap-1 text-xs ${TEXT_LINK_CLASSES}${hitAreaClass}`}
     >
       {icon}
       {label}
