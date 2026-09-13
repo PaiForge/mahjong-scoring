@@ -7,7 +7,7 @@ import { useEffect, useRef, useState } from "react";
  * セッションストレージ結果取得
  *
  * @param key - sessionStorage のキー
- * @param parse - 生文字列を型付き配列にパースする関数
+ * @param parse - JSON をデコードした値を型付き配列に選別する関数
  * @returns パース済みの結果配列。読み取り前（サーバー描画時とクライアント初回描画時）は `undefined`
  *
  * @remarks
@@ -28,7 +28,7 @@ import { useEffect, useRef, useState } from "react";
  */
 export function useSessionStorageResult<T>(
   key: string,
-  parse: (raw: string | undefined) => readonly T[],
+  parse: (stored: unknown) => readonly T[],
 ): readonly T[] | undefined {
   const [results, setResults] = useState<readonly T[] | undefined>(undefined);
   // 読み取り済みの生文字列（キーごと）。効果の再実行に耐えるため ref で保持する。
@@ -46,8 +46,17 @@ export function useSessionStorageResult<T>(
     }
     const raw = consumedRef.current.raw;
     // ハイドレーション不一致を避けるためマウント後に同期する（上記 @remarks 参照）
-    setResults(raw === undefined ? [] : parse(raw));
+    setResults(raw === undefined ? [] : parse(decodeJson(raw)));
   }, [key, parse]);
 
   return results;
+}
+
+/** JSON としてデコードする。壊れていれば undefined（パーサが空配列に落とす） */
+function decodeJson(raw: string): unknown {
+  try {
+    return JSON.parse(raw);
+  } catch {
+    return undefined;
+  }
 }

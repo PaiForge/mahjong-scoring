@@ -27,11 +27,11 @@ interface ProblemListProps {
  * sessionStorage の読み取りが完了するまでは `ProblemListSkeleton` で高さを
  * 確保し、一覧が現れたときに以降のセクションが押し下げられるのを防ぐ。
  *
- * @param parse - sessionStorage の生文字列を型付き配列にパースする関数
+ * @param parse - sessionStorage から読んだ値を型付き配列に選別する関数
  * @param ProblemList - パース済み結果を描画する一覧コンポーネント
  */
 export function createProblemListLoader<TListProps extends ProblemListProps>(
-  parse: (raw: string | undefined) => TListProps["results"],
+  parse: (stored: unknown) => TListProps["results"],
   ProblemList: ComponentType<TListProps>,
 ): (props: ProblemListLoaderProps & Omit<TListProps, "results">) => ReactNode {
   function ProblemListLoader({

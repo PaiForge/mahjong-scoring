@@ -79,6 +79,6 @@ const questionResultSchema: z.ZodType<FuQuestionResult> =
  * 合計符問題結果パース
  */
 export const parseFuQuestionResults: (
-  raw: string | undefined,
+  stored: unknown,
 ) => readonly FuQuestionResult[] =
   createSessionStorageParser(questionResultSchema);

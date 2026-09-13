@@ -180,7 +180,7 @@ const questionResultSchema: z.ZodType<ScoreQuestionResult> = z.object({
  * 問題結果パース
  */
 export const parseQuestionResults: (
-  raw: string | undefined,
+  stored: unknown,
 ) => readonly ScoreQuestionResult[] =
   createSessionStorageParser(questionResultSchema);
 

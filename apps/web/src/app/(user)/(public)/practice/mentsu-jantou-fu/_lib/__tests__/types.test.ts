@@ -47,14 +47,14 @@ const validResult = {
 
 describe("parseMentsuJantouFuResults", () => {
   it("有効な JSON 文字列をパースできる", () => {
-    const results = parseMentsuJantouFuResults(JSON.stringify([validResult]));
+    const results = parseMentsuJantouFuResults([validResult]);
     expect(results).toHaveLength(1);
     expect(results[0]).toEqual(validResult);
   });
 
   it("items の形が違う要素は除外する", () => {
     const broken = { ...validResult, items: [{ tiles: "11m" }] };
-    expect(parseMentsuJantouFuResults(JSON.stringify([broken]))).toEqual([]);
+    expect(parseMentsuJantouFuResults([broken])).toEqual([]);
   });
 
   it("面子種別として知らない値を持つ要素は除外する", () => {
@@ -62,7 +62,7 @@ describe("parseMentsuJantouFuResults", () => {
       ...validResult,
       items: [{ ...validResult.items[0], type: "Tatsu" }],
     };
-    expect(parseMentsuJantouFuResults(JSON.stringify([broken]))).toEqual([]);
+    expect(parseMentsuJantouFuResults([broken])).toEqual([]);
   });
 
   it("furo の形が違う要素は除外する", () => {
@@ -70,7 +70,7 @@ describe("parseMentsuJantouFuResults", () => {
       ...validResult,
       items: [{ ...validResult.items[3], furo: { type: "Chi" } }],
     };
-    expect(parseMentsuJantouFuResults(JSON.stringify([broken]))).toEqual([]);
+    expect(parseMentsuJantouFuResults([broken])).toEqual([]);
   });
 });
 
@@ -91,9 +91,7 @@ describe("toQuestionResult", () => {
 
     expect(result.outcome).toBe("correct");
     expect(result.items).toHaveLength(question.items.length);
-    expect(parseMentsuJantouFuResults(JSON.stringify([result]))).toHaveLength(
-      1,
-    );
+    expect(parseMentsuJantouFuResults([result])).toHaveLength(1);
   });
 
   it("1 行でも外すと不正解として記録する", () => {
@@ -141,8 +139,6 @@ describe("toQuestionResult", () => {
     expect(result.items.map((item) => item.correctFu)).toEqual(
       question.items.map((item) => item.fu),
     );
-    expect(parseMentsuJantouFuResults(JSON.stringify([result]))).toHaveLength(
-      1,
-    );
+    expect(parseMentsuJantouFuResults([result])).toHaveLength(1);
   });
 });

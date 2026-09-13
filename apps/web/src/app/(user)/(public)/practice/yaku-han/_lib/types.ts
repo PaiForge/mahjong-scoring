@@ -72,6 +72,6 @@ const questionResultSchema: z.ZodType<YakuHanQuestionResult> = z.object({
  * 役翻数問題結果パース
  */
 export const parseYakuHanResults: (
-  raw: string | undefined,
+  stored: unknown,
 ) => readonly YakuHanQuestionResult[] =
   createSessionStorageParser(questionResultSchema);

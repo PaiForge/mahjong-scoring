@@ -30,19 +30,19 @@ const validResult = {
 
 describe("parseYakuResults", () => {
   it("有効な JSON 文字列をパースできる", () => {
-    const results = parseYakuResults(JSON.stringify([validResult]));
+    const results = parseYakuResults([validResult]);
     expect(results).toHaveLength(1);
     expect(results[0]).toEqual(validResult);
   });
 
   it("役名の配列でない要素は除外する", () => {
     const broken = { ...validResult, correctYakuNames: [1, 2] };
-    expect(parseYakuResults(JSON.stringify([broken]))).toEqual([]);
+    expect(parseYakuResults([broken])).toEqual([]);
   });
 
   it("ドラ表示牌が配列でない要素は除外する", () => {
     const broken = { ...validResult, doraMarkers: "3p" };
-    expect(parseYakuResults(JSON.stringify([broken]))).toEqual([]);
+    expect(parseYakuResults([broken])).toEqual([]);
   });
 });
 
@@ -70,7 +70,7 @@ describe("toQuestionResult", () => {
     expect(result.outcome).toBe("correct");
     expect(result.selectedYakuNames).toEqual(selected);
     expect(result.correctYakuNames).toEqual([...question.correctYakuNames]);
-    expect(parseYakuResults(JSON.stringify([result]))).toHaveLength(1);
+    expect(parseYakuResults([result])).toHaveLength(1);
   });
 
   it("保存形式から出題内容（手牌・和了状況・ドラ）を復元できる", () => {
@@ -130,6 +130,6 @@ describe("toQuestionResult", () => {
     expect(result.outcome).toBe("timeUp");
     expect(result.selectedYakuNames).toBeUndefined();
     expect(result.correctYakuNames).toEqual([...question.correctYakuNames]);
-    expect(parseYakuResults(JSON.stringify([result]))).toHaveLength(1);
+    expect(parseYakuResults([result])).toHaveLength(1);
   });
 });
