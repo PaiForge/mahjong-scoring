@@ -1805,7 +1805,8 @@
     "other": "その他",
     "terms": "利用規約",
     "privacy": "プライバシーポリシー",
-    "copyright": "© 2026 PaiForge"
+    "copyright": "© 2026 PaiForge",
+    "contact": "お問い合わせ"
   },
   "terms": {
     "pageTitle": "利用規約",
@@ -1814,6 +1815,46 @@
   "privacy": {
     "pageTitle": "プライバシーポリシー",
     "comingSoon": "準備中です。"
+  },
+  "contact": {
+    "pageTitle": "お問い合わせ",
+    "description": "ご質問やご意見、不具合の報告などがありましたら、こちらからお送りください。",
+    "form": {
+      "name": "お名前",
+      "email": "メールアドレス",
+      "emailPlaceholder": "mail@example.com",
+      "subject": "件名",
+      "message": "お問い合わせ内容",
+      "messageCounter": "{count} / {max} 文字",
+      "submit": "確認画面へ",
+      "backToForm": "入力画面に戻る",
+      "send": "送信する",
+      "sending": "送信中..."
+    },
+    "confirm": {
+      "title": "送信内容の確認",
+      "description": "以下の内容で送信します。よろしければ「送信する」を押してください。"
+    },
+    "success": {
+      "title": "送信完了",
+      "message": "お問い合わせありがとうございます。内容を確認のうえ、ご記入いただいたメールアドレスへ返信いたします。",
+      "backToHome": "ホームに戻る"
+    },
+    "errors": {
+      "nameRequired": "お名前を入力してください",
+      "nameMaxLength": "お名前は100文字以内で入力してください",
+      "nameInvalid": "お名前に改行を含めることはできません",
+      "emailInvalid": "有効なメールアドレスを入力してください",
+      "subjectRequired": "件名を入力してください",
+      "subjectMaxLength": "件名は200文字以内で入力してください",
+      "subjectInvalid": "件名に改行を含めることはできません",
+      "messageMinLength": "お問い合わせ内容は10文字以上で入力してください",
+      "messageMaxLength": "お問い合わせ内容は5000文字以内で入力してください",
+      "invalidInput": "入力内容に誤りがあります。入力画面に戻ってご確認ください。",
+      "rateLimited": "リクエストが多すぎます。しばらくしてからもう一度お試しください。",
+      "sendFailed": "送信に失敗しました。しばらく経ってから再度お試しください。",
+      "unknown": "送信に失敗しました。しばらく経ってから再度お試しください。"
+    }
   },
   "auth": {
     "signInPageTitle": "ログイン",

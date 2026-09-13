@@ -33,6 +33,7 @@ export const STATIC_SITEMAP_ROUTE_DEFS = [
   { url: "/announcements", changeFrequency: "daily", priority: 0.5 },
   { url: "/terms", changeFrequency: "yearly", priority: 0.2 },
   { url: "/privacy", changeFrequency: "yearly", priority: 0.2 },
+  { url: "/contact", changeFrequency: "yearly", priority: 0.3 },
 ] as const;
 
 /** 教本章ページのパス一覧（`/learn/<slug>`） */
