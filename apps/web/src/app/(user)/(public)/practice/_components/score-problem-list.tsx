@@ -58,7 +58,7 @@ export function ScoreProblemList({
     <ProblemListAccordion
       results={results}
       translationNamespace={translationNamespace}
-      isCorrect={(r) => r.isCorrect}
+      outcome={(r) => r.outcome}
       renderSummary={(result) => {
         // \u6E80\u8CAB\u4EE5\u4E0A\u306E\u554F\u984C\u306F\u7B26\u3092\u6301\u305F\u306A\u3044\u305F\u3081\u3001\u7B26\u306E\u8868\u793A\u3092\u7701\u304F\u3002
         const summary = [
@@ -92,9 +92,13 @@ export function ScoreProblemList({
 
             <AnswerComparison
               translationNamespace={translationNamespace}
-              isCorrect={result.isCorrect}
+              outcome={result.outcome}
               correct={renderCorrectAnswer(result.correctAnswer, result)}
-              user={formatAnswer(result.userAnswer, t)}
+              user={
+                result.userAnswer === undefined
+                  ? undefined
+                  : formatAnswer(result.userAnswer, t)
+              }
             />
           </div>
         );

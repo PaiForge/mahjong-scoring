@@ -16,7 +16,7 @@ export const HanCountPlayView = createChallengePlayView<
   maxWidth: "max-w-2xl",
   useBoardState: () => useGeneratedScoreQuestion(),
   renderBoard: (
-    { showFeedback, isCountingDown, onAnswer, recordResult },
+    { showFeedback, isCountingDown, onAnswer, recordResult, presentQuestion },
     _props,
     questionState,
   ) => (
@@ -26,6 +26,7 @@ export const HanCountPlayView = createChallengePlayView<
       isCountingDown={isCountingDown}
       onAnswer={onAnswer}
       onRecordResult={recordResult}
+      onPresentQuestion={presentQuestion}
     />
   ),
 });

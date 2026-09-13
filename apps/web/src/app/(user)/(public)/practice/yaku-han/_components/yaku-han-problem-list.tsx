@@ -30,21 +30,25 @@ export function YakuHanProblemList({ results }: YakuHanProblemListProps) {
     <ProblemListAccordion
       results={results}
       translationNamespace="yakuHanChallenge"
-      isCorrect={(r) => r.isCorrect}
+      outcome={(r) => r.outcome}
       renderSummary={(r) => `${r.yakuName}${stateLabel(r)}`}
       // 役名と門前 / 鳴きはヘッダーのサマリーが出しているため、
       // 展開後は正解とユーザー回答の対比だけを見せる
-      renderDetail={(result) => (
+      renderDetail={({ correctHan, userHan, outcome }) => (
         <AnswerComparison
           translationNamespace="yakuHanChallenge"
-          isCorrect={result.isCorrect}
-          correct={hanLabel(result.correctHan)}
-          user={hanLabel(result.userHan)}
-          difference={{
-            correct: result.correctHan,
-            user: result.userHan,
-            format: (value) => t("hanOption", { count: value }),
-          }}
+          outcome={outcome}
+          correct={hanLabel(correctHan)}
+          user={userHan === undefined ? undefined : hanLabel(userHan)}
+          difference={
+            userHan === undefined
+              ? undefined
+              : {
+                  correct: correctHan,
+                  user: userHan,
+                  format: (value) => t("hanOption", { count: value }),
+                }
+          }
         />
       )}
     />

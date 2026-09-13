@@ -14,6 +14,7 @@ import {
   questionTilesSnapshotSchema,
   fuAnswerResultSchema,
   fuDetailSchema,
+  toAnswerOutcome,
   type FuAnswerResult,
 } from "./result-schemas";
 
@@ -39,10 +40,12 @@ export interface FuQuestionResult
 /**
  * 出題と回答から保存用の結果データを組み立てる
  * 合計符問題結果生成
+ *
+ * @param userFu - ユーザーが選んだ符。時間切れで答えられなかった問題は undefined
  */
 export function toFuQuestionResult(
   question: TotalFuQuestion,
-  userFu: number,
+  userFu: number | undefined,
 ): FuQuestionResult {
   const { context } = question;
   return {
@@ -53,7 +56,9 @@ export function toFuQuestionResult(
     isTsumo: context.isTsumo,
     correctFu: question.answer,
     userFu,
-    isCorrect: userFu === question.answer,
+    outcome: toAnswerOutcome(
+      userFu === undefined ? undefined : userFu === question.answer,
+    ),
     fuDetails: question.fuDetails,
   };
 }

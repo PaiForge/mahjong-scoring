@@ -8,12 +8,19 @@ import { MentsuFuBoard } from "./mentsu-fu-board";
 export const MentsuFuPlayView = createChallengePlayView<MentsuFuQuestionResult>(
   {
     slug: PRACTICE_SLUG.mentsuFu,
-    renderBoard: ({ showFeedback, isCountingDown, onAnswer, recordResult }) => (
+    renderBoard: ({
+      showFeedback,
+      isCountingDown,
+      onAnswer,
+      recordResult,
+      presentQuestion,
+    }) => (
       <MentsuFuBoard
         showFeedback={showFeedback}
         isCountingDown={isCountingDown}
         onAnswer={onAnswer}
         onRecordResult={recordResult}
+        onPresentQuestion={presentQuestion}
       />
     ),
   },

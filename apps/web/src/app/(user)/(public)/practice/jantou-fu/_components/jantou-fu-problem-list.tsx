@@ -36,7 +36,7 @@ export function JantouFuProblemList({ results }: JantouFuProblemListProps) {
     <ProblemListAccordion
       results={results}
       translationNamespace="jantouFu"
-      isCorrect={(r) => r.isCorrect}
+      outcome={(r) => r.outcome}
       renderSummary={(result) => {
         const bakaze = parseKazehai(result.bakaze);
         const jikaze = parseKazehai(result.jikaze);
@@ -48,9 +48,13 @@ export function JantouFuProblemList({ results }: JantouFuProblemListProps) {
         // ので、「答え合わせ」の見出しも「過不足」の行も足さない
         <AnswerComparison
           translationNamespace="jantouFu"
-          isCorrect={result.isCorrect}
+          outcome={result.outcome}
           correct={haiWithFu(parseHais(result.correctHai)[0], result.correctFu)}
-          user={haiWithFu(parseHais(result.selectedHai)[0], result.selectedFu)}
+          user={
+            result.selectedHai === undefined || result.selectedFu === undefined
+              ? undefined
+              : haiWithFu(parseHais(result.selectedHai)[0], result.selectedFu)
+          }
           showTitle={false}
         />
       )}

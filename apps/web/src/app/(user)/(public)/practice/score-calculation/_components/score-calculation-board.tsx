@@ -38,6 +38,7 @@ export function ScoreCalculationBoard({
   isTraining = false,
   onAnswer,
   onRecordResult,
+  onPresentQuestion,
 }: ScoreCalculationBoardProps) {
   const t = useTranslations("scoreCalculationChallenge");
   const renfonpaiAs4Fu = useRuleSettingsStore((s) => s.renfonpaiAs4Fu);
@@ -60,6 +61,7 @@ export function ScoreCalculationBoard({
     showFeedback,
     onAnswer,
     onRecordResult,
+    onPresentQuestion,
   });
   // トレーニングでは開示時だけでなく回答後の停止中も正解を出す（答え合わせ用）。
   // 正解のときは出さない — 選んだ値がそのまま正解で、select の色が正誤を示している

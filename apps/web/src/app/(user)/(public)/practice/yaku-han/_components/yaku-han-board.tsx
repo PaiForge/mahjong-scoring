@@ -9,15 +9,23 @@ import {
 import type { YakuHanQuestion, YakuHanRange } from "@mahjong-scoring/core";
 import { QuestionGeneratingPlaceholder } from "../../_components/question-generating-placeholder";
 import { useClientGeneratedQuestion } from "../../_hooks/use-client-generated-question";
+import { usePresentQuestion } from "../../_hooks/use-present-question";
 import { useRegisterAdvance } from "../../_hooks/use-training-mode";
+import { AnswerOutcome } from "../../_lib/result-schemas";
 import { YakuHanPrompt } from "./yaku-han-prompt";
 import { YakuHanAnswerForm } from "./yaku-han-answer-form";
+import { toQuestionResult } from "../_lib/types";
 import type { YakuHanQuestionResult } from "../_lib/types";
 import type { RecordingPracticeBoardProps } from "../../_lib/practice-board-props";
 
 interface YakuHanBoardProps extends RecordingPracticeBoardProps<YakuHanQuestionResult> {
   /** 出題範囲（役のフィルタ）。未指定時は全役から出題する */
   readonly range?: YakuHanRange;
+}
+
+/** 出題中の問題を回答なしの結果に組む（時間切れの届け出用） */
+function toUnansweredResult(question: YakuHanQuestion): YakuHanQuestionResult {
+  return toQuestionResult(question, undefined);
 }
 
 /**
@@ -31,6 +39,7 @@ export function YakuHanBoard({
   range = DEFAULT_YAKU_HAN_RANGE,
   onAnswer,
   onRecordResult,
+  onPresentQuestion,
 }: YakuHanBoardProps) {
   const t = useTranslations("yakuHanChallenge");
   const generateQuestion = useCallback(
@@ -46,22 +55,15 @@ export function YakuHanBoard({
   }, [generateQuestion, setQuestion]);
 
   useRegisterAdvance(question === undefined ? undefined : advanceQuestion);
+  usePresentQuestion(question, toUnansweredResult, onPresentQuestion);
 
   const handleSubmit = useCallback(
     (userHan: number) => {
       if (showFeedback || !question) return;
 
-      const correctHan = question.correctHan;
-      const isCorrect = userHan === correctHan;
-
-      onRecordResult?.({
-        yakuName: question.yakuName,
-        isMenzen: question.isMenzen,
-        correctHan,
-        userHan,
-        isCorrect,
-      });
-      onAnswer(isCorrect, advanceQuestion);
+      const result = toQuestionResult(question, userHan);
+      onRecordResult?.(result);
+      onAnswer(result.outcome === AnswerOutcome.Correct, advanceQuestion);
     },
     [showFeedback, question, onAnswer, advanceQuestion, onRecordResult],
   );

@@ -42,7 +42,7 @@ const validResult = {
       userFu: 0,
     },
   ],
-  isCorrect: false,
+  outcome: "incorrect",
 };
 
 describe("parseMentsuJantouFuResults", () => {
@@ -89,7 +89,7 @@ describe("toQuestionResult", () => {
     const question = generate();
     const result = toQuestionResult(question, perfectAnswers(question));
 
-    expect(result.isCorrect).toBe(true);
+    expect(result.outcome).toBe("correct");
     expect(result.items).toHaveLength(question.items.length);
     expect(parseMentsuJantouFuResults(JSON.stringify([result]))).toHaveLength(
       1,
@@ -103,7 +103,7 @@ describe("toQuestionResult", () => {
 
     const result = toQuestionResult(question, answers);
 
-    expect(result.isCorrect).toBe(false);
+    expect(result.outcome).toBe("incorrect");
     expect(result.items[0].userFu).toBe(answers[0]);
     expect(result.items[0].correctFu).toBe(question.items[0].fu);
   });
@@ -130,5 +130,19 @@ describe("toQuestionResult", () => {
       expect(saved.isOpen).toBe(item.isOpen);
       expect(saved.furo).toEqual(item.originalMentsu?.furo);
     });
+  });
+
+  it("回答なし（時間切れ）は全行が回答なしで outcome=timeUp になる", () => {
+    const question = generate();
+    const result = toQuestionResult(question, undefined);
+
+    expect(result.outcome).toBe("timeUp");
+    expect(result.items.every((item) => item.userFu === undefined)).toBe(true);
+    expect(result.items.map((item) => item.correctFu)).toEqual(
+      question.items.map((item) => item.fu),
+    );
+    expect(parseMentsuJantouFuResults(JSON.stringify([result]))).toHaveLength(
+      1,
+    );
   });
 });

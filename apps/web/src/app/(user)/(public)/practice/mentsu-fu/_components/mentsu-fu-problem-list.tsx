@@ -27,10 +27,11 @@ export function MentsuFuProblemList({ results }: MentsuFuProblemListProps) {
     <ProblemListAccordion
       results={results}
       translationNamespace="mentsuFu"
-      isCorrect={(r) => r.isCorrect}
+      outcome={(r) => r.outcome}
       renderSummary={(result) => fuLabel(result.correctFu)}
       renderDetail={(result) => {
         const mentsu = restoreMentsu(result.mentsu);
+        const { userFu } = result;
 
         return (
           <div className="space-y-3">
@@ -42,14 +43,14 @@ export function MentsuFuProblemList({ results }: MentsuFuProblemListProps) {
 
             <AnswerComparison
               translationNamespace="mentsuFu"
-              isCorrect={result.isCorrect}
+              outcome={result.outcome}
               correct={fuLabel(result.correctFu)}
-              user={fuLabel(result.userFu)}
-              difference={{
-                correct: result.correctFu,
-                user: result.userFu,
-                format: fuLabel,
-              }}
+              user={userFu === undefined ? undefined : fuLabel(userFu)}
+              difference={
+                userFu === undefined
+                  ? undefined
+                  : { correct: result.correctFu, user: userFu, format: fuLabel }
+              }
             />
           </div>
         );

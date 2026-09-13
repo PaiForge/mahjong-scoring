@@ -14,7 +14,7 @@ describe("YakuAnswerComparison", () => {
       <YakuAnswerComparison
         correctYakuNames={["混一色", "立直"]}
         selectedYakuNames={["混一色"]}
-        isCorrect={false}
+        outcome="incorrect"
       />,
     );
 
@@ -31,7 +31,7 @@ describe("YakuAnswerComparison", () => {
       <YakuAnswerComparison
         correctYakuNames={["立直"]}
         selectedYakuNames={[]}
-        isCorrect={false}
+        outcome="incorrect"
       />,
     );
 

@@ -19,9 +19,12 @@ import { z } from "zod";
 
 import { createSessionStorageParser } from "../../_lib/create-session-storage-parser";
 import {
+  answerOutcomeSchema,
   questionTilesSnapshotSchema,
   completedMentsuTypeSchema,
   furoSchema,
+  toAnswerOutcome,
+  type AnswerOutcome,
 } from "../../_lib/result-schemas";
 
 /** sessionStorage に保存する際のキー */
@@ -48,8 +51,8 @@ export interface MentsuJantouFuItemResult {
   readonly furo?: Furo;
   /** 正解の符 */
   readonly correctFu: number;
-  /** ユーザーが選んだ符 */
-  readonly userFu: number;
+  /** ユーザーが選んだ符。時間切れで答えられなかった問題では持たない */
+  readonly userFu?: number;
 }
 
 /**
@@ -64,23 +67,25 @@ export interface MentsuJantouFuQuestionResult extends QuestionTilesSnapshot {
   readonly isTsumo: boolean;
   /** 手牌の表示順に並んだ回答行 */
   readonly items: readonly MentsuJantouFuItemResult[];
-  /** 全行の符を当てられたか（1 行でも外せば不正解） */
-  readonly isCorrect: boolean;
+  /** 全行の符を当てられたか（1 行でも外せば不正解）。時間切れなら全行が回答なし */
+  readonly outcome: AnswerOutcome;
 }
 
 /**
  * 出題と回答から保存用の結果データを組み立てる
  * 面子雀頭符問題結果生成
  *
- * @param userFuList - 回答行と同じ並びの、ユーザーが選んだ符
+ * @param userFuList - 回答行と同じ並びの、ユーザーが選んだ符。時間切れで
+ *   答えられなかった問題は undefined（全行が埋まった時点で送信するので、
+ *   一部の行だけ答えた状態は無い）
  */
 export function toQuestionResult(
   question: MentsuJantouFuQuestion,
-  userFuList: readonly number[],
+  userFuList: readonly number[] | undefined,
 ): MentsuJantouFuQuestionResult {
   const { context } = question;
   const items = question.items.map((item, index) =>
-    toItemResult(item, userFuList[index]),
+    toItemResult(item, userFuList?.[index]),
   );
 
   return {
@@ -90,14 +95,18 @@ export function toQuestionResult(
     jikaze: kazeIdToMspz(context.jikaze),
     isTsumo: context.isTsumo,
     items,
-    isCorrect: items.every((item) => item.userFu === item.correctFu),
+    outcome: toAnswerOutcome(
+      userFuList === undefined
+        ? undefined
+        : items.every((item) => item.userFu === item.correctFu),
+    ),
   };
 }
 
 /** 回答行 1 つを保存形式に変換する */
 function toItemResult(
   item: MentsuJantouFuItem,
-  userFu: number,
+  userFu: number | undefined,
 ): MentsuJantouFuItemResult {
   const furo = item.originalMentsu?.furo;
   return {
@@ -128,7 +137,7 @@ const itemResultSchema: z.ZodType<MentsuJantouFuItemResult> = z.object({
   isOpen: z.boolean(),
   furo: furoSchema.optional(),
   correctFu: z.number(),
-  userFu: z.number(),
+  userFu: z.number().optional(),
 });
 
 /**
@@ -139,7 +148,7 @@ const questionResultSchema: z.ZodType<MentsuJantouFuQuestionResult> = z.object({
   ...questionTilesSnapshotSchema.shape,
   isTsumo: z.boolean(),
   items: z.array(itemResultSchema),
-  isCorrect: z.boolean(),
+  outcome: answerOutcomeSchema,
 });
 
 /**

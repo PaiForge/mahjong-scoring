@@ -20,7 +20,7 @@ const validResult = {
   isTsumo: true,
   correctFu: 30,
   userFu: 20,
-  isCorrect: false,
+  outcome: "incorrect",
   fuDetails: [
     { reason: "副底", fu: 20 },
     { reason: "ツモ", fu: 2 },
@@ -71,7 +71,7 @@ describe("toFuQuestionResult", () => {
     const question = generate();
     const result = toFuQuestionResult(question, question.answer);
 
-    expect(result.isCorrect).toBe(true);
+    expect(result.outcome).toBe("correct");
     expect(result.correctFu).toBe(question.answer);
 
     const parsed = parseFuQuestionResults(JSON.stringify([result]));
@@ -91,7 +91,18 @@ describe("toFuQuestionResult", () => {
     const wrongFu = question.answer === 20 ? 110 : 20;
     const result = toFuQuestionResult(question, wrongFu);
 
-    expect(result.isCorrect).toBe(false);
+    expect(result.outcome).toBe("incorrect");
     expect(result.userFu).toBe(wrongFu);
+  });
+
+  it("回答なし（時間切れ）は outcome=timeUp で記録し、パースを通過する", () => {
+    // 時間切れのチャレンジは最後の 1 問を答えられないまま結果に残す
+    const question = generate();
+    const result = toFuQuestionResult(question, undefined);
+
+    expect(result.outcome).toBe("timeUp");
+    expect(result.userFu).toBeUndefined();
+    expect(result.correctFu).toBe(question.answer);
+    expect(parseFuQuestionResults(JSON.stringify([result]))).toHaveLength(1);
   });
 });

@@ -1,6 +1,16 @@
-import { questionTilesSnapshotSchema } from "../../_lib/result-schemas";
+import {
+  answerOutcomeSchema,
+  questionTilesSnapshotSchema,
+  toAnswerOutcome,
+  type AnswerOutcome,
+} from "../../_lib/result-schemas";
 import type { QuestionTilesSnapshot } from "../../_lib/parse-question-tiles";
-import { haiIdToMspz, kazeIdToMspz, tehaiToMspz } from "@mahjong-scoring/core";
+import {
+  haiIdToMspz,
+  judgeYakuAnswer,
+  kazeIdToMspz,
+  tehaiToMspz,
+} from "@mahjong-scoring/core";
 import type { YakuQuestion } from "@mahjong-scoring/core";
 
 import {
@@ -52,20 +62,22 @@ export interface YakuQuestionResult extends QuestionTilesSnapshot {
   readonly uraDoraMarkers?: readonly string[];
   /** 成立していた役 */
   readonly correctYakuNames: readonly string[];
-  /** ユーザーが選んだ役 */
-  readonly selectedYakuNames: readonly string[];
-  /** 過不足なく選べたか */
-  readonly isCorrect: boolean;
+  /** ユーザーが選んだ役。時間切れで答えられなかった問題では持たない */
+  readonly selectedYakuNames?: readonly string[];
+  /** 過不足なく選べたか。時間切れなら判定しない */
+  readonly outcome: AnswerOutcome;
 }
 
 /**
  * 出題と回答から保存用の結果データを組み立てる
  * 役選択問題結果生成
+ *
+ * @param selectedYakuNames - ユーザーが選んだ役。時間切れで答えられなかった
+ *   問題は undefined
  */
 export function toQuestionResult(
   question: YakuQuestion,
-  selectedYakuNames: readonly string[],
-  isCorrect: boolean,
+  selectedYakuNames: readonly string[] | undefined,
 ): YakuQuestionResult {
   const { context } = question;
   return {
@@ -78,8 +90,11 @@ export function toQuestionResult(
     doraMarkers: context.doraMarkers.map(haiIdToMspz),
     uraDoraMarkers: context.uraDoraMarkers?.map(haiIdToMspz),
     correctYakuNames: [...question.correctYakuNames],
-    selectedYakuNames: [...selectedYakuNames],
-    isCorrect,
+    selectedYakuNames: selectedYakuNames && [...selectedYakuNames],
+    outcome: toAnswerOutcome(
+      selectedYakuNames &&
+        judgeYakuAnswer(question.correctYakuNames, selectedYakuNames),
+    ),
   };
 }
 
@@ -94,8 +109,8 @@ const questionResultSchema: z.ZodType<YakuQuestionResult> = z.object({
   doraMarkers: z.array(z.string()),
   uraDoraMarkers: z.array(z.string()).optional(),
   correctYakuNames: z.array(z.string()),
-  selectedYakuNames: z.array(z.string()),
-  isCorrect: z.boolean(),
+  selectedYakuNames: z.array(z.string()).optional(),
+  outcome: answerOutcomeSchema,
 });
 
 /**

@@ -25,6 +25,7 @@ import {
   buildResultBreadcrumb,
   resultBreadcrumbParent,
 } from "../_lib/result-breadcrumb";
+import { listedProblemCount } from "../_lib/finish-reason";
 import { practiceHref } from "../_lib/practice-catalog";
 import { PRACTICE_SCROLL_ANCHOR_ID } from "../_lib/scroll-anchor";
 import { readVariantFromLocation } from "../_lib/variant-param";
@@ -232,10 +233,14 @@ export function ChallengeShell({
           resultLabel: tc("resultSuffix"),
           introHref,
         })}
-        // 結果ページの一覧は URL の total（= 終了時の totalCount）分だけ並ぶ。
+        // 結果ページの一覧は答えた問題（終了時の totalCount）に、時間切れなら
+        // 答えられなかった最後の 1 問を足した数だけ並ぶ
         problemCount={
           hasProblemList
-            ? (gameSession.finalResult?.totalCount ?? gameSession.totalCount)
+            ? listedProblemCount(
+                gameSession.finalResult?.totalCount ?? gameSession.totalCount,
+                gameSession.finalResult?.reason,
+              )
             : 0
         }
         hasSetup={hasSetup}

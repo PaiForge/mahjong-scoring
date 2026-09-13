@@ -1,9 +1,12 @@
-import { HaiKind } from "@mahjong-scoring/core";
+import { HaiKind, generateValidScoreQuestion } from "@mahjong-scoring/core";
 import { describe, expect, it } from "vitest";
+
+import { generateOrThrow } from "@/test/generate-or-throw";
 
 import { buildDemoScoreQuestion } from "../demo-score-question";
 import {
   parseQuestionResults,
+  toScoreQuestionResult,
   toScoreQuestionSnapshot,
 } from "../score-question-result";
 
@@ -15,7 +18,7 @@ describe("parseQuestionResults", () => {
     fu: 40,
     correctAnswer: { type: "ron", score: 7700 },
     userAnswer: { type: "ron", score: 7700 },
-    isCorrect: true,
+    outcome: "correct",
   };
 
   it("有効な JSON 文字列をパースできる", () => {
@@ -33,7 +36,7 @@ describe("parseQuestionResults", () => {
       fu: 30,
       correctAnswer: { type: "koTsumo", fromKo: 1000, fromOya: 2000 },
       userAnswer: { type: "koTsumo", fromKo: 1000, fromOya: 2000 },
-      isCorrect: true,
+      outcome: "correct",
     };
     const raw = JSON.stringify([validResult, koTsumoResult]);
     const results = parseQuestionResults(raw);
@@ -48,7 +51,7 @@ describe("parseQuestionResults", () => {
       fu: 30,
       correctAnswer: { type: "oyaTsumo", all: 4000 },
       userAnswer: { type: "oyaTsumo", all: 4000 },
-      isCorrect: true,
+      outcome: "correct",
     };
     const raw = JSON.stringify([oyaTsumoResult]);
     const results = parseQuestionResults(raw);
@@ -140,9 +143,9 @@ describe("parseQuestionResults", () => {
     expect(results).toEqual([]);
   });
 
-  it("isCorrect が欠落した要素はフィルタされる", () => {
+  it("outcome が欠落した要素はフィルタされる", () => {
     const invalid = { ...validResult };
-    Reflect.deleteProperty(invalid, "isCorrect");
+    Reflect.deleteProperty(invalid, "outcome");
     const raw = JSON.stringify([invalid]);
     const results = parseQuestionResults(raw);
     expect(results).toEqual([]);
@@ -156,12 +159,11 @@ describe("parseQuestionResults", () => {
     expect(results).toEqual([]);
   });
 
-  it("userAnswer が欠落した要素はフィルタされる", () => {
-    const invalid = { ...validResult };
-    Reflect.deleteProperty(invalid, "userAnswer");
-    const raw = JSON.stringify([invalid]);
-    const results = parseQuestionResults(raw);
-    expect(results).toEqual([]);
+  it("userAnswer が欠落した要素は時間切れ（回答なし）として許容される", () => {
+    const timeUp = { ...validResult, outcome: "timeUp" };
+    Reflect.deleteProperty(timeUp, "userAnswer");
+    const results = parseQuestionResults(JSON.stringify([timeUp]));
+    expect(results).toHaveLength(1);
   });
 
   it("correctAnswer の type が不正な要素はフィルタされる", () => {
@@ -338,12 +340,42 @@ describe("toScoreQuestionSnapshot", () => {
       han: 5,
       correctAnswer: { type: "koTsumo", fromKo: 2000, fromOya: 4000 },
       userAnswer: { type: "koTsumo", fromKo: 2000, fromOya: 4000 },
-      isCorrect: true,
+      outcome: "correct",
       question: toScoreQuestionSnapshot(question),
     };
     // JSON.stringify が undefined の任意項目を落とした形が実際の保存形
     const results = parseQuestionResults(JSON.stringify([result]));
     expect(results).toHaveLength(1);
     expect(results[0]?.question?.tehai).toBe("234567m345p55678s");
+  });
+});
+
+describe("toScoreQuestionResult", () => {
+  it("正解の支払いを答えれば正解として記録し、出題を残す", () => {
+    const question = generateOrThrow(() => generateValidScoreQuestion());
+    const correct = toScoreQuestionResult(question, undefined).correctAnswer;
+    const result = toScoreQuestionResult(question, correct);
+
+    expect(result.outcome).toBe("correct");
+    expect(result.userAnswer).toEqual(correct);
+    expect(result.han).toBe(question.answer.han);
+    expect(result.question?.tehai).toBeDefined();
+    expect(parseQuestionResults(JSON.stringify([result]))).toHaveLength(1);
+  });
+
+  it("違う支払いを答えれば不正解として記録する", () => {
+    const question = generateOrThrow(() => generateValidScoreQuestion());
+    const result = toScoreQuestionResult(question, { type: "ron", score: 1 });
+
+    expect(result.outcome).toBe("incorrect");
+  });
+
+  it("回答なし（時間切れ）は outcome=timeUp で記録し、パースを通過する", () => {
+    const question = generateOrThrow(() => generateValidScoreQuestion());
+    const result = toScoreQuestionResult(question, undefined);
+
+    expect(result.outcome).toBe("timeUp");
+    expect(result.userAnswer).toBeUndefined();
+    expect(parseQuestionResults(JSON.stringify([result]))).toHaveLength(1);
   });
 });

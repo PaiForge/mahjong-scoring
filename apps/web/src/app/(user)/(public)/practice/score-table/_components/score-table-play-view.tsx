@@ -39,6 +39,7 @@ function ScoreTableBoardFromQuery({
       lastAnswerCorrect={args.lastAnswerCorrect}
       onAnswer={args.onAnswer}
       onRecordResult={args.recordResult}
+      onPresentQuestion={args.presentQuestion}
     />
   );
 }

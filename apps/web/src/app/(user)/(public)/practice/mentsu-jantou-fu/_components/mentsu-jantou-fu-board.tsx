@@ -11,10 +11,12 @@ import { useRuleSettingsStore } from "@/app/_hooks/use-rule-settings-store";
 import { QuestionGeneratingPlaceholder } from "../../_components/question-generating-placeholder";
 import { QuestionPrompt } from "../../_components/question-prompt";
 import { useClientGeneratedQuestion } from "../../_hooks/use-client-generated-question";
+import { usePresentQuestion } from "../../_hooks/use-present-question";
 import {
   useRegisterAdvance,
   useTrainingMode,
 } from "../../_hooks/use-training-mode";
+import { AnswerOutcome } from "../../_lib/result-schemas";
 import { TehaiDisplay } from "../../_components/tehai-display";
 import { findAgariHighlight } from "../_lib/find-agari-highlight";
 import { toQuestionResult } from "../_lib/types";
@@ -32,6 +34,13 @@ function generateQuestion(
 
 type MentsuJantouFuBoardProps =
   RecordingPracticeBoardProps<MentsuJantouFuQuestionResult>;
+
+/** 出題中の問題を回答なしの結果に組む（時間切れの届け出用） */
+function toUnansweredResult(
+  question: MentsuJantouFuQuestion,
+): MentsuJantouFuQuestionResult {
+  return toQuestionResult(question, undefined);
+}
 
 /**
  * 面子と雀頭の符の出題盤面（手牌の提示と要素ごとの入力・一括判定）
@@ -59,6 +68,7 @@ export function MentsuJantouFuBoard({
   isTraining = false,
   onAnswer,
   onRecordResult,
+  onPresentQuestion,
 }: MentsuJantouFuBoardProps) {
   const t = useTranslations("mentsuJantouFu");
   const renfonpaiAs4Fu = useRuleSettingsStore((s) => s.renfonpaiAs4Fu);
@@ -77,16 +87,15 @@ export function MentsuJantouFuBoard({
   }, [generate, setQuestion]);
 
   useRegisterAdvance(question === undefined ? undefined : advanceQuestion);
+  usePresentQuestion(question, toUnansweredResult, onPresentQuestion);
   const { isRevealed } = useTrainingMode();
 
   const submit = useCallback(
     (answered: MentsuJantouFuQuestion, filled: readonly string[]) => {
       const userFuList = answered.items.map((_, idx) => parseInt(filled[idx]));
-      const allCorrect = answered.items.every(
-        (item, idx) => userFuList[idx] === item.fu,
-      );
-      onRecordResult?.(toQuestionResult(answered, userFuList));
-      onAnswer(allCorrect, advanceQuestion);
+      const result = toQuestionResult(answered, userFuList);
+      onRecordResult?.(result);
+      onAnswer(result.outcome === AnswerOutcome.Correct, advanceQuestion);
     },
     [onAnswer, advanceQuestion, onRecordResult],
   );

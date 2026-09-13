@@ -48,18 +48,56 @@ export const fuDetailSchema: z.ZodType<FuDetail> = z.object({
   fu: z.number(),
 });
 
-/** 符を数値で回答する問題に共通する正解・回答・正誤 */
+/**
+ * 1 問の顛末
+ * 回答の顛末
+ *
+ * 正解・不正解に「時間切れ」を加えた 3 値。時間切れは、出題されたまま
+ * 答える前に制限時間が来た問題で、チャレンジの最後の 1 問がこれになる
+ * （ミス上限で終わったときは直前に答えた問題で終わるので出ない）。
+ *
+ * 不正解とは別の値にするのは、解けなかったことと間違えたことが違うため。
+ * 結果ページの問題別一覧は時間切れの問題も答えを見せるが、正誤の色も
+ * 記号も付けず、正解数・不正解数にも数えない（チャレンジの成績は答えた
+ * 問題だけで決まる）。
+ */
+export const AnswerOutcome = {
+  Correct: "correct",
+  Incorrect: "incorrect",
+  TimeUp: "timeUp",
+} as const;
+export type AnswerOutcome = (typeof AnswerOutcome)[keyof typeof AnswerOutcome];
+
+/** 回答の顛末のスキーマ */
+export const answerOutcomeSchema: z.ZodType<AnswerOutcome> =
+  z.enum(AnswerOutcome);
+
+/**
+ * 正誤の判定から顛末を決める
+ * 顛末判定
+ *
+ * 回答が無い（時間切れ）ときは正誤を判定せず `TimeUp` になる。
+ *
+ * @param isCorrect - 回答が正解だったか。回答が無ければ undefined
+ */
+export function toAnswerOutcome(isCorrect: boolean | undefined): AnswerOutcome {
+  if (isCorrect === undefined) return AnswerOutcome.TimeUp;
+  return isCorrect ? AnswerOutcome.Correct : AnswerOutcome.Incorrect;
+}
+
+/** 符を数値で回答する問題に共通する正解・回答・顛末 */
 export interface FuAnswerResult {
   readonly correctFu: number;
-  readonly userFu: number;
-  readonly isCorrect: boolean;
+  /** ユーザーが選んだ符。時間切れで答えられなかった問題では持たない */
+  readonly userFu?: number;
+  readonly outcome: AnswerOutcome;
 }
 
 /** 符を数値で回答する問題に共通する結果スキーマ */
 export const fuAnswerResultSchema = z.object({
   correctFu: z.number(),
-  userFu: z.number(),
-  isCorrect: z.boolean(),
+  userFu: z.number().optional(),
+  outcome: answerOutcomeSchema,
 }) satisfies z.ZodType<FuAnswerResult>;
 
 /** 役の内訳 1 件 */

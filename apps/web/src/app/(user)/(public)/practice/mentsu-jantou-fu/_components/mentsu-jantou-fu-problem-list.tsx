@@ -5,6 +5,7 @@ import { MentsuType, parseHais } from "@mahjong-scoring/core";
 import type { CompletedMentsu, HaiKindId } from "@mahjong-scoring/core";
 import { ProblemListAccordion } from "../../_components/problem-list-accordion";
 import { TehaiDisplay } from "../../_components/tehai-display";
+import { AnswerOutcome } from "../../_lib/result-schemas";
 import { buildMentsu } from "../../_lib/mentsu-serialization";
 import { parseQuestionTiles } from "../../_lib/parse-question-tiles";
 import { findAgariHighlight } from "../_lib/find-agari-highlight";
@@ -26,7 +27,8 @@ interface RestoredItem {
   readonly isOpen: boolean;
   readonly originalMentsu?: CompletedMentsu;
   readonly correctFu: number;
-  readonly userFu: number;
+  /** ユーザーが選んだ符。時間切れで答えられなかった問題では持たない */
+  readonly userFu?: number;
 }
 
 /**
@@ -72,23 +74,31 @@ function restoreItem(
  * 各問をアコーディオン形式で表示し、展開すると出題された手牌と、行ごとの
  * 正解・自分の回答を確認できる。符は行ごとに答えるため、正誤も行ごとに示す
  * （どの面子で間違えたのかが分からないと復習にならない）。
+ *
+ * 時間切れで答えられなかった問題は全行が回答なしで、行の枠は正誤の色を
+ * 持たず、回答欄に「時間切れ」を出す。見出しの「n / m 行正解」も出さない
+ * （0 行正解と読めてしまう）。
  */
 export function MentsuJantouFuProblemList({
   results,
 }: MentsuJantouFuProblemListProps) {
   const t = useTranslations("mentsuJantouFu");
+  const tCommon = useTranslations("common");
 
   return (
     <ProblemListAccordion
       results={results}
       translationNamespace="mentsuJantouFu"
-      isCorrect={(r) => r.isCorrect}
+      outcome={(r) => r.outcome}
       renderSummary={(result) =>
-        t("result.correctItemCount", {
-          correct: result.items.filter((item) => item.userFu === item.correctFu)
-            .length,
-          total: result.items.length,
-        })
+        result.outcome === AnswerOutcome.TimeUp
+          ? undefined
+          : t("result.correctItemCount", {
+              correct: result.items.filter(
+                (item) => item.userFu === item.correctFu,
+              ).length,
+              total: result.items.length,
+            })
       }
       renderDetail={(result) => {
         const question = restoreQuestion(result);
@@ -105,15 +115,18 @@ export function MentsuJantouFuProblemList({
 
             <ul className="space-y-2">
               {items.map((item) => {
-                const correct = item.userFu === item.correctFu;
+                const { userFu } = item;
+                const correct = userFu === item.correctFu;
 
                 return (
                   <li
                     key={item.id}
                     className={`flex min-w-0 items-center gap-2 rounded-xl border p-2 ${
-                      correct
-                        ? "border-primary-500 bg-primary-50"
-                        : "border-destructive bg-destructive-subtle"
+                      userFu === undefined
+                        ? "border-surface-300 bg-surface-50"
+                        : correct
+                          ? "border-primary-500 bg-primary-50"
+                          : "border-destructive bg-destructive-subtle"
                     }`}
                   >
                     <FuItemTiles
@@ -140,10 +153,16 @@ export function MentsuJantouFuProblemList({
                         </dt>
                         <dd
                           className={`font-bold ${
-                            correct ? "text-primary-600" : "text-destructive"
+                            userFu === undefined
+                              ? "text-surface-500"
+                              : correct
+                                ? "text-primary-600"
+                                : "text-destructive"
                           }`}
                         >
-                          {t("fuSuffix", { value: item.userFu })}
+                          {userFu === undefined
+                            ? tCommon("timeUp")
+                            : t("fuSuffix", { value: userFu })}
                         </dd>
                       </div>
                     </dl>

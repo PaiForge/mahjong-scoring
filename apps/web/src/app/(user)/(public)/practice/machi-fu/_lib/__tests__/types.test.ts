@@ -9,7 +9,7 @@ const validResult = {
   agariHai: "5m",
   correctFu: 2,
   userFu: 0,
-  isCorrect: false,
+  outcome: "incorrect",
 };
 
 describe("parseMachiFuResults", () => {
@@ -25,7 +25,7 @@ describe("toQuestionResult", () => {
     const question = generateMachiFuQuestion();
     const result = toQuestionResult(question, question.answer);
 
-    expect(result.isCorrect).toBe(true);
+    expect(result.outcome).toBe("correct");
     expect(parseMachiFuResults(JSON.stringify([result]))).toHaveLength(1);
   });
 
@@ -39,5 +39,14 @@ describe("toQuestionResult", () => {
       expect(parseHais(result.tiles)).toEqual([...question.tiles]);
       expect(parseHais(result.agariHai)[0]).toBe(question.agariHai);
     }
+  });
+
+  it("回答なし（時間切れ）は outcome=timeUp で記録し、パースを通過する", () => {
+    const question = generateMachiFuQuestion();
+    const result = toQuestionResult(question, undefined);
+
+    expect(result.outcome).toBe("timeUp");
+    expect(result.userFu).toBeUndefined();
+    expect(parseMachiFuResults(JSON.stringify([result]))).toHaveLength(1);
   });
 });

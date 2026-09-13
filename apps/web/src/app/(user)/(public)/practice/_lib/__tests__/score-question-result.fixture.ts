@@ -16,7 +16,7 @@ export function makeScoreQuestionResult(
     fu: 30,
     correctAnswer: { type: "ron", score: 1000 },
     userAnswer: { type: "ron", score: 1000 },
-    isCorrect: true,
+    outcome: "correct",
     ...overrides,
   };
 }

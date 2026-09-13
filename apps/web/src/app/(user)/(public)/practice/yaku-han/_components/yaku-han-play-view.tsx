@@ -32,6 +32,7 @@ function YakuHanBoardFromQuery({
       range={range}
       onAnswer={args.onAnswer}
       onRecordResult={args.recordResult}
+      onPresentQuestion={args.presentQuestion}
     />
   );
 }

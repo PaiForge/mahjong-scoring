@@ -13,7 +13,7 @@ const validResult = {
   },
   correctFu: 4,
   userFu: 8,
-  isCorrect: false,
+  outcome: "incorrect",
 };
 
 describe("parseMentsuFuResults", () => {
@@ -45,7 +45,7 @@ describe("toQuestionResult", () => {
     const question = generateMentsuFuQuestion();
     const result = toQuestionResult(question, question.answer);
 
-    expect(result.isCorrect).toBe(true);
+    expect(result.outcome).toBe("correct");
     expect(result.correctFu).toBe(question.answer);
     expect(parseMentsuFuResults(JSON.stringify([result]))).toHaveLength(1);
   });
@@ -61,5 +61,14 @@ describe("toQuestionResult", () => {
       [...question.mentsu.hais].sort((a, b) => a - b),
     );
     expect(mentsu?.furo).toEqual(question.mentsu.furo);
+  });
+
+  it("回答なし（時間切れ）は outcome=timeUp で記録し、パースを通過する", () => {
+    const question = generateMentsuFuQuestion();
+    const result = toQuestionResult(question, undefined);
+
+    expect(result.outcome).toBe("timeUp");
+    expect(result.userFu).toBeUndefined();
+    expect(parseMentsuFuResults(JSON.stringify([result]))).toHaveLength(1);
   });
 });

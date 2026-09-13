@@ -9,12 +9,19 @@ export const TotalFuPlayView = createChallengePlayView<TotalFuQuestionResult>({
   slug: PRACTICE_SLUG.totalFu,
   maxWidth: "max-w-lg",
   // onProceed は渡さない。チャレンジ中は符の内訳を出さず、結果ページで振り返る。
-  renderBoard: ({ showFeedback, isCountingDown, onAnswer, recordResult }) => (
+  renderBoard: ({
+    showFeedback,
+    isCountingDown,
+    onAnswer,
+    recordResult,
+    presentQuestion,
+  }) => (
     <TotalFuBoard
       showFeedback={showFeedback}
       isCountingDown={isCountingDown}
       onAnswer={onAnswer}
       onRecordResult={recordResult}
+      onPresentQuestion={presentQuestion}
     />
   ),
 });

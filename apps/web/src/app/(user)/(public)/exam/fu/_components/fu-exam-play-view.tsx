@@ -18,6 +18,7 @@ export const FuExamPlayView = createChallengePlayView<FuExamQuestionResult>({
       isCountingDown={args.isCountingDown}
       onAnswer={args.onAnswer}
       onRecordResult={args.recordResult}
+      onPresentQuestion={args.presentQuestion}
     />
   ),
 });
