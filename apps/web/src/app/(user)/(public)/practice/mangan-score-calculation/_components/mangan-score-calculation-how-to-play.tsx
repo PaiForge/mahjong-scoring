@@ -25,8 +25,8 @@ export const MANGAN_SCORE_CALCULATION_DEMO_QUESTION = buildDemoScoreQuestion({
 });
 
 /**
- * 満貫以上点数計算ドリルの「問題方式」ビジュアルデモ
- * 満貫以上点数計算 遊び方デモ
+ * 満貫以上の点数計算の「問題方式」ビジュアルデモ
+ * 満貫以上の点数計算 遊び方デモ
  *
  * 実際の出題盤面（手牌・状況・役一覧の提示）を静的に再現し、出題形式を端的に示す。
  */

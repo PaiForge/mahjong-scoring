@@ -2,8 +2,8 @@ import { createCustomResultView } from "../../_lib/create-custom-result-view";
 import { RESULT_STORAGE_KEY } from "../_lib/types";
 
 /**
- * 満貫以上点数計算ドリル専用の結果画面コンポーネント
- * 満貫以上点数計算結果表示
+ * 満貫以上の点数計算専用の結果画面コンポーネント
+ * 満貫以上の点数計算 結果表示
  *
  * 共通 `ResultView` をラップし、問題別フィードバック一覧を children として
  * 注入する。sessionStorage 読み取りは `ManganScoreCalculationProblemListLoader` に
