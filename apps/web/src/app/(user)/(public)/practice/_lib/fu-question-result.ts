@@ -1,3 +1,4 @@
+import type { QuestionTilesSnapshot } from "./parse-question-tiles";
 import {
   haiIdToMspz,
   kazeIdToMspz,
@@ -10,6 +11,7 @@ import { z } from "zod";
 
 import { createSessionStorageParser } from "./create-session-storage-parser";
 import {
+  questionTilesSnapshotSchema,
   fuAnswerResultSchema,
   fuDetailSchema,
   type FuAnswerResult,
@@ -27,15 +29,8 @@ import {
  * 結果の形・組み立て・パースは練習ごとに持たず、点数系の
  * {@link ./score-question-result} と同じくここに一本化する。
  */
-export interface FuQuestionResult extends FuAnswerResult {
-  /** 手牌（Extended MSPZ。副露・暗槓を含む） */
-  readonly tehai: string;
-  /** 和了牌（MSPZ） */
-  readonly agariHai: string;
-  /** 場風（MSPZ） */
-  readonly bakaze: string;
-  /** 自風（MSPZ） */
-  readonly jikaze: string;
+export interface FuQuestionResult
+  extends FuAnswerResult, QuestionTilesSnapshot {
   readonly isTsumo: boolean;
   /** 切り上げ前の符の内訳 */
   readonly fuDetails: readonly FuDetail[];
@@ -69,10 +64,7 @@ export function toFuQuestionResult(
  */
 const questionResultSchema: z.ZodType<FuQuestionResult> =
   fuAnswerResultSchema.extend({
-    tehai: z.string(),
-    agariHai: z.string(),
-    bakaze: z.string(),
-    jikaze: z.string(),
+    ...questionTilesSnapshotSchema.shape,
     isTsumo: z.boolean(),
     fuDetails: z.array(fuDetailSchema),
   });

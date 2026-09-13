@@ -11,7 +11,11 @@ import { z } from "zod";
 import { createSessionStorageParser } from "./create-session-storage-parser";
 import { parseMarkers, parseQuestionTiles } from "./parse-question-tiles";
 import type { QuestionTilesSnapshot } from "./parse-question-tiles";
-import { scoreTableAnswerSchema, yakuDetailSchema } from "./result-schemas";
+import {
+  questionTilesSnapshotSchema,
+  scoreTableAnswerSchema,
+  yakuDetailSchema,
+} from "./result-schemas";
 
 /**
  * 出題内容のスナップショット（結果ページでの手牌再表示用）
@@ -104,10 +108,7 @@ export function toScoreQuestionSnapshot(
  */
 export const scoreQuestionSnapshotSchema: z.ZodType<ScoreQuestionSnapshot> =
   z.object({
-    tehai: z.string(),
-    agariHai: z.string(),
-    bakaze: z.string(),
-    jikaze: z.string(),
+    ...questionTilesSnapshotSchema.shape,
     doraMarkers: z.array(z.string()),
     isRiichi: z.boolean().optional(),
     uraDoraMarkers: z.array(z.string()).optional(),
