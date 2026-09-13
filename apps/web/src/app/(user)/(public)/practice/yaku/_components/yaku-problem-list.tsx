@@ -56,7 +56,7 @@ export function YakuProblemList({ results }: YakuProblemListProps) {
     <ProblemListAccordion
       results={results}
       translationNamespace="yaku"
-      isCorrect={(r) => r.isCorrect}
+      outcome={(r) => r.outcome}
       renderDetail={(result) => {
         const question = restoreQuestion(result);
 
@@ -78,7 +78,7 @@ export function YakuProblemList({ results }: YakuProblemListProps) {
             <YakuAnswerComparison
               correctYakuNames={result.correctYakuNames}
               selectedYakuNames={result.selectedYakuNames}
-              isCorrect={result.isCorrect}
+              outcome={result.outcome}
             />
           </div>
         );

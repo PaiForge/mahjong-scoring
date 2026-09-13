@@ -89,6 +89,7 @@ export function createScoreExamBoard(
     isTraining = false,
     onAnswer,
     onRecordResult,
+    onPresentQuestion,
   }: RecordingPracticeBoardProps<ScoreQuestionResult>) {
     const t = useTranslations(translationNamespace);
     const tBreakdown = useTranslations("challenge.yakuBreakdown");
@@ -99,6 +100,7 @@ export function createScoreExamBoard(
       showFeedback,
       onAnswer,
       onRecordResult,
+      onPresentQuestion,
     });
     // 模試では開示時だけでなく回答後の停止中も答え合わせを出す。
     // 本番の試験ではどちらも立たない（トレーニングのビューだけが提供する）。

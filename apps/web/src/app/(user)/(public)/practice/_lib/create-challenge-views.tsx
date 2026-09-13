@@ -29,6 +29,11 @@ export interface ChallengeBoardArgs<TResult> extends PracticeBoardProps {
   readonly lastAnswerCorrect: boolean | undefined;
   /** 問題結果の記録（レジストリで `hasProblemList` の練習のみ終了時に保存される） */
   readonly recordResult: (result: TResult) => void;
+  /**
+   * 出題中の問題の届け出（時間切れで答えられなかった問題を結果に残すため）。
+   * 盤面の `onPresentQuestion` にそのまま渡す
+   */
+  readonly presentQuestion: (unanswered: TResult) => void;
 }
 
 /**
@@ -110,9 +115,9 @@ export function createChallengePlayView<
       timeLimit,
     });
     const handleFinish = useFinishHandler(menuType);
-    const { recordResult } = useRecordedResults<TResult>(
+    const { recordResult, presentQuestion } = useRecordedResults<TResult>(
       resultStorageKey,
-      gameSession.isFinished,
+      gameSession.finalResult,
     );
 
     return (
@@ -135,6 +140,7 @@ export function createChallengePlayView<
             lastAnswerCorrect: gameSession.lastAnswerCorrect,
             onAnswer: gameSession.handleAnswer,
             recordResult,
+            presentQuestion,
           },
           props,
           boardState,

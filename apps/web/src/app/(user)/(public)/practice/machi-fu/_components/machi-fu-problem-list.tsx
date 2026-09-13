@@ -27,7 +27,7 @@ export function MachiFuProblemList({ results }: MachiFuProblemListProps) {
     <ProblemListAccordion
       results={results}
       translationNamespace="machiFu"
-      isCorrect={(r) => r.isCorrect}
+      outcome={(r) => r.outcome}
       renderSummary={(result) => fuLabel(result.correctFu)}
       renderDetail={(result) => {
         const tiles = parseHais(result.tiles);
@@ -45,9 +45,11 @@ export function MachiFuProblemList({ results }: MachiFuProblemListProps) {
             */}
             <AnswerComparison
               translationNamespace="machiFu"
-              isCorrect={result.isCorrect}
+              outcome={result.outcome}
               correct={fuLabel(result.correctFu)}
-              user={fuLabel(result.userFu)}
+              user={
+                result.userFu === undefined ? undefined : fuLabel(result.userFu)
+              }
               showTitle={false}
             />
           </div>

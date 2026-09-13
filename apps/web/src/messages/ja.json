@@ -2245,6 +2245,8 @@
     "answerCheck": "答え合わせ",
     "correct": "正解",
     "incorrect": "不正解",
+    "timeUp": "時間切れ",
+    "timeUpAnswer": "時間切れ（未回答）",
     "difference": "過不足",
     "noDifference": "なし",
     "dora": "ドラ",

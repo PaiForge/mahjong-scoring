@@ -40,6 +40,7 @@ export function TotalFuBoard({
   isTraining = false,
   onAnswer,
   onRecordResult,
+  onPresentQuestion,
 }: TotalFuBoardProps) {
   const t = useTranslations("totalFu");
   const renfonpaiAs4Fu = useRuleSettingsStore((s) => s.renfonpaiAs4Fu);
@@ -56,12 +57,18 @@ export function TotalFuBoard({
       onRecordResult?.(toFuQuestionResult(question, fu)),
     [onRecordResult],
   );
+  const presentQuestion = useCallback(
+    (question: TotalFuQuestion) =>
+      onPresentQuestion?.(toFuQuestionResult(question, undefined)),
+    [onPresentQuestion],
+  );
   const { question, selectedFu, handleSelect } = useFuChoiceBoard({
     generateQuestion,
     options: FU_VALUES,
     showFeedback,
     onAnswer,
     onRecordResult: recordResult,
+    onPresentQuestion: presentQuestion,
   });
   // 内訳はトレーニングで止まっている間だけ出す（開示・回答後のどちらでも）
   const { isRevealed, isHolding } = useTrainingMode();

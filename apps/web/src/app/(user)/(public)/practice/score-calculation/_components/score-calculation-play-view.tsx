@@ -15,6 +15,7 @@ export const ScoreCalculationPlayView =
       isCountingDown,
       onAnswer,
       recordResult,
+      presentQuestion,
     }) => (
       <ScoreCalculationBoard
         showFeedback={showFeedback}
@@ -22,6 +23,7 @@ export const ScoreCalculationPlayView =
         isCountingDown={isCountingDown}
         onAnswer={onAnswer}
         onRecordResult={recordResult}
+        onPresentQuestion={presentQuestion}
       />
     ),
   });

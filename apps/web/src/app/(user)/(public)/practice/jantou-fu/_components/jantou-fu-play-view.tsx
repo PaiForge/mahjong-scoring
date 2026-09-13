@@ -8,12 +8,19 @@ import { JantouFuBoard } from "./jantou-fu-board";
 export const JantouFuPlayView = createChallengePlayView<JantouFuQuestionResult>(
   {
     slug: PRACTICE_SLUG.jantouFu,
-    renderBoard: ({ showFeedback, isCountingDown, onAnswer, recordResult }) => (
+    renderBoard: ({
+      showFeedback,
+      isCountingDown,
+      onAnswer,
+      recordResult,
+      presentQuestion,
+    }) => (
       <JantouFuBoard
         showFeedback={showFeedback}
         isCountingDown={isCountingDown}
         onAnswer={onAnswer}
         onRecordResult={recordResult}
+        onPresentQuestion={presentQuestion}
       />
     ),
   },

@@ -27,6 +27,7 @@ export function MentsuFuBoard({
   isCountingDown = false,
   onAnswer,
   onRecordResult,
+  onPresentQuestion,
 }: MentsuFuBoardProps) {
   const t = useTranslations("mentsuFu");
   const recordResult = useCallback(
@@ -34,12 +35,18 @@ export function MentsuFuBoard({
       onRecordResult?.(toQuestionResult(question, fu)),
     [onRecordResult],
   );
+  const presentQuestion = useCallback(
+    (question: MentsuFuQuestion) =>
+      onPresentQuestion?.(toQuestionResult(question, undefined)),
+    [onPresentQuestion],
+  );
   const { question, selectedFu, handleSelect } = useFuChoiceBoard({
     generateQuestion: generateMentsuFuQuestion,
     options: FU_OPTIONS,
     showFeedback,
     onAnswer,
     onRecordResult: recordResult,
+    onPresentQuestion: presentQuestion,
   });
 
   if (!question) {

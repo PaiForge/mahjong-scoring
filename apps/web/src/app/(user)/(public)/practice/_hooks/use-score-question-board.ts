@@ -1,27 +1,29 @@
 "use client";
 
 import { useCallback } from "react";
-import {
-  generateValidScoreQuestion,
-  isOya,
-  judgeScoreTableAnswer,
-} from "@mahjong-scoring/core";
+import { generateValidScoreQuestion } from "@mahjong-scoring/core";
 import type {
   ScoreQuestion,
   ScoreTableUserAnswer,
 } from "@mahjong-scoring/core";
 import type { ScoreQuestionResult } from "../_lib/score-question-result";
-import { toScoreQuestionSnapshot } from "../_lib/score-question-result";
-import { paymentToScoreTableAnswer } from "../_lib/payment-adapter";
+import { toScoreQuestionResult } from "../_lib/score-question-result";
+import { AnswerOutcome } from "../_lib/result-schemas";
 import type { RecordingPracticeBoardProps } from "../_lib/practice-board-props";
 import { useGeneratedScoreQuestion } from "./use-generated-score-question";
+import { usePresentQuestion } from "./use-present-question";
 import { useRegisterAdvance } from "./use-training-mode";
 
 type GenerateOptions = Parameters<typeof generateValidScoreQuestion>[0];
 
+/** 出題中の問題を回答なしの結果に組む（時間切れの届け出用） */
+function toUnansweredResult(question: ScoreQuestion): ScoreQuestionResult {
+  return toScoreQuestionResult(question, undefined);
+}
+
 export interface UseScoreQuestionBoardParams extends Pick<
   RecordingPracticeBoardProps<ScoreQuestionResult>,
-  "showFeedback" | "onAnswer" | "onRecordResult"
+  "showFeedback" | "onAnswer" | "onRecordResult" | "onPresentQuestion"
 > {
   /** 出題オプション（再生成のたびに使用するため安定参照を渡すこと） */
   readonly generateOptions: GenerateOptions;
@@ -49,34 +51,21 @@ export function useScoreQuestionBoard({
   showFeedback,
   onAnswer,
   onRecordResult,
+  onPresentQuestion,
 }: UseScoreQuestionBoardParams): UseScoreQuestionBoardResult {
   const { question, questionIndex, advanceQuestion } =
     useGeneratedScoreQuestion(generateOptions, maxRetries);
 
   useRegisterAdvance(question === undefined ? undefined : advanceQuestion);
+  usePresentQuestion(question, toUnansweredResult, onPresentQuestion);
 
   const handleSubmit = useCallback(
     (userAnswer: ScoreTableUserAnswer) => {
       if (showFeedback || !question) return;
 
-      const correctAnswer = paymentToScoreTableAnswer(question.answer.payment);
-      const isCorrect = judgeScoreTableAnswer(userAnswer, correctAnswer);
-
-      onRecordResult?.({
-        isOya: isOya(question.jikaze),
-        isTsumo: question.isTsumo,
-        han: question.answer.han,
-        fu: question.answer.fu,
-        correctAnswer,
-        userAnswer,
-        isCorrect,
-        // 「26翻 → 役満」のような役満止まりの注記に使う
-        yakumanMultiplier: question.answer.yakumanMultiplier,
-        // 結果ページで出題内容（手牌・ドラ）を再表示するために保存する
-        question: toScoreQuestionSnapshot(question),
-      });
-
-      onAnswer(isCorrect, advanceQuestion);
+      const result = toScoreQuestionResult(question, userAnswer);
+      onRecordResult?.(result);
+      onAnswer(result.outcome === AnswerOutcome.Correct, advanceQuestion);
     },
     [showFeedback, question, onAnswer, advanceQuestion, onRecordResult],
   );

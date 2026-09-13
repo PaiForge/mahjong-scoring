@@ -10,7 +10,7 @@ describe("parseHanCountResults", () => {
   const validResult = {
     correctHan: 3,
     userHan: 3,
-    isCorrect: true,
+    outcome: "correct",
   };
 
   // --- 正常系 ---
@@ -25,7 +25,7 @@ describe("parseHanCountResults", () => {
   // --- 境界値 ---
 
   it("han=1（最小翻数）を含む結果をパースできる", () => {
-    const result = { correctHan: 1, userHan: 1, isCorrect: true };
+    const result = { correctHan: 1, userHan: 1, outcome: "correct" };
     const raw = JSON.stringify([result]);
     const results = parseHanCountResults(raw);
     expect(results).toHaveLength(1);
@@ -33,7 +33,7 @@ describe("parseHanCountResults", () => {
   });
 
   it("han=13（役満相当）を含む結果をパースできる", () => {
-    const result = { correctHan: 13, userHan: 13, isCorrect: true };
+    const result = { correctHan: 13, userHan: 13, outcome: "correct" };
     const raw = JSON.stringify([result]);
     const results = parseHanCountResults(raw);
     expect(results).toHaveLength(1);
@@ -50,17 +50,17 @@ describe("parseHanCountResults", () => {
     expect(results).toEqual([]);
   });
 
-  it("userHan が欠落した要素はフィルタされる", () => {
-    const invalid = { ...validResult };
-    Reflect.deleteProperty(invalid, "userHan");
-    const raw = JSON.stringify([invalid]);
+  it("userHan が欠落した要素は時間切れ（回答なし）として許容される", () => {
+    const timeUp = { ...validResult, outcome: "timeUp" };
+    Reflect.deleteProperty(timeUp, "userHan");
+    const raw = JSON.stringify([timeUp]);
     const results = parseHanCountResults(raw);
-    expect(results).toEqual([]);
+    expect(results).toHaveLength(1);
   });
 
-  it("isCorrect が欠落した要素はフィルタされる", () => {
+  it("outcome が欠落した要素はフィルタされる", () => {
     const invalid = { ...validResult };
-    Reflect.deleteProperty(invalid, "isCorrect");
+    Reflect.deleteProperty(invalid, "outcome");
     const raw = JSON.stringify([invalid]);
     const results = parseHanCountResults(raw);
     expect(results).toEqual([]);
@@ -82,8 +82,8 @@ describe("parseHanCountResults", () => {
     expect(results).toEqual([]);
   });
 
-  it("isCorrect が文字列の場合はフィルタされる", () => {
-    const invalid = { ...validResult, isCorrect: "true" };
+  it("outcome が既知の値でない場合はフィルタされる", () => {
+    const invalid = { ...validResult, outcome: "unknown" };
     const raw = JSON.stringify([invalid]);
     const results = parseHanCountResults(raw);
     expect(results).toEqual([]);
@@ -181,7 +181,7 @@ describe("toHanCountQuestionResult", () => {
 
     expect(result.correctHan).toBe(3);
     expect(result.userHan).toBe(3);
-    expect(result.isCorrect).toBe(true);
+    expect(result.outcome).toBe("correct");
     expect(result.question?.isTsumo).toBe(true);
     expect(result.question?.yakuDetails).toEqual([
       { name: "\u5e73\u548c", han: 1 },
@@ -189,9 +189,9 @@ describe("toHanCountQuestionResult", () => {
     ]);
   });
 
-  it("\u8aa4\u7b54\u3092 isCorrect=false \u3068\u3057\u3066\u8a18\u9332\u3059\u308b", () => {
+  it("\u8aa4\u7b54\u3092 outcome=incorrect \u3068\u3057\u3066\u8a18\u9332\u3059\u308b", () => {
     const question = buildQuestion(3, [{ name: "\u5e73\u548c", han: 3 }]);
-    expect(toHanCountQuestionResult(question, 2).isCorrect).toBe(false);
+    expect(toHanCountQuestionResult(question, 2).outcome).toBe("incorrect");
   });
 
   it("13\u7ffb\u4ee5\u4e0a\u306e\u6b63\u89e3\u306f\u5f79\u6e80\uff0813\u7ffb\uff09\u306b\u4e38\u3081\u3066\u5224\u5b9a\u3059\u308b", () => {
@@ -202,7 +202,7 @@ describe("toHanCountQuestionResult", () => {
     const result = toHanCountQuestionResult(question, 13);
 
     expect(result.correctHan).toBe(13);
-    expect(result.isCorrect).toBe(true);
+    expect(result.outcome).toBe("correct");
     // \u4e38\u3081\u524d\u306e\u7ffb\u6570\u306f\u5185\u8a33\u306e\u5408\u8a08\u3068\u3057\u3066\u6b8b\u308b
     expect(
       result.question?.yakuDetails.reduce((sum, d) => sum + d.han, 0),
@@ -216,5 +216,15 @@ describe("toHanCountQuestionResult", () => {
 
     expect(results).toHaveLength(1);
     expect(results[0]?.question?.tehai).toBe("234567m345p55678s");
+  });
+
+  it("回答なし（時間切れ）は outcome=timeUp で記録し、パースを通過する", () => {
+    const question = buildQuestion(3, [{ name: "平和", han: 3 }]);
+    const result = toHanCountQuestionResult(question, undefined);
+
+    expect(result.outcome).toBe("timeUp");
+    expect(result.userHan).toBeUndefined();
+    expect(result.correctHan).toBe(3);
+    expect(parseHanCountResults(JSON.stringify([result]))).toHaveLength(1);
   });
 });

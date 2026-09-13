@@ -7,12 +7,19 @@ import { MachiFuBoard } from "./machi-fu-board";
 
 export const MachiFuPlayView = createChallengePlayView<MachiFuQuestionResult>({
   slug: PRACTICE_SLUG.machiFu,
-  renderBoard: ({ showFeedback, isCountingDown, onAnswer, recordResult }) => (
+  renderBoard: ({
+    showFeedback,
+    isCountingDown,
+    onAnswer,
+    recordResult,
+    presentQuestion,
+  }) => (
     <MachiFuBoard
       showFeedback={showFeedback}
       isCountingDown={isCountingDown}
       onAnswer={onAnswer}
       onRecordResult={recordResult}
+      onPresentQuestion={presentQuestion}
     />
   ),
 });

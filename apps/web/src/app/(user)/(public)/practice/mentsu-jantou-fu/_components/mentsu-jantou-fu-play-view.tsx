@@ -9,12 +9,19 @@ export const MentsuJantouFuPlayView =
   createChallengePlayView<MentsuJantouFuQuestionResult>({
     slug: PRACTICE_SLUG.mentsuJantouFu,
     maxWidth: "max-w-lg",
-    renderBoard: ({ showFeedback, isCountingDown, onAnswer, recordResult }) => (
+    renderBoard: ({
+      showFeedback,
+      isCountingDown,
+      onAnswer,
+      recordResult,
+      presentQuestion,
+    }) => (
       <MentsuJantouFuBoard
         showFeedback={showFeedback}
         isCountingDown={isCountingDown}
         onAnswer={onAnswer}
         onRecordResult={recordResult}
+        onPresentQuestion={presentQuestion}
       />
     ),
   });

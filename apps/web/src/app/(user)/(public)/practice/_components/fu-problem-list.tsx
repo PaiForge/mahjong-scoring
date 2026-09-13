@@ -46,10 +46,11 @@ export function FuProblemList({
     <ProblemListAccordion
       results={results}
       translationNamespace={translationNamespace}
-      isCorrect={(r) => r.isCorrect}
+      outcome={(r) => r.outcome}
       renderSummary={(result) => t("fuSuffix", { value: result.correctFu })}
       renderDetail={(result) => {
         const question = restoreQuestion(result);
+        const { userFu } = result;
 
         return (
           <div className="space-y-3">
@@ -68,14 +69,22 @@ export function FuProblemList({
 
             <AnswerComparison
               translationNamespace={translationNamespace}
-              isCorrect={result.isCorrect}
+              outcome={result.outcome}
               correct={t("fuSuffix", { value: result.correctFu })}
-              user={t("fuSuffix", { value: result.userFu })}
-              difference={{
-                correct: result.correctFu,
-                user: result.userFu,
-                format: (value) => t("fuSuffix", { value }),
-              }}
+              user={
+                userFu === undefined
+                  ? undefined
+                  : t("fuSuffix", { value: userFu })
+              }
+              difference={
+                userFu === undefined
+                  ? undefined
+                  : {
+                      correct: result.correctFu,
+                      user: userFu,
+                      format: (value) => t("fuSuffix", { value }),
+                    }
+              }
             />
 
             <FuBreakdown

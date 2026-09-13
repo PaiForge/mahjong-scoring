@@ -20,6 +20,7 @@ export const ChiitoitsuExamPlayView =
         isCountingDown={args.isCountingDown}
         onAnswer={args.onAnswer}
         onRecordResult={args.recordResult}
+        onPresentQuestion={args.presentQuestion}
       />
     ),
   });

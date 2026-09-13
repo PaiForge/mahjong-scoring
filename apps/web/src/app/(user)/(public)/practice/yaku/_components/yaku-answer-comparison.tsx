@@ -6,13 +6,20 @@ import { useYakuOrder } from "@/app/_hooks/use-yaku-order-store";
 import { useYakuLabel } from "@/app/_hooks/use-yaku-options";
 import { AnswerComparison } from "../../_components/answer-comparison";
 import { useYakuCheatsheetModal } from "../../_hooks/use-yaku-cheatsheet-modal";
+import { AnswerOutcome } from "../../_lib/result-schemas";
 import { YakuChip } from "./yaku-chip";
 
 interface YakuAnswerComparisonProps {
   readonly correctYakuNames: readonly string[];
-  readonly selectedYakuNames: readonly string[];
-  /** 回答が正解だったか。無回答のまま開示したときは undefined（正誤の色を出さない） */
-  readonly isCorrect: boolean | undefined;
+  /** ユーザーが選んだ役。時間切れで答えられなかった問題では undefined */
+  readonly selectedYakuNames: readonly string[] | undefined;
+  /**
+   * 1 問の顛末。無回答のまま開示したときは undefined（正誤の色を出さない）。
+   * 時間切れは回答欄が「時間切れ（未回答）」になり、成立していた役のチップは
+   * 選び忘れ（黄）ではなく成立（緑）で出す — 比べる回答が無いので取りこぼしとは
+   * 言えない
+   */
+  readonly outcome: AnswerOutcome | undefined;
 }
 
 /**
@@ -35,7 +42,7 @@ interface YakuAnswerComparisonProps {
 export function YakuAnswerComparison({
   correctYakuNames,
   selectedYakuNames,
-  isCorrect,
+  outcome,
 }: YakuAnswerComparisonProps) {
   const t = useTranslations("yaku");
   const tChallenge = useTranslations("challenge");
@@ -43,6 +50,12 @@ export function YakuAnswerComparison({
   const yakuOrder = useYakuOrder();
   const { canOpenYakuCheatsheet, openYakuCheatsheet, yakuCheatsheetModal } =
     useYakuCheatsheetModal(correctYakuNames);
+  // チップの色を決めるときの「選んだ役」。時間切れは正解をそのまま入れて
+  // 成立していた役を緑で出す
+  const judgedSelection =
+    outcome === AnswerOutcome.TimeUp
+      ? correctYakuNames
+      : (selectedYakuNames ?? []);
 
   /** 役名を表示順に並べてチップにする（選択順・判定順のばらつきを見せない） */
   const chips = (names: readonly string[]) => {
@@ -57,7 +70,7 @@ export function YakuAnswerComparison({
             label={labelOf(yakuName)}
             feedbackState={judgeYakuName(
               yakuName,
-              selectedYakuNames,
+              judgedSelection,
               correctYakuNames,
             )}
             onSelect={
@@ -76,9 +89,9 @@ export function YakuAnswerComparison({
     <>
       <AnswerComparison
         translationNamespace="yaku"
-        isCorrect={isCorrect}
+        outcome={outcome}
         correct={chips(correctYakuNames)}
-        user={chips(selectedYakuNames)}
+        user={selectedYakuNames && chips(selectedYakuNames)}
       />
       {yakuCheatsheetModal}
     </>

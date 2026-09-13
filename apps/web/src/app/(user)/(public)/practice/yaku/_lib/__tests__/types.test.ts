@@ -25,7 +25,7 @@ const validResult = {
   doraMarkers: ["3p"],
   correctYakuNames: ["Tsumo", "Pinfu"],
   selectedYakuNames: ["Tsumo"],
-  isCorrect: false,
+  outcome: "incorrect",
 };
 
 describe("parseYakuResults", () => {
@@ -65,9 +65,9 @@ describe("toQuestionResult", () => {
     const question = generate();
     const selected = [...question.correctYakuNames];
 
-    const result = toQuestionResult(question, selected, true);
+    const result = toQuestionResult(question, selected);
 
-    expect(result.isCorrect).toBe(true);
+    expect(result.outcome).toBe("correct");
     expect(result.selectedYakuNames).toEqual(selected);
     expect(result.correctYakuNames).toEqual([...question.correctYakuNames]);
     expect(parseYakuResults(JSON.stringify([result]))).toHaveLength(1);
@@ -77,7 +77,7 @@ describe("toQuestionResult", () => {
     // 結果ページはこの復元に依存して手牌を再表示する。役の成否はリーチと
     // ドラにも依存するため、手牌だけでは振り返れない。
     const question = generate();
-    const result = toQuestionResult(question, [], false);
+    const result = toQuestionResult(question, []);
 
     expectRestoresQuestion(result, question);
     expect(result.isTsumo).toBe(question.context.isTsumo);
@@ -100,7 +100,7 @@ describe("toQuestionResult", () => {
       },
     };
 
-    expect(toQuestionResult(riichi, [], false).uraDoraMarkers).toEqual(["9p"]);
+    expect(toQuestionResult(riichi, []).uraDoraMarkers).toEqual(["9p"]);
   });
 
   it("リーチしていない問題は裏ドラ表示牌を持たない", () => {
@@ -114,6 +114,22 @@ describe("toQuestionResult", () => {
       },
     };
 
-    expect(toQuestionResult(plain, [], false).uraDoraMarkers).toBeUndefined();
+    expect(toQuestionResult(plain, []).uraDoraMarkers).toBeUndefined();
+  });
+
+  it("過不足があれば不正解として記録する", () => {
+    const question = generate();
+    // 成立していた役を 1 つも選ばない（少なくとも 1 つは成立している）
+    expect(toQuestionResult(question, []).outcome).toBe("incorrect");
+  });
+
+  it("回答なし（時間切れ）は outcome=timeUp で記録し、パースを通過する", () => {
+    const question = generate();
+    const result = toQuestionResult(question, undefined);
+
+    expect(result.outcome).toBe("timeUp");
+    expect(result.selectedYakuNames).toBeUndefined();
+    expect(result.correctYakuNames).toEqual([...question.correctYakuNames]);
+    expect(parseYakuResults(JSON.stringify([result]))).toHaveLength(1);
   });
 });

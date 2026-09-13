@@ -4,7 +4,13 @@ import { useCallback, useState } from "react";
 
 import type { PracticeBoardProps } from "../_lib/practice-board-props";
 import { useClientGeneratedQuestion } from "./use-client-generated-question";
+import { usePresentQuestion } from "./use-present-question";
 import { useRegisterAdvance } from "./use-training-mode";
+
+/** 届け出る問題はそのまま渡す（結果の形に組むのは盤面側） */
+function identity<T>(value: T): T {
+  return value;
+}
 
 /** 符を答える練習の問題が満たすべき最小の形 */
 interface FuQuestion {
@@ -29,6 +35,12 @@ interface UseFuChoiceBoardParams<TQuestion extends FuQuestion> extends Pick<
    * トレーニングでは渡らない。
    */
   readonly onRecordResult?: (question: TQuestion, fu: number) => void;
+  /**
+   * 出題した問題を届け出る（チャレンジの結果ページで時間切れの問題を出すため）
+   *
+   * 問題が変わるたびに呼ばれる。記録しない練習とトレーニングでは渡らない。
+   */
+  readonly onPresentQuestion?: (question: TQuestion) => void;
 }
 
 interface UseFuChoiceBoardResult<TQuestion extends FuQuestion> {
@@ -53,9 +65,12 @@ export function useFuChoiceBoard<TQuestion extends FuQuestion>({
   showFeedback,
   onAnswer,
   onRecordResult,
+  onPresentQuestion,
 }: UseFuChoiceBoardParams<TQuestion>): UseFuChoiceBoardResult<TQuestion> {
   const [question, setQuestion] = useClientGeneratedQuestion(generateQuestion);
   const [selectedFu, setSelectedFu] = useState<number | undefined>(undefined);
+
+  usePresentQuestion(question, identity, onPresentQuestion);
 
   const advanceQuestion = useCallback(() => {
     setQuestion(generateQuestion());
