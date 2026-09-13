@@ -2616,8 +2616,6 @@
     "pointSuffix": "点",
     "generating": "問題を生成中...",
     "yakuListTitle": "成立役",
-    "yakuHanSuffix": "{count}翻",
-    "yakuTotalHan": "合計 {count}翻",
     "howToPlay": {
       "title": "問題方式",
       "lead": "このような問題が出題されます。"
