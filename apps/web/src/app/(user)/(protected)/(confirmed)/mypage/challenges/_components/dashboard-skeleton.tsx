@@ -1,6 +1,7 @@
 import { SectionTitleSkeleton } from "@/app/(user)/_components/section-title-skeleton";
 import { SkeletonBar } from "@/app/_components/skeleton-bar";
 import { PracticeLinkButtonSkeleton } from "@/app/(user)/_components/practice-link-button";
+import { SUB_LINK_GAP } from "@/app/_components/_lib/spacing";
 import {
   CompactTable,
   CompactTableCell,
@@ -100,11 +101,16 @@ export function DashboardSkeleton() {
       <SkeletonBar radius="lg" className="h-[38px] w-full sm:w-64" />
       <DashboardContentSkeleton />
 
-      {/* 「<土俵名>にチャレンジ」ボタン。記録を 1 件も持たない人にだけ出ない
-          （実描画はそのとき空表示に差し替わる）が、記録があるのが常態なので
-          場所を確保しておく */}
-      <div className="pt-4 border-t-2 border-dashed border-border/40">
+      {/* 「<土俵名>にチャレンジ」ボタンと「練習一覧へ」。記録を 1 件も持たない
+          人にだけ出ない（実描画はそのとき空表示に差し替わる）が、記録があるのが
+          常態なので場所を確保しておく。入れ子は実描画と同じ — SUB_LINK_GAP が
+          「ボタン → 補助リンク」の境界で、補助リンクは text-sm の <p> 1 行ぶん
+          24px（result-page-skeleton と同じ実測値） */}
+      <div
+        className={`flex flex-col ${SUB_LINK_GAP} border-t-2 border-dashed border-border/40 pt-4`}
+      >
         <PracticeLinkButtonSkeleton />
+        <SkeletonBar className="mx-auto h-6 w-24" />
       </div>
     </div>
   );
