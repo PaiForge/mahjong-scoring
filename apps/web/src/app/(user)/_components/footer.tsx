@@ -47,6 +47,11 @@ export async function Footer() {
                   {t("privacy")}
                 </Link>
               </li>
+              <li>
+                <Link href="/contact" className={TEXT_LINK_CLASSES}>
+                  {t("contact")}
+                </Link>
+              </li>
             </ul>
           </div>
         </nav>

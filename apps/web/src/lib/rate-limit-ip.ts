@@ -99,6 +99,9 @@ export const IP_RATE_LIMITS = {
   deleteAvatar: { maxRequests: 5, windowMs: 600_000 },
   updateProfile: { maxRequests: 10, windowMs: 600_000 },
   updateLeaderboardVisibility: { maxRequests: 20, windowMs: 600_000 },
+  // 未ログインで叩けるメール送信。Resend の送信枠（アカウント単位）を
+  // 1 つの IP に食い潰されないよう短い窓で絞る
+  contact: { maxRequests: 3, windowMs: 60_000 },
 } as const;
 
 /**
