@@ -43,7 +43,12 @@ export default async function TermsPage() {
       <LegalArticle>
         <LegalSection title={t("acceptance.title")}>
           <LegalParagraph>
-            {t("acceptance.body", { siteName: SITE_NAME })}
+            {t.rich("acceptance.body", {
+              siteName: SITE_NAME,
+              company: (chunks) => (
+                <LegalLink href="/company">{chunks}</LegalLink>
+              ),
+            })}
           </LegalParagraph>
         </LegalSection>
 
