@@ -10,6 +10,7 @@ import {
 import {
   useDisplaySettingsStore,
   useDoraDisplayMode,
+  useFuHanOrder,
   useTermLinksEnabled,
 } from "@/app/_hooks/use-display-settings-store";
 import { PREFERENCE_ANCHORS, YAKU_ORDER_HREF } from "../_lib/anchors";
@@ -26,6 +27,8 @@ export function DisplaySettingsSection() {
   const setDoraDisplay = useDisplaySettingsStore((s) => s.setDoraDisplay);
   const termLinks = useTermLinksEnabled();
   const setTermLinks = useDisplaySettingsStore((s) => s.setTermLinks);
+  const fuHanOrder = useFuHanOrder();
+  const setFuHanOrder = useDisplaySettingsStore((s) => s.setFuHanOrder);
 
   return (
     <SettingsCard>
@@ -44,6 +47,17 @@ export function DisplaySettingsSection() {
         description={t("termLinksDescription")}
         checked={termLinks}
         onChange={setTermLinks}
+      />
+
+      {/* 符→翻が既定なので、スイッチは「翻を先にする」の向きで出す */}
+      <SettingToggleRow
+        id={PREFERENCE_ANCHORS.fuHanOrder}
+        title={t("fuHanOrderTitle")}
+        description={t("fuHanOrderDescription")}
+        checked={fuHanOrder === "han-first"}
+        onChange={(checked) =>
+          setFuHanOrder(checked ? "han-first" : "fu-first")
+        }
       />
 
       {/* 36役を並び替える UI は設定ページに置くと長すぎるため専用ページへ渡す */}

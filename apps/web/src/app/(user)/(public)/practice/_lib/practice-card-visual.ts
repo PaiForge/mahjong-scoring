@@ -13,7 +13,7 @@ type PracticeTranslator = Awaited<
 type AnswerUnit = "fu" | "han" | "score" | "yaku";
 
 /** 帯に出す短い文言のキー（`practice.cardExample.*`） */
-type LabelKey = "naki" | "yakuName" | "fuHan" | "manganHan";
+type LabelKey = "naki" | "yakuName" | "manganHan";
 
 /** 帯の左側 — その練習の出題で実際に目にするもの */
 type Subject =
@@ -44,6 +44,13 @@ type Subject =
       /** 状態を表すピル（鳴き）。持たない出題もある */
       readonly pill?: LabelKey;
       readonly text: LabelKey;
+    }
+  | {
+      /**
+       * 符と翻の 2 つの数だけが出る出題（点数表早引き）。並び順は表示設定で
+       * 変わるため 1 つの文言にせず、符と翻を別々に持って描くときに並べる
+       */
+      readonly kind: "fuHan";
     };
 
 interface CatalogVisual {
@@ -137,7 +144,7 @@ const PRACTICE_CARD_VISUALS: Partial<Record<PracticeMenuSlug, CatalogVisual>> =
     },
     // 符と翻から表を引く練習。手牌は出ず、引くための 2 つの数だけが出る
     "score-table": {
-      subject: { kind: "labels", text: "fuHan" },
+      subject: { kind: "fuHan" },
       unit: "score",
     },
     // 断幺九・平和・一盃口・三色同順で門前 5翻（満貫）の手。翻数は先に
@@ -173,6 +180,13 @@ export type ResolvedSubject =
       readonly kind: "labels";
       readonly pill?: string;
       readonly text: string;
+    }
+  | {
+      readonly kind: "fuHan";
+      /** 「30符」 */
+      readonly fu: string;
+      /** 「4翻」 */
+      readonly han: string;
     };
 
 /**
@@ -210,6 +224,13 @@ function resolveSubject(
   if (subject.kind === "tiles") return subject;
   if (subject.kind === "hand") {
     return { kind: "hand", tiles: parseHais(subject.mspz) };
+  }
+  if (subject.kind === "fuHan") {
+    return {
+      kind: "fuHan",
+      fu: t("cardExample.fuHanExample.fu"),
+      han: t("cardExample.fuHanExample.han"),
+    };
   }
   return {
     kind: "labels",
