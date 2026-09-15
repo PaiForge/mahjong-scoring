@@ -36,7 +36,7 @@ interface ScoreProblemListProps {
  * 出題スナップショットが保存されている場合は、出題時と同じ手牌表示も再現する。
  *
  * 詳細は「手牌 → 面子の内訳（符の根拠）→ 翻数の内訳（翻の根拠）→ 答え合わせ」の
- * 順に並べる。要約行は「子・ロン・6翻・70符」としか言わないので、間違えた人が
+ * 順に並べる。要約行は「子・ロン・70符・6翻」としか言わないので、間違えた人が
  * 数え直すには符と翻それぞれの根拠が要る。翻数の内訳は翻数即答練習の結果ページと
  * 同じ表（{@link YakuBreakdown}）を使う。
  *
@@ -60,13 +60,14 @@ export function ScoreProblemList({
       translationNamespace={translationNamespace}
       outcome={(r) => r.outcome}
       renderSummary={(result) => {
-        // \u6E80\u8CAB\u4EE5\u4E0A\u306E\u554F\u984C\u306F\u7B26\u3092\u6301\u305F\u306A\u3044\u305F\u3081\u3001\u7B26\u306E\u8868\u793A\u3092\u7701\u304F\u3002
+        // 満貫以上の問題は符を持たないため、符の表示を省く。
+        // 符→翻の順（出題文の ScoreTablePrompt と同じ）
         const summary = [
           result.isOya ? t("oya") : t("ko"),
           result.isTsumo ? t("tsumo") : t("ron"),
-          t("han", { count: result.han }),
           ...(result.fu === undefined ? [] : [t("fu", { count: result.fu })]),
-        ].join("\u30FB");
+          t("han", { count: result.han }),
+        ].join("・");
         return summary;
       }}
       renderDetail={(result) => {

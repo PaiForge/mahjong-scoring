@@ -22,7 +22,7 @@ interface ScoreTablePromptProps {
 }
 
 /**
- * 点数表早引きの出題提示（親子・ツモロン・翻・符）
+ * 点数表早引きの出題提示（親子・ツモロン・符・翻）
  * 点数表出題提示
  *
  * 出題盤面（ScoreTableBoard）と遊び方デモ（ScoreTableHowToPlay）で共有する、
@@ -49,15 +49,20 @@ export function ScoreTablePrompt({
         </span>
       </div>
 
+      {/*
+        符→翻の順（「30符 4翻」）。点数表が「符の行 × 翻の列」なので、表を
+        引く目線と同じ順に読ませる。教本・用語集・練習一覧のプレビューも
+        この順で書いている
+      */}
       <div className="flex justify-center gap-6">
-        <span className="text-2xl font-bold text-primary-600">
-          {t("han", { count: han })}
-        </span>
         {fu !== undefined && (
           <span className="text-2xl font-bold text-primary-600">
             {t("fu", { count: fu })}
           </span>
         )}
+        <span className="text-2xl font-bold text-primary-600">
+          {t("han", { count: han })}
+        </span>
       </div>
 
       <QuestionPrompt
