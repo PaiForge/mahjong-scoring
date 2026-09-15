@@ -1,0 +1,305 @@
+# Claude Code GitHub Actions — comment-triggered issue solving
+#
+# Purpose:
+#   When an issue comment contains `@claude`, launch
+#   anthropics/claude-code-action to autonomously implement the issue on a
+#   `claude/*` branch, using the repository owner's subscription quota
+#   (CLAUDE_CODE_OAUTH_TOKEN). A guard step then validates the pushed diff
+#   and a deterministic step opens the PR.
+#
+# Scope:
+#   - Trigger: issue_comment (created) only
+#   - Execution: restricted to the repository owner (k0kishima)
+#   - Merging is deliberately NOT part of this workflow — see
+#     claude-merge-pr.yml
+#
+# Why the PR is opened by a workflow step rather than by a human:
+#   Opening or merging a PR from the web UI emits a public `PullRequestEvent`
+#   whose actor is the person who clicked, and that is what reaches followers'
+#   activity feeds. Every step below that talks to GitHub therefore runs with
+#   GITHUB_TOKEN, so the PR, its body and any comment are attributed to
+#   github-actions[bot]. The commits themselves are already authored by
+#   claude[bot], because claude-code-action pushes the branch with its own
+#   GitHub App token. The only event this pipeline attributes to the owner is
+#   the `@claude` comment that starts it.
+#
+# Key security decisions:
+#   - Workflow-level permissions are empty (`{}`) — least privilege granted per job
+#   - `if: github.actor == 'k0kishima'` immediately rejects non-owner triggers
+#   - Actions are pinned by commit SHA (tags are mutable and create a supply chain attack surface)
+
+name: Claude Issue Solve
+
+on:
+  issue_comment:
+    types: [created]
+
+# Layer 5 (least privilege): grant nothing at the workflow level.
+# Required permissions are granted only at the individual job level.
+permissions: {}
+
+# Avoid parallel execution (consume the subscription quota sequentially).
+concurrency:
+  group: claude-issue-solve
+  cancel-in-progress: false
+
+jobs:
+  solve:
+    name: Claude solves the issue
+    runs-on: ubuntu-latest
+    # Token budget / runaway prevention
+    timeout-minutes: 60
+    # Only target issue comments (PR comments also fire issue_comment, so exclude them).
+    # Additionally, narrow down to owner-only comments containing `@claude`.
+    #   - github.actor: the comment author
+    #   - github.event.issue.pull_request: present for PRs, absent for issues
+    #   - contains(...): claude-code-action also filters by trigger_phrase internally,
+    #     but we reject early here to avoid unnecessary workflow runs
+    if: >-
+      github.event.issue.pull_request == null &&
+      github.actor == 'k0kishima' &&
+      contains(github.event.comment.body, '@claude')
+
+    # Grant least privilege at the job scope only.
+    #   contents: write       — for branch creation / commit / push
+    #   pull-requests: write  — for PR creation
+    #   issues: write         — for Claude to post status comments on the issue
+    #   id-token: write       — required by claude-code-action for OIDC token exchange
+    # id-token: write is a compromise against an "id-token: none" ideal. The
+    # OIDC token is scoped to this run, short-lived, and the trigger surface
+    # is limited to owner-only invocations.
+    permissions:
+      contents: write
+      pull-requests: write
+      issues: write
+      id-token: write      # required by claude-code-action for OIDC token exchange
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5.0.0
+        with:
+          fetch-depth: 0
+          # CLAUDE.md points Claude at docs/coding-standards.md and
+          # docs/extended-mspz.md, which live in the public PaiForge/docs
+          # submodule. Without this the directory is empty on the runner.
+          submodules: true
+
+      # Install the toolchain and dependencies so that Claude can run the
+      # quality gates itself. Without this, allowing `Bash(<gate>)` via
+      # claude_args is pointless: the command fails with "command not found"
+      # or on missing dependencies. Replace the block between the markers with
+      # whatever this repository needs (bootstrap.py --toolchain-file).
+      # --- toolchain: BEGIN ---
+      - name: Setup Node.js
+        uses: actions/setup-node@53b83947a5a98c8d113130e565377fae1a50d02f # v6.3.0
+        with:
+          node-version: 24
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@b307475762933b98ed359c036b0e51f26b63b74b # v5.0.0
+        with:
+          run_install: false
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+      # --- toolchain: END ---
+
+      # Load the system prompt from a file into an environment variable.
+      # claude-code-action (run.ts) passes the `APPEND_SYSTEM_PROMPT` env var
+      # directly to the Claude CLI via --append-system-prompt, so setting it
+      # in this step makes it available to the subsequent action step.
+      # (Reason for using a file: embedding long text directly in YAML
+      #  degrades escaping and reviewability, so the prompt is managed as
+      #  a separate file.)
+      #
+      # Verified against anthropics/claude-code-action@dcb5774 v1.0.199 (run.ts:296)
+      # Re-verify on every SHA bump of claude-code-action.
+      - name: Load Claude system prompt
+        shell: bash
+        run: |
+          # Use a random delimiter to prevent env injection from system-prompt.md
+          # (A static delimiter could be exploited if the same string appears in
+          #  system-prompt.md, allowing arbitrary env vars via heredoc escape)
+          delim="EOF_$(openssl rand -hex 16)"
+          {
+            printf 'APPEND_SYSTEM_PROMPT<<%s\n' "$delim"
+            cat .github/claude/system-prompt.md
+            printf '%s\n' "$delim"
+          } >> "$GITHUB_ENV"
+
+      # Claude Code Action (v1) — detects @claude mentions, creates a
+      # `claude/*` branch, implements the change and pushes it. It does not
+      # open the PR; the guard and PR steps below do that, so that the PR is
+      # attributed to a bot rather than to whoever commented.
+      #
+      # SHA pin rationale:
+      #   Tags (v1) are mutable; if upstream rewrites them, arbitrary code could be injected.
+      #
+      # claude_code_oauth_token:
+      #   Stored as a Repository Secret. Consumes the subscription's own quota.
+      #   This is not an API key, so no Anthropic usage-based charges apply.
+      #
+      # Quality gates are delegated to Claude itself via the system prompt; the
+      # guard step below re-checks the one thing that cannot be delegated,
+      # namely which paths the diff is allowed to touch.
+      - name: Run Claude Code Action
+        id: claude
+        uses: anthropics/claude-code-action@dcb57747bfceeaa1fa72638cae52295d1d853d4a # v1.0.199
+        with:
+          claude_code_oauth_token: ${{ secrets.CLAUDE_CODE_OAUTH_TOKEN }}
+          # The default trigger_phrase is "@claude", so explicit specification
+          # is not required, but we pin it here to guard against future default changes.
+          trigger_phrase: "@claude"
+          # Strict allowlist for quality-gate execution.
+          #
+          # claude-code-action@dcb5774 has no dedicated `allowed_tools` input;
+          # the only way to pass additional CLI flags is via the generic
+          # `claude_args` input. We use --allowed-tools to whitelist exactly
+          # the gate commands.
+          #
+          # Deliberately no prefix match (`Bash(pnpm:*)`, `Bash(npm:*)`): it
+          # would open escape routes like `pnpm exec ...` or `npm install -g`.
+          # gh / git push / other Bash commands remain blocked.
+          # `pnpm format` (prettier --write) is the only non-gate command: it is
+          # the deterministic remedy for a failing `pnpm format:check`, and
+          # writes nothing that the format gate would not have demanded.
+          claude_args: --allowed-tools "Bash(pnpm lint),Bash(pnpm typecheck),Bash(pnpm test),Bash(pnpm format:check),Bash(pnpm format)"
+
+      # Deterministic post-validation of what Claude actually pushed. No PR
+      # exists yet, so a violation here costs nothing beyond an orphaned
+      # `claude/*` branch that a human can delete.
+      #
+      # `branch_name` is an output of claude-code-action (verified against
+      # v1.0.199: action.yml exposes it, run.ts sets it from the branch the
+      # tag mode prepared; re-verify on every SHA bump). For an issue trigger
+      # it is always a fresh `claude/issue-N-<timestamp>` name, whether or not
+      # Claude went on to commit anything: the action creates the branch
+      # locally up front and only pushes it if there is something to push
+      # (branch-cleanup.ts). So "Claude answered a question and changed
+      # nothing" — a normal outcome — shows up here as a branch name with no
+      # matching remote ref, and that has to be a no-op, not a failure.
+      - name: Guard — validate the pushed branch
+        id: guard
+        env:
+          GH_TOKEN: ${{ github.token }}
+          BRANCH: ${{ steps.claude.outputs.branch_name }}
+          REPO: ${{ github.repository }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          if [ -z "$BRANCH" ]; then
+            echo "Claude pushed no branch; nothing to open a PR for."
+            echo "open=false" >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
+          case "$BRANCH" in
+            claude/*) ;;
+            *) echo "::error::refusing to act on unexpected branch: $BRANCH"; exit 1 ;;
+          esac
+
+          # claude-code-action rewrites origin's URL to embed its own GitHub App
+          # token and revokes that token before this step runs, so the remote's
+          # stored credential is dead by now. Point origin back at the job's
+          # GITHUB_TOKEN before fetching.
+          git remote set-url origin "https://x-access-token:${GH_TOKEN}@github.com/${REPO}.git"
+          if ! git ls-remote --exit-code --heads origin "$BRANCH" >/dev/null; then
+            echo "Claude made no changes; $BRANCH was never pushed."
+            echo "open=false" >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
+          git fetch --no-tags origin "$BRANCH" main
+
+          changed=$(git diff --name-only "origin/main...origin/$BRANCH")
+          if [ -z "$changed" ]; then
+            echo "Branch $BRANCH has no diff against main."
+            echo "open=false" >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
+
+          # The pipeline must not be able to edit its own rules, its dependency
+          # graph or its git hooks. Such a change would reach main through a
+          # merge nobody reads line by line, and from there it runs with
+          # GITHUB_TOKEN on every later invocation. Same list as the nightly
+          # workflow's guard, deliberately.
+          if printf '%s\n' "$changed" | grep -E '^(\.github/|\.claude/|\.husky/|\.npmrc$|\.gitmodules$|docs/|pnpm-lock\.yaml$|pnpm-workspace\.yaml$|turbo\.json$|\.gitignore$|\.gitattributes$|packages/eslint-config/)|(^|/)(package\.json|vercel\.json|eslint\.config\.[cm]?[jt]s|\.prettierrc[^/]*|\.prettierignore)$'; then
+            echo "::error::protected path touched; not opening a PR"
+            exit 1
+          fi
+          echo "open=true" >> "$GITHUB_OUTPUT"
+
+      # `gh pr create` with GITHUB_TOKEN makes github-actions[bot] both the PR
+      # author and the actor of the resulting public event. That is the entire
+      # reason this step exists instead of the "Create PR" link Claude leaves
+      # in its comment: following that link opens the PR as the person who
+      # clicked it.
+      #
+      # The PR is not a draft. A draft would have to be marked ready before it
+      # could merge, and the only thing that merges it is claude-merge-pr.yml,
+      # which is already an explicit manual dispatch — a second gate would add
+      # a step without adding a decision.
+      #
+      # PRs created with GITHUB_TOKEN do not trigger `on: pull_request`
+      # workflows (GitHub's loop prevention). No workflow in this repository
+      # runs on `pull_request` today, so nothing is lost; that also means a
+      # commit message containing `@claude` cannot re-enter this pipeline
+      # through the PR body it is copied into.
+      #
+      # Issue title and branch name reach the script through env vars, never
+      # through `${{ }}` interpolation inside `run:`. On a public repository
+      # anyone can open an issue, and an interpolated title is shell injection.
+      - name: Open the PR as github-actions[bot]
+        if: steps.guard.outputs.open == 'true'
+        env:
+          GH_TOKEN: ${{ github.token }}
+          BRANCH: ${{ steps.claude.outputs.branch_name }}
+          REPO: ${{ github.repository }}
+          N: ${{ github.event.issue.number }}
+          ISSUE_TITLE: ${{ github.event.issue.title }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          existing=$(gh pr list --repo "$REPO" --head "$BRANCH" --state open \
+            --json number --jq '.[0].number // empty')
+          if [ -n "$existing" ]; then
+            echo "PR #$existing is already open for $BRANCH."
+            exit 0
+          fi
+
+          # A single commit describes itself better than the issue title does,
+          # so it becomes the PR title and its body the PR body. Several
+          # commits have no one subject that covers them, so the issue title
+          # leads and the subjects become the summary.
+          #
+          # The `Co-authored-by:` trailer is dropped. claude-code-action fills
+          # it with the account that typed the mention, and a co-author trailer
+          # that survives onto main counts towards that account's contribution
+          # graph — precisely what routing every step through bots is meant to
+          # avoid. claude-merge-pr.yml drops it again from the squash message,
+          # because the squash commit is built from the commit messages rather
+          # than from this body.
+          count=$(git rev-list --count "origin/main..origin/$BRANCH")
+          if [ "$count" -eq 1 ]; then
+            title=$(git log -1 --format=%s "origin/$BRANCH")
+            # `|| true` because grep exits 1 when it filters everything out,
+            # and `set -o pipefail` would turn that into a failed step.
+            git log -1 --format=%b "origin/$BRANCH" \
+              | grep -viE '^co-authored-by:' > "$RUNNER_TEMP/pr-body.md" || true
+          else
+            title="$ISSUE_TITLE"
+            git log --reverse --format='- %s' "origin/main..origin/$BRANCH" \
+              > "$RUNNER_TEMP/pr-body.md"
+          fi
+          # Claude usually writes its own closing keyword into the commit
+          # message. Appending a second one renders as a duplicated
+          # "Closes #129" in the PR and then in the squash commit, so only add
+          # it when the body does not already close this issue.
+          if ! grep -qiE "(close[sd]?|fix(e[sd])?|resolve[sd]?) #$N\b" "$RUNNER_TEMP/pr-body.md"; then
+            printf '\nCloses #%s\n' "$N" >> "$RUNNER_TEMP/pr-body.md"
+          fi
+          printf '\n🤖 Generated with [Claude Code](https://claude.com/claude-code)\n' \
+            >> "$RUNNER_TEMP/pr-body.md"
+
+          url=$(gh pr create --repo "$REPO" --base main --head "$BRANCH" \
+            --title "$title" --body-file "$RUNNER_TEMP/pr-body.md")
+          echo "Opened $url"
+          gh api -X POST "repos/$REPO/issues/$N/comments" -f body="Opened $url from \`$BRANCH\`. Merge it by running the **Claude Merge PR** workflow with this PR number, so that the merge is attributed to github-actions[bot] rather than to you."
