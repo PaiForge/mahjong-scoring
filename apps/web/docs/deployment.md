@@ -9,6 +9,8 @@
 | Framework Preset | Next.js    |
 | Root Directory   | `apps/web` |
 
+`apps/web/vercel.json` の `ignoreCommand` で、`claude/*` ブランチ（`.github/workflows/claude-issue-solve.yml` が bot 名義で開く PR の head）のビルドをスキップしている。bot の PR は人が Actions からマージするまでレビュー対象でしかなく、PR ごとに preview デプロイを作る意味がないため。
+
 ## Supabase の設定
 
 ### Supabase プロジェクトの作成
