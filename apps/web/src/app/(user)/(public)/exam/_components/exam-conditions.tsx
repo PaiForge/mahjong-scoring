@@ -8,6 +8,7 @@ import {
 } from "@/lib/db/practice-menu-types";
 import { beltClass, beltForegroundClass } from "@/lib/ranks/belt-colors";
 import { rankRequiringMenu } from "@/lib/ranks/registry";
+import { ExamRecordNotice } from "./exam-record-notice";
 
 interface ExamConditionsProps {
   /** 昇級試験の練習スラッグ（例: "mangan-exam"） */
@@ -33,6 +34,9 @@ interface ExamConditionsProps {
  * 来たのかがここで確定する。色も入口のカードと同じ帯色にして、
  * オレンジの「5級 昇級試験」を押した先がオレンジの「5級 合格条件」で
  * 受かるようにする。
+ *
+ * 直後に {@link ExamRecordNotice} を置く。未ログインで合格しても段級位が
+ * 記録されないことを、この合格条件の並びで開始前に伝える。
  */
 export async function ExamConditions({ slug }: ExamConditionsProps) {
   const menu = practiceMenuBySlug(slug);
@@ -59,6 +63,7 @@ export async function ExamConditions({ slug }: ExamConditionsProps) {
           })}
         </p>
       </HighlightPanel>
+      <ExamRecordNotice />
     </section>
   );
 }
