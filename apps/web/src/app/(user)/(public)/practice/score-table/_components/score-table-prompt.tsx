@@ -3,6 +3,8 @@
 import { useTranslations } from "next-intl";
 import type { ScoreTableAnswer } from "@mahjong-scoring/core";
 
+import { useFuHanOrder } from "@/app/_hooks/use-display-settings-store";
+import { orderFuHan } from "@/app/_lib/fu-han-order";
 import { QuestionPrompt } from "../../_components/question-prompt";
 import { RevealedScoreAnswer } from "../../_components/revealed-score-answer";
 import { scoreTableFocusOf } from "../../_lib/score-table-focus";
@@ -37,6 +39,7 @@ export function ScoreTablePrompt({
   revealedAnswer,
 }: ScoreTablePromptProps) {
   const t = useTranslations("scoreTableChallenge");
+  const fuHanOrder = useFuHanOrder();
 
   return (
     <>
@@ -49,20 +52,16 @@ export function ScoreTablePrompt({
         </span>
       </div>
 
-      {/*
-        符→翻の順（「30符 4翻」）。点数表が「符の行 × 翻の列」なので、表を
-        引く目線と同じ順に読ませる。教本・用語集・練習一覧のプレビューも
-        この順で書いている
-      */}
+      {/* 符と翻の順は表示設定に従う（既定は点数表と同じ符→翻） */}
       <div className="flex justify-center gap-6">
-        {fu !== undefined && (
-          <span className="text-2xl font-bold text-primary-600">
-            {t("fu", { count: fu })}
+        {orderFuHan(fuHanOrder, {
+          fu: fu === undefined ? undefined : t("fu", { count: fu }),
+          han: t("han", { count: han }),
+        }).map((label) => (
+          <span key={label} className="text-2xl font-bold text-primary-600">
+            {label}
           </span>
-        )}
-        <span className="text-2xl font-bold text-primary-600">
-          {t("han", { count: han })}
-        </span>
+        ))}
       </div>
 
       <QuestionPrompt

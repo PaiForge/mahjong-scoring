@@ -49,6 +49,8 @@
     "doraDisplayDescription": "出題のドラを、表示牌ではなくドラそのもので表示します。\nオフのときは実際の麻雀と同じくドラ表示牌を表示します。",
     "termLinksTitle": "教本の用語にリンクをつける",
     "termLinksDescription": "教本の本文に出てくる麻雀用語をリンクにして、\nタップすると意味を確認できるようにします。\nオフのときはリンクにせず、そのままの文章で表示します。",
+    "fuHanOrderTitle": "翻数を符より先に表示する",
+    "fuHanOrderDescription": "点数表早引きなどで符と翻を「4翻 30符」の順で表示します。\nオフのときは点数表と同じ「30符 4翻」の順で表示します。",
     "privacySectionTitle": "プライバシー",
     "leaderboardVisibilityTitle": "ランキングに表示しない",
     "leaderboardVisibilityDescription": "オンにすると、ランキングにあなたの名前と成績が表示されなくなります。\n成績の記録は残るので、オフに戻せば順位も元どおりです。",
@@ -186,7 +188,10 @@
       },
       "naki": "鳴き",
       "yakuName": "混一色",
-      "fuHan": "30符 4翻",
+      "fuHanExample": {
+        "fu": "30符",
+        "han": "4翻"
+      },
       "manganHan": "5翻"
     },
     "progress": "学習の進捗",

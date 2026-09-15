@@ -46,8 +46,10 @@ describe("練習カードの例示", () => {
     for (const unit of ["fu", "han", "score", "yaku"] as const) {
       expect(cardExample.units[unit]).toBeTypeOf("string");
     }
-    for (const key of ["naki", "yakuName", "fuHan", "manganHan"] as const) {
+    for (const key of ["naki", "yakuName", "manganHan"] as const) {
       expect(Reflect.get(cardExample, key)).toBeTypeOf("string");
     }
+    expect(cardExample.fuHanExample.fu).toBeTypeOf("string");
+    expect(cardExample.fuHanExample.han).toBeTypeOf("string");
   });
 });

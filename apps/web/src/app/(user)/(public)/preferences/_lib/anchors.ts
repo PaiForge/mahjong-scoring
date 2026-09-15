@@ -18,6 +18,8 @@ export const PREFERENCE_ANCHORS = {
   doraDisplay: "dora-display",
   /** 教本本文の語を用語リンクにするか */
   termLinks: "term-links",
+  /** 符と翻を「4翻 30符」の翻→符の順で出すか */
+  fuHanOrder: "fu-han-order",
   /** ランキングに自分を表示しないか */
   leaderboardVisibility: "leaderboard-visibility",
 } as const;

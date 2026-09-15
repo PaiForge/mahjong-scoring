@@ -5,6 +5,7 @@ import {
   DEFAULT_DORA_DISPLAY_MODE,
   type DoraDisplayMode,
 } from "@/app/_lib/dora-display";
+import { DEFAULT_FU_HAN_ORDER, type FuHanOrder } from "@/app/_lib/fu-han-order";
 import { useHydrated } from "./use-hydrated";
 
 interface DisplaySettingsState {
@@ -14,6 +15,9 @@ interface DisplaySettingsState {
   /** 教本本文の語を用語リンクにするか */
   termLinks: boolean;
   setTermLinks: (enabled: boolean) => void;
+  /** 符と翻を「30符 4翻」と「4翻 30符」のどちらの順で出すか */
+  fuHanOrder: FuHanOrder;
+  setFuHanOrder: (order: FuHanOrder) => void;
 }
 
 /**
@@ -40,6 +44,8 @@ export const useDisplaySettingsStore = create<DisplaySettingsState>()(
       setDoraDisplay: (doraDisplay) => set({ doraDisplay }),
       termLinks: DEFAULT_TERM_LINKS_ENABLED,
       setTermLinks: (termLinks) => set({ termLinks }),
+      fuHanOrder: DEFAULT_FU_HAN_ORDER,
+      setFuHanOrder: (fuHanOrder) => set({ fuHanOrder }),
     }),
     {
       // 既定の浅いマージ（永続値を初期state へ上書き）により、
@@ -71,4 +77,15 @@ export function useDoraDisplayMode(): DoraDisplayMode {
 export function useTermLinksEnabled(): boolean {
   const termLinks = useDisplaySettingsStore((s) => s.termLinks);
   return useHydrated(termLinks, DEFAULT_TERM_LINKS_ENABLED);
+}
+
+/**
+ * 符と翻の表記順取得フック
+ *
+ * ハイドレーション完了までは既定値を返す（理由は {@link useHydrated} 参照）。
+ * 符翻表記順
+ */
+export function useFuHanOrder(): FuHanOrder {
+  const fuHanOrder = useDisplaySettingsStore((s) => s.fuHanOrder);
+  return useHydrated(fuHanOrder, DEFAULT_FU_HAN_ORDER);
 }

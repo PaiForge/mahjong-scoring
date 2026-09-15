@@ -3,6 +3,8 @@
 import type { ReactNode } from "react";
 import { useTranslations } from "next-intl";
 import type { ScoreTableAnswer } from "@mahjong-scoring/core";
+import { useFuHanOrder } from "@/app/_hooks/use-display-settings-store";
+import { orderFuHan } from "@/app/_lib/fu-han-order";
 import { QuestionDisplay } from "../score/_components/question-display";
 import type { ScoreQuestionResult } from "../_lib/score-question-result";
 import { restoreScoreQuestion } from "../_lib/score-question-result";
@@ -53,6 +55,7 @@ export function ScoreProblemList({
   const t = useTranslations(translationNamespace);
   // 役満止まりの注記は内訳表（challenge.yakuBreakdown）と同じ語彙で組む
   const tBreakdown = useTranslations("challenge.yakuBreakdown");
+  const fuHanOrder = useFuHanOrder();
 
   return (
     <ProblemListAccordion
@@ -60,13 +63,18 @@ export function ScoreProblemList({
       translationNamespace={translationNamespace}
       outcome={(r) => r.outcome}
       renderSummary={(result) => {
-        // 満貫以上の問題は符を持たないため、符の表示を省く。
-        // 符→翻の順（出題文の ScoreTablePrompt と同じ）
+        // 符と翻の順は表示設定に従う（出題文の ScoreTablePrompt と同じ）。
+        // 満貫以上の問題は符を持たないため、orderFuHan が符を省く
         const summary = [
           result.isOya ? t("oya") : t("ko"),
           result.isTsumo ? t("tsumo") : t("ron"),
-          ...(result.fu === undefined ? [] : [t("fu", { count: result.fu })]),
-          t("han", { count: result.han }),
+          ...orderFuHan(fuHanOrder, {
+            fu:
+              result.fu === undefined
+                ? undefined
+                : t("fu", { count: result.fu }),
+            han: t("han", { count: result.han }),
+          }),
         ].join("・");
         return summary;
       }}
