@@ -184,9 +184,26 @@ export function ResultDisplay({
           項目に見える。縦の罫線は引かない — 内訳の行は全幅（colSpan）
           なので開くたびに縦線が途切れて壊れて見えるし、アプリの表
           （DataTable / DetailTable）はどれも縦線を持たない。回答と正解は
-          色（正誤の色 / 太字）で既に分かれている */}
+          色（正誤の色 / 太字）で既に分かれている
+
+          列幅は table-fixed + colgroup で決め打ちする。比べさせたい 2 列
+          （あなたの回答 / 正解）を同じ幅にするため。中身なりに決まる
+          auto レイアウトでは、正解の列だけが役の一覧や「点数表を確認」の
+          導線を持つぶん広くなり（desktop 実測で 196px 対 462px）、同じ
+          種類の値なのに正解のほうが大きい枠を与えられた見た目になる。
+          さらに幅が問題ごとに変わる（mobile 実測で 100/222 の問題と
+          151/148 の問題）ため、「次の問題へ」で表が入れ替わるたびに回答の
+          値が横に動き、同じ場所を続けて見ていられない。項目名の列だけ
+          固定幅を与え、残りを 2 列で等分する（table-fixed は幅を指定して
+          いない列に残りを均等に配る） */}
       <div className="rounded-lg bg-surface-50 p-4">
-        <table className="w-full text-sm [&>tbody+tbody]:border-t-2 [&>tbody+tbody]:border-surface-200">
+        <table className="w-full table-fixed text-sm [&>tbody+tbody]:border-t-2 [&>tbody+tbody]:border-surface-200">
+          <colgroup>
+            {/* 項目名（役・翻数・符・点数）+ pr-4 が収まる最小限 */}
+            <col className="w-16" />
+            <col />
+            <col />
+          </colgroup>
           <thead>
             <tr className="border-b-3 border-ink">
               <th className="pb-3 pr-4 pt-2 text-left font-bold text-surface-600" />
