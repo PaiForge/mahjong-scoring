@@ -35,7 +35,10 @@ export default async function AdminLayout({
     // data-skin="plain" の配下は Tailwind 既定の角丸・ぼかし影・フォントへ戻る
     // （定義は globals.css）。
     <div data-skin="plain" className="flex min-h-screen">
-      <aside className="w-56 border-r border-surface-200 bg-surface-50 p-4">
+      {/* 狭い画面ではナビを細くする。w-56 のままだと 390px 幅で本文に
+          102px しか残らず、期間ピッカーのような縮まない部品が main から
+          溢れる（サイドバーは畳めるようにしていないので、幅で譲る） */}
+      <aside className="w-40 shrink-0 border-r border-surface-200 bg-surface-50 p-4 sm:w-56">
         {/* セクション見出し（h1）。ダッシュボードへのリンクを兼ねる */}
         <h1 className="mb-6">
           <Link
@@ -57,7 +60,12 @@ export default async function AdminLayout({
           ))}
         </nav>
       </aside>
-      <main className="flex-1 bg-secondary p-8">
+      {/* min-w-0 が要る。flex アイテムの既定は min-width:auto で、中身の
+          最小幅より狭くならない。ユーザー一覧のように列の多い表を置くと、
+          表の中の overflow-x-auto が効く前にこの main 自体が広がり、
+          横に流れるのが表ではなくページ全体になる（サイドバーごとずれる。
+          390px 幅で 356px はみ出すのを実測）。 */}
+      <main className="min-w-0 flex-1 bg-secondary p-4 sm:p-8">
         <NuqsAdapter>{children}</NuqsAdapter>
       </main>
     </div>

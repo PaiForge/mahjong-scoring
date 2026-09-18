@@ -93,8 +93,9 @@ export function AdminLogPageLayout({
     <div className="space-y-6">
       <AdminPageTitle>{title}</AdminPageTitle>
 
-      {/* フィルタ */}
-      <form className="flex items-end gap-4">
+      {/* フィルタ。狭い画面では折り返す — select・入力・ボタンはどれも
+          縮まないので、1 行に並べたままだとページごと横に流れる */}
+      <form className="flex flex-wrap items-end gap-4">
         <div>
           <label
             htmlFor="action-filter"
