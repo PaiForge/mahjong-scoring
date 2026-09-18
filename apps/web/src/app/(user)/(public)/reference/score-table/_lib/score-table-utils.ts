@@ -14,6 +14,17 @@ export const HAN_COLS = [1, 2, 3, 4] as const;
 /** 符×翻表の符行（20〜110符） */
 export const FU_ROWS = FU_VALUES;
 
+/**
+ * 符×翻表の左端（符）の列幅
+ *
+ * 表は `table-fixed` で、幅を与えるのはこの列だけ。残りを翻の 4 列が均等に
+ * 分ける。見出しの「符＼翻」が折り返さない最小限（狭い画面では詰めた余白
+ * `px-2` 込みで 64px、sm 以上は `px-4` 込みで 80px）に取り、余った幅は
+ * 点数の列へ回す。本体とスケルトンで同じ幅を使うため定数にしている
+ * （ずれるとスケルトンが読み込み中の表の形を写せない）。
+ */
+export const SCORE_TABLE_FU_COLUMN_CLASS = "w-16 sm:w-20";
+
 /** 点数表の表示モード（符×翻 / 満貫以上） */
 export type ScoreTableViewMode = "normal" | "high_score";
 
