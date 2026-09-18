@@ -3,6 +3,7 @@ import { SkeletonBar } from "@/app/_components/skeleton-bar";
 import { PracticeLinkButtonSkeleton } from "@/app/(user)/_components/practice-link-button";
 import { SUB_LINK_GAP } from "@/app/_components/_lib/spacing";
 import {
+  ATTEMPT_HISTORY_COLUMNS,
   CompactTable,
   CompactTableCell,
   CompactTableHeaderCell,
@@ -34,6 +35,7 @@ function ScoreChartSkeleton() {
 function AttemptHistoryTableSkeleton() {
   return (
     <CompactTable
+      columns={ATTEMPT_HISTORY_COLUMNS}
       head={
         <>
           <CompactTableHeaderCell>
