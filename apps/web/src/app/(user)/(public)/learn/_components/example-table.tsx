@@ -4,6 +4,7 @@ import {
   DataTable,
   DataTableHeaderCell,
 } from "@/app/(user)/_components/data-table";
+import { REFERENCE_TABLE_MAX_WIDTH } from "../_lib/reference-table-width";
 
 interface ExampleTableRow {
   /** 牌のセルの中身（{@link TileSet} 等のクライアントコンポーネント） */
@@ -48,7 +49,7 @@ export function ExampleTable({
   rows,
 }: ExampleTableProps) {
   return (
-    <div className="space-y-2">
+    <div className={`space-y-2 ${REFERENCE_TABLE_MAX_WIDTH}`}>
       <h3 className="text-xs font-semibold uppercase tracking-wider text-surface-400">
         {title}
       </h3>

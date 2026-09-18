@@ -3,6 +3,7 @@ import {
   DataTableHeaderCell,
 } from "@/app/(user)/_components/data-table";
 import { SectionTitle } from "@/app/(user)/_components/section-title";
+import { REFERENCE_TABLE_MAX_WIDTH } from "../_lib/reference-table-width";
 
 interface FuSummaryRow {
   /** 翻訳済みの種類ラベル */
@@ -41,32 +42,34 @@ export function FuSummaryTable({
   return (
     <section className="space-y-4">
       <SectionTitle>{title}</SectionTitle>
-      <DataTable
-        header={
-          <>
-            <DataTableHeaderCell align="left">{colType}</DataTableHeaderCell>
-            <DataTableHeaderCell align="right">{colFu}</DataTableHeaderCell>
-          </>
-        }
-      >
-        {rows.map((row, index) => {
-          const hasFu = row.fu > 0;
-          return (
-            <tr key={index} className="bg-white">
-              <td
-                className={`px-4 py-3 ${hasFu ? "text-surface-900" : "text-surface-500"}`}
-              >
-                {row.label}
-              </td>
-              <td
-                className={`px-4 py-3 text-right ${hasFu ? "font-semibold text-primary-600" : "text-surface-400"}`}
-              >
-                {formatFu(row.fu)}
-              </td>
-            </tr>
-          );
-        })}
-      </DataTable>
+      <div className={REFERENCE_TABLE_MAX_WIDTH}>
+        <DataTable
+          header={
+            <>
+              <DataTableHeaderCell align="left">{colType}</DataTableHeaderCell>
+              <DataTableHeaderCell align="right">{colFu}</DataTableHeaderCell>
+            </>
+          }
+        >
+          {rows.map((row, index) => {
+            const hasFu = row.fu > 0;
+            return (
+              <tr key={index} className="bg-white">
+                <td
+                  className={`px-4 py-3 ${hasFu ? "text-surface-900" : "text-surface-500"}`}
+                >
+                  {row.label}
+                </td>
+                <td
+                  className={`px-4 py-3 text-right ${hasFu ? "font-semibold text-primary-600" : "text-surface-400"}`}
+                >
+                  {formatFu(row.fu)}
+                </td>
+              </tr>
+            );
+          })}
+        </DataTable>
+      </div>
     </section>
   );
 }
