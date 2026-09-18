@@ -71,6 +71,8 @@ export function DataTableHeaderCell({
 }
 
 interface DataTableRowHeaderCellProps {
+  /** セルの余白（既定は px-4。狭い画面で収まらない表は "dense"） */
+  readonly density?: DataTableDensity;
   readonly children: ReactNode;
 }
 
@@ -81,12 +83,18 @@ interface DataTableRowHeaderCellProps {
  * 行の左端に置く見出し。ヘッダー行（{@link DataTableHeaderCell}）と違い本文の
  * 一部なので `td` で描き、値のセルより弱いコントラストにして左揃えで固定する。
  * 折り返すと表が縦に伸びて行の対応が読みにくくなるため、改行させない。
+ *
+ * `density` は同じ表の他のセルと必ず揃える。1 列だけ余白が違うと、狭い画面で
+ * 表を細くした効果がその列で相殺される。
  */
 export function DataTableRowHeaderCell({
+  density = "default",
   children,
 }: DataTableRowHeaderCellProps) {
   return (
-    <td className="px-4 py-3 text-left font-medium whitespace-nowrap text-surface-600">
+    <td
+      className={`${DATA_TABLE_CELL_PADDING[density]} text-left font-medium whitespace-nowrap text-surface-600`}
+    >
       {children}
     </td>
   );
@@ -108,6 +116,19 @@ interface DataTableProps {
  * 太枠・ヘッダー行の背景・破線の行区切りというアプリ共通の表の体裁を
  * 1 箇所に集約する。教本の早見表と点数表リファレンスで共有する。
  * サーバー / クライアントどちらのコンポーネントからも使える。
+ *
+ * 横に溢れた分はこの枠の中でスクロールさせる（`overflow-x-auto`）。角を
+ * 丸めるためだけに `overflow-hidden` にしていたときは、幅の足りない表が
+ * 黙って切り落とされ、スクロールする手段も無かった（2026-09 に実測：
+ * 320px 幅の `/learn/fu-doubling` で表の右 66px、390px 幅の
+ * `/learn/ron-to-tsumo` で結論の列「実際に払う」が丸ごと見えない）。
+ * 表側が外に `overflow-x-auto` の div を足しても効かない — 内側のこの枠が
+ * 先に切るため、外の div には溢れが届かずスクロールが起きない。だから
+ * 溢れの面倒はここが見る。
+ *
+ * スクロールはあくまで最後の受け皿で、まず収まることを狙う。列の多い表は
+ * {@link DATA_TABLE_CELL_PADDING} の `dense` を全セルに揃えて指定し、狭い
+ * 画面でだけ列を細くすること。
  */
 export function DataTable({
   header,
@@ -119,7 +140,7 @@ export function DataTable({
     .join(" ");
 
   return (
-    <div className="overflow-hidden rounded-xl border-3 border-ink">
+    <div className="overflow-x-auto rounded-xl border-3 border-ink">
       <table className={className}>
         <thead>
           <tr className="border-b-3 border-ink bg-primary-50">{header}</tr>

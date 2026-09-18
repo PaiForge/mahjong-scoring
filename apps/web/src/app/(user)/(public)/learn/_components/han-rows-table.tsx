@@ -2,6 +2,7 @@ import type { ReactNode } from "react";
 import { getTranslations } from "next-intl/server";
 
 import {
+  DATA_TABLE_CELL_PADDING,
   DataTable,
   DataTableHeaderCell,
   DataTableRowHeaderCell,
@@ -35,7 +36,9 @@ interface HanRowsTableProps<TRow extends { readonly han: number }> {
  * 見出し（「子のロン（30符）」等）は含まない。章ごとに見出しの強さが違う
  * ため、表の外側で各章が自分の見出しを置く。
  *
- * 横スクロールは表自身が持つ。列が増えると狭い画面で溢れるが、ページ全体を
+ * セルの余白は `dense`（狭い画面でだけ左右を詰める）。導出の過程を並べる
+ * 章では点数の列が 3 つ以上並ぶため、既定の px-4 では狭い画面に収まらない。
+ * 溢れた分は {@link DataTable} の枠の中で横スクロールする — ページ全体を
  * 横に流すと本文まで動いてしまうため、溢れるのは表の中だけに閉じる。
  */
 export async function HanRowsTable<TRow extends { readonly han: number }>({
@@ -45,40 +48,38 @@ export async function HanRowsTable<TRow extends { readonly han: number }>({
   const t = await getTranslations("learnCurriculum.scoreTable");
 
   return (
-    <div className="w-full overflow-x-auto">
-      <DataTable
-        tableClassName="text-center"
-        header={
-          <>
-            <DataTableHeaderCell align="left">
-              {t("colHan")}
+    <DataTable
+      tableClassName="text-center"
+      header={
+        <>
+          <DataTableHeaderCell align="left" density="dense">
+            {t("colHan")}
+          </DataTableHeaderCell>
+          {columns.map((column, index) => (
+            <DataTableHeaderCell key={index} density="dense">
+              {column.header}
             </DataTableHeaderCell>
-            {columns.map((column, index) => (
-              <DataTableHeaderCell key={index}>
-                {column.header}
-              </DataTableHeaderCell>
-            ))}
-          </>
-        }
-      >
-        {rows.map((row) => (
-          <tr key={row.han} className="bg-white">
-            <DataTableRowHeaderCell>
-              {t("hanUnit", { value: row.han })}
-            </DataTableRowHeaderCell>
-            {columns.map((column, index) => (
-              <td
-                key={index}
-                className={["px-4 py-3", column.className]
-                  .filter(Boolean)
-                  .join(" ")}
-              >
-                {column.render(row)}
-              </td>
-            ))}
-          </tr>
-        ))}
-      </DataTable>
-    </div>
+          ))}
+        </>
+      }
+    >
+      {rows.map((row) => (
+        <tr key={row.han} className="bg-white">
+          <DataTableRowHeaderCell density="dense">
+            {t("hanUnit", { value: row.han })}
+          </DataTableRowHeaderCell>
+          {columns.map((column, index) => (
+            <td
+              key={index}
+              className={[DATA_TABLE_CELL_PADDING.dense, column.className]
+                .filter(Boolean)
+                .join(" ")}
+            >
+              {column.render(row)}
+            </td>
+          ))}
+        </tr>
+      ))}
+    </DataTable>
   );
 }

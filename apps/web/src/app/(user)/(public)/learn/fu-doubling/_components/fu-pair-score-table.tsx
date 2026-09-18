@@ -2,6 +2,7 @@ import { getTranslations } from "next-intl/server";
 import { type Role, type WinType } from "@mahjong-scoring/core";
 
 import {
+  DATA_TABLE_CELL_PADDING,
   DataTable,
   DataTableHeaderCell,
   DataTableRowHeaderCell,
@@ -73,13 +74,13 @@ export async function FuPairScoreTable({
 
   const renderRow = (fu: number, cells: readonly FuPairCell[]) => (
     <tr className="bg-white">
-      <DataTableRowHeaderCell>
+      <DataTableRowHeaderCell density="dense">
         {t("fuUnit", { value: fu })}
       </DataTableRowHeaderCell>
       {cells.map((cell) => (
         <td
           key={cell.han}
-          className={`px-4 py-3${
+          className={`${DATA_TABLE_CELL_PADDING.dense}${
             cell.linked ? ` ${TABLE_HIGHLIGHT_CELL_CLASS}` : ""
           }`}
         >
@@ -94,27 +95,26 @@ export async function FuPairScoreTable({
       <h3 className="text-xs font-semibold tracking-wider text-surface-400 uppercase">
         {caption}
       </h3>
-      {/* 翻が複数列並ぶため、狭い画面では表だけを横スクロールさせる */}
-      <div className="w-full overflow-x-auto">
-        <DataTable
-          tableClassName="text-center"
-          header={
-            <>
-              <DataTableHeaderCell align="left">
-                {t("colFuHan")}
+      {/* 翻が複数列並ぶため、セルの余白は狭い画面でだけ詰める（dense）。
+          それでも収まらない幅では DataTable の枠の中で横スクロールする */}
+      <DataTable
+        tableClassName="text-center"
+        header={
+          <>
+            <DataTableHeaderCell align="left" density="dense">
+              {t("colFuHan")}
+            </DataTableHeaderCell>
+            {HAN_COLS.map((han) => (
+              <DataTableHeaderCell key={han} density="dense">
+                {t("hanUnit", { value: han })}
               </DataTableHeaderCell>
-              {HAN_COLS.map((han) => (
-                <DataTableHeaderCell key={han}>
-                  {t("hanUnit", { value: han })}
-                </DataTableHeaderCell>
-              ))}
-            </>
-          }
-        >
-          {renderRow(pair.low, rows.low)}
-          {renderRow(pair.high, rows.high)}
-        </DataTable>
-      </div>
+            ))}
+          </>
+        }
+      >
+        {renderRow(pair.low, rows.low)}
+        {renderRow(pair.high, rows.high)}
+      </DataTable>
     </div>
   );
 }

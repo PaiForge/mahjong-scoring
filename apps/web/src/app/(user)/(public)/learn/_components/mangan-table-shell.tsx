@@ -4,6 +4,7 @@ import { HIGH_SCORES } from "@mahjong-scoring/core";
 
 import {
   DATA_TABLE_ALIGN_CLASS,
+  DATA_TABLE_CELL_PADDING,
   DataTable,
   DataTableHeaderCell,
 } from "@/app/(user)/_components/data-table";
@@ -45,6 +46,10 @@ interface ManganTableShellProps {
  * 満貫以上は翻数だけで点数が決まるため、どの表も「種類・翻数」の2列で始まる。
  * その2列と枠・ヘッダー・行の体裁をここに集約し、各表は続く列の定義と
  * セルの値だけを持つ。
+ *
+ * セルの余白は `dense`（狭い画面でだけ左右を詰める）。「種類・翻数」に
+ * 続く列が 2 つ並ぶ表（子ツモの「子（1人）／親／合計」）は、既定の px-4 では
+ * 狭い画面で枠から溢れる。
  */
 export async function ManganTableShell({
   columns,
@@ -87,7 +92,7 @@ export async function ManganTableShell({
             return (
               <td
                 key={column.headerKey}
-                className={`px-4 py-3 ${DATA_TABLE_ALIGN_CLASS[column.align]} ${column.cellClassName}`}
+                className={`${DATA_TABLE_CELL_PADDING.dense} ${DATA_TABLE_ALIGN_CLASS[column.align]} ${column.cellClassName}`}
               >
                 {cell}
               </td>
