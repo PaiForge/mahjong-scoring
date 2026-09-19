@@ -20,8 +20,17 @@ const CHIP_MARKS: Record<YakuSelectionState, JudgementVerdict | undefined> = {
   missed: undefined,
 };
 
+/**
+ * チップの枠と並び
+ *
+ * 役名と状態の語はそれぞれ折り返さず、入りきらないときはチップの中で
+ * 行を分ける（`flex-wrap`）。既定のままだと 2 つとも縮んでそれぞれの
+ * 内部で改行し、狭い列では「門前清自摸」＋「和」・「選び忘」＋「れ」の
+ * ように最後の 1 文字だけが落ちる。登録されている役名は最長でも 6 文字
+ * （門前清自摸和）なので、名前だけなら 1 行に収まる。
+ */
 const CHIP_BASE_CLASSES =
-  "inline-flex items-center gap-1 rounded-md border px-2 py-0.5 text-xs";
+  "inline-flex flex-wrap items-center justify-center gap-x-1 rounded-md border px-2 py-0.5 text-xs";
 
 interface YakuJudgementChipsProps {
   readonly judgements: readonly YakuSelectionJudgement[];
@@ -72,9 +81,9 @@ export function YakuJudgementChips({
         const className = `${CHIP_BASE_CLASSES} ${YAKU_SELECTION_CLASSES[judgement.state]}`;
         const content = (
           <>
-            {judgement.name}
+            <span className="whitespace-nowrap">{judgement.name}</span>
             {mark === undefined ? (
-              <span className="text-[0.625rem] font-medium">
+              <span className="whitespace-nowrap text-[0.625rem] font-medium">
                 {t(`yakuJudgement.${judgement.state}`)}
               </span>
             ) : (
