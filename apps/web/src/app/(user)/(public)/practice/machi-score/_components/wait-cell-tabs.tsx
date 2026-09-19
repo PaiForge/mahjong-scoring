@@ -98,6 +98,12 @@ interface WaitCellTabsProps {
  * 正解の点数は「翻・符」と「支払い」の 2 行に積む。1 行に並べると幅が
  * 点数の文字で決まり、2 面待ちの 4 タブでも狭い画面に収まらなかった
  * （実測で 1 タブ約 125〜140px）。2 行なら幅は支払いの文字ぶんで済む。
+ *
+ * タブの左右の余白と隙間は詰めてある。2 行に積んだ後もタブの幅を決めて
+ * いるのは支払いの行で、「8000/16000」のように長いと 1 タブ 98px まで
+ * 伸びる。幅 375px の端末（タブ列に使えるのは 343px）では 2 面待ちの
+ * 4 タブが時々溢れたため、余白と隙間で 22px ぶん削って収まるようにした。
+ * 広げ直すとこの端末で横スクロールが戻る。
  * 役なしのマスは「役なし」の 1 行だけだが、タブの高さは列で揃える
  * （flex の stretch）。1 つだけ低いタブが混ざると上端が凹んで見える。
  * 「役なし」は翻・符の行の位置に出る — 役なしは翻数が無いという主張
@@ -153,7 +159,7 @@ export function WaitCellTabs({
     <div
       role="tablist"
       aria-label={t("result.summaryTitle")}
-      className="relative z-10 flex items-stretch gap-1 overflow-x-auto"
+      className="relative z-10 flex items-stretch gap-0.5 overflow-x-auto"
       style={{ paddingBottom: overlap, marginBottom: `-${overlap}` }}
       onKeyDown={handleKeyDown}
     >
@@ -193,12 +199,12 @@ export function WaitCellTabs({
             // （高さは stretch で他のタブに揃うので上端は動かない）。
             // フォーカスのリングは箱の overflow で切れないよう内側に引く
             style={isFocused ? { marginBottom: `-${overlap}` } : undefined}
-            className={`flex shrink-0 flex-col items-center gap-0.5 rounded-t-lg border-3 border-b-0 border-ink px-2 pb-1.5 pt-1 text-xs font-bold focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-primary-500 ${tabTone(
+            className={`flex shrink-0 flex-col items-center gap-0.5 rounded-t-lg border-3 border-b-0 border-ink px-1.5 pb-1.5 pt-1 text-xs font-bold focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-primary-500 ${tabTone(
               verdict,
               isFocused,
             )}`}
           >
-            <span className="flex items-center gap-1">
+            <span className="flex items-center gap-0.5">
               <span>{t(cell.isTsumo ? "cells.tsumo" : "cells.ron")}</span>
               <Hai hai={cell.agariHai} size="xs" />
               {verdict && (
