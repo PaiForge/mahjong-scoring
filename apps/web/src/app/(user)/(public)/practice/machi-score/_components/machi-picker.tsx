@@ -5,6 +5,11 @@ import { useTranslations } from "next-intl";
 import { HaiKind, haiIdToMspz } from "@mahjong-scoring/core";
 import type { HaiKindId, MachiSelectionJudgement } from "@mahjong-scoring/core";
 import { Hai } from "@pai-forge/mahjong-react-ui";
+import {
+  MACHI_TILE_MARK_CLASSES,
+  machiTileMark,
+  type MachiTileMark,
+} from "../_lib/machi-tile-mark";
 
 /**
  * 牌種を種類ごとに並べた選択肢の行
@@ -29,28 +34,14 @@ function tilesOf(row: (typeof TILE_ROWS)[number]): readonly HaiKindId[] {
   return tiles;
 }
 
-/** 判定後の牌の状態 */
-type TileMark = "correct" | "extra" | "missed" | undefined;
-
-function markOf(
-  hai: HaiKindId,
-  selected: boolean,
-  judgement: MachiSelectionJudgement | undefined,
-): TileMark {
-  if (!judgement) return undefined;
-  if (judgement.extra.includes(hai)) return "extra";
-  if (judgement.missed.includes(hai)) return "missed";
-  if (selected && judgement.correct.includes(hai)) return "correct";
-  return undefined;
-}
-
 /**
  * 牌の枠と背景。押せる面なので太枠 + 押し込み演出（ChoiceButton と同じ語彙）。
- * 判定後は正誤の配色に切り替え、待ちでも選んでもいない牌は薄くする。
+ * 判定後は正誤の配色（答え合わせと共通の `MACHI_TILE_MARK_CLASSES`）に
+ * 切り替え、待ちでも選んでもいない牌は薄くする。
  */
 function tileClasses(
   selected: boolean,
-  mark: TileMark,
+  mark: MachiTileMark | undefined,
   judged: boolean,
 ): string {
   if (!judged) {
@@ -58,16 +49,9 @@ function tileClasses(
       ? "border-primary-500 bg-primary-50"
       : "border-ink bg-white hover:bg-primary-50";
   }
-  switch (mark) {
-    case "correct":
-      return "border-success bg-success-subtle";
-    case "extra":
-      return "border-destructive bg-destructive-subtle";
-    case "missed":
-      return "border-success border-dashed bg-white";
-    default:
-      return "border-ink bg-white opacity-40";
-  }
+  return mark
+    ? MACHI_TILE_MARK_CLASSES[mark]
+    : "border-ink bg-white opacity-40";
 }
 
 interface MachiPickerProps {
@@ -108,7 +92,7 @@ export const MachiPicker = memo(function MachiPickerComponent({
         >
           {tilesOf(row).map((hai) => {
             const isSelected = selected.includes(hai);
-            const mark = markOf(hai, isSelected, judgement);
+            const mark = machiTileMark(hai, isSelected, judgement);
             return (
               <button
                 key={hai}

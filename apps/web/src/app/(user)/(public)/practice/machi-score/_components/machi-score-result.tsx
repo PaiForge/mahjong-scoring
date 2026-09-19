@@ -4,6 +4,7 @@ import { useState } from "react";
 import type { ReactNode } from "react";
 import { useTranslations } from "next-intl";
 import type {
+  HaiKindId,
   JudgementResult,
   MachiCellAnswer,
   MachiScoreQuestion,
@@ -22,6 +23,11 @@ import {
   indexRuns,
   resultCellKey,
 } from "../_lib/cell-runs";
+import {
+  MACHI_TILE_MARK_CLASSES,
+  machiTileMark,
+  type MachiTileMark,
+} from "../_lib/machi-tile-mark";
 import { MACHI_SCORE_TOUR_ID } from "../_lib/tour-ids";
 import {
   cellKeyOf,
@@ -31,6 +37,8 @@ import {
 
 interface MachiScoreResultProps {
   readonly question: MachiScoreQuestion;
+  /** 選んだ待ち牌（あなたの回答）。判定前に開示したときは空 */
+  readonly selectedMachi: readonly HaiKindId[];
   /** 待ち牌の判定。「わからない」で待ちを答える前に開示したときは undefined */
   readonly machiJudgement: MachiSelectionJudgement | undefined;
   readonly cellAnswers: Readonly<Record<string, MachiCellAnswer>>;
@@ -59,13 +67,42 @@ function cellClasses(
   return isFocused ? `${tone} ring-2 ring-primary-500 ring-offset-2` : tone;
 }
 
+interface MarkedHaiProps {
+  readonly hai: HaiKindId;
+  /** 判定の印。無いときは枠を透明にして場所だけ取る */
+  readonly mark?: MachiTileMark;
+}
+
+/**
+ * 判定の印を付けた牌 1 枚
+ * 印付きの牌
+ *
+ * 枠は印が無くても同じ太さで描く（色だけ透明にする）。印の有無で牌の
+ * 大きさが変わると、「あなたの回答」と「正解」の 2 列で同じ牌が縦に
+ * ずれて比べにくい。
+ */
+function MarkedHai({ hai, mark }: MarkedHaiProps) {
+  return (
+    <span
+      className={`inline-flex rounded-md border-2 p-0.5 ${
+        mark ? MACHI_TILE_MARK_CLASSES[mark] : "border-transparent"
+      }`}
+    >
+      <Hai hai={hai} size="sm" />
+    </span>
+  );
+}
+
 /**
  * 待ち別点数計算の答え合わせ
  * 待ち別結果表示
  *
- * 上に待ち牌の正誤、次に待ち × ツモ/ロン の一覧（正解と、外していれば
- * 自分の回答）、下に選んだマスの内訳（点数計算総合演習と同じ結果表 +
- * 面子分解）を出す。マスは多いと 6 つ以上あるため内訳は 1 つずつ見せる。
+ * 上に待ち牌（あなたの回答と正解）、次に待ち × ツモ/ロン の一覧（正解と、
+ * 外していれば自分の回答）、下に選んだマスの内訳（点数計算総合演習と同じ
+ * 結果表 + 面子分解）を出す。マスは多いと 6 つ以上あるため内訳は 1 つずつ
+ * 見せる。段階が違うだけでどれも「回答と正解を並べる」同じ形にする —
+ * 待ちだけ正誤の一文で済ませると、点数は見比べられるのに待ちは言い渡され
+ * るだけになり、外した牌が結果の画面に残らない。
  *
  * 一覧では、縦に隣り合っていて正解・内訳・自分の回答がすべて同じマス
  * （{@link resultCellKey}）を回答の段階と同じく `rowSpan` で 1 つの塊にする。
@@ -79,6 +116,7 @@ function cellClasses(
  */
 export function MachiScoreResult({
   question,
+  selectedMachi,
   machiJudgement,
   cellAnswers,
   cellResults,
@@ -95,6 +133,9 @@ export function MachiScoreResult({
   const tCommon = useTranslations("common");
   const cells = listCellRefs(question);
   const [focused, setFocused] = useState<MachiCellRef>(cells[0]);
+  // 選んだ順ではなく牌の順に並べる。正解の列（出題の並び = 牌の順）と
+  // 同じ並びになり、2 列を横に見比べられる
+  const answeredMachi = [...selectedMachi].sort((a, b) => a - b);
 
   const cellQuestionOf = (cell: MachiCellRef): ScoreQuestion | undefined => {
     const wait = question.waits.find((w) => w.agariHai === cell.agariHai);
@@ -120,28 +161,84 @@ export function MachiScoreResult({
 
   return (
     <div className="space-y-4 sm:space-y-6">
-      {/* 待ち牌の正誤。開示のときは正解の待ちだけを見せる */}
-      <div className="flex flex-wrap items-center gap-3 rounded-lg bg-surface-50 p-4">
-        <span
-          className={`text-sm font-bold ${
-            machiJudgement === undefined
-              ? "text-surface-700"
-              : machiJudgement.isCorrect
-                ? "text-success"
-                : "text-destructive"
-          }`}
-        >
-          {machiJudgement === undefined
-            ? t("machiRevealed")
-            : machiJudgement.isCorrect
-              ? t("machiCorrect")
-              : t("machiIncorrect")}
-        </span>
-        <span className="flex gap-1">
-          {question.waits.map((wait) => (
-            <Hai key={wait.agariHai} hai={wait.agariHai} size="sm" />
-          ))}
-        </span>
+      {/* 待ち牌の答え合わせ。下のマスと同じく「あなたの回答」と「正解」を
+          並べる（マスを押すと出る結果表 ResultDisplay と同じ 2 列の形）。
+          「正解でした」の一文だけだと、点数は回答と正解を突き合わせて
+          読めるのに待ちだけ結果を言い渡される形になり、どの牌を余分に
+          選んだのか・どれを落としたのかが結果の画面に残らない。
+          全体の正誤を名乗る見出しは置かない — 2 列を並べた時点で読めば
+          分かり、回答の側に付く ✓/✗ が既に判定を持っている */}
+      <div className="space-y-2">
+        <h3 className="text-sm font-bold text-surface-700">
+          {t("machiTitle")}
+        </h3>
+        <div className="rounded-lg bg-surface-50 p-4">
+          {/* 列幅は table-fixed で等分する（理由は ResultDisplay と同じ:
+              比べさせたい 2 列の幅が中身で変わると、問題ごとに回答の牌が
+              横へ動く） */}
+          <table className="w-full table-fixed text-sm">
+            <thead>
+              <tr className="border-b-3 border-ink">
+                <th className="whitespace-nowrap pb-3 pr-4 pt-2 text-right font-bold text-surface-600">
+                  {tScore("result.headers.answer")}
+                </th>
+                <th className="whitespace-nowrap pb-3 pt-2 text-right font-bold text-surface-600">
+                  {tScore("result.headers.correct")}
+                </th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td className="py-2 pr-4 align-top">
+                  {machiJudgement ? (
+                    <span className="flex flex-wrap items-center justify-end gap-1">
+                      {answeredMachi.map((hai) => (
+                        <MarkedHai
+                          key={hai}
+                          hai={hai}
+                          mark={machiTileMark(hai, true, machiJudgement)}
+                        />
+                      ))}
+                      {/* 牌の隣なので記号も牌に釣り合う大きさにする
+                          （JudgementMark の寸法は文字の em で決まる） */}
+                      <span className="text-2xl leading-none">
+                        <JudgementMark
+                          verdict={
+                            machiJudgement.isCorrect ? "correct" : "incorrect"
+                          }
+                          label={tCommon(
+                            machiJudgement.isCorrect ? "correct" : "incorrect",
+                          )}
+                        />
+                      </span>
+                    </span>
+                  ) : (
+                    <span className="block text-right text-surface-400">
+                      {tScore("result.unanswered")}
+                    </span>
+                  )}
+                </td>
+                <td className="py-2 align-top">
+                  <span className="flex flex-wrap items-center justify-end gap-1">
+                    {question.waits.map((wait) => (
+                      // 選び落とした牌だけ印を残す。選んだ牌の正誤は回答の
+                      // 側が既に言っていて、見落としはそこに出てこない
+                      <MarkedHai
+                        key={wait.agariHai}
+                        hai={wait.agariHai}
+                        mark={
+                          machiJudgement?.missed.includes(wait.agariHai)
+                            ? "missed"
+                            : undefined
+                        }
+                      />
+                    ))}
+                  </span>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
       </div>
 
       {/* 待ち × ツモ/ロン の一覧 */}

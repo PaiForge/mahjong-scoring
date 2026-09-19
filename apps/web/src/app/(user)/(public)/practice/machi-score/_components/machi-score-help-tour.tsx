@@ -157,6 +157,7 @@ export function MachiScoreHelpTour() {
         node: (
           <MachiScoreResult
             question={sample}
+            selectedMachi={waits}
             machiJudgement={judgeMachiSelection(sample, waits)}
             cellAnswers={answers}
             cellResults={results}
