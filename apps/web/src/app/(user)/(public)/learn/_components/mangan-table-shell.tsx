@@ -47,9 +47,11 @@ interface ManganTableShellProps {
  * その2列と枠・ヘッダー・行の体裁をここに集約し、各表は続く列の定義と
  * セルの値だけを持つ。
  *
- * セルの余白は `dense`（狭い画面でだけ左右を詰める）。「種類・翻数」に
- * 続く列が 2 つ並ぶ表（子ツモの「子（1人）／親／合計」）は、既定の px-4 では
- * 狭い画面で枠から溢れる。
+ * セルの余白は見出し行・「種類・翻数」・値の列すべて `dense`（狭い画面で
+ * だけ左右を詰める）。「種類・翻数」に続く列が 2 つ並ぶ表（子ツモの
+ * 「子（1人）／親／合計」）は、既定の px-4 では狭い画面で枠から溢れる。
+ * 値の列だけ詰めて先頭 2 列を px-4 のままにすると、320px の子ツモで
+ * 7px の横スクロールが残る（実測）。
  */
 export async function ManganTableShell({
   columns,
@@ -63,14 +65,20 @@ export async function ManganTableShell({
     <DataTable
       header={
         <>
-          <DataTableHeaderCell align="left">{t("colType")}</DataTableHeaderCell>
+          <DataTableHeaderCell align="left" density="dense">
+            {t("colType")}
+          </DataTableHeaderCell>
           {showHan && (
-            <DataTableHeaderCell align="right">
+            <DataTableHeaderCell align="right" density="dense">
               {t("colHan")}
             </DataTableHeaderCell>
           )}
           {columns.map((column) => (
-            <DataTableHeaderCell key={column.headerKey} align={column.align}>
+            <DataTableHeaderCell
+              key={column.headerKey}
+              align={column.align}
+              density="dense"
+            >
               {t(column.headerKey)}
             </DataTableHeaderCell>
           ))}
@@ -79,11 +87,15 @@ export async function ManganTableShell({
     >
       {HIGH_SCORES.map((row) => (
         <tr key={row.nameKey} className="bg-white">
-          <td className="px-4 py-3 font-medium text-surface-900">
+          <td
+            className={`${DATA_TABLE_CELL_PADDING.dense} font-medium text-surface-900`}
+          >
             {tScore(row.nameKey)}
           </td>
           {showHan && (
-            <td className="px-4 py-3 text-right text-surface-600">
+            <td
+              className={`${DATA_TABLE_CELL_PADDING.dense} text-right text-surface-600`}
+            >
               {HAN_DISPLAY[row.nameKey]}
             </td>
           )}
