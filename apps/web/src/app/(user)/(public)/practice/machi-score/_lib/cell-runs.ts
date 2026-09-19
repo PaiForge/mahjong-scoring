@@ -1,7 +1,6 @@
 import type {
   MachiCellAnswer,
   MachiScoreQuestion,
-  ScoreQuestion,
 } from "@mahjong-scoring/core";
 import { cellKeyOf, type MachiCellRef } from "../_hooks/use-machi-score-store";
 
@@ -24,38 +23,6 @@ export function answerKey(answer: MachiCellAnswer): string {
     scoreFromOya,
     [...yakus].sort(),
   ]);
-}
-
-/**
- * 答え合わせで同じ塊にしてよいマスのキー
- * 結果キー
- *
- * 答え合わせの塊は回答の段階より条件が厳しい。塊を押すと下に内訳が
- * 1 つ出て、そこには正解の翻・符・点数と役の内訳・符の内訳、そして自分の
- * 回答が並ぶ。その全部が同じマスだけを塊にする — 点数の文字が同じだけ
- * では足りない。片方は嵌張の 2 符、片方は両面で明刻の符が違い、合計が
- * たまたま同じという手があり、その違いこそこの練習で見せたいもの。
- * 別々に違う回答をしたマスは正解が同じでも分けたまま（片方だけ不正解の
- * ような状態を 1 つの塊にはできない）。「わからない」で開示したときは
- * 回答が無いので正解と内訳だけで決まる。
- *
- * 面子分解は比べない。和了牌ごとに必ず違うので比べると何も塊にならず、
- * 答え合わせの画面が塊の内訳に和了牌ごとの分解リンクを並べて補う。
- */
-export function resultCellKey(
-  cellQuestion: Readonly<ScoreQuestion> | undefined,
-  answer: MachiCellAnswer | undefined,
-): string {
-  const correct = cellQuestion
-    ? [
-        cellQuestion.answer.han,
-        cellQuestion.answer.fu,
-        cellQuestion.answer.payment,
-        cellQuestion.yakuDetails ?? [],
-        cellQuestion.fuDetails ?? [],
-      ]
-    : "noYaku";
-  return JSON.stringify([correct, answer ? answerKey(answer) : undefined]);
 }
 
 /**

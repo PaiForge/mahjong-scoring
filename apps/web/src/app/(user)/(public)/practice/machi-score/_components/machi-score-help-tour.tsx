@@ -25,6 +25,7 @@ import {
 import {
   correctCellAnswerOf,
   formatCellAnswer,
+  formatCellAnswerLines,
 } from "../_lib/format-cell-answer";
 import { MachiPicker } from "./machi-picker";
 import { MachiScoreResult } from "./machi-score-result";
@@ -98,14 +99,17 @@ export function MachiScoreHelpTour() {
     const waits = sample.waits.map((wait) => wait.agariHai);
     const { answers, results } = buildCorrectCells(sample);
     const isOyaQuestion = isOya(sample.jikaze);
+    const formatOptions = (isTsumo: boolean) => ({
+      t: tScore,
+      noYakuLabel: t("cells.noYakuShort"),
+      simplifyMangan: false,
+      allowDoubleYakuman: false,
+      isOyaTsumo: isOyaQuestion && isTsumo,
+    });
     const formatAnswer = (answer: MachiCellAnswer, isTsumo: boolean) =>
-      formatCellAnswer(answer, {
-        t: tScore,
-        noYakuLabel: t("cells.noYakuShort"),
-        simplifyMangan: false,
-        allowDoubleYakuman: false,
-        isOyaTsumo: isOyaQuestion && isTsumo,
-      });
+      formatCellAnswer(answer, formatOptions(isTsumo));
+    const formatAnswerLines = (answer: MachiCellAnswer, isTsumo: boolean) =>
+      formatCellAnswerLines(answer, formatOptions(isTsumo));
     // マスのスライドはツモ列を回答済み、ロン列を選択中の途中経過で見せる
     const tsumoAnswers: Record<string, MachiCellAnswer> = {};
     const ronCells: MachiCellRef[] = [];
@@ -161,7 +165,7 @@ export function MachiScoreHelpTour() {
             machiJudgement={judgeMachiSelection(sample, waits)}
             cellAnswers={answers}
             cellResults={results}
-            formatAnswer={formatAnswer}
+            formatAnswerLines={formatAnswerLines}
             requireYaku={false}
             simplifyMangan={false}
             requireFuForMangan={false}

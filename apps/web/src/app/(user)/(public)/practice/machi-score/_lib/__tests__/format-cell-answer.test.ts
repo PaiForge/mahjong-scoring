@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { formatCellAnswer } from "../format-cell-answer";
+import { formatCellAnswer, formatCellAnswerLines } from "../format-cell-answer";
 
 /** 辞書の代わり。キーの末尾だけを返す */
 const t = (key: string) =>
@@ -69,5 +69,31 @@ describe("formatCellAnswer", () => {
     expect(
       formatCellAnswer({ kind: "noYaku" }, { ...base, isOyaTsumo: false }),
     ).toBe("役なし");
+  });
+});
+
+describe("formatCellAnswerLines", () => {
+  it("翻・符の行と支払いの行に分け、符が無ければ翻だけの行になる", () => {
+    expect(
+      formatCellAnswerLines(
+        { kind: "score", answer: { han: 3, fu: 40, score: 5200, yakus: [] } },
+        { ...base, isOyaTsumo: false },
+      ),
+    ).toEqual(["3翻 40符", "5200点"]);
+    expect(
+      formatCellAnswerLines(
+        {
+          kind: "score",
+          answer: { han: 5, fu: undefined, score: 8000, yakus: [] },
+        },
+        { ...base, simplifyMangan: true, isOyaTsumo: false },
+      ),
+    ).toEqual(["満貫", "8000点"]);
+  });
+
+  it("役なしは 1 行", () => {
+    expect(
+      formatCellAnswerLines({ kind: "noYaku" }, { ...base, isOyaTsumo: false }),
+    ).toEqual(["役なし"]);
   });
 });
