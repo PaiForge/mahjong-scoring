@@ -1,12 +1,21 @@
 import { correctAnswerOf } from "@mahjong-scoring/core/test/score-answer";
 import { beforeEach, describe, expect, it } from "vitest";
-import type { MachiCellJudgementMode, UserAnswer } from "@mahjong-scoring/core";
+import type {
+  MachiCellAnswer,
+  MachiCellJudgementMode,
+  UserAnswer,
+} from "@mahjong-scoring/core";
 import {
   generateValidMachiScoreQuestion,
   machiCellKey,
 } from "@mahjong-scoring/core";
 
-import { listCellRefs, useMachiScoreStore } from "../use-machi-score-store";
+import type { MachiCellRef } from "../use-machi-score-store";
+import {
+  cellKeyOf,
+  listCellRefs,
+  useMachiScoreStore,
+} from "../use-machi-score-store";
 
 const MODE: MachiCellJudgementMode = {
   requireYaku: false,
@@ -21,6 +30,21 @@ function seedQuestion() {
   if (!question) throw new Error("問題を生成できなかった");
   useMachiScoreStore.getState().setQuestion(question);
   return question;
+}
+
+/**
+ * マス 1 つに回答を当てはめる
+ *
+ * 当てはめると次の未回答のマスが自動で選択されるので、そのマスを回答する
+ * ときは押さない（押すと選択から外れてしまう）。
+ */
+function answerCell(cell: MachiCellRef, answer: MachiCellAnswer) {
+  const { selectedCells, toggleCell } = useMachiScoreStore.getState();
+  const isOnlySelection =
+    selectedCells.length === 1 &&
+    cellKeyOf(selectedCells[0]) === cellKeyOf(cell);
+  if (!isOnlySelection) toggleCell(cell);
+  useMachiScoreStore.getState().assignAnswer(answer);
 }
 
 /** 待ちを正解して点数の回答へ進む */
@@ -89,7 +113,10 @@ describe("useMachiScoreStore", () => {
     useMachiScoreStore.getState().assignAnswer({ kind: "score", answer });
 
     let state = useMachiScoreStore.getState();
-    expect(state.selectedCells).toEqual([]);
+    // 当てはめた後は未回答の先頭（ロンの 1 行目）が続けて回答中になる
+    expect(state.selectedCells).toEqual([
+      { agariHai: question.waits[0].agariHai, isTsumo: false },
+    ]);
     for (const wait of question.waits) {
       expect(state.cellAnswers[machiCellKey(wait.agariHai, true)]).toEqual({
         kind: "score",
@@ -127,7 +154,34 @@ describe("useMachiScoreStore", () => {
       kind: "score",
       answer: replaced,
     });
-    expect(state.selectedCells).toEqual([]);
+  });
+
+  it("当てはめると未回答のマスの先頭が続けて回答中になり、埋まりきると選択は空に戻る", () => {
+    const question = answerMachiCorrectly();
+    const answer: UserAnswer = { han: 1, fu: 30, score: 1000, yakus: [] };
+
+    // ツモ列をまとめて当てはめる → 残りはロン列。その先頭へ移る
+    for (const wait of question.waits) {
+      useMachiScoreStore
+        .getState()
+        .toggleCell({ agariHai: wait.agariHai, isTsumo: true });
+    }
+    useMachiScoreStore.getState().assignAnswer({ kind: "score", answer });
+    expect(useMachiScoreStore.getState().selectedCells).toEqual([
+      { agariHai: question.waits[0].agariHai, isTsumo: false },
+    ]);
+
+    // ロンを 1 行ずつ当てはめる → そのつど次の行へ移り、最後は空に戻る
+    for (const [i, wait] of question.waits.entries()) {
+      expect(useMachiScoreStore.getState().selectedCells).toEqual([
+        { agariHai: wait.agariHai, isTsumo: false },
+      ]);
+      useMachiScoreStore.getState().assignAnswer({ kind: "noYaku" });
+      const rest = question.waits[i + 1];
+      expect(useMachiScoreStore.getState().selectedCells).toEqual(
+        rest ? [{ agariHai: rest.agariHai, isTsumo: false }] : [],
+      );
+    }
   });
 
   it("当てはめた列の回答欄だけ作り直す連番が増える", () => {
@@ -152,14 +206,12 @@ describe("useMachiScoreStore", () => {
       const wait = question.waits.find((w) => w.agariHai === cell.agariHai);
       if (!wait) throw new Error("待ちが無い");
       const cellQuestion = cell.isTsumo ? wait.tsumo : wait.ron;
-      useMachiScoreStore.getState().toggleCell(cell);
-      useMachiScoreStore
-        .getState()
-        .assignAnswer(
-          cellQuestion
-            ? { kind: "score", answer: correctAnswerOf(cellQuestion) }
-            : { kind: "noYaku" },
-        );
+      answerCell(
+        cell,
+        cellQuestion
+          ? { kind: "score", answer: correctAnswerOf(cellQuestion) }
+          : { kind: "noYaku" },
+      );
     }
     useMachiScoreStore.getState().submitCells(MODE);
 
@@ -181,14 +233,12 @@ describe("useMachiScoreStore", () => {
       const wait = question.waits.find((w) => w.agariHai === cell.agariHai);
       if (!wait) throw new Error("待ちが無い");
       const cellQuestion = cell.isTsumo ? wait.tsumo : wait.ron;
-      useMachiScoreStore.getState().toggleCell(cell);
-      useMachiScoreStore
-        .getState()
-        .assignAnswer(
-          cellQuestion
-            ? { kind: "score", answer: correctAnswerOf(cellQuestion) }
-            : { kind: "noYaku" },
-        );
+      answerCell(
+        cell,
+        cellQuestion
+          ? { kind: "score", answer: correctAnswerOf(cellQuestion) }
+          : { kind: "noYaku" },
+      );
     }
     useMachiScoreStore.getState().submitCells(MODE);
 
