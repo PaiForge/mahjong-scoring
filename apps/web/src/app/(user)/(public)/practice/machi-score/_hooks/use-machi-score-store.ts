@@ -42,14 +42,23 @@ export function cellKeyOf(cell: MachiCellRef): string {
   return machiCellKey(cell.agariHai, cell.isTsumo);
 }
 
-/** 出題のすべてのマス（待ちの並び順に、ツモ・ロンの順） */
+/**
+ * 出題のすべてのマス（ツモ列を待ちの順に、続けてロン列を待ちの順に）
+ * マスの並び
+ *
+ * 回答の自動送り（`assignAnswer`）と答え合わせのタブがこの順に並ぶ。
+ * 列を先にするのは、マスを選ぶ単位も回答欄も列（ツモ / ロン）で
+ * 分かれているため。答え合わせでも隣り合うタブの違いが待ちだけになり、
+ * ツモならツモ同士で点数を見比べられる — 行を先にすると、隣のタブは
+ * 待ちと和了方法が同時に変わる。塊分け（`groupAdjacentCells`）も
+ * 同じ順で列ごとに見る。
+ */
 export function listCellRefs(
   question: Readonly<MachiScoreQuestion>,
 ): readonly MachiCellRef[] {
-  return question.waits.flatMap((wait) => [
-    { agariHai: wait.agariHai, isTsumo: true },
-    { agariHai: wait.agariHai, isTsumo: false },
-  ]);
+  return [true, false].flatMap((isTsumo) =>
+    question.waits.map((wait) => ({ agariHai: wait.agariHai, isTsumo })),
+  );
 }
 
 interface MachiScoreState {
@@ -119,11 +128,15 @@ interface MachiScoreActions {
    * 選択中のマスすべてに同じ回答を当てはめ、未回答のマスが残っていれば
    * その先頭を続けて選択中にする
    *
-   * 表の並び（待ちの順にツモ・ロン）で最初の未回答へ移る。全マスを埋め
-   * ないと回答できないので、当てはめた次に触るのはほぼ必ず未回答のマス
-   * で、毎回マスを押し直す手間だけが残る。ツモ列をまとめて答えた直後に
-   * ロンの先頭が回答中になり、そのまま入力を続けられる。別のマスから
-   * 答えたいときは押し直せばよく、選択が移るだけで回答は動かない。
+   * 送り先は {@link listCellRefs} の並び = 列ごと（ツモ列を上から、
+   * 続けてロン列を上から）で最初の未回答。全マスを埋めないと回答できない
+   * ので、当てはめた次に触るのはほぼ必ず未回答のマスで、毎回マスを押し
+   * 直す手間だけが残る。列ごとに送るのは回答欄がツモとロンで別物だから —
+   * 行ごと（同じ待ちのツモ→ロン）に送ると 1 マス当てはめるたびに欄が
+   * 入れ替わり、3 面待ちなら 5 回切り替わる。列ごとなら 1 回で済む。
+   * ツモ列をまとめて答えた直後はロンの先頭が回答中になり、そのまま入力を
+   * 続けられる。別のマスから答えたいときは押し直せばよく、選択が移る
+   * だけで回答は動かない。
    */
   assignAnswer: (answer: MachiCellAnswer) => void;
   /** 全マスの回答を判定して答え合わせへ進む */

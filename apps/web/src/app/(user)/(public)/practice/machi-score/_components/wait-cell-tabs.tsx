@@ -15,16 +15,21 @@ import { cellKeyOf, type MachiCellRef } from "../_hooks/use-machi-score-store";
  * 選択中のタブは下のパネルと同じ白にして地続きに見せる（枠はどのタブも
  * パネルと同じ墨色。色を選択の印に使うと、緑の枠に赤い ✗ が乗るような
  * 「正誤と選択が別のことを言う」状態になる）。選択していないタブは
- * 正誤の色で薄く塗る — 待ち牌の判定・回答の段階のマスと同じ語彙で、
+ * 塗る — 待ち牌の判定・回答の段階のマスと同じ語彙で正誤の色を使い、
  * 判定が無い（「わからない」での開示）ときは中立の灰。選択中のタブは
  * 塗りを失うが、正誤は ✓/✗ の記号が持っているので読める。
+ *
+ * 中立の灰は正誤の色と同じ濃さにする（`surface-200`。`surface-50` では
+ * 白とほぼ見分けが付かなかった）。開示のときはタブに正誤の色も ✓/✗ も
+ * 無く、選択中かどうかを言うのが塗りの有無だけになるため、ここが薄いと
+ * どのタブの内訳を見ているのか分からなくなる。
  */
 function tabTone(
   verdict: "correct" | "incorrect" | undefined,
   isSelected: boolean,
 ): string {
   if (isSelected) return "bg-white text-surface-900";
-  if (verdict === undefined) return "bg-surface-50 text-surface-600";
+  if (verdict === undefined) return "bg-surface-200 text-surface-600";
   return verdict === "correct"
     ? "bg-success-subtle text-surface-800"
     : "bg-destructive-subtle text-surface-800";
@@ -84,6 +89,11 @@ interface WaitCellTabsProps {
  * 下に出ているのかが一目で結びつかなかった。はみ出す 3px は横スクロールの
  * 箱の下余白に収め、箱を同じ分だけ負のマージンでパネルに重ねる（箱の
  * 外にはみ出すと overflow で切れる）。
+ *
+ * ツモ / ロンの文字は牌の横に置き、牌は xs で出す。縦に積むと 1 タブ
+ * 115px（実測）になり、狭い画面ではタブ列だけで画面の 1 割強を使った。
+ * 横並びにすると 86px まで下がる。牌は答え合わせでは「どの待ちか」を
+ * 指す印で、待ちを読ませる盤面ほどの大きさは要らない。
  *
  * 正解の点数は「翻・符」と「支払い」の 2 行に積む。1 行に並べると幅が
  * 点数の文字で決まり、2 面待ちの 4 タブでも狭い画面に収まらなかった
@@ -188,11 +198,9 @@ export function WaitCellTabs({
               isFocused,
             )}`}
           >
-            <span>{t(cell.isTsumo ? "cells.tsumo" : "cells.ron")}</span>
-            <span className="flex items-center gap-0.5">
-              <span className="origin-center scale-90">
-                <Hai hai={cell.agariHai} size="sm" />
-              </span>
+            <span className="flex items-center gap-1">
+              <span>{t(cell.isTsumo ? "cells.tsumo" : "cells.ron")}</span>
+              <Hai hai={cell.agariHai} size="xs" />
               {verdict && (
                 <JudgementMark verdict={verdict} className="text-base" />
               )}
