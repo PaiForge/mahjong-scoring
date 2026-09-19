@@ -1446,9 +1446,7 @@
       "selecting": "選んだマスに当てはめるか、選択を解くと回答できます"
     },
     "result": {
-      "machiCorrect": "待ち牌は正解でした",
-      "machiIncorrect": "待ち牌は不正解でした",
-      "machiRevealed": "正解の待ち牌",
+      "machiTitle": "待ち牌",
       "summaryTitle": "待ちごとの結果",
       "detailHint": "マスを押すと内訳を確認できます",
       "yourAnswer": "あなたの回答",

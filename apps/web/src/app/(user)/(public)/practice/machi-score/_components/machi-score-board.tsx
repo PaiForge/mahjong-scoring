@@ -382,6 +382,7 @@ function MachiScoreBoardInner() {
           <MachiScoreResult
             key={questionSeq}
             question={currentQuestion}
+            selectedMachi={selectedMachi}
             machiJudgement={machiJudgement}
             cellAnswers={cellAnswers}
             cellResults={cellResults}
