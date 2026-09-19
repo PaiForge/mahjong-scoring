@@ -90,6 +90,11 @@ interface WaitCellTabsProps {
  * 箱の下余白に収め、箱を同じ分だけ負のマージンでパネルに重ねる（箱の
  * 外にはみ出すと overflow で切れる）。
  *
+ * ツモ / ロンの文字は牌の横に置き、牌は xs で出す。縦に積むと 1 タブ
+ * 115px（実測）になり、狭い画面ではタブ列だけで画面の 1 割強を使った。
+ * 横並びにすると 86px まで下がる。牌は答え合わせでは「どの待ちか」を
+ * 指す印で、待ちを読ませる盤面ほどの大きさは要らない。
+ *
  * 正解の点数は「翻・符」と「支払い」の 2 行に積む。1 行に並べると幅が
  * 点数の文字で決まり、2 面待ちの 4 タブでも狭い画面に収まらなかった
  * （実測で 1 タブ約 125〜140px）。2 行なら幅は支払いの文字ぶんで済む。
@@ -193,11 +198,9 @@ export function WaitCellTabs({
               isFocused,
             )}`}
           >
-            <span>{t(cell.isTsumo ? "cells.tsumo" : "cells.ron")}</span>
-            <span className="flex items-center gap-0.5">
-              <span className="origin-center scale-90">
-                <Hai hai={cell.agariHai} size="sm" />
-              </span>
+            <span className="flex items-center gap-1">
+              <span>{t(cell.isTsumo ? "cells.tsumo" : "cells.ron")}</span>
+              <Hai hai={cell.agariHai} size="xs" />
               {verdict && (
                 <JudgementMark verdict={verdict} className="text-base" />
               )}
