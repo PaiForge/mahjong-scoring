@@ -57,6 +57,11 @@ const SAME_ANSWER: MachiCellAnswer = {
   answer: { han: 1, fu: 30, score: 1000, yakus: [] },
 };
 
+/** 回答の 1 行表示（本物の整形は使わず翻数だけにする） */
+function formatForTest(answer: MachiCellAnswer): string {
+  return answer.kind === "score" ? `${answer.answer.han}翻` : "役なし";
+}
+
 /**
  * 結果を描く
  *
@@ -92,9 +97,7 @@ function renderResult(
       }
       cellAnswers={cellAnswers}
       cellResults={cellResults}
-      formatAnswer={(answer) =>
-        answer.kind === "score" ? `${answer.answer.han}翻` : "役なし"
-      }
+      formatAnswer={formatForTest}
       requireYaku={false}
       simplifyMangan={false}
       requireFuForMangan={false}
@@ -192,6 +195,19 @@ describe("MachiScoreResult のタブ", () => {
 
     expect(screen.getAllByRole("tab")).toHaveLength(question.waits.length * 2);
     expect(screen.getAllByRole("tab", { name: /incorrect/ })).toHaveLength(1);
+  });
+
+  it("タブに正解の点数を添え、読み上げ名にも含める", () => {
+    const question = seedTwinQuestion();
+    const cells = listCellRefs(question);
+    renderResult(question, () => SAME_ANSWER);
+
+    const tabs = screen.getAllByRole("tab");
+    for (const [i, tab] of tabs.entries()) {
+      const correct = formatForTest(correctAnswerFor(question, cells[i]));
+      expect(tab.textContent).toContain(correct);
+      expect(tab.getAttribute("aria-label")).toContain(correct);
+    }
   });
 
   it("タブを押すと内訳がそのタブのものに変わる", () => {

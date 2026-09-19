@@ -16,6 +16,7 @@ import { HighlightPanel } from "@/app/(user)/_components/highlight-panel";
 import { ResultDisplay } from "../../score/_components/result-display";
 import { TehaiMentsuBreakdown } from "../../_components/tehai-mentsu-breakdown";
 import { JudgementMark } from "../../_components/judgement-mark";
+import { correctCellAnswerOf } from "../_lib/format-cell-answer";
 import {
   MACHI_TILE_MARK_CLASSES,
   machiTileMark,
@@ -82,11 +83,10 @@ function MarkedHai({ hai, mark }: MarkedHaiProps) {
  * 並べた同じ形にする — 待ちだけ正誤の一文で済ませると、点数は見比べられる
  * のに待ちは言い渡されるだけになり、外した牌が結果の画面に残らない。
  *
- * マスは表に並べず 1 つずつタブで見せる（{@link WaitCellTabs}）。1 マスの
- * 正解・正誤・自分の回答は内訳の結果表がすべて持っているので、表の上に
- * 全マスぶん並べても同じ中身が二度出るだけになる。引き換えに待ちごとの
- * 点数を並べて見比べる画面は無くなるが、それは回答の段階（マスを自分で
- * 埋める表）が担う。
+ * マスは表に並べず 1 つずつタブで見せる（{@link WaitCellTabs}）。タブには
+ * 正解の点数を添え、待ちごとの点数を並べて見比べる役目はタブの列が持つ。
+ * 自分の回答と正誤・内訳はタブの下の結果表がすべて持っているので、表の
+ * 上に全マスぶん並べると同じ中身が二度出るだけになる。
  */
 export function MachiScoreResult({
   question,
@@ -204,11 +204,11 @@ export function MachiScoreResult({
       </div>
 
       {/* 待ちごとの点数計算の答え合わせ。マスは表に並べず、出題盤面と同じ
-          姿（和了牌 + ツモ / ロン）のタブで 1 つずつ切り替える。正解と自分の
-          回答はこの下の結果表が持っているので、表の上にもう一度全マスぶん
-          並べると同じ中身が二度出るうえ、どのマスを押したから今の内訳が
-          出ているのかが離れて分かりにくい。選んだタブがそのまま内訳の
-          見出しになる形なら、押し方を注記で言わなくても伝わる */}
+          姿（和了牌 + ツモ / ロン + 正解の点数）のタブで 1 つずつ切り替える。
+          自分の回答と内訳はこの下の結果表が持っているので、表の上にもう
+          一度全マスぶん並べると同じ中身が二度出るうえ、どのマスを押したから
+          今の内訳が出ているのかが離れて分かりにくい。選んだタブがそのまま
+          内訳の見出しになる形なら、押し方を注記で言わなくても伝わる */}
       <div className="space-y-2">
         <h3 className="text-sm font-bold text-surface-700">
           {t("summaryTitle")}
@@ -219,6 +219,12 @@ export function MachiScoreResult({
             cellResults={cellResults}
             focused={focusedCell}
             onFocusCell={setFocused}
+            correctAnswerOf={(cell) =>
+              formatAnswer(
+                correctCellAnswerOf(cellQuestionOf(cell)),
+                cell.isTsumo,
+              )
+            }
             panelId={DETAIL_PANEL_ID}
           />
           <div

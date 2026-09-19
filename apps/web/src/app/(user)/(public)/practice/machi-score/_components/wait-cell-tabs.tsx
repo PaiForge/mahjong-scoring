@@ -34,6 +34,8 @@ interface WaitCellTabsProps {
   readonly cellResults: Readonly<Record<string, JudgementResult>> | undefined;
   readonly focused: MachiCellRef;
   readonly onFocusCell: (cell: MachiCellRef) => void;
+  /** マスの正解を 1 行にしたもの（「3翻40符 5200点」「役なし」） */
+  readonly correctAnswerOf: (cell: MachiCellRef) => string;
   /** 下に続く内訳パネルの id（`aria-controls`） */
   readonly panelId: string;
 }
@@ -42,11 +44,17 @@ interface WaitCellTabsProps {
  * 待ち × ツモ/ロン のマスを切り替えるタブ
  * 待ちマスタブ
  *
- * 答え合わせは「どのマスの内訳を見ているか」が分かることがすべてなので、
- * 選ぶ対象を出題盤面と同じ姿（和了牌 + ツモ / ロン）でタブに出す。マスを
- * 表に並べて押させる形は、正解と自分の回答を全マスぶん並べる代わりに
- * 下の結果表と同じ中身を二度出すことになり、どの行を押したから今の内訳が
- * 出ているのかも表と離れて分かりにくかった。
+ * 選ぶ対象を出題盤面と同じ姿（和了牌 + ツモ / ロン）でタブに出し、タブ
+ * ごとに正解の点数を 1 行添える。タブの列を左から読むだけで「待ちによって
+ * 点数がどう変わるか」が並んで見える — この練習が見せたいのはそれで、
+ * 外したときも「わからない」で開示したときも、正解が一列に読める場所が
+ * ここしか無い（回答の段階の表に並ぶのは自分の回答で、正解ではない）。
+ * 自分の回答と内訳（役・符）は選んだタブの下のパネルが持つ。タブに
+ * 回答まで載せると下のパネルと同じ中身が二度出る。
+ *
+ * 以前はマスを表に並べて押させていたが、表のマスは正解のほかに外した
+ * 回答も抱えて下のパネルと重複し、どの行を押したから今の内訳が出ている
+ * のかも表と離れて分かりにくかった。
  *
  * 多面待ちではタブが 6 つ以上になるため、折り返さず横スクロールさせる
  * （折り返すと 2 段目が表に見えて、また「表のどこを押すか」に戻る）。
@@ -57,6 +65,7 @@ export function WaitCellTabs({
   cellResults,
   focused,
   onFocusCell,
+  correctAnswerOf,
   panelId,
 }: WaitCellTabsProps) {
   const t = useTranslations("machiScore");
@@ -106,6 +115,7 @@ export function WaitCellTabs({
             ? "correct"
             : "incorrect"
           : undefined;
+        const correctAnswer = correctAnswerOf(cell);
         return (
           <button
             key={key}
@@ -122,6 +132,7 @@ export function WaitCellTabs({
             aria-label={[
               t(cell.isTsumo ? "cells.tsumo" : "cells.ron"),
               haiIdToMspz(cell.agariHai),
+              correctAnswer,
               verdict && tCommon(verdict),
             ]
               .filter(Boolean)
@@ -140,6 +151,8 @@ export function WaitCellTabs({
                 <JudgementMark verdict={verdict} className="text-base" />
               )}
             </span>
+            {/* 正解の点数。折り返すとタブの高さが揃わず列が読めないので 1 行に固定する */}
+            <span className="whitespace-nowrap">{correctAnswer}</span>
           </button>
         );
       })}
