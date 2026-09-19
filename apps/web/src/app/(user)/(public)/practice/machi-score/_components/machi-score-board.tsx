@@ -34,6 +34,7 @@ import {
   listCellRefs,
   useMachiScoreStore,
 } from "../_hooks/use-machi-score-store";
+import { sharedAnswerOfCells } from "../_lib/cell-runs";
 import {
   formatCellAnswer,
   formatCellAnswerLines,
@@ -204,6 +205,13 @@ function MachiScoreBoardInner() {
   const selectedIsTsumo = selectedCells[0]?.isTsumo;
   const isSelecting = selectedIsTsumo !== undefined;
   const isAnswering = phase !== "result";
+  // 選択中の回答済みマスの回答が 1 種類に定まるなら、その回答を欄に読み込む
+  // （役なしは欄に入れるものが無いので読み込まない）。ストアが持つ回答の
+  // 参照をそのまま渡す — 欄は参照の変化で読み込み直すので、render のたびに
+  // 作り直すと入力のたびに読み込みが走る
+  const sharedAnswer = sharedAnswerOfCells(selectedCells, cellAnswers);
+  const prefill =
+    sharedAnswer?.kind === "score" ? sharedAnswer.answer : undefined;
 
   return (
     <ContentContainer id={PRACTICE_SCROLL_ANCHOR_ID} fillViewport>
@@ -317,7 +325,14 @@ function MachiScoreBoardInner() {
                 マスにも入っていないので、選択を解いた・別の列を押したの拍子に
                 欄を作り直すと誤タップ 1 回で入力が失われる。作り直すのは
                 当てはめて回答がマスに移ったとき（draftSeq）と次の問題
-                （questionSeq）だけ */}
+                （questionSeq）だけ。
+                回答済みのマスを選択に加えると、その回答を欄に読み込む
+                （prefill）。まとめて答えた 2 マスに 3 つめを後から合流させる
+                とき、塊を押す → 当てはめる の 2 タップで済み、同じ翻・符・
+                点数を入れ直さない。塊は回答の同一性で作られるので、合流した
+                3 マスは当てはめた瞬間に 1 枚になる。読み込むのは欄が未入力の
+                間だけで、入力の途中で回答済みのマスを押しても入力は守られる
+                （欄が判定する） */}
             {(["tsumo", "ron"] as const).map((column) => {
               const isTsumo = column === "tsumo";
               const isShown = selectedIsTsumo === isTsumo;
@@ -339,6 +354,7 @@ function MachiScoreBoardInner() {
                     simplifyMangan={simplifyMangan}
                     requireFuForMangan={requireFuForMangan}
                     submitLabel={t("cells.assign")}
+                    prefill={isShown ? prefill : undefined}
                     // 「役なし」はロンにしか無い回答なので、ロンの欄にだけ出す。
                     // 置き場の「役」の行は常に出し、ツモとロンで高さを変えない
                     reserveYakuRow

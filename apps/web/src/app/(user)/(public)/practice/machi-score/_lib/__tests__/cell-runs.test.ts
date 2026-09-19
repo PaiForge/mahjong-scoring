@@ -1,9 +1,16 @@
 import { describe, expect, it } from "vitest";
-import type { MachiScoreQuestion } from "@mahjong-scoring/core";
+import type {
+  MachiCellAnswer,
+  MachiScoreQuestion,
+} from "@mahjong-scoring/core";
 import { generateValidMachiScoreQuestion } from "@mahjong-scoring/core";
 
 import { cellKeyOf } from "../../_hooks/use-machi-score-store";
-import { groupAdjacentCells, indexRuns } from "../cell-runs";
+import {
+  groupAdjacentCells,
+  indexRuns,
+  sharedAnswerOfCells,
+} from "../cell-runs";
 
 /** 3 面待ち以上の出題（飛び石の検証に要る）。生成器は core の実物 */
 function seedQuestion(minWaits = 2): MachiScoreQuestion {
@@ -66,5 +73,48 @@ describe("groupAdjacentCells", () => {
     );
     expect(absorbed.size).toBe((question.waits.length - 1) * 2);
     expect(absorbed.has(cellKeyOf(tsumoHead))).toBe(false);
+  });
+});
+
+describe("sharedAnswerOfCells", () => {
+  const answer = (han: number): MachiCellAnswer => ({
+    kind: "score",
+    answer: { han, fu: 30, score: 1000 * han, yakus: [] },
+  });
+
+  it("未回答のマスは数えず、回答済みのマスの回答が 1 種類ならそれを返す", () => {
+    const question = seedQuestion(3);
+    const [a, b, c] = question.waits;
+    const cells = [a, b, c].map((w) => ({
+      agariHai: w.agariHai,
+      isTsumo: true,
+    }));
+    const shared = answer(2);
+    const cellAnswers = {
+      [cellKeyOf(cells[0])]: shared,
+      [cellKeyOf(cells[1])]: answer(2),
+    };
+    // c は未回答のまま選択に入っている（塊の回答を c にも使える）
+    expect(sharedAnswerOfCells(cells, cellAnswers)).toBe(shared);
+  });
+
+  it("回答が 2 種類以上あれば undefined", () => {
+    const question = seedQuestion(2);
+    const [a, b] = question.waits;
+    const cells = [a, b].map((w) => ({ agariHai: w.agariHai, isTsumo: false }));
+    const cellAnswers = {
+      [cellKeyOf(cells[0])]: answer(2),
+      [cellKeyOf(cells[1])]: answer(3),
+    };
+    expect(sharedAnswerOfCells(cells, cellAnswers)).toBeUndefined();
+  });
+
+  it("回答済みのマスが無ければ undefined", () => {
+    const question = seedQuestion(2);
+    const cells = question.waits.map((w) => ({
+      agariHai: w.agariHai,
+      isTsumo: true,
+    }));
+    expect(sharedAnswerOfCells(cells, {})).toBeUndefined();
   });
 });

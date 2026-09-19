@@ -26,6 +26,33 @@ export function answerKey(answer: MachiCellAnswer): string {
 }
 
 /**
+ * 選択中のマスが持つ回答が 1 種類に定まるならそれを返す
+ * 選択の共通回答
+ *
+ * 未回答のマスは数えない — 「回答済みの塊を押して未回答のマスと一緒に
+ * 選んだ」状態で、塊の回答をそのまま未回答のマスにも使えるようにする
+ * ため。回答済みのマスが無い、または回答が 2 種類以上あるなら undefined。
+ * 回答フォームがこれを初期値に読み込み、同じ点数の待ちを後からまとめ直す
+ * ときや、まとめて答えた符だけ直すときに入れ直しを不要にする。
+ */
+export function sharedAnswerOfCells(
+  cells: readonly MachiCellRef[],
+  cellAnswers: Readonly<Record<string, MachiCellAnswer>>,
+): MachiCellAnswer | undefined {
+  let shared: MachiCellAnswer | undefined;
+  for (const cell of cells) {
+    const answer = cellAnswers[cellKeyOf(cell)];
+    if (!answer) continue;
+    if (shared === undefined) {
+      shared = answer;
+    } else if (answerKey(answer) !== answerKey(shared)) {
+      return undefined;
+    }
+  }
+  return shared;
+}
+
+/**
  * 縦に隣り合う同じグループのマスの塊
  * マスの塊
  */

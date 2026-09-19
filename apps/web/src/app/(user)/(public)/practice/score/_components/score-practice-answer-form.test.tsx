@@ -167,3 +167,79 @@ describe("ScorePracticeAnswerForm 役なし", () => {
     expect(screen.queryByRole("button", { name: "役なし" })).toBeNull();
   });
 });
+
+describe("ScorePracticeAnswerForm の prefill", () => {
+  /** 子ロン 30 符の実在する点数（select の選択肢に無い値は入らない） */
+  const RON_30FU: Record<number, number> = { 2: 2000, 3: 3900, 4: 7700 };
+  const answer = (han: number) => ({
+    han,
+    fu: 30,
+    score: RON_30FU[han],
+    yakus: [],
+  });
+
+  function renderWithPrefill(prefill: ReturnType<typeof answer> | undefined) {
+    return render(
+      <ScorePracticeAnswerForm
+        onSubmit={() => {}}
+        isTsumo={false}
+        isOya={false}
+        prefill={prefill}
+      />,
+    );
+  }
+
+  it("mount 時の prefill が翻・符・点数に入り、回答ボタンを押せる", () => {
+    renderWithPrefill(answer(2));
+
+    expect(select("form.labels.han").value).toBe("2");
+    expect(select("form.labels.fu").value).toBe("30");
+    expect(select("form.labels.score").value).toBe("2000");
+    expect(
+      screen
+        .getByRole("button", { name: "form.buttons.answer" })
+        .hasAttribute("disabled"),
+    ).toBe(false);
+  });
+
+  it("触っていなければ prefill の変化に追随し、undefined になれば空に戻る", () => {
+    const { rerender } = renderWithPrefill(answer(2));
+
+    rerender(
+      <ScorePracticeAnswerForm
+        onSubmit={() => {}}
+        isTsumo={false}
+        isOya={false}
+        prefill={answer(3)}
+      />,
+    );
+    expect(select("form.labels.han").value).toBe("3");
+    expect(select("form.labels.score").value).toBe("3900");
+
+    rerender(
+      <ScorePracticeAnswerForm
+        onSubmit={() => {}}
+        isTsumo={false}
+        isOya={false}
+        prefill={undefined}
+      />,
+    );
+    expect(select("form.labels.han").value).toBe("");
+    expect(select("form.labels.fu").value).toBe("");
+  });
+
+  it("1 度でも触った後は prefill が変わっても入力を置き換えない", () => {
+    const { rerender } = renderWithPrefill(undefined);
+
+    selectHan(4);
+    rerender(
+      <ScorePracticeAnswerForm
+        onSubmit={() => {}}
+        isTsumo={false}
+        isOya={false}
+        prefill={answer(2)}
+      />,
+    );
+    expect(select("form.labels.han").value).toBe("4");
+  });
+});
