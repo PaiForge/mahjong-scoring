@@ -4,6 +4,8 @@
  *
  * 盤面の各部品が自分の要素に付け、ツアー（`machi-score-spotlight-tour.tsx`）が
  * 同じ値で引く。段階によって存在しない要素があり、ツアーは無いものを飛ばす。
+ * 答え合わせの段階はタブと内訳だけなので案内する操作を持たない（「?」も
+ * 出さない）。
  */
 export const MACHI_SCORE_TOUR_ID = {
   /** 聴牌形の盤面（待ちを読む段階だけ。あとの段階では印を外す） */
@@ -18,8 +20,4 @@ export const MACHI_SCORE_TOUR_ID = {
   answerForm: "machi-score-answer-form",
   /** 全マスの回答ボタン */
   cellsSubmit: "machi-score-cells-submit",
-  /** 答え合わせのマス一覧 */
-  resultSummary: "machi-score-result-summary",
-  /** 答え合わせで選んだマスの内訳 */
-  resultDetail: "machi-score-result-detail",
 } as const;

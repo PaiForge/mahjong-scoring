@@ -19,7 +19,7 @@ import {
   listCellRefs,
   type MachiCellRef,
 } from "../_hooks/use-machi-score-store";
-import { MACHI_SCORE_TOUR_ID } from "../_lib/tour-ids";
+import { correctCellAnswerOf } from "../_lib/format-cell-answer";
 
 vi.mock("next-intl", async () => await import("@/test/intl-mock"));
 vi.mock("@pai-forge/mahjong-react-ui", () => ({
@@ -103,15 +103,6 @@ function renderResult(
   );
 }
 
-/** 待ちごとの結果の表のマスのボタン（待ち牌の表と混ざらないよう節で引く） */
-function summaryCells() {
-  const section = document.querySelector(
-    `[data-tour-id="${MACHI_SCORE_TOUR_ID.resultSummary}"]`,
-  );
-  if (!section) throw new Error("待ちごとの結果が無い");
-  return Array.from(section.querySelectorAll("tbody button"));
-}
-
 /** 待ち牌の表（あなたの回答 / 正解）の 2 つのセル */
 function machiCells() {
   const row = screen.getAllByRole("table")[0].querySelector("tbody tr");
@@ -125,6 +116,26 @@ function haiIdsIn(cell: Element): readonly number[] {
   return Array.from(cell.querySelectorAll("[data-testid=hai]")).map((el) =>
     Number(el.textContent),
   );
+}
+
+/** マスの正解の回答 */
+function correctAnswerFor(
+  question: MachiScoreQuestion,
+  cell: MachiCellRef,
+): MachiCellAnswer {
+  const wait = question.waits.find((w) => w.agariHai === cell.agariHai);
+  if (!wait) throw new Error("待ちが無い");
+  return correctCellAnswerOf(cell.isTsumo ? wait.tsumo : wait.ron);
+}
+
+/** 必ず不正解になる回答（正解の翻を 1 つずらす） */
+function wrongAnswerFor(correct: MachiCellAnswer): MachiCellAnswer {
+  return correct.kind === "score"
+    ? {
+        kind: "score",
+        answer: { ...correct.answer, han: correct.answer.han + 1 },
+      }
+    : SAME_ANSWER;
 }
 
 describe("MachiScoreResult の待ち牌", () => {
@@ -168,55 +179,49 @@ describe("MachiScoreResult の待ち牌", () => {
   });
 });
 
-describe("MachiScoreResult の塊", () => {
-  it("正解・内訳・回答がすべて同じで縦に隣り合うマスは 1 つの塊になり、塊の内訳には和了牌ごとの面子分解が並ぶ", () => {
+describe("MachiScoreResult のタブ", () => {
+  it("マスごとにタブを出し、外したマスにだけ不正解の印を付ける", () => {
     const question = seedTwinQuestion();
-    renderResult(question, () => SAME_ANSWER);
+    const [, target] = listCellRefs(question);
+    renderResult(question, (cell) => {
+      const correct = correctAnswerFor(question, cell);
+      return cellKeyOf(cell) === cellKeyOf(target)
+        ? wrongAnswerFor(correct)
+        : correct;
+    });
 
-    // ツモ列・ロン列とも 2 マスが 1 つずつの塊になる
-    const cells = summaryCells();
-    expect(cells).toHaveLength(2);
-    for (const cell of cells) {
-      expect(cell.closest("td")?.rowSpan).toBe(2);
-    }
-
-    // 塊の内訳: 面子分解リンクが和了牌の数だけ、牌付きで並ぶ（牌は各マスの
-    // 出題の和了牌。差し替えた出題は 1 つ目の和了牌を持つので値は比べない）
-    const links = screen.getAllByRole("button", { name: /mentsuBreakdown/ });
-    expect(links).toHaveLength(2);
-    for (const link of links) {
-      expect(link.querySelector("[data-testid=hai]")).not.toBeNull();
-    }
+    expect(screen.getAllByRole("tab")).toHaveLength(question.waits.length * 2);
+    expect(screen.getAllByRole("tab", { name: /incorrect/ })).toHaveLength(1);
   });
 
-  it("正解が同じでも自分の回答が違えばマスは分かれ、内訳の面子分解は 1 つで牌を添えない", () => {
+  it("タブを押すと内訳がそのタブのものに変わる", () => {
     const question = seedTwinQuestion();
-    const [, second] = question.waits;
-    renderResult(question, (cell) =>
-      cell.agariHai === second.agariHai
-        ? { kind: "score", answer: { ...SAME_ANSWER.answer, han: 2 } }
-        : SAME_ANSWER,
+    renderResult(question, (cell) => correctAnswerFor(question, cell));
+
+    const tabs = screen.getAllByRole("tab");
+    expect(tabs[0].getAttribute("aria-selected")).toBe("true");
+    expect(screen.getByRole("tabpanel").getAttribute("aria-labelledby")).toBe(
+      tabs[0].id,
     );
 
-    const cells = summaryCells();
-    expect(cells).toHaveLength(4);
-    expect(cells.every((cell) => cell.closest("td")?.rowSpan === 1)).toBe(true);
-
-    const links = screen.getAllByRole("button", { name: /mentsuBreakdown/ });
-    expect(links).toHaveLength(1);
-    expect(links[0].querySelector("[data-testid=hai]")).toBeNull();
+    fireEvent.click(tabs[2]);
+    expect(tabs[0].getAttribute("aria-selected")).toBe("false");
+    expect(tabs[2].getAttribute("aria-selected")).toBe("true");
+    expect(screen.getByRole("tabpanel").getAttribute("aria-labelledby")).toBe(
+      tabs[2].id,
+    );
   });
 
-  it("塊を押すと塊全体が選ばれ、別の塊を押すと移る", () => {
+  it("矢印キーで隣のタブへ移り、端では反対の端へ回る", () => {
     const question = seedTwinQuestion();
-    renderResult(question, () => SAME_ANSWER);
+    renderResult(question, (cell) => correctAnswerFor(question, cell));
 
-    const [tsumoRun, ronRun] = summaryCells();
-    expect(tsumoRun.getAttribute("aria-pressed")).toBe("true");
-    expect(ronRun.getAttribute("aria-pressed")).toBe("false");
+    const tabs = screen.getAllByRole("tab");
+    fireEvent.keyDown(tabs[0], { key: "ArrowRight" });
+    expect(tabs[1].getAttribute("aria-selected")).toBe("true");
 
-    fireEvent.click(ronRun);
-    expect(tsumoRun.getAttribute("aria-pressed")).toBe("false");
-    expect(ronRun.getAttribute("aria-pressed")).toBe("true");
+    fireEvent.keyDown(tabs[1], { key: "ArrowLeft" });
+    fireEvent.keyDown(tabs[0], { key: "ArrowLeft" });
+    expect(tabs[tabs.length - 1].getAttribute("aria-selected")).toBe("true");
   });
 });

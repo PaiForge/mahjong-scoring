@@ -391,7 +391,6 @@ function MachiScoreBoardInner() {
             simplifyMangan={simplifyMangan}
             requireFuForMangan={requireFuForMangan}
             onNext={handleNext}
-            helpAction={<MachiScoreSpotlightTour />}
           />
         )}
 
