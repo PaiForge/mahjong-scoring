@@ -239,13 +239,17 @@ export function MachiScoreResult({
             }
             panelId={DETAIL_PANEL_ID}
           />
-          {/* 上枠は選択中のタブが覆う。左上の角は丸めない — 先頭のタブを
-              選んだとき、タブの左枠がそのままパネルの左枠に続くように */}
+          {/* 上枠は選択中のタブが覆う。上の角は左右とも丸めず、上辺を端から
+              端までの 1 本の直線にする。端のタブを選んだときはタブの枠が
+              そのままパネルの枠に続き、タブが収まらず横スクロールになった
+              ときは、右端で断ち切られたタブの切り口とパネルの上辺が同じ
+              位置で揃う（右上だけ丸めると、内側へ曲がった角の真上に
+              まっすぐな切り口が残って食い違う）。下の角は丸める */}
           <div
             id={DETAIL_PANEL_ID}
             role="tabpanel"
             aria-labelledby={cellTabId(focusedCell)}
-            className="rounded-b-lg rounded-tr-lg border-3 border-ink bg-white p-3 sm:p-4"
+            className="rounded-b-lg border-3 border-ink bg-white p-3 sm:p-4"
           >
             {focusedQuestion ? (
               <div className="space-y-3">
