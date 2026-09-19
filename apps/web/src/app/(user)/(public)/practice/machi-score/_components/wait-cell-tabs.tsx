@@ -34,8 +34,11 @@ interface WaitCellTabsProps {
   readonly cellResults: Readonly<Record<string, JudgementResult>> | undefined;
   readonly focused: MachiCellRef;
   readonly onFocusCell: (cell: MachiCellRef) => void;
-  /** マスの正解を 1 行にしたもの（「3翻40符 5200点」「役なし」） */
-  readonly correctAnswerOf: (cell: MachiCellRef) => string;
+  /**
+   * マスの正解を行に分けたもの（「3翻 40符」「5200点」、役なしは
+   * 「役なし」の 1 行）。`formatCellAnswerLines` の形
+   */
+  readonly correctAnswerLinesOf: (cell: MachiCellRef) => readonly string[];
   /** 下に続く内訳パネルの id（`aria-controls`） */
   readonly panelId: string;
 }
@@ -45,7 +48,7 @@ interface WaitCellTabsProps {
  * 待ちマスタブ
  *
  * 選ぶ対象を出題盤面と同じ姿（和了牌 + ツモ / ロン）でタブに出し、タブ
- * ごとに正解の点数を 1 行添える。タブの列を左から読むだけで「待ちによって
+ * ごとに正解の点数を添える。タブの列を左から読むだけで「待ちによって
  * 点数がどう変わるか」が並んで見える — この練習が見せたいのはそれで、
  * 外したときも「わからない」で開示したときも、正解が一列に読める場所が
  * ここしか無い（回答の段階の表に並ぶのは自分の回答で、正解ではない）。
@@ -56,6 +59,10 @@ interface WaitCellTabsProps {
  * 回答も抱えて下のパネルと重複し、どの行を押したから今の内訳が出ている
  * のかも表と離れて分かりにくかった。
  *
+ * 正解の点数は「翻・符」と「支払い」の 2 行に積む。1 行に並べると幅が
+ * 点数の文字で決まり、2 面待ちの 4 タブでも狭い画面に収まらなかった
+ * （実測で 1 タブ約 125〜140px）。2 行なら幅は支払いの文字ぶんで済む。
+ *
  * 多面待ちではタブが 6 つ以上になるため、折り返さず横スクロールさせる
  * （折り返すと 2 段目が表に見えて、また「表のどこを押すか」に戻る）。
  * 外したマスはタブの ✗ で分かるので、全マスの正誤はタブの列を見れば済む。
@@ -65,7 +72,7 @@ export function WaitCellTabs({
   cellResults,
   focused,
   onFocusCell,
-  correctAnswerOf,
+  correctAnswerLinesOf,
   panelId,
 }: WaitCellTabsProps) {
   const t = useTranslations("machiScore");
@@ -115,7 +122,7 @@ export function WaitCellTabs({
             ? "correct"
             : "incorrect"
           : undefined;
-        const correctAnswer = correctAnswerOf(cell);
+        const correctLines = correctAnswerLinesOf(cell);
         return (
           <button
             key={key}
@@ -132,7 +139,7 @@ export function WaitCellTabs({
             aria-label={[
               t(cell.isTsumo ? "cells.tsumo" : "cells.ron"),
               haiIdToMspz(cell.agariHai),
-              correctAnswer,
+              ...correctLines,
               verdict && tCommon(verdict),
             ]
               .filter(Boolean)
@@ -151,8 +158,13 @@ export function WaitCellTabs({
                 <JudgementMark verdict={verdict} className="text-base" />
               )}
             </span>
-            {/* 正解の点数。折り返すとタブの高さが揃わず列が読めないので 1 行に固定する */}
-            <span className="whitespace-nowrap">{correctAnswer}</span>
+            {/* 正解の点数。行の中で折り返すとタブの高さが揃わず列が読めないので、
+                行ごとに 1 行に固定する */}
+            {correctLines.map((line) => (
+              <span key={line} className="whitespace-nowrap">
+                {line}
+              </span>
+            ))}
           </button>
         );
       })}

@@ -41,7 +41,11 @@ interface MachiScoreResultProps {
   readonly cellAnswers: Readonly<Record<string, MachiCellAnswer>>;
   /** マスごとの判定。「わからない」での開示では undefined */
   readonly cellResults: Readonly<Record<string, JudgementResult>> | undefined;
-  readonly formatAnswer: (answer: MachiCellAnswer, isTsumo: boolean) => string;
+  /** 回答を「翻・符」「支払い」の行に分ける（`formatCellAnswerLines`） */
+  readonly formatAnswerLines: (
+    answer: MachiCellAnswer,
+    isTsumo: boolean,
+  ) => readonly string[];
   readonly requireYaku: boolean;
   readonly simplifyMangan: boolean;
   readonly requireFuForMangan: boolean;
@@ -94,7 +98,7 @@ export function MachiScoreResult({
   machiJudgement,
   cellAnswers,
   cellResults,
-  formatAnswer,
+  formatAnswerLines,
   requireYaku,
   simplifyMangan,
   requireFuForMangan,
@@ -219,8 +223,8 @@ export function MachiScoreResult({
             cellResults={cellResults}
             focused={focusedCell}
             onFocusCell={setFocused}
-            correctAnswerOf={(cell) =>
-              formatAnswer(
+            correctAnswerLinesOf={(cell) =>
+              formatAnswerLines(
                 correctCellAnswerOf(cellQuestionOf(cell)),
                 cell.isTsumo,
               )
@@ -276,7 +280,9 @@ export function MachiScoreResult({
                     }`}
                   >
                     {t("yourAnswer")}:{" "}
-                    {formatAnswer(focusedAnswer, focusedCell.isTsumo)}{" "}
+                    {formatAnswerLines(focusedAnswer, focusedCell.isTsumo).join(
+                      " ",
+                    )}{" "}
                     <JudgementMark
                       verdict={
                         focusedResult.isCorrect ? "correct" : "incorrect"

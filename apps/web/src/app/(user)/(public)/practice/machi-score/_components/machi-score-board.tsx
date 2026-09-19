@@ -34,7 +34,10 @@ import {
   listCellRefs,
   useMachiScoreStore,
 } from "../_hooks/use-machi-score-store";
-import { formatCellAnswer } from "../_lib/format-cell-answer";
+import {
+  formatCellAnswer,
+  formatCellAnswerLines,
+} from "../_lib/format-cell-answer";
 import { MACHI_SCORE_TOUR_ID } from "../_lib/tour-ids";
 import { MachiPicker } from "./machi-picker";
 import { MachiScoreBoardSkeleton } from "./machi-score-board-skeleton";
@@ -181,14 +184,17 @@ function MachiScoreBoardInner() {
   }
 
   const isOyaQuestion = isOya(currentQuestion.jikaze);
+  const formatOptions = (isTsumo: boolean) => ({
+    t: tScore,
+    noYakuLabel: t("cells.noYakuShort"),
+    simplifyMangan,
+    allowDoubleYakuman,
+    isOyaTsumo: isOyaQuestion && isTsumo,
+  });
   const formatAnswer = (answer: MachiCellAnswer, isTsumo: boolean) =>
-    formatCellAnswer(answer, {
-      t: tScore,
-      noYakuLabel: t("cells.noYakuShort"),
-      simplifyMangan,
-      allowDoubleYakuman,
-      isOyaTsumo: isOyaQuestion && isTsumo,
-    });
+    formatCellAnswer(answer, formatOptions(isTsumo));
+  const formatAnswerLines = (answer: MachiCellAnswer, isTsumo: boolean) =>
+    formatCellAnswerLines(answer, formatOptions(isTsumo));
 
   const cells = listCellRefs(currentQuestion);
   const remaining = cells.filter(
@@ -386,7 +392,7 @@ function MachiScoreBoardInner() {
             machiJudgement={machiJudgement}
             cellAnswers={cellAnswers}
             cellResults={cellResults}
-            formatAnswer={formatAnswer}
+            formatAnswerLines={formatAnswerLines}
             requireYaku={requireYaku}
             simplifyMangan={simplifyMangan}
             requireFuForMangan={requireFuForMangan}

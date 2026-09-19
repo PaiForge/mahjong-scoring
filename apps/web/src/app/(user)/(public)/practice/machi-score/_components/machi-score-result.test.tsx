@@ -57,9 +57,11 @@ const SAME_ANSWER: MachiCellAnswer = {
   answer: { han: 1, fu: 30, score: 1000, yakus: [] },
 };
 
-/** 回答の 1 行表示（本物の整形は使わず翻数だけにする） */
-function formatForTest(answer: MachiCellAnswer): string {
-  return answer.kind === "score" ? `${answer.answer.han}翻` : "役なし";
+/** 回答の行分け（本物の整形は使わず、翻数の行と点数の行にする） */
+function formatLinesForTest(answer: MachiCellAnswer): readonly string[] {
+  return answer.kind === "score"
+    ? [`${answer.answer.han}翻`, `${answer.answer.score ?? "-"}点`]
+    : ["役なし"];
 }
 
 /**
@@ -97,7 +99,7 @@ function renderResult(
       }
       cellAnswers={cellAnswers}
       cellResults={cellResults}
-      formatAnswer={formatForTest}
+      formatAnswerLines={formatLinesForTest}
       requireYaku={false}
       simplifyMangan={false}
       requireFuForMangan={false}
@@ -197,16 +199,21 @@ describe("MachiScoreResult のタブ", () => {
     expect(screen.getAllByRole("tab", { name: /incorrect/ })).toHaveLength(1);
   });
 
-  it("タブに正解の点数を添え、読み上げ名にも含める", () => {
+  it("タブに正解の点数を行ごとに添え、読み上げ名にも含める", () => {
     const question = seedTwinQuestion();
     const cells = listCellRefs(question);
     renderResult(question, () => SAME_ANSWER);
 
     const tabs = screen.getAllByRole("tab");
     for (const [i, tab] of tabs.entries()) {
-      const correct = formatForTest(correctAnswerFor(question, cells[i]));
-      expect(tab.textContent).toContain(correct);
-      expect(tab.getAttribute("aria-label")).toContain(correct);
+      const lines = formatLinesForTest(correctAnswerFor(question, cells[i]));
+      const spans = Array.from(tab.querySelectorAll("span")).map(
+        (span) => span.textContent,
+      );
+      for (const line of lines) {
+        expect(spans).toContain(line);
+        expect(tab.getAttribute("aria-label")).toContain(line);
+      }
     }
   });
 

@@ -52,18 +52,21 @@ function formatPayment(
 }
 
 /**
- * マスの回答を「3翻40符 5200点」のような 1 行にする
- * マス回答整形
+ * マスの回答を「翻・符」と「支払い」の行に分ける
+ * マス回答の行分け
  *
- * 回答済みのマスと結果の一覧に出す要約。親ツモは点数の後ろに「オール」を
+ * 答え合わせのタブのように幅の狭い場所で、「3翻 40符」と「5200点」を
+ * 2 行に積んで出すための形。1 行に並べると幅が点数の文字で決まって
+ * タブが横に長くなり、待ちを並べて見比べる列が画面に収まらない。
+ * 役なしは行が 1 つ（文言だけ）。親ツモは点数の後ろに「オール」を
  * 付けたいが、回答（`UserAnswer`）は親子を持たないため呼び出し側が
  * `isOyaTsumo` で指定する。
  */
-export function formatCellAnswer(
+export function formatCellAnswerLines(
   answer: MachiCellAnswer,
   options: FormatCellAnswerOptions & { readonly isOyaTsumo: boolean },
-): string {
-  if (answer.kind === "noYaku") return options.noYakuLabel;
+): readonly string[] {
+  if (answer.kind === "noYaku") return [options.noYakuLabel];
   const { answer: user } = answer;
   const han = formatHan(user.han, options);
   const fu =
@@ -71,7 +74,21 @@ export function formatCellAnswer(
       ? `${user.fu}${options.t("form.options.fuSuffix")}`
       : undefined;
   const payment = formatPayment(user, options.isOyaTsumo, options);
-  return [han, fu, payment].filter(Boolean).join(" ");
+  return [[han, fu].filter(Boolean).join(" "), payment];
+}
+
+/**
+ * マスの回答を「3翻 40符 5200点」のような 1 行にする
+ * マス回答整形
+ *
+ * 回答済みのマスに出す要約。{@link formatCellAnswerLines} を空白で
+ * つないだもの。
+ */
+export function formatCellAnswer(
+  answer: MachiCellAnswer,
+  options: FormatCellAnswerOptions & { readonly isOyaTsumo: boolean },
+): string {
+  return formatCellAnswerLines(answer, options).join(" ");
 }
 
 /**
