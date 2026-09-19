@@ -29,10 +29,15 @@ async function visitCells() {
   return question;
 }
 
+/** 表の n 行目（1 = 1 つ目の待ち。0 は見出し行）のマス（ツモ・ロンの順） */
+function rowCells(index: number) {
+  const row = screen.getAllByRole("row")[index];
+  return Array.from(row.querySelectorAll("button"));
+}
+
 /** 表の 1 行目のマス（ツモ・ロンの順） */
 function firstRowCells() {
-  const row = screen.getAllByRole("row")[1];
-  return Array.from(row.querySelectorAll("button"));
+  return rowCells(1);
 }
 
 /**
@@ -69,7 +74,7 @@ describe("MachiScoreBoard の回答欄", () => {
     expect(screen.getByText("cells.remaining")).toBeDefined();
   });
 
-  it("当てはめると次の未回答のマスが続けて回答中になり、その列の欄が出たままになる", async () => {
+  it("当てはめると同じ列の次の未回答のマスが続けて回答中になり、欄が入れ替わらない", async () => {
     const question = await visitCells();
 
     fireEvent.click(firstRowCells()[0]);
@@ -86,11 +91,11 @@ describe("MachiScoreBoard の回答欄", () => {
       });
     });
 
-    // 1 行目のロン（表の並びで次の未回答）が回答中になり、ロンの欄が見える
+    // 2 行目のツモ（同じ列の次の未回答）が回答中になり、ツモの欄が出たまま
     expect(useMachiScoreStore.getState().selectedCells).toEqual([
-      { agariHai: question.waits[0].agariHai, isTsumo: false },
+      { agariHai: question.waits[1].agariHai, isTsumo: true },
     ]);
-    expect(firstRowCells()[1].getAttribute("aria-pressed")).toBe("true");
+    expect(rowCells(2)[0].getAttribute("aria-pressed")).toBe("true");
     expect(visibleHanSelects()).toHaveLength(1);
   });
 
