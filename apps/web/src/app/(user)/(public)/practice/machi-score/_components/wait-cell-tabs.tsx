@@ -10,17 +10,28 @@ import { JudgementMark } from "../../_components/judgement-mark";
 import { cellKeyOf, type MachiCellRef } from "../_hooks/use-machi-score-store";
 
 /**
- * タブの枠と地。正誤の色は待ち牌の判定・回答の段階のマスと同じ語彙で、
- * 判定が無い（「わからない」での開示）ときは中立。選択中はこれに
- * primary のリングを重ねる — 色を選択の印に使うと、緑の枠に赤い ✗ が
- * 乗るような「正誤と選択が別のことを言う」状態になる
+ * タブの地と文字色
+ *
+ * 選択中のタブは下のパネルと同じ白にして地続きに見せる（枠はどのタブも
+ * パネルと同じ墨色。色を選択の印に使うと、緑の枠に赤い ✗ が乗るような
+ * 「正誤と選択が別のことを言う」状態になる）。選択していないタブは
+ * 正誤の色で薄く塗る — 待ち牌の判定・回答の段階のマスと同じ語彙で、
+ * 判定が無い（「わからない」での開示）ときは中立の灰。選択中のタブは
+ * 塗りを失うが、正誤は ✓/✗ の記号が持っているので読める。
  */
-function tabTone(verdict: "correct" | "incorrect" | undefined): string {
-  if (verdict === undefined) return "border-ink bg-white text-surface-700";
+function tabTone(
+  verdict: "correct" | "incorrect" | undefined,
+  isSelected: boolean,
+): string {
+  if (isSelected) return "bg-white text-surface-900";
+  if (verdict === undefined) return "bg-surface-50 text-surface-600";
   return verdict === "correct"
-    ? "border-success bg-success-subtle text-surface-900"
-    : "border-destructive bg-destructive-subtle text-surface-900";
+    ? "bg-success-subtle text-surface-800"
+    : "bg-destructive-subtle text-surface-800";
 }
+
+/** パネルの上枠の太さ（`border-3`）。選択中のタブがこの分だけ下へ伸びて枠を覆う */
+const PANEL_BORDER_PX = 3;
 
 /** タブの id（内訳パネルの `aria-labelledby` から引く） */
 export function cellTabId(cell: MachiCellRef): string {
@@ -55,9 +66,24 @@ interface WaitCellTabsProps {
  * 自分の回答と内訳（役・符）は選んだタブの下のパネルが持つ。タブに
  * 回答まで載せると下のパネルと同じ中身が二度出る。
  *
+ * タブの正解はパネルの「正解」列と重なって見えるが、重なるのは選んで
+ * いるタブ 1 つだけで、他のタブの正解はタブにしか出ていない。タブから
+ * 点数を外すと、待ちをまたいで点数を見比べるにはタブを 1 つずつ押して
+ * 回るしかなくなる。全問正解なら回答の段階の表で見比べは済んでいるが、
+ * 外したときと開示したときにこそ見比べが要るので、重なりを承知で載せる。
+ *
  * 以前はマスを表に並べて押させていたが、表のマスは正解のほかに外した
  * 回答も抱えて下のパネルと重複し、どの行を押したから今の内訳が出ている
  * のかも表と離れて分かりにくかった。
+ *
+ * 見た目はブラウザのタブに寄せる。タブは上だけ角丸で下枠を持たず、
+ * パネルの上枠に乗る。選択中のタブはパネルと同じ白で、パネルの上枠の
+ * 太さぶん下へ伸びて枠を覆い、タブとパネルが 1 枚につながって見える —
+ * 「今どのタブの内訳を見ているか」を、枠のつながりだけで言うため。
+ * 離れた列とパネルにリング（選択の印）を付ける形では、どのタブの中身が
+ * 下に出ているのかが一目で結びつかなかった。はみ出す 3px は横スクロールの
+ * 箱の下余白に収め、箱を同じ分だけ負のマージンでパネルに重ねる（箱の
+ * 外にはみ出すと overflow で切れる）。
  *
  * 正解の点数は「翻・符」と「支払い」の 2 行に積む。1 行に並べると幅が
  * 点数の文字で決まり、2 面待ちの 4 タブでも狭い画面に収まらなかった
@@ -78,6 +104,7 @@ export function WaitCellTabs({
   const t = useTranslations("machiScore");
   const tCommon = useTranslations("common");
   const tabRefs = useRef<(HTMLButtonElement | undefined)[]>([]);
+  const overlap = `${PANEL_BORDER_PX}px`;
   const focusedIndex = cells.findIndex(
     (cell) => cellKeyOf(cell) === cellKeyOf(focused),
   );
@@ -106,11 +133,14 @@ export function WaitCellTabs({
   };
 
   return (
-    // リング（選択中の印）が切れないよう、横スクロールの箱に余白を持たせる
+    // 下余白 = パネルの上枠の太さ。選択中のタブはここへはみ出してパネルの
+    // 枠を覆う。箱自体は同じ分だけ負のマージンでパネルに重ね、z-index で
+    // パネルより手前に描く
     <div
       role="tablist"
       aria-label={t("result.summaryTitle")}
-      className="flex gap-2 overflow-x-auto p-1"
+      className="relative z-10 flex items-end gap-1 overflow-x-auto"
+      style={{ paddingBottom: overlap, marginBottom: `-${overlap}` }}
       onKeyDown={handleKeyDown}
     >
       {cells.map((cell, index) => {
@@ -145,9 +175,20 @@ export function WaitCellTabs({
               .filter(Boolean)
               .join(" ")}
             onClick={() => onFocusCell(cell)}
-            className={`flex shrink-0 flex-col items-center gap-0.5 rounded-lg border-3 px-1.5 py-1 text-xs font-bold ${tabTone(
+            // 選択中のタブは下へ伸びるぶん下余白を足し、上端を他のタブと揃える。
+            // フォーカスのリングは箱の overflow で切れないよう内側に引く
+            style={
+              isFocused
+                ? {
+                    marginBottom: `-${overlap}`,
+                    paddingBottom: `calc(0.375rem + ${overlap})`,
+                  }
+                : undefined
+            }
+            className={`flex shrink-0 flex-col items-center gap-0.5 rounded-t-lg border-3 border-b-0 border-ink px-2 pb-1.5 pt-1 text-xs font-bold focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-primary-500 ${tabTone(
               verdict,
-            )} ${isFocused ? "ring-2 ring-primary-500 ring-offset-2" : ""}`}
+              isFocused,
+            )}`}
           >
             <span>{t(cell.isTsumo ? "cells.tsumo" : "cells.ron")}</span>
             <span className="flex items-center gap-0.5">

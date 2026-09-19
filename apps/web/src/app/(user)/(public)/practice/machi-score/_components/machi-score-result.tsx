@@ -89,8 +89,14 @@ function MarkedHai({ hai, mark }: MarkedHaiProps) {
  *
  * マスは表に並べず 1 つずつタブで見せる（{@link WaitCellTabs}）。タブには
  * 正解の点数を添え、待ちごとの点数を並べて見比べる役目はタブの列が持つ。
- * 自分の回答と正誤・内訳はタブの下の結果表がすべて持っているので、表の
+ * 自分の回答と正誤・内訳はタブの下のパネルがすべて持っているので、表の
  * 上に全マスぶん並べると同じ中身が二度出るだけになる。
+ *
+ * パネルは墨の枠で囲み、選択中のタブと地続きにする（枠の重ね方は
+ * {@link WaitCellTabs}）。面子分解のリンクはパネルの末尾、結果表の下に
+ * 置く — タブと表の間に挟むと、つながって見せたいタブと表が 1 行ぶん
+ * 離れる。分解は「点数を読んでから確かめたいときに開く」導線なので、
+ * 表の後ろでも読む順に沿う。
  */
 export function MachiScoreResult({
   question,
@@ -217,7 +223,7 @@ export function MachiScoreResult({
         <h3 className="text-sm font-bold text-surface-700">
           {t("summaryTitle")}
         </h3>
-        <div className="space-y-3">
+        <div>
           <WaitCellTabs
             cells={cells}
             cellResults={cellResults}
@@ -231,19 +237,16 @@ export function MachiScoreResult({
             }
             panelId={DETAIL_PANEL_ID}
           />
+          {/* 上枠は選択中のタブが覆う。左上の角は丸めない — 先頭のタブを
+              選んだとき、タブの左枠がそのままパネルの左枠に続くように */}
           <div
             id={DETAIL_PANEL_ID}
             role="tabpanel"
             aria-labelledby={cellTabId(focusedCell)}
+            className="rounded-b-lg rounded-tr-lg border-3 border-ink bg-white p-3 sm:p-4"
           >
             {focusedQuestion ? (
-              <div className="space-y-4">
-                <div className="flex justify-end">
-                  <TehaiMentsuBreakdown
-                    tehai={focusedQuestion.tehai}
-                    context={focusedQuestion}
-                  />
-                </div>
+              <div className="space-y-3">
                 <ResultDisplay
                   key={focusedKey}
                   question={focusedQuestion}
@@ -264,6 +267,10 @@ export function MachiScoreResult({
                   requireYaku={requireYaku}
                   simplifyMangan={simplifyMangan}
                   requireFuForMangan={requireFuForMangan}
+                />
+                <TehaiMentsuBreakdown
+                  tehai={focusedQuestion.tehai}
+                  context={focusedQuestion}
                 />
               </div>
             ) : (
