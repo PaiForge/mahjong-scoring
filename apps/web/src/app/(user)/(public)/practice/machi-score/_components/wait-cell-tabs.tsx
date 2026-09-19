@@ -15,16 +15,21 @@ import { cellKeyOf, type MachiCellRef } from "../_hooks/use-machi-score-store";
  * 選択中のタブは下のパネルと同じ白にして地続きに見せる（枠はどのタブも
  * パネルと同じ墨色。色を選択の印に使うと、緑の枠に赤い ✗ が乗るような
  * 「正誤と選択が別のことを言う」状態になる）。選択していないタブは
- * 正誤の色で薄く塗る — 待ち牌の判定・回答の段階のマスと同じ語彙で、
+ * 塗る — 待ち牌の判定・回答の段階のマスと同じ語彙で正誤の色を使い、
  * 判定が無い（「わからない」での開示）ときは中立の灰。選択中のタブは
  * 塗りを失うが、正誤は ✓/✗ の記号が持っているので読める。
+ *
+ * 中立の灰は正誤の色と同じ濃さにする（`surface-200`。`surface-50` では
+ * 白とほぼ見分けが付かなかった）。開示のときはタブに正誤の色も ✓/✗ も
+ * 無く、選択中かどうかを言うのが塗りの有無だけになるため、ここが薄いと
+ * どのタブの内訳を見ているのか分からなくなる。
  */
 function tabTone(
   verdict: "correct" | "incorrect" | undefined,
   isSelected: boolean,
 ): string {
   if (isSelected) return "bg-white text-surface-900";
-  if (verdict === undefined) return "bg-surface-50 text-surface-600";
+  if (verdict === undefined) return "bg-surface-200 text-surface-600";
   return verdict === "correct"
     ? "bg-success-subtle text-surface-800"
     : "bg-destructive-subtle text-surface-800";
