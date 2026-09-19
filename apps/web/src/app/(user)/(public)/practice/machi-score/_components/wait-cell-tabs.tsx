@@ -88,6 +88,10 @@ interface WaitCellTabsProps {
  * 正解の点数は「翻・符」と「支払い」の 2 行に積む。1 行に並べると幅が
  * 点数の文字で決まり、2 面待ちの 4 タブでも狭い画面に収まらなかった
  * （実測で 1 タブ約 125〜140px）。2 行なら幅は支払いの文字ぶんで済む。
+ * 役なしのマスは「役なし」の 1 行だけだが、タブの高さは列で揃える
+ * （flex の stretch）。1 つだけ低いタブが混ざると上端が凹んで見える。
+ * 「役なし」は翻・符の行の位置に出る — 役なしは翻数が無いという主張
+ * なので、結果表が「役なし」を翻数の行に置くのと揃える。
  *
  * 多面待ちではタブが 6 つ以上になるため、折り返さず横スクロールさせる
  * （折り返すと 2 段目が表に見えて、また「表のどこを押すか」に戻る）。
@@ -139,7 +143,7 @@ export function WaitCellTabs({
     <div
       role="tablist"
       aria-label={t("result.summaryTitle")}
-      className="relative z-10 flex items-end gap-1 overflow-x-auto"
+      className="relative z-10 flex items-stretch gap-1 overflow-x-auto"
       style={{ paddingBottom: overlap, marginBottom: `-${overlap}` }}
       onKeyDown={handleKeyDown}
     >
@@ -175,16 +179,10 @@ export function WaitCellTabs({
               .filter(Boolean)
               .join(" ")}
             onClick={() => onFocusCell(cell)}
-            // 選択中のタブは下へ伸びるぶん下余白を足し、上端を他のタブと揃える。
+            // 選択中のタブは負のマージンぶん下へ伸びてパネルの上枠を覆う
+            // （高さは stretch で他のタブに揃うので上端は動かない）。
             // フォーカスのリングは箱の overflow で切れないよう内側に引く
-            style={
-              isFocused
-                ? {
-                    marginBottom: `-${overlap}`,
-                    paddingBottom: `calc(0.375rem + ${overlap})`,
-                  }
-                : undefined
-            }
+            style={isFocused ? { marginBottom: `-${overlap}` } : undefined}
             className={`flex shrink-0 flex-col items-center gap-0.5 rounded-t-lg border-3 border-b-0 border-ink px-2 pb-1.5 pt-1 text-xs font-bold focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-primary-500 ${tabTone(
               verdict,
               isFocused,
