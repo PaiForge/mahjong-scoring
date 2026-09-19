@@ -37,8 +37,11 @@ export default async function AdminLayout({
     <div data-skin="plain" className="flex min-h-screen">
       {/* 狭い画面ではナビを細くする。w-56 のままだと 390px 幅で本文に
           102px しか残らず、期間ピッカーのような縮まない部品が main から
-          溢れる（サイドバーは畳めるようにしていないので、幅で譲る） */}
-      <aside className="w-40 shrink-0 border-r border-surface-200 bg-surface-50 p-4 sm:w-56">
+          溢れる（サイドバーは畳めるようにしていないので、幅で譲る）。
+          下限は w-48。ナビの一番長い「アクティビティログ」（9 文字 ×
+          text-sm ≒ 126px）に aside の p-4 とリンクの px-3 を足すと 182px
+          要り、w-40 では 2 行に折れて他の項目と高さが揃わなくなる */}
+      <aside className="w-48 shrink-0 border-r border-surface-200 bg-surface-50 p-4 sm:w-56">
         {/* セクション見出し（h1）。ダッシュボードへのリンクを兼ねる */}
         <h1 className="mb-6">
           <Link

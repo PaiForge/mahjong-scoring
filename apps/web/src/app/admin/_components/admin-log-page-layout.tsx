@@ -142,8 +142,15 @@ export function AdminLogPageLayout({
         <table className="w-full text-left text-sm">
           <thead>
             <tr className="border-b border-gray-200">
+              {/* 見出しは折り返さない。main が min-w-0 で縮むようになって
+                  から、表は横スクロールしつつ見出しセルも min-content まで
+                  縮むため、放っておくと「アクション」が「アクシ／ョン」の
+                  ように語の途中で割れる（390px で実測） */}
               {columns.map((col) => (
-                <th key={col.label} className="px-4 py-3 font-medium">
+                <th
+                  key={col.label}
+                  className="px-4 py-3 font-medium whitespace-nowrap"
+                >
                   {col.label}
                 </th>
               ))}
