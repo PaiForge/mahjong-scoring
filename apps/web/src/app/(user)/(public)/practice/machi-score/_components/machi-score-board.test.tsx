@@ -66,7 +66,32 @@ describe("MachiScoreBoard の回答欄", () => {
     fireEvent.click(firstRowCells()[0]);
     expect(hanSelect()).toBeDefined();
     expect(submitButton().hasAttribute("disabled")).toBe(true);
-    expect(screen.getByText("cells.selecting")).toBeDefined();
+    expect(screen.getByText("cells.remaining")).toBeDefined();
+  });
+
+  it("当てはめると次の未回答のマスが続けて回答中になり、その列の欄が出たままになる", async () => {
+    const question = await visitCells();
+
+    fireEvent.click(firstRowCells()[0]);
+    act(() => {
+      useMachiScoreStore.getState().assignAnswer({
+        kind: "score",
+        answer: {
+          han: 2,
+          fu: 30,
+          scoreFromKo: 500,
+          scoreFromOya: 1000,
+          yakus: [],
+        },
+      });
+    });
+
+    // 1 行目のロン（表の並びで次の未回答）が回答中になり、ロンの欄が見える
+    expect(useMachiScoreStore.getState().selectedCells).toEqual([
+      { agariHai: question.waits[0].agariHai, isTsumo: false },
+    ]);
+    expect(firstRowCells()[1].getAttribute("aria-pressed")).toBe("true");
+    expect(visibleHanSelects()).toHaveLength(1);
   });
 
   it("選択を解いても入力は残り、選び直すと同じ入力のまま欄が戻る", async () => {

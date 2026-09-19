@@ -128,10 +128,10 @@ function MachiScoreBoardInner() {
     proceedToCells();
   };
 
-  // 当てはめると選択が解けて回答欄が消え、下にあった「回答する」が欄の
-  // 高さぶん上へ跳ぶ。押した位置に留まると表もボタンも画面外になるので、
-  // 他の切り替え操作と同じく盤面の先頭へ戻す（当てはめた結果の塊と、次に
-  // 押す「回答する」が表の下に見える）
+  // 当てはめると表の塊が組み変わり、最後の 1 つなら選択が解けて回答欄も
+  // 消え、下にあった「回答する」が欄の高さぶん上へ跳ぶ。押した位置に留まる
+  // と表もボタンも画面外になるので、他の切り替え操作と同じく盤面の先頭へ
+  // 戻す（当てはめた結果の塊と、続けて回答中になったマスが表の中に見える）
   const handleAssignScore = (answer: UserAnswer) => {
     scrollToPracticeAnchor();
     assignAnswer({ kind: "score", answer });
@@ -351,14 +351,17 @@ function MachiScoreBoardInner() {
 
             {/* 「回答する」はマスを選んでいる間（回答中）も押させない。
                 回答中は入力の途中で、押せると入力を捨てて古い回答で答え合わせに
-                進んでしまう。何をすれば押せるかを注記で言う（選択中なら当てはめ
-                るか解く、未回答が残るならその数） */}
+                進んでしまう。何をすれば押せるかを注記で言う。未回答が残る限り
+                その数を出す — 当てはめると次の未回答のマスが続けて回答中になる
+                ため、残数と選択中は常に重なる。あと何マスかの方が先に要る情報
+                で、「当てはめるか解く」は全マス埋めた後に押せない理由を説明する
+                ためだけに要る */}
             <div className="space-y-2">
               {(isSelecting || remaining > 0) && (
                 <p className="text-center text-xs text-surface-500">
-                  {isSelecting
-                    ? t("cells.selecting")
-                    : t("cells.remaining", { count: remaining })}
+                  {remaining > 0
+                    ? t("cells.remaining", { count: remaining })
+                    : t("cells.selecting")}
                 </p>
               )}
               <div data-tour-id={MACHI_SCORE_TOUR_ID.cellsSubmit}>

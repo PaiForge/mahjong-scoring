@@ -115,7 +115,16 @@ interface MachiScoreActions {
    * 選択をそちらへ移す（列をまたいでまとめて答えることはできない）。
    */
   toggleCell: (cell: MachiCellRef) => void;
-  /** 選択中のマスすべてに同じ回答を当てはめ、選択を解く */
+  /**
+   * 選択中のマスすべてに同じ回答を当てはめ、未回答のマスが残っていれば
+   * その先頭を続けて選択中にする
+   *
+   * 表の並び（待ちの順にツモ・ロン）で最初の未回答へ移る。全マスを埋め
+   * ないと回答できないので、当てはめた次に触るのはほぼ必ず未回答のマス
+   * で、毎回マスを押し直す手間だけが残る。ツモ列をまとめて答えた直後に
+   * ロンの先頭が回答中になり、そのまま入力を続けられる。別のマスから
+   * 答えたいときは押し直せばよく、選択が移るだけで回答は動かない。
+   */
   assignAnswer: (answer: MachiCellAnswer) => void;
   /** 全マスの回答を判定して答え合わせへ進む */
   submitCells: (mode: MachiCellJudgementMode) => void;
@@ -246,15 +255,22 @@ export const useMachiScoreStore = create<MachiScoreStore>((set, get) => ({
   },
 
   assignAnswer: (answer) => {
-    const { phase, selectedCells, cellAnswers, draftSeq } = get();
-    if (phase !== "cells" || selectedCells.length === 0) return;
+    const { currentQuestion, phase, selectedCells, cellAnswers, draftSeq } =
+      get();
+    if (!currentQuestion || phase !== "cells" || selectedCells.length === 0)
+      return;
     const next: Record<string, MachiCellAnswer> = { ...cellAnswers };
     for (const cell of selectedCells) next[cellKeyOf(cell)] = answer;
     // 選択中のマスは同じ列に限られる（toggleCell が保証する）
     const column = selectedCells[0].isTsumo ? "tsumo" : "ron";
+    // 残った未回答のマスの先頭へ選択を送る。埋まっていれば選択は空に戻り、
+    // 「回答する」が押せるようになる
+    const nextCell = listCellRefs(currentQuestion).find(
+      (cell) => !(cellKeyOf(cell) in next),
+    );
     set({
       cellAnswers: next,
-      selectedCells: [],
+      selectedCells: nextCell ? [nextCell] : [],
       draftSeq: { ...draftSeq, [column]: draftSeq[column] + 1 },
     });
   },
