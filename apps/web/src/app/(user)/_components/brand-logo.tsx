@@ -29,11 +29,28 @@ interface BrandLogoProps {
   readonly size: "sm" | "md" | "lg";
 }
 
+/**
+ * サイズ別の文字サイズ
+ *
+ * `md`（ヘッダー）だけ狭い画面で 1〜2 段落とす。ロゴは
+ * `whitespace-nowrap` で縮まないため、320px 幅では右端のログイン導線と
+ * 重なって字が読めなくなっていた（実測: 左のロゴ群が 185px 必要なのに
+ * 156px しか無い）。375px 以上のいまどきの端末は text-lg のまま。
+ */
 const SIZE_CLASS = {
   sm: "text-sm",
-  md: "text-lg",
+  md: "text-sm min-[361px]:text-base min-[376px]:text-lg",
   lg: "text-xl",
 } as const;
+
+/**
+ * マークを隠す幅（320px 級の端末）
+ *
+ * 文字を落とすだけでは 320px でログイン導線との間が 1px しか空かない。
+ * さらに字を小さくするより、装飾であるマーク（`alt=""`）を先に降ろす —
+ * サイト名が読めることの方が優先される。
+ */
+const MARK_HIDDEN_CLASS = "max-[340px]:hidden";
 
 /**
  * next/image に渡す基準の描画幅（px）。
@@ -68,7 +85,7 @@ export function BrandLogo({ size }: BrandLogoProps) {
         // ヘッダーは初期表示に入るため遅延読み込みしない。フッターも同じ URL を
         // 指すので、2 か所に置いてもリクエストは 1 本で済む。
         loading="eager"
-        className="ml-1 h-[1.6em] w-[1.6em]"
+        className={`ml-1 h-[1.6em] w-[1.6em] ${MARK_HIDDEN_CLASS}`}
       />
     </span>
   );

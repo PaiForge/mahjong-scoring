@@ -26,6 +26,12 @@ interface MathProps {
 
 /**
  * ブロック数式コンポーネント（displayMode）
+ *
+ * 溢れたぶんは数式の中で横スクロールさせる。数式は語の途中で折り返せず、
+ * 「子のロン : 親が出す : 子が出す = 4 : 2 : 1」のように日本語を含む式は
+ * 狭い画面に収まらない。放っておくとページ全体が横に流れて本文まで動く
+ * （320px の /learn/ron-to-tsumo で実測 48px。式そのものは 352px あり、
+ * 本文の幅 288px に対して 64px はみ出していた）。
  */
 export function BlockMath({ latex }: MathProps) {
   const html = katex.renderToString(latex, {
@@ -36,7 +42,10 @@ export function BlockMath({ latex }: MathProps) {
   return (
     <>
       <KatexStylesheet />
-      <div dangerouslySetInnerHTML={{ __html: html }} />
+      <div
+        className="overflow-x-auto"
+        dangerouslySetInnerHTML={{ __html: html }}
+      />
     </>
   );
 }

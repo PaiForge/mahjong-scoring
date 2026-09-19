@@ -65,20 +65,22 @@ export default async function AdminUsersPage({
         <table className="w-full text-left text-sm">
           <thead>
             <tr className="border-b border-gray-200">
-              <th className="px-4 py-3 font-medium">{t("usersTable.email")}</th>
-              <th className="px-4 py-3 font-medium">
+              <th className="px-4 py-3 font-medium whitespace-nowrap">
+                {t("usersTable.email")}
+              </th>
+              <th className="px-4 py-3 font-medium whitespace-nowrap">
                 {t("usersTable.username")}
               </th>
-              <th className="px-4 py-3 font-medium">
+              <th className="px-4 py-3 font-medium whitespace-nowrap">
                 {t("usersTable.displayName")}
               </th>
-              <th className="px-4 py-3 font-medium">
+              <th className="px-4 py-3 font-medium whitespace-nowrap">
                 {t("usersTable.status")}
               </th>
-              <th className="px-4 py-3 font-medium">
+              <th className="px-4 py-3 font-medium whitespace-nowrap">
                 {t("usersTable.createdAt")}
               </th>
-              <th className="px-4 py-3 font-medium">
+              <th className="px-4 py-3 font-medium whitespace-nowrap">
                 {t("usersTable.actions")}
               </th>
             </tr>

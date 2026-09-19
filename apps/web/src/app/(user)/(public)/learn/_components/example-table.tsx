@@ -1,8 +1,10 @@
 import type { ReactNode } from "react";
 import {
+  DATA_TABLE_CELL_PADDING,
   DataTable,
   DataTableHeaderCell,
 } from "@/app/(user)/_components/data-table";
+import { REFERENCE_TABLE_MAX_WIDTH } from "../_lib/reference-table-width";
 
 interface ExampleTableRow {
   /** 牌のセルの中身（{@link TileSet} 等のクライアントコンポーネント） */
@@ -34,6 +36,9 @@ interface ExampleTableProps {
  *
  * 例示を {@link FuSummaryTable} と同じ体裁の表で示し、どの列が何を表すかを
  * 見出し行で明示する。符の強調ルールも早見表と揃える。
+ *
+ * セルの余白は `dense`（狭い画面でだけ左右を詰める）。牌の列は牌画像の枚数で
+ * 幅が決まり縮まないため、既定の px-4 では狭い画面で符の列が枠から溢れる。
  */
 export function ExampleTable({
   title,
@@ -44,16 +49,22 @@ export function ExampleTable({
   rows,
 }: ExampleTableProps) {
   return (
-    <div className="space-y-2">
+    <div className={`space-y-2 ${REFERENCE_TABLE_MAX_WIDTH}`}>
       <h3 className="text-xs font-semibold uppercase tracking-wider text-surface-400">
         {title}
       </h3>
       <DataTable
         header={
           <>
-            <DataTableHeaderCell align="left">{colTiles}</DataTableHeaderCell>
-            <DataTableHeaderCell align="left">{colKind}</DataTableHeaderCell>
-            <DataTableHeaderCell align="right">{colFu}</DataTableHeaderCell>
+            <DataTableHeaderCell align="left" density="dense">
+              {colTiles}
+            </DataTableHeaderCell>
+            <DataTableHeaderCell align="left" density="dense">
+              {colKind}
+            </DataTableHeaderCell>
+            <DataTableHeaderCell align="right" density="dense">
+              {colFu}
+            </DataTableHeaderCell>
           </>
         }
       >
@@ -61,14 +72,14 @@ export function ExampleTable({
           const hasFu = row.fu > 0;
           return (
             <tr key={index} className="bg-white">
-              <td className="px-4 py-3">{row.tiles}</td>
+              <td className={DATA_TABLE_CELL_PADDING.dense}>{row.tiles}</td>
               <td
-                className={`w-full px-4 py-3 ${hasFu ? "text-surface-900" : "text-surface-500"}`}
+                className={`w-full ${DATA_TABLE_CELL_PADDING.dense} ${hasFu ? "text-surface-900" : "text-surface-500"}`}
               >
                 {row.label}
               </td>
               <td
-                className={`px-4 py-3 text-right whitespace-nowrap ${hasFu ? "font-semibold text-primary-600" : "text-surface-400"}`}
+                className={`${DATA_TABLE_CELL_PADDING.dense} text-right whitespace-nowrap ${hasFu ? "font-semibold text-primary-600" : "text-surface-400"}`}
               >
                 {formatFu(row.fu)}
               </td>

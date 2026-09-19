@@ -176,8 +176,8 @@ export function ScoreTable({
         </p>
       )}
 
-      {/* Table */}
-      <div className="overflow-x-auto w-full">
+      {/* Table（横に溢れたぶんは DataTable が自分の枠の中でスクロールする） */}
+      <div className="w-full">
         {viewMode === "normal" ? (
           <NormalScoreTable
             scoreGrid={scoreGrid}

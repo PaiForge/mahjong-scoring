@@ -28,35 +28,33 @@ export async function ExtraFuTable({ handShape }: ExtraFuTableProps) {
   const rows = buildExtraFuRows(handShape);
 
   return (
-    <div className="w-full overflow-x-auto">
-      <DataTable
-        tableClassName="text-center"
-        header={
-          <>
-            <DataTableHeaderCell align="left">
-              {t("colExtraFu")}
-            </DataTableHeaderCell>
-            <DataTableHeaderCell>{t("tsumo")}</DataTableHeaderCell>
-            <DataTableHeaderCell>{t("ron")}</DataTableHeaderCell>
-          </>
-        }
-      >
-        {rows.map((row) => (
-          <tr key={row.from} className="bg-white">
-            <DataTableRowHeaderCell>
-              {row.from === row.to
-                ? t("fuUnit", { value: row.from })
-                : t("fuRange", { from: row.from, to: row.to })}
-            </DataTableRowHeaderCell>
-            <td className="px-4 py-3 font-semibold text-primary-600">
-              {t("fuUnit", { value: row.tsumoFu })}
-            </td>
-            <td className="px-4 py-3 font-semibold text-primary-600">
-              {t("fuUnit", { value: row.ronFu })}
-            </td>
-          </tr>
-        ))}
-      </DataTable>
-    </div>
+    <DataTable
+      tableClassName="text-center"
+      header={
+        <>
+          <DataTableHeaderCell align="left">
+            {t("colExtraFu")}
+          </DataTableHeaderCell>
+          <DataTableHeaderCell>{t("tsumo")}</DataTableHeaderCell>
+          <DataTableHeaderCell>{t("ron")}</DataTableHeaderCell>
+        </>
+      }
+    >
+      {rows.map((row) => (
+        <tr key={row.from} className="bg-white">
+          <DataTableRowHeaderCell>
+            {row.from === row.to
+              ? t("fuUnit", { value: row.from })
+              : t("fuRange", { from: row.from, to: row.to })}
+          </DataTableRowHeaderCell>
+          <td className="px-4 py-3 font-semibold text-primary-600">
+            {t("fuUnit", { value: row.tsumoFu })}
+          </td>
+          <td className="px-4 py-3 font-semibold text-primary-600">
+            {t("fuUnit", { value: row.ronFu })}
+          </td>
+        </tr>
+      ))}
+    </DataTable>
   );
 }
