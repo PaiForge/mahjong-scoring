@@ -12,7 +12,6 @@ import type {
 } from "@mahjong-scoring/core";
 import { Hai } from "@pai-forge/mahjong-react-ui";
 import { Button } from "@/app/(user)/_components/button";
-import { HighlightPanel } from "@/app/(user)/_components/highlight-panel";
 import { ResultDisplay } from "../../score/_components/result-display";
 import { TehaiMentsuBreakdown } from "../../_components/tehai-mentsu-breakdown";
 import { JudgementMark } from "../../_components/judgement-mark";
@@ -27,6 +26,7 @@ import {
   listCellRefs,
   type MachiCellRef,
 } from "../_hooks/use-machi-score-store";
+import { NoYakuResultDisplay } from "./no-yaku-result-display";
 import { WaitCellTabs, cellTabId } from "./wait-cell-tabs";
 
 /** 内訳パネルの id。タブ（`aria-controls`）から引く */
@@ -90,7 +90,9 @@ function MarkedHai({ hai, mark }: MarkedHaiProps) {
  * マスは表に並べず 1 つずつタブで見せる（{@link WaitCellTabs}）。タブには
  * 正解の点数を添え、待ちごとの点数を並べて見比べる役目はタブの列が持つ。
  * 自分の回答と正誤・内訳はタブの下のパネルがすべて持っているので、表の
- * 上に全マスぶん並べると同じ中身が二度出るだけになる。
+ * 上に全マスぶん並べると同じ中身が二度出るだけになる。役が無くロン
+ * できないマスも同じ形の表で出す（{@link NoYakuResultDisplay}）ので、
+ * どのタブでもパネルの形は変わらない。
  *
  * パネルは墨の枠で囲み、選択中のタブと地続きにする（枠の重ね方は
  * {@link WaitCellTabs}）。面子分解のリンクはパネルの末尾、結果表の下に
@@ -274,33 +276,12 @@ export function MachiScoreResult({
                 />
               </div>
             ) : (
-              <HighlightPanel>
-                <p className="text-sm leading-relaxed text-surface-800">
-                  {t("noYakuDetail")}
-                </p>
-                {focusedAnswer !== undefined && focusedResult !== undefined && (
-                  <p
-                    className={`mt-2 text-sm font-bold ${
-                      focusedResult.isCorrect
-                        ? "text-success"
-                        : "text-destructive"
-                    }`}
-                  >
-                    {t("yourAnswer")}:{" "}
-                    {formatAnswerLines(focusedAnswer, focusedCell.isTsumo).join(
-                      " ",
-                    )}{" "}
-                    <JudgementMark
-                      verdict={
-                        focusedResult.isCorrect ? "correct" : "incorrect"
-                      }
-                      label={tCommon(
-                        focusedResult.isCorrect ? "correct" : "incorrect",
-                      )}
-                    />
-                  </p>
-                )}
-              </HighlightPanel>
+              <NoYakuResultDisplay
+                userAnswer={focusedAnswer}
+                result={focusedResult}
+                requireYaku={requireYaku}
+                simplifyMangan={simplifyMangan}
+              />
             )}
           </div>
         </div>

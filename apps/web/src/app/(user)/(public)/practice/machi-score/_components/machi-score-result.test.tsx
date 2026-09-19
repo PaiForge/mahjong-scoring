@@ -1,5 +1,5 @@
 import { describe, expect, it, vi } from "vitest";
-import { fireEvent, render, screen } from "@testing-library/react";
+import { fireEvent, render, screen, within } from "@testing-library/react";
 import type {
   JudgementResult,
   MachiCellAnswer,
@@ -50,6 +50,22 @@ function seedTwinQuestion(): MachiScoreQuestion {
     };
   }
   throw new Error("2 面待ちの問題を生成できなかった");
+}
+
+/** ロンできない（役なしが正解の）待ちを含む出題 */
+function seedNoYakuQuestion(): MachiScoreQuestion {
+  for (let i = 0; i < 300; i++) {
+    const question = generateValidMachiScoreQuestion();
+    if (question?.waits.some((wait) => wait.ron === undefined)) return question;
+  }
+  throw new Error("役なしの待ちを含む問題を生成できなかった");
+}
+
+/** 役なしが正解のマス（ロン） */
+function noYakuCellOf(question: MachiScoreQuestion): MachiCellRef {
+  const wait = question.waits.find((w) => w.ron === undefined);
+  if (!wait) throw new Error("役なしの待ちが無い");
+  return { agariHai: wait.agariHai, isTsumo: false };
 }
 
 const SAME_ANSWER: MachiCellAnswer = {
@@ -233,6 +249,56 @@ describe("MachiScoreResult のタブ", () => {
     expect(screen.getByRole("tabpanel").getAttribute("aria-labelledby")).toBe(
       tabs[2].id,
     );
+  });
+
+  it("役なしのマスも同じ形の表で出し、点数で答えた誤答は行ごとに ✗ が付く", () => {
+    const question = seedNoYakuQuestion();
+    const target = noYakuCellOf(question);
+    renderResult(question, (cell) =>
+      cellKeyOf(cell) === cellKeyOf(target)
+        ? SAME_ANSWER
+        : correctAnswerFor(question, cell),
+    );
+
+    const tabs = screen.getAllByRole("tab");
+    const targetTab =
+      tabs[
+        listCellRefs(question).findIndex(
+          (cell) => cellKeyOf(cell) === cellKeyOf(target),
+        )
+      ];
+    fireEvent.click(targetTab);
+
+    const panel = screen.getByRole("tabpanel");
+    const table = within(panel).getByRole("table");
+    // 見出しは結果表と同じ「あなたの回答 / 正解」
+    expect(within(table).getByText("result.headers.answer")).toBeDefined();
+    expect(within(table).getByText("result.headers.correct")).toBeDefined();
+    // 正解の翻数の行は「役なし」、翻・符・点数の回答にはそれぞれ ✗
+    expect(within(table).getAllByText("cells.noYakuShort")).toHaveLength(1);
+    expect(
+      within(table).getAllByRole("img", { name: "incorrect" }),
+    ).toHaveLength(3);
+    expect(within(panel).getByText("result.noYakuDetail")).toBeDefined();
+  });
+
+  it("役なしと正しく答えたマスは翻数の行に ✓ が付き、他の行は未回答の印になる", () => {
+    const question = seedNoYakuQuestion();
+    renderResult(question, (cell) => correctAnswerFor(question, cell));
+    const target = noYakuCellOf(question);
+    fireEvent.click(
+      screen.getAllByRole("tab")[
+        listCellRefs(question).findIndex(
+          (cell) => cellKeyOf(cell) === cellKeyOf(target),
+        )
+      ],
+    );
+
+    const table = within(screen.getByRole("tabpanel")).getByRole("table");
+    expect(within(table).getAllByRole("img", { name: "correct" })).toHaveLength(
+      1,
+    );
+    expect(within(table).getAllByText("result.unanswered")).toHaveLength(2);
   });
 
   it("矢印キーで隣のタブへ移り、端では反対の端へ回る", () => {

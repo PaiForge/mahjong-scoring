@@ -24,15 +24,17 @@ import { DetailsPanelRow } from "./details-accordion";
 import type { DetailItem } from "./details-accordion";
 import { ScoreTableModal } from "./score-table-modal";
 import { ReferenceLinkButton } from "../../_components/reference-link-button";
+import {
+  RESULT_TABLE_COLUMN_COUNT,
+  ResultTableFrame,
+  ResultUnansweredCell,
+} from "./result-table-frame";
 import { JudgementMark } from "../../_components/judgement-mark";
 import { YakuCheatsheetModal } from "./yaku-cheatsheet-modal";
 import { YakuJudgementChips } from "./yaku-judgement-chips";
 import type { ScoreTableFocus } from "@/app/(user)/(public)/reference/score-table/_lib/score-table-utils";
 import { BookIcon } from "@/app/(user)/_components/icons/book-icon";
 import { TableIcon } from "@/app/(user)/_components/icons/table-icon";
-
-/** 結果テーブルの列数（項目名 / あなたの回答 / 正解）。展開行の colSpan に使う */
-const TABLE_COLUMN_COUNT = 3;
 
 interface ResultDisplayProps {
   readonly question: ScoreQuestion;
@@ -103,13 +105,6 @@ export function ResultDisplay({
     userAnswer !== undefined && result !== undefined
       ? { answer: userAnswer, result }
       : undefined;
-  // 「あなたの回答」の未回答セル（開示のときの各行）
-  const unansweredCell = (
-    <td className="py-2 pr-4 text-right align-top text-surface-400">
-      {t("result.unanswered")}
-    </td>
-  );
-
   const fuTotal =
     question.fuDetails?.reduce((acc, curr) => acc + curr.fu, 0) ?? 0;
   const yakuTotal =
@@ -166,232 +161,180 @@ export function ResultDisplay({
 
   return (
     <div className="space-y-4">
-      {/* Detail table
-          回答全体の正誤を名乗る見出し・バナーは置かない。「あなたの回答」と
-          「正解」を並べた時点で合っていたかは読めば分かり、行ごとの ✓/✗ と
-          下部の正解/不正解カウンタが既に判定を持っている。全幅の色帯や
-          見出し行を足すと、いちばん読ませたいこの表より判定が強く出る。
-
-          値の 2 列は右端で揃える（項目名は左）。内訳の行は全幅で
-          DetailTable が値を右端に置くので、正解の「2翻」の真下に内訳の
-          「1翻 / 1翻 / 合計 2翻」が並び、縦に足し算が読める。左寄せだと
-          正解は列の中ほど、内訳の合計は右端と、同じ数字が別の縦位置に出る
-
-          罫線は項目（役・翻数・符・点数）の境目にだけ引く。項目ごとに
-          `<tbody>` を分け、tbody 同士の境目を実線にする。翻数とその内訳の
-          行は同じ tbody に入るので、開いた内訳がどの行に付く注釈かを線が
-          言う。行ごとに引くと内訳の行の上下にも線が入り、内訳が独立した
-          項目に見える。縦の罫線は引かない — 内訳の行は全幅（colSpan）
-          なので開くたびに縦線が途切れて壊れて見えるし、アプリの表
-          （DataTable / DetailTable）はどれも縦線を持たない。回答と正解は
-          色（正誤の色 / 太字）で既に分かれている
-
-          列幅は table-fixed + colgroup で決め打ちする。比べさせたい 2 列
-          （あなたの回答 / 正解）を同じ幅にするため。中身なりに決まる
-          auto レイアウトでは、正解の列だけが役の一覧や「点数表を確認」の
-          導線を持つぶん広くなり（desktop 実測で 196px 対 462px）、同じ
-          種類の値なのに正解のほうが大きい枠を与えられた見た目になる。
-          さらに幅が問題ごとに変わる（mobile 実測で 100/222 の問題と
-          151/148 の問題）ため、「次の問題へ」で表が入れ替わるたびに回答の
-          値が横に動き、同じ場所を続けて見ていられない。項目名の列だけ
-          固定幅を与え、残りを 2 列で等分する（table-fixed は幅を指定して
-          いない列に残りを均等に配る） */}
-      <div className="rounded-lg bg-surface-50 p-4">
-        <table className="w-full table-fixed text-sm [&>tbody+tbody]:border-t-2 [&>tbody+tbody]:border-surface-200">
-          <colgroup>
-            {/* 項目名（役・翻数・符・点数）+ pr-4 が収まる最小限 */}
-            <col className="w-16" />
-            <col />
-            <col />
-          </colgroup>
-          <thead>
-            <tr className="border-b-3 border-ink">
-              <th className="pb-3 pr-4 pt-2 text-left font-bold text-surface-600" />
-              {/* 見出しは折り返さない。役のチップが列幅を取ると
-                  「あなたの回答」が 2 行に割れて表の頭が崩れる */}
-              <th className="whitespace-nowrap pb-3 pr-4 pt-2 text-right font-bold text-surface-600">
-                {t("result.headers.answer")}
-              </th>
-              <th className="whitespace-nowrap pb-3 pt-2 text-right font-bold text-surface-600">
-                {t("result.headers.correct")}
-              </th>
-            </tr>
-          </thead>
-          {/* Yaku */}
-          {requireYaku && (
-            <tbody>
-              <tr>
-                <td className="whitespace-nowrap py-2 pr-4 align-top text-surface-600">
-                  {t("form.labels.yaku")}
-                </td>
-                {judged ? (
-                  <td className="py-2 pr-4 text-right align-top">
-                    <YakuJudgementChips
-                      judgements={answeredYakuJudgements}
-                      align="end"
-                      emptyLabel={t("result.details.none")}
-                      onSelect={openYakuList}
-                    />
-                  </td>
-                ) : (
-                  unansweredCell
-                )}
-                <td className="space-y-1.5 py-2 text-right align-top">
+      {/* 表の箱・見出し・列幅の約束は ResultTableFrame（役なしのマスの表と共有） */}
+      <ResultTableFrame>
+        {/* Yaku */}
+        {requireYaku && (
+          <tbody>
+            <tr>
+              <td className="whitespace-nowrap py-2 pr-4 align-top text-surface-600">
+                {t("form.labels.yaku")}
+              </td>
+              {judged ? (
+                <td className="py-2 pr-4 text-right align-top">
                   <YakuJudgementChips
-                    judgements={correctYakuJudgements}
+                    judgements={answeredYakuJudgements}
                     align="end"
                     emptyLabel={t("result.details.none")}
                     onSelect={openYakuList}
                   />
-                  {/* 役をタップしても開けるが、それが分かるように一覧への導線も置く */}
-                  <ReferenceLinkButton
-                    icon={<BookIcon className="size-3.5 shrink-0" />}
-                    label={t("result.viewYakuList")}
-                    onClick={() => openYakuList()}
-                  />
                 </td>
-              </tr>
-            </tbody>
-          )}
+              ) : (
+                <ResultUnansweredCell />
+              )}
+              <td className="space-y-1.5 py-2 text-right align-top">
+                <YakuJudgementChips
+                  judgements={correctYakuJudgements}
+                  align="end"
+                  emptyLabel={t("result.details.none")}
+                  onSelect={openYakuList}
+                />
+                {/* 役をタップしても開けるが、それが分かるように一覧への導線も置く */}
+                <ReferenceLinkButton
+                  icon={<BookIcon className="size-3.5 shrink-0" />}
+                  label={t("result.viewYakuList")}
+                  onClick={() => openYakuList()}
+                />
+              </td>
+            </tr>
+          </tbody>
+        )}
 
-          {/* Han */}
+        {/* Han */}
+        <tbody>
+          <tr>
+            <td className="whitespace-nowrap py-2 pr-4 text-surface-600">
+              {t("form.labels.han")}
+            </td>
+            {judged ? (
+              <td
+                className={`py-2 pr-4 text-right ${judged.result.isHanCorrect ? "text-success" : "text-destructive"}`}
+              >
+                {getHanDisplay(judged.answer.han)}{" "}
+                <JudgementMark
+                  verdict={judged.result.isHanCorrect ? "correct" : "incorrect"}
+                  label={tCommon(
+                    judged.result.isHanCorrect ? "correct" : "incorrect",
+                  )}
+                />
+              </td>
+            ) : answerSummary !== undefined ? (
+              <td className="py-2 pr-4 text-right text-destructive">
+                {answerSummary}{" "}
+                <JudgementMark
+                  verdict="incorrect"
+                  label={tCommon("incorrect")}
+                />
+              </td>
+            ) : (
+              <ResultUnansweredCell />
+            )}
+            <td className="py-2 text-right font-bold text-surface-800">
+              {getHanDisplay(answer.han)}
+              {!simplifyMangan && scoreLevelName && ` (${scoreLevelName})`}
+            </td>
+          </tr>
+          {/* 翻数の内訳。閉じた状態から始める（理由は CollapsibleDetail） */}
+          {yakuDetailItems.length > 0 && (
+            <DetailsPanelRow
+              title={t("result.details.yakuTitle")}
+              items={yakuDetailItems}
+              total={yakuTotal}
+              suffix={t("form.options.hanSuffix")}
+              colSpan={RESULT_TABLE_COLUMN_COUNT}
+            />
+          )}
+        </tbody>
+
+        {/* Fu */}
+        {(!isManganOrAbove || requireFuForMangan) && (
           <tbody>
             <tr>
               <td className="whitespace-nowrap py-2 pr-4 text-surface-600">
-                {t("form.labels.han")}
+                {t("form.labels.fu")}
               </td>
               {judged ? (
                 <td
-                  className={`py-2 pr-4 text-right ${judged.result.isHanCorrect ? "text-success" : "text-destructive"}`}
+                  className={`py-2 pr-4 text-right ${judged.result.isFuCorrect ? "text-success" : "text-destructive"}`}
                 >
-                  {getHanDisplay(judged.answer.han)}{" "}
+                  {judged.answer.fu ?? "-"}
+                  {t("form.options.fuSuffix")}{" "}
                   <JudgementMark
                     verdict={
-                      judged.result.isHanCorrect ? "correct" : "incorrect"
+                      judged.result.isFuCorrect ? "correct" : "incorrect"
                     }
                     label={tCommon(
-                      judged.result.isHanCorrect ? "correct" : "incorrect",
+                      judged.result.isFuCorrect ? "correct" : "incorrect",
                     )}
                   />
                 </td>
-              ) : answerSummary !== undefined ? (
-                <td className="py-2 pr-4 text-right text-destructive">
-                  {answerSummary}{" "}
-                  <JudgementMark
-                    verdict="incorrect"
-                    label={tCommon("incorrect")}
-                  />
-                </td>
               ) : (
-                unansweredCell
+                <ResultUnansweredCell />
               )}
               <td className="py-2 text-right font-bold text-surface-800">
-                {getHanDisplay(answer.han)}
-                {!simplifyMangan && scoreLevelName && ` (${scoreLevelName})`}
+                {answer.fu}
+                {t("form.options.fuSuffix")}
               </td>
             </tr>
-            {/* 翻数の内訳。閉じた状態から始める（理由は CollapsibleDetail） */}
-            {yakuDetailItems.length > 0 && (
+            {question.fuDetails && (
               <DetailsPanelRow
-                title={t("result.details.yakuTitle")}
-                items={yakuDetailItems}
-                total={yakuTotal}
-                suffix={t("form.options.hanSuffix")}
-                colSpan={TABLE_COLUMN_COUNT}
+                title={t("result.details.fuTitle")}
+                items={fuDetailItems}
+                total={fuTotal}
+                suffix={t("form.options.fuSuffix")}
+                colSpan={RESULT_TABLE_COLUMN_COUNT}
+                roundedTotal={answer.fu}
+                roundUpLabel={t("result.details.roundUp")}
               />
             )}
           </tbody>
+        )}
 
-          {/* Fu */}
-          {(!isManganOrAbove || requireFuForMangan) && (
-            <tbody>
-              <tr>
-                <td className="whitespace-nowrap py-2 pr-4 text-surface-600">
-                  {t("form.labels.fu")}
-                </td>
-                {judged ? (
-                  <td
-                    className={`py-2 pr-4 text-right ${judged.result.isFuCorrect ? "text-success" : "text-destructive"}`}
-                  >
-                    {judged.answer.fu ?? "-"}
-                    {t("form.options.fuSuffix")}{" "}
-                    <JudgementMark
-                      verdict={
-                        judged.result.isFuCorrect ? "correct" : "incorrect"
-                      }
-                      label={tCommon(
-                        judged.result.isFuCorrect ? "correct" : "incorrect",
-                      )}
-                    />
-                  </td>
-                ) : (
-                  unansweredCell
-                )}
-                <td className="py-2 text-right font-bold text-surface-800">
-                  {answer.fu}
-                  {t("form.options.fuSuffix")}
-                </td>
-              </tr>
-              {question.fuDetails && (
-                <DetailsPanelRow
-                  title={t("result.details.fuTitle")}
-                  items={fuDetailItems}
-                  total={fuTotal}
-                  suffix={t("form.options.fuSuffix")}
-                  colSpan={TABLE_COLUMN_COUNT}
-                  roundedTotal={answer.fu}
-                  roundUpLabel={t("result.details.roundUp")}
-                />
-              )}
-            </tbody>
-          )}
-
-          {/* Score */}
-          <tbody>
-            <tr>
-              <td className="whitespace-nowrap py-2 pr-4 align-top text-surface-600">
-                {t("form.labels.score")}
-              </td>
-              {judged ? (
-                <td
-                  className={`py-2 pr-4 text-right align-top ${judged.result.isScoreCorrect ? "text-success" : "text-destructive"}`}
-                >
-                  {judged.answer.scoreFromKo !== undefined
-                    ? `${judged.answer.scoreFromKo}/${judged.answer.scoreFromOya}`
-                    : `${judged.answer.score}${t("result.pointSuffix")}`}{" "}
-                  <JudgementMark
-                    verdict={
-                      judged.result.isScoreCorrect ? "correct" : "incorrect"
-                    }
-                    label={tCommon(
-                      judged.result.isScoreCorrect ? "correct" : "incorrect",
-                    )}
-                  />
-                </td>
-              ) : (
-                unansweredCell
-              )}
-              <td className="space-y-1.5 py-2 text-right align-top">
-                {/* 押せることが見て分かるよう、常時点線の下線を敷く */}
-                <button
-                  type="button"
-                  onClick={() => openScoreTable(true)}
-                  title={t("result.openInScoreTable")}
-                  className="ml-auto block cursor-pointer text-right font-bold text-surface-800 underline decoration-surface-400 decoration-dotted decoration-2 underline-offset-4 hover:decoration-primary-500"
-                >
-                  {paymentDescription}
-                </button>
-                {/* 点数をタップしても開けるが、それが分かるように表への導線も置く */}
-                <ReferenceLinkButton
-                  icon={<TableIcon className="size-3.5 shrink-0" />}
-                  label={t("result.viewScoreTable")}
-                  onClick={() => openScoreTable(false)}
+        {/* Score */}
+        <tbody>
+          <tr>
+            <td className="whitespace-nowrap py-2 pr-4 align-top text-surface-600">
+              {t("form.labels.score")}
+            </td>
+            {judged ? (
+              <td
+                className={`py-2 pr-4 text-right align-top ${judged.result.isScoreCorrect ? "text-success" : "text-destructive"}`}
+              >
+                {judged.answer.scoreFromKo !== undefined
+                  ? `${judged.answer.scoreFromKo}/${judged.answer.scoreFromOya}`
+                  : `${judged.answer.score}${t("result.pointSuffix")}`}{" "}
+                <JudgementMark
+                  verdict={
+                    judged.result.isScoreCorrect ? "correct" : "incorrect"
+                  }
+                  label={tCommon(
+                    judged.result.isScoreCorrect ? "correct" : "incorrect",
+                  )}
                 />
               </td>
-            </tr>
-          </tbody>
-        </table>
-      </div>
+            ) : (
+              <ResultUnansweredCell />
+            )}
+            <td className="space-y-1.5 py-2 text-right align-top">
+              {/* 押せることが見て分かるよう、常時点線の下線を敷く */}
+              <button
+                type="button"
+                onClick={() => openScoreTable(true)}
+                title={t("result.openInScoreTable")}
+                className="ml-auto block cursor-pointer text-right font-bold text-surface-800 underline decoration-surface-400 decoration-dotted decoration-2 underline-offset-4 hover:decoration-primary-500"
+              >
+                {paymentDescription}
+              </button>
+              {/* 点数をタップしても開けるが、それが分かるように表への導線も置く */}
+              <ReferenceLinkButton
+                icon={<TableIcon className="size-3.5 shrink-0" />}
+                label={t("result.viewScoreTable")}
+                onClick={() => openScoreTable(false)}
+              />
+            </td>
+          </tr>
+        </tbody>
+      </ResultTableFrame>
 
       <ScoreTableModal
         isOpen={isScoreTableOpen}
