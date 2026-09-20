@@ -16,6 +16,7 @@ export async function YakuGuide() {
         <GuideParagraph>{t("whatIsYakuBody1")}</GuideParagraph>
         <GuideParagraph>{t("whatIsYakuBody2")}</GuideParagraph>
         <GuideParagraph>{t("whatIsYakuBody3")}</GuideParagraph>
+        <GuideParagraph preLine>{t("whatIsYakuBody4")}</GuideParagraph>
       </section>
 
       {/* 門前と鳴き（食い下がり） */}
