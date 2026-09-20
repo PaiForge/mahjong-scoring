@@ -81,7 +81,6 @@ export async function TehaiFuGuide() {
             {t("kazeTitle")}
           </GuideSubsectionTitle>
           <GuideParagraph preLine>{t("kazeBody1")}</GuideParagraph>
-          <GuideParagraph preLine>{t("kazeBody2")}</GuideParagraph>
           <ExampleCard>
             <TehaiFuExample
               tiles={[HaiKind.Ton, HaiKind.Ton]}
@@ -100,7 +99,7 @@ export async function TehaiFuGuide() {
               annotationTone="caution"
             />
           </ExampleCard>
-          <GuideParagraph preLine>{t("kazeBody3")}</GuideParagraph>
+          <GuideParagraph preLine>{t("kazeBody2")}</GuideParagraph>
         </section>
       </div>
     </section>
