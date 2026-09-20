@@ -2,7 +2,7 @@
 
 import type { ActionResult } from "@/lib/action-types";
 import { db, profiles } from "@/lib/db";
-import { extractPgErrorCode } from "@/lib/db/extract-pg-error-code";
+import { isUniqueViolation } from "@/lib/db/extract-pg-error-code";
 import { profileExistsByUserId } from "@/lib/db/queries";
 import { authenticateAndCheckBan } from "@/lib/auth";
 import type { AuthGateErrorCode } from "@/lib/auth";
@@ -11,8 +11,6 @@ import type { RateLimitErrorCode } from "@/lib/rate-limit-ip";
 import { validateUsername } from "@/lib/username";
 import type { UsernameValidationError } from "@/lib/username";
 import { validateDisplayName } from "@/lib/validations/profile";
-
-const PG_UNIQUE_VIOLATION = "23505";
 
 /**
  * ユーザー名登録 Server Action。
@@ -79,7 +77,7 @@ export async function registerUsername(
       displayName: trimmedDisplayName,
     });
   } catch (e) {
-    if (extractPgErrorCode(e) === PG_UNIQUE_VIOLATION) {
+    if (isUniqueViolation(e)) {
       return { error: "username_taken" };
     }
     throw e;

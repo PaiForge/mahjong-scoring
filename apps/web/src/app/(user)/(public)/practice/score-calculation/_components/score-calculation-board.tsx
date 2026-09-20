@@ -1,6 +1,5 @@
 "use client";
 
-import { isOya } from "@mahjong-scoring/core";
 import { useMemo } from "react";
 import { QuestionGeneratingPlaceholder } from "../../_components/question-generating-placeholder";
 import { QuestionPrompt } from "../../_components/question-prompt";
@@ -9,11 +8,10 @@ import {
   useRuleSettingsStore,
   useYakumanRules,
 } from "@/app/_hooks/use-rule-settings-store";
-import { RevealedScoreAnswer } from "../../_components/revealed-score-answer";
-import { paymentToScoreTableAnswer } from "../../_lib/payment-adapter";
-import { scoreTableFocusOf } from "../../_lib/score-table-focus";
+import { RevealedScoreQuestionAnswer } from "../../_components/revealed-score-answer";
+import { TehaiMentsuBreakdown } from "../../_components/tehai-mentsu-breakdown";
 import { useScoreQuestionBoard } from "../../_hooks/use-score-question-board";
-import { useTrainingMode } from "../../_hooks/use-training-mode";
+import { useTrainingAnswerVisibility } from "../../_hooks/use-training-mode";
 import { QuestionDisplay } from "../../score/_components/question-display";
 import { ScoreChallengeAnswerForm } from "../../_components/score-challenge-answer-form";
 import type { ScoreCalculationQuestionResult } from "../_lib/types";
@@ -40,6 +38,7 @@ export function ScoreCalculationBoard({
   isTraining = false,
   onAnswer,
   onRecordResult,
+  onPresentQuestion,
 }: ScoreCalculationBoardProps) {
   const t = useTranslations("scoreCalculationChallenge");
   const renfonpaiAs4Fu = useRuleSettingsStore((s) => s.renfonpaiAs4Fu);
@@ -62,11 +61,12 @@ export function ScoreCalculationBoard({
     showFeedback,
     onAnswer,
     onRecordResult,
+    onPresentQuestion,
   });
   // トレーニングでは開示時だけでなく回答後の停止中も正解を出す（答え合わせ用）。
   // 正解のときは出さない — 選んだ値がそのまま正解で、select の色が正誤を示している
-  const { isRevealed, isHolding } = useTrainingMode();
-  const showAnswer = (isRevealed || isHolding) && lastAnswerCorrect !== true;
+  const { showAnswer, showBreakdown } =
+    useTrainingAnswerVisibility(lastAnswerCorrect);
 
   if (!question) {
     return (
@@ -88,15 +88,9 @@ export function ScoreCalculationBoard({
       <QuestionPrompt
         replacement={
           showAnswer ? (
-            <RevealedScoreAnswer
-              answer={paymentToScoreTableAnswer(question.answer.payment)}
+            <RevealedScoreQuestionAnswer
+              question={question}
               translationNamespace="scoreCalculationChallenge"
-              scoreTableFocus={scoreTableFocusOf({
-                isOya: isOya(question.jikaze),
-                isTsumo: question.isTsumo,
-                han: question.answer.han,
-                fu: question.answer.fu,
-              })}
             />
           ) : undefined
         }
@@ -115,6 +109,13 @@ export function ScoreCalculationBoard({
         translationNamespace="scoreCalculationChallenge"
         isTraining={isTraining}
       />
+
+      {/* 面子分解は正解開示の一部。回答中に見せると符や待ちの答えが割れるため
+          止まっている間だけ出す（結果ページの問題詳細と同じ材料）。置き場所が
+          手牌の直下ではなく末尾なのは、開示の瞬間に回答欄を動かさないため */}
+      {showBreakdown && (
+        <TehaiMentsuBreakdown tehai={question.tehai} context={question} />
+      )}
     </div>
   );
 }

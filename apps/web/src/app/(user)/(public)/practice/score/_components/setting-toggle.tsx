@@ -1,5 +1,7 @@
 "use client";
 
+import { HelpIconButton } from "@/app/(user)/_components/help-icon-button";
+
 interface SettingToggleProps {
   readonly checked: boolean;
   readonly onChange: (checked: boolean) => void;
@@ -28,14 +30,7 @@ export function SettingToggle({
           {title || label}
         </label>
         {onInfoClick && (
-          <button
-            type="button"
-            onClick={onInfoClick}
-            className="inline-flex size-5 items-center justify-center rounded-full text-xs text-surface-400 transition-colors hover:bg-surface-200 hover:text-surface-600"
-            aria-label={infoAriaLabel}
-          >
-            ?
-          </button>
+          <HelpIconButton onClick={onInfoClick} label={infoAriaLabel ?? ""} />
         )}
       </span>
       <label className="relative inline-flex cursor-pointer items-center">

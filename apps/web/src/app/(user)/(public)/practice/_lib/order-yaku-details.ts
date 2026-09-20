@@ -8,7 +8,13 @@ import type { YakuDetail } from "@mahjong-scoring/core";
  */
 const NON_YAKU_NAMES: readonly string[] = ["ドラ", "裏ドラ"];
 
-/** 役の並び順の一覧に無い役名を、位置決めのために読み替える表 */
+/**
+ * 役の並び順の一覧に無い役名を、位置決めのために読み替える表
+ *
+ * ダブル立直は現在の出題には出ない（core の `RiichiInput` 参照）が、出題を
+ * やめる前に保存されたチャレンジの結果には内訳として残っている。結果ページは
+ * 保存された内訳をそのまま並べるため、読み替えは消さずに置く。
+ */
 const POSITION_ALIASES: Readonly<Record<string, string>> = {
   // 並び順の一覧（役選択の選択肢）は立直に一本化していて、ダブル立直を持たない
   ダブル立直: "立直",

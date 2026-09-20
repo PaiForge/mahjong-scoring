@@ -1,5 +1,6 @@
 "use server";
 
+import { isUniqueViolation } from "@/lib/db/extract-pg-error-code";
 import type { ActionResult } from "@/lib/action-types";
 import { announcements, db } from "@/lib/db";
 import { requireAdminActor } from "@/app/admin/_lib/auth";
@@ -11,7 +12,6 @@ import {
 import {
   type AnnouncementInput,
   type AnnouncementValidationError,
-  isUniqueViolation,
   validateAnnouncement,
 } from "../_lib/validation";
 

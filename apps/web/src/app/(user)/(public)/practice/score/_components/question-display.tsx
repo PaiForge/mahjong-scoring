@@ -17,6 +17,10 @@ import type { TehaiContext } from "../../_components/tehai-display";
  * どちらも不要なため、描画が実際に読む形だけをここで要求する。
  */
 export interface ScoreQuestionDisplayData extends TehaiContext {
+  /** 和了牌。点数計算の出題は和了形なので必須（盤面の型では任意） */
+  readonly agariHai: HaiKindId;
+  /** ツモ和了かどうか。同上 */
+  readonly isTsumo: boolean;
   /** 手牌（和了牌を含む。純手牌 + 副露） */
   readonly tehai: Pick<Tehai, "closed" | "exposed">;
   /** ドラ表示牌。点数計算の出題では必須 */

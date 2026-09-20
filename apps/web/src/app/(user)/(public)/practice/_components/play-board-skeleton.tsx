@@ -147,12 +147,13 @@ const SHAPES: Readonly<Record<PlayBoardHeight, () => ReactNode>> = {
     </div>
   ),
   // 満貫以上点数計算。盤面と設問の間に成立役の一覧が入る。役の数で高さが
-  // 変わる（実測 136〜232px）ため一致させられない。低い側に置いて、実体が
-  // 現れたときに縮むより伸びる方に倒す（縮む方が目立つため）
+  // 変わる（役 1 行で 130px、役が 1 つ増えるごとに 38px 高い）ため一致させ
+  // られない。低い側に置いて、実体が現れたときに縮むより伸びる方に倒す
+  // （縮む方が目立つため）
   manganScoreCalculation: () => (
     <div className="mt-4 space-y-6">
       <BoardRect heightClass="h-[124px] sm:h-[144px]" />
-      <Panel heightClass="h-[136px]" />
+      <Panel heightClass="h-[130px]" />
       <Prompt />
       <ScoreAnswerForm />
     </div>

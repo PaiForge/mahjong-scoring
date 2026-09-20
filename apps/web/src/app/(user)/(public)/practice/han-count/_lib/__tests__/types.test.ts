@@ -10,13 +10,13 @@ describe("parseHanCountResults", () => {
   const validResult = {
     correctHan: 3,
     userHan: 3,
-    isCorrect: true,
+    outcome: "correct",
   };
 
   // --- 正常系 ---
 
   it("有効な JSON 文字列をパースできる", () => {
-    const raw = JSON.stringify([validResult]);
+    const raw = [validResult];
     const results = parseHanCountResults(raw);
     expect(results).toHaveLength(1);
     expect(results[0]).toEqual(validResult);
@@ -25,16 +25,16 @@ describe("parseHanCountResults", () => {
   // --- 境界値 ---
 
   it("han=1（最小翻数）を含む結果をパースできる", () => {
-    const result = { correctHan: 1, userHan: 1, isCorrect: true };
-    const raw = JSON.stringify([result]);
+    const result = { correctHan: 1, userHan: 1, outcome: "correct" };
+    const raw = [result];
     const results = parseHanCountResults(raw);
     expect(results).toHaveLength(1);
     expect(results[0]?.correctHan).toBe(1);
   });
 
   it("han=13（役満相当）を含む結果をパースできる", () => {
-    const result = { correctHan: 13, userHan: 13, isCorrect: true };
-    const raw = JSON.stringify([result]);
+    const result = { correctHan: 13, userHan: 13, outcome: "correct" };
+    const raw = [result];
     const results = parseHanCountResults(raw);
     expect(results).toHaveLength(1);
     expect(results[0]?.correctHan).toBe(13);
@@ -45,23 +45,23 @@ describe("parseHanCountResults", () => {
   it("correctHan が欠落した要素はフィルタされる", () => {
     const invalid = { ...validResult };
     Reflect.deleteProperty(invalid, "correctHan");
-    const raw = JSON.stringify([invalid]);
+    const raw = [invalid];
     const results = parseHanCountResults(raw);
     expect(results).toEqual([]);
   });
 
-  it("userHan が欠落した要素はフィルタされる", () => {
-    const invalid = { ...validResult };
-    Reflect.deleteProperty(invalid, "userHan");
-    const raw = JSON.stringify([invalid]);
+  it("userHan が欠落した要素は時間切れ（回答なし）として許容される", () => {
+    const timeUp = { ...validResult, outcome: "timeUp" };
+    Reflect.deleteProperty(timeUp, "userHan");
+    const raw = [timeUp];
     const results = parseHanCountResults(raw);
-    expect(results).toEqual([]);
+    expect(results).toHaveLength(1);
   });
 
-  it("isCorrect が欠落した要素はフィルタされる", () => {
+  it("outcome が欠落した要素はフィルタされる", () => {
     const invalid = { ...validResult };
-    Reflect.deleteProperty(invalid, "isCorrect");
-    const raw = JSON.stringify([invalid]);
+    Reflect.deleteProperty(invalid, "outcome");
+    const raw = [invalid];
     const results = parseHanCountResults(raw);
     expect(results).toEqual([]);
   });
@@ -70,21 +70,21 @@ describe("parseHanCountResults", () => {
 
   it("correctHan が文字列の場合はフィルタされる", () => {
     const invalid = { ...validResult, correctHan: "3" };
-    const raw = JSON.stringify([invalid]);
+    const raw = [invalid];
     const results = parseHanCountResults(raw);
     expect(results).toEqual([]);
   });
 
   it("userHan が文字列の場合はフィルタされる", () => {
     const invalid = { ...validResult, userHan: "3" };
-    const raw = JSON.stringify([invalid]);
+    const raw = [invalid];
     const results = parseHanCountResults(raw);
     expect(results).toEqual([]);
   });
 
-  it("isCorrect が文字列の場合はフィルタされる", () => {
-    const invalid = { ...validResult, isCorrect: "true" };
-    const raw = JSON.stringify([invalid]);
+  it("outcome が既知の値でない場合はフィルタされる", () => {
+    const invalid = { ...validResult, outcome: "unknown" };
+    const raw = [invalid];
     const results = parseHanCountResults(raw);
     expect(results).toEqual([]);
   });
@@ -108,14 +108,14 @@ describe("parseHanCountResults", () => {
     };
 
     it("\u30b9\u30ca\u30c3\u30d7\u30b7\u30e7\u30c3\u30c8\u4ed8\u304d\u306e\u7d50\u679c\u3092\u30d1\u30fc\u30b9\u3067\u304d\u308b", () => {
-      const raw = JSON.stringify([{ ...validResult, question: validSnapshot }]);
+      const raw = [{ ...validResult, question: validSnapshot }];
       const results = parseHanCountResults(raw);
       expect(results).toHaveLength(1);
       expect(results[0]?.question).toEqual(validSnapshot);
     });
 
     it("\u30b9\u30ca\u30c3\u30d7\u30b7\u30e7\u30c3\u30c8\u3092\u6301\u305f\u306a\u3044\u65e7\u30c7\u30fc\u30bf\u3082\u30d1\u30fc\u30b9\u3067\u304d\u308b", () => {
-      const results = parseHanCountResults(JSON.stringify([validResult]));
+      const results = parseHanCountResults([validResult]);
       expect(results).toHaveLength(1);
       expect(results[0]?.question).toBeUndefined();
     });
@@ -123,14 +123,14 @@ describe("parseHanCountResults", () => {
     it("isTsumo \u3092\u6b20\u304f\u30b9\u30ca\u30c3\u30d7\u30b7\u30e7\u30c3\u30c8\u3092\u6301\u3064\u8981\u7d20\u306f\u30d5\u30a3\u30eb\u30bf\u3055\u308c\u308b", () => {
       const question = { ...validSnapshot };
       Reflect.deleteProperty(question, "isTsumo");
-      const raw = JSON.stringify([{ ...validResult, question }]);
+      const raw = [{ ...validResult, question }];
       expect(parseHanCountResults(raw)).toEqual([]);
     });
 
     it("yakuDetails \u3092\u6b20\u304f\u30b9\u30ca\u30c3\u30d7\u30b7\u30e7\u30c3\u30c8\u3092\u6301\u3064\u8981\u7d20\u306f\u30d5\u30a3\u30eb\u30bf\u3055\u308c\u308b", () => {
       const question = { ...validSnapshot };
       Reflect.deleteProperty(question, "yakuDetails");
-      const raw = JSON.stringify([{ ...validResult, question }]);
+      const raw = [{ ...validResult, question }];
       expect(parseHanCountResults(raw)).toEqual([]);
     });
 
@@ -139,13 +139,13 @@ describe("parseHanCountResults", () => {
         ...validSnapshot,
         yakuDetails: [{ name: "\u7acb\u76f4", han: "1" }],
       };
-      const raw = JSON.stringify([{ ...validResult, question }]);
+      const raw = [{ ...validResult, question }];
       expect(parseHanCountResults(raw)).toEqual([]);
     });
 
     it("\u624b\u724c\u304c\u6587\u5b57\u5217\u3067\u306a\u3044\u30b9\u30ca\u30c3\u30d7\u30b7\u30e7\u30c3\u30c8\u3092\u6301\u3064\u8981\u7d20\u306f\u30d5\u30a3\u30eb\u30bf\u3055\u308c\u308b", () => {
       const question = { ...validSnapshot, tehai: 42 };
-      const raw = JSON.stringify([{ ...validResult, question }]);
+      const raw = [{ ...validResult, question }];
       expect(parseHanCountResults(raw)).toEqual([]);
     });
   });
@@ -181,7 +181,7 @@ describe("toHanCountQuestionResult", () => {
 
     expect(result.correctHan).toBe(3);
     expect(result.userHan).toBe(3);
-    expect(result.isCorrect).toBe(true);
+    expect(result.outcome).toBe("correct");
     expect(result.question?.isTsumo).toBe(true);
     expect(result.question?.yakuDetails).toEqual([
       { name: "\u5e73\u548c", han: 1 },
@@ -189,9 +189,9 @@ describe("toHanCountQuestionResult", () => {
     ]);
   });
 
-  it("\u8aa4\u7b54\u3092 isCorrect=false \u3068\u3057\u3066\u8a18\u9332\u3059\u308b", () => {
+  it("\u8aa4\u7b54\u3092 outcome=incorrect \u3068\u3057\u3066\u8a18\u9332\u3059\u308b", () => {
     const question = buildQuestion(3, [{ name: "\u5e73\u548c", han: 3 }]);
-    expect(toHanCountQuestionResult(question, 2).isCorrect).toBe(false);
+    expect(toHanCountQuestionResult(question, 2).outcome).toBe("incorrect");
   });
 
   it("13\u7ffb\u4ee5\u4e0a\u306e\u6b63\u89e3\u306f\u5f79\u6e80\uff0813\u7ffb\uff09\u306b\u4e38\u3081\u3066\u5224\u5b9a\u3059\u308b", () => {
@@ -202,7 +202,7 @@ describe("toHanCountQuestionResult", () => {
     const result = toHanCountQuestionResult(question, 13);
 
     expect(result.correctHan).toBe(13);
-    expect(result.isCorrect).toBe(true);
+    expect(result.outcome).toBe("correct");
     // \u4e38\u3081\u524d\u306e\u7ffb\u6570\u306f\u5185\u8a33\u306e\u5408\u8a08\u3068\u3057\u3066\u6b8b\u308b
     expect(
       result.question?.yakuDetails.reduce((sum, d) => sum + d.han, 0),
@@ -211,10 +211,20 @@ describe("toHanCountQuestionResult", () => {
 
   it("\u7d44\u307f\u7acb\u3066\u305f\u7d50\u679c\u306f\u30d1\u30fc\u30b5\u30fc\u306e\u30d0\u30ea\u30c7\u30fc\u30b7\u30e7\u30f3\u3092\u901a\u904e\u3059\u308b", () => {
     const question = buildQuestion(2, [{ name: "\u65ad\u5e7a\u4e5d", han: 2 }]);
-    const raw = JSON.stringify([toHanCountQuestionResult(question, 2)]);
+    const raw = [toHanCountQuestionResult(question, 2)];
     const results = parseHanCountResults(raw);
 
     expect(results).toHaveLength(1);
     expect(results[0]?.question?.tehai).toBe("234567m345p55678s");
+  });
+
+  it("回答なし（時間切れ）は outcome=timeUp で記録し、パースを通過する", () => {
+    const question = buildQuestion(3, [{ name: "平和", han: 3 }]);
+    const result = toHanCountQuestionResult(question, undefined);
+
+    expect(result.outcome).toBe("timeUp");
+    expect(result.userHan).toBeUndefined();
+    expect(result.correctHan).toBe(3);
+    expect(parseHanCountResults([result])).toHaveLength(1);
   });
 });

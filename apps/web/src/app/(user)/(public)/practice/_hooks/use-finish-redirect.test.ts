@@ -88,6 +88,14 @@ describe("useFinishRedirect integration", () => {
     expect(routerPush).toHaveBeenCalledWith(
       expect.stringContaining("grant=cr-gameover"),
     );
+    // 結果ページは終了理由で問題別一覧の行数を決める
+    expect(routerPush).toHaveBeenCalledWith(
+      expect.stringContaining("reason=mistakeLimit"),
+    );
+    // 結果ページは回 ID で sessionStorage の一覧がこの回のものか確かめる
+    expect(routerPush).toHaveBeenCalledWith(
+      expect.stringMatching(/[?&]run=\d+/),
+    );
   });
 
   it("時間切れで終了したとき onFinish が呼ばれ grant 付き URL に push される", async () => {
@@ -109,6 +117,9 @@ describe("useFinishRedirect integration", () => {
     expect(routerPush).toHaveBeenCalledTimes(1);
     expect(routerPush).toHaveBeenCalledWith(
       expect.stringContaining("grant=cr-timeout"),
+    );
+    expect(routerPush).toHaveBeenCalledWith(
+      expect.stringContaining("reason=timeUp"),
     );
   });
 

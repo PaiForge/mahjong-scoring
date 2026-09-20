@@ -2,7 +2,7 @@ import type { ScoreRange } from "@mahjong-scoring/core";
 import { create } from "zustand";
 import { persist } from "zustand/middleware";
 
-interface SettingsState {
+export interface ScoreSettingsState {
   /** 役も回答するかどうか */
   requireYaku: boolean;
   setRequireYaku: (enabled: boolean) => void;
@@ -30,54 +30,69 @@ interface SettingsState {
 }
 
 /**
- * 点数計算練習設定ストア（永続化あり）
+ * 点数計算系の練習の設定ストアを作る（永続化あり）
+ * 点数練習設定ストア生成
+ *
+ * 点数計算総合演習と待ち別点数計算は同じ設定項目を持つが、片方で変えた
+ * 設定がもう片方に及ばないよう、練習ごとに別の保存名で持つ。
+ *
+ * @param name - localStorage の保存名
+ */
+export function createScoreSettingsStore(name: string) {
+  return create<ScoreSettingsState>()(
+    persist(
+      (set) => ({
+        requireYaku: false,
+        setRequireYaku: (requireYaku) => set({ requireYaku }),
+        simplifyMangan: false,
+        setSimplifyMangan: (simplifyMangan) => set({ simplifyMangan }),
+        requireFuForMangan: false,
+        setRequireFuForMangan: (requireFuForMangan) =>
+          set({ requireFuForMangan }),
+        targetScoreRanges: ["nonMangan", "manganPlus"],
+        setTargetScoreRanges: (targetScoreRanges) => set({ targetScoreRanges }),
+        targetYaku: [],
+        setTargetYaku: (targetYaku) => set({ targetYaku }),
+        autoNext: false,
+        setAutoNext: (autoNext) => set({ autoNext }),
+        includeParent: true,
+        setIncludeParent: (includeParent) => set({ includeParent }),
+        includeChild: true,
+        setIncludeChild: (includeChild) => set({ includeChild }),
+      }),
+      {
+        name,
+        // v0 は点数帯を snake_case（"non_mangan" / "mangan_plus"）で保存していた。
+        // 型を core の ScoreRange（camelCase）へ統一したため、保存済みの値を
+        // 変換する。変換しないと全チェックが外れ、練習を開始できなくなる。
+        version: 1,
+        migrate: (persisted, version) => {
+          if (version >= 1) return persisted as ScoreSettingsState;
+
+          const state = persisted as Partial<ScoreSettingsState> & {
+            targetScoreRanges?: readonly string[];
+          };
+          const legacy: Readonly<Record<string, ScoreRange>> = {
+            non_mangan: "nonMangan",
+            mangan_plus: "manganPlus",
+          };
+
+          return {
+            ...state,
+            targetScoreRanges: (state.targetScoreRanges ?? []).map(
+              (range) => legacy[range] ?? (range as ScoreRange),
+            ),
+          } as ScoreSettingsState;
+        },
+      },
+    ),
+  );
+}
+
+/**
+ * 点数計算総合演習の設定ストア
  * 点数練習設定
  */
-export const useScoreSettingsStore = create<SettingsState>()(
-  persist(
-    (set) => ({
-      requireYaku: false,
-      setRequireYaku: (requireYaku) => set({ requireYaku }),
-      simplifyMangan: false,
-      setSimplifyMangan: (simplifyMangan) => set({ simplifyMangan }),
-      requireFuForMangan: false,
-      setRequireFuForMangan: (requireFuForMangan) =>
-        set({ requireFuForMangan }),
-      targetScoreRanges: ["nonMangan", "manganPlus"],
-      setTargetScoreRanges: (targetScoreRanges) => set({ targetScoreRanges }),
-      targetYaku: [],
-      setTargetYaku: (targetYaku) => set({ targetYaku }),
-      autoNext: false,
-      setAutoNext: (autoNext) => set({ autoNext }),
-      includeParent: true,
-      setIncludeParent: (includeParent) => set({ includeParent }),
-      includeChild: true,
-      setIncludeChild: (includeChild) => set({ includeChild }),
-    }),
-    {
-      name: "mahjong-practice-settings",
-      // v0 は点数帯を snake_case（"non_mangan" / "mangan_plus"）で保存していた。
-      // 型を core の ScoreRange（camelCase）へ統一したため、保存済みの値を
-      // 変換する。変換しないと全チェックが外れ、練習を開始できなくなる。
-      version: 1,
-      migrate: (persisted, version) => {
-        if (version >= 1) return persisted as SettingsState;
-
-        const state = persisted as Partial<SettingsState> & {
-          targetScoreRanges?: readonly string[];
-        };
-        const legacy: Readonly<Record<string, ScoreRange>> = {
-          non_mangan: "nonMangan",
-          mangan_plus: "manganPlus",
-        };
-
-        return {
-          ...state,
-          targetScoreRanges: (state.targetScoreRanges ?? []).map(
-            (range) => legacy[range] ?? (range as ScoreRange),
-          ),
-        } as SettingsState;
-      },
-    },
-  ),
+export const useScoreSettingsStore = createScoreSettingsStore(
+  "mahjong-practice-settings",
 );

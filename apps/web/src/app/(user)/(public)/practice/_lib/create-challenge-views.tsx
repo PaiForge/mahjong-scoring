@@ -17,11 +17,7 @@ import { useTimedSession } from "../_hooks/use-timed-session";
 import { useTrainingSession } from "../_hooks/use-training-session";
 import { TrainingModeProvider } from "../_hooks/use-training-mode";
 import type { PracticeBoardProps } from "./practice-board-props";
-import {
-  practiceHref,
-  practicePlayHref,
-  practiceResultHref,
-} from "./practice-catalog";
+import { practiceResultHref } from "./practice-catalog";
 
 /**
  * チャレンジ盤面の描画に渡される状態
@@ -33,6 +29,11 @@ export interface ChallengeBoardArgs<TResult> extends PracticeBoardProps {
   readonly lastAnswerCorrect: boolean | undefined;
   /** 問題結果の記録（レジストリで `hasProblemList` の練習のみ終了時に保存される） */
   readonly recordResult: (result: TResult) => void;
+  /**
+   * 出題中の問題の届け出（時間切れで答えられなかった問題を結果に残すため）。
+   * 盤面の `onPresentQuestion` にそのまま渡す
+   */
+  readonly presentQuestion: (unanswered: TResult) => void;
 }
 
 /**
@@ -114,9 +115,9 @@ export function createChallengePlayView<
       timeLimit,
     });
     const handleFinish = useFinishHandler(menuType);
-    const { recordResult } = useRecordedResults<TResult>(
+    const { recordResult, presentQuestion } = useRecordedResults<TResult>(
       resultStorageKey,
-      gameSession.isFinished,
+      gameSession.finalResult,
     );
 
     return (
@@ -126,7 +127,6 @@ export function createChallengePlayView<
         gameSession={gameSession}
         timerControl={timerControl}
         resultPath={practiceResultHref(slug)}
-        exitHref={practiceHref(slug)}
         maxWidth={maxWidth}
         hasProblemList={hasProblemList}
         hasSetup={hasSetup}
@@ -140,6 +140,7 @@ export function createChallengePlayView<
             lastAnswerCorrect: gameSession.lastAnswerCorrect,
             onAnswer: gameSession.handleAnswer,
             recordResult,
+            presentQuestion,
           },
           props,
           boardState,
@@ -266,8 +267,6 @@ export function createTrainingView<
         titleAction={help}
         correctCount={correctCount}
         totalCount={totalCount}
-        exitHref={practiceHref(slug)}
-        challengeHref={practicePlayHref(slug)}
         challengeRules={{ timeLimit, mistakeLimit }}
         maxWidth={maxWidth}
         onReveal={() => {

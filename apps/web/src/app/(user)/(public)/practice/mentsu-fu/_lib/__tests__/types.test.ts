@@ -13,12 +13,12 @@ const validResult = {
   },
   correctFu: 4,
   userFu: 8,
-  isCorrect: false,
+  outcome: "incorrect",
 };
 
 describe("parseMentsuFuResults", () => {
   it("有効な JSON 文字列をパースできる", () => {
-    const results = parseMentsuFuResults(JSON.stringify([validResult]));
+    const results = parseMentsuFuResults([validResult]);
     expect(results).toHaveLength(1);
     expect(results[0]).toEqual(validResult);
   });
@@ -28,7 +28,7 @@ describe("parseMentsuFuResults", () => {
       ...validResult,
       mentsu: { ...validResult.mentsu, type: "Toitsu" },
     };
-    expect(parseMentsuFuResults(JSON.stringify([broken]))).toEqual([]);
+    expect(parseMentsuFuResults([broken])).toEqual([]);
   });
 
   it("furo の形が違う要素は除外する", () => {
@@ -36,7 +36,7 @@ describe("parseMentsuFuResults", () => {
       ...validResult,
       mentsu: { ...validResult.mentsu, furo: { type: "Pon" } },
     };
-    expect(parseMentsuFuResults(JSON.stringify([broken]))).toEqual([]);
+    expect(parseMentsuFuResults([broken])).toEqual([]);
   });
 });
 
@@ -45,9 +45,9 @@ describe("toQuestionResult", () => {
     const question = generateMentsuFuQuestion();
     const result = toQuestionResult(question, question.answer);
 
-    expect(result.isCorrect).toBe(true);
+    expect(result.outcome).toBe("correct");
     expect(result.correctFu).toBe(question.answer);
-    expect(parseMentsuFuResults(JSON.stringify([result]))).toHaveLength(1);
+    expect(parseMentsuFuResults([result])).toHaveLength(1);
   });
 
   it("保存形式から出題された面子を復元できる", () => {
@@ -61,5 +61,14 @@ describe("toQuestionResult", () => {
       [...question.mentsu.hais].sort((a, b) => a - b),
     );
     expect(mentsu?.furo).toEqual(question.mentsu.furo);
+  });
+
+  it("回答なし（時間切れ）は outcome=timeUp で記録し、パースを通過する", () => {
+    const question = generateMentsuFuQuestion();
+    const result = toQuestionResult(question, undefined);
+
+    expect(result.outcome).toBe("timeUp");
+    expect(result.userFu).toBeUndefined();
+    expect(parseMentsuFuResults([result])).toHaveLength(1);
   });
 });

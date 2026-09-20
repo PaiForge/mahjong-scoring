@@ -5,6 +5,7 @@ import type {
   PracticeCardVisual as CardVisual,
   ResolvedSubject,
 } from "../_lib/practice-card-visual";
+import { FuHanExampleLabel } from "./fu-han-example-label";
 
 interface PracticeCardVisualProps {
   readonly visual: CardVisual;
@@ -65,6 +66,10 @@ function SubjectContent({ subject }: { readonly subject: ResolvedSubject }) {
         <TehaiHand tehai={{ closed: subject.tiles, exposed: [] }} />
       </div>
     );
+  }
+
+  if (subject.kind === "fuHan") {
+    return <FuHanExampleLabel fu={subject.fu} han={subject.han} />;
   }
 
   if (subject.kind === "labels") {

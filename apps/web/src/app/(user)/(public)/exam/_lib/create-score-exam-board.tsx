@@ -4,11 +4,12 @@ import type { ComponentType } from "react";
 import { useTranslations } from "next-intl";
 import { QuestionGeneratingPlaceholder } from "@/app/(user)/(public)/practice/_components/question-generating-placeholder";
 import { QuestionPrompt } from "@/app/(user)/(public)/practice/_components/question-prompt";
+import { TehaiMentsuBreakdown } from "@/app/(user)/(public)/practice/_components/tehai-mentsu-breakdown";
 import { YakuBreakdown } from "@/app/(user)/(public)/practice/_components/yaku-breakdown";
 import { RevealedScoreAnswer } from "@/app/(user)/(public)/practice/_components/revealed-score-answer";
 import { useScoreQuestionBoard } from "@/app/(user)/(public)/practice/_hooks/use-score-question-board";
 import type { UseScoreQuestionBoardParams } from "@/app/(user)/(public)/practice/_hooks/use-score-question-board";
-import { useTrainingMode } from "@/app/(user)/(public)/practice/_hooks/use-training-mode";
+import { useTrainingAnswerVisibility } from "@/app/(user)/(public)/practice/_hooks/use-training-mode";
 import { paymentToScoreTableAnswer } from "@/app/(user)/(public)/practice/_lib/payment-adapter";
 import type { RecordingPracticeBoardProps } from "@/app/(user)/(public)/practice/_lib/practice-board-props";
 import type { ScoreQuestionResult } from "@/app/(user)/(public)/practice/_lib/score-question-result";
@@ -57,7 +58,7 @@ interface CreateScoreExamBoardConfig {
  *
  * 同じ盤面を模試（`/exam/<級>/training`。時間無制限・記録なしのトレーニング）
  * でも描く。模試では回答後の停止中と「わからない」の開示中に、正解の点数を
- * 出題の直下に（練習の点数計算ドリルと同じ答え合わせ）、翻数の内訳
+ * 出題の直下に（練習の点数即答と同じ答え合わせ）、翻数の内訳
  * （{@link YakuBreakdown}）を回答欄の下に出す。試験は役一覧を出さないので、
  * 点数を間違えたとき「点数表の引き間違い」と「翻数の数え間違い」を
  * 内訳なしには切り分けられない。表と置き場所は翻数即答練習のトレーニング
@@ -88,6 +89,7 @@ export function createScoreExamBoard(
     isTraining = false,
     onAnswer,
     onRecordResult,
+    onPresentQuestion,
   }: RecordingPracticeBoardProps<ScoreQuestionResult>) {
     const t = useTranslations(translationNamespace);
     const tBreakdown = useTranslations("challenge.yakuBreakdown");
@@ -98,14 +100,14 @@ export function createScoreExamBoard(
       showFeedback,
       onAnswer,
       onRecordResult,
+      onPresentQuestion,
     });
     // 模試では開示時だけでなく回答後の停止中も答え合わせを出す。
     // 本番の試験ではどちらも立たない（トレーニングのビューだけが提供する）。
     // 翻数の内訳は正解でも出す（数え方を確かめたい局面）が、正解の点数は
     // 出さない — 選んだ値がそのまま正解で、select の色が正誤を示している
-    const { isRevealed, isHolding } = useTrainingMode();
-    const showBreakdown = isRevealed || isHolding;
-    const showAnswer = showBreakdown && lastAnswerCorrect !== true;
+    const { showAnswer, showBreakdown } =
+      useTrainingAnswerVisibility(lastAnswerCorrect);
 
     if (!question) {
       // 出来上がった盤面と同じ高さで待つ（`loading.tsx` のフォールバックと同値）
@@ -147,6 +149,13 @@ export function createScoreExamBoard(
           translationNamespace={translationNamespace}
           scoreRange={scoreRange}
         />
+
+        {/* 面子分解は正解開示の一部。回答中に見せると符の答えが割れるため
+            止まっている間だけ出す（結果ページの問題詳細と同じ材料）。置き場所が
+            手牌の直下ではなく末尾なのは、開示の瞬間に回答欄を動かさないため */}
+        {showBreakdown && (
+          <TehaiMentsuBreakdown tehai={question.tehai} context={question} />
+        )}
 
         {showBreakdown && (
           <YakuBreakdown

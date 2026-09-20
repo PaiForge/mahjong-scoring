@@ -1,5 +1,4 @@
 import { isSupportedLocale } from "@/i18n/locales";
-import { extractPgErrorCode } from "@/lib/db/extract-pg-error-code";
 
 /** 管理フォームから受け取るお知らせ入力値 */
 export interface AnnouncementInput {
@@ -73,12 +72,4 @@ export function validateAnnouncement(
     return "errorPublishedAtRequired";
   }
   return undefined;
-}
-
-/**
- * postgres の unique 制約違反（23505）かどうか。
- * Drizzle が汎用 Error で wrap したケースも `extractPgErrorCode` が cause を辿って判定する。
- */
-export function isUniqueViolation(err: unknown): boolean {
-  return extractPgErrorCode(err) === "23505";
 }

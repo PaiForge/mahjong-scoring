@@ -26,6 +26,7 @@ export function MachiFuBoard({
   isCountingDown = false,
   onAnswer,
   onRecordResult,
+  onPresentQuestion,
 }: MachiFuBoardProps) {
   const t = useTranslations("machiFu");
   const recordResult = useCallback(
@@ -33,12 +34,18 @@ export function MachiFuBoard({
       onRecordResult?.(toQuestionResult(question, fu)),
     [onRecordResult],
   );
+  const presentQuestion = useCallback(
+    (question: MachiFuQuestion) =>
+      onPresentQuestion?.(toQuestionResult(question, undefined)),
+    [onPresentQuestion],
+  );
   const { question, selectedFu, handleSelect } = useFuChoiceBoard({
     generateQuestion: generateMachiFuQuestion,
     options: MACHI_FU_OPTIONS,
     showFeedback,
     onAnswer,
     onRecordResult: recordResult,
+    onPresentQuestion: presentQuestion,
   });
 
   if (!question) {

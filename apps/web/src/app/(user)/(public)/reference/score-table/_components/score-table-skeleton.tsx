@@ -8,7 +8,11 @@ import {
   TOGGLE_ITEM_METRICS_CLASSES,
 } from "@/app/(user)/_components/_lib/toggle-group-classes";
 import { SkeletonBar } from "@/app/_components/skeleton-bar";
-import { HAN_COLS, FU_ROWS } from "../_lib/score-table-utils";
+import {
+  HAN_COLS,
+  FU_ROWS,
+  SCORE_TABLE_FU_COLUMN_CLASS,
+} from "../_lib/score-table-utils";
 
 /**
  * 切り替えトグル 1 グループ分のプレースホルダ幅
@@ -29,7 +33,8 @@ const TOGGLE_LABEL_WIDTHS = ["w-3", "w-6", "w-9"] as const;
  *
  * 高さは固定の `h-*` を書かずに実物の部品と定数から取る。表の行数は
  * {@link FU_ROWS}・列数は {@link HAN_COLS}、セルの余白は
- * {@link DATA_TABLE_CELL_PADDING}、トグルの寸法は
+ * {@link DATA_TABLE_CELL_PADDING}、符の列幅は
+ * {@link SCORE_TABLE_FU_COLUMN_CLASS}、トグルの寸法は
  * `TOGGLE_GROUP_CONTAINER_METRICS_CLASSES` / `TOGGLE_ITEM_METRICS_CLASSES` を
  * 実物と共有しているため、符の行が増えても文字サイズが変わっても付いてくる。
  * 以前はここを 400px の矩形 1 枚で近似していて、実物（符 11 行）との差が
@@ -72,12 +77,16 @@ export function ScoreTableSkeleton() {
         </div>
       </div>
 
-      <div className="overflow-x-auto w-full">
+      <div className="w-full">
         <DataTable
-          tableClassName="text-center"
+          tableClassName="table-fixed text-center"
           header={
             <>
-              <DataTableHeaderCell align="left" density="dense">
+              <DataTableHeaderCell
+                align="left"
+                density="dense"
+                className={SCORE_TABLE_FU_COLUMN_CLASS}
+              >
                 <SkeletonBar as="span" className="inline-block w-9">
                   &nbsp;
                 </SkeletonBar>

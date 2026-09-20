@@ -50,7 +50,8 @@ function VariantOptions({ slug }: VariantStartPanelProps) {
   const tp = useTranslations("practice");
   const tt = useTranslations("training");
 
-  // 教本・結果ページから `?variant=` 付きで来たときはそれを初期選択にする
+  // 教本・結果ページ・トレーニングの終了・チャレンジの中断から `?variant=`
+  // 付きで来たときはそれを初期選択にする
   const initial = useVariantQuery(slug);
   const [variant, setVariant] = useState<string>(initial);
 
@@ -128,8 +129,8 @@ function VariantOptionsSkeleton({ count }: { readonly count: number }) {
  * 開始直後にカウントダウンが始まる仕様のため、選択は説明ページ上で行い、
  * play / training への `?variant=` に載せて運ぶ。
  *
- * 初期選択は URL の `?variant=`（教本の導線・結果ページの「設定を変更する」が
- * 付ける）。`useSearchParams()` で読むため静的ルートではこのサブツリーだけが
+ * 初期選択は URL の `?variant=`（教本の導線・結果ページの「設定を変更する」・
+ * トレーニングの「終了する」・チャレンジの「やめる」が付ける）。`useSearchParams()` で読むため静的ルートではこのサブツリーだけが
  * クライアント描画になる — 自前の `Suspense` で包み、プリレンダー HTML には
  * 選択肢と同寸のスケルトンを出す（これが無いと `loading.tsx` の境界まで
  * 巻き込んでページ全体がスケルトンになる）。

@@ -9,12 +9,12 @@ const validResult = {
   agariHai: "5m",
   correctFu: 2,
   userFu: 0,
-  isCorrect: false,
+  outcome: "incorrect",
 };
 
 describe("parseMachiFuResults", () => {
   it("有効な JSON 文字列をパースできる", () => {
-    const results = parseMachiFuResults(JSON.stringify([validResult]));
+    const results = parseMachiFuResults([validResult]);
     expect(results).toHaveLength(1);
     expect(results[0]).toEqual(validResult);
   });
@@ -25,8 +25,8 @@ describe("toQuestionResult", () => {
     const question = generateMachiFuQuestion();
     const result = toQuestionResult(question, question.answer);
 
-    expect(result.isCorrect).toBe(true);
-    expect(parseMachiFuResults(JSON.stringify([result]))).toHaveLength(1);
+    expect(result.outcome).toBe("correct");
+    expect(parseMachiFuResults([result])).toHaveLength(1);
   });
 
   it("保存形式から待ち形と和了牌を出題時の並びのまま復元できる", () => {
@@ -39,5 +39,14 @@ describe("toQuestionResult", () => {
       expect(parseHais(result.tiles)).toEqual([...question.tiles]);
       expect(parseHais(result.agariHai)[0]).toBe(question.agariHai);
     }
+  });
+
+  it("回答なし（時間切れ）は outcome=timeUp で記録し、パースを通過する", () => {
+    const question = generateMachiFuQuestion();
+    const result = toQuestionResult(question, undefined);
+
+    expect(result.outcome).toBe("timeUp");
+    expect(result.userFu).toBeUndefined();
+    expect(parseMachiFuResults([result])).toHaveLength(1);
   });
 });

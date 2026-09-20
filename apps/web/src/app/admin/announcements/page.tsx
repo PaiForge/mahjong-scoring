@@ -71,13 +71,21 @@ export default async function AdminAnnouncementsPage() {
               <table className="w-full text-left text-sm">
                 <thead>
                   <tr className="border-b border-surface-100 text-xs text-surface-500">
-                    <th className="px-4 py-2 font-medium">{t("locale")}</th>
-                    <th className="px-4 py-2 font-medium">{t("title")}</th>
-                    <th className="px-4 py-2 font-medium">{t("status")}</th>
-                    <th className="px-4 py-2 font-medium">
+                    <th className="px-4 py-2 font-medium whitespace-nowrap">
+                      {t("locale")}
+                    </th>
+                    <th className="px-4 py-2 font-medium whitespace-nowrap">
+                      {t("title")}
+                    </th>
+                    <th className="px-4 py-2 font-medium whitespace-nowrap">
+                      {t("status")}
+                    </th>
+                    <th className="px-4 py-2 font-medium whitespace-nowrap">
                       {t("publishedAt")}
                     </th>
-                    <th className="px-4 py-2 font-medium">{t("actions")}</th>
+                    <th className="px-4 py-2 font-medium whitespace-nowrap">
+                      {t("actions")}
+                    </th>
                   </tr>
                 </thead>
                 <tbody>

@@ -25,7 +25,10 @@ import {
   buildResultBreadcrumb,
   resultBreadcrumbParent,
 } from "../_lib/result-breadcrumb";
+import { listedProblemCount } from "../_lib/finish-reason";
+import { practiceHref } from "../_lib/practice-catalog";
 import { PRACTICE_SCROLL_ANCHOR_ID } from "../_lib/scroll-anchor";
+import { readVariantFromLocation } from "../_lib/variant-param";
 import { QuizTimer } from "./quiz-timer";
 import { QuitConfirmModal } from "./quit-confirm-modal";
 import { ResultPageSkeleton } from "./result-page-skeleton";
@@ -68,15 +71,13 @@ interface ChallengeShellProps {
   readonly gameSession: GameSessionState;
   /** ChallengeShell 内でタイマーを制御するためのインターフェース */
   readonly timerControl: TimerControl;
-  /** 練習のスラッグ（終了時に URL のバリアントを正規化するのに使う） */
+  /**
+   * 練習のスラッグ。終了時・中断時に URL のバリアントを正規化するのと、
+   * 「やめる」で戻る説明ページのパスを組むのに使う
+   */
   readonly slug: PracticeMenuSlug;
   /** リザルトページへのパス（例: "/practice/jantou-fu/result"） */
   readonly resultPath: string;
-  /**
-   * 「やめる」確定時の遷移先（既定: "/practice"）。
-   * 説明ページを持つ練習では説明ページ（例: "/practice/jantou-fu"）を渡す。
-   */
-  readonly exitHref?: string;
   /** 練習本体のUI */
   readonly children: ReactNode;
   /** 内部ラッパーの max-w クラス（既定: "max-w-md"） */
@@ -125,16 +126,21 @@ export function ChallengeShell({
   resultPath,
   children,
   maxWidth = "max-w-md",
-  exitHref = "/practice",
   hasProblemList = false,
   hasSetup = false,
   variant = "practice",
   onFinish,
 }: ChallengeShellProps) {
   const tc = useTranslations("challenge");
-  // 説明ページを持つ練習では exitHref が説明ページ URL になっている
-  // （既定値の練習一覧は除く）。結果ページが受け取る introHref と一致する。
-  const introHref = exitHref === "/practice" ? undefined : exitHref;
+  // 結果ページが受け取る introHref と一致させる（パンくずのラベル用）
+  const introHref = practiceHref(slug);
+  // 「やめる」で戻る説明ページ。選択パネルが URL のバリアントを初期選択に
+  // するので、今の出題設定を持って戻す（トレーニングの「終了する」と同じ）。
+  // 確定の瞬間に location から読む — バリアントはチャレンジ中に変わらない
+  const resolveExitHref = useCallback(
+    () => practiceHref(slug, readVariantFromLocation(slug)),
+    [slug],
+  );
   // 親一覧（練習一覧 or 道場）。終了後スケルトンのパンくずを実描画と揃える
   const parent = resultBreadcrumbParent(introHref);
   const tParent = useTranslations(parent.namespace);
@@ -183,7 +189,7 @@ export function ChallengeShell({
     onOpen: handleQuitOpen,
     onCancel: handleQuitCancelResume,
     variant,
-    exitHref,
+    resolveExitHref,
   });
 
   const {
@@ -227,10 +233,14 @@ export function ChallengeShell({
           resultLabel: tc("resultSuffix"),
           introHref,
         })}
-        // 結果ページの一覧は URL の total（= 終了時の totalCount）分だけ並ぶ。
+        // 結果ページの一覧は答えた問題（終了時の totalCount）に、時間切れなら
+        // 答えられなかった最後の 1 問を足した数だけ並ぶ
         problemCount={
           hasProblemList
-            ? (gameSession.finalResult?.totalCount ?? gameSession.totalCount)
+            ? listedProblemCount(
+                gameSession.finalResult?.totalCount ?? gameSession.totalCount,
+                gameSession.finalResult?.reason,
+              )
             : 0
         }
         hasSetup={hasSetup}

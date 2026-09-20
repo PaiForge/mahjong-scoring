@@ -10,7 +10,7 @@ import type {
   Tehai,
 } from "@mahjong-scoring/core";
 import { Hai, Furo } from "@pai-forge/mahjong-react-ui";
-import { TEXT_LINK_CLASSES } from "@/app/_components/_lib/link-classes";
+import { ReferenceLinkButton } from "./reference-link-button";
 import {
   DataTable,
   DataTableHeaderCell,
@@ -76,9 +76,29 @@ function ClosedTiles({
  * 面子分解表示
  *
  * 結果の問題詳細で、理牌された手牌を「4面子1雀頭」に分けて見せる導線。
- * 右寄せの「面子分解」リンクを押すとモーダルで分解を開く。どの牌が
- * どの面子を構成するかが並びから読めるようになり、符・翻の内訳と
+ * 右寄せの「面子分解」リンク（{@link ReferenceLinkButton}。答え合わせの表の
+ * 「点数表を確認」等と同じ補助リンクの姿）を押すとモーダルで分解を開く。
+ * どの牌がどの面子を構成するかが並びから読めるようになり、符・翻の内訳と
  * 手牌が結びつく。
+ *
+ * 置き場所は手牌の直下が基本（点数計算総合演習）。手牌そのものの分け方
+ * なので、手牌から離すほど何を分けたのかが読みにくい。待ち別点数計算だけは
+ * 手牌の直下に置けない — 分解は和了牌と和了方法で決まり、同じ聴牌形でも
+ * 待ちごとに完成形が違うため、上に出ている 13 枚の聴牌形には 1 つの分解が
+ * 対応しない。あちらは選んだマスのタブと地続きのパネルの末尾、そのマスの
+ * 答え合わせの表の直下に置く（パネルの一部として、どの和了形の分解かが
+ * 選んだタブから分かる。タブと表の間に挟むとつながりが 1 行ぶん切れる）。
+ * 2 画面で位置が違うのは揃え忘れではなくこの制約による。
+ *
+ * トレーニング・模試の答え合わせ（盤面が止まっている間）では盤面の末尾、
+ * 符・翻の内訳の直上に置く。手牌からは離れるが、開示の瞬間に回答欄や
+ * 選択肢を動かさないことを優先する — 押したばかりのボタンとその下が
+ * 動くのが最も目立つ。並びは結果ページの問題詳細と同じ「面子分解 →
+ * 内訳」に揃える。
+ *
+ * リンクのタップ領域は 1 行ぶん（`hitArea="row"`）取る。表の外で 1 行を
+ * 占め、すぐ下に翻数・符の内訳の開閉行と「次の問題へ」が続くため、文字の
+ * 高さだけでは隣の行やボタンに指が流れる（{@link import("./collapsible-detail").CollapsibleDetail} と同じ理由）。
  *
  * 分解は resolveMentsuBreakdown が返す、ライブラリが点数計算で採用した
  * 構造に基づく。面子分解は一意ではなく、独自に分解すると符内訳と
@@ -93,8 +113,9 @@ function ClosedTiles({
  * 和了牌には枠を付ける。ツモ・ロンのどちらだったかは盤面が既に示して
  * いるので、モーダル側で言い直さない。
  *
- * 出題中の画面には置かないこと。待ちや符を問う練習では分解が答えを
- * 割ってしまう。正解を開示する文脈（結果詳細）専用。
+ * 回答を受け付けている間は置かないこと。待ちや符を問う練習では分解が
+ * 答えを割ってしまう。出すのは正解を開示する文脈（結果の問題詳細と、
+ * トレーニング・模試で止まっている間）に限る。
  */
 export function TehaiMentsuBreakdown({
   tehai,
@@ -128,14 +149,12 @@ export function TehaiMentsuBreakdown({
 
   return (
     <div className="flex justify-end">
-      <button
-        type="button"
-        className={`inline-flex items-center gap-1.5 text-sm ${TEXT_LINK_CLASSES}`}
+      <ReferenceLinkButton
+        hitArea="row"
+        icon={<TilesIcon className="size-3.5 shrink-0" />}
+        label={t("mentsuBreakdown")}
         onClick={() => setIsOpen(true)}
-      >
-        <TilesIcon className="size-4 shrink-0" />
-        {t("mentsuBreakdown")}
-      </button>
+      />
       <InfoModal
         isOpen={isOpen}
         onClose={() => setIsOpen(false)}

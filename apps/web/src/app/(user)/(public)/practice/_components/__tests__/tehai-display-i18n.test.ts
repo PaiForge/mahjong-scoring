@@ -31,6 +31,7 @@ const REQUIRED_COMMON_KEYS = [
   "doraInfoTitle",
   "doraInfoIndicator",
   "doraInfoActual",
+  "doraInfoSettingsLink",
   "close",
 ] as const;
 

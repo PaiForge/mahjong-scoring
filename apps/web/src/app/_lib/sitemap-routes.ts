@@ -26,12 +26,15 @@ export const STATIC_SITEMAP_ROUTE_DEFS = [
   { url: "/reference", changeFrequency: "weekly", priority: 0.8 },
   // 総合演習。slug が練習レジストリ外のため PRACTICE_SITEMAP_PATHS で導出されない
   { url: "/practice/score", changeFrequency: "monthly", priority: 0.8 },
+  { url: "/practice/machi-score", changeFrequency: "monthly", priority: 0.8 },
   { url: "/reference/score-table", changeFrequency: "monthly", priority: 0.7 },
   { url: "/reference/yaku", changeFrequency: "monthly", priority: 0.7 },
   { url: GLOSSARY_PATH, changeFrequency: "monthly", priority: 0.7 },
   { url: "/announcements", changeFrequency: "daily", priority: 0.5 },
   { url: "/terms", changeFrequency: "yearly", priority: 0.2 },
   { url: "/privacy", changeFrequency: "yearly", priority: 0.2 },
+  { url: "/contact", changeFrequency: "yearly", priority: 0.3 },
+  { url: "/company", changeFrequency: "yearly", priority: 0.2 },
 ] as const;
 
 /** 教本章ページのパス一覧（`/learn/<slug>`） */

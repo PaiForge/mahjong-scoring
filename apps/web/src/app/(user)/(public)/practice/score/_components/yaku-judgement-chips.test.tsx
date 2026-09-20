@@ -4,6 +4,18 @@ import { YakuJudgementChips } from "./yaku-judgement-chips";
 
 vi.mock("next-intl", async () => await import("@/test/intl-mock"));
 
+/**
+ * 役名からチップ本体を引く
+ *
+ * 役名は折り返しを止めるため span に包んであるので、`getByText` が返すのは
+ * その内側の span。色・記号・状態の語はチップ本体が持つ。
+ */
+function chipFor(name: string): HTMLElement {
+  const chip = screen.getByText(name).parentElement;
+  if (!chip) throw new Error(`${name} のチップが無い`);
+  return chip;
+}
+
 describe("YakuJudgementChips", () => {
   it("役ごとに正誤の記号を付ける（まとめて1つにしない）", () => {
     render(
@@ -17,9 +29,13 @@ describe("YakuJudgementChips", () => {
       />,
     );
 
-    expect(screen.getByText("混一色").textContent).toContain("✓");
-    expect(screen.getByText("三暗刻").textContent).toContain("✓");
-    expect(screen.getByText("門前清自摸和").textContent).toContain("✗");
+    // 記号は線画（文字ではない）。読み上げは sr-only の語が担う
+    expect(chipFor("混一色").querySelector("svg")).not.toBeNull();
+    expect(chipFor("混一色").textContent).toContain("yakuJudgement.correct");
+    expect(chipFor("三暗刻").textContent).toContain("yakuJudgement.correct");
+    expect(chipFor("門前清自摸和").textContent).toContain(
+      "yakuJudgement.incorrect",
+    );
   });
 
   it("状態ごとに色を変える", () => {
@@ -34,13 +50,11 @@ describe("YakuJudgementChips", () => {
       />,
     );
 
-    expect(screen.getByText("混一色").className).toContain("text-primary-700");
-    expect(screen.getByText("門前清自摸和").className).toContain(
+    expect(chipFor("混一色").className).toContain("text-primary-700");
+    expect(chipFor("門前清自摸和").className).toContain(
       "text-destructive-strong",
     );
-    expect(screen.getByText("三暗刻").className).toContain(
-      "text-warning-strong",
-    );
+    expect(chipFor("三暗刻").className).toContain("text-warning-strong");
   });
 
   it("選び忘れは記号ではなく語で示す（色だけに頼らない）", () => {
@@ -52,9 +66,7 @@ describe("YakuJudgementChips", () => {
     );
 
     // intl モックはキーをそのまま返す
-    expect(screen.getByText("三暗刻").textContent).toContain(
-      "yakuJudgement.missed",
-    );
+    expect(chipFor("三暗刻").textContent).toContain("yakuJudgement.missed");
   });
 
   it("役が無いときは代替テキストを出す", () => {

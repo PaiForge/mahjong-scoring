@@ -1,4 +1,10 @@
-import { haiIdToMspz, kazeIdToMspz, tehaiToMspz } from "@mahjong-scoring/core";
+import {
+  haiIdToMspz,
+  isOya,
+  judgeScoreTableAnswer,
+  kazeIdToMspz,
+  tehaiToMspz,
+} from "@mahjong-scoring/core";
 import type {
   ScoreQuestion,
   ScoreTableAnswer,
@@ -11,7 +17,15 @@ import { z } from "zod";
 import { createSessionStorageParser } from "./create-session-storage-parser";
 import { parseMarkers, parseQuestionTiles } from "./parse-question-tiles";
 import type { QuestionTilesSnapshot } from "./parse-question-tiles";
-import { scoreTableAnswerSchema, yakuDetailSchema } from "./result-schemas";
+import { paymentToScoreTableAnswer } from "./payment-adapter";
+import {
+  answerOutcomeSchema,
+  questionTilesSnapshotSchema,
+  scoreTableAnswerSchema,
+  toAnswerOutcome,
+  yakuDetailSchema,
+  type AnswerOutcome,
+} from "./result-schemas";
 
 /**
  * 出題内容のスナップショット（結果ページでの手牌再表示用）
@@ -53,10 +67,10 @@ export interface ScoreQuestionResult {
   readonly fu?: number;
   /** 正解の支払い情報 */
   readonly correctAnswer: ScoreTableAnswer;
-  /** ユーザーの回答 */
-  readonly userAnswer: ScoreTableAnswer;
-  /** 正誤 */
-  readonly isCorrect: boolean;
+  /** ユーザーの回答。時間切れで答えられなかった問題では持たない */
+  readonly userAnswer?: ScoreTableAnswer;
+  /** 正解・不正解・時間切れ */
+  readonly outcome: AnswerOutcome;
   /**
    * 支払いが役満何個分か（0 = 役満役なし、1 = 役満、2 = ダブル役満）。
    *
@@ -93,6 +107,37 @@ export function toScoreQuestionSnapshot(
 }
 
 /**
+ * 出題と回答から保存用の結果データを組み立てる
+ * 点数問題結果生成
+ *
+ * 点数計算の出題（{@link ScoreQuestion}）を解く練習・試験で共有する。
+ * 点数表早引きは出題の形が違う（手牌を持たない）ため、盤面が自分で組む。
+ *
+ * @param userAnswer - ユーザーの回答。時間切れで答えられなかった問題は undefined
+ */
+export function toScoreQuestionResult(
+  question: ScoreQuestion,
+  userAnswer: ScoreTableAnswer | undefined,
+): ScoreQuestionResult {
+  const correctAnswer = paymentToScoreTableAnswer(question.answer.payment);
+  return {
+    isOya: isOya(question.jikaze),
+    isTsumo: question.isTsumo,
+    han: question.answer.han,
+    fu: question.answer.fu,
+    correctAnswer,
+    userAnswer,
+    outcome: toAnswerOutcome(
+      userAnswer && judgeScoreTableAnswer(userAnswer, correctAnswer),
+    ),
+    // 「26翻 → 役満」のような役満止まりの注記に使う
+    yakumanMultiplier: question.answer.yakumanMultiplier,
+    // 結果ページで出題内容（手牌・ドラ）を再表示するために保存する
+    question: toScoreQuestionSnapshot(question),
+  };
+}
+
+/**
  * 値が ScoreQuestionSnapshot として妥当か検証するスキーマ
  * 出題スナップショットスキーマ
  *
@@ -104,10 +149,7 @@ export function toScoreQuestionSnapshot(
  */
 export const scoreQuestionSnapshotSchema: z.ZodType<ScoreQuestionSnapshot> =
   z.object({
-    tehai: z.string(),
-    agariHai: z.string(),
-    bakaze: z.string(),
-    jikaze: z.string(),
+    ...questionTilesSnapshotSchema.shape,
     doraMarkers: z.array(z.string()),
     isRiichi: z.boolean().optional(),
     uraDoraMarkers: z.array(z.string()).optional(),
@@ -127,8 +169,8 @@ const questionResultSchema: z.ZodType<ScoreQuestionResult> = z.object({
   han: z.number(),
   fu: z.number().optional(),
   correctAnswer: scoreTableAnswerSchema,
-  userAnswer: scoreTableAnswerSchema,
-  isCorrect: z.boolean(),
+  userAnswer: scoreTableAnswerSchema.optional(),
+  outcome: answerOutcomeSchema,
   yakumanMultiplier: z.number().optional(),
   question: scoreQuestionSnapshotSchema.optional(),
 });
@@ -138,7 +180,7 @@ const questionResultSchema: z.ZodType<ScoreQuestionResult> = z.object({
  * 問題結果パース
  */
 export const parseQuestionResults: (
-  raw: string | undefined,
+  stored: unknown,
 ) => readonly ScoreQuestionResult[] =
   createSessionStorageParser(questionResultSchema);
 

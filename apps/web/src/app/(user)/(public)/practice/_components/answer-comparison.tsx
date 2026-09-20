@@ -2,6 +2,7 @@
 
 import type { ReactNode } from "react";
 import { useTranslations } from "next-intl";
+import { AnswerOutcome } from "../_lib/result-schemas";
 import { DetailTable } from "./detail-table";
 
 interface AnswerComparisonProps {
@@ -9,18 +10,27 @@ interface AnswerComparisonProps {
   readonly translationNamespace: string;
   /** 正解の表示内容 */
   readonly correct: ReactNode;
-  /** ユーザー回答の表示内容 */
+  /**
+   * ユーザー回答の表示内容
+   *
+   * 時間切れ（`outcome` が `TimeUp`）の問題では見ない — 回答欄には
+   * 「時間切れ（未回答）」を出す。呼び出し側は回答が無いとき undefined を
+   * 渡してよい
+   */
   readonly user: ReactNode;
   /**
-   * ユーザー回答が正解かどうか（回答値の文字色に反映する）
+   * 1 問の顛末（回答値の文字色に反映する）
    *
+   * 正解 / 不正解は回答値を成功 / 失敗の色にする。時間切れは回答が無いので
+   * 回答欄に「時間切れ（未回答）」を本文色で出し、過不足の行も付けない。
    * トレーニングで無回答のまま正解を開示したときは undefined を渡す。
    * 答えていない回答欄に正誤の色を乗せないため、本文色のままになる。
    */
-  readonly isCorrect: boolean | undefined;
+  readonly outcome: AnswerOutcome | undefined;
   /**
    * 過不足を出すための正解と回答の値。数値で答える練習（符・翻）が渡す。
-   * 渡すと「過不足」の行が最後に付く
+   * 渡すと「過不足」の行が最後に付く。時間切れの問題では回答が無いので
+   * 渡さない（渡しても付けない）
    */
   readonly difference?: AnswerDifference;
   /**
@@ -61,34 +71,38 @@ export function AnswerComparison({
   translationNamespace,
   correct,
   user,
-  isCorrect,
+  outcome,
   difference,
   showTitle = true,
 }: AnswerComparisonProps) {
   const tResult = useTranslations(`${translationNamespace}.result`);
   const tCommon = useTranslations("common");
+  const isTimeUp = outcome === AnswerOutcome.TimeUp;
 
   return (
     <DetailTable
       title={showTitle ? tCommon("answerCheck") : undefined}
       total={
-        difference && {
-          label: tCommon("difference"),
-          value: formatDifference(difference, tCommon("noDifference")),
-        }
+        difference === undefined || isTimeUp
+          ? undefined
+          : {
+              label: tCommon("difference"),
+              value: formatDifference(difference, tCommon("noDifference")),
+            }
       }
       rows={[
         { label: tResult("correctAnswer"), value: correct },
         {
           label: tResult("yourAnswer"),
-          value: user,
-          // 正誤の色は回答値だけに乗せる（ラベルは常に中立色）
+          value: isTimeUp ? tCommon("timeUpAnswer") : user,
+          // 正誤の色は回答値だけに乗せる（ラベルは常に中立色）。
+          // 時間切れと無回答の開示は正誤ではないので本文色のまま
           tone:
-            isCorrect === undefined
-              ? undefined
-              : isCorrect
-                ? "correct"
-                : "incorrect",
+            outcome === AnswerOutcome.Correct
+              ? "correct"
+              : outcome === AnswerOutcome.Incorrect
+                ? "incorrect"
+                : undefined,
         },
       ]}
     />

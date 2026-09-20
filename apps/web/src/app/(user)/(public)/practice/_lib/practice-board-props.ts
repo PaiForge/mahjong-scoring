@@ -39,4 +39,14 @@ export interface RecordingPracticeBoardProps<
 > extends PracticeBoardProps {
   /** 回答結果の記録（チャレンジの結果ページ用。トレーニングでは省略） */
   readonly onRecordResult?: (result: TResult) => void;
+  /**
+   * 出題した問題の届け出（チャレンジの結果ページ用。トレーニングでは省略）
+   *
+   * 問題を出すたびに、その問題を「回答なし」で組んだ結果を渡す。答える前に
+   * 制限時間が来たとき、セッションがこれを時間切れの問題として一覧の末尾に
+   * 残す。答えたら `onRecordResult` が上書きするので、盤面は取り消しを
+   * 気にしなくてよい。{@link import("../_hooks/use-present-question").usePresentQuestion}
+   * で出題状態に結び付ける
+   */
+  readonly onPresentQuestion?: (unanswered: TResult) => void;
 }

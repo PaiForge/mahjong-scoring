@@ -1,8 +1,10 @@
 import {
   MentsuType,
+  validateTehai13,
   validateTehai14,
   type CompletedMentsu,
   type HaiKindId,
+  type Tehai13,
   type Tehai14,
 } from "@pai-forge/riichi-mahjong";
 import {
@@ -45,6 +47,25 @@ export function finalizeTehai14(
 ): Tehai14 | undefined {
   const sorted = [...closed].sort((a, b) => a - b);
   const result = validateTehai14({ closed: sorted, exposed: [...exposed] });
+  return result.isErr() ? undefined : result.value;
+}
+
+/**
+ * 暗牌を理牌して Tehai13 として検証する（不正な手牌は undefined）
+ * 聴牌形確定
+ *
+ * 和了形（{@link finalizeTehai14}）から和了牌を 1 枚抜いた聴牌形を作るときの
+ * 入口。ブランド型の手牌を組み立てる場所をこのモジュールに集める。
+ *
+ * @param closed - 暗牌。この関数内でコピーしてソートする
+ * @param exposed - 副露・槓子
+ */
+export function finalizeTehai13(
+  closed: readonly HaiKindId[],
+  exposed: readonly CompletedMentsu[],
+): Tehai13 | undefined {
+  const sorted = [...closed].sort((a, b) => a - b);
+  const result = validateTehai13({ closed: sorted, exposed: [...exposed] });
   return result.isErr() ? undefined : result.value;
 }
 

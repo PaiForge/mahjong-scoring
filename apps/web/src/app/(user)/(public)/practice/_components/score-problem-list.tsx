@@ -3,6 +3,8 @@
 import type { ReactNode } from "react";
 import { useTranslations } from "next-intl";
 import type { ScoreTableAnswer } from "@mahjong-scoring/core";
+import { useFuHanOrder } from "@/app/_hooks/use-display-settings-store";
+import { orderFuHan } from "@/app/_lib/fu-han-order";
 import { QuestionDisplay } from "../score/_components/question-display";
 import type { ScoreQuestionResult } from "../_lib/score-question-result";
 import { restoreScoreQuestion } from "../_lib/score-question-result";
@@ -36,7 +38,7 @@ interface ScoreProblemListProps {
  * 出題スナップショットが保存されている場合は、出題時と同じ手牌表示も再現する。
  *
  * 詳細は「手牌 → 面子の内訳（符の根拠）→ 翻数の内訳（翻の根拠）→ 答え合わせ」の
- * 順に並べる。要約行は「子・ロン・6翻・70符」としか言わないので、間違えた人が
+ * 順に並べる。要約行は「子・ロン・70符・6翻」としか言わないので、間違えた人が
  * 数え直すには符と翻それぞれの根拠が要る。翻数の内訳は翻数即答練習の結果ページと
  * 同じ表（{@link YakuBreakdown}）を使う。
  *
@@ -53,20 +55,27 @@ export function ScoreProblemList({
   const t = useTranslations(translationNamespace);
   // 役満止まりの注記は内訳表（challenge.yakuBreakdown）と同じ語彙で組む
   const tBreakdown = useTranslations("challenge.yakuBreakdown");
+  const fuHanOrder = useFuHanOrder();
 
   return (
     <ProblemListAccordion
       results={results}
       translationNamespace={translationNamespace}
-      isCorrect={(r) => r.isCorrect}
+      outcome={(r) => r.outcome}
       renderSummary={(result) => {
-        // \u6E80\u8CAB\u4EE5\u4E0A\u306E\u554F\u984C\u306F\u7B26\u3092\u6301\u305F\u306A\u3044\u305F\u3081\u3001\u7B26\u306E\u8868\u793A\u3092\u7701\u304F\u3002
+        // 符と翻の順は表示設定に従う（出題文の ScoreTablePrompt と同じ）。
+        // 満貫以上の問題は符を持たないため、orderFuHan が符を省く
         const summary = [
           result.isOya ? t("oya") : t("ko"),
           result.isTsumo ? t("tsumo") : t("ron"),
-          t("han", { count: result.han }),
-          ...(result.fu === undefined ? [] : [t("fu", { count: result.fu })]),
-        ].join("\u30FB");
+          ...orderFuHan(fuHanOrder, {
+            fu:
+              result.fu === undefined
+                ? undefined
+                : t("fu", { count: result.fu }),
+            han: t("han", { count: result.han }),
+          }),
+        ].join("・");
         return summary;
       }}
       renderDetail={(result) => {
@@ -92,9 +101,13 @@ export function ScoreProblemList({
 
             <AnswerComparison
               translationNamespace={translationNamespace}
-              isCorrect={result.isCorrect}
+              outcome={result.outcome}
               correct={renderCorrectAnswer(result.correctAnswer, result)}
-              user={formatAnswer(result.userAnswer, t)}
+              user={
+                result.userAnswer === undefined
+                  ? undefined
+                  : formatAnswer(result.userAnswer, t)
+              }
             />
           </div>
         );

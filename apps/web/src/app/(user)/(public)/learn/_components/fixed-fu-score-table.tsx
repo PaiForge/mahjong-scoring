@@ -2,6 +2,7 @@ import { getTranslations } from "next-intl/server";
 import { type Role } from "@mahjong-scoring/core";
 
 import {
+  DATA_TABLE_CELL_PADDING,
   DataTable,
   DataTableHeaderCell,
   DataTableRowHeaderCell,
@@ -50,50 +51,53 @@ export async function FixedFuScoreTable({
       <h3 className="text-xs font-semibold tracking-wider text-surface-400 uppercase">
         {isKo ? t("tableKo") : t("tableOya")}
       </h3>
-      {/* 翻が複数列並ぶため、狭い画面では表だけを横スクロールさせる */}
-      <div className="w-full overflow-x-auto">
-        <DataTable
-          tableClassName="text-center"
-          header={
-            <>
-              <DataTableHeaderCell align="left">
-                {t("colWin")}
+      {/* 翻が複数列並ぶため、セルの余白は狭い画面でだけ詰める（dense）。
+          それでも収まらない幅では DataTable の枠の中で横スクロールする */}
+      <DataTable
+        tableClassName="text-center"
+        header={
+          <>
+            <DataTableHeaderCell align="left" density="dense">
+              {t("colWin")}
+            </DataTableHeaderCell>
+            {shape.hanCols.map((han) => (
+              <DataTableHeaderCell key={han} density="dense">
+                {t("hanUnit", { value: han })}
               </DataTableHeaderCell>
-              {shape.hanCols.map((han) => (
-                <DataTableHeaderCell key={han}>
-                  {t("hanUnit", { value: han })}
-                </DataTableHeaderCell>
-              ))}
-            </>
-          }
-        >
-          <tr className="bg-white">
-            <DataTableRowHeaderCell>{t("tsumo")}</DataTableRowHeaderCell>
-            {rows.tsumo.map((cell) => (
-              <td key={cell.han} className="px-4 py-3">
-                {cell.score ? (
-                  <span className="font-semibold text-primary-600">
-                    <TsumoScore payment={cell.score} />
-                  </span>
-                ) : (
-                  <span className="text-surface-400">-</span>
-                )}
-              </td>
             ))}
-          </tr>
-          <tr className="bg-white">
-            <DataTableRowHeaderCell>{t("ron")}</DataTableRowHeaderCell>
-            {rows.ron.map((cell) => (
-              <td
-                key={cell.han}
-                className="px-4 py-3 font-semibold text-primary-600"
-              >
-                {cell.score ?? <span className="text-surface-400">-</span>}
-              </td>
-            ))}
-          </tr>
-        </DataTable>
-      </div>
+          </>
+        }
+      >
+        <tr className="bg-white">
+          <DataTableRowHeaderCell density="dense">
+            {t("tsumo")}
+          </DataTableRowHeaderCell>
+          {rows.tsumo.map((cell) => (
+            <td key={cell.han} className={DATA_TABLE_CELL_PADDING.dense}>
+              {cell.score ? (
+                <span className="font-semibold text-primary-600">
+                  <TsumoScore payment={cell.score} />
+                </span>
+              ) : (
+                <span className="text-surface-400">-</span>
+              )}
+            </td>
+          ))}
+        </tr>
+        <tr className="bg-white">
+          <DataTableRowHeaderCell density="dense">
+            {t("ron")}
+          </DataTableRowHeaderCell>
+          {rows.ron.map((cell) => (
+            <td
+              key={cell.han}
+              className={`${DATA_TABLE_CELL_PADDING.dense} font-semibold text-primary-600`}
+            >
+              {cell.score ?? <span className="text-surface-400">-</span>}
+            </td>
+          ))}
+        </tr>
+      </DataTable>
     </div>
   );
 }

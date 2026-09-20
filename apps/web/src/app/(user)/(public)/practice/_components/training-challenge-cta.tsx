@@ -1,17 +1,17 @@
 "use client";
 
-import { Suspense } from "react";
-import { useSearchParams } from "next/navigation";
 import { useTranslations } from "next-intl";
 import { ExamStartGate } from "@/app/(user)/(public)/exam/_components/exam-start-gate";
 import { InfinityIcon } from "@/app/(user)/_components/icons/infinity-icon";
 import { PlayIcon } from "@/app/(user)/_components/icons/play-icon";
 import { LinkButton } from "@/app/(user)/_components/link-button";
 import type { PracticeMenuSlug } from "@/lib/db/practice-menu-types";
+import { practicePlayHref } from "../_lib/practice-catalog";
 import {
   PRACTICE_START_CTA_BLOCK_CLASS,
   PRACTICE_START_CTA_HINT_CLASS,
 } from "./practice-start-cta";
+import { WithUrlVariant } from "./with-url-variant";
 
 /**
  * トレーニングの種類
@@ -29,11 +29,10 @@ export interface TrainingChallengeRules {
 }
 
 interface TrainingChallengeCtaProps {
-  /** チャレンジ（play ページ）のパス。出題条件のクエリは付けずに渡す */
-  readonly challengeHref: string;
   readonly challengeRules: TrainingChallengeRules;
   /**
-   * 練習のスラッグ。模試（`variant: "exam"`）が本番の受験資格を引くのに使う
+   * 練習のスラッグ。チャレンジ（play ページ）のパスをここから組み、
+   * 模試（`variant: "exam"`）では本番の受験資格を引くのにも使う
    */
   readonly slug: PracticeMenuSlug;
   readonly variant?: TrainingVariant;
@@ -48,21 +47,6 @@ function ChallengeButton({ href }: { readonly href: string }) {
       {tt("challengeButton")}
     </LinkButton>
   );
-}
-
-/**
- * 今の URL の出題条件を引き継いだチャレンジのリンク
- *
- * 点数表早引き・役の翻数は出題条件を URL クエリで受け取る（親子・ツモロン・
- * 出題範囲）。クエリを落とすと、絞った条件で練習していた人が全条件の
- * チャレンジに着地してしまうため、そのまま持って移る。
- * `useSearchParams()` は静的ルートでこのサブツリーだけをクライアント描画に
- * するため、呼び出し側が Suspense で包む。
- */
-function ChallengeButtonWithQuery({ href }: { readonly href: string }) {
-  const query = useSearchParams().toString();
-
-  return <ChallengeButton href={query ? `${href}?${query}` : href} />;
 }
 
 /**
@@ -85,7 +69,6 @@ function ChallengeButtonWithQuery({ href }: { readonly href: string }) {
  * 「チャレンジ」ではなく「本番の試験」で出す（今いるのが模試だと分かるように）。
  */
 export function TrainingChallengeCta({
-  challengeHref,
   challengeRules,
   slug,
   variant = "practice",
@@ -112,15 +95,21 @@ export function TrainingChallengeCta({
       {isExam ? (
         <ExamStartGate
           slug={slug}
-          playHref={challengeHref}
+          playHref={practicePlayHref(slug)}
           startLabel={tExamTraining("realExamButton")}
         />
       ) : (
         <div className={PRACTICE_START_CTA_BLOCK_CLASS}>
-          {/* プリレンダー時はクエリ無しの href を出し、hydrate 後に差し替える */}
-          <Suspense fallback={<ChallengeButton href={challengeHref} />}>
-            <ChallengeButtonWithQuery href={challengeHref} />
-          </Suspense>
+          {/* 点数表早引き・役の翻数は出題設定（バリアント）を URL で受け取る。
+              落とすと、絞った設定で練習していた人が既定の設定のチャレンジに
+              着地してしまうため、今の URL の値で play のパスを組み直す
+              （クエリ文字列をそのまま継ぎ足すと、既定が付いたパスに二重に
+              付いて不正値になる） */}
+          <WithUrlVariant slug={slug}>
+            {(urlVariant) => (
+              <ChallengeButton href={practicePlayHref(slug, urlVariant)} />
+            )}
+          </WithUrlVariant>
           <p className={PRACTICE_START_CTA_HINT_CLASS}>
             {tp("modeChallengeHint", {
               timeLimit: challengeRules.timeLimit,

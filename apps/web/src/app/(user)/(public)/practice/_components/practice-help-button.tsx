@@ -2,8 +2,8 @@
 
 import { useState, type ReactNode } from "react";
 import { useTranslations } from "next-intl";
+import { HelpIconButton } from "@/app/(user)/_components/help-icon-button";
 import { InfoModal } from "@/app/(user)/_components/info-modal";
-import { QuestionMarkCircleIcon } from "@/app/(user)/_components/icons/question-mark-circle-icon";
 
 interface PracticeHelpButtonProps {
   /** モーダルの見出し */
@@ -35,14 +35,7 @@ export function PracticeHelpButton({
 
   return (
     <>
-      <button
-        type="button"
-        onClick={() => setIsOpen(true)}
-        aria-label={label}
-        className="text-surface-400 transition-colors hover:text-surface-600"
-      >
-        <QuestionMarkCircleIcon />
-      </button>
+      <HelpIconButton onClick={() => setIsOpen(true)} label={label} />
 
       <InfoModal
         isOpen={isOpen}

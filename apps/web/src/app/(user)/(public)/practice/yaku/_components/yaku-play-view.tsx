@@ -14,6 +14,7 @@ export const YakuPlayView = createChallengePlayView<YakuQuestionResult>({
     lastAnswerCorrect,
     onAnswer,
     recordResult,
+    presentQuestion,
   }) => (
     <YakuBoard
       showFeedback={showFeedback}
@@ -21,6 +22,7 @@ export const YakuPlayView = createChallengePlayView<YakuQuestionResult>({
       lastAnswerCorrect={lastAnswerCorrect}
       onAnswer={onAnswer}
       onRecordResult={recordResult}
+      onPresentQuestion={presentQuestion}
     />
   ),
 });

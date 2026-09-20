@@ -69,6 +69,18 @@ export function useTrainingMode(): TrainingModeState {
   return useContext(TrainingModeContext) ?? CHALLENGE_STATE;
 }
 
+/** 停止中は内訳を表示し、正解済みの点数だけは再掲しない。 */
+export function useTrainingAnswerVisibility(
+  lastAnswerCorrect: boolean | undefined,
+): { readonly showAnswer: boolean; readonly showBreakdown: boolean } {
+  const { isRevealed, isHolding } = useTrainingMode();
+  const showBreakdown = isRevealed || isHolding;
+  return {
+    showAnswer: showBreakdown && lastAnswerCorrect !== true,
+    showBreakdown,
+  };
+}
+
 /**
  * 次問題へ進む操作をシェルへ登録する
  * 次問題操作の登録

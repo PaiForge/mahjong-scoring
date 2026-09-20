@@ -14,6 +14,7 @@ import {
   learnChapterReads,
   profiles,
   userExp,
+  userRanks,
   userRoles,
 } from "@/lib/db";
 import { createAdminClient } from "@/lib/supabase/admin";
@@ -27,7 +28,9 @@ import { createAdminClient } from "@/lib/supabase/admin";
  *   監査ログ保持の足場として残す。
  * - `profiles` は行を残し、個人情報を NULL 化して `deletedAt` を記録する
  *   （username は再利用防止のため保持）。
- * - 成績・経験値・学習履歴・ロールは物理削除する（ランキングからも消える）。
+ * - 成績・経験値・学習履歴・段級位・ロールは物理削除する（ランキングからも消える）。
+ *   利用規約の「退会」の節がこの一覧を約束しているので、消す対象を増減
+ *   したら規約の文面（`terms.deletion`）も合わせて直すこと。
  * - `user_activity_log` / `moderation_actions` は監査のため保持する。
  * - アバター画像は Storage から削除する（ベストエフォート）。
  *
@@ -63,6 +66,7 @@ export async function deleteAccount(
     await tx
       .delete(learnChapterReads)
       .where(eq(learnChapterReads.userId, userId));
+    await tx.delete(userRanks).where(eq(userRanks.userId, userId));
     await tx.delete(userRoles).where(eq(userRoles.userId, userId));
 
     await tx

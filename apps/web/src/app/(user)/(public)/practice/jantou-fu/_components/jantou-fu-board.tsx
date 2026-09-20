@@ -12,12 +12,20 @@ import { getChoiceFeedbackProps } from "../../_lib/feedback-styles";
 import { QuestionGeneratingPlaceholder } from "../../_components/question-generating-placeholder";
 import { QuestionPrompt } from "../../_components/question-prompt";
 import { useClientGeneratedQuestion } from "../../_hooks/use-client-generated-question";
+import { usePresentQuestion } from "../../_hooks/use-present-question";
 import { useRegisterAdvance } from "../../_hooks/use-training-mode";
 import { toQuestionResult } from "../_lib/types";
 import type { JantouFuQuestionResult } from "../_lib/types";
 import type { RecordingPracticeBoardProps } from "../../_lib/practice-board-props";
 
 type JantouFuBoardProps = RecordingPracticeBoardProps<JantouFuQuestionResult>;
+
+/** 出題中の問題を回答なしの結果に組む（時間切れの届け出用） */
+function toUnansweredResult(
+  question: JantouFuQuestion,
+): JantouFuQuestionResult {
+  return toQuestionResult(question, undefined);
+}
 
 /**
  * 雀頭符の出題盤面（場風・自風の提示と4択）
@@ -30,6 +38,7 @@ export function JantouFuBoard({
   isCountingDown = false,
   onAnswer,
   onRecordResult,
+  onPresentQuestion,
 }: JantouFuBoardProps) {
   const t = useTranslations("jantouFu");
   const renfonpaiAs4Fu = useRuleSettingsStore((s) => s.renfonpaiAs4Fu);
@@ -48,6 +57,7 @@ export function JantouFuBoard({
   }, [generateQuestion, setQuestion]);
 
   useRegisterAdvance(question === undefined ? undefined : advanceQuestion);
+  usePresentQuestion(question, toUnansweredResult, onPresentQuestion);
 
   const handleChoiceSelect = useCallback(
     (index: number) => {

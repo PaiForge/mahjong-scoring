@@ -1,3 +1,5 @@
+import { JudgementMark } from "./judgement-mark";
+
 interface ScoreCounterProps {
   readonly correct: number;
   readonly incorrect: number;
@@ -8,10 +10,21 @@ interface ScoreCounterProps {
 }
 
 /**
+ * 数値の桁を先に確保する幅
+ *
+ * `tabular-nums` は 1 桁ぶんの幅を揃えるだけで、桁数が増えたぶんは吸収
+ * しない。行は `justify-center` なので、9 → 10 で数値が 1 桁伸びると
+ * 両側のグループが左右へずれる（実測で片側およそ 6px）。1 問ごとに目を
+ * 戻す場所なので、3 桁ぶんを先に取って動かないようにする。数字は左端に
+ * 置き、余りは右へ流す（バッジと数値の間隔は `gap-3` のまま一定になる）。
+ */
+const COUNT_WIDTH_CLASS = "min-w-[3ch] text-left";
+
+/**
  * 正解数・不正解数のカウンタ（blindfold-chess の ScoreCounter 準拠）。
  *
- * 数字とスラッシュではなく、丸いアイコンバッジ（✓ / ✗）と数値を併置する。
- * プレイ画面下部（フッター）に置く想定。
+ * 数字とスラッシュではなく、丸いアイコンバッジ（{@link JudgementMark} の
+ * badge）と数値を併置する。プレイ画面下部（フッター）に置く想定。
  */
 export function ScoreCounter({
   correct,
@@ -26,26 +39,12 @@ export function ScoreCounter({
         className="flex items-center gap-3"
         aria-label={`${correctLabel}: ${correct}`}
       >
-        <span
-          className="rounded-full border-2 border-ink bg-success-subtle p-2 text-success-strong"
-          aria-hidden
-        >
-          <svg
-            xmlns="http://www.w3.org/2000/svg"
-            viewBox="0 0 24 24"
-            fill="none"
-            stroke="currentColor"
-            strokeWidth="3"
-            className="h-4 w-4"
-          >
-            <path
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              d="M5 13l4 4L19 7"
-            />
-          </svg>
+        <span aria-hidden>
+          <JudgementMark verdict="correct" variant="badge" />
         </span>
-        <span className="font-mono text-xl font-bold tabular-nums text-surface-700">
+        <span
+          className={`font-mono text-xl font-bold tabular-nums text-surface-700 ${COUNT_WIDTH_CLASS}`}
+        >
           {correct}
         </span>
       </div>
@@ -53,26 +52,12 @@ export function ScoreCounter({
         className="flex items-center gap-3"
         aria-label={`${incorrectLabel}: ${incorrect}`}
       >
-        <span
-          className="rounded-full border-2 border-ink bg-destructive-subtle p-2 text-destructive-strong"
-          aria-hidden
-        >
-          <svg
-            xmlns="http://www.w3.org/2000/svg"
-            viewBox="0 0 24 24"
-            fill="none"
-            stroke="currentColor"
-            strokeWidth="3"
-            className="h-4 w-4"
-          >
-            <path
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              d="M6 6l12 12M18 6L6 18"
-            />
-          </svg>
+        <span aria-hidden>
+          <JudgementMark verdict="incorrect" variant="badge" />
         </span>
-        <span className="font-mono text-xl font-bold tabular-nums text-surface-700">
+        <span
+          className={`font-mono text-xl font-bold tabular-nums text-surface-700 ${COUNT_WIDTH_CLASS}`}
+        >
           {incorrect}
         </span>
       </div>

@@ -10,6 +10,7 @@ import { z } from "zod";
 import { createSessionStorageParser } from "../../_lib/create-session-storage-parser";
 import {
   fuAnswerResultSchema,
+  toAnswerOutcome,
   type FuAnswerResult,
 } from "../../_lib/result-schemas";
 import {
@@ -35,16 +36,20 @@ export interface MentsuFuQuestionResult extends FuAnswerResult {
 /**
  * 出題と回答から保存用の結果データを組み立てる
  * 面子符問題結果生成
+ *
+ * @param userFu - ユーザーが選んだ符。時間切れで答えられなかった問題は undefined
  */
 export function toQuestionResult(
   question: MentsuFuQuestion,
-  userFu: number,
+  userFu: number | undefined,
 ): MentsuFuQuestionResult {
   return {
     mentsu: toSerializedMentsu(question.mentsu),
     correctFu: question.answer,
     userFu,
-    isCorrect: userFu === question.answer,
+    outcome: toAnswerOutcome(
+      userFu === undefined ? undefined : userFu === question.answer,
+    ),
   };
 }
 
@@ -62,6 +67,6 @@ const questionResultSchema: z.ZodType<MentsuFuQuestionResult> =
  * 面子符問題結果パース
  */
 export const parseMentsuFuResults: (
-  raw: string | undefined,
+  stored: unknown,
 ) => readonly MentsuFuQuestionResult[] =
   createSessionStorageParser(questionResultSchema);

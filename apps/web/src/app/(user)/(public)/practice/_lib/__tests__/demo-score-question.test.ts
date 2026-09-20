@@ -33,12 +33,12 @@ const DEMOS: readonly {
   readonly doraHan: number;
 }[] = [
   {
-    name: "点数計算ドリル",
+    name: "点数即答",
     question: SCORE_CALCULATION_DEMO_QUESTION,
     doraHan: 0,
   },
   {
-    name: "満貫以上ドリル",
+    name: "満貫以上の点数計算",
     question: MANGAN_SCORE_CALCULATION_DEMO_QUESTION,
     doraHan: 1,
   },

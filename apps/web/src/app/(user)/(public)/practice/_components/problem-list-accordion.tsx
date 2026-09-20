@@ -3,13 +3,16 @@
 import type { ReactNode } from "react";
 import { useTranslations } from "next-intl";
 import { AccordionCard } from "@/app/(user)/_components/accordion-card";
+import { ClockIcon } from "@/app/(user)/_components/icons/clock-icon";
+import { AnswerOutcome } from "../_lib/result-schemas";
+import { JudgementMark } from "./judgement-mark";
 
 interface ProblemListAccordionProps<T> {
   readonly results: readonly T[];
   /** i18n の翻訳ネームスペース（result.problemDetails, result.correct, result.incorrect を含む） */
   readonly translationNamespace: string;
-  /** 正誤を判定する関数 */
-  readonly isCorrect: (result: T) => boolean;
+  /** 1 問の顛末（正解・不正解・時間切れ）を取り出す関数 */
+  readonly outcome: (result: T) => AnswerOutcome;
   /** ヘッダー右側に表示するサマリーテキスト（任意） */
   readonly renderSummary?: (result: T, index: number) => ReactNode;
   /** 展開時の詳細コンテンツ */
@@ -22,15 +25,21 @@ interface ProblemListAccordionProps<T> {
  *
  * 各問を `AccordionCard` で折りたたみ表示し、正誤アイコンとカスタマイズ可能な
  * 詳細セクションを提供する。
+ *
+ * 時間切れで答えられなかった問題（時間切れのチャレンジの最後の 1 問）も
+ * 同じ一覧に載せ、答えを見られるようにする。ただし右端は正誤の記号と色を
+ * 使わず、灰色の時計と「時間切れ」にする — 解けなかったことと間違えたことは
+ * 別で、✗ を付けると不正解の数を数え違える。
  */
 export function ProblemListAccordion<T>({
   results,
   translationNamespace,
-  isCorrect,
+  outcome: outcomeOf,
   renderSummary,
   renderDetail,
 }: ProblemListAccordionProps<T>) {
   const tResult = useTranslations(`${translationNamespace}.result`);
+  const tCommon = useTranslations("common");
 
   if (results.length === 0) return undefined;
 
@@ -41,7 +50,7 @@ export function ProblemListAccordion<T>({
       </p>
       <div className="space-y-2">
         {results.map((result, index) => {
-          const correct = isCorrect(result);
+          const outcome = outcomeOf(result);
 
           return (
             <AccordionCard
@@ -59,30 +68,23 @@ export function ProblemListAccordion<T>({
                 </>
               }
               trailing={
-                <>
-                  {correct ? (
-                    <svg
-                      className="size-3 text-primary-500"
-                      viewBox="0 0 24 24"
-                      fill="currentColor"
-                    >
-                      <path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z" />
-                    </svg>
-                  ) : (
-                    <svg
-                      className="size-3 text-destructive"
-                      viewBox="0 0 24 24"
-                      fill="currentColor"
-                    >
-                      <path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z" />
-                    </svg>
-                  )}
-                  <span
-                    className={`text-sm font-medium ${correct ? "text-primary-500" : "text-destructive"}`}
-                  >
-                    {correct ? tResult("correct") : tResult("incorrect")}
+                outcome === AnswerOutcome.TimeUp ? (
+                  // 正誤ではないので中立色。時計は「時間が来た」の印
+                  <span className="inline-flex items-center gap-1 text-sm font-medium text-surface-500">
+                    <ClockIcon className="size-[1em] shrink-0" />
+                    {tCommon("timeUp")}
                   </span>
-                </>
+                ) : (
+                  // 記号と語を同じ色で並べる（語が正誤を言うので記号は装飾）
+                  <span
+                    className={`inline-flex items-center gap-1 text-sm font-medium ${outcome === AnswerOutcome.Correct ? "text-success" : "text-destructive"}`}
+                  >
+                    <JudgementMark verdict={outcome} tone="inherit" />
+                    {outcome === AnswerOutcome.Correct
+                      ? tResult("correct")
+                      : tResult("incorrect")}
+                  </span>
+                )
               }
             >
               {renderDetail(result, index)}

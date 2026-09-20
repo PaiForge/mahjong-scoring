@@ -190,26 +190,32 @@ function ScorePracticeBoardInner() {
           mobileFrame="fullBleedFlushTop"
         />
 
-        {/* 面子分解は正解開示の一部。回答中に見せると符の答えが割れるため、
-            回答後にのみ手牌の直下へ出す */}
-        {isAnswered && (
-          <TehaiMentsuBreakdown
-            tehai={currentQuestion.tehai}
-            context={currentQuestion}
-          />
-        )}
-
-        {/* Answer area（開示時は userAnswer / judgementResult なしで結果表示を出す） */}
+        {/* Answer area（開示時は userAnswer / judgementResult なしで結果表示を出す）
+            答え合わせの組み方（面子分解 → 表 を 1 組にして、その下に「次の問題へ」）
+            と余白は待ち別点数計算の結果（MachiScoreResult）と同じにする。
+            面子分解は正解開示の一部で、回答中に見せると符の答えが割れるため
+            回答後にのみ出す。置き場所が手牌の直下なのは TehaiMentsuBreakdown の
+            TSDoc のとおり */}
         {isAnswered ? (
-          <ResultDisplay
-            question={currentQuestion}
-            userAnswer={userAnswer}
-            result={judgementResult}
-            onNext={handleNext}
-            requireYaku={requireYaku}
-            simplifyMangan={simplifyMangan}
-            requireFuForMangan={requireFuForMangan}
-          />
+          <div className="space-y-4 sm:space-y-6">
+            <div className="space-y-4">
+              <TehaiMentsuBreakdown
+                tehai={currentQuestion.tehai}
+                context={currentQuestion}
+              />
+              <ResultDisplay
+                question={currentQuestion}
+                userAnswer={userAnswer}
+                result={judgementResult}
+                requireYaku={requireYaku}
+                simplifyMangan={simplifyMangan}
+                requireFuForMangan={requireFuForMangan}
+              />
+            </div>
+            <Button size="lg" fullWidth onClick={handleNext}>
+              {t("result.next")}
+            </Button>
+          </div>
         ) : (
           /* 出題文はフォームの見出しなので、盤面全体の余白ではなく
              フォームと近い間隔で組にする */

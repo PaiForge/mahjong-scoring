@@ -16,6 +16,7 @@ import { FuChoiceGrid } from "../../_components/fu-choice-grid";
 import { QuestionGeneratingPlaceholder } from "../../_components/question-generating-placeholder";
 import { useFuChoiceBoard } from "../../_hooks/use-fu-choice-board";
 import { TehaiDisplay } from "../../_components/tehai-display";
+import { TehaiMentsuBreakdown } from "../../_components/tehai-mentsu-breakdown";
 import { FuBreakdown } from "../../_components/fu-breakdown";
 import { QuestionPrompt } from "../../_components/question-prompt";
 import { useTrainingMode } from "../../_hooks/use-training-mode";
@@ -39,6 +40,7 @@ export function TotalFuBoard({
   isTraining = false,
   onAnswer,
   onRecordResult,
+  onPresentQuestion,
 }: TotalFuBoardProps) {
   const t = useTranslations("totalFu");
   const renfonpaiAs4Fu = useRuleSettingsStore((s) => s.renfonpaiAs4Fu);
@@ -55,12 +57,18 @@ export function TotalFuBoard({
       onRecordResult?.(toFuQuestionResult(question, fu)),
     [onRecordResult],
   );
+  const presentQuestion = useCallback(
+    (question: TotalFuQuestion) =>
+      onPresentQuestion?.(toFuQuestionResult(question, undefined)),
+    [onPresentQuestion],
+  );
   const { question, selectedFu, handleSelect } = useFuChoiceBoard({
     generateQuestion,
     options: FU_VALUES,
     showFeedback,
     onAnswer,
     onRecordResult: recordResult,
+    onPresentQuestion: presentQuestion,
   });
   // 内訳はトレーニングで止まっている間だけ出す（開示・回答後のどちらでも）
   const { isRevealed, isHolding } = useTrainingMode();
@@ -94,6 +102,16 @@ export function TotalFuBoard({
         columnsClassName="grid-cols-3"
         translationNamespace="totalFu"
       />
+
+      {/* 面子分解は正解開示の一部。回答中に見せると符や待ちの答えが割れるため
+          止まっている間だけ出す（結果ページの問題詳細と同じ材料）。置き場所が
+          手牌の直下ではなく末尾なのは、開示の瞬間に回答欄を動かさないため */}
+      {(isRevealed || isHolding) && (
+        <TehaiMentsuBreakdown
+          tehai={question.tehai}
+          context={question.context}
+        />
+      )}
 
       {(isRevealed || isHolding) && (
         <FuBreakdown

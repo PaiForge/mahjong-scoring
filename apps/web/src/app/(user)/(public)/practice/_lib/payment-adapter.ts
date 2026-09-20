@@ -1,4 +1,4 @@
-import type { Payment } from "@mahjong-scoring/core";
+import type { Payment, ScoreQuestion, UserAnswer } from "@mahjong-scoring/core";
 import type { ScoreTableAnswer } from "@mahjong-scoring/core";
 
 /**
@@ -23,4 +23,21 @@ export function paymentToScoreTableAnswer(
         fromOya: payment.amount[1],
       };
   }
+}
+
+/** 正解の点数を回答欄の形式へ変換する。役の選択は含めない。 */
+export function scoreAnswerToUserAnswer(
+  answer: ScoreQuestion["answer"],
+): UserAnswer {
+  const { han, fu, payment } = answer;
+  const yakus: readonly string[] = [];
+  const base = { han, fu, yakus };
+  if (payment.type === "koTsumo") {
+    return {
+      ...base,
+      scoreFromKo: payment.amount[0],
+      scoreFromOya: payment.amount[1],
+    };
+  }
+  return { ...base, score: payment.amount };
 }

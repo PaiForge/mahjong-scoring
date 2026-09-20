@@ -5,7 +5,11 @@ import type {
   YakuSelectionJudgement,
   YakuSelectionState,
 } from "./types";
-import { IGNORE_YAKU_FOR_JUDGEMENT } from "../../core/yaku-names";
+import {
+  getYakuNameJa,
+  IGNORE_YAKU_FOR_JUDGEMENT,
+} from "../../core/yaku-names";
+import { getKazeYakuhaiDisplayName } from "../yaku/constants";
 import {
   clampHanToYakuman,
   isMangan,
@@ -41,16 +45,51 @@ function judgeScore(
 }
 
 /**
+ * 役の判定に要る出題の一部（役の内訳と局面の風）
+ * 役判定の入力
+ *
+ * 内訳が無い出題（保存を始める前の旧データ）も受けるため `yakuDetails` は
+ * 任意。風は場風牌 / 自風牌を選択肢の名前に引き直すのに要る。
+ */
+export type YakuJudgementSource = Pick<ScoreQuestion, "bakaze" | "jikaze"> & {
+  readonly yakuDetails?: ScoreQuestion["yakuDetails"];
+};
+
+/** 内訳が場風・自風の役牌を名乗るときの名前（core/yaku-names の対応表が唯一の定義） */
+const BAKAZE_NAME = getYakuNameJa("Bakaze");
+const JIKAZE_NAME = getYakuNameJa("Jikaze");
+
+/**
  * 回答と突き合わせる正解の役名
- * ドラ・裏ドラなど、役として選ばせないものは除外する
  * 判定対象役名
+ *
+ * ドラ・裏ドラなど、役として選ばせないものは除外する。
+ *
+ * 内訳の「場風牌」「自風牌」は局面の風で「役牌 東」のような名前に引き直す。
+ * 回答の選択肢は風ごとの 1 つ（東・南・西・北）だけで、場風 / 自風という
+ * 選択肢は無いため、内訳の名前のまま比べると風牌の役牌は選びようがなく
+ * 必ず不正解になる。連風牌（場風＝自風）は両方が同じ名前になるので 1 つに
+ * まとめる — 役の回答で問うのは名前だけで、2 翻ぶんは翻数の行が別に問う
+ * （内訳には場風牌 / 自風牌が 1 翻ずつ残るので、なぜ 2 翻かはそこで読める）。
+ * 役の選択練習（`problem/yaku/generator.ts`）と同じ扱い。
  */
 function expectedYakuNames(
-  answerYakuDetails: ScoreQuestion["yakuDetails"],
+  source: Readonly<YakuJudgementSource>,
 ): readonly string[] {
-  return (answerYakuDetails ?? [])
-    .map((d) => d.name)
-    .filter((name) => !IGNORE_YAKU_FOR_JUDGEMENT.includes(name));
+  const names: string[] = [];
+  for (const { name } of source.yakuDetails ?? []) {
+    if (IGNORE_YAKU_FOR_JUDGEMENT.includes(name)) continue;
+    const resolved =
+      name === BAKAZE_NAME
+        ? getKazeYakuhaiDisplayName(source.bakaze)
+        : name === JIKAZE_NAME
+          ? getKazeYakuhaiDisplayName(source.jikaze)
+          : name;
+    if (resolved !== undefined && !names.includes(resolved)) {
+      names.push(resolved);
+    }
+  }
+  return names;
 }
 
 /**
@@ -59,10 +98,10 @@ function expectedYakuNames(
  * 役一致判定
  */
 function judgeYaku(
-  answerYakuDetails: ScoreQuestion["yakuDetails"],
+  source: Readonly<YakuJudgementSource>,
   userYakus: readonly string[],
 ): boolean {
-  return setsEqual(expectedYakuNames(answerYakuDetails), userYakus);
+  return setsEqual(expectedYakuNames(source), userYakus);
 }
 
 /**
@@ -77,14 +116,17 @@ function judgeYaku(
  * 並び順は正解の役（正解の並び順）→ 余分に選んだ役（選択順）。回答と正解を
  * 2列に並べて見せるとき、両列で同じ役が同じ順に並ぶようにするため。
  *
- * @param answerYakuDetails - 正解の役の内訳
+ * 正解の役名は {@link expectedYakuNames} が選択肢の名前に引き直したもの
+ * （場風牌 → 役牌 東 など）なので、答え合わせの画面にもその名前で出る。
+ *
+ * @param source - 正解の役の内訳と局面の風
  * @param userYakus - ユーザーが選択した役名
  */
 export function judgeYakuSelection(
-  answerYakuDetails: ScoreQuestion["yakuDetails"],
+  source: Readonly<YakuJudgementSource>,
   userYakus: readonly string[],
 ): readonly YakuSelectionJudgement[] {
-  const expected = expectedYakuNames(answerYakuDetails);
+  const expected = expectedYakuNames(source);
   const extra = userYakus.filter((name) => !expected.includes(name));
 
   return [...expected, ...extra].map((name): YakuSelectionJudgement => ({
@@ -183,7 +225,7 @@ export function judgeAnswer(
 
   // 役の判定（役回答が必須でない場合は常に正解）
   const isYakuCorrect = requireYaku
-    ? judgeYaku(question.yakuDetails, userAnswer.yakus)
+    ? judgeYaku(question, userAnswer.yakus)
     : true;
 
   const isCorrect =

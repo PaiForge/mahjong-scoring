@@ -164,6 +164,27 @@ export {
 } from "./rules/settings";
 export type { RuleSettings, YakumanRuleSettings } from "./rules/settings";
 
+// === Problem: Machi Score（待ち別点数計算） ===
+export {
+  generateMachiScoreQuestion,
+  generateValidMachiScoreQuestion,
+} from "./problem/machi-score/generator";
+export {
+  judgeMachiSelection,
+  judgeMachiCellAnswer,
+  machiCellKey,
+} from "./problem/machi-score/judgement";
+export type {
+  MachiSelectionJudgement,
+  MachiCellAnswer,
+  MachiCellJudgementMode,
+} from "./problem/machi-score/judgement";
+export type {
+  MachiScoreQuestion,
+  MachiScoreWait,
+  MachiScoreGeneratorOptions,
+} from "./problem/machi-score/types";
+
 // === Re-exports from @pai-forge/riichi-mahjong ===
 export {
   HaiKind,
@@ -182,6 +203,7 @@ export type {
   HaiKindId,
   Kazehai,
   Tehai,
+  Tehai13,
   Tehai14,
   CompletedMentsu,
   Payment,

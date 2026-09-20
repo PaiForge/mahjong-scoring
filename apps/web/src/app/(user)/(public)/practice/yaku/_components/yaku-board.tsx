@@ -2,24 +2,23 @@
 
 import { useState, useCallback } from "react";
 import { useTranslations } from "next-intl";
-import {
-  generateYakuQuestion,
-  judgeYakuAnswer,
-  retryGenerate,
-} from "@mahjong-scoring/core";
+import { generateYakuQuestion, retryGenerate } from "@mahjong-scoring/core";
 import type { YakuQuestion } from "@mahjong-scoring/core";
 import { ChallengeSubmitButton } from "../../_components/challenge-submit-button";
 import { TehaiDisplay } from "../../_components/tehai-display";
+import { TehaiMentsuBreakdown } from "../../_components/tehai-mentsu-breakdown";
 import { YakuAnswerComparison } from "./yaku-answer-comparison";
 import { YAKU_LIST_HEIGHT_CLASSES, YakuSelectList } from "./yaku-select-list";
 import { YakuSelectedChips } from "./yaku-selected-chips";
 import { QuestionGeneratingPlaceholder } from "../../_components/question-generating-placeholder";
 import { QuestionPrompt } from "../../_components/question-prompt";
 import { useClientGeneratedQuestion } from "../../_hooks/use-client-generated-question";
+import { usePresentQuestion } from "../../_hooks/use-present-question";
 import {
   useRegisterAdvance,
   useTrainingMode,
 } from "../../_hooks/use-training-mode";
+import { AnswerOutcome, toAnswerOutcome } from "../../_lib/result-schemas";
 import {
   QUESTION_GENERATION_MAX_RETRIES,
   toQuestionResult,
@@ -29,6 +28,11 @@ import type { RecordingPracticeBoardProps } from "../../_lib/practice-board-prop
 
 function generateQuestion(): YakuQuestion | undefined {
   return retryGenerate(generateYakuQuestion, QUESTION_GENERATION_MAX_RETRIES);
+}
+
+/** 出題中の問題を回答なしの結果に組む（時間切れの届け出用） */
+function toUnansweredResult(question: YakuQuestion): YakuQuestionResult {
+  return toQuestionResult(question, undefined);
 }
 
 interface YakuBoardProps extends RecordingPracticeBoardProps<YakuQuestionResult> {
@@ -53,6 +57,7 @@ export function YakuBoard({
   lastAnswerCorrect,
   onAnswer,
   onRecordResult,
+  onPresentQuestion,
 }: YakuBoardProps) {
   const t = useTranslations("yaku");
   const [question, setQuestion] = useClientGeneratedQuestion(generateQuestion);
@@ -66,6 +71,7 @@ export function YakuBoard({
   }, [setQuestion]);
 
   useRegisterAdvance(question === undefined ? undefined : advanceQuestion);
+  usePresentQuestion(question, toUnansweredResult, onPresentQuestion);
 
   // 答え合わせはトレーニングで止まっている間だけ出す（開示・回答後のどちらでも）
   const { isRevealed, isHolding } = useTrainingMode();
@@ -89,10 +95,9 @@ export function YakuBoard({
 
   const handleSubmit = useCallback(() => {
     if (!question || showFeedback || selectedYaku.size === 0) return;
-    const selected = [...selectedYaku];
-    const isCorrect = judgeYakuAnswer(question.correctYakuNames, selected);
-    onRecordResult?.(toQuestionResult(question, selected, isCorrect));
-    onAnswer(isCorrect, advanceQuestion);
+    const result = toQuestionResult(question, [...selectedYaku]);
+    onRecordResult?.(result);
+    onAnswer(result.outcome === AnswerOutcome.Correct, advanceQuestion);
   }, [
     question,
     selectedYaku,
@@ -133,7 +138,11 @@ export function YakuBoard({
           <YakuAnswerComparison
             correctYakuNames={question.correctYakuNames}
             selectedYakuNames={[...selectedYaku]}
-            isCorrect={lastAnswerCorrect}
+            outcome={
+              lastAnswerCorrect === undefined
+                ? undefined
+                : toAnswerOutcome(lastAnswerCorrect)
+            }
           />
         </div>
       ) : (
@@ -164,6 +173,16 @@ export function YakuBoard({
       >
         {isTraining ? t("checkButton") : t("answerButton")}
       </ChallengeSubmitButton>
+
+      {/* 面子分解は正解開示の一部。回答中に見せると符や待ちの答えが割れるため
+          止まっている間だけ出す（結果ページの問題詳細と同じ材料）。置き場所が
+          手牌の直下ではなく末尾なのは、開示の瞬間に回答欄を動かさないため */}
+      {showAnswer && (
+        <TehaiMentsuBreakdown
+          tehai={question.tehai}
+          context={question.context}
+        />
+      )}
     </div>
   );
 }

@@ -23,3 +23,11 @@ export function extractPgErrorCode(err: unknown): string | undefined {
 
   return undefined;
 }
+
+/**
+ * postgres の unique 制約違反（23505）かどうか。
+ * Drizzle が汎用 Error で wrap したケースも `extractPgErrorCode` が cause を辿って判定する。
+ */
+export function isUniqueViolation(err: unknown): boolean {
+  return extractPgErrorCode(err) === "23505";
+}

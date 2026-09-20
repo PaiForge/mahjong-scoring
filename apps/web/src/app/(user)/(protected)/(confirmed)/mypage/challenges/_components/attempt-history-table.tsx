@@ -1,4 +1,5 @@
 import {
+  ATTEMPT_HISTORY_COLUMNS,
   CompactTable,
   CompactTableCell,
   CompactTableHeaderCell,
@@ -36,6 +37,7 @@ export function AttemptHistoryTable({
 
   return (
     <CompactTable
+      columns={ATTEMPT_HISTORY_COLUMNS}
       head={
         <>
           <CompactTableHeaderCell>{headers.date}</CompactTableHeaderCell>

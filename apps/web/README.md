@@ -72,6 +72,18 @@ Google サインインをローカルでテストするには、OAuth 認証情�
 
 管理画面（`/admin`）を利用するにはセットアップが必要です。詳細は [docs/admin-panel-setup.md](docs/admin-panel-setup.md) を参照してください。
 
+### お問い合わせフォーム（Resend）
+
+お問い合わせフォーム（`/contact`）は [Resend](https://resend.com/) の API で運営のメールアドレスへメールを送ります。DB には保存しません。送信を実際に試すには `.env.local` に以下を設定してください（未設定でもフォーム自体は表示され、送信時にエラーになります）:
+
+| 変数名               | 説明                                                                                                                                    |
+| -------------------- | --------------------------------------------------------------------------------------------------------------------------------------- |
+| `RESEND_API_KEY`     | Resend の API キー。権限は **Sending access** のみ、ドメインはこのサイトの送信元ドメインに限定したものを発行する                        |
+| `CONTACT_TO_EMAIL`   | 問い合わせを受け取る運営のメールアドレス                                                                                                |
+| `CONTACT_FROM_EMAIL` | 送信元アドレス。Resend で認証済みのドメインのもの（例: `contact@score.mahjong.help`）。未設定なら Resend のテスト用アドレスから送られる |
+
+ドメイン認証と API キーの発行手順は [docs/contact-form-setup.md](docs/contact-form-setup.md) を参照してください。
+
 ### ローカルサービス
 
 - **Supabase Studio**: http://127.0.0.1:54323

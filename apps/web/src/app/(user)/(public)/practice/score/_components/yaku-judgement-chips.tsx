@@ -7,17 +7,30 @@ import type {
 } from "@mahjong-scoring/core";
 import { resolveYakuCheatsheetName } from "@/app/(user)/(public)/reference/yaku/_lib/yaku-examples";
 import { YAKU_SELECTION_CLASSES } from "../../_lib/yaku-selection-classes";
+import { JudgementMark } from "../../_components/judgement-mark";
+import type { JudgementVerdict } from "../../_components/judgement-mark";
 
-/** 色だけに頼らず正誤が読めるようにチップへ添える記号 */
-const CHIP_MARKS: Record<YakuSelectionState, string | undefined> = {
-  correct: "✓",
-  incorrect: "✗",
-  // 選び忘れは記号ではなく「選び忘れ」の語を添える（見落としが本題なので明示する）
+/**
+ * 色だけに頼らず正誤が読めるようにチップへ添える記号。選び忘れは記号では
+ * なく「選び忘れ」の語を添える（見落としが本題なので明示する）
+ */
+const CHIP_MARKS: Record<YakuSelectionState, JudgementVerdict | undefined> = {
+  correct: "correct",
+  incorrect: "incorrect",
   missed: undefined,
 };
 
+/**
+ * チップの枠と並び
+ *
+ * 役名と状態の語はそれぞれ折り返さず、入りきらないときはチップの中で
+ * 行を分ける（`flex-wrap`）。既定のままだと 2 つとも縮んでそれぞれの
+ * 内部で改行し、狭い列では「門前清自摸」＋「和」・「選び忘」＋「れ」の
+ * ように最後の 1 文字だけが落ちる。登録されている役名は最長でも 6 文字
+ * （門前清自摸和）なので、名前だけなら 1 行に収まる。
+ */
 const CHIP_BASE_CLASSES =
-  "inline-flex items-center gap-1 rounded-md border px-2 py-0.5 text-xs";
+  "inline-flex flex-wrap items-center justify-center gap-x-1 rounded-md border px-2 py-0.5 text-xs";
 
 interface YakuJudgementChipsProps {
   readonly judgements: readonly YakuSelectionJudgement[];
@@ -32,6 +45,11 @@ interface YakuJudgementChipsProps {
    * タップ対象にしない。
    */
   readonly onSelect?: (cheatsheetYakuName: string) => void;
+  /**
+   * チップの寄せ方。結果表の値の列は右端で揃えるので `end` を渡す
+   * （チップ列は flex なのでセルの text-align に従わない）
+   */
+  readonly align?: "start" | "end";
 }
 
 /**
@@ -46,6 +64,7 @@ export function YakuJudgementChips({
   judgements,
   emptyLabel,
   onSelect,
+  align = "start",
 }: YakuJudgementChipsProps) {
   const t = useTranslations("score.result");
 
@@ -54,20 +73,23 @@ export function YakuJudgementChips({
   }
 
   return (
-    <div className="flex flex-wrap gap-1">
+    <div
+      className={`flex flex-wrap gap-1 ${align === "end" ? "justify-end" : ""}`}
+    >
       {judgements.map((judgement) => {
         const mark = CHIP_MARKS[judgement.state];
         const className = `${CHIP_BASE_CLASSES} ${YAKU_SELECTION_CLASSES[judgement.state]}`;
         const content = (
           <>
-            {judgement.name}
+            <span className="whitespace-nowrap">{judgement.name}</span>
             {mark === undefined ? (
-              <span className="text-[0.625rem] font-medium">
+              <span className="whitespace-nowrap text-[0.625rem] font-medium">
                 {t(`yakuJudgement.${judgement.state}`)}
               </span>
             ) : (
               <>
-                <span aria-hidden="true">{mark}</span>
+                {/* チップは既に色付きの枠なので記号は裸の線画で、色はチップの文字色に従う */}
+                <JudgementMark verdict={mark} tone="inherit" />
                 <span className="sr-only">
                   {t(`yakuJudgement.${judgement.state}`)}
                 </span>

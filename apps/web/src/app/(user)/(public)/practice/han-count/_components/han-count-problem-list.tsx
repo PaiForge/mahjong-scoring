@@ -34,13 +34,14 @@ export function HanCountProblemList({ results }: HanCountProblemListProps) {
     <ProblemListAccordion
       results={results}
       translationNamespace="hanCountChallenge"
-      isCorrect={(r) => r.isCorrect}
+      outcome={(r) => r.outcome}
       renderSummary={(result) => hanCountLabel(result.correctHan, t)}
       renderDetail={(result) => {
         const question = restoreScoreQuestion(
           result.question,
           result.question?.isTsumo ?? false,
         );
+        const { userHan } = result;
 
         return (
           <div className="space-y-3">
@@ -63,14 +64,20 @@ export function HanCountProblemList({ results }: HanCountProblemListProps) {
 
             <AnswerComparison
               translationNamespace="hanCountChallenge"
-              isCorrect={result.isCorrect}
+              outcome={result.outcome}
               correct={hanCountLabel(result.correctHan, t)}
-              user={hanCountLabel(result.userHan, t)}
-              difference={{
-                correct: result.correctHan,
-                user: result.userHan,
-                format: (value) => t("hanOption", { count: value }),
-              }}
+              user={
+                userHan === undefined ? undefined : hanCountLabel(userHan, t)
+              }
+              difference={
+                userHan === undefined
+                  ? undefined
+                  : {
+                      correct: result.correctHan,
+                      user: userHan,
+                      format: (value) => t("hanOption", { count: value }),
+                    }
+              }
             />
           </div>
         );

@@ -7,7 +7,7 @@ import type { ChiitoitsuExamQuestionResult } from "../_lib/types";
 
 /**
  * 昇級試験（七対子の点数計算）本体
- * 昇級試験ドリル
+ * 昇級試験
  */
 export const ChiitoitsuExamPlayView =
   createChallengePlayView<ChiitoitsuExamQuestionResult>({
@@ -20,6 +20,7 @@ export const ChiitoitsuExamPlayView =
         isCountingDown={args.isCountingDown}
         onAnswer={args.onAnswer}
         onRecordResult={args.recordResult}
+        onPresentQuestion={args.presentQuestion}
       />
     ),
   });

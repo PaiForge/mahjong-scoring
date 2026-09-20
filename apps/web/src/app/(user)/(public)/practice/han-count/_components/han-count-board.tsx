@@ -2,15 +2,19 @@
 
 import { useCallback } from "react";
 import { clampHanToYakuman } from "@mahjong-scoring/core";
+import type { ScoreQuestion } from "@mahjong-scoring/core";
 import { tehaiContextOf } from "../../_lib/score-question-context";
 import { QuestionGeneratingPlaceholder } from "../../_components/question-generating-placeholder";
 import { useTranslations } from "next-intl";
 import type { useGeneratedScoreQuestion } from "../../_hooks/use-generated-score-question";
 import { TehaiDisplay } from "../../_components/tehai-display";
+import { TehaiMentsuBreakdown } from "../../_components/tehai-mentsu-breakdown";
+import { usePresentQuestion } from "../../_hooks/use-present-question";
 import {
   useRegisterAdvance,
   useTrainingMode,
 } from "../../_hooks/use-training-mode";
+import { AnswerOutcome } from "../../_lib/result-schemas";
 import { HanBreakdown } from "./han-breakdown";
 import { HanCountAnswerForm } from "./han-count-answer-form";
 import type { HanCountQuestionResult } from "../_lib/types";
@@ -28,6 +32,11 @@ export type HanCountQuestionState = ReturnType<
 
 type HanCountBoardProps = RecordingPracticeBoardProps<HanCountQuestionResult> &
   HanCountQuestionState;
+
+/** 出題中の問題を回答なしの結果に組む（時間切れの届け出用） */
+function toUnansweredResult(question: ScoreQuestion): HanCountQuestionResult {
+  return toHanCountQuestionResult(question, undefined);
+}
 
 /**
  * 翻数即答の出題盤面（手牌の提示と翻数入力）
@@ -53,6 +62,7 @@ export function HanCountBoard({
   isTraining = false,
   onAnswer,
   onRecordResult,
+  onPresentQuestion,
 }: HanCountBoardProps) {
   const t = useTranslations("hanCountChallenge");
   // トレーニングでは開示時も回答後の停止中も内訳を出す（どちらも答え合わせの局面）
@@ -60,6 +70,7 @@ export function HanCountBoard({
   const showBreakdown = isRevealed || isHolding;
 
   useRegisterAdvance(question === undefined ? undefined : advanceQuestion);
+  usePresentQuestion(question, toUnansweredResult, onPresentQuestion);
 
   // 選択肢が 1〜13 のため、正解の提示（ハイライト・内訳の注記）も丸めた翻数で行う
   const correctHan =
@@ -74,7 +85,7 @@ export function HanCountBoard({
       const result = toHanCountQuestionResult(question, userHan);
 
       onRecordResult?.(result);
-      onAnswer(result.isCorrect, advanceQuestion);
+      onAnswer(result.outcome === AnswerOutcome.Correct, advanceQuestion);
     },
     [showFeedback, question, onAnswer, advanceQuestion, onRecordResult],
   );
@@ -103,6 +114,13 @@ export function HanCountBoard({
         onSubmit={handleSubmit}
         disabled={showFeedback || isCountingDown}
       />
+
+      {/* 面子分解は正解開示の一部。回答中に見せると符や待ちの答えが割れるため
+          止まっている間だけ出す（結果ページの問題詳細と同じ材料）。置き場所が
+          手牌の直下ではなく末尾なのは、開示の瞬間に回答欄を動かさないため */}
+      {showBreakdown && (
+        <TehaiMentsuBreakdown tehai={question.tehai} context={question} />
+      )}
 
       {showBreakdown && (
         <HanBreakdown

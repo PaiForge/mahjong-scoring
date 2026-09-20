@@ -56,7 +56,6 @@ function renderResult() {
       question={question}
       userAnswer={userAnswer}
       result={result}
-      onNext={() => {}}
       requireYaku
     />,
   );
@@ -119,6 +118,29 @@ describe("ResultDisplay", () => {
   });
 });
 
+describe("ResultDisplay の無回答", () => {
+  it("開示でも「あなたの回答」列を残し、各行に未回答の印を出す（正解の列が動かない）", () => {
+    render(<ResultDisplay question={question} requireYaku />);
+
+    expect(
+      screen.getByRole("columnheader", { name: "result.headers.answer" }),
+    ).toBeTruthy();
+    // 役・翻数・符・点数の 4 行
+    expect(screen.getAllByText("result.unanswered")).toHaveLength(4);
+  });
+
+  it("answerSummary は翻数の行に不正解の記号付きで出し、他の行は未回答のまま", () => {
+    render(<ResultDisplay question={question} answerSummary="役なし" />);
+
+    const cell = screen.getByText("役なし", { exact: false });
+    expect(
+      cell.querySelector('[role="img"][aria-label="incorrect"]'),
+    ).not.toBeNull();
+    // 符・点数の 2 行
+    expect(screen.getAllByText("result.unanswered")).toHaveLength(2);
+  });
+});
+
 describe("ResultDisplay の内訳", () => {
   it("翻数の内訳は他の練習と同じ器で閉じた状態から始まり、見出しを押すと開く", () => {
     renderResult();
@@ -133,5 +155,22 @@ describe("ResultDisplay の内訳", () => {
 
     expect(toggle.getAttribute("aria-expanded")).toBe("true");
     expect(screen.getByText("result.details.total")).toBeTruthy();
+  });
+
+  it("項目ごとに tbody を分け、内訳の行は翻数の行と同じ tbody に入る（罫線が項目の境目にだけ引かれる）", () => {
+    renderResult();
+
+    const tbodyOf = (text: string) => screen.getByText(text).closest("tbody");
+    const yaku = tbodyOf("form.labels.yaku");
+    const han = tbodyOf("form.labels.han");
+    const score = tbodyOf("form.labels.score");
+    const hanDetail = screen
+      .getByRole("button", { name: "result.details.yakuTitle" })
+      .closest("tbody");
+
+    expect(han).not.toBeNull();
+    expect(hanDetail).toBe(han);
+    expect(yaku).not.toBe(han);
+    expect(score).not.toBe(han);
   });
 });

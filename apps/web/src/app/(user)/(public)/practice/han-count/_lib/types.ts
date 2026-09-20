@@ -9,7 +9,12 @@ import {
 import { z } from "zod";
 
 import { createSessionStorageParser } from "../../_lib/create-session-storage-parser";
-import { yakuDetailSchema } from "../../_lib/result-schemas";
+import {
+  answerOutcomeSchema,
+  toAnswerOutcome,
+  yakuDetailSchema,
+  type AnswerOutcome,
+} from "../../_lib/result-schemas";
 import type { ScoreQuestionSnapshot } from "../../_lib/score-question-result";
 import {
   scoreQuestionSnapshotSchema,
@@ -47,10 +52,10 @@ export interface HanCountQuestionSnapshot extends ScoreQuestionSnapshot {
 export interface HanCountQuestionResult {
   /** 正解の翻数（13翻以上の手は役満=13翻に丸めて記録する） */
   readonly correctHan: number;
-  /** ユーザーが選択した翻数 */
-  readonly userHan: number;
-  /** 正誤 */
-  readonly isCorrect: boolean;
+  /** ユーザーが選択した翻数。時間切れで答えられなかった問題では持たない */
+  readonly userHan?: number;
+  /** 正解・不正解・時間切れ */
+  readonly outcome: AnswerOutcome;
   /**
    * 出題内容。結果ページで手牌と役の内訳を再表示するために持つ。
    * この項目を保存する前の旧データには存在しないため任意
@@ -65,16 +70,20 @@ export interface HanCountQuestionResult {
  * 13翻以上（役満+ドラ・ダブル役満等）は選択肢に無いため、正解を役満（13翻）に
  * 丸めて判定・記録する。丸め前の翻数は `question.yakuDetails` の合計として
  * 残るので、結果ページでは「合計16翻 → 役満」まで示せる。
+ *
+ * @param userHan - ユーザーが選んだ翻数。時間切れで答えられなかった問題は undefined
  */
 export function toHanCountQuestionResult(
   question: ScoreQuestion,
-  userHan: number,
+  userHan: number | undefined,
 ): HanCountQuestionResult {
   const correctHan = clampHanToYakuman(question.answer.han);
   return {
     correctHan,
     userHan,
-    isCorrect: userHan === correctHan,
+    outcome: toAnswerOutcome(
+      userHan === undefined ? undefined : userHan === correctHan,
+    ),
     question: {
       ...toScoreQuestionSnapshot(question),
       isTsumo: question.isTsumo,
@@ -107,8 +116,8 @@ const questionSnapshotSchema: z.ZodType<HanCountQuestionSnapshot> =
  */
 const questionResultSchema: z.ZodType<HanCountQuestionResult> = z.object({
   correctHan: z.number(),
-  userHan: z.number(),
-  isCorrect: z.boolean(),
+  userHan: z.number().optional(),
+  outcome: answerOutcomeSchema,
   question: questionSnapshotSchema.optional(),
 });
 
@@ -117,6 +126,6 @@ const questionResultSchema: z.ZodType<HanCountQuestionResult> = z.object({
  * 翻数問題結果パース
  */
 export const parseHanCountResults: (
-  raw: string | undefined,
+  stored: unknown,
 ) => readonly HanCountQuestionResult[] =
   createSessionStorageParser(questionResultSchema);

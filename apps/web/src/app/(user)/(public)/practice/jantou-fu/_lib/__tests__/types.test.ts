@@ -15,12 +15,12 @@ const validResult = {
   correctFu: 2,
   selectedHai: "5m",
   selectedFu: 0,
-  isCorrect: false,
+  outcome: "incorrect",
 };
 
 describe("parseJantouFuResults", () => {
   it("有効な JSON 文字列をパースできる", () => {
-    const results = parseJantouFuResults(JSON.stringify([validResult]));
+    const results = parseJantouFuResults([validResult]);
     expect(results).toHaveLength(1);
     expect(results[0]).toEqual(validResult);
   });
@@ -34,9 +34,9 @@ describe("toQuestionResult", () => {
 
     const result = toQuestionResult(question, correct);
 
-    expect(result.isCorrect).toBe(true);
+    expect(result.outcome).toBe("correct");
     expect(result.selectedHai).toBe(result.correctHai);
-    expect(parseJantouFuResults(JSON.stringify([result]))).toHaveLength(1);
+    expect(parseJantouFuResults([result])).toHaveLength(1);
   });
 
   it("誤答でも正解の雀頭とその符を残す", () => {
@@ -48,7 +48,7 @@ describe("toQuestionResult", () => {
 
     const result = toQuestionResult(question, wrong);
 
-    expect(result.isCorrect).toBe(false);
+    expect(result.outcome).toBe("incorrect");
     expect(parseHais(result.correctHai)[0]).toBe(correct.hai);
     expect(result.correctFu).toBe(correct.fu);
     expect(parseHais(result.selectedHai)[0]).toBe(wrong.hai);
@@ -62,5 +62,20 @@ describe("toQuestionResult", () => {
 
     expect(parseKazehai(result.bakaze)).toBe(question.context.bakaze);
     expect(parseKazehai(result.jikaze)).toBe(question.context.jikaze);
+  });
+
+  it("回答なし（時間切れ）でも正解の雀頭とその符を残す", () => {
+    const question = generateJantouFuQuestion();
+    const correct = question.choices.find((c) => c.isCorrect);
+    if (!correct) throw new Error("正解の選択肢が無い");
+
+    const result = toQuestionResult(question, undefined);
+
+    expect(result.outcome).toBe("timeUp");
+    expect(result.selectedHai).toBeUndefined();
+    expect(result.selectedFu).toBeUndefined();
+    expect(parseHais(result.correctHai)[0]).toBe(correct.hai);
+    expect(result.correctFu).toBe(correct.fu);
+    expect(parseJantouFuResults([result])).toHaveLength(1);
   });
 });

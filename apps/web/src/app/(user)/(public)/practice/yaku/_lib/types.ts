@@ -1,4 +1,16 @@
-import { haiIdToMspz, kazeIdToMspz, tehaiToMspz } from "@mahjong-scoring/core";
+import {
+  answerOutcomeSchema,
+  questionTilesSnapshotSchema,
+  toAnswerOutcome,
+  type AnswerOutcome,
+} from "../../_lib/result-schemas";
+import type { QuestionTilesSnapshot } from "../../_lib/parse-question-tiles";
+import {
+  haiIdToMspz,
+  judgeYakuAnswer,
+  kazeIdToMspz,
+  tehaiToMspz,
+} from "@mahjong-scoring/core";
 import type { YakuQuestion } from "@mahjong-scoring/core";
 
 import {
@@ -32,15 +44,7 @@ export const QUESTION_GENERATION_MAX_RETRIES = 100;
  * 結果ページで手牌を再表示するため、出題そのものを MSPZ 文字列として持つ。
  * 役の成否はリーチとドラにも依存するので、手牌だけでなく和了状況一式を残す。
  */
-export interface YakuQuestionResult {
-  /** 手牌（Extended MSPZ。副露・暗槓を含む） */
-  readonly tehai: string;
-  /** 場風（MSPZ） */
-  readonly bakaze: string;
-  /** 自風（MSPZ） */
-  readonly jikaze: string;
-  /** 和了牌（MSPZ） */
-  readonly agariHai: string;
+export interface YakuQuestionResult extends QuestionTilesSnapshot {
   readonly isTsumo: boolean;
   readonly isRiichi: boolean;
   /**
@@ -58,20 +62,22 @@ export interface YakuQuestionResult {
   readonly uraDoraMarkers?: readonly string[];
   /** 成立していた役 */
   readonly correctYakuNames: readonly string[];
-  /** ユーザーが選んだ役 */
-  readonly selectedYakuNames: readonly string[];
-  /** 過不足なく選べたか */
-  readonly isCorrect: boolean;
+  /** ユーザーが選んだ役。時間切れで答えられなかった問題では持たない */
+  readonly selectedYakuNames?: readonly string[];
+  /** 過不足なく選べたか。時間切れなら判定しない */
+  readonly outcome: AnswerOutcome;
 }
 
 /**
  * 出題と回答から保存用の結果データを組み立てる
  * 役選択問題結果生成
+ *
+ * @param selectedYakuNames - ユーザーが選んだ役。時間切れで答えられなかった
+ *   問題は undefined
  */
 export function toQuestionResult(
   question: YakuQuestion,
-  selectedYakuNames: readonly string[],
-  isCorrect: boolean,
+  selectedYakuNames: readonly string[] | undefined,
 ): YakuQuestionResult {
   const { context } = question;
   return {
@@ -84,8 +90,11 @@ export function toQuestionResult(
     doraMarkers: context.doraMarkers.map(haiIdToMspz),
     uraDoraMarkers: context.uraDoraMarkers?.map(haiIdToMspz),
     correctYakuNames: [...question.correctYakuNames],
-    selectedYakuNames: [...selectedYakuNames],
-    isCorrect,
+    selectedYakuNames: selectedYakuNames && [...selectedYakuNames],
+    outcome: toAnswerOutcome(
+      selectedYakuNames &&
+        judgeYakuAnswer(question.correctYakuNames, selectedYakuNames),
+    ),
   };
 }
 
@@ -94,17 +103,14 @@ export function toQuestionResult(
  * 役選択問題結果バリデーション
  */
 const questionResultSchema: z.ZodType<YakuQuestionResult> = z.object({
-  tehai: z.string(),
-  bakaze: z.string(),
-  jikaze: z.string(),
-  agariHai: z.string(),
+  ...questionTilesSnapshotSchema.shape,
   isTsumo: z.boolean(),
   isRiichi: z.boolean(),
   doraMarkers: z.array(z.string()),
   uraDoraMarkers: z.array(z.string()).optional(),
   correctYakuNames: z.array(z.string()),
-  selectedYakuNames: z.array(z.string()),
-  isCorrect: z.boolean(),
+  selectedYakuNames: z.array(z.string()).optional(),
+  outcome: answerOutcomeSchema,
 });
 
 /**
@@ -112,6 +118,6 @@ const questionResultSchema: z.ZodType<YakuQuestionResult> = z.object({
  * 役選択問題結果パース
  */
 export const parseYakuResults: (
-  raw: string | undefined,
+  stored: unknown,
 ) => readonly YakuQuestionResult[] =
   createSessionStorageParser(questionResultSchema);

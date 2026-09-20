@@ -36,10 +36,11 @@ export function variantQuery(slug: PracticeMenuSlug, variant: string): string {
  * 今のページの URL からバリアントを読む（クライアント専用）
  * 現在バリアント読み出し
  *
- * チャレンジ終了時（`useFinishRedirect`）が使う。`useSearchParams()` で
- * 読むとシェル全体がクライアント描画になり、静的ルートのプリレンダーが
- * 崩れるため、終了の瞬間に一度だけ `location` から読む。バリアントは
- * セッション中に変わらないので購読は要らない。
+ * チャレンジの終了時（`useFinishRedirect`）と中断時（`ChallengeShell` の
+ * 「やめる」）が使う。`useSearchParams()` で読むとシェル全体がクライアント
+ * 描画になり、静的ルートのプリレンダーが崩れるため、その瞬間に一度だけ
+ * `location` から読む。バリアントはセッション中に変わらないので購読は
+ * 要らない。描画時に読むリンクには `WithUrlVariant` を使うこと。
  */
 export function readVariantFromLocation(slug: PracticeMenuSlug): string {
   const raw =

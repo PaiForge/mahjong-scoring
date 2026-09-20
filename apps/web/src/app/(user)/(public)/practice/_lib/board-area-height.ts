@@ -34,10 +34,11 @@ export const BOARD_AREA_HEIGHT = {
   fuExam: "h-[458px] sm:h-[489px]",
   scoreCalculation: "h-[266px] sm:h-[286px]",
   /**
-   * 成立役の一覧の行数で変わる（実測 426〜522px）ため一致させられない。
-   * 最も低い側（役 1 行）に置く。理由はスケルトン側の `manganScoreCalculation` 参照
+   * 成立役の一覧の行数で変わる（役 1 行で 420px / 440px、役が 1 つ増えるごとに
+   * 38px 高い）ため一致させられない。最も低い側に置く。理由はスケルトン側の
+   * `manganScoreCalculation` 参照
    */
-  manganScoreCalculation: "h-[426px] sm:h-[446px]",
+  manganScoreCalculation: "h-[420px] sm:h-[440px]",
   jantouFu: "h-[320px]",
   machiFu: "h-[339px] sm:h-[343px]",
   mentsuFu: "h-[305px] sm:h-[313px]",

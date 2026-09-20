@@ -375,11 +375,12 @@ describe("generateValidScoreQuestion", () => {
     });
 
     for (const question of riichiQuestions) {
-      expect(
-        question.yakuDetails?.some(
-          (y) => y.name === "立直" || y.name === "ダブル立直",
-        ),
-      ).toBe(true);
+      // ダブル立直は出題しない（理由は build-question.ts の RiichiInput）。
+      // 盤面のリーチ棒 1 本に対応する翻は常に立直の 1 翻
+      expect(question.yakuDetails).toContainEqual({ name: "立直", han: 1 });
+      expect(question.yakuDetails?.some((y) => y.name === "ダブル立直")).toBe(
+        false,
+      );
       expect(question.uraDoraMarkers).toBeDefined();
       // 裏ドラは表ドラの下に伏せてある牌なので、槓で表が増えれば裏も増える
       expect(question.uraDoraMarkers).toHaveLength(question.doraMarkers.length);

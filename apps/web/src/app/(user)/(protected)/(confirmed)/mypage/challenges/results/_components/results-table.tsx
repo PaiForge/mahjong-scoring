@@ -1,4 +1,5 @@
 import {
+  CHALLENGE_RESULTS_COLUMNS,
   CompactTable,
   CompactTableCell,
   CompactTableHeaderCell,
@@ -37,6 +38,7 @@ export function ResultsTable({
 
   return (
     <CompactTable
+      columns={CHALLENGE_RESULTS_COLUMNS}
       head={
         <>
           <CompactTableHeaderCell>{headers.date}</CompactTableHeaderCell>

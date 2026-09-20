@@ -9,7 +9,7 @@ import {
   YAKUMAN_HAN,
 } from "@mahjong-scoring/core";
 import type { UserAnswer } from "@mahjong-scoring/core";
-import { YakuSelect } from "./yaku-select";
+import { YakuLabelRow, YakuSelect } from "./yaku-select";
 import {
   useRuleSettingsStore,
   useYakumanRules,
@@ -19,6 +19,7 @@ import { MANGAN_MIN_HAN, practiceHanTiers } from "../_lib/han-tiers";
 import { getSelectClass } from "../../_lib/select-class";
 import { ScoreOptionSelect } from "../../_components/score-option-select";
 import { Button } from "@/app/(user)/_components/button";
+import { TEXT_LINK_CLASSES } from "@/app/_components/_lib/link-classes";
 
 interface ScorePracticeAnswerFormProps {
   readonly onSubmit: (answer: UserAnswer) => void;
@@ -28,6 +29,74 @@ interface ScorePracticeAnswerFormProps {
   readonly requireYaku?: boolean;
   readonly simplifyMangan?: boolean;
   readonly requireFuForMangan?: boolean;
+  /** 回答ボタンの文言。既定は「回答する」 */
+  readonly submitLabel?: string;
+  /**
+   * 「役」のラベル行を役の回答が不要でも出す。「役なし」のチェックボックスの
+   * 置き場をツモ・ロンの別によらず確保し、フォームの高さを変えないため
+   * （待ち別点数計算が立てる。総合演習は役の回答が必要なときだけ行が出る）
+   */
+  readonly reserveYakuRow?: boolean;
+  /**
+   * 「役なし（ロンできない）」を回答として選べるようにする。指定すると「役」の
+   * ラベル行の右端にリンク風のボタンを出し、押した時点で `onSelect` を呼ぶ。
+   * 役なしは押した瞬間に回答として完結する（翻・符・点数に入れるものが
+   * 無い）ので、回答ボタンを経由させない — チェックボックスにして回答
+   * ボタンで確定させる形は、チェックだけで答えたつもりになるうえ、選択中の
+   * マスを足すとフォームが作り直されてチェックが黙って外れた。ロンにしか
+   * 無い回答なので、ツモのマスを答えるときは渡さない（`reserveYakuRow` と
+   * 組めば行の高さは変わらず、ラベル行の右側が空くだけ）
+   */
+  readonly noYaku?: {
+    readonly label: string;
+    readonly onSelect: () => void;
+  };
+  /**
+   * 入力欄に読み込んでおく回答。まだ何も入力していない間だけ効く
+   *
+   * 待ち別点数計算で「回答済みのマスを選択に加える」と、そのマスの回答が
+   * ここに渡り、翻・符・点数（役）が入った状態になる — 同じ点数の待ちを
+   * 後からまとめ直すときや、まとめて答えた符だけ直すときに、同じ内容を
+   * select で入れ直さずに済む。値が変わるたびに欄を合わせる（1 種類に
+   * 定まらなくなって undefined になれば空に戻す）が、ユーザーが 1 度でも
+   * 欄を触ったあとは無視する — 入力の途中で回答済みのマスを誤タップした
+   * 拍子に、入れかけの内容が置き換わってはいけない。触った記録は
+   * mount ごと（親が key で作り直すたび）にリセットされる
+   */
+  readonly prefill?: UserAnswer;
+}
+
+/** 入力欄の中身（prefill から起こすため 1 つの型にまとめる） */
+interface FormFields {
+  readonly han: number | undefined;
+  readonly fu: number | undefined;
+  readonly yakus: readonly string[];
+  readonly score: string;
+  readonly scoreFromKo: string;
+  readonly scoreFromOya: string;
+}
+
+const EMPTY_FIELDS: FormFields = {
+  han: undefined,
+  fu: undefined,
+  yakus: [],
+  score: "",
+  scoreFromKo: "",
+  scoreFromOya: "",
+};
+
+function fieldsOf(prefill: UserAnswer | undefined): FormFields {
+  if (!prefill) return EMPTY_FIELDS;
+  const text = (value: number | undefined) =>
+    value === undefined ? "" : String(value);
+  return {
+    han: prefill.han,
+    fu: prefill.fu,
+    yakus: prefill.yakus,
+    score: text(prefill.score),
+    scoreFromKo: text(prefill.scoreFromKo),
+    scoreFromOya: text(prefill.scoreFromOya),
+  };
 }
 
 /**
@@ -42,6 +111,10 @@ export function ScorePracticeAnswerForm({
   requireYaku = false,
   simplifyMangan = false,
   requireFuForMangan = false,
+  submitLabel,
+  reserveYakuRow = false,
+  noYaku,
+  prefill,
 }: ScorePracticeAnswerFormProps) {
   const t = useTranslations("score");
   // ラベルと select を紐付ける id（読み上げで「翻数」「符」「点数」を名前として得るため）
@@ -49,12 +122,32 @@ export function ScorePracticeAnswerForm({
   const fuId = useId();
   const scoreId = useId();
   const scoreLabelId = useId();
-  const [han, setHan] = useState<number | undefined>(undefined);
-  const [fu, setFu] = useState<number | undefined>(undefined);
-  const [yakus, setYakus] = useState<string[]>([]);
-  const [score, setScore] = useState<string>("");
-  const [scoreFromKo, setScoreFromKo] = useState<string>("");
-  const [scoreFromOya, setScoreFromOya] = useState<string>("");
+  const initialFields = fieldsOf(prefill);
+  const [han, setHan] = useState(initialFields.han);
+  const [fu, setFu] = useState(initialFields.fu);
+  const [yakus, setYakus] = useState(initialFields.yakus);
+  const [score, setScore] = useState(initialFields.score);
+  const [scoreFromKo, setScoreFromKo] = useState(initialFields.scoreFromKo);
+  const [scoreFromOya, setScoreFromOya] = useState(initialFields.scoreFromOya);
+  // ユーザーが欄を触ったか。触った後は prefill の変化を無視する
+  const [touched, setTouched] = useState(false);
+
+  // prefill が変わったら、触っていない欄をその中身に合わせる。effect では
+  // なく render 中に state を合わせる（React の「prop の変化で state を
+  // 調整する」パターン。effect だと 1 度古い中身で描いてから直すことになる）
+  const [appliedPrefill, setAppliedPrefill] = useState(prefill);
+  if (prefill !== appliedPrefill) {
+    setAppliedPrefill(prefill);
+    if (!touched) {
+      const fields = fieldsOf(prefill);
+      setHan(fields.han);
+      setFu(fields.fu);
+      setYakus(fields.yakus);
+      setScore(fields.score);
+      setScoreFromKo(fields.scoreFromKo);
+      setScoreFromOya(fields.scoreFromOya);
+    }
+  }
 
   const isMangan = han !== undefined && han >= MANGAN_MIN_HAN;
   const isFuRequired = !isMangan || requireFuForMangan;
@@ -119,6 +212,7 @@ export function ScorePracticeAnswerForm({
   const handleHanChange = useCallback(
     (e: React.ChangeEvent<HTMLSelectElement>) => {
       const value = e.target.value;
+      setTouched(true);
       setHan(value === "" ? undefined : Number(value));
     },
     [],
@@ -127,6 +221,7 @@ export function ScorePracticeAnswerForm({
   const handleFuChange = useCallback(
     (e: React.ChangeEvent<HTMLSelectElement>) => {
       const value = e.target.value;
+      setTouched(true);
       setFu(value === "" ? undefined : Number(value));
     },
     [],
@@ -145,6 +240,16 @@ export function ScorePracticeAnswerForm({
       ),
     [han, isOya, isTsumo, kiriageMangan, allowDoubleYakuman],
   );
+
+  // 入力が揃うまで回答ボタンを押せなくする。押せるのに何も起きない状態を
+  // 作らないため — HTML の required は iOS Safari では効かず、揃っていない
+  // 入力で押すと黙って何も起きなかった
+  const isComplete =
+    han !== undefined &&
+    (!isFuRequired || fu !== undefined) &&
+    (isKoTsumo
+      ? !isNaN(parseInt(scoreFromKo, 10)) && !isNaN(parseInt(scoreFromOya, 10))
+      : !isNaN(parseInt(score, 10)));
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -184,10 +289,38 @@ export function ScorePracticeAnswerForm({
 
   return (
     <form onSubmit={handleSubmit} className="space-y-5">
-      {/* Yaku input */}
-      {requireYaku && (
-        <YakuSelect value={yakus} onChange={setYakus} disabled={disabled} />
-      )}
+      {/* Yaku input
+          「役なし」はロンにしか無い回答なので、「役」のラベル行の右端に
+          添える（渡されたときだけ）。リンク風のボタンで、押した瞬間に回答が
+          確定する。役の回答が不要な設定でも
+          reserveYakuRow ならラベル行だけを出し、ツモとロンでフォームの
+          高さが変わらないようにする */}
+      {(() => {
+        const noYakuButton = noYaku && (
+          <button
+            type="button"
+            disabled={disabled}
+            onClick={noYaku.onSelect}
+            className={`text-xs ${TEXT_LINK_CLASSES}`}
+          >
+            {noYaku.label}
+          </button>
+        );
+        if (requireYaku) {
+          return (
+            <YakuSelect
+              value={yakus}
+              onChange={(value) => {
+                setTouched(true);
+                setYakus(value);
+              }}
+              disabled={disabled}
+              labelAction={noYakuButton}
+            />
+          );
+        }
+        return reserveYakuRow ? <YakuLabelRow action={noYakuButton} /> : null;
+      })()}
 
       {/* Han input */}
       <div>
@@ -261,7 +394,10 @@ export function ScorePracticeAnswerForm({
             <div className="flex-1">
               <ScoreOptionSelect
                 value={scoreFromKo}
-                onChange={setScoreFromKo}
+                onChange={(value) => {
+                  setTouched(true);
+                  setScoreFromKo(value);
+                }}
                 options={availableScores.koScores}
                 placeholder={t("form.placeholders.fromKo")}
                 ariaLabel={t("form.placeholders.fromKo")}
@@ -272,7 +408,10 @@ export function ScorePracticeAnswerForm({
             <div className="flex-1">
               <ScoreOptionSelect
                 value={scoreFromOya}
-                onChange={setScoreFromOya}
+                onChange={(value) => {
+                  setTouched(true);
+                  setScoreFromOya(value);
+                }}
                 options={availableScores.oyaScores}
                 placeholder={t("form.placeholders.fromOya")}
                 ariaLabel={t("form.placeholders.fromOya")}
@@ -284,7 +423,10 @@ export function ScorePracticeAnswerForm({
           <ScoreOptionSelect
             id={scoreId}
             value={score}
-            onChange={setScore}
+            onChange={(value) => {
+              setTouched(true);
+              setScore(value);
+            }}
             options={availableScores.scores}
             placeholder={t("form.placeholders.select")}
             disabled={disabled}
@@ -296,8 +438,13 @@ export function ScorePracticeAnswerForm({
       </div>
 
       {/* Submit */}
-      <Button type="submit" size="lg" fullWidth disabled={disabled}>
-        {t("form.buttons.answer")}
+      <Button
+        type="submit"
+        size="lg"
+        fullWidth
+        disabled={disabled || !isComplete}
+      >
+        {submitLabel ?? t("form.buttons.answer")}
       </Button>
     </form>
   );
