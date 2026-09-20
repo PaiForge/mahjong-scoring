@@ -2,6 +2,7 @@ import type { ReactNode } from "react";
 import { ExamStartCta } from "@/app/(user)/(public)/exam/_components/exam-start-cta";
 import { HowToPlaySection } from "./how-to-play-section";
 import { PracticeStartCta } from "./practice-start-cta";
+import { VariantStartPanel } from "./variant-start-panel";
 import { buildPracticeStartCtaLabels } from "../_lib/practice-start-cta-labels";
 import { getTranslations } from "next-intl/server";
 import { ChapterTocList } from "@/app/(user)/(public)/learn/_components/chapter-toc-list";
@@ -33,6 +34,8 @@ interface PracticeIntroContentProps {
   /**
    * トレーニングモードへのボタンを表示するかどうか（デフォルト: false）。
    * 昇級試験は常に模試（トレーニング）の導線を持つため、この旗を見ない。
+   * 出題設定を持つ練習（レジストリの `variants`）も見ない —
+   * {@link VariantStartPanel} が設定と一緒に両方の導線を出す。
    */
   readonly showTraining?: boolean;
   /**
@@ -140,6 +143,11 @@ export async function PracticeIntroContent({
             playHref={`${practicePlayHref(slug)}${PRACTICE_SCROLL_HASH}`}
             trainingHref={`${practiceTrainingHref(slug)}${PRACTICE_SCROLL_HASH}`}
           />
+        ) : practiceMenuBySlug(slug).hasSetup ? (
+          /* 出題設定（バリアント）を持つ練習は、選択パネルが開始導線まで
+             持つ。設定を選ばせてから play / training へ `?variant=` を
+             載せて送るため、開始ボタンだけを先に出すことができない */
+          <VariantStartPanel slug={slug} />
         ) : showTraining ? (
           <PracticeStartCta
             playHref={`${practicePlayHref(slug)}${PRACTICE_SCROLL_HASH}`}

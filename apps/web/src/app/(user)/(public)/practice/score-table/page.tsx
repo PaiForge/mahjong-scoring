@@ -16,43 +16,20 @@
  */
 import { PRACTICE_SLUG } from "@/lib/db/practice-menu-types";
 import type { Metadata } from "next";
-import { HowToPlaySection } from "../_components/how-to-play-section";
-import { getTranslations } from "next-intl/server";
-import { ContentContainer } from "@/app/(user)/_components/content-container";
-import { PageTitle } from "@/app/(user)/_components/page-title";
 import { createPracticeMetadata } from "../_lib/metadata";
-import { VariantStartPanel } from "../_components/variant-start-panel";
+import { PracticeIntroContent } from "../_components/practice-intro-content";
 import { ScoreTableHowToPlay } from "./_components/score-table-how-to-play";
 
 export async function generateMetadata(): Promise<Metadata> {
   return createPracticeMetadata(PRACTICE_SLUG.scoreTable);
 }
 
-export default async function ScoreTablePage() {
-  const [t, tp] = await Promise.all([
-    getTranslations("scoreTableChallenge"),
-    getTranslations("practice"),
-  ]);
-
+export default function ScoreTablePage() {
   return (
-    <ContentContainer
-      breadcrumb={[
-        { label: tp("title"), href: "/practice" },
-        { label: t("title") },
-      ]}
-    >
-      <PageTitle>{t("title")}</PageTitle>
-
-      <div className="space-y-8">
-        <HowToPlaySection
-          title={t("howToPlay.title")}
-          lead={t("howToPlay.lead")}
-        >
-          <ScoreTableHowToPlay />
-        </HowToPlaySection>
-
-        <VariantStartPanel slug={PRACTICE_SLUG.scoreTable} />
-      </div>
-    </ContentContainer>
+    <PracticeIntroContent
+      namespace="scoreTableChallenge"
+      slug={PRACTICE_SLUG.scoreTable}
+      howToPlay={<ScoreTableHowToPlay />}
+    />
   );
 }
