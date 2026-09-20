@@ -1,25 +1,26 @@
 import type { ReactNode } from "react";
 import { ExamStartCta } from "@/app/(user)/(public)/exam/_components/exam-start-cta";
 import { HowToPlaySection } from "./how-to-play-section";
+import { PracticeChapterSection } from "./practice-chapter-section";
 import { PracticeStartCta } from "./practice-start-cta";
+import { VariantStartPanel } from "./variant-start-panel";
 import { buildPracticeStartCtaLabels } from "../_lib/practice-start-cta-labels";
 import { getTranslations } from "next-intl/server";
-import { ChapterTocList } from "@/app/(user)/(public)/learn/_components/chapter-toc-list";
 import { LinkRow, LinkRowList } from "@/app/(user)/_components/link-row";
-import { CurriculumTocLink } from "@/app/(user)/(public)/learn/_components/curriculum-toc-link";
-import type { CurriculumChapterSlug } from "@/app/(user)/(public)/learn/_lib/curriculum";
+import {
+  relatedChaptersForPractice,
+  type CurriculumChapterSlug,
+} from "@/app/(user)/(public)/learn/_lib/curriculum";
 import type { PracticeMenuSlug } from "@/lib/db/practice-menu-types";
 import { rankRequiringMenu } from "@/lib/ranks/registry";
 import { ContentContainer } from "@/app/(user)/_components/content-container";
 import { PageTitle } from "@/app/(user)/_components/page-title";
-import { SectionTitle } from "@/app/(user)/_components/section-title";
 import { LinkButton } from "@/app/(user)/_components/link-button";
 import { PlayIcon } from "@/app/(user)/_components/icons/play-icon";
 import { practiceMenuBySlug } from "@/lib/db/practice-menu-types";
 import {
   isExamMenu,
   practiceListHref,
-  practiceMenuFromCatalog,
   practicePlayHref,
   practiceTrainingHref,
 } from "../_lib/practice-catalog";
@@ -33,6 +34,8 @@ interface PracticeIntroContentProps {
   /**
    * トレーニングモードへのボタンを表示するかどうか（デフォルト: false）。
    * 昇級試験は常に模試（トレーニング）の導線を持つため、この旗を見ない。
+   * 出題設定を持つ練習（レジストリの `variants`）も見ない —
+   * {@link VariantStartPanel} が設定と一緒に両方の導線を出す。
    */
   readonly showTraining?: boolean;
   /**
@@ -48,32 +51,24 @@ interface PracticeIntroContentProps {
 }
 
 /**
- * 教本の読了状態を持たない空集合。
- *
- * 「関連する教本の章」は読了チェックを出さないため、読了状態を引かない。ここで
- * 読了状態を取ると認証 Cookie に触れ、静的に配信できる練習説明ページが
- * 全ページ動的レンダリングに落ちる。読了の進捗を見せる場は `/learn` と
- * ダッシュボードが持つ。
- */
-const NO_READ_SLUGS: ReadonlySet<string> = new Set();
-
-/**
  * 練習説明ページの共通コンテンツ
  * 練習説明共通
  *
  * @remarks
  * 教本の章のセクションは、練習と昇級試験で見出しも中身の出どころも変わる。
  *
- * - 通常の練習は「関連する教本の章」。カタログの `learnChapter` が持つ 1 章で、
- *   読んでおくと解きやすいという程度の関係
+ * - 通常の練習は「関連する教本の章」。読んでおくと解きやすいという程度の
+ *   関係で、`relatedChaptersForPractice()` がカタログの `learnChapter` と
+ *   「その練習へ送っている章」（章の `practiceHrefs` の逆引き）を畳んで返す。
+ *   章から練習へ来た人が同じ章へ戻れるのはこの逆引きの側で、点数表早引きの
+ *   ように複数の章が送る練習では 1 件にならない
  * - 昇級試験は「前提となる教本の章」。合格に必要な知識の全体なので、
  *   段級位レジストリがそのランクに宣言した章をすべて出す（1 章ではない）。
  *   道場が出す前提章と同じ集合・同じ見出しで、出どころも同じレジストリ
  *
  * どちらも練習ページ側でパスを渡したり表示可否を切り替えたりはしない。
- * 見た目は目次（`ChapterTocList`）をそのまま使い、ダッシュボードの
- * 「教本の続き」や `/learn` と同じ書式に揃える。章タイトル・説明文も
- * カリキュラム側の文言をそのまま使うため、練習ごとのリンク文言は持たない。
+ * 描画は {@link PracticeChapterSection} が持つ（記録を取らない総合演習の
+ * 設定ページと共有する）。
  */
 export async function PracticeIntroContent({
   namespace,
@@ -94,17 +89,16 @@ export async function PracticeIntroContent({
     ? { label: tDojo("title"), href: "/dojo" }
     : { label: tp("title"), href: "/practice" };
 
-  // 昇級試験は段級位レジストリの前提章をすべて、通常の練習はカタログの
-  // 関連章 1 件を出す。どちらも持たない練習ではセクションごと出さない。
+  // 昇級試験は段級位レジストリの前提章をすべて、通常の練習は関連章
+  // （カタログの前提章 + その練習へ送っている章）を出す。どちらも持たない
+  // 練習ではセクションごと出さない。
   // 見出しは道場と同じ文言を引く（同じ集合を別の名前で呼ばないため）。
   const examRank = isExam
     ? rankRequiringMenu(practiceMenuBySlug(slug).menuType)?.rank
     : undefined;
   const chapterSlugs: readonly CurriculumChapterSlug[] = examRank
     ? examRank.learnChapterSlugs
-    : ([practiceMenuFromCatalog(slug)?.learnChapter].filter(
-        (chapterSlug) => chapterSlug !== undefined,
-      ) as readonly CurriculumChapterSlug[]);
+    : relatedChaptersForPractice(slug);
   const chaptersTitle = examRank
     ? tDojo("chaptersTitle")
     : tp("requiredKnowledge");
@@ -140,6 +134,11 @@ export async function PracticeIntroContent({
             playHref={`${practicePlayHref(slug)}${PRACTICE_SCROLL_HASH}`}
             trainingHref={`${practiceTrainingHref(slug)}${PRACTICE_SCROLL_HASH}`}
           />
+        ) : practiceMenuBySlug(slug).hasSetup ? (
+          /* 出題設定（バリアント）を持つ練習は、選択パネルが開始導線まで
+             持つ。設定を選ばせてから play / training へ `?variant=` を
+             載せて送るため、開始ボタンだけを先に出すことができない */
+          <VariantStartPanel slug={slug} />
         ) : showTraining ? (
           <PracticeStartCta
             playHref={`${practicePlayHref(slug)}${PRACTICE_SCROLL_HASH}`}
@@ -160,13 +159,7 @@ export async function PracticeIntroContent({
           </LinkButton>
         )}
 
-        {chapterSlugs.length > 0 && (
-          <div className="space-y-3">
-            <SectionTitle>{chaptersTitle}</SectionTitle>
-            <ChapterTocList slugs={chapterSlugs} readSlugs={NO_READ_SLUGS} />
-            <CurriculumTocLink />
-          </div>
-        )}
+        <PracticeChapterSection title={chaptersTitle} slugs={chapterSlugs} />
 
         {/* 前提章の下に「その級の練習」への行リンクを置く。試験に落ちた人が
             次に行く先は教本の読み直しだけではなく、同じ範囲を数える練習でも

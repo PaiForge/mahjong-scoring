@@ -65,9 +65,13 @@ export interface PracticeMenu {
    * 段級位レジストリ（`RANK_REGISTRY` の `learnChapterSlugs`）が正典。
    *
    * 章側の `practiceHrefs`（その章を読んだら解く練習）とは向きも意味も違う関係で、
-   * 互いの逆写像ではない。手牌の合計符のように「章の practiceHrefs には
-   * 挙がっていないが前提となる章はある」練習や、役の翻数のように
-   * 「章から勧められるが専用の章は持たない」練習がある。
+   * 互いの逆写像ではない。点数即答のように「前提となる章はあるが、章の側からは
+   * 送らない」練習や、役の翻数のように「章から勧められるが専用の章は持たない」
+   * 練習がある。
+   *
+   * 説明ページと一覧カードが出す「関連する教本の章」は、これと章側の逆引きを
+   * 畳んだ `relatedChaptersForPractice()`。このフィールドだけで戻り先を
+   * 揃えようとしないこと（1 つの練習を複数の章が扱う場合がある）。
    */
   readonly learnChapter?: CurriculumChapterSlug;
 }
@@ -133,7 +137,16 @@ export const PRACTICE_CATALOG: readonly PracticeMenu[] = [
   // 3級までは出番が無く、平和（2級）で「ツモなら20符・ロンなら30符」と
   // 和了方法から符を出し始めるところから実戦的な練習になる。
   // 面子手・副露の級を定義したら置き直す余地はある
-  { slug: "score-calculation", category: "scoring", rank: "kyu-2" },
+  {
+    slug: "score-calculation",
+    category: "scoring",
+    rank: "kyu-2",
+    // 実戦的になり始める章。逆に章の側からはこの練習へ送らない —
+    // 出題範囲を絞るバリアントが無く、どの章から送っても「読んだ範囲」を
+    // はみ出す（教本が 60符以上を扱っていないのは `RANK_REGISTRY` の
+    // 初段の注記のとおり）。章末の総まとめは昇級試験の CTA が担う
+    learnChapter: "pinfu-score",
+  },
   {
     // 昇級試験の前提章は段級位レジストリ（`RANK_REGISTRY` の
     // `learnChapterSlugs`）が持つため `learnChapter` を持たない。
