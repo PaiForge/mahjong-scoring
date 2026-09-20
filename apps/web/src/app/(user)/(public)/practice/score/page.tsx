@@ -16,6 +16,8 @@ import { createNamespaceMetadata } from "@/app/_lib/metadata";
 import { ContentContainer } from "@/app/(user)/_components/content-container";
 import { PageTitle } from "@/app/(user)/_components/page-title";
 import { SectionTitle } from "@/app/(user)/_components/section-title";
+import { chaptersInSection } from "@/app/(user)/(public)/learn/_lib/curriculum";
+import { PracticeChapterSection } from "../_components/practice-chapter-section";
 import { ScoreSetupForm } from "./_components/score-setup-form";
 import { ScoreHelpTour } from "./_components/score-help-tour";
 
@@ -38,10 +40,19 @@ export default async function ScoreSetupPage() {
     >
       <PageTitle action={<ScoreHelpTour />}>{t("title")}</PageTitle>
 
-      {/* SectionTitle と各カードの間隔を space-y で統一（mt- の散在を避ける） */}
-      <div className="space-y-4 sm:space-y-6 md:space-y-8">
-        <SectionTitle>{tp("settingsTitle")}</SectionTitle>
-        <ScoreSetupForm />
+      <div className="space-y-8">
+        {/* SectionTitle と各カードの間隔を space-y で統一（mt- の散在を避ける） */}
+        <div className="space-y-4 sm:space-y-6 md:space-y-8">
+          <SectionTitle>{tp("settingsTitle")}</SectionTitle>
+          <ScoreSetupForm />
+        </div>
+
+        {/* 点数の計算セクションの章はどれも本文の CTA でこの自由練習へ送る。
+            戻る先をその 4 章にそろえる（章を足しても写し忘れない） */}
+        <PracticeChapterSection
+          title={tp("requiredKnowledge")}
+          slugs={chaptersInSection("score")}
+        />
       </div>
     </ContentContainer>
   );

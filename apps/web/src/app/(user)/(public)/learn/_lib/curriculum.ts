@@ -427,3 +427,24 @@ export function relatedChaptersForPractice(
     related.has(chapter.slug),
   ).map((chapter) => chapter.slug);
 }
+
+/**
+ * セクションに属する章を、カリキュラムの順で返す。
+ * セクションの章
+ *
+ * 記録を取らない総合演習（`/practice/score`）が「関連する教本の章」を出すのに
+ * 使う。あの練習はカタログにも章の `practiceHrefs` にも載らない（記録対象外
+ * のため前者に、出題条件付きの自由練習のため後者に載せられない）ので、
+ * {@link relatedChaptersForPractice} の逆引きでは引けない。代わりに「点数の
+ * 計算セクションの章がそろって送っている練習」という関係をセクションで表す —
+ * 章を書き足したときに一覧へ写し忘れる余地が無い。
+ *
+ * @param section 対象のセクション
+ */
+export function chaptersInSection(
+  section: CurriculumSection,
+): readonly CurriculumChapterSlug[] {
+  return CURRICULUM_SORTED_BY_ORDER.filter(
+    (chapter) => chapter.section === section,
+  ).map((chapter) => chapter.slug);
+}

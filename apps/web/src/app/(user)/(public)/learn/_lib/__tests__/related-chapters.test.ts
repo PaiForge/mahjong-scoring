@@ -2,6 +2,9 @@ import { describe, expect, it } from "vitest";
 
 import {
   CURRICULUM_CHAPTER_SLUGS,
+  CURRICULUM_SECTIONS,
+  getChapterBySlug,
+  chaptersInSection,
   chaptersLinkingToPractice,
   relatedChaptersForPractice,
   type CurriculumChapterSlug,
@@ -66,5 +69,31 @@ describe("relatedChaptersForPractice", () => {
     expect(isCurriculumOrder(relatedChaptersForPractice("score-table"))).toBe(
       true,
     );
+  });
+});
+
+describe("chaptersInSection", () => {
+  it("セクションの章をカリキュラムの順で返す", () => {
+    // 総合演習（/practice/score）の戻り先。点数の計算セクションの各章が
+    // 本文の CTA でこの練習へ送っている
+    expect(chaptersInSection("score")).toEqual([
+      "chiitoitsu-score",
+      "pinfu-score",
+      "menzen-mentsu-score",
+      "furo-score",
+    ]);
+  });
+
+  it("返すのはそのセクションの章だけ", () => {
+    for (const section of CURRICULUM_SECTIONS) {
+      for (const slug of chaptersInSection(section)) {
+        expect(getChapterBySlug(slug)?.section, slug).toBe(section);
+      }
+    }
+  });
+
+  it("全セクションを合わせるとカリキュラム全体になる", () => {
+    const all = CURRICULUM_SECTIONS.flatMap(chaptersInSection);
+    expect(new Set(all)).toEqual(new Set(CURRICULUM_CHAPTER_SLUGS));
   });
 });

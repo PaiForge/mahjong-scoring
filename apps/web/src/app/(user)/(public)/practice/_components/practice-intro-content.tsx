@@ -1,13 +1,12 @@
 import type { ReactNode } from "react";
 import { ExamStartCta } from "@/app/(user)/(public)/exam/_components/exam-start-cta";
 import { HowToPlaySection } from "./how-to-play-section";
+import { PracticeChapterSection } from "./practice-chapter-section";
 import { PracticeStartCta } from "./practice-start-cta";
 import { VariantStartPanel } from "./variant-start-panel";
 import { buildPracticeStartCtaLabels } from "../_lib/practice-start-cta-labels";
 import { getTranslations } from "next-intl/server";
-import { ChapterTocList } from "@/app/(user)/(public)/learn/_components/chapter-toc-list";
 import { LinkRow, LinkRowList } from "@/app/(user)/_components/link-row";
-import { CurriculumTocLink } from "@/app/(user)/(public)/learn/_components/curriculum-toc-link";
 import {
   relatedChaptersForPractice,
   type CurriculumChapterSlug,
@@ -16,7 +15,6 @@ import type { PracticeMenuSlug } from "@/lib/db/practice-menu-types";
 import { rankRequiringMenu } from "@/lib/ranks/registry";
 import { ContentContainer } from "@/app/(user)/_components/content-container";
 import { PageTitle } from "@/app/(user)/_components/page-title";
-import { SectionTitle } from "@/app/(user)/_components/section-title";
 import { LinkButton } from "@/app/(user)/_components/link-button";
 import { PlayIcon } from "@/app/(user)/_components/icons/play-icon";
 import { practiceMenuBySlug } from "@/lib/db/practice-menu-types";
@@ -53,16 +51,6 @@ interface PracticeIntroContentProps {
 }
 
 /**
- * 教本の読了状態を持たない空集合。
- *
- * 「関連する教本の章」は読了チェックを出さないため、読了状態を引かない。ここで
- * 読了状態を取ると認証 Cookie に触れ、静的に配信できる練習説明ページが
- * 全ページ動的レンダリングに落ちる。読了の進捗を見せる場は `/learn` と
- * ダッシュボードが持つ。
- */
-const NO_READ_SLUGS: ReadonlySet<string> = new Set();
-
-/**
  * 練習説明ページの共通コンテンツ
  * 練習説明共通
  *
@@ -79,9 +67,8 @@ const NO_READ_SLUGS: ReadonlySet<string> = new Set();
  *   道場が出す前提章と同じ集合・同じ見出しで、出どころも同じレジストリ
  *
  * どちらも練習ページ側でパスを渡したり表示可否を切り替えたりはしない。
- * 見た目は目次（`ChapterTocList`）をそのまま使い、ダッシュボードの
- * 「教本の続き」や `/learn` と同じ書式に揃える。章タイトル・説明文も
- * カリキュラム側の文言をそのまま使うため、練習ごとのリンク文言は持たない。
+ * 描画は {@link PracticeChapterSection} が持つ（記録を取らない総合演習の
+ * 設定ページと共有する）。
  */
 export async function PracticeIntroContent({
   namespace,
@@ -172,13 +159,7 @@ export async function PracticeIntroContent({
           </LinkButton>
         )}
 
-        {chapterSlugs.length > 0 && (
-          <div className="space-y-3">
-            <SectionTitle>{chaptersTitle}</SectionTitle>
-            <ChapterTocList slugs={chapterSlugs} readSlugs={NO_READ_SLUGS} />
-            <CurriculumTocLink />
-          </div>
-        )}
+        <PracticeChapterSection title={chaptersTitle} slugs={chapterSlugs} />
 
         {/* 前提章の下に「その級の練習」への行リンクを置く。試験に落ちた人が
             次に行く先は教本の読み直しだけではなく、同じ範囲を数える練習でも
