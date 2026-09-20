@@ -8,7 +8,10 @@ import { getTranslations } from "next-intl/server";
 import { ChapterTocList } from "@/app/(user)/(public)/learn/_components/chapter-toc-list";
 import { LinkRow, LinkRowList } from "@/app/(user)/_components/link-row";
 import { CurriculumTocLink } from "@/app/(user)/(public)/learn/_components/curriculum-toc-link";
-import type { CurriculumChapterSlug } from "@/app/(user)/(public)/learn/_lib/curriculum";
+import {
+  relatedChaptersForPractice,
+  type CurriculumChapterSlug,
+} from "@/app/(user)/(public)/learn/_lib/curriculum";
 import type { PracticeMenuSlug } from "@/lib/db/practice-menu-types";
 import { rankRequiringMenu } from "@/lib/ranks/registry";
 import { ContentContainer } from "@/app/(user)/_components/content-container";
@@ -20,7 +23,6 @@ import { practiceMenuBySlug } from "@/lib/db/practice-menu-types";
 import {
   isExamMenu,
   practiceListHref,
-  practiceMenuFromCatalog,
   practicePlayHref,
   practiceTrainingHref,
 } from "../_lib/practice-catalog";
@@ -67,8 +69,11 @@ const NO_READ_SLUGS: ReadonlySet<string> = new Set();
  * @remarks
  * 教本の章のセクションは、練習と昇級試験で見出しも中身の出どころも変わる。
  *
- * - 通常の練習は「関連する教本の章」。カタログの `learnChapter` が持つ 1 章で、
- *   読んでおくと解きやすいという程度の関係
+ * - 通常の練習は「関連する教本の章」。読んでおくと解きやすいという程度の
+ *   関係で、`relatedChaptersForPractice()` がカタログの `learnChapter` と
+ *   「その練習へ送っている章」（章の `practiceHrefs` の逆引き）を畳んで返す。
+ *   章から練習へ来た人が同じ章へ戻れるのはこの逆引きの側で、点数表早引きの
+ *   ように複数の章が送る練習では 1 件にならない
  * - 昇級試験は「前提となる教本の章」。合格に必要な知識の全体なので、
  *   段級位レジストリがそのランクに宣言した章をすべて出す（1 章ではない）。
  *   道場が出す前提章と同じ集合・同じ見出しで、出どころも同じレジストリ
@@ -97,17 +102,16 @@ export async function PracticeIntroContent({
     ? { label: tDojo("title"), href: "/dojo" }
     : { label: tp("title"), href: "/practice" };
 
-  // 昇級試験は段級位レジストリの前提章をすべて、通常の練習はカタログの
-  // 関連章 1 件を出す。どちらも持たない練習ではセクションごと出さない。
+  // 昇級試験は段級位レジストリの前提章をすべて、通常の練習は関連章
+  // （カタログの前提章 + その練習へ送っている章）を出す。どちらも持たない
+  // 練習ではセクションごと出さない。
   // 見出しは道場と同じ文言を引く（同じ集合を別の名前で呼ばないため）。
   const examRank = isExam
     ? rankRequiringMenu(practiceMenuBySlug(slug).menuType)?.rank
     : undefined;
   const chapterSlugs: readonly CurriculumChapterSlug[] = examRank
     ? examRank.learnChapterSlugs
-    : ([practiceMenuFromCatalog(slug)?.learnChapter].filter(
-        (chapterSlug) => chapterSlug !== undefined,
-      ) as readonly CurriculumChapterSlug[]);
+    : relatedChaptersForPractice(slug);
   const chaptersTitle = examRank
     ? tDojo("chaptersTitle")
     : tp("requiredKnowledge");

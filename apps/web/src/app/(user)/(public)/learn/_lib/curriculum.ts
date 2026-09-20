@@ -1,6 +1,10 @@
 import type { PracticeMenuSlug } from "@/lib/db/practice-menu-types";
 
-import { practiceHref } from "../../practice/_lib/practice-catalog";
+import {
+  practiceHref,
+  practiceMenuFromCatalog,
+  practiceSlugFromHref,
+} from "../../practice/_lib/practice-catalog";
 
 /**
  * 学習カリキュラム — 章メタデータのレジストリ
@@ -355,4 +359,63 @@ export function getChapterI18nPath(chapter: CurriculumChapter): string {
   return chapter.i18nKey.startsWith(prefix)
     ? chapter.i18nKey.slice(prefix.length)
     : chapter.i18nKey;
+}
+
+/**
+ * その練習へ送っている章を、カリキュラムの順で返す。
+ * 練習を扱う章
+ *
+ * 章の `practiceHrefs` の逆引き。「この章を読んだら解く練習」という関係を
+ * 練習の側から見ると「この練習を扱っている章」になり、章から来た人が
+ * 戻る先としてそのまま使える。
+ *
+ * 逆引きで済ませるのは、この向きが章側の宣言から一意に決まるため。練習の
+ * カタログに書き写すと、章を足したときに片側だけ古くなる。バリアント付きの
+ * href（`?variant=`）も練習単位で畳む — 点数表早引きのように 1 つの練習へ
+ * 違う範囲で送る章が並ぶ場合、戻る先はどれも「その章」だから。
+ *
+ * @param slug 対象の練習スラッグ
+ */
+export function chaptersLinkingToPractice(
+  slug: PracticeMenuSlug,
+): readonly CurriculumChapterSlug[] {
+  return CURRICULUM_SORTED_BY_ORDER.filter((chapter) =>
+    (chapter.practiceHrefs ?? []).some(
+      (href) => practiceSlugFromHref(href) === slug,
+    ),
+  ).map((chapter) => chapter.slug);
+}
+
+/**
+ * 練習に関連する教本の章を、カリキュラムの順で返す。
+ * 関連章
+ *
+ * 2 つの出どころを畳む。どちらも「読んでおくと解きやすい章」を指すが、
+ * 宣言する側が違う。
+ *
+ * - カタログの `learnChapter` — その練習の前提になる章（章側がその練習へ
+ *   送っているとは限らない。手牌の合計符のような、章の練習リンクには
+ *   挙がらないが前提はある練習のため）
+ * - 章の `practiceHrefs` の逆引き（{@link chaptersLinkingToPractice}）—
+ *   その練習へ送っている章。専用の章を持たない練習（役の翻数・翻数即答・
+ *   点数表早引き）はここからだけ引ける
+ *
+ * 昇級試験はこれを使わない。試験の前提章は段級位レジストリ
+ * （`RANK_REGISTRY` の `learnChapterSlugs`）が正典で、合格に必要な知識の
+ * 全体という別の意味を持つ。
+ *
+ * @param slug 対象の練習スラッグ
+ */
+export function relatedChaptersForPractice(
+  slug: PracticeMenuSlug,
+): readonly CurriculumChapterSlug[] {
+  const related = new Set<CurriculumChapterSlug>(
+    chaptersLinkingToPractice(slug),
+  );
+  const learnChapter = practiceMenuFromCatalog(slug)?.learnChapter;
+  if (learnChapter !== undefined) related.add(learnChapter);
+
+  return CURRICULUM_SORTED_BY_ORDER.filter((chapter) =>
+    related.has(chapter.slug),
+  ).map((chapter) => chapter.slug);
 }

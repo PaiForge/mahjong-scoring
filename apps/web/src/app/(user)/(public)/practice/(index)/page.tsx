@@ -9,7 +9,10 @@
  */
 import type { Metadata } from "next";
 import { getTranslations } from "next-intl/server";
-import { chapterHref } from "@/app/(user)/(public)/learn/_lib/curriculum";
+import {
+  chapterHref,
+  relatedChaptersForPractice,
+} from "@/app/(user)/(public)/learn/_lib/curriculum";
 import { ContentContainer } from "@/app/(user)/_components/content-container";
 import { LinkRow, LinkRowList } from "@/app/(user)/_components/link-row";
 import { PageTitle } from "@/app/(user)/_components/page-title";
@@ -43,26 +46,27 @@ export default async function PracticePage() {
   // カードはここで全件描画し、絞り込みは表示するかどうかの判断だけを
   // クライアントに渡す（プリレンダーされた HTML に全カードが載るように）
   const items: readonly PracticeFilterItem[] = listedPracticeMenus().map(
-    (practice) => ({
-      key: practice.slug,
-      rank: practice.rank,
-      category: practice.category,
-      card: (
-        <PracticeCard
-          visual={practiceCardVisual(practice.slug, t)}
-          href={practiceHref(practice.slug)}
-          title={t(practiceTitleKey(practice.slug))}
-          rank={practiceCardRank(practice.rank, tRanks)}
-          detailLabel={t("detail")}
-          learnHref={
-            practice.learnChapter
-              ? chapterHref(practice.learnChapter)
-              : undefined
-          }
-          learnLabel={practice.learnChapter ? t("learn") : undefined}
-        />
-      ),
-    }),
+    (practice) => {
+      // カードの「教本を読む」は 1 本だけなので、関連章のうち最初に
+      // その練習を扱う章へ送る（複数の章が扱う練習は説明ページが全部出す）
+      const firstChapter = relatedChaptersForPractice(practice.slug)[0];
+      return {
+        key: practice.slug,
+        rank: practice.rank,
+        category: practice.category,
+        card: (
+          <PracticeCard
+            visual={practiceCardVisual(practice.slug, t)}
+            href={practiceHref(practice.slug)}
+            title={t(practiceTitleKey(practice.slug))}
+            rank={practiceCardRank(practice.rank, tRanks)}
+            detailLabel={t("detail")}
+            learnHref={firstChapter ? chapterHref(firstChapter) : undefined}
+            learnLabel={firstChapter ? t("learn") : undefined}
+          />
+        ),
+      };
+    },
   );
 
   return (
