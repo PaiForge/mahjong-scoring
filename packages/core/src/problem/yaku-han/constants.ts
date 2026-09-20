@@ -11,6 +11,7 @@ export { YAKUMAN_HAN };
  * - nakiHan 省略 = 門前限定役（立直・平和など、鳴くと成立しない）
  * - menzenHan と nakiHan が異なる = 食い下がり役（三色・一通・混一など）
  * - menzenHan と nakiHan が同じ = 鳴いても翻数が変わらない役（断么九・役牌・対々和など）
+ * - requiresConcealedMelds = 副露があっても成立するが、役の面子は暗刻限定（三暗刻）
  *
  * 役翻数データ
  */
@@ -34,7 +35,12 @@ export const YAKU_HAN_ENTRIES: readonly YakuHanEntry[] = [
   { name: "七対子", menzenHan: 2 },
   // 鳴きOK・食い下がりなし
   { name: "対々和", menzenHan: 2, nakiHan: 2 },
-  { name: "三暗刻", menzenHan: 2, nakiHan: 2 },
+  // 手に副露があっても成立する（副露してよいのは暗刻 3 つを除く 1 面子）ので
+  // nakiHan を持つが、暗刻自体は鳴いて作れないため鳴き状態では出題しない。
+  // この一覧でこれに当たるのは三暗刻だけ ―― 三槓子は明槓でよく、対々和・
+  // 三色同刻・小三元・混老頭と鳴ける役満はいずれも役の面子を鳴いて作れる。
+  // 四暗刻は鳴くと成立しないので nakiHan を持たない側に入る。
+  { name: "三暗刻", menzenHan: 2, nakiHan: 2, requiresConcealedMelds: true },
   { name: "三色同刻", menzenHan: 2, nakiHan: 2 },
   { name: "三槓子", menzenHan: 2, nakiHan: 2 },
   { name: "小三元", menzenHan: 2, nakiHan: 2 },
@@ -120,6 +126,28 @@ function isYakumanEntry(entry: YakuHanEntry): boolean {
  */
 export function isKuisagariEntry(entry: YakuHanEntry): boolean {
   return entry.nakiHan !== undefined && entry.nakiHan !== entry.menzenHan;
+}
+
+/**
+ * 鳴き（副露）状態で出題してよい役かどうか
+ * 鳴き出題可否
+ *
+ * 出題は役名と門前 / 鳴きのバッジだけで、牌を 1 枚も見せない。そのため
+ * 「鳴き」は手に副露があることを指しているのに、役の面子を鳴いて作ったと
+ * 読まれる。両者が一致する役だけを鳴き状態で出題する。
+ *
+ * 外れるのは次の 2 つ。
+ * - 鳴くと成立しない門前限定役（`nakiHan` を持たない）
+ * - 副露があっても成立するが役の面子は暗刻限定の役（{@link YakuHanEntry.requiresConcealedMelds}）。
+ *   「鳴き・三暗刻」は事実としては手に副露がある形を指すが、読み手には
+ *   「ポンで刻子を 3 つ揃えれば三暗刻」と読めてしまう。副露があっても
+ *   三暗刻が成立することは、実際の手牌を並べられる早見表（`reference/yaku`）が
+ *   副露形の例で扱う
+ */
+export function canPromptNaki(
+  entry: YakuHanEntry,
+): entry is YakuHanEntry & { readonly nakiHan: number } {
+  return entry.nakiHan !== undefined && !entry.requiresConcealedMelds;
 }
 
 /**

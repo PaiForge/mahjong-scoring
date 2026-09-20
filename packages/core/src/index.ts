@@ -45,6 +45,7 @@ export {
   DEFAULT_YAKU_HAN_RANGE,
   getYakuHanEntries,
   isKuisagariEntry,
+  canPromptNaki,
   normalizeYakuHanRange,
 } from "./problem/yaku-han/constants";
 export type { YakuHanRange } from "./problem/yaku-han/constants";
