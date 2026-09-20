@@ -20,4 +20,4 @@ SPEC*.md
 
 # Vim swap files
 .*.sw?
-*.swp
+*.sw?
