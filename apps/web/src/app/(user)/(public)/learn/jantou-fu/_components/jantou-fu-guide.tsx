@@ -17,17 +17,13 @@ export async function JantouFuGuide() {
       {/* What is jantou */}
       <section className="space-y-4">
         <SectionTitle>{t("whatIsJantou")}</SectionTitle>
-        <GuideParagraph>
-          {t.rich("whatIsJantouBody", { br: () => <br /> })}
-        </GuideParagraph>
+        <GuideParagraph preLine>{t("whatIsJantouBody")}</GuideParagraph>
       </section>
 
       {/* Yakuhai jantou */}
       <section className="space-y-4">
         <SectionTitle>{t("yakuhaiTitle")}</SectionTitle>
-        <GuideParagraph>
-          {t.rich("yakuhaiBody", { br: () => <br /> })}
-        </GuideParagraph>
+        <GuideParagraph preLine>{t("yakuhaiBody")}</GuideParagraph>
 
         <ExampleTable
           title={t("sangenExamples")}
