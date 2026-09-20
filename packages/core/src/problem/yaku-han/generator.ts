@@ -4,7 +4,11 @@ import {
   defaultRandomSource,
   type RandomSource,
 } from "../../core/random";
-import { DEFAULT_YAKU_HAN_RANGE, getYakuHanEntries } from "./constants";
+import {
+  canPromptNaki,
+  DEFAULT_YAKU_HAN_RANGE,
+  getYakuHanEntries,
+} from "./constants";
 import type { YakuHanRange } from "./constants";
 import type { YakuHanQuestion } from "./types";
 
@@ -12,8 +16,9 @@ import type { YakuHanQuestion } from "./types";
  * 役翻数問題を1問生成する
  * 役翻数問題生成
  *
- * 指定した出題範囲（range）の役からランダムに選び、その役が鳴ける場合は
- * 門前/鳴きをランダムに出題する。門前限定役（nakiHan が undefined）は常に門前で出題する。
+ * 指定した出題範囲（range）の役からランダムに選び、鳴き状態で出題してよい役
+ * （{@link canPromptNaki}）だけ門前/鳴きをランダムに出題する。それ以外は常に
+ * 門前で出題する。
  *
  * @param range - 出題範囲
  * @param rng - 乱数供給源（既定 `Math.random`）
@@ -23,8 +28,8 @@ export function generateYakuHanQuestion(
   rng: RandomSource = defaultRandomSource,
 ): YakuHanQuestion {
   const entry = randomChoice(getYakuHanEntries(range), rng);
-  const nakiHan = entry.nakiHan;
-  // 鳴ける役のみ 50% で鳴き状態を出題する（門前限定役は常に門前）
+  const nakiHan = canPromptNaki(entry) ? entry.nakiHan : undefined;
+  // 鳴き状態で出題してよい役のみ 50% で鳴きにする（それ以外は常に門前）
   const playNaki = nakiHan !== undefined && randomBool(0.5, rng);
 
   return {

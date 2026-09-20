@@ -4,6 +4,7 @@ import {
   YAKU_HAN_ENTRIES,
   YAKUMAN_HAN,
   YAKUHAI_ENTRY_NAME,
+  canPromptNaki,
   groupYakuHanEntriesByMenzenHan,
 } from "./constants";
 import { YAKU_OPTION_GROUPS, YAKU_OPTIONS } from "../../core/yaku-names";
@@ -98,6 +99,25 @@ describe("groupYakuHanEntriesByMenzenHan", () => {
         );
       }
     }
+  });
+
+  it("三暗刻は副露があっても2翻のまま成立する役として持つ", () => {
+    // 鳴き状態で出題しない役だが、鳴くと成立しない門前限定役ではない。
+    // nakiHan を落として表すと、この一覧を引く教本の翻数表と早見表に
+    // 「三暗刻は鳴くと成立しない」という誤りが出る。
+    const sanankou = YAKU_HAN_ENTRIES.find((e) => e.name === "三暗刻");
+
+    expect(sanankou?.menzenHan).toBe(2);
+    expect(sanankou?.nakiHan).toBe(2);
+    expect(sanankou?.requiresConcealedMelds).toBe(true);
+  });
+
+  it("鳴ける役のうち鳴き出題から外れるのは三暗刻だけ", () => {
+    const excluded = YAKU_HAN_ENTRIES.filter(
+      (e) => e.nakiHan !== undefined && !canPromptNaki(e),
+    ).map((e) => e.name);
+
+    expect(excluded).toEqual(["三暗刻"]);
   });
 
   it("グループは翻数の低い順（役満が最後）に並ぶ", () => {
