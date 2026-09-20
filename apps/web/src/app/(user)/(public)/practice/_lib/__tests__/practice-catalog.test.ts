@@ -4,6 +4,7 @@ import messages from "@/messages/ja.json";
 import {
   CURRICULUM,
   CURRICULUM_CHAPTER_SLUGS,
+  relatedChaptersForPractice,
 } from "@/app/(user)/(public)/learn/_lib/curriculum";
 import {
   PRACTICE_MENU_SLUGS,
@@ -138,7 +139,7 @@ describe("段級位との対応", () => {
 });
 
 describe("章と練習の対応", () => {
-  it("満貫の章は、その役割の点数が揃った章からだけ練習へ送る", () => {
+  it("満貫の章は、その役割の点数が揃った章からだけ点数表早引きへ送る", () => {
     // 点数表早引きの土俵は親子で分かれ、和了方法では分かれない。ロンだけを
     // 読んだ時点で送るとツモの問題が出てしまうので、ツモの章まで読んで
     // その役割が揃ってから送る。章の並びは section-grouping.test.ts が守る
@@ -153,13 +154,37 @@ describe("章と練習の対応", () => {
       const hrefs =
         CURRICULUM.find((chapter) => chapter.slug === slug)?.practiceHrefs ??
         [];
+      const scoreTableHrefs = hrefs.filter(
+        (href) => practiceSlugFromHref(href) === "score-table",
+      );
       if (variant === undefined) {
         expect(hrefs, slug).toEqual([]);
         continue;
       }
-      expect(hrefs, slug).toHaveLength(1);
-      expect(practiceSlugFromHref(hrefs[0]!), slug).toBe("score-table");
-      expect(practiceVariantFromHref(hrefs[0]!), slug).toBe(variant);
+      expect(scoreTableHrefs, slug).toHaveLength(1);
+      expect(practiceVariantFromHref(scoreTableHrefs[0]!), slug).toBe(variant);
+    }
+  });
+
+  it("満貫以上点数計算は親の満貫が揃う章からだけ送る", () => {
+    // 出題は親子・満貫以上の固定。子のツモまでしか読んでいない時点で
+    // 送ると親の問題が出てしまう
+    const sending = CURRICULUM.filter((chapter) =>
+      (chapter.practiceHrefs ?? []).some(
+        (href) => practiceSlugFromHref(href) === "mangan-score-calculation",
+      ),
+    ).map((chapter) => chapter.slug);
+    expect(sending).toEqual(["mangan-oya-tsumo"]);
+  });
+
+  it("一覧に並ぶ練習はすべて関連する教本の章を持つ", () => {
+    // 章から練習へ来た人が教本へ戻れること。章側の practiceHrefs か
+    // カタログの learnChapter か、どちらの宣言でもよい
+    for (const menu of listedPracticeMenus()) {
+      expect(
+        relatedChaptersForPractice(menu.slug),
+        `${menu.slug}`,
+      ).not.toHaveLength(0);
     }
   });
 
@@ -175,11 +200,14 @@ describe("章と練習の対応", () => {
 
   it("章の practiceHrefs と練習の learnChapter は互いの逆写像ではない", () => {
     // 逆写像だと思って一方から他方を導出すると壊れることを固定する。
-    // 手牌の合計符は前提章を持つが、その章の practiceHrefs には挙がっていない。
-    const totalFu = PRACTICE_CATALOG.find((m) => m.slug === "total-fu");
-    expect(totalFu?.learnChapter).toBe("tehai-fu");
-    const tehaiFuChapter = CURRICULUM.find((c) => c.slug === "tehai-fu");
-    expect(tehaiFuChapter?.practiceHrefs).not.toContain("/practice/total-fu");
+    // 点数即答は前提章を持つが、その章の practiceHrefs には挙がっていない
+    // （出題範囲を絞れず、どの章から送っても読んだ範囲をはみ出すため）。
+    const scoreCalculation = PRACTICE_CATALOG.find(
+      (m) => m.slug === "score-calculation",
+    );
+    expect(scoreCalculation?.learnChapter).toBe("pinfu-score");
+    const pinfuChapter = CURRICULUM.find((c) => c.slug === "pinfu-score");
+    expect(pinfuChapter?.practiceHrefs).toBeUndefined();
 
     // 逆に、役の翻数は役の章から勧められるが専用の章は持たない。
     const yakuHan = PRACTICE_CATALOG.find((m) => m.slug === "yaku-han");

@@ -99,8 +99,14 @@ const CURRICULUM_REGISTRY = [
     slug: "mangan-oya-tsumo",
     section: "mangan",
     order: 24,
-    // ここで親の満貫以上が揃う（子のツモの章と同じ理由）
-    practiceHrefs: [practiceHref("score-table", "oya_mangan_plus")],
+    // ここで親の満貫以上が揃う（子のツモの章と同じ理由）。
+    // 満貫以上点数計算もここから送る — 出題は親子・満貫以上の固定で、
+    // 満貫のセクションを読み終えた範囲とちょうど一致する（役は翻数まで
+    // 提示されるため、役の章より前でも解ける）
+    practiceHrefs: [
+      practiceHref("score-table", "oya_mangan_plus"),
+      "/practice/mangan-score-calculation",
+    ],
     i18nKey: "learnCurriculum.chapters.manganOyaTsumo",
   },
   {
@@ -141,7 +147,9 @@ const CURRICULUM_REGISTRY = [
     slug: "tehai-fu",
     section: "fu",
     order: 60,
-    practiceHrefs: ["/practice/mentsu-jantou-fu"],
+    // 要素ごとに符を答える練習と、手牌1つに符1つで答える練習。本章が
+    // 教えるのは後者の積み上げ方なので、要素の復習から通しの計算へ続ける
+    practiceHrefs: ["/practice/mentsu-jantou-fu", "/practice/total-fu"],
     // 符のセクションの前3章と本章で4級試験の前提知識が揃う
     examSlug: "fu-exam",
     i18nKey: "learnCurriculum.chapters.tehaiFu",

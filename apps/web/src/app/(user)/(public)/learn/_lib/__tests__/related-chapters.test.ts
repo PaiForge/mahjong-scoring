@@ -1,15 +1,17 @@
 import { describe, expect, it } from "vitest";
 
-import { CURRICULUM_CHAPTER_SLUGS } from "../curriculum";
 import {
+  CURRICULUM_CHAPTER_SLUGS,
   chaptersLinkingToPractice,
   relatedChaptersForPractice,
+  type CurriculumChapterSlug,
 } from "../curriculum";
 import { practiceMenuFromCatalog } from "../../../practice/_lib/practice-catalog";
 
 /** カリキュラムの表示順に並んでいるか */
-function isCurriculumOrder(slugs: readonly string[]): boolean {
-  const indexOf = (slug: string) => CURRICULUM_CHAPTER_SLUGS.indexOf(slug);
+function isCurriculumOrder(slugs: readonly CurriculumChapterSlug[]): boolean {
+  const indexOf = (slug: CurriculumChapterSlug) =>
+    CURRICULUM_CHAPTER_SLUGS.indexOf(slug);
   return slugs.every(
     (slug, i) => i === 0 || indexOf(slugs[i - 1]!) < indexOf(slug),
   );
