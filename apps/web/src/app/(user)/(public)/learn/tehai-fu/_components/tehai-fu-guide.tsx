@@ -84,22 +84,23 @@ export async function TehaiFuGuide() {
           <GuideParagraph preLine>{t("kazeBody2")}</GuideParagraph>
           <ExampleCard>
             <TehaiFuExample
-              tiles={[HaiKind.Ton, HaiKind.Ton, HaiKind.Ton]}
+              tiles={[HaiKind.Ton, HaiKind.Ton]}
               label={t("kazeExampleBakaze")}
               annotation={t("kazeExampleBakazeAnnotation")}
             />
             <TehaiFuExample
-              tiles={[HaiKind.Nan, HaiKind.Nan, HaiKind.Nan]}
+              tiles={[HaiKind.Nan, HaiKind.Nan]}
               label={t("kazeExampleJikaze")}
               annotation={t("kazeExampleJikazeAnnotation")}
             />
             <TehaiFuExample
-              tiles={[HaiKind.Sha, HaiKind.Sha, HaiKind.Sha]}
+              tiles={[HaiKind.Sha, HaiKind.Sha]}
               label={t("kazeExampleOtakaze")}
               annotation={t("kazeExampleOtakazeAnnotation")}
               annotationTone="caution"
             />
           </ExampleCard>
+          <GuideParagraph preLine>{t("kazeBody3")}</GuideParagraph>
         </section>
       </div>
     </section>
