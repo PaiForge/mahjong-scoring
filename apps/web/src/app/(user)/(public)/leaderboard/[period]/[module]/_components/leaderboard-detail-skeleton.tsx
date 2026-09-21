@@ -1,4 +1,5 @@
 import { ContentContainer } from "@/app/(user)/_components/content-container";
+import { Divider } from "@/app/(user)/_components/divider";
 import { PageTitlePlaceholder } from "@/app/(user)/_components/page-title";
 import { SectionTitleSkeleton } from "@/app/(user)/_components/section-title-skeleton";
 import { SkeletonBar } from "@/app/_components/skeleton-bar";
@@ -13,9 +14,9 @@ import { LeaderboardTableSkeleton } from "../../../_components/leaderboard-table
  * 見出し → 期間の行 → 表 → チャレンジのボタン」を置く。表の中身はページ側の
  * Suspense フォールバックと同じ `LeaderboardTableSkeleton` を使う。
  *
- * 期間の行はここでは実物を出せない（loading.tsx はルートのパラメータを
- * 受け取れないため、総合 / 月間 のどちらが選ばれているか分からない）。
- * 高さだけを合わせた矩形で埋める。
+ * 期間の行とパンくずはここでは実物を出せない（loading.tsx はルートの
+ * パラメータを受け取れないため、総合 / 月間 のどちらが選ばれているかも、
+ * どの土俵かも分からない）。高さだけを合わせた矩形で埋める。
  */
 export function LeaderboardDetailSkeleton() {
   return (
@@ -38,6 +39,14 @@ export function LeaderboardDetailSkeleton() {
           実物の内訳（枠 3px × 2 + py-2.5 の 10px × 2 + 文字の行ボックス 20px） */}
       <div className="border-t-2 border-dashed border-border/40 pt-4">
         <SkeletonBar radius="lg" className="h-[46px] w-full" tone={100} />
+      </div>
+
+      {/* パンくず。実描画は ContentContainer の breadcrumb が描くが、土俵名を
+          出せないためここでは同じ箱（`mt-8 space-y-4` + 区切り線 + 1 行）だけを
+          置く。省くと下のフッターがこの 74px ぶん動く */}
+      <div className="mt-8 space-y-4">
+        <Divider />
+        <SkeletonBar className="h-6 w-40" tone={100} />
       </div>
     </ContentContainer>
   );
