@@ -37,6 +37,7 @@ interface LearnPageLayoutProps {
  *   クライアントで出し分ける
  * - 対応練習へのリンク集（CURRICULUM の `practiceHrefs` を参照。0 件なら節ごと出さない）
  * - 前後章へのリンク
+ * - 公開日（`CURRICULUM` の `publishedAt`）— 章末。Article の datePublished と同じ日付
  *
  * @design cookie を読まない
  * ここで `getOptionalUser()` を呼ぶと章ページ全体が動的になり、CDN キャッシュに
@@ -84,14 +85,6 @@ export async function LearnPageLayout({
         />
       )}
       <PageTitle>{t("pageTitle")}</PageTitle>
-      {/* 章の鮮度を読者と検索側に示す。Article の datePublished と同じ日付 */}
-      {chapter && (
-        <p className="text-center text-xs text-surface-500">
-          {tChapter("publishedOn", {
-            date: formatPublishedDate(chapter.publishedAt),
-          })}
-        </p>
-      )}
 
       <div className="space-y-10">
         <GlossaryTermModalProvider
@@ -121,6 +114,20 @@ export async function LearnPageLayout({
         {chapter?.examSlug && <ExamCtaCard slug={chapter.examSlug} />}
 
         <ChapterNav slug={slug} />
+
+        {/*
+          章の鮮度を読者と検索側に示す（Article の datePublished と同じ日付）。
+          本文の前ではなく末尾に置く — 白カードは他のページでは節の見出し
+          （濃い緑の pill）から始まり、その手前に日付の 1 行が入ると、この
+          ページだけ書き出しの形が違って見える。読み終えた人が見る位置で足りる
+        */}
+        {chapter && (
+          <p className="text-xs text-surface-500">
+            {tChapter("publishedOn", {
+              date: formatPublishedDate(chapter.publishedAt),
+            })}
+          </p>
+        )}
       </div>
     </ContentContainer>
   );
