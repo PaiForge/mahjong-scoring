@@ -6,7 +6,7 @@ import { getOptionalVerifiedUser } from "@/lib/auth";
 import { db } from "@/lib/db";
 import { learnChapterReads } from "@/lib/db/schema";
 
-import { chapterHref, isCurriculumChapterSlug } from "../_lib/curriculum";
+import { isCurriculumChapterSlug } from "../_lib/curriculum";
 
 /**
  * 読了マーク系 Server Action の戻り値
@@ -50,7 +50,7 @@ export async function markChapterRead(slug: string): Promise<MarkActionResult> {
     .values({ userId: user.id, chapterSlug: slug })
     .onConflictDoNothing();
 
+  // 章ページは静的で読了状態を持たないため捨てない。目次（進捗）だけ更新する
   revalidatePath("/learn");
-  revalidatePath(chapterHref(slug));
   return { success: true };
 }

@@ -7,7 +7,7 @@ import { getOptionalVerifiedUser } from "@/lib/auth";
 import { db } from "@/lib/db";
 import { learnChapterReads } from "@/lib/db/schema";
 
-import { chapterHref, isCurriculumChapterSlug } from "../_lib/curriculum";
+import { isCurriculumChapterSlug } from "../_lib/curriculum";
 import type { MarkActionResult } from "./mark-chapter-read";
 
 /**
@@ -41,7 +41,7 @@ export async function unmarkChapterRead(
       ),
     );
 
+  // 章ページは静的で読了状態を持たないため捨てない。目次（進捗）だけ更新する
   revalidatePath("/learn");
-  revalidatePath(chapterHref(slug));
   return { success: true };
 }

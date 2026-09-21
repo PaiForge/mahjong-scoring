@@ -1,10 +1,14 @@
 import type { Metadata } from "next";
+import { getTranslations } from "next-intl/server";
+
+import { JsonLd } from "@/app/(user)/_components/json-ld";
 
 import {
   buildSocialCard,
   DEFAULT_TITLE,
   SITE_DESCRIPTION,
 } from "@/app/_lib/metadata";
+import { buildSiteSchema } from "@/app/_lib/site-schema";
 
 import { LandingPage } from "./_components/landing-page";
 
@@ -27,6 +31,10 @@ import { LandingPage } from "./_components/landing-page";
  * タイトルと説明はルートレイアウトから継承する。ここで持つのは canonical と
  * og:url 入りのカード（レイアウト側のカードは og:url を持たないため、
  * トップページの URL はここで名乗る）。
+ *
+ * Organization / WebSite の JSON-LD はトップだけが出す（サイト名とロゴの根拠。
+ * 各ページのパンくず・用語・記事のスキーマとは別物）。運営者名は辞書から引くため
+ * async だが、cookie もデータも読まないので静的生成のまま。
  */
 export const metadata: Metadata = {
   alternates: { canonical: "/" },
@@ -37,6 +45,13 @@ export const metadata: Metadata = {
   }),
 };
 
-export default function Home() {
-  return <LandingPage />;
+export default async function Home() {
+  const tCompany = await getTranslations("company");
+
+  return (
+    <>
+      <JsonLd data={buildSiteSchema(tCompany("name.value"))} />
+      <LandingPage />
+    </>
+  );
 }

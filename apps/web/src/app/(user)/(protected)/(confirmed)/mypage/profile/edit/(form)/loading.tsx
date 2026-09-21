@@ -1,8 +1,7 @@
 import { ContentContainer } from "@/app/(user)/_components/content-container";
-import { PageTitle } from "@/app/(user)/_components/page-title";
+import { PageTitlePlaceholder } from "@/app/(user)/_components/page-title";
 import { SectionTitleSkeleton } from "@/app/(user)/_components/section-title-skeleton";
 import { SkeletonBar } from "@/app/_components/skeleton-bar";
-import { PageTitleSkeleton } from "@/app/_components/page-title-skeleton";
 
 /** SNS 入力欄スケルトンのキー（index key を避けるための固定ID） */
 const SNS_FIELDS = ["x", "instagram", "youtube"] as const;
@@ -19,10 +18,7 @@ const SNS_FIELDS = ["x", "instagram", "youtube"] as const;
 export default function Loading() {
   return (
     <ContentContainer>
-      {/* PageTitle を使うことで実描画と同じ全幅グレー帯を再現する */}
-      <PageTitle>
-        <PageTitleSkeleton width="w-44" />
-      </PageTitle>
+      <PageTitlePlaceholder width="w-44" />
 
       <div className="space-y-8">
         {/* アバター（実: 中央寄せの円 + 画像選択リンク + ヒント） */}

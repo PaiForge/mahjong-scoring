@@ -2,9 +2,10 @@
  * 用語ページ
  *
  * @description
- * 用語 1 語の意味と、形が要る語には手牌の例を示す。関連語と、その語を扱う
- * 教本の章へ送る導線を持つ。文言は辞書（`glossary.terms.<slug>`）、構造は
- * 用語レジストリ（`lib/glossary/registry.ts`）が持つ。
+ * 用語 1 語の意味と、形が要る語には手牌の例を示し、点数計算での扱い・具体例・
+ * よくある誤解を続ける。関連語と、その語を扱う教本の章へ送る導線を持つ。
+ * 文言は辞書（`glossary.terms.<slug>`）、構造は用語レジストリ
+ * （`lib/glossary/registry.ts`）が持つ。
  *
  * 全 slug を `generateStaticParams` で列挙して静的生成し、`dynamicParams` を
  * 切って「列挙した slug 以外は存在しない」ことを Next に伝える。用語は
@@ -39,8 +40,9 @@ import {
 import { GLOSSARY_TERM_SLUGS } from "@/lib/glossary/registry";
 import { GLOSSARY_PATH } from "@/lib/glossary/routes";
 
-import { JsonLd } from "../_components/json-ld";
+import { JsonLd } from "@/app/(user)/_components/json-ld";
 import { RelatedTerms } from "../_components/related-terms";
+import { TermSection } from "../_components/term-section";
 import { TermExamples } from "../_components/term-examples";
 import { TermLearnLinks } from "../_components/term-learn-links";
 import { buildDefinedTermSchema } from "../_lib/json-ld";
@@ -59,14 +61,19 @@ export async function generateMetadata({
   params,
 }: GlossaryTermPageProps): Promise<Metadata> {
   const { slug } = await params;
-  const term = await getGlossaryTermViewBySlug(slug);
+  const [term, t] = await Promise.all([
+    getGlossaryTermViewBySlug(slug),
+    getTranslations("glossary"),
+  ]);
   // 本番では dynamicParams = false が未知の slug をここへ通さない。
   // 開発サーバーは列挙を無視して描画するため、その場合だけここを通る
   // （本文が notFound() を呼び、Next が noindex を付けた 404 を描く）。
   if (!term) return {};
 
   return createMetadata({
-    title: term.term,
+    // 見出し語だけ（「萬子」）では検索語を含まない。読みと「とは｜麻雀用語」を
+    // 添えて、用語を調べる検索（「萬子 とは」「マンズ 麻雀」）に当たる形にする
+    title: t("metaTitle", { term: term.term, reading: term.reading }),
     description: term.definition,
     path: term.href,
   });
@@ -122,6 +129,10 @@ export default async function GlossaryTermPage({
               <TermExamples examples={term.examples} />
             </section>
           )}
+
+          <TermSection title={t("usageTitle")} body={term.usage} />
+          <TermSection title={t("caseStudyTitle")} body={term.caseStudy} />
+          <TermSection title={t("pitfallTitle")} body={term.pitfall} />
 
           {related.length > 0 && (
             <section className="space-y-4">

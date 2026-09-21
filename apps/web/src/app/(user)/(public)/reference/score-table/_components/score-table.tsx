@@ -9,6 +9,7 @@ import {
   type RoleScore,
 } from "@mahjong-scoring/core";
 import { ToggleGroup } from "@/app/(user)/_components/toggle-group";
+import { useIsClient } from "@/app/_hooks/use-is-client";
 import { useRuleSettingsStore } from "@/app/_hooks/use-rule-settings-store";
 import {
   resolveScoreTableFocus,
@@ -51,6 +52,10 @@ interface ScoreTableProps {
  * 表本体の描画は NormalScoreTable / HighScoreTable に委譲する。
  * ページ（クエリパラメータ）からもモーダル（練習の答え合わせ）からも
  * 使えるよう、注目対象は props の focus で受け取る。
+ *
+ * focus / 初期タブは後から届いてもよい（ページは静的生成で、URL のクエリは
+ * hydration 後にしか読めない）。届いたらタブ・表示モード・ハイライトを
+ * 合わせ直し、そのセルへスクロールする。
  */
 export function ScoreTable({
   focus,
@@ -72,8 +77,32 @@ export function ScoreTable({
   );
   const [hiddenCells, setHiddenCells] = useState<Record<string, boolean>>({});
 
+  // focus / 初期タブが後から変わったら state を追随させる。レンダー中の setState は
+  // 「props の変化に state を合わせる」React の定石（effect で行うと変更前の表が
+  // 1 フレーム見える）。同じ内容の focus が別オブジェクトで来ても reset しないよう
+  // 値で比べる。
+  const [applied, setApplied] = useState({
+    focus,
+    initialRole,
+    initialWinType,
+  });
+  if (
+    !sameFocus(applied.focus, focus) ||
+    applied.initialRole !== initialRole ||
+    applied.initialWinType !== initialWinType
+  ) {
+    setApplied({ focus, initialRole, initialWinType });
+    setActiveTab(focus?.role ?? initialRole);
+    setWinType(focus?.winType ?? initialWinType);
+    setViewMode(focusTarget.viewMode);
+  }
+
   const isKo = activeTab === "ko";
-  const kiriageMangan = useRuleSettingsStore((s) => s.kiriageMangan);
+  // ルール設定は端末ローカル（localStorage）。サーバーと hydration 中は既定値で描いて
+  // 表の数字を初期 HTML に載せたまま、hydration 後に設定値へ追随させる
+  const isClient = useIsClient();
+  const kiriageMangan =
+    useRuleSettingsStore((s) => s.kiriageMangan) && isClient;
 
   // ハイライトは focus と同じ親子・ロンツモの表を見ているときだけ出す
   // （タブを切り替えた表では focus のセルは「その和了の点数」ではないため）
@@ -101,6 +130,7 @@ export function ScoreTable({
     return grid;
   }, [isKo, winType, kiriageMangan]);
 
+  // 初期表示時と、focus が後から届いたときにハイライトへ寄せる
   useEffect(() => {
     if (highlightRef.current) {
       // 点数表は縦にも横にも広いので、縦横ともセルを中央へ寄せる
@@ -111,7 +141,7 @@ export function ScoreTable({
         inline: "center",
       });
     }
-  }, []);
+  }, [focusTarget]);
 
   const toggleCell = useCallback((id: string) => {
     setHiddenCells((prev) => ({ ...prev, [id]: !prev[id] }));
@@ -207,5 +237,19 @@ export function ScoreTable({
         </div>
       )}
     </div>
+  );
+}
+
+/** focus を値で比べる（undefined 同士は同じ） */
+function sameFocus(
+  a: ScoreTableFocus | undefined,
+  b: ScoreTableFocus | undefined,
+): boolean {
+  if (a === undefined || b === undefined) return a === b;
+  return (
+    a.role === b.role &&
+    a.winType === b.winType &&
+    a.han === b.han &&
+    a.fu === b.fu
   );
 }

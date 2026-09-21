@@ -128,7 +128,7 @@ function ResultScoreBarSkeleton() {
  * 合格 246px。実体はその時点で確定しているので、伸びる方向のずれが出ない
  * 高い方に合わせる（縮む方は伸びるより目立たない）。
  * 実物の枠と面（success / destructive）は写さず灰色にする
- * （`ExamIntroSkeleton` と同じ理由）。
+ * （`ProblemListSkeleton` と同じ理由）。
  */
 function ExamResultSummarySkeleton() {
   return (

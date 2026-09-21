@@ -17,8 +17,13 @@ import { isMentsuExample } from "./types";
  * 文言を解決済みの用語
  * 表示用語
  *
- * 構造（{@link GlossaryTerm}）に辞書由来の見出し語・読み・定義を重ねた形。
+ * 構造（{@link GlossaryTerm}）に辞書由来の見出し語・読み・定義と、用語ページの
+ * 3 節（点数計算での扱い・具体例・よくある誤解）を重ねた形。
  * 一覧・用語ページ・モーダルはすべてこの形を受け取る。
+ *
+ * 3 節はすべての用語が持つ（`glossary-i18n-integrity.test.ts` が検査する）。
+ * 定義 1〜2 文だけの用語ページは検索側に「薄いページ」と判断され、64 ページ分が
+ * サイト全体の評価を下げていたため、語ごとに符・翻・点数への関わりまで書く。
  */
 export interface GlossaryTermView extends GlossaryTerm {
   /** 見出し語（例: "面子"） */
@@ -26,6 +31,15 @@ export interface GlossaryTermView extends GlossaryTerm {
   /** 読み（例: "メンツ"）。五十音の並び順と行見出しの根拠 */
   readonly reading: string;
   readonly definition: string;
+  /**
+   * 点数計算での扱い。その語が符・翻・点数にどう関わるかを、定義とは別に
+   * 具体的な数字で述べる（用語ページだけが出す。モーダルの要約には載せない）
+   */
+  readonly usage: string;
+  /** 具体例で見る。実際の牌や手で、その語の扱いを 1〜3 例示す */
+  readonly caseStudy: string;
+  /** よくある誤解。初学者が取り違えやすい点を正す */
+  readonly pitfall: string;
   /** 五十音行。読みがどの行にも当たらないときは undefined */
   readonly kanaRow: KanaRow | undefined;
   readonly href: string;
@@ -76,6 +90,9 @@ function toGlossaryTermView(
     term: t(`terms.${term.slug}.term`),
     reading,
     definition: t(`terms.${term.slug}.definition`),
+    usage: t(`terms.${term.slug}.usage`),
+    caseStudy: t(`terms.${term.slug}.caseStudy`),
+    pitfall: t(`terms.${term.slug}.pitfall`),
     kanaRow: kanaRowOf(reading),
     href: glossaryTermHref(term.slug),
   };

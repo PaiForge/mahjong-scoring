@@ -4,7 +4,7 @@ import { GLOSSARY_PATH, glossaryTermHref } from "@/lib/glossary/routes";
 
 import {
   chapterHref,
-  CURRICULUM_CHAPTER_SLUGS,
+  CURRICULUM,
 } from "@/app/(user)/(public)/learn/_lib/curriculum";
 import { practiceHref } from "@/app/(user)/(public)/practice/_lib/practice-catalog";
 
@@ -31,15 +31,32 @@ export const STATIC_SITEMAP_ROUTE_DEFS = [
   { url: "/reference/yaku", changeFrequency: "monthly", priority: 0.7 },
   { url: GLOSSARY_PATH, changeFrequency: "monthly", priority: 0.7 },
   { url: "/announcements", changeFrequency: "daily", priority: 0.5 },
+  { url: "/leaderboard", changeFrequency: "daily", priority: 0.4 },
   { url: "/terms", changeFrequency: "yearly", priority: 0.2 },
   { url: "/privacy", changeFrequency: "yearly", priority: 0.2 },
   { url: "/contact", changeFrequency: "yearly", priority: 0.3 },
   { url: "/company", changeFrequency: "yearly", priority: 0.2 },
 ] as const;
 
+/**
+ * 教本章ページの sitemap 項目（`/learn/<slug>` と最終更新日）
+ *
+ * `lastModified` は章の `publishedAt`。Google は sitemap の `changefreq` /
+ * `priority` を無視し `lastmod` だけをクロールの手がかりにするため、実データが
+ * ある章だけ付ける（静的ページに推測の日付は付けない）。
+ */
+export const LEARN_SITEMAP_ENTRIES: readonly {
+  readonly path: string;
+  readonly lastModified: string;
+}[] = CURRICULUM.map((chapter) => ({
+  path: chapterHref(chapter.slug),
+  lastModified: chapter.publishedAt,
+}));
+
 /** 教本章ページのパス一覧（`/learn/<slug>`） */
-export const LEARN_SITEMAP_PATHS: readonly string[] =
-  CURRICULUM_CHAPTER_SLUGS.map(chapterHref);
+export const LEARN_SITEMAP_PATHS: readonly string[] = LEARN_SITEMAP_ENTRIES.map(
+  (entry) => entry.path,
+);
 
 /** 練習説明ページのパス一覧（`/practice/<slug>`） */
 export const PRACTICE_SITEMAP_PATHS: readonly string[] =

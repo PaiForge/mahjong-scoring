@@ -48,8 +48,8 @@ importers:
         specifier: ^16.3.0
         version: 16.3.0(next@16.3.0(@types/node@26.2.0)(react-dom@19.2.8(react@19.2.8))(react@19.2.8))(react@19.2.8)
       '@pai-forge/mahjong-react-ui':
-        specifier: ^0.3.0
-        version: 0.3.0(react-dom@19.2.8(react@19.2.8))(react@19.2.8)
+        specifier: ^0.4.0
+        version: 0.4.0(react-dom@19.2.8(react@19.2.8))(react@19.2.8)
       '@supabase/ssr':
         specifier: ^0.12.4
         version: 0.12.4(@supabase/supabase-js@2.112.2)
@@ -1334,8 +1334,8 @@ packages:
   '@oxc-project/types@0.122.0':
     resolution: {integrity: sha512-oLAl5kBpV4w69UtFZ9xqcmTi+GENWOcPF7FCrczTiBbmC0ibXxCwyvZGbO39rCVEuLGAZM84DH0pUIyyv/YJzA==}
 
-  '@pai-forge/mahjong-react-ui@0.3.0':
-    resolution: {integrity: sha512-3kfRqnViWN8xKbRPQMocp8hqIGl8DLy8DVMKc2Sl7HdhGTHfJb8iyhtF/1nRIXzIN4NYdrIeWmkWB8EOoAHTsg==}
+  '@pai-forge/mahjong-react-ui@0.4.0':
+    resolution: {integrity: sha512-+Kt/Xg+vF94YPnIG4jp0rh3G7Llx4ZS1H0tEQqmni91H82zkGlRQwt85HXK2KAOJyKQ04Vh4YZISCignX4EX+w==}
     engines: {node: '>=20.0.0'}
     peerDependencies:
       react: ^18.0.0 || ^19.0.0
@@ -5044,7 +5044,7 @@ snapshots:
 
   '@oxc-project/types@0.122.0': {}
 
-  '@pai-forge/mahjong-react-ui@0.3.0(react-dom@19.2.8(react@19.2.8))(react@19.2.8)':
+  '@pai-forge/mahjong-react-ui@0.4.0(react-dom@19.2.8(react@19.2.8))(react@19.2.8)':
     dependencies:
       '@pai-forge/riichi-mahjong': 0.4.2
       ajv: 8.20.0

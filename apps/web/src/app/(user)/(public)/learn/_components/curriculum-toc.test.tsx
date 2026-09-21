@@ -10,12 +10,14 @@ const chapters: readonly CurriculumChapter[] = [
     slug: "about-this-app",
     section: "foundation",
     order: 10,
+    publishedAt: "2026-04-18",
     i18nKey: "learnCurriculum.chapters.aboutThisApp",
   },
   {
     slug: "why-scoring-is-complex",
     section: "foundation",
     order: 20,
+    publishedAt: "2026-04-18",
     i18nKey: "learnCurriculum.chapters.whyScoringIsComplex",
   },
 ];
@@ -286,6 +288,7 @@ describe("CurriculumToc", () => {
             slug: "jantou-fu",
             section: "fu",
             order: 30,
+            publishedAt: "2026-04-02",
             i18nKey: "learnCurriculum.chapters.jantouFu",
           },
         ],

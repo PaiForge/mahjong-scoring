@@ -128,7 +128,7 @@ packages/eslint-config/ — 共通 ESLint 設定（PaiForge コーディング�
 - `DataTable` / `DataTableHeaderCell` — データテーブルの外枠と見出しセル。表を作るときは直接 `<table>` を書かない
 - `LinkRow` / `LinkRowList` — 読む・見るためのリンク 1 行とその枠。太枠 + ハードシャドウ + 押し込みは「押して始める面」（練習・試験・登録）の記号なので、ページを読みに行くだけ / 一覧を見に行くだけの導線はカードにせずこれを使う
 - `SkeletonBar` — 読み込み中のプレースホルダ矩形。`animate-pulse` と背景色を直接書かない。角丸は `radius`（md / lg / xl / full）で指定し、`className` に `rounded*` を書かない
-- `PageTitleSkeleton` — 見出しのプレースホルダ帯。`PageTitle` / `AdminPageTitle` の子として置く
+- `PageTitlePlaceholder` / `AdminPageTitlePlaceholder` — 読み込み中の見出し。`PageTitle` / `AdminPageTitle` と同じ箱にグレー帯（`PageTitleSkeleton`）を置く。スケルトンで `PageTitle` に `PageTitleSkeleton` を入れない — 空の h1 が本物より先に初期 HTML へ出る
 - `SectionTitleSkeleton` — 見出しのプレースホルダ pill。矩形で代用せずこれを使う（`SectionTitle` 自身を描画するため実物と高さ・形が一致する）
 - `icons/OutlineIcon` — 線画アイコンの svg 外殻。新しい線画アイコンはこれを使う
 - `HighlightPanel` — 地の文から浮かせて読ませる琥珀色の囲み（教本のコラム・計算手順・注意書き）。`border-amber-500 bg-amber-50/60` の一式をページ側で直接書かない
@@ -182,25 +182,39 @@ packages/eslint-config/ — 共通 ESLint 設定（PaiForge コーディング�
 
 ## ローディング境界（loading.tsx）
 
-`src/app/loading-boundaries.test.ts` が「すべての page.tsx は祖先に loading.tsx を
-ちょうど 1 つ持つ」ことを検査する。Next の挙動に由来する制約で、どちらに違反しても
-スケルトンが機能しない（2026-08 に本番ビルドで実測）。
+`src/app/loading-boundaries.test.ts` が「**動的ルートは祖先に loading.tsx を
+ちょうど 1 つ持ち、静的ルートは持たない**」ことを検査する。どのルートが動的か
+（`next build` の route table で ƒ）はテスト内の `DYNAMIC_ROUTES` に写してあり、
+`pnpm build` 後は `.next` の manifest と突き合わせる。ページを動的にしたとき
+（cookie を読む・`searchParams` を使う・`force-dynamic` を付ける）は、この一覧と
+loading.tsx を一緒に足すこと。逆に静的にしたら両方を外す。
 
+- **静的ルートに置かない** — loading.tsx はページ全体を包む Suspense 境界で、
+  React（Fizz）は完了済みの境界でも中身が 12.8KB（既に流したバイト数との累計）を
+  超えると fallback を先に書き、本文を応答末尾の `<div hidden>` + `$RC()` に回す。
+  これは静的生成の HTML にもそのまま焼き込まれ、境界を持つ静的ページは初期 HTML の
+  `<main>` がスケルトンだけになる（2026-09 に本番で実測）。Google は JS を実行する
+  ので索引には影響しないが、JS を実行しないクローラー・SNS プレビューには本文が
+  見えず、空の見出しが本物より先に出る。静的ルートは `<Link>` が全量プリフェッチ
+  するので遷移スケルトンはそもそも出ず、境界を外して失うのは「プリフェッチが
+  間に合わなかったときのスケルトン」だけ
+- **動的ルートには leaf に置く** — React は遷移中、マウント済みの Suspense の
+  フォールバックを出さない。祖先の共通 loading.tsx は同じセグメント内の遷移
+  （`/learn` → `/learn/x` 等）で効かず、サーバ応答までクリックが無反応になる
 - **入れ子にしない** — `<Link>` のプリフェッチは最も外側の境界までしか取らないため、
   内側の個別スケルトンは速いサーバでは一度も出ず、遅いサーバでは本文直前に一瞬出るだけになる
-- **leaf に置く** — React は遷移中、マウント済みの Suspense のフォールバックを出さない。
-  祖先の共通 loading.tsx は同じセグメント内の遷移（`/learn` → `/learn/x` 等）で効かず、
-  サーバ応答までクリックが無反応になる
-- 複数の子ルートを 1 枚で受けるときは `practice/_components/practice-loading.tsx` のように
-  `usePathname()` で振り分ける。index ページだけ固有にしたいときは page.tsx と loading.tsx を
-  route group に退避する（`mypage/(home)`, `practice/(index)`, `admin/(dashboard)`）
+  （2026-08 に本番ビルドで実測）
+- 静的な親と動的な子が同居するルートは、動的な子の leaf にだけ置く
+  （`practice/<slug>/result/loading.tsx`、`exam/<級>/play/loading.tsx`）。index だけ
+  動的なときは page.tsx と loading.tsx を route group に退避する
+  （`learn/(index)`, `mypage/(home)`, `admin/(dashboard)`）
 - **祖先に loading.tsx があると `notFound()` は 404 を返さない** — Suspense の
   フォールバックを流し始めた時点でヘッダが確定するため、ページ本体でも
   `generateMetadata` でも `notFound()` はソフト 404（200）になる（2026-08 に
   本番ビルドで実測）。slug を事前に列挙できるルートは
   `generateStaticParams` + `export const dynamicParams = false` で弾くこと。
   未知の slug がページを描画する前にルーティングで落ちるため、本物の 404 に
-  なる（`/reference/glossary/[slug]` 参照）。列挙できない DB 由来のルート
+  なる（`/reference/glossary/[slug]` 参照）。列挙できない DB 由来の動的ルート
   （`/announcements/[slug]`, `/u/[username]`）は 200 のまま残るが、Next が
   not-found の描画に `<meta name="robots" content="noindex">` を自動で入れる
   ため索引はされない。ページ側で noindex を足す必要はない
@@ -242,7 +256,14 @@ packages/eslint-config/ — 共通 ESLint 設定（PaiForge コーディング�
 
 ## 牌画像（@pai-forge/mahjong-react-ui）
 
-- `Hai` コンポーネントで牌を表示（base64埋め込み画像）
+- `Hai` コンポーネントで牌を表示。画像は `public/tiles/*.webp`（静的ファイル）を参照する —
+  ルートレイアウトの `AppTileImageProvider`（`src/app/_contexts/tile-image-context.tsx`）が
+  パッケージの `TileImageProvider` で参照先を差し替えている。パッケージ既定の
+  base64 埋め込み（data URI）に戻さないこと。牌を並べるページの HTML が 1〜5MB になる
+- `public/tiles/` は `pnpm --filter web tiles:generate` で生成する（パッケージ同梱の PNG を
+  144×192 の WebP に縮小）。パッケージを更新したら再実行する。`src/app/tile-assets.test.ts` が
+  牌の一覧と生成物の一致を検査する
+- `Hai` の `alt` は省略時に牌の名前（一萬・東 等）。装飾として並べるだけなら `alt=""` を渡す
 - React Native 対応パッケージのため `apps/web/src/shims/react-native.ts` で web 用 shim を提供
 - ライブラリの `styles.css` は Tailwind v4 と競合するためインポート禁止。牌サイズクラスは `globals.css` に抽出済み
 - `Hai` を使うコンポーネントは `"use client"` が必要
