@@ -256,7 +256,14 @@ loading.tsx を一緒に足すこと。逆に静的にしたら両方を外す�
 
 ## 牌画像（@pai-forge/mahjong-react-ui）
 
-- `Hai` コンポーネントで牌を表示（base64埋め込み画像）
+- `Hai` コンポーネントで牌を表示。画像は `public/tiles/*.webp`（静的ファイル）を参照する —
+  ルートレイアウトの `AppTileImageProvider`（`src/app/_contexts/tile-image-context.tsx`）が
+  パッケージの `TileImageProvider` で参照先を差し替えている。パッケージ既定の
+  base64 埋め込み（data URI）に戻さないこと。牌を並べるページの HTML が 1〜5MB になる
+- `public/tiles/` は `pnpm --filter web tiles:generate` で生成する（パッケージ同梱の PNG を
+  144×192 の WebP に縮小）。パッケージを更新したら再実行する。`src/app/tile-assets.test.ts` が
+  牌の一覧と生成物の一致を検査する
+- `Hai` の `alt` は省略時に牌の名前（一萬・東 等）。装飾として並べるだけなら `alt=""` を渡す
 - React Native 対応パッケージのため `apps/web/src/shims/react-native.ts` で web 用 shim を提供
 - ライブラリの `styles.css` は Tailwind v4 と競合するためインポート禁止。牌サイズクラスは `globals.css` に抽出済み
 - `Hai` を使うコンポーネントは `"use client"` が必要

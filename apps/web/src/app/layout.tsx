@@ -6,6 +6,7 @@ import { getLocale } from "next-intl/server";
 import { GoogleAnalytics } from "@next/third-parties/google";
 import { ScrollReset } from "@/app/_components/scroll-reset";
 import { AuthProvider } from "@/app/_contexts/auth-context";
+import { AppTileImageProvider } from "@/app/_contexts/tile-image-context";
 import {
   buildSocialCard,
   DEFAULT_TITLE,
@@ -60,7 +61,9 @@ export default async function RootLayout({
       <body className="min-h-screen overflow-x-hidden">
         <ScrollReset />
         <NextIntlClientProvider>
-          <AuthProvider>{children}</AuthProvider>
+          <AppTileImageProvider>
+            <AuthProvider>{children}</AuthProvider>
+          </AppTileImageProvider>
           <GlobalToaster />
         </NextIntlClientProvider>
         {gaId && <GoogleAnalytics gaId={gaId} />}
