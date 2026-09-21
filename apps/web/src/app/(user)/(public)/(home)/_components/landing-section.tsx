@@ -13,6 +13,8 @@ interface LandingSectionProps {
   readonly ctaLabel: string;
   /** CTA ボタンの系統。塗りが必要なら primary、白抜きなら secondary */
   readonly ctaVariant: ButtonVariant;
+  /** 説明文と CTA の間に置く中身（教本の章一覧など）。無ければ何も置かない */
+  readonly children?: ReactNode;
 }
 
 export function LandingSection({
@@ -24,6 +26,7 @@ export function LandingSection({
   href,
   ctaLabel,
   ctaVariant,
+  children,
 }: LandingSectionProps) {
   return (
     <section className={`px-6 py-24 ${sectionClassName}`}>
@@ -37,6 +40,7 @@ export function LandingSection({
         <p className="max-w-2xl text-lg font-medium leading-relaxed text-surface-500">
           {description}
         </p>
+        {children}
         <div className="pt-4">
           <LinkButton href={href} variant={ctaVariant} size="xl">
             {ctaLabel}
