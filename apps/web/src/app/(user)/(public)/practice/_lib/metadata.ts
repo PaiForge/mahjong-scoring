@@ -30,6 +30,10 @@ const PRACTICE_SUBPAGE_ROBOTS = { index: false, follow: true } as const;
  * canonical を持つのは説明ページだけ。play / result / training は
  * 検索結果に載せないため、このヘルパーを使わない。
  *
+ * title は「<練習名>の練習」。練習名そのままだと教本の同名章
+ * （`/learn/jantou-fu` と `/practice/jantou-fu` はどちらも「雀頭の符計算」）と
+ * 検索結果で同じ見出しになるため。画面の見出し（h1）は練習名のまま。
+ *
  * 辞書ネームスペースはレジストリ（practice-menu-types.ts）の `namespace`
  * から引く。namespace と slug を別々に渡すと、コピペで「タイトルは面子・
  * canonical は待ち」のような誤配線が typecheck を通ってしまうため。
@@ -39,7 +43,19 @@ const PRACTICE_SUBPAGE_ROBOTS = { index: false, follow: true } as const;
 export async function createPracticeMetadata(
   slug: PracticeMenuSlug,
 ): Promise<Metadata> {
-  return createNamespaceMetadata(practiceMenuBySlug(slug).namespace, {
+  const { namespace } = practiceMenuBySlug(slug);
+  // 昇級試験は「昇級試験：〜」で始まり教本と衝突しないのでそのまま。練習は教本の
+  // 同名章（「雀頭の符計算」等）と title が同じになるため「〜の練習」にする
+  if (isExamMenu(slug)) {
+    return createNamespaceMetadata(namespace, { path: practiceHref(slug) });
+  }
+  const [t, tPractice] = await Promise.all([
+    getTranslations(namespace),
+    getTranslations("practice"),
+  ]);
+  return createMetadata({
+    title: tPractice("introTitle", { title: t("title") }),
+    description: t("description"),
     path: practiceHref(slug),
   });
 }

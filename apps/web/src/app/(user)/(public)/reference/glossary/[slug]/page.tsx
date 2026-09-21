@@ -39,7 +39,7 @@ import {
 import { GLOSSARY_TERM_SLUGS } from "@/lib/glossary/registry";
 import { GLOSSARY_PATH } from "@/lib/glossary/routes";
 
-import { JsonLd } from "../_components/json-ld";
+import { JsonLd } from "@/app/(user)/_components/json-ld";
 import { RelatedTerms } from "../_components/related-terms";
 import { TermExamples } from "../_components/term-examples";
 import { TermLearnLinks } from "../_components/term-learn-links";
@@ -59,14 +59,19 @@ export async function generateMetadata({
   params,
 }: GlossaryTermPageProps): Promise<Metadata> {
   const { slug } = await params;
-  const term = await getGlossaryTermViewBySlug(slug);
+  const [term, t] = await Promise.all([
+    getGlossaryTermViewBySlug(slug),
+    getTranslations("glossary"),
+  ]);
   // 本番では dynamicParams = false が未知の slug をここへ通さない。
   // 開発サーバーは列挙を無視して描画するため、その場合だけここを通る
   // （本文が notFound() を呼び、Next が noindex を付けた 404 を描く）。
   if (!term) return {};
 
   return createMetadata({
-    title: term.term,
+    // 見出し語だけ（「萬子」）では検索語を含まない。読みと「とは｜麻雀用語」を
+    // 添えて、用語を調べる検索（「萬子 とは」「マンズ 麻雀」）に当たる形にする
+    title: t("metaTitle", { term: term.term, reading: term.reading }),
     description: term.definition,
     path: term.href,
   });

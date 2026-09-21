@@ -2,6 +2,7 @@ import type { ReactNode } from "react";
 import { getTranslations } from "next-intl/server";
 import { ContentContainer } from "@/app/(user)/_components/content-container";
 import { GlossaryTermModalProvider } from "@/app/(user)/_components/glossary/glossary-term-modal-provider";
+import { JsonLd } from "@/app/(user)/_components/json-ld";
 import { PageTitle } from "@/app/(user)/_components/page-title";
 import { collectTermSlugsInNamespace } from "@/lib/glossary/message-terms";
 import { resolveTermPreviews } from "@/lib/glossary/queries";
@@ -9,7 +10,9 @@ import {
   getChapterBySlug,
   type CurriculumChapterSlug,
 } from "../_lib/curriculum";
+import { buildLearnArticleSchema } from "../_lib/json-ld";
 import { chapterNamespace } from "../_lib/metadata";
+import { formatPublishedDate } from "../_lib/published-date";
 import { ChapterNav } from "./chapter-nav";
 import { ChapterReadStatus } from "./chapter-read-status";
 import { ExamCtaCard } from "./exam-cta-card";
@@ -46,10 +49,12 @@ export async function LearnPageLayout({
   children,
 }: LearnPageLayoutProps) {
   const namespace = chapterNamespace(slug);
-  const [t, tLearn, tGlossary] = await Promise.all([
+  const [t, tLearn, tChapter, tGlossary, tCompany] = await Promise.all([
     getTranslations(namespace),
     getTranslations("learnCurriculum.index"),
+    getTranslations("learnCurriculum.chapter"),
     getTranslations("glossary"),
+    getTranslations("company"),
   ]);
   const chapter = getChapterBySlug(slug);
   const practiceHrefs = chapter?.practiceHrefs ?? [];
@@ -67,7 +72,26 @@ export async function LearnPageLayout({
         { label: t("pageTitle") },
       ]}
     >
+      {chapter && (
+        <JsonLd
+          data={buildLearnArticleSchema({
+            slug,
+            headline: t("pageTitle"),
+            description: t("pageDescription"),
+            publishedAt: chapter.publishedAt,
+            operatorName: tCompany("name.value"),
+          })}
+        />
+      )}
       <PageTitle>{t("pageTitle")}</PageTitle>
+      {/* 章の鮮度を読者と検索側に示す。Article の datePublished と同じ日付 */}
+      {chapter && (
+        <p className="text-center text-xs text-surface-500">
+          {tChapter("publishedOn", {
+            date: formatPublishedDate(chapter.publishedAt),
+          })}
+        </p>
+      )}
 
       <div className="space-y-10">
         <GlossaryTermModalProvider

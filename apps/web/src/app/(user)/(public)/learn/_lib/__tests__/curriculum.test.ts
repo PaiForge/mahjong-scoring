@@ -252,6 +252,7 @@ describe("getChapterI18nPath", () => {
       slug: "about-this-app",
       section: "foundation",
       order: 10,
+      publishedAt: "2026-04-18",
       i18nKey: "chapters.aboutThisApp",
     } as const;
     expect(getChapterI18nPath(chapter)).toBe("chapters.aboutThisApp");

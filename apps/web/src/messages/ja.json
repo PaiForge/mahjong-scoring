@@ -302,7 +302,8 @@
     "modeTrainingHint": "時間無制限・1問ごとに答え合わせして反復練習",
     "settingsTitle": "設定",
     "requiredKnowledge": "関連する教本の章",
-    "variantLabel": "設定: {label}"
+    "variantLabel": "設定: {label}",
+    "introTitle": "{title}の練習"
   },
   "challenge": {
     "timeRemaining": "残り {seconds} 秒",
@@ -1366,7 +1367,8 @@
         "reading": "バゾロ",
         "definition": "点数計算のときに翻数へ常に2翻分を上乗せする仕組み。バンバンとも呼ぶ。基本点が「符 × 2の（翻＋2）乗」で求まるのはこのため。"
       }
-    }
+    },
+    "metaTitle": "{term}（{reading}）とは｜麻雀用語"
   },
   "scoreTable": {
     "pageTitle": "点数早見表",
@@ -1803,7 +1805,8 @@
       "practiceLinksTitle": "この章に対応する練習",
       "practiceLinkCta": "練習を始める",
       "practiceLinkChallengeCta": "{title}にチャレンジ",
-      "updateFailedToast": "進捗の更新に失敗しました。再度お試しください。"
+      "updateFailedToast": "進捗の更新に失敗しました。再度お試しください。",
+      "publishedOn": "{date} 公開"
     },
     "scoreTable": {
       "tableKo": "子の点数",

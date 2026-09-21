@@ -2,7 +2,11 @@ import type { Metadata } from "next";
 
 import { createNamespaceMetadata } from "@/app/_lib/metadata";
 
-import { chapterHref, type CurriculumChapterSlug } from "./curriculum";
+import {
+  chapterHref,
+  getChapterBySlug,
+  type CurriculumChapterSlug,
+} from "./curriculum";
 
 /**
  * 章ページの辞書ネームスペースを slug から導出する。
@@ -32,15 +36,29 @@ export function chapterNamespace(slug: CurriculumChapterSlug): string {
  * 教本メタデータ生成
  *
  * canonical のパスと辞書ネームスペースをどちらも slug から導出する。
+ * og:type は article（公開日は `CURRICULUM` の `publishedAt`）。
  *
  * @param slug - 対象章のスラッグ
  */
 export async function createLearnMetadata(
   slug: CurriculumChapterSlug,
 ): Promise<Metadata> {
-  return createNamespaceMetadata(chapterNamespace(slug), {
+  const base = await createNamespaceMetadata(chapterNamespace(slug), {
     title: "pageTitle",
     description: "pageDescription",
     path: chapterHref(slug),
   });
+  const publishedAt = getChapterBySlug(slug)?.publishedAt;
+  return {
+    ...base,
+    // 章は読み物なので og:type は website ではなく article。公開日も添える
+    // （Article の JSON-LD と同じ値。LearnPageLayout が出す）
+    openGraph: {
+      ...base.openGraph,
+      type: "article",
+      ...(publishedAt
+        ? { publishedTime: `${publishedAt}T00:00:00+09:00` }
+        : {}),
+    },
+  };
 }

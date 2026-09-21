@@ -38,6 +38,13 @@ export type CurriculumSection = (typeof CURRICULUM_SECTIONS)[number];
  */
 interface CurriculumChapterEntry {
   readonly slug: string;
+  /**
+   * 公開日（ISO 8601 の日付、JST）。Article の `datePublished`・sitemap の
+   * `lastmod`・章末の表示に使う。初出はその章のディレクトリの初回コミット日。
+   * 内容を大きく書き直したときはこの日付を進める（検索側には「更新日」として
+   * 見える。推測で入れないこと — 実際に書き直した日だけ）。
+   */
+  readonly publishedAt: string;
   readonly section: CurriculumSection;
   readonly order: number;
   readonly practiceHrefs?: readonly string[];
@@ -54,12 +61,14 @@ interface CurriculumChapterEntry {
 const CURRICULUM_REGISTRY = [
   {
     slug: "about-this-app",
+    publishedAt: "2026-04-18",
     section: "foundation",
     order: 10,
     i18nKey: "learnCurriculum.chapters.aboutThisApp",
   },
   {
     slug: "why-scoring-is-complex",
+    publishedAt: "2026-04-18",
     section: "foundation",
     order: 20,
     i18nKey: "learnCurriculum.chapters.whyScoringIsComplex",
@@ -72,6 +81,7 @@ const CURRICULUM_REGISTRY = [
   // ロンと同じ）も参照先が直前の章になる
   {
     slug: "mangan-ko-ron",
+    publishedAt: "2026-06-27",
     section: "mangan",
     order: 21,
     // 練習リンクを持たない。この時点で読んだのは子のロンだけで、
@@ -80,6 +90,7 @@ const CURRICULUM_REGISTRY = [
   },
   {
     slug: "mangan-ko-tsumo",
+    publishedAt: "2026-06-27",
     section: "mangan",
     order: 22,
     // ここで子の満貫以上（ロン・ツモ）が揃うので、同じ範囲の練習へ送る。
@@ -90,6 +101,7 @@ const CURRICULUM_REGISTRY = [
   },
   {
     slug: "mangan-oya-ron",
+    publishedAt: "2026-06-27",
     section: "mangan",
     order: 23,
     // 練習リンクを持たない（子のロンの章と同じ理由。次の章で親が揃う）
@@ -97,6 +109,7 @@ const CURRICULUM_REGISTRY = [
   },
   {
     slug: "mangan-oya-tsumo",
+    publishedAt: "2026-06-27",
     section: "mangan",
     order: 24,
     // ここで親の満貫以上が揃う（子のツモの章と同じ理由）。
@@ -111,6 +124,7 @@ const CURRICULUM_REGISTRY = [
   },
   {
     slug: "yaku",
+    publishedAt: "2026-04-02",
     section: "yaku",
     order: 25,
     practiceHrefs: [
@@ -124,6 +138,7 @@ const CURRICULUM_REGISTRY = [
   },
   {
     slug: "jantou-fu",
+    publishedAt: "2026-04-02",
     section: "fu",
     order: 30,
     practiceHrefs: ["/practice/jantou-fu"],
@@ -131,6 +146,7 @@ const CURRICULUM_REGISTRY = [
   },
   {
     slug: "mentsu-fu",
+    publishedAt: "2026-04-02",
     section: "fu",
     order: 40,
     practiceHrefs: ["/practice/mentsu-fu"],
@@ -138,6 +154,7 @@ const CURRICULUM_REGISTRY = [
   },
   {
     slug: "machi-fu",
+    publishedAt: "2026-04-02",
     section: "fu",
     order: 50,
     practiceHrefs: ["/practice/machi-fu"],
@@ -145,6 +162,7 @@ const CURRICULUM_REGISTRY = [
   },
   {
     slug: "tehai-fu",
+    publishedAt: "2026-04-02",
     section: "fu",
     order: 60,
     // 要素ごとに符を答える練習と、手牌1つに符1つで答える練習。本章が
@@ -156,6 +174,7 @@ const CURRICULUM_REGISTRY = [
   },
   {
     slug: "chiitoitsu-score",
+    publishedAt: "2026-08-29",
     section: "score",
     order: 70,
     // 対応する練習は自由練習（/practice/score の役絞り込み）だが、
@@ -170,6 +189,7 @@ const CURRICULUM_REGISTRY = [
   },
   {
     slug: "pinfu-score",
+    publishedAt: "2026-08-28",
     section: "score",
     order: 80,
     // 七対子の章と同じ理由で practiceHrefs を持たない（導線は
@@ -182,6 +202,7 @@ const CURRICULUM_REGISTRY = [
   },
   {
     slug: "menzen-mentsu-score",
+    publishedAt: "2026-08-29",
     section: "score",
     order: 90,
     // 七対子・平和の章と同じ理由で practiceHrefs を持たない（導線は
@@ -190,6 +211,7 @@ const CURRICULUM_REGISTRY = [
   },
   {
     slug: "furo-score",
+    publishedAt: "2026-08-29",
     section: "score",
     order: 100,
     // 点数の計算セクションの他の章と同じ理由で practiceHrefs を持たない
@@ -202,6 +224,7 @@ const CURRICULUM_REGISTRY = [
   },
   {
     slug: "fu-doubling",
+    publishedAt: "2026-08-31",
     section: "memorization",
     // 点数の計算セクション（〜100）から番号を離す。記憶術セクションは
     // 章を足していく前提なので、基礎側が伸びても番号がぶつからないようにする
@@ -214,6 +237,7 @@ const CURRICULUM_REGISTRY = [
   },
   {
     slug: "ron-to-tsumo",
+    publishedAt: "2026-09-02",
     section: "memorization",
     order: 210,
     // 子に絞った点数表早引き。この章が導出できるようにするのはまさに
@@ -224,6 +248,7 @@ const CURRICULUM_REGISTRY = [
   },
   {
     slug: "tsumo-payments",
+    publishedAt: "2026-08-31",
     section: "memorization",
     order: 220,
     // 点数表早引きの全部。この章が要らなくする暗記はまさに親ツモの列で、
@@ -241,6 +266,13 @@ export type CurriculumChapterSlug =
 /** 1 章分のメタデータ */
 export interface CurriculumChapter {
   readonly slug: CurriculumChapterSlug;
+  /**
+   * 公開日（ISO 8601 の日付、JST）。Article の `datePublished`・sitemap の
+   * `lastmod`・章末の表示に使う。初出はその章のディレクトリの初回コミット日。
+   * 内容を大きく書き直したときはこの日付を進める（検索側には「更新日」として
+   * 見える。推測で入れないこと — 実際に書き直した日だけ）。
+   */
+  readonly publishedAt: string;
   readonly section: CurriculumSection;
   readonly order: number;
   readonly practiceHrefs?: readonly string[];
