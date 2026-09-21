@@ -1,8 +1,8 @@
-import { Children, isValidElement } from "react";
+import { Children } from "react";
 
 import { Breadcrumb, type BreadcrumbItem } from "./breadcrumb";
 import { Divider } from "./divider";
-import { PageTitle } from "./page-title";
+import { isPageTitleElement } from "./page-title";
 
 interface ContentContainerProps {
   children: React.ReactNode;
@@ -38,8 +38,9 @@ interface ContentContainerProps {
  * 地は body の下地（bg-secondary + 薄い斜線）で、この白カードがその上に浮く。
  * (user) レイアウトの main は背景を持たないため、地の柄はページ全体で連続する。
  *
- * 子要素に `<PageTitle>` が含まれる場合は、それをカードの外（上）へ引き上げ、
- * 画面最上部の全幅領域に表示する（背景は地の斜線がそのまま続く）。
+ * 子要素に `<PageTitle>`（読み込み中は `<PageTitlePlaceholder>`）が含まれる場合は、
+ * それをカードの外（上）へ引き上げ、画面最上部の全幅領域に表示する
+ * （背景は地の斜線がそのまま続く）。
  */
 export function ContentContainer({
   children,
@@ -49,13 +50,9 @@ export function ContentContainer({
   fillViewport = false,
 }: ContentContainerProps) {
   const childArray = Children.toArray(children);
-  const title = childArray.find(
-    (child) => isValidElement(child) && child.type === PageTitle,
-  );
+  const title = childArray.find(isPageTitleElement);
   const body = title
-    ? childArray.filter(
-        (child) => !(isValidElement(child) && child.type === PageTitle),
-      )
+    ? childArray.filter((child) => !isPageTitleElement(child))
     : childArray;
 
   // fillViewport 時は白カード自身を min-h-screen にして画面を埋める。

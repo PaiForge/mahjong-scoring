@@ -1,3 +1,5 @@
+import { isValidElement, type ReactNode } from "react";
+
 import { PageTitleSkeleton } from "@/app/_components/page-title-skeleton";
 
 /**
@@ -75,4 +77,20 @@ export function PageTitlePlaceholder({
       <PageTitleSkeleton width={width} />
     </div>
   );
+}
+
+/** ページ見出しの席に着ける要素（本物とプレースホルダ） */
+const PAGE_TITLE_TYPES: readonly unknown[] = [PageTitle, PageTitlePlaceholder];
+
+/**
+ * 子要素がページ見出しの席に着くものか判定する。
+ *
+ * `ContentContainer` は見出しを白カードの外（タイトル帯）へ引き上げ、
+ * そのときだけカードをフルブリードの縦伸びレイアウトに切り替える。判定を
+ * `PageTitle` だけに絞ると、`PageTitlePlaceholder` を使う loading.tsx が
+ * 見出しなしのレイアウトへ落ちる（カードが中身の幅まで縮む）。見出しの席に
+ * 着けるものはここで一括して数え、両者を同じ扱いにする。
+ */
+export function isPageTitleElement(node: ReactNode): boolean {
+  return isValidElement(node) && PAGE_TITLE_TYPES.includes(node.type);
 }
