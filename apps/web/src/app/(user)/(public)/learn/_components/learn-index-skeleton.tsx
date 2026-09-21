@@ -2,11 +2,8 @@ import { ContentContainer } from "@/app/(user)/_components/content-container";
 import { PageTitlePlaceholder } from "@/app/(user)/_components/page-title";
 import { SectionTitleSkeleton } from "@/app/(user)/_components/section-title-skeleton";
 import { SkeletonBar } from "@/app/_components/skeleton-bar";
-import {
-  CURRICULUM,
-  CURRICULUM_SECTIONS,
-  type CurriculumSection,
-} from "../_lib/curriculum";
+import { CURRICULUM, CURRICULUM_SECTIONS } from "../_lib/curriculum";
+import { SECTION_LABEL_WIDTH_CLASS } from "../_lib/toc-layout";
 import { CurriculumProgressBarSkeleton } from "./curriculum-progress-bar-skeleton";
 import { CurriculumTocSkeleton } from "./curriculum-toc-skeleton";
 
@@ -55,18 +52,3 @@ export function LearnIndexSkeleton() {
     </ContentContainer>
   );
 }
-
-/**
- * セクションラベルのプレースホルダ幅
- *
- * 実際のラベル（`learnCurriculum.sections.*`）の文字数に合わせた概算。
- * 文言を大きく変えたときはここも合わせる。
- */
-const SECTION_LABEL_WIDTH_CLASS: Readonly<Record<CurriculumSection, string>> = {
-  foundation: "w-12",
-  mangan: "w-32",
-  yaku: "w-8",
-  fu: "w-20",
-  score: "w-24",
-  memorization: "w-20",
-};
