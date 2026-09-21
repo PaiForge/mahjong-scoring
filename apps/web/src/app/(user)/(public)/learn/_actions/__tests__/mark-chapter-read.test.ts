@@ -122,7 +122,8 @@ describe("markChapterRead", () => {
       await markChapterRead("machi-fu");
 
       expect(mockRevalidatePath).toHaveBeenCalledWith("/learn");
-      expect(mockRevalidatePath).toHaveBeenCalledWith("/learn/machi-fu");
+      // 章ページは静的なので捨てない
+      expect(mockRevalidatePath).not.toHaveBeenCalledWith("/learn/machi-fu");
     });
 
     it("returns { success: true } on duplicate calls (ON CONFLICT DO NOTHING)", async () => {

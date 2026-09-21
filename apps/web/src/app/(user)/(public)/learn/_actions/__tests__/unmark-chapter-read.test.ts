@@ -128,7 +128,8 @@ describe("unmarkChapterRead", () => {
       await unmarkChapterRead("jantou-fu");
 
       expect(mockRevalidatePath).toHaveBeenCalledWith("/learn");
-      expect(mockRevalidatePath).toHaveBeenCalledWith("/learn/jantou-fu");
+      // 章ページは静的なので捨てない
+      expect(mockRevalidatePath).not.toHaveBeenCalledWith("/learn/jantou-fu");
     });
   });
 

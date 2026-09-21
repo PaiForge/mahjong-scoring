@@ -8,6 +8,10 @@
  * @flow
  * ユーザーは各章のタイトル Link から対応する `/learn/<slug>` へ遷移する。
  * 未認証ユーザーでも進捗は空として表示され、最初の章が「次はここから」となる。
+ *
+ * 読了状態を cookie から読むため動的ルート。章ページ（`/learn/<slug>`）は静的なので、
+ * 目次だけが持つ loading.tsx が章の祖先にならないよう route group に退避している
+ * （`loading-boundaries.test.ts` 参照）。
  */
 import type { Metadata } from "next";
 import { getTranslations } from "next-intl/server";
@@ -15,16 +19,16 @@ import { ContentContainer } from "@/app/(user)/_components/content-container";
 import { PageTitle } from "@/app/(user)/_components/page-title";
 import { SectionTitle } from "@/app/(user)/_components/section-title";
 import { createNamespaceMetadata } from "@/app/_lib/metadata";
-import { CurriculumProgressBar } from "./_components/curriculum-progress-bar";
-import { CurriculumToc } from "./_components/curriculum-toc";
+import { CurriculumProgressBar } from "../_components/curriculum-progress-bar";
+import { CurriculumToc } from "../_components/curriculum-toc";
 import {
   CURRICULUM,
   CURRICULUM_SECTIONS,
   type CurriculumChapter,
   type CurriculumSection,
   pickNextChapter,
-} from "./_lib/curriculum";
-import { fetchReadChapterSlugs } from "./_lib/progress";
+} from "../_lib/curriculum";
+import { fetchReadChapterSlugs } from "../_lib/progress";
 
 export async function generateMetadata(): Promise<Metadata> {
   return createNamespaceMetadata("learnCurriculum.index", {
