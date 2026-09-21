@@ -25,7 +25,14 @@ const messages = messagesJson as unknown as {
     readonly captions: Record<string, string>;
     readonly terms: Record<
       string,
-      { term: string; reading: string; definition: string }
+      {
+        term: string;
+        reading: string;
+        definition: string;
+        usage: string;
+        caseStudy: string;
+        pitfall: string;
+      }
     >;
   };
 };
@@ -46,7 +53,7 @@ describe("用語スラッグ", () => {
 
 describe("用語の文言", () => {
   it.each(GLOSSARY_TERM_SLUGS.map((slug) => [slug]))(
-    "%s は見出し語・読み・定義を持つ",
+    "%s は見出し語・読み・定義と 3 節（扱い・具体例・誤解）を持つ",
     (slug) => {
       const entry = terms[slug];
       expect(entry, "glossary.terms に該当キーが無い").toBeDefined();
@@ -54,6 +61,12 @@ describe("用語の文言", () => {
       expect(entry.term).not.toBe("");
       expect(entry.reading).toBeTypeOf("string");
       expect(entry.definition).not.toBe("");
+      // 定義 1〜2 文だけの用語ページは検索側に「薄いページ」と判断される。
+      // 用語ごとに符・翻・点数への関わりまで書き、節を欠く用語を作らない
+      for (const key of ["usage", "caseStudy", "pitfall"] as const) {
+        expect(entry[key], `${slug}.${key}`).toBeTypeOf("string");
+        expect(entry[key], `${slug}.${key}`).not.toBe("");
+      }
     },
   );
 
