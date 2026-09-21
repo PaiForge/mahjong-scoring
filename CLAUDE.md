@@ -182,25 +182,39 @@ packages/eslint-config/ — 共通 ESLint 設定（PaiForge コーディング�
 
 ## ローディング境界（loading.tsx）
 
-`src/app/loading-boundaries.test.ts` が「すべての page.tsx は祖先に loading.tsx を
-ちょうど 1 つ持つ」ことを検査する。Next の挙動に由来する制約で、どちらに違反しても
-スケルトンが機能しない（2026-08 に本番ビルドで実測）。
+`src/app/loading-boundaries.test.ts` が「**動的ルートは祖先に loading.tsx を
+ちょうど 1 つ持ち、静的ルートは持たない**」ことを検査する。どのルートが動的か
+（`next build` の route table で ƒ）はテスト内の `DYNAMIC_ROUTES` に写してあり、
+`pnpm build` 後は `.next` の manifest と突き合わせる。ページを動的にしたとき
+（cookie を読む・`searchParams` を使う・`force-dynamic` を付ける）は、この一覧と
+loading.tsx を一緒に足すこと。逆に静的にしたら両方を外す。
 
+- **静的ルートに置かない** — loading.tsx はページ全体を包む Suspense 境界で、
+  React（Fizz）は完了済みの境界でも中身が 12.8KB（既に流したバイト数との累計）を
+  超えると fallback を先に書き、本文を応答末尾の `<div hidden>` + `$RC()` に回す。
+  これは静的生成の HTML にもそのまま焼き込まれ、境界を持つ静的ページは初期 HTML の
+  `<main>` がスケルトンだけになる（2026-09 に本番で実測）。Google は JS を実行する
+  ので索引には影響しないが、JS を実行しないクローラー・SNS プレビューには本文が
+  見えず、空の見出しが本物より先に出る。静的ルートは `<Link>` が全量プリフェッチ
+  するので遷移スケルトンはそもそも出ず、境界を外して失うのは「プリフェッチが
+  間に合わなかったときのスケルトン」だけ
+- **動的ルートには leaf に置く** — React は遷移中、マウント済みの Suspense の
+  フォールバックを出さない。祖先の共通 loading.tsx は同じセグメント内の遷移
+  （`/learn` → `/learn/x` 等）で効かず、サーバ応答までクリックが無反応になる
 - **入れ子にしない** — `<Link>` のプリフェッチは最も外側の境界までしか取らないため、
   内側の個別スケルトンは速いサーバでは一度も出ず、遅いサーバでは本文直前に一瞬出るだけになる
-- **leaf に置く** — React は遷移中、マウント済みの Suspense のフォールバックを出さない。
-  祖先の共通 loading.tsx は同じセグメント内の遷移（`/learn` → `/learn/x` 等）で効かず、
-  サーバ応答までクリックが無反応になる
-- 複数の子ルートを 1 枚で受けるときは `practice/_components/practice-loading.tsx` のように
-  `usePathname()` で振り分ける。index ページだけ固有にしたいときは page.tsx と loading.tsx を
-  route group に退避する（`mypage/(home)`, `practice/(index)`, `admin/(dashboard)`）
+  （2026-08 に本番ビルドで実測）
+- 静的な親と動的な子が同居するルートは、動的な子の leaf にだけ置く
+  （`practice/<slug>/result/loading.tsx`、`exam/<級>/play/loading.tsx`）。index だけ
+  動的なときは page.tsx と loading.tsx を route group に退避する
+  （`learn/(index)`, `mypage/(home)`, `admin/(dashboard)`）
 - **祖先に loading.tsx があると `notFound()` は 404 を返さない** — Suspense の
   フォールバックを流し始めた時点でヘッダが確定するため、ページ本体でも
   `generateMetadata` でも `notFound()` はソフト 404（200）になる（2026-08 に
   本番ビルドで実測）。slug を事前に列挙できるルートは
   `generateStaticParams` + `export const dynamicParams = false` で弾くこと。
   未知の slug がページを描画する前にルーティングで落ちるため、本物の 404 に
-  なる（`/reference/glossary/[slug]` 参照）。列挙できない DB 由来のルート
+  なる（`/reference/glossary/[slug]` 参照）。列挙できない DB 由来の動的ルート
   （`/announcements/[slug]`, `/u/[username]`）は 200 のまま残るが、Next が
   not-found の描画に `<meta name="robots" content="noindex">` を自動で入れる
   ため索引はされない。ページ側で noindex を足す必要はない

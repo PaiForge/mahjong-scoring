@@ -14,10 +14,10 @@ interface PageSkeletonProps {
  * loading.tsx 間で共有する汎用ページスケルトン。
  *
  * ナビゲーション中にサーバー描画が完了するまで即座に表示し、画面が固まって
- * 見える体感を解消する。`ContentContainer` + `PageTitle` で実描画と同じ
- * 全幅グレー帯を再現し CLS を防ぐ。個別ルートで忠実なスケルトンが必要な場合は
- * そのルート専用の loading.tsx を置く。ただし祖先に別の loading.tsx が無いこと
- * （境界はページごとに 1 つ。`loading-boundaries.test.ts` が検査する）。
+ * 見える体感を解消する。`ContentContainer` + `PageTitlePlaceholder` で実描画と
+ * 同じ全幅グレー帯を再現し CLS を防ぐ。個別ルートで忠実なスケルトンが必要な場合は
+ * そのルート専用の loading.tsx を置く。置くのは動的ルートだけ、祖先に別の
+ * loading.tsx が無いこと（`loading-boundaries.test.ts` が検査する）。
  * 汎用ページスケルトン
  */
 export function PageSkeleton({
