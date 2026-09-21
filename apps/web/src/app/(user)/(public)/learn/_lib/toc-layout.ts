@@ -8,6 +8,8 @@
  * どちらか一方だけを直すとズレる。片側に持たせず必ずここを経由させること。
  */
 
+import type { CurriculumSection } from "./curriculum";
+
 /**
  * セクション bullet のサイズ。
  * 下の座標定数と対応しているため、変更時はそちらも更新すること。
@@ -36,3 +38,21 @@ export const GUIDE_LINE_LEFT_PX = BULLET_CENTER_LEFT_PX - 1;
  */
 export const CHAPTER_ROW_BASE_CLASS =
   "relative flex items-start gap-3 py-3 pl-7 pr-2";
+
+/**
+ * セクションラベルのプレースホルダ幅
+ *
+ * 実際のラベル（`learnCurriculum.sections.*`）の文字数に合わせた概算。
+ * 文言を大きく変えたときはここも合わせる。目次を抜粋して見せる場所
+ * （道場の前提章）のスケルトンも同じ幅を使うため、片側に置かない。
+ */
+export const SECTION_LABEL_WIDTH_CLASS: Readonly<
+  Record<CurriculumSection, string>
+> = {
+  foundation: "w-12",
+  mangan: "w-32",
+  yaku: "w-8",
+  fu: "w-20",
+  score: "w-24",
+  memorization: "w-20",
+};
