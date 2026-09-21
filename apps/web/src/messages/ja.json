@@ -673,9 +673,52 @@
   "tehaiFu": {
     "learn": {
       "pageTitle": "手牌全体の符計算",
+      "checklistTitle": "符を数える場所のチェックリスト",
+      "checklistLead": "符が付く場所は6つです。\nこれらすべてを足し合わせていくことで手牌全体の符を計上することができます。",
+      "checklistColPlace": "数える場所",
+      "checklistColFu": "符",
+      "checklistRows": {
+        "futei": {
+          "label": "副底",
+          "condition": "和了したすべての手に付く",
+          "fu": "20符"
+        },
+        "menzenRon": {
+          "label": "門前ロンの加符",
+          "condition": "門前でロン和了したとき",
+          "fu": "10符"
+        },
+        "tsumo": {
+          "label": "ツモ符",
+          "condition": "ツモ和了したとき（副露していても付く）",
+          "fu": "2符"
+        },
+        "mentsu": {
+          "label": "面子の符",
+          "condition": "刻子・槓子があるとき（順子は0符）",
+          "fu": "2〜32符"
+        },
+        "jantou": {
+          "label": "雀頭の符",
+          "condition": "雀頭が三元牌・場風牌・自風牌のとき",
+          "fu": "2符"
+        },
+        "machi": {
+          "label": "待ちの符",
+          "condition": "単騎・嵌張・辺張で和了したとき",
+          "fu": "2符"
+        }
+      },
+      "checklistAgariNote": "※ 門前ロンの加符とツモ符が同時に付くことはありません。門前ロンなら10符、ツモなら2符、副露してのロンならどちらも付きません。",
+      "checklistOrderBody": "どの順番で足していくかは自分がやりやすいように決めるといいと思います。しかし、漏れがないように注意する必要はあります。",
+      "checklistRoundBody": "符の合算ができたら、最後に[[fu-kiriage|10符単位へ切り上げ]]を行います。\n22符なら30符、32符なら40符です。切り上げまで済ませた値が、その手牌の符です。",
+      "checklistChapterRefBody": "面子・雀頭・待ちの数え方は、<mentsuLink></mentsuLink>・<jantouLink></jantouLink>・<machiLink></machiLink>の章のとおりです。",
+      "checklistColumnLabel": "コラム",
+      "checklistColumnTitle": "チェックリストを通らない2つの手",
+      "checklistColumnBody": "七対子は、ツモでもロンでも25符で固定です。<br></br>平和のツモも例外で、副底の20符のままになります（ツモの2符を足しません）。<br></br>この2つだけは積み上げずに符が決まります。くわしくは<chiitoitsuLink></chiitoitsuLink>・<pinfuLink></pinfuLink>の章で扱います。",
       "commonMistakesTitle": "手牌の符計算でよくある間違い",
       "commonMistakesLead": "[[fu|符]]の数え方をひととおり覚えても、実際の対局では合計を間違えることがよくあります。\nとくに次の3つは間違えやすいポイントです。",
-      "pageDescription": "手牌の符計算で間違えやすいポイントをまとめました。ツモ符の計上忘れ、ロン時の刻子の明暗判定、自風・場風の誤認など、よくあるミスを解説します。",
+      "pageDescription": "手牌全体の符の数え方を解説。符が付く6つの場所をチェックリストにまとめ、ツモ符の計上忘れ、ロン時の刻子の明暗判定、自風・場風の誤認といった間違えやすいポイントも扱います。",
       "tsumoFuTitle": "ツモ符の計上忘れ",
       "tsumoFuBody1": "[[tsumo|ツモ]]で[[hora|和了]]した場合、[[menzen|門前]]であるかどうかに関係なく2符が付きます。\n[[furo|副露]]をしていてもツモ和了であれば[[tsumo-fu|ツモ符]]は加算されるため、見落とさないようにしましょう。",
       "tsumoFuBody2": "役の「門前清自摸和（メンゼンツモ）」は門前限定の役ですが、ツモ符はあくまで和了方法に対して付く符であり、副露の有無は関係ありません。\nこの2つを混同しないことが大切です。",
