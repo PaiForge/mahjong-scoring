@@ -1,6 +1,5 @@
 import { ContentContainer } from "@/app/(user)/_components/content-container";
-import { PageTitle } from "@/app/(user)/_components/page-title";
-import { PageTitleSkeleton } from "@/app/_components/page-title-skeleton";
+import { PageTitlePlaceholder } from "@/app/(user)/_components/page-title";
 import { ScoreTableSkeleton } from "./_components/score-table-skeleton";
 
 /**
@@ -13,9 +12,7 @@ import { ScoreTableSkeleton } from "./_components/score-table-skeleton";
 export default function Loading() {
   return (
     <ContentContainer>
-      <PageTitle>
-        <PageTitleSkeleton width="w-28" />
-      </PageTitle>
+      <PageTitlePlaceholder width="w-28" />
 
       <ScoreTableSkeleton />
     </ContentContainer>

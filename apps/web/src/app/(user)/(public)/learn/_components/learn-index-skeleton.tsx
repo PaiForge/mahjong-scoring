@@ -1,7 +1,6 @@
 import { ContentContainer } from "@/app/(user)/_components/content-container";
-import { PageTitle } from "@/app/(user)/_components/page-title";
+import { PageTitlePlaceholder } from "@/app/(user)/_components/page-title";
 import { SectionTitleSkeleton } from "@/app/(user)/_components/section-title-skeleton";
-import { PageTitleSkeleton } from "@/app/_components/page-title-skeleton";
 import { SkeletonBar } from "@/app/_components/skeleton-bar";
 import {
   CURRICULUM,
@@ -25,9 +24,7 @@ import { CurriculumTocSkeleton } from "./curriculum-toc-skeleton";
 export function LearnIndexSkeleton() {
   return (
     <ContentContainer>
-      <PageTitle>
-        <PageTitleSkeleton width="w-24" />
-      </PageTitle>
+      <PageTitlePlaceholder width="w-24" />
 
       <div className="space-y-8">
         <div className="space-y-3">

@@ -1,6 +1,5 @@
 import { ContentContainer } from "./content-container";
-import { PageTitle } from "./page-title";
-import { PageTitleSkeleton } from "@/app/_components/page-title-skeleton";
+import { PageTitlePlaceholder } from "./page-title";
 import { SectionTitleSkeleton } from "./section-title-skeleton";
 import { SkeletonBar } from "@/app/_components/skeleton-bar";
 
@@ -27,9 +26,7 @@ export function PageSkeleton({
 }: PageSkeletonProps) {
   return (
     <ContentContainer>
-      <PageTitle>
-        <PageTitleSkeleton width={titleWidthClassName} />
-      </PageTitle>
+      <PageTitlePlaceholder width={titleWidthClassName} />
 
       <div className="space-y-4">
         <SectionTitleSkeleton width="w-32" />

@@ -1,8 +1,7 @@
 import { CurriculumProgressBarSkeleton } from "@/app/(user)/(public)/learn/_components/curriculum-progress-bar-skeleton";
-import { PageTitleSkeleton } from "@/app/_components/page-title-skeleton";
 import { SkeletonBar } from "@/app/_components/skeleton-bar";
 import { ContentContainer } from "@/app/(user)/_components/content-container";
-import { PageTitle } from "@/app/(user)/_components/page-title";
+import { PageTitlePlaceholder } from "@/app/(user)/_components/page-title";
 import { SectionTitleSkeleton } from "@/app/(user)/_components/section-title-skeleton";
 
 /**
@@ -24,9 +23,7 @@ import { SectionTitleSkeleton } from "@/app/(user)/_components/section-title-ske
 export default function Loading() {
   return (
     <ContentContainer>
-      <PageTitle>
-        <PageTitleSkeleton width="w-24" />
-      </PageTitle>
+      <PageTitlePlaceholder width="w-24" />
 
       <div className="space-y-8">
         {/* 教本の続き: 進捗バー(40px) + 章カード(93px) + リンク行(24px) + 試験行(62px) */}

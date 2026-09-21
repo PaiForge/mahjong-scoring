@@ -1,8 +1,7 @@
 import { ContentContainer } from "@/app/(user)/_components/content-container";
 import { Divider } from "@/app/(user)/_components/divider";
-import { PageTitle } from "@/app/(user)/_components/page-title";
+import { PageTitlePlaceholder } from "@/app/(user)/_components/page-title";
 import { SectionTitleSkeleton } from "@/app/(user)/_components/section-title-skeleton";
-import { PageTitleSkeleton } from "@/app/_components/page-title-skeleton";
 import { SkeletonBar } from "@/app/_components/skeleton-bar";
 import { PracticeLinkButtonSkeleton } from "@/app/(user)/_components/practice-link-button";
 
@@ -20,9 +19,7 @@ import { PracticeLinkButtonSkeleton } from "@/app/(user)/_components/practice-li
 export function LearnChapterSkeleton() {
   return (
     <ContentContainer>
-      <PageTitle>
-        <PageTitleSkeleton width="w-40" />
-      </PageTitle>
+      <PageTitlePlaceholder width="w-40" />
 
       <div aria-hidden="true" data-testid="learn-chapter-skeleton">
         <div className="space-y-10">

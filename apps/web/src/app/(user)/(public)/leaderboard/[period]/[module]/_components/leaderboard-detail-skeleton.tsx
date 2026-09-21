@@ -1,7 +1,6 @@
 import { ContentContainer } from "@/app/(user)/_components/content-container";
-import { PageTitle } from "@/app/(user)/_components/page-title";
+import { PageTitlePlaceholder } from "@/app/(user)/_components/page-title";
 import { SectionTitleSkeleton } from "@/app/(user)/_components/section-title-skeleton";
-import { PageTitleSkeleton } from "@/app/_components/page-title-skeleton";
 import { SkeletonBar } from "@/app/_components/skeleton-bar";
 
 import { LeaderboardTableSkeleton } from "../../../_components/leaderboard-table-skeleton";
@@ -21,10 +20,7 @@ import { LeaderboardTableSkeleton } from "../../../_components/leaderboard-table
 export function LeaderboardDetailSkeleton() {
   return (
     <ContentContainer className="space-y-6">
-      {/* PageTitle を使うことで実描画と同じ全幅グレー帯を再現する */}
-      <PageTitle>
-        <PageTitleSkeleton width="w-48" />
-      </PageTitle>
+      <PageTitlePlaceholder width="w-48" />
 
       {/* 土俵名 */}
       <SectionTitleSkeleton width="w-32" />
