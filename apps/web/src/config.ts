@@ -44,3 +44,12 @@ export const SITE_URL = normalizeSiteUrl(process.env.NEXT_PUBLIC_SITE_URL);
  * パスワード最小文字数
  */
 export const MIN_PASSWORD_LENGTH = 6;
+
+/**
+ * 運営者のコーポレートサイト
+ * コーポレートサイトURL
+ *
+ * 運営者情報ページの導線と、Organization の構造化データ（`parentOrganization`）が
+ * 指す先。1 箇所に持ち、どちらかだけ古い URL を指し続けないようにする。
+ */
+export const CORPORATE_SITE_URL = "https://www.fuji.llc/";

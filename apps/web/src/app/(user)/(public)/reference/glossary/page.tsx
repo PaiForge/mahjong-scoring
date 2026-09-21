@@ -21,7 +21,7 @@ import { createNamespaceMetadata } from "@/app/_lib/metadata";
 import { getGlossaryTermViews } from "@/lib/glossary/queries";
 
 import { CategoryTermIndex } from "./_components/category-term-index";
-import { JsonLd } from "./_components/json-ld";
+import { JsonLd } from "@/app/(user)/_components/json-ld";
 import { KanaRowNav } from "./_components/kana-row-nav";
 import { KanaTermList } from "./_components/kana-term-list";
 import { buildDefinedTermSetSchema } from "./_lib/json-ld";

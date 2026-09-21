@@ -10,6 +10,7 @@ import {
   buildSocialCard,
   DEFAULT_TITLE,
   SITE_DESCRIPTION,
+  SITE_NAME,
 } from "@/app/_lib/metadata";
 import { SITE_URL } from "@/config";
 import "./globals.css";
@@ -24,6 +25,21 @@ export const metadata: Metadata = {
   metadataBase: new URL(SITE_URL),
   title: DEFAULT_TITLE,
   description: SITE_DESCRIPTION,
+  authors: [{ name: SITE_NAME }],
+  // 既定は index, follow（明示しなくても同じ）。max-image-preview:large が無いと
+  // Discover と画像付きの検索結果に大きな画像で出ない。noindex を持つページは
+  // 自分の robots でこのオブジェクトごと置き換えるため影響しない。
+  robots: {
+    index: true,
+    follow: true,
+    googleBot: {
+      index: true,
+      follow: true,
+      "max-image-preview": "large",
+      "max-snippet": -1,
+      "max-video-preview": -1,
+    },
+  },
   // metadata を持たないページ（banned 等）へのフォールバック。
   // og:url はここに書かない — 書くと canonical を持たないページまで
   // トップページの URL を名乗ってしまう。トップの og:url は
