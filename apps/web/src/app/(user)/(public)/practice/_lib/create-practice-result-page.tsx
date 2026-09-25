@@ -6,7 +6,6 @@ import { getTranslations } from "next-intl/server";
 import { createResultMetadata } from "@/app/_lib/metadata";
 
 import { getLeaderboard } from "@/app/(user)/(public)/leaderboard/_actions/get-leaderboard";
-import type { LeaderboardBoard } from "@/app/(user)/(public)/leaderboard/_lib/types";
 import type { RankedLeaderboardRow } from "@/lib/db/leaderboard-queries";
 import { buildDetailPath } from "@/app/(user)/(public)/leaderboard/_lib/types";
 import type {
@@ -46,6 +45,7 @@ import {
   practiceSetupHref,
 } from "./practice-catalog";
 import { VARIANT_PARAM } from "./variant-param";
+import type { PracticeBoard } from "@/lib/db/practice-menu-types";
 
 const PREVIEW_COUNT = 3;
 
@@ -310,7 +310,7 @@ export function createPracticeResultPage(
         leaderboardBlock={
           isExam ? undefined : (
             <Suspense fallback={<LeaderboardSkeleton />}>
-              <AsyncLeaderboardBlock board={{ module: menuType, variant }} />
+              <AsyncLeaderboardBlock board={{ menuType: menuType, variant }} />
             </Suspense>
           )
         }
@@ -399,7 +399,7 @@ async function AsyncResultBlock({
 async function AsyncLeaderboardBlock({
   board,
 }: {
-  readonly board: LeaderboardBoard;
+  readonly board: PracticeBoard;
 }) {
   // デバッグ用: `DEBUG_RESULT_DELAY_MS` が設定されていれば指定 ms 待機。
   // 本番では no-op（debugResultDelay 内で NODE_ENV をチェック）。

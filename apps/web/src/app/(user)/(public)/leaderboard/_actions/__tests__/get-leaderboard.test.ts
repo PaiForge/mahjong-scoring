@@ -31,7 +31,7 @@ vi.mock("../../_lib/period-queries", () => ({
 import { getLeaderboard } from "../get-leaderboard";
 
 /** 設定を持たない練習の土俵 */
-const JANTOU_FU = { module: "jantou_fu", variant: "default" } as const;
+const JANTOU_FU = { menuType: "jantou_fu", variant: "default" } as const;
 
 // ---------------------------------------------------------------------------
 // Fixtures
@@ -98,7 +98,7 @@ describe("getLeaderboard", () => {
   describe("input validation", () => {
     it("returns empty result for invalid module", async () => {
       const result = await getLeaderboard(
-        { module: "invalid" as "jantou_fu", variant: "default" },
+        { menuType: "invalid" as "jantou_fu", variant: "default" },
         "all-time",
         1,
       );
@@ -142,7 +142,7 @@ describe("getLeaderboard", () => {
 
     it("does not call ranking queries when module is invalid", async () => {
       await getLeaderboard(
-        { module: "invalid" as "jantou_fu", variant: "default" },
+        { menuType: "invalid" as "jantou_fu", variant: "default" },
         "all-time",
         1,
       );

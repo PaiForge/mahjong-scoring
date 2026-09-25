@@ -6,13 +6,10 @@ import { logExternalError } from "@/lib/log-error";
 import { getPaginationData } from "@/lib/pagination";
 
 import { getQueriesForPeriod } from "../_lib/period-queries";
-import type {
-  LeaderboardBoard,
-  LeaderboardPeriod,
-  LeaderboardResult,
-} from "../_lib/types";
+import type { LeaderboardPeriod, LeaderboardResult } from "../_lib/types";
 import { PAGE_SIZE } from "../_lib/types";
 import { isValidBoard, isValidPeriod } from "../_lib/validators";
+import type { PracticeBoard } from "@/lib/db/practice-menu-types";
 
 // ---------------------------------------------------------------------------
 // Cached ranking data (shared across all users)
@@ -21,7 +18,7 @@ import { isValidBoard, isValidPeriod } from "../_lib/validators";
 const REVALIDATE_SECONDS = 300; // 5 minutes
 
 function getCachedRanking(
-  board: LeaderboardBoard,
+  board: PracticeBoard,
   period: LeaderboardPeriod,
   offset: number,
   limit: number,
@@ -30,11 +27,11 @@ function getCachedRanking(
   return unstable_cache(
     async () => {
       const { getRanking } = getQueriesForPeriod(period, now);
-      return getRanking(board.module, board.variant, offset, limit);
+      return getRanking(board.menuType, board.variant, offset, limit);
     },
     [
       "leaderboard-ranking",
-      board.module,
+      board.menuType,
       board.variant,
       period,
       String(offset),
@@ -64,7 +61,7 @@ const EMPTY_RESULT: LeaderboardResult = {
  * @param currentUserId - 現在のユーザーID（任意）
  */
 export async function getLeaderboard(
-  board: LeaderboardBoard,
+  board: PracticeBoard,
   period: LeaderboardPeriod,
   page: number,
   currentUserId?: string,
@@ -101,7 +98,7 @@ export async function getLeaderboard(
       const { getUserRankedRow } = getQueriesForPeriod(period, now);
       currentUserRank = await getUserRankedRow(
         currentUserId,
-        board.module,
+        board.menuType,
         board.variant,
       );
     }

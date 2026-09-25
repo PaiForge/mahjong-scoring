@@ -19,8 +19,8 @@ import { requireConfirmedUser } from "@/lib/auth";
 import { ChallengeDashboard } from "../_components/challenge-dashboard";
 import { getPeriodRange, getPreviousPeriodRange } from "../_lib/period-utils";
 import { fetchAvailableBoards, fetchChallengeAttempts } from "../_lib/queries";
-import { recordBoardKey } from "../_lib/types";
 import { resolveRequestedBoard } from "../_lib/requested-board";
+import { practiceBoardKey } from "@/lib/db/practice-menu-types";
 
 export async function generateMetadata(): Promise<Metadata> {
   return createPrivateMetadata("mypage.challenges");
@@ -52,7 +52,7 @@ export default async function ChallengesPage({
     requested === undefined
       ? undefined
       : availableBoards.find(
-          (board) => recordBoardKey(board) === recordBoardKey(requested),
+          (board) => practiceBoardKey(board) === practiceBoardKey(requested),
         );
 
   // ダッシュボードの初期選択。プリフェッチする土俵とクライアントの初期選択が

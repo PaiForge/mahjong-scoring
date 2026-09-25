@@ -1,7 +1,7 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
 import type { LeaderboardModule } from "../../_lib/types";
-import { BOARDS, boardKey } from "../../_lib/types";
+import { BOARDS } from "../../_lib/types";
 
 // ---------------------------------------------------------------------------
 // Mocks
@@ -30,6 +30,7 @@ vi.mock("../../_lib/period-queries", () => ({
 }));
 
 import { getUserRanks } from "../get-user-ranks";
+import { practiceBoardKey } from "@/lib/db/practice-menu-types";
 
 // ---------------------------------------------------------------------------
 // Fixtures
@@ -40,7 +41,7 @@ const [FIRST_BOARD, SECOND_BOARD] = BOARDS;
 /** 土俵ごとの順位を返す `getUserRankedRow` の差し替え */
 function rankByBoard(ranks: ReadonlyMap<string, number>) {
   return (_userId: string, module: LeaderboardModule, variant: string) => {
-    const rank = ranks.get(boardKey({ module, variant }));
+    const rank = ranks.get(practiceBoardKey({ menuType: module, variant }));
     return Promise.resolve(rank === undefined ? undefined : { rank });
   };
 }
@@ -71,8 +72,8 @@ describe("getUserRanks", () => {
     mockGetUserRankedRow.mockImplementation(
       rankByBoard(
         new Map([
-          [boardKey(SECOND_BOARD), 7],
-          [boardKey(FIRST_BOARD), 3],
+          [practiceBoardKey(SECOND_BOARD), 7],
+          [practiceBoardKey(FIRST_BOARD), 3],
         ]),
       ),
     );
@@ -87,10 +88,13 @@ describe("getUserRanks", () => {
   it("1 つの土俵の取得が失敗しても他の土俵の順位は返す", async () => {
     mockGetUserRankedRow.mockImplementation(
       (userId: string, module: LeaderboardModule, variant: string) => {
-        if (boardKey({ module, variant }) === boardKey(FIRST_BOARD)) {
+        if (
+          practiceBoardKey({ menuType: module, variant }) ===
+          practiceBoardKey(FIRST_BOARD)
+        ) {
           return Promise.reject(new Error("boom"));
         }
-        return rankByBoard(new Map([[boardKey(SECOND_BOARD), 7]]))(
+        return rankByBoard(new Map([[practiceBoardKey(SECOND_BOARD), 7]]))(
           userId,
           module,
           variant,
@@ -106,7 +110,8 @@ describe("getUserRanks", () => {
   it("失敗した土俵をキー付きで記録する", async () => {
     mockGetUserRankedRow.mockImplementation(
       (_userId: string, module: LeaderboardModule, variant: string) =>
-        boardKey({ module, variant }) === boardKey(FIRST_BOARD)
+        practiceBoardKey({ menuType: module, variant }) ===
+        practiceBoardKey(FIRST_BOARD)
           ? Promise.reject(new Error("boom"))
           : Promise.resolve(undefined),
     );
@@ -115,7 +120,7 @@ describe("getUserRanks", () => {
 
     expect(console.error).toHaveBeenCalledTimes(1);
     expect(console.error).toHaveBeenCalledWith(
-      `[getUserRanks] ${boardKey(FIRST_BOARD)}: failed to fetch user rank:`,
+      `[getUserRanks] ${practiceBoardKey(FIRST_BOARD)}: failed to fetch user rank:`,
       "boom",
     );
   });
