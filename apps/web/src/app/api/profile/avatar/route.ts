@@ -13,6 +13,7 @@ import {
   isAllowedImageMimeType,
 } from "@/lib/images/policy";
 import { SHARP_DECODE_OPTIONS } from "@/lib/images/sharp-options";
+import { createAdminClient } from "@/lib/supabase/admin";
 
 /**
  * アバター画像のアップロード（POST）・削除（DELETE）エンドポイント。
@@ -20,8 +21,11 @@ import { SHARP_DECODE_OPTIONS } from "@/lib/images/sharp-options";
  * POST は受け取った画像を検証し、Sharp で EXIF を除去して 256x256 の WebP に正規化した
  * うえで `avatars/${userId}/avatar.webp` に保存し、`profiles.avatar_url` を更新する。
  * DELETE は同じパスのオブジェクトを消して `profiles.avatar_url` を NULL に戻す。
- * Storage への書き込み・削除は認証ユーザーのクライアント経由で行い、
- * RLS（自分のフォルダのみ）で保護する。
+ * Storage への書き込み・削除はサービスロールのクライアントで行う。avatars バケットは
+ * 認証ユーザーに書き込みポリシーを与えていない（`drizzle/supabase/storage_setup.sql`）。
+ * ユーザーのクライアントで書ける設計にすると、この API の検証と WebP への正規化を
+ * 通らない任意のバイト列を公開バケットに置けてしまい、それが remotePatterns で
+ * 許可された `/_next/image` の入力になる（画像デコーダの脆弱性への入口になる）。
  *
  * アバターアップロードAPI
  */
@@ -38,7 +42,7 @@ function avatarFilePath(userId: string): string {
 export async function POST(request: Request) {
   const auth = await authorizeApiRequest(request, "uploadAvatar");
   if (!auth.ok) return auth.response;
-  const { user, supabase } = auth;
+  const { user } = auth;
 
   let formData: FormData;
   try {
@@ -82,8 +86,9 @@ export async function POST(request: Request) {
   }
 
   const filePath = avatarFilePath(user.id);
+  const { storage } = createAdminClient();
 
-  const { error: uploadError } = await supabase.storage
+  const { error: uploadError } = await storage
     .from("avatars")
     .upload(filePath, processed, {
       contentType: "image/webp",
@@ -97,7 +102,7 @@ export async function POST(request: Request) {
   // 同一パスを上書きするため URL は不変。キャッシュバストにタイムスタンプを付与する。
   const {
     data: { publicUrl },
-  } = supabase.storage.from("avatars").getPublicUrl(filePath);
+  } = storage.from("avatars").getPublicUrl(filePath);
   const avatarUrl = `${publicUrl}?t=${Date.now()}`;
 
   await db
@@ -124,7 +129,7 @@ export async function POST(request: Request) {
 export async function DELETE(request: Request) {
   const auth = await authorizeApiRequest(request, "deleteAvatar");
   if (!auth.ok) return auth.response;
-  const { user, supabase } = auth;
+  const { user } = auth;
 
   // 先に参照（profiles.avatar_url）を切る。Storage の削除に失敗しても残るのは
   // 誰からも参照されないオブジェクトだけで、次のアップロードが同じパスを上書きする。
@@ -138,7 +143,9 @@ export async function DELETE(request: Request) {
   revalidateTag(LEADERBOARD_CACHE_TAG, "default");
 
   // Storage の削除は失敗しても操作全体を失敗させない（上のコメントの通り無害なため）。
-  await supabase.storage.from("avatars").remove([avatarFilePath(user.id)]);
+  await createAdminClient()
+    .storage.from("avatars")
+    .remove([avatarFilePath(user.id)]);
 
   logActivityEvent({
     userId: user.id,
