@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 
-import { sanitizeInternalRedirect } from "../redirect";
+import { buildSignInHref, sanitizeInternalRedirect } from "../redirect";
 
 describe("sanitizeInternalRedirect", () => {
   describe("valid internal paths", () => {
@@ -251,5 +251,21 @@ describe("sanitizeInternalRedirect", () => {
         expect(out!.toLowerCase()).not.toContain("https:");
       }
     });
+  });
+});
+
+describe("buildSignInHref", () => {
+  it("encodes the return path into the redirect query", () => {
+    expect(buildSignInHref("/learn/jantou-fu?x=1&y=2")).toBe(
+      "/sign-in?redirect=%2Flearn%2Fjantou-fu%3Fx%3D1%26y%3D2",
+    );
+  });
+
+  it("round-trips through sanitizeInternalRedirect", () => {
+    const href = buildSignInHref("/preferences#rules");
+    const value = new URL(href, "http://localhost").searchParams.get(
+      "redirect",
+    );
+    expect(sanitizeInternalRedirect(value)).toBe("/preferences#rules");
   });
 });

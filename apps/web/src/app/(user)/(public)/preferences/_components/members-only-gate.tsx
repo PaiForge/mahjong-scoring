@@ -8,6 +8,7 @@ import { useAuth } from "@/app/_contexts/auth-context";
 import { TEXT_LINK_CLASSES } from "@/app/_components/_lib/link-classes";
 import { SUB_LINK_GAP } from "@/app/_components/_lib/spacing";
 import { LinkButton } from "@/app/(user)/_components/link-button";
+import { buildSignInHref } from "@/lib/redirect";
 
 /**
  * 会員限定ゲート（スモーク）
@@ -48,7 +49,7 @@ export function MembersOnlyGate({
           </div>
           <LinkButton href="/sign-up">{t("cta")}</LinkButton>
           <Link
-            href={`/sign-in?redirect=${encodeURIComponent(redirectTo)}`}
+            href={buildSignInHref(redirectTo)}
             className={`text-xs font-semibold ${TEXT_LINK_CLASSES}`}
           >
             {t("signInLink")}

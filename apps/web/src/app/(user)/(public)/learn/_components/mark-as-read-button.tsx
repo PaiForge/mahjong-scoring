@@ -9,6 +9,7 @@ import { markChapterRead } from "../_actions/mark-chapter-read";
 import { chapterHref, type CurriculumChapterSlug } from "../_lib/curriculum";
 import { unmarkChapterRead } from "../_actions/unmark-chapter-read";
 import { TEXT_LINK_CLASSES } from "@/app/_components/_lib/link-classes";
+import { buildSignInHref } from "@/lib/redirect";
 
 interface MarkAsReadButtonProps {
   /** 対象章のスラッグ */
@@ -48,8 +49,7 @@ export function MarkAsReadButton({ slug, initialRead }: MarkAsReadButtonProps) {
         result.skipped === "anonymous"
       ) {
         setIsRead(!nextState);
-        const redirectTo = encodeURIComponent(chapterHref(slug));
-        router.push(`/sign-in?redirect=${redirectTo}`);
+        router.push(buildSignInHref(chapterHref(slug)));
         return;
       }
 
