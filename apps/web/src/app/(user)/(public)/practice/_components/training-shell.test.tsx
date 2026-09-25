@@ -7,7 +7,8 @@ vi.mock("next-intl", async () => await import("@/test/intl-mock"));
 // 「終了」とチャレンジ導線が出題設定（バリアント）を引き継ぐため、シェルは
 // 検索パラメータを読む
 let currentQuery = "";
-vi.mock("next/navigation", () => ({
+vi.mock("next/navigation", async () => ({
+  ...(await import("@/test/navigation-mock")),
   useSearchParams: () => new URLSearchParams(currentQuery),
 }));
 
