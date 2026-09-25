@@ -12,14 +12,17 @@
  * 試験開始と見分けが付かないため。
  */
 import { beforeEach, describe, expect, it, vi } from "vitest";
+import { useAuth as mockUseAuth } from "@/test/auth-context-mock";
 import { render, screen } from "@testing-library/react";
 
-const { mockUseAuth, mockFetchViewerRankSlugs } = vi.hoisted(() => ({
-  mockUseAuth: vi.fn(),
+const { mockFetchViewerRankSlugs } = vi.hoisted(() => ({
   mockFetchViewerRankSlugs: vi.fn(),
 }));
 
-vi.mock("@/app/_contexts/auth-context", () => ({ useAuth: mockUseAuth }));
+vi.mock(
+  "@/app/_contexts/auth-context",
+  async () => await import("@/test/auth-context-mock"),
+);
 
 vi.mock("@/app/_lib/viewer-ranks", () => ({
   fetchViewerRankSlugs: mockFetchViewerRankSlugs,

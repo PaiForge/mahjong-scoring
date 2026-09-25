@@ -8,6 +8,7 @@
  * - 保存失敗時: トグルを元に戻し toast.error を出す
  */
 import { beforeEach, describe, expect, it, vi } from "vitest";
+import { useAuth as mockUseAuth } from "@/test/auth-context-mock";
 import { act, fireEvent, render, waitFor } from "@testing-library/react";
 
 // ---------------------------------------------------------------------------
@@ -18,12 +19,10 @@ const {
   mockGetLeaderboardVisibility,
   mockSetLeaderboardVisibility,
   mockToastError,
-  mockUseAuth,
 } = vi.hoisted(() => ({
   mockGetLeaderboardVisibility: vi.fn(),
   mockSetLeaderboardVisibility: vi.fn(),
   mockToastError: vi.fn(),
-  mockUseAuth: vi.fn(),
 }));
 
 vi.mock("../_actions/leaderboard-visibility", () => ({
@@ -31,7 +30,10 @@ vi.mock("../_actions/leaderboard-visibility", () => ({
   setLeaderboardVisibility: mockSetLeaderboardVisibility,
 }));
 
-vi.mock("@/app/_contexts/auth-context", () => ({ useAuth: mockUseAuth }));
+vi.mock(
+  "@/app/_contexts/auth-context",
+  async () => await import("@/test/auth-context-mock"),
+);
 
 vi.mock("next-intl", async () => await import("@/test/intl-mock"));
 

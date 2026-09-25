@@ -8,15 +8,17 @@
  * - 未ログイン: ログイン / 新規登録の導線を出す
  */
 import { beforeEach, describe, expect, it, vi } from "vitest";
+import { useAuth as mockUseAuth } from "@/test/auth-context-mock";
 import { render, screen } from "@testing-library/react";
 
 // ---------------------------------------------------------------------------
 // Mocks (hoisted)
 // ---------------------------------------------------------------------------
 
-const { mockUseAuth } = vi.hoisted(() => ({ mockUseAuth: vi.fn() }));
-
-vi.mock("@/app/_contexts/auth-context", () => ({ useAuth: mockUseAuth }));
+vi.mock(
+  "@/app/_contexts/auth-context",
+  async () => await import("@/test/auth-context-mock"),
+);
 
 vi.mock("next-intl", async () => await import("@/test/intl-mock"));
 
