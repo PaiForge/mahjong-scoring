@@ -2,12 +2,13 @@ import { getTranslations } from "next-intl/server";
 
 import { LinkRow } from "@/app/(user)/_components/link-row";
 
-import type { LeaderboardBoard, LeaderboardPeriod } from "../_lib/types";
+import type { LeaderboardPeriod } from "../_lib/types";
 import { buildDetailPath } from "../_lib/types";
 import { boardTitle } from "../_lib/board-title";
+import type { PracticeBoard } from "@/lib/db/practice-menu-types";
 
 interface LeaderboardModuleRowProps {
-  readonly board: LeaderboardBoard;
+  readonly board: PracticeBoard;
   readonly period: LeaderboardPeriod;
   readonly rank: number | undefined;
 }

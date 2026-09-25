@@ -17,8 +17,14 @@ import { vi } from "vitest";
  * ```
  *
  * 既定は「未ログイン・解決済み」。ログイン状態を見たいテストは
- * `useAuth.mockReturnValue(...)` で上書きする。
+ * `import { useAuth as mockUseAuth } from "@/test/auth-context-mock"` で
+ * 受け取り、`mockUseAuth.mockReturnValue(...)` で上書きする。戻り値は
+ * テストが見たい項目だけを並べればよいよう、型を緩く取っている
+ * （`user: { id: "u1" }` のような部分的なユーザーを渡せる）。
  *
  * このモジュールはテスト専用。
  */
-export const useAuth = vi.fn(() => ({ user: undefined, isLoading: false }));
+export const useAuth = vi.fn((): Readonly<Record<string, unknown>> => ({
+  user: undefined,
+  isLoading: false,
+}));

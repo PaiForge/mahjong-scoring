@@ -7,12 +7,10 @@ import { LEADERBOARD_CACHE_TAG } from "@/lib/cache-tags";
 import { logExternalError } from "@/lib/log-error";
 
 import { getQueriesForPeriod } from "../_lib/period-queries";
-import type {
-  LeaderboardBoard,
-  LeaderboardPeriod,
-  UserRankInfo,
-} from "../_lib/types";
-import { BOARDS, boardKey } from "../_lib/types";
+import type { LeaderboardPeriod, UserRankInfo } from "../_lib/types";
+import { BOARDS } from "../_lib/types";
+import type { PracticeBoard } from "@/lib/db/practice-menu-types";
+import { practiceBoardKey } from "@/lib/db/practice-menu-types";
 
 const REVALIDATE_SECONDS = 300; // 5 minutes
 
@@ -44,19 +42,19 @@ export async function getUserRanks(
       const { getUserRankedRow } = getQueriesForPeriod(period, now);
 
       const fetchRank = async (
-        board: LeaderboardBoard,
+        board: PracticeBoard,
       ): Promise<UserRankInfo | undefined> => {
         try {
           const row = await getUserRankedRow(
             userId,
-            board.module,
+            board.menuType,
             board.variant,
           );
           return row ? { ...board, rank: row.rank } : undefined;
         } catch (error) {
           logExternalError(
             "getUserRanks",
-            `${boardKey(board)}: failed to fetch user rank`,
+            `${practiceBoardKey(board)}: failed to fetch user rank`,
             error,
           );
           return undefined;

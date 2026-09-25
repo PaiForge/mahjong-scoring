@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { getTranslations } from "next-intl/server";
 import { TEXT_LINK_CLASSES } from "@/app/_components/_lib/link-classes";
+import { buildSignInHref } from "@/lib/redirect";
 import { chapterHref, type CurriculumChapterSlug } from "../_lib/curriculum";
 
 interface LoginPromptCtaProps {
@@ -17,11 +18,10 @@ interface LoginPromptCtaProps {
  */
 export async function LoginPromptCta({ slug }: LoginPromptCtaProps) {
   const t = await getTranslations("learnCurriculum.chapter");
-  const redirectTo = encodeURIComponent(chapterHref(slug));
 
   return (
     <Link
-      href={`/sign-in?redirect=${redirectTo}`}
+      href={buildSignInHref(chapterHref(slug))}
       className={`text-sm ${TEXT_LINK_CLASSES}`}
     >
       {t("loginPromptCta")}

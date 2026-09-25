@@ -2,8 +2,7 @@ import {
   menuTypeToMessageKey,
   practiceMenuByType,
 } from "@/lib/db/practice-menu-types";
-
-import type { RecordBoard } from "./types";
+import type { PracticeBoard } from "@/lib/db/practice-menu-types";
 
 /** next-intl のルート翻訳関数（`useTranslations()` / `getTranslations()` の戻り値） */
 type RootTranslator = (key: string) => string;
@@ -19,7 +18,7 @@ type RootTranslator = (key: string) => string;
  * サーバー・クライアントの両方から使えるよう、ルートの翻訳関数を受け取る
  * 純粋関数にしている（ランキングの `boardTitle` のマイレコード版）。
  */
-export function boardLabel(board: RecordBoard, t: RootTranslator): string {
+export function boardLabel(board: PracticeBoard, t: RootTranslator): string {
   const title = t(
     `practice.practices.${menuTypeToMessageKey(board.menuType)}.shortTitle`,
   );

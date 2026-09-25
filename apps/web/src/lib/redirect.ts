@@ -32,3 +32,17 @@ export function sanitizeInternalRedirect(value: unknown): string | undefined {
   if (lower.includes("http:") || lower.includes("https:")) return undefined;
   return value;
 }
+
+/**
+ * サインイン後に `path` へ戻すサインインページの URL を組み立てる
+ * サインイン導線 URL
+ *
+ * `?redirect=` の値は受け取り側で {@link sanitizeInternalRedirect} が検証する。
+ * 組み立て側はエンコードをここに一本化し、呼び出し側で `encodeURIComponent`
+ * を書かない（書く位置が揃わず二重エンコード・未エンコードの取り違えが起きる）。
+ *
+ * @param path サインイン後に戻す内部パス（未エンコード）
+ */
+export function buildSignInHref(path: string): string {
+  return `/sign-in?redirect=${encodeURIComponent(path)}`;
+}

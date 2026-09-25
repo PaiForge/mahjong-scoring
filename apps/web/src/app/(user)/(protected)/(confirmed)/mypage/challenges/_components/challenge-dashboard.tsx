@@ -13,8 +13,8 @@ import {
   getNavigablePreviousPeriod,
   getPreviousPeriodLabel,
 } from "../_lib/dashboard-utils";
-import type { ChallengeAttempt, DatePeriod, RecordBoard } from "../_lib/types";
-import { isDatePeriod, recordBoardKey } from "../_lib/types";
+import type { ChallengeAttempt, DatePeriod } from "../_lib/types";
+import { isDatePeriod } from "../_lib/types";
 import { useDashboardData } from "../_hooks/use-dashboard-data";
 import {
   DashboardContentSkeleton,
@@ -29,6 +29,8 @@ import { LinkButton } from "@/app/(user)/_components/link-button";
 import { PracticeLinkButton } from "@/app/(user)/_components/practice-link-button";
 import { practiceHref } from "@/app/(user)/(public)/practice/_lib/practice-catalog";
 import { menuTypeToSlug } from "@/lib/db/practice-menu-types";
+import type { PracticeBoard } from "@/lib/db/practice-menu-types";
+import { practiceBoardKey } from "@/lib/db/practice-menu-types";
 
 const ScoreChart = dynamic(
   () => import("./score-chart").then((mod) => mod.ScoreChart),
@@ -55,9 +57,9 @@ const selectClassName =
 
 interface ChallengeDashboardProps {
   /** サーバーサイドでプリフェッチした、記録を持つ土俵の一覧 */
-  readonly initialBoards: readonly RecordBoard[];
+  readonly initialBoards: readonly PracticeBoard[];
   /** 初期選択の土俵（`?menu=&variant=` の指定、無ければ先頭） */
-  readonly initialBoard: RecordBoard | undefined;
+  readonly initialBoard: PracticeBoard | undefined;
   /** サーバーサイドでプリフェッチした初期チャレンジデータ（デフォルト期間・初期選択の土俵） */
   readonly initialAttempts: {
     readonly current: readonly ChallengeAttempt[];
@@ -108,7 +110,7 @@ export function ChallengeDashboard({
     (e: React.ChangeEvent<HTMLSelectElement>) => {
       // select の value は土俵キー。一覧に無い値（改竄）は無視する
       const board = (availableBoards ?? []).find(
-        (candidate) => recordBoardKey(candidate) === e.target.value,
+        (candidate) => practiceBoardKey(candidate) === e.target.value,
       );
       if (board) setSelectedBoard(board);
     },
@@ -127,7 +129,7 @@ export function ChallengeDashboard({
   const boardOptions = useMemo(
     () =>
       (availableBoards ?? []).map((board) => ({
-        value: recordBoardKey(board),
+        value: practiceBoardKey(board),
         label: boardLabel(board, tRoot),
       })),
     [availableBoards, tRoot],
@@ -176,7 +178,7 @@ export function ChallengeDashboard({
       </select>
 
       <select
-        value={selectedBoard ? recordBoardKey(selectedBoard) : ""}
+        value={selectedBoard ? practiceBoardKey(selectedBoard) : ""}
         onChange={handleBoardChange}
         className={`block w-full sm:w-64 ${selectClassName}`}
       >

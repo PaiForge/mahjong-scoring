@@ -51,6 +51,32 @@ export function parseQuestionTiles(
   return { tehai, agariHai, bakaze, jikaze };
 }
 
+/** {@link restoreTehaiQuestion} が復元した出題（`TehaiDisplay` にそのまま渡せる形） */
+export interface RestoredTehaiQuestion {
+  readonly tehai: Tehai;
+  readonly context: Omit<QuestionTiles, "tehai"> & {
+    readonly isTsumo: boolean;
+  };
+}
+
+/**
+ * 保存された結果から出題の手牌と状況（和了牌・場風・自風・ツモ/ロン）を復元する
+ * 出題復元
+ *
+ * 問題別フィードバック一覧で、出題中と同じ体裁の手牌を描き直すために使う。
+ * MSPZ のパースに失敗した場合は undefined を返し、手牌の再表示だけを諦める
+ * （正誤や回答の比較は手牌の復元に依存しないため表示できる）。状況を足す
+ * 練習（リーチ・ドラ等）は、戻り値の `context` に項目を足して使う。
+ */
+export function restoreTehaiQuestion(
+  result: QuestionTilesSnapshot & { readonly isTsumo: boolean },
+): RestoredTehaiQuestion | undefined {
+  const tiles = parseQuestionTiles(result);
+  if (!tiles) return undefined;
+  const { tehai, ...context } = tiles;
+  return { tehai, context: { ...context, isTsumo: result.isTsumo } };
+}
+
 /**
  * MSPZ 文字列のドラ表示牌リストを牌IDに復元する
  * ドラ表示牌復元

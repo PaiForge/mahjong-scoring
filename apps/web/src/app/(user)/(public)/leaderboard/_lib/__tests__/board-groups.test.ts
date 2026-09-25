@@ -11,15 +11,16 @@ import { describe, expect, it } from "vitest";
 import { PRACTICE_CATEGORIES } from "@/app/(user)/(public)/practice/_lib/practice-catalog";
 
 import { leaderboardBoardGroups } from "../board-groups";
-import { BOARDS, boardKey } from "../types";
+import { BOARDS } from "../types";
+import { practiceBoardKey } from "@/lib/db/practice-menu-types";
 
 const groups = leaderboardBoardGroups();
 const grouped = groups.flatMap((group) => group.boards);
 
 describe("leaderboardBoardGroups", () => {
   it("すべての土俵がちょうど 1 つの分野に入る", () => {
-    expect(grouped.map(boardKey).toSorted()).toEqual(
-      BOARDS.map(boardKey).toSorted(),
+    expect(grouped.map(practiceBoardKey).toSorted()).toEqual(
+      BOARDS.map(practiceBoardKey).toSorted(),
     );
   });
 

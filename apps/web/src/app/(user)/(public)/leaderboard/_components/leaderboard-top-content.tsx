@@ -8,8 +8,8 @@ import { isHiddenFromLeaderboard } from "@/lib/db/leaderboard-visibility";
 import { getUserRanks } from "../_actions/get-user-ranks";
 import { leaderboardBoardGroups } from "../_lib/board-groups";
 import type { LeaderboardPeriod, UserRankInfo } from "../_lib/types";
-import { boardKey } from "../_lib/types";
 import { LeaderboardModuleRow } from "./leaderboard-module-row";
+import { practiceBoardKey } from "@/lib/db/practice-menu-types";
 
 interface LeaderboardTopContentProps {
   readonly period: LeaderboardPeriod;
@@ -43,7 +43,7 @@ export async function LeaderboardTopContent({
   }
 
   const rankMap = new Map<string, number>(
-    userRanks.map((r) => [boardKey(r), r.rank]),
+    userRanks.map((r) => [practiceBoardKey(r), r.rank]),
   );
 
   return (
@@ -57,10 +57,14 @@ export async function LeaderboardTopContent({
           <LinkRowList>
             {group.boards.map((board) => (
               <LeaderboardModuleRow
-                key={boardKey(board)}
+                key={practiceBoardKey(board)}
                 board={board}
                 period={period}
-                rank={currentUserId ? rankMap.get(boardKey(board)) : undefined}
+                rank={
+                  currentUserId
+                    ? rankMap.get(practiceBoardKey(board))
+                    : undefined
+                }
               />
             ))}
           </LinkRowList>

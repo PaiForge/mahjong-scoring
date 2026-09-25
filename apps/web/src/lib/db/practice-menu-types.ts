@@ -536,6 +536,30 @@ export function resultStorageKeyFor(slug: PracticeMenuSlug): string {
 }
 
 /**
+ * 記録の土俵 — 練習種別と出題設定のバリアントの組
+ * 土俵
+ *
+ * 記録は (menuType, leaderboardKey) 単位に積まれ、ランキング・マイレコード
+ * （推移・平均・ベスト）も同じ単位で引く。バリアントを持つ練習は設定ごとに
+ * 難易度が違うため、同じ練習でも別の土俵になる（子だけの点数表と全部の
+ * 点数表を同じ順位表に並べない・混ぜて平均を取らない）。設定を持たない
+ * 練習の `variant` は {@link DEFAULT_VARIANT}。
+ */
+export interface PracticeBoard {
+  readonly menuType: PracticeMenuType;
+  /** 出題設定のバリアント（= `leaderboard_key`） */
+  readonly variant: string;
+}
+
+/**
+ * 土俵を 1 つの文字列キーにする（Map のキー・React の key・select の value 用）
+ * 土俵キー
+ */
+export function practiceBoardKey(board: PracticeBoard): string {
+  return `${board.menuType}:${board.variant}`;
+}
+
+/**
  * 値がその練習で選べるバリアントかを判定する
  * バリアント判定
  *

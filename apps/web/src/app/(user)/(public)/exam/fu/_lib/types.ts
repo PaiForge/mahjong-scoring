@@ -5,10 +5,7 @@ import {
 } from "@/lib/db/practice-menu-types";
 
 export type { FuQuestionResult as FuExamQuestionResult } from "@/app/(user)/(public)/practice/_lib/fu-question-result";
-export {
-  toFuQuestionResult,
-  parseFuQuestionResults,
-} from "@/app/(user)/(public)/practice/_lib/fu-question-result";
+export { parseFuQuestionResults } from "@/app/(user)/(public)/practice/_lib/fu-question-result";
 
 /** sessionStorage に保存する際のキー */
 export const RESULT_STORAGE_KEY = resultStorageKeyFor(PRACTICE_SLUG.fuExam);

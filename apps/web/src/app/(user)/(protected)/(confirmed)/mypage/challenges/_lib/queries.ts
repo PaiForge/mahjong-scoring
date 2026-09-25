@@ -16,7 +16,8 @@ import {
 import { challengeResults } from "@/lib/db/schema";
 
 import { EXCLUDED_MENU_TYPES, toRecordBoards } from "./menu-scope";
-import type { ChallengeAttempt, RecordBoard } from "./types";
+import type { ChallengeAttempt } from "./types";
+import type { PracticeBoard } from "@/lib/db/practice-menu-types";
 
 /**
  * ページネーション付きでチャレンジ結果を取得する
@@ -25,7 +26,7 @@ import type { ChallengeAttempt, RecordBoard } from "./types";
 export async function getChallengeResultsPaginated(
   userId: string,
   page: number = 1,
-  board?: RecordBoard,
+  board?: PracticeBoard,
 ): Promise<{ items: ChallengeAttempt[]; totalPages: number }> {
   const conditions = [
     eq(challengeResults.userId, userId),
@@ -113,7 +114,7 @@ function toChallengeAttempt(row: {
  */
 async function queryAttemptsByRange(
   userId: string,
-  board: RecordBoard,
+  board: PracticeBoard,
   range: { start: Date; end: Date },
 ): Promise<ChallengeAttempt[]> {
   const rows = await db
@@ -149,7 +150,7 @@ async function queryAttemptsByRange(
  */
 export async function fetchChallengeAttempts(
   userId: string,
-  board: RecordBoard,
+  board: PracticeBoard,
   currentRangeStart: Date,
   currentRangeEnd: Date,
   previousRangeStart: Date,
@@ -180,7 +181,7 @@ export async function fetchChallengeAttempts(
  */
 export async function fetchAvailableBoards(
   userId: string,
-): Promise<RecordBoard[]> {
+): Promise<PracticeBoard[]> {
   const rows = await db
     .selectDistinct({
       menuType: challengeResults.menuType,

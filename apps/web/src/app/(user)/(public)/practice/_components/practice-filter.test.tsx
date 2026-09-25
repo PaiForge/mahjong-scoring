@@ -3,7 +3,8 @@ import { describe, expect, it, vi } from "vitest";
 
 let currentQuery = "";
 
-vi.mock("next/navigation", () => ({
+vi.mock("next/navigation", async () => ({
+  ...(await import("@/test/navigation-mock")),
   useSearchParams: () => new URLSearchParams(currentQuery),
 }));
 
