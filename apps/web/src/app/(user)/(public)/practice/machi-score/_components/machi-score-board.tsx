@@ -28,6 +28,7 @@ import {
   parseModeFlagsFromParams,
 } from "../../score/_lib/parse-practice-params";
 import { ScorePracticeAnswerForm } from "../../score/_components/score-practice-answer-form";
+import { GenerationFailedNotice } from "../../score/_components/generation-failed-notice";
 import { MACHI_SCORE_PRACTICE_HREF } from "../../_lib/practice-catalog";
 import {
   cellKeyOf,
@@ -166,17 +167,10 @@ function MachiScoreBoardInner() {
 
   if (isClient && generationFailed) {
     return (
-      <ContentContainer id={PRACTICE_SCROLL_ANCHOR_ID} fillViewport>
-        <PageTitle>{t("title")}</PageTitle>
-        <div className="space-y-6 py-8 text-center">
-          <p className="text-sm leading-relaxed text-surface-700">
-            {t("board.generationFailed")}
-          </p>
-          <Button variant="secondary" onClick={handleBackToSetup}>
-            {t("board.backToSetup")}
-          </Button>
-        </div>
-      </ContentContainer>
+      <GenerationFailedNotice
+        translationNamespace="machiScore"
+        onBackToSetup={handleBackToSetup}
+      />
     );
   }
 

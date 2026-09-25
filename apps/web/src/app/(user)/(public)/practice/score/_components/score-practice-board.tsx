@@ -27,6 +27,7 @@ import { TehaiMentsuBreakdown } from "../../_components/tehai-mentsu-breakdown";
 import { QuestionPrompt } from "../../_components/question-prompt";
 import { ScorePracticeAnswerForm } from "./score-practice-answer-form";
 import { ScorePracticeBoardSkeleton } from "./score-practice-board-skeleton";
+import { GenerationFailedNotice } from "./generation-failed-notice";
 import { ResultDisplay } from "./result-display";
 import { ScoreCounter } from "../../_components/score-counter";
 import {
@@ -145,25 +146,12 @@ function ScorePracticeBoardInner() {
     ],
   );
 
-  // 生成失敗: リトライを使い切っても出題条件に合う手牌を作れなかった。
-  // このときスケルトンを出し続けると操作手段が無いまま固まる（終了ボタンも
-  // 盤面の一部なので描かれない）ため、条件を変えて戻る導線を明示する。
   if (isClient && generationFailed) {
     return (
-      <ContentContainer id={PRACTICE_SCROLL_ANCHOR_ID} fillViewport>
-        <PageTitle>{t("title")}</PageTitle>
-        <div className="space-y-6 py-8 text-center">
-          <p className="text-sm leading-relaxed text-surface-700">
-            {t("board.generationFailed")}
-          </p>
-          <Button
-            variant="secondary"
-            onClick={() => router.push("/practice/score")}
-          >
-            {t("board.backToSetup")}
-          </Button>
-        </div>
-      </ContentContainer>
+      <GenerationFailedNotice
+        translationNamespace="score"
+        onBackToSetup={() => router.push("/practice/score")}
+      />
     );
   }
 
