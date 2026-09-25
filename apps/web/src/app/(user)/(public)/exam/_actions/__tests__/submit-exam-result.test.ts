@@ -49,9 +49,23 @@ describe("submitExamResult", () => {
 
   it("受験資格のない試験は exam_locked で採点しない", async () => {
     // 無級のユーザーが2級の試験（pinfu_exam）の結果を送ってきた場合
-    const result = await submitExamResult("pinfu_exam", 99);
+    const result = await submitExamResult("pinfu_exam", 10);
 
     expect(result).toEqual({ success: false, error: "exam_locked" });
+    expect(mockGradeExamRun).not.toHaveBeenCalled();
+  });
+
+  it.each([
+    ["制限時間内に回答しきれない正解数", 10_000],
+    ["負の正解数", -1],
+    ["数値でない正解数", Number.NaN],
+  ])("%s は invalid_result で採点しない", async (_label, score) => {
+    // 採点はクライアントなので、Server Action を直接呼べば合格点以上を申告できる
+    vi.spyOn(console, "warn").mockImplementation(() => undefined);
+
+    const result = await submitExamResult("mangan_exam", score);
+
+    expect(result).toEqual({ success: false, error: "invalid_result" });
     expect(mockGradeExamRun).not.toHaveBeenCalled();
   });
 

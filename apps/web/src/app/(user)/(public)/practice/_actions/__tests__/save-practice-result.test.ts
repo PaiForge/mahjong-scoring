@@ -215,6 +215,43 @@ describe("savePracticeResult", () => {
     });
   });
 
+  describe("implausible result", () => {
+    beforeEach(() => {
+      mockGetOptionalVerifiedUser.mockResolvedValue({ id: "user-123" });
+      mockSaveChallengeResult.mockResolvedValue({ challengeResultId: "cr-1" });
+      vi.spyOn(console, "warn").mockImplementation(() => undefined);
+    });
+
+    // 採点はクライアントなので、Server Action を直接呼べば任意の値を送れる。
+    // ルール上あり得ない値はランキングに載せない
+    it.each([
+      ["制限時間内に回答しきれない正解数", { score: 10_000 }],
+      ["負の正解数", { score: -1 }],
+      ["ミス上限を超える誤答数", { incorrectAnswers: 4 }],
+      ["負の経過時間", { timeTaken: -5 }],
+      ["制限時間を超える経過時間", { timeTaken: 120 }],
+      ["数値でない正解数", { score: Number.NaN }],
+    ])("%s は invalid_result で保存しない", async (_label, override) => {
+      const result = await savePracticeResult("jantou_fu", "default", {
+        ...validFields,
+        ...override,
+      });
+
+      expect(result).toEqual({ success: false, error: "invalid_result" });
+      expect(mockSaveChallengeResult).not.toHaveBeenCalled();
+    });
+
+    it("ミス上限ちょうど・制限時間ちょうどは受け付ける", async () => {
+      const result = await savePracticeResult("jantou_fu", "default", {
+        score: 30,
+        incorrectAnswers: 3,
+        timeTaken: 60,
+      });
+
+      expect(result).toEqual({ success: true, challengeResultId: "cr-1" });
+    });
+  });
+
   describe("unexpected error handling", () => {
     it("returns unexpected_error when saveChallengeResult throws", async () => {
       mockGetOptionalVerifiedUser.mockResolvedValue({ id: "user-123" });

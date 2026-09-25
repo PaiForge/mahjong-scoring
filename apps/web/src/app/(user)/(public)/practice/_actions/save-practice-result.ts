@@ -2,10 +2,12 @@
 
 import { getOptionalVerifiedUser } from "@/lib/auth";
 import { logExternalError } from "@/lib/log-error";
+import { isPlausibleChallengeResult } from "@/lib/db/challenge-result-bounds";
 import {
   isExamMenuType,
   isPracticeMenuType,
   isPracticeVariant,
+  practiceMenuByType,
 } from "@/lib/db/practice-menu-types";
 import type { PracticeMenuType } from "@/lib/db/practice-menu-types";
 import { saveChallengeResult } from "@/lib/db/save-challenge-result";
@@ -82,13 +84,26 @@ export async function savePracticeResult(
       return { success: false, error: "exam_not_recorded" };
     }
 
+    const fields = {
+      score: Math.round(challengeFields.score),
+      incorrectAnswers: Math.round(challengeFields.incorrectAnswers),
+      timeTaken: Math.round(challengeFields.timeTaken),
+    };
+
+    // 採点はクライアントなので、Server Action を直接呼べば任意の値を送れる。
+    // ルール上あり得ない値だけはランキングに載せない
+    if (!isPlausibleChallengeResult(practiceMenuByType(menuType), fields)) {
+      console.warn(
+        `[savePracticeResult] implausible result: ${menuType} ${JSON.stringify(fields)}`,
+      );
+      return { success: false, error: "invalid_result" };
+    }
+
     const { challengeResultId } = await saveChallengeResult({
       userId: user.id,
       menuType,
       leaderboardKey,
-      score: Math.round(challengeFields.score),
-      incorrectAnswers: Math.round(challengeFields.incorrectAnswers),
-      timeTaken: Math.round(challengeFields.timeTaken),
+      ...fields,
     });
 
     return { success: true, challengeResultId };

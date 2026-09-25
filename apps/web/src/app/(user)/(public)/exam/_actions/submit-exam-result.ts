@@ -1,7 +1,11 @@
 "use server";
 
 import { getOptionalVerifiedUser } from "@/lib/auth";
-import { isPracticeMenuType } from "@/lib/db/practice-menu-types";
+import { isPlausibleExamScore } from "@/lib/db/challenge-result-bounds";
+import {
+  isPracticeMenuType,
+  practiceMenuByType,
+} from "@/lib/db/practice-menu-types";
 import type { PracticeMenuType } from "@/lib/db/practice-menu-types";
 import { gradeExamRun } from "@/lib/db/rank-evaluation";
 import { getUserRankSlugs } from "@/lib/db/rank-queries";
@@ -65,6 +69,16 @@ export async function submitExamResult(
       return { success: false, error: "invalid_menu_type" };
     }
 
+    // 採点はクライアントなので、直接呼べば合格点以上を申告できる。
+    // 制限時間内に回答しきれない正解数だけは合格させない
+    const roundedScore = Math.round(score);
+    if (!isPlausibleExamScore(practiceMenuByType(menuType), roundedScore)) {
+      console.warn(
+        `[submitExamResult] implausible score: ${menuType} ${roundedScore}`,
+      );
+      return { success: false, error: "invalid_result" };
+    }
+
     const eligibility = evaluateExamEligibility(
       menuType,
       await getUserRankSlugs(user.id),
@@ -76,7 +90,7 @@ export async function submitExamResult(
 
     const grantedRanks = await gradeExamRun(user.id, {
       menuType,
-      score: Math.round(score),
+      score: roundedScore,
     });
     return { success: true, grantedRanks };
   } catch (error) {
