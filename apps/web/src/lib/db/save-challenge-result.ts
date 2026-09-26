@@ -37,6 +37,7 @@ export interface SaveChallengeResultReturn {
  */
 export async function saveChallengeResult(
   input: ChallengeResultInput,
+  connection: Pick<typeof db, "transaction"> = db,
 ): Promise<SaveChallengeResultReturn> {
   const {
     userId,
@@ -48,7 +49,7 @@ export async function saveChallengeResult(
   } = input;
   const now = new Date();
 
-  const result = await db.transaction(async (tx) => {
+  const result = await connection.transaction(async (tx) => {
     // 1. Append to challenge_results (all results, for period-based rankings)
     const [inserted] = await tx
       .insert(challengeResults)
