@@ -1,118 +1,30 @@
 "use server";
-
-import { getOptionalVerifiedUser } from "@/lib/auth";
+import { authenticateAndCheckBan } from "@/lib/auth";
+import { finishAttempt } from "@/lib/challenge/attempts";
 import { logExternalError } from "@/lib/log-error";
-import { isPlausibleChallengeResult } from "@/lib/db/challenge-result-bounds";
-import {
-  isExamMenuType,
-  isPracticeMenuType,
-  isPracticeVariant,
-  practiceMenuByType,
-} from "@/lib/db/practice-menu-types";
-import type { PracticeMenuType } from "@/lib/db/practice-menu-types";
-import { saveChallengeResult } from "@/lib/db/save-challenge-result";
 
-/**
- * `savePracticeResult` の戻り値
- * 練習結果保存レスポンス
- *
- * - `{ success: true, challengeResultId }`: 認証済みユーザーの保存成功。
- * - `{ success: true, skipped: 'anonymous' }`: 未ログインユーザーによる呼び出し。
- *   エラーではなく「期待された no-op」を表す。呼び出し側は静かに無視すること。
- * - `{ success: false, error: 'exam_not_recorded' }`: 昇級試験の結果。試験は
- *   記録しない（採点は `submitExamResult` が受け持つ）ため、ここには来ない
- *   はずの呼び出し。
- * - `{ success: false, error }`: それ以外の失敗（バリデーション・DB エラー等）。
- */
+/** サーバーで確定した結果の応答。 */
 export type SaveResultResponse =
   | { readonly success: true; readonly challengeResultId: string }
   | { readonly success: true; readonly skipped: "anonymous" }
   | { readonly success: false; readonly error: string };
 
-export interface ChallengeFields {
-  readonly score: number;
-  readonly incorrectAnswers: number;
-  readonly timeTaken: number;
-}
-
-/**
- * チャレンジ結果を challenge_results / challenge_best_scores に保存する Server Action
- * 練習結果保存
- *
- * 昇級試験の走行は受け付けない。試験は記録を残さず合否だけを判定する
- * （`exam/_actions/submit-exam-result.ts`）。ここで弾くのは、試験の走行が
- * ランキング・マイレコード・EXP に紛れ込む経路を保存の入口で塞ぐため。
- *
- * @param menuType - 練習種別
- * @param leaderboardKey - ランキングセグメントキー（= 出題設定のバリアント。
- *   レジストリの `variants`、設定を持たない練習は `DEFAULT_VARIANT`）
- * @param challengeFields - スコア、誤答数、経過時間
- */
+/** 挑戦IDだけを受け取り、サーバーで採点済みの結果を一度だけ確定する。 */
 export async function savePracticeResult(
-  menuType: PracticeMenuType,
-  leaderboardKey: string,
-  challengeFields: ChallengeFields,
+  attemptId: string,
 ): Promise<SaveResultResponse> {
   try {
-    const user = await getOptionalVerifiedUser();
-
-    // 未ログインユーザーはエラーではなく「静かにスキップ」を返す。
-    // これによりクライアント側で事前の認証チェックが不要になり、
-    // `AuthProvider` の非同期ロード中の競合で正規ユーザーが匿名扱いされる
-    // バグクラスを根絶する。Server の cookie ベース Supabase クライアントが
-    // 唯一の信頼できる認証ソース。
-    if (!user) {
-      return { success: true, skipped: "anonymous" };
-    }
-
-    if (!isPracticeMenuType(menuType)) {
-      console.warn(`[savePracticeResult] invalid menuType: ${menuType}`);
-      return { success: false, error: "invalid_menu_type" };
-    }
-
-    // キー単独ではなく (menuType, key) の組で検証する。他の練習のバリアント名を
-    // 名乗った記録が別の土俵に紛れ込まないように
-    if (!isPracticeVariant(menuType, leaderboardKey)) {
-      console.warn(
-        `[savePracticeResult] invalid leaderboardKey: ${leaderboardKey}`,
-      );
-      return { success: false, error: "invalid_leaderboard_key" };
-    }
-
-    if (isExamMenuType(menuType)) {
-      console.warn(`[savePracticeResult] exam is not recorded: ${menuType}`);
-      return { success: false, error: "exam_not_recorded" };
-    }
-
-    const fields = {
-      score: Math.round(challengeFields.score),
-      incorrectAnswers: Math.round(challengeFields.incorrectAnswers),
-      timeTaken: Math.round(challengeFields.timeTaken),
-    };
-
-    // 採点はクライアントなので、Server Action を直接呼べば任意の値を送れる。
-    // ルール上あり得ない値だけはランキングに載せない
-    if (!isPlausibleChallengeResult(practiceMenuByType(menuType), fields)) {
-      console.warn(
-        `[savePracticeResult] implausible result: ${menuType} ${JSON.stringify(fields)}`,
-      );
+    const auth = await authenticateAndCheckBan();
+    if ("error" in auth)
+      return auth.error === "unauthorized"
+        ? { success: true, skipped: "anonymous" }
+        : { success: false, error: auth.error };
+    const result = await finishAttempt(auth.user.id, attemptId, false);
+    if (!result || !("challengeResultId" in result))
       return { success: false, error: "invalid_result" };
-    }
-
-    const { challengeResultId } = await saveChallengeResult({
-      userId: user.id,
-      menuType,
-      leaderboardKey,
-      ...fields,
-    });
-
-    return { success: true, challengeResultId };
+    return { success: true, challengeResultId: result.challengeResultId };
   } catch (error) {
-    logExternalError(
-      "savePracticeResult",
-      `${menuType}: unexpected error during save`,
-      error,
-    );
+    logExternalError("savePracticeResult", "finish failed", error);
     return { success: false, error: "unexpected_error" };
   }
 }
