@@ -51,6 +51,9 @@ const APP_DIR = dirname(fileURLToPath(import.meta.url));
 const DYNAMIC_ROUTES: ReadonlySet<string> = new Set([
   "/admin",
   "/admin/activity-log",
+  "/admin/ads",
+  "/admin/ads/[id]/edit",
+  "/admin/ads/new",
   "/admin/announcements",
   "/admin/announcements/[id]/edit",
   "/admin/announcements/new",
