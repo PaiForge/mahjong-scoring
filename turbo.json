@@ -25,6 +25,8 @@
     },
     "lint": {},
     "typecheck": {},
-    "test": {}
+    "test": {
+      "env": ["CHALLENGE_TEST_DATABASE_URL"]
+    }
   }
 }
