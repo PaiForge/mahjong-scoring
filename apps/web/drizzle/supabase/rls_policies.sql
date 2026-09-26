@@ -165,3 +165,5 @@ ALTER TABLE "user_roles" ENABLE ROW LEVEL SECURITY;
 DROP POLICY IF EXISTS "user_roles_deny_all" ON "user_roles";
 CREATE POLICY "user_roles_deny_all" ON "user_roles"
   USING (false);
+
+ALTER TABLE "challenge_attempts" ENABLE ROW LEVEL SECURITY;

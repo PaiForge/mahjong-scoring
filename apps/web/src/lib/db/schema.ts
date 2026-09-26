@@ -1,3 +1,4 @@
+import type { ChallengeState } from "../challenge/types";
 import { sql } from "drizzle-orm";
 import {
   boolean,
@@ -511,3 +512,11 @@ export const userRanks = pgTable(
 
 export type UserRank = typeof userRanks.$inferSelect;
 export type NewUserRank = typeof userRanks.$inferInsert;
+
+/** サーバー採点用の挑戦。正解と時計を含むためクライアントからは読み書き禁止。 */
+export const challengeAttempts = pgTable("challenge_attempts", {
+  id: uuid("id").primaryKey().defaultRandom(),
+  userId: uuid("user_id").notNull(),
+  state: jsonb("state").$type<ChallengeState>().notNull(),
+  consumed: boolean("consumed").notNull().default(false),
+});
