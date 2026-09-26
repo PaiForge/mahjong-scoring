@@ -24,6 +24,7 @@ import {
   LOCAL_SUPABASE_DATABASE_URL,
   resolveMigrationDatabaseUrl,
 } from "./_lib/database-url";
+import { reseedAdCreatives } from "./dev-seed/ad-creatives";
 import { reseedChallengeResults } from "./dev-seed/challenge-results";
 import type { ScoredSeedUser } from "./dev-seed/challenge-results";
 import { SEED_PASSWORD, SEED_USERS, ensureSeedUser } from "./dev-seed/users";
@@ -106,6 +107,10 @@ async function main() {
   console.log(
     `  challenge_results ${inserted} 件 + 導出したベストスコアを投入しました`,
   );
+
+  console.log("dev-seed: ネイティブ広告のサンプルを投入します...");
+  const ads = await reseedAdCreatives(db);
+  console.log(`  スロットごとに 1 件、計 ${ads} 件（掲載中）`);
 }
 
 main()
