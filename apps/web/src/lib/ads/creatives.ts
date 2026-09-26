@@ -1,0 +1,159 @@
+import { and, asc, eq, inArray } from "drizzle-orm";
+import { unstable_cache } from "next/cache";
+
+import { DEFAULT_LOCALE, type SupportedLocale } from "@/i18n/locales";
+import { AD_CREATIVES_CACHE_TAG } from "@/lib/cache-tags";
+import { adCreativeTranslations, adCreatives, db } from "@/lib/db";
+import { logExternalError } from "@/lib/log-error";
+
+import {
+  copyFromTranslationRows,
+  resolveCreativeCopy,
+  type CreativeCopy,
+} from "./copy";
+import { isAdKind, kindForSlot, type AdKind, type AdSlot } from "./registry";
+
+/**
+ * 画面に渡す広告 1 件。文言は閲覧者のロケールで解決済みで、そのまま
+ * クライアントコンポーネントへ渡せる（シリアライズ可能）。
+ * 広告ビュー
+ */
+export interface NativeAdView {
+  readonly id: string;
+  readonly kind: AdKind;
+  readonly href: string;
+  /** 絵文字。画像が無いときの見た目 */
+  readonly icon: string | undefined;
+  /** 画像の公開 URL */
+  readonly imageUrl: string | undefined;
+  /** 画像の代替テキスト。画像が無ければ空 */
+  readonly imageAlt: string;
+  readonly title: string;
+  readonly description: string | undefined;
+}
+
+/** キャッシュに載せる形。文言は全ロケール分を持ち、読む側で解決する */
+interface ActiveCreative {
+  readonly id: string;
+  readonly kind: string;
+  readonly href: string;
+  readonly icon: string | null;
+  readonly imagePath: string | null;
+  readonly imageAlt: string | null;
+  readonly copy: CreativeCopy;
+}
+
+const EMPTY_COPY: CreativeCopy = { title: {}, description: {} };
+
+async function queryActiveCreatives(slot: string): Promise<ActiveCreative[]> {
+  const rows = await db
+    .select()
+    .from(adCreatives)
+    .where(and(eq(adCreatives.slot, slot), eq(adCreatives.isActive, true)))
+    .orderBy(asc(adCreatives.sortOrder), asc(adCreatives.createdAt));
+  if (rows.length === 0) return [];
+
+  const copyRows = await db
+    .select({
+      creativeId: adCreativeTranslations.creativeId,
+      locale: adCreativeTranslations.locale,
+      title: adCreativeTranslations.title,
+      description: adCreativeTranslations.description,
+    })
+    .from(adCreativeTranslations)
+    .where(
+      inArray(
+        adCreativeTranslations.creativeId,
+        rows.map((row) => row.id),
+      ),
+    );
+  const copyById = copyFromTranslationRows(copyRows);
+
+  return rows.map((row) => ({
+    id: row.id,
+    kind: row.kind,
+    href: row.href,
+    icon: row.icon,
+    imagePath: row.imagePath,
+    imageAlt: row.imageAlt,
+    copy: copyById.get(row.id) ?? EMPTY_COPY,
+  }));
+}
+
+/**
+ * スロットの掲載中の広告（並び順どおり）
+ *
+ * スロット単位で `unstable_cache` に載せる。広告を出す静的ページ（練習一覧・
+ * 教本の章・用語集）を静的なまま保つため — 閲覧者に依存しない読み込みなので
+ * cookie を読まず、ページを動的にしない。
+ *
+ * 鮮度はタグが持つ。管理画面の書き込みはすべて `revalidateAdCreatives()` で
+ * タグを捨てるため、変更は次のリクエストで反映される。`revalidate` は
+ * その取りこぼしの保険でしかないが、ルートの ISR 間隔はそのページが読む
+ * キャッシュの最小値になるため、短くすると広告を出す静的ページがすべて
+ * 同じ間隔で作り直される。1 日にしている。
+ *
+ * DB の失敗はキャッシュの外で握る。中で握って空配列を返すと、その空配列が
+ * 1 日キャッシュされ、DB が戻っても広告が出ない。
+ */
+const getActiveCreativesCached = unstable_cache(
+  queryActiveCreatives,
+  ["active-ad-creatives"],
+  { tags: [AD_CREATIVES_CACHE_TAG], revalidate: 60 * 60 * 24 },
+);
+
+/**
+ * スロットの掲載中の広告を画面に渡す形で返す
+ * 広告取得
+ *
+ * スロットは 1 つの kind しか受け付けない（`AD_SLOTS`）ため、kind の一致を
+ * 見るのは行の絞り込みではなく、手で書かれた不整合な行を描画に通さないため。
+ * 読み込みに失敗したら空配列（広告を出さない）— 広告の失敗でページを
+ * 落とさない。
+ */
+export async function getNativeAdCreatives(
+  slot: AdSlot,
+  locale: SupportedLocale = DEFAULT_LOCALE,
+): Promise<NativeAdView[]> {
+  let creatives: ActiveCreative[];
+  try {
+    creatives = await getActiveCreativesCached(slot);
+  } catch (error) {
+    logExternalError("getNativeAdCreatives", `slot=${slot}`, error);
+    return [];
+  }
+
+  const kind = kindForSlot(slot);
+  return creatives.flatMap((creative) => {
+    if (!isAdKind(creative.kind) || creative.kind !== kind) return [];
+    const { title, description } = resolveCreativeCopy(creative.copy, locale);
+    if (title === "") return [];
+    return [
+      {
+        id: creative.id,
+        kind,
+        href: creative.href,
+        icon: creative.icon ?? undefined,
+        imageUrl: creative.imagePath ?? undefined,
+        imageAlt: creative.imageAlt ?? "",
+        title,
+        description,
+      },
+    ];
+  });
+}
+
+/**
+ * スロットに 1 枠だけ出す画面が使う広告（先頭の 1 件）。無ければ undefined
+ * 単独広告取得
+ *
+ * どの画面も 1 枠しか持たないため、並び順の先頭が掲載される。複数の広告を
+ * 登録しておくのは、先頭を無効にしたときに次が繰り上がるようにするため。
+ */
+export async function getNativeAdCreative(
+  slot: AdSlot,
+  locale: SupportedLocale = DEFAULT_LOCALE,
+): Promise<NativeAdView | undefined> {
+  const [first] = await getNativeAdCreatives(slot, locale);
+  return first;
+}

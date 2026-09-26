@@ -1,0 +1,94 @@
+import { beforeEach, describe, expect, it, vi } from "vitest";
+
+const { mockCachedRead } = vi.hoisted(() => ({ mockCachedRead: vi.fn() }));
+
+// unstable_cache はモジュール読み込み時に 1 度だけ呼ばれ、返した関数が
+// スロットごとの読み込みになる。DB を経由せず、その関数の戻り値を差し替える。
+vi.mock("next/cache", () => ({
+  unstable_cache: () => mockCachedRead,
+}));
+vi.mock("@/lib/db", () => ({
+  db: {},
+  adCreatives: {},
+  adCreativeTranslations: {},
+}));
+
+import { getNativeAdCreative, getNativeAdCreatives } from "../creatives";
+
+function creative(overrides: Record<string, unknown> = {}) {
+  return {
+    id: "c1",
+    kind: "native_card",
+    href: "https://www.amazon.co.jp/dp/xxx?tag=example-22",
+    icon: "📘",
+    imagePath: null,
+    imageAlt: null,
+    copy: { title: { ja: "麻雀の本" }, description: { ja: "説明" } },
+    ...overrides,
+  };
+}
+
+describe("getNativeAdCreatives", () => {
+  beforeEach(() => {
+    mockCachedRead.mockReset();
+    vi.spyOn(console, "error").mockImplementation(() => undefined);
+  });
+
+  it("掲載中の広告を画面に渡す形にし、NULL を undefined にする", async () => {
+    mockCachedRead.mockResolvedValue([creative()]);
+    await expect(
+      getNativeAdCreatives("practice-grid-native-ad"),
+    ).resolves.toEqual([
+      {
+        id: "c1",
+        kind: "native_card",
+        href: "https://www.amazon.co.jp/dp/xxx?tag=example-22",
+        icon: "📘",
+        imageUrl: undefined,
+        imageAlt: "",
+        title: "麻雀の本",
+        description: "説明",
+      },
+    ]);
+  });
+
+  it("スロットが受け付けない kind の行は描画に通さない", async () => {
+    mockCachedRead.mockResolvedValue([creative({ kind: "native_row" })]);
+    await expect(
+      getNativeAdCreatives("practice-grid-native-ad"),
+    ).resolves.toEqual([]);
+  });
+
+  it("タイトルを持たない行は描画に通さない", async () => {
+    mockCachedRead.mockResolvedValue([
+      creative({ copy: { title: {}, description: { ja: "説明" } } }),
+    ]);
+    await expect(
+      getNativeAdCreatives("practice-grid-native-ad"),
+    ).resolves.toEqual([]);
+  });
+
+  it("読み込みに失敗したら広告を出さない（ページを落とさない）", async () => {
+    mockCachedRead.mockRejectedValue(new Error("db down"));
+    await expect(
+      getNativeAdCreatives("practice-grid-native-ad"),
+    ).resolves.toEqual([]);
+  });
+});
+
+describe("getNativeAdCreative", () => {
+  it("並び順の先頭を返し、無ければ undefined", async () => {
+    mockCachedRead.mockResolvedValueOnce([
+      creative({ id: "first" }),
+      creative({ id: "second" }),
+    ]);
+    await expect(
+      getNativeAdCreative("practice-grid-native-ad"),
+    ).resolves.toMatchObject({ id: "first" });
+
+    mockCachedRead.mockResolvedValueOnce([]);
+    await expect(
+      getNativeAdCreative("practice-grid-native-ad"),
+    ).resolves.toBeUndefined();
+  });
+});
