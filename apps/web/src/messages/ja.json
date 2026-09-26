@@ -3169,5 +3169,11 @@
         "hint": "役満も含めたすべての役"
       }
     }
+  },
+  "nativeAd": {
+    "badge": "PR",
+    "badgeLabel": "広告",
+    "cta": "詳しく見る",
+    "opensInNewTab": "（新しいタブで開きます）"
   }
 }
