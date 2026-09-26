@@ -3,11 +3,13 @@ import { getTranslations } from "next-intl/server";
 import { ContentContainer } from "@/app/(user)/_components/content-container";
 import { PageTitle } from "@/app/(user)/_components/page-title";
 import { LinkButton } from "@/app/(user)/_components/link-button";
+import { NativeAdCard } from "@/app/(user)/_components/native-ad-card";
 import { ArrowUturnLeftIcon } from "@/app/(user)/_components/icons/arrow-uturn-left-icon";
 import { RotateCcwIcon } from "@/app/(user)/_components/icons/rotate-ccw-icon";
 import { SectionTitle } from "@/app/(user)/_components/section-title";
 import { TEXT_LINK_CLASSES } from "@/app/_components/_lib/link-classes";
 import { SUB_LINK_GAP } from "@/app/_components/_lib/spacing";
+import { getNativeAdCreative } from "@/lib/ads/creatives";
 import type { PracticeResultViewProps } from "../_lib/create-practice-result-page";
 import {
   buildResultBreadcrumb,
@@ -44,8 +46,10 @@ import { ResultScoreBar } from "./result-score-bar";
  * 5. アクションボタン（もう一度 / 設定を変更する）と親一覧へのリンク — 即時描画。
  *    `primaryAction` が "parent" のとき（昇級試験の合格）は主ボタンが親一覧
  *    （道場）になり、「もう一度」が補助リンクへ下がる
- * 6. `children` — 練習種別固有の追加コンテンツ（問題別フィードバック等）
- * 7. `leaderboardBlock` — リーダーボードプレビュー（Suspense 境界）。
+ * 6. ネイティブ広告 — 掲載中の広告があるときだけ。練習と昇級試験で
+ *    スロットを分ける（読み手の状況が違い、成果もスロット単位で見るため）
+ * 7. `children` — 練習種別固有の追加コンテンツ（問題別フィードバック等）
+ * 8. `leaderboardBlock` — リーダーボードプレビュー（Suspense 境界）。
  *    ランキングを持たない練習（昇級試験）では undefined で、節ごと出ない
  */
 export async function ResultView({
@@ -66,7 +70,14 @@ export async function ResultView({
   const tc = await getTranslations("challenge");
   // 親一覧（練習一覧 or 道場）。昇級試験の結果は道場へ帰す
   const parent = resultBreadcrumbParent(introHref);
-  const tParent = await getTranslations(parent.namespace);
+  const [tParent, ad] = await Promise.all([
+    getTranslations(parent.namespace),
+    getNativeAdCreative(
+      parent.namespace === "dojo"
+        ? "exam-result-native-ad"
+        : "practice-result-native-ad",
+    ),
+  ]);
 
   return (
     <ContentContainer
@@ -152,6 +163,9 @@ export async function ResultView({
             )}
           </p>
         </div>
+
+        {/* ボタン群の後ろに置く。前に置くと「もう一度」より先に広告が目に入る */}
+        {ad && <NativeAdCard creative={ad} />}
 
         {/* 練習種別固有の追加コンテンツ（問題別フィードバック一覧など） */}
         {children}
