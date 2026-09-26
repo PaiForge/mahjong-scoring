@@ -520,3 +520,123 @@ export const challengeAttempts = pgTable("challenge_attempts", {
   state: jsonb("state").$type<ChallengeState>().notNull(),
   consumed: boolean("consumed").notNull().default(false),
 });
+
+/**
+ * ネイティブ広告の広告本体
+ * 広告クリエイティブ
+ *
+ * @description
+ * 自前で配信するネイティブ広告（Amazon アソシエイトのリンク等）。
+ * スロット（掲載枠）と広告の形の対応は `lib/ads/registry.ts` が正典。
+ * 文言（タイトル・説明）はロケールごとに {@link adCreativeTranslations} に持つ。
+ *
+ * @design slot は一意ではない
+ * 1 スロットに有効な広告が複数あれば `sort_order` 順に回す。スロットの一覧は
+ * コード側で増えるため CHECK を付けない（書き込みは registry で検証する）。
+ * `kind` はスロットから導出して書き込む値で、管理者は選ばない。それでも
+ * 保存するのは、下の CHECK が kind ごとの必須項目を検査するため
+ * （CHECK からは registry を読めない）。
+ *
+ * @design 削除せず無効化する
+ * 行の id は管理画面と各画面の描画をつなぐ唯一の識別子で、掲載の履歴を
+ * 追うときにも使う。消すと過去の成果と突き合わせられなくなるため、削除の
+ * 操作は持たず `is_active` を落とす。
+ *
+ * @design 画像と代替テキストは対
+ * `image_alt` は `image_path` と一緒にしか入らない。広告は絵文字（`icon`）か
+ * 画像のどちらかを必ず持つ — どちらも無いカードは周りの練習カード・行リンクと
+ * 見た目が揃わず、広告だけが浮く。
+ */
+export const adCreatives = pgTable(
+  "ad_creatives",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    /** 広告の形（`lib/ads/registry.ts` の `AdKind`） */
+    kind: varchar("kind", { length: 50 }).notNull(),
+    /** 掲載枠（`lib/ads/registry.ts` の `AdSlot`）。一意ではない */
+    slot: varchar("slot", { length: 50 }).notNull(),
+    /** 遷移先（アフィリエイトリンク等） */
+    href: varchar("href", { length: 2048 }).notNull(),
+    /** 掲載中か。唯一のオン / オフ */
+    isActive: boolean("is_active").notNull().default(false),
+    /** スロット内の並び順（小さいほど先） */
+    sortOrder: integer("sort_order").notNull().default(0),
+    /** 絵文字。画像が無いときの見た目 */
+    icon: varchar("icon", { length: 16 }),
+    /** 画像の公開 URL（Storage の ad-creatives バケット） */
+    imagePath: varchar("image_path", { length: 1024 }),
+    /** 画像の代替テキスト */
+    imageAlt: varchar("image_alt", { length: 255 }),
+    /** 作成日時 */
+    createdAt: timestamp("created_at", { withTimezone: true })
+      .defaultNow()
+      .notNull(),
+    /** 更新日時 */
+    updatedAt: timestamp("updated_at", { withTimezone: true })
+      .defaultNow()
+      .notNull(),
+  },
+  (table) => [
+    index("idx_ad_creatives_slot_active").on(table.slot, table.isActive),
+    check(
+      "ad_creatives_chk_kind",
+      sql`${table.kind} IN ('native_card', 'native_row')`,
+    ),
+    check(
+      "ad_creatives_chk_has_visual",
+      sql`(${table.icon} IS NOT NULL AND ${table.icon} <> '') OR ${table.imagePath} IS NOT NULL`,
+    ),
+    check(
+      "ad_creatives_chk_image_alt_with_image",
+      sql`${table.imageAlt} IS NULL OR ${table.imagePath} IS NOT NULL`,
+    ),
+  ],
+);
+
+export type AdCreative = typeof adCreatives.$inferSelect;
+export type NewAdCreative = typeof adCreatives.$inferInsert;
+
+/**
+ * ネイティブ広告の文言（ロケールごと）
+ * 広告文言
+ *
+ * @design 子テーブルにする
+ * お知らせのように 1 ロケール 1 行にしないのは、1 つの広告のロケール違いは
+ * 同じ広告だから。遷移先・掲載状態・並び順・id を共有し、行を分けると
+ * 1 つの広告が 2 つに見える。
+ *
+ * 既定ロケール（ja）の行はタイトルを必ず持つ（他ロケールの穴埋め先のため）。
+ * 他ロケールの行はどちらか片方だけを上書きしてよく、空いた項目は ja に落ちる
+ * （`lib/ads/copy.ts`）。何も上書きしない行は作らない。
+ */
+export const adCreativeTranslations = pgTable(
+  "ad_creative_translations",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    creativeId: uuid("creative_id")
+      .notNull()
+      .references(() => adCreatives.id, { onDelete: "cascade" }),
+    /** ロケール（BCP 47） */
+    locale: varchar("locale", { length: 10 }).notNull(),
+    /** タイトル */
+    title: varchar("title", { length: 255 }),
+    /** 説明 */
+    description: varchar("description", { length: 1000 }),
+  },
+  (table) => [
+    unique("uq_ad_creative_translations_locale").on(
+      table.creativeId,
+      table.locale,
+    ),
+    check(
+      "ad_creative_translations_chk_says_something",
+      sql`${table.title} IS NOT NULL OR ${table.description} IS NOT NULL`,
+    ),
+    check(
+      "ad_creative_translations_chk_default_locale_title",
+      sql`${table.locale} <> 'ja' OR ${table.title} IS NOT NULL`,
+    ),
+  ],
+);
+
+export type AdCreativeTranslation = typeof adCreativeTranslations.$inferSelect;

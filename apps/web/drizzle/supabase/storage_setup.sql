@@ -36,3 +36,27 @@ DROP POLICY IF EXISTS "avatars_select_public" ON storage.objects;
 CREATE POLICY "avatars_select_public" ON storage.objects
   FOR SELECT
   USING (bucket_id = 'avatars');
+
+-- =============================================================================
+-- ad-creatives バケット（ネイティブ広告の画像）
+-- =============================================================================
+-- パス構成は `<ランダムな uuid>.webp`。書き込みは /api/admin/ads/image が
+-- 管理者を確認したうえでサービスロールで行い、WebP に正規化する（avatars と
+-- 同じ理由で、クライアントに書き込みポリシーは与えない）。読み取りは公開。
+INSERT INTO storage.buckets (id, name, public, file_size_limit, allowed_mime_types)
+VALUES (
+  'ad-creatives',
+  'ad-creatives',
+  true,
+  5242880, -- 5MiB
+  ARRAY['image/webp']
+)
+ON CONFLICT (id) DO UPDATE SET
+  public = EXCLUDED.public,
+  file_size_limit = EXCLUDED.file_size_limit,
+  allowed_mime_types = EXCLUDED.allowed_mime_types;
+
+DROP POLICY IF EXISTS "ad_creatives_select_public" ON storage.objects;
+CREATE POLICY "ad_creatives_select_public" ON storage.objects
+  FOR SELECT
+  USING (bucket_id = 'ad-creatives');
