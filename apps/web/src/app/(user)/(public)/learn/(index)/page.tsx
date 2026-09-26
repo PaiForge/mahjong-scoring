@@ -14,11 +14,15 @@
  * （`loading-boundaries.test.ts` 参照）。
  */
 import type { Metadata } from "next";
+import { Fragment } from "react";
 import { getTranslations } from "next-intl/server";
 import { ContentContainer } from "@/app/(user)/_components/content-container";
+import { LinkRowList } from "@/app/(user)/_components/link-row";
+import { NativeAdRow } from "@/app/(user)/_components/native-ad-row";
 import { PageTitle } from "@/app/(user)/_components/page-title";
 import { SectionTitle } from "@/app/(user)/_components/section-title";
 import { createNamespaceMetadata } from "@/app/_lib/metadata";
+import { getNativeAdCreative } from "@/lib/ads/creatives";
 import { CurriculumProgressBar } from "../_components/curriculum-progress-bar";
 import { CurriculumToc } from "../_components/curriculum-toc";
 import {
@@ -39,8 +43,11 @@ export async function generateMetadata(): Promise<Metadata> {
 }
 
 export default async function LearnIndexPage() {
-  const t = await getTranslations("learnCurriculum");
-  const readSlugs = await fetchReadChapterSlugs();
+  const [t, readSlugs, ad] = await Promise.all([
+    getTranslations("learnCurriculum"),
+    fetchReadChapterSlugs(),
+    getNativeAdCreative("learn-index-native-ad"),
+  ]);
   const next = pickNextChapter(readSlugs);
   const allCompleted = !next;
 
@@ -69,17 +76,25 @@ export default async function LearnIndexPage() {
           allCompleted={allCompleted}
         />
 
-        {CURRICULUM_SECTIONS.map((section) => {
+        {CURRICULUM_SECTIONS.map((section, index) => {
           const chapters = grouped.get(section) ?? [];
           if (chapters.length === 0) return undefined;
           return (
-            <CurriculumToc
-              key={section}
-              section={section}
-              chapters={chapters}
-              readSlugs={readSlugs}
-              nextSlug={next?.slug}
-            />
+            <Fragment key={section}>
+              <CurriculumToc
+                section={section}
+                chapters={chapters}
+                readSlugs={readSlugs}
+                nextSlug={next?.slug}
+              />
+              {/* 広告は最初のセクションの後に 1 行だけ。目次の途中（章の並び）には
+                  入れない — 章の順序は学習の順序で、間に挟まると順路が途切れる */}
+              {index === 0 && ad && (
+                <LinkRowList>
+                  <NativeAdRow creative={ad} />
+                </LinkRowList>
+              )}
+            </Fragment>
           );
         })}
 
