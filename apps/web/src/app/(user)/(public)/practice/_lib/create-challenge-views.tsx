@@ -1,5 +1,9 @@
 "use client";
 
+import {
+  VerifiedChallengeProvider,
+  useVerifiedChallenge,
+} from "../_hooks/use-verified-challenge";
 import { useCallback, useMemo, useState, type ReactNode } from "react";
 import { useTranslations } from "next-intl";
 import type { PracticeMenuSlug } from "@/lib/db/practice-menu-types";
@@ -73,7 +77,7 @@ export interface ChallengePlayViewConfig<TResult, TProps, TState> {
  */
 export function createChallengePlayView<
   TResult = never,
-  TProps = Record<string, never>,
+  TProps extends object = Record<string, never>,
   TState = undefined,
 >(
   config: ChallengePlayViewConfig<TResult, TProps, TState>,
@@ -107,6 +111,7 @@ export function createChallengePlayView<
 
   function ChallengePlayView(props: TProps) {
     const t = useTranslations(namespace);
+    const verified = useVerifiedChallenge();
     const boardState = useBoardState(props);
     // チャレンジのルール（制限時間・ミス上限）はレジストリが正典。
     // 練習ごとの上書き（昇級試験のミス1回等）もここ経由で効く
@@ -124,8 +129,25 @@ export function createChallengePlayView<
       <ChallengeShell
         title={t("title")}
         slug={slug}
-        gameSession={gameSession}
-        timerControl={timerControl}
+        gameSession={{
+          ...gameSession,
+          togglePause: () => {
+            if (!verified) {
+              gameSession.togglePause();
+              return;
+            }
+            void verified.pause(!gameSession.isPaused).then((ok) => {
+              if (ok) gameSession.togglePause();
+            });
+          },
+        }}
+        timerControl={{
+          ...timerControl,
+          onTimeLimitReached: verified
+            ? () => verified.expire(timerControl.onTimeLimitReached)
+            : timerControl.onTimeLimitReached,
+          reset: verified ? verified.restart : timerControl.reset,
+        }}
         resultPath={practiceResultHref(slug)}
         maxWidth={maxWidth}
         hasProblemList={hasProblemList}
@@ -149,7 +171,13 @@ export function createChallengePlayView<
     );
   }
   ChallengePlayView.displayName = `ChallengePlayView(${slug})`;
-  return ChallengePlayView;
+  return function VerifiedPlayView(props: TProps) {
+    return (
+      <VerifiedChallengeProvider slug={slug}>
+        <ChallengePlayView {...props} />
+      </VerifiedChallengeProvider>
+    );
+  };
 }
 
 /**
@@ -214,7 +242,7 @@ export interface TrainingViewConfig<TProps, TState> {
  * 導線が「チャレンジ」ではなく「本番の試験」を指すことだけ。
  */
 export function createTrainingView<
-  TProps = Record<string, never>,
+  TProps extends object = Record<string, never>,
   TState = undefined,
 >(config: TrainingViewConfig<TProps, TState>): (props: TProps) => ReactNode {
   const { slug, maxWidth, hasSubmitButton, help, renderBoard } = config;

@@ -43,7 +43,12 @@ BEGIN
 END;
 $$;
 
-GRANT SELECT, INSERT, UPDATE ON TABLE public.profiles TO authenticated;
+-- 書き込みはクライアントに許さない。登録・編集は Server Action が Drizzle の
+-- 直 DB 接続で行う。profiles の行には banned_at / deleted_at / username のように
+-- サーバだけが決めてよい列が同居しており、own-row の RLS では列を区別できない
+-- （以前は INSERT / UPDATE を付けていたため、BAN の印を自分で消す・予約語や形式の
+-- 検証を通らない username を名乗る、といった書き換えが PostgREST 越しにできた）。
+GRANT SELECT ON TABLE public.profiles TO authenticated;
 GRANT SELECT ON TABLE public.profiles TO anon;
 
 -- =============================================================================

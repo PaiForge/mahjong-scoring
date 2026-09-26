@@ -1,5 +1,7 @@
 "use client";
 
+import { useGradeAnswer } from "../../_hooks/use-verified-challenge";
+
 import { useCallback, useState } from "react";
 import { useTranslations } from "next-intl";
 import {
@@ -41,6 +43,7 @@ export function YakuHanBoard({
   onRecordResult,
   onPresentQuestion,
 }: YakuHanBoardProps) {
+  const gradeAnswer = useGradeAnswer<YakuHanQuestion>();
   const t = useTranslations("yakuHanChallenge");
   const generateQuestion = useCallback(
     (): YakuHanQuestion => generateYakuHanQuestion(range),
@@ -61,11 +64,20 @@ export function YakuHanBoard({
     (userHan: number) => {
       if (showFeedback || !question) return;
 
-      const result = toQuestionResult(question, userHan);
-      onRecordResult?.(result);
-      onAnswer(result.outcome === AnswerOutcome.Correct, advanceQuestion);
+      gradeAnswer(question, userHan, (gradedQuestion) => {
+        const result = toQuestionResult(gradedQuestion, userHan);
+        onRecordResult?.(result);
+        onAnswer(result.outcome === AnswerOutcome.Correct, advanceQuestion);
+      });
     },
-    [showFeedback, question, onAnswer, advanceQuestion, onRecordResult],
+    [
+      showFeedback,
+      question,
+      onAnswer,
+      advanceQuestion,
+      onRecordResult,
+      gradeAnswer,
+    ],
   );
 
   if (!question) {

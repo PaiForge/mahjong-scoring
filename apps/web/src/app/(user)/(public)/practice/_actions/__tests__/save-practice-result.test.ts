@@ -1,248 +1,51 @@
-import { describe, expect, it, vi, beforeEach } from "vitest";
-
-const { mockGetOptionalVerifiedUser, mockSaveChallengeResult } = vi.hoisted(
-  () => ({
-    mockGetOptionalVerifiedUser: vi.fn(),
-    mockSaveChallengeResult: vi.fn(),
-  }),
-);
-
-vi.mock("server-only", () => ({}));
-
-vi.mock("@/lib/auth", () => ({
-  getOptionalVerifiedUser: mockGetOptionalVerifiedUser,
-}));
-
-vi.mock("../../../../../../lib/db/save-challenge-result", () => ({
-  saveChallengeResult: mockSaveChallengeResult,
-}));
-
+import { beforeEach, describe, expect, it, vi } from "vitest";
+const { auth, finish } = vi.hoisted(() => ({ auth: vi.fn(), finish: vi.fn() }));
+vi.mock("@/lib/auth", () => ({ authenticateAndCheckBan: auth }));
+vi.mock("@/lib/challenge/attempts", () => ({ finishAttempt: finish }));
 import { savePracticeResult } from "../save-practice-result";
-import type { ChallengeFields } from "../save-practice-result";
-
-const validFields: ChallengeFields = {
-  score: 8,
-  incorrectAnswers: 2,
-  timeTaken: 42,
-};
 
 describe("savePracticeResult", () => {
   beforeEach(() => {
     vi.clearAllMocks();
+    auth.mockResolvedValue({ user: { id: "owner" } });
+    finish.mockResolvedValue({ challengeResultId: "result-id" });
   });
-
-  describe("unauthenticated user", () => {
-    it("returns { success: true, skipped: 'anonymous' } when user is not logged in (undefined)", async () => {
-      mockGetOptionalVerifiedUser.mockResolvedValue(undefined);
-
-      const result = await savePracticeResult(
-        "jantou_fu",
-        "default",
-        validFields,
-      );
-
-      expect(result).toEqual({ success: true, skipped: "anonymous" });
+  it("サーバーの本人IDと挑戦IDだけで結果を確定する", async () => {
+    expect(await savePracticeResult("attempt-id")).toEqual({
+      success: true,
+      challengeResultId: "result-id",
     });
-
-    it("returns { success: true, skipped: 'anonymous' } when user is null", async () => {
-      mockGetOptionalVerifiedUser.mockResolvedValue(null);
-
-      const result = await savePracticeResult(
-        "jantou_fu",
-        "default",
-        validFields,
-      );
-
-      expect(result).toEqual({ success: true, skipped: "anonymous" });
-    });
-
-    it("does not call saveChallengeResult when unauthenticated", async () => {
-      mockGetOptionalVerifiedUser.mockResolvedValue(undefined);
-
-      await savePracticeResult("jantou_fu", "default", validFields);
-
-      expect(mockSaveChallengeResult).not.toHaveBeenCalled();
-    });
+    expect(finish).toHaveBeenCalledWith("owner", "attempt-id", false);
   });
-
-  describe("invalid menuType", () => {
-    it("returns invalid_menu_type for unknown menu type", async () => {
-      mockGetOptionalVerifiedUser.mockResolvedValue({ id: "user-123" });
-
-      // Force an invalid value through type assertion (simulating runtime mismatch)
-      const result = await savePracticeResult(
-        "invalid_type" as "jantou_fu",
-        "default",
-        validFields,
-      );
-
-      expect(result).toEqual({ success: false, error: "invalid_menu_type" });
-    });
-
-    it("does not call saveChallengeResult for invalid menuType", async () => {
-      mockGetOptionalVerifiedUser.mockResolvedValue({ id: "user-123" });
-
-      await savePracticeResult(
-        "not_valid" as "jantou_fu",
-        "default",
-        validFields,
-      );
-
-      expect(mockSaveChallengeResult).not.toHaveBeenCalled();
-    });
+  it("クライアントが追加した点数や時間を保存処理に渡さない", async () => {
+    await Reflect.apply(savePracticeResult, undefined, [
+      "attempt-id",
+      1000,
+      { score: 1000, timeTaken: 0 },
+    ]);
+    expect(finish).toHaveBeenCalledWith("owner", "attempt-id", false);
   });
-
-  describe("invalid leaderboardKey", () => {
-    beforeEach(() => {
-      mockGetOptionalVerifiedUser.mockResolvedValue({ id: "user-123" });
-      mockSaveChallengeResult.mockResolvedValue({ challengeResultId: "cr-1" });
+  it("未認証は書き込まない", async () => {
+    auth.mockResolvedValue({ error: "unauthorized" });
+    expect(await savePracticeResult("attempt-id")).toEqual({
+      success: true,
+      skipped: "anonymous",
     });
-
-    it("その練習に無いバリアントは invalid_leaderboard_key", async () => {
-      const result = await savePracticeResult(
-        "jantou_fu",
-        "kuisagari",
-        validFields,
-      );
-
-      expect(result).toEqual({
-        success: false,
-        error: "invalid_leaderboard_key",
-      });
-      expect(mockSaveChallengeResult).not.toHaveBeenCalled();
-    });
-
-    it("バリアントを持つ練習では default を受け付けない", async () => {
-      const result = await savePracticeResult(
-        "yaku_han",
-        "default",
-        validFields,
-      );
-
-      expect(result).toEqual({
-        success: false,
-        error: "invalid_leaderboard_key",
-      });
-    });
-
-    it("レジストリに列挙したバリアントは受け付ける", async () => {
-      const result = await savePracticeResult(
-        "yaku_han",
-        "no_kuisagari",
-        validFields,
-      );
-
-      expect(result).toEqual({ success: true, challengeResultId: "cr-1" });
-      expect(mockSaveChallengeResult).toHaveBeenCalledWith(
-        expect.objectContaining({
-          menuType: "yaku_han",
-          leaderboardKey: "no_kuisagari",
-        }),
-      );
-    });
+    expect(finish).not.toHaveBeenCalled();
   });
-
-  describe("exam is not recorded", () => {
-    beforeEach(() => {
-      mockGetOptionalVerifiedUser.mockResolvedValue({ id: "user-123" });
-      mockSaveChallengeResult.mockResolvedValue({ challengeResultId: "cr-1" });
+  it("BAN中は書き込まない", async () => {
+    auth.mockResolvedValue({ error: "banned" });
+    expect(await savePracticeResult("attempt-id")).toEqual({
+      success: false,
+      error: "banned",
     });
-
-    it.each(["mangan_exam", "pinfu_exam", "score_exam"] as const)(
-      "昇級試験 %s の走行は exam_not_recorded で保存しない",
-      async (menuType) => {
-        const result = await savePracticeResult(
-          menuType,
-          "default",
-          validFields,
-        );
-
-        expect(result).toEqual({
-          success: false,
-          error: "exam_not_recorded",
-        });
-        expect(mockSaveChallengeResult).not.toHaveBeenCalled();
-      },
-    );
+    expect(finish).not.toHaveBeenCalled();
   });
-
-  describe("successful save", () => {
-    beforeEach(() => {
-      mockGetOptionalVerifiedUser.mockResolvedValue({ id: "user-123" });
-      mockSaveChallengeResult.mockResolvedValue({ challengeResultId: "cr-1" });
-    });
-
-    it("returns success: true with challengeResultId", async () => {
-      const result = await savePracticeResult(
-        "jantou_fu",
-        "default",
-        validFields,
-      );
-
-      expect(result).toEqual({ success: true, challengeResultId: "cr-1" });
-    });
-
-    it("calls saveChallengeResult with rounded values", async () => {
-      const fieldsWithDecimals: ChallengeFields = {
-        score: 8.7,
-        incorrectAnswers: 2.3,
-        timeTaken: 42.9,
-      };
-
-      await savePracticeResult("jantou_fu", "default", fieldsWithDecimals);
-
-      expect(mockSaveChallengeResult).toHaveBeenCalledWith({
-        userId: "user-123",
-        menuType: "jantou_fu",
-        leaderboardKey: "default",
-        score: 9,
-        incorrectAnswers: 2,
-        timeTaken: 43,
-      });
-    });
-
-    it("passes the correct userId from the authenticated user", async () => {
-      mockGetOptionalVerifiedUser.mockResolvedValue({ id: "specific-user-id" });
-
-      await savePracticeResult("machi_fu", "default", validFields);
-
-      expect(mockSaveChallengeResult).toHaveBeenCalledWith(
-        expect.objectContaining({
-          userId: "specific-user-id",
-          menuType: "machi_fu",
-        }),
-      );
-    });
-  });
-
-  describe("unexpected error handling", () => {
-    it("returns unexpected_error when saveChallengeResult throws", async () => {
-      mockGetOptionalVerifiedUser.mockResolvedValue({ id: "user-123" });
-      mockSaveChallengeResult.mockRejectedValue(
-        new Error("DB connection lost"),
-      );
-
-      const result = await savePracticeResult(
-        "jantou_fu",
-        "default",
-        validFields,
-      );
-
-      expect(result).toEqual({ success: false, error: "unexpected_error" });
-    });
-
-    it("returns unexpected_error when createClient throws", async () => {
-      mockGetOptionalVerifiedUser.mockRejectedValue(
-        new Error("Supabase unavailable"),
-      );
-
-      const result = await savePracticeResult(
-        "jantou_fu",
-        "default",
-        validFields,
-      );
-
-      expect(result).toEqual({ success: false, error: "unexpected_error" });
+  it("無効・未終了・使用済みの挑戦は成功扱いにしない", async () => {
+    finish.mockResolvedValue(undefined);
+    expect(await savePracticeResult("invalid")).toEqual({
+      success: false,
+      error: "invalid_result",
     });
   });
 });

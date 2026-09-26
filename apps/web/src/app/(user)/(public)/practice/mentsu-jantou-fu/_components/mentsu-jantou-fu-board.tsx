@@ -1,5 +1,7 @@
 "use client";
 
+import { useGradeAnswer } from "../../_hooks/use-verified-challenge";
+
 import { useState, useCallback } from "react";
 import { useTranslations } from "next-intl";
 import {
@@ -70,6 +72,7 @@ export function MentsuJantouFuBoard({
   onRecordResult,
   onPresentQuestion,
 }: MentsuJantouFuBoardProps) {
+  const gradeAnswer = useGradeAnswer<MentsuJantouFuQuestion>();
   const t = useTranslations("mentsuJantouFu");
   const renfonpaiAs4Fu = useRuleSettingsStore((s) => s.renfonpaiAs4Fu);
   const generate = useCallback(
@@ -93,11 +96,13 @@ export function MentsuJantouFuBoard({
   const submit = useCallback(
     (answered: MentsuJantouFuQuestion, filled: readonly string[]) => {
       const userFuList = answered.items.map((_, idx) => parseInt(filled[idx]));
-      const result = toQuestionResult(answered, userFuList);
-      onRecordResult?.(result);
-      onAnswer(result.outcome === AnswerOutcome.Correct, advanceQuestion);
+      gradeAnswer(answered, userFuList, (gradedQuestion) => {
+        const result = toQuestionResult(gradedQuestion, userFuList);
+        onRecordResult?.(result);
+        onAnswer(result.outcome === AnswerOutcome.Correct, advanceQuestion);
+      });
     },
-    [onAnswer, advanceQuestion, onRecordResult],
+    [onAnswer, advanceQuestion, onRecordResult, gradeAnswer],
   );
 
   // 選んだ結果を先に確定してから「全行が埋まったか」を見る。関数型の更新に

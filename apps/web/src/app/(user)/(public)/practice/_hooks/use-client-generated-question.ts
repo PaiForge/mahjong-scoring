@@ -2,6 +2,7 @@
 
 import { useCallback, useMemo, useState } from "react";
 import type { Dispatch, SetStateAction } from "react";
+import { useVerifiedQuestion } from "./use-verified-challenge";
 import { useIsClient } from "@/app/_hooks/use-is-client";
 
 /** まだ差し替えが一度も無い（最初の問題をそのまま使う）ことを表す番兵 */
@@ -27,13 +28,14 @@ const UNSET = Symbol("unset");
 export function useClientGeneratedQuestion<TQuestion>(
   generate: () => TQuestion,
 ): [TQuestion | undefined, Dispatch<SetStateAction<TQuestion | undefined>>] {
+  const verified = useVerifiedQuestion<TQuestion>();
   const isClient = useIsClient();
   const [stored, setStored] = useState<TQuestion | undefined | typeof UNSET>(
     UNSET,
   );
   const initial = useMemo(
-    () => (isClient ? generate() : undefined),
-    [isClient, generate],
+    () => (isClient && !verified ? generate() : undefined),
+    [isClient, generate, verified],
   );
   const question = stored === UNSET ? initial : stored;
 
@@ -41,6 +43,10 @@ export function useClientGeneratedQuestion<TQuestion>(
     Dispatch<SetStateAction<TQuestion | undefined>>
   >(
     (action) => {
+      if (verified) {
+        verified.advance();
+        return;
+      }
       setStored((prev) => {
         const current = prev === UNSET ? initial : prev;
         return typeof action === "function"
@@ -50,8 +56,8 @@ export function useClientGeneratedQuestion<TQuestion>(
           : action;
       });
     },
-    [initial],
+    [initial, verified],
   );
 
-  return [question, setQuestion];
+  return [verified ? verified.question : question, setQuestion];
 }

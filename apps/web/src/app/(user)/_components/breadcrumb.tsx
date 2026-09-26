@@ -2,6 +2,8 @@ import Link from "next/link";
 
 import { SITE_URL } from "@/config";
 
+import { JsonLd } from "./json-ld";
+
 export interface BreadcrumbItem {
   readonly label: string;
   /** 省略時はリンクなし（現在地）として表示する */
@@ -43,10 +45,7 @@ export function Breadcrumb({ items }: BreadcrumbProps) {
 
   return (
     <nav aria-label="Breadcrumb" className="flex min-h-6 items-center">
-      <script
-        type="application/ld+json"
-        dangerouslySetInnerHTML={{ __html: JSON.stringify(schema) }}
-      />
+      <JsonLd data={schema} />
       <ol className="flex flex-wrap items-center gap-x-1 text-sm">
         <li>
           <Link

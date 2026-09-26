@@ -1,5 +1,7 @@
 "use client";
 
+import { useGradeAnswer } from "../../_hooks/use-verified-challenge";
+
 import { useCallback, useState } from "react";
 import { useTranslations } from "next-intl";
 import { generateJantouFuQuestion } from "@mahjong-scoring/core";
@@ -40,6 +42,7 @@ export function JantouFuBoard({
   onRecordResult,
   onPresentQuestion,
 }: JantouFuBoardProps) {
+  const gradeAnswer = useGradeAnswer<JantouFuQuestion>();
   const t = useTranslations("jantouFu");
   const renfonpaiAs4Fu = useRuleSettingsStore((s) => s.renfonpaiAs4Fu);
   const generateQuestion = useCallback(
@@ -62,12 +65,21 @@ export function JantouFuBoard({
   const handleChoiceSelect = useCallback(
     (index: number) => {
       if (showFeedback || !question) return;
-      const choice = question.choices[index];
-      setSelectedHai(choice.hai);
-      onRecordResult?.(toQuestionResult(question, choice));
-      onAnswer(choice.isCorrect, advanceQuestion);
+      gradeAnswer(question, index, (gradedQuestion) => {
+        const choice = gradedQuestion.choices[index];
+        setSelectedHai(choice.hai);
+        onRecordResult?.(toQuestionResult(gradedQuestion, choice));
+        onAnswer(choice.isCorrect, advanceQuestion);
+      });
     },
-    [showFeedback, question, onAnswer, advanceQuestion, onRecordResult],
+    [
+      showFeedback,
+      question,
+      onAnswer,
+      advanceQuestion,
+      onRecordResult,
+      gradeAnswer,
+    ],
   );
 
   if (!question) {

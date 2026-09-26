@@ -8,13 +8,11 @@ DROP POLICY IF EXISTS "profiles_select_policy" ON "profiles";
 CREATE POLICY "profiles_select_policy" ON "profiles"
   FOR SELECT USING (deleted_at IS NULL);
 
+-- INSERT / UPDATE のポリシーは置かない。書き込みはサーバ（Drizzle の直 DB 接続）
+-- だけが行う（理由は foreign_keys_and_grants.sql の profiles の GRANT を参照）。
+-- 下の DROP は既存環境から旧ポリシーを取り除くために残す（冪等）。
 DROP POLICY IF EXISTS "profiles_insert_policy" ON "profiles";
-CREATE POLICY "profiles_insert_policy" ON "profiles"
-  FOR INSERT WITH CHECK (auth.uid() = id);
-
 DROP POLICY IF EXISTS "profiles_update_policy" ON "profiles";
-CREATE POLICY "profiles_update_policy" ON "profiles"
-  FOR UPDATE USING (auth.uid() = id);
 
 CREATE OR REPLACE FUNCTION public.update_updated_at_column()
 RETURNS TRIGGER AS $$
@@ -167,3 +165,5 @@ ALTER TABLE "user_roles" ENABLE ROW LEVEL SECURITY;
 DROP POLICY IF EXISTS "user_roles_deny_all" ON "user_roles";
 CREATE POLICY "user_roles_deny_all" ON "user_roles"
   USING (false);
+
+ALTER TABLE "challenge_attempts" ENABLE ROW LEVEL SECURITY;

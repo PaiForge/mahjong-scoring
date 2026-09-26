@@ -31,6 +31,11 @@ type RemotePattern = NonNullable<
  * ここに直書きすると環境ごとに食い違うため。ローカル開発の
  * http://127.0.0.1:54321 も同じ 1 本で賄える。
  *
+ * パスも avatars バケットの `<userId>/avatar.webp`（/api/profile/avatar が
+ * WebP に正規化して書く唯一のオブジェクト）に絞る。バケット内のそれ以外の
+ * オブジェクト（書き込みをサーバに限定する前に直接置かれ得たもの）を
+ * 画像最適化のデコーダに渡さないため。
+ *
  * 未設定・不正値なら Supabase のパターンを足さない（アバターが表示されなくなるが、
  * 任意のホストを開けるよりよい）。この変数は getSupabasePublicEnv() が未設定時に
  * 例外を投げる必須変数なので、実際には設定されている前提でよい。
@@ -46,7 +51,7 @@ function supabaseImagePatterns(): RemotePattern[] {
         protocol: protocol === "http:" ? "http" : "https",
         hostname,
         ...(port ? { port } : {}),
-        pathname: "/storage/v1/object/public/**",
+        pathname: "/storage/v1/object/public/avatars/*/avatar.webp",
       },
     ];
   } catch {

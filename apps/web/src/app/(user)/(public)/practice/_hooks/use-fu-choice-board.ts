@@ -1,5 +1,7 @@
 "use client";
 
+import { useGradeAnswer } from "./use-verified-challenge";
+
 import { useCallback, useState } from "react";
 
 import type { PracticeBoardProps } from "../_lib/practice-board-props";
@@ -67,6 +69,7 @@ export function useFuChoiceBoard<TQuestion extends FuQuestion>({
   onRecordResult,
   onPresentQuestion,
 }: UseFuChoiceBoardParams<TQuestion>): UseFuChoiceBoardResult<TQuestion> {
+  const gradeAnswer = useGradeAnswer<TQuestion>();
   const [question, setQuestion] = useClientGeneratedQuestion(generateQuestion);
   const [selectedFu, setSelectedFu] = useState<number | undefined>(undefined);
 
@@ -83,9 +86,11 @@ export function useFuChoiceBoard<TQuestion extends FuQuestion>({
     (index: number) => {
       if (showFeedback || !question) return;
       const fu = options[index];
-      setSelectedFu(fu);
-      onRecordResult?.(question, fu);
-      onAnswer(fu === question.answer, advanceQuestion);
+      gradeAnswer(question, fu, (gradedQuestion) => {
+        setSelectedFu(fu);
+        onRecordResult?.(gradedQuestion, fu);
+        onAnswer(fu === gradedQuestion.answer, advanceQuestion);
+      });
     },
     [
       showFeedback,
@@ -94,6 +99,7 @@ export function useFuChoiceBoard<TQuestion extends FuQuestion>({
       question,
       advanceQuestion,
       onRecordResult,
+      gradeAnswer,
     ],
   );
 
