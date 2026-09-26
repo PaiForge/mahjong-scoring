@@ -2182,7 +2182,8 @@
       "item2": "IP アドレス（個人を特定する情報は含まれません）",
       "item3": "端末やブラウザの種類",
       "optOut": "パーソナライズ広告の配信を希望しない場合は、<link>Google の広告設定</link>から無効にできます。",
-      "learnMore": "Google がパートナーサイトでの広告配信に使用する情報については、<link>Google のパートナーサイトでの広告配信</link>をご覧ください。"
+      "learnMore": "Google がパートナーサイトでの広告配信に使用する情報については、<link>Google のパートナーサイトでの広告配信</link>をご覧ください。",
+      "amazonAssociate": "当サイトの一部のリンク（「PR」と表示したもの）は、Amazon.co.jp の商品へのアフィリエイトリンクです。Amazonのアソシエイトとして、{siteName}は適格販売により収入を得ています。"
     },
     "localStorage": {
       "title": "端末に保存する設定",

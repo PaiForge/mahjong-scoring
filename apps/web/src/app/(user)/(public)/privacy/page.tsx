@@ -120,6 +120,10 @@ export default async function PrivacyPage() {
               ),
             })}
           </LegalParagraph>
+          {/* Amazon アソシエイト・プログラムの運営規約が求める表記 */}
+          <LegalParagraph>
+            {t("ads.amazonAssociate", { siteName: SITE_NAME })}
+          </LegalParagraph>
         </LegalSection>
 
         <LegalSection title={t("localStorage.title")}>
