@@ -1,7 +1,9 @@
 import { getTranslations } from "next-intl/server";
 
 import { LinkRowList } from "@/app/(user)/_components/link-row";
+import { NativeAdRow } from "@/app/(user)/_components/native-ad-row";
 import { SectionTitle } from "@/app/(user)/_components/section-title";
+import { getNativeAdCreative } from "@/lib/ads/creatives";
 import { getOptionalUser } from "@/lib/auth";
 import { isHiddenFromLeaderboard } from "@/lib/db/leaderboard-visibility";
 
@@ -22,12 +24,17 @@ interface LeaderboardTopContentProps {
  * ランキング非表示中の案内（`ViewerHiddenNote`）はここでは出さない。
  * 順位が出ない土俵の表（詳細ページ）で必ず目に入るため、一覧にも置くと
  * 同じ知らせを二度読ませることになる。
+ *
+ * 最初の分野の末尾にネイティブ広告を 1 行混ぜる（掲載中の広告があるときだけ）。
  */
 export async function LeaderboardTopContent({
   period,
 }: LeaderboardTopContentProps) {
-  const tPractice = await getTranslations("practice");
-  const user = await getOptionalUser();
+  const [tPractice, user, ad] = await Promise.all([
+    getTranslations("practice"),
+    getOptionalUser(),
+    getNativeAdCreative("leaderboard-index-native-ad"),
+  ]);
   const currentUserId = user?.id ?? undefined;
 
   const viewerHidden =
@@ -48,7 +55,7 @@ export async function LeaderboardTopContent({
 
   return (
     <div className="space-y-8">
-      {leaderboardBoardGroups().map((group) => (
+      {leaderboardBoardGroups().map((group, groupIndex) => (
         <section key={group.category} className="space-y-3">
           <SectionTitle>
             {tPractice(`categories.${group.category}.title`)}
@@ -67,6 +74,9 @@ export async function LeaderboardTopContent({
                 }
               />
             ))}
+            {/* 広告は最初の分野の末尾に 1 行だけ。ここは土俵を選ぶ一覧で、
+                順位の表（詳細ページ）には置かない（registry の TSDoc 参照） */}
+            {groupIndex === 0 && ad && <NativeAdRow creative={ad} />}
           </LinkRowList>
         </section>
       ))}
