@@ -1,5 +1,7 @@
 "use client";
 
+import { useGradeAnswer } from "./use-verified-challenge";
+
 import { useCallback } from "react";
 import { generateValidScoreQuestion } from "@mahjong-scoring/core";
 import type {
@@ -53,6 +55,7 @@ export function useScoreQuestionBoard({
   onRecordResult,
   onPresentQuestion,
 }: UseScoreQuestionBoardParams): UseScoreQuestionBoardResult {
+  const gradeAnswer = useGradeAnswer<ScoreQuestion>();
   const { question, questionIndex, advanceQuestion } =
     useGeneratedScoreQuestion(generateOptions, maxRetries);
 
@@ -63,11 +66,20 @@ export function useScoreQuestionBoard({
     (userAnswer: ScoreTableUserAnswer) => {
       if (showFeedback || !question) return;
 
-      const result = toScoreQuestionResult(question, userAnswer);
-      onRecordResult?.(result);
-      onAnswer(result.outcome === AnswerOutcome.Correct, advanceQuestion);
+      gradeAnswer(question, userAnswer, (gradedQuestion) => {
+        const result = toScoreQuestionResult(gradedQuestion, userAnswer);
+        onRecordResult?.(result);
+        onAnswer(result.outcome === AnswerOutcome.Correct, advanceQuestion);
+      });
     },
-    [showFeedback, question, onAnswer, advanceQuestion, onRecordResult],
+    [
+      showFeedback,
+      question,
+      onAnswer,
+      advanceQuestion,
+      onRecordResult,
+      gradeAnswer,
+    ],
   );
 
   return { question, questionIndex, handleSubmit };

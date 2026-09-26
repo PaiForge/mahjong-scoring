@@ -1,5 +1,7 @@
 "use client";
 
+import { useGradeAnswer } from "../../_hooks/use-verified-challenge";
+
 import { useCallback } from "react";
 import type {
   ScoreTableQuestion,
@@ -50,6 +52,7 @@ export function ScoreTableBoard({
   onPresentQuestion,
 }: ScoreTableBoardProps) {
   useRegisterAdvance(onAdvance);
+  const gradeAnswer = useGradeAnswer<ScoreTableQuestion>();
   usePresentQuestion(question, toUnansweredResult, onPresentQuestion);
   // トレーニングでは開示時だけでなく回答後の停止中も正解を出す（答え合わせ用）。
   // 正解のときは出さない — 選んだ値がそのまま正解で、枠の色が正誤を示している
@@ -58,11 +61,13 @@ export function ScoreTableBoard({
   const handleSubmit = useCallback(
     (userAnswer: ScoreTableUserAnswer) => {
       if (showFeedback) return;
-      const result = toQuestionResult(question, userAnswer);
-      onRecordResult?.(result);
-      onAnswer(result.outcome === AnswerOutcome.Correct, onAdvance);
+      gradeAnswer(question, userAnswer, (gradedQuestion) => {
+        const result = toQuestionResult(gradedQuestion, userAnswer);
+        onRecordResult?.(result);
+        onAnswer(result.outcome === AnswerOutcome.Correct, onAdvance);
+      });
     },
-    [showFeedback, question, onAnswer, onAdvance, onRecordResult],
+    [showFeedback, question, onAnswer, onAdvance, onRecordResult, gradeAnswer],
   );
 
   return (

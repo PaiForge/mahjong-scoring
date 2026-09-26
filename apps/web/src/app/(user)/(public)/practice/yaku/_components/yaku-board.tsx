@@ -1,5 +1,7 @@
 "use client";
 
+import { useGradeAnswer } from "../../_hooks/use-verified-challenge";
+
 import { useState, useCallback } from "react";
 import { useTranslations } from "next-intl";
 import { generateYakuQuestion, retryGenerate } from "@mahjong-scoring/core";
@@ -59,6 +61,7 @@ export function YakuBoard({
   onRecordResult,
   onPresentQuestion,
 }: YakuBoardProps) {
+  const gradeAnswer = useGradeAnswer<YakuQuestion>();
   const t = useTranslations("yaku");
   const [question, setQuestion] = useClientGeneratedQuestion(generateQuestion);
   const [selectedYaku, setSelectedYaku] = useState<Set<string>>(new Set());
@@ -95,9 +98,11 @@ export function YakuBoard({
 
   const handleSubmit = useCallback(() => {
     if (!question || showFeedback || selectedYaku.size === 0) return;
-    const result = toQuestionResult(question, [...selectedYaku]);
-    onRecordResult?.(result);
-    onAnswer(result.outcome === AnswerOutcome.Correct, advanceQuestion);
+    gradeAnswer(question, [...selectedYaku], (gradedQuestion) => {
+      const result = toQuestionResult(gradedQuestion, [...selectedYaku]);
+      onRecordResult?.(result);
+      onAnswer(result.outcome === AnswerOutcome.Correct, advanceQuestion);
+    });
   }, [
     question,
     selectedYaku,
@@ -105,6 +110,7 @@ export function YakuBoard({
     onAnswer,
     advanceQuestion,
     onRecordResult,
+    gradeAnswer,
   ]);
 
   if (!question) {
