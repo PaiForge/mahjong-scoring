@@ -114,7 +114,7 @@ export const AD_SLOTS = {
   "learn-index-native-ad": {
     kind: "native_row",
     surfaces: [{ route: "/learn", href: "/learn" }],
-    // 目次の 1〜3 番目のセクションの後に 1 行ずつ
+    // 目次のセクションの後に間隔を広げながら置く（`tocAdIndexAfterSection`）
     placements: 3,
   },
   "leaderboard-index-native-ad": {

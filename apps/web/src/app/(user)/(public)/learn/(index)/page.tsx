@@ -33,6 +33,7 @@ import {
   pickNextChapter,
 } from "../_lib/curriculum";
 import { fetchReadChapterSlugs } from "../_lib/progress";
+import { tocAdIndexAfterSection } from "../_lib/toc-ad-position";
 
 export async function generateMetadata(): Promise<Metadata> {
   return createNamespaceMetadata("learnCurriculum.index", {
@@ -79,9 +80,8 @@ export default async function LearnIndexPage() {
         {CURRICULUM_SECTIONS.map((section, index) => {
           const chapters = grouped.get(section) ?? [];
           if (chapters.length === 0) return undefined;
-          // 最後のセクションの後には置かない（目次の締めが広告になる）
-          const ad =
-            index < CURRICULUM_SECTIONS.length - 1 ? ads[index] : undefined;
+          const adIndex = tocAdIndexAfterSection(index);
+          const ad = adIndex === undefined ? undefined : ads[adIndex];
           return (
             <Fragment key={section}>
               <CurriculumToc
@@ -90,9 +90,9 @@ export default async function LearnIndexPage() {
                 readSlugs={readSlugs}
                 nextSlug={next?.slug}
               />
-              {/* 広告はセクションの切れ目に 1 行ずつ、先頭の切れ目から埋める。
-                  セクションの中（章の並び）には入れない — 章の順序は学習の
-                  順序で、間に挟まると順路が途切れる */}
+              {/* 広告はセクションの切れ目に 1 行ずつ（位置は
+                  tocAdIndexAfterSection）。セクションの中（章の並び）には
+                  入れない — 章の順序は学習の順序で、間に挟まると順路が途切れる */}
               {ad && (
                 <LinkRowList>
                   <NativeAdRow creative={ad} />
