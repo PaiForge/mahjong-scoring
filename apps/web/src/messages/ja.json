@@ -2729,6 +2729,8 @@
       "updatedToast": "広告を更新しました",
       "errorSlotInvalid": "スロットが不正です",
       "errorHrefInvalid": "リンク先は https の URL を入力してください",
+      "errorHrefPlaceholder": "リンク先がまだ仮のリンク（example.com）です。アフィリエイトリンクを設定してから掲載してください",
+      "hrefNotSet": "URL 未設定",
       "errorVisualRequired": "絵文字・画像・手牌のどれかを設定してください",
       "errorHandInvalid": "手牌は MSPZ 表記で 14 枚まで入力してください（副露は使えません）",
       "errorHandNotForRow": "行の形のスロットには手牌を設定できません",
@@ -2749,6 +2751,9 @@
         "mixed": "リンクが揃っていません（{count} 種類）",
         "activeCount": "掲載中 {active} / {total}",
         "apply": "{count} 件に適用",
+        "applyAndActivate": "{count} 件に適用して掲載",
+        "hrefNotSet": "URL 未設定（{count} 件）",
+        "activateBlocked": "URL 未設定の広告があるため掲載できません。リンクを適用すると掲載されます。",
         "applied": "{count} 件の広告を更新しました",
         "activate": "{count} 件をすべて掲載する",
         "deactivate": "{count} 件をすべて停止する"

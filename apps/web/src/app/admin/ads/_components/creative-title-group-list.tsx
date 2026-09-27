@@ -19,6 +19,10 @@ interface Props {
  * 掲載 / 停止するボタンを持つ
  * タイトル別一括更新一覧
  *
+ * シードの広告（仮リンク・停止中）を含むまとまりでは、適用ボタンが
+ * 「適用して掲載」になり、リンクを貼るだけで全スロットに出る。仮リンクの行が
+ * 残っている間は「すべて掲載」を押せない（アクションも断る）。
+ *
  * リンク欄は全行が同じリンクのときだけ、そのリンクで始める（済んでいる本が
  * 済んでいると読める）。揃っていなければ空欄で始め、「リンクが揃っていない」
  * と示す — スロットごとにトラッキング ID を変えている本を、うっかり 1 つの
@@ -51,7 +55,11 @@ function CreativeTitleGroupRow({
 }) {
   const router = useRouter();
   const t = useTranslations("admin.ads");
-  const agreed = group.hrefs.length === 1 ? (group.hrefs[0] ?? "") : "";
+  const agreed =
+    group.placeholderCount === 0 && group.hrefs.length === 1
+      ? (group.hrefs[0] ?? "")
+      : "";
+  const activateOnApply = group.placeholderCount > 0;
   const [href, setHref] = useState(agreed);
   const [isPending, startTransition] = useTransition();
   const total = group.creativeIds.length;
@@ -60,7 +68,10 @@ function CreativeTitleGroupRow({
     action: () => Promise<
       | {
           readonly error:
-            "errorSaveFailed" | "errorNotFound" | "errorHrefInvalid";
+            | "errorSaveFailed"
+            | "errorNotFound"
+            | "errorHrefInvalid"
+            | "errorHrefPlaceholder";
         }
       | { readonly updated: number }
     >,
@@ -80,6 +91,11 @@ function CreativeTitleGroupRow({
     <li className="rounded-lg border border-surface-200 bg-white p-4">
       <div className="flex flex-wrap items-center gap-2">
         <span className="font-medium text-surface-900">{group.title}</span>
+        {group.placeholderCount > 0 && (
+          <span className="rounded bg-red-100 px-2 py-0.5 text-xs font-medium text-red-800">
+            {t("links.hrefNotSet", { count: group.placeholderCount })}
+          </span>
+        )}
         {group.hrefs.length > 1 && (
           <span className="rounded bg-amber-100 px-2 py-0.5 text-xs font-medium text-amber-800">
             {t("links.mixed", { count: group.hrefs.length })}
@@ -96,7 +112,9 @@ function CreativeTitleGroupRow({
         className="mt-3 flex flex-wrap gap-2"
         onSubmit={(e) => {
           e.preventDefault();
-          run(() => setAdCreativeHrefByTitle(group.title, href));
+          run(() =>
+            setAdCreativeHrefByTitle(group.title, href, activateOnApply),
+          );
         }}
       >
         <input
@@ -113,13 +131,19 @@ function CreativeTitleGroupRow({
           disabled={isPending || href.trim() === ""}
           className="rounded bg-primary-600 px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-primary-700 disabled:opacity-50"
         >
-          {t("links.apply", { count: total })}
+          {activateOnApply
+            ? t("links.applyAndActivate", { count: total })
+            : t("links.apply", { count: total })}
         </button>
       </form>
       <div className="mt-2 flex flex-wrap gap-2">
         <button
           type="button"
-          disabled={isPending || group.activeCount === total}
+          disabled={
+            isPending ||
+            group.activeCount === total ||
+            group.placeholderCount > 0
+          }
           onClick={() =>
             run(() => setAdCreativeActiveByTitle(group.title, true))
           }
@@ -138,6 +162,11 @@ function CreativeTitleGroupRow({
           {t("links.deactivate", { count: total })}
         </button>
       </div>
+      {group.placeholderCount > 0 && (
+        <p className="mt-1 text-xs text-surface-500">
+          {t("links.activateBlocked")}
+        </p>
+      )}
     </li>
   );
 }

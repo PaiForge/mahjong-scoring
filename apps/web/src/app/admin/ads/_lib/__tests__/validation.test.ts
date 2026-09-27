@@ -1,5 +1,7 @@
 import { describe, expect, it } from "vitest";
 
+import { PLACEHOLDER_AD_HREF } from "@/lib/ads/placeholder";
+
 import { type AdCreativeInput, validateAdCreative } from "../validation";
 
 const PREFIX =
@@ -54,6 +56,14 @@ describe("validateAdCreative", () => {
       expect(errorOf(input({ href }))).toBe("errorHrefInvalid");
     },
   );
+
+  it("仮リンクのままは停止中なら保存でき、掲載にはできない", () => {
+    const href = PLACEHOLDER_AD_HREF;
+    expect(errorOf(input({ href, isActive: false }))).toBeUndefined();
+    expect(errorOf(input({ href, isActive: true }))).toBe(
+      "errorHrefPlaceholder",
+    );
+  });
 
   it("絵文字も画像も手牌も無ければ弾く", () => {
     expect(errorOf(input({ icon: " " }))).toBe("errorVisualRequired");

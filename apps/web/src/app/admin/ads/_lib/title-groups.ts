@@ -1,3 +1,5 @@
+import { isPlaceholderAdHref } from "@/lib/ads/placeholder";
+
 /**
  * 同じタイトルの広告のまとまり — 1 冊の本の、スロットごとの行
  * タイトル別広告
@@ -22,7 +24,9 @@ export interface CreativeTitleGroup {
   /** まとまりの行があるスロット（最初に現れた順、重複なし） */
   readonly slots: readonly string[];
   readonly activeCount: number;
-  /** 行が持つリンク（重複なし）。1 つなら全行が同じリンク */
+  /** まだ仮リンク（`isPlaceholderAdHref`）のままの行の数 */
+  readonly placeholderCount: number;
+  /** 行が持つ本物のリンク（仮リンクを除く、重複なし）。1 つなら揃っている */
   readonly hrefs: readonly string[];
 }
 
@@ -49,6 +53,7 @@ export function groupCreativesByTitle(
       creativeIds: string[];
       slots: string[];
       activeCount: number;
+      placeholderCount: number;
       hrefs: string[];
     }
   >();
@@ -61,12 +66,16 @@ export function groupCreativesByTitle(
       creativeIds: [],
       slots: [],
       activeCount: 0,
+      placeholderCount: 0,
       hrefs: [],
     };
     group.creativeIds.push(creative.id);
     if (!group.slots.includes(creative.slot)) group.slots.push(creative.slot);
     if (creative.isActive) group.activeCount += 1;
-    if (!group.hrefs.includes(creative.href)) group.hrefs.push(creative.href);
+    if (isPlaceholderAdHref(creative.href)) group.placeholderCount += 1;
+    else if (!group.hrefs.includes(creative.href)) {
+      group.hrefs.push(creative.href);
+    }
     groups.set(creative.title, group);
   }
   return [...groups.values()].sort((a, b) => a.title.localeCompare(b.title));

@@ -34,7 +34,10 @@ export function CreativeRowActions({
 
   const run = (
     action: () => Promise<
-      { error: "errorSaveFailed" | "errorNotFound" } | { success: true }
+      | {
+          error: "errorSaveFailed" | "errorNotFound" | "errorHrefPlaceholder";
+        }
+      | { success: true }
     >,
   ) => {
     startTransition(async () => {

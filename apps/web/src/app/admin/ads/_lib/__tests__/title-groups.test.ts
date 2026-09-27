@@ -1,5 +1,7 @@
 import { describe, expect, it } from "vitest";
 
+import { PLACEHOLDER_AD_HREF } from "@/lib/ads/placeholder";
+
 import { groupCreativesByTitle } from "../title-groups";
 
 const A = "https://www.amazon.co.jp/dp/A?tag=a-22";
@@ -19,6 +21,7 @@ describe("groupCreativesByTitle", () => {
         creativeIds: ["1", "2", "3"],
         slots: ["s1", "s2"],
         activeCount: 2,
+        placeholderCount: 0,
         hrefs: [A, B],
       },
       {
@@ -26,9 +29,25 @@ describe("groupCreativesByTitle", () => {
         creativeIds: ["4"],
         slots: ["s1"],
         activeCount: 1,
+        placeholderCount: 0,
         hrefs: [A],
       },
     ]);
+  });
+
+  it("仮リンクの行は数えるだけで、リンクの種類には入れない", () => {
+    const [group] = groupCreativesByTitle([
+      {
+        id: "1",
+        slot: "s1",
+        href: PLACEHOLDER_AD_HREF,
+        isActive: false,
+        title: "本",
+      },
+      { id: "2", slot: "s2", href: A, isActive: false, title: "本" },
+    ]);
+    expect(group?.placeholderCount).toBe(1);
+    expect(group?.hrefs).toEqual([A]);
   });
 
   it("タイトルの無い行は束ねない", () => {

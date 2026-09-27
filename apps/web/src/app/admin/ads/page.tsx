@@ -17,6 +17,7 @@ import { getTranslations } from "next-intl/server";
 import { AdminPageTitle } from "@/app/admin/_components/admin-page-title";
 import { requireAdminPage } from "@/app/admin/_lib/auth";
 import { TEXT_LINK_CLASSES } from "@/app/_components/_lib/link-classes";
+import { isPlaceholderAdHref } from "@/lib/ads/placeholder";
 import {
   AD_SLOT_VALUES,
   kindForSlot,
@@ -149,6 +150,11 @@ export default async function AdminAdsPage() {
                           {displayedIds.has(row.id) && (
                             <span className="ml-2 text-xs font-semibold text-amber-700">
                               {t("displayed")}
+                            </span>
+                          )}
+                          {isPlaceholderAdHref(row.href) && (
+                            <span className="ml-2 text-xs font-semibold text-red-700">
+                              {t("hrefNotSet")}
                             </span>
                           )}
                         </td>

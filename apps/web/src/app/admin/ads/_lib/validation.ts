@@ -2,6 +2,7 @@ import { parseTehai } from "@mahjong-scoring/core";
 
 import { DEFAULT_LOCALE, SUPPORTED_LOCALES } from "@/i18n/locales";
 import type { StoredCopy } from "@/lib/ads/copy";
+import { isPlaceholderAdHref } from "@/lib/ads/placeholder";
 import { isAdSlot, kindForSlot } from "@/lib/ads/registry";
 
 /** 管理フォームから受け取る広告の入力値 */
@@ -26,6 +27,7 @@ export interface AdCreativeInput {
 export type AdCreativeValidationError =
   | "errorSlotInvalid"
   | "errorHrefInvalid"
+  | "errorHrefPlaceholder"
   | "errorVisualRequired"
   | "errorIconTooLong"
   | "errorImageInvalid"
@@ -136,6 +138,10 @@ function toStoredCopy(
  * 手牌はカード型（`native_card`）のスロットだけが受け付ける。行型には帯を
  * 置く場所が無く、保存しても画面に出ない。行型は絵文字か画像を必須にする。
  *
+ * 仮リンク（`isPlaceholderAdHref`）のままの広告は停止中なら保存でき、掲載には
+ * できない。シードの広告を編集途中で保存できるようにしつつ、行き先の無い
+ * 広告を本番に出さないため。
+ *
  * 遷移先は https に限る。Amazon のリンクはすべて https で、`javascript:` 等を
  * 公開ページのリンクに流さないため。
  *
@@ -153,6 +159,9 @@ export function validateAdCreative(
   const href = data.href.trim();
   if (!isValidAdHref(href)) {
     return { ok: false, error: "errorHrefInvalid" };
+  }
+  if (data.isActive && isPlaceholderAdHref(href)) {
+    return { ok: false, error: "errorHrefPlaceholder" };
   }
 
   const icon = data.icon.trim();
