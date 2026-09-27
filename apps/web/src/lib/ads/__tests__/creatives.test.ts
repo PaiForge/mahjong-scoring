@@ -23,6 +23,7 @@ function creative(overrides: Record<string, unknown> = {}) {
     icon: "📘",
     imagePath: null,
     imageAlt: null,
+    hand: null,
     copy: { title: { ja: "麻雀の本" }, description: { ja: "説明" } },
     ...overrides,
   };
@@ -46,10 +47,23 @@ describe("getNativeAdCreatives", () => {
         icon: "📘",
         imageUrl: undefined,
         imageAlt: "",
+        hand: undefined,
         title: "麻雀の本",
         description: "説明",
       },
     ]);
+  });
+
+  it("手牌の表記を牌の並びにし、読めない表記は手牌なしにする", async () => {
+    mockCachedRead.mockResolvedValue([
+      creative({ hand: "123m" }),
+      creative({ id: "c2", hand: "xyz" }),
+    ]);
+    const [valid, invalid] = await getNativeAdCreatives(
+      "practice-grid-native-ad",
+    );
+    expect(valid?.hand).toHaveLength(3);
+    expect(invalid?.hand).toBeUndefined();
   });
 
   it("スロットが受け付けない kind の行は描画に通さない", async () => {

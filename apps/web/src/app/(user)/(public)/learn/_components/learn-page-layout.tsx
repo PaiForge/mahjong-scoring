@@ -3,7 +3,7 @@ import { getTranslations } from "next-intl/server";
 import { ContentContainer } from "@/app/(user)/_components/content-container";
 import { GlossaryTermModalProvider } from "@/app/(user)/_components/glossary/glossary-term-modal-provider";
 import { JsonLd } from "@/app/(user)/_components/json-ld";
-import { NativeAdCard } from "@/app/(user)/_components/native-ad-card";
+import { NativeAdCard } from "@/app/(user)/(public)/_components/native-ad-card";
 import { PageTitle } from "@/app/(user)/_components/page-title";
 import { getNativeAdCreative } from "@/lib/ads/creatives";
 import { collectTermSlugsInNamespace } from "@/lib/glossary/message-terms";

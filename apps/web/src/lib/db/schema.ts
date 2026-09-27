@@ -543,9 +543,11 @@ export const challengeAttempts = pgTable("challenge_attempts", {
  * 操作は持たず `is_active` を落とす。
  *
  * @design 画像と代替テキストは対
- * `image_alt` は `image_path` と一緒にしか入らない。広告は絵文字（`icon`）か
- * 画像のどちらかを必ず持つ — どちらも無いカードは周りの練習カード・行リンクと
- * 見た目が揃わず、広告だけが浮く。
+ * `image_alt` は `image_path` と一緒にしか入らない。広告は絵文字（`icon`）・
+ * 画像・手牌（`hand`）のどれかを必ず持つ — どれも無いカードは周りの練習
+ * カード・行リンクと見た目が揃わず、広告だけが浮く。手牌はカード型だけが
+ * 描く（行に帯を置く場所は無い）が、その区別は kind ごとの必須項目として
+ * 管理画面の検証が持つ。
  */
 export const adCreatives = pgTable(
   "ad_creatives",
@@ -567,6 +569,11 @@ export const adCreatives = pgTable(
     imagePath: varchar("image_path", { length: 1024 }),
     /** 画像の代替テキスト */
     imageAlt: varchar("image_alt", { length: 255 }),
+    /**
+     * カードの帯に並べる手牌（MSPZ 表記）。練習カードの帯と同じ緑の面に
+     * 牌を出す。表記で持つのは管理画面で読み書きできるようにするため
+     */
+    hand: varchar("hand", { length: 64 }),
     /** 作成日時 */
     createdAt: timestamp("created_at", { withTimezone: true })
       .defaultNow()
@@ -584,7 +591,7 @@ export const adCreatives = pgTable(
     ),
     check(
       "ad_creatives_chk_has_visual",
-      sql`(${table.icon} IS NOT NULL AND ${table.icon} <> '') OR ${table.imagePath} IS NOT NULL`,
+      sql`(${table.icon} IS NOT NULL AND ${table.icon} <> '') OR ${table.imagePath} IS NOT NULL OR ${table.hand} IS NOT NULL`,
     ),
     check(
       "ad_creatives_chk_image_alt_with_image",

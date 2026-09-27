@@ -15,7 +15,7 @@ import {
 } from "@/app/(user)/(public)/learn/_lib/curriculum";
 import { ContentContainer } from "@/app/(user)/_components/content-container";
 import { LinkRow, LinkRowList } from "@/app/(user)/_components/link-row";
-import { NativeAdCard } from "@/app/(user)/_components/native-ad-card";
+import { NativeAdCard } from "@/app/(user)/(public)/_components/native-ad-card";
 import { PageTitle } from "@/app/(user)/_components/page-title";
 import { createNamespaceMetadata } from "@/app/_lib/metadata";
 import { getNativeAdCreative } from "@/lib/ads/creatives";

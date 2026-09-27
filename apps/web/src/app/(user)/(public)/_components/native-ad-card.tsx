@@ -7,8 +7,13 @@ import {
 } from "@/app/_components/_lib/link-classes";
 import type { NativeAdView } from "@/lib/ads/creatives";
 
-import { ChevronRightIcon } from "./icons/chevron-right-icon";
-import { NATIVE_AD_LINK_PROPS, NativeAdBadge } from "./native-ad-badge";
+import { ChevronRightIcon } from "@/app/(user)/_components/icons/chevron-right-icon";
+import {
+  NATIVE_AD_LINK_PROPS,
+  NativeAdBadge,
+} from "@/app/(user)/_components/native-ad-badge";
+
+import { CardVisualBand, CardVisualHand } from "./card-visual-band";
 
 interface NativeAdCardProps {
   readonly creative: NativeAdView;
@@ -28,7 +33,14 @@ interface NativeAdCardProps {
  * だけで、どこを押しても同じ所へ行く方が迷わない。影を持たないのは練習
  * カードに揃えるため（持ち上がる hover は同じ）。
  *
- * 画像（書影など）があれば画像を、無ければ絵文字を左に置く。
+ * 見た目は 2 通り。
+ *
+ * - 手牌を持つ広告は、練習カードと同じ緑の帯（`CardVisualBand`）に手牌を
+ *   並べ、その下に説明を置く。牌効率・何切る系の本のように、中身そのものが
+ *   手牌で見せられる広告のための形で、練習一覧では練習カードとの見分けが
+ *   「PR」の表記だけになる。画像・絵文字は出さない（帯と並べるとカードが
+ *   練習カードより高くなる）
+ * - 持たない広告は、画像（書影など）か絵文字を左に置き、右に説明を置く
  */
 export async function NativeAdCard({ creative }: NativeAdCardProps) {
   const t = await getTranslations("nativeAd");
@@ -47,29 +59,27 @@ export async function NativeAdCard({ creative }: NativeAdCardProps) {
           </h3>
           <NativeAdBadge label={t("badge")} ariaLabel={t("badgeLabel")} />
         </div>
-        <div className="mt-3 flex items-start gap-4">
-          {creative.imageUrl !== undefined ? (
-            <Image
-              src={creative.imageUrl}
-              alt={creative.imageAlt}
-              width={80}
-              height={80}
-              className="size-20 shrink-0 object-contain"
-            />
-          ) : (
-            <span
-              aria-hidden="true"
-              className="flex size-20 shrink-0 items-center justify-center rounded-xl bg-surface-50 text-4xl"
-            >
-              {creative.icon}
-            </span>
-          )}
-          {creative.description !== undefined && (
-            <p className="text-sm leading-relaxed text-surface-600">
-              {creative.description}
-            </p>
-          )}
-        </div>
+        {creative.hand !== undefined ? (
+          <>
+            <CardVisualBand>
+              <CardVisualHand tiles={creative.hand} />
+            </CardVisualBand>
+            {creative.description !== undefined && (
+              <p className="mt-3 text-sm leading-relaxed text-surface-600">
+                {creative.description}
+              </p>
+            )}
+          </>
+        ) : (
+          <div className="mt-3 flex items-start gap-4">
+            <CreativeVisual creative={creative} />
+            {creative.description !== undefined && (
+              <p className="text-sm leading-relaxed text-surface-600">
+                {creative.description}
+              </p>
+            )}
+          </div>
+        )}
       </div>
       <div className="mt-4 flex justify-end">
         <span
@@ -81,5 +91,28 @@ export async function NativeAdCard({ creative }: NativeAdCardProps) {
         </span>
       </div>
     </a>
+  );
+}
+
+/** 手牌を持たない広告の左の見た目。画像があれば画像、無ければ絵文字 */
+function CreativeVisual({ creative }: NativeAdCardProps) {
+  if (creative.imageUrl !== undefined) {
+    return (
+      <Image
+        src={creative.imageUrl}
+        alt={creative.imageAlt}
+        width={80}
+        height={80}
+        className="size-20 shrink-0 object-contain"
+      />
+    );
+  }
+  return (
+    <span
+      aria-hidden="true"
+      className="flex size-20 shrink-0 items-center justify-center rounded-xl bg-surface-50 text-4xl"
+    >
+      {creative.icon}
+    </span>
   );
 }

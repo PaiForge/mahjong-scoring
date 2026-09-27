@@ -1,6 +1,8 @@
 import { and, asc, eq, inArray } from "drizzle-orm";
 import { unstable_cache } from "next/cache";
 
+import { parseHais, type HaiKindId } from "@mahjong-scoring/core";
+
 import { DEFAULT_LOCALE, type SupportedLocale } from "@/i18n/locales";
 import { AD_CREATIVES_CACHE_TAG } from "@/lib/cache-tags";
 import { adCreativeTranslations, adCreatives, db } from "@/lib/db";
@@ -28,6 +30,11 @@ export interface NativeAdView {
   readonly imageUrl: string | undefined;
   /** 画像の代替テキスト。画像が無ければ空 */
   readonly imageAlt: string;
+  /**
+   * カードの帯に並べる手牌。持たなければ undefined。読めない表記も
+   * undefined にする（管理画面で検証済みのため、手で書かれた行だけ）
+   */
+  readonly hand: readonly HaiKindId[] | undefined;
   readonly title: string;
   readonly description: string | undefined;
 }
@@ -40,6 +47,7 @@ interface ActiveCreative {
   readonly icon: string | null;
   readonly imagePath: string | null;
   readonly imageAlt: string | null;
+  readonly hand: string | null;
   readonly copy: CreativeCopy;
 }
 
@@ -76,6 +84,7 @@ async function queryActiveCreatives(slot: string): Promise<ActiveCreative[]> {
     icon: row.icon,
     imagePath: row.imagePath,
     imageAlt: row.imageAlt,
+    hand: row.hand,
     copy: copyById.get(row.id) ?? EMPTY_COPY,
   }));
 }
@@ -101,6 +110,12 @@ const getActiveCreativesCached = unstable_cache(
   ["active-ad-creatives"],
   { tags: [AD_CREATIVES_CACHE_TAG], revalidate: 60 * 60 * 24 },
 );
+
+/** 手牌の表記を牌の並びにする。無い・読めない表記は undefined */
+function toHandTiles(hand: string | null): HaiKindId[] | undefined {
+  const tiles = parseHais(hand ?? undefined);
+  return tiles.length > 0 ? tiles : undefined;
+}
 
 /**
  * スロットの掲載中の広告を画面に渡す形で返す
@@ -136,6 +151,7 @@ export async function getNativeAdCreatives(
         icon: creative.icon ?? undefined,
         imageUrl: creative.imagePath ?? undefined,
         imageAlt: creative.imageAlt ?? "",
+        hand: toHandTiles(creative.hand),
         title,
         description,
       },

@@ -1,10 +1,11 @@
 import { render, screen } from "@testing-library/react";
 import { describe, expect, it, vi } from "vitest";
 
+import { HaiKind } from "@mahjong-scoring/core";
+
 import type { NativeAdView } from "@/lib/ads/creatives";
 
 import { NativeAdCard } from "./native-ad-card";
-import { NativeAdRow } from "./native-ad-row";
 
 vi.mock("next-intl/server", () => ({
   getTranslations: () => Promise.resolve((key: string) => key),
@@ -17,6 +18,7 @@ const creative: NativeAdView = {
   icon: "📘",
   imageUrl: undefined,
   imageAlt: "",
+  hand: undefined,
   title: "麻雀の本",
   description: "点数計算の定番",
 };
@@ -47,6 +49,17 @@ describe("NativeAdCard", () => {
     expect(container.querySelector("p")).toBeNull();
   });
 
+  it("手牌があれば帯に手牌を並べ、画像・絵文字は出さない", async () => {
+    const { container } = render(
+      await NativeAdCard({
+        creative: { ...creative, hand: [HaiKind.ManZu1, HaiKind.ManZu2] },
+      }),
+    );
+    expect(container.querySelectorAll("img")).toHaveLength(2);
+    expect(container.textContent).not.toContain("📘");
+    expect(container.querySelector("p")?.textContent).toBe("点数計算の定番");
+  });
+
   it("画像があれば代替テキスト付きで画像を出す", async () => {
     render(
       await NativeAdCard({
@@ -58,19 +71,5 @@ describe("NativeAdCard", () => {
       }),
     );
     expect(screen.getByAltText("書影")).toBeDefined();
-  });
-});
-
-describe("NativeAdRow", () => {
-  it("行リンクの一覧にそのまま入る li として描く", async () => {
-    const { container } = render(
-      <ul>
-        {await NativeAdRow({ creative: { ...creative, kind: "native_row" } })}
-      </ul>,
-    );
-    expect(container.querySelector("ul > li > a")?.getAttribute("rel")).toBe(
-      "sponsored noopener noreferrer",
-    );
-    expect(screen.getByTitle("badgeLabel")).toBeDefined();
   });
 });

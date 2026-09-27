@@ -99,6 +99,13 @@
       "when": 1790426564660,
       "tag": "20260926124244_create_ad_creatives",
       "breakpoints": true
+    },
+    {
+      "idx": 14,
+      "version": "7",
+      "when": 1790510489640,
+      "tag": "20260927120129_add_hand_to_ad_creatives",
+      "breakpoints": true
     }
   ]
 }
