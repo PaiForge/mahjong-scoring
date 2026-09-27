@@ -63,6 +63,14 @@ export interface ValidAdCreative {
   };
 }
 
+/**
+ * 遷移先が保存できる URL か（https・長さ上限）。前後の空白は呼び出し側で除く。
+ * 1 件の保存（{@link validateAdCreative}）とタイトル単位の一括更新が共有する
+ */
+export function isValidAdHref(href: string): boolean {
+  return href.length <= AD_CREATIVE_LIMITS.href && isHttpsUrl(href);
+}
+
 function isHttpsUrl(value: string): boolean {
   try {
     return new URL(value).protocol === "https:";
@@ -143,7 +151,7 @@ export function validateAdCreative(
   if (!isAdSlot(data.slot)) return { ok: false, error: "errorSlotInvalid" };
 
   const href = data.href.trim();
-  if (href.length > AD_CREATIVE_LIMITS.href || !isHttpsUrl(href)) {
+  if (!isValidAdHref(href)) {
     return { ok: false, error: "errorHrefInvalid" };
   }
 

@@ -6,6 +6,8 @@
  * 行う。スロットの一覧と掲載先は `lib/ads/registry.ts` から引く。
  * @flow
  * スロットの「新規作成」から広告を作り、一覧で掲載 / 停止と並び順を決める。
+ * 1 冊の本をスロットごとに登録した広告は、タイトル別の一括更新
+ * （/admin/ads/links）でリンクと掲載状態をまとめて変えられる。
  * 各スロットで掲載中の広告のうち、並び順の先頭からスロットの枠数だけが
  * 画面に出る。
  */
@@ -40,6 +42,12 @@ export default async function AdminAdsPage() {
       <div className="space-y-2">
         <AdminPageTitle>{t("listTitle")}</AdminPageTitle>
         <p className="text-sm text-surface-500">{t("listDescription")}</p>
+        <Link
+          href="/admin/ads/links"
+          className={`text-sm ${TEXT_LINK_CLASSES}`}
+        >
+          {t("linksEntry")}
+        </Link>
       </div>
 
       {AD_SLOT_VALUES.map((slot) => {
