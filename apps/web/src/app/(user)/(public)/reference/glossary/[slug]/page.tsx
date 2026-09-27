@@ -19,6 +19,10 @@
  * 切ると、未知の slug はページを描画する前にルーティングで弾かれるので、
  * ソフト 404 にならずに 404 が返る。
  *
+ * 本文（意味〜よくある誤解）を読み終えた位置、関連語・教本への導線の前に
+ * ネイティブ広告のカードを 1 枚置く（掲載中の広告があるときだけ）。導線の
+ * 後に置くと、読み終えた人が次へ進む前に広告を越えることになる。
+ *
  * @flow
  * 用語集（/reference/glossary）の一覧、教本本文の用語リンクから開いた
  * モーダルの「用語ページを見る」、他の用語ページの関連語から遷移する。
@@ -33,6 +37,8 @@ import { PageTitle } from "@/app/(user)/_components/page-title";
 import { SectionTitle } from "@/app/(user)/_components/section-title";
 import { TEXT_LINK_CLASSES } from "@/app/_components/_lib/link-classes";
 import { createMetadata } from "@/app/_lib/metadata";
+import { NativeAdCard } from "@/app/(user)/(public)/_components/native-ad-card";
+import { getNativeAdCreative } from "@/lib/ads/creatives";
 import {
   getGlossaryTermViewBySlug,
   getGlossaryTermViews,
@@ -83,10 +89,11 @@ export default async function GlossaryTermPage({
   params,
 }: GlossaryTermPageProps) {
   const { slug } = await params;
-  const [term, t, tHub] = await Promise.all([
+  const [term, t, tHub, ad] = await Promise.all([
     getGlossaryTermViewBySlug(slug),
     getTranslations("glossary"),
     getTranslations("reference"),
+    getNativeAdCreative("glossary-term-native-ad"),
   ]);
   if (!term) notFound();
 
@@ -133,6 +140,8 @@ export default async function GlossaryTermPage({
           <TermSection title={t("usageTitle")} body={term.usage} />
           <TermSection title={t("caseStudyTitle")} body={term.caseStudy} />
           <TermSection title={t("pitfallTitle")} body={term.pitfall} />
+
+          {ad && <NativeAdCard creative={ad} />}
 
           {related.length > 0 && (
             <section className="space-y-4">

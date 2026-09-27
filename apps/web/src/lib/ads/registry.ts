@@ -130,6 +130,15 @@ export const AD_SLOTS = {
     // 10 行に届いたら 4 本目の位置（10 行目の後）ができる
     placements: 3,
   },
+  "glossary-term-native-ad": {
+    kind: "native_card",
+    surfaces: [
+      {
+        route: "/reference/glossary/<用語>",
+        href: "/reference/glossary/uradora",
+      },
+    ],
+  },
 } as const satisfies Record<string, AdSlotConfig>;
 
 /** 広告スロット */
