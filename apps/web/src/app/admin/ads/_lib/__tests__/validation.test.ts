@@ -14,6 +14,7 @@ function input(overrides: Partial<AdCreativeInput> = {}): AdCreativeInput {
     icon: "📘",
     imageUrl: "",
     imageAlt: "",
+    hand: "",
     title: { ja: "麻雀の本", en: "" },
     description: { ja: "説明", en: "" },
     ...overrides,
@@ -37,6 +38,7 @@ describe("validateAdCreative", () => {
         icon: "📘",
         imageUrl: undefined,
         imageAlt: undefined,
+        hand: undefined,
         copy: { title: { ja: "麻雀の本" }, description: { ja: "説明" } },
       },
     });
@@ -53,8 +55,29 @@ describe("validateAdCreative", () => {
     },
   );
 
-  it("絵文字も画像も無ければ弾く", () => {
+  it("絵文字も画像も手牌も無ければ弾く", () => {
     expect(errorOf(input({ icon: " " }))).toBe("errorVisualRequired");
+  });
+
+  it("カード型は手牌だけでも通し、表記を前後の空白を除いて保存する", () => {
+    const result = validateAdCreative(
+      input({ icon: "", hand: " 123m456p789s11z22z " }),
+      PREFIX,
+    );
+    expect(result.ok && result.value.hand).toBe("123m456p789s11z22z");
+  });
+
+  it.each(["abc", "123m456p789s111z222z", "123m[456p]"])(
+    "帯に並べられない手牌を弾く: %s",
+    (hand) => {
+      expect(errorOf(input({ hand }))).toBe("errorHandInvalid");
+    },
+  );
+
+  it("行型のスロットには手牌を設定させない", () => {
+    expect(
+      errorOf(input({ slot: "learn-index-native-ad", hand: "123m" })),
+    ).toBe("errorHandNotForRow");
   });
 
   it("ad-creatives バケットの WebP 以外の画像 URL を弾く", () => {

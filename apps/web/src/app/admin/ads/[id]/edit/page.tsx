@@ -50,6 +50,7 @@ export default async function EditAdCreativePage({ params }: Props) {
           icon: row.icon ?? "",
           imageUrl: row.imagePath ?? "",
           imageAlt: row.imageAlt ?? "",
+          hand: row.hand ?? "",
           title: toFormCopy(copy.title),
           description: toFormCopy(copy.description),
         }}

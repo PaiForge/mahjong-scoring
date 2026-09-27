@@ -1,6 +1,8 @@
+import { parseTehai } from "@mahjong-scoring/core";
+
 import { DEFAULT_LOCALE, SUPPORTED_LOCALES } from "@/i18n/locales";
 import type { StoredCopy } from "@/lib/ads/copy";
-import { isAdSlot } from "@/lib/ads/registry";
+import { isAdSlot, kindForSlot } from "@/lib/ads/registry";
 
 /** 管理フォームから受け取る広告の入力値 */
 export interface AdCreativeInput {
@@ -12,6 +14,8 @@ export interface AdCreativeInput {
   /** 画像の公開 URL（/api/admin/ads/image の戻り値）。空文字は「無し」 */
   readonly imageUrl: string;
   readonly imageAlt: string;
+  /** カードの帯に並べる手牌（MSPZ 表記）。空文字は「無し」 */
+  readonly hand: string;
   /** ロケール → タイトル。空文字は「そのロケールでは書かない」 */
   readonly title: Readonly<Record<string, string>>;
   /** ロケール → 説明。空文字は「そのロケールでは書かない」 */
@@ -26,6 +30,8 @@ export type AdCreativeValidationError =
   | "errorIconTooLong"
   | "errorImageInvalid"
   | "errorImageAltRequired"
+  | "errorHandInvalid"
+  | "errorHandNotForRow"
   | "errorTitleRequired"
   | "errorCopyTooLong";
 
@@ -37,6 +43,7 @@ export const AD_CREATIVE_LIMITS = {
   href: 2048,
   icon: 16,
   imageAlt: 255,
+  hand: 64,
   title: 255,
   description: 1000,
 } as const;
@@ -49,6 +56,7 @@ export interface ValidAdCreative {
   readonly icon: string | undefined;
   readonly imageUrl: string | undefined;
   readonly imageAlt: string | undefined;
+  readonly hand: string | undefined;
   readonly copy: {
     readonly title: StoredCopy;
     readonly description: StoredCopy;
@@ -75,6 +83,26 @@ function isAdImageUrl(value: string, imageUrlPrefix: string): boolean {
   return /^[0-9a-f-]+\.webp$/.test(value.slice(imageUrlPrefix.length));
 }
 
+/** 帯に並べられる手牌の枚数の上限（ツモ後の 14 枚） */
+const MAX_HAND_TILES = 14;
+
+/**
+ * 手牌の表記が帯に並べられるものか。
+ *
+ * 帯は純手牌を 1 列に並べるだけなので、副露（`[...]`）は受け付けない —
+ * 表記が通っても描画で落ちる部分を保存させない。
+ */
+function isValidHand(value: string): boolean {
+  if (value.length > AD_CREATIVE_LIMITS.hand) return false;
+  const tehai = parseTehai(value);
+  return (
+    tehai !== undefined &&
+    tehai.exposed.length === 0 &&
+    tehai.closed.length > 0 &&
+    tehai.closed.length <= MAX_HAND_TILES
+  );
+}
+
 function toStoredCopy(
   values: Readonly<Record<string, string>>,
   maxLength: number,
@@ -92,10 +120,13 @@ function toStoredCopy(
  * 広告入力のバリデーション
  * 広告入力検証
  *
- * DB の CHECK（絵文字か画像のどちらかを持つ・代替テキストは画像と対・
+ * DB の CHECK（絵文字・画像・手牌のどれかを持つ・代替テキストは画像と対・
  * 既定ロケールのタイトル必須）を保存前に i18n キーのエラーとして返す。
  * 画像には代替テキストを必須にする（DB は画像なしの代替テキストを禁じる
  * だけで、逆は許す）。書影を読めない人に広告の中身が伝わらなくなるため。
+ *
+ * 手牌はカード型（`native_card`）のスロットだけが受け付ける。行型には帯を
+ * 置く場所が無く、保存しても画面に出ない。行型は絵文字か画像を必須にする。
  *
  * 遷移先は https に限る。Amazon のリンクはすべて https で、`javascript:` 等を
  * 公開ページのリンクに流さないため。
@@ -119,8 +150,15 @@ export function validateAdCreative(
   const icon = data.icon.trim();
   const imageUrl = data.imageUrl.trim();
   const imageAlt = data.imageAlt.trim();
-  if (icon === "" && imageUrl === "") {
+  const hand = data.hand.trim();
+  if (hand !== "" && kindForSlot(data.slot) !== "native_card") {
+    return { ok: false, error: "errorHandNotForRow" };
+  }
+  if (icon === "" && imageUrl === "" && hand === "") {
     return { ok: false, error: "errorVisualRequired" };
+  }
+  if (hand !== "" && !isValidHand(hand)) {
+    return { ok: false, error: "errorHandInvalid" };
   }
   if (icon.length > AD_CREATIVE_LIMITS.icon) {
     return { ok: false, error: "errorIconTooLong" };
@@ -156,6 +194,7 @@ export function validateAdCreative(
       icon: icon === "" ? undefined : icon,
       imageUrl: imageUrl === "" ? undefined : imageUrl,
       imageAlt: imageUrl === "" ? undefined : imageAlt,
+      hand: hand === "" ? undefined : hand,
       copy: { title, description },
     },
   };

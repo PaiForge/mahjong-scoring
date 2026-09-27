@@ -4,8 +4,11 @@ import { useRouter } from "next/navigation";
 import { useState, useTransition } from "react";
 import { useTranslations } from "next-intl";
 import { toast } from "react-hot-toast";
+import { Hai } from "@pai-forge/mahjong-react-ui";
+import { parseHais } from "@mahjong-scoring/core";
 
 import { DEFAULT_LOCALE, SUPPORTED_LOCALES } from "@/i18n/locales";
+import { isAdSlot, kindForSlot } from "@/lib/ads/registry";
 import { callApi } from "@/lib/api-client";
 import { ALLOWED_IMAGE_MIME_TYPES } from "@/lib/images/policy";
 
@@ -37,6 +40,8 @@ function emptyByLocale(): Record<string, string> {
  * バイト列を載せない）。
  *
  * スロットは作成時に決まり、編集では変えない（`updateAdCreative` 参照）。
+ * 手牌の欄はカード型のスロットだけに出す（行型は帯を持たない）。入力中の
+ * 表記は牌に直して下に並べ、読めているかをその場で確かめられるようにする。
  */
 export function AdCreativeForm({
   mode,
@@ -54,6 +59,9 @@ export function AdCreativeForm({
   const [icon, setIcon] = useState(defaultValues?.icon ?? "");
   const [imageUrl, setImageUrl] = useState(defaultValues?.imageUrl ?? "");
   const [imageAlt, setImageAlt] = useState(defaultValues?.imageAlt ?? "");
+  const [hand, setHand] = useState(defaultValues?.hand ?? "");
+  const acceptsHand = isAdSlot(slot) && kindForSlot(slot) === "native_card";
+  const handTiles = parseHais(hand.trim());
   const [title, setTitle] = useState<Record<string, string>>({
     ...emptyByLocale(),
     ...defaultValues?.title,
@@ -89,6 +97,7 @@ export function AdCreativeForm({
         icon,
         imageUrl,
         imageAlt,
+        hand: acceptsHand ? hand : "",
         title,
         description,
       };
@@ -212,6 +221,37 @@ export function AdCreativeForm({
             maxLength={AD_CREATIVE_LIMITS.imageAlt}
             className={inputClass}
           />
+        </div>
+      )}
+
+      {acceptsHand && (
+        <div>
+          <label htmlFor="ad-hand" className={labelClass}>
+            {t("hand")}
+          </label>
+          <input
+            id="ad-hand"
+            type="text"
+            value={hand}
+            onChange={(e) => setHand(e.target.value)}
+            placeholder="123m456p789s11z"
+            maxLength={AD_CREATIVE_LIMITS.hand}
+            className={`${inputClass} font-mono`}
+          />
+          <p className={hintClass}>{t("handHint")}</p>
+          {hand.trim() !== "" && (
+            <div className="mt-2 flex min-h-8 items-center">
+              {handTiles.length > 0 ? (
+                <div className="flex gap-0.5">
+                  {handTiles.map((hai, i) => (
+                    <Hai key={i} hai={hai} size="xs" />
+                  ))}
+                </div>
+              ) : (
+                <p className="text-xs text-red-600">{t("handPreviewEmpty")}</p>
+              )}
+            </div>
+          )}
         </div>
       )}
 

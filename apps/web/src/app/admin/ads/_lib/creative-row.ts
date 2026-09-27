@@ -15,7 +15,14 @@ export function toAdCreativeRow(
   slot: AdSlot,
 ): Pick<
   NewAdCreative,
-  "kind" | "slot" | "href" | "isActive" | "icon" | "imagePath" | "imageAlt"
+  | "kind"
+  | "slot"
+  | "href"
+  | "isActive"
+  | "icon"
+  | "imagePath"
+  | "imageAlt"
+  | "hand"
 > {
   return {
     kind: kindForSlot(slot),
@@ -25,5 +32,6 @@ export function toAdCreativeRow(
     icon: value.icon ?? null,
     imagePath: value.imageUrl ?? null,
     imageAlt: value.imageAlt ?? null,
+    hand: value.hand ?? null,
   };
 }
