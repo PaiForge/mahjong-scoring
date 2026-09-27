@@ -145,13 +145,13 @@ describe("PracticeFilter", () => {
     expect(headings[0]?.textContent).toBe("練習メニュー");
   });
 
-  it("広告カードは 4 枚目に置き、絞り込みでは隠れない", () => {
+  it("広告カードは 3 枚目に置き、絞り込みでは隠れない", () => {
     const { container } = renderFilter("", <p>広告</p>);
     expect(gridTexts(container)).toEqual([
       "雀頭の符計算",
       "役の翻数",
-      "満貫以上点数計算",
       "広告",
+      "満貫以上点数計算",
       "点数表早引き",
     ]);
   });

@@ -60,12 +60,13 @@ interface PracticeFilterProps {
 }
 
 /**
- * 広告カードを置く位置（0 始まり）。
+ * 広告カードを置く位置（0 始まり）。上から 3 枚目。
  *
- * 1 段目（2 枚）は練習だけにし、2 段目の右に置く。先頭に置くと一覧が
- * 広告から始まり、ずっと下に置くと絞り込んだ一覧ではほぼ出ない。
+ * 1 段目（2 枚）は練習だけにし、2 段目の左（1 列表示では 3 枚目）に置く。
+ * 先頭に置くと一覧が広告から始まり、ずっと下に置くと絞り込んだ一覧では
+ * ほぼ出ない。
  */
-const AD_GRID_POSITION = 3;
+const AD_GRID_POSITION = 2;
 
 interface FilteredListProps extends PracticeFilterProps {
   /** 選択中の絞り込み。undefined なら絞り込みなし */
