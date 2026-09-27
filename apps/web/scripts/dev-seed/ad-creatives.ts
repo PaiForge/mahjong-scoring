@@ -12,7 +12,7 @@
  *
  * 以前のサンプル広告（id が `00000000-0000-4000-8…` のもの）は消す。
  */
-import { eq, like } from "drizzle-orm";
+import { eq, sql } from "drizzle-orm";
 import type { PostgresJsDatabase } from "drizzle-orm/postgres-js";
 
 import { copyToTranslationRows } from "../../src/lib/ads/copy";
@@ -33,7 +33,8 @@ export async function reseedAdCreatives(
   // 翻訳は外部キーの cascade で一緒に消える
   await db
     .delete(adCreatives)
-    .where(like(adCreatives.id, `${LEGACY_SAMPLE_ID_PREFIX}%`));
+    // id は uuid 型で LIKE を持たないため、文字列にして比べる
+    .where(sql`${adCreatives.id}::text LIKE ${`${LEGACY_SAMPLE_ID_PREFIX}%`}`);
 
   for (const { row, copy } of SEED_AD_CREATIVES) {
     const active = { ...row, isActive: true };
