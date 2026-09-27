@@ -59,13 +59,19 @@ export interface AdSurface {
 interface AdSlotConfig {
   readonly kind: AdKind;
   readonly surfaces: readonly AdSurface[];
+  /**
+   * 1 画面に出す広告の数（省略時 1）。掲載中の広告を並び順の先頭から
+   * この数だけ出し、同じ広告を 2 度は出さない（掲載中が足りなければ
+   * 足りない枠は空ける）。
+   */
+  readonly placements?: number;
 }
 
 /**
  * スロット → 設定。キーは掲載位置で決める。
  *
  * スロットは「広告の在庫の単位」で、1 スロットに有効な広告が複数あれば
- * 並び順（`sort_order`）で回す。管理画面の一覧はこのオブジェクトを走査する
+ * 並び順（`sort_order`）の先頭から `placements` の数だけ画面に出す。管理画面の一覧はこのオブジェクトを走査する
  * ため、ここに足したスロットは管理画面の変更なしで現れる。
  *
  * @design 画面ごとにスロットを分ける
@@ -108,6 +114,8 @@ export const AD_SLOTS = {
   "learn-index-native-ad": {
     kind: "native_row",
     surfaces: [{ route: "/learn", href: "/learn" }],
+    // 目次の 1〜3 番目のセクションの後に 1 行ずつ
+    placements: 3,
   },
   "leaderboard-index-native-ad": {
     kind: "native_row",
@@ -137,4 +145,10 @@ export function kindForSlot(slot: AdSlot): AdKind {
 /** スロットの広告が描画される場所。{@link AdSurface} 参照 */
 export function surfacesForSlot(slot: AdSlot): readonly AdSurface[] {
   return AD_SLOTS[slot].surfaces;
+}
+
+/** 1 画面に出す広告の数。{@link AdSlotConfig} の `placements` 参照 */
+export function placementsForSlot(slot: AdSlot): number {
+  const config: AdSlotConfig = AD_SLOTS[slot];
+  return config.placements ?? 1;
 }

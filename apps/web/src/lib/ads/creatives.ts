@@ -13,7 +13,13 @@ import {
   resolveCreativeCopy,
   type CreativeCopy,
 } from "./copy";
-import { isAdKind, kindForSlot, type AdKind, type AdSlot } from "./registry";
+import {
+  isAdKind,
+  kindForSlot,
+  placementsForSlot,
+  type AdKind,
+  type AdSlot,
+} from "./registry";
 
 /**
  * 画面に渡す広告 1 件。文言は閲覧者のロケールで解決済みで、そのまま
@@ -157,6 +163,21 @@ export async function getNativeAdCreatives(
       },
     ];
   });
+}
+
+/**
+ * スロットの画面に出す広告（並び順の先頭から、スロットの枠数まで）
+ * 掲載広告取得
+ *
+ * 枠を複数持つ画面（教本の目次）が使う。掲載中が枠数より少なければ、
+ * 返す数も少ない — 同じ広告を繰り返して埋めない。
+ */
+export async function getNativeAdPlacements(
+  slot: AdSlot,
+  locale: SupportedLocale = DEFAULT_LOCALE,
+): Promise<NativeAdView[]> {
+  const creatives = await getNativeAdCreatives(slot, locale);
+  return creatives.slice(0, placementsForSlot(slot));
 }
 
 /**

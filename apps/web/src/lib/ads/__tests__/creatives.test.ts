@@ -13,7 +13,11 @@ vi.mock("@/lib/db", () => ({
   adCreativeTranslations: {},
 }));
 
-import { getNativeAdCreative, getNativeAdCreatives } from "../creatives";
+import {
+  getNativeAdCreative,
+  getNativeAdCreatives,
+  getNativeAdPlacements,
+} from "../creatives";
 
 function creative(overrides: Record<string, unknown> = {}) {
   return {
@@ -104,5 +108,23 @@ describe("getNativeAdCreative", () => {
     await expect(
       getNativeAdCreative("practice-grid-native-ad"),
     ).resolves.toBeUndefined();
+  });
+});
+
+describe("getNativeAdPlacements", () => {
+  it("並び順の先頭からスロットの枠数（教本の目次は 3）までを返す", async () => {
+    mockCachedRead.mockResolvedValueOnce(
+      ["a", "b", "c", "d"].map((id) => creative({ id, kind: "native_row" })),
+    );
+    const ads = await getNativeAdPlacements("learn-index-native-ad");
+    expect(ads.map((ad) => ad.id)).toEqual(["a", "b", "c"]);
+  });
+
+  it("掲載中が枠数より少なければ繰り返して埋めない", async () => {
+    mockCachedRead.mockResolvedValueOnce([
+      creative({ id: "a", kind: "native_row" }),
+    ]);
+    const ads = await getNativeAdPlacements("learn-index-native-ad");
+    expect(ads.map((ad) => ad.id)).toEqual(["a"]);
   });
 });

@@ -22,7 +22,7 @@ import { NativeAdRow } from "@/app/(user)/_components/native-ad-row";
 import { PageTitle } from "@/app/(user)/_components/page-title";
 import { SectionTitle } from "@/app/(user)/_components/section-title";
 import { createNamespaceMetadata } from "@/app/_lib/metadata";
-import { getNativeAdCreative } from "@/lib/ads/creatives";
+import { getNativeAdPlacements } from "@/lib/ads/creatives";
 import { CurriculumProgressBar } from "../_components/curriculum-progress-bar";
 import { CurriculumToc } from "../_components/curriculum-toc";
 import {
@@ -43,10 +43,10 @@ export async function generateMetadata(): Promise<Metadata> {
 }
 
 export default async function LearnIndexPage() {
-  const [t, readSlugs, ad] = await Promise.all([
+  const [t, readSlugs, ads] = await Promise.all([
     getTranslations("learnCurriculum"),
     fetchReadChapterSlugs(),
-    getNativeAdCreative("learn-index-native-ad"),
+    getNativeAdPlacements("learn-index-native-ad"),
   ]);
   const next = pickNextChapter(readSlugs);
   const allCompleted = !next;
@@ -79,6 +79,9 @@ export default async function LearnIndexPage() {
         {CURRICULUM_SECTIONS.map((section, index) => {
           const chapters = grouped.get(section) ?? [];
           if (chapters.length === 0) return undefined;
+          // 最後のセクションの後には置かない（目次の締めが広告になる）
+          const ad =
+            index < CURRICULUM_SECTIONS.length - 1 ? ads[index] : undefined;
           return (
             <Fragment key={section}>
               <CurriculumToc
@@ -87,9 +90,10 @@ export default async function LearnIndexPage() {
                 readSlugs={readSlugs}
                 nextSlug={next?.slug}
               />
-              {/* 広告は最初のセクションの後に 1 行だけ。目次の途中（章の並び）には
-                  入れない — 章の順序は学習の順序で、間に挟まると順路が途切れる */}
-              {index === 0 && ad && (
+              {/* 広告はセクションの切れ目に 1 行ずつ、先頭の切れ目から埋める。
+                  セクションの中（章の並び）には入れない — 章の順序は学習の
+                  順序で、間に挟まると順路が途切れる */}
+              {ad && (
                 <LinkRowList>
                   <NativeAdRow creative={ad} />
                 </LinkRowList>

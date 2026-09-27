@@ -6,7 +6,8 @@
  * 行う。スロットの一覧と掲載先は `lib/ads/registry.ts` から引く。
  * @flow
  * スロットの「新規作成」から広告を作り、一覧で掲載 / 停止と並び順を決める。
- * 各スロットで掲載中の広告のうち、並び順の先頭が画面に出る。
+ * 各スロットで掲載中の広告のうち、並び順の先頭からスロットの枠数だけが
+ * 画面に出る。
  */
 import Link from "next/link";
 import { getTranslations } from "next-intl/server";
@@ -17,6 +18,7 @@ import { TEXT_LINK_CLASSES } from "@/app/_components/_lib/link-classes";
 import {
   AD_SLOT_VALUES,
   kindForSlot,
+  placementsForSlot,
   surfacesForSlot,
 } from "@/lib/ads/registry";
 
@@ -42,8 +44,14 @@ export default async function AdminAdsPage() {
 
       {AD_SLOT_VALUES.map((slot) => {
         const inSlot = creatives.filter((c) => c.row.slot === slot);
-        // 画面に出るのは掲載中のうち並び順の先頭
-        const displayedId = inSlot.find((c) => c.row.isActive)?.row.id;
+        // 画面に出るのは掲載中のうち並び順の先頭から枠数まで
+        const placements = placementsForSlot(slot);
+        const displayedIds = new Set(
+          inSlot
+            .filter((c) => c.row.isActive)
+            .slice(0, placements)
+            .map((c) => c.row.id),
+        );
 
         return (
           <section key={slot} className="rounded-lg border border-surface-200">
@@ -54,6 +62,9 @@ export default async function AdminAdsPage() {
                 </code>
                 <p className="text-xs text-surface-500">
                   {t("slotKind")}: {t(`kinds.${kindForSlot(slot)}`)}
+                  {placements > 1 && (
+                    <> / {t("placements", { count: placements })}</>
+                  )}
                 </p>
                 <p className="text-xs text-surface-500">
                   {t("surfaces")}:{" "}
@@ -127,7 +138,7 @@ export default async function AdminAdsPage() {
                               ? t("statusActive")
                               : t("statusInactive")}
                           </span>
-                          {row.id === displayedId && (
+                          {displayedIds.has(row.id) && (
                             <span className="ml-2 text-xs font-semibold text-amber-700">
                               {t("displayed")}
                             </span>

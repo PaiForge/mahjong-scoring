@@ -110,7 +110,7 @@ async function main() {
 
   console.log("dev-seed: ネイティブ広告のサンプルを投入します...");
   const ads = await reseedAdCreatives(db);
-  console.log(`  スロットごとに 1 件、計 ${ads} 件（掲載中）`);
+  console.log(`  スロットごとに 1 画面に出る数だけ、計 ${ads} 件（掲載中）`);
 }
 
 main()
