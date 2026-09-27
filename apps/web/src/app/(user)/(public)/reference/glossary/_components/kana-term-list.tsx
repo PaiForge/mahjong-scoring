@@ -3,13 +3,14 @@ import { getTranslations } from "next-intl/server";
 import { LinkRow, LinkRowList } from "@/app/(user)/_components/link-row";
 import { NativeAdRow } from "@/app/(user)/_components/native-ad-row";
 import type { NativeAdView } from "@/lib/ads/creatives";
+import { adIndexAfterGroup } from "@/lib/ads/spacing";
 import { KANA_ROWS, kanaAnchorId } from "@/lib/glossary/kana";
 import type { GlossaryTermView } from "@/lib/glossary/queries";
 
 interface KanaTermListProps {
   readonly terms: readonly GlossaryTermView[];
-  /** 最初の行の末尾に混ぜる広告。掲載中の広告が無ければ undefined */
-  readonly ad?: NativeAdView;
+  /** 行の末尾に混ぜる広告（並び順どおり）。掲載中が無ければ空 */
+  readonly ads: readonly NativeAdView[];
 }
 
 /**
@@ -19,20 +20,21 @@ interface KanaTermListProps {
  * 行ごとに見出しを立て、その中は読み順に並べる。行の中に置くのは語と読み
  * だけ — 意味は用語ページに置き、一覧はどこに何があるかを見せる役に徹する。
  *
- * ネイティブ広告は語のある最初の行（ふつうは「あ行」）の末尾に 1 行だけ置く。
+ * ネイティブ広告は語のある行の末尾に 1 行ずつ、間隔を広げながら置く
+ * （`adIndexAfterGroup`）。語の無い行は描かないので、間隔にも数えない。
  */
-export async function KanaTermList({ terms, ad }: KanaTermListProps) {
+export async function KanaTermList({ terms, ads }: KanaTermListProps) {
   const t = await getTranslations("glossary");
-  const firstRow = KANA_ROWS.find((row) =>
-    terms.some((term) => term.kanaRow === row),
-  );
+  const rows = KANA_ROWS.map((row) => ({
+    row,
+    inRow: terms.filter((term) => term.kanaRow === row),
+  })).filter(({ inRow }) => inRow.length > 0);
 
   return (
     <div className="space-y-6">
-      {KANA_ROWS.map((row) => {
-        const inRow = terms.filter((term) => term.kanaRow === row);
-        if (inRow.length === 0) return undefined;
-        const isFirstRow = row === firstRow;
+      {rows.map(({ row, inRow }, rowIndex) => {
+        const adIndex = adIndexAfterGroup(rowIndex);
+        const ad = adIndex === undefined ? undefined : ads[adIndex];
 
         return (
           <section key={row} className="space-y-1">
@@ -52,7 +54,7 @@ export async function KanaTermList({ terms, ad }: KanaTermListProps) {
                   description={term.reading}
                 />
               ))}
-              {isFirstRow && ad && <NativeAdRow creative={ad} />}
+              {ad && <NativeAdRow creative={ad} />}
             </LinkRowList>
           </section>
         );

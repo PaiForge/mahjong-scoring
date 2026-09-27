@@ -23,6 +23,7 @@ import { PageTitle } from "@/app/(user)/_components/page-title";
 import { SectionTitle } from "@/app/(user)/_components/section-title";
 import { createNamespaceMetadata } from "@/app/_lib/metadata";
 import { getNativeAdPlacements } from "@/lib/ads/creatives";
+import { adIndexAfterGroup } from "@/lib/ads/spacing";
 import { CurriculumProgressBar } from "../_components/curriculum-progress-bar";
 import { CurriculumToc } from "../_components/curriculum-toc";
 import {
@@ -33,7 +34,6 @@ import {
   pickNextChapter,
 } from "../_lib/curriculum";
 import { fetchReadChapterSlugs } from "../_lib/progress";
-import { tocAdIndexAfterSection } from "../_lib/toc-ad-position";
 
 export async function generateMetadata(): Promise<Metadata> {
   return createNamespaceMetadata("learnCurriculum.index", {
@@ -80,7 +80,7 @@ export default async function LearnIndexPage() {
         {CURRICULUM_SECTIONS.map((section, index) => {
           const chapters = grouped.get(section) ?? [];
           if (chapters.length === 0) return undefined;
-          const adIndex = tocAdIndexAfterSection(index);
+          const adIndex = adIndexAfterGroup(index);
           const ad = adIndex === undefined ? undefined : ads[adIndex];
           return (
             <Fragment key={section}>
@@ -91,7 +91,7 @@ export default async function LearnIndexPage() {
                 nextSlug={next?.slug}
               />
               {/* 広告はセクションの切れ目に 1 行ずつ（位置は
-                  tocAdIndexAfterSection）。セクションの中（章の並び）には
+                  adIndexAfterGroup）。セクションの中（章の並び）には
                   入れない — 章の順序は学習の順序で、間に挟まると順路が途切れる */}
               {ad && (
                 <LinkRowList>

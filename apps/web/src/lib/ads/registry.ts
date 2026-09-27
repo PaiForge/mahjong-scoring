@@ -114,16 +114,21 @@ export const AD_SLOTS = {
   "learn-index-native-ad": {
     kind: "native_row",
     surfaces: [{ route: "/learn", href: "/learn" }],
-    // 目次のセクションの後に間隔を広げながら置く（`tocAdIndexAfterSection`）
+    // 目次の 6 セクションに間隔を広げながら置く（`adIndexAfterGroup`）
     placements: 3,
   },
   "leaderboard-index-native-ad": {
     kind: "native_row",
     surfaces: [{ route: "/leaderboard", href: "/leaderboard" }],
+    // 3 分野に間隔を広げながら置く（`adIndexAfterGroup`）。1・3 分野目の後
+    placements: 2,
   },
   "glossary-index-native-ad": {
     kind: "native_row",
     surfaces: [{ route: "/reference/glossary", href: "/reference/glossary" }],
+    // 五十音の行に間隔を広げながら置く（`adIndexAfterGroup`）。語のある行が
+    // 10 行に届いたら 4 本目の位置（10 行目の後）ができる
+    placements: 3,
   },
 } as const satisfies Record<string, AdSlotConfig>;
 

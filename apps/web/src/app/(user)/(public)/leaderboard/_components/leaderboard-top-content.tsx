@@ -3,7 +3,8 @@ import { getTranslations } from "next-intl/server";
 import { LinkRowList } from "@/app/(user)/_components/link-row";
 import { NativeAdRow } from "@/app/(user)/_components/native-ad-row";
 import { SectionTitle } from "@/app/(user)/_components/section-title";
-import { getNativeAdCreative } from "@/lib/ads/creatives";
+import { getNativeAdPlacements } from "@/lib/ads/creatives";
+import { adIndexAfterGroup } from "@/lib/ads/spacing";
 import { getOptionalUser } from "@/lib/auth";
 import { isHiddenFromLeaderboard } from "@/lib/db/leaderboard-visibility";
 
@@ -25,15 +26,16 @@ interface LeaderboardTopContentProps {
  * 順位が出ない土俵の表（詳細ページ）で必ず目に入るため、一覧にも置くと
  * 同じ知らせを二度読ませることになる。
  *
- * 最初の分野の末尾にネイティブ広告を 1 行混ぜる（掲載中の広告があるときだけ）。
+ * 分野の末尾にネイティブ広告を 1 行ずつ、間隔を広げながら混ぜる
+ * （`adIndexAfterGroup`。掲載中の広告があるときだけ）。
  */
 export async function LeaderboardTopContent({
   period,
 }: LeaderboardTopContentProps) {
-  const [tPractice, user, ad] = await Promise.all([
+  const [tPractice, user, ads] = await Promise.all([
     getTranslations("practice"),
     getOptionalUser(),
-    getNativeAdCreative("leaderboard-index-native-ad"),
+    getNativeAdPlacements("leaderboard-index-native-ad"),
   ]);
   const currentUserId = user?.id ?? undefined;
 
@@ -55,31 +57,35 @@ export async function LeaderboardTopContent({
 
   return (
     <div className="space-y-8">
-      {leaderboardBoardGroups().map((group, groupIndex) => (
-        <section key={group.category} className="space-y-3">
-          <SectionTitle>
-            {tPractice(`categories.${group.category}.title`)}
-          </SectionTitle>
+      {leaderboardBoardGroups().map((group, groupIndex) => {
+        const adIndex = adIndexAfterGroup(groupIndex);
+        const ad = adIndex === undefined ? undefined : ads[adIndex];
+        return (
+          <section key={group.category} className="space-y-3">
+            <SectionTitle>
+              {tPractice(`categories.${group.category}.title`)}
+            </SectionTitle>
 
-          <LinkRowList>
-            {group.boards.map((board) => (
-              <LeaderboardModuleRow
-                key={practiceBoardKey(board)}
-                board={board}
-                period={period}
-                rank={
-                  currentUserId
-                    ? rankMap.get(practiceBoardKey(board))
-                    : undefined
-                }
-              />
-            ))}
-            {/* 広告は最初の分野の末尾に 1 行だけ。ここは土俵を選ぶ一覧で、
-                順位の表（詳細ページ）には置かない（registry の TSDoc 参照） */}
-            {groupIndex === 0 && ad && <NativeAdRow creative={ad} />}
-          </LinkRowList>
-        </section>
-      ))}
+            <LinkRowList>
+              {group.boards.map((board) => (
+                <LeaderboardModuleRow
+                  key={practiceBoardKey(board)}
+                  board={board}
+                  period={period}
+                  rank={
+                    currentUserId
+                      ? rankMap.get(practiceBoardKey(board))
+                      : undefined
+                  }
+                />
+              ))}
+              {/* ここは土俵を選ぶ一覧で、順位の表（詳細ページ）には置かない
+                （registry の TSDoc 参照） */}
+              {ad && <NativeAdRow creative={ad} />}
+            </LinkRowList>
+          </section>
+        );
+      })}
     </div>
   );
 }
