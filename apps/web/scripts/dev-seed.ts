@@ -108,9 +108,9 @@ async function main() {
     `  challenge_results ${inserted} 件 + 導出したベストスコアを投入しました`,
   );
 
-  console.log("dev-seed: ネイティブ広告のサンプルを投入します...");
+  console.log("dev-seed: ネイティブ広告を投入します...");
   const ads = await reseedAdCreatives(db);
-  console.log(`  スロットごとに 1 画面に出る数だけ、計 ${ads} 件（掲載中）`);
+  console.log(`  本番シードと同じ広告 ${ads} 件（掲載中・仮リンク）`);
 }
 
 main()

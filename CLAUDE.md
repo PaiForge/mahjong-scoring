@@ -377,7 +377,7 @@ pnpm --filter web db:seed:dev
 
 これに加えて、ランキングの母集団を作るためだけの `seed_player01`〜`seed_player20`（`player01@example.local` …）を投入する。上位3位のメダル・ページ送り・1 ページに収まらない自分の順位を出す「あなた」の行は、人数が足りないと画面に出ないため。全シードユーザーに全練習種別（昇級試験を除く。試験は本番でも記録されない）のチャレンジ成績（当月と前月の 2 件ずつ）が入り、総合・月間の両方のランキングが埋まる。成績の値はユーザー名から決まる擬似乱数なので、何度実行しても順位は変わらない。ただしシードユーザーの既存の成績・段級位・章の読了は宣言された状態へ消して入れ直すため、シードユーザーとして遊んだ記録は残らない。EXP は付与しないので、EXP の画面を見たいときは実際に練習を 1 回走らせること。
 
-ネイティブ広告も、スロットごとに 1 画面に出る数だけ掲載中のサンプルを入れる（`scripts/dev-seed/ad-creatives.ts`）。広告の配置と見た目をログインなしで確かめられる。管理画面（`/admin/ads`）で編集しても、次の実行でサンプルに戻る。
+ネイティブ広告も、本番のシード（`scripts/seed/ad-creatives.ts`）と同じ広告を掲載中にして入れる（`scripts/dev-seed/ad-creatives.ts`）。本番のシードは停止中・仮リンクで入るため、ローカルではこちらで掲載にして配置と見た目をログインなしで確かめる。リンクは仮リンクのまま（押すと example.com）。管理画面（`/admin/ads`）で編集しても、次の実行で戻る。
 
 既存のアカウントを管理者にしたい場合は DB に直接 INSERT する:
 
@@ -423,6 +423,7 @@ pnpm supabase stop           # 停止
 ## Database Migration
 
 - **Always use `pnpm db:run-migrate`** — This runs `scripts/migrate.ts`, which executes Drizzle migrations and then applies Supabase-specific SQL (RLS policies, FK constraints) in Supabase environments.
+- **本番の初期データは `pnpm db:seed`**（`scripts/seed.ts`）— prebuild がマイグレーションの後に走らせる。宣言した行のうち DB に無いものだけを入れ（id 単位の insert-only）、既存の行は管理画面の編集ごと DB が正。いまはネイティブ広告（停止中・仮リンク）だけ
 - **Do NOT use `drizzle-kit push`** — `push` bypasses migration tracking and directly syncs the schema. This causes the migration journal and actual DB state to diverge.
 - **Schema changes workflow**: Edit `src/lib/db/schema.ts` → run `npx drizzle-kit generate --name=<migration_name>` → run `pnpm db:run-migrate`
 - **Always specify `--name` when generating migrations** — Use snake_case (e.g., `create_profiles_table`, `add_avatar_to_profiles`)
