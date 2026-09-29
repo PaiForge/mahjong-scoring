@@ -11,9 +11,21 @@
 /**
  * unknown を安全にメッセージ文字列へ変換する
  * エラーメッセージ抽出
+ *
+ * SDK には失敗を `Error` ではなく素のオブジェクトで返すものがある（Resend の
+ * `{ name, message, statusCode }` 等）。`String()` に通すと `[object Object]`
+ * になり中身が消えるため、オブジェクトは JSON にして全フィールドを残す。
  */
 export function toErrorMessage(error: unknown): string {
-  return error instanceof Error ? error.message : String(error);
+  if (error instanceof Error) return error.message;
+  if (typeof error === "object" && error !== null) {
+    try {
+      return JSON.stringify(error);
+    } catch {
+      // 循環参照などで JSON にできないときは String() に落とす
+    }
+  }
+  return String(error);
 }
 
 /**
