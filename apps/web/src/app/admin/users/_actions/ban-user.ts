@@ -8,7 +8,11 @@ import { getClientIp } from "../../../../lib/client-ip";
 import { db, profiles } from "../../../../lib/db";
 import { createAdminClient } from "../../../../lib/supabase/admin";
 import { requireAdminActor } from "../../_lib/auth";
-import { recordModerationAction } from "../_lib/moderation";
+import {
+  NO_BAN_DURATION,
+  PERMANENT_BAN_DURATION,
+  recordModerationAction,
+} from "../_lib/moderation";
 
 /**
  * ユーザーを BAN する Server Action。
@@ -50,7 +54,7 @@ export async function banUser(
   // Phase 1: Supabase Auth で BAN
   const { error: authError } = await adminClient.auth.admin.updateUserById(
     targetUserId,
-    { ban_duration: "876000h" },
+    { ban_duration: PERMANENT_BAN_DURATION },
   );
 
   if (authError) {
@@ -77,7 +81,7 @@ export async function banUser(
   } catch {
     // DB 失敗時: Auth 側をロールバック
     await adminClient.auth.admin.updateUserById(targetUserId, {
-      ban_duration: "none",
+      ban_duration: NO_BAN_DURATION,
     });
     return { error: "banFailed" };
   }
