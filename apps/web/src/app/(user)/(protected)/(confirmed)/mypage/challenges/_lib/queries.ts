@@ -19,6 +19,21 @@ import { EXCLUDED_MENU_TYPES, toRecordBoards } from "./menu-scope";
 import type { ChallengeAttempt } from "./types";
 import type { PracticeBoard } from "@/lib/db/practice-menu-types";
 
+/** ChallengeAttempt の組み立てに使う challenge_results の列 */
+const CHALLENGE_ATTEMPT_COLUMNS = {
+  id: challengeResults.id,
+  menuType: challengeResults.menuType,
+  leaderboardKey: challengeResults.leaderboardKey,
+  score: challengeResults.score,
+  incorrectAnswers: challengeResults.incorrectAnswers,
+  createdAt: challengeResults.createdAt,
+};
+
+type ChallengeAttemptRow = Pick<
+  typeof challengeResults.$inferSelect,
+  keyof typeof CHALLENGE_ATTEMPT_COLUMNS
+>;
+
 /**
  * ページネーション付きでチャレンジ結果を取得する
  * チャレンジ結果ページネーション取得
@@ -52,14 +67,7 @@ export async function getChallengeResultsPaginated(
       .where(whereClause)
       .then(([result]) => result),
     db
-      .select({
-        id: challengeResults.id,
-        menuType: challengeResults.menuType,
-        leaderboardKey: challengeResults.leaderboardKey,
-        score: challengeResults.score,
-        incorrectAnswers: challengeResults.incorrectAnswers,
-        createdAt: challengeResults.createdAt,
-      })
+      .select(CHALLENGE_ATTEMPT_COLUMNS)
       .from(challengeResults)
       .where(whereClause)
       .orderBy(desc(challengeResults.createdAt))
@@ -73,10 +81,7 @@ export async function getChallengeResultsPaginated(
     DEFAULT_PAGE_SIZE,
   );
 
-  const items = rows.flatMap((row) => {
-    const attempt = toChallengeAttempt(row);
-    return attempt ? [attempt] : [];
-  });
+  const items = toChallengeAttempts(rows);
 
   return { items, totalPages };
 }
@@ -88,24 +93,23 @@ export async function getChallengeResultsPaginated(
  * menu_type / leaderboard_key は varchar なので、レジストリから外れた過去の
  * 値（消した練習・消したバリアント）は読み飛ばす。
  */
-function toChallengeAttempt(row: {
-  id: string;
-  menuType: string;
-  leaderboardKey: string;
-  score: number;
-  incorrectAnswers: number;
-  createdAt: Date;
-}): ChallengeAttempt | undefined {
-  if (!isPracticeMenuType(row.menuType)) return undefined;
-  if (!isPracticeVariant(row.menuType, row.leaderboardKey)) return undefined;
-  return {
-    id: row.id,
-    menuType: row.menuType,
-    variant: row.leaderboardKey,
-    score: row.score,
-    incorrectAnswers: row.incorrectAnswers,
-    createdAt: row.createdAt,
-  };
+function toChallengeAttempts(
+  rows: readonly ChallengeAttemptRow[],
+): ChallengeAttempt[] {
+  return rows.flatMap((row) => {
+    if (!isPracticeMenuType(row.menuType)) return [];
+    if (!isPracticeVariant(row.menuType, row.leaderboardKey)) return [];
+    return [
+      {
+        id: row.id,
+        menuType: row.menuType,
+        variant: row.leaderboardKey,
+        score: row.score,
+        incorrectAnswers: row.incorrectAnswers,
+        createdAt: row.createdAt,
+      },
+    ];
+  });
 }
 
 /**
@@ -118,14 +122,7 @@ async function queryAttemptsByRange(
   range: { start: Date; end: Date },
 ): Promise<ChallengeAttempt[]> {
   const rows = await db
-    .select({
-      id: challengeResults.id,
-      menuType: challengeResults.menuType,
-      leaderboardKey: challengeResults.leaderboardKey,
-      score: challengeResults.score,
-      incorrectAnswers: challengeResults.incorrectAnswers,
-      createdAt: challengeResults.createdAt,
-    })
+    .select(CHALLENGE_ATTEMPT_COLUMNS)
     .from(challengeResults)
     .where(
       and(
@@ -138,10 +135,7 @@ async function queryAttemptsByRange(
     )
     .orderBy(desc(challengeResults.createdAt));
 
-  return rows.flatMap((row) => {
-    const attempt = toChallengeAttempt(row);
-    return attempt ? [attempt] : [];
-  });
+  return toChallengeAttempts(rows);
 }
 
 /**

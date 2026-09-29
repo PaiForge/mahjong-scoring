@@ -1,8 +1,10 @@
-import { readdirSync, readFileSync } from "node:fs";
-import { dirname, join, relative, sep } from "node:path";
+import { readFileSync } from "node:fs";
+import { dirname, sep } from "node:path";
 import { fileURLToPath } from "node:url";
 
 import { describe, expect, it } from "vitest";
+
+import { collectPages } from "@/test/collect-pages";
 
 import { INDEXABLE_PATHS } from "@/app/_lib/sitemap-routes";
 import {
@@ -53,28 +55,6 @@ const NOINDEX_MARKERS = [
   "createPrivateMetadata(",
   "robots: { index: false",
 ] as const;
-
-/** src/app 配下の全 page.tsx を「URL パス → ファイルパス」で収集する */
-function collectPages(dir: string): Map<string, string> {
-  const pages = new Map<string, string>();
-  const walk = (current: string) => {
-    for (const entry of readdirSync(current, { withFileTypes: true })) {
-      if (entry.isDirectory()) {
-        if (entry.name === "node_modules") continue;
-        walk(join(current, entry.name));
-      } else if (entry.name === "page.tsx") {
-        const segments = relative(dir, current)
-          .split(sep)
-          // route group（(user) 等）と _ プレフィックスは URL に現れない
-          .filter((seg) => !seg.startsWith("(") && !seg.startsWith("_"));
-        // ルート直下（segments が空）は "/" になる
-        pages.set(`/${segments.join("/")}`, join(current, "page.tsx"));
-      }
-    }
-  };
-  walk(dir);
-  return pages;
-}
 
 /** ページソースが urlPath への canonical を宣言しているか */
 function declaresCanonical(source: string, urlPath: string): boolean {
