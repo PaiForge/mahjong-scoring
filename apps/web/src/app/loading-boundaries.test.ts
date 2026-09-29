@@ -1,8 +1,10 @@
-import { existsSync, readdirSync, readFileSync } from "node:fs";
-import { dirname, join, relative, sep } from "node:path";
+import { existsSync, readFileSync } from "node:fs";
+import { dirname, join, relative } from "node:path";
 import { fileURLToPath } from "node:url";
 
 import { describe, expect, it } from "vitest";
+
+import { collectPages } from "@/test/collect-pages";
 
 /**
  * ローディング境界の不変条件:
@@ -104,27 +106,6 @@ const DYNAMIC_ROUTES: ReadonlySet<string> = new Set([
   "/u/[username]",
 ]);
 
-/** src/app 配下の page.tsx を「URL パス → ディレクトリ」で集める */
-function collectPages(dir: string): Map<string, string> {
-  const pages = new Map<string, string>();
-  const walk = (current: string) => {
-    for (const entry of readdirSync(current, { withFileTypes: true })) {
-      if (entry.isDirectory()) {
-        if (entry.name === "node_modules") continue;
-        walk(join(current, entry.name));
-      } else if (entry.name === "page.tsx") {
-        const segments = relative(dir, current)
-          .split(sep)
-          // route group（(user) 等）と _ プレフィックスは URL に現れない
-          .filter((seg) => seg !== "" && !seg.startsWith("("));
-        pages.set(`/${segments.join("/")}`, current);
-      }
-    }
-  };
-  walk(dir);
-  return pages;
-}
-
 /** page のディレクトリから src/app までを遡り、loading.tsx を持つディレクトリを返す */
 function findLoadingBoundaries(pageDir: string): string[] {
   const boundaries: string[] = [];
@@ -152,10 +133,10 @@ describe("loading.tsx の境界", () => {
     }
   });
 
-  it.each([...pages.entries()].map(([route, dir]) => [route, dir]))(
+  it.each([...pages.entries()].map(([route, file]) => [route, file]))(
     "%s の loading.tsx は動的なら 1 枚・静的なら 0 枚",
-    (route, dir) => {
-      const boundaries = findLoadingBoundaries(dir);
+    (route, file) => {
+      const boundaries = findLoadingBoundaries(dirname(file));
       const expected = DYNAMIC_ROUTES.has(route) ? 1 : 0;
       expect(
         boundaries,
