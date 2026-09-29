@@ -7,11 +7,7 @@ import {
 } from "@/app/admin/ads/_lib/image-url";
 import { authorizeApiRequest } from "@/lib/api-auth";
 import { jsonPrivate } from "@/lib/api-response";
-import { validateImageBinarySignature } from "@/lib/images/binary-signature";
-import {
-  AVATAR_MAX_FILE_SIZE,
-  isAllowedImageMimeType,
-} from "@/lib/images/policy";
+import { readUploadedImage } from "@/lib/images/read-uploaded-image";
 import { SHARP_DECODE_OPTIONS } from "@/lib/images/sharp-options";
 import { createAdminClient } from "@/lib/supabase/admin";
 
@@ -44,33 +40,12 @@ export async function POST(request: Request) {
     return jsonPrivate({ error: "forbidden" }, { status: 403 });
   }
 
-  let formData: FormData;
-  try {
-    formData = await request.formData();
-  } catch {
-    return jsonPrivate({ error: "invalidForm" }, { status: 400 });
-  }
-  const file = formData.get("file");
-
-  if (!(file instanceof File)) {
-    return jsonPrivate({ error: "noFile" }, { status: 400 });
-  }
-  if (!isAllowedImageMimeType(file.type)) {
-    return jsonPrivate({ error: "invalidType" }, { status: 400 });
-  }
-  // 上限はアバターと同じ（バケットの file_size_limit と一致させている）
-  if (file.size > AVATAR_MAX_FILE_SIZE) {
-    return jsonPrivate({ error: "tooLarge" }, { status: 400 });
-  }
-
-  const arrayBuffer = await file.arrayBuffer();
-  if (!validateImageBinarySignature(arrayBuffer, file.type)) {
-    return jsonPrivate({ error: "invalidType" }, { status: 400 });
-  }
+  const image = await readUploadedImage(request);
+  if (!image.ok) return image.response;
 
   let processed: Buffer;
   try {
-    processed = await sharp(Buffer.from(arrayBuffer), SHARP_DECODE_OPTIONS)
+    processed = await sharp(image.buffer, SHARP_DECODE_OPTIONS)
       .rotate()
       // 書影は縦長なので切り抜かない（fit: inside）。小さい画像は拡大しない
       .resize(AD_IMAGE_MAX_EDGE, AD_IMAGE_MAX_EDGE, {

@@ -7,11 +7,7 @@ import { LEADERBOARD_CACHE_TAG } from "@/lib/cache-tags";
 import { authorizeApiRequest } from "@/lib/api-auth";
 import { jsonPrivate } from "@/lib/api-response";
 import { db, profiles } from "@/lib/db";
-import { validateImageBinarySignature } from "@/lib/images/binary-signature";
-import {
-  AVATAR_MAX_FILE_SIZE,
-  isAllowedImageMimeType,
-} from "@/lib/images/policy";
+import { readUploadedImage } from "@/lib/images/read-uploaded-image";
 import { SHARP_DECODE_OPTIONS } from "@/lib/images/sharp-options";
 import { createAdminClient } from "@/lib/supabase/admin";
 
@@ -44,39 +40,14 @@ export async function POST(request: Request) {
   if (!auth.ok) return auth.response;
   const { user } = auth;
 
-  let formData: FormData;
-  try {
-    formData = await request.formData();
-  } catch {
-    // 壊れた multipart を 500 にしない（送信側の誤りなので 400）
-    return jsonPrivate({ error: "invalidForm" }, { status: 400 });
-  }
-  const file = formData.get("file");
-
-  if (!(file instanceof File)) {
-    return jsonPrivate({ error: "noFile" }, { status: 400 });
-  }
-
-  if (!isAllowedImageMimeType(file.type)) {
-    return jsonPrivate({ error: "invalidType" }, { status: 400 });
-  }
-
-  if (file.size > AVATAR_MAX_FILE_SIZE) {
-    return jsonPrivate({ error: "tooLarge" }, { status: 400 });
-  }
-
-  const arrayBuffer = await file.arrayBuffer();
-
-  // 拡張子・Content-Type 偽装対策にバイナリ先頭を検証する。
-  if (!validateImageBinarySignature(arrayBuffer, file.type)) {
-    return jsonPrivate({ error: "invalidType" }, { status: 400 });
-  }
+  const image = await readUploadedImage(request);
+  if (!image.ok) return image.response;
 
   // バイト数の上限を通っても、巨大寸法（圧縮爆弾）やアニメーションの多フレームは
   // デコード時に膨れ上がる。面積とフレーム数の上限は SHARP_DECODE_OPTIONS が持つ。
   let processed: Buffer;
   try {
-    processed = await sharp(Buffer.from(arrayBuffer), SHARP_DECODE_OPTIONS)
+    processed = await sharp(image.buffer, SHARP_DECODE_OPTIONS)
       .rotate() // EXIF の回転を焼き込み、その他メタデータ（GPS等）は破棄
       .resize(AVATAR_PIXEL_SIZE, AVATAR_PIXEL_SIZE, { fit: "cover" })
       .webp({ quality: AVATAR_WEBP_QUALITY })
