@@ -106,6 +106,13 @@
       "when": 1790510489640,
       "tag": "20260927120129_add_hand_to_ad_creatives",
       "breakpoints": true
+    },
+    {
+      "idx": 15,
+      "version": "7",
+      "when": 1790682401724,
+      "tag": "20260929114641_add_asin_and_ad_network_settings",
+      "breakpoints": true
     }
   ]
 }

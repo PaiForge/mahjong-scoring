@@ -24,7 +24,7 @@ import {
   LOCAL_SUPABASE_DATABASE_URL,
   resolveMigrationDatabaseUrl,
 } from "./_lib/database-url";
-import { reseedAdCreatives } from "./dev-seed/ad-creatives";
+import { DEV_TRACKING_ID, reseedAdCreatives } from "./dev-seed/ad-creatives";
 import { reseedChallengeResults } from "./dev-seed/challenge-results";
 import type { ScoredSeedUser } from "./dev-seed/challenge-results";
 import { SEED_PASSWORD, SEED_USERS, ensureSeedUser } from "./dev-seed/users";
@@ -110,7 +110,9 @@ async function main() {
 
   console.log("dev-seed: ネイティブ広告を投入します...");
   const ads = await reseedAdCreatives(db);
-  console.log(`  本番シードと同じ広告 ${ads} 件（掲載中・仮リンク）`);
+  console.log(
+    `  本番シードと同じ広告 ${ads} 件 + ローカル用のトラッキング ID（${DEV_TRACKING_ID}）`,
+  );
 }
 
 main()

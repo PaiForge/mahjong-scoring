@@ -185,3 +185,10 @@ ALTER TABLE "ad_creative_translations" ENABLE ROW LEVEL SECURITY;
 DROP POLICY IF EXISTS "ad_creative_translations_deny_all" ON "ad_creative_translations";
 CREATE POLICY "ad_creative_translations_deny_all" ON "ad_creative_translations"
   USING (false);
+
+-- トラッキング ID も同じくサーバーだけが読む
+ALTER TABLE "ad_network_settings" ENABLE ROW LEVEL SECURITY;
+
+DROP POLICY IF EXISTS "ad_network_settings_deny_all" ON "ad_network_settings";
+CREATE POLICY "ad_network_settings_deny_all" ON "ad_network_settings"
+  USING (false);

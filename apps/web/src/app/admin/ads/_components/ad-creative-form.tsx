@@ -54,7 +54,9 @@ export function AdCreativeForm({
   const [isPending, startTransition] = useTransition();
   const [isUploading, setIsUploading] = useState(false);
 
+  const [asin, setAsin] = useState(defaultValues?.asin ?? "");
   const [href, setHref] = useState(defaultValues?.href ?? "");
+  const usesAsin = asin.trim() !== "";
   const [isActive, setIsActive] = useState(defaultValues?.isActive ?? false);
   const [icon, setIcon] = useState(defaultValues?.icon ?? "");
   const [imageUrl, setImageUrl] = useState(defaultValues?.imageUrl ?? "");
@@ -92,6 +94,7 @@ export function AdCreativeForm({
     startTransition(async () => {
       const data: AdCreativeInput = {
         slot,
+        asin,
         href,
         isActive,
         icon,
@@ -130,6 +133,21 @@ export function AdCreativeForm({
       </div>
 
       <div>
+        <label htmlFor="ad-asin" className={labelClass}>
+          {t("asin")}
+        </label>
+        <input
+          id="ad-asin"
+          type="text"
+          value={asin}
+          onChange={(e) => setAsin(e.target.value)}
+          placeholder="B08721VWS5"
+          className={`${inputClass} font-mono`}
+        />
+        <p className={hintClass}>{t("asinHint")}</p>
+      </div>
+
+      <div>
         <label htmlFor="ad-href" className={labelClass}>
           {t("href")}
         </label>
@@ -138,9 +156,10 @@ export function AdCreativeForm({
           type="url"
           value={href}
           onChange={(e) => setHref(e.target.value)}
-          placeholder="https://www.amazon.co.jp/dp/...?tag=..."
+          placeholder="https://"
           maxLength={AD_CREATIVE_LIMITS.href}
-          className={inputClass}
+          disabled={usesAsin}
+          className={`${inputClass} disabled:bg-surface-100 disabled:text-surface-400`}
         />
         <p className={hintClass}>{t("hrefHint")}</p>
       </div>

@@ -34,6 +34,7 @@ export default async function AdminAdLinksPage() {
       id: row.id,
       slot: row.slot,
       href: row.href,
+      asin: row.asin,
       isActive: row.isActive,
       title: adminCreativeLabel(copy),
     })),

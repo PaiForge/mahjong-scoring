@@ -1,7 +1,5 @@
 import { describe, expect, it } from "vitest";
 
-import { PLACEHOLDER_AD_HREF } from "@/lib/ads/placeholder";
-
 import { type AdCreativeInput, validateAdCreative } from "../validation";
 
 const PREFIX =
@@ -11,6 +9,7 @@ const IMAGE = `${PREFIX}0f8fad5b-d9cb-469f-a165-70867728950e.webp`;
 function input(overrides: Partial<AdCreativeInput> = {}): AdCreativeInput {
   return {
     slot: "practice-grid-native-ad",
+    asin: "",
     href: "https://www.amazon.co.jp/dp/xxx?tag=example-22",
     isActive: true,
     icon: "📘",
@@ -35,6 +34,7 @@ describe("validateAdCreative", () => {
       ok: true,
       value: {
         slot: "practice-grid-native-ad",
+        asin: undefined,
         href: "https://www.amazon.co.jp/dp/xxx?tag=example-22",
         isActive: true,
         icon: "📘",
@@ -44,6 +44,26 @@ describe("validateAdCreative", () => {
         copy: { title: { ja: "麻雀の本" }, description: { ja: "説明" } },
       },
     });
+  });
+
+  it("ASIN があれば URL は使わず、商品ページの URL からも ASIN を取り出す", () => {
+    const result = validateAdCreative(
+      input({
+        asin: "https://www.amazon.co.jp/書名/dp/B08721VWS5/ref=sr_1_1?qid=1",
+        href: "not a url",
+      }),
+      PREFIX,
+    );
+    expect(result.ok && result.value).toMatchObject({
+      asin: "B08721VWS5",
+      href: undefined,
+    });
+  });
+
+  it("ASIN として読めない値を弾く", () => {
+    expect(errorOf(input({ asin: "https://www.amazon.co.jp/s?k=麻雀" }))).toBe(
+      "errorAsinInvalid",
+    );
   });
 
   it("レジストリに無いスロットを弾く", () => {
@@ -56,14 +76,6 @@ describe("validateAdCreative", () => {
       expect(errorOf(input({ href }))).toBe("errorHrefInvalid");
     },
   );
-
-  it("仮リンクのままは停止中なら保存でき、掲載にはできない", () => {
-    const href = PLACEHOLDER_AD_HREF;
-    expect(errorOf(input({ href, isActive: false }))).toBeUndefined();
-    expect(errorOf(input({ href, isActive: true }))).toBe(
-      "errorHrefPlaceholder",
-    );
-  });
 
   it("絵文字も画像も手牌も無ければ弾く", () => {
     expect(errorOf(input({ icon: " " }))).toBe("errorVisualRequired");

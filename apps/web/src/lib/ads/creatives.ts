@@ -5,9 +5,15 @@ import { parseHais, type HaiKindId } from "@mahjong-scoring/core";
 
 import { DEFAULT_LOCALE, type SupportedLocale } from "@/i18n/locales";
 import { AD_CREATIVES_CACHE_TAG } from "@/lib/cache-tags";
-import { adCreativeTranslations, adCreatives, db } from "@/lib/db";
+import {
+  adCreativeTranslations,
+  adCreatives,
+  adNetworkSettings,
+  db,
+} from "@/lib/db";
 import { logExternalError } from "@/lib/log-error";
 
+import { AMAZON_NETWORK, resolveAdHref } from "./amazon";
 import {
   copyFromTranslationRows,
   resolveCreativeCopy,
@@ -49,7 +55,8 @@ export interface NativeAdView {
 interface ActiveCreative {
   readonly id: string;
   readonly kind: string;
-  readonly href: string;
+  readonly href: string | null;
+  readonly asin: string | null;
   readonly icon: string | null;
   readonly imagePath: string | null;
   readonly imageAlt: string | null;
@@ -87,6 +94,7 @@ async function queryActiveCreatives(slot: string): Promise<ActiveCreative[]> {
     id: row.id,
     kind: row.kind,
     href: row.href,
+    asin: row.asin,
     icon: row.icon,
     imagePath: row.imagePath,
     imageAlt: row.imageAlt,
@@ -117,6 +125,26 @@ const getActiveCreativesCached = unstable_cache(
   { tags: [AD_CREATIVES_CACHE_TAG], revalidate: 60 * 60 * 24 },
 );
 
+async function queryAmazonTrackingId(): Promise<string | null> {
+  const [row] = await db
+    .select({ trackingId: adNetworkSettings.trackingId })
+    .from(adNetworkSettings)
+    .where(eq(adNetworkSettings.network, AMAZON_NETWORK))
+    .limit(1);
+  return row?.trackingId ?? null;
+}
+
+/**
+ * Amazon のトラッキング ID（未設定なら null）。広告と同じタグ・同じ鮮度で
+ * キャッシュする — 管理画面で設定した時点でタグが捨てられ、ASIN の広告が
+ * 次のリクエストから出る。
+ */
+const getAmazonTrackingIdCached = unstable_cache(
+  queryAmazonTrackingId,
+  ["amazon-tracking-id"],
+  { tags: [AD_CREATIVES_CACHE_TAG], revalidate: 60 * 60 * 24 },
+);
+
 /** 手牌の表記を牌の並びにする。無い・読めない表記は undefined */
 function toHandTiles(hand: string | null): HaiKindId[] | undefined {
   const tiles = parseHais(hand ?? undefined);
@@ -131,14 +159,21 @@ function toHandTiles(hand: string | null): HaiKindId[] | undefined {
  * 見るのは行の絞り込みではなく、手で書かれた不整合な行を描画に通さないため。
  * 読み込みに失敗したら空配列（広告を出さない）— 広告の失敗でページを
  * 落とさない。
+ *
+ * ASIN で指す広告は、トラッキング ID が未設定の間は出さない
+ * （`resolveAdHref`）。管理画面の一覧がその旨を示す。
  */
 export async function getNativeAdCreatives(
   slot: AdSlot,
   locale: SupportedLocale = DEFAULT_LOCALE,
 ): Promise<NativeAdView[]> {
   let creatives: ActiveCreative[];
+  let trackingId: string | null;
   try {
-    creatives = await getActiveCreativesCached(slot);
+    [creatives, trackingId] = await Promise.all([
+      getActiveCreativesCached(slot),
+      getAmazonTrackingIdCached(),
+    ]);
   } catch (error) {
     logExternalError("getNativeAdCreatives", `slot=${slot}`, error);
     return [];
@@ -149,11 +184,13 @@ export async function getNativeAdCreatives(
     if (!isAdKind(creative.kind) || creative.kind !== kind) return [];
     const { title, description } = resolveCreativeCopy(creative.copy, locale);
     if (title === "") return [];
+    const href = resolveAdHref(creative, trackingId ?? undefined);
+    if (href === undefined) return [];
     return [
       {
         id: creative.id,
         kind,
-        href: creative.href,
+        href,
         icon: creative.icon ?? undefined,
         imageUrl: creative.imagePath ?? undefined,
         imageAlt: creative.imageAlt ?? "",

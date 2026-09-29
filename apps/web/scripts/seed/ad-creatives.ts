@@ -7,11 +7,11 @@
  * DB が正で、管理画面での編集（リンク・掲載状態・文言・並び順）を上書きしない。
  * あとからここに足した行は、次のデプロイで入る。
  *
- * 行はすべて停止中・仮リンク（`PLACEHOLDER_AD_HREF`）で入る。このリポジトリは
- * 公開されており、アフィリエイトリンクは運用者個人の設定でコードではないため
- * （`lib/ads/placeholder.ts` 参照）。運用者はデプロイ後にタイトル別の一括更新
- * （`/admin/ads/links`）で本ごとにリンクを 1 回貼る。貼った時点で、その本の
- * 全スロットの行が掲載になる。
+ * 行は ASIN で本を指し、掲載中で入る。リンクは表示のたびに ASIN と
+ * トラッキング ID から組み立てる（`lib/ads/amazon.ts`）。トラッキング ID は
+ * 運用者個人の設定で、公開リポジトリのコードには書かない — 管理画面
+ * （`/admin/ads`）で 1 回設定した時点で、全スロットに広告が出る。設定する
+ * までは、掲載中でも画面には出ない。
  *
  * @design id を固定する
  * `ad_creatives` の鍵は id だけ（`slot` は一意でない）。どの環境でも同じ行を
@@ -21,7 +21,6 @@ import type { PostgresJsDatabase } from "drizzle-orm/postgres-js";
 
 import type { CreativeCopy } from "../../src/lib/ads/copy";
 import { copyToTranslationRows } from "../../src/lib/ads/copy";
-import { PLACEHOLDER_AD_HREF } from "../../src/lib/ads/placeholder";
 import {
   AD_SLOT_VALUES,
   type AdSlot,
@@ -31,6 +30,8 @@ import { adCreatives, adCreativeTranslations } from "../../src/lib/db/schema";
 
 /** 広告にする本。文言と見た目はどのスロットでも同じ */
 interface SeedBook {
+  /** Amazon の商品の ASIN（Kindle 本の B0… 等） */
+  readonly asin: string;
   /** 行の形（`native_row`）の行頭に出す絵文字 */
   readonly icon: string;
   /**
@@ -49,6 +50,7 @@ interface SeedBook {
  */
 const BOOKS = {
   oshihiki: {
+    asin: "B0H74QCPBJ",
     icon: "📘",
     // 聴牌した手。押すか降りるかを考える場面
     hand: "123m456p23455789s",
@@ -60,6 +62,7 @@ const BOOKS = {
     },
   },
   mangaIntro: {
+    asin: "B0FP1KHZXY",
     icon: "📗",
     // 一気通貫の和了形。入門書らしく、形の揃った手
     hand: "123456789m11p234s",
@@ -71,6 +74,7 @@ const BOOKS = {
     },
   },
   haiKouritsu: {
+    asin: "B08721VWS5",
     icon: "📙",
     // 何を切るかを考える 14 枚（何切る）
     hand: "234m45567p3468s11z",
@@ -82,6 +86,7 @@ const BOOKS = {
     },
   },
   scoreDrill: {
+    asin: "B0HGL2VJ5K",
     icon: "📕",
     // 役牌の暗刻と字牌の雀頭。符を数える対象がある手
     hand: "123m456p789s111z22z",
@@ -93,6 +98,7 @@ const BOOKS = {
     },
   },
   shinsoku: {
+    asin: "B0DGTQXJ9X",
     icon: "📒",
     // 断幺九の和了形
     hand: "22m345678p234567s",
@@ -163,21 +169,22 @@ export interface SeedAdCreative {
 }
 
 /**
- * 宣言した全広告を行の形にしたもの。停止中・仮リンクで、カードの形は手牌、
- * 行の形は絵文字を見た目にする（行には帯が無い）。
+ * 宣言した全広告を行の形にしたもの。ASIN で本を指して掲載中で入り、カードの
+ * 形は手牌、行の形は絵文字を見た目にする（行には帯が無い）。
  */
 export const SEED_AD_CREATIVES: readonly SeedAdCreative[] =
   AD_SLOT_VALUES.flatMap((slot) =>
     SLOT_BOOKS[slot].map(({ id, book }, sortOrder) => {
-      const { icon, hand, copy } = BOOKS[book];
+      const { asin, icon, hand, copy } = BOOKS[book];
       const kind = kindForSlot(slot);
       return {
         row: {
           id,
           kind,
           slot,
-          href: PLACEHOLDER_AD_HREF,
-          isActive: false,
+          asin,
+          href: null,
+          isActive: true,
           sortOrder,
           icon: kind === "native_row" ? icon : null,
           imagePath: null,

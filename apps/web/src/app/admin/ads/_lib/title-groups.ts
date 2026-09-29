@@ -1,5 +1,3 @@
-import { isPlaceholderAdHref } from "@/lib/ads/placeholder";
-
 /**
  * 同じタイトルの広告のまとまり — 1 冊の本の、スロットごとの行
  * タイトル別広告
@@ -14,9 +12,10 @@ import { isPlaceholderAdHref } from "@/lib/ads/placeholder";
  * 別の商品が同じタイトルだと 1 つに束ねられてしまうため、一括更新の画面は
  * 適用前にまとまりが含むスロットをすべて見せる。
  *
- * トラッキング ID（`tag=`）をスロットごとに変えている場合、リンクは行ごとに
- * 異なる。その本は一括で上書きすると ID の区別が消えるため、画面は「リンクが
- * 揃っていない」ことを示す（`hrefs` が 2 つ以上）。
+ * ASIN で指す行（Amazon の本）はリンクを持たず、トラッキング ID と組み立てる
+ * ため、一括で書き換えるリンクは無い（`asins` に数えるだけ）。URL を持つ行の
+ * リンクが揃っていなければ、画面は「リンクが揃っていない」ことを示す
+ * （`hrefs` が 2 つ以上）。
  */
 export interface CreativeTitleGroup {
   readonly title: string;
@@ -24,16 +23,19 @@ export interface CreativeTitleGroup {
   /** まとまりの行があるスロット（最初に現れた順、重複なし） */
   readonly slots: readonly string[];
   readonly activeCount: number;
-  /** まだ仮リンク（`isPlaceholderAdHref`）のままの行の数 */
-  readonly placeholderCount: number;
-  /** 行が持つ本物のリンク（仮リンクを除く、重複なし）。1 つなら揃っている */
+  /** URL を持つ行のリンク（重複なし）。1 つなら揃っている */
   readonly hrefs: readonly string[];
+  /** URL を持つ行の数 */
+  readonly hrefCount: number;
+  /** ASIN で指す行の ASIN（重複なし） */
+  readonly asins: readonly string[];
 }
 
 interface GroupableCreative {
   readonly id: string;
   readonly slot: string;
-  readonly href: string;
+  readonly href: string | null;
+  readonly asin: string | null;
   readonly isActive: boolean;
   /** 既定ロケールのタイトル。空なら束ねない */
   readonly title: string;
@@ -53,8 +55,9 @@ export function groupCreativesByTitle(
       creativeIds: string[];
       slots: string[];
       activeCount: number;
-      placeholderCount: number;
       hrefs: string[];
+      hrefCount: number;
+      asins: string[];
     }
   >();
   for (const creative of creatives) {
@@ -66,15 +69,19 @@ export function groupCreativesByTitle(
       creativeIds: [],
       slots: [],
       activeCount: 0,
-      placeholderCount: 0,
       hrefs: [],
+      hrefCount: 0,
+      asins: [],
     };
     group.creativeIds.push(creative.id);
     if (!group.slots.includes(creative.slot)) group.slots.push(creative.slot);
     if (creative.isActive) group.activeCount += 1;
-    if (isPlaceholderAdHref(creative.href)) group.placeholderCount += 1;
-    else if (!group.hrefs.includes(creative.href)) {
-      group.hrefs.push(creative.href);
+    if (creative.href !== null) {
+      group.hrefCount += 1;
+      if (!group.hrefs.includes(creative.href)) group.hrefs.push(creative.href);
+    }
+    if (creative.asin !== null && !group.asins.includes(creative.asin)) {
+      group.asins.push(creative.asin);
     }
     groups.set(creative.title, group);
   }

@@ -1,11 +1,13 @@
 import { asc, eq, inArray } from "drizzle-orm";
 
 import { DEFAULT_LOCALE } from "@/i18n/locales";
+import { AMAZON_NETWORK } from "@/lib/ads/amazon";
 import { copyFromTranslationRows, type CreativeCopy } from "@/lib/ads/copy";
 import {
   type AdCreative,
   adCreatives,
   adCreativeTranslations,
+  adNetworkSettings,
   db,
 } from "@/lib/db";
 
@@ -71,4 +73,14 @@ export async function getAdCreativeById(
 /** 一覧に出す見出し（既定ロケールのタイトル） */
 export function adminCreativeLabel(copy: CreativeCopy): string {
   return copy.title[DEFAULT_LOCALE] ?? "";
+}
+
+/** Amazon のトラッキング ID（キャッシュを通さない）。未設定なら undefined */
+export async function getAmazonTrackingId(): Promise<string | undefined> {
+  const [row] = await db
+    .select({ trackingId: adNetworkSettings.trackingId })
+    .from(adNetworkSettings)
+    .where(eq(adNetworkSettings.network, AMAZON_NETWORK))
+    .limit(1);
+  return row?.trackingId;
 }

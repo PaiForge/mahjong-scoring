@@ -17,7 +17,6 @@ import { getTranslations } from "next-intl/server";
 import { AdminPageTitle } from "@/app/admin/_components/admin-page-title";
 import { requireAdminPage } from "@/app/admin/_lib/auth";
 import { TEXT_LINK_CLASSES } from "@/app/_components/_lib/link-classes";
-import { isPlaceholderAdHref } from "@/lib/ads/placeholder";
 import {
   AD_SLOT_VALUES,
   kindForSlot,
@@ -25,18 +24,33 @@ import {
   surfacesForSlot,
 } from "@/lib/ads/registry";
 
+import { resolveAdHref } from "@/lib/ads/amazon";
+
 import { CreativeRowActions } from "./_components/creative-row-actions";
-import { adminCreativeLabel, getAllAdCreatives } from "./_lib/queries";
+import { TrackingIdForm } from "./_components/tracking-id-form";
+import {
+  adminCreativeLabel,
+  getAllAdCreatives,
+  getAmazonTrackingId,
+} from "./_lib/queries";
 
 export const dynamic = "force-dynamic";
 
 export default async function AdminAdsPage() {
   await requireAdminPage();
 
-  const [t, creatives] = await Promise.all([
+  const [t, creatives, trackingId] = await Promise.all([
     getTranslations("admin.ads"),
     getAllAdCreatives(),
+    getAmazonTrackingId(),
   ]);
+  // 画面に出せる広告（リンクが決まるもの）。ASIN の広告はトラッキング ID が
+  // 未設定なら出ない（`getNativeAdCreatives` と同じ判定）
+  const isServable = (row: (typeof creatives)[number]["row"]) =>
+    row.isActive && resolveAdHref(row, trackingId) !== undefined;
+  const hiddenAsinCount = creatives.filter(
+    ({ row }) => row.isActive && !isServable(row),
+  ).length;
 
   return (
     <div className="space-y-6">
@@ -51,13 +65,18 @@ export default async function AdminAdsPage() {
         </Link>
       </div>
 
+      <TrackingIdForm
+        trackingId={trackingId}
+        hiddenAsinCount={hiddenAsinCount}
+      />
+
       {AD_SLOT_VALUES.map((slot) => {
         const inSlot = creatives.filter((c) => c.row.slot === slot);
         // 画面に出るのは掲載中のうち並び順の先頭から枠数まで
         const placements = placementsForSlot(slot);
         const displayedIds = new Set(
           inSlot
-            .filter((c) => c.row.isActive)
+            .filter((c) => isServable(c.row))
             .slice(0, placements)
             .map((c) => c.row.id),
         );
@@ -150,11 +169,6 @@ export default async function AdminAdsPage() {
                           {displayedIds.has(row.id) && (
                             <span className="ml-2 text-xs font-semibold text-amber-700">
                               {t("displayed")}
-                            </span>
-                          )}
-                          {isPlaceholderAdHref(row.href) && (
-                            <span className="ml-2 text-xs font-semibold text-red-700">
-                              {t("hrefNotSet")}
                             </span>
                           )}
                         </td>

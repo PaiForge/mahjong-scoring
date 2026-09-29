@@ -17,6 +17,7 @@ export function toAdCreativeRow(
   NewAdCreative,
   | "kind"
   | "slot"
+  | "asin"
   | "href"
   | "isActive"
   | "icon"
@@ -27,7 +28,8 @@ export function toAdCreativeRow(
   return {
     kind: kindForSlot(slot),
     slot,
-    href: value.href,
+    asin: value.asin ?? null,
+    href: value.href ?? null,
     isActive: value.isActive,
     icon: value.icon ?? null,
     imagePath: value.imageUrl ?? null,

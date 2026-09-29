@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest";
 
 import { validateAdCreative } from "../../src/app/admin/ads/_lib/validation";
-import { isPlaceholderAdHref } from "../../src/lib/ads/placeholder";
+import { isValidAsin } from "../../src/lib/ads/amazon";
 import { AD_SLOT_VALUES } from "../../src/lib/ads/registry";
 
 import { SEED_AD_CREATIVES } from "./ad-creatives";
@@ -12,8 +12,9 @@ describe("SEED_AD_CREATIVES", () => {
       const result = validateAdCreative(
         {
           slot: row.slot,
-          href: row.href,
-          isActive: false,
+          asin: row.asin ?? "",
+          href: row.href ?? "",
+          isActive: row.isActive ?? false,
           icon: row.icon ?? "",
           imageUrl: "",
           imageAlt: "",
@@ -27,10 +28,10 @@ describe("SEED_AD_CREATIVES", () => {
     }
   });
 
-  it("すべて停止中・仮リンクで入る（アフィリエイトリンクをコードに書かない）", () => {
+  it("ASIN で本を指し、URL（トラッキング ID 入りのリンク）をコードに書かない", () => {
     for (const { row } of SEED_AD_CREATIVES) {
-      expect(row.isActive).toBe(false);
-      expect(isPlaceholderAdHref(row.href)).toBe(true);
+      expect(isValidAsin(row.asin ?? "")).toBe(true);
+      expect(row.href).toBeNull();
     }
   });
 

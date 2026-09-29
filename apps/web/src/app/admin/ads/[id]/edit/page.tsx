@@ -45,7 +45,8 @@ export default async function EditAdCreativePage({ params }: Props) {
         slot={row.slot}
         creativeId={row.id}
         defaultValues={{
-          href: row.href,
+          asin: row.asin ?? "",
+          href: row.href ?? "",
           isActive: row.isActive,
           icon: row.icon ?? "",
           imageUrl: row.imagePath ?? "",

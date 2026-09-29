@@ -1,13 +1,19 @@
 import { parseTehai } from "@mahjong-scoring/core";
 
 import { DEFAULT_LOCALE, SUPPORTED_LOCALES } from "@/i18n/locales";
+import { extractAsin } from "@/lib/ads/amazon";
 import type { StoredCopy } from "@/lib/ads/copy";
-import { isPlaceholderAdHref } from "@/lib/ads/placeholder";
 import { isAdSlot, kindForSlot } from "@/lib/ads/registry";
 
 /** 管理フォームから受け取る広告の入力値 */
 export interface AdCreativeInput {
   readonly slot: string;
+  /**
+   * Amazon の商品の ASIN（商品ページの URL を貼ってもよい）。空文字は
+   * 「ASIN で指さない」で、そのときは `href` を使う
+   */
+  readonly asin: string;
+  /** 遷移先の URL。ASIN を指定したときは使わない */
   readonly href: string;
   readonly isActive: boolean;
   /** 絵文字。空文字は「無し」 */
@@ -27,7 +33,7 @@ export interface AdCreativeInput {
 export type AdCreativeValidationError =
   | "errorSlotInvalid"
   | "errorHrefInvalid"
-  | "errorHrefPlaceholder"
+  | "errorAsinInvalid"
   | "errorVisualRequired"
   | "errorIconTooLong"
   | "errorImageInvalid"
@@ -53,7 +59,9 @@ export const AD_CREATIVE_LIMITS = {
 /** 検証を通った入力。空文字を undefined に、文言をロケールごとの形にしたもの */
 export interface ValidAdCreative {
   readonly slot: string;
-  readonly href: string;
+  /** ASIN と URL はどちらか一方だけが入る（DB の `ad_creatives_chk_one_link`） */
+  readonly asin: string | undefined;
+  readonly href: string | undefined;
   readonly isActive: boolean;
   readonly icon: string | undefined;
   readonly imageUrl: string | undefined;
@@ -138,9 +146,10 @@ function toStoredCopy(
  * 手牌はカード型（`native_card`）のスロットだけが受け付ける。行型には帯を
  * 置く場所が無く、保存しても画面に出ない。行型は絵文字か画像を必須にする。
  *
- * 仮リンク（`isPlaceholderAdHref`）のままの広告は停止中なら保存でき、掲載には
- * できない。シードの広告を編集途中で保存できるようにしつつ、行き先の無い
- * 広告を本番に出さないため。
+ * リンクは ASIN か URL のどちらか一方。ASIN が入っていればそちらを使い、
+ * URL は保存しない（リンクはトラッキング ID と組み立てる、`resolveAdHref`）。
+ * ASIN の欄には Amazon の商品ページの URL を貼ってもよく、そこから ASIN を
+ * 取り出す。
  *
  * 遷移先は https に限る。Amazon のリンクはすべて https で、`javascript:` 等を
  * 公開ページのリンクに流さないため。
@@ -156,12 +165,14 @@ export function validateAdCreative(
   | { readonly ok: false; readonly error: AdCreativeValidationError } {
   if (!isAdSlot(data.slot)) return { ok: false, error: "errorSlotInvalid" };
 
-  const href = data.href.trim();
-  if (!isValidAdHref(href)) {
-    return { ok: false, error: "errorHrefInvalid" };
+  const asinInput = data.asin.trim();
+  const asin = asinInput === "" ? undefined : extractAsin(asinInput);
+  if (asinInput !== "" && asin === undefined) {
+    return { ok: false, error: "errorAsinInvalid" };
   }
-  if (data.isActive && isPlaceholderAdHref(href)) {
-    return { ok: false, error: "errorHrefPlaceholder" };
+  const href = asin === undefined ? data.href.trim() : undefined;
+  if (href !== undefined && !isValidAdHref(href)) {
+    return { ok: false, error: "errorHrefInvalid" };
   }
 
   const icon = data.icon.trim();
@@ -206,6 +217,7 @@ export function validateAdCreative(
     ok: true,
     value: {
       slot: data.slot,
+      asin,
       href,
       isActive: data.isActive,
       icon: icon === "" ? undefined : icon,

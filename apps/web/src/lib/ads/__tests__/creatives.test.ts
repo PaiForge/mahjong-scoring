@@ -1,16 +1,22 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
-const { mockCachedRead } = vi.hoisted(() => ({ mockCachedRead: vi.fn() }));
+const { mockCachedRead, mockTrackingId } = vi.hoisted(() => ({
+  mockCachedRead: vi.fn(),
+  mockTrackingId: vi.fn(),
+}));
 
-// unstable_cache はモジュール読み込み時に 1 度だけ呼ばれ、返した関数が
-// スロットごとの読み込みになる。DB を経由せず、その関数の戻り値を差し替える。
+// unstable_cache はモジュール読み込み時に 1 度ずつ呼ばれ、返した関数が
+// スロットごとの読み込み / トラッキング ID の読み込みになる。DB を経由せず、
+// その関数の戻り値を差し替える。
 vi.mock("next/cache", () => ({
-  unstable_cache: () => mockCachedRead,
+  unstable_cache: (_fn: unknown, keys: readonly string[]) =>
+    keys[0] === "amazon-tracking-id" ? mockTrackingId : mockCachedRead,
 }));
 vi.mock("@/lib/db", () => ({
   db: {},
   adCreatives: {},
   adCreativeTranslations: {},
+  adNetworkSettings: {},
 }));
 
 import {
@@ -24,6 +30,7 @@ function creative(overrides: Record<string, unknown> = {}) {
     id: "c1",
     kind: "native_card",
     href: "https://www.amazon.co.jp/dp/xxx?tag=example-22",
+    asin: null,
     icon: "📘",
     imagePath: null,
     imageAlt: null,
@@ -36,6 +43,8 @@ function creative(overrides: Record<string, unknown> = {}) {
 describe("getNativeAdCreatives", () => {
   beforeEach(() => {
     mockCachedRead.mockReset();
+    mockTrackingId.mockReset();
+    mockTrackingId.mockResolvedValue(null);
     vi.spyOn(console, "error").mockImplementation(() => undefined);
   });
 
@@ -70,6 +79,20 @@ describe("getNativeAdCreatives", () => {
     expect(invalid?.hand).toBeUndefined();
   });
 
+  it("ASIN の広告はトラッキング ID とリンクを組み立て、未設定なら出さない", async () => {
+    const asinCreative = creative({ href: null, asin: "B08721VWS5" });
+    mockCachedRead.mockResolvedValue([asinCreative]);
+    await expect(
+      getNativeAdCreatives("practice-grid-native-ad"),
+    ).resolves.toEqual([]);
+
+    mockTrackingId.mockResolvedValue("example-22");
+    const [ad] = await getNativeAdCreatives("practice-grid-native-ad");
+    expect(ad?.href).toBe(
+      "https://www.amazon.co.jp/dp/B08721VWS5?tag=example-22",
+    );
+  });
+
   it("スロットが受け付けない kind の行は描画に通さない", async () => {
     mockCachedRead.mockResolvedValue([creative({ kind: "native_row" })]);
     await expect(
@@ -95,6 +118,10 @@ describe("getNativeAdCreatives", () => {
 });
 
 describe("getNativeAdCreative", () => {
+  beforeEach(() => {
+    mockTrackingId.mockResolvedValue(null);
+  });
+
   it("並び順の先頭を返し、無ければ undefined", async () => {
     mockCachedRead.mockResolvedValueOnce([
       creative({ id: "first" }),
@@ -112,6 +139,10 @@ describe("getNativeAdCreative", () => {
 });
 
 describe("getNativeAdPlacements", () => {
+  beforeEach(() => {
+    mockTrackingId.mockResolvedValue(null);
+  });
+
   it("並び順の先頭からスロットの枠数（教本の目次は 3）までを返す", async () => {
     mockCachedRead.mockResolvedValueOnce(
       ["a", "b", "c", "d"].map((id) => creative({ id, kind: "native_row" })),

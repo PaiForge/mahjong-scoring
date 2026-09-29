@@ -542,6 +542,13 @@ export const challengeAttempts = pgTable("challenge_attempts", {
  * 追うときにも使う。消すと過去の成果と突き合わせられなくなるため、削除の
  * 操作は持たず `is_active` を落とす。
  *
+ * @design リンクは URL か ASIN のどちらか 1 つ
+ * Amazon の商品は ASIN だけを持ち、リンクは表示のたびに ASIN と
+ * トラッキング ID（{@link adNetworkSettings}）から組み立てる
+ * （`lib/ads/amazon.ts`）。トラッキング ID は運用者個人の設定で、公開
+ * リポジトリのシードや行に焼き込まないため。Amazon 以外の広告は `href` に
+ * URL をそのまま持つ。
+ *
  * @design 画像と代替テキストは対
  * `image_alt` は `image_path` と一緒にしか入らない。広告は絵文字（`icon`）・
  * 画像・手牌（`hand`）のどれかを必ず持つ — どれも無いカードは周りの練習
@@ -557,8 +564,13 @@ export const adCreatives = pgTable(
     kind: varchar("kind", { length: 50 }).notNull(),
     /** 掲載枠（`lib/ads/registry.ts` の `AdSlot`）。一意ではない */
     slot: varchar("slot", { length: 50 }).notNull(),
-    /** 遷移先（アフィリエイトリンク等） */
-    href: varchar("href", { length: 2048 }).notNull(),
+    /** 遷移先の URL。ASIN で指す広告は持たない */
+    href: varchar("href", { length: 2048 }),
+    /**
+     * Amazon の商品の ASIN（書籍の ISBN-10 / Kindle 本の B0… 等）。リンクは
+     * 表示時にトラッキング ID と組み立てる
+     */
+    asin: varchar("asin", { length: 10 }),
     /** 掲載中か。唯一のオン / オフ */
     isActive: boolean("is_active").notNull().default(false),
     /** スロット内の並び順（小さいほど先） */
@@ -597,11 +609,47 @@ export const adCreatives = pgTable(
       "ad_creatives_chk_image_alt_with_image",
       sql`${table.imageAlt} IS NULL OR ${table.imagePath} IS NOT NULL`,
     ),
+    check(
+      "ad_creatives_chk_one_link",
+      sql`(${table.href} IS NULL) <> (${table.asin} IS NULL)`,
+    ),
+    check("ad_creatives_chk_asin", sql`${table.asin} ~ '^[A-Z0-9]{10}$'`),
   ],
 );
 
 export type AdCreative = typeof adCreatives.$inferSelect;
 export type NewAdCreative = typeof adCreatives.$inferInsert;
+
+/**
+ * 広告ネットワークごとの設定（アフィリエイトのトラッキング ID）
+ * 広告ネットワーク設定
+ *
+ * ASIN で指す広告（{@link adCreatives}）のリンクは、ここのトラッキング ID と
+ * 組み立てる。行が無い（未設定）間は、ASIN の広告を画面に出さない —
+ * トラッキング ID の無いリンクは成果に結び付かない。
+ *
+ * 運用者個人の設定なので、シードもコードも書かない。管理画面
+ * （`/admin/ads`）でだけ設定する。
+ */
+export const adNetworkSettings = pgTable(
+  "ad_network_settings",
+  {
+    /** ネットワーク（`lib/ads/amazon.ts` の `AMAZON_NETWORK`） */
+    network: varchar("network", { length: 50 }).primaryKey(),
+    /** トラッキング ID（Amazon アソシエイトの `tag=` の値） */
+    trackingId: varchar("tracking_id", { length: 64 }).notNull(),
+    /** 更新日時 */
+    updatedAt: timestamp("updated_at", { withTimezone: true })
+      .defaultNow()
+      .notNull(),
+  },
+  (table) => [
+    check(
+      "ad_network_settings_chk_network",
+      sql`${table.network} IN ('amazon_jp')`,
+    ),
+  ],
+);
 
 /**
  * ネイティブ広告の文言（ロケールごと）
