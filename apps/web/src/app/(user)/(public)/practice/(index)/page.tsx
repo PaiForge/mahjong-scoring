@@ -15,8 +15,10 @@ import {
 } from "@/app/(user)/(public)/learn/_lib/curriculum";
 import { ContentContainer } from "@/app/(user)/_components/content-container";
 import { LinkRow, LinkRowList } from "@/app/(user)/_components/link-row";
+import { NativeAdCard } from "@/app/(user)/(public)/_components/native-ad-card";
 import { PageTitle } from "@/app/(user)/_components/page-title";
 import { createNamespaceMetadata } from "@/app/_lib/metadata";
+import { getNativeAdCreative } from "@/lib/ads/creatives";
 import {
   ComprehensivePracticeBanner,
   MachiScorePracticeBanner,
@@ -41,9 +43,10 @@ export async function generateMetadata(): Promise<Metadata> {
 }
 
 export default async function PracticePage() {
-  const [t, tRanks] = await Promise.all([
+  const [t, tRanks, ad] = await Promise.all([
     getTranslations("practice"),
     getTranslations("ranks"),
+    getNativeAdCreative("practice-grid-native-ad"),
   ]);
 
   // カードはここで全件描画し、絞り込みは表示するかどうかの判断だけを
@@ -89,6 +92,7 @@ export default async function PracticePage() {
           items={items}
           filterLabel={t("filter.label")}
           listHeading={t("filter.listHeading")}
+          adCard={ad && <NativeAdCard creative={ad} />}
           optionGroups={[
             [{ label: t("filter.all") }],
             // 級の並びはレジストリの順（5級 → 4級 の学習順）。一覧の

@@ -97,6 +97,9 @@ export const IP_RATE_LIMITS = {
   deleteAccount: { maxRequests: 5, windowMs: 300_000 },
   uploadAvatar: { maxRequests: 5, windowMs: 600_000 },
   deleteAvatar: { maxRequests: 5, windowMs: 600_000 },
+  // 管理画面の広告画像。管理者しか通らないが、差し替えを続けて試す運用を
+  // 妨げない程度に緩めにする
+  uploadAdImage: { maxRequests: 30, windowMs: 600_000 },
   updateProfile: { maxRequests: 10, windowMs: 600_000 },
   updateLeaderboardVisibility: { maxRequests: 20, windowMs: 600_000 },
   // 未ログインで叩けるメール送信。Resend の送信枠（アカウント単位）を

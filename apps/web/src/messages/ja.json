@@ -2182,7 +2182,8 @@
       "item2": "IP アドレス（個人を特定する情報は含まれません）",
       "item3": "端末やブラウザの種類",
       "optOut": "パーソナライズ広告の配信を希望しない場合は、<link>Google の広告設定</link>から無効にできます。",
-      "learnMore": "Google がパートナーサイトでの広告配信に使用する情報については、<link>Google のパートナーサイトでの広告配信</link>をご覧ください。"
+      "learnMore": "Google がパートナーサイトでの広告配信に使用する情報については、<link>Google のパートナーサイトでの広告配信</link>をご覧ください。",
+      "amazonAssociate": "当サイトの一部のリンク（「PR」と表示したもの）は、Amazon.co.jp の商品へのアフィリエイトリンクです。Amazonのアソシエイトとして、{siteName}は適格販売により収入を得ています。"
     },
     "localStorage": {
       "title": "端末に保存する設定",
@@ -2674,6 +2675,96 @@
       "confirm": "BAN解除",
       "pending": "処理中...",
       "errorFailed": "BAN解除に失敗しました"
+    },
+    "ads": {
+      "navLabel": "広告",
+      "listTitle": "ネイティブ広告",
+      "listDescription": "各スロットで掲載中の広告のうち、並び順の先頭から枠数（表記の無いスロットは 1）だけが画面に出ます。同じ広告を繰り返しては出しません。削除はできないため、掲載をやめるときは停止にしてください。",
+      "slotKind": "形",
+      "placements": "1 画面に {count} 枠",
+      "kinds": {
+        "native_card": "カード（練習カードと同じ形）",
+        "native_row": "行（行リンクと同じ形）"
+      },
+      "surfaces": "掲載先",
+      "new": "新規作成",
+      "empty": "このスロットの広告はありません",
+      "order": "順",
+      "title": "タイトル",
+      "status": "状態",
+      "statusActive": "掲載中",
+      "statusInactive": "停止",
+      "displayed": "表示中",
+      "actions": "操作",
+      "edit": "編集",
+      "activate": "掲載する",
+      "deactivate": "停止する",
+      "moveUp": "上へ",
+      "moveDown": "下へ",
+      "createTitle": "広告を作成",
+      "editTitle": "広告を編集",
+      "slot": "スロット",
+      "asin": "ASIN（Amazon の商品）",
+      "asinHint": "Amazon の商品は ASIN で指定します。商品ページの URL を貼っても ASIN を読み取ります。リンクは広告一覧で設定する Amazon トラッキング ID と組み合わせて自動で作ります。",
+      "href": "リンク先 URL（Amazon 以外の広告）",
+      "hrefHint": "ASIN を指定した広告では使いません。",
+      "isActive": "掲載する",
+      "icon": "絵文字",
+      "iconHint": "画像が無いときに表示します。絵文字・画像・手牌のどれかが必要です（行の形では絵文字か画像）。",
+      "image": "画像",
+      "imageHint": "JPEG / PNG / WebP（5MB まで）。長辺 512px 以内の WebP に変換して保存します。",
+      "imageUploading": "アップロード中...",
+      "imageRemove": "画像を外す",
+      "imageAlt": "画像の代替テキスト",
+      "hand": "手牌",
+      "handHint": "MSPZ 表記（例: 123m456p789s11z）で 14 枚まで。入れると練習カードと同じ緑の帯に手牌を並べ、画像・絵文字の代わりに出します。",
+      "handPreviewEmpty": "表記を読めません",
+      "copyHeading": "文言（{locale}）",
+      "copyRequired": "必須",
+      "copyOptional": "空欄の項目は日本語が使われます",
+      "copyTitle": "タイトル",
+      "copyDescription": "説明",
+      "save": "保存",
+      "saving": "保存中...",
+      "cancel": "キャンセル",
+      "createdToast": "広告を作成しました",
+      "updatedToast": "広告を更新しました",
+      "errorSlotInvalid": "スロットが不正です",
+      "errorHrefInvalid": "リンク先は https の URL を入力してください",
+      "errorAsinInvalid": "ASIN を読み取れません。10 桁の ASIN か、Amazon の商品ページの URL を入力してください",
+      "errorVisualRequired": "絵文字・画像・手牌のどれかを設定してください",
+      "errorHandInvalid": "手牌は MSPZ 表記で 14 枚まで入力してください（副露は使えません）",
+      "errorHandNotForRow": "行の形のスロットには手牌を設定できません",
+      "errorIconTooLong": "絵文字が長すぎます",
+      "errorImageInvalid": "画像はこの画面からアップロードしたものを使ってください",
+      "errorImageAltRequired": "画像の代替テキストを入力してください",
+      "errorTitleRequired": "日本語のタイトルを入力してください",
+      "errorCopyTooLong": "文言が長すぎます",
+      "errorSaveFailed": "保存に失敗しました",
+      "errorNotFound": "広告が見つかりません",
+      "errorUploadFailed": "画像のアップロードに失敗しました",
+      "errorTrackingIdInvalid": "トラッキング ID は「英小文字・数字・ハイフン」で、末尾が -22 の形で入力してください",
+      "trackingId": {
+        "label": "Amazon トラッキング ID",
+        "hint": "Amazon アソシエイトのトラッキング ID（例: example-22）。ASIN で指定した広告のリンクは、この ID と組み合わせて作ります。空にして保存すると設定を消します。",
+        "save": "保存",
+        "saved": "トラッキング ID を保存しました",
+        "unset": "未設定のため、ASIN で指定した掲載中の広告 {count} 件が画面に出ていません"
+      },
+      "linksEntry": "タイトル別の一括更新",
+      "links": {
+        "title": "タイトル別の一括更新",
+        "asinNote": "リンクは広告一覧の Amazon トラッキング ID から作ります",
+        "description": "日本語のタイトルが同じ広告を 1 冊の本として束ね、掲載 / 停止と（URL で指す広告の）リンクの差し替えを全スロットへまとめて適用します。別の本が同じタイトルだと一緒に束ねられるため、適用前に掲載先のスロットを確かめてください。",
+        "back": "広告の一覧に戻る",
+        "empty": "広告はまだありません",
+        "mixed": "リンクが揃っていません（{count} 種類）",
+        "activeCount": "掲載中 {active} / {total}",
+        "apply": "{count} 件に適用",
+        "applied": "{count} 件の広告を更新しました",
+        "activate": "{count} 件をすべて掲載する",
+        "deactivate": "{count} 件をすべて停止する"
+      }
     }
   },
   "banned": {
@@ -3169,5 +3260,11 @@
         "hint": "役満も含めたすべての役"
       }
     }
+  },
+  "nativeAd": {
+    "badge": "PR",
+    "badgeLabel": "広告",
+    "cta": "詳しく見る",
+    "opensInNewTab": "（新しいタブで開きます）"
   }
 }

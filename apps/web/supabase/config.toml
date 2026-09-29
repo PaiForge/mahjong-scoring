@@ -101,6 +101,13 @@ public = true
 file_size_limit = "5MiB"
 allowed_mime_types = ["image/png", "image/jpeg", "image/webp"]
 
+# ネイティブ広告の画像用バケット（公開読み取り）。
+# 書き込みは /api/admin/ads/image がサービスロールで WebP に正規化して行う。
+[storage.buckets.ad-creatives]
+public = true
+file_size_limit = "5MiB"
+allowed_mime_types = ["image/webp"]
+
 # Allow connections via S3 compatible clients
 [storage.s3_protocol]
 enabled = true

@@ -48,7 +48,25 @@ interface PracticeFilterProps {
   readonly filterLabel: string;
   /** 一覧全体の見出し。視覚的には出さず、見出しの階層のためだけに置く */
   readonly listHeading: string;
+  /**
+   * グリッドに 1 枚混ぜる広告カード（サーバーで描画済み）。掲載中の広告が
+   * 無ければ undefined で、グリッドは練習カードだけになる。
+   *
+   * 絞り込みの対象にはしない（級・分野を持たない）。どの絞り込みでも
+   * {@link AD_GRID_POSITION} の位置に出し、表示中の練習がそれより少なければ
+   * 末尾に置く。
+   */
+  readonly adCard?: ReactNode;
 }
+
+/**
+ * 広告カードを置く位置（0 始まり）。上から 3 枚目。
+ *
+ * 1 段目（2 枚）は練習だけにし、2 段目の左（1 列表示では 3 枚目）に置く。
+ * 先頭に置くと一覧が広告から始まり、ずっと下に置くと絞り込んだ一覧では
+ * ほぼ出ない。
+ */
+const AD_GRID_POSITION = 2;
 
 interface FilteredListProps extends PracticeFilterProps {
   /** 選択中の絞り込み。undefined なら絞り込みなし */
@@ -60,9 +78,11 @@ function FilteredList({
   optionGroups,
   filterLabel,
   listHeading,
+  adCard,
   selected,
 }: FilteredListProps) {
   const visible = items.filter((item) => matchesPracticeFilter(selected, item));
+  const adIndex = Math.min(AD_GRID_POSITION, visible.length);
 
   return (
     <div className="space-y-6">
@@ -108,7 +128,11 @@ function FilteredList({
       </div>
 
       <div className="grid gap-4 sm:grid-cols-2">
-        {visible.map((item) => (
+        {visible.slice(0, adIndex).map((item) => (
+          <Fragment key={item.key}>{item.card}</Fragment>
+        ))}
+        {adCard}
+        {visible.slice(adIndex).map((item) => (
           <Fragment key={item.key}>{item.card}</Fragment>
         ))}
       </div>

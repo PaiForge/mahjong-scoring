@@ -241,3 +241,11 @@ GRANT SELECT ON TABLE public.user_ranks TO authenticated;
 -- TO anon, authenticated, service_role` を既定で持つため、GRANT を書かなかった
 -- 表にも全権限が自動で付く。明示的に REVOKE しない限り閉じない。
 REVOKE ALL ON TABLE public.user_roles FROM anon, authenticated;
+
+-- =============================================================================
+-- ad_creatives / ad_creative_translations / ad_network_settings
+-- =============================================================================
+-- ネイティブ広告はサーバーだけが読み書きする（rls_policies.sql 参照）。
+REVOKE ALL ON TABLE public.ad_creatives FROM anon, authenticated;
+REVOKE ALL ON TABLE public.ad_creative_translations FROM anon, authenticated;
+REVOKE ALL ON TABLE public.ad_network_settings FROM anon, authenticated;

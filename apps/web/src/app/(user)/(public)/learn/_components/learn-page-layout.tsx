@@ -3,7 +3,9 @@ import { getTranslations } from "next-intl/server";
 import { ContentContainer } from "@/app/(user)/_components/content-container";
 import { GlossaryTermModalProvider } from "@/app/(user)/_components/glossary/glossary-term-modal-provider";
 import { JsonLd } from "@/app/(user)/_components/json-ld";
+import { NativeAdCard } from "@/app/(user)/(public)/_components/native-ad-card";
 import { PageTitle } from "@/app/(user)/_components/page-title";
+import { getNativeAdCreative } from "@/lib/ads/creatives";
 import { collectTermSlugsInNamespace } from "@/lib/glossary/message-terms";
 import { resolveTermPreviews } from "@/lib/glossary/queries";
 import {
@@ -36,6 +38,8 @@ interface LearnPageLayoutProps {
  * - 読了トグル（認証時）/ ログイン導線（未認証時）— `ChapterReadStatus` が
  *   クライアントで出し分ける
  * - 対応練習へのリンク集（CURRICULUM の `practiceHrefs` を参照。0 件なら節ごと出さない）
+ * - ネイティブ広告（掲載中の広告があるときだけ）— 章を読み終え、練習・試験への
+ *   導線を見たあと。本文や練習への CTA より前には出さない
  * - 前後章へのリンク
  * - 公開日（`CURRICULUM` の `publishedAt`）— 章末。Article の datePublished と同じ日付
  *
@@ -62,9 +66,10 @@ export async function LearnPageLayout({
 
   // 章の本文はすべて辞書にあるため、名前空間ごと走査すれば、その章が
   // リンクしている用語は漏れなく集まる。章側での列挙は要らない。
-  const termPreviews = await resolveTermPreviews(
-    collectTermSlugsInNamespace(namespace),
-  );
+  const [termPreviews, ad] = await Promise.all([
+    resolveTermPreviews(collectTermSlugsInNamespace(namespace)),
+    getNativeAdCreative("learn-chapter-native-ad"),
+  ]);
 
   return (
     <ContentContainer
@@ -112,6 +117,8 @@ export async function LearnPageLayout({
 
         {/* 練習で腕試し → 昇級試験、の順。試験を持つ章（CURRICULUM の examSlug）のみ */}
         {chapter?.examSlug && <ExamCtaCard slug={chapter.examSlug} />}
+
+        {ad && <NativeAdCard creative={ad} />}
 
         <ChapterNav slug={slug} />
 

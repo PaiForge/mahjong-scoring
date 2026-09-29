@@ -64,7 +64,7 @@ const OPTION_GROUPS = [
   ],
 ];
 
-function renderFilter(query: string) {
+function renderFilter(query: string, adCard?: React.ReactNode) {
   currentQuery = query;
   return render(
     <PracticeFilter
@@ -72,8 +72,15 @@ function renderFilter(query: string) {
       optionGroups={OPTION_GROUPS}
       filterLabel="練習を絞り込む"
       listHeading="練習メニュー"
+      adCard={adCard}
     />,
   );
+}
+
+/** グリッドに並んだカードの文字列（並び順どおり） */
+function gridTexts(container: HTMLElement): string[] {
+  const grid = container.querySelector(".grid");
+  return Array.from(grid?.children ?? []).map((el) => el.textContent ?? "");
 }
 
 describe("PracticeFilter", () => {
@@ -136,5 +143,25 @@ describe("PracticeFilter", () => {
     const headings = container.querySelectorAll("h2");
     expect(headings.length).toBe(1);
     expect(headings[0]?.textContent).toBe("練習メニュー");
+  });
+
+  it("広告カードは 3 枚目に置き、絞り込みでは隠れない", () => {
+    const { container } = renderFilter("", <p>広告</p>);
+    expect(gridTexts(container)).toEqual([
+      "雀頭の符計算",
+      "役の翻数",
+      "広告",
+      "満貫以上点数計算",
+      "点数表早引き",
+    ]);
+  });
+
+  it("表示中の練習が少なければ広告カードを末尾に置く", () => {
+    const { container } = renderFilter("category=scoring", <p>広告</p>);
+    expect(gridTexts(container)).toEqual([
+      "満貫以上点数計算",
+      "点数表早引き",
+      "広告",
+    ]);
   });
 });

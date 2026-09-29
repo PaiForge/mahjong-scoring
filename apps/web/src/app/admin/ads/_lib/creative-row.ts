@@ -1,0 +1,39 @@
+import type { NewAdCreative } from "@/lib/db";
+import { kindForSlot, type AdSlot } from "@/lib/ads/registry";
+
+import type { ValidAdCreative } from "./validation";
+
+/**
+ * 検証済みの入力を `ad_creatives` の行値にする
+ * 広告行変換
+ *
+ * `kind` はスロットから導出する（管理者は選ばない）。`null` は Drizzle の
+ * カラム書き込み境界のため許容される。
+ */
+export function toAdCreativeRow(
+  value: ValidAdCreative,
+  slot: AdSlot,
+): Pick<
+  NewAdCreative,
+  | "kind"
+  | "slot"
+  | "asin"
+  | "href"
+  | "isActive"
+  | "icon"
+  | "imagePath"
+  | "imageAlt"
+  | "hand"
+> {
+  return {
+    kind: kindForSlot(slot),
+    slot,
+    asin: value.asin ?? null,
+    href: value.href ?? null,
+    isActive: value.isActive,
+    icon: value.icon ?? null,
+    imagePath: value.imageUrl ?? null,
+    imageAlt: value.imageAlt ?? null,
+    hand: value.hand ?? null,
+  };
+}

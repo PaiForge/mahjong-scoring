@@ -167,3 +167,28 @@ CREATE POLICY "user_roles_deny_all" ON "user_roles"
   USING (false);
 
 ALTER TABLE "challenge_attempts" ENABLE ROW LEVEL SECURITY;
+
+-- =============================================================================
+-- ad_creatives / ad_creative_translations
+-- =============================================================================
+-- ネイティブ広告。読み込み（各画面の描画）も書き込み（管理画面）もサーバーが
+-- 直 DB 接続で行うため、クライアントには読み書きとも許可しない。未掲載の広告
+-- （is_active = false の下書き）や遷移先をクライアントから覗かせない。
+ALTER TABLE "ad_creatives" ENABLE ROW LEVEL SECURITY;
+
+DROP POLICY IF EXISTS "ad_creatives_deny_all" ON "ad_creatives";
+CREATE POLICY "ad_creatives_deny_all" ON "ad_creatives"
+  USING (false);
+
+ALTER TABLE "ad_creative_translations" ENABLE ROW LEVEL SECURITY;
+
+DROP POLICY IF EXISTS "ad_creative_translations_deny_all" ON "ad_creative_translations";
+CREATE POLICY "ad_creative_translations_deny_all" ON "ad_creative_translations"
+  USING (false);
+
+-- トラッキング ID も同じくサーバーだけが読む
+ALTER TABLE "ad_network_settings" ENABLE ROW LEVEL SECURITY;
+
+DROP POLICY IF EXISTS "ad_network_settings_deny_all" ON "ad_network_settings";
+CREATE POLICY "ad_network_settings_deny_all" ON "ad_network_settings"
+  USING (false);

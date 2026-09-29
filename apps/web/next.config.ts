@@ -34,7 +34,9 @@ type RemotePattern = NonNullable<
  * パスも avatars バケットの `<userId>/avatar.webp`（/api/profile/avatar が
  * WebP に正規化して書く唯一のオブジェクト）に絞る。バケット内のそれ以外の
  * オブジェクト（書き込みをサーバに限定する前に直接置かれ得たもの）を
- * 画像最適化のデコーダに渡さないため。
+ * 画像最適化のデコーダに渡さないため。ネイティブ広告の画像
+ * （ad-creatives バケット）も同じく、/api/admin/ads/image が WebP に
+ * 正規化して書く `<uuid>.webp` だけを通す。
  *
  * 未設定・不正値なら Supabase のパターンを足さない（アバターが表示されなくなるが、
  * 任意のホストを開けるよりよい）。この変数は getSupabasePublicEnv() が未設定時に
@@ -46,13 +48,15 @@ function supabaseImagePatterns(): RemotePattern[] {
 
   try {
     const { protocol, hostname, port } = new URL(raw);
+    const pattern = (pathname: string): RemotePattern => ({
+      protocol: protocol === "http:" ? "http" : "https",
+      hostname,
+      ...(port ? { port } : {}),
+      pathname,
+    });
     return [
-      {
-        protocol: protocol === "http:" ? "http" : "https",
-        hostname,
-        ...(port ? { port } : {}),
-        pathname: "/storage/v1/object/public/avatars/*/avatar.webp",
-      },
+      pattern("/storage/v1/object/public/avatars/*/avatar.webp"),
+      pattern("/storage/v1/object/public/ad-creatives/*.webp"),
     ];
   } catch {
     return [];

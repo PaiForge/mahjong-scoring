@@ -520,3 +520,178 @@ export const challengeAttempts = pgTable("challenge_attempts", {
   state: jsonb("state").$type<ChallengeState>().notNull(),
   consumed: boolean("consumed").notNull().default(false),
 });
+
+/**
+ * ネイティブ広告の広告本体
+ * 広告クリエイティブ
+ *
+ * @description
+ * 自前で配信するネイティブ広告（Amazon アソシエイトのリンク等）。
+ * スロット（掲載枠）と広告の形の対応は `lib/ads/registry.ts` が正典。
+ * 文言（タイトル・説明）はロケールごとに {@link adCreativeTranslations} に持つ。
+ *
+ * @design slot は一意ではない
+ * 1 スロットに有効な広告が複数あれば `sort_order` 順に回す。スロットの一覧は
+ * コード側で増えるため CHECK を付けない（書き込みは registry で検証する）。
+ * `kind` はスロットから導出して書き込む値で、管理者は選ばない。それでも
+ * 保存するのは、下の CHECK が kind ごとの必須項目を検査するため
+ * （CHECK からは registry を読めない）。
+ *
+ * @design 削除せず無効化する
+ * 行の id は管理画面と各画面の描画をつなぐ唯一の識別子で、掲載の履歴を
+ * 追うときにも使う。消すと過去の成果と突き合わせられなくなるため、削除の
+ * 操作は持たず `is_active` を落とす。
+ *
+ * @design リンクは URL か ASIN のどちらか 1 つ
+ * Amazon の商品は ASIN だけを持ち、リンクは表示のたびに ASIN と
+ * トラッキング ID（{@link adNetworkSettings}）から組み立てる
+ * （`lib/ads/amazon.ts`）。トラッキング ID は運用者個人の設定で、公開
+ * リポジトリのシードや行に焼き込まないため。Amazon 以外の広告は `href` に
+ * URL をそのまま持つ。
+ *
+ * @design 画像と代替テキストは対
+ * `image_alt` は `image_path` と一緒にしか入らない。広告は絵文字（`icon`）・
+ * 画像・手牌（`hand`）のどれかを必ず持つ — どれも無いカードは周りの練習
+ * カード・行リンクと見た目が揃わず、広告だけが浮く。手牌はカード型だけが
+ * 描く（行に帯を置く場所は無い）が、その区別は kind ごとの必須項目として
+ * 管理画面の検証が持つ。
+ */
+export const adCreatives = pgTable(
+  "ad_creatives",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    /** 広告の形（`lib/ads/registry.ts` の `AdKind`） */
+    kind: varchar("kind", { length: 50 }).notNull(),
+    /** 掲載枠（`lib/ads/registry.ts` の `AdSlot`）。一意ではない */
+    slot: varchar("slot", { length: 50 }).notNull(),
+    /** 遷移先の URL。ASIN で指す広告は持たない */
+    href: varchar("href", { length: 2048 }),
+    /**
+     * Amazon の商品の ASIN（書籍の ISBN-10 / Kindle 本の B0… 等）。リンクは
+     * 表示時にトラッキング ID と組み立てる
+     */
+    asin: varchar("asin", { length: 10 }),
+    /** 掲載中か。唯一のオン / オフ */
+    isActive: boolean("is_active").notNull().default(false),
+    /** スロット内の並び順（小さいほど先） */
+    sortOrder: integer("sort_order").notNull().default(0),
+    /** 絵文字。画像が無いときの見た目 */
+    icon: varchar("icon", { length: 16 }),
+    /** 画像の公開 URL（Storage の ad-creatives バケット） */
+    imagePath: varchar("image_path", { length: 1024 }),
+    /** 画像の代替テキスト */
+    imageAlt: varchar("image_alt", { length: 255 }),
+    /**
+     * カードの帯に並べる手牌（MSPZ 表記）。練習カードの帯と同じ緑の面に
+     * 牌を出す。表記で持つのは管理画面で読み書きできるようにするため
+     */
+    hand: varchar("hand", { length: 64 }),
+    /** 作成日時 */
+    createdAt: timestamp("created_at", { withTimezone: true })
+      .defaultNow()
+      .notNull(),
+    /** 更新日時 */
+    updatedAt: timestamp("updated_at", { withTimezone: true })
+      .defaultNow()
+      .notNull(),
+  },
+  (table) => [
+    index("idx_ad_creatives_slot_active").on(table.slot, table.isActive),
+    check(
+      "ad_creatives_chk_kind",
+      sql`${table.kind} IN ('native_card', 'native_row')`,
+    ),
+    check(
+      "ad_creatives_chk_has_visual",
+      sql`(${table.icon} IS NOT NULL AND ${table.icon} <> '') OR ${table.imagePath} IS NOT NULL OR ${table.hand} IS NOT NULL`,
+    ),
+    check(
+      "ad_creatives_chk_image_alt_with_image",
+      sql`${table.imageAlt} IS NULL OR ${table.imagePath} IS NOT NULL`,
+    ),
+    check(
+      "ad_creatives_chk_one_link",
+      sql`(${table.href} IS NULL) <> (${table.asin} IS NULL)`,
+    ),
+    check("ad_creatives_chk_asin", sql`${table.asin} ~ '^[A-Z0-9]{10}$'`),
+  ],
+);
+
+export type AdCreative = typeof adCreatives.$inferSelect;
+export type NewAdCreative = typeof adCreatives.$inferInsert;
+
+/**
+ * 広告ネットワークごとの設定（アフィリエイトのトラッキング ID）
+ * 広告ネットワーク設定
+ *
+ * ASIN で指す広告（{@link adCreatives}）のリンクは、ここのトラッキング ID と
+ * 組み立てる。行が無い（未設定）間は、ASIN の広告を画面に出さない —
+ * トラッキング ID の無いリンクは成果に結び付かない。
+ *
+ * 運用者個人の設定なので、シードもコードも書かない。管理画面
+ * （`/admin/ads`）でだけ設定する。
+ */
+export const adNetworkSettings = pgTable(
+  "ad_network_settings",
+  {
+    /** ネットワーク（`lib/ads/amazon.ts` の `AMAZON_NETWORK`） */
+    network: varchar("network", { length: 50 }).primaryKey(),
+    /** トラッキング ID（Amazon アソシエイトの `tag=` の値） */
+    trackingId: varchar("tracking_id", { length: 64 }).notNull(),
+    /** 更新日時 */
+    updatedAt: timestamp("updated_at", { withTimezone: true })
+      .defaultNow()
+      .notNull(),
+  },
+  (table) => [
+    check(
+      "ad_network_settings_chk_network",
+      sql`${table.network} IN ('amazon_jp')`,
+    ),
+  ],
+);
+
+/**
+ * ネイティブ広告の文言（ロケールごと）
+ * 広告文言
+ *
+ * @design 子テーブルにする
+ * お知らせのように 1 ロケール 1 行にしないのは、1 つの広告のロケール違いは
+ * 同じ広告だから。遷移先・掲載状態・並び順・id を共有し、行を分けると
+ * 1 つの広告が 2 つに見える。
+ *
+ * 既定ロケール（ja）の行はタイトルを必ず持つ（他ロケールの穴埋め先のため）。
+ * 他ロケールの行はどちらか片方だけを上書きしてよく、空いた項目は ja に落ちる
+ * （`lib/ads/copy.ts`）。何も上書きしない行は作らない。
+ */
+export const adCreativeTranslations = pgTable(
+  "ad_creative_translations",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    creativeId: uuid("creative_id")
+      .notNull()
+      .references(() => adCreatives.id, { onDelete: "cascade" }),
+    /** ロケール（BCP 47） */
+    locale: varchar("locale", { length: 10 }).notNull(),
+    /** タイトル */
+    title: varchar("title", { length: 255 }),
+    /** 説明 */
+    description: varchar("description", { length: 1000 }),
+  },
+  (table) => [
+    unique("uq_ad_creative_translations_locale").on(
+      table.creativeId,
+      table.locale,
+    ),
+    check(
+      "ad_creative_translations_chk_says_something",
+      sql`${table.title} IS NOT NULL OR ${table.description} IS NOT NULL`,
+    ),
+    check(
+      "ad_creative_translations_chk_default_locale_title",
+      sql`${table.locale} <> 'ja' OR ${table.title} IS NOT NULL`,
+    ),
+  ],
+);
+
+export type AdCreativeTranslation = typeof adCreativeTranslations.$inferSelect;
