@@ -18,9 +18,6 @@ import {
   type RateLimitErrorCode,
 } from "@/lib/rate-limit-ip";
 
-/** マイページのプランのパス。Checkout の戻り先 */
-const MYPAGE_PLAN_HREF = "/mypage/plan";
-
 /** Checkout 完了の着地（Route Handler）。`{CHECKOUT_SESSION_ID}` は Stripe が埋める */
 const CHECKOUT_COMPLETE_PATH =
   "/api/stripe/checkout/complete?session_id={CHECKOUT_SESSION_ID}";
@@ -99,5 +96,3 @@ export async function createCheckoutSession(
 function satisfiesOffer(offer: OfferKey): string {
   return offer;
 }
-
-export { MYPAGE_PLAN_HREF };
