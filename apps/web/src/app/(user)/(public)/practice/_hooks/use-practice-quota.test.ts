@@ -103,7 +103,7 @@ describe("usePracticeQuota", () => {
     });
 
     expect(generate).toHaveBeenCalledTimes(1);
-    expect(result.current.gate).toBeUndefined();
+    expect(result.current.gate).toEqual({ kind: "unverified" });
   });
 
   it("要求が重なったら後の返事だけを使う（先の返事で生成しない）", async () => {
@@ -157,4 +157,60 @@ describe("usePracticeQuota", () => {
     expect(oldGenerate).not.toHaveBeenCalled();
     expect(newGenerate).toHaveBeenCalledTimes(1);
   });
+});
+
+it("Pro の成功応答の後でも通信失敗時は特典を引き継がない", async () => {
+  const generate = vi.fn();
+  const { result } = renderHook(() => usePracticeQuota("score", generate));
+  beginPracticeQuestion.mockResolvedValueOnce(ALLOWED);
+  await act(async () => {
+    await result.current.requestQuestion();
+  });
+  beginPracticeQuestion.mockRejectedValueOnce(new Error("offline"));
+  await act(async () => {
+    await result.current.requestQuestion();
+  });
+  expect(generate).toHaveBeenCalledTimes(2);
+  expect(result.current.gate).toEqual({ kind: "unverified" });
+});
+it("出題関数自身の例外を通信失敗として再実行しない", async () => {
+  const generate = vi.fn(() => {
+    throw new Error("generation failed");
+  });
+  beginPracticeQuestion.mockResolvedValueOnce(ALLOWED);
+  const { result } = renderHook(() => usePracticeQuota("score", generate));
+  await act(async () => {
+    await expect(result.current.requestQuestion()).rejects.toThrow(
+      "generation failed",
+    );
+  });
+  expect(generate).toHaveBeenCalledTimes(1);
+  expect(result.current.isChecking).toBe(false);
+});
+it("古い通信失敗は新しい特典判定を消さない", async () => {
+  let reject!: (error: Error) => void;
+  beginPracticeQuestion.mockReturnValueOnce(
+    new Promise((_resolve, rejectPromise) => {
+      reject = rejectPromise;
+    }),
+  );
+  const generate = vi.fn();
+  const { result } = renderHook(() => usePracticeQuota("score", generate));
+  let first: Promise<void>;
+  act(() => {
+    first = result.current.requestQuestion();
+  });
+  beginPracticeQuestion.mockResolvedValueOnce(ALLOWED);
+  await act(async () => {
+    await result.current.requestQuestion();
+  });
+  await act(async () => {
+    reject(new Error("stale"));
+    await first;
+  });
+  expect(result.current.gate).toMatchObject({
+    kind: "open",
+    benefits: ["practice_tools"],
+  });
+  expect(generate).toHaveBeenCalledTimes(1);
 });

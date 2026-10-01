@@ -13,6 +13,7 @@ import { beginPracticeQuestion } from "../_actions/begin-practice-question";
  *
  * - `open` — 直前の問題は許可された。`remaining` は今日の残り（Pro は `"unlimited"`）
  * - `blocked` — 無料枠を使い切った。問題は生成していない
+ * - `unverified` — 通信失敗で出題だけ許可。残数不明・特典なし
  * - `rateLimited` — IP のレート制限に掛かった（連打・自動化）。問題は生成していない
  */
 export type PracticeQuotaGate =
@@ -28,7 +29,8 @@ export type PracticeQuotaGate =
       readonly signedIn: boolean;
       readonly benefits: readonly PlanBenefit[];
     }
-  | { readonly kind: "rateLimited" };
+  | { readonly kind: "rateLimited" }
+  | { readonly kind: "unverified" };
 
 export interface PracticeQuotaControl {
   /**
@@ -92,7 +94,20 @@ export function usePracticeQuota(
     setIsChecking(true);
 
     try {
-      const result = await beginPracticeQuestion(menu);
+      let result: Awaited<ReturnType<typeof beginPracticeQuestion>>;
+      try {
+        result = await beginPracticeQuestion(menu);
+      } catch (error) {
+        if (!isCurrent()) return;
+        console.warn(
+          "beginPracticeQuestion failed; allowing the question:",
+          error,
+        );
+        // 出題だけを fail-open にする。以前の残数や Pro 特典を引き継がない。
+        setGate({ kind: "unverified" });
+        generateRef.current();
+        return;
+      }
       if (!isCurrent()) return;
 
       if ("error" in result) {
@@ -102,6 +117,7 @@ export function usePracticeQuota(
         }
         // invalidMenu は UI のバグ。利用者を止める理由にはならない
         console.warn("beginPracticeQuestion rejected the menu:", menu);
+        setGate({ kind: "unverified" });
         generateRef.current();
         return;
       }
@@ -122,13 +138,6 @@ export function usePracticeQuota(
           benefits: result.benefits,
         });
       }
-    } catch (error) {
-      if (!isCurrent()) return;
-      console.warn(
-        "beginPracticeQuestion failed; allowing the question:",
-        error,
-      );
-      generateRef.current();
     } finally {
       if (isCurrent()) setIsChecking(false);
     }
