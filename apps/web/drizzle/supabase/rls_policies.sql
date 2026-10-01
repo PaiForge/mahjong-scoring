@@ -192,3 +192,28 @@ ALTER TABLE "ad_network_settings" ENABLE ROW LEVEL SECURITY;
 DROP POLICY IF EXISTS "ad_network_settings_deny_all" ON "ad_network_settings";
 CREATE POLICY "ad_network_settings_deny_all" ON "ad_network_settings"
   USING (false);
+
+-- =============================================================================
+-- stripe_customers / purchases / stripe_webhook_events
+-- =============================================================================
+-- 有料プラン。Stripe の顧客対応・購入記録・Webhook の重複排除は、読み込み
+-- （特典の判定・マイページの購入履歴）も書き込み（Checkout 完了・Webhook）も
+-- サーバーが直 DB 接続で行う。クライアントに Stripe の ID を読ませる理由がなく、
+-- 購入行を書き換えられれば特典を自分で付けられるため、読み書きとも許可しない。
+ALTER TABLE "stripe_customers" ENABLE ROW LEVEL SECURITY;
+
+DROP POLICY IF EXISTS "stripe_customers_deny_all" ON "stripe_customers";
+CREATE POLICY "stripe_customers_deny_all" ON "stripe_customers"
+  USING (false);
+
+ALTER TABLE "purchases" ENABLE ROW LEVEL SECURITY;
+
+DROP POLICY IF EXISTS "purchases_deny_all" ON "purchases";
+CREATE POLICY "purchases_deny_all" ON "purchases"
+  USING (false);
+
+ALTER TABLE "stripe_webhook_events" ENABLE ROW LEVEL SECURITY;
+
+DROP POLICY IF EXISTS "stripe_webhook_events_deny_all" ON "stripe_webhook_events";
+CREATE POLICY "stripe_webhook_events_deny_all" ON "stripe_webhook_events"
+  USING (false);

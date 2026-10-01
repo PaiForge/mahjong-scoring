@@ -249,3 +249,40 @@ REVOKE ALL ON TABLE public.user_roles FROM anon, authenticated;
 REVOKE ALL ON TABLE public.ad_creatives FROM anon, authenticated;
 REVOKE ALL ON TABLE public.ad_creative_translations FROM anon, authenticated;
 REVOKE ALL ON TABLE public.ad_network_settings FROM anon, authenticated;
+
+-- =============================================================================
+-- stripe_customers / purchases / stripe_webhook_events
+-- =============================================================================
+-- 有料プラン。サーバーだけが読み書きする（rls_policies.sql 参照）。
+-- 退会（auth.users の削除）で顧客対応と購入記録は一緒に消える。返金はしない
+-- （規約に明記）。Stripe 側の顧客・決済記録は会計のため残る。
+
+-- FK constraint: stripe_customers.user_id → auth.users(id) ON DELETE CASCADE
+DO $$
+BEGIN
+  IF NOT EXISTS (
+    SELECT 1 FROM pg_constraint WHERE conname = 'stripe_customers_user_id_fkey'
+  ) THEN
+    ALTER TABLE public.stripe_customers
+      ADD CONSTRAINT stripe_customers_user_id_fkey
+      FOREIGN KEY (user_id) REFERENCES auth.users(id) ON DELETE CASCADE;
+  END IF;
+END;
+$$;
+
+-- FK constraint: purchases.user_id → auth.users(id) ON DELETE CASCADE
+DO $$
+BEGIN
+  IF NOT EXISTS (
+    SELECT 1 FROM pg_constraint WHERE conname = 'purchases_user_id_fkey'
+  ) THEN
+    ALTER TABLE public.purchases
+      ADD CONSTRAINT purchases_user_id_fkey
+      FOREIGN KEY (user_id) REFERENCES auth.users(id) ON DELETE CASCADE;
+  END IF;
+END;
+$$;
+
+REVOKE ALL ON TABLE public.stripe_customers FROM anon, authenticated;
+REVOKE ALL ON TABLE public.purchases FROM anon, authenticated;
+REVOKE ALL ON TABLE public.stripe_webhook_events FROM anon, authenticated;

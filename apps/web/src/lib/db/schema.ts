@@ -695,3 +695,164 @@ export const adCreativeTranslations = pgTable(
 );
 
 export type AdCreativeTranslation = typeof adCreativeTranslations.$inferSelect;
+
+/**
+ * Stripe の顧客とユーザーの対応（1 ユーザー = 1 顧客）
+ * Stripe顧客
+ *
+ * @description
+ * Checkout を作るときに `customer` として渡す ID の置き場。初回の購入で
+ * Stripe に顧客を作ってここに保存し、以後の購入は同じ顧客に束ねる
+ * （領収書メール・購入履歴が Stripe 側でも 1 人にまとまる）。
+ *
+ * 購入の所有者を決める根拠はこの表だけ。Checkout 完了の着地と Webhook は
+ * `session.customer` をこの表で引いてユーザーに変換する。Stripe の
+ * metadata にも userId を入れているが、所有者の判定には使わない —
+ * 根拠を 2 本持つと食い違ったときにどちらを信じるかという問題が生まれる。
+ *
+ * @design `user_id` → auth.users の FK は Supabase SQL で定義（CASCADE）
+ */
+export const stripeCustomers = pgTable("stripe_customers", {
+  id: uuid("id").primaryKey().defaultRandom(),
+  /** auth.users(id) への外部キー（Supabase SQL で定義） */
+  userId: uuid("user_id").unique().notNull(),
+  /** Stripe の Customer ID（`cus_...`） */
+  stripeCustomerId: varchar("stripe_customer_id", { length: 255 })
+    .unique()
+    .notNull(),
+  /** 作成日時 */
+  createdAt: timestamp("created_at", { withTimezone: true })
+    .defaultNow()
+    .notNull(),
+});
+
+export type StripeCustomer = typeof stripeCustomers.$inferSelect;
+export type NewStripeCustomer = typeof stripeCustomers.$inferInsert;
+
+/**
+ * 有料プランの購入記録 — 期間パスと買い切り
+ * 購入
+ *
+ * @description
+ * Stripe Checkout（一括払い）が完了するごとに 1 行。特典の判定
+ * （`lib/entitlements/has-benefit.ts`）は「取り消されておらず、期限内か
+ * 永久の行の `benefits` の和集合」で決まる。契約状態（サブスクリプション）
+ * は持たない — 期間パスは `expires_at` が来れば自然に失効し、買い切りは
+ * NULL で永久。
+ *
+ * @design `benefits` は購入時点のスナップショット
+ *
+ * 「買い切りは購入時点の特典に限定する」を実装する列。コードのプラン定義
+ * （`lib/billing/plans.ts`）に特典を足しても、過去の購入行には付かない。
+ * 期間パスも同じ規則で揃える（数十日の残期間に新特典が付かないだけで、
+ * 例外を作るより単純）。
+ *
+ * @design 冪等キーは `stripe_checkout_session_id`
+ *
+ * Checkout 完了の着地（Route Handler）と Webhook の両方が同じ購入を
+ * 記録しようとする。UNIQUE + ON CONFLICT DO NOTHING で、どちらが先でも
+ * 1 行になる。`stripe_payment_intent_id` は返金（`charge.refunded`）から
+ * 購入行を引くためのキー。
+ *
+ * @design 金額と通貨は Stripe の値をそのまま保存
+ *
+ * 価格表をコードに持たない（Stripe の Price が正）。`amount` は最小通貨
+ * 単位（JPY は円そのまま、USD はセント）。表示は `currency` に応じて
+ * `Intl.NumberFormat` に任せる。
+ *
+ * @design 取り消し（`revoked_at`）は論理削除
+ *
+ * 返金や不正で特典を止めるときは行を消さず `revoked_at` を立てる。
+ * 購入履歴には「返金済み」として残る。
+ *
+ * @design `user_id` → auth.users の FK は Supabase SQL で定義（CASCADE）
+ *
+ * 退会で行は消える。返金はしない（規約に明記）。Stripe 側の顧客と決済記録
+ * は会計のため残る。
+ */
+export const purchases = pgTable(
+  "purchases",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    /** auth.users(id) への外部キー（Supabase SQL で定義） */
+    userId: uuid("user_id").notNull(),
+    /** プラン（`lib/billing/plans.ts` の `PlanKey`） */
+    plan: varchar("plan", { length: 50 }).notNull(),
+    /** 売り方（`PurchaseKind`）。`pass` = 期間パス、`lifetime` = 買い切り */
+    kind: varchar("kind", { length: 20 }).notNull(),
+    /** 購入時点で付与した特典（`PlanBenefit` の値）。空にしない */
+    benefits: text("benefits").array().notNull(),
+    /** Checkout Session ID（`cs_...`）。冪等キー */
+    stripeCheckoutSessionId: varchar("stripe_checkout_session_id", {
+      length: 255,
+    })
+      .unique()
+      .notNull(),
+    /** PaymentIntent ID（`pi_...`）。返金イベントから引くキー */
+    stripePaymentIntentId: varchar("stripe_payment_intent_id", {
+      length: 255,
+    })
+      .unique()
+      .notNull(),
+    /** 通貨（ISO 4217 小文字。Stripe の表記に合わせる） */
+    currency: varchar("currency", { length: 3 }).notNull(),
+    /** 支払額（最小通貨単位） */
+    amount: integer("amount").notNull(),
+    /** 特典の開始。パスの重ね買いでは前のパスの期限の後ろに繋ぐ */
+    startsAt: timestamp("starts_at", { withTimezone: true }).notNull(),
+    /** 特典の終了。買い切りは NULL（永久） */
+    expiresAt: timestamp("expires_at", { withTimezone: true }),
+    /** 取り消し日時（返金・不正）。NULL なら有効 */
+    revokedAt: timestamp("revoked_at", { withTimezone: true }),
+    /** 取り消し理由（`PurchaseRevokeReason`）。`revoked_at` と対で入る */
+    revokeReason: varchar("revoke_reason", { length: 50 }),
+    /** 作成日時 */
+    createdAt: timestamp("created_at", { withTimezone: true })
+      .defaultNow()
+      .notNull(),
+  },
+  (table) => [
+    index("idx_purchases_user_expires").on(table.userId, table.expiresAt),
+    check("purchases_chk_kind", sql`${table.kind} IN ('pass', 'lifetime')`),
+    check(
+      "purchases_chk_lifetime_has_no_expiry",
+      sql`(${table.kind} = 'lifetime') = (${table.expiresAt} IS NULL)`,
+    ),
+    check(
+      "purchases_chk_revoke_reason_pairs_with_revoked_at",
+      sql`(${table.revokedAt} IS NULL) = (${table.revokeReason} IS NULL)`,
+    ),
+    check(
+      "purchases_chk_benefits_not_empty",
+      sql`cardinality(${table.benefits}) > 0`,
+    ),
+    check("purchases_chk_amount_non_negative", sql`${table.amount} >= 0`),
+    check("purchases_chk_currency", sql`${table.currency} ~ '^[a-z]{3}$'`),
+  ],
+);
+
+export type Purchase = typeof purchases.$inferSelect;
+export type NewPurchase = typeof purchases.$inferInsert;
+
+/**
+ * 処理済みの Stripe Webhook イベント
+ * Webhookイベント
+ *
+ * @description
+ * Stripe は同じイベントを複数回届けることがある（再送・並行配信）。
+ * 処理の先頭で `event.id` をここに INSERT し、衝突したら何もせず 200 を
+ * 返すことで二重処理を防ぐ。行は 1 購入あたり数件しか増えないため、
+ * 掃除は必要になってから考える。
+ */
+export const stripeWebhookEvents = pgTable("stripe_webhook_events", {
+  /** Stripe の Event ID（`evt_...`） */
+  eventId: varchar("event_id", { length: 255 }).primaryKey(),
+  /** イベント種別（`checkout.session.completed` 等） */
+  eventType: varchar("event_type", { length: 100 }).notNull(),
+  /** 受信日時 */
+  receivedAt: timestamp("received_at", { withTimezone: true })
+    .defaultNow()
+    .notNull(),
+});
+
+export type StripeWebhookEvent = typeof stripeWebhookEvents.$inferSelect;

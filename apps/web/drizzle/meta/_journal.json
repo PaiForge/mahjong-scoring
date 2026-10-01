@@ -113,6 +113,13 @@
       "when": 1790682401724,
       "tag": "20260929114641_add_asin_and_ad_network_settings",
       "breakpoints": true
+    },
+    {
+      "idx": 16,
+      "version": "7",
+      "when": 1790824520504,
+      "tag": "20261001031520_create_purchases",
+      "breakpoints": true
     }
   ]
 }
