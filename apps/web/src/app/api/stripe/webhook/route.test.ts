@@ -56,7 +56,7 @@ beforeEach(() => {
   mockConstructEvent.mockReturnValue(EVENT);
   mockHasProcessed.mockResolvedValue(false);
   mockMarkProcessed.mockResolvedValue(undefined);
-  mockDispatch.mockResolvedValue(undefined);
+  mockDispatch.mockResolvedValue(true);
 });
 
 afterEach(() => {
@@ -120,6 +120,15 @@ describe("POST /api/stripe/webhook", () => {
     expect(mockDispatch.mock.invocationCallOrder[0]).toBeLessThan(
       mockMarkProcessed.mock.invocationCallOrder[0] ?? Infinity,
     );
+  });
+
+  it("購読していない種別は処理済みとして記録しない", async () => {
+    mockDispatch.mockResolvedValue(false);
+
+    const res = await POST(request());
+
+    expect(res.status).toBe(200);
+    expect(mockMarkProcessed).not.toHaveBeenCalled();
   });
 
   it("処理が失敗したら記録せず 500（Stripe に再送させる）", async () => {

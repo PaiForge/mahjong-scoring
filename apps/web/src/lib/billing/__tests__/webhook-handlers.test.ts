@@ -127,7 +127,7 @@ describe("dispatchStripeEvent", () => {
     mockSessionsRetrieve.mockResolvedValue({ id: "cs_9" });
     mockRecordPurchase.mockResolvedValue({ outcome: "duplicate" });
 
-    await dispatchStripeEvent(
+    const handled = await dispatchStripeEvent(
       // テストでは Event の最小形だけを渡す
       {
         type: "checkout.session.completed",
@@ -135,17 +135,19 @@ describe("dispatchStripeEvent", () => {
       } as unknown as Parameters<typeof dispatchStripeEvent>[0],
     );
 
+    expect(handled).toBe(true);
     expect(mockSessionsRetrieve).toHaveBeenCalledWith("cs_9", {
       expand: ["line_items"],
     });
   });
 
-  it("購読していない種別は無視する", async () => {
-    await dispatchStripeEvent({
+  it("購読していない種別は無視し false を返す", async () => {
+    const handled = await dispatchStripeEvent({
       type: "customer.created",
       data: { object: { id: "cus_1" } },
     } as unknown as Parameters<typeof dispatchStripeEvent>[0]);
 
+    expect(handled).toBe(false);
     expect(mockSessionsRetrieve).not.toHaveBeenCalled();
     expect(mockChargesRetrieve).not.toHaveBeenCalled();
   });

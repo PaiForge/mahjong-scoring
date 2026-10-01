@@ -29,7 +29,7 @@ import { logExternalError } from "@/lib/log-error";
  *
  * - 400: 署名が無い・検証失敗・livemode 不一致。再送されても直らないので再送させない
  * - 500: DB 障害など一時的な失敗。Stripe が再送する（最長 3 日）
- * - 200: 処理した・処理済み・購読していない種別。回復不能な見送り
+ * - 200: 処理した・処理済み・購読していない種別（記録もしない）。回復不能な見送り
  *   （知らない価格・未登録の顧客）も 200 — 再送で直らず、500 を返し続けると
  *   エンドポイントのエラー率で Stripe 側に無効化されうる。ログで追う
  */
@@ -65,8 +65,8 @@ export async function POST(request: Request): Promise<NextResponse> {
     if (await hasProcessedWebhookEvent(event.id)) {
       return NextResponse.json({ received: true, duplicate: true });
     }
-    await dispatchStripeEvent(event);
-    await markWebhookEventProcessed(event.id, event.type);
+    const handled = await dispatchStripeEvent(event);
+    if (handled) await markWebhookEventProcessed(event.id, event.type);
   } catch (error) {
     logExternalError(
       "stripe-webhook",

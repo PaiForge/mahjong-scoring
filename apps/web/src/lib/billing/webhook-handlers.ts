@@ -84,22 +84,28 @@ export async function handleChargeRefunded(
 }
 
 /**
- * 購読イベントを振り分ける
+ * 購読イベントを振り分ける。処理したら true、購読していない種別なら false
  * イベント振り分け
  *
  * `Stripe.Event` は `type` で判別できるユニオンなので、`switch` で絞れば
  * `event.data.object` の型が決まる（型アサーション不要）。
+ *
+ * 購読していない種別（Dashboard で手で足した場合や、`stripe listen` が全種別を
+ * 転送してくるローカル）は何もせず false を返す。受け口はそれを処理済みとして
+ * 記録しない — 記録すると表がノイズで膨らむだけで、後から購読に足したときに
+ * 「処理済み」として捨てられる事故も防げる。
  */
-export async function dispatchStripeEvent(event: Stripe.Event): Promise<void> {
+export async function dispatchStripeEvent(
+  event: Stripe.Event,
+): Promise<boolean> {
   switch (event.type) {
     case "checkout.session.completed":
       await handleCheckoutSessionCompleted(event.data.object.id);
-      return;
+      return true;
     case "charge.refunded":
       await handleChargeRefunded(event.data.object.id);
-      return;
+      return true;
     default:
-      // 購読していないイベント（Dashboard で手で足した場合など）は無視する
-      return;
+      return false;
   }
 }
