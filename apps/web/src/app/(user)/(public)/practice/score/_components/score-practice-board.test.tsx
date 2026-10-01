@@ -1,4 +1,4 @@
-import { render, cleanup, act } from "@testing-library/react";
+import { render, cleanup, act, screen } from "@testing-library/react";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
 let currentQuery = "";
@@ -8,7 +8,13 @@ vi.mock("next/navigation", async () => ({
   useSearchParams: () => new URLSearchParams(currentQuery),
 }));
 vi.mock("next-intl", async () => await import("@/test/intl-mock"));
+vi.mock(
+  "../../_actions/begin-practice-question",
+  async () => await import("@/test/begin-practice-question-mock"),
+);
 
+const { beginPracticeQuestion } =
+  await import("@/test/begin-practice-question-mock");
 const { ScorePracticeBoard } = await import("./score-practice-board");
 const { useScorePracticeStore } =
   await import("../_hooks/use-score-practice-store");
@@ -24,6 +30,33 @@ async function visit(query: string) {
 describe("ScorePracticeBoard", () => {
   beforeEach(() => {
     cleanup();
+    beginPracticeQuestion.mockClear();
+  });
+
+  it("無料枠を使い切っていれば問題を作らずペイウォールを出す", async () => {
+    beginPracticeQuestion.mockResolvedValueOnce({
+      success: true,
+      allowed: false,
+      remaining: 0,
+      limit: 1,
+      signedIn: false,
+      benefits: [],
+    });
+    useScorePracticeStore.getState().setQuestion(undefined);
+
+    await visit("");
+
+    expect(useScorePracticeStore.getState().currentQuestion).toBeUndefined();
+    expect(screen.getByText("perksTitle")).toBeDefined();
+    // 未ログインは先にログインを勧め、料金ページは二の次
+    expect(screen.getByRole("link", { name: "signInCta" })).toBeDefined();
+    expect(screen.getByRole("link", { name: "planCta" })).toBeDefined();
+  });
+
+  it("問題を作る前に無料枠の消費を 1 回だけ聞く", async () => {
+    await visit("ranges=non");
+    expect(beginPracticeQuestion).toHaveBeenCalledTimes(1);
+    expect(beginPracticeQuestion).toHaveBeenCalledWith("score");
   });
 
   it("クエリの出題条件をストアへ移してから問題を作る", async () => {

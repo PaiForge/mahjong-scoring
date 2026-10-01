@@ -30,6 +30,8 @@ import { SmallCheckbox } from "./small-checkbox";
 import { SkeletonBar } from "@/app/_components/skeleton-bar";
 import { PlayIcon } from "@/app/(user)/_components/icons/play-icon";
 import { Button } from "@/app/(user)/_components/button";
+import { useAuth } from "@/app/_contexts/auth-context";
+import { PLAN_PAGE_HREF, PlanBenefit } from "@/lib/billing/plans";
 
 interface ScoreSetupFormProps {
   /**
@@ -70,6 +72,13 @@ export function ScoreSetupForm({
   const router = useRouter();
   const mounted = useIsClient();
   const [showSimplifyInfo, setShowSimplifyInfo] = useState(false);
+  // 拡張機能（回答時間の計測）は Pro の特典。閲覧者の特典はログイン時に
+  // `/api/profile/me` が返す（静的ページなのでサーバーから props では渡せない）。
+  // 盤面は特典の有無をサーバーの返事で改めて確かめるので、ここの判定は
+  // 「スイッチを出すか料金ページへの導線を出すか」の見た目だけを決める
+  const { profile } = useAuth();
+  const hasPracticeTools =
+    profile?.benefits.includes(PlanBenefit.PracticeTools) ?? false;
   const useSettingsStore = settingsStore;
   const {
     requireYaku,
@@ -82,6 +91,8 @@ export function ScoreSetupForm({
     setTargetScoreRanges,
     autoNext,
     setAutoNext,
+    measureTime,
+    setMeasureTime,
     includeParent,
     setIncludeParent,
     includeChild,
@@ -119,6 +130,10 @@ export function ScoreSetupForm({
     if (autoNext) {
       params.set("auto_next", "1");
     }
+    // Pro でなければ付けない。保存された値は Pro になったときに生きる
+    if (measureTime && hasPracticeTools) {
+      params.set("measure", "1");
+    }
     if (targetScoreRanges.length > 0 && targetScoreRanges.length < 2) {
       if (targetScoreRanges.includes("nonMangan"))
         params.append(RANGE_PARAM, RANGE_TOKEN_NON_MANGAN);
@@ -152,26 +167,30 @@ export function ScoreSetupForm({
     targetScoreRanges.length === 0 || (!includeParent && !includeChild);
 
   if (!mounted) {
-    // 本体と同じ構造（設定カード＝トグル4行、2カラムのチェックボックスカード、
+    // 本体と同じ構造（設定カード＝トグル5行、2カラムのチェックボックスカード、
     // フル幅ボタン）でスケルトンを描画し、実 UI 表示時の CLS を防ぐ。
     // 実 UI の苔緑の太枠（border-ink）は写さず灰色にする（ProblemListSkeleton と
     // 同じ理由）。枠は border-box なので寸法は実 UI と一致したまま。
     return (
       <div className="space-y-4 sm:space-y-6 md:space-y-8">
-        {/* Settings card: トグル4行 */}
+        {/* Settings card: トグル5行 */}
         <div className="overflow-hidden rounded-xl border-3 border-surface-100 bg-surface-50">
           <div className="flex flex-col">
-            {["requireYaku", "simplifyMangan", "requireFu", "autoNext"].map(
-              (key, i) => (
-                <div
-                  key={key}
-                  className={`flex items-center justify-between px-5 py-3.5 ${i < 3 ? "border-b-2 border-dashed border-border/40" : ""}`}
-                >
-                  <SkeletonBar className="h-4 w-32" tone={100} />
-                  <SkeletonBar radius="full" className="h-6 w-11" tone={100} />
-                </div>
-              ),
-            )}
+            {[
+              "requireYaku",
+              "simplifyMangan",
+              "requireFu",
+              "autoNext",
+              "measureTime",
+            ].map((key, i) => (
+              <div
+                key={key}
+                className={`flex items-center justify-between px-5 py-3.5 ${i < 4 ? "border-b-2 border-dashed border-border/40" : ""}`}
+              >
+                <SkeletonBar className="h-4 w-32" tone={100} />
+                <SkeletonBar radius="full" className="h-6 w-11" tone={100} />
+              </div>
+            ))}
           </div>
         </div>
 
@@ -225,7 +244,19 @@ export function ScoreSetupForm({
             onChange={setAutoNext}
             title={t("setup.autoNext")}
             label={t("setup.autoNext")}
+          />
+          {/* 回答時間の計測は Pro の拡張機能。Pro でなければスイッチの代わりに
+              料金ページへの導線を出す（押せないスイッチは「壊れている」に見える） */}
+          <SettingToggle
+            checked={measureTime && hasPracticeTools}
+            onChange={setMeasureTime}
+            label={t("setup.measureTime")}
             isLast={true}
+            locked={
+              hasPracticeTools
+                ? undefined
+                : { badge: t("setup.measureTimePro"), href: PLAN_PAGE_HREF }
+            }
           />
         </div>
       </div>

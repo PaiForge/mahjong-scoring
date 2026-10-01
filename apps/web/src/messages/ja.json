@@ -1733,7 +1733,9 @@
       "start": "開始する",
       "targetYaku": "出題する役",
       "yakuFilterPlaceholder": "指定しない（すべての役から出題）",
-      "yakuFilterNote": "※ 複数選ぶと、いずれかが成立する手牌が出題されます"
+      "yakuFilterNote": "※ 複数選ぶと、いずれかが成立する手牌が出題されます",
+      "measureTime": "回答時間を計測する",
+      "measureTimePro": "Pro の機能"
     },
     "form": {
       "labels": {
@@ -3266,5 +3268,23 @@
     "badgeLabel": "広告",
     "cta": "詳しく見る",
     "opensInNewTab": "（新しいタブで開きます）"
+  },
+  "practiceQuota": {
+    "proBadge": "Pro",
+    "remaining": "{count, plural, =0 {今日の無料枠はこの問題で終わりです} other {今日はあと # 問}}",
+    "paywall": {
+      "title": "今日の無料枠を使い切りました",
+      "bodySignedIn": "この練習は無料で 1 日 {limit} 問まで解けます。Pro なら回数の制限なく続けられます。",
+      "bodyAnonymous": "ログインしていない場合、この練習は 1 日 {limit} 問までです。ログインすると 1 日 {signedInLimit} 問まで解けます。",
+      "perksTitle": "Pro でできること",
+      "perkUnlimited": "点数計算・待ち別点数計算を回数制限なしで練習",
+      "perkTools": "回答時間の計測などの拡張機能",
+      "planCta": "Pro を見る",
+      "signInCta": "ログインする",
+      "signUpHint": "アカウントは無料で作れます",
+      "backToSetup": "設定に戻る"
+    },
+    "rateLimited": "操作が速すぎます。少し待ってからお試しください。",
+    "answerTime": "回答時間 {seconds} 秒"
   }
 }

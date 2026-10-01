@@ -11,6 +11,10 @@ import { isOya } from "@mahjong-scoring/core";
 
 vi.mock("next/navigation", async () => await import("@/test/navigation-mock"));
 vi.mock("next-intl", async () => await import("@/test/intl-mock"));
+vi.mock(
+  "../../_actions/begin-practice-question",
+  async () => await import("@/test/begin-practice-question-mock"),
+);
 
 const { MachiScoreBoard } = await import("./machi-score-board");
 const { cellKeyOf, useMachiScoreStore } =

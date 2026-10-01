@@ -61,6 +61,9 @@ export const PurchaseKind = {
 } as const;
 export type PurchaseKind = (typeof PurchaseKind)[keyof typeof PurchaseKind];
 
+/** 料金ページのパス。ペイウォール・設定画面の Pro 導線が指す */
+export const PLAN_PAGE_HREF = "/plan";
+
 /** プランのキー（`purchases.plan` の値） */
 export const PLAN_KEYS = ["pro"] as const;
 export type PlanKey = (typeof PLAN_KEYS)[number];

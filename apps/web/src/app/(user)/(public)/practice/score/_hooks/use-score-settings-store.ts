@@ -21,6 +21,12 @@ export interface ScoreSettingsState {
   /** 正解時に自動で次の問題へ進むかどうか */
   autoNext: boolean;
   setAutoNext: (enabled: boolean) => void;
+  /**
+   * 回答時間を計測するかどうか（Pro の拡張機能）。
+   * 保存はするが、Pro でなければ設定画面が play へ渡さない
+   */
+  measureTime: boolean;
+  setMeasureTime: (enabled: boolean) => void;
   /** 親を出題に含めるかどうか */
   includeParent: boolean;
   setIncludeParent: (enabled: boolean) => void;
@@ -55,6 +61,8 @@ export function createScoreSettingsStore(name: string) {
         setTargetYaku: (targetYaku) => set({ targetYaku }),
         autoNext: false,
         setAutoNext: (autoNext) => set({ autoNext }),
+        measureTime: false,
+        setMeasureTime: (measureTime) => set({ measureTime }),
         includeParent: true,
         setIncludeParent: (includeParent) => set({ includeParent }),
         includeChild: true,
