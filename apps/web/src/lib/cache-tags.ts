@@ -17,3 +17,13 @@ export const LEADERBOARD_CACHE_TAG = "leaderboard";
  * 捨て、静的ページの広告も次のリクエストで入れ替わる。
  */
 export const AD_CREATIVES_CACHE_TAG = "ad-creatives";
+
+/**
+ * 有料プランの表示価格のキャッシュタグ
+ * 表示価格キャッシュタグ
+ *
+ * 料金ページが読む Stripe の Price（`lib/billing/prices.ts`）はこのタグで
+ * `unstable_cache` に載る（1 日）。Dashboard で価格を改定してすぐ反映したい
+ * ときに捨てる。管理画面に捨てる操作はまだ無い。
+ */
+export const PLAN_PRICES_CACHE_TAG = "plan-prices";
