@@ -286,3 +286,23 @@ $$;
 REVOKE ALL ON TABLE public.stripe_customers FROM anon, authenticated;
 REVOKE ALL ON TABLE public.purchases FROM anon, authenticated;
 REVOKE ALL ON TABLE public.stripe_webhook_events FROM anon, authenticated;
+
+-- =============================================================================
+-- practice_quota_usage
+-- =============================================================================
+-- 練習の無料枠の消費記録。サーバーだけが読み書きする（rls_policies.sql 参照）。
+
+-- FK constraint: practice_quota_usage.user_id → auth.users(id) ON DELETE CASCADE
+DO $$
+BEGIN
+  IF NOT EXISTS (
+    SELECT 1 FROM pg_constraint WHERE conname = 'practice_quota_usage_user_id_fkey'
+  ) THEN
+    ALTER TABLE public.practice_quota_usage
+      ADD CONSTRAINT practice_quota_usage_user_id_fkey
+      FOREIGN KEY (user_id) REFERENCES auth.users(id) ON DELETE CASCADE;
+  END IF;
+END;
+$$;
+
+REVOKE ALL ON TABLE public.practice_quota_usage FROM anon, authenticated;

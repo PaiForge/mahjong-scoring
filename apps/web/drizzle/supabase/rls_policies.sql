@@ -217,3 +217,14 @@ ALTER TABLE "stripe_webhook_events" ENABLE ROW LEVEL SECURITY;
 DROP POLICY IF EXISTS "stripe_webhook_events_deny_all" ON "stripe_webhook_events";
 CREATE POLICY "stripe_webhook_events_deny_all" ON "stripe_webhook_events"
   USING (false);
+
+-- =============================================================================
+-- practice_quota_usage
+-- =============================================================================
+-- 練習の無料枠の消費記録。増やすのは Server Action（直 DB 接続）だけで、
+-- クライアントが読み書きできると自分の消費を消せるため、読み書きとも許可しない。
+ALTER TABLE "practice_quota_usage" ENABLE ROW LEVEL SECURITY;
+
+DROP POLICY IF EXISTS "practice_quota_usage_deny_all" ON "practice_quota_usage";
+CREATE POLICY "practice_quota_usage_deny_all" ON "practice_quota_usage"
+  USING (false);

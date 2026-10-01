@@ -120,6 +120,13 @@
       "when": 1790824520504,
       "tag": "20261001031520_create_purchases",
       "breakpoints": true
+    },
+    {
+      "idx": 17,
+      "version": "7",
+      "when": 1790840001753,
+      "tag": "20261001073321_create_practice_quota_usage",
+      "breakpoints": true
     }
   ]
 }

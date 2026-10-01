@@ -3,6 +3,7 @@ import { sql } from "drizzle-orm";
 import {
   boolean,
   check,
+  date,
   index,
   integer,
   jsonb,
@@ -856,3 +857,49 @@ export const stripeWebhookEvents = pgTable("stripe_webhook_events", {
 });
 
 export type StripeWebhookEvent = typeof stripeWebhookEvents.$inferSelect;
+
+/**
+ * 練習の無料枠の消費記録 — ユーザー × 練習 × 日
+ * 練習回数記録
+ *
+ * @description
+ * `practice/score` と `practice/machi-score` は無料ユーザーに 1 日の回数制限が
+ * ある（上限は `lib/practice-quota/limits.ts`）。問題を 1 つ生成する直前に
+ * Server Action がこの表の `count` を 1 増やし、上限を超えるなら問題を出さない。
+ * Pro（`unlimited_practice` 特典）は消費しないので行が増えない。
+ *
+ * @design 「先に増やして上限で弾く」単文の UPSERT
+ *
+ * `INSERT ... ON CONFLICT DO UPDATE SET count = count + 1 WHERE count < 上限
+ * RETURNING count` の 1 文で判定する。SELECT してから UPDATE する 2 手にすると、
+ * 並行したリクエストが両方「まだ余裕がある」と読んで上限を超える。
+ *
+ * @design `day` は JST の日付
+ *
+ * 日付境界はサーバーの TZ ではなく `Asia/Tokyo` で切る（`lib/practice-quota/day.ts`）。
+ * 利用者は日本在住が前提で、「今日の分」が深夜 0 時に戻るのが自然。
+ *
+ * 未ログインの消費はこの表ではなく署名付き cookie で数える（弱い制限で可、
+ * という決定）。行は日付とともに増えるので、掃除は必要になってから。
+ *
+ * @design `user_id` → auth.users の FK は Supabase SQL で定義（CASCADE）
+ */
+export const practiceQuotaUsage = pgTable(
+  "practice_quota_usage",
+  {
+    /** auth.users(id) への外部キー（Supabase SQL で定義） */
+    userId: uuid("user_id").notNull(),
+    /** 練習（`lib/practice-quota/limits.ts` の `QuotaMenu`） */
+    menu: varchar("menu", { length: 50 }).notNull(),
+    /** JST の日付 */
+    day: date("day").notNull(),
+    /** その日に生成した問題数 */
+    count: integer("count").notNull().default(0),
+  },
+  (table) => [
+    primaryKey({ columns: [table.userId, table.menu, table.day] }),
+    check("practice_quota_usage_chk_count", sql`${table.count} >= 0`),
+  ],
+);
+
+export type PracticeQuotaUsage = typeof practiceQuotaUsage.$inferSelect;
