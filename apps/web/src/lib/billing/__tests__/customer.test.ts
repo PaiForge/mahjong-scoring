@@ -16,7 +16,13 @@ vi.mock("@/lib/db", async () => {
   const sequence = createSelectSequenceMock();
   selectHolder.seq = sequence;
   return {
-    db: { select: sequence.select, insert: mockInsert },
+    db: {
+      select: sequence.select,
+      insert: mockInsert,
+      transaction: (run: (tx: unknown) => unknown) =>
+        run({ select: sequence.select, insert: mockInsert }),
+    },
+    profiles: schema.profiles,
     stripeCustomers: schema.stripeCustomers,
   };
 });
@@ -58,7 +64,7 @@ describe("getStripeCustomerId", () => {
 
 describe("getOrCreateStripeCustomerId", () => {
   it("既に対応があれば Stripe を呼ばずにそれを返す", async () => {
-    seq().setResults([{ stripeCustomerId: "cus_1" }]);
+    seq().setResults([], [{ stripeCustomerId: "cus_1" }]);
 
     expect(await getOrCreateStripeCustomerId(USER_ID, "a@example.com")).toBe(
       "cus_1",
@@ -68,7 +74,7 @@ describe("getOrCreateStripeCustomerId", () => {
   });
 
   it("無ければ idempotency key 付きで顧客を作り、対応を保存して返す", async () => {
-    seq().setResults([]);
+    seq().setResults([], []);
 
     const id = await getOrCreateStripeCustomerId(USER_ID, "a@example.com");
 
@@ -88,7 +94,7 @@ describe("getOrCreateStripeCustomerId", () => {
   });
 
   it("INSERT が衝突したら（並行して先に入った）DB の行を正として返す", async () => {
-    seq().setResults([], [{ stripeCustomerId: "cus_winner" }]);
+    seq().setResults([], [], [{ stripeCustomerId: "cus_winner" }]);
     mockInsert.mockReturnValue(createQueryChain([]));
 
     expect(await getOrCreateStripeCustomerId(USER_ID, undefined)).toBe(
@@ -96,12 +102,21 @@ describe("getOrCreateStripeCustomerId", () => {
     );
   });
 
-  it("衝突したのに行が読めない（想定外）ときは作った顧客 ID で続ける", async () => {
-    seq().setResults([], []);
+  it("衝突したのに行が読めないときは対応を保証できないので止める", async () => {
+    seq().setResults([], [], []);
     mockInsert.mockReturnValue(createQueryChain([]));
 
-    expect(await getOrCreateStripeCustomerId(USER_ID, undefined)).toBe(
-      "cus_new",
-    );
+    await expect(
+      getOrCreateStripeCustomerId(USER_ID, undefined),
+    ).rejects.toThrow("Billing customer disappeared");
   });
+});
+
+it("退会済みユーザーの顧客を再作成しない", async () => {
+  seq().setResults([{ deletedAt: new Date() }]);
+  await expect(getOrCreateStripeCustomerId(USER_ID, undefined)).rejects.toThrow(
+    "Deleted user",
+  );
+  expect(mockCustomersCreate).not.toHaveBeenCalled();
+  expect(mockInsert).not.toHaveBeenCalled();
 });

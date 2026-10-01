@@ -829,7 +829,8 @@ export type BillingCheckout = typeof billingCheckouts.$inferSelect;
  *
  * @design `user_id` → auth.users の FK は Supabase SQL で定義（CASCADE）
  *
- * 退会で行は消える。返金はしない（規約に明記）。Stripe 側の顧客と決済記録
+ * 退会処理が明示的に行を消す（Auth のソフトデリートでは CASCADE しない）。
+ * 返金はしない（規約に明記）。Stripe 側の顧客と決済記録
  * は会計のため残る。
  */
 export const purchases = pgTable(

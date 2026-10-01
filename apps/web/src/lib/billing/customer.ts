@@ -1,7 +1,12 @@
 import { eq } from "drizzle-orm";
 import "server-only";
 
-import { db, stripeCustomers } from "@/lib/db";
+import {
+  db,
+  profiles,
+  stripeCustomers,
+  type TransactionClient,
+} from "@/lib/db";
 
 import { getStripe } from "./stripe";
 
@@ -11,8 +16,9 @@ import { getStripe } from "./stripe";
  */
 export async function getStripeCustomerId(
   userId: string,
+  client: Pick<TransactionClient, "select"> = db,
 ): Promise<string | undefined> {
-  const [row] = await db
+  const [row] = await client
     .select({ stripeCustomerId: stripeCustomers.stripeCustomerId })
     .from(stripeCustomers)
     .where(eq(stripeCustomers.userId, userId))
@@ -40,24 +46,36 @@ export async function getOrCreateStripeCustomerId(
   userId: string,
   email: string | undefined,
 ): Promise<string> {
-  const existing = await getStripeCustomerId(userId);
-  if (existing) return existing;
+  return db.transaction(async (tx) => {
+    // 退会処理もこの行を先にロックし、顧客を消して deletedAt を記録する。
+    // 進行中の認証済みリクエストが退会後に顧客対応を作り直すことを防ぐ。
+    const [profile] = await tx
+      .select({ deletedAt: profiles.deletedAt })
+      .from(profiles)
+      .where(eq(profiles.id, userId))
+      .for("update");
+    if (profile?.deletedAt)
+      throw new Error("Deleted user cannot start checkout");
+    const existing = await getStripeCustomerId(userId, tx);
+    if (existing) return existing;
 
-  const customer = await getStripe().customers.create(
-    { email, metadata: { supabaseUserId: userId } },
-    { idempotencyKey: `customer:${userId}` },
-  );
+    const customer = await getStripe().customers.create(
+      { email, metadata: { supabaseUserId: userId } },
+      { idempotencyKey: `customer:${userId}` },
+    );
 
-  const inserted = await db
-    .insert(stripeCustomers)
-    .values({ userId, stripeCustomerId: customer.id })
-    .onConflictDoNothing({ target: stripeCustomers.userId })
-    .returning({ stripeCustomerId: stripeCustomers.stripeCustomerId });
+    const inserted = await tx
+      .insert(stripeCustomers)
+      .values({ userId, stripeCustomerId: customer.id })
+      .onConflictDoNothing({ target: stripeCustomers.userId })
+      .returning({ stripeCustomerId: stripeCustomers.stripeCustomerId });
 
-  if (inserted.length > 0) return customer.id;
+    if (inserted.length > 0) return customer.id;
 
-  // 並行した別のリクエストが先に入れた。idempotency key のおかげで
-  // 通常は同じ顧客 ID だが、念のため DB の行を正とする。
-  const winner = await getStripeCustomerId(userId);
-  return winner ?? customer.id;
+    // 並行した別のリクエストが先に入れた。idempotency key のおかげで
+    // 通常は同じ顧客 ID だが、念のため DB の行を正とする。
+    const winner = await getStripeCustomerId(userId, tx);
+    if (!winner) throw new Error("Billing customer disappeared");
+    return winner;
+  });
 }
