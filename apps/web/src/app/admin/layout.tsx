@@ -16,6 +16,7 @@ export const metadata: Metadata = {
 /** サイドバーのナビゲーション項目（href と admin 名前空間の i18n キー） */
 const NAV_ITEMS = [
   { href: "/admin/users", labelKey: "users" },
+  { href: "/admin/benefit-grants", labelKey: "benefitGrants.navLabel" },
   { href: "/admin/announcements", labelKey: "announcements.navLabel" },
   { href: "/admin/ads", labelKey: "ads.navLabel" },
   { href: "/admin/audit-log", labelKey: "auditLog" },

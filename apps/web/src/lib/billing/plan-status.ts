@@ -1,4 +1,4 @@
-import type { Purchase } from "@/lib/db";
+import type { BenefitGrant, Purchase } from "@/lib/db";
 
 import { PurchaseKind } from "./plans";
 
@@ -35,6 +35,29 @@ export function purchaseStateOf(purchase: Purchase, now: Date): PurchaseState {
   if (purchase.kind === PurchaseKind.Lifetime) return "active";
   if (purchase.expiresAt && purchase.expiresAt <= now) return "expired";
   if (purchase.startsAt > now) return "scheduled";
+  return "active";
+}
+
+/**
+ * 手動付与 1 行の状態
+ * 付与状態
+ *
+ * - `revoked` — 取り消し済み
+ * - `expired` — 期限切れ
+ * - `active` — 有効（無期限は常にこれ）
+ *
+ * 付与は常に付与時刻から始まるので、購入の `scheduled` に当たる状態は無い。
+ * マイページと管理画面の一覧の両方が使う。
+ */
+export type BenefitGrantState = "revoked" | "expired" | "active";
+
+/** 付与の状態（表示用） */
+export function benefitGrantStateOf(
+  grant: BenefitGrant,
+  now: Date,
+): BenefitGrantState {
+  if (grant.revokedAt) return "revoked";
+  if (grant.expiresAt && grant.expiresAt <= now) return "expired";
   return "active";
 }
 
