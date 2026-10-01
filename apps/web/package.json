@@ -17,6 +17,7 @@
     "db:run-migrate": "tsx scripts/migrate.ts",
     "db:seed": "tsx scripts/seed.ts",
     "db:seed:dev": "tsx scripts/dev-seed.ts",
+    "stripe:bootstrap": "tsx scripts/stripe-bootstrap.ts",
     "db:studio": "drizzle-kit studio"
   },
   "dependencies": {

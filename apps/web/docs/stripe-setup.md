@@ -30,29 +30,42 @@
 
 ## 2. 商品と価格の作成
 
-プラン 1 つ（Pro）に対して、売り方ごとに Price を 1 つ作ります。アプリ側の定義は `src/lib/billing/plans.ts` にあり、
+プラン 1 つ（Pro）に対して、売り方ごとに一括払いの Price を 1 つ作ります。アプリ側の定義は `src/lib/billing/plans.ts` にあり、
 Price ID は環境変数で結び付けます（`src/lib/billing/env.ts`）。
 
-### テスト環境
+### スクリプトで作る（推奨）
+
+`scripts/stripe-bootstrap.ts` が定義どおりに商品と Price を作り、環境変数の行を出力します。Price の `lookup_key`
+（`pro_pass` / `pro_lifetime`）で冪等になっており、何度実行しても既存のものを再利用します。
+
+```bash
+# apps/web で実行。鍵は STRIPE_SECRET_KEY（.env.local）か、Stripe CLI のログイン情報から渡す
+STRIPE_SECRET_KEY="$(stripe config --list --project-name mahjong-scoring \
+  | awk -F= '/test_mode_api_key/{print $2}' | tr -d ' ')" \
+  pnpm stripe:bootstrap
+
+# 金額を指定する場合（最小通貨単位。JPY は円。既定は 30 日パス 480 / 買い切り 1480）
+pnpm stripe:bootstrap --pass-amount 480 --lifetime-amount 1480
+```
+
+出力された `STRIPE_PRICE_ID_PRO_PASS` / `STRIPE_PRICE_ID_PRO_LIFETIME` の行を `.env.local` に追加してください。
+本番はライブモードの鍵で同じコマンドを実行し、出力を Vercel の環境変数に設定します。
+
+> **Note:** 金額は作成時にしか使いません。Stripe の Price は金額を変更できないため、価格改定は Dashboard で
+> 新しい Price を作り、`lookup_key` を付け替えます（旧 Price は無効化）。環境変数も新しい ID に差し替えてください。
+
+### Dashboard で作る場合
 
 1. [Stripe Dashboard](https://dashboard.stripe.com/test/products) > 商品カタログ > **+ 商品を追加**
-2. 商品:
-   - **名前**: `Pro`
-   - **説明**: 任意（Checkout の画面に出ます）
+2. 商品の **名前** を `Pro` にし、メタデータに `plan` = `pro` を付ける
 3. 価格を 2 つ作る（商品の詳細画面で「別の価格を追加」）:
 
-   | 用途      | 料金体系 | 請求 | 通貨 | 金額           | 環境変数                       |
+   | 用途      | 料金体系 | 請求 | 通貨 | lookup_key     | 環境変数                       |
    | --------- | -------- | ---- | ---- | -------------- | ------------------------------ |
-   | 30 日パス | 標準     | 一括 | JPY  | 価格表のとおり | `STRIPE_PRICE_ID_PRO_PASS`     |
-   | 買い切り  | 標準     | 一括 | JPY  | 価格表のとおり | `STRIPE_PRICE_ID_PRO_LIFETIME` |
+   | 30 日パス | 標準     | 一括 | JPY  | `pro_pass`     | `STRIPE_PRICE_ID_PRO_PASS`     |
+   | 買い切り  | 標準     | 一括 | JPY  | `pro_lifetime` | `STRIPE_PRICE_ID_PRO_LIFETIME` |
 
    > **Note:** どちらも「**一括**」（one-time）で作ること。「継続」（recurring）にするとサブスクリプションになり、アプリは記録しません。
-
-4. それぞれの Price ID（`price_...`）を対応する環境変数へ
-
-### 本番環境
-
-ライブモードで同じ手順を行います。Price ID はテスト環境と別の値になるので、Vercel の環境変数に本番の値を設定してください。
 
 ### 他通貨を足すとき
 

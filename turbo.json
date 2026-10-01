@@ -16,7 +16,11 @@
         "NEXT_PUBLIC_GA_MEASUREMENT_ID",
         "RESEND_API_KEY",
         "CONTACT_FROM_EMAIL",
-        "CONTACT_TO_EMAIL"
+        "CONTACT_TO_EMAIL",
+        "STRIPE_SECRET_KEY",
+        "STRIPE_WEBHOOK_SECRET",
+        "STRIPE_PRICE_ID_PRO_PASS",
+        "STRIPE_PRICE_ID_PRO_LIFETIME"
       ]
     },
     "dev": {
