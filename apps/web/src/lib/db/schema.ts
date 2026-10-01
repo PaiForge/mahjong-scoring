@@ -920,8 +920,9 @@ export type NewBenefitGrant = typeof benefitGrants.$inferInsert;
  *
  * @description
  * Stripe は同じイベントを複数回届けることがある（再送・並行配信）。
- * 処理の先頭で `event.id` をここに INSERT し、衝突したら何もせず 200 を
- * 返すことで二重処理を防ぐ。行は 1 購入あたり数件しか増えないため、
+ * 処理成功後に `event.id` を INSERT し、再送時は処理済みなら 200 を返す。
+ * 並行配信では両方処理されうるため、購入記録と取消自身も冪等にする。
+ * 先に記録すると失敗後の再送を捨ててしまう。行は 1 購入あたり数件なので、
  * 掃除は必要になってから考える。
  */
 export const stripeWebhookEvents = pgTable("stripe_webhook_events", {

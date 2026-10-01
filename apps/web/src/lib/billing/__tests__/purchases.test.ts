@@ -1,16 +1,22 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
-const { mockInsert, mockUpdate, mockResolveOfferByPriceId, selectHolder } =
-  vi.hoisted(() => ({
-    mockInsert: vi.fn(),
-    mockUpdate: vi.fn(),
-    mockResolveOfferByPriceId: vi.fn(),
-    // `db.select` の結果列はテスト本体から差し替えるため、モックの factory が
-    // 作った制御器をここに置く（factory は import 時に遅延実行される）
-    selectHolder: {} as {
-      seq?: import("@/test/drizzle-mock").SelectSequenceMock;
-    },
-  }));
+const {
+  mockInsert,
+  mockUpdate,
+  mockResolveOfferByPriceId,
+  mockPaymentRetrieve,
+  selectHolder,
+} = vi.hoisted(() => ({
+  mockPaymentRetrieve: vi.fn(),
+  mockInsert: vi.fn(),
+  mockUpdate: vi.fn(),
+  mockResolveOfferByPriceId: vi.fn(),
+  // `db.select` の結果列はテスト本体から差し替えるため、モックの factory が
+  // 作った制御器をここに置く（factory は import 時に遅延実行される）
+  selectHolder: {} as {
+    seq?: import("@/test/drizzle-mock").SelectSequenceMock;
+  },
+}));
 
 vi.mock("server-only", () => ({}));
 
@@ -20,7 +26,18 @@ vi.mock("@/lib/db", async () => {
   const sequence = createSelectSequenceMock();
   selectHolder.seq = sequence;
   return {
-    db: { select: sequence.select, insert: mockInsert, update: mockUpdate },
+    db: {
+      select: sequence.select,
+      insert: mockInsert,
+      update: mockUpdate,
+      transaction: (run: (tx: unknown) => unknown) =>
+        run({
+          select: sequence.select,
+          insert: mockInsert,
+          update: mockUpdate,
+          execute: vi.fn(),
+        }),
+    },
     purchases: schema.purchases,
     stripeCustomers: schema.stripeCustomers,
   };
@@ -30,6 +47,10 @@ vi.mock("drizzle-orm", async () => await import("@/test/drizzle-orm-mock"));
 
 vi.mock("../env", () => ({
   resolveOfferByPriceId: mockResolveOfferByPriceId,
+}));
+
+vi.mock("../stripe", () => ({
+  getStripe: () => ({ paymentIntents: { retrieve: mockPaymentRetrieve } }),
 }));
 
 import { createQueryChain, type SelectSequenceMock } from "@/test/drizzle-mock";
@@ -79,6 +100,9 @@ beforeEach(() => {
   vi.clearAllMocks();
   vi.spyOn(console, "error").mockImplementation(() => undefined);
   seq().setResults();
+  mockPaymentRetrieve.mockResolvedValue({
+    latest_charge: { amount: 480, amount_refunded: 0 },
+  });
   mockResolveOfferByPriceId.mockImplementation((priceId: string) =>
     priceId === "price_pass"
       ? { plan: "pro", offer: "pass" }
@@ -90,6 +114,35 @@ beforeEach(() => {
 });
 
 describe("recordPurchaseFromCheckoutSession", () => {
+  it("返金が購入記録より先でも取消済みとして保存する", async () => {
+    seq().setResults([{ userId: USER_ID }], []);
+    mockPaymentRetrieve.mockResolvedValue({
+      latest_charge: { amount: 480, amount_refunded: 480 },
+    });
+    await record(paidSession());
+    expect(mockInsert.mock.results[0]?.value.values).toHaveBeenCalledWith(
+      expect.objectContaining({ revokedAt: NOW, revokeReason: "refunded" }),
+    );
+  });
+
+  it("部分返金では特典を取り消さない", async () => {
+    seq().setResults([{ userId: USER_ID }], []);
+    mockPaymentRetrieve.mockResolvedValue({
+      latest_charge: { amount: 480, amount_refunded: 100 },
+    });
+    await record(paidSession());
+    expect(mockInsert.mock.results[0]?.value.values).toHaveBeenCalledWith(
+      expect.objectContaining({ revokedAt: undefined }),
+    );
+  });
+
+  it("Charge を確認できないときは購入せず再試行させる", async () => {
+    seq().setResults([{ userId: USER_ID }]);
+    mockPaymentRetrieve.mockRejectedValue(new Error("stripe down"));
+    await expect(record(paidSession())).rejects.toThrow("stripe down");
+    expect(mockInsert).not.toHaveBeenCalled();
+  });
+
   it("支払い未完了は見送る（notPaid）", async () => {
     expect(await record(paidSession({ payment_status: "unpaid" }))).toEqual({
       outcome: "ignored",
@@ -159,6 +212,8 @@ describe("recordPurchaseFromCheckoutSession", () => {
       stripePaymentIntentId: "pi_1",
       currency: "jpy",
       amount: 480,
+      revokedAt: undefined,
+      revokeReason: undefined,
       startsAt: NOW,
       expiresAt: new Date("2026-10-31T12:00:00Z"),
     });

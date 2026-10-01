@@ -1,9 +1,17 @@
-import { and, desc, eq, gt, isNull } from "drizzle-orm";
+import { and, desc, eq, gt, isNull, sql } from "drizzle-orm";
 import "server-only";
 import type Stripe from "stripe";
 
-import { db, purchases, stripeCustomers, type Purchase } from "@/lib/db";
+import {
+  db,
+  purchases,
+  stripeCustomers,
+  type Purchase,
+  type TransactionClient,
+} from "@/lib/db";
 import { logExternalError } from "@/lib/log-error";
+
+import { getStripe } from "./stripe";
 
 import { resolveOfferByPriceId } from "./env";
 import { PLANS, PurchaseKind, addPassDuration, type PlanKey } from "./plans";
@@ -63,11 +71,12 @@ function idOf(
  * 重ね買いの開始日時を決めるのに使う（{@link recordPurchaseFromCheckoutSession}）。
  */
 async function findLatestActivePassExpiry(
+  tx: TransactionClient,
   userId: string,
   plan: PlanKey,
   now: Date,
 ): Promise<Date | undefined> {
-  const [row] = await db
+  const [row] = await tx
     .select({ expiresAt: purchases.expiresAt })
     .from(purchases)
     .where(
@@ -149,42 +158,59 @@ export async function recordPurchaseFromCheckoutSession(
     return { outcome: "ignored", reason: "unknownCustomer" };
   }
 
-  const plan = PLANS[resolved.plan];
-  const offer = plan.offers[resolved.offer];
+  return db.transaction(async (tx) => {
+    await lockPaymentIntent(tx, paymentIntentId);
+    // 返金イベントが先に処理済みでも、Stripe の現在値から取消を復元する。
+    // 取消側も同じロックを取るため、取得と INSERT の間の返金も取りこぼさない。
+    const payment = await getStripe().paymentIntents.retrieve(paymentIntentId, {
+      expand: ["latest_charge"],
+    });
+    const charge = payment.latest_charge;
+    if (!charge || typeof charge === "string") {
+      throw new Error("Paid Checkout has no expanded charge");
+    }
+    const refunded =
+      charge.amount > 0 && charge.amount_refunded >= charge.amount;
+    const plan = PLANS[resolved.plan];
+    const offer = plan.offers[resolved.offer];
 
-  let startsAt = now;
-  let expiresAt: Date | undefined;
-  if (offer.kind === PurchaseKind.Pass) {
-    const currentExpiry = await findLatestActivePassExpiry(
-      customerRow.userId,
-      plan.key,
-      now,
-    );
-    if (currentExpiry && currentExpiry > now) startsAt = currentExpiry;
-    expiresAt = addPassDuration(startsAt, offer.durationDays);
-  }
+    let startsAt = now;
+    let expiresAt: Date | undefined;
+    if (offer.kind === PurchaseKind.Pass) {
+      const currentExpiry = await findLatestActivePassExpiry(
+        tx,
+        customerRow.userId,
+        plan.key,
+        now,
+      );
+      if (currentExpiry && currentExpiry > now) startsAt = currentExpiry;
+      expiresAt = addPassDuration(startsAt, offer.durationDays);
+    }
 
-  const inserted = await db
-    .insert(purchases)
-    .values({
-      userId: customerRow.userId,
-      plan: plan.key,
-      kind: offer.kind,
-      benefits: [...plan.benefits],
-      stripeCheckoutSessionId: session.id,
-      stripePaymentIntentId: paymentIntentId,
-      currency: (session.currency ?? "jpy").toLowerCase(),
-      amount: session.amount_total ?? 0,
-      startsAt,
-      expiresAt,
-    })
-    .onConflictDoNothing({ target: purchases.stripeCheckoutSessionId })
-    .returning({ id: purchases.id });
+    const inserted = await tx
+      .insert(purchases)
+      .values({
+        userId: customerRow.userId,
+        plan: plan.key,
+        kind: offer.kind,
+        benefits: [...plan.benefits],
+        stripeCheckoutSessionId: session.id,
+        stripePaymentIntentId: paymentIntentId,
+        currency: (session.currency ?? "jpy").toLowerCase(),
+        amount: session.amount_total ?? 0,
+        revokedAt: refunded ? now : undefined,
+        revokeReason: refunded ? PurchaseRevokeReason.Refunded : undefined,
+        startsAt,
+        expiresAt,
+      })
+      .onConflictDoNothing({ target: purchases.stripeCheckoutSessionId })
+      .returning({ id: purchases.id });
 
-  const row = inserted[0];
-  return row
-    ? { outcome: "recorded", purchaseId: row.id }
-    : { outcome: "duplicate" };
+    const row = inserted[0];
+    return row
+      ? { outcome: "recorded", purchaseId: row.id }
+      : { outcome: "duplicate" };
+  });
 }
 
 /**
@@ -245,15 +271,28 @@ export async function revokePurchaseByPaymentIntent(
   reason: PurchaseRevokeReason,
   now: Date = new Date(),
 ): Promise<boolean> {
-  const updated = await db
-    .update(purchases)
-    .set({ revokedAt: now, revokeReason: reason })
-    .where(
-      and(
-        eq(purchases.stripePaymentIntentId, paymentIntentId),
-        isNull(purchases.revokedAt),
-      ),
-    )
-    .returning({ id: purchases.id });
-  return updated.length > 0;
+  return db.transaction(async (tx) => {
+    await lockPaymentIntent(tx, paymentIntentId);
+    const updated = await tx
+      .update(purchases)
+      .set({ revokedAt: now, revokeReason: reason })
+      .where(
+        and(
+          eq(purchases.stripePaymentIntentId, paymentIntentId),
+          isNull(purchases.revokedAt),
+        ),
+      )
+      .returning({ id: purchases.id });
+    return updated.length > 0;
+  });
+}
+
+/** 購入の INSERT と取消の UPDATE を PaymentIntent ごとに直列化する。 */
+async function lockPaymentIntent(
+  tx: TransactionClient,
+  paymentIntentId: string,
+): Promise<void> {
+  await tx.execute(
+    sql`SELECT pg_advisory_xact_lock(hashtextextended(${`billing-payment:${paymentIntentId}`}, 0))`,
+  );
 }
