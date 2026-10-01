@@ -25,6 +25,7 @@ import {
   resolveMigrationDatabaseUrl,
 } from "./_lib/database-url";
 import { DEV_TRACKING_ID, reseedAdCreatives } from "./dev-seed/ad-creatives";
+import { reseedBenefitGrants } from "./dev-seed/benefit-grants";
 import { reseedChallengeResults } from "./dev-seed/challenge-results";
 import type { ScoredSeedUser } from "./dev-seed/challenge-results";
 import { reseedPurchases } from "./dev-seed/purchases";
@@ -114,6 +115,10 @@ async function main() {
   console.log(
     `  purchases ${purchased} 件（bob: 有効な 30 日パス + 期限切れのパス / carol: 買い切り）`,
   );
+
+  console.log("dev-seed: 特典の手動付与を投入します...");
+  const granted = await reseedBenefitGrants(db, scored);
+  console.log(`  benefit_grants ${granted} 件（dave: 60 日の付与 / 購入なし）`);
 
   console.log("dev-seed: ネイティブ広告を投入します...");
   const ads = await reseedAdCreatives(db);
