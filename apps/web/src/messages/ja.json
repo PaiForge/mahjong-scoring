@@ -3416,6 +3416,9 @@
       "lifetimeHint": "購入時点の Pro の機能をずっと使えます。",
       "pass": "Pro（{until} まで）",
       "passHint": "期限が来ると無料プランに戻ります。もう 1 枚買うと期限の後ろに繋がります。",
+      "granted": "Pro（付与）",
+      "grantedUntil": "Pro（付与・{until} まで）",
+      "grantedHint": "運営から付与された Pro の特典です。購入した特典とは別に扱われます。",
       "buy": "Pro を購入する",
       "extend": "パスを延長する"
     },
@@ -3435,6 +3438,19 @@
       "state_expired": "期限切れ",
       "state_refunded": "返金済み",
       "receiptHint": "領収書は購入時に Stripe から届いたメールをご確認ください。"
+    },
+    "grants": {
+      "title": "付与された特典",
+      "date": "付与日",
+      "item": "内容",
+      "period": "期間",
+      "state": "状態",
+      "pro": "Pro",
+      "permanent": "無期限",
+      "until": "{until} まで",
+      "state_active": "有効",
+      "state_expired": "期限切れ",
+      "state_revoked": "取り消し済み"
     }
   },
   "tokushoho": {

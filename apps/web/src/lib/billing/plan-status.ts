@@ -3,19 +3,24 @@ import type { BenefitGrant, Purchase } from "@/lib/db";
 import { PurchaseKind } from "./plans";
 
 /**
- * 購入記録から導く「いまの状態」
+ * 購入記録と手動付与から導く「いまの状態」
  * プラン状態
  *
  * - `lifetime` — 有効な買い切りを持つ
  * - `pass` — 有効なパスを持つ。`until` は（重ね買いを含めた）最後の期限
- * - `free` — どちらも無い
+ * - `granted` — 手動付与で Pro。`until` は期限、無期限なら undefined
+ * - `free` — どれも無い
  *
  * 特典の有無は `lib/entitlements/has-benefit.ts` が決める。ここは
  * マイページの表示のための要約で、判定には使わない。
+ *
+ * パスと期限付きの付与が重なるときは、後に切れる方の種類で出す
+ * （「〜まで」が Pro の終わりを指すようにする）。
  */
 export type PlanStatus =
   | { readonly kind: "lifetime" }
   | { readonly kind: "pass"; readonly until: Date }
+  | { readonly kind: "granted"; readonly until: Date | undefined }
   | { readonly kind: "free" };
 
 /**
@@ -64,20 +69,36 @@ export function benefitGrantStateOf(
 /** いまの状態（表示用） */
 export function planStatusOf(
   purchases: readonly Purchase[],
+  grants: readonly BenefitGrant[],
   now: Date,
 ): PlanStatus {
-  const valid = purchases.filter((purchase) => !purchase.revokedAt);
-  if (valid.some((purchase) => purchase.kind === PurchaseKind.Lifetime)) {
+  const validPurchases = purchases.filter((purchase) => !purchase.revokedAt);
+  if (
+    validPurchases.some((purchase) => purchase.kind === PurchaseKind.Lifetime)
+  ) {
     return { kind: "lifetime" };
   }
 
-  // 開始待ちのパスも含めて、最後の期限を「〜まで」に出す
-  let until: Date | undefined;
-  for (const purchase of valid) {
-    if (!purchase.expiresAt || purchase.expiresAt <= now) continue;
-    if (!until || purchase.expiresAt > until) until = purchase.expiresAt;
+  const activeGrants = grants.filter(
+    (grant) => benefitGrantStateOf(grant, now) === "active",
+  );
+  if (activeGrants.some((grant) => !grant.expiresAt)) {
+    return { kind: "granted", until: undefined };
   }
-  return until ? { kind: "pass", until } : { kind: "free" };
+
+  // 開始待ちのパスも含めて、最後の期限を「〜まで」に出す。
+  // 種類は最後の期限を持つ方（パス / 付与）
+  let latest:
+    { readonly kind: "pass" | "granted"; readonly until: Date } | undefined;
+  const consider = (kind: "pass" | "granted", expiresAt: Date | null) => {
+    if (!expiresAt || expiresAt <= now) return;
+    if (!latest || expiresAt > latest.until)
+      latest = { kind, until: expiresAt };
+  };
+  for (const purchase of validPurchases) consider("pass", purchase.expiresAt);
+  for (const grant of activeGrants) consider("granted", grant.expiresAt);
+
+  return latest ?? { kind: "free" };
 }
 
 /** 日付を「2026/10/31」の形にする（JST）。表の列幅を取らない */
