@@ -59,12 +59,12 @@ describe("handleCheckoutSessionCompleted", () => {
     mockSessionsRetrieve.mockResolvedValue({ id: "cs_1" });
     mockRecordPurchase.mockResolvedValue({
       outcome: "ignored",
-      reason: "unknownPrice",
+      reason: "unknownCheckout",
     });
 
     const result = await handleCheckoutSessionCompleted("cs_1");
 
-    expect(result).toEqual({ outcome: "ignored", reason: "unknownPrice" });
+    expect(result).toEqual({ outcome: "ignored", reason: "unknownCheckout" });
     expect(console.error).toHaveBeenCalledWith(
       expect.stringContaining("[stripe-webhook]"),
       expect.anything(),

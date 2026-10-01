@@ -90,7 +90,15 @@ export async function GET(request: Request): Promise<NextResponse> {
       // 非同期の支払い方法（いまは使わない）で未確定のまま戻った場合
       return toPlan("pending");
     }
-    return toPlan("success");
+    if (result.outcome === "ignored") {
+      logExternalError(
+        "checkout-complete",
+        `purchase ignored: ${result.reason}`,
+        undefined,
+      );
+      return toPlan("failed");
+    }
+    return toPlan(result.outcome === "recorded" ? "success" : undefined);
   } catch (error) {
     // Stripe や DB の一時的な失敗。Webhook が後から記録するので、
     // ユーザーはマイページで結果を待てる

@@ -1,31 +1,21 @@
-import { and, desc, eq, gt, isNull, sql } from "drizzle-orm";
+import { and, desc, eq, isNull, sql } from "drizzle-orm";
 import "server-only";
 import type Stripe from "stripe";
+import { z } from "zod";
 
 import {
+  billingCheckouts,
   db,
   purchases,
-  stripeCustomers,
   type Purchase,
   type TransactionClient,
 } from "@/lib/db";
 import { logExternalError } from "@/lib/log-error";
-
+import { hasUnexpiredPurchase, lockBillingCustomer } from "./checkout-state";
+import { addPassDuration } from "./plans";
 import { getStripe } from "./stripe";
 
-import { resolveOfferByPriceId } from "./env";
-import { PLANS, PurchaseKind, addPassDuration, type PlanKey } from "./plans";
-
-/**
- * 購入の記録と参照
- * 購入記録
- *
- * Checkout 完了の着地（Route Handler）と Webhook（`checkout.session.completed`）
- * の両方が {@link recordPurchaseFromCheckoutSession} を呼ぶ。どちらが先でも、
- * 両方同時でも、`stripe_checkout_session_id` の UNIQUE で 1 行にする。
- */
-
-/** 取り消しの理由（`purchases.revoke_reason` の値） */
+/** 購入取消理由。返金は全額のみ。 */
 export const PurchaseRevokeReason = {
   Refunded: "refunded",
   Fraud: "fraud",
@@ -33,182 +23,139 @@ export const PurchaseRevokeReason = {
 export type PurchaseRevokeReason =
   (typeof PurchaseRevokeReason)[keyof typeof PurchaseRevokeReason];
 
-/**
- * 記録を見送った理由
- * 購入記録見送り理由
- *
- * - `notPaid` — 支払いが完了していない（`payment_status !== "paid"`）か、一括払いでない
- * - `missingLineItems` — Session に `line_items` が展開されていない（呼び出し側の取得漏れ）
- * - `unknownPrice` — どの売り方の Price でもない。知らない価格に特典を付けない
- * - `unknownCustomer` — `stripe_customers` に無い顧客。Dashboard で手作業した決済など
- * - `missingPaymentIntent` — 一括払いなのに PaymentIntent が無い（想定外）
- */
+/** 記録を見送った理由。予約のない決済には現在のプラン定義を推測して付けない。 */
 export type PurchaseIgnoredReason =
   | "notPaid"
   | "missingLineItems"
-  | "unknownPrice"
+  | "unknownCheckout"
+  | "invalidCheckout"
   | "unknownCustomer"
   | "missingPaymentIntent";
 
-/** {@link recordPurchaseFromCheckoutSession} の結果 */
+/** 購入記録の結果。返金済みは購入履歴だけを残す。 */
 export type RecordPurchaseResult =
-  | { readonly outcome: "recorded"; readonly purchaseId: string }
+  | { readonly outcome: "recorded" | "refunded"; readonly purchaseId: string }
   | { readonly outcome: "duplicate" }
   | { readonly outcome: "ignored"; readonly reason: PurchaseIgnoredReason };
 
-/** Stripe の「ID か展開済みオブジェクト」から ID を取り出す */
 function idOf(
   value: string | { readonly id: string } | null | undefined,
 ): string | undefined {
-  if (value === null || value === undefined) return undefined;
-  return typeof value === "string" ? value : value.id;
+  return typeof value === "string" ? value : value?.id;
 }
 
 /**
- * 有効な期間パスのうち最も遅い期限を返す。無ければ undefined
- * パス期限取得
- *
- * 重ね買いの開始日時を決めるのに使う（{@link recordPurchaseFromCheckoutSession}）。
- */
-async function findLatestActivePassExpiry(
-  tx: TransactionClient,
-  userId: string,
-  plan: PlanKey,
-  now: Date,
-): Promise<Date | undefined> {
-  const [row] = await tx
-    .select({ expiresAt: purchases.expiresAt })
-    .from(purchases)
-    .where(
-      and(
-        eq(purchases.userId, userId),
-        eq(purchases.plan, plan),
-        eq(purchases.kind, PurchaseKind.Pass),
-        isNull(purchases.revokedAt),
-        gt(purchases.expiresAt, now),
-      ),
-    )
-    .orderBy(desc(purchases.expiresAt))
-    .limit(1);
-  return row?.expiresAt ?? undefined;
-}
-
-/**
- * Checkout Session から購入を記録する（冪等）
+ * Stripe の現在の Checkout Session から購入を記録する。
  * 購入記録
  *
- * 呼び出し側は `line_items` を展開した Session を渡すこと
- * （`checkout.sessions.retrieve(id, { expand: ["line_items"] })`）。
- * Webhook の payload には `line_items` が載らないので、Webhook 側も
- * 必ず取り直してから渡す — 届いた payload の状態をそのまま信じない。
+ * 着地と Webhook は line_items を展開して取り直した Session を渡す。
+ * 所有者は session.customer と stripe_customers、販売条件は作成前に保存した
+ * billing_checkouts が正。現在の Price 環境変数や PLANS は参照しない。
  *
- * 所有者は `session.customer` を `stripe_customers` で引いて決める。
- * metadata の userId は使わない（根拠を 1 本に揃える）。
- *
- * @design 期間パスの重ね買いは後ろに繋ぐ
- *
- * 有効なパスを持つ人がもう 1 枚買ったら、新しいパスの開始は現在のパスの
- * 期限にする。残っている日数を捨てさせない。買い切りは常に即時開始。
- *
- * @param now - 判定の基準時刻。テストから差し替えるために引数にしている
+ * 顧客 → PaymentIntent の順でロックし、同一 Session の再送を冪等に扱う。
+ * 重ね買いはしない。万一別 Session の決済が競合した場合は後の決済を全額返金し、
+ * 取消済みとして履歴に残す。返金 API は PaymentIntent ごとの冪等キーを使う。
+ * 返金イベントが先に来ていても Charge の現在値から取消を復元する。
  */
 export async function recordPurchaseFromCheckoutSession(
   session: Stripe.Checkout.Session,
   now: Date = new Date(),
 ): Promise<RecordPurchaseResult> {
-  if (session.mode !== "payment" || session.payment_status !== "paid") {
+  if (session.mode !== "payment" || session.payment_status !== "paid")
     return { outcome: "ignored", reason: "notPaid" };
-  }
-
   const lineItem = session.line_items?.data[0];
-  const priceId = lineItem?.price?.id;
-  if (!lineItem || !priceId) {
+  if (!lineItem?.price?.id)
     return { outcome: "ignored", reason: "missingLineItems" };
-  }
-
-  const resolved = resolveOfferByPriceId(priceId);
-  if (!resolved) {
-    logExternalError(
-      "recordPurchase",
-      `unknown price ${priceId} on session ${session.id}`,
-      undefined,
-    );
-    return { outcome: "ignored", reason: "unknownPrice" };
-  }
-
   const paymentIntentId = idOf(session.payment_intent);
-  if (!paymentIntentId) {
+  if (!paymentIntentId)
     return { outcome: "ignored", reason: "missingPaymentIntent" };
-  }
-
   const customerId = idOf(session.customer);
-  const [customerRow] = customerId
-    ? await db
-        .select({ userId: stripeCustomers.userId })
-        .from(stripeCustomers)
-        .where(eq(stripeCustomers.stripeCustomerId, customerId))
-        .limit(1)
-    : [];
-  if (!customerRow) {
-    logExternalError(
-      "recordPurchase",
-      `no stripe_customers row for customer ${customerId ?? "(none)"} on session ${session.id}`,
-      undefined,
-    );
-    return { outcome: "ignored", reason: "unknownCustomer" };
-  }
+  if (!customerId) return { outcome: "ignored", reason: "unknownCustomer" };
 
   return db.transaction(async (tx) => {
+    const customer = await lockBillingCustomer(tx, customerId);
+    if (!customer) return { outcome: "ignored", reason: "unknownCustomer" };
     await lockPaymentIntent(tx, paymentIntentId);
-    // 返金イベントが先に処理済みでも、Stripe の現在値から取消を復元する。
-    // 取消側も同じロックを取るため、取得と INSERT の間の返金も取りこぼさない。
-    const payment = await getStripe().paymentIntents.retrieve(paymentIntentId, {
+    const [existing] = await tx
+      .select({ id: purchases.id })
+      .from(purchases)
+      .where(eq(purchases.stripeCheckoutSessionId, session.id))
+      .limit(1);
+    if (existing) return { outcome: "duplicate" };
+
+    const checkoutId = z
+      .string()
+      .uuid()
+      .safeParse(session.metadata?.billingCheckoutId);
+    if (!checkoutId.success)
+      return { outcome: "ignored", reason: "unknownCheckout" };
+    const [checkout] = await tx
+      .select()
+      .from(billingCheckouts)
+      .where(
+        and(
+          eq(billingCheckouts.id, checkoutId.data),
+          eq(billingCheckouts.customerId, customer.id),
+        ),
+      )
+      .limit(1);
+    if (!checkout) return { outcome: "ignored", reason: "unknownCheckout" };
+    if (
+      checkout.stripePriceId !== lineItem.price?.id ||
+      lineItem.quantity !== 1 ||
+      session.line_items?.data.length !== 1 ||
+      session.line_items.has_more ||
+      (checkout.stripeCheckoutSessionId &&
+        checkout.stripeCheckoutSessionId !== session.id)
+    ) {
+      return { outcome: "ignored", reason: "invalidCheckout" };
+    }
+
+    const stripe = getStripe();
+    const payment = await stripe.paymentIntents.retrieve(paymentIntentId, {
       expand: ["latest_charge"],
     });
     const charge = payment.latest_charge;
-    if (!charge || typeof charge === "string") {
+    if (!charge || typeof charge === "string")
       throw new Error("Paid Checkout has no expanded charge");
-    }
-    const refunded =
-      charge.amount > 0 && charge.amount_refunded >= charge.amount;
-    const plan = PLANS[resolved.plan];
-    const offer = plan.offers[resolved.offer];
-
-    let startsAt = now;
-    let expiresAt: Date | undefined;
-    if (offer.kind === PurchaseKind.Pass) {
-      const currentExpiry = await findLatestActivePassExpiry(
-        tx,
-        customerRow.userId,
-        plan.key,
-        now,
+    let refunded = charge.amount > 0 && charge.amount_refunded >= charge.amount;
+    if (!refunded && (await hasUnexpiredPurchase(tx, customer.userId, now))) {
+      const refund = await stripe.refunds.create(
+        { payment_intent: paymentIntentId },
+        { idempotencyKey: `duplicate-purchase:${paymentIntentId}` },
       );
-      if (currentExpiry && currentExpiry > now) startsAt = currentExpiry;
-      expiresAt = addPassDuration(startsAt, offer.durationDays);
+      if (refund.status === "failed" || refund.status === "canceled")
+        throw new Error("Duplicate purchase refund failed");
+      refunded = true;
     }
-
-    const inserted = await tx
+    const startsAt = new Date(charge.created * 1000);
+    const [inserted] = await tx
       .insert(purchases)
       .values({
-        userId: customerRow.userId,
-        plan: plan.key,
-        kind: offer.kind,
-        benefits: [...plan.benefits],
+        userId: customer.userId,
+        plan: checkout.plan,
+        kind: checkout.kind,
+        benefits: checkout.benefits,
         stripeCheckoutSessionId: session.id,
         stripePaymentIntentId: paymentIntentId,
         currency: (session.currency ?? "jpy").toLowerCase(),
         amount: session.amount_total ?? 0,
-        revokedAt: refunded ? now : undefined,
-        revokeReason: refunded ? PurchaseRevokeReason.Refunded : undefined,
         startsAt,
-        expiresAt,
+        expiresAt:
+          checkout.durationDays === null
+            ? null
+            : addPassDuration(startsAt, checkout.durationDays),
+        revokedAt: refunded ? now : null,
+        revokeReason: refunded ? PurchaseRevokeReason.Refunded : null,
       })
       .onConflictDoNothing({ target: purchases.stripeCheckoutSessionId })
       .returning({ id: purchases.id });
-
-    const row = inserted[0];
-    return row
-      ? { outcome: "recorded", purchaseId: row.id }
+    await tx
+      .update(billingCheckouts)
+      .set({ stripeCheckoutSessionId: session.id, settledAt: now })
+      .where(eq(billingCheckouts.id, checkout.id));
+    return inserted
+      ? { outcome: refunded ? "refunded" : "recorded", purchaseId: inserted.id }
       : { outcome: "duplicate" };
   });
 }
@@ -233,30 +180,6 @@ export async function listPurchases(
     logExternalError("listPurchases", "failed to list purchases", error);
     return [];
   }
-}
-
-/**
- * ユーザーが有効な買い切りを持っているか
- * 買い切り保持判定
- *
- * Checkout を作る前に見る。買い切りを持つ人にパスも買い切りも売らない
- * （二重購入の防止）。
- */
-export async function hasActiveLifetimePurchase(
-  userId: string,
-): Promise<boolean> {
-  const [row] = await db
-    .select({ id: purchases.id })
-    .from(purchases)
-    .where(
-      and(
-        eq(purchases.userId, userId),
-        eq(purchases.kind, PurchaseKind.Lifetime),
-        isNull(purchases.revokedAt),
-      ),
-    )
-    .limit(1);
-  return row !== undefined;
 }
 
 /**

@@ -5,11 +5,8 @@ import { redirect } from "next/navigation";
 
 import type { ActionResult } from "@/lib/action-types";
 import { authenticateAndCheckBan, type AuthGateErrorCode } from "@/lib/auth";
-import { getOrCreateStripeCustomerId } from "@/lib/billing/customer";
-import { getOfferPriceId } from "@/lib/billing/env";
-import { PLAN_PAGE_HREF, isOfferKey, type OfferKey } from "@/lib/billing/plans";
-import { hasActiveLifetimePurchase } from "@/lib/billing/purchases";
-import { getStripe } from "@/lib/billing/stripe";
+import { isOfferKey } from "@/lib/billing/plans";
+import { openCheckout, type CheckoutError } from "@/lib/billing/checkout";
 import { SITE_URL } from "@/config";
 import { requestOrigin } from "@/lib/csrf";
 import { logExternalError } from "@/lib/log-error";
@@ -18,15 +15,11 @@ import {
   type RateLimitErrorCode,
 } from "@/lib/rate-limit-ip";
 
-/** Checkout 完了の着地（Route Handler）。`{CHECKOUT_SESSION_ID}` は Stripe が埋める */
-const CHECKOUT_COMPLETE_PATH =
-  "/api/stripe/checkout/complete?session_id={CHECKOUT_SESSION_ID}";
-
 export type CreateCheckoutSessionError =
   | RateLimitErrorCode
   | AuthGateErrorCode
   | "invalidOffer"
-  | "alreadyLifetime"
+  | CheckoutError
   | "checkoutFailed";
 
 /**
@@ -39,7 +32,7 @@ export type CreateCheckoutSessionError =
  *
  * - ガードは `authenticateAndCheckBan`（Server Action は POST の入口なので、
  *   ページのガードとは別にここで見る）と IP レート制限
- * - **買い切りを持つ人には売らない**（パスも買い切りも）。二重購入の防止
+ * - 有効な購入があれば売らない。未完了の購入手続きは再利用する
  * - `customer` は `stripe_customers` から（無ければ作る）。購入の所有者は
  *   この対応で決まる（`purchases.ts`）
  * - 戻り先は `requestOrigin()`（今いる環境）。無ければ `SITE_URL`
@@ -58,27 +51,12 @@ export async function createCheckoutSession(
   if ("error" in auth) return auth;
   const { user } = auth;
 
-  if (await hasActiveLifetimePurchase(user.id)) {
-    return { error: "alreadyLifetime" };
-  }
-
   const origin = requestOrigin(await headers()) ?? SITE_URL;
-  let checkoutUrl: string | null;
+  let checkoutUrl: string;
   try {
-    const customer = await getOrCreateStripeCustomerId(user.id, user.email);
-    const session = await getStripe().checkout.sessions.create({
-      customer,
-      mode: "payment",
-      line_items: [{ price: getOfferPriceId("pro", offer), quantity: 1 }],
-      // 当面カードのみ（Dashboard の設定に依らずここで固定する）。コンビニ等の
-      // 非同期決済を足すときは `checkout.session.async_payment_succeeded` の処理が要る
-      allowed_payment_method_types: ["card"],
-      locale: "ja",
-      success_url: `${origin}${CHECKOUT_COMPLETE_PATH}`,
-      cancel_url: `${origin}${PLAN_PAGE_HREF}`,
-      metadata: { supabaseUserId: user.id, offer: satisfiesOffer(offer) },
-    });
-    checkoutUrl = session.url;
+    const result = await openCheckout(user.id, user.email, offer, origin);
+    if ("error" in result) return result;
+    checkoutUrl = result.url;
   } catch (error) {
     logExternalError(
       "createCheckoutSession",
@@ -90,9 +68,4 @@ export async function createCheckoutSession(
 
   if (!checkoutUrl) return { error: "checkoutFailed" };
   redirect(checkoutUrl);
-}
-
-/** metadata は string しか持てないので型を落とすだけの関数 */
-function satisfiesOffer(offer: OfferKey): string {
-  return offer;
 }

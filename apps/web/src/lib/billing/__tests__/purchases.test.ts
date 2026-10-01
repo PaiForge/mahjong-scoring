@@ -1,326 +1,248 @@
-import { beforeEach, describe, expect, it, vi } from "vitest";
-
-const {
-  mockInsert,
-  mockUpdate,
-  mockResolveOfferByPriceId,
-  mockPaymentRetrieve,
-  selectHolder,
-} = vi.hoisted(() => ({
-  mockPaymentRetrieve: vi.fn(),
-  mockInsert: vi.fn(),
-  mockUpdate: vi.fn(),
-  mockResolveOfferByPriceId: vi.fn(),
-  // `db.select` の結果列はテスト本体から差し替えるため、モックの factory が
-  // 作った制御器をここに置く（factory は import 時に遅延実行される）
-  selectHolder: {} as {
-    seq?: import("@/test/drizzle-mock").SelectSequenceMock;
-  },
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
+const mocks = vi.hoisted(() => ({
+  insert: vi.fn(),
+  update: vi.fn(),
+  payment: vi.fn(),
+  refund: vi.fn(),
+  holder: {} as { seq?: import("@/test/drizzle-mock").SelectSequenceMock },
 }));
-
 vi.mock("server-only", () => ({}));
-
+vi.mock("drizzle-orm", async () => await import("@/test/drizzle-orm-mock"));
 vi.mock("@/lib/db", async () => {
   const schema = await import("@/test/schema-mock");
   const { createSelectSequenceMock } = await import("@/test/drizzle-mock");
-  const sequence = createSelectSequenceMock();
-  selectHolder.seq = sequence;
+  const seq = createSelectSequenceMock();
+  mocks.holder.seq = seq;
+  const tx = {
+    select: seq.select,
+    insert: mocks.insert,
+    update: mocks.update,
+    execute: vi.fn(),
+  };
   return {
-    db: {
-      select: sequence.select,
-      insert: mockInsert,
-      update: mockUpdate,
-      transaction: (run: (tx: unknown) => unknown) =>
-        run({
-          select: sequence.select,
-          insert: mockInsert,
-          update: mockUpdate,
-          execute: vi.fn(),
-        }),
-    },
-    purchases: schema.purchases,
-    stripeCustomers: schema.stripeCustomers,
+    ...schema,
+    db: { ...tx, transaction: (run: (tx: unknown) => unknown) => run(tx) },
   };
 });
-
-vi.mock("drizzle-orm", async () => await import("@/test/drizzle-orm-mock"));
-
-vi.mock("../env", () => ({
-  resolveOfferByPriceId: mockResolveOfferByPriceId,
-}));
-
 vi.mock("../stripe", () => ({
-  getStripe: () => ({ paymentIntents: { retrieve: mockPaymentRetrieve } }),
+  getStripe: () => ({
+    paymentIntents: { retrieve: mocks.payment },
+    refunds: { create: mocks.refund },
+  }),
 }));
-
-import { createQueryChain, type SelectSequenceMock } from "@/test/drizzle-mock";
-
+import { createQueryChain } from "@/test/drizzle-mock";
 import {
-  PurchaseRevokeReason,
-  hasActiveLifetimePurchase,
   recordPurchaseFromCheckoutSession,
   revokePurchaseByPaymentIntent,
 } from "../purchases";
-
 const NOW = new Date("2026-10-01T12:00:00Z");
-const USER_ID = "user-1";
-
-/** 支払い済み・一括払いの Session を作る（必要な部分だけ） */
-function paidSession(overrides: Record<string, unknown> = {}) {
+const checkout = {
+  id: "11111111-1111-4111-8111-111111111111",
+  customerId: "c1",
+  plan: "pro",
+  kind: "pass",
+  benefits: ["unlimited_practice"],
+  durationDays: 30,
+  stripePriceId: "price_old",
+  stripeCheckoutSessionId: "cs1",
+};
+const customer = { id: "c1", userId: "u1", stripeCustomerId: "cus1" };
+function session(overrides: Record<string, unknown> = {}) {
   return {
-    id: "cs_1",
+    id: "cs1",
     mode: "payment",
     payment_status: "paid",
-    payment_intent: "pi_1",
-    customer: "cus_1",
+    payment_intent: "pi1",
+    customer: "cus1",
     currency: "jpy",
     amount_total: 480,
-    line_items: { data: [{ price: { id: "price_pass" } }] },
+    metadata: { billingCheckoutId: checkout.id },
+    line_items: {
+      data: [{ price: { id: "price_old" }, quantity: 1 }],
+      has_more: false,
+    },
     ...overrides,
-  };
+  } as unknown as Parameters<typeof recordPurchaseFromCheckoutSession>[0];
 }
-
-/** 型の都合で `Stripe.Checkout.Session` を要求する関数へ、素のオブジェクトを渡す */
-async function record(session: Record<string, unknown>) {
-  // テストコードでの型アサーションは規約上許容されている
-  return recordPurchaseFromCheckoutSession(
-    session as unknown as Parameters<
-      typeof recordPurchaseFromCheckoutSession
-    >[0],
-    NOW,
-  );
+function selects(...rows: unknown[][]) {
+  mocks.holder.seq?.setResults(...rows);
 }
-
-function seq(): SelectSequenceMock {
-  if (!selectHolder.seq) throw new Error("select mock not initialised");
-  return selectHolder.seq;
+function values() {
+  return mocks.insert.mock.results[0]?.value.values;
 }
-
 beforeEach(() => {
   vi.clearAllMocks();
-  vi.spyOn(console, "error").mockImplementation(() => undefined);
-  seq().setResults();
-  mockPaymentRetrieve.mockResolvedValue({
-    latest_charge: { amount: 480, amount_refunded: 0 },
+  selects([customer], [], [checkout], []);
+  mocks.insert.mockReturnValue(createQueryChain([{ id: "p1" }]));
+  mocks.update.mockReturnValue(createQueryChain([]));
+  mocks.payment.mockResolvedValue({
+    latest_charge: {
+      created: NOW.getTime() / 1000,
+      amount: 480,
+      amount_refunded: 0,
+    },
   });
-  mockResolveOfferByPriceId.mockImplementation((priceId: string) =>
-    priceId === "price_pass"
-      ? { plan: "pro", offer: "pass" }
-      : priceId === "price_life"
-        ? { plan: "pro", offer: "lifetime" }
-        : undefined,
-  );
-  mockInsert.mockReturnValue(createQueryChain([{ id: "purchase-1" }]));
+  mocks.refund.mockResolvedValue({ id: "re1" });
 });
-
+afterEach(() => vi.unstubAllEnvs());
 describe("recordPurchaseFromCheckoutSession", () => {
-  it("返金が購入記録より先でも取消済みとして保存する", async () => {
-    seq().setResults([{ userId: USER_ID }], []);
-    mockPaymentRetrieve.mockResolvedValue({
-      latest_charge: { amount: 480, amount_refunded: 480 },
-    });
-    await record(paidSession());
-    expect(mockInsert.mock.results[0]?.value.values).toHaveBeenCalledWith(
-      expect.objectContaining({ revokedAt: NOW, revokeReason: "refunded" }),
-    );
+  it.each([{ payment_status: "unpaid" }, { mode: "subscription" }])(
+    "未払い・サブスクを記録しない: %j",
+    async (override) => {
+      expect(
+        await recordPurchaseFromCheckoutSession(session(override), NOW),
+      ).toEqual({ outcome: "ignored", reason: "notPaid" });
+      expect(mocks.insert).not.toHaveBeenCalled();
+    },
+  );
+  it("line_items がなければ記録しない", async () => {
+    expect(
+      await recordPurchaseFromCheckoutSession(
+        session({ line_items: undefined }),
+      ),
+    ).toEqual({ outcome: "ignored", reason: "missingLineItems" });
   });
-
-  it("部分返金では特典を取り消さない", async () => {
-    seq().setResults([{ userId: USER_ID }], []);
-    mockPaymentRetrieve.mockResolvedValue({
-      latest_charge: { amount: 480, amount_refunded: 100 },
-    });
-    await record(paidSession());
-    expect(mockInsert.mock.results[0]?.value.values).toHaveBeenCalledWith(
-      expect.objectContaining({ revokedAt: undefined }),
-    );
-  });
-
-  it("Charge を確認できないときは購入せず再試行させる", async () => {
-    seq().setResults([{ userId: USER_ID }]);
-    mockPaymentRetrieve.mockRejectedValue(new Error("stripe down"));
-    await expect(record(paidSession())).rejects.toThrow("stripe down");
-    expect(mockInsert).not.toHaveBeenCalled();
-  });
-
-  it("支払い未完了は見送る（notPaid）", async () => {
-    expect(await record(paidSession({ payment_status: "unpaid" }))).toEqual({
-      outcome: "ignored",
-      reason: "notPaid",
-    });
-    expect(mockInsert).not.toHaveBeenCalled();
-  });
-
-  it("サブスクリプションモードの Session は見送る（notPaid）", async () => {
-    expect(await record(paidSession({ mode: "subscription" }))).toEqual({
-      outcome: "ignored",
-      reason: "notPaid",
-    });
-  });
-
-  it("line_items が展開されていなければ見送る（missingLineItems）", async () => {
-    expect(await record(paidSession({ line_items: undefined }))).toEqual({
-      outcome: "ignored",
-      reason: "missingLineItems",
-    });
-  });
-
-  it("知らない Price は見送り、ログを残す（unknownPrice）", async () => {
-    const result = await record(
-      paidSession({ line_items: { data: [{ price: { id: "price_x" } }] } }),
-    );
-    expect(result).toEqual({ outcome: "ignored", reason: "unknownPrice" });
-    expect(console.error).toHaveBeenCalled();
-    expect(mockInsert).not.toHaveBeenCalled();
-  });
-
-  it("PaymentIntent が無ければ見送る（missingPaymentIntent）", async () => {
-    expect(await record(paidSession({ payment_intent: null }))).toEqual({
-      outcome: "ignored",
-      reason: "missingPaymentIntent",
-    });
-  });
-
-  it("stripe_customers に無い顧客は見送る（unknownCustomer）。metadata は見ない", async () => {
-    seq().setResults([]);
-    const result = await record(
-      paidSession({ metadata: { supabaseUserId: USER_ID } }),
-    );
-    expect(result).toEqual({ outcome: "ignored", reason: "unknownCustomer" });
-    expect(mockInsert).not.toHaveBeenCalled();
-  });
-
-  it("customer が無い Session も見送る（unknownCustomer）", async () => {
-    expect(await record(paidSession({ customer: null }))).toEqual({
+  it("購入時の顧客対応がなければ記録しない", async () => {
+    selects([]);
+    expect(await recordPurchaseFromCheckoutSession(session())).toEqual({
       outcome: "ignored",
       reason: "unknownCustomer",
     });
   });
-
-  it("期間パス: 有効なパスが無ければ今から 30 日", async () => {
-    seq().setResults([{ userId: USER_ID }], []);
-    const result = await record(paidSession());
-
-    expect(result).toEqual({ outcome: "recorded", purchaseId: "purchase-1" });
-    const insertChain = mockInsert.mock.results[0]?.value;
-    expect(insertChain.values).toHaveBeenCalledWith({
-      userId: USER_ID,
-      plan: "pro",
-      kind: "pass",
-      benefits: ["unlimited_practice", "practice_tools"],
-      stripeCheckoutSessionId: "cs_1",
-      stripePaymentIntentId: "pi_1",
-      currency: "jpy",
-      amount: 480,
-      revokedAt: undefined,
-      revokeReason: undefined,
-      startsAt: NOW,
-      expiresAt: new Date("2026-10-31T12:00:00Z"),
-    });
-    expect(insertChain.onConflictDoNothing).toHaveBeenCalledWith({
-      target: "stripe_checkout_session_id",
+  it("PaymentIntent がなければ記録しない", async () => {
+    expect(
+      await recordPurchaseFromCheckoutSession(
+        session({ payment_intent: null }),
+      ),
+    ).toEqual({ outcome: "ignored", reason: "missingPaymentIntent" });
+  });
+  it("metadata は正しい UUID の予約を指す必要がある", async () => {
+    expect(
+      await recordPurchaseFromCheckoutSession(
+        session({ metadata: { billingCheckoutId: "invalid" } }),
+      ),
+    ).toEqual({ outcome: "ignored", reason: "unknownCheckout" });
+  });
+  it("予約がなければ現在のプラン定義で代用しない", async () => {
+    selects([customer], [], []);
+    expect(await recordPurchaseFromCheckoutSession(session())).toEqual({
+      outcome: "ignored",
+      reason: "unknownCheckout",
     });
   });
-
-  it("期間パスの重ね買い: 現在のパスの期限から始める", async () => {
-    const currentExpiry = new Date("2026-10-20T00:00:00Z");
-    seq().setResults([{ userId: USER_ID }], [{ expiresAt: currentExpiry }]);
-
-    await record(paidSession());
-
-    const insertChain = mockInsert.mock.results[0]?.value;
-    expect(insertChain.values).toHaveBeenCalledWith(
-      expect.objectContaining({
-        startsAt: currentExpiry,
-        expiresAt: new Date("2026-11-19T00:00:00Z"),
-      }),
-    );
+  it.each([
+    { stripePriceId: "price_other" },
+    { stripeCheckoutSessionId: "cs_other" },
+  ])("価格・Session が予約と違えば記録しない: %j", async (override) => {
+    selects([customer], [], [{ ...checkout, ...override }]);
+    expect(await recordPurchaseFromCheckoutSession(session())).toEqual({
+      outcome: "ignored",
+      reason: "invalidCheckout",
+    });
+    expect(mocks.payment).not.toHaveBeenCalled();
   });
-
-  it("買い切り: 即時開始・期限なし。パスの期限は問い合わせない", async () => {
-    seq().setResults([{ userId: USER_ID }]);
-
-    await record(
-      paidSession({
-        line_items: { data: [{ price: { id: "price_life" } }] },
-        amount_total: 1480,
-      }),
-    );
-
-    expect(seq().chains).toHaveLength(1);
-    const insertChain = mockInsert.mock.results[0]?.value;
-    expect(insertChain.values).toHaveBeenCalledWith(
+  it("現在の Price と特典が変わっても開始済み手続きの条件を保存する", async () => {
+    vi.stubEnv("STRIPE_PRICE_ID_PRO_PASS", "price_new");
+    const result = await recordPurchaseFromCheckoutSession(session(), NOW);
+    expect(result).toEqual({ outcome: "recorded", purchaseId: "p1" });
+    expect(values()).toHaveBeenCalledWith(
       expect.objectContaining({
-        kind: "lifetime",
-        amount: 1480,
+        benefits: ["unlimited_practice"],
         startsAt: NOW,
-        expiresAt: undefined,
+        expiresAt: new Date("2026-10-31T12:00:00Z"),
+        revokedAt: null,
       }),
     );
   });
-
-  it("同じ Session を 2 回記録すると 2 回目は duplicate", async () => {
-    seq().setResults([{ userId: USER_ID }], []);
-    mockInsert.mockReturnValue(createQueryChain([]));
-
-    expect(await record(paidSession())).toEqual({ outcome: "duplicate" });
-  });
-
-  it("展開済みオブジェクトの customer / payment_intent からも ID を取る", async () => {
-    seq().setResults([{ userId: USER_ID }], []);
-
-    await record(
-      paidSession({
-        customer: { id: "cus_obj" },
-        payment_intent: { id: "pi_obj" },
-      }),
+  it("買い切りの期間は NULL", async () => {
+    selects(
+      [customer],
+      [],
+      [{ ...checkout, kind: "lifetime", durationDays: null }],
+      [],
     );
-
-    const insertChain = mockInsert.mock.results[0]?.value;
-    expect(insertChain.values).toHaveBeenCalledWith(
-      expect.objectContaining({ stripePaymentIntentId: "pi_obj" }),
+    await recordPurchaseFromCheckoutSession(session(), NOW);
+    expect(values()).toHaveBeenCalledWith(
+      expect.objectContaining({ kind: "lifetime", expiresAt: null }),
     );
   });
-
-  it("通貨は小文字に正規化する", async () => {
-    seq().setResults([{ userId: USER_ID }], []);
-    await record(paidSession({ currency: "JPY" }));
-    const insertChain = mockInsert.mock.results[0]?.value;
-    expect(insertChain.values).toHaveBeenCalledWith(
-      expect.objectContaining({ currency: "jpy" }),
+  it("同一 Session の再送は Stripe に問い合わせず冪等", async () => {
+    selects([customer], [{ id: "existing" }]);
+    expect(await recordPurchaseFromCheckoutSession(session())).toEqual({
+      outcome: "duplicate",
+    });
+    expect(mocks.insert).not.toHaveBeenCalled();
+    expect(mocks.payment).not.toHaveBeenCalled();
+  });
+  it("購入記録より先の全額返金を復元する", async () => {
+    mocks.payment.mockResolvedValue({
+      latest_charge: {
+        created: NOW.getTime() / 1000,
+        amount: 480,
+        amount_refunded: 480,
+      },
+    });
+    expect(await recordPurchaseFromCheckoutSession(session(), NOW)).toEqual({
+      outcome: "refunded",
+      purchaseId: "p1",
+    });
+    expect(values()).toHaveBeenCalledWith(
+      expect.objectContaining({ revokedAt: NOW, revokeReason: "refunded" }),
     );
+    expect(mocks.refund).not.toHaveBeenCalled();
+  });
+  it("部分返金は取消にしない", async () => {
+    mocks.payment.mockResolvedValue({
+      latest_charge: {
+        created: NOW.getTime() / 1000,
+        amount: 480,
+        amount_refunded: 100,
+      },
+    });
+    await recordPurchaseFromCheckoutSession(session(), NOW);
+    expect(values()).toHaveBeenCalledWith(
+      expect.objectContaining({ revokedAt: null }),
+    );
+  });
+  it("異なる決済が競合しても期間を重ねず後の決済を冪等に返金する", async () => {
+    selects([customer], [], [checkout], [{ id: "active" }]);
+    expect(await recordPurchaseFromCheckoutSession(session(), NOW)).toEqual({
+      outcome: "refunded",
+      purchaseId: "p1",
+    });
+    expect(mocks.refund).toHaveBeenCalledWith(
+      { payment_intent: "pi1" },
+      { idempotencyKey: "duplicate-purchase:pi1" },
+    );
+  });
+  it("Stripe の確認失敗は記録せず再送させる", async () => {
+    mocks.payment.mockRejectedValue(new Error("offline"));
+    await expect(recordPurchaseFromCheckoutSession(session())).rejects.toThrow(
+      "offline",
+    );
+    expect(mocks.insert).not.toHaveBeenCalled();
+  });
+  it("競合決済の返金失敗でも記録せず再送させる", async () => {
+    selects([customer], [], [checkout], [{ id: "active" }]);
+    mocks.refund.mockRejectedValue(new Error("refund failed"));
+    await expect(recordPurchaseFromCheckoutSession(session())).rejects.toThrow(
+      "refund failed",
+    );
+    expect(mocks.insert).not.toHaveBeenCalled();
   });
 });
-
-describe("hasActiveLifetimePurchase", () => {
-  it("行があれば true、無ければ false", async () => {
-    seq().setResults([{ id: "p" }]);
-    expect(await hasActiveLifetimePurchase(USER_ID)).toBe(true);
-    seq().setResults([]);
-    expect(await hasActiveLifetimePurchase(USER_ID)).toBe(false);
-  });
-});
-
 describe("revokePurchaseByPaymentIntent", () => {
-  it("取り消せたら true。revoked_at と理由を一緒に書く", async () => {
-    mockUpdate.mockReturnValue(createQueryChain([{ id: "p" }]));
-    const result = await revokePurchaseByPaymentIntent(
-      "pi_1",
-      PurchaseRevokeReason.Refunded,
-      NOW,
+  it("取消済み・不存在なら false", async () => {
+    expect(await revokePurchaseByPaymentIntent("pi1", "refunded")).toBe(false);
+  });
+  it("取消日時と理由を対で保存する", async () => {
+    mocks.update.mockReturnValue(createQueryChain([{ id: "p1" }]));
+    expect(await revokePurchaseByPaymentIntent("pi1", "refunded", NOW)).toBe(
+      true,
     );
-    expect(result).toBe(true);
-    const chain = mockUpdate.mock.results[0]?.value;
-    expect(chain.set).toHaveBeenCalledWith({
+    expect(mocks.update.mock.results[0]?.value.set).toHaveBeenCalledWith({
       revokedAt: NOW,
       revokeReason: "refunded",
     });
-  });
-
-  it("該当行が無い・既に取消済みなら false", async () => {
-    mockUpdate.mockReturnValue(createQueryChain([]));
-    expect(
-      await revokePurchaseByPaymentIntent("pi_x", PurchaseRevokeReason.Fraud),
-    ).toBe(false);
   });
 });

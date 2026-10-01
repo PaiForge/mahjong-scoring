@@ -120,3 +120,12 @@ export const benefitGrants = {
   revokeReason: "revoke_reason",
   createdAt: "created_at",
 } as const;
+
+/** 購入手続きのカラム */
+export const billingCheckouts = {
+  _name: "billing_checkouts",
+  id: "id",
+  customerId: "customer_id",
+  settledAt: "settled_at",
+  stripeCheckoutSessionId: "stripe_checkout_session_id",
+} as const;

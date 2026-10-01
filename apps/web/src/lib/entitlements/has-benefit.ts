@@ -17,7 +17,7 @@ import { logExternalError } from "@/lib/log-error";
  * 判定の規則:
  *
  * - 取り消されていない（`revoked_at IS NULL`）
- * - 開始済み（`starts_at <= now`。重ね買いしたパスは前のパスの期限から始まる）
+ * - 開始済み（`starts_at <= now`。旧データに開始待ちがあっても先に付与しない）
  * - 期限内か永久（`expires_at IS NULL OR expires_at > now`）
  *
  * を満たす購入行（`purchases`）と付与行（`benefit_grants`）の `benefits` の

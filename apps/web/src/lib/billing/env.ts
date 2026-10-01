@@ -1,4 +1,4 @@
-import { OFFER_KEYS, PLAN_KEYS, type OfferKey, type PlanKey } from "./plans";
+import { OFFER_KEYS, type OfferKey, type PlanKey } from "./plans";
 
 /**
  * Stripe の環境変数
@@ -81,32 +81,4 @@ export function isPlanOnSale(plan: PlanKey): boolean {
   return OFFER_KEYS.every(
     (offer) => readOfferPriceId(plan, offer) !== undefined,
   );
-}
-
-/** Price ID から逆引きしたプランと売り方 */
-export interface ResolvedOffer {
-  readonly plan: PlanKey;
-  readonly offer: OfferKey;
-}
-
-/**
- * Stripe の Price ID からプランと売り方を逆引きする
- * 売り方逆引き
- *
- * Checkout 完了の Session に載っている Price を、こちらの定義へ戻すのに使う。
- * どの環境変数とも一致しない Price（テストモードの値・設定ミス・Dashboard で
- * 手作業した商品）は undefined — 呼び出し側は購入を記録しない。
- * 知らない価格に特典を付けないための防波堤。
- */
-export function resolveOfferByPriceId(
-  priceId: string,
-): ResolvedOffer | undefined {
-  for (const plan of PLAN_KEYS) {
-    for (const offer of OFFER_KEYS) {
-      if (readOfferPriceId(plan, offer) === priceId) {
-        return { plan, offer };
-      }
-    }
-  }
-  return undefined;
 }

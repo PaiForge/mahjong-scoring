@@ -112,12 +112,10 @@ describe("GET /api/stripe/checkout/complete", () => {
     );
   });
 
-  it("重複（Webhook が先に記録済み）も success", async () => {
+  it("重複は現在の購入状況へ戻す", async () => {
     mockRecordPurchase.mockResolvedValue({ outcome: "duplicate" });
     const res = await GET(request());
-    expect(res.headers.get("location")).toBe(
-      `${ORIGIN}/mypage/plan?status=success`,
-    );
+    expect(res.headers.get("location")).toBe(`${ORIGIN}/mypage/plan`);
   });
 
   it("支払い未確定なら pending", async () => {
@@ -139,4 +137,23 @@ describe("GET /api/stripe/checkout/complete", () => {
     );
     expect(console.error).toHaveBeenCalled();
   });
+});
+
+it("記録できない支払いを成功表示にしない", async () => {
+  mockRecordPurchase.mockResolvedValue({
+    outcome: "ignored",
+    reason: "unknownCheckout",
+  });
+  expect((await GET(request())).headers.get("location")).toBe(
+    `${ORIGIN}/mypage/plan?status=failed`,
+  );
+});
+it("返金済みは成功表示せず履歴へ戻す", async () => {
+  mockRecordPurchase.mockResolvedValue({
+    outcome: "refunded",
+    purchaseId: "p1",
+  });
+  expect((await GET(request())).headers.get("location")).toBe(
+    `${ORIGIN}/mypage/plan`,
+  );
 });

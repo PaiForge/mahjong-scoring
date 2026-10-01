@@ -708,7 +708,7 @@ export type AdCreativeTranslation = typeof adCreativeTranslations.$inferSelect;
  *
  * 購入の所有者を決める根拠はこの表だけ。Checkout 完了の着地と Webhook は
  * `session.customer` をこの表で引いてユーザーに変換する。Stripe の
- * metadata にも userId を入れているが、所有者の判定には使わない —
+ * metadata の購入手続き ID は所有者の判定には使わない —
  * 根拠を 2 本持つと食い違ったときにどちらを信じるかという問題が生まれる。
  *
  * @design `user_id` → auth.users の FK は Supabase SQL で定義（CASCADE）
@@ -731,6 +731,66 @@ export type StripeCustomer = typeof stripeCustomers.$inferSelect;
 export type NewStripeCustomer = typeof stripeCustomers.$inferInsert;
 
 /**
+ * Checkout 作成前に確定する販売条件と、再試行に使う購入手続き。
+ * 購入手続き
+ *
+ * Price・特典・期間・戻り先を先に保存し、この ID を Stripe の冪等キーにする。
+ * Stripe 作成後に DB が失敗しても同じ条件・同じキーで回復できる。Price の
+ * 切り替えやコードの特典追加は、開始済みの手続きに影響しない。
+ * 所有者は customer_id → stripe_customers の対応から決め、metadata は
+ * この行を探す ID にだけ使う。Stripe の現在の Session と価格・顧客を照合する。
+ *
+ * 未完了は顧客ごとに 1 件。期限を過ぎても決済済みの可能性があるため、
+ * Session の状態を確認するまでは settled_at を埋めない。
+ * 顧客行をロックして予約・Session 作成・購入記録を直列化する。
+ * 退会時は stripe_customers の明示的な削除に CASCADE する。
+ */
+export const billingCheckouts = pgTable(
+  "billing_checkouts",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    customerId: uuid("customer_id")
+      .notNull()
+      .references(() => stripeCustomers.id, { onDelete: "cascade" }),
+    plan: varchar("plan", { length: 50 }).notNull(),
+    offer: varchar("offer", { length: 20 }).notNull(),
+    kind: varchar("kind", { length: 20 }).notNull(),
+    benefits: text("benefits").array().notNull(),
+    durationDays: integer("duration_days"),
+    stripePriceId: varchar("stripe_price_id", { length: 255 }).notNull(),
+    origin: text("origin").notNull(),
+    stripeCheckoutSessionId: varchar("stripe_checkout_session_id", {
+      length: 255,
+    }).unique(),
+    expiresAt: timestamp("expires_at", { withTimezone: true }).notNull(),
+    settledAt: timestamp("settled_at", { withTimezone: true }),
+    createdAt: timestamp("created_at", { withTimezone: true })
+      .defaultNow()
+      .notNull(),
+  },
+  (table) => [
+    uniqueIndex("billing_checkouts_one_pending_customer")
+      .on(table.customerId)
+      .where(sql`${table.settledAt} IS NULL`),
+    check(
+      "billing_checkouts_chk_kind",
+      sql`${table.kind} IN ('pass', 'lifetime')`,
+    ),
+    check(
+      "billing_checkouts_chk_duration",
+      sql`(${table.kind} = 'pass' AND ${table.durationDays} IS NOT NULL AND ${table.durationDays} > 0) OR (${table.kind} = 'lifetime' AND ${table.durationDays} IS NULL)`,
+    ),
+    check(
+      "billing_checkouts_chk_benefits",
+      sql`cardinality(${table.benefits}) > 0`,
+    ),
+  ],
+);
+
+/** Checkout 作成時点の販売条件。更新するのは Session ID と完了日時だけ。 */
+export type BillingCheckout = typeof billingCheckouts.$inferSelect;
+
+/**
  * 有料プランの購入記録 — 期間パスと買い切り
  * 購入
  *
@@ -741,8 +801,9 @@ export type NewStripeCustomer = typeof stripeCustomers.$inferInsert;
  * は持たない — 期間パスは `expires_at` が来れば自然に失効し、買い切りは
  * NULL で永久。
  *
- * @design `benefits` は購入時点のスナップショット
+ * @design `benefits` は購入手続き開始時点のスナップショット
  *
+ * billing_checkouts に開始時点の販売条件を固定し、この列へコピーする。
  * 「買い切りは購入時点の特典に限定する」を実装する列。コードのプラン定義
  * （`lib/billing/plans.ts`）に特典を足しても、過去の購入行には付かない。
  * 期間パスも同じ規則で揃える（数十日の残期間に新特典が付かないだけで、
@@ -799,7 +860,7 @@ export const purchases = pgTable(
     currency: varchar("currency", { length: 3 }).notNull(),
     /** 支払額（最小通貨単位） */
     amount: integer("amount").notNull(),
-    /** 特典の開始。パスの重ね買いでは前のパスの期限の後ろに繋ぐ */
+    /** 特典の開始。支払いの Charge 作成日時。期間は連結しない */
     startsAt: timestamp("starts_at", { withTimezone: true }).notNull(),
     /** 特典の終了。買い切りは NULL（永久） */
     expiresAt: timestamp("expires_at", { withTimezone: true }),

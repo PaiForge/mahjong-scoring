@@ -47,7 +47,7 @@ interface MypagePlanPageProps {
  * 理由は運営の内部メモになり得るので出さない。
  *
  * @flow
- * 1. 状態を見る → 無料なら「Pro を購入する」、パスなら「パスを延長する」で料金ページへ
+ * 1. 状態を見る → 購入が有効でなければ「Pro を購入する」で料金ページへ
  * 2. 購入履歴で日付・内容・金額・状態（有効 / 開始待ち / 期限切れ / 返金済み）を見る
  * 3. 付与があれば「付与された特典」で期間と状態（有効 / 期限切れ / 取り消し済み）を見る
  */
@@ -75,7 +75,9 @@ export default async function MypagePlanPage({
       <PageTitle>{t("pageTitle")}</PageTitle>
 
       <div className="space-y-8">
-        {(status === "success" || status === "pending") && (
+        {(status === "success" ||
+          status === "pending" ||
+          status === "failed") && (
           <p
             role="status"
             className="rounded-xl border-3 border-ink bg-primary-50 px-4 py-3 text-sm font-bold"
@@ -105,9 +107,9 @@ export default async function MypagePlanPage({
               {plan.kind === "granted" && t("status.grantedHint")}
               {plan.kind === "free" && t("status.freeHint")}
             </p>
-            {plan.kind !== "lifetime" && (
+            {plan.kind === "free" && (
               <LinkButton href={PLAN_PAGE_HREF} size="lg" fullWidth>
-                {plan.kind === "pass" ? t("status.extend") : t("status.buy")}
+                {t("status.buy")}
               </LinkButton>
             )}
           </div>

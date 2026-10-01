@@ -240,3 +240,8 @@ ALTER TABLE "benefit_grants" ENABLE ROW LEVEL SECURITY;
 DROP POLICY IF EXISTS "benefit_grants_deny_all" ON "benefit_grants";
 CREATE POLICY "benefit_grants_deny_all" ON "benefit_grants"
   USING (false);
+
+-- Checkout の予約と販売条件はサーバー専用。クライアントは読み書きできない。
+ALTER TABLE "billing_checkouts" ENABLE ROW LEVEL SECURITY;
+DROP POLICY IF EXISTS "billing_checkouts_deny_all" ON "billing_checkouts";
+CREATE POLICY "billing_checkouts_deny_all" ON "billing_checkouts" USING (false);

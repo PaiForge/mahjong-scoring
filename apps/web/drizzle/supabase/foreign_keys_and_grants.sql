@@ -341,3 +341,6 @@ END;
 $$;
 
 REVOKE ALL ON TABLE public.benefit_grants FROM anon, authenticated;
+
+-- 顧客への CASCADE FK は Drizzle が作成。予約・販売条件を公開しない。
+REVOKE ALL ON TABLE public.billing_checkouts FROM anon, authenticated;

@@ -145,7 +145,7 @@ STRIPE_PRICE_ID_PRO_LIFETIME=price_XXXXXXXXXXXXXXXXXXXX
 ```
 
 未設定の変数があると、Stripe を使う処理が初めて呼ばれた時点で変数名を含む例外になります（起動時には落ちません）。
-Price ID が環境変数のどれとも一致しない Session は購入として記録されません。
+Checkout 開始時に Price ID・特典・期間を DB に保存するため、その後環境変数を切り替えても開始済みの購入は旧条件で記録されます。
 
 ## 6. 動作確認チェックリスト
 
@@ -159,7 +159,9 @@ Price ID が環境変数のどれとも一致しない Session は購入とし�
 - [ ] テストカード（`4242 4242 4242 4242`）で決済が完了する
 - [ ] `/mypage/plan` に戻り、`purchases` に行ができている
 - [ ] `practice/score` と `practice/machi-score` の回数制限が外れ、拡張機能が使える
-- [ ] 期間パスをもう 1 枚買うと、新しい行の `starts_at` が前のパスの期限になる
+- [ ] パス有効中・買い切り保有中は追加購入できない（売り方を問わず）
+- [ ] 複数タブで同時に購入を開始しても同じ Checkout に戻る
+- [ ] Checkout 開始後に Price ID を切り替えても、開始済みの購入を記録できる
 - [ ] Dashboard で全額返金すると、行の `revoked_at` が立ち特典が消える
 
 ### テストカード
@@ -196,6 +198,24 @@ Price ID が環境変数のどれとも一致しない Session は購入とし�
 ### 決済したのに特典が付かない
 
 - `purchases` に行があるか。無ければサーバーログの `[recordPurchase]` を見る
-  - `unknown price` — Price ID が環境変数と一致していない
-  - `no stripe_customers row` — Checkout を経ずに Dashboard で作った決済。アプリは記録しない
+  - `unknownCheckout` — アプリで保存した購入手続きがない。Dashboard で手作業した決済や旧実装の Session は自動付与しない
+  - `invalidCheckout` — 保存した手続きと価格・数量・Session ID が一致しない
+  - `unknownCustomer` — 顧客対応がない（退会済みなど）
 - 行があるのに特典が無いなら `revoked_at` と `expires_at` を確認する
+
+
+## 購入手続きの再試行と更新
+
+- 購入は有効なパス・買い切りがないときだけ開始できます。パスから買い切りへの移行やパスの重ね買いは提供しません。
+- 手続きは1時間有効です。同じ売り方のボタンから再開すると同じ Checkout に戻ります。別の売り方へ変える場合は期限切れを待ちます。
+- `billing_checkouts` は Stripe API 呼び出し前に保存します。API の応答喪失・DB 保存失敗でも同じ ID を冪等キーとして回復します。障害時に予約行を手動削除しないでください。
+- 価格や特典の変更は新しい手続きだけに適用されます。開始済みの手続きは当時の価格・特典・期間を維持します。購入履歴の特典を一括更新しないでください。
+- 決済済み Session は期限を過ぎても未決済とみなさず、Stripe の現在値から購入記録を回復します。
+- 万一、異なる Session で重複決済が成立した場合は、後から記録する決済を全額返金し、取消済みの履歴を残します。
+- 新しい手続き表を導入する際は `pnpm db:run-migrate` を実行します。旧実装で開始済みの Session は販売条件を復元できないため、未決済のものを Stripe 側で失効させ、決済済みの未記録分を確認してから切り替えてください。既存の購入行は引き続き有効です。
+
+### 並行処理の回帰テスト
+
+`BILLING_TEST_DATABASE_URL=postgresql://...@127.0.0.1:54322/postgres pnpm exec vitest run src/lib/billing/billing.integration.test.ts`
+
+ローカル DB だけを受け付け、実行ごとに専用スキーマを作成・破棄します。アプリの表は変更しません。Stripe はモックで、顧客ロック・予約の一意制約・購入と返金の並行処理は複数の実 PostgreSQL 接続で検証します。
