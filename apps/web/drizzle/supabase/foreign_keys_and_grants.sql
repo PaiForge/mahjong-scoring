@@ -306,3 +306,38 @@ END;
 $$;
 
 REVOKE ALL ON TABLE public.practice_quota_usage FROM anon, authenticated;
+
+-- =============================================================================
+-- benefit_grants
+-- =============================================================================
+-- 特典の手動付与。サーバーだけが読み書きする（rls_policies.sql 参照）。
+-- 退会で付与は消える。付与した管理者は moderation_actions.actor_id と同じく
+-- RESTRICT（付与の記録から管理者を辿れなくしない）。
+
+-- FK constraint: benefit_grants.user_id → auth.users(id) ON DELETE CASCADE
+DO $$
+BEGIN
+  IF NOT EXISTS (
+    SELECT 1 FROM pg_constraint WHERE conname = 'benefit_grants_user_id_fkey'
+  ) THEN
+    ALTER TABLE public.benefit_grants
+      ADD CONSTRAINT benefit_grants_user_id_fkey
+      FOREIGN KEY (user_id) REFERENCES auth.users(id) ON DELETE CASCADE;
+  END IF;
+END;
+$$;
+
+-- FK constraint: benefit_grants.granted_by → auth.users(id) ON DELETE RESTRICT
+DO $$
+BEGIN
+  IF NOT EXISTS (
+    SELECT 1 FROM pg_constraint WHERE conname = 'benefit_grants_granted_by_fkey'
+  ) THEN
+    ALTER TABLE public.benefit_grants
+      ADD CONSTRAINT benefit_grants_granted_by_fkey
+      FOREIGN KEY (granted_by) REFERENCES auth.users(id) ON DELETE RESTRICT;
+  END IF;
+END;
+$$;
+
+REVOKE ALL ON TABLE public.benefit_grants FROM anon, authenticated;

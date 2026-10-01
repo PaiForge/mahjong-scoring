@@ -127,6 +127,13 @@
       "when": 1790840001753,
       "tag": "20261001073321_create_practice_quota_usage",
       "breakpoints": true
+    },
+    {
+      "idx": 18,
+      "version": "7",
+      "when": 1790844649124,
+      "tag": "20261001085049_create_benefit_grants",
+      "breakpoints": true
     }
   ]
 }

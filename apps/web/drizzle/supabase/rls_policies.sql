@@ -228,3 +228,15 @@ ALTER TABLE "practice_quota_usage" ENABLE ROW LEVEL SECURITY;
 DROP POLICY IF EXISTS "practice_quota_usage_deny_all" ON "practice_quota_usage";
 CREATE POLICY "practice_quota_usage_deny_all" ON "practice_quota_usage"
   USING (false);
+
+-- =============================================================================
+-- benefit_grants
+-- =============================================================================
+-- 特典の手動付与。読み込み（特典の判定・マイページ）も書き込み（管理画面）も
+-- サーバーが直 DB 接続で行う。付与行を書ければ特典を自分で付けられるため、
+-- 読み書きとも許可しない。
+ALTER TABLE "benefit_grants" ENABLE ROW LEVEL SECURITY;
+
+DROP POLICY IF EXISTS "benefit_grants_deny_all" ON "benefit_grants";
+CREATE POLICY "benefit_grants_deny_all" ON "benefit_grants"
+  USING (false);

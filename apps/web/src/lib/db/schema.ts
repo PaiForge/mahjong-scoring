@@ -836,6 +836,85 @@ export type Purchase = typeof purchases.$inferSelect;
 export type NewPurchase = typeof purchases.$inferInsert;
 
 /**
+ * 特典の手動付与 — 支援・補償・キャンペーン
+ * 特典付与
+ *
+ * @description
+ * Stripe の決済を伴わずに特典を付ける記録。問い合わせ対応での補償、モニター、
+ * キャンペーンなど、運営者が管理画面から付与する。特典の判定
+ * （`lib/entitlements/has-benefit.ts`）は `purchases` とこの表を同じ条件
+ * （未取消・開始済み・期限内か永久）で読んで和集合にする。機能側は特典の
+ * 出どころ（購入か付与か）を知らない。
+ *
+ * @design `benefits` は付与時点のスナップショット
+ *
+ * 購入と同じ規則（`purchases.benefits` 参照）。プラン定義に特典を足しても
+ * 過去の付与には付かない。
+ *
+ * @design `reason` は必須
+ *
+ * 後から「なぜ付いているか」が追えるように、空文字も DB で弾く。理由は
+ * 運営の内部メモになり得るので、マイページには出さない。付与と取り消しは
+ * `moderation_actions` にも残す（誰が・どこから）。
+ *
+ * @design 取り消し（`revoked_at`）は論理削除
+ *
+ * 購入と同じ。マイページの「付与された特典」に「取り消し済み」として残る。
+ *
+ * @design FK は Supabase SQL で定義
+ *
+ * `user_id` → auth.users（CASCADE。退会で消える）、`granted_by` → auth.users
+ * （RESTRICT。`moderation_actions.actor_id` と同じく、付与した管理者の
+ * 記録を辿れなくしない）。
+ */
+export const benefitGrants = pgTable(
+  "benefit_grants",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    /** 付与先の auth.users(id)（FK は Supabase SQL で定義） */
+    userId: uuid("user_id").notNull(),
+    /** プラン（`lib/billing/plans.ts` の `PlanKey`）。マイページの表示名に使う */
+    plan: varchar("plan", { length: 50 }).notNull(),
+    /** 付与時点の特典（`PlanBenefit` の値）。空にしない */
+    benefits: text("benefits").array().notNull(),
+    /** 付与の理由。必須 */
+    reason: text("reason").notNull(),
+    /** 付与した管理者の auth.users(id)（FK は Supabase SQL で定義） */
+    grantedBy: uuid("granted_by").notNull(),
+    /** 特典の開始 */
+    startsAt: timestamp("starts_at", { withTimezone: true }).notNull(),
+    /** 特典の終了。NULL なら無期限 */
+    expiresAt: timestamp("expires_at", { withTimezone: true }),
+    /** 取り消し日時。NULL なら有効 */
+    revokedAt: timestamp("revoked_at", { withTimezone: true }),
+    /** 取り消しの理由。`revoked_at` と対で入る */
+    revokeReason: text("revoke_reason"),
+    /** 作成日時 */
+    createdAt: timestamp("created_at", { withTimezone: true })
+      .defaultNow()
+      .notNull(),
+  },
+  (table) => [
+    index("idx_benefit_grants_user_expires").on(table.userId, table.expiresAt),
+    check(
+      "benefit_grants_chk_benefits_not_empty",
+      sql`cardinality(${table.benefits}) > 0`,
+    ),
+    check(
+      "benefit_grants_chk_reason_not_blank",
+      sql`length(trim(${table.reason})) > 0`,
+    ),
+    check(
+      "benefit_grants_chk_revoke_reason_pairs_with_revoked_at",
+      sql`(${table.revokedAt} IS NULL) = (${table.revokeReason} IS NULL)`,
+    ),
+  ],
+);
+
+export type BenefitGrant = typeof benefitGrants.$inferSelect;
+export type NewBenefitGrant = typeof benefitGrants.$inferInsert;
+
+/**
  * 処理済みの Stripe Webhook イベント
  * Webhookイベント
  *
