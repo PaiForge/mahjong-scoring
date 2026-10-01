@@ -3,7 +3,7 @@ import { cache } from "react";
 import "server-only";
 
 import { isPlanBenefit, type PlanBenefit } from "@/lib/billing/plans";
-import { db, purchases } from "@/lib/db";
+import { benefitGrants, db, purchases } from "@/lib/db";
 import { logExternalError } from "@/lib/log-error";
 
 /**
@@ -11,8 +11,8 @@ import { logExternalError } from "@/lib/log-error";
  * 特典判定
  *
  * 「このユーザーは特典 X を持つか」はすべてここを通す。回数制限・拡張機能・
- * 将来の特典のどれも、購入の種類（パス / 買い切り）や Stripe の事情を知らずに
- * `hasBenefit(userId, PlanBenefit.X)` と聞けばよい。
+ * 将来の特典のどれも、特典の出どころ（購入 / 手動付与）や Stripe の事情を
+ * 知らずに `hasBenefit(userId, PlanBenefit.X)` と聞けばよい。
  *
  * 判定の規則:
  *
@@ -20,8 +20,9 @@ import { logExternalError } from "@/lib/log-error";
  * - 開始済み（`starts_at <= now`。重ね買いしたパスは前のパスの期限から始まる）
  * - 期限内か永久（`expires_at IS NULL OR expires_at > now`）
  *
- * を満たす購入行の `benefits` の和集合に含まれれば true。契約状態や Webhook の
- * 到達に依らず時刻だけで失効するので、取りこぼしが永続の特典になる構造がない。
+ * を満たす購入行（`purchases`）と付与行（`benefit_grants`）の `benefits` の
+ * 和集合に含まれれば true。契約状態や Webhook の到達に依らず時刻だけで
+ * 失効するので、取りこぼしが永続の特典になる構造がない。
  *
  * @design fail-closed
  *
@@ -30,10 +31,10 @@ import { logExternalError } from "@/lib/log-error";
  *
  * @design React `cache()` でリクエスト内メモ化
  *
- * 1 回の描画で回数制限と拡張機能が別々に聞いても DB は 1 回。リクエストを
+ * 1 回の描画で回数制限と拡張機能が別々に聞いても DB は 1 往復。リクエストを
  * 越えるキャッシュ（`unstable_cache`）は置かない — 購入直後に反映されない
  * 時間が生まれ、無効化のタグ運用が要る。購入は稀で、判定は購入者だけが
- * 払うコストなので、毎リクエスト 1 クエリで足りる。
+ * 払うコストなので、毎リクエスト 1 往復で足りる。
  */
 
 /**
@@ -50,20 +51,37 @@ export const getActiveBenefits = cache(
     now: Date = new Date(),
   ): Promise<ReadonlySet<PlanBenefit>> => {
     try {
-      const rows = await db
-        .select({ benefits: purchases.benefits })
-        .from(purchases)
-        .where(
-          and(
-            eq(purchases.userId, userId),
-            isNull(purchases.revokedAt),
-            lte(purchases.startsAt, now),
-            or(isNull(purchases.expiresAt), gt(purchases.expiresAt, now)),
+      // 購入と付与は同じ条件で並行に読む。表を増やしても判定の規則は 1 つ
+      const [purchaseRows, grantRows] = await Promise.all([
+        db
+          .select({ benefits: purchases.benefits })
+          .from(purchases)
+          .where(
+            and(
+              eq(purchases.userId, userId),
+              isNull(purchases.revokedAt),
+              lte(purchases.startsAt, now),
+              or(isNull(purchases.expiresAt), gt(purchases.expiresAt, now)),
+            ),
           ),
-        );
+        db
+          .select({ benefits: benefitGrants.benefits })
+          .from(benefitGrants)
+          .where(
+            and(
+              eq(benefitGrants.userId, userId),
+              isNull(benefitGrants.revokedAt),
+              lte(benefitGrants.startsAt, now),
+              or(
+                isNull(benefitGrants.expiresAt),
+                gt(benefitGrants.expiresAt, now),
+              ),
+            ),
+          ),
+      ]);
 
       const benefits = new Set<PlanBenefit>();
-      for (const row of rows) {
+      for (const row of [...purchaseRows, ...grantRows]) {
         for (const value of row.benefits) {
           if (isPlanBenefit(value)) benefits.add(value);
         }
@@ -72,7 +90,7 @@ export const getActiveBenefits = cache(
     } catch (error) {
       logExternalError(
         "getActiveBenefits",
-        "failed to load purchases; treating as no benefits",
+        "failed to load purchases and grants; treating as no benefits",
         error,
       );
       return new Set();

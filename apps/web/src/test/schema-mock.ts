@@ -104,3 +104,19 @@ export const purchases = {
   revokeReason: "revoke_reason",
   createdAt: "created_at",
 } as const;
+
+/** benefit_grants のカラム */
+export const benefitGrants = {
+  _name: "benefit_grants",
+  id: "id",
+  userId: "user_id",
+  plan: "plan",
+  benefits: "benefits",
+  reason: "reason",
+  grantedBy: "granted_by",
+  startsAt: "starts_at",
+  expiresAt: "expires_at",
+  revokedAt: "revoked_at",
+  revokeReason: "revoke_reason",
+  createdAt: "created_at",
+} as const;
