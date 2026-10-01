@@ -6,6 +6,7 @@ import {
   logSearchParamsCache,
 } from "../_components/admin-log-page-layout";
 import { requireAdminPage } from "../_lib/auth";
+import { ModerationActionKind } from "../users/_lib/moderation";
 
 import { AuditLogRow } from "./_components/audit-log-row";
 import { fetchAuditLogPageData } from "./_lib/queries";
@@ -43,8 +44,11 @@ export default async function AdminAuditLogPage({
       userFilter={userFilter}
       filterActionOptions={
         <>
-          <option value="ban">ban</option>
-          <option value="unban">unban</option>
+          {Object.values(ModerationActionKind).map((kind) => (
+            <option key={kind} value={kind}>
+              {kind}
+            </option>
+          ))}
         </>
       }
       i18n={{

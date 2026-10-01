@@ -16,6 +16,7 @@ import { TableEmptyRow } from "../_components/table-empty-row";
 
 import { StatusBadge } from "./_components/status-badge";
 import { BanButton } from "./_components/ban-button";
+import { GrantBenefitsButton } from "./_components/grant-benefits-button";
 import { UnbanButton } from "./_components/unban-button";
 
 const searchParamsCache = createSearchParamsCache({
@@ -108,12 +109,17 @@ export default async function AdminUsersPage({
                       {formatAdminDate(user.created_at)}
                     </td>
                     <td className="px-4 py-3">
-                      {!isCurrentUser &&
-                        (isBanned ? (
-                          <UnbanButton targetUserId={user.id} />
-                        ) : (
-                          <BanButton targetUserId={user.id} />
-                        ))}
+                      {/* 付与は自分にもできる（運営者の動作確認・制限解除のため）。
+                          BAN と違い相手を害さない操作なので isCurrentUser で隠さない */}
+                      <div className="flex flex-wrap gap-2">
+                        <GrantBenefitsButton targetUserId={user.id} />
+                        {!isCurrentUser &&
+                          (isBanned ? (
+                            <UnbanButton targetUserId={user.id} />
+                          ) : (
+                            <BanButton targetUserId={user.id} />
+                          ))}
+                      </div>
                     </td>
                   </tr>
                 );

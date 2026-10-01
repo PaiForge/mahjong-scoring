@@ -2696,6 +2696,62 @@
       "pending": "処理中...",
       "errorFailed": "BAN解除に失敗しました"
     },
+    "benefitGrants": {
+      "navLabel": "特典付与",
+      "listTitle": "特典の手動付与",
+      "listDescription": "支援・補償・キャンペーンで Stripe の決済を伴わずに付けた Pro の特典です。付与はユーザー一覧の「Pro 付与」から行います。取り消しても行は残ります。",
+      "table": {
+        "target": "対象",
+        "plan": "内容",
+        "period": "期間",
+        "reason": "理由",
+        "grantedBy": "付与者",
+        "state": "状態",
+        "actions": "操作",
+        "empty": "付与はありません",
+        "permanent": "無期限",
+        "revokedReason": "取り消し理由: {reason}"
+      },
+      "plan": {
+        "pro": "Pro"
+      },
+      "state": {
+        "active": "有効",
+        "expired": "期限切れ",
+        "revoked": "取り消し済み"
+      },
+      "durations": {
+        "days30": "30 日",
+        "days90": "90 日",
+        "days180": "180 日",
+        "permanent": "無期限"
+      },
+      "grant": {
+        "button": "Pro 付与",
+        "title": "Pro の特典を付与する",
+        "description": "Stripe の決済を伴わずに Pro の特典（回数制限なし・拡張機能）を付けます。理由は監査ログに残ります。",
+        "durationLabel": "期間",
+        "reasonLabel": "理由",
+        "reasonPlaceholder": "例: 問い合わせ #123 の補償 / モニター協力",
+        "cancel": "キャンセル",
+        "confirm": "付与する",
+        "pending": "処理中...",
+        "errorReasonRequired": "理由を入力してください",
+        "errorFailed": "付与に失敗しました"
+      },
+      "revoke": {
+        "button": "取り消し",
+        "title": "付与を取り消す",
+        "description": "このユーザーの Pro の特典（この付与分）を今すぐ止めます。購入した特典には影響しません。",
+        "reasonLabel": "理由",
+        "reasonPlaceholder": "例: 誤って付与した / キャンペーン終了",
+        "cancel": "キャンセル",
+        "confirm": "取り消す",
+        "pending": "処理中...",
+        "errorReasonRequired": "理由を入力してください",
+        "errorFailed": "取り消しに失敗しました"
+      }
+    },
     "ads": {
       "navLabel": "広告",
       "listTitle": "ネイティブ広告",
