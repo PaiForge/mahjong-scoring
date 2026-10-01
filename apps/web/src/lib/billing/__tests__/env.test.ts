@@ -4,6 +4,7 @@ import {
   getOfferPriceId,
   getStripeSecretKey,
   getStripeWebhookSecret,
+  isPlanOnSale,
   readOfferPriceId,
   resolveOfferByPriceId,
 } from "../env";
@@ -48,6 +49,20 @@ describe("readOfferPriceId", () => {
   it("未設定なら undefined（空文字も未設定扱い）", () => {
     clearAll();
     expect(readOfferPriceId("pro", "pass")).toBeUndefined();
+  });
+});
+
+describe("isPlanOnSale", () => {
+  it("全売り方の Price ID が設定されていれば true", () => {
+    vi.stubEnv("STRIPE_PRICE_ID_PRO_PASS", "price_pass");
+    vi.stubEnv("STRIPE_PRICE_ID_PRO_LIFETIME", "price_life");
+    expect(isPlanOnSale("pro")).toBe(true);
+  });
+
+  it("どれか 1 つでも未設定なら false（片方だけ売れる状態を販売中と見なさない）", () => {
+    clearAll();
+    vi.stubEnv("STRIPE_PRICE_ID_PRO_PASS", "price_pass");
+    expect(isPlanOnSale("pro")).toBe(false);
   });
 });
 

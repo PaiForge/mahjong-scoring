@@ -8,6 +8,7 @@ const {
   mockCanSign,
   mockReadAnonymous,
   mockWriteAnonymous,
+  mockIsPlanOnSale,
 } = vi.hoisted(() => ({
   mockGetOptionalUser: vi.fn(),
   mockEnforceIpRateLimit: vi.fn(),
@@ -16,9 +17,11 @@ const {
   mockCanSign: vi.fn(),
   mockReadAnonymous: vi.fn(),
   mockWriteAnonymous: vi.fn(),
+  mockIsPlanOnSale: vi.fn(),
 }));
 
 vi.mock("@/lib/auth", () => ({ getOptionalUser: mockGetOptionalUser }));
+vi.mock("@/lib/billing/env", () => ({ isPlanOnSale: mockIsPlanOnSale }));
 vi.mock("@/lib/rate-limit-ip", () => ({
   enforceIpRateLimit: mockEnforceIpRateLimit,
 }));
@@ -44,6 +47,7 @@ beforeEach(() => {
   mockGetActiveBenefits.mockResolvedValue(new Set());
   mockCanSign.mockReturnValue(true);
   mockReadAnonymous.mockResolvedValue({ score: 0, "machi-score": 0 });
+  mockIsPlanOnSale.mockReturnValue(true);
 });
 
 describe("beginPracticeQuestion", () => {
@@ -60,6 +64,53 @@ describe("beginPracticeQuestion", () => {
       error: "rateLimited",
     });
     expect(mockConsumeUserQuota).not.toHaveBeenCalled();
+  });
+
+  describe("Pro を販売していない間（Price ID 未設定）", () => {
+    beforeEach(() => {
+      mockIsPlanOnSale.mockReturnValue(false);
+    });
+
+    it("ログイン済みは数えずに無制限で許可し、特典は本物の判定どおり返す", async () => {
+      mockGetActiveBenefits.mockResolvedValue(new Set(["practice_tools"]));
+
+      const result = await beginPracticeQuestion("score");
+
+      expect(result).toEqual({
+        success: true,
+        allowed: true,
+        remaining: "unlimited",
+        limit: "unlimited",
+        signedIn: true,
+        benefits: ["practice_tools"],
+      });
+      expect(mockConsumeUserQuota).not.toHaveBeenCalled();
+    });
+
+    it("未ログインも cookie を触らず無制限で許可", async () => {
+      mockGetOptionalUser.mockResolvedValue(undefined);
+      mockReadAnonymous.mockResolvedValue({ score: 1, "machi-score": 1 });
+
+      const result = await beginPracticeQuestion("score");
+
+      expect(result).toEqual({
+        success: true,
+        allowed: true,
+        remaining: "unlimited",
+        limit: "unlimited",
+        signedIn: false,
+        benefits: [],
+      });
+      expect(mockReadAnonymous).not.toHaveBeenCalled();
+      expect(mockWriteAnonymous).not.toHaveBeenCalled();
+    });
+
+    it("IP レート制限は販売の有無に関わらず先に効く", async () => {
+      mockEnforceIpRateLimit.mockResolvedValue({ error: "rateLimited" });
+      expect(await beginPracticeQuestion("score")).toEqual({
+        error: "rateLimited",
+      });
+    });
   });
 
   describe("ログイン済み", () => {

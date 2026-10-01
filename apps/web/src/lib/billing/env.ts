@@ -62,6 +62,27 @@ export function readOfferPriceId(
   return process.env[OFFER_PRICE_ENV_NAMES[plan][offer]] || undefined;
 }
 
+/**
+ * プランを販売できる状態か（全売り方の Price ID が設定済み）
+ * 販売可否
+ *
+ * 練習の回数制限（`beginPracticeQuestion`）は、これが false の間は掛けない。
+ * 制限を掛けると「払いたくても払えないペイウォール」を全員に出すことになる。
+ * 回数制限は DB の失敗時も許可して通す設計で、販売できない間に開けておくのも
+ * 同じ fail-open の延長。手動付与（`benefit_grants`）で運営者の制限は解けるが、
+ * 他の利用者には手段が無い。
+ *
+ * 裏返すと、本番で Price ID を消すと制限が静かに消える。これは受け入れる —
+ * Price ID が無いのは「売っていない」状態そのもので、制限する根拠が無い。
+ * 料金ページの購入ボタンはこれを見ていない（Price ID 未設定の Checkout は
+ * `checkoutFailed` で止まる）。
+ */
+export function isPlanOnSale(plan: PlanKey): boolean {
+  return OFFER_KEYS.every(
+    (offer) => readOfferPriceId(plan, offer) !== undefined,
+  );
+}
+
 /** Price ID から逆引きしたプランと売り方 */
 export interface ResolvedOffer {
   readonly plan: PlanKey;

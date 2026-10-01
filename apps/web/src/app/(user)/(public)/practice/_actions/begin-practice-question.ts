@@ -2,6 +2,7 @@
 
 import type { ActionResult } from "@/lib/action-types";
 import { getOptionalUser } from "@/lib/auth";
+import { isPlanOnSale } from "@/lib/billing/env";
 import { PlanBenefit } from "@/lib/billing/plans";
 import { getActiveBenefits } from "@/lib/entitlements/has-benefit";
 import { logExternalError } from "@/lib/log-error";
@@ -65,6 +66,9 @@ const UNLIMITED: BeginPracticeQuestionResult = {
  * - Pro（`unlimited_practice`）は消費せず常に許可
  * - ログイン済みの無料ユーザーは DB（`practice_quota_usage`）で数える。回避不能
  * - 未ログインは署名付き cookie で数える。cookie を消せば戻る弱い制限（決定どおり）
+ * - Pro を販売していない間（Price ID 未設定。`isPlanOnSale`）は誰にも制限を
+ *   掛けない。払う手段が無いペイウォールを出さないため。特典は本物の判定
+ *   どおり返す（拡張機能の出し分けは販売の有無と無関係）
  *
  * @design DB の失敗は許可して通す
  *
@@ -84,6 +88,16 @@ export async function beginPracticeQuestion(
 
   const now = new Date();
   const user = await getOptionalUser();
+
+  if (!isPlanOnSale("pro")) {
+    const benefits = user ? [...(await getActiveBenefits(user.id, now))] : [];
+    return {
+      success: true,
+      ...UNLIMITED,
+      signedIn: user !== undefined,
+      benefits,
+    };
+  }
 
   if (user) {
     return { success: true, ...(await beginForUser(user.id, menu, now)) };
