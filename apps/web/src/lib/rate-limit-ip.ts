@@ -109,6 +109,10 @@ export const IP_RATE_LIMITS = {
   // Pro の無制限で決まるので、ここは連打や自動化を止める網だけ。1 問に
   // 数秒は掛かるため、10 分で 120 回なら人の操作は引っ掛からない
   beginPracticeQuestion: { maxRequests: 120, windowMs: 600_000 },
+  // Stripe Checkout の作成と完了の着地。Stripe 側に顧客・Session を作る操作
+  // なので、連打や自動化で Stripe の API を叩かせない
+  createCheckoutSession: { maxRequests: 5, windowMs: 600_000 },
+  completeCheckout: { maxRequests: 10, windowMs: 600_000 },
 } as const;
 
 /**
