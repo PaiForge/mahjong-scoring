@@ -7,7 +7,7 @@ import { PurchaseKind } from "./plans";
  * プラン状態
  *
  * - `lifetime` — 有効な買い切りを持つ
- * - `pass` — 有効なパスを持つ。`until` は（重ね買いを含めた）最後の期限
+ * - `pass` — 有効なパスを持つ。`until` は現在開始済みの購入の期限
  * - `granted` — 手動付与で Pro。`until` は期限、無期限なら undefined
  * - `free` — どれも無い
  *
@@ -28,8 +28,8 @@ export type PlanStatus =
  * 購入状態
  *
  * - `refunded` — 取り消し済み（返金・不正）
- * - `active` — 有効（買い切りは常にこれ）
- * - `scheduled` — 重ね買いで、前のパスの期限から始まる
+ * - `active` — 開始済みで有効
+ * - `scheduled` — 旧実装などの開始待ちの購入
  * - `expired` — 期限切れ
  */
 export type PurchaseState = "refunded" | "active" | "scheduled" | "expired";
@@ -37,7 +37,6 @@ export type PurchaseState = "refunded" | "active" | "scheduled" | "expired";
 /** 購入の状態（表示用） */
 export function purchaseStateOf(purchase: Purchase, now: Date): PurchaseState {
   if (purchase.revokedAt) return "refunded";
-  if (purchase.kind === PurchaseKind.Lifetime) return "active";
   if (purchase.expiresAt && purchase.expiresAt <= now) return "expired";
   if (purchase.startsAt > now) return "scheduled";
   return "active";
@@ -72,7 +71,9 @@ export function planStatusOf(
   grants: readonly BenefitGrant[],
   now: Date,
 ): PlanStatus {
-  const validPurchases = purchases.filter((purchase) => !purchase.revokedAt);
+  const validPurchases = purchases.filter(
+    (purchase) => purchaseStateOf(purchase, now) === "active",
+  );
   if (
     validPurchases.some((purchase) => purchase.kind === PurchaseKind.Lifetime)
   ) {
@@ -80,13 +81,14 @@ export function planStatusOf(
   }
 
   const activeGrants = grants.filter(
-    (grant) => benefitGrantStateOf(grant, now) === "active",
+    (grant) =>
+      grant.startsAt <= now && benefitGrantStateOf(grant, now) === "active",
   );
   if (activeGrants.some((grant) => !grant.expiresAt)) {
     return { kind: "granted", until: undefined };
   }
 
-  // 開始待ちのパスも含めて、最後の期限を「〜まで」に出す。
+  // 開始済みの購入と付与だけを現在の状態に含める。開始待ちは履歴に表示する。
   // 種類は最後の期限を持つ方（パス / 付与）
   let latest:
     { readonly kind: "pass" | "granted"; readonly until: Date } | undefined;

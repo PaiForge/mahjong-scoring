@@ -124,7 +124,7 @@ describe("planStatusOf", () => {
     ).toEqual({ kind: "free" });
   });
 
-  it("パスは（開始待ちも含めて）最後の期限を until にする", () => {
+  it("開始待ちの購入で現在の期限を延ばさない", () => {
     const later = new Date("2026-11-19T00:00:00Z");
     expect(
       planStatusOf(
@@ -138,7 +138,7 @@ describe("planStatusOf", () => {
         [],
         NOW,
       ),
-    ).toEqual({ kind: "pass", until: later });
+    ).toEqual({ kind: "pass", until: new Date("2026-10-20T00:00:00Z") });
   });
 
   it("期限切れのパスしか無ければ free", () => {
@@ -227,4 +227,44 @@ describe("formatPlanDate", () => {
       "2026年10月21日",
     );
   });
+});
+
+it("先行パス返金後、開始待ちのパスだけでは現在 Pro にしない", () => {
+  expect(
+    planStatusOf(
+      [
+        purchase({ revokedAt: NOW, revokeReason: "refunded" }),
+        purchase({
+          startsAt: new Date("2026-10-20T00:00:00Z"),
+          expiresAt: new Date("2026-11-19T00:00:00Z"),
+        }),
+      ],
+      [],
+      NOW,
+    ),
+  ).toEqual({ kind: "free" });
+});
+it("開始ちょうどは有効、期限ちょうどは無料", () => {
+  expect(planStatusOf([purchase({ startsAt: NOW })], [], NOW).kind).toBe(
+    "pass",
+  );
+  expect(planStatusOf([purchase({ expiresAt: NOW })], [], NOW)).toEqual({
+    kind: "free",
+  });
+});
+it("開始待ちの買い切りや付与も現在 Pro にしない", () => {
+  const future = new Date("2026-10-20T00:00:00Z");
+  expect(
+    purchaseStateOf(
+      purchase({ kind: "lifetime", startsAt: future, expiresAt: null }),
+      NOW,
+    ),
+  ).toBe("scheduled");
+  expect(
+    planStatusOf(
+      [purchase({ kind: "lifetime", startsAt: future, expiresAt: null })],
+      [grant({ startsAt: future, expiresAt: null })],
+      NOW,
+    ),
+  ).toEqual({ kind: "free" });
 });

@@ -64,6 +64,11 @@ export default async function MypagePlanPage({
   ]);
   const now = new Date();
   const plan = planStatusOf(purchases, grants, now);
+  // 開始待ちの旧購入も再購入させない。手動付与しか無い人は購入できる。
+  const canPurchase = !purchases.some(
+    (purchase) =>
+      !purchase.revokedAt && (!purchase.expiresAt || purchase.expiresAt > now),
+  );
 
   return (
     <ContentContainer
@@ -107,7 +112,7 @@ export default async function MypagePlanPage({
               {plan.kind === "granted" && t("status.grantedHint")}
               {plan.kind === "free" && t("status.freeHint")}
             </p>
-            {plan.kind === "free" && (
+            {canPurchase && (
               <LinkButton href={PLAN_PAGE_HREF} size="lg" fullWidth>
                 {t("status.buy")}
               </LinkButton>
