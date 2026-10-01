@@ -113,6 +113,15 @@ export default async function PlanPage() {
             <li>{t("notes.receipt")}</li>
             <li>{t("notes.deletion")}</li>
           </ul>
+          <p className="mt-3 text-sm">
+            {t.rich("notes.tokushoho", {
+              link: (chunks) => (
+                <Link href="/tokushoho" className={TEXT_LINK_CLASSES}>
+                  {chunks}
+                </Link>
+              ),
+            })}
+          </p>
         </HighlightPanel>
 
         <p className="text-center text-sm">

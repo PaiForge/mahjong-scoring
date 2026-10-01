@@ -25,7 +25,7 @@ import {
 } from "../_components/legal-article";
 
 /** 改定日。文面を変えたら更新する */
-const LAST_UPDATED = "2026-09-14";
+const LAST_UPDATED = "2026-10-01";
 
 /** 文中から参照する Google の各ポリシー・設定ページ */
 const GOOGLE_LINKS = {
@@ -56,6 +56,7 @@ export default async function PrivacyPage() {
             <li>{t("collected.account")}</li>
             <li>{t("collected.profile")}</li>
             <li>{t("collected.records")}</li>
+            <li>{t("collected.purchase")}</li>
             <li>{t("collected.activity")}</li>
             <li>{t("collected.access")}</li>
             <li>{t("collected.inquiry")}</li>
@@ -205,6 +206,7 @@ export default async function PrivacyPage() {
             <li>{t("retention.item2")}</li>
             <li>{t("retention.item3")}</li>
             <li>{t("retention.item4")}</li>
+            <li>{t("retention.item5")}</li>
           </LegalList>
         </LegalSection>
 

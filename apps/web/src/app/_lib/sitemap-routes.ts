@@ -36,6 +36,7 @@ export const STATIC_SITEMAP_ROUTE_DEFS = [
   { url: "/privacy", changeFrequency: "yearly", priority: 0.2 },
   { url: "/contact", changeFrequency: "yearly", priority: 0.3 },
   { url: "/plan", changeFrequency: "monthly", priority: 0.6 },
+  { url: "/tokushoho", changeFrequency: "yearly", priority: 0.2 },
   { url: "/company", changeFrequency: "yearly", priority: 0.2 },
 ] as const;
 

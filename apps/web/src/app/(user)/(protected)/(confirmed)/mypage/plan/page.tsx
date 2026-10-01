@@ -14,6 +14,7 @@ import { createPrivateMetadata } from "@/app/_lib/metadata";
 import { requireConfirmedUser } from "@/lib/auth";
 import {
   formatPlanDate,
+  formatPlanDateShort,
   planStatusOf,
   purchaseStateOf,
 } from "@/lib/billing/plan-status";
@@ -125,9 +126,9 @@ export default async function MypagePlanPage({
                 return (
                   <tr key={purchase.id} className="text-sm">
                     <td className={`${cell} text-left tabular-nums`}>
-                      {formatPlanDate(purchase.createdAt)}
+                      {formatPlanDateShort(purchase.createdAt)}
                     </td>
-                    <td className={`${cell} text-left`}>
+                    <td className={`${cell} whitespace-nowrap text-left`}>
                       {purchase.kind === PurchaseKind.Lifetime
                         ? t("history.kind.lifetime")
                         : t("history.kind.pass")}
@@ -135,7 +136,7 @@ export default async function MypagePlanPage({
                     <td className={`${cell} text-right tabular-nums`}>
                       {formatAmount(purchase.amount, purchase.currency)}
                     </td>
-                    <td className={`${cell} text-center`}>
+                    <td className={`${cell} whitespace-nowrap text-center`}>
                       {t(`history.state_${state}`)}
                     </td>
                   </tr>

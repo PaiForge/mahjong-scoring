@@ -57,6 +57,16 @@ export function planStatusOf(
   return until ? { kind: "pass", until } : { kind: "free" };
 }
 
+/** 日付を「2026/10/31」の形にする（JST）。表の列幅を取らない */
+export function formatPlanDateShort(date: Date): string {
+  return new Intl.DateTimeFormat("ja-JP", {
+    year: "numeric",
+    month: "2-digit",
+    day: "2-digit",
+    timeZone: "Asia/Tokyo",
+  }).format(date);
+}
+
 /** 日付を「2026年10月31日」の形にする（JST） */
 export function formatPlanDate(date: Date): string {
   return new Intl.DateTimeFormat("ja-JP", {

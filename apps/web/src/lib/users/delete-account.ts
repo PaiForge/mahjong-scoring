@@ -29,7 +29,9 @@ import { createAdminClient } from "@/lib/supabase/admin";
  * - `profiles` は行を残し、個人情報を NULL 化して `deletedAt` を記録する
  *   （username は再利用防止のため保持）。
  * - 成績・経験値・学習履歴・段級位・ロールは物理削除する（ランキングからも消える）。
- *   利用規約の「退会」の節がこの一覧を約束しているので、消す対象を増減
+ *   有料プランの購入記録（`purchases` / `stripe_customers`）は auth.users の
+ * 削除に CASCADE して消える。返金はしない。
+ * 利用規約の「退会」の節がこの一覧を約束しているので、消す対象を増減
  *   したら規約の文面（`terms.deletion`）も合わせて直すこと。
  * - `user_activity_log` / `moderation_actions` は監査のため保持する。
  * - アバター画像は Storage から削除する（ベストエフォート）。

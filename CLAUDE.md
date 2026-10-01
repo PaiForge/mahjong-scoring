@@ -291,6 +291,11 @@ loading.tsx を一緒に足すこと。逆に静的にしたら両方を外す�
 /practice/jantou-fu/play    — 練習本体
 /practice/jantou-fu/result  — 結果表示
 /learn/jantou-fu            — 雀頭の符計算（教本ページ、SEO重視でSSR）
+/plan                       — 料金ページ（Pro: 30 日パス / 買い切り。静的、価格は Stripe から 1 日キャッシュ）
+/mypage/plan                — 購入状況と購入履歴（動的）
+/tokushoho                  — 特定商取引法に基づく表記
+/api/stripe/webhook         — Stripe Webhook（署名検証・重複排除）
+/api/stripe/checkout/complete — Checkout 完了の着地（所有者検証 → 同期記録 → /mypage/plan）
 ```
 
 ### 練習ページ構成パターン
