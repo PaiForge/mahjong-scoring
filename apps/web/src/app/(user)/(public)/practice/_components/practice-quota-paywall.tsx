@@ -4,7 +4,6 @@ import { usePathname, useSearchParams } from "next/navigation";
 import { useTranslations } from "next-intl";
 
 import { ContentContainer } from "@/app/(user)/_components/content-container";
-import { HighlightPanel } from "@/app/(user)/_components/highlight-panel";
 import { LinkButton } from "@/app/(user)/_components/link-button";
 import { PageTitle } from "@/app/(user)/_components/page-title";
 import { SUB_LINK_GAP } from "@/app/_components/_lib/spacing";
@@ -62,9 +61,11 @@ export function PracticeQuotaPaywall({
     <ContentContainer id={PRACTICE_SCROLL_ANCHOR_ID} fillViewport>
       <PageTitle>{tPractice("title")}</PageTitle>
 
-      <div className="space-y-6 py-4">
-        <div className="space-y-3 text-center">
-          <h2 className="text-lg font-bold">{t("title")}</h2>
+      <div className="space-y-8 py-6">
+        <div className="space-y-4 text-center">
+          <h2 className="text-2xl leading-relaxed font-bold text-primary-900 text-balance">
+            {t("title")}
+          </h2>
           <p className="text-sm leading-relaxed">
             {signedIn
               ? t("bodySignedIn", { limit })
@@ -75,31 +76,41 @@ export function PracticeQuotaPaywall({
           </p>
         </div>
 
-        <HighlightPanel>
-          <p className="font-bold">{t("perksTitle")}</p>
-          <ul className="mt-2 list-disc space-y-1 pl-5 text-sm leading-relaxed">
-            <li>{t("perkUnlimited")}</li>
-            <li>{t("perkTools")}</li>
-          </ul>
-        </HighlightPanel>
-
-        {signedIn ? (
-          <LinkButton href={PLAN_PAGE_HREF} size="lg" fullWidth>
-            {t("planCta")}
-          </LinkButton>
-        ) : (
+        {!signedIn && (
           <div className={`flex flex-col items-center ${SUB_LINK_GAP}`}>
-            <div className="flex w-full flex-col gap-3">
-              <LinkButton href={signInHref} size="lg" fullWidth>
-                {t("signInCta")}
-              </LinkButton>
-              <LinkButton href={PLAN_PAGE_HREF} variant="secondary" fullWidth>
-                {t("planCta")}
-              </LinkButton>
-            </div>
+            <LinkButton href={signInHref} size="lg" fullWidth>
+              {t("signInCta")}
+            </LinkButton>
             <p className="text-xs text-surface-500">{t("signUpHint")}</p>
           </div>
         )}
+
+        <section className="space-y-5 rounded-xl border border-primary-200 bg-primary-50/60 p-5">
+          <div>
+            <h3 className="font-bold text-primary-900">{t("perksTitle")}</h3>
+            <ul className="mt-3 space-y-2 text-sm leading-relaxed">
+              {["perkUnlimited", "perkTools"].map((perk) => (
+                <li key={perk} className="flex gap-2">
+                  <span aria-hidden="true" className="text-primary-700">
+                    ✓
+                  </span>
+                  <span>{t(perk)}</span>
+                </li>
+              ))}
+            </ul>
+          </div>
+          <div className={`flex flex-col items-center ${SUB_LINK_GAP}`}>
+            <LinkButton
+              href={PLAN_PAGE_HREF}
+              variant={signedIn ? "primary" : "secondary"}
+              size="lg"
+              fullWidth
+            >
+              {t("planCta")}
+            </LinkButton>
+            <p className="text-xs text-surface-500">{t("noAutoRenew")}</p>
+          </div>
+        </section>
 
         <PracticeFooterActions>
           <PracticeFooterAction onClick={onBackToSetup}>
