@@ -106,7 +106,21 @@ stripe trigger charge.refunded
 > アプリは「知らない価格」「知らない顧客」として記録を見送ります（ログに残ります）。署名検証と疎通の確認に使い、
 > 購入の記録まで試すには実際に Checkout を通してください（下のテストカード）。
 
-### 本番環境（Stripe Dashboard）
+### 本番環境
+
+スクリプトで登録するのが確実です。`--webhook-url` を付けると、商品と価格に続けて Webhook エンドポイントも
+作ります。既に同じ URL のエンドポイントがあれば作り直さず、購読イベントだけをアプリの一覧
+（`src/lib/billing/webhook-events.ts`）に揃えます。**受けるイベントを増やしたときは、この一覧を直してから
+同じコマンドをもう一度実行してください。** Dashboard で登録したエンドポイントも同じ URL なら対象になります。
+
+```bash
+STRIPE_SECRET_KEY=sk_live_... pnpm stripe:bootstrap --webhook-url https://<本番ドメイン>/api/stripe/webhook
+```
+
+新規作成のときは出力に `STRIPE_WEBHOOK_SECRET` の行が含まれます（署名シークレットは作成時にしか返らない）。
+既存のエンドポイントなら Dashboard のエンドポイント詳細で確認してください。いずれも Vercel の環境変数に設定します。
+
+Dashboard で手で登録する場合:
 
 1. [Stripe Dashboard](https://dashboard.stripe.com/webhooks) > 開発者 > Webhook > **+ エンドポイントを追加**
 2. 設定:
@@ -202,7 +216,6 @@ Checkout 開始時に Price ID・特典・期間を DB に保存するため、�
   - `invalidCheckout` — 保存した手続きと価格・数量・Session ID が一致しない
   - `unknownCustomer` — 顧客対応がない（退会済みなど）
 - 行があるのに特典が無いなら `revoked_at` と `expires_at` を確認する
-
 
 ## 購入手続きの再試行と更新
 

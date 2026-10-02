@@ -212,6 +212,38 @@ async function ensurePrice(
   return price;
 }
 
+/**
+ * 登録済みの Webhook が購読するイベントをアプリの一覧に揃える
+ *
+ * 一覧（`STRIPE_WEBHOOK_EVENTS`）にイベントを足しても、登録済みの
+ * エンドポイントはそのままでは受け取らない。アプリの一覧を正として
+ * 差分があれば `enabled_events` を上書きする（Dashboard で手で足した
+ * イベントも落とす — 受け口が処理しないイベントを届けても意味が無い）。
+ * `*`（全イベント）で登録されているものは触らない
+ */
+async function syncWebhookEvents(
+  existing: Stripe.WebhookEndpoint,
+): Promise<Stripe.WebhookEndpoint> {
+  const current = existing.enabled_events;
+  if (current.includes("*")) {
+    console.log("  全イベントを購読する設定のため、イベントの一覧は変えません");
+    return existing;
+  }
+  const wanted = [...STRIPE_WEBHOOK_EVENTS];
+  const same =
+    current.length === wanted.length &&
+    wanted.every((event) => current.includes(event));
+  if (same) return existing;
+
+  const updated = await stripe.webhookEndpoints.update(existing.id, {
+    enabled_events: wanted,
+  });
+  console.log(
+    `  購読イベントを更新しました: ${current.join(", ") || "(なし)"} → ${wanted.join(", ")}`,
+  );
+  return updated;
+}
+
 async function ensureWebhookEndpoint(
   url: string,
 ): Promise<Stripe.WebhookEndpoint & { secret?: string }> {
@@ -221,7 +253,7 @@ async function ensureWebhookEndpoint(
     console.log(
       `  Webhook ${url} は既にあります（${existing.id}）。署名シークレットは Dashboard で確認してください`,
     );
-    return existing;
+    return syncWebhookEvents(existing);
   }
   const endpoint = await stripe.webhookEndpoints.create({
     url,
