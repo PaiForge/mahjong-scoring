@@ -76,9 +76,12 @@ export function ScoreSetupForm({
   // `/api/profile/me` が返す（静的ページなのでサーバーから props では渡せない）。
   // 盤面は特典の有無をサーバーの返事で改めて確かめるので、ここの判定は
   // 「スイッチを出すか料金ページへの導線を出すか」の見た目だけを決める
-  const { profile } = useAuth();
+  const { user, isLoading, profile, isProfileLoading } = useAuth();
   const hasPracticeTools =
     profile?.benefits.includes(PlanBenefit.PracticeTools) ?? false;
+  // 特典の有無が決まるまではスケルトンを出す。ロック行はスイッチ行より背が高く、
+  // 決まる前に描くと Pro の閲覧者にロック行が一瞬出てから縮む
+  const isBenefitPending = isLoading || (user !== null && isProfileLoading);
   const useSettingsStore = settingsStore;
   const {
     requireYaku,
@@ -166,9 +169,11 @@ export function ScoreSetupForm({
   const isDisabled =
     targetScoreRanges.length === 0 || (!includeParent && !includeChild);
 
-  if (!mounted) {
+  if (!mounted || isBenefitPending) {
     // 本体と同じ構造（設定カード＝トグル5行、2カラムのチェックボックスカード、
     // フル幅ボタン）でスケルトンを描画し、実 UI 表示時の CLS を防ぐ。
+    // 最後の行（回答時間の計測）は Pro でない閲覧者が多数なので、ロック行の
+    // 高さ（見出し・利用条件・料金ページへのリンクの 3 段）に合わせる。
     // 実 UI の苔緑の太枠（border-ink）は写さず灰色にする（ProblemListSkeleton と
     // 同じ理由）。枠は border-box なので寸法は実 UI と一致したまま。
     return (
@@ -176,21 +181,29 @@ export function ScoreSetupForm({
         {/* Settings card: トグル5行 */}
         <div className="overflow-hidden rounded-xl border-3 border-surface-100 bg-surface-50">
           <div className="flex flex-col">
-            {[
-              "requireYaku",
-              "simplifyMangan",
-              "requireFu",
-              "autoNext",
-              "measureTime",
-            ].map((key, i) => (
-              <div
-                key={key}
-                className={`flex items-center justify-between px-5 py-3.5 ${i < 4 ? "border-b-2 border-dashed border-border/40" : ""}`}
-              >
+            {["requireYaku", "simplifyMangan", "requireFu", "autoNext"].map(
+              (key) => (
+                <div
+                  key={key}
+                  className="flex items-center justify-between border-b-2 border-dashed border-border/40 px-5 py-3.5"
+                >
+                  <SkeletonBar className="h-4 w-32" tone={100} />
+                  <SkeletonBar radius="full" className="h-6 w-11" tone={100} />
+                </div>
+              ),
+            )}
+            <div className="px-5 py-3.5">
+              <div className="flex h-5 items-center justify-between">
                 <SkeletonBar className="h-4 w-32" tone={100} />
-                <SkeletonBar radius="full" className="h-6 w-11" tone={100} />
+                <SkeletonBar radius="full" className="h-4 w-10" tone={100} />
               </div>
-            ))}
+              <div className="mt-1 flex h-4 items-center">
+                <SkeletonBar className="h-3 w-40" tone={100} />
+              </div>
+              <div className="mt-1 flex h-4 items-center justify-end">
+                <SkeletonBar className="h-3 w-20" tone={100} />
+              </div>
+            </div>
           </div>
         </div>
 

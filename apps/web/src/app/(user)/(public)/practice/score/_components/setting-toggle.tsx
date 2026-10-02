@@ -62,10 +62,10 @@ export function SettingToggle({
           </span>
         </div>
         <p className="mt-1 text-xs text-surface-600">{locked.note}</p>
-        <div className="mt-1 text-right">
+        <div className="mt-1 text-right text-xs">
           <Link
             href={locked.href}
-            className={`text-xs font-semibold ${TEXT_LINK_CLASSES}`}
+            className={`font-semibold ${TEXT_LINK_CLASSES}`}
           >
             {locked.linkLabel}
           </Link>
