@@ -2,6 +2,7 @@ import type { ViewerProfileResponse } from "@/app/_lib/viewer-profile";
 import { jsonPrivate } from "@/lib/api-response";
 import { getOptionalUser } from "@/lib/auth";
 import { getProfileCardByUserId } from "@/lib/db/queries";
+import { getActiveBenefits } from "@/lib/entitlements/has-benefit";
 import { logExternalError } from "@/lib/log-error";
 
 /**
@@ -20,13 +21,18 @@ export async function GET() {
     const user = await getOptionalUser();
     if (!user) return jsonPrivate(empty);
 
-    const profile = await getProfileCardByUserId(user.id);
+    // 特典は失敗しても空になる（fail-closed）ので、プロフィールと並行して引く
+    const [profile, benefits] = await Promise.all([
+      getProfileCardByUserId(user.id),
+      getActiveBenefits(user.id),
+    ]);
     if (!profile) return jsonPrivate(empty);
 
     return jsonPrivate<ViewerProfileResponse>({
       profile: {
         avatarUrl: profile.avatarUrl ?? null,
         name: profile.displayName ?? profile.username,
+        benefits: [...benefits],
       },
     });
   } catch (error) {

@@ -32,21 +32,35 @@ export function isValidOrigin(request: Request): boolean {
   const origin = request.headers.get("origin");
   if (!origin) return false;
 
-  const host =
-    request.headers.get("x-forwarded-host") ?? request.headers.get("host");
-  if (
-    host &&
-    originMatches(origin, `${protocolFor(host, request)}://${host}`)
-  ) {
+  const self = requestOrigin(request.headers);
+  if (self && originMatches(origin, self)) {
     return true;
   }
 
   return originMatches(origin, SITE_URL);
 }
 
+/**
+ * このリクエストが届いた自分自身のオリジン（`https://host`）
+ * リクエストオリジン
+ *
+ * `Host` / `X-Forwarded-Host` と `X-Forwarded-Proto` から組み立てる。
+ * ホストが分からなければ undefined。
+ *
+ * `SITE_URL` ではなくこれを使うのは、ローカルやプレビュー環境で
+ * `NEXT_PUBLIC_SITE_URL` が未設定だと `SITE_URL` が本番 URL に落ちるため
+ * （Stripe Checkout の戻り先のように「今いる環境へ戻す」URL に使う）。
+ * Server Action からは `headers()` を渡す。
+ */
+export function requestOrigin(headers: Headers): string | undefined {
+  const host = headers.get("x-forwarded-host") ?? headers.get("host");
+  if (!host) return undefined;
+  return `${protocolFor(host, headers)}://${host}`;
+}
+
 /** プロキシが申告するスキーム。無ければローカルのみ http、それ以外は https */
-function protocolFor(host: string, request: Request): string {
-  const forwarded = request.headers.get("x-forwarded-proto");
+function protocolFor(host: string, headers: Headers): string {
+  const forwarded = headers.get("x-forwarded-proto");
   if (forwarded) return forwarded.split(",")[0].trim();
   return host.startsWith("localhost") || host.startsWith("127.0.0.1")
     ? "http"

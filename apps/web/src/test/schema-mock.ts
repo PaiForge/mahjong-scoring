@@ -77,3 +77,55 @@ export const userRoles = {
   userId: "user_id",
   role: "role",
 } as const;
+
+/** stripe_customers のカラム */
+export const stripeCustomers = {
+  _name: "stripe_customers",
+  id: "id",
+  userId: "user_id",
+  stripeCustomerId: "stripe_customer_id",
+} as const;
+
+/** purchases のカラム */
+export const purchases = {
+  _name: "purchases",
+  id: "id",
+  userId: "user_id",
+  plan: "plan",
+  kind: "kind",
+  benefits: "benefits",
+  stripeCheckoutSessionId: "stripe_checkout_session_id",
+  stripePaymentIntentId: "stripe_payment_intent_id",
+  currency: "currency",
+  amount: "amount",
+  startsAt: "starts_at",
+  expiresAt: "expires_at",
+  revokedAt: "revoked_at",
+  revokeReason: "revoke_reason",
+  createdAt: "created_at",
+} as const;
+
+/** benefit_grants のカラム */
+export const benefitGrants = {
+  _name: "benefit_grants",
+  id: "id",
+  userId: "user_id",
+  plan: "plan",
+  benefits: "benefits",
+  reason: "reason",
+  grantedBy: "granted_by",
+  startsAt: "starts_at",
+  expiresAt: "expires_at",
+  revokedAt: "revoked_at",
+  revokeReason: "revoke_reason",
+  createdAt: "created_at",
+} as const;
+
+/** 購入手続きのカラム */
+export const billingCheckouts = {
+  _name: "billing_checkouts",
+  id: "id",
+  customerId: "customer_id",
+  settledAt: "settled_at",
+  stripeCheckoutSessionId: "stripe_checkout_session_id",
+} as const;

@@ -3,6 +3,7 @@ import { sql } from "drizzle-orm";
 import {
   boolean,
   check,
+  date,
   index,
   integer,
   jsonb,
@@ -695,3 +696,352 @@ export const adCreativeTranslations = pgTable(
 );
 
 export type AdCreativeTranslation = typeof adCreativeTranslations.$inferSelect;
+
+/**
+ * Stripe の顧客とユーザーの対応（1 ユーザー = 1 顧客）
+ * Stripe顧客
+ *
+ * @description
+ * Checkout を作るときに `customer` として渡す ID の置き場。初回の購入で
+ * Stripe に顧客を作ってここに保存し、以後の購入は同じ顧客に束ねる
+ * （領収書メール・購入履歴が Stripe 側でも 1 人にまとまる）。
+ *
+ * 購入の所有者を決める根拠はこの表だけ。Checkout 完了の着地と Webhook は
+ * `session.customer` をこの表で引いてユーザーに変換する。Stripe の
+ * metadata の購入手続き ID は所有者の判定には使わない —
+ * 根拠を 2 本持つと食い違ったときにどちらを信じるかという問題が生まれる。
+ *
+ * @design `user_id` → auth.users の FK は Supabase SQL で定義（CASCADE）
+ */
+export const stripeCustomers = pgTable("stripe_customers", {
+  id: uuid("id").primaryKey().defaultRandom(),
+  /** auth.users(id) への外部キー（Supabase SQL で定義） */
+  userId: uuid("user_id").unique().notNull(),
+  /** Stripe の Customer ID（`cus_...`） */
+  stripeCustomerId: varchar("stripe_customer_id", { length: 255 })
+    .unique()
+    .notNull(),
+  /** 作成日時 */
+  createdAt: timestamp("created_at", { withTimezone: true })
+    .defaultNow()
+    .notNull(),
+});
+
+export type StripeCustomer = typeof stripeCustomers.$inferSelect;
+export type NewStripeCustomer = typeof stripeCustomers.$inferInsert;
+
+/**
+ * Checkout 作成前に確定する販売条件と、再試行に使う購入手続き。
+ * 購入手続き
+ *
+ * Price・特典・期間・戻り先を先に保存し、この ID を Stripe の冪等キーにする。
+ * Stripe 作成後に DB が失敗しても同じ条件・同じキーで回復できる。Price の
+ * 切り替えやコードの特典追加は、開始済みの手続きに影響しない。
+ * 所有者は customer_id → stripe_customers の対応から決め、metadata は
+ * この行を探す ID にだけ使う。Stripe の現在の Session と価格・顧客を照合する。
+ *
+ * 未完了は顧客ごとに 1 件。期限を過ぎても決済済みの可能性があるため、
+ * Session の状態を確認するまでは settled_at を埋めない。
+ * 顧客行をロックして予約・Session 作成・購入記録を直列化する。
+ * 退会時は stripe_customers の明示的な削除に CASCADE する。
+ */
+export const billingCheckouts = pgTable(
+  "billing_checkouts",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    customerId: uuid("customer_id")
+      .notNull()
+      .references(() => stripeCustomers.id, { onDelete: "cascade" }),
+    plan: varchar("plan", { length: 50 }).notNull(),
+    offer: varchar("offer", { length: 20 }).notNull(),
+    kind: varchar("kind", { length: 20 }).notNull(),
+    benefits: text("benefits").array().notNull(),
+    durationDays: integer("duration_days"),
+    stripePriceId: varchar("stripe_price_id", { length: 255 }).notNull(),
+    origin: text("origin").notNull(),
+    stripeCheckoutSessionId: varchar("stripe_checkout_session_id", {
+      length: 255,
+    }).unique(),
+    expiresAt: timestamp("expires_at", { withTimezone: true }).notNull(),
+    settledAt: timestamp("settled_at", { withTimezone: true }),
+    createdAt: timestamp("created_at", { withTimezone: true })
+      .defaultNow()
+      .notNull(),
+  },
+  (table) => [
+    uniqueIndex("billing_checkouts_one_pending_customer")
+      .on(table.customerId)
+      .where(sql`${table.settledAt} IS NULL`),
+    check(
+      "billing_checkouts_chk_kind",
+      sql`${table.kind} IN ('pass', 'lifetime')`,
+    ),
+    check(
+      "billing_checkouts_chk_duration",
+      sql`(${table.kind} = 'pass' AND ${table.durationDays} IS NOT NULL AND ${table.durationDays} > 0) OR (${table.kind} = 'lifetime' AND ${table.durationDays} IS NULL)`,
+    ),
+    check(
+      "billing_checkouts_chk_benefits",
+      sql`cardinality(${table.benefits}) > 0`,
+    ),
+  ],
+);
+
+/** Checkout 作成時点の販売条件。更新するのは Session ID と完了日時だけ。 */
+export type BillingCheckout = typeof billingCheckouts.$inferSelect;
+
+/**
+ * 有料プランの購入記録 — 期間パスと買い切り
+ * 購入
+ *
+ * @description
+ * Stripe Checkout（一括払い）が完了するごとに 1 行。特典の判定
+ * （`lib/entitlements/has-benefit.ts`）は「取り消されておらず、期限内か
+ * 永久の行の `benefits` の和集合」で決まる。契約状態（サブスクリプション）
+ * は持たない — 期間パスは `expires_at` が来れば自然に失効し、買い切りは
+ * NULL で永久。
+ *
+ * @design `benefits` は購入手続き開始時点のスナップショット
+ *
+ * billing_checkouts に開始時点の販売条件を固定し、この列へコピーする。
+ * 「買い切りは購入時点の特典に限定する」を実装する列。コードのプラン定義
+ * （`lib/billing/plans.ts`）に特典を足しても、過去の購入行には付かない。
+ * 期間パスも同じ規則で揃える（数十日の残期間に新特典が付かないだけで、
+ * 例外を作るより単純）。
+ *
+ * @design 冪等キーは `stripe_checkout_session_id`
+ *
+ * Checkout 完了の着地（Route Handler）と Webhook の両方が同じ購入を
+ * 記録しようとする。UNIQUE + ON CONFLICT DO NOTHING で、どちらが先でも
+ * 1 行になる。`stripe_payment_intent_id` は返金（`charge.refunded`）から
+ * 購入行を引くためのキー。
+ *
+ * @design 金額と通貨は Stripe の値をそのまま保存
+ *
+ * 価格表をコードに持たない（Stripe の Price が正）。`amount` は最小通貨
+ * 単位（JPY は円そのまま、USD はセント）。表示は `currency` に応じて
+ * `Intl.NumberFormat` に任せる。
+ *
+ * @design 取り消し（`revoked_at`）は論理削除
+ *
+ * 返金や不正で特典を止めるときは行を消さず `revoked_at` を立てる。
+ * 購入履歴には「返金済み」として残る。
+ *
+ * @design `user_id` → auth.users の FK は Supabase SQL で定義（CASCADE）
+ *
+ * 退会処理が明示的に行を消す（Auth のソフトデリートでは CASCADE しない）。
+ * 返金はしない（規約に明記）。Stripe 側の顧客と決済記録
+ * は会計のため残る。
+ */
+export const purchases = pgTable(
+  "purchases",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    /** auth.users(id) への外部キー（Supabase SQL で定義） */
+    userId: uuid("user_id").notNull(),
+    /** プラン（`lib/billing/plans.ts` の `PlanKey`） */
+    plan: varchar("plan", { length: 50 }).notNull(),
+    /** 売り方（`PurchaseKind`）。`pass` = 期間パス、`lifetime` = 買い切り */
+    kind: varchar("kind", { length: 20 }).notNull(),
+    /** 購入時点で付与した特典（`PlanBenefit` の値）。空にしない */
+    benefits: text("benefits").array().notNull(),
+    /** Checkout Session ID（`cs_...`）。冪等キー */
+    stripeCheckoutSessionId: varchar("stripe_checkout_session_id", {
+      length: 255,
+    })
+      .unique()
+      .notNull(),
+    /** PaymentIntent ID（`pi_...`）。返金イベントから引くキー */
+    stripePaymentIntentId: varchar("stripe_payment_intent_id", {
+      length: 255,
+    })
+      .unique()
+      .notNull(),
+    /** 通貨（ISO 4217 小文字。Stripe の表記に合わせる） */
+    currency: varchar("currency", { length: 3 }).notNull(),
+    /** 支払額（最小通貨単位） */
+    amount: integer("amount").notNull(),
+    /** 特典の開始。支払いの Charge 作成日時。期間は連結しない */
+    startsAt: timestamp("starts_at", { withTimezone: true }).notNull(),
+    /** 特典の終了。買い切りは NULL（永久） */
+    expiresAt: timestamp("expires_at", { withTimezone: true }),
+    /** 取り消し日時（返金・不正）。NULL なら有効 */
+    revokedAt: timestamp("revoked_at", { withTimezone: true }),
+    /** 取り消し理由（`PurchaseRevokeReason`）。`revoked_at` と対で入る */
+    revokeReason: varchar("revoke_reason", { length: 50 }),
+    /** 作成日時 */
+    createdAt: timestamp("created_at", { withTimezone: true })
+      .defaultNow()
+      .notNull(),
+  },
+  (table) => [
+    index("idx_purchases_user_expires").on(table.userId, table.expiresAt),
+    check("purchases_chk_kind", sql`${table.kind} IN ('pass', 'lifetime')`),
+    check(
+      "purchases_chk_lifetime_has_no_expiry",
+      sql`(${table.kind} = 'lifetime') = (${table.expiresAt} IS NULL)`,
+    ),
+    check(
+      "purchases_chk_revoke_reason_pairs_with_revoked_at",
+      sql`(${table.revokedAt} IS NULL) = (${table.revokeReason} IS NULL)`,
+    ),
+    check(
+      "purchases_chk_benefits_not_empty",
+      sql`cardinality(${table.benefits}) > 0`,
+    ),
+    check("purchases_chk_amount_non_negative", sql`${table.amount} >= 0`),
+    check("purchases_chk_currency", sql`${table.currency} ~ '^[a-z]{3}$'`),
+  ],
+);
+
+export type Purchase = typeof purchases.$inferSelect;
+export type NewPurchase = typeof purchases.$inferInsert;
+
+/**
+ * 特典の手動付与 — 支援・補償・キャンペーン
+ * 特典付与
+ *
+ * @description
+ * Stripe の決済を伴わずに特典を付ける記録。問い合わせ対応での補償、モニター、
+ * キャンペーンなど、運営者が管理画面から付与する。特典の判定
+ * （`lib/entitlements/has-benefit.ts`）は `purchases` とこの表を同じ条件
+ * （未取消・開始済み・期限内か永久）で読んで和集合にする。機能側は特典の
+ * 出どころ（購入か付与か）を知らない。
+ *
+ * @design `benefits` は付与時点のスナップショット
+ *
+ * 購入と同じ規則（`purchases.benefits` 参照）。プラン定義に特典を足しても
+ * 過去の付与には付かない。
+ *
+ * @design `reason` は必須
+ *
+ * 後から「なぜ付いているか」が追えるように、空文字も DB で弾く。理由は
+ * 運営の内部メモになり得るので、マイページには出さない。付与と取り消しは
+ * `moderation_actions` にも残す（誰が・どこから）。
+ *
+ * @design 取り消し（`revoked_at`）は論理削除
+ *
+ * 購入と同じ。マイページの「付与された特典」に「取り消し済み」として残る。
+ *
+ * @design FK は Supabase SQL で定義
+ *
+ * `user_id` → auth.users（CASCADE。退会で消える）、`granted_by` → auth.users
+ * （RESTRICT。`moderation_actions.actor_id` と同じく、付与した管理者の
+ * 記録を辿れなくしない）。
+ */
+export const benefitGrants = pgTable(
+  "benefit_grants",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    /** 付与先の auth.users(id)（FK は Supabase SQL で定義） */
+    userId: uuid("user_id").notNull(),
+    /** プラン（`lib/billing/plans.ts` の `PlanKey`）。マイページの表示名に使う */
+    plan: varchar("plan", { length: 50 }).notNull(),
+    /** 付与時点の特典（`PlanBenefit` の値）。空にしない */
+    benefits: text("benefits").array().notNull(),
+    /** 付与の理由。必須 */
+    reason: text("reason").notNull(),
+    /** 付与した管理者の auth.users(id)（FK は Supabase SQL で定義） */
+    grantedBy: uuid("granted_by").notNull(),
+    /** 特典の開始 */
+    startsAt: timestamp("starts_at", { withTimezone: true }).notNull(),
+    /** 特典の終了。NULL なら無期限 */
+    expiresAt: timestamp("expires_at", { withTimezone: true }),
+    /** 取り消し日時。NULL なら有効 */
+    revokedAt: timestamp("revoked_at", { withTimezone: true }),
+    /** 取り消しの理由。`revoked_at` と対で入る */
+    revokeReason: text("revoke_reason"),
+    /** 作成日時 */
+    createdAt: timestamp("created_at", { withTimezone: true })
+      .defaultNow()
+      .notNull(),
+  },
+  (table) => [
+    index("idx_benefit_grants_user_expires").on(table.userId, table.expiresAt),
+    check(
+      "benefit_grants_chk_benefits_not_empty",
+      sql`cardinality(${table.benefits}) > 0`,
+    ),
+    check(
+      "benefit_grants_chk_reason_not_blank",
+      sql`length(trim(${table.reason})) > 0`,
+    ),
+    check(
+      "benefit_grants_chk_revoke_reason_pairs_with_revoked_at",
+      sql`(${table.revokedAt} IS NULL) = (${table.revokeReason} IS NULL)`,
+    ),
+  ],
+);
+
+export type BenefitGrant = typeof benefitGrants.$inferSelect;
+export type NewBenefitGrant = typeof benefitGrants.$inferInsert;
+
+/**
+ * 処理済みの Stripe Webhook イベント
+ * Webhookイベント
+ *
+ * @description
+ * Stripe は同じイベントを複数回届けることがある（再送・並行配信）。
+ * 処理成功後に `event.id` を INSERT し、再送時は処理済みなら 200 を返す。
+ * 並行配信では両方処理されうるため、購入記録と取消自身も冪等にする。
+ * 先に記録すると失敗後の再送を捨ててしまう。行は 1 購入あたり数件なので、
+ * 掃除は必要になってから考える。
+ */
+export const stripeWebhookEvents = pgTable("stripe_webhook_events", {
+  /** Stripe の Event ID（`evt_...`） */
+  eventId: varchar("event_id", { length: 255 }).primaryKey(),
+  /** イベント種別（`checkout.session.completed` 等） */
+  eventType: varchar("event_type", { length: 100 }).notNull(),
+  /** 受信日時 */
+  receivedAt: timestamp("received_at", { withTimezone: true })
+    .defaultNow()
+    .notNull(),
+});
+
+export type StripeWebhookEvent = typeof stripeWebhookEvents.$inferSelect;
+
+/**
+ * 練習の無料枠の消費記録 — ユーザー × 練習 × 日
+ * 練習回数記録
+ *
+ * @description
+ * `practice/score` と `practice/machi-score` は無料ユーザーに 1 日の回数制限が
+ * ある（上限は `lib/practice-quota/limits.ts`）。問題を 1 つ生成する直前に
+ * Server Action がこの表の `count` を 1 増やし、上限を超えるなら問題を出さない。
+ * Pro（`unlimited_practice` 特典）は消費しないので行が増えない。
+ *
+ * @design 「先に増やして上限で弾く」単文の UPSERT
+ *
+ * `INSERT ... ON CONFLICT DO UPDATE SET count = count + 1 WHERE count < 上限
+ * RETURNING count` の 1 文で判定する。SELECT してから UPDATE する 2 手にすると、
+ * 並行したリクエストが両方「まだ余裕がある」と読んで上限を超える。
+ *
+ * @design `day` は JST の日付
+ *
+ * 日付境界はサーバーの TZ ではなく `Asia/Tokyo` で切る（`lib/practice-quota/day.ts`）。
+ * 利用者は日本在住が前提で、「今日の分」が深夜 0 時に戻るのが自然。
+ *
+ * 未ログインの消費はこの表ではなく署名付き cookie で数える（弱い制限で可、
+ * という決定）。行は日付とともに増えるので、掃除は必要になってから。
+ *
+ * @design `user_id` → auth.users の FK は Supabase SQL で定義（CASCADE）
+ */
+export const practiceQuotaUsage = pgTable(
+  "practice_quota_usage",
+  {
+    /** auth.users(id) への外部キー（Supabase SQL で定義） */
+    userId: uuid("user_id").notNull(),
+    /** 練習（`lib/practice-quota/limits.ts` の `QuotaMenu`） */
+    menu: varchar("menu", { length: 50 }).notNull(),
+    /** JST の日付 */
+    day: date("day").notNull(),
+    /** その日に生成した問題数 */
+    count: integer("count").notNull().default(0),
+  },
+  (table) => [
+    primaryKey({ columns: [table.userId, table.menu, table.day] }),
+    check("practice_quota_usage_chk_count", sql`${table.count} >= 0`),
+  ],
+);
+
+export type PracticeQuotaUsage = typeof practiceQuotaUsage.$inferSelect;

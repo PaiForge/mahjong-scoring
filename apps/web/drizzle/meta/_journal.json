@@ -113,6 +113,34 @@
       "when": 1790682401724,
       "tag": "20260929114641_add_asin_and_ad_network_settings",
       "breakpoints": true
+    },
+    {
+      "idx": 16,
+      "version": "7",
+      "when": 1790824520504,
+      "tag": "20261001031520_create_purchases",
+      "breakpoints": true
+    },
+    {
+      "idx": 17,
+      "version": "7",
+      "when": 1790840001753,
+      "tag": "20261001073321_create_practice_quota_usage",
+      "breakpoints": true
+    },
+    {
+      "idx": 18,
+      "version": "7",
+      "when": 1790844649124,
+      "tag": "20261001085049_create_benefit_grants",
+      "breakpoints": true
+    },
+    {
+      "idx": 19,
+      "version": "7",
+      "when": 1790846736711,
+      "tag": "20261001092536_add_billing_checkouts",
+      "breakpoints": true
     }
   ]
 }

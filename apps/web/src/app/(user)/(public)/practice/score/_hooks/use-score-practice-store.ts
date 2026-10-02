@@ -54,7 +54,6 @@ interface ScorePracticeActions {
     requireFuForMangan?: boolean,
   ) => void;
   /** 次の問題へ */
-  nextQuestion: () => void;
   /**
    * 無回答のまま正解を開示する（「わからない」）
    *
@@ -146,10 +145,6 @@ export const useScorePracticeStore = create<ScorePracticeStore>((set, get) => ({
         correct: stats.correct + (result.isCorrect ? 1 : 0),
       },
     });
-  },
-
-  nextQuestion: () => {
-    get().generateNewQuestion();
   },
 
   revealAnswer: () => {

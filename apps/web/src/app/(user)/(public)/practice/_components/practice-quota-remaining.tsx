@@ -1,0 +1,29 @@
+import { useTranslations } from "next-intl";
+
+interface PracticeQuotaRemainingProps {
+  /** 今日の残り。Pro（`"unlimited"`）とまだ聞いていない（undefined）は出さない */
+  readonly remaining: number | "unlimited" | undefined;
+}
+
+/**
+ * 無料枠の残り回数の表示
+ * 残り回数表示
+ *
+ * 「今日はあと n 問」。0 なら「この問題で終わり」。無制限のときは何も出さない
+ * （Pro に残数の概念はない）。
+ *
+ * `"use client"` は付けない。hooks は `useTranslations()` だけで、呼び出し元の
+ * 盤面（クライアント）に取り込まれて動く。
+ */
+export function PracticeQuotaRemaining({
+  remaining,
+}: PracticeQuotaRemainingProps) {
+  const t = useTranslations("practiceQuota");
+  if (typeof remaining !== "number") return null;
+
+  return (
+    <p className="text-center text-xs text-surface-500">
+      {t("remaining", { count: remaining })}
+    </p>
+  );
+}

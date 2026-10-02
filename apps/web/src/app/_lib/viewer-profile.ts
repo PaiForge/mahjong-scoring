@@ -1,3 +1,5 @@
+import type { PlanBenefit } from "@/lib/billing/plans";
+
 import { callApi } from "@/lib/api-client";
 
 /**
@@ -8,6 +10,14 @@ export interface ViewerProfile {
   readonly avatarUrl: string | null;
   /** 表示名（未設定ならユーザー名）。アバター画像の alt に使う */
   readonly name: string;
+  /**
+   * 有料プランで現在持っている特典（`PlanBenefit` の値）。
+   *
+   * 静的ページ（練習の設定画面・盤面）が「Pro の機能を出すか」を決めるのに
+   * 使う。サーバーで判定した結果をここに載せることで、クライアントは
+   * 特典ごとの API を持たずに済む。無料ユーザーは空配列。
+   */
+  readonly benefits: readonly PlanBenefit[];
 }
 
 /** `/api/profile/me` のレスポンス本文 */

@@ -34,6 +34,11 @@ import {
   PracticeFooterAction,
   PracticeFooterActions,
 } from "../../_components/practice-footer-actions";
+import { AnswerTimeBadge } from "../../_components/answer-time-badge";
+import { PracticeQuotaPaywall } from "../../_components/practice-quota-paywall";
+import { PracticeQuotaRemaining } from "../../_components/practice-quota-remaining";
+import { usePracticeQuota } from "../../_hooks/use-practice-quota";
+import { PlanBenefit } from "@/lib/billing/plans";
 
 /** 出題条件を選ぶ設定画面。「終了」で戻る先 */
 const SETUP_HREF = "/practice/score";
@@ -52,11 +57,20 @@ function ScorePracticeBoardInner() {
     questionSeq,
     stats,
     submitAnswer,
-    nextQuestion,
     revealAnswer,
   } = useScorePracticeStore();
 
   const isClient = useIsClient();
+  const tq = useTranslations("practiceQuota");
+  // 問題の生成はサーバーの許可（無料枠の消費）を挟む。生成そのものは
+  // 今までどおりブラウザ側のストアが行う
+  const { requestQuestion, isChecking, gate } = usePracticeQuota("score", () =>
+    useScorePracticeStore.getState().generateNewQuestion(),
+  );
+
+  useEffect(() => {
+    if (gate?.kind === "rateLimited") toast.error(tq("rateLimited"));
+  }, [gate, tq]);
   // 出題条件を適用済みのクエリ文字列。undefined はこの盤面でまだ一度も
   // 初期化していないことを表す
   const appliedQueryRef = useRef<string | undefined>(undefined);
@@ -90,11 +104,29 @@ function ScorePracticeBoardInner() {
     // 統計も同じストアに載っている。ここで戻さないと、別の条件で入り直した
     // 練習の頭から前回の成績がカウンタに出たままになる
     store.resetStats();
-    store.generateNewQuestion();
-  }, [isClient, searchParams]);
+    // 前回の問題もここで消す。生成はサーバーの許可（無料枠の消費）を待って
+    // から走るので、消さないと返事が届くまで前回の問題（回答済みならその
+    // 結果表示）が新しい条件の盤面に出たままになり、遅い回線では答えられる。
+    // 設定画面の「開始」は遷移前に消しているが、教本からの再入場や同じ盤面での
+    // クエリ変更は「開始」を通らない
+    store.setQuestion(undefined);
+    void requestQuestion();
+  }, [isClient, searchParams, requestQuestion]);
 
-  const { requireYaku, simplifyMangan, requireFuForMangan, autoNext } =
-    parseModeFlagsFromParams(new URLSearchParams(searchParams.toString()));
+  const {
+    requireYaku,
+    simplifyMangan,
+    requireFuForMangan,
+    autoNext,
+    measureTime,
+  } = parseModeFlagsFromParams(new URLSearchParams(searchParams.toString()));
+
+  // 回答時間の計測（Pro の拡張機能）。設定のフラグだけでなく、サーバーが
+  // 返した特典にも含まれているときだけ出す
+  const showAnswerTime =
+    measureTime &&
+    gate?.kind === "open" &&
+    gate.benefits.includes(PlanBenefit.PracticeTools);
 
   const handleBackToSetup = useCallback(() => {
     // 他の練習（challenge-shell / training-shell）の「終了」と同じく、
@@ -111,8 +143,8 @@ function ScorePracticeBoardInner() {
   // 表示が切り替わる操作のたびに練習の先頭へ戻す。
   const handleNext = useCallback(() => {
     scrollToPracticeAnchor();
-    nextQuestion();
-  }, [nextQuestion]);
+    void requestQuestion();
+  }, [requestQuestion]);
 
   // 「わからない」: 無回答のまま正解を開示する（統計には入らない）。
   // 旧仕様のスキップ（開示なしで次問題へ）は、開示後の「次の問題へ」連打で代替できる
@@ -131,13 +163,13 @@ function ScorePracticeBoardInner() {
         if (state.judgementResult?.isCorrect) {
           // 連続で解く練習なので既定より短く消す（見た目は GlobalToaster が持つ）
           toast.success(t("board.correct"), { duration: 1500 });
-          nextQuestion();
+          void requestQuestion();
         }
       }
     },
     [
       submitAnswer,
-      nextQuestion,
+      requestQuestion,
       requireYaku,
       simplifyMangan,
       requireFuForMangan,
@@ -151,6 +183,19 @@ function ScorePracticeBoardInner() {
       <GenerationFailedNotice
         translationNamespace="score"
         onBackToSetup={() => router.push("/practice/score")}
+      />
+    );
+  }
+
+  // 無料枠を使い切った。問題は生成していないので盤面ごと置き換える
+  if (gate?.kind === "blocked") {
+    return (
+      <PracticeQuotaPaywall
+        menu="score"
+        translationNamespace="score"
+        limit={gate.limit}
+        signedIn={gate.signedIn}
+        onBackToSetup={handleBackToSetup}
       />
     );
   }
@@ -200,7 +245,12 @@ function ScorePracticeBoardInner() {
                 requireFuForMangan={requireFuForMangan}
               />
             </div>
-            <Button size="lg" fullWidth onClick={handleNext}>
+            <Button
+              size="lg"
+              fullWidth
+              onClick={handleNext}
+              disabled={isChecking}
+            >
               {t("result.next")}
             </Button>
           </div>
@@ -219,6 +269,18 @@ function ScorePracticeBoardInner() {
               requireYaku={requireYaku}
               simplifyMangan={simplifyMangan}
               requireFuForMangan={requireFuForMangan}
+            />
+          </div>
+        )}
+
+        {/* 無料枠の残りと回答時間。どちらも無いときは何も描かない */}
+        {(gate?.kind === "open" || showAnswerTime) && (
+          <div className="space-y-1">
+            {showAnswerTime && (
+              <AnswerTimeBadge key={questionSeq} running={!isAnswered} />
+            )}
+            <PracticeQuotaRemaining
+              remaining={gate?.kind === "open" ? gate.remaining : undefined}
             />
           </div>
         )}

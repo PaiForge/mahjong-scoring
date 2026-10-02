@@ -249,3 +249,98 @@ REVOKE ALL ON TABLE public.user_roles FROM anon, authenticated;
 REVOKE ALL ON TABLE public.ad_creatives FROM anon, authenticated;
 REVOKE ALL ON TABLE public.ad_creative_translations FROM anon, authenticated;
 REVOKE ALL ON TABLE public.ad_network_settings FROM anon, authenticated;
+
+-- =============================================================================
+-- stripe_customers / purchases / stripe_webhook_events
+-- =============================================================================
+-- 有料プラン。サーバーだけが読み書きする（rls_policies.sql 参照）。
+-- 退会（auth.users の削除）で顧客対応と購入記録は一緒に消える。返金はしない
+-- （規約に明記）。Stripe 側の顧客・決済記録は会計のため残る。
+
+-- FK constraint: stripe_customers.user_id → auth.users(id) ON DELETE CASCADE
+DO $$
+BEGIN
+  IF NOT EXISTS (
+    SELECT 1 FROM pg_constraint WHERE conname = 'stripe_customers_user_id_fkey'
+  ) THEN
+    ALTER TABLE public.stripe_customers
+      ADD CONSTRAINT stripe_customers_user_id_fkey
+      FOREIGN KEY (user_id) REFERENCES auth.users(id) ON DELETE CASCADE;
+  END IF;
+END;
+$$;
+
+-- FK constraint: purchases.user_id → auth.users(id) ON DELETE CASCADE
+DO $$
+BEGIN
+  IF NOT EXISTS (
+    SELECT 1 FROM pg_constraint WHERE conname = 'purchases_user_id_fkey'
+  ) THEN
+    ALTER TABLE public.purchases
+      ADD CONSTRAINT purchases_user_id_fkey
+      FOREIGN KEY (user_id) REFERENCES auth.users(id) ON DELETE CASCADE;
+  END IF;
+END;
+$$;
+
+REVOKE ALL ON TABLE public.stripe_customers FROM anon, authenticated;
+REVOKE ALL ON TABLE public.purchases FROM anon, authenticated;
+REVOKE ALL ON TABLE public.stripe_webhook_events FROM anon, authenticated;
+
+-- =============================================================================
+-- practice_quota_usage
+-- =============================================================================
+-- 練習の無料枠の消費記録。サーバーだけが読み書きする（rls_policies.sql 参照）。
+
+-- FK constraint: practice_quota_usage.user_id → auth.users(id) ON DELETE CASCADE
+DO $$
+BEGIN
+  IF NOT EXISTS (
+    SELECT 1 FROM pg_constraint WHERE conname = 'practice_quota_usage_user_id_fkey'
+  ) THEN
+    ALTER TABLE public.practice_quota_usage
+      ADD CONSTRAINT practice_quota_usage_user_id_fkey
+      FOREIGN KEY (user_id) REFERENCES auth.users(id) ON DELETE CASCADE;
+  END IF;
+END;
+$$;
+
+REVOKE ALL ON TABLE public.practice_quota_usage FROM anon, authenticated;
+
+-- =============================================================================
+-- benefit_grants
+-- =============================================================================
+-- 特典の手動付与。サーバーだけが読み書きする（rls_policies.sql 参照）。
+-- 退会で付与は消える。付与した管理者は moderation_actions.actor_id と同じく
+-- RESTRICT（付与の記録から管理者を辿れなくしない）。
+
+-- FK constraint: benefit_grants.user_id → auth.users(id) ON DELETE CASCADE
+DO $$
+BEGIN
+  IF NOT EXISTS (
+    SELECT 1 FROM pg_constraint WHERE conname = 'benefit_grants_user_id_fkey'
+  ) THEN
+    ALTER TABLE public.benefit_grants
+      ADD CONSTRAINT benefit_grants_user_id_fkey
+      FOREIGN KEY (user_id) REFERENCES auth.users(id) ON DELETE CASCADE;
+  END IF;
+END;
+$$;
+
+-- FK constraint: benefit_grants.granted_by → auth.users(id) ON DELETE RESTRICT
+DO $$
+BEGIN
+  IF NOT EXISTS (
+    SELECT 1 FROM pg_constraint WHERE conname = 'benefit_grants_granted_by_fkey'
+  ) THEN
+    ALTER TABLE public.benefit_grants
+      ADD CONSTRAINT benefit_grants_granted_by_fkey
+      FOREIGN KEY (granted_by) REFERENCES auth.users(id) ON DELETE RESTRICT;
+  END IF;
+END;
+$$;
+
+REVOKE ALL ON TABLE public.benefit_grants FROM anon, authenticated;
+
+-- 顧客への CASCADE FK は Drizzle が作成。予約・販売条件を公開しない。
+REVOKE ALL ON TABLE public.billing_checkouts FROM anon, authenticated;

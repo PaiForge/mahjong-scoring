@@ -53,6 +53,11 @@ export async function Footer() {
                 </Link>
               </li>
               <li>
+                <Link href="/tokushoho" className={TEXT_LINK_CLASSES}>
+                  {t("tokushoho")}
+                </Link>
+              </li>
+              <li>
                 <Link href="/company" className={TEXT_LINK_CLASSES}>
                   {t("company")}
                 </Link>

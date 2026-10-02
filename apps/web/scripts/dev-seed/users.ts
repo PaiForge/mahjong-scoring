@@ -68,7 +68,7 @@ export interface SeedUser {
  * ランキングは母集団の大きさそのものが確認対象になる — 上位3位のメダル、
  * ページ送り、1 ページに収まらない自分の順位を出す「あなた」の行は、
  * どれも人数が足りないと画面に出ない。状態を持たないこの一群がその人数を
- * 埋める。名前付きの 4 人と合わせて 24 人になり、1 ページ 20 件の
+ * 埋める。名前付きの 5 人と合わせて 25 人になり、1 ページ 20 件の
  * ページ送りに 2 ページ目ができる。
  *
  * 状態を持たないので連番で名前を付けてよい（状態を名前に埋めるなという
@@ -130,6 +130,12 @@ export const SEED_USERS: readonly SeedUser[] = [
     username: "seed_carol",
     displayName: "キャロル（シード）",
     ranks: ["kyu-5", "kyu-4", "kyu-3", "kyu-2", "kyu-1", "dan-1"],
+  },
+  // 無級・購入なし。運営から Pro を付与されている状態（benefit-grants.ts）
+  {
+    email: "dave@example.local",
+    username: "seed_dave",
+    displayName: "デイブ（シード）",
   },
   ...RANKING_FILLERS,
 ];

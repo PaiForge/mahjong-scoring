@@ -84,6 +84,21 @@ Google サインインをローカルでテストするには、OAuth 認証情�
 
 ドメイン認証と API キーの発行手順は [docs/contact-form-setup.md](docs/contact-form-setup.md) を参照してください。
 
+### 有料プラン（Stripe）
+
+有料プラン「Pro」（30 日パス + 買い切り）の決済は [Stripe](https://stripe.com/jp) の Checkout（一括払い）で行います。購入の記録は Webhook と Checkout 完了の着地の両方から冪等に入り、特典の判定は `src/lib/entitlements/has-benefit.ts` に集約しています。ローカルで購入の流れを試すには `.env.local` に以下を設定し、`stripe listen` で Webhook を転送してください（未設定でも無料枠の機能は動き、Stripe を使う処理を呼んだ時点で変数名を含むエラーになります）:
+
+| 変数名                         | 説明                                                                                             |
+| ------------------------------ | ------------------------------------------------------------------------------------------------ |
+| `STRIPE_SECRET_KEY`            | Stripe のシークレットキー（`sk_test_` / `sk_live_`）。`NEXT_PUBLIC_` を付けない                  |
+| `STRIPE_WEBHOOK_SECRET`        | Webhook の署名シークレット（`whsec_`）。ローカルは `stripe listen` の出力、本番は Dashboard の値 |
+| `STRIPE_PRICE_ID_PRO_PASS`     | 30 日パスの Price ID（`price_`）。一括払いで作る                                                 |
+| `STRIPE_PRICE_ID_PRO_LIFETIME` | 買い切りの Price ID（`price_`）。一括払いで作る                                                  |
+
+購入が無いときに掛かる練習の回数制限を外して確認したいだけなら、Stripe を設定せず `pnpm db:seed:dev` のシードユーザー（bob: 有効なパス / carol: 買い切り）でサインインしてください。
+
+API キーの取得、商品と価格の作成、Webhook の登録、本番移行の手順は [docs/stripe-setup.md](docs/stripe-setup.md) を参照してください。
+
 ### ローカルサービス
 
 - **Supabase Studio**: http://127.0.0.1:54323
