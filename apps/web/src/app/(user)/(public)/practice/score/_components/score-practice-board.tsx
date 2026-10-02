@@ -37,7 +37,10 @@ import {
 import { AnswerTimeBadge } from "../../_components/answer-time-badge";
 import { PracticeQuotaPaywall } from "../../_components/practice-quota-paywall";
 import { PracticeQuotaRemaining } from "../../_components/practice-quota-remaining";
-import { usePracticeQuota } from "../../_hooks/use-practice-quota";
+import {
+  canResumePractice,
+  usePracticeQuota,
+} from "../../_hooks/use-practice-quota";
 import { PlanBenefit } from "@/lib/billing/plans";
 
 /** 出題条件を選ぶ設定画面。「終了」で戻る先 */
@@ -64,8 +67,9 @@ function ScorePracticeBoardInner() {
   const tq = useTranslations("practiceQuota");
   // 問題の生成はサーバーの許可（無料枠の消費）を挟む。生成そのものは
   // 今までどおりブラウザ側のストアが行う
-  const { requestQuestion, isChecking, gate } = usePracticeQuota("score", () =>
-    useScorePracticeStore.getState().generateNewQuestion(),
+  const { requestQuestion, refreshGate, isChecking, gate } = usePracticeQuota(
+    "score",
+    () => useScorePracticeStore.getState().generateNewQuestion(),
   );
 
   useEffect(() => {
@@ -80,7 +84,7 @@ function ScorePracticeBoardInner() {
   useScrollToElement(PRACTICE_SCROLL_ANCHOR_ID, Boolean(currentQuestion));
 
   // 出題条件はストア（モジュールスコープで、ページを離れても破棄されない）へ
-  // 移し替えてから問題を作る。判定を「クエリが変わったか」だけで行うのが要点:
+  // 移し替えてから問題を作る。判定を「クエリが変わったか」で行うのが要点:
   //
   // - 「問題がまだ無いか」で見ると、前回の練習の問題が残っている限り初期化が
   //   走らず、教本から `?yaku=chiitoitsu` で入っても絞り込みが無視されて
@@ -90,6 +94,13 @@ function ScorePracticeBoardInner() {
   //   （平和の練習 → 七対子の練習）で条件が入れ替わらない
   // - 逆に「問題がまだ無いか」を条件に足すと、生成失敗（generationFailed）の
   //   ときに問題が入らないまま初期化を呼び続けて止まらなくなる
+  //
+  // 「クエリが変わったか」は 2 段で見る。このマウントの中（ref）と、ストアに
+  // 残った問題がどの条件のものか（`appliedQuery`）。後者が同じなら盤面を
+  // 離れて戻ってきただけ（料金ページを見てブラウザバック等）なので、解答中の
+  // 問題を引き継ぎ、無料枠を消費し直さない。引き継げる条件は
+  // `canResumePractice` が決める（上限で止まっていたら聞き直す等）。
+  // リロードはストアごと消えるので対象外で、これまでどおり 1 問消費する
   useEffect(() => {
     if (!isClient) return;
 
@@ -98,20 +109,30 @@ function ScorePracticeBoardInner() {
     appliedQueryRef.current = query;
 
     const store = useScorePracticeStore.getState();
-    store.setOptions(
+    if (
+      store.appliedQuery === query &&
+      canResumePractice("score", {
+        hasQuestion: store.currentQuestion !== undefined,
+        generationFailed: store.generationFailed,
+      })
+    ) {
+      // 残数と特典の表示だけ、離れている間の変化（購入・ログイン・日付）に
+      // 追随させる。問題はそのまま
+      if (store.currentQuestion) void refreshGate();
+      return;
+    }
+
+    // 条件を移し、統計を戻し、前回の問題を消してから聞く。統計を戻さないと
+    // 別の条件で入り直した練習の頭から前回の成績がカウンタに出たままになる。
+    // 問題を消すのは、生成がサーバーの許可（無料枠の消費）を待ってから走る
+    // ため — 消さないと返事が届くまで前回の問題（回答済みならその結果表示）が
+    // 新しい条件の盤面に出たままになり、遅い回線では答えられる
+    store.applyPracticeQuery(
+      query,
       parseGeneratorOptionsFromParams(new URLSearchParams(query)),
     );
-    // 統計も同じストアに載っている。ここで戻さないと、別の条件で入り直した
-    // 練習の頭から前回の成績がカウンタに出たままになる
-    store.resetStats();
-    // 前回の問題もここで消す。生成はサーバーの許可（無料枠の消費）を待って
-    // から走るので、消さないと返事が届くまで前回の問題（回答済みならその
-    // 結果表示）が新しい条件の盤面に出たままになり、遅い回線では答えられる。
-    // 設定画面の「開始」は遷移前に消しているが、教本からの再入場や同じ盤面での
-    // クエリ変更は「開始」を通らない
-    store.setQuestion(undefined);
     void requestQuestion();
-  }, [isClient, searchParams, requestQuestion]);
+  }, [isClient, searchParams, requestQuestion, refreshGate]);
 
   const {
     requireYaku,
