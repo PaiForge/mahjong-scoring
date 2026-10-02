@@ -246,7 +246,9 @@ export function ScoreSetupForm({
             label={t("setup.autoNext")}
           />
           {/* 回答時間の計測は Pro の拡張機能。Pro でなければスイッチの代わりに
-              料金ページへの導線を出す（押せないスイッチは「壊れている」に見える） */}
+              利用条件と料金ページへの導線を出す（押せないスイッチは「壊れている」に見える）。
+              未ログインでも導線は料金ページに統一する（機能と料金を見てから
+              購入に要るログイン・登録へ進む順序にするため） */}
           <SettingToggle
             checked={measureTime && hasPracticeTools}
             onChange={setMeasureTime}
@@ -255,7 +257,12 @@ export function ScoreSetupForm({
             locked={
               hasPracticeTools
                 ? undefined
-                : { badge: t("setup.measureTimePro"), href: PLAN_PAGE_HREF }
+                : {
+                    badge: t("setup.measureTimePro.badge"),
+                    note: t("setup.measureTimePro.note"),
+                    linkLabel: t("setup.measureTimePro.link"),
+                    href: PLAN_PAGE_HREF,
+                  }
             }
           />
         </div>
