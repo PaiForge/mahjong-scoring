@@ -4,6 +4,7 @@ const mocks = vi.hoisted(() => ({
   update: vi.fn(),
   payment: vi.fn(),
   refund: vi.fn(),
+  notify: vi.fn(),
   holder: {} as { seq?: import("@/test/drizzle-mock").SelectSequenceMock },
 }));
 vi.mock("server-only", () => ({}));
@@ -24,6 +25,9 @@ vi.mock("@/lib/db", async () => {
     db: { ...tx, transaction: (run: (tx: unknown) => unknown) => run(tx) },
   };
 });
+vi.mock("@/lib/notifications/create-notification", () => ({
+  notifyQuietly: mocks.notify,
+}));
 vi.mock("../stripe", () => ({
   getStripe: () => ({
     paymentIntents: { retrieve: mocks.payment },
@@ -231,18 +235,72 @@ describe("recordPurchaseFromCheckoutSession", () => {
     expect(mocks.insert).not.toHaveBeenCalled();
   });
 });
-describe("revokePurchaseByPaymentIntent", () => {
-  it("取消済み・不存在なら false", async () => {
-    expect(await revokePurchaseByPaymentIntent("pi1", "refunded")).toBe(false);
+describe("recordPurchaseFromCheckoutSession の通知", () => {
+  it("新しく記録したら購入完了を本人に通知する（期限は購入行と同じ）", async () => {
+    await recordPurchaseFromCheckoutSession(session(), NOW);
+    expect(mocks.notify).toHaveBeenCalledTimes(1);
+    expect(mocks.notify).toHaveBeenCalledWith({
+      userId: "u1",
+      type: "purchase_completed",
+      target: { type: "purchase", id: "p1" },
+      metadata: {
+        plan: "pro",
+        kind: "pass",
+        expiresAt: new Date("2026-10-31T12:00:00Z").toISOString(),
+        revokeReason: undefined,
+      },
+    });
   });
-  it("取消日時と理由を対で保存する", async () => {
-    mocks.update.mockReturnValue(createQueryChain([{ id: "p1" }]));
+  it("返金済みとして記録したときは取り消しを通知する", async () => {
+    mocks.payment.mockResolvedValue({
+      latest_charge: {
+        created: NOW.getTime() / 1000,
+        amount: 480,
+        amount_refunded: 480,
+      },
+    });
+    await recordPurchaseFromCheckoutSession(session(), NOW);
+    expect(mocks.notify).toHaveBeenCalledWith(
+      expect.objectContaining({
+        type: "purchase_revoked",
+        metadata: expect.objectContaining({ revokeReason: "refunded" }),
+      }),
+    );
+  });
+  it("同一 Session の再送（duplicate）では通知しない", async () => {
+    selects([customer], [{ id: "p1" }]);
+    await recordPurchaseFromCheckoutSession(session(), NOW);
+    expect(mocks.notify).not.toHaveBeenCalled();
+  });
+  it("見送り（ignored）では通知しない", async () => {
+    await recordPurchaseFromCheckoutSession(
+      session({ payment_status: "unpaid" }),
+      NOW,
+    );
+    expect(mocks.notify).not.toHaveBeenCalled();
+  });
+});
+describe("revokePurchaseByPaymentIntent", () => {
+  it("取消済み・不存在なら false で、通知もしない", async () => {
+    expect(await revokePurchaseByPaymentIntent("pi1", "refunded")).toBe(false);
+    expect(mocks.notify).not.toHaveBeenCalled();
+  });
+  it("取消日時と理由を対で保存し、本人に取り消しを通知する", async () => {
+    mocks.update.mockReturnValue(
+      createQueryChain([{ id: "p1", userId: "u1", plan: "pro", kind: "pass" }]),
+    );
     expect(await revokePurchaseByPaymentIntent("pi1", "refunded", NOW)).toBe(
       true,
     );
     expect(mocks.update.mock.results[0]?.value.set).toHaveBeenCalledWith({
       revokedAt: NOW,
       revokeReason: "refunded",
+    });
+    expect(mocks.notify).toHaveBeenCalledWith({
+      userId: "u1",
+      type: "purchase_revoked",
+      target: { type: "purchase", id: "p1" },
+      metadata: { plan: "pro", kind: "pass", revokeReason: "refunded" },
     });
   });
 });

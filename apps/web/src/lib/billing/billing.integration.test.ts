@@ -38,7 +38,12 @@ import {
   setupBillingTestDb,
   closeBillingTestDb,
 } from "./test-database";
-import { billingCheckouts, purchases, stripeCustomers } from "../db/schema";
+import {
+  billingCheckouts,
+  notifications,
+  purchases,
+  stripeCustomers,
+} from "../db/schema";
 import { openCheckout } from "./checkout";
 import {
   recordPurchaseFromCheckoutSession,
@@ -85,6 +90,7 @@ describe.skipIf(!process.env.BILLING_TEST_DATABASE_URL)(
       vi.stubEnv("STRIPE_PRICE_ID_PRO_PASS", "price_pass");
       vi.stubEnv("STRIPE_PRICE_ID_PRO_LIFETIME", "price_lifetime");
       const db = billingTestDb();
+      await db.delete(notifications);
       await db.delete(purchases);
       await db.delete(stripeCustomers);
       await db
@@ -227,6 +233,23 @@ describe.skipIf(!process.env.BILLING_TEST_DATABASE_URL)(
         "recorded",
       ]);
       expect(await billingTestDb().select().from(purchases)).toHaveLength(1);
+      // 通知も 1 通（一意インデックスで並行記録を 1 つに畳む）
+      const notified = await billingTestDb().select().from(notifications);
+      expect(notified.map((n) => n.type)).toEqual(["purchase_completed"]);
+      expect(notified[0].userId).toBe(owner);
+    });
+    it("全額返金で取り消すと本人に取り消しが通知される", async () => {
+      await start();
+      await recordPurchaseFromCheckoutSession(paid());
+      await revokePurchaseByPaymentIntent("pi1", "refunded");
+      // 再送されても取り消しは 1 回（false）で通知も増えない
+      expect(await revokePurchaseByPaymentIntent("pi1", "refunded")).toBe(
+        false,
+      );
+      const types = (await billingTestDb().select().from(notifications))
+        .map((n) => n.type)
+        .sort();
+      expect(types).toEqual(["purchase_completed", "purchase_revoked"]);
     });
     it("購入前の返金は取消済みとして復元", async () => {
       await start();

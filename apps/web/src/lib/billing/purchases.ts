@@ -11,8 +11,16 @@ import {
   type TransactionClient,
 } from "@/lib/db";
 import { logExternalError } from "@/lib/log-error";
+import {
+  notifyQuietly,
+  type NotificationInput,
+} from "@/lib/notifications/create-notification";
+import {
+  NotificationTargetType,
+  NotificationType,
+} from "@/lib/notifications/types";
 import { hasUnexpiredPurchase, lockBillingCustomer } from "./checkout-state";
-import { addPassDuration } from "./plans";
+import { addPassDuration, PurchaseKind } from "./plans";
 import { getStripe } from "./stripe";
 
 /** 購入取消理由。返金は全額のみ。 */
@@ -56,6 +64,11 @@ function idOf(
  * 重ね買いはしない。万一別 Session の決済が競合した場合は後の決済を全額返金し、
  * 取消済みとして履歴に残す。返金 API は PaymentIntent ごとの冪等キーを使う。
  * 返金イベントが先に来ていても Charge の現在値から取消を復元する。
+ *
+ * 行を新しく作ったときだけ本人に通知する（購入完了、返金済みで入れたなら
+ * 取り消し）。通知はトランザクションの外で、失敗しても記録を巻き込まずに
+ * 書く（`notifyQuietly`）。着地と Webhook の両方がここを通っても、通知側の
+ * 一意インデックスで 1 通になる。
  */
 export async function recordPurchaseFromCheckoutSession(
   session: Stripe.Checkout.Session,
@@ -72,92 +85,122 @@ export async function recordPurchaseFromCheckoutSession(
   const customerId = idOf(session.customer);
   if (!customerId) return { outcome: "ignored", reason: "unknownCustomer" };
 
-  return db.transaction(async (tx) => {
-    const customer = await lockBillingCustomer(tx, customerId);
-    if (!customer) return { outcome: "ignored", reason: "unknownCustomer" };
-    await lockPaymentIntent(tx, paymentIntentId);
-    const [existing] = await tx
-      .select({ id: purchases.id })
-      .from(purchases)
-      .where(eq(purchases.stripeCheckoutSessionId, session.id))
-      .limit(1);
-    if (existing) return { outcome: "duplicate" };
+  // 新しく作った行の通知。トランザクションが成功してから書く
+  let notification: NotificationInput | undefined;
+  const result = await db.transaction(
+    async (tx): Promise<RecordPurchaseResult> => {
+      const customer = await lockBillingCustomer(tx, customerId);
+      if (!customer) return { outcome: "ignored", reason: "unknownCustomer" };
+      await lockPaymentIntent(tx, paymentIntentId);
+      const [existing] = await tx
+        .select({ id: purchases.id })
+        .from(purchases)
+        .where(eq(purchases.stripeCheckoutSessionId, session.id))
+        .limit(1);
+      if (existing) return { outcome: "duplicate" };
 
-    const checkoutId = z
-      .string()
-      .uuid()
-      .safeParse(session.metadata?.billingCheckoutId);
-    if (!checkoutId.success)
-      return { outcome: "ignored", reason: "unknownCheckout" };
-    const [checkout] = await tx
-      .select()
-      .from(billingCheckouts)
-      .where(
-        and(
-          eq(billingCheckouts.id, checkoutId.data),
-          eq(billingCheckouts.customerId, customer.id),
-        ),
-      )
-      .limit(1);
-    if (!checkout) return { outcome: "ignored", reason: "unknownCheckout" };
-    if (
-      checkout.stripePriceId !== lineItem.price?.id ||
-      lineItem.quantity !== 1 ||
-      session.line_items?.data.length !== 1 ||
-      session.line_items.has_more ||
-      (checkout.stripeCheckoutSessionId &&
-        checkout.stripeCheckoutSessionId !== session.id)
-    ) {
-      return { outcome: "ignored", reason: "invalidCheckout" };
-    }
+      const checkoutId = z
+        .string()
+        .uuid()
+        .safeParse(session.metadata?.billingCheckoutId);
+      if (!checkoutId.success)
+        return { outcome: "ignored", reason: "unknownCheckout" };
+      const [checkout] = await tx
+        .select()
+        .from(billingCheckouts)
+        .where(
+          and(
+            eq(billingCheckouts.id, checkoutId.data),
+            eq(billingCheckouts.customerId, customer.id),
+          ),
+        )
+        .limit(1);
+      if (!checkout) return { outcome: "ignored", reason: "unknownCheckout" };
+      if (
+        checkout.stripePriceId !== lineItem.price?.id ||
+        lineItem.quantity !== 1 ||
+        session.line_items?.data.length !== 1 ||
+        session.line_items.has_more ||
+        (checkout.stripeCheckoutSessionId &&
+          checkout.stripeCheckoutSessionId !== session.id)
+      ) {
+        return { outcome: "ignored", reason: "invalidCheckout" };
+      }
 
-    const stripe = getStripe();
-    const payment = await stripe.paymentIntents.retrieve(paymentIntentId, {
-      expand: ["latest_charge"],
-    });
-    const charge = payment.latest_charge;
-    if (!charge || typeof charge === "string")
-      throw new Error("Paid Checkout has no expanded charge");
-    let refunded = charge.amount > 0 && charge.amount_refunded >= charge.amount;
-    if (!refunded && (await hasUnexpiredPurchase(tx, customer.userId, now))) {
-      const refund = await stripe.refunds.create(
-        { payment_intent: paymentIntentId },
-        { idempotencyKey: `duplicate-purchase:${paymentIntentId}` },
-      );
-      if (refund.status === "failed" || refund.status === "canceled")
-        throw new Error("Duplicate purchase refund failed");
-      refunded = true;
-    }
-    const startsAt = new Date(charge.created * 1000);
-    const [inserted] = await tx
-      .insert(purchases)
-      .values({
+      const stripe = getStripe();
+      const payment = await stripe.paymentIntents.retrieve(paymentIntentId, {
+        expand: ["latest_charge"],
+      });
+      const charge = payment.latest_charge;
+      if (!charge || typeof charge === "string")
+        throw new Error("Paid Checkout has no expanded charge");
+      let refunded =
+        charge.amount > 0 && charge.amount_refunded >= charge.amount;
+      if (!refunded && (await hasUnexpiredPurchase(tx, customer.userId, now))) {
+        const refund = await stripe.refunds.create(
+          { payment_intent: paymentIntentId },
+          { idempotencyKey: `duplicate-purchase:${paymentIntentId}` },
+        );
+        if (refund.status === "failed" || refund.status === "canceled")
+          throw new Error("Duplicate purchase refund failed");
+        refunded = true;
+      }
+      const startsAt = new Date(charge.created * 1000);
+      const expiresAt =
+        checkout.durationDays === null
+          ? null
+          : addPassDuration(startsAt, checkout.durationDays);
+      const [inserted] = await tx
+        .insert(purchases)
+        .values({
+          userId: customer.userId,
+          plan: checkout.plan,
+          kind: checkout.kind,
+          benefits: checkout.benefits,
+          stripeCheckoutSessionId: session.id,
+          stripePaymentIntentId: paymentIntentId,
+          currency: (session.currency ?? "jpy").toLowerCase(),
+          amount: session.amount_total ?? 0,
+          startsAt,
+          expiresAt,
+          revokedAt: refunded ? now : null,
+          revokeReason: refunded ? PurchaseRevokeReason.Refunded : null,
+        })
+        .onConflictDoNothing({ target: purchases.stripeCheckoutSessionId })
+        .returning({ id: purchases.id });
+      await tx
+        .update(billingCheckouts)
+        .set({ stripeCheckoutSessionId: session.id, settledAt: now })
+        .where(eq(billingCheckouts.id, checkout.id));
+      if (!inserted) return { outcome: "duplicate" };
+      notification = {
         userId: customer.userId,
-        plan: checkout.plan,
-        kind: checkout.kind,
-        benefits: checkout.benefits,
-        stripeCheckoutSessionId: session.id,
-        stripePaymentIntentId: paymentIntentId,
-        currency: (session.currency ?? "jpy").toLowerCase(),
-        amount: session.amount_total ?? 0,
-        startsAt,
-        expiresAt:
-          checkout.durationDays === null
-            ? null
-            : addPassDuration(startsAt, checkout.durationDays),
-        revokedAt: refunded ? now : null,
-        revokeReason: refunded ? PurchaseRevokeReason.Refunded : null,
-      })
-      .onConflictDoNothing({ target: purchases.stripeCheckoutSessionId })
-      .returning({ id: purchases.id });
-    await tx
-      .update(billingCheckouts)
-      .set({ stripeCheckoutSessionId: session.id, settledAt: now })
-      .where(eq(billingCheckouts.id, checkout.id));
-    return inserted
-      ? { outcome: refunded ? "refunded" : "recorded", purchaseId: inserted.id }
-      : { outcome: "duplicate" };
-  });
+        type: refunded
+          ? NotificationType.PurchaseRevoked
+          : NotificationType.PurchaseCompleted,
+        target: { type: NotificationTargetType.Purchase, id: inserted.id },
+        metadata: {
+          plan: checkout.plan,
+          kind: purchaseKindOf(checkout.kind),
+          expiresAt: expiresAt?.toISOString(),
+          revokeReason: refunded ? PurchaseRevokeReason.Refunded : undefined,
+        },
+      };
+      return {
+        outcome: refunded ? "refunded" : "recorded",
+        purchaseId: inserted.id,
+      };
+    },
+  );
+  if (notification) await notifyQuietly(notification);
+  return result;
+}
+
+/** varchar の `kind` を `PurchaseKind` に絞る。知らない値は通知に載せない */
+function purchaseKindOf(value: string): PurchaseKind | undefined {
+  return value === PurchaseKind.Pass || value === PurchaseKind.Lifetime
+    ? value
+    : undefined;
 }
 
 /**
@@ -187,16 +230,17 @@ export async function listPurchases(
  * 購入取り消し
  *
  * Webhook の `charge.refunded`（全額）から呼ぶ。行は消さず `revoked_at` を
- * 立てるだけ（購入履歴に「返金済み」として残す）。
+ * 立てるだけ（購入履歴に「返金済み」として残す）。取り消せたら本人に通知する
+ * （トランザクションの外、失敗しても取り消しを巻き込まない）。
  */
 export async function revokePurchaseByPaymentIntent(
   paymentIntentId: string,
   reason: PurchaseRevokeReason,
   now: Date = new Date(),
 ): Promise<boolean> {
-  return db.transaction(async (tx) => {
+  const revoked = await db.transaction(async (tx) => {
     await lockPaymentIntent(tx, paymentIntentId);
-    const updated = await tx
+    const [updated] = await tx
       .update(purchases)
       .set({ revokedAt: now, revokeReason: reason })
       .where(
@@ -205,9 +249,26 @@ export async function revokePurchaseByPaymentIntent(
           isNull(purchases.revokedAt),
         ),
       )
-      .returning({ id: purchases.id });
-    return updated.length > 0;
+      .returning({
+        id: purchases.id,
+        userId: purchases.userId,
+        plan: purchases.plan,
+        kind: purchases.kind,
+      });
+    return updated;
   });
+  if (!revoked) return false;
+  await notifyQuietly({
+    userId: revoked.userId,
+    type: NotificationType.PurchaseRevoked,
+    target: { type: NotificationTargetType.Purchase, id: revoked.id },
+    metadata: {
+      plan: revoked.plan,
+      kind: purchaseKindOf(revoked.kind),
+      revokeReason: reason,
+    },
+  });
+  return true;
 }
 
 /** 購入の INSERT と取消の UPDATE を PaymentIntent ごとに直列化する。 */
