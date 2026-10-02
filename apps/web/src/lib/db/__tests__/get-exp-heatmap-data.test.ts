@@ -57,7 +57,7 @@ describe("toExpHeatmapData", () => {
     expect(
       toExpHeatmapData(
         [
-          { date: new Date("2026-04-01T00:00:00Z"), total: "150" },
+          { date: "2026-04-01", total: "150" },
           { date: "2026-04-02", total: null },
         ],
         [
@@ -199,19 +199,6 @@ describe("getExpHeatmapData", () => {
     await expect(getExpHeatmapData("user-123", NOW)).rejects.toThrow(
       "Connection refused",
     );
-  });
-
-  it("handles non-string date by formatting it", async () => {
-    mockGroupBy.mockReset();
-    mockGroupBy
-      .mockResolvedValueOnce([
-        { date: new Date("2026-04-01T00:00:00Z"), total: "50" },
-      ])
-      .mockResolvedValueOnce([]);
-
-    const result = await getExpHeatmapData("user-123", NOW);
-
-    expect(result.daily).toEqual({ "2026-04-01": 50 });
   });
 
   it("executes both queries via Promise.all (parallel execution)", async () => {

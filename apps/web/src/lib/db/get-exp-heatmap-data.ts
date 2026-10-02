@@ -28,17 +28,21 @@ export interface ExpHeatmapData {
   readonly dailyByModule: Record<string, Record<string, number>>;
 }
 
+/**
+ * `DATE(... AT TIME ZONE 'Asia/Tokyo')` の集計行
+ * 日次経験値行
+ *
+ * `date` は DB が JST で切った暦日の `YYYY-MM-DD`。postgres.js は `date` 型を
+ * 文字列のまま返すので、ここで `Date` に組み直さない（組み直すと実行環境の
+ * TZ で日付が前後する）。
+ */
 interface DailyExpRow {
-  readonly date: string | Date;
+  readonly date: string;
   readonly total: string | number | null;
 }
 
 interface ModuleExpRow extends DailyExpRow {
   readonly menuType: string | null;
-}
-
-function heatmapDateKey(date: string | Date): string {
-  return typeof date === "string" ? date : formatDate(date);
 }
 
 /**
@@ -50,14 +54,13 @@ export function toExpHeatmapData(
   moduleRows: readonly ModuleExpRow[],
 ): ExpHeatmapData {
   const daily = Object.fromEntries(
-    dailyRows.map((row) => [heatmapDateKey(row.date), Number(row.total) || 0]),
+    dailyRows.map((row) => [row.date, Number(row.total) || 0]),
   );
 
   const dailyByModule: Record<string, Record<string, number>> = {};
   for (const row of moduleRows) {
-    const dateKey = heatmapDateKey(row.date);
-    const totals = dailyByModule[dateKey] ?? {};
-    dailyByModule[dateKey] = {
+    const totals = dailyByModule[row.date] ?? {};
+    dailyByModule[row.date] = {
       ...totals,
       [row.menuType ?? "unknown"]: Number(row.total) || 0,
     };
