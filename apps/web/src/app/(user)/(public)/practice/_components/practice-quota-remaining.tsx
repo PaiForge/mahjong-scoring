@@ -1,5 +1,3 @@
-"use client";
-
 import { useTranslations } from "next-intl";
 
 interface PracticeQuotaRemainingProps {
@@ -13,6 +11,9 @@ interface PracticeQuotaRemainingProps {
  *
  * 「今日はあと n 問」。0 なら「この問題で終わり」。無制限のときは何も出さない
  * （Pro に残数の概念はない）。
+ *
+ * `"use client"` は付けない。hooks は `useTranslations()` だけで、呼び出し元の
+ * 盤面（クライアント）に取り込まれて動く。
  */
 export function PracticeQuotaRemaining({
   remaining,
