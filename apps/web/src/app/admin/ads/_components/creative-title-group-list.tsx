@@ -1,10 +1,10 @@
 "use client";
 
-import { useRouter } from "next/navigation";
-import { useState, useTransition } from "react";
+import { useState } from "react";
 import { useTranslations } from "next-intl";
 import { toast } from "react-hot-toast";
 
+import { useAdsAction } from "../_hooks/use-ads-action";
 import { setAdCreativeActiveByTitle } from "../_actions/set-ad-creative-active-by-title";
 import { setAdCreativeHrefByTitle } from "../_actions/set-ad-creative-href-by-title";
 import type { CreativeTitleGroup } from "../_lib/title-groups";
@@ -53,30 +53,19 @@ function CreativeTitleGroupRow({
 }: {
   readonly group: CreativeTitleGroup;
 }) {
-  const router = useRouter();
   const t = useTranslations("admin.ads");
   const agreed = group.hrefs.length === 1 ? (group.hrefs[0] ?? "") : "";
   const [href, setHref] = useState(agreed);
-  const [isPending, startTransition] = useTransition();
+  const { isPending, run: runAdsAction } = useAdsAction();
   const total = group.creativeIds.length;
 
   const run = (
     action: () => Promise<
-      | {
-          readonly error:
-            "errorSaveFailed" | "errorNotFound" | "errorHrefInvalid";
-        }
-      | { readonly updated: number }
+      { readonly error: string } | { readonly updated: number }
     >,
   ) => {
-    startTransition(async () => {
-      const result = await action();
-      if ("error" in result) {
-        toast.error(t(result.error));
-        return;
-      }
+    runAdsAction(action, (result) => {
       toast.success(t("links.applied", { count: result.updated }));
-      router.refresh();
     });
   };
 
