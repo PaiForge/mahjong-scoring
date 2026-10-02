@@ -42,9 +42,15 @@ const MYPAGE_PLAN_PATH = "/mypage/plan";
  *
  * `SITE_URL` はローカルで本番 URL に落ちる。認証のコールバックと同じく
  * `new URL(request.url).origin` を使う。
+ *
+ * @design 未ログインならこの着地へ戻すサインインに送る
+ *
+ * `?session_id=` ごとサインインの `redirect` に載せる。所有者の検証は
+ * サインイン後に改めて走るので、`session_id` を知っているだけでは
+ * 何も得られない点は変わらない。
  */
 export async function GET(request: Request): Promise<NextResponse> {
-  const { searchParams, origin } = new URL(request.url);
+  const { searchParams, origin, pathname, search } = new URL(request.url);
   const sessionId = searchParams.get("session_id");
   const toPlan = (status?: string) =>
     NextResponse.redirect(
@@ -60,8 +66,13 @@ export async function GET(request: Request): Promise<NextResponse> {
 
   const user = await getOptionalVerifiedUser();
   if (!user) {
-    const here = `${MYPAGE_PLAN_PATH}`;
-    return NextResponse.redirect(`${origin}${buildSignInHref(here)}`);
+    // Stripe の画面に居る間にログインが切れた（別のブラウザで支払った）
+    // 場合。戻り先はこの着地そのもの（`session_id` 込み）にして、サインイン後に
+    // 同期記録と結果表示をやり直す。マイページに直接戻すと `session_id` が
+    // 失われ、Webhook が遅れている間は支払い直後なのに「無料プラン」が見える
+    return NextResponse.redirect(
+      `${origin}${buildSignInHref(`${pathname}${search}`)}`,
+    );
   }
 
   try {

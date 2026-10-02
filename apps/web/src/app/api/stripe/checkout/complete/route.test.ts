@@ -63,13 +63,15 @@ describe("GET /api/stripe/checkout/complete", () => {
     expect(mockSessionsRetrieve).not.toHaveBeenCalled();
   });
 
-  it("未ログインならサインインへ（戻り先はマイページのプラン）", async () => {
+  it("未ログインならサインインへ（戻り先は session_id 込みのこの着地）", async () => {
     mockGetOptionalVerifiedUser.mockResolvedValue(undefined);
 
     const res = await GET(request());
 
     expect(res.headers.get("location")).toBe(
-      `${ORIGIN}/sign-in?redirect=%2Fmypage%2Fplan`,
+      `${ORIGIN}/sign-in?redirect=${encodeURIComponent(
+        "/api/stripe/checkout/complete?session_id=cs_1",
+      )}`,
     );
     expect(mockSessionsRetrieve).not.toHaveBeenCalled();
   });
