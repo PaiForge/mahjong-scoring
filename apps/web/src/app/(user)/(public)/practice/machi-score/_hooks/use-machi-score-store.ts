@@ -109,7 +109,6 @@ interface MachiScoreState {
 
 interface MachiScoreActions {
   generateNewQuestion: () => void;
-  setOptions: (options: Partial<MachiScoreGeneratorOptions>) => void;
   /**
    * 出題条件を適用して練習を始め直す（条件・成績・問題・`appliedQuery` を
    * 1 つの操作で入れ替える。生成はしない）。総合演習のストアと同じ
@@ -118,7 +117,6 @@ interface MachiScoreActions {
     query: string,
     options: Partial<MachiScoreGeneratorOptions>,
   ) => void;
-  resetStats: () => void;
   /** 問題を直接設定する（設定画面へ戻る前のクリアなど） */
   setQuestion: (question: MachiScoreQuestion | undefined) => void;
   /** 待ち牌の選択を切り替える（判定後は変えられない） */
@@ -219,14 +217,6 @@ export const useMachiScoreStore = create<MachiScoreStore>((set, get) => ({
       questionSeq: state.questionSeq + 1,
       ...INITIAL_ANSWERING,
     }));
-  },
-
-  setOptions: (options) => {
-    set((state) => ({ options: { ...state.options, ...options } }));
-  },
-
-  resetStats: () => {
-    set({ stats: { total: 0, correct: 0 } });
   },
 
   applyPracticeQuery: (query, options) => {

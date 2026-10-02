@@ -60,7 +60,7 @@ function answerMachiCorrectly() {
 describe("useMachiScoreStore", () => {
   beforeEach(() => {
     useMachiScoreStore.getState().setQuestion(undefined);
-    useMachiScoreStore.getState().resetStats();
+    useMachiScoreStore.setState({ stats: { total: 0, correct: 0 } });
   });
 
   it("待ちを回答すると判定が付き、進むまで段階は変わらない", () => {

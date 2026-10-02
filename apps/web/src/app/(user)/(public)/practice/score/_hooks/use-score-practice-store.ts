@@ -85,10 +85,6 @@ interface ScorePracticeActions {
    * 開示後は回答時と同じ結果表示から「次の問題へ」で進む。
    */
   revealAnswer: () => void;
-  /** 統計をリセット */
-  resetStats: () => void;
-  /** オプションを更新 */
-  setOptions: (options: Partial<QuestionGeneratorOptions>) => void;
   /** 問題を直接設定 */
   setQuestion: (question: ScoreQuestion | undefined) => void;
 }
@@ -180,24 +176,6 @@ export const useScorePracticeStore = create<ScorePracticeStore>((set, get) => ({
       judgementResult: undefined,
       isAnswered: true,
     });
-  },
-
-  resetStats: () => {
-    set({
-      stats: {
-        total: 0,
-        correct: 0,
-      },
-    });
-  },
-
-  setOptions: (options: Partial<QuestionGeneratorOptions>) => {
-    set((state) => ({
-      options: {
-        ...state.options,
-        ...options,
-      },
-    }));
   },
 
   applyPracticeQuery: (query, options) => {

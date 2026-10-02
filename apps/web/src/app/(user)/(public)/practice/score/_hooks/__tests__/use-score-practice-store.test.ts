@@ -74,7 +74,7 @@ describe("useScorePracticeStore generationFailed", () => {
 
   it("生成が失敗すると generationFailed が立つ", () => {
     // minHan を満たす手は存在しないため、リトライを使い切って必ず失敗する
-    useScorePracticeStore.getState().setOptions({ minHan: 100 });
+    useScorePracticeStore.getState().applyPracticeQuery("", { minHan: 100 });
 
     useScorePracticeStore.getState().generateNewQuestion();
 
