@@ -1,6 +1,6 @@
 "use client";
 
-import { useGradeAnswer } from "../../_hooks/use-verified-challenge";
+import { useGradeAndRecord } from "../../_hooks/use-verified-challenge";
 
 import { useCallback } from "react";
 import type {
@@ -13,7 +13,6 @@ import {
   useRegisterAdvance,
   useTrainingAnswerVisibility,
 } from "../../_hooks/use-training-mode";
-import { AnswerOutcome } from "../../_lib/result-schemas";
 import { ScoreTablePrompt } from "./score-table-prompt";
 import { ScoreTableAnswerForm } from "./score-table-answer-form";
 import { toQuestionResult } from "../_lib/types";
@@ -52,7 +51,11 @@ export function ScoreTableBoard({
   onPresentQuestion,
 }: ScoreTableBoardProps) {
   useRegisterAdvance(onAdvance);
-  const gradeAnswer = useGradeAnswer<ScoreTableQuestion>();
+  const gradeAndRecord = useGradeAndRecord(toQuestionResult, {
+    onRecordResult,
+    onAnswer,
+    advance: onAdvance,
+  });
   usePresentQuestion(question, toUnansweredResult, onPresentQuestion);
   // トレーニングでは開示時だけでなく回答後の停止中も正解を出す（答え合わせ用）。
   // 正解のときは出さない — 選んだ値がそのまま正解で、枠の色が正誤を示している
@@ -61,13 +64,9 @@ export function ScoreTableBoard({
   const handleSubmit = useCallback(
     (userAnswer: ScoreTableUserAnswer) => {
       if (showFeedback) return;
-      gradeAnswer(question, userAnswer, (gradedQuestion) => {
-        const result = toQuestionResult(gradedQuestion, userAnswer);
-        onRecordResult?.(result);
-        onAnswer(result.outcome === AnswerOutcome.Correct, onAdvance);
-      });
+      gradeAndRecord(question, userAnswer);
     },
-    [showFeedback, question, onAnswer, onAdvance, onRecordResult, gradeAnswer],
+    [showFeedback, question, gradeAndRecord],
   );
 
   return (

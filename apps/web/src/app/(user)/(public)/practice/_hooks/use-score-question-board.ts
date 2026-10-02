@@ -1,6 +1,6 @@
 "use client";
 
-import { useGradeAnswer } from "./use-verified-challenge";
+import { useGradeAndRecord } from "./use-verified-challenge";
 
 import { useCallback } from "react";
 import { generateValidScoreQuestion } from "@mahjong-scoring/core";
@@ -10,7 +10,6 @@ import type {
 } from "@mahjong-scoring/core";
 import type { ScoreQuestionResult } from "../_lib/score-question-result";
 import { toScoreQuestionResult } from "../_lib/score-question-result";
-import { AnswerOutcome } from "../_lib/result-schemas";
 import type { RecordingPracticeBoardProps } from "../_lib/practice-board-props";
 import { useGeneratedScoreQuestion } from "./use-generated-score-question";
 import { usePresentQuestion } from "./use-present-question";
@@ -55,9 +54,13 @@ export function useScoreQuestionBoard({
   onRecordResult,
   onPresentQuestion,
 }: UseScoreQuestionBoardParams): UseScoreQuestionBoardResult {
-  const gradeAnswer = useGradeAnswer<ScoreQuestion>();
   const { question, questionIndex, advanceQuestion } =
     useGeneratedScoreQuestion(generateOptions, maxRetries);
+  const gradeAndRecord = useGradeAndRecord(toScoreQuestionResult, {
+    onRecordResult,
+    onAnswer,
+    advance: advanceQuestion,
+  });
 
   useRegisterAdvance(question === undefined ? undefined : advanceQuestion);
   usePresentQuestion(question, toUnansweredResult, onPresentQuestion);
@@ -66,20 +69,9 @@ export function useScoreQuestionBoard({
     (userAnswer: ScoreTableUserAnswer) => {
       if (showFeedback || !question) return;
 
-      gradeAnswer(question, userAnswer, (gradedQuestion) => {
-        const result = toScoreQuestionResult(gradedQuestion, userAnswer);
-        onRecordResult?.(result);
-        onAnswer(result.outcome === AnswerOutcome.Correct, advanceQuestion);
-      });
+      gradeAndRecord(question, userAnswer);
     },
-    [
-      showFeedback,
-      question,
-      onAnswer,
-      advanceQuestion,
-      onRecordResult,
-      gradeAnswer,
-    ],
+    [showFeedback, question, gradeAndRecord],
   );
 
   return { question, questionIndex, handleSubmit };

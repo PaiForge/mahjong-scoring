@@ -1,6 +1,6 @@
 "use client";
 
-import { useGradeAnswer } from "../../_hooks/use-verified-challenge";
+import { useGradeAndRecord } from "../../_hooks/use-verified-challenge";
 
 import { useCallback } from "react";
 import { clampHanToYakuman } from "@mahjong-scoring/core";
@@ -16,7 +16,6 @@ import {
   useRegisterAdvance,
   useTrainingMode,
 } from "../../_hooks/use-training-mode";
-import { AnswerOutcome } from "../../_lib/result-schemas";
 import { HanBreakdown } from "./han-breakdown";
 import { HanCountAnswerForm } from "./han-count-answer-form";
 import type { HanCountQuestionResult } from "../_lib/types";
@@ -66,7 +65,11 @@ export function HanCountBoard({
   onRecordResult,
   onPresentQuestion,
 }: HanCountBoardProps) {
-  const gradeAnswer = useGradeAnswer<ScoreQuestion>();
+  const gradeAndRecord = useGradeAndRecord(toHanCountQuestionResult, {
+    onRecordResult,
+    onAnswer,
+    advance: advanceQuestion,
+  });
   const t = useTranslations("hanCountChallenge");
   // トレーニングでは開示時も回答後の停止中も内訳を出す（どちらも答え合わせの局面）
   const { isRevealed, isHolding } = useTrainingMode();
@@ -85,21 +88,9 @@ export function HanCountBoard({
 
       // 選択肢は 1〜13 のため、14翻以上（役満+ドラ・ダブル役満等）の正解は
       // 役満（13翻）に丸めて判定・記録する。丸めないと正解できない問題になる
-      gradeAnswer(question, userHan, (gradedQuestion) => {
-        const result = toHanCountQuestionResult(gradedQuestion, userHan);
-
-        onRecordResult?.(result);
-        onAnswer(result.outcome === AnswerOutcome.Correct, advanceQuestion);
-      });
+      gradeAndRecord(question, userHan);
     },
-    [
-      showFeedback,
-      question,
-      onAnswer,
-      advanceQuestion,
-      onRecordResult,
-      gradeAnswer,
-    ],
+    [showFeedback, question, gradeAndRecord],
   );
 
   if (!question) {
