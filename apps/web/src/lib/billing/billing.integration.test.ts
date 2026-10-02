@@ -180,14 +180,40 @@ describe.skipIf(!process.env.BILLING_TEST_DATABASE_URL)(
       expect(await start()).toEqual({ error: "checkoutPending" });
       expect(await start()).toEqual({ error: "alreadyActive" });
     });
-    it("本当に期限切れなら次の購入を許可", async () => {
+    it("本当に期限切れなら同じ呼び出しで新しい手続きに置き換える", async () => {
       await start();
       const session = sessions.get("cs_1")!;
       sessions.set(session.id, { ...session, status: "expired", url: null });
-      expect(await start()).toEqual({ error: "checkoutExpired" });
       expect(await start()).toEqual({
         url: "https://checkout.stripe.com/cs_2",
       });
+      const rows = await billingTestDb().select().from(billingCheckouts);
+      expect(rows.map((r) => r.settledAt !== null).sort()).toEqual([
+        false,
+        true,
+      ]);
+    });
+    it("Session 未発行のまま期限が迫った予約も同じ呼び出しで置き換える", async () => {
+      mocks.create.mockRejectedValueOnce(new Error("stripe down"));
+      await expect(start()).rejects.toThrow("stripe down");
+      await billingTestDb()
+        .update(billingCheckouts)
+        .set({ expiresAt: new Date(Date.now() + 10 * 60 * 1000) });
+      expect(await start()).toEqual({
+        url: "https://checkout.stripe.com/cs_1",
+      });
+      expect(mocks.create).toHaveBeenCalledTimes(2);
+      expect(
+        await billingTestDb().select().from(billingCheckouts),
+      ).toHaveLength(2);
+    });
+    it("置き換えのやり直しでも有効な購入があれば拒否", async () => {
+      await start();
+      await recordPurchaseFromCheckoutSession(paid());
+      const session = sessions.get("cs_1")!;
+      sessions.set(session.id, { ...session, status: "expired", url: null });
+      expect(await start()).toEqual({ error: "alreadyActive" });
+      expect(mocks.create).toHaveBeenCalledTimes(1);
     });
     it("着地と Webhook の並行記録は1行", async () => {
       await start();
@@ -250,12 +276,10 @@ describe.skipIf(!process.env.BILLING_TEST_DATABASE_URL)(
       expect(
         (await billingTestDb().select().from(purchases))[0].benefits,
       ).toEqual(["unlimited_practice"]);
-      await billingTestDb()
-        .insert(stripeCustomers)
-        .values({
-          userId: "22222222-2222-4222-8222-222222222222",
-          stripeCustomerId: "cus_other",
-        });
+      await billingTestDb().insert(stripeCustomers).values({
+        userId: "22222222-2222-4222-8222-222222222222",
+        stripeCustomerId: "cus_other",
+      });
       expect(
         await recordPurchaseFromCheckoutSession({
           ...session,
