@@ -281,7 +281,7 @@ function ScorePracticeBoardInner() {
             )}
             <PracticeQuotaRemaining
               remaining={gate?.kind === "open" ? gate.remaining : undefined}
-              showPlanLink={stats.total === 0}
+              showPlanLink={!isAnswered}
             />
           </div>
         )}

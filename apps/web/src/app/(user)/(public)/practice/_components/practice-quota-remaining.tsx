@@ -7,7 +7,7 @@ import { PLAN_PAGE_HREF } from "@/lib/billing/plans";
 interface PracticeQuotaRemainingProps {
   /** 今日の残り。Pro（`"unlimited"`）とまだ聞いていない（undefined）は出さない */
   readonly remaining: number | "unlimited" | undefined;
-  /** 料金ページへのリンクを添えるか。盤面が最初の 1 問に解答するまで true を渡す */
+  /** 料金ページへのリンクを添えるか。1 問の最初の段階（解答前）だけ true を渡す */
   readonly showPlanLink: boolean;
 }
 
@@ -24,11 +24,13 @@ interface PracticeQuotaRemainingProps {
  * 「無料であと n 問」は、何か操作すると課金されると読める。残数の行は上限が
  * あることだけを伝え、Pro の説明はリンク先とペイウォールに任せる。
  *
- * @design リンクは最初の 1 問だけ
+ * @design リンクは 1 問の最初の段階だけ
  *
- * 毎問出すと解答のたびに目に入る宣伝になる。残数とは別の情報なので行を
- * 分ける。消えると 1 行分詰まるが、消えるのは解答した瞬間で、回答欄が
- * 結果に置き換わる変化に紛れる（入力直後のずれは CLS にも数えられない）。
+ * 解答後は「次の問題へ」「当てはめる」などのボタンが続けて押される。その
+ * すぐ下にリンクがあると、ボタンのつもりで押して練習を離れてしまう。
+ * 解答前（点数計算は回答前、待ち別点数計算は待ち牌を選ぶ段階）だけ出す。
+ * リンクはボタン群より下にあるので、消えて詰まるのはその下だけで、
+ * 押そうとしているボタンは動かない。
  *
  * `"use client"` は付けない。hooks は `useTranslations()` だけで、呼び出し元の
  * 盤面（クライアント）に取り込まれて動く。
