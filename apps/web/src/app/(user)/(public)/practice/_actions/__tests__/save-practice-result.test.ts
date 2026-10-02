@@ -1,13 +1,17 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
-const { auth, finish } = vi.hoisted(() => ({ auth: vi.fn(), finish: vi.fn() }));
-vi.mock("@/lib/auth", () => ({ authenticateAndCheckBan: auth }));
+import {
+  mockAuthenticateAndCheckBan,
+  setupAuthorized,
+} from "@/test/auth-mocks";
+const { finish } = vi.hoisted(() => ({ finish: vi.fn() }));
+vi.mock("@/lib/auth", async () => await import("@/test/auth-mocks"));
 vi.mock("@/lib/challenge/attempts", () => ({ finishAttempt: finish }));
 import { savePracticeResult } from "../save-practice-result";
 
 describe("savePracticeResult", () => {
   beforeEach(() => {
     vi.clearAllMocks();
-    auth.mockResolvedValue({ user: { id: "owner" } });
+    setupAuthorized({ id: "owner", email: "owner@example.com" });
     finish.mockResolvedValue({ challengeResultId: "result-id" });
   });
   it("サーバーの本人IDと挑戦IDだけで結果を確定する", async () => {
@@ -26,7 +30,7 @@ describe("savePracticeResult", () => {
     expect(finish).toHaveBeenCalledWith("owner", "attempt-id", false);
   });
   it("未認証は書き込まない", async () => {
-    auth.mockResolvedValue({ error: "unauthorized" });
+    mockAuthenticateAndCheckBan.mockResolvedValue({ error: "unauthorized" });
     expect(await savePracticeResult("attempt-id")).toEqual({
       success: true,
       skipped: "anonymous",
@@ -34,7 +38,7 @@ describe("savePracticeResult", () => {
     expect(finish).not.toHaveBeenCalled();
   });
   it("BAN中は書き込まない", async () => {
-    auth.mockResolvedValue({ error: "banned" });
+    mockAuthenticateAndCheckBan.mockResolvedValue({ error: "banned" });
     expect(await savePracticeResult("attempt-id")).toEqual({
       success: false,
       error: "banned",

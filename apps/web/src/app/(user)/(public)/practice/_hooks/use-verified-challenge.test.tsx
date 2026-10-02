@@ -17,7 +17,7 @@ const mocks = vi.hoisted(() => ({
   recorded: vi.fn(),
   expired: vi.fn(),
 }));
-vi.mock("next-intl", () => ({ useTranslations: () => (key: string) => key }));
+vi.mock("next-intl", async () => await import("@/test/intl-mock"));
 vi.mock("@/lib/challenge/actions", () => ({
   beginChallenge: mocks.begin,
   answerChallenge: mocks.answer,

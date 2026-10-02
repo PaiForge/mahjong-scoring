@@ -1,7 +1,10 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
+import {
+  mockAuthenticateAndCheckBan,
+  mockEnforceIpRateLimit,
+  setupAuthorized,
+} from "@/test/auth-mocks";
 const mocks = vi.hoisted(() => ({
-  rate: vi.fn(),
-  auth: vi.fn(),
   open: vi.fn(),
   headers: vi.fn(),
   redirect: vi.fn(),
@@ -14,16 +17,15 @@ vi.mock("next/navigation", () => ({
     throw new Error(`NEXT_REDIRECT:${url}`);
   },
 }));
-vi.mock("@/lib/rate-limit-ip", () => ({ enforceIpRateLimit: mocks.rate }));
-vi.mock("@/lib/auth", () => ({ authenticateAndCheckBan: mocks.auth }));
+vi.mock("@/lib/rate-limit-ip", async () => await import("@/test/auth-mocks"));
+vi.mock("@/lib/auth", async () => await import("@/test/auth-mocks"));
 vi.mock("@/lib/billing/checkout", () => ({ openCheckout: mocks.open }));
 vi.mock("@/config", () => ({ SITE_URL: "https://score.mahjong.help" }));
 import { createCheckoutSession } from "../create-checkout-session";
 beforeEach(() => {
   vi.clearAllMocks();
   vi.spyOn(console, "error").mockImplementation(() => undefined);
-  mocks.rate.mockResolvedValue(undefined);
-  mocks.auth.mockResolvedValue({ user: { id: "u1", email: "u1@example.com" } });
+  setupAuthorized({ id: "u1", email: "u1@example.com" });
   mocks.open.mockResolvedValue({ url: "https://checkout.stripe.com/x" });
   mocks.headers.mockResolvedValue(
     new Headers({ host: "localhost:3000", "x-forwarded-proto": "http" }),
@@ -34,15 +36,15 @@ describe("createCheckoutSession", () => {
     expect(await createCheckoutSession("monthly")).toEqual({
       error: "invalidOffer",
     });
-    expect(mocks.rate).not.toHaveBeenCalled();
+    expect(mockEnforceIpRateLimit).not.toHaveBeenCalled();
   });
   it("レート制限・未認証・BAN は Stripe を呼ばない", async () => {
-    mocks.rate.mockResolvedValueOnce({ error: "rateLimited" });
+    mockEnforceIpRateLimit.mockResolvedValueOnce({ error: "rateLimited" });
     expect(await createCheckoutSession("pass")).toEqual({
       error: "rateLimited",
     });
     for (const error of ["unauthorized", "banned"]) {
-      mocks.auth.mockResolvedValueOnce({ error });
+      mockAuthenticateAndCheckBan.mockResolvedValueOnce({ error });
       expect(await createCheckoutSession("pass")).toEqual({ error });
     }
     expect(mocks.open).not.toHaveBeenCalled();
