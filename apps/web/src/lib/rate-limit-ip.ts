@@ -116,6 +116,9 @@ export const IP_RATE_LIMITS = {
   // なので、連打や自動化で Stripe の API を叩かせない
   createCheckoutSession: { maxRequests: 5, windowMs: 600_000 },
   completeCheckout: { maxRequests: 10, windowMs: 600_000 },
+  // 通知の既読化。一覧を順に開くと 1 件ずつ飛ぶので、人の操作が
+  // 引っ掛からない程度に取る
+  markNotificationsRead: { maxRequests: 60, windowMs: 600_000 },
 } as const;
 
 /**

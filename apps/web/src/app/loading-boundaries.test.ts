@@ -88,6 +88,7 @@ const DYNAMIC_ROUTES: ReadonlySet<string> = new Set([
   "/mypage/account/delete",
   "/mypage/challenges",
   "/mypage/challenges/results",
+  "/mypage/notifications",
   "/mypage/plan",
   "/mypage/profile/edit",
   "/mypage/setup-username",

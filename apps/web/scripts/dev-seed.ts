@@ -28,6 +28,7 @@ import { DEV_TRACKING_ID, reseedAdCreatives } from "./dev-seed/ad-creatives";
 import { reseedBenefitGrants } from "./dev-seed/benefit-grants";
 import { reseedChallengeResults } from "./dev-seed/challenge-results";
 import type { ScoredSeedUser } from "./dev-seed/challenge-results";
+import { reseedNotifications } from "./dev-seed/notifications";
 import { reseedPurchases } from "./dev-seed/purchases";
 import { SEED_PASSWORD, SEED_USERS, ensureSeedUser } from "./dev-seed/users";
 
@@ -119,6 +120,12 @@ async function main() {
   console.log("dev-seed: 特典の手動付与を投入します...");
   const granted = await reseedBenefitGrants(db, scored);
   console.log(`  benefit_grants ${granted} 件（dave: 60 日の付与 / 購入なし）`);
+
+  console.log("dev-seed: サイト内通知を投入します...");
+  const notified = await reseedNotifications(db, scored);
+  console.log(
+    `  notifications ${notified} 件（購入・付与から導出。bob: 期限切れを含む / ヘッダーのベルに未読数が出る）`,
+  );
 
   console.log("dev-seed: ネイティブ広告を投入します...");
   const ads = await reseedAdCreatives(db);

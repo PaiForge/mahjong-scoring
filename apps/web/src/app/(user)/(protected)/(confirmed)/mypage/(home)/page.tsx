@@ -72,6 +72,12 @@ export default async function MyPage() {
       summary: t("cards.plan.summary"),
     },
     {
+      href: "/mypage/notifications",
+      icon: "\uD83D\uDD14",
+      title: t("cards.notifications.title"),
+      summary: t("cards.notifications.summary"),
+    },
+    {
       // 段級位を持たないユーザーにも道場の存在を知らせる導線
       // （ヘッダの段級位バッジは取得済みのときしか出ない）
       href: "/dojo",

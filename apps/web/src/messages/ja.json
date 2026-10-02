@@ -2419,6 +2419,10 @@
       "plan": {
         "title": "Pro プラン",
         "summary": "購入状況と購入履歴"
+      },
+      "notifications": {
+        "title": "通知",
+        "summary": "Pro プランの購入や期限切れなどのお知らせ"
       }
     },
     "heatmap": {
@@ -3517,6 +3521,29 @@
     "environment": {
       "title": "動作環境",
       "value": "最新版の Google Chrome、Safari、Microsoft Edge、Firefox。"
+    }
+  },
+  "notifications": {
+    "pageTitle": "通知",
+    "bell": "通知",
+    "bellUnread": "通知（未読 {count} 件）",
+    "unread": "未読",
+    "unreadCount": "未読 {count} 件",
+    "markAllRead": "すべて既読にする",
+    "markAllReadFailed": "既読にできませんでした。時間をおいてもう一度お試しください。",
+    "empty": "通知はまだありません",
+    "emptyHint": "Pro プランの購入や期限切れなど、あなたに関わる出来事をここでお知らせします。",
+    "messages": {
+      "purchaseCompletedPass": "Pro（30 日パス）の購入が完了しました。{until} まで Pro の機能を使えます。",
+      "purchaseCompletedLifetime": "Pro（買い切り）の購入が完了しました。Pro の機能をずっと使えます。",
+      "purchaseCompleted": "Pro の購入が完了しました。",
+      "benefitGrantedUntil": "運営から Pro が付与されました。{until} まで Pro の機能を使えます。",
+      "benefitGranted": "運営から Pro が付与されました（無期限）。",
+      "planExpired": "Pro の期限が切れ、無料プランに戻りました。",
+      "purchaseRefunded": "返金により Pro の購入が取り消されました。",
+      "purchaseRevoked": "Pro の購入が取り消されました。",
+      "benefitGrantRevoked": "運営から付与されていた Pro が取り消されました。",
+      "unknown": "新しいお知らせがあります。"
     }
   }
 }
