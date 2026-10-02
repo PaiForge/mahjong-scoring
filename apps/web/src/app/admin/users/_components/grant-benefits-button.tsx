@@ -92,14 +92,15 @@ export function GrantBenefitsButton({
             </div>
           </fieldset>
 
+          {/* 行ごとに 1 つ描画されるので、取り消しボタンと同じく id を対象で分ける */}
           <label
-            htmlFor="grant-reason"
+            htmlFor={`grant-reason-${targetUserId}`}
             className="mb-1 block text-sm font-medium"
           >
             {t("grant.reasonLabel")}
           </label>
           <textarea
-            id="grant-reason"
+            id={`grant-reason-${targetUserId}`}
             value={reason}
             onChange={(e) => setReason(e.target.value)}
             placeholder={t("grant.reasonPlaceholder")}
