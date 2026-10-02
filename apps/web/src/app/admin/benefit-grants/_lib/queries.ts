@@ -3,9 +3,9 @@ import { desc, sql } from "drizzle-orm";
 
 import { benefitGrants, db, type BenefitGrant, type Profile } from "@/lib/db";
 import { DEFAULT_PAGE_SIZE, getPaginationData } from "@/lib/pagination";
-import { listAllAuthUsers } from "@/lib/supabase/list-all-auth-users";
+import { getAuthUserEmails } from "@/lib/supabase/get-auth-user-emails";
 
-import { buildEmailMap, buildProfileMap } from "../../_lib/log-query-helpers";
+import { buildProfileMap } from "../../_lib/log-query-helpers";
 
 /** 特典付与一覧ページのデータ */
 interface BenefitGrantsPageData {
@@ -48,8 +48,9 @@ export async function fetchBenefitGrantsPageData(
   const userIds = [
     ...new Set(grants.flatMap((grant) => [grant.userId, grant.grantedBy])),
   ];
-  const [allUsers, profileMap] = await Promise.all([
-    userIds.length === 0 ? [] : listAllAuthUsers(adminClient),
+  // 1 ページ分の ID だけ引く。メールで検索する機能が無いので全件は要らない
+  const [emailMap, profileMap] = await Promise.all([
+    getAuthUserEmails(userIds, adminClient),
     buildProfileMap(userIds),
   ]);
 
@@ -58,6 +59,6 @@ export async function fetchBenefitGrantsPageData(
     currentPage: pagination.currentPage,
     totalPages: pagination.totalPages,
     profileMap,
-    emailMap: buildEmailMap(allUsers, userIds),
+    emailMap,
   };
 }
