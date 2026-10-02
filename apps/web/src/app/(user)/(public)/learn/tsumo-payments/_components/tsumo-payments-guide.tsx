@@ -1,11 +1,10 @@
 import { getTranslations } from "next-intl/server";
 
-import { SectionTitle } from "@/app/(user)/_components/section-title";
-
 import { ChapterLink } from "../../_components/chapter-link";
 import { ChapterColumn } from "../../_components/chapter-column";
 import { GuideNote } from "../../_components/guide-note";
 import { GuideParagraph } from "../../_components/guide-paragraph";
+import { GuideSection } from "../../_components/guide-section";
 import { TsumoCarryoverDiagram } from "./tsumo-carryover-diagram";
 import { TsumoSplitTable } from "./tsumo-split-table";
 
@@ -47,8 +46,7 @@ export async function TsumoPaymentsGuide() {
   return (
     <div className="space-y-10">
       {/* 前章から受け取る値の確認。切り上げで崩れることまで正直に書く */}
-      <section className="space-y-4">
-        <SectionTitle>{t("splitTitle")}</SectionTitle>
+      <GuideSection title={t("splitTitle")}>
         <GuideParagraph preLine>
           {t.rich("splitBody1", {
             link: () => <ChapterLink slug="ron-to-tsumo" />,
@@ -65,11 +63,10 @@ export async function TsumoPaymentsGuide() {
 
         <GuideParagraph preLine>{t("splitBody3")}</GuideParagraph>
         <GuideParagraph preLine>{t("splitBody4")}</GuideParagraph>
-      </section>
+      </GuideSection>
 
       {/* 本題。結論をそのまま図にする（表で一致を探させない） */}
-      <section className="space-y-4">
-        <SectionTitle>{t("roleTitle")}</SectionTitle>
+      <GuideSection title={t("roleTitle")}>
         <GuideParagraph preLine>{t("roleBody1")}</GuideParagraph>
 
         <TsumoCarryoverDiagram fu={EXAMPLE_FU} han={EXAMPLE_HAN} />
@@ -83,7 +80,7 @@ export async function TsumoPaymentsGuide() {
         />
 
         <GuideParagraph preLine>{t("roleBody4")}</GuideParagraph>
-      </section>
+      </GuideSection>
 
       {/* コラム: 3口を足すとロンになるのか、という当然の疑問に答える */}
       <ChapterColumn t={t} />

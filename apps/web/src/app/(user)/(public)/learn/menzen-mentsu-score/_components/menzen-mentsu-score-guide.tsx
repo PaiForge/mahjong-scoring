@@ -1,6 +1,5 @@
 import { getTranslations } from "next-intl/server";
 
-import { SectionTitle } from "@/app/(user)/_components/section-title";
 import { scorePracticePlayHref } from "@/app/(user)/(public)/practice/score/_lib/play-href";
 import { PracticeLinkButton } from "@/app/(user)/_components/practice-link-button";
 import { PracticeLinkSection } from "../../_components/practice-link-card";
@@ -8,6 +7,7 @@ import { PracticeLinkSection } from "../../_components/practice-link-card";
 import { ChapterLink } from "../../_components/chapter-link";
 import { GuideColumn } from "../../_components/guide-column";
 import { GuideParagraph } from "../../_components/guide-paragraph";
+import { GuideSection } from "../../_components/guide-section";
 import { ExtraFuTable } from "../../_components/extra-fu-table";
 
 /**
@@ -19,17 +19,15 @@ export async function MenzenMentsuScoreGuide() {
   return (
     <div className="space-y-10">
       {/* 出発点（ロン30符・ツモ22符）と、そこから必ず符が乗ること */}
-      <section className="space-y-4">
-        <SectionTitle>{t("startTitle")}</SectionTitle>
+      <GuideSection title={t("startTitle")}>
         <GuideParagraph preLine>{t("startBody1")}</GuideParagraph>
         <GuideParagraph preLine>{t("startBody2")}</GuideParagraph>
         <GuideParagraph preLine>{t("startBody3")}</GuideParagraph>
         <GuideParagraph preLine>{t("startBody4")}</GuideParagraph>
-      </section>
+      </GuideSection>
 
       {/* 積み上げた符を10で切るという1つの規則と、その対応表 */}
-      <section className="space-y-4">
-        <SectionTitle>{t("roundTitle")}</SectionTitle>
+      <GuideSection title={t("roundTitle")}>
         <GuideParagraph preLine>
           {t.rich("roundBody1", {
             mentsuLink: () => <ChapterLink slug="mentsu-fu" />,
@@ -43,7 +41,7 @@ export async function MenzenMentsuScoreGuide() {
 
         <GuideParagraph preLine>{t("roundBody3")}</GuideParagraph>
         <GuideParagraph preLine>{t("roundBody4")}</GuideParagraph>
-      </section>
+      </GuideSection>
 
       {/* コラム: 40符へ上がる境目。刻子の有無ではなく積み上げ10符が境 */}
       <GuideColumn label={t("columnLabel")} title={t("columnTitle")}>

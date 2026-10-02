@@ -1,6 +1,5 @@
 import { getTranslations } from "next-intl/server";
 
-import { SectionTitle } from "@/app/(user)/_components/section-title";
 import { scorePracticePlayHref } from "@/app/(user)/(public)/practice/score/_lib/play-href";
 import { PracticeLinkButton } from "@/app/(user)/_components/practice-link-button";
 import { PracticeLinkSection } from "../../_components/practice-link-card";
@@ -9,6 +8,7 @@ import { ChapterColumn } from "../../_components/chapter-column";
 import { FixedFuScoreTable } from "../../_components/fixed-fu-score-table";
 import { CHIITOITSU_SCORE_TABLE } from "../../_lib/fixed-fu-rows";
 import { GuideParagraph } from "../../_components/guide-paragraph";
+import { GuideSection } from "../../_components/guide-section";
 
 /**
  * 七対子での点数計算 — 点数の計算セクション第1章
@@ -19,25 +19,23 @@ export async function ChiitoitsuScoreGuide() {
   return (
     <div className="space-y-10">
       {/* 符が1通りしかないことと、その点数表 */}
-      <section className="space-y-4">
-        <SectionTitle>{t("onePatternTitle")}</SectionTitle>
+      <GuideSection title={t("onePatternTitle")}>
         <GuideParagraph preLine>{t("onePatternBody1")}</GuideParagraph>
         <GuideParagraph preLine>{t("onePatternBody2")}</GuideParagraph>
 
         <FixedFuScoreTable role="ko" shape={CHIITOITSU_SCORE_TABLE} />
         <FixedFuScoreTable role="oya" shape={CHIITOITSU_SCORE_TABLE} />
-      </section>
+      </GuideSection>
 
       {/* コラム: 25符だけが10符刻みから外れている理由 */}
       <ChapterColumn t={t} />
 
       {/* 複合しても符は変わらない */}
-      <section className="space-y-4">
-        <SectionTitle>{t("compositeTitle")}</SectionTitle>
+      <GuideSection title={t("compositeTitle")}>
         <GuideParagraph preLine>{t("compositeBody1")}</GuideParagraph>
         <GuideParagraph preLine>{t("compositeBody2")}</GuideParagraph>
         <GuideParagraph preLine>{t("compositeBody3")}</GuideParagraph>
-      </section>
+      </GuideSection>
 
       {/* 対応する練習は自由練習（役絞り込み）でカタログ外のため、
           共通レイアウトの practiceHrefs ではなく章本文が導線を持つ。

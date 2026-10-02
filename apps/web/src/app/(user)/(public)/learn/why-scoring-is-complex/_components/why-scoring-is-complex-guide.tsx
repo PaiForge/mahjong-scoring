@@ -1,6 +1,6 @@
 import { getTranslations } from "next-intl/server";
-import { SectionTitle } from "@/app/(user)/_components/section-title";
 import { GuideParagraph } from "../../_components/guide-paragraph";
+import { GuideSection } from "../../_components/guide-section";
 import { BlockMath, InlineMath } from "../../_components/math";
 import { HighlightPanel } from "@/app/(user)/_components/highlight-panel";
 
@@ -13,8 +13,7 @@ export async function WhyScoringIsComplexGuide() {
   return (
     <div className="space-y-10">
       {/* 公式に基づけば計算自体は単純 */}
-      <section className="space-y-4">
-        <SectionTitle>{t("scoringIsSimpleTitle")}</SectionTitle>
+      <GuideSection title={t("scoringIsSimpleTitle")}>
         <GuideParagraph preLine>{t("scoringIsSimpleBody1")}</GuideParagraph>
         <GuideParagraph preLine>{t("scoringIsSimpleBody2")}</GuideParagraph>
 
@@ -56,7 +55,7 @@ export async function WhyScoringIsComplexGuide() {
         <GuideParagraph preLine>{t("memorizeNote")}</GuideParagraph>
         <GuideParagraph preLine>{t("kuku")}</GuideParagraph>
         <GuideParagraph preLine>{t("practiceNeeded")}</GuideParagraph>
-      </section>
+      </GuideSection>
     </div>
   );
 }

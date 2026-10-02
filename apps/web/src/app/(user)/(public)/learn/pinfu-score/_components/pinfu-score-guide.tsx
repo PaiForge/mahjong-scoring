@@ -1,6 +1,5 @@
 import { getTranslations } from "next-intl/server";
 
-import { SectionTitle } from "@/app/(user)/_components/section-title";
 import { PREFERENCE_ANCHORS } from "@/app/(user)/(public)/preferences/_lib/anchors";
 import { scorePracticePlayHref } from "@/app/(user)/(public)/practice/score/_lib/play-href";
 import { PracticeLinkButton } from "@/app/(user)/_components/practice-link-button";
@@ -9,6 +8,7 @@ import { PracticeLinkSection } from "../../_components/practice-link-card";
 import { ChapterColumn } from "../../_components/chapter-column";
 import { PreferenceSettingsNote } from "../../_components/preference-settings-note";
 import { GuideParagraph } from "../../_components/guide-paragraph";
+import { GuideSection } from "../../_components/guide-section";
 import { FixedFuScoreTable } from "../../_components/fixed-fu-score-table";
 import { PINFU_SCORE_TABLE } from "../../_lib/fixed-fu-rows";
 
@@ -21,8 +21,7 @@ export async function PinfuScoreGuide() {
   return (
     <div className="space-y-10">
       {/* 2パターンしかないことと、その点数表 */}
-      <section className="space-y-4">
-        <SectionTitle>{t("twoPatternsTitle")}</SectionTitle>
+      <GuideSection title={t("twoPatternsTitle")}>
         <GuideParagraph preLine>{t("twoPatternsBody1")}</GuideParagraph>
         <GuideParagraph preLine>{t("twoPatternsBody2")}</GuideParagraph>
 
@@ -30,7 +29,7 @@ export async function PinfuScoreGuide() {
         <FixedFuScoreTable role="oya" shape={PINFU_SCORE_TABLE} />
 
         <GuideParagraph preLine>{t("twoPatternsBody3")}</GuideParagraph>
-      </section>
+      </GuideSection>
 
       {/* コラム: 切り上げ満貫 — 表の4翻の行だけがルールで変わる */}
       <ChapterColumn t={t}>
@@ -41,19 +40,17 @@ export async function PinfuScoreGuide() {
       </ChapterColumn>
 
       {/* なぜ20符・30符なのか */}
-      <section className="space-y-4">
-        <SectionTitle>{t("whyTitle")}</SectionTitle>
+      <GuideSection title={t("whyTitle")}>
         <GuideParagraph preLine>{t("whyBody1")}</GuideParagraph>
         <GuideParagraph preLine>{t("whyBody2")}</GuideParagraph>
-      </section>
+      </GuideSection>
 
       {/* 複合しても符は変わらない */}
-      <section className="space-y-4">
-        <SectionTitle>{t("compositeTitle")}</SectionTitle>
+      <GuideSection title={t("compositeTitle")}>
         <GuideParagraph preLine>{t("compositeBody1")}</GuideParagraph>
         <GuideParagraph preLine>{t("compositeBody2")}</GuideParagraph>
         <GuideParagraph preLine>{t("compositeBody3")}</GuideParagraph>
-      </section>
+      </GuideSection>
 
       {/* 対応する練習は自由練習（役絞り込み）でカタログ外のため、
           共通レイアウトの practiceHrefs ではなく章本文が導線を持つ。

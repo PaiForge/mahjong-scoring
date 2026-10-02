@@ -1,11 +1,10 @@
 import { getTranslations } from "next-intl/server";
 
-import { SectionTitle } from "@/app/(user)/_components/section-title";
-
 import { ChapterLink } from "../../_components/chapter-link";
 import { ChapterColumn } from "../../_components/chapter-column";
 import { GuideNote } from "../../_components/guide-note";
 import { GuideParagraph } from "../../_components/guide-paragraph";
+import { GuideSection } from "../../_components/guide-section";
 import { BlockMath } from "../../_components/math";
 import { FU_PAIRS } from "../_lib/fu-doubling-rows";
 import { FuPairScoreTable } from "./fu-pair-score-table";
@@ -29,8 +28,7 @@ export async function FuDoublingGuide() {
   return (
     <div className="space-y-10">
       {/* 翻が1つ上がると倍。切り上げのせいで表では2倍に見えないことまで含める */}
-      <section className="space-y-4">
-        <SectionTitle>{t("hanTitle")}</SectionTitle>
+      <GuideSection title={t("hanTitle")}>
         <GuideParagraph preLine>{t("hanBody1")}</GuideParagraph>
 
         <BlockMath
@@ -48,11 +46,10 @@ export async function FuDoublingGuide() {
         <HanDoublingTable fu={30} role="ko" caption={t("hanTableCaption")} />
 
         <GuideParagraph preLine>{t("hanBody3")}</GuideParagraph>
-      </section>
+      </GuideSection>
 
       {/* 本題。符を2倍にすることと指数を1つ増やすことが同じ積になる */}
-      <section className="space-y-4">
-        <SectionTitle>{t("fuTitle")}</SectionTitle>
+      <GuideSection title={t("fuTitle")}>
         <GuideParagraph preLine>{t("fuBody1")}</GuideParagraph>
 
         <BlockMath
@@ -98,14 +95,13 @@ export async function FuDoublingGuide() {
             </li>
           ))}
         </ul>
-      </section>
+      </GuideSection>
 
       {/* 規則が使える範囲の上限 */}
-      <section className="space-y-4">
-        <SectionTitle>{t("manganTitle")}</SectionTitle>
+      <GuideSection title={t("manganTitle")}>
         <GuideParagraph preLine>{t("manganBody1")}</GuideParagraph>
         <GuideParagraph preLine>{t("manganBody2")}</GuideParagraph>
-      </section>
+      </GuideSection>
 
       {/* コラム: 七対子の「50符1翻」はこの規則の実例そのもの */}
       <ChapterColumn t={t} />

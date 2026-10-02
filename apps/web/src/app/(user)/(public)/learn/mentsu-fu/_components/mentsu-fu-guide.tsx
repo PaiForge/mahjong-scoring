@@ -6,11 +6,11 @@ import {
   exampleMinkou,
   exampleShuntsu,
 } from "@/lib/example-mentsu";
-import { SectionTitle } from "@/app/(user)/_components/section-title";
 import { ExampleTable } from "../../_components/example-table";
 import { loadExampleTableColumns } from "../../_lib/example-table-columns";
 import { FuSummaryTable } from "../../_components/fu-summary-table";
 import { GuideParagraph } from "../../_components/guide-paragraph";
+import { GuideSection } from "../../_components/guide-section";
 import { MentsuSet } from "@/app/(user)/_components/mentsu-set";
 
 export async function MentsuFuGuide() {
@@ -19,14 +19,12 @@ export async function MentsuFuGuide() {
   return (
     <div className="space-y-10">
       {/* What is mentsu fu */}
-      <section className="space-y-4">
-        <SectionTitle>{t("whatIsMentsuFu")}</SectionTitle>
+      <GuideSection title={t("whatIsMentsuFu")}>
         <GuideParagraph>{t("whatIsMentsuFuBody")}</GuideParagraph>
-      </section>
+      </GuideSection>
 
       {/* Shuntsu: 0 fu */}
-      <section className="space-y-4">
-        <SectionTitle>{t("shuntsuTitle")}</SectionTitle>
+      <GuideSection title={t("shuntsuTitle")}>
         <GuideParagraph>{t("shuntsuBody")}</GuideParagraph>
 
         <ExampleTable
@@ -48,11 +46,10 @@ export async function MentsuFuGuide() {
             },
           ]}
         />
-      </section>
+      </GuideSection>
 
       {/* Koutsu: 2-8 fu */}
-      <section className="space-y-4">
-        <SectionTitle>{t("koutsuTitle")}</SectionTitle>
+      <GuideSection title={t("koutsuTitle")}>
         <GuideParagraph>{t("koutsuBody")}</GuideParagraph>
 
         <ExampleTable
@@ -81,11 +78,10 @@ export async function MentsuFuGuide() {
             },
           ]}
         />
-      </section>
+      </GuideSection>
 
       {/* Kantsu: 8-32 fu */}
-      <section className="space-y-4">
-        <SectionTitle>{t("kantsuTitle")}</SectionTitle>
+      <GuideSection title={t("kantsuTitle")}>
         <GuideParagraph preLine>{t("kantsuBody")}</GuideParagraph>
 
         <ExampleTable
@@ -114,7 +110,7 @@ export async function MentsuFuGuide() {
             },
           ]}
         />
-      </section>
+      </GuideSection>
 
       {/* Summary table */}
       <FuSummaryTable
