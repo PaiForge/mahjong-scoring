@@ -83,6 +83,12 @@ interface MachiScoreState {
    */
   draftSeq: Readonly<Record<"tsumo" | "ron", number>>;
   options: MachiScoreGeneratorOptions;
+  /**
+   * 今の問題（または生成待ち・生成失敗）がどの出題条件のものか（理由は
+   * 総合演習のストアと同じ: 盤面に戻ってきたとき同じ条件なら解答中の
+   * 問題を引き継ぎ、無料枠を消費し直さない）
+   */
+  appliedQuery: string | undefined;
   /** 待ち牌として選んでいる牌 */
   selectedMachi: readonly HaiKindId[];
   /** 待ち牌の判定。回答するまで undefined */
@@ -104,6 +110,14 @@ interface MachiScoreState {
 interface MachiScoreActions {
   generateNewQuestion: () => void;
   setOptions: (options: Partial<MachiScoreGeneratorOptions>) => void;
+  /**
+   * 出題条件を適用して練習を始め直す（条件・成績・問題・`appliedQuery` を
+   * 1 つの操作で入れ替える。生成はしない）。総合演習のストアと同じ
+   */
+  applyPracticeQuery: (
+    query: string,
+    options: Partial<MachiScoreGeneratorOptions>,
+  ) => void;
   resetStats: () => void;
   /** 問題を直接設定する（設定画面へ戻る前のクリアなど） */
   setQuestion: (question: MachiScoreQuestion | undefined) => void;
@@ -186,6 +200,7 @@ export const useMachiScoreStore = create<MachiScoreStore>((set, get) => ({
     includeFuro: true,
     allowedRanges: ["nonMangan", "manganPlus"],
   },
+  appliedQuery: undefined,
   stats: { total: 0, correct: 0 },
   ...INITIAL_ANSWERING,
 
@@ -214,11 +229,25 @@ export const useMachiScoreStore = create<MachiScoreStore>((set, get) => ({
     set({ stats: { total: 0, correct: 0 } });
   },
 
+  applyPracticeQuery: (query, options) => {
+    set((state) => ({
+      options: { ...state.options, ...options },
+      appliedQuery: query,
+      stats: { total: 0, correct: 0 },
+      currentQuestion: undefined,
+      generationFailed: false,
+      questionSeq: state.questionSeq + 1,
+      ...INITIAL_ANSWERING,
+    }));
+  },
+
   setQuestion: (question) => {
     set((state) => ({
       currentQuestion: question,
       // 設定画面へ戻る前のクリア（setQuestion(undefined)）は失敗ではない
       generationFailed: false,
+      // 直接入れた問題はどの条件のものでもない（「開始」の後は作り直す）
+      appliedQuery: undefined,
       questionSeq: state.questionSeq + 1,
       ...INITIAL_ANSWERING,
     }));
