@@ -100,6 +100,22 @@ export const fuAnswerResultSchema = z.object({
   outcome: answerOutcomeSchema,
 }) satisfies z.ZodType<FuAnswerResult>;
 
+/** 翻数を数値で回答する問題に共通する正解・回答・顛末 */
+export interface HanAnswerResult {
+  /** 正解の翻数 */
+  readonly correctHan: number;
+  /** ユーザーが選んだ翻数。時間切れで答えられなかった問題では持たない */
+  readonly userHan?: number;
+  readonly outcome: AnswerOutcome;
+}
+
+/** 翻数を数値で回答する問題に共通する結果スキーマ */
+export const hanAnswerResultSchema = z.object({
+  correctHan: z.number(),
+  userHan: z.number().optional(),
+  outcome: answerOutcomeSchema,
+}) satisfies z.ZodType<HanAnswerResult>;
+
 /** 役の内訳 1 件 */
 export const yakuDetailSchema: z.ZodType<YakuDetail> = z.object({
   name: z.string(),

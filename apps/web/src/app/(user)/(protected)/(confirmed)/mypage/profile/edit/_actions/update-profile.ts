@@ -4,13 +4,11 @@ import { eq } from "drizzle-orm";
 import { revalidateTag } from "next/cache";
 
 import type { ActionResult } from "@/lib/action-types";
+import { guardUserAction } from "@/lib/action-guard";
+import type { UserActionGuardErrorCode } from "@/lib/action-guard";
 import { logActivityEvent } from "@/lib/activity-log";
-import { authenticateAndCheckBan } from "@/lib/auth";
-import type { AuthGateErrorCode } from "@/lib/auth";
 import { LEADERBOARD_CACHE_TAG } from "@/lib/cache-tags";
 import { db, profiles } from "@/lib/db";
-import { enforceIpRateLimit } from "@/lib/rate-limit-ip";
-import type { RateLimitErrorCode } from "@/lib/rate-limit-ip";
 
 import {
   type ProfileInput,
@@ -20,10 +18,7 @@ import {
 
 /** プロフィール更新の失敗理由 */
 export type UpdateProfileError =
-  | RateLimitErrorCode
-  | AuthGateErrorCode
-  | ProfileValidationError
-  | "updateFailed";
+  UserActionGuardErrorCode | ProfileValidationError | "updateFailed";
 
 export type UpdateProfileResult = ActionResult<UpdateProfileError>;
 
@@ -35,16 +30,11 @@ export type UpdateProfileResult = ActionResult<UpdateProfileError>;
 export async function updateProfile(
   input: ProfileInput,
 ): Promise<UpdateProfileResult> {
-  const rateLimited = await enforceIpRateLimit("updateProfile");
-  if (rateLimited) {
-    return rateLimited;
+  const guard = await guardUserAction("updateProfile");
+  if ("error" in guard) {
+    return guard;
   }
-
-  const authResult = await authenticateAndCheckBan();
-  if ("error" in authResult) {
-    return authResult;
-  }
-  const { user } = authResult;
+  const { user } = guard;
 
   const validated = normalizeAndValidateProfile(input);
   if (!validated.ok) {

@@ -1,9 +1,8 @@
 import { getTranslations } from "next-intl/server";
 import { HIGH_SCORES } from "@mahjong-scoring/core";
 
-import { SectionTitle } from "@/app/(user)/_components/section-title";
-
 import { GuideParagraph } from "../../_components/guide-paragraph";
+import { GuideSection } from "../../_components/guide-section";
 import { ManganGuideLayout } from "../../_components/mangan-guide-layout";
 import { ManganOyaTsumoScoreTable } from "./mangan-oya-tsumo-score-table";
 import { OyaAllDiagram } from "./oya-all-diagram";
@@ -34,8 +33,7 @@ export async function ManganOyaTsumoGuide() {
       namespace="manganOyaTsumo.learn"
       table={<ManganOyaTsumoScoreTable />}
     >
-      <section className="space-y-4">
-        <SectionTitle>{t("divisionTitle")}</SectionTitle>
+      <GuideSection title={t("divisionTitle")}>
         <GuideParagraph preLine>{t("divisionBody")}</GuideParagraph>
 
         <OyaAllDiagram
@@ -43,7 +41,7 @@ export async function ManganOyaTsumoGuide() {
           ron={tier.ronOya}
           payment={tier.tsumoOya}
         />
-      </section>
+      </GuideSection>
     </ManganGuideLayout>
   );
 }

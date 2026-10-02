@@ -1,13 +1,13 @@
 import { getTranslations } from "next-intl/server";
 import { HaiKind } from "@mahjong-scoring/core";
 import { Divider } from "@/app/(user)/_components/divider";
-import { SectionTitle } from "@/app/(user)/_components/section-title";
 import { ExampleCard } from "@/app/(user)/_components/example-card";
 import { ChapterLink } from "../../_components/chapter-link";
 import { GuideColumn } from "../../_components/guide-column";
 import { GuideNote } from "../../_components/guide-note";
 import { GuideOrderedList } from "../../_components/guide-ordered-list";
 import { GuideParagraph } from "../../_components/guide-paragraph";
+import { GuideSection } from "../../_components/guide-section";
 import { GuideSubsectionTitle } from "../../_components/guide-subsection-title";
 import { FuChecklistTable } from "./fu-checklist-table";
 import { TehaiFuExample } from "./tehai-fu-example";
@@ -18,8 +18,7 @@ export async function TehaiFuGuide() {
   return (
     <div className="space-y-10">
       {/* 符が付く場所の棚卸し。順番は読者の好みなので手順にはしない */}
-      <section className="space-y-4">
-        <SectionTitle>{t("checklistTitle")}</SectionTitle>
+      <GuideSection title={t("checklistTitle")}>
         <GuideParagraph preLine>{t("checklistLead")}</GuideParagraph>
 
         <FuChecklistTable />
@@ -48,11 +47,10 @@ export async function TehaiFuGuide() {
             })}
           </GuideParagraph>
         </GuideColumn>
-      </section>
+      </GuideSection>
 
       {/* 数え方を覚えたうえで、なお合計を外す3つの場所 */}
-      <section className="space-y-4">
-        <SectionTitle>{t("commonMistakesTitle")}</SectionTitle>
+      <GuideSection title={t("commonMistakesTitle")}>
         <GuideParagraph preLine>{t("commonMistakesLead")}</GuideParagraph>
         <GuideOrderedList>
           <li>{t("tsumoFuTitle")}</li>
@@ -141,7 +139,7 @@ export async function TehaiFuGuide() {
             <GuideParagraph preLine>{t("kazeBody2")}</GuideParagraph>
           </section>
         </div>
-      </section>
+      </GuideSection>
     </div>
   );
 }

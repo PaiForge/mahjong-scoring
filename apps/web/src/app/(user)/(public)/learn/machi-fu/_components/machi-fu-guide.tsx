@@ -1,10 +1,10 @@
 import { HaiKind } from "@mahjong-scoring/core";
-import { SectionTitle } from "@/app/(user)/_components/section-title";
 import { ExampleTable } from "../../_components/example-table";
 import { loadExampleTableColumns } from "../../_lib/example-table-columns";
 import { FuSummaryTable } from "../../_components/fu-summary-table";
 import { GuideNote } from "../../_components/guide-note";
 import { GuideParagraph } from "../../_components/guide-paragraph";
+import { GuideSection } from "../../_components/guide-section";
 import { MachiTiles } from "./machi-tiles";
 
 export async function MachiFuGuide() {
@@ -16,14 +16,12 @@ export async function MachiFuGuide() {
   return (
     <div className="space-y-10">
       {/* What is machi fu */}
-      <section className="space-y-4">
-        <SectionTitle>{t("whatIsMachi")}</SectionTitle>
+      <GuideSection title={t("whatIsMachi")}>
         <GuideParagraph>{t("whatIsMachiBody")}</GuideParagraph>
-      </section>
+      </GuideSection>
 
       {/* 2 fu waits */}
-      <section className="space-y-4">
-        <SectionTitle>{t("twoFuTitle")}</SectionTitle>
+      <GuideSection title={t("twoFuTitle")}>
         <GuideParagraph>{t("twoFuBody")}</GuideParagraph>
 
         <ExampleTable
@@ -59,11 +57,10 @@ export async function MachiFuGuide() {
             },
           ]}
         />
-      </section>
+      </GuideSection>
 
       {/* 0 fu waits */}
-      <section className="space-y-4">
-        <SectionTitle>{t("zeroFuTitle")}</SectionTitle>
+      <GuideSection title={t("zeroFuTitle")}>
         <GuideParagraph>{t("zeroFuBody")}</GuideParagraph>
 
         <ExampleTable
@@ -94,7 +91,7 @@ export async function MachiFuGuide() {
         />
 
         <GuideNote>{t("nobetanNote")}</GuideNote>
-      </section>
+      </GuideSection>
 
       {/* Summary table */}
       <FuSummaryTable

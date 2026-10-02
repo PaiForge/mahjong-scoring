@@ -6,6 +6,7 @@ import { useTranslations } from "next-intl";
 import { toast } from "react-hot-toast";
 
 import { SUPPORTED_LOCALES } from "@/i18n/locales";
+import { AnnouncementStatus } from "@/lib/announcement-status";
 
 import { createAnnouncement } from "../_actions/create-announcement";
 import { ANNOUNCEMENT_LIMITS } from "../_lib/validation";
@@ -58,7 +59,9 @@ export function AnnouncementForm({
   );
   const [title, setTitle] = useState(defaultValues?.title ?? "");
   const [content, setContent] = useState(defaultValues?.content ?? "");
-  const [status, setStatus] = useState(defaultValues?.status ?? "draft");
+  const [status, setStatus] = useState(
+    defaultValues?.status ?? AnnouncementStatus.Draft,
+  );
   const [publishedAtLocal, setPublishedAtLocal] = useState(
     toDatetimeLocal(defaultValues?.publishedAt),
   );
@@ -66,7 +69,7 @@ export function AnnouncementForm({
 
   const handleStatusChange = (next: string) => {
     setStatus(next);
-    if (next === "published" && publishedAtLocal === "") {
+    if (next === AnnouncementStatus.Published && publishedAtLocal === "") {
       setPublishedAtLocal(toDatetimeLocal(new Date().toISOString()));
     }
   };
@@ -176,8 +179,10 @@ export function AnnouncementForm({
             onChange={(e) => handleStatusChange(e.target.value)}
             className={inputClass}
           >
-            <option value="draft">{t("statusDraft")}</option>
-            <option value="published">{t("statusPublished")}</option>
+            <option value={AnnouncementStatus.Draft}>{t("statusDraft")}</option>
+            <option value={AnnouncementStatus.Published}>
+              {t("statusPublished")}
+            </option>
           </select>
         </div>
         <div className="flex-1">

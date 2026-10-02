@@ -1,13 +1,11 @@
 "use server";
 
 import type { ActionResult } from "@/lib/action-types";
+import { guardUserAction } from "@/lib/action-guard";
+import type { UserActionGuardErrorCode } from "@/lib/action-guard";
 import { db, profiles } from "@/lib/db";
 import { isUniqueViolation } from "@/lib/db/extract-pg-error-code";
 import { profileExistsByUserId } from "@/lib/db/queries";
-import { authenticateAndCheckBan } from "@/lib/auth";
-import type { AuthGateErrorCode } from "@/lib/auth";
-import { enforceIpRateLimit } from "@/lib/rate-limit-ip";
-import type { RateLimitErrorCode } from "@/lib/rate-limit-ip";
 import { validateUsername } from "@/lib/username";
 import type { UsernameValidationError } from "@/lib/username";
 import { validateDisplayName } from "@/lib/validations/profile";
@@ -23,8 +21,7 @@ import { validateDisplayName } from "@/lib/validations/profile";
  */
 /** ユーザー名登録の失敗理由 */
 export type RegisterUsernameError =
-  | RateLimitErrorCode
-  | AuthGateErrorCode
+  | UserActionGuardErrorCode
   | UsernameValidationError
   | "username_required"
   | "username_already_set"
@@ -35,16 +32,11 @@ export async function registerUsername(
   username: string,
   displayName?: string,
 ): Promise<ActionResult<RegisterUsernameError>> {
-  const rateLimited = await enforceIpRateLimit("username");
-  if (rateLimited) {
-    return rateLimited;
+  const guard = await guardUserAction("username");
+  if ("error" in guard) {
+    return guard;
   }
-
-  const authResult = await authenticateAndCheckBan();
-  if ("error" in authResult) {
-    return authResult;
-  }
-  const { user } = authResult;
+  const { user } = guard;
 
   const trimmedUsername = username.trim();
   if (!trimmedUsername) {

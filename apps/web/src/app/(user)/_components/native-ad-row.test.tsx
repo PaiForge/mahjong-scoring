@@ -5,9 +5,7 @@ import type { NativeAdView } from "@/lib/ads/creatives";
 
 import { NativeAdRow } from "./native-ad-row";
 
-vi.mock("next-intl/server", () => ({
-  getTranslations: () => Promise.resolve((key: string) => key),
-}));
+vi.mock("next-intl/server", async () => await import("@/test/intl-mock"));
 
 const creative: NativeAdView = {
   id: "c1",

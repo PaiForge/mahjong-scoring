@@ -1,11 +1,10 @@
 import { getTranslations } from "next-intl/server";
 import { HIGH_SCORES } from "@mahjong-scoring/core";
 
-import { SectionTitle } from "@/app/(user)/_components/section-title";
-
 import { ChapterLink } from "../../_components/chapter-link";
 import { GuideNote } from "../../_components/guide-note";
 import { GuideParagraph } from "../../_components/guide-paragraph";
+import { GuideSection } from "../../_components/guide-section";
 import { HalvingDiagram } from "../../_components/halving-diagram";
 import { ManganGuideLayout } from "../../_components/mangan-guide-layout";
 import { ManganKoTsumoScoreTable } from "./mangan-ko-tsumo-score-table";
@@ -36,8 +35,7 @@ export async function ManganKoTsumoGuide() {
       namespace="manganKoTsumo.learn"
       table={<ManganKoTsumoScoreTable />}
     >
-      <section className="space-y-4">
-        <SectionTitle>{t("halvingTitle")}</SectionTitle>
+      <GuideSection title={t("halvingTitle")}>
         <GuideParagraph preLine>{t("halvingBody1")}</GuideParagraph>
 
         <HalvingDiagram
@@ -53,7 +51,7 @@ export async function ManganKoTsumoGuide() {
             link: () => <ChapterLink slug="ron-to-tsumo" />,
           })}
         </GuideNote>
-      </section>
+      </GuideSection>
     </ManganGuideLayout>
   );
 }

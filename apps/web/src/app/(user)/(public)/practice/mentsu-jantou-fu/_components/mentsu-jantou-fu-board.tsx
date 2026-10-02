@@ -1,6 +1,6 @@
 "use client";
 
-import { useGradeAnswer } from "../../_hooks/use-verified-challenge";
+import { useGradeAndRecord } from "../../_hooks/use-verified-challenge";
 
 import { useState, useCallback } from "react";
 import { useTranslations } from "next-intl";
@@ -18,7 +18,6 @@ import {
   useRegisterAdvance,
   useTrainingMode,
 } from "../../_hooks/use-training-mode";
-import { AnswerOutcome } from "../../_lib/result-schemas";
 import { TehaiDisplay } from "../../_components/tehai-display";
 import { findAgariHighlight } from "../_lib/find-agari-highlight";
 import { toQuestionResult } from "../_lib/types";
@@ -72,7 +71,6 @@ export function MentsuJantouFuBoard({
   onRecordResult,
   onPresentQuestion,
 }: MentsuJantouFuBoardProps) {
-  const gradeAnswer = useGradeAnswer<MentsuJantouFuQuestion>();
   const t = useTranslations("mentsuJantouFu");
   const renfonpaiAs4Fu = useRuleSettingsStore((s) => s.renfonpaiAs4Fu);
   const generate = useCallback(
@@ -92,17 +90,18 @@ export function MentsuJantouFuBoard({
   useRegisterAdvance(question === undefined ? undefined : advanceQuestion);
   usePresentQuestion(question, toUnansweredResult, onPresentQuestion);
   const { isRevealed } = useTrainingMode();
+  const gradeAndRecord = useGradeAndRecord(toQuestionResult, {
+    onRecordResult,
+    onAnswer,
+    advance: advanceQuestion,
+  });
 
   const submit = useCallback(
     (answered: MentsuJantouFuQuestion, filled: readonly string[]) => {
       const userFuList = answered.items.map((_, idx) => parseInt(filled[idx]));
-      gradeAnswer(answered, userFuList, (gradedQuestion) => {
-        const result = toQuestionResult(gradedQuestion, userFuList);
-        onRecordResult?.(result);
-        onAnswer(result.outcome === AnswerOutcome.Correct, advanceQuestion);
-      });
+      gradeAndRecord(answered, userFuList);
     },
-    [onAnswer, advanceQuestion, onRecordResult, gradeAnswer],
+    [gradeAndRecord],
   );
 
   // 選んだ結果を先に確定してから「全行が埋まったか」を見る。関数型の更新に

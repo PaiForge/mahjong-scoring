@@ -38,6 +38,25 @@ import { logExternalError } from "@/lib/log-error";
  */
 
 /**
+ * 特典の出どころの行が「いま有効」である条件（上の判定の規則）
+ * 有効特典条件
+ *
+ * 購入と付与で同じ規則を使うため、表を受け取って条件を組み立てる。
+ */
+function activeEntitlementWhere(
+  table: typeof purchases | typeof benefitGrants,
+  userId: string,
+  now: Date,
+) {
+  return and(
+    eq(table.userId, userId),
+    isNull(table.revokedAt),
+    lte(table.startsAt, now),
+    or(isNull(table.expiresAt), gt(table.expiresAt, now)),
+  );
+}
+
+/**
  * ユーザーが現在持つ特典の集合
  * 保有特典取得
  *
@@ -56,28 +75,11 @@ export const getActiveBenefits = cache(
         db
           .select({ benefits: purchases.benefits })
           .from(purchases)
-          .where(
-            and(
-              eq(purchases.userId, userId),
-              isNull(purchases.revokedAt),
-              lte(purchases.startsAt, now),
-              or(isNull(purchases.expiresAt), gt(purchases.expiresAt, now)),
-            ),
-          ),
+          .where(activeEntitlementWhere(purchases, userId, now)),
         db
           .select({ benefits: benefitGrants.benefits })
           .from(benefitGrants)
-          .where(
-            and(
-              eq(benefitGrants.userId, userId),
-              isNull(benefitGrants.revokedAt),
-              lte(benefitGrants.startsAt, now),
-              or(
-                isNull(benefitGrants.expiresAt),
-                gt(benefitGrants.expiresAt, now),
-              ),
-            ),
-          ),
+          .where(activeEntitlementWhere(benefitGrants, userId, now)),
       ]);
 
       const benefits = new Set<PlanBenefit>();

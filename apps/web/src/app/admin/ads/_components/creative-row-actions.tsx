@@ -1,10 +1,8 @@
 "use client";
 
-import { useRouter } from "next/navigation";
-import { useTransition } from "react";
 import { useTranslations } from "next-intl";
-import { toast } from "react-hot-toast";
 
+import { useAdsAction } from "../_hooks/use-ads-action";
 import { moveAdCreative } from "../_actions/move-ad-creative";
 import { setAdCreativeActive } from "../_actions/set-ad-creative-active";
 
@@ -28,24 +26,8 @@ export function CreativeRowActions({
   isFirst,
   isLast,
 }: Props) {
-  const router = useRouter();
   const t = useTranslations("admin.ads");
-  const [isPending, startTransition] = useTransition();
-
-  const run = (
-    action: () => Promise<
-      { error: "errorSaveFailed" | "errorNotFound" } | { success: true }
-    >,
-  ) => {
-    startTransition(async () => {
-      const result = await action();
-      if ("error" in result) {
-        toast.error(t(result.error));
-        return;
-      }
-      router.refresh();
-    });
-  };
+  const { isPending, run } = useAdsAction();
 
   return (
     <div className="flex flex-wrap gap-3">

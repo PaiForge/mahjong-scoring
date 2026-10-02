@@ -1,6 +1,6 @@
 "use client";
 
-import { useGradeAnswer } from "../../_hooks/use-verified-challenge";
+import { useGradeAndRecord } from "../../_hooks/use-verified-challenge";
 
 import { useCallback, useState } from "react";
 import { useTranslations } from "next-intl";
@@ -13,7 +13,6 @@ import { QuestionGeneratingPlaceholder } from "../../_components/question-genera
 import { useClientGeneratedQuestion } from "../../_hooks/use-client-generated-question";
 import { usePresentQuestion } from "../../_hooks/use-present-question";
 import { useRegisterAdvance } from "../../_hooks/use-training-mode";
-import { AnswerOutcome } from "../../_lib/result-schemas";
 import { YakuHanPrompt } from "./yaku-han-prompt";
 import { YakuHanAnswerForm } from "./yaku-han-answer-form";
 import { toQuestionResult } from "../_lib/types";
@@ -43,7 +42,6 @@ export function YakuHanBoard({
   onRecordResult,
   onPresentQuestion,
 }: YakuHanBoardProps) {
-  const gradeAnswer = useGradeAnswer<YakuHanQuestion>();
   const t = useTranslations("yakuHanChallenge");
   const generateQuestion = useCallback(
     (): YakuHanQuestion => generateYakuHanQuestion(range),
@@ -57,6 +55,12 @@ export function YakuHanBoard({
     setQuestionIndex((prev) => prev + 1);
   }, [generateQuestion, setQuestion]);
 
+  const gradeAndRecord = useGradeAndRecord(toQuestionResult, {
+    onRecordResult,
+    onAnswer,
+    advance: advanceQuestion,
+  });
+
   useRegisterAdvance(question === undefined ? undefined : advanceQuestion);
   usePresentQuestion(question, toUnansweredResult, onPresentQuestion);
 
@@ -64,20 +68,9 @@ export function YakuHanBoard({
     (userHan: number) => {
       if (showFeedback || !question) return;
 
-      gradeAnswer(question, userHan, (gradedQuestion) => {
-        const result = toQuestionResult(gradedQuestion, userHan);
-        onRecordResult?.(result);
-        onAnswer(result.outcome === AnswerOutcome.Correct, advanceQuestion);
-      });
+      gradeAndRecord(question, userHan);
     },
-    [
-      showFeedback,
-      question,
-      onAnswer,
-      advanceQuestion,
-      onRecordResult,
-      gradeAnswer,
-    ],
+    [showFeedback, question, gradeAndRecord],
   );
 
   if (!question) {

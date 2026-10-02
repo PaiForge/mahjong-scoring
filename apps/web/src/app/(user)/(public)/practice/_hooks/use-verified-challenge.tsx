@@ -18,6 +18,7 @@ import {
 } from "../../../../../lib/db/practice-menu-types";
 import { useRuleSettingsStore } from "../../../../_hooks/use-rule-settings-store";
 import { readVariantFromLocation } from "../_lib/variant-param";
+import { AnswerOutcome } from "../_lib/result-schemas";
 
 interface VerifiedChallenge {
   readonly id: string;
@@ -60,6 +61,44 @@ export function useGradeAnswer<TQuestion>() {
       challenge.grade(answer, (graded) => onGraded(graded as TQuestion));
     },
     [challenge],
+  );
+}
+/**
+ * 採点 → 結果の記録 → 正誤の通知までを 1 つにした回答処理
+ * 採点記録
+ *
+ * 盤面の回答の後段は「採点した問題から結果を作り、記録し、正誤と次問への
+ * 進め方を `onAnswer` に渡す」で共通。結果の作り方（`toResult`）だけが盤面ごとに違う。
+ *
+ * @param toResult - 採点済みの問題と回答から結果を作る
+ * @param handlers - 盤面の props（`onRecordResult` / `onAnswer`）と次問へ進む関数
+ */
+export function useGradeAndRecord<
+  TQuestion,
+  TAnswer,
+  TResult extends { readonly outcome: AnswerOutcome },
+>(
+  toResult: (question: TQuestion, answer: TAnswer) => TResult,
+  {
+    onRecordResult,
+    onAnswer,
+    advance,
+  }: {
+    readonly onRecordResult?: (result: TResult) => void;
+    readonly onAnswer: (correct: boolean, onNext: () => void) => void;
+    readonly advance: () => void;
+  },
+) {
+  const gradeAnswer = useGradeAnswer<TQuestion>();
+  return useCallback(
+    (question: TQuestion, answer: TAnswer) => {
+      gradeAnswer(question, answer, (gradedQuestion) => {
+        const result = toResult(gradedQuestion, answer);
+        onRecordResult?.(result);
+        onAnswer(result.outcome === AnswerOutcome.Correct, advance);
+      });
+    },
+    [gradeAnswer, toResult, onRecordResult, onAnswer, advance],
   );
 }
 /** 同一メニューに束縛されたサーバー問題を盤面へ渡す。 */

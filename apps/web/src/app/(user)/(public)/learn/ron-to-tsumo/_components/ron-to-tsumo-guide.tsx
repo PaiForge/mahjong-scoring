@@ -1,12 +1,11 @@
 import { getTranslations } from "next-intl/server";
 
-import { SectionTitle } from "@/app/(user)/_components/section-title";
-
 import { ChapterLink } from "../../_components/chapter-link";
 import { ChapterColumn } from "../../_components/chapter-column";
 import { GuideNote } from "../../_components/guide-note";
 import { GuideOrderedList } from "../../_components/guide-ordered-list";
 import { GuideParagraph } from "../../_components/guide-paragraph";
+import { GuideSection } from "../../_components/guide-section";
 import { BlockMath } from "../../_components/math";
 import { RonHalvingDiagram } from "./ron-halving-diagram";
 import { RonHalvingTable } from "./ron-halving-table";
@@ -48,8 +47,7 @@ export async function RonToTsumoGuide() {
   return (
     <div className="space-y-10">
       {/* ツモの2段表記の導入と、ロンとの比。記憶の連鎖はここから始まる */}
-      <section className="space-y-4">
-        <SectionTitle>{t("divideTitle")}</SectionTitle>
+      <GuideSection title={t("divideTitle")}>
         <GuideParagraph preLine>{t("divideBody1")}</GuideParagraph>
         <GuideParagraph preLine>{t("divideBody2")}</GuideParagraph>
 
@@ -65,11 +63,10 @@ export async function RonToTsumoGuide() {
 
         <GuideParagraph preLine>{t("divideBody3")}</GuideParagraph>
         <GuideParagraph preLine>{t("divideBody4")}</GuideParagraph>
-      </section>
+      </GuideSection>
 
       {/* 本題。手順をそのまま図にする（表で一致を探させない） */}
-      <section className="space-y-4">
-        <SectionTitle>{t("stepsTitle")}</SectionTitle>
+      <GuideSection title={t("stepsTitle")}>
         <GuideParagraph>{t("stepsBody1")}</GuideParagraph>
 
         <GuideOrderedList>
@@ -89,15 +86,14 @@ export async function RonToTsumoGuide() {
         <RonHalvingDiagram fu={SECOND_EXAMPLE.fu} han={SECOND_EXAMPLE.han} />
 
         <GuideNote>{t("fuNote")}</GuideNote>
-      </section>
+      </GuideSection>
 
       {/* 規則が成り立つ理由。割ると端数が縮み、掛けると広がる */}
-      <section className="space-y-4">
-        <SectionTitle>{t("whyTitle")}</SectionTitle>
+      <GuideSection title={t("whyTitle")}>
         <GuideParagraph preLine>{t("whyBody1")}</GuideParagraph>
         <GuideParagraph preLine>{t("whyBody2")}</GuideParagraph>
         <GuideParagraph preLine>{t("whyBody3")}</GuideParagraph>
-      </section>
+      </GuideSection>
 
       {/* コラム: 同じ理屈で親ロンも出せそうに見える、という当然の期待に答える */}
       <ChapterColumn t={t} />

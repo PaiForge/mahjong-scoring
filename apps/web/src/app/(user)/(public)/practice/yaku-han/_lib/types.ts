@@ -9,9 +9,9 @@ import { z } from "zod";
 
 import { createSessionStorageParser } from "../../_lib/create-session-storage-parser";
 import {
-  answerOutcomeSchema,
+  hanAnswerResultSchema,
   toAnswerOutcome,
-  type AnswerOutcome,
+  type HanAnswerResult,
 } from "../../_lib/result-schemas";
 
 /** sessionStorage に保存する際のキー */
@@ -21,17 +21,11 @@ export const RESULT_STORAGE_KEY = resultStorageKeyFor(PRACTICE_SLUG.yakuHan);
  * 役翻数練習の1問ごとの結果データ
  * 役翻数問題結果
  */
-export interface YakuHanQuestionResult {
+export interface YakuHanQuestionResult extends HanAnswerResult {
   /** 出題した役名 */
   readonly yakuName: string;
   /** 門前で出題されたか（false は鳴き） */
   readonly isMenzen: boolean;
-  /** 正解の翻数 */
-  readonly correctHan: number;
-  /** ユーザーが選択した翻数。時間切れで答えられなかった問題では持たない */
-  readonly userHan?: number;
-  /** 正解・不正解・時間切れ */
-  readonly outcome: AnswerOutcome;
 }
 
 /**
@@ -59,13 +53,11 @@ export function toQuestionResult(
  * sessionStorage から取得した値が YakuHanQuestionResult として妥当か検証する
  * 役翻数問題結果バリデーション
  */
-const questionResultSchema: z.ZodType<YakuHanQuestionResult> = z.object({
-  yakuName: z.string(),
-  isMenzen: z.boolean(),
-  correctHan: z.number(),
-  userHan: z.number().optional(),
-  outcome: answerOutcomeSchema,
-});
+const questionResultSchema: z.ZodType<YakuHanQuestionResult> =
+  hanAnswerResultSchema.extend({
+    yakuName: z.string(),
+    isMenzen: z.boolean(),
+  });
 
 /**
  * sessionStorage から問題結果を安全にパースする

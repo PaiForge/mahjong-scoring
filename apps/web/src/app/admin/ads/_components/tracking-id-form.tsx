@@ -1,10 +1,10 @@
 "use client";
 
-import { useRouter } from "next/navigation";
-import { useState, useTransition } from "react";
+import { useState } from "react";
 import { useTranslations } from "next-intl";
 import { toast } from "react-hot-toast";
 
+import { useAdsAction } from "../_hooks/use-ads-action";
 import { setAmazonTrackingId } from "../_actions/set-amazon-tracking-id";
 
 interface Props {
@@ -22,22 +22,15 @@ interface Props {
  * 示す — 広告が出ない理由が管理画面から見えないと、設定漏れに気づけない。
  */
 export function TrackingIdForm({ trackingId, hiddenAsinCount }: Props) {
-  const router = useRouter();
   const t = useTranslations("admin.ads.trackingId");
-  const tAds = useTranslations("admin.ads");
   const [value, setValue] = useState(trackingId ?? "");
-  const [isPending, startTransition] = useTransition();
+  const { isPending, run } = useAdsAction();
 
   const save = () => {
-    startTransition(async () => {
-      const result = await setAmazonTrackingId(value);
-      if ("error" in result) {
-        toast.error(tAds(result.error));
-        return;
-      }
-      toast.success(t("saved"));
-      router.refresh();
-    });
+    run(
+      () => setAmazonTrackingId(value),
+      () => toast.success(t("saved")),
+    );
   };
 
   return (

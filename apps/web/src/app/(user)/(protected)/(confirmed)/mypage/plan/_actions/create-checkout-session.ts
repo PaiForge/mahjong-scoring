@@ -4,23 +4,16 @@ import { headers } from "next/headers";
 import { redirect } from "next/navigation";
 
 import type { ActionResult } from "@/lib/action-types";
-import { authenticateAndCheckBan, type AuthGateErrorCode } from "@/lib/auth";
+import { guardUserAction } from "@/lib/action-guard";
+import type { UserActionGuardErrorCode } from "@/lib/action-guard";
 import { isOfferKey } from "@/lib/billing/plans";
 import { openCheckout, type CheckoutError } from "@/lib/billing/checkout";
 import { SITE_URL } from "@/config";
 import { requestOrigin } from "@/lib/csrf";
 import { logExternalError } from "@/lib/log-error";
-import {
-  enforceIpRateLimit,
-  type RateLimitErrorCode,
-} from "@/lib/rate-limit-ip";
 
 export type CreateCheckoutSessionError =
-  | RateLimitErrorCode
-  | AuthGateErrorCode
-  | "invalidOffer"
-  | CheckoutError
-  | "checkoutFailed";
+  UserActionGuardErrorCode | "invalidOffer" | CheckoutError | "checkoutFailed";
 
 /**
  * Stripe Checkout を作って決済画面へ送る
@@ -30,8 +23,8 @@ export type CreateCheckoutSessionError =
  * には到達しない。失敗はエラーコードで返し、UI が辞書（`plan.errors.*`）で
  * 文言にする。
  *
- * - ガードは `authenticateAndCheckBan`（Server Action は POST の入口なので、
- *   ページのガードとは別にここで見る）と IP レート制限
+ * - ガードは `guardUserAction`（IP レート制限と認証 + BAN。Server Action は
+ *   POST の入口なので、ページのガードとは別にここで見る）
  * - 有効な購入があれば売らない。未完了の購入手続きは再利用する
  * - `customer` は `stripe_customers` から（無ければ作る）。購入の所有者は
  *   この対応で決まる（`purchases.ts`）
@@ -44,12 +37,9 @@ export async function createCheckoutSession(
 ): Promise<ActionResult<CreateCheckoutSessionError>> {
   if (!isOfferKey(offer)) return { error: "invalidOffer" };
 
-  const rateLimited = await enforceIpRateLimit("createCheckoutSession");
-  if (rateLimited) return rateLimited;
-
-  const auth = await authenticateAndCheckBan();
-  if ("error" in auth) return auth;
-  const { user } = auth;
+  const guard = await guardUserAction("createCheckoutSession");
+  if ("error" in guard) return guard;
+  const { user } = guard;
 
   const origin = requestOrigin(await headers()) ?? SITE_URL;
   let checkoutUrl: string;

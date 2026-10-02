@@ -8,6 +8,7 @@ import { getClientIp } from "../../../../lib/client-ip";
 import { db, profiles } from "../../../../lib/db";
 import { createAdminClient } from "../../../../lib/supabase/admin";
 import { requireAdminActor } from "../../_lib/auth";
+import { normalizeModerationReason } from "../_lib/moderation-reason";
 import {
   NO_BAN_DURATION,
   PERMANENT_BAN_DURATION,
@@ -42,9 +43,8 @@ export async function banUser(
     return { error: "cannotBanSelf" };
   }
 
-  // 理由バリデーション
-  const trimmedReason = reason.trim();
-  if (trimmedReason.length === 0 || trimmedReason.length > 1000) {
+  const trimmedReason = normalizeModerationReason(reason);
+  if (trimmedReason === undefined) {
     return { error: "invalidReason" };
   }
 
