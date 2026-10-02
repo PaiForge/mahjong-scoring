@@ -5,6 +5,7 @@ import { getTranslations } from "next-intl/server";
 import { AdminPageTitle } from "@/app/admin/_components/admin-page-title";
 import { requireAdminPage } from "@/app/admin/_lib/auth";
 import { announcements, db } from "@/lib/db";
+import { AnnouncementStatus } from "@/lib/announcement-status";
 
 import { AnnouncementForm } from "../../_components/announcement-form";
 import { DeleteAnnouncementButton } from "../../_components/delete-announcement-button";
@@ -45,7 +46,7 @@ export default async function EditAnnouncementPage({ params }: Props) {
           title: announcement.title,
           content: announcement.content,
           locale: announcement.locale,
-          status: announcement.status ?? "draft",
+          status: announcement.status ?? AnnouncementStatus.Draft,
           publishedAt: announcement.publishedAt
             ? announcement.publishedAt.toISOString()
             : null,

@@ -6,6 +6,7 @@ import { AdminPageTitle } from "@/app/admin/_components/admin-page-title";
 import { requireAdminPage } from "@/app/admin/_lib/auth";
 import { formatAdminDateTime } from "@/app/admin/_lib/format-date";
 import { type Announcement, announcements, db } from "@/lib/db";
+import { AnnouncementStatus } from "@/lib/announcement-status";
 
 import { DeleteAnnouncementButton } from "./_components/delete-announcement-button";
 import { TEXT_LINK_CLASSES } from "@/app/_components/_lib/link-classes";
@@ -103,12 +104,12 @@ export default async function AdminAnnouncementsPage() {
                       <td className="px-4 py-3">
                         <span
                           className={`rounded px-2 py-0.5 text-xs font-semibold ${
-                            a.status === "published"
+                            a.status === AnnouncementStatus.Published
                               ? "bg-primary-100 text-primary-700"
                               : "bg-surface-100 text-surface-500"
                           }`}
                         >
-                          {a.status === "published"
+                          {a.status === AnnouncementStatus.Published
                             ? t("statusPublished")
                             : t("statusDraft")}
                         </span>
