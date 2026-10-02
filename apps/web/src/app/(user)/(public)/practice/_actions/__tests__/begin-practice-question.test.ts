@@ -5,6 +5,7 @@ const {
   mockEnforceIpRateLimit,
   mockGetActiveBenefits,
   mockConsumeUserQuota,
+  mockReadUserQuota,
   mockCanSign,
   mockReadAnonymous,
   mockWriteAnonymous,
@@ -14,6 +15,7 @@ const {
   mockEnforceIpRateLimit: vi.fn(),
   mockGetActiveBenefits: vi.fn(),
   mockConsumeUserQuota: vi.fn(),
+  mockReadUserQuota: vi.fn(),
   mockCanSign: vi.fn(),
   mockReadAnonymous: vi.fn(),
   mockWriteAnonymous: vi.fn(),
@@ -31,13 +33,19 @@ vi.mock("@/lib/entitlements/has-benefit", () => ({
 vi.mock("@/lib/practice-quota/consume-user-quota", () => ({
   consumeUserQuota: mockConsumeUserQuota,
 }));
+vi.mock("@/lib/practice-quota/read-user-quota", () => ({
+  readUserQuota: mockReadUserQuota,
+}));
 vi.mock("@/lib/practice-quota/anonymous-quota-cookie", () => ({
   canSignAnonymousQuota: mockCanSign,
   readAnonymousQuota: mockReadAnonymous,
   writeAnonymousQuota: mockWriteAnonymous,
 }));
 
-import { beginPracticeQuestion } from "../begin-practice-question";
+import {
+  beginPracticeQuestion,
+  peekPracticeQuota,
+} from "../begin-practice-question";
 
 beforeEach(() => {
   vi.clearAllMocks();
@@ -221,6 +229,112 @@ describe("beginPracticeQuestion", () => {
       );
       expect(mockWriteAnonymous).not.toHaveBeenCalled();
       expect(mockGetActiveBenefits).not.toHaveBeenCalled();
+    });
+  });
+});
+
+describe("peekPracticeQuota", () => {
+  it("回数制限の対象でない練習名は invalidMenu", async () => {
+    expect(await peekPracticeQuota("jantou-fu")).toEqual({
+      error: "invalidMenu",
+    });
+  });
+
+  it("出題とは別の鍵で IP レート制限を掛ける", async () => {
+    mockEnforceIpRateLimit.mockResolvedValue({ error: "rateLimited" });
+    expect(await peekPracticeQuota("score")).toEqual({ error: "rateLimited" });
+    expect(mockEnforceIpRateLimit).toHaveBeenCalledWith("peekPracticeQuota");
+  });
+
+  it("Pro を販売していない間は無制限で、特典は本物の判定どおり", async () => {
+    mockIsPlanOnSale.mockReturnValue(false);
+    mockGetActiveBenefits.mockResolvedValue(new Set(["practice_tools"]));
+
+    expect(await peekPracticeQuota("score")).toEqual({
+      success: true,
+      allowed: true,
+      remaining: "unlimited",
+      limit: "unlimited",
+      signedIn: true,
+      benefits: ["practice_tools"],
+    });
+    expect(mockReadUserQuota).not.toHaveBeenCalled();
+  });
+
+  it("Pro（回数無制限）は DB を読まずに無制限", async () => {
+    mockGetActiveBenefits.mockResolvedValue(new Set(["unlimited_practice"]));
+
+    expect(await peekPracticeQuota("machi-score")).toEqual({
+      success: true,
+      allowed: true,
+      remaining: "unlimited",
+      limit: "unlimited",
+      signedIn: true,
+      benefits: ["unlimited_practice"],
+    });
+    expect(mockReadUserQuota).not.toHaveBeenCalled();
+  });
+
+  it("無料ユーザーは DB を読むだけで消費しない", async () => {
+    mockReadUserQuota.mockResolvedValue(2);
+
+    expect(await peekPracticeQuota("machi-score")).toEqual({
+      success: true,
+      allowed: true,
+      remaining: 2,
+      limit: 3,
+      signedIn: true,
+      benefits: [],
+    });
+    expect(mockReadUserQuota).toHaveBeenCalledWith(
+      "u1",
+      "machi-score",
+      expect.stringMatching(/^\d{4}-\d{2}-\d{2}$/),
+      3,
+    );
+    expect(mockConsumeUserQuota).not.toHaveBeenCalled();
+  });
+
+  it("残りが 0 なら allowed: false（次の 1 問は始められない）", async () => {
+    mockReadUserQuota.mockResolvedValue(0);
+    expect(await peekPracticeQuota("score")).toEqual(
+      expect.objectContaining({ allowed: false, remaining: 0, limit: 5 }),
+    );
+  });
+
+  it("DB の失敗はそのまま投げる（表示の取り直しなので通す必要が無い）", async () => {
+    mockReadUserQuota.mockRejectedValue(new Error("db down"));
+    await expect(peekPracticeQuota("score")).rejects.toThrow("db down");
+  });
+
+  describe("未ログイン", () => {
+    beforeEach(() => {
+      mockGetOptionalUser.mockResolvedValue(undefined);
+    });
+
+    it("cookie を読むだけで書かない", async () => {
+      mockReadAnonymous.mockResolvedValue({ score: 1, "machi-score": 0 });
+
+      expect(await peekPracticeQuota("score")).toEqual({
+        success: true,
+        allowed: false,
+        remaining: 0,
+        limit: 1,
+        signedIn: false,
+        benefits: [],
+      });
+      expect(await peekPracticeQuota("machi-score")).toEqual(
+        expect.objectContaining({ allowed: true, remaining: 1, limit: 1 }),
+      );
+      expect(mockWriteAnonymous).not.toHaveBeenCalled();
+    });
+
+    it("署名鍵が無ければ上限そのものを返す", async () => {
+      mockCanSign.mockReturnValue(false);
+      expect(await peekPracticeQuota("score")).toEqual(
+        expect.objectContaining({ allowed: true, remaining: 1 }),
+      );
+      expect(mockReadAnonymous).not.toHaveBeenCalled();
     });
   });
 });

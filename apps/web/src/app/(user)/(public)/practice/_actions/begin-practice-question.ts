@@ -13,6 +13,7 @@ import {
 } from "@/lib/practice-quota/anonymous-quota-cookie";
 import { consumeUserQuota } from "@/lib/practice-quota/consume-user-quota";
 import { jstDayKey } from "@/lib/practice-quota/day";
+import { readUserQuota } from "@/lib/practice-quota/read-user-quota";
 import {
   PRACTICE_QUOTA_LIMITS,
   isQuotaMenu,
@@ -103,6 +104,71 @@ export async function beginPracticeQuestion(
     return { success: true, ...(await beginForUser(user.id, menu, now)) };
   }
   return { success: true, ...(await beginForAnonymous(menu, now)) };
+}
+
+/**
+ * 今日の残りと特典を消費せずに読む
+ * 残数問い合わせ
+ *
+ * 盤面を離れて戻ってきたとき（料金ページを見てブラウザバック等）、
+ * ストアに残った解答中の問題を引き継ぎながら、残数・特典の表示だけを
+ * 取り直すために呼ぶ。`beginPracticeQuestion` と同じ形で返すが、何も
+ * 増やさない。`allowed` は「次の 1 問を始められるか」（残りが 0 なら false）。
+ *
+ * 離れている間に起きた購入・ログイン・日付の変わり目を表示に反映させる
+ * のが目的で、返事が届かなくても盤面は直前の表示を保てばよい。
+ * 失敗はそのまま投げる（`beginPracticeQuestion` と違い、止める・通す
+ * の判断が要らない）。
+ */
+export async function peekPracticeQuota(
+  menu: string,
+): Promise<
+  ActionResult<BeginPracticeQuestionError, BeginPracticeQuestionResult>
+> {
+  if (!isQuotaMenu(menu)) return { error: "invalidMenu" };
+
+  const rateLimited = await enforceIpRateLimit("peekPracticeQuota");
+  if (rateLimited) return rateLimited;
+
+  const now = new Date();
+  const user = await getOptionalUser();
+
+  if (!isPlanOnSale("pro")) {
+    const benefits = user ? [...(await getActiveBenefits(user.id, now))] : [];
+    return {
+      success: true,
+      ...UNLIMITED,
+      signedIn: user !== undefined,
+      benefits,
+    };
+  }
+
+  if (user) {
+    const benefitSet = await getActiveBenefits(user.id, now);
+    const benefits = [...benefitSet];
+    if (benefitSet.has(PlanBenefit.UnlimitedPractice)) {
+      return { success: true, ...UNLIMITED, benefits };
+    }
+    const limit = PRACTICE_QUOTA_LIMITS[menu].signedIn;
+    const remaining = await readUserQuota(user.id, menu, jstDayKey(now), limit);
+    return {
+      success: true,
+      allowed: remaining > 0,
+      remaining,
+      limit,
+      signedIn: true,
+      benefits,
+    };
+  }
+
+  const limit = PRACTICE_QUOTA_LIMITS[menu].anonymous;
+  const base = { success: true, limit, signedIn: false, benefits: [] } as const;
+  if (!canSignAnonymousQuota()) {
+    return { ...base, allowed: true, remaining: limit };
+  }
+  const counts = await readAnonymousQuota(now);
+  const remaining = Math.max(0, limit - counts[menu]);
+  return { ...base, allowed: remaining > 0, remaining };
 }
 
 async function beginForUser(
