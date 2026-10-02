@@ -7,6 +7,7 @@ const {
   mockInsertBenefitGrant,
   mockRecordModerationAction,
   mockRevalidatePath,
+  mockNotify,
 } = vi.hoisted(() => ({
   mockRequireAdminActor: vi.fn(),
   mockGetClientIp: vi.fn(),
@@ -14,6 +15,7 @@ const {
   mockInsertBenefitGrant: vi.fn(),
   mockRecordModerationAction: vi.fn(),
   mockRevalidatePath: vi.fn(),
+  mockNotify: vi.fn(),
 }));
 
 vi.mock("next/cache", () => ({ revalidatePath: mockRevalidatePath }));
@@ -21,6 +23,9 @@ vi.mock("@/lib/client-ip", () => ({ getClientIp: mockGetClientIp }));
 vi.mock("@/lib/db", () => ({ db: { transaction: mockTransaction } }));
 vi.mock("@/lib/entitlements/benefit-grants", () => ({
   insertBenefitGrant: mockInsertBenefitGrant,
+}));
+vi.mock("@/lib/notifications/create-notification", () => ({
+  notifyQuietly: mockNotify,
 }));
 vi.mock("../../../_lib/auth", () => ({
   requireAdminActor: mockRequireAdminActor,
@@ -101,6 +106,17 @@ describe("grantBenefits", () => {
     expect(mockRevalidatePath).toHaveBeenCalledWith("/admin/benefit-grants");
   });
 
+  it("付与できたら付与先に通知する（期限は付与行と同じ）", async () => {
+    await grantBenefits("u1", "days30", "モニター");
+
+    expect(mockNotify).toHaveBeenCalledWith({
+      userId: "u1",
+      type: "benefit_granted",
+      target: { type: "benefit_grant", id: "g1" },
+      metadata: { plan: "pro", expiresAt: "2026-10-31T00:00:00.000Z" },
+    });
+  });
+
   it("無期限は durationDays undefined で、監査ログの expiresAt は null", async () => {
     mockInsertBenefitGrant.mockResolvedValue({
       id: "g1",
@@ -134,5 +150,6 @@ describe("grantBenefits", () => {
       "fk violation",
     );
     expect(mockRevalidatePath).not.toHaveBeenCalled();
+    expect(mockNotify).not.toHaveBeenCalled();
   });
 });

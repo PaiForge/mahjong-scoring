@@ -141,6 +141,13 @@
       "when": 1790846736711,
       "tag": "20261001092536_add_billing_checkouts",
       "breakpoints": true
+    },
+    {
+      "idx": 20,
+      "version": "7",
+      "when": 1790945871539,
+      "tag": "20261002125751_create_notifications",
+      "breakpoints": true
     }
   ]
 }

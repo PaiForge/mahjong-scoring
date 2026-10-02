@@ -245,3 +245,15 @@ CREATE POLICY "benefit_grants_deny_all" ON "benefit_grants"
 ALTER TABLE "billing_checkouts" ENABLE ROW LEVEL SECURITY;
 DROP POLICY IF EXISTS "billing_checkouts_deny_all" ON "billing_checkouts";
 CREATE POLICY "billing_checkouts_deny_all" ON "billing_checkouts" USING (false);
+
+-- =============================================================================
+-- notifications
+-- =============================================================================
+-- サイト内通知。一覧・未読数・既読化はサーバー（Server Action / Route Handler）が
+-- 直 DB 接続で本人の行だけを扱う。クライアントに直接読ませる経路が無く、
+-- 書き込みを許すと他人宛ての通知を作れるため、読み書きとも許可しない。
+ALTER TABLE "notifications" ENABLE ROW LEVEL SECURITY;
+
+DROP POLICY IF EXISTS "notifications_deny_all" ON "notifications";
+CREATE POLICY "notifications_deny_all" ON "notifications"
+  USING (false);

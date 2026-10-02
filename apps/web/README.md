@@ -99,6 +99,18 @@ Google サインインをローカルでテストするには、OAuth 認証情�
 
 API キーの取得、商品と価格の作成、Webhook の登録、本番移行の手順は [docs/stripe-setup.md](docs/stripe-setup.md) を参照してください。
 
+### サイト内通知と Cron
+
+Pro プランの出来事（購入完了・期限切れ・運営からの付与・取り消し）は、ヘッダーのベルと `/mypage/notifications` でユーザー本人に知らせます。購入や付与の通知はその処理の中で書かれますが、**期限切れ**は時刻だけで起きるため、`vercel.json` の `crons` が 1 日 1 回 `/api/cron/notify-plan-expiry` を呼んで書きます。
+
+受け口は `CRON_SECRET` の Bearer トークンだけで守られます（Vercel が cron の呼び出しに自動で付ける）。未設定なら常に 401 で、通知は届きません。ローカルで試すには `.env.local` に任意の値を置いて、同じヘッダを付けて叩きます:
+
+```bash
+curl -H "Authorization: Bearer $CRON_SECRET" http://localhost:3000/api/cron/notify-plan-expiry
+```
+
+何度叩いても同じ購入・付与には 1 通しか付きません。一覧とベルの見た目は `pnpm db:seed:dev` のシードユーザー（bob: 期限切れを含む 3 件 / carol / dave）でサインインすると確認できます。
+
 ### ローカルサービス
 
 - **Supabase Studio**: http://127.0.0.1:54323

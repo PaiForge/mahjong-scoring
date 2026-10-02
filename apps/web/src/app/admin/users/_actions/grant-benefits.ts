@@ -4,9 +4,14 @@ import { revalidatePath } from "next/cache";
 
 import type { ActionResult } from "@/lib/action-types";
 import { getClientIp } from "@/lib/client-ip";
-import { db } from "@/lib/db";
+import { db, type BenefitGrant } from "@/lib/db";
 import { insertBenefitGrant } from "@/lib/entitlements/benefit-grants";
 import { logExternalError } from "@/lib/log-error";
+import { notifyQuietly } from "@/lib/notifications/create-notification";
+import {
+  NotificationTargetType,
+  NotificationType,
+} from "@/lib/notifications/types";
 
 import { requireAdminActor } from "../../_lib/auth";
 import { normalizeModerationReason } from "../_lib/moderation-reason";
@@ -28,7 +33,8 @@ export type GrantBenefitsError =
  * 特典付与
  *
  * 付与行（`benefit_grants`）と監査ログ（`moderation_actions`）を 1 つの
- * トランザクションで書く。どちらか片方だけ残らない。
+ * トランザクションで書く。どちらか片方だけ残らない。書けたら付与先に
+ * 通知する（トランザクションの外。通知の失敗で付与は失敗しない）。
  *
  * プランは `pro` 固定（特典を個別に選ばせない）。期間は列挙した選択肢から
  * （`grant-durations.ts`）。理由は必須。
@@ -59,6 +65,7 @@ export async function grantBenefits(
 
   const ipAddress = await getClientIp();
 
+  let granted: BenefitGrant | undefined;
   try {
     await db.transaction(async (tx) => {
       const grant = await insertBenefitGrant(tx, {
@@ -82,10 +89,23 @@ export async function grantBenefits(
           expiresAt: grant.expiresAt?.toISOString() ?? null,
         },
       });
+      granted = grant;
     });
   } catch (error) {
     logExternalError("grantBenefits", "failed to grant benefits", error);
     return { error: "grantFailed" };
+  }
+
+  if (granted) {
+    await notifyQuietly({
+      userId: targetUserId,
+      type: NotificationType.BenefitGranted,
+      target: { type: NotificationTargetType.BenefitGrant, id: granted.id },
+      metadata: {
+        plan: granted.plan,
+        expiresAt: granted.expiresAt?.toISOString(),
+      },
+    });
   }
 
   revalidatePath("/admin/benefit-grants");

@@ -1,4 +1,4 @@
-import { and, eq, gt, isNull, lte, or } from "drizzle-orm";
+import { and, eq, gt, isNull, lte, or, type SQL } from "drizzle-orm";
 import { cache } from "react";
 import "server-only";
 
@@ -37,22 +37,41 @@ import { logExternalError } from "@/lib/log-error";
  * 払うコストなので、毎リクエスト 1 往復で足りる。
  */
 
+/** 特典の出どころの表（購入・手動付与）。有効性の規則は同じ */
+export type EntitlementTable = typeof purchases | typeof benefitGrants;
+
 /**
- * 特典の出どころの行が「いま有効」である条件（上の判定の規則）
+ * 特典の出どころの行が「いま有効」である条件（上の判定の規則）。誰の行かは見ない
  * 有効特典条件
  *
  * 購入と付与で同じ規則を使うため、表を受け取って条件を組み立てる。
+ * 本人の判定（{@link getActiveBenefits}）も、期限切れの通知が「まだ Pro の人」
+ * を除くとき（`lib/notifications/plan-expiry.ts`）も、この条件を使う。
+ * 規則を書き直すと判定と通知が食い違うので、ここ以外に有効性の条件を書かない。
  */
+export function activeEntitlementConditions(
+  table: EntitlementTable,
+  now: Date,
+): SQL[] {
+  // `or()` は引数が無いと undefined を返す型だが、ここでは常に 2 つ渡すので
+  // 値がある。型の都合で絞る
+  const withinPeriod = or(isNull(table.expiresAt), gt(table.expiresAt, now));
+  return [
+    isNull(table.revokedAt),
+    lte(table.startsAt, now),
+    ...(withinPeriod ? [withinPeriod] : []),
+  ];
+}
+
+/** 本人の行で「いま有効」なものの条件 */
 function activeEntitlementWhere(
-  table: typeof purchases | typeof benefitGrants,
+  table: EntitlementTable,
   userId: string,
   now: Date,
 ) {
   return and(
     eq(table.userId, userId),
-    isNull(table.revokedAt),
-    lte(table.startsAt, now),
-    or(isNull(table.expiresAt), gt(table.expiresAt, now)),
+    ...activeEntitlementConditions(table, now),
   );
 }
 

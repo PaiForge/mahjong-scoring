@@ -27,7 +27,9 @@ export async function setupBillingTestDb() {
   await client.unsafe(`CREATE SCHEMA "${namespace}"`);
   for (const name of [
     "20261001031520_create_purchases.sql",
+    "20261001085049_create_benefit_grants.sql",
     "20261001092536_add_billing_checkouts.sql",
+    "20261002125751_create_notifications.sql",
   ]) {
     const ddl = await readFile(
       new URL(`../../../drizzle/${name}`, import.meta.url),

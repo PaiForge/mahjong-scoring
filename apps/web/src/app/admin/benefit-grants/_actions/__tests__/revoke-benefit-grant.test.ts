@@ -7,6 +7,7 @@ const {
   mockRevokeBenefitGrant,
   mockRecordModerationAction,
   mockRevalidatePath,
+  mockNotify,
 } = vi.hoisted(() => ({
   mockRequireAdminActor: vi.fn(),
   mockGetClientIp: vi.fn(),
@@ -14,6 +15,7 @@ const {
   mockRevokeBenefitGrant: vi.fn(),
   mockRecordModerationAction: vi.fn(),
   mockRevalidatePath: vi.fn(),
+  mockNotify: vi.fn(),
 }));
 
 vi.mock("next/cache", () => ({ revalidatePath: mockRevalidatePath }));
@@ -21,6 +23,9 @@ vi.mock("@/lib/client-ip", () => ({ getClientIp: mockGetClientIp }));
 vi.mock("@/lib/db", () => ({ db: { transaction: mockTransaction } }));
 vi.mock("@/lib/entitlements/benefit-grants", () => ({
   revokeBenefitGrant: mockRevokeBenefitGrant,
+}));
+vi.mock("@/lib/notifications/create-notification", () => ({
+  notifyQuietly: mockNotify,
 }));
 vi.mock("../../../_lib/auth", () => ({
   requireAdminActor: mockRequireAdminActor,
@@ -81,7 +86,18 @@ describe("revokeBenefitGrantAction", () => {
     expect(mockRevalidatePath).toHaveBeenCalledWith("/admin/benefit-grants");
   });
 
-  it("該当の付与が無い（取消済み含む）なら notFound で監査ログを書かない", async () => {
+  it("取り消せたら付与先に通知する", async () => {
+    await revokeBenefitGrantAction("g1", "誤付与");
+
+    expect(mockNotify).toHaveBeenCalledWith({
+      userId: "u1",
+      type: "benefit_grant_revoked",
+      target: { type: "benefit_grant", id: "g1" },
+      metadata: { plan: "pro" },
+    });
+  });
+
+  it("該当の付与が無い（取消済み含む）なら notFound で監査ログも通知も書かない", async () => {
     mockRevokeBenefitGrant.mockResolvedValue(undefined);
 
     expect(await revokeBenefitGrantAction("g1", "理由")).toEqual({
@@ -89,6 +105,7 @@ describe("revokeBenefitGrantAction", () => {
     });
     expect(mockRecordModerationAction).not.toHaveBeenCalled();
     expect(mockRevalidatePath).not.toHaveBeenCalled();
+    expect(mockNotify).not.toHaveBeenCalled();
   });
 
   it("DB が失敗したら revokeFailed でログを残す", async () => {

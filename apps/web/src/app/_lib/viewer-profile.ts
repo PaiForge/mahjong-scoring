@@ -18,6 +18,13 @@ export interface ViewerProfile {
    * 特典ごとの API を持たずに済む。無料ユーザーは空配列。
    */
   readonly benefits: readonly PlanBenefit[];
+  /**
+   * 未読の通知の件数。ヘッダーのベル（`NotificationBell`）が使う。
+   *
+   * プロフィールと同じ応答に載せるのは、ベルを置くためだけの往復を増やさない
+   * ため。既読にしたときはベルが `refreshProfile()` でこの応答を取り直す。
+   */
+  readonly unreadNotificationCount: number;
 }
 
 /** `/api/profile/me` のレスポンス本文 */

@@ -129,3 +129,16 @@ export const billingCheckouts = {
   settledAt: "settled_at",
   stripeCheckoutSessionId: "stripe_checkout_session_id",
 } as const;
+
+/** notifications のカラム */
+export const notifications = {
+  _name: "notifications",
+  id: "id",
+  userId: "user_id",
+  type: "type",
+  targetType: "target_type",
+  targetId: "target_id",
+  metadata: "metadata",
+  readAt: "read_at",
+  createdAt: "created_at",
+} as const;

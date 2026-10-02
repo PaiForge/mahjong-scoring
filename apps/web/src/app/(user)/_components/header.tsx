@@ -3,10 +3,12 @@ import Link from "next/link";
 import { AuthNavItem } from "./auth-nav-item";
 import { BrandLogo } from "./brand-logo";
 import { NavMenu } from "./nav-menu";
+import { NotificationBell } from "./notification-bell";
 
 /**
  * トップヘッダー。
- * blindfold-chess の Header を移植。左にハンバーガーメニュー＋ロゴ、右にアカウント表示。
+ * blindfold-chess の Header を移植。左にハンバーガーメニュー＋ロゴ、右に通知のベルと
+ * アカウント表示（ベルはログイン済みにだけ出る）。
  */
 export function Header() {
   return (
@@ -20,7 +22,10 @@ export function Header() {
             </Link>
           </div>
 
-          <AuthNavItem />
+          <div className="flex items-center gap-2 sm:gap-3">
+            <NotificationBell />
+            <AuthNavItem />
+          </div>
         </div>
       </div>
     </header>

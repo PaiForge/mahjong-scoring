@@ -344,3 +344,24 @@ REVOKE ALL ON TABLE public.benefit_grants FROM anon, authenticated;
 
 -- 顧客への CASCADE FK は Drizzle が作成。予約・販売条件を公開しない。
 REVOKE ALL ON TABLE public.billing_checkouts FROM anon, authenticated;
+
+-- =============================================================================
+-- notifications
+-- =============================================================================
+-- サイト内通知。サーバーだけが読み書きする（rls_policies.sql 参照）。
+-- 退会で本人宛ての通知は消える。
+
+-- FK constraint: notifications.user_id → auth.users(id) ON DELETE CASCADE
+DO $$
+BEGIN
+  IF NOT EXISTS (
+    SELECT 1 FROM pg_constraint WHERE conname = 'notifications_user_id_fkey'
+  ) THEN
+    ALTER TABLE public.notifications
+      ADD CONSTRAINT notifications_user_id_fkey
+      FOREIGN KEY (user_id) REFERENCES auth.users(id) ON DELETE CASCADE;
+  END IF;
+END;
+$$;
+
+REVOKE ALL ON TABLE public.notifications FROM anon, authenticated;

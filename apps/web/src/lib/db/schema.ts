@@ -1045,3 +1045,84 @@ export const practiceQuotaUsage = pgTable(
 );
 
 export type PracticeQuotaUsage = typeof practiceQuotaUsage.$inferSelect;
+
+/**
+ * サイト内通知 — ユーザーに届く出来事の記録
+ * 通知
+ *
+ * @description
+ * 有料プランの出来事（購入完了・Pro の期限切れ・運営からの付与・取り消し）を
+ * ヘッダーのベルとマイページの通知一覧で本人に知らせる。種別は
+ * `lib/notifications/types.ts` の `NotificationType` に列挙し、文面と遷移先は
+ * 読み取り側（通知一覧）が種別から組み立てる。行は「何が起きたか」だけを持つ。
+ *
+ * @design `(user_id, type, target_type, target_id)` の一意インデックスで重複を防ぐ
+ *
+ * 購入は Checkout 完了の着地と Stripe Webhook の 2 経路から記録され、期限切れは
+ * 日次バッチが繰り返し走る。「同じ事実には 1 通知」を時間窓の判定ではなく
+ * 制約で保証し、書き込みは `ON CONFLICT DO NOTHING` にする。Postgres の一意
+ * 制約は NULL 同士を衝突させないため、対象を持たない種別（将来のフォロー・
+ * いいねのような繰り返し起きる行為）はこの制約に掛からず、その種別だけ別の
+ * 重複排除（時間窓）を足せる。
+ *
+ * @design `type` / `target_type` は varchar
+ *
+ * enum だと種別を足すたびに `ALTER TYPE` が要る。値の集合はコード側の
+ * 閉じた union が守る。保存済みの値なので種別名は改名しない。
+ *
+ * @design 行為者（`actor_id`）の列はいま持たない
+ *
+ * 初版の通知はすべて運営・システム発で、人が起こすものが無い。フォロー等の
+ * 「誰かがした」通知が来たときに nullable で足す。そのとき触るのは列・書き込みの
+ * 入力型・一覧の SELECT と返却型・行頭のアバター表示で、既存の呼び出し元
+ * （購入・付与・cron）は変えずに済む。一覧の行の構造（先頭の視覚要素 + 本文 +
+ * 時刻）はそのためにアバターを差し込めるスロットにしてある。
+ *
+ * @design `read_at` は既読の時刻（NULL なら未読）
+ *
+ * boolean より情報が多く、取り消し（`revoked_at`）と同じ「NULL なら未」の読み方で
+ * 揃う。未読件数は部分インデックスで数える。
+ *
+ * @design `user_id` → auth.users の FK は Supabase SQL で定義（CASCADE）。退会で消える
+ */
+export const notifications = pgTable(
+  "notifications",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    /** 受け取る人の auth.users(id)（FK は Supabase SQL で定義） */
+    userId: uuid("user_id").notNull(),
+    /** 種別（`lib/notifications/types.ts` の `NotificationType`） */
+    type: varchar("type", { length: 50 }).notNull(),
+    /** 対象の表（`NotificationTargetType`）。対象を持たない種別は NULL */
+    targetType: varchar("target_type", { length: 50 }),
+    /** 対象の行の id。`target_type` と対で入る */
+    targetId: uuid("target_id"),
+    /** 文面に差し込む値（`lib/notifications/metadata.ts` の形）。読む側は検証して使う */
+    metadata: jsonb("metadata").notNull().default({}),
+    /** 既読にした日時。NULL なら未読 */
+    readAt: timestamp("read_at", { withTimezone: true }),
+    /** 作成日時 */
+    createdAt: timestamp("created_at", { withTimezone: true })
+      .defaultNow()
+      .notNull(),
+  },
+  (table) => [
+    index("idx_notifications_user_created").on(table.userId, table.createdAt),
+    index("idx_notifications_user_unread")
+      .on(table.userId)
+      .where(sql`${table.readAt} IS NULL`),
+    uniqueIndex("uq_notifications_fact").on(
+      table.userId,
+      table.type,
+      table.targetType,
+      table.targetId,
+    ),
+    check(
+      "notifications_chk_target_pairs",
+      sql`(${table.targetType} IS NULL) = (${table.targetId} IS NULL)`,
+    ),
+  ],
+);
+
+export type Notification = typeof notifications.$inferSelect;
+export type NewNotification = typeof notifications.$inferInsert;
