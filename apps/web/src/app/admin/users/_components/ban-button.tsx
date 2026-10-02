@@ -22,7 +22,7 @@ export function BanButton({ targetUserId }: BanButtonProps) {
       tone="danger"
       reasonId="ban-reason"
       labels={{
-        trigger: "BAN",
+        trigger: t("banUser.button"),
         title: t("banUser.title"),
         reasonLabel: t("banUser.reasonLabel"),
         reasonPlaceholder: t("banUser.reasonPlaceholder"),

@@ -2683,6 +2683,7 @@
       "userFilterPlaceholder": "メールアドレスまたはユーザー名"
     },
     "banUser": {
+      "button": "BAN",
       "title": "ユーザーをBANする",
       "reasonLabel": "BAN理由",
       "reasonPlaceholder": "BANの理由を入力してください",
