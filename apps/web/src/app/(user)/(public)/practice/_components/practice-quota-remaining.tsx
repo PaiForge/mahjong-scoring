@@ -15,8 +15,9 @@ interface PracticeQuotaRemainingProps {
  * 無料枠の残り回数の表示
  * 残り回数表示
  *
- * 「今日はあと n 問」。0 なら「この問題で最後」。無制限のときは何も出さない
- * （Pro に残数の概念はない）。
+ * 「今日はあと n 問」。0 なら「この問題で最後」を警告色で出す（次の問題へ
+ * 進むとペイウォールになることを、押す前に気づかせる）。無制限のときは
+ * 何も出さない（Pro に残数の概念はない）。
  *
  * @design 「無料」と書かない
  *
@@ -41,7 +42,9 @@ export function PracticeQuotaRemaining({
 
   return (
     <div className="space-y-1 text-center text-xs text-surface-500">
-      <p>{t("remaining", { count: remaining })}</p>
+      <p className={remaining === 0 ? "font-bold text-warning" : undefined}>
+        {t("remaining", { count: remaining })}
+      </p>
       {showPlanLink && (
         <p>
           <Link href={PLAN_PAGE_HREF} className={TEXT_LINK_CLASSES}>
