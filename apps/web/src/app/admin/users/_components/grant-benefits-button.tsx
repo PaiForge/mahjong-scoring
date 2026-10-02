@@ -6,6 +6,7 @@ import { useTranslations } from "next-intl";
 import { AdminModalShell } from "@/app/admin/_components/admin-modal-shell";
 
 import { grantBenefits } from "../_actions/grant-benefits";
+import { MODERATION_REASON_MAX_LENGTH } from "../_lib/moderation-reason";
 import {
   GRANT_DURATION_KEYS,
   type GrantDurationKey,
@@ -106,7 +107,7 @@ export function GrantBenefitsButton({
             placeholder={t("grant.reasonPlaceholder")}
             className="mb-4 w-full rounded border border-gray-300 px-3 py-2 text-sm"
             rows={3}
-            maxLength={1000}
+            maxLength={MODERATION_REASON_MAX_LENGTH}
           />
 
           {state?.error && (

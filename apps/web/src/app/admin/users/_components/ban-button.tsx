@@ -6,6 +6,7 @@ import { useTranslations } from "next-intl";
 import { AdminModalShell } from "@/app/admin/_components/admin-modal-shell";
 
 import { banUser } from "../_actions/ban-user";
+import { MODERATION_REASON_MAX_LENGTH } from "../_lib/moderation-reason";
 
 interface BanButtonProps {
   readonly targetUserId: string;
@@ -73,7 +74,7 @@ export function BanButton({ targetUserId }: BanButtonProps) {
             placeholder={t("banUser.reasonPlaceholder")}
             className="mb-4 w-full rounded border border-gray-300 px-3 py-2 text-sm"
             rows={3}
-            maxLength={1000}
+            maxLength={MODERATION_REASON_MAX_LENGTH}
           />
 
           {state?.error && (

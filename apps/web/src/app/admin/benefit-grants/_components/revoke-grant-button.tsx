@@ -6,6 +6,7 @@ import { useTranslations } from "next-intl";
 import { AdminModalShell } from "@/app/admin/_components/admin-modal-shell";
 
 import { revokeBenefitGrantAction } from "../_actions/revoke-benefit-grant";
+import { MODERATION_REASON_MAX_LENGTH } from "../../users/_lib/moderation-reason";
 
 interface RevokeGrantButtonProps {
   readonly grantId: string;
@@ -70,7 +71,7 @@ export function RevokeGrantButton({ grantId }: RevokeGrantButtonProps) {
             placeholder={t("reasonPlaceholder")}
             className="mb-4 w-full rounded border border-gray-300 px-3 py-2 text-sm"
             rows={3}
-            maxLength={1000}
+            maxLength={MODERATION_REASON_MAX_LENGTH}
           />
 
           {state?.error && (

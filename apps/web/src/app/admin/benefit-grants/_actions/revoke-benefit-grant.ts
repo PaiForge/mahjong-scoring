@@ -9,6 +9,7 @@ import { revokeBenefitGrant } from "@/lib/entitlements/benefit-grants";
 import { logExternalError } from "@/lib/log-error";
 
 import { requireAdminActor } from "../../_lib/auth";
+import { normalizeModerationReason } from "../../users/_lib/moderation-reason";
 import {
   ModerationActionKind,
   recordModerationAction,
@@ -38,8 +39,8 @@ export async function revokeBenefitGrantAction(
   }
   const { actorId } = admin;
 
-  const trimmedReason = reason.trim();
-  if (trimmedReason.length === 0 || trimmedReason.length > 1000) {
+  const trimmedReason = normalizeModerationReason(reason);
+  if (trimmedReason === undefined) {
     return { error: "invalidReason" };
   }
 
