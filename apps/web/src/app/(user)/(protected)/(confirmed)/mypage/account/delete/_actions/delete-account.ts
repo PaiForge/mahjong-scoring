@@ -1,11 +1,9 @@
 "use server";
 
 import type { ActionResult } from "@/lib/action-types";
+import { guardUserAction } from "@/lib/action-guard";
+import type { UserActionGuardErrorCode } from "@/lib/action-guard";
 import { logActivityEvent } from "@/lib/activity-log";
-import { authenticateAndCheckBan } from "@/lib/auth";
-import type { AuthGateErrorCode } from "@/lib/auth";
-import { enforceIpRateLimit } from "@/lib/rate-limit-ip";
-import type { RateLimitErrorCode } from "@/lib/rate-limit-ip";
 import { deleteAccount } from "@/lib/users/delete-account";
 import type { DeleteAccountError } from "@/lib/users/delete-account";
 
@@ -19,21 +17,16 @@ import type { DeleteAccountError } from "@/lib/users/delete-account";
  */
 /** 退会の失敗理由 */
 export type DeleteOwnAccountError =
-  RateLimitErrorCode | AuthGateErrorCode | DeleteAccountError;
+  UserActionGuardErrorCode | DeleteAccountError;
 
 export async function deleteOwnAccount(): Promise<
   ActionResult<DeleteOwnAccountError>
 > {
-  const rateLimited = await enforceIpRateLimit("deleteAccount");
-  if (rateLimited) {
-    return rateLimited;
+  const guard = await guardUserAction("deleteAccount");
+  if ("error" in guard) {
+    return guard;
   }
-
-  const authResult = await authenticateAndCheckBan();
-  if ("error" in authResult) {
-    return authResult;
-  }
-  const { user } = authResult;
+  const { user } = guard;
 
   const result = await deleteAccount(user.id);
   if ("error" in result) {

@@ -4,17 +4,16 @@ import { revalidateTag } from "next/cache";
 import { eq } from "drizzle-orm";
 
 import type { ActionResult } from "@/lib/action-types";
-import { authenticateAndCheckBan, getOptionalUser } from "@/lib/auth";
-import type { AuthGateErrorCode } from "@/lib/auth";
+import { guardUserAction } from "@/lib/action-guard";
+import type { UserActionGuardErrorCode } from "@/lib/action-guard";
+import { getOptionalUser } from "@/lib/auth";
 import { LEADERBOARD_CACHE_TAG } from "@/lib/cache-tags";
 import { db, profiles } from "@/lib/db";
 import { isHiddenFromLeaderboard } from "@/lib/db/leaderboard-visibility";
-import { enforceIpRateLimit } from "@/lib/rate-limit-ip";
-import type { RateLimitErrorCode } from "@/lib/rate-limit-ip";
 
 /** ランキング非表示設定の失敗理由 */
 export type SetLeaderboardVisibilityError =
-  RateLimitErrorCode | AuthGateErrorCode | "updateFailed";
+  UserActionGuardErrorCode | "updateFailed";
 
 export type SetLeaderboardVisibilityResult =
   ActionResult<SetLeaderboardVisibilityError>;
@@ -44,16 +43,11 @@ export async function getLeaderboardVisibility(): Promise<boolean> {
 export async function setLeaderboardVisibility(
   hidden: boolean,
 ): Promise<SetLeaderboardVisibilityResult> {
-  const rateLimited = await enforceIpRateLimit("updateLeaderboardVisibility");
-  if (rateLimited) {
-    return rateLimited;
+  const guard = await guardUserAction("updateLeaderboardVisibility");
+  if ("error" in guard) {
+    return guard;
   }
-
-  const authResult = await authenticateAndCheckBan();
-  if ("error" in authResult) {
-    return authResult;
-  }
-  const { user } = authResult;
+  const { user } = guard;
 
   try {
     await db
