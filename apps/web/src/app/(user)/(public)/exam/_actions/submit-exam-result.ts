@@ -1,8 +1,19 @@
 "use server";
-import { authenticateAndCheckBan } from "@/lib/auth";
+import { type AuthGateErrorCode, authenticateAndCheckBan } from "@/lib/auth";
 import { finishAttempt } from "@/lib/challenge/attempts";
 import { logExternalError } from "@/lib/log-error";
 import type { RankSlug } from "@/lib/ranks/registry";
+
+/**
+ * `submitExamResult` が返しうるエラーコード
+ *
+ * 認証ゲートの `"unauthorized"` は `skipped: 'anonymous'` に読み替えるため
+ * 含まない。各コードの意味は {@link SubmitExamResponse} を参照。
+ */
+export type SubmitExamErrorCode =
+  | Exclude<AuthGateErrorCode, "unauthorized">
+  | "invalid_result"
+  | "unexpected_error";
 
 /**
  * `submitExamResult` の戻り値
@@ -24,7 +35,7 @@ import type { RankSlug } from "@/lib/ranks/registry";
 export type SubmitExamResponse =
   | { readonly success: true; readonly grantedRanks: readonly RankSlug[] }
   | { readonly success: true; readonly skipped: "anonymous" }
-  | { readonly success: false; readonly error: string };
+  | { readonly success: false; readonly error: SubmitExamErrorCode };
 
 /**
  * サーバーで採点済みの試験の挑戦を確定し、合格なら段級位を付与する Server Action

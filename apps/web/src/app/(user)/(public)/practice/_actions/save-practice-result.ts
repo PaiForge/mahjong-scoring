@@ -1,7 +1,18 @@
 "use server";
-import { authenticateAndCheckBan } from "@/lib/auth";
+import { type AuthGateErrorCode, authenticateAndCheckBan } from "@/lib/auth";
 import { finishAttempt } from "@/lib/challenge/attempts";
 import { logExternalError } from "@/lib/log-error";
+
+/**
+ * `savePracticeResult` が返しうるエラーコード
+ *
+ * 認証ゲートの `"unauthorized"` は `skipped: 'anonymous'` に読み替えるため
+ * 含まない。各コードの意味は {@link SaveResultResponse} を参照。
+ */
+export type SaveResultErrorCode =
+  | Exclude<AuthGateErrorCode, "unauthorized">
+  | "invalid_result"
+  | "unexpected_error";
 
 /**
  * `savePracticeResult` の戻り値
@@ -20,7 +31,7 @@ import { logExternalError } from "@/lib/log-error";
 export type SaveResultResponse =
   | { readonly success: true; readonly challengeResultId: string }
   | { readonly success: true; readonly skipped: "anonymous" }
-  | { readonly success: false; readonly error: string };
+  | { readonly success: false; readonly error: SaveResultErrorCode };
 
 /**
  * サーバーで採点済みの挑戦を確定し、challenge_results / challenge_best_scores に
