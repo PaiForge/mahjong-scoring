@@ -267,10 +267,58 @@ describe("recordPurchaseFromCheckoutSession の通知", () => {
       }),
     );
   });
-  it("同一 Session の再送（duplicate）では通知しない", async () => {
-    selects([customer], [{ id: "p1" }]);
+  it("同一 Session の再送（duplicate）でも保存済みの行から通知を組み直す（補完）", async () => {
+    selects(
+      [customer],
+      [
+        {
+          id: "p1",
+          userId: "u1",
+          plan: "pro",
+          kind: "pass",
+          expiresAt: new Date("2026-10-31T12:00:00Z"),
+          revokedAt: null,
+          revokeReason: null,
+        },
+      ],
+    );
+    expect(await recordPurchaseFromCheckoutSession(session(), NOW)).toEqual({
+      outcome: "duplicate",
+    });
+    expect(mocks.notify).toHaveBeenCalledWith({
+      userId: "u1",
+      type: "purchase_completed",
+      target: { type: "purchase", id: "p1" },
+      metadata: {
+        plan: "pro",
+        kind: "pass",
+        expiresAt: "2026-10-31T12:00:00.000Z",
+        revokeReason: undefined,
+      },
+    });
+  });
+  it("再送時に既に取消済みなら、取り消しの通知として組み直す", async () => {
+    selects(
+      [customer],
+      [
+        {
+          id: "p1",
+          userId: "u1",
+          plan: "pro",
+          kind: "pass",
+          expiresAt: new Date("2026-10-31T12:00:00Z"),
+          revokedAt: NOW,
+          revokeReason: "refunded",
+        },
+      ],
+    );
     await recordPurchaseFromCheckoutSession(session(), NOW);
-    expect(mocks.notify).not.toHaveBeenCalled();
+    expect(mocks.notify).toHaveBeenCalledWith(
+      expect.objectContaining({
+        type: "purchase_revoked",
+        metadata: expect.objectContaining({ revokeReason: "refunded" }),
+      }),
+    );
   });
   it("見送り（ignored）では通知しない", async () => {
     await recordPurchaseFromCheckoutSession(
@@ -281,13 +329,49 @@ describe("recordPurchaseFromCheckoutSession の通知", () => {
   });
 });
 describe("revokePurchaseByPaymentIntent", () => {
-  it("取消済み・不存在なら false で、通知もしない", async () => {
+  it("不存在なら false で、通知もしない", async () => {
+    selects([]);
     expect(await revokePurchaseByPaymentIntent("pi1", "refunded")).toBe(false);
     expect(mocks.notify).not.toHaveBeenCalled();
   });
+  it("取消済みの再送は false だが、保存済みの行から取り消しの通知を補完する", async () => {
+    selects([
+      {
+        id: "p1",
+        userId: "u1",
+        plan: "pro",
+        kind: "pass",
+        expiresAt: null,
+        revokedAt: NOW,
+        revokeReason: "fraud",
+      },
+    ]);
+    expect(await revokePurchaseByPaymentIntent("pi1", "refunded")).toBe(false);
+    expect(mocks.notify).toHaveBeenCalledWith({
+      userId: "u1",
+      type: "purchase_revoked",
+      target: { type: "purchase", id: "p1" },
+      metadata: {
+        plan: "pro",
+        kind: "pass",
+        expiresAt: undefined,
+        revokeReason: "fraud",
+      },
+    });
+  });
   it("取消日時と理由を対で保存し、本人に取り消しを通知する", async () => {
     mocks.update.mockReturnValue(
-      createQueryChain([{ id: "p1", userId: "u1", plan: "pro", kind: "pass" }]),
+      createQueryChain([
+        {
+          id: "p1",
+          userId: "u1",
+          plan: "pro",
+          kind: "pass",
+          expiresAt: new Date("2026-10-31T12:00:00Z"),
+          revokedAt: NOW,
+          revokeReason: "refunded",
+        },
+      ]),
     );
     expect(await revokePurchaseByPaymentIntent("pi1", "refunded", NOW)).toBe(
       true,
@@ -300,7 +384,12 @@ describe("revokePurchaseByPaymentIntent", () => {
       userId: "u1",
       type: "purchase_revoked",
       target: { type: "purchase", id: "p1" },
-      metadata: { plan: "pro", kind: "pass", revokeReason: "refunded" },
+      metadata: {
+        plan: "pro",
+        kind: "pass",
+        expiresAt: "2026-10-31T12:00:00.000Z",
+        revokeReason: "refunded",
+      },
     });
   });
 });

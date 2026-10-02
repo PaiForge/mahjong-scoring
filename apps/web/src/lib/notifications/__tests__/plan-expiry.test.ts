@@ -44,14 +44,23 @@ describe("selectExpiryNotifications", () => {
     expect(result.map((n) => n.userId)).toEqual(["u1"]);
   });
 
-  it("同じ人の複数の行はそれぞれ通知になる（対象で区別する）", () => {
+  it("同じ人の複数の行は、期限が最も遅い 1 行を対象にして 1 通にする", () => {
+    const earlier = new Date("2026-09-30T00:00:00Z");
     const result = selectExpiryNotifications(
-      [expired("u1", "p1"), expired("u1", "g1", "benefit_grant")],
+      [
+        { ...expired("u1", "p1"), expiresAt: earlier },
+        expired("u1", "g1", "benefit_grant"),
+        expired("u2", "p2"),
+      ],
       new Set(),
     );
-    expect(result.map((n) => n.target)).toEqual([
-      { type: "purchase", id: "p1" },
-      { type: "benefit_grant", id: "g1" },
+    expect(result.map((n) => [n.userId, n.target])).toEqual([
+      ["u1", { type: "benefit_grant", id: "g1" }],
+      ["u2", { type: "purchase", id: "p2" }],
     ]);
+    expect(result[0]?.metadata).toEqual({
+      plan: "pro",
+      expiresAt: "2026-10-01T03:00:00.000Z",
+    });
   });
 });

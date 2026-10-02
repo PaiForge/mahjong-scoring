@@ -49,11 +49,8 @@ function toRow(input: NotificationInput): NewNotification {
  * 通知を作る。同じ事実の通知が既にあれば何もしない
  * 通知挿入
  *
- * `(user_id, type, target_type, target_id)` の一意インデックスに
- * `ON CONFLICT DO NOTHING` で乗る。Checkout の着地と Webhook が同じ購入を
- * 同時に記録しても、日次バッチが同じ期限切れを翌日もう一度拾っても 1 通になる。
- *
- * トランザクションの中からも外からも呼べるよう、実行する接続を受け取る。
+ * 中身は {@link insertNotifications} の 1 件版。抑止条件（将来のミュート等）は
+ * 複数件の側に書けば単件にも効く。
  *
  * @returns 新しく作ったら true、既にあって何もしなかったら false
  */
@@ -61,26 +58,20 @@ export async function insertNotification(
   executor: TransactionClient | typeof db,
   input: NotificationInput,
 ): Promise<boolean> {
-  const inserted = await executor
-    .insert(notifications)
-    .values(toRow(input))
-    .onConflictDoNothing({
-      target: [
-        notifications.userId,
-        notifications.type,
-        notifications.targetType,
-        notifications.targetId,
-      ],
-    })
-    .returning({ id: notifications.id });
-  return inserted.length > 0;
+  return (await insertNotifications(executor, [input])) > 0;
 }
 
 /**
  * 複数の通知をまとめて作る。既にある事実は飛ばす
  * 通知一括挿入
  *
- * 日次バッチ用。空なら DB に行かない。
+ * `(user_id, type, target_type, target_id)` の一意インデックスに
+ * `ON CONFLICT DO NOTHING` で乗る。Checkout の着地と Webhook が同じ購入を
+ * 同時に記録しても、日次バッチが同じ期限切れを翌日もう一度拾っても 1 通になる。
+ * トランザクションの中からも外からも呼べるよう、実行する接続を受け取る。
+ *
+ * 単件（{@link insertNotification}）もここを通る。通知を抑止する条件を足すときは
+ * この関数の中に書く。空なら DB に行かない。
  *
  * @returns 新しく作った件数
  */

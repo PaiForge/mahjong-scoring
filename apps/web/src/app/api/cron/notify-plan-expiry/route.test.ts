@@ -23,7 +23,12 @@ beforeEach(() => {
   vi.spyOn(console, "error").mockImplementation(() => undefined);
   vi.spyOn(console, "log").mockImplementation(() => undefined);
   vi.stubEnv("CRON_SECRET", "s3cret");
-  mockNotify.mockResolvedValue({ expired: 2, stillActive: 1, notified: 1 });
+  mockNotify.mockResolvedValue({
+    expired: 2,
+    stillActive: 1,
+    candidates: 1,
+    notified: 1,
+  });
 });
 
 afterEach(() => {
@@ -43,6 +48,7 @@ describe("GET /api/cron/notify-plan-expiry", () => {
     expect(await res.json()).toEqual({
       expired: 2,
       stillActive: 1,
+      candidates: 1,
       notified: 1,
     });
   });

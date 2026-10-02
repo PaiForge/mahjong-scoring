@@ -29,7 +29,7 @@ export async function GET(request: Request): Promise<NextResponse> {
   try {
     const result = await notifyExpiredPlans();
     console.log(
-      `[cron/notify-plan-expiry] expired=${result.expired} stillActive=${result.stillActive} notified=${result.notified}`,
+      `[cron/notify-plan-expiry] expired=${result.expired} stillActive=${result.stillActive} candidates=${result.candidates} notified=${result.notified}`,
     );
     return NextResponse.json(result);
   } catch (error) {

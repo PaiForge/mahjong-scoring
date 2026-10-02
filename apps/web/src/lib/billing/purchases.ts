@@ -65,10 +65,11 @@ function idOf(
  * 取消済みとして履歴に残す。返金 API は PaymentIntent ごとの冪等キーを使う。
  * 返金イベントが先に来ていても Charge の現在値から取消を復元する。
  *
- * 行を新しく作ったときだけ本人に通知する（購入完了、返金済みで入れたなら
- * 取り消し）。通知はトランザクションの外で、失敗しても記録を巻き込まずに
- * 書く（`notifyQuietly`）。着地と Webhook の両方がここを通っても、通知側の
- * 一意インデックスで 1 通になる。
+ * 本人への通知（購入完了、返金済みで入れたなら取り消し）はトランザクションの
+ * 外で、失敗しても記録を巻き込まずに書く（`notifyQuietly`）。同じ Session の
+ * 再送（`duplicate`）でも保存済みの行から通知を組み直して通す — 初回の通知だけが
+ * 失敗したとき、Webhook の再送が補完の経路になる。通知側の一意インデックスで
+ * 何度通っても 1 通。保証は「最大 1 通」で、再送が来なければ 0 通のままあり得る。
  */
 export async function recordPurchaseFromCheckoutSession(
   session: Stripe.Checkout.Session,
@@ -93,11 +94,14 @@ export async function recordPurchaseFromCheckoutSession(
       if (!customer) return { outcome: "ignored", reason: "unknownCustomer" };
       await lockPaymentIntent(tx, paymentIntentId);
       const [existing] = await tx
-        .select({ id: purchases.id })
+        .select(PURCHASE_NOTIFICATION_COLUMNS)
         .from(purchases)
         .where(eq(purchases.stripeCheckoutSessionId, session.id))
         .limit(1);
-      if (existing) return { outcome: "duplicate" };
+      if (existing) {
+        notification = purchaseNotificationOf(existing);
+        return { outcome: "duplicate" };
+      }
 
       const checkoutId = z
         .string()
@@ -173,19 +177,15 @@ export async function recordPurchaseFromCheckoutSession(
         .set({ stripeCheckoutSessionId: session.id, settledAt: now })
         .where(eq(billingCheckouts.id, checkout.id));
       if (!inserted) return { outcome: "duplicate" };
-      notification = {
+      notification = purchaseNotificationOf({
+        id: inserted.id,
         userId: customer.userId,
-        type: refunded
-          ? NotificationType.PurchaseRevoked
-          : NotificationType.PurchaseCompleted,
-        target: { type: NotificationTargetType.Purchase, id: inserted.id },
-        metadata: {
-          plan: checkout.plan,
-          kind: purchaseKindOf(checkout.kind),
-          expiresAt: expiresAt?.toISOString(),
-          revokeReason: refunded ? PurchaseRevokeReason.Refunded : undefined,
-        },
-      };
+        plan: checkout.plan,
+        kind: checkout.kind,
+        expiresAt,
+        revokedAt: refunded ? now : null,
+        revokeReason: refunded ? PurchaseRevokeReason.Refunded : null,
+      });
       return {
         outcome: refunded ? "refunded" : "recorded",
         purchaseId: inserted.id,
@@ -196,9 +196,64 @@ export async function recordPurchaseFromCheckoutSession(
   return result;
 }
 
+/** 通知を組むのに要る購入行の列 */
+const PURCHASE_NOTIFICATION_COLUMNS = {
+  id: purchases.id,
+  userId: purchases.userId,
+  plan: purchases.plan,
+  kind: purchases.kind,
+  expiresAt: purchases.expiresAt,
+  revokedAt: purchases.revokedAt,
+  revokeReason: purchases.revokeReason,
+} as const;
+
+/** 購入行のうち通知が見る部分 */
+type PurchaseNotificationSource = Pick<
+  Purchase,
+  "id" | "userId" | "plan" | "kind" | "expiresAt" | "revokedAt" | "revokeReason"
+>;
+
+/**
+ * 購入行の現在の状態から本人への通知を組む
+ * 購入通知生成
+ *
+ * 取り消し済みなら取り消し、そうでなければ購入完了。初回の記録でも再送でも
+ * 同じ行から同じ通知になるので、再送が通知の補完になる。
+ */
+function purchaseNotificationOf(
+  purchase: PurchaseNotificationSource,
+): NotificationInput {
+  const revoked = purchase.revokedAt !== null;
+  return {
+    userId: purchase.userId,
+    type: revoked
+      ? NotificationType.PurchaseRevoked
+      : NotificationType.PurchaseCompleted,
+    target: { type: NotificationTargetType.Purchase, id: purchase.id },
+    metadata: {
+      plan: purchase.plan,
+      kind: purchaseKindOf(purchase.kind),
+      expiresAt: purchase.expiresAt?.toISOString(),
+      revokeReason: revoked
+        ? purchaseRevokeReasonOf(purchase.revokeReason)
+        : undefined,
+    },
+  };
+}
+
 /** varchar の `kind` を `PurchaseKind` に絞る。知らない値は通知に載せない */
 function purchaseKindOf(value: string): PurchaseKind | undefined {
   return value === PurchaseKind.Pass || value === PurchaseKind.Lifetime
+    ? value
+    : undefined;
+}
+
+/** varchar の `revoke_reason` を `PurchaseRevokeReason` に絞る */
+function purchaseRevokeReasonOf(
+  value: string | null,
+): PurchaseRevokeReason | undefined {
+  return value === PurchaseRevokeReason.Refunded ||
+    value === PurchaseRevokeReason.Fraud
     ? value
     : undefined;
 }
@@ -230,15 +285,16 @@ export async function listPurchases(
  * 購入取り消し
  *
  * Webhook の `charge.refunded`（全額）から呼ぶ。行は消さず `revoked_at` を
- * 立てるだけ（購入履歴に「返金済み」として残す）。取り消せたら本人に通知する
- * （トランザクションの外、失敗しても取り消しを巻き込まない）。
+ * 立てるだけ（購入履歴に「返金済み」として残す）。本人への通知は
+ * トランザクションの外で、失敗しても取り消しを巻き込まない。既に取消済みの
+ * 再送でも保存済みの行から通知を組み直して通す（購入の記録と同じ補完）。
  */
 export async function revokePurchaseByPaymentIntent(
   paymentIntentId: string,
   reason: PurchaseRevokeReason,
   now: Date = new Date(),
 ): Promise<boolean> {
-  const revoked = await db.transaction(async (tx) => {
+  const { revoked, purchase } = await db.transaction(async (tx) => {
     await lockPaymentIntent(tx, paymentIntentId);
     const [updated] = await tx
       .update(purchases)
@@ -249,26 +305,19 @@ export async function revokePurchaseByPaymentIntent(
           isNull(purchases.revokedAt),
         ),
       )
-      .returning({
-        id: purchases.id,
-        userId: purchases.userId,
-        plan: purchases.plan,
-        kind: purchases.kind,
-      });
-    return updated;
+      .returning(PURCHASE_NOTIFICATION_COLUMNS);
+    if (updated) return { revoked: true, purchase: updated };
+    // 取消済みか不存在。取消済みなら再送として通知を補完する
+    const [current] = await tx
+      .select(PURCHASE_NOTIFICATION_COLUMNS)
+      .from(purchases)
+      .where(eq(purchases.stripePaymentIntentId, paymentIntentId))
+      .limit(1);
+    return { revoked: false, purchase: current };
   });
-  if (!revoked) return false;
-  await notifyQuietly({
-    userId: revoked.userId,
-    type: NotificationType.PurchaseRevoked,
-    target: { type: NotificationTargetType.Purchase, id: revoked.id },
-    metadata: {
-      plan: revoked.plan,
-      kind: purchaseKindOf(revoked.kind),
-      revokeReason: reason,
-    },
-  });
-  return true;
+  if (purchase?.revokedAt)
+    await notifyQuietly(purchaseNotificationOf(purchase));
+  return revoked;
 }
 
 /** 購入の INSERT と取消の UPDATE を PaymentIntent ごとに直列化する。 */

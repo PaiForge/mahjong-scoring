@@ -43,16 +43,34 @@ describe("insertNotification", () => {
     );
 
     expect(inserted).toBe(true);
-    expect(chain.values).toHaveBeenCalledWith({
-      userId: "u1",
-      type: "purchase_completed",
-      targetType: "purchase",
-      targetId: "p1",
-      metadata: { plan: "pro", kind: "pass" },
-    });
+    expect(chain.values).toHaveBeenCalledWith([
+      {
+        userId: "u1",
+        type: "purchase_completed",
+        targetType: "purchase",
+        targetId: "p1",
+        metadata: { plan: "pro", kind: "pass" },
+      },
+    ]);
     expect(chain.onConflictDoNothing).toHaveBeenCalledWith({
       target: ["user_id", "type", "target_type", "target_id"],
     });
+  });
+
+  it("単件も複数件と同じ INSERT を通る（抑止条件の差し込み口が 1 つ）", async () => {
+    const chain = createQueryChain();
+    chain.returning.mockResolvedValue([{ id: "n1" }]);
+    mockInsert.mockReturnValue(chain);
+
+    const db = { insert: mockInsert };
+    await insertNotification(
+      db as unknown as Parameters<typeof insertNotification>[0],
+      INPUT,
+    );
+    // 複数件版は配列で values() を呼ぶ。単件もその形で通っている
+    expect(chain.values).toHaveBeenCalledWith([
+      expect.objectContaining({ userId: "u1", targetId: "p1" }),
+    ]);
   });
 
   it("既にあって何も入らなければ false", async () => {

@@ -37,6 +37,22 @@ import { NotificationTargetType, NotificationType } from "./types";
  *
  * 本人に見える出来事は「Pro が切れた」の 1 つで、文面も遷移先も同じ。
  * 出どころは `target_type` が持つので、後から分けたくなっても行から分かる。
+ *
+ * @design 同じ人の複数の行は、期限が最も遅い 1 行で代表させる
+ *
+ * 購入と付与が重なっていた人は、両方が窓に入ると行が 2 つ候補になるが、
+ * 本人に起きた出来事は「Pro が終わった」の 1 回。期限が最も遅い行がその瞬間を
+ * 指すので、それを対象にして 1 通にする。翌日も同じ行が代表になるので一意
+ * インデックスで重複せず、後日また付与されて再び切れたときは新しい行が代表に
+ * なるので 2 通目が正しく出る。
+ *
+ * @design 判定と INSERT の間の競合は塞いでいない
+ *
+ * 有効な行の読み取りと通知の INSERT は別の文で、その数ミリ秒の間に管理者が
+ * 付与を入れると「数分前に Pro に戻った人」に失効の通知が 1 通残る。日次バッチと
+ * 手動操作の重なりは稀で、起きても誤報 1 通で済む。本気で塞ぐなら付与・返金側と
+ * 共有するロック（`pg_advisory_xact_lock`）が要る — 単一の SQL にしても文の
+ * 開始時点のスナップショットで同じ競合が残るので、それでは直らない。
  */
 
 /** 期限切れを拾う窓（7 日）。cron が止まっていた分の取りこぼしを吸収する */
@@ -59,6 +75,8 @@ export interface PlanExpiryRunResult {
   readonly expired: number;
   /** そのうち、まだ Pro の人の行として除いた数 */
   readonly stillActive: number;
+  /** 通知の候補になった人数（期限切れの行を人ごとに 1 つに畳んだ数） */
+  readonly candidates: number;
   /** 新しく作った通知の数（既にあった分は含まない） */
   readonly notified: number;
 }
@@ -67,20 +85,27 @@ export interface PlanExpiryRunResult {
  * 期限切れの行から通知の内容を組む（純粋関数）
  * 期限切れ通知選別
  *
- * まだ Pro の人（`stillActiveUserIds`）の行は除く。
+ * まだ Pro の人（`stillActiveUserIds`）の行は除き、残った人ごとに期限が
+ * 最も遅い 1 行を代表にして 1 通にする（上の設計を参照）。
  */
 export function selectExpiryNotifications(
   expired: readonly ExpiredEntitlement[],
   stillActiveUserIds: ReadonlySet<string>,
 ): NotificationInput[] {
-  return expired
-    .filter((row) => !stillActiveUserIds.has(row.userId))
-    .map((row) => ({
-      userId: row.userId,
-      type: NotificationType.PlanExpired,
-      target: row.target,
-      metadata: { plan: row.plan, expiresAt: row.expiresAt.toISOString() },
-    }));
+  const latestByUser = new Map<string, ExpiredEntitlement>();
+  for (const row of expired) {
+    if (stillActiveUserIds.has(row.userId)) continue;
+    const current = latestByUser.get(row.userId);
+    if (!current || row.expiresAt > current.expiresAt) {
+      latestByUser.set(row.userId, row);
+    }
+  }
+  return [...latestByUser.values()].map((row) => ({
+    userId: row.userId,
+    type: NotificationType.PlanExpired,
+    target: row.target,
+    metadata: { plan: row.plan, expiresAt: row.expiresAt.toISOString() },
+  }));
 }
 
 /**
@@ -95,7 +120,7 @@ export async function notifyExpiredPlans(
   const since = new Date(now.getTime() - EXPIRY_LOOKBACK_MS);
   const expired = await findExpiredEntitlements(since, now);
   if (expired.length === 0) {
-    return { expired: 0, stillActive: 0, notified: 0 };
+    return { expired: 0, stillActive: 0, candidates: 0, notified: 0 };
   }
 
   const userIds = [...new Set(expired.map((row) => row.userId))];
@@ -105,7 +130,8 @@ export async function notifyExpiredPlans(
 
   return {
     expired: expired.length,
-    stillActive: expired.length - inputs.length,
+    stillActive: expired.filter((row) => stillActive.has(row.userId)).length,
+    candidates: inputs.length,
     notified,
   };
 }

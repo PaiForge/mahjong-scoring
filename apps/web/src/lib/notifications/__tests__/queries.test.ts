@@ -84,12 +84,24 @@ describe("listNotifications", () => {
     });
   });
 
-  it("件数を超えるページは最後のページに丸める", async () => {
+  it("件数を超えるページは最後のページに丸め、その行を取る（空の OFFSET を掴まない）", async () => {
+    const rowsChain = createQueryChain([
+      {
+        id: "n1",
+        type: "plan_expired",
+        metadata: {},
+        readAt: null,
+        createdAt: NOW,
+      },
+    ]);
     mockSelect
       .mockReturnValueOnce(createQueryChain([{ count: 3 }]))
-      .mockReturnValueOnce(createQueryChain([]));
+      .mockReturnValueOnce(rowsChain);
 
     const page = await listNotifications("u1", 9);
+
+    expect(rowsChain.offset).toHaveBeenCalledWith(0);
+    expect(page.items).toHaveLength(1);
     expect(page.totalPages).toBe(1);
     expect(page.currentPage).toBe(1);
   });

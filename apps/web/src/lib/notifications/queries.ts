@@ -57,36 +57,37 @@ export async function listNotifications(
 ): Promise<NotificationPage> {
   const where = visibleTo(userId);
   try {
-    const { limit, offset } = getPaginationData(
-      page,
-      0,
+    // 件数を先に取ってページを確定してから行を引く。並行して引くと範囲外の
+    // ページ（3 件しかないのに `?page=9`）が OFFSET の先の空配列を掴み、
+    // 表示だけ 1 ページ目に丸めた「通知なし」になる
+    const [countResult] = await db
+      .select({ count: count() })
+      .from(notifications)
+      .where(where);
+    const totalCount = countResult?.count ?? 0;
+    const lastPage = getPaginationData(
+      1,
+      totalCount,
+      NOTIFICATIONS_PAGE_SIZE,
+    ).totalPages;
+    const { totalPages, currentPage, limit, offset } = getPaginationData(
+      Math.min(page, lastPage),
+      totalCount,
       NOTIFICATIONS_PAGE_SIZE,
     );
-    const [countResult, rows] = await Promise.all([
-      db
-        .select({ count: count() })
-        .from(notifications)
-        .where(where)
-        .then(([result]) => result),
-      db
-        .select({
-          id: notifications.id,
-          type: notifications.type,
-          metadata: notifications.metadata,
-          readAt: notifications.readAt,
-          createdAt: notifications.createdAt,
-        })
-        .from(notifications)
-        .where(where)
-        .orderBy(desc(notifications.createdAt))
-        .limit(limit)
-        .offset(offset),
-    ]);
-    const { totalPages, currentPage } = getPaginationData(
-      page,
-      countResult?.count ?? 0,
-      NOTIFICATIONS_PAGE_SIZE,
-    );
+    const rows = await db
+      .select({
+        id: notifications.id,
+        type: notifications.type,
+        metadata: notifications.metadata,
+        readAt: notifications.readAt,
+        createdAt: notifications.createdAt,
+      })
+      .from(notifications)
+      .where(where)
+      .orderBy(desc(notifications.createdAt))
+      .limit(limit)
+      .offset(offset);
     return {
       items: rows.map((row) => ({
         id: row.id,
@@ -96,7 +97,7 @@ export async function listNotifications(
         createdAt: row.createdAt,
       })),
       totalPages,
-      currentPage: Math.min(currentPage, totalPages),
+      currentPage,
     };
   } catch (error) {
     logExternalError(

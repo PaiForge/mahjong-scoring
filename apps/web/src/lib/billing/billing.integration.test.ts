@@ -251,6 +251,28 @@ describe.skipIf(!process.env.BILLING_TEST_DATABASE_URL)(
         .sort();
       expect(types).toEqual(["purchase_completed", "purchase_revoked"]);
     });
+    it("通知が無い状態で着地 / Webhook が再送されると、保存済みの行から補完する", async () => {
+      await start();
+      const session = paid();
+      await recordPurchaseFromCheckoutSession(session);
+      // 初回の通知 INSERT だけが失敗した状態を作る
+      await billingTestDb().delete(notifications);
+      expect((await recordPurchaseFromCheckoutSession(session)).outcome).toBe(
+        "duplicate",
+      );
+      expect(
+        (await billingTestDb().select().from(notifications)).map((n) => n.type),
+      ).toEqual(["purchase_completed"]);
+
+      await revokePurchaseByPaymentIntent("pi1", "refunded");
+      await billingTestDb().delete(notifications);
+      expect(await revokePurchaseByPaymentIntent("pi1", "refunded")).toBe(
+        false,
+      );
+      expect(
+        (await billingTestDb().select().from(notifications)).map((n) => n.type),
+      ).toEqual(["purchase_revoked"]);
+    });
     it("購入前の返金は取消済みとして復元", async () => {
       await start();
       const session = paid();
