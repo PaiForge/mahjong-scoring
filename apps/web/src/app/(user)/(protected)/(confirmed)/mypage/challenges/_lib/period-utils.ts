@@ -1,13 +1,77 @@
+import { jstCalendarDate, jstStartOfDay } from "@/lib/jst";
+
 import type { DatePeriod } from "./types";
 
+/**
+ * 期間の範囲（`start` 以上 `end` 未満）
+ * 期間範囲
+ *
+ * `end` は含まない。「次の月曜 0:00」「翌月 1 日 0:00」をそのまま置き、
+ * DB の `createdAt < end` と整合させる（23:59:59.999 にすると最後の 1 ms が
+ * `<` で落ちる）。
+ */
 interface DateRange {
   readonly start: Date;
   readonly end: Date;
 }
 
 /**
- * 指定期間の開始日・終了日を返す
+ * 期間の種類と「今」からのずれ。負は過去
+ * 期間定義
+ */
+interface PeriodSpec {
+  readonly unit: "week" | "month";
+  readonly offset: number;
+}
+
+const PERIOD_SPECS: Record<DatePeriod, PeriodSpec> = {
+  thisWeek: { unit: "week", offset: 0 },
+  lastWeek: { unit: "week", offset: -1 },
+  thisMonth: { unit: "month", offset: 0 },
+  lastMonth: { unit: "month", offset: -1 },
+};
+
+/**
+ * `now` を含む週（月曜始まり）から `offset` 週ずらした範囲
+ * 週範囲
+ */
+function weekRange(now: Date, offset: number): DateRange {
+  const today = jstCalendarDate(now);
+  const daysSinceMonday = (today.weekday + 6) % 7;
+  const monday = today.day - daysSinceMonday + offset * 7;
+  return {
+    start: jstStartOfDay(today.year, today.month, monday),
+    end: jstStartOfDay(today.year, today.month, monday + 7),
+  };
+}
+
+/**
+ * `now` を含む月から `offset` ヶ月ずらした範囲
+ * 月範囲
+ */
+function monthRange(now: Date, offset: number): DateRange {
+  const today = jstCalendarDate(now);
+  return {
+    start: jstStartOfDay(today.year, today.month + offset, 1),
+    end: jstStartOfDay(today.year, today.month + offset + 1, 1),
+  };
+}
+
+function rangeOf(period: DatePeriod, now: Date, shift: number): DateRange {
+  const { unit, offset } = PERIOD_SPECS[period];
+  return unit === "week"
+    ? weekRange(now, offset + shift)
+    : monthRange(now, offset + shift);
+}
+
+/**
+ * 指定期間の開始・終了を返す
  * 期間範囲取得
+ *
+ * 週・月の境界は実行環境の TZ ではなく JST で切る（`lib/jst.ts`）。
+ * サーバー（Vercel = UTC）とクライアント（ブラウザ = JST）の両方がこの関数を
+ * 呼ぶため、ローカル時刻で切ると JST の 0〜9 時に「今週」「今月」が
+ * 別の範囲になる。
  *
  * `now` を引数で受け取る純粋関数。内部で現在時刻を読むと週・月の境界を
  * テストで固定できず、サーバーとクライアントで別々の「今」を見ることになる
@@ -17,46 +81,11 @@ interface DateRange {
  * @param now - 「今」として扱う時刻。呼び出し側で1回だけ `new Date()` して渡す
  */
 export function getPeriodRange(period: DatePeriod, now: Date): DateRange {
-  const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
-
-  switch (period) {
-    case "thisWeek": {
-      const day = today.getDay();
-      const monday = new Date(today);
-      monday.setDate(today.getDate() - ((day + 6) % 7));
-      const sunday = new Date(monday);
-      sunday.setDate(monday.getDate() + 6);
-      sunday.setHours(23, 59, 59, 999);
-      return { start: monday, end: sunday };
-    }
-    case "lastWeek": {
-      const day = today.getDay();
-      const thisMonday = new Date(today);
-      thisMonday.setDate(today.getDate() - ((day + 6) % 7));
-      const lastMonday = new Date(thisMonday);
-      lastMonday.setDate(thisMonday.getDate() - 7);
-      const lastSunday = new Date(lastMonday);
-      lastSunday.setDate(lastMonday.getDate() + 6);
-      lastSunday.setHours(23, 59, 59, 999);
-      return { start: lastMonday, end: lastSunday };
-    }
-    case "thisMonth": {
-      const start = new Date(today.getFullYear(), today.getMonth(), 1);
-      const end = new Date(today.getFullYear(), today.getMonth() + 1, 0);
-      end.setHours(23, 59, 59, 999);
-      return { start, end };
-    }
-    case "lastMonth": {
-      const start = new Date(today.getFullYear(), today.getMonth() - 1, 1);
-      const end = new Date(today.getFullYear(), today.getMonth(), 0);
-      end.setHours(23, 59, 59, 999);
-      return { start, end };
-    }
-  }
+  return rangeOf(period, now, 0);
 }
 
 /**
- * 指定期間の前の期間の開始日・終了日を返す
+ * 指定期間の 1 つ前の期間の開始・終了を返す
  * 前期間範囲取得
  *
  * @param period - 対象期間（この1つ前の期間を返す）
@@ -66,33 +95,5 @@ export function getPreviousPeriodRange(
   period: DatePeriod,
   now: Date,
 ): DateRange {
-  switch (period) {
-    case "thisWeek":
-      return getPeriodRange("lastWeek", now);
-    case "lastWeek": {
-      const lastWeek = getPeriodRange("lastWeek", now);
-      const start = new Date(lastWeek.start);
-      start.setDate(start.getDate() - 7);
-      const end = new Date(lastWeek.end);
-      end.setDate(end.getDate() - 7);
-      return { start, end };
-    }
-    case "thisMonth":
-      return getPeriodRange("lastMonth", now);
-    case "lastMonth": {
-      const lastMonth = getPeriodRange("lastMonth", now);
-      const start = new Date(
-        lastMonth.start.getFullYear(),
-        lastMonth.start.getMonth() - 1,
-        1,
-      );
-      const end = new Date(
-        lastMonth.start.getFullYear(),
-        lastMonth.start.getMonth(),
-        0,
-      );
-      end.setHours(23, 59, 59, 999);
-      return { start, end };
-    }
-  }
+  return rangeOf(period, now, -1);
 }

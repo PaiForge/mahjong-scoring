@@ -1018,7 +1018,7 @@ export type StripeWebhookEvent = typeof stripeWebhookEvents.$inferSelect;
  *
  * @design `day` は JST の日付
  *
- * 日付境界はサーバーの TZ ではなく `Asia/Tokyo` で切る（`lib/practice-quota/day.ts`）。
+ * 日付境界はサーバーの TZ ではなく `Asia/Tokyo` で切る（`lib/jst.ts`）。
  * 利用者は日本在住が前提で、「今日の分」が深夜 0 時に戻るのが自然。
  *
  * 未ログインの消費はこの表ではなく署名付き cookie で数える（弱い制限で可、
