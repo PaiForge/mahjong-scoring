@@ -455,6 +455,7 @@ function MachiScoreBoardInner() {
             )}
             <PracticeQuotaRemaining
               remaining={gate?.kind === "open" ? gate.remaining : undefined}
+              showPlanLink={stats.total === 0}
             />
           </div>
         )}

@@ -3345,7 +3345,8 @@
   },
   "practiceQuota": {
     "proBadge": "Pro",
-    "remaining": "{count, plural, =0 {今日の無料枠はこの問題で終わりです} other {今日はあと # 問}}",
+    "remaining": "{count, plural, =0 {今日はこの問題で最後です} other {今日はあと # 問}}",
+    "planLink": "制限なしで続けるには",
     "paywall": {
       "title": "今日の無料枠を使い切りました",
       "bodySignedIn": "この練習は無料で 1 日 {limit} 問まで解けます。Pro なら回数の制限なく続けられます。",
