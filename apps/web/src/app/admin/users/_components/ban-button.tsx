@@ -1,12 +1,10 @@
 "use client";
 
-import { useActionState, useState } from "react";
 import { useTranslations } from "next-intl";
 
-import { AdminModalShell } from "@/app/admin/_components/admin-modal-shell";
+import { AdminReasonModal } from "@/app/admin/_components/admin-reason-modal";
 
 import { banUser } from "../_actions/ban-user";
-import { MODERATION_REASON_MAX_LENGTH } from "../_lib/moderation-reason";
 
 interface BanButtonProps {
   readonly targetUserId: string;
@@ -18,87 +16,26 @@ interface BanButtonProps {
  */
 export function BanButton({ targetUserId }: BanButtonProps) {
   const t = useTranslations("admin");
-  const [isOpen, setIsOpen] = useState(false);
-  const [reason, setReason] = useState("");
-
-  const [state, formAction, isPending] = useActionState(
-    async (_prev: { error?: string } | undefined) => {
-      const trimmed = reason.trim();
-      if (trimmed.length === 0) {
-        return { error: t("banUser.errorReasonRequired") };
-      }
-      const result = await banUser(targetUserId, trimmed);
-      if ("error" in result) {
-        return { error: t("banUser.errorFailed") };
-      }
-      setIsOpen(false);
-      setReason("");
-      return undefined;
-    },
-    undefined,
-  );
-
-  const close = () => {
-    setIsOpen(false);
-    setReason("");
-  };
 
   return (
-    <>
-      <button
-        type="button"
-        onClick={() => setIsOpen(true)}
-        className="rounded bg-red-600 px-3 py-1 text-xs font-medium text-white hover:bg-red-700 transition-colors"
-      >
-        BAN
-      </button>
-
-      <AdminModalShell
-        isOpen={isOpen}
-        onClose={close}
-        label={t("banUser.title")}
-      >
-        <h3 className="text-lg font-semibold">{t("banUser.title")}</h3>
-
-        <form action={formAction}>
-          <label
-            htmlFor="ban-reason"
-            className="mb-1 block text-sm font-medium"
-          >
-            {t("banUser.reasonLabel")}
-          </label>
-          <textarea
-            id="ban-reason"
-            value={reason}
-            onChange={(e) => setReason(e.target.value)}
-            placeholder={t("banUser.reasonPlaceholder")}
-            className="mb-4 w-full rounded border border-gray-300 px-3 py-2 text-sm"
-            rows={3}
-            maxLength={MODERATION_REASON_MAX_LENGTH}
-          />
-
-          {state?.error && (
-            <p className="mb-3 text-sm text-red-600">{state.error}</p>
-          )}
-
-          <div className="flex justify-end gap-2">
-            <button
-              type="button"
-              onClick={close}
-              className="rounded border border-gray-300 px-4 py-2 text-sm hover:bg-gray-100 transition-colors"
-            >
-              {t("banUser.cancel")}
-            </button>
-            <button
-              type="submit"
-              disabled={isPending}
-              className="rounded bg-red-600 px-4 py-2 text-sm font-medium text-white hover:bg-red-700 disabled:opacity-50 transition-colors"
-            >
-              {isPending ? t("banUser.pending") : t("banUser.confirm")}
-            </button>
-          </div>
-        </form>
-      </AdminModalShell>
-    </>
+    <AdminReasonModal
+      tone="danger"
+      reasonId="ban-reason"
+      labels={{
+        trigger: "BAN",
+        title: t("banUser.title"),
+        reasonLabel: t("banUser.reasonLabel"),
+        reasonPlaceholder: t("banUser.reasonPlaceholder"),
+        reasonRequired: t("banUser.errorReasonRequired"),
+        failed: t("banUser.errorFailed"),
+        cancel: t("banUser.cancel"),
+        confirm: t("banUser.confirm"),
+        pending: t("banUser.pending"),
+      }}
+      onSubmit={async (reason) => {
+        const result = await banUser(targetUserId, reason);
+        return !("error" in result);
+      }}
+    />
   );
 }
