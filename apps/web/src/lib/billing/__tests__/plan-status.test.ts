@@ -4,6 +4,7 @@ import type { BenefitGrant, Purchase } from "@/lib/db";
 
 import {
   benefitGrantStateOf,
+  blocksNewPurchase,
   formatPlanDate,
   planStatusOf,
   purchaseStateOf,
@@ -89,6 +90,34 @@ describe("purchaseStateOf", () => {
 
   it("期限ちょうどは expired", () => {
     expect(purchaseStateOf(purchase({ expiresAt: NOW }), NOW)).toBe("expired");
+  });
+});
+
+describe("blocksNewPurchase", () => {
+  it("有効な購入と開始待ちの購入は追加購入を止める", () => {
+    expect(blocksNewPurchase(purchase({}), NOW)).toBe(true);
+    expect(
+      blocksNewPurchase(
+        purchase({ startsAt: new Date("2026-10-02T00:00:00Z") }),
+        NOW,
+      ),
+    ).toBe(true);
+    expect(
+      blocksNewPurchase(purchase({ kind: "lifetime", expiresAt: null }), NOW),
+    ).toBe(true);
+  });
+
+  it("期限切れと取り消し済みは止めない", () => {
+    expect(
+      blocksNewPurchase(
+        purchase({ expiresAt: new Date("2026-09-30T00:00:00Z") }),
+        NOW,
+      ),
+    ).toBe(false);
+    expect(blocksNewPurchase(purchase({ expiresAt: NOW }), NOW)).toBe(false);
+    expect(
+      blocksNewPurchase(purchase({ revokedAt: NOW, revokeReason: "x" }), NOW),
+    ).toBe(false);
   });
 });
 

@@ -43,6 +43,25 @@ export function purchaseStateOf(purchase: Purchase, now: Date): PurchaseState {
 }
 
 /**
+ * この購入がある間は追加購入を売らないか（販売可否の規則）
+ * 追加購入の禁止
+ *
+ * 取り消されておらず、期限内か永久の購入。開始待ち（`scheduled`）も含む —
+ * 重ね買いを許すと先行分の返金時に後続の開始日をどうするかが生じるため、
+ * 有効な購入がある間は売り方を問わず売らない。手動付与は購入ではないので
+ * この規則の対象外（付与だけの人は買える）。特典の有無の判定
+ * （`lib/entitlements/has-benefit.ts`）とは別の問いなので混ぜない。
+ *
+ * 購入手続きの SQL 側（`checkout-state.ts` の `hasUnexpiredPurchase`）と
+ * 同じ条件。マイページの「購入する」の表示とサーバーの拒否が食い違わないよう、
+ * 画面側はこちらを使い、条件を直接書き直さない。
+ */
+export function blocksNewPurchase(purchase: Purchase, now: Date): boolean {
+  const state = purchaseStateOf(purchase, now);
+  return state === "active" || state === "scheduled";
+}
+
+/**
  * 手動付与 1 行の状態
  * 付与状態
  *

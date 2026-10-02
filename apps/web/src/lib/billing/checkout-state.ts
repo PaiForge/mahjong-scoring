@@ -2,7 +2,11 @@ import { and, eq, gt, isNull, or } from "drizzle-orm";
 import "server-only";
 import { purchases, stripeCustomers, type TransactionClient } from "@/lib/db";
 
-/** 未取消で、期限内または永久の購入があるか。旧実装の開始待ちも再販売しない。 */
+/**
+ * 未取消で、期限内または永久の購入があるか。旧実装の開始待ちも再販売しない。
+ * 画面側の同じ規則は `plan-status.ts` の `blocksNewPurchase`。条件を変えるときは
+ * 両方を揃える
+ */
 export async function hasUnexpiredPurchase(
   tx: TransactionClient,
   userId: string,

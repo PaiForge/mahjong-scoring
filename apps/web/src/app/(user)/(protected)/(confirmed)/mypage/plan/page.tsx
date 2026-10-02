@@ -14,6 +14,7 @@ import { createPrivateMetadata } from "@/app/_lib/metadata";
 import { requireConfirmedUser } from "@/lib/auth";
 import {
   benefitGrantStateOf,
+  blocksNewPurchase,
   formatPlanDate,
   formatPlanDateShort,
   planStatusOf,
@@ -64,10 +65,8 @@ export default async function MypagePlanPage({
   ]);
   const now = new Date();
   const plan = planStatusOf(purchases, grants, now);
-  // 開始待ちの旧購入も再購入させない。手動付与しか無い人は購入できる。
-  const canPurchase = !purchases.some(
-    (purchase) =>
-      !purchase.revokedAt && (!purchase.expiresAt || purchase.expiresAt > now),
+  const canPurchase = !purchases.some((purchase) =>
+    blocksNewPurchase(purchase, now),
   );
 
   return (
