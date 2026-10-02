@@ -10,10 +10,10 @@ import { z } from "zod";
 
 import { createSessionStorageParser } from "../../_lib/create-session-storage-parser";
 import {
-  answerOutcomeSchema,
+  hanAnswerResultSchema,
   toAnswerOutcome,
   yakuDetailSchema,
-  type AnswerOutcome,
+  type HanAnswerResult,
 } from "../../_lib/result-schemas";
 import type { ScoreQuestionSnapshot } from "../../_lib/score-question-result";
 import {
@@ -49,13 +49,9 @@ export interface HanCountQuestionSnapshot extends ScoreQuestionSnapshot {
  * 翻数即答練習の1問ごとの結果データ
  * 翻数問題結果
  */
-export interface HanCountQuestionResult {
+export interface HanCountQuestionResult extends HanAnswerResult {
   /** 正解の翻数（13翻以上の手は役満=13翻に丸めて記録する） */
   readonly correctHan: number;
-  /** ユーザーが選択した翻数。時間切れで答えられなかった問題では持たない */
-  readonly userHan?: number;
-  /** 正解・不正解・時間切れ */
-  readonly outcome: AnswerOutcome;
   /**
    * 出題内容。結果ページで手牌と役の内訳を再表示するために持つ。
    * この項目を保存する前の旧データには存在しないため任意
@@ -114,12 +110,10 @@ const questionSnapshotSchema: z.ZodType<HanCountQuestionSnapshot> =
  *
  * 出題スナップショットは保存を始める前の旧データに存在しないため任意。
  */
-const questionResultSchema: z.ZodType<HanCountQuestionResult> = z.object({
-  correctHan: z.number(),
-  userHan: z.number().optional(),
-  outcome: answerOutcomeSchema,
-  question: questionSnapshotSchema.optional(),
-});
+const questionResultSchema: z.ZodType<HanCountQuestionResult> =
+  hanAnswerResultSchema.extend({
+    question: questionSnapshotSchema.optional(),
+  });
 
 /**
  * sessionStorage から問題結果を安全にパースする
