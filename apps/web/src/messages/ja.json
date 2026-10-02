@@ -3353,16 +3353,17 @@
     "remaining": "{count, plural, =0 {今日はこの問題で最後です} other {今日はあと # 問}}",
     "planLink": "制限なしで続けるには",
     "paywall": {
-      "title": "今日の無料枠を使い切りました",
-      "bodySignedIn": "この練習は無料で 1 日 {limit} 問まで解けます。Pro なら回数の制限なく続けられます。",
+      "title": "今日の無料分はここまでです",
+      "bodySignedIn": "この練習の無料枠（1 日 {limit} 問）に達しました。明日 0:00（日本時間）にまた練習できます。",
       "bodyAnonymous": "ログインしていない場合、この練習は 1 日 {limit} 問までです。ログインすると 1 日 {signedInLimit} 問まで解けます。",
       "perksTitle": "Pro でできること",
       "perkUnlimited": "点数計算・待ち別点数計算を回数制限なしで練習",
-      "perkTools": "回答時間の計測などの拡張機能",
-      "planCta": "Pro を見る",
+      "perkTools": "回答時間の計測",
+      "planCta": "Pro の料金・プランを見る",
+      "noAutoRenew": "自動更新はありません",
       "signInCta": "ログインする",
       "signUpHint": "アカウントは無料で作れます",
-      "backToSetup": "設定に戻る"
+      "backToSetup": "練習に戻る"
     },
     "rateLimited": "操作が速すぎます。少し待ってからお試しください。",
     "answerTime": "回答時間 {seconds} 秒"
