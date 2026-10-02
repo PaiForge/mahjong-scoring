@@ -264,7 +264,7 @@ describe("useMachiScoreStore", () => {
       .getState()
       .toggleCell({ agariHai: question.waits[0].agariHai, isTsumo: false });
     useMachiScoreStore.getState().assignAnswer({ kind: "noYaku" });
-    useMachiScoreStore.getState().nextQuestion();
+    useMachiScoreStore.getState().generateNewQuestion();
 
     const state = useMachiScoreStore.getState();
     expect(state.currentQuestion).not.toBe(question);

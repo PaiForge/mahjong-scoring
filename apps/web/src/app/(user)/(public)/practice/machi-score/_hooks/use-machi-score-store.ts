@@ -103,7 +103,6 @@ interface MachiScoreState {
 
 interface MachiScoreActions {
   generateNewQuestion: () => void;
-  nextQuestion: () => void;
   setOptions: (options: Partial<MachiScoreGeneratorOptions>) => void;
   resetStats: () => void;
   /** 問題を直接設定する（設定画面へ戻る前のクリアなど） */
@@ -205,10 +204,6 @@ export const useMachiScoreStore = create<MachiScoreStore>((set, get) => ({
       questionSeq: state.questionSeq + 1,
       ...INITIAL_ANSWERING,
     }));
-  },
-
-  nextQuestion: () => {
-    get().generateNewQuestion();
   },
 
   setOptions: (options) => {

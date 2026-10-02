@@ -49,7 +49,7 @@ async function visitCellsWithWaits(minWaits: number, koOnly = false) {
     const q = useMachiScoreStore.getState().currentQuestion;
     if (q && fits(q)) break;
     act(() => {
-      useMachiScoreStore.getState().nextQuestion();
+      useMachiScoreStore.getState().generateNewQuestion();
     });
     const store = useMachiScoreStore.getState();
     const question = store.currentQuestion;
