@@ -114,7 +114,7 @@ describe("MarkAsReadButton", () => {
   it("rolls back the optimistic update when server returns a non-ok result (generic failure)", async () => {
     mockMarkChapterRead.mockResolvedValue({
       success: false,
-      error: "invalid-slug",
+      error: "invalid_slug",
     });
 
     const { getByRole } = render(
@@ -228,7 +228,7 @@ describe("MarkAsReadButton", () => {
   it("rolls back when unmarking fails after confirmation", async () => {
     mockUnmarkChapterRead.mockResolvedValue({
       success: false,
-      error: "invalid-slug",
+      error: "invalid_slug",
     });
 
     const { getAllByRole } = render(

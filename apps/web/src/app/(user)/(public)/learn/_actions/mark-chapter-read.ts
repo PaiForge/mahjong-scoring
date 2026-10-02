@@ -18,18 +18,18 @@ import { isCurriculumChapterSlug } from "../_lib/curriculum";
  *   （既に同じ状態でも冪等に true）
  * - `{ success: true, skipped: 'anonymous' }`: 未ログインユーザーによる呼び出し。
  *   エラーではなく「期待された no-op」を表し、呼び出し側はサインインページへ誘導する。
- * - `{ success: false, error: 'invalid-slug' }`: curriculum に存在しない slug
+ * - `{ success: false, error: 'invalid_slug' }`: curriculum に存在しない slug
  */
 export type MarkActionResult =
   | { readonly success: true }
   | { readonly success: true; readonly skipped: "anonymous" }
-  | { readonly success: false; readonly error: "invalid-slug" };
+  | { readonly success: false; readonly error: "invalid_slug" };
 
 /**
  * 指定章を読了済みとしてマークする Server Action。
  * 章読了マーク
  *
- * - 不正な slug は `{ success: false, error: 'invalid-slug' }` で拒否
+ * - 不正な slug は `{ success: false, error: 'invalid_slug' }` で拒否
  * - 未認証は `{ success: true, skipped: 'anonymous' }` で静かにスキップ
  * - 既に読了済みでも `ON CONFLICT DO NOTHING` で冪等
  *
@@ -37,7 +37,7 @@ export type MarkActionResult =
  */
 export async function markChapterRead(slug: string): Promise<MarkActionResult> {
   if (!isCurriculumChapterSlug(slug)) {
-    return { success: false, error: "invalid-slug" };
+    return { success: false, error: "invalid_slug" };
   }
 
   const user = await getOptionalVerifiedUser();

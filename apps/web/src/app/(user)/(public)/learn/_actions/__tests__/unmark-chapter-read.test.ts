@@ -56,10 +56,10 @@ describe("unmarkChapterRead", () => {
   });
 
   describe("invalid slug", () => {
-    it('returns { success: false, error: "invalid-slug" } for unknown slug', async () => {
+    it('returns { success: false, error: "invalid_slug" } for unknown slug', async () => {
       const result = await unmarkChapterRead("not-a-real-chapter");
 
-      expect(result).toEqual({ success: false, error: "invalid-slug" });
+      expect(result).toEqual({ success: false, error: "invalid_slug" });
     });
 
     it("does not read auth or DB when the slug is invalid", async () => {
@@ -137,22 +137,22 @@ describe("unmarkChapterRead", () => {
   describe("invalid slug variants", () => {
     it("rejects uppercase slug", async () => {
       const result = await unmarkChapterRead("About-This-App");
-      expect(result).toEqual({ success: false, error: "invalid-slug" });
+      expect(result).toEqual({ success: false, error: "invalid_slug" });
     });
 
     it("rejects slug with underscore", async () => {
       const result = await unmarkChapterRead("jantou_fu");
-      expect(result).toEqual({ success: false, error: "invalid-slug" });
+      expect(result).toEqual({ success: false, error: "invalid_slug" });
     });
 
     it("rejects empty string", async () => {
       const result = await unmarkChapterRead("");
-      expect(result).toEqual({ success: false, error: "invalid-slug" });
+      expect(result).toEqual({ success: false, error: "invalid_slug" });
     });
 
     it("rejects slug with path traversal characters", async () => {
       const result = await unmarkChapterRead("../admin/users");
-      expect(result).toEqual({ success: false, error: "invalid-slug" });
+      expect(result).toEqual({ success: false, error: "invalid_slug" });
     });
   });
 });

@@ -54,10 +54,10 @@ describe("markChapterRead", () => {
   });
 
   describe("invalid slug", () => {
-    it('returns { success: false, error: "invalid-slug" } for unknown slug', async () => {
+    it('returns { success: false, error: "invalid_slug" } for unknown slug', async () => {
       const result = await markChapterRead("not-a-real-chapter");
 
-      expect(result).toEqual({ success: false, error: "invalid-slug" });
+      expect(result).toEqual({ success: false, error: "invalid_slug" });
     });
 
     it("does not read auth or DB when the slug is invalid", async () => {
@@ -140,32 +140,32 @@ describe("markChapterRead", () => {
   describe("invalid slug variants", () => {
     it("rejects uppercase slug (CHECK 制約違反フォーマット)", async () => {
       const result = await markChapterRead("About-This-App");
-      expect(result).toEqual({ success: false, error: "invalid-slug" });
+      expect(result).toEqual({ success: false, error: "invalid_slug" });
     });
 
     it("rejects slug with underscore", async () => {
       const result = await markChapterRead("jantou_fu");
-      expect(result).toEqual({ success: false, error: "invalid-slug" });
+      expect(result).toEqual({ success: false, error: "invalid_slug" });
     });
 
     it("rejects slug with leading hyphen", async () => {
       const result = await markChapterRead("-jantou-fu");
-      expect(result).toEqual({ success: false, error: "invalid-slug" });
+      expect(result).toEqual({ success: false, error: "invalid_slug" });
     });
 
     it("rejects empty string", async () => {
       const result = await markChapterRead("");
-      expect(result).toEqual({ success: false, error: "invalid-slug" });
+      expect(result).toEqual({ success: false, error: "invalid_slug" });
     });
 
     it("rejects slug with whitespace", async () => {
       const result = await markChapterRead(" jantou-fu ");
-      expect(result).toEqual({ success: false, error: "invalid-slug" });
+      expect(result).toEqual({ success: false, error: "invalid_slug" });
     });
 
     it("rejects slug with path traversal characters", async () => {
       const result = await markChapterRead("../admin/users");
-      expect(result).toEqual({ success: false, error: "invalid-slug" });
+      expect(result).toEqual({ success: false, error: "invalid_slug" });
     });
   });
 });
