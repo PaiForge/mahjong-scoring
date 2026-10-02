@@ -115,6 +115,8 @@ function MachiScoreBoardInner() {
       includeFuro,
     });
     store.resetStats();
+    // 前回の問題もサーバーの返事を待つ前に消す（理由は総合演習の盤面と同じ）
+    store.setQuestion(undefined);
     void requestQuestion();
   }, [isClient, searchParams, requestQuestion]);
 

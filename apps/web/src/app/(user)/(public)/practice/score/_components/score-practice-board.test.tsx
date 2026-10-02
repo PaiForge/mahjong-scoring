@@ -85,6 +85,37 @@ describe("ScorePracticeBoard", () => {
     expect(currentQuestion).not.toBe(previous);
   });
 
+  // 生成はサーバーの許可を待ってから走る。返事が届くまでの間、前回の問題を
+  // 新しい条件の盤面に出さない（遅い回線では前回の問題に答えられてしまう）
+  it("入り直したら、サーバーの返事を待つ間も前回の問題を出さない", async () => {
+    await visit("");
+    expect(useScorePracticeStore.getState().currentQuestion).toBeDefined();
+
+    let release: (() => void) | undefined;
+    beginPracticeQuestion.mockImplementationOnce(
+      () =>
+        new Promise((resolve) => {
+          release = () =>
+            resolve({
+              success: true,
+              allowed: true,
+              remaining: "unlimited",
+              limit: "unlimited",
+              signedIn: true,
+              benefits: [],
+            });
+        }),
+    );
+    cleanup();
+    await visit("yaku=chiitoitsu&ranges=non");
+
+    expect(useScorePracticeStore.getState().currentQuestion).toBeUndefined();
+    expect(screen.queryByText("board.questionPrompt")).toBeNull();
+
+    await act(async () => release?.());
+    expect(useScorePracticeStore.getState().currentQuestion).toBeDefined();
+  });
+
   // 同じ play のままクエリだけ変わる遷移（平和の練習 → 七対子の練習）。
   // コンポーネントは再マウントされないため、マウント一度きりの初期化では効かない
   it("マウントしたままクエリが変わっても条件を入れ替える", async () => {

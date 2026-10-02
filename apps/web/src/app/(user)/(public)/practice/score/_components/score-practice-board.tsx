@@ -104,6 +104,12 @@ function ScorePracticeBoardInner() {
     // 統計も同じストアに載っている。ここで戻さないと、別の条件で入り直した
     // 練習の頭から前回の成績がカウンタに出たままになる
     store.resetStats();
+    // 前回の問題もここで消す。生成はサーバーの許可（無料枠の消費）を待って
+    // から走るので、消さないと返事が届くまで前回の問題（回答済みならその
+    // 結果表示）が新しい条件の盤面に出たままになり、遅い回線では答えられる。
+    // 設定画面の「開始」は遷移前に消しているが、教本からの再入場や同じ盤面での
+    // クエリ変更は「開始」を通らない
+    store.setQuestion(undefined);
     void requestQuestion();
   }, [isClient, searchParams, requestQuestion]);
 
