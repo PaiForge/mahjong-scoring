@@ -1735,7 +1735,11 @@
       "yakuFilterPlaceholder": "指定しない（すべての役から出題）",
       "yakuFilterNote": "※ 複数選ぶと、いずれかが成立する手牌が出題されます",
       "measureTime": "回答時間を計測する",
-      "measureTimePro": "Pro の機能"
+      "measureTimePro": {
+        "badge": "Pro",
+        "note": "Pro プランで利用できます",
+        "link": "プランを見る →"
+      }
     },
     "form": {
       "labels": {
