@@ -60,7 +60,7 @@ function answerMachiCorrectly() {
 describe("useMachiScoreStore", () => {
   beforeEach(() => {
     useMachiScoreStore.getState().setQuestion(undefined);
-    useMachiScoreStore.getState().resetStats();
+    useMachiScoreStore.setState({ stats: { total: 0, correct: 0 } });
   });
 
   it("待ちを回答すると判定が付き、進むまで段階は変わらない", () => {
@@ -279,5 +279,38 @@ describe("useMachiScoreStore", () => {
     useMachiScoreStore.setState({ generationFailed: true });
     useMachiScoreStore.getState().setQuestion(undefined);
     expect(useMachiScoreStore.getState().generationFailed).toBe(false);
+  });
+});
+
+describe("useMachiScoreStore applyPracticeQuery", () => {
+  beforeEach(() => {
+    useMachiScoreStore.getState().setQuestion(undefined);
+  });
+
+  it("条件・成績・問題・適用済みクエリを 1 つの操作で入れ替える（生成はしない）", () => {
+    seedQuestion();
+    useMachiScoreStore.setState({
+      stats: { total: 3, correct: 1 },
+      generationFailed: true,
+    });
+
+    useMachiScoreStore
+      .getState()
+      .applyPracticeQuery("roles=oya", { includeChild: false });
+
+    const state = useMachiScoreStore.getState();
+    expect(state.appliedQuery).toBe("roles=oya");
+    expect(state.options.includeChild).toBe(false);
+    expect(state.options.includeFuro).toBe(true);
+    expect(state.stats).toEqual({ total: 0, correct: 0 });
+    expect(state.currentQuestion).toBeUndefined();
+    expect(state.generationFailed).toBe(false);
+    expect(state.phase).toBe("machi");
+  });
+
+  it("「開始」のクリア（setQuestion(undefined)）で適用済みクエリも消える", () => {
+    useMachiScoreStore.getState().applyPracticeQuery("", {});
+    useMachiScoreStore.getState().setQuestion(undefined);
+    expect(useMachiScoreStore.getState().appliedQuery).toBeUndefined();
   });
 });

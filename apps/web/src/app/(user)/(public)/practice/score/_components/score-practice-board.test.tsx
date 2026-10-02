@@ -13,11 +13,22 @@ vi.mock(
   async () => await import("@/test/begin-practice-question-mock"),
 );
 
-const { beginPracticeQuestion } =
+const { beginPracticeQuestion, peekPracticeQuota } =
   await import("@/test/begin-practice-question-mock");
 const { ScorePracticeBoard } = await import("./score-practice-board");
 const { useScorePracticeStore } =
   await import("../_hooks/use-score-practice-store");
+const { _resetPracticeQuota, usePracticeQuotaStore } =
+  await import("../../_hooks/use-practice-quota");
+
+const LAST_FREE = {
+  success: true,
+  allowed: true,
+  remaining: 0,
+  limit: 5,
+  signedIn: true,
+  benefits: [],
+} as const;
 
 /** クエリを与えて盤面をマウントする（問題生成は effect 内なので act で包む） */
 async function visit(query: string) {
@@ -31,6 +42,9 @@ describe("ScorePracticeBoard", () => {
   beforeEach(() => {
     cleanup();
     beginPracticeQuestion.mockClear();
+    peekPracticeQuota.mockClear();
+    _resetPracticeQuota();
+    useScorePracticeStore.getState().setQuestion(undefined);
   });
 
   it("無料枠を使い切っていれば問題を作らずペイウォールを出す", async () => {
@@ -149,6 +163,127 @@ describe("ScorePracticeBoard", () => {
     expect(useScorePracticeStore.getState().stats).toEqual({
       total: 0,
       correct: 0,
+    });
+  });
+
+  // 盤面を離れて戻ってきた経路（「制限なしで続けるには」で料金ページを見て
+  // ブラウザバック等）。ストアに同じ条件の問題が残っているので、消費し直さず
+  // 解答中の問題を続ける
+  describe("同じ条件で戻ってきたとき", () => {
+    it("消費し直さず、問題・成績・残数の表示を引き継ぐ", async () => {
+      beginPracticeQuestion.mockResolvedValueOnce({
+        ...LAST_FREE,
+        remaining: 2,
+      });
+      await visit("ranges=non");
+      const question = useScorePracticeStore.getState().currentQuestion;
+      expect(question).toBeDefined();
+      act(() => {
+        useScorePracticeStore.setState({ stats: { total: 2, correct: 1 } });
+      });
+      peekPracticeQuota.mockResolvedValueOnce({ ...LAST_FREE, remaining: 2 });
+
+      cleanup();
+      await visit("ranges=non");
+
+      expect(beginPracticeQuestion).toHaveBeenCalledTimes(1);
+      const state = useScorePracticeStore.getState();
+      expect(state.currentQuestion).toBe(question);
+      expect(state.stats).toEqual({ total: 2, correct: 1 });
+      expect(screen.getByText("board.questionPrompt")).toBeDefined();
+      expect(screen.getByText("remaining")).toBeDefined();
+    });
+
+    it("最後の 1 問（残り 0）でも、戻ればその問題を続けられる", async () => {
+      beginPracticeQuestion.mockResolvedValueOnce(LAST_FREE);
+      await visit("");
+      const question = useScorePracticeStore.getState().currentQuestion;
+
+      cleanup();
+      await visit("");
+
+      expect(beginPracticeQuestion).toHaveBeenCalledTimes(1);
+      expect(useScorePracticeStore.getState().currentQuestion).toBe(question);
+      expect(screen.queryByText("perksTitle")).toBeNull();
+    });
+
+    it("残数と特典は消費しない問い合わせで取り直す", async () => {
+      beginPracticeQuestion.mockResolvedValueOnce({
+        ...LAST_FREE,
+        remaining: 2,
+      });
+      await visit("");
+      peekPracticeQuota.mockResolvedValueOnce({
+        ...LAST_FREE,
+        remaining: "unlimited",
+        limit: "unlimited",
+        benefits: ["unlimited_practice", "practice_tools"],
+      });
+
+      cleanup();
+      await visit("");
+
+      expect(peekPracticeQuota).toHaveBeenCalledWith("score");
+      expect(usePracticeQuotaStore.getState().menus.score?.gate).toEqual({
+        kind: "open",
+        remaining: "unlimited",
+        limit: "unlimited",
+        benefits: ["unlimited_practice", "practice_tools"],
+      });
+      expect(beginPracticeQuestion).toHaveBeenCalledTimes(1);
+    });
+
+    it("返事を待つ間に離れても、戻ったときに聞き直さず、届いた問題を続ける", async () => {
+      let release: (() => void) | undefined;
+      beginPracticeQuestion.mockImplementationOnce(
+        () =>
+          new Promise((resolve) => {
+            release = () => resolve({ ...LAST_FREE, remaining: 2 });
+          }),
+      );
+      await visit("");
+      expect(useScorePracticeStore.getState().currentQuestion).toBeUndefined();
+
+      cleanup();
+      await visit("");
+      expect(beginPracticeQuestion).toHaveBeenCalledTimes(1);
+
+      await act(async () => release?.());
+      expect(useScorePracticeStore.getState().currentQuestion).toBeDefined();
+      expect(screen.getByText("board.questionPrompt")).toBeDefined();
+    });
+
+    it("上限で止まっていたら聞き直す（ペイウォールからログインして戻る経路）", async () => {
+      beginPracticeQuestion.mockResolvedValueOnce({
+        ...LAST_FREE,
+        allowed: false,
+        signedIn: false,
+        limit: 1,
+      });
+      await visit("");
+      expect(screen.getByText("perksTitle")).toBeDefined();
+
+      cleanup();
+      await visit("");
+
+      expect(beginPracticeQuestion).toHaveBeenCalledTimes(2);
+      expect(useScorePracticeStore.getState().currentQuestion).toBeDefined();
+      expect(screen.queryByText("perksTitle")).toBeNull();
+    });
+
+    it("設定画面の「開始」を通れば、同じ条件でも新しい問題を作る", async () => {
+      await visit("ranges=non");
+      const previous = useScorePracticeStore.getState().currentQuestion;
+
+      // 「開始」はストアを空に戻してから play へ遷移する（score-setup-form）
+      cleanup();
+      useScorePracticeStore.getState().setQuestion(undefined);
+      await visit("ranges=non");
+
+      expect(beginPracticeQuestion).toHaveBeenCalledTimes(2);
+      expect(useScorePracticeStore.getState().currentQuestion).not.toBe(
+        previous,
+      );
     });
   });
 });

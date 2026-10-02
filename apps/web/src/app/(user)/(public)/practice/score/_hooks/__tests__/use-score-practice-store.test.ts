@@ -74,7 +74,7 @@ describe("useScorePracticeStore generationFailed", () => {
 
   it("生成が失敗すると generationFailed が立つ", () => {
     // minHan を満たす手は存在しないため、リトライを使い切って必ず失敗する
-    useScorePracticeStore.getState().setOptions({ minHan: 100 });
+    useScorePracticeStore.getState().applyPracticeQuery("", { minHan: 100 });
 
     useScorePracticeStore.getState().generateNewQuestion();
 
@@ -99,5 +99,39 @@ describe("useScorePracticeStore generationFailed", () => {
     useScorePracticeStore.getState().setQuestion(undefined);
 
     expect(useScorePracticeStore.getState().generationFailed).toBe(false);
+  });
+});
+
+describe("useScorePracticeStore applyPracticeQuery", () => {
+  beforeEach(() => {
+    useScorePracticeStore.getState().setQuestion(undefined);
+  });
+
+  it("条件・成績・問題・適用済みクエリを 1 つの操作で入れ替える（生成はしない）", () => {
+    seedQuestion();
+    useScorePracticeStore.setState({
+      stats: { total: 3, correct: 1 },
+      generationFailed: true,
+    });
+
+    useScorePracticeStore
+      .getState()
+      .applyPracticeQuery("yaku=chiitoitsu", { requiredYaku: ["七対子"] });
+
+    const state = useScorePracticeStore.getState();
+    expect(state.appliedQuery).toBe("yaku=chiitoitsu");
+    expect(state.options.requiredYaku).toEqual(["七対子"]);
+    expect(state.options.includeFuro).toBe(true);
+    expect(state.stats).toEqual({ total: 0, correct: 0 });
+    expect(state.currentQuestion).toBeUndefined();
+    expect(state.generationFailed).toBe(false);
+  });
+
+  it("「開始」のクリア（setQuestion(undefined)）で適用済みクエリも消える", () => {
+    useScorePracticeStore.getState().applyPracticeQuery("", {});
+    expect(useScorePracticeStore.getState().appliedQuery).toBe("");
+
+    useScorePracticeStore.getState().setQuestion(undefined);
+    expect(useScorePracticeStore.getState().appliedQuery).toBeUndefined();
   });
 });
