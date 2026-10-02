@@ -25,8 +25,9 @@ interface PracticeQuotaRemainingProps {
  *
  * @design リンクは最初の 1 問だけ
  *
- * 毎問出すと解答のたびに目に入る宣伝になる。同じ行の末尾に置くので、
- * 消えても行の幅が縮むだけで縦のレイアウトはずれない。
+ * 毎問出すと解答のたびに目に入る宣伝になる。残数とは別の情報なので行を
+ * 分ける。消えると 1 行分詰まるが、消えるのは解答した瞬間で、回答欄が
+ * 結果に置き換わる変化に紛れる（入力直後のずれは CLS にも数えられない）。
  *
  * `"use client"` は付けない。hooks は `useTranslations()` だけで、呼び出し元の
  * 盤面（クライアント）に取り込まれて動く。
@@ -39,18 +40,15 @@ export function PracticeQuotaRemaining({
   if (typeof remaining !== "number") return null;
 
   return (
-    <p className="text-center text-xs text-surface-500">
-      {t("remaining", { count: remaining })}
+    <div className="space-y-1 text-center text-xs text-surface-500">
+      <p>{t("remaining", { count: remaining })}</p>
       {showPlanLink && (
-        <>
-          <span aria-hidden className="mx-1.5">
-            ・
-          </span>
+        <p>
           <Link href={PLAN_PAGE_HREF} className={TEXT_LINK_CLASSES}>
             {t("planLink")}
           </Link>
-        </>
+        </p>
       )}
-    </p>
+    </div>
   );
 }
