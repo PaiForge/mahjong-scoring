@@ -2,7 +2,8 @@ import { createHmac, hkdfSync, timingSafeEqual } from "node:crypto";
 import { cookies } from "next/headers";
 import "server-only";
 
-import { jstDayKey, jstEndOfDay } from "./day";
+import { jstDayKey } from "../jst";
+import { jstEndOfDay } from "./day";
 import { QUOTA_MENUS, type QuotaMenu } from "./limits";
 
 /**

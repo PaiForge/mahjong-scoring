@@ -12,7 +12,7 @@ import {
   writeAnonymousQuota,
 } from "@/lib/practice-quota/anonymous-quota-cookie";
 import { consumeUserQuota } from "@/lib/practice-quota/consume-user-quota";
-import { jstDayKey } from "@/lib/practice-quota/day";
+import { jstDayKey } from "@/lib/jst";
 import { readUserQuota } from "@/lib/practice-quota/read-user-quota";
 import {
   PRACTICE_QUOTA_LIMITS,
