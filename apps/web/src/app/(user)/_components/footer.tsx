@@ -3,7 +3,7 @@ import { getTranslations } from "next-intl/server";
 
 import { BrandLogo } from "./brand-logo";
 import { TEXT_LINK_CLASSES } from "@/app/_components/_lib/link-classes";
-import { chapterHref } from "@/app/(user)/(public)/learn/_lib/curriculum";
+import { chapterHref } from "@mahjong-scoring/features/routes";
 
 /**
  * フッター。

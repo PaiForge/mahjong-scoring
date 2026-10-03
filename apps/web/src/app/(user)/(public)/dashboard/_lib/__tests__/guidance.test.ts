@@ -3,9 +3,13 @@ import { describe, expect, it } from "vitest";
 import {
   CURRICULUM,
   CURRICULUM_CHAPTER_SLUGS,
-} from "@/app/(user)/(public)/learn/_lib/curriculum";
+} from "@mahjong-scoring/features/curriculum/registry";
 import type { PracticeMenuSlug } from "@mahjong-scoring/features/practice-menu-types";
-import { RANK_REGISTRY, RANK_SLUGS, type RankSlug } from "@/lib/ranks/registry";
+import {
+  RANK_REGISTRY,
+  RANK_SLUGS,
+  type RankSlug,
+} from "@mahjong-scoring/features/ranks/registry";
 
 import { selectDashboardGuidance } from "../guidance";
 

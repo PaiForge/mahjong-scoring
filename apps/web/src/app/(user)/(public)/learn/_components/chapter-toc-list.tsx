@@ -2,7 +2,7 @@ import {
   CURRICULUM_SECTIONS,
   getChapterBySlug,
   type CurriculumChapterSlug,
-} from "../_lib/curriculum";
+} from "@mahjong-scoring/features/curriculum/registry";
 import { CurriculumToc } from "./curriculum-toc";
 
 interface ChapterTocListProps {

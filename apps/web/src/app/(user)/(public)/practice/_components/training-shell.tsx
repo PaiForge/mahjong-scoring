@@ -8,7 +8,7 @@ import { ContentContainer } from "@/app/(user)/_components/content-container";
 import { PageTitle } from "@/app/(user)/_components/page-title";
 import type { PracticeMenuSlug } from "@mahjong-scoring/features/practice-menu-types";
 import { useScrollToElement } from "../_hooks/use-scroll-to-element";
-import { practiceHref } from "../_lib/practice-catalog";
+import { practiceHref } from "@mahjong-scoring/features/routes";
 import { PRACTICE_SCROLL_ANCHOR_ID } from "../_lib/scroll-anchor";
 import { ScoreCounter } from "./score-counter";
 import {

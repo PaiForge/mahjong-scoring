@@ -16,7 +16,7 @@ import { createNamespaceMetadata } from "@/app/_lib/metadata";
 import { ContentContainer } from "@/app/(user)/_components/content-container";
 import { PageTitle } from "@/app/(user)/_components/page-title";
 import { SectionTitle } from "@/app/(user)/_components/section-title";
-import { chaptersInSection } from "@/app/(user)/(public)/learn/_lib/curriculum";
+import { chaptersInSection } from "@mahjong-scoring/features/curriculum/registry";
 import { PracticeChapterSection } from "../_components/practice-chapter-section";
 import { ScoreSetupForm } from "./_components/score-setup-form";
 import { ScoreHelpTour } from "./_components/score-help-tour";

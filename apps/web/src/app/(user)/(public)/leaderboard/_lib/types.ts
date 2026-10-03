@@ -17,8 +17,8 @@ import type { RankedLeaderboardRow } from "@/lib/db/leaderboard-queries";
 import {
   practicePlayHref,
   practiceHref,
-} from "@/app/(user)/(public)/practice/_lib/practice-catalog";
-import { VARIANT_PARAM } from "@/app/(user)/(public)/practice/_lib/variant-param";
+} from "@mahjong-scoring/features/routes";
+import { VARIANT_PARAM } from "@mahjong-scoring/features/routes";
 
 /**
  * リーダーボード期間

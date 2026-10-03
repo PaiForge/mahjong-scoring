@@ -8,7 +8,7 @@
  */
 import { describe, expect, it } from "vitest";
 
-import { PRACTICE_CATEGORIES } from "@/app/(user)/(public)/practice/_lib/practice-catalog";
+import { PRACTICE_CATEGORIES } from "@mahjong-scoring/features/practice/catalog";
 
 import { leaderboardBoardGroups } from "../board-groups";
 import { BOARDS } from "../types";

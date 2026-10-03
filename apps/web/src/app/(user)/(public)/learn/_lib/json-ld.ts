@@ -5,7 +5,8 @@ import {
 } from "@/app/_lib/site-schema";
 import { SITE_URL } from "@/config";
 
-import { chapterHref, type CurriculumChapterSlug } from "./curriculum";
+import { chapterHref } from "@mahjong-scoring/features/routes";
+import type { CurriculumChapterSlug } from "@mahjong-scoring/features/curriculum/registry";
 
 /**
  * 教本の章の JSON-LD（Article）を組み立てる

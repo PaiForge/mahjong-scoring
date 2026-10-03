@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { isPracticeVariantOf } from "@mahjong-scoring/features/practice-menu-types";
+import { isPracticeVariantOf } from "../practice-menu-types";
 
 import {
   CURRICULUM,
@@ -10,7 +10,7 @@ import {
   getChapterI18nPath,
   isCurriculumChapterSlug,
   pickNextChapter,
-} from "../curriculum";
+} from "./registry";
 
 describe("pickNextChapter", () => {
   it("returns the first chapter when nothing is read", () => {

@@ -11,7 +11,7 @@ import { useVariantQuery } from "../_hooks/use-variant-query";
 import {
   practicePlayHref,
   practiceTrainingHref,
-} from "../_lib/practice-catalog";
+} from "@mahjong-scoring/features/routes";
 import { buildPracticeStartCtaLabels } from "../_lib/practice-start-cta-labels";
 import {
   PRACTICE_SCROLL_HASH,

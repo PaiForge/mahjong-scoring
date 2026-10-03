@@ -2,11 +2,11 @@ import type { Metadata } from "next";
 
 import { createNamespaceMetadata } from "@/app/_lib/metadata";
 
+import { chapterHref } from "@mahjong-scoring/features/routes";
 import {
-  chapterHref,
   getChapterBySlug,
   type CurriculumChapterSlug,
-} from "./curriculum";
+} from "@mahjong-scoring/features/curriculum/registry";
 
 /**
  * 章ページの辞書ネームスペースを slug から導出する。

@@ -1,10 +1,8 @@
 import type { ReactNode } from "react";
 import { getTranslations } from "next-intl/server";
-import type { PracticeLink } from "@/app/(user)/(public)/learn/_lib/curriculum";
-import {
-  practiceHref,
-  practiceTitleKey,
-} from "@/app/(user)/(public)/practice/_lib/practice-catalog";
+import type { PracticeLink } from "@mahjong-scoring/features/curriculum/registry";
+import { practiceHref } from "@mahjong-scoring/features/routes";
+import { practiceTitleKey } from "@mahjong-scoring/features/practice/catalog";
 import { practiceMenuBySlug } from "@mahjong-scoring/features/practice-menu-types";
 import { PracticeLinkButton } from "@/app/(user)/_components/practice-link-button";
 

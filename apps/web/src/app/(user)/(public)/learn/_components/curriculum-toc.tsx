@@ -2,12 +2,12 @@ import Link from "next/link";
 import { getTranslations } from "next-intl/server";
 import { CheckIcon } from "@/app/(user)/_components/icons/check-icon";
 import { TEXT_LINK_CLASSES } from "@/app/_components/_lib/link-classes";
+import { chapterHref } from "@mahjong-scoring/features/routes";
 import {
-  chapterHref,
   getChapterI18nPath,
   type CurriculumChapter,
   type CurriculumSection,
-} from "../_lib/curriculum";
+} from "@mahjong-scoring/features/curriculum/registry";
 import {
   BULLET_CENTER_TOP_PX,
   CHAPTER_ROW_BASE_CLASS,

@@ -7,23 +7,21 @@ import { VariantStartPanel } from "./variant-start-panel";
 import { buildPracticeStartCtaLabels } from "../_lib/practice-start-cta-labels";
 import { getTranslations } from "next-intl/server";
 import { LinkRow, LinkRowList } from "@/app/(user)/_components/link-row";
-import {
-  relatedChaptersForPractice,
-  type CurriculumChapterSlug,
-} from "@/app/(user)/(public)/learn/_lib/curriculum";
+import { relatedChaptersForPractice } from "@mahjong-scoring/features/practice/catalog";
+import type { CurriculumChapterSlug } from "@mahjong-scoring/features/curriculum/registry";
 import type { PracticeMenuSlug } from "@mahjong-scoring/features/practice-menu-types";
-import { rankRequiringMenu } from "@/lib/ranks/registry";
+import { rankRequiringMenu } from "@mahjong-scoring/features/ranks/registry";
 import { ContentContainer } from "@/app/(user)/_components/content-container";
 import { PageTitle } from "@/app/(user)/_components/page-title";
 import { LinkButton } from "@/app/(user)/_components/link-button";
 import { PlayIcon } from "@/app/(user)/_components/icons/play-icon";
 import { practiceMenuBySlug } from "@mahjong-scoring/features/practice-menu-types";
+import { isExamMenu } from "@mahjong-scoring/features/practice/catalog";
+import { practiceListHref } from "../_lib/practice-web-routes";
 import {
-  isExamMenu,
-  practiceListHref,
   practicePlayHref,
   practiceTrainingHref,
-} from "../_lib/practice-catalog";
+} from "@mahjong-scoring/features/routes";
 import { PRACTICE_SCROLL_HASH } from "../_lib/scroll-anchor";
 
 interface PracticeIntroContentProps {

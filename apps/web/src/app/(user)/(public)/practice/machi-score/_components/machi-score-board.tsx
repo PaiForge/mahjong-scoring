@@ -37,7 +37,7 @@ import {
 } from "../../score/_lib/parse-practice-params";
 import { ScorePracticeAnswerForm } from "../../score/_components/score-practice-answer-form";
 import { GenerationFailedNotice } from "../../score/_components/generation-failed-notice";
-import { MACHI_SCORE_PRACTICE_HREF } from "../../_lib/practice-catalog";
+import { MACHI_SCORE_PRACTICE_HREF } from "@mahjong-scoring/features/routes";
 import {
   cellKeyOf,
   listCellRefs,

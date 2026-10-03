@@ -4,11 +4,11 @@ import { getTranslations } from "next-intl/server";
 import { PracticeCard } from "@/app/(user)/(public)/practice/_components/practice-card";
 import { practiceCardRank } from "@/app/(user)/(public)/practice/_lib/practice-card-rank";
 import { practiceCardVisual } from "@/app/(user)/(public)/practice/_lib/practice-card-visual";
+import { practiceHref } from "@mahjong-scoring/features/routes";
 import {
-  practiceHref,
   practiceMenuFromCatalog,
   practiceTitleKey,
-} from "@/app/(user)/(public)/practice/_lib/practice-catalog";
+} from "@mahjong-scoring/features/practice/catalog";
 import { SectionTitle } from "@/app/(user)/_components/section-title";
 import { TEXT_LINK_CLASSES } from "@/app/_components/_lib/link-classes";
 import type { PracticeMenuSlug } from "@mahjong-scoring/features/practice-menu-types";

@@ -2,7 +2,7 @@ import { useTranslations } from "next-intl";
 
 import { BookIcon } from "@/app/(user)/_components/icons/book-icon";
 import { ChapterTocList } from "@/app/(user)/(public)/learn/_components/chapter-toc-list";
-import { CURRICULUM_CHAPTER_SLUGS } from "@/app/(user)/(public)/learn/_lib/curriculum";
+import { CURRICULUM_CHAPTER_SLUGS } from "@mahjong-scoring/features/curriculum/registry";
 
 import { LandingSection } from "./landing-section";
 

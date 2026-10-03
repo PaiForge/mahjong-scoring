@@ -2,12 +2,15 @@ import {
   CURRICULUM,
   type CurriculumChapter,
   pickNextChapter,
-} from "@/app/(user)/(public)/learn/_lib/curriculum";
+} from "@mahjong-scoring/features/curriculum/registry";
 import {
   menuTypeToSlug,
   type PracticeMenuSlug,
 } from "@mahjong-scoring/features/practice-menu-types";
-import { nextRank, type RankSlug } from "@/lib/ranks/registry";
+import {
+  nextRank,
+  type RankSlug,
+} from "@mahjong-scoring/features/ranks/registry";
 
 /** ダッシュボードに出すおすすめ練習の上限。増やすと練習一覧の縮小版になる */
 const MAX_RECOMMENDED_PRACTICES = 2;

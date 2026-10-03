@@ -1,4 +1,4 @@
-import type { CurriculumChapterSlug } from "@/app/(user)/(public)/learn/_lib/curriculum";
+import type { CurriculumChapterSlug } from "@mahjong-scoring/features/curriculum/registry";
 
 import { AGARI_TERMS } from "./terms/agari";
 import { FU_TERMS } from "./terms/fu";

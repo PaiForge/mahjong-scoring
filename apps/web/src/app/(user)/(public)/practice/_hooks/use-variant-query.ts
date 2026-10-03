@@ -6,7 +6,7 @@ import {
   type PracticeMenuSlug,
   type PracticeVariantOf,
 } from "@mahjong-scoring/features/practice-menu-types";
-import { VARIANT_PARAM } from "../_lib/variant-param";
+import { VARIANT_PARAM } from "@mahjong-scoring/features/routes";
 
 /**
  * URL クエリから出題設定のバリアントを読むフック

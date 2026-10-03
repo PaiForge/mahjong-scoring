@@ -1,15 +1,14 @@
 import { describe, expect, it } from "vitest";
 
-import messagesJson from "@/messages/ja.json";
-import { CURRICULUM } from "@/app/(user)/(public)/learn/_lib/curriculum";
-import { practiceMenuByType } from "@mahjong-scoring/features/practice-menu-types";
+import { CURRICULUM } from "../curriculum/registry";
+import { practiceMenuByType } from "../practice-menu-types";
 import {
   RANK_REGISTRY,
   RANK_SLUGS,
   isRankSlug,
   nextRank,
   rankTier,
-} from "../registry";
+} from "./registry";
 
 describe("RANK_REGISTRY", () => {
   it("slug が一意である", () => {
@@ -76,55 +75,10 @@ describe("nextRank", () => {
   });
 });
 
-/**
- * 段級位名は `ranks.names.<slug>` / 合格基準は `ranks.criteria.<slug>` を引く。
- * レジストリに1件足しても JSON の追記漏れは実行時まで検出されないため、
- * ここで突き合わせる（practice-menu-i18n-integrity.test.ts と同じパターン）。
- */
-describe("i18n integrity: ranks", () => {
-  const messages = messagesJson as unknown as {
-    readonly ranks: {
-      readonly names: Record<string, unknown>;
-      readonly criteria: Record<string, unknown>;
-    };
-  };
-
-  it.each(["names", "criteria"] as const)(
-    "ranks.%s が全スラッグを持ち、余分を持たない",
-    (section) => {
-      const keys = Object.keys(messages.ranks[section]).sort();
-      expect(keys).toEqual([...RANK_SLUGS].sort());
-    },
-  );
-});
-
 describe("rankTier", () => {
   it("級には kyu、段には dan を返す", () => {
     expect(rankTier("kyu-1")).toBe("kyu");
     expect(rankTier("dan-1")).toBe("dan");
-  });
-
-  it("種別ごとの文言が辞書に揃っている", () => {
-    // `rankTier` の戻り値はそのまま i18n のキーの末尾になるため、
-    // 種別を足したら文言も足す必要がある
-    const tiers = [...new Set(RANK_SLUGS.map(rankTier))].sort();
-    const messages = messagesJson as unknown as {
-      readonly ranks: {
-        readonly examTitle: Record<string, unknown>;
-        readonly promotion: {
-          readonly title: Record<string, unknown>;
-          readonly message: Record<string, unknown>;
-        };
-      };
-    };
-
-    for (const section of [
-      messages.ranks.examTitle,
-      messages.ranks.promotion.title,
-      messages.ranks.promotion.message,
-    ]) {
-      expect(Object.keys(section).sort()).toEqual(tiers);
-    }
   });
 });
 

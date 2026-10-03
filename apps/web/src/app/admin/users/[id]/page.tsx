@@ -20,7 +20,10 @@ import {
 } from "@/lib/billing/plan-status";
 import { PurchaseKind } from "@mahjong-scoring/features/billing/plans";
 import type { Profile } from "@/lib/db";
-import { highestRank, isRankSlug } from "@/lib/ranks/registry";
+import {
+  highestRank,
+  isRankSlug,
+} from "@mahjong-scoring/features/ranks/registry";
 import { createAdminClient } from "@/lib/supabase/admin";
 
 import { RevokeGrantButton } from "../../benefit-grants/_components/revoke-grant-button";

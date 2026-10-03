@@ -11,7 +11,7 @@ import { resolveTermPreviews } from "@/lib/glossary/queries";
 import {
   getChapterBySlug,
   type CurriculumChapterSlug,
-} from "../_lib/curriculum";
+} from "@mahjong-scoring/features/curriculum/registry";
 import { buildLearnArticleSchema } from "../_lib/json-ld";
 import { chapterNamespace } from "../_lib/metadata";
 import { formatPublishedDate } from "../_lib/published-date";

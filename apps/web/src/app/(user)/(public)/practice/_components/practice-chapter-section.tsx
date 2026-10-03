@@ -1,6 +1,6 @@
 import { ChapterTocList } from "@/app/(user)/(public)/learn/_components/chapter-toc-list";
 import { CurriculumTocLink } from "@/app/(user)/(public)/learn/_components/curriculum-toc-link";
-import type { CurriculumChapterSlug } from "@/app/(user)/(public)/learn/_lib/curriculum";
+import type { CurriculumChapterSlug } from "@mahjong-scoring/features/curriculum/registry";
 import { SectionTitle } from "@/app/(user)/_components/section-title";
 
 /**

@@ -17,7 +17,7 @@ import {
   CURRICULUM,
   CURRICULUM_SECTIONS,
   getChapterI18nPath,
-} from "../curriculum";
+} from "@mahjong-scoring/features/curriculum/registry";
 import { chapterNamespace } from "../metadata";
 
 const messages = messagesJson as unknown as {
@@ -73,7 +73,7 @@ describe("i18n integrity: chapters (via getChapterI18nPath)", () => {
 
 describe("i18n integrity: chapters (via CurriculumChapter.i18nKey)", () => {
   /**
-   * `curriculum.ts` 側で定義された i18nKey (camelCase) は
+   * カリキュラム（features の `curriculum/registry.ts`）で定義された i18nKey (camelCase) は
    * ja.json の実際のキーと一致する。こちらは現在 pass する。
    * すなわち「参照側で i18nKey を使う」案Cで整合する。
    */

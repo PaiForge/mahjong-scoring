@@ -1,6 +1,9 @@
 import { describe, expect, it } from "vitest";
 import { render } from "@testing-library/react";
-import { CURRICULUM, CURRICULUM_SECTIONS } from "../_lib/curriculum";
+import {
+  CURRICULUM,
+  CURRICULUM_SECTIONS,
+} from "@mahjong-scoring/features/curriculum/registry";
 import { LearnIndexSkeleton } from "./learn-index-skeleton";
 
 /**

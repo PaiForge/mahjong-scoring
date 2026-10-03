@@ -9,10 +9,8 @@
  */
 import type { Metadata } from "next";
 import { getTranslations } from "next-intl/server";
-import {
-  chapterHref,
-  relatedChaptersForPractice,
-} from "@/app/(user)/(public)/learn/_lib/curriculum";
+import { chapterHref } from "@mahjong-scoring/features/routes";
+import { relatedChaptersForPractice } from "@mahjong-scoring/features/practice/catalog";
 import { ContentContainer } from "@/app/(user)/_components/content-container";
 import { LinkRow, LinkRowList } from "@/app/(user)/_components/link-row";
 import { NativeAdCard } from "@/app/(user)/(public)/_components/native-ad-card";
@@ -34,9 +32,9 @@ import {
   listedPracticeMenus,
   listedPracticeRanks,
   PRACTICE_CATEGORIES,
-  practiceHref,
   practiceTitleKey,
-} from "../_lib/practice-catalog";
+} from "@mahjong-scoring/features/practice/catalog";
+import { practiceHref } from "@mahjong-scoring/features/routes";
 
 export async function generateMetadata(): Promise<Metadata> {
   return createNamespaceMetadata("practice", { path: "/practice" });

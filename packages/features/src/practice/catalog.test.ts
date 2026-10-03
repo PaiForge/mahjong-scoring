@@ -1,30 +1,16 @@
 import { describe, expect, it } from "vitest";
 
-import messages from "@/messages/ja.json";
-import {
-  CURRICULUM,
-  CURRICULUM_CHAPTER_SLUGS,
-  relatedChaptersForPractice,
-} from "@/app/(user)/(public)/learn/_lib/curriculum";
-import {
-  PRACTICE_MENU_SLUGS,
-  slugToMenuType,
-} from "@mahjong-scoring/features/practice-menu-types";
-import { RANK_REGISTRY, rankRequiringMenu } from "@/lib/ranks/registry";
-import type { PracticeListFilter } from "../practice-catalog";
+import { CURRICULUM, CURRICULUM_CHAPTER_SLUGS } from "../curriculum/registry";
+import { PRACTICE_MENU_SLUGS, slugToMenuType } from "../practice-menu-types";
+import { RANK_REGISTRY, rankRequiringMenu } from "../ranks/registry";
+import { practiceHref, rankExamHref } from "../routes";
 import {
   isExamMenu,
   PRACTICE_CATALOG,
-  PRACTICE_CATEGORIES,
-  practiceHref,
   practiceMenuFromCatalog,
   listedPracticeMenus,
-  listedPracticeRanks,
-  matchesPracticeFilter,
-  practiceListHref,
-  practiceTitleKey,
-  rankExamHref,
-} from "../practice-catalog";
+  relatedChaptersForPractice,
+} from "./catalog";
 
 describe("PRACTICE_CATALOG", () => {
   it("記録対象の練習をすべて載せている", () => {
@@ -122,18 +108,6 @@ describe("段級位との対応", () => {
       );
     }
   });
-
-  it("段級位名とリンクの読み上げ文が辞書に存在する", () => {
-    const names: Record<string, string> = messages.ranks.names;
-    for (const menu of PRACTICE_CATALOG) {
-      if (menu.rank === undefined) continue;
-      expect(names[menu.rank], `${menu.slug}`).toBeTruthy();
-    }
-    expect(messages.ranks.examTitle.kyu).toContain("{rank}");
-    expect(messages.ranks.examTitle.dan).toContain("{rank}");
-    expect(messages.ranks.practiceLink.title).toContain("{rank}");
-    expect(messages.ranks.practiceLink.description).toBeTruthy();
-  });
 });
 
 describe("章と練習の対応", () => {
@@ -212,74 +186,6 @@ describe("章と練習の対応", () => {
     expect(yakuHan?.learnChapter).toBeUndefined();
     const yakuChapter = CURRICULUM.find((c) => c.slug === "yaku");
     expect(yakuChapter?.practiceLinks).toContainEqual({ slug: "yaku-han" });
-  });
-});
-
-describe("i18n キーの導出", () => {
-  it("全練習の名前が辞書に存在する", () => {
-    const practices: Record<string, { title: string }> =
-      messages.practice.practices;
-    for (const menu of PRACTICE_CATALOG) {
-      const titleKey = practiceTitleKey(menu.slug);
-      // "practices.<messageKey>.title" の messageKey 部分を取り出して引く
-      const messageKey = titleKey.split(".")[1] ?? "";
-      expect(practices[messageKey]?.title).toBeTruthy();
-    }
-  });
-});
-
-describe("practiceHref", () => {
-  it("slug から練習ページのパスを作る", () => {
-    expect(practiceHref("jantou-fu")).toBe("/practice/jantou-fu");
-  });
-
-  it("バリアントを渡すとクエリに載せる", () => {
-    expect(practiceHref("score-table", "all")).toBe(
-      "/practice/score-table?variant=all",
-    );
-  });
-
-  it("バリアントを持たない練習にはクエリを付けない", () => {
-    expect(practiceHref("jantou-fu", "default")).toBe("/practice/jantou-fu");
-  });
-});
-
-describe("practiceListHref", () => {
-  it("絞り込みを渡すとその条件で絞った練習一覧のパスになる", () => {
-    // 昇級試験のページが「その級の練習」として開くリンク。クエリ名は
-    // 一覧のフィルタと同じ定数から組み立てる
-    expect(practiceListHref()).toBe("/practice");
-    expect(practiceListHref({ kind: "rank", value: "kyu-4" })).toBe(
-      "/practice?rank=kyu-4",
-    );
-    expect(practiceListHref({ kind: "category", value: "han" })).toBe(
-      "/practice?category=han",
-    );
-  });
-
-  it("どの選択肢を選んでも 1 件以上残る", () => {
-    // 級と分野は直交していないため 2 軸の AND にはしていない（4級 × 翻数 が
-    // 0 件になる）。1 本の排他選択である限り空振りは起きないことを固定する。
-    // 級の選択肢は全段級位ではなく一覧の中身から導く（`listedPracticeRanks`）
-    const menus = listedPracticeMenus();
-    const filters: PracticeListFilter[] = [
-      ...listedPracticeRanks().map((value) => ({
-        kind: "rank" as const,
-        value,
-      })),
-      ...PRACTICE_CATEGORIES.map((value) => ({
-        kind: "category" as const,
-        value,
-      })),
-    ];
-    for (const filter of filters) {
-      const listed = menus.filter((menu) =>
-        matchesPracticeFilter(filter, menu),
-      );
-      expect(listed.length, `${filter.kind}=${filter.value}`).toBeGreaterThan(
-        0,
-      );
-    }
   });
 });
 

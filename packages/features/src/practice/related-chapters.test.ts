@@ -6,10 +6,10 @@ import {
   getChapterBySlug,
   chaptersInSection,
   chaptersLinkingToPractice,
-  relatedChaptersForPractice,
+  sortChapterSlugs,
   type CurriculumChapterSlug,
-} from "../curriculum";
-import { practiceMenuFromCatalog } from "../../../practice/_lib/practice-catalog";
+} from "../curriculum/registry";
+import { practiceMenuFromCatalog, relatedChaptersForPractice } from "./catalog";
 
 /** カリキュラムの表示順に並んでいるか */
 function isCurriculumOrder(slugs: readonly CurriculumChapterSlug[]): boolean {
@@ -69,6 +69,14 @@ describe("relatedChaptersForPractice", () => {
     expect(isCurriculumOrder(relatedChaptersForPractice("score-table"))).toBe(
       true,
     );
+  });
+});
+
+describe("sortChapterSlugs", () => {
+  it("カリキュラムの順に並べ、カリキュラムに無い章は落とす", () => {
+    expect(
+      sortChapterSlugs(new Set(["tehai-fu", "about-this-app", "jantou-fu"])),
+    ).toEqual(["about-this-app", "jantou-fu", "tehai-fu"]);
   });
 });
 

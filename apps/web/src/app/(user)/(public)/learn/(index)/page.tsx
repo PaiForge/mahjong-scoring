@@ -32,7 +32,7 @@ import {
   type CurriculumChapter,
   type CurriculumSection,
   pickNextChapter,
-} from "../_lib/curriculum";
+} from "@mahjong-scoring/features/curriculum/registry";
 import { fetchReadChapterSlugs } from "../_lib/progress";
 
 export async function generateMetadata(): Promise<Metadata> {

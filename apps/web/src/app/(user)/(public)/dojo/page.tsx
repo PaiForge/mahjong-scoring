@@ -31,7 +31,10 @@ import { getOptionalUser } from "@/lib/auth";
 import { menuTypeToSlug } from "@mahjong-scoring/features/practice-menu-types";
 import { getUserRankSlugs } from "@/lib/db/rank-queries";
 import { beltBorderClass } from "@/lib/ranks/belt-colors";
-import { highestRank, nextRank } from "@/lib/ranks/registry";
+import {
+  highestRank,
+  nextRank,
+} from "@mahjong-scoring/features/ranks/registry";
 
 export async function generateMetadata(): Promise<Metadata> {
   return createNamespaceMetadata("dojo", { path: "/dojo" });

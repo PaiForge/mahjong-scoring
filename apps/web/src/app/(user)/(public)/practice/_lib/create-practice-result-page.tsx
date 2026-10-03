@@ -21,7 +21,10 @@ import { getExpInfoByChallengeResultId } from "@/lib/db/save-exp";
 import { getScoreComparison } from "@/lib/db/score-comparison-queries";
 import { getOptionalUser } from "@/lib/auth";
 
-import { isRankSlug, rankRequiringMenu } from "@/lib/ranks/registry";
+import {
+  isRankSlug,
+  rankRequiringMenu,
+} from "@mahjong-scoring/features/ranks/registry";
 import { ExamResultSummary } from "@/app/(user)/(public)/exam/_components/exam-result-summary";
 
 import { RecordSection } from "../_components/record-section";
@@ -45,9 +48,9 @@ import { tryFetch } from "./try-fetch";
 import {
   practiceHref,
   practicePlayHref,
-  practiceSetupHref,
-} from "./practice-catalog";
-import { VARIANT_PARAM } from "./variant-param";
+} from "@mahjong-scoring/features/routes";
+import { practiceSetupHref } from "./practice-web-routes";
+import { VARIANT_PARAM } from "@mahjong-scoring/features/routes";
 import type { PracticeBoard } from "@mahjong-scoring/features/practice-menu-types";
 
 const PREVIEW_COUNT = 3;

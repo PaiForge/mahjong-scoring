@@ -1,6 +1,6 @@
 import { describe, expect, it, vi } from "vitest";
 import { render } from "@testing-library/react";
-import { CURRICULUM } from "../_lib/curriculum";
+import { CURRICULUM } from "@mahjong-scoring/features/curriculum/registry";
 import { ChapterNav } from "./chapter-nav";
 
 vi.mock("next-intl/server", async () => await import("@/test/intl-mock"));

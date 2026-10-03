@@ -2,11 +2,9 @@ import { PRACTICE_MENU_SLUGS } from "@mahjong-scoring/features/practice-menu-typ
 import { GLOSSARY_TERM_SLUGS } from "@/lib/glossary/registry";
 import { GLOSSARY_PATH, glossaryTermHref } from "@/lib/glossary/routes";
 
-import {
-  chapterHref,
-  CURRICULUM,
-} from "@/app/(user)/(public)/learn/_lib/curriculum";
-import { practiceHref } from "@/app/(user)/(public)/practice/_lib/practice-catalog";
+import { chapterHref } from "@mahjong-scoring/features/routes";
+import { CURRICULUM } from "@mahjong-scoring/features/curriculum/registry";
+import { practiceHref } from "@mahjong-scoring/features/routes";
 
 /**
  * sitemap の静的ルート定義

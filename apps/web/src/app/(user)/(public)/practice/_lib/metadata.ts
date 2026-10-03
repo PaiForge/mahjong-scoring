@@ -11,7 +11,8 @@ import {
   type PracticeMenuSlug,
 } from "@mahjong-scoring/features/practice-menu-types";
 
-import { isExamMenu, practiceHref } from "./practice-catalog";
+import { isExamMenu } from "@mahjong-scoring/features/practice/catalog";
+import { practiceHref } from "@mahjong-scoring/features/routes";
 
 /**
  * play / training / result 用の robots 指定。

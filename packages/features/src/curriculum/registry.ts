@@ -1,9 +1,7 @@
 import type {
   PracticeMenuSlug,
   PracticeVariantOf,
-} from "@mahjong-scoring/features/practice-menu-types";
-
-import { practiceMenuFromCatalog } from "../../practice/_lib/practice-catalog";
+} from "../practice-menu-types";
 
 /**
  * 学習カリキュラム — 章メタデータのレジストリ
@@ -65,7 +63,7 @@ export function practiceLink<S extends PracticeMenuSlug>(
  *
  * `slug` を `string` にしてあるのは、章スラッグの union を
  * {@link CURRICULUM_REGISTRY} から導出するため。公開する形は
- * {@link CurriculumChapter}。`lib/db/practice-menu-types.ts` と同じ組み方。
+ * {@link CurriculumChapter}。`practice-menu-types.ts` と同じ組み方。
  */
 interface CurriculumChapterEntry {
   readonly slug: string;
@@ -210,7 +208,7 @@ const CURRICULUM_REGISTRY = [
     order: 70,
     // 対応する練習は自由練習（/practice/score の役絞り込み）だが、
     // practiceLinks はカタログ登録済みの練習しか指せない（記録対象・
-    // おすすめ導線の前提。practice-catalog.test.ts が固定している）。
+    // おすすめ導線の前提。`practice/catalog.test.ts` が固定している）。
     // 導線は章本文（chiitoitsu-score-guide.tsx）の CTA が持つ
     //
     // 3級試験の前提知識はこの章だけで揃う（符は25符固定で、翻数の数え方は
@@ -345,19 +343,6 @@ const CURRICULUM_BY_SLUG: ReadonlyMap<
 > = new Map(CURRICULUM.map((c) => [c.slug, c]));
 
 /**
- * 章ページのパスを返す。
- * 章パス
- *
- * `/learn/<slug>` の組み立てをこの 1 箇所に閉じる。目次・前後章ナビ・練習からの
- * 導線がそれぞれ文字列を組み立てると、ルートを変えたときに追随漏れが出る。
- *
- * @param slug 対象章のスラッグ
- */
-export function chapterHref(slug: CurriculumChapterSlug): string {
-  return `/learn/${slug}`;
-}
-
-/**
  * slug から章メタデータを O(1) で取得する。
  * 章メタデータ取得
  *
@@ -457,36 +442,19 @@ export function chaptersLinkingToPractice(
 }
 
 /**
- * 練習に関連する教本の章を、カリキュラムの順で返す。
- * 関連章
+ * 章スラッグの集合をカリキュラムの順に並べる
+ * 章の並べ替え
  *
- * 2 つの出どころを畳む。どちらも「読んでおくと解きやすい章」を指すが、
- * 宣言する側が違う。
+ * 複数の出どころから集めた章（練習の関連章など）を、目次と同じ順で
+ * 表示するために使う。カリキュラムに無いスラッグは落とす。
  *
- * - カタログの `learnChapter` — その練習の前提になる章（章側がその練習へ
- *   送っているとは限らない。手牌の合計符のような、章の練習リンクには
- *   挙がらないが前提はある練習のため）
- * - 章の `practiceLinks` の逆引き（{@link chaptersLinkingToPractice}）—
- *   その練習へ送っている章。専用の章を持たない練習（役の翻数・翻数即答・
- *   点数表早引き）はここからだけ引ける
- *
- * 昇級試験はこれを使わない。試験の前提章は段級位レジストリ
- * （`RANK_REGISTRY` の `learnChapterSlugs`）が正典で、合格に必要な知識の
- * 全体という別の意味を持つ。
- *
- * @param slug 対象の練習スラッグ
+ * @param slugs 並べる章スラッグ
  */
-export function relatedChaptersForPractice(
-  slug: PracticeMenuSlug,
+export function sortChapterSlugs(
+  slugs: ReadonlySet<CurriculumChapterSlug>,
 ): readonly CurriculumChapterSlug[] {
-  const related = new Set<CurriculumChapterSlug>(
-    chaptersLinkingToPractice(slug),
-  );
-  const learnChapter = practiceMenuFromCatalog(slug)?.learnChapter;
-  if (learnChapter !== undefined) related.add(learnChapter);
-
   return CURRICULUM_SORTED_BY_ORDER.filter((chapter) =>
-    related.has(chapter.slug),
+    slugs.has(chapter.slug),
   ).map((chapter) => chapter.slug);
 }
 

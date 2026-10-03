@@ -1,28 +1,27 @@
-import type { CurriculumChapterSlug } from "@/app/(user)/(public)/learn/_lib/curriculum";
 import {
-  DEFAULT_VARIANT,
   isExamMenuType,
-  menuTypeToSlug,
   practiceMenuBySlug,
   type PracticeMenuSlug,
-} from "@mahjong-scoring/features/practice-menu-types";
-import { RANK_REGISTRY, type RankSlug } from "@/lib/ranks/registry";
-import { PRACTICE_SETUP_HASH } from "./scroll-anchor";
-import { variantQuery } from "./variant-param";
+} from "../practice-menu-types";
+import {
+  chaptersLinkingToPractice,
+  sortChapterSlugs,
+  type CurriculumChapterSlug,
+} from "../curriculum/registry";
+import { RANK_REGISTRY, type RankSlug } from "../ranks/registry";
 
 /**
  * 練習メニューのカタログ — 一覧の並び・段級位・教本リンクの単一の真実のソース
  *
  * @description
- * 練習一覧（`/practice`）の表示順とカテゴリ分けをここで管理する。ダッシュボードの
- * おすすめ練習など一覧以外の画面からも参照するため、ページのローカル定数ではなく
- * `_lib` に置く。
+ * 練習一覧の表示順とカテゴリ分けをここで管理する。ダッシュボードの
+ * おすすめ練習など一覧以外の画面からも参照し、web とモバイルで同じ並びを使う。
  *
  * @design 導出できるものは持たない
- * href・i18n キーは slug から導出する（`practiceHref` / `practiceTitleKey` /
- * `practiceTitleKey`）。教本へのリンクも章スラッグだけを持ち、パスは
- * `chapterHref()` に任せる。slug と messageKey の対応は
- * `lib/db/practice-menu-types.ts` のレジストリが正典で、そこに載らない練習
+ * パス・i18n キーは slug から導出する（パスは `routes.ts` の `practiceHref`、
+ * 練習名のキーは {@link practiceTitleKey}）。教本へのリンクも章スラッグだけを
+ * 持ち、パスは `chapterHref()` に任せる。slug と messageKey の対応は
+ * `practice-menu-types.ts` のレジストリが正典で、そこに載らない練習
  * （記録対象外の `/practice/score`）はカタログにも含めない。
  */
 
@@ -179,22 +178,6 @@ export const PRACTICE_CATALOG: readonly PracticeMenu[] = [
   },
 ] as const;
 
-/**
- * 記録を取らない総合演習（`/practice/score`）のパス。
- *
- * チャレンジではなく無限に解ける訓練なので `PRACTICE_MENU_REGISTRY` にも
- * カタログにも載らない。練習一覧のバナーとダッシュボードのフォールバックが参照する。
- */
-export const COMPREHENSIVE_PRACTICE_HREF = "/practice/score";
-
-/**
- * 記録を取らない待ち別点数計算（`/practice/machi-score`）のパス。
- *
- * 総合演習と同じく無限に解ける訓練で、レジストリにもカタログにも載らない。
- * 練習一覧のバナーが参照する。
- */
-export const MACHI_SCORE_PRACTICE_HREF = "/practice/machi-score";
-
 const catalogBySlug: ReadonlyMap<PracticeMenuSlug, PracticeMenu> = new Map(
   PRACTICE_CATALOG.map((menu) => [menu.slug, menu]),
 );
@@ -255,154 +238,39 @@ export function listedPracticeRanks(): readonly RankSlug[] {
   );
 }
 
-/**
- * 練習ページのパス
- *
- * 原則 `/practice/<slug>` だが、昇級試験のように別の URL 名前空間に置く
- * 練習はレジストリの `basePath` が上書きする。パスを直に組み立てず
- * 必ずここを通すこと（play / result は `practicePlayHref` 等を使う）。
- */
-export function practiceHref(slug: PracticeMenuSlug, variant?: string): string {
-  const { basePath } = practiceMenuBySlug(slug);
-  // バリアントを渡されたときだけ付ける（説明ページはバリアント無しでも開ける。
-  // 選択パネルが URL のバリアントを初期選択にする）
-  return variant === undefined
-    ? basePath
-    : `${basePath}${variantQuery(slug, variant)}`;
-}
-
-/**
- * 練習一覧の絞り込みを表すクエリパラメータ名。
- *
- * サーバーでは読まない（`searchParams` を読むとルートが動的になり、初回表示が
- * `loading.tsx` のスケルトンを経由する）。読むのは一覧のフィルタ
- * （`PracticeFilter`）だけで、それ以外はここを通してリンクを組み立てる。
- */
-export const PRACTICE_RANK_PARAM = "rank";
-export const PRACTICE_CATEGORY_PARAM = "category";
-
-/**
- * 練習一覧の絞り込み条件 — 段級位か分野のどちらか一方
- * 一覧の絞り込み
- *
- * @design 2 軸を掛け合わせない理由
- *
- * 級と分野は直交していない（4級 = 符の計算、5級 = 翻数 + 点数計算の一部）。
- * 2 軸の AND にすると 4級 × 翻数 のように 0 件になる組み合わせが過半を占め、
- * 操作の半分が空の一覧に着地する。選べるのは常に 1 つだけにして、どれを
- * 押しても必ず 1 件以上残るようにしている。
- */
-export type PracticeListFilter =
-  | { readonly kind: "rank"; readonly value: RankSlug }
-  | { readonly kind: "category"; readonly value: PracticeCategory };
-
-/**
- * 練習一覧のパス。絞り込みを渡すとその条件で絞った状態で開く。
- * 練習一覧パス
- *
- * @param filter 絞り込み条件。省略すると絞り込みなし
- */
-export function practiceListHref(filter?: PracticeListFilter): string {
-  if (filter === undefined) return "/practice";
-  const param =
-    filter.kind === "rank" ? PRACTICE_RANK_PARAM : PRACTICE_CATEGORY_PARAM;
-  return `/practice?${param}=${filter.value}`;
-}
-
-/**
- * 絞り込み条件が同じものを指しているか。
- * 絞り込み比較
- *
- * トグルの選択状態（どのチップが現在地か）の判定に使う。
- */
-export function isSamePracticeFilter(
-  a: PracticeListFilter | undefined,
-  b: PracticeListFilter | undefined,
-): boolean {
-  if (a === undefined || b === undefined) return a === b;
-  return a.kind === b.kind && a.value === b.value;
-}
-
-/**
- * 練習が絞り込み条件に合致するか。条件が無ければすべて合致する。
- * 絞り込み判定
- *
- * @param filter 絞り込み条件
- * @param menu 判定する練習の段級位と分野
- */
-export function matchesPracticeFilter(
-  filter: PracticeListFilter | undefined,
-  menu: { readonly rank?: RankSlug; readonly category: PracticeCategory },
-): boolean {
-  if (filter === undefined) return true;
-  return filter.kind === "rank"
-    ? menu.rank === filter.value
-    : menu.category === filter.value;
-}
-
-/**
- * 段級位のピルを押した先 — その級の昇級試験の説明ページ
- * 段級位の行き先
- *
- * 練習カードの段級位ピルが「4級」と名乗っている以上、押した先はその級の
- * 話をしていなければならない。このアプリで級そのものを説明している場所は
- * 試験の説明ページで、合格条件と出題形式がそこに揃っている（道場は
- * 「次に取る級」しか出さないため、5級を持たない人が4級のピルを押すと
- * 5級の話に着地してしまう）。
- *
- * @param slug 段級位スラッグ
- */
-export function rankExamHref(slug: RankSlug): string {
-  const rank = RANK_REGISTRY.find((entry) => entry.slug === slug);
-  if (rank === undefined) return "/dojo";
-  return practiceHref(menuTypeToSlug(rank.exam.menuType));
-}
-
-/**
- * 練習のプレイページのパス
- * プレイページパス
- *
- * バリアントを持つ練習は `?variant=` を付ける（省略時はその練習の既定）。
- * 持たない練習では `variant` を渡しても付かない。
- */
-export function practicePlayHref(
-  slug: PracticeMenuSlug,
-  variant?: string,
-): string {
-  return `${practiceHref(slug)}/play${variantQuery(slug, variant ?? DEFAULT_VARIANT)}`;
-}
-
-/** 練習のトレーニングページのパス（バリアントの扱いは {@link practicePlayHref} と同じ） */
-export function practiceTrainingHref(
-  slug: PracticeMenuSlug,
-  variant?: string,
-): string {
-  return `${practiceHref(slug)}/training${variantQuery(slug, variant ?? DEFAULT_VARIANT)}`;
-}
-
-/**
- * 練習の出題設定へのパス（説明ページの設定セクションへのアンカー付き）。
- * 出題設定パス
- *
- * 出題設定を持たない練習（レジストリの `hasSetup` が false）は undefined を返す。
- * 結果ページはこれが undefined なら「設定を変更する」ボタン自体を出さない。
- * `variant` を渡すと説明ページの選択パネルがそれを初期選択にする。
- */
-export function practiceSetupHref(
-  slug: PracticeMenuSlug,
-  variant?: string,
-): string | undefined {
-  const { hasSetup, basePath } = practiceMenuBySlug(slug);
-  if (!hasSetup) return undefined;
-  return `${basePath}${variantQuery(slug, variant ?? DEFAULT_VARIANT)}${PRACTICE_SETUP_HASH}`;
-}
-
-/** 練習の結果ページのパス */
-export function practiceResultHref(slug: PracticeMenuSlug): string {
-  return `${practiceHref(slug)}/result`;
-}
-
 /** 練習名の i18n キー（`getTranslations("practice")` スコープ内で使う） */
 export function practiceTitleKey(slug: PracticeMenuSlug): string {
   return `practices.${practiceMenuBySlug(slug).messageKey}.title`;
+}
+
+/**
+ * 練習に関連する教本の章を、カリキュラムの順で返す。
+ * 関連章
+ *
+ * 2 つの出どころを畳む。どちらも「読んでおくと解きやすい章」を指すが、
+ * 宣言する側が違う。
+ *
+ * - カタログの `learnChapter` — その練習の前提になる章（章側がその練習へ
+ *   送っているとは限らない。手牌の合計符のような、章の練習リンクには
+ *   挙がらないが前提はある練習のため）
+ * - 章の `practiceLinks` の逆引き（{@link chaptersLinkingToPractice}）—
+ *   その練習へ送っている章。専用の章を持たない練習（役の翻数・翻数即答・
+ *   点数表早引き）はここからだけ引ける
+ *
+ * 昇級試験はこれを使わない。試験の前提章は段級位レジストリ
+ * （`RANK_REGISTRY` の `learnChapterSlugs`）が正典で、合格に必要な知識の
+ * 全体という別の意味を持つ。
+ *
+ * @param slug 対象の練習スラッグ
+ */
+export function relatedChaptersForPractice(
+  slug: PracticeMenuSlug,
+): readonly CurriculumChapterSlug[] {
+  const related = new Set<CurriculumChapterSlug>(
+    chaptersLinkingToPractice(slug),
+  );
+  const learnChapter = practiceMenuFromCatalog(slug)?.learnChapter;
+  if (learnChapter !== undefined) related.add(learnChapter);
+
+  return sortChapterSlugs(related);
 }

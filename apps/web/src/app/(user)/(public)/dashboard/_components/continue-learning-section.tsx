@@ -7,7 +7,7 @@ import { CurriculumTocLink } from "@/app/(user)/(public)/learn/_components/curri
 import {
   CURRICULUM,
   type CurriculumChapter,
-} from "@/app/(user)/(public)/learn/_lib/curriculum";
+} from "@mahjong-scoring/features/curriculum/registry";
 import { SectionTitle } from "@/app/(user)/_components/section-title";
 
 interface ContinueLearningSectionProps {

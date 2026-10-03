@@ -6,7 +6,7 @@ import { SkeletonBar } from "@/app/_components/skeleton-bar";
 import { useAuth } from "@/app/_contexts/auth-context";
 
 import { getChapterReadState } from "../_actions/get-chapter-read-state";
-import type { CurriculumChapterSlug } from "../_lib/curriculum";
+import type { CurriculumChapterSlug } from "@mahjong-scoring/features/curriculum/registry";
 import { MarkAsReadButton } from "./mark-as-read-button";
 
 interface ChapterReadStatusProps {

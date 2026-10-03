@@ -1,5 +1,5 @@
 import { callApi } from "@/lib/api-client";
-import type { RankSlug } from "@/lib/ranks/registry";
+import type { RankSlug } from "@mahjong-scoring/features/ranks/registry";
 
 /** `/api/ranks/me` のレスポンス本文 */
 export interface ViewerRanksResponse {

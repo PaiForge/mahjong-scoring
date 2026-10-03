@@ -27,7 +27,7 @@ import {
   RANK_REGISTRY,
   nextRank,
   type RankSlug,
-} from "../../src/lib/ranks/registry";
+} from "@mahjong-scoring/features/ranks/registry";
 
 export interface SeedUser {
   readonly email: string;

@@ -2,7 +2,7 @@
 import { type AuthGateErrorCode, authenticateAndCheckBan } from "@/lib/auth";
 import { finishAttempt } from "@/lib/challenge/attempts";
 import { logExternalError } from "@/lib/log-error";
-import type { RankSlug } from "@/lib/ranks/registry";
+import type { RankSlug } from "@mahjong-scoring/features/ranks/registry";
 
 /**
  * `submitExamResult` が返しうるエラーコード

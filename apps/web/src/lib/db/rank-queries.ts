@@ -2,8 +2,8 @@ import "server-only";
 
 import { eq } from "drizzle-orm";
 
-import type { RankSlug } from "@/lib/ranks/registry";
-import { isRankSlug } from "@/lib/ranks/registry";
+import type { RankSlug } from "@mahjong-scoring/features/ranks/registry";
+import { isRankSlug } from "@mahjong-scoring/features/ranks/registry";
 import { db } from "./index";
 import { userRanks } from "./schema";
 
