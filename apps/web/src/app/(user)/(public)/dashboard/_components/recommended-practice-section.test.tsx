@@ -55,16 +55,15 @@ describe("RecommendedPracticeSection", () => {
     expect(pill?.textContent).toContain("names.kyu-4");
   });
 
-  it("段級位ピルは対応する昇級試験へのリンクになっている", async () => {
+  it("段級位ピルは対応する級の詳細ページへのリンクになっている", async () => {
     const { container } = render(
       await RecommendedPracticeSection({ slugs: ["jantou-fu"] }),
     );
 
     const pill = container.querySelector("a[data-belt-slug]");
-    expect(pill?.getAttribute("href")).toBe("/exam/fu");
+    expect(pill?.getAttribute("href")).toBe("/dojo/ranks/kyu-4");
     // 級名だけでは行き先が読めないため、リンクの名前は行き先まで含める
-    // （級は「昇級試験」、段は「昇段試験」と種別で引き分ける）
-    expect(pill?.getAttribute("aria-label")).toBe("examTitle.kyu");
+    expect(pill?.getAttribute("aria-label")).toBe("pillLinkLabel");
   });
 
   it("勧める練習が無ければ何も描画しない", async () => {

@@ -3,7 +3,6 @@ import { describe, expect, it } from "vitest";
 import { CURRICULUM, CURRICULUM_CHAPTER_SLUGS } from "../curriculum/registry";
 import { PRACTICE_MENU_SLUGS, slugToMenuType } from "../practice-menu-types";
 import { RANK_REGISTRY, rankRequiringMenu } from "../ranks/registry";
-import { practiceHref, rankExamHref } from "../routes";
 import {
   isExamMenu,
   PRACTICE_CATALOG,
@@ -86,25 +85,6 @@ describe("段級位との対応", () => {
       const rank = RANK_REGISTRY.find((entry) => entry.slug === menu.rank);
       expect(rank?.learnChapterSlugs, `${menu.slug}`).toContain(
         menu.learnChapter,
-      );
-    }
-  });
-
-  it("段級位ピルの行き先はその級の昇級試験", () => {
-    // カードが「4級」と名乗る以上、押した先も 4級 の話をしていること。
-    expect(rankExamHref("kyu-4")).toBe("/exam/fu");
-    expect(rankExamHref("kyu-5")).toBe("/exam/mangan");
-    expect(rankExamHref("kyu-3")).toBe("/exam/chiitoitsu");
-    expect(rankExamHref("kyu-2")).toBe("/exam/pinfu");
-    expect(rankExamHref("kyu-1")).toBe("/exam/fu-score");
-  });
-
-  it("段級位ピルの行き先は、その級を要件に持つ試験のカタログ上のパスと一致する", () => {
-    // 試験の URL を直書きせずレジストリの要件から引いていることを固定する
-    for (const menu of PRACTICE_CATALOG) {
-      if (!isExamMenu(menu.slug) || menu.rank === undefined) continue;
-      expect(rankExamHref(menu.rank), `${menu.slug}`).toBe(
-        practiceHref(menu.slug),
       );
     }
   });
