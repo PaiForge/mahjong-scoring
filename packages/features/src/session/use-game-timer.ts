@@ -9,6 +9,13 @@ interface UseGameTimerOptions {
   intervalMs?: number;
 }
 
+/**
+ * チャレンジの制限時間タイマー
+ * ゲームタイマー
+ *
+ * `isActive` の間だけ経過時間を積み、止めている間（ポーズ・フィードバック中）は
+ * 進めない。制限時間に達したら `onTimeLimitReached` を 1 回だけ呼ぶ。
+ */
 export function useGameTimer({
   timeLimit,
   onTimeLimitReached,

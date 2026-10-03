@@ -1,7 +1,7 @@
 import { afterEach, describe, expect, it } from "vitest";
 import { act, renderHook } from "@testing-library/react";
 import { useRecordedResults } from "./use-recorded-results";
-import type { FinalResult } from "./use-timed-session";
+import type { FinalResult } from "@mahjong-scoring/features/session/use-timed-session";
 
 interface Row {
   readonly id: string;
