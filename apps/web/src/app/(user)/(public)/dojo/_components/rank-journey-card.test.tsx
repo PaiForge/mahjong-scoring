@@ -76,7 +76,6 @@ describe("RankJourneyCard", () => {
             completedLessonSlugs: new Set(["mangan-ko-ron"]),
           }),
           expanded: true,
-          requiredRankSlug: "kyu-5",
         })}
       </ol>,
     );
@@ -104,7 +103,6 @@ describe("RankJourneyCard", () => {
         {await RankJourneyCard({
           journey: rankJourney("kyu-4"),
           expanded: false,
-          requiredRankSlug: "kyu-5",
         })}
       </ol>,
     );
@@ -117,20 +115,65 @@ describe("RankJourneyCard", () => {
     ).toBe("unachieved");
   });
 
-  it("取得済みの級には施錠の注記を出さない", async () => {
-    const { container } = render(
-      <ol>
-        {await RankJourneyCard({
-          journey: rankJourney("kyu-5", { achievedRankSlugs: ["kyu-5"] }),
-          expanded: false,
-          requiredRankSlug: "kyu-4",
-        })}
-      </ol>,
+  it("無級なら、次の目標（5級）以外のすべての級に施錠の注記が付く（初段も同じ文言）", async () => {
+    const cards = await Promise.all(
+      ["kyu-5", "kyu-4", "dan-1"].map((slug) =>
+        RankJourneyCard({
+          journey: rankJourney(slug),
+          expanded: slug === "kyu-5",
+        }),
+      ),
     );
+    const { container } = render(<ol>{cards}</ol>);
 
-    expect(container.textContent).not.toContain("lockedNote");
+    const notes = Array.from(container.querySelectorAll("article")).map(
+      (article) => article.textContent?.includes("lockedNote") ?? false,
+    );
+    expect(notes).toEqual([false, true, true]);
+  });
+
+  it("途中の級を持つなら、次の目標より上の級だけに施錠の注記が付く", async () => {
+    const achievedRankSlugs = ["kyu-5", "kyu-4"] as const;
+    const cards = await Promise.all(
+      ["kyu-4", "kyu-3", "kyu-2"].map((slug) =>
+        RankJourneyCard({
+          journey: rankJourney(slug, {
+            achievedRankSlugs: [...achievedRankSlugs],
+          }),
+          expanded: slug === "kyu-3",
+        }),
+      ),
+    );
+    const { container } = render(<ol>{cards}</ol>);
+
+    const notes = Array.from(container.querySelectorAll("article")).map(
+      (article) => article.textContent?.includes("lockedNote") ?? false,
+    );
+    expect(notes).toEqual([false, false, true]);
+  });
+
+  it("飛び番で級を持つなら、取得済みの級には出さず、挟まった未取得の級にも上の級にも同じ注記が付く", async () => {
+    const achievedRankSlugs = ["kyu-5", "kyu-2"] as const;
+    const cards = await Promise.all(
+      ["kyu-4", "kyu-3", "kyu-2", "kyu-1"].map((slug) =>
+        RankJourneyCard({
+          journey: rankJourney(slug, {
+            achievedRankSlugs: [...achievedRankSlugs],
+          }),
+          expanded: slug === "kyu-4",
+        }),
+      ),
+    );
+    const { container } = render(<ol>{cards}</ol>);
+
+    const articles = Array.from(container.querySelectorAll("article"));
     expect(
-      container.querySelector("article")?.getAttribute("data-rank-status"),
-    ).toBe("achieved");
+      articles.map((article) => article.getAttribute("data-rank-status")),
+    ).toEqual(["next", "unachieved", "achieved", "unachieved"]);
+    expect(
+      articles.map(
+        (article) => article.textContent?.includes("lockedNote") ?? false,
+      ),
+    ).toEqual([false, true, false, true]);
   });
 });

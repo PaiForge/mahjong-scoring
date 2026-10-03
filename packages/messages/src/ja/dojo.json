@@ -9,7 +9,7 @@
   "journeyTitle": "点数計算・黒帯への道",
   "journeyLead": "段級位は下の級から順に取得します。いま取り組む級だけ中身を開いています。上の級の教本は先に読めますが、試験は順番に受けます。",
   "canDoLabel": "できるようになること",
-  "lockedNote": "先に{rank}を取得すると受験できます",
+  "lockedNote": "下の級から順に取得すると受験できます",
   "lessonRow": "レッスン：{title}",
   "lessonRowDescription": "短い説明と 3 問の確認問題で学ぶ",
   "lessonDone": "完了",

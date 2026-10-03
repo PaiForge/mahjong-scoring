@@ -68,7 +68,6 @@ export default async function DojoPage() {
     attemptedPractices,
     achievedRankSlugs: rankSlugs,
   });
-  const nextRankSlug = journey.current?.rank.slug;
 
   return (
     <ContentContainer breadcrumb={[{ label: t("title") }]}>
@@ -114,7 +113,6 @@ export default async function DojoPage() {
                 key={rankJourney.rank.slug}
                 journey={rankJourney}
                 expanded={rankJourney.status === "next"}
-                requiredRankSlug={nextRankSlug}
               />
             ))}
           </ol>

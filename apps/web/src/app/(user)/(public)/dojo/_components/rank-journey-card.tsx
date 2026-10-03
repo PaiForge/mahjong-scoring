@@ -17,7 +17,6 @@ import {
 import { lessonBySlug } from "@mahjong-scoring/features/lessons/registry";
 import { practiceTitleKey } from "@mahjong-scoring/features/practice/catalog";
 import { practiceMenuBySlug } from "@mahjong-scoring/features/practice-menu-types";
-import type { RankSlug } from "@mahjong-scoring/features/ranks/registry";
 import {
   lessonHref,
   practiceHref,
@@ -30,8 +29,6 @@ interface RankJourneyCardProps {
   readonly journey: RankJourney;
   /** いま取り組む級（次の目標）なら中身（学ぶ・練習する・認定される）を開く */
   readonly expanded: boolean;
-  /** 未取得の上位級に添える「先に取る級」。次の目標の級 */
-  readonly requiredRankSlug: RankSlug | undefined;
 }
 
 /** 済みの印（教本の目次の読了チェックと同じ形） */
@@ -56,8 +53,13 @@ function DoneMark({ label }: { readonly label: string }) {
  * （次の目標）だけは中身を開き、レッスンと前提章の目次・章から送る練習の行・
  * 試験への帯色のボタンを並べる。他の級は閉じたまま、級名から詳細ページへ送る。
  *
- * 未取得の上位級には「先に{級}を取得すると受験できます」を添える。閉じるのは
- * 受験だけで、級名から詳細へ行けば教本の章は先に読める（教材を隠さない）。
+ * 未取得の上位級には「下の級から順に取得すると受験できます」を添える。
+ * 「先に 5級を」のように次の目標の級だけを名指ししないのは、無級の人には
+ * 初段にも 5級の名前が付いて 5級を取れば初段を受けられるように読め、飛び番で
+ * 級を持つ人には挟まった未取得の級が見えなくなるため。受験資格は常に
+ * 「level 昇順で最初の未取得の級」だけ（`evaluateExamEligibility`）なので、
+ * 順序の規則そのものを書く。閉じるのは受験だけで、級名から詳細へ行けば
+ * 教本の章は先に読める（教材を隠さない）。
  *
  * 枠は帯色（道場の「現在の段級位」カード・昇級試験カードと同じ理由 — 級を
  * 掲げたカードに既定の緑の枠を回すと、緑がその級の色に見える）。カード全体を
@@ -67,7 +69,6 @@ function DoneMark({ label }: { readonly label: string }) {
 export async function RankJourneyCard({
   journey,
   expanded,
-  requiredRankSlug,
 }: RankJourneyCardProps) {
   const [t, tRanks, tAll] = await Promise.all([
     getTranslations("dojo"),
@@ -138,10 +139,10 @@ export async function RankJourneyCard({
           </div>
         </dl>
 
-        {status === "unachieved" && requiredRankSlug !== undefined && (
+        {status === "unachieved" && (
           <p className="mt-2 flex items-center gap-1 text-xs text-surface-500">
             <LockClosedIcon className="size-3.5" />
-            {t("lockedNote", { rank: tRanks(`names.${requiredRankSlug}`) })}
+            {t("lockedNote")}
           </p>
         )}
 
