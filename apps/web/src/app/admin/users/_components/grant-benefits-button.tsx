@@ -31,7 +31,7 @@ export function GrantBenefitsButton({
   return (
     <AdminReasonModal
       tone="primary"
-      // 行ごとに 1 つ描画されるので、取り消しボタンと同じく id を対象で分ける
+      // 取り消しボタン（付与ごとに並ぶ）と同じく id を対象で分ける
       reasonId={`grant-reason-${targetUserId}`}
       labels={{
         trigger: t("grant.button"),

@@ -84,5 +84,7 @@ export async function revokeBenefitGrantAction(
   });
 
   revalidatePath("/admin/benefit-grants");
+  // ユーザー詳細のプラン表示と付与一覧も更新する
+  revalidatePath("/admin/users", "layout");
   return { success: true };
 }

@@ -86,6 +86,7 @@ export async function banUser(
     return { error: "banFailed" };
   }
 
-  revalidatePath("/admin/users");
+  // 一覧と詳細（/admin/users/[id]）の両方の状態表示を更新する
+  revalidatePath("/admin/users", "layout");
   return { success: true };
 }

@@ -1,4 +1,7 @@
 import { getTranslations } from "next-intl/server";
+import Link from "next/link";
+
+import { TEXT_LINK_CLASSES } from "@/app/_components/_lib/link-classes";
 
 import { AdminPageTitle } from "@/app/admin/_components/admin-page-title";
 import { requireAdminPage } from "@/app/admin/_lib/auth";
@@ -10,7 +13,6 @@ import {
   parseAsString,
 } from "nuqs/server";
 
-import { getOptionalUser } from "@/lib/auth";
 import { getPaginationData } from "@/lib/pagination";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { PaginationNav } from "@/app/(user)/_components/pagination-nav";
@@ -20,9 +22,6 @@ import { TableEmptyRow } from "@/app/admin/_components/table-empty-row";
 
 import { PublicProfileLink } from "../_components/public-profile-link";
 import { StatusBadge } from "../_components/status-badge";
-import { BanButton } from "../_components/ban-button";
-import { GrantBenefitsButton } from "../_components/grant-benefits-button";
-import { UnbanButton } from "../_components/unban-button";
 import { UserSearchForm } from "../_components/user-search-form";
 import { fetchUsersPageData } from "../_lib/queries";
 import { UserStatus, resolveUserStatus } from "../_lib/user-status";
@@ -32,7 +31,7 @@ const searchParamsCache = createSearchParamsCache({
   user: parseAsString.withDefault(""),
 });
 
-/** ユーザー一覧テーブルの列数（メール・ユーザー名・表示名・状態・登録日・操作） */
+/** ユーザー一覧テーブルの列数（メール・ユーザー名・表示名・状態・登録日・詳細） */
 const USER_TABLE_COLUMN_COUNT = 6;
 
 export default async function AdminUsersPage({
@@ -46,9 +45,6 @@ export default async function AdminUsersPage({
   const query = rawQuery.trim();
   const adminClient = createAdminClient();
   const t = await getTranslations("admin");
-
-  // 現在のユーザー ID を取得（自分自身の BAN を防ぐため）
-  const currentUser = await getOptionalUser();
 
   const { users, totalCount } = await fetchUsersPageData(
     adminClient,
@@ -98,7 +94,7 @@ export default async function AdminUsersPage({
                 {t("usersTable.createdAt")}
               </th>
               <th className="px-4 py-3 font-medium whitespace-nowrap">
-                {t("usersTable.actions")}
+                {t("usersTable.detail")}
               </th>
             </tr>
           </thead>
@@ -112,7 +108,6 @@ export default async function AdminUsersPage({
               users.map((user) => {
                 const profile = profileMap.get(user.id);
                 const status = resolveUserStatus(profile);
-                const isCurrentUser = currentUser?.id === user.id;
                 return (
                   <tr key={user.id} className="border-t border-gray-200">
                     <td className="px-4 py-3 whitespace-nowrap">
@@ -132,20 +127,13 @@ export default async function AdminUsersPage({
                     <td className="px-4 py-3 text-gray-500">
                       {formatAdminDate(user.created_at)}
                     </td>
-                    <td className="px-4 py-3">
-                      {/* 付与は自分にもできる（運営者の動作確認・制限解除のため）。
-                          BAN と違い相手を害さない操作なので isCurrentUser で隠さない */}
-                      <div className="flex flex-wrap gap-2">
-                        <GrantBenefitsButton targetUserId={user.id} />
-                        {/* 退会済みは BAN も解除も意味を持たない（ログインできず戻らない） */}
-                        {!isCurrentUser &&
-                          status !== UserStatus.Deleted &&
-                          (status === UserStatus.Banned ? (
-                            <UnbanButton targetUserId={user.id} />
-                          ) : (
-                            <BanButton targetUserId={user.id} />
-                          ))}
-                      </div>
+                    <td className="px-4 py-3 whitespace-nowrap">
+                      <Link
+                        href={`/admin/users/${user.id}`}
+                        className={TEXT_LINK_CLASSES}
+                      >
+                        {t("usersTable.detail")}
+                      </Link>
                     </td>
                   </tr>
                 );

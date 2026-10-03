@@ -2653,7 +2653,6 @@
       "username": "ユーザー名",
       "displayName": "表示名",
       "status": "ステータス",
-      "actions": "操作",
       "createdAt": "登録日時",
       "noUsersFound": "ユーザーが見つかりません",
       "revealEmail": "メールアドレスを表示",
@@ -2669,7 +2668,8 @@
       "searchPlaceholder": "ユーザー名・表示名・メールアドレス",
       "searchButton": "検索",
       "searchResultCount": "「{query}」に一致するユーザー: {count} 件",
-      "clearSearch": "検索を解除"
+      "clearSearch": "検索を解除",
+      "detail": "詳細"
     },
     "auditLogTable": {
       "action": "アクション",
@@ -2720,7 +2720,7 @@
     "benefitGrants": {
       "navLabel": "特典付与",
       "listTitle": "特典の手動付与",
-      "listDescription": "支援・補償・キャンペーンで Stripe の決済を伴わずに付けた Pro の特典です。付与はユーザー一覧の「Pro 付与」から行います。取り消しても行は残ります。",
+      "listDescription": "支援・補償・キャンペーンで Stripe の決済を伴わずに付けた Pro の特典です。付与はユーザー詳細の「Pro 付与」から行います。取り消しても行は残ります。",
       "table": {
         "target": "対象",
         "plan": "内容",
@@ -2861,6 +2861,74 @@
         "applied": "{count} 件の広告を更新しました",
         "activate": "{count} 件をすべて掲載する",
         "deactivate": "{count} 件をすべて停止する"
+      }
+    },
+    "userDetail": {
+      "backToList": "← ユーザー一覧",
+      "permanent": "無期限",
+      "account": {
+        "title": "アカウント",
+        "id": "ユーザー ID",
+        "email": "メールアドレス",
+        "revealEmail": "メールアドレスを表示",
+        "hideEmail": "メールアドレスを隠す",
+        "username": "ユーザー名",
+        "displayName": "表示名",
+        "role": "ロール",
+        "roles": {
+          "admin": "管理者",
+          "user": "一般"
+        },
+        "provider": "登録方法",
+        "providers": {
+          "email": "メール",
+          "google": "Google"
+        },
+        "emailConfirmedAt": "メール確認",
+        "emailUnconfirmed": "未確認",
+        "createdAt": "登録日時",
+        "lastSignInAt": "最終ログイン",
+        "bannedAt": "BAN 日時",
+        "deletedAt": "退会日時"
+      },
+      "learning": {
+        "title": "学習状況",
+        "currentRank": "段級位",
+        "noRank": "無級",
+        "totalExp": "累計 EXP",
+        "challengeCount": "チャレンジ回数",
+        "chapterReadCount": "読了した章"
+      },
+      "purchases": {
+        "title": "購入履歴",
+        "date": "購入日",
+        "item": "内容",
+        "amount": "金額",
+        "period": "期間",
+        "state": "状態",
+        "empty": "購入はありません"
+      },
+      "grants": {
+        "title": "特典の手動付与",
+        "period": "期間",
+        "reason": "理由",
+        "grantedBy": "付与者",
+        "state": "状態",
+        "actions": "操作",
+        "empty": "付与はありません"
+      },
+      "moderation": {
+        "title": "モデレーション履歴",
+        "action": "操作",
+        "reason": "理由",
+        "actor": "操作者",
+        "date": "日時",
+        "empty": "操作はありません",
+        "viewAuditLog": "監査ログで見る",
+        "viewActivityLog": "アクティビティログで見る"
+      },
+      "actions": {
+        "title": "操作"
       }
     }
   },
