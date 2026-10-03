@@ -1,10 +1,12 @@
 import type { ReactNode } from "react";
+import Link from "next/link";
 import { getTranslations } from "next-intl/server";
 import { ContentContainer } from "@/app/(user)/_components/content-container";
 import { GlossaryTermModalProvider } from "@/app/(user)/_components/glossary/glossary-term-modal-provider";
 import { JsonLd } from "@/app/(user)/_components/json-ld";
 import { NativeAdCard } from "@/app/(user)/(public)/_components/native-ad-card";
 import { PageTitle } from "@/app/(user)/_components/page-title";
+import { TEXT_LINK_CLASSES } from "@/app/_components/_lib/link-classes";
 import { getNativeAdCreative } from "@/lib/ads/creatives";
 import { collectTermSlugsInNamespace } from "@/lib/glossary/message-terms";
 import { resolveTermPreviews } from "@/lib/glossary/queries";
@@ -12,6 +14,8 @@ import {
   getChapterBySlug,
   type CurriculumChapterSlug,
 } from "@mahjong-scoring/features/curriculum/registry";
+import { lessonForChapter } from "@mahjong-scoring/features/lessons/registry";
+import { lessonHref } from "@mahjong-scoring/features/routes";
 import { buildLearnArticleSchema } from "../_lib/json-ld";
 import { chapterNamespace } from "../_lib/metadata";
 import { formatPublishedDate } from "../_lib/published-date";
@@ -37,6 +41,10 @@ interface LearnPageLayoutProps {
  * - 章本文（children）— 本文中の用語リンクが開くモーダルごと包む
  * - 読了トグル（認証時）/ ログイン導線（未認証時）— `ChapterReadStatus` が
  *   クライアントで出し分ける
+ * - レッスンへのリンク（章にレッスンがあるときだけ）— 読了トグルと同じ行。
+ *   レッスンのある章は、読了ではなくレッスンの完了で黒帯への道の「学んだ」に
+ *   なる（features の journey/journey.ts）。読了を押しても行程が進まない理由を
+ *   その場で示し、確認問題へ送る
  * - 対応練習へのリンク集（CURRICULUM の `practiceLinks` を参照。0 件なら節ごと出さない）
  * - ネイティブ広告（掲載中の広告があるときだけ）— 章を読み終え、練習・試験への
  *   導線を見たあと。本文や練習への CTA より前には出さない
@@ -63,6 +71,7 @@ export async function LearnPageLayout({
   ]);
   const chapter = getChapterBySlug(slug);
   const practiceLinks = chapter?.practiceLinks ?? [];
+  const lesson = lessonForChapter(slug);
 
   // 章の本文はすべて辞書にあるため、名前空間ごと走査すれば、その章が
   // リンクしている用語は漏れなく集まる。章側での列挙は要らない。
@@ -101,12 +110,20 @@ export async function LearnPageLayout({
           {children}
         </GlossaryTermModalProvider>
 
-        {/* 章を読み終えた位置に置く。練習への CTA より前へは出さない。 */}
-        <div className="flex justify-end text-sm">
-          <ChapterReadStatus
-            slug={slug}
-            loginPrompt={<LoginPromptCta slug={slug} />}
-          />
+        {/* 章を読み終えた位置に置く。練習への CTA より前へは出さない。
+            レッスンへのリンクは左、読了トグルは右に寄せる（狭い画面では折り返す） */}
+        <div className="flex flex-wrap items-center gap-x-4 gap-y-2 text-sm">
+          {lesson && (
+            <Link href={lessonHref(lesson.slug)} className={TEXT_LINK_CLASSES}>
+              {tChapter("lessonLink")}
+            </Link>
+          )}
+          <div className="ml-auto">
+            <ChapterReadStatus
+              slug={slug}
+              loginPrompt={<LoginPromptCta slug={slug} />}
+            />
+          </div>
         </div>
 
         {practiceLinks.length > 0 && (
