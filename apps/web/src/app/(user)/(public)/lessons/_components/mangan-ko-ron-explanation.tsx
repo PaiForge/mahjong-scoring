@@ -10,7 +10,7 @@ import { ManganScoreTable } from "@/app/(user)/(public)/learn/_components/mangan
  * Server Component。教本の章（`/learn/mangan-ko-ron`）の本文を 2 段落と
  * 点数表に絞ったもの。表は章と同じ `ManganScoreTable` で、レッスンで見た
  * 表がそのまま章にもある。確認問題の選択肢（features の
- * `MANGAN_KO_RON_LESSON_CHOICES`）もこの表と同じ出所から導いている。
+ * `MANGAN_KO_RON_LESSON_QUIZ`）もこの表と同じ出所から導いている。
  */
 export async function ManganKoRonExplanation() {
   const t = await getTranslations("lessons.manganKoRon");

@@ -5,11 +5,18 @@
   "quizTitle": "確認問題",
   "progress": "{index} / {total} 問目",
   "conditionLabel": "条件",
-  "questionPrompt": "点数を選んでください",
   "showHint": "ヒントを見る",
   "hintLabel": "ヒント",
   "correct": "正解！",
-  "incorrect": "正解は {answer} 点",
+  "incorrect": "正解は {answer}",
+  "answerLabels": {
+    "points": "{points} 点"
+  },
+  "choiceLabels": {
+    "oyaTsumo": "{all} オール",
+    "han": "{han}翻",
+    "yakuman": "役満"
+  },
   "next": "次の問題へ",
   "finish": "できたことを確認する",
   "doneTitle": "できるようになったこと",
@@ -41,6 +48,7 @@
     "point1": "満貫は 8,000 点。これが基準です。",
     "point2": "跳満は満貫の 1.5 倍、倍満は 2 倍、三倍満は 3 倍、役満は 4 倍。覚えるのはこの表の 5 つだけです。",
     "condition": "子・ロン・{han}翻（{tier}）",
+    "questionPrompt": "点数を選んでください",
     "questions": {
       "mangan": {
         "hint": "5 翻は満貫。基準の点数です。",

@@ -80,10 +80,9 @@ export default async function LessonPage({ params }: LessonPageProps) {
     >
       <PageTitle>{tLesson("title")}</PageTitle>
 
-      {/* レッスンは今のところ 1 本。2 本目を足すときは、ここをレッスンの
-          種類で分岐させるのではなく、説明と問題の組を slug から引く表にする */}
       <LessonView
         slug={lesson.slug}
+        messageKey={lesson.messageKey}
         chapterSlug={lesson.chapterSlug}
         explanation={<ManganKoRonExplanation />}
       />

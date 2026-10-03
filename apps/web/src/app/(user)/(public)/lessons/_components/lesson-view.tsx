@@ -27,9 +27,12 @@ import { logExternalError } from "@/lib/log-error";
 import { buildSignInHref } from "@/lib/redirect";
 import type { CurriculumChapterSlug } from "@mahjong-scoring/features/curriculum/registry";
 import {
-  MANGAN_KO_RON_LESSON_CHOICES,
-  MANGAN_KO_RON_LESSON_QUESTIONS,
-} from "@mahjong-scoring/features/lessons/mangan-ko-ron";
+  choiceKey,
+  isSameChoice,
+  type LessonChoice,
+  type LessonPrompt,
+} from "@mahjong-scoring/features/lessons/quiz";
+import { lessonQuiz } from "@mahjong-scoring/features/lessons/quizzes";
 import type { LessonSlug } from "@mahjong-scoring/features/lessons/registry";
 import { chapterHref, lessonHref } from "@mahjong-scoring/features/routes";
 
@@ -41,6 +44,8 @@ import {
 
 interface LessonViewProps {
   readonly slug: LessonSlug;
+  /** レッスンの辞書の名前空間（`lessons.<messageKey>`） */
+  readonly messageKey: string;
   /** 対応する章。未ログインの人が続きを読みに行く先 */
   readonly chapterSlug: CurriculumChapterSlug;
   /** 説明の本文（サーバーで描いたもの） */
@@ -68,6 +73,61 @@ type SaveState =
 /** 点数を日本語ロケールの桁区切りで表示する */
 function formatPoints(points: number): string {
   return points.toLocaleString("ja-JP");
+}
+
+/** 翻訳関数（`useTranslations` の戻り値のうち、ここで使う形） */
+type Translator = (
+  key: string,
+  values?: Record<string, string | number>,
+) => string;
+
+/**
+ * 選択肢のボタンに出す文字列
+ *
+ * 数字だけで読めるもの（点数・子のツモの支払い）は辞書を通さずに組む。
+ * 単位や語が付くもの（オール・翻・役満）は辞書から引く。
+ */
+function choiceLabel(choice: LessonChoice, t: Translator): string {
+  switch (choice.kind) {
+    case "points":
+      return formatPoints(choice.points);
+    case "koTsumo":
+      return `${formatPoints(choice.fromKo)} / ${formatPoints(choice.fromOya)}`;
+    case "oyaTsumo":
+      return t("choiceLabels.oyaTsumo", { all: formatPoints(choice.all) });
+    case "han":
+      return t("choiceLabels.han", { han: choice.han });
+    case "yakuman":
+      return t("choiceLabels.yakuman");
+  }
+}
+
+/**
+ * 不正解のときに「正解は〜」へ差し込む文字列
+ *
+ * ボタンでは単位を省いている点数・子のツモにだけ「点」を付ける。
+ */
+function answerLabel(choice: LessonChoice, t: Translator): string {
+  switch (choice.kind) {
+    case "points":
+    case "koTsumo":
+      return t("answerLabels.points", { points: choiceLabel(choice, t) });
+    default:
+      return choiceLabel(choice, t);
+  }
+}
+
+/** 条件文（辞書の `condition`）へ差し込む値 */
+function conditionValues(
+  prompt: LessonPrompt,
+  tScoreTable: (key: string) => string,
+): Record<string, string | number> {
+  switch (prompt.kind) {
+    case "tier":
+      return { han: prompt.han, tier: tScoreTable(prompt.tierKey) };
+    case "yaku":
+      return { yaku: prompt.yaku, state: prompt.naki ? "naki" : "menzen" };
+  }
 }
 
 /**
@@ -99,25 +159,26 @@ function formatPoints(points: number): string {
  * クライアント側の `user` は、`skipped` が「未ログイン」か「セッション切れ」
  * かを言い分けるためと、預かりに本人の id を付けるためにだけ使う。
  *
- * 問題と選択肢は今のところ「子のロン（満貫以上）」のものを直接読む。
- * レッスンを足すときに slug から引く表にする（ページ側のコメント参照）。
+ * 問題と選択肢は slug から features の `lessonQuiz` で引き、条件文・
+ * ヒント・解説・達成の文言はレッスンの辞書（`lessons.<messageKey>`）から引く。
+ * 進行はレッスンの種類で分岐させない。
  */
 export function LessonView({
   slug,
+  messageKey,
   chapterSlug,
   explanation,
 }: LessonViewProps) {
   const t = useTranslations("lessons");
-  const tLesson = useTranslations("lessons.manganKoRon");
+  const tLesson = useTranslations(`lessons.${messageKey}`);
   const tScoreTable = useTranslations("scoreTable");
   const { user } = useAuth();
 
-  const questions = MANGAN_KO_RON_LESSON_QUESTIONS;
-  const choices = MANGAN_KO_RON_LESSON_CHOICES;
+  const { questions, choices } = lessonQuiz(slug);
 
   const [phase, setPhase] = useState<Phase>("learn");
   const [index, setIndex] = useState(0);
-  const [selected, setSelected] = useState<number | undefined>(undefined);
+  const [selected, setSelected] = useState<LessonChoice | undefined>(undefined);
   const [showHint, setShowHint] = useState(false);
   const [correctCount, setCorrectCount] = useState(0);
   const [saveState, setSaveState] = useState<SaveState>("idle");
@@ -127,7 +188,7 @@ export function LessonView({
 
   const question = questions[index];
   const isAnswered = selected !== undefined;
-  const isCorrect = isAnswered && selected === question.answer;
+  const isCorrect = isAnswered && isSameChoice(selected, question.answer);
   const isLast = index === questions.length - 1;
 
   /**
@@ -173,17 +234,14 @@ export function LessonView({
     [slug],
   );
 
-  const handleSelect = useCallback(
-    (choiceIndex: number) => {
-      if (isAnswered) return;
-      const value = choices[choiceIndex];
-      setSelected(value);
-      if (value === question.answer) {
-        setCorrectCount((count) => count + 1);
-      }
-    },
-    [isAnswered, choices, question.answer],
-  );
+  const handleSelect = (choiceIndex: number) => {
+    if (isAnswered) return;
+    const choice = choices[choiceIndex];
+    setSelected(choice);
+    if (isSameChoice(choice, question.answer)) {
+      setCorrectCount((count) => count + 1);
+    }
+  };
 
   const handleNext = () => {
     if (isLast) {
@@ -247,17 +305,17 @@ export function LessonView({
               className="text-xl font-bold text-surface-900"
               data-testid="lesson-condition"
             >
-              {tLesson("condition", {
-                han: question.han,
-                tier: tScoreTable(question.tierKey),
-              })}
+              {tLesson(
+                "condition",
+                conditionValues(question.prompt, tScoreTable),
+              )}
             </p>
             {/* ヒントは選択肢に手を付ける前に見られる。答えそのものではなく
                 倍率の言い方で、表を思い出す手がかりにする */}
             {showHint && !isAnswered && (
               <p className="text-sm text-amber-900" data-testid="lesson-hint">
                 <span className="font-bold">{t("hintLabel")}: </span>
-                {tLesson(`questions.${question.tierKey}.hint`)}
+                {tLesson(`questions.${question.key}.hint`)}
               </p>
             )}
             {isAnswered && (
@@ -271,28 +329,28 @@ export function LessonView({
                 />
                 {isCorrect
                   ? t("correct")
-                  : t("incorrect", { answer: formatPoints(question.answer) })}
+                  : t("incorrect", { answer: answerLabel(question.answer, t) })}
               </p>
             )}
             {isAnswered && (
               <p className="text-sm leading-relaxed text-surface-700">
-                {tLesson(`questions.${question.tierKey}.explanation`)}
+                {tLesson(`questions.${question.key}.explanation`)}
               </p>
             )}
           </FeedbackFrame>
 
-          <QuestionPrompt>{t("questionPrompt")}</QuestionPrompt>
+          <QuestionPrompt>{tLesson("questionPrompt")}</QuestionPrompt>
 
           <div className="grid grid-cols-2 gap-3 sm:grid-cols-3">
             {choices.map((choice, choiceIndex) => {
               const { borderClass, bgClass } = getFeedbackStyles(
                 isAnswered,
-                selected === choice,
-                choice === question.answer,
+                selected !== undefined && isSameChoice(selected, choice),
+                isSameChoice(choice, question.answer),
               );
               return (
                 <ChoiceButton
-                  key={choice}
+                  key={choiceKey(choice)}
                   index={choiceIndex}
                   onSelect={handleSelect}
                   disabled={isAnswered}
@@ -300,7 +358,7 @@ export function LessonView({
                   bgClass={bgClass}
                   className="text-lg font-bold tabular-nums"
                 >
-                  {formatPoints(choice)}
+                  {choiceLabel(choice, t)}
                 </ChoiceButton>
               );
             })}
