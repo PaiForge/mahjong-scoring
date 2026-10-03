@@ -1,5 +1,9 @@
 import { describe, expect, it } from "vitest";
-import { validateUsernameFormat, validateUsername } from "../username";
+import {
+  generateUsername,
+  validateUsername,
+  validateUsernameFormat,
+} from "../username";
 
 describe("validateUsernameFormat", () => {
   describe("valid usernames", () => {
@@ -146,5 +150,18 @@ describe("validateUsername", () => {
     it("accepts exactly 20 characters", () => {
       expect(validateUsername("abcdefghijklmnopqrst")).toBeUndefined();
     });
+  });
+});
+
+describe("generateUsername", () => {
+  it("always passes validateUsername", () => {
+    for (let i = 0; i < 1000; i++) {
+      const username = generateUsername();
+      expect(validateUsername(username), username).toBeUndefined();
+    }
+  });
+
+  it("returns a different name each time", () => {
+    expect(generateUsername()).not.toBe(generateUsername());
   });
 });

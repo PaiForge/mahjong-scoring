@@ -6,7 +6,12 @@ import { ProfileTextField } from "@/app/(user)/(protected)/_components/profile-t
 import { useTranslations } from "next-intl";
 import { useRouter } from "next/navigation";
 
-import { USERNAME_MAX_LENGTH, validateUsername } from "@/lib/username";
+import { TEXT_LINK_CLASSES } from "@/app/_components/_lib/link-classes";
+import {
+  generateUsername,
+  USERNAME_MAX_LENGTH,
+  validateUsername,
+} from "@/lib/username";
 import { PROFILE_LIMITS } from "@/lib/validations/profile";
 
 import { registerUsername } from "../_actions/register-username";
@@ -38,6 +43,10 @@ export function UsernameForm() {
     if (error) {
       setError(undefined);
     }
+  };
+
+  const handleGenerateUsername = () => {
+    handleUsernameChange(generateUsername());
   };
 
   const handleSubmit = async (e: FormEvent) => {
@@ -84,6 +93,15 @@ export function UsernameForm() {
         maxLength={USERNAME_MAX_LENGTH}
         required
         autoFocus
+        labelAction={
+          <button
+            type="button"
+            onClick={handleGenerateUsername}
+            className={`text-xs ${TEXT_LINK_CLASSES}`}
+          >
+            {t("generateUsername")}
+          </button>
+        }
       >
         {error && <p className="mt-2 text-sm text-destructive">{error}</p>}
         <ul className="mt-2 list-inside list-disc space-y-0.5">

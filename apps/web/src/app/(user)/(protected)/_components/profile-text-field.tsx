@@ -20,6 +20,8 @@ interface ProfileTextFieldProps {
   /** ラベル横に必須マークを出す */
   readonly required?: boolean;
   readonly autoFocus?: boolean;
+  /** ラベルと同じ行の右端に置く要素（入力欄を埋める補助ボタンなど） */
+  readonly labelAction?: ReactNode;
   /** 入力欄の下に置く要素（エラー・注意書き・文字数カウンタなど） */
   readonly children?: ReactNode;
 }
@@ -39,17 +41,21 @@ export function ProfileTextField({
   maxLength,
   required = false,
   autoFocus = false,
+  labelAction,
   children,
 }: ProfileTextFieldProps) {
   return (
     <div>
-      <label
-        htmlFor={id}
-        className="mb-1 block text-sm font-medium text-surface-800"
-      >
-        {label}
-        {required && <span className="text-destructive"> *</span>}
-      </label>
+      <div className="mb-1 flex items-baseline justify-between gap-2">
+        <label
+          htmlFor={id}
+          className="block text-sm font-medium text-surface-800"
+        >
+          {label}
+          {required && <span className="text-destructive"> *</span>}
+        </label>
+        {labelAction}
+      </div>
       <input
         id={id}
         type="text"

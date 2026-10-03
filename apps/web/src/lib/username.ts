@@ -65,3 +65,22 @@ export function validateUsername(
   }
   return undefined;
 }
+
+/** {@link generateUsername} の接頭辞。予約語（完全一致）の "player" とは別物 */
+const GENERATED_USERNAME_PREFIX = "player_";
+
+/**
+ * 必ず {@link validateUsername} を通るランダムなユーザー名を作る。
+ * ランダムユーザー名生成
+ *
+ * 名前を考えるのが手間で登録を止める人に、そのまま使える／書き換えて使える
+ * 叩き台を渡すためのもの。接尾辞は 16 進 10 桁（40 bit）で、
+ * `player_` と合わせて 17 文字に収まる。重複はサーバー側の一意制約が弾く。
+ */
+export function generateUsername(): string {
+  const bytes = crypto.getRandomValues(new Uint8Array(5));
+  const suffix = Array.from(bytes, (byte) =>
+    byte.toString(16).padStart(2, "0"),
+  ).join("");
+  return `${GENERATED_USERNAME_PREFIX}${suffix}`;
+}
