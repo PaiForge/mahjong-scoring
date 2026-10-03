@@ -6,7 +6,7 @@ import {
   DataTableRowHeaderCell,
 } from "@/app/(user)/_components/data-table";
 
-import type { FixedHandShape } from "@/app/(user)/(public)/practice/score/_lib/hand-shape-param";
+import type { FixedHandShape } from "@mahjong-scoring/features/practice/score/hand-shape-param";
 
 import { buildExtraFuRows } from "../_lib/extra-fu-rows";
 

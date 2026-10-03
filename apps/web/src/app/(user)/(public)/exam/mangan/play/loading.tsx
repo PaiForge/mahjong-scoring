@@ -1,4 +1,4 @@
-import { PRACTICE_SLUG } from "@/lib/db/practice-menu-types";
+import { PRACTICE_SLUG } from "@mahjong-scoring/features/practice-menu-types";
 import { ExamPlayLoading } from "../../_components/exam-play-loading";
 
 /**

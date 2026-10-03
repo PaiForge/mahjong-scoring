@@ -41,7 +41,7 @@ import {
   canResumePractice,
   usePracticeQuota,
 } from "../../_hooks/use-practice-quota";
-import { PlanBenefit } from "@/lib/billing/plans";
+import { PlanBenefit } from "@mahjong-scoring/features/billing/plans";
 
 /** 出題条件を選ぶ設定画面。「終了」で戻る先 */
 const SETUP_HREF = "/practice/score";

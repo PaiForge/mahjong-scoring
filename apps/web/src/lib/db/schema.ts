@@ -1,4 +1,4 @@
-import type { ChallengeState } from "../challenge/types";
+import type { ChallengeState } from "@mahjong-scoring/features/challenge/types";
 import { sql } from "drizzle-orm";
 import {
   boolean,

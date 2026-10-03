@@ -15,7 +15,7 @@
 import { inArray } from "drizzle-orm";
 import type { PostgresJsDatabase } from "drizzle-orm/postgres-js";
 
-import { PLANS } from "../../src/lib/billing/plans";
+import { PLANS } from "@mahjong-scoring/features/billing/plans";
 import { benefitGrants, type NewBenefitGrant } from "../../src/lib/db/schema";
 
 /** 投入先のユーザー（`ensureSeedUser` が返した id と username） */

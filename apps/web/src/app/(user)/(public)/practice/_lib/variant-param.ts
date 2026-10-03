@@ -15,7 +15,7 @@ import {
   practiceMenuBySlug,
   resolvePracticeVariant,
   type PracticeMenuSlug,
-} from "@/lib/db/practice-menu-types";
+} from "@mahjong-scoring/features/practice-menu-types";
 
 /** バリアントを指定するクエリパラメータ名 */
 export const VARIANT_PARAM = "variant";

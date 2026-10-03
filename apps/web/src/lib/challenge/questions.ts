@@ -14,19 +14,22 @@ import {
   clampHanToYakuman,
   judgeScoreTableAnswer,
 } from "@mahjong-scoring/core";
-import type { PracticeMenuType } from "../db/practice-menu-types";
-import { resolvePracticeVariant } from "../db/practice-menu-types";
-import { SCORE_TABLE_VARIANT_OPTIONS } from "../../app/(user)/(public)/practice/score-table/_lib/variants";
-import { YAKU_HAN_VARIANT_RANGES } from "../../app/(user)/(public)/practice/yaku-han/_lib/variants";
-import { paymentToScoreTableAnswer } from "../../app/(user)/(public)/practice/_lib/payment-adapter";
-import { scoreTableAnswerSchema } from "../../app/(user)/(public)/practice/_lib/result-schemas";
-import { EXAM_GENERATE_OPTIONS as mangan } from "../../app/(user)/(public)/exam/mangan/_lib/types";
-import { EXAM_GENERATE_OPTIONS as fu } from "../../app/(user)/(public)/exam/fu/_lib/types";
-import { EXAM_GENERATE_OPTIONS as chiitoitsu } from "../../app/(user)/(public)/exam/chiitoitsu/_lib/types";
-import { EXAM_GENERATE_OPTIONS as pinfu } from "../../app/(user)/(public)/exam/pinfu/_lib/types";
-import { EXAM_GENERATE_OPTIONS as fuScore } from "../../app/(user)/(public)/exam/fu-score/_lib/types";
-import { EXAM_GENERATE_OPTIONS as score } from "../../app/(user)/(public)/exam/score/_lib/types";
-import type { ChallengeQuestion, ChallengeSettings } from "./types";
+import type { PracticeMenuType } from "@mahjong-scoring/features/practice-menu-types";
+import { resolvePracticeVariant } from "@mahjong-scoring/features/practice-menu-types";
+import { SCORE_TABLE_VARIANT_OPTIONS } from "@mahjong-scoring/features/practice/score-table/variants";
+import { YAKU_HAN_VARIANT_RANGES } from "@mahjong-scoring/features/practice/yaku-han/variants";
+import { paymentToScoreTableAnswer } from "@mahjong-scoring/features/results/payment-adapter";
+import { scoreTableAnswerSchema } from "@mahjong-scoring/features/results/result-schemas";
+import { EXAM_GENERATE_OPTIONS as mangan } from "@mahjong-scoring/features/exam/mangan/types";
+import { EXAM_GENERATE_OPTIONS as fu } from "@mahjong-scoring/features/exam/fu/types";
+import { EXAM_GENERATE_OPTIONS as chiitoitsu } from "@mahjong-scoring/features/exam/chiitoitsu/types";
+import { EXAM_GENERATE_OPTIONS as pinfu } from "@mahjong-scoring/features/exam/pinfu/types";
+import { EXAM_GENERATE_OPTIONS as fuScore } from "@mahjong-scoring/features/exam/fu-score/types";
+import { EXAM_GENERATE_OPTIONS as score } from "@mahjong-scoring/features/exam/score/types";
+import type {
+  ChallengeQuestion,
+  ChallengeSettings,
+} from "@mahjong-scoring/features/challenge/types";
 
 /** 記録対象の問題をサーバーで生成する。出題条件はメニューから決める。 */
 export function generateChallengeQuestion(

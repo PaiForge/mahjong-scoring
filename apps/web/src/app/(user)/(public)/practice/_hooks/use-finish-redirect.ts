@@ -2,9 +2,9 @@
 
 import { useEffect, useRef } from "react";
 import { useRouter } from "next/navigation";
-import type { PracticeMenuSlug } from "@/lib/db/practice-menu-types";
-import { RUN_PARAM } from "../_lib/challenge-run";
-import { FINISH_REASON_PARAM } from "../_lib/finish-reason";
+import type { PracticeMenuSlug } from "@mahjong-scoring/features/practice-menu-types";
+import { RUN_PARAM } from "@mahjong-scoring/features/challenge/challenge-run";
+import { FINISH_REASON_PARAM } from "@mahjong-scoring/features/challenge/finish-reason";
 import { VARIANT_PARAM, readVariantFromLocation } from "../_lib/variant-param";
 import type { FinalResult } from "./use-timed-session";
 

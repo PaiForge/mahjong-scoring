@@ -8,7 +8,7 @@ import {
 import { getMissColorClass } from "@/app/(user)/_components/_lib/miss-color";
 import { formatDate } from "../../_lib/dashboard-utils";
 import type { ChallengeAttempt } from "../../_lib/types";
-import type { PracticeBoard } from "@/lib/db/practice-menu-types";
+import type { PracticeBoard } from "@mahjong-scoring/features/practice-menu-types";
 
 interface ResultsTableProps {
   readonly items: readonly ChallengeAttempt[];

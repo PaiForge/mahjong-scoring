@@ -7,7 +7,7 @@ import {
   TOGGLE_GROUP_CONTAINER_CLASSES,
   toggleItemClasses,
 } from "@/app/(user)/_components/_lib/toggle-group-classes";
-import type { PracticeBoard } from "@/lib/db/practice-menu-types";
+import type { PracticeBoard } from "@mahjong-scoring/features/practice-menu-types";
 
 interface PeriodSelectorProps {
   readonly currentPeriod: LeaderboardPeriod;

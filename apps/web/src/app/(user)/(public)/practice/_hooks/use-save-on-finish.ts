@@ -2,7 +2,7 @@
 
 import { useVerifiedChallenge } from "./use-verified-challenge";
 import { useCallback } from "react";
-import type { PracticeMenuType } from "@/lib/db/practice-menu-types";
+import type { PracticeMenuType } from "@mahjong-scoring/features/practice-menu-types";
 import { logExternalError } from "@/lib/log-error";
 import type {
   FinishCallbackArgs,

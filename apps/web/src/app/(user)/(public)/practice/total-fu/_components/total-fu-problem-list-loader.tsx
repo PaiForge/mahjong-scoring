@@ -3,7 +3,7 @@
 import { FuProblemList } from "../../_components/fu-problem-list";
 import { createProblemListLoader } from "../../_lib/create-problem-list-loader";
 import type { ProblemListLoaderProps } from "../../_lib/problem-list-loader-props";
-import { parseFuQuestionResults } from "../_lib/types";
+import { parseFuQuestionResults } from "@mahjong-scoring/features/practice/total-fu/types";
 
 const FuLoader = createProblemListLoader(parseFuQuestionResults, FuProblemList);
 

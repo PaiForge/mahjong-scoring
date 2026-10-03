@@ -10,7 +10,7 @@ import {
   isOfferKey,
   isPlanBenefit,
   isPlanKey,
-} from "../plans";
+} from "@mahjong-scoring/features/billing/plans";
 
 describe("PLANS", () => {
   it("すべてのプランが 1 つ以上の特典を持ち、値は PlanBenefit に収まる", () => {

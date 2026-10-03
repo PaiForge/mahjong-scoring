@@ -4,7 +4,7 @@ import { Suspense, type ReactNode } from "react";
 import type {
   PracticeMenuSlug,
   PracticeVariantOf,
-} from "@/lib/db/practice-menu-types";
+} from "@mahjong-scoring/features/practice-menu-types";
 import { useVariantQuery } from "../_hooks/use-variant-query";
 
 interface WithUrlVariantProps<S extends PracticeMenuSlug> {

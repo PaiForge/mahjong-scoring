@@ -5,7 +5,7 @@ import { useTranslations } from "next-intl";
 import {
   practiceMenuBySlug,
   type PracticeMenuSlug,
-} from "@/lib/db/practice-menu-types";
+} from "@mahjong-scoring/features/practice-menu-types";
 import { SectionTitle } from "@/app/(user)/_components/section-title";
 import { useVariantQuery } from "../_hooks/use-variant-query";
 import {

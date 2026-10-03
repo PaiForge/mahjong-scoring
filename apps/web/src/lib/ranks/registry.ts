@@ -1,5 +1,5 @@
 import type { CurriculumChapterSlug } from "@/app/(user)/(public)/learn/_lib/curriculum";
-import type { PracticeMenuType } from "@/lib/db/practice-menu-types";
+import type { PracticeMenuType } from "@mahjong-scoring/features/practice-menu-types";
 
 /**
  * 段級位レジストリ — ランク定義の単一の真実のソース

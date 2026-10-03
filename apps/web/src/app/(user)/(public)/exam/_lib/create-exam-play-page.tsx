@@ -1,6 +1,6 @@
 import type { ComponentType } from "react";
 
-import type { PracticeMenuSlug } from "@/lib/db/practice-menu-types";
+import type { PracticeMenuSlug } from "@mahjong-scoring/features/practice-menu-types";
 
 import { redirectUnlessExamEligible } from "./exam-guard";
 

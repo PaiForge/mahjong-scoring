@@ -5,7 +5,7 @@ import { useTranslations } from "next-intl";
 import {
   isPracticeMenuType,
   menuTypeToMessageKey,
-} from "@/lib/db/practice-menu-types";
+} from "@mahjong-scoring/features/practice-menu-types";
 
 interface HeatmapDetailPanelProps {
   readonly selectedDate: string | undefined;

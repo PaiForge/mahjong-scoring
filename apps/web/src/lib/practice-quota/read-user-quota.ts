@@ -3,7 +3,7 @@ import "server-only";
 
 import { db, practiceQuotaUsage } from "@/lib/db";
 
-import type { QuotaMenu } from "./limits";
+import type { QuotaMenu } from "@mahjong-scoring/features/quota/limits";
 
 /**
  * ログイン済みユーザーの今日の残りを消費せずに読む

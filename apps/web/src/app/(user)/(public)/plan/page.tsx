@@ -9,9 +9,9 @@ import { InfinityIcon } from "@/app/(user)/_components/icons/infinity-icon";
 import { PageTitle } from "@/app/(user)/_components/page-title";
 import { SectionTitle } from "@/app/(user)/_components/section-title";
 import { createNamespaceMetadata } from "@/app/_lib/metadata";
-import { OFFER_KEYS, PLANS } from "@/lib/billing/plans";
+import { OFFER_KEYS, PLANS } from "@mahjong-scoring/features/billing/plans";
 import { formatAmount, getOfferPrices } from "@/lib/billing/prices";
-import { PRACTICE_QUOTA_LIMITS } from "@/lib/practice-quota/limits";
+import { PRACTICE_QUOTA_LIMITS } from "@mahjong-scoring/features/quota/limits";
 
 import { OfferPurchaseButton } from "./_components/offer-purchase-button";
 

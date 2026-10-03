@@ -30,7 +30,7 @@ vi.mock("../../_lib/period-queries", () => ({
 }));
 
 import { getUserRanks } from "../get-user-ranks";
-import { practiceBoardKey } from "@/lib/db/practice-menu-types";
+import { practiceBoardKey } from "@mahjong-scoring/features/practice-menu-types";
 
 // ---------------------------------------------------------------------------
 // Fixtures

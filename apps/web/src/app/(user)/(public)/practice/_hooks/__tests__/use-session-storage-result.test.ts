@@ -1,7 +1,7 @@
 import { renderHook } from "@testing-library/react";
 import { afterEach, describe, expect, it } from "vitest";
 
-import { packStoredResults } from "../../_lib/challenge-run";
+import { packStoredResults } from "@mahjong-scoring/features/challenge/challenge-run";
 import { useSessionStorageResult } from "../use-session-storage-result";
 
 const KEY = "test-results";

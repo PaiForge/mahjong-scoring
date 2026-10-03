@@ -38,7 +38,7 @@ import type { LeaderboardPeriod } from "../../_lib/types";
 import { PlayIcon } from "@/app/(user)/_components/icons/play-icon";
 import { buildChallengePath, resolveBoard } from "../../_lib/types";
 import { isValidPeriod } from "../../_lib/validators";
-import type { PracticeBoard } from "@/lib/db/practice-menu-types";
+import type { PracticeBoard } from "@mahjong-scoring/features/practice-menu-types";
 
 export const dynamic = "force-dynamic";
 

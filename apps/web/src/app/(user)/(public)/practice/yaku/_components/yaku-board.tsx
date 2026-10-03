@@ -20,12 +20,15 @@ import {
   useRegisterAdvance,
   useTrainingMode,
 } from "../../_hooks/use-training-mode";
-import { AnswerOutcome, toAnswerOutcome } from "../../_lib/result-schemas";
+import {
+  AnswerOutcome,
+  toAnswerOutcome,
+} from "@mahjong-scoring/features/results/result-schemas";
 import {
   QUESTION_GENERATION_MAX_RETRIES,
   toQuestionResult,
-} from "../_lib/types";
-import type { YakuQuestionResult } from "../_lib/types";
+} from "@mahjong-scoring/features/practice/yaku/types";
+import type { YakuQuestionResult } from "@mahjong-scoring/features/practice/yaku/types";
 import type { RecordingPracticeBoardProps } from "../../_lib/practice-board-props";
 
 function generateQuestion(): YakuQuestion | undefined {

@@ -26,7 +26,7 @@ import {
   PLANS,
   PurchaseKind,
   addPassDuration,
-} from "../../src/lib/billing/plans";
+} from "@mahjong-scoring/features/billing/plans";
 import { purchases, type NewPurchase } from "../../src/lib/db/schema";
 
 /** 投入先のユーザー（`ensureSeedUser` が返した id と username） */

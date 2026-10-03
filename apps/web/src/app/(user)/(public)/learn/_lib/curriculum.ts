@@ -1,4 +1,4 @@
-import type { PracticeMenuSlug } from "@/lib/db/practice-menu-types";
+import type { PracticeMenuSlug } from "@mahjong-scoring/features/practice-menu-types";
 
 import {
   practiceHref,

@@ -9,7 +9,7 @@ import {
   MACHI_TILE_MARK_CLASSES,
   machiTileMark,
   type MachiTileMark,
-} from "../_lib/machi-tile-mark";
+} from "@mahjong-scoring/features/practice/machi-score/machi-tile-mark";
 
 /**
  * 牌種を種類ごとに並べた選択肢の行

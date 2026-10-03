@@ -4,8 +4,8 @@ import { useTranslations } from "next-intl";
 
 import { PracticePlayLoadingFallback } from "@/app/(user)/(public)/practice/_components/practice-play-loading-fallback";
 import { BOARD_HEIGHT_BY_SLUG } from "@/app/(user)/(public)/practice/_lib/board-area-height";
-import type { PracticeMenuSlug } from "@/lib/db/practice-menu-types";
-import { practiceMenuBySlug } from "@/lib/db/practice-menu-types";
+import type { PracticeMenuSlug } from "@mahjong-scoring/features/practice-menu-types";
+import { practiceMenuBySlug } from "@mahjong-scoring/features/practice-menu-types";
 
 interface Props {
   /** 試験のスラッグ。loading.tsx を置いたディレクトリと揃える */

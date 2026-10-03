@@ -3,16 +3,16 @@
 import { useSearchParams } from "next/navigation";
 import { useTranslations } from "next-intl";
 
-import type { PracticeMenuSlug } from "@/lib/db/practice-menu-types";
+import type { PracticeMenuSlug } from "@mahjong-scoring/features/practice-menu-types";
 import {
   isExamMenuType,
   practiceMenuBySlug,
-} from "@/lib/db/practice-menu-types";
+} from "@mahjong-scoring/features/practice-menu-types";
 import {
   FINISH_REASON_PARAM,
   listedProblemCount,
   parseFinishReason,
-} from "../_lib/finish-reason";
+} from "@mahjong-scoring/features/challenge/finish-reason";
 import { practiceHref } from "../_lib/practice-catalog";
 import {
   buildResultBreadcrumb,

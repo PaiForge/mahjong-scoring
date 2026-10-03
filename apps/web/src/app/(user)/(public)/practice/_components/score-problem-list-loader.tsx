@@ -1,7 +1,7 @@
 "use client";
 
 import { createProblemListLoader } from "../_lib/create-problem-list-loader";
-import { parseQuestionResults } from "../_lib/score-question-result";
+import { parseQuestionResults } from "@mahjong-scoring/features/results/score-question-result";
 import { ScoreProblemListWithLinks } from "./score-problem-list-with-links";
 
 /**

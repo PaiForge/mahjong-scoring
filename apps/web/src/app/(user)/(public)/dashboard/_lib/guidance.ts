@@ -7,7 +7,7 @@ import { practiceSlugFromHref } from "@/app/(user)/(public)/practice/_lib/practi
 import {
   menuTypeToSlug,
   type PracticeMenuSlug,
-} from "@/lib/db/practice-menu-types";
+} from "@mahjong-scoring/features/practice-menu-types";
 import { nextRank, type RankSlug } from "@/lib/ranks/registry";
 
 /** ダッシュボードに出すおすすめ練習の上限。増やすと練習一覧の縮小版になる */

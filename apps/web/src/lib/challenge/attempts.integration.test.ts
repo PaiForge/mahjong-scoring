@@ -10,7 +10,7 @@ import {
 } from "vitest";
 import { eq } from "drizzle-orm";
 import * as schema from "../db/schema";
-import { practiceMenuByType } from "../db/practice-menu-types";
+import { practiceMenuByType } from "@mahjong-scoring/features/practice-menu-types";
 
 const mocked = vi.hoisted(() => ({
   save: vi.fn(),

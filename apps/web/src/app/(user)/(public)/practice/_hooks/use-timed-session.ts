@@ -3,8 +3,8 @@
 import { useCallback, useMemo, useRef, useState } from "react";
 import { useCountdown } from "./use-countdown";
 import { CHALLENGE_TIME_LIMIT, MISTAKE_LIMIT } from "@mahjong-scoring/core";
-import { ANSWER_FEEDBACK_DURATION_MS } from "@/lib/db/challenge-result-bounds";
-import type { FinishReason } from "../_lib/finish-reason";
+import { ANSWER_FEEDBACK_DURATION_MS } from "@mahjong-scoring/features/challenge/challenge-result-bounds";
+import type { FinishReason } from "@mahjong-scoring/features/challenge/finish-reason";
 import { scrollToPracticeAnchor } from "../_lib/scroll-anchor";
 
 interface UseTimedSessionOptions {

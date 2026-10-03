@@ -9,8 +9,8 @@ import { logExternalError } from "@/lib/log-error";
 import { getQueriesForPeriod } from "../_lib/period-queries";
 import type { LeaderboardPeriod, UserRankInfo } from "../_lib/types";
 import { BOARDS } from "../_lib/types";
-import type { PracticeBoard } from "@/lib/db/practice-menu-types";
-import { practiceBoardKey } from "@/lib/db/practice-menu-types";
+import type { PracticeBoard } from "@mahjong-scoring/features/practice-menu-types";
+import { practiceBoardKey } from "@mahjong-scoring/features/practice-menu-types";
 
 const REVALIDATE_SECONDS = 300; // 5 minutes
 

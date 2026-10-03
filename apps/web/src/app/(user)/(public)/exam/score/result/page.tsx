@@ -11,7 +11,7 @@
  * 3. 問題別フィードバック一覧を表示（sessionStorage から読み取り、展開式アコーディオン）
  * 4. リトライボタンと道場へのリンク
  */
-import { PRACTICE_SLUG } from "@/lib/db/practice-menu-types";
+import { PRACTICE_SLUG } from "@mahjong-scoring/features/practice-menu-types";
 import type { Metadata } from "next";
 import {
   createPracticeResultMetadata,

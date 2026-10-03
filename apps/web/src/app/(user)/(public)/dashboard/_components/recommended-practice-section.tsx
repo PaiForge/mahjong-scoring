@@ -11,7 +11,7 @@ import {
 } from "@/app/(user)/(public)/practice/_lib/practice-catalog";
 import { SectionTitle } from "@/app/(user)/_components/section-title";
 import { TEXT_LINK_CLASSES } from "@/app/_components/_lib/link-classes";
-import type { PracticeMenuSlug } from "@/lib/db/practice-menu-types";
+import type { PracticeMenuSlug } from "@mahjong-scoring/features/practice-menu-types";
 
 interface RecommendedPracticeSectionProps {
   /** 勧める練習のスラッグ（カリキュラム順） */

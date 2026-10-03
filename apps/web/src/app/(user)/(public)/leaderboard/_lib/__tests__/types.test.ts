@@ -3,7 +3,7 @@ import { describe, expect, it } from "vitest";
 import {
   PRACTICE_MENU_TYPES,
   isExamMenuType,
-} from "@/lib/db/practice-menu-types";
+} from "@mahjong-scoring/features/practice-menu-types";
 
 import {
   BOARDS,

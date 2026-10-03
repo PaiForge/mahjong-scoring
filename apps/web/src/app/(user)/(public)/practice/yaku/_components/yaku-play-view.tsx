@@ -1,8 +1,8 @@
 "use client";
 
-import { PRACTICE_SLUG } from "@/lib/db/practice-menu-types";
+import { PRACTICE_SLUG } from "@mahjong-scoring/features/practice-menu-types";
 import { createChallengePlayView } from "../../_lib/create-challenge-views";
-import type { YakuQuestionResult } from "../_lib/types";
+import type { YakuQuestionResult } from "@mahjong-scoring/features/practice/yaku/types";
 import { YakuBoard } from "./yaku-board";
 
 export const YakuPlayView = createChallengePlayView<YakuQuestionResult>({

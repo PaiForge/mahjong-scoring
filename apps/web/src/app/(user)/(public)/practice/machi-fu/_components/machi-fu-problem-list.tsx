@@ -4,7 +4,7 @@ import { useTranslations } from "next-intl";
 import { parseHais } from "@mahjong-scoring/core";
 import { AnswerComparison } from "../../_components/answer-comparison";
 import { ProblemListAccordion } from "../../_components/problem-list-accordion";
-import type { MachiFuQuestionResult } from "../_lib/types";
+import type { MachiFuQuestionResult } from "@mahjong-scoring/features/practice/machi-fu/types";
 import { MachiFuPrompt } from "./machi-fu-prompt";
 
 interface MachiFuProblemListProps {

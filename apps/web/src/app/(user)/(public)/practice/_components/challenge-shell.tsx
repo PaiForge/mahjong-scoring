@@ -2,7 +2,7 @@
 
 import { type ReactNode, memo, useEffect, useRef, useCallback } from "react";
 import { useTranslations } from "next-intl";
-import type { PracticeMenuSlug } from "@/lib/db/practice-menu-types";
+import type { PracticeMenuSlug } from "@mahjong-scoring/features/practice-menu-types";
 import { ContentContainer } from "@/app/(user)/_components/content-container";
 import { PageTitle } from "@/app/(user)/_components/page-title";
 import { BoardOverlay } from "@/app/(user)/_components/board-overlay";
@@ -25,7 +25,7 @@ import {
   buildResultBreadcrumb,
   resultBreadcrumbParent,
 } from "../_lib/result-breadcrumb";
-import { listedProblemCount } from "../_lib/finish-reason";
+import { listedProblemCount } from "@mahjong-scoring/features/challenge/finish-reason";
 import { practiceHref } from "../_lib/practice-catalog";
 import { PRACTICE_SCROLL_ANCHOR_ID } from "../_lib/scroll-anchor";
 import { readVariantFromLocation } from "../_lib/variant-param";

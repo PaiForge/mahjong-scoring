@@ -21,7 +21,7 @@ vi.mock("@/lib/db", async () => {
 
 vi.mock("drizzle-orm", async () => await import("@/test/drizzle-orm-mock"));
 
-import { PlanBenefit } from "@/lib/billing/plans";
+import { PlanBenefit } from "@mahjong-scoring/features/billing/plans";
 import { createQueryChain, type QueryChainMock } from "@/test/drizzle-mock";
 
 import { getActiveBenefits, hasBenefit } from "../has-benefit";

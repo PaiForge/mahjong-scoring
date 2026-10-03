@@ -1,6 +1,6 @@
 import { getTranslations } from "next-intl/server";
 
-import type { PracticeMenuSlug } from "@/lib/db/practice-menu-types";
+import type { PracticeMenuSlug } from "@mahjong-scoring/features/practice-menu-types";
 import {
   PRACTICE_START_CTA_FRAME_CLASS,
   PracticeStartCtaDivider,

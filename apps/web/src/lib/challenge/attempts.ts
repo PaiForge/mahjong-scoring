@@ -7,7 +7,7 @@ import {
   isPracticeVariant,
   isExamMenuType,
   practiceMenuByType,
-} from "../db/practice-menu-types";
+} from "@mahjong-scoring/features/practice-menu-types";
 import { getUserRankSlugs } from "../db/rank-queries";
 import { evaluateExamEligibility } from "../ranks/exam-eligibility";
 import { gradeExamRun } from "../db/rank-evaluation";
@@ -17,7 +17,7 @@ import {
   gradeChallengeAnswer,
   publicChallengeQuestion,
 } from "./questions";
-import type { ChallengeState } from "./types";
+import type { ChallengeState } from "@mahjong-scoring/features/challenge/types";
 
 const uuid = z.string().uuid();
 const settingsSchema = z.object({ renfonpaiAs4Fu: z.boolean() });

@@ -3,11 +3,11 @@
 import {
   parseMarkers,
   restoreTehaiQuestion,
-} from "../../_lib/parse-question-tiles";
+} from "@mahjong-scoring/features/results/parse-question-tiles";
 import { ProblemListAccordion } from "../../_components/problem-list-accordion";
 import { TehaiDisplay } from "../../_components/tehai-display";
 import { TehaiMentsuBreakdown } from "../../_components/tehai-mentsu-breakdown";
-import type { YakuQuestionResult } from "../_lib/types";
+import type { YakuQuestionResult } from "@mahjong-scoring/features/practice/yaku/types";
 import { YakuAnswerComparison } from "./yaku-answer-comparison";
 
 interface YakuProblemListProps {

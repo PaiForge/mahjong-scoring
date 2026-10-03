@@ -2,8 +2,8 @@ import { getTranslations } from "next-intl/server";
 
 import { LinkButton } from "@/app/(user)/_components/link-button";
 import { SectionTitle } from "@/app/(user)/_components/section-title";
-import { practiceMenuBySlug } from "@/lib/db/practice-menu-types";
-import type { PracticeMenuSlug } from "@/lib/db/practice-menu-types";
+import { practiceMenuBySlug } from "@mahjong-scoring/features/practice-menu-types";
+import type { PracticeMenuSlug } from "@mahjong-scoring/features/practice-menu-types";
 import {
   beltBorderClass,
   beltButtonVarsClass,

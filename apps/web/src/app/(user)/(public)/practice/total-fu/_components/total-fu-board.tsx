@@ -3,8 +3,8 @@
 import { useCallback } from "react";
 import { generateTotalFuQuestion, retryGenerate } from "@mahjong-scoring/core";
 import { useRuleSettingsStore } from "@/app/_hooks/use-rule-settings-store";
-import { QUESTION_GENERATION_MAX_RETRIES } from "../_lib/types";
-import type { TotalFuQuestionResult } from "../_lib/types";
+import { QUESTION_GENERATION_MAX_RETRIES } from "@mahjong-scoring/features/practice/total-fu/types";
+import type { TotalFuQuestionResult } from "@mahjong-scoring/features/practice/total-fu/types";
 import { TotalFuQuestionBoard } from "../../_components/total-fu-question-board";
 import type { RecordingPracticeBoardProps } from "../../_lib/practice-board-props";
 

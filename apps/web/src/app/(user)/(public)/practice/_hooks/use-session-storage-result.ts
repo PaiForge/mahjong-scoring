@@ -2,7 +2,7 @@
 
 import { useMemo } from "react";
 import { useIsClient } from "@/app/_hooks/use-is-client";
-import { unpackStoredResults } from "../_lib/challenge-run";
+import { unpackStoredResults } from "@mahjong-scoring/features/challenge/challenge-run";
 
 /**
  * sessionStorage から、指定した回の問題別結果を読み取る汎用フック

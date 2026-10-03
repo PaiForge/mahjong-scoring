@@ -6,12 +6,12 @@ import {
 } from "../_hooks/use-verified-challenge";
 import { useCallback, useMemo, useState, type ReactNode } from "react";
 import { useTranslations } from "next-intl";
-import type { PracticeMenuSlug } from "@/lib/db/practice-menu-types";
+import type { PracticeMenuSlug } from "@mahjong-scoring/features/practice-menu-types";
 import {
   isExamMenuType,
   practiceMenuBySlug,
   resultStorageKeyFor,
-} from "@/lib/db/practice-menu-types";
+} from "@mahjong-scoring/features/practice-menu-types";
 import { useSubmitExamOnFinish } from "@/app/(user)/(public)/exam/_hooks/use-submit-exam-on-finish";
 import { ChallengeShell } from "../_components/challenge-shell";
 import { TrainingShell } from "../_components/training-shell";

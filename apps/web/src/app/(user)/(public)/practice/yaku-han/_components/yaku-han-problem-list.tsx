@@ -3,7 +3,7 @@
 import { useTranslations } from "next-intl";
 import { AnswerComparison } from "../../_components/answer-comparison";
 import { ProblemListAccordion } from "../../_components/problem-list-accordion";
-import type { YakuHanQuestionResult } from "../_lib/types";
+import type { YakuHanQuestionResult } from "@mahjong-scoring/features/practice/yaku-han/types";
 import { isYakuman } from "./yaku-han-answer-form";
 
 interface YakuHanProblemListProps {

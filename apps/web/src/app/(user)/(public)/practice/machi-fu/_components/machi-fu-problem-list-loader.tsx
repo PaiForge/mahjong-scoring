@@ -1,7 +1,7 @@
 "use client";
 
 import { createProblemListLoader } from "../../_lib/create-problem-list-loader";
-import { parseMachiFuResults } from "../_lib/types";
+import { parseMachiFuResults } from "@mahjong-scoring/features/practice/machi-fu/types";
 import { MachiFuProblemList } from "./machi-fu-problem-list";
 
 /**

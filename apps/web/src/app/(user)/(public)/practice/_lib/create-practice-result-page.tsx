@@ -11,12 +11,12 @@ import { buildDetailPath } from "@/app/(user)/(public)/leaderboard/_lib/types";
 import type {
   PracticeMenuSlug,
   PracticeMenuType,
-} from "@/lib/db/practice-menu-types";
+} from "@mahjong-scoring/features/practice-menu-types";
 import {
   isExamMenuType,
   practiceMenuBySlug,
   resolvePracticeVariant,
-} from "@/lib/db/practice-menu-types";
+} from "@mahjong-scoring/features/practice-menu-types";
 import { getExpInfoByChallengeResultId } from "@/lib/db/save-exp";
 import { getScoreComparison } from "@/lib/db/score-comparison-queries";
 import { getOptionalUser } from "@/lib/auth";
@@ -35,8 +35,11 @@ import {
   FINISH_REASON_PARAM,
   listedProblemCount,
   parseFinishReason,
-} from "./finish-reason";
-import { RUN_PARAM, parseRunId } from "./challenge-run";
+} from "@mahjong-scoring/features/challenge/finish-reason";
+import {
+  RUN_PARAM,
+  parseRunId,
+} from "@mahjong-scoring/features/challenge/challenge-run";
 import { debugResultDelay } from "./debug-delay";
 import { tryFetch } from "./try-fetch";
 import {
@@ -45,7 +48,7 @@ import {
   practiceSetupHref,
 } from "./practice-catalog";
 import { VARIANT_PARAM } from "./variant-param";
-import type { PracticeBoard } from "@/lib/db/practice-menu-types";
+import type { PracticeBoard } from "@mahjong-scoring/features/practice-menu-types";
 
 const PREVIEW_COUNT = 3;
 

@@ -5,7 +5,7 @@ import { useGradeAndRecord } from "../../_hooks/use-verified-challenge";
 import { useCallback } from "react";
 import { clampHanToYakuman } from "@mahjong-scoring/core";
 import type { ScoreQuestion } from "@mahjong-scoring/core";
-import { tehaiContextOf } from "../../_lib/score-question-context";
+import { tehaiContextOf } from "@mahjong-scoring/features/board/score-question-context";
 import { QuestionGeneratingPlaceholder } from "../../_components/question-generating-placeholder";
 import { useTranslations } from "next-intl";
 import type { useGeneratedScoreQuestion } from "../../_hooks/use-generated-score-question";
@@ -18,8 +18,8 @@ import {
 } from "../../_hooks/use-training-mode";
 import { HanBreakdown } from "./han-breakdown";
 import { HanCountAnswerForm } from "./han-count-answer-form";
-import type { HanCountQuestionResult } from "../_lib/types";
-import { toHanCountQuestionResult } from "../_lib/types";
+import type { HanCountQuestionResult } from "@mahjong-scoring/features/practice/han-count/types";
+import { toHanCountQuestionResult } from "@mahjong-scoring/features/practice/han-count/types";
 import type { RecordingPracticeBoardProps } from "../../_lib/practice-board-props";
 
 /**

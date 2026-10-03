@@ -6,7 +6,7 @@ import { useYakuOrder } from "@/app/_hooks/use-yaku-order-store";
 import { useYakuLabel } from "@/app/_hooks/use-yaku-options";
 import { AnswerComparison } from "../../_components/answer-comparison";
 import { useYakuCheatsheetModal } from "../../_hooks/use-yaku-cheatsheet-modal";
-import { AnswerOutcome } from "../../_lib/result-schemas";
+import { AnswerOutcome } from "@mahjong-scoring/features/results/result-schemas";
 import { YakuChip } from "./yaku-chip";
 
 interface YakuAnswerComparisonProps {

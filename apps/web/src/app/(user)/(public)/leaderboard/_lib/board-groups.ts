@@ -5,7 +5,7 @@ import {
 } from "@/app/(user)/(public)/practice/_lib/practice-catalog";
 
 import { BOARDS, moduleToSlug } from "./types";
-import type { PracticeBoard } from "@/lib/db/practice-menu-types";
+import type { PracticeBoard } from "@mahjong-scoring/features/practice-menu-types";
 
 /** 1 つの分野に属する土俵のまとまり */
 export interface LeaderboardBoardGroup {

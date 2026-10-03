@@ -6,8 +6,8 @@ import type { RecordingPracticeBoardProps } from "@/app/(user)/(public)/practice
 import {
   EXAM_GENERATE_OPTIONS,
   EXAM_GENERATION_MAX_RETRIES,
-} from "../_lib/types";
-import type { FuExamQuestionResult } from "../_lib/types";
+} from "@mahjong-scoring/features/exam/fu/types";
+import type { FuExamQuestionResult } from "@mahjong-scoring/features/exam/fu/types";
 
 type FuExamBoardProps = RecordingPracticeBoardProps<FuExamQuestionResult>;
 

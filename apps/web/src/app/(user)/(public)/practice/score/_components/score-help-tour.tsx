@@ -4,7 +4,7 @@ import { useState, useMemo, useCallback } from "react";
 import { useTranslations } from "next-intl";
 import { generateValidScoreQuestion, isOya } from "@mahjong-scoring/core";
 import type { ScoreQuestion, JudgementResult } from "@mahjong-scoring/core";
-import { scoreAnswerToUserAnswer } from "../../_lib/payment-adapter";
+import { scoreAnswerToUserAnswer } from "@mahjong-scoring/features/results/payment-adapter";
 import { QuestionDisplay } from "./question-display";
 import { ScorePracticeAnswerForm } from "./score-practice-answer-form";
 import { ResultDisplay } from "./result-display";

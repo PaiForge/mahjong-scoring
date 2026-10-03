@@ -12,7 +12,7 @@ import { PRACTICE_CATEGORIES } from "@/app/(user)/(public)/practice/_lib/practic
 
 import { leaderboardBoardGroups } from "../board-groups";
 import { BOARDS } from "../types";
-import { practiceBoardKey } from "@/lib/db/practice-menu-types";
+import { practiceBoardKey } from "@mahjong-scoring/features/practice-menu-types";
 
 const groups = leaderboardBoardGroups();
 const grouped = groups.flatMap((group) => group.boards);

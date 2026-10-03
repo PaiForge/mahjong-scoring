@@ -20,7 +20,7 @@ import {
   practiceMenuBySlug,
   PRACTICE_MENU_SLUGS,
   PRACTICE_MENU_TYPES,
-} from "../practice-menu-types";
+} from "@mahjong-scoring/features/practice-menu-types";
 
 const messages = messagesJson as unknown as {
   readonly practice: { readonly practices: Record<string, unknown> };

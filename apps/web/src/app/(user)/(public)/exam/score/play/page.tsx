@@ -1,4 +1,4 @@
-import { PRACTICE_SLUG } from "@/lib/db/practice-menu-types";
+import { PRACTICE_SLUG } from "@mahjong-scoring/features/practice-menu-types";
 import type { Metadata } from "next";
 import { createPracticePlayMetadata } from "@/app/(user)/(public)/practice/_lib/metadata";
 import { createExamPlayPage } from "../../_lib/create-exam-play-page";

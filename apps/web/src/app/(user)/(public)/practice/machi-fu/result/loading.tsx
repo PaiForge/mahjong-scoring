@@ -1,4 +1,4 @@
-import { PRACTICE_SLUG } from "@/lib/db/practice-menu-types";
+import { PRACTICE_SLUG } from "@mahjong-scoring/features/practice-menu-types";
 import { PracticeResultLoadingFallback } from "@/app/(user)/(public)/practice/_components/practice-result-loading-fallback";
 
 /**

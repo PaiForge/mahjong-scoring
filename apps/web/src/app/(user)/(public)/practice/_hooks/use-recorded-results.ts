@@ -1,7 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useRef } from "react";
-import { packStoredResults } from "../_lib/challenge-run";
+import { packStoredResults } from "@mahjong-scoring/features/challenge/challenge-run";
 import type { FinalResult } from "./use-timed-session";
 
 /**

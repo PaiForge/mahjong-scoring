@@ -5,12 +5,8 @@ import type { ReactNode } from "react";
 import Link from "next/link";
 import { useTranslations } from "next-intl";
 import { getKazeName, isOya } from "@mahjong-scoring/core";
-import type {
-  AgariContext,
-  KazeContext,
-  Tehai,
-  HaiKindId,
-} from "@mahjong-scoring/core";
+import type { Tehai, HaiKindId } from "@mahjong-scoring/core";
+import type { TehaiContext } from "@mahjong-scoring/features/board/tehai-context";
 import { Hai } from "@pai-forge/mahjong-react-ui";
 import {
   TehaiHand,
@@ -31,26 +27,6 @@ import { resolveDoraTiles } from "@/app/_lib/dora-display";
 
 /** 牌を含まない状況行の高さ（px）。リーチ棒とその名札が収まる高さ */
 const TEXT_ROW_HEIGHT = 22;
-
-/**
- * 出題盤面の手牌表示に必要なコンテキスト情報
- * 出題コンテキスト
- *
- * core の {@link AgariContext} に表示上の任意項目を足したもの。
- * リーチ表示とドラ表示はそれを持たない練習からも使われるため任意。
- * 和了牌とツモ・ロンの別も任意で、聴牌形（待ち別点数計算）のように
- * まだ和了していない手牌を出すときは省く。
- *
- * ドラは常に「表示牌」で受け取る。表示牌のまま出すか、ドラそのものへ
- * 読み替えて出すかは表示設定で決まる。
- */
-export type TehaiContext = KazeContext &
-  Partial<AgariContext> & {
-    readonly isRiichi?: boolean;
-    readonly doraMarkers?: readonly HaiKindId[];
-    /** 裏ドラ表示牌。リーチしている出題でのみ表示する */
-    readonly uraDoraMarkers?: readonly HaiKindId[];
-  };
 
 interface TehaiDisplayProps {
   /** 表示する手牌（純手牌 + 副露）。Tehai14 もそのまま渡せる。 */

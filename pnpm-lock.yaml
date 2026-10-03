@@ -44,6 +44,9 @@ importers:
       '@mahjong-scoring/core':
         specifier: workspace:*
         version: link:../../packages/core
+      '@mahjong-scoring/features':
+        specifier: workspace:*
+        version: link:../../packages/features
       '@next/third-parties':
         specifier: ^16.3.0
         version: 16.3.0(next@16.3.6(@types/node@26.2.0)(react-dom@19.2.8(react@19.2.8))(react@19.2.8))(react@19.2.8)
@@ -215,6 +218,22 @@ importers:
       typescript:
         specifier: npm:@typescript/typescript6@^6.0.2
         version: '@typescript/typescript6@6.0.2'
+
+  packages/features:
+    dependencies:
+      '@mahjong-scoring/core':
+        specifier: workspace:*
+        version: link:../core
+      zod:
+        specifier: ^4.4.3
+        version: 4.4.3
+    devDependencies:
+      typescript:
+        specifier: ^7.0.2
+        version: 7.0.2
+      vitest:
+        specifier: ^4.1.11
+        version: 4.1.11(@types/node@26.2.0)(jsdom@30.0.1(@noble/hashes@1.8.0))(vite@8.3.1(@types/node@26.2.0)(esbuild@0.28.2)(jiti@2.7.0)(tsx@4.23.11)(yaml@2.9.0))
 
 packages:
 

@@ -1,12 +1,12 @@
-import type { PracticeMenuType } from "@/lib/db/practice-menu-types";
+import type { PracticeMenuType } from "@mahjong-scoring/features/practice-menu-types";
 import {
   PRACTICE_MENU_TYPES,
   isExamMenuType,
   isPracticeMenuType,
   isPracticeVariant,
   practiceMenuByType,
-} from "@/lib/db/practice-menu-types";
-import type { PracticeBoard } from "@/lib/db/practice-menu-types";
+} from "@mahjong-scoring/features/practice-menu-types";
+import type { PracticeBoard } from "@mahjong-scoring/features/practice-menu-types";
 
 /**
  * マイレコードが扱わない練習種別（昇級試験）

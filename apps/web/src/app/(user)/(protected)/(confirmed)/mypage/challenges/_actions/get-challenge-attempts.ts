@@ -5,7 +5,7 @@ import { logExternalError } from "@/lib/log-error";
 import type { ChallengeAttempt } from "../_lib/types";
 import { isMyRecordBoard } from "../_lib/menu-scope";
 import { fetchChallengeAttempts } from "../_lib/queries";
-import type { PracticeBoard } from "@/lib/db/practice-menu-types";
+import type { PracticeBoard } from "@mahjong-scoring/features/practice-menu-types";
 
 /**
  * 指定した土俵・期間のチャレンジ一覧を取得する

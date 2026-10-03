@@ -19,9 +19,9 @@ import {
   useTrainingMode,
 } from "../../_hooks/use-training-mode";
 import { TehaiDisplay } from "../../_components/tehai-display";
-import { findAgariHighlight } from "../_lib/find-agari-highlight";
-import { toQuestionResult } from "../_lib/types";
-import type { MentsuJantouFuQuestionResult } from "../_lib/types";
+import { findAgariHighlight } from "@mahjong-scoring/features/practice/mentsu-jantou-fu/find-agari-highlight";
+import { toQuestionResult } from "@mahjong-scoring/features/practice/mentsu-jantou-fu/types";
+import type { MentsuJantouFuQuestionResult } from "@mahjong-scoring/features/practice/mentsu-jantou-fu/types";
 import { FuItemRow } from "./fu-item-row";
 import type { RecordingPracticeBoardProps } from "../../_lib/practice-board-props";
 

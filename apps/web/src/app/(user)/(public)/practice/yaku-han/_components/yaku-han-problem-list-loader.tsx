@@ -1,7 +1,7 @@
 "use client";
 
 import { createProblemListLoader } from "../../_lib/create-problem-list-loader";
-import { parseYakuHanResults } from "../_lib/types";
+import { parseYakuHanResults } from "@mahjong-scoring/features/practice/yaku-han/types";
 import { YakuHanProblemList } from "./yaku-han-problem-list";
 
 /**

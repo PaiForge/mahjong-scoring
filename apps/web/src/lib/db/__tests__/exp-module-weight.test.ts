@@ -1,7 +1,10 @@
 import { describe, expect, it } from "vitest";
 import { calculateExp } from "@mahjong-scoring/core";
 
-import { PRACTICE_MENU_TYPES, isExamMenuType } from "../practice-menu-types";
+import {
+  PRACTICE_MENU_TYPES,
+  isExamMenuType,
+} from "@mahjong-scoring/features/practice-menu-types";
 
 /**
  * core の MODULE_WEIGHT と web の PRACTICE_MENU_REGISTRY の対応を守る。

@@ -5,7 +5,7 @@ import { ExamStartGate } from "@/app/(user)/(public)/exam/_components/exam-start
 import { InfinityIcon } from "@/app/(user)/_components/icons/infinity-icon";
 import { PlayIcon } from "@/app/(user)/_components/icons/play-icon";
 import { LinkButton } from "@/app/(user)/_components/link-button";
-import type { PracticeMenuSlug } from "@/lib/db/practice-menu-types";
+import type { PracticeMenuSlug } from "@mahjong-scoring/features/practice-menu-types";
 import { practicePlayHref } from "../_lib/practice-catalog";
 import {
   PRACTICE_START_CTA_BLOCK_CLASS,

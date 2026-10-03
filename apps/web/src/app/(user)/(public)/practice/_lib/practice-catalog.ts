@@ -7,7 +7,7 @@ import {
   menuTypeToSlug,
   practiceMenuBySlug,
   type PracticeMenuSlug,
-} from "@/lib/db/practice-menu-types";
+} from "@mahjong-scoring/features/practice-menu-types";
 import { RANK_REGISTRY, type RankSlug } from "@/lib/ranks/registry";
 import { PRACTICE_SETUP_HASH } from "./scroll-anchor";
 import { VARIANT_PARAM, variantQuery } from "./variant-param";

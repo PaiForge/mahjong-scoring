@@ -5,7 +5,7 @@ import {
   practiceTitleKey,
   practiceVariantFromHref,
 } from "@/app/(user)/(public)/practice/_lib/practice-catalog";
-import { practiceMenuBySlug } from "@/lib/db/practice-menu-types";
+import { practiceMenuBySlug } from "@mahjong-scoring/features/practice-menu-types";
 import { PracticeLinkButton } from "@/app/(user)/_components/practice-link-button";
 
 interface PracticeLinkListProps {

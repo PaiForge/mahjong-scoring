@@ -6,8 +6,8 @@ import { paymentKindOf } from "@mahjong-scoring/core";
 import type { ScoreTableUserAnswer } from "@mahjong-scoring/core";
 import { Button } from "@/app/(user)/_components/button";
 import { useRuleSettingsStore } from "@/app/_hooks/use-rule-settings-store";
-import { getAvailableScores } from "../score/_lib/get-available-scores";
-import type { ScoreOptionRange } from "../score/_lib/get-available-scores";
+import { getAvailableScores } from "@mahjong-scoring/features/practice/score/get-available-scores";
+import type { ScoreOptionRange } from "@mahjong-scoring/features/practice/score/get-available-scores";
 import { useTrainingMode } from "../_hooks/use-training-mode";
 import { ScoreOptionSelect } from "./score-option-select";
 

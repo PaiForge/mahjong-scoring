@@ -4,7 +4,10 @@ import { useTranslations } from "next-intl";
 import { FU_VALUES } from "@mahjong-scoring/core";
 import { DemoFuChoiceGrid } from "../../_components/demo-fu-choice-grid";
 import { TehaiDisplay } from "../../_components/tehai-display";
-import { DEMO_FU_CONTEXT, DEMO_FU_TEHAI } from "../../_lib/demo-tehai";
+import {
+  DEMO_FU_CONTEXT,
+  DEMO_FU_TEHAI,
+} from "@mahjong-scoring/features/board/demo-tehai";
 import { QuestionPrompt } from "../../_components/question-prompt";
 
 /**

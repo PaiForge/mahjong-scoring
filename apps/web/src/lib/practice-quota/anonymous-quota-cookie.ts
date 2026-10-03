@@ -2,9 +2,12 @@ import { createHmac, hkdfSync, timingSafeEqual } from "node:crypto";
 import { cookies } from "next/headers";
 import "server-only";
 
-import { jstDayKey } from "../jst";
-import { jstEndOfDay } from "./day";
-import { QUOTA_MENUS, type QuotaMenu } from "./limits";
+import { jstDayKey } from "@mahjong-scoring/features/jst";
+import { jstEndOfDay } from "@mahjong-scoring/features/quota/day";
+import {
+  QUOTA_MENUS,
+  type QuotaMenu,
+} from "@mahjong-scoring/features/quota/limits";
 
 /**
  * 未ログインユーザーの無料枠 — 署名付き cookie で数える

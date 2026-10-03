@@ -12,7 +12,7 @@ import { getUserRanks } from "../_actions/get-user-ranks";
 import { leaderboardBoardGroups } from "../_lib/board-groups";
 import type { LeaderboardPeriod, UserRankInfo } from "../_lib/types";
 import { LeaderboardModuleRow } from "./leaderboard-module-row";
-import { practiceBoardKey } from "@/lib/db/practice-menu-types";
+import { practiceBoardKey } from "@mahjong-scoring/features/practice-menu-types";
 
 interface LeaderboardTopContentProps {
   readonly period: LeaderboardPeriod;

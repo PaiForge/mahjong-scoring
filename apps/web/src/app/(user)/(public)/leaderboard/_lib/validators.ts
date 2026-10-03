@@ -1,8 +1,8 @@
-import { isPracticeVariant } from "@/lib/db/practice-menu-types";
+import { isPracticeVariant } from "@mahjong-scoring/features/practice-menu-types";
 
 import type { LeaderboardModule, LeaderboardPeriod } from "./types";
 import { MODULES, VALID_PERIODS } from "./types";
-import type { PracticeBoard } from "@/lib/db/practice-menu-types";
+import type { PracticeBoard } from "@mahjong-scoring/features/practice-menu-types";
 
 const validPeriodSet: ReadonlySet<string> = new Set(VALID_PERIODS);
 

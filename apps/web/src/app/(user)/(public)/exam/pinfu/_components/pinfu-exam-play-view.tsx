@@ -1,9 +1,9 @@
 "use client";
 
-import { PRACTICE_SLUG } from "@/lib/db/practice-menu-types";
+import { PRACTICE_SLUG } from "@mahjong-scoring/features/practice-menu-types";
 import { createChallengePlayView } from "@/app/(user)/(public)/practice/_lib/create-challenge-views";
 import { PinfuExamBoard } from "./pinfu-exam-board";
-import type { PinfuExamQuestionResult } from "../_lib/types";
+import type { PinfuExamQuestionResult } from "@mahjong-scoring/features/exam/pinfu/types";
 
 /**
  * 昇級試験（平和の点数計算）本体
