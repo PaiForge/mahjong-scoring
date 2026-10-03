@@ -80,8 +80,7 @@ describe("NextStepSection", () => {
     const { container } = render(
       await NextStepSection({
         journey: journeyOf({
-          completedLessonSlugs: new Set(["mangan-ko-ron"]),
-          readSlugs: new Set(["mangan-ko-tsumo"]),
+          completedLessonSlugs: new Set(["mangan-ko-ron", "mangan-ko-tsumo"]),
         }),
       }),
     );
@@ -95,7 +94,8 @@ describe("NextStepSection", () => {
     const { container } = render(
       await NextStepSection({
         journey: journeyOf({
-          readSlugs: new Set(RANK_REGISTRY[0].learnChapterSlugs),
+          // 5級の章はレッスン（スラッグは章と同じ）で学ぶ
+          completedLessonSlugs: new Set(RANK_REGISTRY[0].learnChapterSlugs),
           attemptedPractices: [
             { slug: "score-table", variant: "ko_mangan_plus" },
             { slug: "score-table", variant: "oya_mangan_plus" },
@@ -112,6 +112,19 @@ describe("NextStepSection", () => {
       container.querySelector("section")?.getAttribute("data-next-step"),
     ).toBe("exam");
     expect(ctaHref(container)).toBe("/exam/mangan");
+  });
+
+  it("レッスンの無い章（4級以降）は、教本の章を読む一歩として送る", async () => {
+    const { container } = render(
+      await NextStepSection({
+        journey: journeyOf({ achievedRankSlugs: ["kyu-5"] }),
+      }),
+    );
+
+    expect(
+      container.querySelector("section")?.getAttribute("data-next-step"),
+    ).toBe("read");
+    expect(ctaHref(container)).toBe("/learn/jantou-fu");
   });
 
   it("全級取得済みなら何も描画しない", async () => {

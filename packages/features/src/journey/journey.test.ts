@@ -1,5 +1,6 @@
 import { describe, expect, it } from "vitest";
 
+import { lessonForChapter } from "../lessons/registry";
 import { DEFAULT_VARIANT } from "../practice-menu-types";
 import { RANK_REGISTRY, RANK_SLUGS, type RankSlug } from "../ranks/registry";
 import {
@@ -24,9 +25,12 @@ function input(overrides: Partial<BuildJourneyInput> = {}): BuildJourneyInput {
   };
 }
 
-/** 5級の前提章をすべて読んだ状態 */
-const KYU5_CHAPTERS_READ: ReadonlySet<string> = new Set(
-  RANK_REGISTRY[0].learnChapterSlugs,
+/** 5級の前提章をすべてレッスンで学んだ状態（5級の章はすべてレッスンを持つ） */
+const KYU5_LESSONS_DONE: ReadonlySet<string> = new Set(
+  RANK_REGISTRY[0].learnChapterSlugs.flatMap((chapterSlug) => {
+    const lesson = lessonForChapter(chapterSlug);
+    return lesson === undefined ? [] : [lesson.slug];
+  }),
 );
 
 /** 5級の章から送っている練習に、章が指す土俵ですべて挑戦した状態 */
@@ -96,21 +100,46 @@ describe("buildJourney", () => {
     });
   });
 
-  it("章を読了していれば、レッスンがあってもその章は済み", () => {
+  it("レッスンのある章は、読了だけでは済みにならない（学んだ印はレッスンの完了だけ）", () => {
     const journey = buildJourney(
-      input({ readSlugs: new Set(["mangan-ko-ron"]) }),
+      input({ readSlugs: new Set(RANK_REGISTRY[0].learnChapterSlugs) }),
     );
 
-    expect(journey.current?.chapters[0].done).toBe(true);
-    expect(journey.nextStep).toMatchObject({ chapterSlug: "mangan-ko-tsumo" });
+    expect(countProgress(journey.current?.chapters ?? [])).toEqual({
+      done: 0,
+      total: 5,
+    });
+    expect(journey.nextStep).toEqual({
+      kind: "lesson",
+      lessonSlug: "mangan-ko-ron",
+      chapterSlug: "mangan-ko-ron",
+    });
+  });
+
+  it("レッスンの無い章は、読了で済みになり、未読なら章を読む一歩になる", () => {
+    const unread = buildJourney(input({ achievedRankSlugs: ["kyu-5"] }));
+    expect(unread.current?.chapters[0]).toEqual({
+      kind: "chapter",
+      chapterSlug: "jantou-fu",
+      lessonSlug: undefined,
+      done: false,
+    });
+    expect(unread.nextStep).toEqual({ kind: "read", chapterSlug: "jantou-fu" });
+
+    const read = buildJourney(
+      input({
+        achievedRankSlugs: ["kyu-5"],
+        readSlugs: new Set(["jantou-fu"]),
+      }),
+    );
+    expect(read.current?.chapters[0].done).toBe(true);
   });
 
   describe("学ぶと練習するを章の順に交互に案内する", () => {
     it("子のロン・ツモを学び終えたら、残りの章より先に子・満貫以上の練習へ送る", () => {
       const journey = buildJourney(
         input({
-          completedLessonSlugs: new Set(["mangan-ko-ron"]),
-          readSlugs: new Set(["mangan-ko-tsumo"]),
+          completedLessonSlugs: new Set(["mangan-ko-ron", "mangan-ko-tsumo"]),
         }),
       );
 
@@ -124,8 +153,7 @@ describe("buildJourney", () => {
     it("子・満貫以上に挑戦したら、次は親のロンの章", () => {
       const journey = buildJourney(
         input({
-          completedLessonSlugs: new Set(["mangan-ko-ron"]),
-          readSlugs: new Set(["mangan-ko-tsumo"]),
+          completedLessonSlugs: new Set(["mangan-ko-ron", "mangan-ko-tsumo"]),
           attemptedPractices: [
             { slug: "score-table", variant: "ko_mangan_plus" },
           ],
@@ -141,8 +169,8 @@ describe("buildJourney", () => {
 
     it("親のロン・ツモを学び終えたら、その章から送る練習（親・満貫以上 → 満貫以上点数計算）へ順に送る", () => {
       const learned = {
-        completedLessonSlugs: new Set(["mangan-ko-ron"]),
-        readSlugs: new Set([
+        completedLessonSlugs: new Set([
+          "mangan-ko-ron",
           "mangan-ko-tsumo",
           "mangan-oya-ron",
           "mangan-oya-tsumo",
@@ -181,8 +209,10 @@ describe("buildJourney", () => {
       });
     });
 
-    it("先取りで後の章を読んでも、未読の章が先にあればそちらを案内し、後の章の練習へは送らない", () => {
-      const journey = buildJourney(input({ readSlugs: new Set(["yaku"]) }));
+    it("先取りで後の章を学んでも、未了の章が先にあればそちらを案内し、後の章の練習へは送らない", () => {
+      const journey = buildJourney(
+        input({ completedLessonSlugs: new Set(["yaku"]) }),
+      );
 
       expect(journey.nextStep).toEqual({
         kind: "lesson",
@@ -194,9 +224,7 @@ describe("buildJourney", () => {
     it("先に済ませた練習は飛ばして、次の未了（章でも練習でも）を指す", () => {
       const journey = buildJourney(
         input({
-          completedLessonSlugs: new Set(["mangan-ko-ron"]),
-          readSlugs: new Set(["mangan-ko-tsumo"]),
-          // 子・満貫以上を飛ばして親の章まで読んでいる
+          completedLessonSlugs: new Set(["mangan-ko-ron", "mangan-ko-tsumo"]),
           attemptedPractices: [],
         }),
       );
@@ -204,11 +232,14 @@ describe("buildJourney", () => {
 
       const skippedAhead = buildJourney(
         input({
-          completedLessonSlugs: new Set(["mangan-ko-ron"]),
-          readSlugs: new Set(["mangan-ko-tsumo", "mangan-oya-ron"]),
+          completedLessonSlugs: new Set([
+            "mangan-ko-ron",
+            "mangan-ko-tsumo",
+            "mangan-oya-ron",
+          ]),
         }),
       );
-      // 練習を飛ばして章を読み進めていても、最初の未了（子・満貫以上）に戻す
+      // 練習を飛ばして章を学び進めていても、最初の未了（子・満貫以上）に戻す
       expect(skippedAhead.nextStep).toEqual({
         kind: "practice",
         slug: "score-table",
@@ -219,7 +250,7 @@ describe("buildJourney", () => {
     it("途中から再開しても、行程の最初の未了を指す", () => {
       const journey = buildJourney(
         input({
-          readSlugs: KYU5_CHAPTERS_READ,
+          completedLessonSlugs: KYU5_LESSONS_DONE,
           attemptedPractices: KYU5_PRACTICES_ATTEMPTED.slice(0, 3),
         }),
       );
@@ -234,7 +265,7 @@ describe("buildJourney", () => {
     it("学ぶ・練習するが済むと、次は昇級試験", () => {
       const journey = buildJourney(
         input({
-          readSlugs: KYU5_CHAPTERS_READ,
+          completedLessonSlugs: KYU5_LESSONS_DONE,
           attemptedPractices: KYU5_PRACTICES_ATTEMPTED,
         }),
       );
@@ -246,7 +277,9 @@ describe("buildJourney", () => {
 
   describe("練習の進捗は土俵（slug × バリアント）ごと", () => {
     it("章から送る練習は土俵ごとに別の項目になる（子・満貫以上と親・満貫以上）", () => {
-      const journey = buildJourney(input({ readSlugs: KYU5_CHAPTERS_READ }));
+      const journey = buildJourney(
+        input({ completedLessonSlugs: KYU5_LESSONS_DONE }),
+      );
 
       expect(
         journey.current?.practices.map((item) => [item.slug, item.variant]),
@@ -263,7 +296,7 @@ describe("buildJourney", () => {
     it("子・満貫以上に挑戦しても、親・満貫以上は済みにならない", () => {
       const journey = buildJourney(
         input({
-          readSlugs: KYU5_CHAPTERS_READ,
+          completedLessonSlugs: KYU5_LESSONS_DONE,
           attemptedPractices: [
             { slug: "score-table", variant: "ko_mangan_plus" },
           ],
@@ -285,7 +318,7 @@ describe("buildJourney", () => {
     it("満貫未満の挑戦だけでは、満貫以上の練習は済みにならない", () => {
       const journey = buildJourney(
         input({
-          readSlugs: KYU5_CHAPTERS_READ,
+          completedLessonSlugs: KYU5_LESSONS_DONE,
           attemptedPractices: [
             { slug: "score-table", variant: "ko_non_mangan" },
             { slug: "score-table", variant: "all" },
@@ -308,7 +341,7 @@ describe("buildJourney", () => {
     it("バリアントを指定しないリンクは、その練習のどの土俵に挑戦していても済み", () => {
       const journey = buildJourney(
         input({
-          readSlugs: KYU5_CHAPTERS_READ,
+          completedLessonSlugs: KYU5_LESSONS_DONE,
           attemptedPractices: [
             // 設定を持つ練習（役の翻数）の既定でない土俵
             { slug: "yaku-han", variant: "kuisagari" },
@@ -329,7 +362,7 @@ describe("buildJourney", () => {
     it("レジストリに無い古いキーの記録は、バリアントを指定しないリンクだけを済みにする", () => {
       const journey = buildJourney(
         input({
-          readSlugs: KYU5_CHAPTERS_READ,
+          completedLessonSlugs: KYU5_LESSONS_DONE,
           attemptedPractices: [
             { slug: "score-table", variant: "default" },
             { slug: "yaku-han", variant: "default" },
@@ -453,7 +486,7 @@ describe("buildJourneyPath", () => {
 describe("countProgress", () => {
   it("済んだ数と全体を数える", () => {
     const journey = buildJourney(
-      input({ readSlugs: new Set(["mangan-ko-ron", "yaku"]) }),
+      input({ completedLessonSlugs: new Set(["mangan-ko-ron", "yaku"]) }),
     );
 
     expect(countProgress(journey.current?.chapters ?? [])).toEqual({

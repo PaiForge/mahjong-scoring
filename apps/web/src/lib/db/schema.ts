@@ -433,7 +433,8 @@ export type NewLearnChapterRead = typeof learnChapterReads.$inferInsert;
  * @description
  * 認証ユーザーが `/lessons/<slug>` の確認問題を最後まで解くと 1 行 INSERT される。
  * (user_id, lesson_slug) で 1 ユニーク。黒帯への道（features の `journey/`）が
- * 章の「学んだ」の印として読む（章の読了と同じ重み）。
+ * 章の「学んだ」の印として読む。レッスンのある章はこの印だけで学んだことに
+ * なり、章の読了（`learn_chapter_reads`）では進まない。
  *
  * 正答数や所要時間は持たない。レッスンは記録を競う場ではなく、残すのは
  * 「終えた」という事実だけ。間違えた問題もその場で解説を読んで先へ進める

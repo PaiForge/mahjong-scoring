@@ -155,6 +155,13 @@
       "when": 1791027672937,
       "tag": "20261003114112_create_lesson_completions",
       "breakpoints": true
+    },
+    {
+      "idx": 22,
+      "version": "7",
+      "when": 1791063127940,
+      "tag": "20261003213207_backfill_kyu5_lesson_completions",
+      "breakpoints": true
     }
   ]
 }

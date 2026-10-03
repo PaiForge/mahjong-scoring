@@ -55,7 +55,8 @@ describe("selectDashboardGuidance", () => {
         achievedRankSlugs: NO_RANKS,
       });
 
-      expect(guidance.journey.nextStep?.kind).toBe("practice");
+      // 読了だけではレッスンのある章（5級）は学んだことにならない
+      expect(guidance.journey.nextStep?.kind).toBe("lesson");
       expect(guidance.showComprehensivePractice).toBe(false);
     });
   });
