@@ -15,6 +15,7 @@ import { PaginationNav } from "@/app/(user)/_components/pagination-nav";
 import { MaskedEmail } from "../_components/masked-email";
 import { TableEmptyRow } from "../_components/table-empty-row";
 
+import { PublicProfileLink } from "./_components/public-profile-link";
 import { StatusBadge } from "./_components/status-badge";
 import { BanButton } from "./_components/ban-button";
 import { GrantBenefitsButton } from "./_components/grant-benefits-button";
@@ -109,7 +110,13 @@ export default async function AdminUsersPage({
                     <td className="px-4 py-3 whitespace-nowrap">
                       <MaskedEmail email={user.email} labels={emailLabels} />
                     </td>
-                    <td className="px-4 py-3">{profile?.username ?? "-"}</td>
+                    <td className="px-4 py-3 whitespace-nowrap">
+                      {status === UserStatus.Active && profile ? (
+                        <PublicProfileLink username={profile.username} />
+                      ) : (
+                        (profile?.username ?? "-")
+                      )}
+                    </td>
                     <td className="px-4 py-3">{profile?.displayName ?? "-"}</td>
                     <td className="px-4 py-3">
                       <StatusBadge status={status} />

@@ -2663,7 +2663,8 @@
         "deleted": "退会済み",
         "banned": "BAN済み",
         "active": "有効"
-      }
+      },
+      "openPublicProfile": "公開プロフィールを新しいタブで開く"
     },
     "auditLogTable": {
       "action": "アクション",
