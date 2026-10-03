@@ -50,7 +50,7 @@ export default async function AdminDashboardPage({
         />
 
         <section className="admin-kpi space-y-2">
-          <p className="text-sm font-medium text-primary-800">
+          <p className="text-sm font-medium text-surface-600">
             {t("dashboardKpi.newUsersPeriodTotal")}
           </p>
           <p className="text-5xl leading-[56px] font-semibold tracking-tight text-primary-900 tabular-nums">
