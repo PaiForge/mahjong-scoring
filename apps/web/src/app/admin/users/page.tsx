@@ -1,14 +1,17 @@
 import { getTranslations } from "next-intl/server";
 
-import type { User } from "@supabase/supabase-js";
 import { AdminPageTitle } from "@/app/admin/_components/admin-page-title";
 import { requireAdminPage } from "@/app/admin/_lib/auth";
 import { formatAdminDate } from "@/app/admin/_lib/format-date";
 import { buildProfileMap } from "@/app/admin/_lib/log-query-helpers";
-import { createSearchParamsCache, parseAsInteger } from "nuqs/server";
+import {
+  createSearchParamsCache,
+  parseAsInteger,
+  parseAsString,
+} from "nuqs/server";
 
 import { getOptionalUser } from "../../../lib/auth";
-import { getPaginationData, DEFAULT_PAGE_SIZE } from "../../../lib/pagination";
+import { getPaginationData } from "../../../lib/pagination";
 import { createAdminClient } from "../../../lib/supabase/admin";
 import { PaginationNav } from "@/app/(user)/_components/pagination-nav";
 
@@ -20,10 +23,13 @@ import { StatusBadge } from "./_components/status-badge";
 import { BanButton } from "./_components/ban-button";
 import { GrantBenefitsButton } from "./_components/grant-benefits-button";
 import { UnbanButton } from "./_components/unban-button";
+import { UserSearchForm } from "./_components/user-search-form";
+import { fetchUsersPageData } from "./_lib/queries";
 import { UserStatus, resolveUserStatus } from "./_lib/user-status";
 
 const searchParamsCache = createSearchParamsCache({
   page: parseAsInteger.withDefault(1),
+  user: parseAsString.withDefault(""),
 });
 
 /** ユーザー一覧テーブルの列数（メール・ユーザー名・表示名・状態・登録日・操作） */
@@ -36,24 +42,19 @@ export default async function AdminUsersPage({
 }) {
   await requireAdminPage();
 
-  const { page } = await searchParamsCache.parse(searchParams);
+  const { page, user: rawQuery } = await searchParamsCache.parse(searchParams);
+  const query = rawQuery.trim();
   const adminClient = createAdminClient();
   const t = await getTranslations("admin");
 
   // 現在のユーザー ID を取得（自分自身の BAN を防ぐため）
   const currentUser = await getOptionalUser();
 
-  const { data: usersData, error } = await adminClient.auth.admin.listUsers({
+  const { users, totalCount } = await fetchUsersPageData(
+    adminClient,
     page,
-    perPage: DEFAULT_PAGE_SIZE,
-  });
-  if (error) {
-    // Next.js error boundary に委任する意図的な throw
-    throw new Error(`Failed to fetch users: ${error.message}`);
-  }
-
-  const users: User[] = usersData.users ?? [];
-  const totalCount = usersData.total ?? 0;
+    query,
+  );
 
   const pagination = getPaginationData(page, totalCount);
 
@@ -64,11 +65,18 @@ export default async function AdminUsersPage({
     hideEmail: t("usersTable.hideEmail"),
   };
 
-  const buildHref = (p: number) => `/admin/users?page=${String(p)}`;
+  const buildHref = (p: number) => {
+    const params = new URLSearchParams();
+    params.set("page", String(p));
+    if (query) params.set("user", query);
+    return `/admin/users?${params.toString()}`;
+  };
 
   return (
     <div className="space-y-6">
       <AdminPageTitle>{t("users")}</AdminPageTitle>
+
+      <UserSearchForm query={query} totalCount={totalCount} />
 
       <div className="overflow-x-auto">
         <table className="w-full text-left text-sm">

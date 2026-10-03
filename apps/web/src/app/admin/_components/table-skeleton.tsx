@@ -47,12 +47,18 @@ export function TableSkeleton({
  * ログフィルタスケルトン
  *
  * 実際のフィルタは `flex items-end gap-4` に「ラベル + コントロール」を
- * 2つ並べ、末尾に送信ボタンを置く構成。
+ * 並べ、末尾に送信ボタンを置く構成。
+ *
+ * @param fields - 「ラベル + コントロール」の数（既定 2 = ログ画面。ユーザー検索は 1）
  */
-export function LogFilterSkeleton() {
+export function LogFilterSkeleton({
+  fields = 2,
+}: {
+  readonly fields?: number;
+}) {
   return (
     <div className="flex items-end gap-4">
-      {Array.from({ length: 2 }, (_, i) => (
+      {Array.from({ length: fields }, (_, i) => (
         <div key={i}>
           <SkeletonBar className="mb-1 h-4 w-20" />
           <SkeletonBar className="h-[38px] w-40" />

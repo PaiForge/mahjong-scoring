@@ -2664,7 +2664,12 @@
         "banned": "BAN済み",
         "active": "有効"
       },
-      "openPublicProfile": "公開プロフィールを新しいタブで開く"
+      "openPublicProfile": "公開プロフィールを新しいタブで開く",
+      "search": "ユーザー検索",
+      "searchPlaceholder": "ユーザー名・表示名・メールアドレス",
+      "searchButton": "検索",
+      "searchResultCount": "「{query}」に一致するユーザー: {count} 件",
+      "clearSearch": "検索を解除"
     },
     "auditLogTable": {
       "action": "アクション",
