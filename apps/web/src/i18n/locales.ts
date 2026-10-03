@@ -14,10 +14,12 @@ export const DEFAULT_LOCALE = "ja";
 /** 対応ロケール（コンテンツの variant として作成可能なロケール） */
 export const SUPPORTED_LOCALES = ["ja", "en"] as const;
 
+const supportedLocaleSet: ReadonlySet<string> = new Set(SUPPORTED_LOCALES);
+
 export type SupportedLocale = (typeof SUPPORTED_LOCALES)[number];
 
 export function isSupportedLocale(value: string): value is SupportedLocale {
-  return (SUPPORTED_LOCALES as readonly string[]).includes(value);
+  return supportedLocaleSet.has(value);
 }
 
 /**

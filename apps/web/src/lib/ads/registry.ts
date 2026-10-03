@@ -36,10 +36,12 @@
 
 /** 広告の形 */
 export const AD_KINDS = ["native_card", "native_row"] as const;
+
+const adKindSet: ReadonlySet<string> = new Set(AD_KINDS);
 export type AdKind = (typeof AD_KINDS)[number];
 
 export function isAdKind(value: string): value is AdKind {
-  return (AD_KINDS as readonly string[]).includes(value);
+  return adKindSet.has(value);
 }
 
 /**

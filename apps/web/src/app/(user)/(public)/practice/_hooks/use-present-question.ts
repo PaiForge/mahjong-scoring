@@ -1,6 +1,6 @@
 "use client";
 
-import { useVerifiedChallenge } from "./use-verified-challenge";
+import { asMenuQuestion, useVerifiedChallenge } from "./use-verified-challenge";
 import { useEffect } from "react";
 
 /**
@@ -31,7 +31,7 @@ export function usePresentQuestion<TQuestion, TResult>(
   useEffect(() => {
     if (!register || !onPresentQuestion) return;
     register((revealed) =>
-      onPresentQuestion(toUnanswered(revealed as TQuestion)),
+      onPresentQuestion(toUnanswered(asMenuQuestion<TQuestion>(revealed))),
     );
     return () => register(undefined);
   }, [register, toUnanswered, onPresentQuestion]);

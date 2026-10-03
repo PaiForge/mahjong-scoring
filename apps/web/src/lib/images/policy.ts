@@ -16,6 +16,10 @@ export const ALLOWED_IMAGE_MIME_TYPES = [
   "image/webp",
 ] as const;
 
+const allowedImageMimeTypeSet: ReadonlySet<string> = new Set(
+  ALLOWED_IMAGE_MIME_TYPES,
+);
+
 export type ImageMimeType = (typeof ALLOWED_IMAGE_MIME_TYPES)[number];
 
 /**
@@ -25,7 +29,7 @@ export type ImageMimeType = (typeof ALLOWED_IMAGE_MIME_TYPES)[number];
  * 許可画像形式判定
  */
 export function isAllowedImageMimeType(type: string): type is ImageMimeType {
-  return (ALLOWED_IMAGE_MIME_TYPES as readonly string[]).includes(type);
+  return allowedImageMimeTypeSet.has(type);
 }
 
 /** 形式ごとの拡張子。クライアント側で再エンコードしたファイル名に使う */

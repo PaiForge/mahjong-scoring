@@ -75,12 +75,11 @@ export function createScoreSettingsStore(name: string) {
         // 変換する。変換しないと全チェックが外れ、練習を開始できなくなる。
         version: 1,
         migrate: (persisted, version) => {
-          if (version >= 1) return persisted as ScoreSettingsState;
+          // eslint-disable-next-line @typescript-eslint/consistent-type-assertions -- zustand の migrate は保存値を unknown で受けて S を返す契約。保存するのは自分の partialize 済みの値なので形は信じ、点数帯の表記だけ直す
+          const state = persisted as ScoreSettingsState;
+          if (version >= 1) return state;
 
-          const state = persisted as Partial<ScoreSettingsState> & {
-            targetScoreRanges?: readonly string[];
-          };
-          const legacy: Readonly<Record<string, ScoreRange>> = {
+          const legacy: Readonly<Record<string, ScoreRange | undefined>> = {
             non_mangan: "nonMangan",
             mangan_plus: "manganPlus",
           };
@@ -88,9 +87,9 @@ export function createScoreSettingsStore(name: string) {
           return {
             ...state,
             targetScoreRanges: (state.targetScoreRanges ?? []).map(
-              (range) => legacy[range] ?? (range as ScoreRange),
+              (range) => legacy[range] ?? range,
             ),
-          } as ScoreSettingsState;
+          };
         },
       },
     ),

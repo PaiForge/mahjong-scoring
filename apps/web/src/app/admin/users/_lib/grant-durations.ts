@@ -12,6 +12,8 @@ export const GRANT_DURATION_KEYS = [
   "days180",
   "permanent",
 ] as const;
+
+const grantDurationKeySet: ReadonlySet<string> = new Set(GRANT_DURATION_KEYS);
 export type GrantDurationKey = (typeof GRANT_DURATION_KEYS)[number];
 
 /** 期間ごとの日数。無期限は undefined */
@@ -26,5 +28,5 @@ export const GRANT_DURATION_DAYS: Readonly<
 
 /** 文字列が期間のキーか。Server Action がクライアントの入力を絞るのに使う */
 export function isGrantDurationKey(value: string): value is GrantDurationKey {
-  return (GRANT_DURATION_KEYS as readonly string[]).includes(value);
+  return grantDurationKeySet.has(value);
 }
