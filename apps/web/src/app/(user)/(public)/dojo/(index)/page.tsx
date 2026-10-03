@@ -74,8 +74,6 @@ export default async function DojoPage() {
       <PageTitle>{t("title")}</PageTitle>
 
       <div className="space-y-8">
-        <p className="text-sm leading-relaxed text-surface-500">{t("lead")}</p>
-
         <section className="space-y-4">
           <SectionTitle>{t("currentRankTitle")}</SectionTitle>
           {/* 枠は帯色。昇級試験カード（ExamCtaCard）と同じ理由で、級を掲げた
