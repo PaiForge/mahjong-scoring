@@ -60,7 +60,7 @@ describe("NextStepSection", () => {
     ).toBe("kyu-5");
   });
 
-  it("レッスンを終えたら「次の一歩」として次の章へ送り、道場へのリンクを添える", async () => {
+  it("レッスンを終えたら「次の一歩」として次の章のレッスンへ送り、道場へのリンクを添える", async () => {
     const { container, getByText, getByRole } = render(
       await NextStepSection({
         journey: journeyOf({
@@ -70,7 +70,7 @@ describe("NextStepSection", () => {
     );
 
     expect(getByText("title")).toBeTruthy();
-    expect(ctaHref(container)).toBe("/learn/mangan-ko-tsumo");
+    expect(ctaHref(container)).toBe("/lessons/mangan-ko-tsumo");
     expect(
       getByRole("link", { name: "viewJourney" }).getAttribute("href"),
     ).toBe("/dojo");

@@ -11,7 +11,7 @@
   "canDoLabel": "できるようになること",
   "lockedNote": "下の級から順に取得すると受験できます",
   "lessonRow": "レッスン：{title}",
-  "lessonRowDescription": "短い説明と 3 問の確認問題で学ぶ",
+  "lessonRowDescription": "短い説明と確認問題で学ぶ",
   "lessonDone": "完了",
   "practiceDone": "挑戦済み",
   "chaptersLead": "試験に必要な知識はこの章で身につきます。",

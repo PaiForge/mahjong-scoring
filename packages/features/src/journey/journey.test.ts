@@ -77,7 +77,7 @@ describe("buildJourney", () => {
     expect(journey.isFresh).toBe(false);
   });
 
-  it("レッスンを終えると、その章は学んだことになり、次はレッスンの無い章を読む", () => {
+  it("レッスンを終えると、その章は学んだことになり、次は次の章のレッスン", () => {
     const journey = buildJourney(
       input({ completedLessonSlugs: new Set(["mangan-ko-ron"]) }),
     );
@@ -90,7 +90,8 @@ describe("buildJourney", () => {
       done: true,
     });
     expect(journey.nextStep).toEqual({
-      kind: "read",
+      kind: "lesson",
+      lessonSlug: "mangan-ko-tsumo",
       chapterSlug: "mangan-ko-tsumo",
     });
   });
@@ -101,7 +102,7 @@ describe("buildJourney", () => {
     );
 
     expect(journey.current?.chapters[0].done).toBe(true);
-    expect(journey.nextStep?.kind).toBe("read");
+    expect(journey.nextStep).toMatchObject({ chapterSlug: "mangan-ko-tsumo" });
   });
 
   describe("学ぶと練習するを章の順に交互に案内する", () => {
@@ -132,7 +133,8 @@ describe("buildJourney", () => {
       );
 
       expect(journey.nextStep).toEqual({
-        kind: "read",
+        kind: "lesson",
+        lessonSlug: "mangan-oya-ron",
         chapterSlug: "mangan-oya-ron",
       });
     });

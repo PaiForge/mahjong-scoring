@@ -39,7 +39,8 @@ describe("selectDashboardGuidance", () => {
       });
 
       expect(guidance.journey.nextStep).toEqual({
-        kind: "read",
+        kind: "lesson",
+        lessonSlug: "mangan-ko-tsumo",
         chapterSlug: "mangan-ko-tsumo",
       });
       expect(guidance.showTextbookLink).toBe(true);

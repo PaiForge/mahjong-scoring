@@ -6,11 +6,11 @@ import type { RankSlug } from "../ranks/registry";
  * レッスンレジストリ
  *
  * @description
- * レッスンは「短い説明 → ヒント付きの確認問題 3 問 → できたことの確認」を
+ * レッスンは「短い説明 → ヒント付きの確認問題 → できたことの確認」を
  * 1 本で通す、時間制限も記録も無い学習の最小単位。教本の章 1 つを数分で
- * 体験できる形に圧縮したもので、「黒帯への道」の最初の一歩として登録直後の
- * ユーザーに出す。章を読み終えるまでの距離が遠く感じる人に、まず 1 つ
- * 覚えて確かめる体験を先に渡す。
+ * 体験できる形に圧縮したもので、「黒帯への道」の学ぶ段の 1 歩になる。
+ * 問題の数と形は章ごとに、その章で何を確かめるかから決める（features の
+ * `lessons/quizzes.ts`）。
  *
  * チャレンジ（制限時間・ミス上限・記録）ともトレーニング（無制限・記録なし）
  * とも別物で、唯一残すのは「完了した」という事実（`lesson_completions`）。
@@ -18,16 +18,16 @@ import type { RankSlug } from "../ranks/registry";
  *
  * @design 章と 1 : 0..1
  * レッスンは必ず 1 つの章に対応し、その章を「学んだ」ことにする代わりの
- * 道になる（章の読了と同じ印）。章の内容を 3 問に切り出すので、章から
+ * 道になる（章の読了と同じ印）。章の内容を数問に切り出すので、章から
  * 独立した題材のレッスンは作らない — 行程の「学ぶ」の数が章の数と一致
  * しなくなり、進捗の分母が揺れる。
  *
- * @design 子のロンだけで始める理由
- * カリキュラムは「子のロン」の章に練習を付けていない（ロンとツモは同じ点数の
- * 表裏で、片方だけの練習は暗記の単位として不自然 — 章側のコメント参照）。
- * レッスンは記録を残さない一回きりの体験で、土俵（記録の比較単位）を持たない
- * ため、その理屈の外にある。最初の一歩は覚える量が最小の「満貫以上・子・
- * ロン」の 5 つの点数に絞る。
+ * @design 子のロンから始める
+ * 行程の最初の一歩（登録直後に案内する）は、覚える量が最小の「満貫以上・
+ * 子・ロン」の 5 つの点数。子のロンの章は練習を持たない（ロンとツモは同じ
+ * 点数の表裏で、片方だけの練習は暗記の単位として不自然 — 章側のコメント
+ * 参照）が、レッスンは記録を残さず土俵（記録の比較単位）を持たないため、
+ * その理屈の外にある。
  */
 interface LessonDefinitionEntry {
   /** URL（`/lessons/<slug>`）・DB（lesson_completions.lesson_slug）で使う識別子 */
@@ -47,6 +47,30 @@ export const LESSON_REGISTRY = [
     chapterSlug: "mangan-ko-ron",
     rankSlug: "kyu-5",
     messageKey: "manganKoRon",
+  },
+  {
+    slug: "mangan-ko-tsumo",
+    chapterSlug: "mangan-ko-tsumo",
+    rankSlug: "kyu-5",
+    messageKey: "manganKoTsumo",
+  },
+  {
+    slug: "mangan-oya-ron",
+    chapterSlug: "mangan-oya-ron",
+    rankSlug: "kyu-5",
+    messageKey: "manganOyaRon",
+  },
+  {
+    slug: "mangan-oya-tsumo",
+    chapterSlug: "mangan-oya-tsumo",
+    rankSlug: "kyu-5",
+    messageKey: "manganOyaTsumo",
+  },
+  {
+    slug: "yaku",
+    chapterSlug: "yaku",
+    rankSlug: "kyu-5",
+    messageKey: "yaku",
   },
 ] as const satisfies readonly LessonDefinitionEntry[];
 
