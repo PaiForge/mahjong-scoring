@@ -4,6 +4,7 @@
   "lead": "アカウントの作成まであと少しです。サイト内で使うユーザー名を決めて、登録を完了してください。",
   "usernameLabel": "ユーザー名",
   "usernamePlaceholder": "例: tsumo_master",
+  "generateUsername": "ランダムなユーザー名を生成する",
   "usernameHintChars": "英小文字・数字・_ の2〜20文字",
   "usernameHintEdges": "英小文字で始まり、英小文字または数字で終わること",
   "cannotChange": "ユーザー名は後から変更できません",
