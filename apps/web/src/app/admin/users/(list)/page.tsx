@@ -10,22 +10,22 @@ import {
   parseAsString,
 } from "nuqs/server";
 
-import { getOptionalUser } from "../../../lib/auth";
-import { getPaginationData } from "../../../lib/pagination";
-import { createAdminClient } from "../../../lib/supabase/admin";
+import { getOptionalUser } from "@/lib/auth";
+import { getPaginationData } from "@/lib/pagination";
+import { createAdminClient } from "@/lib/supabase/admin";
 import { PaginationNav } from "@/app/(user)/_components/pagination-nav";
 
-import { MaskedEmail } from "../_components/masked-email";
-import { TableEmptyRow } from "../_components/table-empty-row";
+import { MaskedEmail } from "@/app/admin/_components/masked-email";
+import { TableEmptyRow } from "@/app/admin/_components/table-empty-row";
 
-import { PublicProfileLink } from "./_components/public-profile-link";
-import { StatusBadge } from "./_components/status-badge";
-import { BanButton } from "./_components/ban-button";
-import { GrantBenefitsButton } from "./_components/grant-benefits-button";
-import { UnbanButton } from "./_components/unban-button";
-import { UserSearchForm } from "./_components/user-search-form";
-import { fetchUsersPageData } from "./_lib/queries";
-import { UserStatus, resolveUserStatus } from "./_lib/user-status";
+import { PublicProfileLink } from "../_components/public-profile-link";
+import { StatusBadge } from "../_components/status-badge";
+import { BanButton } from "../_components/ban-button";
+import { GrantBenefitsButton } from "../_components/grant-benefits-button";
+import { UnbanButton } from "../_components/unban-button";
+import { UserSearchForm } from "../_components/user-search-form";
+import { fetchUsersPageData } from "../_lib/queries";
+import { UserStatus, resolveUserStatus } from "../_lib/user-status";
 
 const searchParamsCache = createSearchParamsCache({
   page: parseAsInteger.withDefault(1),
