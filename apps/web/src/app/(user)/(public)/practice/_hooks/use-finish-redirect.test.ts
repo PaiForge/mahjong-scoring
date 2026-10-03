@@ -1,9 +1,9 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
-import { completeCountdown } from "./__tests__/timer-helpers";
+import { completeCountdown } from "@mahjong-scoring/features/test/timer-helpers";
 import { renderHook, act } from "@testing-library/react";
 import { useTimedSession } from "./use-timed-session";
 import { useFinishRedirect } from "./use-finish-redirect";
-import { useGameTimer } from "./use-game-timer";
+import { useGameTimer } from "@mahjong-scoring/features/session/use-game-timer";
 
 /**
  * useFinishRedirect + useTimedSession の統合テスト

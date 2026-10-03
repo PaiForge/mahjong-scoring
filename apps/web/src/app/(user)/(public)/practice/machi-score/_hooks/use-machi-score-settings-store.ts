@@ -1,4 +1,6 @@
-import { createScoreSettingsStore } from "../../score/_hooks/use-score-settings-store";
+import { createScoreSettingsStore } from "@mahjong-scoring/features/settings/use-score-settings-store";
+
+import { WEB_SETTINGS_STORE_OPTIONS } from "@/app/_hooks/settings-store-options";
 
 /**
  * 待ち別点数計算の設定ストア（永続化あり）
@@ -10,4 +12,5 @@ import { createScoreSettingsStore } from "../../score/_hooks/use-score-settings-
  */
 export const useMachiScoreSettingsStore = createScoreSettingsStore(
   "mahjong-machi-score-settings",
+  WEB_SETTINGS_STORE_OPTIONS,
 );

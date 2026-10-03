@@ -12,12 +12,12 @@ import { ScoreCounter } from "./score-counter";
 import type {
   GameSessionState,
   TimerControl,
-} from "../_hooks/use-timed-session";
+} from "@mahjong-scoring/features/session/use-timed-session";
 import type {
   FinishCallbackArgs,
   FinishCallbackResult,
 } from "../_hooks/use-finish-redirect";
-import { useGameTimer } from "../_hooks/use-game-timer";
+import { useGameTimer } from "@mahjong-scoring/features/session/use-game-timer";
 import { useFinishRedirect } from "../_hooks/use-finish-redirect";
 import { useQuitConfirm } from "../_hooks/use-quit-confirm";
 import { useScrollToElement } from "../_hooks/use-scroll-to-element";

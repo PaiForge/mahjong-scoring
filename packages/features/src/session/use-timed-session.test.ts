@@ -1,5 +1,6 @@
+// @vitest-environment jsdom
 import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
-import { completeCountdown } from "./__tests__/timer-helpers";
+import { completeCountdown } from "../test/timer-helpers";
 import { renderHook, act } from "@testing-library/react";
 import { useTimedSession } from "./use-timed-session";
 

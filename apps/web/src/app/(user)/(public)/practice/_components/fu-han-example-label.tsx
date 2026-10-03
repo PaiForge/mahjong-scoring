@@ -1,7 +1,7 @@
 "use client";
 
 import { useFuHanOrder } from "@/app/_hooks/use-display-settings-store";
-import { orderFuHan } from "@/app/_lib/fu-han-order";
+import { orderFuHan } from "@mahjong-scoring/features/settings/fu-han-order";
 
 interface FuHanExampleLabelProps {
   /** 「30符」 */
