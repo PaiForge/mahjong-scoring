@@ -12,6 +12,7 @@ import { getPaginationData, DEFAULT_PAGE_SIZE } from "../../../lib/pagination";
 import { createAdminClient } from "../../../lib/supabase/admin";
 import { PaginationNav } from "@/app/(user)/_components/pagination-nav";
 
+import { MaskedEmail } from "../_components/masked-email";
 import { TableEmptyRow } from "../_components/table-empty-row";
 
 import { StatusBadge } from "./_components/status-badge";
@@ -56,6 +57,11 @@ export default async function AdminUsersPage({
 
   const profileMap = await buildProfileMap(users.map((u) => u.id));
 
+  const emailLabels = {
+    revealEmail: t("usersTable.revealEmail"),
+    hideEmail: t("usersTable.hideEmail"),
+  };
+
   const buildHref = (p: number) => `/admin/users?page=${String(p)}`;
 
   return (
@@ -99,7 +105,9 @@ export default async function AdminUsersPage({
                 const isCurrentUser = currentUser?.id === user.id;
                 return (
                   <tr key={user.id} className="border-t border-gray-200">
-                    <td className="px-4 py-3">{user.email ?? "-"}</td>
+                    <td className="px-4 py-3 whitespace-nowrap">
+                      <MaskedEmail email={user.email} labels={emailLabels} />
+                    </td>
                     <td className="px-4 py-3">{profile?.username ?? "-"}</td>
                     <td className="px-4 py-3">{profile?.displayName ?? "-"}</td>
                     <td className="px-4 py-3">

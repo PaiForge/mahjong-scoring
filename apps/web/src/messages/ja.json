@@ -2657,7 +2657,9 @@
       "active": "有効",
       "banned": "BAN済み",
       "createdAt": "登録日時",
-      "noUsersFound": "ユーザーが見つかりません"
+      "noUsersFound": "ユーザーが見つかりません",
+      "revealEmail": "メールアドレスを表示",
+      "hideEmail": "メールアドレスを隠す"
     },
     "auditLogTable": {
       "action": "アクション",
