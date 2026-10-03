@@ -19,6 +19,7 @@ import { StatusBadge } from "./_components/status-badge";
 import { BanButton } from "./_components/ban-button";
 import { GrantBenefitsButton } from "./_components/grant-benefits-button";
 import { UnbanButton } from "./_components/unban-button";
+import { UserStatus, resolveUserStatus } from "./_lib/user-status";
 
 const searchParamsCache = createSearchParamsCache({
   page: parseAsInteger.withDefault(1),
@@ -101,7 +102,7 @@ export default async function AdminUsersPage({
             ) : (
               users.map((user) => {
                 const profile = profileMap.get(user.id);
-                const isBanned = profile?.bannedAt != null;
+                const status = resolveUserStatus(profile);
                 const isCurrentUser = currentUser?.id === user.id;
                 return (
                   <tr key={user.id} className="border-t border-gray-200">
@@ -111,7 +112,7 @@ export default async function AdminUsersPage({
                     <td className="px-4 py-3">{profile?.username ?? "-"}</td>
                     <td className="px-4 py-3">{profile?.displayName ?? "-"}</td>
                     <td className="px-4 py-3">
-                      <StatusBadge isBanned={isBanned} />
+                      <StatusBadge status={status} />
                     </td>
                     <td className="px-4 py-3 text-gray-500">
                       {formatAdminDate(user.created_at)}
@@ -121,8 +122,10 @@ export default async function AdminUsersPage({
                           BAN と違い相手を害さない操作なので isCurrentUser で隠さない */}
                       <div className="flex flex-wrap gap-2">
                         <GrantBenefitsButton targetUserId={user.id} />
+                        {/* 退会済みは BAN も解除も意味を持たない（ログインできず戻らない） */}
                         {!isCurrentUser &&
-                          (isBanned ? (
+                          status !== UserStatus.Deleted &&
+                          (status === UserStatus.Banned ? (
                             <UnbanButton targetUserId={user.id} />
                           ) : (
                             <BanButton targetUserId={user.id} />
