@@ -1,4 +1,5 @@
 import { config as baseConfig } from "@mahjong-scoring/eslint-config/base";
+import { reactHooksConfig } from "@mahjong-scoring/eslint-config/hooks";
 import { nextJsConfig } from "@mahjong-scoring/eslint-config/next";
 import { reactConfig } from "@mahjong-scoring/eslint-config/react";
 
@@ -25,6 +26,41 @@ export default [
   ...baseConfig,
   ...nextJsConfig.map(scopeTo("apps/web")),
   ...reactConfig.map(scopeTo("apps/mobile")),
+  ...reactHooksConfig.map(scopeTo("packages/features")),
+  {
+    // features は web（サーバーコンポーネントを含む）とモバイルの両方から
+    // ファイル単位で import される。React と zustand に触れてよいのは
+    // フック・ストアのファイル（`use-*.ts`）だけにして、それ以外の純粋な
+    // モジュールはサーバーでも Node のテストでもそのまま読めるようにする。
+    // フックのファイルを純粋なモジュールから import することも同じ理由で禁じる
+    files: ["packages/features/src/**/*.ts"],
+    ignores: [
+      "packages/features/src/**/use-*.ts",
+      "packages/features/src/**/*.test.ts",
+      "packages/features/src/test/**",
+    ],
+    rules: {
+      "@typescript-eslint/no-restricted-imports": [
+        "error",
+        {
+          paths: ["react", "zustand", "zustand/middleware"].map((name) => ({
+            name,
+            allowTypeImports: true,
+            message:
+              "React と zustand を使うコードは use-*.ts（フック・ストア）に置く",
+          })),
+          patterns: [
+            {
+              regex: "(^|/)use-[^/]+$",
+              allowTypeImports: true,
+              message:
+                "純粋なモジュールからフック（use-*.ts）を import しない。フック側から純粋なモジュールを使う",
+            },
+          ],
+        },
+      ],
+    },
+  },
   {
     // CommonJS で書かれた設定ファイル（postcss 等）。`module` / `require` を
     // 未定義扱いにしない

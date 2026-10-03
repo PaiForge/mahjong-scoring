@@ -64,8 +64,22 @@
 ```
 apps/web/          — Next.js 16 (Turbopack, App Router, Tailwind CSS v4)
 packages/core/     — 共通ドメインロジック（問題生成等）。@pai-forge/riichi-mahjong 依存
+packages/features/ — web とモバイルで共有するアプリのロジック（レジストリ・パス・セッションのフック・設定ストア）
 packages/eslint-config/ — 共通 ESLint 設定（PaiForge コーディング規約準拠）
 ```
+
+## packages/features
+
+web とモバイル（Expo）で共有するロジックを置く。`exports` は `./*` のファイル単位で、
+消費側は `@mahjong-scoring/features/<path>` で必要なファイルだけを import する（バレルは作らない）。
+
+- **React と zustand に触れてよいのは `use-*.ts` だけ。** それ以外の純粋なモジュールは
+  サーバーコンポーネントからも Node のテストからも読める状態に保つ。純粋なモジュールから
+  `use-*.ts` を import することも禁止。どちらも ESLint（ルートの `eslint.config.mjs`）が弾く
+- 設定ストアはファクトリ（`createRuleSettingsStore` 等）で、保存先とハイドレーションガードを
+  アプリが渡す。web の実体は `app/_hooks/use-*-store.ts`（localStorage・`useHydrated`）
+- web 固有のもの（DOM・Next・辞書・Tailwind）は置かない。パスは両プラットフォームにある
+  遷移先だけ `routes.ts` に置き、一覧の絞り込みやアンカーは web に残す
 
 ## i18n
 
@@ -273,7 +287,8 @@ loading.tsx を一緒に足すこと。逆に静的にしたら両方を外す�
 - 制限時間 60 秒、ミス 3 回で終了
 - ページ遷移直後にカウントダウンオーバーレイ（3, 2, 1）→ タイマー開始
 - 「準備はいいですか？」のような確認画面は出さない
-- 共通フック: `apps/web/src/app/(public)/practice/_hooks/` に `use-timed-session.ts`, `use-game-timer.ts`, `use-countdown.ts`
+- 共通フック: `packages/features/src/session/` に `use-timed-session.ts`, `use-game-timer.ts`, `use-countdown.ts`。
+  web は `practice/_hooks/use-timed-session.ts` 等の薄いラッパー（スクロールと端末ローカル設定を渡す）を通して使う
 - 円形タイマー: `apps/web/src/app/(public)/practice/_components/quiz-timer.tsx`
 
 ## ルート構成
