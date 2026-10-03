@@ -93,14 +93,16 @@ export function UsernameForm() {
         maxLength={USERNAME_MAX_LENGTH}
         required
         autoFocus
+        labelAction={
+          <button
+            type="button"
+            onClick={handleGenerateUsername}
+            className={`text-xs ${TEXT_LINK_CLASSES}`}
+          >
+            {t("generateUsername")}
+          </button>
+        }
       >
-        <button
-          type="button"
-          onClick={handleGenerateUsername}
-          className={`mt-2 ml-auto block text-xs ${TEXT_LINK_CLASSES}`}
-        >
-          {t("generateUsername")}
-        </button>
         {error && <p className="mt-2 text-sm text-destructive">{error}</p>}
         <ul className="mt-2 list-inside list-disc space-y-0.5">
           <li className="text-xs text-destructive">{t("cannotChange")}</li>
