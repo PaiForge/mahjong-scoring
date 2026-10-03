@@ -1,7 +1,7 @@
 import Link from "next/link";
 
 import { AuthNavItem } from "./auth-nav-item";
-import { BrandLogo } from "./brand-logo";
+import { BrandLogo } from "@/app/_components/brand-logo";
 import { NavMenu } from "./nav-menu";
 import { NotificationBell } from "./notification-bell";
 

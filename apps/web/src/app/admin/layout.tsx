@@ -9,6 +9,7 @@ import { NuqsAdapter } from "nuqs/adapters/next/app";
 import { AdminNavigation } from "./_components/admin-navigation";
 import "./admin.css";
 
+import { BrandLogo } from "@/app/_components/brand-logo";
 import { SITE_NAME } from "@/app/_lib/metadata";
 
 export const metadata: Metadata = {
@@ -55,15 +56,10 @@ export default async function AdminLayout({
       </a>
       <aside className="admin-sidebar">
         <Link href="/admin" className="admin-brand">
-          <span className="admin-brand-mark" aria-hidden="true">
-            發
-          </span>
-          <div>
-            <p className="mb-0.5 text-xs text-surface-500">{SITE_NAME}</p>
-            <h1 className="text-base font-bold tracking-tight text-primary-900">
-              {t("title")}
-            </h1>
-          </div>
+          <BrandLogo size="lg" />
+          <h1 className="text-sm font-bold tracking-tight text-primary-900">
+            {t("title")}
+          </h1>
         </Link>
         <AdminNavigation groups={groups} label={t("title")} />
       </aside>

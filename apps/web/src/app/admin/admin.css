@@ -20,23 +20,10 @@
 
 .admin-brand {
   display: flex;
-  align-items: center;
-  gap: 12px;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 4px;
   margin-bottom: 28px;
-}
-
-.admin-brand-mark {
-  display: grid;
-  place-items: center;
-  width: 40px;
-  height: 44px;
-  border: 1px solid #b9d8c4;
-  border-bottom: 4px solid var(--color-primary-700);
-  border-radius: 10px;
-  background: var(--color-primary-50);
-  color: var(--color-primary-800);
-  font-size: 22px;
-  font-weight: 700;
 }
 
 .admin-navigation {

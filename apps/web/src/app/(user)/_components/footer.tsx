@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { getTranslations } from "next-intl/server";
 
-import { BrandLogo } from "./brand-logo";
+import { BrandLogo } from "@/app/_components/brand-logo";
 import { TEXT_LINK_CLASSES } from "@/app/_components/_lib/link-classes";
 import { chapterHref } from "@mahjong-scoring/features/routes";
 
