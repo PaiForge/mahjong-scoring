@@ -78,7 +78,6 @@ export function UsernameForm() {
       <ProfileTextField
         id="username"
         label={t("usernameLabel")}
-        description={t("usernameDescription")}
         value={username}
         onChange={handleUsernameChange}
         placeholder={t("usernamePlaceholder")}
@@ -89,14 +88,14 @@ export function UsernameForm() {
         {error && <p className="mt-2 text-sm text-destructive">{error}</p>}
         <ul className="mt-2 list-inside list-disc space-y-0.5">
           <li className="text-xs text-destructive">{t("cannotChange")}</li>
-          <li className="text-xs text-surface-500">{t("usernameHint")}</li>
+          <li className="text-xs text-surface-500">{t("usernameHintChars")}</li>
+          <li className="text-xs text-surface-500">{t("usernameHintEdges")}</li>
         </ul>
       </ProfileTextField>
 
       <ProfileTextField
         id="displayName"
         label={t("displayNameLabel")}
-        description={t("displayNameDescription")}
         value={displayName}
         onChange={setDisplayName}
         placeholder={t("displayNamePlaceholder")}
