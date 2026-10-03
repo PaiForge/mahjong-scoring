@@ -223,7 +223,8 @@ BEGIN
 END;
 $$;
 
-GRANT SELECT, INSERT ON TABLE public.lesson_completions TO authenticated;
+-- 書き込みは Server Action の直 DB 接続だけ（rls_policies.sql 参照）
+GRANT SELECT ON TABLE public.lesson_completions TO authenticated;
 
 -- =============================================================================
 -- announcements
