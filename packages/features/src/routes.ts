@@ -1,5 +1,6 @@
 import type { RankSlug } from "./ranks/registry";
 import type { CurriculumChapterSlug } from "./curriculum/registry";
+import type { LessonSlug } from "./lessons/registry";
 import {
   DEFAULT_VARIANT,
   practiceMenuBySlug,
@@ -75,14 +76,35 @@ export function practiceHref(slug: PracticeMenuSlug, variant?: string): string {
     : `${basePath}${variantQuery(slug, variant)}`;
 }
 
-/** 段級位一覧のパス */
+/**
+ * レッスンページのパス
+ * レッスンパス
+ *
+ * ダッシュボードの「次の一歩」・道場の行程・sitemap が同じ組み立てを使う。
+ *
+ * @param slug レッスンスラッグ
+ */
+export function lessonHref(slug: LessonSlug): string {
+  return `/lessons/${slug}`;
+}
+
+/** 道場（黒帯への道の全行程）のパス */
+export const DOJO_PATH = "/dojo";
+
+/**
+ * 段級位の詳細ページの親パス
+ *
+ * この URL 自体にページは無い（以前あった段級位一覧は道場（{@link DOJO_PATH}）
+ * に吸収され、`/dojo/ranks` は `/dojo` へリダイレクトする）。詳細ページの
+ * パスを組み立てる土台としてだけ残している。
+ */
 export const RANKS_PATH = "/dojo/ranks";
 
 /**
  * 段級位の詳細ページのパス
  * 段級位詳細パス
  *
- * 一覧・道場・練習カードの段級位ピル・sitemap がそれぞれ文字列を組み立てると、
+ * 道場・練習カードの段級位ピル・sitemap がそれぞれ文字列を組み立てると、
  * ルートを変えたときに追随漏れが出るため、組み立てをここに閉じる。
  *
  * @param slug 段級位スラッグ
