@@ -16,7 +16,7 @@ import {
 } from "@mahjong-scoring/core";
 import { useYakumanRules } from "@/app/_hooks/use-rule-settings-store";
 import { useYakuOrder } from "@/app/_hooks/use-yaku-order-store";
-import { practiceHanTier } from "../_lib/han-tiers";
+import { practiceHanTier } from "@mahjong-scoring/features/practice/score/han-tiers";
 import { orderYakuDetails } from "@mahjong-scoring/features/results/order-yaku-details";
 import { formatScoreAnswer } from "@mahjong-scoring/features/results/format-score-answer";
 import { paymentToScoreTableAnswer } from "@mahjong-scoring/features/results/payment-adapter";

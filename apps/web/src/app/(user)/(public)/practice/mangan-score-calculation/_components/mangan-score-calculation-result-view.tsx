@@ -1,5 +1,5 @@
 import { createCustomResultView } from "../../_lib/create-custom-result-view";
-import { RESULT_STORAGE_KEY } from "../_lib/types";
+import { RESULT_STORAGE_KEY } from "@mahjong-scoring/features/practice/mangan-score-calculation/types";
 
 /**
  * 満貫以上の点数計算専用の結果画面コンポーネント

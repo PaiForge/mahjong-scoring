@@ -26,7 +26,7 @@ import {
   correctCellAnswerOf,
   formatCellAnswer,
   formatCellAnswerLines,
-} from "../_lib/format-cell-answer";
+} from "@mahjong-scoring/features/practice/machi-score/format-cell-answer";
 import { MachiPicker } from "./machi-picker";
 import { MachiScoreResult } from "./machi-score-result";
 import { TenpaiDisplay } from "./tenpai-display";

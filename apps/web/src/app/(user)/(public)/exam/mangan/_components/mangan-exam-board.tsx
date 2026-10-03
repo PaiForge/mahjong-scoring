@@ -4,7 +4,7 @@ import { createScoreExamBoard } from "../../_lib/create-score-exam-board";
 import {
   EXAM_GENERATE_OPTIONS,
   EXAM_GENERATION_MAX_RETRIES,
-} from "../_lib/types";
+} from "@mahjong-scoring/features/exam/mangan/types";
 
 /**
  * 昇級試験（満貫以上の点数計算）の出題盤面（手牌の提示と点数の回答）

@@ -5,7 +5,7 @@ import { Furo } from "@pai-forge/mahjong-react-ui";
 import { AnswerComparison } from "../../_components/answer-comparison";
 import { ProblemListAccordion } from "../../_components/problem-list-accordion";
 import { restoreMentsu } from "@mahjong-scoring/features/results/mentsu-serialization";
-import type { MentsuFuQuestionResult } from "../_lib/types";
+import type { MentsuFuQuestionResult } from "@mahjong-scoring/features/practice/mentsu-fu/types";
 
 interface MentsuFuProblemListProps {
   readonly results: readonly MentsuFuQuestionResult[];

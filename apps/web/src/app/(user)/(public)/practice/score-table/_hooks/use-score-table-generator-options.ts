@@ -6,7 +6,7 @@ import { PRACTICE_SLUG } from "@mahjong-scoring/features/practice-menu-types";
 import type { PracticeVariantOf } from "@mahjong-scoring/features/practice-menu-types";
 import type { ScoreTableGeneratorOptions } from "@mahjong-scoring/core";
 import { useVariantQuery } from "../../_hooks/use-variant-query";
-import { SCORE_TABLE_VARIANT_OPTIONS } from "../_lib/variants";
+import { SCORE_TABLE_VARIANT_OPTIONS } from "@mahjong-scoring/features/practice/score-table/variants";
 
 /**
  * URL クエリから点数表早引きのバリアントを読むフック

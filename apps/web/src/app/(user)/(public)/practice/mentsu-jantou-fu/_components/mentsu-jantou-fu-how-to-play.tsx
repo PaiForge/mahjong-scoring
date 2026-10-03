@@ -9,11 +9,11 @@ import {
   DEMO_FU_CONTEXT,
   DEMO_FU_TEHAI,
 } from "@mahjong-scoring/features/board/demo-tehai";
-import { FU_OPTIONS } from "../../_lib/fu-options";
+import { FU_OPTIONS } from "@mahjong-scoring/features/practice/fu-options";
 import {
   findAgariHighlight,
   type AgariHighlightItem,
-} from "../_lib/find-agari-highlight";
+} from "@mahjong-scoring/features/practice/mentsu-jantou-fu/find-agari-highlight";
 
 /**
  * デモ用の固定例（{@link DEMO_FU_TEHAI}）の各要素

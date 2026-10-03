@@ -8,11 +8,11 @@ import { TehaiDisplay } from "../../_components/tehai-display";
 import { AnswerOutcome } from "@mahjong-scoring/features/results/result-schemas";
 import { buildMentsu } from "@mahjong-scoring/features/results/mentsu-serialization";
 import { restoreTehaiQuestion } from "@mahjong-scoring/features/results/parse-question-tiles";
-import { findAgariHighlight } from "../_lib/find-agari-highlight";
+import { findAgariHighlight } from "@mahjong-scoring/features/practice/mentsu-jantou-fu/find-agari-highlight";
 import type {
   MentsuJantouFuItemResult,
   MentsuJantouFuQuestionResult,
-} from "../_lib/types";
+} from "@mahjong-scoring/features/practice/mentsu-jantou-fu/types";
 import { FuItemTiles } from "./fu-item-tiles";
 
 interface MentsuJantouFuProblemListProps {

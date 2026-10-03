@@ -1,7 +1,7 @@
 "use client";
 
 import { createProblemListLoader } from "../../_lib/create-problem-list-loader";
-import { parseHanCountResults } from "../_lib/types";
+import { parseHanCountResults } from "@mahjong-scoring/features/practice/han-count/types";
 import { HanCountProblemList } from "./han-count-problem-list";
 
 /**

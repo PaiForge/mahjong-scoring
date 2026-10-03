@@ -18,8 +18,8 @@ import {
 } from "../../_hooks/use-training-mode";
 import { HanBreakdown } from "./han-breakdown";
 import { HanCountAnswerForm } from "./han-count-answer-form";
-import type { HanCountQuestionResult } from "../_lib/types";
-import { toHanCountQuestionResult } from "../_lib/types";
+import type { HanCountQuestionResult } from "@mahjong-scoring/features/practice/han-count/types";
+import { toHanCountQuestionResult } from "@mahjong-scoring/features/practice/han-count/types";
 import type { RecordingPracticeBoardProps } from "../../_lib/practice-board-props";
 
 /**

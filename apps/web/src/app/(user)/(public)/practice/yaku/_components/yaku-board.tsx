@@ -27,8 +27,8 @@ import {
 import {
   QUESTION_GENERATION_MAX_RETRIES,
   toQuestionResult,
-} from "../_lib/types";
-import type { YakuQuestionResult } from "../_lib/types";
+} from "@mahjong-scoring/features/practice/yaku/types";
+import type { YakuQuestionResult } from "@mahjong-scoring/features/practice/yaku/types";
 import type { RecordingPracticeBoardProps } from "../../_lib/practice-board-props";
 
 function generateQuestion(): YakuQuestion | undefined {

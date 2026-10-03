@@ -1,7 +1,7 @@
 "use client";
 
 import { createProblemListLoader } from "../../_lib/create-problem-list-loader";
-import { parseMentsuFuResults } from "../_lib/types";
+import { parseMentsuFuResults } from "@mahjong-scoring/features/practice/mentsu-fu/types";
 import { MentsuFuProblemList } from "./mentsu-fu-problem-list";
 
 /**

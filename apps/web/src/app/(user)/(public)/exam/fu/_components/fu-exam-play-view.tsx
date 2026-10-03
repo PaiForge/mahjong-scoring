@@ -3,7 +3,7 @@
 import { PRACTICE_SLUG } from "@mahjong-scoring/features/practice-menu-types";
 import { createChallengePlayView } from "@/app/(user)/(public)/practice/_lib/create-challenge-views";
 import { FuExamBoard } from "./fu-exam-board";
-import type { FuExamQuestionResult } from "../_lib/types";
+import type { FuExamQuestionResult } from "@mahjong-scoring/features/exam/fu/types";
 
 /**
  * 昇級試験（手牌の合計符）本体

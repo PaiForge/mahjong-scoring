@@ -15,8 +15,8 @@ import { usePresentQuestion } from "../../_hooks/use-present-question";
 import { useRegisterAdvance } from "../../_hooks/use-training-mode";
 import { YakuHanPrompt } from "./yaku-han-prompt";
 import { YakuHanAnswerForm } from "./yaku-han-answer-form";
-import { toQuestionResult } from "../_lib/types";
-import type { YakuHanQuestionResult } from "../_lib/types";
+import { toQuestionResult } from "@mahjong-scoring/features/practice/yaku-han/types";
+import type { YakuHanQuestionResult } from "@mahjong-scoring/features/practice/yaku-han/types";
 import type { RecordingPracticeBoardProps } from "../../_lib/practice-board-props";
 
 interface YakuHanBoardProps extends RecordingPracticeBoardProps<YakuHanQuestionResult> {

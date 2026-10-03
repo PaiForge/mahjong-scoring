@@ -3,7 +3,7 @@
 import { memo, useCallback } from "react";
 import { useTranslations } from "next-intl";
 import type { MentsuJantouFuItem } from "@mahjong-scoring/core";
-import { FU_OPTIONS } from "../../_lib/fu-options";
+import { FU_OPTIONS } from "@mahjong-scoring/features/practice/fu-options";
 import { FuItemTiles } from "./fu-item-tiles";
 
 interface FuItemRowProps {

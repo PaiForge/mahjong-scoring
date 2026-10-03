@@ -8,7 +8,7 @@ import {
   type PracticeVariantOf,
 } from "@mahjong-scoring/features/practice-menu-types";
 import { useScoreTableVariant } from "../_hooks/use-score-table-generator-options";
-import { SCORE_TABLE_VARIANT_OPTIONS } from "../_lib/variants";
+import { SCORE_TABLE_VARIANT_OPTIONS } from "@mahjong-scoring/features/practice/score-table/variants";
 import { ScoreTablePrompt } from "./score-table-prompt";
 
 /** 代表値のデモに使う満貫未満のセル（子・ロン・3翻30符） */

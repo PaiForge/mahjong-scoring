@@ -1,7 +1,7 @@
 "use client";
 
 import { createProblemListLoader } from "../../_lib/create-problem-list-loader";
-import { parseJantouFuResults } from "../_lib/types";
+import { parseJantouFuResults } from "@mahjong-scoring/features/practice/jantou-fu/types";
 import { JantouFuProblemList } from "./jantou-fu-problem-list";
 
 /**

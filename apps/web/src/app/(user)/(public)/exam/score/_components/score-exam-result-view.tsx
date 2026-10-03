@@ -1,5 +1,5 @@
 import { createCustomResultView } from "@/app/(user)/(public)/practice/_lib/create-custom-result-view";
-import { RESULT_STORAGE_KEY } from "../_lib/types";
+import { RESULT_STORAGE_KEY } from "@mahjong-scoring/features/exam/score/types";
 
 /**
  * 昇段試験（あらゆる手の点数計算）専用の結果画面コンポーネント

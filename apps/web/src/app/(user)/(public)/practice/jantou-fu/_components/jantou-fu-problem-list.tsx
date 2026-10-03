@@ -6,7 +6,7 @@ import type { HaiKindId } from "@mahjong-scoring/core";
 import { Hai } from "@pai-forge/mahjong-react-ui";
 import { AnswerComparison } from "../../_components/answer-comparison";
 import { ProblemListAccordion } from "../../_components/problem-list-accordion";
-import type { JantouFuQuestionResult } from "../_lib/types";
+import type { JantouFuQuestionResult } from "@mahjong-scoring/features/practice/jantou-fu/types";
 
 interface JantouFuProblemListProps {
   readonly results: readonly JantouFuQuestionResult[];

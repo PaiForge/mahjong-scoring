@@ -15,7 +15,7 @@ import type { RecordingPracticeBoardProps } from "@/app/(user)/(public)/practice
 import type { ScoreQuestionResult } from "@mahjong-scoring/features/results/score-question-result";
 import { buildYakumanCapNote } from "@/app/(user)/(public)/practice/_lib/yakuman-cap-note";
 import { QuestionDisplay } from "@/app/(user)/(public)/practice/score/_components/question-display";
-import type { ScoreOptionRange } from "@/app/(user)/(public)/practice/score/_lib/get-available-scores";
+import type { ScoreOptionRange } from "@mahjong-scoring/features/practice/score/get-available-scores";
 import { ScoreExamAnswerForm } from "../_components/score-exam-answer-form";
 
 interface CreateScoreExamBoardConfig {

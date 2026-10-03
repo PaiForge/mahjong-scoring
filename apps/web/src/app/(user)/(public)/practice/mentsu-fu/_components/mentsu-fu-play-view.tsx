@@ -2,7 +2,7 @@
 
 import { PRACTICE_SLUG } from "@mahjong-scoring/features/practice-menu-types";
 import { createChallengePlayView } from "../../_lib/create-challenge-views";
-import type { MentsuFuQuestionResult } from "../_lib/types";
+import type { MentsuFuQuestionResult } from "@mahjong-scoring/features/practice/mentsu-fu/types";
 import { MentsuFuBoard } from "./mentsu-fu-board";
 
 export const MentsuFuPlayView = createChallengePlayView<MentsuFuQuestionResult>(

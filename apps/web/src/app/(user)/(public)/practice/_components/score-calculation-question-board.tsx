@@ -14,7 +14,7 @@ import {
 } from "../_hooks/use-score-question-board";
 import { useTrainingAnswerVisibility } from "../_hooks/use-training-mode";
 import { QuestionDisplay } from "../score/_components/question-display";
-import type { ScoreOptionRange } from "../score/_lib/get-available-scores";
+import type { ScoreOptionRange } from "@mahjong-scoring/features/practice/score/get-available-scores";
 import type { PlayBoardHeight } from "../_lib/board-area-height";
 import type { ScoreQuestionResult } from "@mahjong-scoring/features/results/score-question-result";
 import type { RecordingPracticeBoardProps } from "../_lib/practice-board-props";

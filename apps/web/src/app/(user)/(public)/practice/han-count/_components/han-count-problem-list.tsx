@@ -6,8 +6,8 @@ import { ProblemListAccordion } from "../../_components/problem-list-accordion";
 import { TehaiMentsuBreakdown } from "../../_components/tehai-mentsu-breakdown";
 import { QuestionDisplay } from "../../score/_components/question-display";
 import { restoreScoreQuestion } from "@mahjong-scoring/features/results/score-question-result";
-import { hanCountLabel } from "../_lib/han-options";
-import type { HanCountQuestionResult } from "../_lib/types";
+import { hanCountLabel } from "@mahjong-scoring/features/practice/han-count/han-options";
+import type { HanCountQuestionResult } from "@mahjong-scoring/features/practice/han-count/types";
 import { HanBreakdown } from "./han-breakdown";
 
 interface HanCountProblemListProps {

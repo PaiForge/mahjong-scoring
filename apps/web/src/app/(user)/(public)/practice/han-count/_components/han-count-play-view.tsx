@@ -5,7 +5,7 @@ import { createChallengePlayView } from "../../_lib/create-challenge-views";
 import { useGeneratedScoreQuestion } from "../../_hooks/use-generated-score-question";
 import { HanCountBoard } from "./han-count-board";
 import type { HanCountQuestionState } from "./han-count-board";
-import type { HanCountQuestionResult } from "../_lib/types";
+import type { HanCountQuestionResult } from "@mahjong-scoring/features/practice/han-count/types";
 
 export const HanCountPlayView = createChallengePlayView<
   HanCountQuestionResult,

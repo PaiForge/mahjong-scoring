@@ -8,11 +8,11 @@ import { Furo } from "@pai-forge/mahjong-react-ui";
 import { FuChoiceGrid } from "../../_components/fu-choice-grid";
 import { PromptLabel } from "../../_components/prompt-label";
 import { useFuChoiceBoard } from "../../_hooks/use-fu-choice-board";
-import { FU_OPTIONS } from "../../_lib/fu-options";
+import { FU_OPTIONS } from "@mahjong-scoring/features/practice/fu-options";
 import { QuestionGeneratingPlaceholder } from "../../_components/question-generating-placeholder";
 import { QuestionPrompt } from "../../_components/question-prompt";
-import { toQuestionResult } from "../_lib/types";
-import type { MentsuFuQuestionResult } from "../_lib/types";
+import { toQuestionResult } from "@mahjong-scoring/features/practice/mentsu-fu/types";
+import type { MentsuFuQuestionResult } from "@mahjong-scoring/features/practice/mentsu-fu/types";
 import type { RecordingPracticeBoardProps } from "../../_lib/practice-board-props";
 
 type MentsuFuBoardProps = RecordingPracticeBoardProps<MentsuFuQuestionResult>;

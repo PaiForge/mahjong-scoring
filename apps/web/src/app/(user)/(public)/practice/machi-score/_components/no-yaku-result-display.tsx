@@ -9,7 +9,7 @@ import type {
 import { allowsDoubleYakuman } from "@mahjong-scoring/core";
 import { useYakumanRules } from "@/app/_hooks/use-rule-settings-store";
 import { JudgementMark } from "../../_components/judgement-mark";
-import { practiceHanTier } from "../../score/_lib/han-tiers";
+import { practiceHanTier } from "@mahjong-scoring/features/practice/score/han-tiers";
 import {
   ResultTableFrame,
   ResultUnansweredCell,

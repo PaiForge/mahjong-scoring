@@ -6,7 +6,7 @@ import {
   useYakumanRules,
 } from "@/app/_hooks/use-rule-settings-store";
 import { ScoreCalculationQuestionBoard } from "../../_components/score-calculation-question-board";
-import type { ScoreCalculationQuestionResult } from "../_lib/types";
+import type { ScoreCalculationQuestionResult } from "@mahjong-scoring/features/practice/score-calculation/types";
 import type { RecordingPracticeBoardProps } from "../../_lib/practice-board-props";
 import { ruleBoundaryExclusions } from "@mahjong-scoring/features/challenge/rule-boundary";
 

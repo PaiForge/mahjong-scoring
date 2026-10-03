@@ -3,7 +3,7 @@
 import { PRACTICE_SLUG } from "@mahjong-scoring/features/practice-menu-types";
 import { createChallengePlayView } from "../../_lib/create-challenge-views";
 import { ScoreCalculationBoard } from "./score-calculation-board";
-import type { ScoreCalculationQuestionResult } from "../_lib/types";
+import type { ScoreCalculationQuestionResult } from "@mahjong-scoring/features/practice/score-calculation/types";
 
 export const ScoreCalculationPlayView =
   createChallengePlayView<ScoreCalculationQuestionResult>({

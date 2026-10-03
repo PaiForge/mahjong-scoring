@@ -10,7 +10,7 @@ import {
   HAND_SHAPE_MENZEN,
   HAND_SHAPE_PARAM,
   parseHandShape,
-} from "./hand-shape-param";
+} from "@mahjong-scoring/features/practice/score/hand-shape-param";
 import { YAKU_PARAM, parseYakuValues } from "./yaku-filter-params";
 
 /**

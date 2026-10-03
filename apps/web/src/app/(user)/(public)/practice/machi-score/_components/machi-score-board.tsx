@@ -47,7 +47,7 @@ import { sharedAnswerOfCells } from "../_lib/cell-runs";
 import {
   formatCellAnswer,
   formatCellAnswerLines,
-} from "../_lib/format-cell-answer";
+} from "@mahjong-scoring/features/practice/machi-score/format-cell-answer";
 import { MACHI_SCORE_TOUR_ID } from "../_lib/tour-ids";
 import { MachiPicker } from "./machi-picker";
 import { MachiScoreBoardSkeleton } from "./machi-score-board-skeleton";
