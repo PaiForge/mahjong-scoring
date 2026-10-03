@@ -1,16 +1,16 @@
 /**
- * カリキュラムと i18n メッセージファイル (ja.json) の整合性検証
+ * カリキュラムと i18n メッセージファイル （日本語辞書） の整合性検証
  *
  * @description
  * `/learn` 目次・章ナビゲーションでは `CurriculumChapter.i18nKey`（camelCase）
  * を経由して章タイトル・説明を参照する（案C）。
  * slug（kebab-case）は `getChapterI18nPath(chapter)` により camelCase の
- * i18n パスに変換される。本テストは i18nKey と ja.json のキーが一致している
+ * i18n パスに変換される。本テストは i18nKey と 日本語辞書のキーが一致している
  * ことを検証する。
  */
 import { describe, expect, it } from "vitest";
 
-import messagesJson from "@/messages/ja.json";
+import { messages as messagesJson } from "@mahjong-scoring/messages/ja";
 import { collectTermSlugs } from "@/lib/glossary/term-markup";
 
 import {
@@ -41,7 +41,7 @@ describe("i18n integrity: chapters (via getChapterI18nPath)", () => {
   /**
    * page.tsx / chapter-nav.tsx は `getChapterI18nPath(chapter)` 経由で
    * "chapters.<camelName>" のパスを組み立て、`t(learnCurriculum.XXX)` スコープ内で
-   * 参照する。その変換結果が ja.json の実キーと一致することを検証する。
+   * 参照する。その変換結果が 日本語辞書の実キーと一致することを検証する。
    */
   it("has a title for every chapter via getChapterI18nPath", () => {
     for (const chapter of CURRICULUM) {
@@ -74,7 +74,7 @@ describe("i18n integrity: chapters (via getChapterI18nPath)", () => {
 describe("i18n integrity: chapters (via CurriculumChapter.i18nKey)", () => {
   /**
    * カリキュラム（features の `curriculum/registry.ts`）で定義された i18nKey (camelCase) は
-   * ja.json の実際のキーと一致する。こちらは現在 pass する。
+   * 日本語辞書の実際のキーと一致する。こちらは現在 pass する。
    * すなわち「参照側で i18nKey を使う」案Cで整合する。
    */
   it("has a matching message for every i18nKey in CURRICULUM", () => {

@@ -1,0 +1,95 @@
+{
+  "pageTitle": "マイページ",
+  "viewProfile": "公開プロフィール",
+  "editProfile": "プロフィール編集",
+  "activityTitle": "アクティビティ",
+  "cards": {
+    "challenges": {
+      "title": "マイレコード",
+      "summary": "チャレンジモードの成績を確認できます"
+    },
+    "dojo": {
+      "title": "道場",
+      "summary": "段級位の確認と試験への挑戦"
+    },
+    "plan": {
+      "title": "Pro プラン",
+      "summary": "購入状況と購入履歴"
+    },
+    "notifications": {
+      "title": "通知",
+      "summary": "Pro プランの購入や期限切れなどのお知らせ"
+    }
+  },
+  "heatmap": {
+    "less": "少",
+    "more": "多",
+    "total": "合計",
+    "noActivity": "この日の活動はありません",
+    "empty": "まだ活動がありません。練習を始めよう！",
+    "expSuffix": "経験値",
+    "gridAriaLabel": "EXP アクティビティヒートマップ",
+    "barChartAriaLabel": "直近 7 日間の EXP 推移",
+    "legendAriaLabel": "経験値強度の凡例（少から多へ）",
+    "cellAriaLabel": "{date}: {amount} 経験値",
+    "detailPanelPlaceholder": "日付を選択すると、その日の内訳が表示されます",
+    "monthNames": [
+      "1月",
+      "2月",
+      "3月",
+      "4月",
+      "5月",
+      "6月",
+      "7月",
+      "8月",
+      "9月",
+      "10月",
+      "11月",
+      "12月"
+    ],
+    "dayLabels": {
+      "mon": "月",
+      "wed": "水",
+      "fri": "金"
+    }
+  },
+  "challenges": {
+    "pageTitle": "マイレコード",
+    "records": "成績",
+    "noData": "データがありません",
+    "bestScore": "ベストスコア",
+    "avgScore": "平均スコア",
+    "avgScoreInfo": "ミス上限に達せず終了（完走）したチャレンジの平均スコア",
+    "scoreTrend": "スコア推移",
+    "scoreUnit": "スコア",
+    "recentHistory": "直近の履歴",
+    "viewAllResults": "すべての結果を見る",
+    "tryChallenge": "{title}にチャレンジ",
+    "goToPractice": "練習一覧へ",
+    "tableDate": "日時",
+    "tableCorrectAnswers": "正解数",
+    "tableIncorrectAnswers": "ミス数",
+    "vsLastWeek": "先週比",
+    "vs2WeeksAgo": "2週前比",
+    "vsLastMonth": "先月比",
+    "vs2MonthsAgo": "2ヶ月前比",
+    "periods": {
+      "thisWeek": "今週",
+      "lastWeek": "先週",
+      "thisMonth": "今月",
+      "lastMonth": "先月",
+      "twoWeeksAgo": "2週前",
+      "twoMonthsAgo": "2ヶ月前"
+    }
+  },
+  "challengeResults": {
+    "pageTitle": "チャレンジ全履歴",
+    "sectionTitle": "結果一覧",
+    "empty": "結果がありません",
+    "tableDate": "日時",
+    "tableMenu": "種目",
+    "tableCorrectAnswers": "正解数",
+    "tableIncorrectAnswers": "ミス数",
+    "allMenuTypes": "すべての種目"
+  }
+}

@@ -25,7 +25,7 @@ describe("認証メールテンプレート", () => {
     },
   );
 
-  it("サイト名は ja.json の metadata.siteName から引く", () => {
+  it("サイト名は 日本語辞書の metadata.siteName から引く", () => {
     // ここが空だと3通すべてが名無しのまま送られる。
     expect(SITE_NAME).not.toBe("");
     for (const content of EMAIL_TEMPLATES) {

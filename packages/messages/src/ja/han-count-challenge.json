@@ -1,0 +1,22 @@
+{
+  "title": "翻数即答",
+  "description": "手牌・和了牌・風牌・ドラなどの情報から正しい翻数を答える練習です。1翻〜12翻と役満の中から正解を選択してください。",
+  "selectHan": "合計翻数を選択してください",
+  "hanOption": "{count}翻",
+  "yakuman": "役満",
+  "yakumanNote": "13翻以上は役満",
+  "breakdownTitle": "翻数の内訳",
+  "breakdownTotal": "合計",
+  "howToPlay": {
+    "title": "問題方式",
+    "lead": "このような問題が出題されます。"
+  },
+  "generating": "問題を生成中...",
+  "result": {
+    "problemDetails": "問題の詳細",
+    "correctAnswer": "正解",
+    "yourAnswer": "あなたの回答",
+    "correct": "正解",
+    "incorrect": "不正解"
+  }
+}

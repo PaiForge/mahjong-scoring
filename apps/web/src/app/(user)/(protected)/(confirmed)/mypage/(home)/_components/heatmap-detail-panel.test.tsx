@@ -2,12 +2,12 @@ import { describe, expect, it, vi } from "vitest";
 import { render, screen } from "@testing-library/react";
 import { NextIntlClientProvider } from "next-intl";
 
-import messages from "@/messages/ja.json";
+import { messages } from "@mahjong-scoring/messages/ja";
 
 import { HeatmapDetailPanel } from "./heatmap-detail-panel";
 
 /**
- * 実際の辞書（ja.json）で描画する。`practice.practices.<key>` は
+ * 実際の辞書（日本語の辞書）で描画する。`practice.practices.<key>` は
  * `title` / `shortTitle` / `description` を持つオブジェクトで、末端まで
  * 指定しないと next-intl が訳文ではなくキーのパスを描画する。テスト用の
  * 平坦なメッセージを渡すとその失敗が再現しないため、本物の辞書を使う。

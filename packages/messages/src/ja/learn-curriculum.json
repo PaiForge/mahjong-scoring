@@ -1,0 +1,142 @@
+{
+  "tocLink": "目次へ",
+  "sections": {
+    "foundation": "基礎",
+    "mangan": "満貫以上の計算",
+    "fu": "符の計算",
+    "yaku": "役",
+    "score": "点数計算基礎",
+    "memorization": "点数記憶術"
+  },
+  "chapters": {
+    "aboutThisApp": {
+      "title": "このアプリについて",
+      "description": "このアプリで学べることと、開発の経緯"
+    },
+    "whyScoringIsComplex": {
+      "title": "点数計算が複雑な理由",
+      "description": "なぜ点数計算が難しく感じるかを、公式から解説"
+    },
+    "manganKoRon": {
+      "title": "子のロン",
+      "description": "子が満貫以上をロンしたときの点数"
+    },
+    "manganOyaRon": {
+      "title": "親のロン",
+      "description": "親が満貫以上をロンしたときの点数"
+    },
+    "manganKoTsumo": {
+      "title": "子のツモ",
+      "description": "子が満貫以上をツモしたときの点数"
+    },
+    "manganOyaTsumo": {
+      "title": "親のツモ",
+      "description": "親が満貫以上をツモしたときの点数"
+    },
+    "jantouFu": {
+      "title": "雀頭の符",
+      "description": "雀頭にかかる符を学ぶ"
+    },
+    "mentsuFu": {
+      "title": "面子の符",
+      "description": "各面子にかかる符を学ぶ"
+    },
+    "machiFu": {
+      "title": "待ちの符",
+      "description": "待ちの種類ごとの符を学ぶ"
+    },
+    "tehaiFu": {
+      "title": "手牌全体の符",
+      "description": "符計算の総まとめ"
+    },
+    "yaku": {
+      "title": "役",
+      "description": "翻数を数えるための役の基本"
+    },
+    "chiitoitsuScore": {
+      "title": "七対子での点数計算",
+      "description": "25符固定の特殊な役"
+    },
+    "pinfuScore": {
+      "title": "平和での点数計算",
+      "description": "ツモなら20符・ロンなら30符"
+    },
+    "menzenMentsuScore": {
+      "title": "平和以外の門前面子手の点数計算",
+      "description": "ツモは30符から・ロンは40符から"
+    },
+    "furoScore": {
+      "title": "鳴いた手の点数計算",
+      "description": "ロンだけが門前より10符低い"
+    },
+    "fuDoubling": {
+      "title": "符が倍になるのは1翻上がるのと同じ",
+      "description": "点数表に潜む規則性 — 25符2翻と50符1翻は同じ点数"
+    },
+    "tsumoPayments": {
+      "title": "親ツモの列は覚えなくていい",
+      "description": "点数表に潜む規則性 — 親ツモのオールは子ツモの下段と同じ"
+    },
+    "ronToTsumo": {
+      "title": "ツモは子のロンを半分ずつにすれば出る",
+      "description": "点数表に潜む規則性 — 子のロンを2回半分にすると子ツモになる"
+    }
+  },
+  "index": {
+    "pageTitle": "教本",
+    "sectionTitle": "目次",
+    "pageDescription": "麻雀の点数計算を基礎から学ぶための教本です。章を順に読み進められます。",
+    "progressLabel": "{read}章 / {total}章 読了",
+    "nextChapterBadge": "次はここから",
+    "allCompletedMessage": "すべての章を読了しました。おつかれさまでした！"
+  },
+  "chapter": {
+    "markAsReadCta": "この章を読了にする",
+    "markedAsRead": "読了済み",
+    "unmarkAsReadCta": "読了を解除",
+    "unmarkConfirmTitle": "読了を解除しますか？",
+    "unmarkConfirmMessage": "この章を未読の状態に戻します。再度読了にマークすることも可能です。",
+    "unmarkConfirmOk": "解除する",
+    "unmarkConfirmCancel": "キャンセル",
+    "loginPromptCta": "読了を記録するにはログイン",
+    "chapterNavLabel": "章の移動",
+    "prevChapterLabel": "前の章",
+    "nextChapterLabel": "次の章",
+    "practiceLinksTitle": "この章に対応する練習",
+    "practiceLinkCta": "練習を始める",
+    "practiceLinkChallengeCta": "{title}にチャレンジ",
+    "updateFailedToast": "進捗の更新に失敗しました。再度お試しください。",
+    "publishedOn": "{date} 公開"
+  },
+  "scoreTable": {
+    "tableKo": "子の点数",
+    "tableOya": "親の点数",
+    "colWin": "和了",
+    "tsumo": "ツモ",
+    "ron": "ロン",
+    "hanUnit": "{value}翻",
+    "colExtraFu": "積み上げた符",
+    "fuUnit": "{value}符",
+    "fuRange": "{from}〜{to}符",
+    "mangan": "満貫",
+    "colFuHan": "符＼翻",
+    "colHan": "翻",
+    "colBeforeCeil": "切り上げ前",
+    "colKoRon": "子のロン",
+    "colDerived": "半分ずつにすると",
+    "colScore": "点数",
+    "colActualPay": "実際に払う"
+  },
+  "halvingDiagram": {
+    "ronLabel": "子のロン",
+    "oyaLabel": "親が出す",
+    "koLabel": "子が出す",
+    "arrowLabel": "半分",
+    "resultLabel": "点数表の子ツモ"
+  },
+  "exampleTable": {
+    "colTiles": "牌",
+    "colKind": "種類",
+    "colFu": "符"
+  }
+}

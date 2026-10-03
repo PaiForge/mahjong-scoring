@@ -1,0 +1,155 @@
+{
+  "title": "点数計算総合演習",
+  "description": "翻数・符から最終的な点数を算出する実戦形式の練習",
+  "exitToast": "総合演習を終了しました",
+  "help": {
+    "label": "この練習の進め方を見る",
+    "title": "練習の進め方",
+    "slides": {
+      "question": {
+        "title": "① 問題画面",
+        "caption": "手牌・場風・自風・ドラなどの条件が表示されます。"
+      },
+      "answer": {
+        "title": "② 回答画面",
+        "caption": "翻・符・点数を選んで「回答する」を押します。"
+      },
+      "result": {
+        "title": "③ 結果画面",
+        "caption": "あなたの回答と正解を見比べて、点数計算を確認できます。"
+      }
+    },
+    "prev": "戻る",
+    "next": "次へ"
+  },
+  "setup": {
+    "requireYaku": "役も回答する",
+    "simplifyMangan": "5翻以降を簡略化",
+    "simplifyManganInfo": "有効にすると、5翻以上の回答が「満貫」「跳満」「倍満」「三倍満」「役満」のような区分での選択になります。無効にすると、「7翻」「13翻」のように具体的な翻数を指定して回答します。",
+    "requireFu": "満貫以上も符を入力",
+    "autoNext": "正解したらすぐに次の問題へ",
+    "questionMode": "出題モード",
+    "oya": "親",
+    "ko": "子",
+    "targetScore": "出題する点数",
+    "nonMangan": "満貫未満",
+    "manganPlus": "満貫以上",
+    "start": "開始する",
+    "targetYaku": "出題する役",
+    "yakuFilterPlaceholder": "指定しない（すべての役から出題）",
+    "yakuFilterNote": "※ 複数選ぶと、いずれかが成立する手牌が出題されます",
+    "measureTime": "回答時間を計測する",
+    "measureTimePro": {
+      "badge": "Pro",
+      "note": "Pro プランで利用できます",
+      "link": "プランを見る →"
+    }
+  },
+  "form": {
+    "labels": {
+      "han": "翻数",
+      "fu": "符",
+      "yaku": "役",
+      "score": "点数"
+    },
+    "placeholders": {
+      "select": "選択してください",
+      "fromKo": "子",
+      "fromOya": "親"
+    },
+    "messages": {
+      "fuNotRequired": "満貫以上のため入力不要"
+    },
+    "options": {
+      "hanSuffix": "翻",
+      "fuSuffix": "符",
+      "mangan": "満貫",
+      "haneman": "跳満",
+      "baiman": "倍満",
+      "sanbaiman": "三倍満",
+      "yakuman": "役満",
+      "doubleYakuman": "ダブル役満",
+      "all": "オール"
+    },
+    "buttons": {
+      "answer": "回答する"
+    }
+  },
+  "board": {
+    "correct": "正解！",
+    "questionPrompt": "この和了の点数を回答してください",
+    "correctLabel": "正解",
+    "incorrectLabel": "不正解",
+    "generationFailed": "この条件に合う問題を作れませんでした。出題条件を変えてお試しください。",
+    "backToSetup": "設定に戻る"
+  },
+  "result": {
+    "headers": {
+      "answer": "あなたの回答",
+      "correct": "正解"
+    },
+    "unanswered": "—",
+    "details": {
+      "none": "なし",
+      "yakuTitle": "翻数の内訳",
+      "fuTitle": "符の内訳",
+      "total": "合計",
+      "roundUp": "切り上げ"
+    },
+    "next": "次の問題へ",
+    "pointSuffix": "点",
+    "viewScoreTable": "点数表を確認",
+    "openInScoreTable": "点数表で見る",
+    "viewYakuList": "役一覧を確認",
+    "openYakuInList": "役一覧で見る",
+    "yakuJudgement": {
+      "correct": "正解",
+      "incorrect": "不正解",
+      "missed": "選び忘れ"
+    }
+  },
+  "yaku": {
+    "riichi": "立直",
+    "ippatsu": "一発",
+    "menzen_tsumo": "門前清自摸和",
+    "tanyao": "断幺九",
+    "pinfu": "平和",
+    "iipeiko": "一盃口",
+    "haku": "白",
+    "hatsu": "發",
+    "chun": "中",
+    "ton": "東",
+    "nan": "南",
+    "sha": "西",
+    "pei": "北",
+    "jikaze": "自風牌",
+    "bakaze": "場風牌",
+    "sanshoku_doujun": "三色同順",
+    "itsu": "一気通貫",
+    "chanta": "混全帯幺九",
+    "chiitoitsu": "七対子",
+    "toitoi": "対々和",
+    "sanankou": "三暗刻",
+    "honroto": "混老頭",
+    "double_riichi": "ダブル立直",
+    "sanshoku_doukou": "三色同刻",
+    "sankantsu": "三槓子",
+    "shosangen": "小三元",
+    "honitsu": "混一色",
+    "junchan": "純全帯幺九",
+    "ryanpeiko": "二盃口",
+    "chinitsu": "清一色",
+    "kokushi": "国士無双",
+    "suanko": "四暗刻",
+    "daisangen": "大三元",
+    "tsuiso": "字一色",
+    "shousushi": "小四喜",
+    "daisushi": "大四喜",
+    "ryuiso": "緑一色",
+    "chinroto": "清老頭",
+    "sukantsu": "四槓子",
+    "chuuren": "九蓮宝燈",
+    "tenhou": "天和",
+    "chihou": "地和"
+  }
+}
