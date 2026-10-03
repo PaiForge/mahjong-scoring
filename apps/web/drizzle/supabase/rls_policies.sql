@@ -120,6 +120,18 @@ CREATE POLICY "learn_chapter_reads_delete" ON "learn_chapter_reads"
   FOR DELETE USING (auth.uid() = user_id);
 
 -- =============================================================================
+-- lesson_completions
+-- =============================================================================
+-- レッスン完了は本人のみ SELECT 可。書き込みは Server Action（サーバーの直 DB
+-- 接続）だけが行うので、クライアントロールには INSERT / UPDATE / DELETE の
+-- どれも許可しない（完了を取り消す操作も無い。退会時の削除もサーバー）。
+ALTER TABLE "lesson_completions" ENABLE ROW LEVEL SECURITY;
+
+DROP POLICY IF EXISTS "lesson_completions_select" ON "lesson_completions";
+CREATE POLICY "lesson_completions_select" ON "lesson_completions"
+  FOR SELECT USING (auth.uid() = user_id);
+
+-- =============================================================================
 -- announcements
 -- =============================================================================
 -- 公開コンテンツ。誰でも published の行のみ SELECT 可。

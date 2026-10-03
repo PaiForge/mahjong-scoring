@@ -427,6 +427,50 @@ export type LearnChapterRead = typeof learnChapterReads.$inferSelect;
 export type NewLearnChapterRead = typeof learnChapterReads.$inferInsert;
 
 /**
+ * レッスン完了 — ユーザーごとのレッスン完了記録
+ * レッスン完了
+ *
+ * @description
+ * 認証ユーザーが `/lessons/<slug>` の確認問題を最後まで解くと 1 行 INSERT される。
+ * (user_id, lesson_slug) で 1 ユニーク。黒帯への道（features の `journey/`）が
+ * 章の「学んだ」の印として読む（章の読了と同じ重み）。
+ *
+ * 正答数や所要時間は持たない。レッスンは記録を競う場ではなく、残すのは
+ * 「終えた」という事実だけ。間違えた問題もその場で解説を読んで先へ進める
+ * 設計なので、何問正解したかに意味を持たせない。
+ *
+ * @design lesson_slug を文字列キーとして保持し DB 側で enum 化しない
+ * 章読了（`learn_chapter_reads`）と同じ理由。レッスンの追加はコード側
+ * （features の `lessons/registry.ts`）で完結させ、DB マイグレーションを不要にする。
+ */
+export const lessonCompletions = pgTable(
+  "lesson_completions",
+  {
+    /** auth.users(id) への外部キー（Supabase SQL で定義） */
+    userId: uuid("user_id").notNull(),
+    /** レッスンスラッグ（features の `lessons/registry.ts` で管理） */
+    lessonSlug: varchar("lesson_slug", { length: 64 }).notNull(),
+    /** 完了日時 */
+    completedAt: timestamp("completed_at", { withTimezone: true })
+      .defaultNow()
+      .notNull(),
+  },
+  (table) => [
+    primaryKey({ columns: [table.userId, table.lessonSlug] }),
+    index("idx_lesson_completions_user").on(table.userId),
+    // lesson_slug の形式を制約（learn_chapter_reads.chapter_slug と同じ規則）。
+    // 任意文字列の INSERT を DB 層でも防ぐ二重防御
+    check(
+      "lesson_completions_lesson_slug_format",
+      sql`${table.lessonSlug} ~ '^[a-z][a-z0-9-]{0,63}$'`,
+    ),
+  ],
+);
+
+export type LessonCompletion = typeof lessonCompletions.$inferSelect;
+export type NewLessonCompletion = typeof lessonCompletions.$inferInsert;
+
+/**
  * お知らせ — 運営からのアナウンス
  *
  * @description

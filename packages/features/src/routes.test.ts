@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 
-import { practiceHref, rankHref } from "./routes";
+import { lessonHref, practiceHref, rankHref } from "./routes";
 
 describe("practiceHref", () => {
   it("slug から練習ページのパスを作る", () => {
@@ -19,7 +19,13 @@ describe("practiceHref", () => {
 });
 
 describe("rankHref", () => {
-  it("段級位一覧の下に slug を置く", () => {
+  it("段級位の詳細の親パスの下に slug を置く", () => {
     expect(rankHref("kyu-5")).toBe("/dojo/ranks/kyu-5");
+  });
+});
+
+describe("lessonHref", () => {
+  it("slug からレッスンページのパスを作る", () => {
+    expect(lessonHref("mangan-ko-ron")).toBe("/lessons/mangan-ko-ron");
   });
 });

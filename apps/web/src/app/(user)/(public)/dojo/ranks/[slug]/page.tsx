@@ -23,7 +23,7 @@
  * 本物の 404 が要るなら、ページを静的にして取得状態をクライアントで重ねる。
  *
  * @flow
- * 1. 段級位一覧のカードの級名から遷移する
+ * 1. 道場の行程（黒帯への道）のカードの級名から遷移する
  * 2. 前提となる教本の章を読む（読了チェックが進捗を示す）
  * 3. 試験の説明ページへ進む（受験資格は試験ページ側が判定する）
  */
@@ -46,7 +46,7 @@ import { beltBorderClass } from "@/lib/ranks/belt-colors";
 import { menuTypeToSlug } from "@mahjong-scoring/features/practice-menu-types";
 import { resolveRankStatus } from "@mahjong-scoring/features/ranks/rank-status";
 import { rankBySlug } from "@mahjong-scoring/features/ranks/registry";
-import { RANKS_PATH, rankHref } from "@mahjong-scoring/features/routes";
+import { rankHref } from "@mahjong-scoring/features/routes";
 
 import { RankStatusBadge } from "../_components/rank-status-badge";
 
@@ -95,11 +95,7 @@ export default async function RankDetailPage({ params }: RankDetailPageProps) {
 
   return (
     <ContentContainer
-      breadcrumb={[
-        { label: t("title"), href: "/dojo" },
-        { label: t("ranksList.title"), href: RANKS_PATH },
-        { label: rankName },
-      ]}
+      breadcrumb={[{ label: t("title"), href: "/dojo" }, { label: rankName }]}
     >
       <PageTitle>{rankName}</PageTitle>
 

@@ -207,6 +207,26 @@ $$;
 GRANT SELECT, INSERT, DELETE ON TABLE public.learn_chapter_reads TO authenticated;
 
 -- =============================================================================
+-- lesson_completions
+-- =============================================================================
+
+-- FK constraint: lesson_completions.user_id → auth.users(id) ON DELETE CASCADE
+DO $$
+BEGIN
+  IF NOT EXISTS (
+    SELECT 1 FROM pg_constraint WHERE conname = 'lesson_completions_user_id_fkey'
+  ) THEN
+    ALTER TABLE public.lesson_completions
+      ADD CONSTRAINT lesson_completions_user_id_fkey
+      FOREIGN KEY (user_id) REFERENCES auth.users(id) ON DELETE CASCADE;
+  END IF;
+END;
+$$;
+
+-- 書き込みは Server Action の直 DB 接続だけ（rls_policies.sql 参照）
+GRANT SELECT ON TABLE public.lesson_completions TO authenticated;
+
+-- =============================================================================
 -- announcements
 -- =============================================================================
 -- 公開コンテンツ。auth.users への FK は無し。読み取りのみ anon / authenticated に

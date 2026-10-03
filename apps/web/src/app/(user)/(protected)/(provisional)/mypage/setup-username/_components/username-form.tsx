@@ -75,10 +75,13 @@ export function UsernameForm() {
         return;
       }
 
-      // 本登録直後はプロフィール編集（アバター・自己紹介・SNS。任意）へ誘導する。
-      // 登録はここで完結しているが、続けてフォームが出ると「まだ登録の続き」と
-      // 受け取られるため、着いた先で完了を告げる。
-      const next = "/mypage/profile/edit?from=setup";
+      // 本登録はここで完結する。着地はダッシュボード（ログイン済みの「/」。
+      // proxy が /dashboard へ rewrite する）で、「次の一歩」が最初にやることを
+      // 示す。プロフィール（アバター・自己紹介・SNS）は任意なのでここでは
+      // 挟まず、マイページからいつでも編集できるままにする — 登録の直後に
+      // 任意のフォームが続くと「まだ登録の続き」に見え、最初の学習までの
+      // 距離が伸びる。
+      const next = "/";
       toastOnArrival(next, t("registered"), "success");
       router.push(next);
     } catch {

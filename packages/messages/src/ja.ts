@@ -81,6 +81,7 @@ import mypagePlan from "./ja/mypage-plan.json";
 import mypageAccount from "./ja/mypage-account.json";
 import tokushoho from "./ja/tokushoho.json";
 import notifications from "./ja/notifications.json";
+import lessons from "./ja/lessons.json";
 
 /**
  * 日本語の辞書（全名前空間）
@@ -179,6 +180,7 @@ export const messages = {
   mypageAccount,
   tokushoho,
   notifications,
+  lessons,
 };
 
 /** 辞書の型（名前空間 → 文言の木） */

@@ -148,6 +148,13 @@
       "when": 1790945871539,
       "tag": "20261002125751_create_notifications",
       "breakpoints": true
+    },
+    {
+      "idx": 21,
+      "version": "7",
+      "when": 1791027672937,
+      "tag": "20261003114112_create_lesson_completions",
+      "breakpoints": true
     }
   ]
 }

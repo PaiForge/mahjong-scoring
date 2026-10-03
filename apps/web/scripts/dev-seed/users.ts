@@ -19,6 +19,7 @@ import type { PostgresJsDatabase } from "drizzle-orm/postgres-js";
 
 import {
   learnChapterReads,
+  lessonCompletions,
   profiles,
   userRanks,
   userRoles,
@@ -184,6 +185,12 @@ export async function ensureSeedUser(
   await db
     .delete(learnChapterReads)
     .where(eq(learnChapterReads.userId, userId));
+  // レッスンの完了も同じ理由で消す（宣言された状態に戻す）。シードでは
+  // 付与しない — 読了を入れる級持ちのユーザーは章の側で「学んだ」になり、
+  // 無級のユーザーはレッスンが次の一歩として出る状態を確かめたい
+  await db
+    .delete(lessonCompletions)
+    .where(eq(lessonCompletions.userId, userId));
 
   if (user.ranks && user.ranks.length > 0) {
     await db

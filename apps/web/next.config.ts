@@ -96,6 +96,18 @@ const nextConfig: NextConfig = {
       },
     ];
   },
+  async redirects() {
+    return [
+      // 段級位一覧（/dojo/ranks）は道場（/dojo）の「黒帯への道」に吸収した
+      // （2026-10）。sitemap に載っていた URL なので恒久リダイレクトで受ける。
+      // 級の詳細（/dojo/ranks/<slug>）はそのまま
+      {
+        source: "/dojo/ranks",
+        destination: "/dojo",
+        permanent: true,
+      },
+    ];
+  },
 };
 
 export default withNextIntl(nextConfig);
