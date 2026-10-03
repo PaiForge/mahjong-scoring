@@ -234,8 +234,11 @@ loading.tsx を一緒に足すこと。逆に静的にしたら両方を外す�
   本番ビルドで実測）。slug を事前に列挙できるルートは
   `generateStaticParams` + `export const dynamicParams = false` で弾くこと。
   未知の slug がページを描画する前にルーティングで落ちるため、本物の 404 に
-  なる（`/reference/glossary/[slug]` 参照）。列挙できない DB 由来の動的ルート
-  （`/announcements/[slug]`, `/u/[username]`）は 200 のまま残るが、Next が
+  なる（`/reference/glossary/[slug]` 参照）。ただしこれが効くのは静的ルート
+  だけで、cookie を読む動的ルートでは列挙しても未知の slug が描画まで進み
+  200 になる（2026-10 に本番ビルドで実測、`/dojo/ranks/[slug]`）。そうした
+  ルートや列挙できない DB 由来の動的ルート（`/announcements/[slug]`,
+  `/u/[username]`）は 200 のまま残るが、Next が
   not-found の描画に `<meta name="robots" content="noindex">` を自動で入れる
   ため索引はされない。ページ側で noindex を足す必要はない
 - ドロップダウン等のメニュー内 `<Link>` は閉じている間も mount したままにする（`invisible` + `inert`）。

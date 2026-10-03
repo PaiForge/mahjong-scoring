@@ -1,8 +1,7 @@
-import { RANK_REGISTRY, type RankSlug } from "./ranks/registry";
+import type { RankSlug } from "./ranks/registry";
 import type { CurriculumChapterSlug } from "./curriculum/registry";
 import {
   DEFAULT_VARIANT,
-  menuTypeToSlug,
   practiceMenuBySlug,
   resolvePracticeVariant,
   type PracticeMenuSlug,
@@ -76,22 +75,20 @@ export function practiceHref(slug: PracticeMenuSlug, variant?: string): string {
     : `${basePath}${variantQuery(slug, variant)}`;
 }
 
+/** 段級位一覧のパス */
+export const RANKS_PATH = "/dojo/ranks";
+
 /**
- * 段級位のピルを押した先 — その級の昇級試験の説明ページ
- * 段級位の行き先
+ * 段級位の詳細ページのパス
+ * 段級位詳細パス
  *
- * 練習カードの段級位ピルが「4級」と名乗っている以上、押した先はその級の
- * 話をしていなければならない。このアプリで級そのものを説明している場所は
- * 試験の説明ページで、合格条件と出題形式がそこに揃っている（道場は
- * 「次に取る級」しか出さないため、5級を持たない人が4級のピルを押すと
- * 5級の話に着地してしまう）。
+ * 一覧・道場・練習カードの段級位ピル・sitemap がそれぞれ文字列を組み立てると、
+ * ルートを変えたときに追随漏れが出るため、組み立てをここに閉じる。
  *
  * @param slug 段級位スラッグ
  */
-export function rankExamHref(slug: RankSlug): string {
-  const rank = RANK_REGISTRY.find((entry) => entry.slug === slug);
-  if (rank === undefined) return "/dojo";
-  return practiceHref(menuTypeToSlug(rank.exam.menuType));
+export function rankHref(slug: RankSlug): string {
+  return `${RANKS_PATH}/${slug}`;
 }
 
 /**

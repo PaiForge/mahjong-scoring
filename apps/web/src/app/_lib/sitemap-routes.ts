@@ -5,6 +5,8 @@ import { GLOSSARY_PATH, glossaryTermHref } from "@/lib/glossary/routes";
 import { chapterHref } from "@mahjong-scoring/features/routes";
 import { CURRICULUM } from "@mahjong-scoring/features/curriculum/registry";
 import { practiceHref } from "@mahjong-scoring/features/routes";
+import { RANKS_PATH, rankHref } from "@mahjong-scoring/features/routes";
+import { RANK_SLUGS } from "@mahjong-scoring/features/ranks/registry";
 
 /**
  * sitemap の静的ルート定義
@@ -21,6 +23,7 @@ export const STATIC_SITEMAP_ROUTE_DEFS = [
   { url: "/learn", changeFrequency: "weekly", priority: 0.9 },
   { url: "/practice", changeFrequency: "weekly", priority: 0.9 },
   { url: "/dojo", changeFrequency: "monthly", priority: 0.8 },
+  { url: RANKS_PATH, changeFrequency: "monthly", priority: 0.6 },
   { url: "/reference", changeFrequency: "weekly", priority: 0.8 },
   // 総合演習。slug が練習レジストリ外のため PRACTICE_SITEMAP_PATHS で導出されない
   { url: "/practice/score", changeFrequency: "monthly", priority: 0.8 },
@@ -72,6 +75,14 @@ export const PRACTICE_SITEMAP_PATHS: readonly string[] =
  */
 export const GLOSSARY_SITEMAP_PATHS: readonly string[] =
   GLOSSARY_TERM_SLUGS.map(glossaryTermHref);
+
+/**
+ * 段級位の詳細ページのパス一覧（`/dojo/ranks/<slug>`）
+ *
+ * 用語ページと同じ理由で INDEXABLE_PATHS には入れない（動的セグメントで
+ * 受けるページは seo-coverage.test.ts がディレクトリ名に解決できない）。
+ */
+export const RANK_SITEMAP_PATHS: readonly string[] = RANK_SLUGS.map(rankHref);
 
 /**
  * DB に依存しない indexable パスの全集合（トップは "/" に正規化済み）。

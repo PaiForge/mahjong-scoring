@@ -24,13 +24,14 @@ interface PracticeCardProps {
    * 級を持つカードの側が読み取りやすい）。
    *
    * ピルは押せる。「この練習は4級のため」と名乗っておいて 4級 が何なのかを
-   * 見に行けないと、ラベルが飾りになる。行き先は `rankExamHref`。
+   * 見に行けないと、ラベルが飾りになる。行き先はその級の詳細ページ
+   * （`rankHref`。合格基準・前提の章・試験への導線が揃っている）。
    */
   rank?: {
     readonly slug: RankSlug;
     readonly label: string;
     readonly href: string;
-    /** リンクのアクセシブル名（「4級 昇級試験」） */
+    /** リンクのアクセシブル名（「4級の合格基準を見る」） */
     readonly ariaLabel: string;
   };
   /** カードの行き先を表すリンクの文言（「くわしく見る」） */

@@ -4,8 +4,9 @@
  * @description
  * 段級位制のホーム。現在の段級位・次の目標（前提となる教本の章と昇級試験）を
  * 1 ページで示す。未認証でも閲覧でき、その場合は無級として表示される
- * （段級位の一覧は「このアプリで何ができるようになるか」の提示でもあるため
- * 公開ページにしている）。
+ * （段級位制は「このアプリで何ができるようになるか」の提示でもあるため
+ * 公開ページにしている）。全段級位の一覧は段級位一覧（`/dojo/ranks`）が持ち、
+ * 現在の段級位の下からそこへ送る。
  *
  * @flow
  * 1. 現在の段級位を確認する（未取得・未認証は無級）
@@ -35,6 +36,7 @@ import {
   highestRank,
   nextRank,
 } from "@mahjong-scoring/features/ranks/registry";
+import { RANKS_PATH } from "@mahjong-scoring/features/routes";
 
 export async function generateMetadata(): Promise<Metadata> {
   return createNamespaceMetadata("dojo", { path: "/dojo" });
@@ -84,6 +86,17 @@ export default async function DojoPage() {
                 </Link>
               </p>
             )}
+          </div>
+          {/* 「目次へ」（CurriculumTocLink）と同じく、抜粋の下に右寄せの
+              テキストリンクで全体へ抜ける。ここが出しているのは現在と次の
+              級だけなので、その先の級はこのリンクの先で見る */}
+          <div className="text-right">
+            <Link
+              href={RANKS_PATH}
+              className={`text-sm font-medium ${TEXT_LINK_CLASSES}`}
+            >
+              {t("ranksLink")}
+            </Link>
           </div>
         </section>
 

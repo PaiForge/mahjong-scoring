@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 
-import { practiceHref } from "./routes";
+import { practiceHref, rankHref } from "./routes";
 
 describe("practiceHref", () => {
   it("slug から練習ページのパスを作る", () => {
@@ -15,5 +15,11 @@ describe("practiceHref", () => {
 
   it("バリアントを持たない練習にはクエリを付けない", () => {
     expect(practiceHref("jantou-fu", "default")).toBe("/practice/jantou-fu");
+  });
+});
+
+describe("rankHref", () => {
+  it("段級位一覧の下に slug を置く", () => {
+    expect(rankHref("kyu-5")).toBe("/dojo/ranks/kyu-5");
   });
 });
