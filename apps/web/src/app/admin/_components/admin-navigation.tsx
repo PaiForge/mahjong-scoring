@@ -8,7 +8,7 @@ export interface AdminNavGroup {
   readonly items: readonly { readonly href: string; readonly label: string }[];
 }
 
-/** モバイルでは上部に折り返し、デスクトップでは常設サイドバーとして表示する。 */
+/** デスクトップ・タブレット共通の常設サイドバーナビゲーション。 */
 export function AdminNavigation({
   groups,
   label,

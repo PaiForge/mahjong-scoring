@@ -1,14 +1,21 @@
 /* 管理画面だけに適用する。一般向けの pop スキンとは独立。 */
 .admin-shell {
+  display: flex;
   min-height: 100dvh;
   background: #f3f6f4;
   color: var(--color-surface-800);
 }
 
 .admin-sidebar {
-  padding: 24px 20px;
+  position: sticky;
+  top: 0;
+  width: 248px;
+  height: 100dvh;
+  overflow-y: auto;
+  flex-shrink: 0;
+  padding: 28px 20px;
   background: #fff;
-  border-bottom: 1px solid #dce6df;
+  border-right: 1px solid #dce6df;
 }
 
 .admin-brand {
@@ -45,7 +52,7 @@
 }
 .admin-nav-items {
   display: flex;
-  flex-wrap: wrap;
+  flex-direction: column;
   gap: 4px;
 }
 .admin-nav-link {
@@ -99,7 +106,7 @@
 .admin-main {
   max-width: 1440px;
   margin: 0 auto;
-  padding: 28px 20px 64px;
+  padding: 40px 40px 80px;
 }
 .admin-panel,
 .admin-table,
@@ -121,6 +128,14 @@
 }
 .admin-table {
   overflow-x: auto;
+}
+.admin-panel > .admin-table {
+  border: 0;
+  border-radius: 0 0 12px 12px;
+  box-shadow: none;
+}
+.admin-panel > .overflow-x-auto {
+  border-radius: 0 0 12px 12px;
 }
 .admin-shell table {
   background: white;
@@ -185,50 +200,16 @@
   border-radius: 50%;
   pointer-events: none;
 }
-@media (min-width: 1024px) {
-  .admin-shell {
-    display: flex;
-  }
+@media (max-width: 1100px) {
   .admin-sidebar {
-    position: sticky;
-    top: 0;
-    width: 248px;
-    height: 100dvh;
-    overflow-y: auto;
-    flex-shrink: 0;
-    border-right: 1px solid #dce6df;
-    border-bottom: 0;
-    padding: 28px 20px;
-  }
-  .admin-nav-items {
-    flex-direction: column;
+    width: 216px;
+    padding: 24px 12px;
   }
   .admin-main {
-    padding: 40px 40px 80px;
+    padding: 28px 24px 64px;
   }
   .admin-topbar {
-    padding-inline: 40px;
-  }
-}
-@media (max-width: 1023px) {
-  .admin-sidebar {
-    padding: 16px 20px;
-  }
-  .admin-brand {
-    margin-bottom: 16px;
-  }
-  .admin-navigation {
-    gap: 8px;
-  }
-  .admin-nav-label {
-    display: none;
-  }
-  .admin-nav-link {
-    padding: 8px 10px;
-  }
-  .admin-topbar {
-    min-height: 52px;
-    padding: 12px 20px;
+    padding-inline: 24px;
   }
 }
 @media (prefers-reduced-motion: reduce) {
