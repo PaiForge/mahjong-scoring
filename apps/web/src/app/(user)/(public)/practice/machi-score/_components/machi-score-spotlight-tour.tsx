@@ -1,8 +1,10 @@
 "use client";
 
 import { useTranslations } from "next-intl";
-import { SpotlightTour } from "../../_components/spotlight-tour";
-import type { SpotlightStep } from "../../_components/spotlight-tour";
+import {
+  SpotlightTour,
+  type SpotlightStep,
+} from "@/app/(user)/_components/spotlight-tour";
 import { MACHI_SCORE_TOUR_ID } from "../_lib/tour-ids";
 
 /**
