@@ -65,7 +65,7 @@ export function TrackingIdForm({ trackingId, hiddenAsinCount }: Props) {
         <button
           type="submit"
           disabled={isPending || value.trim() === (trackingId ?? "")}
-          className="rounded bg-primary-600 px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-primary-700 disabled:opacity-50"
+          className="rounded bg-primary-600 px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-primary-700 disabled:bg-surface-300 disabled:text-surface-500"
         >
           {t("save")}
         </button>

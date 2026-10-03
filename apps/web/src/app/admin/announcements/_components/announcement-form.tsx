@@ -214,7 +214,7 @@ export function AnnouncementForm({
           type="button"
           onClick={handleSubmit}
           disabled={isPending}
-          className="rounded bg-primary-600 px-5 py-2 text-sm font-medium text-white transition-colors hover:bg-primary-700 disabled:opacity-50"
+          className="rounded bg-primary-600 px-5 py-2 text-sm font-medium text-white transition-colors hover:bg-primary-700 disabled:bg-surface-300 disabled:text-surface-500"
         >
           {isPending ? t("saving") : t("save")}
         </button>
