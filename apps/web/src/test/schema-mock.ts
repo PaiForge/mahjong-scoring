@@ -18,6 +18,13 @@ export const learnChapterReads = {
   chapterSlug: "chapter_slug",
 } as const;
 
+/** lesson_completions のカラム */
+export const lessonCompletions = {
+  _name: "lesson_completions",
+  userId: "user_id",
+  lessonSlug: "lesson_slug",
+} as const;
+
 /** profiles のカラム */
 export const profiles = {
   _name: "profiles",
