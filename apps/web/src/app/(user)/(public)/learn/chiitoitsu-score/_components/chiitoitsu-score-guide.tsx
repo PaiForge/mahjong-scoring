@@ -38,7 +38,7 @@ export async function ChiitoitsuScoreGuide() {
       </GuideSection>
 
       {/* 対応する練習は自由練習（役絞り込み）でカタログ外のため、
-          共通レイアウトの practiceHrefs ではなく章本文が導線を持つ。
+          共通レイアウトの practiceLinks ではなく章本文が導線を持つ。
           七対子のみ・満貫未満 = 章の内容そのまま「必ず 25符 × 2〜4翻」の
           手牌だけが出題される */}
       <PracticeLinkSection>

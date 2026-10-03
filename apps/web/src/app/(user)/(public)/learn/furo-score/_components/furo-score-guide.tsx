@@ -46,7 +46,7 @@ export async function FuroScoreGuide() {
       </GuideColumn>
 
       {/* 対応する練習は自由練習（副露縛り）でカタログ外のため、
-          共通レイアウトの practiceHrefs ではなく章本文が導線を持つ */}
+          共通レイアウトの practiceLinks ではなく章本文が導線を持つ */}
       <PracticeLinkSection>
         <PracticeLinkButton
           href={scorePracticePlayHref({

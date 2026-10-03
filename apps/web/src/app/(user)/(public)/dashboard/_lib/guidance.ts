@@ -3,7 +3,6 @@ import {
   type CurriculumChapter,
   pickNextChapter,
 } from "@/app/(user)/(public)/learn/_lib/curriculum";
-import { practiceSlugFromHref } from "@/app/(user)/(public)/practice/_lib/practice-catalog";
 import {
   menuTypeToSlug,
   type PracticeMenuSlug,
@@ -105,9 +104,7 @@ export function selectDashboardGuidance({
     .filter((chapter) => readSlugs.has(chapter.slug));
 
   for (const chapter of readChaptersInOrder) {
-    for (const href of chapter.practiceHrefs ?? []) {
-      const slug = practiceSlugFromHref(href);
-      if (slug === undefined) continue;
+    for (const { slug } of chapter.practiceLinks ?? []) {
       if (attemptedSlugs.has(slug) || seen.has(slug)) continue;
       seen.add(slug);
       recommended.push(slug);

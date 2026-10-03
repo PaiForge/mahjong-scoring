@@ -59,7 +59,7 @@ interface PracticeIntroContentProps {
  *
  * - 通常の練習は「関連する教本の章」。読んでおくと解きやすいという程度の
  *   関係で、`relatedChaptersForPractice()` がカタログの `learnChapter` と
- *   「その練習へ送っている章」（章の `practiceHrefs` の逆引き）を畳んで返す。
+ *   「その練習へ送っている章」（章の `practiceLinks` の逆引き）を畳んで返す。
  *   章から練習へ来た人が同じ章へ戻れるのはこの逆引きの側で、点数表早引きの
  *   ように複数の章が送る練習では 1 件にならない
  * - 昇級試験は「前提となる教本の章」。合格に必要な知識の全体なので、

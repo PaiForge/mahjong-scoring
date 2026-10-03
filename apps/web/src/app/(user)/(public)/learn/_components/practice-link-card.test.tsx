@@ -21,14 +21,14 @@ vi.mock("next-intl/server", () => ({
 }));
 
 describe("PracticeLinkList", () => {
-  it("renders nothing when hrefs is empty", async () => {
-    const element = await PracticeLinkList({ hrefs: [] });
+  it("renders nothing when links is empty", async () => {
+    const element = await PracticeLinkList({ links: [] });
     expect(element).toBeUndefined();
   });
 
   it("renders a single item without grid layout", async () => {
     const { container } = render(
-      await PracticeLinkList({ hrefs: ["/practice/jantou-fu"] }),
+      await PracticeLinkList({ links: [{ slug: "jantou-fu" }] }),
     );
     const anchors = container.querySelectorAll("a");
     expect(anchors.length).toBe(1);
@@ -41,7 +41,7 @@ describe("PracticeLinkList", () => {
   it("renders multiple items in a responsive grid", async () => {
     const { container } = render(
       await PracticeLinkList({
-        hrefs: ["/practice/jantou-fu", "/practice/mentsu-fu"],
+        links: [{ slug: "jantou-fu" }, { slug: "mentsu-fu" }],
       }),
     );
     const anchors = container.querySelectorAll("a");
@@ -52,7 +52,7 @@ describe("PracticeLinkList", () => {
 
   it("renders the practice title resolved from camelCase i18n key", async () => {
     const { container } = render(
-      await PracticeLinkList({ hrefs: ["/practice/jantou-fu"] }),
+      await PracticeLinkList({ links: [{ slug: "jantou-fu" }] }),
     );
     // モックの t() は key をそのまま返すので、正しく camelCase 変換されていれば
     // practices.jantouFu.title が文字列として出現する。
@@ -61,20 +61,36 @@ describe("PracticeLinkList", () => {
 
   it("renders the practice title for multi-segment slugs", async () => {
     const { container } = render(
-      await PracticeLinkList({ hrefs: ["/practice/han-count"] }),
+      await PracticeLinkList({ links: [{ slug: "han-count" }] }),
     );
     expect(container.textContent).toContain("practices.hanCount.title");
   });
 });
 
 describe("PracticeLinkList: link href rendering", () => {
-  it("renders a link with the provided href via the list", async () => {
+  it("renders a link to the practice page via the list", async () => {
     const { container } = render(
-      await PracticeLinkList({ hrefs: ["/practice/machi-fu"] }),
+      await PracticeLinkList({ links: [{ slug: "machi-fu" }] }),
     );
     const anchor = container.querySelector("a");
     expect(anchor).not.toBeNull();
     expect(anchor!.getAttribute("href")).toBe("/practice/machi-fu");
+  });
+});
+
+describe("PracticeLinkList: variant links", () => {
+  it("carries the variant in the href and appends its label to the title", async () => {
+    const { container } = render(
+      await PracticeLinkList({
+        links: [{ slug: "score-table", variant: "ko_mangan_plus" }],
+      }),
+    );
+    expect(container.querySelector("a")?.getAttribute("href")).toBe(
+      "/practice/score-table?variant=ko_mangan_plus",
+    );
+    expect(container.textContent).toContain(
+      "scoreTableChallenge.variants.ko_mangan_plus.label",
+    );
   });
 });
 
@@ -96,7 +112,7 @@ describe("PracticeLinkList: i18n key fallback", () => {
       await import("./practice-link-card");
 
     const { container } = render(
-      await PracticeLinkListReloaded({ hrefs: ["/practice/jantou-fu"] }),
+      await PracticeLinkListReloaded({ links: [{ slug: "jantou-fu" }] }),
     );
 
     // 辞書ミスヒット時は汎用 CTA ラベルが表示され、

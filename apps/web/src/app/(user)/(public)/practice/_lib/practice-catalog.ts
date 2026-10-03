@@ -2,15 +2,13 @@ import type { CurriculumChapterSlug } from "@/app/(user)/(public)/learn/_lib/cur
 import {
   DEFAULT_VARIANT,
   isExamMenuType,
-  isPracticeMenuSlug,
-  isPracticeVariantOf,
   menuTypeToSlug,
   practiceMenuBySlug,
   type PracticeMenuSlug,
 } from "@mahjong-scoring/features/practice-menu-types";
 import { RANK_REGISTRY, type RankSlug } from "@/lib/ranks/registry";
 import { PRACTICE_SETUP_HASH } from "./scroll-anchor";
-import { VARIANT_PARAM, variantQuery } from "./variant-param";
+import { variantQuery } from "./variant-param";
 
 /**
  * 練習メニューのカタログ — 一覧の並び・段級位・教本リンクの単一の真実のソース
@@ -64,7 +62,7 @@ export interface PracticeMenu {
    * 昇級試験も持たない — 合格の前提となる章はランクの決定事項で、
    * 段級位レジストリ（`RANK_REGISTRY` の `learnChapterSlugs`）が正典。
    *
-   * 章側の `practiceHrefs`（その章を読んだら解く練習）とは向きも意味も違う関係で、
+   * 章側の `practiceLinks`（その章を読んだら解く練習）とは向きも意味も違う関係で、
    * 互いの逆写像ではない。点数即答のように「前提となる章はあるが、章の側からは
    * 送らない」練習や、役の翻数のように「章から勧められるが専用の章は持たない」
    * 練習がある。
@@ -274,23 +272,6 @@ export function practiceHref(slug: PracticeMenuSlug, variant?: string): string {
 }
 
 /**
- * 練習ページへのパスからバリアントを取り出す
- * バリアント抽出
- *
- * 教本の `practiceHrefs` はバリアント付きのものがある（例:
- * `/practice/score-table?variant=all`）。リンクのラベルにバリアント名を
- * 添えるのに使う。指定が無い・不正・その練習がバリアントを持たないなら undefined。
- */
-export function practiceVariantFromHref(href: string): string | undefined {
-  const slug = practiceSlugFromHref(href);
-  if (slug === undefined || !practiceMenuBySlug(slug).hasSetup)
-    return undefined;
-  const query = href.split("?")[1]?.split("#")[0] ?? "";
-  const raw = new URLSearchParams(query).get(VARIANT_PARAM) ?? undefined;
-  return raw !== undefined && isPracticeVariantOf(slug, raw) ? raw : undefined;
-}
-
-/**
  * 練習一覧の絞り込みを表すクエリパラメータ名。
  *
  * サーバーでは読まない（`searchParams` を読むとルートが動的になり、初回表示が
@@ -424,24 +405,4 @@ export function practiceResultHref(slug: PracticeMenuSlug): string {
 /** 練習名の i18n キー（`getTranslations("practice")` スコープ内で使う） */
 export function practiceTitleKey(slug: PracticeMenuSlug): string {
   return `practices.${practiceMenuBySlug(slug).messageKey}.title`;
-}
-
-/**
- * `/practice/<slug>` 形式のパスから slug を取り出す。
- * 練習スラッグ抽出
- *
- * 教本の `practiceHrefs` はクエリ付きのものがある（例:
- * `/practice/score-table?roles=ko&wins=ron&ranges=plus`）ため、クエリと
- * ハッシュを落としてから判定する。練習ページ以外や未登録の slug は undefined。
- *
- * @param href 練習ページへのパス
- */
-export function practiceSlugFromHref(
-  href: string,
-): PracticeMenuSlug | undefined {
-  const pathOnly = href.split(/[?#]/)[0] ?? "";
-  const match = /^\/practice\/([a-z0-9-]+)\/?$/.exec(pathOnly);
-  const slug = match?.[1];
-  if (slug === undefined || !isPracticeMenuSlug(slug)) return undefined;
-  return slug;
 }
