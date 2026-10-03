@@ -7,6 +7,7 @@ import { useTranslations } from "next-intl";
 import { useRouter } from "next/navigation";
 
 import { TEXT_LINK_CLASSES } from "@/app/_components/_lib/link-classes";
+import { toastOnArrival } from "@/app/_components/_lib/toast-on-arrival";
 import {
   generateUsername,
   USERNAME_MAX_LENGTH,
@@ -75,7 +76,11 @@ export function UsernameForm() {
       }
 
       // 本登録直後はプロフィール編集（アバター・自己紹介・SNS。任意）へ誘導する。
-      router.push("/mypage/profile/edit?from=setup");
+      // 登録はここで完結しているが、続けてフォームが出ると「まだ登録の続き」と
+      // 受け取られるため、着いた先で完了を告げる。
+      const next = "/mypage/profile/edit?from=setup";
+      toastOnArrival(next, t("registered"), "success");
+      router.push(next);
     } catch {
       setError(getValidationMessage("unknown"));
       setIsSubmitting(false);
