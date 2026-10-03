@@ -11,6 +11,7 @@
     "prev": "戻る",
     "next": "次へ",
     "done": "閉じる",
+    "progress": "{current} / {total}",
     "currentRank": {
       "title": "現在の段級位",
       "description": "昇級試験に合格すると段級位が授与され、ここに表示されます。"

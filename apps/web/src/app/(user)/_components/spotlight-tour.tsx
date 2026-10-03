@@ -26,6 +26,11 @@ interface SpotlightTourLabels {
   readonly prev: string;
   readonly next: string;
   readonly done: string;
+  /**
+   * 進捗の表示（「2 / 4」）。driver.js の雛形の `{{current}}` / `{{total}}` を
+   * 含む文字列を渡す。省略すると driver.js 既定の英語（「2 of 4」）になるので必須
+   */
+  readonly progress: string;
 }
 
 interface SpotlightTourProps {
@@ -75,6 +80,7 @@ export function SpotlightTour({ steps, labels }: SpotlightTourProps) {
       nextBtnText: labels.next,
       prevBtnText: labels.prev,
       doneBtnText: labels.done,
+      progressText: labels.progress,
       steps: resolved.map(({ step, element }) => ({
         element,
         popover: {
