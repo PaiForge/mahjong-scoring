@@ -100,7 +100,7 @@ export default async function VerifyEmailPage({
           <p className="text-center text-sm text-surface-500">
             {t("googleAlternative")}
           </p>
-          <GoogleOAuthButton />
+          <GoogleOAuthButton intent="signUp" />
         </div>
       </section>
     </ContentContainer>
