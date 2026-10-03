@@ -4,9 +4,9 @@ import { render } from "@testing-library/react";
 import {
   buildJourney,
   type BuildJourneyInput,
+  type PracticeAttempt,
   type RankJourney,
 } from "@mahjong-scoring/features/journey/journey";
-import type { PracticeMenuSlug } from "@mahjong-scoring/features/practice-menu-types";
 import { RANK_REGISTRY } from "@mahjong-scoring/features/ranks/registry";
 
 vi.mock("next-intl/server", async () => await import("@/test/intl-mock"));
@@ -43,7 +43,7 @@ vi.mock("../ranks/_components/rank-status-badge", () => ({
 const { RankJourneyCard } = await import("./rank-journey-card");
 
 const NONE: ReadonlySet<string> = new Set();
-const NO_ATTEMPTS: ReadonlySet<PracticeMenuSlug> = new Set();
+const NO_ATTEMPTS: readonly PracticeAttempt[] = [];
 
 function rankJourney(
   slug: string,
@@ -52,7 +52,7 @@ function rankJourney(
   const journey = buildJourney({
     readSlugs: NONE,
     completedLessonSlugs: NONE,
-    attemptedSlugs: NO_ATTEMPTS,
+    attemptedPractices: NO_ATTEMPTS,
     achievedRankSlugs: [],
     ...overrides,
   });

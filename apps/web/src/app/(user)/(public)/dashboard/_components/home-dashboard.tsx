@@ -6,7 +6,7 @@ import { ContentContainer } from "@/app/(user)/_components/content-container";
 import { PageTitle } from "@/app/(user)/_components/page-title";
 
 import { fetchAchievedRankSlugs } from "../_lib/achieved-ranks";
-import { fetchAttemptedPracticeSlugs } from "../_lib/attempted-practices";
+import { fetchAttemptedPractices } from "../_lib/attempted-practices";
 import { selectDashboardGuidance } from "../_lib/guidance";
 import { ComprehensivePracticeSection } from "./comprehensive-practice-section";
 import { ContinueLearningSection } from "./continue-learning-section";
@@ -35,13 +35,13 @@ export async function HomeDashboard() {
     t,
     readSlugs,
     completedLessonSlugs,
-    attemptedSlugs,
+    attemptedPractices,
     achievedRankSlugs,
   ] = await Promise.all([
     getTranslations("nav"),
     fetchReadChapterSlugs(),
     fetchCompletedLessonSlugs(),
-    fetchAttemptedPracticeSlugs(),
+    fetchAttemptedPractices(),
     fetchAchievedRankSlugs(),
   ]);
 
@@ -49,7 +49,7 @@ export async function HomeDashboard() {
     selectDashboardGuidance({
       readSlugs,
       completedLessonSlugs,
-      attemptedSlugs,
+      attemptedPractices,
       achievedRankSlugs,
     });
 

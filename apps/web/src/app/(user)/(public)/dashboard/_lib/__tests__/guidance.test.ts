@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest";
 
 import { CURRICULUM_CHAPTER_SLUGS } from "@mahjong-scoring/features/curriculum/registry";
-import type { PracticeMenuSlug } from "@mahjong-scoring/features/practice-menu-types";
+import type { PracticeAttempt } from "@mahjong-scoring/features/journey/journey";
 import {
   RANK_SLUGS,
   type RankSlug,
@@ -10,7 +10,7 @@ import {
 import { selectDashboardGuidance } from "../guidance";
 
 const NONE: ReadonlySet<string> = new Set();
-const NO_ATTEMPTS: ReadonlySet<PracticeMenuSlug> = new Set();
+const NO_ATTEMPTS: readonly PracticeAttempt[] = [];
 const NO_RANKS: readonly RankSlug[] = [];
 
 describe("selectDashboardGuidance", () => {
@@ -18,7 +18,7 @@ describe("selectDashboardGuidance", () => {
     const guidance = selectDashboardGuidance({
       readSlugs: NONE,
       completedLessonSlugs: NONE,
-      attemptedSlugs: NO_ATTEMPTS,
+      attemptedPractices: NO_ATTEMPTS,
       achievedRankSlugs: NO_RANKS,
     });
 
@@ -32,7 +32,7 @@ describe("selectDashboardGuidance", () => {
     const guidance = selectDashboardGuidance({
       readSlugs: new Set(CURRICULUM_CHAPTER_SLUGS),
       completedLessonSlugs: NONE,
-      attemptedSlugs: NO_ATTEMPTS,
+      attemptedPractices: NO_ATTEMPTS,
       achievedRankSlugs: NO_RANKS,
     });
 
@@ -45,7 +45,7 @@ describe("selectDashboardGuidance", () => {
     const guidance = selectDashboardGuidance({
       readSlugs: new Set(["about-this-app"]),
       completedLessonSlugs: NONE,
-      attemptedSlugs: NO_ATTEMPTS,
+      attemptedPractices: NO_ATTEMPTS,
       achievedRankSlugs: RANK_SLUGS,
     });
 
@@ -58,7 +58,7 @@ describe("selectDashboardGuidance", () => {
     const guidance = selectDashboardGuidance({
       readSlugs: new Set(CURRICULUM_CHAPTER_SLUGS),
       completedLessonSlugs: NONE,
-      attemptedSlugs: NO_ATTEMPTS,
+      attemptedPractices: NO_ATTEMPTS,
       achievedRankSlugs: RANK_SLUGS,
     });
 

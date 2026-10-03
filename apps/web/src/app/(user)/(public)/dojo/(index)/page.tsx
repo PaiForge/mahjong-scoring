@@ -32,7 +32,7 @@ import { PageTitle } from "@/app/(user)/_components/page-title";
 import { SectionTitle } from "@/app/(user)/_components/section-title";
 import { fetchReadChapterSlugs } from "@/app/(user)/(public)/learn/_lib/progress";
 import { fetchCompletedLessonSlugs } from "@/app/(user)/(public)/lessons/_lib/progress";
-import { fetchAttemptedPracticeSlugs } from "@/app/(user)/(public)/dashboard/_lib/attempted-practices";
+import { fetchAttemptedPractices } from "@/app/(user)/(public)/dashboard/_lib/attempted-practices";
 import { TEXT_LINK_CLASSES } from "@/app/_components/_lib/link-classes";
 import { createNamespaceMetadata } from "@/app/_lib/metadata";
 import { getOptionalUser } from "@/lib/auth";
@@ -53,19 +53,19 @@ export default async function DojoPage() {
     getTranslations("ranks"),
     getOptionalUser(),
   ]);
-  const [rankSlugs, readSlugs, completedLessonSlugs, attemptedSlugs] =
+  const [rankSlugs, readSlugs, completedLessonSlugs, attemptedPractices] =
     await Promise.all([
       user ? getUserRankSlugs(user.id) : [],
       fetchReadChapterSlugs(),
       fetchCompletedLessonSlugs(),
-      fetchAttemptedPracticeSlugs(),
+      fetchAttemptedPractices(),
     ]);
 
   const current = highestRank(rankSlugs);
   const journey = buildJourney({
     readSlugs,
     completedLessonSlugs,
-    attemptedSlugs,
+    attemptedPractices,
     achievedRankSlugs: rankSlugs,
   });
   const nextRankSlug = journey.current?.rank.slug;

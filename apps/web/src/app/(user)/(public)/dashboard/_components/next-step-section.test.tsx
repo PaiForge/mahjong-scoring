@@ -4,8 +4,9 @@ import { render } from "@testing-library/react";
 import {
   buildJourney,
   type BuildJourneyInput,
+  type PracticeAttempt,
 } from "@mahjong-scoring/features/journey/journey";
-import type { PracticeMenuSlug } from "@mahjong-scoring/features/practice-menu-types";
+import { DEFAULT_VARIANT } from "@mahjong-scoring/features/practice-menu-types";
 import {
   RANK_REGISTRY,
   RANK_SLUGS,
@@ -18,13 +19,13 @@ vi.mock("next-intl", async () => await import("@/test/intl-mock"));
 const { NextStepSection } = await import("./next-step-section");
 
 const NONE: ReadonlySet<string> = new Set();
-const NO_ATTEMPTS: ReadonlySet<PracticeMenuSlug> = new Set();
+const NO_ATTEMPTS: readonly PracticeAttempt[] = [];
 
 function journeyOf(overrides: Partial<BuildJourneyInput> = {}) {
   return buildJourney({
     readSlugs: NONE,
     completedLessonSlugs: NONE,
-    attemptedSlugs: NO_ATTEMPTS,
+    attemptedPractices: NO_ATTEMPTS,
     achievedRankSlugs: [],
     ...overrides,
   });
@@ -75,11 +76,12 @@ describe("NextStepSection", () => {
     ).toBe("/dojo");
   });
 
-  it("前提章を学び終えたら、章から送っている練習へバリアント付きで送る", async () => {
+  it("子のロン・ツモを学び終えたら、章から送っている練習へバリアント付きで送る", async () => {
     const { container } = render(
       await NextStepSection({
         journey: journeyOf({
-          readSlugs: new Set(RANK_REGISTRY[0].learnChapterSlugs),
+          completedLessonSlugs: new Set(["mangan-ko-ron"]),
+          readSlugs: new Set(["mangan-ko-tsumo"]),
         }),
       }),
     );
@@ -94,13 +96,14 @@ describe("NextStepSection", () => {
       await NextStepSection({
         journey: journeyOf({
           readSlugs: new Set(RANK_REGISTRY[0].learnChapterSlugs),
-          attemptedSlugs: new Set([
-            "score-table",
-            "mangan-score-calculation",
-            "yaku-han",
-            "yaku",
-            "han-count",
-          ]),
+          attemptedPractices: [
+            { slug: "score-table", variant: "ko_mangan_plus" },
+            { slug: "score-table", variant: "oya_mangan_plus" },
+            { slug: "mangan-score-calculation", variant: DEFAULT_VARIANT },
+            { slug: "yaku-han", variant: "no_kuisagari" },
+            { slug: "yaku", variant: DEFAULT_VARIANT },
+            { slug: "han-count", variant: DEFAULT_VARIANT },
+          ],
         }),
       }),
     );

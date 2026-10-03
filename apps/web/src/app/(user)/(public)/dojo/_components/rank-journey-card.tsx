@@ -203,7 +203,7 @@ export async function RankJourneyCard({
                         : undefined;
                     return (
                       <LinkRow
-                        key={item.slug}
+                        key={`${item.slug}:${item.variant ?? ""}`}
                         href={practiceHref(item.slug, item.variant)}
                         title={
                           variantLabel ? `${title}（${variantLabel}）` : title

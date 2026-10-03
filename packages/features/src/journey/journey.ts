@@ -30,18 +30,32 @@ import {
  * 章を数分に圧縮した別の道で、終えた人に同じ章を読み直せとは言わない。
  * 章が読まれたことにはしない（読了は本人が押す印のまま）。
  *
- * @design 「練習した」は一度でも挑戦したこと
+ * @design 「練習した」は一度でも挑戦したこと — 土俵（slug × バリアント）ごとに
  * 練習の段は「読んだのに触っていない練習」を無くすためのもので、習得の
  * 判定ではない（習得は試験が決める）。チャレンジを 1 回でも終えていれば
  * 済みとする。トレーニングは記録を残さないので数えられない — それで
  * よい。記録に残らない練習を進捗にしないのは、記録の土俵の設計と同じ。
  *
+ * 数える単位は記録と同じ土俵 `(slug, variant)`。点数表早引きの
+ * 「子・満貫以上」と「親・満貫以上」は別の出題範囲で、章もそれぞれ別の
+ * 範囲へ送っている。満貫未満の挑戦があるからといって満貫以上を済みにしない。
+ * バリアントを指定しない章のリンク（説明ページでバリアントを選ばせる練習や、
+ * 設定を持たない練習）は、その練習にどの土俵でも挑戦していれば済み。
+ *
+ * @design 学ぶと練習するは章の順に交互に進む
+ * 章の `practiceLinks` は「この章まで読めば出題範囲が揃う」位置に付いている
+ * （満貫の章のコメント参照）。そこで次の一歩は、級の章を順に歩き、学び終えた
+ * 章の直後にその章から送る未挑戦の練習を挟む。未読の章が先にあれば章を
+ * 返すので、未学習の範囲を必要とする練習へ早く送ることはない。先に済ませた
+ * 章・練習は飛ばす。全部済んだら試験。章ごとの順序はレジストリから導くだけで、
+ * 級ごとの手書きの順路は持たない。
+ *
  * @design 次の一歩は 1 つだけ
- * 「次に取る級」（{@link nextRank}）の中で、学ぶ → 練習する → 認定される の
- * 順に最初の未了を 1 つだけ返す。候補を並べない — 複数の候補が出ると
- * 「今やること」ではなく一覧になる。前提章の読了を受験の条件にはしない
- * （受験資格は `evaluateExamEligibility` が級の順序だけで決める）ので、
- * 経験者は道場や試験ページから直接受けられる。この順序はあくまで案内。
+ * 「次に取る級」（{@link nextRank}）の中で最初の未了を 1 つだけ返す。候補を
+ * 並べない — 複数の候補が出ると「今やること」ではなく一覧になる。前提章の
+ * 読了を受験の条件にはしない（受験資格は `evaluateExamEligibility` が級の
+ * 順序だけで決める）ので、経験者は道場や試験ページから直接受けられる。
+ * この順序はあくまで案内。
  */
 
 /** 行程の 1 段（学ぶ / 練習する / 認定される）の 1 項目 */
@@ -52,6 +66,7 @@ interface JourneyItem {
 
 /** 学ぶ: 章 1 つ。レッスンがあれば、それで学ぶこともできる */
 export interface JourneyChapterItem extends JourneyItem {
+  readonly kind: "chapter";
   readonly chapterSlug: CurriculumChapterSlug;
   /** この章を数分で学べるレッスン。無ければ章を読む */
   readonly lessonSlug: LessonSlug | undefined;
@@ -59,6 +74,7 @@ export interface JourneyChapterItem extends JourneyItem {
 
 /** 練習する: 練習 1 つ（章から送っているバリアント付き） */
 export interface JourneyPracticeItem extends JourneyItem {
+  readonly kind: "practice";
   readonly slug: PracticeMenuSlug;
   readonly variant: string | undefined;
 }
@@ -69,15 +85,29 @@ export interface JourneyExamItem extends JourneyItem {
 }
 
 /**
+ * 学ぶ・練習するを章の順に交互に並べた行程の 1 項目
+ * 行程項目
+ */
+export type JourneyPathItem = JourneyChapterItem | JourneyPracticeItem;
+
+/**
  * 1 つの級の行程
  * 級の行程
  */
 export interface RankJourney {
   readonly rank: RankDefinition;
   readonly status: RankStatus;
+  /**
+   * 学ぶ → 練習する を章の順に交互に並べた道筋。章の直後にその章から送る
+   * 練習が来る。`chapters` / `practices` はこれを段ごとに抜き出したもの
+   */
+  readonly path: readonly JourneyPathItem[];
   /** 学ぶ: 前提章（カリキュラムの順） */
   readonly chapters: readonly JourneyChapterItem[];
-  /** 練習する: 前提章から送っている練習（章の順。重複は最初の 1 つ） */
+  /**
+   * 練習する: 前提章から送っている練習（章の順）。同じ土俵
+   * （slug × バリアント）へ送る章が並ぶときは最初の 1 つ
+   */
   readonly practices: readonly JourneyPracticeItem[];
   /** 認定される: 昇級試験 */
   readonly exam: JourneyExamItem;
@@ -124,81 +154,143 @@ export interface Journey {
   readonly isFresh: boolean;
 }
 
+/**
+ * 一度でも挑戦したことのある練習の土俵 1 つ
+ * 挑戦済みの土俵
+ *
+ * 記録の土俵 `(menu_type, leaderboard_key)` をスラッグで表したもの。
+ * `variant` は `leaderboard_key` そのままで、設定を持たない練習は
+ * `DEFAULT_VARIANT`。レジストリから外れた古いキーもここでは落とさない —
+ * 「どの範囲かは分からないが、その練習に挑戦したことはある」という事実として、
+ * バリアントを指定しない章のリンクだけを済みにする（指定のあるリンクは
+ * 範囲が一致しないので済みにしない）。
+ */
+export interface PracticeAttempt {
+  readonly slug: PracticeMenuSlug;
+  readonly variant: string;
+}
+
 export interface BuildJourneyInput {
   /** 読了済み章のスラッグ */
   readonly readSlugs: ReadonlySet<string>;
   /** 完了したレッスンのスラッグ */
   readonly completedLessonSlugs: ReadonlySet<string>;
-  /** 一度でも挑戦したことのある練習のスラッグ */
-  readonly attemptedSlugs: ReadonlySet<PracticeMenuSlug>;
+  /** 一度でも挑戦したことのある練習（土俵ごとに 1 件） */
+  readonly attemptedPractices: readonly PracticeAttempt[];
   /** 取得済みの段級位 */
   readonly achievedRankSlugs: readonly RankSlug[];
 }
 
-/** 級の「学ぶ」の段を組む */
-function buildChapters(
-  rank: RankDefinition,
-  input: BuildJourneyInput,
-): readonly JourneyChapterItem[] {
-  return rank.learnChapterSlugs.map((chapterSlug) => {
-    const lesson = lessonForChapter(chapterSlug);
-    const learnedByLesson =
-      lesson !== undefined && input.completedLessonSlugs.has(lesson.slug);
-    return {
-      chapterSlug,
-      lessonSlug: lesson?.slug,
-      done: input.readSlugs.has(chapterSlug) || learnedByLesson,
-    };
-  });
+/**
+ * 章のリンク先の練習に挑戦済みか
+ *
+ * リンクがバリアントを指定していれば同じ土俵への挑戦だけ、指定が無ければ
+ * その練習へのどの土俵の挑戦でも済み（{@link PracticeAttempt} 参照）。
+ */
+function hasAttempted(
+  attempts: readonly PracticeAttempt[],
+  slug: PracticeMenuSlug,
+  variant: string | undefined,
+): boolean {
+  return attempts.some(
+    (attempt) =>
+      attempt.slug === slug &&
+      (variant === undefined || attempt.variant === variant),
+  );
+}
+
+/** 重複排除のための土俵のキー。スラッグにもバリアントにも使わない区切りで繋ぐ */
+function practiceKey(slug: PracticeMenuSlug, variant: string | undefined) {
+  return `${slug}\u0000${variant ?? ""}`;
 }
 
 /**
- * 級の「練習する」の段を組む
+ * 章の並びから、学ぶ → 練習する を交互に並べた行程を組む
+ * 行程の組み立て
  *
- * 前提章の `practiceLinks` を章の順に集め、同じ練習は最初の 1 つだけ残す
- * （点数表早引きのように、違う範囲で同じ練習へ送る章が並ぶため）。
+ * 章を順に置き、各章の直後にその章の `practiceLinks` を置く。同じ土俵
+ * （slug × バリアント）へ送る章が並ぶときは最初の 1 つだけ残す（点数表早引きの
+ * ように、違う範囲で同じ練習へ送る章があるため、範囲が違えば別の項目になる）。
  * 試験は「認定される」の段なので、ここには含めない。
+ *
+ * 級の行程（{@link buildJourney}）の部品。章の並びを引数で受けるのは、
+ * 段級位の定義に無い章の組み合わせでも同じ規則で並ぶことを確かめられる
+ * ようにするため。
+ *
+ * @param chapterSlugs 学ぶ章（カリキュラムの順）
+ * @param examSlug その級の試験（練習リンクに現れても行程から除く）
+ * @param input 読了・レッスン・挑戦履歴
  */
-function buildPractices(
-  rank: RankDefinition,
+export function buildJourneyPath(
+  chapterSlugs: readonly CurriculumChapterSlug[],
+  examSlug: PracticeMenuSlug,
   input: BuildJourneyInput,
-): readonly JourneyPracticeItem[] {
-  const examSlug = menuTypeToSlug(rank.exam.menuType);
-  const seen = new Set<PracticeMenuSlug>();
-  const practices: JourneyPracticeItem[] = [];
-  for (const chapterSlug of rank.learnChapterSlugs) {
+): readonly JourneyPathItem[] {
+  const seen = new Set<string>();
+  const path: JourneyPathItem[] = [];
+  for (const chapterSlug of chapterSlugs) {
+    const lesson = lessonForChapter(chapterSlug);
+    const learnedByLesson =
+      lesson !== undefined && input.completedLessonSlugs.has(lesson.slug);
+    path.push({
+      kind: "chapter",
+      chapterSlug,
+      lessonSlug: lesson?.slug,
+      done: input.readSlugs.has(chapterSlug) || learnedByLesson,
+    });
+
     for (const link of getChapterBySlug(chapterSlug)?.practiceLinks ?? []) {
-      if (link.slug === examSlug || seen.has(link.slug)) continue;
-      seen.add(link.slug);
-      practices.push({
+      if (link.slug === examSlug) continue;
+      const key = practiceKey(link.slug, link.variant);
+      if (seen.has(key)) continue;
+      seen.add(key);
+      path.push({
+        kind: "practice",
         slug: link.slug,
         variant: link.variant,
-        done: input.attemptedSlugs.has(link.slug),
+        done: hasAttempted(input.attemptedPractices, link.slug, link.variant),
       });
     }
   }
-  return practices;
+  return path;
 }
 
-/** 級の行程の中で、学ぶ → 練習する → 認定される の順に最初の未了を返す */
+/** 行程の中で最初の未了を返す。すべて済んでいれば昇級試験 */
 function selectStep(journey: RankJourney): JourneyStep {
-  const chapter = journey.chapters.find((item) => !item.done);
-  if (chapter !== undefined) {
-    return chapter.lessonSlug === undefined
-      ? { kind: "read", chapterSlug: chapter.chapterSlug }
-      : {
-          kind: "lesson",
-          lessonSlug: chapter.lessonSlug,
-          chapterSlug: chapter.chapterSlug,
-        };
+  const item = journey.path.find((entry) => !entry.done);
+  if (item === undefined) {
+    return { kind: "exam", slug: journey.exam.slug };
   }
-
-  const practice = journey.practices.find((item) => !item.done);
-  if (practice !== undefined) {
-    return { kind: "practice", slug: practice.slug, variant: practice.variant };
+  if (item.kind === "practice") {
+    return { kind: "practice", slug: item.slug, variant: item.variant };
   }
+  return item.lessonSlug === undefined
+    ? { kind: "read", chapterSlug: item.chapterSlug }
+    : {
+        kind: "lesson",
+        lessonSlug: item.lessonSlug,
+        chapterSlug: item.chapterSlug,
+      };
+}
 
-  return { kind: "exam", slug: journey.exam.slug };
+/** 1 つの級の行程を組む */
+function buildRankJourney(
+  rank: RankDefinition,
+  input: BuildJourneyInput,
+): RankJourney {
+  const examSlug = menuTypeToSlug(rank.exam.menuType);
+  const path = buildJourneyPath(rank.learnChapterSlugs, examSlug, input);
+  return {
+    rank,
+    status: resolveRankStatus(rank.slug, input.achievedRankSlugs),
+    path,
+    chapters: path.filter((item) => item.kind === "chapter"),
+    practices: path.filter((item) => item.kind === "practice"),
+    exam: {
+      slug: examSlug,
+      done: input.achievedRankSlugs.includes(rank.slug),
+    },
+  };
 }
 
 /**
@@ -208,16 +300,9 @@ function selectStep(journey: RankJourney): JourneyStep {
  * 純関数。サーバー（ダッシュボード・道場）からもテストからも読める。
  */
 export function buildJourney(input: BuildJourneyInput): Journey {
-  const ranks: readonly RankJourney[] = RANK_REGISTRY.map((rank) => ({
-    rank,
-    status: resolveRankStatus(rank.slug, input.achievedRankSlugs),
-    chapters: buildChapters(rank, input),
-    practices: buildPractices(rank, input),
-    exam: {
-      slug: menuTypeToSlug(rank.exam.menuType),
-      done: input.achievedRankSlugs.includes(rank.slug),
-    },
-  }));
+  const ranks: readonly RankJourney[] = RANK_REGISTRY.map((rank) =>
+    buildRankJourney(rank, input),
+  );
 
   const next = nextRank(input.achievedRankSlugs);
   const current = ranks.find((journey) => journey.rank.slug === next?.slug);
@@ -229,7 +314,7 @@ export function buildJourney(input: BuildJourneyInput): Journey {
     isFresh:
       input.readSlugs.size === 0 &&
       input.completedLessonSlugs.size === 0 &&
-      input.attemptedSlugs.size === 0 &&
+      input.attemptedPractices.length === 0 &&
       input.achievedRankSlugs.length === 0,
   };
 }
