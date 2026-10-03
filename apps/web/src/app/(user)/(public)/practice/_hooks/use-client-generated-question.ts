@@ -9,6 +9,17 @@ import { useIsClient } from "@/app/_hooks/use-is-client";
 const UNSET = Symbol("unset");
 
 /**
+ * `SetStateAction` が更新関数かどうか
+ *
+ * `typeof action === "function"` だけでは TS が `TQuestion` 自身が関数で
+ * ある可能性を残して絞り込めないため、型述語で明示する（`useState` の
+ * setter と同じ約束 — 関数を状態として持たない）。
+ */
+function isUpdater<T>(action: SetStateAction<T>): action is (prev: T) => T {
+  return typeof action === "function";
+}
+
+/**
  * 最初の問題をクライアントでだけ生成する出題状態
  * クライアント出題状態
  *
@@ -49,11 +60,7 @@ export function useClientGeneratedQuestion<TQuestion>(
       }
       setStored((prev) => {
         const current = prev === UNSET ? initial : prev;
-        return typeof action === "function"
-          ? (action as (prev: TQuestion | undefined) => TQuestion | undefined)(
-              current,
-            )
-          : action;
+        return isUpdater(action) ? action(current) : action;
       });
     },
     [initial, verified],

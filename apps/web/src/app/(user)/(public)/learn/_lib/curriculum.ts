@@ -288,6 +288,10 @@ export const CURRICULUM: readonly CurriculumChapter[] = CURRICULUM_REGISTRY;
 export const CURRICULUM_CHAPTER_SLUGS: readonly CurriculumChapterSlug[] =
   CURRICULUM.map((chapter) => chapter.slug);
 
+const curriculumChapterSlugSet: ReadonlySet<string> = new Set(
+  CURRICULUM_CHAPTER_SLUGS,
+);
+
 /**
  * order 昇順にソート済みの章配列。
  *
@@ -373,10 +377,7 @@ export function getAdjacentChapters(slug: CurriculumChapterSlug): {
 export function isCurriculumChapterSlug(
   value: unknown,
 ): value is CurriculumChapterSlug {
-  return (
-    typeof value === "string" &&
-    (CURRICULUM_CHAPTER_SLUGS as readonly string[]).includes(value)
-  );
+  return typeof value === "string" && curriculumChapterSlugSet.has(value);
 }
 
 /**

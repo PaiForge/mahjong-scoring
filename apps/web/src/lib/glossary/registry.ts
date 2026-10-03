@@ -53,6 +53,8 @@ export const GLOSSARY_TERMS: readonly GlossaryTerm[] = GLOSSARY_REGISTRY;
 export const GLOSSARY_TERM_SLUGS: readonly GlossaryTermSlug[] =
   GLOSSARY_TERMS.map((term) => term.slug);
 
+const glossaryTermSlugSet: ReadonlySet<string> = new Set(GLOSSARY_TERM_SLUGS);
+
 /** slug から用語を O(1) で引くための lookup map */
 const GLOSSARY_BY_SLUG: ReadonlyMap<GlossaryTermSlug, GlossaryTerm> = new Map(
   GLOSSARY_TERMS.map((term) => [term.slug, term]),
@@ -79,8 +81,5 @@ export function getGlossaryTermBySlug(slug: string): GlossaryTerm | undefined {
  * @param value 検査対象の値
  */
 export function isGlossaryTermSlug(value: unknown): value is GlossaryTermSlug {
-  return (
-    typeof value === "string" &&
-    (GLOSSARY_TERM_SLUGS as readonly string[]).includes(value)
-  );
+  return typeof value === "string" && glossaryTermSlugSet.has(value);
 }

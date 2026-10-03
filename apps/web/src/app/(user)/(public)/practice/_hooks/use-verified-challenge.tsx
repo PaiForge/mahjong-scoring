@@ -43,6 +43,22 @@ export function useVerifiedChallenge() {
 }
 
 /**
+ * サーバーの問題をメニュー固有の型として扱う唯一の境界
+ * 問題の型変換境界
+ *
+ * サーバーは `ChallengeQuestion`（全メニューの和）で返すが、盤面は自分の
+ * メニューの型しか知らない。サーバーが同じメニューの問題だけを返すことは
+ * `attempts.ts` が保証しているので、ここだけで型を当てはめる。ここ以外で
+ * 問題を型変換しないこと。
+ */
+export function asMenuQuestion<TQuestion>(
+  question: ChallengeQuestion,
+): TQuestion {
+  // eslint-disable-next-line @typescript-eslint/consistent-type-assertions -- サーバーが同一メニューの問題だけを返す前提をここ 1 箇所で型に写す（上の TSDoc 参照）
+  return question as TQuestion;
+}
+
+/**
  * 既存の各盤面はメニュー固有の型を持つ。サーバーは同じメニューの問題だけを返す。
  * この境界以外で問題を型変換しない。トレーニングは同期のローカル採点を維持する。
  */
@@ -58,7 +74,7 @@ export function useGradeAnswer<TQuestion>() {
         onGraded(question);
         return;
       }
-      challenge.grade(answer, (graded) => onGraded(graded as TQuestion));
+      challenge.grade(answer, (graded) => onGraded(asMenuQuestion(graded)));
     },
     [challenge],
   );
@@ -106,7 +122,10 @@ export function useVerifiedQuestion<TQuestion>():
   { question: TQuestion; advance: () => void } | undefined {
   const challenge = useVerifiedChallenge();
   return challenge
-    ? { question: challenge.question as TQuestion, advance: challenge.advance }
+    ? {
+        question: asMenuQuestion<TQuestion>(challenge.question),
+        advance: challenge.advance,
+      }
     : undefined;
 }
 

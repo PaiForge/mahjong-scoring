@@ -219,6 +219,7 @@ export type RankDefinition = (typeof RANK_REGISTRY)[number];
  * `Record<RankSlug, RankTier>` として扱う（`Object.fromEntries` の戻り値は
  * インデックスシグネチャになるのでここで絞る）。
  */
+// eslint-disable-next-line @typescript-eslint/consistent-type-assertions -- Object.fromEntries の戻り値を全スラッグ網羅の Record に絞る（上の TSDoc 参照）
 const RANK_TIERS = Object.fromEntries(
   RANK_REGISTRY.map((rank) => [rank.slug, rank.tier]),
 ) as Readonly<Record<RankSlug, RankTier>>;

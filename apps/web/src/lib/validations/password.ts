@@ -20,6 +20,10 @@ export const PASSWORD_VALIDATION_ERROR_KEYS = [
   "weak",
 ] as const;
 
+const passwordValidationErrorKeySet: ReadonlySet<string> = new Set(
+  PASSWORD_VALIDATION_ERROR_KEYS,
+);
+
 export type PasswordValidationErrorKey =
   (typeof PASSWORD_VALIDATION_ERROR_KEYS)[number];
 
@@ -30,7 +34,7 @@ export type PasswordValidationErrorKey =
 export function isPasswordValidationErrorKey(
   key: string,
 ): key is PasswordValidationErrorKey {
-  return (PASSWORD_VALIDATION_ERROR_KEYS as readonly string[]).includes(key);
+  return passwordValidationErrorKeySet.has(key);
 }
 
 /**

@@ -4,7 +4,10 @@ import { useCallback, useEffect, useRef } from "react";
 import { create } from "zustand";
 
 import type { PlanBenefit } from "@mahjong-scoring/features/billing/plans";
-import type { QuotaMenu } from "@mahjong-scoring/features/quota/limits";
+import {
+  QUOTA_MENUS,
+  type QuotaMenu,
+} from "@mahjong-scoring/features/quota/limits";
 
 import {
   beginPracticeQuestion,
@@ -124,8 +127,8 @@ export function canResumePractice(
 /** テスト用。モジュールスコープの状態を初期化する */
 export function _resetPracticeQuota(): void {
   usePracticeQuotaStore.setState({ menus: {} });
-  for (const key of Object.keys(requestSeq)) {
-    delete requestSeq[key as QuotaMenu];
+  for (const menu of QUOTA_MENUS) {
+    delete requestSeq[menu];
   }
 }
 

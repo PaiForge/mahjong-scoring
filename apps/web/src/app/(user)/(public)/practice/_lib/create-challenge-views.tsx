@@ -44,6 +44,18 @@ export interface ChallengeBoardArgs<TResult> extends PracticeBoardProps {
  * チャレンジ本体ビューの生成設定
  * チャレンジビュー設定
  */
+/**
+ * 盤面の状態を持たない設定の既定 `useBoardState`
+ *
+ * `useBoardState` を省略した設定では `TState` が既定の `undefined` になる。
+ * 「省略」と「TState = undefined」が同時に決まることを型では結べないため、
+ * ここで undefined を TState として返す。
+ */
+function useNoBoardState<TState>(): TState {
+  // eslint-disable-next-line @typescript-eslint/consistent-type-assertions -- useBoardState 省略時の TState は既定の undefined（上の TSDoc 参照）
+  return undefined as TState;
+}
+
 export interface ChallengePlayViewConfig<TResult, TProps, TState> {
   /**
    * ルートスラッグ（例: "jantou-fu"）。
@@ -106,8 +118,7 @@ export function createChallengePlayView<
   // フックの呼び出し順は毎レンダー同じ
   const useFinishHandler =
     variant === "exam" ? useSubmitExamOnFinish : useSaveOnFinish;
-  const useBoardState =
-    config.useBoardState ?? (() => undefined as unknown as TState);
+  const useBoardState = config.useBoardState ?? useNoBoardState;
 
   function ChallengePlayView(props: TProps) {
     const t = useTranslations(namespace);
@@ -250,8 +261,7 @@ export function createTrainingView<
   const { namespace, menuType, mistakeLimit, timeLimit } =
     practiceMenuBySlug(slug);
   const variant = isExamMenuType(menuType) ? "exam" : "practice";
-  const useBoardState =
-    config.useBoardState ?? (() => undefined as unknown as TState);
+  const useBoardState = config.useBoardState ?? useNoBoardState;
 
   function TrainingView(props: TProps) {
     const t = useTranslations(namespace);
