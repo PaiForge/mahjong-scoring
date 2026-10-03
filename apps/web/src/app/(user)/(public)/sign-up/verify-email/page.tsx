@@ -86,9 +86,7 @@ export default async function VerifyEmailPage({
           </ul>
         </HighlightPanel>
 
-        <div className="text-center">
-          <ResendEmailButton email={email ?? ""} />
-        </div>
+        <ResendEmailButton email={email ?? ""} />
 
         <div className="mx-auto flex max-w-sm items-center gap-4">
           <div className="flex-1 border-t-2 border-dashed border-border/40" />
