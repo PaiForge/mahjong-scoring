@@ -4,7 +4,7 @@ import { HIGH_SCORES } from "@mahjong-scoring/core";
 import { GuideParagraph } from "../../_components/guide-paragraph";
 import { GuideSection } from "../../_components/guide-section";
 import { ManganGuideLayout } from "../../_components/mangan-guide-layout";
-import { ManganOyaTsumoScoreTable } from "./mangan-oya-tsumo-score-table";
+import { ManganOyaTsumoScoreTable } from "../../_components/mangan-oya-tsumo-score-table";
 import { OyaAllDiagram } from "./oya-all-diagram";
 
 /**
