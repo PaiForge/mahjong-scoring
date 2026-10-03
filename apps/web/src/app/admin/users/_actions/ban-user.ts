@@ -22,6 +22,10 @@ import {
  * profiles.bannedAt 更新 + moderationActions INSERT。
  * DB 更新失敗時は Auth 側を rollback する。
  *
+ * 仮登録（プロフィール無し）も BAN できる。その場合 `profiles` の更新は
+ * 0 行で、BAN は Auth 側にだけ残る。管理画面は `resolveUserStatus` が
+ * Auth の `banned_until` も見るので、仮登録でも BAN 済みと出て解除できる。
+ *
  * ユーザーBAN
  */
 /** BAN の失敗理由 */
