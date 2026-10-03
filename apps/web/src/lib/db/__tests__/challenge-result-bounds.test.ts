@@ -4,7 +4,7 @@ import {
   isPlausibleChallengeResult,
   isPlausibleExamScore,
   maxAnswersWithin,
-} from "../challenge-result-bounds";
+} from "@mahjong-scoring/features/challenge/challenge-result-bounds";
 import { practiceMenuByType } from "@mahjong-scoring/features/practice-menu-types";
 import { RANK_REGISTRY } from "../../ranks/registry";
 

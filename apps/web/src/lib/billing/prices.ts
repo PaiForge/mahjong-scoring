@@ -5,7 +5,11 @@ import { PLAN_PRICES_CACHE_TAG } from "@/lib/cache-tags";
 import { logExternalError } from "@/lib/log-error";
 
 import { readOfferPriceId } from "./env";
-import { OFFER_KEYS, type OfferKey, type PlanKey } from "./plans";
+import {
+  OFFER_KEYS,
+  type OfferKey,
+  type PlanKey,
+} from "@mahjong-scoring/features/billing/plans";
 import { getStripe } from "./stripe";
 
 /** 料金ページに出す 1 つの売り方の価格 */

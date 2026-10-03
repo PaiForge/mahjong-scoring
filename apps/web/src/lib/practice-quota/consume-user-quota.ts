@@ -3,7 +3,7 @@ import "server-only";
 
 import { db, practiceQuotaUsage } from "@/lib/db";
 
-import type { QuotaMenu } from "./limits";
+import type { QuotaMenu } from "@mahjong-scoring/features/quota/limits";
 
 /** 消費の結果。`allowed: false` のときは何も増やしていない */
 export type ConsumeQuotaResult =

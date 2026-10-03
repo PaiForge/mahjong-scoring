@@ -18,7 +18,7 @@ import {
   purchaseStateOf,
   type PlanStatus,
 } from "@/lib/billing/plan-status";
-import { PurchaseKind } from "@/lib/billing/plans";
+import { PurchaseKind } from "@mahjong-scoring/features/billing/plans";
 import type { Profile } from "@/lib/db";
 import { highestRank, isRankSlug } from "@/lib/ranks/registry";
 import { createAdminClient } from "@/lib/supabase/admin";

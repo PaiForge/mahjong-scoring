@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 
-import { jstCalendarDate, jstDayKey, jstStartOfDay } from "../jst";
+import { jstCalendarDate, jstDayKey, jstStartOfDay } from "./jst";
 
 describe("jstCalendarDate", () => {
   it("UTC の日付ではなく JST の日付を返す（UTC 15:00 以降は翌日）", () => {

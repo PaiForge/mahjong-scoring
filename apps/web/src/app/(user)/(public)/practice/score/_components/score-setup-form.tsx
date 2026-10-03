@@ -31,7 +31,10 @@ import { SkeletonBar } from "@/app/_components/skeleton-bar";
 import { PlayIcon } from "@/app/(user)/_components/icons/play-icon";
 import { Button } from "@/app/(user)/_components/button";
 import { useAuth } from "@/app/_contexts/auth-context";
-import { PLAN_PAGE_HREF, PlanBenefit } from "@/lib/billing/plans";
+import {
+  PLAN_PAGE_HREF,
+  PlanBenefit,
+} from "@mahjong-scoring/features/billing/plans";
 
 interface ScoreSetupFormProps {
   /**

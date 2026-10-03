@@ -40,7 +40,7 @@ import {
   type OfferDefinition,
   type OfferKey,
   type PlanKey,
-} from "../src/lib/billing/plans";
+} from "@mahjong-scoring/features/billing/plans";
 import { STRIPE_WEBHOOK_EVENTS } from "../src/lib/billing/webhook-events";
 
 dotenv.config({ path: [".env.local", ".env"] });

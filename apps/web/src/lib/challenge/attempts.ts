@@ -17,7 +17,7 @@ import {
   gradeChallengeAnswer,
   publicChallengeQuestion,
 } from "./questions";
-import type { ChallengeState } from "./types";
+import type { ChallengeState } from "@mahjong-scoring/features/challenge/types";
 
 const uuid = z.string().uuid();
 const settingsSchema = z.object({ renfonpaiAs4Fu: z.boolean() });

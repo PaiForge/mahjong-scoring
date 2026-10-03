@@ -1,4 +1,4 @@
-import type { PlanBenefit } from "@/lib/billing/plans";
+import type { PlanBenefit } from "@mahjong-scoring/features/billing/plans";
 
 import { callApi } from "@/lib/api-client";
 

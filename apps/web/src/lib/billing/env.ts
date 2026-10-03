@@ -1,4 +1,8 @@
-import { OFFER_KEYS, type OfferKey, type PlanKey } from "./plans";
+import {
+  OFFER_KEYS,
+  type OfferKey,
+  type PlanKey,
+} from "@mahjong-scoring/features/billing/plans";
 
 /**
  * Stripe の環境変数

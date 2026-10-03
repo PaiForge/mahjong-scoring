@@ -20,7 +20,10 @@ import {
   NotificationType,
 } from "@/lib/notifications/types";
 import { hasUnexpiredPurchase, lockBillingCustomer } from "./checkout-state";
-import { addPassDuration, PurchaseKind } from "./plans";
+import {
+  addPassDuration,
+  PurchaseKind,
+} from "@mahjong-scoring/features/billing/plans";
 import { getStripe } from "./stripe";
 
 /** 購入取消理由。返金は全額のみ。 */

@@ -17,9 +17,11 @@
 export const QUOTA_MENUS = ["score", "machi-score"] as const;
 export type QuotaMenu = (typeof QUOTA_MENUS)[number];
 
+const quotaMenuSet: ReadonlySet<string> = new Set(QUOTA_MENUS);
+
 /** 文字列が回数制限の対象の練習か。Server Action がクライアントの入力を絞るのに使う */
 export function isQuotaMenu(value: string): value is QuotaMenu {
-  return (QUOTA_MENUS as readonly string[]).includes(value);
+  return quotaMenuSet.has(value);
 }
 
 /** 1 日の上限（問） */

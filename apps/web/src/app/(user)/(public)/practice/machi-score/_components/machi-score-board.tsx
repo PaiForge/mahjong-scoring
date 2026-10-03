@@ -26,7 +26,7 @@ import {
   canResumePractice,
   usePracticeQuota,
 } from "../../_hooks/use-practice-quota";
-import { PlanBenefit } from "@/lib/billing/plans";
+import { PlanBenefit } from "@mahjong-scoring/features/billing/plans";
 import {
   PracticeFooterAction,
   PracticeFooterActions,

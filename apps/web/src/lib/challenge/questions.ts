@@ -26,7 +26,10 @@ import { EXAM_GENERATE_OPTIONS as chiitoitsu } from "@mahjong-scoring/features/e
 import { EXAM_GENERATE_OPTIONS as pinfu } from "@mahjong-scoring/features/exam/pinfu/types";
 import { EXAM_GENERATE_OPTIONS as fuScore } from "@mahjong-scoring/features/exam/fu-score/types";
 import { EXAM_GENERATE_OPTIONS as score } from "@mahjong-scoring/features/exam/score/types";
-import type { ChallengeQuestion, ChallengeSettings } from "./types";
+import type {
+  ChallengeQuestion,
+  ChallengeSettings,
+} from "@mahjong-scoring/features/challenge/types";
 
 /** 記録対象の問題をサーバーで生成する。出題条件はメニューから決める。 */
 export function generateChallengeQuestion(

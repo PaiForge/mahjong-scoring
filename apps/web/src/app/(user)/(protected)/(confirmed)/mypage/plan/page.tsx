@@ -20,7 +20,10 @@ import {
   planStatusOf,
   purchaseStateOf,
 } from "@/lib/billing/plan-status";
-import { PLAN_PAGE_HREF, PurchaseKind } from "@/lib/billing/plans";
+import {
+  PLAN_PAGE_HREF,
+  PurchaseKind,
+} from "@mahjong-scoring/features/billing/plans";
 import { formatAmount } from "@/lib/billing/prices";
 import { listPurchases } from "@/lib/billing/purchases";
 import { listBenefitGrants } from "@/lib/entitlements/benefit-grants";

@@ -7,11 +7,11 @@ import { ContentContainer } from "@/app/(user)/_components/content-container";
 import { LinkButton } from "@/app/(user)/_components/link-button";
 import { PageTitle } from "@/app/(user)/_components/page-title";
 import { SUB_LINK_GAP } from "@/app/_components/_lib/spacing";
-import { PLAN_PAGE_HREF } from "@/lib/billing/plans";
+import { PLAN_PAGE_HREF } from "@mahjong-scoring/features/billing/plans";
 import {
   PRACTICE_QUOTA_LIMITS,
   type QuotaMenu,
-} from "@/lib/practice-quota/limits";
+} from "@mahjong-scoring/features/quota/limits";
 import { buildSignInHref } from "@/lib/redirect";
 
 import { PRACTICE_SCROLL_ANCHOR_ID } from "../_lib/scroll-anchor";

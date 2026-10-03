@@ -7,7 +7,10 @@ import { toast } from "react-hot-toast";
 import { useAuth } from "@/app/_contexts/auth-context";
 import { Button } from "@/app/(user)/_components/button";
 import { LinkButton } from "@/app/(user)/_components/link-button";
-import { PLAN_PAGE_HREF, type OfferKey } from "@/lib/billing/plans";
+import {
+  PLAN_PAGE_HREF,
+  type OfferKey,
+} from "@mahjong-scoring/features/billing/plans";
 import { buildSignInHref } from "@/lib/redirect";
 
 import { createCheckoutSession } from "../../../(protected)/(confirmed)/mypage/plan/_actions/create-checkout-session";

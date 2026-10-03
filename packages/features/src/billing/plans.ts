@@ -91,10 +91,14 @@ export const PLAN_PAGE_HREF = "/plan";
 
 /** プランのキー（`purchases.plan` の値） */
 export const PLAN_KEYS = ["pro"] as const;
+
+const planKeySet: ReadonlySet<string> = new Set(PLAN_KEYS);
 export type PlanKey = (typeof PLAN_KEYS)[number];
 
 /** 売り方のキー（環境変数名・Checkout の引数・辞書キーで同じ文字列を使う） */
 export const OFFER_KEYS = ["pass", "lifetime"] as const;
+
+const offerKeySet: ReadonlySet<string> = new Set(OFFER_KEYS);
 export type OfferKey = (typeof OFFER_KEYS)[number];
 
 /**
@@ -145,7 +149,7 @@ export const PLANS: Readonly<Record<PlanKey, PlanDefinition>> = {
  * プランキー判定
  */
 export function isPlanKey(value: string): value is PlanKey {
-  return (PLAN_KEYS as readonly string[]).includes(value);
+  return planKeySet.has(value);
 }
 
 /**
@@ -155,7 +159,7 @@ export function isPlanKey(value: string): value is PlanKey {
  * Checkout の Server Action がクライアントから受け取る値を絞るのに使う。
  */
 export function isOfferKey(value: string): value is OfferKey {
-  return (OFFER_KEYS as readonly string[]).includes(value);
+  return offerKeySet.has(value);
 }
 
 /**

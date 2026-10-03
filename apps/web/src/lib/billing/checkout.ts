@@ -11,7 +11,12 @@ import {
 import { hasUnexpiredPurchase, lockBillingCustomer } from "./checkout-state";
 import { getOrCreateStripeCustomerId } from "./customer";
 import { getOfferPriceId } from "./env";
-import { PLANS, PurchaseKind, PLAN_PAGE_HREF, type OfferKey } from "./plans";
+import {
+  PLANS,
+  PurchaseKind,
+  PLAN_PAGE_HREF,
+  type OfferKey,
+} from "@mahjong-scoring/features/billing/plans";
 import { recordPurchaseFromCheckoutSession } from "./purchases";
 import { getStripe } from "./stripe";
 

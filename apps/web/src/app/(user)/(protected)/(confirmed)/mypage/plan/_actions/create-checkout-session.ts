@@ -6,7 +6,7 @@ import { redirect } from "next/navigation";
 import type { ActionResult } from "@/lib/action-types";
 import { guardUserAction } from "@/lib/action-guard";
 import type { UserActionGuardErrorCode } from "@/lib/action-guard";
-import { isOfferKey } from "@/lib/billing/plans";
+import { isOfferKey } from "@mahjong-scoring/features/billing/plans";
 import { openCheckout, type CheckoutError } from "@/lib/billing/checkout";
 import { SITE_URL } from "@/config";
 import { requestOrigin } from "@/lib/csrf";

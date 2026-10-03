@@ -2,7 +2,7 @@ import Link from "next/link";
 import { useTranslations } from "next-intl";
 
 import { TEXT_LINK_CLASSES } from "@/app/_components/_lib/link-classes";
-import { PLAN_PAGE_HREF } from "@/lib/billing/plans";
+import { PLAN_PAGE_HREF } from "@mahjong-scoring/features/billing/plans";
 
 interface PracticeQuotaRemainingProps {
   /** 今日の残り。Pro（`"unlimited"`）とまだ聞いていない（undefined）は出さない */

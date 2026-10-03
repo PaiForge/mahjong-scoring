@@ -1,4 +1,4 @@
-import { JST_TIME_ZONE } from "@/lib/jst";
+import { JST_TIME_ZONE } from "@mahjong-scoring/features/jst";
 
 /**
  * 通知の日時を「2026/10/02 10:30」の形にする（JST）

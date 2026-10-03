@@ -1,6 +1,6 @@
 import type { BenefitGrant, Purchase } from "@/lib/db";
 
-import { PurchaseKind } from "./plans";
+import { PurchaseKind } from "@mahjong-scoring/features/billing/plans";
 
 /**
  * 購入記録と手動付与から導く「いまの状態」

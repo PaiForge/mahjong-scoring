@@ -1,4 +1,4 @@
-import { jstCalendarDate, jstStartOfDay } from "@/lib/jst";
+import { jstCalendarDate, jstStartOfDay } from "@mahjong-scoring/features/jst";
 
 import type { DatePeriod } from "./types";
 

@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest";
 
-import { jstDayKey } from "../../jst";
-import { jstEndOfDay } from "../day";
+import { jstDayKey } from "../jst";
+import { jstEndOfDay } from "./day";
 
 describe("jstEndOfDay", () => {
   it("JST の翌日 0 時（UTC 15:00）を返す", () => {

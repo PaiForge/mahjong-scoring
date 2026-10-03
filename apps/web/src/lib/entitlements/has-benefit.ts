@@ -2,7 +2,10 @@ import { and, eq, gt, isNull, lte, or, type SQL } from "drizzle-orm";
 import { cache } from "react";
 import "server-only";
 
-import { isPlanBenefit, type PlanBenefit } from "@/lib/billing/plans";
+import {
+  isPlanBenefit,
+  type PlanBenefit,
+} from "@mahjong-scoring/features/billing/plans";
 import { benefitGrants, db, purchases } from "@/lib/db";
 import { logExternalError } from "@/lib/log-error";
 

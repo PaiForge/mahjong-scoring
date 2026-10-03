@@ -8,7 +8,7 @@ import {
   DELTA_TONE_CLASSES,
   formatSignedDelta,
   signedDeltaTone,
-} from "@/lib/challenge/signed-delta";
+} from "@mahjong-scoring/features/challenge/signed-delta";
 import type { PracticeMenuType } from "@mahjong-scoring/features/practice-menu-types";
 import type { ScoreComparison } from "@/lib/db/score-comparison-queries";
 import { deriveRecordView } from "../_lib/derive-record-view";

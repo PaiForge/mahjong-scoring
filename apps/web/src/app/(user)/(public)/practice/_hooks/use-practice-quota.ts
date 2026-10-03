@@ -3,8 +3,8 @@
 import { useCallback, useEffect, useRef } from "react";
 import { create } from "zustand";
 
-import type { PlanBenefit } from "@/lib/billing/plans";
-import type { QuotaMenu } from "@/lib/practice-quota/limits";
+import type { PlanBenefit } from "@mahjong-scoring/features/billing/plans";
+import type { QuotaMenu } from "@mahjong-scoring/features/quota/limits";
 
 import {
   beginPracticeQuestion,

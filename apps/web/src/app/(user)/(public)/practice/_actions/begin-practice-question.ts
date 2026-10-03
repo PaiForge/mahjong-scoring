@@ -3,7 +3,7 @@
 import type { ActionResult } from "@/lib/action-types";
 import { getOptionalUser } from "@/lib/auth";
 import { isPlanOnSale } from "@/lib/billing/env";
-import { PlanBenefit } from "@/lib/billing/plans";
+import { PlanBenefit } from "@mahjong-scoring/features/billing/plans";
 import { getActiveBenefits } from "@/lib/entitlements/has-benefit";
 import { logExternalError } from "@/lib/log-error";
 import {
@@ -12,13 +12,13 @@ import {
   writeAnonymousQuota,
 } from "@/lib/practice-quota/anonymous-quota-cookie";
 import { consumeUserQuota } from "@/lib/practice-quota/consume-user-quota";
-import { jstDayKey } from "@/lib/jst";
+import { jstDayKey } from "@mahjong-scoring/features/jst";
 import { readUserQuota } from "@/lib/practice-quota/read-user-quota";
 import {
   PRACTICE_QUOTA_LIMITS,
   isQuotaMenu,
   type QuotaMenu,
-} from "@/lib/practice-quota/limits";
+} from "@mahjong-scoring/features/quota/limits";
 import {
   enforceIpRateLimit,
   type RateLimitErrorCode,

@@ -9,7 +9,7 @@ import {
   type ReactNode,
 } from "react";
 import { useTranslations } from "next-intl";
-import type { ChallengeQuestion } from "../../../../../lib/challenge/types";
+import type { ChallengeQuestion } from "@mahjong-scoring/features/challenge/types";
 // Server Actions は呼ぶ時に解決し、ローカルの練習盤面はサーバー実装を評価しない。
 const actions = () => import("../../../../../lib/challenge/actions");
 import {
