@@ -8,7 +8,7 @@ const SNS_FIELDS = ["x", "instagram", "youtube"] as const;
 
 /**
  * プロフィール編集ページのローディング状態。
- * 実描画（アバター → 基本情報 → SNS → 保存ボタン → 退会リンク）に合わせる。
+ * 実描画（アバター → 基本情報 → SNS → 保存ボタン）に合わせる。
  *
  * アバターは実描画の苔緑の太枠（`border-ink`）を写さず、灰色の円だけで示す
  * （`ProblemListSkeleton` と同じ理由 — 読み込み中の画面が実物より賑やかに
@@ -61,11 +61,6 @@ export default function Loading() {
 
         {/* 保存ボタン */}
         <SkeletonBar radius="lg" className="h-11 w-full" />
-      </div>
-
-      {/* 退会リンク（実: mt-10 border-t pt-6 中央寄せ） */}
-      <div className="mt-10 flex justify-center border-t-2 border-dashed border-border/40 pt-6">
-        <SkeletonBar className="h-4 w-28" />
       </div>
     </ContentContainer>
   );

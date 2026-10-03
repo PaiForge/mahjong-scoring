@@ -85,6 +85,14 @@ export default async function MyPage() {
       title: t("cards.dojo.title"),
       summary: t("cards.dojo.summary"),
     },
+    {
+      // ログイン情報と退会の入口。退会はこの先のページの最下部にだけ置き、
+      // 普段の画面（ここやプロフィール編集）には「削除」の文言を出さない
+      href: "/mypage/account",
+      icon: "🔑",
+      title: t("cards.account.title"),
+      summary: t("cards.account.summary"),
+    },
   ];
 
   return (
