@@ -107,7 +107,7 @@ export function AdminLogPageLayout({
             id="action-filter"
             name="action"
             defaultValue={actionFilter}
-            className="rounded border border-gray-300 bg-white px-3 py-2 text-sm"
+            className="w-52 rounded border border-gray-300 bg-white px-3 py-2 text-sm"
           >
             <option value="">{i18n.allActions}</option>
             {filterActionOptions}
@@ -126,7 +126,7 @@ export function AdminLogPageLayout({
             type="text"
             defaultValue={userFilter}
             placeholder={i18n.userFilterPlaceholder}
-            className="rounded border border-gray-300 bg-white px-3 py-2 text-sm"
+            className="w-52 rounded border border-gray-300 bg-white px-3 py-2 text-sm"
           />
         </div>
         <button

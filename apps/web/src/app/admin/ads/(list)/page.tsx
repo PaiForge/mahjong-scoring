@@ -26,13 +26,13 @@ import {
 
 import { resolveAdHref } from "@/lib/ads/amazon";
 
-import { CreativeRowActions } from "./_components/creative-row-actions";
-import { TrackingIdForm } from "./_components/tracking-id-form";
+import { CreativeRowActions } from "../_components/creative-row-actions";
+import { TrackingIdForm } from "../_components/tracking-id-form";
 import {
   adminCreativeLabel,
   getAllAdCreatives,
   getAmazonTrackingId,
-} from "./_lib/queries";
+} from "../_lib/queries";
 
 export const dynamic = "force-dynamic";
 
