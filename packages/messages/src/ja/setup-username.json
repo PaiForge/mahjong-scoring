@@ -14,6 +14,7 @@
   "displayNameMaxLength": "最大50文字",
   "submit": "登録する",
   "submitting": "登録中...",
+  "registered": "登録が完了しました",
   "validation": {
     "tooShort": "ユーザー名は2文字以上で入力してください",
     "tooLong": "ユーザー名は20文字以内で入力してください",
