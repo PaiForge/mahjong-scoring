@@ -13,8 +13,8 @@ import { nextRank } from "@mahjong-scoring/features/ranks/registry";
 /**
  * 道場の読み込み中スケルトン。
  *
- * 実体（`dojo/page.tsx`）の「リード文 → 現在の段級位 → 前提となる教本の章 →
- * 昇級試験」を同じ順・同じ高さで模す。汎用の `PageSkeleton` では丈が
+ * 実体（`dojo/(index)/page.tsx`）の「リード文 → 現在の段級位（と段級位一覧への
+ * リンク）→ 前提となる教本の章 → 昇級試験」を同じ順・同じ高さで模す。汎用の `PageSkeleton` では丈が
  * 522px しかなく、実体の 1371px との差でフッターが押し下げられていた
  * （420x900 で CLS 0.301 を実測）。
  *
@@ -51,6 +51,10 @@ export default async function Loading() {
         <section className="space-y-4">
           <SectionTitleSkeleton width="w-28" />
           <SkeletonBar radius="xl" className="h-[198px] w-full" tone={100} />
+          {/* 「すべての段級位を見る」の右寄せリンク */}
+          <div className="flex justify-end">
+            <SkeletonBar className="h-5 w-36" tone={100} />
+          </div>
         </section>
 
         {chapterSections.length > 0 && (

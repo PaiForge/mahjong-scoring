@@ -70,6 +70,8 @@ const DYNAMIC_ROUTES: ReadonlySet<string> = new Set([
   "/contact/confirm",
   "/dashboard",
   "/dojo",
+  "/dojo/ranks",
+  "/dojo/ranks/[slug]",
   "/exam/chiitoitsu/play",
   "/exam/chiitoitsu/result",
   "/exam/fu-score/play",
