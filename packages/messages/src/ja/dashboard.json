@@ -1,14 +1,42 @@
 {
   "title": "ダッシュボード",
-  "description": "ここに学習進捗や最近のアクティビティが表示されます",
   "continueLearningTitle": "教本の続き",
   "recommendedPracticeTitle": "おすすめの練習",
   "comprehensivePracticeHint": "教本も練習もひととおり終えました。総合演習で仕上げましょう。",
-  "viewAllPractices": "練習一覧へ",
-  "todayPractice": "今日の練習",
-  "todayPracticeUnit": "{count} 問",
-  "accuracy": "正答率",
-  "accuracyValue": "-- %",
-  "streak": "連続学習日数",
-  "streakUnit": "{count} 日"
+  "nextStep": {
+    "title": "次の一歩",
+    "firstStepTitle": "黒帯への第一歩",
+    "goalLabel": "次の目標",
+    "goal": "{rank} — {criterion}",
+    "stages": {
+      "learn": "学ぶ",
+      "practice": "練習する",
+      "exam": "試験"
+    },
+    "stageCount": "{done} / {total}",
+    "examNotTaken": "未受験",
+    "examPassed": "合格",
+    "steps": {
+      "lesson": {
+        "firstLead": "最初は「{title}」から。点数をひとつ覚えて、3 問で確かめましょう。",
+        "firstCta": "最初のレッスンを始める",
+        "lead": "次は「{title}」をレッスンで学びましょう。短い説明と 3 問の確認問題です。",
+        "cta": "レッスンを始める"
+      },
+      "read": {
+        "lead": "次は「{title}」の章を読みましょう。",
+        "cta": "章を読む"
+      },
+      "practice": {
+        "lead": "次は「{title}」に挑戦しましょう。読んだ内容を手を動かして確かめます。",
+        "cta": "練習を始める"
+      },
+      "exam": {
+        "lead": "学ぶ・練習するが済みました。{title}に挑戦しましょう。",
+        "cta": "試験の内容を見る"
+      }
+    },
+    "choosePractice": "自分で練習を選ぶ",
+    "viewJourney": "黒帯までの道を見る"
+  }
 }

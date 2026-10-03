@@ -1,4 +1,3 @@
-import type { ReactNode } from "react";
 import { getTranslations } from "next-intl/server";
 
 import { CurriculumProgressBar } from "@/app/(user)/(public)/learn/_components/curriculum-progress-bar";
@@ -15,15 +14,6 @@ interface ContinueLearningSectionProps {
   readonly readSlugs: ReadonlySet<string>;
   /** 次に読む章 */
   readonly nextChapter: CurriculumChapter;
-  /**
-   * セクションの末尾に添える行リンク（受験できる昇級試験など）。
-   *
-   * 本題（読みかけの位置 → 目次へ）を最後まで通したあとに置く。教本を
-   * 読み進めた先にある行き先なのでこのセクションに同居させるが、
-   * 章と目次の間に割り込ませない。ランクを知らないままにするため
-   * スロットで受ける。
-   */
-  readonly trailingRow?: ReactNode;
 }
 
 /**
@@ -36,11 +26,13 @@ interface ContinueLearningSectionProps {
  *
  * 全章読了済みのときは次の章が無いのでこのセクション自体を出さない。
  * 出す / 出さないの判断は親（`selectDashboardGuidance`）が持つ。
+ *
+ * 昇級試験への導線はここには置かない。試験は黒帯への道の「認定される」の
+ * 段として「次の一歩」カードが順番どおりに出す。
  */
 export async function ContinueLearningSection({
   readSlugs,
   nextChapter,
-  trailingRow,
 }: ContinueLearningSectionProps) {
   const t = await getTranslations("dashboard");
 
@@ -62,8 +54,6 @@ export async function ContinueLearningSection({
       />
 
       <CurriculumTocLink />
-
-      {trailingRow}
     </div>
   );
 }

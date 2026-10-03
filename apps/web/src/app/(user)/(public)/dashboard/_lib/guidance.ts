@@ -1,136 +1,52 @@
 import {
-  CURRICULUM,
   type CurriculumChapter,
   pickNextChapter,
 } from "@mahjong-scoring/features/curriculum/registry";
 import {
-  menuTypeToSlug,
-  type PracticeMenuSlug,
-} from "@mahjong-scoring/features/practice-menu-types";
-import {
-  nextRank,
-  type RankSlug,
-} from "@mahjong-scoring/features/ranks/registry";
-
-/** ダッシュボードに出すおすすめ練習の上限。増やすと練習一覧の縮小版になる */
-const MAX_RECOMMENDED_PRACTICES = 2;
+  buildJourney,
+  type BuildJourneyInput,
+  type Journey,
+} from "@mahjong-scoring/features/journey/journey";
 
 /** ダッシュボードの学習導線 */
 export interface DashboardGuidance {
+  /**
+   * 黒帯への道（段級位の行程）。「次の一歩」カードが読む。
+   * `nextStep` が undefined なら全級取得済み
+   */
+  readonly journey: Journey;
   /** 次に読む章。全章読了済みなら undefined */
   readonly nextChapter: CurriculumChapter | undefined;
-  /** 読んだのにまだ挑戦していない練習（カリキュラム順、最大 2 件） */
-  readonly recommendedPracticeSlugs: readonly PracticeMenuSlug[];
-  /** 教本も練習も勧めるものが無いとき、総合演習へ誘導するか */
+  /** 教本も行程も勧めるものが無いとき、総合演習へ誘導するか */
   readonly showComprehensivePractice: boolean;
-  /**
-   * 受験の準備が整った昇級試験（練習スラッグ）。整っていなければ空。
-   *
-   * 「次に取る段級位の前提章をすべて読み終えていて、まだその級を持っていない」
-   * ときだけ入る。
-   */
-  readonly readyExamSlugs: readonly PracticeMenuSlug[];
-}
-
-interface SelectDashboardGuidanceInput {
-  /** 読了済み章のスラッグ */
-  readonly readSlugs: ReadonlySet<string>;
-  /** 一度でも挑戦したことのある練習のスラッグ */
-  readonly attemptedSlugs: ReadonlySet<PracticeMenuSlug>;
-  /** 取得済みの段級位 */
-  readonly achievedRankSlugs: readonly RankSlug[];
 }
 
 /**
- * 次に取る段級位の前提章を読み終えているなら、その昇級試験を返す。
- * 受験可能試験の判定
- *
- * @design 読了で出し分ける理由
- *
- * 昇級試験はミス1回で終了する、このアプリで唯一「落ちる」コンテンツ。
- * 無条件にダッシュボードへ出すと、まだ何も読んでいない人に最初の行動として
- * 落ちる試験を勧めることになる。前提章を読み終えた時点＝教材を一周した
- * 時点で初めて出すことで、ダッシュボードの「次にやること」が
- * 「章を読む → 練習する → 受験する」の順に自然に切り替わる。
- *
- * 練習の挑戦履歴までは条件にしない。前提章の読了が「教材を通した」線で、
- * そこから先どれだけ練習してから受けるかは本人が決めればよい
- * （カードは合格基準を示すだけで、その場では試験が始まらない）。
- */
-function selectReadyExamSlugs(
-  readSlugs: ReadonlySet<string>,
-  achievedRankSlugs: readonly RankSlug[],
-): readonly PracticeMenuSlug[] {
-  const next = nextRank(achievedRankSlugs);
-  if (!next) return [];
-
-  // 前提章を持たない段級位（教本の章がまだ無いもの）では条件が空になり、
-  // 読了を待たずにカードが出る。読むべき章が無い以上は正しい振る舞いで、
-  // 章を足せば自動的に「読み終えてから」に戻る
-  const prerequisitesRead = next.learnChapterSlugs.every((slug) =>
-    readSlugs.has(slug),
-  );
-  if (!prerequisitesRead) return [];
-
-  return [menuTypeToSlug(next.exam.menuType)];
-}
-
-/**
- * 読了状況と練習履歴からダッシュボードに出す導線を決める。
+ * 読了状況・レッスン・練習履歴・取得済みの級からダッシュボードに出す導線を決める。
  * 学習導線の選択
  *
  * @description
- * 学習は「章を読む → 対応する練習を解く → 次の章へ」の順で進む。教本の章ページが
- * 「読んだ直後の練習」を既に案内しているので、ダッシュボードが埋めるのは
- * **読んだのに練習していない**取りこぼしのほう。よって次に読む章の練習ではなく、
- * 読了済み章の練習から未挑戦のものを勧める。
+ * 主役は「次の一歩」（黒帯への道の中で今やること 1 つ。features の
+ * `buildJourney`）。候補を並べず 1 つに絞る — ホームは「今すること」を
+ * 答える場で、全体の道筋は道場が持つ。
  *
- * 勧めるものが無いときはセクションごと出さない。教本を読み切って練習も一通り
- * 触れている場合だけ、終わりのない総合演習をフォールバックとして出す。
+ * 「教本の続き」は行程とは別に残す。行程が数えるのは級の前提章だけで、
+ * 基礎のセクションや点数記憶術のように級に属さない章は、読む位置を
+ * ここでしか示せないため。
  *
- * @param readSlugs 読了済み章のスラッグ
- * @param attemptedSlugs 挑戦済み練習のスラッグ
+ * 勧めるものが本当に何も無いとき（全級取得・全章読了）だけ、終わりのない
+ * 総合演習をフォールバックとして出す。
  */
-export function selectDashboardGuidance({
-  readSlugs,
-  attemptedSlugs,
-  achievedRankSlugs,
-}: SelectDashboardGuidanceInput): DashboardGuidance {
-  const nextChapter = pickNextChapter(readSlugs);
-  const readyExamSlugs = selectReadyExamSlugs(readSlugs, achievedRankSlugs);
-
-  const recommended: PracticeMenuSlug[] = [];
-  const seen = new Set<PracticeMenuSlug>();
-
-  const readChaptersInOrder = [...CURRICULUM]
-    .sort((a, b) => a.order - b.order)
-    .filter((chapter) => readSlugs.has(chapter.slug));
-
-  for (const chapter of readChaptersInOrder) {
-    for (const { slug } of chapter.practiceLinks ?? []) {
-      if (attemptedSlugs.has(slug) || seen.has(slug)) continue;
-      seen.add(slug);
-      recommended.push(slug);
-      if (recommended.length === MAX_RECOMMENDED_PRACTICES) {
-        return {
-          nextChapter,
-          recommendedPracticeSlugs: recommended,
-          showComprehensivePractice: false,
-          readyExamSlugs,
-        };
-      }
-    }
-  }
+export function selectDashboardGuidance(
+  input: BuildJourneyInput,
+): DashboardGuidance {
+  const journey = buildJourney(input);
+  const nextChapter = pickNextChapter(input.readSlugs);
 
   return {
+    journey,
     nextChapter,
-    recommendedPracticeSlugs: recommended,
-    // 受験できる試験があるなら、それが「次にやること」。総合演習は
-    // 勧めるものが本当に何も無いときのフォールバックなので譲る
     showComprehensivePractice:
-      nextChapter === undefined &&
-      recommended.length === 0 &&
-      readyExamSlugs.length === 0,
-    readyExamSlugs,
+      journey.nextStep === undefined && nextChapter === undefined,
   };
 }
