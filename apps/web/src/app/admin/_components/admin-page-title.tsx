@@ -2,7 +2,7 @@ import { PageTitleSkeleton } from "@/app/_components/page-title-skeleton";
 
 /** 管理画面のページ見出しの見た目（本物とプレースホルダで共有） */
 const ADMIN_PAGE_TITLE_CLASSES =
-  "text-lg font-bold tracking-tight text-surface-900";
+  "text-2xl leading-9 font-bold tracking-tight text-surface-900";
 
 interface AdminPageTitleProps {
   children: React.ReactNode;

@@ -17,7 +17,7 @@ export default function AdsLoading() {
 
       <div className="space-y-6">
         {Array.from({ length: 3 }, (_, i) => (
-          <section key={i} className="rounded-lg border border-surface-200">
+          <section key={i} className="admin-panel">
             <div className="flex items-center justify-between border-b border-surface-200 px-4 py-3">
               <SkeletonBar className="h-4 w-48" />
               <SkeletonBar className="h-8 w-20" tone={100} />

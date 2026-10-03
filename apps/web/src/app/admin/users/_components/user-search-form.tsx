@@ -25,9 +25,9 @@ export async function UserSearchForm({
   const t = await getTranslations("admin.usersTable");
 
   return (
-    <div className="space-y-2">
+    <div className="admin-filter space-y-2">
       <form role="search" className="flex flex-wrap items-end gap-4">
-        <div>
+        <div className="min-w-0 max-w-full">
           <label
             htmlFor="user-search"
             className="mb-1 block text-sm font-medium"
@@ -45,7 +45,7 @@ export async function UserSearchForm({
         </div>
         <button
           type="submit"
-          className="rounded bg-gray-800 px-4 py-2 text-sm text-white transition-colors hover:bg-gray-900"
+          className="rounded-lg bg-primary-700 px-4 py-2 text-sm text-white transition-colors hover:bg-primary-800"
         >
           {t("searchButton")}
         </button>

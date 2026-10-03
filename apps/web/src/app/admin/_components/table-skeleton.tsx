@@ -15,7 +15,7 @@ export function TableSkeleton({
   readonly rows?: number;
 }) {
   return (
-    <div className="overflow-x-auto">
+    <div className="admin-table">
       <table className="w-full text-left text-sm">
         <thead>
           <tr className="border-b border-gray-200">

@@ -126,7 +126,7 @@ export function AdCreativeForm({
   const hintClass = "mt-1 text-xs text-surface-400";
 
   return (
-    <div className="max-w-3xl space-y-5">
+    <div className="admin-panel max-w-3xl space-y-5 p-5 sm:p-7">
       <div>
         <p className={labelClass}>{t("slot")}</p>
         <code className="text-sm text-surface-800">{slot}</code>

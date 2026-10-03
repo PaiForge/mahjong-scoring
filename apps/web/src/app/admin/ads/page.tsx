@@ -82,7 +82,7 @@ export default async function AdminAdsPage() {
         );
 
         return (
-          <section key={slot} className="rounded-lg border border-surface-200">
+          <section key={slot} className="admin-panel">
             <header className="flex flex-wrap items-start justify-between gap-3 border-b border-surface-200 px-4 py-3">
               <div className="space-y-1">
                 <code className="text-sm font-semibold text-surface-800">
@@ -121,7 +121,7 @@ export default async function AdminAdsPage() {
             {inSlot.length === 0 ? (
               <p className="px-4 py-3 text-sm text-surface-400">{t("empty")}</p>
             ) : (
-              <div className="overflow-x-auto">
+              <div className="admin-table">
                 <table className="w-full text-left text-sm">
                   <thead>
                     <tr className="border-b border-surface-100 text-xs text-surface-500">

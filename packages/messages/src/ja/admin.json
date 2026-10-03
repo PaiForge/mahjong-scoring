@@ -1,7 +1,7 @@
 {
   "title": "管理画面",
   "dashboard": "ダッシュボード",
-  "dashboardDescription": "新規ユーザーの登録推移を確認できます。各機能には左メニューからアクセスできます。",
+  "dashboardDescription": "登録状況と日々の推移を確認し、運営に必要な情報を把握できます。",
   "dashboardKpi": {
     "from": "開始日",
     "to": "終了日",
@@ -348,5 +348,13 @@
     "actions": {
       "title": "操作"
     }
+  },
+  "navigation": {
+    "overview": "概要",
+    "management": "運営・管理",
+    "logs": "ログ・履歴",
+    "workspace": "運営ワークスペース",
+    "backToSite": "サイトを開く",
+    "skipToContent": "本文へ移動"
   }
 }

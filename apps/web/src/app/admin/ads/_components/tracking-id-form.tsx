@@ -60,7 +60,7 @@ export function TrackingIdForm({ trackingId, hiddenAsinCount }: Props) {
           value={value}
           onChange={(e) => setValue(e.target.value)}
           placeholder="example-22"
-          className="w-64 rounded border border-surface-300 bg-white px-3 py-2 font-mono text-sm text-surface-900 focus:border-primary-500 focus:outline-none"
+          className="w-64 max-w-full rounded border border-surface-300 bg-white px-3 py-2 font-mono text-sm text-surface-900 focus:border-primary-500 focus:outline-none"
         />
         <button
           type="submit"

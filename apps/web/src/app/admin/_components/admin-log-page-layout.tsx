@@ -95,7 +95,7 @@ export function AdminLogPageLayout({
 
       {/* フィルタ。狭い画面では折り返す — select・入力・ボタンはどれも
           縮まないので、1 行に並べたままだとページごと横に流れる */}
-      <form className="flex flex-wrap items-end gap-4">
+      <form className="admin-filter flex flex-wrap items-end gap-4">
         <div>
           <label
             htmlFor="action-filter"
@@ -131,14 +131,14 @@ export function AdminLogPageLayout({
         </div>
         <button
           type="submit"
-          className="rounded bg-gray-800 px-4 py-2 text-sm text-white hover:bg-gray-900 transition-colors"
+          className="rounded-lg bg-primary-700 px-4 py-2 text-sm text-white hover:bg-primary-800 transition-colors"
         >
           {i18n.filter}
         </button>
       </form>
 
       {/* テーブル */}
-      <div className="overflow-x-auto">
+      <div className="admin-table">
         <table className="w-full text-left text-sm">
           <thead>
             <tr className="border-b border-gray-200">

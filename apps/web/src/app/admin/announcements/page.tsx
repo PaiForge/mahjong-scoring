@@ -54,10 +54,7 @@ export default async function AdminAnnouncementsPage() {
       ) : (
         <div className="space-y-6">
           {[...grouped.entries()].map(([slug, variants]) => (
-            <section
-              key={slug}
-              className="rounded-lg border border-surface-200"
-            >
+            <section key={slug} className="admin-panel">
               <header className="flex items-center justify-between border-b border-surface-200 px-4 py-3">
                 <code className="text-sm font-semibold text-surface-800">
                   {slug}
