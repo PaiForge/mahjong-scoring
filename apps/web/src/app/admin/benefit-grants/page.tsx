@@ -30,7 +30,7 @@ const COLUMN_KEYS = [
  *
  * @description
  * Stripe の決済を伴わずに付けた Pro の特典（`benefit_grants`）を新しい順に
- * 並べ、有効な付与を取り消す。付与そのものはユーザー一覧（`/admin/users`）の
+ * 並べ、有効な付与を取り消す。付与そのものはユーザー詳細（`/admin/users/[id]`）の
  * 「Pro 付与」から行う（付与先を選ぶ UI をここに重ねない）。
  * @flow 一覧で状態を見る → 有効な行の「取り消し」→ 理由を入れて確定
  */

@@ -207,7 +207,7 @@ loading.tsx を一緒に足すこと。逆に静的にしたら両方を外す�
 - 静的な親と動的な子が同居するルートは、動的な子の leaf にだけ置く
   （`practice/<slug>/result/loading.tsx`、`exam/<級>/play/loading.tsx`）。index だけ
   動的なときは page.tsx と loading.tsx を route group に退避する
-  （`learn/(index)`, `mypage/(home)`, `admin/(dashboard)`）
+  （`learn/(index)`, `mypage/(home)`, `admin/(dashboard)`, `admin/users/(list)`）
 - **祖先に loading.tsx があると `notFound()` は 404 を返さない** — Suspense の
   フォールバックを流し始めた時点でヘッダが確定するため、ページ本体でも
   `generateMetadata` でも `notFound()` はソフト 404（200）になる（2026-08 に
