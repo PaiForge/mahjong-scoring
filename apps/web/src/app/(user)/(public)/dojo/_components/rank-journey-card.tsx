@@ -24,6 +24,7 @@ import {
 } from "@mahjong-scoring/features/routes";
 
 import { RankStatusBadge } from "../ranks/_components/rank-status-badge";
+import { DOJO_TOUR_ID } from "../_lib/tour-ids";
 
 interface RankJourneyCardProps {
   readonly journey: RankJourney;
@@ -100,7 +101,10 @@ export async function RankJourneyCard({
         data-rank-status={status}
         className={`rounded-xl border-3 bg-white p-4 sm:p-5 ${beltBorderClass(rank.slug)}`}
       >
-        <div className="flex items-center gap-3">
+        <div
+          className="flex items-center gap-3"
+          data-tour-id={expanded ? DOJO_TOUR_ID.nextRankHeader : undefined}
+        >
           <BeltBadge slug={rank.slug} />
           <h3 className="min-w-0 flex-1 text-lg font-bold">
             <Link href={rankHref(rank.slug)} className={TEXT_LINK_CLASSES}>
@@ -117,7 +121,10 @@ export async function RankJourneyCard({
 
         {/* 進み具合。前提章を持たない級（初段）では学ぶ・練習するが 0 件なので、
             数えるものがある段だけ並べる */}
-        <dl className="mt-2 flex flex-wrap gap-x-4 gap-y-1 text-xs text-surface-600">
+        <dl
+          className="mt-2 flex flex-wrap gap-x-4 gap-y-1 text-xs text-surface-600"
+          data-tour-id={expanded ? DOJO_TOUR_ID.nextRankStages : undefined}
+        >
           {learn.total > 0 && (
             <div className="flex gap-1">
               <dt className="font-bold">{tRanks("stages.learn")}</dt>
@@ -146,7 +153,10 @@ export async function RankJourneyCard({
         </dl>
 
         {status === "unachieved" && (
-          <p className="mt-2 flex items-center gap-1 text-xs text-surface-500">
+          <p
+            className="mt-2 flex items-center gap-1 text-xs text-surface-500"
+            data-tour-id={DOJO_TOUR_ID.lockedNote}
+          >
             <LockClosedIcon className="size-3.5" />
             {t("lockedNote")}
           </p>

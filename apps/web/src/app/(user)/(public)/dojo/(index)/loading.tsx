@@ -9,11 +9,9 @@ import { RANK_REGISTRY } from "@mahjong-scoring/features/ranks/registry";
 /**
  * 道場の読み込み中スケルトン。
  *
- * 実体（`dojo/(index)/page.tsx`）の「現在の段級位 → 黒帯への道（説明文と
- * 級ごとのカードの並び）」を同じ順・同じ高さで模す。
+ * 実体（`dojo/(index)/page.tsx`）の「現在の段級位 → 黒帯への道（級ごとの
+ * カードの並び）」を同じ順・同じ高さで模す。
  *
- * 黒帯への道の説明文は辞書から引いた実物を出す。段級位にも読了にも依らない静的な
- * 文字列で、しかも高さが折り返しで決まるため、矩形では幅ごとに行数がずれる。
  * 見出しはプレースホルダで受ける — 同じ形のクラスを共有していて高さは
  * 一致するし、フォールバックは初期 HTML に焼き込まれるので、実物を出すと
  * 同じ h1 / h2 が本物より先に 2 つ目として文書に並ぶ。
@@ -42,9 +40,6 @@ export default async function Loading() {
 
         <section className="space-y-4">
           <SectionTitleSkeleton width="w-48" />
-          <p className="text-sm leading-relaxed text-surface-500">
-            {t("journeyLead")}
-          </p>
           <div className="space-y-4">
             {RANK_REGISTRY.map((rank, index) => (
               <SkeletonBar

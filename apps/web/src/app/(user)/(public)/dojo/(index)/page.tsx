@@ -20,6 +20,7 @@
  * @flow
  * 1. 現在の段級位を確認する（未取得・未認証は無級）
  * 2. 行程で次の目標の級を開き、レッスン / 前提章 / 練習 / 試験へ進む
+ *    （見方は見出しの横の「?」のツアーで説明する）
  * 3. 合格すると結果ページの昇級バナーと本ページ・マイページの表示が更新される
  */
 import type { Metadata } from "next";
@@ -41,7 +42,9 @@ import { beltBorderClass } from "@/lib/ranks/belt-colors";
 import { buildJourney } from "@mahjong-scoring/features/journey/journey";
 import { highestRank } from "@mahjong-scoring/features/ranks/registry";
 
+import { DojoSpotlightTour } from "../_components/dojo-spotlight-tour";
 import { RankJourneyCard } from "../_components/rank-journey-card";
+import { DOJO_TOUR_ID } from "../_lib/tour-ids";
 
 export async function generateMetadata(): Promise<Metadata> {
   return createNamespaceMetadata("dojo", { path: "/dojo" });
@@ -71,7 +74,7 @@ export default async function DojoPage() {
 
   return (
     <ContentContainer breadcrumb={[{ label: t("title") }]}>
-      <PageTitle>{t("title")}</PageTitle>
+      <PageTitle action={<DojoSpotlightTour />}>{t("title")}</PageTitle>
 
       <div className="space-y-8">
         <section className="space-y-4">
@@ -82,6 +85,7 @@ export default async function DojoPage() {
               無級のときは帯色そのものが淡いグレーなので枠もグレーになり、
               「まだ色が付いていない」という円の意味とカードが揃う。 */}
           <div
+            data-tour-id={DOJO_TOUR_ID.currentRank}
             data-belt-slug={current?.slug ?? "unranked"}
             className={`rounded-xl border-3 bg-white p-5 text-center ${beltBorderClass(current?.slug)}`}
           >
@@ -102,9 +106,6 @@ export default async function DojoPage() {
 
         <section className="space-y-4">
           <SectionTitle>{t("journeyTitle")}</SectionTitle>
-          <p className="text-sm leading-relaxed text-surface-500">
-            {t("journeyLead")}
-          </p>
           <ol className="space-y-4">
             {journey.ranks.map((rankJourney) => (
               <RankJourneyCard
