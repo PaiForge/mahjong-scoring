@@ -1,13 +1,13 @@
 "use client";
 
 import { useTranslations } from "next-intl";
-import { restoreTehaiQuestion } from "../_lib/parse-question-tiles";
+import { restoreTehaiQuestion } from "@mahjong-scoring/features/results/parse-question-tiles";
 import { AnswerComparison } from "./answer-comparison";
 import { ProblemListAccordion } from "./problem-list-accordion";
 import { TehaiDisplay } from "./tehai-display";
 import { TehaiMentsuBreakdown } from "./tehai-mentsu-breakdown";
 import { FuBreakdown } from "./fu-breakdown";
-import type { FuQuestionResult } from "../_lib/fu-question-result";
+import type { FuQuestionResult } from "@mahjong-scoring/features/results/fu-question-result";
 
 interface FuProblemListProps {
   readonly results: readonly FuQuestionResult[];

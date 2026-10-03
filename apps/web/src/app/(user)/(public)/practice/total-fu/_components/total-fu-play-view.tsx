@@ -2,7 +2,7 @@
 
 import { PRACTICE_SLUG } from "@mahjong-scoring/features/practice-menu-types";
 import { createChallengePlayView } from "../../_lib/create-challenge-views";
-import type { TotalFuQuestionResult } from "../_lib/types";
+import type { TotalFuQuestionResult } from "@mahjong-scoring/features/practice/total-fu/types";
 import { TotalFuBoard } from "./total-fu-board";
 
 export const TotalFuPlayView = createChallengePlayView<TotalFuQuestionResult>({

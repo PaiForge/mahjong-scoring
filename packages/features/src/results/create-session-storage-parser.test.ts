@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest";
 import { z } from "zod";
 
-import { createSessionStorageParser } from "../create-session-storage-parser";
+import { createSessionStorageParser } from "./create-session-storage-parser";
 
 interface Row {
   readonly label: string;

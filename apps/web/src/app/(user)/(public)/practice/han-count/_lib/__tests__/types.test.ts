@@ -2,7 +2,7 @@ import { HaiKind } from "@mahjong-scoring/core";
 import type { ScoreQuestion } from "@mahjong-scoring/core";
 import { describe, expect, it } from "vitest";
 
-import { buildDemoScoreQuestion } from "../../../_lib/demo-score-question";
+import { buildDemoScoreQuestion } from "@mahjong-scoring/features/board/demo-score-question";
 import { parseHanCountResults, toHanCountQuestionResult } from "../types";
 
 describe("parseHanCountResults", () => {

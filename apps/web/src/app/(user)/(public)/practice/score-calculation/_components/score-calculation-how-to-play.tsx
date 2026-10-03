@@ -1,7 +1,7 @@
 import { getTranslations } from "next-intl/server";
 import { HaiKind } from "@mahjong-scoring/core";
 import { QuestionDisplay } from "../../score/_components/question-display";
-import { buildDemoScoreQuestion } from "../../_lib/demo-score-question";
+import { buildDemoScoreQuestion } from "@mahjong-scoring/features/board/demo-score-question";
 import { QuestionPrompt } from "../../_components/question-prompt";
 
 /**

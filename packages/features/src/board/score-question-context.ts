@@ -1,6 +1,6 @@
 import type { ScoreQuestion } from "@mahjong-scoring/core";
 
-import type { TehaiContext } from "../_components/tehai-display";
+import type { TehaiContext } from "./tehai-context";
 
 /**
  * ScoreQuestion から手牌表示用のコンテキストを取り出す

@@ -8,18 +8,18 @@ import {
 
 import { z } from "zod";
 
-import { createSessionStorageParser } from "../../_lib/create-session-storage-parser";
+import { createSessionStorageParser } from "@mahjong-scoring/features/results/create-session-storage-parser";
 import {
   hanAnswerResultSchema,
   toAnswerOutcome,
   yakuDetailSchema,
   type HanAnswerResult,
-} from "../../_lib/result-schemas";
-import type { ScoreQuestionSnapshot } from "../../_lib/score-question-result";
+} from "@mahjong-scoring/features/results/result-schemas";
+import type { ScoreQuestionSnapshot } from "@mahjong-scoring/features/results/score-question-result";
 import {
   scoreQuestionSnapshotSchema,
   toScoreQuestionSnapshot,
-} from "../../_lib/score-question-result";
+} from "@mahjong-scoring/features/results/score-question-result";
 
 /** sessionStorage に保存する際のキー */
 export const RESULT_STORAGE_KEY = resultStorageKeyFor(PRACTICE_SLUG.hanCount);

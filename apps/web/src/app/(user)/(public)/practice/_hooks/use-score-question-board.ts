@@ -8,8 +8,8 @@ import type {
   ScoreQuestion,
   ScoreTableUserAnswer,
 } from "@mahjong-scoring/core";
-import type { ScoreQuestionResult } from "../_lib/score-question-result";
-import { toScoreQuestionResult } from "../_lib/score-question-result";
+import type { ScoreQuestionResult } from "@mahjong-scoring/features/results/score-question-result";
+import { toScoreQuestionResult } from "@mahjong-scoring/features/results/score-question-result";
 import type { RecordingPracticeBoardProps } from "../_lib/practice-board-props";
 import { useGeneratedScoreQuestion } from "./use-generated-score-question";
 import { usePresentQuestion } from "./use-present-question";

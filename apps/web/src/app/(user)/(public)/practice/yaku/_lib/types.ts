@@ -3,8 +3,8 @@ import {
   questionTilesSnapshotSchema,
   toAnswerOutcome,
   type AnswerOutcome,
-} from "../../_lib/result-schemas";
-import type { QuestionTilesSnapshot } from "../../_lib/parse-question-tiles";
+} from "@mahjong-scoring/features/results/result-schemas";
+import type { QuestionTilesSnapshot } from "@mahjong-scoring/features/results/parse-question-tiles";
 import {
   haiIdToMspz,
   judgeYakuAnswer,
@@ -20,7 +20,7 @@ import {
 
 import { z } from "zod";
 
-import { createSessionStorageParser } from "../../_lib/create-session-storage-parser";
+import { createSessionStorageParser } from "@mahjong-scoring/features/results/create-session-storage-parser";
 
 /** sessionStorage に保存する際のキー */
 export const RESULT_STORAGE_KEY = resultStorageKeyFor(PRACTICE_SLUG.yaku);

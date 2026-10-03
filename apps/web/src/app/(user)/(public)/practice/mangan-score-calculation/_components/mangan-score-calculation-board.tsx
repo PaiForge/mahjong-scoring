@@ -7,7 +7,7 @@ import { ScoreCalculationQuestionBoard } from "../../_components/score-calculati
 import { YakuListDisplay } from "./yaku-list-display";
 import type { ManganScoreCalculationQuestionResult } from "../_lib/types";
 import type { RecordingPracticeBoardProps } from "../../_lib/practice-board-props";
-import { ruleBoundaryExclusions } from "../../_lib/rule-boundary";
+import { ruleBoundaryExclusions } from "@mahjong-scoring/features/challenge/rule-boundary";
 
 type ManganScoreCalculationBoardProps =
   RecordingPracticeBoardProps<ManganScoreCalculationQuestionResult>;

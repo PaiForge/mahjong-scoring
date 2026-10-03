@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 
-import { ruleBoundaryExclusions } from "../rule-boundary";
+import { ruleBoundaryExclusions } from "./rule-boundary";
 
 describe("ruleBoundaryExclusions", () => {
   it("チャレンジ（記録あり）では境界の手を両方落とす", () => {

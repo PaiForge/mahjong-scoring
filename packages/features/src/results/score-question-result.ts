@@ -11,7 +11,7 @@ import type {
   YakuDetail,
 } from "@mahjong-scoring/core";
 
-import type { ScoreQuestionDisplayData } from "../score/_components/question-display";
+import type { ScoreQuestionDisplayData } from "../board/tehai-context";
 import { z } from "zod";
 
 import { createSessionStorageParser } from "./create-session-storage-parser";

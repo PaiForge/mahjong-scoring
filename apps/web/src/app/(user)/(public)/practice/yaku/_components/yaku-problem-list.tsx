@@ -3,7 +3,7 @@
 import {
   parseMarkers,
   restoreTehaiQuestion,
-} from "../../_lib/parse-question-tiles";
+} from "@mahjong-scoring/features/results/parse-question-tiles";
 import { ProblemListAccordion } from "../../_components/problem-list-accordion";
 import { TehaiDisplay } from "../../_components/tehai-display";
 import { TehaiMentsuBreakdown } from "../../_components/tehai-mentsu-breakdown";

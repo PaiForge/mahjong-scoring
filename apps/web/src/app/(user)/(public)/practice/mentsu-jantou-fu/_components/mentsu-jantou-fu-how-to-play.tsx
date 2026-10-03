@@ -5,7 +5,10 @@ import { HaiKind, MentsuType } from "@mahjong-scoring/core";
 import { Hai } from "@pai-forge/mahjong-react-ui";
 import { QuestionPrompt } from "../../_components/question-prompt";
 import { TehaiDisplay } from "../../_components/tehai-display";
-import { DEMO_FU_CONTEXT, DEMO_FU_TEHAI } from "../../_lib/demo-tehai";
+import {
+  DEMO_FU_CONTEXT,
+  DEMO_FU_TEHAI,
+} from "@mahjong-scoring/features/board/demo-tehai";
 import { FU_OPTIONS } from "../../_lib/fu-options";
 import {
   findAgariHighlight,

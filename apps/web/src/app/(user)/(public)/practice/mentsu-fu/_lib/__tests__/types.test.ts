@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest";
 import { MentsuType, generateMentsuFuQuestion } from "@mahjong-scoring/core";
 
-import { restoreMentsu } from "../../../_lib/mentsu-serialization";
+import { restoreMentsu } from "@mahjong-scoring/features/results/mentsu-serialization";
 import { parseMentsuFuResults, toQuestionResult } from "../types";
 
 /** 保存形式として妥当な結果データ */

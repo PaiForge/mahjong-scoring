@@ -2,7 +2,7 @@ import { YAKU_DEFAULT_ORDER } from "@mahjong-scoring/core";
 import type { YakuDetail } from "@mahjong-scoring/core";
 import { describe, expect, it } from "vitest";
 
-import { orderYakuDetails } from "../order-yaku-details";
+import { orderYakuDetails } from "./order-yaku-details";
 
 /** 役名だけを並べた配列にする（翻数は並び替えに関与しない） */
 function namesOf(details: readonly YakuDetail[]): readonly string[] {

@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest";
 import { HaiKind } from "@mahjong-scoring/core";
 
-import { buildDemoTehai, DEMO_FU_TEHAI } from "../demo-tehai";
+import { buildDemoTehai, DEMO_FU_TEHAI } from "./demo-tehai";
 
 /** 234m / 567p / 中中中 / 678s / 南南 */
 const VALID_CLOSED = [

@@ -9,11 +9,11 @@ import {
   resultStorageKeyFor,
 } from "@mahjong-scoring/features/practice-menu-types";
 
-import type { ScoreQuestionResult } from "../../_lib/score-question-result";
-import { toAnswerOutcome } from "../../_lib/result-schemas";
+import type { ScoreQuestionResult } from "@mahjong-scoring/features/results/score-question-result";
+import { toAnswerOutcome } from "@mahjong-scoring/features/results/result-schemas";
 
-export type { ScoreQuestionResult as ScoreTableQuestionResult } from "../../_lib/score-question-result";
-export { parseQuestionResults } from "../../_lib/score-question-result";
+export type { ScoreQuestionResult as ScoreTableQuestionResult } from "@mahjong-scoring/features/results/score-question-result";
+export { parseQuestionResults } from "@mahjong-scoring/features/results/score-question-result";
 
 /**
  * 出題と回答から保存用の結果データを組み立てる

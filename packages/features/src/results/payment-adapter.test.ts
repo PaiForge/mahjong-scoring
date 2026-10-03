@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest";
 import type { Payment } from "@mahjong-scoring/core";
 import { ScoreLevel } from "@mahjong-scoring/core/core/constants";
-import { scoreAnswerToUserAnswer } from "../payment-adapter";
+import { scoreAnswerToUserAnswer } from "./payment-adapter";
 
 describe("scoreAnswerToUserAnswer", () => {
   it.each([

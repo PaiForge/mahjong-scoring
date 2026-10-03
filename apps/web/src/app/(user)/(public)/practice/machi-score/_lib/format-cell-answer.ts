@@ -3,7 +3,7 @@ import type {
   ScoreQuestion,
   UserAnswer,
 } from "@mahjong-scoring/core";
-import { scoreAnswerToUserAnswer } from "../../_lib/payment-adapter";
+import { scoreAnswerToUserAnswer } from "@mahjong-scoring/features/results/payment-adapter";
 import { practiceHanTier } from "../../score/_lib/han-tiers";
 
 /**

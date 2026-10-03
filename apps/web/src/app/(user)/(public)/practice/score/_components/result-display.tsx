@@ -17,9 +17,9 @@ import {
 import { useYakumanRules } from "@/app/_hooks/use-rule-settings-store";
 import { useYakuOrder } from "@/app/_hooks/use-yaku-order-store";
 import { practiceHanTier } from "../_lib/han-tiers";
-import { orderYakuDetails } from "../../_lib/order-yaku-details";
-import { formatScoreAnswer } from "../../_lib/format-score-answer";
-import { paymentToScoreTableAnswer } from "../../_lib/payment-adapter";
+import { orderYakuDetails } from "@mahjong-scoring/features/results/order-yaku-details";
+import { formatScoreAnswer } from "@mahjong-scoring/features/results/format-score-answer";
+import { paymentToScoreTableAnswer } from "@mahjong-scoring/features/results/payment-adapter";
 import { DetailsPanelRow } from "./details-accordion";
 import type { DetailItem } from "./details-accordion";
 import { ScoreTableModal } from "./score-table-modal";

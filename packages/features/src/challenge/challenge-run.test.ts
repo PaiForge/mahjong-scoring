@@ -4,7 +4,7 @@ import {
   packStoredResults,
   parseRunId,
   unpackStoredResults,
-} from "../challenge-run";
+} from "./challenge-run";
 
 const RUN = 1_700_000_000_000;
 const rows = [{ id: "a" }, { id: "b" }];

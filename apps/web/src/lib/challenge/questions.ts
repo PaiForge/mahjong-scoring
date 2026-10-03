@@ -18,8 +18,8 @@ import type { PracticeMenuType } from "@mahjong-scoring/features/practice-menu-t
 import { resolvePracticeVariant } from "@mahjong-scoring/features/practice-menu-types";
 import { SCORE_TABLE_VARIANT_OPTIONS } from "../../app/(user)/(public)/practice/score-table/_lib/variants";
 import { YAKU_HAN_VARIANT_RANGES } from "../../app/(user)/(public)/practice/yaku-han/_lib/variants";
-import { paymentToScoreTableAnswer } from "../../app/(user)/(public)/practice/_lib/payment-adapter";
-import { scoreTableAnswerSchema } from "../../app/(user)/(public)/practice/_lib/result-schemas";
+import { paymentToScoreTableAnswer } from "@mahjong-scoring/features/results/payment-adapter";
+import { scoreTableAnswerSchema } from "@mahjong-scoring/features/results/result-schemas";
 import { EXAM_GENERATE_OPTIONS as mangan } from "../../app/(user)/(public)/exam/mangan/_lib/types";
 import { EXAM_GENERATE_OPTIONS as fu } from "../../app/(user)/(public)/exam/fu/_lib/types";
 import { EXAM_GENERATE_OPTIONS as chiitoitsu } from "../../app/(user)/(public)/exam/chiitoitsu/_lib/types";

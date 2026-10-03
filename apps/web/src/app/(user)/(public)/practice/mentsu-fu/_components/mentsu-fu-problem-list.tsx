@@ -4,7 +4,7 @@ import { useTranslations } from "next-intl";
 import { Furo } from "@pai-forge/mahjong-react-ui";
 import { AnswerComparison } from "../../_components/answer-comparison";
 import { ProblemListAccordion } from "../../_components/problem-list-accordion";
-import { restoreMentsu } from "../../_lib/mentsu-serialization";
+import { restoreMentsu } from "@mahjong-scoring/features/results/mentsu-serialization";
 import type { MentsuFuQuestionResult } from "../_lib/types";
 
 interface MentsuFuProblemListProps {

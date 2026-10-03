@@ -5,8 +5,8 @@ import {
   parseHais,
 } from "@mahjong-scoring/core";
 
-import { expectRestoresQuestion } from "@/test/expect-restores-question";
-import { generateOrThrow } from "@/test/generate-or-throw";
+import { expectRestoresQuestion } from "@mahjong-scoring/features/test/expect-restores-question";
+import { generateOrThrow } from "@mahjong-scoring/features/test/generate-or-throw";
 
 import {
   QUESTION_GENERATION_MAX_RETRIES,

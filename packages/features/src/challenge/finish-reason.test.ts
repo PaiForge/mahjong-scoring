@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { listedProblemCount, parseFinishReason } from "../finish-reason";
+import { listedProblemCount, parseFinishReason } from "./finish-reason";
 
 describe("parseFinishReason", () => {
   it("既知の理由はそのまま返す", () => {

@@ -1,4 +1,4 @@
-import type { QuestionTilesSnapshot } from "../../_lib/parse-question-tiles";
+import type { QuestionTilesSnapshot } from "@mahjong-scoring/features/results/parse-question-tiles";
 import {
   MentsuType,
   haiIdToMspz,
@@ -17,7 +17,7 @@ import {
 
 import { z } from "zod";
 
-import { createSessionStorageParser } from "../../_lib/create-session-storage-parser";
+import { createSessionStorageParser } from "@mahjong-scoring/features/results/create-session-storage-parser";
 import {
   answerOutcomeSchema,
   questionTilesSnapshotSchema,
@@ -25,7 +25,7 @@ import {
   furoSchema,
   toAnswerOutcome,
   type AnswerOutcome,
-} from "../../_lib/result-schemas";
+} from "@mahjong-scoring/features/results/result-schemas";
 
 /** sessionStorage に保存する際のキー */
 export const RESULT_STORAGE_KEY = resultStorageKeyFor(

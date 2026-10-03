@@ -25,7 +25,7 @@ import {
   buildResultBreadcrumb,
   resultBreadcrumbParent,
 } from "../_lib/result-breadcrumb";
-import { listedProblemCount } from "../_lib/finish-reason";
+import { listedProblemCount } from "@mahjong-scoring/features/challenge/finish-reason";
 import { practiceHref } from "../_lib/practice-catalog";
 import { PRACTICE_SCROLL_ANCHOR_ID } from "../_lib/scroll-anchor";
 import { readVariantFromLocation } from "../_lib/variant-param";

@@ -7,12 +7,12 @@ import {
 
 import { z } from "zod";
 
-import { createSessionStorageParser } from "../../_lib/create-session-storage-parser";
+import { createSessionStorageParser } from "@mahjong-scoring/features/results/create-session-storage-parser";
 import {
   hanAnswerResultSchema,
   toAnswerOutcome,
   type HanAnswerResult,
-} from "../../_lib/result-schemas";
+} from "@mahjong-scoring/features/results/result-schemas";
 
 /** sessionStorage に保存する際のキー */
 export const RESULT_STORAGE_KEY = resultStorageKeyFor(PRACTICE_SLUG.yakuHan);

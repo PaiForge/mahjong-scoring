@@ -18,7 +18,7 @@ import {
 } from "@mahjong-scoring/features/practice-menu-types";
 import { useRuleSettingsStore } from "../../../../_hooks/use-rule-settings-store";
 import { readVariantFromLocation } from "../_lib/variant-param";
-import { AnswerOutcome } from "../_lib/result-schemas";
+import { AnswerOutcome } from "@mahjong-scoring/features/results/result-schemas";
 
 interface VerifiedChallenge {
   readonly id: string;

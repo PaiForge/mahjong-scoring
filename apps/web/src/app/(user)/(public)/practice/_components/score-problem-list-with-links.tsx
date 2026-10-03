@@ -3,8 +3,8 @@
 import { useState } from "react";
 import { useTranslations } from "next-intl";
 import { isFu } from "@mahjong-scoring/core";
-import type { ScoreQuestionResult } from "../_lib/score-question-result";
-import { formatScoreAnswer } from "../_lib/format-score-answer";
+import type { ScoreQuestionResult } from "@mahjong-scoring/features/results/score-question-result";
+import { formatScoreAnswer } from "@mahjong-scoring/features/results/format-score-answer";
 import { ScoreTableModal } from "../score/_components/score-table-modal";
 import { ScoreProblemList } from "./score-problem-list";
 import { TEXT_LINK_CLASSES } from "@/app/_components/_lib/link-classes";

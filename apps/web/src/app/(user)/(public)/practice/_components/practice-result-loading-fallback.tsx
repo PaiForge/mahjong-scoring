@@ -12,7 +12,7 @@ import {
   FINISH_REASON_PARAM,
   listedProblemCount,
   parseFinishReason,
-} from "../_lib/finish-reason";
+} from "@mahjong-scoring/features/challenge/finish-reason";
 import { practiceHref } from "../_lib/practice-catalog";
 import {
   buildResultBreadcrumb,

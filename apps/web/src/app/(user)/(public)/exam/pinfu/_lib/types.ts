@@ -4,9 +4,9 @@ import {
   resultStorageKeyFor,
 } from "@mahjong-scoring/features/practice-menu-types";
 
-export type { ScoreQuestionResult as PinfuExamQuestionResult } from "@/app/(user)/(public)/practice/_lib/score-question-result";
-export { parseQuestionResults } from "@/app/(user)/(public)/practice/_lib/score-question-result";
-export { paymentToScoreTableAnswer } from "@/app/(user)/(public)/practice/_lib/payment-adapter";
+export type { ScoreQuestionResult as PinfuExamQuestionResult } from "@mahjong-scoring/features/results/score-question-result";
+export { parseQuestionResults } from "@mahjong-scoring/features/results/score-question-result";
+export { paymentToScoreTableAnswer } from "@mahjong-scoring/features/results/payment-adapter";
 
 /** sessionStorage に保存する際のキー */
 export const RESULT_STORAGE_KEY = resultStorageKeyFor(PRACTICE_SLUG.pinfuExam);

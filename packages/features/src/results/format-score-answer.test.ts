@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest";
 
 import type { ScoreTableAnswer } from "@mahjong-scoring/core";
-import { formatScoreAnswer } from "../format-score-answer";
+import { formatScoreAnswer } from "./format-score-answer";
 
 const mockT = (key: string): string => {
   const dict: Record<string, string> = { all: "オール" };

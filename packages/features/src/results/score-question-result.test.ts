@@ -1,14 +1,14 @@
 import { HaiKind, generateValidScoreQuestion } from "@mahjong-scoring/core";
 import { describe, expect, it } from "vitest";
 
-import { generateOrThrow } from "@/test/generate-or-throw";
+import { generateOrThrow } from "../test/generate-or-throw";
 
-import { buildDemoScoreQuestion } from "../demo-score-question";
+import { buildDemoScoreQuestion } from "../board/demo-score-question";
 import {
   parseQuestionResults,
   toScoreQuestionResult,
   toScoreQuestionSnapshot,
-} from "../score-question-result";
+} from "./score-question-result";
 
 describe("parseQuestionResults", () => {
   const validResult = {

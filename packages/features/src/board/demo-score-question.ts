@@ -154,6 +154,7 @@ export function buildDemoScoreQuestion(
 ): ScoreQuestion {
   const { hand = DEMO_MENTSU_HAND, ...rest } = options;
 
+  // eslint-disable-next-line @typescript-eslint/consistent-type-assertions -- 描画専用のデモ出題。正解（answer）を持たない形を ScoreQuestion に型付けするための意図的な断定（上の TSDoc 参照）
   return {
     tehai: buildDemoTehai(hand.closed),
     agariHai: hand.agariHai,

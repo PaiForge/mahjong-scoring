@@ -8,7 +8,7 @@ import {
 import { ScoreCalculationQuestionBoard } from "../../_components/score-calculation-question-board";
 import type { ScoreCalculationQuestionResult } from "../_lib/types";
 import type { RecordingPracticeBoardProps } from "../../_lib/practice-board-props";
-import { ruleBoundaryExclusions } from "../../_lib/rule-boundary";
+import { ruleBoundaryExclusions } from "@mahjong-scoring/features/challenge/rule-boundary";
 
 type ScoreCalculationBoardProps =
   RecordingPracticeBoardProps<ScoreCalculationQuestionResult>;

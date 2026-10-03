@@ -20,7 +20,10 @@ import {
   useRegisterAdvance,
   useTrainingMode,
 } from "../../_hooks/use-training-mode";
-import { AnswerOutcome, toAnswerOutcome } from "../../_lib/result-schemas";
+import {
+  AnswerOutcome,
+  toAnswerOutcome,
+} from "@mahjong-scoring/features/results/result-schemas";
 import {
   QUESTION_GENERATION_MAX_RETRIES,
   toQuestionResult,

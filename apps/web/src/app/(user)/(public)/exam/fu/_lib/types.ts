@@ -4,8 +4,8 @@ import {
   resultStorageKeyFor,
 } from "@mahjong-scoring/features/practice-menu-types";
 
-export type { FuQuestionResult as FuExamQuestionResult } from "@/app/(user)/(public)/practice/_lib/fu-question-result";
-export { parseFuQuestionResults } from "@/app/(user)/(public)/practice/_lib/fu-question-result";
+export type { FuQuestionResult as FuExamQuestionResult } from "@mahjong-scoring/features/results/fu-question-result";
+export { parseFuQuestionResults } from "@mahjong-scoring/features/results/fu-question-result";
 
 /** sessionStorage に保存する際のキー */
 export const RESULT_STORAGE_KEY = resultStorageKeyFor(PRACTICE_SLUG.fuExam);

@@ -35,8 +35,11 @@ import {
   FINISH_REASON_PARAM,
   listedProblemCount,
   parseFinishReason,
-} from "./finish-reason";
-import { RUN_PARAM, parseRunId } from "./challenge-run";
+} from "@mahjong-scoring/features/challenge/finish-reason";
+import {
+  RUN_PARAM,
+  parseRunId,
+} from "@mahjong-scoring/features/challenge/challenge-run";
 import { debugResultDelay } from "./debug-delay";
 import { tryFetch } from "./try-fetch";
 import {

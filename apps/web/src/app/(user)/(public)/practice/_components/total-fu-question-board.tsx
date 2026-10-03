@@ -16,7 +16,7 @@ import type { PlayBoardHeight } from "../_lib/board-area-height";
 import {
   toFuQuestionResult,
   type FuQuestionResult,
-} from "../_lib/fu-question-result";
+} from "@mahjong-scoring/features/results/fu-question-result";
 import type { RecordingPracticeBoardProps } from "../_lib/practice-board-props";
 
 interface TotalFuQuestionBoardProps extends RecordingPracticeBoardProps<FuQuestionResult> {

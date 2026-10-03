@@ -1,4 +1,4 @@
-import type { ScoreQuestionResult } from "../score-question-result";
+import type { ScoreQuestionResult } from "./score-question-result";
 
 /**
  * 点数系練習の問題結果を組み立てる

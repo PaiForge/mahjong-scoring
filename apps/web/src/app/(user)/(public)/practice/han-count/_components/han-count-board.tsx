@@ -5,7 +5,7 @@ import { useGradeAndRecord } from "../../_hooks/use-verified-challenge";
 import { useCallback } from "react";
 import { clampHanToYakuman } from "@mahjong-scoring/core";
 import type { ScoreQuestion } from "@mahjong-scoring/core";
-import { tehaiContextOf } from "../../_lib/score-question-context";
+import { tehaiContextOf } from "@mahjong-scoring/features/board/score-question-context";
 import { QuestionGeneratingPlaceholder } from "../../_components/question-generating-placeholder";
 import { useTranslations } from "next-intl";
 import type { useGeneratedScoreQuestion } from "../../_hooks/use-generated-score-question";

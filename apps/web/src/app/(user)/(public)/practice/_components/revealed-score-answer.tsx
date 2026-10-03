@@ -7,11 +7,11 @@ import {
   type ScoreQuestion,
   type ScoreTableAnswer,
 } from "@mahjong-scoring/core";
-import { paymentToScoreTableAnswer } from "../_lib/payment-adapter";
+import { paymentToScoreTableAnswer } from "@mahjong-scoring/features/results/payment-adapter";
 import { scoreTableFocusOf } from "../_lib/score-table-focus";
 import type { ScoreTableFocus } from "@/app/(user)/(public)/reference/score-table/_lib/score-table-utils";
 
-import { formatScoreAnswer } from "../_lib/format-score-answer";
+import { formatScoreAnswer } from "@mahjong-scoring/features/results/format-score-answer";
 import { ScoreTableModal } from "../score/_components/score-table-modal";
 
 interface RevealedScoreAnswerProps {

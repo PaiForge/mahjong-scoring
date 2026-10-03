@@ -1,15 +1,15 @@
 import { describe, expect, it } from "vitest";
 import { generateTotalFuQuestion } from "@mahjong-scoring/core";
 
-import { expectRestoresQuestion } from "@/test/expect-restores-question";
-import { generateOrThrow } from "@/test/generate-or-throw";
+import { expectRestoresQuestion } from "../test/expect-restores-question";
+import { generateOrThrow } from "../test/generate-or-throw";
 
-import { QUESTION_GENERATION_MAX_RETRIES } from "../../total-fu/_lib/types";
+import { QUESTION_GENERATION_MAX_RETRIES } from "../practice/total-fu/types";
 
 import {
   parseFuQuestionResults,
   toFuQuestionResult,
-} from "../fu-question-result";
+} from "./fu-question-result";
 
 /** 保存形式として妥当な結果データ */
 const validResult = {
