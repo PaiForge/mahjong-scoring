@@ -12,7 +12,13 @@ import { ComprehensivePracticeSection } from "./comprehensive-practice-section";
 import { ContinueLearningSection } from "./continue-learning-section";
 import { HomeAnnouncements } from "./home-announcements";
 import { NextStepSection } from "./next-step-section";
+import { PendingLessonSync } from "./pending-lesson-sync";
 import { TextbookLinkSection } from "./textbook-link-section";
+
+interface HomeDashboardProps {
+  /** ログインしている本人の id（ページが cookie から確定したもの） */
+  readonly userId: string;
+}
 
 /**
  * ログイン済みユーザーのトップ（ダッシュボード）。
@@ -27,8 +33,12 @@ import { TextbookLinkSection } from "./textbook-link-section";
  * 交互に進み、最後に試験。ホームは「今すること」を答える場で、全体の道筋は
  * 道場が持つ。行程が進行中のあいだ教本は補助リンクにとどめ、別の「次はここ」
  * を同じ重さで並べない（{@link TextbookLinkSection}）。
+ *
+ * 先頭に {@link PendingLessonSync} を置く。登録前に終えたレッスンや保存に
+ * 失敗した完了が端末に残っていれば、ここで本人の記録にして「次の一歩」を
+ * 組み直す。
  */
-export async function HomeDashboard() {
+export async function HomeDashboard({ userId }: HomeDashboardProps) {
   const [
     t,
     readSlugs,
@@ -56,6 +66,8 @@ export async function HomeDashboard() {
       <PageTitle>{t("home")}</PageTitle>
 
       <div className="space-y-8">
+        <PendingLessonSync userId={userId} />
+
         <NextStepSection journey={journey} />
 
         {showTextbookLink && <TextbookLinkSection />}

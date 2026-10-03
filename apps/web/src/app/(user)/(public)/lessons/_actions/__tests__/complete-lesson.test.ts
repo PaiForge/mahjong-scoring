@@ -25,18 +25,18 @@ vi.mock("next/cache", () => ({
 
 import { createQueryChain, type QueryChainMock } from "@/test/drizzle-mock";
 
-import { completeLesson } from "../complete-lesson";
+import { completeLesson, completeLessons } from "../complete-lesson";
 
 let insertChain: QueryChainMock;
 
-describe("completeLesson", () => {
-  beforeEach(() => {
-    vi.clearAllMocks();
-    insertChain = createQueryChain();
-    insertChain.onConflictDoNothing.mockResolvedValue(undefined);
-    mockInsert.mockReturnValue(insertChain);
-  });
+beforeEach(() => {
+  vi.clearAllMocks();
+  insertChain = createQueryChain();
+  insertChain.onConflictDoNothing.mockResolvedValue(undefined);
+  mockInsert.mockReturnValue(insertChain);
+});
 
+describe("completeLesson", () => {
   it("未知の slug は invalid_slug で拒否し、認証も DB も読まない", async () => {
     const result = await completeLesson("not-a-lesson");
 
@@ -61,12 +61,66 @@ describe("completeLesson", () => {
     const result = await completeLesson("mangan-ko-ron");
 
     expect(result).toEqual({ success: true });
-    expect(insertChain.values).toHaveBeenCalledWith({
-      userId: "user-123",
-      lessonSlug: "mangan-ko-ron",
-    });
+    expect(insertChain.values).toHaveBeenCalledWith([
+      { userId: "user-123", lessonSlug: "mangan-ko-ron" },
+    ]);
     expect(insertChain.onConflictDoNothing).toHaveBeenCalledTimes(1);
     expect(mockRevalidatePath).toHaveBeenCalledWith("/dashboard");
     expect(mockRevalidatePath).toHaveBeenCalledWith("/dojo");
+  });
+
+  it("DB が失敗したら例外をそのまま伝える（クライアントが失敗として扱う）", async () => {
+    mockGetOptionalVerifiedUser.mockResolvedValue({ id: "user-123" });
+    insertChain.onConflictDoNothing.mockRejectedValue(new Error("db down"));
+
+    await expect(completeLesson("mangan-ko-ron")).rejects.toThrow("db down");
+    expect(mockRevalidatePath).not.toHaveBeenCalled();
+  });
+});
+
+describe("completeLessons", () => {
+  it("未ログインは skipped: anonymous で、INSERT しない", async () => {
+    mockGetOptionalVerifiedUser.mockResolvedValue(undefined);
+
+    const result = await completeLessons(["mangan-ko-ron"]);
+
+    expect(result).toEqual({ success: true, skipped: "anonymous" });
+    expect(mockInsert).not.toHaveBeenCalled();
+  });
+
+  it("有効な slug だけを本人の id で冪等に INSERT し、無い slug は rejected に返す", async () => {
+    mockGetOptionalVerifiedUser.mockResolvedValue({ id: "user-123" });
+
+    const result = await completeLessons([
+      "mangan-ko-ron",
+      "not-a-lesson",
+      "mangan-ko-ron",
+    ]);
+
+    expect(result).toEqual({
+      success: true,
+      completed: ["mangan-ko-ron"],
+      rejected: ["not-a-lesson"],
+    });
+    expect(insertChain.values).toHaveBeenCalledWith([
+      { userId: "user-123", lessonSlug: "mangan-ko-ron" },
+    ]);
+    expect(insertChain.onConflictDoNothing).toHaveBeenCalledTimes(1);
+    expect(mockRevalidatePath).toHaveBeenCalledWith("/dashboard");
+    expect(mockRevalidatePath).toHaveBeenCalledWith("/dojo");
+  });
+
+  it("有効な slug が 1 つも無ければ DB にも revalidate にも触らない", async () => {
+    mockGetOptionalVerifiedUser.mockResolvedValue({ id: "user-123" });
+
+    const result = await completeLessons(["not-a-lesson"]);
+
+    expect(result).toEqual({
+      success: true,
+      completed: [],
+      rejected: ["not-a-lesson"],
+    });
+    expect(mockInsert).not.toHaveBeenCalled();
+    expect(mockRevalidatePath).not.toHaveBeenCalled();
   });
 });
