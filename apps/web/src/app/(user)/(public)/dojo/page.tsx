@@ -28,7 +28,7 @@ import { fetchReadChapterSlugs } from "@/app/(user)/(public)/learn/_lib/progress
 import { TEXT_LINK_CLASSES } from "@/app/_components/_lib/link-classes";
 import { createNamespaceMetadata } from "@/app/_lib/metadata";
 import { getOptionalUser } from "@/lib/auth";
-import { menuTypeToSlug } from "@/lib/db/practice-menu-types";
+import { menuTypeToSlug } from "@mahjong-scoring/features/practice-menu-types";
 import { getUserRankSlugs } from "@/lib/db/rank-queries";
 import { beltBorderClass } from "@/lib/ranks/belt-colors";
 import { highestRank, nextRank } from "@/lib/ranks/registry";

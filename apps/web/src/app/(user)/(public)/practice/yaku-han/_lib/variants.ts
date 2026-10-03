@@ -1,5 +1,5 @@
 import type { YakuHanRange } from "@mahjong-scoring/core";
-import type { PracticeVariantOf } from "@/lib/db/practice-menu-types";
+import type { PracticeVariantOf } from "@mahjong-scoring/features/practice-menu-types";
 
 /**
  * 役翻数練習のバリアント → 出題範囲

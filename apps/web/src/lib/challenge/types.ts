@@ -9,7 +9,7 @@ import type {
   ScoreTableQuestion,
   ScoreQuestion,
 } from "@mahjong-scoring/core";
-import type { PracticeMenuType } from "../db/practice-menu-types";
+import type { PracticeMenuType } from "@mahjong-scoring/features/practice-menu-types";
 
 /** サーバーが保持する出題。正解込みの値は回答確定前に公開しない。 */
 export type ChallengeQuestion =

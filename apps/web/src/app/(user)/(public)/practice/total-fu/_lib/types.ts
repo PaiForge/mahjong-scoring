@@ -1,7 +1,7 @@
 import {
   PRACTICE_SLUG,
   resultStorageKeyFor,
-} from "@/lib/db/practice-menu-types";
+} from "@mahjong-scoring/features/practice-menu-types";
 
 /** sessionStorage に保存する際のキー */
 export const RESULT_STORAGE_KEY = resultStorageKeyFor(PRACTICE_SLUG.totalFu);

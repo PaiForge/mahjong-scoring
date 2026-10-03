@@ -2,7 +2,7 @@ import { describe, expect, it } from "vitest";
 
 import messagesJson from "@/messages/ja.json";
 import { CURRICULUM } from "@/app/(user)/(public)/learn/_lib/curriculum";
-import { practiceMenuByType } from "@/lib/db/practice-menu-types";
+import { practiceMenuByType } from "@mahjong-scoring/features/practice-menu-types";
 import {
   RANK_REGISTRY,
   RANK_SLUGS,

@@ -1,10 +1,10 @@
 import {
   DEFAULT_VARIANT,
   isPracticeMenuType,
-} from "@/lib/db/practice-menu-types";
+} from "@mahjong-scoring/features/practice-menu-types";
 
 import { isMyRecordBoard } from "./menu-scope";
-import type { PracticeBoard } from "@/lib/db/practice-menu-types";
+import type { PracticeBoard } from "@mahjong-scoring/features/practice-menu-types";
 
 /** Next.js の searchParams（解決済み） */
 type ResolvedSearchParams = Record<

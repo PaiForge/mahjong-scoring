@@ -5,7 +5,7 @@ import { LinkRow } from "@/app/(user)/_components/link-row";
 import type { LeaderboardPeriod } from "../_lib/types";
 import { buildDetailPath } from "../_lib/types";
 import { boardTitle } from "../_lib/board-title";
-import type { PracticeBoard } from "@/lib/db/practice-menu-types";
+import type { PracticeBoard } from "@mahjong-scoring/features/practice-menu-types";
 
 interface LeaderboardModuleRowProps {
   readonly board: PracticeBoard;

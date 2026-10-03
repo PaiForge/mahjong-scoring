@@ -8,7 +8,7 @@ import {
   isPracticeMenuType,
   menuTypeToSlug,
   type PracticeMenuSlug,
-} from "@/lib/db/practice-menu-types";
+} from "@mahjong-scoring/features/practice-menu-types";
 import { challengeBestScores } from "@/lib/db/schema";
 
 /**

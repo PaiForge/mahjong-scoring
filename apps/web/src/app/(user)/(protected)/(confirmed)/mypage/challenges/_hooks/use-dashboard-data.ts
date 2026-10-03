@@ -23,7 +23,7 @@ import type {
   DatePeriod,
   AttemptRow,
 } from "../_lib/types";
-import type { PracticeBoard } from "@/lib/db/practice-menu-types";
+import type { PracticeBoard } from "@mahjong-scoring/features/practice-menu-types";
 
 const TABLE_DISPLAY_LIMIT = 5;
 

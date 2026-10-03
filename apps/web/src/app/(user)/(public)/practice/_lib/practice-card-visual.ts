@@ -3,7 +3,7 @@ import type { getTranslations } from "next-intl/server";
 import { HaiKind, parseHais } from "@mahjong-scoring/core";
 import type { HaiKindId } from "@mahjong-scoring/core";
 
-import type { PracticeMenuSlug } from "@/lib/db/practice-menu-types";
+import type { PracticeMenuSlug } from "@mahjong-scoring/features/practice-menu-types";
 
 type PracticeTranslator = Awaited<
   ReturnType<typeof getTranslations<"practice">>

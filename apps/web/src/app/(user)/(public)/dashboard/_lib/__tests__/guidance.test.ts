@@ -5,7 +5,7 @@ import {
   CURRICULUM_CHAPTER_SLUGS,
 } from "@/app/(user)/(public)/learn/_lib/curriculum";
 import { practiceSlugFromHref } from "@/app/(user)/(public)/practice/_lib/practice-catalog";
-import type { PracticeMenuSlug } from "@/lib/db/practice-menu-types";
+import type { PracticeMenuSlug } from "@mahjong-scoring/features/practice-menu-types";
 import { RANK_REGISTRY, RANK_SLUGS, type RankSlug } from "@/lib/ranks/registry";
 
 import { selectDashboardGuidance } from "../guidance";

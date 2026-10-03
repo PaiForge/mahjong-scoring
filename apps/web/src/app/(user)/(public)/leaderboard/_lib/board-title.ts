@@ -3,8 +3,8 @@ import { getTranslations } from "next-intl/server";
 import {
   menuTypeToMessageKey,
   practiceMenuByType,
-} from "@/lib/db/practice-menu-types";
-import type { PracticeBoard } from "@/lib/db/practice-menu-types";
+} from "@mahjong-scoring/features/practice-menu-types";
+import type { PracticeBoard } from "@mahjong-scoring/features/practice-menu-types";
 
 /**
  * 土俵の表示名（練習の短い名 + バリアント名）

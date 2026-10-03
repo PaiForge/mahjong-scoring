@@ -3,7 +3,7 @@ import type { MentsuFuQuestion } from "@mahjong-scoring/core";
 import {
   PRACTICE_SLUG,
   resultStorageKeyFor,
-} from "@/lib/db/practice-menu-types";
+} from "@mahjong-scoring/features/practice-menu-types";
 
 import { z } from "zod";
 

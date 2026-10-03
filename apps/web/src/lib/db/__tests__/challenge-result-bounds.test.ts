@@ -5,7 +5,7 @@ import {
   isPlausibleExamScore,
   maxAnswersWithin,
 } from "../challenge-result-bounds";
-import { practiceMenuByType } from "../practice-menu-types";
+import { practiceMenuByType } from "@mahjong-scoring/features/practice-menu-types";
 import { RANK_REGISTRY } from "../../ranks/registry";
 
 const RULES = { mistakeLimit: 3, timeLimit: 60 };

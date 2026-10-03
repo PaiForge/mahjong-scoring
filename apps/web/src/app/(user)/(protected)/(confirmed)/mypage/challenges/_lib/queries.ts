@@ -12,12 +12,12 @@ import { DEFAULT_PAGE_SIZE, getPaginationData } from "@/lib/pagination";
 import {
   isPracticeMenuType,
   isPracticeVariant,
-} from "@/lib/db/practice-menu-types";
+} from "@mahjong-scoring/features/practice-menu-types";
 import { challengeResults } from "@/lib/db/schema";
 
 import { EXCLUDED_MENU_TYPES, toRecordBoards } from "./menu-scope";
 import type { ChallengeAttempt } from "./types";
-import type { PracticeBoard } from "@/lib/db/practice-menu-types";
+import type { PracticeBoard } from "@mahjong-scoring/features/practice-menu-types";
 
 /** ChallengeAttempt の組み立てに使う challenge_results の列 */
 const CHALLENGE_ATTEMPT_COLUMNS = {

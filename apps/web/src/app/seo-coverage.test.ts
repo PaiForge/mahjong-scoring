@@ -11,7 +11,7 @@ import {
   PRACTICE_SLUG,
   PRACTICE_MENU_SLUGS,
   practiceMenuBySlug,
-} from "@/lib/db/practice-menu-types";
+} from "@mahjong-scoring/features/practice-menu-types";
 
 /**
  * SEO カバレッジの不変条件（loading-boundaries.test.ts と同型の構造検査）:

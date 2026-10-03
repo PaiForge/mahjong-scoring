@@ -6,7 +6,7 @@ import { getOptionalUser } from "@/lib/auth";
 import {
   practiceMenuBySlug,
   type PracticeMenuSlug,
-} from "@/lib/db/practice-menu-types";
+} from "@mahjong-scoring/features/practice-menu-types";
 import { getUserRankSlugs } from "@/lib/db/rank-queries";
 import { evaluateExamEligibility } from "@/lib/ranks/exam-eligibility";
 import { practiceHref } from "../../practice/_lib/practice-catalog";

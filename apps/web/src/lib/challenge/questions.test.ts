@@ -8,7 +8,7 @@ import {
 import {
   PRACTICE_MENU_TYPES,
   practiceMenuByType,
-} from "../db/practice-menu-types";
+} from "@mahjong-scoring/features/practice-menu-types";
 
 // 全メニューの生成・JSON往復・正解隠蔽を同じ境界で検証する。
 describe("server questions", () => {

@@ -1,6 +1,6 @@
 "use client";
 
-import { PRACTICE_SLUG } from "@/lib/db/practice-menu-types";
+import { PRACTICE_SLUG } from "@mahjong-scoring/features/practice-menu-types";
 import { Suspense } from "react";
 
 import { createTrainingView } from "../../_lib/create-challenge-views";

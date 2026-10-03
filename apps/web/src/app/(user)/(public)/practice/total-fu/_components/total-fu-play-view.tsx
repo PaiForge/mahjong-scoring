@@ -1,6 +1,6 @@
 "use client";
 
-import { PRACTICE_SLUG } from "@/lib/db/practice-menu-types";
+import { PRACTICE_SLUG } from "@mahjong-scoring/features/practice-menu-types";
 import { createChallengePlayView } from "../../_lib/create-challenge-views";
 import type { TotalFuQuestionResult } from "../_lib/types";
 import { TotalFuBoard } from "./total-fu-board";

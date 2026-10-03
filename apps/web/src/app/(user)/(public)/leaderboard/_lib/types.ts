@@ -3,7 +3,7 @@ import type {
   PracticeBoard,
   PracticeMenuType,
   PracticeMenuSlug,
-} from "@/lib/db/practice-menu-types";
+} from "@mahjong-scoring/features/practice-menu-types";
 import {
   PRACTICE_MENU_TYPES,
   isExamMenuType,
@@ -12,7 +12,7 @@ import {
   practiceMenuByType,
   resolvePracticeVariant,
   slugToMenuType,
-} from "@/lib/db/practice-menu-types";
+} from "@mahjong-scoring/features/practice-menu-types";
 import type { RankedLeaderboardRow } from "@/lib/db/leaderboard-queries";
 import {
   practicePlayHref,

@@ -12,7 +12,7 @@ import { useScoreTableQuestion } from "../_hooks/use-score-table-question";
 import {
   PRACTICE_SLUG,
   practiceMenuBySlug,
-} from "@/lib/db/practice-menu-types";
+} from "@mahjong-scoring/features/practice-menu-types";
 
 /** チャレンジ導線の補足文に出すルール（制限時間・ミス上限。本体とフォールバックで共有） */
 const { timeLimit, mistakeLimit } = practiceMenuBySlug(

@@ -13,7 +13,7 @@
  * 2. 問題方式デモと出題範囲セレクタ、「開始」「トレーニング」ボタンが表示される
  * 3. 範囲を選んで「開始」を押すと play ページへ遷移（variant クエリ付き）
  */
-import { PRACTICE_SLUG } from "@/lib/db/practice-menu-types";
+import { PRACTICE_SLUG } from "@mahjong-scoring/features/practice-menu-types";
 import type { Metadata } from "next";
 import { createPracticeMetadata } from "../_lib/metadata";
 import { PracticeIntroContent } from "../_components/practice-intro-content";

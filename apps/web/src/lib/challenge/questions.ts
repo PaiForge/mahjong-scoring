@@ -14,8 +14,8 @@ import {
   clampHanToYakuman,
   judgeScoreTableAnswer,
 } from "@mahjong-scoring/core";
-import type { PracticeMenuType } from "../db/practice-menu-types";
-import { resolvePracticeVariant } from "../db/practice-menu-types";
+import type { PracticeMenuType } from "@mahjong-scoring/features/practice-menu-types";
+import { resolvePracticeVariant } from "@mahjong-scoring/features/practice-menu-types";
 import { SCORE_TABLE_VARIANT_OPTIONS } from "../../app/(user)/(public)/practice/score-table/_lib/variants";
 import { YAKU_HAN_VARIANT_RANGES } from "../../app/(user)/(public)/practice/yaku-han/_lib/variants";
 import { paymentToScoreTableAnswer } from "../../app/(user)/(public)/practice/_lib/payment-adapter";

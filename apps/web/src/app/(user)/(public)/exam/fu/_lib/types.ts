@@ -2,7 +2,7 @@ import type { generateTotalFuQuestion } from "@mahjong-scoring/core";
 import {
   PRACTICE_SLUG,
   resultStorageKeyFor,
-} from "@/lib/db/practice-menu-types";
+} from "@mahjong-scoring/features/practice-menu-types";
 
 export type { FuQuestionResult as FuExamQuestionResult } from "@/app/(user)/(public)/practice/_lib/fu-question-result";
 export { parseFuQuestionResults } from "@/app/(user)/(public)/practice/_lib/fu-question-result";

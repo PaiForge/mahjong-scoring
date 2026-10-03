@@ -20,7 +20,7 @@ import { ChallengeDashboard } from "../_components/challenge-dashboard";
 import { getPeriodRange, getPreviousPeriodRange } from "../_lib/period-utils";
 import { fetchAvailableBoards, fetchChallengeAttempts } from "../_lib/queries";
 import { resolveRequestedBoard } from "../_lib/requested-board";
-import { practiceBoardKey } from "@/lib/db/practice-menu-types";
+import { practiceBoardKey } from "@mahjong-scoring/features/practice-menu-types";
 
 export async function generateMetadata(): Promise<Metadata> {
   return createPrivateMetadata("mypage.challenges");

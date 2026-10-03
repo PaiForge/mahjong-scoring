@@ -1,7 +1,7 @@
 import {
   PRACTICE_SLUG,
   resultStorageKeyFor,
-} from "@/lib/db/practice-menu-types";
+} from "@mahjong-scoring/features/practice-menu-types";
 
 export type { ScoreQuestionResult as ScoreCalculationQuestionResult } from "../../_lib/score-question-result";
 export { parseQuestionResults } from "../../_lib/score-question-result";

@@ -5,7 +5,7 @@ import {
   resolvePracticeVariant,
   type PracticeMenuSlug,
   type PracticeVariantOf,
-} from "@/lib/db/practice-menu-types";
+} from "@mahjong-scoring/features/practice-menu-types";
 import { VARIANT_PARAM } from "../_lib/variant-param";
 
 /**

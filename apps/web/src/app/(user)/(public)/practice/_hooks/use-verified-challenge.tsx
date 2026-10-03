@@ -15,7 +15,7 @@ const actions = () => import("../../../../../lib/challenge/actions");
 import {
   practiceMenuBySlug,
   type PracticeMenuSlug,
-} from "../../../../../lib/db/practice-menu-types";
+} from "@mahjong-scoring/features/practice-menu-types";
 import { useRuleSettingsStore } from "../../../../_hooks/use-rule-settings-store";
 import { readVariantFromLocation } from "../_lib/variant-param";
 import { AnswerOutcome } from "../_lib/result-schemas";

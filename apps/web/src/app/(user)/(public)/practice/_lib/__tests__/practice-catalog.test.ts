@@ -9,7 +9,7 @@ import {
 import {
   PRACTICE_MENU_SLUGS,
   slugToMenuType,
-} from "@/lib/db/practice-menu-types";
+} from "@mahjong-scoring/features/practice-menu-types";
 import { RANK_REGISTRY, rankRequiringMenu } from "@/lib/ranks/registry";
 import type { PracticeListFilter } from "../practice-catalog";
 import {

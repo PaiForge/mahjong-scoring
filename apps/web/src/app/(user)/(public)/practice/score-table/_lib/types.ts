@@ -7,7 +7,7 @@ import type {
 import {
   PRACTICE_SLUG,
   resultStorageKeyFor,
-} from "@/lib/db/practice-menu-types";
+} from "@mahjong-scoring/features/practice-menu-types";
 
 import type { ScoreQuestionResult } from "../../_lib/score-question-result";
 import { toAnswerOutcome } from "../../_lib/result-schemas";

@@ -9,7 +9,7 @@ import {
 import {
   practiceMenuBySlug,
   type PracticeMenuSlug,
-} from "@/lib/db/practice-menu-types";
+} from "@mahjong-scoring/features/practice-menu-types";
 
 import { isExamMenu, practiceHref } from "./practice-catalog";
 

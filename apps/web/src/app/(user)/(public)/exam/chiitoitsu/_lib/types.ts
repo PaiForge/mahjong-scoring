@@ -2,7 +2,7 @@ import type { QuestionGeneratorOptions } from "@mahjong-scoring/core";
 import {
   PRACTICE_SLUG,
   resultStorageKeyFor,
-} from "@/lib/db/practice-menu-types";
+} from "@mahjong-scoring/features/practice-menu-types";
 
 export type { ScoreQuestionResult as ChiitoitsuExamQuestionResult } from "@/app/(user)/(public)/practice/_lib/score-question-result";
 export { parseQuestionResults } from "@/app/(user)/(public)/practice/_lib/score-question-result";

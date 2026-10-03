@@ -12,7 +12,7 @@ import { LinkButton } from "@/app/(user)/_components/link-button";
 import {
   practiceMenuBySlug,
   type PracticeMenuSlug,
-} from "@/lib/db/practice-menu-types";
+} from "@mahjong-scoring/features/practice-menu-types";
 import {
   PRACTICE_START_CTA_BLOCK_CLASS,
   PRACTICE_START_CTA_HINT_CLASS,

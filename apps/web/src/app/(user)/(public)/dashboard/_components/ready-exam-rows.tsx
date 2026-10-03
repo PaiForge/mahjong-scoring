@@ -5,7 +5,7 @@ import { LinkRow, LinkRowList } from "@/app/(user)/_components/link-row";
 import {
   practiceMenuBySlug,
   type PracticeMenuSlug,
-} from "@/lib/db/practice-menu-types";
+} from "@mahjong-scoring/features/practice-menu-types";
 import { rankRequiringMenu, rankTier } from "@/lib/ranks/registry";
 
 interface ReadyExamRowsProps {

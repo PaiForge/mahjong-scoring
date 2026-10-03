@@ -1,4 +1,4 @@
-import type { PracticeMenuDescriptor } from "./practice-menu-types";
+import type { PracticeMenuDescriptor } from "@mahjong-scoring/features/practice-menu-types";
 
 /**
  * 回答 1 問ごとに挟まる正誤フィードバックの表示時間（ミリ秒）

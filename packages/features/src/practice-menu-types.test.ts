@@ -7,7 +7,7 @@ import {
   practiceMenuBySlug,
   practiceMenuByType,
   resolvePracticeVariant,
-} from "../practice-menu-types";
+} from "./practice-menu-types";
 
 describe("isPracticeMenuType", () => {
   describe("valid menu types", () => {

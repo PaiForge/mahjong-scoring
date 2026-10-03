@@ -11,13 +11,13 @@ import {
   relatedChaptersForPractice,
   type CurriculumChapterSlug,
 } from "@/app/(user)/(public)/learn/_lib/curriculum";
-import type { PracticeMenuSlug } from "@/lib/db/practice-menu-types";
+import type { PracticeMenuSlug } from "@mahjong-scoring/features/practice-menu-types";
 import { rankRequiringMenu } from "@/lib/ranks/registry";
 import { ContentContainer } from "@/app/(user)/_components/content-container";
 import { PageTitle } from "@/app/(user)/_components/page-title";
 import { LinkButton } from "@/app/(user)/_components/link-button";
 import { PlayIcon } from "@/app/(user)/_components/icons/play-icon";
-import { practiceMenuBySlug } from "@/lib/db/practice-menu-types";
+import { practiceMenuBySlug } from "@mahjong-scoring/features/practice-menu-types";
 import {
   isExamMenu,
   practiceListHref,

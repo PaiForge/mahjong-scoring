@@ -5,7 +5,7 @@ import { SectionTitle } from "@/app/(user)/_components/section-title";
 import {
   practiceMenuBySlug,
   type PracticeMenuSlug,
-} from "@/lib/db/practice-menu-types";
+} from "@mahjong-scoring/features/practice-menu-types";
 import { beltClass, beltForegroundClass } from "@/lib/ranks/belt-colors";
 import { rankRequiringMenu } from "@/lib/ranks/registry";
 

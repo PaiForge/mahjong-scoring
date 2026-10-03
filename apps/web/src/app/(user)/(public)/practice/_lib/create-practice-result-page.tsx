@@ -11,12 +11,12 @@ import { buildDetailPath } from "@/app/(user)/(public)/leaderboard/_lib/types";
 import type {
   PracticeMenuSlug,
   PracticeMenuType,
-} from "@/lib/db/practice-menu-types";
+} from "@mahjong-scoring/features/practice-menu-types";
 import {
   isExamMenuType,
   practiceMenuBySlug,
   resolvePracticeVariant,
-} from "@/lib/db/practice-menu-types";
+} from "@mahjong-scoring/features/practice-menu-types";
 import { getExpInfoByChallengeResultId } from "@/lib/db/save-exp";
 import { getScoreComparison } from "@/lib/db/score-comparison-queries";
 import { getOptionalUser } from "@/lib/auth";
@@ -45,7 +45,7 @@ import {
   practiceSetupHref,
 } from "./practice-catalog";
 import { VARIANT_PARAM } from "./variant-param";
-import type { PracticeBoard } from "@/lib/db/practice-menu-types";
+import type { PracticeBoard } from "@mahjong-scoring/features/practice-menu-types";
 
 const PREVIEW_COUNT = 3;
 

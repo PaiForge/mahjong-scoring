@@ -1,5 +1,5 @@
 import type { ScoreTableGeneratorOptions } from "@mahjong-scoring/core";
-import type { PracticeVariantOf } from "@/lib/db/practice-menu-types";
+import type { PracticeVariantOf } from "@mahjong-scoring/features/practice-menu-types";
 
 /** バリアントが決める出題の絞り込み（親子・点数帯。ツモ/ロンは常に両方） */
 export type ScoreTableVariantOptions = Pick<

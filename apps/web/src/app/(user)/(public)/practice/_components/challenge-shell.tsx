@@ -2,7 +2,7 @@
 
 import { type ReactNode, memo, useEffect, useRef, useCallback } from "react";
 import { useTranslations } from "next-intl";
-import type { PracticeMenuSlug } from "@/lib/db/practice-menu-types";
+import type { PracticeMenuSlug } from "@mahjong-scoring/features/practice-menu-types";
 import { ContentContainer } from "@/app/(user)/_components/content-container";
 import { PageTitle } from "@/app/(user)/_components/page-title";
 import { BoardOverlay } from "@/app/(user)/_components/board-overlay";

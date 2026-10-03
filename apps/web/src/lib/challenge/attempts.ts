@@ -7,7 +7,7 @@ import {
   isPracticeVariant,
   isExamMenuType,
   practiceMenuByType,
-} from "../db/practice-menu-types";
+} from "@mahjong-scoring/features/practice-menu-types";
 import { getUserRankSlugs } from "../db/rank-queries";
 import { evaluateExamEligibility } from "../ranks/exam-eligibility";
 import { gradeExamRun } from "../db/rank-evaluation";

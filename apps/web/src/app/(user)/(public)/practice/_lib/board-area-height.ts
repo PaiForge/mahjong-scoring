@@ -1,4 +1,4 @@
-import type { PracticeMenuSlug } from "@/lib/db/practice-menu-types";
+import type { PracticeMenuSlug } from "@mahjong-scoring/features/practice-menu-types";
 
 /**
  * 点数を select で答える試験 5 種。構図が同じで高さも揃う。点数即答と同じ

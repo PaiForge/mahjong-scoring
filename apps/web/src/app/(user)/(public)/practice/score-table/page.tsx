@@ -14,7 +14,7 @@
  * 2. 問題方式のデモとバリアントの選択肢が表示される
  * 3. バリアントを選び「開始」または「トレーニング」で play / training へ遷移
  */
-import { PRACTICE_SLUG } from "@/lib/db/practice-menu-types";
+import { PRACTICE_SLUG } from "@mahjong-scoring/features/practice-menu-types";
 import type { Metadata } from "next";
 import { createPracticeMetadata } from "../_lib/metadata";
 import { PracticeIntroContent } from "../_components/practice-intro-content";

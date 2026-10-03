@@ -9,7 +9,7 @@ import {
   formatSignedDelta,
   signedDeltaTone,
 } from "@/lib/challenge/signed-delta";
-import type { PracticeMenuType } from "@/lib/db/practice-menu-types";
+import type { PracticeMenuType } from "@mahjong-scoring/features/practice-menu-types";
 import type { ScoreComparison } from "@/lib/db/score-comparison-queries";
 import { deriveRecordView } from "../_lib/derive-record-view";
 import type { Fetched } from "../_lib/try-fetch";

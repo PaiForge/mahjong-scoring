@@ -9,7 +9,7 @@ import { getQueriesForPeriod } from "../_lib/period-queries";
 import type { LeaderboardPeriod, LeaderboardResult } from "../_lib/types";
 import { PAGE_SIZE } from "../_lib/types";
 import { isValidBoard, isValidPeriod } from "../_lib/validators";
-import type { PracticeBoard } from "@/lib/db/practice-menu-types";
+import type { PracticeBoard } from "@mahjong-scoring/features/practice-menu-types";
 
 // ---------------------------------------------------------------------------
 // Cached ranking data (shared across all users)

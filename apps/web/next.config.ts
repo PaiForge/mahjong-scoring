@@ -79,6 +79,7 @@ const nextConfig: NextConfig = {
   },
   transpilePackages: [
     "@mahjong-scoring/core",
+    "@mahjong-scoring/features",
     "@pai-forge/riichi-mahjong",
     "@pai-forge/mahjong-react-ui",
   ],

@@ -6,7 +6,7 @@ import { SectionTitleSkeleton } from "@/app/(user)/_components/section-title-ske
 import type { PracticeCategory } from "@/app/(user)/(public)/practice/_lib/practice-catalog";
 
 import { leaderboardBoardGroups } from "../_lib/board-groups";
-import { practiceBoardKey } from "@/lib/db/practice-menu-types";
+import { practiceBoardKey } from "@mahjong-scoring/features/practice-menu-types";
 
 /** 見出し pill のプレースホルダ幅。分野名の字数に合わせる */
 const HEADING_WIDTH: Record<PracticeCategory, string> = {

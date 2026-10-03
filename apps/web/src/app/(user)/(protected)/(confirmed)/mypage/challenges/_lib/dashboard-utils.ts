@@ -1,6 +1,6 @@
 import type { useTranslations } from "next-intl";
 
-import { practiceMenuByType } from "@/lib/db/practice-menu-types";
+import { practiceMenuByType } from "@mahjong-scoring/features/practice-menu-types";
 import { JST_TIME_ZONE, jstDayKey } from "@/lib/jst";
 
 import type {
