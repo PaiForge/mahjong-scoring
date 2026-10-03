@@ -5,6 +5,7 @@ import deleteAccount from "./ja/delete-account.json";
 import announcements from "./ja/announcements.json";
 import landing from "./ja/landing.json";
 import gettingStarted from "./ja/getting-started.json";
+import tryDemo from "./ja/try-demo.json";
 import dashboard from "./ja/dashboard.json";
 import practice from "./ja/practice.json";
 import challenge from "./ja/challenge.json";
@@ -101,6 +102,7 @@ export const messages = {
   announcements,
   landing,
   gettingStarted,
+  tryDemo,
   dashboard,
   practice,
   challenge,
