@@ -393,7 +393,7 @@ export type NewUserExp = typeof userExp.$inferInsert;
  * (user_id, chapter_slug) で 1 ユニーク。
  *
  * @design chapter_slug を文字列キーとして保持し DB 側で enum 化しない
- * 章の追加・削除はコード側（_lib/curriculum.ts）で完結させ、
+ * 章の追加・削除はコード側（features の `curriculum/registry.ts`）で完結させ、
  * DB マイグレーションを不要にする。
  *
  * @design 将来 source カラム（"manual" | "auto"）を追加する場合は
@@ -405,7 +405,7 @@ export const learnChapterReads = pgTable(
   {
     /** auth.users(id) への外部キー（Supabase SQL で定義） */
     userId: uuid("user_id").notNull(),
-    /** 章スラッグ（curriculum.ts で管理） */
+    /** 章スラッグ（features の `curriculum/registry.ts` で管理） */
     chapterSlug: varchar("chapter_slug", { length: 64 }).notNull(),
     /** 読了日時 */
     readAt: timestamp("read_at", { withTimezone: true }).defaultNow().notNull(),
@@ -414,7 +414,7 @@ export const learnChapterReads = pgTable(
     primaryKey({ columns: [table.userId, table.chapterSlug] }),
     index("idx_lcr_user").on(table.userId),
     // chapter_slug の形式を制約: 先頭は英小文字、以降は英小文字・数字・ハイフン
-    // (最長 64 文字)。アプリ側 curriculum.ts の slug 命名規則に合わせ、
+    // (最長 64 文字)。features の `curriculum/registry.ts` の slug 命名規則に合わせ、
     // 任意文字列の INSERT を DB 層でも防ぐ二重防御。
     check(
       "learn_chapter_reads_chapter_slug_format",
@@ -489,7 +489,7 @@ export type NewAnnouncement = typeof announcements.$inferInsert;
  * @description
  * 昇級判定（`lib/db/rank-evaluation.ts`）が要件達成を検出したときに
  * 1行挿入される追記専用テーブル。ランクの定義そのもの（要件・序列）は
- * DB に持たず、コードの `lib/ranks/registry.ts` が正典。
+ * DB に持たず、コードの features の `ranks/registry.ts` が正典。
  *
  * @design 主キー (user_id, rank_slug)
  *
@@ -501,7 +501,7 @@ export const userRanks = pgTable(
   {
     /** auth.users(id) への外部キー（Supabase SQL で定義） */
     userId: uuid("user_id").notNull(),
-    /** 段級位スラッグ（`lib/ranks/registry.ts` の slug） */
+    /** 段級位スラッグ（features の `ranks/registry.ts` の slug） */
     rankSlug: varchar("rank_slug", { length: 30 }).notNull(),
     /** 付与日時 */
     grantedAt: timestamp("granted_at", { withTimezone: true })

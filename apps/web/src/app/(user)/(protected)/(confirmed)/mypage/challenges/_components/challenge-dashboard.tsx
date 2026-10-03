@@ -27,7 +27,7 @@ import { TEXT_LINK_CLASSES } from "@/app/_components/_lib/link-classes";
 import { SUB_LINK_GAP } from "@/app/_components/_lib/spacing";
 import { LinkButton } from "@/app/(user)/_components/link-button";
 import { PracticeLinkButton } from "@/app/(user)/_components/practice-link-button";
-import { practiceHref } from "@/app/(user)/(public)/practice/_lib/practice-catalog";
+import { practiceHref } from "@mahjong-scoring/features/routes";
 import { menuTypeToSlug } from "@mahjong-scoring/features/practice-menu-types";
 import type { PracticeBoard } from "@mahjong-scoring/features/practice-menu-types";
 import { practiceBoardKey } from "@mahjong-scoring/features/practice-menu-types";

@@ -11,7 +11,7 @@ import { resolveTermPreviews } from "@/lib/glossary/queries";
 import {
   getChapterBySlug,
   type CurriculumChapterSlug,
-} from "../_lib/curriculum";
+} from "@mahjong-scoring/features/curriculum/registry";
 import { buildLearnArticleSchema } from "../_lib/json-ld";
 import { chapterNamespace } from "../_lib/metadata";
 import { formatPublishedDate } from "../_lib/published-date";
@@ -37,7 +37,7 @@ interface LearnPageLayoutProps {
  * - 章本文（children）— 本文中の用語リンクが開くモーダルごと包む
  * - 読了トグル（認証時）/ ログイン導線（未認証時）— `ChapterReadStatus` が
  *   クライアントで出し分ける
- * - 対応練習へのリンク集（CURRICULUM の `practiceHrefs` を参照。0 件なら節ごと出さない）
+ * - 対応練習へのリンク集（CURRICULUM の `practiceLinks` を参照。0 件なら節ごと出さない）
  * - ネイティブ広告（掲載中の広告があるときだけ）— 章を読み終え、練習・試験への
  *   導線を見たあと。本文や練習への CTA より前には出さない
  * - 前後章へのリンク
@@ -62,7 +62,7 @@ export async function LearnPageLayout({
     getTranslations("company"),
   ]);
   const chapter = getChapterBySlug(slug);
-  const practiceHrefs = chapter?.practiceHrefs ?? [];
+  const practiceLinks = chapter?.practiceLinks ?? [];
 
   // 章の本文はすべて辞書にあるため、名前空間ごと走査すれば、その章が
   // リンクしている用語は漏れなく集まる。章側での列挙は要らない。
@@ -109,9 +109,9 @@ export async function LearnPageLayout({
           />
         </div>
 
-        {practiceHrefs.length > 0 && (
+        {practiceLinks.length > 0 && (
           <PracticeLinkSection>
-            <PracticeLinkList hrefs={practiceHrefs} />
+            <PracticeLinkList links={practiceLinks} />
           </PracticeLinkSection>
         )}
 

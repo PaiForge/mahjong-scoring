@@ -6,7 +6,7 @@ import {
   maxAnswersWithin,
 } from "@mahjong-scoring/features/challenge/challenge-result-bounds";
 import { practiceMenuByType } from "@mahjong-scoring/features/practice-menu-types";
-import { RANK_REGISTRY } from "../../ranks/registry";
+import { RANK_REGISTRY } from "@mahjong-scoring/features/ranks/registry";
 
 const RULES = { mistakeLimit: 3, timeLimit: 60 };
 

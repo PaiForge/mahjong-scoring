@@ -8,18 +8,23 @@ import {
   TOGGLE_GROUP_CONTAINER_CLASSES,
   toggleItemClasses,
 } from "@/app/(user)/_components/_lib/toggle-group-classes";
-import { isRankSlug, type RankSlug } from "@/lib/ranks/registry";
+import {
+  isRankSlug,
+  type RankSlug,
+} from "@mahjong-scoring/features/ranks/registry";
 
 import {
   isPracticeCategory,
+  type PracticeCategory,
+} from "@mahjong-scoring/features/practice/catalog";
+import {
   isSamePracticeFilter,
   matchesPracticeFilter,
   PRACTICE_CATEGORY_PARAM,
   PRACTICE_RANK_PARAM,
   practiceListHref,
-  type PracticeCategory,
   type PracticeListFilter,
-} from "../_lib/practice-catalog";
+} from "../_lib/practice-web-routes";
 
 /** 絞り込みの選択肢 1 つ。`filter` を持たないものが「すべて」 */
 interface PracticeFilterOption {

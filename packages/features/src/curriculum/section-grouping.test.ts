@@ -13,7 +13,7 @@ import {
   CURRICULUM_SECTIONS,
   type CurriculumChapter,
   type CurriculumSection,
-} from "../curriculum";
+} from "./registry";
 
 /** page.tsx の grouping 実装を抽出した純関数版 */
 function groupChaptersBySection(): Map<CurriculumSection, CurriculumChapter[]> {

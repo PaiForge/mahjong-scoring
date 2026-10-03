@@ -19,7 +19,7 @@ import { requireConfirmedUser } from "@/lib/auth";
 import { getProfileCardByUserId } from "@/lib/db/queries";
 import { getExpHeatmapData } from "@/lib/db/get-exp-heatmap-data";
 import { getUserRankSlugs } from "@/lib/db/rank-queries";
-import { highestRank } from "@/lib/ranks/registry";
+import { highestRank } from "@mahjong-scoring/features/ranks/registry";
 
 import { ExpActivityHeatmap } from "./_components/exp-activity-heatmap";
 import { DESKTOP_WEEKS, buildHeatmapLayout } from "./_lib/heatmap-utils";

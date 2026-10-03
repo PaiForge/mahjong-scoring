@@ -1,4 +1,4 @@
-import type { RankSlug } from "./registry";
+import type { RankSlug } from "@mahjong-scoring/features/ranks/registry";
 
 /**
  * 段級位の帯色 1 色分（用途ごとの Tailwind クラス）

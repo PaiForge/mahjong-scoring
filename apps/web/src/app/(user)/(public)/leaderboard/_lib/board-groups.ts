@@ -2,7 +2,7 @@ import {
   PRACTICE_CATEGORIES,
   practiceMenuFromCatalog,
   type PracticeCategory,
-} from "@/app/(user)/(public)/practice/_lib/practice-catalog";
+} from "@mahjong-scoring/features/practice/catalog";
 
 import { BOARDS, moduleToSlug } from "./types";
 import type { PracticeBoard } from "@mahjong-scoring/features/practice-menu-types";

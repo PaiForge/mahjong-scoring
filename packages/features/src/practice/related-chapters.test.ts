@@ -6,10 +6,10 @@ import {
   getChapterBySlug,
   chaptersInSection,
   chaptersLinkingToPractice,
-  relatedChaptersForPractice,
+  sortChapterSlugs,
   type CurriculumChapterSlug,
-} from "../curriculum";
-import { practiceMenuFromCatalog } from "../../../practice/_lib/practice-catalog";
+} from "../curriculum/registry";
+import { practiceMenuFromCatalog, relatedChaptersForPractice } from "./catalog";
 
 /** カリキュラムの表示順に並んでいるか */
 function isCurriculumOrder(slugs: readonly CurriculumChapterSlug[]): boolean {
@@ -26,9 +26,9 @@ describe("chaptersLinkingToPractice", () => {
     expect(chaptersLinkingToPractice("yaku-han")).toEqual(["yaku"]);
   });
 
-  it("バリアント違いの href を練習単位に畳む", () => {
+  it("バリアント違いのリンクを練習単位に畳む", () => {
     // 点数表早引きは5つの章がそれぞれ別のバリアントで送るが、戻る先は
-    // どれも「その章」なので章は重複せず、クエリの違いでも分かれない
+    // どれも「その章」なので章は重複せず、バリアントの違いでも分かれない
     const chapters = chaptersLinkingToPractice("score-table");
     expect(chapters).toEqual([
       "mangan-ko-tsumo",
@@ -41,7 +41,7 @@ describe("chaptersLinkingToPractice", () => {
   });
 
   it("どの章からも送られていない練習は空", () => {
-    // 昇級試験は章の practiceHrefs ではなく examSlug で指される
+    // 昇級試験は章の practiceLinks ではなく examSlug で指される
     expect(chaptersLinkingToPractice("fu-exam")).toEqual([]);
   });
 });
@@ -69,6 +69,14 @@ describe("relatedChaptersForPractice", () => {
     expect(isCurriculumOrder(relatedChaptersForPractice("score-table"))).toBe(
       true,
     );
+  });
+});
+
+describe("sortChapterSlugs", () => {
+  it("カリキュラムの順に並べ、カリキュラムに無い章は落とす", () => {
+    expect(
+      sortChapterSlugs(new Set(["tehai-fu", "about-this-app", "jantou-fu"])),
+    ).toEqual(["about-this-app", "jantou-fu", "tehai-fu"]);
   });
 });
 

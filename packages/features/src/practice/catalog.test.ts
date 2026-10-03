@@ -1,32 +1,16 @@
 import { describe, expect, it } from "vitest";
 
-import messages from "@/messages/ja.json";
-import {
-  CURRICULUM,
-  CURRICULUM_CHAPTER_SLUGS,
-  relatedChaptersForPractice,
-} from "@/app/(user)/(public)/learn/_lib/curriculum";
-import {
-  PRACTICE_MENU_SLUGS,
-  slugToMenuType,
-} from "@mahjong-scoring/features/practice-menu-types";
-import { RANK_REGISTRY, rankRequiringMenu } from "@/lib/ranks/registry";
-import type { PracticeListFilter } from "../practice-catalog";
+import { CURRICULUM, CURRICULUM_CHAPTER_SLUGS } from "../curriculum/registry";
+import { PRACTICE_MENU_SLUGS, slugToMenuType } from "../practice-menu-types";
+import { RANK_REGISTRY, rankRequiringMenu } from "../ranks/registry";
+import { practiceHref, rankExamHref } from "../routes";
 import {
   isExamMenu,
   PRACTICE_CATALOG,
-  PRACTICE_CATEGORIES,
-  practiceHref,
   practiceMenuFromCatalog,
   listedPracticeMenus,
-  listedPracticeRanks,
-  matchesPracticeFilter,
-  practiceListHref,
-  practiceSlugFromHref,
-  practiceTitleKey,
-  practiceVariantFromHref,
-  rankExamHref,
-} from "../practice-catalog";
+  relatedChaptersForPractice,
+} from "./catalog";
 
 describe("PRACTICE_CATALOG", () => {
   it("記録対象の練習をすべて載せている", () => {
@@ -124,18 +108,6 @@ describe("段級位との対応", () => {
       );
     }
   });
-
-  it("段級位名とリンクの読み上げ文が辞書に存在する", () => {
-    const names: Record<string, string> = messages.ranks.names;
-    for (const menu of PRACTICE_CATALOG) {
-      if (menu.rank === undefined) continue;
-      expect(names[menu.rank], `${menu.slug}`).toBeTruthy();
-    }
-    expect(messages.ranks.examTitle.kyu).toContain("{rank}");
-    expect(messages.ranks.examTitle.dan).toContain("{rank}");
-    expect(messages.ranks.practiceLink.title).toContain("{rank}");
-    expect(messages.ranks.practiceLink.description).toBeTruthy();
-  });
 });
 
 describe("章と練習の対応", () => {
@@ -151,18 +123,18 @@ describe("章と練習の対応", () => {
     } as const;
 
     for (const [slug, variant] of Object.entries(expected)) {
-      const hrefs =
-        CURRICULUM.find((chapter) => chapter.slug === slug)?.practiceHrefs ??
+      const links =
+        CURRICULUM.find((chapter) => chapter.slug === slug)?.practiceLinks ??
         [];
-      const scoreTableHrefs = hrefs.filter(
-        (href) => practiceSlugFromHref(href) === "score-table",
+      const scoreTableLinks = links.filter(
+        (link) => link.slug === "score-table",
       );
       if (variant === undefined) {
-        expect(hrefs, slug).toEqual([]);
+        expect(links, slug).toEqual([]);
         continue;
       }
-      expect(scoreTableHrefs, slug).toHaveLength(1);
-      expect(practiceVariantFromHref(scoreTableHrefs[0]!), slug).toBe(variant);
+      expect(scoreTableLinks, slug).toHaveLength(1);
+      expect(scoreTableLinks[0]?.variant, slug).toBe(variant);
     }
   });
 
@@ -170,15 +142,15 @@ describe("章と練習の対応", () => {
     // 出題は親子・満貫以上の固定。子のツモまでしか読んでいない時点で
     // 送ると親の問題が出てしまう
     const sending = CURRICULUM.filter((chapter) =>
-      (chapter.practiceHrefs ?? []).some(
-        (href) => practiceSlugFromHref(href) === "mangan-score-calculation",
+      (chapter.practiceLinks ?? []).some(
+        (link) => link.slug === "mangan-score-calculation",
       ),
     ).map((chapter) => chapter.slug);
     expect(sending).toEqual(["mangan-oya-tsumo"]);
   });
 
   it("一覧に並ぶ練習はすべて関連する教本の章を持つ", () => {
-    // 章から練習へ来た人が教本へ戻れること。章側の practiceHrefs か
+    // 章から練習へ来た人が教本へ戻れること。章側の practiceLinks か
     // カタログの learnChapter か、どちらの宣言でもよい
     for (const menu of listedPracticeMenus()) {
       expect(
@@ -188,119 +160,32 @@ describe("章と練習の対応", () => {
     }
   });
 
-  it("章の practiceHrefs はカタログに載っている練習を指す", () => {
+  it("章の practiceLinks はカタログに載っている練習を指す", () => {
     for (const chapter of CURRICULUM) {
-      for (const href of chapter.practiceHrefs ?? []) {
-        // 解決できない href は「おすすめの練習」から黙って消えるため、
-        // 章側のタイポやカタログからの削除をここで検出する
-        expect(practiceSlugFromHref(href)).toBeDefined();
+      for (const { slug } of chapter.practiceLinks ?? []) {
+        // カタログ外の練習は一覧のカードもおすすめも持たないため、
+        // 章からのリンクだけが孤立した導線になる
+        expect(practiceMenuFromCatalog(slug), chapter.slug).toBeDefined();
       }
     }
   });
 
-  it("章の practiceHrefs と練習の learnChapter は互いの逆写像ではない", () => {
+  it("章の practiceLinks と練習の learnChapter は互いの逆写像ではない", () => {
     // 逆写像だと思って一方から他方を導出すると壊れることを固定する。
-    // 点数即答は前提章を持つが、その章の practiceHrefs には挙がっていない
+    // 点数即答は前提章を持つが、その章の practiceLinks には挙がっていない
     // （出題範囲を絞れず、どの章から送っても読んだ範囲をはみ出すため）。
     const scoreCalculation = PRACTICE_CATALOG.find(
       (m) => m.slug === "score-calculation",
     );
     expect(scoreCalculation?.learnChapter).toBe("pinfu-score");
     const pinfuChapter = CURRICULUM.find((c) => c.slug === "pinfu-score");
-    expect(pinfuChapter?.practiceHrefs).toBeUndefined();
+    expect(pinfuChapter?.practiceLinks).toBeUndefined();
 
     // 逆に、役の翻数は役の章から勧められるが専用の章は持たない。
     const yakuHan = PRACTICE_CATALOG.find((m) => m.slug === "yaku-han");
     expect(yakuHan?.learnChapter).toBeUndefined();
     const yakuChapter = CURRICULUM.find((c) => c.slug === "yaku");
-    expect(yakuChapter?.practiceHrefs).toContain("/practice/yaku-han");
-  });
-});
-
-describe("i18n キーの導出", () => {
-  it("全練習の名前が辞書に存在する", () => {
-    const practices: Record<string, { title: string }> =
-      messages.practice.practices;
-    for (const menu of PRACTICE_CATALOG) {
-      const titleKey = practiceTitleKey(menu.slug);
-      // "practices.<messageKey>.title" の messageKey 部分を取り出して引く
-      const messageKey = titleKey.split(".")[1] ?? "";
-      expect(practices[messageKey]?.title).toBeTruthy();
-    }
-  });
-});
-
-describe("practiceHref", () => {
-  it("slug から練習ページのパスを作る", () => {
-    expect(practiceHref("jantou-fu")).toBe("/practice/jantou-fu");
-  });
-});
-
-describe("practiceListHref", () => {
-  it("絞り込みを渡すとその条件で絞った練習一覧のパスになる", () => {
-    // 昇級試験のページが「その級の練習」として開くリンク。クエリ名は
-    // 一覧のフィルタと同じ定数から組み立てる
-    expect(practiceListHref()).toBe("/practice");
-    expect(practiceListHref({ kind: "rank", value: "kyu-4" })).toBe(
-      "/practice?rank=kyu-4",
-    );
-    expect(practiceListHref({ kind: "category", value: "han" })).toBe(
-      "/practice?category=han",
-    );
-  });
-
-  it("どの選択肢を選んでも 1 件以上残る", () => {
-    // 級と分野は直交していないため 2 軸の AND にはしていない（4級 × 翻数 が
-    // 0 件になる）。1 本の排他選択である限り空振りは起きないことを固定する。
-    // 級の選択肢は全段級位ではなく一覧の中身から導く（`listedPracticeRanks`）
-    const menus = listedPracticeMenus();
-    const filters: PracticeListFilter[] = [
-      ...listedPracticeRanks().map((value) => ({
-        kind: "rank" as const,
-        value,
-      })),
-      ...PRACTICE_CATEGORIES.map((value) => ({
-        kind: "category" as const,
-        value,
-      })),
-    ];
-    for (const filter of filters) {
-      const listed = menus.filter((menu) =>
-        matchesPracticeFilter(filter, menu),
-      );
-      expect(listed.length, `${filter.kind}=${filter.value}`).toBeGreaterThan(
-        0,
-      );
-    }
-  });
-});
-
-describe("practiceSlugFromHref", () => {
-  it("練習ページのパスから slug を取り出す", () => {
-    expect(practiceSlugFromHref("/practice/jantou-fu")).toBe("jantou-fu");
-  });
-
-  it("クエリ付きでも slug を取り出す（教本の practiceHrefs 用）", () => {
-    expect(
-      practiceSlugFromHref("/practice/score-table?roles=ko&wins=ron"),
-    ).toBe("score-table");
-  });
-
-  it("末尾スラッシュとハッシュを許容する", () => {
-    expect(practiceSlugFromHref("/practice/yaku/")).toBe("yaku");
-    expect(practiceSlugFromHref("/practice/yaku#top")).toBe("yaku");
-  });
-
-  it("登録されていない練習は undefined", () => {
-    // /practice/score は記録対象外でレジストリに載らない
-    expect(practiceSlugFromHref("/practice/score")).toBeUndefined();
-    expect(practiceSlugFromHref("/practice/unknown")).toBeUndefined();
-  });
-
-  it("練習ページ以外は undefined", () => {
-    expect(practiceSlugFromHref("/learn/jantou-fu")).toBeUndefined();
-    expect(practiceSlugFromHref("/practice/jantou-fu/play")).toBeUndefined();
-    expect(practiceSlugFromHref("")).toBeUndefined();
+    expect(yakuChapter?.practiceLinks).toContainEqual({ slug: "yaku-han" });
   });
 });
 

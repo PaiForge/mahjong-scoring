@@ -16,7 +16,7 @@ interface PracticeLinkButtonProps {
  * 画面遷移を伴うことを明示する。遷移待ち中はチェブロンがスピナーへ変わる。
  *
  * 行き先は練習の説明ページで、`?variant=` を付ければ出題設定を選んだ状態で
- * 開く。教本の章末（`practiceHrefs`）とマイレコードの「この土俵をもう一度」が
+ * 開く。教本の章末（`practiceLinks`）とマイレコードの「この土俵をもう一度」が
  * これを共有するため `(user)/_components/` に置いている。
  */
 export function PracticeLinkButton({ href, label }: PracticeLinkButtonProps) {

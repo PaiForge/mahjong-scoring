@@ -14,7 +14,7 @@ import {
   hasPracticeCardVisual,
   practiceCardVisual,
 } from "../practice-card-visual";
-import { listedPracticeMenus } from "../practice-catalog";
+import { listedPracticeMenus } from "@mahjong-scoring/features/practice/catalog";
 
 /** キーをそのまま返すスタブ（文言そのものは検証しない） */
 const t = ((key: string) => key) as Parameters<typeof practiceCardVisual>[1];

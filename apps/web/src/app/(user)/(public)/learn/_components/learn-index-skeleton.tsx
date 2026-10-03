@@ -2,7 +2,10 @@ import { ContentContainer } from "@/app/(user)/_components/content-container";
 import { PageTitlePlaceholder } from "@/app/(user)/_components/page-title";
 import { SectionTitleSkeleton } from "@/app/(user)/_components/section-title-skeleton";
 import { SkeletonBar } from "@/app/_components/skeleton-bar";
-import { CURRICULUM, CURRICULUM_SECTIONS } from "../_lib/curriculum";
+import {
+  CURRICULUM,
+  CURRICULUM_SECTIONS,
+} from "@mahjong-scoring/features/curriculum/registry";
 import { SECTION_LABEL_WIDTH_CLASS } from "../_lib/toc-layout";
 import { CurriculumProgressBarSkeleton } from "./curriculum-progress-bar-skeleton";
 import { CurriculumTocSkeleton } from "./curriculum-toc-skeleton";

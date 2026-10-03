@@ -1,12 +1,15 @@
 import { getTranslations } from "next-intl/server";
 
-import { practiceHref } from "@/app/(user)/(public)/practice/_lib/practice-catalog";
+import { practiceHref } from "@mahjong-scoring/features/routes";
 import { LinkRow, LinkRowList } from "@/app/(user)/_components/link-row";
 import {
   practiceMenuBySlug,
   type PracticeMenuSlug,
 } from "@mahjong-scoring/features/practice-menu-types";
-import { rankRequiringMenu, rankTier } from "@/lib/ranks/registry";
+import {
+  rankRequiringMenu,
+  rankTier,
+} from "@mahjong-scoring/features/ranks/registry";
 
 interface ReadyExamRowsProps {
   /** 受験できる昇級試験の練習スラッグ */

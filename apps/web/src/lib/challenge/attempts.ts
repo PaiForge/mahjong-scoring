@@ -9,7 +9,7 @@ import {
   practiceMenuByType,
 } from "@mahjong-scoring/features/practice-menu-types";
 import { getUserRankSlugs } from "../db/rank-queries";
-import { evaluateExamEligibility } from "../ranks/exam-eligibility";
+import { evaluateExamEligibility } from "@mahjong-scoring/features/ranks/exam-eligibility";
 import { gradeExamRun } from "../db/rank-evaluation";
 import { saveChallengeResult } from "../db/save-challenge-result";
 import {

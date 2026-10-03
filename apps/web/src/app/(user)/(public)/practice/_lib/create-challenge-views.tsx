@@ -21,7 +21,7 @@ import { useTimedSession } from "../_hooks/use-timed-session";
 import { useTrainingSession } from "../_hooks/use-training-session";
 import { TrainingModeProvider } from "../_hooks/use-training-mode";
 import type { PracticeBoardProps } from "./practice-board-props";
-import { practiceResultHref } from "./practice-catalog";
+import { practiceResultHref } from "@mahjong-scoring/features/routes";
 
 /**
  * チャレンジ盤面の描画に渡される状態

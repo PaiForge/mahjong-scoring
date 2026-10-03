@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 
-import { evaluateExamEligibility } from "../exam-eligibility";
+import { evaluateExamEligibility } from "./exam-eligibility";
 
 describe("evaluateExamEligibility", () => {
   it("昇級試験でない練習は undefined（資格の概念がない）", () => {

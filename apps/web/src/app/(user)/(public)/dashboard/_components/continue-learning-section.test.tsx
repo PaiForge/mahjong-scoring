@@ -4,7 +4,7 @@ import { render } from "@testing-library/react";
 import {
   CURRICULUM,
   type CurriculumChapter,
-} from "@/app/(user)/(public)/learn/_lib/curriculum";
+} from "@mahjong-scoring/features/curriculum/registry";
 
 vi.mock("next-intl/server", async () => await import("@/test/intl-mock"));
 

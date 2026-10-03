@@ -8,7 +8,7 @@
  * どちらか一方だけを直すとズレる。片側に持たせず必ずここを経由させること。
  */
 
-import type { CurriculumSection } from "./curriculum";
+import type { CurriculumSection } from "@mahjong-scoring/features/curriculum/registry";
 
 /**
  * セクション bullet のサイズ。

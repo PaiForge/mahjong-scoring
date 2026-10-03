@@ -3,10 +3,13 @@ import { describe, expect, it } from "vitest";
 import {
   CURRICULUM,
   CURRICULUM_CHAPTER_SLUGS,
-} from "@/app/(user)/(public)/learn/_lib/curriculum";
-import { practiceSlugFromHref } from "@/app/(user)/(public)/practice/_lib/practice-catalog";
+} from "@mahjong-scoring/features/curriculum/registry";
 import type { PracticeMenuSlug } from "@mahjong-scoring/features/practice-menu-types";
-import { RANK_REGISTRY, RANK_SLUGS, type RankSlug } from "@/lib/ranks/registry";
+import {
+  RANK_REGISTRY,
+  RANK_SLUGS,
+  type RankSlug,
+} from "@mahjong-scoring/features/ranks/registry";
 
 import { selectDashboardGuidance } from "../guidance";
 
@@ -14,11 +17,11 @@ const NO_ATTEMPTS: ReadonlySet<PracticeMenuSlug> = new Set();
 const NO_RANKS: readonly RankSlug[] = [];
 const ALL_RANKS: readonly RankSlug[] = RANK_SLUGS;
 
-/** 全章の practiceHrefs から解決できる練習スラッグ（重複なし） */
+/** 全章の practiceLinks が指す練習スラッグ（重複なし） */
 const ALL_PRACTICE_SLUGS: ReadonlySet<PracticeMenuSlug> = new Set(
-  CURRICULUM.flatMap((chapter) => chapter.practiceHrefs ?? [])
-    .map((href) => practiceSlugFromHref(href))
-    .filter((slug) => slug !== undefined),
+  CURRICULUM.flatMap((chapter) => chapter.practiceLinks ?? []).map(
+    (link) => link.slug,
+  ),
 );
 
 describe("selectDashboardGuidance", () => {

@@ -3,12 +3,12 @@ import { getTranslations } from "next-intl/server";
 
 import { TEXT_LINK_CLASSES } from "@/app/_components/_lib/link-classes";
 
+import { chapterHref } from "@mahjong-scoring/features/routes";
 import {
-  chapterHref,
   getChapterBySlug,
   getChapterI18nPath,
   type CurriculumChapterSlug,
-} from "../_lib/curriculum";
+} from "@mahjong-scoring/features/curriculum/registry";
 
 interface ChapterLinkProps {
   /** リンク先の章 */

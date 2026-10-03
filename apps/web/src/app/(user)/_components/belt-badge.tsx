@@ -1,5 +1,5 @@
 import { beltClass, beltForegroundClass } from "@/lib/ranks/belt-colors";
-import type { RankSlug } from "@/lib/ranks/registry";
+import type { RankSlug } from "@mahjong-scoring/features/ranks/registry";
 
 import { BeltIcon } from "./icons/belt-icon";
 

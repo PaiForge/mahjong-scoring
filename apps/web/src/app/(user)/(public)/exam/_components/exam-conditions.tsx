@@ -7,7 +7,7 @@ import {
   type PracticeMenuSlug,
 } from "@mahjong-scoring/features/practice-menu-types";
 import { beltClass, beltForegroundClass } from "@/lib/ranks/belt-colors";
-import { rankRequiringMenu } from "@/lib/ranks/registry";
+import { rankRequiringMenu } from "@mahjong-scoring/features/ranks/registry";
 
 interface ExamConditionsProps {
   /** 昇級試験の練習スラッグ（例: "mangan-exam"） */

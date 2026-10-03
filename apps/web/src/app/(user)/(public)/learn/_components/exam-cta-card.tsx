@@ -10,8 +10,11 @@ import {
   beltClass,
   beltForegroundClass,
 } from "@/lib/ranks/belt-colors";
-import { rankRequiringMenu, rankTier } from "@/lib/ranks/registry";
-import { practiceHref } from "@/app/(user)/(public)/practice/_lib/practice-catalog";
+import {
+  rankRequiringMenu,
+  rankTier,
+} from "@mahjong-scoring/features/ranks/registry";
+import { practiceHref } from "@mahjong-scoring/features/routes";
 import { ChevronRightIcon } from "@/app/(user)/_components/icons/chevron-right-icon";
 
 interface ExamCtaCardProps {

@@ -1,14 +1,14 @@
 import { getTranslations } from "next-intl/server";
 
-import { getChapterBySlug } from "@/app/(user)/(public)/learn/_lib/curriculum";
-import { CURRICULUM_SECTIONS } from "@/app/(user)/(public)/learn/_lib/curriculum";
+import { getChapterBySlug } from "@mahjong-scoring/features/curriculum/registry";
+import { CURRICULUM_SECTIONS } from "@mahjong-scoring/features/curriculum/registry";
 import { CurriculumTocSkeleton } from "@/app/(user)/(public)/learn/_components/curriculum-toc-skeleton";
 import { SECTION_LABEL_WIDTH_CLASS } from "@/app/(user)/(public)/learn/_lib/toc-layout";
 import { ContentContainer } from "@/app/(user)/_components/content-container";
 import { PageTitlePlaceholder } from "@/app/(user)/_components/page-title";
 import { SectionTitleSkeleton } from "@/app/(user)/_components/section-title-skeleton";
 import { SkeletonBar } from "@/app/_components/skeleton-bar";
-import { nextRank } from "@/lib/ranks/registry";
+import { nextRank } from "@mahjong-scoring/features/ranks/registry";
 
 /**
  * 道場の読み込み中スケルトン。

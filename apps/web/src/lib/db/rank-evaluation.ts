@@ -1,7 +1,10 @@
 import "server-only";
 
-import type { RankDefinition, RankSlug } from "@/lib/ranks/registry";
-import { nextRank } from "@/lib/ranks/registry";
+import type {
+  RankDefinition,
+  RankSlug,
+} from "@mahjong-scoring/features/ranks/registry";
+import { nextRank } from "@mahjong-scoring/features/ranks/registry";
 import { db } from "./index";
 import { getUserRankSlugs } from "./rank-queries";
 import { userRanks } from "./schema";

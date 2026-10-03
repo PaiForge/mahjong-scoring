@@ -5,7 +5,8 @@ import { useRouter } from "next/navigation";
 import type { PracticeMenuSlug } from "@mahjong-scoring/features/practice-menu-types";
 import { RUN_PARAM } from "@mahjong-scoring/features/challenge/challenge-run";
 import { FINISH_REASON_PARAM } from "@mahjong-scoring/features/challenge/finish-reason";
-import { VARIANT_PARAM, readVariantFromLocation } from "../_lib/variant-param";
+import { VARIANT_PARAM } from "@mahjong-scoring/features/routes";
+import { readVariantFromLocation } from "../_lib/variant-param";
 import type { FinalResult } from "./use-timed-session";
 
 /** 練習終了時に呼び出されるコールバックの引数 */

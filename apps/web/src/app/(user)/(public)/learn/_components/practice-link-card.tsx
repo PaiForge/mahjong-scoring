@@ -1,16 +1,14 @@
 import type { ReactNode } from "react";
 import { getTranslations } from "next-intl/server";
-import {
-  practiceSlugFromHref,
-  practiceTitleKey,
-  practiceVariantFromHref,
-} from "@/app/(user)/(public)/practice/_lib/practice-catalog";
+import type { PracticeLink } from "@mahjong-scoring/features/curriculum/registry";
+import { practiceHref } from "@mahjong-scoring/features/routes";
+import { practiceTitleKey } from "@mahjong-scoring/features/practice/catalog";
 import { practiceMenuBySlug } from "@mahjong-scoring/features/practice-menu-types";
 import { PracticeLinkButton } from "@/app/(user)/_components/practice-link-button";
 
 interface PracticeLinkListProps {
-  /** `/practice/<slug>` 形式のリンク集 */
-  readonly hrefs: readonly string[];
+  /** 章から送る練習（章の `practiceLinks`） */
+  readonly links: readonly PracticeLink[];
 }
 
 /**
@@ -26,18 +24,18 @@ interface PracticeLinkListProps {
  * 関数として呼び出す単体テストから中身が見えなくなるため分けている）。
  *
  * @remarks
- * 練習タイトルは href から `practiceSlugFromHref()` で slug を取り、カタログの
- * `practiceTitleKey()` で i18n キーに変換して解決する。next-intl はキーが未登録の
+ * 練習タイトルは slug をカタログの `practiceTitleKey()` で i18n キーに
+ * 変換して解決する。next-intl はキーが未登録の
  * 場合に「キー文字列自体」を返す仕様のため、辞書漏れがユーザーに視覚的に露出する
  * リスクがある。ここでは `t.has()` で存在確認し、ミスヒット時は汎用 CTA ラベル
  * （`learnCurriculum.chapter.practiceLinkCta`）に fallback する。
  *
- * バリアント付きの href（`?variant=`）は練習名にバリアント名を添える
+ * バリアント付きのリンクは練習名にバリアント名を添える
  * （「点数表早引き（子・満貫未満）にチャレンジ」）。同じ練習へ違う設定で
  * 送る章が並ぶため、リンクだけで違いが読めるようにする。
  */
-export async function PracticeLinkList({ hrefs }: PracticeLinkListProps) {
-  if (hrefs.length === 0) return undefined;
+export async function PracticeLinkList({ links }: PracticeLinkListProps) {
+  if (links.length === 0) return undefined;
 
   const t = await getTranslations("learnCurriculum.chapter");
   const tPractice = await getTranslations("practice");
@@ -45,23 +43,21 @@ export async function PracticeLinkList({ hrefs }: PracticeLinkListProps) {
   const tVariantLabel = (namespace: string, variant: string) =>
     tAll(`${namespace}.variants.${variant}.label`);
 
-  const items = hrefs.map((href) => {
-    const slug = practiceSlugFromHref(href);
-    const titleKey = slug ? practiceTitleKey(slug) : undefined;
-    const variant = practiceVariantFromHref(href);
+  const items = links.map(({ slug, variant }) => {
+    const href = practiceHref(slug, variant);
+    const titleKey = practiceTitleKey(slug);
     const variantLabel =
-      slug && variant
+      variant !== undefined && practiceMenuBySlug(slug).hasSetup
         ? tVariantLabel(practiceMenuBySlug(slug).namespace, variant)
         : undefined;
     // 練習名が引けたときは「<練習名>にチャレンジ」、引けないときは汎用 CTA。
-    const label =
-      titleKey && tPractice.has(titleKey)
-        ? t("practiceLinkChallengeCta", {
-            title: variantLabel
-              ? `${tPractice(titleKey)}（${variantLabel}）`
-              : tPractice(titleKey),
-          })
-        : t("practiceLinkCta");
+    const label = tPractice.has(titleKey)
+      ? t("practiceLinkChallengeCta", {
+          title: variantLabel
+            ? `${tPractice(titleKey)}（${variantLabel}）`
+            : tPractice(titleKey),
+        })
+      : t("practiceLinkCta");
     return { href, label };
   });
 

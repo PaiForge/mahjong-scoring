@@ -2,7 +2,7 @@
 
 import type { ReactNode } from "react";
 import { ScoreSetupForm } from "../../score/_components/score-setup-form";
-import { MACHI_SCORE_PRACTICE_HREF } from "../../_lib/practice-catalog";
+import { MACHI_SCORE_PRACTICE_HREF } from "@mahjong-scoring/features/routes";
 import { useMachiScoreSettingsStore } from "../_hooks/use-machi-score-settings-store";
 import { useMachiScoreStore } from "../_hooks/use-machi-score-store";
 

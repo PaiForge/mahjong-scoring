@@ -1,6 +1,6 @@
 "use server";
 
-import { isCurriculumChapterSlug } from "../_lib/curriculum";
+import { isCurriculumChapterSlug } from "@mahjong-scoring/features/curriculum/registry";
 import { isChapterRead } from "../_lib/progress";
 
 /**

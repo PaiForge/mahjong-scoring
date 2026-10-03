@@ -2,13 +2,13 @@ import Link from "next/link";
 import { getTranslations } from "next-intl/server";
 import { Divider } from "@/app/(user)/_components/divider";
 import { ChevronRightIcon } from "@/app/(user)/_components/icons/chevron-right-icon";
+import { chapterHref } from "@mahjong-scoring/features/routes";
 import {
-  chapterHref,
   getAdjacentChapters,
   getChapterI18nPath,
   type CurriculumChapter,
   type CurriculumChapterSlug,
-} from "../_lib/curriculum";
+} from "@mahjong-scoring/features/curriculum/registry";
 import { TEXT_LINK_CLASSES } from "@/app/_components/_lib/link-classes";
 
 interface ChapterNavProps {

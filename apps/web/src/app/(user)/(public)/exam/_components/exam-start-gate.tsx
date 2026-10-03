@@ -19,8 +19,11 @@ import {
 } from "../../practice/_components/practice-start-cta";
 import { START_BUTTON_HEIGHT_CLASS } from "../../practice/_components/practice-start-cta-skeleton";
 import { beltButtonVarsClass } from "@/lib/ranks/belt-colors";
-import { evaluateExamEligibility } from "@/lib/ranks/exam-eligibility";
-import { rankTier, type RankSlug } from "@/lib/ranks/registry";
+import { evaluateExamEligibility } from "@mahjong-scoring/features/ranks/exam-eligibility";
+import {
+  rankTier,
+  type RankSlug,
+} from "@mahjong-scoring/features/ranks/registry";
 
 interface ExamStartGateProps {
   /** 昇級試験の練習スラッグ（例: "pinfu-exam"） */

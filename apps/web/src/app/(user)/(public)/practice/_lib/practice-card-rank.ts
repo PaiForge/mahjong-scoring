@@ -1,8 +1,11 @@
 import type { getTranslations } from "next-intl/server";
 
-import { rankTier, type RankSlug } from "@/lib/ranks/registry";
+import {
+  rankTier,
+  type RankSlug,
+} from "@mahjong-scoring/features/ranks/registry";
 
-import { rankExamHref } from "./practice-catalog";
+import { rankExamHref } from "@mahjong-scoring/features/routes";
 
 type RanksTranslator = Awaited<ReturnType<typeof getTranslations<"ranks">>>;
 

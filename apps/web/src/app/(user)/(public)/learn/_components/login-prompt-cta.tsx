@@ -2,7 +2,8 @@ import Link from "next/link";
 import { getTranslations } from "next-intl/server";
 import { TEXT_LINK_CLASSES } from "@/app/_components/_lib/link-classes";
 import { buildSignInHref } from "@/lib/redirect";
-import { chapterHref, type CurriculumChapterSlug } from "../_lib/curriculum";
+import { chapterHref } from "@mahjong-scoring/features/routes";
+import type { CurriculumChapterSlug } from "@mahjong-scoring/features/curriculum/registry";
 
 interface LoginPromptCtaProps {
   /** 対象章のスラッグ（サインイン後のリダイレクト先生成に使用） */

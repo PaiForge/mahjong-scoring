@@ -7,23 +7,21 @@ import { VariantStartPanel } from "./variant-start-panel";
 import { buildPracticeStartCtaLabels } from "../_lib/practice-start-cta-labels";
 import { getTranslations } from "next-intl/server";
 import { LinkRow, LinkRowList } from "@/app/(user)/_components/link-row";
-import {
-  relatedChaptersForPractice,
-  type CurriculumChapterSlug,
-} from "@/app/(user)/(public)/learn/_lib/curriculum";
+import { relatedChaptersForPractice } from "@mahjong-scoring/features/practice/catalog";
+import type { CurriculumChapterSlug } from "@mahjong-scoring/features/curriculum/registry";
 import type { PracticeMenuSlug } from "@mahjong-scoring/features/practice-menu-types";
-import { rankRequiringMenu } from "@/lib/ranks/registry";
+import { rankRequiringMenu } from "@mahjong-scoring/features/ranks/registry";
 import { ContentContainer } from "@/app/(user)/_components/content-container";
 import { PageTitle } from "@/app/(user)/_components/page-title";
 import { LinkButton } from "@/app/(user)/_components/link-button";
 import { PlayIcon } from "@/app/(user)/_components/icons/play-icon";
 import { practiceMenuBySlug } from "@mahjong-scoring/features/practice-menu-types";
+import { isExamMenu } from "@mahjong-scoring/features/practice/catalog";
+import { practiceListHref } from "../_lib/practice-web-routes";
 import {
-  isExamMenu,
-  practiceListHref,
   practicePlayHref,
   practiceTrainingHref,
-} from "../_lib/practice-catalog";
+} from "@mahjong-scoring/features/routes";
 import { PRACTICE_SCROLL_HASH } from "../_lib/scroll-anchor";
 
 interface PracticeIntroContentProps {
@@ -59,7 +57,7 @@ interface PracticeIntroContentProps {
  *
  * - 通常の練習は「関連する教本の章」。読んでおくと解きやすいという程度の
  *   関係で、`relatedChaptersForPractice()` がカタログの `learnChapter` と
- *   「その練習へ送っている章」（章の `practiceHrefs` の逆引き）を畳んで返す。
+ *   「その練習へ送っている章」（章の `practiceLinks` の逆引き）を畳んで返す。
  *   章から練習へ来た人が同じ章へ戻れるのはこの逆引きの側で、点数表早引きの
  *   ように複数の章が送る練習では 1 件にならない
  * - 昇級試験は「前提となる教本の章」。合格に必要な知識の全体なので、

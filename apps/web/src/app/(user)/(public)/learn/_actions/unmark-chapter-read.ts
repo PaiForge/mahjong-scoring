@@ -7,7 +7,7 @@ import { getOptionalVerifiedUser } from "@/lib/auth";
 import { db } from "@/lib/db";
 import { learnChapterReads } from "@/lib/db/schema";
 
-import { isCurriculumChapterSlug } from "../_lib/curriculum";
+import { isCurriculumChapterSlug } from "@mahjong-scoring/features/curriculum/registry";
 import type { MarkActionResult } from "./mark-chapter-read";
 
 /**

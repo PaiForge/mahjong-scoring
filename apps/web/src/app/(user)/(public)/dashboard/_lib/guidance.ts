@@ -2,13 +2,15 @@ import {
   CURRICULUM,
   type CurriculumChapter,
   pickNextChapter,
-} from "@/app/(user)/(public)/learn/_lib/curriculum";
-import { practiceSlugFromHref } from "@/app/(user)/(public)/practice/_lib/practice-catalog";
+} from "@mahjong-scoring/features/curriculum/registry";
 import {
   menuTypeToSlug,
   type PracticeMenuSlug,
 } from "@mahjong-scoring/features/practice-menu-types";
-import { nextRank, type RankSlug } from "@/lib/ranks/registry";
+import {
+  nextRank,
+  type RankSlug,
+} from "@mahjong-scoring/features/ranks/registry";
 
 /** ダッシュボードに出すおすすめ練習の上限。増やすと練習一覧の縮小版になる */
 const MAX_RECOMMENDED_PRACTICES = 2;
@@ -105,9 +107,7 @@ export function selectDashboardGuidance({
     .filter((chapter) => readSlugs.has(chapter.slug));
 
   for (const chapter of readChaptersInOrder) {
-    for (const href of chapter.practiceHrefs ?? []) {
-      const slug = practiceSlugFromHref(href);
-      if (slug === undefined) continue;
+    for (const { slug } of chapter.practiceLinks ?? []) {
       if (attemptedSlugs.has(slug) || seen.has(slug)) continue;
       seen.add(slug);
       recommended.push(slug);

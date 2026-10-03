@@ -6,7 +6,7 @@ import { getOptionalVerifiedUser } from "@/lib/auth";
 import { db } from "@/lib/db";
 import { learnChapterReads } from "@/lib/db/schema";
 
-import { isCurriculumChapterSlug } from "../_lib/curriculum";
+import { isCurriculumChapterSlug } from "@mahjong-scoring/features/curriculum/registry";
 
 /**
  * 読了マーク系 Server Action の戻り値

@@ -3,7 +3,7 @@ import {
   LinkRowSkeleton,
 } from "@/app/(user)/_components/link-row";
 import { SectionTitleSkeleton } from "@/app/(user)/_components/section-title-skeleton";
-import type { PracticeCategory } from "@/app/(user)/(public)/practice/_lib/practice-catalog";
+import type { PracticeCategory } from "@mahjong-scoring/features/practice/catalog";
 
 import { leaderboardBoardGroups } from "../_lib/board-groups";
 import { practiceBoardKey } from "@mahjong-scoring/features/practice-menu-types";

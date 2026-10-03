@@ -1,4 +1,5 @@
 import { describe, expect, it } from "vitest";
+import { isPracticeVariantOf } from "../practice-menu-types";
 
 import {
   CURRICULUM,
@@ -9,7 +10,7 @@ import {
   getChapterI18nPath,
   isCurriculumChapterSlug,
   pickNextChapter,
-} from "../curriculum";
+} from "./registry";
 
 describe("pickNextChapter", () => {
   it("returns the first chapter when nothing is read", () => {
@@ -125,22 +126,16 @@ describe("CURRICULUM", () => {
     }
   });
 
-  it("uses `/practice/` prefixed hrefs for every practice link", () => {
+  it("links only to variants that the target practice declares", () => {
+    // practiceLink() が型で弾くが、リンクを手書きのオブジェクトで足された
+    // ときの最後の砦。不正なバリアントは practiceHref() が黙って既定に
+    // 落とすため、章の意図と違う土俵へ送ってしまう
     for (const chapter of CURRICULUM) {
-      for (const href of chapter.practiceHrefs ?? []) {
-        expect(href.startsWith("/practice/")).toBe(true);
-      }
-    }
-  });
-
-  it("has practice hrefs with only lowercase kebab-case slugs after /practice/", () => {
-    // 不正な文字を含む href が紛れ込むと CHECK 制約や i18n キー解決が失敗する
-    // 先回り検知のための健全性テスト。
-    // 出題条件のクエリ文字列（例: `?roles=ko&wins=ron&ranges=plus`）は許容する。
-    const segmentPattern = /^\/practice\/[a-z0-9]+(?:-[a-z0-9]+)*(?:\?[^#]*)?$/;
-    for (const chapter of CURRICULUM) {
-      for (const href of chapter.practiceHrefs ?? []) {
-        expect(href).toMatch(segmentPattern);
+      for (const { slug, variant } of chapter.practiceLinks ?? []) {
+        if (variant === undefined) continue;
+        expect(isPracticeVariantOf(slug, variant), `${chapter.slug}`).toBe(
+          true,
+        );
       }
     }
   });

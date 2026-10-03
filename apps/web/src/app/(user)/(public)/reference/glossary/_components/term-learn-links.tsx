@@ -1,12 +1,12 @@
 import { getTranslations } from "next-intl/server";
 
 import { LinkRow, LinkRowList } from "@/app/(user)/_components/link-row";
+import { chapterHref } from "@mahjong-scoring/features/routes";
 import {
-  chapterHref,
   getChapterBySlug,
   getChapterI18nPath,
   type CurriculumChapterSlug,
-} from "@/app/(user)/(public)/learn/_lib/curriculum";
+} from "@mahjong-scoring/features/curriculum/registry";
 
 interface TermLearnLinksProps {
   readonly slugs: readonly CurriculumChapterSlug[];
