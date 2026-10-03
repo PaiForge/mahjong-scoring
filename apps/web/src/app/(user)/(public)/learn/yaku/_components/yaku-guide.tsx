@@ -3,7 +3,7 @@ import { getTranslations } from "next-intl/server";
 import { TEXT_LINK_CLASSES } from "@/app/_components/_lib/link-classes";
 import { GuideParagraph } from "../../_components/guide-paragraph";
 import { GuideSection } from "../../_components/guide-section";
-import { YakuHanTable } from "./yaku-han-table";
+import { YakuHanTable } from "../../_components/yaku-han-table";
 
 export async function YakuGuide() {
   const t = await getTranslations("yaku.learn");

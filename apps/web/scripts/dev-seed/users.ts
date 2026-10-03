@@ -24,6 +24,8 @@ import {
   userRanks,
   userRoles,
 } from "../../src/lib/db/schema";
+import type { CurriculumChapterSlug } from "@mahjong-scoring/features/curriculum/registry";
+import { lessonForChapter } from "@mahjong-scoring/features/lessons/registry";
 import {
   RANK_REGISTRY,
   nextRank,
@@ -185,9 +187,9 @@ export async function ensureSeedUser(
   await db
     .delete(learnChapterReads)
     .where(eq(learnChapterReads.userId, userId));
-  // レッスンの完了も同じ理由で消す（宣言された状態に戻す）。シードでは
-  // 付与しない — 読了を入れる級持ちのユーザーは章の側で「学んだ」になり、
-  // 無級のユーザーはレッスンが次の一歩として出る状態を確かめたい
+  // レッスンの完了も同じ理由で消す（宣言された状態に戻す）。入れ直すのは
+  // 級持ちのユーザーの、読了した章のレッスンだけ（下）。無級のユーザーには
+  // 入れない — レッスンが次の一歩として出る状態を確かめたい
   await db
     .delete(lessonCompletions)
     .where(eq(lessonCompletions.userId, userId));
@@ -197,12 +199,23 @@ export async function ensureSeedUser(
       .insert(userRanks)
       .values(user.ranks.map((rankSlug) => ({ userId, rankSlug })));
 
-    await db.insert(learnChapterReads).values(
-      readChaptersFor(user.ranks).map((chapterSlug) => ({
-        userId,
-        chapterSlug,
-      })),
-    );
+    const readChapters = readChaptersFor(user.ranks);
+    await db
+      .insert(learnChapterReads)
+      .values(readChapters.map((chapterSlug) => ({ userId, chapterSlug })));
+
+    // レッスンのある章は、読了ではなくレッスンの完了で「学んだ」になる
+    // （features の journey/journey.ts）。本番で読了をレッスンの完了へ
+    // 引き継いだ後と同じく、読了した章のレッスンも終えたことにする
+    const lessonSlugs = readChapters.flatMap((chapterSlug) => {
+      const lesson = lessonForChapter(chapterSlug);
+      return lesson === undefined ? [] : [lesson.slug];
+    });
+    if (lessonSlugs.length > 0) {
+      await db
+        .insert(lessonCompletions)
+        .values(lessonSlugs.map((lessonSlug) => ({ userId, lessonSlug })));
+    }
   }
 
   return userId;
@@ -220,7 +233,9 @@ export async function ensureSeedUser(
  * 章の一覧は段級位レジストリから引く。級を足しても、その級の前提章が
  * 自動で読了に入る。
  */
-function readChaptersFor(ranks: readonly RankSlug[]): readonly string[] {
+function readChaptersFor(
+  ranks: readonly RankSlug[],
+): readonly CurriculumChapterSlug[] {
   const held = RANK_REGISTRY.filter((rank) => ranks.includes(rank.slug));
   const next = nextRank(ranks);
   const target = next === undefined ? held : [...held, next];

@@ -29,6 +29,7 @@ function renderLesson() {
   return render(
     <LessonView
       slug="mangan-ko-ron"
+      messageKey="manganKoRon"
       chapterSlug="mangan-ko-ron"
       explanation={<p data-testid="explanation" />}
     />,

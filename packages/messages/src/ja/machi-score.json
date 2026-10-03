@@ -27,6 +27,7 @@
     "prev": "戻る",
     "next": "次へ",
     "done": "閉じる",
+    "progress": "{current} / {total}",
     "board": {
       "title": "聴牌形",
       "description": "13 枚の聴牌形です。場風・自風・ドラも点数に関わります。"

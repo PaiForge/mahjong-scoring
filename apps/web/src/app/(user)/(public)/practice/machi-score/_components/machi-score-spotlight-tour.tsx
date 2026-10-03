@@ -1,8 +1,10 @@
 "use client";
 
 import { useTranslations } from "next-intl";
-import { SpotlightTour } from "../../_components/spotlight-tour";
-import type { SpotlightStep } from "../../_components/spotlight-tour";
+import {
+  SpotlightTour,
+  type SpotlightStep,
+} from "@/app/(user)/_components/spotlight-tour";
 import { MACHI_SCORE_TOUR_ID } from "../_lib/tour-ids";
 
 /**
@@ -68,6 +70,12 @@ export function MachiScoreSpotlightTour() {
         prev: t("prev"),
         next: t("next"),
         done: t("done"),
+        // driver.js が差し込む雛形をそのまま値として渡す（ICU の波括弧と
+        // 衝突するので辞書には書けない）
+        progress: t("progress", {
+          current: "{{current}}",
+          total: "{{total}}",
+        }),
       }}
     />
   );

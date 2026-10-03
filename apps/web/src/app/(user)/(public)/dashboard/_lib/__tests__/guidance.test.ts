@@ -39,7 +39,8 @@ describe("selectDashboardGuidance", () => {
       });
 
       expect(guidance.journey.nextStep).toEqual({
-        kind: "read",
+        kind: "lesson",
+        lessonSlug: "mangan-ko-tsumo",
         chapterSlug: "mangan-ko-tsumo",
       });
       expect(guidance.showTextbookLink).toBe(true);
@@ -54,7 +55,8 @@ describe("selectDashboardGuidance", () => {
         achievedRankSlugs: NO_RANKS,
       });
 
-      expect(guidance.journey.nextStep?.kind).toBe("practice");
+      // 読了だけではレッスンのある章（5級）は学んだことにならない
+      expect(guidance.journey.nextStep?.kind).toBe("lesson");
       expect(guidance.showComprehensivePractice).toBe(false);
     });
   });

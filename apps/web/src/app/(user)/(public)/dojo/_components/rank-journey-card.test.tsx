@@ -68,8 +68,8 @@ function hrefs(container: HTMLElement): string[] {
 }
 
 describe("RankJourneyCard", () => {
-  it("開いた級は、レッスン・前提章・章から送る練習・試験への導線を並べる", async () => {
-    const { container, getByTestId } = render(
+  it("開いた級は、レッスン・章から送る練習・試験への導線を並べる", async () => {
+    const { container, queryByTestId, getAllByRole } = render(
       <ol>
         {await RankJourneyCard({
           journey: rankJourney("kyu-5", {
@@ -82,19 +82,42 @@ describe("RankJourneyCard", () => {
 
     const links = hrefs(container);
     expect(links).toContain("/dojo/ranks/kyu-5");
-    expect(links).toContain("/lessons/mangan-ko-ron");
+    for (const chapterSlug of RANK_REGISTRY[0].learnChapterSlugs) {
+      expect(links).toContain(`/lessons/${chapterSlug}`);
+    }
     expect(links).toContain("/practice/score-table?variant=ko_mangan_plus");
     expect(links).toContain("/practice/mangan-score-calculation");
     expect(links).toContain("/exam/mangan");
 
-    // レッスンを終えた章は「学んだ」として目次に渡る
-    const chapters = getByTestId("chapters");
-    expect(chapters.getAttribute("data-slugs")).toBe(
-      RANK_REGISTRY[0].learnChapterSlugs.join(","),
-    );
-    expect(chapters.getAttribute("data-learned")).toBe("mangan-ko-ron");
+    // 5級の章はすべてレッスンで学ぶので、同じ章を目次に重ねて出さない
+    expect(queryByTestId("chapters")).toBeNull();
+    // 終えたレッスンにだけ完了の印が付く
+    expect(getAllByRole("img", { name: "lessonDone" })).toHaveLength(1);
     // 施錠の注記は次の目標の級には出ない
     expect(container.textContent).not.toContain("lockedNote");
+  });
+
+  it("レッスンの無い章は目次に出し、読了した章を学んだとして渡す", async () => {
+    const { container, getByTestId } = render(
+      <ol>
+        {await RankJourneyCard({
+          journey: rankJourney("kyu-4", {
+            achievedRankSlugs: ["kyu-5"],
+            readSlugs: new Set(["jantou-fu"]),
+          }),
+          expanded: true,
+        })}
+      </ol>,
+    );
+
+    const chapters = getByTestId("chapters");
+    expect(chapters.getAttribute("data-slugs")).toBe(
+      RANK_REGISTRY[1].learnChapterSlugs.join(","),
+    );
+    expect(chapters.getAttribute("data-learned")).toBe("jantou-fu");
+    expect(hrefs(container).some((href) => href.startsWith("/lessons/"))).toBe(
+      false,
+    );
   });
 
   it("閉じた上位の級は、級名の詳細リンクと施錠の注記だけで、中身は出さない", async () => {

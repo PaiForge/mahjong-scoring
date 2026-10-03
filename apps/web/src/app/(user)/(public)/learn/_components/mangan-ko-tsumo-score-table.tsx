@@ -2,7 +2,7 @@ import {
   formatPoints,
   ManganTableShell,
   type ManganTableColumn,
-} from "../../_components/mangan-table-shell";
+} from "./mangan-table-shell";
 
 const COLUMNS: readonly ManganTableColumn[] = [
   { headerKey: "colKoEach", align: "right", cellClassName: "text-surface-700" },

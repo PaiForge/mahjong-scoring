@@ -24,11 +24,27 @@ import {
  * 登録直後の最初の一歩が、すべてこの 1 つの計算を読む — 置き場所ごとに
  * 「次」を別々に決めると、ホームと道場で指す先が食い違う。
  *
- * @design 「学んだ」は読了またはレッスン完了
- * 章を読み終えた印（`learn_chapter_reads`）と、その章のレッスンを終えた印
- * （`lesson_completions`）はどちらも「学んだ」として数える。レッスンは
- * 章を数分に圧縮した別の道で、終えた人に同じ章を読み直せとは言わない。
- * 章が読まれたことにはしない（読了は本人が押す印のまま）。
+ * @design 「学んだ」はレッスンの完了。読了はレッスンの無い章だけの暫定
+ * 学ぶ段の 1 歩は、どの章でも「説明を読む → 確認問題に答える → 完了」の
+ * レッスンに揃える。レッスンのある章は、そのレッスンを終えた印
+ * （`lesson_completions`）だけで「学んだ」とし、章の読了（`learn_chapter_reads`）
+ * では進めない。読了は本人が押すだけの印で、読了とレッスン完了の両方を
+ * 完了条件にすると、同じ「学ぶ」の段に確認問題を経る歩と経ない歩が混ざる。
+ * 読了は教本側の記録（目次のチェック・教本の続き）として別に残る。
+ *
+ * レッスン完了は「回答と解説まで取り組んだ」印で、正解したことの印ではない
+ * （間違えても解説を読んで先へ進める）。習得の判定は試験が持つ。
+ *
+ * レッスンがまだ無い章（4級以降）は、レッスンを用意するまで読了で「学んだ」
+ * とする。章ごとにレッスンを足していく途中の段階のための規則で、足した章から
+ * この規則の外に出る。レッスンを足すときは、それまでの読了を引き継ぐ
+ * データ移行（その章の読了者にレッスン完了を付ける）を同じ変更に含めること —
+ * 含めないと、読了で学んだことになっていた人の進捗が後退する（5級の分は
+ * `drizzle/*_backfill_kyu5_lesson_completions.sql`）。
+ *
+ * @design 練習と試験は学ぶ段とは別の役割のまま
+ * 統一するのは学ぶ段だけ。練習は読んだ範囲を時間制限つきで反復して定着させる
+ * 段、試験は習得を判定する段で、どちらもレッスンには置き換えない。
  *
  * @design 「練習した」は一度でも挑戦したこと — 土俵（slug × バリアント）ごとに
  * 練習の段は「読んだのに触っていない練習」を無くすためのもので、習得の
@@ -64,11 +80,11 @@ interface JourneyItem {
   readonly done: boolean;
 }
 
-/** 学ぶ: 章 1 つ。レッスンがあれば、それで学ぶこともできる */
+/** 学ぶ: 章 1 つ。レッスンがあればレッスンで、無ければ章を読んで学ぶ */
 export interface JourneyChapterItem extends JourneyItem {
   readonly kind: "chapter";
   readonly chapterSlug: CurriculumChapterSlug;
-  /** この章を数分で学べるレッスン。無ければ章を読む */
+  /** この章を学ぶレッスン。無ければ（暫定で）章を読む */
   readonly lessonSlug: LessonSlug | undefined;
 }
 
@@ -230,13 +246,16 @@ export function buildJourneyPath(
   const path: JourneyPathItem[] = [];
   for (const chapterSlug of chapterSlugs) {
     const lesson = lessonForChapter(chapterSlug);
-    const learnedByLesson =
-      lesson !== undefined && input.completedLessonSlugs.has(lesson.slug);
     path.push({
       kind: "chapter",
       chapterSlug,
       lessonSlug: lesson?.slug,
-      done: input.readSlugs.has(chapterSlug) || learnedByLesson,
+      // レッスンのある章はレッスンの完了だけ。読了で進むのはレッスンの
+      // 無い章だけ（モジュールの TSDoc 参照）
+      done:
+        lesson === undefined
+          ? input.readSlugs.has(chapterSlug)
+          : input.completedLessonSlugs.has(lesson.slug),
     });
 
     for (const link of getChapterBySlug(chapterSlug)?.practiceLinks ?? []) {

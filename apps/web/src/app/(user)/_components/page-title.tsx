@@ -9,10 +9,10 @@ import { PageTitleSkeleton } from "@/app/_components/page-title-skeleton";
  * 見出しは白カードの外（斜線の地の上）に置かれる。foreground のスレート系だと
  * 緑がかった地から浮くため、地と同系の深緑（primary-900）を使う。
  *
- * 高さは行ボックス（1.4em 前後）ではなく HelpIconButton の直径（1.5em）で
- * 取る。`action` を持つページでも loading.tsx は `action` 無しでこの見出しを
- * 描くため、行の高さをボタンの有無で決めるとサーバー応答が届いた瞬間に
- * 見出しが 2px 下がる。
+ * 高さは行ボックス（1.4em 前後）ではなく 1.5em で固定する。`action` を持つ
+ * ページでも loading.tsx は `action` 無しでこの見出しを描くため、行の高さを
+ * ボタンの有無で決めるとサーバー応答が届いた瞬間に見出しが動く。`action` の
+ * 「?」（HelpIconButton）はこの高さに収まる大きさにしている（下の `action` 参照）。
  */
 const PAGE_TITLE_CLASSES =
   "min-h-[1.5em] text-xl md:text-2xl font-bold text-primary-900 text-center";
@@ -42,11 +42,14 @@ export function PageTitle({
   if (!action) return heading;
 
   return (
-    // 文字サイズは包む側にも置く。操作要素（HelpIconButton）は em で大きさを
-    // 決めるため、見出しと同じサイズを継承させて文字に揃える
-    <div className="flex items-center justify-center gap-2 text-xl md:text-2xl">
+    <div className="flex items-center justify-center gap-2">
       {heading}
-      {action}
+      {/* 操作要素（HelpIconButton）は em で大きさを決める。見出しの文字
+          （text-xl / md:text-2xl）をそのまま継がせると丸がその 1.5 倍
+          （30px / 36px）になり、見出しより目立つ。一段小さい文字を基準に
+          して 24px / 27px に抑える — 見出しの文字（20px / 24px）よりは
+          一回り大きく、押せる丸として読める */}
+      <span className="flex text-base md:text-lg">{action}</span>
     </div>
   );
 }

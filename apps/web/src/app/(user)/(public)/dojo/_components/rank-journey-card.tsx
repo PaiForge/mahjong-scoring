@@ -24,6 +24,7 @@ import {
 } from "@mahjong-scoring/features/routes";
 
 import { RankStatusBadge } from "../ranks/_components/rank-status-badge";
+import { DOJO_TOUR_ID } from "../_lib/tour-ids";
 
 interface RankJourneyCardProps {
   readonly journey: RankJourney;
@@ -50,8 +51,8 @@ function DoneMark({ label }: { readonly label: string }) {
  *
  * Server Component。帯バッジ・級名・取得状態・できるようになること・
  * 「学ぶ / 練習する / 試験」の進み具合を 1 枚に載せる。いま取り組む級
- * （次の目標）だけは中身を開き、レッスンと前提章の目次・章から送る練習の行・
- * 試験への帯色のボタンを並べる。他の級は閉じたまま、級名から詳細ページへ送る。
+ * （次の目標）だけは中身を開き、学ぶ段（レッスンのある章はレッスンの行、
+ * 無い章は目次）・章から送る練習の行・試験への帯色のボタンを並べる。他の級は閉じたまま、級名から詳細ページへ送る。
  *
  * 未取得の上位級には「下の級から順に取得すると受験できます」を添える。
  * 「先に 5級を」のように次の目標の級だけを名指ししないのは、無級の人には
@@ -78,13 +79,19 @@ export async function RankJourneyCard({
   const { rank, status, chapters, practices, exam } = journey;
   const learn = countProgress(chapters);
   const practice = countProgress(practices);
-  const learnedSlugs = new Set(
-    chapters.filter((item) => item.done).map((item) => item.chapterSlug),
-  );
+  // 学ぶ段は章ごとに 1 行。レッスンのある章はレッスンの行だけを出し、
+  // 目次にはレッスンの無い章（読んで学ぶ章）だけを残す。両方に出すと同じ章が
+  // 2 度並び、どちらを済ませれば進むのかが読み取れない
   const lessons = chapters.flatMap((item) =>
     item.lessonSlug === undefined
       ? []
       : [{ ...item, lessonSlug: item.lessonSlug }],
+  );
+  const readingChapters = chapters.filter(
+    (item) => item.lessonSlug === undefined,
+  );
+  const learnedSlugs = new Set(
+    readingChapters.filter((item) => item.done).map((item) => item.chapterSlug),
   );
 
   return (
@@ -94,7 +101,10 @@ export async function RankJourneyCard({
         data-rank-status={status}
         className={`rounded-xl border-3 bg-white p-4 sm:p-5 ${beltBorderClass(rank.slug)}`}
       >
-        <div className="flex items-center gap-3">
+        <div
+          className="flex items-center gap-3"
+          data-tour-id={expanded ? DOJO_TOUR_ID.nextRankHeader : undefined}
+        >
           <BeltBadge slug={rank.slug} />
           <h3 className="min-w-0 flex-1 text-lg font-bold">
             <Link href={rankHref(rank.slug)} className={TEXT_LINK_CLASSES}>
@@ -111,7 +121,10 @@ export async function RankJourneyCard({
 
         {/* 進み具合。前提章を持たない級（初段）では学ぶ・練習するが 0 件なので、
             数えるものがある段だけ並べる */}
-        <dl className="mt-2 flex flex-wrap gap-x-4 gap-y-1 text-xs text-surface-600">
+        <dl
+          className="mt-2 flex flex-wrap gap-x-4 gap-y-1 text-xs text-surface-600"
+          data-tour-id={expanded ? DOJO_TOUR_ID.nextRankStages : undefined}
+        >
           {learn.total > 0 && (
             <div className="flex gap-1">
               <dt className="font-bold">{tRanks("stages.learn")}</dt>
@@ -140,7 +153,10 @@ export async function RankJourneyCard({
         </dl>
 
         {status === "unachieved" && (
-          <p className="mt-2 flex items-center gap-1 text-xs text-surface-500">
+          <p
+            className="mt-2 flex items-center gap-1 text-xs text-surface-500"
+            data-tour-id={DOJO_TOUR_ID.lockedNote}
+          >
             <LockClosedIcon className="size-3.5" />
             {t("lockedNote")}
           </p>
@@ -177,10 +193,12 @@ export async function RankJourneyCard({
                     })}
                   </LinkRowList>
                 )}
-                <ChapterTocList
-                  slugs={chapters.map((item) => item.chapterSlug)}
-                  readSlugs={learnedSlugs}
-                />
+                {readingChapters.length > 0 && (
+                  <ChapterTocList
+                    slugs={readingChapters.map((item) => item.chapterSlug)}
+                    readSlugs={learnedSlugs}
+                  />
+                )}
               </section>
             )}
 

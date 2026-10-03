@@ -4,7 +4,7 @@ import { useEffect, useRef } from "react";
 import { usePathname } from "next/navigation";
 import { driver } from "driver.js";
 import "driver.js/dist/driver.css";
-import { HelpTourButton } from "./help-tour-modal";
+import { HelpIconButton } from "./help-icon-button";
 
 /**
  * 画面上の要素を順に照らして説明する 1 段階
@@ -26,6 +26,11 @@ interface SpotlightTourLabels {
   readonly prev: string;
   readonly next: string;
   readonly done: string;
+  /**
+   * 進捗の表示（「2 / 4」）。driver.js の雛形の `{{current}}` / `{{total}}` を
+   * 含む文字列を渡す。省略すると driver.js 既定の英語（「2 of 4」）になるので必須
+   */
+  readonly progress: string;
 }
 
 interface SpotlightTourProps {
@@ -38,13 +43,14 @@ interface SpotlightTourProps {
  * スポットライトツアー
  *
  * 押した時点で画面にある要素だけを案内する。対象が無い段階（別の段階で
- * しか出ない操作）は黙って飛ばすため、段階ごとに画面が変わる練習でも
- * 「今見えている操作」の説明になる。オーバーレイと吹き出しは driver.js が
+ * しか出ない操作・その人の状態では描かれない要素）は黙って飛ばすため、
+ * 段階ごとに画面が変わる練習でも「今見えている操作」の説明になる。
+ * 練習の play 画面と、読む画面の見方の説明（道場）で使う。オーバーレイと吹き出しは driver.js が
  * body の直下に描くため、ページ遷移で取り残されないよう pathname が変わったら
  * 破棄する。
  *
- * 同じ「?」でも、開始前に流れを通しで見せるカルーセル
- * （{@link import("./help-tour-modal").HelpTourModal}）とは役割が違う。
+ * 同じ「?」でも、練習の開始前に流れを通しで見せるカルーセル
+ * （practice/_components の `HelpTourModal`）とは役割が違う。
  * こちらは解いている最中に「この操作は何か」を実物の上で答える。
  */
 export function SpotlightTour({ steps, labels }: SpotlightTourProps) {
@@ -74,6 +80,7 @@ export function SpotlightTour({ steps, labels }: SpotlightTourProps) {
       nextBtnText: labels.next,
       prevBtnText: labels.prev,
       doneBtnText: labels.done,
+      progressText: labels.progress,
       steps: resolved.map(({ step, element }) => ({
         element,
         popover: {
@@ -88,5 +95,5 @@ export function SpotlightTour({ steps, labels }: SpotlightTourProps) {
     instance.drive();
   };
 
-  return <HelpTourButton onClick={startTour} label={labels.label} />;
+  return <HelpIconButton onClick={startTour} label={labels.label} />;
 }

@@ -7,7 +7,7 @@ import { GuideParagraph } from "../../_components/guide-paragraph";
 import { GuideSection } from "../../_components/guide-section";
 import { HalvingDiagram } from "../../_components/halving-diagram";
 import { ManganGuideLayout } from "../../_components/mangan-guide-layout";
-import { ManganKoTsumoScoreTable } from "./mangan-ko-tsumo-score-table";
+import { ManganKoTsumoScoreTable } from "../../_components/mangan-ko-tsumo-score-table";
 
 /**
  * 図に使う区分
