@@ -1,12 +1,13 @@
 "use server";
 
-import { SITE_URL } from "@/config";
 import type { ActionResult } from "@/lib/action-types";
 import { enforceIpRateLimit } from "@/lib/rate-limit-ip";
 import type { RateLimitErrorCode } from "@/lib/rate-limit-ip";
 import { createClient } from "@/lib/supabase/server";
 import { getPasswordValidationError } from "@/lib/validations/password";
 import type { PasswordValidationErrorKey } from "@/lib/validations/password";
+
+import { SIGN_UP_EMAIL_REDIRECT_TO } from "../_lib/email-redirect";
 
 /**
  * サインアップの失敗理由
@@ -44,7 +45,7 @@ export async function signUp(
     email,
     password,
     options: {
-      emailRedirectTo: `${SITE_URL}/auth/callback`,
+      emailRedirectTo: SIGN_UP_EMAIL_REDIRECT_TO,
     },
   });
 

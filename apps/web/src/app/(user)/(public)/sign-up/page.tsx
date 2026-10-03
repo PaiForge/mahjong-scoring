@@ -58,7 +58,7 @@ export default async function SignUpPage({
           </p>
         )}
         <div className="space-y-2">
-          <GoogleOAuthButton />
+          <GoogleOAuthButton intent="signUp" />
           <p className="text-center text-xs text-success">
             <span aria-hidden="true">&#x2713;</span> {t("freeAssurance")}
           </p>
