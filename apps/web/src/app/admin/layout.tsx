@@ -6,22 +6,16 @@ import Link from "next/link";
 
 import { NuqsAdapter } from "nuqs/adapters/next/app";
 
+import { AdminNavigation } from "./_components/admin-navigation";
+import "./admin.css";
+
+import { BrandLogo } from "@/app/_components/brand-logo";
 import { SITE_NAME } from "@/app/_lib/metadata";
 
 export const metadata: Metadata = {
   title: `Admin - ${SITE_NAME}`,
   robots: { index: false, follow: false },
 };
-
-/** サイドバーのナビゲーション項目（href と admin 名前空間の i18n キー） */
-const NAV_ITEMS = [
-  { href: "/admin/users", labelKey: "users" },
-  { href: "/admin/benefit-grants", labelKey: "benefitGrants.navLabel" },
-  { href: "/admin/announcements", labelKey: "announcements.navLabel" },
-  { href: "/admin/ads", labelKey: "ads.navLabel" },
-  { href: "/admin/audit-log", labelKey: "auditLog" },
-  { href: "/admin/activity-log", labelKey: "activityLog" },
-] as const;
 
 export default async function AdminLayout({
   children,
@@ -32,47 +26,63 @@ export default async function AdminLayout({
   // ページ本体の認証待ち + データ取得を各ルートの loading.tsx 1 枚で覆うため。
   const t = await getTranslations("admin");
 
+  const groups = [
+    {
+      label: t("navigation.overview"),
+      items: [{ href: "/admin", label: t("dashboard") }],
+    },
+    {
+      label: t("navigation.management"),
+      items: [
+        { href: "/admin/users", label: t("users") },
+        { href: "/admin/benefit-grants", label: t("benefitGrants.navLabel") },
+        { href: "/admin/announcements", label: t("announcements.navLabel") },
+        { href: "/admin/ads", label: t("ads.navLabel") },
+      ],
+    },
+    {
+      label: t("navigation.logs"),
+      items: [
+        { href: "/admin/audit-log", label: t("auditLog") },
+        { href: "/admin/activity-log", label: t("activityLog") },
+      ],
+    },
+  ];
+
   return (
-    // 管理画面はユーザー向けの pop スキンを持ち込まず、独立した見た目にする。
-    // data-skin="plain" の配下は Tailwind 既定の角丸・ぼかし影・フォントへ戻る
-    // （定義は globals.css）。
-    <div data-skin="plain" className="flex min-h-screen">
-      {/* 狭い画面ではナビを細くする。w-56 のままだと 390px 幅で本文に
-          102px しか残らず、期間ピッカーのような縮まない部品が main から
-          溢れる（サイドバーは畳めるようにしていないので、幅で譲る）。
-          下限は w-48。ナビの一番長い「アクティビティログ」（9 文字 ×
-          text-sm ≒ 126px）に aside の p-4 とリンクの px-3 を足すと 182px
-          要り、w-40 では 2 行に折れて他の項目と高さが揃わなくなる */}
-      <aside className="w-48 shrink-0 border-r border-surface-200 bg-surface-50 p-4 sm:w-56">
-        {/* セクション見出し（h1）。ダッシュボードへのリンクを兼ねる */}
-        <h1 className="mb-6">
-          <Link
-            href="/admin"
-            className="block rounded px-3 py-2 text-lg font-semibold text-surface-900 transition-colors hover:bg-surface-100"
-          >
+    <div data-skin="plain" className="admin-shell">
+      <a href="#admin-main" className="admin-skip-link">
+        {t("navigation.skipToContent")}
+      </a>
+      <aside className="admin-sidebar">
+        <Link href="/admin" className="admin-brand">
+          <BrandLogo size="lg" />
+          <h1 className="text-sm font-bold tracking-tight text-primary-900">
             {t("title")}
-          </Link>
-        </h1>
-        <nav className="space-y-1">
-          {NAV_ITEMS.map((item) => (
-            <Link
-              key={item.href}
-              href={item.href}
-              className="block rounded px-3 py-2 text-sm text-surface-700 transition-colors hover:bg-surface-100"
-            >
-              {t(item.labelKey)}
-            </Link>
-          ))}
-        </nav>
+          </h1>
+        </Link>
+        <AdminNavigation groups={groups} label={t("title")} />
       </aside>
-      {/* min-w-0 が要る。flex アイテムの既定は min-width:auto で、中身の
-          最小幅より狭くならない。ユーザー一覧のように列の多い表を置くと、
-          表の中の overflow-x-auto が効く前にこの main 自体が広がり、
-          横に流れるのが表ではなくページ全体になる（サイドバーごとずれる。
-          390px 幅で 356px はみ出すのを実測）。 */}
-      <main className="min-w-0 flex-1 bg-secondary p-4 sm:p-8">
-        <NuqsAdapter>{children}</NuqsAdapter>
-      </main>
+      <div className="admin-content">
+        <header className="admin-topbar">
+          <span className="flex items-center gap-2">
+            <span
+              aria-hidden="true"
+              className="size-1.5 rounded-full bg-primary-600"
+            />
+            {t("navigation.workspace")}
+          </span>
+          <Link
+            href="/"
+            className="font-medium text-primary-700 hover:underline"
+          >
+            {t("navigation.backToSite")} <span aria-hidden="true">↗</span>
+          </Link>
+        </header>
+        <main id="admin-main" tabIndex={-1} className="admin-main">
+          <NuqsAdapter>{children}</NuqsAdapter>
+        </main>
+      </div>
     </div>
   );
 }

@@ -44,9 +44,9 @@ export function DateRangePicker({
   ] as const;
 
   return (
-    <div className="flex flex-wrap items-center gap-3">
+    <div className="admin-filter flex flex-wrap items-center gap-3">
       <div className="flex items-center gap-2">
-        <label htmlFor="date-from" className="text-sm text-surface-500">
+        <label htmlFor="date-from" className="w-12 text-sm text-surface-500">
           {labels.from}
         </label>
         <input
@@ -55,11 +55,11 @@ export function DateRangePicker({
           value={startDate}
           max={endDate}
           onChange={(e) => setParams({ from: e.target.value })}
-          className="rounded border border-surface-200 bg-surface-50 px-3 py-1.5 text-sm"
+          className="h-9 w-40 rounded border border-surface-200 bg-white px-3 py-1.5 text-sm"
         />
       </div>
       <div className="flex items-center gap-2">
-        <label htmlFor="date-to" className="text-sm text-surface-500">
+        <label htmlFor="date-to" className="w-12 text-sm text-surface-500">
           {labels.to}
         </label>
         <input
@@ -69,7 +69,7 @@ export function DateRangePicker({
           min={startDate}
           max={today(now)}
           onChange={(e) => setParams({ to: e.target.value })}
-          className="rounded border border-surface-200 bg-surface-50 px-3 py-1.5 text-sm"
+          className="h-9 w-40 rounded border border-surface-200 bg-white px-3 py-1.5 text-sm"
         />
       </div>
       <div className="flex gap-1.5">
@@ -83,7 +83,8 @@ export function DateRangePicker({
               key={preset.days}
               type="button"
               onClick={() => setParams({ from: presetFrom, to: presetTo })}
-              className={`rounded border px-3 py-1.5 text-xs transition-colors ${
+              aria-pressed={isActive}
+              className={`h-8 w-20 rounded border px-3 py-1.5 text-xs transition-colors ${
                 isActive
                   ? "border-primary-600 bg-primary-600 text-white"
                   : "border-surface-200 bg-surface-100 text-surface-700 hover:bg-surface-200"

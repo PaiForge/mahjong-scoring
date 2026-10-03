@@ -10,18 +10,20 @@ import { SkeletonBar } from "@/app/_components/skeleton-bar";
 export function TableSkeleton({
   columns,
   rows = 10,
+  compact = false,
 }: {
   readonly columns: number;
   readonly rows?: number;
+  readonly compact?: boolean;
 }) {
   return (
-    <div className="overflow-x-auto">
+    <div className="admin-table" aria-hidden="true">
       <table className="w-full text-left text-sm">
         <thead>
           <tr className="border-b border-gray-200">
             {Array.from({ length: columns }, (_, i) => (
-              <th key={i} className="px-4 py-3">
-                <SkeletonBar className="h-4 w-16" />
+              <th key={i} className={compact ? "px-4 py-2" : "px-4 py-3"}>
+                <SkeletonBar className={compact ? "h-4 w-16" : "h-5 w-16"} />
               </th>
             ))}
           </tr>
@@ -31,7 +33,7 @@ export function TableSkeleton({
             <tr key={i} className="border-t border-gray-200">
               {Array.from({ length: columns }, (__, j) => (
                 <td key={j} className="px-4 py-3">
-                  <SkeletonBar className="h-4 w-24" />
+                  <SkeletonBar className="h-5 w-24" />
                 </td>
               ))}
             </tr>
@@ -57,11 +59,16 @@ export function LogFilterSkeleton({
   readonly fields?: number;
 }) {
   return (
-    <div className="flex items-end gap-4">
+    <div
+      aria-hidden="true"
+      className="admin-filter flex flex-wrap items-end gap-4"
+    >
       {Array.from({ length: fields }, (_, i) => (
-        <div key={i}>
-          <SkeletonBar className="mb-1 h-4 w-20" />
-          <SkeletonBar className="h-[38px] w-40" />
+        <div key={i} className="max-w-full">
+          <SkeletonBar className="mb-1 h-5 w-20" />
+          <SkeletonBar
+            className={`h-[38px] max-w-full ${fields === 1 ? "w-72" : "w-52"}`}
+          />
         </div>
       ))}
       <SkeletonBar className="h-[38px] w-20" />

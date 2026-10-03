@@ -19,11 +19,11 @@ export default function AdminDashboardLoading() {
   return (
     <>
       <AdminPageTitlePlaceholder width="w-40" className="mb-2" />
-      <SkeletonBar className="mb-6 h-4 w-2/3 max-w-md" tone={100} />
+      <SkeletonBar className="mb-6 h-5 w-2/3 max-w-md" tone={100} />
 
       <div className="space-y-6">
         {/* 期間ピッカー（ラベル + 日付入力 ×2、プリセットボタン ×3） */}
-        <div className="flex flex-wrap items-center gap-3">
+        <div className="admin-filter flex flex-wrap items-center gap-3">
           <div className="flex items-center gap-2">
             <SkeletonBar className="h-4 w-12" tone={100} />
             <SkeletonBar className="h-9 w-40" />
@@ -33,21 +33,21 @@ export default function AdminDashboardLoading() {
             <SkeletonBar className="h-9 w-40" />
           </div>
           <div className="flex gap-1.5">
-            <SkeletonBar className="h-8 w-16" tone={100} />
-            <SkeletonBar className="h-8 w-16" tone={100} />
-            <SkeletonBar className="h-8 w-16" tone={100} />
+            <SkeletonBar className="h-8 w-20" tone={100} />
+            <SkeletonBar className="h-8 w-20" tone={100} />
+            <SkeletonBar className="h-8 w-20" tone={100} />
           </div>
         </div>
 
         {/* サマリーカード */}
-        <section className="space-y-1 rounded-lg border border-surface-200 bg-surface-50 p-6">
-          <SkeletonBar className="h-4 w-40" tone={100} />
-          <SkeletonBar className="h-9 w-20" />
-          <SkeletonBar className="h-3 w-56" tone={100} />
+        <section className="admin-kpi space-y-2">
+          <SkeletonBar className="h-5 w-40" tone={100} />
+          <SkeletonBar className="h-14 w-20" />
+          <SkeletonBar className="h-4 w-56" tone={100} />
         </section>
 
         {/* 日次推移チャート */}
-        <section className="rounded-lg border border-surface-200 bg-surface-50 p-6">
+        <section className="admin-panel p-6">
           <SkeletonBar className="mb-4 h-7 w-48" />
           <SkeletonBar className="h-[300px] w-full" tone={100} />
         </section>

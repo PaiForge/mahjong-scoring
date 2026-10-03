@@ -12,7 +12,7 @@ export function DetailSection({
   readonly children: ReactNode;
 }) {
   return (
-    <section className="space-y-3 rounded-md border border-gray-200 bg-white p-4">
+    <section className="admin-panel space-y-3 p-5">
       <h3 className="text-sm font-bold text-surface-900">{title}</h3>
       {children}
     </section>
@@ -54,7 +54,7 @@ export function DetailTable({
     return <p className="text-sm text-gray-500">{emptyLabel}</p>;
   }
   return (
-    <div className="overflow-x-auto">
+    <div className="admin-table">
       <table className="w-full text-left text-sm">
         <thead>
           <tr className="border-b border-gray-200">

@@ -75,7 +75,7 @@ export default async function AdminUsersPage({
 
       <UserSearchForm query={query} totalCount={totalCount} />
 
-      <div className="overflow-x-auto">
+      <div className="admin-table">
         <table className="w-full text-left text-sm">
           <thead>
             <tr className="border-b border-gray-200">

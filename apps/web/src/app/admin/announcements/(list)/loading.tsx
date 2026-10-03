@@ -1,8 +1,9 @@
 import { AdminPageTitlePlaceholder } from "@/app/admin/_components/admin-page-title";
+import { TableSkeleton } from "@/app/admin/_components/table-skeleton";
 import { SkeletonBar } from "@/app/_components/skeleton-bar";
 
 /**
- * お知らせ管理（一覧・作成・編集）のローディング状態。
+ * お知らせ管理一覧のローディング状態。
  *
  * admin/loading.tsx（ダッシュボード忠実スケルトン）を継承せず、お知らせ一覧の
  * 構造（見出し + 新規作成ボタン → スラッグ単位のテーブルセクション）に合わせた
@@ -19,16 +20,12 @@ export default function AnnouncementsLoading() {
 
       <div className="space-y-6">
         {Array.from({ length: 2 }, (_, i) => (
-          <section key={i} className="rounded-lg border border-surface-200">
+          <section key={i} className="admin-panel">
             <div className="flex items-center justify-between border-b border-surface-200 px-4 py-3">
-              <SkeletonBar className="h-4 w-32" />
-              <SkeletonBar className="h-4 w-16" tone={100} />
+              <SkeletonBar className="h-5 w-32" />
+              <SkeletonBar className="h-5 w-16" tone={100} />
             </div>
-            <div className="space-y-3 p-4">
-              {Array.from({ length: 2 }, (_row, j) => (
-                <SkeletonBar key={j} className="h-5 w-full" tone={100} />
-              ))}
-            </div>
+            <TableSkeleton columns={5} rows={2} compact />
           </section>
         ))}
       </div>

@@ -11,7 +11,7 @@ const STATUS_CLASSES: Record<UserStatus, string> = {
   [UserStatus.Provisional]: "bg-amber-100 text-amber-800",
   [UserStatus.Deleted]: "bg-gray-100 text-gray-600",
   [UserStatus.Banned]: "bg-red-100 text-red-700",
-  [UserStatus.Active]: "bg-primary-100 text-primary-700",
+  [UserStatus.Active]: "text-surface-600",
 };
 
 /**

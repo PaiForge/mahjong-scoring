@@ -11,7 +11,7 @@ export default function Loading() {
     <div className="space-y-6">
       <div className="space-y-2">
         <AdminPageTitlePlaceholder width="w-40" />
-        <SkeletonBar className="h-4 w-96 max-w-full" tone={100} />
+        <SkeletonBar className="h-5 w-96 max-w-full" tone={100} />
       </div>
       <TableSkeleton columns={7} />
     </div>

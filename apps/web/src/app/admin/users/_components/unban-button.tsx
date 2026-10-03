@@ -69,7 +69,7 @@ export function UnbanButton({ targetUserId }: UnbanButtonProps) {
             <button
               type="submit"
               disabled={isPending}
-              className="rounded bg-primary-600 px-4 py-2 text-sm font-medium text-white hover:bg-primary-700 disabled:opacity-50 transition-colors"
+              className="rounded bg-primary-600 px-4 py-2 text-sm font-medium text-white hover:bg-primary-700 disabled:bg-surface-300 disabled:text-surface-500 transition-colors"
             >
               {isPending ? t("unbanUser.pending") : t("unbanUser.confirm")}
             </button>

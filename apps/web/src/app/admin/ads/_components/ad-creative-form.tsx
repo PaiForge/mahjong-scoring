@@ -126,7 +126,7 @@ export function AdCreativeForm({
   const hintClass = "mt-1 text-xs text-surface-400";
 
   return (
-    <div className="max-w-3xl space-y-5">
+    <div className="admin-panel max-w-3xl space-y-5 p-5 sm:p-7">
       <div>
         <p className={labelClass}>{t("slot")}</p>
         <code className="text-sm text-surface-800">{slot}</code>
@@ -338,7 +338,7 @@ export function AdCreativeForm({
           type="button"
           onClick={handleSubmit}
           disabled={isPending || isUploading}
-          className="rounded bg-primary-600 px-5 py-2 text-sm font-medium text-white transition-colors hover:bg-primary-700 disabled:opacity-50"
+          className="rounded bg-primary-600 px-5 py-2 text-sm font-medium text-white transition-colors hover:bg-primary-700 disabled:bg-surface-300 disabled:text-surface-500"
         >
           {isPending ? t("saving") : t("save")}
         </button>

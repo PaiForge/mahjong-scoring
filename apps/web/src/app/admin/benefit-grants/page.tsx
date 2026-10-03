@@ -56,7 +56,7 @@ export default async function AdminBenefitGrantsPage({
         <p className="text-sm text-surface-600">{t("listDescription")}</p>
       </div>
 
-      <div className="overflow-x-auto">
+      <div className="admin-table">
         <table className="w-full text-left text-sm">
           <thead>
             <tr className="border-b border-gray-200">
