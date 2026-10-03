@@ -117,6 +117,18 @@ function answerLabel(choice: LessonChoice, t: Translator): string {
   }
 }
 
+/**
+ * 選択肢の文字の大きさ
+ *
+ * 子のツモは数字が 2 つ並び（「8,000 / 16,000」）、スマホの 2 列では
+ * 既定の大きさだと途中で折り返す。この種類だけ一段小さくし、折り返さない。
+ */
+function choiceTextClass(choice: LessonChoice): string {
+  return choice.kind === "koTsumo"
+    ? "whitespace-nowrap text-base font-bold tabular-nums"
+    : "text-lg font-bold tabular-nums";
+}
+
 /** 条件文（辞書の `condition`）へ差し込む値 */
 function conditionValues(
   prompt: LessonPrompt,
@@ -356,7 +368,7 @@ export function LessonView({
                   disabled={isAnswered}
                   borderClass={borderClass}
                   bgClass={bgClass}
-                  className="text-lg font-bold tabular-nums"
+                  className={choiceTextClass(choice)}
                 >
                   {choiceLabel(choice, t)}
                 </ChoiceButton>
