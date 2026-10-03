@@ -4,7 +4,7 @@ import type { ReactNode } from "react";
 import { useTranslations } from "next-intl";
 import type { ScoreTableAnswer } from "@mahjong-scoring/core";
 import { useFuHanOrder } from "@/app/_hooks/use-display-settings-store";
-import { orderFuHan } from "@/app/_lib/fu-han-order";
+import { orderFuHan } from "@mahjong-scoring/features/settings/fu-han-order";
 import { QuestionDisplay } from "../score/_components/question-display";
 import type { ScoreQuestionResult } from "@mahjong-scoring/features/results/score-question-result";
 import { restoreScoreQuestion } from "@mahjong-scoring/features/results/score-question-result";

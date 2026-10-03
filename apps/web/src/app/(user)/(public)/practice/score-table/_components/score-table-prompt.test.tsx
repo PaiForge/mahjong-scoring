@@ -2,7 +2,7 @@ import { afterEach, describe, expect, it, vi } from "vitest";
 import { render, screen } from "@testing-library/react";
 
 import { useDisplaySettingsStore } from "@/app/_hooks/use-display-settings-store";
-import { DEFAULT_FU_HAN_ORDER } from "@/app/_lib/fu-han-order";
+import { DEFAULT_FU_HAN_ORDER } from "@mahjong-scoring/features/settings/fu-han-order";
 import { ScoreTablePrompt } from "./score-table-prompt";
 
 vi.mock("next-intl", async () => await import("@/test/intl-mock"));

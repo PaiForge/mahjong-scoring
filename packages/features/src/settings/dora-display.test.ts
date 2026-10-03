@@ -1,7 +1,7 @@
 import { HaiKind } from "@mahjong-scoring/core";
 import { describe, expect, it } from "vitest";
 
-import { resolveDoraTiles } from "../dora-display";
+import { resolveDoraTiles } from "./dora-display";
 
 describe("resolveDoraTiles", () => {
   const markers = [HaiKind.ManZu9, HaiKind.Pei, HaiKind.Chun];

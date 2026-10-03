@@ -23,7 +23,7 @@ import {
   preferencesHref,
 } from "@/app/(user)/(public)/preferences/_lib/anchors";
 import { useDoraDisplayMode } from "@/app/_hooks/use-display-settings-store";
-import { resolveDoraTiles } from "@/app/_lib/dora-display";
+import { resolveDoraTiles } from "@mahjong-scoring/features/settings/dora-display";
 
 /** 牌を含まない状況行の高さ（px）。リーチ棒とその名札が収まる高さ */
 const TEXT_ROW_HEIGHT = 22;

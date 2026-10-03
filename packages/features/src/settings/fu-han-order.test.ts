@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 
-import { DEFAULT_FU_HAN_ORDER, orderFuHan } from "../fu-han-order";
+import { DEFAULT_FU_HAN_ORDER, orderFuHan } from "./fu-han-order";
 
 describe("orderFuHan", () => {
   it("既定は符→翻（点数表を引く目線と同じ順）", () => {
