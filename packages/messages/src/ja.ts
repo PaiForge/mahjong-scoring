@@ -78,6 +78,7 @@ import nativeAd from "./ja/native-ad.json";
 import practiceQuota from "./ja/practice-quota.json";
 import plan from "./ja/plan.json";
 import mypagePlan from "./ja/mypage-plan.json";
+import mypageAccount from "./ja/mypage-account.json";
 import tokushoho from "./ja/tokushoho.json";
 import notifications from "./ja/notifications.json";
 
@@ -175,6 +176,7 @@ export const messages = {
   practiceQuota,
   plan,
   mypagePlan,
+  mypageAccount,
   tokushoho,
   notifications,
 };

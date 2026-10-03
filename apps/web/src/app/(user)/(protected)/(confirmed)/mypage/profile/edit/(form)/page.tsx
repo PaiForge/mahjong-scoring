@@ -6,7 +6,6 @@
  */
 import type { Metadata } from "next";
 import { getTranslations } from "next-intl/server";
-import Link from "next/link";
 
 import { ContentContainer } from "@/app/(user)/_components/content-container";
 import { PageTitle } from "@/app/(user)/_components/page-title";
@@ -16,7 +15,6 @@ import { getProfileForEdit } from "@/lib/db/queries";
 
 import { AvatarUpload } from "../_components/avatar-upload";
 import { ProfileForm } from "../_components/profile-form";
-import { TEXT_LINK_CLASSES } from "@/app/_components/_lib/link-classes";
 
 export async function generateMetadata(): Promise<Metadata> {
   return createPrivateMetadata("profileEdit");
@@ -57,15 +55,6 @@ export default async function ProfileEditPage({
         </div>
 
         <ProfileForm initial={initial} showSkip={from === "setup"} />
-      </div>
-
-      <div className="mt-10 border-t-2 border-dashed border-border/40 pt-6 text-center">
-        <Link
-          href="/mypage/account/delete"
-          className={`text-sm ${TEXT_LINK_CLASSES}`}
-        >
-          {t("deleteAccountLink")}
-        </Link>
       </div>
     </ContentContainer>
   );

@@ -19,6 +19,10 @@
     "notifications": {
       "title": "通知",
       "summary": "Pro プランの購入や期限切れなどのお知らせ"
+    },
+    "account": {
+      "title": "アカウント",
+      "summary": "メールアドレスとログイン方法の確認"
     }
   },
   "heatmap": {

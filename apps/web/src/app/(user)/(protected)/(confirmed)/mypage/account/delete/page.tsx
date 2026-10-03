@@ -2,7 +2,7 @@
  * 退会
  *
  * @description アカウント退会の確認ページ。退会の影響を説明し、確認のうえアカウントを削除する。
- * @flow プロフィール編集 → アカウントを削除 → 確認モーダル → 削除 → トップへ（ログアウト）
+ * @flow マイページ → アカウント → アカウントを削除 → 確認モーダル → 削除 → トップへ（ログアウト）
  */
 import type { Metadata } from "next";
 import { getTranslations } from "next-intl/server";
@@ -25,11 +25,13 @@ export default async function DeleteAccountPage() {
   await requireConfirmedUser();
   const t = await getTranslations("deleteAccount");
   const tMypage = await getTranslations("mypage");
+  const tAccount = await getTranslations("mypageAccount");
 
   return (
     <ContentContainer
       breadcrumb={[
         { label: tMypage("pageTitle"), href: "/mypage" },
+        { label: tAccount("pageTitle"), href: "/mypage/account" },
         { label: t("pageTitle") },
       ]}
     >
@@ -55,13 +57,13 @@ export default async function DeleteAccountPage() {
       </div>
 
       {/* 破壊的操作の直下に戻るリンクを並べると誤クリックしやすいため、
-          プロフィール編集ページの退会リンクと同じ破線で区切って離す。 */}
+          アカウントページの退会リンクと同じ破線で区切って離す。 */}
       <div className="mt-10 border-t-2 border-dashed border-border/40 pt-6 text-center">
         <Link
-          href="/mypage/profile/edit"
+          href="/mypage/account"
           className={`text-sm font-medium ${TEXT_LINK_CLASSES}`}
         >
-          {t("backToProfile")}
+          {t("backToAccount")}
         </Link>
       </div>
     </ContentContainer>
