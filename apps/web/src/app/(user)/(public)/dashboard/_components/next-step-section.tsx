@@ -175,17 +175,17 @@ export async function NextStepSection({ journey }: NextStepSectionProps) {
         <dl className="flex flex-wrap gap-x-4 gap-y-1 text-xs text-surface-600">
           {learn.total > 0 && (
             <div className="flex gap-1">
-              <dt className="font-bold">{t("stages.learn")}</dt>
+              <dt className="font-bold">{tRanks("stages.learn")}</dt>
               <dd className="tabular-nums">
-                {t("stageCount", { done: learn.done, total: learn.total })}
+                {tRanks("stageCount", { done: learn.done, total: learn.total })}
               </dd>
             </div>
           )}
           {practice.total > 0 && (
             <div className="flex gap-1">
-              <dt className="font-bold">{t("stages.practice")}</dt>
+              <dt className="font-bold">{tRanks("stages.practice")}</dt>
               <dd className="tabular-nums">
-                {t("stageCount", {
+                {tRanks("stageCount", {
                   done: practice.done,
                   total: practice.total,
                 })}
@@ -193,8 +193,12 @@ export async function NextStepSection({ journey }: NextStepSectionProps) {
             </div>
           )}
           <div className="flex gap-1">
-            <dt className="font-bold">{t("stages.exam")}</dt>
-            <dd>{t(current.exam.done ? "examPassed" : "examNotTaken")}</dd>
+            <dt className="font-bold">{tRanks("stages.exam")}</dt>
+            <dd>
+              {tRanks(
+                current.exam.done ? "stageExamPassed" : "stageExamNotTaken",
+              )}
+            </dd>
           </div>
         </dl>
 

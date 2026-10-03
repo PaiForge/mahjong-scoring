@@ -8,14 +8,6 @@
     "firstStepTitle": "黒帯への第一歩",
     "goalLabel": "次の目標",
     "goal": "{rank} — {criterion}",
-    "stages": {
-      "learn": "学ぶ",
-      "practice": "練習する",
-      "exam": "試験"
-    },
-    "stageCount": "{done} / {total}",
-    "examNotTaken": "未受験",
-    "examPassed": "合格",
     "steps": {
       "lesson": {
         "firstLead": "最初は「{title}」から。点数をひとつ覚えて、3 問で確かめましょう。",

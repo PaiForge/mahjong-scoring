@@ -46,5 +46,13 @@
     "locked": "この試験は{examTitle}です。受験には先に{requiredRank}の取得が必要です。",
     "dojoButton": "道場で次の目標を確認する"
   },
-  "pillLinkLabel": "{rank}の合格基準を見る"
+  "pillLinkLabel": "{rank}の合格基準を見る",
+  "stages": {
+    "learn": "学ぶ",
+    "practice": "練習する",
+    "exam": "試験"
+  },
+  "stageCount": "{done} / {total}",
+  "stageExamNotTaken": "未受験",
+  "stageExamPassed": "合格"
 }
