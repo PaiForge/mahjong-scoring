@@ -55,6 +55,7 @@ export default async function AdminUsersPage({
   const pagination = getPaginationData(page, totalCount);
 
   const profileMap = await buildProfileMap(users.map((u) => u.id));
+  const now = new Date();
 
   const emailLabels = {
     revealEmail: t("usersTable.revealEmail"),
@@ -107,7 +108,7 @@ export default async function AdminUsersPage({
             ) : (
               users.map((user) => {
                 const profile = profileMap.get(user.id);
-                const status = resolveUserStatus(profile);
+                const status = resolveUserStatus(profile, user, now);
                 return (
                   <tr key={user.id} className="border-t border-gray-200">
                     <td className="px-4 py-3 whitespace-nowrap">

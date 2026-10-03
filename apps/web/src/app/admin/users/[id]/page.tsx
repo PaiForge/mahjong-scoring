@@ -72,7 +72,7 @@ export default async function AdminUserDetailPage({
 
   const { authUser, profile } = detail;
   const now = new Date();
-  const status = resolveUserStatus(profile);
+  const status = resolveUserStatus(profile, authUser, now);
   const plan = planStatusOf(detail.purchases, detail.grants, now);
   const currentRank = highestRank(
     detail.ranks.map((r) => r.rankSlug).filter(isRankSlug),
