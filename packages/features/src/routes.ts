@@ -1,4 +1,4 @@
-import { RANK_REGISTRY, type RankSlug } from "./ranks/registry";
+import { rankBySlug, type RankSlug } from "./ranks/registry";
 import type { CurriculumChapterSlug } from "./curriculum/registry";
 import {
   DEFAULT_VARIANT,
@@ -89,9 +89,25 @@ export function practiceHref(slug: PracticeMenuSlug, variant?: string): string {
  * @param slug 段級位スラッグ
  */
 export function rankExamHref(slug: RankSlug): string {
-  const rank = RANK_REGISTRY.find((entry) => entry.slug === slug);
+  const rank = rankBySlug(slug);
   if (rank === undefined) return "/dojo";
   return practiceHref(menuTypeToSlug(rank.exam.menuType));
+}
+
+/** 段級位一覧のパス */
+export const RANKS_PATH = "/dojo/ranks";
+
+/**
+ * 段級位の詳細ページのパス
+ * 段級位詳細パス
+ *
+ * 一覧・道場・sitemap がそれぞれ文字列を組み立てると、ルートを変えたときに
+ * 追随漏れが出るため、組み立てをここに閉じる。
+ *
+ * @param slug 段級位スラッグ
+ */
+export function rankHref(slug: RankSlug): string {
+  return `${RANKS_PATH}/${slug}`;
 }
 
 /**

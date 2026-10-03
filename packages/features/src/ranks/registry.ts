@@ -291,3 +291,14 @@ export function rankRequiringMenu(menuType: string):
   const rank = RANK_REGISTRY.find((entry) => entry.exam.menuType === menuType);
   return rank === undefined ? undefined : { rank, requirement: rank.exam };
 }
+
+/**
+ * スラッグから段級位の定義を引く
+ * 段級位取得
+ *
+ * 段級位の詳細ページが URL の slug から定義を引くのに使う。未知の slug なら
+ * undefined。
+ */
+export function rankBySlug(slug: string): RankDefinition | undefined {
+  return RANK_REGISTRY.find((rank) => rank.slug === slug);
+}
