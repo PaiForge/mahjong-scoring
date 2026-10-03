@@ -12,23 +12,21 @@ import { ComprehensivePracticeSection } from "./comprehensive-practice-section";
 import { ContinueLearningSection } from "./continue-learning-section";
 import { HomeAnnouncements } from "./home-announcements";
 import { NextStepSection } from "./next-step-section";
+import { TextbookLinkSection } from "./textbook-link-section";
 
 /**
  * ログイン済みユーザーのトップ（ダッシュボード）。
  * ダッシュボード
  *
- * 「次の一歩」→「教本の続き」→ お知らせ の順に並べる。
+ * 行程が進行中なら「次の一歩」→「教本」（目次への補助リンク）→ お知らせ、
+ * 全級取得済みなら「教本の続き」→「おすすめの練習」（総合演習）→ お知らせ
+ * の順に並べる。出し分けは `selectDashboardGuidance` が決める。
  *
  * 「次の一歩」は黒帯への道（段級位の行程）の中で今やること 1 つ
- * （{@link NextStepSection}）。登録直後は最初のレッスン、以降は章 → 練習 →
- * 試験と進む。ホームは「今すること」を答える場で、全体の道筋は道場が持つ。
- *
- * 「教本の続き」は行程とは別に残す。行程が数えるのは級の前提章だけで、
- * 基礎のセクションや点数記憶術のように級に属さない章の読む位置は、
- * ここでしか示せない。
- *
- * 学習導線は勧めるものがあるときだけ出す（`selectDashboardGuidance`）。
- * 全級を取得し教本も読み切ったユーザーには、代わりに総合演習を出す。
+ * （{@link NextStepSection}）。登録直後は最初のレッスン、以降は章と練習を
+ * 交互に進み、最後に試験。ホームは「今すること」を答える場で、全体の道筋は
+ * 道場が持つ。行程が進行中のあいだ教本は補助リンクにとどめ、別の「次はここ」
+ * を同じ重さで並べない（{@link TextbookLinkSection}）。
  */
 export async function HomeDashboard() {
   const [
@@ -45,7 +43,7 @@ export async function HomeDashboard() {
     fetchAchievedRankSlugs(),
   ]);
 
-  const { journey, nextChapter, showComprehensivePractice } =
+  const { journey, showTextbookLink, nextChapter, showComprehensivePractice } =
     selectDashboardGuidance({
       readSlugs,
       completedLessonSlugs,
@@ -59,6 +57,8 @@ export async function HomeDashboard() {
 
       <div className="space-y-8">
         <NextStepSection journey={journey} />
+
+        {showTextbookLink && <TextbookLinkSection />}
 
         {nextChapter && (
           <ContinueLearningSection

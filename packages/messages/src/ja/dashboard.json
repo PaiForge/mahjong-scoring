@@ -1,8 +1,14 @@
 {
   "title": "ダッシュボード",
   "continueLearningTitle": "教本の続き",
+  "textbook": {
+    "title": "教本",
+    "lead": "黒帯への道の章は「次の一歩」が順に案内します。基礎や点数記憶術など、道に含まれない章は目次から読めます。",
+    "tocTitle": "教本の目次",
+    "tocDescription": "全 {count} 章。読んだ章には印が付きます"
+  },
   "recommendedPracticeTitle": "おすすめの練習",
-  "comprehensivePracticeHint": "教本も練習もひととおり終えました。総合演習で仕上げましょう。",
+  "comprehensivePracticeHint": "段級位はすべて取得しました。総合演習で腕を磨き続けましょう。",
   "nextStep": {
     "title": "次の一歩",
     "firstStepTitle": "黒帯への第一歩",

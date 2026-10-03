@@ -95,3 +95,24 @@ export function lessonForChapter(
 ): LessonDefinition | undefined {
   return LESSON_REGISTRY.find((lesson) => lesson.chapterSlug === chapterSlug);
 }
+
+/**
+ * 完了したレッスンが「学んだ」ことにする章の集合を返す
+ * レッスンで学んだ章
+ *
+ * 行程（journey）の外で「章を読む位置」を決めるとき（ダッシュボードの
+ * 教本の続き）に、読了と合わせて使う。レッスンで学んだ章を読み直せとは
+ * 言わないための写像で、章を読んだ印（`learn_chapter_reads`）にはしない。
+ * 未知のレッスンスラッグは無視する。
+ *
+ * @param completedLessonSlugs 完了したレッスンのスラッグ
+ */
+export function chaptersLearnedByLessons(
+  completedLessonSlugs: ReadonlySet<string>,
+): ReadonlySet<CurriculumChapterSlug> {
+  return new Set(
+    LESSON_REGISTRY.filter((lesson) =>
+      completedLessonSlugs.has(lesson.slug),
+    ).map((lesson) => lesson.chapterSlug),
+  );
+}

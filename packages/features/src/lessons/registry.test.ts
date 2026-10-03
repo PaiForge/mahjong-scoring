@@ -9,6 +9,7 @@ import {
 import {
   LESSON_REGISTRY,
   LESSON_SLUGS,
+  chaptersLearnedByLessons,
   isLessonSlug,
   lessonBySlug,
   lessonForChapter,
@@ -45,6 +46,13 @@ describe("LESSON_REGISTRY", () => {
     expect(lessonBySlug("unknown")).toBeUndefined();
     expect(lessonForChapter("mangan-ko-ron")?.slug).toBe("mangan-ko-ron");
     expect(lessonForChapter("yaku")).toBeUndefined();
+  });
+
+  it("完了したレッスンから学んだ章を引き、未知の slug は無視する", () => {
+    expect(
+      chaptersLearnedByLessons(new Set(["mangan-ko-ron", "unknown"])),
+    ).toEqual(new Set(["mangan-ko-ron"]));
+    expect(chaptersLearnedByLessons(new Set())).toEqual(new Set());
   });
 });
 
