@@ -2654,10 +2654,22 @@
       "displayName": "表示名",
       "status": "ステータス",
       "actions": "操作",
-      "active": "有効",
-      "banned": "BAN済み",
       "createdAt": "登録日時",
-      "noUsersFound": "ユーザーが見つかりません"
+      "noUsersFound": "ユーザーが見つかりません",
+      "revealEmail": "メールアドレスを表示",
+      "hideEmail": "メールアドレスを隠す",
+      "statuses": {
+        "provisional": "仮登録",
+        "deleted": "退会済み",
+        "banned": "BAN済み",
+        "active": "有効"
+      },
+      "openPublicProfile": "公開プロフィールを新しいタブで開く",
+      "search": "ユーザー検索",
+      "searchPlaceholder": "ユーザー名・表示名・メールアドレス",
+      "searchButton": "検索",
+      "searchResultCount": "「{query}」に一致するユーザー: {count} 件",
+      "clearSearch": "検索を解除"
     },
     "auditLogTable": {
       "action": "アクション",

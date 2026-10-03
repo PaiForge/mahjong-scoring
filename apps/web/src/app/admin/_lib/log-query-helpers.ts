@@ -36,9 +36,44 @@ export function resolveUserDisplay(
 }
 
 /**
+ * 検索文字列に合致するユーザーIDを集める。
+ * プロフィール（username / displayName）とメールアドレスを部分一致・大文字小文字無視で検索する。
+ * ユーザー検索
+ *
+ * 管理画面の「ユーザーで絞り込み」（ログ画面）と「ユーザー検索」（ユーザー一覧）が
+ * 同じ文字列で同じユーザーに当たるよう、照合はここに集める。
+ *
+ * @param allUsers - `listAllAuthUsers` で事前取得した認証ユーザー一覧
+ * @param query - 検索文字列（空文字を渡さないこと）
+ */
+export async function findUserIdsMatching(
+  allUsers: readonly User[],
+  query: string,
+): Promise<string[]> {
+  const pattern = `%${escapeLikePattern(query)}%`;
+  const matchingProfiles = await db
+    .select({ id: profiles.id })
+    .from(profiles)
+    .where(
+      or(
+        ilike(profiles.username, pattern),
+        ilike(profiles.displayName, pattern),
+      ),
+    );
+
+  const lowerQuery = query.toLowerCase();
+  const matchingEmailUserIds = allUsers
+    .filter((u) => u.email?.toLowerCase().includes(lowerQuery))
+    .map((u) => u.id);
+
+  return [
+    ...new Set([...matchingProfiles.map((p) => p.id), ...matchingEmailUserIds]),
+  ];
+}
+
+/**
  * ユーザーフィルタ条件を構築する。
- * プロフィール（username / displayName）とメールアドレスの両方を検索し、
- * 合致するユーザーIDで `inArray` 条件を返す。
+ * `findUserIdsMatching` で合致したユーザーIDで `inArray` 条件を返す。
  *
  * @param allUsers - `listAllAuthUsers` で事前取得した認証ユーザー一覧
  * @param userFilter - 検索文字列（空文字の場合はフィルタなし）
@@ -53,23 +88,7 @@ export async function buildUserFilterCondition(
     return { matchedIds: undefined, condition: undefined };
   }
 
-  const matchingProfiles = await db
-    .select({ id: profiles.id })
-    .from(profiles)
-    .where(
-      or(
-        ilike(profiles.username, `%${escapeLikePattern(userFilter)}%`),
-        ilike(profiles.displayName, `%${escapeLikePattern(userFilter)}%`),
-      ),
-    );
-
-  const matchingEmailUserIds = allUsers
-    .filter((u) => u.email?.toLowerCase().includes(userFilter.toLowerCase()))
-    .map((u) => u.id);
-
-  const allMatchingIds = [
-    ...new Set([...matchingProfiles.map((p) => p.id), ...matchingEmailUserIds]),
-  ];
+  const allMatchingIds = await findUserIdsMatching(allUsers, userFilter);
 
   if (allMatchingIds.length === 0) {
     return { matchedIds: [], condition: undefined };

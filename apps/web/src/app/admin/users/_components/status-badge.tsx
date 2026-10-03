@@ -1,27 +1,31 @@
 import { getTranslations } from "next-intl/server";
 
+import { UserStatus } from "../_lib/user-status";
+
 interface StatusBadgeProps {
-  readonly isBanned: boolean;
+  readonly status: UserStatus;
 }
 
+/** 状態ごとのバッジの色 */
+const STATUS_CLASSES: Record<UserStatus, string> = {
+  [UserStatus.Provisional]: "bg-amber-100 text-amber-800",
+  [UserStatus.Deleted]: "bg-gray-100 text-gray-600",
+  [UserStatus.Banned]: "bg-red-100 text-red-700",
+  [UserStatus.Active]: "bg-primary-100 text-primary-700",
+};
+
 /**
- * ユーザーステータスバッジ（BAN済み / 有効）
+ * ユーザーステータスバッジ（仮登録 / 退会済み / BAN済み / 有効）
  * ステータスバッジ
  */
-export async function StatusBadge({ isBanned }: StatusBadgeProps) {
+export async function StatusBadge({ status }: StatusBadgeProps) {
   const t = await getTranslations("admin");
 
-  if (isBanned) {
-    return (
-      <span className="inline-block rounded bg-red-100 px-2 py-0.5 text-xs font-medium text-red-700">
-        {t("usersTable.banned")}
-      </span>
-    );
-  }
-
   return (
-    <span className="inline-block rounded bg-primary-100 px-2 py-0.5 text-xs font-medium text-primary-700">
-      {t("usersTable.active")}
+    <span
+      className={`inline-block rounded-md px-2 py-0.5 text-xs font-medium whitespace-nowrap ${STATUS_CLASSES[status]}`}
+    >
+      {t(`usersTable.statuses.${status}`)}
     </span>
   );
 }
