@@ -61,6 +61,12 @@ export type { RandomSource } from "./core/random";
 
 // === Problem: Score ===
 export { generateValidScoreQuestion } from "./problem/score/generator";
+export { buildScoreQuestion } from "./problem/score/build-question";
+export type {
+  ScoreQuestionBuildInput,
+  ScoreQuestionBuildError,
+  RiichiInput,
+} from "./problem/score/build-question";
 export { SCORE_FILTERABLE_YAKU } from "./problem/score/filterable-yaku";
 export {
   judgeAnswer,
@@ -161,6 +167,7 @@ export {
   ALL_YAKUMAN_RULES_ENABLED,
   toYakumanRuleConfig,
   allowsDoubleYakuman,
+  doubleWindJantouFu,
 } from "./rules/settings";
 export type { RuleSettings, YakumanRuleSettings } from "./rules/settings";
 
@@ -207,5 +214,6 @@ export type {
   Tehai14,
   CompletedMentsu,
   Payment,
+  RuleConfig,
   YakumanRuleConfig,
 } from "@pai-forge/riichi-mahjong";
