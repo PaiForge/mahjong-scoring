@@ -1,5 +1,5 @@
 /**
- * 練習種別レジストリと i18n メッセージファイル (ja.json) の整合性検証
+ * 練習種別レジストリと i18n メッセージファイル （日本語辞書） の整合性検証
  *
  * @description
  * 練習種別は `menuTypeToMessageKey()` で camelCase のキーに変換され、
@@ -13,7 +13,7 @@
  */
 import { describe, expect, it } from "vitest";
 
-import messagesJson from "@/messages/ja.json";
+import { messages as messagesJson } from "@mahjong-scoring/messages/ja";
 
 import {
   menuTypeToMessageKey,
@@ -79,7 +79,7 @@ describe("i18n integrity: 練習ページの namespace", () => {
     const { namespace } = practiceMenuBySlug(slug);
     const section = messages[namespace];
 
-    expect(typeof section?.title, `${namespace}.title が ja.json に無い`).toBe(
+    expect(typeof section?.title, `${namespace}.title が日本語辞書に無い`).toBe(
       "string",
     );
   });

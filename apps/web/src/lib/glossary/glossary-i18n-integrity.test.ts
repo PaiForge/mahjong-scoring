@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 
-import messagesJson from "@/messages/ja.json";
+import { messages as messagesJson } from "@mahjong-scoring/messages/ja";
 
 import { kanaRowOf } from "./kana";
 import { collectTermSlugsInNamespace } from "./message-terms";
@@ -12,7 +12,7 @@ import {
 import { GLOSSARY_CATEGORIES, isMentsuExample } from "./types";
 
 /**
- * 用語レジストリと辞書（ja.json）の整合性検証
+ * 用語レジストリと辞書（日本語の辞書）の整合性検証
  *
  * 用語は「構造は TS（registry）・文言は辞書」に分けて持つ。参照は
  * `t(\`terms.${slug}.term\`)` のような動的キーなので、綴りのずれは

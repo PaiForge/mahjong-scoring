@@ -27,6 +27,7 @@
     "@dnd-kit/utilities": "^3.2.2",
     "@mahjong-scoring/core": "workspace:*",
     "@mahjong-scoring/features": "workspace:*",
+    "@mahjong-scoring/messages": "workspace:*",
     "@next/third-parties": "^16.3.0",
     "@pai-forge/mahjong-react-ui": "^0.4.0",
     "@supabase/ssr": "^0.12.4",

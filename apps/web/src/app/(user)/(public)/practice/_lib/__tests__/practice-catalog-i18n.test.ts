@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 
-import messages from "@/messages/ja.json";
+import { messages } from "@mahjong-scoring/messages/ja";
 import {
   PRACTICE_CATALOG,
   practiceTitleKey,

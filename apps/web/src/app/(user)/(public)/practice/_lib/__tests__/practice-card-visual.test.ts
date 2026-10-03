@@ -8,7 +8,7 @@
  */
 import { describe, expect, it } from "vitest";
 
-import messagesJson from "@/messages/ja.json";
+import { messages as messagesJson } from "@mahjong-scoring/messages/ja";
 
 import {
   hasPracticeCardVisual,

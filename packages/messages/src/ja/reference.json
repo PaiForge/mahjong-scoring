@@ -1,0 +1,25 @@
+{
+  "title": "早見表",
+  "description": "点数や役をすぐに確認できる早見表をまとめています。",
+  "scoreTable": {
+    "title": "点数早見表",
+    "description": "親・子のロン／ツモ点数を符×翻の一覧で確認できます"
+  },
+  "yaku": {
+    "title": "役一覧",
+    "description": "各役の翻数（門前・食い下がり）と手牌の例をまとめた早見表です",
+    "hanUnit": "{count}翻",
+    "yakuman": "役満",
+    "nakiHan": "鳴き{count}翻",
+    "menzenOnly": "門前限定",
+    "exampleMenzen": "門前",
+    "exampleNaki": "鳴き",
+    "exampleLabelSeparator": "・",
+    "nakiNote": "※ ラベルのない役は鳴いても翻数が変わりません",
+    "inThisHand": "この手の役"
+  },
+  "glossary": {
+    "title": "用語集",
+    "description": "点数計算に出てくる専門用語を、意味と手牌の例で引けます"
+  }
+}

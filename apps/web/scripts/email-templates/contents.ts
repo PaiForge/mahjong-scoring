@@ -9,9 +9,9 @@
  * `{{ .ConfirmationURL }}` などの二重波括弧は Supabase（Go の
  * text/template）が送信時に差し込むもので、生成時には触らずそのまま出す。
  */
-import messages from "../../src/messages/ja.json";
+import { messages } from "@mahjong-scoring/messages/ja";
 
-/** サイト名。`src/messages/ja.json` の metadata.siteName が正典 */
+/** サイト名。辞書（`@mahjong-scoring/messages`）の metadata.siteName が正典 */
 export const SITE_NAME = messages.metadata.siteName;
 
 /** 1通ぶんの可変部分 */

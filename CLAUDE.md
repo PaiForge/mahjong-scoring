@@ -65,6 +65,7 @@
 apps/web/          — Next.js 16 (Turbopack, App Router, Tailwind CSS v4)
 packages/core/     — 共通ドメインロジック（問題生成等）。@pai-forge/riichi-mahjong 依存
 packages/features/ — web とモバイルで共有するアプリのロジック（レジストリ・パス・セッションのフック・設定ストア）
+packages/messages/ — i18n 辞書（ICU 形式。web は next-intl、モバイルは use-intl で同じ辞書を読む）
 packages/eslint-config/ — 共通 ESLint 設定（PaiForge コーディング規約準拠）
 ```
 
@@ -84,9 +85,14 @@ web とモバイル（Expo）で共有するロジックを置く。`exports` �
 ## i18n
 
 - `next-intl` をルーティングなしで使用（locale は `ja` 固定、将来英語対応予定）
-- 辞書ファイル: `apps/web/src/messages/ja.json`
+- 辞書: `packages/messages/src/ja/<名前空間>.json`（名前空間ごとに 1 ファイル。モバイルと共有）。
+  `src/ja.ts` が束ねて `messages` として公開する。名前空間を足したらそこに 1 行足す（`ja.test.ts` が食い違いを落とす）
 - サーバーコンポーネント: `getTranslations()` / クライアントコンポーネント: `useTranslations()`
 - UIコンポーネントに日本語をベタ書きしない
+- モバイルは i18next ではなく use-intl（next-intl の土台）で同じ辞書を読む。辞書キーは
+  レジストリと結び付いた契約（`practice.practices.<messageKey>`・`<namespace>.variants.<key>`・
+  `ranks.names.<slug>`）なので、辞書を 2 つに分けない。モバイルは使う名前空間だけを
+  分割代入で束ね直して渡す
 
 ## 用語（チャレンジ / トレーニング / 模試 / セッション）
 

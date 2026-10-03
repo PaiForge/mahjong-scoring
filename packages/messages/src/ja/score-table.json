@@ -1,0 +1,24 @@
+{
+  "pageTitle": "点数早見表",
+  "pageDescription": "親・子のロン／ツモ点数を符×翻の一覧で確認できます",
+  "ko": "子",
+  "oya": "親",
+  "ron": "ロン",
+  "tsumo": "ツモ",
+  "tsumoNote": {
+    "ko": "※ ツモの点数は 上段＝子から / 下段＝親から",
+    "oya": "※ ALL は全員から同じ点数"
+  },
+  "fuHan": "符×翻",
+  "fuSuffix": "符",
+  "hanSuffix": "翻",
+  "score": "点数",
+  "name": "名称",
+  "mangan": "満貫",
+  "haneman": "跳満",
+  "baiman": "倍満",
+  "sanbaiman": "三倍満",
+  "yakuman": "役満",
+  "kiriageManganActive": "※ 現在、切り上げ満貫が有効になっています。",
+  "kiriageManganActiveLink": "設定を変更する"
+}

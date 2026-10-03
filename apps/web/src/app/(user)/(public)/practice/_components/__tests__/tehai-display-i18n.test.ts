@@ -8,7 +8,7 @@
  */
 import { describe, expect, it } from "vitest";
 
-import messagesJson from "@/messages/ja.json";
+import { messages as messagesJson } from "@mahjong-scoring/messages/ja";
 
 /** TehaiDisplay / TehaiHand が t() で引く common のキー */
 const REQUIRED_COMMON_KEYS = [

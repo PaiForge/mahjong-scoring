@@ -1,0 +1,48 @@
+{
+  "title": "待ちの符計算",
+  "generating": "問題を生成中...",
+  "description": "待ち形と和了牌を確認して、待ちの符を答えてください",
+  "machiLabel": "待ち形",
+  "agariLabel": "和了牌",
+  "questionPrompt": "この待ちの符を回答してください",
+  "fuOption": "{value}符",
+  "result": {
+    "problemDetails": "問題の詳細",
+    "correct": "正解",
+    "incorrect": "不正解",
+    "correctAnswer": "正解",
+    "yourAnswer": "あなたの回答"
+  },
+  "howToPlay": {
+    "title": "問題方式",
+    "lead": "このような問題が出題されます。"
+  },
+  "learn": {
+    "pageTitle": "待ちの符計算",
+    "pageDescription": "麻雀の待ち形（両面・嵌張・辺張・単騎・双碰）による符計算を、牌の画像付きでわかりやすく解説します。",
+    "whatIsMachi": "待ちの符とは",
+    "whatIsMachiBody": "[[tenpai|聴牌]]の形によって、和了時に符が加算される場合があります。[[machi|待ち]]の形が限定的であるほど符がつきます。",
+    "twoFuTitle": "2符がつく待ち",
+    "twoFuBody": "[[kanchan|嵌張]]・[[penchan|辺張]]・[[tanki|単騎]]の3種類は2符が加算されます。受け入れ枚数が少なく、待ちとして不利な形です。",
+    "twoFuExamples": "2符の例",
+    "kanchanLabel": "嵌張待ち",
+    "penchanLabel": "辺張待ち",
+    "tankiLabel": "単騎待ち",
+    "zeroFuTitle": "0符の待ち",
+    "zeroFuBody": "[[ryanmen|両面]]・[[shanpon|双碰]]は0符です。受け入れ枚数が多く、有利な待ちとされます。",
+    "zeroFuExamples": "0符の例",
+    "ryanmenLabel": "両面待ち",
+    "shanponLabel": "双碰待ち",
+    "nobetanNote": "※ ノベタンは単騎待ちとみなされ2符が付きます。",
+    "summaryTitle": "まとめ",
+    "colMachi": "待ちの形",
+    "colType": "待ちの種類",
+    "colFu": "符",
+    "rowKanchan": "嵌張（カンチャン）",
+    "rowPenchan": "辺張（ペンチャン）",
+    "rowTanki": "単騎（タンキ）",
+    "rowRyanmen": "両面（リャンメン）",
+    "rowShanpon": "双碰（シャンポン）",
+    "fuUnit": "{value}符"
+  }
+}
