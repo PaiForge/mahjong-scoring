@@ -33,8 +33,11 @@ export default async function TryPage() {
   const t = await getTranslations("tryDemo");
 
   return (
+    // 練習の play 画面と同じく、スクロール先をタイトル帯ではなくカード領域
+    // （盤面）に置く。開いた直後に盤面が画面最上部へ来る（TryBoard がスクロールする）
     <ContentContainer
       id={PRACTICE_SCROLL_ANCHOR_ID}
+      fillViewport
       breadcrumb={[{ label: t("title") }]}
     >
       <PageTitle>{t("title")}</PageTitle>

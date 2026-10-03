@@ -13,7 +13,11 @@ import {
 } from "@/app/(user)/(public)/practice/_components/practice-footer-actions";
 import { QuestionPrompt } from "@/app/(user)/(public)/practice/_components/question-prompt";
 import { TehaiMentsuBreakdown } from "@/app/(user)/(public)/practice/_components/tehai-mentsu-breakdown";
-import { scrollToPracticeAnchor } from "@/app/(user)/(public)/practice/_lib/scroll-anchor";
+import { useScrollToElement } from "@/app/(user)/(public)/practice/_hooks/use-scroll-to-element";
+import {
+  PRACTICE_SCROLL_ANCHOR_ID,
+  scrollToPracticeAnchor,
+} from "@/app/(user)/(public)/practice/_lib/scroll-anchor";
 import { QuestionDisplay } from "@/app/(user)/(public)/practice/score/_components/question-display";
 import { ResultDisplay } from "@/app/(user)/(public)/practice/score/_components/result-display";
 import { ScorePracticeAnswerForm } from "@/app/(user)/(public)/practice/score/_components/score-practice-answer-form";
@@ -62,6 +66,12 @@ export function TryBoard() {
   // 「もう一度解く」でフォームを作り直す（入力欄を空に戻す）ための key
   const [attemptSeq, setAttemptSeq] = useState(0);
   const isAnswered = attempt !== undefined;
+
+  // 開いた直後にグローバルヘッダとタイトル帯を画面外へ送り、盤面を最上部に
+  // 出す（練習の play 画面と同じ）。はじめ方ガイドからのリンクはハッシュ付きで、
+  // クライアント遷移ならブラウザのネイティブスクロールが先に効く。これは
+  // 直接開いたときのフォールバック
+  useScrollToElement(PRACTICE_SCROLL_ANCHOR_ID);
 
   // 回答・開示・やり直しのボタンはいずれも縦に長い盤面の下端にあるため、
   // 総合演習と同じく表示が切り替わる操作のたびに盤面の先頭へ戻す

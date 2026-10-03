@@ -20,6 +20,7 @@ import { BookIcon } from "@/app/(user)/_components/icons/book-icon";
 import { CheckIcon } from "@/app/(user)/_components/icons/check-icon";
 import { PlayIcon } from "@/app/(user)/_components/icons/play-icon";
 import { createNamespaceMetadata } from "@/app/_lib/metadata";
+import { PRACTICE_SCROLL_HASH } from "@/app/(user)/(public)/practice/_lib/scroll-anchor";
 
 import { SignUpPanel } from "@/app/(user)/_components/sign-up-panel";
 
@@ -48,7 +49,7 @@ export default async function GettingStartedPage() {
             title={t("steps.tryout.title")}
             description={t("steps.tryout.description")}
             ctaLabel={t("steps.tryout.cta")}
-            ctaHref="/try"
+            ctaHref={`/try${PRACTICE_SCROLL_HASH}`}
           />
           <StepCard
             icon={<PlayIcon className="size-7" />}
