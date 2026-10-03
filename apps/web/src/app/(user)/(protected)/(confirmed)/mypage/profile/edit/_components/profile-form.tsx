@@ -95,7 +95,6 @@ export function ProfileForm({
         <ProfileTextField
           id="displayName"
           label={t("displayNameLabel")}
-          description={t("displayNameDescription")}
           value={displayName}
           onChange={setDisplayName}
           placeholder={t("displayNamePlaceholder")}

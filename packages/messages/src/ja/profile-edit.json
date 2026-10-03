@@ -19,7 +19,6 @@
   "avatarRemoved": "アバターを削除しました。",
   "avatarRemoveFailed": "アバターの削除に失敗しました。",
   "displayNameLabel": "表示名",
-  "displayNameDescription": "他のユーザーに表示される名前です。未入力の場合はユーザー名が使用されます。",
   "displayNamePlaceholder": "例: ツモの達人",
   "bioLabel": "自己紹介",
   "bioPlaceholder": "麻雀歴や好きな役などを書いてみましょう。",

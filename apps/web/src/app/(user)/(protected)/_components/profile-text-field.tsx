@@ -13,8 +13,6 @@ export const PROFILE_INPUT_CLASS =
 interface ProfileTextFieldProps {
   readonly id: string;
   readonly label: string;
-  /** ラベル下の補足説明 */
-  readonly description?: string;
   readonly value: string;
   readonly onChange: (value: string) => void;
   readonly placeholder?: string;
@@ -30,12 +28,11 @@ interface ProfileTextFieldProps {
  * プロフィール系フォームの単行入力欄
  * プロフィール入力欄
  *
- * 「ラベル + 補足 + 入力欄」の体裁をプロフィール編集とユーザー名登録で共有する。
+ * 「ラベル + 入力欄」の体裁をプロフィール編集とユーザー名登録で共有する。
  */
 export function ProfileTextField({
   id,
   label,
-  description,
   value,
   onChange,
   placeholder,
@@ -53,9 +50,6 @@ export function ProfileTextField({
         {label}
         {required && <span className="text-destructive"> *</span>}
       </label>
-      {description && (
-        <p className="mb-2 text-xs text-surface-500">{description}</p>
-      )}
       <input
         id={id}
         type="text"
