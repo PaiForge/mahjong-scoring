@@ -17,7 +17,7 @@ vi.mock("drizzle-orm", async () => await import("@/test/drizzle-orm-mock"));
 
 import { createQueryChain, type QueryChainMock } from "@/test/drizzle-mock";
 
-import { readUserQuota } from "../read-user-quota";
+import { readUserQuotaUsage } from "../read-user-quota";
 
 let chain: QueryChainMock;
 
@@ -30,11 +30,11 @@ beforeEach(() => {
   vi.clearAllMocks();
 });
 
-describe("readUserQuota", () => {
-  it("行があれば上限 − count を返し、何も書かない", async () => {
+describe("readUserQuotaUsage", () => {
+  it("行があれば count を返し、何も書かない", async () => {
     givenRows([{ count: 2 }]);
 
-    expect(await readUserQuota("u1", "score", "2026-10-01", 5)).toBe(3);
+    expect(await readUserQuotaUsage("u1", "score", "2026-10-01")).toBe(2);
     expect(chain.where).toHaveBeenCalledWith(
       expect.objectContaining({
         op: "and",
@@ -47,22 +47,17 @@ describe("readUserQuota", () => {
     );
   });
 
-  it("行が無ければまだ 1 問も生成していないので上限そのもの", async () => {
+  it("行が無ければまだ 1 問も生成していないので 0", async () => {
     givenRows([]);
-    expect(await readUserQuota("u1", "machi-score", "2026-10-01", 3)).toBe(3);
-  });
-
-  it("残りは負にならない", async () => {
-    givenRows([{ count: 7 }]);
-    expect(await readUserQuota("u1", "score", "2026-10-01", 5)).toBe(0);
+    expect(await readUserQuotaUsage("u1", "machi-score", "2026-10-01")).toBe(0);
   });
 
   it("DB の失敗はそのまま投げる", async () => {
     mockSelect.mockImplementation(() => {
       throw new Error("boom");
     });
-    await expect(readUserQuota("u1", "score", "2026-10-01", 5)).rejects.toThrow(
-      "boom",
-    );
+    await expect(
+      readUserQuotaUsage("u1", "score", "2026-10-01"),
+    ).rejects.toThrow("boom");
   });
 });

@@ -34,7 +34,7 @@ vi.mock("@/lib/practice-quota/consume-user-quota", () => ({
   consumeUserQuota: mockConsumeUserQuota,
 }));
 vi.mock("@/lib/practice-quota/read-user-quota", () => ({
-  readUserQuota: mockReadUserQuota,
+  readUserQuotaUsage: mockReadUserQuota,
 }));
 vi.mock("@/lib/practice-quota/anonymous-quota-cookie", () => ({
   canSignAnonymousQuota: mockCanSign,
@@ -276,7 +276,7 @@ describe("peekPracticeQuota", () => {
   });
 
   it("無料ユーザーは DB を読むだけで消費しない", async () => {
-    mockReadUserQuota.mockResolvedValue(2);
+    mockReadUserQuota.mockResolvedValue(1);
 
     expect(await peekPracticeQuota("machi-score")).toEqual({
       success: true,
@@ -290,13 +290,12 @@ describe("peekPracticeQuota", () => {
       "u1",
       "machi-score",
       expect.stringMatching(/^\d{4}-\d{2}-\d{2}$/),
-      3,
     );
     expect(mockConsumeUserQuota).not.toHaveBeenCalled();
   });
 
   it("残りが 0 なら allowed: false（次の 1 問は始められない）", async () => {
-    mockReadUserQuota.mockResolvedValue(0);
+    mockReadUserQuota.mockResolvedValue(5);
     expect(await peekPracticeQuota("score")).toEqual(
       expect.objectContaining({ allowed: false, remaining: 0, limit: 5 }),
     );
