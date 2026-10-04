@@ -55,9 +55,9 @@ const readOfferPrices = unstable_cache(
  * 表示価格取得
  *
  * 価格表をコードに持たない（Stripe の Price が正）。料金ページは静的で、
- * `unstable_cache` の revalidate が ISR の間隔を兼ねる。Dashboard で価格を
- * 改定したら最長 1 日で追随する。すぐ反映したいときは
- * `revalidateTag(PLAN_PRICES_CACHE_TAG)`。
+ * ページ自身の `revalidate`（1 時間）で作り直され、その際にこのキャッシュを
+ * 読む。Dashboard で価格を改定したら、ここの期限切れ（最長 1 日）の後の
+ * 再描画で追随する。すぐ反映したいときは `revalidateTag(PLAN_PRICES_CACHE_TAG)`。
  *
  * 失敗（鍵が無い・Stripe に届かない・Price ID 未設定）は undefined。
  * 料金ページは価格欄を伏せて購入ボタンは出す — Checkout 側が正しい価格を
