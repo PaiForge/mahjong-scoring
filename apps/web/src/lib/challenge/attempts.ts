@@ -81,12 +81,19 @@ export async function beginAttempt(
     question: publicChallengeQuestion(question, menuType),
   };
 }
-/** 本人の行をロックし、一度だけ回答を受け付ける。正解開示と次問発行は受付後。 */
+/**
+ * 本人の行をロックし、一度だけ回答を受け付ける。正解開示と次問発行は受付後。
+ *
+ * @param receivedAt - 回答のリクエストを受け取った時刻。認証や行ロックの前に
+ *   取ったものを渡す。ここから応答を組むまでの処理時間は競技時間に数えない
+ *   （{@link answeredChallenge}）
+ */
 export async function answerAttempt(
   userId: string,
   id: unknown,
   sequence: unknown,
   answer: unknown,
+  receivedAt: number = Date.now(),
 ) {
   if (
     !uuid.safeParse(id).success ||
@@ -97,7 +104,7 @@ export async function answerAttempt(
     return undefined;
   return db.transaction(async (tx) => {
     const row = await lockOwnAttempt(tx, userId, id);
-    const now = Date.now();
+    const now = receivedAt;
     if (!row || row.consumed) return undefined;
     if (isChallengeTimeUp(row.state, now)) return { expired: true as const };
     if (!canAnswerChallenge(row.state, sequence, now)) return undefined;
@@ -112,7 +119,13 @@ export async function answerAttempt(
       row.state.settings,
     );
     if (!next) return undefined;
-    const state = answeredChallenge(row.state, correct, next, now);
+    const state = answeredChallenge(
+      row.state,
+      correct,
+      next,
+      receivedAt,
+      Date.now(),
+    );
     await tx
       .update(challengeAttempts)
       .set({ state })

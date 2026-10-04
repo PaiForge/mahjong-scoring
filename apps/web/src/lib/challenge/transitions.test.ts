@@ -6,7 +6,7 @@ import type {
 } from "@mahjong-scoring/features/challenge/types";
 
 import {
-  ANSWER_GRACE_MS,
+  RESPONSE_GRACE_MS,
   answeredChallenge,
   canAnswerChallenge,
   canPauseChallenge,
@@ -94,23 +94,51 @@ describe("answeredChallenge", () => {
     expect(wrong).toMatchObject({ score: 0, incorrectAnswers: 1 });
   });
 
-  it("受け付けた時点の経過を畳み込み、猶予の間は時計を止める", () => {
-    const state = answeredChallenge(running(), true, next, START + 10_000);
+  it("受け取った時点の経過を畳み込み、応答の猶予が明けるまで時計を止める", () => {
+    const receivedAt = START + 10_000;
+    const state = answeredChallenge(running(), true, next, receivedAt);
     expect(state.elapsedMs).toBe(10_000);
-    expect(challengeElapsed(state, START + 10_000 + ANSWER_GRACE_MS)).toBe(
+    expect(challengeElapsed(state, receivedAt + RESPONSE_GRACE_MS)).toBe(
       10_000,
     );
-    expect(
-      challengeElapsed(state, START + 10_000 + ANSWER_GRACE_MS + 500),
-    ).toBe(10_500);
+    expect(challengeElapsed(state, receivedAt + RESPONSE_GRACE_MS + 500)).toBe(
+      10_500,
+    );
   });
 
-  it("猶予のぶん時間切れが遅れる", () => {
-    const state = answeredChallenge(running(), true, next, START + 10_000);
-    expect(isChallengeTimeUp(state, START + LIMIT_MS)).toBe(false);
-    expect(isChallengeTimeUp(state, START + LIMIT_MS + ANSWER_GRACE_MS)).toBe(
+  it("受け取ってから応答を組むまでの処理時間を数えない", () => {
+    const receivedAt = START + 10_000;
+    const respondedAt = receivedAt + 300;
+    const state = answeredChallenge(
+      running(),
       true,
+      next,
+      receivedAt,
+      respondedAt,
     );
+    expect(state.elapsedMs).toBe(10_000);
+    expect(challengeElapsed(state, respondedAt + RESPONSE_GRACE_MS)).toBe(
+      10_000,
+    );
+    expect(challengeElapsed(state, respondedAt + RESPONSE_GRACE_MS + 500)).toBe(
+      10_500,
+    );
+    // 連打の間隔は受け取った時刻から数える（処理が遅くても次の受付は遅れない）
+    expect(state.answerAfter).toBe(receivedAt + 800);
+  });
+
+  it("処理時間と猶予のぶん時間切れが遅れる", () => {
+    const state = answeredChallenge(
+      running(),
+      true,
+      next,
+      START + 10_000,
+      START + 10_300,
+    );
+    expect(isChallengeTimeUp(state, START + LIMIT_MS + 300)).toBe(false);
+    expect(
+      isChallengeTimeUp(state, START + LIMIT_MS + 300 + RESPONSE_GRACE_MS),
+    ).toBe(true);
   });
 });
 

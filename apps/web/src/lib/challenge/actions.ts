@@ -26,15 +26,21 @@ export async function beginChallenge(
   const attempt = await beginAttempt(auth.user.id, menu, variant, settings);
   return attempt ? { attempt } : { error: "invalid_challenge" };
 }
-/** 回答受付。本人確認は回答ごとに行う。 */
+/**
+ * 回答受付。本人確認は回答ごとに行う。
+ *
+ * 受け取った時刻は本人確認より前に取る。確認と採点に掛かる時間を
+ * 競技時間に数えないため（`answerAttempt` の `receivedAt`）。
+ */
 export async function answerChallenge(
   id: unknown,
   sequence: unknown,
   answer: unknown,
 ) {
+  const receivedAt = Date.now();
   const auth = await authenticateAndCheckBan();
   if ("error" in auth) return undefined;
-  return answerAttempt(auth.user.id, id, sequence, answer);
+  return answerAttempt(auth.user.id, id, sequence, answer, receivedAt);
 }
 /** 挑戦の一時停止・再開。 */
 export async function pauseChallenge(id: unknown, paused: unknown) {
