@@ -86,11 +86,12 @@ export function useFuChoiceBoard<TQuestion extends FuQuestion>({
     (index: number) => {
       if (showFeedback || !question) return;
       const fu = options[index];
-      gradeAnswer(question, fu, (gradedQuestion) => {
-        setSelectedFu(fu);
+      const accepted = gradeAnswer(question, fu, (gradedQuestion) => {
         onRecordResult?.(gradedQuestion, fu);
         onAnswer(fu === gradedQuestion.answer, advanceQuestion);
       });
+      // 採点を待たずに選択を立てる（サーバー採点の待ち時間に押した印を出す）
+      if (accepted) setSelectedFu(fu);
     },
     [
       showFeedback,

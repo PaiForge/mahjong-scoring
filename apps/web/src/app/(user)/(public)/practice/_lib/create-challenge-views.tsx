@@ -154,6 +154,10 @@ export function createChallengePlayView<
         }}
         timerControl={{
           ...timerControl,
+          // サーバーの採点を待つ間は時計を止め、応答が届いたらサーバーの
+          // 時計に合わせ直す（サーバー側も受付後に固定の猶予だけ止めている）
+          isActive: timerControl.isActive && !verified?.isGrading,
+          clock: verified?.clock,
           onTimeLimitReached: verified
             ? () => verified.expire(timerControl.onTimeLimitReached)
             : timerControl.onTimeLimitReached,

@@ -10,6 +10,7 @@ import {
 } from "react";
 import { useTranslations } from "next-intl";
 import type { ChallengeQuestion } from "@mahjong-scoring/features/challenge/types";
+import type { ClockReading } from "@mahjong-scoring/features/session/use-timed-session";
 // Server Actions は呼ぶ時に解決し、ローカルの練習盤面はサーバー実装を評価しない。
 const actions = () => import("../../../../../lib/challenge/actions");
 import {
@@ -24,10 +25,27 @@ interface VerifiedChallenge {
   readonly id: string;
   readonly question: ChallengeQuestion;
   readonly advance: () => void;
+  /**
+   * 回答をサーバーへ送る。送れたら true、通信中・フィードバック中・
+   * 時間切れ後で受け付けなかったら false
+   */
   readonly grade: (
     answer: unknown,
     onGraded: (question: ChallengeQuestion) => void,
-  ) => void;
+  ) => boolean;
+  /** 回答を送ってサーバーの採点を待っている間 true。この間は時計を止める */
+  readonly isGrading: boolean;
+  /**
+   * 直近の採点時点のサーバーの経過時間。盤面の時計をこれに合わせ直す
+   *
+   * サーバーは回答を受け付けると固定の猶予（`transitions.ts` の
+   * `ANSWER_GRACE_MS`）だけ時計を止め、画面側は押してから応答が届くまでの
+   * 実際の待ち時間だけ止める。両者は一致しないが、応答のたびにこの値へ
+   * 合わせ直すので、ずれは直近の 1 問分（猶予 − 往復の半分、通常は画面側が
+   * 先に進む側）に留まり積み上がらない。`sequence` は同じ経過時間が続いて
+   * も合わせ直しを起こすための識別子
+   */
+  readonly clock: ClockReading | undefined;
   readonly pause: (paused: boolean) => Promise<boolean>;
   readonly settled: () => Promise<void>;
   readonly restart: () => void;
@@ -61,6 +79,10 @@ export function asMenuQuestion<TQuestion>(
 /**
  * 既存の各盤面はメニュー固有の型を持つ。サーバーは同じメニューの問題だけを返す。
  * この境界以外で問題を型変換しない。トレーニングは同期のローカル採点を維持する。
+ *
+ * 戻り値は回答を受け付けたか。盤面は true のときだけ「選んだ」印を立てる —
+ * サーバー採点の待ち時間に押した印を出す一方で、受け付けなかった連打で
+ * 印が別の選択肢へ動かないため
  */
 export function useGradeAnswer<TQuestion>() {
   const challenge = useVerifiedChallenge();
@@ -69,12 +91,14 @@ export function useGradeAnswer<TQuestion>() {
       question: TQuestion,
       answer: unknown,
       onGraded: (question: TQuestion) => void,
-    ) => {
+    ): boolean => {
       if (!challenge) {
         onGraded(question);
-        return;
+        return true;
       }
-      challenge.grade(answer, (graded) => onGraded(asMenuQuestion(graded)));
+      return challenge.grade(answer, (graded) =>
+        onGraded(asMenuQuestion(graded)),
+      );
     },
     [challenge],
   );
@@ -148,6 +172,8 @@ export function VerifiedChallengeProvider({
     "loading",
   );
   const [busy, setBusy] = useState(false);
+  const [grading, setGrading] = useState(false);
+  const [clock, setClock] = useState<ClockReading | undefined>(undefined);
   const next = useRef<
     { question: ChallengeQuestion; sequence: number } | undefined
   >(undefined);
@@ -168,6 +194,8 @@ export function VerifiedChallengeProvider({
     expiring.current = false;
     serverExpired.current = false;
     setBusy(false);
+    setGrading(false);
+    setClock(undefined);
     next.current = undefined;
     setMode("loading");
     setGeneration((value) => value + 1);
@@ -205,7 +233,10 @@ export function VerifiedChallengeProvider({
     );
   }, []);
   const grade = useCallback(
-    (answer: unknown, onGraded: (question: ChallengeQuestion) => void) => {
+    (
+      answer: unknown,
+      onGraded: (question: ChallengeQuestion) => void,
+    ): boolean => {
       if (
         !state ||
         busyRef.current ||
@@ -213,9 +244,10 @@ export function VerifiedChallengeProvider({
         expiring.current ||
         serverExpired.current
       )
-        return;
+        return false;
       busyRef.current = true;
       setBusy(true);
+      setGrading(true);
       pending.current = actions()
         .then((api) => api.answerChallenge(state.id, state.sequence, answer))
         .then((result) => {
@@ -234,13 +266,16 @@ export function VerifiedChallengeProvider({
           setState((previous) =>
             previous ? { ...previous, question: result.answered } : previous,
           );
+          setClock({ elapsedMs: result.elapsedMs, sequence: result.sequence });
           onGraded(result.answered);
         })
         .catch(() => setMode("error"))
         .finally(() => {
           busyRef.current = false;
           setBusy(serverExpired.current || expiring.current);
+          setGrading(false);
         });
+      return true;
     },
     [state],
   );
@@ -307,6 +342,8 @@ export function VerifiedChallengeProvider({
         ...state,
         advance,
         grade,
+        isGrading: grading,
+        clock,
         pause,
         settled,
         restart,

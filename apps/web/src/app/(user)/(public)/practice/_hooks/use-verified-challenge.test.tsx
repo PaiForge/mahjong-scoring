@@ -38,7 +38,7 @@ function identity<T>(value: T) {
 }
 function Board() {
   const challenge = useVerifiedChallenge();
-  const { question, handleSelect } = useFuChoiceBoard({
+  const { question, selectedFu, handleSelect } = useFuChoiceBoard({
     generateQuestion: mocks.generated,
     options: [0, 2],
     showFeedback: false,
@@ -49,7 +49,11 @@ function Board() {
   return (
     <div>
       <p data-testid="answer">{question?.answer}</p>
+      <p data-testid="selected">{selectedFu}</p>
+      <p data-testid="grading">{String(challenge?.isGrading ?? false)}</p>
+      <p data-testid="clock">{challenge?.clock?.elapsedMs}</p>
       <button onClick={() => handleSelect(1)}>answer</button>
+      <button onClick={() => handleSelect(0)}>answer-other</button>
       <button onClick={challenge?.advance}>next</button>
       <button onClick={() => challenge?.expire(mocks.expired)}>expire</button>
     </div>
@@ -74,6 +78,7 @@ describe("server-graded challenge UI", () => {
       correct: true,
       question: { ...hidden, id: "question-2" },
       sequence: 1,
+      elapsedMs: 12_345,
     });
     mocks.generated.mockReturnValue(answered);
     mocks.reveal.mockResolvedValue({ question: answered });
@@ -108,10 +113,49 @@ describe("server-graded challenge UI", () => {
     fireEvent.click(screen.getByText("answer"));
     await waitFor(() => expect(mocks.answer).toHaveBeenCalledTimes(1));
     await act(async () =>
-      resolve({ answered, correct: true, question: hidden, sequence: 1 }),
+      resolve({
+        answered,
+        correct: true,
+        question: hidden,
+        sequence: 1,
+        elapsedMs: 0,
+      }),
     );
     fireEvent.click(screen.getByText("answer"));
     expect(mocks.answer).toHaveBeenCalledTimes(1);
+  });
+  it("採点待ちの間は押した選択肢を立てたまま時計を止め、応答でサーバーの時計に合わせる", async () => {
+    let resolve: (value: unknown) => void = () => {};
+    mocks.answer.mockImplementation(
+      () =>
+        new Promise((done) => {
+          resolve = done;
+        }),
+    );
+    mount();
+    await screen.findByText("20");
+    expect(screen.getByTestId("grading").textContent).toBe("false");
+    fireEvent.click(screen.getByText("answer"));
+    await waitFor(() =>
+      expect(screen.getByTestId("grading").textContent).toBe("true"),
+    );
+    // 押した瞬間に印が立ち、受け付けなかった連打で別の選択肢へ動かない
+    expect(screen.getByTestId("selected").textContent).toBe("2");
+    fireEvent.click(screen.getByText("answer-other"));
+    expect(screen.getByTestId("selected").textContent).toBe("2");
+    expect(screen.getByTestId("clock").textContent).toBe("");
+    await act(async () =>
+      resolve({
+        answered,
+        correct: true,
+        question: { ...hidden, id: "question-2" },
+        sequence: 1,
+        elapsedMs: 12_345,
+      }),
+    );
+    expect(screen.getByTestId("grading").textContent).toBe("false");
+    expect(screen.getByTestId("clock").textContent).toBe("12345");
+    expect(mocks.onAnswer).toHaveBeenCalledTimes(1);
   });
   it("通信失敗ではローカル採点へ切り替えない", async () => {
     mocks.begin.mockRejectedValue(new Error("offline"));
