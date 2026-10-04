@@ -1,9 +1,6 @@
 "use server";
 
-import { fetchAttemptedPractices } from "@/app/(user)/(public)/dashboard/_lib/attempted-practices";
-import { fetchReadChapterSlugs } from "@/app/(user)/(public)/learn/_lib/progress";
 import { getOptionalUser } from "@/lib/auth";
-import { getUserRankSlugs } from "@/lib/db/rank-queries";
 import {
   buildJourney,
   countProgress,
@@ -11,7 +8,7 @@ import {
 } from "@mahjong-scoring/features/journey/journey";
 import { isRankSlug } from "@mahjong-scoring/features/ranks/registry";
 
-import { fetchCompletedLessonSlugs } from "../_lib/progress";
+import { fetchJourneyInput } from "../_lib/journey-input";
 
 /** 1 つの級の行程の進み具合（段ごとの済んだ数と全体、試験の合否） */
 export interface RankProgress {
@@ -38,23 +35,9 @@ export async function getRankProgress(
   const user = await getOptionalUser();
   if (!user) return undefined;
 
-  const [
-    achievedRankSlugs,
-    readSlugs,
-    completedLessonSlugs,
-    attemptedPractices,
-  ] = await Promise.all([
-    getUserRankSlugs(user.id),
-    fetchReadChapterSlugs(),
-    fetchCompletedLessonSlugs(),
-    fetchAttemptedPractices(),
-  ]);
-  const journey = buildJourney({
-    readSlugs,
-    completedLessonSlugs,
-    attemptedPractices,
-    achievedRankSlugs,
-  }).ranks.find((rank) => rank.rank.slug === rankSlug);
+  const journey = buildJourney(await fetchJourneyInput(user.id)).ranks.find(
+    (rank) => rank.rank.slug === rankSlug,
+  );
   if (journey === undefined) return undefined;
 
   return {

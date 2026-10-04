@@ -1,5 +1,3 @@
-import type { getTranslations } from "next-intl/server";
-
 import {
   getChapterBySlug,
   getChapterI18nPath,
@@ -17,8 +15,15 @@ import {
   practiceHref,
 } from "@mahjong-scoring/features/routes";
 
-/** 辞書全体を引ける翻訳関数（`getTranslations()` の戻り値） */
-type RootTranslator = Awaited<ReturnType<typeof getTranslations>>;
+/**
+ * 辞書全体を引ける翻訳関数。サーバーの `getTranslations()` でもクライアントの
+ * `useTranslations()` でもよい（レッスンの完了画面は、記録のあとに返ってきた
+ * 一歩をクライアントで名指しする）
+ */
+type RootTranslator = (
+  key: string,
+  values?: Record<string, string | number>,
+) => string;
 
 /**
  * 黒帯への道の一歩の行き先

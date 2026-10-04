@@ -26,6 +26,7 @@ import { useAuth } from "@/app/_contexts/auth-context";
 import { logExternalError } from "@/lib/log-error";
 import { buildSignInHref } from "@/lib/redirect";
 import type { CurriculumChapterSlug } from "@mahjong-scoring/features/curriculum/registry";
+import type { JourneyStep } from "@mahjong-scoring/features/journey/journey";
 import {
   choiceKey,
   isSameChoice,
@@ -36,6 +37,7 @@ import { lessonQuiz } from "@mahjong-scoring/features/lessons/quizzes";
 import type { LessonSlug } from "@mahjong-scoring/features/lessons/registry";
 import { chapterHref, lessonHref } from "@mahjong-scoring/features/routes";
 
+import { journeyStepHref, journeyStepTitle } from "../../_lib/journey-step";
 import { completeLesson } from "../_actions/complete-lesson";
 import { useLessonCompletion } from "../_hooks/use-lesson-completion";
 import { usePhaseHistory } from "../_hooks/use-phase-history";
@@ -54,13 +56,18 @@ interface LessonViewProps {
    * 完了を記録できたあとの主導線。黒帯への道でこのレッスンの次にある一歩
    * （次のレッスン・練習・昇級試験）で、文言はその一歩を名指しする。
    * `preview` があればボタンの代わりにそれを出す（次がレッスンのときの
-   * 冒頭のプレビュー。サーバーで描いたもの）。`goal` はボタンの下に添える
-   * （後ろにレッスンが無いときの「昇級試験まで」。サーバーで描いたもの）
+   * 冒頭のプレビュー。サーバーで描いたもの。`previewLessonSlug` がその
+   * レッスン）。`goal` はボタンの下に添える（後ろにレッスンが無いときの
+   * 「昇級試験まで」。サーバーで描いたもの）
+   *
+   * これは道筋の順の一歩で、記録のときにサーバーが本人の進み具合を踏まえた
+   * 一歩を返したらそちらを使う（{@link CompletionActions}）
    */
   readonly next: {
     readonly href: string;
     readonly label: string;
     readonly preview?: ReactNode;
+    readonly previewLessonSlug?: LessonSlug;
     readonly goal?: ReactNode;
   };
   /** 説明（見出しを含む。サーバーで描いたもの） */
@@ -233,6 +240,10 @@ export function LessonView({
   const [showHint, setShowHint] = useState(false);
   const [correctCount, setCorrectCount] = useState(0);
   const [saveState, setSaveState] = useState<SaveState>("idle");
+  // 記録のときにサーバーが返した、本人の進み具合を踏まえた次の一歩
+  const [progressStep, setProgressStep] = useState<JourneyStep | undefined>(
+    undefined,
+  );
   // 保存を始めた = 解き終えた。完了画面はそのあとでしか描けない
   const finished = saveState !== "idle";
   const [phase, pushPhase] = usePhaseHistory(
@@ -277,6 +288,7 @@ export function LessonView({
         }
         // 以前の失敗で預けた分があれば、記録できたので外す
         forgetPendingLessonCompletions([slug]);
+        setProgressStep(result.next);
         setSaveState("saved");
         markCompleted();
       } catch (error: unknown) {
@@ -495,6 +507,7 @@ export function LessonView({
         <CompletionActions
           saveState={saveState}
           next={next}
+          progressStep={progressStep}
           chapterSlug={chapterSlug}
           signInHref={buildSignInHref(lessonHref(slug))}
           onRetrySave={handleRetrySave}
@@ -509,6 +522,8 @@ export function LessonView({
 interface CompletionActionsProps {
   readonly saveState: SaveState;
   readonly next: LessonViewProps["next"];
+  /** 本人の進み具合を踏まえた次の一歩。あれば `next` より優先する */
+  readonly progressStep: JourneyStep | undefined;
   readonly chapterSlug: CurriculumChapterSlug;
   readonly signInHref: string;
   readonly onRetrySave: () => void;
@@ -523,7 +538,11 @@ interface CompletionActionsProps {
  *   その冒頭のプレビューと「続きを読む」、それ以外はボタン（ホームを経由せず、
  *   行き先を名指しした文言で直接送る。緑のボタンが「押して始める」の記号
  *   なので、行き先の分からない「次の一歩へ」でホームに戻すのは避ける）。
- *   後ろにレッスンが無ければ、ボタンの下に「昇級試験まで」を添える
+ *   後ろにレッスンが無ければ、ボタンの下に「昇級試験まで」を添える。
+ *   行き先は記録のときにサーバーが返した本人の一歩（ホームの「次の一歩」と
+ *   揃う。済ませた先の項目を指さない）で、返らなければ道筋の順の一歩。
+ *   プレビューはサーバーで描いた道筋の順の次のレッスンの分しか無いので、
+ *   本人の一歩が別の所を指すときはボタンで送る
  * - 失敗: 何が起きたかと、ホームに進んでも後で記録されることを伝え、
  *   その場での再試行を主導線にする。ホームへは補助リンクで行ける
  * - 未ログイン: 登録への誘導（今の完了も引き継がれると添える）
@@ -532,11 +551,13 @@ interface CompletionActionsProps {
 function CompletionActions({
   saveState,
   next,
+  progressStep,
   chapterSlug,
   signInHref,
   onRetrySave,
 }: CompletionActionsProps) {
   const t = useTranslations("lessons");
+  const tAll = useTranslations();
 
   switch (saveState) {
     case "idle":
@@ -546,21 +567,30 @@ function CompletionActions({
           {t("saving")}
         </Button>
       );
-    case "saved":
-      if (next.preview !== undefined) return next.preview;
+    case "saved": {
+      const usePlanned =
+        progressStep === undefined ||
+        (progressStep.kind === "lesson" &&
+          progressStep.lessonSlug === next.previewLessonSlug);
+      if (usePlanned && next.preview !== undefined) return next.preview;
       return (
         <>
           <LinkButton
-            href={next.href}
+            href={usePlanned ? next.href : journeyStepHref(progressStep)}
             size="lg"
             fullWidth
             trailingIcon={<ChevronRightIcon className="size-5" />}
           >
-            {next.label}
+            {usePlanned
+              ? next.label
+              : t(`nextStep.${progressStep.kind}`, {
+                  title: journeyStepTitle(progressStep, tAll),
+                })}
           </LinkButton>
           {next.goal}
         </>
       );
+    }
     case "failed":
       return (
         <div

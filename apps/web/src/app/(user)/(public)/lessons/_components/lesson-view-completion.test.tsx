@@ -28,13 +28,21 @@ vi.mock("../_actions/complete-lesson", () => ({
 const { useAuth: mockUseAuth } = await import("@/test/auth-context-mock");
 const { LessonView } = await import("./lesson-view");
 
-function renderPage(goal?: ReactNode) {
+function renderPage(
+  goal?: ReactNode,
+  planned?: { preview: ReactNode; previewLessonSlug: "mangan-ko-tsumo" },
+) {
   return render(
     <LessonView
       slug="mangan-ko-ron"
       messageKey="manganKoRon"
       chapterSlug="mangan-ko-ron"
-      next={{ href: "/lessons/mangan-ko-tsumo", label: "nextLesson", goal }}
+      next={{
+        href: "/lessons/mangan-ko-tsumo",
+        label: "nextLesson",
+        goal,
+        ...planned,
+      }}
       explanation={<p data-testid="explanation" />}
       related={<p data-testid="related" />}
     />,
@@ -170,5 +178,64 @@ describe("LessonView の済みの印", () => {
     expect(
       button.compareDocumentPosition(goal) & Node.DOCUMENT_POSITION_FOLLOWING,
     ).toBeTruthy();
+  });
+
+  /** ログイン済みで 3 問を解き終える */
+  async function finishSignedIn() {
+    fireEvent.click(screen.getByRole("button", { name: "startQuiz" }));
+    for (const [i, points] of ["8,000", "12,000", "16,000"].entries()) {
+      fireEvent.click(screen.getByRole("button", { name: points }));
+      fireEvent.click(
+        screen.getByRole("button", { name: i === 2 ? "finish" : "next" }),
+      );
+    }
+    await flush();
+  }
+
+  it("記録で本人の一歩が返ったら、道筋の順の一歩の代わりにそちらへ送る", async () => {
+    mockUseAuth.mockReturnValue({ user: { id: "u1" }, isLoading: false });
+    mockGetState.mockResolvedValue(false);
+    mockCompleteLesson.mockResolvedValue({
+      success: true,
+      next: {
+        kind: "practice",
+        slug: "score-table",
+        variant: "ko_mangan_plus",
+      },
+    });
+    renderPage(<p data-testid="goal" />, {
+      preview: <p data-testid="preview" />,
+      previewLessonSlug: "mangan-ko-tsumo",
+    });
+    await flush();
+    await finishSignedIn();
+
+    const link = await screen.findByRole("link", { name: "nextStep.practice" });
+    expect(link.getAttribute("href")).toBe(
+      "/practice/score-table?variant=ko_mangan_plus",
+    );
+    expect(screen.queryByTestId("preview")).toBeNull();
+    expect(screen.getByTestId("goal")).toBeTruthy();
+  });
+
+  it("本人の一歩が道筋の順の次のレッスンと同じなら、そのプレビューを出す", async () => {
+    mockUseAuth.mockReturnValue({ user: { id: "u1" }, isLoading: false });
+    mockGetState.mockResolvedValue(false);
+    mockCompleteLesson.mockResolvedValue({
+      success: true,
+      next: {
+        kind: "lesson",
+        lessonSlug: "mangan-ko-tsumo",
+        chapterSlug: "mangan-ko-tsumo",
+      },
+    });
+    renderPage(undefined, {
+      preview: <p data-testid="preview" />,
+      previewLessonSlug: "mangan-ko-tsumo",
+    });
+    await flush();
+    await finishSignedIn();
+
+    expect(await screen.findByTestId("preview")).toBeTruthy();
   });
 });

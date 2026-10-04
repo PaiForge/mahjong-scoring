@@ -23,7 +23,8 @@
  * @flow
  * ダッシュボードの「黒帯への第一歩 / 次の一歩」→ 説明を読む → 確認問題
  * （ヒントを見られる。不正解なら解説を読んで次へ）→ できたことの確認 →
- * ログイン済みなら黒帯への道の次の一歩（次のレッスン・練習・昇級試験）へ、
+ * ログイン済みなら黒帯への道の次の一歩（次のレッスン・練習・昇級試験。
+ * 記録のときに本人の進み具合から求め直し、済ませた先の項目は飛ばす）へ、
  * 未ログインなら登録への誘導。級の最後のレッスンでは、次の一歩の下に
  * 昇級試験までの進み具合と、試験・模試・道場への入口を添える。
  * その下に、同じ形の問題を解く練習（持つレッスンだけ）と教本の章を並べる
@@ -102,6 +103,7 @@ export default async function LessonPage({ params }: LessonPageProps) {
           step.kind === "lesson" ? (
             <NextLessonPreview slug={step.lessonSlug} />
           ) : undefined,
+        previewLessonSlug: step.kind === "lesson" ? step.lessonSlug : undefined,
         // 後ろにレッスンが無い（級の最後のレッスン）なら、プレビューの
         // 代わりに級のゴールまでの残りを添える
         goal:

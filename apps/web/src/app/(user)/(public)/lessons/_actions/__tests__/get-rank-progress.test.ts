@@ -1,66 +1,63 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
-const mocks = vi.hoisted(() => ({
-  getOptionalUser: vi.fn(),
-  getUserRankSlugs: vi.fn(),
-  fetchReadChapterSlugs: vi.fn(),
-  fetchCompletedLessonSlugs: vi.fn(),
-  fetchAttemptedPractices: vi.fn(),
+const { mockGetOptionalUser, mockFetchJourneyInput } = vi.hoisted(() => ({
+  mockGetOptionalUser: vi.fn(),
+  mockFetchJourneyInput: vi.fn(),
 }));
 
-vi.mock("@/lib/auth", () => ({ getOptionalUser: mocks.getOptionalUser }));
-vi.mock("@/lib/db/rank-queries", () => ({
-  getUserRankSlugs: mocks.getUserRankSlugs,
-}));
-vi.mock("@/app/(user)/(public)/learn/_lib/progress", () => ({
-  fetchReadChapterSlugs: mocks.fetchReadChapterSlugs,
-}));
-vi.mock("@/app/(user)/(public)/dashboard/_lib/attempted-practices", () => ({
-  fetchAttemptedPractices: mocks.fetchAttemptedPractices,
-}));
-vi.mock("../../_lib/progress", () => ({
-  fetchCompletedLessonSlugs: mocks.fetchCompletedLessonSlugs,
+vi.mock("@/lib/auth", () => ({ getOptionalUser: mockGetOptionalUser }));
+vi.mock("../../_lib/journey-input", () => ({
+  fetchJourneyInput: mockFetchJourneyInput,
 }));
 
 const { getRankProgress } = await import("../get-rank-progress");
 
+/** 何も済んでいない本人の進み具合 */
+const NO_PROGRESS = {
+  readSlugs: new Set(),
+  completedLessonSlugs: new Set(),
+  attemptedPractices: [],
+  achievedRankSlugs: [],
+};
+
 describe("getRankProgress", () => {
   beforeEach(() => {
     vi.clearAllMocks();
-    mocks.getOptionalUser.mockResolvedValue({ id: "user-1" });
-    mocks.getUserRankSlugs.mockResolvedValue([]);
-    mocks.fetchReadChapterSlugs.mockResolvedValue(new Set());
-    mocks.fetchCompletedLessonSlugs.mockResolvedValue(new Set());
-    mocks.fetchAttemptedPractices.mockResolvedValue([]);
+    mockGetOptionalUser.mockResolvedValue({ id: "user-1" });
+    mockFetchJourneyInput.mockResolvedValue(NO_PROGRESS);
   });
 
   it("級の行程の段ごとの済んだ数と試験の合否を返す", async () => {
-    mocks.fetchCompletedLessonSlugs.mockResolvedValue(
-      new Set(["mangan-ko-ron", "yaku"]),
-    );
-    mocks.fetchAttemptedPractices.mockResolvedValue([
-      { slug: "yaku-han", variant: "default" },
-    ]);
+    mockFetchJourneyInput.mockResolvedValue({
+      ...NO_PROGRESS,
+      completedLessonSlugs: new Set(["mangan-ko-ron", "yaku"]),
+      attemptedPractices: [{ slug: "yaku-han", variant: "default" }],
+    });
 
     const progress = await getRankProgress("kyu-5");
 
+    expect(mockFetchJourneyInput).toHaveBeenCalledWith("user-1");
     expect(progress?.learn).toEqual({ done: 2, total: 5 });
     expect(progress?.practice.done).toBe(1);
     expect(progress?.examPassed).toBe(false);
   });
 
   it("取得済みの級は試験を合格として返す", async () => {
-    mocks.getUserRankSlugs.mockResolvedValue(["kyu-5"]);
+    mockFetchJourneyInput.mockResolvedValue({
+      ...NO_PROGRESS,
+      achievedRankSlugs: ["kyu-5"],
+    });
     expect((await getRankProgress("kyu-5"))?.examPassed).toBe(true);
   });
 
-  it("未認証なら undefined", async () => {
-    mocks.getOptionalUser.mockResolvedValue(null);
+  it("未認証なら進み具合を読まずに undefined", async () => {
+    mockGetOptionalUser.mockResolvedValue(null);
     expect(await getRankProgress("kyu-5")).toBeUndefined();
+    expect(mockFetchJourneyInput).not.toHaveBeenCalled();
   });
 
   it("不正な slug は認証も DB も引かずに undefined", async () => {
     expect(await getRankProgress("no-such-rank")).toBeUndefined();
-    expect(mocks.getOptionalUser).not.toHaveBeenCalled();
+    expect(mockGetOptionalUser).not.toHaveBeenCalled();
   });
 });
