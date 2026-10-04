@@ -514,6 +514,15 @@ describe("stepAfterLesson", () => {
       expect(stepAfterLesson(lesson.slug), lesson.slug).toBeDefined();
     }
   });
+
+  it("次の一歩が練習なら、その練習を完了画面の関連する練習に重ねない", () => {
+    for (const lesson of LESSON_REGISTRY) {
+      const step = stepAfterLesson(lesson.slug);
+      if (step?.kind !== "practice") continue;
+      const related = lesson.practiceLinks.map((link) => link.slug);
+      expect(related, lesson.slug).not.toContain(step.slug);
+    }
+  });
 });
 
 describe("countProgress", () => {

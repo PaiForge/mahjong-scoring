@@ -18,8 +18,7 @@
  *
  * 説明の本文（点数表を含む）と完了画面の練習・教本への導線・広告はサーバーで描き、
  * 進行を持つクライアント部分（`LessonView`）へスロットで渡す。説明は章の
- * 本文そのものか、章と同じ表を使った要約なので、ここで見た表がそのまま章にも
- * 早見表にもある。
+ * 本文そのものなので、ここで見た表がそのまま章にも早見表にもある。
  *
  * @flow
  * ダッシュボードの「黒帯への第一歩 / 次の一歩」→ 説明を読む → 確認問題
@@ -112,12 +111,7 @@ export default async function LessonPage({ params }: LessonPageProps) {
         messageKey={lesson.messageKey}
         chapterSlug={lesson.chapterSlug}
         next={next}
-        explanation={
-          <LessonExplanation
-            slug={lesson.slug}
-            messageKey={lesson.messageKey}
-          />
-        }
+        explanation={<LessonExplanation slug={lesson.slug} />}
         related={<LessonRelatedLinks lesson={lesson} />}
       />
     </ContentContainer>

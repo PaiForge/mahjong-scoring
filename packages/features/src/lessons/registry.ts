@@ -52,7 +52,7 @@ interface LessonDefinitionEntry {
   /** 辞書の名前空間（`lessons.<key>`） */
   readonly messageKey: string;
   /** 完了画面から送る練習。狭い範囲のものから並べる */
-  readonly practiceLinks?: readonly PracticeLink[];
+  readonly practiceLinks: readonly PracticeLink[];
 }
 
 /** レッスンのマスタ配列（行程で出会う順に並べる） */
@@ -102,6 +102,10 @@ export const LESSON_REGISTRY = [
     chapterSlug: "yaku",
     rankSlug: "kyu-5",
     messageKey: "yaku",
+    // 章の練習のうち「役の翻数」は載せない。5 級の最後のレッスンで後ろに
+    // レッスンが無く、完了画面の次の一歩がその練習を指すため、ここに
+    // 並べると同じ練習が 2 回出る
+    practiceLinks: [practiceLink("han-count"), practiceLink("yaku")],
   },
 ] as const satisfies readonly LessonDefinitionEntry[];
 
@@ -136,18 +140,6 @@ export function isLessonSlug(value: unknown): value is LessonSlug {
  */
 export function lessonBySlug(slug: string): LessonDefinition | undefined {
   return LESSON_REGISTRY.find((lesson) => lesson.slug === slug);
-}
-
-/**
- * レッスンの完了画面から送る練習を返す
- * レッスンの練習リンク
- *
- * 持たないレッスンは空配列。
- */
-export function lessonPracticeLinks(
-  lesson: LessonDefinition,
-): readonly PracticeLink[] {
-  return "practiceLinks" in lesson ? lesson.practiceLinks : [];
 }
 
 /**

@@ -11,7 +11,6 @@ import {
   isLessonSlug,
   lessonBySlug,
   lessonForChapter,
-  lessonPracticeLinks,
 } from "./registry";
 
 describe("LESSON_REGISTRY", () => {
@@ -56,7 +55,7 @@ describe("LESSON_REGISTRY", () => {
 
   it("練習リンクはカタログに載っている練習の正しいバリアントを指す", () => {
     for (const lesson of LESSON_REGISTRY) {
-      for (const { slug, variant } of lessonPracticeLinks(lesson)) {
+      for (const { slug, variant } of lesson.practiceLinks) {
         // カタログ外の練習へ送ると、一覧にもおすすめにも無い孤立した導線になる
         expect(practiceMenuFromCatalog(slug), lesson.slug).toBeDefined();
         // 不正なバリアントは practiceHref() が黙って既定に落とす
@@ -65,10 +64,5 @@ describe("LESSON_REGISTRY", () => {
         }
       }
     }
-  });
-
-  it("練習リンクを持たないレッスンは空配列を返す", () => {
-    const yaku = lessonBySlug("yaku");
-    expect(yaku && lessonPracticeLinks(yaku)).toEqual([]);
   });
 });
