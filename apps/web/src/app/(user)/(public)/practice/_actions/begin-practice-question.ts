@@ -13,16 +13,19 @@ import {
 import { consumeUserQuota } from "@/lib/practice-quota/consume-user-quota";
 import {
   consumeUsage,
+  dailyLimit,
+  failOpenUsage,
   isUnlimited,
+  limitedAnswer,
   peekUsage,
   unlimitedAnswer,
   type BeginPracticeQuestionResult,
   type QuotaAudience,
+  type QuotaUsage,
 } from "@/lib/practice-quota/quota-answer";
 import { jstDayKey } from "@mahjong-scoring/features/jst";
 import { readUserQuotaUsage } from "@/lib/practice-quota/read-user-quota";
 import {
-  PRACTICE_QUOTA_LIMITS,
   isQuotaMenu,
   type QuotaMenu,
 } from "@mahjong-scoring/features/quota/limits";
@@ -74,13 +77,11 @@ export async function beginPracticeQuestion(
     return { success: true, ...unlimitedAnswer(audience) };
   }
 
-  if (user) {
-    return {
-      success: true,
-      ...(await beginForUser(user.id, menu, now, audience)),
-    };
-  }
-  return { success: true, ...(await beginForAnonymous(menu, now)) };
+  const limit = dailyLimit(menu, audience);
+  const usage = user
+    ? await consumeForUser(user.id, menu, now, limit)
+    : await consumeForAnonymous(menu, now, limit);
+  return { success: true, ...limitedAnswer(audience, limit, usage) };
 }
 
 /**
@@ -115,26 +116,11 @@ export async function peekPracticeQuota(
     return { success: true, ...unlimitedAnswer(audience) };
   }
 
-  if (user) {
-    const { benefits } = audience;
-    const limit = PRACTICE_QUOTA_LIMITS[menu].signedIn;
-    const used = await readUserQuotaUsage(user.id, menu, jstDayKey(now));
-    return {
-      success: true,
-      ...peekUsage(limit, used),
-      limit,
-      signedIn: true,
-      benefits,
-    };
-  }
-
-  const limit = PRACTICE_QUOTA_LIMITS[menu].anonymous;
-  const base = { success: true, limit, signedIn: false, benefits: [] } as const;
-  if (!canSignAnonymousQuota()) {
-    return { ...base, allowed: true, remaining: limit };
-  }
-  const counts = await readAnonymousQuota(now);
-  return { ...base, ...peekUsage(limit, counts[menu]) };
+  const limit = dailyLimit(menu, audience);
+  const usage = user
+    ? peekUsage(limit, await readUserQuotaUsage(user.id, menu, jstDayKey(now)))
+    : await peekForAnonymous(menu, now, limit);
+  return { success: true, ...limitedAnswer(audience, limit, usage) };
 }
 
 /**
@@ -152,46 +138,46 @@ async function readAudience(
   };
 }
 
-async function beginForUser(
+async function peekForAnonymous(
+  menu: QuotaMenu,
+  now: Date,
+  limit: number,
+): Promise<QuotaUsage> {
+  if (!canSignAnonymousQuota()) return failOpenUsage(limit);
+  const counts = await readAnonymousQuota(now);
+  return peekUsage(limit, counts[menu]);
+}
+
+async function consumeForUser(
   userId: string,
   menu: QuotaMenu,
   now: Date,
-  { benefits }: QuotaAudience,
-): Promise<BeginPracticeQuestionResult> {
-  const limit = PRACTICE_QUOTA_LIMITS[menu].signedIn;
+  limit: number,
+): Promise<QuotaUsage> {
   try {
-    const result = await consumeUserQuota(userId, menu, jstDayKey(now), limit);
-    return {
-      allowed: result.allowed,
-      remaining: result.remaining,
-      limit,
-      signedIn: true,
-      benefits,
-    };
+    return await consumeUserQuota(userId, menu, jstDayKey(now), limit);
   } catch (error) {
     logExternalError(
       "beginPracticeQuestion",
       "failed to consume quota; allowing the question",
       error,
     );
-    return { allowed: true, remaining: limit, limit, signedIn: true, benefits };
+    return failOpenUsage(limit);
   }
 }
 
-async function beginForAnonymous(
+async function consumeForAnonymous(
   menu: QuotaMenu,
   now: Date,
-): Promise<BeginPracticeQuestionResult> {
-  const limit = PRACTICE_QUOTA_LIMITS[menu].anonymous;
-  const base = { limit, signedIn: false, benefits: [] } as const;
-
+  limit: number,
+): Promise<QuotaUsage> {
   if (!canSignAnonymousQuota()) {
     logExternalError(
       "beginPracticeQuestion",
       "no signing key for the anonymous quota cookie; allowing the question",
       undefined,
     );
-    return { ...base, allowed: true, remaining: limit };
+    return failOpenUsage(limit);
   }
 
   const counts = await readAnonymousQuota(now);
@@ -200,5 +186,5 @@ async function beginForAnonymous(
   if (usage.allowed) {
     await writeAnonymousQuota({ ...counts, [menu]: used + 1 }, now);
   }
-  return { ...base, ...usage };
+  return usage;
 }

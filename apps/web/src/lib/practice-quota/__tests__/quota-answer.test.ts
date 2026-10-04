@@ -5,7 +5,10 @@ import { PlanBenefit } from "@mahjong-scoring/features/billing/plans";
 
 import {
   consumeUsage,
+  dailyLimit,
+  failOpenUsage,
   isUnlimited,
+  limitedAnswer,
   peekUsage,
   unlimitedAnswer,
 } from "../quota-answer";
@@ -69,5 +72,37 @@ describe("consumeUsage", () => {
         peekUsage(5, used + 1).remaining,
       );
     }
+  });
+});
+
+describe("failOpenUsage", () => {
+  it("許可し、残りは上限そのもの", () => {
+    expect(failOpenUsage(5)).toStrictEqual({ allowed: true, remaining: 5 });
+  });
+});
+
+describe("dailyLimit", () => {
+  it("ログイン済みと未ログインで別の上限を引く", () => {
+    expect(dailyLimit("score", { signedIn: true, benefits: [] })).toBe(5);
+    expect(dailyLimit("score", { signedIn: false, benefits: [] })).toBe(1);
+    expect(dailyLimit("machi-score", { signedIn: true, benefits: [] })).toBe(3);
+  });
+});
+
+describe("limitedAnswer", () => {
+  it("判定と上限と宛先から答えを組み立てる", () => {
+    expect(
+      limitedAnswer(
+        { signedIn: true, benefits: [PlanBenefit.PracticeTools] },
+        5,
+        { allowed: false, remaining: 0 },
+      ),
+    ).toStrictEqual({
+      allowed: false,
+      remaining: 0,
+      limit: 5,
+      signedIn: true,
+      benefits: ["practice_tools"],
+    });
   });
 });

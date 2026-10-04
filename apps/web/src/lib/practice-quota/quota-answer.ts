@@ -1,4 +1,8 @@
 import { PlanBenefit } from "@mahjong-scoring/features/billing/plans";
+import {
+  PRACTICE_QUOTA_LIMITS,
+  type QuotaMenu,
+} from "@mahjong-scoring/features/quota/limits";
 
 /**
  * 練習の無料枠 — 「1 問始めてよいか」の答えを組み立てる規則
@@ -64,7 +68,7 @@ export function unlimitedAnswer(
   };
 }
 
-/** 回数の判定結果。答えの `allowed` / `remaining` になる */
+/** 回数の判定結果。`limitedAnswer` に渡して答えにする */
 export interface QuotaUsage {
   readonly allowed: boolean;
   readonly remaining: number;
@@ -95,4 +99,36 @@ export function peekUsage(limit: number, used: number): QuotaUsage {
 export function consumeUsage(limit: number, used: number): QuotaUsage {
   if (used >= limit) return { allowed: false, remaining: 0 };
   return { allowed: true, remaining: limit - (used + 1) };
+}
+
+/**
+ * 判定できなかったときに許可して通す判定（fail-open）
+ *
+ * 回数を数えられない（DB の失敗・cookie の署名鍵が無い）ときに使う。
+ * 練習が止まる方が、無料枠を 1 問多く使われるより損が大きい。残りは
+ * 上限そのものとして見せる。
+ */
+export function failOpenUsage(limit: number): QuotaUsage {
+  return { allowed: true, remaining: limit };
+}
+
+/** 宛先に掛かる 1 日の上限。ログイン済みと未ログインで別の値を持つ */
+export function dailyLimit(menu: QuotaMenu, audience: QuotaAudience): number {
+  const limits = PRACTICE_QUOTA_LIMITS[menu];
+  return audience.signedIn ? limits.signedIn : limits.anonymous;
+}
+
+/** 回数を数える答え */
+export function limitedAnswer(
+  audience: QuotaAudience,
+  limit: number,
+  usage: QuotaUsage,
+): BeginPracticeQuestionResult {
+  return {
+    allowed: usage.allowed,
+    remaining: usage.remaining,
+    limit,
+    signedIn: audience.signedIn,
+    benefits: audience.benefits,
+  };
 }
