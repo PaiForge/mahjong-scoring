@@ -65,10 +65,32 @@ export interface GameSessionState {
   readonly finalResult: FinalResult | undefined;
 }
 
+/**
+ * サーバーの時計の読み
+ * 時計の読み
+ *
+ * 採点をサーバーで行うチャレンジは、応答のたびにサーバーの経過時間を
+ * 返す。シェルはこれが変わるたびにタイマーを合わせ直す
+ * （`useGameTimer` の `sync`）。`sequence` は同じ経過時間が続いても
+ * 合わせ直しを起こすための識別子（問題番号）。
+ */
+export interface ClockReading {
+  readonly elapsedMs: number;
+  readonly sequence: number;
+}
+
 /** チャレンジのシェルがタイマーを制御するためのインターフェース */
 export interface TimerControl {
   /** タイマーを動かすべきか */
   readonly isActive: boolean;
+  /**
+   * 合わせ直す先のサーバーの時計。ローカル採点（未ログイン）では undefined
+   *
+   * サーバーは回答を受け付けると固定の猶予だけ時計を止め、画面は押してから
+   * 応答が届くまでの実際の待ち時間だけ止める（`isActive`）。両者は一致しない
+   * が、応答のたびにここへ合わせ直すのでずれは直近の 1 問分に留まり積み上がらない
+   */
+  readonly clock?: ClockReading;
   /** 制限時間到達時のコールバック */
   readonly onTimeLimitReached: () => void;
   /** タイマーをリセットする関数（reset に組み込むため ChallengeShell に渡す） */

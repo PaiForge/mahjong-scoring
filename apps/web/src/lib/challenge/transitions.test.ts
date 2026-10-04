@@ -6,6 +6,7 @@ import type {
 } from "@mahjong-scoring/features/challenge/types";
 
 import {
+  ANSWER_GRACE_MS,
   answeredChallenge,
   canAnswerChallenge,
   canPauseChallenge,
@@ -91,6 +92,25 @@ describe("answeredChallenge", () => {
 
     const wrong = answeredChallenge(running(), false, next, START);
     expect(wrong).toMatchObject({ score: 0, incorrectAnswers: 1 });
+  });
+
+  it("受け付けた時点の経過を畳み込み、猶予の間は時計を止める", () => {
+    const state = answeredChallenge(running(), true, next, START + 10_000);
+    expect(state.elapsedMs).toBe(10_000);
+    expect(challengeElapsed(state, START + 10_000 + ANSWER_GRACE_MS)).toBe(
+      10_000,
+    );
+    expect(
+      challengeElapsed(state, START + 10_000 + ANSWER_GRACE_MS + 500),
+    ).toBe(10_500);
+  });
+
+  it("猶予のぶん時間切れが遅れる", () => {
+    const state = answeredChallenge(running(), true, next, START + 10_000);
+    expect(isChallengeTimeUp(state, START + LIMIT_MS)).toBe(false);
+    expect(isChallengeTimeUp(state, START + LIMIT_MS + ANSWER_GRACE_MS)).toBe(
+      true,
+    );
   });
 });
 

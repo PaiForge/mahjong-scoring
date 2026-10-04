@@ -65,12 +65,14 @@ export function JantouFuBoard({
   const handleChoiceSelect = useCallback(
     (index: number) => {
       if (showFeedback || !question) return;
-      gradeAnswer(question, index, (gradedQuestion) => {
+      const accepted = gradeAnswer(question, index, (gradedQuestion) => {
         const choice = gradedQuestion.choices[index];
-        setSelectedHai(choice.hai);
         onRecordResult?.(toQuestionResult(gradedQuestion, choice));
         onAnswer(choice.isCorrect, advanceQuestion);
       });
+      // 採点を待たずに選択を立てる（サーバー採点の待ち時間に押した印を出す）。
+      // 牌は出題時点の問題にもあるので、採点済みの問題を待たなくてよい
+      if (accepted) setSelectedHai(question.choices[index].hai);
     },
     [
       showFeedback,

@@ -196,11 +196,19 @@ export function ChallengeShell({
     remainingSeconds,
     elapsedMs,
     reset: resetTimer,
+    sync: syncTimer,
   } = useGameTimer({
     timeLimit: gameSession.timeLimit,
     onTimeLimitReached: timerControl.onTimeLimitReached,
     isActive: timerControl.isActive,
   });
+
+  // サーバーが採点のたびに返す時計へ合わせ直す（ずれを積み上げない。
+  // 理由は TimerControl.clock の TSDoc）
+  const clock = timerControl.clock;
+  useEffect(() => {
+    if (clock) syncTimer(clock.elapsedMs);
+  }, [clock, syncTimer]);
 
   // タイマーリセット関数を timerControl に登録（セッションリセット時に使用）
   const registerTimerResetRef = useRef(timerControl.registerTimerReset);

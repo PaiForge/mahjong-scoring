@@ -68,5 +68,19 @@ export function useGameTimer({
     timeLimitFiredRef.current = false;
   }, []);
 
-  return { elapsedMs, remainingMs, remainingSeconds, reset };
+  /**
+   * 経過時間を外部の時計（サーバー）に合わせ直す
+   *
+   * 動いている最中なら、合わせた値から今この瞬間を起点に数え直す。
+   * 制限時間に達して通知した後は、合わせ直しで戻さない（終了は確定している）。
+   * 合わせた値が制限時間を超えていれば、次の tick が通常どおり終了を通知する。
+   */
+  const sync = useCallback((nextElapsedMs: number) => {
+    if (timeLimitFiredRef.current) return;
+    accumulatedTimeRef.current = nextElapsedMs;
+    if (startTimeRef.current !== undefined) startTimeRef.current = Date.now();
+    setElapsedMs(nextElapsedMs);
+  }, []);
+
+  return { elapsedMs, remainingMs, remainingSeconds, reset, sync };
 }
