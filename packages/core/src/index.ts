@@ -137,6 +137,7 @@ export {
   calculateKoScore,
   calculateOyaScore,
   calculateTierScore,
+  calculateStandaloneMentsuFu,
   isInvalidCell,
   HIGH_SCORES,
 } from "./core/score-calculation";
