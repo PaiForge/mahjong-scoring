@@ -1,13 +1,12 @@
 "use server";
 
 import { eq } from "drizzle-orm";
-import { revalidateTag } from "next/cache";
 
 import type { ActionResult } from "@/lib/action-types";
 import { guardUserAction } from "@/lib/action-guard";
 import type { UserActionGuardErrorCode } from "@/lib/action-guard";
 import { logActivityEvent } from "@/lib/activity-log";
-import { LEADERBOARD_CACHE_TAG } from "@/lib/cache-tags";
+import { purgeLeaderboardCache } from "@/lib/cache-tags";
 import { db, profiles } from "@/lib/db";
 
 import {
@@ -53,7 +52,7 @@ export async function updateProfile(
   // ランキングのキャッシュ（5 分）は行に表示名を含むため、ここで捨てないと
   // 一覧だけ古い名前を出し続ける。アバター更新（/api/profile/avatar）も同じ理由で
   // 同じタグを捨てる。
-  revalidateTag(LEADERBOARD_CACHE_TAG, "default");
+  purgeLeaderboardCache();
 
   logActivityEvent({
     userId: user.id,

@@ -1,5 +1,9 @@
 import { z } from "zod";
 
+import { PurchaseKind } from "@mahjong-scoring/features/billing/plans";
+
+import { PurchaseRevokeReason } from "@/lib/billing/revoke-reason";
+
 /**
  * 通知の `metadata` — 文面に差し込む値
  * 通知メタデータ
@@ -16,11 +20,11 @@ const notificationMetadataSchema = z.object({
   /** プラン（`lib/billing/plans.ts` の `PlanKey`） */
   plan: z.string().optional(),
   /** 売り方（`PurchaseKind`）。購入の通知だけ */
-  kind: z.enum(["pass", "lifetime"]).optional(),
+  kind: z.enum(PurchaseKind).optional(),
   /** 特典の終了。無期限なら持たない */
   expiresAt: z.string().datetime({ offset: true }).optional(),
   /** 取り消しの理由（`PurchaseRevokeReason`）。購入の取り消しだけ */
-  revokeReason: z.enum(["refunded", "fraud"]).optional(),
+  revokeReason: z.enum(PurchaseRevokeReason).optional(),
 });
 
 export type NotificationMetadata = z.infer<typeof notificationMetadataSchema>;

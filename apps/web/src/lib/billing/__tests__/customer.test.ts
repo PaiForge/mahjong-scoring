@@ -8,8 +8,6 @@ const { mockInsert, mockCustomersCreate, selectHolder } = vi.hoisted(() => ({
   },
 }));
 
-vi.mock("server-only", () => ({}));
-
 vi.mock("@/lib/db", async () => {
   const schema = await import("@/test/schema-mock");
   const { createSelectSequenceMock } = await import("@/test/drizzle-mock");

@@ -10,13 +10,9 @@ import { LinkRow, LinkRowList } from "@/app/(user)/_components/link-row";
 import { ChapterTocList } from "@/app/(user)/(public)/learn/_components/chapter-toc-list";
 import { TEXT_LINK_CLASSES } from "@/app/_components/_lib/link-classes";
 import { beltBorderClass, beltButtonVarsClass } from "@/lib/ranks/belt-colors";
-import {
-  countProgress,
-  type RankJourney,
-} from "@mahjong-scoring/features/journey/journey";
+import type { RankJourney } from "@mahjong-scoring/features/journey/journey";
 import { lessonBySlug } from "@mahjong-scoring/features/lessons/registry";
 import { practiceTitleKey } from "@mahjong-scoring/features/practice/catalog";
-import { practiceMenuBySlug } from "@mahjong-scoring/features/practice-menu-types";
 import {
   lessonHref,
   practiceHref,
@@ -24,7 +20,9 @@ import {
 } from "@mahjong-scoring/features/routes";
 
 import { RankStatusBadge } from "../ranks/_components/rank-status-badge";
+import { practiceVariantLabel } from "../../_lib/practice-variant-label";
 import { DOJO_TOUR_ID } from "../_lib/tour-ids";
+import { RankStageProgress } from "./rank-stage-progress";
 
 interface RankJourneyCardProps {
   readonly journey: RankJourney;
@@ -64,8 +62,6 @@ export async function RankJourneyCard({
     getTranslations(),
   ]);
   const { rank, status, chapters, practices, exam } = journey;
-  const learn = countProgress(chapters);
-  const practice = countProgress(practices);
   // 学ぶ段は章ごとに 1 行。レッスンのある章はレッスンの行だけを出し、
   // 目次にはレッスンの無い章（読んで学ぶ章）だけを残す。両方に出すと同じ章が
   // 2 度並び、どちらを済ませれば進むのかが読み取れない
@@ -106,38 +102,12 @@ export async function RankJourneyCard({
           <dd>{tRanks(`criteria.${rank.slug}`)}</dd>
         </dl>
 
-        {/* 進み具合。前提章を持たない級（初段）では学ぶ・練習するが 0 件なので、
-            数えるものがある段だけ並べる */}
-        <dl
-          className="mt-2 flex flex-wrap gap-x-4 gap-y-1 text-xs text-surface-600"
-          data-tour-id={expanded ? DOJO_TOUR_ID.nextRankStages : undefined}
-        >
-          {learn.total > 0 && (
-            <div className="flex gap-1">
-              <dt className="font-bold">{tRanks("stages.learn")}</dt>
-              <dd className="tabular-nums">
-                {tRanks("stageCount", { done: learn.done, total: learn.total })}
-              </dd>
-            </div>
-          )}
-          {practice.total > 0 && (
-            <div className="flex gap-1">
-              <dt className="font-bold">{tRanks("stages.practice")}</dt>
-              <dd className="tabular-nums">
-                {tRanks("stageCount", {
-                  done: practice.done,
-                  total: practice.total,
-                })}
-              </dd>
-            </div>
-          )}
-          <div className="flex gap-1">
-            <dt className="font-bold">{tRanks("stages.exam")}</dt>
-            <dd>
-              {tRanks(exam.done ? "stageExamPassed" : "stageExamNotTaken")}
-            </dd>
-          </div>
-        </dl>
+        <RankStageProgress
+          journey={journey}
+          tRanks={tRanks}
+          className="mt-2"
+          dataTourId={expanded ? DOJO_TOUR_ID.nextRankStages : undefined}
+        />
 
         {status === "unachieved" && (
           <p
@@ -197,16 +167,14 @@ export async function RankJourneyCard({
                 <p className="text-xs text-surface-500">{t("practicesLead")}</p>
                 <LinkRowList>
                   {practices.map((item) => {
-                    const menu = practiceMenuBySlug(item.slug);
                     const title = tAll(
                       `practice.${practiceTitleKey(item.slug)}`,
                     );
-                    const variantLabel =
-                      item.variant !== undefined && menu.hasSetup
-                        ? tAll(
-                            `${menu.namespace}.variants.${item.variant}.label`,
-                          )
-                        : undefined;
+                    const variantLabel = practiceVariantLabel(
+                      tAll,
+                      item.slug,
+                      item.variant,
+                    );
                     return (
                       <LinkRow
                         key={`${item.slug}:${item.variant ?? ""}`}

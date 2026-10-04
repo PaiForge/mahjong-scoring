@@ -4,7 +4,6 @@ const { mockPricesRetrieve } = vi.hoisted(() => ({
   mockPricesRetrieve: vi.fn(),
 }));
 
-vi.mock("server-only", () => ({}));
 vi.mock("next/cache", () => ({
   unstable_cache: (fn: unknown) => fn,
 }));

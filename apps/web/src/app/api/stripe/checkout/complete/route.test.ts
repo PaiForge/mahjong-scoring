@@ -15,7 +15,6 @@ const {
   mockSessionsRetrieve: vi.fn(),
 }));
 
-vi.mock("server-only", () => ({}));
 vi.mock("@/lib/rate-limit-ip", () => ({
   enforceIpRateLimit: mockEnforceIpRateLimit,
 }));

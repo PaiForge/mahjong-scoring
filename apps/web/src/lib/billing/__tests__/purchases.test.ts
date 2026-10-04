@@ -7,7 +7,6 @@ const mocks = vi.hoisted(() => ({
   notify: vi.fn(),
   holder: {} as { seq?: import("@/test/drizzle-mock").SelectSequenceMock },
 }));
-vi.mock("server-only", () => ({}));
 vi.mock("drizzle-orm", async () => await import("@/test/drizzle-orm-mock"));
 vi.mock("@/lib/db", async () => {
   const schema = await import("@/test/schema-mock");

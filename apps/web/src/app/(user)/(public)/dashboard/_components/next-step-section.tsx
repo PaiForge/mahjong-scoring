@@ -8,14 +8,14 @@ import { SectionTitle } from "@/app/(user)/_components/section-title";
 import { TEXT_LINK_CLASSES } from "@/app/_components/_lib/link-classes";
 import { SUB_LINK_GAP } from "@/app/_components/_lib/spacing";
 import { beltBorderClass, beltButtonVarsClass } from "@/lib/ranks/belt-colors";
-import {
-  countProgress,
-  type Journey,
-  type JourneyStep,
+import type {
+  Journey,
+  JourneyStep,
 } from "@mahjong-scoring/features/journey/journey";
 import { DOJO_PATH } from "@mahjong-scoring/features/routes";
 
 import { journeyStepHref, journeyStepTitle } from "../../_lib/journey-step";
+import { RankStageProgress } from "../../dojo/_components/rank-stage-progress";
 
 interface NextStepSectionProps {
   readonly journey: Journey;
@@ -98,8 +98,6 @@ export async function NextStepSection({ journey }: NextStepSectionProps) {
 
   const rankSlug = current.rank.slug;
   const step = presentStep(nextStep, isFresh, t, tAll);
-  const learn = countProgress(current.chapters);
-  const practice = countProgress(current.practices);
 
   return (
     <section className="space-y-4" data-next-step={nextStep.kind}>
@@ -126,37 +124,7 @@ export async function NextStepSection({ journey }: NextStepSectionProps) {
 
         <p className="text-sm leading-relaxed text-surface-700">{step.lead}</p>
 
-        {/* その級の進み具合。前提章を持たない級（初段）では学ぶ・練習するが
-            0 件なので、数えるものがある段だけ並べる */}
-        <dl className="flex flex-wrap gap-x-4 gap-y-1 text-xs text-surface-600">
-          {learn.total > 0 && (
-            <div className="flex gap-1">
-              <dt className="font-bold">{tRanks("stages.learn")}</dt>
-              <dd className="tabular-nums">
-                {tRanks("stageCount", { done: learn.done, total: learn.total })}
-              </dd>
-            </div>
-          )}
-          {practice.total > 0 && (
-            <div className="flex gap-1">
-              <dt className="font-bold">{tRanks("stages.practice")}</dt>
-              <dd className="tabular-nums">
-                {tRanks("stageCount", {
-                  done: practice.done,
-                  total: practice.total,
-                })}
-              </dd>
-            </div>
-          )}
-          <div className="flex gap-1">
-            <dt className="font-bold">{tRanks("stages.exam")}</dt>
-            <dd>
-              {tRanks(
-                current.exam.done ? "stageExamPassed" : "stageExamNotTaken",
-              )}
-            </dd>
-          </div>
-        </dl>
+        <RankStageProgress journey={current} tRanks={tRanks} />
 
         <div className={`flex flex-col ${SUB_LINK_GAP}`}>
           <LinkButton

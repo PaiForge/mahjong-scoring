@@ -13,7 +13,6 @@ const {
   mockDispatch: vi.fn(),
 }));
 
-vi.mock("server-only", () => ({}));
 vi.mock("@/lib/billing/stripe", () => ({
   getStripe: () => ({ webhooks: { constructEvent: mockConstructEvent } }),
 }));

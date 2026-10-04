@@ -14,6 +14,7 @@ import {
   lessonHref,
   practiceHref,
 } from "@mahjong-scoring/features/routes";
+import { practiceVariantLabel } from "./practice-variant-label";
 
 /**
  * 辞書全体を引ける翻訳関数。サーバーの `getTranslations()` でもクライアントの
@@ -63,11 +64,9 @@ export function journeyStepTitle(
         : "";
     }
     case "practice": {
-      const menu = practiceMenuBySlug(step.slug);
       const title = tAll(`practice.${practiceTitleKey(step.slug)}`);
-      return step.variant !== undefined && menu.hasSetup
-        ? `${title}（${tAll(`${menu.namespace}.variants.${step.variant}.label`)}）`
-        : title;
+      const variantLabel = practiceVariantLabel(tAll, step.slug, step.variant);
+      return variantLabel ? `${title}（${variantLabel}）` : title;
     }
     case "exam": {
       const rank = rankRequiringMenu(

@@ -15,7 +15,6 @@ const mocks = vi.hoisted(() => ({
   payment: vi.fn(),
   refund: vi.fn(),
 }));
-vi.mock("server-only", () => ({}));
 vi.mock("@/lib/db", async () => {
   const { billingTestDb } = await import("./test-database");
   return {

@@ -23,9 +23,6 @@ vi.mock("@/lib/db", async () => {
 
 vi.mock("@/lib/db/schema", async () => await import("@/test/schema-mock"));
 
-// `server-only` is not resolvable in test environment; stub it out.
-vi.mock("server-only", () => ({}));
-
 import { fetchReadChapterSlugs, isChapterRead } from "../progress";
 
 // ---------------------------------------------------------------------------

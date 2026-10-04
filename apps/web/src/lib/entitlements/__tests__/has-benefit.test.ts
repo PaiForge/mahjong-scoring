@@ -2,8 +2,6 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 
 const { mockSelect } = vi.hoisted(() => ({ mockSelect: vi.fn() }));
 
-vi.mock("server-only", () => ({}));
-
 // `cache()` はリクエスト境界の無いテストではメモ化しない素の関数にする
 vi.mock("react", async (importOriginal) => ({
   ...(await importOriginal<typeof import("react")>()),

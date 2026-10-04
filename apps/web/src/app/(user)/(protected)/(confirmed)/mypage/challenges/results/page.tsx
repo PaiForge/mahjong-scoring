@@ -14,6 +14,7 @@ import { PaginationNav } from "@/app/(user)/_components/pagination-nav";
 import { SectionTitle } from "@/app/(user)/_components/section-title";
 import { createPrivateMetadata } from "@/app/_lib/metadata";
 import { requireConfirmedUser } from "@/lib/auth";
+import { parsePageParam } from "@/lib/pagination";
 
 import { boardLabel } from "../_lib/board-label";
 import { getChallengeResultsPaginated } from "../_lib/queries";
@@ -37,9 +38,7 @@ export default async function ChallengeResultsPage({ searchParams }: Props) {
 
   const { user } = await requireConfirmedUser();
 
-  const pageParam =
-    typeof params.page === "string" ? parseInt(params.page, 10) : 1;
-  const page = Number.isFinite(pageParam) && pageParam > 0 ? pageParam : 1;
+  const page = parsePageParam(params.page);
 
   const board = resolveRequestedBoard(params);
 

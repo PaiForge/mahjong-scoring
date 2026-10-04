@@ -5,7 +5,6 @@ const { mockSelect, mockUpdate } = vi.hoisted(() => ({
   mockUpdate: vi.fn(),
 }));
 
-vi.mock("server-only", () => ({}));
 vi.mock("@/lib/db", async () => ({
   db: { select: mockSelect, update: mockUpdate },
   notifications: (await import("@/test/schema-mock")).notifications,

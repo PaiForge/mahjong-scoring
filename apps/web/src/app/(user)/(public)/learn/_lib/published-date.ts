@@ -1,3 +1,5 @@
+import { JST_TIME_ZONE } from "@mahjong-scoring/features/jst";
+
 /**
  * 章の公開日（ISO 8601 の日付）を日本語表記にする
  * 公開日表記
@@ -12,6 +14,6 @@ export function formatPublishedDate(isoDate: string): string {
     year: "numeric",
     month: "long",
     day: "numeric",
-    timeZone: "Asia/Tokyo",
+    timeZone: JST_TIME_ZONE,
   }).format(new Date(`${isoDate}T00:00:00+09:00`));
 }

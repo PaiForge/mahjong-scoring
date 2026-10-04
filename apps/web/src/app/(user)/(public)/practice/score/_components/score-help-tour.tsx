@@ -1,9 +1,9 @@
 "use client";
 
-import { useState, useMemo, useCallback } from "react";
+import { useMemo } from "react";
 import { useTranslations } from "next-intl";
 import { generateValidScoreQuestion, isOya } from "@mahjong-scoring/core";
-import type { ScoreQuestion, JudgementResult } from "@mahjong-scoring/core";
+import type { ScoreQuestion } from "@mahjong-scoring/core";
 import { scoreAnswerToUserAnswer } from "@mahjong-scoring/features/results/payment-adapter";
 import { QuestionDisplay } from "./question-display";
 import { ScorePracticeAnswerForm } from "./score-practice-answer-form";
@@ -14,6 +14,10 @@ import {
   HelpTourModal,
 } from "../../_components/help-tour-modal";
 import type { HelpTourSlide } from "../../_components/help-tour-modal";
+import {
+  HELP_TOUR_ALL_CORRECT,
+  useHelpTourSample,
+} from "../../_hooks/use-help-tour-sample";
 
 /**
  * 点数計算総合演習 ヘルプツアー
@@ -32,34 +36,18 @@ import type { HelpTourSlide } from "../../_components/help-tour-modal";
 
 const noop = () => {};
 
-const ALL_CORRECT: JudgementResult = {
-  isCorrect: true,
-  isHanCorrect: true,
-  isFuCorrect: true,
-  isScoreCorrect: true,
-  isYakuCorrect: true,
-};
+/** 副露・七対子なしの分かりやすいサンプル */
+function generateSample(): ScoreQuestion | undefined {
+  return generateValidScoreQuestion({
+    includeFuro: false,
+    includeChiitoi: false,
+  });
+}
 
 export function ScoreHelpTour() {
   const t = useTranslations("score");
   const tCommon = useTranslations("common");
-  const [isOpen, setIsOpen] = useState(false);
-  // 副露なしの分かりやすいサンプルを初回開封時に1度だけ生成して固定する。
-  const [sample, setSample] = useState<ScoreQuestion | undefined>(undefined);
-
-  const open = useCallback(() => {
-    setSample(
-      (prev) =>
-        prev ??
-        generateValidScoreQuestion({
-          includeFuro: false,
-          includeChiitoi: false,
-        }),
-    );
-    setIsOpen(true);
-  }, []);
-
-  const close = useCallback(() => setIsOpen(false), []);
+  const { isOpen, sample, open, close } = useHelpTourSample(generateSample);
 
   const slides = useMemo((): readonly HelpTourSlide[] => {
     if (!sample) return [];
@@ -93,7 +81,7 @@ export function ScoreHelpTour() {
             <ResultDisplay
               question={sample}
               userAnswer={scoreAnswerToUserAnswer(sample.answer)}
-              result={ALL_CORRECT}
+              result={HELP_TOUR_ALL_CORRECT}
             />
             <Button size="lg" fullWidth onClick={noop}>
               {t("result.next")}

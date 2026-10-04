@@ -17,7 +17,6 @@ const mocked = vi.hoisted(() => ({
   grade: vi.fn(),
   ranks: vi.fn(),
 }));
-vi.mock("server-only", () => ({}));
 vi.mock("../db/save-challenge-result", () => ({
   saveChallengeResult: mocked.save,
 }));

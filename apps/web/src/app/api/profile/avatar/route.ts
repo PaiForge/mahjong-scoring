@@ -1,9 +1,8 @@
 import { eq } from "drizzle-orm";
-import { revalidateTag } from "next/cache";
 import sharp from "sharp";
 
 import { logActivityEvent } from "@/lib/activity-log";
-import { LEADERBOARD_CACHE_TAG } from "@/lib/cache-tags";
+import { purgeLeaderboardCache } from "@/lib/cache-tags";
 import { authorizeApiRequest } from "@/lib/api-auth";
 import { jsonPrivate } from "@/lib/api-response";
 import { db, profiles } from "@/lib/db";
@@ -85,7 +84,7 @@ export async function POST(request: Request) {
   // 一覧だけ古い画像を出し続ける。URL 末尾の ?t= は新しい URL が配られて初めて効く。
   // キャッシュのキーは (種目・期間・ページ) 単位でユーザー単位ではないので、
   // 一部だけを狙って捨てることはできない。アバター変更の頻度なら全体で購う。
-  revalidateTag(LEADERBOARD_CACHE_TAG, "default");
+  purgeLeaderboardCache();
 
   logActivityEvent({
     userId: user.id,
@@ -111,7 +110,7 @@ export async function DELETE(request: Request) {
     .where(eq(profiles.id, user.id));
 
   // アップロードと同じ理由でランキングのキャッシュを捨てる（行にアバター URL を含む）。
-  revalidateTag(LEADERBOARD_CACHE_TAG, "default");
+  purgeLeaderboardCache();
 
   // Storage の削除は失敗しても操作全体を失敗させない（上のコメントの通り無害なため）。
   await createAdminClient()

@@ -6,7 +6,6 @@ const mocks = vi.hoisted(() => ({
   select: vi.fn(),
   update: vi.fn(),
 }));
-vi.mock("server-only", () => ({}));
 vi.mock("next/cache", () => ({ revalidateTag: vi.fn() }));
 vi.mock("@/lib/supabase/admin", () => ({
   createAdminClient: () => ({

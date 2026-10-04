@@ -6,6 +6,7 @@ import {
   isPracticeMenuType,
   menuTypeToMessageKey,
 } from "@mahjong-scoring/features/practice-menu-types";
+import { JST_TIME_ZONE } from "@mahjong-scoring/features/jst";
 
 interface HeatmapDetailPanelProps {
   readonly selectedDate: string | undefined;
@@ -68,7 +69,7 @@ export function HeatmapDetailPanel({
                 year: "numeric",
                 month: "long",
                 day: "numeric",
-                timeZone: "Asia/Tokyo",
+                timeZone: JST_TIME_ZONE,
               },
             )}
           </p>

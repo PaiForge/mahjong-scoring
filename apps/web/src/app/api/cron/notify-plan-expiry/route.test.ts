@@ -3,7 +3,6 @@ import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
 const { mockNotify } = vi.hoisted(() => ({ mockNotify: vi.fn() }));
 
-vi.mock("server-only", () => ({}));
 vi.mock("@/lib/notifications/plan-expiry", () => ({
   notifyExpiredPlans: mockNotify,
 }));

@@ -9,7 +9,6 @@ import {
   vi,
 } from "vitest";
 
-vi.mock("server-only", () => ({}));
 vi.mock("@/lib/db", async () => {
   const { billingTestDb } = await import("../billing/test-database");
   return {

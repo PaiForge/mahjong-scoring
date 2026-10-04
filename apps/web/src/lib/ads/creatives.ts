@@ -1,24 +1,16 @@
-import { and, asc, eq, inArray } from "drizzle-orm";
+import { and, asc, eq } from "drizzle-orm";
 import { unstable_cache } from "next/cache";
 
 import { parseHais, type HaiKindId } from "@mahjong-scoring/core";
 
 import { DEFAULT_LOCALE, type SupportedLocale } from "@/i18n/locales";
 import { AD_CREATIVES_CACHE_TAG } from "@/lib/cache-tags";
-import {
-  adCreativeTranslations,
-  adCreatives,
-  adNetworkSettings,
-  db,
-} from "@/lib/db";
+import { adCreatives, adNetworkSettings, db } from "@/lib/db";
 import { logExternalError } from "@/lib/log-error";
 
 import { AMAZON_NETWORK, resolveAdHref } from "./amazon";
-import {
-  copyFromTranslationRows,
-  resolveCreativeCopy,
-  type CreativeCopy,
-} from "./copy";
+import { resolveCreativeCopy, type CreativeCopy } from "./copy";
+import { loadCreativeCopy } from "./load-copy";
 import {
   isAdKind,
   kindForSlot,
@@ -74,21 +66,7 @@ async function queryActiveCreatives(slot: string): Promise<ActiveCreative[]> {
     .orderBy(asc(adCreatives.sortOrder), asc(adCreatives.createdAt));
   if (rows.length === 0) return [];
 
-  const copyRows = await db
-    .select({
-      creativeId: adCreativeTranslations.creativeId,
-      locale: adCreativeTranslations.locale,
-      title: adCreativeTranslations.title,
-      description: adCreativeTranslations.description,
-    })
-    .from(adCreativeTranslations)
-    .where(
-      inArray(
-        adCreativeTranslations.creativeId,
-        rows.map((row) => row.id),
-      ),
-    );
-  const copyById = copyFromTranslationRows(copyRows);
+  const copyById = await loadCreativeCopy(rows.map((row) => row.id));
 
   return rows.map((row) => ({
     id: row.id,

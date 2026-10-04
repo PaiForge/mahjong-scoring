@@ -5,12 +5,10 @@ import {
   practiceTitleKey,
   relatedChaptersForPractice,
 } from "@mahjong-scoring/features/practice/catalog";
-import {
-  practiceMenuBySlug,
-  type PracticeMenuSlug,
-} from "@mahjong-scoring/features/practice-menu-types";
+import type { PracticeMenuSlug } from "@mahjong-scoring/features/practice-menu-types";
 import { chapterHref, practiceHref } from "@mahjong-scoring/features/routes";
 
+import { practiceVariantLabel } from "../../_lib/practice-variant-label";
 import { practiceCardRank } from "../_lib/practice-card-rank";
 import { practiceCardVisual } from "../_lib/practice-card-visual";
 import { PracticeCard } from "./practice-card";
@@ -44,13 +42,9 @@ export async function CatalogPracticeCard({
     getTranslations("ranks"),
     getTranslations(),
   ]);
-  const menu = practiceMenuBySlug(slug);
   const firstChapter = relatedChaptersForPractice(slug)[0];
   const title = t(practiceTitleKey(slug));
-  const variantLabel =
-    variant !== undefined && menu.hasSetup
-      ? tAll(`${menu.namespace}.variants.${variant}.label`)
-      : undefined;
+  const variantLabel = practiceVariantLabel(tAll, slug, variant);
 
   return (
     <PracticeCard

@@ -3,8 +3,8 @@ import { getTranslations } from "next-intl/server";
 import type { PracticeLink } from "@mahjong-scoring/features/curriculum/registry";
 import { practiceHref } from "@mahjong-scoring/features/routes";
 import { practiceTitleKey } from "@mahjong-scoring/features/practice/catalog";
-import { practiceMenuBySlug } from "@mahjong-scoring/features/practice-menu-types";
 import { PracticeLinkButton } from "@/app/(user)/_components/practice-link-button";
+import { practiceVariantLabel } from "../../_lib/practice-variant-label";
 
 interface PracticeLinkListProps {
   /** 章から送る練習（章の `practiceLinks`） */
@@ -40,16 +40,11 @@ export async function PracticeLinkList({ links }: PracticeLinkListProps) {
   const t = await getTranslations("learnCurriculum.chapter");
   const tPractice = await getTranslations("practice");
   const tAll = await getTranslations();
-  const tVariantLabel = (namespace: string, variant: string) =>
-    tAll(`${namespace}.variants.${variant}.label`);
 
   const items = links.map(({ slug, variant }) => {
     const href = practiceHref(slug, variant);
     const titleKey = practiceTitleKey(slug);
-    const variantLabel =
-      variant !== undefined && practiceMenuBySlug(slug).hasSetup
-        ? tVariantLabel(practiceMenuBySlug(slug).namespace, variant)
-        : undefined;
+    const variantLabel = practiceVariantLabel(tAll, slug, variant);
     // 練習名が引けたときは「<練習名>にチャレンジ」、引けないときは汎用 CTA。
     const label = tPractice.has(titleKey)
       ? t("practiceLinkChallengeCta", {

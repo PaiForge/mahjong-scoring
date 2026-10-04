@@ -12,7 +12,6 @@ const {
   mockRevoke: vi.fn(),
 }));
 
-vi.mock("server-only", () => ({}));
 vi.mock("../stripe", () => ({
   getStripe: () => ({
     checkout: { sessions: { retrieve: mockSessionsRetrieve } },
@@ -20,7 +19,6 @@ vi.mock("../stripe", () => ({
   }),
 }));
 vi.mock("../purchases", () => ({
-  PurchaseRevokeReason: { Refunded: "refunded", Fraud: "fraud" },
   recordPurchaseFromCheckoutSession: mockRecordPurchase,
   revokePurchaseByPaymentIntent: mockRevoke,
 }));

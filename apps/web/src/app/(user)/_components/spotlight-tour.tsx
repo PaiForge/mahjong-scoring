@@ -33,6 +33,31 @@ interface SpotlightTourLabels {
   readonly progress: string;
 }
 
+/**
+ * ツアーの名前空間からボタンの文言を組み立てる
+ * スポットライトツアーの文言
+ *
+ * 名前空間に `label` / `prev` / `next` / `done` / `progress` を持つ前提。
+ * `progress` には driver.js が差し込む雛形をそのまま値として渡す（ICU の
+ * 波括弧と衝突するので辞書には書けない）。
+ *
+ * @param t - ツアーの名前空間（`dojo.tour` 等）の翻訳関数
+ */
+export function spotlightTourLabels(
+  t: (key: string, values?: Record<string, string>) => string,
+): SpotlightTourLabels {
+  return {
+    label: t("label"),
+    prev: t("prev"),
+    next: t("next"),
+    done: t("done"),
+    progress: t("progress", {
+      current: "{{current}}",
+      total: "{{total}}",
+    }),
+  };
+}
+
 interface SpotlightTourProps {
   readonly steps: readonly SpotlightStep[];
   readonly labels: SpotlightTourLabels;
