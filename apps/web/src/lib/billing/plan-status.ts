@@ -1,6 +1,7 @@
 import type { BenefitGrant, Purchase } from "@/lib/db";
 
 import { PurchaseKind } from "@mahjong-scoring/features/billing/plans";
+import { JST_TIME_ZONE } from "@mahjong-scoring/features/jst";
 
 /**
  * 購入記録と手動付与から導く「いまの状態」
@@ -128,7 +129,7 @@ export function formatPlanDateShort(date: Date): string {
     year: "numeric",
     month: "2-digit",
     day: "2-digit",
-    timeZone: "Asia/Tokyo",
+    timeZone: JST_TIME_ZONE,
   }).format(date);
 }
 
@@ -138,6 +139,6 @@ export function formatPlanDate(date: Date): string {
     year: "numeric",
     month: "long",
     day: "numeric",
-    timeZone: "Asia/Tokyo",
+    timeZone: JST_TIME_ZONE,
   }).format(date);
 }
