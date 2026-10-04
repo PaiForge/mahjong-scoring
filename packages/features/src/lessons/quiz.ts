@@ -1,7 +1,9 @@
 import type {
+  AgariContext,
   CompletedMentsu,
   HaiKindId,
   Kazehai,
+  Tehai14,
 } from "@mahjong-scoring/core";
 
 /**
@@ -54,6 +56,8 @@ export type LessonChoice =
  *   牌の並び（鳴いた 1 枚が横向き・暗槓は両端を伏せる）から読ませる
  * - `machi`: 聴牌の形（手の内の牌）と和了牌。待ちの形の名前は言わず、牌から
  *   読ませる
+ * - `tehai`: 和了形の手牌と和了状況（場風・自風・和了牌・ツモ / ロン）。
+ *   練習の盤面と同じ手牌表示で見せる
  */
 export type LessonPrompt =
   | { readonly kind: "tier"; readonly tierKey: string; readonly han: number }
@@ -69,6 +73,11 @@ export type LessonPrompt =
       readonly kind: "machi";
       readonly tiles: readonly HaiKindId[];
       readonly agariHai: HaiKindId;
+    }
+  | {
+      readonly kind: "tehai";
+      readonly tehai: Tehai14;
+      readonly context: AgariContext;
     };
 
 /**

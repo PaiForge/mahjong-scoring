@@ -11,6 +11,7 @@ import { SectionTitle } from "@/app/(user)/_components/section-title";
 import { SignUpPanel } from "@/app/(user)/_components/sign-up-panel";
 import { MentsuSet } from "@/app/(user)/_components/mentsu-set";
 import { TileSet } from "@/app/(user)/_components/tile-set";
+import { TehaiDisplay } from "@/app/(user)/(public)/practice/_components/tehai-display";
 import { ChevronRightIcon } from "@/app/(user)/_components/icons/chevron-right-icon";
 import { ChoiceButton } from "@/app/(user)/(public)/practice/_components/choice-button";
 import { FeedbackFrame } from "@/app/(user)/(public)/practice/_components/feedback-frame";
@@ -188,6 +189,12 @@ function conditionValues(
       return { shape: MENTSU_SHAPES[prompt.mentsu.type] };
     case "machi":
       return {};
+    case "tehai":
+      return {
+        bakaze: getKazeName(prompt.context.bakaze),
+        jikaze: getKazeName(prompt.context.jikaze),
+        winType: prompt.context.isTsumo ? "tsumo" : "ron",
+      };
   }
 }
 
@@ -234,7 +241,32 @@ function PromptTiles({ prompt }: { readonly prompt: LessonPrompt }) {
           <TileSet tiles={[prompt.agariHai]} size="md" />
         </div>
       );
+    case "tehai":
+      // 手牌は 14 枚並び、枠の内側では読めない大きさまで縮む。枠の外の
+      // 盤面（{@link PromptBoard}）に出す
+      return undefined;
   }
+}
+
+/**
+ * 条件の枠の上に置く手牌の盤面
+ * 出題盤面
+ *
+ * 手牌 1 つを見て答える問題だけが持つ。練習・昇級試験と同じ盤面で、
+ * スマホでは画面の左右いっぱいに広げて牌を大きく保つ（和了牌とツモ /
+ * ロンは牌のそばに出る）。
+ */
+function PromptBoard({ prompt }: { readonly prompt: LessonPrompt }) {
+  if (prompt.kind !== "tehai") return undefined;
+  return (
+    <div data-testid="lesson-tiles">
+      <TehaiDisplay
+        tehai={prompt.tehai}
+        context={prompt.context}
+        mobileFrame="fullBleed"
+      />
+    </div>
+  );
 }
 
 /**
@@ -464,6 +496,8 @@ export function LessonView({
               {t("progress", { index: index + 1, total: questions.length })}
             </span>
           </div>
+
+          <PromptBoard prompt={question.prompt} />
 
           <FeedbackFrame
             showFeedback={isAnswered}

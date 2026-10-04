@@ -1,5 +1,10 @@
 import { describe, expect, it } from "vitest";
-import { HaiKind, MentsuType } from "@mahjong-scoring/core";
+import {
+  HaiKind,
+  MentsuType,
+  calculateTotalFu,
+  type AgariContext,
+} from "@mahjong-scoring/core";
 
 import { choiceKey, isSameChoice } from "./quiz";
 import { lessonQuiz } from "./quizzes";
@@ -170,5 +175,44 @@ describe("lessonQuiz", () => {
       { kind: "fu", fu: 0 },
       { kind: "fu", fu: 2 },
     ]);
+  });
+
+  it("手牌全体の符: 切り上げと、ツモ符・ロンの双碰・場風の間違えやすい所を問う", () => {
+    const quiz = lessonQuiz("tehai-fu");
+    expect(quiz.questions.map(({ key, answer }) => [key, answer])).toEqual([
+      ["furoRon", { kind: "fu", fu: 30 }],
+      ["furoTsumo", { kind: "fu", fu: 40 }],
+      ["shanponRon", { kind: "fu", fu: 50 }],
+      ["nanBakaze", { kind: "fu", fu: 40 }],
+    ]);
+    // 場風と自風は別（連風牌は設定で符が割れる）
+    for (const { prompt } of quiz.questions) {
+      expect(prompt.kind).toBe("tehai");
+      if (prompt.kind === "tehai") {
+        expect(prompt.context.bakaze).not.toBe(prompt.context.jikaze);
+      }
+    }
+    // 20 符（平和ツモ）・25 符（七対子）は積み上げの外なので並べない
+    expect(quiz.choices.map((choice) => choiceKey(choice))).toEqual(
+      [30, 40, 50, 60, 70, 80, 90, 100, 110].map((fu) => `fu:${fu}`),
+    );
+  });
+
+  it("手牌全体の符: 間違えやすい所を取り違えると、切り上げの段が変わる", () => {
+    const [, furoTsumo, , nanBakaze] = lessonQuiz("tehai-fu").questions;
+    const fuOf = (
+      question: typeof furoTsumo,
+      overrides: Partial<AgariContext>,
+    ) =>
+      question.prompt.kind === "tehai"
+        ? calculateTotalFu(question.prompt.tehai, {
+            ...question.prompt.context,
+            ...overrides,
+          })
+        : undefined;
+    // ツモ符を数えなければ（ロンと同じ）30 符
+    expect(fuOf(furoTsumo, { isTsumo: false })).toBe(30);
+    // 東を場風と取り違えれば南の雀頭は 0 符で 30 符
+    expect(fuOf(nanBakaze, { bakaze: HaiKind.Ton })).toBe(30);
   });
 });

@@ -4,6 +4,7 @@ import { getTranslations } from "next-intl/server";
 import { JantouFuGuide } from "@/app/(user)/(public)/learn/jantou-fu/_components/jantou-fu-guide";
 import { MentsuFuGuide } from "@/app/(user)/(public)/learn/mentsu-fu/_components/mentsu-fu-guide";
 import { MachiFuGuide } from "@/app/(user)/(public)/learn/machi-fu/_components/machi-fu-guide";
+import { TehaiFuGuide } from "@/app/(user)/(public)/learn/tehai-fu/_components/tehai-fu-guide";
 import { ManganKoRonGuide } from "@/app/(user)/(public)/learn/mangan-ko-ron/_components/mangan-ko-ron-guide";
 import { ManganOyaRonGuide } from "@/app/(user)/(public)/learn/mangan-oya-ron/_components/mangan-oya-ron-guide";
 import { ManganOyaTsumoGuide } from "@/app/(user)/(public)/learn/mangan-oya-tsumo/_components/mangan-oya-tsumo-guide";
@@ -99,6 +100,19 @@ const LESSON_EXPLANATIONS: Readonly<
     // 外へ出るリンクは用語の説明だけ
     guide: <MachiFuGuide />,
     excerptKeys: ["machiFu.learn.whatIsMachiBody", "machiFu.learn.twoFuBody"],
+  },
+  "tehai-fu": {
+    // 章の全部を出す。確認問題のヒントはチェックリストの節（副露ロンに和了の
+    // 符が付かない・切り上げ）と、よくある間違いの節の 3 つ（ツモ符・ロンの
+    // 双碰の明刻・南場の場風）を指す。面子・雀頭・待ちの章へのリンクは、
+    // 4 級のここまでのレッスンの章を指す復習の導線なので残す。七対子・平和の
+    // 章へのリンク（コラム）は先の級の章へ出る導線だが、積み上げの外にある
+    // 2 つの手を断る文の一部なので残す
+    guide: <TehaiFuGuide />,
+    excerptKeys: [
+      "tehaiFu.learn.checklistLead",
+      "tehaiFu.learn.checklistRoundBody",
+    ],
   },
 };
 
