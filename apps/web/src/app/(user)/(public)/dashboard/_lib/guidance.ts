@@ -12,7 +12,7 @@ import { chaptersLearnedByLessons } from "@mahjong-scoring/features/lessons/regi
 /** ダッシュボードの学習導線 */
 export interface DashboardGuidance {
   /**
-   * 黒帯への道（段級位の行程）。「次の一歩」カードが読む。
+   * 黒帯への道（段級位の行程）。「次にやること」カードが読む。
    * `nextStep` が undefined なら全級取得済み
    */
   readonly journey: Journey;
@@ -30,7 +30,7 @@ export interface DashboardGuidance {
  * 学習導線の選択
  *
  * @description
- * 行程が進行中（取る級が残っている）なら、主導線は「次の一歩」だけ（黒帯への
+ * 行程が進行中（取る級が残っている）なら、主導線は「次にやること」だけ（黒帯への
  * 道の中で今やること 1 つ。features の `buildJourney`）。候補を並べず 1 つに
  * 絞る — ホームは「今すること」を答える場で、全体の道筋は道場が持つ。
  * 教本の章は出さない。以前は読了だけから「次に読む章」を別に計算して
@@ -41,7 +41,7 @@ export interface DashboardGuidance {
  * という断り書きが要るだけだったため外した。級に属さない章（基礎の
  * セクション・点数記憶術）へもナビゲーションの目次から行ける。
  *
- * 行程を終えた（全級取得）ユーザーには「次の一歩」が無いので、代わりに
+ * 行程を終えた（全級取得）ユーザーには「次にやること」が無いので、代わりに
  * 「教本の続き」（読了・レッスンのどちらでも学んでいない最初の章）と、
  * 終わりのない総合演習を出す。レッスンで学んだ章を外すのは表示の計算だけで、
  * 読了の印（`learn_chapter_reads`）には触らない。

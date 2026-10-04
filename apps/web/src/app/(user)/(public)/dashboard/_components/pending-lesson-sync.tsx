@@ -30,7 +30,7 @@ type SyncOutcome = "pending" | "synced" | "failed";
  * 登録前（未ログイン）に終えたレッスンと、ログイン済みの保存が失敗して
  * 残った完了（`pending-completions-storage`）を、ホームを開いたときに
  * `completeLessons` へ送る。成功したら預かりから外し、`router.refresh()` で
- * サーバーに「次の一歩」を組み直させる（完了が増えると次の一歩が進む）。
+ * サーバーに「次にやること」を組み直させる（完了が増えると次の一歩が進む）。
  *
  * 同期するのは、持ち主の無い預かり（未ログインで終えた分）と本人の id が
  * 付いた預かりだけ（`selectSyncableLessonCompletions`）。別のアカウントの

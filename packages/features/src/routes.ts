@@ -80,7 +80,7 @@ export function practiceHref(slug: PracticeMenuSlug, variant?: string): string {
  * レッスンページのパス
  * レッスンパス
  *
- * ダッシュボードの「次の一歩」・道場の行程・sitemap が同じ組み立てを使う。
+ * ダッシュボードの「次にやること」・道場の行程・sitemap が同じ組み立てを使う。
  *
  * @param slug レッスンスラッグ
  */

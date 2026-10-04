@@ -67,16 +67,19 @@ function presentStep(
 }
 
 /**
- * ダッシュボードの「次の一歩」セクション
- * 次の一歩
+ * ダッシュボードの「次にやること」セクション
+ * 次にやること
  *
  * Server Component。黒帯への道（features の `buildJourney`）が決めた
  * 今やること 1 つを、次に取る級の帯色で縁取ったカードに出す。
  * 「次の目標：5級 — 満貫以上の点数計算ができること」→ 一歩の一文 →
  * その級の進み具合（学ぶ・練習する・認定される）→ ボタン、の順。
  *
- * まだ何も始めていない人には見出しを「黒帯への第一歩」にし、ボタンの下の
- * リンクを「自分で練習を選ぶ」（練習一覧）にする。それ以外は「黒帯までの
+ * 見出しは誰にでも「次にやること」。以前は何も始めていない人だけ
+ * 「黒帯への第一歩」にしていたが、言い回しが大げさで何をする欄かが
+ * 伝わらないため揃えた。まだ何も始めていない人は一歩の一文とボタンを
+ * 最初のレッスン向けにし、ボタンの下のリンクを「自分で練習を選ぶ」
+ * （練習一覧）にする。それ以外は「黒帯までの
  * 道を見る」（道場）。使い続けるほど中身が変わるカードで、初回限定の
  * カードは別に持たない。
  *
@@ -101,7 +104,7 @@ export async function NextStepSection({ journey }: NextStepSectionProps) {
 
   return (
     <section className="space-y-4" data-next-step={nextStep.kind}>
-      <SectionTitle>{isFresh ? t("firstStepTitle") : t("title")}</SectionTitle>
+      <SectionTitle>{t("title")}</SectionTitle>
 
       <div
         data-belt-slug={rankSlug}

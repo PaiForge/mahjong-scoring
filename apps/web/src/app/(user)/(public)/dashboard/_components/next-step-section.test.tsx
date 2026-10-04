@@ -39,12 +39,12 @@ function ctaHref(container: HTMLElement): string | null {
 }
 
 describe("NextStepSection", () => {
-  it("何も始めていなければ「黒帯への第一歩」としてレッスンへ送り、練習一覧へのリンクを添える", async () => {
+  it("何も始めていなければ最初のレッスンへ送り、練習一覧へのリンクを添える", async () => {
     const { container, getByText, getByRole } = render(
       await NextStepSection({ journey: journeyOf() }),
     );
 
-    expect(getByText("firstStepTitle")).toBeTruthy();
+    expect(getByText("title")).toBeTruthy();
     expect(
       container.querySelector("section")?.getAttribute("data-next-step"),
     ).toBe("lesson");
@@ -60,7 +60,7 @@ describe("NextStepSection", () => {
     ).toBe("kyu-5");
   });
 
-  it("レッスンを終えたら「次の一歩」として次の章のレッスンへ送り、道場へのリンクを添える", async () => {
+  it("レッスンを終えたら次の章のレッスンへ送り、道場へのリンクを添える", async () => {
     const { container, getByText, getByRole } = render(
       await NextStepSection({
         journey: journeyOf({
