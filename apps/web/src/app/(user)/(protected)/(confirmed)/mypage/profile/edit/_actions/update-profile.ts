@@ -8,6 +8,7 @@ import type { UserActionGuardErrorCode } from "@/lib/action-guard";
 import { logActivityEvent } from "@/lib/activity-log";
 import { purgeLeaderboardCache } from "@/lib/cache-tags";
 import { db, profiles } from "@/lib/db";
+import { logExternalError } from "@/lib/log-error";
 
 import {
   type ProfileInput,
@@ -45,7 +46,8 @@ export async function updateProfile(
       .update(profiles)
       .set({ ...validated.value, updatedAt: new Date() })
       .where(eq(profiles.id, user.id));
-  } catch {
+  } catch (error) {
+    logExternalError("updateProfile", "failed to update profile", error);
     return { error: "updateFailed" };
   }
 
