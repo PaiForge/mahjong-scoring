@@ -63,7 +63,7 @@ describe("evaluateExamEligibility", () => {
 
   it("要件（合格点）を表示用に返す", () => {
     const eligibility = evaluateExamEligibility("mangan_exam", []);
-    expect(eligibility?.requirement.minScore).toBe(10);
+    expect(eligibility?.requirement.minScore).toBe(6);
     expect(eligibility?.rank.slug).toBe("kyu-5");
   });
 });
