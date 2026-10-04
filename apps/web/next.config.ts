@@ -63,8 +63,25 @@ function supabaseImagePatterns(): RemotePattern[] {
   }
 }
 
+/**
+ * 配信中のビルドを識別する ID
+ * ビルドID
+ *
+ * Vercel のデプロイ ID（無ければコミット SHA）をクライアントとサーバーの両方の
+ * バンドルに焼き込む。開いたままのタブが `/api/version` の値と自分の値を比べ、
+ * 違っていればデプロイ後の新版へ乗り換える（`app/_components/app-version-watcher.tsx`）。
+ *
+ * Next の `buildId` を使わないのは、クライアントから読む公式の手段が無いため。
+ * ローカルのビルドでは undefined になり、監視は何もしない（デプロイが無い環境で
+ * 偽の不一致を作らないため）。手元で試すときは
+ * `VERCEL_GIT_COMMIT_SHA=<任意の値> pnpm build` のように与える。
+ */
+const appBuildId =
+  process.env.VERCEL_DEPLOYMENT_ID ?? process.env.VERCEL_GIT_COMMIT_SHA;
+
 const nextConfig: NextConfig = {
   reactStrictMode: true,
+  env: appBuildId === undefined ? {} : { NEXT_PUBLIC_BUILD_ID: appBuildId },
   // next dev による AGENTS.md / CLAUDE.md の自動生成を無効化する。
   // AI 向けの規約はリポジトリルートの CLAUDE.md を単一の正とするため。
   agentRules: false,

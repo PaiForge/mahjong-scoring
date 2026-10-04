@@ -6,7 +6,7 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import { useTranslations } from "next-intl";
 import { useIsOverlayOpen } from "@/app/_hooks/use-body-scroll-lock";
 import { TAB_BAR_NAV_ITEMS } from "./_lib/nav-items";
-import { isSessionRoute } from "./_lib/session-routes";
+import { isSessionRoute } from "@/app/_components/_lib/session-routes";
 
 const SCROLL_DEAD_ZONE = 10;
 
