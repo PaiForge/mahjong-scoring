@@ -122,6 +122,8 @@ export async function answerAttempt(
       answered: row.state.question,
       question: publicChallengeQuestion(next, state.menuType),
       sequence: state.sequence,
+      // 採点時点の経過時間。画面の時計をこれに合わせ直す（猶予の間は止まっている）
+      elapsedMs: state.elapsedMs,
     };
   });
 }
