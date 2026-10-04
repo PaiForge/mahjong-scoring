@@ -9,6 +9,10 @@ import {
   type TransactionClient,
 } from "@/lib/db";
 import { hasUnexpiredPurchase, lockBillingCustomer } from "./checkout-state";
+import {
+  isReservationTooLateForSession,
+  reservationExpiresAt,
+} from "./checkout-window";
 import { getOrCreateStripeCustomerId } from "./customer";
 import { getOfferPriceId } from "./env";
 import {
@@ -113,8 +117,7 @@ async function reserveAndActivate(
           offer.kind === PurchaseKind.Pass ? offer.durationDays : null,
         stripePriceId: getOfferPriceId(plan.key, offerKey),
         origin,
-        // Stripe の許容範囲（30分〜24時間）内。再試行の余裕を残して 1 時間。
-        expiresAt: new Date((Math.floor(now.getTime() / 1000) + 3600) * 1000),
+        expiresAt: reservationExpiresAt(now),
       })
       .returning();
     if (!created) throw new Error("Checkout reservation failed");
@@ -125,7 +128,8 @@ async function reserveAndActivate(
   const result = await db.transaction(async (tx) => {
     const customer = await lockBillingCustomer(tx, customerId);
     if (!customer) throw new Error("Billing customer no longer exists");
-    if (await hasUnexpiredPurchase(tx, userId, new Date()))
+    const now = new Date();
+    if (await hasUnexpiredPurchase(tx, userId, now))
       return { error: "alreadyActive" } as const;
     const [attempt] = await tx
       .select()
@@ -134,11 +138,7 @@ async function reserveAndActivate(
     if (!attempt || attempt.settledAt)
       return { error: "checkoutExpired" } as const;
     const stripe = getStripe();
-    // ID が未保存なら URL は渡していない。Stripe は作成時に残り30分以上を要求する。
-    if (
-      !attempt.stripeCheckoutSessionId &&
-      attempt.expiresAt.getTime() <= Date.now() + 30 * 60 * 1000
-    ) {
+    if (isReservationTooLateForSession(attempt, now)) {
       await settle(tx, attempt.id);
       return { error: "checkoutExpired" } as const;
     }
