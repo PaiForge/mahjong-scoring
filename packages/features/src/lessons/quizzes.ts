@@ -1,4 +1,5 @@
 import { CHIITOITSU_SCORE_LESSON_QUIZ } from "./chiitoitsu-score";
+import { FURO_SCORE_LESSON_QUIZ } from "./furo-score";
 import { JANTOU_FU_LESSON_QUIZ } from "./jantou-fu";
 import { MACHI_FU_LESSON_QUIZ } from "./machi-fu";
 import { MANGAN_KO_RON_LESSON_QUIZ } from "./mangan-ko-ron";
@@ -32,6 +33,7 @@ const LESSON_QUIZZES: Readonly<Record<LessonSlug, LessonQuiz>> = {
   "chiitoitsu-score": CHIITOITSU_SCORE_LESSON_QUIZ,
   "pinfu-score": PINFU_SCORE_LESSON_QUIZ,
   "menzen-mentsu-score": MENZEN_MENTSU_SCORE_LESSON_QUIZ,
+  "furo-score": FURO_SCORE_LESSON_QUIZ,
 };
 
 /**

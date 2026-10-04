@@ -546,13 +546,35 @@ describe("stepAfterLesson", () => {
 });
 
 describe("stepAfterLessonWithProgress", () => {
-  it("何も済んでいなければ、道筋の順の一歩と同じ", () => {
+  it("何も済んでいなければ、後ろに項目があるレッスンは道筋の順の一歩と同じ", () => {
     for (const lesson of LESSON_REGISTRY) {
+      const planned = stepAfterLesson(lesson.slug);
+      // 後ろに項目が無い（道筋の順なら昇級試験）レッスンは、前に残した
+      // 項目へ戻る（次のテスト）
+      if (planned?.kind === "exam") continue;
       expect(
         stepAfterLessonWithProgress(lesson.slug, input()),
         lesson.slug,
-      ).toEqual(stepAfterLesson(lesson.slug));
+      ).toEqual(planned);
     }
+  });
+
+  it("級の行程の最後のレッスンは、前に残したレッスンへ戻り、全部済めば昇級試験", () => {
+    expect(stepAfterLesson("furo-score")).toEqual({
+      kind: "exam",
+      slug: "fu-score-exam",
+    });
+    expect(stepAfterLessonWithProgress("furo-score", input())).toEqual({
+      kind: "lesson",
+      lessonSlug: "menzen-mentsu-score",
+      chapterSlug: "menzen-mentsu-score",
+    });
+    expect(
+      stepAfterLessonWithProgress(
+        "furo-score",
+        input({ completedLessonSlugs: new Set(["menzen-mentsu-score"]) }),
+      ),
+    ).toEqual({ kind: "exam", slug: "fu-score-exam" });
   });
 
   it("後ろの済んだレッスンは飛ばす", () => {

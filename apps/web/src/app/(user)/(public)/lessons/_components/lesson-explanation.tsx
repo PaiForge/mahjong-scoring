@@ -8,6 +8,7 @@ import { TehaiFuGuide } from "@/app/(user)/(public)/learn/tehai-fu/_components/t
 import { ChiitoitsuScoreGuide } from "@/app/(user)/(public)/learn/chiitoitsu-score/_components/chiitoitsu-score-guide";
 import { PinfuScoreGuide } from "@/app/(user)/(public)/learn/pinfu-score/_components/pinfu-score-guide";
 import { MenzenMentsuScoreGuide } from "@/app/(user)/(public)/learn/menzen-mentsu-score/_components/menzen-mentsu-score-guide";
+import { FuroScoreGuide } from "@/app/(user)/(public)/learn/furo-score/_components/furo-score-guide";
 import { ManganKoRonGuide } from "@/app/(user)/(public)/learn/mangan-ko-ron/_components/mangan-ko-ron-guide";
 import { ManganOyaRonGuide } from "@/app/(user)/(public)/learn/mangan-oya-ron/_components/mangan-oya-ron-guide";
 import { ManganOyaTsumoGuide } from "@/app/(user)/(public)/learn/mangan-oya-tsumo/_components/mangan-oya-tsumo-guide";
@@ -151,6 +152,14 @@ const LESSON_EXPLANATIONS: Readonly<
       "menzenMentsuScore.learn.startBody1",
       "menzenMentsuScore.learn.startBody2",
     ],
+  },
+  "furo-score": {
+    // 章の全部を出す。確認問題のヒントは「ロンだけが 20 符から」の節
+    // （ツモは門前と同じ・10 の倍数で逆転）と、食い平和形のコラムを指す。
+    // 外へ出るリンクは用語の説明だけ。章末の練習のボタンは七対子と同じ
+    // 理由で外す
+    guide: <FuroScoreGuide showPracticeLink={false} />,
+    excerptKeys: ["furoScore.learn.startBody1", "furoScore.learn.startBody2"],
   },
 };
 

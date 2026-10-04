@@ -211,6 +211,13 @@
       "when": 1791085681007,
       "tag": "20261004034801_backfill_menzen_mentsu_score_lesson_completion",
       "breakpoints": true
+    },
+    {
+      "idx": 30,
+      "version": "7",
+      "when": 1791085817199,
+      "tag": "20261004035017_backfill_furo_score_lesson_completion",
+      "breakpoints": true
     }
   ]
 }

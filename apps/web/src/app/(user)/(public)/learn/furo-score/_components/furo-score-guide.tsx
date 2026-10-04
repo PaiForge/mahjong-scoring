@@ -9,10 +9,20 @@ import { ExtraFuTable } from "../../_components/extra-fu-table";
 import { GuideParagraph } from "../../_components/guide-paragraph";
 import { GuideSection } from "../../_components/guide-section";
 
+interface FuroScoreGuideProps {
+  /**
+   * 章末の練習への導線を出すか。レッスンの説明として出すときは出さない
+   * （七対子の章と同じ理由 — `ChiitoitsuScoreGuide` 参照）
+   */
+  readonly showPracticeLink?: boolean;
+}
+
 /**
  * 鳴いた手の点数計算 — 点数の計算セクション第4章
  */
-export async function FuroScoreGuide() {
+export async function FuroScoreGuide({
+  showPracticeLink = true,
+}: FuroScoreGuideProps = {}) {
   const t = await getTranslations("furoScore.learn");
 
   return (
@@ -47,15 +57,17 @@ export async function FuroScoreGuide() {
 
       {/* 対応する練習は自由練習（副露縛り）でカタログ外のため、
           共通レイアウトの practiceLinks ではなく章本文が導線を持つ */}
-      <PracticeLinkSection>
-        <PracticeLinkButton
-          href={scorePracticePlayHref({
-            handShape: "furo",
-            ranges: ["nonMangan"],
-          })}
-          label={t("practiceCta")}
-        />
-      </PracticeLinkSection>
+      {showPracticeLink && (
+        <PracticeLinkSection>
+          <PracticeLinkButton
+            href={scorePracticePlayHref({
+              handShape: "furo",
+              ranges: ["nonMangan"],
+            })}
+            label={t("practiceCta")}
+          />
+        </PracticeLinkSection>
+      )}
     </div>
   );
 }

@@ -181,6 +181,17 @@ export const LESSON_REGISTRY = [
       practiceLink("score-calculation"),
     ],
   },
+  {
+    slug: "furo-score",
+    chapterSlug: "furo-score",
+    rankSlug: "kyu-1",
+    messageKey: "furoScore",
+    // 門前の面子手のレッスンと同じ（章に対応する自由練習＝副露縛りは指せない）
+    practiceLinks: [
+      practiceLink("total-fu"),
+      practiceLink("score-calculation"),
+    ],
+  },
 ] as const satisfies readonly LessonDefinitionEntry[];
 
 /** レッスンスラッグ */

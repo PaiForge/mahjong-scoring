@@ -310,4 +310,24 @@ describe("lessonQuiz", () => {
       [30, 40, 50, 60].map((fu) => ({ kind: "fu", fu })),
     );
   });
+
+  it("鳴いた手: ロンは 20 符から。食い平和形は 30 符で、10 の倍数ではツモが上回る", () => {
+    const quiz = lessonQuiz("furo-score");
+    expect(
+      quiz.questions.map(({ prompt, answer }) => [
+        prompt.kind === "extraFu"
+          ? [prompt.handShape, prompt.winType, prompt.extraFu]
+          : undefined,
+        answer,
+      ]),
+    ).toEqual([
+      [["furo", "ron", 4], { kind: "fu", fu: 30 }],
+      [["furo", "ron", 0], { kind: "fu", fu: 30 }],
+      [["furo", "tsumo", 10], { kind: "fu", fu: 40 }],
+      [["furo", "ron", 10], { kind: "fu", fu: 30 }],
+    ]);
+    expect(quiz.choices).toEqual(
+      [30, 40, 50].map((fu) => ({ kind: "fu", fu })),
+    );
+  });
 });
