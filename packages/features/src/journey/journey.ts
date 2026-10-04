@@ -339,11 +339,78 @@ export function stepAfterLesson(slug: LessonSlug): JourneyStep | undefined {
   );
   if (index === -1) return undefined;
 
-  const rest = path.slice(index + 1);
-  const next =
-    rest.find(
+  const next = preferLesson(path.slice(index + 1));
+  return next === undefined
+    ? { kind: "exam", slug: examSlug }
+    : pathItemToStep(next);
+}
+
+/** 並びの中で最初のレッスン。無ければ先頭の項目（練習・レッスンの無い章） */
+function preferLesson(
+  items: readonly JourneyPathItem[],
+): JourneyPathItem | undefined {
+  return (
+    items.find(
       (item) => item.kind === "chapter" && item.lessonSlug !== undefined,
-    ) ?? rest[0];
+    ) ?? items[0]
+  );
+}
+
+/**
+ * レッスンを終えた本人に示す、進み具合を踏まえた次の一歩
+ * 進み具合を踏まえたレッスンの次の一歩
+ *
+ * {@link stepAfterLesson} と同じく「後ろにある最初のレッスン、無ければ直後の
+ * 項目」を指すが、済んだ項目は飛ばす。後ろが全部済んでいれば、同じ級の前に
+ * 残した項目（飛ばしてきたレッスン・練習）へ戻り、級の項目が全部済んで
+ * いれば昇級試験。級の中で済んでいない項目を探す順はダッシュボードの
+ * 「次の一歩」（{@link buildJourney}）と同じ行程なので、道筋の順に進めて
+ * いる人にはホームと同じ一歩になる。
+ *
+ * 違うのは、後ろの項目を前の項目より先に見ること。ホームは級の最初の未了を
+ * 指すが、レッスンを終えた直後の人には、飛ばしてきた項目より続きを
+ * 優先する（続けて学んでいる流れを途切れさせない）。後ろが尽きてから前へ
+ * 戻るときはホームと同じ「最初の未了」を指す。
+ *
+ * 終えたレッスンの級をすでに取得している（学び直し）なら、その級の試験へは
+ * 送らずホームと同じ一歩（次に取る級の最初の未了）を返す。全級取得済みで
+ * ホームにも一歩が無ければ undefined — 呼び出し側は道筋の順の一歩
+ * （{@link stepAfterLesson}）を使う。
+ *
+ * このレッスン自身は、記録の直後に呼ばれる前提で済みとして扱う
+ * （入力の読み取りが記録より前でも、自分を「次」にしない）。
+ *
+ * @param slug 終えたレッスン
+ * @param input 本人の進み具合
+ */
+export function stepAfterLessonWithProgress(
+  slug: LessonSlug,
+  input: BuildJourneyInput,
+): JourneyStep | undefined {
+  const lesson = lessonBySlug(slug);
+  const rank = lesson && rankBySlug(lesson.rankSlug);
+  if (lesson === undefined || rank === undefined) return undefined;
+
+  const progress: BuildJourneyInput = {
+    ...input,
+    completedLessonSlugs: new Set([...input.completedLessonSlugs, slug]),
+  };
+  if (progress.achievedRankSlugs.includes(rank.slug)) {
+    return buildJourney(progress).nextStep;
+  }
+
+  const examSlug = menuTypeToSlug(rank.exam.menuType);
+  const path = buildJourneyPath(rank.learnChapterSlugs, examSlug, progress);
+  const index = path.findIndex(
+    (item) => item.kind === "chapter" && item.lessonSlug === slug,
+  );
+  if (index === -1) return undefined;
+
+  const undone = (items: readonly JourneyPathItem[]) =>
+    items.filter((item) => !item.done);
+  const next =
+    preferLesson(undone(path.slice(index + 1))) ??
+    undone(path.slice(0, index))[0];
   return next === undefined
     ? { kind: "exam", slug: examSlug }
     : pathItemToStep(next);
