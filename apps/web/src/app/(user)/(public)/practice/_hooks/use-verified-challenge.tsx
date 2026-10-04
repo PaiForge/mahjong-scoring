@@ -18,6 +18,8 @@ import {
   type PracticeMenuSlug,
 } from "@mahjong-scoring/features/practice-menu-types";
 import { useRuleSettingsStore } from "../../../../_hooks/use-rule-settings-store";
+import { PracticePlayLoadingFallback } from "../_components/practice-play-loading-fallback";
+import { BOARD_HEIGHT_BY_SLUG } from "../_lib/board-area-height";
 import { readVariantFromLocation } from "../_lib/variant-param";
 import { AnswerOutcome } from "@mahjong-scoring/features/results/result-schemas";
 
@@ -162,6 +164,8 @@ export function VerifiedChallengeProvider({
   readonly children: ReactNode;
 }) {
   const t = useTranslations("challenge");
+  const menu = practiceMenuBySlug(slug);
+  const tMenu = useTranslations(menu.namespace);
   const [generation, setGeneration] = useState(0);
   const [state, setState] = useState<{
     id: string;
@@ -321,11 +325,17 @@ export function VerifiedChallengeProvider({
     },
     [state],
   );
+  // サーバーが挑戦を作る往復の間は、昇級試験の loading.tsx と同じ形の
+  // スケルトンを出す。盤面がブラウザ内で生成されていた頃はシェルが即座に
+  // 出ていたので、往復が増えてもシェルの形は先に見せ、応答が届いた瞬間に
+  // 画面の丈が変わらないようにする（文章 1 行で待つと見出しが跳ぶ）
   if (mode === "loading")
     return (
-      <p role="status" className="p-6 text-center">
-        {t("preparing")}
-      </p>
+      <PracticePlayLoadingFallback
+        practiceTitle={tMenu("title")}
+        mistakeLimit={menu.mistakeLimit}
+        boardHeight={BOARD_HEIGHT_BY_SLUG[slug]}
+      />
     );
   if (mode === "error")
     return (
