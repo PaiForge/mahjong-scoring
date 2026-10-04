@@ -10,10 +10,21 @@ import { CHIITOITSU_SCORE_TABLE } from "../../_lib/fixed-fu-rows";
 import { GuideParagraph } from "../../_components/guide-paragraph";
 import { GuideSection } from "../../_components/guide-section";
 
+interface ChiitoitsuScoreGuideProps {
+  /**
+   * 章末の練習への導線を出すか。レッスンの説明として出すときは出さない —
+   * 説明のすぐ下に「確認問題へ」のボタンがあり、押して始めるボタンが 2 つ
+   * 並んで確認問題の前に練習へ逸れる
+   */
+  readonly showPracticeLink?: boolean;
+}
+
 /**
  * 七対子での点数計算 — 点数の計算セクション第1章
  */
-export async function ChiitoitsuScoreGuide() {
+export async function ChiitoitsuScoreGuide({
+  showPracticeLink = true,
+}: ChiitoitsuScoreGuideProps = {}) {
   const t = await getTranslations("chiitoitsuScore.learn");
 
   return (
@@ -41,15 +52,17 @@ export async function ChiitoitsuScoreGuide() {
           共通レイアウトの practiceLinks ではなく章本文が導線を持つ。
           七対子のみ・満貫未満 = 章の内容そのまま「必ず 25符 × 2〜4翻」の
           手牌だけが出題される */}
-      <PracticeLinkSection>
-        <PracticeLinkButton
-          href={scorePracticePlayHref({
-            yaku: ["七対子"],
-            ranges: ["nonMangan"],
-          })}
-          label={t("practiceCta")}
-        />
-      </PracticeLinkSection>
+      {showPracticeLink && (
+        <PracticeLinkSection>
+          <PracticeLinkButton
+            href={scorePracticePlayHref({
+              yaku: ["七対子"],
+              ranges: ["nonMangan"],
+            })}
+            label={t("practiceCta")}
+          />
+        </PracticeLinkSection>
+      )}
     </div>
   );
 }

@@ -5,6 +5,7 @@ import { JantouFuGuide } from "@/app/(user)/(public)/learn/jantou-fu/_components
 import { MentsuFuGuide } from "@/app/(user)/(public)/learn/mentsu-fu/_components/mentsu-fu-guide";
 import { MachiFuGuide } from "@/app/(user)/(public)/learn/machi-fu/_components/machi-fu-guide";
 import { TehaiFuGuide } from "@/app/(user)/(public)/learn/tehai-fu/_components/tehai-fu-guide";
+import { ChiitoitsuScoreGuide } from "@/app/(user)/(public)/learn/chiitoitsu-score/_components/chiitoitsu-score-guide";
 import { ManganKoRonGuide } from "@/app/(user)/(public)/learn/mangan-ko-ron/_components/mangan-ko-ron-guide";
 import { ManganOyaRonGuide } from "@/app/(user)/(public)/learn/mangan-oya-ron/_components/mangan-oya-ron-guide";
 import { ManganOyaTsumoGuide } from "@/app/(user)/(public)/learn/mangan-oya-tsumo/_components/mangan-oya-tsumo-guide";
@@ -112,6 +113,18 @@ const LESSON_EXPLANATIONS: Readonly<
     excerptKeys: [
       "tehaiFu.learn.checklistLead",
       "tehaiFu.learn.checklistRoundBody",
+    ],
+  },
+  "chiitoitsu-score": {
+    // 章の全部を出す。確認問題のヒントは 25 符の節（25 符・子と親の表）と
+    // 複合の節（複合しても符は変わらない）を指す。章末の「七対子の点数計算を
+    // 練習する」ボタンは外す — 説明のすぐ下の「確認問題へ」と押して始める
+    // ボタンが 2 つ並ぶ。その練習（自由練習の七対子絞り込み）は完了画面の
+    // 関連する教本から章を開けば辿れる
+    guide: <ChiitoitsuScoreGuide showPracticeLink={false} />,
+    excerptKeys: [
+      "chiitoitsuScore.learn.onePatternBody1",
+      "chiitoitsuScore.learn.onePatternBody2",
     ],
   },
 };

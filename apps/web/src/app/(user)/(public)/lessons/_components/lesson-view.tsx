@@ -195,6 +195,13 @@ function conditionValues(
         jikaze: getKazeName(prompt.context.jikaze),
         winType: prompt.context.isTsumo ? "tsumo" : "ron",
       };
+    case "agari":
+      return {
+        role: prompt.role,
+        winType: prompt.winType,
+        yaku: prompt.yaku.join("＋"),
+        han: prompt.han,
+      };
   }
 }
 
@@ -216,6 +223,7 @@ function PromptTiles({ prompt }: { readonly prompt: LessonPrompt }) {
   switch (prompt.kind) {
     case "tier":
     case "yaku":
+    case "agari":
       return undefined;
     case "jantou":
       return (

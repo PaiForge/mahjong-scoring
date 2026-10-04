@@ -1,3 +1,4 @@
+import { CHIITOITSU_SCORE_LESSON_QUIZ } from "./chiitoitsu-score";
 import { JANTOU_FU_LESSON_QUIZ } from "./jantou-fu";
 import { MACHI_FU_LESSON_QUIZ } from "./machi-fu";
 import { MANGAN_KO_RON_LESSON_QUIZ } from "./mangan-ko-ron";
@@ -26,6 +27,7 @@ const LESSON_QUIZZES: Readonly<Record<LessonSlug, LessonQuiz>> = {
   "mentsu-fu": MENTSU_FU_LESSON_QUIZ,
   "machi-fu": MACHI_FU_LESSON_QUIZ,
   "tehai-fu": TEHAI_FU_LESSON_QUIZ,
+  "chiitoitsu-score": CHIITOITSU_SCORE_LESSON_QUIZ,
 };
 
 /**

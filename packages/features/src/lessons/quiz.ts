@@ -3,7 +3,9 @@ import type {
   CompletedMentsu,
   HaiKindId,
   Kazehai,
+  Role,
   Tehai14,
+  WinType,
 } from "@mahjong-scoring/core";
 
 /**
@@ -58,6 +60,9 @@ export type LessonChoice =
  *   読ませる
  * - `tehai`: 和了形の手牌と和了状況（場風・自風・和了牌・ツモ / ロン）。
  *   練習の盤面と同じ手牌表示で見せる
+ * - `agari`: 和了の条件を文字で言う（親 / 子・ツモ / ロン・役の組み合わせと
+ *   その翻数）。符は言わない — 役から符が決まる章（七対子・平和）で、
+ *   符を知っているかを確かめるため
  */
 export type LessonPrompt =
   | { readonly kind: "tier"; readonly tierKey: string; readonly han: number }
@@ -78,6 +83,14 @@ export type LessonPrompt =
       readonly kind: "tehai";
       readonly tehai: Tehai14;
       readonly context: AgariContext;
+    }
+  | {
+      readonly kind: "agari";
+      readonly role: Role;
+      readonly winType: WinType;
+      /** 役名（`YAKU_HAN_ENTRIES` の名前。並べた順に出す） */
+      readonly yaku: readonly string[];
+      readonly han: number;
     };
 
 /**

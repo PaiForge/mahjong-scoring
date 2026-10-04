@@ -215,4 +215,53 @@ describe("lessonQuiz", () => {
     // 東を場風と取り違えれば南の雀頭は 0 符で 30 符
     expect(fuOf(nanBakaze, { bakaze: HaiKind.Ton })).toBe(30);
   });
+
+  it("七対子: 役の組み合わせから翻数を足し、25 符のロンの点数を問う", () => {
+    const quiz = lessonQuiz("chiitoitsu-score");
+    expect(
+      quiz.questions.map(({ prompt, answer }) => [prompt, answer]),
+    ).toEqual([
+      [
+        { kind: "agari", role: "ko", winType: "ron", yaku: ["七対子"], han: 2 },
+        { kind: "points", points: 1600 },
+      ],
+      [
+        {
+          kind: "agari",
+          role: "ko",
+          winType: "ron",
+          yaku: ["七対子", "断么九"],
+          han: 3,
+        },
+        { kind: "points", points: 3200 },
+      ],
+      [
+        {
+          kind: "agari",
+          role: "ko",
+          winType: "ron",
+          yaku: ["七対子", "立直", "断么九"],
+          han: 4,
+        },
+        { kind: "points", points: 6400 },
+      ],
+      [
+        {
+          kind: "agari",
+          role: "oya",
+          winType: "ron",
+          yaku: ["七対子", "立直"],
+          han: 3,
+        },
+        { kind: "points", points: 4800 },
+      ],
+    ]);
+    // 子と親の 25 符・2〜4 翻のロン
+    expect(quiz.choices).toEqual(
+      [1600, 2400, 3200, 4800, 6400, 9600].map((points) => ({
+        kind: "points",
+        points,
+      })),
+    );
+  });
 });

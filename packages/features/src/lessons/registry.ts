@@ -144,6 +144,19 @@ export const LESSON_REGISTRY = [
     // 後ろにレッスンが無く、完了画面の次の一歩がその練習を指すため
     practiceLinks: [practiceLink("total-fu")],
   },
+  {
+    slug: "chiitoitsu-score",
+    chapterSlug: "chiitoitsu-score",
+    rankSlug: "kyu-3",
+    messageKey: "chiitoitsuScore",
+    // 章に対応する練習は自由練習の七対子絞り込みで、カタログの練習では
+    // ないので指せない（導線は説明に出す章本文の CTA が持つ）。表を引く
+    // 練習として、25 符の列を含む満貫未満の点数表早引きへ送る
+    practiceLinks: [
+      practiceLink("score-table", "ko_non_mangan"),
+      practiceLink("score-table", "oya_non_mangan"),
+    ],
+  },
 ] as const satisfies readonly LessonDefinitionEntry[];
 
 /** レッスンスラッグ */
