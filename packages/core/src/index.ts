@@ -10,6 +10,7 @@ export { calculateJantouFu } from "./problem/shared/jantou-fu";
 // === Problem: Machi Fu ===
 export { generateMachiFuQuestion } from "./problem/machi-fu/generator";
 export type { MachiFuQuestion } from "./problem/machi-fu/types";
+export { calculateMachiFu } from "./score/machi-fu";
 
 // === Problem: Mentsu Fu ===
 export { generateMentsuFuQuestion } from "./problem/mentsu-fu/generator";
@@ -216,6 +217,7 @@ export type {
   Tehai13,
   Tehai14,
   CompletedMentsu,
+  MachiType,
   Payment,
   RuleConfig,
   YakumanRuleConfig,
