@@ -15,7 +15,7 @@ const NO_RANKS: readonly RankSlug[] = [];
 
 describe("selectDashboardGuidance", () => {
   describe("行程が進行中（取る級が残っている）", () => {
-    it("新規ユーザー: 次の一歩は最初のレッスン、教本は補助リンクだけで「教本の続き」は出さない", () => {
+    it("新規ユーザー: 次の一歩は最初のレッスンだけで「教本の続き」は出さない", () => {
       const guidance = selectDashboardGuidance({
         readSlugs: NONE,
         completedLessonSlugs: NONE,
@@ -25,7 +25,6 @@ describe("selectDashboardGuidance", () => {
 
       expect(guidance.journey.isFresh).toBe(true);
       expect(guidance.journey.nextStep?.kind).toBe("lesson");
-      expect(guidance.showTextbookLink).toBe(true);
       expect(guidance.nextChapter).toBeUndefined();
       expect(guidance.showComprehensivePractice).toBe(false);
     });
@@ -43,7 +42,6 @@ describe("selectDashboardGuidance", () => {
         lessonSlug: "mangan-ko-tsumo",
         chapterSlug: "mangan-ko-tsumo",
       });
-      expect(guidance.showTextbookLink).toBe(true);
       expect(guidance.nextChapter).toBeUndefined();
     });
 
@@ -71,7 +69,6 @@ describe("selectDashboardGuidance", () => {
       });
 
       expect(guidance.journey.nextStep).toBeUndefined();
-      expect(guidance.showTextbookLink).toBe(false);
       expect(guidance.nextChapter?.slug).toBe("why-scoring-is-complex");
       expect(guidance.showComprehensivePractice).toBe(true);
     });
@@ -96,7 +93,6 @@ describe("selectDashboardGuidance", () => {
       });
 
       expect(guidance.nextChapter).toBeUndefined();
-      expect(guidance.showTextbookLink).toBe(false);
       expect(guidance.showComprehensivePractice).toBe(true);
     });
   });
