@@ -428,6 +428,47 @@ Anthropic 管理の VM（Ubuntu 24.04、Node 20/21/22 のみ、Docker あり）�
 - VM でできないこと: 本番のシークレット（Google OAuth、Resend、GA）が要る確認。
   それは Remote Control か手元で行う
 
+### Preview デプロイの DB は Supabase Branching から来る
+
+`next build` は Postgres に繋がらないと完走しない（`src/app/sitemap.ts` が `announcements` を
+SELECT する）。Preview を本番 DB に向ける選択は無い — `prebuild`（`scripts/prebuild-db.ts`）が
+接続文字列を見て Drizzle の migrate を走らせるので、feature ブランチのマイグレーションが
+本番に流れる。代わりに PR ごとに Supabase の **preview branch**（空の DB を持つ隔離インスタンス）
+を使う。PR を開くと Supabase がブランチを作り、その接続情報を Vercel に **PR の git ブランチ
+限定の Preview 変数**（本番連携と同じ 16 キー: `POSTGRES_*` / `SUPABASE_*` /
+`NEXT_PUBLIC_SUPABASE_*`）として書き込み、再デプロイを起動する。空の DB は Vercel ビルドの
+`prebuild` → `migrate.ts` が `supabase_auth_admin` ロールを検出して Drizzle のマイグレーションと
+`drizzle/supabase/*.sql` を適用することでブートストラップされる。`supabase/migrations/` は
+使っていないので Supabase 側の migrate / seed は何もしない。
+
+PR のマージまたはクローズでブランチは削除され、従量課金（Micro 約 $0.32/日。Pro の
+Compute Credits の対象外）も止まる。PR を何週間も開けたままにしない。
+
+`claude/*` の PR（クラウドセッション・issue パイプライン）にも他と同じく Preview が立つ。
+Supabase の連携はブランチ名で絞れず PR ごとに必ずブランチを作るので、`vercel.json` の
+`ignoreCommand` で `claude/*` のビルドだけ止めると「DB に課金だけして Preview は立たない」
+状態になる。そのため `vercel.json` は置かない。
+
+依存するダッシュボード設定（Supabase プロジェクト → Settings → Integrations）。どれも
+失敗時の症状が「DB 未接続」と同じに見える:
+
+- **GitHub integration の「Supabase changes only」: OFF。** ON だと `apps/web/supabase/` に
+  変更の無い PR は無視され（bot が "no changes detected" とコメント）、スキーマが
+  `apps/web/drizzle/` にあるこのリポジトリではどの PR も条件を満たさない。症状は
+  `connect ECONNREFUSED 127.0.0.1:54322`（`scripts/_lib/database-url.ts` のローカル既定値へ
+  フォールバック）
+- **Vercel integration の「Preview」同期トグル: OFF。** 本番の接続文字列と service role key を
+  Preview 全体にコピーする設定。ブランチ限定の同期はトグル OFF のまま PR open 時に行われる
+- **Working directory: `apps/web`**（`supabase/` の親）。**Automatic branching: ON。
+  Deploy to production: OFF** — 本番スキーマは本番ビルドの `prebuild` が適用する
+
+設定を直した後に既存 PR へ再適用するには PR を close → reopen する。
+
+preview branch の既知の穴: `config.toml` の `site_url = "http://localhost:3000"` のため Preview URL
+では認証のリダイレクトが戻らず、本番ダッシュボードだけで設定した項目（OAuth の secret 等）は
+複製されない。ビルドには影響しない。手順の正本は dotagents のスキル
+`vercel-preview-supabase-branching`。
+
 ## Database Migration
 
 - **Always use `pnpm db:run-migrate`** — This runs `scripts/migrate.ts`, which executes Drizzle migrations and then applies Supabase-specific SQL (RLS policies, FK constraints) in Supabase environments.
