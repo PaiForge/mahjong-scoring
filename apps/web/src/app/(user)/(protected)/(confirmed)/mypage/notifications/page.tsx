@@ -16,6 +16,7 @@ import { PageTitle } from "@/app/(user)/_components/page-title";
 import { PaginationNav } from "@/app/(user)/_components/pagination-nav";
 import { createPrivateMetadata } from "@/app/_lib/metadata";
 import { requireConfirmedUser } from "@/lib/auth";
+import { parsePageParam } from "@/lib/pagination";
 import {
   countUnreadNotifications,
   listNotifications,
@@ -37,9 +38,7 @@ export default async function NotificationsPage({
 }: NotificationsPageProps) {
   const { user } = await requireConfirmedUser();
   const params = await searchParams;
-  const pageParam =
-    typeof params.page === "string" ? parseInt(params.page, 10) : 1;
-  const page = Number.isFinite(pageParam) && pageParam > 0 ? pageParam : 1;
+  const page = parsePageParam(params.page);
 
   const [t, tMypage, { items, totalPages, currentPage }, unreadCount] =
     await Promise.all([
