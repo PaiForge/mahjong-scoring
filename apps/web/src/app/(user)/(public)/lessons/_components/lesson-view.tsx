@@ -54,12 +54,14 @@ interface LessonViewProps {
    * 完了を記録できたあとの主導線。黒帯への道でこのレッスンの次にある一歩
    * （次のレッスン・練習・昇級試験）で、文言はその一歩を名指しする。
    * `preview` があればボタンの代わりにそれを出す（次がレッスンのときの
-   * 冒頭のプレビュー。サーバーで描いたもの）
+   * 冒頭のプレビュー。サーバーで描いたもの）。`goal` はボタンの下に添える
+   * （後ろにレッスンが無いときの「昇級試験まで」。サーバーで描いたもの）
    */
   readonly next: {
     readonly href: string;
     readonly label: string;
     readonly preview?: ReactNode;
+    readonly goal?: ReactNode;
   };
   /** 説明（見出しを含む。サーバーで描いたもの） */
   readonly explanation: ReactNode;
@@ -520,7 +522,8 @@ interface CompletionActionsProps {
  * - 保存済み: 黒帯への道でこのレッスンの次にある一歩へ。次がレッスンなら
  *   その冒頭のプレビューと「続きを読む」、それ以外はボタン（ホームを経由せず、
  *   行き先を名指しした文言で直接送る。緑のボタンが「押して始める」の記号
- *   なので、行き先の分からない「次の一歩へ」でホームに戻すのは避ける）
+ *   なので、行き先の分からない「次の一歩へ」でホームに戻すのは避ける）。
+ *   後ろにレッスンが無ければ、ボタンの下に「昇級試験まで」を添える
  * - 失敗: 何が起きたかと、ホームに進んでも後で記録されることを伝え、
  *   その場での再試行を主導線にする。ホームへは補助リンクで行ける
  * - 未ログイン: 登録への誘導（今の完了も引き継がれると添える）
@@ -546,14 +549,17 @@ function CompletionActions({
     case "saved":
       if (next.preview !== undefined) return next.preview;
       return (
-        <LinkButton
-          href={next.href}
-          size="lg"
-          fullWidth
-          trailingIcon={<ChevronRightIcon className="size-5" />}
-        >
-          {next.label}
-        </LinkButton>
+        <>
+          <LinkButton
+            href={next.href}
+            size="lg"
+            fullWidth
+            trailingIcon={<ChevronRightIcon className="size-5" />}
+          >
+            {next.label}
+          </LinkButton>
+          {next.goal}
+        </>
       );
     case "failed":
       return (

@@ -5,6 +5,7 @@ import {
   render,
   screen,
 } from "@testing-library/react";
+import type { ReactNode } from "react";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
 const { mockGetState, mockCompleteLesson } = vi.hoisted(() => ({
@@ -27,13 +28,13 @@ vi.mock("../_actions/complete-lesson", () => ({
 const { useAuth: mockUseAuth } = await import("@/test/auth-context-mock");
 const { LessonView } = await import("./lesson-view");
 
-function renderPage() {
+function renderPage(goal?: ReactNode) {
   return render(
     <LessonView
       slug="mangan-ko-ron"
       messageKey="manganKoRon"
       chapterSlug="mangan-ko-ron"
-      next={{ href: "/lessons/mangan-ko-tsumo", label: "nextLesson" }}
+      next={{ href: "/lessons/mangan-ko-tsumo", label: "nextLesson", goal }}
       explanation={<p data-testid="explanation" />}
       related={<p data-testid="related" />}
     />,
@@ -148,5 +149,26 @@ describe("LessonView の済みの印", () => {
     await traverse("back");
     expect(screen.getByRole("img", { name: "completedMark" })).toBeTruthy();
     expect(mockGetState).toHaveBeenCalledTimes(1);
+  });
+
+  it("昇級試験までのパネルを渡されたら、次の一歩のボタンの下に添える", async () => {
+    mockUseAuth.mockReturnValue({ user: { id: "u1" }, isLoading: false });
+    mockGetState.mockResolvedValue(false);
+    renderPage(<p data-testid="goal" />);
+    await flush();
+
+    fireEvent.click(screen.getByRole("button", { name: "startQuiz" }));
+    for (const [i, points] of ["8,000", "12,000", "16,000"].entries()) {
+      fireEvent.click(screen.getByRole("button", { name: points }));
+      fireEvent.click(
+        screen.getByRole("button", { name: i === 2 ? "finish" : "next" }),
+      );
+    }
+
+    const button = await screen.findByRole("link", { name: "nextLesson" });
+    const goal = screen.getByTestId("goal");
+    expect(
+      button.compareDocumentPosition(goal) & Node.DOCUMENT_POSITION_FOLLOWING,
+    ).toBeTruthy();
   });
 });

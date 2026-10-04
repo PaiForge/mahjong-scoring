@@ -24,7 +24,8 @@
  * ダッシュボードの「黒帯への第一歩 / 次の一歩」→ 説明を読む → 確認問題
  * （ヒントを見られる。不正解なら解説を読んで次へ）→ できたことの確認 →
  * ログイン済みなら黒帯への道の次の一歩（次のレッスン・練習・昇級試験）へ、
- * 未ログインなら登録への誘導。
+ * 未ログインなら登録への誘導。級の最後のレッスンでは、次の一歩の下に
+ * 昇級試験までの進み具合と、試験・模試・道場への入口を添える。
  * その下に、同じ形の問題を解く練習（持つレッスンだけ）と教本の章を並べる
  */
 import type { Metadata } from "next";
@@ -39,6 +40,8 @@ import {
   lessonBySlug,
 } from "@mahjong-scoring/features/lessons/registry";
 import { stepAfterLesson } from "@mahjong-scoring/features/journey/journey";
+import { menuTypeToSlug } from "@mahjong-scoring/features/practice-menu-types";
+import { rankBySlug } from "@mahjong-scoring/features/ranks/registry";
 import { lessonHref } from "@mahjong-scoring/features/routes";
 
 import { journeyStepHref, journeyStepTitle } from "../../_lib/journey-step";
@@ -47,6 +50,7 @@ import { LessonView } from "../_components/lesson-view";
 import { LessonExplanation } from "../_components/lesson-explanation";
 import { LessonRelatedLinks } from "../_components/lesson-related-links";
 import { NextLessonPreview } from "../_components/next-lesson-preview";
+import { RankGoalPanel } from "../_components/rank-goal-panel";
 
 interface LessonPageProps {
   readonly params: Promise<{ readonly slug: string }>;
@@ -87,6 +91,7 @@ export default async function LessonPage({ params }: LessonPageProps) {
   // 黒帯への道でこのレッスンの次にある一歩。全レッスンが持つ（features の
   // テストが固定）が、無ければホームの「次の一歩」に任せる
   const step = stepAfterLesson(lesson.slug);
+  const rank = rankBySlug(lesson.rankSlug);
   const next = step
     ? {
         href: journeyStepHref(step),
@@ -97,6 +102,15 @@ export default async function LessonPage({ params }: LessonPageProps) {
           step.kind === "lesson" ? (
             <NextLessonPreview slug={step.lessonSlug} />
           ) : undefined,
+        // 後ろにレッスンが無い（級の最後のレッスン）なら、プレビューの
+        // 代わりに級のゴールまでの残りを添える
+        goal:
+          step.kind === "lesson" || rank === undefined ? undefined : (
+            <RankGoalPanel
+              rankSlug={rank.slug}
+              examSlug={menuTypeToSlug(rank.exam.menuType)}
+            />
+          ),
       }
     : { href: "/", label: t("continueHome") };
 
