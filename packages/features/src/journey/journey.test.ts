@@ -118,15 +118,19 @@ describe("buildJourney", () => {
     });
   });
 
-  it("レッスンの無い章は、読了で済みになり、未読なら章を読む一歩になる", () => {
+  it("次の級の最初の章はレッスンで学び、読了では済みにならない", () => {
     const unread = buildJourney(input({ achievedRankSlugs: ["kyu-5"] }));
     expect(unread.current?.chapters[0]).toEqual({
       kind: "chapter",
       chapterSlug: "jantou-fu",
-      lessonSlug: undefined,
+      lessonSlug: "jantou-fu",
       done: false,
     });
-    expect(unread.nextStep).toEqual({ kind: "read", chapterSlug: "jantou-fu" });
+    expect(unread.nextStep).toEqual({
+      kind: "lesson",
+      lessonSlug: "jantou-fu",
+      chapterSlug: "jantou-fu",
+    });
 
     const read = buildJourney(
       input({
@@ -134,7 +138,7 @@ describe("buildJourney", () => {
         readSlugs: new Set(["jantou-fu"]),
       }),
     );
-    expect(read.current?.chapters[0].done).toBe(true);
+    expect(read.current?.chapters[0].done).toBe(false);
   });
 
   describe("学ぶと練習するを章の順に交互に案内する", () => {
@@ -403,9 +407,10 @@ describe("buildJourney", () => {
     expect(kyu5.exam.done).toBe(true);
     // 章を読んでいなくても行程は残る（取得済みの級の中身を道場で見られる）
     expect(kyu5.chapters.length).toBe(5);
-    // 次の一歩は次の級（4級）の最初の章
+    // 次の一歩は次の級（4級）の最初の章のレッスン
     expect(journey.nextStep).toEqual({
-      kind: "read",
+      kind: "lesson",
+      lessonSlug: "jantou-fu",
       chapterSlug: "jantou-fu",
     });
   });
@@ -475,6 +480,20 @@ describe("buildJourneyPath", () => {
     ]);
   });
 
+  it("レッスンの無い章は読了で済みになる", () => {
+    // 点数記憶術の章はどの級の前提でもなく、レッスンを持たない
+    const chapterOf = (readSlugs: ReadonlySet<string>) =>
+      buildJourneyPath(["fu-doubling"], "score-exam", input({ readSlugs }))[0];
+
+    expect(chapterOf(NONE)).toEqual({
+      kind: "chapter",
+      chapterSlug: "fu-doubling",
+      lessonSlug: undefined,
+      done: false,
+    });
+    expect(chapterOf(new Set(["fu-doubling"])).done).toBe(true);
+  });
+
   it("その級の試験が練習リンクに現れても行程には含めない", () => {
     const path = buildJourneyPath(["yaku"], "yaku", input());
 
@@ -527,13 +546,35 @@ describe("stepAfterLesson", () => {
 });
 
 describe("stepAfterLessonWithProgress", () => {
-  it("何も済んでいなければ、道筋の順の一歩と同じ", () => {
+  it("何も済んでいなければ、後ろに項目があるレッスンは道筋の順の一歩と同じ", () => {
     for (const lesson of LESSON_REGISTRY) {
+      const planned = stepAfterLesson(lesson.slug);
+      // 後ろに項目が無い（道筋の順なら昇級試験）レッスンは、前に残した
+      // 項目へ戻る（次のテスト）
+      if (planned?.kind === "exam") continue;
       expect(
         stepAfterLessonWithProgress(lesson.slug, input()),
         lesson.slug,
-      ).toEqual(stepAfterLesson(lesson.slug));
+      ).toEqual(planned);
     }
+  });
+
+  it("級の行程の最後のレッスンは、前に残したレッスンへ戻り、全部済めば昇級試験", () => {
+    expect(stepAfterLesson("furo-score")).toEqual({
+      kind: "exam",
+      slug: "fu-score-exam",
+    });
+    expect(stepAfterLessonWithProgress("furo-score", input())).toEqual({
+      kind: "lesson",
+      lessonSlug: "menzen-mentsu-score",
+      chapterSlug: "menzen-mentsu-score",
+    });
+    expect(
+      stepAfterLessonWithProgress(
+        "furo-score",
+        input({ completedLessonSlugs: new Set(["menzen-mentsu-score"]) }),
+      ),
+    ).toEqual({ kind: "exam", slug: "fu-score-exam" });
   });
 
   it("後ろの済んだレッスンは飛ばす", () => {

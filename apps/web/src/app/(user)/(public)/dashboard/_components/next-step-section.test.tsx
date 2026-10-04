@@ -114,10 +114,14 @@ describe("NextStepSection", () => {
     expect(ctaHref(container)).toBe("/exam/mangan");
   });
 
-  it("レッスンの無い章（4級以降）は、教本の章を読む一歩として送る", async () => {
+  it("レッスンの無い章は、教本の章を読む一歩として送る", async () => {
+    // 前提章のレッスンに頼らないよう、章を読む一歩は行程に直接置く
     const { container } = render(
       await NextStepSection({
-        journey: journeyOf({ achievedRankSlugs: ["kyu-5"] }),
+        journey: {
+          ...journeyOf({ achievedRankSlugs: ["kyu-5"] }),
+          nextStep: { kind: "read", chapterSlug: "jantou-fu" },
+        },
       }),
     );
 

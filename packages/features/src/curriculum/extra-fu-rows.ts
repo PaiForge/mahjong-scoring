@@ -3,7 +3,7 @@ import { mentsuTehaiFu } from "@mahjong-scoring/core";
 import {
   HAND_SHAPE_MENZEN,
   type FixedHandShape,
-} from "@mahjong-scoring/features/practice/score/hand-shape-param";
+} from "../practice/score/hand-shape-param";
 
 /**
  * 表に並べる「積み上げた符」の上限。

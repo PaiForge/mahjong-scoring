@@ -162,6 +162,62 @@
       "when": 1791063127940,
       "tag": "20261003213207_backfill_kyu5_lesson_completions",
       "breakpoints": true
+    },
+    {
+      "idx": 23,
+      "version": "7",
+      "when": 1791083612137,
+      "tag": "20261004031332_backfill_jantou_fu_lesson_completion",
+      "breakpoints": true
+    },
+    {
+      "idx": 24,
+      "version": "7",
+      "when": 1791083968470,
+      "tag": "20261004031928_backfill_mentsu_fu_lesson_completion",
+      "breakpoints": true
+    },
+    {
+      "idx": 25,
+      "version": "7",
+      "when": 1791084227379,
+      "tag": "20261004032347_backfill_machi_fu_lesson_completion",
+      "breakpoints": true
+    },
+    {
+      "idx": 26,
+      "version": "7",
+      "when": 1791084991756,
+      "tag": "20261004033631_backfill_tehai_fu_lesson_completion",
+      "breakpoints": true
+    },
+    {
+      "idx": 27,
+      "version": "7",
+      "when": 1791085310703,
+      "tag": "20261004034150_backfill_chiitoitsu_score_lesson_completion",
+      "breakpoints": true
+    },
+    {
+      "idx": 28,
+      "version": "7",
+      "when": 1791085476930,
+      "tag": "20261004034436_backfill_pinfu_score_lesson_completion",
+      "breakpoints": true
+    },
+    {
+      "idx": 29,
+      "version": "7",
+      "when": 1791085681007,
+      "tag": "20261004034801_backfill_menzen_mentsu_score_lesson_completion",
+      "breakpoints": true
+    },
+    {
+      "idx": 30,
+      "version": "7",
+      "when": 1791085817199,
+      "tag": "20261004035017_backfill_furo_score_lesson_completion",
+      "breakpoints": true
     }
   ]
 }

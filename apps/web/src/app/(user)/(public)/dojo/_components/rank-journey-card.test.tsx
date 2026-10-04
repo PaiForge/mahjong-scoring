@@ -98,23 +98,28 @@ describe("RankJourneyCard", () => {
   });
 
   it("レッスンの無い章は目次に出し、読了した章を学んだとして渡す", async () => {
+    // 前提章のレッスンに頼らないよう、レッスンの無い章は行程から
+    // レッスンを外して作る（章を読んで学ぶ形の描き分けだけを見る）
+    const base = rankJourney("kyu-4", { achievedRankSlugs: ["kyu-5"] });
+    const chapters = base.chapters.map((item) => ({
+      ...item,
+      lessonSlug: undefined,
+      done: item.chapterSlug === "jantou-fu",
+    }));
     const { container, getByTestId } = render(
       <ol>
         {await RankJourneyCard({
-          journey: rankJourney("kyu-4", {
-            achievedRankSlugs: ["kyu-5"],
-            readSlugs: new Set(["jantou-fu"]),
-          }),
+          journey: { ...base, chapters },
           expanded: true,
         })}
       </ol>,
     );
 
-    const chapters = getByTestId("chapters");
-    expect(chapters.getAttribute("data-slugs")).toBe(
+    const toc = getByTestId("chapters");
+    expect(toc.getAttribute("data-slugs")).toBe(
       RANK_REGISTRY[1].learnChapterSlugs.join(","),
     );
-    expect(chapters.getAttribute("data-learned")).toBe("jantou-fu");
+    expect(toc.getAttribute("data-learned")).toBe("jantou-fu");
     expect(hrefs(container).some((href) => href.startsWith("/lessons/"))).toBe(
       false,
     );

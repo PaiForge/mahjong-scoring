@@ -1,3 +1,15 @@
+import type {
+  AgariContext,
+  CompletedMentsu,
+  HaiKindId,
+  Kazehai,
+  Role,
+  Tehai14,
+  WinType,
+} from "@mahjong-scoring/core";
+
+import type { FixedHandShape } from "../practice/score/hand-shape-param";
+
 /**
  * レッスンの確認問題の型
  * レッスン確認問題
@@ -23,6 +35,7 @@
  * - `oyaTsumo`: 親のツモの支払い（オール）
  * - `han`: 翻数
  * - `yakuman`: 役満（翻数の選択肢の最上位）
+ * - `fu`: 符
  */
 export type LessonChoice =
   | { readonly kind: "points"; readonly points: number }
@@ -33,7 +46,8 @@ export type LessonChoice =
     }
   | { readonly kind: "oyaTsumo"; readonly all: number }
   | { readonly kind: "han"; readonly han: number }
-  | { readonly kind: "yakuman" };
+  | { readonly kind: "yakuman" }
+  | { readonly kind: "fu"; readonly fu: number };
 
 /**
  * 問題の条件（辞書の `condition` に差し込む値）
@@ -41,10 +55,54 @@ export type LessonChoice =
  *
  * - `tier`: 翻数と点数の帯（満貫・跳満 …）。帯の名前は `scoreTable.<tierKey>`
  * - `yaku`: 役名と、門前か鳴きか
+ * - `jantou`: 雀頭の牌と、場風・自風（牌は条件文の下に並べて見せる）
+ * - `mentsu`: 面子 1 つ。条件文は形（順子・刻子・槓子）だけを言い、明暗は
+ *   牌の並び（鳴いた 1 枚が横向き・暗槓は両端を伏せる）から読ませる
+ * - `machi`: 聴牌の形（手の内の牌）と和了牌。待ちの形の名前は言わず、牌から
+ *   読ませる
+ * - `tehai`: 和了形の手牌と和了状況（場風・自風・和了牌・ツモ / ロン）。
+ *   練習の盤面と同じ手牌表示で見せる
+ * - `agari`: 和了の条件を文字で言う（親 / 子・ツモ / ロン・役の組み合わせと
+ *   その翻数）。符は言わない — 役から符が決まる章（七対子・平和）で、
+ *   符を知っているかを確かめるため
+ * - `extraFu`: 門前 / 副露・ツモ / ロンと、面子・雀頭・待ちで積み上げた符の
+ *   合計（副底と和了の符を除く）。教本の「積み上げた符 → 符」の表と同じ
+ *   切り口で問う
  */
 export type LessonPrompt =
   | { readonly kind: "tier"; readonly tierKey: string; readonly han: number }
-  | { readonly kind: "yaku"; readonly yaku: string; readonly naki: boolean };
+  | { readonly kind: "yaku"; readonly yaku: string; readonly naki: boolean }
+  | {
+      readonly kind: "jantou";
+      readonly tile: HaiKindId;
+      readonly bakaze: Kazehai;
+      readonly jikaze: Kazehai;
+    }
+  | { readonly kind: "mentsu"; readonly mentsu: CompletedMentsu }
+  | {
+      readonly kind: "machi";
+      readonly tiles: readonly HaiKindId[];
+      readonly agariHai: HaiKindId;
+    }
+  | {
+      readonly kind: "tehai";
+      readonly tehai: Tehai14;
+      readonly context: AgariContext;
+    }
+  | {
+      readonly kind: "agari";
+      readonly role: Role;
+      readonly winType: WinType;
+      /** 役名（`YAKU_HAN_ENTRIES` の名前。並べた順に出す） */
+      readonly yaku: readonly string[];
+      readonly han: number;
+    }
+  | {
+      readonly kind: "extraFu";
+      readonly handShape: FixedHandShape;
+      readonly winType: WinType;
+      readonly extraFu: number;
+    };
 
 /**
  * 確認問題 1 問
@@ -90,6 +148,8 @@ export function choiceKey(choice: LessonChoice): string {
       return `han:${choice.han}`;
     case "yakuman":
       return "yakuman";
+    case "fu":
+      return `fu:${choice.fu}`;
   }
 }
 

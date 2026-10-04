@@ -1,6 +1,14 @@
 import type { ReactNode } from "react";
 import { getTranslations } from "next-intl/server";
 
+import { JantouFuGuide } from "@/app/(user)/(public)/learn/jantou-fu/_components/jantou-fu-guide";
+import { MentsuFuGuide } from "@/app/(user)/(public)/learn/mentsu-fu/_components/mentsu-fu-guide";
+import { MachiFuGuide } from "@/app/(user)/(public)/learn/machi-fu/_components/machi-fu-guide";
+import { TehaiFuGuide } from "@/app/(user)/(public)/learn/tehai-fu/_components/tehai-fu-guide";
+import { ChiitoitsuScoreGuide } from "@/app/(user)/(public)/learn/chiitoitsu-score/_components/chiitoitsu-score-guide";
+import { PinfuScoreGuide } from "@/app/(user)/(public)/learn/pinfu-score/_components/pinfu-score-guide";
+import { MenzenMentsuScoreGuide } from "@/app/(user)/(public)/learn/menzen-mentsu-score/_components/menzen-mentsu-score-guide";
+import { FuroScoreGuide } from "@/app/(user)/(public)/learn/furo-score/_components/furo-score-guide";
 import { ManganKoRonGuide } from "@/app/(user)/(public)/learn/mangan-ko-ron/_components/mangan-ko-ron-guide";
 import { ManganOyaRonGuide } from "@/app/(user)/(public)/learn/mangan-oya-ron/_components/mangan-oya-ron-guide";
 import { ManganOyaTsumoGuide } from "@/app/(user)/(public)/learn/mangan-oya-tsumo/_components/mangan-oya-tsumo-guide";
@@ -68,6 +76,92 @@ const LESSON_EXPLANATIONS: Readonly<
     // 翻数を確かめに行く先なので残す
     guide: <YakuGuide />,
     excerptKeys: ["yaku.learn.whatIsYakuBody1", "yaku.learn.whatIsYakuBody2"],
+  },
+  "jantou-fu": {
+    // 章の全部を出す。確認問題のヒントは役牌の節（三元牌・自風）・0 符の節
+    // （オタ風）・まとめの表（数牌）を指す。連風牌のコラムの「設定」への
+    // リンクは外へ出る導線だが、連風牌を出題しない理由（ルールで符が割れる）
+    // の説明そのものなので残す
+    guide: <JantouFuGuide />,
+    excerptKeys: [
+      "jantouFu.learn.whatIsJantouBody",
+      "jantouFu.learn.yakuhaiBody",
+    ],
+  },
+  "mentsu-fu": {
+    // 章の全部を出す。確認問題のヒントは刻子の節（横向きの牌が鳴いた印・
+    // 么九牌がどの牌か — 本文に無かったので章に足した）と槓子の節（刻子の
+    // 4 倍・暗槓は両端を伏せる）を指す。外へ出るリンクは用語の説明だけ
+    guide: <MentsuFuGuide />,
+    excerptKeys: [
+      "mentsuFu.learn.whatIsMentsuFuBody",
+      "mentsuFu.learn.shuntsuBody",
+    ],
+  },
+  "machi-fu": {
+    // 章の全部を出す。確認問題のヒントは待ちの形を言い、拠り所は 2 符の節・
+    // 0 符の節の例の表（辺張の 89 の 7 待ちは本文に無かったので章に足した）。
+    // 外へ出るリンクは用語の説明だけ
+    guide: <MachiFuGuide />,
+    excerptKeys: ["machiFu.learn.whatIsMachiBody", "machiFu.learn.twoFuBody"],
+  },
+  "tehai-fu": {
+    // 章の全部を出す。確認問題のヒントはチェックリストの節（副露ロンに和了の
+    // 符が付かない・切り上げ）と、よくある間違いの節の 3 つ（ツモ符・ロンの
+    // 双碰の明刻・南場の場風）を指す。面子・雀頭・待ちの章へのリンクは、
+    // 4 級のここまでのレッスンの章を指す復習の導線なので残す。七対子・平和の
+    // 章へのリンク（コラム）は先の級の章へ出る導線だが、積み上げの外にある
+    // 2 つの手を断る文の一部なので残す。抜粋はチェックリストの導入と
+    // 切り上げの段落（2 段落目の「足す順番は好みで」は、次のレッスンの
+    // 書き出しとして中身が薄い）
+    guide: <TehaiFuGuide />,
+    excerptKeys: [
+      "tehaiFu.learn.checklistLead",
+      "tehaiFu.learn.checklistRoundBody",
+    ],
+  },
+  "chiitoitsu-score": {
+    // 章の全部を出す。確認問題のヒントは 25 符の節（25 符・子と親の表）と
+    // 複合の節（複合しても符は変わらない）を指す。章末の「七対子の点数計算を
+    // 練習する」ボタンは外す — 説明のすぐ下の「確認問題へ」と押して始める
+    // ボタンが 2 つ並ぶ。その練習（自由練習の七対子絞り込み）は完了画面の
+    // 関連する教本から章を開けば辿れる
+    guide: <ChiitoitsuScoreGuide showPracticeLink={false} />,
+    excerptKeys: [
+      "chiitoitsuScore.learn.onePatternBody1",
+      "chiitoitsuScore.learn.onePatternBody2",
+    ],
+  },
+  "pinfu-score": {
+    // 章の全部を出す。確認問題のヒントは 2 パターンの節（ツモ 20 符・
+    // ロン 30 符・子の表）と複合の節を指す。章末の練習のボタンは七対子と
+    // 同じ理由で外す。切り上げ満貫のコラムの「設定」へのリンクは、4 翻の
+    // ロンを出題しない理由（ルールで点数が割れる）の説明そのものなので残す
+    guide: <PinfuScoreGuide showPracticeLink={false} />,
+    excerptKeys: [
+      "pinfuScore.learn.twoPatternsBody1",
+      "pinfuScore.learn.twoPatternsBody2",
+    ],
+  },
+  "menzen-mentsu-score": {
+    // 章の全部を出す。確認問題のヒントは「積み上げた符を 10 で切る」の節
+    // （ツモは切り捨て・ロンは切り上げ・対応表）を指し、8 符のツモはコラム
+    // （40 符に上がる境目）が拠り所。面子・雀頭・待ちの章へのリンクは 4 級の
+    // レッスンの章を指す復習の導線なので残す。章末の練習のボタンは七対子と
+    // 同じ理由で外す
+    guide: <MenzenMentsuScoreGuide showPracticeLink={false} />,
+    excerptKeys: [
+      "menzenMentsuScore.learn.startBody1",
+      "menzenMentsuScore.learn.startBody2",
+    ],
+  },
+  "furo-score": {
+    // 章の全部を出す。確認問題のヒントは「ロンだけが 20 符から」の節
+    // （ツモは門前と同じ・10 の倍数で逆転）と、食い平和形のコラムを指す。
+    // 外へ出るリンクは用語の説明だけ。章末の練習のボタンは七対子と同じ
+    // 理由で外す
+    guide: <FuroScoreGuide showPracticeLink={false} />,
+    excerptKeys: ["furoScore.learn.startBody1", "furoScore.learn.startBody2"],
   },
 };
 

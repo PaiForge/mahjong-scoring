@@ -10,10 +10,20 @@ import { GuideParagraph } from "../../_components/guide-paragraph";
 import { GuideSection } from "../../_components/guide-section";
 import { ExtraFuTable } from "../../_components/extra-fu-table";
 
+interface MenzenMentsuScoreGuideProps {
+  /**
+   * 章末の練習への導線を出すか。レッスンの説明として出すときは出さない
+   * （七対子の章と同じ理由 — `ChiitoitsuScoreGuide` 参照）
+   */
+  readonly showPracticeLink?: boolean;
+}
+
 /**
  * 平和以外の門前面子手の点数計算 — 点数の計算セクション第3章
  */
-export async function MenzenMentsuScoreGuide() {
+export async function MenzenMentsuScoreGuide({
+  showPracticeLink = true,
+}: MenzenMentsuScoreGuideProps = {}) {
   const t = await getTranslations("menzenMentsuScore.learn");
 
   return (
@@ -58,15 +68,17 @@ export async function MenzenMentsuScoreGuide() {
           出題は門前・満貫未満に絞る（七対子は既定で生成対象外なので
           門前の面子手だけが出る）。この章で扱わない平和も混ざるが、
           直前の章で扱い終えているので腕試しとして成立する */}
-      <PracticeLinkSection>
-        <PracticeLinkButton
-          href={scorePracticePlayHref({
-            handShape: "menzen",
-            ranges: ["nonMangan"],
-          })}
-          label={t("practiceCta")}
-        />
-      </PracticeLinkSection>
+      {showPracticeLink && (
+        <PracticeLinkSection>
+          <PracticeLinkButton
+            href={scorePracticePlayHref({
+              handShape: "menzen",
+              ranges: ["nonMangan"],
+            })}
+            label={t("practiceCta")}
+          />
+        </PracticeLinkSection>
+      )}
     </div>
   );
 }

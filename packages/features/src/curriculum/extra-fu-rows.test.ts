@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 
-import { buildExtraFuRows } from "../extra-fu-rows";
+import { buildExtraFuRows } from "./extra-fu-rows";
 
 describe("buildExtraFuRows", () => {
   it("符が同じ並びを1行にまとめる", () => {

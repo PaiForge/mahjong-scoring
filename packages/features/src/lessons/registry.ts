@@ -107,6 +107,91 @@ export const LESSON_REGISTRY = [
     // 並べると同じ練習が 2 回出る
     practiceLinks: [practiceLink("han-count"), practiceLink("yaku")],
   },
+  {
+    slug: "jantou-fu",
+    chapterSlug: "jantou-fu",
+    rankSlug: "kyu-4",
+    messageKey: "jantouFu",
+    practiceLinks: [
+      practiceLink("jantou-fu"),
+      practiceLink("mentsu-jantou-fu"),
+    ],
+  },
+  {
+    slug: "mentsu-fu",
+    chapterSlug: "mentsu-fu",
+    rankSlug: "kyu-4",
+    messageKey: "mentsuFu",
+    practiceLinks: [
+      practiceLink("mentsu-fu"),
+      practiceLink("mentsu-jantou-fu"),
+    ],
+  },
+  {
+    slug: "machi-fu",
+    chapterSlug: "machi-fu",
+    rankSlug: "kyu-4",
+    messageKey: "machiFu",
+    // 面子と雀頭の符の練習は待ちを問わないので、待ちを含む通しの練習へ送る
+    practiceLinks: [practiceLink("machi-fu"), practiceLink("total-fu")],
+  },
+  {
+    slug: "tehai-fu",
+    chapterSlug: "tehai-fu",
+    rankSlug: "kyu-4",
+    messageKey: "tehaiFu",
+    // 章の練習のうち「面子と雀頭の符」は載せない。4 級の最後のレッスンで
+    // 後ろにレッスンが無く、完了画面の次の一歩がその練習を指すため
+    practiceLinks: [practiceLink("total-fu")],
+  },
+  {
+    slug: "chiitoitsu-score",
+    chapterSlug: "chiitoitsu-score",
+    rankSlug: "kyu-3",
+    messageKey: "chiitoitsuScore",
+    // 章に対応する練習は自由練習の七対子絞り込みで、カタログの練習では
+    // ないので指せない（導線は説明に出す章本文の CTA が持つ）。表を引く
+    // 練習として、25 符の列を含む満貫未満の点数表早引きへ送る
+    practiceLinks: [
+      practiceLink("score-table", "ko_non_mangan"),
+      practiceLink("score-table", "oya_non_mangan"),
+    ],
+  },
+  {
+    slug: "pinfu-score",
+    chapterSlug: "pinfu-score",
+    rankSlug: "kyu-2",
+    messageKey: "pinfuScore",
+    // 七対子と同じ理由で、章に対応する自由練習は指せない。20 符・30 符の
+    // 列を含む満貫未満の点数表早引きへ送る
+    practiceLinks: [
+      practiceLink("score-table", "ko_non_mangan"),
+      practiceLink("score-table", "oya_non_mangan"),
+    ],
+  },
+  {
+    slug: "menzen-mentsu-score",
+    chapterSlug: "menzen-mentsu-score",
+    rankSlug: "kyu-1",
+    messageKey: "menzenMentsuScore",
+    // 章に対応する自由練習（門前縛り）は指せない（七対子と同じ理由）。
+    // 積み上げて符を出す練習から、符と翻から点数を出す練習へ
+    practiceLinks: [
+      practiceLink("total-fu"),
+      practiceLink("score-calculation"),
+    ],
+  },
+  {
+    slug: "furo-score",
+    chapterSlug: "furo-score",
+    rankSlug: "kyu-1",
+    messageKey: "furoScore",
+    // 門前の面子手のレッスンと同じ（章に対応する自由練習＝副露縛りは指せない）
+    practiceLinks: [
+      practiceLink("total-fu"),
+      practiceLink("score-calculation"),
+    ],
+  },
 ] as const satisfies readonly LessonDefinitionEntry[];
 
 /** レッスンスラッグ */

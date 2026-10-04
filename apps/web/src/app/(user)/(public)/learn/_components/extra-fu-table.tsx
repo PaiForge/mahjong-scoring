@@ -8,7 +8,7 @@ import {
 
 import type { FixedHandShape } from "@mahjong-scoring/features/practice/score/hand-shape-param";
 
-import { buildExtraFuRows } from "../_lib/extra-fu-rows";
+import { buildExtraFuRows } from "@mahjong-scoring/features/curriculum/extra-fu-rows";
 
 interface ExtraFuTableProps {
   /** 門前手 / 副露した手のどちらの表か */

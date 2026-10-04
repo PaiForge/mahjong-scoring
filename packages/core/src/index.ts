@@ -5,9 +5,12 @@ export type {
   JantouFuChoice,
 } from "./problem/jantou-fu/types";
 
+export { calculateJantouFu } from "./problem/shared/jantou-fu";
+
 // === Problem: Machi Fu ===
 export { generateMachiFuQuestion } from "./problem/machi-fu/generator";
 export type { MachiFuQuestion } from "./problem/machi-fu/types";
+export { calculateMachiFu } from "./score/machi-fu";
 
 // === Problem: Mentsu Fu ===
 export { generateMentsuFuQuestion } from "./problem/mentsu-fu/generator";
@@ -21,7 +24,10 @@ export type {
 } from "./problem/mentsu-jantou-fu/types";
 
 // === Problem: Total Fu ===
-export { generateTotalFuQuestion } from "./problem/total-fu/generator";
+export {
+  calculateTotalFu,
+  generateTotalFuQuestion,
+} from "./problem/total-fu/generator";
 export type { TotalFuQuestion } from "./problem/total-fu/types";
 export type { FuDetail } from "./score/fu-calculator";
 
@@ -118,6 +124,9 @@ export {
 
 // === Score ===
 export {
+  CHIITOITSU_FU,
+  PINFU_TSUMO_FU,
+  PINFU_RON_FU,
   FU_VALUES,
   isFu,
   RON_SCORES_KO,
@@ -135,6 +144,7 @@ export {
   calculateKoScore,
   calculateOyaScore,
   calculateTierScore,
+  calculateStandaloneMentsuFu,
   isInvalidCell,
   HIGH_SCORES,
 } from "./core/score-calculation";
@@ -213,6 +223,7 @@ export type {
   Tehai13,
   Tehai14,
   CompletedMentsu,
+  MachiType,
   Payment,
   RuleConfig,
   YakumanRuleConfig,
