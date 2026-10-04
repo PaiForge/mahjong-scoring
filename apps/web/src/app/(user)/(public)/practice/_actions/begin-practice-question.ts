@@ -3,7 +3,6 @@
 import type { ActionResult } from "@/lib/action-types";
 import { getOptionalUser } from "@/lib/auth";
 import { isPlanOnSale } from "@/lib/billing/env";
-import { PlanBenefit } from "@mahjong-scoring/features/billing/plans";
 import { getActiveBenefits } from "@/lib/entitlements/has-benefit";
 import { logExternalError } from "@/lib/log-error";
 import {
@@ -12,6 +11,12 @@ import {
   writeAnonymousQuota,
 } from "@/lib/practice-quota/anonymous-quota-cookie";
 import { consumeUserQuota } from "@/lib/practice-quota/consume-user-quota";
+import {
+  isUnlimited,
+  unlimitedAnswer,
+  type BeginPracticeQuestionResult,
+  type QuotaAudience,
+} from "@/lib/practice-quota/quota-answer";
 import { jstDayKey } from "@mahjong-scoring/features/jst";
 import { readUserQuota } from "@/lib/practice-quota/read-user-quota";
 import {
@@ -24,38 +29,10 @@ import {
   type RateLimitErrorCode,
 } from "@/lib/rate-limit-ip";
 
-/**
- * 1 問始めてよいかの答え
- * 出題許可
- *
- * - `allowed` — 問題を生成してよいか。false なら生成せずペイウォールを出す
- * - `remaining` — 今日の残り（この 1 問を含めず）。Pro は `"unlimited"`
- * - `limit` — 1 日の上限。文言「1 日 n 問」に使う。Pro は `"unlimited"`
- * - `signedIn` — ログインしているか。未ログインのペイウォールは先にログインを勧める
- * - `benefits` — 保有する特典。拡張機能の出し分けに使う
- *
- * `interface` ではなく `type` なのは `ActionResult` の `Record<string, unknown>`
- * 制約を満たすため（interface は暗黙のインデックスシグネチャを持たない）。
- */
-// eslint-disable-next-line @typescript-eslint/consistent-type-definitions -- ActionResult の Record<string, unknown> 制約を満たすため（interface は暗黙のインデックスシグネチャを持たない）
-export type BeginPracticeQuestionResult = {
-  readonly allowed: boolean;
-  readonly remaining: number | "unlimited";
-  readonly limit: number | "unlimited";
-  readonly signedIn: boolean;
-  readonly benefits: readonly PlanBenefit[];
-};
+export type { BeginPracticeQuestionResult };
 
 /** 不正な練習名で呼ばれたときのエラー。UI のバグなので i18n キーは持たない */
 export type BeginPracticeQuestionError = RateLimitErrorCode | "invalidMenu";
-
-const UNLIMITED: BeginPracticeQuestionResult = {
-  allowed: true,
-  remaining: "unlimited",
-  limit: "unlimited",
-  signedIn: true,
-  benefits: [],
-};
 
 /**
  * エンドレス練習で 1 問生成する直前に呼び、無料枠を 1 つ消費する
@@ -89,13 +66,17 @@ export async function beginPracticeQuestion(
 
   const now = new Date();
   const user = await getOptionalUser();
+  const audience = await readAudience(user?.id, now);
 
-  if (!isPlanOnSale("pro")) {
-    return { success: true, ...(await resultWhileProOffSale(user?.id, now)) };
+  if (isUnlimited(isPlanOnSale("pro"), audience.benefits)) {
+    return { success: true, ...unlimitedAnswer(audience) };
   }
 
   if (user) {
-    return { success: true, ...(await beginForUser(user.id, menu, now)) };
+    return {
+      success: true,
+      ...(await beginForUser(user.id, menu, now, audience)),
+    };
   }
   return { success: true, ...(await beginForAnonymous(menu, now)) };
 }
@@ -126,17 +107,14 @@ export async function peekPracticeQuota(
 
   const now = new Date();
   const user = await getOptionalUser();
+  const audience = await readAudience(user?.id, now);
 
-  if (!isPlanOnSale("pro")) {
-    return { success: true, ...(await resultWhileProOffSale(user?.id, now)) };
+  if (isUnlimited(isPlanOnSale("pro"), audience.benefits)) {
+    return { success: true, ...unlimitedAnswer(audience) };
   }
 
   if (user) {
-    const benefitSet = await getActiveBenefits(user.id, now);
-    const benefits = [...benefitSet];
-    if (benefitSet.has(PlanBenefit.UnlimitedPractice)) {
-      return { success: true, ...UNLIMITED, benefits };
-    }
+    const { benefits } = audience;
     const limit = PRACTICE_QUOTA_LIMITS[menu].signedIn;
     const remaining = await readUserQuota(user.id, menu, jstDayKey(now), limit);
     return {
@@ -160,28 +138,26 @@ export async function peekPracticeQuota(
 }
 
 /**
- * Pro を販売していない間の答え。誰にも制限を掛けず、特典は本物の判定どおり返す
+ * 答えの宛先を読む。特典の判定は失敗すると特典なしに倒れる（fail-closed）
  * （出題開始・残数問い合わせで共通）
  */
-async function resultWhileProOffSale(
+async function readAudience(
   userId: string | undefined,
   now: Date,
-): Promise<BeginPracticeQuestionResult> {
-  const benefits = userId ? [...(await getActiveBenefits(userId, now))] : [];
-  return { ...UNLIMITED, signedIn: userId !== undefined, benefits };
+): Promise<QuotaAudience> {
+  if (userId === undefined) return { signedIn: false, benefits: [] };
+  return {
+    signedIn: true,
+    benefits: [...(await getActiveBenefits(userId, now))],
+  };
 }
 
 async function beginForUser(
   userId: string,
   menu: QuotaMenu,
   now: Date,
+  { benefits }: QuotaAudience,
 ): Promise<BeginPracticeQuestionResult> {
-  const benefitSet = await getActiveBenefits(userId, now);
-  const benefits = [...benefitSet];
-  if (benefitSet.has(PlanBenefit.UnlimitedPractice)) {
-    return { ...UNLIMITED, benefits };
-  }
-
   const limit = PRACTICE_QUOTA_LIMITS[menu].signedIn;
   try {
     const result = await consumeUserQuota(userId, menu, jstDayKey(now), limit);
