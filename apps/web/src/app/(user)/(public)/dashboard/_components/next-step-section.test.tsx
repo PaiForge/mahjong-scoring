@@ -58,6 +58,12 @@ describe("NextStepSection", () => {
         .querySelector("[data-belt-slug]")
         ?.getAttribute("data-belt-slug"),
     ).toBe("kyu-5");
+    // 進み具合はいま取り組んでいる段（学ぶ）を示す
+    expect(
+      container
+        .querySelector("[aria-current='step']")
+        ?.getAttribute("data-stage"),
+    ).toBe("learn");
   });
 
   it("レッスンを終えたら次の章のレッスンへ送り、道場へのリンクを添える", async () => {
@@ -112,6 +118,11 @@ describe("NextStepSection", () => {
       container.querySelector("section")?.getAttribute("data-next-step"),
     ).toBe("exam");
     expect(ctaHref(container)).toBe("/exam/mangan");
+    expect(
+      container
+        .querySelector("[aria-current='step']")
+        ?.getAttribute("data-stage"),
+    ).toBe("exam");
   });
 
   it("レッスンの無い章は、教本の章を読む一歩として送る", async () => {

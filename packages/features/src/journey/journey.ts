@@ -489,3 +489,27 @@ export function countProgress(
     total: items.length,
   };
 }
+
+/**
+ * 級の行程の 3 段（学ぶ・練習する・認定される）
+ * 行程の段
+ */
+export type JourneyStage = "learn" | "practice" | "exam";
+
+/**
+ * 級の行程で、いま取り組んでいる段
+ * 現在の段
+ *
+ * 次の一歩（`buildJourney` の `nextStep`）と同じ規則 — 道筋で最初の未了の
+ * 項目の段、道筋が済んでいれば試験。学ぶと練習するは章の順に交互に進むので、
+ * 「学ぶがすべて済むまで練習しない」わけではない。
+ *
+ * 試験に合格した級は undefined。学ぶ・練習するを飛ばして合格した経験者の級に
+ * 「いま学ぶ段」を示さないため、道筋より先に合否を見る。
+ */
+export function currentStage(journey: RankJourney): JourneyStage | undefined {
+  if (journey.exam.done) return undefined;
+  const item = journey.path.find((entry) => !entry.done);
+  if (item === undefined) return "exam";
+  return item.kind === "chapter" ? "learn" : "practice";
+}

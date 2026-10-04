@@ -111,7 +111,7 @@ export async function NextStepSection({ journey }: NextStepSectionProps) {
           </div>
         </div>
 
-        <RankStageProgress journey={current} tRanks={tRanks} />
+        <RankStageProgress journey={current} tRanks={tRanks} highlightCurrent />
 
         <div className={`flex flex-col ${SUB_LINK_GAP}`}>
           <LinkButton
