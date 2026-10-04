@@ -22,9 +22,22 @@
   "doneTitle": "できるようになったこと",
   "doneScore": "{total} 問中 {correct} 問正解",
   "doneScorePerfect": "{total} 問すべて正解！",
-  "retry": "もう一度やる",
   "saving": "完了を記録しています…",
   "continueHome": "次の一歩へ",
+  "nextStep": {
+    "lesson": "次のレッスン「{title}」へ",
+    "read": "次の章「{title}」を読む",
+    "practice": "「{title}」に挑戦する",
+    "exam": "{title}に挑戦する"
+  },
+  "nextLesson": {
+    "title": "次のレッスン",
+    "readMore": "続きを読む"
+  },
+  "related": {
+    "practiceTitle": "関連する練習",
+    "chapterTitle": "関連する教本"
+  },
   "saveFailed": {
     "title": "完了を記録できませんでした",
     "description": "通信状況を確認して、もう一度お試しください。ホームに戻った場合も、次にホームを開いたときに自動で記録を再試行します。",
@@ -44,9 +57,6 @@
   "manganKoRon": {
     "title": "子のロン（満貫以上）",
     "description": "麻雀の点数計算の最初の一歩。子が満貫以上をロンしたときの点数を、短い説明と 3 問の確認問題で覚えます。登録なしで数分で終わります。",
-    "lead": "点数計算でいちばん簡単なのが、子が満貫以上をロンしたとき。符の計算はいりません。",
-    "point1": "満貫は 8,000 点。これが基準です。",
-    "point2": "跳満は満貫の 1.5 倍、倍満は 2 倍、三倍満は 3 倍、役満は 4 倍。覚えるのはこの表の 5 つだけです。",
     "condition": "子・ロン・{han}翻（{tier}）",
     "questionPrompt": "点数を選んでください",
     "questions": {

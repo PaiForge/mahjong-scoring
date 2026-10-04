@@ -82,3 +82,18 @@ export function collectTermSlugs(input: string): string[] {
   }
   return [...seen];
 }
+
+/**
+ * 用語マークアップを外し、表示語だけの文にする
+ * マークアップ除去
+ *
+ * 本文の抜粋（レッスンの完了画面の「次のレッスン」）のように、リンクを
+ * 置かずに文だけを見せる場面で使う。
+ *
+ * @param input 辞書から引いた本文
+ */
+export function stripTermMarkup(input: string): string {
+  return parseTermMarkup(input)
+    .map((token) => (token.type === "text" ? token.value : token.label))
+    .join("");
+}

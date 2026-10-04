@@ -2,12 +2,17 @@ import {
   getChapterBySlug,
   type CurriculumChapterSlug,
 } from "../curriculum/registry";
-import { lessonForChapter, type LessonSlug } from "../lessons/registry";
+import {
+  lessonBySlug,
+  lessonForChapter,
+  type LessonSlug,
+} from "../lessons/registry";
 import { menuTypeToSlug, type PracticeMenuSlug } from "../practice-menu-types";
 import { resolveRankStatus, type RankStatus } from "../ranks/rank-status";
 import {
   RANK_REGISTRY,
   nextRank,
+  rankBySlug,
   type RankDefinition,
   type RankSlug,
 } from "../ranks/registry";
@@ -277,9 +282,13 @@ export function buildJourneyPath(
 /** 行程の中で最初の未了を返す。すべて済んでいれば昇級試験 */
 function selectStep(journey: RankJourney): JourneyStep {
   const item = journey.path.find((entry) => !entry.done);
-  if (item === undefined) {
-    return { kind: "exam", slug: journey.exam.slug };
-  }
+  return item === undefined
+    ? { kind: "exam", slug: journey.exam.slug }
+    : pathItemToStep(item);
+}
+
+/** 行程の 1 項目を、その項目へ進む一歩にする */
+function pathItemToStep(item: JourneyPathItem): JourneyStep {
   if (item.kind === "practice") {
     return { kind: "practice", slug: item.slug, variant: item.variant };
   }
@@ -290,6 +299,47 @@ function selectStep(journey: RankJourney): JourneyStep {
         lessonSlug: item.lessonSlug,
         chapterSlug: item.chapterSlug,
       };
+}
+
+/** 進み具合を持たない入力。行程の並びだけを知りたいときに使う */
+const NO_PROGRESS: BuildJourneyInput = {
+  readSlugs: new Set(),
+  completedLessonSlugs: new Set(),
+  attemptedPractices: [],
+  achievedRankSlugs: [],
+};
+
+/**
+ * レッスンを終えた人に示す、行程の上でそのレッスンの次にある一歩
+ * レッスンの次の一歩
+ *
+ * そのレッスンが属する級の行程で、レッスンの章の直後の項目（次の章の
+ * レッスン・章から送る練習）。級の最後の項目なら、その級の昇級試験。
+ *
+ * ユーザーの進み具合は見ない — レッスンのページは cookie を読まない静的
+ * ページで、完了画面のボタンは道筋の順に「次」を指す。進み具合を踏まえた
+ * 「今やること」はダッシュボードの「次の一歩」（{@link buildJourney}）が持つ。
+ * 先の項目を済ませている人には済んだ項目を指すことになるが、道筋の順に
+ * 進めている人（レッスンから来る人の大半）には同じ行き先になる。
+ *
+ * 級の行程に章が無いレッスン（起きないが型の上では有り得る）は undefined。
+ */
+export function stepAfterLesson(slug: LessonSlug): JourneyStep | undefined {
+  const lesson = lessonBySlug(slug);
+  const rank = lesson && rankBySlug(lesson.rankSlug);
+  if (lesson === undefined || rank === undefined) return undefined;
+
+  const examSlug = menuTypeToSlug(rank.exam.menuType);
+  const path = buildJourneyPath(rank.learnChapterSlugs, examSlug, NO_PROGRESS);
+  const index = path.findIndex(
+    (item) => item.kind === "chapter" && item.lessonSlug === slug,
+  );
+  if (index === -1) return undefined;
+
+  const next = path[index + 1];
+  return next === undefined
+    ? { kind: "exam", slug: examSlug }
+    : pathItemToStep(next);
 }
 
 /** 1 つの級の行程を組む */

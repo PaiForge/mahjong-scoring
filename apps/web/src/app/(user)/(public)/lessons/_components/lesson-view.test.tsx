@@ -31,7 +31,9 @@ function renderLesson() {
       slug="mangan-ko-ron"
       messageKey="manganKoRon"
       chapterSlug="mangan-ko-ron"
+      next={{ href: "/lessons/mangan-ko-tsumo", label: "nextLesson" }}
       explanation={<p data-testid="explanation" />}
+      related={<p data-testid="related" />}
     />,
   );
 }
@@ -84,6 +86,17 @@ describe("LessonView", () => {
 
     expect(screen.getByTestId("explanation")).toBeTruthy();
     expect(screen.queryByTestId("lesson-condition")).toBeNull();
+  });
+
+  it("練習・教本への導線は解き終えるまで出さない", async () => {
+    renderLesson();
+    expect(screen.queryByTestId("related")).toBeNull();
+    startQuiz();
+    expect(screen.queryByTestId("related")).toBeNull();
+
+    answerAll(["8,000", "12,000", "32,000"]);
+
+    expect(await screen.findByTestId("related")).toBeTruthy();
   });
 
   it("確認問題は 5 つの点数から選び、正解すると正解の表示と次へのボタンが出る", () => {
@@ -195,7 +208,7 @@ describe("LessonView", () => {
       mockUseAuth.mockReturnValue(signedIn);
     });
 
-    it("完了を 1 回だけ記録し、記録できてからホームへの導線を出す", async () => {
+    it("完了を 1 回だけ記録し、記録できてから次の一歩への導線を出す", async () => {
       const save = deferred<{ success: true }>();
       mockCompleteLesson.mockReturnValue(save.promise);
       renderLesson();
@@ -205,11 +218,11 @@ describe("LessonView", () => {
       expect(screen.getByTestId("lesson-score").textContent).toBe(
         "doneScorePerfect",
       );
-      // 保存中はホームへ進めない（押せないボタンで記録中と示す）
+      // 保存中は次へ進めない（押せないボタンで記録中と示す）
       expect(
         (screen.getByTestId("lesson-saving") as HTMLButtonElement).disabled,
       ).toBe(true);
-      expect(screen.queryByRole("link", { name: "continueHome" })).toBeNull();
+      expect(screen.queryByRole("link", { name: "nextLesson" })).toBeNull();
       expect(mockCompleteLesson).toHaveBeenCalledTimes(1);
       expect(mockCompleteLesson).toHaveBeenCalledWith("mangan-ko-ron");
 
@@ -219,16 +232,42 @@ describe("LessonView", () => {
       });
 
       expect(
-        screen.getByRole("link", { name: "continueHome" }).getAttribute("href"),
-      ).toBe("/");
+        screen.getByRole("link", { name: "nextLesson" }).getAttribute("href"),
+      ).toBe("/lessons/mangan-ko-tsumo");
       expect(readPendingLessonCompletions()).toEqual([]);
+    });
 
-      // やり直して再び解き終えても二重には記録しない
-      fireEvent.click(screen.getByRole("button", { name: "retry" }));
+    it("次の一歩にプレビューがあれば、記録できたあとボタンの代わりに出す", async () => {
+      mockUseAuth.mockReturnValue(signedIn);
+      render(
+        <LessonView
+          slug="mangan-ko-ron"
+          messageKey="manganKoRon"
+          chapterSlug="mangan-ko-ron"
+          next={{
+            href: "/lessons/mangan-ko-tsumo",
+            label: "nextLesson",
+            preview: <p data-testid="preview" />,
+          }}
+          explanation={<p />}
+        />,
+      );
       startQuiz();
       answerAll(["8,000", "12,000", "16,000"]);
-      expect(mockCompleteLesson).toHaveBeenCalledTimes(1);
-      expect(screen.getByRole("link", { name: "continueHome" })).toBeTruthy();
+
+      expect(await screen.findByTestId("preview")).toBeTruthy();
+      expect(screen.queryByRole("link", { name: "nextLesson" })).toBeNull();
+    });
+
+    it("完了画面にやり直しの導線は出さない", async () => {
+      renderLesson();
+      startQuiz();
+      answerAll(["8,000", "12,000", "16,000"]);
+
+      expect(
+        await screen.findByRole("link", { name: "nextLesson" }),
+      ).toBeTruthy();
+      expect(screen.queryByRole("button", { name: "retry" })).toBeNull();
     });
 
     it("保存に失敗したら完了を端末に預け、解き直さずに再試行して記録できる", async () => {
@@ -258,7 +297,7 @@ describe("LessonView", () => {
       fireEvent.click(screen.getByRole("button", { name: "saveFailed.retry" }));
 
       expect(
-        await screen.findByRole("link", { name: "continueHome" }),
+        await screen.findByRole("link", { name: "nextLesson" }),
       ).toBeTruthy();
       expect(mockCompleteLesson).toHaveBeenCalledTimes(2);
       // 記録できたので預かりは外れる
@@ -276,39 +315,13 @@ describe("LessonView", () => {
       expect(
         screen.queryByRole("button", { name: "saveFailed.retry" }),
       ).toBeNull();
-      // 保存中にやり直しても保存の状態は保たれ、再送はしない
-      fireEvent.click(screen.getByRole("button", { name: "retry" }));
-      startQuiz();
-      answerAll(["8,000", "12,000", "16,000"]);
       expect(mockCompleteLesson).toHaveBeenCalledTimes(1);
 
       await act(async () => {
         save.resolve({ success: true });
         await save.promise;
       });
-      expect(screen.getByRole("link", { name: "continueHome" })).toBeTruthy();
-    });
-
-    it("失敗のあとにやり直して解き終えると、もう一度記録を試みる", async () => {
-      mockCompleteLesson.mockRejectedValueOnce(new Error("network"));
-      const errorSpy = vi
-        .spyOn(console, "error")
-        .mockImplementation(() => undefined);
-      renderLesson();
-      startQuiz();
-      answerAll(["8,000", "12,000", "16,000"]);
-      await screen.findByTestId("lesson-save-failed");
-
-      mockCompleteLesson.mockResolvedValueOnce({ success: true });
-      fireEvent.click(screen.getByRole("button", { name: "retry" }));
-      startQuiz();
-      answerAll(["8,000", "12,000", "16,000"]);
-
-      expect(
-        await screen.findByRole("link", { name: "continueHome" }),
-      ).toBeTruthy();
-      expect(mockCompleteLesson).toHaveBeenCalledTimes(2);
-      errorSpy.mockRestore();
+      expect(screen.getByRole("link", { name: "nextLesson" })).toBeTruthy();
     });
 
     it("サーバーにセッションが無ければ本人の id 付きで預け、ログインし直す導線を出す", async () => {
@@ -329,7 +342,7 @@ describe("LessonView", () => {
       expect(readPendingLessonCompletions()).toEqual([
         expect.objectContaining({ slug: "mangan-ko-ron", userId: "u1" }),
       ]);
-      expect(screen.queryByRole("link", { name: "continueHome" })).toBeNull();
+      expect(screen.queryByRole("link", { name: "nextLesson" })).toBeNull();
     });
   });
 });

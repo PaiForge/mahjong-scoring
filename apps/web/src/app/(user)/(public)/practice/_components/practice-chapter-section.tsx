@@ -18,6 +18,8 @@ interface PracticeChapterSectionProps {
   readonly title: string;
   /** 並べる章（カリキュラムの表示順で渡す）。0 件ならセクションごと出さない */
   readonly slugs: readonly CurriculumChapterSlug[];
+  /** 「目次へ」で目次のこの章の位置へ着地させる（{@link CurriculumTocLink}） */
+  readonly tocFocusSlug?: CurriculumChapterSlug;
 }
 
 /**
@@ -34,6 +36,7 @@ interface PracticeChapterSectionProps {
 export function PracticeChapterSection({
   title,
   slugs,
+  tocFocusSlug,
 }: PracticeChapterSectionProps) {
   if (slugs.length === 0) return undefined;
 
@@ -41,7 +44,7 @@ export function PracticeChapterSection({
     <div className="space-y-3">
       <SectionTitle>{title}</SectionTitle>
       <ChapterTocList slugs={slugs} readSlugs={NO_READ_SLUGS} />
-      <CurriculumTocLink />
+      <CurriculumTocLink focusSlug={tocFocusSlug} />
     </div>
   );
 }

@@ -14,12 +14,18 @@ import {
   GUIDE_LINE_LEFT_PX,
   SECTION_BULLET_SIZE_CLASS,
 } from "../_lib/toc-layout";
+import { chapterTocAnchorId } from "../_lib/toc-anchor";
 
 interface CurriculumTocProps {
   readonly section: CurriculumSection;
   readonly chapters: readonly CurriculumChapter[];
   readonly readSlugs: ReadonlySet<string>;
   readonly nextSlug: string | undefined;
+  /**
+   * 章の行に id（{@link chapterTocAnchorId}）を付けるか。`/learn` の目次
+   * だけが付ける — 抜粋の側が付けると、同じ章が 2 度並ぶページで重複する
+   */
+  readonly anchored?: boolean;
 }
 
 /**
@@ -47,6 +53,7 @@ export async function CurriculumToc({
   chapters,
   readSlugs,
   nextSlug,
+  anchored = false,
 }: CurriculumTocProps) {
   const t = await getTranslations("learnCurriculum");
   const tIndex = await getTranslations("learnCurriculum.index");
@@ -91,13 +98,15 @@ export async function CurriculumToc({
             const isNext = nextSlug === ch.slug;
             const path = getChapterI18nPath(ch);
 
-            const rowClass = `${CHAPTER_ROW_BASE_CLASS} ${
+            // scroll-mt は目次へのアンカー着地でヘッダの下に隠れないための逃がし
+            const rowClass = `${CHAPTER_ROW_BASE_CLASS} scroll-mt-24 ${
               isNext ? "bg-amber-50" : ""
             }`;
 
             return (
               <li
                 key={ch.slug}
+                id={anchored ? chapterTocAnchorId(ch.slug) : undefined}
                 className={rowClass}
                 data-chapter-slug={ch.slug}
                 aria-current={isNext ? "step" : undefined}

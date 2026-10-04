@@ -1,12 +1,13 @@
 import { describe, expect, it } from "vitest";
 
-import { lessonForChapter } from "../lessons/registry";
+import { LESSON_REGISTRY, lessonForChapter } from "../lessons/registry";
 import { DEFAULT_VARIANT } from "../practice-menu-types";
 import { RANK_REGISTRY, RANK_SLUGS, type RankSlug } from "../ranks/registry";
 import {
   buildJourney,
   buildJourneyPath,
   countProgress,
+  stepAfterLesson,
   type BuildJourneyInput,
   type PracticeAttempt,
 } from "./journey";
@@ -480,6 +481,30 @@ describe("buildJourneyPath", () => {
       { kind: "practice", slug: "yaku-han", variant: undefined, done: false },
       { kind: "practice", slug: "han-count", variant: undefined, done: false },
     ]);
+  });
+});
+
+describe("stepAfterLesson", () => {
+  it("練習を送らない章のレッスンの次は、次の章のレッスン", () => {
+    expect(stepAfterLesson("mangan-ko-ron")).toEqual({
+      kind: "lesson",
+      lessonSlug: "mangan-ko-tsumo",
+      chapterSlug: "mangan-ko-tsumo",
+    });
+  });
+
+  it("練習を送る章のレッスンの次は、その章から送る練習", () => {
+    expect(stepAfterLesson("mangan-ko-tsumo")).toEqual({
+      kind: "practice",
+      slug: "score-table",
+      variant: "ko_mangan_plus",
+    });
+  });
+
+  it("どのレッスンも次の一歩を持つ（級の最後なら昇級試験）", () => {
+    for (const lesson of LESSON_REGISTRY) {
+      expect(stepAfterLesson(lesson.slug), lesson.slug).toBeDefined();
+    }
   });
 });
 

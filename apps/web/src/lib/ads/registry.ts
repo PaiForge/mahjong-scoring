@@ -113,6 +113,22 @@ export const AD_SLOTS = {
     kind: "native_card",
     surfaces: [{ route: "/learn/<章>", href: "/learn/why-scoring-is-complex" }],
   },
+  // レッスンの完了画面の 2 枠。どちらも全レッスンが共有し、確認問題を
+  // 解き終えるまで出ない。置く場所の並びに合わせて形が違う
+  "lesson-practices-native-ad": {
+    kind: "native_card",
+    // 「関連する練習」の練習カードの並びの中（練習一覧と同じカードの形）
+    surfaces: [
+      { route: "/lessons/<レッスン>", href: "/lessons/mangan-ko-ron" },
+    ],
+  },
+  "lesson-chapters-native-ad": {
+    kind: "native_row",
+    // 「関連する教本」の目次の並びの末尾（目次と同じ行の形）
+    surfaces: [
+      { route: "/lessons/<レッスン>", href: "/lessons/mangan-ko-ron" },
+    ],
+  },
   "learn-index-native-ad": {
     kind: "native_row",
     surfaces: [{ route: "/learn", href: "/learn" }],

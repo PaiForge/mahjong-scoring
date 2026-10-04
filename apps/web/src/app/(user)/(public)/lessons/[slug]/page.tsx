@@ -16,14 +16,17 @@
  * 読まない — ユーザーに依存するのは完了の記録だけで、それはクライアントが
  * 解き終えた時点で Server Action を呼ぶ。
  *
- * 説明の本文（点数表を含む）はサーバーで描き、進行を持つクライアント部分
- * （`LessonView`）へスロットで渡す。表は教本の章と同じコンポーネントなので、
- * ここで見た表がそのまま章にも早見表にもある。
+ * 説明の本文（点数表を含む）と完了画面の練習・教本への導線・広告はサーバーで描き、
+ * 進行を持つクライアント部分（`LessonView`）へスロットで渡す。説明は章の
+ * 本文そのものか、章と同じ表を使った要約なので、ここで見た表がそのまま章にも
+ * 早見表にもある。
  *
  * @flow
  * ダッシュボードの「黒帯への第一歩 / 次の一歩」→ 説明を読む → 確認問題
  * （ヒントを見られる。不正解なら解説を読んで次へ）→ できたことの確認 →
- * ログイン済みなら「次の一歩へ」（ホーム）、未ログインなら登録への誘導
+ * ログイン済みなら黒帯への道の次の一歩（次のレッスン・練習・昇級試験）へ、
+ * 未ログインなら登録への誘導。
+ * その下に、同じ形の問題を解く練習（持つレッスンだけ）と教本の章を並べる
  */
 import type { Metadata } from "next";
 import { getTranslations } from "next-intl/server";
@@ -36,10 +39,15 @@ import {
   LESSON_SLUGS,
   lessonBySlug,
 } from "@mahjong-scoring/features/lessons/registry";
+import { stepAfterLesson } from "@mahjong-scoring/features/journey/journey";
 import { lessonHref } from "@mahjong-scoring/features/routes";
+
+import { journeyStepHref, journeyStepTitle } from "../../_lib/journey-step";
 
 import { LessonView } from "../_components/lesson-view";
 import { LessonExplanation } from "../_components/lesson-explanation";
+import { LessonRelatedLinks } from "../_components/lesson-related-links";
+import { NextLessonPreview } from "../_components/next-lesson-preview";
 
 interface LessonPageProps {
   readonly params: Promise<{ readonly slug: string }>;
@@ -71,10 +79,27 @@ export default async function LessonPage({ params }: LessonPageProps) {
   const lesson = lessonBySlug(slug);
   if (!lesson) notFound();
 
-  const [t, tLesson] = await Promise.all([
+  const [t, tLesson, tAll] = await Promise.all([
     getTranslations("lessons"),
     getTranslations(`lessons.${lesson.messageKey}`),
+    getTranslations(),
   ]);
+
+  // 黒帯への道でこのレッスンの次にある一歩。全レッスンが持つ（features の
+  // テストが固定）が、無ければホームの「次の一歩」に任せる
+  const step = stepAfterLesson(lesson.slug);
+  const next = step
+    ? {
+        href: journeyStepHref(step),
+        label: t(`nextStep.${step.kind}`, {
+          title: journeyStepTitle(step, tAll),
+        }),
+        preview:
+          step.kind === "lesson" ? (
+            <NextLessonPreview slug={step.lessonSlug} />
+          ) : undefined,
+      }
+    : { href: "/", label: t("continueHome") };
 
   return (
     <ContentContainer
@@ -86,12 +111,14 @@ export default async function LessonPage({ params }: LessonPageProps) {
         slug={lesson.slug}
         messageKey={lesson.messageKey}
         chapterSlug={lesson.chapterSlug}
+        next={next}
         explanation={
           <LessonExplanation
             slug={lesson.slug}
             messageKey={lesson.messageKey}
           />
         }
+        related={<LessonRelatedLinks lesson={lesson} />}
       />
     </ContentContainer>
   );

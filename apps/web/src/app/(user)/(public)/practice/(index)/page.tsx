@@ -9,8 +9,6 @@
  */
 import type { Metadata } from "next";
 import { getTranslations } from "next-intl/server";
-import { chapterHref } from "@mahjong-scoring/features/routes";
-import { relatedChaptersForPractice } from "@mahjong-scoring/features/practice/catalog";
 import { ContentContainer } from "@/app/(user)/_components/content-container";
 import { LinkRow, LinkRowList } from "@/app/(user)/_components/link-row";
 import { NativeAdCard } from "@/app/(user)/(public)/_components/native-ad-card";
@@ -21,20 +19,16 @@ import {
   ComprehensivePracticeBanner,
   MachiScorePracticeBanner,
 } from "../_components/comprehensive-practice-banner";
-import { PracticeCard } from "../_components/practice-card";
+import { CatalogPracticeCard } from "../_components/catalog-practice-card";
 import {
   PracticeFilter,
   type PracticeFilterItem,
 } from "../_components/practice-filter";
-import { practiceCardRank } from "../_lib/practice-card-rank";
-import { practiceCardVisual } from "../_lib/practice-card-visual";
 import {
   listedPracticeMenus,
   listedPracticeRanks,
   PRACTICE_CATEGORIES,
-  practiceTitleKey,
 } from "@mahjong-scoring/features/practice/catalog";
-import { practiceHref } from "@mahjong-scoring/features/routes";
 
 export async function generateMetadata(): Promise<Metadata> {
   return createNamespaceMetadata("practice", { path: "/practice" });
@@ -50,27 +44,12 @@ export default async function PracticePage() {
   // カードはここで全件描画し、絞り込みは表示するかどうかの判断だけを
   // クライアントに渡す（プリレンダーされた HTML に全カードが載るように）
   const items: readonly PracticeFilterItem[] = listedPracticeMenus().map(
-    (practice) => {
-      // カードの「教本を読む」は 1 本だけなので、関連章のうち最初に
-      // その練習を扱う章へ送る（複数の章が扱う練習は説明ページが全部出す）
-      const firstChapter = relatedChaptersForPractice(practice.slug)[0];
-      return {
-        key: practice.slug,
-        rank: practice.rank,
-        category: practice.category,
-        card: (
-          <PracticeCard
-            visual={practiceCardVisual(practice.slug, t)}
-            href={practiceHref(practice.slug)}
-            title={t(practiceTitleKey(practice.slug))}
-            rank={practiceCardRank(practice.rank, tRanks)}
-            detailLabel={t("detail")}
-            learnHref={firstChapter ? chapterHref(firstChapter) : undefined}
-            learnLabel={firstChapter ? t("learn") : undefined}
-          />
-        ),
-      };
-    },
+    (practice) => ({
+      key: practice.slug,
+      rank: practice.rank,
+      category: practice.category,
+      card: <CatalogPracticeCard slug={practice.slug} />,
+    }),
   );
 
   return (
