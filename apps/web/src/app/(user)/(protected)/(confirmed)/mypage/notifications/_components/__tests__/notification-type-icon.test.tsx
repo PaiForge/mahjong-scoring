@@ -3,7 +3,7 @@ import { describe, expect, it } from "vitest";
 
 import { NotificationType } from "@/lib/notifications/types";
 
-import { NotificationTypeIcon } from "./notification-type-icon";
+import { NotificationTypeIcon } from "../notification-type-icon";
 
 function toneOf(type: string): string {
   const { container } = render(<NotificationTypeIcon type={type} />);
