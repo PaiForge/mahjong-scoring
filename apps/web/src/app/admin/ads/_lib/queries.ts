@@ -1,15 +1,10 @@
-import { asc, eq, inArray } from "drizzle-orm";
+import { asc, eq } from "drizzle-orm";
 
 import { DEFAULT_LOCALE } from "@/i18n/locales";
 import { AMAZON_NETWORK } from "@/lib/ads/amazon";
-import { copyFromTranslationRows, type CreativeCopy } from "@/lib/ads/copy";
-import {
-  type AdCreative,
-  adCreatives,
-  adCreativeTranslations,
-  adNetworkSettings,
-  db,
-} from "@/lib/db";
+import type { CreativeCopy } from "@/lib/ads/copy";
+import { loadCreativeCopy } from "@/lib/ads/load-copy";
+import { type AdCreative, adCreatives, adNetworkSettings, db } from "@/lib/db";
 
 /** 管理画面の一覧・編集で扱う広告（本体 + 全ロケールの文言） */
 export interface AdminAdCreative {
@@ -23,21 +18,7 @@ async function withCopy(
   rows: readonly AdCreative[],
 ): Promise<AdminAdCreative[]> {
   if (rows.length === 0) return [];
-  const copyRows = await db
-    .select({
-      creativeId: adCreativeTranslations.creativeId,
-      locale: adCreativeTranslations.locale,
-      title: adCreativeTranslations.title,
-      description: adCreativeTranslations.description,
-    })
-    .from(adCreativeTranslations)
-    .where(
-      inArray(
-        adCreativeTranslations.creativeId,
-        rows.map((row) => row.id),
-      ),
-    );
-  const copyById = copyFromTranslationRows(copyRows);
+  const copyById = await loadCreativeCopy(rows.map((row) => row.id));
   return rows.map((row) => ({ row, copy: copyById.get(row.id) ?? EMPTY_COPY }));
 }
 
