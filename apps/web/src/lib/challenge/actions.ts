@@ -1,5 +1,6 @@
 "use server";
 import { authenticateAndCheckBan } from "../auth";
+import { enforceIpRateLimit } from "../rate-limit-ip";
 import {
   beginAttempt,
   answerAttempt,
@@ -7,7 +8,12 @@ import {
   revealExpiredAttempt,
 } from "./attempts";
 
-/** 挑戦開始。未認証はローカルの非記録モードで遊ぶ。 */
+/**
+ * 挑戦開始。未認証はローカルの非記録モードで遊ぶ。
+ *
+ * レートリミットは認証の後に数える。行を作るのはログイン済みの呼び出し
+ * だけで、未認証の人が非記録モードへ落ちる経路を枠で塞がないため。
+ */
 export async function beginChallenge(
   menu: unknown,
   variant: unknown,
@@ -15,6 +21,8 @@ export async function beginChallenge(
 ) {
   const auth = await authenticateAndCheckBan();
   if ("error" in auth) return { error: auth.error };
+  const rateLimited = await enforceIpRateLimit("beginChallenge");
+  if (rateLimited) return rateLimited;
   const attempt = await beginAttempt(auth.user.id, menu, variant, settings);
   return attempt ? { attempt } : { error: "invalid_challenge" };
 }
