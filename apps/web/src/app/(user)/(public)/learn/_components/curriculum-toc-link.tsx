@@ -2,6 +2,9 @@ import Link from "next/link";
 import { getTranslations } from "next-intl/server";
 
 import { TEXT_LINK_CLASSES } from "@/app/_components/_lib/link-classes";
+import type { CurriculumChapterSlug } from "@mahjong-scoring/features/curriculum/registry";
+
+import { chapterTocHref } from "../_lib/toc-anchor";
 
 /**
  * 教本の目次への導線
@@ -17,13 +20,23 @@ import { TEXT_LINK_CLASSES } from "@/app/_components/_lib/link-classes";
  * 直前に章の並びと見出し（「教本の続き」「前提となる教本の章」）を出して
  * いるため、リンク自身が主語を繰り返す必要がない。
  */
-export async function CurriculumTocLink() {
+interface CurriculumTocLinkProps {
+  /**
+   * 目次のこの章の位置へ着地させる（`/learn#chapter-<slug>`）。抜粋が 1 章を
+   * 指しているときに、目次のどこにその章があるかを見せるため
+   */
+  readonly focusSlug?: CurriculumChapterSlug;
+}
+
+export async function CurriculumTocLink({
+  focusSlug,
+}: CurriculumTocLinkProps = {}) {
   const t = await getTranslations("learnCurriculum");
 
   return (
     <div className="text-right">
       <Link
-        href="/learn"
+        href={focusSlug ? chapterTocHref(focusSlug) : "/learn"}
         className={`text-sm font-medium ${TEXT_LINK_CLASSES}`}
       >
         {t("tocLink")}

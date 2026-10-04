@@ -2,12 +2,17 @@ import {
   getChapterBySlug,
   type CurriculumChapterSlug,
 } from "../curriculum/registry";
-import { lessonForChapter, type LessonSlug } from "../lessons/registry";
+import {
+  lessonBySlug,
+  lessonForChapter,
+  type LessonSlug,
+} from "../lessons/registry";
 import { menuTypeToSlug, type PracticeMenuSlug } from "../practice-menu-types";
 import { resolveRankStatus, type RankStatus } from "../ranks/rank-status";
 import {
   RANK_REGISTRY,
   nextRank,
+  rankBySlug,
   type RankDefinition,
   type RankSlug,
 } from "../ranks/registry";
@@ -277,9 +282,13 @@ export function buildJourneyPath(
 /** 行程の中で最初の未了を返す。すべて済んでいれば昇級試験 */
 function selectStep(journey: RankJourney): JourneyStep {
   const item = journey.path.find((entry) => !entry.done);
-  if (item === undefined) {
-    return { kind: "exam", slug: journey.exam.slug };
-  }
+  return item === undefined
+    ? { kind: "exam", slug: journey.exam.slug }
+    : pathItemToStep(item);
+}
+
+/** 行程の 1 項目を、その項目へ進む一歩にする */
+function pathItemToStep(item: JourneyPathItem): JourneyStep {
   if (item.kind === "practice") {
     return { kind: "practice", slug: item.slug, variant: item.variant };
   }
@@ -290,6 +299,128 @@ function selectStep(journey: RankJourney): JourneyStep {
         lessonSlug: item.lessonSlug,
         chapterSlug: item.chapterSlug,
       };
+}
+
+/** 進み具合を持たない入力。行程の並びだけを知りたいときに使う */
+const NO_PROGRESS: BuildJourneyInput = {
+  readSlugs: new Set(),
+  completedLessonSlugs: new Set(),
+  attemptedPractices: [],
+  achievedRankSlugs: [],
+};
+
+/**
+ * レッスンを終えた人に示す、行程の上でそのレッスンの次にある一歩
+ * レッスンの次の一歩
+ *
+ * そのレッスンが属する級の行程で、後ろにある最初のレッスン。間にある
+ * 章の練習は飛ばす — 完了画面は練習を「関連する練習」として別に並べるので、
+ * 続けて学ぶ人には次のレッスンの書き出しを見せて送る。後ろにレッスンが
+ * 無ければ直後の項目（章から送る練習・レッスンの無い章）で、級の最後の
+ * 項目なら、その級の昇級試験。
+ *
+ * ユーザーの進み具合は見ない — レッスンのページは cookie を読まない静的
+ * ページで、これはページに焼き込む道筋の順の「次」（次のレッスンの
+ * プレビューもこれを描く）。完了を記録できた本人には、記録の Server Action が
+ * 返す {@link stepAfterLessonWithProgress} が置き換える。未ログイン・記録の
+ * 失敗ではボタン自体を出さないので、実際にこの一歩が使われるのは本人の一歩を
+ * 求められなかったとき（全級取得済み等）と、本人の一歩がこれと一致するとき。
+ *
+ * 級の行程に章が無いレッスン（起きないが型の上では有り得る）は undefined。
+ */
+export function stepAfterLesson(slug: LessonSlug): JourneyStep | undefined {
+  const lesson = lessonBySlug(slug);
+  const rank = lesson && rankBySlug(lesson.rankSlug);
+  if (lesson === undefined || rank === undefined) return undefined;
+
+  const examSlug = menuTypeToSlug(rank.exam.menuType);
+  const path = buildJourneyPath(rank.learnChapterSlugs, examSlug, NO_PROGRESS);
+  const index = path.findIndex(
+    (item) => item.kind === "chapter" && item.lessonSlug === slug,
+  );
+  if (index === -1) return undefined;
+
+  const next = preferLesson(path.slice(index + 1));
+  return next === undefined
+    ? { kind: "exam", slug: examSlug }
+    : pathItemToStep(next);
+}
+
+/** 並びの中で最初のレッスン。無ければ先頭の項目（練習・レッスンの無い章） */
+function preferLesson(
+  items: readonly JourneyPathItem[],
+): JourneyPathItem | undefined {
+  return (
+    items.find(
+      (item) => item.kind === "chapter" && item.lessonSlug !== undefined,
+    ) ?? items[0]
+  );
+}
+
+/**
+ * レッスンを終えた本人に示す、進み具合を踏まえた次の一歩
+ * 進み具合を踏まえたレッスンの次の一歩
+ *
+ * {@link stepAfterLesson} と同じく「後ろにある最初のレッスン、無ければ直後の
+ * 項目」を指すが、済んだ項目は飛ばす。後ろが全部済んでいれば、同じ級の前に
+ * 残した項目（飛ばしてきたレッスン・練習）へ戻り、級の項目が全部済んで
+ * いれば昇級試験。
+ *
+ * ダッシュボードの「次の一歩」（{@link buildJourney}）とは同じ行程を歩くが、
+ * 選び方が 2 点違い、同じ一歩になるとは限らない。
+ *
+ * - 後ろの項目を前の項目より先に見る。ホームは級の最初の未了を指すが、
+ *   レッスンを終えた直後の人には、飛ばしてきた項目より続きを優先する
+ *   （続けて学んでいる流れを途切れさせない）
+ * - 後ろの中では練習よりレッスンを先に見る（{@link stepAfterLesson} と同じ。
+ *   間の練習は完了画面の「関連する練習」に並ぶ）。そのため道筋の順に進めて
+ *   いても、子のロン・子のツモを終えて練習が未挑戦なら、ホームは子の練習、
+ *   ここは親のロンを指す
+ *
+ * 後ろが尽きて前へ戻るときだけは、ホームと同じ「最初の未了」を指す。
+ *
+ * 終えたレッスンの級をすでに取得している（学び直し）なら、その級の試験へは
+ * 送らずホームと同じ一歩（次に取る級の最初の未了）を返す。全級取得済みで
+ * ホームにも一歩が無ければ undefined — 呼び出し側は道筋の順の一歩
+ * （{@link stepAfterLesson}）を使う。
+ *
+ * このレッスン自身は、記録の直後に呼ばれる前提で済みとして扱う
+ * （入力の読み取りが記録より前でも、自分を「次」にしない）。
+ *
+ * @param slug 終えたレッスン
+ * @param input 本人の進み具合
+ */
+export function stepAfterLessonWithProgress(
+  slug: LessonSlug,
+  input: BuildJourneyInput,
+): JourneyStep | undefined {
+  const lesson = lessonBySlug(slug);
+  const rank = lesson && rankBySlug(lesson.rankSlug);
+  if (lesson === undefined || rank === undefined) return undefined;
+
+  const progress: BuildJourneyInput = {
+    ...input,
+    completedLessonSlugs: new Set([...input.completedLessonSlugs, slug]),
+  };
+  if (progress.achievedRankSlugs.includes(rank.slug)) {
+    return buildJourney(progress).nextStep;
+  }
+
+  const examSlug = menuTypeToSlug(rank.exam.menuType);
+  const path = buildJourneyPath(rank.learnChapterSlugs, examSlug, progress);
+  const index = path.findIndex(
+    (item) => item.kind === "chapter" && item.lessonSlug === slug,
+  );
+  if (index === -1) return undefined;
+
+  const undone = (items: readonly JourneyPathItem[]) =>
+    items.filter((item) => !item.done);
+  const next =
+    preferLesson(undone(path.slice(index + 1))) ??
+    undone(path.slice(0, index))[0];
+  return next === undefined
+    ? { kind: "exam", slug: examSlug }
+    : pathItemToStep(next);
 }
 
 /** 1 つの級の行程を組む */

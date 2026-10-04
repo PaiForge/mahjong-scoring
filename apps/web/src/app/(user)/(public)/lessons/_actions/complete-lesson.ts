@@ -5,11 +5,15 @@ import { revalidatePath } from "next/cache";
 import { getOptionalVerifiedUser } from "@/lib/auth";
 import { db } from "@/lib/db";
 import { lessonCompletions } from "@/lib/db/schema";
+import { logExternalError } from "@/lib/log-error";
 
 import {
   isLessonSlug,
   type LessonSlug,
 } from "@mahjong-scoring/features/lessons/registry";
+
+import { fetchJourneyInput } from "../_lib/journey-input";
+import { lessonFollowUp, type LessonFollowUp } from "../_lib/lesson-follow-up";
 
 /**
  * レッスン完了 Server Action の戻り値
@@ -17,7 +21,10 @@ import {
  *
  * 章読了（`markChapterRead`）と命名・構造を揃えている。
  *
- * - `{ success: true }`: 認証済みユーザーによる保存成功（既に完了済みでも冪等に true）
+ * - `{ success: true, followUp? }`: 認証済みユーザーによる保存成功（既に完了済み
+ *   でも冪等に true）。`followUp` は本人の進み具合から求めた続き（次の一歩と
+ *   級の進み具合。`LessonFollowUp`）で、完了画面が道筋の順の一歩の代わりに
+ *   使う。進み具合の読み取りに失敗したときは無く、完了画面は道筋の順の一歩のまま
  * - `{ success: true, skipped: 'anonymous' }`: 未ログインユーザーによる呼び出し。
  *   エラーではなく「期待された no-op」。レッスンは未ログインでも最後まで
  *   受けられ、残らないのは完了の印だけ。クライアントは完了を端末に預け、
@@ -25,7 +32,7 @@ import {
  * - `{ success: false, error: 'invalid_slug' }`: レジストリに存在しない slug
  */
 export type CompleteLessonResult =
-  | { readonly success: true }
+  | { readonly success: true; readonly followUp?: LessonFollowUp }
   | { readonly success: true; readonly skipped: "anonymous" }
   | { readonly success: false; readonly error: "invalid_slug" };
 
@@ -71,6 +78,9 @@ async function recordCompletions(
  * レッスン完了記録
  *
  * 確認問題を最後まで解いた時点でクライアント（`LessonView`）が呼ぶ。
+ * 記録できたら、本人の進み具合から求めた続き（次の一歩・級の進み具合）も
+ * 返す — レッスンのページは静的で進み具合を知らないため。進み具合は 1 回だけ
+ * 読み、完了画面のボタンと「昇級試験まで」の両方に使う。
  * 正答数は受け取らない — 残すのは「終えた」という事実だけで、間違えた
  * 問題もその場で解説を読んで進める設計のため（`lesson_completions` の
  * TSDoc 参照）。
@@ -94,7 +104,33 @@ export async function completeLesson(
   }
 
   await recordCompletions(user.id, [slug]);
-  return { success: true };
+  const followUp = await followUpFor(user.id, slug);
+  return followUp === undefined
+    ? { success: true }
+    : { success: true, followUp };
+}
+
+/**
+ * 記録した直後の本人に示す続き（次の一歩・級の進み具合）
+ *
+ * 記録は済んでいるので、ここで失敗しても保存の失敗にはしない（完了画面は
+ * 道筋の順の一歩に落ちるだけ）。進み具合は記録のあとに読むので、終えた
+ * レッスンも済みとして数えられる。
+ */
+async function followUpFor(
+  userId: string,
+  slug: LessonSlug,
+): Promise<LessonFollowUp | undefined> {
+  try {
+    return lessonFollowUp(slug, await fetchJourneyInput(userId));
+  } catch (error: unknown) {
+    logExternalError(
+      "completeLesson",
+      "レッスンの続きを求められなかった",
+      error,
+    );
+    return undefined;
+  }
 }
 
 /**

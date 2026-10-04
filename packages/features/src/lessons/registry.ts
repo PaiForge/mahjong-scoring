@@ -1,4 +1,8 @@
-import type { CurriculumChapterSlug } from "../curriculum/registry";
+import {
+  practiceLink,
+  type CurriculumChapterSlug,
+  type PracticeLink,
+} from "../curriculum/registry";
 import type { RankSlug } from "../ranks/registry";
 
 /**
@@ -29,6 +33,14 @@ import type { RankSlug } from "../ranks/registry";
  * 点数の表裏で、片方だけの練習は暗記の単位として不自然 — 章側のコメント
  * 参照）が、レッスンは記録を残さず土俵（記録の比較単位）を持たないため、
  * その理屈の外にある。
+ *
+ * @design 練習リンクは章と別に持つ
+ * 確認問題は練習のチュートリアルにあたり、レッスンを終えた直後に「同じ形の
+ * 問題を本番の練習で解く」へ送る。章の `practiceLinks` は読んだ範囲だけを
+ * 出す練習に絞っている（子のロンの章は持たない）が、レッスンの送り先は
+ * 範囲が先へはみ出す練習も指す — 1 章分だけを出す練習が無い章でも、
+ * 終えた人を練習の入口に立たせるため。はみ出す分は練習側の出題で初めて
+ * 出会い、教本の次の章で学ぶ。
  */
 interface LessonDefinitionEntry {
   /** URL（`/lessons/<slug>`）・DB（lesson_completions.lesson_slug）で使う識別子 */
@@ -39,6 +51,8 @@ interface LessonDefinitionEntry {
   readonly rankSlug: RankSlug;
   /** 辞書の名前空間（`lessons.<key>`） */
   readonly messageKey: string;
+  /** 完了画面から送る練習。狭い範囲のものから並べる */
+  readonly practiceLinks: readonly PracticeLink[];
 }
 
 /** レッスンのマスタ配列（行程で出会う順に並べる） */
@@ -48,30 +62,50 @@ export const LESSON_REGISTRY = [
     chapterSlug: "mangan-ko-ron",
     rankSlug: "kyu-5",
     messageKey: "manganKoRon",
+    practiceLinks: [
+      practiceLink("score-table", "ko_mangan_plus"),
+      practiceLink("mangan-score-calculation"),
+    ],
   },
   {
     slug: "mangan-ko-tsumo",
     chapterSlug: "mangan-ko-tsumo",
     rankSlug: "kyu-5",
     messageKey: "manganKoTsumo",
+    practiceLinks: [
+      practiceLink("score-table", "ko_mangan_plus"),
+      practiceLink("mangan-score-calculation"),
+    ],
   },
   {
     slug: "mangan-oya-ron",
     chapterSlug: "mangan-oya-ron",
     rankSlug: "kyu-5",
     messageKey: "manganOyaRon",
+    practiceLinks: [
+      practiceLink("score-table", "oya_mangan_plus"),
+      practiceLink("mangan-score-calculation"),
+    ],
   },
   {
     slug: "mangan-oya-tsumo",
     chapterSlug: "mangan-oya-tsumo",
     rankSlug: "kyu-5",
     messageKey: "manganOyaTsumo",
+    practiceLinks: [
+      practiceLink("score-table", "oya_mangan_plus"),
+      practiceLink("mangan-score-calculation"),
+    ],
   },
   {
     slug: "yaku",
     chapterSlug: "yaku",
     rankSlug: "kyu-5",
     messageKey: "yaku",
+    // 章の練習のうち「役の翻数」は載せない。5 級の最後のレッスンで後ろに
+    // レッスンが無く、完了画面の次の一歩がその練習を指すため、ここに
+    // 並べると同じ練習が 2 回出る
+    practiceLinks: [practiceLink("han-count"), practiceLink("yaku")],
   },
 ] as const satisfies readonly LessonDefinitionEntry[];
 

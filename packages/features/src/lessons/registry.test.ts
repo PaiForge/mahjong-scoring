@@ -1,6 +1,8 @@
 import { describe, expect, it } from "vitest";
 
 import { CURRICULUM_CHAPTER_SLUGS } from "../curriculum/registry";
+import { practiceMenuFromCatalog } from "../practice/catalog";
+import { isPracticeVariantOf } from "../practice-menu-types";
 import { RANK_REGISTRY } from "../ranks/registry";
 import {
   LESSON_REGISTRY,
@@ -49,5 +51,18 @@ describe("LESSON_REGISTRY", () => {
       chaptersLearnedByLessons(new Set(["mangan-ko-ron", "unknown"])),
     ).toEqual(new Set(["mangan-ko-ron"]));
     expect(chaptersLearnedByLessons(new Set())).toEqual(new Set());
+  });
+
+  it("練習リンクはカタログに載っている練習の正しいバリアントを指す", () => {
+    for (const lesson of LESSON_REGISTRY) {
+      for (const { slug, variant } of lesson.practiceLinks) {
+        // カタログ外の練習へ送ると、一覧にもおすすめにも無い孤立した導線になる
+        expect(practiceMenuFromCatalog(slug), lesson.slug).toBeDefined();
+        // 不正なバリアントは practiceHref() が黙って既定に落とす
+        if (variant !== undefined) {
+          expect(isPracticeVariantOf(slug, variant), lesson.slug).toBe(true);
+        }
+      }
+    }
   });
 });

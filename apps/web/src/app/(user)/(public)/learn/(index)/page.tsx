@@ -12,6 +12,9 @@
  * 読了状態を cookie から読むため動的ルート。章ページ（`/learn/<slug>`）は静的なので、
  * 目次だけが持つ loading.tsx が章の祖先にならないよう route group に退避している
  * （`loading-boundaries.test.ts` 参照）。
+ *
+ * 章の行は `#chapter-<slug>` で指せる。章の抜粋（レッスンの完了画面）の
+ * 「目次へ」がその章の位置へ着地させるのに使う。
  */
 import type { Metadata } from "next";
 import { Fragment } from "react";
@@ -26,6 +29,7 @@ import { getNativeAdPlacements } from "@/lib/ads/creatives";
 import { adIndexAfterGroup } from "@/lib/ads/spacing";
 import { CurriculumProgressBar } from "../_components/curriculum-progress-bar";
 import { CurriculumToc } from "../_components/curriculum-toc";
+import { TocAnchorScroll } from "../_components/toc-anchor-scroll";
 import {
   CURRICULUM,
   CURRICULUM_SECTIONS,
@@ -62,6 +66,7 @@ export default async function LearnIndexPage() {
   return (
     <ContentContainer breadcrumb={[{ label: t("index.pageTitle") }]}>
       <PageTitle>{t("index.pageTitle")}</PageTitle>
+      <TocAnchorScroll />
 
       <div className="space-y-8">
         <div className="space-y-3">
@@ -89,6 +94,7 @@ export default async function LearnIndexPage() {
                 chapters={chapters}
                 readSlugs={readSlugs}
                 nextSlug={next?.slug}
+                anchored
               />
               {/* 広告はセクションの切れ目に 1 行ずつ（位置は
                   adIndexAfterGroup）。セクションの中（章の並び）には

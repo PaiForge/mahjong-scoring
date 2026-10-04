@@ -2,7 +2,7 @@ import Link from "next/link";
 import { getTranslations } from "next-intl/server";
 
 import { BeltBadge } from "@/app/(user)/_components/belt-badge";
-import { CheckIcon } from "@/app/(user)/_components/icons/check-icon";
+import { DoneMark } from "@/app/(user)/_components/done-mark";
 import { ChevronRightIcon } from "@/app/(user)/_components/icons/chevron-right-icon";
 import { LockClosedIcon } from "@/app/(user)/_components/icons/lock-closed-icon";
 import { LinkButton } from "@/app/(user)/_components/link-button";
@@ -30,19 +30,6 @@ interface RankJourneyCardProps {
   readonly journey: RankJourney;
   /** いま取り組む級（次の目標）なら中身（学ぶ・練習する・認定される）を開く */
   readonly expanded: boolean;
-}
-
-/** 済みの印（教本の目次の読了チェックと同じ形） */
-function DoneMark({ label }: { readonly label: string }) {
-  return (
-    <span
-      role="img"
-      aria-label={label}
-      className="inline-flex size-6 items-center justify-center rounded-full bg-primary-500 text-white"
-    >
-      <CheckIcon className="size-3.5" />
-    </span>
-  );
 }
 
 /**

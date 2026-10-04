@@ -1,11 +1,16 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
-const { mockGetOptionalVerifiedUser, mockInsert, mockRevalidatePath } =
-  vi.hoisted(() => ({
-    mockGetOptionalVerifiedUser: vi.fn(),
-    mockInsert: vi.fn(),
-    mockRevalidatePath: vi.fn(),
-  }));
+const {
+  mockGetOptionalVerifiedUser,
+  mockInsert,
+  mockRevalidatePath,
+  mockFetchJourneyInput,
+} = vi.hoisted(() => ({
+  mockGetOptionalVerifiedUser: vi.fn(),
+  mockInsert: vi.fn(),
+  mockRevalidatePath: vi.fn(),
+  mockFetchJourneyInput: vi.fn(),
+}));
 
 vi.mock("@/lib/auth", () => ({
   getOptionalVerifiedUser: mockGetOptionalVerifiedUser,
@@ -23,6 +28,18 @@ vi.mock("next/cache", () => ({
   revalidatePath: mockRevalidatePath,
 }));
 
+vi.mock("../../_lib/journey-input", () => ({
+  fetchJourneyInput: mockFetchJourneyInput,
+}));
+
+/** 何も済んでいない本人の進み具合 */
+const NO_PROGRESS = {
+  readSlugs: new Set(),
+  completedLessonSlugs: new Set(),
+  attemptedPractices: [],
+  achievedRankSlugs: [],
+};
+
 import { createQueryChain, type QueryChainMock } from "@/test/drizzle-mock";
 
 import { completeLesson, completeLessons } from "../complete-lesson";
@@ -34,6 +51,7 @@ beforeEach(() => {
   insertChain = createQueryChain();
   insertChain.onConflictDoNothing.mockResolvedValue(undefined);
   mockInsert.mockReturnValue(insertChain);
+  mockFetchJourneyInput.mockResolvedValue(NO_PROGRESS);
 });
 
 describe("completeLesson", () => {
@@ -60,13 +78,51 @@ describe("completeLesson", () => {
 
     const result = await completeLesson("mangan-ko-ron");
 
-    expect(result).toEqual({ success: true });
+    expect(result).toMatchObject({ success: true });
     expect(insertChain.values).toHaveBeenCalledWith([
       { userId: "user-123", lessonSlug: "mangan-ko-ron" },
     ]);
     expect(insertChain.onConflictDoNothing).toHaveBeenCalledTimes(1);
     expect(mockRevalidatePath).toHaveBeenCalledWith("/dashboard");
     expect(mockRevalidatePath).toHaveBeenCalledWith("/dojo");
+  });
+
+  it("記録したら、本人の進み具合から次の一歩と級の進み具合を 1 回の読み取りで返す", async () => {
+    mockGetOptionalVerifiedUser.mockResolvedValue({ id: "user-123" });
+    mockFetchJourneyInput.mockResolvedValue({
+      ...NO_PROGRESS,
+      completedLessonSlugs: new Set(["mangan-ko-tsumo"]),
+    });
+
+    const result = await completeLesson("mangan-ko-ron");
+
+    expect(mockFetchJourneyInput).toHaveBeenCalledTimes(1);
+    expect(mockFetchJourneyInput).toHaveBeenCalledWith("user-123");
+    expect(result).toEqual({
+      success: true,
+      followUp: {
+        next: {
+          kind: "lesson",
+          lessonSlug: "mangan-oya-ron",
+          chapterSlug: "mangan-oya-ron",
+        },
+        // 終えた子のロンと、先に済ませた子のツモ
+        rankProgress: {
+          learn: { done: 2, total: 5 },
+          practice: { done: 0, total: 6 },
+          examPassed: false,
+        },
+      },
+    });
+  });
+
+  it("次の一歩を求められなくても、記録は成功として返す", async () => {
+    mockGetOptionalVerifiedUser.mockResolvedValue({ id: "user-123" });
+    mockFetchJourneyInput.mockRejectedValue(new Error("db down"));
+    vi.spyOn(console, "error").mockImplementation(() => {});
+
+    expect(await completeLesson("mangan-ko-ron")).toEqual({ success: true });
+    expect(insertChain.onConflictDoNothing).toHaveBeenCalledTimes(1);
   });
 
   it("DB が失敗したら例外をそのまま伝える（クライアントが失敗として扱う）", async () => {

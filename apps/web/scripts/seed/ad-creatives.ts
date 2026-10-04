@@ -119,8 +119,9 @@ type BookKey = keyof typeof BOOKS;
  * `placementsForSlot` の数だけで、残りは先頭を止めたときの繰り上がり。
  *
  * 本はその画面の読み手に合わせる。練習一覧は牌効率（手牌を見て考える練習の
- * 並び）、結果画面・教本の章は点数計算ドリル（点数計算を練習・学習した直後）、
- * 目次・用語集は入門書から、ランキングは戦術書から。
+ * 並び）、結果画面・教本の章・レッスンの練習の並びは点数計算ドリル（点数計算を
+ * 練習・学習した直後）、目次・用語集・レッスンの教本の並びは入門書から、
+ * ランキングは戦術書から。
  */
 const SLOT_BOOKS: Record<
   AdSlot,
@@ -141,6 +142,15 @@ const SLOT_BOOKS: Record<
   "learn-chapter-native-ad": [
     { id: "62e99ef0-29ed-4de6-926a-e663f7a6dbed", book: "scoreDrill" },
     { id: "e1e71192-7e3c-4ed7-99f8-ebfa44c86b03", book: "mangaIntro" },
+  ],
+  // 同じ画面に 2 枠あるので、先頭の本を変えて同じ本が 2 度並ばないようにする
+  "lesson-practices-native-ad": [
+    { id: "5d9232d6-57db-43da-899a-7f49d2c2ae7a", book: "scoreDrill" },
+    { id: "c4ef89f3-c6ad-4418-9ef7-dce655e39e59", book: "haiKouritsu" },
+  ],
+  "lesson-chapters-native-ad": [
+    { id: "66fc3c7a-2e39-4e29-ac74-f997c33cc643", book: "mangaIntro" },
+    { id: "177cabf9-afcb-4b00-8b22-7aca3438b750", book: "scoreDrill" },
   ],
   "learn-index-native-ad": [
     { id: "06924a25-8ad7-457a-95c0-41f87e57a768", book: "mangaIntro" },

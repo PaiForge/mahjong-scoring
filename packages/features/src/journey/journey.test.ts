@@ -1,12 +1,14 @@
 import { describe, expect, it } from "vitest";
 
-import { lessonForChapter } from "../lessons/registry";
+import { LESSON_REGISTRY, lessonForChapter } from "../lessons/registry";
 import { DEFAULT_VARIANT } from "../practice-menu-types";
 import { RANK_REGISTRY, RANK_SLUGS, type RankSlug } from "../ranks/registry";
 import {
   buildJourney,
   buildJourneyPath,
   countProgress,
+  stepAfterLesson,
+  stepAfterLessonWithProgress,
   type BuildJourneyInput,
   type PracticeAttempt,
 } from "./journey";
@@ -480,6 +482,128 @@ describe("buildJourneyPath", () => {
       { kind: "practice", slug: "yaku-han", variant: undefined, done: false },
       { kind: "practice", slug: "han-count", variant: undefined, done: false },
     ]);
+  });
+});
+
+describe("stepAfterLesson", () => {
+  it("練習を送らない章のレッスンの次は、次の章のレッスン", () => {
+    expect(stepAfterLesson("mangan-ko-ron")).toEqual({
+      kind: "lesson",
+      lessonSlug: "mangan-ko-tsumo",
+      chapterSlug: "mangan-ko-tsumo",
+    });
+  });
+
+  it("練習を送る章のレッスンの次も、練習を飛ばして次の章のレッスン", () => {
+    expect(stepAfterLesson("mangan-ko-tsumo")).toEqual({
+      kind: "lesson",
+      lessonSlug: "mangan-oya-ron",
+      chapterSlug: "mangan-oya-ron",
+    });
+  });
+
+  it("級の行程で後ろにレッスンが無ければ、直後の項目（章から送る練習）", () => {
+    expect(stepAfterLesson("yaku")).toEqual({
+      kind: "practice",
+      slug: "yaku-han",
+      variant: undefined,
+    });
+  });
+
+  it("どのレッスンも次の一歩を持つ（級の最後なら昇級試験）", () => {
+    for (const lesson of LESSON_REGISTRY) {
+      expect(stepAfterLesson(lesson.slug), lesson.slug).toBeDefined();
+    }
+  });
+
+  it("次の一歩が練習なら、その練習を完了画面の関連する練習に重ねない", () => {
+    for (const lesson of LESSON_REGISTRY) {
+      const step = stepAfterLesson(lesson.slug);
+      if (step?.kind !== "practice") continue;
+      const related = lesson.practiceLinks.map((link) => link.slug);
+      expect(related, lesson.slug).not.toContain(step.slug);
+    }
+  });
+});
+
+describe("stepAfterLessonWithProgress", () => {
+  it("何も済んでいなければ、道筋の順の一歩と同じ", () => {
+    for (const lesson of LESSON_REGISTRY) {
+      expect(
+        stepAfterLessonWithProgress(lesson.slug, input()),
+        lesson.slug,
+      ).toEqual(stepAfterLesson(lesson.slug));
+    }
+  });
+
+  it("後ろの済んだレッスンは飛ばす", () => {
+    expect(
+      stepAfterLessonWithProgress(
+        "mangan-ko-ron",
+        input({ completedLessonSlugs: new Set(["mangan-ko-tsumo"]) }),
+      ),
+    ).toEqual({
+      kind: "lesson",
+      lessonSlug: "mangan-oya-ron",
+      chapterSlug: "mangan-oya-ron",
+    });
+  });
+
+  it("後ろのレッスンが済んでいれば、後ろの最初の未挑戦の練習", () => {
+    expect(
+      stepAfterLessonWithProgress(
+        "mangan-ko-ron",
+        input({ completedLessonSlugs: KYU5_LESSONS_DONE }),
+      ),
+    ).toEqual({
+      kind: "practice",
+      slug: "score-table",
+      variant: "ko_mangan_plus",
+    });
+  });
+
+  it("後ろが全部済んでいれば、前に残した最初の未了へ戻る", () => {
+    expect(
+      stepAfterLessonWithProgress(
+        "yaku",
+        input({ attemptedPractices: KYU5_PRACTICES_ATTEMPTED }),
+      ),
+    ).toEqual({
+      kind: "lesson",
+      lessonSlug: "mangan-ko-ron",
+      chapterSlug: "mangan-ko-ron",
+    });
+  });
+
+  it("級の項目が全部済んでいれば昇級試験。終えたレッスン自身は済みとして扱う", () => {
+    const others = new Set(
+      [...KYU5_LESSONS_DONE].filter((slug) => slug !== "yaku"),
+    );
+    expect(
+      stepAfterLessonWithProgress(
+        "yaku",
+        input({
+          completedLessonSlugs: others,
+          attemptedPractices: KYU5_PRACTICES_ATTEMPTED,
+        }),
+      ),
+    ).toEqual({ kind: "exam", slug: "mangan-exam" });
+  });
+
+  it("級を取得済み（学び直し）なら、ホームと同じ次に取る級の一歩", () => {
+    const progress = input({ achievedRankSlugs: ["kyu-5"] });
+    const step = stepAfterLessonWithProgress("yaku", progress);
+    expect(step).toEqual(buildJourney(progress).nextStep);
+    expect(step).toBeDefined();
+  });
+
+  it("全級取得済みでホームにも一歩が無ければ undefined", () => {
+    expect(
+      stepAfterLessonWithProgress(
+        "yaku",
+        input({ achievedRankSlugs: RANK_SLUGS }),
+      ),
+    ).toBeUndefined();
   });
 });
 

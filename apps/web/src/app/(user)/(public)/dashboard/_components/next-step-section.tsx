@@ -9,24 +9,13 @@ import { TEXT_LINK_CLASSES } from "@/app/_components/_lib/link-classes";
 import { SUB_LINK_GAP } from "@/app/_components/_lib/spacing";
 import { beltBorderClass, beltButtonVarsClass } from "@/lib/ranks/belt-colors";
 import {
-  getChapterBySlug,
-  getChapterI18nPath,
-} from "@mahjong-scoring/features/curriculum/registry";
-import {
   countProgress,
   type Journey,
   type JourneyStep,
-  type RankJourney,
 } from "@mahjong-scoring/features/journey/journey";
-import { practiceTitleKey } from "@mahjong-scoring/features/practice/catalog";
-import { practiceMenuBySlug } from "@mahjong-scoring/features/practice-menu-types";
-import { rankTier } from "@mahjong-scoring/features/ranks/registry";
-import {
-  DOJO_PATH,
-  chapterHref,
-  lessonHref,
-  practiceHref,
-} from "@mahjong-scoring/features/routes";
+import { DOJO_PATH } from "@mahjong-scoring/features/routes";
+
+import { journeyStepHref, journeyStepTitle } from "../../_lib/journey-step";
 
 interface NextStepSectionProps {
   readonly journey: Journey;
@@ -47,66 +36,33 @@ interface StepPresentation {
 /**
  * 一歩の種類ごとに、行き先・一文・ボタンの文言を組む
  *
- * 対象の名前（章・練習・試験）は各レジストリの辞書キーから引き、ここでは
- * 組み立てだけを持つ。
+ * 対象の名前と行き先はレッスンの完了画面と共有する（`_lib/journey-step`）。
  */
 function presentStep(
   step: JourneyStep,
-  current: RankJourney,
   isFresh: boolean,
   t: Translator,
   tAll: Translator,
 ): StepPresentation {
+  const title = journeyStepTitle(step, tAll);
+  const href = journeyStepHref(step);
   switch (step.kind) {
-    case "lesson": {
-      const chapter = getChapterBySlug(step.chapterSlug);
-      const title = chapter
-        ? tAll(`learnCurriculum.${getChapterI18nPath(chapter)}.title`)
-        : "";
+    case "lesson":
       return {
-        href: lessonHref(step.lessonSlug),
+        href,
         lead: isFresh
           ? t("steps.lesson.firstLead", { title })
           : t("steps.lesson.lead", { title }),
         cta: isFresh ? t("steps.lesson.firstCta") : t("steps.lesson.cta"),
       };
-    }
-    case "read": {
-      const chapter = getChapterBySlug(step.chapterSlug);
-      const title = chapter
-        ? tAll(`learnCurriculum.${getChapterI18nPath(chapter)}.title`)
-        : "";
+    case "read":
+    case "practice":
+    case "exam":
       return {
-        href: chapterHref(step.chapterSlug),
-        lead: t("steps.read.lead", { title }),
-        cta: t("steps.read.cta"),
+        href,
+        lead: t(`steps.${step.kind}.lead`, { title }),
+        cta: t(`steps.${step.kind}.cta`),
       };
-    }
-    case "practice": {
-      const menu = practiceMenuBySlug(step.slug);
-      const practiceTitle = tAll(`practice.${practiceTitleKey(step.slug)}`);
-      // バリアント付きは練習名にバリアント名を添える（章末の練習リンクと同じ）
-      const title =
-        step.variant !== undefined && menu.hasSetup
-          ? `${practiceTitle}（${tAll(`${menu.namespace}.variants.${step.variant}.label`)}）`
-          : practiceTitle;
-      return {
-        href: practiceHref(step.slug, step.variant),
-        lead: t("steps.practice.lead", { title }),
-        cta: t("steps.practice.cta"),
-      };
-    }
-    case "exam": {
-      const rankName = tAll(`ranks.names.${current.rank.slug}`);
-      const title = tAll(`ranks.examTitle.${rankTier(current.rank.slug)}`, {
-        rank: rankName,
-      });
-      return {
-        href: practiceHref(step.slug),
-        lead: t("steps.exam.lead", { title }),
-        cta: t("steps.exam.cta"),
-      };
-    }
   }
 }
 
@@ -141,7 +97,7 @@ export async function NextStepSection({ journey }: NextStepSectionProps) {
   ]);
 
   const rankSlug = current.rank.slug;
-  const step = presentStep(nextStep, current, isFresh, t, tAll);
+  const step = presentStep(nextStep, isFresh, t, tAll);
   const learn = countProgress(current.chapters);
   const practice = countProgress(current.practices);
 
