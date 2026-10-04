@@ -1,17 +1,16 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
+import {
+  mockRequireAdminActor,
+  mockTransaction,
+  setupAdminActor,
+} from "@/test/admin-action-mocks";
 
 const {
-  mockRequireAdminActor,
-  mockGetClientIp,
-  mockTransaction,
   mockInsertBenefitGrant,
   mockRecordModerationAction,
   mockRevalidatePath,
   mockNotify,
 } = vi.hoisted(() => ({
-  mockRequireAdminActor: vi.fn(),
-  mockGetClientIp: vi.fn(),
-  mockTransaction: vi.fn(),
   mockInsertBenefitGrant: vi.fn(),
   mockRecordModerationAction: vi.fn(),
   mockRevalidatePath: vi.fn(),
@@ -19,17 +18,25 @@ const {
 }));
 
 vi.mock("next/cache", () => ({ revalidatePath: mockRevalidatePath }));
-vi.mock("@/lib/client-ip", () => ({ getClientIp: mockGetClientIp }));
-vi.mock("@/lib/db", () => ({ db: { transaction: mockTransaction } }));
+vi.mock(
+  "@/lib/client-ip",
+  async () => await import("@/test/admin-action-mocks"),
+);
+vi.mock("@/lib/db", async () => ({
+  db: {
+    transaction: (await import("@/test/admin-action-mocks")).mockTransaction,
+  },
+}));
 vi.mock("@/lib/entitlements/benefit-grants", () => ({
   insertBenefitGrant: mockInsertBenefitGrant,
 }));
 vi.mock("@/lib/notifications/create-notification", () => ({
   notifyQuietly: mockNotify,
 }));
-vi.mock("../../../_lib/auth", () => ({
-  requireAdminActor: mockRequireAdminActor,
-}));
+vi.mock(
+  "../../../_lib/auth",
+  async () => await import("@/test/admin-action-mocks"),
+);
 vi.mock("../../_lib/moderation", async (importOriginal) => ({
   ...(await importOriginal<typeof import("../../_lib/moderation")>()),
   recordModerationAction: mockRecordModerationAction,
@@ -42,11 +49,7 @@ const TX = { tag: "tx" };
 beforeEach(() => {
   vi.clearAllMocks();
   vi.spyOn(console, "error").mockImplementation(() => undefined);
-  mockRequireAdminActor.mockResolvedValue({ actorId: "admin-1" });
-  mockGetClientIp.mockResolvedValue("203.0.113.1");
-  mockTransaction.mockImplementation(
-    async (fn: (tx: unknown) => Promise<void>) => fn(TX),
-  );
+  setupAdminActor(TX);
   mockInsertBenefitGrant.mockResolvedValue({
     id: "g1",
     plan: "pro",

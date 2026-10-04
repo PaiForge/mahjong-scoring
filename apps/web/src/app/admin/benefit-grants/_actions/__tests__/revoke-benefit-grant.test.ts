@@ -1,17 +1,17 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
+import {
+  mockGetClientIp,
+  mockRequireAdminActor,
+  mockTransaction,
+  setupAdminActor,
+} from "@/test/admin-action-mocks";
 
 const {
-  mockRequireAdminActor,
-  mockGetClientIp,
-  mockTransaction,
   mockRevokeBenefitGrant,
   mockRecordModerationAction,
   mockRevalidatePath,
   mockNotify,
 } = vi.hoisted(() => ({
-  mockRequireAdminActor: vi.fn(),
-  mockGetClientIp: vi.fn(),
-  mockTransaction: vi.fn(),
   mockRevokeBenefitGrant: vi.fn(),
   mockRecordModerationAction: vi.fn(),
   mockRevalidatePath: vi.fn(),
@@ -19,17 +19,25 @@ const {
 }));
 
 vi.mock("next/cache", () => ({ revalidatePath: mockRevalidatePath }));
-vi.mock("@/lib/client-ip", () => ({ getClientIp: mockGetClientIp }));
-vi.mock("@/lib/db", () => ({ db: { transaction: mockTransaction } }));
+vi.mock(
+  "@/lib/client-ip",
+  async () => await import("@/test/admin-action-mocks"),
+);
+vi.mock("@/lib/db", async () => ({
+  db: {
+    transaction: (await import("@/test/admin-action-mocks")).mockTransaction,
+  },
+}));
 vi.mock("@/lib/entitlements/benefit-grants", () => ({
   revokeBenefitGrant: mockRevokeBenefitGrant,
 }));
 vi.mock("@/lib/notifications/create-notification", () => ({
   notifyQuietly: mockNotify,
 }));
-vi.mock("../../../_lib/auth", () => ({
-  requireAdminActor: mockRequireAdminActor,
-}));
+vi.mock(
+  "../../../_lib/auth",
+  async () => await import("@/test/admin-action-mocks"),
+);
 vi.mock("../../../users/_lib/moderation", async (importOriginal) => ({
   ...(await importOriginal<typeof import("../../../users/_lib/moderation")>()),
   recordModerationAction: mockRecordModerationAction,
@@ -42,11 +50,8 @@ const TX = { tag: "tx" };
 beforeEach(() => {
   vi.clearAllMocks();
   vi.spyOn(console, "error").mockImplementation(() => undefined);
-  mockRequireAdminActor.mockResolvedValue({ actorId: "admin-1" });
+  setupAdminActor(TX);
   mockGetClientIp.mockResolvedValue(undefined);
-  mockTransaction.mockImplementation(
-    async (fn: (tx: unknown) => Promise<void>) => fn(TX),
-  );
   mockRevokeBenefitGrant.mockResolvedValue({
     id: "g1",
     userId: "u1",

@@ -1,18 +1,17 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
+import {
+  mockRequireAdminActor,
+  mockTransaction,
+  setupAdminActor,
+} from "@/test/admin-action-mocks";
 
 const {
-  mockRequireAdminActor,
-  mockGetClientIp,
-  mockTransaction,
   mockUpdateSet,
   mockUpdateWhere,
   mockUpdateUserById,
   mockRecordModerationAction,
   mockRevalidatePath,
 } = vi.hoisted(() => ({
-  mockRequireAdminActor: vi.fn(),
-  mockGetClientIp: vi.fn(),
-  mockTransaction: vi.fn(),
   mockUpdateSet: vi.fn(),
   mockUpdateWhere: vi.fn(),
   mockUpdateUserById: vi.fn(),
@@ -21,9 +20,14 @@ const {
 }));
 
 vi.mock("next/cache", () => ({ revalidatePath: mockRevalidatePath }));
-vi.mock("@/lib/client-ip", () => ({ getClientIp: mockGetClientIp }));
-vi.mock("@/lib/db", () => ({
-  db: { transaction: mockTransaction },
+vi.mock(
+  "@/lib/client-ip",
+  async () => await import("@/test/admin-action-mocks"),
+);
+vi.mock("@/lib/db", async () => ({
+  db: {
+    transaction: (await import("@/test/admin-action-mocks")).mockTransaction,
+  },
   profiles: { id: "profiles.id", bannedAt: "profiles.banned_at" },
 }));
 vi.mock("@/lib/supabase/admin", () => ({
@@ -31,9 +35,10 @@ vi.mock("@/lib/supabase/admin", () => ({
     auth: { admin: { updateUserById: mockUpdateUserById } },
   }),
 }));
-vi.mock("../../../_lib/auth", () => ({
-  requireAdminActor: mockRequireAdminActor,
-}));
+vi.mock(
+  "../../../_lib/auth",
+  async () => await import("@/test/admin-action-mocks"),
+);
 vi.mock("../../_lib/moderation", async (importOriginal) => ({
   ...(await importOriginal<typeof import("../../_lib/moderation")>()),
   recordModerationAction: mockRecordModerationAction,
@@ -47,14 +52,10 @@ const TX = { update: vi.fn(() => updateChain) };
 
 beforeEach(() => {
   vi.clearAllMocks();
-  mockRequireAdminActor.mockResolvedValue({ actorId: "admin-1" });
-  mockGetClientIp.mockResolvedValue("203.0.113.1");
+  setupAdminActor(TX);
   mockUpdateUserById.mockResolvedValue({ error: null });
   mockUpdateSet.mockReturnValue(updateChain);
   mockUpdateWhere.mockResolvedValue(undefined);
-  mockTransaction.mockImplementation(
-    async (fn: (tx: unknown) => Promise<void>) => fn(TX),
-  );
 });
 
 describe("banUser", () => {

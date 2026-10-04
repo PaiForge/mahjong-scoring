@@ -1,9 +1,11 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
+import {
+  mockRequireAdminActor,
+  mockTransaction,
+  setupAdminActor,
+} from "@/test/admin-action-mocks";
 
 const {
-  mockRequireAdminActor,
-  mockGetClientIp,
-  mockTransaction,
   mockSelectLimit,
   mockDbUpdateSet,
   mockDbUpdateWhere,
@@ -13,9 +15,6 @@ const {
   mockRecordModerationAction,
   mockRevalidatePath,
 } = vi.hoisted(() => ({
-  mockRequireAdminActor: vi.fn(),
-  mockGetClientIp: vi.fn(),
-  mockTransaction: vi.fn(),
   mockSelectLimit: vi.fn(),
   mockDbUpdateSet: vi.fn(),
   mockDbUpdateWhere: vi.fn(),
@@ -27,8 +26,11 @@ const {
 }));
 
 vi.mock("next/cache", () => ({ revalidatePath: mockRevalidatePath }));
-vi.mock("@/lib/client-ip", () => ({ getClientIp: mockGetClientIp }));
-vi.mock("@/lib/db", () => {
+vi.mock(
+  "@/lib/client-ip",
+  async () => await import("@/test/admin-action-mocks"),
+);
+vi.mock("@/lib/db", async () => {
   // `db.select(...).from(...).where(...).limit(1)` — 元の bannedAt の退避
   const selectChain = {
     from: () => selectChain,
@@ -39,7 +41,7 @@ vi.mock("@/lib/db", () => {
   const dbUpdateChain = { set: mockDbUpdateSet, where: mockDbUpdateWhere };
   return {
     db: {
-      transaction: mockTransaction,
+      transaction: (await import("@/test/admin-action-mocks")).mockTransaction,
       select: () => selectChain,
       update: () => dbUpdateChain,
     },
@@ -51,9 +53,10 @@ vi.mock("@/lib/supabase/admin", () => ({
     auth: { admin: { updateUserById: mockUpdateUserById } },
   }),
 }));
-vi.mock("../../../_lib/auth", () => ({
-  requireAdminActor: mockRequireAdminActor,
-}));
+vi.mock(
+  "../../../_lib/auth",
+  async () => await import("@/test/admin-action-mocks"),
+);
 vi.mock("../../_lib/moderation", async (importOriginal) => ({
   ...(await importOriginal<typeof import("../../_lib/moderation")>()),
   recordModerationAction: mockRecordModerationAction,
@@ -69,17 +72,13 @@ const TX = { update: vi.fn(() => txUpdateChain) };
 
 beforeEach(() => {
   vi.clearAllMocks();
-  mockRequireAdminActor.mockResolvedValue({ actorId: "admin-1" });
-  mockGetClientIp.mockResolvedValue("203.0.113.1");
+  setupAdminActor(TX);
   mockUpdateUserById.mockResolvedValue({ error: null });
   mockSelectLimit.mockResolvedValue([{ bannedAt }]);
   mockDbUpdateSet.mockReturnValue({ where: mockDbUpdateWhere });
   mockDbUpdateWhere.mockResolvedValue(undefined);
   mockTxUpdateSet.mockReturnValue(txUpdateChain);
   mockTxUpdateWhere.mockResolvedValue(undefined);
-  mockTransaction.mockImplementation(
-    async (fn: (tx: unknown) => Promise<void>) => fn(TX),
-  );
 });
 
 describe("unbanUser", () => {
