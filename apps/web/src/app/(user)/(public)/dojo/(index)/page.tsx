@@ -28,7 +28,6 @@ import Link from "next/link";
 import { getTranslations } from "next-intl/server";
 
 import { BeltBadge } from "@/app/(user)/_components/belt-badge";
-import { HashAnchorScroll } from "@/app/(user)/_components/hash-anchor-scroll";
 import { ContentContainer } from "@/app/(user)/_components/content-container";
 import { PageTitle } from "@/app/(user)/_components/page-title";
 import { SectionTitle } from "@/app/(user)/_components/section-title";
@@ -76,8 +75,6 @@ export default async function DojoPage() {
   return (
     <ContentContainer breadcrumb={[{ label: t("title") }]}>
       <PageTitle action={<DojoSpotlightTour />}>{t("title")}</PageTitle>
-      {/* ダッシュボードの進み具合（/dojo#stage-learn 等）からの着地 */}
-      <HashAnchorScroll />
 
       <div className="space-y-8">
         <section className="space-y-4">

@@ -14,7 +14,10 @@ import {
   type RankJourney,
 } from "@mahjong-scoring/features/journey/journey";
 
-import { dojoStageHref } from "../_lib/stage-anchors";
+import { practiceHref } from "@mahjong-scoring/features/routes";
+
+import { lessonListHref } from "../../lessons/_lib/lesson-list-href";
+import { practiceListHref } from "../../practice/_lib/practice-web-routes";
 
 interface RankStageProgressProps {
   readonly journey: RankJourney;
@@ -25,9 +28,9 @@ interface RankStageProgressProps {
   ) => string;
   /**
    * いま取り組む級（ダッシュボードのカード・道場で開いた級）か。そうなら
-   * いま取り組んでいる段を帯色で塗り、各段を道場で開いた級の該当セクション
-   * へのリンクにする。閉じた級まで塗ると道場の一覧に「今ここ」が級の数だけ
-   * 並び、閉じた級の段には着地先のセクションが無い
+   * いま取り組んでいる段を帯色で塗り、各段をその段の一覧へのリンクにする。
+   * 閉じた級まで塗ると道場の一覧に「今ここ」が級の数だけ並び、リンクも
+   * 道場の中で級の数だけ重なる
    */
   readonly isCurrentRank?: boolean;
   /** 余白などレイアウト調整用 */
@@ -44,6 +47,21 @@ interface StageCell {
 }
 
 /**
+ * 段の行き先 — 学ぶはレッスン一覧のその級の節、練習するはその級で絞った
+ * 練習一覧、試験は試験の説明ページ
+ */
+function stageHref(stage: JourneyStage, journey: RankJourney): string {
+  switch (stage) {
+    case "learn":
+      return lessonListHref(journey.rank.slug);
+    case "practice":
+      return practiceListHref({ kind: "rank", value: journey.rank.slug });
+    case "exam":
+      return practiceHref(journey.exam.slug);
+  }
+}
+
+/**
  * 級の進み具合（学ぶ → 練習する → 試験）のステップ表示
  * 段級位の進み具合
  *
@@ -54,9 +72,10 @@ interface StageCell {
  * 淡い面で塗る。以前は 1 行に「学ぶ 0 / 5 練習する 0 / 6 試験 未受験」と
  * 詰めていたが、名前と値の区切りが読み取れなかった。
  *
- * いま取り組む級では各段が道場の該当セクション（レッスン・練習の一覧、
- * 試験への導線）へのリンクになる。読みに行くだけの導線なので、押せる面
- * （太枠 + 影）にはせず、段の名前に行リンクと同じ常時の下線を引く。
+ * いま取り組む級では各段がその段の一覧へのリンクになる（{@link stageHref}）。
+ * 練習するの行き先はボタンの下の「自分で練習を選ぶ」と同じ。一覧を見に行く
+ * だけの導線なので、押せる面（太枠 + 影）にはせず、段の名前に行リンクと
+ * 同じ常時の下線を引く。
  *
  * 前提章を持たない級（初段）では学ぶ・練習するが 0 件なので、数えるものが
  * ある段だけ並べる。
@@ -149,7 +168,7 @@ export function RankStageProgress({
           >
             {isCurrentRank ? (
               <Link
-                href={dojoStageHref(cell.stage)}
+                href={stageHref(cell.stage, journey)}
                 className={`group ${cellClasses} ${rounded} transition-colors hover:bg-surface-900/5 ${FOCUS_RING_CLASSES}`}
               >
                 {content}

@@ -95,7 +95,7 @@ describe("NextStepSection", () => {
     ).toBe("/practice?rank=kyu-5");
   });
 
-  it("進み具合の各段は道場で開いた級の該当セクションへ送る", async () => {
+  it("進み具合の各段はその段の一覧へ送る", async () => {
     const { container } = render(
       await NextStepSection({ journey: journeyOf() }),
     );
@@ -104,9 +104,10 @@ describe("NextStepSection", () => {
       container.querySelectorAll("[data-stage] a"),
     ).map((a) => a.getAttribute("href"));
     expect(stageHrefs).toEqual([
-      "/dojo#stage-learn",
-      "/dojo#stage-practice",
-      "/dojo#stage-exam",
+      "/lessons#kyu-5",
+      // 練習するの行き先は「自分で練習を選ぶ」と同じ
+      "/practice?rank=kyu-5",
+      "/exam/mangan",
     ]);
   });
 
