@@ -22,6 +22,35 @@ export interface OfferPriceView {
 }
 
 /**
+ * Stripe の Price を読む（キャッシュする本体）
+ *
+ * Stripe に届かないときは投げる。`unstable_cache` は投げた回を保存しない
+ * ので、一時的な障害が 1 日分の「価格なし」として残らない（期限切れの値が
+ * あれば、再検証の失敗中はそれを返し続ける）。設定の欠け（Price ID 未設定・
+ * 金額の無い Price）は再試行しても変わらないので undefined として保存する。
+ */
+const readOfferPrices = unstable_cache(
+  async (plan: PlanKey): Promise<readonly OfferPriceView[] | undefined> => {
+    const stripe = getStripe();
+    const views: OfferPriceView[] = [];
+    for (const offer of OFFER_KEYS) {
+      const priceId = readOfferPriceId(plan, offer);
+      if (!priceId) return undefined;
+      const price = await stripe.prices.retrieve(priceId);
+      if (price.unit_amount === null) return undefined;
+      views.push({
+        offer,
+        currency: price.currency,
+        amount: price.unit_amount,
+      });
+    }
+    return views;
+  },
+  ["offer-prices"],
+  { tags: [PLAN_PRICES_CACHE_TAG], revalidate: 60 * 60 * 24 },
+);
+
+/**
  * 表示価格を Stripe から読む（1 日キャッシュ）
  * 表示価格取得
  *
@@ -40,31 +69,16 @@ export interface OfferPriceView {
  * 閲覧者の通貨で請求する。表示も切り替えたくなったら `currency_options` を
  * 展開して閲覧者のロケールで選ぶ。
  */
-export const getOfferPrices = unstable_cache(
-  async (plan: PlanKey): Promise<readonly OfferPriceView[] | undefined> => {
-    try {
-      const stripe = getStripe();
-      const views: OfferPriceView[] = [];
-      for (const offer of OFFER_KEYS) {
-        const priceId = readOfferPriceId(plan, offer);
-        if (!priceId) return undefined;
-        const price = await stripe.prices.retrieve(priceId);
-        if (price.unit_amount === null) return undefined;
-        views.push({
-          offer,
-          currency: price.currency,
-          amount: price.unit_amount,
-        });
-      }
-      return views;
-    } catch (error) {
-      logExternalError("getOfferPrices", "failed to read prices", error);
-      return undefined;
-    }
-  },
-  ["offer-prices"],
-  { tags: [PLAN_PRICES_CACHE_TAG], revalidate: 60 * 60 * 24 },
-);
+export async function getOfferPrices(
+  plan: PlanKey,
+): Promise<readonly OfferPriceView[] | undefined> {
+  try {
+    return await readOfferPrices(plan);
+  } catch (error) {
+    logExternalError("getOfferPrices", "failed to read prices", error);
+    return undefined;
+  }
+}
 
 /**
  * 金額を通貨に応じた表記にする（税込総額）
