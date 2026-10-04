@@ -478,3 +478,24 @@ export function chaptersInSection(
     (chapter) => chapter.section === section,
   ).map((chapter) => chapter.slug);
 }
+
+/**
+ * 全セクションの章を、セクションの並び順・カリキュラムの順で返す。
+ * セクション別の章
+ *
+ * `/learn` の目次がセクションごとに章を描画するのに使う。章の無いセクションも
+ * 空の一覧として含める（描画側で飛ばす）。
+ */
+export function chaptersBySection(): ReadonlyMap<
+  CurriculumSection,
+  readonly CurriculumChapter[]
+> {
+  return new Map(
+    CURRICULUM_SECTIONS.map((section) => [
+      section,
+      CURRICULUM_SORTED_BY_ORDER.filter(
+        (chapter) => chapter.section === section,
+      ),
+    ]),
+  );
+}

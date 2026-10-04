@@ -2,46 +2,29 @@
  * `/learn` 目次でのセクション並び順の健全性検証
  *
  * @description
- * page.tsx では `CURRICULUM_SECTIONS.map(...)` の順でセクションを描画し、
- * 各セクション内は `CURRICULUM` を order 昇順でソートしてグルーピングする。
- * このテストでは、grouping の結果が仕様通りになることを純関数的に検証する。
+ * page.tsx は `chaptersBySection()` の順でセクションを描画する。各セクション
+ * 内は order 昇順で、すべての章がちょうど 1 つのセクションに入ることを検証する。
  */
 import { describe, expect, it } from "vitest";
 
-import {
-  CURRICULUM,
-  CURRICULUM_SECTIONS,
-  type CurriculumChapter,
-  type CurriculumSection,
-} from "./registry";
-
-/** page.tsx の grouping 実装を抽出した純関数版 */
-function groupChaptersBySection(): Map<CurriculumSection, CurriculumChapter[]> {
-  const sorted = [...CURRICULUM].sort((a, b) => a.order - b.order);
-  const grouped = new Map<CurriculumSection, CurriculumChapter[]>();
-  for (const section of CURRICULUM_SECTIONS) grouped.set(section, []);
-  for (const chapter of sorted) {
-    grouped.get(chapter.section)?.push(chapter);
-  }
-  return grouped;
-}
+import { CURRICULUM, CURRICULUM_SECTIONS, chaptersBySection } from "./registry";
 
 describe("section grouping", () => {
   it("creates a bucket for every CURRICULUM_SECTIONS entry (even empty ones)", () => {
-    const grouped = groupChaptersBySection();
+    const grouped = chaptersBySection();
     for (const section of CURRICULUM_SECTIONS) {
       expect(grouped.has(section)).toBe(true);
     }
   });
 
   it("preserves CURRICULUM_SECTIONS order when iterating the Map", () => {
-    const grouped = groupChaptersBySection();
+    const grouped = chaptersBySection();
     const iteratedSections = Array.from(grouped.keys());
     expect(iteratedSections).toEqual([...CURRICULUM_SECTIONS]);
   });
 
   it("places every chapter into exactly one section bucket", () => {
-    const grouped = groupChaptersBySection();
+    const grouped = chaptersBySection();
     const allBucketed = Array.from(grouped.values()).flat();
     expect(allBucketed.length).toBe(CURRICULUM.length);
 
@@ -50,7 +33,7 @@ describe("section grouping", () => {
   });
 
   it("orders chapters within each section by ascending `order`", () => {
-    const grouped = groupChaptersBySection();
+    const grouped = chaptersBySection();
     for (const [, chapters] of grouped) {
       for (let i = 1; i < chapters.length; i++) {
         expect(chapters[i]!.order).toBeGreaterThan(chapters[i - 1]!.order);
@@ -62,7 +45,7 @@ describe("section grouping", () => {
     // 役割ごと（子のロン → 子のツモ → 親のロン → 親のツモ）。和了方法ごとに
     // 戻すと、点数表早引きの土俵（親子で分かれる）が章の切れ目と合わなくなり、
     // 読んだ範囲だけを出す練習へ送れなくなる
-    const grouped = groupChaptersBySection();
+    const grouped = chaptersBySection();
     const manganSlugs = grouped.get("mangan")?.map((c) => c.slug) ?? [];
     expect(manganSlugs).toEqual([
       "mangan-ko-ron",
@@ -73,13 +56,13 @@ describe("section grouping", () => {
   });
 
   it('places jantou-fu, mentsu-fu, machi-fu, tehai-fu in the "fu" section in that order', () => {
-    const grouped = groupChaptersBySection();
+    const grouped = chaptersBySection();
     const fuSlugs = grouped.get("fu")?.map((c) => c.slug) ?? [];
     expect(fuSlugs).toEqual(["jantou-fu", "mentsu-fu", "machi-fu", "tehai-fu"]);
   });
 
   it('places about-this-app and why-scoring-is-complex in "foundation"', () => {
-    const grouped = groupChaptersBySection();
+    const grouped = chaptersBySection();
     const foundationSlugs = grouped.get("foundation")?.map((c) => c.slug) ?? [];
     expect(foundationSlugs).toEqual([
       "about-this-app",
@@ -88,13 +71,13 @@ describe("section grouping", () => {
   });
 
   it('places yaku in the "yaku" section', () => {
-    const grouped = groupChaptersBySection();
+    const grouped = chaptersBySection();
     const yakuSlugs = grouped.get("yaku")?.map((c) => c.slug) ?? [];
     expect(yakuSlugs).toEqual(["yaku"]);
   });
 
   it('places the score-calculation chapters in the "score" section', () => {
-    const grouped = groupChaptersBySection();
+    const grouped = chaptersBySection();
     const scoreSlugs = grouped.get("score")?.map((c) => c.slug) ?? [];
     expect(scoreSlugs).toEqual([
       "chiitoitsu-score",
@@ -105,7 +88,7 @@ describe("section grouping", () => {
   });
 
   it('places the memorization chapters in the "memorization" section', () => {
-    const grouped = groupChaptersBySection();
+    const grouped = chaptersBySection();
     const memorizationSlugs =
       grouped.get("memorization")?.map((c) => c.slug) ?? [];
     expect(memorizationSlugs).toEqual([
