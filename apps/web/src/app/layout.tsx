@@ -4,6 +4,7 @@ import { EnvironmentRibbon } from "env-ribbon";
 import { NextIntlClientProvider } from "next-intl";
 import { getLocale } from "next-intl/server";
 import { GoogleAnalytics } from "@next/third-parties/google";
+import { AppVersionWatcher } from "@/app/_components/app-version-watcher";
 import { ScrollReset } from "@/app/_components/scroll-reset";
 import { AuthProvider } from "@/app/_contexts/auth-context";
 import { AppTileImageProvider } from "@/app/_contexts/tile-image-context";
@@ -60,6 +61,7 @@ export default async function RootLayout({
     <html lang={locale}>
       <body className="min-h-screen overflow-x-hidden">
         <ScrollReset />
+        <AppVersionWatcher />
         <NextIntlClientProvider>
           <AppTileImageProvider>
             <AuthProvider>{children}</AuthProvider>
