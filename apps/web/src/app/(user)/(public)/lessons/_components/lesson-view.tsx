@@ -202,6 +202,12 @@ function conditionValues(
         yaku: prompt.yaku.join("＋"),
         han: prompt.han,
       };
+    case "extraFu":
+      return {
+        handShape: prompt.handShape,
+        winType: prompt.winType,
+        extraFu: prompt.extraFu,
+      };
   }
 }
 
@@ -224,6 +230,7 @@ function PromptTiles({ prompt }: { readonly prompt: LessonPrompt }) {
     case "tier":
     case "yaku":
     case "agari":
+    case "extraFu":
       return undefined;
     case "jantou":
       return (

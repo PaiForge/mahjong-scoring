@@ -4,6 +4,7 @@ import { MACHI_FU_LESSON_QUIZ } from "./machi-fu";
 import { MANGAN_KO_RON_LESSON_QUIZ } from "./mangan-ko-ron";
 import { MANGAN_KO_TSUMO_LESSON_QUIZ } from "./mangan-ko-tsumo";
 import { MANGAN_OYA_RON_LESSON_QUIZ } from "./mangan-oya-ron";
+import { MENZEN_MENTSU_SCORE_LESSON_QUIZ } from "./menzen-mentsu-score";
 import { MENTSU_FU_LESSON_QUIZ } from "./mentsu-fu";
 import { MANGAN_OYA_TSUMO_LESSON_QUIZ } from "./mangan-oya-tsumo";
 import type { LessonQuiz } from "./quiz";
@@ -30,6 +31,7 @@ const LESSON_QUIZZES: Readonly<Record<LessonSlug, LessonQuiz>> = {
   "tehai-fu": TEHAI_FU_LESSON_QUIZ,
   "chiitoitsu-score": CHIITOITSU_SCORE_LESSON_QUIZ,
   "pinfu-score": PINFU_SCORE_LESSON_QUIZ,
+  "menzen-mentsu-score": MENZEN_MENTSU_SCORE_LESSON_QUIZ,
 };
 
 /**

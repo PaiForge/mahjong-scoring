@@ -204,6 +204,13 @@
       "when": 1791085476930,
       "tag": "20261004034436_backfill_pinfu_score_lesson_completion",
       "breakpoints": true
+    },
+    {
+      "idx": 29,
+      "version": "7",
+      "when": 1791085681007,
+      "tag": "20261004034801_backfill_menzen_mentsu_score_lesson_completion",
+      "breakpoints": true
     }
   ]
 }

@@ -8,6 +8,8 @@ import type {
   WinType,
 } from "@mahjong-scoring/core";
 
+import type { FixedHandShape } from "../practice/score/hand-shape-param";
+
 /**
  * レッスンの確認問題の型
  * レッスン確認問題
@@ -63,6 +65,9 @@ export type LessonChoice =
  * - `agari`: 和了の条件を文字で言う（親 / 子・ツモ / ロン・役の組み合わせと
  *   その翻数）。符は言わない — 役から符が決まる章（七対子・平和）で、
  *   符を知っているかを確かめるため
+ * - `extraFu`: 門前 / 副露・ツモ / ロンと、面子・雀頭・待ちで積み上げた符の
+ *   合計（副底と和了の符を除く）。教本の「積み上げた符 → 符」の表と同じ
+ *   切り口で問う
  */
 export type LessonPrompt =
   | { readonly kind: "tier"; readonly tierKey: string; readonly han: number }
@@ -91,6 +96,12 @@ export type LessonPrompt =
       /** 役名（`YAKU_HAN_ENTRIES` の名前。並べた順に出す） */
       readonly yaku: readonly string[];
       readonly han: number;
+    }
+  | {
+      readonly kind: "extraFu";
+      readonly handShape: FixedHandShape;
+      readonly winType: WinType;
+      readonly extraFu: number;
     };
 
 /**

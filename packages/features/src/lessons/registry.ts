@@ -169,6 +169,18 @@ export const LESSON_REGISTRY = [
       practiceLink("score-table", "oya_non_mangan"),
     ],
   },
+  {
+    slug: "menzen-mentsu-score",
+    chapterSlug: "menzen-mentsu-score",
+    rankSlug: "kyu-1",
+    messageKey: "menzenMentsuScore",
+    // 章に対応する自由練習（門前縛り）は指せない（七対子と同じ理由）。
+    // 積み上げて符を出す練習から、符と翻から点数を出す練習へ
+    practiceLinks: [
+      practiceLink("total-fu"),
+      practiceLink("score-calculation"),
+    ],
+  },
 ] as const satisfies readonly LessonDefinitionEntry[];
 
 /** レッスンスラッグ */

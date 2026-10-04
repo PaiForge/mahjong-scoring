@@ -7,6 +7,7 @@ import { MachiFuGuide } from "@/app/(user)/(public)/learn/machi-fu/_components/m
 import { TehaiFuGuide } from "@/app/(user)/(public)/learn/tehai-fu/_components/tehai-fu-guide";
 import { ChiitoitsuScoreGuide } from "@/app/(user)/(public)/learn/chiitoitsu-score/_components/chiitoitsu-score-guide";
 import { PinfuScoreGuide } from "@/app/(user)/(public)/learn/pinfu-score/_components/pinfu-score-guide";
+import { MenzenMentsuScoreGuide } from "@/app/(user)/(public)/learn/menzen-mentsu-score/_components/menzen-mentsu-score-guide";
 import { ManganKoRonGuide } from "@/app/(user)/(public)/learn/mangan-ko-ron/_components/mangan-ko-ron-guide";
 import { ManganOyaRonGuide } from "@/app/(user)/(public)/learn/mangan-oya-ron/_components/mangan-oya-ron-guide";
 import { ManganOyaTsumoGuide } from "@/app/(user)/(public)/learn/mangan-oya-tsumo/_components/mangan-oya-tsumo-guide";
@@ -137,6 +138,18 @@ const LESSON_EXPLANATIONS: Readonly<
     excerptKeys: [
       "pinfuScore.learn.twoPatternsBody1",
       "pinfuScore.learn.twoPatternsBody2",
+    ],
+  },
+  "menzen-mentsu-score": {
+    // 章の全部を出す。確認問題のヒントは「積み上げた符を 10 で切る」の節
+    // （ツモは切り捨て・ロンは切り上げ・対応表）を指し、8 符のツモはコラム
+    // （40 符に上がる境目）が拠り所。面子・雀頭・待ちの章へのリンクは 4 級の
+    // レッスンの章を指す復習の導線なので残す。章末の練習のボタンは七対子と
+    // 同じ理由で外す
+    guide: <MenzenMentsuScoreGuide showPracticeLink={false} />,
+    excerptKeys: [
+      "menzenMentsuScore.learn.startBody1",
+      "menzenMentsuScore.learn.startBody2",
     ],
   },
 };

@@ -289,4 +289,25 @@ describe("lessonQuiz", () => {
       { kind: "points", points: 7700 },
     ]);
   });
+
+  it("門前の面子手: 積み上げた符をツモは切り捨て・ロンは切り上げて 30 符に足す", () => {
+    const quiz = lessonQuiz("menzen-mentsu-score");
+    expect(
+      quiz.questions.map(({ prompt, answer }) => [
+        prompt.kind === "extraFu"
+          ? [prompt.handShape, prompt.winType, prompt.extraFu]
+          : undefined,
+        answer,
+      ]),
+    ).toEqual([
+      [["menzen", "ron", 2], { kind: "fu", fu: 40 }],
+      [["menzen", "tsumo", 8], { kind: "fu", fu: 30 }],
+      [["menzen", "tsumo", 10], { kind: "fu", fu: 40 }],
+      [["menzen", "ron", 12], { kind: "fu", fu: 50 }],
+    ]);
+    // 教本の対応表（積み上げ 2〜28 符）に現れる符
+    expect(quiz.choices).toEqual(
+      [30, 40, 50, 60].map((fu) => ({ kind: "fu", fu })),
+    );
+  });
 });
