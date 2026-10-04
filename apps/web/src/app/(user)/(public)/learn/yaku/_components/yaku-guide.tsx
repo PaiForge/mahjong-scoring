@@ -22,10 +22,12 @@ export async function YakuGuide() {
       <GuideSection title={t("menzenNakiTitle")}>
         <GuideParagraph>{t("menzenNakiBody1")}</GuideParagraph>
         <GuideParagraph>{t("menzenNakiBody2")}</GuideParagraph>
+        <GuideParagraph>{t("menzenNakiBody3")}</GuideParagraph>
       </GuideSection>
 
       {/* 翻数別の役まとめ（各役名が早見表の該当カードへのリンク）＋ 早見表全体へのリンク */}
       <GuideSection title={t("summaryTitle")}>
+        <GuideParagraph>{t("summaryBody")}</GuideParagraph>
         <YakuHanTable />
 
         <Link
