@@ -12,13 +12,15 @@ import {
 } from "@/lib/practice-quota/anonymous-quota-cookie";
 import { consumeUserQuota } from "@/lib/practice-quota/consume-user-quota";
 import {
+  consumeUsage,
   isUnlimited,
+  peekUsage,
   unlimitedAnswer,
   type BeginPracticeQuestionResult,
   type QuotaAudience,
 } from "@/lib/practice-quota/quota-answer";
 import { jstDayKey } from "@mahjong-scoring/features/jst";
-import { readUserQuota } from "@/lib/practice-quota/read-user-quota";
+import { readUserQuotaUsage } from "@/lib/practice-quota/read-user-quota";
 import {
   PRACTICE_QUOTA_LIMITS,
   isQuotaMenu,
@@ -116,11 +118,10 @@ export async function peekPracticeQuota(
   if (user) {
     const { benefits } = audience;
     const limit = PRACTICE_QUOTA_LIMITS[menu].signedIn;
-    const remaining = await readUserQuota(user.id, menu, jstDayKey(now), limit);
+    const used = await readUserQuotaUsage(user.id, menu, jstDayKey(now));
     return {
       success: true,
-      allowed: remaining > 0,
-      remaining,
+      ...peekUsage(limit, used),
       limit,
       signedIn: true,
       benefits,
@@ -133,8 +134,7 @@ export async function peekPracticeQuota(
     return { ...base, allowed: true, remaining: limit };
   }
   const counts = await readAnonymousQuota(now);
-  const remaining = Math.max(0, limit - counts[menu]);
-  return { ...base, allowed: remaining > 0, remaining };
+  return { ...base, ...peekUsage(limit, counts[menu]) };
 }
 
 /**
@@ -196,11 +196,9 @@ async function beginForAnonymous(
 
   const counts = await readAnonymousQuota(now);
   const used = counts[menu];
-  if (used >= limit) {
-    return { ...base, allowed: false, remaining: 0 };
+  const usage = consumeUsage(limit, used);
+  if (usage.allowed) {
+    await writeAnonymousQuota({ ...counts, [menu]: used + 1 }, now);
   }
-
-  const next = used + 1;
-  await writeAnonymousQuota({ ...counts, [menu]: next }, now);
-  return { ...base, allowed: true, remaining: limit - next };
+  return { ...base, ...usage };
 }

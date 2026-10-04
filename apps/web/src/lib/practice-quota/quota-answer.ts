@@ -63,3 +63,36 @@ export function unlimitedAnswer(
     benefits: audience.benefits,
   };
 }
+
+/** 回数の判定結果。答えの `allowed` / `remaining` になる */
+export interface QuotaUsage {
+  readonly allowed: boolean;
+  readonly remaining: number;
+}
+
+/**
+ * 消費せずに見たときの判定
+ *
+ * `allowed` は「次の 1 問を始められるか」、`remaining` は今日の残り。
+ *
+ * @param used - 今日すでに始めた問題数
+ */
+export function peekUsage(limit: number, used: number): QuotaUsage {
+  const remaining = Math.max(0, limit - used);
+  return { allowed: remaining > 0, remaining };
+}
+
+/**
+ * 1 問消費したときの判定
+ *
+ * 上限に達していれば消費せず不許可。許可したときの `remaining` は
+ * この 1 問を含めない残り。ログイン済みの消費は並行リクエストで上限を
+ * 超えないよう SQL の 1 文で同じ規則を行う（`consumeUserQuota`）ため、
+ * これを使うのは cookie で数える未ログインだけ。
+ *
+ * @param used - 消費前に今日すでに始めた問題数
+ */
+export function consumeUsage(limit: number, used: number): QuotaUsage {
+  if (used >= limit) return { allowed: false, remaining: 0 };
+  return { allowed: true, remaining: limit - (used + 1) };
+}
