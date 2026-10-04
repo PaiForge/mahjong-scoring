@@ -24,7 +24,10 @@ export type {
 } from "./problem/mentsu-jantou-fu/types";
 
 // === Problem: Total Fu ===
-export { generateTotalFuQuestion } from "./problem/total-fu/generator";
+export {
+  calculateTotalFu,
+  generateTotalFuQuestion,
+} from "./problem/total-fu/generator";
 export type { TotalFuQuestion } from "./problem/total-fu/types";
 export type { FuDetail } from "./score/fu-calculator";
 

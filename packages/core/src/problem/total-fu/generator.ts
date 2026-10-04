@@ -1,5 +1,6 @@
 import {
   calculateScoreForTehai,
+  type Fu,
   type Kazehai,
   type ScoreResult,
   type Tehai14,
@@ -47,6 +48,28 @@ function calculateFuSource(
     },
   });
   return result.isErr() ? undefined : result.value;
+}
+
+/**
+ * 手牌と和了状況から、手牌全体の符を求める
+ * 合計符計算
+ *
+ * 合計符の練習と同じ計算（ライブラリが選んだ符が最大になる面子構成の符。
+ * 10 符単位に切り上げ済みで、七対子・平和ツモの特例も含む）。役が無い手は
+ * 和了できないので undefined。
+ *
+ * @param tehai 和了形の手牌
+ * @param context 和了状況
+ * @param renfonpaiAs4Fu 連風牌の雀頭を4符として扱うか（既定 false=2符）
+ */
+export function calculateTotalFu(
+  tehai: Tehai14,
+  context: AgariContext,
+  renfonpaiAs4Fu = false,
+): Fu | undefined {
+  const score = calculateFuSource(tehai, context, renfonpaiAs4Fu);
+  if (!score?.detail || score.han === 0) return undefined;
+  return score.detail.fuResult.total;
 }
 
 /**
