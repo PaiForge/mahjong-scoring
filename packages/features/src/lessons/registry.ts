@@ -82,6 +82,10 @@ export const LESSON_REGISTRY = [
     chapterSlug: "mangan-oya-ron",
     rankSlug: "kyu-5",
     messageKey: "manganOyaRon",
+    practiceLinks: [
+      practiceLink("score-table", "oya_mangan_plus"),
+      practiceLink("mangan-score-calculation"),
+    ],
   },
   {
     slug: "mangan-oya-tsumo",

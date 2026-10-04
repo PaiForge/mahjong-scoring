@@ -4,9 +4,9 @@ import { getTranslations } from "next-intl/server";
 import { SectionTitle } from "@/app/(user)/_components/section-title";
 import { GuideParagraph } from "@/app/(user)/(public)/learn/_components/guide-paragraph";
 import { ManganOyaTsumoScoreTable } from "@/app/(user)/(public)/learn/_components/mangan-oya-tsumo-score-table";
-import { ManganScoreTable } from "@/app/(user)/(public)/learn/_components/mangan-score-table";
 import { YakuHanTable } from "@/app/(user)/(public)/learn/_components/yaku-han-table";
 import { ManganKoRonGuide } from "@/app/(user)/(public)/learn/mangan-ko-ron/_components/mangan-ko-ron-guide";
+import { ManganOyaRonGuide } from "@/app/(user)/(public)/learn/mangan-oya-ron/_components/mangan-oya-ron-guide";
 import { ManganKoTsumoGuide } from "@/app/(user)/(public)/learn/mangan-ko-tsumo/_components/mangan-ko-tsumo-guide";
 import {
   lessonBySlug,
@@ -56,8 +56,11 @@ const LESSON_EXPLANATIONS: Readonly<
     excerptKeys: ["manganKoTsumo.learn.body1", "manganKoTsumo.learn.body2"],
   },
   "mangan-oya-ron": {
-    kind: "summary",
-    table: <ManganScoreTable role="oya" />,
+    kind: "chapter",
+    // 章は表の節 1 つだけ。確認問題のヒントは「子の点数の 1.5 倍」を指し、
+    // その拠り所（子の 1.5 倍・倍率は子と同じ）は本文の冒頭と表の後にある
+    guide: <ManganOyaRonGuide />,
+    excerptKeys: ["manganOyaRon.learn.body1", "manganOyaRon.learn.body2"],
   },
   "mangan-oya-tsumo": { kind: "summary", table: <ManganOyaTsumoScoreTable /> },
   yaku: { kind: "summary", table: <YakuHanTable /> },
