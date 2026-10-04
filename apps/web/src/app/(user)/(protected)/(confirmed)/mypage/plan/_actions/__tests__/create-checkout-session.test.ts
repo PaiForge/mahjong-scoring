@@ -9,7 +9,6 @@ const mocks = vi.hoisted(() => ({
   headers: vi.fn(),
   redirect: vi.fn(),
 }));
-vi.mock("server-only", () => ({}));
 vi.mock("next/headers", () => ({ headers: mocks.headers }));
 vi.mock("next/navigation", () => ({
   redirect: (url: string) => {

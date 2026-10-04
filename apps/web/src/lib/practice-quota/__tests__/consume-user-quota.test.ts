@@ -2,8 +2,6 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 
 const { mockInsert } = vi.hoisted(() => ({ mockInsert: vi.fn() }));
 
-vi.mock("server-only", () => ({}));
-
 vi.mock("@/lib/db", () => ({
   db: { insert: mockInsert },
   practiceQuotaUsage: {

@@ -5,7 +5,6 @@ import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 const jar = new Map<string, string>();
 const setCalls: { name: string; value: string; options: unknown }[] = [];
 
-vi.mock("server-only", () => ({}));
 vi.mock("next/headers", () => ({
   cookies: async () => ({
     get: (name: string) => {

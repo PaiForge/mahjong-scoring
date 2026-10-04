@@ -5,7 +5,6 @@ const { mockSelect, mockInsert } = vi.hoisted(() => ({
   mockInsert: vi.fn(),
 }));
 
-vi.mock("server-only", () => ({}));
 vi.mock("@/lib/db", () => ({
   db: { select: mockSelect, insert: mockInsert },
   stripeWebhookEvents: {

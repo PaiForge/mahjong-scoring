@@ -2,8 +2,6 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 
 const { mockSelect } = vi.hoisted(() => ({ mockSelect: vi.fn() }));
 
-vi.mock("server-only", () => ({}));
-
 vi.mock("@/lib/db", async () => ({
   db: { select: mockSelect },
   benefitGrants: (await import("@/test/schema-mock")).benefitGrants,

@@ -6,7 +6,6 @@ const { mockGuard, mockMarkOne, mockMarkAll } = vi.hoisted(() => ({
   mockMarkAll: vi.fn(),
 }));
 
-vi.mock("server-only", () => ({}));
 vi.mock("@/lib/action-guard", () => ({ guardUserAction: mockGuard }));
 vi.mock("@/lib/notifications/queries", () => ({
   markNotificationRead: mockMarkOne,
