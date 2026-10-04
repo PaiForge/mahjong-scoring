@@ -11,19 +11,24 @@ const COUNTDOWN_MS = 3000;
 /** 回答から次の回答を受け付けるまでの間隔。連打で問題を読み飛ばさせない。 */
 const ANSWER_INTERVAL_MS = 800;
 /**
- * 回答を受け付けてから時計を止めておく猶予
- * 回答受付の猶予
+ * 採点の応答を返してから時計を動かし始めるまでの猶予
+ * 応答の猶予
  *
- * 採点はサーバーで行うため、押してから正誤が画面に届くまで通信の往復が
- * 掛かる。その時間を競技時間に数えると、回線の遅い人ほど同じ 60 秒で
- * 解ける問題が減る。往復の実測はクライアントの申告になり信用できないので、
- * 全員に同じ固定の猶予を与える（往復の片道 + 処理時間の典型値）。
+ * 採点はサーバーで行うため、押してから正誤が画面に届くまで通信の往復と
+ * サーバーの処理が掛かる。その時間を競技時間に数えると、回線の遅い人ほど
+ * 同じ 60 秒で解ける問題が減る。
+ *
+ * サーバーの処理時間（認証・行ロック・採点・次問の生成）は、回答を受け取った
+ * 時刻と応答を組んだ時刻の差として実測できるので、そのまま除く。ネットワークの
+ * 往復はクライアントの申告になり信用できないので、全員に同じ固定の猶予を
+ * 与える（日本から東京リージョンへの往復の典型値）。受け取るまでの片道は
+ * 数えられてしまうが、押した時刻は申告でしか知れないので受け入れる。
  *
  * 正誤の表示（`ANSWER_INTERVAL_MS`）は猶予に含めない — これは採点が
  * ローカルだった頃から数えていた時間で、含めると 1 分で解ける問題数が
  * 2 割以上増えて過去の記録と比べられなくなる。
  */
-export const ANSWER_GRACE_MS = 200;
+export const RESPONSE_GRACE_MS = 100;
 
 /** サーバー時計で測る実プレイ時間。一時停止時間を含めない。 */
 export function challengeElapsed(state: ChallengeState, now: number): number {
@@ -89,15 +94,22 @@ export function canAnswerChallenge(
 /**
  * 受け付けた回答を数え、次の問題へ進めた状態
  *
- * それまでの経過を畳み込み、時計の起点を猶予（{@link ANSWER_GRACE_MS}）の
- * ぶん先に置く。カウントダウン中（{@link startedChallenge}）と同じ仕組みで、
- * 起点が来るまで `challengeElapsed` は進まない。
+ * 回答を受け取った時刻（`receivedAt`）までの経過を畳み込み、時計の起点を
+ * 応答を組んだ時刻（`respondedAt`）の猶予（{@link RESPONSE_GRACE_MS}）後に
+ * 置く。カウントダウン中（{@link startedChallenge}）と同じ仕組みで、起点が
+ * 来るまで `challengeElapsed` は進まない。受け取ってから応答を組むまでの
+ * 処理時間は、こうしてそのまま競技時間から外れる。
+ *
+ * 画面側は押してから応答が届くまで時計を止め、届いた応答の経過時間に
+ * 合わせ直す。応答が届くのは `respondedAt` の片道後なので、画面はサーバーが
+ * 動き出す（猶予後）のとほぼ同時に動き出す。
  */
 export function answeredChallenge(
   state: ChallengeState,
   correct: boolean,
   next: ChallengeQuestion,
-  now: number,
+  receivedAt: number,
+  respondedAt: number = receivedAt,
 ): ChallengeState {
   return {
     ...state,
@@ -105,9 +117,9 @@ export function answeredChallenge(
     sequence: state.sequence + 1,
     score: state.score + Number(correct),
     incorrectAnswers: state.incorrectAnswers + Number(!correct),
-    elapsedMs: challengeElapsed(state, now),
-    resumedAt: now + ANSWER_GRACE_MS,
-    answerAfter: now + ANSWER_INTERVAL_MS,
+    elapsedMs: challengeElapsed(state, receivedAt),
+    resumedAt: respondedAt + RESPONSE_GRACE_MS,
+    answerAfter: receivedAt + ANSWER_INTERVAL_MS,
   };
 }
 
