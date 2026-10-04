@@ -1,5 +1,7 @@
 import { and, eq, gte, sql } from "drizzle-orm";
 
+import { jstStartOfMonth } from "@mahjong-scoring/features/jst";
+
 import { db } from "./index";
 import { notHiddenFromLeaderboard } from "./leaderboard-visibility";
 import { rankingOrder } from "./ranking-order";
@@ -67,20 +69,20 @@ function toLeaderboardRow(row: {
 }
 
 /**
- * `now` が属する月の開始日時（UTC）を返す
+ * `now` が属する月の開始日時（JST の 1 日 0:00）を返す
  * 月初日時取得
  *
  * `now` を引数で受け取る純粋関数。内部で現在時刻を読むと月の境界をテストで
  * 固定できず、同一リクエスト内の一覧取得と自分の順位取得が別々の「今」を
  * 見て月をまたぐ余地が残る（練習実績の期間集計も同じ理由で `now` を注入する）。
  *
- * 境界は UTC で切る。JST 基準のヒートマップとは基準が異なり、JST で翌月に
- * 入っていても UTC がまだ当月なら前月を集計する。
+ * 境界はアプリの他の「今月」（練習実績の期間・ヒートマップ）と同じく JST で
+ * 切る（`jstStartOfMonth`）。JST の 1 日 0〜9 時も当月として集計する。
  *
  * @param now - 「今」として扱う時刻。呼び出し側で1回だけ `new Date()` して渡す
  */
 export function startOfCurrentMonth(now: Date): Date {
-  return new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), 1));
+  return jstStartOfMonth(now);
 }
 
 /**
