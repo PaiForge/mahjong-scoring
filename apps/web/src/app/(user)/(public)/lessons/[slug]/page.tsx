@@ -52,6 +52,7 @@ import { LessonExplanation } from "../_components/lesson-explanation";
 import { LessonRelatedLinks } from "../_components/lesson-related-links";
 import { NextLessonPreview } from "../_components/next-lesson-preview";
 import { RankGoalPanel } from "../_components/rank-goal-panel";
+import { lessonListHref } from "../_lib/lesson-list-href";
 
 interface LessonPageProps {
   readonly params: Promise<{ readonly slug: string }>;
@@ -118,7 +119,14 @@ export default async function LessonPage({ params }: LessonPageProps) {
 
   return (
     <ContentContainer
-      breadcrumb={[{ label: t("breadcrumb") }, { label: tLesson("title") }]}
+      breadcrumb={[
+        { label: t("breadcrumb"), href: lessonListHref() },
+        {
+          label: tAll(`ranks.names.${lesson.rankSlug}`),
+          href: lessonListHref(lesson.rankSlug),
+        },
+        { label: tLesson("title") },
+      ]}
     >
       <PageTitle>{tLesson("title")}</PageTitle>
 
