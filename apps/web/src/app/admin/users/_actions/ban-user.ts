@@ -6,6 +6,7 @@ import { revalidatePath } from "next/cache";
 import type { ActionResult } from "../../../../lib/action-types";
 import { getClientIp } from "../../../../lib/client-ip";
 import { db, profiles } from "../../../../lib/db";
+import { logExternalError } from "../../../../lib/log-error";
 import { createAdminClient } from "../../../../lib/supabase/admin";
 import { requireAdminActor } from "../../_lib/auth";
 import { normalizeModerationReason } from "../_lib/moderation-reason";
@@ -62,6 +63,7 @@ export async function banUser(
   );
 
   if (authError) {
+    logExternalError("banUser", "failed to ban in Supabase Auth", authError);
     return { error: "banFailed" };
   }
 
@@ -82,11 +84,21 @@ export async function banUser(
         ipAddress,
       });
     });
-  } catch {
-    // DB 失敗時: Auth 側をロールバック
-    await adminClient.auth.admin.updateUserById(targetUserId, {
-      ban_duration: NO_BAN_DURATION,
-    });
+  } catch (error: unknown) {
+    logExternalError("banUser", "failed to record the ban", error);
+    // DB 失敗時: Auth 側をロールバック。ここも失敗すると Auth だけ BAN された
+    // 状態が残るので、手で戻せるよう必ず痕跡を残す
+    const { error: rollbackError } =
+      await adminClient.auth.admin.updateUserById(targetUserId, {
+        ban_duration: NO_BAN_DURATION,
+      });
+    if (rollbackError) {
+      logExternalError(
+        "banUser",
+        `failed to roll back the Auth ban; Auth and DB disagree for ${targetUserId}`,
+        rollbackError,
+      );
+    }
     return { error: "banFailed" };
   }
 

@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 
+import { jsonPrivate } from "@/lib/api-response";
 import { getOptionalVerifiedUser } from "@/lib/auth";
 import { getStripeCustomerId } from "@/lib/billing/customer";
 import { recordPurchaseFromCheckoutSession } from "@/lib/billing/purchases";
@@ -61,7 +62,7 @@ export async function GET(request: Request): Promise<NextResponse> {
 
   const rateLimited = await enforceIpRateLimit("completeCheckout");
   if (rateLimited) {
-    return NextResponse.json({ error: "rateLimited" }, { status: 429 });
+    return jsonPrivate({ error: "rateLimited" }, { status: 429 });
   }
 
   const user = await getOptionalVerifiedUser();
@@ -93,7 +94,7 @@ export async function GET(request: Request): Promise<NextResponse> {
         `session ${sessionId} does not belong to user ${user.id}`,
         undefined,
       );
-      return NextResponse.json({ error: "forbidden" }, { status: 403 });
+      return jsonPrivate({ error: "forbidden" }, { status: 403 });
     }
 
     const result = await recordPurchaseFromCheckoutSession(session);

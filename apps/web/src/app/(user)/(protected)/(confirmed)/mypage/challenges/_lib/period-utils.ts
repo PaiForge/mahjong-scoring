@@ -68,7 +68,7 @@ function rangeOf(period: DatePeriod, now: Date, shift: number): DateRange {
  * 指定期間の開始・終了を返す
  * 期間範囲取得
  *
- * 週・月の境界は実行環境の TZ ではなく JST で切る（`lib/jst.ts`）。
+ * 週・月の境界は実行環境の TZ ではなく JST で切る（`@mahjong-scoring/features/jst`）。
  * サーバー（Vercel = UTC）とクライアント（ブラウザ = JST）の両方がこの関数を
  * 呼ぶため、ローカル時刻で切ると JST の 0〜9 時に「今週」「今月」が
  * 別の範囲になる。

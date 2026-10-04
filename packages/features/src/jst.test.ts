@@ -1,6 +1,11 @@
 import { describe, expect, it } from "vitest";
 
-import { jstCalendarDate, jstDayKey, jstStartOfDay } from "./jst";
+import {
+  jstCalendarDate,
+  jstDayKey,
+  jstStartOfDay,
+  jstStartOfMonth,
+} from "./jst";
 
 describe("jstCalendarDate", () => {
   it("UTC の日付ではなく JST の日付を返す（UTC 15:00 以降は翌日）", () => {
@@ -57,5 +62,34 @@ describe("jstDayKey", () => {
 
   it("月末・年末の繰り上がりも JST で判定する", () => {
     expect(jstDayKey(new Date("2026-12-31T15:00:00Z"))).toBe("2027-01-01");
+  });
+});
+
+describe("jstStartOfMonth", () => {
+  it("JST の月の 1 日 0:00（UTC では前日 15:00）を返す", () => {
+    expect(
+      jstStartOfMonth(new Date("2026-08-15T12:00:00Z")).toISOString(),
+    ).toBe("2026-07-31T15:00:00.000Z");
+  });
+
+  it("UTC ではまだ前月でも、JST で翌月に入っていれば翌月の月初", () => {
+    // JST 2026-09-01 08:30 = UTC 2026-08-31 23:30
+    expect(
+      jstStartOfMonth(new Date("2026-08-31T23:30:00Z")).toISOString(),
+    ).toBe("2026-08-31T15:00:00.000Z");
+  });
+
+  it("月初の瞬間そのものはその月に留まり、1 ミリ秒前は前月", () => {
+    const start = new Date("2026-08-31T15:00:00.000Z");
+    expect(jstStartOfMonth(start)).toEqual(start);
+    expect(jstStartOfMonth(new Date(start.getTime() - 1)).toISOString()).toBe(
+      "2026-07-31T15:00:00.000Z",
+    );
+  });
+
+  it("年をまたぐ", () => {
+    expect(
+      jstStartOfMonth(new Date("2026-12-31T15:00:00Z")).toISOString(),
+    ).toBe("2026-12-31T15:00:00.000Z");
   });
 });

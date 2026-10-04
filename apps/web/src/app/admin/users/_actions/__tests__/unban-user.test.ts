@@ -72,6 +72,7 @@ const TX = { update: vi.fn(() => txUpdateChain) };
 
 beforeEach(() => {
   vi.clearAllMocks();
+  vi.spyOn(console, "error").mockImplementation(() => undefined);
   setupAdminActor(TX);
   mockUpdateUserById.mockResolvedValue({ error: null });
   mockSelectLimit.mockResolvedValue([{ bannedAt }]);
@@ -154,5 +155,29 @@ describe("unbanUser", () => {
       ban_duration: "876000h",
     });
     expect(mockDbUpdateSet).not.toHaveBeenCalled();
+  });
+
+  it("Auth の再 BAN も失敗したら、食い違いを対象ユーザー付きでログに残す", async () => {
+    mockTransaction.mockRejectedValue(new Error("db down"));
+    mockUpdateUserById
+      .mockResolvedValueOnce({ error: null })
+      .mockResolvedValueOnce({ error: { message: "auth down" } });
+
+    expect(await unbanUser("u1")).toEqual({ error: "unbanFailed" });
+    expect(console.error).toHaveBeenCalledWith(
+      expect.stringContaining("Auth and DB disagree for u1"),
+      expect.anything(),
+    );
+  });
+
+  it("bannedAt の復元が失敗しても投げずに unbanFailed を返し、ログに残す", async () => {
+    mockTransaction.mockRejectedValue(new Error("db down"));
+    mockDbUpdateWhere.mockRejectedValue(new Error("still down"));
+
+    expect(await unbanUser("u1")).toEqual({ error: "unbanFailed" });
+    expect(console.error).toHaveBeenCalledWith(
+      expect.stringContaining("failed to restore bannedAt for u1"),
+      expect.anything(),
+    );
   });
 });

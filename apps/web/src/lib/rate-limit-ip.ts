@@ -119,6 +119,10 @@ export const IP_RATE_LIMITS = {
   // 通知の既読化。一覧を順に開くと 1 件ずつ飛ぶので、人の操作が
   // 引っ掛からない程度に取る
   markNotificationsRead: { maxRequests: 60, windowMs: 600_000 },
+  // チャレンジの開始。呼ぶたびに challenge_attempts へ 1 行作るので、連打や
+  // 自動化で行を増やし続けさせない。1 回は最短でも数十秒掛かり、すぐ
+  // やり直しても 10 分で 60 回には届かない
+  beginChallenge: { maxRequests: 60, windowMs: 600_000 },
 } as const;
 
 /**

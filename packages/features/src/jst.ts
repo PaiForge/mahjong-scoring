@@ -65,6 +65,17 @@ export function jstStartOfDay(year: number, month: number, day: number): Date {
 }
 
 /**
+ * `instant` が属する JST の月の 1 日 0:00
+ * JST月初
+ *
+ * 月間ランキングの母集団（「今月」）の境目。JST の 1 日 0〜9 時も当月に数える。
+ */
+export function jstStartOfMonth(instant: Date): Date {
+  const { year, month } = jstCalendarDate(instant);
+  return jstStartOfDay(year, month, 1);
+}
+
+/**
  * JST での日付キー（`YYYY-MM-DD`）
  * JST日付キー
  *
