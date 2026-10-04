@@ -9,6 +9,8 @@
 | Framework Preset | Next.js    |
 | Root Directory   | `apps/web` |
 
+`apps/web/vercel.json` の `regions` で関数（Server Actions・動的ルート・Route Handlers）を東京（`hnd1`）に置いている。Supabase が `ap-northeast-1` にあり、関数と DB の往復はリクエストごとに何度も直列で起きるため（チャレンジの回答 1 回で BAN 判定 + トランザクションの約 5 往復）、関数を DB から離すとその回数ぶん太平洋往復が掛かる。未指定だと Vercel の既定の `iad1`（米国東部）になり、チャレンジで回答してから正誤が出るまでに 1 秒前後の遅れが出ていた（2026-10 に本番で `x-vercel-id: hnd1::iad1::…` を実測）。DB のリージョンを変えるときはここも一緒に変えること。
+
 `apps/web/vercel.json` の `ignoreCommand` で、`claude/*` ブランチ（`.github/workflows/claude-issue-solve.yml` が bot 名義で開く PR の head）のビルドをスキップしている。bot の PR は人が Actions からマージするまでレビュー対象でしかなく、PR ごとに preview デプロイを作る意味がないため。
 
 ## Supabase の設定
