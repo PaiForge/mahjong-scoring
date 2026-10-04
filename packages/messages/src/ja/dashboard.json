@@ -28,7 +28,7 @@
         "cta": "{title}の内容を見る"
       }
     },
-    "choosePractice": "自分で練習を選ぶ",
+    "choosePractice": "{rank}の練習から自分で選ぶ",
     "viewJourney": "黒帯までの道を見る"
   }
 }

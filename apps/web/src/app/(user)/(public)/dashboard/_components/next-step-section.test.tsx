@@ -39,7 +39,7 @@ function ctaHref(container: HTMLElement): string | null {
 }
 
 describe("NextStepSection", () => {
-  it("何も始めていなければ最初のレッスンへ送り、練習一覧へのリンクを添える", async () => {
+  it("何も始めていなければ最初のレッスンへ送り、目標の級で絞った練習一覧へのリンクを添える", async () => {
     const { container, getByText, getByRole } = render(
       await NextStepSection({ journey: journeyOf() }),
     );
@@ -51,7 +51,7 @@ describe("NextStepSection", () => {
     expect(ctaHref(container)).toBe("/lessons/mangan-ko-ron");
     expect(
       getByRole("link", { name: "choosePractice" }).getAttribute("href"),
-    ).toBe("/practice");
+    ).toBe("/practice?rank=kyu-5");
     // 次の目標は 5級の帯色
     expect(
       container
