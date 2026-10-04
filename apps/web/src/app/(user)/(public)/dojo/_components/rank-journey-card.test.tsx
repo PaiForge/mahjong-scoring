@@ -95,6 +95,14 @@ describe("RankJourneyCard", () => {
     expect(getAllByRole("img", { name: "lessonDone" })).toHaveLength(1);
     // 施錠の注記は次の目標の級には出ない
     expect(container.textContent).not.toContain("lockedNote");
+    // 進み具合の各段は、同じカードの中の段のセクションへ着地する
+    const stageTargets = Array.from(
+      container.querySelectorAll("[data-stage] a"),
+    ).map((a) => a.getAttribute("href")?.split("#")[1]);
+    expect(stageTargets).toHaveLength(3);
+    for (const id of stageTargets) {
+      expect(container.querySelector(`section#${id}`)).not.toBeNull();
+    }
   });
 
   it("レッスンの無い章は目次に出し、読了した章を学んだとして渡す", async () => {

@@ -1,5 +1,11 @@
+import Link from "next/link";
+
 import { CheckIcon } from "@/app/(user)/_components/icons/check-icon";
 import { ChevronRightIcon } from "@/app/(user)/_components/icons/chevron-right-icon";
+import {
+  FOCUS_RING_CLASSES,
+  ROW_LINK_TITLE_CLASSES,
+} from "@/app/_components/_lib/link-classes";
 import { beltTintClasses } from "@/lib/ranks/belt-colors";
 import {
   countProgress,
@@ -7,6 +13,8 @@ import {
   type JourneyStage,
   type RankJourney,
 } from "@mahjong-scoring/features/journey/journey";
+
+import { dojoStageHref } from "../_lib/stage-anchors";
 
 interface RankStageProgressProps {
   readonly journey: RankJourney;
@@ -16,11 +24,12 @@ interface RankStageProgressProps {
     values?: Record<string, string | number>,
   ) => string;
   /**
-   * いま取り組んでいる段を帯色で塗るか。いま取り組む級（ダッシュボードの
-   * カード・道場で開いた級）だけが渡す。閉じた級まで塗ると、道場の一覧に
-   * 「今ここ」が級の数だけ並ぶ
+   * いま取り組む級（ダッシュボードのカード・道場で開いた級）か。そうなら
+   * いま取り組んでいる段を帯色で塗り、各段を道場で開いた級の該当セクション
+   * へのリンクにする。閉じた級まで塗ると道場の一覧に「今ここ」が級の数だけ
+   * 並び、閉じた級の段には着地先のセクションが無い
    */
-  readonly highlightCurrent?: boolean;
+  readonly isCurrentRank?: boolean;
   /** 余白などレイアウト調整用 */
   readonly className?: string;
   /** スポットライトツアーが照らす対象の id */
@@ -45,8 +54,12 @@ interface StageCell {
  * 淡い面で塗る。以前は 1 行に「学ぶ 0 / 5 練習する 0 / 6 試験 未受験」と
  * 詰めていたが、名前と値の区切りが読み取れなかった。
  *
+ * いま取り組む級では各段が道場の該当セクション（レッスン・練習の一覧、
+ * 試験への導線）へのリンクになる。読みに行くだけの導線なので、押せる面
+ * （太枠 + 影）にはせず、段の名前に行リンクと同じ常時の下線を引く。
+ *
  * 前提章を持たない級（初段）では学ぶ・練習するが 0 件なので、数えるものが
- * ある段だけ並べる。押せる面ではないので影は付けない。
+ * ある段だけ並べる。
  *
  * 呼び出し側のテストが async なサーバーコンポーネントを 1 段だけ await して
  * 描画するため、翻訳関数は受け取って同期で描く。
@@ -54,13 +67,13 @@ interface StageCell {
 export function RankStageProgress({
   journey,
   tRanks,
-  highlightCurrent = false,
+  isCurrentRank = false,
   className,
   dataTourId,
 }: RankStageProgressProps) {
   const learn = countProgress(journey.chapters);
   const practice = countProgress(journey.practices);
-  const current = highlightCurrent ? currentStage(journey) : undefined;
+  const current = isCurrentRank ? currentStage(journey) : undefined;
 
   const cells: readonly StageCell[] = [
     ...(learn.total > 0
@@ -102,27 +115,48 @@ export function RankStageProgress({
     >
       {cells.map((cell, index) => {
         const isCurrent = cell.stage === current;
-        return (
-          <li
-            key={cell.stage}
-            aria-current={isCurrent ? "step" : undefined}
-            data-stage={cell.stage}
-            className={[
-              "relative flex min-w-0 flex-1 flex-col items-center gap-0.5 px-1 py-2 text-center",
-              index === 0 ? "rounded-l-md" : "",
-              index === cells.length - 1 ? "rounded-r-md" : "",
-              isCurrent
-                ? beltTintClasses(journey.rank.slug)
-                : "text-surface-600",
-            ].join(" ")}
-          >
-            <span className="text-xs font-bold">
+        const rounded = [
+          index === 0 ? "rounded-l-md" : "",
+          index === cells.length - 1 ? "rounded-r-md" : "",
+        ].join(" ");
+        const content = (
+          <>
+            <span
+              className={`text-xs font-bold ${isCurrentRank ? ROW_LINK_TITLE_CLASSES : ""}`}
+            >
               {tRanks(`stages.${cell.stage}`)}
             </span>
             <span className="flex items-center gap-1 text-sm font-bold tabular-nums">
               {cell.done && <CheckIcon className="size-3.5 text-primary-600" />}
               {cell.value}
             </span>
+          </>
+        );
+        const cellClasses =
+          "flex h-full flex-col items-center gap-0.5 px-1 py-2 text-center";
+        return (
+          <li
+            key={cell.stage}
+            aria-current={isCurrent ? "step" : undefined}
+            data-stage={cell.stage}
+            className={[
+              "relative min-w-0 flex-1",
+              rounded,
+              isCurrent
+                ? beltTintClasses(journey.rank.slug)
+                : "text-surface-600",
+            ].join(" ")}
+          >
+            {isCurrentRank ? (
+              <Link
+                href={dojoStageHref(cell.stage)}
+                className={`group ${cellClasses} ${rounded} transition-colors hover:bg-surface-900/5 ${FOCUS_RING_CLASSES}`}
+              >
+                {content}
+              </Link>
+            ) : (
+              <div className={cellClasses}>{content}</div>
+            )}
             {index < cells.length - 1 && (
               <ChevronRightIcon className="absolute top-1/2 -right-[11px] z-10 size-5 -translate-y-1/2 rounded-full bg-white p-0.5 text-surface-400" />
             )}

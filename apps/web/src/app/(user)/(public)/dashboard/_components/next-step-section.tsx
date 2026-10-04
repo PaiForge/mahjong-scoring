@@ -8,11 +8,11 @@ import { SectionTitle } from "@/app/(user)/_components/section-title";
 import { TEXT_LINK_CLASSES } from "@/app/_components/_lib/link-classes";
 import { SUB_LINK_GAP } from "@/app/_components/_lib/spacing";
 import { beltBorderClass, beltButtonVarsClass } from "@/lib/ranks/belt-colors";
+import { listedPracticeRanks } from "@mahjong-scoring/features/practice/catalog";
 import type {
   Journey,
   JourneyStep,
 } from "@mahjong-scoring/features/journey/journey";
-import { DOJO_PATH } from "@mahjong-scoring/features/routes";
 
 import { practiceListHref } from "../../practice/_lib/practice-web-routes";
 
@@ -65,14 +65,16 @@ function presentStep(
  *
  * 見出しは誰にでも「次にやること」。以前は何も始めていない人だけ
  * 「黒帯への第一歩」にしていたが、言い回しが大げさで何をする欄かが
- * 伝わらないため揃えた。まだ何も始めていない人はボタンを
- * 最初のレッスン向けにし、ボタンの下のリンクを「自分で練習を選ぶ」
- * （目標の級で絞った練習一覧）にする。絞らずに全練習を見せると、まだ習って
- * いない符計算の練習まで同じ重さで並ぶ。何も始めていない人の目標は必ず
- * 最初の級で、その級は一覧に並ぶ練習を持つので絞り込みが空になることは
- * ない。それ以外は「黒帯までの
- * 道を見る」（道場）。使い続けるほど中身が変わるカードで、初回限定の
- * カードは別に持たない。
+ * 伝わらないため揃えた。まだ何も始めていない人はボタンを最初のレッスン
+ * 向けにする。初回限定のカードは別に持たない。
+ *
+ * 進み具合の各段は道場で開いた級の該当セクションへのリンク
+ * （`RankStageProgress` の `isCurrentRank`）。全体の道筋へはそこから行けるので、
+ * ボタンの下には誰にでも「自分で練習を選ぶ」を置く。行き先は目標の級で絞った
+ * 練習一覧 — 絞らずに全練習を見せると、まだ習っていない級の練習まで同じ重さで
+ * 並ぶ。一覧に並ぶ練習を持たない級（絞ると空になる）だけは絞らない。以前は
+ * 何も始めていない人だけにこのリンクを出し、一度でも練習すると「黒帯までの
+ * 道を見る」に替えていたが、練習を 1 つ済ませただけで自分で選ぶ導線が消えた。
  *
  * 帯色の枠とボタン（`variant="belt"`）は昇級試験カード（`ExamCtaCard`）と
  * 同じ理由 — 級の名前を掲げたカードに既定の緑を回すと、緑がその級の色に
@@ -116,7 +118,7 @@ export async function NextStepSection({ journey }: NextStepSectionProps) {
           </div>
         </div>
 
-        <RankStageProgress journey={current} tRanks={tRanks} highlightCurrent />
+        <RankStageProgress journey={current} tRanks={tRanks} isCurrentRank />
 
         <div className={`flex flex-col ${SUB_LINK_GAP}`}>
           <LinkButton
@@ -130,18 +132,16 @@ export async function NextStepSection({ journey }: NextStepSectionProps) {
             {step.cta}
           </LinkButton>
           <div className="text-center">
-            {isFresh ? (
-              <Link
-                href={practiceListHref({ kind: "rank", value: rankSlug })}
-                className={`text-sm ${TEXT_LINK_CLASSES}`}
-              >
-                {t("choosePractice")}
-              </Link>
-            ) : (
-              <Link href={DOJO_PATH} className={`text-sm ${TEXT_LINK_CLASSES}`}>
-                {t("viewJourney")}
-              </Link>
-            )}
+            <Link
+              href={practiceListHref(
+                listedPracticeRanks().includes(rankSlug)
+                  ? { kind: "rank", value: rankSlug }
+                  : undefined,
+              )}
+              className={`text-sm ${TEXT_LINK_CLASSES}`}
+            >
+              {t("choosePractice")}
+            </Link>
           </div>
         </div>
       </div>

@@ -21,6 +21,7 @@ import {
 
 import { RankStatusBadge } from "../ranks/_components/rank-status-badge";
 import { practiceVariantLabel } from "../../_lib/practice-variant-label";
+import { DOJO_STAGE_ANCHOR } from "../_lib/stage-anchors";
 import { DOJO_TOUR_ID } from "../_lib/tour-ids";
 import { RankStageProgress } from "./rank-stage-progress";
 
@@ -105,7 +106,7 @@ export async function RankJourneyCard({
         <RankStageProgress
           journey={journey}
           tRanks={tRanks}
-          highlightCurrent={expanded}
+          isCurrentRank={expanded}
           className="mt-3"
           dataTourId={expanded ? DOJO_TOUR_ID.nextRankStages : undefined}
         />
@@ -123,7 +124,10 @@ export async function RankJourneyCard({
         {expanded && (
           <div className="mt-5 space-y-6 border-t-2 border-dashed border-border/40 pt-5">
             {chapters.length > 0 && (
-              <section className="space-y-3">
+              <section
+                id={DOJO_STAGE_ANCHOR.learn}
+                className="scroll-mt-24 space-y-3"
+              >
                 <h4 className="text-sm font-bold text-surface-900">
                   {tRanks("stages.learn")}
                 </h4>
@@ -161,7 +165,10 @@ export async function RankJourneyCard({
             )}
 
             {practices.length > 0 && (
-              <section className="space-y-3">
+              <section
+                id={DOJO_STAGE_ANCHOR.practice}
+                className="scroll-mt-24 space-y-3"
+              >
                 <h4 className="text-sm font-bold text-surface-900">
                   {tRanks("stages.practice")}
                 </h4>
@@ -195,7 +202,10 @@ export async function RankJourneyCard({
               </section>
             )}
 
-            <section className="space-y-3">
+            <section
+              id={DOJO_STAGE_ANCHOR.exam}
+              className="scroll-mt-24 space-y-3"
+            >
               <h4 className="text-sm font-bold text-surface-900">
                 {tRanks("stages.exam")}
               </h4>

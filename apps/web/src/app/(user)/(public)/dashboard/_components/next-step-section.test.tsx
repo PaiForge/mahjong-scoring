@@ -66,8 +66,8 @@ describe("NextStepSection", () => {
     ).toBe("learn");
   });
 
-  it("レッスンを終えたら次の章のレッスンへ送り、道場へのリンクを添える", async () => {
-    const { container, getByText, getByRole } = render(
+  it("レッスンを終えたら次の章のレッスンへ送る", async () => {
+    const { container, getByText } = render(
       await NextStepSection({
         journey: journeyOf({
           completedLessonSlugs: new Set(["mangan-ko-ron"]),
@@ -77,9 +77,37 @@ describe("NextStepSection", () => {
 
     expect(getByText("title")).toBeTruthy();
     expect(ctaHref(container)).toBe("/lessons/mangan-ko-tsumo");
+  });
+
+  it("練習を 1 つ済ませても「自分で練習を選ぶ」は目標の級の練習一覧へ送り続ける", async () => {
+    const { getByRole } = render(
+      await NextStepSection({
+        journey: journeyOf({
+          attemptedPractices: [
+            { slug: "mangan-score-calculation", variant: DEFAULT_VARIANT },
+          ],
+        }),
+      }),
+    );
+
     expect(
-      getByRole("link", { name: "viewJourney" }).getAttribute("href"),
-    ).toBe("/dojo");
+      getByRole("link", { name: "choosePractice" }).getAttribute("href"),
+    ).toBe("/practice?rank=kyu-5");
+  });
+
+  it("進み具合の各段は道場で開いた級の該当セクションへ送る", async () => {
+    const { container } = render(
+      await NextStepSection({ journey: journeyOf() }),
+    );
+
+    const stageHrefs = Array.from(
+      container.querySelectorAll("[data-stage] a"),
+    ).map((a) => a.getAttribute("href"));
+    expect(stageHrefs).toEqual([
+      "/dojo#stage-learn",
+      "/dojo#stage-practice",
+      "/dojo#stage-exam",
+    ]);
   });
 
   it("子のロン・ツモを学び終えたら、章から送っている練習へバリアント付きで送る", async () => {
