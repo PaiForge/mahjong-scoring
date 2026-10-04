@@ -16,7 +16,6 @@ import {
 } from "@mahjong-scoring/features/journey/journey";
 import { lessonBySlug } from "@mahjong-scoring/features/lessons/registry";
 import { practiceTitleKey } from "@mahjong-scoring/features/practice/catalog";
-import { practiceMenuBySlug } from "@mahjong-scoring/features/practice-menu-types";
 import {
   lessonHref,
   practiceHref,
@@ -24,6 +23,7 @@ import {
 } from "@mahjong-scoring/features/routes";
 
 import { RankStatusBadge } from "../ranks/_components/rank-status-badge";
+import { practiceVariantLabel } from "../../_lib/practice-variant-label";
 import { DOJO_TOUR_ID } from "../_lib/tour-ids";
 
 interface RankJourneyCardProps {
@@ -197,16 +197,14 @@ export async function RankJourneyCard({
                 <p className="text-xs text-surface-500">{t("practicesLead")}</p>
                 <LinkRowList>
                   {practices.map((item) => {
-                    const menu = practiceMenuBySlug(item.slug);
                     const title = tAll(
                       `practice.${practiceTitleKey(item.slug)}`,
                     );
-                    const variantLabel =
-                      item.variant !== undefined && menu.hasSetup
-                        ? tAll(
-                            `${menu.namespace}.variants.${item.variant}.label`,
-                          )
-                        : undefined;
+                    const variantLabel = practiceVariantLabel(
+                      tAll,
+                      item.slug,
+                      item.variant,
+                    );
                     return (
                       <LinkRow
                         key={`${item.slug}:${item.variant ?? ""}`}
