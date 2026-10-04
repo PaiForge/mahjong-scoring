@@ -46,9 +46,15 @@ function write(entries: readonly PendingLessonCompletion[]): void {
   }
 }
 
-/** 有効な預かりを読み出す（期限切れ・壊れたものは落ちる） */
-export function readPendingLessonCompletions(): readonly PendingLessonCompletion[] {
-  return parsePendingLessonCompletions(readRaw(), Date.now());
+/**
+ * 有効な預かりを読み出す（期限切れ・壊れたものは落ちる）
+ *
+ * @param now 期限の判定に使う現在時刻（ミリ秒）
+ */
+export function readPendingLessonCompletions(
+  now: number = Date.now(),
+): readonly PendingLessonCompletion[] {
+  return parsePendingLessonCompletions(readRaw(), now);
 }
 
 /**
@@ -56,16 +62,18 @@ export function readPendingLessonCompletions(): readonly PendingLessonCompletion
  *
  * @param slug 終えたレッスン
  * @param userId ログイン済みで保存に失敗したときの本人の id。未ログインなら省く
+ * @param now 完了時刻（ミリ秒）。既存の預かりの期限判定にも同じ時刻を使う
  */
 export function rememberPendingLessonCompletion(
   slug: LessonSlug,
   userId?: string,
+  now: number = Date.now(),
 ): void {
   const entry: PendingLessonCompletion =
     userId === undefined
-      ? { slug, completedAt: Date.now() }
-      : { slug, completedAt: Date.now(), userId };
-  write(addPendingLessonCompletion(readPendingLessonCompletions(), entry));
+      ? { slug, completedAt: now }
+      : { slug, completedAt: now, userId };
+  write(addPendingLessonCompletion(readPendingLessonCompletions(now), entry));
 }
 
 /** 同期が済んだ（またはサーバーが拒否した）スラッグを預かりから外す */

@@ -107,6 +107,20 @@ describe("getUserRanks", () => {
     ]);
   });
 
+  it("失敗した土俵はキャッシュの中から投げる（「ランクなし」を保存しない）", async () => {
+    const cached: (() => Promise<unknown>)[] = [];
+    mockUnstableCache.mockImplementation((fn: () => Promise<unknown>) => {
+      cached.push(fn);
+      return fn;
+    });
+    mockGetUserRankedRow.mockRejectedValue(new Error("boom"));
+
+    await getUserRanks("all-time");
+
+    expect(cached).toHaveLength(BOARDS.length);
+    await expect(cached[0]()).rejects.toThrow("boom");
+  });
+
   it("失敗した土俵をキー付きで記録する", async () => {
     mockGetUserRankedRow.mockImplementation(
       (_userId: string, module: LeaderboardModule, variant: string) =>

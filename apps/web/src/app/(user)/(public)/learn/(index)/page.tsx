@@ -33,8 +33,7 @@ import { TocAnchorScroll } from "../_components/toc-anchor-scroll";
 import {
   CURRICULUM,
   CURRICULUM_SECTIONS,
-  type CurriculumChapter,
-  type CurriculumSection,
+  chaptersBySection,
   pickNextChapter,
 } from "@mahjong-scoring/features/curriculum/registry";
 import { fetchReadChapterSlugs } from "../_lib/progress";
@@ -56,12 +55,7 @@ export default async function LearnIndexPage() {
   const next = pickNextChapter(readSlugs);
   const allCompleted = !next;
 
-  const sorted = [...CURRICULUM].sort((a, b) => a.order - b.order);
-  const grouped = new Map<CurriculumSection, CurriculumChapter[]>();
-  for (const section of CURRICULUM_SECTIONS) grouped.set(section, []);
-  for (const chapter of sorted) {
-    grouped.get(chapter.section)?.push(chapter);
-  }
+  const grouped = chaptersBySection();
 
   return (
     <ContentContainer breadcrumb={[{ label: t("index.pageTitle") }]}>

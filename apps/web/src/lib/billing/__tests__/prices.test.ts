@@ -1,11 +1,15 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
-const { mockPricesRetrieve } = vi.hoisted(() => ({
+const { mockPricesRetrieve, cachedReaders } = vi.hoisted(() => ({
   mockPricesRetrieve: vi.fn(),
+  cachedReaders: [] as ((...args: never[]) => Promise<unknown>)[],
 }));
 
 vi.mock("next/cache", () => ({
-  unstable_cache: (fn: unknown) => fn,
+  unstable_cache: (fn: (...args: never[]) => Promise<unknown>) => {
+    cachedReaders.push(fn);
+    return fn;
+  },
 }));
 vi.mock("../stripe", () => ({
   getStripe: () => ({ prices: { retrieve: mockPricesRetrieve } }),
@@ -46,6 +50,12 @@ describe("getOfferPrices", () => {
     mockPricesRetrieve.mockRejectedValue(new Error("network"));
     expect(await getOfferPrices("pro")).toBeUndefined();
     expect(console.error).toHaveBeenCalled();
+  });
+
+  it("Stripe の失敗はキャッシュの中から投げる（undefined を 1 日保存しない）", async () => {
+    mockPricesRetrieve.mockRejectedValue(new Error("network"));
+    const [readCached] = cachedReaders;
+    await expect(readCached("pro" as never)).rejects.toThrow("network");
   });
 
   it("金額の無い Price（従量など）は undefined", async () => {

@@ -6,7 +6,6 @@ import {
   isPracticeMenuType,
   isPracticeVariant,
   isExamMenuType,
-  practiceMenuByType,
 } from "@mahjong-scoring/features/practice-menu-types";
 import { getUserRankSlugs } from "../db/rank-queries";
 import { evaluateExamEligibility } from "@mahjong-scoring/features/ranks/exam-eligibility";
@@ -17,21 +16,19 @@ import {
   gradeChallengeAnswer,
   publicChallengeQuestion,
 } from "./questions";
-import type { ChallengeState } from "@mahjong-scoring/features/challenge/types";
+import {
+  answeredChallenge,
+  canAnswerChallenge,
+  canPauseChallenge,
+  challengeRemainingMs,
+  finishedChallengeTime,
+  isChallengeTimeUp,
+  pausedChallenge,
+  startedChallenge,
+} from "./transitions";
 
 const uuid = z.string().uuid();
 const settingsSchema = z.object({ renfonpaiAs4Fu: z.boolean() });
-const MAX_AGE_MS = 24 * 60 * 60 * 1000;
-/** サーバー時計で測る実プレイ時間。一時停止時間を含めない。 */
-export function challengeElapsed(state: ChallengeState, now: number): number {
-  return (
-    state.elapsedMs + (state.paused ? 0 : Math.max(0, now - state.resumedAt))
-  );
-}
-/** 制限時間（ミリ秒）。サーバー時計の経過時間と比べる単位に揃える。 */
-function timeLimitMs(state: ChallengeState): number {
-  return practiceMenuByType(state.menuType).timeLimit * 1000;
-}
 /** 本人の挑戦行を更新用にロックして読む。他人の id では見つからない扱いになる。 */
 async function lockOwnAttempt(
   tx: TransactionClient,
@@ -46,23 +43,6 @@ async function lockOwnAttempt(
     )
     .for("update");
   return row;
-}
-/** 回答受付条件。古い問題番号、早押し、停止中、期限切れ、ミス上限後は拒否する。 */
-export function canAnswerChallenge(
-  state: ChallengeState,
-  sequence: number,
-  now: number,
-): boolean {
-  const rules = practiceMenuByType(state.menuType);
-  return (
-    sequence === state.sequence &&
-    !state.paused &&
-    now >= state.answerAfter &&
-    now >= state.resumedAt &&
-    now - state.createdAt < MAX_AGE_MS &&
-    challengeElapsed(state, now) < timeLimitMs(state) &&
-    state.incorrectAnswers < rules.mistakeLimit
-  );
 }
 /** 認証済み本人の挑戦を開始する。出題と条件をDBに固定する。 */
 export async function beginAttempt(
@@ -87,21 +67,10 @@ export async function beginAttempt(
     return undefined;
   const question = generateChallengeQuestion(menuType, variant, parsed.data);
   if (!question) return undefined;
-  const now = Date.now();
-  const state: ChallengeState = {
-    menuType,
-    variant,
-    settings: parsed.data,
-    question,
-    sequence: 0,
-    score: 0,
-    incorrectAnswers: 0,
-    elapsedMs: 0,
-    resumedAt: now + 3000,
-    paused: false,
-    answerAfter: now + 3000,
-    createdAt: now,
-  };
+  const state = startedChallenge(
+    { menuType, variant, settings: parsed.data, question },
+    Date.now(),
+  );
   const [row] = await db
     .insert(challengeAttempts)
     .values({ userId, state })
@@ -130,8 +99,7 @@ export async function answerAttempt(
     const row = await lockOwnAttempt(tx, userId, id);
     const now = Date.now();
     if (!row || row.consumed) return undefined;
-    if (challengeElapsed(row.state, now) >= timeLimitMs(row.state))
-      return { expired: true as const };
+    if (isChallengeTimeUp(row.state, now)) return { expired: true as const };
     if (!canAnswerChallenge(row.state, sequence, now)) return undefined;
     const correct = gradeChallengeAnswer(
       row.state.menuType,
@@ -144,14 +112,7 @@ export async function answerAttempt(
       row.state.settings,
     );
     if (!next) return undefined;
-    const state: ChallengeState = {
-      ...row.state,
-      question: next,
-      sequence: sequence + 1,
-      score: row.state.score + Number(correct),
-      incorrectAnswers: row.state.incorrectAnswers + Number(!correct),
-      answerAfter: now + 800,
-    };
+    const state = answeredChallenge(row.state, correct, next, now);
     await tx
       .update(challengeAttempts)
       .set({ state })
@@ -179,24 +140,12 @@ export async function pauseAttempt(
   return db.transaction(async (tx) => {
     const row = await lockOwnAttempt(tx, userId, id);
     const now = Date.now();
-    if (
-      !row ||
-      row.consumed ||
-      now - row.state.createdAt >= MAX_AGE_MS ||
-      challengeElapsed(row.state, now) >= timeLimitMs(row.state)
-    )
+    if (!row || row.consumed || !canPauseChallenge(row.state, now))
       return false;
     if (row.state.paused === paused) return true;
     await tx
       .update(challengeAttempts)
-      .set({
-        state: {
-          ...row.state,
-          paused,
-          elapsedMs: challengeElapsed(row.state, now),
-          resumedAt: now,
-        },
-      })
+      .set({ state: pausedChallenge(row.state, paused, now) })
       .where(eq(challengeAttempts.id, id));
     return true;
   });
@@ -211,22 +160,11 @@ export async function finishAttempt(
   return db.transaction(async (tx) => {
     const row = await lockOwnAttempt(tx, userId, id);
     const now = Date.now();
-    if (
-      !row ||
-      row.consumed ||
-      isExamMenuType(row.state.menuType) !== exam ||
-      now - row.state.createdAt >= MAX_AGE_MS
-    )
+    if (!row || row.consumed || isExamMenuType(row.state.menuType) !== exam)
       return undefined;
     const state = row.state;
-    const rules = practiceMenuByType(state.menuType);
-    const elapsed = challengeElapsed(state, now);
-    // ミス上限または時間切れまで挑戦は未完了。早期提出で成績を確定させない。
-    if (
-      state.incorrectAnswers < rules.mistakeLimit &&
-      elapsed < timeLimitMs(state)
-    )
-      return undefined;
+    const timeTaken = finishedChallengeTime(state, now);
+    if (timeTaken === undefined) return undefined;
     await tx
       .update(challengeAttempts)
       .set({ consumed: true })
@@ -247,9 +185,10 @@ export async function finishAttempt(
         leaderboardKey: state.variant,
         score: state.score,
         incorrectAnswers: state.incorrectAnswers,
-        timeTaken: Math.min(rules.timeLimit, Math.round(elapsed / 1000)),
+        timeTaken,
       },
       tx,
+      new Date(now),
     );
   });
 }
@@ -264,7 +203,6 @@ export async function revealExpiredAttempt(userId: string, id: unknown) {
       and(eq(challengeAttempts.id, id), eq(challengeAttempts.userId, userId)),
     );
   if (!row || row.consumed || row.state.paused) return undefined;
-  const remainingMs =
-    timeLimitMs(row.state) - challengeElapsed(row.state, Date.now());
+  const remainingMs = challengeRemainingMs(row.state, Date.now());
   return remainingMs > 0 ? { remainingMs } : { question: row.state.question };
 }

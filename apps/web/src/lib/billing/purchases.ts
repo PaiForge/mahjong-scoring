@@ -21,6 +21,10 @@ import {
 } from "@/lib/notifications/types";
 import { hasUnexpiredPurchase, lockBillingCustomer } from "./checkout-state";
 import {
+  isFullyRefunded,
+  sessionMatchesCheckout,
+} from "./checkout-session-match";
+import {
   addPassDuration,
   PurchaseKind,
 } from "@mahjong-scoring/features/billing/plans";
@@ -116,16 +120,8 @@ export async function recordPurchaseFromCheckoutSession(
         )
         .limit(1);
       if (!checkout) return { outcome: "ignored", reason: "unknownCheckout" };
-      if (
-        checkout.stripePriceId !== lineItem.price?.id ||
-        lineItem.quantity !== 1 ||
-        session.line_items?.data.length !== 1 ||
-        session.line_items.has_more ||
-        (checkout.stripeCheckoutSessionId &&
-          checkout.stripeCheckoutSessionId !== session.id)
-      ) {
+      if (!sessionMatchesCheckout(session, checkout))
         return { outcome: "ignored", reason: "invalidCheckout" };
-      }
 
       const stripe = getStripe();
       const payment = await stripe.paymentIntents.retrieve(paymentIntentId, {
@@ -134,8 +130,7 @@ export async function recordPurchaseFromCheckoutSession(
       const charge = payment.latest_charge;
       if (!charge || typeof charge === "string")
         throw new Error("Paid Checkout has no expanded charge");
-      let refunded =
-        charge.amount > 0 && charge.amount_refunded >= charge.amount;
+      let refunded = isFullyRefunded(charge);
       if (!refunded && (await hasUnexpiredPurchase(tx, customer.userId, now))) {
         const refund = await stripe.refunds.create(
           { payment_intent: paymentIntentId },

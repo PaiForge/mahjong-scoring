@@ -33,11 +33,13 @@ export interface SaveChallengeResultReturn {
  * UPSERT は新結果が既存より上位の場合のみ更新する。上位かどうかの判定は
  * ランキングと同じ順序規則（{@link excludedRanksBetter}）から導出する。
  *
+ * @param now 自己ベストの達成日時。チャレンジを確定した時刻を渡す
  * @returns 挿入された `challenge_results.id`
  */
 export async function saveChallengeResult(
   input: ChallengeResultInput,
   connection: Pick<typeof db, "transaction"> = db,
+  now: Date = new Date(),
 ): Promise<SaveChallengeResultReturn> {
   const {
     userId,
@@ -47,7 +49,6 @@ export async function saveChallengeResult(
     incorrectAnswers,
     timeTaken,
   } = input;
-  const now = new Date();
 
   const result = await connection.transaction(async (tx) => {
     // 1. Append to challenge_results (all results, for period-based rankings)

@@ -145,6 +145,13 @@ describe("saveChallengeResult", () => {
       expect(secondValuesCall[0].achievedAt).toBeInstanceOf(Date);
     });
 
+    it("records the given time as achievedAt", async () => {
+      const now = new Date("2026-10-31T14:59:59.999Z");
+      await saveChallengeResult(validInput, undefined, now);
+
+      expect(mockSecondValues.mock.calls[0][0].achievedAt).toBe(now);
+    });
+
     it("calls onConflictDoUpdate for the best scores upsert", async () => {
       await saveChallengeResult(validInput);
 

@@ -6,6 +6,8 @@ import { useTranslations } from "next-intl";
 
 import { LinkButton } from "@/app/(user)/_components/link-button";
 
+import { buildPageItems } from "../_lib/page-items";
+
 interface LeaderboardPaginationProps {
   readonly currentPage: number;
   readonly totalPages: number;
@@ -31,25 +33,7 @@ export function LeaderboardPagination({
 
   if (totalPages <= 1) return undefined;
 
-  const pages: (number | "ellipsis")[] = [];
-  const maxVisible = 5;
-
-  if (totalPages <= maxVisible + 2) {
-    for (let i = 1; i <= totalPages; i++) {
-      pages.push(i);
-    }
-  } else {
-    pages.push(1);
-    const start = Math.max(2, currentPage - 1);
-    const end = Math.min(totalPages - 1, currentPage + 1);
-
-    if (start > 2) pages.push("ellipsis");
-    for (let i = start; i <= end; i++) {
-      pages.push(i);
-    }
-    if (end < totalPages - 1) pages.push("ellipsis");
-    pages.push(totalPages);
-  }
+  const pages = buildPageItems(currentPage, totalPages);
 
   return (
     <nav

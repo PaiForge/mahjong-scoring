@@ -23,6 +23,10 @@ const REVALIDATE_SECONDS = 300; // 5 minutes
  * 一覧全体のランク表示を消さない）。失敗は土俵のキー付きで記録し、その
  * 土俵は「ランクなし」として落とす。
  *
+ * キャッシュは土俵ごとに持ち、失敗はキャッシュの外で捕まえる。
+ * `unstable_cache` は投げた回を保存しないので、一時的な DB 障害が
+ * 「ランクなし」として 5 分間残らない。
+ *
  * @param period - 期間
  */
 export async function getUserRanks(
@@ -37,34 +41,34 @@ export async function getUserRanks(
   const userId = user.id;
   const now = new Date();
 
-  return unstable_cache(
-    async () => {
-      const { getUserRankedRow } = getQueriesForPeriod(period, now);
-
-      const fetchRank = async (
-        board: PracticeBoard,
-      ): Promise<UserRankInfo | undefined> => {
-        try {
+  const fetchRank = async (
+    board: PracticeBoard,
+  ): Promise<UserRankInfo | undefined> => {
+    try {
+      const rank = await unstable_cache(
+        async () => {
+          const { getUserRankedRow } = getQueriesForPeriod(period, now);
           const row = await getUserRankedRow(
             userId,
             board.menuType,
             board.variant,
           );
-          return row ? { ...board, rank: row.rank } : undefined;
-        } catch (error) {
-          logExternalError(
-            "getUserRanks",
-            `${practiceBoardKey(board)}: failed to fetch user rank`,
-            error,
-          );
-          return undefined;
-        }
-      };
+          return row?.rank;
+        },
+        ["user-rank", userId, period, practiceBoardKey(board)],
+        { revalidate: REVALIDATE_SECONDS, tags: [LEADERBOARD_CACHE_TAG] },
+      )();
+      return rank === undefined ? undefined : { ...board, rank };
+    } catch (error) {
+      logExternalError(
+        "getUserRanks",
+        `${practiceBoardKey(board)}: failed to fetch user rank`,
+        error,
+      );
+      return undefined;
+    }
+  };
 
-      const ranks = await Promise.all(BOARDS.map(fetchRank));
-      return ranks.filter((rank) => rank !== undefined);
-    },
-    ["user-ranks", userId, period],
-    { revalidate: REVALIDATE_SECONDS, tags: [LEADERBOARD_CACHE_TAG] },
-  )();
+  const ranks = await Promise.all(BOARDS.map(fetchRank));
+  return ranks.filter((rank) => rank !== undefined);
 }
