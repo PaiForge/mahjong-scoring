@@ -112,7 +112,17 @@ export const LESSON_REGISTRY = [
     chapterSlug: "jantou-fu",
     rankSlug: "kyu-4",
     messageKey: "jantouFu",
-    // 章の練習（雀頭符）は載せない。完了画面の次の一歩がその練習を指すため
+    practiceLinks: [
+      practiceLink("jantou-fu"),
+      practiceLink("mentsu-jantou-fu"),
+    ],
+  },
+  {
+    slug: "mentsu-fu",
+    chapterSlug: "mentsu-fu",
+    rankSlug: "kyu-4",
+    messageKey: "mentsuFu",
+    // 章の練習（面子符）は載せない。完了画面の次の一歩がその練習を指すため
     practiceLinks: [practiceLink("mentsu-jantou-fu")],
   },
 ] as const satisfies readonly LessonDefinitionEntry[];

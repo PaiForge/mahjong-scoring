@@ -9,6 +9,7 @@ import { DoneMark } from "@/app/(user)/_components/done-mark";
 import { LinkButton } from "@/app/(user)/_components/link-button";
 import { SectionTitle } from "@/app/(user)/_components/section-title";
 import { SignUpPanel } from "@/app/(user)/_components/sign-up-panel";
+import { MentsuSet } from "@/app/(user)/_components/mentsu-set";
 import { TileSet } from "@/app/(user)/_components/tile-set";
 import { ChevronRightIcon } from "@/app/(user)/_components/icons/chevron-right-icon";
 import { ChoiceButton } from "@/app/(user)/(public)/practice/_components/choice-button";
@@ -26,7 +27,7 @@ import { SUB_LINK_GAP } from "@/app/_components/_lib/spacing";
 import { useAuth } from "@/app/_contexts/auth-context";
 import { logExternalError } from "@/lib/log-error";
 import { buildSignInHref } from "@/lib/redirect";
-import { getKazeName } from "@mahjong-scoring/core";
+import { MentsuType, getKazeName } from "@mahjong-scoring/core";
 import type { CurriculumChapterSlug } from "@mahjong-scoring/features/curriculum/registry";
 import type { JourneyStep } from "@mahjong-scoring/features/journey/journey";
 import {
@@ -183,8 +184,17 @@ function conditionValues(
         bakaze: getKazeName(prompt.bakaze),
         jikaze: getKazeName(prompt.jikaze),
       };
+    case "mentsu":
+      return { shape: MENTSU_SHAPES[prompt.mentsu.type] };
   }
 }
+
+/** 面子の形を条件文の `select` に渡す名前 */
+const MENTSU_SHAPES = {
+  [MentsuType.Shuntsu]: "shuntsu",
+  [MentsuType.Koutsu]: "koutsu",
+  [MentsuType.Kantsu]: "kantsu",
+} as const;
 
 /**
  * 条件文の下に並べる牌
@@ -202,6 +212,12 @@ function PromptTiles({ prompt }: { readonly prompt: LessonPrompt }) {
       return (
         <div className="flex justify-center" data-testid="lesson-tiles">
           <TileSet tiles={[prompt.tile, prompt.tile]} size="md" />
+        </div>
+      );
+    case "mentsu":
+      return (
+        <div className="flex justify-center" data-testid="lesson-tiles">
+          <MentsuSet mentsu={prompt.mentsu} size="md" />
         </div>
       );
   }

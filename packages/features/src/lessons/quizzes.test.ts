@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { HaiKind } from "@mahjong-scoring/core";
+import { HaiKind, MentsuType } from "@mahjong-scoring/core";
 
 import { choiceKey, isSameChoice } from "./quiz";
 import { lessonQuiz } from "./quizzes";
@@ -136,5 +136,24 @@ describe("lessonQuiz", () => {
       { kind: "fu", fu: 0 },
       { kind: "fu", fu: 2 },
     ]);
+  });
+
+  it("面子の符: 明刻 → 暗刻 → 明槓 → 暗槓 と倍率を積み上げ、選択肢はまとめの表の符", () => {
+    const quiz = lessonQuiz("mentsu-fu");
+    expect(
+      quiz.questions.map(({ prompt, answer }) =>
+        prompt.kind === "mentsu"
+          ? [prompt.mentsu.type, prompt.mentsu.furo !== undefined, answer]
+          : undefined,
+      ),
+    ).toEqual([
+      [MentsuType.Koutsu, true, { kind: "fu", fu: 2 }],
+      [MentsuType.Koutsu, false, { kind: "fu", fu: 8 }],
+      [MentsuType.Kantsu, true, { kind: "fu", fu: 8 }],
+      [MentsuType.Kantsu, false, { kind: "fu", fu: 32 }],
+    ]);
+    expect(quiz.choices).toEqual(
+      [0, 2, 4, 8, 16, 32].map((fu) => ({ kind: "fu", fu })),
+    );
   });
 });

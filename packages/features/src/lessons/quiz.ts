@@ -1,4 +1,8 @@
-import type { HaiKindId, Kazehai } from "@mahjong-scoring/core";
+import type {
+  CompletedMentsu,
+  HaiKindId,
+  Kazehai,
+} from "@mahjong-scoring/core";
 
 /**
  * レッスンの確認問題の型
@@ -46,6 +50,8 @@ export type LessonChoice =
  * - `tier`: 翻数と点数の帯（満貫・跳満 …）。帯の名前は `scoreTable.<tierKey>`
  * - `yaku`: 役名と、門前か鳴きか
  * - `jantou`: 雀頭の牌と、場風・自風（牌は条件文の下に並べて見せる）
+ * - `mentsu`: 面子 1 つ。条件文は形（順子・刻子・槓子）だけを言い、明暗は
+ *   牌の並び（鳴いた 1 枚が横向き・暗槓は両端を伏せる）から読ませる
  */
 export type LessonPrompt =
   | { readonly kind: "tier"; readonly tierKey: string; readonly han: number }
@@ -55,7 +61,8 @@ export type LessonPrompt =
       readonly tile: HaiKindId;
       readonly bakaze: Kazehai;
       readonly jikaze: Kazehai;
-    };
+    }
+  | { readonly kind: "mentsu"; readonly mentsu: CompletedMentsu };
 
 /**
  * 確認問題 1 問

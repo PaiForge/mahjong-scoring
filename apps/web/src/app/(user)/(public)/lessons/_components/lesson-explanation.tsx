@@ -2,6 +2,7 @@ import type { ReactNode } from "react";
 import { getTranslations } from "next-intl/server";
 
 import { JantouFuGuide } from "@/app/(user)/(public)/learn/jantou-fu/_components/jantou-fu-guide";
+import { MentsuFuGuide } from "@/app/(user)/(public)/learn/mentsu-fu/_components/mentsu-fu-guide";
 import { ManganKoRonGuide } from "@/app/(user)/(public)/learn/mangan-ko-ron/_components/mangan-ko-ron-guide";
 import { ManganOyaRonGuide } from "@/app/(user)/(public)/learn/mangan-oya-ron/_components/mangan-oya-ron-guide";
 import { ManganOyaTsumoGuide } from "@/app/(user)/(public)/learn/mangan-oya-tsumo/_components/mangan-oya-tsumo-guide";
@@ -79,6 +80,16 @@ const LESSON_EXPLANATIONS: Readonly<
     excerptKeys: [
       "jantouFu.learn.whatIsJantouBody",
       "jantouFu.learn.yakuhaiBody",
+    ],
+  },
+  "mentsu-fu": {
+    // 章の全部を出す。確認問題のヒントは刻子の節（横向きの牌が鳴いた印・
+    // 么九牌がどの牌か — 本文に無かったので章に足した）と槓子の節（刻子の
+    // 4 倍・暗槓は両端を伏せる）を指す。外へ出るリンクは用語の説明だけ
+    guide: <MentsuFuGuide />,
+    excerptKeys: [
+      "mentsuFu.learn.whatIsMentsuFuBody",
+      "mentsuFu.learn.shuntsuBody",
     ],
   },
 };
