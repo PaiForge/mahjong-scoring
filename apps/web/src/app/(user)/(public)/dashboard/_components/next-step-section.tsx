@@ -27,14 +27,12 @@ type Translator = Awaited<ReturnType<typeof getTranslations>>;
 /** 一歩の行き先と文言 */
 interface StepPresentation {
   readonly href: string;
-  /** 「次は「子のツモ」の章を読みましょう。」のような一文 */
-  readonly lead: string;
-  /** ボタンの文言 */
+  /** ボタンの文言。対象の名前を含む（「「子のツモ」のレッスンを始める」） */
   readonly cta: string;
 }
 
 /**
- * 一歩の種類ごとに、行き先・一文・ボタンの文言を組む
+ * 一歩の種類ごとに、行き先とボタンの文言を組む
  *
  * 対象の名前と行き先はレッスンの完了画面と共有する（`_lib/journey-step`）。
  */
@@ -46,24 +44,9 @@ function presentStep(
 ): StepPresentation {
   const title = journeyStepTitle(step, tAll);
   const href = journeyStepHref(step);
-  switch (step.kind) {
-    case "lesson":
-      return {
-        href,
-        lead: isFresh
-          ? t("steps.lesson.firstLead", { title })
-          : t("steps.lesson.lead", { title }),
-        cta: isFresh ? t("steps.lesson.firstCta") : t("steps.lesson.cta"),
-      };
-    case "read":
-    case "practice":
-    case "exam":
-      return {
-        href,
-        lead: t(`steps.${step.kind}.lead`, { title }),
-        cta: t(`steps.${step.kind}.cta`),
-      };
-  }
+  const key =
+    step.kind === "lesson" && isFresh ? "lesson.firstCta" : `${step.kind}.cta`;
+  return { href, cta: t(`steps.${key}`, { title }) };
 }
 
 /**
@@ -72,12 +55,15 @@ function presentStep(
  *
  * Server Component。黒帯への道（features の `buildJourney`）が決めた
  * 今やること 1 つを、次に取る級の帯色で縁取ったカードに出す。
- * 「次の目標：5級 — 満貫以上の点数計算ができること」→ 一歩の一文 →
- * その級の進み具合（学ぶ・練習する・認定される）→ ボタン、の順。
+ * 「次の目標：5級 — 満貫以上の点数計算ができること」→ その級の進み具合
+ * （学ぶ・練習する・認定される）→ ボタン、の順。何をするかはボタンが対象の
+ * 名前ごと言う。以前はボタンの上に「次は「子のツモ」をレッスンで学びましょう。」
+ * のような一文を置いていたが、ボタンの言い換えにしかならず、カードを読む
+ * 量を増やすだけだったため外した。
  *
  * 見出しは誰にでも「次にやること」。以前は何も始めていない人だけ
  * 「黒帯への第一歩」にしていたが、言い回しが大げさで何をする欄かが
- * 伝わらないため揃えた。まだ何も始めていない人は一歩の一文とボタンを
+ * 伝わらないため揃えた。まだ何も始めていない人はボタンを
  * 最初のレッスン向けにし、ボタンの下のリンクを「自分で練習を選ぶ」
  * （練習一覧）にする。それ以外は「黒帯までの
  * 道を見る」（道場）。使い続けるほど中身が変わるカードで、初回限定の
@@ -124,8 +110,6 @@ export async function NextStepSection({ journey }: NextStepSectionProps) {
             </p>
           </div>
         </div>
-
-        <p className="text-sm leading-relaxed text-surface-700">{step.lead}</p>
 
         <RankStageProgress journey={current} tRanks={tRanks} />
 

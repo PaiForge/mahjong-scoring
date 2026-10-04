@@ -172,7 +172,7 @@ export interface Journey {
   readonly nextStep: JourneyStep | undefined;
   /**
    * まだ何も始めていないか（読了・レッスン・挑戦・級がすべて無い）。
-   * 登録直後の案内（最初のレッスンへ送る一文とボタン）の出し分けに使う
+   * 登録直後の案内（最初のレッスンへ送るボタン）の出し分けに使う
    */
   readonly isFresh: boolean;
 }
