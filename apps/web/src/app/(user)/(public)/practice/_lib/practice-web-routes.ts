@@ -76,15 +76,18 @@ export function isSamePracticeFilter(
  * 絞り込み判定
  *
  * @param filter 絞り込み条件
- * @param menu 判定する練習の段級位と分野
+ * @param menu 判定する練習が属する段級位（`practiceRanks`）と分野
  */
 export function matchesPracticeFilter(
   filter: PracticeListFilter | undefined,
-  menu: { readonly rank?: RankSlug; readonly category: PracticeCategory },
+  menu: {
+    readonly ranks: readonly RankSlug[];
+    readonly category: PracticeCategory;
+  },
 ): boolean {
   if (filter === undefined) return true;
   return filter.kind === "rank"
-    ? menu.rank === filter.value
+    ? menu.ranks.includes(filter.value)
     : menu.category === filter.value;
 }
 

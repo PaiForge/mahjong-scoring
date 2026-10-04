@@ -13,24 +13,25 @@ const { PracticeFilter } = await import("./practice-filter");
 const ITEMS = [
   {
     key: "jantou-fu",
-    rank: "kyu-4" as const,
+    ranks: ["kyu-4" as const],
     category: "fuCalculation" as const,
     card: <p>雀頭の符計算</p>,
   },
   {
     key: "yaku-han",
-    rank: "kyu-5" as const,
+    ranks: ["kyu-5" as const],
     category: "han" as const,
     card: <p>役の翻数</p>,
   },
   {
     key: "mangan-score-calculation",
-    rank: "kyu-5" as const,
+    ranks: ["kyu-5" as const],
     category: "scoring" as const,
     card: <p>満貫以上点数計算</p>,
   },
   {
     key: "score-table",
+    ranks: [],
     category: "scoring" as const,
     card: <p>点数表早引き</p>,
   },

@@ -8,7 +8,7 @@ import { SectionTitle } from "@/app/(user)/_components/section-title";
 import { TEXT_LINK_CLASSES } from "@/app/_components/_lib/link-classes";
 import { SUB_LINK_GAP } from "@/app/_components/_lib/spacing";
 import { beltBorderClass, beltButtonVarsClass } from "@/lib/ranks/belt-colors";
-import { listedPracticeRanks } from "@mahjong-scoring/features/practice/catalog";
+import { listedPracticeRanks } from "@mahjong-scoring/features/practice/rank-practices";
 import type {
   Journey,
   JourneyStep,

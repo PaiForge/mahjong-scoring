@@ -35,8 +35,11 @@ interface PracticeFilterOption {
 /** 絞り込みの対象になるカード 1 枚 */
 export interface PracticeFilterItem {
   readonly key: string;
-  /** カードが属する段級位。持たない練習は級で絞ると隠れる */
-  readonly rank?: RankSlug;
+  /**
+   * カードが属する段級位（`practiceRanks`。複数の級に属しうる）。
+   * 空の練習は級で絞ると隠れる
+   */
+  readonly ranks: readonly RankSlug[];
   readonly category: PracticeCategory;
   /** サーバーで描画済みのカード */
   readonly card: ReactNode;

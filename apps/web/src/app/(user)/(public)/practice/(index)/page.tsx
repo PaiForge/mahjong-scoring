@@ -26,9 +26,12 @@ import {
 } from "../_components/practice-filter";
 import {
   listedPracticeMenus,
-  listedPracticeRanks,
   PRACTICE_CATEGORIES,
 } from "@mahjong-scoring/features/practice/catalog";
+import {
+  listedPracticeRanks,
+  practiceRanks,
+} from "@mahjong-scoring/features/practice/rank-practices";
 
 export async function generateMetadata(): Promise<Metadata> {
   return createNamespaceMetadata("practice", { path: "/practice" });
@@ -46,7 +49,7 @@ export default async function PracticePage() {
   const items: readonly PracticeFilterItem[] = listedPracticeMenus().map(
     (practice) => ({
       key: practice.slug,
-      rank: practice.rank,
+      ranks: practiceRanks(practice.slug),
       category: practice.category,
       card: <CatalogPracticeCard slug={practice.slug} />,
     }),

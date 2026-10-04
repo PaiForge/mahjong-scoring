@@ -2,9 +2,12 @@ import { describe, expect, it } from "vitest";
 
 import {
   listedPracticeMenus,
-  listedPracticeRanks,
   PRACTICE_CATEGORIES,
 } from "@mahjong-scoring/features/practice/catalog";
+import {
+  listedPracticeRanks,
+  practiceRanks,
+} from "@mahjong-scoring/features/practice/rank-practices";
 import {
   matchesPracticeFilter,
   practiceListHref,
@@ -41,7 +44,10 @@ describe("practiceListHref", () => {
     ];
     for (const filter of filters) {
       const listed = menus.filter((menu) =>
-        matchesPracticeFilter(filter, menu),
+        matchesPracticeFilter(filter, {
+          ranks: practiceRanks(menu.slug),
+          category: menu.category,
+        }),
       );
       expect(listed.length, `${filter.kind}=${filter.value}`).toBeGreaterThan(
         0,
