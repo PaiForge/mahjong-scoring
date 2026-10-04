@@ -325,6 +325,7 @@ loading.tsx を一緒に足すこと。逆に静的にしたら両方を外す�
 /practice/jantou-fu/play    — 練習本体
 /practice/jantou-fu/result  — 結果表示
 /learn/jantou-fu            — 雀頭の符計算（教本ページ、SEO重視でSSR）
+/lessons                    — レッスン一覧（級ごとの節 `#<級>`。完了を読む動的ルート）
 /lessons/mangan-ko-ron      — レッスン（静的。登録直後の「次にやること」の行き先）
 /dojo                       — 道場。現在の段級位と「点数計算・黒帯への道」（全段級位の行程。次の目標の級だけ開く）
 /dojo/ranks/<級>            — 級の詳細（合格基準・前提章・試験）。/dojo/ranks（旧一覧）は /dojo へ 301
