@@ -5,6 +5,8 @@ export type {
   JantouFuChoice,
 } from "./problem/jantou-fu/types";
 
+export { calculateJantouFu } from "./problem/shared/jantou-fu";
+
 // === Problem: Machi Fu ===
 export { generateMachiFuQuestion } from "./problem/machi-fu/generator";
 export type { MachiFuQuestion } from "./problem/machi-fu/types";

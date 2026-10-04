@@ -1,3 +1,5 @@
+import type { HaiKindId, Kazehai } from "@mahjong-scoring/core";
+
 /**
  * レッスンの確認問題の型
  * レッスン確認問題
@@ -23,6 +25,7 @@
  * - `oyaTsumo`: 親のツモの支払い（オール）
  * - `han`: 翻数
  * - `yakuman`: 役満（翻数の選択肢の最上位）
+ * - `fu`: 符
  */
 export type LessonChoice =
   | { readonly kind: "points"; readonly points: number }
@@ -33,7 +36,8 @@ export type LessonChoice =
     }
   | { readonly kind: "oyaTsumo"; readonly all: number }
   | { readonly kind: "han"; readonly han: number }
-  | { readonly kind: "yakuman" };
+  | { readonly kind: "yakuman" }
+  | { readonly kind: "fu"; readonly fu: number };
 
 /**
  * 問題の条件（辞書の `condition` に差し込む値）
@@ -41,10 +45,17 @@ export type LessonChoice =
  *
  * - `tier`: 翻数と点数の帯（満貫・跳満 …）。帯の名前は `scoreTable.<tierKey>`
  * - `yaku`: 役名と、門前か鳴きか
+ * - `jantou`: 雀頭の牌と、場風・自風（牌は条件文の下に並べて見せる）
  */
 export type LessonPrompt =
   | { readonly kind: "tier"; readonly tierKey: string; readonly han: number }
-  | { readonly kind: "yaku"; readonly yaku: string; readonly naki: boolean };
+  | { readonly kind: "yaku"; readonly yaku: string; readonly naki: boolean }
+  | {
+      readonly kind: "jantou";
+      readonly tile: HaiKindId;
+      readonly bakaze: Kazehai;
+      readonly jikaze: Kazehai;
+    };
 
 /**
  * 確認問題 1 問
@@ -90,6 +101,8 @@ export function choiceKey(choice: LessonChoice): string {
       return `han:${choice.han}`;
     case "yakuman":
       return "yakuman";
+    case "fu":
+      return `fu:${choice.fu}`;
   }
 }
 
