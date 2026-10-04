@@ -3,10 +3,10 @@ import { getTranslations } from "next-intl/server";
 
 import { SectionTitle } from "@/app/(user)/_components/section-title";
 import { GuideParagraph } from "@/app/(user)/(public)/learn/_components/guide-paragraph";
-import { ManganOyaTsumoScoreTable } from "@/app/(user)/(public)/learn/_components/mangan-oya-tsumo-score-table";
 import { YakuHanTable } from "@/app/(user)/(public)/learn/_components/yaku-han-table";
 import { ManganKoRonGuide } from "@/app/(user)/(public)/learn/mangan-ko-ron/_components/mangan-ko-ron-guide";
 import { ManganOyaRonGuide } from "@/app/(user)/(public)/learn/mangan-oya-ron/_components/mangan-oya-ron-guide";
+import { ManganOyaTsumoGuide } from "@/app/(user)/(public)/learn/mangan-oya-tsumo/_components/mangan-oya-tsumo-guide";
 import { ManganKoTsumoGuide } from "@/app/(user)/(public)/learn/mangan-ko-tsumo/_components/mangan-ko-tsumo-guide";
 import {
   lessonBySlug,
@@ -62,7 +62,13 @@ const LESSON_EXPLANATIONS: Readonly<
     guide: <ManganOyaRonGuide />,
     excerptKeys: ["manganOyaRon.learn.body1", "manganOyaRon.learn.body2"],
   },
-  "mangan-oya-tsumo": { kind: "summary", table: <ManganOyaTsumoScoreTable /> },
+  "mangan-oya-tsumo": {
+    kind: "chapter",
+    // 導出の節（ロンを 3 で割る）まで出す。確認問題のヒントはその節の
+    // 手順を指しているため（子のツモと同じ理由）
+    guide: <ManganOyaTsumoGuide />,
+    excerptKeys: ["manganOyaTsumo.learn.body1", "manganOyaTsumo.learn.body2"],
+  },
   yaku: { kind: "summary", table: <YakuHanTable /> },
 };
 
