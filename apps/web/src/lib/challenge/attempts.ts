@@ -188,6 +188,7 @@ export async function finishAttempt(
         timeTaken,
       },
       tx,
+      new Date(now),
     );
   });
 }
