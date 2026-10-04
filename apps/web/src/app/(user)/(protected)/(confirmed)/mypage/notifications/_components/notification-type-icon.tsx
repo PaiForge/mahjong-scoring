@@ -1,7 +1,10 @@
 import { CheckIcon } from "@/app/(user)/_components/icons/check-icon";
 import { ClockIcon } from "@/app/(user)/_components/icons/clock-icon";
 import { XMarkIcon } from "@/app/(user)/_components/icons/x-mark-icon";
-import { NotificationType } from "@/lib/notifications/types";
+import {
+  NotificationType,
+  isNotificationType,
+} from "@/lib/notifications/types";
 
 interface NotificationTypeIconProps {
   readonly type: string;
@@ -15,7 +18,9 @@ interface NotificationTypeIconProps {
  * ここをアバターに差し替える。装飾なので読み上げない（文面が内容を持つ）。
  *
  * 良い知らせ（購入・付与）は緑のチェック、期限切れは時計、取り消しは赤のバツ。
- * 影は付けない（押せる面の記号なので）。
+ * 影は付けない（押せる面の記号なので）。登録に無い種別（DB に残った古い値等）は
+ * 期限切れと同じ中立の時計にする。`switch` は `never` で閉じ、種別を足したら
+ * ここも型エラーで気づけるようにする（遷移先・文面と同じ）。
  */
 export function NotificationTypeIcon({ type }: NotificationTypeIconProps) {
   const { icon, tone } = appearanceOf(type);
@@ -29,7 +34,14 @@ export function NotificationTypeIcon({ type }: NotificationTypeIconProps) {
   );
 }
 
+const NEUTRAL = {
+  icon: <ClockIcon className="size-4" />,
+  tone: "border-surface-300 bg-surface-50 text-surface-600",
+};
+
 function appearanceOf(type: string) {
+  if (!isNotificationType(type)) return NEUTRAL;
+
   switch (type) {
     case NotificationType.PurchaseCompleted:
     case NotificationType.BenefitGranted:
@@ -44,10 +56,10 @@ function appearanceOf(type: string) {
         tone: "border-destructive bg-destructive-subtle text-destructive",
       };
     case NotificationType.PlanExpired:
-    default:
-      return {
-        icon: <ClockIcon className="size-4" />,
-        tone: "border-surface-300 bg-surface-50 text-surface-600",
-      };
+      return NEUTRAL;
+    default: {
+      const exhaustive: never = type;
+      return exhaustive;
+    }
   }
 }
