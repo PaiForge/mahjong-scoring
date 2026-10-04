@@ -4,11 +4,11 @@ import type Stripe from "stripe";
 import { logExternalError } from "@/lib/log-error";
 
 import {
-  PurchaseRevokeReason,
   recordPurchaseFromCheckoutSession,
   revokePurchaseByPaymentIntent,
   type RecordPurchaseResult,
 } from "./purchases";
+import { PurchaseRevokeReason } from "./revoke-reason";
 import { getStripe } from "./stripe";
 
 /**

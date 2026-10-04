@@ -20,7 +20,6 @@ vi.mock("../stripe", () => ({
   }),
 }));
 vi.mock("../purchases", () => ({
-  PurchaseRevokeReason: { Refunded: "refunded", Fraud: "fraud" },
   recordPurchaseFromCheckoutSession: mockRecordPurchase,
   revokePurchaseByPaymentIntent: mockRevoke,
 }));

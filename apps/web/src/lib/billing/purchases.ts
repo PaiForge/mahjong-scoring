@@ -24,15 +24,8 @@ import {
   addPassDuration,
   PurchaseKind,
 } from "@mahjong-scoring/features/billing/plans";
+import { PurchaseRevokeReason } from "./revoke-reason";
 import { getStripe } from "./stripe";
-
-/** 購入取消理由。返金は全額のみ。 */
-export const PurchaseRevokeReason = {
-  Refunded: "refunded",
-  Fraud: "fraud",
-} as const;
-export type PurchaseRevokeReason =
-  (typeof PurchaseRevokeReason)[keyof typeof PurchaseRevokeReason];
 
 /** 記録を見送った理由。予約のない決済には現在のプラン定義を推測して付けない。 */
 export type PurchaseIgnoredReason =
