@@ -23,6 +23,7 @@ export const STATIC_SITEMAP_ROUTE_DEFS = [
   { url: "/getting-started", changeFrequency: "monthly", priority: 0.9 },
   { url: "/try", changeFrequency: "monthly", priority: 0.8 },
   { url: "/learn", changeFrequency: "weekly", priority: 0.9 },
+  { url: "/lessons", changeFrequency: "monthly", priority: 0.8 },
   { url: "/practice", changeFrequency: "weekly", priority: 0.9 },
   { url: "/dojo", changeFrequency: "monthly", priority: 0.8 },
   { url: "/reference", changeFrequency: "weekly", priority: 0.8 },

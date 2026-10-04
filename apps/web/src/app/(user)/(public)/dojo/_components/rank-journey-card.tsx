@@ -105,7 +105,8 @@ export async function RankJourneyCard({
         <RankStageProgress
           journey={journey}
           tRanks={tRanks}
-          className="mt-2"
+          isCurrentRank={expanded}
+          className="mt-3"
           dataTourId={expanded ? DOJO_TOUR_ID.nextRankStages : undefined}
         />
 

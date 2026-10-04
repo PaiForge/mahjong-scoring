@@ -1,5 +1,9 @@
 {
   "breadcrumb": "レッスン",
+  "index": {
+    "title": "レッスン",
+    "description": "麻雀の点数計算を、短い説明と確認問題で 1 つずつ身につけるレッスンの一覧です。5級から段級位の順に並んでいます。"
+  },
   "completedMark": "完了済み",
   "startQuiz": "確認問題へ（{count} 問）",
   "retakeQuiz": "確認問題を解き直す",

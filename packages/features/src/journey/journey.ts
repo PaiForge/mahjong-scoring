@@ -18,14 +18,14 @@ import {
 } from "../ranks/registry";
 
 /**
- * 点数計算・黒帯への道 — 段級位ごとの行程と、その中の「次の一歩」
+ * 点数計算・黒帯への道 — 段級位ごとの行程と、その中の「次にやること」
  * 黒帯への道
  *
  * @description
  * 段級位（5級 → … → 初段 = 黒帯）を 1 本の道として見せるためのモデル。
  * 級ごとに「学ぶ（章 / レッスン）→ 練習する → 認定される（試験に合格）」の
  * 3 段を持ち、ユーザーの読了・レッスン完了・練習の挑戦履歴・取得済みの級から
- * 各段の進み具合を出す。ダッシュボードの「次の一歩」カード・道場の行程表示・
+ * 各段の進み具合を出す。ダッシュボードの「次にやること」カード・道場の行程表示・
  * 登録直後の最初の一歩が、すべてこの 1 つの計算を読む — 置き場所ごとに
  * 「次」を別々に決めると、ホームと道場で指す先が食い違う。
  *
@@ -172,7 +172,7 @@ export interface Journey {
   readonly nextStep: JourneyStep | undefined;
   /**
    * まだ何も始めていないか（読了・レッスン・挑戦・級がすべて無い）。
-   * 登録直後の「黒帯への第一歩」の出し分けに使う
+   * 登録直後の案内（最初のレッスンへ送るボタン）の出し分けに使う
    */
   readonly isFresh: boolean;
 }
@@ -368,7 +368,7 @@ function preferLesson(
  * 残した項目（飛ばしてきたレッスン・練習）へ戻り、級の項目が全部済んで
  * いれば昇級試験。
  *
- * ダッシュボードの「次の一歩」（{@link buildJourney}）とは同じ行程を歩くが、
+ * ダッシュボードの「次にやること」（{@link buildJourney}）とは同じ行程を歩くが、
  * 選び方が 2 点違い、同じ一歩になるとは限らない。
  *
  * - 後ろの項目を前の項目より先に見る。ホームは級の最初の未了を指すが、
@@ -488,4 +488,28 @@ export function countProgress(
     done: items.filter((item) => item.done).length,
     total: items.length,
   };
+}
+
+/**
+ * 級の行程の 3 段（学ぶ・練習する・認定される）
+ * 行程の段
+ */
+export type JourneyStage = "learn" | "practice" | "exam";
+
+/**
+ * 級の行程で、いま取り組んでいる段
+ * 現在の段
+ *
+ * 次の一歩（`buildJourney` の `nextStep`）と同じ規則 — 道筋で最初の未了の
+ * 項目の段、道筋が済んでいれば試験。学ぶと練習するは章の順に交互に進むので、
+ * 「学ぶがすべて済むまで練習しない」わけではない。
+ *
+ * 試験に合格した級は undefined。学ぶ・練習するを飛ばして合格した経験者の級に
+ * 「いま学ぶ段」を示さないため、道筋より先に合否を見る。
+ */
+export function currentStage(journey: RankJourney): JourneyStage | undefined {
+  if (journey.exam.done) return undefined;
+  const item = journey.path.find((entry) => !entry.done);
+  if (item === undefined) return "exam";
+  return item.kind === "chapter" ? "learn" : "practice";
 }

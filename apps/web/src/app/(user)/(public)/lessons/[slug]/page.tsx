@@ -4,7 +4,7 @@
  * @description
  * 教本の章 1 つを「短い説明 → ヒント付きの確認問題 → できたことの確認」に
  * 圧縮した学習の最小単位。時間制限もミス上限も無く、間違えてもその場で解説を
- * 読んで先へ進める。黒帯への道の学ぶ段の 1 歩で、ダッシュボードの「次の一歩」
+ * 読んで先へ進める。黒帯への道の学ぶ段の 1 歩で、ダッシュボードの「次にやること」
  * と道場の行程がここへ送る（登録直後の最初の一歩もレッスン）。最後まで
  * 答えると完了が記録され（ログイン時）、行程でその章を「学んだ」ことになる。
  * 完了は「回答と解説まで取り組んだ」印で、正解したことの印ではない —
@@ -21,7 +21,7 @@
  * 本文そのものなので、ここで見た表がそのまま章にも早見表にもある。
  *
  * @flow
- * ダッシュボードの「黒帯への第一歩 / 次の一歩」→ 説明を読む → 確認問題
+ * ダッシュボードの「次にやること」→ 説明を読む → 確認問題
  * （ヒントを見られる。不正解なら解説を読んで次へ）→ できたことの確認 →
  * ログイン済みなら黒帯への道の次の一歩（次のレッスン・練習・昇級試験。
  * 記録のときに本人の進み具合から求め直し、済ませた先の項目は飛ばす）へ、
@@ -52,6 +52,7 @@ import { LessonExplanation } from "../_components/lesson-explanation";
 import { LessonRelatedLinks } from "../_components/lesson-related-links";
 import { NextLessonPreview } from "../_components/next-lesson-preview";
 import { RankGoalPanel } from "../_components/rank-goal-panel";
+import { lessonListHref } from "../_lib/lesson-list-href";
 
 interface LessonPageProps {
   readonly params: Promise<{ readonly slug: string }>;
@@ -90,7 +91,7 @@ export default async function LessonPage({ params }: LessonPageProps) {
   ]);
 
   // 黒帯への道でこのレッスンの次にある一歩。全レッスンが持つ（features の
-  // テストが固定）が、無ければホームの「次の一歩」に任せる
+  // テストが固定）が、無ければホームの「次にやること」に任せる
   const step = stepAfterLesson(lesson.slug);
   const rank = rankBySlug(lesson.rankSlug);
   const next = step
@@ -118,7 +119,14 @@ export default async function LessonPage({ params }: LessonPageProps) {
 
   return (
     <ContentContainer
-      breadcrumb={[{ label: t("breadcrumb") }, { label: tLesson("title") }]}
+      breadcrumb={[
+        { label: t("breadcrumb"), href: lessonListHref() },
+        {
+          label: tAll(`ranks.names.${lesson.rankSlug}`),
+          href: lessonListHref(lesson.rankSlug),
+        },
+        { label: tLesson("title") },
+      ]}
     >
       <PageTitle>{tLesson("title")}</PageTitle>
 

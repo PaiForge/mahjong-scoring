@@ -95,6 +95,12 @@ describe("RankJourneyCard", () => {
     expect(getAllByRole("img", { name: "lessonDone" })).toHaveLength(1);
     // 施錠の注記は次の目標の級には出ない
     expect(container.textContent).not.toContain("lockedNote");
+    // 進み具合の各段はその段の一覧へ送る
+    expect(
+      Array.from(container.querySelectorAll("[data-stage] a")).map((a) =>
+        a.getAttribute("href"),
+      ),
+    ).toEqual(["/lessons#kyu-5", "/practice?rank=kyu-5", "/exam/mangan"]);
   });
 
   it("レッスンの無い章は目次に出し、読了した章を学んだとして渡す", async () => {

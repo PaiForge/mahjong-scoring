@@ -8,7 +8,7 @@ import {
   sortChapterSlugs,
   type CurriculumChapterSlug,
 } from "../curriculum/registry";
-import { RANK_REGISTRY, type RankSlug } from "../ranks/registry";
+import type { RankSlug } from "../ranks/registry";
 
 /**
  * 練習メニューのカタログ — 一覧の並び・段級位・教本リンクの単一の真実のソース
@@ -216,26 +216,6 @@ export function isExamMenu(slug: PracticeMenuSlug): boolean {
  */
 export function listedPracticeMenus(): readonly PracticeMenu[] {
   return PRACTICE_CATALOG.filter((menu) => !isExamMenu(menu.slug));
-}
-
-/**
- * 練習一覧の級の絞り込みに出す段級位を、レジストリの順（学習順）で返す。
- * 一覧掲載段級位
- *
- * 全段級位ではなく、一覧に並ぶ練習を1つ以上持つ級だけを返す。段級位は
- * 昇級試験だけで完結するものがあり（1級 — 前提章の2つはどちらも専用の
- * 練習を持たない）、`RANK_SLUGS` をそのまま選択肢にすると押しても 0 件の
- * タブが並ぶ。選択肢は一覧の中身から導く。
- */
-export function listedPracticeRanks(): readonly RankSlug[] {
-  const listed = new Set(
-    listedPracticeMenus()
-      .map((menu) => menu.rank)
-      .filter((rank) => rank !== undefined),
-  );
-  return RANK_REGISTRY.map((rank) => rank.slug).filter((slug) =>
-    listed.has(slug),
-  );
 }
 
 /** 練習名の i18n キー（`getTranslations("practice")` スコープ内で使う） */
