@@ -7,6 +7,7 @@ import {
 } from "@/app/admin/ads/_lib/image-url";
 import { authorizeApiRequest } from "@/lib/api-auth";
 import { jsonPrivate } from "@/lib/api-response";
+import { logExternalError } from "@/lib/log-error";
 import { readUploadedImage } from "@/lib/images/read-uploaded-image";
 import { SHARP_DECODE_OPTIONS } from "@/lib/images/sharp-options";
 import { createAdminClient } from "@/lib/supabase/admin";
@@ -54,7 +55,8 @@ export async function POST(request: Request) {
       })
       .webp({ quality: AD_IMAGE_WEBP_QUALITY })
       .toBuffer();
-  } catch {
+  } catch (error) {
+    logExternalError("POST /api/admin/ads/image", "画像の変換に失敗", error);
     return jsonPrivate({ error: "invalidImage" }, { status: 400 });
   }
 
