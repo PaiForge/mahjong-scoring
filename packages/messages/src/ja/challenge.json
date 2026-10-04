@@ -60,7 +60,6 @@
     "doubleYakuman": "ダブル役満",
     "cappedNote": "13翻以上は役満"
   },
-  "preparing": "問題を準備しています…",
   "connectionError": "通信に失敗しました。もう一度開始してください。",
   "retryConnection": "もう一度開始する"
 }
