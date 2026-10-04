@@ -66,7 +66,7 @@ function presentStep(
  * 見出しは誰にでも「次にやること」。以前は何も始めていない人だけ
  * 「黒帯への第一歩」にしていたが、言い回しが大げさで何をする欄かが
  * 伝わらないため揃えた。まだ何も始めていない人はボタンを
- * 最初のレッスン向けにし、ボタンの下のリンクを「5級の練習から自分で選ぶ」
+ * 最初のレッスン向けにし、ボタンの下のリンクを「自分で練習を選ぶ」
  * （目標の級で絞った練習一覧）にする。絞らずに全練習を見せると、まだ習って
  * いない符計算の練習まで同じ重さで並ぶ。何も始めていない人の目標は必ず
  * 最初の級で、その級は一覧に並ぶ練習を持つので絞り込みが空になることは
@@ -135,7 +135,7 @@ export async function NextStepSection({ journey }: NextStepSectionProps) {
                 href={practiceListHref({ kind: "rank", value: rankSlug })}
                 className={`text-sm ${TEXT_LINK_CLASSES}`}
               >
-                {t("choosePractice", { rank: tRanks(`names.${rankSlug}`) })}
+                {t("choosePractice")}
               </Link>
             ) : (
               <Link href={DOJO_PATH} className={`text-sm ${TEXT_LINK_CLASSES}`}>
