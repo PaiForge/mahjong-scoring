@@ -71,7 +71,7 @@ export interface SeedUser {
  * ランキングは母集団の大きさそのものが確認対象になる — 上位3位のメダル、
  * ページ送り、1 ページに収まらない自分の順位を出す「あなた」の行は、
  * どれも人数が足りないと画面に出ない。状態を持たないこの一群がその人数を
- * 埋める。名前付きの 5 人と合わせて 25 人になり、1 ページ 20 件の
+ * 埋める。名前付きのユーザーと合わせて 20 人を超え、1 ページ 20 件の
  * ページ送りに 2 ページ目ができる。
  *
  * 状態を持たないので連番で名前を付けてよい（状態を名前に埋めるなという
@@ -126,6 +126,34 @@ export const SEED_USERS: readonly SeedUser[] = [
     username: "seed_bob",
     displayName: "ボブ（シード）",
     ranks: ["kyu-5"],
+  },
+  // 4級。符の計算を学び終え、3級（七対子）へ向かう状態
+  {
+    email: "erin@example.local",
+    username: "seed_erin",
+    displayName: "エリン（シード）",
+    ranks: ["kyu-5", "kyu-4"],
+  },
+  // 3級。2級（平和）へ向かう状態
+  {
+    email: "frank@example.local",
+    username: "seed_frank",
+    displayName: "フランク（シード）",
+    ranks: ["kyu-5", "kyu-4", "kyu-3"],
+  },
+  // 2級。1級（30〜50符）へ向かう状態
+  {
+    email: "grace@example.local",
+    username: "seed_grace",
+    displayName: "グレース（シード）",
+    ranks: ["kyu-5", "kyu-4", "kyu-3", "kyu-2"],
+  },
+  // 1級。前提章を持たない初段（昇段試験だけ）へ向かう状態
+  {
+    email: "heidi@example.local",
+    username: "seed_heidi",
+    displayName: "ハイジ（シード）",
+    ranks: ["kyu-5", "kyu-4", "kyu-3", "kyu-2", "kyu-1"],
   },
   // 最上位の段級位。道場は「新しい段級位は準備中」を出す
   {
