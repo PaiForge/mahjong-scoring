@@ -411,6 +411,25 @@ describe("LessonView", () => {
       expect(mockCompleteLesson).toHaveBeenCalledTimes(1);
     });
 
+    it("記録のあと Next.js が履歴の state を書き直しても、戻る → 進むで完了画面に戻る", async () => {
+      mockUseAuth.mockReturnValue(signedIn);
+      // Server Action の再検証のあと、Next.js は今の項目の state を自分の
+      // 内部状態だけで書き直す（段階のキーが消える）
+      mockCompleteLesson.mockImplementation(async () => {
+        window.history.replaceState({ __NA: true }, "");
+        return { success: true };
+      });
+      renderLesson();
+      startQuiz();
+      answerAll(["8,000", "12,000", "16,000"]);
+      await screen.findByRole("link", { name: "nextLesson" });
+
+      await traverse("back");
+      expect(screen.getByRole("button", { name: "finish" })).toBeTruthy();
+      await traverse("forward");
+      expect(screen.getByTestId("lesson-achievement")).toBeTruthy();
+    });
+
     it("解き終えてから説明まで戻って始めると、最初の問題から解き直す", async () => {
       mockUseAuth.mockReturnValue(signedIn);
       renderLesson();

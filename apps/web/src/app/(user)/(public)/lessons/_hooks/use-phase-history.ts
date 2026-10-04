@@ -56,6 +56,10 @@ function readScrollY(state: unknown): number {
  *   直後、まだ前の段階（短い画面）が描かれている間に走り、長い画面の
  *   位置へは届かない。段階を離れるときに位置をその項目へ書き込み、
  *   戻ってきた段階を描いた後に戻す
+ * - **段階は Next.js に消されても書き直す。** Server Action の再検証の後、
+ *   Next.js は今の項目の state を書き直してここで書いた段階を落とす。
+ *   描画のたびに今の項目へ今の段階を書き戻す（でないと完了画面から戻った
+ *   後に進むで、完了画面の項目が段階の無い最初の段階として開く）
  * - **メモリに無い段階へは進ませない。** リロード後も履歴には先の項目が
  *   残る。`reachable` が偽を返す段階へ戻る / 進むで着いたら最初の段階を
  *   出す（中身の無い確認問題や完了画面を出さない）
@@ -79,15 +83,6 @@ export function usePhaseHistory<P extends string>(
   });
 
   useEffect(() => {
-    // リロードで途中の段階の項目に着地していたら、中身が無いので最初の段階に直す
-    const landed = readPhase(window.history.state, phases);
-    if (landed !== undefined && landed !== initial) {
-      window.history.replaceState(
-        { ...window.history.state, [PHASE_KEY]: initial },
-        "",
-      );
-    }
-
     const onPopState = (event: PopStateEvent) => {
       const target = readPhase(event.state, phases) ?? initial;
       pendingScrollY.current = readScrollY(event.state);
@@ -98,6 +93,22 @@ export function usePhaseHistory<P extends string>(
     // phases は呼び出し側の定数。マウント時に一度だけ張る
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
+
+  // 今いる項目には常に今の段階を書いておく（描画のたびに確かめる）。
+  // Next.js は Server Action の再検証（`completeLesson` の revalidatePath）の
+  // あと、今の項目の state を自分の内部状態だけで書き直し、ここで書いた段階を
+  // 消す。その書き直しは router の useInsertionEffect で、同じコミットの
+  // passive effect（ここ）はその後に走る。再検証はページのスロット（サーバーで
+  // 描いた説明・関連リンク）を新しい要素で届けるので、呼び出し側もそのコミットで
+  // 描き直される。リロードで途中の段階の項目に着地したとき（中身が無いので
+  // 最初の段階を出す）も、ここで項目を最初の段階に直す
+  useEffect(() => {
+    if (readPhase(window.history.state, phases) === phase) return;
+    window.history.replaceState(
+      { ...window.history.state, [PHASE_KEY]: phase },
+      "",
+    );
+  });
 
   useLayoutEffect(() => {
     const y = pendingScrollY.current;
