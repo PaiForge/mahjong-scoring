@@ -9,6 +9,7 @@ import { getOptionalUser } from "@/lib/auth";
 import { purgeLeaderboardCache } from "@/lib/cache-tags";
 import { db, profiles } from "@/lib/db";
 import { isHiddenFromLeaderboard } from "@/lib/db/leaderboard-visibility";
+import { logExternalError } from "@/lib/log-error";
 
 /** ランキング非表示設定の失敗理由 */
 export type SetLeaderboardVisibilityError =
@@ -53,7 +54,12 @@ export async function setLeaderboardVisibility(
       .update(profiles)
       .set({ hiddenFromLeaderboard: hidden, updatedAt: new Date() })
       .where(eq(profiles.id, user.id));
-  } catch {
+  } catch (error) {
+    logExternalError(
+      "setLeaderboardVisibility",
+      "failed to update leaderboard visibility",
+      error,
+    );
     return { error: "updateFailed" };
   }
 

@@ -5,6 +5,7 @@ import { logActivityEvent } from "@/lib/activity-log";
 import { purgeLeaderboardCache } from "@/lib/cache-tags";
 import { authorizeApiRequest } from "@/lib/api-auth";
 import { jsonPrivate } from "@/lib/api-response";
+import { logExternalError } from "@/lib/log-error";
 import { db, profiles } from "@/lib/db";
 import { readUploadedImage } from "@/lib/images/read-uploaded-image";
 import { SHARP_DECODE_OPTIONS } from "@/lib/images/sharp-options";
@@ -51,7 +52,8 @@ export async function POST(request: Request) {
       .resize(AVATAR_PIXEL_SIZE, AVATAR_PIXEL_SIZE, { fit: "cover" })
       .webp({ quality: AVATAR_WEBP_QUALITY })
       .toBuffer();
-  } catch {
+  } catch (error) {
+    logExternalError("POST /api/profile/avatar", "画像の変換に失敗", error);
     return jsonPrivate({ error: "invalidImage" }, { status: 400 });
   }
 
