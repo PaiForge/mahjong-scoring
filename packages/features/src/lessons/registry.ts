@@ -157,6 +157,18 @@ export const LESSON_REGISTRY = [
       practiceLink("score-table", "oya_non_mangan"),
     ],
   },
+  {
+    slug: "pinfu-score",
+    chapterSlug: "pinfu-score",
+    rankSlug: "kyu-2",
+    messageKey: "pinfuScore",
+    // 七対子と同じ理由で、章に対応する自由練習は指せない。20 符・30 符の
+    // 列を含む満貫未満の点数表早引きへ送る
+    practiceLinks: [
+      practiceLink("score-table", "ko_non_mangan"),
+      practiceLink("score-table", "oya_non_mangan"),
+    ],
+  },
 ] as const satisfies readonly LessonDefinitionEntry[];
 
 /** レッスンスラッグ */

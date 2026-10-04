@@ -264,4 +264,29 @@ describe("lessonQuiz", () => {
       })),
     );
   });
+
+  it("平和: ロンは 30 符・ツモは 20 符で子の表を引き、選択肢は子の表のツモ行とロン行", () => {
+    const quiz = lessonQuiz("pinfu-score");
+    expect(
+      quiz.questions.map(({ key, prompt, answer }) => [
+        key,
+        prompt.kind === "agari" ? prompt.han : undefined,
+        answer,
+      ]),
+    ).toEqual([
+      ["ron", 1, { kind: "points", points: 1000 }],
+      ["tsumo", 2, { kind: "koTsumo", fromKo: 400, fromOya: 700 }],
+      ["tanyaoRon", 2, { kind: "points", points: 2000 }],
+      ["tanyaoTsumo", 3, { kind: "koTsumo", fromKo: 700, fromOya: 1300 }],
+    ]);
+    expect(quiz.choices).toEqual([
+      { kind: "koTsumo", fromKo: 400, fromOya: 700 },
+      { kind: "koTsumo", fromKo: 700, fromOya: 1300 },
+      { kind: "koTsumo", fromKo: 1300, fromOya: 2600 },
+      { kind: "points", points: 1000 },
+      { kind: "points", points: 2000 },
+      { kind: "points", points: 3900 },
+      { kind: "points", points: 7700 },
+    ]);
+  });
 });

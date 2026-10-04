@@ -197,6 +197,13 @@
       "when": 1791085310703,
       "tag": "20261004034150_backfill_chiitoitsu_score_lesson_completion",
       "breakpoints": true
+    },
+    {
+      "idx": 28,
+      "version": "7",
+      "when": 1791085476930,
+      "tag": "20261004034436_backfill_pinfu_score_lesson_completion",
+      "breakpoints": true
     }
   ]
 }

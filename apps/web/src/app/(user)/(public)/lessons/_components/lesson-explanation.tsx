@@ -6,6 +6,7 @@ import { MentsuFuGuide } from "@/app/(user)/(public)/learn/mentsu-fu/_components
 import { MachiFuGuide } from "@/app/(user)/(public)/learn/machi-fu/_components/machi-fu-guide";
 import { TehaiFuGuide } from "@/app/(user)/(public)/learn/tehai-fu/_components/tehai-fu-guide";
 import { ChiitoitsuScoreGuide } from "@/app/(user)/(public)/learn/chiitoitsu-score/_components/chiitoitsu-score-guide";
+import { PinfuScoreGuide } from "@/app/(user)/(public)/learn/pinfu-score/_components/pinfu-score-guide";
 import { ManganKoRonGuide } from "@/app/(user)/(public)/learn/mangan-ko-ron/_components/mangan-ko-ron-guide";
 import { ManganOyaRonGuide } from "@/app/(user)/(public)/learn/mangan-oya-ron/_components/mangan-oya-ron-guide";
 import { ManganOyaTsumoGuide } from "@/app/(user)/(public)/learn/mangan-oya-tsumo/_components/mangan-oya-tsumo-guide";
@@ -125,6 +126,17 @@ const LESSON_EXPLANATIONS: Readonly<
     excerptKeys: [
       "chiitoitsuScore.learn.onePatternBody1",
       "chiitoitsuScore.learn.onePatternBody2",
+    ],
+  },
+  "pinfu-score": {
+    // 章の全部を出す。確認問題のヒントは 2 パターンの節（ツモ 20 符・
+    // ロン 30 符・子の表）と複合の節を指す。章末の練習のボタンは七対子と
+    // 同じ理由で外す。切り上げ満貫のコラムの「設定」へのリンクは、4 翻の
+    // ロンを出題しない理由（ルールで点数が割れる）の説明そのものなので残す
+    guide: <PinfuScoreGuide showPracticeLink={false} />,
+    excerptKeys: [
+      "pinfuScore.learn.twoPatternsBody1",
+      "pinfuScore.learn.twoPatternsBody2",
     ],
   },
 };
