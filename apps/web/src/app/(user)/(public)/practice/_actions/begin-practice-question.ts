@@ -91,13 +91,7 @@ export async function beginPracticeQuestion(
   const user = await getOptionalUser();
 
   if (!isPlanOnSale("pro")) {
-    const benefits = user ? [...(await getActiveBenefits(user.id, now))] : [];
-    return {
-      success: true,
-      ...UNLIMITED,
-      signedIn: user !== undefined,
-      benefits,
-    };
+    return { success: true, ...(await resultWhileProOffSale(user?.id, now)) };
   }
 
   if (user) {
@@ -134,13 +128,7 @@ export async function peekPracticeQuota(
   const user = await getOptionalUser();
 
   if (!isPlanOnSale("pro")) {
-    const benefits = user ? [...(await getActiveBenefits(user.id, now))] : [];
-    return {
-      success: true,
-      ...UNLIMITED,
-      signedIn: user !== undefined,
-      benefits,
-    };
+    return { success: true, ...(await resultWhileProOffSale(user?.id, now)) };
   }
 
   if (user) {
@@ -169,6 +157,18 @@ export async function peekPracticeQuota(
   const counts = await readAnonymousQuota(now);
   const remaining = Math.max(0, limit - counts[menu]);
   return { ...base, allowed: remaining > 0, remaining };
+}
+
+/**
+ * Pro を販売していない間の答え。誰にも制限を掛けず、特典は本物の判定どおり返す
+ * （出題開始・残数問い合わせで共通）
+ */
+async function resultWhileProOffSale(
+  userId: string | undefined,
+  now: Date,
+): Promise<BeginPracticeQuestionResult> {
+  const benefits = userId ? [...(await getActiveBenefits(userId, now))] : [];
+  return { ...UNLIMITED, signedIn: userId !== undefined, benefits };
 }
 
 async function beginForUser(
