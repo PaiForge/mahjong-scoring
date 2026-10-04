@@ -29,7 +29,7 @@ describe("RANK_REGISTRY", () => {
   // 分業になっている。試験の mistakeLimit を緩めると、要件の minScore 比較の
   // 意味（ノーミス相当で N 問正解）が変わってしまうため、ここで突き合わせる。
   it.each([
-    { slug: "kyu-5", menuType: "mangan_exam", minScore: 10 },
+    { slug: "kyu-5", menuType: "mangan_exam", minScore: 6 },
     { slug: "kyu-4", menuType: "fu_exam", minScore: 6 },
     { slug: "kyu-3", menuType: "chiitoitsu_exam", minScore: 8 },
     { slug: "kyu-2", menuType: "pinfu_exam", minScore: 8 },

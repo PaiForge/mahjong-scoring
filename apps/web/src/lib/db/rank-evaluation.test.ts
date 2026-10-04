@@ -6,16 +6,16 @@ const { selectGrantableRank } = await import("./rank-evaluation");
 
 describe("selectGrantableRank", () => {
   it("次の級の試験で合格点に達していればその1件を返す", () => {
-    const run = { menuType: "mangan_exam", score: 10 };
+    const run = { menuType: "mangan_exam", score: 6 };
     expect(selectGrantableRank([], run)?.slug).toBe("kyu-5");
   });
 
   it("合格点ちょうどで合格、1 点足りなければ不合格", () => {
     expect(
-      selectGrantableRank([], { menuType: "mangan_exam", score: 10 })?.slug,
+      selectGrantableRank([], { menuType: "mangan_exam", score: 6 })?.slug,
     ).toBe("kyu-5");
     expect(
-      selectGrantableRank([], { menuType: "mangan_exam", score: 9 }),
+      selectGrantableRank([], { menuType: "mangan_exam", score: 5 }),
     ).toBeUndefined();
   });
 
