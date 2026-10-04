@@ -1,3 +1,5 @@
+import { revalidateTag } from "next/cache";
+
 /**
  * ランキングのキャッシュタグ
  * ランキングキャッシュタグ
@@ -7,6 +9,18 @@
  * 文字列を各所に散らすと片方だけ purge され、順位と一覧が食い違う。
  */
 export const LEADERBOARD_CACHE_TAG = "leaderboard";
+
+/**
+ * ランキングのキャッシュの破棄
+ * ランキングキャッシュ破棄
+ *
+ * 行に表示名・アバター・公開設定を含むため、それらを書き換えた直後に呼ぶ。
+ * 一覧と自分の順位を同じタグで捨て、キャッシュプロファイルの指定もここに
+ * 閉じ込める。
+ */
+export function purgeLeaderboardCache(): void {
+  revalidateTag(LEADERBOARD_CACHE_TAG, "default");
+}
 
 /**
  * ネイティブ広告のキャッシュタグ

@@ -1,13 +1,12 @@
 "use server";
 
-import { revalidateTag } from "next/cache";
 import { eq } from "drizzle-orm";
 
 import type { ActionResult } from "@/lib/action-types";
 import { guardUserAction } from "@/lib/action-guard";
 import type { UserActionGuardErrorCode } from "@/lib/action-guard";
 import { getOptionalUser } from "@/lib/auth";
-import { LEADERBOARD_CACHE_TAG } from "@/lib/cache-tags";
+import { purgeLeaderboardCache } from "@/lib/cache-tags";
 import { db, profiles } from "@/lib/db";
 import { isHiddenFromLeaderboard } from "@/lib/db/leaderboard-visibility";
 
@@ -61,7 +60,7 @@ export async function setLeaderboardVisibility(
   // ランキングのキャッシュは 5 分保持なので、purge しないと切り替えたのに
   // まだ自分が載っている画面をしばらく見せてしまう。タグは全ユーザー共通で、
   // 切り替え自体は滅多に起きない操作のため、粒度を細かくはしない。
-  revalidateTag(LEADERBOARD_CACHE_TAG, "default");
+  purgeLeaderboardCache();
 
   return { success: true };
 }
