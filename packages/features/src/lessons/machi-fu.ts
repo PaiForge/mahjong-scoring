@@ -15,8 +15,9 @@ import type { LessonQuestion, LessonQuiz } from "./quiz";
  * 章の例（12 の 3 待ち）と逆側の 89 の 7 待ちにして、両端どちらでも辺張に
  * なることを確かめる。ノベタン（単騎として 2 符）は章の注記に留める。
  *
- * 待ちの形は牌から決まるが、符を引くために形を明示して持つ（形と牌の
- * 組み合わせはテストが固定する）。
+ * 待ちの形は牌から決まるが、符を引くために形を明示して持つ。ライブラリの
+ * `classifyMachi` は和了形全体の面子構成（`HouraStructure`）を要し、待ちの
+ * 部分だけの牌からは引けないため使わない。
  */
 const QUESTIONS: readonly {
   readonly key: string;

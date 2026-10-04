@@ -40,7 +40,9 @@ const ALL_TILES: readonly HaiKindId[] = Object.values(HaiKind);
  * 場風・自風と雀頭の牌を示して、雀頭の符を選ばせる。符は core の
  * `calculateJantouFu`（雀頭符の練習と同じ計算）から引き、選択肢は同じ
  * 場風・自風で全牌種を雀頭にしたときに現れる符すべて（章のまとめの表の
- * 符の列）。連風牌は既定の扱い（2 符）で数える。
+ * 符の列）。連風牌は既定の扱い（2 符）で数える。選択肢が 0 符と 2 符の
+ * 2 つだけになるのは章の表のとおりで、4 符（連風牌を 4 符とするルール）を
+ * 足して増やすことはしない — 設定で正解が割れる値を並べることになる。
  */
 export const JANTOU_FU_LESSON_QUIZ: LessonQuiz = {
   questions: QUESTIONS.map(({ key, tile }): LessonQuestion => ({
