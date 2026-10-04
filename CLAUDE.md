@@ -397,6 +397,37 @@ pnpm supabase stop           # 停止
 `pnpm supabase --version` が `apps/web/package.json` の devDependency と
 一致することを確認すること。
 
+## Claude Code クラウドセッション
+
+claude.ai/code・Claude モバイルアプリの Code タブ・`claude --cloud` から始めるセッションは、
+Anthropic 管理の VM（Ubuntu 24.04、Node 20/21/22 のみ、Docker あり）に新規 clone された
+状態で始まる。`.env.local` も DB も無い。リポジトリ側に、そこでローカルと同じ作業ができる
+仕掛けを置いている。スクリプトは dotagents のスキル `claude-cloud-session-bootstrap` から
+配備した汎用のもので、**リポジトリ固有の値は `scripts/claude-cloud/config.sh` だけ**。
+汎用スクリプトを直したいときはスキル側を直して `bootstrap.py --update` で配り直す。
+
+- `.claude/settings.json` の SessionStart hook が `scripts/claude-cloud/session-start.sh` を
+  実行する。`CLAUDE_CODE_REMOTE=true`（VM だけ）でなければ即終了するので、ローカルと
+  GitHub Actions には影響しない。VM では Node 24 を PATH の先頭に置き（`CLAUDE_ENV_FILE`
+  経由で以降のコマンドにも効く）、`docs/` submodule と依存を揃え、できること・できないことの
+  サマリを Claude に渡す
+- `scripts/claude-cloud/setup-environment.sh` は claude.ai 側の環境の **Setup script** に
+  貼るもの。Node 24 + pnpm を VM のスナップショットに入れておき、毎セッションの再インストール
+  を避ける。リポジトリ非依存なので、他のリポジトリと同じ環境を共有できる。貼っていなくても
+  hook がフォールバックで入れる（毎回数十秒遅くなるだけ）
+- `bash scripts/claude-cloud/stack-up.sh` — Docker で Supabase を起動（`-x edge-runtime,...`。
+  VM は rlimit を引き上げられず、CLI が edge-runtime にだけ付ける `--ulimit` で `supabase start`
+  全体が落ちるため）、`.env.local` を `supabase status` から生成、`db:run-migrate` →
+  `db:seed:dev`、`next dev` を起動する。冪等。VM 以外では `.env.local` を壊さないよう実行を
+  拒否する
+- `bash scripts/claude-cloud/screenshot.sh /practice --login alice` — `/opt/pw-browsers` の
+  Chromium（Chrome for Testing のダウンロードは VM から 403）でデスクトップ幅とスマホ幅を撮る。
+  Claude が PNG を Read で開くとチャットに画像が出る。UI を変えたら両方の幅を見せる
+- 品質ゲート（`pnpm lint` / `pnpm typecheck` / `pnpm test`）と上の 2 スクリプトは
+  `permissions.allow` で事前許可してあり、スマホからの操作が権限プロンプトで止まらない
+- VM でできないこと: 本番のシークレット（Google OAuth、Resend、GA）が要る確認。
+  それは Remote Control か手元で行う
+
 ## Database Migration
 
 - **Always use `pnpm db:run-migrate`** — This runs `scripts/migrate.ts`, which executes Drizzle migrations and then applies Supabase-specific SQL (RLS policies, FK constraints) in Supabase environments.
