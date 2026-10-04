@@ -87,7 +87,7 @@ describe("completeLesson", () => {
     expect(mockRevalidatePath).toHaveBeenCalledWith("/dojo");
   });
 
-  it("記録したら、本人の進み具合を踏まえた次の一歩を返す", async () => {
+  it("記録したら、本人の進み具合から次の一歩と級の進み具合を 1 回の読み取りで返す", async () => {
     mockGetOptionalVerifiedUser.mockResolvedValue({ id: "user-123" });
     mockFetchJourneyInput.mockResolvedValue({
       ...NO_PROGRESS,
@@ -96,13 +96,22 @@ describe("completeLesson", () => {
 
     const result = await completeLesson("mangan-ko-ron");
 
+    expect(mockFetchJourneyInput).toHaveBeenCalledTimes(1);
     expect(mockFetchJourneyInput).toHaveBeenCalledWith("user-123");
     expect(result).toEqual({
       success: true,
-      next: {
-        kind: "lesson",
-        lessonSlug: "mangan-oya-ron",
-        chapterSlug: "mangan-oya-ron",
+      followUp: {
+        next: {
+          kind: "lesson",
+          lessonSlug: "mangan-oya-ron",
+          chapterSlug: "mangan-oya-ron",
+        },
+        // 終えた子のロンと、先に済ませた子のツモ
+        rankProgress: {
+          learn: { done: 2, total: 5 },
+          practice: { done: 0, total: 6 },
+          examPassed: false,
+        },
       },
     });
   });

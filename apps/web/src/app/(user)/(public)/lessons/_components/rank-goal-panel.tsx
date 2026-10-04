@@ -69,7 +69,7 @@ export async function RankGoalPanel({
         <p className="text-sm leading-relaxed text-surface-700">
           {t("lead", { rank })}
         </p>
-        <RankProgressSummary rankSlug={rankSlug} />
+        <RankProgressSummary />
         <div className={`flex flex-col ${SUB_LINK_GAP}`}>
           <LinkRowList>
             <LinkRow

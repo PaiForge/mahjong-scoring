@@ -27,12 +27,16 @@ vi.mock("../_actions/complete-lesson", () => ({
 
 const { useAuth: mockUseAuth } = await import("@/test/auth-context-mock");
 const { LessonView } = await import("./lesson-view");
+const { RelatedPracticeCardSlot } =
+  await import("./related-practice-card-slot");
+const { RankProgressSummary } = await import("./rank-progress-summary");
 
-function renderPage(
+function page(
   goal?: ReactNode,
   planned?: { preview: ReactNode; previewLessonSlug: "mangan-ko-tsumo" },
+  related: ReactNode = <p data-testid="related" />,
 ) {
-  return render(
+  return (
     <LessonView
       slug="mangan-ko-ron"
       messageKey="manganKoRon"
@@ -44,9 +48,13 @@ function renderPage(
         ...planned,
       }}
       explanation={<p data-testid="explanation" />}
-      related={<p data-testid="related" />}
-    />,
+      related={related}
+    />
   );
+}
+
+function renderPage(...args: Parameters<typeof page>) {
+  return render(page(...args));
 }
 
 /** ブラウザの戻るを押し、popstate が届いて描き直されるまで待つ */
@@ -197,10 +205,12 @@ describe("LessonView の済みの印", () => {
     mockGetState.mockResolvedValue(false);
     mockCompleteLesson.mockResolvedValue({
       success: true,
-      next: {
-        kind: "practice",
-        slug: "score-table",
-        variant: "ko_mangan_plus",
+      followUp: {
+        next: {
+          kind: "practice",
+          slug: "score-table",
+          variant: "ko_mangan_plus",
+        },
       },
     });
     renderPage(<p data-testid="goal" />, {
@@ -223,10 +233,12 @@ describe("LessonView の済みの印", () => {
     mockGetState.mockResolvedValue(false);
     mockCompleteLesson.mockResolvedValue({
       success: true,
-      next: {
-        kind: "lesson",
-        lessonSlug: "mangan-ko-tsumo",
-        chapterSlug: "mangan-ko-tsumo",
+      followUp: {
+        next: {
+          kind: "lesson",
+          lessonSlug: "mangan-ko-tsumo",
+          chapterSlug: "mangan-ko-tsumo",
+        },
       },
     });
     renderPage(undefined, {
@@ -237,5 +249,77 @@ describe("LessonView の済みの印", () => {
     await finishSignedIn();
 
     expect(await screen.findByTestId("preview")).toBeTruthy();
+  });
+
+  it("本人の一歩と同じ練習は、関連する練習のカードから外す", async () => {
+    mockUseAuth.mockReturnValue({ user: { id: "u1" }, isLoading: false });
+    mockGetState.mockResolvedValue(false);
+    mockCompleteLesson.mockResolvedValue({
+      success: true,
+      followUp: {
+        next: {
+          kind: "practice",
+          slug: "score-table",
+          variant: "oya_mangan_plus",
+        },
+      },
+    });
+    renderPage(
+      undefined,
+      undefined,
+      <>
+        <RelatedPracticeCardSlot
+          link={{ slug: "score-table", variant: "oya_mangan_plus" }}
+        >
+          <p data-testid="card-oya" />
+        </RelatedPracticeCardSlot>
+        <RelatedPracticeCardSlot
+          link={{ slug: "score-table", variant: "ko_mangan_plus" }}
+        >
+          <p data-testid="card-ko" />
+        </RelatedPracticeCardSlot>
+      </>,
+    );
+    await flush();
+    await finishSignedIn();
+
+    await screen.findByRole("link", { name: "nextStep.practice" });
+    expect(screen.queryByTestId("card-oya")).toBeNull();
+    // バリアントが違えば別の練習なので残す
+    expect(screen.getByTestId("card-ko")).toBeTruthy();
+  });
+
+  it("別のユーザーに切り替わったら、前のユーザーの一歩と進み具合を使わない", async () => {
+    mockUseAuth.mockReturnValue({ user: { id: "u1" }, isLoading: false });
+    mockGetState.mockResolvedValue(false);
+    mockCompleteLesson.mockResolvedValue({
+      success: true,
+      followUp: {
+        next: {
+          kind: "practice",
+          slug: "score-table",
+          variant: "ko_mangan_plus",
+        },
+        rankProgress: {
+          learn: { done: 2, total: 5 },
+          practice: { done: 6, total: 6 },
+          examPassed: false,
+        },
+      },
+    });
+    const view = renderPage(<RankProgressSummary />);
+    await flush();
+    await finishSignedIn();
+    await screen.findByRole("link", { name: "nextStep.practice" });
+    expect(screen.getByTestId("rank-progress")).toBeTruthy();
+
+    mockUseAuth.mockReturnValue({ user: undefined, isLoading: false });
+    view.rerender(page(<RankProgressSummary />));
+
+    expect(
+      screen.queryByRole("link", { name: "nextStep.practice" }),
+    ).toBeNull();
+    expect(screen.getByRole("link", { name: "nextLesson" })).toBeTruthy();
+    expect(screen.queryByTestId("rank-progress")).toBeNull();
   });
 });

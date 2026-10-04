@@ -9,6 +9,8 @@ import { PracticeChapterSection } from "@/app/(user)/(public)/practice/_componen
 import { getNativeAdCreative } from "@/lib/ads/creatives";
 import type { LessonDefinition } from "@mahjong-scoring/features/lessons/registry";
 
+import { RelatedPracticeCardSlot } from "./related-practice-card-slot";
+
 interface LessonRelatedLinksProps {
   readonly lesson: LessonDefinition;
 }
@@ -22,7 +24,8 @@ interface LessonRelatedLinksProps {
  * - 関連する練習 — 確認問題は練習のチュートリアルにあたるので、終えた
  *   直後に同じ形の問題を解く練習へ送る。練習一覧と同じカードで、一覧で
  *   見る練習と同じものだと分かるようにする。カードの並びの末尾に、練習一覧と
- *   同じカードの形のネイティブ広告（掲載中の広告があるときだけ）を置く
+ *   同じカードの形のネイティブ広告（掲載中の広告があるときだけ）を置く。
+ *   完了画面の次の一歩と同じ練習のカードは出さない（`RelatedPracticeCardSlot`）
  * - 関連する教本 — レッスンの章。練習の説明ページの「関連する教本の章」と
  *   同じ目次の書式。「目次へ」は目次の中のこの章の位置へ着地させる。
  *   末尾にネイティブ広告（掲載中の広告があるときだけ）を、教本の目次
@@ -41,12 +44,13 @@ export async function LessonRelatedLinks({ lesson }: LessonRelatedLinksProps) {
       <section className="space-y-3">
         <SectionTitle>{t("practiceTitle")}</SectionTitle>
         <div className="grid gap-4 sm:grid-cols-2">
-          {lesson.practiceLinks.map(({ slug, variant }) => (
-            <CatalogPracticeCard
-              key={`${slug}:${variant ?? ""}`}
-              slug={slug}
-              variant={variant}
-            />
+          {lesson.practiceLinks.map((link) => (
+            <RelatedPracticeCardSlot
+              key={`${link.slug}:${link.variant ?? ""}`}
+              link={link}
+            >
+              <CatalogPracticeCard slug={link.slug} variant={link.variant} />
+            </RelatedPracticeCardSlot>
           ))}
           {practiceAd && <NativeAdCard creative={practiceAd} />}
         </div>

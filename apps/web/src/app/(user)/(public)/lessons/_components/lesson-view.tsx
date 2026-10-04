@@ -39,8 +39,10 @@ import { chapterHref, lessonHref } from "@mahjong-scoring/features/routes";
 
 import { journeyStepHref, journeyStepTitle } from "../../_lib/journey-step";
 import { completeLesson } from "../_actions/complete-lesson";
+import type { LessonFollowUp } from "../_lib/lesson-follow-up";
 import { useLessonCompletion } from "../_hooks/use-lesson-completion";
 import { usePhaseHistory } from "../_hooks/use-phase-history";
+import { LessonFollowUpProvider } from "./lesson-follow-up-context";
 import {
   forgetPendingLessonCompletions,
   rememberPendingLessonCompletion,
@@ -77,6 +79,12 @@ interface LessonViewProps {
    * 完了済みの人が開いた説明の画面に出す
    */
   readonly related?: ReactNode;
+}
+
+/** 記録の結果で受け取った続き。誰の分かを持ち、ユーザーが切り替わったら捨てる */
+interface FetchedFollowUp {
+  readonly userId: string;
+  readonly followUp: LessonFollowUp;
 }
 
 /** レッスンの段階（並びは進む順） */
@@ -240,10 +248,16 @@ export function LessonView({
   const [showHint, setShowHint] = useState(false);
   const [correctCount, setCorrectCount] = useState(0);
   const [saveState, setSaveState] = useState<SaveState>("idle");
-  // 記録のときにサーバーが返した、本人の進み具合を踏まえた次の一歩
-  const [progressStep, setProgressStep] = useState<JourneyStep | undefined>(
-    undefined,
-  );
+  // 記録のときにサーバーが返した本人の続き（次の一歩・級の進み具合）
+  const [fetchedFollowUp, setFetchedFollowUp] = useState<
+    FetchedFollowUp | undefined
+  >(undefined);
+  // 別のユーザーの分は使わない（開いたままログアウト・別アカウントでログイン
+  // した場合）。済みの印（`useLessonCompletion`）と同じ扱い
+  const followUp =
+    fetchedFollowUp !== undefined && fetchedFollowUp.userId === user?.id
+      ? fetchedFollowUp.followUp
+      : undefined;
   // 保存を始めた = 解き終えた。完了画面はそのあとでしか描けない
   const finished = saveState !== "idle";
   const [phase, pushPhase] = usePhaseHistory(
@@ -288,7 +302,11 @@ export function LessonView({
         }
         // 以前の失敗で預けた分があれば、記録できたので外す
         forgetPendingLessonCompletions([slug]);
-        setProgressStep(result.next);
+        // 誰の分か分からない（クライアントが本人を知らないまま記録できた）
+        // ときは持たない。完了画面は道筋の順の一歩を出す
+        if (userId !== undefined && result.followUp !== undefined) {
+          setFetchedFollowUp({ userId, followUp: result.followUp });
+        }
         setSaveState("saved");
         markCompleted();
       } catch (error: unknown) {
@@ -476,46 +494,48 @@ export function LessonView({
   }
 
   return (
-    <div className="space-y-8">
-      <section className="space-y-4">
-        <SectionTitle>{t("doneTitle")}</SectionTitle>
-        {/* 合格（昇級試験の結果）と同じ success の囲み。レッスンの完了は
+    <LessonFollowUpProvider value={followUp}>
+      <div className="space-y-8">
+        <section className="space-y-4">
+          <SectionTitle>{t("doneTitle")}</SectionTitle>
+          {/* 合格（昇級試験の結果）と同じ success の囲み。レッスンの完了は
             小さな合格で、確認問題の正解の ✓ と同じ記号・同じ色で「できた」を
             示す。琥珀色（HighlightPanel）は教本のコラム・注意書きの記号なので
             使わない — 補足に見える */}
-        <div
-          className="rounded-xl border-3 border-success bg-success-subtle p-5 text-success-strong"
-          data-testid="lesson-achievement"
-        >
-          <p className="flex items-start gap-2 text-base font-bold leading-relaxed">
-            <JudgementMark verdict="correct" tone="inherit" />
-            <span>{tLesson("achievement")}</span>
-          </p>
-          {/* 字下げは ✓（text-base の 1em = 16px）と gap-2（8px）の分。
+          <div
+            className="rounded-xl border-3 border-success bg-success-subtle p-5 text-success-strong"
+            data-testid="lesson-achievement"
+          >
+            <p className="flex items-start gap-2 text-base font-bold leading-relaxed">
+              <JudgementMark verdict="correct" tone="inherit" />
+              <span>{tLesson("achievement")}</span>
+            </p>
+            {/* 字下げは ✓（text-base の 1em = 16px）と gap-2（8px）の分。
               達成の文の頭に揃える */}
-          <p className="mt-2 pl-6 text-sm" data-testid="lesson-score">
-            {correctCount === questions.length
-              ? t("doneScorePerfect", { total: questions.length })
-              : t("doneScore", {
-                  correct: correctCount,
-                  total: questions.length,
-                })}
-          </p>
-        </div>
-        {/* 次の一歩は「できるようになったこと」の続きとして同じ節に置く。
+            <p className="mt-2 pl-6 text-sm" data-testid="lesson-score">
+              {correctCount === questions.length
+                ? t("doneScorePerfect", { total: questions.length })
+                : t("doneScore", {
+                    correct: correctCount,
+                    total: questions.length,
+                  })}
+            </p>
+          </div>
+          {/* 次の一歩は「できるようになったこと」の続きとして同じ節に置く。
             節を分けると完了と次の一歩の間に見出しの区切りが入る */}
-        <CompletionActions
-          saveState={saveState}
-          next={next}
-          progressStep={progressStep}
-          chapterSlug={chapterSlug}
-          signInHref={buildSignInHref(lessonHref(slug))}
-          onRetrySave={handleRetrySave}
-        />
-      </section>
+          <CompletionActions
+            saveState={saveState}
+            next={next}
+            progressStep={followUp?.next}
+            chapterSlug={chapterSlug}
+            signInHref={buildSignInHref(lessonHref(slug))}
+            onRetrySave={handleRetrySave}
+          />
+        </section>
 
-      {related}
-    </div>
+        {related}
+      </div>
+    </LessonFollowUpProvider>
   );
 }
 
@@ -539,8 +559,9 @@ interface CompletionActionsProps {
  *   行き先を名指しした文言で直接送る。緑のボタンが「押して始める」の記号
  *   なので、行き先の分からない「次の一歩へ」でホームに戻すのは避ける）。
  *   後ろにレッスンが無ければ、ボタンの下に「昇級試験まで」を添える。
- *   行き先は記録のときにサーバーが返した本人の一歩（ホームの「次の一歩」と
- *   揃う。済ませた先の項目を指さない）で、返らなければ道筋の順の一歩。
+ *   行き先は記録のときにサーバーが返した本人の一歩（済ませた先の項目を
+ *   指さない。選び方は features の `stepAfterLessonWithProgress`）で、
+ *   返らなければ道筋の順の一歩。
  *   プレビューはサーバーで描いた道筋の順の次のレッスンの分しか無いので、
  *   本人の一歩が別の所を指すときはボタンで送る
  * - 失敗: 何が起きたかと、ホームに進んでも後で記録されることを伝え、
