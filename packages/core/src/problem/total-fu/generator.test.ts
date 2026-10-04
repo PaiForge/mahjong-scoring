@@ -1,6 +1,13 @@
 import { describe, it, expect } from "vitest";
-import { generateTotalFuQuestion } from "./generator";
-import { FU_VALUES } from "../../score/constants";
+import { HaiKind, validateTehai14 } from "@pai-forge/riichi-mahjong";
+import { calculateTotalFu, generateTotalFuQuestion } from "./generator";
+import {
+  CHIITOITSU_FU,
+  FU_VALUES,
+  PINFU_RON_FU,
+  PINFU_TSUMO_FU,
+} from "../../score/constants";
+import { parseTehai } from "../score/mspz-serializer";
 import {
   expectGeneratesEventually,
   expectSampled,
@@ -121,5 +128,46 @@ describe("generateTotalFuQuestion", () => {
     );
 
     expect(questions.length).toBeGreaterThan(0);
+  });
+});
+
+describe("calculateTotalFu", () => {
+  /** MSPZ の 14 枚を和了形の手牌にする */
+  function agariTehai(mspz: string) {
+    const tehai = parseTehai(mspz);
+    if (tehai === undefined) throw new Error(mspz);
+    return validateTehai14(tehai)._unsafeUnwrap();
+  }
+  const kaze = { bakaze: HaiKind.Ton, jikaze: HaiKind.Nan };
+
+  it("七対子はツモでもロンでも固定の符", () => {
+    const tehai = agariTehai("1122m3344p5566s77z");
+    for (const isTsumo of [true, false]) {
+      expect(
+        calculateTotalFu(tehai, { ...kaze, agariHai: HaiKind.Chun, isTsumo }),
+      ).toBe(CHIITOITSU_FU);
+    }
+  });
+
+  it("平和はツモなら副底のまま、ロンなら門前ロンの加符が乗る", () => {
+    const tehai = agariTehai("234m567m345p678s22s");
+    const context = { ...kaze, agariHai: HaiKind.ManZu2 };
+    expect(calculateTotalFu(tehai, { ...context, isTsumo: true })).toBe(
+      PINFU_TSUMO_FU,
+    );
+    expect(calculateTotalFu(tehai, { ...context, isTsumo: false })).toBe(
+      PINFU_RON_FU,
+    );
+  });
+
+  it("役が無い手は undefined", () => {
+    const tehai = agariTehai("123m456m789p123s11z");
+    expect(
+      calculateTotalFu(tehai, {
+        ...kaze,
+        agariHai: HaiKind.ManZu1,
+        isTsumo: false,
+      }),
+    ).toBeUndefined();
   });
 });

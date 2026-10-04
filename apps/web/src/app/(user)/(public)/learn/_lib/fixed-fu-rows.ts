@@ -1,4 +1,7 @@
 import {
+  CHIITOITSU_FU,
+  PINFU_RON_FU,
+  PINFU_TSUMO_FU,
   calculateKoScore,
   calculateOyaScore,
   isInvalidCell,
@@ -46,8 +49,8 @@ function hanColsFrom(min: number): readonly number[] {
  * その判定は core の `isInvalidCell` が持つ）。
  */
 export const CHIITOITSU_SCORE_TABLE: FixedFuTableShape = {
-  tsumoFu: 25,
-  ronFu: 25,
+  tsumoFu: CHIITOITSU_FU,
+  ronFu: CHIITOITSU_FU,
   hanCols: hanColsFrom(2),
 };
 
@@ -59,8 +62,8 @@ export const CHIITOITSU_SCORE_TABLE: FixedFuTableShape = {
  * 門前清自摸和が乗って2翻以上になるため）。
  */
 export const PINFU_SCORE_TABLE: FixedFuTableShape = {
-  tsumoFu: 20,
-  ronFu: 30,
+  tsumoFu: PINFU_TSUMO_FU,
+  ronFu: PINFU_RON_FU,
   hanCols: hanColsFrom(1),
 };
 

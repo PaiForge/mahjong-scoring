@@ -124,6 +124,9 @@ export {
 
 // === Score ===
 export {
+  CHIITOITSU_FU,
+  PINFU_TSUMO_FU,
+  PINFU_RON_FU,
   FU_VALUES,
   isFu,
   RON_SCORES_KO,
