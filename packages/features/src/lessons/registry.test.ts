@@ -35,7 +35,7 @@ describe("LESSON_REGISTRY", () => {
 
   it("isLessonSlug は登録済みの slug だけを通す", () => {
     expect(isLessonSlug("mangan-ko-ron")).toBe(true);
-    expect(isLessonSlug("jantou-fu")).toBe(false);
+    expect(isLessonSlug("fu-doubling")).toBe(false);
     expect(isLessonSlug(undefined)).toBe(false);
   });
 
@@ -43,7 +43,7 @@ describe("LESSON_REGISTRY", () => {
     expect(lessonBySlug("mangan-ko-ron")?.rankSlug).toBe("kyu-5");
     expect(lessonBySlug("unknown")).toBeUndefined();
     expect(lessonForChapter("mangan-ko-ron")?.slug).toBe("mangan-ko-ron");
-    expect(lessonForChapter("jantou-fu")).toBeUndefined();
+    expect(lessonForChapter("fu-doubling")).toBeUndefined();
   });
 
   it("完了したレッスンから学んだ章を引き、未知の slug は無視する", () => {

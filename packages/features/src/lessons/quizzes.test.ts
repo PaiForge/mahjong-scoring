@@ -1,4 +1,5 @@
 import { describe, expect, it } from "vitest";
+import { HaiKind } from "@mahjong-scoring/core";
 
 import { choiceKey, isSameChoice } from "./quiz";
 import { lessonQuiz } from "./quizzes";
@@ -107,6 +108,33 @@ describe("lessonQuiz", () => {
       { kind: "han", han: 5 },
       { kind: "han", han: 6 },
       { kind: "yakuman" },
+    ]);
+  });
+
+  it("雀頭の符: 東場・南家で三元牌・自風・オタ風・数牌の雀頭の符を問う", () => {
+    const quiz = lessonQuiz("jantou-fu");
+    expect(
+      quiz.questions.map(({ prompt, answer }) => ({ prompt, answer })),
+    ).toEqual(
+      [
+        [HaiKind.Haku, 2],
+        [HaiKind.Nan, 2],
+        [HaiKind.Sha, 0],
+        [HaiKind.PinZu5, 0],
+      ].map(([tile, fu]) => ({
+        prompt: {
+          kind: "jantou",
+          tile,
+          bakaze: HaiKind.Ton,
+          jikaze: HaiKind.Nan,
+        },
+        answer: { kind: "fu", fu },
+      })),
+    );
+    // 連風牌を 2 符で数えるので、雀頭に付く符は 0 符と 2 符だけ
+    expect(quiz.choices).toEqual([
+      { kind: "fu", fu: 0 },
+      { kind: "fu", fu: 2 },
     ]);
   });
 });

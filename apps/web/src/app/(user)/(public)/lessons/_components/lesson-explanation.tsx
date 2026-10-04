@@ -1,6 +1,7 @@
 import type { ReactNode } from "react";
 import { getTranslations } from "next-intl/server";
 
+import { JantouFuGuide } from "@/app/(user)/(public)/learn/jantou-fu/_components/jantou-fu-guide";
 import { ManganKoRonGuide } from "@/app/(user)/(public)/learn/mangan-ko-ron/_components/mangan-ko-ron-guide";
 import { ManganOyaRonGuide } from "@/app/(user)/(public)/learn/mangan-oya-ron/_components/mangan-oya-ron-guide";
 import { ManganOyaTsumoGuide } from "@/app/(user)/(public)/learn/mangan-oya-tsumo/_components/mangan-oya-tsumo-guide";
@@ -68,6 +69,17 @@ const LESSON_EXPLANATIONS: Readonly<
     // 翻数を確かめに行く先なので残す
     guide: <YakuGuide />,
     excerptKeys: ["yaku.learn.whatIsYakuBody1", "yaku.learn.whatIsYakuBody2"],
+  },
+  "jantou-fu": {
+    // 章の全部を出す。確認問題のヒントは役牌の節（三元牌・自風）・0 符の節
+    // （オタ風）・まとめの表（数牌）を指す。連風牌のコラムの「設定」への
+    // リンクは外へ出る導線だが、連風牌を出題しない理由（ルールで符が割れる）
+    // の説明そのものなので残す
+    guide: <JantouFuGuide />,
+    excerptKeys: [
+      "jantouFu.learn.whatIsJantouBody",
+      "jantouFu.learn.yakuhaiBody",
+    ],
   },
 };
 

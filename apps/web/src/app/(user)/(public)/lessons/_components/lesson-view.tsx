@@ -9,6 +9,7 @@ import { DoneMark } from "@/app/(user)/_components/done-mark";
 import { LinkButton } from "@/app/(user)/_components/link-button";
 import { SectionTitle } from "@/app/(user)/_components/section-title";
 import { SignUpPanel } from "@/app/(user)/_components/sign-up-panel";
+import { TileSet } from "@/app/(user)/_components/tile-set";
 import { ChevronRightIcon } from "@/app/(user)/_components/icons/chevron-right-icon";
 import { ChoiceButton } from "@/app/(user)/(public)/practice/_components/choice-button";
 import { FeedbackFrame } from "@/app/(user)/(public)/practice/_components/feedback-frame";
@@ -25,6 +26,7 @@ import { SUB_LINK_GAP } from "@/app/_components/_lib/spacing";
 import { useAuth } from "@/app/_contexts/auth-context";
 import { logExternalError } from "@/lib/log-error";
 import { buildSignInHref } from "@/lib/redirect";
+import { getKazeName } from "@mahjong-scoring/core";
 import type { CurriculumChapterSlug } from "@mahjong-scoring/features/curriculum/registry";
 import type { JourneyStep } from "@mahjong-scoring/features/journey/journey";
 import {
@@ -134,6 +136,8 @@ function choiceLabel(choice: LessonChoice, t: Translator): string {
       return t("choiceLabels.han", { han: choice.han });
     case "yakuman":
       return t("choiceLabels.yakuman");
+    case "fu":
+      return t("choiceLabels.fu", { fu: choice.fu });
   }
 }
 
@@ -174,6 +178,32 @@ function conditionValues(
       return { han: prompt.han, tier: tScoreTable(prompt.tierKey) };
     case "yaku":
       return { yaku: prompt.yaku, state: prompt.naki ? "naki" : "menzen" };
+    case "jantou":
+      return {
+        bakaze: getKazeName(prompt.bakaze),
+        jikaze: getKazeName(prompt.jikaze),
+      };
+  }
+}
+
+/**
+ * 条件文の下に並べる牌
+ * 出題牌
+ *
+ * 牌を見て答える問題（雀頭・面子 …）だけが持つ。文字だけで条件が言い切れる
+ * 問題（帯・役）は undefined。
+ */
+function PromptTiles({ prompt }: { readonly prompt: LessonPrompt }) {
+  switch (prompt.kind) {
+    case "tier":
+    case "yaku":
+      return undefined;
+    case "jantou":
+      return (
+        <div className="flex justify-center" data-testid="lesson-tiles">
+          <TileSet tiles={[prompt.tile, prompt.tile]} size="md" />
+        </div>
+      );
   }
 }
 
@@ -420,6 +450,7 @@ export function LessonView({
                 conditionValues(question.prompt, tScoreTable),
               )}
             </p>
+            <PromptTiles prompt={question.prompt} />
             {/* ヒントは選択肢に手を付ける前に見られる。答えそのものではなく
                 倍率の言い方で、表を思い出す手がかりにする */}
             {showHint && !isAnswered && (

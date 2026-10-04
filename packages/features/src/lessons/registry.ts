@@ -107,6 +107,14 @@ export const LESSON_REGISTRY = [
     // 並べると同じ練習が 2 回出る
     practiceLinks: [practiceLink("han-count"), practiceLink("yaku")],
   },
+  {
+    slug: "jantou-fu",
+    chapterSlug: "jantou-fu",
+    rankSlug: "kyu-4",
+    messageKey: "jantouFu",
+    // 章の練習（雀頭符）は載せない。完了画面の次の一歩がその練習を指すため
+    practiceLinks: [practiceLink("mentsu-jantou-fu")],
+  },
 ] as const satisfies readonly LessonDefinitionEntry[];
 
 /** レッスンスラッグ */

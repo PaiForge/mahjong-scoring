@@ -162,6 +162,13 @@
       "when": 1791063127940,
       "tag": "20261003213207_backfill_kyu5_lesson_completions",
       "breakpoints": true
+    },
+    {
+      "idx": 23,
+      "version": "7",
+      "when": 1791083612137,
+      "tag": "20261004031332_backfill_jantou_fu_lesson_completion",
+      "breakpoints": true
     }
   ]
 }
