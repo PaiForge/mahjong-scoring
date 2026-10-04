@@ -19,6 +19,7 @@
 import type { Metadata } from "next";
 import { Fragment } from "react";
 import { getTranslations } from "next-intl/server";
+import { HashAnchorScroll } from "@/app/(user)/_components/hash-anchor-scroll";
 import { ContentContainer } from "@/app/(user)/_components/content-container";
 import { LinkRowList } from "@/app/(user)/_components/link-row";
 import { NativeAdRow } from "@/app/(user)/_components/native-ad-row";
@@ -29,7 +30,6 @@ import { getNativeAdPlacements } from "@/lib/ads/creatives";
 import { adIndexAfterGroup } from "@/lib/ads/spacing";
 import { CurriculumProgressBar } from "../_components/curriculum-progress-bar";
 import { CurriculumToc } from "../_components/curriculum-toc";
-import { TocAnchorScroll } from "../_components/toc-anchor-scroll";
 import {
   CURRICULUM,
   CURRICULUM_SECTIONS,
@@ -60,7 +60,7 @@ export default async function LearnIndexPage() {
   return (
     <ContentContainer breadcrumb={[{ label: t("index.pageTitle") }]}>
       <PageTitle>{t("index.pageTitle")}</PageTitle>
-      <TocAnchorScroll />
+      <HashAnchorScroll />
 
       <div className="space-y-8">
         <div className="space-y-3">
