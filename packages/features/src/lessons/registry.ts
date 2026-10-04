@@ -122,8 +122,19 @@ export const LESSON_REGISTRY = [
     chapterSlug: "mentsu-fu",
     rankSlug: "kyu-4",
     messageKey: "mentsuFu",
-    // 章の練習（面子符）は載せない。完了画面の次の一歩がその練習を指すため
-    practiceLinks: [practiceLink("mentsu-jantou-fu")],
+    practiceLinks: [
+      practiceLink("mentsu-fu"),
+      practiceLink("mentsu-jantou-fu"),
+    ],
+  },
+  {
+    slug: "machi-fu",
+    chapterSlug: "machi-fu",
+    rankSlug: "kyu-4",
+    messageKey: "machiFu",
+    // 章の練習（待ち符）は載せない。完了画面の次の一歩がその練習を指すため。
+    // 面子と雀頭の符の練習は待ちを問わないので、待ちを含む通しの練習へ送る
+    practiceLinks: [practiceLink("total-fu")],
   },
 ] as const satisfies readonly LessonDefinitionEntry[];
 

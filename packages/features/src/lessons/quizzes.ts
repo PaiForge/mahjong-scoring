@@ -1,4 +1,5 @@
 import { JANTOU_FU_LESSON_QUIZ } from "./jantou-fu";
+import { MACHI_FU_LESSON_QUIZ } from "./machi-fu";
 import { MANGAN_KO_RON_LESSON_QUIZ } from "./mangan-ko-ron";
 import { MANGAN_KO_TSUMO_LESSON_QUIZ } from "./mangan-ko-tsumo";
 import { MANGAN_OYA_RON_LESSON_QUIZ } from "./mangan-oya-ron";
@@ -22,6 +23,7 @@ const LESSON_QUIZZES: Readonly<Record<LessonSlug, LessonQuiz>> = {
   yaku: YAKU_LESSON_QUIZ,
   "jantou-fu": JANTOU_FU_LESSON_QUIZ,
   "mentsu-fu": MENTSU_FU_LESSON_QUIZ,
+  "machi-fu": MACHI_FU_LESSON_QUIZ,
 };
 
 /**

@@ -176,6 +176,13 @@
       "when": 1791083968470,
       "tag": "20261004031928_backfill_mentsu_fu_lesson_completion",
       "breakpoints": true
+    },
+    {
+      "idx": 25,
+      "version": "7",
+      "when": 1791084227379,
+      "tag": "20261004032347_backfill_machi_fu_lesson_completion",
+      "breakpoints": true
     }
   ]
 }

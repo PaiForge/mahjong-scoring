@@ -156,4 +156,19 @@ describe("lessonQuiz", () => {
       [0, 2, 4, 8, 16, 32].map((fu) => ({ kind: "fu", fu })),
     );
   });
+
+  it("待ちの符: 両面・嵌張・辺張・双碰・単騎の待ち符を問い、選択肢は 0 符と 2 符", () => {
+    const quiz = lessonQuiz("machi-fu");
+    expect(quiz.questions.map(({ key, answer }) => [key, answer])).toEqual([
+      ["ryanmen", { kind: "fu", fu: 0 }],
+      ["kanchan", { kind: "fu", fu: 2 }],
+      ["penchan", { kind: "fu", fu: 2 }],
+      ["shanpon", { kind: "fu", fu: 0 }],
+      ["tanki", { kind: "fu", fu: 2 }],
+    ]);
+    expect(quiz.choices).toEqual([
+      { kind: "fu", fu: 0 },
+      { kind: "fu", fu: 2 },
+    ]);
+  });
 });

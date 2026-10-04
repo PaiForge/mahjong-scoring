@@ -3,6 +3,7 @@ import { getTranslations } from "next-intl/server";
 
 import { JantouFuGuide } from "@/app/(user)/(public)/learn/jantou-fu/_components/jantou-fu-guide";
 import { MentsuFuGuide } from "@/app/(user)/(public)/learn/mentsu-fu/_components/mentsu-fu-guide";
+import { MachiFuGuide } from "@/app/(user)/(public)/learn/machi-fu/_components/machi-fu-guide";
 import { ManganKoRonGuide } from "@/app/(user)/(public)/learn/mangan-ko-ron/_components/mangan-ko-ron-guide";
 import { ManganOyaRonGuide } from "@/app/(user)/(public)/learn/mangan-oya-ron/_components/mangan-oya-ron-guide";
 import { ManganOyaTsumoGuide } from "@/app/(user)/(public)/learn/mangan-oya-tsumo/_components/mangan-oya-tsumo-guide";
@@ -91,6 +92,13 @@ const LESSON_EXPLANATIONS: Readonly<
       "mentsuFu.learn.whatIsMentsuFuBody",
       "mentsuFu.learn.shuntsuBody",
     ],
+  },
+  "machi-fu": {
+    // 章の全部を出す。確認問題のヒントは待ちの形を言い、拠り所は 2 符の節・
+    // 0 符の節の例の表（辺張の 89 の 7 待ちは本文に無かったので章に足した）。
+    // 外へ出るリンクは用語の説明だけ
+    guide: <MachiFuGuide />,
+    excerptKeys: ["machiFu.learn.whatIsMachiBody", "machiFu.learn.twoFuBody"],
   },
 };
 

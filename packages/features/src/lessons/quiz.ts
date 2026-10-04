@@ -52,6 +52,8 @@ export type LessonChoice =
  * - `jantou`: 雀頭の牌と、場風・自風（牌は条件文の下に並べて見せる）
  * - `mentsu`: 面子 1 つ。条件文は形（順子・刻子・槓子）だけを言い、明暗は
  *   牌の並び（鳴いた 1 枚が横向き・暗槓は両端を伏せる）から読ませる
+ * - `machi`: 聴牌の形（手の内の牌）と和了牌。待ちの形の名前は言わず、牌から
+ *   読ませる
  */
 export type LessonPrompt =
   | { readonly kind: "tier"; readonly tierKey: string; readonly han: number }
@@ -62,7 +64,12 @@ export type LessonPrompt =
       readonly bakaze: Kazehai;
       readonly jikaze: Kazehai;
     }
-  | { readonly kind: "mentsu"; readonly mentsu: CompletedMentsu };
+  | { readonly kind: "mentsu"; readonly mentsu: CompletedMentsu }
+  | {
+      readonly kind: "machi";
+      readonly tiles: readonly HaiKindId[];
+      readonly agariHai: HaiKindId;
+    };
 
 /**
  * 確認問題 1 問

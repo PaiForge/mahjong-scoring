@@ -186,6 +186,8 @@ function conditionValues(
       };
     case "mentsu":
       return { shape: MENTSU_SHAPES[prompt.mentsu.type] };
+    case "machi":
+      return {};
   }
 }
 
@@ -218,6 +220,18 @@ function PromptTiles({ prompt }: { readonly prompt: LessonPrompt }) {
       return (
         <div className="flex justify-center" data-testid="lesson-tiles">
           <MentsuSet mentsu={prompt.mentsu} size="md" />
+        </div>
+      );
+    case "machi":
+      // 教本の待ちの例（手の内 ＋ 和了牌）と同じ並び
+      return (
+        <div
+          className="flex items-center justify-center gap-2"
+          data-testid="lesson-tiles"
+        >
+          <TileSet tiles={prompt.tiles} size="md" />
+          <span className="text-sm text-surface-400">+</span>
+          <TileSet tiles={[prompt.agariHai]} size="md" />
         </div>
       );
   }
