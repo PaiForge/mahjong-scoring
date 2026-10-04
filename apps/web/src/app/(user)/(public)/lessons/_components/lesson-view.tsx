@@ -5,6 +5,7 @@ import Link from "next/link";
 import { useTranslations } from "next-intl";
 
 import { Button } from "@/app/(user)/_components/button";
+import { DoneMark } from "@/app/(user)/_components/done-mark";
 import { LinkButton } from "@/app/(user)/_components/link-button";
 import { SectionTitle } from "@/app/(user)/_components/section-title";
 import { SignUpPanel } from "@/app/(user)/_components/sign-up-panel";
@@ -36,6 +37,8 @@ import type { LessonSlug } from "@mahjong-scoring/features/lessons/registry";
 import { chapterHref, lessonHref } from "@mahjong-scoring/features/routes";
 
 import { completeLesson } from "../_actions/complete-lesson";
+import { useLessonCompletion } from "../_hooks/use-lesson-completion";
+import { usePhaseHistory } from "../_hooks/use-phase-history";
 import {
   forgetPendingLessonCompletions,
   rememberPendingLessonCompletion,
@@ -60,12 +63,15 @@ interface LessonViewProps {
   };
   /** 説明（見出しを含む。サーバーで描いたもの） */
   readonly explanation: ReactNode;
-  /** 完了画面の末尾に出す練習・教本への導線と広告（サーバーで描いたもの） */
+  /**
+   * 練習・教本への導線と広告（サーバーで描いたもの）。完了画面の末尾と、
+   * 完了済みの人が開いた説明の画面に出す
+   */
   readonly related?: ReactNode;
 }
 
-/** レッスンの段階 */
-type Phase = "learn" | "quiz" | "done";
+/** レッスンの段階（並びは進む順） */
+const PHASES = ["learn", "quiz", "done"] as const;
 
 /**
  * 完了の保存の状態（学習の完了とは別に持つ）
@@ -175,6 +181,21 @@ function conditionValues(
  * 完了画面に「もう一度やる」は置かない。解き直したい人はページを開き直せば
  * よく、完了画面の導線は次の一歩・練習・教本へ向ける。
  *
+ * 完了済みの人が開いたときは、説明の下の「確認問題へ」のボタンを控えめな
+ * 解き直しのリンクに替え、その下に完了画面と同じ練習・教本への導線を出す。
+ * 戻ってくる目的は表の見直しか練習を探すことで、確認問題ではないため。
+ * 次のレッスンへの導線は出さない — 道筋の続きはホームの「次の一歩」が
+ * 進み具合を踏まえて示す。
+ * 完了済みかはページを開いてから取る（静的ページのため）ので、取れるまでは
+ * 未完了と同じく「確認問題へ」を出す。
+ *
+ * @design 段階はブラウザの履歴に積む
+ * 段階を進めるたびに履歴へ 1 項目積み（{@link usePhaseHistory}）、「戻る」で
+ * 1 段階ずつ戻れるようにする。完了画面から戻ると最後の問題を答えた状態、
+ * 確認問題から戻ると説明で、もう一度「確認問題へ」を押せば途中の問題から
+ * 続ける。解き終えたあとに説明まで戻って押したときだけ最初から解き直す
+ * （完了は記録済みなので、もう一度は記録しない）。
+ *
  * @design ログインしているかはサーバーが決める
  * 認証状態をクライアントで先読みして保存を分岐しない（練習の保存
  * `useSaveOnFinish` と同じ理由 — 認証コンテキストの初期ロード中に終えた
@@ -201,15 +222,21 @@ export function LessonView({
   const tLesson = useTranslations(`lessons.${messageKey}`);
   const tScoreTable = useTranslations("scoreTable");
   const { user } = useAuth();
+  const { completed, markCompleted } = useLessonCompletion(slug);
 
   const { questions, choices } = lessonQuiz(slug);
 
-  const [phase, setPhase] = useState<Phase>("learn");
   const [index, setIndex] = useState(0);
   const [selected, setSelected] = useState<LessonChoice | undefined>(undefined);
   const [showHint, setShowHint] = useState(false);
   const [correctCount, setCorrectCount] = useState(0);
   const [saveState, setSaveState] = useState<SaveState>("idle");
+  // 保存を始めた = 解き終えた。完了画面はそのあとでしか描けない
+  const finished = saveState !== "idle";
+  const [phase, pushPhase] = usePhaseHistory(
+    PHASES,
+    (target) => target !== "done" || finished,
+  );
   // 再試行ボタンの連打を止める。state だけだと更新が反映される前に
   // 2 回目が走り得る
   const inFlight = useRef(false);
@@ -249,6 +276,7 @@ export function LessonView({
         // 以前の失敗で預けた分があれば、記録できたので外す
         forgetPendingLessonCompletions([slug]);
         setSaveState("saved");
+        markCompleted();
       } catch (error: unknown) {
         logExternalError("completeLesson", slug, error);
         rememberPendingLessonCompletion(slug, userId);
@@ -259,7 +287,7 @@ export function LessonView({
         inFlight.current = false;
       }
     },
-    [slug],
+    [slug, markCompleted],
   );
 
   const handleSelect = (choiceIndex: number) => {
@@ -271,10 +299,22 @@ export function LessonView({
     }
   };
 
+  const handleStart = () => {
+    // 解き終えたあとに説明まで戻ってきたら最初から。途中なら続きから
+    if (finished) {
+      setIndex(0);
+      setSelected(undefined);
+      setShowHint(false);
+      setCorrectCount(0);
+    }
+    pushPhase("quiz");
+  };
+
   const handleNext = () => {
     if (isLast) {
-      setPhase("done");
-      void save(user?.id);
+      pushPhase("done");
+      // 完了画面から戻って押し直したときは、もう記録を始めている
+      if (!finished) void save(user?.id);
       return;
     }
     setIndex(index + 1);
@@ -288,11 +328,36 @@ export function LessonView({
 
   if (phase === "learn") {
     return (
-      <div className="space-y-8">
+      <div className="relative space-y-8">
+        {/* 完了済みの印はカードの右上（説明の最初の見出しの行の右端）。
+            見出しの「?」とは場所を分ける。確認問題の画面では同じ位置に
+            進み具合が、完了画面には達成の表示があるので説明の画面だけ */}
+        {completed && (
+          <div className="absolute right-0 top-1.5">
+            <DoneMark label={t("completedMark")} />
+          </div>
+        )}
         {explanation}
-        <Button size="lg" fullWidth onClick={() => setPhase("quiz")}>
-          {t("startQuiz", { count: questions.length })}
-        </Button>
+        {completed ? (
+          <>
+            {/* 完了済みの人に確認問題を主導線として勧めない。解き直しは
+                移動と同じ控えめなリンクにして、練習・教本へ送る */}
+            <div className="text-center">
+              <button
+                type="button"
+                onClick={handleStart}
+                className={`text-sm ${TEXT_LINK_CLASSES}`}
+              >
+                {t("retakeQuiz")}
+              </button>
+            </div>
+            {related}
+          </>
+        ) : (
+          <Button size="lg" fullWidth onClick={handleStart}>
+            {t("startQuiz", { count: questions.length })}
+          </Button>
+        )}
       </div>
     );
   }

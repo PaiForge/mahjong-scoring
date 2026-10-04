@@ -313,8 +313,11 @@ const NO_PROGRESS: BuildJourneyInput = {
  * レッスンを終えた人に示す、行程の上でそのレッスンの次にある一歩
  * レッスンの次の一歩
  *
- * そのレッスンが属する級の行程で、レッスンの章の直後の項目（次の章の
- * レッスン・章から送る練習）。級の最後の項目なら、その級の昇級試験。
+ * そのレッスンが属する級の行程で、後ろにある最初のレッスン。間にある
+ * 章の練習は飛ばす — 完了画面は練習を「関連する練習」として別に並べるので、
+ * 続けて学ぶ人には次のレッスンの書き出しを見せて送る。後ろにレッスンが
+ * 無ければ直後の項目（章から送る練習・レッスンの無い章）で、級の最後の
+ * 項目なら、その級の昇級試験。
  *
  * ユーザーの進み具合は見ない — レッスンのページは cookie を読まない静的
  * ページで、完了画面のボタンは道筋の順に「次」を指す。進み具合を踏まえた
@@ -336,7 +339,11 @@ export function stepAfterLesson(slug: LessonSlug): JourneyStep | undefined {
   );
   if (index === -1) return undefined;
 
-  const next = path[index + 1];
+  const rest = path.slice(index + 1);
+  const next =
+    rest.find(
+      (item) => item.kind === "chapter" && item.lessonSlug !== undefined,
+    ) ?? rest[0];
   return next === undefined
     ? { kind: "exam", slug: examSlug }
     : pathItemToStep(next);

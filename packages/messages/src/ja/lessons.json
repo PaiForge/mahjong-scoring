@@ -1,7 +1,9 @@
 {
   "breadcrumb": "レッスン",
+  "completedMark": "完了済み",
   "learnTitle": "まず覚えること",
   "startQuiz": "確認問題へ（{count} 問）",
+  "retakeQuiz": "確認問題を解き直す",
   "quizTitle": "確認問題",
   "progress": "{index} / {total} 問目",
   "conditionLabel": "条件",
@@ -78,9 +80,6 @@
   "manganKoTsumo": {
     "title": "子のツモ（満貫以上）",
     "description": "子が満貫以上をツモしたときの支払いを、子のロンの点数から出す方法を、短い説明と 3 問の確認問題で覚えます。",
-    "lead": "ツモには放銃者がいないので、点数は全員で分けて払います。受け取る合計は子のロンと同じです。",
-    "point1": "子のツモでは、他の子 2 人が同じ額ずつ、親はその倍額を払います。",
-    "point2": "子のロンを半分にすると親の支払い、それをもう一度半分にすると子ひとりの支払いです。満貫なら 8,000 → 4,000 → 2,000 になります。",
     "condition": "子・ツモ・{han}翻（{tier}）",
     "questionPrompt": "支払い（子 / 親）を選んでください",
     "questions": {

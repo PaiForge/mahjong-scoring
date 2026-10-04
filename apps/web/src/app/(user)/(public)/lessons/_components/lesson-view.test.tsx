@@ -19,6 +19,11 @@ vi.mock(
 vi.mock("../_actions/complete-lesson", () => ({
   completeLesson: mockCompleteLesson,
 }));
+// 済みの印が使う。進行のテストでは常に未完了（印の表示は
+// lesson-view-completion.test.tsx が見る）
+vi.mock("../_actions/get-lesson-completion-state", () => ({
+  getLessonCompletionState: vi.fn(async () => false),
+}));
 
 const { useAuth: mockUseAuth } = await import("@/test/auth-context-mock");
 const { readPendingLessonCompletions } =
@@ -68,6 +73,17 @@ function deferred<T>() {
     reject = rej;
   });
   return { promise, resolve, reject };
+}
+
+/** ブラウザの戻る / 進むを押し、popstate が届いて描き直されるまで待つ */
+async function traverse(direction: "back" | "forward") {
+  await act(async () => {
+    const popped = new Promise((resolve) =>
+      window.addEventListener("popstate", resolve, { once: true }),
+    );
+    window.history[direction]();
+    await popped;
+  });
 }
 
 const signedIn = { user: { id: "u1" }, isLoading: false };
@@ -343,6 +359,76 @@ describe("LessonView", () => {
         expect.objectContaining({ slug: "mangan-ko-ron", userId: "u1" }),
       ]);
       expect(screen.queryByRole("link", { name: "nextLesson" })).toBeNull();
+    });
+  });
+
+  describe("ブラウザの戻る / 進む", () => {
+    it("確認問題から戻ると説明に戻り、進むと答えた状態の問題に戻る", async () => {
+      renderLesson();
+      startQuiz();
+      fireEvent.click(choice("8,000"));
+
+      await traverse("back");
+      expect(screen.getByTestId("explanation")).toBeTruthy();
+      expect(screen.queryByTestId("lesson-condition")).toBeNull();
+
+      await traverse("forward");
+      expect(screen.getByTestId("lesson-condition")).toBeTruthy();
+      expect((choice("8,000") as HTMLButtonElement).disabled).toBe(true);
+    });
+
+    it("説明に戻ってからもう一度始めると、途中の問題から続ける", async () => {
+      renderLesson();
+      startQuiz();
+      fireEvent.click(choice("8,000"));
+      fireEvent.click(screen.getByRole("button", { name: "next" }));
+
+      await traverse("back");
+      startQuiz();
+
+      // 2 問目に答えていないので選択肢は押せ、3 問目まで答えると終われる
+      expect((choice("12,000") as HTMLButtonElement).disabled).toBe(false);
+      fireEvent.click(choice("12,000"));
+      fireEvent.click(screen.getByRole("button", { name: "next" }));
+      fireEvent.click(choice("16,000"));
+      expect(screen.getByRole("button", { name: "finish" })).toBeTruthy();
+    });
+
+    it("完了画面から戻ると最後の問題に戻り、終え直しても二重には記録しない", async () => {
+      mockUseAuth.mockReturnValue(signedIn);
+      renderLesson();
+      startQuiz();
+      answerAll(["8,000", "12,000", "16,000"]);
+      expect(
+        await screen.findByRole("link", { name: "nextLesson" }),
+      ).toBeTruthy();
+
+      await traverse("back");
+      expect(screen.getByRole("button", { name: "finish" })).toBeTruthy();
+
+      fireEvent.click(screen.getByRole("button", { name: "finish" }));
+      expect(screen.getByTestId("lesson-achievement")).toBeTruthy();
+      expect(mockCompleteLesson).toHaveBeenCalledTimes(1);
+    });
+
+    it("解き終えてから説明まで戻って始めると、最初の問題から解き直す", async () => {
+      mockUseAuth.mockReturnValue(signedIn);
+      renderLesson();
+      startQuiz();
+      answerAll(["8,000", "12,000", "16,000"]);
+      await screen.findByRole("link", { name: "nextLesson" });
+
+      await traverse("back");
+      await traverse("back");
+      expect(screen.getByTestId("explanation")).toBeTruthy();
+      // 記録できたので、説明の下は完了済みの導線と解き直しのリンクになる
+      expect(screen.getByTestId("related")).toBeTruthy();
+      fireEvent.click(screen.getByRole("button", { name: "retakeQuiz" }));
+
+      expect((choice("8,000") as HTMLButtonElement).disabled).toBe(false);
+      answerAll(["8,000", "12,000", "16,000"]);
+      expect(screen.getByTestId("lesson-achievement")).toBeTruthy();
+      expect(mockCompleteLesson).toHaveBeenCalledTimes(1);
     });
   });
 });

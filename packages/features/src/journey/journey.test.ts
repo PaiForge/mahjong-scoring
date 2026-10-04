@@ -493,11 +493,19 @@ describe("stepAfterLesson", () => {
     });
   });
 
-  it("練習を送る章のレッスンの次は、その章から送る練習", () => {
+  it("練習を送る章のレッスンの次も、練習を飛ばして次の章のレッスン", () => {
     expect(stepAfterLesson("mangan-ko-tsumo")).toEqual({
+      kind: "lesson",
+      lessonSlug: "mangan-oya-ron",
+      chapterSlug: "mangan-oya-ron",
+    });
+  });
+
+  it("級の行程で後ろにレッスンが無ければ、直後の項目（章から送る練習）", () => {
+    expect(stepAfterLesson("yaku")).toEqual({
       kind: "practice",
-      slug: "score-table",
-      variant: "ko_mangan_plus",
+      slug: "yaku-han",
+      variant: undefined,
     });
   });
 

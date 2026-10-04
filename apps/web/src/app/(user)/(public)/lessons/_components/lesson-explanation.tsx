@@ -3,11 +3,11 @@ import { getTranslations } from "next-intl/server";
 
 import { SectionTitle } from "@/app/(user)/_components/section-title";
 import { GuideParagraph } from "@/app/(user)/(public)/learn/_components/guide-paragraph";
-import { ManganKoTsumoScoreTable } from "@/app/(user)/(public)/learn/_components/mangan-ko-tsumo-score-table";
 import { ManganOyaTsumoScoreTable } from "@/app/(user)/(public)/learn/_components/mangan-oya-tsumo-score-table";
 import { ManganScoreTable } from "@/app/(user)/(public)/learn/_components/mangan-score-table";
 import { YakuHanTable } from "@/app/(user)/(public)/learn/_components/yaku-han-table";
 import { ManganKoRonGuide } from "@/app/(user)/(public)/learn/mangan-ko-ron/_components/mangan-ko-ron-guide";
+import { ManganKoTsumoGuide } from "@/app/(user)/(public)/learn/mangan-ko-tsumo/_components/mangan-ko-tsumo-guide";
 import {
   lessonBySlug,
   type LessonSlug,
@@ -48,7 +48,13 @@ const LESSON_EXPLANATIONS: Readonly<
     // 章の本文（`ManganGuideLayout`）のうち表より前の 2 段落
     excerptKeys: ["manganKoRon.learn.body1", "manganKoRon.learn.body2"],
   },
-  "mangan-ko-tsumo": { kind: "summary", table: <ManganKoTsumoScoreTable /> },
+  "mangan-ko-tsumo": {
+    kind: "chapter",
+    // 導出の節（ロンを半分にする）まで出す。確認問題のヒントはその節の
+    // 手順を指しているため、表の節だけでは拠り所が無くなる
+    guide: <ManganKoTsumoGuide />,
+    excerptKeys: ["manganKoTsumo.learn.body1", "manganKoTsumo.learn.body2"],
+  },
   "mangan-oya-ron": {
     kind: "summary",
     table: <ManganScoreTable role="oya" />,
