@@ -47,6 +47,7 @@ const TX = { update: vi.fn(() => updateChain) };
 
 beforeEach(() => {
   vi.clearAllMocks();
+  vi.spyOn(console, "error").mockImplementation(() => undefined);
   mockRequireAdminActor.mockResolvedValue({ actorId: "admin-1" });
   mockGetClientIp.mockResolvedValue("203.0.113.1");
   mockUpdateUserById.mockResolvedValue({ error: null });
@@ -134,5 +135,18 @@ describe("banUser", () => {
       ban_duration: "none",
     });
     expect(mockRevalidatePath).not.toHaveBeenCalled();
+  });
+
+  it("Auth のロールバックも失敗したら、食い違いを対象ユーザー付きでログに残す", async () => {
+    mockTransaction.mockRejectedValue(new Error("db down"));
+    mockUpdateUserById
+      .mockResolvedValueOnce({ error: null })
+      .mockResolvedValueOnce({ error: { message: "auth down" } });
+
+    expect(await banUser("u1", "理由")).toEqual({ error: "banFailed" });
+    expect(console.error).toHaveBeenCalledWith(
+      expect.stringContaining("Auth and DB disagree for u1"),
+      expect.anything(),
+    );
   });
 });
