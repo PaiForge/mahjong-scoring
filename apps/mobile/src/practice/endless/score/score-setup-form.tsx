@@ -2,7 +2,7 @@ import { useMemo, useState, type ReactNode } from "react";
 import { StyleSheet, Text, View } from "react-native";
 import { useRouter } from "expo-router";
 import { useTranslations } from "use-intl";
-import { SCORE_FILTERABLE_YAKU, type ScoreRange } from "@mahjong-scoring/core";
+import { SCORE_FILTERABLE_YAKU } from "@mahjong-scoring/core";
 
 import { Button } from "../../../components/button";
 import { HelpIconButton } from "../../../components/help-icon-button";
@@ -14,20 +14,11 @@ import {
   SettingToggleRow,
 } from "../../../components/setting-toggle-row";
 import type { ScoreSettingsStoreHook } from "../../../hooks/use-score-settings-store";
+import { toggleInArray } from "@mahjong-scoring/features/practice/toggle-in-array";
 import { useYakuLabel } from "@mahjong-scoring/features/yaku/use-yaku-options";
 import { colors } from "../../../lib/theme";
 import { SettingCard } from "./setting-card";
 import { SmallCheckbox } from "./small-checkbox";
-
-/** 点数帯を 1 つ切り替えた並び（web の `toggleInArray`） */
-function toggleRange(
-  ranges: readonly ScoreRange[],
-  range: ScoreRange,
-): ScoreRange[] {
-  return ranges.includes(range)
-    ? ranges.filter((r) => r !== range)
-    : [...ranges, range];
-}
 
 interface ScoreSetupFormProps {
   /** 設定の保存先（総合演習と待ち別点数計算で保存名が違う） */
@@ -154,14 +145,14 @@ export function ScoreSetupForm({
         <SmallCheckbox
           checked={targetScoreRanges.includes("nonMangan")}
           onChange={() =>
-            setTargetScoreRanges(toggleRange(targetScoreRanges, "nonMangan"))
+            setTargetScoreRanges(toggleInArray(targetScoreRanges, "nonMangan"))
           }
           label={t("setup.nonMangan")}
         />
         <SmallCheckbox
           checked={targetScoreRanges.includes("manganPlus")}
           onChange={() =>
-            setTargetScoreRanges(toggleRange(targetScoreRanges, "manganPlus"))
+            setTargetScoreRanges(toggleInArray(targetScoreRanges, "manganPlus"))
           }
           label={t("setup.manganPlus")}
         />
