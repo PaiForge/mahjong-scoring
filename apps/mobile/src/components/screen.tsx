@@ -1,4 +1,4 @@
-import { forwardRef, type ReactNode } from "react";
+import type { ReactNode, Ref } from "react";
 import {
   Pressable,
   ScrollView,
@@ -30,6 +30,8 @@ interface ScreenProps {
    * 数えるのは `children` に直接並べた要素
    */
   readonly stickyHeaderIndices?: readonly number[];
+  /** 本文の `ScrollView`。呼び出し側が先頭へ戻すとき等に使う */
+  readonly ref?: Ref<ScrollView>;
 }
 
 /**
@@ -40,63 +42,59 @@ interface ScreenProps {
  * その下を ink の太枠で区切った白い面。全画面で使い、余白と地の色を揃える
  * （web の `ContentContainer` + `PageTitle`）。
  */
-export const Screen = forwardRef<ScrollView, ScreenProps>(
-  function ScreenComponent(
-    {
-      title,
-      titleAction,
-      back = false,
-      children,
-      contentStyle,
-      stickyHeaderIndices,
-    },
-    ref,
-  ) {
-    const insets = useSafeAreaInsets();
-    const router = useRouter();
-    const t = useTranslations("nav");
-    return (
-      <View style={styles.root}>
-        <View style={[styles.band, { paddingTop: insets.top + 16 }]}>
-          <StripeBackground />
-          {back && (
-            <Pressable
-              onPress={() => router.back()}
-              accessibilityRole="button"
-              accessibilityLabel={t("back")}
-              hitSlop={12}
-              style={[styles.back, { top: insets.top + 14 }]}
-            >
-              <ChevronLeftIcon size={24} color={colors.primary700} />
-            </Pressable>
-          )}
-          {title !== undefined && (
-            <View style={styles.titleWrap}>
-              <PageTitle action={titleAction}>{title}</PageTitle>
-            </View>
-          )}
-        </View>
-        <ScrollView
-          ref={ref}
-          style={styles.body}
-          contentContainerStyle={[
-            styles.content,
-            { paddingBottom: insets.bottom + 32 },
-            contentStyle,
-          ]}
-          keyboardShouldPersistTaps="handled"
-          stickyHeaderIndices={
-            stickyHeaderIndices === undefined
-              ? undefined
-              : [...stickyHeaderIndices]
-          }
-        >
-          {children}
-        </ScrollView>
+export function Screen({
+  title,
+  titleAction,
+  back = false,
+  children,
+  contentStyle,
+  stickyHeaderIndices,
+  ref,
+}: ScreenProps) {
+  const insets = useSafeAreaInsets();
+  const router = useRouter();
+  const t = useTranslations("nav");
+  return (
+    <View style={styles.root}>
+      <View style={[styles.band, { paddingTop: insets.top + 16 }]}>
+        <StripeBackground />
+        {back && (
+          <Pressable
+            onPress={() => router.back()}
+            accessibilityRole="button"
+            accessibilityLabel={t("back")}
+            hitSlop={12}
+            style={[styles.back, { top: insets.top + 14 }]}
+          >
+            <ChevronLeftIcon size={24} color={colors.primary700} />
+          </Pressable>
+        )}
+        {title !== undefined && (
+          <View style={styles.titleWrap}>
+            <PageTitle action={titleAction}>{title}</PageTitle>
+          </View>
+        )}
       </View>
-    );
-  },
-);
+      <ScrollView
+        ref={ref}
+        style={styles.body}
+        contentContainerStyle={[
+          styles.content,
+          { paddingBottom: insets.bottom + 32 },
+          contentStyle,
+        ]}
+        keyboardShouldPersistTaps="handled"
+        stickyHeaderIndices={
+          stickyHeaderIndices === undefined
+            ? undefined
+            : [...stickyHeaderIndices]
+        }
+      >
+        {children}
+      </ScrollView>
+    </View>
+  );
+}
 
 const styles = StyleSheet.create({
   root: {
