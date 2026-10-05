@@ -18,6 +18,7 @@ import { colors } from "../../lib/theme";
 import { TableCaption } from "./guide-text";
 import { MutedCell, RowHeaderCell, StrongCell } from "./table-cells";
 import { TsumoScore } from "./tsumo-score";
+import { FU_CHECKLIST_ROWS } from "@mahjong-scoring/features/curriculum/fu-checklist-rows";
 
 /**
  * 符が固定される役の点数表（ツモ／ロン × 翻数）（web の `FixedFuScoreTable`）
@@ -153,20 +154,6 @@ export function YakuHanTable() {
 }
 
 /**
- * 符を数える場所（web の `CHECKLIST_ROWS`）
- *
- * 和了の状況だけで決まる符を先に、手牌を見て数える符を後に置く。
- */
-const CHECKLIST_ROWS = [
-  "futei",
-  "menzenRon",
-  "tsumo",
-  "machi",
-  "jantou",
-  "mentsu",
-] as const;
-
-/**
  * 符を数える場所のチェックリスト（web の `FuChecklistTable`）
  * 符チェックリスト
  *
@@ -180,7 +167,7 @@ export function FuChecklistTable() {
         { label: t("checklistColPlace"), flex: 3 },
         { label: t("checklistColFu"), align: "right", flex: 1.2 },
       ]}
-      rows={CHECKLIST_ROWS.map((key) => [
+      rows={FU_CHECKLIST_ROWS.map((key) => [
         <View key="place" style={styles.place}>
           <Text style={styles.placeLabel}>
             {t(`checklistRows.${key}.label`)}
