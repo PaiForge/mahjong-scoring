@@ -1,7 +1,6 @@
 import Link from "next/link";
 import { getTranslations } from "next-intl/server";
 
-import { BeltBadge } from "@/app/(user)/_components/belt-badge";
 import { ChevronRightIcon } from "@/app/(user)/_components/icons/chevron-right-icon";
 import { LinkButton } from "@/app/(user)/_components/link-button";
 import { SectionTitle } from "@/app/(user)/_components/section-title";
@@ -17,6 +16,7 @@ import type {
 import { practiceListHref } from "../../practice/_lib/practice-web-routes";
 
 import { journeyStepHref, journeyStepTitle } from "../../_lib/journey-step";
+import { RankHeading } from "../../dojo/_components/rank-heading";
 import { RankStageProgress } from "../../dojo/_components/rank-stage-progress";
 
 interface NextStepSectionProps {
@@ -57,7 +57,8 @@ function presentStep(
  *
  * Server Component。黒帯への道（features の `buildJourney`）が決めた
  * 今やること 1 つを、次に取る級の帯色で縁取ったカードに出す。
- * 「次の目標：5級 — 満貫以上の点数計算ができること」→ その級の進み具合
+ * 級の見出し（道場の級カードと共有の `RankHeading`。「5級 — 満貫以上の
+ * 点数計算ができること」に「次の目標」の pill、級の詳細へのリンク）→ その級の進み具合
  * （学ぶ・練習する・認定される）→ ボタン、の順。何をするかはボタンが対象の
  * 名前ごと言う。以前はボタンの上に「次は「子のツモ」をレッスンで学びましょう。」
  * のような一文を置いていたが、ボタンの言い換えにしかならず、カードを読む
@@ -86,9 +87,10 @@ export async function NextStepSection({ journey }: NextStepSectionProps) {
   const { current, nextStep, isFresh } = journey;
   if (current === undefined || nextStep === undefined) return undefined;
 
-  const [t, tRanks, tAll] = await Promise.all([
+  const [t, tRanks, tDojo, tAll] = await Promise.all([
     getTranslations("dashboard.nextStep"),
     getTranslations("ranks"),
+    getTranslations("dojo"),
     getTranslations(),
   ]);
 
@@ -103,20 +105,12 @@ export async function NextStepSection({ journey }: NextStepSectionProps) {
         data-belt-slug={rankSlug}
         className={`space-y-4 rounded-xl border-3 bg-white p-5 ${beltBorderClass(rankSlug)}`}
       >
-        <div className="flex items-center gap-3">
-          <BeltBadge slug={rankSlug} />
-          <div className="min-w-0">
-            <p className="text-xs font-bold text-surface-500">
-              {t("goalLabel")}
-            </p>
-            <p className="text-base font-bold text-surface-900">
-              {t("goal", {
-                rank: tRanks(`names.${rankSlug}`),
-                criterion: tRanks(`criteria.${rankSlug}`),
-              })}
-            </p>
-          </div>
-        </div>
+        <RankHeading
+          rankSlug={rankSlug}
+          status={current.status}
+          tRanks={tRanks}
+          tDojo={tDojo}
+        />
 
         <RankStageProgress journey={current} tRanks={tRanks} isCurrentRank />
 

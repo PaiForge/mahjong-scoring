@@ -12,13 +12,6 @@ import { RANK_REGISTRY } from "@mahjong-scoring/features/ranks/registry";
 vi.mock("next-intl/server", async () => await import("@/test/intl-mock"));
 vi.mock("next-intl", async () => await import("@/test/intl-mock"));
 
-/** 取得状態の pill も async なサーバーコンポーネント。状態の文字列だけ写す */
-vi.mock("../ranks/_components/rank-status-badge", () => ({
-  RankStatusBadge: ({ status }: { status: string }) => (
-    <span data-testid="status">{status}</span>
-  ),
-}));
-
 const { RankJourneyCard } = await import("./rank-journey-card");
 
 const NONE: ReadonlySet<string> = new Set();

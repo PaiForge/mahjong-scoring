@@ -51,6 +51,13 @@ describe("NextStepSection", () => {
     expect(
       getByRole("link", { name: "choosePractice" }).getAttribute("href"),
     ).toBe("/practice?rank=kyu-5");
+    // 見出しは道場の級カードと同じ形 — 級の詳細へのリンクと「次の目標」の pill
+    expect(getByRole("link", { name: "heading" }).getAttribute("href")).toBe(
+      "/dojo/ranks/kyu-5",
+    );
+    expect(container.querySelector("[data-rank-status]")?.textContent).toBe(
+      "status.next",
+    );
     // 次の目標は 5級の帯色
     expect(
       container

@@ -38,6 +38,7 @@
     "criterionLabel": "合格基準",
     "viewExam": "試験の内容を見る"
   },
+  "heading": "{rank} — {criterion}",
   "rankPassConditionsTitle": "{rank} 合格条件",
   "passConditions": "制限時間{timeLimit}秒以内に{minScore}問正解で合格（ミス{mistakeLimit}回で終了）",
   "examGate": {

@@ -1,13 +1,10 @@
-import Link from "next/link";
 import { getTranslations } from "next-intl/server";
 
-import { BeltBadge } from "@/app/(user)/_components/belt-badge";
 import { DoneMark } from "@/app/(user)/_components/done-mark";
 import { ChevronRightIcon } from "@/app/(user)/_components/icons/chevron-right-icon";
 import { LockClosedIcon } from "@/app/(user)/_components/icons/lock-closed-icon";
 import { LinkButton } from "@/app/(user)/_components/link-button";
 import { LinkRow, LinkRowList } from "@/app/(user)/_components/link-row";
-import { TEXT_LINK_CLASSES } from "@/app/_components/_lib/link-classes";
 import { beltBorderClass, beltButtonVarsClass } from "@/lib/ranks/belt-colors";
 import {
   getChapterBySlug,
@@ -15,15 +12,11 @@ import {
 } from "@mahjong-scoring/features/curriculum/registry";
 import type { RankJourney } from "@mahjong-scoring/features/journey/journey";
 import { practiceTitleKey } from "@mahjong-scoring/features/practice/catalog";
-import {
-  chapterHref,
-  practiceHref,
-  rankHref,
-} from "@mahjong-scoring/features/routes";
+import { chapterHref, practiceHref } from "@mahjong-scoring/features/routes";
 
-import { RankStatusBadge } from "../ranks/_components/rank-status-badge";
 import { practiceVariantLabel } from "../../_lib/practice-variant-label";
 import { DOJO_TOUR_ID } from "../_lib/tour-ids";
+import { RankHeading } from "./rank-heading";
 import { RankStageProgress } from "./rank-stage-progress";
 
 interface RankJourneyCardProps {
@@ -36,7 +29,8 @@ interface RankJourneyCardProps {
  * 黒帯への道の 1 級分
  * 級の行程カード
  *
- * Server Component。帯バッジ・級名・取得状態・できるようになること・
+ * Server Component。級の見出し（帯バッジ・級名と合格基準・取得状態。
+ * ダッシュボードの「次にやること」と共有の {@link RankHeading}）と
  * 「学ぶ / 練習する / 試験」の進み具合を 1 枚に載せる。いま取り組む級
  * （次の目標）だけは中身を開き、学ぶ段（レッスンの行）・レッスンから送る
  * 練習の行・試験への帯色のボタンを並べる。他の級は閉じたまま、級名から
@@ -73,23 +67,13 @@ export async function RankJourneyCard({
         data-rank-status={status}
         className={`rounded-xl border-3 bg-white p-4 sm:p-5 ${beltBorderClass(rank.slug)}`}
       >
-        <div
-          className="flex items-center gap-3"
-          data-tour-id={expanded ? DOJO_TOUR_ID.nextRankHeader : undefined}
-        >
-          <BeltBadge slug={rank.slug} />
-          <h3 className="min-w-0 flex-1 text-lg font-bold">
-            <Link href={rankHref(rank.slug)} className={TEXT_LINK_CLASSES}>
-              {tRanks(`names.${rank.slug}`)}
-            </Link>
-          </h3>
-          <RankStatusBadge status={status} />
-        </div>
-
-        <dl className="mt-3 flex gap-2 text-sm text-surface-700">
-          <dt className="shrink-0 font-bold">{t("canDoLabel")}:</dt>
-          <dd>{tRanks(`criteria.${rank.slug}`)}</dd>
-        </dl>
+        <RankHeading
+          rankSlug={rank.slug}
+          status={status}
+          tRanks={tRanks}
+          tDojo={t}
+          dataTourId={expanded ? DOJO_TOUR_ID.nextRankHeader : undefined}
+        />
 
         <RankStageProgress
           journey={journey}

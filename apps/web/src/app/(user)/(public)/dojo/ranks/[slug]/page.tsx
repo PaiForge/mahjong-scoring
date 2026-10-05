@@ -110,6 +110,7 @@ export default async function RankDetailPage({ params }: RankDetailPageProps) {
           <div className="min-w-0 space-y-2">
             <RankStatusBadge
               status={resolveRankStatus(rank.slug, achievedSlugs)}
+              tDojo={t}
             />
             <dl className="flex gap-2 text-sm text-surface-700">
               <dt className="shrink-0 font-bold">
