@@ -8,7 +8,7 @@ import {
   benefitGrants,
   challengeResults,
   db,
-  learnChapterReads,
+  lessonCompletions,
   moderationActions,
   profiles,
   purchases,
@@ -36,7 +36,7 @@ export interface UserDetail {
   readonly ranks: readonly UserRank[];
   readonly totalExp: number;
   readonly challengeCount: number;
-  readonly chapterReadCount: number;
+  readonly lessonCompletionCount: number;
   /** 新しい順。取り消した行も含む */
   readonly purchases: readonly Purchase[];
   /** 新しい順。取り消した行も含む */
@@ -68,7 +68,7 @@ export async function fetchUserDetail(
     ranks,
     [expRow],
     [challengeRow],
-    [chapterRow],
+    [lessonRow],
     purchaseRows,
     grantRows,
     moderationEntries,
@@ -93,8 +93,8 @@ export async function fetchUserDetail(
       .where(eq(challengeResults.userId, id)),
     db
       .select({ value: count() })
-      .from(learnChapterReads)
-      .where(eq(learnChapterReads.userId, id)),
+      .from(lessonCompletions)
+      .where(eq(lessonCompletions.userId, id)),
     db
       .select()
       .from(purchases)
@@ -132,7 +132,7 @@ export async function fetchUserDetail(
     ranks,
     totalExp: expRow?.totalExp ?? 0,
     challengeCount: challengeRow?.value ?? 0,
-    chapterReadCount: chapterRow?.value ?? 0,
+    lessonCompletionCount: lessonRow?.value ?? 0,
     purchases: purchaseRows,
     grants: grantRows,
     moderationEntries,

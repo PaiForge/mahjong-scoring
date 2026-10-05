@@ -218,6 +218,13 @@
       "when": 1791085817199,
       "tag": "20261004035017_backfill_furo_score_lesson_completion",
       "breakpoints": true
+    },
+    {
+      "idx": 31,
+      "version": "7",
+      "when": 1791169821556,
+      "tag": "20261005031021_merge_chapter_reads_into_lesson_completions",
+      "breakpoints": true
     }
   ]
 }

@@ -14,7 +14,6 @@ import {
   challengeResults,
   db,
   expEvents,
-  learnChapterReads,
   lessonCompletions,
   profiles,
   userExp,
@@ -84,9 +83,6 @@ export async function deleteAccount(
       .where(eq(challengeResults.userId, userId));
     await tx.delete(expEvents).where(eq(expEvents.userId, userId));
     await tx.delete(userExp).where(eq(userExp.userId, userId));
-    await tx
-      .delete(learnChapterReads)
-      .where(eq(learnChapterReads.userId, userId));
     await tx
       .delete(lessonCompletions)
       .where(eq(lessonCompletions.userId, userId));
