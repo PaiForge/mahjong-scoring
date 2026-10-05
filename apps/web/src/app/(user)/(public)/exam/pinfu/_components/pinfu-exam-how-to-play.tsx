@@ -1,3 +1,4 @@
+import { EXAM_BOARD_CONFIG } from "@mahjong-scoring/features/exam/pinfu/types";
 import { PINFU_EXAM_DEMO_OPTIONS } from "@mahjong-scoring/features/exam/pinfu/demo-question";
 import { createScoreExamHowToPlay } from "../../_lib/create-exam-how-to-play";
 import type { ScoreExamHowToPlayConfig } from "../../_lib/create-exam-how-to-play";
@@ -10,7 +11,7 @@ import type { ScoreExamHowToPlayConfig } from "../../_lib/create-exam-how-to-pla
  * `PINFU_EXAM_DEMO_OPTIONS` が持つ。ここは翻訳名前空間を束ねるだけ。
  */
 export const PINFU_EXAM_DEMO = {
-  translationNamespace: "pinfuExamChallenge",
+  translationNamespace: EXAM_BOARD_CONFIG.translationNamespace,
   ...PINFU_EXAM_DEMO_OPTIONS,
 } satisfies ScoreExamHowToPlayConfig;
 

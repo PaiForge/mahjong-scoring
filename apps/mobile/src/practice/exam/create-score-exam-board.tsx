@@ -1,7 +1,7 @@
 import type { ReactNode } from "react";
 import { StyleSheet, View } from "react-native";
 import { useTranslations } from "use-intl";
-import type { ScoreOptionRange } from "@mahjong-scoring/features/practice/score/get-available-scores";
+import type { ScoreExamBoardConfig } from "@mahjong-scoring/features/exam/score-exam-board-config";
 import type { ScoreQuestionResult } from "@mahjong-scoring/features/results/score-question-result";
 import { buildYakumanCapNote } from "@mahjong-scoring/features/results/yakuman-cap-note";
 
@@ -12,27 +12,9 @@ import { QuestionPlaceholder } from "../components/question-placeholder";
 import { QuestionPrompt } from "../components/question-prompt";
 import { RevealedScoreQuestionAnswer } from "../components/revealed-score-answer";
 import { YakuBreakdown } from "../components/yaku-breakdown";
-import {
-  useScoreQuestionBoard,
-  type ScoreQuestionGenerateOptions,
-} from "../hooks/use-score-question-board";
+import { useScoreQuestionBoard } from "../hooks/use-score-question-board";
 import { useTrainingAnswerVisibility } from "@mahjong-scoring/features/practice/use-training-mode";
 import { ScoreExamAnswerForm } from "./score-exam-answer-form";
-
-interface CreateScoreExamBoardConfig {
-  /** i18n の翻訳ネームスペース（例: "manganExamChallenge"） */
-  readonly translationNamespace: string;
-  /** 出題条件（features の `exam/<級>/types.ts` の `EXAM_GENERATE_OPTIONS`） */
-  readonly generateOptions: ScoreQuestionGenerateOptions;
-  /**
-   * 回答の選択肢を固定する範囲。`generateOptions.allowedRanges` と揃えること
-   * （揃っていないと正解が選択肢に無い問題が出る）。点数帯を絞らない出題は
-   * `"all"` を渡す。
-   */
-  readonly scoreRange: ScoreOptionRange;
-  /** 生成の最大試行回数。成立率が低い出題条件（平和・満貫以上）だけが上書きする */
-  readonly maxRetries?: number;
-}
 
 /**
  * 昇級試験（点数計算）の出題盤面を生成するファクトリー関数
@@ -58,7 +40,7 @@ interface CreateScoreExamBoardConfig {
  * 出題も選択肢も端末ローカルの設定に依存させない。
  */
 export function createScoreExamBoard(
-  config: CreateScoreExamBoardConfig,
+  config: ScoreExamBoardConfig,
 ): (props: RecordingPracticeBoardProps<ScoreQuestionResult>) => ReactNode {
   const { translationNamespace, generateOptions, scoreRange, maxRetries } =
     config;

@@ -1,17 +1,13 @@
 import { StyleSheet, View } from "react-native";
 import { useTranslations } from "use-intl";
-import {
-  FU_VALUES,
-  generateTotalFuQuestion,
-  retryGenerate,
-} from "@mahjong-scoring/core";
+import { FU_VALUES } from "@mahjong-scoring/core";
 import {
   DEMO_FU_CONTEXT,
   DEMO_FU_TEHAI,
 } from "@mahjong-scoring/features/board/demo-tehai";
 import {
-  EXAM_GENERATE_OPTIONS,
-  EXAM_GENERATION_MAX_RETRIES,
+  EXAM_TRANSLATION_NAMESPACE,
+  generateExamQuestion,
   parseFuQuestionResults,
   type FuExamQuestionResult,
 } from "@mahjong-scoring/features/exam/fu/types";
@@ -29,16 +25,6 @@ import {
 } from "../../create-practice-views";
 import type { PracticeScreens } from "../../practice-screens";
 
-const NAMESPACE = "fuExamChallenge";
-
-/** 本番と模試で同じ条件の 1 問（依存が無いのでモジュールに置いて参照を固定する） */
-function generateExamQuestion() {
-  return retryGenerate(
-    () => generateTotalFuQuestion(EXAM_GENERATE_OPTIONS),
-    EXAM_GENERATION_MAX_RETRIES,
-  );
-}
-
 /**
  * 昇級試験（手牌の合計符）の出題盤面（web の `FuExamBoard`）
  * 昇級試験盤面
@@ -55,7 +41,7 @@ function FuExamBoard(props: RecordingPracticeBoardProps<FuExamQuestionResult>) {
     <TotalFuQuestionBoard
       {...props}
       generateQuestion={generateExamQuestion}
-      translationNamespace={NAMESPACE}
+      translationNamespace={EXAM_TRANSLATION_NAMESPACE}
     />
   );
 }
@@ -68,7 +54,7 @@ function FuExamBoard(props: RecordingPracticeBoardProps<FuExamQuestionResult>) {
  * 牌姿を使う — 出題形式は同じで、違うのはルールと合格ラインだけだから。
  */
 function FuExamHowToPlay() {
-  const t = useTranslations(NAMESPACE);
+  const t = useTranslations(EXAM_TRANSLATION_NAMESPACE);
   return (
     <View style={styles.demo}>
       <TehaiDisplay tehai={DEMO_FU_TEHAI} context={DEMO_FU_CONTEXT} />
@@ -82,7 +68,7 @@ function FuExamHowToPlay() {
         isCountingDown={false}
         onSelect={() => undefined}
         columns={3}
-        translationNamespace={NAMESPACE}
+        translationNamespace={EXAM_TRANSLATION_NAMESPACE}
       />
     </View>
   );
@@ -116,7 +102,7 @@ export const fuExamScreens: PracticeScreens = {
   ProblemList: ({ results }) => (
     <FuProblemList
       results={parseFuQuestionResults(results)}
-      translationNamespace={NAMESPACE}
+      translationNamespace={EXAM_TRANSLATION_NAMESPACE}
     />
   ),
 };
