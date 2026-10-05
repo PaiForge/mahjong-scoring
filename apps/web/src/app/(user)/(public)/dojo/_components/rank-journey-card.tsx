@@ -116,7 +116,6 @@ export async function RankJourneyCard({
                 <h4 className="text-sm font-bold text-surface-900">
                   {tRanks("stages.learn")}
                 </h4>
-                <p className="text-xs text-surface-500">{t("chaptersLead")}</p>
                 {/* 学ぶ段はレッスンごとに 1 行。題名と説明は章の辞書から引き
                     （レッスン = 章）、レッスンの目次と同じ文言を出す */}
                 <LinkRowList>
@@ -150,7 +149,6 @@ export async function RankJourneyCard({
                 <h4 className="text-sm font-bold text-surface-900">
                   {tRanks("stages.practice")}
                 </h4>
-                <p className="text-xs text-surface-500">{t("practicesLead")}</p>
                 <LinkRowList>
                   {practices.map((item) => {
                     const title = tAll(
@@ -184,11 +182,6 @@ export async function RankJourneyCard({
               <h4 className="text-sm font-bold text-surface-900">
                 {tRanks("stages.exam")}
               </h4>
-              <p className="text-xs text-surface-500">
-                {chapters.length > 0
-                  ? t("examLead")
-                  : t("rankDetail.examLeadWithoutChapters")}
-              </p>
               {/* 帯色のボタン。右シェブロンなのは、遷移先が試験の説明ページで
                   押した瞬間に試験が始まるわけではないため（昇級試験カードと同じ） */}
               <LinkButton

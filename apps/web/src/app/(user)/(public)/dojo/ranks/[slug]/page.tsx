@@ -120,15 +120,11 @@ export default async function RankDetailPage({ params }: RankDetailPageProps) {
           </div>
         </div>
 
-        {/* 前提のレッスンを持たない級では節ごと出さない。見出しとリード文だけが
-            残ると、レッスンが 1 つも無いのに「ここで身につきます」と言う面になる
-            （道場と同じ扱い） */}
+        {/* 前提のレッスンを持たない級では節ごと出さない。見出しだけが残ると、
+            レッスンが 1 つも無いのに空の節が並ぶ（道場と同じ扱い） */}
         {hasChapters && (
           <section className="space-y-4">
             <SectionTitle>{t("chaptersTitle")}</SectionTitle>
-            <p className="text-sm leading-relaxed text-surface-500">
-              {t("chaptersLead")}
-            </p>
             <ChapterTocList
               slugs={rank.learnChapterSlugs}
               completedSlugs={completedSlugs}
