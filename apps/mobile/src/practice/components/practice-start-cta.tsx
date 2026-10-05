@@ -5,6 +5,7 @@ import {
   practiceMenuBySlug,
   type PracticeMenuSlug,
 } from "@mahjong-scoring/features/practice-menu-types";
+import { buildPracticeStartCtaLabels } from "@mahjong-scoring/features/practice/start-cta-labels";
 import {
   practicePlayHref,
   practiceTrainingHref,
@@ -28,11 +29,13 @@ export function PracticeStartCta({
   readonly variant: string;
 }) {
   const router = useRouter();
-  const tc = useTranslations("challenge");
-  const tp = useTranslations("practice");
-  const tt = useTranslations("training");
-  const { timeLimit, mistakeLimit } = practiceMenuBySlug(slug);
-  const rules = { timeLimit, mistakeLimit };
+  const challenge = useTranslations("challenge");
+  const practice = useTranslations("practice");
+  const training = useTranslations("training");
+  const labels = buildPracticeStartCtaLabels(
+    { challenge, practice, training },
+    practiceMenuBySlug(slug),
+  );
 
   return (
     <View style={styles.frame}>
@@ -44,16 +47,16 @@ export function PracticeStartCta({
           onPress={() => router.push(practicePlayHref(slug, variant))}
           testID="start-challenge"
         >
-          {tc("startButton")}
+          {labels.challenge}
         </Button>
-        <Text style={styles.hint}>{tp("modeChallengeHint", rules)}</Text>
+        <Text style={styles.hint}>{labels.challengeHint}</Text>
       </View>
 
       <View style={styles.divider}>
         <View style={styles.line}>
           <DashedDivider thickness={2} />
         </View>
-        <Text style={styles.or}>{tp("orDivider")}</Text>
+        <Text style={styles.or}>{labels.orDivider}</Text>
         <View style={styles.line}>
           <DashedDivider thickness={2} />
         </View>
@@ -70,9 +73,9 @@ export function PracticeStartCta({
           onPress={() => router.push(practiceTrainingHref(slug, variant))}
           testID="start-training"
         >
-          {tt("startButton")}
+          {labels.training}
         </Button>
-        <Text style={styles.hint}>{tp("modeTrainingHint")}</Text>
+        <Text style={styles.hint}>{labels.trainingHint}</Text>
       </View>
     </View>
   );
