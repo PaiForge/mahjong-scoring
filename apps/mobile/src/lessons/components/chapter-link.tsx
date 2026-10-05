@@ -9,7 +9,7 @@ import {
 } from "@mahjong-scoring/features/curriculum/registry";
 import { chapterHref } from "@mahjong-scoring/features/routes";
 
-import { colors } from "../../lib/theme";
+import { linkStyles } from "../../lib/link-styles";
 import { isLessonPorted } from "../ported-lessons";
 
 /**
@@ -67,9 +67,5 @@ export function ChapterLink({
 export const richLineBreak = (): string => "\n";
 
 const styles = StyleSheet.create({
-  link: {
-    color: colors.mutedForeground,
-    textDecorationLine: "underline",
-    textDecorationColor: colors.surface300,
-  },
+  link: linkStyles.inline,
 });

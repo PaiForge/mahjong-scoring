@@ -178,9 +178,7 @@ const styles = StyleSheet.create({
     color: colors.surface900,
   },
   linkTitle: {
-    color: colors.mutedForeground,
-    textDecorationLine: "underline",
-    textDecorationColor: colors.surface300,
+    fontWeight: "600",
   },
   description: {
     marginTop: 2,

@@ -46,12 +46,11 @@ const styles = StyleSheet.create({
     gap: 4,
   },
   label: {
-    fontSize: 12,
-    color: colors.mutedForeground,
-    textDecorationLine: "underline",
-    textDecorationColor: colors.surface300,
+    fontSize: 13,
+    fontWeight: "600",
+    color: colors.primary700,
   },
   pressed: {
-    color: colors.foreground,
+    color: colors.primary900,
   },
 });

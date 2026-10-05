@@ -1,6 +1,7 @@
 import type { ReactNode } from "react";
 import { Pressable, StyleSheet, Text, View } from "react-native";
 
+import { linkStyles } from "../lib/link-styles";
 import { colors } from "../lib/theme";
 import { DashedDivider } from "./dashed-divider";
 import { ChevronRightIcon } from "./icons/icons";
@@ -17,7 +18,8 @@ interface LinkRowProps {
  * 読む・見るためのリンク 1 行（web の `LinkRow`）
  *
  * 太枠 + ハードシャドウは「押して始める面」の記号なので、見に行くだけの導線は
- * カードにせずこれを使う。タイトルはグレーの下線（web の `ROW_LINK_TITLE_CLASSES`）。
+ * カードにせずこれを使う。押せることは行の形（右端の矢印と押したときの地の色）
+ * で示し、題名は地の文と同じ濃さにする（`linkStyles.rowTitle`）。
  */
 export function LinkRow({
   onPress,
@@ -34,13 +36,13 @@ export function LinkRow({
     >
       {leading !== undefined && <View style={styles.side}>{leading}</View>}
       <View style={styles.body}>
-        <Text style={styles.title}>{title}</Text>
+        <Text style={[styles.title, linkStyles.rowTitle]}>{title}</Text>
         {description !== undefined && (
           <Text style={styles.description}>{description}</Text>
         )}
       </View>
       <View style={styles.side}>
-        {trailing ?? <ChevronRightIcon size={16} color={colors.surface400} />}
+        {trailing ?? <ChevronRightIcon size={18} color={colors.surface400} />}
       </View>
     </Pressable>
   );
@@ -84,15 +86,12 @@ const styles = StyleSheet.create({
     minWidth: 0,
   },
   title: {
-    fontSize: 14,
-    fontWeight: "700",
-    color: colors.mutedForeground,
-    textDecorationLine: "underline",
-    textDecorationColor: colors.surface300,
+    fontSize: 15,
   },
   description: {
     marginTop: 2,
-    fontSize: 12,
-    color: colors.surface400,
+    fontSize: 13,
+    lineHeight: 18,
+    color: colors.surface500,
   },
 });

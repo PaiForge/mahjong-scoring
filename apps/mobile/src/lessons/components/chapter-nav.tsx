@@ -128,13 +128,13 @@ const styles = StyleSheet.create({
   },
   title: {
     flexShrink: 1,
-    fontSize: 14,
-    color: colors.mutedForeground,
-    textDecorationLine: "underline",
-    textDecorationColor: colors.surface300,
+    fontSize: 15,
+    fontWeight: "600",
+    color: colors.primary700,
   },
   pressed: {
-    color: colors.foreground,
+    color: colors.primary900,
+    opacity: 0.7,
   },
   published: {
     fontSize: 12,

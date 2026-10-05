@@ -43,7 +43,7 @@ export function PracticeCard({ slug }: { readonly slug: PracticeMenuSlug }) {
       {visual !== undefined && <PracticeCardVisual visual={visual} />}
       <View style={styles.footer}>
         <Text style={styles.detail}>{t("detail")}</Text>
-        <ChevronRightIcon size={16} color={colors.mutedForeground} />
+        <ChevronRightIcon size={16} color={colors.primary700} />
       </View>
     </Pressable>
   );
@@ -80,9 +80,7 @@ const styles = StyleSheet.create({
   },
   detail: {
     fontSize: 14,
-    fontWeight: "700",
-    color: colors.mutedForeground,
-    textDecorationLine: "underline",
-    textDecorationColor: colors.surface300,
+    fontWeight: "600",
+    color: colors.primary700,
   },
 });

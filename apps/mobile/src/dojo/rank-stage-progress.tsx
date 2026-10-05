@@ -175,8 +175,7 @@ const styles = StyleSheet.create({
     fontWeight: "700",
   },
   linkName: {
-    textDecorationLine: "underline",
-    textDecorationColor: colors.surface300,
+    color: colors.primary700,
   },
   valueRow: {
     flexDirection: "row",
