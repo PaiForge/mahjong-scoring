@@ -22,6 +22,7 @@ import { useTrainingSession } from "../_hooks/use-training-session";
 import { TrainingModeProvider } from "../_hooks/use-training-mode";
 import type { PracticeBoardProps } from "./practice-board-props";
 import { practiceResultHref } from "@mahjong-scoring/features/routes";
+import { rankRequiringMenu } from "@mahjong-scoring/features/ranks/registry";
 
 /**
  * チャレンジ盤面の描画に渡される状態
@@ -118,6 +119,10 @@ export function createChallengePlayView<
   // フックの呼び出し順は毎レンダー同じ
   const useFinishHandler =
     variant === "exam" ? useSubmitExamOnFinish : useSaveOnFinish;
+  // 昇級試験は合格点に届いた時点で終える。合否はそこで決まり、その先を
+  // 解いても結果は変わらない。サーバーも合格点に届いた挑戦を終わったものと
+  // して扱う（`finishedChallengeTime`）
+  const goalCount = rankRequiringMenu(menuType)?.requirement.minScore;
   const useBoardState = config.useBoardState ?? useNoBoardState;
 
   function ChallengePlayView(props: TProps) {
@@ -129,6 +134,7 @@ export function createChallengePlayView<
     const { gameSession, timerControl } = useTimedSession({
       mistakeLimit,
       timeLimit,
+      goalCount,
     });
     const handleFinish = useFinishHandler(menuType);
     const { recordResult, presentQuestion } = useRecordedResults<TResult>(
