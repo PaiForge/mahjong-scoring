@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useEffectEvent, useState } from "react";
 
 interface UseCountdownOptions {
   from?: number;
@@ -16,11 +16,7 @@ interface UseCountdownOptions {
  */
 export function useCountdown({ from = 3, onComplete }: UseCountdownOptions) {
   const [count, setCount] = useState(from);
-  const onCompleteRef = useRef(onComplete);
-
-  useEffect(() => {
-    onCompleteRef.current = onComplete;
-  });
+  const onCountdownComplete = useEffectEvent(onComplete);
 
   // isActive は count から導出できるため状態として保持しない
   const isActive = count > 0;
@@ -37,7 +33,7 @@ export function useCountdown({ from = 3, onComplete }: UseCountdownOptions) {
 
   useEffect(() => {
     if (count > 0) return;
-    onCompleteRef.current();
+    onCountdownComplete();
   }, [count]);
 
   const reset = useCallback(() => {
