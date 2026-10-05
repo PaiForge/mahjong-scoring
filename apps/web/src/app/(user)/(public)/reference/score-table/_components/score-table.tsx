@@ -2,24 +2,15 @@
 
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useTranslations } from "next-intl";
-import {
-  calculateKoScore,
-  calculateOyaScore,
-  isInvalidCell,
-  type RoleScore,
-} from "@mahjong-scoring/core";
 import { ToggleGroup } from "@/app/(user)/_components/toggle-group";
 import { useIsClient } from "@/app/_hooks/use-is-client";
 import { useRuleSettingsStore } from "@/app/_hooks/use-rule-settings-store";
+import { resolveScoreTableFocus } from "../_lib/score-table-utils";
+import type { ScoreTableFocus } from "../_lib/score-table-utils";
 import {
-  resolveScoreTableFocus,
-  HAN_COLS,
-  FU_ROWS,
-} from "../_lib/score-table-utils";
-import type {
-  ScoreTableFocus,
-  ScoreTableViewMode,
-} from "../_lib/score-table-utils";
+  buildScoreGrid,
+  type ScoreTableViewMode,
+} from "@mahjong-scoring/features/score-table/score-grid";
 import type { Role, WinType } from "@mahjong-scoring/core";
 import { NormalScoreTable } from "./normal-score-table";
 import { HighScoreTable } from "./high-score-table";
@@ -112,23 +103,10 @@ export function ScoreTable({
     winType === focus.winType;
 
   /** 符・翻の点数計算結果グリッド（activeTab / winType / 切り上げ満貫設定に依存） */
-  const scoreGrid = useMemo(() => {
-    const grid = new Map<string, RoleScore>();
-    for (const fu of FU_ROWS) {
-      for (const han of HAN_COLS) {
-        if (!isInvalidCell(han, fu, winType)) {
-          const key = `${han}-${fu}`;
-          grid.set(
-            key,
-            isKo
-              ? calculateKoScore(han, fu, { kiriageMangan })
-              : calculateOyaScore(han, fu, { kiriageMangan }),
-          );
-        }
-      }
-    }
-    return grid;
-  }, [isKo, winType, kiriageMangan]);
+  const scoreGrid = useMemo(
+    () => buildScoreGrid(activeTab, winType, { kiriageMangan }),
+    [activeTab, winType, kiriageMangan],
+  );
 
   // 初期表示時と、focus が後から届いたときにハイライトへ寄せる
   useEffect(() => {

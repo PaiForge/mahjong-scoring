@@ -1,5 +1,6 @@
 "use client";
 
+import { highScoreCellId } from "@mahjong-scoring/features/score-table/score-grid";
 import type { RefObject } from "react";
 import { useTranslations } from "next-intl";
 import { HIGH_SCORES } from "@mahjong-scoring/core";
@@ -55,7 +56,7 @@ export function HighScoreTable({
       }
     >
       {HIGH_SCORES.map((item) => {
-        const cellId = `${activeTab}-${winType}-${item.nameKey}`;
+        const cellId = highScoreCellId(activeTab, winType, item.nameKey);
         const isHidden = !!hiddenCells[cellId];
         const isHighlighted = item.nameKey === highlightKey;
 

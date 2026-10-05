@@ -2,6 +2,7 @@ import { StyleSheet, Text } from "react-native";
 import { useTranslations } from "use-intl";
 import { HIGH_SCORES } from "@mahjong-scoring/core";
 import type { Role, WinType } from "@mahjong-scoring/core";
+import { highScoreCellId } from "@mahjong-scoring/features/score-table/score-grid";
 
 import { DataTable, type DataTableColumn } from "../components/data-table";
 import { colors } from "../lib/theme";
@@ -38,7 +39,7 @@ export function HighScoreTable({
   ];
 
   const rows = HIGH_SCORES.map((item) => {
-    const cellId = `${activeTab}-${winType}-${item.nameKey}`;
+    const cellId = highScoreCellId(activeTab, winType, item.nameKey);
     return [
       <Text key="name" style={styles.name}>
         {t(item.nameKey)}

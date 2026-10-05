@@ -1,25 +1,19 @@
 import { useCallback, useMemo, useState, type ReactNode } from "react";
 import { StyleSheet, Text, View } from "react-native";
 import { useTranslations } from "use-intl";
+import { type Role, type WinType } from "@mahjong-scoring/core";
+
 import {
-  calculateKoScore,
-  calculateOyaScore,
-  FU_VALUES,
-  isInvalidCell,
-  type Role,
-  type RoleScore,
-  type WinType,
-} from "@mahjong-scoring/core";
+  buildScoreGrid,
+  type ScoreTableViewMode,
+} from "@mahjong-scoring/features/score-table/score-grid";
 
 import { ToggleGroup, type ToggleOption } from "../components/toggle-group";
 import { useRuleSettingsStore } from "../hooks/use-rule-settings-store";
 import { colors } from "../lib/theme";
 import { HighScoreTable } from "./high-score-table";
 import { KiriageManganNote } from "./kiriage-mangan-note";
-import { HAN_COLS, NormalScoreTable } from "./normal-score-table";
-
-/** 点数表の表示モード（符×翻 / 満貫以上） */
-type ScoreTableViewMode = "normal" | "high_score";
+import { NormalScoreTable } from "./normal-score-table";
 
 interface ScoreTableProps {
   readonly initialRole?: Role;
@@ -69,22 +63,10 @@ export function ScoreTable({
   const isKo = activeTab === "ko";
 
   /** 符・翻の点数計算結果グリッド（親子 / ロンツモ / 切り上げ満貫設定に依存） */
-  const scoreGrid = useMemo(() => {
-    const grid = new Map<string, RoleScore>();
-    for (const fu of FU_VALUES) {
-      for (const han of HAN_COLS) {
-        if (!isInvalidCell(han, fu, winType)) {
-          grid.set(
-            `${han}-${fu}`,
-            isKo
-              ? calculateKoScore(han, fu, { kiriageMangan })
-              : calculateOyaScore(han, fu, { kiriageMangan }),
-          );
-        }
-      }
-    }
-    return grid;
-  }, [isKo, winType, kiriageMangan]);
+  const scoreGrid = useMemo(
+    () => buildScoreGrid(activeTab, winType, { kiriageMangan }),
+    [activeTab, winType, kiriageMangan],
+  );
 
   const toggleCell = useCallback((id: string) => {
     setHiddenCells((prev) => ({ ...prev, [id]: !prev[id] }));
