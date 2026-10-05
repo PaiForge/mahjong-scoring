@@ -1,8 +1,7 @@
 "use client";
 
-import { useTranslations } from "next-intl";
-import { YAKUMAN_HAN } from "@mahjong-scoring/core";
 import type { YakuDetail } from "@mahjong-scoring/core";
+import { useYakumanRoundingNote } from "@mahjong-scoring/features/practice/han-count/use-yakuman-rounding-note";
 import { YakuBreakdown } from "../../_components/yaku-breakdown";
 
 interface HanBreakdownProps {
@@ -23,29 +22,12 @@ interface HanBreakdownProps {
  * 結果ページの問題別詳細と、トレーニングの答え合わせ（盤面の選択肢の下）の
  * 両方から使う。同じ手を振り返るのに 2 つの表を覚えさせない。
  *
- * 合計が正解と食い違うのは役満への丸めだけ（翻数と内訳は出題側で揃えている。
- * core の `han-consistency.test.ts` 参照）。それ以外で食い違ったら丸めの補足は
- * 嘘になるので出さない。
+ * 補足を出す条件（正解が役満で、内訳の合計がそれを超えるときだけ）は
+ * モバイルと共有の `useYakumanRoundingNote` が持つ。
  */
 export function HanBreakdown({ yakuDetails, correctHan }: HanBreakdownProps) {
-  const t = useTranslations("hanCountChallenge");
-  const tBreakdown = useTranslations("challenge.yakuBreakdown");
+  // 役満への丸めの補足（出す条件と文言）はモバイルと共有する
+  const note = useYakumanRoundingNote(yakuDetails, correctHan);
 
-  const rawTotal = yakuDetails.reduce((sum, detail) => sum + detail.han, 0);
-  const isClampedToYakuman =
-    correctHan === YAKUMAN_HAN && rawTotal > correctHan;
-
-  return (
-    <YakuBreakdown
-      yakuDetails={yakuDetails}
-      note={
-        isClampedToYakuman ? (
-          <>
-            {tBreakdown("han", { count: rawTotal })} &rarr; {t("yakuman")}（
-            {t("yakumanNote")}）
-          </>
-        ) : undefined
-      }
-    />
-  );
+  return <YakuBreakdown yakuDetails={yakuDetails} note={note} />;
 }

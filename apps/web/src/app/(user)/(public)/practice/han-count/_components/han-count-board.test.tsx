@@ -4,6 +4,7 @@ import { generateValidScoreQuestion } from "@mahjong-scoring/core";
 import type { ScoreQuestion } from "@mahjong-scoring/core";
 
 vi.mock("next-intl", async () => await import("@/test/intl-mock"));
+vi.mock("use-intl", async () => await import("@/test/intl-mock"));
 
 const { HanCountBoard } = await import("./han-count-board");
 const { TrainingModeProvider } =
