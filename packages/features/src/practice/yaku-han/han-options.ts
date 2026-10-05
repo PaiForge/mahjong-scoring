@@ -17,3 +17,18 @@ export const HAN_OPTIONS = [1, 2, 3, 4, 5, 6, YAKUMAN_HAN] as const;
 export function isYakuman(han: number): boolean {
   return han === YAKUMAN_HAN;
 }
+
+/**
+ * 役翻数の選択肢の表記（「n翻」か「役満」）
+ * 役翻数表記
+ *
+ * 回答フォームと問題別一覧で同じ表記にする。
+ *
+ * @param t - `hanOption` / `yakuman` キーを持つ翻訳関数（yakuHanChallenge）
+ */
+export function yakuHanLabel(
+  han: number,
+  t: (key: string, values?: Record<string, number>) => string,
+): string {
+  return isYakuman(han) ? t("yakuman") : t("hanOption", { count: han });
+}

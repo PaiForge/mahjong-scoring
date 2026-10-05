@@ -2,7 +2,7 @@
 
 import {
   HAN_OPTIONS,
-  isYakuman,
+  yakuHanLabel,
 } from "@mahjong-scoring/features/practice/yaku-han/han-options";
 
 import { HanChoiceAnswerForm } from "../../_components/han-choice-answer-form";
@@ -31,9 +31,7 @@ export function YakuHanAnswerForm(props: YakuHanAnswerFormProps) {
       options={HAN_OPTIONS}
       translationNamespace="yakuHanChallenge"
       columnsClassName="grid-cols-4 sm:grid-cols-7"
-      renderLabel={(han, t) =>
-        isYakuman(han) ? t("yakuman") : t("hanOption", { count: han })
-      }
+      renderLabel={yakuHanLabel}
     />
   );
 }
