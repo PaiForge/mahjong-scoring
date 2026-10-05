@@ -6,8 +6,7 @@ import {
   getChapterI18nPath,
 } from "@mahjong-scoring/features/curriculum/registry";
 import type { RankJourney } from "@mahjong-scoring/features/journey/journey";
-import { practiceTitleKey } from "@mahjong-scoring/features/practice/catalog";
-import { practiceVariantLabel } from "@mahjong-scoring/features/practice/practice-variant-label";
+import { practiceDisplayTitle } from "@mahjong-scoring/features/practice/practice-variant-label";
 import { chapterHref, practiceHref } from "@mahjong-scoring/features/routes";
 
 import { DashedDivider } from "../components/dashed-divider";
@@ -109,8 +108,7 @@ export function RankJourneyCard({
               </Text>
               <LinkRowList>
                 {practices.map((item) => {
-                  const title = tAll(`practice.${practiceTitleKey(item.slug)}`);
-                  const variantLabel = practiceVariantLabel(
+                  const title = practiceDisplayTitle(
                     tAll,
                     item.slug,
                     item.variant,
@@ -121,9 +119,7 @@ export function RankJourneyCard({
                       onPress={() =>
                         router.push(practiceHref(item.slug, item.variant))
                       }
-                      title={
-                        variantLabel ? `${title}（${variantLabel}）` : title
-                      }
+                      title={title}
                     />
                   );
                 })}
