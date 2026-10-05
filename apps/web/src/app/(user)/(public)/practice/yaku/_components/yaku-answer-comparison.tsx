@@ -1,7 +1,7 @@
 "use client";
 
 import { useTranslations } from "next-intl";
-import { judgeYakuName } from "@mahjong-scoring/core";
+import { buildYakuComparisonChips } from "@mahjong-scoring/features/practice/yaku/answer-comparison";
 import { useYakuOrder } from "@/app/_hooks/use-yaku-order-store";
 import { useYakuLabel } from "@/app/_hooks/use-yaku-options";
 import { AnswerComparison } from "../../_components/answer-comparison";
@@ -50,29 +50,25 @@ export function YakuAnswerComparison({
   const yakuOrder = useYakuOrder();
   const { canOpenYakuCheatsheet, openYakuCheatsheet, yakuCheatsheetModal } =
     useYakuCheatsheetModal(correctYakuNames);
-  // チップの色を決めるときの「選んだ役」。時間切れは正解をそのまま入れて
-  // 成立していた役を緑で出す
-  const judgedSelection =
-    outcome === AnswerOutcome.TimeUp
-      ? correctYakuNames
-      : (selectedYakuNames ?? []);
 
   /** 役名を表示順に並べてチップにする（選択順・判定順のばらつきを見せない） */
   const chips = (names: readonly string[]) => {
-    const ordered = yakuOrder.filter((yaku) => names.includes(yaku));
+    const ordered = buildYakuComparisonChips(
+      names,
+      yakuOrder,
+      correctYakuNames,
+      selectedYakuNames,
+      outcome,
+    );
     if (ordered.length === 0) return t("result.none");
 
     return (
       <span className="flex flex-wrap gap-1.5">
-        {ordered.map((yakuName) => (
+        {ordered.map(({ yakuName, state }) => (
           <YakuChip
             key={yakuName}
             label={labelOf(yakuName)}
-            feedbackState={judgeYakuName(
-              yakuName,
-              judgedSelection,
-              correctYakuNames,
-            )}
+            feedbackState={state}
             onSelect={
               canOpenYakuCheatsheet(yakuName)
                 ? () => openYakuCheatsheet(yakuName)
