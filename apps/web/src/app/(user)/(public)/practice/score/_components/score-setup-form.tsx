@@ -3,7 +3,7 @@
 import { useState, useMemo, type ReactNode } from "react";
 import { SettingCard } from "../../_components/setting-card";
 import { SettingCardSkeleton } from "../../_components/setting-card-skeleton";
-import { toggleInArray } from "../../_lib/toggle-in-array";
+import { toggleInArray } from "@mahjong-scoring/features/practice/toggle-in-array";
 import { useRouter } from "next/navigation";
 import { useTranslations } from "next-intl";
 import { SCORE_FILTERABLE_YAKU } from "@mahjong-scoring/core";
