@@ -16,7 +16,10 @@ import {
 } from "@mahjong-scoring/core";
 import { useYakumanRules } from "@/app/_hooks/use-rule-settings-store";
 import { useYakuOrder } from "@/app/_hooks/use-yaku-order-store";
-import { practiceHanTier } from "@mahjong-scoring/features/practice/score/han-tiers";
+import {
+  formatHan,
+  formatPayment,
+} from "@mahjong-scoring/features/practice/score/format-answer";
 import { orderYakuDetails } from "@mahjong-scoring/features/results/order-yaku-details";
 import { formatScoreAnswer } from "@mahjong-scoring/features/results/format-score-answer";
 import { paymentToScoreTableAnswer } from "@mahjong-scoring/features/results/payment-adapter";
@@ -149,15 +152,8 @@ export function ResultDisplay({
     fu: answer.fu,
   };
 
-  const getHanDisplay = (hanValue: number, levelName?: string) => {
-    const tier = simplifyMangan
-      ? practiceHanTier(hanValue, allowDoubleYakuman)
-      : undefined;
-    if (tier) {
-      return levelName ?? t(`form.options.${tier.key}`);
-    }
-    return `${hanValue}${t("form.options.hanSuffix")}`;
-  };
+  const getHanDisplay = (hanValue: number) =>
+    formatHan(hanValue, { t, simplifyMangan, allowDoubleYakuman });
 
   return (
     <div className="space-y-4">
@@ -300,9 +296,7 @@ export function ResultDisplay({
               <td
                 className={`py-2 pr-4 text-right align-top ${judged.result.isScoreCorrect ? "text-success" : "text-destructive"}`}
               >
-                {judged.answer.scoreFromKo !== undefined
-                  ? `${judged.answer.scoreFromKo}/${judged.answer.scoreFromOya}`
-                  : `${judged.answer.score}${t("result.pointSuffix")}`}{" "}
+                {formatPayment(judged.answer, false, { t })}{" "}
                 <JudgementMark
                   verdict={
                     judged.result.isScoreCorrect ? "correct" : "incorrect"

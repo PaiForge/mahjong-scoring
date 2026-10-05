@@ -1,54 +1,18 @@
-import type {
-  MachiCellAnswer,
-  ScoreQuestion,
-  UserAnswer,
-} from "@mahjong-scoring/core";
+import type { MachiCellAnswer, ScoreQuestion } from "@mahjong-scoring/core";
 import { scoreAnswerToUserAnswer } from "@mahjong-scoring/features/results/payment-adapter";
-import { practiceHanTier } from "../score/han-tiers";
+import {
+  formatHan,
+  formatPayment,
+  type FormatHanOptions,
+} from "../score/format-answer";
 
 /**
  * マスの回答を 1 行の文字列にするための翻訳と表示モード
  * マス回答整形オプション
  */
-export interface FormatCellAnswerOptions {
-  /** `score` 名前空間の翻訳関数（`form.options.*` / `result.pointSuffix` を引く） */
-  readonly t: (key: string) => string;
+export interface FormatCellAnswerOptions extends FormatHanOptions {
   /** `machiScore.cells.noYakuShort` の文言 */
   readonly noYakuLabel: string;
-  /** 満貫以上を区分名（満貫・跳満…）で出すか */
-  readonly simplifyMangan: boolean;
-  readonly allowDoubleYakuman: boolean;
-}
-
-/** 翻数の表示（区分名か「n翻」） */
-function formatHan(
-  han: number,
-  { t, simplifyMangan, allowDoubleYakuman }: FormatCellAnswerOptions,
-): string {
-  const tier = simplifyMangan
-    ? practiceHanTier(han, allowDoubleYakuman)
-    : undefined;
-  return tier
-    ? t(`form.options.${tier.key}`)
-    : `${han}${t("form.options.hanSuffix")}`;
-}
-
-/**
- * 支払いの表示（ロン「n点」・親ツモ「nオール」・子ツモ「a/b」）
- *
- * ツモは支払いの内訳や「オール」が単位を兼ねるため「点」を付けない
- * （`formatScoreAnswer` と同じ表記）。
- */
-function formatPayment(
-  answer: UserAnswer,
-  isOyaTsumo: boolean,
-  { t }: FormatCellAnswerOptions,
-): string {
-  if (answer.scoreFromKo !== undefined) {
-    return `${answer.scoreFromKo}/${answer.scoreFromOya}`;
-  }
-  if (isOyaTsumo) return `${answer.score}${t("form.options.all")}`;
-  return `${answer.score}${t("result.pointSuffix")}`;
 }
 
 /**
