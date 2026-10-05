@@ -32,7 +32,7 @@
     "labelBakaze": "場風（東）",
     "labelJikaze": "自風（南）",
     "noFuTitle": "符がつかない雀頭 → 0符",
-    "noFuBody": "[[shuupai|数牌]]や[[otakaze|オタ風]]を[[jantou|雀頭]]にした場合、符は加算されません。",
+    "noFuBody": "[[shuupai|数牌]]や[[otakaze|オタ風]]を雀頭にした場合、符は加算されません。",
     "noFuExamples": "0符の例",
     "labelSuuhaiManzu": "数牌（一萬）",
     "labelSuuhaiPinzu": "数牌（五筒）",
