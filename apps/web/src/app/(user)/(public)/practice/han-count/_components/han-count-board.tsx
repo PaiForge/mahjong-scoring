@@ -1,26 +1,16 @@
 "use client";
 
-import { useGradeAndRecord } from "@mahjong-scoring/features/practice/use-grade-answer";
-
-import { useCallback } from "react";
-import { clampHanToYakuman } from "@mahjong-scoring/core";
-import type { ScoreQuestion } from "@mahjong-scoring/core";
 import { tehaiContextOf } from "@mahjong-scoring/features/board/score-question-context";
 import { QuestionGeneratingPlaceholder } from "../../_components/question-generating-placeholder";
 import { useTranslations } from "next-intl";
 import type { useGeneratedScoreQuestion } from "@mahjong-scoring/features/practice/use-generated-score-question";
 import { TehaiDisplay } from "../../_components/tehai-display";
 import { TehaiMentsuBreakdown } from "../../_components/tehai-mentsu-breakdown";
-import { usePresentQuestion } from "@mahjong-scoring/features/practice/use-present-question";
-import {
-  useRegisterAdvance,
-  useTrainingMode,
-} from "@mahjong-scoring/features/practice/use-training-mode";
 import { HanBreakdown } from "./han-breakdown";
 import { HanCountAnswerForm } from "./han-count-answer-form";
 import type { HanCountQuestionResult } from "@mahjong-scoring/features/practice/han-count/types";
-import { toHanCountQuestionResult } from "@mahjong-scoring/features/practice/han-count/types";
 import type { RecordingPracticeBoardProps } from "@mahjong-scoring/features/practice/board-props";
+import { useHanCountAnswer } from "@mahjong-scoring/features/practice/han-count/use-han-count-answer";
 
 /**
  * 出題状態（{@link useGeneratedScoreQuestion} の戻り値）
@@ -34,15 +24,10 @@ export type HanCountQuestionState = ReturnType<
 type HanCountBoardProps = RecordingPracticeBoardProps<HanCountQuestionResult> &
   HanCountQuestionState;
 
-/** 出題中の問題を回答なしの結果に組む（時間切れの届け出用） */
-function toUnansweredResult(question: ScoreQuestion): HanCountQuestionResult {
-  return toHanCountQuestionResult(question, undefined);
-}
-
 /**
  * 翻数即答の出題盤面（手牌の提示と翻数入力）
  *
- * 回答ロジックを内包し、チャレンジ・トレーニング両モードで共有する。
+ * 回答ロジックは `useHanCountAnswer` が持ち、チャレンジ・トレーニング両モードで共有する。
  *
  * トレーニングの答え合わせでは、選択肢の下に翻数の内訳（{@link HanBreakdown}）を
  * 足す。正解の翻数が緑に染まるだけでは、どの役を数え落としたのかが分からず
@@ -65,33 +50,15 @@ export function HanCountBoard({
   onRecordResult,
   onPresentQuestion,
 }: HanCountBoardProps) {
-  const gradeAndRecord = useGradeAndRecord(toHanCountQuestionResult, {
-    onRecordResult,
-    onAnswer,
-    advance: advanceQuestion,
-  });
   const t = useTranslations("hanCountChallenge");
-  // トレーニングでは開示時も回答後の停止中も内訳を出す（どちらも答え合わせの局面）
-  const { isRevealed, isHolding } = useTrainingMode();
-  const showBreakdown = isRevealed || isHolding;
-
-  useRegisterAdvance(question === undefined ? undefined : advanceQuestion);
-  usePresentQuestion(question, toUnansweredResult, onPresentQuestion);
-
-  // 選択肢が 1〜13 のため、正解の提示（ハイライト・内訳の注記）も丸めた翻数で行う
-  const correctHan =
-    question === undefined ? 0 : clampHanToYakuman(question.answer.han);
-
-  const handleSubmit = useCallback(
-    (userHan: number) => {
-      if (showFeedback || !question) return;
-
-      // 選択肢は 1〜13 のため、14翻以上（役満+ドラ・ダブル役満等）の正解は
-      // 役満（13翻）に丸めて判定・記録する。丸めないと正解できない問題になる
-      gradeAndRecord(question, userHan);
-    },
-    [showFeedback, question, gradeAndRecord],
-  );
+  const { handleSubmit, correctHan, showBreakdown } = useHanCountAnswer({
+    question,
+    advanceQuestion,
+    showFeedback,
+    onAnswer,
+    onRecordResult,
+    onPresentQuestion,
+  });
 
   if (!question) {
     return (
