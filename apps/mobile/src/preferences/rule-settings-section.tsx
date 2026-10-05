@@ -1,4 +1,5 @@
 import { useTranslations } from "use-intl";
+import { RULE_SETTING_TOGGLES } from "@mahjong-scoring/features/settings/rule-setting-toggles";
 
 import {
   SettingsCard,
@@ -16,52 +17,19 @@ import { useRuleSettingsStore } from "../hooks/use-rule-settings-store";
  */
 export function RuleSettingsSection() {
   const t = useTranslations("settings");
-  const s = useRuleSettingsStore();
+  const settings = useRuleSettingsStore();
 
   return (
     <SettingsCard>
-      <SettingToggleRow
-        title={t("renfonpaiTitle")}
-        description={t("renfonpaiDescription")}
-        checked={s.renfonpaiAs4Fu}
-        onChange={s.setRenfonpaiAs4Fu}
-      />
-      <SettingToggleRow
-        title={t("kiriageManganTitle")}
-        description={t("kiriageManganDescription")}
-        checked={s.kiriageMangan}
-        onChange={s.setKiriageMangan}
-      />
-      <SettingToggleRow
-        title={t("suuankouTankiDoubleTitle")}
-        description={t("suuankouTankiDoubleDescription")}
-        checked={s.suuankouTankiDouble}
-        onChange={s.setSuuankouTankiDouble}
-      />
-      <SettingToggleRow
-        title={t("daisuushiiDoubleTitle")}
-        description={t("daisuushiiDoubleDescription")}
-        checked={s.daisuushiiDouble}
-        onChange={s.setDaisuushiiDouble}
-      />
-      <SettingToggleRow
-        title={t("kokushiJuusanmenDoubleTitle")}
-        description={t("kokushiJuusanmenDoubleDescription")}
-        checked={s.kokushiJuusanmenDouble}
-        onChange={s.setKokushiJuusanmenDouble}
-      />
-      <SettingToggleRow
-        title={t("junseiChuurenDoubleTitle")}
-        description={t("junseiChuurenDoubleDescription")}
-        checked={s.junseiChuurenDouble}
-        onChange={s.setJunseiChuurenDouble}
-      />
-      <SettingToggleRow
-        title={t("fukugouYakumanTitle")}
-        description={t("fukugouYakumanDescription")}
-        checked={s.fukugouYakuman}
-        onChange={s.setFukugouYakuman}
-      />
+      {RULE_SETTING_TOGGLES.map(({ field, setter, messageKey }) => (
+        <SettingToggleRow
+          key={field}
+          title={t(`${messageKey}Title`)}
+          description={t(`${messageKey}Description`)}
+          checked={settings[field]}
+          onChange={settings[setter]}
+        />
+      ))}
     </SettingsCard>
   );
 }
