@@ -85,7 +85,7 @@ export function createMetadata({
   readonly title: string;
   readonly description?: string;
   /**
-   * canonical URL のパス（例: `/learn/jantou-fu`）。
+   * canonical URL のパス（例: `/lessons/jantou-fu`）。
    *
    * ルートレイアウトの `metadataBase` を基準に絶対 URL へ解決される。
    * 検索結果に載せるページにだけ渡すこと。noindex ページや

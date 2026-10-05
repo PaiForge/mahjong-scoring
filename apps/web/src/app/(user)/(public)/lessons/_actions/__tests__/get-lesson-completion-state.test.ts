@@ -2,7 +2,7 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 
 const { mockFetch } = vi.hoisted(() => ({ mockFetch: vi.fn() }));
 
-vi.mock("../../_lib/progress", () => ({
+vi.mock("../../_lib/lesson-progress", () => ({
   fetchCompletedLessonSlugs: mockFetch,
 }));
 
@@ -20,7 +20,7 @@ describe("getLessonCompletionState", () => {
     expect(await getLessonCompletionState("mangan-ko-tsumo")).toBe(false);
   });
 
-  it("レジストリに無い slug は DB を引かずに false", async () => {
+  it("カリキュラムに無い slug は DB を引かずに false", async () => {
     expect(await getLessonCompletionState("no-such-lesson")).toBe(false);
     expect(mockFetch).not.toHaveBeenCalled();
   });

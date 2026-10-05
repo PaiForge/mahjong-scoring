@@ -5,56 +5,49 @@ import { practiceMenuFromCatalog } from "../practice/catalog";
 import { isPracticeVariantOf } from "../practice-menu-types";
 import { RANK_REGISTRY } from "../ranks/registry";
 import {
-  LESSON_REGISTRY,
-  LESSON_SLUGS,
-  chaptersLearnedByLessons,
-  isLessonSlug,
-  lessonBySlug,
-  lessonForChapter,
+  QUIZ_LESSON_REGISTRY,
+  QUIZ_LESSON_SLUGS,
+  isQuizLessonSlug,
+  quizLessonBySlug,
 } from "./registry";
 
-describe("LESSON_REGISTRY", () => {
-  it("slug が一意である", () => {
-    expect(new Set(LESSON_SLUGS).size).toBe(LESSON_SLUGS.length);
+describe("QUIZ_LESSON_REGISTRY", () => {
+  it("slug が一意である（章ごとに確認問題は高々 1 つ）", () => {
+    expect(new Set(QUIZ_LESSON_SLUGS).size).toBe(QUIZ_LESSON_SLUGS.length);
   });
 
-  it("章ごとにレッスンは高々 1 つ（章の「学んだ」の印が割れない）", () => {
-    const chapters = LESSON_REGISTRY.map((lesson) => lesson.chapterSlug);
-    expect(new Set(chapters).size).toBe(chapters.length);
-  });
-
-  it("対応する章は実在し、その級の前提章に含まれる", () => {
-    for (const lesson of LESSON_REGISTRY) {
-      expect(CURRICULUM_CHAPTER_SLUGS).toContain(lesson.chapterSlug);
+  it("slug は実在する章で、その級の前提章に含まれる", () => {
+    for (const lesson of QUIZ_LESSON_REGISTRY) {
+      expect(CURRICULUM_CHAPTER_SLUGS).toContain(lesson.slug);
       const rank = RANK_REGISTRY.find(
         (entry) => entry.slug === lesson.rankSlug,
       );
-      expect(rank?.learnChapterSlugs).toContain(lesson.chapterSlug);
+      expect(rank?.learnChapterSlugs).toContain(lesson.slug);
     }
   });
 
-  it("isLessonSlug は登録済みの slug だけを通す", () => {
-    expect(isLessonSlug("mangan-ko-ron")).toBe(true);
-    expect(isLessonSlug("fu-doubling")).toBe(false);
-    expect(isLessonSlug(undefined)).toBe(false);
+  it("段級位の前提章はすべて確認問題を持つ", () => {
+    for (const rank of RANK_REGISTRY) {
+      for (const chapterSlug of rank.learnChapterSlugs) {
+        expect(quizLessonBySlug(chapterSlug), chapterSlug).toBeDefined();
+      }
+    }
   });
 
-  it("slug と章からレッスンを引ける", () => {
-    expect(lessonBySlug("mangan-ko-ron")?.rankSlug).toBe("kyu-5");
-    expect(lessonBySlug("unknown")).toBeUndefined();
-    expect(lessonForChapter("mangan-ko-ron")?.slug).toBe("mangan-ko-ron");
-    expect(lessonForChapter("fu-doubling")).toBeUndefined();
+  it("isQuizLessonSlug は確認問題を持つ章の slug だけを通す", () => {
+    expect(isQuizLessonSlug("mangan-ko-ron")).toBe(true);
+    expect(isQuizLessonSlug("fu-doubling")).toBe(false);
+    expect(isQuizLessonSlug(undefined)).toBe(false);
   });
 
-  it("完了したレッスンから学んだ章を引き、未知の slug は無視する", () => {
-    expect(
-      chaptersLearnedByLessons(new Set(["mangan-ko-ron", "unknown"])),
-    ).toEqual(new Set(["mangan-ko-ron"]));
-    expect(chaptersLearnedByLessons(new Set())).toEqual(new Set());
+  it("slug から確認問題レッスンを引ける", () => {
+    expect(quizLessonBySlug("mangan-ko-ron")?.rankSlug).toBe("kyu-5");
+    expect(quizLessonBySlug("fu-doubling")).toBeUndefined();
+    expect(quizLessonBySlug("unknown")).toBeUndefined();
   });
 
   it("練習リンクはカタログに載っている練習の正しいバリアントを指す", () => {
-    for (const lesson of LESSON_REGISTRY) {
+    for (const lesson of QUIZ_LESSON_REGISTRY) {
       for (const { slug, variant } of lesson.practiceLinks) {
         // カタログ外の練習へ送ると、一覧にもおすすめにも無い孤立した導線になる
         expect(practiceMenuFromCatalog(slug), lesson.slug).toBeDefined();

@@ -12,27 +12,6 @@ import { RANK_REGISTRY } from "@mahjong-scoring/features/ranks/registry";
 vi.mock("next-intl/server", async () => await import("@/test/intl-mock"));
 vi.mock("next-intl", async () => await import("@/test/intl-mock"));
 
-/**
- * 前提章の目次は async なサーバーコンポーネントの入れ子で、client render
- * できない。ここでは「どの章を・どれを学んだとして渡したか」だけ見たいので、
- * 受け取った props を data 属性に写すスタブに差し替える。
- */
-vi.mock("@/app/(user)/(public)/learn/_components/chapter-toc-list", () => ({
-  ChapterTocList: ({
-    slugs,
-    readSlugs,
-  }: {
-    slugs: readonly string[];
-    readSlugs: ReadonlySet<string>;
-  }) => (
-    <div
-      data-testid="chapters"
-      data-slugs={slugs.join(",")}
-      data-learned={[...readSlugs].join(",")}
-    />
-  ),
-}));
-
 /** 取得状態の pill も async なサーバーコンポーネント。状態の文字列だけ写す */
 vi.mock("../ranks/_components/rank-status-badge", () => ({
   RankStatusBadge: ({ status }: { status: string }) => (
@@ -50,7 +29,6 @@ function rankJourney(
   overrides: Partial<BuildJourneyInput> = {},
 ): RankJourney {
   const journey = buildJourney({
-    readSlugs: NONE,
     completedLessonSlugs: NONE,
     attemptedPractices: NO_ATTEMPTS,
     achievedRankSlugs: [],
@@ -69,7 +47,7 @@ function hrefs(container: HTMLElement): string[] {
 
 describe("RankJourneyCard", () => {
   it("開いた級は、レッスン・章から送る練習・試験への導線を並べる", async () => {
-    const { container, queryByTestId, getAllByRole } = render(
+    const { container, getAllByRole } = render(
       <ol>
         {await RankJourneyCard({
           journey: rankJourney("kyu-5", {
@@ -89,30 +67,35 @@ describe("RankJourneyCard", () => {
     expect(links).toContain("/practice/mangan-score-calculation");
     expect(links).toContain("/exam/mangan");
 
-    // 5級の章はすべてレッスンで学ぶので、同じ章を目次に重ねて出さない
-    expect(queryByTestId("chapters")).toBeNull();
     // 終えたレッスンにだけ完了の印が付く
     expect(getAllByRole("img", { name: "lessonDone" })).toHaveLength(1);
+    // 確認問題を持つレッスンにはその旨を添える（5級の章はすべて持つ）
+    expect(container.textContent?.match(/lessonRowDescription/g)).toHaveLength(
+      RANK_REGISTRY[0].learnChapterSlugs.length,
+    );
     // 施錠の注記は次の目標の級には出ない
     expect(container.textContent).not.toContain("lockedNote");
-    // 進み具合の各段はその段の一覧へ送る
+    // 進み具合の各段はその段の一覧へ送る（学ぶは目次のその級の最初のレッスン）
     expect(
       Array.from(container.querySelectorAll("[data-stage] a")).map((a) =>
         a.getAttribute("href"),
       ),
-    ).toEqual(["/lessons#kyu-5", "/practice?rank=kyu-5", "/exam/mangan"]);
+    ).toEqual([
+      "/lessons#chapter-mangan-ko-ron",
+      "/practice?rank=kyu-5",
+      "/exam/mangan",
+    ]);
   });
 
-  it("レッスンの無い章は目次に出し、読了した章を学んだとして渡す", async () => {
-    // 前提章のレッスンに頼らないよう、レッスンの無い章は行程から
-    // レッスンを外して作る（章を読んで学ぶ形の描き分けだけを見る）
+  it("確認問題を持たないレッスンも同じ行で、説明だけを添えない", async () => {
+    // 前提章はすべて確認問題を持つので、行程から確認問題を外して作る
     const base = rankJourney("kyu-4", { achievedRankSlugs: ["kyu-5"] });
     const chapters = base.chapters.map((item) => ({
       ...item,
-      lessonSlug: undefined,
+      hasQuiz: false,
       done: item.chapterSlug === "jantou-fu",
     }));
-    const { container, getByTestId } = render(
+    const { container, getAllByRole } = render(
       <ol>
         {await RankJourneyCard({
           journey: { ...base, chapters },
@@ -121,14 +104,11 @@ describe("RankJourneyCard", () => {
       </ol>,
     );
 
-    const toc = getByTestId("chapters");
-    expect(toc.getAttribute("data-slugs")).toBe(
-      RANK_REGISTRY[1].learnChapterSlugs.join(","),
-    );
-    expect(toc.getAttribute("data-learned")).toBe("jantou-fu");
-    expect(hrefs(container).some((href) => href.startsWith("/lessons/"))).toBe(
-      false,
-    );
+    for (const chapterSlug of RANK_REGISTRY[1].learnChapterSlugs) {
+      expect(hrefs(container)).toContain(`/lessons/${chapterSlug}`);
+    }
+    expect(container.textContent).not.toContain("lessonRowDescription");
+    expect(getAllByRole("img", { name: "lessonDone" })).toHaveLength(1);
   });
 
   it("閉じた上位の級は、級名の詳細リンクと施錠の注記だけで、中身は出さない", async () => {

@@ -18,14 +18,12 @@ import { eq } from "drizzle-orm";
 import type { PostgresJsDatabase } from "drizzle-orm/postgres-js";
 
 import {
-  learnChapterReads,
   lessonCompletions,
   profiles,
   userRanks,
   userRoles,
 } from "../../src/lib/db/schema";
 import type { CurriculumChapterSlug } from "@mahjong-scoring/features/curriculum/registry";
-import { lessonForChapter } from "@mahjong-scoring/features/lessons/registry";
 import {
   RANK_REGISTRY,
   nextRank,
@@ -206,18 +204,14 @@ export async function ensureSeedUser(
       .onConflictDoNothing();
   }
 
-  // シードは段級位と読了の権威ソース: 宣言された状態へ消して入れ直す。
-  // チャレンジ成績（challenge-results.ts）と同じ方針で、シードユーザーと
-  // して実際に受験・読了した記録は残らない。追記だけ（onConflictDoNothing）
-  // だと、シードユーザーで遊んで付いた級が再シード後も残り、「無級の
-  // 管理者」等のフィクスチャが壊れたままになる
+  // シードは段級位とレッスンの完了の権威ソース: 宣言された状態へ消して
+  // 入れ直す。チャレンジ成績（challenge-results.ts）と同じ方針で、シード
+  // ユーザーとして実際に受験・完了した記録は残らない。追記だけ
+  // （onConflictDoNothing）だと、シードユーザーで遊んで付いた級が再シード後も
+  // 残り、「無級の管理者」等のフィクスチャが壊れたままになる。
+  // 無級のユーザーには完了を入れない — レッスンが次の一歩として出る状態を
+  // 確かめたい
   await db.delete(userRanks).where(eq(userRanks.userId, userId));
-  await db
-    .delete(learnChapterReads)
-    .where(eq(learnChapterReads.userId, userId));
-  // レッスンの完了も同じ理由で消す（宣言された状態に戻す）。入れ直すのは
-  // 級持ちのユーザーの、読了した章のレッスンだけ（下）。無級のユーザーには
-  // 入れない — レッスンが次の一歩として出る状態を確かめたい
   await db
     .delete(lessonCompletions)
     .where(eq(lessonCompletions.userId, userId));
@@ -227,41 +221,28 @@ export async function ensureSeedUser(
       .insert(userRanks)
       .values(user.ranks.map((rankSlug) => ({ userId, rankSlug })));
 
-    const readChapters = readChaptersFor(user.ranks);
+    const completedLessons = completedLessonsFor(user.ranks);
     await db
-      .insert(learnChapterReads)
-      .values(readChapters.map((chapterSlug) => ({ userId, chapterSlug })));
-
-    // レッスンのある章は、読了ではなくレッスンの完了で「学んだ」になる
-    // （features の journey/journey.ts）。本番で読了をレッスンの完了へ
-    // 引き継いだ後と同じく、読了した章のレッスンも終えたことにする
-    const lessonSlugs = readChapters.flatMap((chapterSlug) => {
-      const lesson = lessonForChapter(chapterSlug);
-      return lesson === undefined ? [] : [lesson.slug];
-    });
-    if (lessonSlugs.length > 0) {
-      await db
-        .insert(lessonCompletions)
-        .values(lessonSlugs.map((lessonSlug) => ({ userId, lessonSlug })));
-    }
+      .insert(lessonCompletions)
+      .values(completedLessons.map((lessonSlug) => ({ userId, lessonSlug })));
   }
 
   return userId;
 }
 
 /**
- * 段級位を持つユーザーが読み終えていることにする章
- * シード読了章
+ * 段級位を持つユーザーが終えていることにするレッスン（章）
+ * シード完了レッスン
  *
- * 取得済みの級の前提章に加えて、次に取る級の前提章も読了にする。
- * ダッシュボードの昇級試験カードは「次の級の前提章をすべて読んだ人」に
- * だけ出るため、これが無いと5級のシードユーザーでダッシュボードから
- * 4級の試験に辿り着けない（道場からは読了に関係なく辿り着ける）。
+ * 取得済みの級の前提章に加えて、次に取る級の前提章も完了にする。
+ * ダッシュボードの「次にやること」は学ぶ段が済んでいる前提で練習か試験を
+ * 指すため、これが無いと5級のシードユーザーで次の一歩が 4級の最初の
+ * レッスンに戻る（道場からは完了に関係なく試験に辿り着ける）。
  *
  * 章の一覧は段級位レジストリから引く。級を足しても、その級の前提章が
- * 自動で読了に入る。
+ * 自動で完了に入る。
  */
-function readChaptersFor(
+function completedLessonsFor(
   ranks: readonly RankSlug[],
 ): readonly CurriculumChapterSlug[] {
   const held = RANK_REGISTRY.filter((rank) => ranks.includes(rank.slug));

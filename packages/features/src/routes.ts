@@ -1,6 +1,5 @@
 import type { RankSlug } from "./ranks/registry";
 import type { CurriculumChapterSlug } from "./curriculum/registry";
-import type { LessonSlug } from "./lessons/registry";
 import {
   DEFAULT_VARIANT,
   practiceMenuBySlug,
@@ -51,13 +50,14 @@ export function variantQuery(slug: PracticeMenuSlug, variant: string): string {
  * 章ページのパスを返す。
  * 章パス
  *
- * `/learn/<slug>` の組み立てをこの 1 箇所に閉じる。目次・前後章ナビ・練習からの
- * 導線がそれぞれ文字列を組み立てると、ルートを変えたときに追随漏れが出る。
+ * レッスン（= 章）のページ。`/lessons/<slug>` の組み立てをこの 1 箇所に閉じる。
+ * 目次・前後のナビ・練習からの導線・ダッシュボードの「次にやること」・道場の
+ * 行程がそれぞれ文字列を組み立てると、ルートを変えたときに追随漏れが出る。
  *
  * @param slug 対象章のスラッグ
  */
 export function chapterHref(slug: CurriculumChapterSlug): string {
-  return `/learn/${slug}`;
+  return `/lessons/${slug}`;
 }
 
 /**
@@ -74,18 +74,6 @@ export function practiceHref(slug: PracticeMenuSlug, variant?: string): string {
   return variant === undefined
     ? basePath
     : `${basePath}${variantQuery(slug, variant)}`;
-}
-
-/**
- * レッスンページのパス
- * レッスンパス
- *
- * ダッシュボードの「次にやること」・道場の行程・sitemap が同じ組み立てを使う。
- *
- * @param slug レッスンスラッグ
- */
-export function lessonHref(slug: LessonSlug): string {
-  return `/lessons/${slug}`;
 }
 
 /** 道場（黒帯への道の全行程）のパス */

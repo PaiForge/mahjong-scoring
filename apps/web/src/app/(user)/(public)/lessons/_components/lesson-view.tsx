@@ -30,7 +30,6 @@ import { useAuth } from "@/app/_contexts/auth-context";
 import { logExternalError } from "@/lib/log-error";
 import { buildSignInHref } from "@/lib/redirect";
 import { MentsuType, getKazeName } from "@mahjong-scoring/core";
-import type { CurriculumChapterSlug } from "@mahjong-scoring/features/curriculum/registry";
 import type { JourneyStep } from "@mahjong-scoring/features/journey/journey";
 import {
   choiceKey,
@@ -39,8 +38,8 @@ import {
   type LessonPrompt,
 } from "@mahjong-scoring/features/lessons/quiz";
 import { lessonQuiz } from "@mahjong-scoring/features/lessons/quizzes";
-import type { LessonSlug } from "@mahjong-scoring/features/lessons/registry";
-import { chapterHref, lessonHref } from "@mahjong-scoring/features/routes";
+import type { QuizLessonSlug } from "@mahjong-scoring/features/lessons/registry";
+import { chapterHref } from "@mahjong-scoring/features/routes";
 
 import { journeyStepHref, journeyStepTitle } from "../../_lib/journey-step";
 import { completeLesson } from "../_actions/complete-lesson";
@@ -55,11 +54,9 @@ import {
 } from "../_lib/pending-completions-storage";
 
 interface LessonViewProps {
-  readonly slug: LessonSlug;
-  /** レッスンの辞書の名前空間（`lessons.<messageKey>`） */
+  readonly slug: QuizLessonSlug;
+  /** 確認問題の辞書の名前空間（`lessons.<messageKey>`） */
   readonly messageKey: string;
-  /** 対応する章。未ログインの人が続きを読みに行く先 */
-  readonly chapterSlug: CurriculumChapterSlug;
   /**
    * 完了を記録できたあとの主導線。黒帯への道でこのレッスンの次にある一歩
    * （次のレッスン・練習・昇級試験）で、文言はその一歩を名指しする。
@@ -75,16 +72,22 @@ interface LessonViewProps {
     readonly href: string;
     readonly label: string;
     readonly preview?: ReactNode;
-    readonly previewLessonSlug?: LessonSlug;
+    readonly previewLessonSlug?: QuizLessonSlug;
     readonly goal?: ReactNode;
   };
-  /** 説明（見出しを含む。サーバーで描いたもの） */
+  /** 本文（章の本文そのもの。見出しを含む。サーバーで描いたもの） */
   readonly explanation: ReactNode;
   /**
-   * 練習・教本への導線と広告（サーバーで描いたもの）。完了画面の末尾と、
-   * 完了済みの人が開いた説明の画面に出す
+   * 練習・昇級試験への導線と広告（サーバーで描いたもの）。完了画面の末尾と、
+   * 完了済みの人が開いた本文の下に出す。確認問題より前には出さない
    */
   readonly related?: ReactNode;
+  /**
+   * 章の末尾（前後のレッスンへのナビ・公開日・広告。サーバーで描いたもの）。
+   * 本文の画面と完了画面の最後に出す。確認問題の画面には出さない —
+   * 解いている途中に別の章へ逸れる導線を置かない
+   */
+  readonly footer?: ReactNode;
 }
 
 /** 記録の結果で受け取った続き。誰の分かを持ち、ユーザーが切り替わったら捨てる */
@@ -287,8 +290,12 @@ function PromptBoard({ prompt }: { readonly prompt: LessonPrompt }) {
 }
 
 /**
- * レッスンの進行（説明 → 確認問題 → できたことの確認）
+ * レッスンの進行（本文 → 確認問題 → できたことの確認）
  * レッスン進行
+ *
+ * 確認問題を持つレッスンの章ページ（`LearnPageLayout`）が、章の本文を
+ * `explanation` として渡して描く。本文の段階では本文そのものが見え、確認問題と
+ * 完了画面は本文と入れ替わる（URL は変わらない）。
  *
  * 確認問題はチャレンジの盤面と同じ部品（選択肢ボタン・正誤の枠・出題文）で
  * 描くが、時計もライフも無い。間違えても止まらず、正解と解説を見せてから
@@ -305,10 +312,10 @@ function PromptBoard({ prompt }: { readonly prompt: LessonPrompt }) {
  * を押せなくする。サーバー側も冪等なので、再試行で二重に記録されることはない。
  *
  * 完了画面に「もう一度やる」は置かない。解き直したい人はページを開き直せば
- * よく、完了画面の導線は次の一歩・練習・教本へ向ける。
+ * よく、完了画面の導線は次の一歩・練習・昇級試験へ向ける。
  *
- * 完了済みの人が開いたときは、説明の下の「確認問題へ」のボタンを控えめな
- * 解き直しのリンクに替え、その下に完了画面と同じ練習・教本への導線を出す。
+ * 完了済みの人が開いたときは、本文の下の「確認問題へ」のボタンを控えめな
+ * 解き直しのリンクに替え、その下に完了画面と同じ練習・試験への導線を出す。
  * 戻ってくる目的は表の見直しか練習を探すことで、確認問題ではないため。
  * 次のレッスンへの導線は出さない — 道筋の続きはホームの「次にやること」が
  * 進み具合を踏まえて示す。
@@ -318,8 +325,8 @@ function PromptBoard({ prompt }: { readonly prompt: LessonPrompt }) {
  * @design 段階はブラウザの履歴に積む
  * 段階を進めるたびに履歴へ 1 項目積み（{@link usePhaseHistory}）、「戻る」で
  * 1 段階ずつ戻れるようにする。完了画面から戻ると最後の問題を答えた状態、
- * 確認問題から戻ると説明で、もう一度「確認問題へ」を押せば途中の問題から
- * 続ける。解き終えたあとに説明まで戻って押したときだけ最初から解き直す
+ * 確認問題から戻ると本文で、もう一度「確認問題へ」を押せば途中の問題から
+ * 続ける。解き終えたあとに本文まで戻って押したときだけ最初から解き直す
  * （完了は記録済みなので、もう一度は記録しない）。
  *
  * @design ログインしているかはサーバーが決める
@@ -333,16 +340,16 @@ function PromptBoard({ prompt }: { readonly prompt: LessonPrompt }) {
  * かを言い分けるためと、預かりに本人の id を付けるためにだけ使う。
  *
  * 問題と選択肢は slug から features の `lessonQuiz` で引き、条件文・
- * ヒント・解説・達成の文言はレッスンの辞書（`lessons.<messageKey>`）から引く。
+ * ヒント・解説・達成の文言は確認問題の辞書（`lessons.<messageKey>`）から引く。
  * 進行はレッスンの種類で分岐させない。
  */
 export function LessonView({
   slug,
   messageKey,
-  chapterSlug,
   next,
   explanation,
   related,
+  footer,
 }: LessonViewProps) {
   const t = useTranslations("lessons");
   const tLesson = useTranslations(`lessons.${messageKey}`);
@@ -442,7 +449,7 @@ export function LessonView({
   };
 
   const handleStart = () => {
-    // 解き終えたあとに説明まで戻ってきたら最初から。途中なら続きから
+    // 解き終えたあとに本文まで戻ってきたら最初から。途中なら続きから
     if (finished) {
       setIndex(0);
       setSelected(undefined);
@@ -473,9 +480,9 @@ export function LessonView({
   if (phase === "learn") {
     return (
       <div className="relative space-y-8">
-        {/* 完了済みの印はカードの右上（説明の最初の見出しの行の右端）。
+        {/* 完了済みの印はカードの右上（本文の最初の見出しの行の右端）。
             見出しの「?」とは場所を分ける。確認問題の画面では同じ位置に
-            進み具合が、完了画面には達成の表示があるので説明の画面だけ */}
+            進み具合が、完了画面には達成の表示があるので本文の画面だけ */}
         {completed && (
           <div className="absolute right-0 top-1.5">
             <DoneMark label={t("completedMark")} />
@@ -485,7 +492,7 @@ export function LessonView({
         {completed ? (
           <>
             {/* 完了済みの人に確認問題を主導線として勧めない。解き直しは
-                移動と同じ控えめなリンクにして、練習・教本へ送る */}
+                移動と同じ控えめなリンクにして、練習・試験へ送る */}
             <div className="text-center">
               <button
                 type="button"
@@ -502,6 +509,7 @@ export function LessonView({
             {t("startQuiz", { count: questions.length })}
           </Button>
         )}
+        {footer}
       </div>
     );
   }
@@ -642,13 +650,13 @@ export function LessonView({
             saveState={saveState}
             next={next}
             progressStep={followUp?.next}
-            chapterSlug={chapterSlug}
-            signInHref={buildSignInHref(lessonHref(slug))}
+            signInHref={buildSignInHref(chapterHref(slug))}
             onRetrySave={handleRetrySave}
           />
         </section>
 
         {related}
+        {footer}
       </div>
     </LessonFollowUpProvider>
   );
@@ -659,7 +667,6 @@ interface CompletionActionsProps {
   readonly next: LessonViewProps["next"];
   /** 本人の進み具合を踏まえた次の一歩。あれば `next` より優先する */
   readonly progressStep: JourneyStep | undefined;
-  readonly chapterSlug: CurriculumChapterSlug;
   readonly signInHref: string;
   readonly onRetrySave: () => void;
 }
@@ -681,14 +688,14 @@ interface CompletionActionsProps {
  *   本人の一歩が別の所を指すときはボタンで送る
  * - 失敗: 何が起きたかと、ホームに進んでも後で記録されることを伝え、
  *   その場での再試行を主導線にする。ホームへは補助リンクで行ける
- * - 未ログイン: 登録への誘導（今の完了も引き継がれると添える）
+ * - 未ログイン: 登録への誘導（今の完了も引き継がれると添える）。補助リンクは
+ *   登録せずに道筋の順の次の一歩へ進む
  * - セッション切れ: ログインし直す導線
  */
 function CompletionActions({
   saveState,
   next,
   progressStep,
-  chapterSlug,
   signInHref,
   onRetrySave,
 }: CompletionActionsProps) {
@@ -707,7 +714,7 @@ function CompletionActions({
       const usePlanned =
         progressStep === undefined ||
         (progressStep.kind === "lesson" &&
-          progressStep.lessonSlug === next.previewLessonSlug);
+          progressStep.chapterSlug === next.previewLessonSlug);
       if (usePlanned && next.preview !== undefined) return next.preview;
       return (
         <>
@@ -773,10 +780,7 @@ function CompletionActions({
           title={t("signUp.title")}
           description={t("signUp.description")}
           cta={t("signUp.cta")}
-          secondary={{
-            label: t("signUp.secondary"),
-            href: chapterHref(chapterSlug),
-          }}
+          secondary={{ label: t("signUp.secondary"), href: next.href }}
         />
       );
   }

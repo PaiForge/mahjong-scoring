@@ -15,9 +15,8 @@ const NO_RANKS: readonly RankSlug[] = [];
 
 describe("selectDashboardGuidance", () => {
   describe("行程が進行中（取る級が残っている）", () => {
-    it("新規ユーザー: 次の一歩は最初のレッスンだけで「教本の続き」は出さない", () => {
+    it("新規ユーザー: 次の一歩は最初のレッスンだけで「レッスンの続き」は出さない", () => {
       const guidance = selectDashboardGuidance({
-        readSlugs: NONE,
         completedLessonSlugs: NONE,
         attemptedPractices: NO_ATTEMPTS,
         achievedRankSlugs: NO_RANKS,
@@ -29,41 +28,41 @@ describe("selectDashboardGuidance", () => {
       expect(guidance.showComprehensivePractice).toBe(false);
     });
 
-    it("継続ユーザー: 読みかけの章があっても、行程の次の一歩と別の再開先は出さない", () => {
+    it("継続ユーザー: 行程の外のレッスンを終えていても、行程の次の一歩と別の再開先は出さない", () => {
       const guidance = selectDashboardGuidance({
-        readSlugs: new Set(["about-this-app", "why-scoring-is-complex"]),
-        completedLessonSlugs: new Set(["mangan-ko-ron"]),
+        completedLessonSlugs: new Set([
+          "about-this-app",
+          "why-scoring-is-complex",
+          "mangan-ko-ron",
+        ]),
         attemptedPractices: NO_ATTEMPTS,
         achievedRankSlugs: NO_RANKS,
       });
 
       expect(guidance.journey.nextStep).toEqual({
         kind: "lesson",
-        lessonSlug: "mangan-ko-tsumo",
         chapterSlug: "mangan-ko-tsumo",
       });
       expect(guidance.nextChapter).toBeUndefined();
     });
 
-    it("全章読了でも、取る級が残っているなら総合演習に譲らない", () => {
+    it("全レッスン完了でも、取る級が残っているなら総合演習に譲らない", () => {
       const guidance = selectDashboardGuidance({
-        readSlugs: new Set(CURRICULUM_CHAPTER_SLUGS),
-        completedLessonSlugs: NONE,
+        completedLessonSlugs: new Set(CURRICULUM_CHAPTER_SLUGS),
         attemptedPractices: NO_ATTEMPTS,
         achievedRankSlugs: NO_RANKS,
       });
 
-      // 読了だけではレッスンのある章（5級）は学んだことにならない
-      expect(guidance.journey.nextStep?.kind).toBe("lesson");
+      // 学ぶ段は済んでいるので、次の一歩は練習
+      expect(guidance.journey.nextStep?.kind).toBe("practice");
       expect(guidance.showComprehensivePractice).toBe(false);
     });
   });
 
   describe("全級取得済み", () => {
-    it("未学習の章が残っているなら教本の続きを出し、総合演習も出す", () => {
+    it("終えていないレッスンが残っているならレッスンの続きを出し、総合演習も出す", () => {
       const guidance = selectDashboardGuidance({
-        readSlugs: new Set(["about-this-app"]),
-        completedLessonSlugs: NONE,
+        completedLessonSlugs: new Set(["about-this-app"]),
         attemptedPractices: NO_ATTEMPTS,
         achievedRankSlugs: RANK_SLUGS,
       });
@@ -73,10 +72,13 @@ describe("selectDashboardGuidance", () => {
       expect(guidance.showComprehensivePractice).toBe(true);
     });
 
-    it("レッスンで学んだ章は読んでいなくても飛ばし、その次の章を勧める", () => {
+    it("終えたレッスンは順序に関わらず飛ばし、最初の未完了を勧める", () => {
       const guidance = selectDashboardGuidance({
-        readSlugs: new Set(["about-this-app", "why-scoring-is-complex"]),
-        completedLessonSlugs: new Set(["mangan-ko-ron"]),
+        completedLessonSlugs: new Set([
+          "about-this-app",
+          "why-scoring-is-complex",
+          "mangan-ko-ron",
+        ]),
         attemptedPractices: NO_ATTEMPTS,
         achievedRankSlugs: RANK_SLUGS,
       });
@@ -84,10 +86,9 @@ describe("selectDashboardGuidance", () => {
       expect(guidance.nextChapter?.slug).toBe("mangan-ko-tsumo");
     });
 
-    it("全章学習済みなら教本の続きは無く、総合演習だけを勧める", () => {
+    it("全レッスン完了ならレッスンの続きは無く、総合演習だけを勧める", () => {
       const guidance = selectDashboardGuidance({
-        readSlugs: new Set(CURRICULUM_CHAPTER_SLUGS),
-        completedLessonSlugs: NONE,
+        completedLessonSlugs: new Set(CURRICULUM_CHAPTER_SLUGS),
         attemptedPractices: NO_ATTEMPTS,
         achievedRankSlugs: RANK_SLUGS,
       });

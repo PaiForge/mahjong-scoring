@@ -2,7 +2,7 @@
   "title": "練習",
   "description": "符計算の基礎から点数申告まで、段階的にマスターできる練習を用意しています",
   "detail": "くわしく見る",
-  "learn": "教本を読む",
+  "learn": "レッスンを見る",
   "cardExample": {
     "units": {
       "fu": "符は？",
@@ -125,7 +125,7 @@
   "modeChallengeHint": "制限時間{timeLimit}秒・ミス{mistakeLimit}回で記録に挑戦",
   "modeTrainingHint": "時間無制限・1問ごとに答え合わせして反復練習",
   "settingsTitle": "設定",
-  "requiredKnowledge": "関連する教本の章",
+  "requiredKnowledge": "関連するレッスン",
   "variantLabel": "設定: {label}",
   "introTitle": "{title}の練習"
 }

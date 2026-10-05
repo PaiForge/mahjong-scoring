@@ -39,7 +39,6 @@ function renderLesson() {
       <LessonView
         slug="mangan-ko-ron"
         messageKey="manganKoRon"
-        chapterSlug="mangan-ko-ron"
         next={{ href: "/lessons/mangan-ko-tsumo", label: "nextLesson" }}
         explanation={<p data-testid="explanation" />}
         related={<p data-testid="related" />}
@@ -109,7 +108,7 @@ describe("LessonView", () => {
     expect(screen.queryByTestId("lesson-condition")).toBeNull();
   });
 
-  it("練習・教本への導線は解き終えるまで出さない", async () => {
+  it("練習・試験への導線は解き終えるまで出さない", async () => {
     renderLesson();
     expect(screen.queryByTestId("related")).toBeNull();
     startQuiz();
@@ -177,7 +176,7 @@ describe("LessonView", () => {
       });
     });
 
-    it("3 問解くとできたことを出し、登録への誘導と章へのリンクを出し、完了を持ち主なしで端末に預ける", async () => {
+    it("3 問解くとできたことを出し、登録への誘導と次の一歩へのリンクを出し、完了を持ち主なしで端末に預ける", async () => {
       renderLesson();
       startQuiz();
       answerAll(["8,000", "12,000", "32,000"]);
@@ -196,7 +195,7 @@ describe("LessonView", () => {
         screen
           .getByRole("link", { name: "signUp.secondary" })
           .getAttribute("href"),
-      ).toBe("/learn/mangan-ko-ron");
+      ).toBe("/lessons/mangan-ko-tsumo");
       // 登録後に引き継ぐため端末に預ける（持ち主は付けない）
       expect(readPendingLessonCompletions()).toEqual([
         expect.objectContaining({ slug: "mangan-ko-ron" }),
@@ -264,7 +263,6 @@ describe("LessonView", () => {
         <LessonView
           slug="mangan-ko-ron"
           messageKey="manganKoRon"
-          chapterSlug="mangan-ko-ron"
           next={{
             href: "/lessons/mangan-ko-tsumo",
             label: "nextLesson",

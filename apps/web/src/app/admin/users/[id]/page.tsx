@@ -189,8 +189,8 @@ export default async function AdminUserDetailPage({
             <InfoRow label={t("learning.challengeCount")}>
               {detail.challengeCount.toLocaleString("ja-JP")}
             </InfoRow>
-            <InfoRow label={t("learning.chapterReadCount")}>
-              {detail.chapterReadCount.toLocaleString("ja-JP")}
+            <InfoRow label={t("learning.lessonCompletionCount")}>
+              {detail.lessonCompletionCount.toLocaleString("ja-JP")}
             </InfoRow>
           </dl>
           {detail.ranks.length > 0 && (

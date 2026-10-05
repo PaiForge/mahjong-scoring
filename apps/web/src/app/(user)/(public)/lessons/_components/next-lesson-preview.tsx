@@ -2,17 +2,20 @@ import Link from "next/link";
 import { getTranslations } from "next-intl/server";
 
 import { TEXT_LINK_CLASSES } from "@/app/_components/_lib/link-classes";
-import { lessonBySlug } from "@mahjong-scoring/features/lessons/registry";
-import type { LessonSlug } from "@mahjong-scoring/features/lessons/registry";
-import { lessonHref } from "@mahjong-scoring/features/routes";
+import {
+  getChapterBySlug,
+  getChapterI18nPath,
+} from "@mahjong-scoring/features/curriculum/registry";
+import type { QuizLessonSlug } from "@mahjong-scoring/features/lessons/registry";
+import { chapterHref } from "@mahjong-scoring/features/routes";
 
-import { lessonExcerpt } from "./lesson-explanation";
+import { lessonExcerpt } from "../_lib/lesson-excerpt";
 
 /** 見出しの id。完了画面に 1 つしか出ないので固定でよい */
 const HEADING_ID = "next-lesson-preview-title";
 
 interface NextLessonPreviewProps {
-  readonly slug: LessonSlug;
+  readonly slug: QuizLessonSlug;
 }
 
 /**
@@ -27,14 +30,16 @@ interface NextLessonPreviewProps {
  * 抜粋は 3 行で切り、下端を地の色へ溶かして続きがあることを示す。
  * 表示されない部分も DOM には残るが、読み上げでは続きまで読まれるだけで
  * 害はない（リンクは抜粋の中に置かない — `lessonExcerpt` がマークアップを外す）。
+ * 題名は章の辞書（`learnCurriculum.chapters`）から引く — レッスン = 章なので、
+ * 別の題名を持たない。
  */
 export async function NextLessonPreview({ slug }: NextLessonPreviewProps) {
-  const lesson = lessonBySlug(slug);
-  if (lesson === undefined) return undefined;
+  const chapter = getChapterBySlug(slug);
+  if (chapter === undefined) return undefined;
 
-  const [t, tLesson, paragraphs] = await Promise.all([
+  const [t, tCurriculum, paragraphs] = await Promise.all([
     getTranslations("lessons.nextLesson"),
-    getTranslations(`lessons.${lesson.messageKey}`),
+    getTranslations("learnCurriculum"),
     lessonExcerpt(slug),
   ]);
 
@@ -55,7 +60,7 @@ export async function NextLessonPreview({ slug }: NextLessonPreviewProps) {
       </h3>
       <div className="space-y-3 px-4 py-4">
         <p className="text-base font-bold text-surface-900">
-          {tLesson("title")}
+          {tCurriculum(`${getChapterI18nPath(chapter)}.title`)}
         </p>
         {/* lh は行の高さ。段落の間隔ぶん、3 行より少し短く切れることがある */}
         <div className="relative max-h-[3lh] overflow-hidden text-sm leading-relaxed text-surface-700">
@@ -71,7 +76,7 @@ export async function NextLessonPreview({ slug }: NextLessonPreviewProps) {
         </div>
         <div className="text-center">
           <Link
-            href={lessonHref(slug)}
+            href={chapterHref(slug)}
             className={`text-sm font-bold ${TEXT_LINK_CLASSES}`}
           >
             {t("readMore")}

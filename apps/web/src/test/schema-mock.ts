@@ -11,13 +11,6 @@
  * このモジュールはテスト専用。
  */
 
-/** learn_chapter_reads のカラム */
-export const learnChapterReads = {
-  _name: "learn_chapter_reads",
-  userId: "user_id",
-  chapterSlug: "chapter_slug",
-} as const;
-
 /** lesson_completions のカラム */
 export const lessonCompletions = {
   _name: "lesson_completions",

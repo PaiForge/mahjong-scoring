@@ -91,10 +91,10 @@ describe("createNamespaceMetadata", () => {
     });
 
     await expect(
-      createNamespaceMetadata("jantouFu", { path: "/learn/jantou-fu" }),
+      createNamespaceMetadata("jantouFu", { path: "/lessons/jantou-fu" }),
     ).resolves.toMatchObject({
-      alternates: { canonical: "/learn/jantou-fu" },
-      openGraph: { url: "/learn/jantou-fu" },
+      alternates: { canonical: "/lessons/jantou-fu" },
+      openGraph: { url: "/lessons/jantou-fu" },
     });
   });
 });

@@ -3,7 +3,7 @@
 import { useCallback, useEffect, useState } from "react";
 
 import { useAuth } from "@/app/_contexts/auth-context";
-import type { LessonSlug } from "@mahjong-scoring/features/lessons/registry";
+import type { CurriculumChapterSlug } from "@mahjong-scoring/features/curriculum/registry";
 
 import { getLessonCompletionState } from "../_actions/get-lesson-completion-state";
 
@@ -14,17 +14,19 @@ interface FetchedCompletion {
 }
 
 /**
- * 本人がレッスンを完了済みかを取る
+ * 本人がレッスン（章）を完了済みかを取る
  * レッスン完了状態
  *
  * レッスンのページは静的生成（cookie を読まない）なので、ログインを
- * 確かめてから Server Action で取る（章の `ChapterReadStatus` と同じ形）。
- * 未取得・未ログインは false。その場で解き終えて記録できたら
- * `markCompleted` で済みにする — 取り直さなくても、記録が成功した事実
- * だけで済みと言える。
+ * 確かめてから Server Action で取る。未取得・未ログインは false。
+ * その場で終えて記録できたら `markCompleted` で済みにする — 取り直さなくても、
+ * 記録が成功した事実だけで済みと言える。確認問題の進行（`LessonView`）と
+ * 章末の完了ボタン（`ChapterCompleteButton`）が共有する。
  */
-export function useLessonCompletion(slug: LessonSlug): {
+export function useLessonCompletion(slug: CurriculumChapterSlug): {
   readonly completed: boolean;
+  /** 本人の完了状態を取り終えたか（未ログインは常に false） */
+  readonly fetched: boolean;
   readonly markCompleted: () => void;
 } {
   const { user } = useAuth();
@@ -56,8 +58,8 @@ export function useLessonCompletion(slug: LessonSlug): {
   }, [userId]);
 
   // 別のユーザーの分は使わない（ログアウト → 別アカウントでログインした場合）
-  const completed =
-    fetched !== undefined && fetched.userId === userId && fetched.completed;
+  const isOwn = fetched !== undefined && fetched.userId === userId;
+  const completed = isOwn && fetched.completed;
 
-  return { completed, markCompleted };
+  return { completed, fetched: isOwn, markCompleted };
 }

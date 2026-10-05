@@ -1,6 +1,9 @@
 import { z } from "zod";
 
-import { isLessonSlug, type LessonSlug } from "./registry";
+import {
+  isCurriculumChapterSlug,
+  type CurriculumChapterSlug,
+} from "../curriculum/registry";
 
 /**
  * 未同期のレッスン完了 — 端末に預けてあとでサーバーへ記録する分
@@ -44,7 +47,8 @@ export const PENDING_LESSON_COMPLETION_TTL_MS = 24 * 60 * 60 * 1000;
 
 /** 預けた完了 1 件 */
 export interface PendingLessonCompletion {
-  readonly slug: LessonSlug;
+  /** 終えたレッスン（章の slug） */
+  readonly slug: CurriculumChapterSlug;
   /** 終えた時刻（epoch ミリ秒）。有効期限の起点 */
   readonly completedAt: number;
   /**
@@ -90,7 +94,7 @@ export function parsePendingLessonCompletions(
   if (!parsed.success) return [];
 
   return parsed.data.entries.flatMap((entry) => {
-    if (!isLessonSlug(entry.slug)) return [];
+    if (!isCurriculumChapterSlug(entry.slug)) return [];
     if (now - entry.completedAt > PENDING_LESSON_COMPLETION_TTL_MS) return [];
     return [
       entry.userId === undefined

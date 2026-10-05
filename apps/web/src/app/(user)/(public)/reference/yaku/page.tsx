@@ -4,7 +4,7 @@
  * @description
  * 各役を翻数別に一覧表示するビジュアル早見表。一覧そのものは
  * `YakuCheatsheet` が持ち、点数訓練の答え合わせから開くモーダルと共有する。
- * 各カードは `yakuAnchorId` の id を持ち、教本（/learn/yaku）から
+ * 各カードは `yakuAnchorId` の id を持ち、教本（/lessons/yaku）から
  * 役名リンクで直接開いた状態に着地できる。
  *
  * @flow

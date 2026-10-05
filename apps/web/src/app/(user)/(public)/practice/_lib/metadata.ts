@@ -32,7 +32,7 @@ const PRACTICE_SUBPAGE_ROBOTS = { index: false, follow: true } as const;
  * 検索結果に載せないため、このヘルパーを使わない。
  *
  * title は「<練習名>の練習」。練習名そのままだと教本の同名章
- * （`/learn/jantou-fu` と `/practice/jantou-fu` はどちらも「雀頭の符計算」）と
+ * （`/lessons/jantou-fu` と `/practice/jantou-fu` はどちらも「雀頭の符計算」）と
  * 検索結果で同じ見出しになるため。画面の見出し（h1）は練習名のまま。
  *
  * 辞書ネームスペースはレジストリ（practice-menu-types.ts）の `namespace`

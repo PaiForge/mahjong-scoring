@@ -385,71 +385,35 @@ export type UserExp = typeof userExp.$inferSelect;
 export type NewUserExp = typeof userExp.$inferInsert;
 
 /**
- * 章読了 — ユーザーごとの学習章の読了記録
- * 学習進捗
- *
- * @description
- * 認証ユーザーが `/learn/<slug>` を「読了」とマークするたびに 1 行 INSERT される。
- * (user_id, chapter_slug) で 1 ユニーク。
- *
- * @design chapter_slug を文字列キーとして保持し DB 側で enum 化しない
- * 章の追加・削除はコード側（features の `curriculum/registry.ts`）で完結させ、
- * DB マイグレーションを不要にする。
- *
- * @design 将来 source カラム（"manual" | "auto"）を追加する場合は
- * ADD COLUMN source varchar(16) NOT NULL DEFAULT 'manual' で既存行ごと
- * 安全に拡張可能。現時点では YAGNI で見送り。
- */
-export const learnChapterReads = pgTable(
-  "learn_chapter_reads",
-  {
-    /** auth.users(id) への外部キー（Supabase SQL で定義） */
-    userId: uuid("user_id").notNull(),
-    /** 章スラッグ（features の `curriculum/registry.ts` で管理） */
-    chapterSlug: varchar("chapter_slug", { length: 64 }).notNull(),
-    /** 読了日時 */
-    readAt: timestamp("read_at", { withTimezone: true }).defaultNow().notNull(),
-  },
-  (table) => [
-    primaryKey({ columns: [table.userId, table.chapterSlug] }),
-    index("idx_lcr_user").on(table.userId),
-    // chapter_slug の形式を制約: 先頭は英小文字、以降は英小文字・数字・ハイフン
-    // (最長 64 文字)。features の `curriculum/registry.ts` の slug 命名規則に合わせ、
-    // 任意文字列の INSERT を DB 層でも防ぐ二重防御。
-    check(
-      "learn_chapter_reads_chapter_slug_format",
-      sql`${table.chapterSlug} ~ '^[a-z][a-z0-9-]{0,63}$'`,
-    ),
-  ],
-);
-
-export type LearnChapterRead = typeof learnChapterReads.$inferSelect;
-export type NewLearnChapterRead = typeof learnChapterReads.$inferInsert;
-
-/**
  * レッスン完了 — ユーザーごとのレッスン完了記録
  * レッスン完了
  *
  * @description
- * 認証ユーザーが `/lessons/<slug>` の確認問題を最後まで解くと 1 行 INSERT される。
- * (user_id, lesson_slug) で 1 ユニーク。黒帯への道（features の `journey/`）が
- * 章の「学んだ」の印として読む。レッスンのある章はこの印だけで学んだことに
- * なり、章の読了（`learn_chapter_reads`）では進まない。
+ * レッスン（= 教本の章、`/lessons/<slug>`）を終えると 1 行 INSERT される。
+ * 確認問題を持つレッスンは問題を最後まで解いた時点で、持たないレッスンは
+ * 章末の完了ボタンで記録され、どちらも同じ行の形。(user_id, lesson_slug) で
+ * 1 ユニーク。レッスンの目次の完了の印・黒帯への道（features の `journey/`）の
+ * 「学んだ」の印として読む。
  *
  * 正答数や所要時間は持たない。レッスンは記録を競う場ではなく、残すのは
  * 「終えた」という事実だけ。間違えた問題もその場で解説を読んで先へ進める
- * 設計なので、何問正解したかに意味を持たせない。
+ * 設計なので、何問正解したかに意味を持たせない。取り消しの操作も無い。
+ *
+ * @design 以前の「読了」（`learn_chapter_reads`）はここへ畳んだ
+ * 本人が押すだけの読了の印を章ごとに別に持っていたが、同じ章に 2 つの印が
+ * あると行程がどちらで進むかを画面で断り続けることになるため、読了の行を
+ * この表へ移してテーブルを落とした（`drizzle/*_merge_chapter_reads_into_lesson_completions.sql`）。
  *
  * @design lesson_slug を文字列キーとして保持し DB 側で enum 化しない
- * 章読了（`learn_chapter_reads`）と同じ理由。レッスンの追加はコード側
- * （features の `lessons/registry.ts`）で完結させ、DB マイグレーションを不要にする。
+ * レッスン（章）の追加はコード側（features の `curriculum/registry.ts`）で
+ * 完結させ、DB マイグレーションを不要にする。
  */
 export const lessonCompletions = pgTable(
   "lesson_completions",
   {
     /** auth.users(id) への外部キー（Supabase SQL で定義） */
     userId: uuid("user_id").notNull(),
-    /** レッスンスラッグ（features の `lessons/registry.ts` で管理） */
+    /** レッスン（章）のスラッグ（features の `curriculum/registry.ts` で管理） */
     lessonSlug: varchar("lesson_slug", { length: 64 }).notNull(),
     /** 完了日時 */
     completedAt: timestamp("completed_at", { withTimezone: true })
@@ -459,8 +423,9 @@ export const lessonCompletions = pgTable(
   (table) => [
     primaryKey({ columns: [table.userId, table.lessonSlug] }),
     index("idx_lesson_completions_user").on(table.userId),
-    // lesson_slug の形式を制約（learn_chapter_reads.chapter_slug と同じ規則）。
-    // 任意文字列の INSERT を DB 層でも防ぐ二重防御
+    // lesson_slug の形式を制約: 先頭は英小文字、以降は英小文字・数字・ハイフン
+    // (最長 64 文字)。features の `curriculum/registry.ts` の slug 命名規則に
+    // 合わせ、任意文字列の INSERT を DB 層でも防ぐ二重防御
     check(
       "lesson_completions_lesson_slug_format",
       sql`${table.lessonSlug} ~ '^[a-z][a-z0-9-]{0,63}$'`,

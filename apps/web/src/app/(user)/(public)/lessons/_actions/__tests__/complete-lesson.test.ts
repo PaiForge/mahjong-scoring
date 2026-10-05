@@ -34,7 +34,6 @@ vi.mock("../../_lib/journey-input", () => ({
 
 /** 何も済んでいない本人の進み具合 */
 const NO_PROGRESS = {
-  readSlugs: new Set(),
   completedLessonSlugs: new Set(),
   attemptedPractices: [],
   achievedRankSlugs: [],
@@ -103,7 +102,6 @@ describe("completeLesson", () => {
       followUp: {
         next: {
           kind: "lesson",
-          lessonSlug: "mangan-oya-ron",
           chapterSlug: "mangan-oya-ron",
         },
         // 終えた子のロンと、先に済ませた子のツモ

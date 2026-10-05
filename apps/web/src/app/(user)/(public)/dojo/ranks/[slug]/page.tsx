@@ -7,7 +7,7 @@
  * 「次に取る級」についてだけ出している内容を、どの級についても読めるように
  * したもの。
  *
- * 教本の章はここへ取り込まず、章の一覧からリンクで `/learn` へ送る。級と
+ * 教本の章はここへ取り込まず、章の一覧からリンクで `/lessons` へ送る。級と
  * 章は 1 : n で、章は級と独立に読む価値があり、検索からの入口も章ごとの
  * URL が持っているため。級と章の対応は段級位レジストリの
  * `learnChapterSlugs` が持つ。
@@ -35,10 +35,10 @@ import { BeltBadge } from "@/app/(user)/_components/belt-badge";
 import { ContentContainer } from "@/app/(user)/_components/content-container";
 import { PageTitle } from "@/app/(user)/_components/page-title";
 import { SectionTitle } from "@/app/(user)/_components/section-title";
-import { ChapterTocList } from "@/app/(user)/(public)/learn/_components/chapter-toc-list";
-import { CurriculumTocLink } from "@/app/(user)/(public)/learn/_components/curriculum-toc-link";
-import { ExamCtaCard } from "@/app/(user)/(public)/learn/_components/exam-cta-card";
-import { fetchReadChapterSlugs } from "@/app/(user)/(public)/learn/_lib/progress";
+import { ChapterTocList } from "@/app/(user)/(public)/lessons/_components/chapter-toc-list";
+import { CurriculumTocLink } from "@/app/(user)/(public)/lessons/_components/curriculum-toc-link";
+import { ExamCtaCard } from "@/app/(user)/(public)/lessons/_components/exam-cta-card";
+import { fetchCompletedLessonSlugs } from "@/app/(user)/(public)/lessons/_lib/lesson-progress";
 import { createMetadata } from "@/app/_lib/metadata";
 import { getOptionalUser } from "@/lib/auth";
 import { getUserRankSlugs } from "@/lib/db/rank-queries";
@@ -83,11 +83,11 @@ export default async function RankDetailPage({ params }: RankDetailPageProps) {
   const rank = rankBySlug(slug);
   if (!rank) notFound();
 
-  const [t, tRanks, user, readSlugs] = await Promise.all([
+  const [t, tRanks, user, completedSlugs] = await Promise.all([
     getTranslations("dojo"),
     getTranslations("ranks"),
     getOptionalUser(),
-    fetchReadChapterSlugs(),
+    fetchCompletedLessonSlugs(),
   ]);
   const achievedSlugs = user ? await getUserRankSlugs(user.id) : [];
   const rankName = tRanks(`names.${rank.slug}`);
@@ -120,9 +120,9 @@ export default async function RankDetailPage({ params }: RankDetailPageProps) {
           </div>
         </div>
 
-        {/* 前提章を持たない級（教本の章がまだ無いもの）では節ごと出さない。
-            見出しとリード文だけが残ると、章が 1 つも無いのに「この章で
-            身につきます」と言う面になる（道場と同じ扱い） */}
+        {/* 前提のレッスンを持たない級では節ごと出さない。見出しとリード文だけが
+            残ると、レッスンが 1 つも無いのに「ここで身につきます」と言う面になる
+            （道場と同じ扱い） */}
         {hasChapters && (
           <section className="space-y-4">
             <SectionTitle>{t("chaptersTitle")}</SectionTitle>
@@ -131,7 +131,7 @@ export default async function RankDetailPage({ params }: RankDetailPageProps) {
             </p>
             <ChapterTocList
               slugs={rank.learnChapterSlugs}
-              readSlugs={readSlugs}
+              completedSlugs={completedSlugs}
             />
             <CurriculumTocLink />
           </section>

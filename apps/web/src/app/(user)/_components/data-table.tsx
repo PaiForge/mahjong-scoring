@@ -120,8 +120,8 @@ interface DataTableProps {
  * 横に溢れた分はこの枠の中でスクロールさせる（`overflow-x-auto`）。角を
  * 丸めるためだけに `overflow-hidden` にしていたときは、幅の足りない表が
  * 黙って切り落とされ、スクロールする手段も無かった（2026-09 に実測：
- * 320px 幅の `/learn/fu-doubling` で表の右 66px、390px 幅の
- * `/learn/ron-to-tsumo` で結論の列「実際に払う」が丸ごと見えない）。
+ * 320px 幅の `/lessons/fu-doubling` で表の右 66px、390px 幅の
+ * `/lessons/ron-to-tsumo` で結論の列「実際に払う」が丸ごと見えない）。
  * 表側が外に `overflow-x-auto` の div を足しても効かない — 内側のこの枠が
  * 先に切るため、外の div には溢れが届かずスクロールが起きない。だから
  * 溢れの面倒はここが見る。

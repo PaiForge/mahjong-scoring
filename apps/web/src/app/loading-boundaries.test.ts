@@ -21,7 +21,7 @@ import { collectPages } from "@/test/collect-pages";
  *   出ない / 遅いサーバでは本文直前に一瞬だけ出る」状態になる（2026-08 に実測）
  * - 境界は「遷移時に新しくマウントされるスロット」に無いとフォールバックが出ない。
  *   React は遷移中、既にマウント済みの Suspense のフォールバックを出さないため、
- *   祖先の共通 loading.tsx は同じセグメント内の遷移（/learn → /learn/x 等）で
+ *   祖先の共通 loading.tsx は同じセグメント内の遷移（/lessons → /lessons/x 等）で
  *   効かず、クリックが無反応になる（2026-08 に実測）。よって境界は leaf
  *   （page.tsx と同じディレクトリか、配下に他の loading.tsx を持たない最小の祖先）に置く。
  *   index ページだけに境界が要る場合は、page.tsx と loading.tsx を route group に
@@ -85,7 +85,6 @@ const DYNAMIC_ROUTES: ReadonlySet<string> = new Set([
   "/exam/score/result",
   "/leaderboard",
   "/leaderboard/[period]/[module]",
-  "/learn",
   "/lessons",
   "/mypage",
   "/mypage/account",

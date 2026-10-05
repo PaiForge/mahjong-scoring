@@ -53,8 +53,8 @@ const GRANTS_SQL = readFileSync(
  * （2026-09 の監査で実際にこの状態だった）。登録・編集は Server Action が行う。
  */
 const CLIENT_WRITABLE_TABLES: readonly string[] = [
-  // 章の読了マーク。値は「読んだ」の有無だけで、順位や資格に影響しない
-  "learn_chapter_reads",
+  // 以前は章の読了マーク（learn_chapter_reads）があったが、レッスンの完了
+  // （サーバーの Server Action だけが書く）へ畳んで空になった
 ];
 
 const WRITE_PRIVILEGES = ["INSERT", "UPDATE", "DELETE"] as const;
@@ -124,6 +124,8 @@ describe("RLS coverage", () => {
   /**
    * GRANT を外していても、書き込みのポリシーが残っていると「GRANT を戻した
    * 瞬間に開く」状態になる。許可リスト外の表は書き込みポリシーごと持たない。
+   * いまは許可リストが空（章の読了がレッスンの完了へ畳まれ、クライアントが
+   * 直接書く表は無くなった）なので、書き込みのポリシーは 1 つも無いのが正。
    */
   it("許可リスト外の表に書き込みのポリシーを作っていない", () => {
     const writablePolicies = [
@@ -132,7 +134,6 @@ describe("RLS coverage", () => {
       ),
     ].map((match) => match[1]!);
 
-    expect(writablePolicies.length).toBeGreaterThan(0);
     expect(
       writablePolicies.filter(
         (table) => !CLIENT_WRITABLE_TABLES.includes(table),

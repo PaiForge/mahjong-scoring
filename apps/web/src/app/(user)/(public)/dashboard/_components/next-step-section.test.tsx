@@ -23,7 +23,6 @@ const NO_ATTEMPTS: readonly PracticeAttempt[] = [];
 
 function journeyOf(overrides: Partial<BuildJourneyInput> = {}) {
   return buildJourney({
-    readSlugs: NONE,
     completedLessonSlugs: NONE,
     attemptedPractices: NO_ATTEMPTS,
     achievedRankSlugs: [],
@@ -104,7 +103,7 @@ describe("NextStepSection", () => {
       container.querySelectorAll("[data-stage] a"),
     ).map((a) => a.getAttribute("href"));
     expect(stageHrefs).toEqual([
-      "/lessons#kyu-5",
+      "/lessons#chapter-mangan-ko-ron",
       // 練習するの行き先は「自分で練習を選ぶ」と同じ
       "/practice?rank=kyu-5",
       "/exam/mangan",
@@ -154,21 +153,20 @@ describe("NextStepSection", () => {
     ).toBe("exam");
   });
 
-  it("レッスンの無い章は、教本の章を読む一歩として送る", async () => {
-    // 前提章のレッスンに頼らないよう、章を読む一歩は行程に直接置く
+  it("レッスンの一歩はそのレッスン（章）のページへ送る", async () => {
     const { container } = render(
       await NextStepSection({
         journey: {
           ...journeyOf({ achievedRankSlugs: ["kyu-5"] }),
-          nextStep: { kind: "read", chapterSlug: "jantou-fu" },
+          nextStep: { kind: "lesson", chapterSlug: "jantou-fu" },
         },
       }),
     );
 
     expect(
       container.querySelector("section")?.getAttribute("data-next-step"),
-    ).toBe("read");
-    expect(ctaHref(container)).toBe("/learn/jantou-fu");
+    ).toBe("lesson");
+    expect(ctaHref(container)).toBe("/lessons/jantou-fu");
   });
 
   it("全級取得済みなら何も描画しない", async () => {
