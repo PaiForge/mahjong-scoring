@@ -5,6 +5,7 @@
   "unranked": "無級",
   "signInNote": "段級位を記録するにはアカウントが必要です。",
   "signInLink": "ログインはこちら",
+  "nextRankTitle": "次の目標",
   "journeyTitle": "点数計算・黒帯への道",
   "tour": {
     "label": "道場の見方を見る",
@@ -18,7 +19,7 @@
     },
     "nextRank": {
       "title": "次の目標の級",
-      "description": "いま取り組む級だけ中身を開いています。上から順に済ませると試験に進めます。"
+      "description": "いま取り組む級です。級名を押すと合格基準と前提のレッスンを確認できます。"
     },
     "stages": {
       "title": "学ぶ → 練習する → 認定される",

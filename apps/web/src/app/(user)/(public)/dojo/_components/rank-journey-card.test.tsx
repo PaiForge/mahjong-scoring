@@ -41,14 +41,14 @@ function hrefs(container: HTMLElement): string[] {
 describe("RankJourneyCard", () => {
   it("開いた級は、レッスン・章から送る練習・試験への導線を並べる", async () => {
     const { container, getAllByRole } = render(
-      <ol>
+      <div>
         {await RankJourneyCard({
           journey: rankJourney("kyu-5", {
             completedLessonSlugs: new Set(["mangan-ko-ron"]),
           }),
           expanded: true,
         })}
-      </ol>,
+      </div>,
     );
 
     const links = hrefs(container);
@@ -89,12 +89,12 @@ describe("RankJourneyCard", () => {
       done: item.chapterSlug === "jantou-fu",
     }));
     const { container, getAllByRole } = render(
-      <ol>
+      <div>
         {await RankJourneyCard({
           journey: { ...base, chapters },
           expanded: true,
         })}
-      </ol>,
+      </div>,
     );
 
     for (const chapterSlug of RANK_REGISTRY[1].learnChapterSlugs) {
@@ -108,12 +108,12 @@ describe("RankJourneyCard", () => {
 
   it("閉じた上位の級は、級名の詳細リンクと施錠の注記だけで、中身は出さない", async () => {
     const { container, queryByTestId } = render(
-      <ol>
+      <div>
         {await RankJourneyCard({
           journey: rankJourney("kyu-4"),
           expanded: false,
         })}
-      </ol>,
+      </div>,
     );
 
     expect(hrefs(container)).toEqual(["/dojo/ranks/kyu-4"]);
@@ -129,11 +129,11 @@ describe("RankJourneyCard", () => {
       ["kyu-5", "kyu-4", "dan-1"].map((slug) =>
         RankJourneyCard({
           journey: rankJourney(slug),
-          expanded: slug === "kyu-5",
+          expanded: false,
         }),
       ),
     );
-    const { container } = render(<ol>{cards}</ol>);
+    const { container } = render(<div>{cards}</div>);
 
     const notes = Array.from(container.querySelectorAll("article")).map(
       (article) => article.textContent?.includes("lockedNote") ?? false,
@@ -149,11 +149,11 @@ describe("RankJourneyCard", () => {
           journey: rankJourney(slug, {
             achievedRankSlugs: [...achievedRankSlugs],
           }),
-          expanded: slug === "kyu-3",
+          expanded: false,
         }),
       ),
     );
-    const { container } = render(<ol>{cards}</ol>);
+    const { container } = render(<div>{cards}</div>);
 
     const notes = Array.from(container.querySelectorAll("article")).map(
       (article) => article.textContent?.includes("lockedNote") ?? false,
@@ -169,11 +169,11 @@ describe("RankJourneyCard", () => {
           journey: rankJourney(slug, {
             achievedRankSlugs: [...achievedRankSlugs],
           }),
-          expanded: slug === "kyu-4",
+          expanded: false,
         }),
       ),
     );
-    const { container } = render(<ol>{cards}</ol>);
+    const { container } = render(<div>{cards}</div>);
 
     const articles = Array.from(container.querySelectorAll("article"));
     expect(
