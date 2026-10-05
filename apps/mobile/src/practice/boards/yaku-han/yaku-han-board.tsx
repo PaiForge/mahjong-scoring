@@ -1,32 +1,20 @@
-import { useCallback, useState } from "react";
 import { StyleSheet, View } from "react-native";
-import {
-  DEFAULT_YAKU_HAN_RANGE,
-  generateYakuHanQuestion,
-} from "@mahjong-scoring/core";
-import type { YakuHanQuestion, YakuHanRange } from "@mahjong-scoring/core";
-import {
-  toQuestionResult,
-  type YakuHanQuestionResult,
-} from "@mahjong-scoring/features/practice/yaku-han/types";
+import { useTranslations } from "use-intl";
+import { DEFAULT_YAKU_HAN_RANGE } from "@mahjong-scoring/core";
+import type { YakuHanRange } from "@mahjong-scoring/core";
+import { type YakuHanQuestionResult } from "@mahjong-scoring/features/practice/yaku-han/types";
 
 import { colors, radius } from "../../../lib/theme";
 import type { RecordingPracticeBoardProps } from "@mahjong-scoring/features/practice/board-props";
-import { useGeneratedQuestion } from "../../hooks/use-generated-question";
-import { usePresentQuestion } from "../../hooks/use-present-question";
-import { useRegisterAdvance } from "@mahjong-scoring/features/practice/use-training-mode";
+import { QuestionPlaceholder } from "../../components/question-placeholder";
 import { YakuHanAnswerForm } from "./yaku-han-answer-form";
 import { YakuHanPrompt } from "./yaku-han-prompt";
-
-/** 出題中の問題を回答なしの結果に組む（時間切れの届け出用） */
-function toUnansweredResult(question: YakuHanQuestion): YakuHanQuestionResult {
-  return toQuestionResult(question, undefined);
-}
+import { useYakuHanBoard } from "@mahjong-scoring/features/practice/yaku-han/use-yaku-han-board";
 
 /**
  * 役翻数の出題盤面（役名・状態の提示と翻数入力）
  *
- * web の `YakuHanBoard` の移植。出題状態と回答ロジックを内包し、チャレンジ・
+ * web の `YakuHanBoard` の移植。出題状態と回答ロジックは `useYakuHanBoard` が持ち、チャレンジ・
  * トレーニング両モードで共有する。
  */
 export function YakuHanBoard({
@@ -40,30 +28,16 @@ export function YakuHanBoard({
   /** 出題範囲（役のフィルタ）。未指定時は全役から出題する */
   readonly range?: YakuHanRange;
 }) {
-  const generateQuestion = useCallback(
-    (): YakuHanQuestion => generateYakuHanQuestion(range),
-    [range],
-  );
-  const [question, nextQuestion] = useGeneratedQuestion(generateQuestion);
-  const [questionIndex, setQuestionIndex] = useState(0);
+  const t = useTranslations("yakuHanChallenge");
+  const { question, questionIndex, handleSubmit } = useYakuHanBoard({
+    range,
+    showFeedback,
+    onAnswer,
+    onRecordResult,
+    onPresentQuestion,
+  });
 
-  const advanceQuestion = useCallback(() => {
-    nextQuestion();
-    setQuestionIndex((prev) => prev + 1);
-  }, [nextQuestion]);
-
-  useRegisterAdvance(advanceQuestion);
-  usePresentQuestion(question, toUnansweredResult, onPresentQuestion);
-
-  const handleSubmit = useCallback(
-    (userHan: number) => {
-      if (showFeedback) return;
-      const result = toQuestionResult(question, userHan);
-      onRecordResult?.(result);
-      onAnswer(userHan === question.correctHan, advanceQuestion);
-    },
-    [showFeedback, question, onRecordResult, onAnswer, advanceQuestion],
-  );
+  if (!question) return <QuestionPlaceholder label={t("generating")} />;
 
   return (
     <View style={styles.board}>

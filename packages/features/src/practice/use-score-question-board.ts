@@ -1,8 +1,5 @@
 "use client";
 
-import { useGradeAndRecord } from "./use-grade-answer";
-
-import { useCallback } from "react";
 import { generateValidScoreQuestion } from "@mahjong-scoring/core";
 import type {
   ScoreQuestion,
@@ -12,18 +9,12 @@ import type { ScoreQuestionResult } from "../results/score-question-result";
 import { toScoreQuestionResult } from "../results/score-question-result";
 import type { RecordingPracticeBoardProps } from "./board-props";
 import { useGeneratedScoreQuestion } from "./use-generated-score-question";
-import { usePresentQuestion } from "./use-present-question";
-import { useRegisterAdvance } from "./use-training-mode";
+import { useQuestionAnswer } from "./use-question-answer";
 
 /** 点数計算の出題オプション */
 export type ScoreQuestionGenerateOptions = Parameters<
   typeof generateValidScoreQuestion
 >[0];
-
-/** 出題中の問題を回答なしの結果に組む（時間切れの届け出用） */
-function toUnansweredResult(question: ScoreQuestion): ScoreQuestionResult {
-  return toScoreQuestionResult(question, undefined);
-}
 
 export interface UseScoreQuestionBoardParams extends Pick<
   RecordingPracticeBoardProps<ScoreQuestionResult>,
@@ -53,30 +44,20 @@ interface UseScoreQuestionBoardResult {
 export function useScoreQuestionBoard({
   generateOptions,
   maxRetries,
-  showFeedback,
-  onAnswer,
-  onRecordResult,
-  onPresentQuestion,
+  ...handlers
 }: UseScoreQuestionBoardParams): UseScoreQuestionBoardResult {
   const { question, questionIndex, advanceQuestion } =
     useGeneratedScoreQuestion(generateOptions, maxRetries);
-  const gradeAndRecord = useGradeAndRecord(toScoreQuestionResult, {
-    onRecordResult,
-    onAnswer,
-    advance: advanceQuestion,
+  const handleSubmit = useQuestionAnswer<
+    ScoreQuestion,
+    ScoreTableUserAnswer,
+    ScoreQuestionResult
+  >({
+    question,
+    advanceQuestion,
+    toResult: toScoreQuestionResult,
+    ...handlers,
   });
-
-  useRegisterAdvance(question === undefined ? undefined : advanceQuestion);
-  usePresentQuestion(question, toUnansweredResult, onPresentQuestion);
-
-  const handleSubmit = useCallback(
-    (userAnswer: ScoreTableUserAnswer) => {
-      if (showFeedback || !question) return;
-
-      gradeAndRecord(question, userAnswer);
-    },
-    [showFeedback, question, gradeAndRecord],
-  );
 
   return { question, questionIndex, handleSubmit };
 }
