@@ -21,6 +21,7 @@ import type {
   TimerControl,
 } from "@mahjong-scoring/features/session/use-timed-session";
 import { useChallengeClock } from "@mahjong-scoring/features/session/use-challenge-clock";
+import { useOnFinished } from "@mahjong-scoring/features/session/use-on-finished";
 import { useQuitPause } from "@mahjong-scoring/features/session/use-quit-pause";
 
 import { BoardBleedProvider } from "../../board/board-bleed";
@@ -106,20 +107,11 @@ export function ChallengeShell({
   const { pauseForQuit, resumeAfterQuit } = useQuitPause(gameSession);
 
   // 終わった瞬間の経過時間で 1 回だけ結果へ送る
-  const finishedRef = useRef(false);
-  const elapsedRef = useRef(elapsedMs);
-  const onFinishRef = useRef(onFinish);
+  useOnFinished(gameSession.finalResult, () => onFinish(elapsedMs));
   const sessionRef = useRef(gameSession);
   useEffect(() => {
-    elapsedRef.current = elapsedMs;
-    onFinishRef.current = onFinish;
     sessionRef.current = gameSession;
   });
-  useEffect(() => {
-    if (!gameSession.isFinished || finishedRef.current) return;
-    finishedRef.current = true;
-    onFinishRef.current(elapsedRef.current);
-  }, [gameSession.isFinished]);
 
   const openQuit = useCallback(() => {
     pauseForQuit();

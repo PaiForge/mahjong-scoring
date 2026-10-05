@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef } from "react";
+import { useOnFinished } from "@mahjong-scoring/features/session/use-on-finished";
 import { useRouter } from "next/navigation";
 import type { PracticeMenuSlug } from "@mahjong-scoring/features/practice-menu-types";
 import { RUN_PARAM } from "@mahjong-scoring/features/challenge/challenge-run";
@@ -93,14 +93,10 @@ export function useFinishRedirect({
   onFinish,
 }: UseFinishRedirectOptions) {
   const router = useRouter();
-  const savedRef = useRef(false);
-
-  useEffect(() => {
-    if (!isFinished || !finalResult || savedRef.current) return;
-    savedRef.current = true;
-
+  // 終了が確定した瞬間に 1 回だけ保存して結果ページへ送る
+  useOnFinished(isFinished ? finalResult : undefined, (final) => {
     const { correctCount, incorrectCount, totalCount, reason, finishedAt } =
-      finalResult;
+      final;
     const variant = readVariantFromLocation(slug);
 
     const buildResultUrl = (result?: FinishCallbackResult): string => {
@@ -140,5 +136,5 @@ export function useFinishRedirect({
         router.push(buildResultUrl());
       }
     })();
-  }, [isFinished, finalResult, elapsedMs, slug, resultPath, router, onFinish]);
+  });
 }
