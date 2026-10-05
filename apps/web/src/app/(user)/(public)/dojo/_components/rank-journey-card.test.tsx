@@ -107,7 +107,7 @@ describe("RankJourneyCard", () => {
   });
 
   it("閉じた上位の級は、級名の詳細リンクと施錠の注記だけで、中身は出さない", async () => {
-    const { container, queryByTestId } = render(
+    const { container } = render(
       <div>
         {await RankJourneyCard({
           journey: rankJourney("kyu-4"),
@@ -117,7 +117,9 @@ describe("RankJourneyCard", () => {
     );
 
     expect(hrefs(container)).toEqual(["/dojo/ranks/kyu-4"]);
-    expect(queryByTestId("chapters")).toBeNull();
+    // 中身（学ぶ / 練習する / 試験の各段の見出しと行）は描かない
+    expect(container.querySelector("h4")).toBeNull();
+    expect(container.textContent).not.toContain("viewExam");
     expect(container.textContent).toContain("lockedNote");
     expect(
       container.querySelector("article")?.getAttribute("data-rank-status"),
