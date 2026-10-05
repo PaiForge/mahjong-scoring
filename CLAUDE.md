@@ -418,7 +418,7 @@ Anthropic 管理の VM（Ubuntu 24.04、Node 20/21/22 のみ、Docker あり）�
 - `bash scripts/claude-cloud/stack-up.sh` — Docker で Supabase を起動（`-x edge-runtime,...`。
   VM は rlimit を引き上げられず、CLI が edge-runtime にだけ付ける `--ulimit` で `supabase start`
   全体が落ちるため）、`.env.local` を `supabase status` から生成、`db:run-migrate` →
-  `db:seed:dev`、`next dev` を起動する。冪等。VM 以外では `.env.local` を壊さないよう実行を
+  `db:seed` → `db:seed:dev`、`next dev` を起動する。冪等。VM 以外では `.env.local` を壊さないよう実行を
   拒否する
 - `bash scripts/claude-cloud/screenshot.sh /practice --login alice` — `/opt/pw-browsers` の
   Chromium（Chrome for Testing のダウンロードは VM から 403）でデスクトップ幅とスマホ幅を撮る。
@@ -447,7 +447,7 @@ Compute Credits の対象外）も止まる。PR を何週間も開けたまま�
 `claude/*` の PR（クラウドセッション・issue パイプライン）にも他と同じく Preview が立つ。
 Supabase の連携はブランチ名で絞れず PR ごとに必ずブランチを作るので、`vercel.json` の
 `ignoreCommand` で `claude/*` のビルドだけ止めると「DB に課金だけして Preview は立たない」
-状態になる。そのため `vercel.json` は置かない。
+状態になる。そのため `vercel.json` に `ignoreCommand` を置かない（regions / crons は別）。
 
 依存するダッシュボード設定（Supabase プロジェクト → Settings → Integrations）。どれも
 失敗時の症状が「DB 未接続」と同じに見える:

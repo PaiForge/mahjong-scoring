@@ -35,7 +35,7 @@ SUPABASE_EXCLUDE="edge-runtime,studio,logflare,vector,imgproxy,postgres-meta"
 
 # package.json scripts of $APP_DIR, run in order once Supabase is up
 # (migrate, then seeds). Each runs as `pnpm --filter $PKG_FILTER <script>`.
-DB_STEPS=("db:run-migrate" "db:seed:dev")
+DB_STEPS=("db:run-migrate" "db:seed" "db:seed:dev")
 
 # .env.local keys filled from `supabase status -o json`, as ENV_KEY=STATUS_FIELD.
 # Status fields: API_URL, ANON_KEY, SERVICE_ROLE_KEY (legacy JWT keys),
@@ -45,7 +45,7 @@ ENV_MAP=("NEXT_PUBLIC_SUPABASE_URL=API_URL" "NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KE
 # dev-seed accounts, for `screenshot.sh --login <user>` and the summary.
 SEED_EMAIL_DOMAIN="example.local"
 SEED_PASSWORD="devpass1"
-SEED_USERS="alice bob carol admin"
+SEED_USERS="alice bob carol dave erin frank grace heidi admin"
 
 # Sign-in form, for screenshot.mjs. After submitting, the URL must stop
 # containing LOGIN_DONE_EXCLUDES for the sign-in to count as finished.
