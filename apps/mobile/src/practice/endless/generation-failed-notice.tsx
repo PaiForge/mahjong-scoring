@@ -22,7 +22,7 @@ export function GenerationFailedNotice({
 }) {
   const t = useTranslations(translationNamespace);
   return (
-    <Screen title={t("title")}>
+    <Screen title={t("title")} back backIcon="close" onBack={onBackToSetup}>
       <View style={styles.body}>
         <Text style={styles.text}>{t("board.generationFailed")}</Text>
         <Button variant="secondary" onPress={onBackToSetup}>

@@ -340,7 +340,14 @@ export function MachiScoreBoard() {
 
   return (
     <View style={styles.root}>
-      <Screen ref={scrollRef} title={t("title")} contentStyle={styles.content}>
+      <Screen
+        ref={scrollRef}
+        title={t("title")}
+        back
+        backIcon="close"
+        onBack={handleBackToSetup}
+        contentStyle={styles.content}
+      >
         <BoardBleedProvider>{renderBoard()}</BoardBleedProvider>
 
         <ScoreCounter

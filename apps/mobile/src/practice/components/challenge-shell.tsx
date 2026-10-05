@@ -83,6 +83,8 @@ function LifeIndicator({
  * 白で覆う — どちらも一時停止中に問題を読ませない）。
  *
  * モバイル固有の扱い:
+ * - ヘッダーの左端に ×（中止）を置く。解答中は戻る先が無く「閉じる」
+ *   なので矢印ではなく × にする
  * - アプリが裏に回ったら一時停止する（電話・通知で時間を失わない）
  * - Android の戻るボタンは中止の確認を開く（押しただけで記録を失わない）
  */
@@ -155,7 +157,14 @@ export function ChallengeShell({
 
   return (
     <View style={styles.root}>
-      <Screen ref={scrollRef} title={title}>
+      {/* ヘッダーの × は中止（確認を挟む）。Android の戻るボタンと同じ */}
+      <Screen
+        ref={scrollRef}
+        title={title}
+        back
+        backIcon="close"
+        onBack={openQuit}
+      >
         <View style={styles.status}>
           <View style={styles.timerGroup}>
             <QuizTimer
