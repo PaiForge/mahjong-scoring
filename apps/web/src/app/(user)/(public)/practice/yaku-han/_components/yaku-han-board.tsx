@@ -1,6 +1,6 @@
 "use client";
 
-import { useGradeAndRecord } from "../../_hooks/use-verified-challenge";
+import { useGradeAndRecord } from "@mahjong-scoring/features/practice/use-grade-answer";
 
 import { useCallback, useState } from "react";
 import { useTranslations } from "next-intl";
@@ -10,8 +10,8 @@ import {
 } from "@mahjong-scoring/core";
 import type { YakuHanQuestion, YakuHanRange } from "@mahjong-scoring/core";
 import { QuestionGeneratingPlaceholder } from "../../_components/question-generating-placeholder";
-import { useClientGeneratedQuestion } from "../../_hooks/use-client-generated-question";
-import { usePresentQuestion } from "../../_hooks/use-present-question";
+import { useGeneratedQuestion } from "@mahjong-scoring/features/practice/use-generated-question";
+import { usePresentQuestion } from "@mahjong-scoring/features/practice/use-present-question";
 import { useRegisterAdvance } from "@mahjong-scoring/features/practice/use-training-mode";
 import { YakuHanPrompt } from "./yaku-han-prompt";
 import { YakuHanAnswerForm } from "./yaku-han-answer-form";
@@ -47,7 +47,7 @@ export function YakuHanBoard({
     (): YakuHanQuestion => generateYakuHanQuestion(range),
     [range],
   );
-  const [question, setQuestion] = useClientGeneratedQuestion(generateQuestion);
+  const [question, setQuestion] = useGeneratedQuestion(generateQuestion);
   const [questionIndex, setQuestionIndex] = useState(0);
 
   const advanceQuestion = useCallback(() => {

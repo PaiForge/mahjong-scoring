@@ -1,7 +1,7 @@
 "use client";
 
-import { asMenuQuestion, useVerifiedChallenge } from "./use-verified-challenge";
 import { useEffect } from "react";
+import { asHostedQuestion, useQuestionHost } from "./use-question-host";
 
 /**
  * 出題中の問題をセッションに届け出る
@@ -9,12 +9,13 @@ import { useEffect } from "react";
  *
  * 問題が変わるたびに、その問題を「回答なし」で組んだ結果を
  * `onPresentQuestion` に渡す。チャレンジのセッションはこれを預かり、答える
- * 前に制限時間が来たら時間切れの問題として結果に残す
- * （{@link import("./use-recorded-results").useRecordedResults}）。
+ * 前に制限時間が来たら時間切れの問題として結果に残す。
  *
- * 盤面が出題状態を持つ場所（{@link import("./use-fu-choice-board").useFuChoiceBoard}
- * など）で呼ぶ。トレーニングや記録しない練習では `onPresentQuestion` が
- * 渡らないので何もしない。
+ * 出題ホストがあるときは、ホストが時間切れの時点の問題を渡してくるので、
+ * その受け取り先を登録するだけにする（盤面が出している問題は答えを伏せた
+ * ものなので、ホストが明かした問題で結果を組む）。
+ *
+ * トレーニングや記録しない練習では `onPresentQuestion` が渡らないので何もしない。
  *
  * @param question - 出題中の問題。生成待ちは undefined
  * @param toUnanswered - 問題から回答なしの結果を組む。参照が変わるたびに
@@ -26,12 +27,11 @@ export function usePresentQuestion<TQuestion, TResult>(
   toUnanswered: (question: TQuestion) => TResult,
   onPresentQuestion: ((unanswered: TResult) => void) | undefined,
 ): void {
-  const verified = useVerifiedChallenge();
-  const register = verified?.registerUnanswered;
+  const register = useQuestionHost()?.registerUnanswered;
   useEffect(() => {
     if (!register || !onPresentQuestion) return;
     register((revealed) =>
-      onPresentQuestion(toUnanswered(asMenuQuestion<TQuestion>(revealed))),
+      onPresentQuestion(toUnanswered(asHostedQuestion<TQuestion>(revealed))),
     );
     return () => register(undefined);
   }, [register, toUnanswered, onPresentQuestion]);

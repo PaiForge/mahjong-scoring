@@ -3,7 +3,7 @@
 import { useCallback, useState } from "react";
 import { generateValidScoreQuestion } from "@mahjong-scoring/core";
 import type { ScoreQuestion } from "@mahjong-scoring/core";
-import { useClientGeneratedQuestion } from "./use-client-generated-question";
+import { useGeneratedQuestion } from "@mahjong-scoring/features/practice/use-generated-question";
 
 type GenerateOptions = Parameters<typeof generateValidScoreQuestion>[0];
 
@@ -31,7 +31,7 @@ export function useGeneratedScoreQuestion(
     () => generateValidScoreQuestion(generateOptions, maxRetries) ?? undefined,
     [generateOptions, maxRetries],
   );
-  const [question, setQuestion] = useClientGeneratedQuestion(generate);
+  const [question, setQuestion] = useGeneratedQuestion(generate);
   const [questionIndex, setQuestionIndex] = useState(0);
 
   const advanceQuestion = useCallback(() => {

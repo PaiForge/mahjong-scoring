@@ -1,12 +1,12 @@
 "use client";
 
-import { useGradeAnswer } from "./use-verified-challenge";
+import { useGradeAnswer } from "@mahjong-scoring/features/practice/use-grade-answer";
 
 import { useCallback, useState } from "react";
 
 import type { PracticeBoardProps } from "@mahjong-scoring/features/practice/board-props";
-import { useClientGeneratedQuestion } from "./use-client-generated-question";
-import { usePresentQuestion } from "./use-present-question";
+import { useGeneratedQuestion } from "@mahjong-scoring/features/practice/use-generated-question";
+import { usePresentQuestion } from "@mahjong-scoring/features/practice/use-present-question";
 import { useRegisterAdvance } from "@mahjong-scoring/features/practice/use-training-mode";
 
 /** 届け出る問題はそのまま渡す（結果の形に組むのは盤面側） */
@@ -70,7 +70,7 @@ export function useFuChoiceBoard<TQuestion extends FuQuestion>({
   onPresentQuestion,
 }: UseFuChoiceBoardParams<TQuestion>): UseFuChoiceBoardResult<TQuestion> {
   const gradeAnswer = useGradeAnswer<TQuestion>();
-  const [question, setQuestion] = useClientGeneratedQuestion(generateQuestion);
+  const [question, setQuestion] = useGeneratedQuestion(generateQuestion);
   const [selectedFu, setSelectedFu] = useState<number | undefined>(undefined);
 
   usePresentQuestion(question, identity, onPresentQuestion);

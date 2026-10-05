@@ -1,6 +1,6 @@
 "use client";
 
-import { useGradeAndRecord } from "../../_hooks/use-verified-challenge";
+import { useGradeAndRecord } from "@mahjong-scoring/features/practice/use-grade-answer";
 
 import { useCallback } from "react";
 import { clampHanToYakuman } from "@mahjong-scoring/core";
@@ -11,7 +11,7 @@ import { useTranslations } from "next-intl";
 import type { useGeneratedScoreQuestion } from "../../_hooks/use-generated-score-question";
 import { TehaiDisplay } from "../../_components/tehai-display";
 import { TehaiMentsuBreakdown } from "../../_components/tehai-mentsu-breakdown";
-import { usePresentQuestion } from "../../_hooks/use-present-question";
+import { usePresentQuestion } from "@mahjong-scoring/features/practice/use-present-question";
 import {
   useRegisterAdvance,
   useTrainingMode,

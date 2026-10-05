@@ -7,7 +7,7 @@ import type {
   ScoreTableQuestion,
 } from "@mahjong-scoring/core";
 import { generateNextScoreTableQuestion } from "@mahjong-scoring/features/practice/score-table/next-question";
-import { useClientGeneratedQuestion } from "../../_hooks/use-client-generated-question";
+import { useGeneratedQuestion } from "@mahjong-scoring/features/practice/use-generated-question";
 
 /**
  * 点数表早引きの出題状態フック
@@ -28,7 +28,7 @@ export function useScoreTableQuestion(
     () => generateScoreTableQuestion(generatorOptions),
     [generatorOptions],
   );
-  const [question, setQuestion] = useClientGeneratedQuestion(generate);
+  const [question, setQuestion] = useGeneratedQuestion(generate);
 
   const advance = useCallback(() => {
     setQuestion((prev) => generateNextScoreTableQuestion(prev, generate));

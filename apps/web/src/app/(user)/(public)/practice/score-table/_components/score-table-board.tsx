@@ -1,6 +1,6 @@
 "use client";
 
-import { useGradeAndRecord } from "../../_hooks/use-verified-challenge";
+import { useGradeAndRecord } from "@mahjong-scoring/features/practice/use-grade-answer";
 
 import { useCallback } from "react";
 import type {
@@ -8,7 +8,7 @@ import type {
   ScoreTableUserAnswer,
 } from "@mahjong-scoring/core";
 import { FeedbackFrame } from "../../_components/feedback-frame";
-import { usePresentQuestion } from "../../_hooks/use-present-question";
+import { usePresentQuestion } from "@mahjong-scoring/features/practice/use-present-question";
 import {
   useRegisterAdvance,
   useTrainingAnswerVisibility,

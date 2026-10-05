@@ -1,6 +1,6 @@
 "use client";
 
-import { useGradeAnswer } from "../../_hooks/use-verified-challenge";
+import { useGradeAnswer } from "@mahjong-scoring/features/practice/use-grade-answer";
 
 import { useCallback, useState } from "react";
 import { useTranslations } from "next-intl";
@@ -13,8 +13,8 @@ import { JantouFuKazeContext } from "./jantou-fu-kaze-context";
 import { getChoiceFeedbackProps } from "../../_lib/feedback-styles";
 import { QuestionGeneratingPlaceholder } from "../../_components/question-generating-placeholder";
 import { QuestionPrompt } from "../../_components/question-prompt";
-import { useClientGeneratedQuestion } from "../../_hooks/use-client-generated-question";
-import { usePresentQuestion } from "../../_hooks/use-present-question";
+import { useGeneratedQuestion } from "@mahjong-scoring/features/practice/use-generated-question";
+import { usePresentQuestion } from "@mahjong-scoring/features/practice/use-present-question";
 import { useRegisterAdvance } from "@mahjong-scoring/features/practice/use-training-mode";
 import { toQuestionResult } from "@mahjong-scoring/features/practice/jantou-fu/types";
 import type { JantouFuQuestionResult } from "@mahjong-scoring/features/practice/jantou-fu/types";
@@ -49,7 +49,7 @@ export function JantouFuBoard({
     (): JantouFuQuestion => generateJantouFuQuestion({ renfonpaiAs4Fu }),
     [renfonpaiAs4Fu],
   );
-  const [question, setQuestion] = useClientGeneratedQuestion(generateQuestion);
+  const [question, setQuestion] = useGeneratedQuestion(generateQuestion);
   const [selectedHai, setSelectedHai] = useState<
     JantouFuChoice["hai"] | undefined
   >(undefined);

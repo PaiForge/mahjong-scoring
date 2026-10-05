@@ -1,6 +1,6 @@
 "use client";
 
-import { useGradeAnswer } from "../../_hooks/use-verified-challenge";
+import { useGradeAnswer } from "@mahjong-scoring/features/practice/use-grade-answer";
 
 import { useState, useCallback } from "react";
 import { useTranslations } from "next-intl";
@@ -14,8 +14,8 @@ import { YAKU_LIST_HEIGHT_CLASSES, YakuSelectList } from "./yaku-select-list";
 import { YakuSelectedChips } from "./yaku-selected-chips";
 import { QuestionGeneratingPlaceholder } from "../../_components/question-generating-placeholder";
 import { QuestionPrompt } from "../../_components/question-prompt";
-import { useClientGeneratedQuestion } from "../../_hooks/use-client-generated-question";
-import { usePresentQuestion } from "../../_hooks/use-present-question";
+import { useGeneratedQuestion } from "@mahjong-scoring/features/practice/use-generated-question";
+import { usePresentQuestion } from "@mahjong-scoring/features/practice/use-present-question";
 import {
   useRegisterAdvance,
   useTrainingMode,
@@ -66,7 +66,7 @@ export function YakuBoard({
 }: YakuBoardProps) {
   const gradeAnswer = useGradeAnswer<YakuQuestion>();
   const t = useTranslations("yaku");
-  const [question, setQuestion] = useClientGeneratedQuestion(generateQuestion);
+  const [question, setQuestion] = useGeneratedQuestion(generateQuestion);
   const [selectedYaku, setSelectedYaku] = useState<Set<string>>(new Set());
   const [questionIndex, setQuestionIndex] = useState(0);
 

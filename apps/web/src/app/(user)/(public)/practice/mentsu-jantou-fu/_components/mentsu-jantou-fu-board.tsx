@@ -1,6 +1,6 @@
 "use client";
 
-import { useGradeAndRecord } from "../../_hooks/use-verified-challenge";
+import { useGradeAndRecord } from "@mahjong-scoring/features/practice/use-grade-answer";
 
 import { useState, useCallback } from "react";
 import { useTranslations } from "next-intl";
@@ -12,8 +12,8 @@ import type { MentsuJantouFuQuestion } from "@mahjong-scoring/core";
 import { useRuleSettingsStore } from "@/app/_hooks/use-rule-settings-store";
 import { QuestionGeneratingPlaceholder } from "../../_components/question-generating-placeholder";
 import { QuestionPrompt } from "../../_components/question-prompt";
-import { useClientGeneratedQuestion } from "../../_hooks/use-client-generated-question";
-import { usePresentQuestion } from "../../_hooks/use-present-question";
+import { useGeneratedQuestion } from "@mahjong-scoring/features/practice/use-generated-question";
+import { usePresentQuestion } from "@mahjong-scoring/features/practice/use-present-question";
 import {
   useRegisterAdvance,
   useTrainingMode,
@@ -77,7 +77,7 @@ export function MentsuJantouFuBoard({
     () => generateQuestion(renfonpaiAs4Fu),
     [renfonpaiAs4Fu],
   );
-  const [question, setQuestion] = useClientGeneratedQuestion(generate);
+  const [question, setQuestion] = useGeneratedQuestion(generate);
   const [answers, setAnswers] = useState<string[]>(() => new Array(5).fill(""));
   const [tileScale, setTileScale] = useState(1);
 
