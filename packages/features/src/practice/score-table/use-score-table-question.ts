@@ -6,8 +6,8 @@ import type {
   ScoreTableGeneratorOptions,
   ScoreTableQuestion,
 } from "@mahjong-scoring/core";
-import { generateNextScoreTableQuestion } from "@mahjong-scoring/features/practice/score-table/next-question";
-import { useGeneratedQuestion } from "@mahjong-scoring/features/practice/use-generated-question";
+import { generateNextScoreTableQuestion } from "./next-question";
+import { useGeneratedQuestion } from "../use-generated-question";
 
 /**
  * 点数表早引きの出題状態フック

@@ -8,7 +8,7 @@ import type { ChallengeBoardArgs } from "@mahjong-scoring/features/practice/boar
 import { ScoreTableBoard } from "./score-table-board";
 import { ScoreTableGeneratingPlaceholder } from "./score-table-generating-placeholder";
 import { useScoreTableGeneratorOptions } from "../_hooks/use-score-table-generator-options";
-import { useScoreTableQuestion } from "../_hooks/use-score-table-question";
+import { useScoreTableQuestion } from "@mahjong-scoring/features/practice/score-table/use-score-table-question";
 import type { ScoreTableQuestionResult } from "@mahjong-scoring/features/practice/score-table/types";
 
 /**

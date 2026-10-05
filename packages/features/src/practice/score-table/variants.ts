@@ -26,3 +26,26 @@ export const SCORE_TABLE_VARIANT_OPTIONS: Readonly<
   oya_non_mangan: { roles: ["oya"], ranges: ["nonMangan"] },
   all: { roles: ["oya", "ko"], ranges: ["nonMangan", "manganPlus"] },
 };
+
+/**
+ * バリアントとルール設定から点数表早引きの出題条件を組む
+ * 点数表出題条件
+ *
+ * バリアントの絞り込みに加えて、端末ローカルのルール設定（切り上げ満貫）も
+ * 出題条件へ反映する。チャレンジ（`isTraining` が false）では、切り上げ満貫の
+ * 採否で正解が割れるセル（60符3翻）を出題から落とす（理由は
+ * `challenge/rule-boundary.ts`）。
+ */
+export function scoreTableGeneratorOptions(
+  variant: PracticeVariantOf<"score-table">,
+  {
+    kiriageMangan,
+    isTraining,
+  }: { readonly kiriageMangan: boolean; readonly isTraining: boolean },
+): ScoreTableGeneratorOptions {
+  return {
+    ...SCORE_TABLE_VARIANT_OPTIONS[variant],
+    kiriageMangan,
+    excludeKiriageBoundary: !isTraining,
+  };
+}

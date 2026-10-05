@@ -1,3 +1,4 @@
+// @vitest-environment jsdom
 import { describe, expect, it, vi, beforeEach } from "vitest";
 import { renderHook, act } from "@testing-library/react";
 
@@ -24,7 +25,7 @@ vi.mock("@mahjong-scoring/core", async (importOriginal) => {
   };
 });
 
-import { useScoreTableQuestion } from "../use-score-table-question";
+import { useScoreTableQuestion } from "./use-score-table-question";
 
 describe("useScoreTableQuestion", () => {
   beforeEach(() => {
