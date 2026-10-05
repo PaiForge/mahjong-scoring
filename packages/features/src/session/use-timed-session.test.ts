@@ -323,3 +323,68 @@ describe("useTimedSession - pause feature", () => {
     });
   });
 });
+
+describe("useTimedSession - goalCount", () => {
+  beforeEach(() => {
+    vi.useFakeTimers();
+  });
+
+  afterEach(() => {
+    vi.useRealTimers();
+  });
+
+  function answer(
+    result: { current: ReturnType<typeof useTimedSession> },
+    correct: boolean,
+  ) {
+    act(() => {
+      result.current.gameSession.handleAnswer(correct, vi.fn());
+    });
+    act(() => {
+      vi.advanceTimersByTime(0);
+    });
+  }
+
+  it("正解数が目標に届いたら、その回答のフィードバック後に終わる", () => {
+    const { result } = renderHook(() =>
+      useTimedSession({ goalCount: 2, feedbackDurationMs: 0 }),
+    );
+    completeCountdown();
+
+    answer(result, true);
+    expect(result.current.gameSession.isFinished).toBe(false);
+
+    answer(result, true);
+    expect(result.current.gameSession.isFinished).toBe(true);
+    expect(result.current.gameSession.finalResult).toMatchObject({
+      correctCount: 2,
+      incorrectCount: 0,
+      totalCount: 2,
+      reason: "goalReached",
+    });
+  });
+
+  it("不正解は目標に数えない", () => {
+    const { result } = renderHook(() =>
+      useTimedSession({ goalCount: 2, mistakeLimit: 3, feedbackDurationMs: 0 }),
+    );
+    completeCountdown();
+
+    answer(result, true);
+    answer(result, false);
+    expect(result.current.gameSession.isFinished).toBe(false);
+
+    answer(result, true);
+    expect(result.current.gameSession.finalResult?.reason).toBe("goalReached");
+  });
+
+  it("未指定なら正解をいくつ重ねても終わらない", () => {
+    const { result } = renderHook(() =>
+      useTimedSession({ feedbackDurationMs: 0 }),
+    );
+    completeCountdown();
+
+    for (let i = 0; i < 20; i++) answer(result, true);
+    expect(result.current.gameSession.isFinished).toBe(false);
+  });
+});
