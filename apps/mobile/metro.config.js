@@ -25,13 +25,4 @@ config.resolver.blockList = [
   /\/apps\/web\/\.next\/.*/,
 ];
 
-// Hermes と Expo の winter runtime の食い違いを埋める polyfill を全モジュールより先に読む
-const defaultGetPolyfills = config.serializer.getPolyfills;
-config.serializer.getPolyfills = (options) => {
-  return [
-    path.resolve(projectRoot, "polyfill.js"),
-    ...defaultGetPolyfills(options),
-  ];
-};
-
 module.exports = config;
