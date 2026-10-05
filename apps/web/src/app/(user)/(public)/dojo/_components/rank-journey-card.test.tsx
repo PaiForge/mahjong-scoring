@@ -69,10 +69,10 @@ describe("RankJourneyCard", () => {
 
     // 終えたレッスンにだけ完了の印が付く
     expect(getAllByRole("img", { name: "lessonDone" })).toHaveLength(1);
-    // 確認問題を持つレッスンにはその旨を添える（5級の章はすべて持つ）
-    expect(container.textContent?.match(/lessonRowDescription/g)).toHaveLength(
-      RANK_REGISTRY[0].learnChapterSlugs.length,
-    );
+    // 各レッスンの行にはレッスンの目次と同じ章の説明を添える
+    expect(
+      container.textContent?.match(/learnCurriculum\.[\w.]+?\.description/g),
+    ).toHaveLength(RANK_REGISTRY[0].learnChapterSlugs.length);
     // 施錠の注記は次の目標の級には出ない
     expect(container.textContent).not.toContain("lockedNote");
     // 進み具合の各段はその段の一覧へ送る（学ぶは目次のその級の最初のレッスン）
@@ -87,7 +87,7 @@ describe("RankJourneyCard", () => {
     ]);
   });
 
-  it("確認問題を持たないレッスンも同じ行で、説明だけを添えない", async () => {
+  it("確認問題を持たないレッスンも同じ行で、同じ章の説明を添える", async () => {
     // 前提章はすべて確認問題を持つので、行程から確認問題を外して作る
     const base = rankJourney("kyu-4", { achievedRankSlugs: ["kyu-5"] });
     const chapters = base.chapters.map((item) => ({
@@ -107,7 +107,9 @@ describe("RankJourneyCard", () => {
     for (const chapterSlug of RANK_REGISTRY[1].learnChapterSlugs) {
       expect(hrefs(container)).toContain(`/lessons/${chapterSlug}`);
     }
-    expect(container.textContent).not.toContain("lessonRowDescription");
+    expect(
+      container.textContent?.match(/learnCurriculum\.[\w.]+?\.description/g),
+    ).toHaveLength(RANK_REGISTRY[1].learnChapterSlugs.length);
     expect(getAllByRole("img", { name: "lessonDone" })).toHaveLength(1);
   });
 

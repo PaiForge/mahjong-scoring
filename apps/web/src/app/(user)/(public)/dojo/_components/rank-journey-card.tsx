@@ -117,23 +117,21 @@ export async function RankJourneyCard({
                   {tRanks("stages.learn")}
                 </h4>
                 <p className="text-xs text-surface-500">{t("chaptersLead")}</p>
-                {/* 学ぶ段はレッスンごとに 1 行。題名は章の辞書から引く
-                    （レッスン = 章）。確認問題を持つレッスンにはその旨を添える */}
+                {/* 学ぶ段はレッスンごとに 1 行。題名と説明は章の辞書から引き
+                    （レッスン = 章）、レッスンの目次と同じ文言を出す */}
                 <LinkRowList>
                   {chapters.map((item) => {
                     const chapter = getChapterBySlug(item.chapterSlug);
-                    const title = chapter
-                      ? tAll(
-                          `learnCurriculum.${getChapterI18nPath(chapter)}.title`,
-                        )
-                      : item.chapterSlug;
+                    const path = chapter
+                      ? `learnCurriculum.${getChapterI18nPath(chapter)}`
+                      : undefined;
                     return (
                       <LinkRow
                         key={item.chapterSlug}
                         href={chapterHref(item.chapterSlug)}
-                        title={title}
+                        title={path ? tAll(`${path}.title`) : item.chapterSlug}
                         description={
-                          item.hasQuiz ? t("lessonRowDescription") : undefined
+                          path ? tAll(`${path}.description`) : undefined
                         }
                         trailing={
                           item.done ? (
