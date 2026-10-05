@@ -107,14 +107,16 @@ export function groupAdjacentCells<G extends string>(
 /**
  * 塊を先頭のマスのキーで引く表と、先頭以外のマス（td を描かない）の集合
  * 塊の索引
+ *
+ * 塊は渡した形のまま引ける（`CellRun` に表示の情報を足した型でもよい）。
  */
-export function indexRuns<G extends string>(
-  runs: readonly CellRun<G>[],
+export function indexRuns<R extends CellRun>(
+  runs: readonly R[],
 ): {
-  readonly runAt: ReadonlyMap<string, CellRun<G>>;
+  readonly runAt: ReadonlyMap<string, R>;
   readonly absorbed: ReadonlySet<string>;
 } {
-  const runAt = new Map<string, CellRun<G>>();
+  const runAt = new Map<string, R>();
   const absorbed = new Set<string>();
   for (const run of runs) {
     runAt.set(cellKeyOf(run.cells[0]), run);

@@ -3,7 +3,8 @@
  * 配列トグル
  *
  * 含まれていれば除き、無ければ末尾に足す。出題条件のチェックボックスで
- * 「1つも選ばれていない」状態も許容するため、空配列を返しうる。
+ * 「1つも選ばれていない」状態も許容するため、空配列を返しうる。入力の
+ * 配列は書き換えず、新しい配列を返す。
  */
 export function toggleInArray<T>(values: readonly T[], value: T): T[] {
   return values.includes(value)

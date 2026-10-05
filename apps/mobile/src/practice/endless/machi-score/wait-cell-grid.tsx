@@ -17,11 +17,9 @@ import {
   type MachiCellRef,
 } from "@mahjong-scoring/features/practice/machi-score/cell-ref";
 import {
-  answerKey,
-  groupAdjacentCells,
-  indexRuns,
-  type CellRun,
-} from "@mahjong-scoring/features/practice/machi-score/cell-runs";
+  buildWaitCellRuns,
+  type WaitCellRun,
+} from "@mahjong-scoring/features/practice/machi-score/wait-cell-runs";
 
 import { PressableSurface } from "../../../components/pressable-surface";
 import { Tile } from "../../../components/tile";
@@ -75,16 +73,6 @@ const CELL_TEXT_COLORS: Readonly<Record<CellState, string>> = {
   unanswered: colors.surface400,
 };
 
-/**
- * 塊のグループ（web と同じ）
- *
- * - `answering`: 選択中のマス。見た目は 1 枚だが行ごとに押せて、押した行
- *   だけ選択から外れる
- * - `answered:<回答キー>`: 未選択で回答が同じマス。1 つの面で、押すと
- *   塊ごと選択に入る
- */
-type RunGroup = "answering" | `answered:${string}`;
-
 /** n 行ぶんの高さ（行の間隔を含む） */
 function spanHeight(rows: number): number {
   return rows * ROW_HEIGHT + (rows - 1) * ROW_GAP;
@@ -120,36 +108,20 @@ export function WaitCellGrid({
   onToggleCell,
 }: WaitCellGridProps) {
   const t = useTranslations("machiScore.cells");
-  const selectedKeys = new Set(selectedCells.map(cellKeyOf));
   // 選択中のマスは同じ列に限られる（ストアが保証する）ので先頭で列が決まる
   const selectedIsTsumo = selectedCells[0]?.isTsumo;
 
-  const { runAt: runs, absorbed } = indexRuns(
-    groupAdjacentCells<RunGroup>(question, (cell) => {
-      const key = cellKeyOf(cell);
-      const answer = cellAnswers[key];
-      return selectedKeys.has(key)
-        ? "answering"
-        : answer
-          ? `answered:${answerKey(answer)}`
-          : undefined;
-    }).filter((run) => run.cells.length >= 2),
-  );
+  const {
+    runAt: runs,
+    absorbed,
+    selectedKeys,
+  } = buildWaitCellRuns(question, cellAnswers, selectedCells);
 
   /** 塊の文字。全マスの回答が同じならその回答、そうでなければ「まとめて回答中」 */
-  const runLabel = (run: CellRun<RunGroup>) => {
-    const [first] = run.cells;
-    const answer = cellAnswers[cellKeyOf(first)];
-    if (!answer) return t("answeringTogether");
-    const key = answerKey(answer);
-    const allSame = run.cells.every((cell) => {
-      const other = cellAnswers[cellKeyOf(cell)];
-      return other !== undefined && answerKey(other) === key;
-    });
-    return allSame
-      ? formatAnswer(answer, first.isTsumo)
+  const runLabel = (run: WaitCellRun) =>
+    run.answer
+      ? formatAnswer(run.answer, run.cells[0].isTsumo)
       : t("answeringTogether");
-  };
 
   const cellFace = (
     state: CellState,
@@ -175,7 +147,7 @@ export function WaitCellGrid({
     </PressableSurface>
   );
 
-  const renderRun = (run: CellRun<RunGroup>): ReactNode => {
+  const renderRun = (run: WaitCellRun): ReactNode => {
     const label = runLabel(run);
     const height = spanHeight(run.cells.length);
     if (run.group !== "answering") {
