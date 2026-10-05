@@ -4,7 +4,7 @@ import { BookIcon } from "@/app/(user)/_components/icons/book-icon";
 import { ChevronRightIcon } from "@/app/(user)/_components/icons/chevron-right-icon";
 import { TEXT_LINK_CLASSES } from "@/app/_components/_lib/link-classes";
 import type { RankSlug } from "@mahjong-scoring/features/ranks/registry";
-import type { PracticeCardVisual as CardVisual } from "../_lib/practice-card-visual";
+import type { PracticeCardVisual as CardVisual } from "@mahjong-scoring/features/practice/card-visual";
 import { PracticeCardVisual } from "./practice-card-visual";
 
 interface PracticeCardProps {

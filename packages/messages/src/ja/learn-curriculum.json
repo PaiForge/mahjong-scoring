@@ -88,7 +88,8 @@
     "pageDescription": "麻雀の点数計算を、短い説明と確認問題で 1 つずつ身につけるレッスンです。順に進められます。",
     "progressLabel": "{done} / {total} レッスン完了",
     "nextChapterBadge": "次はここから",
-    "allCompletedMessage": "すべてのレッスンを完了しました。おつかれさまでした！"
+    "allCompletedMessage": "すべてのレッスンを完了しました。おつかれさまでした！",
+    "unavailableBadge": "アプリ版は準備中"
   },
   "chapter": {
     "completeCta": "このレッスンを完了にする",
@@ -131,5 +132,10 @@
     "colTiles": "牌",
     "colKind": "種類",
     "colFu": "符"
+  },
+  "formula": {
+    "fu": "符",
+    "han": "翻数",
+    "ceil": "切り上げ"
   }
 }

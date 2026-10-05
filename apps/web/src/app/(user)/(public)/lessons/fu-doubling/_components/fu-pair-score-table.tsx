@@ -15,7 +15,7 @@ import {
   buildFuPairRows,
   type FuPair,
   type FuPairCell,
-} from "../_lib/fu-doubling-rows";
+} from "@mahjong-scoring/features/curriculum/fu-doubling-rows";
 
 interface FuPairScoreTableProps {
   /** 対象の符の組（`low` の2倍が `high`） */
@@ -40,7 +40,7 @@ interface FuPairScoreTableProps {
  * 青は早見表で「参照している場所」を指す色で、頻出符の琥珀や正解の緑とは
  * 役割が違う。色だけに頼らないよう、表の下に凡例を添える文言を章側が持つ。
  *
- * 点数は `_lib/fu-doubling-rows` 経由で core の計算を通す。章側にも
+ * 点数は features の `curriculum/fu-doubling-rows` 経由で core の計算を通す。章側にも
  * このファイルにも点数を書き起こさない。
  */
 export async function FuPairScoreTable({

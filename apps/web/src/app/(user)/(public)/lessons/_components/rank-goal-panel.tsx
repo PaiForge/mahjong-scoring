@@ -12,7 +12,7 @@ import {
   practiceTrainingHref,
 } from "@mahjong-scoring/features/routes";
 
-import { journeyStepTitle } from "../../_lib/journey-step";
+import { journeyStepTitle } from "@mahjong-scoring/features/journey/journey-step";
 
 import { RankProgressSummary } from "./rank-progress-summary";
 

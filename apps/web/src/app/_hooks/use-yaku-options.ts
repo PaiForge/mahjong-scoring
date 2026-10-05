@@ -3,7 +3,7 @@
 import { useCallback, useMemo } from "react";
 import { useTranslations } from "next-intl";
 
-import { YAKU_TO_KEY } from "@/app/_lib/yaku-labels";
+import { YAKU_TO_KEY } from "@mahjong-scoring/features/yaku/yaku-labels";
 import { useYakuOrder } from "./use-yaku-order-store";
 
 /** 役の選択肢 1 件 */

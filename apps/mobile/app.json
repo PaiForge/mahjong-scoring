@@ -1,0 +1,38 @@
+{
+  "expo": {
+    "name": "麻雀点数計算",
+    "slug": "mahjong-scoring",
+    "version": "0.1.0",
+    "orientation": "portrait",
+    "icon": "./assets/icon.png",
+    "userInterfaceStyle": "light",
+    "scheme": "mahjong-scoring",
+    "splash": {
+      "image": "./assets/splash-icon.png",
+      "resizeMode": "contain",
+      "backgroundColor": "#00904a"
+    },
+    "ios": {
+      "supportsTablet": true,
+      "bundleIdentifier": "com.paiforge.mahjongscoring"
+    },
+    "android": {
+      "package": "com.paiforge.mahjongscoring",
+      "adaptiveIcon": {
+        "foregroundImage": "./assets/adaptive-icon.png",
+        "backgroundColor": "#00904a"
+      },
+      "edgeToEdgeEnabled": true,
+      "predictiveBackGestureEnabled": false
+    },
+    "web": {
+      "favicon": "./assets/favicon.png",
+      "bundler": "metro",
+      "output": "single"
+    },
+    "plugins": ["expo-router"],
+    "experiments": {
+      "typedRoutes": false
+    }
+  }
+}

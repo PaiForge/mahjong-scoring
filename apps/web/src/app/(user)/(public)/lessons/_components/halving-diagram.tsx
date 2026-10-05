@@ -3,7 +3,7 @@ import type { TsumoPayment } from "@mahjong-scoring/core";
 
 import { TsumoScore } from "@/app/(user)/(public)/reference/score-table/_components/tsumo-score";
 
-import { deriveKoTsumoFromRon } from "../_lib/ko-tsumo-halving";
+import { deriveKoTsumoFromRon } from "@mahjong-scoring/features/curriculum/ko-tsumo-halving";
 import {
   DerivationArrow,
   DerivationFigure,

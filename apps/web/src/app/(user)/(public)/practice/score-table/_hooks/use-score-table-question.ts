@@ -6,23 +6,8 @@ import type {
   ScoreTableGeneratorOptions,
   ScoreTableQuestion,
 } from "@mahjong-scoring/core";
+import { generateNextScoreTableQuestion } from "@mahjong-scoring/features/practice/score-table/next-question";
 import { useClientGeneratedQuestion } from "../../_hooks/use-client-generated-question";
-
-/**
- * 2問の表示内容（親子・ツモロン・翻・符）が同一かを判定する
- * 表示同一判定
- */
-function isSameDisplayedQuestion(
-  a: ScoreTableQuestion,
-  b: ScoreTableQuestion,
-): boolean {
-  return (
-    a.isOya === b.isOya &&
-    a.isTsumo === b.isTsumo &&
-    a.han === b.han &&
-    a.fu === b.fu
-  );
-}
 
 /**
  * 点数表早引きの出題状態フック
@@ -32,10 +17,7 @@ function isSameDisplayedQuestion(
  * いずれもこの `advance` を呼ぶ。最初の問題はクライアントで生成するため、
  * マウントまでは `question` が undefined になる。
  *
- * 直前と表示が同一の問題が連続すると、開示後や回答後の次問題への遷移で「反応がない」
- * ように見える（特に親子・ツモロン・点数帯を絞ったトレーニングでは表示差が翻数
- * のみになりやすい）。可能な範囲で直前と異なる問題になるまで引き直す。
- * 候補が1種類しかない場合は20回で打ち切る。
+ * 次の問題は直前と表示が異なるものを引く（{@link generateNextScoreTableQuestion}）。
  *
  * @param generatorOptions 出題条件（親子・ツモロン・点数帯の絞り込み）
  */
@@ -49,17 +31,7 @@ export function useScoreTableQuestion(
   const [question, setQuestion] = useClientGeneratedQuestion(generate);
 
   const advance = useCallback(() => {
-    setQuestion((prev) => {
-      let next = generate();
-      for (
-        let i = 0;
-        prev !== undefined && i < 20 && isSameDisplayedQuestion(prev, next);
-        i++
-      ) {
-        next = generate();
-      }
-      return next;
-    });
+    setQuestion((prev) => generateNextScoreTableQuestion(prev, generate));
   }, [generate, setQuestion]);
 
   return { question, advance };

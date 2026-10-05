@@ -4,7 +4,7 @@ import { memo, useEffect, useMemo } from "react";
 import type { HaiKindId, Tehai } from "@mahjong-scoring/core";
 import { Hai, Furo } from "@pai-forge/mahjong-react-ui";
 import { useAutoScale } from "../_hooks/use-auto-scale";
-import { splitAgariHai } from "../_lib/agari-hai";
+import { splitAgariHai } from "@mahjong-scoring/features/board/agari-hai";
 
 /** size="sm" の牌の高さ（px）。globals.css の .h-hai-sm と合わせる */
 export const HAI_SM_HEIGHT = 45;

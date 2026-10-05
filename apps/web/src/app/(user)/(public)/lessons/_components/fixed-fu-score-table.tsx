@@ -12,12 +12,12 @@ import { TsumoScore } from "@/app/(user)/(public)/reference/score-table/_compone
 import {
   buildFixedFuRows,
   type FixedFuTableShape,
-} from "../_lib/fixed-fu-rows";
+} from "@mahjong-scoring/features/curriculum/fixed-fu-rows";
 
 interface FixedFuScoreTableProps {
   /** 子・親のどちらの点数を表示するか */
   readonly role: Role;
-  /** 対象の役の符と翻数の並び（`_lib/fixed-fu-rows` が持つ） */
+  /** 対象の役の符と翻数の並び（features の `curriculum/fixed-fu-rows` が持つ） */
   readonly shape: FixedFuTableShape;
 }
 
@@ -35,7 +35,7 @@ interface FixedFuScoreTableProps {
  * 直前の本文が言っており、行見出しに重ねると狭い画面で表が横に伸びるだけに
  * なる。符が1通りしかない役（七対子）でも同じ理由で行見出しは変えない。
  *
- * 表に出す値は `_lib/fixed-fu-rows` の {@link buildFixedFuRows} が組み立てる。
+ * 表に出す値は features の `curriculum/fixed-fu-rows` の {@link buildFixedFuRows} が組み立てる。
  * 存在しない組み合わせのセルは `undefined` で返るので "-" を出す。
  */
 export async function FixedFuScoreTable({

@@ -7,7 +7,10 @@
 ## ディレクトリ構成
 
 - `apps/web` — Next.js Web アプリケーション
+- `apps/mobile` — Expo（React Native）モバイルアプリケーション
 - `packages/core` — UI 非依存の共有ドメインロジック
+- `packages/features` — web とモバイルで共有するアプリのロジック
+- `packages/messages` — i18n 辞書（web とモバイルで共有）
 - `packages/eslint-config` — 共有 ESLint 設定
 - `docs/` — [PaiForge/docs](https://github.com/PaiForge/docs)（git submodule — コーディング規約等）
 
@@ -49,6 +52,15 @@ pnpm install
 
 ```bash
 pnpm dev
+```
+
+### モバイルアプリの起動
+
+```bash
+pnpm --filter @mahjong-scoring/mobile start   # Expo の開発サーバー（Expo Go / シミュレーターで開く）
+pnpm --filter @mahjong-scoring/mobile ios     # iOS シミュレーター
+pnpm --filter @mahjong-scoring/mobile android # Android エミュレーター
+pnpm --filter @mahjong-scoring/mobile web     # ブラウザで確認（画面確認用）
 ```
 
 ### スクリプト一覧

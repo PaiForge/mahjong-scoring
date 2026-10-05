@@ -3,7 +3,7 @@ import { type Role } from "@mahjong-scoring/core";
 
 import { HanRowsTable } from "../../_components/han-rows-table";
 
-import { buildHanDoublingRows } from "../_lib/fu-doubling-rows";
+import { buildHanDoublingRows } from "@mahjong-scoring/features/curriculum/fu-doubling-rows";
 
 interface HanDoublingTableProps {
   /** 対象の符。4翻でも満貫に届かない符を渡すこと（30符など） */

@@ -8,7 +8,7 @@ import { orderFuHan } from "@mahjong-scoring/features/settings/fu-han-order";
 import { QuestionDisplay } from "../score/_components/question-display";
 import type { ScoreQuestionResult } from "@mahjong-scoring/features/results/score-question-result";
 import { restoreScoreQuestion } from "@mahjong-scoring/features/results/score-question-result";
-import { buildYakumanCapNote } from "../_lib/yakuman-cap-note";
+import { buildYakumanCapNote } from "@mahjong-scoring/features/results/yakuman-cap-note";
 import { AnswerComparison } from "./answer-comparison";
 import { ProblemListAccordion } from "./problem-list-accordion";
 import { TehaiMentsuBreakdown } from "./tehai-mentsu-breakdown";

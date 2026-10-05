@@ -7,9 +7,10 @@ import {
   scoreTierForHan,
 } from "@mahjong-scoring/core";
 import type { Fu, Role, WinType } from "@mahjong-scoring/core";
+import { HAN_COLS } from "@mahjong-scoring/features/score-table/han-cols";
 
-/** 符×翻表の翻数列（1〜4翻）。5翻以上は満貫以上の表が受け持つ */
-export const HAN_COLS = [1, 2, 3, 4] as const;
+/** 符×翻表の翻数列（1〜4翻）。教本の表と共有するため features に置く */
+export { HAN_COLS };
 
 /** 符×翻表の符行（20〜110符） */
 export const FU_ROWS = FU_VALUES;

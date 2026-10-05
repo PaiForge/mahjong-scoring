@@ -6,7 +6,7 @@ import { GuideNote } from "../../_components/guide-note";
 import { GuideParagraph } from "../../_components/guide-paragraph";
 import { GuideSection } from "../../_components/guide-section";
 import { BlockMath } from "../../_components/math";
-import { FU_PAIRS } from "../_lib/fu-doubling-rows";
+import { FU_PAIRS } from "@mahjong-scoring/features/curriculum/fu-doubling-rows";
 import { FuPairScoreTable } from "./fu-pair-score-table";
 import { HanDoublingTable } from "./han-doubling-table";
 

@@ -19,8 +19,9 @@ vi.mock(
 const { beginPracticeQuestion } =
   await import("@/test/begin-practice-question-mock");
 const { MachiScoreBoard } = await import("./machi-score-board");
-const { cellKeyOf, useMachiScoreStore } =
-  await import("../_hooks/use-machi-score-store");
+const { useMachiScoreStore } = await import("../_hooks/use-machi-score-store");
+const { cellKeyOf } =
+  await import("@mahjong-scoring/features/practice/machi-score/cell-ref");
 const { _resetPracticeQuota } = await import("../../_hooks/use-practice-quota");
 
 /** 盤面を mount し、待ちを正解して点数の回答（cells）まで進める */

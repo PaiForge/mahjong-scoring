@@ -16,5 +16,6 @@
   "signOutSuccess": "ログアウトしました",
   "account": "アカウント",
   "menu": "メニュー",
-  "close": "閉じる"
+  "close": "閉じる",
+  "back": "戻る"
 }

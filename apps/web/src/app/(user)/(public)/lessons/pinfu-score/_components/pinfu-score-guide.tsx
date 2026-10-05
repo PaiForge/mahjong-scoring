@@ -7,7 +7,7 @@ import { PreferenceSettingsNote } from "../../_components/preference-settings-no
 import { GuideParagraph } from "../../_components/guide-paragraph";
 import { GuideSection } from "../../_components/guide-section";
 import { FixedFuScoreTable } from "../../_components/fixed-fu-score-table";
-import { PINFU_SCORE_TABLE } from "../../_lib/fixed-fu-rows";
+import { PINFU_SCORE_TABLE } from "@mahjong-scoring/features/curriculum/fixed-fu-rows";
 
 /**
  * 平和での点数計算 — 点数の計算セクション第2章

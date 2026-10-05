@@ -62,14 +62,34 @@ export default [
     },
   },
   {
-    // CommonJS で書かれた設定ファイル（postcss 等）。`module` / `require` を
-    // 未定義扱いにしない
-    files: ["apps/web/*.config.js"],
-    languageOptions: { sourceType: "commonjs" },
+    // CommonJS で書かれた設定ファイル（postcss・Metro・Babel 等）。`module` /
+    // `require` を未定義扱いにしない
+    files: [
+      "apps/web/*.config.js",
+      "apps/mobile/*.config.js",
+      "apps/mobile/index.js",
+    ],
+    languageOptions: {
+      sourceType: "commonjs",
+      globals: {
+        module: "readonly",
+        require: "readonly",
+        __dirname: "readonly",
+      },
+    },
+  },
+  {
+    // Hermes 向けの polyfill。全モジュールより先に素の script として読まれる
+    files: ["apps/mobile/polyfill.js"],
+    languageOptions: {
+      sourceType: "script",
+      globals: { global: "readonly" },
+    },
   },
   {
     ignores: [
       "apps/web/.next/**",
+      "apps/mobile/.expo/**",
       // supabase start が生成する作業ディレクトリ（バンドル済みの edge runtime を含む）
       "**/supabase/.temp/**",
       "**/dist/**",

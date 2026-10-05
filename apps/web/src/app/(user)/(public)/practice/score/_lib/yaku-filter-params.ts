@@ -1,6 +1,6 @@
 import { SCORE_FILTERABLE_YAKU } from "@mahjong-scoring/core";
 
-import { YAKU_TO_KEY } from "@/app/_lib/yaku-labels";
+import { YAKU_TO_KEY } from "@mahjong-scoring/features/yaku/yaku-labels";
 
 /**
  * 出題役絞り込みの URL パラメータ規約

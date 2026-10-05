@@ -82,6 +82,7 @@ import mypageAccount from "./ja/mypage-account.json";
 import tokushoho from "./ja/tokushoho.json";
 import notifications from "./ja/notifications.json";
 import lessons from "./ja/lessons.json";
+import notFound from "./ja/not-found.json";
 
 /**
  * 日本語の辞書（全名前空間）
@@ -181,6 +182,7 @@ export const messages = {
   tokushoho,
   notifications,
   lessons,
+  notFound,
 };
 
 /** 辞書の型（名前空間 → 文言の木） */

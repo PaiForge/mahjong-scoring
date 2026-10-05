@@ -20,9 +20,12 @@ import {
 } from "@mahjong-scoring/features/lessons/registry";
 import { menuTypeToSlug } from "@mahjong-scoring/features/practice-menu-types";
 import { rankBySlug } from "@mahjong-scoring/features/ranks/registry";
-import { journeyStepHref, journeyStepTitle } from "../../_lib/journey-step";
+import {
+  journeyStepHref,
+  journeyStepTitle,
+} from "@mahjong-scoring/features/journey/journey-step";
 import { buildLearnArticleSchema } from "../_lib/json-ld";
-import { chapterNamespace } from "../_lib/metadata";
+import { chapterNamespace } from "@mahjong-scoring/features/curriculum/chapter-namespace";
 import { formatPublishedDate } from "../_lib/published-date";
 import { LESSON_SCROLL_ANCHOR_ID } from "../_lib/scroll-anchor";
 import { ChapterCompleteButton } from "./chapter-complete-button";

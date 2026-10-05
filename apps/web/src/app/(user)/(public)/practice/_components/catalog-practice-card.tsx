@@ -8,9 +8,9 @@ import {
 import type { PracticeMenuSlug } from "@mahjong-scoring/features/practice-menu-types";
 import { chapterHref, practiceHref } from "@mahjong-scoring/features/routes";
 
-import { practiceVariantLabel } from "../../_lib/practice-variant-label";
+import { practiceVariantLabel } from "@mahjong-scoring/features/practice/practice-variant-label";
 import { practiceCardRank } from "../_lib/practice-card-rank";
-import { practiceCardVisual } from "../_lib/practice-card-visual";
+import { practiceCardVisual } from "@mahjong-scoring/features/practice/card-visual";
 import { PracticeCard } from "./practice-card";
 
 interface CatalogPracticeCardProps {

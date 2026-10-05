@@ -1,5 +1,4 @@
-import { HaiKind } from "@mahjong-scoring/core";
-import { DEMO_YAKUHAI_KOUTSU_HAND } from "@mahjong-scoring/features/board/demo-score-question";
+import { SCORE_EXAM_DEMO_OPTIONS } from "@mahjong-scoring/features/exam/score/demo-question";
 import { createScoreExamHowToPlay } from "../../_lib/create-exam-how-to-play";
 import type { ScoreExamHowToPlayConfig } from "../../_lib/create-exam-how-to-play";
 
@@ -7,19 +6,12 @@ import type { ScoreExamHowToPlayConfig } from "../../_lib/create-exam-how-to-pla
  * 昇段試験（あらゆる手の点数計算）の「問題方式」ビジュアルデモ
  * 昇段試験 遊び方デモ
  *
- * 実際の出題盤面（手牌・状況のみ。役一覧なし）を静的に再現し、
- * 「符も翻数も自分で出す」という出題形式を端的に示す。
- *
- * 固定例は役牌（發）= 1翻40符（副底20 + 發の暗刻8 + 門前ロン10 = 38符）で、
- * 1級の試験と同じ牌姿を使う。この試験の違いは出題の広さであって盤面では
- * なく、「どんな手でも出る」ことは静止した1例では見せられない（文言が
- * 受け持つ）。
+ * 牌姿と表示牌（とその選び方の理由）はモバイルと共有する
+ * `SCORE_EXAM_DEMO_OPTIONS` が持つ。ここは翻訳名前空間を束ねるだけ。
  */
 export const SCORE_EXAM_DEMO = {
   translationNamespace: "scoreExamChallenge",
-  hand: DEMO_YAKUHAI_KOUTSU_HAND,
-  doraMarkers: [HaiKind.SouZu1],
-  isRiichi: false,
+  ...SCORE_EXAM_DEMO_OPTIONS,
 } satisfies ScoreExamHowToPlayConfig;
 
 export const ScoreExamHowToPlay = createScoreExamHowToPlay(SCORE_EXAM_DEMO);

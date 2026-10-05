@@ -1,0 +1,111 @@
+import { useCallback, useRef, type ReactNode } from "react";
+import { ScrollView, StyleSheet, Text, View } from "react-native";
+import { useRouter } from "expo-router";
+import { useTranslations } from "use-intl";
+import { chapterNamespace } from "@mahjong-scoring/features/curriculum/chapter-namespace";
+import {
+  isCurriculumChapterSlug,
+  type CurriculumChapterSlug,
+} from "@mahjong-scoring/features/curriculum/registry";
+import { quizLessonBySlug } from "@mahjong-scoring/features/lessons/registry";
+
+import { Screen } from "../components/screen";
+import { TextLink } from "../components/text-link";
+import { colors } from "../lib/theme";
+import { ChapterCompleteButton } from "./components/chapter-complete-button";
+import { ChapterNav } from "./components/chapter-nav";
+import { ChapterRelatedLinks } from "./components/chapter-related-links";
+import { LessonView } from "./components/lesson-view";
+import { renderLessonGuide } from "./guide-registry";
+
+/** レッスンの目次（タブ）のパス */
+const LESSONS_PATH = "/lessons";
+
+/**
+ * レッスンが見つからない（未知の slug・モバイル未移植の章）
+ */
+function LessonNotFound() {
+  const tn = useTranslations("notFound");
+  const t = useTranslations("learnCurriculum");
+  const router = useRouter();
+  return (
+    <Screen title={tn("title")} back>
+      <Text style={styles.notFound}>{tn("description")}</Text>
+      <TextLink onPress={() => router.navigate(LESSONS_PATH)}>
+        {t("tocLink")}
+      </TextLink>
+    </Screen>
+  );
+}
+
+/**
+ * レッスン（章）の画面（web の `LearnPageLayout`）
+ * レッスン画面
+ *
+ * 「本文 → 確認問題（持つ章だけ）→ 完了 → 練習」の順に 1 画面で通す。
+ *
+ * - 確認問題を持つ章: 本文の下の「確認問題へ」から確認問題 → できたことの
+ *   確認（`LessonView`。本文と入れ替わる）
+ * - 確認問題を持たない章: 本文の下に完了ボタンと練習への導線
+ * - 章末: 前後のレッスンへのリンク・公開日
+ *
+ * web が章末に出すネイティブ広告と、本文の用語リンクが開く用語のモーダルは
+ * モバイルには無い（用語は太字で示すだけ）。
+ *
+ * @param slug ルートの slug（未検証）
+ */
+export function LessonScreen({ slug }: { readonly slug: string | undefined }) {
+  if (slug === undefined || !isCurriculumChapterSlug(slug))
+    return <LessonNotFound />;
+  const guide = renderLessonGuide(slug);
+  if (guide === undefined) return <LessonNotFound />;
+  return <LessonScreenContent slug={slug} guide={guide} />;
+}
+
+function LessonScreenContent({
+  slug,
+  guide,
+}: {
+  readonly slug: CurriculumChapterSlug;
+  readonly guide: ReactNode;
+}) {
+  const t = useTranslations(chapterNamespace(slug));
+  const scrollRef = useRef<ScrollView>(null);
+  const scrollTop = useCallback(() => {
+    scrollRef.current?.scrollTo({ y: 0, animated: false });
+  }, []);
+  const quizLesson = quizLessonBySlug(slug);
+  const footer = <ChapterNav slug={slug} />;
+
+  return (
+    <Screen ref={scrollRef} title={t("pageTitle")} back>
+      {quizLesson ? (
+        <LessonView
+          slug={quizLesson.slug}
+          messageKey={quizLesson.messageKey}
+          explanation={guide}
+          footer={footer}
+          onScrollTop={scrollTop}
+        />
+      ) : (
+        <View style={styles.body}>
+          {guide}
+          <ChapterCompleteButton slug={slug} />
+          <ChapterRelatedLinks slug={slug} />
+          {footer}
+        </View>
+      )}
+    </Screen>
+  );
+}
+
+const styles = StyleSheet.create({
+  body: {
+    gap: 40,
+  },
+  notFound: {
+    fontSize: 14,
+    color: colors.surface500,
+    textAlign: "center",
+  },
+});

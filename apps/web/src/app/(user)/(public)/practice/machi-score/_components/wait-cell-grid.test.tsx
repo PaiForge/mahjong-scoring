@@ -3,7 +3,10 @@ import { fireEvent, render, screen } from "@testing-library/react";
 import { generateValidMachiScoreQuestion } from "@mahjong-scoring/core";
 import type { MachiScoreQuestion } from "@mahjong-scoring/core";
 import { WaitCellGrid } from "./wait-cell-grid";
-import { cellKeyOf, type MachiCellRef } from "../_hooks/use-machi-score-store";
+import {
+  cellKeyOf,
+  type MachiCellRef,
+} from "@mahjong-scoring/features/practice/machi-score/cell-ref";
 
 vi.mock("next-intl", async () => await import("@/test/intl-mock"));
 vi.mock("@pai-forge/mahjong-react-ui", () => ({

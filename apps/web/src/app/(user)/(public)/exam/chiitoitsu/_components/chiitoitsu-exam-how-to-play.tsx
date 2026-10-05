@@ -1,5 +1,4 @@
-import { HaiKind } from "@mahjong-scoring/core";
-import { DEMO_CHIITOITSU_HAND } from "@mahjong-scoring/features/board/demo-score-question";
+import { CHIITOITSU_EXAM_DEMO_OPTIONS } from "@mahjong-scoring/features/exam/chiitoitsu/demo-question";
 import { createScoreExamHowToPlay } from "../../_lib/create-exam-how-to-play";
 import type { ScoreExamHowToPlayConfig } from "../../_lib/create-exam-how-to-play";
 
@@ -7,17 +6,12 @@ import type { ScoreExamHowToPlayConfig } from "../../_lib/create-exam-how-to-pla
  * 昇級試験（七対子の点数計算）の「問題方式」ビジュアルデモ
  * 昇級試験 遊び方デモ
  *
- * 実際の出題盤面（手牌・状況のみ。役一覧なし）を静的に再現し、
- * 「翻数は自分で数え、符は25符で固定」という出題形式を端的に示す。
- *
- * 固定例は七対子 + ドラ2（二萬）= 4翻25符。ドラ表示牌を一萬にして手牌の
- * 二萬対子をドラに乗せている。
+ * 牌姿と表示牌（とその選び方の理由）はモバイルと共有する
+ * `CHIITOITSU_EXAM_DEMO_OPTIONS` が持つ。ここは翻訳名前空間を束ねるだけ。
  */
 export const CHIITOITSU_EXAM_DEMO = {
   translationNamespace: "chiitoitsuExamChallenge",
-  hand: DEMO_CHIITOITSU_HAND,
-  doraMarkers: [HaiKind.ManZu1],
-  isRiichi: false,
+  ...CHIITOITSU_EXAM_DEMO_OPTIONS,
 } satisfies ScoreExamHowToPlayConfig;
 
 export const ChiitoitsuExamHowToPlay =

@@ -7,9 +7,16 @@ import type {
 } from "@mahjong-scoring/core";
 import { haiIdToMspz } from "@mahjong-scoring/core";
 import { Hai } from "@pai-forge/mahjong-react-ui";
-import { cellKeyOf, type MachiCellRef } from "../_hooks/use-machi-score-store";
-import { answerKey, groupAdjacentCells, indexRuns } from "../_lib/cell-runs";
-import type { CellRun } from "../_lib/cell-runs";
+import {
+  cellKeyOf,
+  type MachiCellRef,
+} from "@mahjong-scoring/features/practice/machi-score/cell-ref";
+import {
+  answerKey,
+  groupAdjacentCells,
+  indexRuns,
+} from "@mahjong-scoring/features/practice/machi-score/cell-runs";
+import type { CellRun } from "@mahjong-scoring/features/practice/machi-score/cell-runs";
 import { MACHI_SCORE_TOUR_ID } from "../_lib/tour-ids";
 
 interface WaitCellGridProps {

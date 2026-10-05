@@ -10,8 +10,8 @@ import { SCORE_EXAM_DEMO } from "@/app/(user)/(public)/exam/score/_components/sc
 import type { ScoreExamHowToPlayConfig } from "@/app/(user)/(public)/exam/_lib/create-exam-how-to-play";
 
 import { HAN_COUNT_DEMO_QUESTION } from "../../han-count/_components/han-count-how-to-play";
-import { MANGAN_SCORE_CALCULATION_DEMO_QUESTION } from "../../mangan-score-calculation/_components/mangan-score-calculation-how-to-play";
-import { SCORE_CALCULATION_DEMO_QUESTION } from "../../score-calculation/_components/score-calculation-how-to-play";
+import { MANGAN_SCORE_CALCULATION_DEMO_QUESTION } from "@mahjong-scoring/features/practice/mangan-score-calculation/demo-question";
+import { SCORE_CALCULATION_DEMO_QUESTION } from "@mahjong-scoring/features/practice/score-calculation/demo-question";
 import { buildDemoScoreQuestion } from "@mahjong-scoring/features/board/demo-score-question";
 
 /** 昇級試験のデモ設定から出題を組む（ファクトリと同じ手順） */

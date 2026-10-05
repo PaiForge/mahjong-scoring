@@ -1,16 +1,11 @@
 "use client";
 
-import { YAKUMAN_HAN } from "@mahjong-scoring/core";
+import {
+  HAN_OPTIONS,
+  isYakuman,
+} from "@mahjong-scoring/features/practice/yaku-han/han-options";
 
 import { HanChoiceAnswerForm } from "../../_components/han-choice-answer-form";
-
-/** 選択肢として表示する翻数（1〜6翻 + 役満） */
-export const HAN_OPTIONS = [1, 2, 3, 4, 5, 6, YAKUMAN_HAN] as const;
-
-/** 翻数を表示ラベルに変換するためのヘルパー（役満は専用表記） */
-export function isYakuman(han: number): boolean {
-  return han === YAKUMAN_HAN;
-}
 
 interface YakuHanAnswerFormProps {
   /** 正解の翻数 */

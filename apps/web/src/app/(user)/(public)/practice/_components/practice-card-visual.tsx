@@ -7,7 +7,7 @@ import { TileSet } from "@/app/(user)/_components/tile-set";
 import type {
   PracticeCardVisual as CardVisual,
   ResolvedSubject,
-} from "../_lib/practice-card-visual";
+} from "@mahjong-scoring/features/practice/card-visual";
 import { FuHanExampleLabel } from "./fu-han-example-label";
 
 interface PracticeCardVisualProps {

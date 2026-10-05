@@ -63,6 +63,7 @@
 
 ```
 apps/web/          — Next.js 16 (Turbopack, App Router, Tailwind CSS v4)
+apps/mobile/       — Expo SDK 54（expo-router 6, React Native 0.81）。web と同じ画面をネイティブで出す
 packages/core/     — 共通ドメインロジック（問題生成等）。@pai-forge/riichi-mahjong 依存
 packages/features/ — web とモバイルで共有するアプリのロジック（レジストリ・パス・セッションのフック・設定ストア）
 packages/messages/ — i18n 辞書（ICU 形式。web は next-intl、モバイルは use-intl で同じ辞書を読む）
@@ -81,6 +82,33 @@ web とモバイル（Expo）で共有するロジックを置く。`exports` �
   アプリが渡す。web の実体は `app/_hooks/use-*-store.ts`（localStorage・`useHydrated`）
 - web 固有のもの（DOM・Next・辞書・Tailwind）は置かない。パスは両プラットフォームにある
   遷移先だけ `routes.ts` に置き、一覧の絞り込みやアンカーは web に残す
+
+## モバイル（apps/mobile）
+
+web と同じ画面・同じ見た目をネイティブで出す Expo アプリ。技術スタックは参考プロジェクト
+（blindfold-chess の apps/mobile）に揃えている。ロジックは packages/features / core を共有し、
+アプリ側は画面と RN の部品だけを持つ。
+
+- **画面の構成は web をなぞる。** ルートは expo-router で web と同じパス（`/practice/<slug>`,
+  `/practice/<slug>/play` …）に置き、パスは `@mahjong-scoring/features/routes` で組み立てる。
+  練習ごとに違うのは盤面と結果の一覧だけで、`src/practice/boards/<slug>/index.tsx` が
+  `PracticeScreens`（Play / Training / Demo / ProblemList）を返し、`src/practice/registry.ts` に
+  1 行足すと一覧・説明・チャレンジ・トレーニング・結果のすべてに載る
+- **ログインはまだ無い。** チャレンジは結果画面で今回の成績を見せるだけで記録しない（記録・
+  ランキング・段級位はアカウントに紐づくため）。結果はメモリのストアで結果画面へ運ぶ
+  （web の sessionStorage の代わり）。設定とレッスンの完了は端末ローカル（AsyncStorage）
+- **見た目の値は web から写す。** 色・角丸は `src/lib/theme.ts`（web の `globals.css` と同じ値）。
+  太枠・ハードシャドウ・押し込みは `PressableSurface`（影は面の後ろに敷いた View で描く。
+  Android の elevation は硬い影を描けない）。影を持つのは押せる面だけ（web と同じ規則）
+- **牌は `Tile` / `FuroTiles` を使う。** `@pai-forge/mahjong-react-ui` の `Hai` は `onClick` が
+  無くても常に `Pressable` で包まれ、選択肢ボタンの中に置くと牌がタップを奪う。`Furo` /
+  `HaiBack` / `Tehai` は `div` と Tailwind のクラスで描く web 専用の実装で、ネイティブでは描けない
+- **TypeScript は 5.9 に固定**（`typescript: ~5.9.3`）。Expo の CLI は TypeScript の JS API を
+  読み込むが、TS7 の npm パッケージは API を持たない（`tsc --noEmit` は通るのに `expo start` が
+  Metro まで届かない）。参考プロジェクトと同じ理由
+- **web 版（`pnpm --filter @mahjong-scoring/mobile web`）は画面確認用。** zustand は web だけ
+  ESM 版に解決されて `import.meta` で落ちるため、`metro.config.js` で CommonJS 版に寄せている
+- 辞書は web と同じもの（`@mahjong-scoring/messages`）を use-intl で読む
 
 ## i18n
 

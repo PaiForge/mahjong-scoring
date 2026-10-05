@@ -9,7 +9,7 @@ import {
   DataTableHeaderCell,
 } from "@/app/(user)/_components/data-table";
 
-import { HAN_DISPLAY } from "../_lib/han-display";
+import { HAN_DISPLAY } from "@mahjong-scoring/features/curriculum/han-display";
 
 /** 満貫以上早見表の1行分のデータ */
 export type ManganTableRow = (typeof HIGH_SCORES)[number];
