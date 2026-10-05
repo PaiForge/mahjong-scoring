@@ -5,10 +5,10 @@ import type { ScoreTableAnswer } from "@mahjong-scoring/core";
 import { formatScoreAnswer } from "@mahjong-scoring/features/results/format-score-answer";
 import {
   restoreScoreQuestion,
+  scoreResultSummary,
   type ScoreQuestionResult,
 } from "@mahjong-scoring/features/results/score-question-result";
 import { buildYakumanCapNote } from "@mahjong-scoring/features/results/yakuman-cap-note";
-import { orderFuHan } from "@mahjong-scoring/features/settings/fu-han-order";
 
 import { TehaiMentsuBreakdown } from "../../board/tehai-mentsu-breakdown";
 import { useFuHanOrder } from "../../hooks/use-display-settings-store";
@@ -68,21 +68,7 @@ export function ScoreProblemList({
       results={results}
       translationNamespace={translationNamespace}
       outcome={(r) => r.outcome}
-      renderSummary={(result) =>
-        // 符と翻の順は表示設定に従う（出題文と同じ）。満貫以上の問題は
-        // 符を持たないため、orderFuHan が符を省く
-        [
-          result.isOya ? t("oya") : t("ko"),
-          result.isTsumo ? t("tsumo") : t("ron"),
-          ...orderFuHan(fuHanOrder, {
-            fu:
-              result.fu === undefined
-                ? undefined
-                : t("fu", { count: result.fu }),
-            han: t("han", { count: result.han }),
-          }),
-        ].join("・")
-      }
+      renderSummary={(result) => scoreResultSummary(result, t, fuHanOrder)}
       renderDetail={(result) => {
         const question = restoreScoreQuestion(result.question, result.isTsumo);
         const yakuDetails = result.question?.yakuDetails;

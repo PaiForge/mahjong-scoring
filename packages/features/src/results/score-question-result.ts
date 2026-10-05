@@ -1,3 +1,4 @@
+import { orderFuHan, type FuHanOrder } from "../settings/fu-han-order";
 import {
   haiIdToMspz,
   isOya,
@@ -211,4 +212,29 @@ export function restoreScoreQuestion(
     isRiichi: snapshot.isRiichi,
     uraDoraMarkers: parseMarkers(snapshot.uraDoraMarkers),
   };
+}
+
+/**
+ * 点数の問題別一覧の見出し（「子・ロン・30符・2翻」）
+ * 点数問題見出し
+ *
+ * 符と翻の順は表示設定に従う（出題文と同じ）。満貫以上の問題は符を
+ * 持たないため、`orderFuHan` が符を省く。
+ *
+ * @param t - `oya` / `ko` / `tsumo` / `ron` / `fu` / `han` キーを持つ翻訳関数
+ * @param fuHanOrder - 符と翻の表示順の設定
+ */
+export function scoreResultSummary(
+  result: ScoreQuestionResult,
+  t: (key: string, values?: Record<string, number>) => string,
+  fuHanOrder: FuHanOrder,
+): string {
+  return [
+    result.isOya ? t("oya") : t("ko"),
+    result.isTsumo ? t("tsumo") : t("ron"),
+    ...orderFuHan(fuHanOrder, {
+      fu: result.fu === undefined ? undefined : t("fu", { count: result.fu }),
+      han: t("han", { count: result.han }),
+    }),
+  ].join("・");
 }
