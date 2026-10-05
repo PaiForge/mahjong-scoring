@@ -5,7 +5,7 @@ import { colors } from "../../lib/theme";
 import { TermText } from "./term-text";
 
 /** 本文の行間（web の `leading-relaxed` を 14px の本文に当てた値） */
-const RELAXED_LINE_HEIGHT = 24;
+const RELAXED_LINE_HEIGHT = 26;
 
 /**
  * 本文の中身。辞書の文字列ならそのまま用語マークアップを解く
@@ -124,12 +124,12 @@ export function TableCaption({ children }: { readonly children: string }) {
 
 const styles = StyleSheet.create({
   paragraph: {
-    fontSize: 14,
+    fontSize: 15,
     lineHeight: RELAXED_LINE_HEIGHT,
     color: colors.surface700,
   },
   note: {
-    fontSize: 14,
+    fontSize: 15,
     lineHeight: RELAXED_LINE_HEIGHT,
     color: colors.surface500,
   },
@@ -143,13 +143,13 @@ const styles = StyleSheet.create({
   },
   listMarker: {
     minWidth: 16,
-    fontSize: 14,
+    fontSize: 15,
     lineHeight: RELAXED_LINE_HEIGHT,
     color: colors.surface700,
   },
   listText: {
     flex: 1,
-    fontSize: 14,
+    fontSize: 15,
     lineHeight: RELAXED_LINE_HEIGHT,
     color: colors.surface700,
   },

@@ -82,7 +82,7 @@ const styles = StyleSheet.create({
     backgroundColor: colors.primary50,
   },
   label: {
-    fontSize: 14,
+    fontSize: 15,
     fontWeight: "600",
     color: colors.surface800,
   },
@@ -90,7 +90,8 @@ const styles = StyleSheet.create({
     color: colors.primary700,
   },
   hint: {
-    fontSize: 12,
+    fontSize: 13,
+    lineHeight: 18,
     color: colors.surface500,
   },
 });

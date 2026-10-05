@@ -91,7 +91,8 @@ const styles = StyleSheet.create({
     gap: 12,
   },
   description: {
-    fontSize: 14,
+    fontSize: 15,
+    lineHeight: 23,
     color: colors.surface500,
   },
   allCompleted: {

@@ -119,14 +119,15 @@ const styles = StyleSheet.create({
     gap: 32,
   },
   description: {
-    fontSize: 14,
+    fontSize: 15,
+    lineHeight: 23,
     color: colors.surface500,
   },
   howToPlay: {
     gap: 12,
   },
   lead: {
-    fontSize: 14,
+    fontSize: 15,
     fontWeight: "700",
     color: colors.surface900,
   },
