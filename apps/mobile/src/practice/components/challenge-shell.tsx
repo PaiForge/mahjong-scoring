@@ -267,7 +267,7 @@ const styles = StyleSheet.create({
     fontSize: 16,
   },
   pauseOverlay: {
-    ...StyleSheet.absoluteFillObject,
+    ...StyleSheet.absoluteFill,
     backgroundColor: "rgba(255,255,255,0.97)",
     alignItems: "center",
     justifyContent: "center",
@@ -285,7 +285,7 @@ const styles = StyleSheet.create({
     gap: 32,
   },
   countdown: {
-    ...StyleSheet.absoluteFillObject,
+    ...StyleSheet.absoluteFill,
     backgroundColor: "rgba(255,255,255,0.85)",
     alignItems: "center",
     justifyContent: "center",

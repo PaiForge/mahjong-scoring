@@ -344,7 +344,7 @@ const styles = StyleSheet.create({
     borderTopColor: AMBER_300,
   },
   groupLabelWrap: {
-    ...StyleSheet.absoluteFillObject,
+    ...StyleSheet.absoluteFill,
     alignItems: "center",
     justifyContent: "center",
     paddingHorizontal: 6,

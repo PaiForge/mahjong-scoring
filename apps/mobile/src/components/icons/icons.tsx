@@ -1,11 +1,12 @@
 import type { ReactNode } from "react";
+import type { ColorValue } from "react-native";
 import Svg, { Path } from "react-native-svg";
 
 import { colors } from "../../lib/theme";
 
 interface IconProps {
   readonly size?: number;
-  readonly color?: string;
+  readonly color?: ColorValue;
 }
 
 /**
