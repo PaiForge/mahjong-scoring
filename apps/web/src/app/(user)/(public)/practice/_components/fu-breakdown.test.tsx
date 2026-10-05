@@ -3,6 +3,7 @@ import { render, screen, fireEvent } from "@testing-library/react";
 import { FuBreakdown } from "./fu-breakdown";
 
 vi.mock("next-intl", async () => await import("@/test/intl-mock"));
+vi.mock("use-intl", async () => await import("@/test/intl-mock"));
 
 const DETAILS = [
   { reason: "副底", fu: 20 },

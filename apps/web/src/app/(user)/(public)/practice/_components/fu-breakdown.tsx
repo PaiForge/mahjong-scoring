@@ -1,7 +1,7 @@
 "use client";
 
-import { useTranslations } from "next-intl";
 import type { FuDetail } from "@mahjong-scoring/core";
+import { useFuBreakdown } from "@mahjong-scoring/features/results/use-fu-breakdown";
 import { CollapsibleDetail } from "./collapsible-detail";
 import { DetailTable } from "./detail-table";
 
@@ -35,29 +35,16 @@ export function FuBreakdown({
   answer,
   translationNamespace,
 }: FuBreakdownProps) {
-  const t = useTranslations(translationNamespace);
-  const rawTotal = details.reduce((sum, detail) => sum + detail.fu, 0);
+  // 見出し・行・合計・切り上げの補足の文字列はモバイルと共有する
+  const { title, rows, total, note } = useFuBreakdown(
+    details,
+    answer,
+    translationNamespace,
+  );
 
   return (
-    <CollapsibleDetail title={t("breakdownTitle")}>
-      <DetailTable
-        rows={details.map((detail) => ({
-          label: detail.reason,
-          value: t("fuSuffix", { value: detail.fu }),
-        }))}
-        total={{
-          label: t("breakdownTotal"),
-          value: t("fuSuffix", { value: rawTotal }),
-        }}
-        note={
-          rawTotal === answer ? undefined : (
-            <>
-              {t("fuSuffix", { value: rawTotal })} &rarr;{" "}
-              {t("fuSuffix", { value: answer })}（{t("roundUp")}）
-            </>
-          )
-        }
-      />
+    <CollapsibleDetail title={title}>
+      <DetailTable rows={rows} total={total} note={note} />
     </CollapsibleDetail>
   );
 }

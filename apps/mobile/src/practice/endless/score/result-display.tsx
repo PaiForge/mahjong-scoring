@@ -11,22 +11,21 @@ import {
   getScoreLevelName,
   isMangan,
   isOya,
-  judgeYakuSelection,
 } from "@mahjong-scoring/core";
 import {
   formatHan,
   formatPayment,
 } from "@mahjong-scoring/features/practice/score/format-answer";
 import { formatScoreAnswer } from "@mahjong-scoring/features/results/format-score-answer";
-import { orderYakuDetails } from "@mahjong-scoring/features/results/order-yaku-details";
 import { paymentToScoreTableAnswer } from "@mahjong-scoring/features/results/payment-adapter";
+import { buildScoreResultDisplay } from "@mahjong-scoring/features/results/score-result-display";
 
 import { TableIcon } from "../../../components/icons/icons";
 import { useYakumanRules } from "../../../hooks/use-rule-settings-store";
 import { useYakuOrder } from "../../../hooks/use-yaku-order-store";
 import { colors } from "../../../lib/theme";
 import { ReferenceLinkButton } from "../../components/reference-link-button";
-import { DetailsPanelRow, type DetailItem } from "./details-panel-row";
+import { DetailsPanelRow } from "./details-panel-row";
 import {
   CorrectValue,
   JudgedValue,
@@ -89,27 +88,14 @@ export function ResultDisplay({
     userAnswer !== undefined && result !== undefined
       ? { answer: userAnswer, result }
       : undefined;
-  const fuTotal =
-    question.fuDetails?.reduce((acc, curr) => acc + curr.fu, 0) ?? 0;
-  const yakuTotal =
-    question.yakuDetails?.reduce((acc, curr) => acc + curr.han, 0) ?? 0;
 
-  // 役は「合っていた / 余分だった / 選び忘れた」を役ごとに見せる
-  const yakuJudgements = judgeYakuSelection(question, userAnswer?.yakus ?? []);
-  const answeredYakuJudgements = yakuJudgements.filter(
-    (judgement) => judgement.state !== "missed",
-  );
-  const correctYakuJudgements = yakuJudgements.filter(
-    (judgement) => judgement.state !== "incorrect",
-  );
-
-  // 翻数の内訳は設定の役の並び順に載せ替える
-  const yakuDetailItems: readonly DetailItem[] = orderYakuDetails(
-    question.yakuDetails ?? [],
-    yakuOrder,
-  ).map((d) => ({ name: d.name, value: d.han }));
-  const fuDetailItems: readonly DetailItem[] =
-    question.fuDetails?.map((d) => ({ name: d.reason, value: d.fu })) ?? [];
+  // 役の振り分けと内訳の並び・合計は web と共有する
+  const {
+    answeredYakuJudgements,
+    correctYakuJudgements,
+    yakuBreakdown,
+    fuBreakdown,
+  } = buildScoreResultDisplay(question, userAnswer?.yakus, yakuOrder);
 
   const paymentDescription = formatScoreAnswer(
     paymentToScoreTableAnswer(answer.payment),
@@ -172,11 +158,11 @@ export function ResultDisplay({
               />
             }
           />
-          {yakuDetailItems.length > 0 && (
+          {yakuBreakdown && (
             <DetailsPanelRow
               title={t("result.details.yakuTitle")}
-              items={yakuDetailItems}
-              total={yakuTotal}
+              items={yakuBreakdown.items}
+              total={yakuBreakdown.total}
               suffix={t("form.options.hanSuffix")}
             />
           )}
@@ -202,11 +188,11 @@ export function ResultDisplay({
                 />
               }
             />
-            {question.fuDetails && (
+            {fuBreakdown && (
               <DetailsPanelRow
                 title={t("result.details.fuTitle")}
-                items={fuDetailItems}
-                total={fuTotal}
+                items={fuBreakdown.items}
+                total={fuBreakdown.total}
                 suffix={t("form.options.fuSuffix")}
                 roundedTotal={answer.fu}
                 roundUpLabel={t("result.details.roundUp")}
