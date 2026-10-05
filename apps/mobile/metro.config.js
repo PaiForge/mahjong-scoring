@@ -25,27 +25,6 @@ config.resolver.blockList = [
   /\/apps\/web\/\.next\/.*/,
 ];
 
-// web で zustand を CommonJS 版に解決する。zustand の exports は "import" 条件で
-// ESM 版（esm/*.mjs）を返し、その middleware は `import.meta.env` を読む。Metro の
-// web バンドルは ES モジュールではないため "Cannot use 'import.meta' outside a
-// module" で落ちる。iOS / Android は "react-native" 条件で CommonJS 版に解決される
-// ので、web だけ同じ条件で引き直す（web は画面確認用のターゲット）
-const defaultResolveRequest = config.resolver.resolveRequest;
-config.resolver.resolveRequest = (context, moduleName, platform) => {
-  const resolve = defaultResolveRequest ?? context.resolveRequest;
-  if (platform === "web" && /^zustand(\/|$)/.test(moduleName)) {
-    return resolve(
-      {
-        ...context,
-        unstable_conditionNames: ["react-native", "require", "default"],
-      },
-      moduleName,
-      platform,
-    );
-  }
-  return resolve(context, moduleName, platform);
-};
-
 // Hermes と Expo の winter runtime の食い違いを埋める polyfill を全モジュールより先に読む
 const defaultGetPolyfills = config.serializer.getPolyfills;
 config.serializer.getPolyfills = (options) => {
