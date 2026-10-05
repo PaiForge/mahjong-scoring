@@ -1,14 +1,12 @@
 "use client";
 
-import { useState, useId } from "react";
+import { useId } from "react";
 import { useTranslations } from "next-intl";
-import { paymentKindOf } from "@mahjong-scoring/core";
 import type { ScoreTableUserAnswer } from "@mahjong-scoring/core";
 import { Button } from "@/app/(user)/_components/button";
 import { useRuleSettingsStore } from "@/app/_hooks/use-rule-settings-store";
-import { getAvailableScores } from "@mahjong-scoring/features/practice/score/get-available-scores";
 import type { ScoreOptionRange } from "@mahjong-scoring/features/practice/score/get-available-scores";
-import { useTrainingMode } from "@mahjong-scoring/features/practice/use-training-mode";
+import { useScoreAnswerForm } from "@mahjong-scoring/features/practice/score/use-score-answer-form";
 import { ScoreOptionSelect } from "./score-option-select";
 
 interface ScoreAnswerFormProps {
@@ -108,78 +106,42 @@ export function ScoreAnswerForm({
   fixedRules = false,
 }: ScoreAnswerFormProps) {
   const t = useTranslations(translationNamespace);
-  // トレーニングの回答後は、シェルが同じ位置に「次の問題へ」を出す
-  const { isHolding } = useTrainingMode();
   // ラベルと select を紐付ける id（読み上げで見出しを名前として得るため）
   const scoreId = useId();
   const fromKoId = useId();
   const fromOyaId = useId();
-  const [score, setScore] = useState<string>("");
-  const [scoreFromKo, setScoreFromKo] = useState<string>("");
-  const [scoreFromOya, setScoreFromOya] = useState<string>("");
-
-  const paymentKind = paymentKindOf(isOya, isTsumo);
-  const isKoTsumo = paymentKind === "koTsumo";
-  const isOyaTsumo = paymentKind === "oyaTsumo";
+  const kiriageMangan = useRuleSettingsStore((s) => s.kiriageMangan);
+  const {
+    availableScores,
+    isOyaTsumo,
+    score,
+    scoreFromKo,
+    scoreFromOya,
+    selectScore,
+    selectFromKo,
+    selectFromOya,
+    isComplete,
+    submit,
+    showsSubmitButton,
+  } = useScoreAnswerForm({
+    isOya,
+    isTsumo,
+    han,
+    onSubmit,
+    disabled,
+    scoreRange,
+    autoSubmit,
+    kiriageMangan,
+    allowDoubleYakuman,
+    fixedRules,
+  });
   // 子ツモの2つの select は片方だけを染めない。正誤判定は
   // 「子から / 親から」を合わせた1つの回答に対して下るため
   const feedback = { showFeedback, lastAnswerCorrect };
 
-  const deviceKiriageMangan = useRuleSettingsStore((s) => s.kiriageMangan);
-  const availableScores = getAvailableScores(
-    han,
-    isOya,
-    isTsumo,
-    scoreRange,
-    fixedRules ? false : deviceKiriageMangan,
-    fixedRules ? false : allowDoubleYakuman,
-  );
-
-  // 単一選択（ロン / 親ツモ）の値から回答を送信する
-  const submitSingle = (value: string) => {
-    const scoreNum = parseInt(value, 10);
-    if (isNaN(scoreNum)) return;
-    onSubmit(
-      isOyaTsumo
-        ? { type: "oyaTsumo", all: scoreNum }
-        : { type: "ron", score: scoreNum },
-    );
-  };
-
-  // 子ツモの2値から回答を送信する
-  const submitKoTsumo = (koValue: string, oyaValue: string) => {
-    const koScore = parseInt(koValue, 10);
-    const oyaScore = parseInt(oyaValue, 10);
-    if (isNaN(koScore) || isNaN(oyaScore)) return;
-    onSubmit({ type: "koTsumo", fromKo: koScore, fromOya: oyaScore });
-  };
-
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    if (isKoTsumo) {
-      submitKoTsumo(scoreFromKo, scoreFromOya);
-    } else {
-      submitSingle(score);
-    }
-  };
-
-  const handleSingleChange = (value: string) => {
-    setScore(value);
-    if (autoSubmit && !disabled && value !== "") submitSingle(value);
-  };
-
-  const handleKoChange = (value: string) => {
-    setScoreFromKo(value);
-    if (autoSubmit && !disabled && value !== "" && scoreFromOya !== "") {
-      submitKoTsumo(value, scoreFromOya);
-    }
-  };
-
-  const handleOyaChange = (value: string) => {
-    setScoreFromOya(value);
-    if (autoSubmit && !disabled && value !== "" && scoreFromKo !== "") {
-      submitKoTsumo(scoreFromKo, value);
-    }
+    submit();
   };
 
   // 送信ボタンの上の余白は他の回答ボタン（ChallengeSubmitButton の mt-4）と
@@ -200,7 +162,7 @@ export function ScoreAnswerForm({
               <ScoreOptionSelect
                 id={fromKoId}
                 value={scoreFromKo}
-                onChange={handleKoChange}
+                onChange={selectFromKo}
                 options={availableScores.koScores}
                 placeholder={t("selectScore")}
                 disabled={disabled}
@@ -218,7 +180,7 @@ export function ScoreAnswerForm({
               <ScoreOptionSelect
                 id={fromOyaId}
                 value={scoreFromOya}
-                onChange={handleOyaChange}
+                onChange={selectFromOya}
                 options={availableScores.oyaScores}
                 placeholder={t("selectScore")}
                 disabled={disabled}
@@ -238,7 +200,7 @@ export function ScoreAnswerForm({
           <ScoreOptionSelect
             id={scoreId}
             value={score}
-            onChange={handleSingleChange}
+            onChange={selectScore}
             options={availableScores.scores}
             placeholder={t("selectScore")}
             disabled={disabled}
@@ -249,8 +211,13 @@ export function ScoreAnswerForm({
       )}
 
       {/* 自動送信時は「回答する」ボタンを表示しない（選択完了で送信扱い） */}
-      {!autoSubmit && !isHolding && (
-        <Button type="submit" size="lg" fullWidth disabled={disabled}>
+      {showsSubmitButton && (
+        <Button
+          type="submit"
+          size="lg"
+          fullWidth
+          disabled={disabled || !isComplete}
+        >
           {t("answer")}
         </Button>
       )}

@@ -1,24 +1,19 @@
 "use client";
 
-import { useState, useMemo, useCallback, useId } from "react";
+import { useMemo, useCallback, useId } from "react";
 import { useTranslations } from "next-intl";
-import {
-  allowsDoubleYakuman,
-  FU_VALUES,
-  paymentKindOf,
-  YAKUMAN_HAN,
-} from "@mahjong-scoring/core";
+import { allowsDoubleYakuman } from "@mahjong-scoring/core";
 import type { UserAnswer } from "@mahjong-scoring/core";
 import { YakuLabelRow, YakuSelect } from "./yaku-select";
 import {
   useRuleSettingsStore,
   useYakumanRules,
 } from "@/app/_hooks/use-rule-settings-store";
-import { getAvailableScores } from "@mahjong-scoring/features/practice/score/get-available-scores";
 import {
-  MANGAN_MIN_HAN,
-  practiceHanTiers,
-} from "@mahjong-scoring/features/practice/score/han-tiers";
+  practiceFuOptions,
+  practiceHanOptions,
+} from "@mahjong-scoring/features/practice/score/answer-options";
+import { useScorePracticeAnswerForm } from "@mahjong-scoring/features/practice/score/use-score-practice-answer-form";
 import { getSelectClass } from "../../_lib/select-class";
 import { ScoreOptionSelect } from "../../_components/score-option-select";
 import { Button } from "@/app/(user)/_components/button";
@@ -69,39 +64,6 @@ interface ScorePracticeAnswerFormProps {
   readonly prefill?: UserAnswer;
 }
 
-/** 入力欄の中身（prefill から起こすため 1 つの型にまとめる） */
-interface FormFields {
-  readonly han: number | undefined;
-  readonly fu: number | undefined;
-  readonly yakus: readonly string[];
-  readonly score: string;
-  readonly scoreFromKo: string;
-  readonly scoreFromOya: string;
-}
-
-const EMPTY_FIELDS: FormFields = {
-  han: undefined,
-  fu: undefined,
-  yakus: [],
-  score: "",
-  scoreFromKo: "",
-  scoreFromOya: "",
-};
-
-function fieldsOf(prefill: UserAnswer | undefined): FormFields {
-  if (!prefill) return EMPTY_FIELDS;
-  const text = (value: number | undefined) =>
-    value === undefined ? "" : String(value);
-  return {
-    han: prefill.han,
-    fu: prefill.fu,
-    yakus: prefill.yakus,
-    score: text(prefill.score),
-    scoreFromKo: text(prefill.scoreFromKo),
-    scoreFromOya: text(prefill.scoreFromOya),
-  };
-}
-
 /**
  * 回答フォームコンポーネント
  * 回答フォーム
@@ -125,75 +87,45 @@ export function ScorePracticeAnswerForm({
   const fuId = useId();
   const scoreId = useId();
   const scoreLabelId = useId();
-  const initialFields = fieldsOf(prefill);
-  const [han, setHan] = useState(initialFields.han);
-  const [fu, setFu] = useState(initialFields.fu);
-  const [yakus, setYakus] = useState(initialFields.yakus);
-  const [score, setScore] = useState(initialFields.score);
-  const [scoreFromKo, setScoreFromKo] = useState(initialFields.scoreFromKo);
-  const [scoreFromOya, setScoreFromOya] = useState(initialFields.scoreFromOya);
-  // ユーザーが欄を触ったか。触った後は prefill の変化を無視する
-  const [touched, setTouched] = useState(false);
-
-  // prefill が変わったら、触っていない欄をその中身に合わせる。effect では
-  // なく render 中に state を合わせる（React の「prop の変化で state を
-  // 調整する」パターン。effect だと 1 度古い中身で描いてから直すことになる）
-  const [appliedPrefill, setAppliedPrefill] = useState(prefill);
-  if (prefill !== appliedPrefill) {
-    setAppliedPrefill(prefill);
-    if (!touched) {
-      const fields = fieldsOf(prefill);
-      setHan(fields.han);
-      setFu(fields.fu);
-      setYakus(fields.yakus);
-      setScore(fields.score);
-      setScoreFromKo(fields.scoreFromKo);
-      setScoreFromOya(fields.scoreFromOya);
-    }
-  }
-
-  const isMangan = han !== undefined && han >= MANGAN_MIN_HAN;
-  const isFuRequired = !isMangan || requireFuForMangan;
-  const paymentKind = paymentKindOf(isOya, isTsumo);
-  const isKoTsumo = paymentKind === "koTsumo";
-
+  const kiriageMangan = useRuleSettingsStore((s) => s.kiriageMangan);
   // ダブル役満を採用したルールでは、翻数・点数の選択肢にダブル役満を足す
   const allowDoubleYakuman = allowsDoubleYakuman(useYakumanRules());
+  const {
+    han,
+    fu,
+    yakus,
+    score,
+    scoreFromKo,
+    scoreFromOya,
+    setHan,
+    setFu,
+    setYakus,
+    setScore,
+    setScoreFromKo,
+    setScoreFromOya,
+    isFuRequired,
+    availableScores,
+    isOyaTsumo,
+    isComplete,
+    submit,
+  } = useScorePracticeAnswerForm({
+    onSubmit,
+    isTsumo,
+    isOya,
+    requireYaku,
+    requireFuForMangan,
+    kiriageMangan,
+    allowDoubleYakuman,
+    prefill,
+  });
 
-  const hanOptions = useMemo(() => {
-    // 満貫以上の区分は翻数しきい値の昇順で並べる（practiceHanTiers は降順）
-    const manganPlusOptions = [...practiceHanTiers(allowDoubleYakuman)]
-      .reverse()
-      .map((tier) => ({
-        value: tier.minHan,
-        label: t(`form.options.${tier.key}`),
-      }));
-
-    if (simplifyMangan) {
-      return [
-        { value: "", label: t("form.placeholders.select") },
-        ...Array.from({ length: MANGAN_MIN_HAN - 1 }, (_, i) => ({
-          value: i + 1,
-          label: `${i + 1}${t("form.options.hanSuffix")}`,
-        })),
-        ...manganPlusOptions,
-      ];
-    }
-
-    // 簡略化しないモードでは役満未満は数値で出し、役満以上
-    // （役満・ダブル役満採用時はダブル役満も）だけ区分名で出す
-    const yakumanPlusOptions = manganPlusOptions.filter(
-      (option) => option.value >= YAKUMAN_HAN,
-    );
-    return [
+  const hanOptions = useMemo(
+    () => [
       { value: "", label: t("form.placeholders.select") },
-      ...Array.from({ length: YAKUMAN_HAN - 1 }, (_, i) => ({
-        value: i + 1,
-        label: `${i + 1}${t("form.options.hanSuffix")}`,
-      })),
-      ...yakumanPlusOptions,
-    ];
-  }, [simplifyMangan, allowDoubleYakuman, t]);
+      ...practiceHanOptions(t, simplifyMangan, allowDoubleYakuman),
+    ],
+    [simplifyMangan, allowDoubleYakuman, t],
+  );
 
   /** 符が不要なとき、符の select にそのまま描く注記（箱の高さを保つため） */
   const fuNotRequiredOptions = useMemo(
@@ -204,10 +136,7 @@ export function ScorePracticeAnswerForm({
   const fuOptions = useMemo(
     () => [
       { value: "", label: t("form.placeholders.select") },
-      ...FU_VALUES.map((v) => ({
-        value: v,
-        label: `${v}${t("form.options.fuSuffix")}`,
-      })),
+      ...practiceFuOptions(t),
     ],
     [t],
   );
@@ -215,77 +144,22 @@ export function ScorePracticeAnswerForm({
   const handleHanChange = useCallback(
     (e: React.ChangeEvent<HTMLSelectElement>) => {
       const value = e.target.value;
-      setTouched(true);
       setHan(value === "" ? undefined : Number(value));
     },
-    [],
+    [setHan],
   );
 
   const handleFuChange = useCallback(
     (e: React.ChangeEvent<HTMLSelectElement>) => {
       const value = e.target.value;
-      setTouched(true);
       setFu(value === "" ? undefined : Number(value));
     },
-    [],
+    [setFu],
   );
-
-  const kiriageMangan = useRuleSettingsStore((s) => s.kiriageMangan);
-  const availableScores = useMemo(
-    () =>
-      getAvailableScores(
-        han,
-        isOya,
-        isTsumo,
-        undefined,
-        kiriageMangan,
-        allowDoubleYakuman,
-      ),
-    [han, isOya, isTsumo, kiriageMangan, allowDoubleYakuman],
-  );
-
-  // 入力が揃うまで回答ボタンを押せなくする。押せるのに何も起きない状態を
-  // 作らないため — HTML の required は iOS Safari では効かず、揃っていない
-  // 入力で押すと黙って何も起きなかった
-  const isComplete =
-    han !== undefined &&
-    (!isFuRequired || fu !== undefined) &&
-    (isKoTsumo
-      ? !isNaN(parseInt(scoreFromKo, 10)) && !isNaN(parseInt(scoreFromOya, 10))
-      : !isNaN(parseInt(score, 10)));
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-
-    if (han === undefined) return;
-    if (isFuRequired && fu === undefined) return;
-
-    const submitYakus = requireYaku ? yakus : [];
-    const submitFu = isFuRequired ? fu : isMangan ? undefined : fu;
-
-    if (isKoTsumo) {
-      const koScore = parseInt(scoreFromKo, 10);
-      const oyaScore = parseInt(scoreFromOya, 10);
-      if (isNaN(koScore) || isNaN(oyaScore)) return;
-
-      onSubmit({
-        han,
-        fu: submitFu,
-        scoreFromKo: koScore,
-        scoreFromOya: oyaScore,
-        yakus: submitYakus,
-      });
-    } else {
-      const scoreNum = parseInt(score, 10);
-      if (isNaN(scoreNum)) return;
-
-      onSubmit({
-        han,
-        fu: submitFu,
-        score: scoreNum,
-        yakus: submitYakus,
-      });
-    }
+    submit();
   };
 
   const selectClass = getSelectClass;
@@ -313,10 +187,7 @@ export function ScorePracticeAnswerForm({
           return (
             <YakuSelect
               value={yakus}
-              onChange={(value) => {
-                setTouched(true);
-                setYakus(value);
-              }}
+              onChange={setYakus}
               disabled={disabled}
               labelAction={noYakuButton}
             />
@@ -397,10 +268,7 @@ export function ScorePracticeAnswerForm({
             <div className="flex-1">
               <ScoreOptionSelect
                 value={scoreFromKo}
-                onChange={(value) => {
-                  setTouched(true);
-                  setScoreFromKo(value);
-                }}
+                onChange={setScoreFromKo}
                 options={availableScores.koScores}
                 placeholder={t("form.placeholders.fromKo")}
                 ariaLabel={t("form.placeholders.fromKo")}
@@ -411,10 +279,7 @@ export function ScorePracticeAnswerForm({
             <div className="flex-1">
               <ScoreOptionSelect
                 value={scoreFromOya}
-                onChange={(value) => {
-                  setTouched(true);
-                  setScoreFromOya(value);
-                }}
+                onChange={setScoreFromOya}
                 options={availableScores.oyaScores}
                 placeholder={t("form.placeholders.fromOya")}
                 ariaLabel={t("form.placeholders.fromOya")}
@@ -426,16 +291,11 @@ export function ScorePracticeAnswerForm({
           <ScoreOptionSelect
             id={scoreId}
             value={score}
-            onChange={(value) => {
-              setTouched(true);
-              setScore(value);
-            }}
+            onChange={setScore}
             options={availableScores.scores}
             placeholder={t("form.placeholders.select")}
             disabled={disabled}
-            optionSuffix={
-              paymentKind === "oyaTsumo" ? t("form.options.all") : ""
-            }
+            optionSuffix={isOyaTsumo ? t("form.options.all") : ""}
           />
         )}
       </div>
