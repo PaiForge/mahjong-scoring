@@ -13,7 +13,7 @@ import {
 import type { RecordingPracticeBoardProps } from "../board-props";
 import { useGeneratedQuestion } from "./use-generated-question";
 import { usePresentQuestion } from "./use-present-question";
-import { useRegisterAdvance } from "./use-training-mode";
+import { useRegisterAdvance } from "@mahjong-scoring/features/practice/use-training-mode";
 
 /** 点数計算の出題オプション */
 export type ScoreQuestionGenerateOptions = Parameters<

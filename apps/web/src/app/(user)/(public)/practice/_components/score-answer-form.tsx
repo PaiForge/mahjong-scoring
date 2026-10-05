@@ -8,7 +8,7 @@ import { Button } from "@/app/(user)/_components/button";
 import { useRuleSettingsStore } from "@/app/_hooks/use-rule-settings-store";
 import { getAvailableScores } from "@mahjong-scoring/features/practice/score/get-available-scores";
 import type { ScoreOptionRange } from "@mahjong-scoring/features/practice/score/get-available-scores";
-import { useTrainingMode } from "../_hooks/use-training-mode";
+import { useTrainingMode } from "@mahjong-scoring/features/practice/use-training-mode";
 import { ScoreOptionSelect } from "./score-option-select";
 
 interface ScoreAnswerFormProps {

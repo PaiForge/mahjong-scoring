@@ -11,7 +11,7 @@ import {
 import { Button } from "../../components/button";
 import { useRuleSettingsStore } from "../../hooks/use-rule-settings-store";
 import { colors } from "../../lib/theme";
-import { useTrainingMode } from "../hooks/use-training-mode";
+import { useTrainingMode } from "@mahjong-scoring/features/practice/use-training-mode";
 import { ScoreOptionSelect } from "./score-option-select";
 
 interface ScoreAnswerFormProps {

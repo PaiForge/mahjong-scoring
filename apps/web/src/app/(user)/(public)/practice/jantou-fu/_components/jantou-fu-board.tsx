@@ -15,7 +15,7 @@ import { QuestionGeneratingPlaceholder } from "../../_components/question-genera
 import { QuestionPrompt } from "../../_components/question-prompt";
 import { useClientGeneratedQuestion } from "../../_hooks/use-client-generated-question";
 import { usePresentQuestion } from "../../_hooks/use-present-question";
-import { useRegisterAdvance } from "../../_hooks/use-training-mode";
+import { useRegisterAdvance } from "@mahjong-scoring/features/practice/use-training-mode";
 import { toQuestionResult } from "@mahjong-scoring/features/practice/jantou-fu/types";
 import type { JantouFuQuestionResult } from "@mahjong-scoring/features/practice/jantou-fu/types";
 import type { RecordingPracticeBoardProps } from "../../_lib/practice-board-props";

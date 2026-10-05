@@ -13,7 +13,7 @@ import { toScoreQuestionResult } from "@mahjong-scoring/features/results/score-q
 import type { RecordingPracticeBoardProps } from "../_lib/practice-board-props";
 import { useGeneratedScoreQuestion } from "./use-generated-score-question";
 import { usePresentQuestion } from "./use-present-question";
-import { useRegisterAdvance } from "./use-training-mode";
+import { useRegisterAdvance } from "@mahjong-scoring/features/practice/use-training-mode";
 
 type GenerateOptions = Parameters<typeof generateValidScoreQuestion>[0];
 

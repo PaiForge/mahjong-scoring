@@ -1,4 +1,6 @@
+// @vitest-environment jsdom
 import { cleanup, renderHook } from "@testing-library/react";
+import { createElement } from "react";
 import { afterEach, describe, expect, it } from "vitest";
 import {
   TrainingModeProvider,
@@ -25,13 +27,11 @@ describe("useTrainingAnswerVisibility", () => {
       const { result } = renderHook(
         () => useTrainingAnswerVisibility(correct),
         {
-          wrapper: ({ children }) => (
-            <TrainingModeProvider
-              value={{ isRevealed, isHolding, registerAdvance: () => {} }}
-            >
-              {children}
-            </TrainingModeProvider>
-          ),
+          wrapper: ({ children }) =>
+            createElement(TrainingModeProvider, {
+              value: { isRevealed, isHolding, registerAdvance: () => {} },
+              children,
+            }),
         },
       );
       expect(result.current).toEqual({ showAnswer, showBreakdown });

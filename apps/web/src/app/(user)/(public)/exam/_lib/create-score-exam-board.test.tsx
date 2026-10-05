@@ -11,7 +11,7 @@ vi.mock("next-intl", async () => await import("@/test/intl-mock"));
 
 const { createScoreExamBoard } = await import("./create-score-exam-board");
 const { TrainingModeProvider } =
-  await import("@/app/(user)/(public)/practice/_hooks/use-training-mode");
+  await import("@mahjong-scoring/features/practice/use-training-mode");
 
 /** 出題条件を絞らない盤面（生成の試行回数を抑えるため） */
 const Board = createScoreExamBoard({

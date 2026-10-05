@@ -1,6 +1,12 @@
 "use client";
 
-import { createContext, useContext, useEffect, type ReactNode } from "react";
+import {
+  createContext,
+  createElement,
+  useContext,
+  useEffect,
+  type ReactNode,
+} from "react";
 
 /**
  * トレーニングの停止状態
@@ -17,7 +23,7 @@ export interface TrainingModeState {
   readonly isHolding: boolean;
 }
 
-interface TrainingModeValue extends TrainingModeState {
+export interface TrainingModeValue extends TrainingModeState {
   /**
    * 次問題へ進む操作を登録する
    *
@@ -51,11 +57,8 @@ export function TrainingModeProvider({
   readonly value: TrainingModeValue;
   readonly children: ReactNode;
 }) {
-  return (
-    <TrainingModeContext.Provider value={value}>
-      {children}
-    </TrainingModeContext.Provider>
-  );
+  // features は .ts だけを書き出すため JSX を使わない
+  return createElement(TrainingModeContext.Provider, { value }, children);
 }
 
 /**

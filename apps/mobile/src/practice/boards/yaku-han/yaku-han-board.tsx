@@ -14,7 +14,7 @@ import { colors, radius } from "../../../lib/theme";
 import type { RecordingPracticeBoardProps } from "../../board-props";
 import { useGeneratedQuestion } from "../../hooks/use-generated-question";
 import { usePresentQuestion } from "../../hooks/use-present-question";
-import { useRegisterAdvance } from "../../hooks/use-training-mode";
+import { useRegisterAdvance } from "@mahjong-scoring/features/practice/use-training-mode";
 import { YakuHanAnswerForm } from "./yaku-han-answer-form";
 import { YakuHanPrompt } from "./yaku-han-prompt";
 

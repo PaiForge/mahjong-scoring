@@ -21,7 +21,7 @@ import { usePresentQuestion } from "../../hooks/use-present-question";
 import {
   useRegisterAdvance,
   useTrainingMode,
-} from "../../hooks/use-training-mode";
+} from "@mahjong-scoring/features/practice/use-training-mode";
 import { HanBreakdown } from "./han-breakdown";
 import { HanCountAnswerForm } from "./han-count-answer-form";
 

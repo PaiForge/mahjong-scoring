@@ -12,7 +12,7 @@ import { TehaiDisplay } from "../../board/tehai-display";
 import { TehaiMentsuBreakdown } from "../../board/tehai-mentsu-breakdown";
 import type { RecordingPracticeBoardProps } from "../board-props";
 import { useFuChoiceBoard } from "../hooks/use-fu-choice-board";
-import { useTrainingMode } from "../hooks/use-training-mode";
+import { useTrainingMode } from "@mahjong-scoring/features/practice/use-training-mode";
 import { FuBreakdown } from "./fu-breakdown";
 import { FuChoiceGrid } from "./fu-choice-grid";
 import { QuestionPlaceholder } from "./question-placeholder";

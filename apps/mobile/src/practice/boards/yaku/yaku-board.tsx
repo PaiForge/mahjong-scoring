@@ -24,7 +24,7 @@ import { usePresentQuestion } from "../../hooks/use-present-question";
 import {
   useRegisterAdvance,
   useTrainingMode,
-} from "../../hooks/use-training-mode";
+} from "@mahjong-scoring/features/practice/use-training-mode";
 import { YakuAnswerComparison } from "./yaku-answer-comparison";
 import { useYakuListHeight, YakuSelectList } from "./yaku-select-list";
 import { YakuSelectedChips } from "./yaku-selected-chips";

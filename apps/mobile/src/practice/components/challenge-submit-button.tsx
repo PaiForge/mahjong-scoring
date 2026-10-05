@@ -1,7 +1,7 @@
 import { StyleSheet, View } from "react-native";
 
 import { Button } from "../../components/button";
-import { useTrainingMode } from "../hooks/use-training-mode";
+import { useTrainingMode } from "@mahjong-scoring/features/practice/use-training-mode";
 
 /**
  * チャレンジモード共通の送信ボタン（web の `ChallengeSubmitButton`）

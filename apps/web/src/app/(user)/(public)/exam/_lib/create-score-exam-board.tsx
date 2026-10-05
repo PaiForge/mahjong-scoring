@@ -11,7 +11,7 @@ import { RevealedScoreAnswer } from "@/app/(user)/(public)/practice/_components/
 import { scoreTableFocusOf } from "@/app/(user)/(public)/practice/_lib/score-table-focus";
 import { useScoreQuestionBoard } from "@/app/(user)/(public)/practice/_hooks/use-score-question-board";
 import type { UseScoreQuestionBoardParams } from "@/app/(user)/(public)/practice/_hooks/use-score-question-board";
-import { useTrainingAnswerVisibility } from "@/app/(user)/(public)/practice/_hooks/use-training-mode";
+import { useTrainingAnswerVisibility } from "@mahjong-scoring/features/practice/use-training-mode";
 import { paymentToScoreTableAnswer } from "@mahjong-scoring/features/results/payment-adapter";
 import type { RecordingPracticeBoardProps } from "@/app/(user)/(public)/practice/_lib/practice-board-props";
 import type { ScoreQuestionResult } from "@mahjong-scoring/features/results/score-question-result";

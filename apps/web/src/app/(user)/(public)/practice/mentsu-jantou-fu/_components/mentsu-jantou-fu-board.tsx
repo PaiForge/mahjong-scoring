@@ -17,7 +17,7 @@ import { usePresentQuestion } from "../../_hooks/use-present-question";
 import {
   useRegisterAdvance,
   useTrainingMode,
-} from "../../_hooks/use-training-mode";
+} from "@mahjong-scoring/features/practice/use-training-mode";
 import { TehaiDisplay } from "../../_components/tehai-display";
 import { findAgariHighlight } from "@mahjong-scoring/features/practice/mentsu-jantou-fu/find-agari-highlight";
 import { toQuestionResult } from "@mahjong-scoring/features/practice/mentsu-jantou-fu/types";

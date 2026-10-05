@@ -19,7 +19,7 @@ import { useRecordedResults } from "../_hooks/use-recorded-results";
 import { useSaveOnFinish } from "../_hooks/use-save-on-finish";
 import { useTimedSession } from "../_hooks/use-timed-session";
 import { useTrainingSession } from "../_hooks/use-training-session";
-import { TrainingModeProvider } from "../_hooks/use-training-mode";
+import { TrainingModeProvider } from "@mahjong-scoring/features/practice/use-training-mode";
 import type { PracticeBoardProps } from "./practice-board-props";
 import { practiceResultHref } from "@mahjong-scoring/features/routes";
 import { rankRequiringMenu } from "@mahjong-scoring/features/ranks/registry";

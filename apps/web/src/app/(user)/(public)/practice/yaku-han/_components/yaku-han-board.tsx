@@ -12,7 +12,7 @@ import type { YakuHanQuestion, YakuHanRange } from "@mahjong-scoring/core";
 import { QuestionGeneratingPlaceholder } from "../../_components/question-generating-placeholder";
 import { useClientGeneratedQuestion } from "../../_hooks/use-client-generated-question";
 import { usePresentQuestion } from "../../_hooks/use-present-question";
-import { useRegisterAdvance } from "../../_hooks/use-training-mode";
+import { useRegisterAdvance } from "@mahjong-scoring/features/practice/use-training-mode";
 import { YakuHanPrompt } from "./yaku-han-prompt";
 import { YakuHanAnswerForm } from "./yaku-han-answer-form";
 import { toQuestionResult } from "@mahjong-scoring/features/practice/yaku-han/types";

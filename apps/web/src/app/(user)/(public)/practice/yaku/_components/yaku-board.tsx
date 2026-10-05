@@ -19,7 +19,7 @@ import { usePresentQuestion } from "../../_hooks/use-present-question";
 import {
   useRegisterAdvance,
   useTrainingMode,
-} from "../../_hooks/use-training-mode";
+} from "@mahjong-scoring/features/practice/use-training-mode";
 import {
   AnswerOutcome,
   toAnswerOutcome,

@@ -16,7 +16,7 @@ import {
   useScoreQuestionBoard,
   type ScoreQuestionGenerateOptions,
 } from "../hooks/use-score-question-board";
-import { useTrainingAnswerVisibility } from "../hooks/use-training-mode";
+import { useTrainingAnswerVisibility } from "@mahjong-scoring/features/practice/use-training-mode";
 import { ScoreExamAnswerForm } from "./score-exam-answer-form";
 
 interface CreateScoreExamBoardConfig {

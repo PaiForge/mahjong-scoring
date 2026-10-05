@@ -7,7 +7,7 @@ import { useCallback, useState } from "react";
 import type { PracticeBoardProps } from "../_lib/practice-board-props";
 import { useClientGeneratedQuestion } from "./use-client-generated-question";
 import { usePresentQuestion } from "./use-present-question";
-import { useRegisterAdvance } from "./use-training-mode";
+import { useRegisterAdvance } from "@mahjong-scoring/features/practice/use-training-mode";
 
 /** 届け出る問題はそのまま渡す（結果の形に組むのは盤面側） */
 function identity<T>(value: T): T {

@@ -18,7 +18,7 @@ import { usePresentQuestion } from "../../hooks/use-present-question";
 import {
   useRegisterAdvance,
   useTrainingAnswerVisibility,
-} from "../../hooks/use-training-mode";
+} from "@mahjong-scoring/features/practice/use-training-mode";
 import { ScoreTableAnswerForm } from "./score-table-answer-form";
 import { ScoreTablePrompt } from "./score-table-prompt";
 import {

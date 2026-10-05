@@ -12,7 +12,7 @@ import {
   useScoreQuestionBoard,
   type UseScoreQuestionBoardParams,
 } from "../_hooks/use-score-question-board";
-import { useTrainingAnswerVisibility } from "../_hooks/use-training-mode";
+import { useTrainingAnswerVisibility } from "@mahjong-scoring/features/practice/use-training-mode";
 import { QuestionDisplay } from "../score/_components/question-display";
 import type { ScoreOptionRange } from "@mahjong-scoring/features/practice/score/get-available-scores";
 import type { PlayBoardHeight } from "../_lib/board-area-height";

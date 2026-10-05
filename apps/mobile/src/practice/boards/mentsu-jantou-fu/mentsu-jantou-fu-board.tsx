@@ -23,7 +23,7 @@ import { usePresentQuestion } from "../../hooks/use-present-question";
 import {
   useRegisterAdvance,
   useTrainingMode,
-} from "../../hooks/use-training-mode";
+} from "@mahjong-scoring/features/practice/use-training-mode";
 import { FuItemRow } from "./fu-item-row";
 
 /** 行ごとに選んだ符（未選択の行は undefined） */

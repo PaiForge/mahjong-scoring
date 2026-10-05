@@ -3,7 +3,7 @@
 import { Suspense, useCallback, useMemo, useState } from "react";
 import { useTranslations } from "next-intl";
 import { useTrainingSession } from "../../_hooks/use-training-session";
-import { TrainingModeProvider } from "../../_hooks/use-training-mode";
+import { TrainingModeProvider } from "@mahjong-scoring/features/practice/use-training-mode";
 import { TrainingShell } from "../../_components/training-shell";
 import { ScoreTableBoard } from "./score-table-board";
 import { ScoreTableGeneratingPlaceholder } from "./score-table-generating-placeholder";

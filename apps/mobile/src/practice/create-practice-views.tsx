@@ -22,7 +22,7 @@ import type { PracticeBoardProps } from "./board-props";
 import { useChallengeResultStore } from "./challenge-result-store";
 import { ChallengeShell } from "./components/challenge-shell";
 import { TrainingShell } from "./components/training-shell";
-import { TrainingModeProvider } from "./hooks/use-training-mode";
+import { TrainingModeProvider } from "@mahjong-scoring/features/practice/use-training-mode";
 
 /** 練習の画面が受け取る props（URL の `?variant=` を正規化した値） */
 export interface PracticeViewProps {

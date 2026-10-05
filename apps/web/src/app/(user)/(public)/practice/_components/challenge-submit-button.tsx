@@ -3,7 +3,7 @@
 import type { ReactNode } from "react";
 
 import { Button } from "@/app/(user)/_components/button";
-import { useTrainingMode } from "../_hooks/use-training-mode";
+import { useTrainingMode } from "@mahjong-scoring/features/practice/use-training-mode";
 
 /**
  * チャレンジモード送信ボタンの props

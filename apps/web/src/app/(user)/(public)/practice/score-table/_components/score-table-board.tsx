@@ -12,7 +12,7 @@ import { usePresentQuestion } from "../../_hooks/use-present-question";
 import {
   useRegisterAdvance,
   useTrainingAnswerVisibility,
-} from "../../_hooks/use-training-mode";
+} from "@mahjong-scoring/features/practice/use-training-mode";
 import { ScoreTablePrompt } from "./score-table-prompt";
 import { ScoreTableAnswerForm } from "./score-table-answer-form";
 import { toQuestionResult } from "@mahjong-scoring/features/practice/score-table/types";

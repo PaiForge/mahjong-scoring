@@ -22,7 +22,7 @@ import { QuestionPrompt } from "../../components/question-prompt";
 import { choiceFeedbackProps } from "../../feedback-styles";
 import { useGeneratedQuestion } from "../../hooks/use-generated-question";
 import { usePresentQuestion } from "../../hooks/use-present-question";
-import { useRegisterAdvance } from "../../hooks/use-training-mode";
+import { useRegisterAdvance } from "@mahjong-scoring/features/practice/use-training-mode";
 
 /** 出題中の問題を回答なしの結果に組む（時間切れの届け出用） */
 function toUnansweredResult(
