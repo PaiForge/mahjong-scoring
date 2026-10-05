@@ -67,7 +67,7 @@ function stageHref(stage: JourneyStage, journey: RankJourney): string {
  *
  * ダッシュボードの「次にやること」と道場の級カードが同じ形で出す。段を
  * 等幅の列に並べ、列の境目に矢印を置いて「学ぶ → 練習する → 試験」の順を
- * 見せる。各列は段の名前と値（「2 / 5」「未受験」）の 2 行。いま取り組んで
+ * 見せる。各列は段の名前と値（「2 / 5」「未合格」）の 2 行。いま取り組んで
  * いる段（`currentStage`）は級の帯色の淡い面で塗り、済んだ段は面を塗らずに
  * 値を緑の文字にして済みの印（{@link DoneMark}）を添え、まだの段はグレーに
  * 置く。済んだ段まで面で塗ると色の面が 1 行に複数並んで「今」が弱まり、
@@ -75,6 +75,10 @@ function stageHref(stage: JourneyStage, journey: RankJourney): string {
  * グレー = これから」と手段を分けておけば、今の段は最初の未了なので
  * 左から「済み → 今 → これから」の順に読める。以前は 1 行に「学ぶ 0 / 5 練習する 0 / 6 試験 未受験」と
  * 詰めていたが、名前と値の区切りが読み取れなかった。
+ *
+ * 試験の値は合格までは「未合格」で、「未受験」とは言わない。試験は不合格を
+ * 記録しないので受けていない人と落ちた人を見分けられず、落ちた人に
+ * 「未受験」は事実と違う。
  *
  * いま取り組む級では各段がその段の一覧へのリンクになる（{@link stageHref}）。
  * 練習するの行き先はボタンの下の「自分で練習を選ぶ」と同じ。一覧を見に行く
@@ -120,7 +124,7 @@ export function RankStageProgress({
     {
       stage: "exam",
       value: tRanks(
-        journey.exam.done ? "stageExamPassed" : "stageExamNotTaken",
+        journey.exam.done ? "stageExamPassed" : "stageExamNotPassed",
       ),
       done: journey.exam.done,
     },
