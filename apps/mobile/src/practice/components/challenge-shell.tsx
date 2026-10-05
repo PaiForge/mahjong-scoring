@@ -1,7 +1,7 @@
 import {
   useCallback,
   useEffect,
-  useRef,
+  useEffectEvent,
   useState,
   type ReactNode,
 } from "react";
@@ -13,6 +13,7 @@ import {
   StyleSheet,
   Text,
   View,
+  type AppStateStatus,
 } from "react-native";
 import { useRouter } from "expo-router";
 import { useTranslations } from "use-intl";
@@ -108,10 +109,6 @@ export function ChallengeShell({
 
   // 終わった瞬間の経過時間で 1 回だけ結果へ送る
   useOnFinished(gameSession.finalResult, () => onFinish(elapsedMs));
-  const sessionRef = useRef(gameSession);
-  useEffect(() => {
-    sessionRef.current = gameSession;
-  });
 
   const openQuit = useCallback(() => {
     pauseForQuit();
@@ -136,18 +133,23 @@ export function ChallengeShell({
     return () => sub.remove();
   }, [openQuit]);
 
+  // 購読は 1 度だけ張り、裏に回った時点の最新の状態で判定する。止めるのは
+  // 実行中だけ（togglePause は切り替えなので、一時停止中に呼ぶと再開してしまう）
+  const onAppStateChange = useEffectEvent((state: AppStateStatus) => {
+    if (
+      state !== "active" &&
+      !gameSession.isPaused &&
+      !gameSession.isFinished &&
+      !gameSession.isCountingDown
+    ) {
+      gameSession.togglePause();
+    }
+  });
+
   useEffect(() => {
-    const sub = AppState.addEventListener("change", (state) => {
-      const session = sessionRef.current;
-      if (
-        state !== "active" &&
-        !session.isPaused &&
-        !session.isFinished &&
-        !session.isCountingDown
-      ) {
-        session.togglePause();
-      }
-    });
+    const sub = AppState.addEventListener("change", (state) =>
+      onAppStateChange(state),
+    );
     return () => sub.remove();
   }, []);
 
