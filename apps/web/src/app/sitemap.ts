@@ -4,7 +4,6 @@ import { getPublishedAnnouncementSlugsForSitemap } from "@/app/(user)/(public)/a
 import {
   GLOSSARY_SITEMAP_PATHS,
   LEARN_SITEMAP_ENTRIES,
-  LESSON_SITEMAP_PATHS,
   PRACTICE_SITEMAP_PATHS,
   RANK_SITEMAP_PATHS,
   STATIC_SITEMAP_ROUTE_DEFS,
@@ -49,14 +48,6 @@ const RANK_ROUTES: MetadataRoute.Sitemap = RANK_SITEMAP_PATHS.map((path) => ({
   priority: 0.5,
 }));
 
-const LESSON_ROUTES: MetadataRoute.Sitemap = LESSON_SITEMAP_PATHS.map(
-  (path) => ({
-    url: `${SITE_URL}${path}`,
-    changeFrequency: "monthly",
-    priority: 0.7,
-  }),
-);
-
 /** `/sitemap.xml` を生成する（Next.js の `MetadataRoute.Sitemap` 規約） */
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const announcementSlugs = await getPublishedAnnouncementSlugsForSitemap();
@@ -76,7 +67,6 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     ...PRACTICE_ROUTES,
     ...GLOSSARY_ROUTES,
     ...RANK_ROUTES,
-    ...LESSON_ROUTES,
     ...announcementRoutes,
   ];
 }

@@ -1,28 +1,14 @@
 import { getTranslations } from "next-intl/server";
 
-import { scorePracticePlayHref } from "@/app/(user)/(public)/practice/score/_lib/play-href";
-import { PracticeLinkButton } from "@/app/(user)/_components/practice-link-button";
-import { PracticeLinkSection } from "../../_components/practice-link-card";
-
 import { GuideColumn } from "../../_components/guide-column";
 import { ExtraFuTable } from "../../_components/extra-fu-table";
 import { GuideParagraph } from "../../_components/guide-paragraph";
 import { GuideSection } from "../../_components/guide-section";
 
-interface FuroScoreGuideProps {
-  /**
-   * 章末の練習への導線を出すか。レッスンの説明として出すときは出さない
-   * （七対子の章と同じ理由 — `ChiitoitsuScoreGuide` 参照）
-   */
-  readonly showPracticeLink?: boolean;
-}
-
 /**
  * 鳴いた手の点数計算 — 点数の計算セクション第4章
  */
-export async function FuroScoreGuide({
-  showPracticeLink = true,
-}: FuroScoreGuideProps = {}) {
+export async function FuroScoreGuide() {
   const t = await getTranslations("furoScore.learn");
 
   return (
@@ -54,20 +40,6 @@ export async function FuroScoreGuide({
           {t.rich("columnBody2", { br: () => <br /> })}
         </GuideParagraph>
       </GuideColumn>
-
-      {/* 対応する練習は自由練習（副露縛り）でカタログ外のため、
-          共通レイアウトの practiceLinks ではなく章本文が導線を持つ */}
-      {showPracticeLink && (
-        <PracticeLinkSection>
-          <PracticeLinkButton
-            href={scorePracticePlayHref({
-              handShape: "furo",
-              ranges: ["nonMangan"],
-            })}
-            label={t("practiceCta")}
-          />
-        </PracticeLinkSection>
-      )}
     </div>
   );
 }

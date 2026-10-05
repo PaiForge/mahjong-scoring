@@ -8,8 +8,8 @@ import { CurriculumToc } from "./curriculum-toc";
 interface ChapterTocListProps {
   /** 表示する章（カリキュラムの表示順で渡す） */
   readonly slugs: readonly CurriculumChapterSlug[];
-  /** 読了済み章。読了チェックを出さない場面では空集合を渡す */
-  readonly readSlugs: ReadonlySet<string>;
+  /** 完了したレッスン（章）。完了の印を出さない場面では空集合を渡す */
+  readonly completedSlugs: ReadonlySet<string>;
 }
 
 /**
@@ -20,12 +20,12 @@ interface ChapterTocListProps {
  * 見せたい場面（道場の前提章・昇級試験ページの前提章）で使う。セクションを
  * またぐ章の集合を渡しても、`/learn` と同じセクション見出し付きの並びになる。
  *
- * 「次はここから」バッジは出さない（`nextSlug` を渡さない）。読む順の案内は
- * 教本の目次が持つ役割で、抜粋の側が別の順序を主張すると二重になる。
+ * 「次はここから」バッジは出さない（`nextSlug` を渡さない）。進む順の案内は
+ * レッスンの目次が持つ役割で、抜粋の側が別の順序を主張すると二重になる。
  */
 export async function ChapterTocList({
   slugs,
-  readSlugs,
+  completedSlugs,
 }: ChapterTocListProps) {
   const chapters = slugs
     .map(getChapterBySlug)
@@ -44,7 +44,7 @@ export async function ChapterTocList({
             key={section}
             section={section}
             chapters={sectionChapters}
-            readSlugs={readSlugs}
+            completedSlugs={completedSlugs}
             nextSlug={undefined}
           />
         );

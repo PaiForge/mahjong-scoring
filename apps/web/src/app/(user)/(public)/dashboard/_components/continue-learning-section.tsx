@@ -10,30 +10,30 @@ import {
 import { SectionTitle } from "@/app/(user)/_components/section-title";
 
 interface ContinueLearningSectionProps {
-  /** 読了済み章のスラッグ */
-  readonly readSlugs: ReadonlySet<string>;
-  /** 次に読む章 */
+  /** 完了したレッスン（章）のスラッグ */
+  readonly completedSlugs: ReadonlySet<string>;
+  /** 次に取り組むレッスン */
   readonly nextChapter: CurriculumChapter;
 }
 
 /**
- * ダッシュボードの「教本の続き」セクション。
- * 教本の続き
+ * ダッシュボードの「レッスンの続き」セクション。
+ * レッスンの続き
  *
- * 進捗バーと「次はここから」の章 1 件を `/learn` と同じ見た目で表示し、
- * 再訪ユーザーが読みかけの位置へ 1 クリックで戻れるようにする。
- * 目次全体は `/learn` の役目なので、ここでは次の 1 章だけに絞る。
+ * 進捗バーと「次はここから」のレッスン 1 件を `/learn` と同じ見た目で表示し、
+ * 再訪ユーザーが途中の位置へ 1 クリックで戻れるようにする。
+ * 目次全体は `/learn` の役目なので、ここでは次の 1 件だけに絞る。
  *
  * 出すのは黒帯への道を終えた（全級取得済みの）ユーザーだけ。行程が進行中は
- * 「次にやること」が章を順に案内するので、別の「次はここ」を並べない。全章
- * 学習済みのときも次の章が無いので出さない。出す / 出さないの判断は親
+ * 「次にやること」がレッスンを順に案内するので、別の「次はここ」を並べない。
+ * すべて完了のときも次が無いので出さない。出す / 出さないの判断は親
  * （`selectDashboardGuidance`）が持つ。
  *
  * 昇級試験への導線はここには置かない。試験は黒帯への道の「認定される」の
  * 段として「次にやること」カードが順番どおりに出す。
  */
 export async function ContinueLearningSection({
-  readSlugs,
+  completedSlugs,
   nextChapter,
 }: ContinueLearningSectionProps) {
   const t = await getTranslations("dashboard");
@@ -43,7 +43,7 @@ export async function ContinueLearningSection({
       <SectionTitle>{t("continueLearningTitle")}</SectionTitle>
 
       <CurriculumProgressBar
-        readCount={readSlugs.size}
+        completedCount={completedSlugs.size}
         totalCount={CURRICULUM.length}
         allCompleted={false}
       />
@@ -51,7 +51,7 @@ export async function ContinueLearningSection({
       <CurriculumToc
         section={nextChapter.section}
         chapters={[nextChapter]}
-        readSlugs={readSlugs}
+        completedSlugs={completedSlugs}
         nextSlug={nextChapter.slug}
       />
 

@@ -7,8 +7,8 @@ import {
   type JourneyStep,
 } from "@mahjong-scoring/features/journey/journey";
 import {
-  lessonBySlug,
-  type LessonSlug,
+  quizLessonBySlug,
+  type QuizLessonSlug,
 } from "@mahjong-scoring/features/lessons/registry";
 import type { PracticeLink } from "@mahjong-scoring/features/curriculum/registry";
 
@@ -42,14 +42,14 @@ export interface LessonFollowUp {
  * 済みとして数える — 読み取りが記録より前でも、行程の数が揃う。
  */
 export function lessonFollowUp(
-  slug: LessonSlug,
+  slug: QuizLessonSlug,
   input: BuildJourneyInput,
 ): LessonFollowUp {
   const progress: BuildJourneyInput = {
     ...input,
     completedLessonSlugs: new Set([...input.completedLessonSlugs, slug]),
   };
-  const rankSlug = lessonBySlug(slug)?.rankSlug;
+  const rankSlug = quizLessonBySlug(slug)?.rankSlug;
   const rank = buildJourney(progress).ranks.find(
     (journey) => journey.rank.slug === rankSlug,
   );

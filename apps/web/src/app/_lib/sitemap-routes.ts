@@ -5,9 +5,8 @@ import { GLOSSARY_PATH, glossaryTermHref } from "@/lib/glossary/routes";
 import { chapterHref } from "@mahjong-scoring/features/routes";
 import { CURRICULUM } from "@mahjong-scoring/features/curriculum/registry";
 import { practiceHref } from "@mahjong-scoring/features/routes";
-import { lessonHref, rankHref } from "@mahjong-scoring/features/routes";
+import { rankHref } from "@mahjong-scoring/features/routes";
 import { RANK_SLUGS } from "@mahjong-scoring/features/ranks/registry";
-import { LESSON_SLUGS } from "@mahjong-scoring/features/lessons/registry";
 
 /**
  * sitemap の静的ルート定義
@@ -23,7 +22,6 @@ export const STATIC_SITEMAP_ROUTE_DEFS = [
   { url: "/getting-started", changeFrequency: "monthly", priority: 0.9 },
   { url: "/try", changeFrequency: "monthly", priority: 0.8 },
   { url: "/learn", changeFrequency: "weekly", priority: 0.9 },
-  { url: "/lessons", changeFrequency: "monthly", priority: 0.8 },
   { url: "/practice", changeFrequency: "weekly", priority: 0.9 },
   { url: "/dojo", changeFrequency: "monthly", priority: 0.8 },
   { url: "/reference", changeFrequency: "weekly", priority: 0.8 },
@@ -44,7 +42,7 @@ export const STATIC_SITEMAP_ROUTE_DEFS = [
 ] as const;
 
 /**
- * 教本章ページの sitemap 項目（`/learn/<slug>` と最終更新日）
+ * レッスン（章）ページの sitemap 項目（`/learn/<slug>` と最終更新日）
  *
  * `lastModified` は章の `publishedAt`。Google は sitemap の `changefreq` /
  * `priority` を無視し `lastmod` だけをクロールの手がかりにするため、実データが
@@ -58,7 +56,7 @@ export const LEARN_SITEMAP_ENTRIES: readonly {
   lastModified: chapter.publishedAt,
 }));
 
-/** 教本章ページのパス一覧（`/learn/<slug>`） */
+/** レッスン（章）ページのパス一覧（`/learn/<slug>`） */
 export const LEARN_SITEMAP_PATHS: readonly string[] = LEARN_SITEMAP_ENTRIES.map(
   (entry) => entry.path,
 );
@@ -85,15 +83,6 @@ export const GLOSSARY_SITEMAP_PATHS: readonly string[] =
  * 受けるページは seo-coverage.test.ts がディレクトリ名に解決できない）。
  */
 export const RANK_SITEMAP_PATHS: readonly string[] = RANK_SLUGS.map(rankHref);
-
-/**
- * レッスンページのパス一覧（`/lessons/<slug>`）
- *
- * 段級位の詳細と同じ理由で INDEXABLE_PATHS には入れない（動的セグメントで
- * 受けるページは seo-coverage.test.ts がディレクトリ名に解決できない）。
- */
-export const LESSON_SITEMAP_PATHS: readonly string[] =
-  LESSON_SLUGS.map(lessonHref);
 
 /**
  * DB に依存しない indexable パスの全集合（トップは "/" に正規化済み）。

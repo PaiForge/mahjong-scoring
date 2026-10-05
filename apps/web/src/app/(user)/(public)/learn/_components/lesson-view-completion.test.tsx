@@ -40,9 +40,8 @@ function page(
     <LessonView
       slug="mangan-ko-ron"
       messageKey="manganKoRon"
-      chapterSlug="mangan-ko-ron"
       next={{
-        href: "/lessons/mangan-ko-tsumo",
+        href: "/learn/mangan-ko-tsumo",
         label: "nextLesson",
         goal,
         ...planned,
@@ -98,7 +97,7 @@ describe("LessonView の済みの印", () => {
     expect(screen.queryByRole("img", { name: "completedMark" })).toBeNull();
   });
 
-  it("完了済みなら確認問題のボタンを解き直しのリンクに替え、練習・教本を出す", async () => {
+  it("完了済みなら確認問題のボタンを解き直しのリンクに替え、練習・試験を出す", async () => {
     mockUseAuth.mockReturnValue({ user: { id: "u1" }, isLoading: false });
     mockGetState.mockResolvedValue(true);
     renderPage();
@@ -236,7 +235,6 @@ describe("LessonView の済みの印", () => {
       followUp: {
         next: {
           kind: "lesson",
-          lessonSlug: "mangan-ko-tsumo",
           chapterSlug: "mangan-ko-tsumo",
         },
       },

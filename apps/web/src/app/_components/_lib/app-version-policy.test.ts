@@ -101,9 +101,9 @@ describe("resolveFullNavigationHref", () => {
   });
 
   it("別ページへのハッシュ付きリンクは差し替える", () => {
-    const a = anchor("/lessons#kyu-5");
+    const a = anchor("/learn#chapter-yaku");
     expect(resolveFullNavigationHref(clickOn(a), LOCATION)).toBe(
-      `${ORIGIN}/lessons#kyu-5`,
+      `${ORIGIN}/learn#chapter-yaku`,
     );
   });
 

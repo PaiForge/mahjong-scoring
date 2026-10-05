@@ -44,15 +44,15 @@ vi.mock(
   "@/app/(user)/(public)/learn/_components/curriculum-progress-bar",
   () => ({
     CurriculumProgressBar: ({
-      readCount,
+      completedCount,
       totalCount,
     }: {
-      readCount: number;
+      completedCount: number;
       totalCount: number;
     }) => (
       <div
         data-testid="progress"
-        data-read={readCount}
+        data-done={completedCount}
         data-total={totalCount}
       />
     ),
@@ -68,7 +68,7 @@ describe("ContinueLearningSection", () => {
   it("渡された章 1 件だけを目次に流す", async () => {
     const { getByTestId } = render(
       await ContinueLearningSection({
-        readSlugs: new Set(["about-this-app"]),
+        completedSlugs: new Set(["about-this-app"]),
         nextChapter: jantouFu,
       }),
     );
@@ -78,23 +78,23 @@ describe("ContinueLearningSection", () => {
     expect(toc.getAttribute("data-next-slug")).toBe("jantou-fu");
   });
 
-  it("進捗バーに読了数と総章数を渡す", async () => {
+  it("進捗バーに完了数と総数を渡す", async () => {
     const { getByTestId } = render(
       await ContinueLearningSection({
-        readSlugs: new Set(["about-this-app", "why-scoring-is-complex"]),
+        completedSlugs: new Set(["about-this-app", "why-scoring-is-complex"]),
         nextChapter: jantouFu,
       }),
     );
 
     const progress = getByTestId("progress");
-    expect(progress.getAttribute("data-read")).toBe("2");
+    expect(progress.getAttribute("data-done")).toBe("2");
     expect(progress.getAttribute("data-total")).toBe(String(CURRICULUM.length));
   });
 
   it("目次ページへのリンクを持つ", async () => {
     const { container } = render(
       await ContinueLearningSection({
-        readSlugs: new Set(),
+        completedSlugs: new Set(),
         nextChapter: jantouFu,
       }),
     );

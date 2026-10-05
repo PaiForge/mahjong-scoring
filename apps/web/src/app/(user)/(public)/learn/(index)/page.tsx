@@ -1,20 +1,22 @@
 /**
- * 教本（目次）
+ * レッスン（目次）
  *
  * @description
- * セクション（基礎 / 符 / 役 / 点数計算）ごとに章をグルーピングし、
- * 読了状態・進捗率・「次はここから」ナビゲーションを表示する目次ページ。
- * 表示は Zenn の書籍目次風のシンプルな縦列リスト。
+ * セクション（基礎 / 満貫 / 役 / 符 / 点数計算 / 記憶術）ごとにレッスン（章）を
+ * グルーピングし、完了の印・進捗率・「次はここから」ナビゲーションを表示する
+ * 目次ページ。表示は Zenn の書籍目次風のシンプルな縦列リスト。ナビゲーションの
+ * 「レッスン」の行き先。段級位の行程に属さない章（基礎・記憶術）もここに並ぶ —
+ * 級ごとの見え方は道場が持つ。
  * @flow
- * ユーザーは各章のタイトル Link から対応する `/learn/<slug>` へ遷移する。
- * 未認証ユーザーでも進捗は空として表示され、最初の章が「次はここから」となる。
+ * ユーザーは各レッスンのタイトル Link から対応する `/learn/<slug>` へ遷移する。
+ * 未認証ユーザーでも進捗は空として表示され、最初のレッスンが「次はここから」となる。
  *
- * 読了状態を cookie から読むため動的ルート。章ページ（`/learn/<slug>`）は静的なので、
- * 目次だけが持つ loading.tsx が章の祖先にならないよう route group に退避している
+ * 完了を cookie から読むため動的ルート。レッスンページ（`/learn/<slug>`）は静的なので、
+ * 目次だけが持つ loading.tsx がレッスンの祖先にならないよう route group に退避している
  * （`loading-boundaries.test.ts` 参照）。
  *
- * 章の行は `#chapter-<slug>` で指せる。章の抜粋（レッスンの完了画面）の
- * 「目次へ」がその章の位置へ着地させるのに使う。
+ * 行は `#chapter-<slug>` で指せる。章の抜粋（練習の説明ページ・道場の級の
+ * 進み具合）の「目次へ」がその位置へ着地させるのに使う。
  */
 import type { Metadata } from "next";
 import { Fragment } from "react";
@@ -36,7 +38,7 @@ import {
   chaptersBySection,
   pickNextChapter,
 } from "@mahjong-scoring/features/curriculum/registry";
-import { fetchReadChapterSlugs } from "../_lib/progress";
+import { fetchCompletedLessonSlugs } from "../_lib/lesson-progress";
 
 export async function generateMetadata(): Promise<Metadata> {
   return createNamespaceMetadata("learnCurriculum.index", {
@@ -47,12 +49,12 @@ export async function generateMetadata(): Promise<Metadata> {
 }
 
 export default async function LearnIndexPage() {
-  const [t, readSlugs, ads] = await Promise.all([
+  const [t, completedSlugs, ads] = await Promise.all([
     getTranslations("learnCurriculum"),
-    fetchReadChapterSlugs(),
+    fetchCompletedLessonSlugs(),
     getNativeAdPlacements("learn-index-native-ad"),
   ]);
-  const next = pickNextChapter(readSlugs);
+  const next = pickNextChapter(completedSlugs);
   const allCompleted = !next;
 
   const grouped = chaptersBySection();
@@ -71,7 +73,7 @@ export default async function LearnIndexPage() {
         </div>
 
         <CurriculumProgressBar
-          readCount={readSlugs.size}
+          completedCount={completedSlugs.size}
           totalCount={CURRICULUM.length}
           allCompleted={allCompleted}
         />
@@ -86,13 +88,13 @@ export default async function LearnIndexPage() {
               <CurriculumToc
                 section={section}
                 chapters={chapters}
-                readSlugs={readSlugs}
+                completedSlugs={completedSlugs}
                 nextSlug={next?.slug}
                 anchored
               />
               {/* 広告はセクションの切れ目に 1 行ずつ（位置は
                   adIndexAfterGroup）。セクションの中（章の並び）には
-                  入れない — 章の順序は学習の順序で、間に挟まると順路が途切れる */}
+                  入れない — レッスンの順序は学習の順序で、間に挟まると順路が途切れる */}
               {ad && (
                 <LinkRowList>
                   <NativeAdRow creative={ad} />

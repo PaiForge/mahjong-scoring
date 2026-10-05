@@ -9,11 +9,7 @@ import {
   rankRequiringMenu,
   rankTier,
 } from "@mahjong-scoring/features/ranks/registry";
-import {
-  chapterHref,
-  lessonHref,
-  practiceHref,
-} from "@mahjong-scoring/features/routes";
+import { chapterHref, practiceHref } from "@mahjong-scoring/features/routes";
 import { practiceVariantLabel } from "./practice-variant-label";
 
 /**
@@ -33,8 +29,6 @@ type RootTranslator = (
 export function journeyStepHref(step: JourneyStep): string {
   switch (step.kind) {
     case "lesson":
-      return lessonHref(step.lessonSlug);
-    case "read":
       return chapterHref(step.chapterSlug);
     case "practice":
       return practiceHref(step.slug, step.variant);
@@ -44,7 +38,7 @@ export function journeyStepHref(step: JourneyStep): string {
 }
 
 /**
- * 黒帯への道の一歩が指すものの名前（章・練習・試験）
+ * 黒帯への道の一歩が指すものの名前（レッスン・練習・試験）
  * 一歩の名前
  *
  * ダッシュボードの「次にやること」とレッスンの完了画面が、同じ一歩を同じ名前で
@@ -56,8 +50,7 @@ export function journeyStepTitle(
   tAll: RootTranslator,
 ): string {
   switch (step.kind) {
-    case "lesson":
-    case "read": {
+    case "lesson": {
       const chapter = getChapterBySlug(step.chapterSlug);
       return chapter
         ? tAll(`learnCurriculum.${getChapterI18nPath(chapter)}.title`)

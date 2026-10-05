@@ -5,7 +5,7 @@ import {
   serializePendingLessonCompletions,
   type PendingLessonCompletion,
 } from "@mahjong-scoring/features/lessons/pending-completions";
-import type { LessonSlug } from "@mahjong-scoring/features/lessons/registry";
+import type { CurriculumChapterSlug } from "@mahjong-scoring/features/curriculum/registry";
 
 /**
  * 未同期のレッスン完了の置き場（web は localStorage）
@@ -60,12 +60,12 @@ export function readPendingLessonCompletions(
 /**
  * レッスンの完了を預ける
  *
- * @param slug 終えたレッスン
+ * @param slug 終えたレッスン（章の slug）
  * @param userId ログイン済みで保存に失敗したときの本人の id。未ログインなら省く
  * @param now 完了時刻（ミリ秒）。既存の預かりの期限判定にも同じ時刻を使う
  */
 export function rememberPendingLessonCompletion(
-  slug: LessonSlug,
+  slug: CurriculumChapterSlug,
   userId?: string,
   now: number = Date.now(),
 ): void {

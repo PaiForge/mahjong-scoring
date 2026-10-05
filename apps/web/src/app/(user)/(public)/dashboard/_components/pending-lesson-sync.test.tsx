@@ -22,12 +22,12 @@ vi.mock("next/navigation", () => ({
 vi.mock("react-hot-toast", () => ({
   toast: { success: mockToastSuccess },
 }));
-vi.mock("@/app/(user)/(public)/lessons/_actions/complete-lesson", () => ({
+vi.mock("@/app/(user)/(public)/learn/_actions/complete-lesson", () => ({
   completeLessons: mockCompleteLessons,
 }));
 
 const { rememberPendingLessonCompletion, readPendingLessonCompletions } =
-  await import("@/app/(user)/(public)/lessons/_lib/pending-completions-storage");
+  await import("@/app/(user)/(public)/learn/_lib/pending-completions-storage");
 const { PendingLessonSync } = await import("./pending-lesson-sync");
 
 /** 次のマイクロタスクまで待つ（effect の中の非同期を流す） */

@@ -97,21 +97,15 @@ describe("i18n integrity: chapters (via CurriculumChapter.i18nKey)", () => {
 
 describe("i18n integrity: chapter UI keys", () => {
   const requiredChapterKeys = [
-    "markAsReadCta",
-    "markedAsRead",
-    "unmarkAsReadCta",
-    "unmarkConfirmTitle",
-    "unmarkConfirmMessage",
-    "unmarkConfirmOk",
-    "unmarkConfirmCancel",
+    "completeCta",
+    "completing",
+    "completedMark",
     "loginPromptCta",
     "chapterNavLabel",
     "prevChapterLabel",
     "nextChapterLabel",
-    "practiceLinksTitle",
-    "practiceLinkCta",
-    "practiceLinkChallengeCta",
     "updateFailedToast",
+    "publishedOn",
   ];
 
   it.each(requiredChapterKeys)("has learnCurriculum.chapter.%s", (key) => {

@@ -1,9 +1,6 @@
 import { getTranslations } from "next-intl/server";
 
 import { PREFERENCE_ANCHORS } from "@/app/(user)/(public)/preferences/_lib/anchors";
-import { scorePracticePlayHref } from "@/app/(user)/(public)/practice/score/_lib/play-href";
-import { PracticeLinkButton } from "@/app/(user)/_components/practice-link-button";
-import { PracticeLinkSection } from "../../_components/practice-link-card";
 
 import { ChapterColumn } from "../../_components/chapter-column";
 import { PreferenceSettingsNote } from "../../_components/preference-settings-note";
@@ -12,20 +9,10 @@ import { GuideSection } from "../../_components/guide-section";
 import { FixedFuScoreTable } from "../../_components/fixed-fu-score-table";
 import { PINFU_SCORE_TABLE } from "../../_lib/fixed-fu-rows";
 
-interface PinfuScoreGuideProps {
-  /**
-   * 章末の練習への導線を出すか。レッスンの説明として出すときは出さない
-   * （七対子の章と同じ理由 — `ChiitoitsuScoreGuide` 参照）
-   */
-  readonly showPracticeLink?: boolean;
-}
-
 /**
  * 平和での点数計算 — 点数の計算セクション第2章
  */
-export async function PinfuScoreGuide({
-  showPracticeLink = true,
-}: PinfuScoreGuideProps = {}) {
+export async function PinfuScoreGuide() {
   const t = await getTranslations("pinfuScore.learn");
 
   return (
@@ -61,22 +48,6 @@ export async function PinfuScoreGuide({
         <GuideParagraph preLine>{t("compositeBody2")}</GuideParagraph>
         <GuideParagraph preLine>{t("compositeBody3")}</GuideParagraph>
       </GuideSection>
-
-      {/* 対応する練習は自由練習（役絞り込み）でカタログ外のため、
-          共通レイアウトの practiceLinks ではなく章本文が導線を持つ。
-          平和のみ・満貫未満 = 章の内容そのまま「必ず 20符 or 30符 ×
-          1〜4翻」の手牌だけが出題される */}
-      {showPracticeLink && (
-        <PracticeLinkSection>
-          <PracticeLinkButton
-            href={scorePracticePlayHref({
-              yaku: ["平和"],
-              ranges: ["nonMangan"],
-            })}
-            label={t("practiceCta")}
-          />
-        </PracticeLinkSection>
-      )}
     </div>
   );
 }

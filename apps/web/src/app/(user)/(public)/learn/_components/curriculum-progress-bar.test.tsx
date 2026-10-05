@@ -16,7 +16,7 @@ describe("CurriculumProgressBar", () => {
   it("renders 0% when nothing is read", async () => {
     const { container } = render(
       await CurriculumProgressBar({
-        readCount: 0,
+        completedCount: 0,
         totalCount: 7,
         allCompleted: false,
       }),
@@ -30,7 +30,7 @@ describe("CurriculumProgressBar", () => {
   it("renders rounded percentage based on read/total", async () => {
     const { container } = render(
       await CurriculumProgressBar({
-        readCount: 2,
+        completedCount: 2,
         totalCount: 7,
         allCompleted: false,
       }),
@@ -44,7 +44,7 @@ describe("CurriculumProgressBar", () => {
   it("renders 100% when all chapters are read", async () => {
     const { container } = render(
       await CurriculumProgressBar({
-        readCount: 7,
+        completedCount: 7,
         totalCount: 7,
         allCompleted: true,
       }),
@@ -57,7 +57,7 @@ describe("CurriculumProgressBar", () => {
   it("renders 0% safely when totalCount is 0", async () => {
     const { container } = render(
       await CurriculumProgressBar({
-        readCount: 0,
+        completedCount: 0,
         totalCount: 0,
         allCompleted: false,
       }),
@@ -69,21 +69,21 @@ describe("CurriculumProgressBar", () => {
   it("passes read/total counts to the i18n progressLabel", async () => {
     const { container } = render(
       await CurriculumProgressBar({
-        readCount: 3,
+        completedCount: 3,
         totalCount: 7,
         allCompleted: false,
       }),
     );
     // The mock serializes values to JSON for inspection
     expect(container.textContent).toContain("progressLabel");
-    expect(container.textContent).toContain('"read":3');
+    expect(container.textContent).toContain('"done":3');
     expect(container.textContent).toContain('"total":7');
   });
 
   it("uses the primary-500 bar when all chapters are completed", async () => {
     const { container } = render(
       await CurriculumProgressBar({
-        readCount: 7,
+        completedCount: 7,
         totalCount: 7,
         allCompleted: true,
       }),
@@ -95,7 +95,7 @@ describe("CurriculumProgressBar", () => {
   it("uses the primary-400 bar when not all chapters are completed", async () => {
     const { container } = render(
       await CurriculumProgressBar({
-        readCount: 1,
+        completedCount: 1,
         totalCount: 7,
         allCompleted: false,
       }),

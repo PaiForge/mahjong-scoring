@@ -33,7 +33,7 @@ describe("CurriculumToc", () => {
       await CurriculumToc({
         section,
         chapters,
-        readSlugs: new Set<string>(),
+        completedSlugs: new Set<string>(),
         nextSlug: undefined,
       }),
     );
@@ -53,7 +53,7 @@ describe("CurriculumToc", () => {
       await CurriculumToc({
         section,
         chapters,
-        readSlugs: new Set<string>(),
+        completedSlugs: new Set<string>(),
         nextSlug: undefined,
       }),
     );
@@ -68,7 +68,7 @@ describe("CurriculumToc", () => {
       await CurriculumToc({
         section,
         chapters,
-        readSlugs: new Set(["about-this-app"]),
+        completedSlugs: new Set(["about-this-app"]),
         nextSlug: "why-scoring-is-complex",
       }),
     );
@@ -80,12 +80,12 @@ describe("CurriculumToc", () => {
     const readRow = container.querySelector(
       '[data-chapter-slug="about-this-app"]',
     );
-    expect(readRow?.getAttribute("data-read")).toBe("true");
+    expect(readRow?.getAttribute("data-done")).toBe("true");
 
     const unreadRow = container.querySelector(
       '[data-chapter-slug="why-scoring-is-complex"]',
     );
-    expect(unreadRow?.getAttribute("data-read")).toBeNull();
+    expect(unreadRow?.getAttribute("data-done")).toBeNull();
   });
 
   it("highlights the next chapter with a data-next attribute", async () => {
@@ -93,7 +93,7 @@ describe("CurriculumToc", () => {
       await CurriculumToc({
         section,
         chapters,
-        readSlugs: new Set<string>(),
+        completedSlugs: new Set<string>(),
         nextSlug: "about-this-app",
       }),
     );
@@ -113,7 +113,7 @@ describe("CurriculumToc", () => {
       await CurriculumToc({
         section,
         chapters,
-        readSlugs: new Set<string>(),
+        completedSlugs: new Set<string>(),
         nextSlug: "about-this-app",
       }),
     );
@@ -145,7 +145,7 @@ describe("CurriculumToc", () => {
       await CurriculumToc({
         section,
         chapters,
-        readSlugs: new Set<string>(),
+        completedSlugs: new Set<string>(),
         nextSlug: "about-this-app",
       }),
     );
@@ -162,7 +162,7 @@ describe("CurriculumToc", () => {
       await CurriculumToc({
         section,
         chapters,
-        readSlugs: new Set<string>(),
+        completedSlugs: new Set<string>(),
         nextSlug: "about-this-app",
       }),
     );
@@ -182,7 +182,7 @@ describe("CurriculumToc", () => {
       await CurriculumToc({
         section,
         chapters,
-        readSlugs: new Set<string>(),
+        completedSlugs: new Set<string>(),
         nextSlug: undefined,
       }),
     );
@@ -196,7 +196,7 @@ describe("CurriculumToc", () => {
       await CurriculumToc({
         section,
         chapters,
-        readSlugs: new Set<string>(),
+        completedSlugs: new Set<string>(),
         nextSlug: undefined,
       }),
     );
@@ -223,7 +223,7 @@ describe("CurriculumToc", () => {
       await CurriculumToc({
         section,
         chapters,
-        readSlugs: new Set<string>(),
+        completedSlugs: new Set<string>(),
         nextSlug: undefined,
       }),
     );
@@ -238,7 +238,7 @@ describe("CurriculumToc", () => {
       await CurriculumToc({
         section,
         chapters,
-        readSlugs: new Set<string>(),
+        completedSlugs: new Set<string>(),
         nextSlug: undefined,
       }),
     );
@@ -255,7 +255,7 @@ describe("CurriculumToc", () => {
       await CurriculumToc({
         section,
         chapters,
-        readSlugs: new Set(["why-scoring-is-complex"]),
+        completedSlugs: new Set(["why-scoring-is-complex"]),
         nextSlug: "about-this-app",
       }),
     );
@@ -295,7 +295,7 @@ describe("CurriculumToc", () => {
             i18nKey: "learnCurriculum.chapters.jantouFu",
           },
         ],
-        readSlugs: new Set<string>(),
+        completedSlugs: new Set<string>(),
         nextSlug: undefined,
       }),
     );
@@ -310,7 +310,7 @@ describe("CurriculumToc", () => {
     const result = await CurriculumToc({
       section,
       chapters: [],
-      readSlugs: new Set<string>(),
+      completedSlugs: new Set<string>(),
       nextSlug: undefined,
     });
     expect(result).toBeUndefined();

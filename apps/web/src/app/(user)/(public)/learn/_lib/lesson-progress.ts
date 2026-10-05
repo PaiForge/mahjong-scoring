@@ -7,12 +7,13 @@ import { db } from "@/lib/db";
 import { lessonCompletions } from "@/lib/db/schema";
 
 /**
- * 認証ユーザーが完了したレッスンのスラッグ集合を返す
+ * 認証ユーザーが完了したレッスン（章）のスラッグ集合を返す
  * 完了レッスン取得
  *
- * 黒帯への道（ダッシュボードの「次にやること」・道場の行程）が章の「学んだ」の
- * 印を組むのに使う。章の読了（`fetchReadChapterSlugs`）と同じく、未認証なら
- * 空集合を返して呼び出し側に認証の有無を意識させない。
+ * レッスンの目次（`/learn`）の完了の印・黒帯への道（ダッシュボードの
+ * 「次にやること」・道場の行程）の「学んだ」の印が読む。未認証なら空集合を
+ * 返して呼び出し側に認証の有無を意識させない（LP や練習の説明ページから
+ * 呼ばれてもエラーにしない）。
  */
 export async function fetchCompletedLessonSlugs(): Promise<
   ReadonlySet<string>

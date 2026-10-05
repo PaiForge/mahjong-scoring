@@ -7,14 +7,16 @@ import { ChevronRightIcon } from "@/app/(user)/_components/icons/chevron-right-i
 import { LockClosedIcon } from "@/app/(user)/_components/icons/lock-closed-icon";
 import { LinkButton } from "@/app/(user)/_components/link-button";
 import { LinkRow, LinkRowList } from "@/app/(user)/_components/link-row";
-import { ChapterTocList } from "@/app/(user)/(public)/learn/_components/chapter-toc-list";
 import { TEXT_LINK_CLASSES } from "@/app/_components/_lib/link-classes";
 import { beltBorderClass, beltButtonVarsClass } from "@/lib/ranks/belt-colors";
+import {
+  getChapterBySlug,
+  getChapterI18nPath,
+} from "@mahjong-scoring/features/curriculum/registry";
 import type { RankJourney } from "@mahjong-scoring/features/journey/journey";
-import { lessonBySlug } from "@mahjong-scoring/features/lessons/registry";
 import { practiceTitleKey } from "@mahjong-scoring/features/practice/catalog";
 import {
-  lessonHref,
+  chapterHref,
   practiceHref,
   rankHref,
 } from "@mahjong-scoring/features/routes";
@@ -36,8 +38,9 @@ interface RankJourneyCardProps {
  *
  * Server Component。帯バッジ・級名・取得状態・できるようになること・
  * 「学ぶ / 練習する / 試験」の進み具合を 1 枚に載せる。いま取り組む級
- * （次の目標）だけは中身を開き、学ぶ段（レッスンのある章はレッスンの行、
- * 無い章は目次）・章から送る練習の行・試験への帯色のボタンを並べる。他の級は閉じたまま、級名から詳細ページへ送る。
+ * （次の目標）だけは中身を開き、学ぶ段（レッスンの行）・レッスンから送る
+ * 練習の行・試験への帯色のボタンを並べる。他の級は閉じたまま、級名から
+ * 詳細ページへ送る。
  *
  * 未取得の上位級には「下の級から順に取得すると受験できます」を添える。
  * 「先に 5級を」のように次の目標の級だけを名指ししないのは、無級の人には
@@ -45,7 +48,7 @@ interface RankJourneyCardProps {
  * 級を持つ人には挟まった未取得の級が見えなくなるため。受験資格は常に
  * 「level 昇順で最初の未取得の級」だけ（`evaluateExamEligibility`）なので、
  * 順序の規則そのものを書く。閉じるのは受験だけで、級名から詳細へ行けば
- * 教本の章は先に読める（教材を隠さない）。
+ * レッスンは先に進められる（教材を隠さない）。
  *
  * 枠は帯色（道場の「現在の段級位」カード・昇級試験カードと同じ理由 — 級を
  * 掲げたカードに既定の緑の枠を回すと、緑がその級の色に見える）。カード全体を
@@ -62,20 +65,6 @@ export async function RankJourneyCard({
     getTranslations(),
   ]);
   const { rank, status, chapters, practices, exam } = journey;
-  // 学ぶ段は章ごとに 1 行。レッスンのある章はレッスンの行だけを出し、
-  // 目次にはレッスンの無い章（読んで学ぶ章）だけを残す。両方に出すと同じ章が
-  // 2 度並び、どちらを済ませれば進むのかが読み取れない
-  const lessons = chapters.flatMap((item) =>
-    item.lessonSlug === undefined
-      ? []
-      : [{ ...item, lessonSlug: item.lessonSlug }],
-  );
-  const readingChapters = chapters.filter(
-    (item) => item.lessonSlug === undefined,
-  );
-  const learnedSlugs = new Set(
-    readingChapters.filter((item) => item.done).map((item) => item.chapterSlug),
-  );
 
   return (
     <li>
@@ -128,35 +117,33 @@ export async function RankJourneyCard({
                   {tRanks("stages.learn")}
                 </h4>
                 <p className="text-xs text-surface-500">{t("chaptersLead")}</p>
-                {lessons.length > 0 && (
-                  <LinkRowList>
-                    {lessons.map((item) => {
-                      const lesson = lessonBySlug(item.lessonSlug);
-                      const title = lesson
-                        ? tAll(`lessons.${lesson.messageKey}.title`)
-                        : item.lessonSlug;
-                      return (
-                        <LinkRow
-                          key={item.lessonSlug}
-                          href={lessonHref(item.lessonSlug)}
-                          title={t("lessonRow", { title })}
-                          description={t("lessonRowDescription")}
-                          trailing={
-                            item.done ? (
-                              <DoneMark label={t("lessonDone")} />
-                            ) : undefined
-                          }
-                        />
-                      );
-                    })}
-                  </LinkRowList>
-                )}
-                {readingChapters.length > 0 && (
-                  <ChapterTocList
-                    slugs={readingChapters.map((item) => item.chapterSlug)}
-                    readSlugs={learnedSlugs}
-                  />
-                )}
+                {/* 学ぶ段はレッスンごとに 1 行。題名は章の辞書から引く
+                    （レッスン = 章）。確認問題を持つレッスンにはその旨を添える */}
+                <LinkRowList>
+                  {chapters.map((item) => {
+                    const chapter = getChapterBySlug(item.chapterSlug);
+                    const title = chapter
+                      ? tAll(
+                          `learnCurriculum.${getChapterI18nPath(chapter)}.title`,
+                        )
+                      : item.chapterSlug;
+                    return (
+                      <LinkRow
+                        key={item.chapterSlug}
+                        href={chapterHref(item.chapterSlug)}
+                        title={title}
+                        description={
+                          item.hasQuiz ? t("lessonRowDescription") : undefined
+                        }
+                        trailing={
+                          item.done ? (
+                            <DoneMark label={t("lessonDone")} />
+                          ) : undefined
+                        }
+                      />
+                    );
+                  })}
+                </LinkRowList>
               </section>
             )}
 

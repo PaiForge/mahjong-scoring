@@ -6,11 +6,11 @@ import { useTranslations } from "next-intl";
 import { toast } from "react-hot-toast";
 
 import { Button } from "@/app/(user)/_components/button";
-import { completeLessons } from "@/app/(user)/(public)/lessons/_actions/complete-lesson";
+import { completeLessons } from "@/app/(user)/(public)/learn/_actions/complete-lesson";
 import {
   forgetPendingLessonCompletions,
   readPendingLessonCompletions,
-} from "@/app/(user)/(public)/lessons/_lib/pending-completions-storage";
+} from "@/app/(user)/(public)/learn/_lib/pending-completions-storage";
 import { useIsClient } from "@/app/_hooks/use-is-client";
 import { logExternalError } from "@/lib/log-error";
 import { selectSyncableLessonCompletions } from "@mahjong-scoring/features/lessons/pending-completions";

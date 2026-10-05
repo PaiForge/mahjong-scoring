@@ -19,7 +19,8 @@ import { chapterTocAnchorId } from "../_lib/toc-anchor";
 interface CurriculumTocProps {
   readonly section: CurriculumSection;
   readonly chapters: readonly CurriculumChapter[];
-  readonly readSlugs: ReadonlySet<string>;
+  /** 完了したレッスン（章）。完了の印を出さない場面では空集合を渡す */
+  readonly completedSlugs: ReadonlySet<string>;
   readonly nextSlug: string | undefined;
   /**
    * 章の行に id（{@link chapterTocAnchorId}）を付けるか。`/learn` の目次
@@ -38,20 +39,20 @@ interface CurriculumTocProps {
  * - セクション bullet は `size-4`（カテゴリ色）＋右側にラベル（`<p>`、見出し要素は使わない）
  * - 章は bullet なし / `pl-7` インデントで配置し「タイトル Link + description」を表示
  * - 「次はここから」バッジは行の右端、`aria-current="step"` も付与
- * - 読了済み章は行の右端に緑丸のチェック（白抜き・枠なし）
+ * - 完了したレッスンは行の右端に緑丸のチェック（白抜き・枠なし）
  *
- * バッジとチェックは同じ右端の位置に出す（読了済みの章が「次」になることは
+ * バッジとチェックは同じ右端の位置に出す（完了したレッスンが「次」になることは
  * ないため排他）。行の中で状態を示す印は右端の 1 列に揃え、左側はタイトルと
  * 説明文だけが縦に並ぶようにする。
  *
  * @remarks
  * サーバーコンポーネント。Props だけから描画が決まるため Server Action による
- * 読了状態更新後も親の再レンダリングでそのまま反映される。
+ * 完了の記録後も親の再レンダリングでそのまま反映される。
  */
 export async function CurriculumToc({
   section,
   chapters,
-  readSlugs,
+  completedSlugs,
   nextSlug,
   anchored = false,
 }: CurriculumTocProps) {
@@ -94,7 +95,7 @@ export async function CurriculumToc({
           aria-label={sectionLabel}
         >
           {chapters.map((ch) => {
-            const isRead = readSlugs.has(ch.slug);
+            const isDone = completedSlugs.has(ch.slug);
             const isNext = nextSlug === ch.slug;
             const path = getChapterI18nPath(ch);
 
@@ -111,7 +112,7 @@ export async function CurriculumToc({
                 data-chapter-slug={ch.slug}
                 aria-current={isNext ? "step" : undefined}
                 data-next={isNext ? "true" : undefined}
-                data-read={isRead ? "true" : undefined}
+                data-done={isDone ? "true" : undefined}
               >
                 {isNext && (
                   <span
@@ -142,10 +143,10 @@ export async function CurriculumToc({
                     {tIndex("nextChapterBadge")}
                   </span>
                 )}
-                {isRead && (
+                {isDone && (
                   <span
                     role="img"
-                    aria-label={tChapter("markedAsRead")}
+                    aria-label={tChapter("completedMark")}
                     data-testid="curriculum-achieved-mark"
                     className="mt-0.5 inline-flex size-6 shrink-0 items-center justify-center rounded-full bg-primary-500 text-white"
                   >

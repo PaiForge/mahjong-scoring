@@ -86,7 +86,6 @@ const DYNAMIC_ROUTES: ReadonlySet<string> = new Set([
   "/leaderboard",
   "/leaderboard/[period]/[module]",
   "/learn",
-  "/lessons",
   "/mypage",
   "/mypage/account",
   "/mypage/account/delete",
