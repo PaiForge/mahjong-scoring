@@ -1,9 +1,7 @@
 "use client";
 
-import { useCallback } from "react";
 import { useTranslations } from "next-intl";
 import { generateMentsuFuQuestion } from "@mahjong-scoring/core";
-import type { MentsuFuQuestion } from "@mahjong-scoring/core";
 import { Furo } from "@pai-forge/mahjong-react-ui";
 import { FuChoiceGrid } from "../../_components/fu-choice-grid";
 import { PromptLabel } from "../../_components/prompt-label";
@@ -30,23 +28,14 @@ export function MentsuFuBoard({
   onPresentQuestion,
 }: MentsuFuBoardProps) {
   const t = useTranslations("mentsuFu");
-  const recordResult = useCallback(
-    (question: MentsuFuQuestion, fu: number) =>
-      onRecordResult?.(toQuestionResult(question, fu)),
-    [onRecordResult],
-  );
-  const presentQuestion = useCallback(
-    (question: MentsuFuQuestion) =>
-      onPresentQuestion?.(toQuestionResult(question, undefined)),
-    [onPresentQuestion],
-  );
   const { question, selectedFu, handleSelect } = useFuChoiceBoard({
     generateQuestion: generateMentsuFuQuestion,
     options: FU_OPTIONS,
+    toResult: toQuestionResult,
     showFeedback,
     onAnswer,
-    onRecordResult: recordResult,
-    onPresentQuestion: presentQuestion,
+    onRecordResult,
+    onPresentQuestion,
   });
 
   if (!question) {

@@ -36,11 +36,16 @@ const answered = { ...hidden, answer: 2 };
 function identity<T>(value: T) {
   return value;
 }
+/** 記録された問題と符をそのまま並べる */
+function pair<T>(question: T, fu: number | undefined) {
+  return fu === undefined ? [question] : [question, fu];
+}
 function Board() {
   const challenge = useVerifiedChallenge();
   const { question, selectedFu, handleSelect } = useFuChoiceBoard({
     generateQuestion: mocks.generated,
     options: [0, 2],
+    toResult: pair,
     showFeedback: false,
     onAnswer: mocks.onAnswer,
     onRecordResult: mocks.recorded,
@@ -94,7 +99,7 @@ describe("server-graded challenge UI", () => {
       expect(mocks.onAnswer).toHaveBeenCalledWith(true, expect.any(Function)),
     );
     expect(mocks.answer).toHaveBeenCalledWith("attempt-1", 0, 2);
-    expect(mocks.recorded).toHaveBeenCalledWith(answered, 2);
+    expect(mocks.recorded).toHaveBeenCalledWith([answered, 2]);
     expect(screen.getByTestId("answer").textContent).toBe("2");
     fireEvent.click(screen.getByText("next"));
     expect(screen.getByTestId("answer").textContent).toBe("20");

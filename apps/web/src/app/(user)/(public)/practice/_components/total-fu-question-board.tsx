@@ -1,6 +1,5 @@
 "use client";
 
-import { useCallback } from "react";
 import { useTranslations } from "next-intl";
 import { FU_VALUES } from "@mahjong-scoring/core";
 import type { TotalFuQuestion } from "@mahjong-scoring/core";
@@ -60,23 +59,14 @@ export function TotalFuQuestionBoard({
   onPresentQuestion,
 }: TotalFuQuestionBoardProps) {
   const t = useTranslations(translationNamespace);
-  const recordResult = useCallback(
-    (question: TotalFuQuestion, fu: number) =>
-      onRecordResult?.(toFuQuestionResult(question, fu)),
-    [onRecordResult],
-  );
-  const presentQuestion = useCallback(
-    (question: TotalFuQuestion) =>
-      onPresentQuestion?.(toFuQuestionResult(question, undefined)),
-    [onPresentQuestion],
-  );
   const { question, selectedFu, handleSelect } = useFuChoiceBoard({
     generateQuestion,
     options: FU_VALUES,
+    toResult: toFuQuestionResult,
     showFeedback,
     onAnswer,
-    onRecordResult: recordResult,
-    onPresentQuestion: presentQuestion,
+    onRecordResult,
+    onPresentQuestion,
   });
   // 内訳はトレーニングで止まっている間だけ出す（開示・回答後のどちらでも）。
   // チャレンジ・本番の試験ではどちらも立たない

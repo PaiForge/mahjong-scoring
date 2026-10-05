@@ -1,8 +1,6 @@
-import { useCallback } from "react";
 import { StyleSheet, View } from "react-native";
 import { useTranslations } from "use-intl";
 import { generateMachiFuQuestion } from "@mahjong-scoring/core";
-import type { MachiFuQuestion } from "@mahjong-scoring/core";
 import { MACHI_FU_OPTIONS } from "@mahjong-scoring/features/practice/machi-fu/fu-options";
 import {
   toQuestionResult,
@@ -31,23 +29,14 @@ export function MachiFuBoard({
   onPresentQuestion,
 }: RecordingPracticeBoardProps<MachiFuQuestionResult>) {
   const t = useTranslations("machiFu");
-  const recordResult = useCallback(
-    (question: MachiFuQuestion, fu: number) =>
-      onRecordResult?.(toQuestionResult(question, fu)),
-    [onRecordResult],
-  );
-  const presentQuestion = useCallback(
-    (question: MachiFuQuestion) =>
-      onPresentQuestion?.(toQuestionResult(question, undefined)),
-    [onPresentQuestion],
-  );
   const { question, selectedFu, handleSelect } = useFuChoiceBoard({
     generateQuestion: generateMachiFuQuestion,
     options: MACHI_FU_OPTIONS,
+    toResult: toQuestionResult,
     showFeedback,
     onAnswer,
-    onRecordResult: recordResult,
-    onPresentQuestion: presentQuestion,
+    onRecordResult,
+    onPresentQuestion,
   });
 
   if (!question) {

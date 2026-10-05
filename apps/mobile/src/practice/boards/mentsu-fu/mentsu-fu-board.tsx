@@ -1,8 +1,6 @@
-import { useCallback } from "react";
 import { StyleSheet, View } from "react-native";
 import { useTranslations } from "use-intl";
 import { generateMentsuFuQuestion } from "@mahjong-scoring/core";
-import type { MentsuFuQuestion } from "@mahjong-scoring/core";
 import { FU_OPTIONS } from "@mahjong-scoring/features/practice/fu-options";
 import {
   toQuestionResult,
@@ -33,23 +31,14 @@ export function MentsuFuBoard({
   onPresentQuestion,
 }: RecordingPracticeBoardProps<MentsuFuQuestionResult>) {
   const t = useTranslations("mentsuFu");
-  const recordResult = useCallback(
-    (question: MentsuFuQuestion, fu: number) =>
-      onRecordResult?.(toQuestionResult(question, fu)),
-    [onRecordResult],
-  );
-  const presentQuestion = useCallback(
-    (question: MentsuFuQuestion) =>
-      onPresentQuestion?.(toQuestionResult(question, undefined)),
-    [onPresentQuestion],
-  );
   const { question, selectedFu, handleSelect } = useFuChoiceBoard({
     generateQuestion: generateMentsuFuQuestion,
     options: FU_OPTIONS,
+    toResult: toQuestionResult,
     showFeedback,
     onAnswer,
-    onRecordResult: recordResult,
-    onPresentQuestion: presentQuestion,
+    onRecordResult,
+    onPresentQuestion,
   });
 
   if (!question) {

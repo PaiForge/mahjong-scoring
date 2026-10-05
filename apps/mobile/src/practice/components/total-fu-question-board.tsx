@@ -1,4 +1,3 @@
-import { useCallback } from "react";
 import { StyleSheet, View } from "react-native";
 import { useTranslations } from "use-intl";
 import { FU_VALUES } from "@mahjong-scoring/core";
@@ -38,23 +37,14 @@ export function TotalFuQuestionBoard({
   readonly translationNamespace: string;
 }) {
   const t = useTranslations(translationNamespace);
-  const recordResult = useCallback(
-    (question: TotalFuQuestion, fu: number) =>
-      onRecordResult?.(toFuQuestionResult(question, fu)),
-    [onRecordResult],
-  );
-  const presentQuestion = useCallback(
-    (question: TotalFuQuestion) =>
-      onPresentQuestion?.(toFuQuestionResult(question, undefined)),
-    [onPresentQuestion],
-  );
   const { question, selectedFu, handleSelect } = useFuChoiceBoard({
     generateQuestion,
     options: FU_VALUES,
+    toResult: toFuQuestionResult,
     showFeedback,
     onAnswer,
-    onRecordResult: recordResult,
-    onPresentQuestion: presentQuestion,
+    onRecordResult,
+    onPresentQuestion,
   });
   const { isRevealed, isHolding } = useTrainingMode();
 

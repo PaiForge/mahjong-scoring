@@ -4,24 +4,22 @@ import { useGradeAnswer } from "./use-grade-answer";
 
 import { useCallback, useState } from "react";
 
-import type { PracticeBoardProps } from "./board-props";
+import type { RecordingPracticeBoardProps } from "./board-props";
 import { useGeneratedQuestion } from "./use-generated-question";
 import { usePresentQuestion } from "./use-present-question";
 import { useRegisterAdvance } from "./use-training-mode";
-
-/** 届け出る問題はそのまま渡す（結果の形に組むのは盤面側） */
-function identity<T>(value: T): T {
-  return value;
-}
 
 /** 符を答える練習の問題が満たすべき最小の形 */
 interface FuQuestion {
   readonly answer: number;
 }
 
-interface UseFuChoiceBoardParams<TQuestion extends FuQuestion> extends Pick<
-  PracticeBoardProps,
-  "showFeedback" | "onAnswer"
+interface UseFuChoiceBoardParams<
+  TQuestion extends FuQuestion,
+  TResult,
+> extends Pick<
+  RecordingPracticeBoardProps<TResult>,
+  "showFeedback" | "onAnswer" | "onRecordResult" | "onPresentQuestion"
 > {
   /**
    * 問題を 1 問生成する。生成に失敗しうる出題（合計符など）は undefined を
@@ -31,18 +29,10 @@ interface UseFuChoiceBoardParams<TQuestion extends FuQuestion> extends Pick<
   /** 選択肢として並べる符（インデックスで選択される） */
   readonly options: readonly number[];
   /**
-   * 回答を記録する（チャレンジの結果ページの問題別一覧用）
-   *
-   * そのとき出ていた問題と、選ばれた符を受け取る。記録しない練習と
-   * トレーニングでは渡らない。
+   * 問題と選んだ符から結果を組む（時間切れの届け出では符が undefined）。
+   * 参照が変わるたびに届け直すため、モジュール定数を渡すこと
    */
-  readonly onRecordResult?: (question: TQuestion, fu: number) => void;
-  /**
-   * 出題した問題を届け出る（チャレンジの結果ページで時間切れの問題を出すため）
-   *
-   * 問題が変わるたびに呼ばれる。記録しない練習とトレーニングでは渡らない。
-   */
-  readonly onPresentQuestion?: (question: TQuestion) => void;
+  readonly toResult: (question: TQuestion, fu: number | undefined) => TResult;
 }
 
 interface UseFuChoiceBoardResult<TQuestion extends FuQuestion> {
@@ -61,19 +51,27 @@ interface UseFuChoiceBoardResult<TQuestion extends FuQuestion> {
  * 待ち符・面子符の盤面で共有する。出題内容の違いは generateQuestion と
  * options で吸収する。
  */
-export function useFuChoiceBoard<TQuestion extends FuQuestion>({
+export function useFuChoiceBoard<TQuestion extends FuQuestion, TResult>({
   generateQuestion,
   options,
+  toResult,
   showFeedback,
   onAnswer,
   onRecordResult,
   onPresentQuestion,
-}: UseFuChoiceBoardParams<TQuestion>): UseFuChoiceBoardResult<TQuestion> {
+}: UseFuChoiceBoardParams<
+  TQuestion,
+  TResult
+>): UseFuChoiceBoardResult<TQuestion> {
   const gradeAnswer = useGradeAnswer<TQuestion>();
   const [question, setQuestion] = useGeneratedQuestion(generateQuestion);
   const [selectedFu, setSelectedFu] = useState<number | undefined>(undefined);
 
-  usePresentQuestion(question, identity, onPresentQuestion);
+  const toUnanswered = useCallback(
+    (unanswered: TQuestion) => toResult(unanswered, undefined),
+    [toResult],
+  );
+  usePresentQuestion(question, toUnanswered, onPresentQuestion);
 
   const advanceQuestion = useCallback(() => {
     setQuestion(generateQuestion());
@@ -87,7 +85,7 @@ export function useFuChoiceBoard<TQuestion extends FuQuestion>({
       if (showFeedback || !question) return;
       const fu = options[index];
       const accepted = gradeAnswer(question, fu, (gradedQuestion) => {
-        onRecordResult?.(gradedQuestion, fu);
+        onRecordResult?.(toResult(gradedQuestion, fu));
         onAnswer(fu === gradedQuestion.answer, advanceQuestion);
       });
       // 採点を待たずに選択を立てる（サーバー採点の待ち時間に押した印を出す）
@@ -100,6 +98,7 @@ export function useFuChoiceBoard<TQuestion extends FuQuestion>({
       question,
       advanceQuestion,
       onRecordResult,
+      toResult,
       gradeAnswer,
     ],
   );
