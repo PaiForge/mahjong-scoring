@@ -82,11 +82,14 @@ export default async function DojoPage() {
       <PageTitle action={<DojoSpotlightTour />}>{t("title")}</PageTitle>
 
       <div className="space-y-8">
-        {/* 現在の段級位は節にせず 1 行で示す（ラベルが見出しを兼ねる）。
+        {/* 現在の段級位は節にせず 1 行で示す。ラベルは見た目こそ小さな文字
+            だが h2 にして、見出しジャンプで「次の目標」と同じ段に並ぶようにする
+            （SectionTitle の pill を使わないのは、1 行の枠の中に pill の見出しを
+            入れると枠より見出しが目立つため）。
             枠は帯色。昇級試験カード（ExamCtaCard）と同じ理由で、級を掲げた
-              カードに既定の ink（緑）を回すと緑がその級の色に見えてしまう
-              — 5級の帯（オレンジ）を緑で囲むと帯が緑に染まって読める。
-              無級のときは帯色そのものが淡いグレーなので枠もグレーになり、
+            カードに既定の ink（緑）を回すと緑がその級の色に見えてしまう
+            — 5級の帯（オレンジ）を緑で囲むと帯が緑に染まって読める。
+            無級のときは帯色そのものが淡いグレーなので枠もグレーになり、
             「まだ色が付いていない」という円の意味とカードが揃う。 */}
         <div
           data-tour-id={DOJO_TOUR_ID.currentRank}
@@ -95,9 +98,9 @@ export default async function DojoPage() {
         >
           <BeltBadge slug={current?.slug} />
           <div className="min-w-0">
-            <p className="text-xs font-bold text-surface-500">
+            <h2 className="text-xs font-bold text-surface-500">
               {t("currentRankTitle")}
-            </p>
+            </h2>
             <p className="text-base font-bold text-surface-900">
               {current ? tRanks(`names.${current.slug}`) : t("unranked")}
             </p>
