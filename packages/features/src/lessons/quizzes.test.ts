@@ -8,10 +8,10 @@ import {
 
 import { choiceKey, isSameChoice } from "./quiz";
 import { lessonQuiz } from "./quizzes";
-import { LESSON_SLUGS } from "./registry";
+import { QUIZ_LESSON_SLUGS } from "./registry";
 
 describe("lessonQuiz", () => {
-  it.each(LESSON_SLUGS)(
+  it.each(QUIZ_LESSON_SLUGS)(
     "%s: 問題があり、正解はすべて選択肢に含まれる",
     (slug) => {
       const quiz = lessonQuiz(slug);
@@ -24,13 +24,16 @@ describe("lessonQuiz", () => {
     },
   );
 
-  it.each(LESSON_SLUGS)("%s: 選択肢と問題の辞書キーは重複しない", (slug) => {
-    const quiz = lessonQuiz(slug);
-    const choiceKeys = quiz.choices.map(choiceKey);
-    expect(new Set(choiceKeys).size).toBe(choiceKeys.length);
-    const questionKeys = quiz.questions.map((question) => question.key);
-    expect(new Set(questionKeys).size).toBe(questionKeys.length);
-  });
+  it.each(QUIZ_LESSON_SLUGS)(
+    "%s: 選択肢と問題の辞書キーは重複しない",
+    (slug) => {
+      const quiz = lessonQuiz(slug);
+      const choiceKeys = quiz.choices.map(choiceKey);
+      expect(new Set(choiceKeys).size).toBe(choiceKeys.length);
+      const questionKeys = quiz.questions.map((question) => question.key);
+      expect(new Set(questionKeys).size).toBe(questionKeys.length);
+    },
+  );
 
   it("子のロン: 満貫 → 跳満 → 倍満 の 3 問で、翻数と点数が点数表と一致する", () => {
     const quiz = lessonQuiz("mangan-ko-ron");

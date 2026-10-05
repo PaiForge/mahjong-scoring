@@ -2,11 +2,7 @@ import {
   getChapterBySlug,
   type CurriculumChapterSlug,
 } from "../curriculum/registry";
-import {
-  lessonBySlug,
-  lessonForChapter,
-  type LessonSlug,
-} from "../lessons/registry";
+import { quizLessonBySlug, type QuizLessonSlug } from "../lessons/registry";
 import { menuTypeToSlug, type PracticeMenuSlug } from "../practice-menu-types";
 import { resolveRankStatus, type RankStatus } from "../ranks/rank-status";
 import {
@@ -23,31 +19,25 @@ import {
  *
  * @description
  * 段級位（5級 → … → 初段 = 黒帯）を 1 本の道として見せるためのモデル。
- * 級ごとに「学ぶ（章 / レッスン）→ 練習する → 認定される（試験に合格）」の
- * 3 段を持ち、ユーザーの読了・レッスン完了・練習の挑戦履歴・取得済みの級から
+ * 級ごとに「学ぶ（レッスン）→ 練習する → 認定される（試験に合格）」の
+ * 3 段を持ち、ユーザーのレッスン完了・練習の挑戦履歴・取得済みの級から
  * 各段の進み具合を出す。ダッシュボードの「次にやること」カード・道場の行程表示・
  * 登録直後の最初の一歩が、すべてこの 1 つの計算を読む — 置き場所ごとに
  * 「次」を別々に決めると、ホームと道場で指す先が食い違う。
  *
  * @design 「学んだ」はレッスンの完了
- * 学ぶ段の 1 歩は、どの章でも「説明を読む → 確認問題に答える → 完了」の
- * レッスンに揃える。レッスンのある章は、そのレッスンを終えた印
- * （`lesson_completions`）だけで「学んだ」とし、章の読了（`learn_chapter_reads`）
- * では進めない。読了は本人が押すだけの印で、読了とレッスン完了の両方を
- * 完了条件にすると、同じ「学ぶ」の段に確認問題を経る歩と経ない歩が混ざる。
- * 読了は教本側の記録（目次のチェック・教本の続き）として別に残る。
+ * 学ぶ段の 1 歩はレッスン（= 教本の章、`/learn/<slug>`）1 つで、済んだかは
+ * レッスンの完了（`lesson_completions`）だけで決める。確認問題を持つレッスンは
+ * 問題を最後まで解いた時点で、持たないレッスンは章末のボタンで完了になり、
+ * どちらも同じ印として記録される。以前あった「読了」（本人が押すだけの別の印）
+ * は廃止し、記録もレッスンの完了へ畳んだ — 同じ章に 2 つの印があると、行程が
+ * どちらで進むのかを画面で断り続けることになる。
  *
  * レッスン完了は「回答と解説まで取り組んだ」印で、正解したことの印ではない
  * （間違えても解説を読んで先へ進める）。習得の判定は試験が持つ。
  *
- * 段級位の前提章はすべてレッスンを持つ。レッスンの無い章を読了で「学んだ」と
- * する分岐（`lessonSlug` が無い章）は、レッスンを用意する前の章を前提章に
- * 置いたときの受け皿で、今の前提章では通らない。レッスンの無い前提章を
- * 足すと、その章だけ確認問題を経ずに進む歩になるので、章とレッスンは一緒に
- * 足す。読了者がすでにいる章にレッスンを足すときは、それまでの読了を
- * 引き継ぐデータ移行（その章の読了者にレッスン完了を付ける）を同じ変更に
- * 含めること — 含めないと、読了で学んだことになっていた人の進捗が後退する
- * （`drizzle/*_backfill_*_lesson_completion*.sql`）。
+ * 段級位の前提章はすべて確認問題を持つ。前提章を足すときは確認問題も一緒に
+ * 用意する — 持たない章だけ確認を経ずに進む歩になる。
  *
  * @design 練習と試験は学ぶ段とは別の役割のまま
  * 統一するのは学ぶ段だけ。練習は読んだ範囲を時間制限つきで反復して定着させる
@@ -87,12 +77,12 @@ interface JourneyItem {
   readonly done: boolean;
 }
 
-/** 学ぶ: 章 1 つ。レッスンがあればレッスンで、無ければ章を読んで学ぶ */
+/** 学ぶ: レッスン（= 章）1 つ */
 export interface JourneyChapterItem extends JourneyItem {
   readonly kind: "chapter";
   readonly chapterSlug: CurriculumChapterSlug;
-  /** この章を学ぶレッスン。無ければ章を読む（今の前提章はすべて持つ） */
-  readonly lessonSlug: LessonSlug | undefined;
+  /** 確認問題を持つか（今の前提章はすべて持つ） */
+  readonly hasQuiz: boolean;
 }
 
 /** 練習する: 練習 1 つ（章から送っているバリアント付き） */
@@ -140,18 +130,12 @@ export interface RankJourney {
  * 次の一歩
  * 次の一歩
  *
- * - `lesson`: 章のレッスンを受ける
- * - `read`: 章を読む（レッスンの無い章）
+ * - `lesson`: レッスン（章）を終える
  * - `practice`: 練習に挑戦する
  * - `exam`: 昇級試験を受ける（学ぶ・練習するが済んだ）
  */
 export type JourneyStep =
-  | {
-      readonly kind: "lesson";
-      readonly lessonSlug: LessonSlug;
-      readonly chapterSlug: CurriculumChapterSlug;
-    }
-  | { readonly kind: "read"; readonly chapterSlug: CurriculumChapterSlug }
+  | { readonly kind: "lesson"; readonly chapterSlug: CurriculumChapterSlug }
   | {
       readonly kind: "practice";
       readonly slug: PracticeMenuSlug;
@@ -171,7 +155,7 @@ export interface Journey {
   /** 次の一歩。全級取得済みなら undefined */
   readonly nextStep: JourneyStep | undefined;
   /**
-   * まだ何も始めていないか（読了・レッスン・挑戦・級がすべて無い）。
+   * まだ何も始めていないか（レッスン・挑戦・級がすべて無い）。
    * 登録直後の案内（最初のレッスンへ送るボタン）の出し分けに使う
    */
   readonly isFresh: boolean;
@@ -194,9 +178,7 @@ export interface PracticeAttempt {
 }
 
 export interface BuildJourneyInput {
-  /** 読了済み章のスラッグ */
-  readonly readSlugs: ReadonlySet<string>;
-  /** 完了したレッスンのスラッグ */
+  /** 完了したレッスン（章）のスラッグ */
   readonly completedLessonSlugs: ReadonlySet<string>;
   /** 一度でも挑戦したことのある練習（土俵ごとに 1 件） */
   readonly attemptedPractices: readonly PracticeAttempt[];
@@ -242,7 +224,7 @@ function practiceKey(slug: PracticeMenuSlug, variant: string | undefined) {
  *
  * @param chapterSlugs 学ぶ章（カリキュラムの順）
  * @param examSlug その級の試験（練習リンクに現れても行程から除く）
- * @param input 読了・レッスン・挑戦履歴
+ * @param input レッスンの完了・挑戦履歴
  */
 export function buildJourneyPath(
   chapterSlugs: readonly CurriculumChapterSlug[],
@@ -252,17 +234,11 @@ export function buildJourneyPath(
   const seen = new Set<string>();
   const path: JourneyPathItem[] = [];
   for (const chapterSlug of chapterSlugs) {
-    const lesson = lessonForChapter(chapterSlug);
     path.push({
       kind: "chapter",
       chapterSlug,
-      lessonSlug: lesson?.slug,
-      // レッスンのある章はレッスンの完了だけ。読了で進むのはレッスンの
-      // 無い章だけ（モジュールの TSDoc 参照）
-      done:
-        lesson === undefined
-          ? input.readSlugs.has(chapterSlug)
-          : input.completedLessonSlugs.has(lesson.slug),
+      hasQuiz: quizLessonBySlug(chapterSlug) !== undefined,
+      done: input.completedLessonSlugs.has(chapterSlug),
     });
 
     for (const link of getChapterBySlug(chapterSlug)?.practiceLinks ?? []) {
@@ -294,18 +270,11 @@ function pathItemToStep(item: JourneyPathItem): JourneyStep {
   if (item.kind === "practice") {
     return { kind: "practice", slug: item.slug, variant: item.variant };
   }
-  return item.lessonSlug === undefined
-    ? { kind: "read", chapterSlug: item.chapterSlug }
-    : {
-        kind: "lesson",
-        lessonSlug: item.lessonSlug,
-        chapterSlug: item.chapterSlug,
-      };
+  return { kind: "lesson", chapterSlug: item.chapterSlug };
 }
 
 /** 進み具合を持たない入力。行程の並びだけを知りたいときに使う */
 const NO_PROGRESS: BuildJourneyInput = {
-  readSlugs: new Set(),
   completedLessonSlugs: new Set(),
   attemptedPractices: [],
   achievedRankSlugs: [],
@@ -315,11 +284,11 @@ const NO_PROGRESS: BuildJourneyInput = {
  * レッスンを終えた人に示す、行程の上でそのレッスンの次にある一歩
  * レッスンの次の一歩
  *
- * そのレッスンが属する級の行程で、後ろにある最初のレッスン。間にある
- * 章の練習は飛ばす — 完了画面は練習を「関連する練習」として別に並べるので、
- * 続けて学ぶ人には次のレッスンの書き出しを見せて送る。後ろにレッスンが
- * 無ければ直後の項目（章から送る練習・レッスンの無い章）で、級の最後の
- * 項目なら、その級の昇級試験。
+ * そのレッスンが属する級の行程で、後ろにある最初の確認問題を持つレッスン。
+ * 間にある章の練習は飛ばす — 完了画面は練習を「関連する練習」として別に
+ * 並べるので、続けて学ぶ人には次のレッスンの書き出しを見せて送る。後ろに
+ * 確認問題を持つレッスンが無ければ直後の項目（章から送る練習・確認問題を
+ * 持たないレッスン）で、級の最後の項目なら、その級の昇級試験。
  *
  * ユーザーの進み具合は見ない — レッスンのページは cookie を読まない静的
  * ページで、これはページに焼き込む道筋の順の「次」（次のレッスンの
@@ -330,15 +299,15 @@ const NO_PROGRESS: BuildJourneyInput = {
  *
  * 級の行程に章が無いレッスン（起きないが型の上では有り得る）は undefined。
  */
-export function stepAfterLesson(slug: LessonSlug): JourneyStep | undefined {
-  const lesson = lessonBySlug(slug);
+export function stepAfterLesson(slug: QuizLessonSlug): JourneyStep | undefined {
+  const lesson = quizLessonBySlug(slug);
   const rank = lesson && rankBySlug(lesson.rankSlug);
   if (lesson === undefined || rank === undefined) return undefined;
 
   const examSlug = menuTypeToSlug(rank.exam.menuType);
   const path = buildJourneyPath(rank.learnChapterSlugs, examSlug, NO_PROGRESS);
   const index = path.findIndex(
-    (item) => item.kind === "chapter" && item.lessonSlug === slug,
+    (item) => item.kind === "chapter" && item.chapterSlug === slug,
   );
   if (index === -1) return undefined;
 
@@ -348,14 +317,15 @@ export function stepAfterLesson(slug: LessonSlug): JourneyStep | undefined {
     : pathItemToStep(next);
 }
 
-/** 並びの中で最初のレッスン。無ければ先頭の項目（練習・レッスンの無い章） */
+/**
+ * 並びの中で最初の確認問題を持つレッスン。無ければ先頭の項目（練習・確認問題を
+ * 持たないレッスン）
+ */
 function preferLesson(
   items: readonly JourneyPathItem[],
 ): JourneyPathItem | undefined {
   return (
-    items.find(
-      (item) => item.kind === "chapter" && item.lessonSlug !== undefined,
-    ) ?? items[0]
+    items.find((item) => item.kind === "chapter" && item.hasQuiz) ?? items[0]
   );
 }
 
@@ -374,7 +344,7 @@ function preferLesson(
  * - 後ろの項目を前の項目より先に見る。ホームは級の最初の未了を指すが、
  *   レッスンを終えた直後の人には、飛ばしてきた項目より続きを優先する
  *   （続けて学んでいる流れを途切れさせない）
- * - 後ろの中では練習よりレッスンを先に見る（{@link stepAfterLesson} と同じ。
+ * - 後ろの中では練習より確認問題を持つレッスンを先に見る（{@link stepAfterLesson} と同じ。
  *   間の練習は完了画面の「関連する練習」に並ぶ）。そのため道筋の順に進めて
  *   いても、子のロン・子のツモを終えて練習が未挑戦なら、ホームは子の練習、
  *   ここは親のロンを指す
@@ -393,10 +363,10 @@ function preferLesson(
  * @param input 本人の進み具合
  */
 export function stepAfterLessonWithProgress(
-  slug: LessonSlug,
+  slug: QuizLessonSlug,
   input: BuildJourneyInput,
 ): JourneyStep | undefined {
-  const lesson = lessonBySlug(slug);
+  const lesson = quizLessonBySlug(slug);
   const rank = lesson && rankBySlug(lesson.rankSlug);
   if (lesson === undefined || rank === undefined) return undefined;
 
@@ -411,7 +381,7 @@ export function stepAfterLessonWithProgress(
   const examSlug = menuTypeToSlug(rank.exam.menuType);
   const path = buildJourneyPath(rank.learnChapterSlugs, examSlug, progress);
   const index = path.findIndex(
-    (item) => item.kind === "chapter" && item.lessonSlug === slug,
+    (item) => item.kind === "chapter" && item.chapterSlug === slug,
   );
   if (index === -1) return undefined;
 
@@ -446,7 +416,7 @@ function buildRankJourney(
 }
 
 /**
- * 読了・レッスン・挑戦履歴・取得済みの級から、黒帯への道の全体を組む
+ * レッスンの完了・挑戦履歴・取得済みの級から、黒帯への道の全体を組む
  * 行程構築
  *
  * 純関数。サーバー（ダッシュボード・道場）からもテストからも読める。
@@ -464,7 +434,6 @@ export function buildJourney(input: BuildJourneyInput): Journey {
     current,
     nextStep: current === undefined ? undefined : selectStep(current),
     isFresh:
-      input.readSlugs.size === 0 &&
       input.completedLessonSlugs.size === 0 &&
       input.attemptedPractices.length === 0 &&
       input.achievedRankSlugs.length === 0,

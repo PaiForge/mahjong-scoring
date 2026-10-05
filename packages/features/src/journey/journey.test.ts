@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 
-import { LESSON_REGISTRY, lessonForChapter } from "../lessons/registry";
+import { QUIZ_LESSON_REGISTRY } from "../lessons/registry";
 import { DEFAULT_VARIANT } from "../practice-menu-types";
 import { RANK_REGISTRY, RANK_SLUGS, type RankSlug } from "../ranks/registry";
 import {
@@ -20,7 +20,6 @@ const NO_RANKS: readonly RankSlug[] = [];
 
 function input(overrides: Partial<BuildJourneyInput> = {}): BuildJourneyInput {
   return {
-    readSlugs: NONE,
     completedLessonSlugs: NONE,
     attemptedPractices: NO_ATTEMPTS,
     achievedRankSlugs: NO_RANKS,
@@ -28,12 +27,9 @@ function input(overrides: Partial<BuildJourneyInput> = {}): BuildJourneyInput {
   };
 }
 
-/** 5級の前提章をすべてレッスンで学んだ状態（5級の章はすべてレッスンを持つ） */
+/** 5級の前提章（レッスン）をすべて終えた状態 */
 const KYU5_LESSONS_DONE: ReadonlySet<string> = new Set(
-  RANK_REGISTRY[0].learnChapterSlugs.flatMap((chapterSlug) => {
-    const lesson = lessonForChapter(chapterSlug);
-    return lesson === undefined ? [] : [lesson.slug];
-  }),
+  RANK_REGISTRY[0].learnChapterSlugs,
 );
 
 /** 5級の章から送っている練習に、章が指す土俵ですべて挑戦した状態 */
@@ -69,7 +65,6 @@ describe("buildJourney", () => {
     expect(journey.current?.rank.slug).toBe("kyu-5");
     expect(journey.nextStep).toEqual({
       kind: "lesson",
-      lessonSlug: "mangan-ko-ron",
       chapterSlug: "mangan-ko-ron",
     });
   });
@@ -93,53 +88,27 @@ describe("buildJourney", () => {
     expect(journey.current?.chapters[0]).toEqual({
       kind: "chapter",
       chapterSlug: "mangan-ko-ron",
-      lessonSlug: "mangan-ko-ron",
+      hasQuiz: true,
       done: true,
     });
     expect(journey.nextStep).toEqual({
       kind: "lesson",
-      lessonSlug: "mangan-ko-tsumo",
       chapterSlug: "mangan-ko-tsumo",
     });
   });
 
-  it("レッスンのある章は、読了だけでは済みにならない（学んだ印はレッスンの完了だけ）", () => {
-    const journey = buildJourney(
-      input({ readSlugs: new Set(RANK_REGISTRY[0].learnChapterSlugs) }),
-    );
-
-    expect(countProgress(journey.current?.chapters ?? [])).toEqual({
-      done: 0,
-      total: 5,
-    });
-    expect(journey.nextStep).toEqual({
-      kind: "lesson",
-      lessonSlug: "mangan-ko-ron",
-      chapterSlug: "mangan-ko-ron",
-    });
-  });
-
-  it("次の級の最初の章はレッスンで学び、読了では済みにならない", () => {
+  it("次の級の最初の一歩はその級の最初のレッスン", () => {
     const unread = buildJourney(input({ achievedRankSlugs: ["kyu-5"] }));
     expect(unread.current?.chapters[0]).toEqual({
       kind: "chapter",
       chapterSlug: "jantou-fu",
-      lessonSlug: "jantou-fu",
+      hasQuiz: true,
       done: false,
     });
     expect(unread.nextStep).toEqual({
       kind: "lesson",
-      lessonSlug: "jantou-fu",
       chapterSlug: "jantou-fu",
     });
-
-    const read = buildJourney(
-      input({
-        achievedRankSlugs: ["kyu-5"],
-        readSlugs: new Set(["jantou-fu"]),
-      }),
-    );
-    expect(read.current?.chapters[0].done).toBe(false);
   });
 
   describe("学ぶと練習するを章の順に交互に案内する", () => {
@@ -169,7 +138,6 @@ describe("buildJourney", () => {
 
       expect(journey.nextStep).toEqual({
         kind: "lesson",
-        lessonSlug: "mangan-oya-ron",
         chapterSlug: "mangan-oya-ron",
       });
     });
@@ -223,7 +191,6 @@ describe("buildJourney", () => {
 
       expect(journey.nextStep).toEqual({
         kind: "lesson",
-        lessonSlug: "mangan-ko-ron",
         chapterSlug: "mangan-ko-ron",
       });
     });
@@ -411,7 +378,6 @@ describe("buildJourney", () => {
     // 次の一歩は次の級（4級）の最初の章のレッスン
     expect(journey.nextStep).toEqual({
       kind: "lesson",
-      lessonSlug: "jantou-fu",
       chapterSlug: "jantou-fu",
     });
   });
@@ -481,15 +447,19 @@ describe("buildJourneyPath", () => {
     ]);
   });
 
-  it("レッスンの無い章は読了で済みになる", () => {
-    // 点数記憶術の章はどの級の前提でもなく、レッスンを持たない
-    const chapterOf = (readSlugs: ReadonlySet<string>) =>
-      buildJourneyPath(["fu-doubling"], "score-exam", input({ readSlugs }))[0];
+  it("確認問題を持たないレッスンも完了の印は同じ", () => {
+    // 点数記憶術の章はどの級の前提でもなく、確認問題を持たない
+    const chapterOf = (completedLessonSlugs: ReadonlySet<string>) =>
+      buildJourneyPath(
+        ["fu-doubling"],
+        "score-exam",
+        input({ completedLessonSlugs }),
+      )[0];
 
     expect(chapterOf(NONE)).toEqual({
       kind: "chapter",
       chapterSlug: "fu-doubling",
-      lessonSlug: undefined,
+      hasQuiz: false,
       done: false,
     });
     expect(chapterOf(new Set(["fu-doubling"])).done).toBe(true);
@@ -509,7 +479,6 @@ describe("stepAfterLesson", () => {
   it("練習を送らない章のレッスンの次は、次の章のレッスン", () => {
     expect(stepAfterLesson("mangan-ko-ron")).toEqual({
       kind: "lesson",
-      lessonSlug: "mangan-ko-tsumo",
       chapterSlug: "mangan-ko-tsumo",
     });
   });
@@ -517,7 +486,6 @@ describe("stepAfterLesson", () => {
   it("練習を送る章のレッスンの次も、練習を飛ばして次の章のレッスン", () => {
     expect(stepAfterLesson("mangan-ko-tsumo")).toEqual({
       kind: "lesson",
-      lessonSlug: "mangan-oya-ron",
       chapterSlug: "mangan-oya-ron",
     });
   });
@@ -531,13 +499,13 @@ describe("stepAfterLesson", () => {
   });
 
   it("どのレッスンも次の一歩を持つ（級の最後なら昇級試験）", () => {
-    for (const lesson of LESSON_REGISTRY) {
+    for (const lesson of QUIZ_LESSON_REGISTRY) {
       expect(stepAfterLesson(lesson.slug), lesson.slug).toBeDefined();
     }
   });
 
   it("次の一歩が練習なら、その練習を完了画面の関連する練習に重ねない", () => {
-    for (const lesson of LESSON_REGISTRY) {
+    for (const lesson of QUIZ_LESSON_REGISTRY) {
       const step = stepAfterLesson(lesson.slug);
       if (step?.kind !== "practice") continue;
       const related = lesson.practiceLinks.map((link) => link.slug);
@@ -548,7 +516,7 @@ describe("stepAfterLesson", () => {
 
 describe("stepAfterLessonWithProgress", () => {
   it("何も済んでいなければ、後ろに項目があるレッスンは道筋の順の一歩と同じ", () => {
-    for (const lesson of LESSON_REGISTRY) {
+    for (const lesson of QUIZ_LESSON_REGISTRY) {
       const planned = stepAfterLesson(lesson.slug);
       // 後ろに項目が無い（道筋の順なら昇級試験）レッスンは、前に残した
       // 項目へ戻る（次のテスト）
@@ -567,7 +535,6 @@ describe("stepAfterLessonWithProgress", () => {
     });
     expect(stepAfterLessonWithProgress("furo-score", input())).toEqual({
       kind: "lesson",
-      lessonSlug: "menzen-mentsu-score",
       chapterSlug: "menzen-mentsu-score",
     });
     expect(
@@ -586,7 +553,6 @@ describe("stepAfterLessonWithProgress", () => {
       ),
     ).toEqual({
       kind: "lesson",
-      lessonSlug: "mangan-oya-ron",
       chapterSlug: "mangan-oya-ron",
     });
   });
@@ -612,7 +578,6 @@ describe("stepAfterLessonWithProgress", () => {
       ),
     ).toEqual({
       kind: "lesson",
-      lessonSlug: "mangan-ko-ron",
       chapterSlug: "mangan-ko-ron",
     });
   });

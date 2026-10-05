@@ -5,7 +5,6 @@ import { listedPracticeMenus, practiceMenuFromCatalog } from "./catalog";
 
 /** 進み具合を持たない入力。行程の並びだけを引く */
 const NO_PROGRESS = {
-  readSlugs: new Set<string>(),
   completedLessonSlugs: new Set<string>(),
   attemptedPractices: [],
   achievedRankSlugs: [],
