@@ -9,7 +9,7 @@ import { TehaiMentsuBreakdown } from "@/app/(user)/(public)/practice/_components
 import { YakuBreakdown } from "@/app/(user)/(public)/practice/_components/yaku-breakdown";
 import { RevealedScoreAnswer } from "@/app/(user)/(public)/practice/_components/revealed-score-answer";
 import { scoreTableFocusOf } from "@/app/(user)/(public)/practice/_lib/score-table-focus";
-import { useScoreQuestionBoard } from "@/app/(user)/(public)/practice/_hooks/use-score-question-board";
+import { useScoreQuestionBoard } from "@mahjong-scoring/features/practice/use-score-question-board";
 import { useTrainingAnswerVisibility } from "@mahjong-scoring/features/practice/use-training-mode";
 import { paymentToScoreTableAnswer } from "@mahjong-scoring/features/results/payment-adapter";
 import type { RecordingPracticeBoardProps } from "@mahjong-scoring/features/practice/board-props";

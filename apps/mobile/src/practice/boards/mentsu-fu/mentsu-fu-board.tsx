@@ -15,7 +15,7 @@ import { FuChoiceGrid } from "../../components/fu-choice-grid";
 import { PromptLabel } from "../../components/prompt-label";
 import { QuestionPlaceholder } from "../../components/question-placeholder";
 import { QuestionPrompt } from "../../components/question-prompt";
-import { useFuChoiceBoard } from "../../hooks/use-fu-choice-board";
+import { useFuChoiceBoard } from "@mahjong-scoring/features/practice/use-fu-choice-board";
 
 /**
  * 面子符の出題盤面（面子の提示と符の選択）

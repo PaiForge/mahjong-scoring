@@ -2,7 +2,7 @@
 
 import { PRACTICE_SLUG } from "@mahjong-scoring/features/practice-menu-types";
 import { createChallengePlayView } from "../../_lib/create-challenge-views";
-import { useGeneratedScoreQuestion } from "../../_hooks/use-generated-score-question";
+import { useGeneratedScoreQuestion } from "@mahjong-scoring/features/practice/use-generated-score-question";
 import { HanCountBoard } from "./han-count-board";
 import type { HanCountQuestionState } from "./han-count-board";
 import type { HanCountQuestionResult } from "@mahjong-scoring/features/practice/han-count/types";

@@ -10,7 +10,7 @@ import type { RecordingPracticeBoardProps } from "@mahjong-scoring/features/prac
 import {
   useScoreQuestionBoard,
   type ScoreQuestionGenerateOptions,
-} from "../hooks/use-score-question-board";
+} from "@mahjong-scoring/features/practice/use-score-question-board";
 import { useTrainingAnswerVisibility } from "@mahjong-scoring/features/practice/use-training-mode";
 import { QuestionDisplay } from "./question-display";
 import { QuestionPlaceholder } from "./question-placeholder";

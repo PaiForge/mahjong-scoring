@@ -5,7 +5,7 @@ import { useTranslations } from "next-intl";
 import { generateMachiFuQuestion } from "@mahjong-scoring/core";
 import type { MachiFuQuestion } from "@mahjong-scoring/core";
 import { FuChoiceGrid } from "../../_components/fu-choice-grid";
-import { useFuChoiceBoard } from "../../_hooks/use-fu-choice-board";
+import { useFuChoiceBoard } from "@mahjong-scoring/features/practice/use-fu-choice-board";
 import { MACHI_FU_OPTIONS } from "@mahjong-scoring/features/practice/machi-fu/fu-options";
 import { MachiFuPrompt } from "./machi-fu-prompt";
 import { QuestionGeneratingPlaceholder } from "../../_components/question-generating-placeholder";

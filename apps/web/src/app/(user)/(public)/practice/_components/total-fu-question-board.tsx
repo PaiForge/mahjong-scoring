@@ -10,7 +10,7 @@ import { TehaiDisplay } from "./tehai-display";
 import { TehaiMentsuBreakdown } from "./tehai-mentsu-breakdown";
 import { FuBreakdown } from "./fu-breakdown";
 import { QuestionPrompt } from "./question-prompt";
-import { useFuChoiceBoard } from "../_hooks/use-fu-choice-board";
+import { useFuChoiceBoard } from "@mahjong-scoring/features/practice/use-fu-choice-board";
 import { useTrainingMode } from "@mahjong-scoring/features/practice/use-training-mode";
 import type { PlayBoardHeight } from "../_lib/board-area-height";
 import {

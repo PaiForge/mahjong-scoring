@@ -13,7 +13,7 @@ import type { RecordingPracticeBoardProps } from "@mahjong-scoring/features/prac
 import { FuChoiceGrid } from "../../components/fu-choice-grid";
 import { QuestionPlaceholder } from "../../components/question-placeholder";
 import { QuestionPrompt } from "../../components/question-prompt";
-import { useFuChoiceBoard } from "../../hooks/use-fu-choice-board";
+import { useFuChoiceBoard } from "@mahjong-scoring/features/practice/use-fu-choice-board";
 import { MachiFuPrompt } from "./machi-fu-prompt";
 
 /**

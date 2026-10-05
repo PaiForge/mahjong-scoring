@@ -28,7 +28,7 @@ import {
   VerifiedChallengeProvider,
   useVerifiedChallenge,
 } from "./use-verified-challenge";
-import { useFuChoiceBoard } from "./use-fu-choice-board";
+import { useFuChoiceBoard } from "@mahjong-scoring/features/practice/use-fu-choice-board";
 import { usePresentQuestion } from "@mahjong-scoring/features/practice/use-present-question";
 
 const hidden = { id: "question-1", tiles: [], agariHai: 0, answer: 20 };

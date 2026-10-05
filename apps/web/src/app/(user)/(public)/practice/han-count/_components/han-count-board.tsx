@@ -8,7 +8,7 @@ import type { ScoreQuestion } from "@mahjong-scoring/core";
 import { tehaiContextOf } from "@mahjong-scoring/features/board/score-question-context";
 import { QuestionGeneratingPlaceholder } from "../../_components/question-generating-placeholder";
 import { useTranslations } from "next-intl";
-import type { useGeneratedScoreQuestion } from "../../_hooks/use-generated-score-question";
+import type { useGeneratedScoreQuestion } from "@mahjong-scoring/features/practice/use-generated-score-question";
 import { TehaiDisplay } from "../../_components/tehai-display";
 import { TehaiMentsuBreakdown } from "../../_components/tehai-mentsu-breakdown";
 import { usePresentQuestion } from "@mahjong-scoring/features/practice/use-present-question";

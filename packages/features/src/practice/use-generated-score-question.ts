@@ -3,7 +3,7 @@
 import { useCallback, useState } from "react";
 import { generateValidScoreQuestion } from "@mahjong-scoring/core";
 import type { ScoreQuestion } from "@mahjong-scoring/core";
-import { useGeneratedQuestion } from "@mahjong-scoring/features/practice/use-generated-question";
+import { useGeneratedQuestion } from "./use-generated-question";
 
 type GenerateOptions = Parameters<typeof generateValidScoreQuestion>[0];
 

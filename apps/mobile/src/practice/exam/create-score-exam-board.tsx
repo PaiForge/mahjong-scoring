@@ -12,7 +12,7 @@ import { QuestionPlaceholder } from "../components/question-placeholder";
 import { QuestionPrompt } from "../components/question-prompt";
 import { RevealedScoreQuestionAnswer } from "../components/revealed-score-answer";
 import { YakuBreakdown } from "../components/yaku-breakdown";
-import { useScoreQuestionBoard } from "../hooks/use-score-question-board";
+import { useScoreQuestionBoard } from "@mahjong-scoring/features/practice/use-score-question-board";
 import { useTrainingAnswerVisibility } from "@mahjong-scoring/features/practice/use-training-mode";
 import { ScoreExamAnswerForm } from "./score-exam-answer-form";
 

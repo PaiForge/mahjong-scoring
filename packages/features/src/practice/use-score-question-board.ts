@@ -1,6 +1,6 @@
 "use client";
 
-import { useGradeAndRecord } from "@mahjong-scoring/features/practice/use-grade-answer";
+import { useGradeAndRecord } from "./use-grade-answer";
 
 import { useCallback } from "react";
 import { generateValidScoreQuestion } from "@mahjong-scoring/core";
@@ -8,14 +8,17 @@ import type {
   ScoreQuestion,
   ScoreTableUserAnswer,
 } from "@mahjong-scoring/core";
-import type { ScoreQuestionResult } from "@mahjong-scoring/features/results/score-question-result";
-import { toScoreQuestionResult } from "@mahjong-scoring/features/results/score-question-result";
-import type { RecordingPracticeBoardProps } from "@mahjong-scoring/features/practice/board-props";
+import type { ScoreQuestionResult } from "../results/score-question-result";
+import { toScoreQuestionResult } from "../results/score-question-result";
+import type { RecordingPracticeBoardProps } from "./board-props";
 import { useGeneratedScoreQuestion } from "./use-generated-score-question";
-import { usePresentQuestion } from "@mahjong-scoring/features/practice/use-present-question";
-import { useRegisterAdvance } from "@mahjong-scoring/features/practice/use-training-mode";
+import { usePresentQuestion } from "./use-present-question";
+import { useRegisterAdvance } from "./use-training-mode";
 
-type GenerateOptions = Parameters<typeof generateValidScoreQuestion>[0];
+/** 点数計算の出題オプション */
+export type ScoreQuestionGenerateOptions = Parameters<
+  typeof generateValidScoreQuestion
+>[0];
 
 /** 出題中の問題を回答なしの結果に組む（時間切れの届け出用） */
 function toUnansweredResult(question: ScoreQuestion): ScoreQuestionResult {
@@ -27,13 +30,14 @@ export interface UseScoreQuestionBoardParams extends Pick<
   "showFeedback" | "onAnswer" | "onRecordResult" | "onPresentQuestion"
 > {
   /** 出題オプション（再生成のたびに使用するため安定参照を渡すこと） */
-  readonly generateOptions: GenerateOptions;
+  readonly generateOptions: ScoreQuestionGenerateOptions;
   /** 生成の最大試行回数（{@link useGeneratedScoreQuestion} の同名引数へそのまま渡す） */
   readonly maxRetries?: number;
 }
 
 interface UseScoreQuestionBoardResult {
   readonly question: ScoreQuestion | undefined;
+  /** 出題番号（回答フォームを問題ごとに作り直す `key`） */
   readonly questionIndex: number;
   readonly handleSubmit: (userAnswer: ScoreTableUserAnswer) => void;
 }

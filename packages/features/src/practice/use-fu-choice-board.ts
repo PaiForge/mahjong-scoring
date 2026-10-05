@@ -1,13 +1,13 @@
 "use client";
 
-import { useGradeAnswer } from "@mahjong-scoring/features/practice/use-grade-answer";
+import { useGradeAnswer } from "./use-grade-answer";
 
 import { useCallback, useState } from "react";
 
-import type { PracticeBoardProps } from "@mahjong-scoring/features/practice/board-props";
-import { useGeneratedQuestion } from "@mahjong-scoring/features/practice/use-generated-question";
-import { usePresentQuestion } from "@mahjong-scoring/features/practice/use-present-question";
-import { useRegisterAdvance } from "@mahjong-scoring/features/practice/use-training-mode";
+import type { PracticeBoardProps } from "./board-props";
+import { useGeneratedQuestion } from "./use-generated-question";
+import { usePresentQuestion } from "./use-present-question";
+import { useRegisterAdvance } from "./use-training-mode";
 
 /** 届け出る問題はそのまま渡す（結果の形に組むのは盤面側） */
 function identity<T>(value: T): T {
