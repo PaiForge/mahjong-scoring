@@ -102,7 +102,7 @@ export async function RankJourneyCard({
                 {tRanks("stages.learn")}
               </h4>
               {/* 学ぶ段はレッスンごとに 1 行。題名と説明は章の辞書から引き
-                    （レッスン = 章）、レッスンの目次と同じ文言を出す */}
+                  （レッスン = 章）、レッスンの目次と同じ文言を出す */}
               <LinkRowList>
                 {chapters.map((item) => {
                   const chapter = getChapterBySlug(item.chapterSlug);
