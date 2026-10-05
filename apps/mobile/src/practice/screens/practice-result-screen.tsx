@@ -6,6 +6,7 @@ import {
   type PracticeMenuSlug,
 } from "@mahjong-scoring/features/practice-menu-types";
 import {
+  PRACTICE_PATH,
   practiceHref,
   practicePlayHref,
 } from "@mahjong-scoring/features/routes";
@@ -91,7 +92,7 @@ export function PracticeResultScreen({
             </Button>
           )}
         </View>
-        <TextLink onPress={() => router.dismissTo("/practice")}>
+        <TextLink onPress={() => router.dismissTo(PRACTICE_PATH)}>
           {tc("backToList")}
         </TextLink>
       </View>

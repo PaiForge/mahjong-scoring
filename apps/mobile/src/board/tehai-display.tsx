@@ -17,6 +17,7 @@ import { colors, radius } from "../lib/theme";
 import { useBoardBleed } from "./board-bleed";
 import { RiichiStick } from "./riichi-stick";
 import { HAI_SM_HEIGHT, REFERENCE_HAND_WIDTH, TehaiHand } from "./tehai-hand";
+import { PREFERENCES_PATH } from "@mahjong-scoring/features/routes";
 
 /** 牌を含まない状況行の高さ（px）。リーチ棒とその名札が収まる高さ */
 const TEXT_ROW_HEIGHT = 22;
@@ -148,7 +149,7 @@ export const TehaiDisplay = memo(function TehaiDisplayComponent({
           <TextLink
             onPress={() => {
               setShowDoraInfo(false);
-              router.push("/preferences");
+              router.push(PREFERENCES_PATH);
             }}
           >
             {t("doraInfoSettingsLink")}

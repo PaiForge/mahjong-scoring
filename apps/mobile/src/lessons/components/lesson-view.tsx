@@ -45,12 +45,10 @@ import { lessonColors, verdictTextColors } from "../lesson-colors";
 import { ChapterRelatedLinks } from "./chapter-related-links";
 import { DoneMark } from "./done-mark";
 import { MachiTiles, MentsuSet, TileSet } from "./tile-row";
+import { LESSONS_PATH } from "@mahjong-scoring/features/routes";
 
 /** レッスンの段階（並びは進む順） */
 type LessonPhase = "learn" | "quiz" | "done";
-
-/** レッスンの目次（タブ）のパス */
-const LESSONS_PATH = "/lessons";
 
 /**
  * 条件文の下に並べる牌（web の `PromptTiles`）

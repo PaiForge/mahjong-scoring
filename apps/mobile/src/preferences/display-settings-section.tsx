@@ -12,9 +12,7 @@ import {
   useFuHanOrder,
   useTermLinksEnabled,
 } from "../hooks/use-display-settings-store";
-
-/** 役の並び順の画面（設定の子画面） */
-export const YAKU_ORDER_PATH = "/preferences/yaku-order";
+import { YAKU_ORDER_PATH } from "@mahjong-scoring/features/routes";
 
 /**
  * 表示設定セクション

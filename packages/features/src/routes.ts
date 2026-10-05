@@ -76,6 +76,22 @@ export function practiceHref(slug: PracticeMenuSlug, variant?: string): string {
     : `${basePath}${variantQuery(slug, variant)}`;
 }
 
+/** 練習一覧のパス */
+export const PRACTICE_PATH = "/practice";
+
+/** レッスン一覧（教本の目次）のパス */
+export const LESSONS_PATH = "/lessons";
+
+/** 設定のパス */
+export const PREFERENCES_PATH = "/preferences";
+
+/**
+ * 役の並び順のパス（設定の子ページ）
+ *
+ * 項目が多く設定ページ本体には収まらないため、別ページにしている。
+ */
+export const YAKU_ORDER_PATH = "/preferences/yaku-order";
+
 /** 道場（黒帯への道の全行程）のパス */
 export const DOJO_PATH = "/dojo";
 

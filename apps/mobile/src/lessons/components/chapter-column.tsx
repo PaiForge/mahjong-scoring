@@ -5,6 +5,7 @@ import { useTranslations } from "use-intl";
 import { GuideColumn } from "./highlight-panel";
 import { InlineTextLink, richLineBreak } from "./chapter-link";
 import { GuideNote, GuideParagraph } from "./guide-text";
+import { PREFERENCES_PATH } from "@mahjong-scoring/features/routes";
 
 /**
  * 章末のコラム（web の `ChapterColumn`）
@@ -33,9 +34,6 @@ export function ChapterColumn({
     </GuideColumn>
   );
 }
-
-/** 設定画面（タブ）のパス */
-const PREFERENCES_PATH = "/preferences";
 
 /**
  * 設定で切り替えられるルールの注記（web の `PreferenceSettingsNote`）

@@ -7,7 +7,7 @@ import {
   getChapterI18nPath,
   type CurriculumChapterSlug,
 } from "@mahjong-scoring/features/curriculum/registry";
-import { chapterHref } from "@mahjong-scoring/features/routes";
+import { chapterHref, LESSONS_PATH } from "@mahjong-scoring/features/routes";
 
 import { DashedDivider } from "../components/dashed-divider";
 import { TextLink } from "../components/text-link";
@@ -109,7 +109,7 @@ export function CurriculumTocLink() {
   const router = useRouter();
   return (
     <View style={styles.tocLink}>
-      <TextLink onPress={() => router.navigate("/lessons")}>
+      <TextLink onPress={() => router.navigate(LESSONS_PATH)}>
         {t("tocLink")}
       </TextLink>
     </View>
