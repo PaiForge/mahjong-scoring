@@ -1,7 +1,8 @@
 "use client";
 
-import { memo, useCallback, useEffect, useState } from "react";
+import { memo, useCallback } from "react";
 import { useTranslations } from "next-intl";
+import { useQuestionScopedSelection } from "@mahjong-scoring/features/practice/use-question-scoped-selection";
 
 import { ChoiceButton } from "./choice-button";
 import { getFeedbackStyles } from "../_lib/feedback-styles";
@@ -50,14 +51,8 @@ export const HanChoiceAnswerForm = memo(function HanChoiceAnswerFormComponent({
   renderLabel,
 }: HanChoiceAnswerFormProps) {
   const t = useTranslations(translationNamespace);
-  const [selectedIndex, setSelectedIndex] = useState<number | undefined>(
-    undefined,
-  );
-
-  // 問題が変わったら選択をリセットする
-  useEffect(() => {
-    setSelectedIndex(undefined);
-  }, [questionIndex]);
+  const [selectedIndex, setSelectedIndex] =
+    useQuestionScopedSelection<number>(questionIndex);
 
   const handleSelect = useCallback(
     (index: number) => {
@@ -65,7 +60,7 @@ export const HanChoiceAnswerForm = memo(function HanChoiceAnswerFormComponent({
       setSelectedIndex(index);
       onSubmit(options[index]);
     },
-    [disabled, onSubmit, options],
+    [disabled, onSubmit, options, setSelectedIndex],
   );
 
   return (

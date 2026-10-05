@@ -1,5 +1,5 @@
 import { useTranslations } from "use-intl";
-import { isYakuman } from "@mahjong-scoring/features/practice/yaku-han/han-options";
+import { yakuHanLabel } from "@mahjong-scoring/features/practice/yaku-han/han-options";
 import type { YakuHanQuestionResult } from "@mahjong-scoring/features/practice/yaku-han/types";
 
 import { AnswerComparison } from "../../components/answer-comparison";
@@ -19,8 +19,7 @@ export function YakuHanProblemList({
 }) {
   const t = useTranslations("yakuHanChallenge");
 
-  const hanLabel = (han: number) =>
-    isYakuman(han) ? t("yakuman") : t("hanOption", { count: han });
+  const hanLabel = (han: number) => yakuHanLabel(han, t);
 
   // 門前限定役も含め常に付ける（出題時のバッジと表示を揃える）
   const stateLabel = (r: YakuHanQuestionResult) =>

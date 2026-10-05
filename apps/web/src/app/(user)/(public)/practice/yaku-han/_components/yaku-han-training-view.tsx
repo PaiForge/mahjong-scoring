@@ -4,7 +4,7 @@ import { PRACTICE_SLUG } from "@mahjong-scoring/features/practice-menu-types";
 import { Suspense } from "react";
 
 import { createTrainingView } from "../../_lib/create-challenge-views";
-import type { TrainingBoardArgs } from "../../_lib/create-challenge-views";
+import type { TrainingBoardArgs } from "@mahjong-scoring/features/practice/board-props";
 import { YakuHanBoard } from "./yaku-han-board";
 import { YakuHanGeneratingPlaceholder } from "./yaku-han-generating-placeholder";
 import { useVariantQuery } from "../../_hooks/use-variant-query";

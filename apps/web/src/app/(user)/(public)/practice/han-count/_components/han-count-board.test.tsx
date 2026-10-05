@@ -6,7 +6,8 @@ import type { ScoreQuestion } from "@mahjong-scoring/core";
 vi.mock("next-intl", async () => await import("@/test/intl-mock"));
 
 const { HanCountBoard } = await import("./han-count-board");
-const { TrainingModeProvider } = await import("../../_hooks/use-training-mode");
+const { TrainingModeProvider } =
+  await import("@mahjong-scoring/features/practice/use-training-mode");
 
 /** 役を持つ出題を1つ作る（内訳が空だと表そのものが出ないため） */
 function questionWithYaku(): ScoreQuestion {

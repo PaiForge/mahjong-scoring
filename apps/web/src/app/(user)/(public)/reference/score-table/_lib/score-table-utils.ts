@@ -1,6 +1,5 @@
 import {
   clampHanToYakuman,
-  FU_VALUES,
   isFu,
   isRole,
   isWinType,
@@ -8,12 +7,7 @@ import {
 } from "@mahjong-scoring/core";
 import type { Fu, Role, WinType } from "@mahjong-scoring/core";
 import { HAN_COLS } from "@mahjong-scoring/features/score-table/han-cols";
-
-/** 符×翻表の翻数列（1〜4翻）。教本の表と共有するため features に置く */
-export { HAN_COLS };
-
-/** 符×翻表の符行（20〜110符） */
-export const FU_ROWS = FU_VALUES;
+import type { ScoreTableViewMode } from "@mahjong-scoring/features/score-table/score-grid";
 
 /**
  * 符×翻表の左端（符）の列幅
@@ -25,9 +19,6 @@ export const FU_ROWS = FU_VALUES;
  * （ずれるとスケルトンが読み込み中の表の形を写せない）。
  */
 export const SCORE_TABLE_FU_COLUMN_CLASS = "w-16 sm:w-20";
-
-/** 点数表の表示モード（符×翻 / 満貫以上） */
-export type ScoreTableViewMode = "normal" | "high_score";
 
 /**
  * 点数表で注目させる和了（親子・ロンツモ・翻・符）

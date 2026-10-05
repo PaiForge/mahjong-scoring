@@ -1,39 +1,19 @@
 import { memo } from "react";
 import { StyleSheet, View } from "react-native";
 import { useTranslations } from "use-intl";
-import { HaiKind, haiIdToMspz } from "@mahjong-scoring/core";
+import { haiIdToMspz } from "@mahjong-scoring/core";
 import type { HaiKindId, MachiSelectionJudgement } from "@mahjong-scoring/core";
 import {
   machiTileMark,
   type MachiTileMark,
 } from "@mahjong-scoring/features/practice/machi-score/machi-tile-mark";
+import { MACHI_PICKER_ROWS } from "@mahjong-scoring/features/practice/machi-score/picker-rows";
 
 import { Grid } from "../../../components/grid";
 import { PressableSurface } from "../../../components/pressable-surface";
 import { Tile } from "../../../components/tile";
 import { colors, radius } from "../../../lib/theme";
 import { MACHI_TILE_MARK_STYLES } from "./machi-tile-mark-styles";
-
-/**
- * 牌種を種類ごとに並べた選択肢の行
- * 牌の行
- *
- * 数牌は 1〜9、字牌は東南西北白發中の順。牌種 ID は種類ごとに連番なので
- * 先頭の ID から 9 つ（字牌は 7 つ）を並べる。
- */
-const TILE_ROWS = [
-  { key: "manzu", from: HaiKind.ManZu1, count: 9 },
-  { key: "pinzu", from: HaiKind.PinZu1, count: 9 },
-  { key: "souzu", from: HaiKind.SouZu1, count: 9 },
-  { key: "jihai", from: HaiKind.Ton, count: 7 },
-] as const;
-
-/** 行の牌種 ID を列挙する（ID は連番なので範囲で拾う） */
-function tilesOf(row: (typeof TILE_ROWS)[number]): readonly HaiKindId[] {
-  return Object.values(HaiKind).filter(
-    (id) => id >= row.from && id < row.from + row.count,
-  );
-}
 
 /** 牌の枠と背景（判定前は選択、判定後は正誤の配色。web の `tileClasses`） */
 function tileStyle(
@@ -69,10 +49,10 @@ export const MachiPicker = memo(function MachiPickerComponent({
 
   return (
     <View style={styles.rows}>
-      {TILE_ROWS.map((row) => (
+      {MACHI_PICKER_ROWS.map((row) => (
         <View key={row.key} accessibilityLabel={t(`suits.${row.key}`)}>
           <Grid columns={9} gap={4}>
-            {tilesOf(row).map((hai) => {
+            {row.tiles.map((hai) => {
               const isSelected = selected.includes(hai);
               const mark = machiTileMark(hai, isSelected, judgement);
               return (

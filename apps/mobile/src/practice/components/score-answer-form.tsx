@@ -1,17 +1,12 @@
-import { useState } from "react";
 import { StyleSheet, Text, View } from "react-native";
 import { useTranslations } from "use-intl";
-import { paymentKindOf } from "@mahjong-scoring/core";
 import type { ScoreTableUserAnswer } from "@mahjong-scoring/core";
-import {
-  getAvailableScores,
-  type ScoreOptionRange,
-} from "@mahjong-scoring/features/practice/score/get-available-scores";
+import { type ScoreOptionRange } from "@mahjong-scoring/features/practice/score/get-available-scores";
 
 import { Button } from "../../components/button";
 import { useRuleSettingsStore } from "../../hooks/use-rule-settings-store";
 import { colors } from "../../lib/theme";
-import { useTrainingMode } from "../hooks/use-training-mode";
+import { useScoreAnswerForm } from "@mahjong-scoring/features/practice/score/use-score-answer-form";
 import { ScoreOptionSelect } from "./score-option-select";
 
 interface ScoreAnswerFormProps {
@@ -92,72 +87,34 @@ export function ScoreAnswerForm({
   fixedRules = false,
 }: ScoreAnswerFormProps) {
   const t = useTranslations(translationNamespace);
-  // トレーニングの回答後は、シェルが同じ位置に「次の問題へ」を出す
-  const { isHolding } = useTrainingMode();
-  const [score, setScore] = useState<number | undefined>(undefined);
-  const [scoreFromKo, setScoreFromKo] = useState<number | undefined>(undefined);
-  const [scoreFromOya, setScoreFromOya] = useState<number | undefined>(
-    undefined,
-  );
-
-  const paymentKind = paymentKindOf(isOya, isTsumo);
-  const isOyaTsumo = paymentKind === "oyaTsumo";
+  const kiriageMangan = useRuleSettingsStore((s) => s.kiriageMangan);
+  const {
+    availableScores,
+    isOyaTsumo,
+    score,
+    scoreFromKo,
+    scoreFromOya,
+    selectScore,
+    selectFromKo,
+    selectFromOya,
+    isComplete,
+    submit,
+    showsSubmitButton,
+  } = useScoreAnswerForm({
+    isOya,
+    isTsumo,
+    han,
+    onSubmit,
+    disabled,
+    scoreRange,
+    autoSubmit,
+    kiriageMangan,
+    allowDoubleYakuman,
+    fixedRules,
+  });
   // 子ツモの 2 つの欄は片方だけを染めない。正誤判定は
   // 「子から / 親から」を合わせた 1 つの回答に対して下るため
   const feedback = { showFeedback, lastAnswerCorrect };
-
-  const deviceKiriageMangan = useRuleSettingsStore((s) => s.kiriageMangan);
-  const availableScores = getAvailableScores(
-    han,
-    isOya,
-    isTsumo,
-    scoreRange,
-    fixedRules ? false : deviceKiriageMangan,
-    fixedRules ? false : allowDoubleYakuman,
-  );
-
-  // 単一選択（ロン / 親ツモ）の値から回答を送信する
-  const submitSingle = (value: number) => {
-    onSubmit(
-      isOyaTsumo
-        ? { type: "oyaTsumo", all: value }
-        : { type: "ron", score: value },
-    );
-  };
-
-  // 子ツモの 2 値から回答を送信する
-  const submitKoTsumo = (koValue: number, oyaValue: number) => {
-    onSubmit({ type: "koTsumo", fromKo: koValue, fromOya: oyaValue });
-  };
-
-  const handleSubmit = () => {
-    if (availableScores.type === "koTsumo") {
-      if (scoreFromKo !== undefined && scoreFromOya !== undefined) {
-        submitKoTsumo(scoreFromKo, scoreFromOya);
-      }
-    } else if (score !== undefined) {
-      submitSingle(score);
-    }
-  };
-
-  const handleSingleChange = (value: number) => {
-    setScore(value);
-    if (autoSubmit && !disabled) submitSingle(value);
-  };
-
-  const handleKoChange = (value: number) => {
-    setScoreFromKo(value);
-    if (autoSubmit && !disabled && scoreFromOya !== undefined) {
-      submitKoTsumo(value, scoreFromOya);
-    }
-  };
-
-  const handleOyaChange = (value: number) => {
-    setScoreFromOya(value);
-    if (autoSubmit && !disabled && scoreFromKo !== undefined) {
-      submitKoTsumo(scoreFromKo, value);
-    }
-  };
 
   return (
     <View style={styles.form}>
@@ -167,7 +124,7 @@ export function ScoreAnswerForm({
             <Text style={styles.label}>{t("fromKo")}</Text>
             <ScoreOptionSelect
               value={scoreFromKo}
-              onChange={handleKoChange}
+              onChange={selectFromKo}
               options={availableScores.koScores}
               placeholder={t("selectScore")}
               accessibilityLabel={t("fromKo")}
@@ -181,7 +138,7 @@ export function ScoreAnswerForm({
             <Text style={styles.label}>{t("fromOya")}</Text>
             <ScoreOptionSelect
               value={scoreFromOya}
-              onChange={handleOyaChange}
+              onChange={selectFromOya}
               options={availableScores.oyaScores}
               placeholder={t("selectScore")}
               accessibilityLabel={t("fromOya")}
@@ -196,7 +153,7 @@ export function ScoreAnswerForm({
           <Text style={styles.label}>{t("selectScore")}</Text>
           <ScoreOptionSelect
             value={score}
-            onChange={handleSingleChange}
+            onChange={selectScore}
             options={availableScores.scores}
             placeholder={t("selectScore")}
             disabled={disabled}
@@ -208,17 +165,12 @@ export function ScoreAnswerForm({
       )}
 
       {/* 自動送信時は「回答する」ボタンを表示しない（選択完了で送信扱い） */}
-      {!autoSubmit && !isHolding && (
+      {showsSubmitButton && (
         <Button
-          onPress={handleSubmit}
+          onPress={submit}
           size="lg"
           fullWidth
-          disabled={
-            disabled ||
-            (availableScores.type === "koTsumo"
-              ? scoreFromKo === undefined || scoreFromOya === undefined
-              : score === undefined)
-          }
+          disabled={disabled || !isComplete}
         >
           {t("answer")}
         </Button>

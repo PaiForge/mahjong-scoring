@@ -1,6 +1,6 @@
 import { StyleSheet, View } from "react-native";
 import { useTranslations } from "use-intl";
-import { judgeYakuName } from "@mahjong-scoring/core";
+import { buildYakuComparisonChips } from "@mahjong-scoring/features/practice/yaku/answer-comparison";
 import { AnswerOutcome } from "@mahjong-scoring/features/results/result-schemas";
 
 import { useYakuLabel } from "../../../hooks/use-yaku-options";
@@ -30,27 +30,25 @@ export function YakuAnswerComparison({
   const t = useTranslations("yaku");
   const labelOf = useYakuLabel();
   const yakuOrder = useYakuOrder();
-  const judgedSelection =
-    outcome === AnswerOutcome.TimeUp
-      ? correctYakuNames
-      : (selectedYakuNames ?? []);
 
   /** 役名を表示順に並べてチップにする（選択順・判定順のばらつきを見せない） */
   const chips = (names: readonly string[]) => {
-    const ordered = yakuOrder.filter((yaku) => names.includes(yaku));
+    const ordered = buildYakuComparisonChips(
+      names,
+      yakuOrder,
+      correctYakuNames,
+      selectedYakuNames,
+      outcome,
+    );
     if (ordered.length === 0) return t("result.none");
 
     return (
       <View style={styles.chips}>
-        {ordered.map((yakuName) => (
+        {ordered.map(({ yakuName, state }) => (
           <YakuChip
             key={yakuName}
             label={labelOf(yakuName)}
-            feedbackState={judgeYakuName(
-              yakuName,
-              judgedSelection,
-              correctYakuNames,
-            )}
+            feedbackState={state}
           />
         ))}
       </View>

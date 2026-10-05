@@ -1,24 +1,16 @@
-import { useMemo, useState } from "react";
+import { useMemo } from "react";
 import { Pressable, StyleSheet, Text, View } from "react-native";
 import { useTranslations } from "use-intl";
-import {
-  allowsDoubleYakuman,
-  FU_VALUES,
-  paymentKindOf,
-  YAKUMAN_HAN,
-} from "@mahjong-scoring/core";
+import { allowsDoubleYakuman } from "@mahjong-scoring/core";
 import type { UserAnswer } from "@mahjong-scoring/core";
-import { getAvailableScores } from "@mahjong-scoring/features/practice/score/get-available-scores";
 import {
-  MANGAN_MIN_HAN,
-  practiceHanTiers,
-} from "@mahjong-scoring/features/practice/score/han-tiers";
+  practiceFuOptions,
+  practiceHanOptions,
+} from "@mahjong-scoring/features/practice/score/answer-options";
+import { useScorePracticeAnswerForm } from "@mahjong-scoring/features/practice/score/use-score-practice-answer-form";
 
 import { Button } from "../../../components/button";
-import {
-  SelectField,
-  type SelectOption,
-} from "../../../components/select-field";
+import { SelectField } from "../../../components/select-field";
 import {
   useRuleSettingsStore,
   useYakumanRules,
@@ -58,37 +50,6 @@ interface ScorePracticeAnswerFormProps {
   readonly prefill?: UserAnswer;
 }
 
-/** 入力欄の中身（prefill から起こすため 1 つの型にまとめる） */
-interface FormFields {
-  readonly han: number | undefined;
-  readonly fu: number | undefined;
-  readonly yakus: readonly string[];
-  readonly score: number | undefined;
-  readonly scoreFromKo: number | undefined;
-  readonly scoreFromOya: number | undefined;
-}
-
-const EMPTY_FIELDS: FormFields = {
-  han: undefined,
-  fu: undefined,
-  yakus: [],
-  score: undefined,
-  scoreFromKo: undefined,
-  scoreFromOya: undefined,
-};
-
-function fieldsOf(prefill: UserAnswer | undefined): FormFields {
-  if (!prefill) return EMPTY_FIELDS;
-  return {
-    han: prefill.han,
-    fu: prefill.fu,
-    yakus: prefill.yakus,
-    score: prefill.score,
-    scoreFromKo: prefill.scoreFromKo,
-    scoreFromOya: prefill.scoreFromOya,
-  };
-}
-
 /**
  * 点数計算の無限訓練の回答フォーム（web の `ScorePracticeAnswerForm`）
  * 回答フォーム
@@ -116,121 +77,43 @@ export function ScorePracticeAnswerForm({
   prefill,
 }: ScorePracticeAnswerFormProps) {
   const t = useTranslations("score");
-  const initialFields = fieldsOf(prefill);
-  const [han, setHan] = useState(initialFields.han);
-  const [fu, setFu] = useState(initialFields.fu);
-  const [yakus, setYakus] = useState(initialFields.yakus);
-  const [score, setScore] = useState(initialFields.score);
-  const [scoreFromKo, setScoreFromKo] = useState(initialFields.scoreFromKo);
-  const [scoreFromOya, setScoreFromOya] = useState(initialFields.scoreFromOya);
-  // ユーザーが欄を触ったか。触った後は prefill の変化を無視する
-  const [touched, setTouched] = useState(false);
-
-  // prefill が変わったら、触っていない欄をその中身に合わせる（render 中に
-  // state を合わせる。effect だと 1 度古い中身で描いてから直すことになる）
-  const [appliedPrefill, setAppliedPrefill] = useState(prefill);
-  if (prefill !== appliedPrefill) {
-    setAppliedPrefill(prefill);
-    if (!touched) {
-      const fields = fieldsOf(prefill);
-      setHan(fields.han);
-      setFu(fields.fu);
-      setYakus(fields.yakus);
-      setScore(fields.score);
-      setScoreFromKo(fields.scoreFromKo);
-      setScoreFromOya(fields.scoreFromOya);
-    }
-  }
-
-  const touch =
-    <T,>(setter: (value: T) => void) =>
-    (value: T) => {
-      setTouched(true);
-      setter(value);
-    };
-
-  const isMangan = han !== undefined && han >= MANGAN_MIN_HAN;
-  const isFuRequired = !isMangan || requireFuForMangan;
-  const paymentKind = paymentKindOf(isOya, isTsumo);
-
+  const kiriageMangan = useRuleSettingsStore((s) => s.kiriageMangan);
   // ダブル役満を採用したルールでは、翻数・点数の選択肢にダブル役満を足す
   const allowDoubleYakuman = allowsDoubleYakuman(useYakumanRules());
+  const {
+    han,
+    fu,
+    yakus,
+    score,
+    scoreFromKo,
+    scoreFromOya,
+    setHan,
+    setFu,
+    setYakus,
+    setScore,
+    setScoreFromKo,
+    setScoreFromOya,
+    isFuRequired,
+    availableScores,
+    isOyaTsumo,
+    isComplete,
+    submit,
+  } = useScorePracticeAnswerForm({
+    onSubmit,
+    isTsumo,
+    isOya,
+    requireYaku,
+    requireFuForMangan,
+    kiriageMangan,
+    allowDoubleYakuman,
+    prefill,
+  });
 
-  const hanOptions = useMemo((): readonly SelectOption<number>[] => {
-    // 満貫以上の区分は翻数しきい値の昇順で並べる（practiceHanTiers は降順）
-    const manganPlusOptions = [...practiceHanTiers(allowDoubleYakuman)]
-      .reverse()
-      .map((tier) => ({
-        value: tier.minHan,
-        label: t(`form.options.${tier.key}`),
-      }));
-    const numbered = (count: number) =>
-      Array.from({ length: count }, (_, i) => ({
-        value: i + 1,
-        label: `${i + 1}${t("form.options.hanSuffix")}`,
-      }));
-
-    if (simplifyMangan) {
-      return [...numbered(MANGAN_MIN_HAN - 1), ...manganPlusOptions];
-    }
-    // 簡略化しないモードでは役満未満は数値で出し、役満以上だけ区分名で出す
-    return [
-      ...numbered(YAKUMAN_HAN - 1),
-      ...manganPlusOptions.filter((option) => option.value >= YAKUMAN_HAN),
-    ];
-  }, [simplifyMangan, allowDoubleYakuman, t]);
-
-  const fuOptions = useMemo(
-    (): readonly SelectOption<number>[] =>
-      FU_VALUES.map((v) => ({
-        value: v,
-        label: `${v}${t("form.options.fuSuffix")}`,
-      })),
-    [t],
+  const hanOptions = useMemo(
+    () => practiceHanOptions(t, simplifyMangan, allowDoubleYakuman),
+    [t, simplifyMangan, allowDoubleYakuman],
   );
-
-  const kiriageMangan = useRuleSettingsStore((s) => s.kiriageMangan);
-  const availableScores = useMemo(
-    () =>
-      getAvailableScores(
-        han,
-        isOya,
-        isTsumo,
-        undefined,
-        kiriageMangan,
-        allowDoubleYakuman,
-      ),
-    [han, isOya, isTsumo, kiriageMangan, allowDoubleYakuman],
-  );
-
-  const isComplete =
-    han !== undefined &&
-    (!isFuRequired || fu !== undefined) &&
-    (availableScores.type === "koTsumo"
-      ? scoreFromKo !== undefined && scoreFromOya !== undefined
-      : score !== undefined);
-
-  const handleSubmit = () => {
-    if (han === undefined) return;
-    if (isFuRequired && fu === undefined) return;
-
-    const submitYakus = requireYaku ? [...yakus] : [];
-    const submitFu = isFuRequired ? fu : isMangan ? undefined : fu;
-
-    if (availableScores.type === "koTsumo") {
-      if (scoreFromKo === undefined || scoreFromOya === undefined) return;
-      onSubmit({
-        han,
-        fu: submitFu,
-        scoreFromKo,
-        scoreFromOya,
-        yakus: submitYakus,
-      });
-    } else {
-      if (score === undefined) return;
-      onSubmit({ han, fu: submitFu, score, yakus: submitYakus });
-    }
-  };
+  const fuOptions = useMemo(() => practiceFuOptions(t), [t]);
 
   // 「役なし」はロンにしか無い回答なので、渡されたときだけ「役」の行の右端に置く
   const noYakuButton = noYaku && (
@@ -253,7 +136,7 @@ export function ScorePracticeAnswerForm({
       {requireYaku ? (
         <YakuSelect
           value={yakus}
-          onChange={touch(setYakus)}
+          onChange={setYakus}
           disabled={disabled}
           labelAction={noYakuButton}
         />
@@ -266,7 +149,7 @@ export function ScorePracticeAnswerForm({
         <SelectField
           options={hanOptions}
           value={han}
-          onChange={touch(setHan)}
+          onChange={setHan}
           placeholder={t("form.placeholders.select")}
           accessibilityLabel={t("form.labels.han")}
           disabled={disabled}
@@ -279,7 +162,7 @@ export function ScorePracticeAnswerForm({
         <SelectField
           options={isFuRequired ? fuOptions : []}
           value={isFuRequired ? fu : undefined}
-          onChange={touch(setFu)}
+          onChange={setFu}
           placeholder={
             isFuRequired
               ? t("form.placeholders.select")
@@ -297,7 +180,7 @@ export function ScorePracticeAnswerForm({
             <View style={styles.koTsumoColumn}>
               <ScoreOptionSelect
                 value={scoreFromKo}
-                onChange={touch(setScoreFromKo)}
+                onChange={setScoreFromKo}
                 options={availableScores.koScores}
                 placeholder={t("form.placeholders.fromKo")}
                 accessibilityLabel={t("form.placeholders.fromKo")}
@@ -308,7 +191,7 @@ export function ScorePracticeAnswerForm({
             <View style={styles.koTsumoColumn}>
               <ScoreOptionSelect
                 value={scoreFromOya}
-                onChange={touch(setScoreFromOya)}
+                onChange={setScoreFromOya}
                 options={availableScores.oyaScores}
                 placeholder={t("form.placeholders.fromOya")}
                 accessibilityLabel={t("form.placeholders.fromOya")}
@@ -319,20 +202,18 @@ export function ScorePracticeAnswerForm({
         ) : (
           <ScoreOptionSelect
             value={score}
-            onChange={touch(setScore)}
+            onChange={setScore}
             options={availableScores.scores}
             placeholder={t("form.placeholders.select")}
             accessibilityLabel={t("form.labels.score")}
             disabled={disabled}
-            optionSuffix={
-              paymentKind === "oyaTsumo" ? t("form.options.all") : ""
-            }
+            optionSuffix={isOyaTsumo ? t("form.options.all") : ""}
           />
         )}
       </View>
 
       <Button
-        onPress={handleSubmit}
+        onPress={submit}
         size="lg"
         fullWidth
         disabled={disabled || !isComplete}

@@ -5,6 +5,7 @@ import { useTranslations } from "use-intl";
 import { Screen } from "../../components/screen";
 import { TextLink } from "../../components/text-link";
 import { colors } from "../../lib/theme";
+import { PRACTICE_PATH } from "@mahjong-scoring/features/routes";
 
 /** 練習が見つからない（未知の slug・モバイル未移植） */
 export function PracticeNotFoundScreen() {
@@ -14,7 +15,7 @@ export function PracticeNotFoundScreen() {
   return (
     <Screen title={tn("title")} back>
       <Text style={styles.text}>{tn("description")}</Text>
-      <TextLink onPress={() => router.replace("/practice")}>
+      <TextLink onPress={() => router.replace(PRACTICE_PATH)}>
         {t("backToList")}
       </TextLink>
     </Screen>

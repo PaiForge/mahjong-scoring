@@ -1,4 +1,8 @@
 import { memo } from "react";
+import {
+  formatTimerClock,
+  timerColorOf,
+} from "@mahjong-scoring/features/session/timer-display";
 import { StyleSheet, Text, View } from "react-native";
 import Svg, { Circle } from "react-native-svg";
 
@@ -10,19 +14,6 @@ interface QuizTimerProps {
   readonly progress: number;
   readonly size?: number;
   readonly strokeWidth?: number;
-}
-
-function formatTime(seconds: number): string {
-  const minutes = Math.floor(seconds / 60);
-  const remainingSeconds = seconds % 60;
-  return `${minutes}:${remainingSeconds.toString().padStart(2, "0")}`;
-}
-
-/** 残り時間で緑 → 琥珀 → 赤に変える（web の `QuizTimer` と同じ閾値） */
-function getColor(progress: number): string {
-  if (progress >= 0.8) return "#ef4444";
-  if (progress >= 0.6) return "#f59e0b";
-  return "#22c55e";
 }
 
 /**
@@ -40,7 +31,7 @@ export const QuizTimer = memo(function QuizTimerComponent({
   const r = (size - strokeWidth) / 2;
   const circumference = 2 * Math.PI * r;
   const clamped = Math.min(Math.max(progress, 0), 1);
-  const color = getColor(clamped);
+  const color = timerColorOf(clamped);
   return (
     <View style={{ width: size, height: size }}>
       <Svg
@@ -70,7 +61,7 @@ export const QuizTimer = memo(function QuizTimerComponent({
       </Svg>
       <View style={[StyleSheet.absoluteFill, styles.center]}>
         <Text style={[styles.label, { color }]}>
-          {formatTime(timeRemaining)}
+          {formatTimerClock(timeRemaining)}
         </Text>
       </View>
     </View>

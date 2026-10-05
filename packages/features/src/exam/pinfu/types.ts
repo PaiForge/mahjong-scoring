@@ -3,6 +3,7 @@ import {
   PRACTICE_SLUG,
   resultStorageKeyFor,
 } from "@mahjong-scoring/features/practice-menu-types";
+import type { ScoreExamBoardConfig } from "../score-exam-board-config";
 
 export type { ScoreQuestionResult as PinfuExamQuestionResult } from "@mahjong-scoring/features/results/score-question-result";
 export { parseQuestionResults } from "@mahjong-scoring/features/results/score-question-result";
@@ -76,3 +77,16 @@ export const EXAM_GENERATE_OPTIONS = {
  * 15回前後のままなので生成コストも増えない。
  */
 export const EXAM_GENERATION_MAX_RETRIES = 500;
+
+/**
+ * 昇級試験（平和の点数計算）の出題盤面の設定
+ * 昇級試験盤面設定
+ *
+ * 本番と模試、web とモバイルで同じ出題盤面を組み立てるための値。
+ */
+export const EXAM_BOARD_CONFIG: ScoreExamBoardConfig = {
+  translationNamespace: "pinfuExamChallenge",
+  generateOptions: EXAM_GENERATE_OPTIONS,
+  scoreRange: "nonMangan",
+  maxRetries: EXAM_GENERATION_MAX_RETRIES,
+};

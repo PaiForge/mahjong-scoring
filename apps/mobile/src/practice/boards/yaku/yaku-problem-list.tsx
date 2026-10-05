@@ -1,35 +1,11 @@
 import { StyleSheet, View } from "react-native";
-import {
-  parseMarkers,
-  restoreTehaiQuestion,
-} from "@mahjong-scoring/features/results/parse-question-tiles";
+import { restoreYakuQuestion } from "@mahjong-scoring/features/practice/yaku/answer-comparison";
 import type { YakuQuestionResult } from "@mahjong-scoring/features/practice/yaku/types";
 
 import { TehaiDisplay } from "../../../board/tehai-display";
 import { TehaiMentsuBreakdown } from "../../../board/tehai-mentsu-breakdown";
 import { ProblemListAccordion } from "../../components/problem-list-accordion";
 import { YakuAnswerComparison } from "./yaku-answer-comparison";
-
-/**
- * 保存された結果から出題内容を復元する
- * 出題復元
- *
- * MSPZ のパースに失敗した場合は undefined を返し、手牌の再表示だけを諦める
- * （役の対比は文字列に依存しないため表示できる）。
- */
-function restoreQuestion(result: YakuQuestionResult) {
-  const restored = restoreTehaiQuestion(result);
-  if (!restored) return undefined;
-  return {
-    tehai: restored.tehai,
-    context: {
-      ...restored.context,
-      isRiichi: result.isRiichi,
-      doraMarkers: parseMarkers(result.doraMarkers) ?? [],
-      uraDoraMarkers: parseMarkers(result.uraDoraMarkers),
-    },
-  };
-}
 
 /**
  * 役選択練習の問題別一覧（web の `YakuProblemList`）
@@ -50,7 +26,7 @@ export function YakuProblemList({
       translationNamespace="yaku"
       outcome={(r) => r.outcome}
       renderDetail={(result) => {
-        const question = restoreQuestion(result);
+        const question = restoreYakuQuestion(result);
         return (
           <View style={styles.detail}>
             {question && (

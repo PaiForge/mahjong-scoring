@@ -20,7 +20,9 @@ import type {
   GameSessionState,
   TimerControl,
 } from "@mahjong-scoring/features/session/use-timed-session";
-import { useGameTimer } from "@mahjong-scoring/features/session/use-game-timer";
+import { useChallengeClock } from "@mahjong-scoring/features/session/use-challenge-clock";
+import { useOnFinished } from "@mahjong-scoring/features/session/use-on-finished";
+import { useQuitPause } from "@mahjong-scoring/features/session/use-quit-pause";
 
 import { BoardBleedProvider } from "../../board/board-bleed";
 import { ConfirmationModal } from "../../components/confirmation-modal";
@@ -97,55 +99,29 @@ export function ChallengeShell({
   const tq = useTranslations("challenge.quit");
   const router = useRouter();
   const [isQuitOpen, setIsQuitOpen] = useState(false);
-  const wasPausedBeforeQuitRef = useRef(false);
 
-  const {
-    remainingSeconds,
-    elapsedMs,
-    reset: resetTimer,
-  } = useGameTimer({
-    timeLimit: gameSession.timeLimit,
-    onTimeLimitReached: timerControl.onTimeLimitReached,
-    isActive: timerControl.isActive,
+  const { remainingSeconds, elapsedMs } = useChallengeClock({
+    gameSession,
+    timerControl,
   });
-
-  const registerTimerResetRef = useRef(timerControl.registerTimerReset);
-  useEffect(() => {
-    registerTimerResetRef.current = timerControl.registerTimerReset;
-  });
-  useEffect(() => {
-    registerTimerResetRef.current(resetTimer);
-  }, [resetTimer]);
+  const { pauseForQuit, resumeAfterQuit } = useQuitPause(gameSession);
 
   // 終わった瞬間の経過時間で 1 回だけ結果へ送る
-  const finishedRef = useRef(false);
-  const elapsedRef = useRef(elapsedMs);
-  const onFinishRef = useRef(onFinish);
+  useOnFinished(gameSession.finalResult, () => onFinish(elapsedMs));
   const sessionRef = useRef(gameSession);
   useEffect(() => {
-    elapsedRef.current = elapsedMs;
-    onFinishRef.current = onFinish;
     sessionRef.current = gameSession;
   });
-  useEffect(() => {
-    if (!gameSession.isFinished || finishedRef.current) return;
-    finishedRef.current = true;
-    onFinishRef.current(elapsedRef.current);
-  }, [gameSession.isFinished]);
 
   const openQuit = useCallback(() => {
-    const session = sessionRef.current;
-    wasPausedBeforeQuitRef.current = session.isPaused;
-    if (!session.isPaused && !session.isCountingDown) session.togglePause();
+    pauseForQuit();
     setIsQuitOpen(true);
-  }, []);
+  }, [pauseForQuit]);
 
   const cancelQuit = useCallback(() => {
     setIsQuitOpen(false);
-    if (!wasPausedBeforeQuitRef.current && sessionRef.current.isPaused) {
-      sessionRef.current.togglePause();
-    }
-  }, []);
+    resumeAfterQuit();
+  }, [resumeAfterQuit]);
 
   const confirmQuit = useCallback(() => {
     setIsQuitOpen(false);

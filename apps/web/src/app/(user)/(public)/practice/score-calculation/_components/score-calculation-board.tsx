@@ -7,7 +7,7 @@ import {
 } from "@/app/_hooks/use-rule-settings-store";
 import { ScoreCalculationQuestionBoard } from "../../_components/score-calculation-question-board";
 import type { ScoreCalculationQuestionResult } from "@mahjong-scoring/features/practice/score-calculation/types";
-import type { RecordingPracticeBoardProps } from "../../_lib/practice-board-props";
+import type { RecordingPracticeBoardProps } from "@mahjong-scoring/features/practice/board-props";
 import { ruleBoundaryExclusions } from "@mahjong-scoring/features/challenge/rule-boundary";
 
 type ScoreCalculationBoardProps =

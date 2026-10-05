@@ -9,7 +9,8 @@ import { FuItemTiles } from "./fu-item-tiles";
 interface FuItemRowProps {
   readonly index: number;
   readonly item: MentsuJantouFuItem;
-  readonly answer: string;
+  /** 選んだ符（未選択は undefined） */
+  readonly answer: number | undefined;
   readonly showFeedback: boolean;
   /**
    * 「わからない」で正解を開示中か
@@ -25,7 +26,7 @@ interface FuItemRowProps {
    * 手牌表示で和了牌に付けるのと同じ枠を、回答行の牌にも付ける。
    */
   readonly highlightedTileIndex?: number;
-  readonly onSelect: (index: number, value: string) => void;
+  readonly onSelect: (index: number, fu: number) => void;
   readonly tileScale?: number;
 }
 
@@ -45,13 +46,12 @@ export const FuItemRow = memo(function FuItemRowComponent({
   tileScale,
 }: FuItemRowProps) {
   const t = useTranslations("mentsuJantouFu");
-  const answerNum = answer ? parseInt(answer) : undefined;
-  const isCorrect = showFeedback && !isRevealed && answerNum === item.fu;
-  const isWrong = showFeedback && !isRevealed && answerNum !== item.fu;
+  const isCorrect = showFeedback && !isRevealed && answer === item.fu;
+  const isWrong = showFeedback && !isRevealed && answer !== item.fu;
 
   const handleButtonClick = useCallback(
     (value: number) => {
-      onSelect(index, String(value));
+      onSelect(index, value);
     },
     [onSelect, index],
   );
@@ -87,7 +87,7 @@ export const FuItemRow = memo(function FuItemRowComponent({
       {/* 符の選択肢。牌の下に全幅で並べ、タップしやすい大きさにする */}
       <div className="grid grid-cols-6 gap-1.5">
         {FU_OPTIONS.map((opt) => {
-          const isSelected = answer === String(opt);
+          const isSelected = answer === opt;
           const disabled = showFeedback || isCountingDown;
 
           let buttonClass =

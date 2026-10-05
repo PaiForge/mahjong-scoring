@@ -6,7 +6,7 @@ import { Hai } from "@pai-forge/mahjong-react-ui";
 import { getKazeName, isOya } from "@mahjong-scoring/core";
 import type { HaiKindId, Tehai } from "@mahjong-scoring/core";
 import type { TehaiContext } from "@mahjong-scoring/features/board/tehai-context";
-import { resolveDoraTiles } from "@mahjong-scoring/features/settings/dora-display";
+import { resolveBoardDora } from "@mahjong-scoring/features/settings/dora-display";
 
 import { AutoScale } from "../components/auto-scale";
 import { HelpIconButton } from "../components/help-icon-button";
@@ -17,6 +17,7 @@ import { colors, radius } from "../lib/theme";
 import { useBoardBleed } from "./board-bleed";
 import { RiichiStick } from "./riichi-stick";
 import { HAI_SM_HEIGHT, REFERENCE_HAND_WIDTH, TehaiHand } from "./tehai-hand";
+import { PREFERENCES_PATH } from "@mahjong-scoring/features/routes";
 
 /** 牌を含まない状況行の高さ（px）。リーチ棒とその名札が収まる高さ */
 const TEXT_ROW_HEIGHT = 22;
@@ -81,17 +82,9 @@ export const TehaiDisplay = memo(function TehaiDisplayComponent({
   const [showDoraInfo, setShowDoraInfo] = useState(false);
   const [scale, setScale] = useState(1);
 
-  const doraTiles = useMemo(
-    () => resolveDoraTiles(context.doraMarkers ?? [], doraDisplay),
-    [context.doraMarkers, doraDisplay],
-  );
-  // 裏ドラはリーチしている出題でのみ見せる
-  const uraDoraTiles = useMemo(
-    () =>
-      context.isRiichi
-        ? resolveDoraTiles(context.uraDoraMarkers ?? [], doraDisplay)
-        : [],
-    [context.isRiichi, context.uraDoraMarkers, doraDisplay],
+  const { doraTiles, uraDoraTiles } = useMemo(
+    () => resolveBoardDora(context, doraDisplay),
+    [context, doraDisplay],
   );
   const hasDoraTiles = doraTiles.length > 0 || uraDoraTiles.length > 0;
   const oya = isOya(context.jikaze);
@@ -156,7 +149,7 @@ export const TehaiDisplay = memo(function TehaiDisplayComponent({
           <TextLink
             onPress={() => {
               setShowDoraInfo(false);
-              router.push("/preferences");
+              router.push(PREFERENCES_PATH);
             }}
           >
             {t("doraInfoSettingsLink")}

@@ -13,7 +13,8 @@ import {
   useFuHanOrder,
   useTermLinksEnabled,
 } from "@/app/_hooks/use-display-settings-store";
-import { PREFERENCE_ANCHORS, YAKU_ORDER_HREF } from "../_lib/anchors";
+import { PREFERENCE_ANCHORS } from "../_lib/anchors";
+import { YAKU_ORDER_PATH } from "@mahjong-scoring/features/routes";
 
 /**
  * 表示設定セクション
@@ -62,7 +63,7 @@ export function DisplaySettingsSection() {
 
       {/* 36役を並び替える UI は設定ページに置くと長すぎるため専用ページへ渡す */}
       <SettingLinkRow
-        href={YAKU_ORDER_HREF}
+        href={YAKU_ORDER_PATH}
         title={t("yakuOrderTitle")}
         description={t("yakuOrderDescription")}
       />

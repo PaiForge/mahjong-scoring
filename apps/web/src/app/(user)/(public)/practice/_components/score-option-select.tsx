@@ -4,8 +4,9 @@ import { getSelectClass } from "../_lib/select-class";
 import type { SelectFeedbackState } from "../_lib/select-class";
 
 interface ScoreOptionSelectProps {
-  readonly value: string;
-  readonly onChange: (value: string) => void;
+  /** 選んだ点数（未選択は undefined） */
+  readonly value: number | undefined;
+  readonly onChange: (value: number) => void;
   /** 選択肢の点数リスト */
   readonly options: readonly number[];
   /** 未選択時に表示するプレースホルダ */
@@ -43,11 +44,12 @@ export function ScoreOptionSelect({
     <select
       id={id}
       aria-label={ariaLabel}
-      value={value}
-      onChange={(e) => onChange(e.target.value)}
+      value={value ?? ""}
+      // 未選択の option は選べない（disabled）ので、届く値は必ず点数
+      onChange={(e) => onChange(Number(e.target.value))}
       disabled={disabled}
       required
-      className={getSelectClass(value !== "", feedback)}
+      className={getSelectClass(value !== undefined, feedback)}
     >
       <option value="" disabled>
         {placeholder}

@@ -8,7 +8,7 @@ import {
   type JourneyStage,
   type RankJourney,
 } from "@mahjong-scoring/features/journey/journey";
-import { practiceHref } from "@mahjong-scoring/features/routes";
+import { LESSONS_PATH, practiceHref } from "@mahjong-scoring/features/routes";
 
 import { ChevronRightIcon } from "../components/icons/icons";
 import { colors, radius } from "../lib/theme";
@@ -31,7 +31,7 @@ interface StageCell {
 function stageHref(stage: JourneyStage, journey: RankJourney): string {
   switch (stage) {
     case "learn":
-      return "/lessons";
+      return LESSONS_PATH;
     case "practice":
       return practiceListHrefForRank(journey.rank.slug);
     case "exam":

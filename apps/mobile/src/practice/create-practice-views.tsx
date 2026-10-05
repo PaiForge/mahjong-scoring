@@ -1,46 +1,33 @@
-import { useCallback, useMemo, useRef, useState, type ReactNode } from "react";
+import { useCallback, useRef, type ReactNode } from "react";
 import type { ScrollView } from "react-native";
 import { useRouter } from "expo-router";
 import { useTranslations } from "use-intl";
-import {
-  isExamMenuType,
-  practiceMenuBySlug,
-  type PracticeMenuSlug,
-} from "@mahjong-scoring/features/practice-menu-types";
+import { type PracticeMenuSlug } from "@mahjong-scoring/features/practice-menu-types";
 import {
   practiceHref,
   practicePlayHref,
   practiceResultHref,
   variantQuery,
 } from "@mahjong-scoring/features/routes";
-import { rankRequiringMenu } from "@mahjong-scoring/features/ranks/registry";
 import { useTimedSession } from "@mahjong-scoring/features/session/use-timed-session";
 import { useTrainingSession } from "@mahjong-scoring/features/session/use-training-session";
 
 import { useAutoAdvanceOnCorrect } from "../hooks/use-training-settings-store";
-import type { PracticeBoardProps } from "./board-props";
+import type {
+  ChallengeBoardArgs,
+  TrainingBoardArgs,
+} from "@mahjong-scoring/features/practice/board-props";
 import { useChallengeResultStore } from "./challenge-result-store";
 import { ChallengeShell } from "./components/challenge-shell";
 import { TrainingShell } from "./components/training-shell";
-import { TrainingModeProvider } from "./hooks/use-training-mode";
+import { TrainingModeProvider } from "@mahjong-scoring/features/practice/use-training-mode";
+import { useRecordedResults } from "@mahjong-scoring/features/challenge/use-recorded-results";
+import { useTrainingModeBridge } from "@mahjong-scoring/features/practice/use-training-mode-bridge";
+import { challengeViewSettings } from "@mahjong-scoring/features/practice/challenge-view-settings";
 
 /** 練習の画面が受け取る props（URL の `?variant=` を正規化した値） */
 export interface PracticeViewProps {
   readonly variant: string;
-}
-
-/** チャレンジの盤面へ渡す引数 */
-export interface ChallengeBoardArgs<TResult> extends PracticeBoardProps {
-  readonly isCountingDown: boolean;
-  readonly lastAnswerCorrect: boolean | undefined;
-  readonly recordResult: (result: TResult) => void;
-  readonly presentQuestion: (unanswered: TResult) => void;
-}
-
-/** トレーニングの盤面へ渡す引数 */
-export interface TrainingBoardArgs extends PracticeBoardProps {
-  readonly isTraining: true;
-  readonly lastAnswerCorrect: boolean | undefined;
 }
 
 interface ChallengePlayViewConfig<TResult> {
@@ -61,32 +48,6 @@ function useScrollToTop() {
 }
 
 /**
- * 問題別の結果を積む
- * 結果記録
- *
- * web の `useRecordedResults` と同じく、答えた問題を順に積み、出題中の
- * 問題を「回答なし」で控えておく（時間切れで終わったとき一覧の末尾に残す）。
- */
-function useRecordedResults<TResult>() {
-  const resultsRef = useRef<TResult[]>([]);
-  const pendingRef = useRef<TResult | undefined>(undefined);
-  const recordResult = useCallback((result: TResult) => {
-    resultsRef.current.push(result);
-    pendingRef.current = undefined;
-  }, []);
-  const presentQuestion = useCallback((unanswered: TResult) => {
-    pendingRef.current = unanswered;
-  }, []);
-  const collect = useCallback((timeUp: boolean): readonly TResult[] => {
-    const pending = pendingRef.current;
-    return timeUp && pending !== undefined
-      ? [...resultsRef.current, pending]
-      : [...resultsRef.current];
-  }, []);
-  return { recordResult, presentQuestion, collect };
-}
-
-/**
  * チャレンジの画面を作る
  * チャレンジ画面生成
  *
@@ -100,10 +61,8 @@ export function createChallengePlayView<TResult = never>(
   config: ChallengePlayViewConfig<TResult>,
 ): (props: PracticeViewProps) => ReactNode {
   const { slug, renderBoard } = config;
-  const { namespace, menuType, mistakeLimit, timeLimit } =
-    practiceMenuBySlug(slug);
-  const isExam = isExamMenuType(menuType);
-  const goalCount = rankRequiringMenu(menuType)?.requirement.minScore;
+  const { namespace, mistakeLimit, timeLimit, kind, goalCount } =
+    challengeViewSettings(slug);
 
   function ChallengePlayView(props: PracticeViewProps) {
     const t = useTranslations(namespace);
@@ -142,7 +101,7 @@ export function createChallengePlayView<TResult = never>(
         title={t("title")}
         gameSession={gameSession}
         timerControl={timerControl}
-        variant={isExam ? "exam" : "practice"}
+        variant={kind}
         exitHref={practiceHref(slug, props.variant)}
         onFinish={handleFinish}
         scrollRef={scrollRef}
@@ -188,9 +147,8 @@ export function createTrainingView(
   config: TrainingViewConfig,
 ): (props: PracticeViewProps) => ReactNode {
   const { slug, hasSubmitButton, help, renderBoard } = config;
-  const { namespace, menuType, mistakeLimit, timeLimit } =
-    practiceMenuBySlug(slug);
-  const isExam = isExamMenuType(menuType);
+  const { namespace, mistakeLimit, timeLimit, kind } =
+    challengeViewSettings(slug);
 
   function TrainingView(props: PracticeViewProps) {
     const t = useTranslations(namespace);
@@ -202,33 +160,24 @@ export function createTrainingView(
       onDisplayChange: scrollToTop,
     });
 
-    const [advance, setAdvance] = useState<(() => void) | undefined>(undefined);
-    const registerAdvance = useCallback(
-      (next: (() => void) | undefined) => setAdvance(() => next),
-      [],
-    );
-    const trainingMode = useMemo(
-      () => ({
-        isRevealed: session.isRevealed,
-        isHolding: session.isHolding,
-        registerAdvance,
-      }),
-      [session.isRevealed, session.isHolding, registerAdvance],
-    );
+    const { trainingMode, reveal, revealDisabled } =
+      useTrainingModeBridge(session);
 
     return (
       <TrainingShell
-        title={isExam ? tExam("pageTitle", { title: t("title") }) : t("title")}
-        variant={isExam ? "exam" : "practice"}
+        title={
+          kind === "exam"
+            ? tExam("pageTitle", { title: t("title") })
+            : t("title")
+        }
+        variant={kind}
         correctCount={session.correctCount}
         totalCount={session.totalCount}
         challengeRules={{ timeLimit, mistakeLimit }}
         challengeHref={practicePlayHref(slug, props.variant)}
         exitHref={practiceHref(slug, props.variant)}
-        onReveal={() => {
-          if (advance) session.reveal(advance);
-        }}
-        revealDisabled={session.showFeedback || advance === undefined}
+        onReveal={reveal}
+        revealDisabled={revealDisabled}
         isRevealed={session.isRevealed}
         isHolding={session.isHolding}
         onProceed={session.proceed}

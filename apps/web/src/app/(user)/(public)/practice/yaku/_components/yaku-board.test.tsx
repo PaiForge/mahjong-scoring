@@ -5,7 +5,8 @@ vi.mock("next-intl", async () => await import("@/test/intl-mock"));
 
 const { YakuBoard } = await import("./yaku-board");
 const { YAKU_LIST_HEIGHT_CLASSES } = await import("./yaku-select-list");
-const { TrainingModeProvider } = await import("../../_hooks/use-training-mode");
+const { TrainingModeProvider } =
+  await import("@mahjong-scoring/features/practice/use-training-mode");
 
 /** トレーニングの回答後の停止中として盤面を描く */
 function renderHolding() {

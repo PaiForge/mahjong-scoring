@@ -115,8 +115,3 @@ export async function ManganTableShell({
     </DataTable>
   );
 }
-
-/** 点数を日本語ロケールの桁区切りで表示する */
-export function formatPoints(points: number): string {
-  return points.toLocaleString("ja-JP");
-}

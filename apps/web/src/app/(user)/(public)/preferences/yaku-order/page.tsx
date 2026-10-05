@@ -15,7 +15,7 @@ import { SectionTitle } from "@/app/(user)/_components/section-title";
 import { createTitleOnlyMetadata } from "@/app/_lib/metadata";
 import { MembersOnlyGate } from "../_components/members-only-gate";
 import { YakuOrderSection } from "../_components/yaku-order-section";
-import { YAKU_ORDER_HREF } from "../_lib/anchors";
+import { YAKU_ORDER_PATH } from "@mahjong-scoring/features/routes";
 
 export async function generateMetadata(): Promise<Metadata> {
   return createTitleOnlyMetadata("settings.yakuOrder", "pageTitle");
@@ -34,7 +34,7 @@ export default async function YakuOrderPage() {
     >
       <PageTitle>{tYakuOrder("pageTitle")}</PageTitle>
 
-      <MembersOnlyGate redirectTo={YAKU_ORDER_HREF}>
+      <MembersOnlyGate redirectTo={YAKU_ORDER_PATH}>
         <section className="space-y-4">
           <SectionTitle>{tYakuOrder("sectionTitle")}</SectionTitle>
           <YakuOrderSection />

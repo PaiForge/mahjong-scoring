@@ -1,7 +1,7 @@
 "use client";
 
+import { EXAM_BOARD_CONFIG } from "@mahjong-scoring/features/exam/score/types";
 import { createScoreExamBoard } from "../../_lib/create-score-exam-board";
-import { EXAM_GENERATE_OPTIONS } from "@mahjong-scoring/features/exam/score/types";
 
 /**
  * 昇段試験（あらゆる手の点数計算）の出題盤面（手牌の提示と点数の回答）
@@ -16,8 +16,4 @@ import { EXAM_GENERATE_OPTIONS } from "@mahjong-scoring/features/exam/score/type
  * 固定すると「満貫未満だ」と教えてしまい、点数表のどこを引くかの判断が
  * 出題の側に漏れる。
  */
-export const ScoreExamBoard = createScoreExamBoard({
-  translationNamespace: "scoreExamChallenge",
-  generateOptions: EXAM_GENERATE_OPTIONS,
-  scoreRange: "all",
-});
+export const ScoreExamBoard = createScoreExamBoard(EXAM_BOARD_CONFIG);

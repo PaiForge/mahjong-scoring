@@ -1,6 +1,9 @@
 import { describe, expect, it } from "vitest";
 
-import { CURRICULUM_CHAPTER_SLUGS } from "../curriculum/registry";
+import {
+  CURRICULUM_CHAPTER_SLUGS,
+  getChapterBySlug,
+} from "../curriculum/registry";
 import { practiceMenuFromCatalog } from "../practice/catalog";
 import { isPracticeVariantOf } from "../practice-menu-types";
 import { RANK_REGISTRY } from "../ranks/registry";
@@ -9,6 +12,7 @@ import {
   QUIZ_LESSON_SLUGS,
   isQuizLessonSlug,
   quizLessonBySlug,
+  relatedPracticeLinks,
 } from "./registry";
 
 describe("QUIZ_LESSON_REGISTRY", () => {
@@ -56,6 +60,23 @@ describe("QUIZ_LESSON_REGISTRY", () => {
           expect(isPracticeVariantOf(slug, variant), lesson.slug).toBe(true);
         }
       }
+    }
+  });
+});
+
+describe("relatedPracticeLinks", () => {
+  it("確認問題を持つレッスンはそのレジストリの送り先を返す", () => {
+    expect(relatedPracticeLinks("mangan-ko-ron")).toEqual(
+      quizLessonBySlug("mangan-ko-ron")?.practiceLinks,
+    );
+  });
+
+  it("確認問題を持たないレッスンは章の練習リンク、無ければ空", () => {
+    for (const slug of CURRICULUM_CHAPTER_SLUGS) {
+      if (quizLessonBySlug(slug) !== undefined) continue;
+      expect(relatedPracticeLinks(slug)).toEqual(
+        getChapterBySlug(slug)?.practiceLinks ?? [],
+      );
     }
   });
 });

@@ -1,4 +1,5 @@
 import {
+  getChapterBySlug,
   practiceLink,
   type CurriculumChapterSlug,
   type PracticeLink,
@@ -212,4 +213,23 @@ export function isQuizLessonSlug(value: unknown): value is QuizLessonSlug {
  */
 export function quizLessonBySlug(slug: string): QuizLesson | undefined {
   return QUIZ_LESSON_REGISTRY.find((lesson) => lesson.slug === slug);
+}
+
+/**
+ * レッスンの関連練習（レッスンを終えた人を送る練習）
+ * レッスン関連練習
+ *
+ * 確認問題を持つレッスンはそのレジストリの `practiceLinks`、持たない
+ * レッスンは章の `practiceLinks`。どちらも無ければ空。
+ *
+ * @param slug レッスン（章）の slug
+ */
+export function relatedPracticeLinks(
+  slug: CurriculumChapterSlug,
+): readonly PracticeLink[] {
+  return (
+    quizLessonBySlug(slug)?.practiceLinks ??
+    getChapterBySlug(slug)?.practiceLinks ??
+    []
+  );
 }

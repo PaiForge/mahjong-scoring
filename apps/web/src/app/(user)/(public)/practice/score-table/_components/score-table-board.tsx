@@ -1,23 +1,12 @@
 "use client";
 
-import { useGradeAndRecord } from "../../_hooks/use-verified-challenge";
-
-import { useCallback } from "react";
-import type {
-  ScoreTableQuestion,
-  ScoreTableUserAnswer,
-} from "@mahjong-scoring/core";
+import type { ScoreTableQuestion } from "@mahjong-scoring/core";
 import { FeedbackFrame } from "../../_components/feedback-frame";
-import { usePresentQuestion } from "../../_hooks/use-present-question";
-import {
-  useRegisterAdvance,
-  useTrainingAnswerVisibility,
-} from "../../_hooks/use-training-mode";
 import { ScoreTablePrompt } from "./score-table-prompt";
 import { ScoreTableAnswerForm } from "./score-table-answer-form";
-import { toQuestionResult } from "@mahjong-scoring/features/practice/score-table/types";
 import type { ScoreTableQuestionResult } from "@mahjong-scoring/features/practice/score-table/types";
-import type { RecordingPracticeBoardProps } from "../../_lib/practice-board-props";
+import type { RecordingPracticeBoardProps } from "@mahjong-scoring/features/practice/board-props";
+import { useScoreTableAnswer } from "@mahjong-scoring/features/practice/score-table/use-score-table-answer";
 
 interface ScoreTableBoardProps extends RecordingPracticeBoardProps<ScoreTableQuestionResult> {
   /** 現在の問題 */
@@ -26,18 +15,11 @@ interface ScoreTableBoardProps extends RecordingPracticeBoardProps<ScoreTableQue
   readonly onAdvance: () => void;
 }
 
-/** 出題中の問題を回答なしの結果に組む（時間切れの届け出用） */
-function toUnansweredResult(
-  question: ScoreTableQuestion,
-): ScoreTableQuestionResult {
-  return toQuestionResult(question, undefined);
-}
-
 /**
  * 点数表早引きの出題盤面（条件の提示と点数の回答）
  *
- * 出題状態は呼び出し側（{@link useScoreTableQuestion}）が保持し、本コンポーネントは
- * 与えられた問題の提示と回答判定のみを行う。チャレンジ・トレーニング両モードで共有する。
+ * 出題状態は呼び出し側（`useScoreTableQuestion`）が保持し、本コンポーネントは
+ * 与えられた問題の提示と回答（`useScoreTableAnswer`）のみを行う。チャレンジ・トレーニング両モードで共有する。
  */
 export function ScoreTableBoard({
   question,
@@ -50,24 +32,15 @@ export function ScoreTableBoard({
   onRecordResult,
   onPresentQuestion,
 }: ScoreTableBoardProps) {
-  useRegisterAdvance(onAdvance);
-  const gradeAndRecord = useGradeAndRecord(toQuestionResult, {
-    onRecordResult,
+  const { handleSubmit, showAnswer } = useScoreTableAnswer({
+    question,
+    onAdvance,
+    showFeedback,
+    lastAnswerCorrect,
     onAnswer,
-    advance: onAdvance,
+    onRecordResult,
+    onPresentQuestion,
   });
-  usePresentQuestion(question, toUnansweredResult, onPresentQuestion);
-  // トレーニングでは開示時だけでなく回答後の停止中も正解を出す（答え合わせ用）。
-  // 正解のときは出さない — 選んだ値がそのまま正解で、枠の色が正誤を示している
-  const { showAnswer } = useTrainingAnswerVisibility(lastAnswerCorrect);
-
-  const handleSubmit = useCallback(
-    (userAnswer: ScoreTableUserAnswer) => {
-      if (showFeedback) return;
-      gradeAndRecord(question, userAnswer);
-    },
-    [showFeedback, question, gradeAndRecord],
-  );
 
   return (
     <div className="mt-6 space-y-6">

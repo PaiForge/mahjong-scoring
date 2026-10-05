@@ -1,8 +1,6 @@
-import { useCallback } from "react";
 import { StyleSheet, View } from "react-native";
 import { useTranslations } from "use-intl";
 import { generateMentsuFuQuestion } from "@mahjong-scoring/core";
-import type { MentsuFuQuestion } from "@mahjong-scoring/core";
 import { FU_OPTIONS } from "@mahjong-scoring/features/practice/fu-options";
 import {
   toQuestionResult,
@@ -10,12 +8,12 @@ import {
 } from "@mahjong-scoring/features/practice/mentsu-fu/types";
 
 import { FuroTiles } from "../../../board/furo-tiles";
-import type { RecordingPracticeBoardProps } from "../../board-props";
+import type { RecordingPracticeBoardProps } from "@mahjong-scoring/features/practice/board-props";
 import { FuChoiceGrid } from "../../components/fu-choice-grid";
 import { PromptLabel } from "../../components/prompt-label";
 import { QuestionPlaceholder } from "../../components/question-placeholder";
 import { QuestionPrompt } from "../../components/question-prompt";
-import { useFuChoiceBoard } from "../../hooks/use-fu-choice-board";
+import { useFuChoiceBoard } from "@mahjong-scoring/features/practice/use-fu-choice-board";
 
 /**
  * 面子符の出題盤面（面子の提示と符の選択）
@@ -33,23 +31,14 @@ export function MentsuFuBoard({
   onPresentQuestion,
 }: RecordingPracticeBoardProps<MentsuFuQuestionResult>) {
   const t = useTranslations("mentsuFu");
-  const recordResult = useCallback(
-    (question: MentsuFuQuestion, fu: number) =>
-      onRecordResult?.(toQuestionResult(question, fu)),
-    [onRecordResult],
-  );
-  const presentQuestion = useCallback(
-    (question: MentsuFuQuestion) =>
-      onPresentQuestion?.(toQuestionResult(question, undefined)),
-    [onPresentQuestion],
-  );
   const { question, selectedFu, handleSelect } = useFuChoiceBoard({
     generateQuestion: generateMentsuFuQuestion,
     options: FU_OPTIONS,
+    toResult: toQuestionResult,
     showFeedback,
     onAnswer,
-    onRecordResult: recordResult,
-    onPresentQuestion: presentQuestion,
+    onRecordResult,
+    onPresentQuestion,
   });
 
   if (!question) {

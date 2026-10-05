@@ -2,16 +2,12 @@ import { Pressable, StyleSheet, Text, View } from "react-native";
 import { useRouter } from "expo-router";
 import { useTranslations } from "use-intl";
 import {
-  getChapterBySlug,
   type CurriculumChapterSlug,
   type PracticeLink,
 } from "@mahjong-scoring/features/curriculum/registry";
-import { quizLessonBySlug } from "@mahjong-scoring/features/lessons/registry";
-import {
-  practiceMenuFromCatalog,
-  practiceTitleKey,
-} from "@mahjong-scoring/features/practice/catalog";
-import { practiceVariantLabel } from "@mahjong-scoring/features/practice/practice-variant-label";
+import { relatedPracticeLinks } from "@mahjong-scoring/features/lessons/registry";
+import { practiceMenuFromCatalog } from "@mahjong-scoring/features/practice/catalog";
+import { practiceDisplayTitle } from "@mahjong-scoring/features/practice/practice-variant-label";
 import { practiceHref } from "@mahjong-scoring/features/routes";
 
 import { BeltPill } from "../../components/belt-pill";
@@ -34,8 +30,7 @@ function RelatedPracticeCard({ link }: { readonly link: PracticeLink }) {
   const tAll = useTranslations();
   const router = useRouter();
   const rank = practiceMenuFromCatalog(link.slug)?.rank;
-  const title = t(practiceTitleKey(link.slug));
-  const variantLabel = practiceVariantLabel(tAll, link.slug, link.variant);
+  const title = practiceDisplayTitle(tAll, link.slug, link.variant);
 
   return (
     <Pressable
@@ -44,9 +39,7 @@ function RelatedPracticeCard({ link }: { readonly link: PracticeLink }) {
       style={({ pressed }) => [styles.card, pressed && styles.pressed]}
     >
       <View style={styles.header}>
-        <Text style={styles.title}>
-          {variantLabel ? `${title}（${variantLabel}）` : title}
-        </Text>
+        <Text style={styles.title}>{title}</Text>
         {rank !== undefined && (
           <BeltPill slug={rank} label={tRanks(`names.${rank}`)} />
         )}
@@ -84,11 +77,7 @@ export function ChapterRelatedLinks({
   readonly exclude?: PracticeLink;
 }) {
   const t = useTranslations("lessons.related");
-  const links = (
-    quizLessonBySlug(slug)?.practiceLinks ??
-    getChapterBySlug(slug)?.practiceLinks ??
-    []
-  ).filter(
+  const links = relatedPracticeLinks(slug).filter(
     (link) =>
       exclude === undefined ||
       link.slug !== exclude.slug ||

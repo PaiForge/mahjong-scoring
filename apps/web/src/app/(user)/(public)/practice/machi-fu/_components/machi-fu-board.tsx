@@ -1,18 +1,16 @@
 "use client";
 
-import { useCallback } from "react";
 import { useTranslations } from "next-intl";
 import { generateMachiFuQuestion } from "@mahjong-scoring/core";
-import type { MachiFuQuestion } from "@mahjong-scoring/core";
 import { FuChoiceGrid } from "../../_components/fu-choice-grid";
-import { useFuChoiceBoard } from "../../_hooks/use-fu-choice-board";
+import { useFuChoiceBoard } from "@mahjong-scoring/features/practice/use-fu-choice-board";
 import { MACHI_FU_OPTIONS } from "@mahjong-scoring/features/practice/machi-fu/fu-options";
 import { MachiFuPrompt } from "./machi-fu-prompt";
 import { QuestionGeneratingPlaceholder } from "../../_components/question-generating-placeholder";
 import { QuestionPrompt } from "../../_components/question-prompt";
 import { toQuestionResult } from "@mahjong-scoring/features/practice/machi-fu/types";
 import type { MachiFuQuestionResult } from "@mahjong-scoring/features/practice/machi-fu/types";
-import type { RecordingPracticeBoardProps } from "../../_lib/practice-board-props";
+import type { RecordingPracticeBoardProps } from "@mahjong-scoring/features/practice/board-props";
 
 type MachiFuBoardProps = RecordingPracticeBoardProps<MachiFuQuestionResult>;
 
@@ -29,23 +27,14 @@ export function MachiFuBoard({
   onPresentQuestion,
 }: MachiFuBoardProps) {
   const t = useTranslations("machiFu");
-  const recordResult = useCallback(
-    (question: MachiFuQuestion, fu: number) =>
-      onRecordResult?.(toQuestionResult(question, fu)),
-    [onRecordResult],
-  );
-  const presentQuestion = useCallback(
-    (question: MachiFuQuestion) =>
-      onPresentQuestion?.(toQuestionResult(question, undefined)),
-    [onPresentQuestion],
-  );
   const { question, selectedFu, handleSelect } = useFuChoiceBoard({
     generateQuestion: generateMachiFuQuestion,
     options: MACHI_FU_OPTIONS,
+    toResult: toQuestionResult,
     showFeedback,
     onAnswer,
-    onRecordResult: recordResult,
-    onPresentQuestion: presentQuestion,
+    onRecordResult,
+    onPresentQuestion,
   });
 
   if (!question) {

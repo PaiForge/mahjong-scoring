@@ -1,4 +1,4 @@
-import type { generateTotalFuQuestion } from "@mahjong-scoring/core";
+import { generateTotalFuQuestion, retryGenerate } from "@mahjong-scoring/core";
 import {
   PRACTICE_SLUG,
   resultStorageKeyFor,
@@ -46,3 +46,22 @@ export const EXAM_GENERATE_OPTIONS = {
  * 平均試行回数は2〜3回のままなので生成コストも増えない。
  */
 export const EXAM_GENERATION_MAX_RETRIES = 100;
+
+/**
+ * 昇級試験（手牌の合計符）の翻訳名前空間
+ * 昇級試験翻訳名前空間
+ */
+export const EXAM_TRANSLATION_NAMESPACE = "fuExamChallenge";
+
+/**
+ * 昇級試験（手牌の合計符）の 1 問を生成する
+ * 昇級試験出題生成
+ *
+ * 本番と模試で同じ条件。依存が無いのでモジュールに置き、盤面へ渡す参照を固定する。
+ */
+export function generateExamQuestion() {
+  return retryGenerate(
+    () => generateTotalFuQuestion(EXAM_GENERATE_OPTIONS),
+    EXAM_GENERATION_MAX_RETRIES,
+  );
+}

@@ -1,10 +1,9 @@
 import { getChapterBySlug, getChapterI18nPath } from "../curriculum/registry";
 import type { JourneyStep } from "./journey";
-import { practiceTitleKey } from "../practice/catalog";
 import { practiceMenuBySlug } from "../practice-menu-types";
 import { rankRequiringMenu, rankTier } from "../ranks/registry";
 import { chapterHref, practiceHref } from "../routes";
-import { practiceVariantLabel } from "../practice/practice-variant-label";
+import { practiceDisplayTitle } from "../practice/practice-variant-label";
 
 /**
  * 辞書全体を引ける翻訳関数。サーバーの `getTranslations()` でもクライアントの
@@ -51,9 +50,7 @@ export function journeyStepTitle(
         : "";
     }
     case "practice": {
-      const title = tAll(`practice.${practiceTitleKey(step.slug)}`);
-      const variantLabel = practiceVariantLabel(tAll, step.slug, step.variant);
-      return variantLabel ? `${title}（${variantLabel}）` : title;
+      return practiceDisplayTitle(tAll, step.slug, step.variant);
     }
     case "exam": {
       const rank = rankRequiringMenu(

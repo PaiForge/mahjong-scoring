@@ -1,21 +1,18 @@
 import { StyleSheet, Text } from "react-native";
 import { useTranslations } from "use-intl";
-import { FU_VALUES } from "@mahjong-scoring/core";
+import { HAN_COLS } from "@mahjong-scoring/features/score-table/han-cols";
+import {
+  FREQUENT_FU,
+  FU_ROWS,
+  normalCellId,
+  scoreGridKey,
+} from "@mahjong-scoring/features/score-table/score-grid";
 import type { Role, RoleScore, WinType } from "@mahjong-scoring/core";
 
 import { DataTable, type DataTableColumn } from "../components/data-table";
 import { colors } from "../lib/theme";
 import { HideableScore } from "./hideable-score";
 import { TsumoScore } from "./tsumo-score";
-
-/** 符×翻表の翻数列（1〜4翻）。5翻以上は満貫以上の表が受け持つ */
-export const HAN_COLS = [1, 2, 3, 4] as const;
-
-/** 符×翻表の符行（20〜110符） */
-const FU_ROWS = FU_VALUES;
-
-/** 頻出符（30・40符）。行見出しを太字で示す */
-const FREQUENT_FU: ReadonlySet<number> = new Set([30, 40]);
 
 /** 符の列の幅。見出しの「符＼翻」が折り返さない最小限（web の `w-16`） */
 const FU_COLUMN_WIDTH = 60;
@@ -65,7 +62,7 @@ export function NormalScoreTable({
       <Text style={[styles.fu, isFrequent && styles.fuFrequent]}>{fu}</Text>
     );
     const scoreCells = HAN_COLS.map((han) => {
-      const score = scoreGrid.get(`${han}-${fu}`);
+      const score = scoreGrid.get(scoreGridKey(han, fu));
       if (score === undefined) {
         return (
           <Text key={han} style={styles.invalid}>
@@ -73,7 +70,7 @@ export function NormalScoreTable({
           </Text>
         );
       }
-      const cellId = `${activeTab}-${winType}-${han}han-${fu}fu`;
+      const cellId = normalCellId(activeTab, winType, han, fu);
       return (
         <HideableScore
           key={han}

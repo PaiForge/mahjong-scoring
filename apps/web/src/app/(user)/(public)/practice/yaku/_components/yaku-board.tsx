@@ -1,11 +1,6 @@
 "use client";
 
-import { useGradeAnswer } from "../../_hooks/use-verified-challenge";
-
-import { useState, useCallback } from "react";
 import { useTranslations } from "next-intl";
-import { generateYakuQuestion, retryGenerate } from "@mahjong-scoring/core";
-import type { YakuQuestion } from "@mahjong-scoring/core";
 import { ChallengeSubmitButton } from "../../_components/challenge-submit-button";
 import { TehaiDisplay } from "../../_components/tehai-display";
 import { TehaiMentsuBreakdown } from "../../_components/tehai-mentsu-breakdown";
@@ -14,31 +9,10 @@ import { YAKU_LIST_HEIGHT_CLASSES, YakuSelectList } from "./yaku-select-list";
 import { YakuSelectedChips } from "./yaku-selected-chips";
 import { QuestionGeneratingPlaceholder } from "../../_components/question-generating-placeholder";
 import { QuestionPrompt } from "../../_components/question-prompt";
-import { useClientGeneratedQuestion } from "../../_hooks/use-client-generated-question";
-import { usePresentQuestion } from "../../_hooks/use-present-question";
-import {
-  useRegisterAdvance,
-  useTrainingMode,
-} from "../../_hooks/use-training-mode";
-import {
-  AnswerOutcome,
-  toAnswerOutcome,
-} from "@mahjong-scoring/features/results/result-schemas";
-import {
-  QUESTION_GENERATION_MAX_RETRIES,
-  toQuestionResult,
-} from "@mahjong-scoring/features/practice/yaku/types";
+import { toAnswerOutcome } from "@mahjong-scoring/features/results/result-schemas";
 import type { YakuQuestionResult } from "@mahjong-scoring/features/practice/yaku/types";
-import type { RecordingPracticeBoardProps } from "../../_lib/practice-board-props";
-
-function generateQuestion(): YakuQuestion | undefined {
-  return retryGenerate(generateYakuQuestion, QUESTION_GENERATION_MAX_RETRIES);
-}
-
-/** 出題中の問題を回答なしの結果に組む（時間切れの届け出用） */
-function toUnansweredResult(question: YakuQuestion): YakuQuestionResult {
-  return toQuestionResult(question, undefined);
-}
+import type { RecordingPracticeBoardProps } from "@mahjong-scoring/features/practice/board-props";
+import { useYakuBoard } from "@mahjong-scoring/features/practice/yaku/use-yaku-board";
 
 interface YakuBoardProps extends RecordingPracticeBoardProps<YakuQuestionResult> {
   /** 直前の回答が正解だったか。トレーニングの答え合わせの色に使う */
@@ -48,7 +22,7 @@ interface YakuBoardProps extends RecordingPracticeBoardProps<YakuQuestionResult>
 /**
  * 役判定の出題盤面（手牌の提示と役の複数選択・一括判定）
  *
- * 出題状態と回答ロジックを内包し、チャレンジ・トレーニング両モードで共有する。
+ * 出題状態と回答ロジックは `useYakuBoard` が持ち、チャレンジ・トレーニング両モードで共有する。
  *
  * 答え合わせはトレーニングでだけ、回答した問題と「わからない」で開示した問題に
  * 対して表示する。チャレンジは制限時間内に解き続ける形式で、成立していた役を
@@ -64,57 +38,20 @@ export function YakuBoard({
   onRecordResult,
   onPresentQuestion,
 }: YakuBoardProps) {
-  const gradeAnswer = useGradeAnswer<YakuQuestion>();
   const t = useTranslations("yaku");
-  const [question, setQuestion] = useClientGeneratedQuestion(generateQuestion);
-  const [selectedYaku, setSelectedYaku] = useState<Set<string>>(new Set());
-  const [questionIndex, setQuestionIndex] = useState(0);
-
-  const advanceQuestion = useCallback(() => {
-    setQuestion(generateQuestion());
-    setSelectedYaku(new Set());
-    setQuestionIndex((index) => index + 1);
-  }, [setQuestion]);
-
-  useRegisterAdvance(question === undefined ? undefined : advanceQuestion);
-  usePresentQuestion(question, toUnansweredResult, onPresentQuestion);
-
-  // 答え合わせはトレーニングで止まっている間だけ出す（開示・回答後のどちらでも）
-  const { isRevealed, isHolding } = useTrainingMode();
-  const showAnswer = isRevealed || isHolding;
-
-  const handleToggleYaku = useCallback(
-    (yakuName: string) => {
-      if (showFeedback) return;
-      setSelectedYaku((prev) => {
-        const next = new Set(prev);
-        if (next.has(yakuName)) {
-          next.delete(yakuName);
-        } else {
-          next.add(yakuName);
-        }
-        return next;
-      });
-    },
-    [showFeedback],
-  );
-
-  const handleSubmit = useCallback(() => {
-    if (!question || showFeedback || selectedYaku.size === 0) return;
-    gradeAnswer(question, [...selectedYaku], (gradedQuestion) => {
-      const result = toQuestionResult(gradedQuestion, [...selectedYaku]);
-      onRecordResult?.(result);
-      onAnswer(result.outcome === AnswerOutcome.Correct, advanceQuestion);
-    });
-  }, [
+  const {
     question,
     selectedYaku,
+    questionIndex,
+    showAnswer,
+    handleToggleYaku,
+    handleSubmit,
+  } = useYakuBoard({
     showFeedback,
     onAnswer,
-    advanceQuestion,
     onRecordResult,
-    gradeAnswer,
-  ]);
+    onPresentQuestion,
+  });
 
   if (!question) {
     return (

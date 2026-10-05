@@ -6,7 +6,10 @@ import type {
   UserAnswer,
 } from "@mahjong-scoring/core";
 import { allowsDoubleYakuman } from "@mahjong-scoring/core";
-import { practiceHanTier } from "@mahjong-scoring/features/practice/score/han-tiers";
+import {
+  formatHan,
+  formatPayment,
+} from "@mahjong-scoring/features/practice/score/format-answer";
 
 import { useYakumanRules } from "../../../hooks/use-rule-settings-store";
 import { colors } from "../../../lib/theme";
@@ -53,18 +56,10 @@ export function NoYakuResultDisplay({
   const noYakuResult =
     userAnswer?.kind === "noYaku" && result !== undefined ? result : undefined;
 
-  const hanDisplay = (han: number) => {
-    const tier = simplifyMangan
-      ? practiceHanTier(han, allowDoubleYakuman)
-      : undefined;
-    return tier
-      ? tScore(`form.options.${tier.key}`)
-      : `${han}${tScore("form.options.hanSuffix")}`;
-  };
+  const hanDisplay = (han: number) =>
+    formatHan(han, { t: tScore, simplifyMangan, allowDoubleYakuman });
   const paymentDisplay = (answer: UserAnswer) =>
-    answer.scoreFromKo !== undefined
-      ? `${answer.scoreFromKo}/${answer.scoreFromOya}`
-      : `${answer.score}${tScore("result.pointSuffix")}`;
+    formatPayment(answer, false, { t: tScore });
   const notApplicable = <CorrectValue value={t("result.notApplicable")} />;
 
   return (

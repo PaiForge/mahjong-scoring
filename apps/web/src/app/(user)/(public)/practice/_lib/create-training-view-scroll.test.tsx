@@ -17,7 +17,7 @@ vi.mock(
   async () => await import("@/test/auth-context-mock"),
 );
 
-import { useRegisterAdvance } from "../_hooks/use-training-mode";
+import { useRegisterAdvance } from "@mahjong-scoring/features/practice/use-training-mode";
 import { createTrainingView } from "./create-challenge-views";
 import { PRACTICE_SCROLL_ANCHOR_ID } from "./scroll-anchor";
 

@@ -1,35 +1,19 @@
-import { useCallback, useState } from "react";
 import { StyleSheet, Text, View } from "react-native";
 import { useTranslations } from "use-intl";
 import { Grid } from "../../../components/grid";
 import { Tile } from "../../../components/tile";
-import { generateJantouFuQuestion, getKazeName } from "@mahjong-scoring/core";
-import type {
-  JantouFuChoice,
-  JantouFuQuestion,
-  Kazehai,
-} from "@mahjong-scoring/core";
-import {
-  toQuestionResult,
-  type JantouFuQuestionResult,
-} from "@mahjong-scoring/features/practice/jantou-fu/types";
+import { getKazeName } from "@mahjong-scoring/core";
+import type { Kazehai } from "@mahjong-scoring/core";
+import type { JantouFuQuestionResult } from "@mahjong-scoring/features/practice/jantou-fu/types";
+import { useJantouFuBoard } from "@mahjong-scoring/features/practice/jantou-fu/use-jantou-fu-board";
 
 import { useRuleSettingsStore } from "../../../hooks/use-rule-settings-store";
 import { colors } from "../../../lib/theme";
-import type { RecordingPracticeBoardProps } from "../../board-props";
+import type { RecordingPracticeBoardProps } from "@mahjong-scoring/features/practice/board-props";
 import { ChoiceButton } from "../../components/choice-button";
+import { QuestionPlaceholder } from "../../components/question-placeholder";
 import { QuestionPrompt } from "../../components/question-prompt";
 import { choiceFeedbackProps } from "../../feedback-styles";
-import { useGeneratedQuestion } from "../../hooks/use-generated-question";
-import { usePresentQuestion } from "../../hooks/use-present-question";
-import { useRegisterAdvance } from "../../hooks/use-training-mode";
-
-/** 出題中の問題を回答なしの結果に組む（時間切れの届け出用） */
-function toUnansweredResult(
-  question: JantouFuQuestion,
-): JantouFuQuestionResult {
-  return toQuestionResult(question, undefined);
-}
 
 /** 場風・自風の提示 */
 function KazeContext({
@@ -57,7 +41,7 @@ function KazeContext({
 /**
  * 雀頭符の出題盤面（場風・自風の提示と 4 択）
  *
- * web の `JantouFuBoard` の移植。出題状態と回答ロジックを内包し、チャレンジ・
+ * web の `JantouFuBoard` の移植。出題状態と回答ロジックは `useJantouFuBoard` が持ち、チャレンジ・
  * トレーニング両モードで共有する。
  */
 export function JantouFuBoard({
@@ -69,33 +53,15 @@ export function JantouFuBoard({
 }: RecordingPracticeBoardProps<JantouFuQuestionResult>) {
   const t = useTranslations("jantouFu");
   const renfonpaiAs4Fu = useRuleSettingsStore((s) => s.renfonpaiAs4Fu);
-  const generate = useCallback(
-    (): JantouFuQuestion => generateJantouFuQuestion({ renfonpaiAs4Fu }),
-    [renfonpaiAs4Fu],
-  );
-  const [question, nextQuestion] = useGeneratedQuestion(generate);
-  const [selectedHai, setSelectedHai] = useState<
-    JantouFuChoice["hai"] | undefined
-  >(undefined);
+  const { question, selectedHai, handleSelect } = useJantouFuBoard({
+    renfonpaiAs4Fu,
+    showFeedback,
+    onAnswer,
+    onRecordResult,
+    onPresentQuestion,
+  });
 
-  const advanceQuestion = useCallback(() => {
-    nextQuestion();
-    setSelectedHai(undefined);
-  }, [nextQuestion]);
-
-  useRegisterAdvance(advanceQuestion);
-  usePresentQuestion(question, toUnansweredResult, onPresentQuestion);
-
-  const handleSelect = useCallback(
-    (index: number) => {
-      if (showFeedback) return;
-      const choice = question.choices[index];
-      setSelectedHai(choice.hai);
-      onRecordResult?.(toQuestionResult(question, choice));
-      onAnswer(choice.isCorrect, advanceQuestion);
-    },
-    [showFeedback, question, onRecordResult, onAnswer, advanceQuestion],
-  );
+  if (!question) return <QuestionPlaceholder label={t("generating")} />;
 
   return (
     <View style={styles.board}>

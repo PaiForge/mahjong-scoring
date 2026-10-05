@@ -13,7 +13,10 @@ import {
   isOya,
   judgeYakuSelection,
 } from "@mahjong-scoring/core";
-import { practiceHanTier } from "@mahjong-scoring/features/practice/score/han-tiers";
+import {
+  formatHan,
+  formatPayment,
+} from "@mahjong-scoring/features/practice/score/format-answer";
 import { formatScoreAnswer } from "@mahjong-scoring/features/results/format-score-answer";
 import { orderYakuDetails } from "@mahjong-scoring/features/results/order-yaku-details";
 import { paymentToScoreTableAnswer } from "@mahjong-scoring/features/results/payment-adapter";
@@ -114,13 +117,8 @@ export function ResultDisplay({
     { ronSuffix: t("result.pointSuffix") },
   );
 
-  const hanDisplay = (hanValue: number, levelName?: string) => {
-    const tier = simplifyMangan
-      ? practiceHanTier(hanValue, allowDoubleYakuman)
-      : undefined;
-    if (tier) return levelName ?? t(`form.options.${tier.key}`);
-    return `${hanValue}${t("form.options.hanSuffix")}`;
-  };
+  const hanDisplay = (hanValue: number) =>
+    formatHan(hanValue, { t, simplifyMangan, allowDoubleYakuman });
 
   const hanAnswer = judged ? (
     <JudgedValue
@@ -223,11 +221,7 @@ export function ResultDisplay({
             answer={
               judged ? (
                 <JudgedValue
-                  value={
-                    judged.answer.scoreFromKo !== undefined
-                      ? `${judged.answer.scoreFromKo}/${judged.answer.scoreFromOya}`
-                      : `${judged.answer.score}${t("result.pointSuffix")}`
-                  }
+                  value={formatPayment(judged.answer, false, { t })}
                   isCorrect={judged.result.isScoreCorrect}
                 />
               ) : (

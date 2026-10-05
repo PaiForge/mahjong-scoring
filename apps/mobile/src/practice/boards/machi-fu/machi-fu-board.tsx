@@ -1,19 +1,17 @@
-import { useCallback } from "react";
 import { StyleSheet, View } from "react-native";
 import { useTranslations } from "use-intl";
 import { generateMachiFuQuestion } from "@mahjong-scoring/core";
-import type { MachiFuQuestion } from "@mahjong-scoring/core";
 import { MACHI_FU_OPTIONS } from "@mahjong-scoring/features/practice/machi-fu/fu-options";
 import {
   toQuestionResult,
   type MachiFuQuestionResult,
 } from "@mahjong-scoring/features/practice/machi-fu/types";
 
-import type { RecordingPracticeBoardProps } from "../../board-props";
+import type { RecordingPracticeBoardProps } from "@mahjong-scoring/features/practice/board-props";
 import { FuChoiceGrid } from "../../components/fu-choice-grid";
 import { QuestionPlaceholder } from "../../components/question-placeholder";
 import { QuestionPrompt } from "../../components/question-prompt";
-import { useFuChoiceBoard } from "../../hooks/use-fu-choice-board";
+import { useFuChoiceBoard } from "@mahjong-scoring/features/practice/use-fu-choice-board";
 import { MachiFuPrompt } from "./machi-fu-prompt";
 
 /**
@@ -31,23 +29,14 @@ export function MachiFuBoard({
   onPresentQuestion,
 }: RecordingPracticeBoardProps<MachiFuQuestionResult>) {
   const t = useTranslations("machiFu");
-  const recordResult = useCallback(
-    (question: MachiFuQuestion, fu: number) =>
-      onRecordResult?.(toQuestionResult(question, fu)),
-    [onRecordResult],
-  );
-  const presentQuestion = useCallback(
-    (question: MachiFuQuestion) =>
-      onPresentQuestion?.(toQuestionResult(question, undefined)),
-    [onPresentQuestion],
-  );
   const { question, selectedFu, handleSelect } = useFuChoiceBoard({
     generateQuestion: generateMachiFuQuestion,
     options: MACHI_FU_OPTIONS,
+    toResult: toQuestionResult,
     showFeedback,
     onAnswer,
-    onRecordResult: recordResult,
-    onPresentQuestion: presentQuestion,
+    onRecordResult,
+    onPresentQuestion,
   });
 
   if (!question) {

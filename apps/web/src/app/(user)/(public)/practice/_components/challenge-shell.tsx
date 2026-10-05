@@ -1,6 +1,6 @@
 "use client";
 
-import { type ReactNode, memo, useEffect, useRef, useCallback } from "react";
+import { type ReactNode, memo, useEffect, useCallback } from "react";
 import { useTranslations } from "next-intl";
 import type { PracticeMenuSlug } from "@mahjong-scoring/features/practice-menu-types";
 import { ContentContainer } from "@/app/(user)/_components/content-container";
@@ -17,7 +17,6 @@ import type {
   FinishCallbackArgs,
   FinishCallbackResult,
 } from "../_hooks/use-finish-redirect";
-import { useGameTimer } from "@mahjong-scoring/features/session/use-game-timer";
 import { useFinishRedirect } from "../_hooks/use-finish-redirect";
 import { useQuitConfirm } from "../_hooks/use-quit-confirm";
 import { useScrollToElement } from "../_hooks/use-scroll-to-element";
@@ -36,6 +35,8 @@ import {
   PracticeFooterAction,
   PracticeFooterActions,
 } from "./practice-footer-actions";
+import { useChallengeClock } from "@mahjong-scoring/features/session/use-challenge-clock";
+import { useQuitPause } from "@mahjong-scoring/features/session/use-quit-pause";
 
 interface LifeIndicatorProps {
   readonly remainingLives: number;
@@ -165,20 +166,7 @@ export function ChallengeShell({
     window.scrollTo({ top: 0, behavior: "instant" });
   }, [isFinished]);
 
-  const wasPausedBeforeQuitRef = useRef(false);
-
-  const handleQuitOpen = useCallback(() => {
-    wasPausedBeforeQuitRef.current = gameSession.isPaused;
-    if (!gameSession.isPaused) {
-      gameSession.togglePause();
-    }
-  }, [gameSession]);
-
-  const handleQuitCancelResume = useCallback(() => {
-    if (!wasPausedBeforeQuitRef.current) {
-      gameSession.togglePause();
-    }
-  }, [gameSession]);
+  const { pauseForQuit, resumeAfterQuit } = useQuitPause(gameSession);
 
   const {
     isQuitModalOpen,
@@ -186,38 +174,16 @@ export function ChallengeShell({
     handleQuitCancel,
     handleQuitConfirm,
   } = useQuitConfirm({
-    onOpen: handleQuitOpen,
-    onCancel: handleQuitCancelResume,
+    onOpen: pauseForQuit,
+    onCancel: resumeAfterQuit,
     variant,
     resolveExitHref,
   });
 
-  const {
-    remainingSeconds,
-    elapsedMs,
-    reset: resetTimer,
-    sync: syncTimer,
-  } = useGameTimer({
-    timeLimit: gameSession.timeLimit,
-    onTimeLimitReached: timerControl.onTimeLimitReached,
-    isActive: timerControl.isActive,
+  const { remainingSeconds, elapsedMs } = useChallengeClock({
+    gameSession,
+    timerControl,
   });
-
-  // サーバーが採点のたびに返す時計へ合わせ直す（ずれを積み上げない。
-  // 理由は TimerControl.clock の TSDoc）
-  const clock = timerControl.clock;
-  useEffect(() => {
-    if (clock) syncTimer(clock.elapsedMs);
-  }, [clock, syncTimer]);
-
-  // タイマーリセット関数を timerControl に登録（セッションリセット時に使用）
-  const registerTimerResetRef = useRef(timerControl.registerTimerReset);
-  useEffect(() => {
-    registerTimerResetRef.current = timerControl.registerTimerReset;
-  });
-  useEffect(() => {
-    registerTimerResetRef.current(resetTimer);
-  }, [resetTimer]);
 
   useFinishRedirect({
     isFinished: gameSession.isFinished,

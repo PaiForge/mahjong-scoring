@@ -2,7 +2,7 @@ import { useMemo, useState } from "react";
 import { StyleSheet, Text, View } from "react-native";
 import { useTranslations } from "use-intl";
 import { Hai } from "@pai-forge/mahjong-react-ui";
-import { MentsuType, resolveMentsuBreakdown } from "@mahjong-scoring/core";
+import { resolveMentsuBreakdown } from "@mahjong-scoring/core";
 import type {
   AgariContext,
   HaiKindId,
@@ -16,6 +16,10 @@ import { InfoModal } from "../components/info-modal";
 import { colors } from "../lib/theme";
 import { FuroTiles } from "./furo-tiles";
 import { ReferenceLinkButton } from "../practice/components/reference-link-button";
+import {
+  hasRonMinkou,
+  mentsuBreakdownLabelKey,
+} from "@mahjong-scoring/features/board/mentsu-breakdown";
 
 function ClosedTiles({
   hais,
@@ -54,19 +58,9 @@ export function TehaiMentsuBreakdown({
   );
   if (!breakdown) return undefined;
 
-  const mentsuLabel = (row: MentsuBreakdownRow): string => {
-    switch (row.mentsu.type) {
-      case MentsuType.Shuntsu:
-        return t("shuntsu");
-      case MentsuType.Koutsu:
-        return row.isOpen ? t("minkou") : t("ankou");
-      case MentsuType.Kantsu:
-        return row.isOpen ? t("minkan") : t("ankan");
-    }
-  };
-  const hasRonMinkou = breakdown.fourMentsu.some(
-    (row) => row.isOpen && !row.isExposed,
-  );
+  const mentsuLabel = (row: MentsuBreakdownRow): string =>
+    t(mentsuBreakdownLabelKey(row));
+  const showsRonMinkouNote = hasRonMinkou(breakdown.fourMentsu);
 
   return (
     <View style={styles.trigger}>
@@ -115,7 +109,7 @@ export function TehaiMentsuBreakdown({
               ],
             ]}
           />
-          {hasRonMinkou && (
+          {showsRonMinkouNote && (
             <Text style={styles.note}>{t("mentsuBreakdownMinkouNote")}</Text>
           )}
         </View>

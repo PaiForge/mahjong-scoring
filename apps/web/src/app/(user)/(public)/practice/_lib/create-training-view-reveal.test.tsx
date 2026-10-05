@@ -20,7 +20,7 @@ vi.mock(
 import {
   useRegisterAdvance,
   useTrainingMode,
-} from "../_hooks/use-training-mode";
+} from "@mahjong-scoring/features/practice/use-training-mode";
 import { createTrainingView } from "./create-challenge-views";
 
 /**

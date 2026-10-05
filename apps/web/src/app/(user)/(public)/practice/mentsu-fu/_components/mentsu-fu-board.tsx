@@ -1,19 +1,17 @@
 "use client";
 
-import { useCallback } from "react";
 import { useTranslations } from "next-intl";
 import { generateMentsuFuQuestion } from "@mahjong-scoring/core";
-import type { MentsuFuQuestion } from "@mahjong-scoring/core";
 import { Furo } from "@pai-forge/mahjong-react-ui";
 import { FuChoiceGrid } from "../../_components/fu-choice-grid";
 import { PromptLabel } from "../../_components/prompt-label";
-import { useFuChoiceBoard } from "../../_hooks/use-fu-choice-board";
+import { useFuChoiceBoard } from "@mahjong-scoring/features/practice/use-fu-choice-board";
 import { FU_OPTIONS } from "@mahjong-scoring/features/practice/fu-options";
 import { QuestionGeneratingPlaceholder } from "../../_components/question-generating-placeholder";
 import { QuestionPrompt } from "../../_components/question-prompt";
 import { toQuestionResult } from "@mahjong-scoring/features/practice/mentsu-fu/types";
 import type { MentsuFuQuestionResult } from "@mahjong-scoring/features/practice/mentsu-fu/types";
-import type { RecordingPracticeBoardProps } from "../../_lib/practice-board-props";
+import type { RecordingPracticeBoardProps } from "@mahjong-scoring/features/practice/board-props";
 
 type MentsuFuBoardProps = RecordingPracticeBoardProps<MentsuFuQuestionResult>;
 
@@ -30,23 +28,14 @@ export function MentsuFuBoard({
   onPresentQuestion,
 }: MentsuFuBoardProps) {
   const t = useTranslations("mentsuFu");
-  const recordResult = useCallback(
-    (question: MentsuFuQuestion, fu: number) =>
-      onRecordResult?.(toQuestionResult(question, fu)),
-    [onRecordResult],
-  );
-  const presentQuestion = useCallback(
-    (question: MentsuFuQuestion) =>
-      onPresentQuestion?.(toQuestionResult(question, undefined)),
-    [onPresentQuestion],
-  );
   const { question, selectedFu, handleSelect } = useFuChoiceBoard({
     generateQuestion: generateMentsuFuQuestion,
     options: FU_OPTIONS,
+    toResult: toQuestionResult,
     showFeedback,
     onAnswer,
-    onRecordResult: recordResult,
-    onPresentQuestion: presentQuestion,
+    onRecordResult,
+    onPresentQuestion,
   });
 
   if (!question) {

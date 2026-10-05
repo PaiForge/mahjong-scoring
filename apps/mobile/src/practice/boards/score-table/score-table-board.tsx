@@ -1,43 +1,26 @@
-import { useCallback } from "react";
+import { useMemo } from "react";
 import { StyleSheet, View } from "react-native";
-import type {
-  ScoreTableQuestion,
-  ScoreTableUserAnswer,
-} from "@mahjong-scoring/core";
+import { useTranslations } from "use-intl";
+import type { ScoreTableQuestion } from "@mahjong-scoring/core";
 import type { PracticeVariantOf } from "@mahjong-scoring/features/practice-menu-types";
-import {
-  toQuestionResult,
-  type ScoreTableQuestionResult,
-} from "@mahjong-scoring/features/practice/score-table/types";
-import { AnswerOutcome } from "@mahjong-scoring/features/results/result-schemas";
+import { type ScoreTableQuestionResult } from "@mahjong-scoring/features/practice/score-table/types";
 
 import { radius } from "../../../lib/theme";
-import type { RecordingPracticeBoardProps } from "../../board-props";
+import type { RecordingPracticeBoardProps } from "@mahjong-scoring/features/practice/board-props";
 import { feedbackFrameStyle } from "../../feedback-styles";
-import { usePresentQuestion } from "../../hooks/use-present-question";
-import {
-  useRegisterAdvance,
-  useTrainingAnswerVisibility,
-} from "../../hooks/use-training-mode";
 import { ScoreTableAnswerForm } from "./score-table-answer-form";
 import { ScoreTablePrompt } from "./score-table-prompt";
-import {
-  useScoreTableGeneratorOptions,
-  useScoreTableQuestion,
-} from "./use-score-table-question";
+import { QuestionPlaceholder } from "../../components/question-placeholder";
+import { useRuleSettingsStore } from "../../../hooks/use-rule-settings-store";
+import { scoreTableGeneratorOptions } from "@mahjong-scoring/features/practice/score-table/variants";
+import { useScoreTableAnswer } from "@mahjong-scoring/features/practice/score-table/use-score-table-answer";
+import { useScoreTableQuestion } from "@mahjong-scoring/features/practice/score-table/use-score-table-question";
 
 interface ScoreTableBoardProps extends RecordingPracticeBoardProps<ScoreTableQuestionResult> {
   /** 現在の問題 */
   readonly question: ScoreTableQuestion;
   /** 次の問題へ進む（回答後の遷移に使用） */
   readonly onAdvance: () => void;
-}
-
-/** 出題中の問題を回答なしの結果に組む（時間切れの届け出用） */
-function toUnansweredResult(
-  question: ScoreTableQuestion,
-): ScoreTableQuestionResult {
-  return toQuestionResult(question, undefined);
 }
 
 /**
@@ -59,21 +42,15 @@ export function ScoreTableBoard({
   onRecordResult,
   onPresentQuestion,
 }: ScoreTableBoardProps) {
-  useRegisterAdvance(onAdvance);
-  usePresentQuestion(question, toUnansweredResult, onPresentQuestion);
-  // トレーニングでは開示時だけでなく回答後の停止中も正解を出す（答え合わせ用）。
-  // 正解のときは出さない — 選んだ値がそのまま正解で、枠の色が正誤を示している
-  const { showAnswer } = useTrainingAnswerVisibility(lastAnswerCorrect);
-
-  const handleSubmit = useCallback(
-    (userAnswer: ScoreTableUserAnswer) => {
-      if (showFeedback) return;
-      const result = toQuestionResult(question, userAnswer);
-      onRecordResult?.(result);
-      onAnswer(result.outcome === AnswerOutcome.Correct, onAdvance);
-    },
-    [showFeedback, question, onRecordResult, onAnswer, onAdvance],
-  );
+  const { handleSubmit, showAnswer } = useScoreTableAnswer({
+    question,
+    onAdvance,
+    showFeedback,
+    lastAnswerCorrect,
+    onAnswer,
+    onRecordResult,
+    onPresentQuestion,
+  });
 
   return (
     <View style={styles.board}>
@@ -115,11 +92,15 @@ export function ScoreTableVariantBoard({
 }: RecordingPracticeBoardProps<ScoreTableQuestionResult> & {
   readonly variant: PracticeVariantOf<"score-table">;
 }) {
-  const generatorOptions = useScoreTableGeneratorOptions(
-    variant,
-    props.isTraining ?? false,
+  const t = useTranslations("scoreTableChallenge");
+  const kiriageMangan = useRuleSettingsStore((s) => s.kiriageMangan);
+  const isTraining = props.isTraining ?? false;
+  const generatorOptions = useMemo(
+    () => scoreTableGeneratorOptions(variant, { kiriageMangan, isTraining }),
+    [variant, kiriageMangan, isTraining],
   );
   const { question, advance } = useScoreTableQuestion(generatorOptions);
+  if (!question) return <QuestionPlaceholder label={t("generating")} />;
   return <ScoreTableBoard {...props} question={question} onAdvance={advance} />;
 }
 

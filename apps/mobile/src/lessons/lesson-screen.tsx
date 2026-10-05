@@ -17,9 +17,7 @@ import { ChapterNav } from "./components/chapter-nav";
 import { ChapterRelatedLinks } from "./components/chapter-related-links";
 import { LessonView } from "./components/lesson-view";
 import { renderLessonGuide } from "./guide-registry";
-
-/** レッスンの目次（タブ）のパス */
-const LESSONS_PATH = "/lessons";
+import { LESSONS_PATH } from "@mahjong-scoring/features/routes";
 
 /**
  * レッスンが見つからない（未知の slug・モバイル未移植の章）

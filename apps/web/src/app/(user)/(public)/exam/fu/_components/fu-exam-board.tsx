@@ -1,23 +1,14 @@
 "use client";
 
-import { generateTotalFuQuestion, retryGenerate } from "@mahjong-scoring/core";
 import { TotalFuQuestionBoard } from "@/app/(user)/(public)/practice/_components/total-fu-question-board";
-import type { RecordingPracticeBoardProps } from "@/app/(user)/(public)/practice/_lib/practice-board-props";
+import type { RecordingPracticeBoardProps } from "@mahjong-scoring/features/practice/board-props";
 import {
-  EXAM_GENERATE_OPTIONS,
-  EXAM_GENERATION_MAX_RETRIES,
+  EXAM_TRANSLATION_NAMESPACE,
+  generateExamQuestion,
 } from "@mahjong-scoring/features/exam/fu/types";
 import type { FuExamQuestionResult } from "@mahjong-scoring/features/exam/fu/types";
 
 type FuExamBoardProps = RecordingPracticeBoardProps<FuExamQuestionResult>;
-
-/** 本番と模試で同じ条件の 1 問（依存が無いのでモジュールに置いて参照を固定する） */
-function generateExamQuestion() {
-  return retryGenerate(
-    () => generateTotalFuQuestion(EXAM_GENERATE_OPTIONS),
-    EXAM_GENERATION_MAX_RETRIES,
-  );
-}
 
 /**
  * 昇級試験（手牌の合計符）の出題盤面（手牌の提示と符の選択）
@@ -40,7 +31,7 @@ export function FuExamBoard(props: FuExamBoardProps) {
     <TotalFuQuestionBoard
       {...props}
       generateQuestion={generateExamQuestion}
-      translationNamespace="fuExamChallenge"
+      translationNamespace={EXAM_TRANSLATION_NAMESPACE}
       // 選択肢が 11 個並ぶぶん他の試験より高い（`loading.tsx` と同じ tall）
       boardHeight="fuExam"
     />

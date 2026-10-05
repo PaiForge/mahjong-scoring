@@ -8,7 +8,7 @@ import {
   DataTableRowHeaderCell,
 } from "@/app/(user)/_components/data-table";
 import { TABLE_HIGHLIGHT_CELL_CLASS } from "@/app/(user)/_components/_lib/table-highlight";
-import { HAN_COLS } from "@/app/(user)/(public)/reference/score-table/_lib/score-table-utils";
+import { HAN_COLS } from "@mahjong-scoring/features/score-table/han-cols";
 import { TsumoScore } from "@/app/(user)/(public)/reference/score-table/_components/tsumo-score";
 
 import {
