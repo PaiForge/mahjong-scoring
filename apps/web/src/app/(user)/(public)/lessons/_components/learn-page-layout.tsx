@@ -26,7 +26,7 @@ import {
 } from "@mahjong-scoring/features/journey/journey-step";
 import { buildLearnArticleSchema } from "../_lib/json-ld";
 import { chapterNamespace } from "@mahjong-scoring/features/curriculum/chapter-namespace";
-import { formatPublishedDate } from "../_lib/published-date";
+import { formatPublishedDate } from "@mahjong-scoring/features/curriculum/published-date";
 import { LESSON_SCROLL_ANCHOR_ID } from "../_lib/scroll-anchor";
 import { ChapterCompleteButton } from "./chapter-complete-button";
 import { ChapterNav } from "./chapter-nav";
