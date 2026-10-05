@@ -21,8 +21,7 @@ import { RANK_REGISTRY } from "@mahjong-scoring/features/ranks/registry";
  * カードの丈は、レッスン 5 行（章の説明付き）・練習 6 行・試験のボタンを
  * 足したもの。級を持つユーザーでは開く級が変わり前提章と練習の数も変わる
  * ため丈がずれるが、道場は未ログインでも開ける公開ページで、この状態が
- * 既定の姿。閉じたカードは「帯 + 級名 + できるようになること + 進み具合 +
- * 施錠の注記」で、どの級でも同じ丈。
+ * 既定の姿。閉じたカードは「帯 + 級名と合格基準 + 進み具合 + 施錠の注記」で、どの級でも同じ丈。
  */
 export default async function Loading() {
   const t = await getTranslations("dojo");
@@ -45,12 +44,12 @@ export default async function Loading() {
               <SkeletonBar
                 key={rank.slug}
                 radius="xl"
-                // 実測（2026-10-05）: 開いた 5級のカードは 1,027px（sm 以上 1,015px）、
-                // 閉じたカードは 232px（sm 以上 220px）
+                // 実測（2026-10-05）: 開いた 5級のカードは 975px（sm 以上 983px）、
+                // 閉じたカードは 180px（sm 以上 188px）
                 className={
                   index === 0
-                    ? "h-[1027px] w-full sm:h-[1015px]"
-                    : "h-[232px] w-full sm:h-[220px]"
+                    ? "h-[975px] w-full sm:h-[983px]"
+                    : "h-[180px] w-full sm:h-[188px]"
                 }
                 tone={100}
               />
