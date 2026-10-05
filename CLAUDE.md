@@ -5,7 +5,7 @@
 ## 関連リポジトリ
 
 - **旧リポ**: `/Users/k0kishima/work/PaiForge/mahjong-score-drill` — 以前の実装。コードの移植元として参照する。
-- **参考プロジェクト**: `/Users/k0kishima/work/checkmate-works/blindfold-chess` — チェスアプリ。技術スタックをこのプロジェクトと同一にする。
+- **参考プロジェクト**: `/Users/k0kishima/work/checkmate-works/blindfold-chess` — チェスアプリ。技術スタック（言語・フレームワーク・主要ライブラリの選定と構成）をこのプロジェクトと同一にする。バージョンまでは揃えない — 各リポジトリはそれぞれの都合で最新に追従する
 
 ## コーディング規約
 
@@ -63,7 +63,7 @@
 
 ```
 apps/web/          — Next.js 16 (Turbopack, App Router, Tailwind CSS v4)
-apps/mobile/       — Expo SDK 54（expo-router 6, React Native 0.81）。web と同じ画面をネイティブで出す
+apps/mobile/       — Expo SDK 57（expo-router, React Native 0.86）。web と同じ画面をネイティブで出す
 packages/core/     — 共通ドメインロジック（問題生成等）。@pai-forge/riichi-mahjong 依存
 packages/features/ — web とモバイルで共有するアプリのロジック（レジストリ・パス・セッションのフック・設定ストア）
 packages/messages/ — i18n 辞書（ICU 形式。web は next-intl、モバイルは use-intl で同じ辞書を読む）
@@ -85,9 +85,9 @@ web とモバイル（Expo）で共有するロジックを置く。`exports` �
 
 ## モバイル（apps/mobile）
 
-web と同じ画面・同じ見た目をネイティブで出す Expo アプリ。技術スタックは参考プロジェクト
-（blindfold-chess の apps/mobile）に揃えている。ロジックは packages/features / core を共有し、
-アプリ側は画面と RN の部品だけを持つ。
+web と同じ画面・同じ見た目をネイティブで出す Expo アプリ。技術スタック（Expo + expo-router）は
+参考プロジェクト（blindfold-chess の apps/mobile）に揃えている（バージョンは揃えない）。ロジックは
+packages/features / core を共有し、アプリ側は画面と RN の部品だけを持つ。
 
 - **画面の構成は web をなぞる。** ルートは expo-router で web と同じパス（`/practice/<slug>`,
   `/practice/<slug>/play` …）に置き、パスは `@mahjong-scoring/features/routes` で組み立てる。
@@ -103,11 +103,14 @@ web と同じ画面・同じ見た目をネイティブで出す Expo アプリ�
 - **牌は `Tile` / `FuroTiles` を使う。** `@pai-forge/mahjong-react-ui` の `Hai` は `onClick` が
   無くても常に `Pressable` で包まれ、選択肢ボタンの中に置くと牌がタップを奪う。`Furo` /
   `HaiBack` / `Tehai` は `div` と Tailwind のクラスで描く web 専用の実装で、ネイティブでは描けない
-- **TypeScript は 5.9 に固定**（`typescript: ~5.9.3`）。Expo の CLI は TypeScript の JS API を
-  読み込むが、TS7 の npm パッケージは API を持たない（`tsc --noEmit` は通るのに `expo start` が
-  Metro まで届かない）。参考プロジェクトと同じ理由
-- **web 版（`pnpm --filter @mahjong-scoring/mobile web`）は画面確認用。** zustand は web だけ
-  ESM 版に解決されて `import.meta` で落ちるため、`metro.config.js` で CommonJS 版に寄せている
+- **Expo SDK の推奨と違う版を 3 つ意図して使う**（`package.json` の `expo.install.exclude`）。
+  `npx expo install --fix` で戻さないこと
+  - `react` / `react-dom` — ワークスペース全体と同じ版にそろえる。packages/features も devDependency で
+    React を持ち、版が違うと pnpm が別の実体を置き、Metro が共有コードの React を別に解決して
+    React が 2 つバンドルに入る（フックが落ちる）。RN のレンダラーは React の版を厳密には検査しない
+  - `typescript` — 他のパッケージと同じ TS7。SDK 54 では Expo の CLI が TS7 で Metro まで届かず
+    5.9 に固定していたが、SDK 57 では `expo start` から iOS / Android / web のバンドルまで通る
+- **web 版（`pnpm --filter @mahjong-scoring/mobile web`）は画面確認用**
 - 辞書は web と同じもの（`@mahjong-scoring/messages`）を use-intl で読む
 
 ## i18n
