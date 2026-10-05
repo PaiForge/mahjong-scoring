@@ -2,7 +2,7 @@ import { useCallback, useEffect, useState, type ReactNode } from "react";
 import { Pressable, StyleSheet, Text, View } from "react-native";
 import { useTranslations } from "use-intl";
 import { YAKU_DEFAULT_ORDER } from "@mahjong-scoring/core";
-import { YAKU_TO_KEY } from "@mahjong-scoring/features/yaku/yaku-labels";
+import { useYakuLabel } from "@mahjong-scoring/features/yaku/use-yaku-options";
 
 import { Button } from "../components/button";
 import { ConfirmationModal } from "../components/confirmation-modal";
@@ -39,18 +39,6 @@ function swapAdjacent(
   next[index] = other;
   next[target] = moving;
   return next;
-}
-
-/** 役の名前を表示名にする（web の `useYakuLabel`） */
-function useYakuLabel(): (yakuName: string) => string {
-  const tYaku = useTranslations("score.yaku");
-  return useCallback(
-    (yakuName: string) => {
-      const key = YAKU_TO_KEY[yakuName];
-      return key ? tYaku(key) : yakuName;
-    },
-    [tYaku],
-  );
 }
 
 interface YakuOrderRowProps {
