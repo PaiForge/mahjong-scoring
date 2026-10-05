@@ -53,6 +53,6 @@
     "exam": "試験"
   },
   "stageCount": "{done} / {total}",
-  "stageExamNotTaken": "未受験",
+  "stageExamNotPassed": "未合格",
   "stageExamPassed": "合格"
 }

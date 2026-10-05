@@ -44,7 +44,7 @@ export function RankProgressSummary() {
       <div className="flex gap-1">
         <dt className="font-bold">{t("stages.exam")}</dt>
         <dd>
-          {t(progress.examPassed ? "stageExamPassed" : "stageExamNotTaken")}
+          {t(progress.examPassed ? "stageExamPassed" : "stageExamNotPassed")}
         </dd>
       </div>
     </dl>
