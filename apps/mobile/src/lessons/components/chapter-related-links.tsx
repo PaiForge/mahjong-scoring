@@ -2,11 +2,10 @@ import { Pressable, StyleSheet, Text, View } from "react-native";
 import { useRouter } from "expo-router";
 import { useTranslations } from "use-intl";
 import {
-  getChapterBySlug,
   type CurriculumChapterSlug,
   type PracticeLink,
 } from "@mahjong-scoring/features/curriculum/registry";
-import { quizLessonBySlug } from "@mahjong-scoring/features/lessons/registry";
+import { relatedPracticeLinks } from "@mahjong-scoring/features/lessons/registry";
 import {
   practiceMenuFromCatalog,
   practiceTitleKey,
@@ -84,11 +83,7 @@ export function ChapterRelatedLinks({
   readonly exclude?: PracticeLink;
 }) {
   const t = useTranslations("lessons.related");
-  const links = (
-    quizLessonBySlug(slug)?.practiceLinks ??
-    getChapterBySlug(slug)?.practiceLinks ??
-    []
-  ).filter(
+  const links = relatedPracticeLinks(slug).filter(
     (link) =>
       exclude === undefined ||
       link.slug !== exclude.slug ||
