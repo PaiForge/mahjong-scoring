@@ -5,6 +5,7 @@ describe("parseFinishReason", () => {
   it("既知の理由はそのまま返す", () => {
     expect(parseFinishReason("timeUp")).toBe("timeUp");
     expect(parseFinishReason("mistakeLimit")).toBe("mistakeLimit");
+    expect(parseFinishReason("goalReached")).toBe("goalReached");
   });
 
   it("付いていない・壊れている値は undefined", () => {
@@ -23,6 +24,10 @@ describe("listedProblemCount", () => {
 
   it("ミス上限なら答えた問題だけ", () => {
     expect(listedProblemCount(7, "mistakeLimit")).toBe(7);
+  });
+
+  it("目標到達なら答えた問題だけ", () => {
+    expect(listedProblemCount(7, "goalReached")).toBe(7);
   });
 
   it("理由が分からなければ足さない", () => {

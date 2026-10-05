@@ -4,10 +4,13 @@
  *
  * - `timeUp`: 制限時間が来た。出題中の問題は答えられないまま残る
  * - `mistakeLimit`: ミスが上限に達した。直前に答えた問題で終わる
+ * - `goalReached`: 正解数が目標（昇級試験の合格点）に達した。直前に答えた
+ *   問題で終わる
  */
 export const FinishReason = {
   TimeUp: "timeUp",
   MistakeLimit: "mistakeLimit",
+  GoalReached: "goalReached",
 } as const;
 export type FinishReason = (typeof FinishReason)[keyof typeof FinishReason];
 
@@ -22,7 +25,7 @@ export const FINISH_REASON_PARAM = "reason";
 
 /** 終了理由として妥当な値か */
 export function isFinishReason(value: unknown): value is FinishReason {
-  return value === FinishReason.TimeUp || value === FinishReason.MistakeLimit;
+  return Object.values<unknown>(FinishReason).includes(value);
 }
 
 /**

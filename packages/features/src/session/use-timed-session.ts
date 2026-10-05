@@ -13,6 +13,14 @@ export interface UseTimedSessionOptions {
   readonly feedbackDurationMs?: number;
   readonly countdownFrom?: number;
   /**
+   * ここまで正解したら終える正解数
+   * 目標正解数
+   *
+   * 昇級試験の合格点。届いた時点で合否は決まり、その先を解いても結果は
+   * 変わらないため、そこで終える。未指定なら時間切れかミス上限まで続く。
+   */
+  readonly goalCount?: number;
+  /**
    * 回答して盤面の表示が切り替わるときに呼ぶ処理
    * 表示切り替え通知
    *
@@ -113,6 +121,7 @@ export function useTimedSession({
   mistakeLimit = MISTAKE_LIMIT,
   feedbackDurationMs = ANSWER_FEEDBACK_DURATION_MS,
   countdownFrom = 3,
+  goalCount,
   onDisplayChange,
 }: UseTimedSessionOptions = {}): {
   gameSession: GameSessionState;
@@ -200,7 +209,13 @@ export function useTimedSession({
         setIncorrectCount(newIncorrectCount);
       }
 
-      if (newIncorrectCount >= mistakeLimit) {
+      const finishReason: FinishReason | undefined =
+        newIncorrectCount >= mistakeLimit
+          ? "mistakeLimit"
+          : goalCount !== undefined && newCorrectCount >= goalCount
+            ? "goalReached"
+            : undefined;
+      if (finishReason !== undefined) {
         feedbackTimeoutRef.current = setTimeout(() => {
           if (isFinishedRef.current) return;
           isFinishedRef.current = true;
@@ -208,7 +223,7 @@ export function useTimedSession({
             correctCount: newCorrectCount,
             incorrectCount: newIncorrectCount,
             totalCount: newCorrectCount + newIncorrectCount,
-            reason: "mistakeLimit",
+            reason: finishReason,
             finishedAt: Date.now(),
           });
           setIsFinished(true);
@@ -224,7 +239,7 @@ export function useTimedSession({
         onNext();
       }, feedbackDurationMs);
     },
-    [mistakeLimit, feedbackDurationMs, showFeedback, isPaused],
+    [mistakeLimit, goalCount, feedbackDurationMs, showFeedback, isPaused],
   );
 
   const registerTimerReset = useCallback((resetFn: () => void) => {

@@ -1,4 +1,5 @@
 import { practiceMenuByType } from "@mahjong-scoring/features/practice-menu-types";
+import { rankRequiringMenu } from "@mahjong-scoring/features/ranks/registry";
 import type {
   ChallengeQuestion,
   ChallengeState,
@@ -47,6 +48,18 @@ export function isChallengeTimeUp(state: ChallengeState, now: number): boolean {
   return challengeElapsed(state, now) >= timeLimitMs(state);
 }
 
+/**
+ * 正解数が目標に届いたか
+ *
+ * 目標は昇級試験の合格点（`RANK_REGISTRY` の `minScore`）。届いた時点で
+ * 合否は決まり、その先の回答で結果は変わらないので、挑戦はそこで終わる。
+ * 試験でない練習には目標が無く、常に false。
+ */
+function hasReachedGoal(state: ChallengeState): boolean {
+  const goal = rankRequiringMenu(state.menuType)?.requirement.minScore;
+  return goal !== undefined && state.score >= goal;
+}
+
 /** 行が受付期限（作成から 24 時間）を過ぎたか */
 function isChallengeStale(state: ChallengeState, now: number): boolean {
   return now - state.createdAt >= MAX_AGE_MS;
@@ -73,7 +86,7 @@ export function startedChallenge(
   };
 }
 
-/** 回答受付条件。古い問題番号、早押し、停止中、期限切れ、ミス上限後は拒否する。 */
+/** 回答受付条件。古い問題番号、早押し、停止中、期限切れ、ミス上限後、目標到達後は拒否する。 */
 export function canAnswerChallenge(
   state: ChallengeState,
   sequence: number,
@@ -87,7 +100,8 @@ export function canAnswerChallenge(
     now >= state.resumedAt &&
     !isChallengeStale(state, now) &&
     !isChallengeTimeUp(state, now) &&
-    state.incorrectAnswers < rules.mistakeLimit
+    state.incorrectAnswers < rules.mistakeLimit &&
+    !hasReachedGoal(state)
   );
 }
 
@@ -145,7 +159,8 @@ export function pausedChallenge(
 /**
  * 成績として確定できるなら、記録する所要時間（秒）を返す
  *
- * ミス上限か時間切れに達するまで挑戦は未完了で、早期提出では確定させない。
+ * ミス上限・時間切れ・目標到達のどれかに達するまで挑戦は未完了で、早期提出
+ * では確定させない。
  * 所要時間は制限時間を上限に丸める（一時停止を挟んでも制限時間を超えて
  * 記録しない）。期限切れの行は確定しない。
  */
@@ -158,7 +173,8 @@ export function finishedChallengeTime(
   const elapsed = challengeElapsed(state, now);
   if (
     state.incorrectAnswers < rules.mistakeLimit &&
-    elapsed < timeLimitMs(state)
+    elapsed < timeLimitMs(state) &&
+    !hasReachedGoal(state)
   )
     return undefined;
   return Math.min(rules.timeLimit, Math.round(elapsed / 1000));

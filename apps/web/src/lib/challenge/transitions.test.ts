@@ -1,5 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { practiceMenuByType } from "@mahjong-scoring/features/practice-menu-types";
+import { rankRequiringMenu } from "@mahjong-scoring/features/ranks/registry";
 import type {
   ChallengeQuestion,
   ChallengeState,
@@ -43,6 +44,14 @@ function running(overrides: Partial<ChallengeState> = {}): ChallengeState {
 }
 const START = T0 + 3000;
 
+const EXAM = "mangan_exam";
+const PASS_LINE = rankRequiringMenu(EXAM)?.requirement.minScore ?? Number.NaN;
+
+/** 昇級試験の、カウントダウンが明けた直後の状態 */
+function runningExam(overrides: Partial<ChallengeState> = {}): ChallengeState {
+  return running({ menuType: EXAM, ...overrides });
+}
+
 describe("startedChallenge", () => {
   it("カウントダウンの間は時計も回答も止めておく", () => {
     const state = running();
@@ -63,6 +72,19 @@ describe("canAnswerChallenge", () => {
         START,
       ),
     ).toBe(false);
+  });
+
+  it("昇級試験は合格点に届いたら受け付けない", () => {
+    expect(
+      canAnswerChallenge(runningExam({ score: PASS_LINE - 1 }), 0, START),
+    ).toBe(true);
+    expect(
+      canAnswerChallenge(runningExam({ score: PASS_LINE }), 0, START),
+    ).toBe(false);
+  });
+
+  it("試験でない練習は正解数で締め切らない", () => {
+    expect(canAnswerChallenge(running({ score: 100 }), 0, START)).toBe(true);
   });
 
   it("制限時間ちょうどで締め切る", () => {
@@ -180,6 +202,18 @@ describe("finishedChallengeTime", () => {
     const state = running({ incorrectAnswers: rules.mistakeLimit });
     expect(finishedChallengeTime(state, START + 12_400)).toBe(12);
     expect(finishedChallengeTime(state, START + 12_500)).toBe(13);
+  });
+
+  it("昇級試験は合格点に届いていれば時間内でも確定する", () => {
+    expect(
+      finishedChallengeTime(
+        runningExam({ score: PASS_LINE - 1 }),
+        START + 9_000,
+      ),
+    ).toBe(undefined);
+    expect(
+      finishedChallengeTime(runningExam({ score: PASS_LINE }), START + 9_000),
+    ).toBe(9);
   });
 
   it("作成から 24 時間を過ぎた行は確定しない", () => {
