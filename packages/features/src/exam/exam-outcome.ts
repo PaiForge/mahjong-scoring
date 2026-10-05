@@ -6,17 +6,16 @@
  * ない。ただし制限時間と合格ラインから「合格に必要なペース」は導けるので、
  * 時間切れで届かなかった人にはそれを目標として出す。
  *
- * 試験はミス 1 回で終了するため、終わり方は 2 つしかない:
+ * 試験はミス 1 回か、合格ラインに届いた時点で終了するため、終わり方は 3 つ:
  *
+ * - 合格ラインに到達（`correct ≥ minScore`）— 合格。合格はこの終わり方しかない
  * - 誤答で終了（`total - correct ≥ 1`）— 敗因は正確さ。ここで速さの話を
  *   すると「急げば受かる」と誤読させるので、ペースは出さない
  * - 時間切れ（誤答 0）— 敗因は速さ。合格ペースと今回のペースを並べる
- *
- * 合格ラインに達したあとの誤答は合否に影響しない（合格の判定は正解数だけ）。
  */
 
 /** 試験が終わった理由 */
-export type ExamEnding = "mistake" | "time";
+export type ExamEnding = "goal" | "mistake" | "time";
 
 export interface ExamOutcomeInput {
   readonly correct: number;
@@ -48,7 +47,11 @@ export interface ExamOutcome {
 export function evaluateExamOutcome(input: ExamOutcomeInput): ExamOutcome {
   const { correct, total, elapsedMs, minScore, timeLimitSec } = input;
   const passed = correct >= minScore;
-  const ending: ExamEnding = total - correct >= 1 ? "mistake" : "time";
+  const ending: ExamEnding = passed
+    ? "goal"
+    : total - correct >= 1
+      ? "mistake"
+      : "time";
   return {
     passed,
     remaining: Math.max(minScore - correct, 0),

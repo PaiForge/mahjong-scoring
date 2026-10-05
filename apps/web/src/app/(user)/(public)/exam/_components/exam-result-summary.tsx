@@ -79,9 +79,11 @@ export async function ExamResultSummary(input: ExamOutcomeInput) {
       </dl>
 
       <p className="text-xs text-surface-500">
-        {outcome.ending === "mistake"
-          ? t("endedByMistake", { n: total })
-          : t("endedByTime")}
+        {outcome.ending === "goal"
+          ? t("endedByGoal")
+          : outcome.ending === "mistake"
+            ? t("endedByMistake", { n: total })
+            : t("endedByTime")}
       </p>
     </div>
   );

@@ -10,6 +10,7 @@
   "averageTimeNone": "—",
   "requiredPaceLabel": "合格ペース",
   "requiredPaceValue": "{seconds} 秒/問",
+  "endedByGoal": "合格ラインに到達して終了",
   "endedByMistake": "{n} 問目の誤答で終了",
   "endedByTime": "制限時間まで解答"
 }

@@ -16,19 +16,8 @@ describe("evaluateExamOutcome", () => {
 
     expect(o.passed).toBe(true);
     expect(o.remaining).toBe(0);
+    expect(o.ending).toBe("goal");
     expect(o.showRequiredPace).toBe(false);
-  });
-
-  it("合格ラインに達したあとの誤答は合否に影響しない", () => {
-    const o = evaluateExamOutcome({
-      ...MANGAN,
-      correct: 6,
-      total: 7,
-      elapsedMs: 50_000,
-    });
-
-    expect(o.passed).toBe(true);
-    expect(o.ending).toBe("mistake");
   });
 
   it("誤答で終わった不合格は、あと N 問だけを出しペースは出さない", () => {
