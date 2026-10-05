@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useId, useMemo, useState } from "react";
+import { useCallback, useId, useMemo } from "react";
 import { useTranslations } from "next-intl";
 import toast from "react-hot-toast";
 import {
@@ -21,12 +21,12 @@ import {
   verticalListSortingStrategy,
 } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
-import { YAKU_DEFAULT_ORDER } from "@mahjong-scoring/core";
 
 import { Button } from "@/app/(user)/_components/button";
 import { ConfirmationModal } from "@/app/(user)/_components/confirmation-modal";
 import { LockClosedIcon } from "@/app/(user)/_components/icons/lock-closed-icon";
 import { LockOpenIcon } from "@/app/(user)/_components/icons/lock-open-icon";
+import { useYakuOrderEditor } from "@mahjong-scoring/features/settings/use-yaku-order-editor";
 import { useYakuLabel } from "@mahjong-scoring/features/yaku/use-yaku-options";
 import {
   useYakuOrder,
@@ -118,11 +118,6 @@ function GripIcon({ className = "shrink-0" }: { readonly className?: string }) {
   );
 }
 
-/** 2 つの並びが同じ役を同じ順で持つか */
-function isSameOrder(a: readonly string[], b: readonly string[]): boolean {
-  return a.length === b.length && a.every((name, index) => name === b[index]);
-}
-
 /**
  * 役の並び順設定セクション
  *
@@ -133,7 +128,8 @@ function isSameOrder(a: readonly string[], b: readonly string[]): boolean {
  * つまみを出さない読むだけの一覧に戻し、解錠したときだけつまめるようにする。
  * つまめる範囲を右端のつまみに限るのは {@link SortableYakuRow} の理由による。
  *
- * 解錠中の並び替えは下書きに溜め、「保存」で初めて永続化する。即時保存だと
+ * 解錠中の並び替えは下書きに溜め、「保存」で初めて永続化する（施錠・保存・
+ * 破棄・既定に戻すの規則は {@link useYakuOrderEditor}）。即時保存だと
  * 保存された瞬間が画面のどこにも出ず、かといって保存ボタンを一覧の下に置くと
  * 36 行の先で見つからない。鍵と保存を一覧の上の追従バーに同居させ、
  * 操作とその結果を同じ場所に置く。
@@ -152,17 +148,15 @@ export function YakuOrderSection() {
   const resetOrder = useYakuOrderStore((s) => s.reset);
   const describedBy = useId();
 
-  /** 解錠中の並び。null なら施錠中で、保存済みの並びをそのまま映す */
-  const [draft, setDraft] = useState<readonly string[] | null>(null);
-  const [isDiscardConfirmOpen, setIsDiscardConfirmOpen] = useState(false);
-  const [isResetConfirmOpen, setIsResetConfirmOpen] = useState(false);
-  const isEditing = draft !== null;
-  const items = useMemo(() => [...(draft ?? savedOrder)], [draft, savedOrder]);
-  const hasUnsavedChanges = draft !== null && !isSameOrder(draft, savedOrder);
-  // 戻す先が今の状態と同じなら押させない。保存済みが既定でも、下書きに
-  // 保存していない並び替えが残っていれば戻す意味がある。
-  const canResetToDefault =
-    !isSameOrder(savedOrder, YAKU_DEFAULT_ORDER) || hasUnsavedChanges;
+  const editor = useYakuOrderEditor({
+    savedOrder,
+    setOrder,
+    resetOrder,
+    onSave: () => toast.success(t("savedToast")),
+    onReset: () => toast.success(t("resetToast")),
+  });
+  const { isEditing, updateDraft } = editor;
+  const items = useMemo(() => [...editor.order], [editor.order]);
 
   const sensors = useSensors(
     // 指を置いただけでは動かさない。リストのスクロールと取り合いにならないようにする。
@@ -172,64 +166,20 @@ export function YakuOrderSection() {
     }),
   );
 
-  const handleDragEnd = useCallback((event: DragEndEvent) => {
-    const { active, over } = event;
-    if (over === null || active.id === over.id) return;
+  const handleDragEnd = useCallback(
+    (event: DragEndEvent) => {
+      const { active, over } = event;
+      if (over === null || active.id === over.id) return;
 
-    setDraft((current) => {
-      if (current === null) return current;
-      const from = current.indexOf(String(active.id));
-      const to = current.indexOf(String(over.id));
-      if (from === -1 || to === -1) return current;
-      return arrayMove([...current], from, to);
-    });
-  }, []);
-
-  const handleUnlock = useCallback(() => {
-    setDraft([...savedOrder]);
-  }, [savedOrder]);
-
-  const handleRequestDiscard = useCallback(() => {
-    // 並び替えていないなら確認を挟まない。誤って触れただけのタップまで
-    // 確認で止めると、何も失わない操作にモーダルを見せることになる。
-    if (!hasUnsavedChanges) {
-      setDraft(null);
-      return;
-    }
-    setIsDiscardConfirmOpen(true);
-  }, [hasUnsavedChanges]);
-
-  const handleConfirmDiscard = useCallback(() => {
-    setIsDiscardConfirmOpen(false);
-    setDraft(null);
-  }, []);
-
-  // 鍵を閉じる操作は「取り消す」と同じ経路を通す。見た目が違うだけで
-  // することは同じなので、確認の有無が食い違わないようにする。
-  const handleToggleLock = isEditing ? handleRequestDiscard : handleUnlock;
-
-  const handleSave = useCallback(() => {
-    if (draft === null) return;
-    // 既定順そのものは保存しない。保存してしまうと既定順を変えたときに
-    // その変更が届かなくなる（use-yaku-order-store の order を参照）。
-    if (isSameOrder(draft, YAKU_DEFAULT_ORDER)) {
-      resetOrder();
-    } else {
-      setOrder(draft);
-    }
-    setDraft(null);
-    setIsDiscardConfirmOpen(false);
-    toast.success(t("savedToast"));
-  }, [draft, resetOrder, setOrder, t]);
-
-  const handleConfirmReset = useCallback(() => {
-    // 既定順そのものは保存しない（handleSave と同じ理由）。空にすることで
-    // 既定順を変えたときにその変更が届く。
-    resetOrder();
-    setDraft(null);
-    setIsResetConfirmOpen(false);
-    toast.success(t("resetToast"));
-  }, [resetOrder, t]);
+      updateDraft((current) => {
+        const from = current.indexOf(String(active.id));
+        const to = current.indexOf(String(over.id));
+        if (from === -1 || to === -1) return current;
+        return arrayMove([...current], from, to);
+      });
+    },
+    [updateDraft],
+  );
 
   return (
     <div className="space-y-3">
@@ -249,7 +199,7 @@ export function YakuOrderSection() {
       >
         <button
           type="button"
-          onClick={handleToggleLock}
+          onClick={editor.toggleLock}
           aria-pressed={isEditing}
           aria-label={isEditing ? t("lockAria") : t("unlockAria")}
           className={`flex size-11 shrink-0 items-center justify-center rounded-md ${
@@ -269,10 +219,10 @@ export function YakuOrderSection() {
 
         {isEditing && (
           <>
-            <Button variant="neutral" size="sm" onClick={handleRequestDiscard}>
+            <Button variant="neutral" size="sm" onClick={editor.requestDiscard}>
               {t("cancel")}
             </Button>
-            <Button variant="primary" size="sm" onClick={handleSave}>
+            <Button variant="primary" size="sm" onClick={editor.save}>
               {t("save")}
             </Button>
           </>
@@ -321,17 +271,17 @@ export function YakuOrderSection() {
         <Button
           variant="neutral"
           size="sm"
-          onClick={() => setIsResetConfirmOpen(true)}
-          disabled={!canResetToDefault}
+          onClick={editor.requestReset}
+          disabled={!editor.canResetToDefault}
         >
           {t("reset")}
         </Button>
       </div>
 
       <ConfirmationModal
-        isOpen={isResetConfirmOpen}
-        onClose={() => setIsResetConfirmOpen(false)}
-        onConfirm={handleConfirmReset}
+        isOpen={editor.isResetConfirmOpen}
+        onClose={editor.cancelReset}
+        onConfirm={editor.confirmReset}
         title={t("resetTitle")}
         confirmText={t("resetConfirm")}
         cancelText={t("resetCancel")}
@@ -339,9 +289,9 @@ export function YakuOrderSection() {
       />
 
       <ConfirmationModal
-        isOpen={isDiscardConfirmOpen}
-        onClose={() => setIsDiscardConfirmOpen(false)}
-        onConfirm={handleConfirmDiscard}
+        isOpen={editor.isDiscardConfirmOpen}
+        onClose={editor.cancelDiscard}
+        onConfirm={editor.confirmDiscard}
         title={t("discardTitle")}
         message={t("discardMessage")}
         confirmText={t("discardConfirm")}
