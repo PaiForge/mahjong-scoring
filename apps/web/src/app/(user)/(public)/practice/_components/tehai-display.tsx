@@ -23,7 +23,7 @@ import {
   preferencesHref,
 } from "@/app/(user)/(public)/preferences/_lib/anchors";
 import { useDoraDisplayMode } from "@/app/_hooks/use-display-settings-store";
-import { resolveDoraTiles } from "@mahjong-scoring/features/settings/dora-display";
+import { resolveBoardDora } from "@mahjong-scoring/features/settings/dora-display";
 
 /** 牌を含まない状況行の高さ（px）。リーチ棒とその名札が収まる高さ */
 const TEXT_ROW_HEIGHT = 22;
@@ -96,18 +96,9 @@ export const TehaiDisplay = memo(function TehaiDisplayComponent({
   // 上段のドラ牌にも同じ倍率で適用するため state で受け取る。
   const [scale, setScale] = useState(1);
 
-  const doraTiles = useMemo(
-    () => resolveDoraTiles(context.doraMarkers ?? [], doraDisplay),
-    [context.doraMarkers, doraDisplay],
-  );
-  // 裏ドラはリーチしている出題でのみ見せる。ここで空にしておくことで、
-  // 描画の有無と状況行の高さ計算が同じ条件を見る。
-  const uraDoraTiles = useMemo(
-    () =>
-      context.isRiichi
-        ? resolveDoraTiles(context.uraDoraMarkers ?? [], doraDisplay)
-        : [],
-    [context.isRiichi, context.uraDoraMarkers, doraDisplay],
+  const { doraTiles, uraDoraTiles } = useMemo(
+    () => resolveBoardDora(context, doraDisplay),
+    [context, doraDisplay],
   );
 
   const handleScaleChange = useCallback(

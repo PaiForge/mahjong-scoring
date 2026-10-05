@@ -29,3 +29,39 @@ export function resolveDoraTiles(
 
   return markers.map(getDoraNext);
 }
+
+/**
+ * 手牌の状況行に並べるドラ・裏ドラ
+ * 盤面ドラ
+ */
+export interface BoardDora {
+  readonly doraTiles: readonly HaiKindId[];
+  /** リーチしていない出題では空 */
+  readonly uraDoraTiles: readonly HaiKindId[];
+}
+
+/**
+ * 出題の表示牌から、状況行に並べるドラ・裏ドラを表示モードどおりに引く
+ * 盤面ドラ解決
+ *
+ * 裏ドラはリーチしている出題でのみ見せる。ここで空にしておくことで、
+ * 描画の有無と状況行の高さ計算が同じ条件を見る。
+ *
+ * @param context 出題のドラ表示牌とリーチの有無
+ * @param mode ドラの表示モード（表示牌 / ドラそのもの）
+ */
+export function resolveBoardDora(
+  context: {
+    readonly doraMarkers?: readonly HaiKindId[];
+    readonly uraDoraMarkers?: readonly HaiKindId[];
+    readonly isRiichi?: boolean;
+  },
+  mode: DoraDisplayMode,
+): BoardDora {
+  return {
+    doraTiles: resolveDoraTiles(context.doraMarkers ?? [], mode),
+    uraDoraTiles: context.isRiichi
+      ? resolveDoraTiles(context.uraDoraMarkers ?? [], mode)
+      : [],
+  };
+}
