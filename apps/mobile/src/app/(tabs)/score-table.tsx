@@ -22,6 +22,7 @@ export default function ScoreTableScreen() {
       renderLayout={({ controls, body }) => (
         <Screen
           title={t("pageTitle")}
+          inTabs
           contentStyle={styles.content}
           stickyHeaderIndices={[CONTROLS_INDEX]}
         >

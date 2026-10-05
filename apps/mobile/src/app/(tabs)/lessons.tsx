@@ -52,7 +52,7 @@ export default function LessonsTab() {
   const allCompleted = next === undefined;
 
   return (
-    <Screen title={t("pageTitle")}>
+    <Screen title={t("pageTitle")} inTabs>
       <View style={styles.page}>
         <View style={styles.intro}>
           <SectionTitle>{t("sectionTitle")}</SectionTitle>

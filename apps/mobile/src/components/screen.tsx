@@ -41,6 +41,14 @@ interface ScreenProps {
    * （チャレンジ・トレーニング・訓練の盤面）に使う
    */
   readonly backIcon?: "chevron" | "close";
+  /**
+   * 下部タブの中の画面か
+   *
+   * タブの中ではタブバーが画面下端のセーフエリアを受け持つので、本文の
+   * 下の余白にセーフエリアを足さない（足すとホームインジケータの高さぶん
+   * 余計に空く）。タブの上に積む画面は本文が画面下端まで届くので足す
+   */
+  readonly inTabs?: boolean;
   readonly children: ReactNode;
   readonly contentStyle?: StyleProp<ViewStyle>;
   /**
@@ -70,6 +78,7 @@ export function Screen({
   back = false,
   onBack,
   backIcon = "chevron",
+  inTabs = false,
   children,
   contentStyle,
   stickyHeaderIndices,
@@ -134,7 +143,7 @@ export function Screen({
         style={styles.body}
         contentContainerStyle={[
           styles.content,
-          { paddingBottom: insets.bottom + 32 },
+          { paddingBottom: (inTabs ? 0 : insets.bottom) + 32 },
           contentStyle,
         ]}
         keyboardShouldPersistTaps="handled"

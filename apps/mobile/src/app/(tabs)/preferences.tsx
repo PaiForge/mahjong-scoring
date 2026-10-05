@@ -20,7 +20,7 @@ export default function PreferencesScreen() {
   const t = useTranslations("settings");
 
   return (
-    <Screen title={t("pageTitle")} contentStyle={styles.content}>
+    <Screen title={t("pageTitle")} inTabs contentStyle={styles.content}>
       <View style={styles.section}>
         <SectionTitle>{t("rulesSectionTitle")}</SectionTitle>
         <RuleSettingsSection />

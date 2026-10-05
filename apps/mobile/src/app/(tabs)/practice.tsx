@@ -70,7 +70,7 @@ export default function PracticeListPage() {
   );
 
   return (
-    <Screen title={t("title")}>
+    <Screen title={t("title")} inTabs>
       {/* 終わりのない訓練（総合演習・待ち別点数計算）。web と同じく見出しを付けない */}
       <View style={styles.banners}>
         <EndlessPracticeBanner
