@@ -1,14 +1,12 @@
 import type { ReactNode } from "react";
 import { useTranslations } from "use-intl";
+import {
+  formatDifference,
+  type AnswerDifference,
+} from "@mahjong-scoring/features/practice/answer-difference";
 import { AnswerOutcome } from "@mahjong-scoring/features/results/result-schemas";
 
 import { DetailTable } from "./detail-table";
-
-interface AnswerDifference {
-  readonly correct: number;
-  readonly user: number;
-  readonly format: (value: number) => string;
-}
 
 interface AnswerComparisonProps {
   /** `<namespace>.result.correctAnswer` / `yourAnswer` を引く辞書の名前空間 */
@@ -19,15 +17,6 @@ interface AnswerComparisonProps {
   /** 数で答える練習の過不足 */
   readonly difference?: AnswerDifference;
   readonly showTitle?: boolean;
-}
-
-function formatDifference(
-  { correct, user, format }: AnswerDifference,
-  noDifferenceLabel: string,
-): string {
-  const diff = user - correct;
-  if (diff === 0) return noDifferenceLabel;
-  return `${diff > 0 ? "+" : "−"}${format(Math.abs(diff))}`;
 }
 
 /**
