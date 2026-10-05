@@ -53,6 +53,7 @@ import { LessonRelatedLinks } from "../_components/lesson-related-links";
 import { NextLessonPreview } from "../_components/next-lesson-preview";
 import { RankGoalPanel } from "../_components/rank-goal-panel";
 import { lessonListHref } from "../_lib/lesson-list-href";
+import { LESSON_SCROLL_ANCHOR_ID } from "../_lib/scroll-anchor";
 
 interface LessonPageProps {
   readonly params: Promise<{ readonly slug: string }>;
@@ -119,6 +120,8 @@ export default async function LessonPage({ params }: LessonPageProps) {
 
   return (
     <ContentContainer
+      id={LESSON_SCROLL_ANCHOR_ID}
+      fillViewport
       breadcrumb={[
         { label: t("breadcrumb"), href: lessonListHref() },
         {

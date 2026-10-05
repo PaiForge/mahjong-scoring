@@ -5,7 +5,9 @@ import {
   render,
   screen,
 } from "@testing-library/react";
-import { beforeEach, describe, expect, it, vi } from "vitest";
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
+
+import { LESSON_SCROLL_ANCHOR_ID } from "../_lib/scroll-anchor";
 
 const { mockCompleteLesson } = vi.hoisted(() => ({
   mockCompleteLesson: vi.fn(),
@@ -30,16 +32,19 @@ const { readPendingLessonCompletions } =
   await import("../_lib/pending-completions-storage");
 const { LessonView } = await import("./lesson-view");
 
+/** ページと同じく、本文のアンカー（ContentContainer の id）の中に描く */
 function renderLesson() {
   return render(
-    <LessonView
-      slug="mangan-ko-ron"
-      messageKey="manganKoRon"
-      chapterSlug="mangan-ko-ron"
-      next={{ href: "/lessons/mangan-ko-tsumo", label: "nextLesson" }}
-      explanation={<p data-testid="explanation" />}
-      related={<p data-testid="related" />}
-    />,
+    <div id={LESSON_SCROLL_ANCHOR_ID}>
+      <LessonView
+        slug="mangan-ko-ron"
+        messageKey="manganKoRon"
+        chapterSlug="mangan-ko-ron"
+        next={{ href: "/lessons/mangan-ko-tsumo", label: "nextLesson" }}
+        explanation={<p data-testid="explanation" />}
+        related={<p data-testid="related" />}
+      />
+    </div>,
   );
 }
 
@@ -359,6 +364,72 @@ describe("LessonView", () => {
         expect.objectContaining({ slug: "mangan-ko-ron", userId: "u1" }),
       ]);
       expect(screen.queryByRole("link", { name: "nextLesson" })).toBeNull();
+    });
+  });
+
+  /**
+   * 練習の開始・次の問題と同じく、問題を画面の先頭に置く。jsdom はレイアウトを
+   * 持たないので、スクロール先が本文のアンカーであることだけを見る
+   */
+  describe("本文の先頭へのスクロール", () => {
+    let scrollIntoView: ReturnType<typeof vi.spyOn>;
+
+    beforeEach(() => {
+      vi.useFakeTimers({ toFake: ["requestAnimationFrame"] });
+      scrollIntoView = vi
+        .spyOn(Element.prototype, "scrollIntoView")
+        .mockImplementation(() => {});
+    });
+
+    afterEach(() => {
+      scrollIntoView.mockRestore();
+      vi.useRealTimers();
+    });
+
+    function scrolledAnchorIds() {
+      const targets = scrollIntoView.mock.instances as unknown as Element[];
+      return targets.map((target) => target.id);
+    }
+
+    it("説明の段階では送らない", () => {
+      renderLesson();
+      expect(scrolledAnchorIds()).toEqual([]);
+    });
+
+    it("確認問題を始めるとアンカーへ送る", () => {
+      renderLesson();
+      startQuiz();
+      expect(scrolledAnchorIds()).toEqual([LESSON_SCROLL_ANCHOR_ID]);
+    });
+
+    it("次の問題へ進むと、次のフレームでアンカーへ送る", () => {
+      renderLesson();
+      startQuiz();
+      scrollIntoView.mockClear();
+
+      fireEvent.click(choice("8,000"));
+      fireEvent.click(screen.getByRole("button", { name: "next" }));
+      act(() => {
+        vi.advanceTimersToNextFrame();
+      });
+
+      expect(scrolledAnchorIds()).toEqual([LESSON_SCROLL_ANCHOR_ID]);
+    });
+
+    it("完了画面へ進むとアンカーへ送る", () => {
+      renderLesson();
+      startQuiz();
+      fireEvent.click(choice("8,000"));
+      fireEvent.click(screen.getByRole("button", { name: "next" }));
+      fireEvent.click(choice("12,000"));
+      fireEvent.click(screen.getByRole("button", { name: "next" }));
+      fireEvent.click(choice("16,000"));
+      scrollIntoView.mockClear();
+
+      fireEvent.click(screen.getByRole("button", { name: "finish" }));
+
+      expect(screen.getByTestId("lesson-achievement")).toBeTruthy();
+      expect(scrolledAnchorIds()).toEqual([LESSON_SCROLL_ANCHOR_ID]);
     });
   });
 

@@ -23,6 +23,7 @@ import {
 import { PromptLabel } from "@/app/(user)/(public)/practice/_components/prompt-label";
 import { QuestionPrompt } from "@/app/(user)/(public)/practice/_components/question-prompt";
 import { getFeedbackStyles } from "@/app/(user)/(public)/practice/_lib/feedback-styles";
+import { scrollToAnchor } from "@/app/(user)/(public)/practice/_lib/scroll-anchor";
 import { TEXT_LINK_CLASSES } from "@/app/_components/_lib/link-classes";
 import { SUB_LINK_GAP } from "@/app/_components/_lib/spacing";
 import { useAuth } from "@/app/_contexts/auth-context";
@@ -46,6 +47,7 @@ import { completeLesson } from "../_actions/complete-lesson";
 import type { LessonFollowUp } from "../_lib/lesson-follow-up";
 import { useLessonCompletion } from "../_hooks/use-lesson-completion";
 import { usePhaseHistory } from "../_hooks/use-phase-history";
+import { LESSON_SCROLL_ANCHOR_ID } from "../_lib/scroll-anchor";
 import { LessonFollowUpProvider } from "./lesson-follow-up-context";
 import {
   forgetPendingLessonCompletions,
@@ -370,6 +372,7 @@ export function LessonView({
   const [phase, pushPhase] = usePhaseHistory(
     PHASES,
     (target) => target !== "done" || finished,
+    LESSON_SCROLL_ANCHOR_ID,
   );
   // 再試行ボタンの連打を止める。state だけだと更新が反映される前に
   // 2 回目が走り得る
@@ -459,6 +462,8 @@ export function LessonView({
     setIndex(index + 1);
     setSelected(undefined);
     setShowHint(false);
+    // 「次へ」は解説の下にあり、押した位置のままだと次の問題が画面外に残る
+    scrollToAnchor(LESSON_SCROLL_ANCHOR_ID);
   };
 
   const handleRetrySave = () => {

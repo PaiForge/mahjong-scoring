@@ -55,7 +55,8 @@ function readScrollY(state: unknown): number {
  * - **スクロール位置は自分で戻す。** ブラウザの自動復元は `popstate` の
  *   直後、まだ前の段階（短い画面）が描かれている間に走り、長い画面の
  *   位置へは届かない。段階を離れるときに位置をその項目へ書き込み、
- *   戻ってきた段階を描いた後に戻す
+ *   戻ってきた段階を描いた後に戻す。進んで着いた新しい段階はアンカー
+ *   （`anchorId`）を先頭にして描く（練習の開始と同じ位置）
  * - **段階は Next.js に消されても書き直す。** Server Action の再検証の後、
  *   Next.js は今の項目の state を書き直してここで書いた段階を落とす。
  *   描画のたびに今の項目へ今の段階を書き戻す（でないと完了画面から戻った
@@ -66,16 +67,21 @@ function readScrollY(state: unknown): number {
  *
  * @param phases 段階の並び（先頭が最初の段階）
  * @param reachable その段階をいま描けるか（中身がメモリにあるか）
+ * @param anchorId 進んで着いた段階で画面の先頭へ送る要素の id
  * @returns 現在の段階と、次の段階へ進めて履歴に積む関数
  */
 export function usePhaseHistory<P extends string>(
   phases: readonly [P, ...P[]],
   reachable: (phase: P) => boolean,
+  anchorId: string,
 ): readonly [P, (phase: P) => void] {
   const initial = phases[0];
   const [phase, setPhase] = useState<P>(initial);
-  /** 次の描画の後に戻すスクロール位置。段階が変わったときだけ使う */
-  const pendingScrollY = useRef<number | undefined>(undefined);
+  /**
+   * 次の描画の後に戻すスクロール位置。段階が変わったときだけ使う。
+   * `"anchor"` は進んで着いた段階で、アンカーを先頭へ送る
+   */
+  const pendingScroll = useRef<number | "anchor" | undefined>(undefined);
   // popstate のリスナーを張り直さずに最新の判定を使う
   const reachableRef = useRef(reachable);
   useEffect(() => {
@@ -85,7 +91,7 @@ export function usePhaseHistory<P extends string>(
   useEffect(() => {
     const onPopState = (event: PopStateEvent) => {
       const target = readPhase(event.state, phases) ?? initial;
-      pendingScrollY.current = readScrollY(event.state);
+      pendingScroll.current = readScrollY(event.state);
       setPhase(reachableRef.current(target) ? target : initial);
     };
     window.addEventListener("popstate", onPopState);
@@ -111,10 +117,19 @@ export function usePhaseHistory<P extends string>(
   });
 
   useLayoutEffect(() => {
-    const y = pendingScrollY.current;
-    if (y === undefined) return;
-    pendingScrollY.current = undefined;
-    window.scrollTo(0, y);
+    const target = pendingScroll.current;
+    if (target === undefined) return;
+    pendingScroll.current = undefined;
+    if (target === "anchor") {
+      // 画面ごと差し替わるので、練習の開始と同じく即時に送る
+      document
+        .getElementById(anchorId)
+        ?.scrollIntoView({ behavior: "instant", block: "start" });
+      return;
+    }
+    window.scrollTo(0, target);
+    // anchorId は呼び出し側の定数
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [phase]);
 
   const push = useCallback((next: P) => {
@@ -124,8 +139,8 @@ export function usePhaseHistory<P extends string>(
       "",
     );
     window.history.pushState({ [PHASE_KEY]: next }, "");
-    // 新しい段階は先頭から読ませる
-    pendingScrollY.current = 0;
+    // 新しい段階は問題（アンカー）を先頭にして見せる
+    pendingScroll.current = "anchor";
     setPhase(next);
   }, []);
 
