@@ -2,11 +2,13 @@
 
 import type { ComponentType } from "react";
 import { useTranslations } from "next-intl";
+import { isOya } from "@mahjong-scoring/core";
 import { QuestionGeneratingPlaceholder } from "@/app/(user)/(public)/practice/_components/question-generating-placeholder";
 import { QuestionPrompt } from "@/app/(user)/(public)/practice/_components/question-prompt";
 import { TehaiMentsuBreakdown } from "@/app/(user)/(public)/practice/_components/tehai-mentsu-breakdown";
 import { YakuBreakdown } from "@/app/(user)/(public)/practice/_components/yaku-breakdown";
 import { RevealedScoreAnswer } from "@/app/(user)/(public)/practice/_components/revealed-score-answer";
+import { scoreTableFocusOf } from "@/app/(user)/(public)/practice/_lib/score-table-focus";
 import { useScoreQuestionBoard } from "@/app/(user)/(public)/practice/_hooks/use-score-question-board";
 import type { UseScoreQuestionBoardParams } from "@/app/(user)/(public)/practice/_hooks/use-score-question-board";
 import { useTrainingAnswerVisibility } from "@/app/(user)/(public)/practice/_hooks/use-training-mode";
@@ -66,6 +68,12 @@ interface CreateScoreExamBoardConfig {
  * 変わらない。役満止まりの注記は結果ページの問題別詳細と同じ
  * （{@link buildYakumanCapNote}）。本番の試験では出さない — 読ませている間も
  * タイマーが進むうえ、内訳は結果ページの問題別詳細が引き受ける。
+ * 模試の答え合わせでは、開示した正解の点数を押すとそのセルをハイライトした
+ * 点数早見表がモーダルで開く（点数表早引き練習と同じ導線）。点数を間違えたとき、
+ * 表のどこを引くべきだったかをその場で確かめるため。正解したときは開示の行が
+ * 出ないので開けないが、選んだ値がそのまま正解で、引き方は合っている。
+ * 解いている途中には出さない — 本番と同じ条件で解くのが模試の意味で、
+ * 表を見ながら答えられると本番の練習にならない。
  * 出題条件・選択肢は本番と同じで、違うのは答え合わせの有無だけ。
  *
  * @remarks
@@ -119,6 +127,13 @@ export function createScoreExamBoard(
       );
     }
 
+    const scoreTableFocus = scoreTableFocusOf({
+      isOya: isOya(question.jikaze),
+      isTsumo: question.isTsumo,
+      han: question.answer.han,
+      fu: question.answer.fu,
+    });
+
     return (
       <div className="space-y-6">
         <QuestionDisplay
@@ -132,6 +147,7 @@ export function createScoreExamBoard(
               <RevealedScoreAnswer
                 answer={paymentToScoreTableAnswer(question.answer.payment)}
                 translationNamespace={translationNamespace}
+                scoreTableFocus={scoreTableFocus}
               />
             ) : undefined
           }
