@@ -11,7 +11,7 @@ describe("ChapterNav", () => {
     const anchors = container.querySelectorAll("a");
     expect(anchors.length).toBe(1);
     expect(anchors[0]!.getAttribute("href")).toBe(
-      "/learn/why-scoring-is-complex",
+      "/lessons/why-scoring-is-complex",
     );
   });
 
@@ -23,7 +23,9 @@ describe("ChapterNav", () => {
     const { container } = render(await ChapterNav({ slug: last.slug }));
     const anchors = container.querySelectorAll("a");
     expect(anchors.length).toBe(1);
-    expect(anchors[0]!.getAttribute("href")).toBe(`/learn/${secondLast.slug}`);
+    expect(anchors[0]!.getAttribute("href")).toBe(
+      `/lessons/${secondLast.slug}`,
+    );
   });
 
   it("shows both prev and next links for a middle chapter", async () => {
@@ -31,7 +33,7 @@ describe("ChapterNav", () => {
     const anchors = container.querySelectorAll("a");
     expect(anchors.length).toBe(2);
     const hrefs = Array.from(anchors).map((a) => a.getAttribute("href"));
-    expect(hrefs).toContain("/learn/jantou-fu");
-    expect(hrefs).toContain("/learn/machi-fu");
+    expect(hrefs).toContain("/lessons/jantou-fu");
+    expect(hrefs).toContain("/lessons/machi-fu");
   });
 });

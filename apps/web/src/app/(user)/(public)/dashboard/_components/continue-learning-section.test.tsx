@@ -15,7 +15,7 @@ vi.mock("next-intl/server", async () => await import("@/test/intl-mock"));
  * data 属性に写すスタブに差し替える。描画そのものは各コンポーネントの
  * テスト（curriculum-toc.test.tsx / curriculum-progress-bar.test.tsx）が見る。
  */
-vi.mock("@/app/(user)/(public)/learn/_components/curriculum-toc", () => ({
+vi.mock("@/app/(user)/(public)/lessons/_components/curriculum-toc", () => ({
   CurriculumToc: ({
     chapters,
     nextSlug,
@@ -32,16 +32,19 @@ vi.mock("@/app/(user)/(public)/learn/_components/curriculum-toc", () => ({
 }));
 
 /**
- * 目次リンクも async なサーバーコンポーネント。リンク先が `/learn` である
+ * 目次リンクも async なサーバーコンポーネント。リンク先が `/lessons` である
  * ことは curriculum-toc-link.test.tsx が見るので、ここでは「セクションの
  * どこに置かれたか」だけが分かれば足りる。
  */
-vi.mock("@/app/(user)/(public)/learn/_components/curriculum-toc-link", () => ({
-  CurriculumTocLink: () => <a data-testid="toc-link" href="/learn" />,
-}));
+vi.mock(
+  "@/app/(user)/(public)/lessons/_components/curriculum-toc-link",
+  () => ({
+    CurriculumTocLink: () => <a data-testid="toc-link" href="/lessons" />,
+  }),
+);
 
 vi.mock(
-  "@/app/(user)/(public)/learn/_components/curriculum-progress-bar",
+  "@/app/(user)/(public)/lessons/_components/curriculum-progress-bar",
   () => ({
     CurriculumProgressBar: ({
       completedCount,
@@ -102,6 +105,6 @@ describe("ContinueLearningSection", () => {
     const hrefs = Array.from(container.querySelectorAll("a")).map((a) =>
       a.getAttribute("href"),
     );
-    expect(hrefs).toContain("/learn");
+    expect(hrefs).toContain("/lessons");
   });
 });

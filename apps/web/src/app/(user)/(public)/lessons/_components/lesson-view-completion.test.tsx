@@ -41,7 +41,7 @@ function page(
       slug="mangan-ko-ron"
       messageKey="manganKoRon"
       next={{
-        href: "/learn/mangan-ko-tsumo",
+        href: "/lessons/mangan-ko-tsumo",
         label: "nextLesson",
         goal,
         ...planned,

@@ -28,7 +28,7 @@ const chapters: readonly CurriculumChapter[] = [
 const section: CurriculumSection = "foundation";
 
 describe("CurriculumToc", () => {
-  it("renders a <li> per chapter with a title link to /learn/<slug>", async () => {
+  it("renders a <li> per chapter with a title link to /lessons/<slug>", async () => {
     const { container } = render(
       await CurriculumToc({
         section,
@@ -42,9 +42,9 @@ describe("CurriculumToc", () => {
 
     const anchors = container.querySelectorAll("a");
     expect(anchors).toHaveLength(2);
-    expect(anchors[0]?.getAttribute("href")).toBe("/learn/about-this-app");
+    expect(anchors[0]?.getAttribute("href")).toBe("/lessons/about-this-app");
     expect(anchors[1]?.getAttribute("href")).toBe(
-      "/learn/why-scoring-is-complex",
+      "/lessons/why-scoring-is-complex",
     );
   });
 

@@ -76,13 +76,13 @@ afterEach(() => {
 describe("AppVersionWatcher", () => {
   it("マウントしただけでは配信中の版を確かめない（読み込み直後は新しい）", () => {
     respondWith("build-old");
-    mount("/learn/yaku");
+    mount("/lessons/yaku");
     expect(fetchMock).not.toHaveBeenCalled();
   });
 
   it("配信中の版が同じなら何もしない", async () => {
     respondWith("build-old");
-    const navigation = mount("/learn/yaku");
+    const navigation = mount("/lessons/yaku");
 
     await returnToTab();
 
@@ -94,7 +94,7 @@ describe("AppVersionWatcher", () => {
 
   it("配信中の版が違い、通常のページなら、その場で再読み込みする", async () => {
     respondWith("build-new");
-    const navigation = mount("/learn/yaku");
+    const navigation = mount("/lessons/yaku");
 
     await returnToTab();
 
@@ -103,7 +103,7 @@ describe("AppVersionWatcher", () => {
 
   it("応答に版が無い（ローカル等）なら古いとみなさない", async () => {
     respondWith(undefined);
-    const navigation = mount("/learn/yaku");
+    const navigation = mount("/lessons/yaku");
 
     await returnToTab();
 
@@ -112,7 +112,7 @@ describe("AppVersionWatcher", () => {
 
   it("取得に失敗しても何もしない", async () => {
     fetchMock.mockRejectedValue(new TypeError("offline"));
-    const navigation = mount("/learn/yaku");
+    const navigation = mount("/lessons/yaku");
 
     await returnToTab();
 
@@ -122,7 +122,7 @@ describe("AppVersionWatcher", () => {
   it("一定間隔でも確かめる", async () => {
     vi.useFakeTimers();
     respondWith("build-new");
-    const navigation = mount("/learn/yaku");
+    const navigation = mount("/lessons/yaku");
 
     await act(async () => {
       await vi.advanceTimersByTimeAsync(APP_VERSION_CHECK_INTERVAL_MS);

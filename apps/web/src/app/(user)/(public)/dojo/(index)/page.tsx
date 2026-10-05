@@ -31,7 +31,7 @@ import { BeltBadge } from "@/app/(user)/_components/belt-badge";
 import { ContentContainer } from "@/app/(user)/_components/content-container";
 import { PageTitle } from "@/app/(user)/_components/page-title";
 import { SectionTitle } from "@/app/(user)/_components/section-title";
-import { fetchCompletedLessonSlugs } from "@/app/(user)/(public)/learn/_lib/lesson-progress";
+import { fetchCompletedLessonSlugs } from "@/app/(user)/(public)/lessons/_lib/lesson-progress";
 import { fetchAttemptedPractices } from "@/app/(user)/(public)/dashboard/_lib/attempted-practices";
 import { TEXT_LINK_CLASSES } from "@/app/_components/_lib/link-classes";
 import { createNamespaceMetadata } from "@/app/_lib/metadata";

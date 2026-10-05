@@ -1,6 +1,6 @@
 import { getTranslations } from "next-intl/server";
 
-import { fetchCompletedLessonSlugs } from "@/app/(user)/(public)/learn/_lib/lesson-progress";
+import { fetchCompletedLessonSlugs } from "@/app/(user)/(public)/lessons/_lib/lesson-progress";
 import { ContentContainer } from "@/app/(user)/_components/content-container";
 import { PageTitle } from "@/app/(user)/_components/page-title";
 

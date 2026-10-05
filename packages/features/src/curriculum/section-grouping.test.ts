@@ -1,5 +1,5 @@
 /**
- * `/learn` 目次でのセクション並び順の健全性検証
+ * `/lessons` 目次でのセクション並び順の健全性検証
  *
  * @description
  * page.tsx は `chaptersBySection()` の順でセクションを描画する。各セクション

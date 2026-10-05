@@ -7,7 +7,7 @@ import type {
  * 学習カリキュラム — 章メタデータのレジストリ
  *
  * @description
- * `/learn/<slug>` 配下の章を順序付きで管理する単一の真実のソース。
+ * `/lessons/<slug>` 配下の章を順序付きで管理する単一の真実のソース。
  * 章の追加・削除・並び替えはこのファイル内で完結し、DB マイグレーションを
  * 必要としない（`learn_chapter_reads` は `chapter_slug` を文字列として保持）。
  *
@@ -288,7 +288,7 @@ const CURRICULUM_REGISTRY = [
   },
 ] as const satisfies readonly CurriculumChapterEntry[];
 
-/** 章スラッグ — `/learn/<slug>` の slug 部分に対応 */
+/** 章スラッグ — `/lessons/<slug>` の slug 部分に対応 */
 export type CurriculumChapterSlug =
   (typeof CURRICULUM_REGISTRY)[number]["slug"];
 
@@ -483,7 +483,7 @@ export function chaptersInSection(
  * 全セクションの章を、セクションの並び順・カリキュラムの順で返す。
  * セクション別の章
  *
- * `/learn` の目次がセクションごとに章を描画するのに使う。章の無いセクションも
+ * `/lessons` の目次がセクションごとに章を描画するのに使う。章の無いセクションも
  * 空の一覧として含める（描画側で飛ばす）。
  */
 export function chaptersBySection(): ReadonlyMap<

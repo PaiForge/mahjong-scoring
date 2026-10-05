@@ -8,10 +8,10 @@
  * 「レッスン」の行き先。段級位の行程に属さない章（基礎・記憶術）もここに並ぶ —
  * 級ごとの見え方は道場が持つ。
  * @flow
- * ユーザーは各レッスンのタイトル Link から対応する `/learn/<slug>` へ遷移する。
+ * ユーザーは各レッスンのタイトル Link から対応する `/lessons/<slug>` へ遷移する。
  * 未認証ユーザーでも進捗は空として表示され、最初のレッスンが「次はここから」となる。
  *
- * 完了を cookie から読むため動的ルート。レッスンページ（`/learn/<slug>`）は静的なので、
+ * 完了を cookie から読むため動的ルート。レッスンページ（`/lessons/<slug>`）は静的なので、
  * 目次だけが持つ loading.tsx がレッスンの祖先にならないよう route group に退避している
  * （`loading-boundaries.test.ts` 参照）。
  *
@@ -44,7 +44,7 @@ export async function generateMetadata(): Promise<Metadata> {
   return createNamespaceMetadata("learnCurriculum.index", {
     title: "pageTitle",
     description: "pageDescription",
-    path: "/learn",
+    path: "/lessons",
   });
 }
 

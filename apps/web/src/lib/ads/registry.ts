@@ -111,17 +111,19 @@ export const AD_SLOTS = {
   },
   "learn-chapter-native-ad": {
     kind: "native_card",
-    surfaces: [{ route: "/learn/<章>", href: "/learn/why-scoring-is-complex" }],
+    surfaces: [
+      { route: "/lessons/<章>", href: "/lessons/why-scoring-is-complex" },
+    ],
   },
   // レッスンの「関連する練習」の練習カードの並びの中（練習一覧と同じカードの
   // 形）。確認問題を持つレッスンでは解き終えるまで出ない
   "lesson-practices-native-ad": {
     kind: "native_card",
-    surfaces: [{ route: "/learn/<章>", href: "/learn/fu-doubling" }],
+    surfaces: [{ route: "/lessons/<章>", href: "/lessons/fu-doubling" }],
   },
   "learn-index-native-ad": {
     kind: "native_row",
-    surfaces: [{ route: "/learn", href: "/learn" }],
+    surfaces: [{ route: "/lessons", href: "/lessons" }],
     // 目次の 6 セクションに間隔を広げながら置く（`adIndexAfterGroup`）
     placements: 3,
   },

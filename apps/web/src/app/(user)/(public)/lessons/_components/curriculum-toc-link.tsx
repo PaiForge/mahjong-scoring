@@ -22,7 +22,7 @@ import { chapterTocHref } from "../_lib/toc-anchor";
  */
 interface CurriculumTocLinkProps {
   /**
-   * 目次のこの章の位置へ着地させる（`/learn#chapter-<slug>`）。抜粋が 1 章を
+   * 目次のこの章の位置へ着地させる（`/lessons#chapter-<slug>`）。抜粋が 1 章を
    * 指しているときに、目次のどこにその章があるかを見せるため
    */
   readonly focusSlug?: CurriculumChapterSlug;
@@ -36,7 +36,7 @@ export async function CurriculumTocLink({
   return (
     <div className="text-right">
       <Link
-        href={focusSlug ? chapterTocHref(focusSlug) : "/learn"}
+        href={focusSlug ? chapterTocHref(focusSlug) : "/lessons"}
         className={`text-sm font-medium ${TEXT_LINK_CLASSES}`}
       >
         {t("tocLink")}

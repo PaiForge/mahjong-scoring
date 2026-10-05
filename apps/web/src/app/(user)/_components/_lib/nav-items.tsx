@@ -21,7 +21,7 @@ export interface NavItemDef {
  */
 export const TAB_BAR_NAV_ITEMS: readonly NavItemDef[] = [
   { href: "/practice", labelKey: "practice", icon: <DumbbellIcon /> },
-  { href: "/learn", labelKey: "learn", icon: <BookIcon /> },
+  { href: "/lessons", labelKey: "learn", icon: <BookIcon /> },
   // 対局中に片手で開くタブバーからは、早見表ハブを経由せず最も使う点数表へ直接飛ばす
   {
     href: "/reference/score-table",
@@ -38,7 +38,7 @@ export const TAB_BAR_NAV_ITEMS: readonly NavItemDef[] = [
  */
 export const DRAWER_NAV_ITEMS: readonly NavItemDef[] = [
   { href: "/practice", labelKey: "practice", icon: <DumbbellIcon /> },
-  { href: "/learn", labelKey: "learn", icon: <BookIcon /> },
+  { href: "/lessons", labelKey: "learn", icon: <BookIcon /> },
   { href: "/dojo", labelKey: "dojo", icon: <BeltIcon /> },
   { href: "/reference", labelKey: "reference", icon: <TableIcon /> },
   { href: "/leaderboard", labelKey: "leaderboard", icon: <ChartIcon /> },

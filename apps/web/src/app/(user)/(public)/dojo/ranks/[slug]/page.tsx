@@ -7,7 +7,7 @@
  * 「次に取る級」についてだけ出している内容を、どの級についても読めるように
  * したもの。
  *
- * 教本の章はここへ取り込まず、章の一覧からリンクで `/learn` へ送る。級と
+ * 教本の章はここへ取り込まず、章の一覧からリンクで `/lessons` へ送る。級と
  * 章は 1 : n で、章は級と独立に読む価値があり、検索からの入口も章ごとの
  * URL が持っているため。級と章の対応は段級位レジストリの
  * `learnChapterSlugs` が持つ。
@@ -35,10 +35,10 @@ import { BeltBadge } from "@/app/(user)/_components/belt-badge";
 import { ContentContainer } from "@/app/(user)/_components/content-container";
 import { PageTitle } from "@/app/(user)/_components/page-title";
 import { SectionTitle } from "@/app/(user)/_components/section-title";
-import { ChapterTocList } from "@/app/(user)/(public)/learn/_components/chapter-toc-list";
-import { CurriculumTocLink } from "@/app/(user)/(public)/learn/_components/curriculum-toc-link";
-import { ExamCtaCard } from "@/app/(user)/(public)/learn/_components/exam-cta-card";
-import { fetchCompletedLessonSlugs } from "@/app/(user)/(public)/learn/_lib/lesson-progress";
+import { ChapterTocList } from "@/app/(user)/(public)/lessons/_components/chapter-toc-list";
+import { CurriculumTocLink } from "@/app/(user)/(public)/lessons/_components/curriculum-toc-link";
+import { ExamCtaCard } from "@/app/(user)/(public)/lessons/_components/exam-cta-card";
+import { fetchCompletedLessonSlugs } from "@/app/(user)/(public)/lessons/_lib/lesson-progress";
 import { createMetadata } from "@/app/_lib/metadata";
 import { getOptionalUser } from "@/lib/auth";
 import { getUserRankSlugs } from "@/lib/db/rank-queries";

@@ -10,6 +10,6 @@ describe("CurriculumTocLink", () => {
     const { container } = render(await CurriculumTocLink());
 
     const anchor = container.querySelector("a");
-    expect(anchor?.getAttribute("href")).toBe("/learn");
+    expect(anchor?.getAttribute("href")).toBe("/lessons");
   });
 });

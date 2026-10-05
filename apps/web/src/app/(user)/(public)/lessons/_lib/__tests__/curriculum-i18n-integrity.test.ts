@@ -2,7 +2,7 @@
  * カリキュラムと i18n メッセージファイル （日本語辞書） の整合性検証
  *
  * @description
- * `/learn` 目次・章ナビゲーションでは `CurriculumChapter.i18nKey`（camelCase）
+ * `/lessons` 目次・章ナビゲーションでは `CurriculumChapter.i18nKey`（camelCase）
  * を経由して章タイトル・説明を参照する（案C）。
  * slug（kebab-case）は `getChapterI18nPath(chapter)` により camelCase の
  * i18n パスに変換される。本テストは i18nKey と 日本語辞書のキーが一致している

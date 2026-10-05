@@ -50,14 +50,14 @@ export function variantQuery(slug: PracticeMenuSlug, variant: string): string {
  * 章ページのパスを返す。
  * 章パス
  *
- * レッスン（= 章）のページ。`/learn/<slug>` の組み立てをこの 1 箇所に閉じる。
+ * レッスン（= 章）のページ。`/lessons/<slug>` の組み立てをこの 1 箇所に閉じる。
  * 目次・前後のナビ・練習からの導線・ダッシュボードの「次にやること」・道場の
  * 行程がそれぞれ文字列を組み立てると、ルートを変えたときに追随漏れが出る。
  *
  * @param slug 対象章のスラッグ
  */
 export function chapterHref(slug: CurriculumChapterSlug): string {
-  return `/learn/${slug}`;
+  return `/lessons/${slug}`;
 }
 
 /**

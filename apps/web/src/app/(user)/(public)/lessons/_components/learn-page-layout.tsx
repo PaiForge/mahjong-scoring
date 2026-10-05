@@ -130,7 +130,7 @@ export async function LearnPageLayout({
       id={quizLesson ? LESSON_SCROLL_ANCHOR_ID : undefined}
       fillViewport={quizLesson !== undefined}
       breadcrumb={[
-        { label: tLearn("pageTitle"), href: "/learn" },
+        { label: tLearn("pageTitle"), href: "/lessons" },
         { label: t("pageTitle") },
       ]}
     >

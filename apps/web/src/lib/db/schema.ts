@@ -389,7 +389,7 @@ export type NewUserExp = typeof userExp.$inferInsert;
  * レッスン完了
  *
  * @description
- * レッスン（= 教本の章、`/learn/<slug>`）を終えると 1 行 INSERT される。
+ * レッスン（= 教本の章、`/lessons/<slug>`）を終えると 1 行 INSERT される。
  * 確認問題を持つレッスンは問題を最後まで解いた時点で、持たないレッスンは
  * 章末の完了ボタンで記録され、どちらも同じ行の形。(user_id, lesson_slug) で
  * 1 ユニーク。レッスンの目次の完了の印・黒帯への道（features の `journey/`）の

@@ -14,7 +14,7 @@ import { CurriculumTocSkeleton } from "./curriculum-toc-skeleton";
  * 教本（目次）の読み込み中スケルトン
  * 目次ページスケルトン
  *
- * `/learn` の実描画（`learn/page.tsx`）と同じ構造 — タイトル帯・セクション見出し +
+ * `/lessons` の実描画（`learn/page.tsx`）と同じ構造 — タイトル帯・セクション見出し +
  * 説明文・進捗バー・セクションごとの目次 — を描く。章の行数は `CURRICULUM` から
  * 数えるため、章を足しても自動で追従する。
  *

@@ -1,7 +1,7 @@
 import { useTranslations } from "next-intl";
 
 import { BookIcon } from "@/app/(user)/_components/icons/book-icon";
-import { ChapterTocList } from "@/app/(user)/(public)/learn/_components/chapter-toc-list";
+import { ChapterTocList } from "@/app/(user)/(public)/lessons/_components/chapter-toc-list";
 import { CURRICULUM_CHAPTER_SLUGS } from "@mahjong-scoring/features/curriculum/registry";
 
 import { LandingSection } from "./landing-section";
@@ -25,7 +25,7 @@ export function LearnSection() {
       iconClassName="bg-primary-200 text-primary-800"
       title={t("learnTitle")}
       description={t("learnDescription")}
-      href="/learn"
+      href="/lessons"
       ctaLabel={t("learnCta")}
       ctaVariant="secondary"
     >

@@ -1,8 +1,8 @@
 import { getTranslations } from "next-intl/server";
 
-import { CurriculumProgressBar } from "@/app/(user)/(public)/learn/_components/curriculum-progress-bar";
-import { CurriculumToc } from "@/app/(user)/(public)/learn/_components/curriculum-toc";
-import { CurriculumTocLink } from "@/app/(user)/(public)/learn/_components/curriculum-toc-link";
+import { CurriculumProgressBar } from "@/app/(user)/(public)/lessons/_components/curriculum-progress-bar";
+import { CurriculumToc } from "@/app/(user)/(public)/lessons/_components/curriculum-toc";
+import { CurriculumTocLink } from "@/app/(user)/(public)/lessons/_components/curriculum-toc-link";
 import {
   CURRICULUM,
   type CurriculumChapter,
@@ -20,9 +20,9 @@ interface ContinueLearningSectionProps {
  * ダッシュボードの「レッスンの続き」セクション。
  * レッスンの続き
  *
- * 進捗バーと「次はここから」のレッスン 1 件を `/learn` と同じ見た目で表示し、
+ * 進捗バーと「次はここから」のレッスン 1 件を `/lessons` と同じ見た目で表示し、
  * 再訪ユーザーが途中の位置へ 1 クリックで戻れるようにする。
- * 目次全体は `/learn` の役目なので、ここでは次の 1 件だけに絞る。
+ * 目次全体は `/lessons` の役目なので、ここでは次の 1 件だけに絞る。
  *
  * 出すのは黒帯への道を終えた（全級取得済みの）ユーザーだけ。行程が進行中は
  * 「次にやること」がレッスンを順に案内するので、別の「次はここ」を並べない。

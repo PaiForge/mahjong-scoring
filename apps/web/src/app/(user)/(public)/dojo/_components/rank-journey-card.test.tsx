@@ -61,7 +61,7 @@ describe("RankJourneyCard", () => {
     const links = hrefs(container);
     expect(links).toContain("/dojo/ranks/kyu-5");
     for (const chapterSlug of RANK_REGISTRY[0].learnChapterSlugs) {
-      expect(links).toContain(`/learn/${chapterSlug}`);
+      expect(links).toContain(`/lessons/${chapterSlug}`);
     }
     expect(links).toContain("/practice/score-table?variant=ko_mangan_plus");
     expect(links).toContain("/practice/mangan-score-calculation");
@@ -81,7 +81,7 @@ describe("RankJourneyCard", () => {
         a.getAttribute("href"),
       ),
     ).toEqual([
-      "/learn#chapter-mangan-ko-ron",
+      "/lessons#chapter-mangan-ko-ron",
       "/practice?rank=kyu-5",
       "/exam/mangan",
     ]);
@@ -105,7 +105,7 @@ describe("RankJourneyCard", () => {
     );
 
     for (const chapterSlug of RANK_REGISTRY[1].learnChapterSlugs) {
-      expect(hrefs(container)).toContain(`/learn/${chapterSlug}`);
+      expect(hrefs(container)).toContain(`/lessons/${chapterSlug}`);
     }
     expect(container.textContent).not.toContain("lessonRowDescription");
     expect(getAllByRole("img", { name: "lessonDone" })).toHaveLength(1);

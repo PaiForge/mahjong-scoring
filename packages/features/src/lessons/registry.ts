@@ -10,7 +10,7 @@ import type { RankSlug } from "../ranks/registry";
  * 確認問題レッスンレジストリ
  *
  * @description
- * レッスンは教本の章そのもの（`/learn/<slug>`。一覧と順序は
+ * レッスンは教本の章そのもの（`/lessons/<slug>`。一覧と順序は
  * `curriculum/registry.ts`）で、「本文 → 確認問題 → できたことの確認」を 1 本で
  * 通す、時間制限も記録も無い学習の最小単位。黒帯への道の学ぶ段の 1 歩になる。
  * ここに並ぶのは、そのうち確認問題を持つレッスン。問題の数と形は章ごとに、
@@ -44,7 +44,7 @@ import type { RankSlug } from "../ranks/registry";
  * `practiceLinks` をそのまま完了後の導線にする。
  */
 interface QuizLessonEntry {
-  /** 章の slug（URL `/learn/<slug>`・DB `lesson_completions.lesson_slug`） */
+  /** 章の slug（URL `/lessons/<slug>`・DB `lesson_completions.lesson_slug`） */
   readonly slug: CurriculumChapterSlug;
   /** 属する段級位。行程のどの級の一歩かを示す */
   readonly rankSlug: RankSlug;

@@ -9,7 +9,7 @@ import {
 // 相対 href は jsdom の location（http://localhost:3000）で解決されるため、
 // 「同じオリジン」の基準もそこから取る
 const ORIGIN = window.location.origin;
-const LOCATION = { origin: ORIGIN, pathname: "/learn/yaku", search: "" };
+const LOCATION = { origin: ORIGIN, pathname: "/lessons/yaku", search: "" };
 
 function clickOn(target: Element, init: MouseEventInit = {}): MouseEvent {
   const event = new MouseEvent("click", {
@@ -57,7 +57,7 @@ describe("isEditingElement", () => {
 
 describe("canReloadNow", () => {
   it("通常のページで入力中でなければ再読み込みしてよい", () => {
-    expect(canReloadNow("/learn/yaku", document.body)).toBe(true);
+    expect(canReloadNow("/lessons/yaku", document.body)).toBe(true);
     expect(canReloadNow("/exam/mangan", undefined)).toBe(true);
   });
 
@@ -96,14 +96,14 @@ describe("resolveFullNavigationHref", () => {
   });
 
   it("同じページ内のハッシュ移動は差し替えない", () => {
-    const a = anchor("/learn/yaku#section");
+    const a = anchor("/lessons/yaku#section");
     expect(resolveFullNavigationHref(clickOn(a), LOCATION)).toBeUndefined();
   });
 
   it("別ページへのハッシュ付きリンクは差し替える", () => {
-    const a = anchor("/learn#chapter-yaku");
+    const a = anchor("/lessons#chapter-yaku");
     expect(resolveFullNavigationHref(clickOn(a), LOCATION)).toBe(
-      `${ORIGIN}/learn#chapter-yaku`,
+      `${ORIGIN}/lessons#chapter-yaku`,
     );
   });
 

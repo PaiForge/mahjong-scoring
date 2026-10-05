@@ -16,7 +16,7 @@ import {
 
 import { practiceHref } from "@mahjong-scoring/features/routes";
 
-import { chapterTocHref } from "../../learn/_lib/toc-anchor";
+import { chapterTocHref } from "../../lessons/_lib/toc-anchor";
 import { practiceListHref } from "../../practice/_lib/practice-web-routes";
 
 interface RankStageProgressProps {
@@ -54,7 +54,9 @@ function stageHref(stage: JourneyStage, journey: RankJourney): string {
   switch (stage) {
     case "learn": {
       const first = journey.chapters[0];
-      return first === undefined ? "/learn" : chapterTocHref(first.chapterSlug);
+      return first === undefined
+        ? "/lessons"
+        : chapterTocHref(first.chapterSlug);
     }
     case "practice":
       return practiceListHref({ kind: "rank", value: journey.rank.slug });

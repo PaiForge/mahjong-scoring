@@ -21,7 +21,7 @@ export const STATIC_SITEMAP_ROUTE_DEFS = [
   { url: "", changeFrequency: "weekly", priority: 1.0 },
   { url: "/getting-started", changeFrequency: "monthly", priority: 0.9 },
   { url: "/try", changeFrequency: "monthly", priority: 0.8 },
-  { url: "/learn", changeFrequency: "weekly", priority: 0.9 },
+  { url: "/lessons", changeFrequency: "weekly", priority: 0.9 },
   { url: "/practice", changeFrequency: "weekly", priority: 0.9 },
   { url: "/dojo", changeFrequency: "monthly", priority: 0.8 },
   { url: "/reference", changeFrequency: "weekly", priority: 0.8 },
@@ -42,7 +42,7 @@ export const STATIC_SITEMAP_ROUTE_DEFS = [
 ] as const;
 
 /**
- * レッスン（章）ページの sitemap 項目（`/learn/<slug>` と最終更新日）
+ * レッスン（章）ページの sitemap 項目（`/lessons/<slug>` と最終更新日）
  *
  * `lastModified` は章の `publishedAt`。Google は sitemap の `changefreq` /
  * `priority` を無視し `lastmod` だけをクロールの手がかりにするため、実データが
@@ -56,7 +56,7 @@ export const LEARN_SITEMAP_ENTRIES: readonly {
   lastModified: chapter.publishedAt,
 }));
 
-/** レッスン（章）ページのパス一覧（`/learn/<slug>`） */
+/** レッスン（章）ページのパス一覧（`/lessons/<slug>`） */
 export const LEARN_SITEMAP_PATHS: readonly string[] = LEARN_SITEMAP_ENTRIES.map(
   (entry) => entry.path,
 );

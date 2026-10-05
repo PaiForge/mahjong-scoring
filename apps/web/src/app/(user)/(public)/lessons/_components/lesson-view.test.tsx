@@ -39,7 +39,7 @@ function renderLesson() {
       <LessonView
         slug="mangan-ko-ron"
         messageKey="manganKoRon"
-        next={{ href: "/learn/mangan-ko-tsumo", label: "nextLesson" }}
+        next={{ href: "/lessons/mangan-ko-tsumo", label: "nextLesson" }}
         explanation={<p data-testid="explanation" />}
         related={<p data-testid="related" />}
       />
@@ -195,7 +195,7 @@ describe("LessonView", () => {
         screen
           .getByRole("link", { name: "signUp.secondary" })
           .getAttribute("href"),
-      ).toBe("/learn/mangan-ko-tsumo");
+      ).toBe("/lessons/mangan-ko-tsumo");
       // 登録後に引き継ぐため端末に預ける（持ち主は付けない）
       expect(readPendingLessonCompletions()).toEqual([
         expect.objectContaining({ slug: "mangan-ko-ron" }),
@@ -253,7 +253,7 @@ describe("LessonView", () => {
 
       expect(
         screen.getByRole("link", { name: "nextLesson" }).getAttribute("href"),
-      ).toBe("/learn/mangan-ko-tsumo");
+      ).toBe("/lessons/mangan-ko-tsumo");
       expect(readPendingLessonCompletions()).toEqual([]);
     });
 
@@ -264,7 +264,7 @@ describe("LessonView", () => {
           slug="mangan-ko-ron"
           messageKey="manganKoRon"
           next={{
-            href: "/learn/mangan-ko-tsumo",
+            href: "/lessons/mangan-ko-tsumo",
             label: "nextLesson",
             preview: <p data-testid="preview" />,
           }}
@@ -357,7 +357,7 @@ describe("LessonView", () => {
         screen
           .getByRole("link", { name: "signedOut.signIn" })
           .getAttribute("href"),
-      ).toBe("/sign-in?redirect=%2Flearn%2Fmangan-ko-ron");
+      ).toBe("/sign-in?redirect=%2Flessons%2Fmangan-ko-ron");
       expect(readPendingLessonCompletions()).toEqual([
         expect.objectContaining({ slug: "mangan-ko-ron", userId: "u1" }),
       ]);

@@ -18,7 +18,7 @@ describe("isSessionRoute", () => {
     "/practice/jantou-fu/result",
     "/exam/fu-score",
     "/exam/fu-score/result",
-    "/learn/jantou-fu",
+    "/lessons/jantou-fu",
     // 末尾に階層が続くものは別の画面
     "/practice/jantou-fu/play/detail",
   ])("%s はセッション中とみなさない", (pathname) => {

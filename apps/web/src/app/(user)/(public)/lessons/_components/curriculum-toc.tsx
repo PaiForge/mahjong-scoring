@@ -23,7 +23,7 @@ interface CurriculumTocProps {
   readonly completedSlugs: ReadonlySet<string>;
   readonly nextSlug: string | undefined;
   /**
-   * 章の行に id（{@link chapterTocAnchorId}）を付けるか。`/learn` の目次
+   * 章の行に id（{@link chapterTocAnchorId}）を付けるか。`/lessons` の目次
    * だけが付ける — 抜粋の側が付けると、同じ章が 2 度並ぶページで重複する
    */
   readonly anchored?: boolean;

@@ -61,9 +61,9 @@ function declaresCanonical(source: string, urlPath: string): boolean {
   if (urlPath === "/") {
     return source.includes('canonical: "/"');
   }
-  const learnMatch = /^\/learn\/([^/]+)$/.exec(urlPath);
-  if (learnMatch) {
-    return source.includes(`createLearnMetadata("${learnMatch[1]}")`);
+  const lessonMatch = /^\/lessons\/([^/]+)$/.exec(urlPath);
+  if (lessonMatch) {
+    return source.includes(`createLearnMetadata("${lessonMatch[1]}")`);
   }
   // 練習の説明ページ: URL はレジストリの basePath（/exam 配下の昇級試験を含む）
   // から引くため、/practice/ 前置きの正規表現ではなく basePath の逆引きで判定する

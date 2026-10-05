@@ -14,7 +14,7 @@ const PRODUCTION_SITE_URL = "https://score.mahjong.help";
  * - `??` ではなく `||` — Vercel で「変数だけ作って値が空」だと空文字が来る。
  *   `??` は空文字を通してしまい、`new URL("")`（layout の metadataBase）が
  *   全ルートを 500 にする
- * - 末尾スラッシュを落とす — `${SITE_URL}/learn` が `//learn` にならないように
+ * - 末尾スラッシュを落とす — `${SITE_URL}/lessons` が `//learn` にならないように
  * - URL として不正な値（scheme 抜けの `score.mahjong.help` 等）は本番 URL に
  *   フォールバックする — 誤設定でリンクが歪むのは許容するが、落とさない
  */

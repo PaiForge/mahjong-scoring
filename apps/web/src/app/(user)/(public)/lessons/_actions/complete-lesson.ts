@@ -72,7 +72,7 @@ async function recordCompletions(
     .values(slugs.map((lessonSlug) => ({ userId, lessonSlug })))
     .onConflictDoNothing();
 
-  revalidatePath("/learn");
+  revalidatePath("/lessons");
   revalidatePath("/dashboard");
   revalidatePath("/dojo");
 }

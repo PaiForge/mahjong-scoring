@@ -47,7 +47,7 @@ describe("NextStepSection", () => {
     expect(
       container.querySelector("section")?.getAttribute("data-next-step"),
     ).toBe("lesson");
-    expect(ctaHref(container)).toBe("/learn/mangan-ko-ron");
+    expect(ctaHref(container)).toBe("/lessons/mangan-ko-ron");
     expect(
       getByRole("link", { name: "choosePractice" }).getAttribute("href"),
     ).toBe("/practice?rank=kyu-5");
@@ -75,7 +75,7 @@ describe("NextStepSection", () => {
     );
 
     expect(getByText("title")).toBeTruthy();
-    expect(ctaHref(container)).toBe("/learn/mangan-ko-tsumo");
+    expect(ctaHref(container)).toBe("/lessons/mangan-ko-tsumo");
   });
 
   it("練習を 1 つ済ませても「自分で練習を選ぶ」は目標の級の練習一覧へ送り続ける", async () => {
@@ -103,7 +103,7 @@ describe("NextStepSection", () => {
       container.querySelectorAll("[data-stage] a"),
     ).map((a) => a.getAttribute("href"));
     expect(stageHrefs).toEqual([
-      "/learn#chapter-mangan-ko-ron",
+      "/lessons#chapter-mangan-ko-ron",
       // 練習するの行き先は「自分で練習を選ぶ」と同じ
       "/practice?rank=kyu-5",
       "/exam/mangan",
@@ -166,7 +166,7 @@ describe("NextStepSection", () => {
     expect(
       container.querySelector("section")?.getAttribute("data-next-step"),
     ).toBe("lesson");
-    expect(ctaHref(container)).toBe("/learn/jantou-fu");
+    expect(ctaHref(container)).toBe("/lessons/jantou-fu");
   });
 
   it("全級取得済みなら何も描画しない", async () => {

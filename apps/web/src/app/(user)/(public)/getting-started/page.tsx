@@ -4,7 +4,7 @@
  * @description 初めて訪れたユーザー向けの始め方ガイド。基礎を学ぶ→練習で鍛える→
  * 早見表で確認する3ステップで点数計算の学習フローを案内する。LP の「はじめよう」
  * ボタンの遷移先。SEO 重視で SSR。
- * @flow 各ステップカードの CTA から体験(/try)・練習(/practice)・学習(/learn)へ
+ * @flow 各ステップカードの CTA から体験(/try)・練習(/practice)・学習(/lessons)へ
  * 遷移する。ページ下部からアカウント登録(/sign-up)へ誘導する。
  *
  * 「まずは体験」は総合演習（/practice/score）ではなく固定 1 問の体験ページへ送る。
@@ -67,7 +67,7 @@ export default async function GettingStartedPage() {
             title={t("steps.learn.title")}
             description={t("steps.learn.description")}
             ctaLabel={t("steps.learn.cta")}
-            ctaHref="/learn"
+            ctaHref="/lessons"
           />
         </div>
 
