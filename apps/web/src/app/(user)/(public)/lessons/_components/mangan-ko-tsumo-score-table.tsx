@@ -1,8 +1,5 @@
-import {
-  formatPoints,
-  ManganTableShell,
-  type ManganTableColumn,
-} from "./mangan-table-shell";
+import { formatLessonPoints } from "@mahjong-scoring/features/lessons/quiz-labels";
+import { ManganTableShell, type ManganTableColumn } from "./mangan-table-shell";
 
 const COLUMNS: readonly ManganTableColumn[] = [
   { headerKey: "colKoEach", align: "right", cellClassName: "text-surface-700" },
@@ -29,9 +26,9 @@ export function ManganKoTsumoScoreTable() {
       renderCells={(row) => {
         const { fromKo, fromOya } = row.tsumoKo;
         return [
-          formatPoints(fromKo),
-          formatPoints(fromOya),
-          formatPoints(fromKo * 2 + fromOya),
+          formatLessonPoints(fromKo),
+          formatLessonPoints(fromOya),
+          formatLessonPoints(fromKo * 2 + fromOya),
         ];
       }}
     />

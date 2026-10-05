@@ -1,10 +1,10 @@
+import { formatLessonPoints } from "@mahjong-scoring/features/lessons/quiz-labels";
 import type { ReactNode } from "react";
 import { useTranslations } from "use-intl";
 import { HIGH_SCORES, type Role } from "@mahjong-scoring/core";
 import { HAN_DISPLAY } from "@mahjong-scoring/features/curriculum/han-display";
 
 import { DataTable, type DataTableColumn } from "../../components/data-table";
-import { formatPoints } from "./format-points";
 import { MutedCell, PlainCell, StrongCell } from "./table-cells";
 
 /** 満貫以上早見表の1行分のデータ */
@@ -110,7 +110,7 @@ export function ManganScoreTable({ role }: { readonly role: Role }) {
     <ManganTableShell
       columns={SCORE_COLUMNS}
       renderCells={(row, t) => [
-        formatPoints(role === "ko" ? row.ronKo : row.ronOya),
+        formatLessonPoints(role === "ko" ? row.ronKo : row.ronOya),
         t(noteKeyOf(row.nameKey)),
       ]}
     />
@@ -135,9 +135,9 @@ export function ManganKoTsumoScoreTable() {
       renderCells={(row) => {
         const { fromKo, fromOya } = row.tsumoKo;
         return [
-          formatPoints(fromKo),
-          formatPoints(fromOya),
-          formatPoints(fromKo * 2 + fromOya),
+          formatLessonPoints(fromKo),
+          formatLessonPoints(fromOya),
+          formatLessonPoints(fromKo * 2 + fromOya),
         ];
       }}
     />
@@ -160,7 +160,7 @@ export function ManganOyaTsumoScoreTable() {
       showHan={false}
       renderCells={(row) => {
         const each = row.tsumoOya.all;
-        return [formatPoints(each), formatPoints(each * 3)];
+        return [formatLessonPoints(each), formatLessonPoints(each * 3)];
       }}
     />
   );
