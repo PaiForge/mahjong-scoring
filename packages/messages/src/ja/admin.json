@@ -315,7 +315,7 @@
       "noRank": "無級",
       "totalExp": "累計 EXP",
       "challengeCount": "チャレンジ回数",
-      "chapterReadCount": "読了した章"
+      "lessonCompletionCount": "完了したレッスン"
     },
     "purchases": {
       "title": "購入履歴",

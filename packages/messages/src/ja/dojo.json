@@ -26,20 +26,19 @@
     },
     "locked": {
       "title": "試験は下の級から順に",
-      "description": "段級位は下の級から順に取得します。上の級の教本は先に読めますが、試験は順番に受けます。"
+      "description": "段級位は下の級から順に取得します。上の級のレッスンは先に進められますが、試験は順番に受けます。"
     }
   },
   "canDoLabel": "できるようになること",
   "lockedNote": "下の級から順に取得すると受験できます",
-  "lessonRow": "レッスン：{title}",
   "lessonRowDescription": "短い説明と確認問題で学ぶ",
   "lessonDone": "完了",
   "practiceDone": "挑戦済み",
   "chaptersLead": "試験に必要な知識はここで身につきます。",
   "practicesLead": "読んだ内容を手を動かして確かめます。",
-  "examLead": "前提の章の内容を身につけたら、試験に挑戦しましょう。",
+  "examLead": "前提のレッスンの内容を身につけたら、試験に挑戦しましょう。",
   "viewExam": "試験の内容を見る",
-  "chaptersTitle": "前提となる教本の章",
+  "chaptersTitle": "前提となるレッスン",
   "comingSoonTitle": "次の段級位",
   "comingSoon": "取得できる段級位はすべて取得済みです。新しい段級位は準備中です。",
   "status": {
@@ -49,7 +48,7 @@
   },
   "rankDetail": {
     "title": "{rank}の合格基準",
-    "description": "麻雀の点数計算の{rank}。合格基準は「{criterion}」。受験前に読む教本の章と試験の内容を確認できます。",
+    "description": "麻雀の点数計算の{rank}。合格基準は「{criterion}」。受験前に取り組むレッスンと試験の内容を確認できます。",
     "examLeadWithoutChapters": "準備ができたら、試験に挑戦しましょう。"
   }
 }

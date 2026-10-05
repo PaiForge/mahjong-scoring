@@ -83,30 +83,22 @@
     }
   },
   "index": {
-    "pageTitle": "教本",
+    "pageTitle": "レッスン",
     "sectionTitle": "目次",
-    "pageDescription": "麻雀の点数計算を基礎から学ぶための教本です。章を順に読み進められます。",
-    "progressLabel": "{read}章 / {total}章 読了",
+    "pageDescription": "麻雀の点数計算を、短い説明と確認問題で 1 つずつ身につけるレッスンです。順に進められます。",
+    "progressLabel": "{done} / {total} レッスン完了",
     "nextChapterBadge": "次はここから",
-    "allCompletedMessage": "すべての章を読了しました。おつかれさまでした！"
+    "allCompletedMessage": "すべてのレッスンを完了しました。おつかれさまでした！"
   },
   "chapter": {
-    "markAsReadCta": "この章を読了にする",
-    "markedAsRead": "読了済み",
-    "unmarkAsReadCta": "読了を解除",
-    "unmarkConfirmTitle": "読了を解除しますか？",
-    "unmarkConfirmMessage": "この章を未読の状態に戻します。再度読了にマークすることも可能です。",
-    "unmarkConfirmOk": "解除する",
-    "unmarkConfirmCancel": "キャンセル",
-    "loginPromptCta": "読了を記録するにはログイン",
-    "lessonLink": "確認問題で確かめる（レッスン）",
-    "chapterNavLabel": "章の移動",
-    "prevChapterLabel": "前の章",
-    "nextChapterLabel": "次の章",
-    "practiceLinksTitle": "この章に対応する練習",
-    "practiceLinkCta": "練習を始める",
-    "practiceLinkChallengeCta": "{title}にチャレンジ",
-    "updateFailedToast": "進捗の更新に失敗しました。再度お試しください。",
+    "completeCta": "このレッスンを完了にする",
+    "completing": "完了を記録しています…",
+    "completedMark": "完了済み",
+    "loginPromptCta": "完了を記録するにはログイン",
+    "chapterNavLabel": "レッスンの移動",
+    "prevChapterLabel": "前のレッスン",
+    "nextChapterLabel": "次のレッスン",
+    "updateFailedToast": "完了を記録できませんでした。再度お試しください。",
     "publishedOn": "{date} 公開"
   },
   "scoreTable": {

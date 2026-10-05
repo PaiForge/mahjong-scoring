@@ -1,9 +1,4 @@
 {
-  "breadcrumb": "レッスン",
-  "index": {
-    "title": "レッスン",
-    "description": "麻雀の点数計算を、短い説明と確認問題で 1 つずつ身につけるレッスンの一覧です。5級から段級位の順に並んでいます。"
-  },
   "completedMark": "完了済み",
   "startQuiz": "確認問題へ（{count} 問）",
   "retakeQuiz": "確認問題を解き直す",
@@ -32,7 +27,6 @@
   "continueHome": "次の一歩へ",
   "nextStep": {
     "lesson": "次のレッスン「{title}」へ",
-    "read": "次の章「{title}」を読む",
     "practice": "「{title}」に挑戦する",
     "exam": "{title}に挑戦する"
   },
@@ -41,8 +35,7 @@
     "readMore": "続きを読む"
   },
   "related": {
-    "practiceTitle": "関連する練習",
-    "chapterTitle": "関連する教本"
+    "practiceTitle": "関連する練習"
   },
   "saveFailed": {
     "title": "完了を記録できませんでした",
@@ -58,11 +51,9 @@
     "title": "アカウントを作って黒帯を目指そう",
     "description": "無料登録で、いま終えたレッスンも含めて学んだ内容と段級位が記録され、次にやることをホームで案内します。",
     "cta": "無料ユーザー登録",
-    "secondary": "登録せずに教本で続きを読む"
+    "secondary": "登録せずに続ける"
   },
   "manganKoRon": {
-    "title": "子のロン（満貫以上）",
-    "description": "麻雀の点数計算の最初の一歩。子が満貫以上をロンしたときの点数を、短い説明と 3 問の確認問題で覚えます。登録なしで数分で終わります。",
     "condition": "子・ロン・{han}翻（{tier}）",
     "questionPrompt": "点数を選んでください",
     "questions": {
@@ -82,8 +73,6 @@
     "achievement": "子が満貫以上をロンしたときの点数を、翻数から言えるようになりました。"
   },
   "manganKoTsumo": {
-    "title": "子のツモ（満貫以上）",
-    "description": "子が満貫以上をツモしたときの支払いを、子のロンの点数から出す方法を、短い説明と 3 問の確認問題で覚えます。",
     "condition": "子・ツモ・{han}翻（{tier}）",
     "questionPrompt": "支払い（子 / 親）を選んでください",
     "questions": {
@@ -103,8 +92,6 @@
     "achievement": "子が満貫以上をツモしたときの支払いを、子のロンの点数から出せるようになりました。"
   },
   "manganOyaRon": {
-    "title": "親のロン（満貫以上）",
-    "description": "親が満貫以上をロンしたときの点数を、子の点数の 1.5 倍として、短い説明と 3 問の確認問題で覚えます。",
     "condition": "親・ロン・{han}翻（{tier}）",
     "questionPrompt": "点数を選んでください",
     "questions": {
@@ -124,8 +111,6 @@
     "achievement": "親が満貫以上をロンしたときの点数を、子の点数の 1.5 倍として言えるようになりました。"
   },
   "manganOyaTsumo": {
-    "title": "親のツモ（満貫以上）",
-    "description": "親が満貫以上をツモしたときの支払い（オール）を、親のロンの点数から出す方法を、短い説明と 3 問の確認問題で覚えます。",
     "condition": "親・ツモ・{han}翻（{tier}）",
     "questionPrompt": "子ひとりの支払いを選んでください",
     "questions": {
@@ -145,8 +130,6 @@
     "achievement": "親が満貫以上をツモしたときの支払いを、親のロンを 3 で割って出せるようになりました。"
   },
   "yaku": {
-    "title": "役と翻数",
-    "description": "点数を出すのに必要な翻数を、役から数えます。鳴くと翻数が下がる役（食い下がり）も含めて、短い説明と 4 問の確認問題で押さえます。",
     "condition": "{state, select, naki {鳴き} other {門前}}・{yaku}",
     "questionPrompt": "翻数を選んでください",
     "questions": {
@@ -170,8 +153,6 @@
     "achievement": "役の翻数を、鳴いたときの違い（食い下がり）も含めて数えられるようになりました。"
   },
   "jantouFu": {
-    "title": "雀頭の符",
-    "description": "符計算の最初の一歩。雀頭（アタマ）に符が付くのはどの牌かを、短い説明と 4 問の確認問題で押さえます。",
     "condition": "{bakaze}場・{jikaze}家の雀頭",
     "questionPrompt": "雀頭の符を選んでください",
     "questions": {
@@ -195,8 +176,6 @@
     "achievement": "雀頭に符が付く牌（三元牌・場風・自風）と付かない牌（数牌・オタ風）を見分けられるようになりました。"
   },
   "mentsuFu": {
-    "title": "面子の符",
-    "description": "刻子・槓子の符を、明暗と牌の種類から出す方法を、短い説明と 4 問の確認問題で押さえます。",
     "condition": "{shape, select, shuntsu {順子} koutsu {刻子} other {槓子}}",
     "questionPrompt": "面子の符を選んでください",
     "questions": {
@@ -220,8 +199,6 @@
     "achievement": "刻子・槓子の符を、明暗と牌の種類（中張牌・么九牌）から出せるようになりました。"
   },
   "machiFu": {
-    "title": "待ちの符",
-    "description": "聴牌の形から、待ちに符が付くかどうかを見分けます。両面・嵌張・辺張・双碰・単騎を、短い説明と 5 問の確認問題で押さえます。",
     "condition": "聴牌の形 ＋ 和了牌",
     "questionPrompt": "待ちの符を選んでください",
     "questions": {
@@ -249,8 +226,6 @@
     "achievement": "聴牌の形を見て、待ちに符が付くか（嵌張・辺張・単騎は 2 符、両面・双碰は 0 符）を見分けられるようになりました。"
   },
   "tehaiFu": {
-    "title": "手牌全体の符",
-    "description": "副底・和了の符・面子・雀頭・待ちを足して切り上げ、手牌の符を出します。ツモ符の付け忘れなど間違えやすい所も、短い説明と 4 問の確認問題で押さえます。",
     "condition": "{bakaze}場・{jikaze}家・{winType, select, tsumo {ツモ} other {ロン}}和了",
     "questionPrompt": "手牌全体の符を選んでください",
     "questions": {
@@ -274,8 +249,6 @@
     "achievement": "副底・和了の符・面子・雀頭・待ちを足して切り上げ、手牌全体の符を出せるようになりました。"
   },
   "chiitoitsuScore": {
-    "title": "七対子での点数計算",
-    "description": "七対子は符が 25 符で決まっている手です。役が複合したときの点数を、短い説明と 4 問の確認問題で表から引けるようにします。",
     "condition": "{role, select, oya {親} other {子}}・{winType, select, tsumo {ツモ} other {ロン}}・{yaku}（{han}翻）",
     "questionPrompt": "点数を選んでください",
     "questions": {
@@ -299,8 +272,6 @@
     "achievement": "七対子の符が 25 符で決まっていることを使って、役が複合したときの点数を表から引けるようになりました。"
   },
   "pinfuScore": {
-    "title": "平和での点数計算",
-    "description": "平和はツモなら 20 符、ロンなら 30 符で決まる手です。役が複合したときの子の点数を、短い説明と 4 問の確認問題で表から引けるようにします。",
     "condition": "{role, select, oya {親} other {子}}・{winType, select, tsumo {ツモ} other {ロン}}・{yaku}（{han}翻）",
     "questionPrompt": "点数を選んでください（ツモは子 / 親の支払い）",
     "questions": {
@@ -324,8 +295,6 @@
     "achievement": "平和の符がツモ 20 符・ロン 30 符で決まっていることを使って、役が複合したときの点数を表から引けるようになりました。"
   },
   "menzenMentsuScore": {
-    "title": "平和以外の門前面子手の点数計算",
-    "description": "平和以外の門前の手は、面子・雀頭・待ちで積み上げた符を 10 で切るだけで符が決まります。ツモとロンの違いを、短い説明と 4 問の確認問題で押さえます。",
     "condition": "{handShape, select, furo {副露} other {門前}}・{winType, select, tsumo {ツモ} other {ロン}}・積み上げた符 {extraFu} 符",
     "questionPrompt": "手牌の符を選んでください",
     "questions": {
@@ -349,8 +318,6 @@
     "achievement": "平和以外の門前の手の符を、積み上げた符をツモは切り捨て・ロンは切り上げて 30 符に足すことで出せるようになりました。"
   },
   "furoScore": {
-    "title": "鳴いた手の点数計算",
-    "description": "鳴いた手は、ロンに門前加符が付かないことだけが門前と違います。食い平和形の 30 符やツモとロンの逆転も含めて、短い説明と 4 問の確認問題で押さえます。",
     "condition": "{handShape, select, furo {副露} other {門前}}・{winType, select, tsumo {ツモ} other {ロン}}・積み上げた符 {extraFu} 符",
     "questionPrompt": "手牌の符を選んでください",
     "questions": {

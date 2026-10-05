@@ -1,6 +1,6 @@
 {
   "title": "ダッシュボード",
-  "continueLearningTitle": "教本の続き",
+  "continueLearningTitle": "レッスンの続き",
   "pendingLessons": {
     "syncing": "終えたレッスンの完了を記録しています…",
     "synced": "レッスンの完了を記録しました",
@@ -17,9 +17,6 @@
       "lesson": {
         "firstCta": "最初のレッスン「{title}」を始める",
         "cta": "「{title}」のレッスンを始める"
-      },
-      "read": {
-        "cta": "「{title}」の章を読む"
       },
       "practice": {
         "cta": "「{title}」に挑戦する"
