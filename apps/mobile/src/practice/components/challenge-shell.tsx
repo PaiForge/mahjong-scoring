@@ -8,6 +8,7 @@ import {
 import {
   AppState,
   BackHandler,
+  Platform,
   Pressable,
   ScrollView,
   StyleSheet,
@@ -27,6 +28,7 @@ import { useQuitPause } from "@mahjong-scoring/features/session/use-quit-pause";
 
 import { BoardBleedProvider } from "../../board/board-bleed";
 import { ConfirmationModal } from "../../components/confirmation-modal";
+import { useJudgementHaptics } from "../../hooks/use-judgement-haptics";
 import { PauseIcon, PlayIcon } from "../../components/icons/icons";
 import { Screen } from "../../components/screen";
 import { TextLink } from "../../components/text-link";
@@ -112,6 +114,8 @@ export function ChallengeShell({
   // 終わった瞬間の経過時間で 1 回だけ結果へ送る
   useOnFinished(gameSession.finalResult, () => onFinish(elapsedMs));
 
+  useJudgementHaptics(gameSession.correctCount, gameSession.incorrectCount);
+
   const openQuit = useCallback(() => {
     pauseForQuit();
     setIsQuitOpen(true);
@@ -128,6 +132,8 @@ export function ChallengeShell({
   }, [router, exitHref]);
 
   useEffect(() => {
+    // web（画面確認用）には戻るボタンの仕組みが無く、登録すると警告が出る
+    if (Platform.OS === "web") return;
     const sub = BackHandler.addEventListener("hardwareBackPress", () => {
       openQuit();
       return true;

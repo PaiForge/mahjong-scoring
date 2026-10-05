@@ -8,6 +8,7 @@ import { Button } from "../../components/button";
 import { DashedDivider } from "../../components/dashed-divider";
 import { InfinityIcon, PlayIcon } from "../../components/icons/icons";
 import { Screen } from "../../components/screen";
+import { useJudgementHaptics } from "../../hooks/use-judgement-haptics";
 import { TextLink } from "../../components/text-link";
 import { colors } from "../../lib/theme";
 import { ScoreCounter } from "./score-counter";
@@ -85,6 +86,7 @@ export function TrainingShell({
   const tExam = useTranslations("examTraining");
   const router = useRouter();
   const isExam = variant === "exam";
+  useJudgementHaptics(correctCount, totalCount - correctCount);
 
   return (
     <Screen

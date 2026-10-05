@@ -18,6 +18,7 @@ import { MACHI_SCORE_PRACTICE_HREF } from "@mahjong-scoring/features/routes";
 import { BoardBleedProvider } from "../../../board/board-bleed";
 import { Button } from "../../../components/button";
 import { Screen } from "../../../components/screen";
+import { useJudgementHaptics } from "../../../hooks/use-judgement-haptics";
 import { useYakumanRules } from "../../../hooks/use-rule-settings-store";
 import { useMachiScoreSettingsStore } from "../../../hooks/use-score-settings-store";
 import { colors, radius } from "../../../lib/theme";
@@ -82,6 +83,8 @@ export function MachiScoreBoard() {
     revealAnswer,
     generateNewQuestion,
   } = useMachiScoreStore();
+
+  useJudgementHaptics(stats.correct, stats.total - stats.correct);
 
   // 出題条件をストアへ移し、成績と前回の問題を消してから最初の問題を作る。
   // 待ちごとに役が変わる出題なので、役の絞り込みは持たない（web と同じ）
