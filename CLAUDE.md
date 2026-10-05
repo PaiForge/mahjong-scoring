@@ -89,9 +89,27 @@ web とモバイル（Expo）で共有するロジックを置く。`exports` �
 
 ## モバイル（apps/mobile）
 
-web と同じ画面・同じ見た目をネイティブで出す Expo アプリ。技術スタック（Expo + expo-router）は
+web と同じ画面をネイティブで出す Expo アプリ。技術スタック（Expo + expo-router）は
 参考プロジェクト（blindfold-chess の apps/mobile）に揃えている（バージョンは揃えない）。ロジックは
 packages/features / core を共有し、アプリ側は画面と RN の部品だけを持つ。
+
+**仕様は web を踏襲するが、外観まで web を写さない。** スマホアプリとして見慣れない
+形（地の斜線の帯・太枠のヘッダーとタブバー・グレー + 下線のリンク・中央の太枠の
+ダイアログ）はネイティブの定石に置き換える。残すのは面の記号（太枠・ハードシャドウ・
+押し込み・緑の塗り = 押して始める）と色の値。
+
+- 画面の枠（`components/screen.tsx`）はネイティブ標準: 白地のヘッダー（左に戻る / ×、
+  中央に見出し、右に「?」等）とヘアラインの区切り。解答中の画面（チャレンジ・
+  トレーニング・訓練）は `backIcon="close"` で「閉じる」を出し、チャレンジだけ中止の
+  確認を挟む。履歴が無いときの戻るは練習一覧へ
+- リンクは下線を引かない（`lib/link-styles.ts`）。押せる行は濃い題名 + 右端の矢印 +
+  押したときの地の色、単独の文字の操作はアクセント色の太字、本文中の語だけ下線
+- 説明・選択肢の一覧・選択欄は `BottomSheet`（下からのシート）。確認だけ中央の
+  ダイアログ（`ConfirmationModal`）
+- 一覧の絞り込みは `FilterChips`（端まで流す独立したチップ）、2〜3 択の表示切り替えは
+  `ToggleGroup`（セグメントコントロール）
+- 答え合わせは色に加えて触覚（`lib/haptics.ts`、expo-haptics）でも知らせる
+- 本文の文字は 15〜16pt（web の 14px を写さない）。辞書の改行は設定の説明では取り除く
 
 - **画面の構成は web をなぞる。** ルートは expo-router で web と同じパス（`/practice/<slug>`,
   `/practice/<slug>/play` …）に置き、パスは `@mahjong-scoring/features/routes` で組み立てる。
@@ -101,7 +119,7 @@ packages/features / core を共有し、アプリ側は画面と RN の部品だ
 - **ログインはまだ無い。** チャレンジは結果画面で今回の成績を見せるだけで記録しない（記録・
   ランキング・段級位はアカウントに紐づくため）。結果はメモリのストアで結果画面へ運ぶ
   （web の sessionStorage の代わり）。設定とレッスンの完了は端末ローカル（AsyncStorage）
-- **見た目の値は web から写す。** 色・角丸は `src/lib/theme.ts`（web の `globals.css` と同じ値）。
+- **色・角丸の値は web から写す。** `src/lib/theme.ts`（web の `globals.css` と同じ値）。
   太枠・ハードシャドウ・押し込みは `PressableSurface`（影は面の後ろに敷いた View で描く。
   Android の elevation は硬い影を描けない）。影を持つのは押せる面だけ（web と同じ規則）
 - **牌は `Tile` / `FuroTiles` を使う。** `@pai-forge/mahjong-react-ui` の `Hai` は `onClick` が
