@@ -11,7 +11,7 @@ import {
 } from "@mahjong-scoring/features/practice/yaku-han/types";
 
 import { colors, radius } from "../../../lib/theme";
-import type { RecordingPracticeBoardProps } from "../../board-props";
+import type { RecordingPracticeBoardProps } from "@mahjong-scoring/features/practice/board-props";
 import { useGeneratedQuestion } from "../../hooks/use-generated-question";
 import { usePresentQuestion } from "../../hooks/use-present-question";
 import { useRegisterAdvance } from "@mahjong-scoring/features/practice/use-training-mode";

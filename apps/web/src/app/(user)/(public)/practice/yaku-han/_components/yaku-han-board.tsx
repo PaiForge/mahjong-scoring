@@ -17,7 +17,7 @@ import { YakuHanPrompt } from "./yaku-han-prompt";
 import { YakuHanAnswerForm } from "./yaku-han-answer-form";
 import { toQuestionResult } from "@mahjong-scoring/features/practice/yaku-han/types";
 import type { YakuHanQuestionResult } from "@mahjong-scoring/features/practice/yaku-han/types";
-import type { RecordingPracticeBoardProps } from "../../_lib/practice-board-props";
+import type { RecordingPracticeBoardProps } from "@mahjong-scoring/features/practice/board-props";
 
 interface YakuHanBoardProps extends RecordingPracticeBoardProps<YakuHanQuestionResult> {
   /** 出題範囲（役のフィルタ）。未指定時は全役から出題する */

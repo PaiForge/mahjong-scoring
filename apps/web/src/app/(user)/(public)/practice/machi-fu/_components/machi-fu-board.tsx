@@ -12,7 +12,7 @@ import { QuestionGeneratingPlaceholder } from "../../_components/question-genera
 import { QuestionPrompt } from "../../_components/question-prompt";
 import { toQuestionResult } from "@mahjong-scoring/features/practice/machi-fu/types";
 import type { MachiFuQuestionResult } from "@mahjong-scoring/features/practice/machi-fu/types";
-import type { RecordingPracticeBoardProps } from "../../_lib/practice-board-props";
+import type { RecordingPracticeBoardProps } from "@mahjong-scoring/features/practice/board-props";
 
 type MachiFuBoardProps = RecordingPracticeBoardProps<MachiFuQuestionResult>;
 

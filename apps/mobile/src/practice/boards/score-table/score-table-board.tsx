@@ -12,7 +12,7 @@ import {
 import { AnswerOutcome } from "@mahjong-scoring/features/results/result-schemas";
 
 import { radius } from "../../../lib/theme";
-import type { RecordingPracticeBoardProps } from "../../board-props";
+import type { RecordingPracticeBoardProps } from "@mahjong-scoring/features/practice/board-props";
 import { feedbackFrameStyle } from "../../feedback-styles";
 import { usePresentQuestion } from "../../hooks/use-present-question";
 import {

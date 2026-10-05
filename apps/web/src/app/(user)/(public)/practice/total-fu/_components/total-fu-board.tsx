@@ -6,7 +6,7 @@ import { useRuleSettingsStore } from "@/app/_hooks/use-rule-settings-store";
 import { QUESTION_GENERATION_MAX_RETRIES } from "@mahjong-scoring/features/practice/total-fu/types";
 import type { TotalFuQuestionResult } from "@mahjong-scoring/features/practice/total-fu/types";
 import { TotalFuQuestionBoard } from "../../_components/total-fu-question-board";
-import type { RecordingPracticeBoardProps } from "../../_lib/practice-board-props";
+import type { RecordingPracticeBoardProps } from "@mahjong-scoring/features/practice/board-props";
 
 type TotalFuBoardProps = RecordingPracticeBoardProps<TotalFuQuestionResult>;
 

@@ -13,7 +13,7 @@ import { useScoreQuestionBoard } from "@/app/(user)/(public)/practice/_hooks/use
 import type { UseScoreQuestionBoardParams } from "@/app/(user)/(public)/practice/_hooks/use-score-question-board";
 import { useTrainingAnswerVisibility } from "@mahjong-scoring/features/practice/use-training-mode";
 import { paymentToScoreTableAnswer } from "@mahjong-scoring/features/results/payment-adapter";
-import type { RecordingPracticeBoardProps } from "@/app/(user)/(public)/practice/_lib/practice-board-props";
+import type { RecordingPracticeBoardProps } from "@mahjong-scoring/features/practice/board-props";
 import type { ScoreQuestionResult } from "@mahjong-scoring/features/results/score-question-result";
 import { buildYakumanCapNote } from "@mahjong-scoring/features/results/yakuman-cap-note";
 import { QuestionDisplay } from "@/app/(user)/(public)/practice/score/_components/question-display";

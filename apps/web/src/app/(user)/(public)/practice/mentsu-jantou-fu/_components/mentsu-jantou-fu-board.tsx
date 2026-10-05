@@ -23,7 +23,7 @@ import { findAgariHighlight } from "@mahjong-scoring/features/practice/mentsu-ja
 import { toQuestionResult } from "@mahjong-scoring/features/practice/mentsu-jantou-fu/types";
 import type { MentsuJantouFuQuestionResult } from "@mahjong-scoring/features/practice/mentsu-jantou-fu/types";
 import { FuItemRow } from "./fu-item-row";
-import type { RecordingPracticeBoardProps } from "../../_lib/practice-board-props";
+import type { RecordingPracticeBoardProps } from "@mahjong-scoring/features/practice/board-props";
 
 function generateQuestion(
   renfonpaiAs4Fu: boolean,

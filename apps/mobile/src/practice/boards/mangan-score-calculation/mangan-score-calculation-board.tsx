@@ -4,7 +4,7 @@ import { ruleBoundaryExclusions } from "@mahjong-scoring/features/challenge/rule
 import type { ManganScoreCalculationQuestionResult } from "@mahjong-scoring/features/practice/mangan-score-calculation/types";
 
 import { useYakumanRules } from "../../../hooks/use-rule-settings-store";
-import type { RecordingPracticeBoardProps } from "../../board-props";
+import type { RecordingPracticeBoardProps } from "@mahjong-scoring/features/practice/board-props";
 import { ScoreCalculationQuestionBoard } from "../../components/score-calculation-question-board";
 import { YakuListDisplay } from "./yaku-list-display";
 

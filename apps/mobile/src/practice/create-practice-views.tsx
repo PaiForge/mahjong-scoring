@@ -18,7 +18,10 @@ import { useTimedSession } from "@mahjong-scoring/features/session/use-timed-ses
 import { useTrainingSession } from "@mahjong-scoring/features/session/use-training-session";
 
 import { useAutoAdvanceOnCorrect } from "../hooks/use-training-settings-store";
-import type { PracticeBoardProps } from "./board-props";
+import type {
+  ChallengeBoardArgs,
+  TrainingBoardArgs,
+} from "@mahjong-scoring/features/practice/board-props";
 import { useChallengeResultStore } from "./challenge-result-store";
 import { ChallengeShell } from "./components/challenge-shell";
 import { TrainingShell } from "./components/training-shell";
@@ -27,20 +30,6 @@ import { TrainingModeProvider } from "@mahjong-scoring/features/practice/use-tra
 /** 練習の画面が受け取る props（URL の `?variant=` を正規化した値） */
 export interface PracticeViewProps {
   readonly variant: string;
-}
-
-/** チャレンジの盤面へ渡す引数 */
-export interface ChallengeBoardArgs<TResult> extends PracticeBoardProps {
-  readonly isCountingDown: boolean;
-  readonly lastAnswerCorrect: boolean | undefined;
-  readonly recordResult: (result: TResult) => void;
-  readonly presentQuestion: (unanswered: TResult) => void;
-}
-
-/** トレーニングの盤面へ渡す引数 */
-export interface TrainingBoardArgs extends PracticeBoardProps {
-  readonly isTraining: true;
-  readonly lastAnswerCorrect: boolean | undefined;
 }
 
 interface ChallengePlayViewConfig<TResult> {

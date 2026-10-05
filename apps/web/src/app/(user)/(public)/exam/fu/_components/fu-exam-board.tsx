@@ -2,7 +2,7 @@
 
 import { generateTotalFuQuestion, retryGenerate } from "@mahjong-scoring/core";
 import { TotalFuQuestionBoard } from "@/app/(user)/(public)/practice/_components/total-fu-question-board";
-import type { RecordingPracticeBoardProps } from "@/app/(user)/(public)/practice/_lib/practice-board-props";
+import type { RecordingPracticeBoardProps } from "@mahjong-scoring/features/practice/board-props";
 import {
   EXAM_GENERATE_OPTIONS,
   EXAM_GENERATION_MAX_RETRIES,

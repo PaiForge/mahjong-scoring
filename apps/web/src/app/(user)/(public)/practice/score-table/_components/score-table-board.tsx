@@ -17,7 +17,7 @@ import { ScoreTablePrompt } from "./score-table-prompt";
 import { ScoreTableAnswerForm } from "./score-table-answer-form";
 import { toQuestionResult } from "@mahjong-scoring/features/practice/score-table/types";
 import type { ScoreTableQuestionResult } from "@mahjong-scoring/features/practice/score-table/types";
-import type { RecordingPracticeBoardProps } from "../../_lib/practice-board-props";
+import type { RecordingPracticeBoardProps } from "@mahjong-scoring/features/practice/board-props";
 
 interface ScoreTableBoardProps extends RecordingPracticeBoardProps<ScoreTableQuestionResult> {
   /** 現在の問題 */

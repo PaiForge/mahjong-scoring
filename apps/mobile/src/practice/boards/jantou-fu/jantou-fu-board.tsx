@@ -16,7 +16,7 @@ import {
 
 import { useRuleSettingsStore } from "../../../hooks/use-rule-settings-store";
 import { colors } from "../../../lib/theme";
-import type { RecordingPracticeBoardProps } from "../../board-props";
+import type { RecordingPracticeBoardProps } from "@mahjong-scoring/features/practice/board-props";
 import { ChoiceButton } from "../../components/choice-button";
 import { QuestionPrompt } from "../../components/question-prompt";
 import { choiceFeedbackProps } from "../../feedback-styles";

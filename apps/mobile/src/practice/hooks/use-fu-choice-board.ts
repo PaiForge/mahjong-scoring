@@ -1,6 +1,6 @@
 import { useCallback, useState } from "react";
 
-import type { PracticeBoardProps } from "../board-props";
+import type { PracticeBoardProps } from "@mahjong-scoring/features/practice/board-props";
 import { useGeneratedQuestion } from "./use-generated-question";
 import { usePresentQuestion } from "./use-present-question";
 import { useRegisterAdvance } from "@mahjong-scoring/features/practice/use-training-mode";

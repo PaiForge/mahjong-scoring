@@ -20,7 +20,7 @@ import { HanBreakdown } from "./han-breakdown";
 import { HanCountAnswerForm } from "./han-count-answer-form";
 import type { HanCountQuestionResult } from "@mahjong-scoring/features/practice/han-count/types";
 import { toHanCountQuestionResult } from "@mahjong-scoring/features/practice/han-count/types";
-import type { RecordingPracticeBoardProps } from "../../_lib/practice-board-props";
+import type { RecordingPracticeBoardProps } from "@mahjong-scoring/features/practice/board-props";
 
 /**
  * 出題状態（{@link useGeneratedScoreQuestion} の戻り値）

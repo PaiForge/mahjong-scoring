@@ -17,7 +17,7 @@ import {
   toFuQuestionResult,
   type FuQuestionResult,
 } from "@mahjong-scoring/features/results/fu-question-result";
-import type { RecordingPracticeBoardProps } from "../_lib/practice-board-props";
+import type { RecordingPracticeBoardProps } from "@mahjong-scoring/features/practice/board-props";
 
 interface TotalFuQuestionBoardProps extends RecordingPracticeBoardProps<FuQuestionResult> {
   /**

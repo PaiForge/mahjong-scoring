@@ -8,7 +8,7 @@ import {
 } from "@mahjong-scoring/features/practice/total-fu/types";
 
 import { useRuleSettingsStore } from "../../../hooks/use-rule-settings-store";
-import type { RecordingPracticeBoardProps } from "../../board-props";
+import type { RecordingPracticeBoardProps } from "@mahjong-scoring/features/practice/board-props";
 import { FuProblemList } from "../../components/fu-problem-list";
 import { TotalFuQuestionBoard } from "../../components/total-fu-question-board";
 import {

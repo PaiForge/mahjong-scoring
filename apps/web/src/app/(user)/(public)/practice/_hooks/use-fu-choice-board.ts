@@ -4,7 +4,7 @@ import { useGradeAnswer } from "./use-verified-challenge";
 
 import { useCallback, useState } from "react";
 
-import type { PracticeBoardProps } from "../_lib/practice-board-props";
+import type { PracticeBoardProps } from "@mahjong-scoring/features/practice/board-props";
 import { useClientGeneratedQuestion } from "./use-client-generated-question";
 import { usePresentQuestion } from "./use-present-question";
 import { useRegisterAdvance } from "@mahjong-scoring/features/practice/use-training-mode";

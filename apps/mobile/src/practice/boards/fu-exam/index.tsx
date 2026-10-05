@@ -18,7 +18,7 @@ import {
 import { PRACTICE_SLUG } from "@mahjong-scoring/features/practice-menu-types";
 
 import { TehaiDisplay } from "../../../board/tehai-display";
-import type { RecordingPracticeBoardProps } from "../../board-props";
+import type { RecordingPracticeBoardProps } from "@mahjong-scoring/features/practice/board-props";
 import { FuChoiceGrid } from "../../components/fu-choice-grid";
 import { FuProblemList } from "../../components/fu-problem-list";
 import { QuestionPrompt } from "../../components/question-prompt";

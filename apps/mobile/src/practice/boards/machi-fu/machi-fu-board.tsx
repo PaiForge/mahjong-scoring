@@ -9,7 +9,7 @@ import {
   type MachiFuQuestionResult,
 } from "@mahjong-scoring/features/practice/machi-fu/types";
 
-import type { RecordingPracticeBoardProps } from "../../board-props";
+import type { RecordingPracticeBoardProps } from "@mahjong-scoring/features/practice/board-props";
 import { FuChoiceGrid } from "../../components/fu-choice-grid";
 import { QuestionPlaceholder } from "../../components/question-placeholder";
 import { QuestionPrompt } from "../../components/question-prompt";

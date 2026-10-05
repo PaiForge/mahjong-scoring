@@ -15,7 +15,7 @@ import { AnswerOutcome } from "@mahjong-scoring/features/results/result-schemas"
 
 import { TehaiDisplay } from "../../../board/tehai-display";
 import { useRuleSettingsStore } from "../../../hooks/use-rule-settings-store";
-import type { RecordingPracticeBoardProps } from "../../board-props";
+import type { RecordingPracticeBoardProps } from "@mahjong-scoring/features/practice/board-props";
 import { QuestionPlaceholder } from "../../components/question-placeholder";
 import { QuestionPrompt } from "../../components/question-prompt";
 import { useGeneratedQuestion } from "../../hooks/use-generated-question";

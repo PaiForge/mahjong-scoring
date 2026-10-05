@@ -29,7 +29,7 @@ import {
   toQuestionResult,
 } from "@mahjong-scoring/features/practice/yaku/types";
 import type { YakuQuestionResult } from "@mahjong-scoring/features/practice/yaku/types";
-import type { RecordingPracticeBoardProps } from "../../_lib/practice-board-props";
+import type { RecordingPracticeBoardProps } from "@mahjong-scoring/features/practice/board-props";
 
 function generateQuestion(): YakuQuestion | undefined {
   return retryGenerate(generateYakuQuestion, QUESTION_GENERATION_MAX_RETRIES);

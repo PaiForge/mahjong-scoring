@@ -20,26 +20,12 @@ import { useSaveOnFinish } from "../_hooks/use-save-on-finish";
 import { useTimedSession } from "../_hooks/use-timed-session";
 import { useTrainingSession } from "../_hooks/use-training-session";
 import { TrainingModeProvider } from "@mahjong-scoring/features/practice/use-training-mode";
-import type { PracticeBoardProps } from "./practice-board-props";
+import type {
+  ChallengeBoardArgs,
+  TrainingBoardArgs,
+} from "@mahjong-scoring/features/practice/board-props";
 import { practiceResultHref } from "@mahjong-scoring/features/routes";
 import { rankRequiringMenu } from "@mahjong-scoring/features/ranks/registry";
-
-/**
- * チャレンジ盤面の描画に渡される状態
- * チャレンジ盤面引数
- */
-export interface ChallengeBoardArgs<TResult> extends PracticeBoardProps {
-  /** チャレンジではカウントダウンが必ずあるため必須 */
-  readonly isCountingDown: boolean;
-  readonly lastAnswerCorrect: boolean | undefined;
-  /** 問題結果の記録（レジストリで `hasProblemList` の練習のみ終了時に保存される） */
-  readonly recordResult: (result: TResult) => void;
-  /**
-   * 出題中の問題の届け出（時間切れで答えられなかった問題を結果に残すため）。
-   * 盤面の `onPresentQuestion` にそのまま渡す
-   */
-  readonly presentQuestion: (unanswered: TResult) => void;
-}
 
 /**
  * チャレンジ本体ビューの生成設定
@@ -199,16 +185,6 @@ export function createChallengePlayView<
       </VerifiedChallengeProvider>
     );
   };
-}
-
-/**
- * トレーニング盤面の描画に渡される状態
- * トレーニング盤面引数
- */
-export interface TrainingBoardArgs extends PracticeBoardProps {
-  /** トレーニングビューからの描画なので常に true */
-  readonly isTraining: true;
-  readonly lastAnswerCorrect: boolean | undefined;
 }
 
 /**

@@ -10,7 +10,7 @@ import {
 } from "@mahjong-scoring/features/practice/mentsu-fu/types";
 
 import { FuroTiles } from "../../../board/furo-tiles";
-import type { RecordingPracticeBoardProps } from "../../board-props";
+import type { RecordingPracticeBoardProps } from "@mahjong-scoring/features/practice/board-props";
 import { FuChoiceGrid } from "../../components/fu-choice-grid";
 import { PromptLabel } from "../../components/prompt-label";
 import { QuestionPlaceholder } from "../../components/question-placeholder";

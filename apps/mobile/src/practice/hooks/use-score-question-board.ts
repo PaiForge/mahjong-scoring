@@ -10,7 +10,7 @@ import {
   type ScoreQuestionResult,
 } from "@mahjong-scoring/features/results/score-question-result";
 
-import type { RecordingPracticeBoardProps } from "../board-props";
+import type { RecordingPracticeBoardProps } from "@mahjong-scoring/features/practice/board-props";
 import { useGeneratedQuestion } from "./use-generated-question";
 import { usePresentQuestion } from "./use-present-question";
 import { useRegisterAdvance } from "@mahjong-scoring/features/practice/use-training-mode";

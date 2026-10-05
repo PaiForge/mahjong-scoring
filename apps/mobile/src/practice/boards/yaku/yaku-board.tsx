@@ -15,7 +15,7 @@ import {
 
 import { TehaiDisplay } from "../../../board/tehai-display";
 import { TehaiMentsuBreakdown } from "../../../board/tehai-mentsu-breakdown";
-import type { RecordingPracticeBoardProps } from "../../board-props";
+import type { RecordingPracticeBoardProps } from "@mahjong-scoring/features/practice/board-props";
 import { ChallengeSubmitButton } from "../../components/challenge-submit-button";
 import { QuestionPlaceholder } from "../../components/question-placeholder";
 import { QuestionPrompt } from "../../components/question-prompt";
