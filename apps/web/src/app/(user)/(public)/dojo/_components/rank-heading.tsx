@@ -27,9 +27,13 @@ interface RankHeadingProps {
  * 段級位見出し
  *
  * 帯バッジ・「5級 — 満貫以上の点数計算ができること」・取得状態の pill を
- * 1 行に並べる。ダッシュボードの「次にやること」と道場の級カードが同じ形で
+ * 横に並べる。ダッシュボードの「次にやること」と道場の級カードが同じ形で
  * 出す — 同じ級を指すカードの頭が場所ごとに違うと、同じものに見えない。
- * 級名と合格基準をつなげた 1 文は級の詳細ページへのリンクにする。
+ * 級名と合格基準をつなげた 1 文は級の詳細ページへのリンクにする。文字色は
+ * テキストリンクの規約どおりグレー + 下線（`TEXT_LINK_CLASSES`）で、h3 側で
+ * 色を指定しない — 唯一の子がリンクなので h3 の色は描画に現れない。
+ * 文は幅が狭いと折り返す。帯バッジの丈（48px）は 2 行まで吸収し、合格基準の
+ * 長い級（3級・2級・1級）は sm 未満で 3 行になって見出し行が伸びる。
  *
  * 以前はダッシュボードが「次の目標」を小さな文字のラベルで、道場が
  * 「できるようになること:」を級名の下の別の行で出していた。状態は pill
@@ -48,7 +52,7 @@ export function RankHeading({
   return (
     <div className="flex items-center gap-3" data-tour-id={dataTourId}>
       <BeltBadge slug={rankSlug} />
-      <h3 className="min-w-0 flex-1 text-base font-bold text-surface-900">
+      <h3 className="min-w-0 flex-1 text-base font-bold">
         <Link href={rankHref(rankSlug)} className={TEXT_LINK_CLASSES}>
           {tRanks("heading", {
             rank: tRanks(`names.${rankSlug}`),
