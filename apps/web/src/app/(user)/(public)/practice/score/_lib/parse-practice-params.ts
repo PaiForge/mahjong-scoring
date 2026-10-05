@@ -1,16 +1,15 @@
-import type {
-  QuestionGeneratorOptions,
-  ScoreRange,
-} from "@mahjong-scoring/core";
-
-import { RANGE_PARAM, parseRangeValues } from "../../_lib/range-params";
-import { ROLE_PARAM, parseRoleValues } from "../../_lib/role-params";
 import {
-  HAND_SHAPE_FURO,
-  HAND_SHAPE_MENZEN,
+  buildScoreGeneratorOptions,
+  type ScoreGeneratorOptions,
+  type ScorePracticeModeFlags as SharedScorePracticeModeFlags,
+} from "@mahjong-scoring/features/practice/score/generator-options";
+import {
   HAND_SHAPE_PARAM,
   parseHandShape,
 } from "@mahjong-scoring/features/practice/score/hand-shape-param";
+
+import { RANGE_PARAM, parseRangeValues } from "../../_lib/range-params";
+import { ROLE_PARAM, parseRoleValues } from "../../_lib/role-params";
 import { YAKU_PARAM, parseYakuValues } from "./yaku-filter-params";
 
 /**
@@ -21,51 +20,26 @@ import { YAKU_PARAM, parseYakuValues } from "./yaku-filter-params";
  * - `roles`: "oya" / "ko" の複数指定。未指定時は両方
  * - `yaku`: 出題役トークンの複数指定（OR）。未指定時は絞り込みなし
  * - `hand`: "menzen" / "furo" で手の形を絞る。未指定時は両方出す
+ *
+ * 絞り込みからオプションを組む部分はモバイルと共有する（`buildScoreGeneratorOptions`）。
  */
 export function parseGeneratorOptionsFromParams(
   params: URLSearchParams,
-): Pick<
-  QuestionGeneratorOptions,
-  | "allowedRanges"
-  | "includeParent"
-  | "includeChild"
-  | "requiredYaku"
-  | "includeFuro"
-  | "requireFuro"
-> {
+): ScoreGeneratorOptions {
   const ranges = parseRangeValues(params.getAll(RANGE_PARAM));
-  const allowedRanges: ScoreRange[] = [];
-  if (ranges.includeNonMangan) allowedRanges.push("nonMangan");
-  if (ranges.includeManganPlus) allowedRanges.push("manganPlus");
-
   const roles = parseRoleValues(params.getAll(ROLE_PARAM));
-
-  const requiredYaku = parseYakuValues(params.getAll(YAKU_PARAM));
-  const handShape = parseHandShape(params.get(HAND_SHAPE_PARAM));
-
-  return {
-    allowedRanges,
+  return buildScoreGeneratorOptions({
+    includeNonMangan: ranges.includeNonMangan,
+    includeManganPlus: ranges.includeManganPlus,
     includeParent: roles.includeOya,
     includeChild: roles.includeKo,
-    // requiredYaku と同じく、未指定でも明示的に既定値へ戻す
-    includeFuro: handShape !== HAND_SHAPE_MENZEN,
-    requireFuro: handShape === HAND_SHAPE_FURO,
-    // 未指定は undefined で明示的に上書きする（store の setOptions はマージの
-    // ため、キーを省略すると前回セッションの絞り込みが残る）
-    requiredYaku: requiredYaku.length > 0 ? requiredYaku : undefined,
-  };
+    requiredYaku: parseYakuValues(params.getAll(YAKU_PARAM)),
+    handShape: parseHandShape(params.get(HAND_SHAPE_PARAM)),
+  });
 }
 
-/** 無限練習（score）の判定モードフラグ */
-export interface ScorePracticeModeFlags {
-  /** 役の回答を必須にする */
-  readonly requireYaku: boolean;
-  /** 満貫以上の翻数を簡略化して判定する */
-  readonly simplifyMangan: boolean;
-  /** 満貫以上でも符の回答を必須にする */
-  readonly requireFuForMangan: boolean;
-  /** 正解時に自動で次の問題へ進む */
-  readonly autoNext: boolean;
+/** 無限練習（score）の判定モードフラグ（共通の判定モード + web だけの回答時間の計測） */
+export interface ScorePracticeModeFlags extends SharedScorePracticeModeFlags {
   /**
    * 回答時間を計測して表示する（Pro の拡張機能）。
    * 設定画面は Pro のときだけこのフラグを付け、盤面は特典の有無を

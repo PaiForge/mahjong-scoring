@@ -2,6 +2,8 @@ import { render, screen, cleanup } from "@testing-library/react";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
 vi.mock("next-intl", async () => await import("@/test/intl-mock"));
+// 共有フック（features の useYakuLabel）は use-intl から辞書を読む
+vi.mock("use-intl", async () => await import("@/test/intl-mock"));
 
 const { YakuBoard } = await import("./yaku-board");
 const { YAKU_LIST_HEIGHT_CLASSES } = await import("./yaku-select-list");

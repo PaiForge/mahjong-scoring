@@ -3,7 +3,7 @@
 import { useTranslations } from "next-intl";
 import { buildYakuComparisonChips } from "@mahjong-scoring/features/practice/yaku/answer-comparison";
 import { useYakuOrder } from "@/app/_hooks/use-yaku-order-store";
-import { useYakuLabel } from "@/app/_hooks/use-yaku-options";
+import { useYakuLabel } from "@mahjong-scoring/features/yaku/use-yaku-options";
 import { AnswerComparison } from "../../_components/answer-comparison";
 import { useYakuCheatsheetModal } from "../../_hooks/use-yaku-cheatsheet-modal";
 import { AnswerOutcome } from "@mahjong-scoring/features/results/result-schemas";

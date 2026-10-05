@@ -3,6 +3,8 @@ import { render, screen, fireEvent, cleanup } from "@testing-library/react";
 import { YakuAnswerComparison } from "./yaku-answer-comparison";
 
 vi.mock("next-intl", async () => await import("@/test/intl-mock"));
+// 共有フック（features の useYakuLabel）は use-intl から辞書を読む
+vi.mock("use-intl", async () => await import("@/test/intl-mock"));
 
 describe("YakuAnswerComparison", () => {
   beforeEach(() => {

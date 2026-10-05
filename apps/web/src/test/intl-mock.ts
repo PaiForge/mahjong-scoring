@@ -6,11 +6,14 @@
  * 検証したいテストは無く（辞書の整合性は *-i18n-integrity.test.ts が担う）、
  * 各テストが同じ3行を書いていたのでここへまとめる。
  *
- * `next-intl` / `next-intl/server` のどちらのモックにも使える:
+ * `next-intl` / `next-intl/server` / `use-intl` のどのモックにも使える。
+ * features の共有フック（`useYakuLabel` 等）は use-intl から辞書を読むため、
+ * それを描くテストは `use-intl` もモックする:
  *
  * ```ts
  * vi.mock("next-intl", async () => await import("@/test/intl-mock"));
  * vi.mock("next-intl/server", async () => await import("@/test/intl-mock"));
+ * vi.mock("use-intl", async () => await import("@/test/intl-mock"));
  * ```
  *
  * 補間した値まで見たいテスト（`t(key, values)`）は独自のスタブを書くこと。

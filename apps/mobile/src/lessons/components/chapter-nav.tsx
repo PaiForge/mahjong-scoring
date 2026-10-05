@@ -1,6 +1,6 @@
 import { Pressable, StyleSheet, Text, View } from "react-native";
 import { useRouter } from "expo-router";
-import { useFormatter, useTranslations } from "use-intl";
+import { useTranslations } from "use-intl";
 import {
   getAdjacentChapters,
   getChapterBySlug,
@@ -8,6 +8,7 @@ import {
   type CurriculumChapter,
   type CurriculumChapterSlug,
 } from "@mahjong-scoring/features/curriculum/registry";
+import { formatPublishedDate } from "@mahjong-scoring/features/curriculum/published-date";
 import { chapterHref } from "@mahjong-scoring/features/routes";
 
 import { DashedDivider } from "../../components/dashed-divider";
@@ -78,7 +79,6 @@ export function ChapterNav({ slug }: { readonly slug: CurriculumChapterSlug }) {
   const prevPorted = prev && isLessonPorted(prev.slug) ? prev : undefined;
   const nextPorted = next && isLessonPorted(next.slug) ? next : undefined;
   const chapter = getChapterBySlug(slug);
-  const format = useFormatter();
 
   return (
     <View style={styles.footer}>
@@ -98,15 +98,7 @@ export function ChapterNav({ slug }: { readonly slug: CurriculumChapterSlug }) {
       {chapter && (
         <Text style={styles.published}>
           {t("publishedOn", {
-            // web の `formatPublishedDate` と同じ書式（公開日は JST の日付）
-            date: format.dateTime(
-              new Date(`${chapter.publishedAt}T00:00:00+09:00`),
-              {
-                year: "numeric",
-                month: "long",
-                day: "numeric",
-              },
-            ),
+            date: formatPublishedDate(chapter.publishedAt),
           })}
         </Text>
       )}

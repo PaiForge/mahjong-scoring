@@ -27,7 +27,7 @@ import { Button } from "@/app/(user)/_components/button";
 import { ConfirmationModal } from "@/app/(user)/_components/confirmation-modal";
 import { LockClosedIcon } from "@/app/(user)/_components/icons/lock-closed-icon";
 import { LockOpenIcon } from "@/app/(user)/_components/icons/lock-open-icon";
-import { useYakuLabel } from "@/app/_hooks/use-yaku-options";
+import { useYakuLabel } from "@mahjong-scoring/features/yaku/use-yaku-options";
 import {
   useYakuOrder,
   useYakuOrderStore,
