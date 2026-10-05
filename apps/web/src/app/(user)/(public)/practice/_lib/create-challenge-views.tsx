@@ -4,18 +4,17 @@ import {
   VerifiedChallengeProvider,
   useVerifiedChallenge,
 } from "../_hooks/use-verified-challenge";
-import { useCallback, useMemo, useState, type ReactNode } from "react";
+import { type ReactNode } from "react";
 import { useTranslations } from "next-intl";
 import type { PracticeMenuSlug } from "@mahjong-scoring/features/practice-menu-types";
 import {
-  isExamMenuType,
   practiceMenuBySlug,
   resultStorageKeyFor,
 } from "@mahjong-scoring/features/practice-menu-types";
 import { useSubmitExamOnFinish } from "@/app/(user)/(public)/exam/_hooks/use-submit-exam-on-finish";
 import { ChallengeShell } from "../_components/challenge-shell";
 import { TrainingShell } from "../_components/training-shell";
-import { useRecordedResults } from "../_hooks/use-recorded-results";
+import { useStoredRecordedResults } from "../_hooks/use-stored-recorded-results";
 import { useSaveOnFinish } from "../_hooks/use-save-on-finish";
 import { useTimedSession } from "../_hooks/use-timed-session";
 import { useTrainingSession } from "../_hooks/use-training-session";
@@ -25,7 +24,8 @@ import type {
   TrainingBoardArgs,
 } from "@mahjong-scoring/features/practice/board-props";
 import { practiceResultHref } from "@mahjong-scoring/features/routes";
-import { rankRequiringMenu } from "@mahjong-scoring/features/ranks/registry";
+import { useTrainingModeBridge } from "@mahjong-scoring/features/practice/use-training-mode-bridge";
+import { challengeViewSettings } from "@mahjong-scoring/features/practice/challenge-view-settings";
 
 /**
  * チャレンジ本体ビューの生成設定
@@ -99,16 +99,12 @@ export function createChallengePlayView<
   // 昇級試験は結果ページの形が違う（合否サマリ・記録の節とランキング無し）。
   // 終了後のスケルトンも同じ形にして高さを揃える。中断時の文言も
   // 「チャレンジ」ではなく「試験」で出す
-  const variant = isExamMenuType(menuType) ? "exam" : "practice";
+  const { kind: variant, goalCount } = challengeViewSettings(slug);
   // 終了時の処理も試験と練習で分かれる — 練習は結果を記録し、試験は記録せず
   // 採点だけする。どちらを使うかはコンポーネント生成時に固定されるため、
   // フックの呼び出し順は毎レンダー同じ
   const useFinishHandler =
     variant === "exam" ? useSubmitExamOnFinish : useSaveOnFinish;
-  // 昇級試験は合格点に届いた時点で終える。合否はそこで決まり、その先を
-  // 解いても結果は変わらない。サーバーも合格点に届いた挑戦を終わったものと
-  // して扱う（`finishedChallengeTime`）
-  const goalCount = rankRequiringMenu(menuType)?.requirement.minScore;
   const useBoardState = config.useBoardState ?? useNoBoardState;
 
   function ChallengePlayView(props: TProps) {
@@ -123,7 +119,7 @@ export function createChallengePlayView<
       goalCount,
     });
     const handleFinish = useFinishHandler(menuType);
-    const { recordResult, presentQuestion } = useRecordedResults<TResult>(
+    const { recordResult, presentQuestion } = useStoredRecordedResults<TResult>(
       resultStorageKey,
       gameSession.finalResult,
     );
@@ -244,15 +240,19 @@ export function createTrainingView<
 >(config: TrainingViewConfig<TProps, TState>): (props: TProps) => ReactNode {
   const { slug, maxWidth, hasSubmitButton, help, renderBoard } = config;
   // チャレンジ側のルール（制限時間・ミス上限）は CTA の補足文に出す
-  const { namespace, menuType, mistakeLimit, timeLimit } =
-    practiceMenuBySlug(slug);
-  const variant = isExamMenuType(menuType) ? "exam" : "practice";
+  const {
+    namespace,
+    mistakeLimit,
+    timeLimit,
+    kind: variant,
+  } = challengeViewSettings(slug);
   const useBoardState = config.useBoardState ?? useNoBoardState;
 
   function TrainingView(props: TProps) {
     const t = useTranslations(namespace);
     const tExamTraining = useTranslations("examTraining");
     const boardState = useBoardState(props);
+    const session = useTrainingSession();
     const {
       correctCount,
       totalCount,
@@ -261,21 +261,12 @@ export function createTrainingView<
       isRevealed,
       isHolding,
       handleAnswer,
-      reveal,
       proceed,
-    } = useTrainingSession();
-
+    } = session;
     // 「次へ進む」操作は盤面が持つ（出題の差し替えと入力欄のリセットを含む）ため、
-    // useTrainingReveal 経由で登録してもらう。生成待ちの間は undefined になる。
-    const [advance, setAdvance] = useState<(() => void) | undefined>(undefined);
-    const registerAdvance = useCallback(
-      (next: (() => void) | undefined) => setAdvance(() => next),
-      [],
-    );
-    const trainingMode = useMemo(
-      () => ({ isRevealed, isHolding, registerAdvance }),
-      [isRevealed, isHolding, registerAdvance],
-    );
+    // 盤面に登録してもらう。生成待ちの間は「わからない」を押せない
+    const { trainingMode, reveal, revealDisabled } =
+      useTrainingModeBridge(session);
 
     return (
       <TrainingShell
@@ -293,10 +284,8 @@ export function createTrainingView<
         totalCount={totalCount}
         challengeRules={{ timeLimit, mistakeLimit }}
         maxWidth={maxWidth}
-        onReveal={() => {
-          if (advance) reveal(advance);
-        }}
-        revealDisabled={showFeedback || advance === undefined}
+        onReveal={reveal}
+        revealDisabled={revealDisabled}
         isRevealed={isRevealed}
         isHolding={isHolding}
         onProceed={proceed}
