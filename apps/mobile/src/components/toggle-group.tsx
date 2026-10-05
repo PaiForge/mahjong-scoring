@@ -1,7 +1,6 @@
-import { Fragment } from "react";
-import { Pressable, ScrollView, StyleSheet, Text, View } from "react-native";
+import { Pressable, StyleSheet, Text, View } from "react-native";
 
-import { colors } from "../lib/theme";
+import { colors, radius } from "../lib/theme";
 
 /** トグルの選択肢 */
 export interface ToggleOption<T extends string> {
@@ -10,7 +9,7 @@ export interface ToggleOption<T extends string> {
 }
 
 interface ToggleGroupProps<T extends string> {
-  /** 選択肢のまとまり。まとまりの間に縦線を引く */
+  /** 選択肢のまとまり。まとまりの間に細い縦線を引く */
   readonly groups: readonly (readonly ToggleOption<T>[])[];
   readonly selected: T;
   readonly onSelect: (value: T) => void;
@@ -18,10 +17,13 @@ interface ToggleGroupProps<T extends string> {
 }
 
 /**
- * 1 つを選ぶトグル（web の `ToggleGroup` / 練習一覧の絞り込み）
+ * 1 つを選ぶセグメントコントロール（web の点数表の `ToggleGroup`）
+ * セグメントコントロール
  *
- * 太枠の pill の中に選択肢を並べ、選んだものを濃い緑に白抜きにする。
- * 画面幅に収まらないときは横にスクロールする。
+ * 2〜3 択の表示切り替え（親 / 子、ロン / ツモ、符翻 / 満貫以上）に使う。
+ * スマホ OS 標準のセグメントコントロールと同じ形: 淡いグレーの溝に選択肢を
+ * 並べ、選んだものだけ白い面で浮かせる。一覧の絞り込みのように選択肢が
+ * 多く横に流すものは `FilterChips` を使う。
  */
 export function ToggleGroup<T extends string>({
   groups,
@@ -29,73 +31,61 @@ export function ToggleGroup<T extends string>({
   onSelect,
   accessibilityLabel,
 }: ToggleGroupProps<T>) {
+  const options = groups.flat();
   return (
-    <ScrollView
-      horizontal
-      showsHorizontalScrollIndicator={false}
+    <View
+      style={styles.track}
+      accessibilityRole="radiogroup"
       accessibilityLabel={accessibilityLabel}
-      contentContainerStyle={styles.scroll}
     >
-      <View style={styles.container} accessibilityRole="radiogroup">
-        {groups.map((group, gi) => (
-          <Fragment key={gi}>
-            {gi > 0 && <View style={styles.separator} />}
-            {group.map((option) => {
-              const isActive = option.value === selected;
-              return (
-                <Pressable
-                  key={option.value}
-                  onPress={() => onSelect(option.value)}
-                  accessibilityRole="radio"
-                  accessibilityState={{ selected: isActive }}
-                  style={[styles.item, isActive && styles.itemActive]}
-                >
-                  <Text style={[styles.label, isActive && styles.labelActive]}>
-                    {option.label}
-                  </Text>
-                </Pressable>
-              );
-            })}
-          </Fragment>
-        ))}
-      </View>
-    </ScrollView>
+      {options.map((option) => {
+        const isActive = option.value === selected;
+        return (
+          <Pressable
+            key={option.value}
+            onPress={() => onSelect(option.value)}
+            accessibilityRole="radio"
+            accessibilityState={{ selected: isActive }}
+            style={[styles.segment, isActive && styles.segmentActive]}
+          >
+            <Text style={[styles.label, isActive && styles.labelActive]}>
+              {option.label}
+            </Text>
+          </Pressable>
+        );
+      })}
+    </View>
   );
 }
 
 const styles = StyleSheet.create({
-  scroll: {
-    flexGrow: 0,
-  },
-  container: {
+  track: {
     flexDirection: "row",
     alignItems: "center",
-    borderWidth: 3,
-    borderColor: colors.ink,
-    backgroundColor: colors.primary50,
-    borderRadius: 9999,
-    padding: 3,
+    borderRadius: radius.md,
+    backgroundColor: colors.surface100,
+    padding: 2,
   },
-  separator: {
-    width: 1,
-    alignSelf: "stretch",
-    marginHorizontal: 4,
-    backgroundColor: colors.primary200,
+  segment: {
+    minHeight: 30,
+    justifyContent: "center",
+    borderRadius: radius.sm,
+    paddingHorizontal: 12,
   },
-  item: {
-    borderRadius: 9999,
-    paddingHorizontal: 9,
-    paddingVertical: 5,
-  },
-  itemActive: {
-    backgroundColor: colors.primary700,
+  segmentActive: {
+    backgroundColor: colors.white,
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.12,
+    shadowRadius: 2,
+    elevation: 1,
   },
   label: {
-    fontSize: 12,
-    fontWeight: "700",
-    color: colors.surface700,
+    fontSize: 13,
+    fontWeight: "600",
+    color: colors.surface600,
   },
   labelActive: {
-    color: colors.white,
+    color: colors.foreground,
   },
 });
