@@ -81,14 +81,6 @@ export default [
     },
   },
   {
-    // Hermes 向けの polyfill。全モジュールより先に素の script として読まれる
-    files: ["apps/mobile/polyfill.js"],
-    languageOptions: {
-      sourceType: "script",
-      globals: { global: "readonly" },
-    },
-  },
-  {
     ignores: [
       "apps/web/.next/**",
       "apps/mobile/.expo/**",
