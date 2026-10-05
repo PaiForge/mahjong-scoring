@@ -1,6 +1,6 @@
 import { afterEach, describe, expect, it } from "vitest";
 import { act, renderHook } from "@testing-library/react";
-import { useRecordedResults } from "./use-recorded-results";
+import { useStoredRecordedResults } from "./use-stored-recorded-results";
 import type { FinalResult } from "@mahjong-scoring/features/session/use-timed-session";
 
 interface Row {
@@ -36,14 +36,14 @@ function saved(): readonly Row[] {
     : (JSON.parse(raw) as { readonly results: Row[] }).results;
 }
 
-describe("useRecordedResults", () => {
+describe("useStoredRecordedResults", () => {
   afterEach(() => {
     sessionStorage.clear();
   });
 
   it("終了が確定するまで保存しない", () => {
     const { result } = renderHook(() =>
-      useRecordedResults<Row>(KEY, undefined),
+      useStoredRecordedResults<Row>(KEY, undefined),
     );
     act(() => {
       result.current.recordResult({ id: "a" });
@@ -53,7 +53,8 @@ describe("useRecordedResults", () => {
 
   it("時間切れで終わると、出題中だった問題を回答なしのまま末尾に足して保存する", () => {
     const { result, rerender } = renderHook(
-      ({ finalResult }: Props) => useRecordedResults<Row>(KEY, finalResult),
+      ({ finalResult }: Props) =>
+        useStoredRecordedResults<Row>(KEY, finalResult),
       { initialProps: NOT_FINISHED },
     );
     act(() => {
@@ -69,7 +70,8 @@ describe("useRecordedResults", () => {
   it("終了時刻を回 ID として一覧と一緒に保存する", () => {
     // 結果ページは URL の `?run=` と一致する回の一覧だけを読む
     const { result, rerender } = renderHook(
-      ({ finalResult }: Props) => useRecordedResults<Row>(KEY, finalResult),
+      ({ finalResult }: Props) =>
+        useStoredRecordedResults<Row>(KEY, finalResult),
       { initialProps: NOT_FINISHED },
     );
     act(() => {
@@ -86,7 +88,8 @@ describe("useRecordedResults", () => {
 
   it("ミス上限で終わると、出題中だった問題は保存しない", () => {
     const { result, rerender } = renderHook(
-      ({ finalResult }: Props) => useRecordedResults<Row>(KEY, finalResult),
+      ({ finalResult }: Props) =>
+        useStoredRecordedResults<Row>(KEY, finalResult),
       { initialProps: NOT_FINISHED },
     );
     act(() => {
@@ -102,7 +105,8 @@ describe("useRecordedResults", () => {
   it("答えた問題は届け出を上書きし、時間切れでも二重には載らない", () => {
     // 回答直後のフィードバック表示中に時間が来る場合
     const { result, rerender } = renderHook(
-      ({ finalResult }: Props) => useRecordedResults<Row>(KEY, finalResult),
+      ({ finalResult }: Props) =>
+        useStoredRecordedResults<Row>(KEY, finalResult),
       { initialProps: NOT_FINISHED },
     );
     act(() => {
@@ -118,7 +122,7 @@ describe("useRecordedResults", () => {
   it("保存先が無い練習では時間切れでも何も保存しない", () => {
     const { result, rerender } = renderHook(
       ({ finalResult }: Props) =>
-        useRecordedResults<Row>(undefined, finalResult),
+        useStoredRecordedResults<Row>(undefined, finalResult),
       { initialProps: NOT_FINISHED },
     );
     act(() => {
