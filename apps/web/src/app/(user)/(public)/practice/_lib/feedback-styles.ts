@@ -16,16 +16,26 @@ export function getFeedbackBorderClass(
     : "border-destructive bg-destructive-subtle";
 }
 
+/**
+ * 選択肢ボタンのボーダー＋背景クラスを返す
+ * 選択肢配色
+ *
+ * 選んだ選択肢は、正誤が付く前（`isSelected && !showFeedback`）から色を変える。
+ * 記録ありのチャレンジは採点がサーバーで行われ、押してから正誤が返るまで
+ * 100ms 以上かかる。その間ボタンが静止時の見た目に戻ると「押したのに
+ * 何も起きない」一拍になるので、押した瞬間に「受け付けた」を見せ、
+ * 正誤の色は後から乗せる。採点が同期のトレーニングとレッスンでは、選択と
+ * 同時に `showFeedback` が立つのでこの状態を通らない。
+ */
 export function getFeedbackStyles(
   showFeedback: boolean,
   isSelected: boolean,
   isCorrect: boolean,
 ): { borderClass: string; bgClass: string } {
   if (!showFeedback) {
-    return {
-      borderClass: "border-ink",
-      bgClass: "bg-white hover:bg-primary-50",
-    };
+    return isSelected
+      ? { borderClass: "border-ink", bgClass: "bg-primary-100" }
+      : { borderClass: "border-ink", bgClass: "bg-white hover:bg-primary-50" };
   }
 
   if (isCorrect) {

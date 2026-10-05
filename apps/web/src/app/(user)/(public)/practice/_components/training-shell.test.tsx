@@ -1,4 +1,5 @@
 import { describe, expect, it, vi } from "vitest";
+import { useAuth as mockUseAuth } from "@/test/auth-context-mock";
 import { render, screen, fireEvent } from "@testing-library/react";
 
 vi.mock("next-intl", async () => await import("@/test/intl-mock"));
@@ -6,16 +7,19 @@ vi.mock("next-intl", async () => await import("@/test/intl-mock"));
 // 「終了」とチャレンジ導線が出題設定（バリアント）を引き継ぐため、シェルは
 // 検索パラメータを読む
 let currentQuery = "";
-vi.mock("next/navigation", () => ({
+vi.mock("next/navigation", async () => ({
+  ...(await import("@/test/navigation-mock")),
   useSearchParams: () => new URLSearchParams(currentQuery),
 }));
 
 // 模試の末尾は本番の受験ゲート（認証と段級位を読む）になる
-const { mockUseAuth, mockFetchViewerRankSlugs } = vi.hoisted(() => ({
-  mockUseAuth: vi.fn(),
+const { mockFetchViewerRankSlugs } = vi.hoisted(() => ({
   mockFetchViewerRankSlugs: vi.fn(),
 }));
-vi.mock("@/app/_contexts/auth-context", () => ({ useAuth: mockUseAuth }));
+vi.mock(
+  "@/app/_contexts/auth-context",
+  async () => await import("@/test/auth-context-mock"),
+);
 vi.mock("@/app/_lib/viewer-ranks", () => ({
   fetchViewerRankSlugs: mockFetchViewerRankSlugs,
 }));

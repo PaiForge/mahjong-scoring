@@ -1,5 +1,4 @@
-import { AdminPageTitle } from "@/app/admin/_components/admin-page-title";
-import { PageTitleSkeleton } from "@/app/_components/page-title-skeleton";
+import { AdminPageTitlePlaceholder } from "@/app/admin/_components/admin-page-title";
 import {
   LogFilterSkeleton,
   TableSkeleton,
@@ -12,9 +11,7 @@ import {
 export default function Loading() {
   return (
     <div className="space-y-6">
-      <AdminPageTitle>
-        <PageTitleSkeleton width="w-40" />
-      </AdminPageTitle>
+      <AdminPageTitlePlaceholder width="w-40" />
       <LogFilterSkeleton />
       <TableSkeleton columns={6} />
     </div>

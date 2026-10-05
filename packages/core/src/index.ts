@@ -5,9 +5,12 @@ export type {
   JantouFuChoice,
 } from "./problem/jantou-fu/types";
 
+export { calculateJantouFu } from "./problem/shared/jantou-fu";
+
 // === Problem: Machi Fu ===
 export { generateMachiFuQuestion } from "./problem/machi-fu/generator";
 export type { MachiFuQuestion } from "./problem/machi-fu/types";
+export { calculateMachiFu } from "./score/machi-fu";
 
 // === Problem: Mentsu Fu ===
 export { generateMentsuFuQuestion } from "./problem/mentsu-fu/generator";
@@ -21,7 +24,10 @@ export type {
 } from "./problem/mentsu-jantou-fu/types";
 
 // === Problem: Total Fu ===
-export { generateTotalFuQuestion } from "./problem/total-fu/generator";
+export {
+  calculateTotalFu,
+  generateTotalFuQuestion,
+} from "./problem/total-fu/generator";
 export type { TotalFuQuestion } from "./problem/total-fu/types";
 export type { FuDetail } from "./score/fu-calculator";
 
@@ -45,6 +51,7 @@ export {
   DEFAULT_YAKU_HAN_RANGE,
   getYakuHanEntries,
   isKuisagariEntry,
+  canPromptNaki,
   normalizeYakuHanRange,
 } from "./problem/yaku-han/constants";
 export type { YakuHanRange } from "./problem/yaku-han/constants";
@@ -60,6 +67,12 @@ export type { RandomSource } from "./core/random";
 
 // === Problem: Score ===
 export { generateValidScoreQuestion } from "./problem/score/generator";
+export { buildScoreQuestion } from "./problem/score/build-question";
+export type {
+  ScoreQuestionBuildInput,
+  ScoreQuestionBuildError,
+  RiichiInput,
+} from "./problem/score/build-question";
 export { SCORE_FILTERABLE_YAKU } from "./problem/score/filterable-yaku";
 export {
   judgeAnswer,
@@ -111,6 +124,9 @@ export {
 
 // === Score ===
 export {
+  CHIITOITSU_FU,
+  PINFU_TSUMO_FU,
+  PINFU_RON_FU,
   FU_VALUES,
   isFu,
   RON_SCORES_KO,
@@ -128,6 +144,7 @@ export {
   calculateKoScore,
   calculateOyaScore,
   calculateTierScore,
+  calculateStandaloneMentsuFu,
   isInvalidCell,
   HIGH_SCORES,
 } from "./core/score-calculation";
@@ -160,6 +177,7 @@ export {
   ALL_YAKUMAN_RULES_ENABLED,
   toYakumanRuleConfig,
   allowsDoubleYakuman,
+  doubleWindJantouFu,
 } from "./rules/settings";
 export type { RuleSettings, YakumanRuleSettings } from "./rules/settings";
 
@@ -205,6 +223,8 @@ export type {
   Tehai13,
   Tehai14,
   CompletedMentsu,
+  MachiType,
   Payment,
+  RuleConfig,
   YakumanRuleConfig,
 } from "@pai-forge/riichi-mahjong";

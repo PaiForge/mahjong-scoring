@@ -34,10 +34,11 @@ import { LeaderboardDetailContent } from "../../_components/leaderboard-detail-c
 import { LeaderboardTableSkeleton } from "../../_components/leaderboard-table-skeleton";
 import { PeriodSelector } from "../../_components/period-selector";
 import { boardTitle } from "../../_lib/board-title";
-import type { LeaderboardBoard, LeaderboardPeriod } from "../../_lib/types";
+import type { LeaderboardPeriod } from "../../_lib/types";
 import { PlayIcon } from "@/app/(user)/_components/icons/play-icon";
 import { buildChallengePath, resolveBoard } from "../../_lib/types";
 import { isValidPeriod } from "../../_lib/validators";
+import type { PracticeBoard } from "@mahjong-scoring/features/practice-menu-types";
 
 export const dynamic = "force-dynamic";
 
@@ -54,7 +55,7 @@ interface LeaderboardDetailPageProps {
 
 interface ValidatedParams {
   readonly period: LeaderboardPeriod;
-  readonly board: LeaderboardBoard;
+  readonly board: PracticeBoard;
 }
 
 function validateParams(
@@ -98,7 +99,7 @@ async function DetailContent({
   page,
 }: {
   readonly period: LeaderboardPeriod;
-  readonly board: LeaderboardBoard;
+  readonly board: PracticeBoard;
   readonly page: number;
 }) {
   const user = await getOptionalUser();

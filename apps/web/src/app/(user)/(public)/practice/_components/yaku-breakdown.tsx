@@ -9,7 +9,7 @@ import { TEXT_LINK_CLASSES } from "@/app/_components/_lib/link-classes";
 import { useYakuCheatsheetModal } from "../_hooks/use-yaku-cheatsheet-modal";
 import { CollapsibleDetail } from "./collapsible-detail";
 import { DetailTable } from "./detail-table";
-import { orderYakuDetails } from "../_lib/order-yaku-details";
+import { orderYakuDetails } from "@mahjong-scoring/features/results/order-yaku-details";
 
 interface YakuBreakdownProps {
   /** 役の内訳（ドラ・裏ドラを含む） */

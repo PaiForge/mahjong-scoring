@@ -3,7 +3,7 @@ import "server-only";
 import { and, desc, eq, lte, ne } from "drizzle-orm";
 
 import { db } from "./index";
-import type { PracticeMenuType } from "./practice-menu-types";
+import type { PracticeMenuType } from "@mahjong-scoring/features/practice-menu-types";
 import type { RankingValues } from "./ranking-order";
 import { rankingOrder } from "./ranking-order";
 import { challengeResults } from "./schema";

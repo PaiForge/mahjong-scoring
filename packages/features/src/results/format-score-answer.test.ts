@@ -1,0 +1,92 @@
+import { describe, expect, it } from "vitest";
+
+import type { ScoreTableAnswer } from "@mahjong-scoring/core";
+import { formatScoreAnswer } from "./format-score-answer";
+
+const mockT = (key: string): string => {
+  const dict: Record<string, string> = { all: "オール" };
+  return dict[key] ?? key;
+};
+
+describe("formatScoreAnswer", () => {
+  it("ロンの場合は点数のみ返す", () => {
+    const answer: ScoreTableAnswer = { type: "ron", score: 3900 };
+    expect(formatScoreAnswer(answer, mockT)).toBe("3900");
+  });
+
+  it("ロン 1000点", () => {
+    const answer: ScoreTableAnswer = { type: "ron", score: 1000 };
+    expect(formatScoreAnswer(answer, mockT)).toBe("1000");
+  });
+
+  it("ロン 12000点", () => {
+    const answer: ScoreTableAnswer = { type: "ron", score: 12000 };
+    expect(formatScoreAnswer(answer, mockT)).toBe("12000");
+  });
+
+  it("親ツモの場合はオール表記を返す", () => {
+    const answer: ScoreTableAnswer = { type: "oyaTsumo", all: 4000 };
+    expect(formatScoreAnswer(answer, mockT)).toBe("4000オール");
+  });
+
+  it("親ツモ 2000オール", () => {
+    const answer: ScoreTableAnswer = { type: "oyaTsumo", all: 2000 };
+    expect(formatScoreAnswer(answer, mockT)).toBe("2000オール");
+  });
+
+  it("子ツモの場合はスラッシュ区切りで返す", () => {
+    const answer: ScoreTableAnswer = {
+      type: "koTsumo",
+      fromKo: 1000,
+      fromOya: 2000,
+    };
+    expect(formatScoreAnswer(answer, mockT)).toBe("1000/2000");
+  });
+
+  it("子ツモ 2000/4000", () => {
+    const answer: ScoreTableAnswer = {
+      type: "koTsumo",
+      fromKo: 2000,
+      fromOya: 4000,
+    };
+    expect(formatScoreAnswer(answer, mockT)).toBe("2000/4000");
+  });
+
+  it("翻訳関数の 'all' キーが使われる", () => {
+    const customT = (key: string): string => (key === "all" ? "ALL" : key);
+    const answer: ScoreTableAnswer = { type: "oyaTsumo", all: 4000 };
+    expect(formatScoreAnswer(answer, customT)).toBe("4000ALL");
+  });
+
+  describe("ronSuffix", () => {
+    it("ロンにのみ接尾辞を付ける", () => {
+      const answer: ScoreTableAnswer = { type: "ron", score: 8000 };
+      expect(formatScoreAnswer(answer, mockT, { ronSuffix: "点" })).toBe(
+        "8000点",
+      );
+    });
+
+    it("親ツモには付けない（オール表記が単位を兼ねるため）", () => {
+      const answer: ScoreTableAnswer = { type: "oyaTsumo", all: 4000 };
+      expect(formatScoreAnswer(answer, mockT, { ronSuffix: "点" })).toBe(
+        "4000オール",
+      );
+    });
+
+    it("子ツモには付けない", () => {
+      const answer: ScoreTableAnswer = {
+        type: "koTsumo",
+        fromKo: 2000,
+        fromOya: 4000,
+      };
+      expect(formatScoreAnswer(answer, mockT, { ronSuffix: "点" })).toBe(
+        "2000/4000",
+      );
+    });
+
+    it("未指定なら従来どおり接尾辞なし", () => {
+      const answer: ScoreTableAnswer = { type: "ron", score: 8000 };
+      expect(formatScoreAnswer(answer, mockT)).toBe("8000");
+    });
+  });
+});

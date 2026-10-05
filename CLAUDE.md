@@ -64,26 +64,60 @@
 ```
 apps/web/          — Next.js 16 (Turbopack, App Router, Tailwind CSS v4)
 packages/core/     — 共通ドメインロジック（問題生成等）。@pai-forge/riichi-mahjong 依存
+packages/features/ — web とモバイルで共有するアプリのロジック（レジストリ・パス・セッションのフック・設定ストア）
+packages/messages/ — i18n 辞書（ICU 形式。web は next-intl、モバイルは use-intl で同じ辞書を読む）
 packages/eslint-config/ — 共通 ESLint 設定（PaiForge コーディング規約準拠）
 ```
+
+## packages/features
+
+web とモバイル（Expo）で共有するロジックを置く。`exports` は `./*` のファイル単位で、
+消費側は `@mahjong-scoring/features/<path>` で必要なファイルだけを import する（バレルは作らない）。
+
+- **React と zustand に触れてよいのは `use-*.ts` だけ。** それ以外の純粋なモジュールは
+  サーバーコンポーネントからも Node のテストからも読める状態に保つ。純粋なモジュールから
+  `use-*.ts` を import することも禁止。どちらも ESLint（ルートの `eslint.config.mjs`）が弾く
+- 設定ストアはファクトリ（`createRuleSettingsStore` 等）で、保存先とハイドレーションガードを
+  アプリが渡す。web の実体は `app/_hooks/use-*-store.ts`（localStorage・`useHydrated`）
+- web 固有のもの（DOM・Next・辞書・Tailwind）は置かない。パスは両プラットフォームにある
+  遷移先だけ `routes.ts` に置き、一覧の絞り込みやアンカーは web に残す
 
 ## i18n
 
 - `next-intl` をルーティングなしで使用（locale は `ja` 固定、将来英語対応予定）
-- 辞書ファイル: `apps/web/src/messages/ja.json`
+- 辞書: `packages/messages/src/ja/<名前空間>.json`（名前空間ごとに 1 ファイル。モバイルと共有）。
+  `src/ja.ts` が束ねて `messages` として公開する。名前空間を足したらそこに 1 行足す（`ja.test.ts` が食い違いを落とす）
 - サーバーコンポーネント: `getTranslations()` / クライアントコンポーネント: `useTranslations()`
 - UIコンポーネントに日本語をベタ書きしない
+- モバイルは i18next ではなく use-intl（next-intl の土台）で同じ辞書を読む。辞書キーは
+  レジストリと結び付いた契約（`practice.practices.<messageKey>`・`<namespace>.variants.<key>`・
+  `ranks.names.<slug>`）なので、辞書を 2 つに分けない。モバイルは使う名前空間だけを
+  分割代入で束ね直して渡す
 
-## 用語（チャレンジ / トレーニング / 模試 / セッション）
+## 用語（チャレンジ / トレーニング / 模試 / レッスン / セッション）
 
-同じものを別の名前で呼ばない。この 4 語の意味は次に固定する。
+同じものを別の名前で呼ばない。この 5 語の意味は次に固定する。
 
-| 語           | 意味                                                                 | ユーザーに出すか |
-| ------------ | -------------------------------------------------------------------- | ---------------- |
-| チャレンジ   | 制限時間とミス上限があり記録が残る 1 回の挑戦（昇級試験も含む）      | 出す             |
-| トレーニング | 時間無制限・記録なしで反復する練習                                   | 出す             |
-| 模試         | 昇級試験のトレーニング。本番と同じ出題を時間無制限・記録なしで解く   | 出す             |
-| セッション   | play / training を問わない「解答中の一連の流れ」という内部の上位概念 | 出さない         |
+| 語           | 意味                                                                                                                       | ユーザーに出すか |
+| ------------ | -------------------------------------------------------------------------------------------------------------------------- | ---------------- |
+| チャレンジ   | 制限時間とミス上限があり記録が残る 1 回の挑戦（昇級試験も含む）                                                            | 出す             |
+| トレーニング | 時間無制限・記録なしで反復する練習                                                                                         | 出す             |
+| 模試         | 昇級試験のトレーニング。本番と同じ出題を時間無制限・記録なしで解く                                                         | 出す             |
+| レッスン     | 教本の章 1 つ（`/lessons/<slug>`）。「本文 → 確認問題（持つ章だけ）→ 完了」を 1 ページで通す学習の最小単位。完了だけが残る | 出す             |
+| セッション   | play / training を問わない「解答中の一連の流れ」という内部の上位概念                                                       | 出さない         |
+
+- **レッスンはチャレンジでもトレーニングでもない。** 時計もライフも無く、
+  間違えてもその場で解説を読んで進む。記録は `lesson_completions` の「終えた」
+  だけで正答数は持たない。レッスン = 教本の章で、一覧と順序は
+  `packages/features/src/curriculum/registry.ts`、確認問題を持つレッスンの定義は
+  `packages/features/src/lessons/registry.ts`（slug は章の slug）。確認問題を
+  持たない章（基礎・点数記憶術）は章末の「このレッスンを完了にする」で完了に
+  なり、同じ印が付く。完了は「取り組んだ」印で正解の印ではなく、取り消しも無い。
+  UI の呼び名は「レッスン」で、「教本」「章」「読了」はユーザーに出さない
+  （以前は章が `/learn/<slug>`、レッスンが別の `/lessons/<slug>` にあり、章には
+  「読了」の印もあったが、同じ章に 2 つの URL と 2 つの印が並んだため 1 つに
+  畳み、URL は画面の呼び名に合わせて `/lessons` にした。`/learn` からの
+  リダイレクトは無い — クロールされる前に移したため）
 
 - **UI に「セッション」を出さない。** 1 回のチャレンジを指すなら「チャレンジ」と
   呼ぶ。唯一の例外は認証の「セッションが切れました」で、これはログイン状態という
@@ -105,10 +139,10 @@ packages/eslint-config/ — 共通 ESLint 設定（PaiForge コーディング�
 
 置き場所は 2 つに分かれる。ディレクトリで「管理画面が使うか」を表現している。
 
-| ディレクトリ                           | 中身                                                                                                                                                                  |
-| -------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `apps/web/src/app/_components/`        | ユーザー向け画面と管理画面（`/admin`）で共有するもの。`SkeletonBar` / `PageTitleSkeleton` / `ModalShell` / `GlobalToaster` / `ScrollReset` / `_lib/link-classes` のみ |
-| `apps/web/src/app/(user)/_components/` | ブランド UI（太枠・ハードシャドウ・押し込み演出の世界）。上記以外はすべてここ                                                                                         |
+| ディレクトリ                           | 中身                                                                                                                                                                                |
+| -------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `apps/web/src/app/_components/`        | ユーザー向け画面と管理画面（`/admin`）で共有するもの。`BrandLogo` / `SkeletonBar` / `PageTitleSkeleton` / `ModalShell` / `GlobalToaster` / `ScrollReset` / `_lib/link-classes` のみ |
+| `apps/web/src/app/(user)/_components/` | ブランド UI（太枠・ハードシャドウ・押し込み演出の世界）。上記以外はすべてここ                                                                                                       |
 
 新しい共通コンポーネントは原則 `(user)/_components/` に置く。`app/_components/`
 へ足すのは管理画面からも使うときだけ。`app/_components/` 側から
@@ -128,7 +162,7 @@ packages/eslint-config/ — 共通 ESLint 設定（PaiForge コーディング�
 - `DataTable` / `DataTableHeaderCell` — データテーブルの外枠と見出しセル。表を作るときは直接 `<table>` を書かない
 - `LinkRow` / `LinkRowList` — 読む・見るためのリンク 1 行とその枠。太枠 + ハードシャドウ + 押し込みは「押して始める面」（練習・試験・登録）の記号なので、ページを読みに行くだけ / 一覧を見に行くだけの導線はカードにせずこれを使う
 - `SkeletonBar` — 読み込み中のプレースホルダ矩形。`animate-pulse` と背景色を直接書かない。角丸は `radius`（md / lg / xl / full）で指定し、`className` に `rounded*` を書かない
-- `PageTitleSkeleton` — 見出しのプレースホルダ帯。`PageTitle` / `AdminPageTitle` の子として置く
+- `PageTitlePlaceholder` / `AdminPageTitlePlaceholder` — 読み込み中の見出し。`PageTitle` / `AdminPageTitle` と同じ箱にグレー帯（`PageTitleSkeleton`）を置く。スケルトンで `PageTitle` に `PageTitleSkeleton` を入れない — 空の h1 が本物より先に初期 HTML へ出る
 - `SectionTitleSkeleton` — 見出しのプレースホルダ pill。矩形で代用せずこれを使う（`SectionTitle` 自身を描画するため実物と高さ・形が一致する）
 - `icons/OutlineIcon` — 線画アイコンの svg 外殻。新しい線画アイコンはこれを使う
 - `HighlightPanel` — 地の文から浮かせて読ませる琥珀色の囲み（教本のコラム・計算手順・注意書き）。`border-amber-500 bg-amber-50/60` の一式をページ側で直接書かない
@@ -136,10 +170,12 @@ packages/eslint-config/ — 共通 ESLint 設定（PaiForge コーディング�
 - `HelpIconButton` — 「押すと説明が出る」入口の「?」（設定の補足・ドラの見方・練習の進め方）。送信ボタンと
   同じ緑の塗りの丸に白抜きの太字で、大きさは添える文字に合わせて em で決まる。素の「?」の文字や線画の
   アイコンをページ側で書かない（地の文に紛れて押せることが伝わらない）
-- 練習のヘルプ（`practice/_components/`）は 2 種類。`HelpTourModal` は設定画面の「?」から、開始前に
-  流れを実コンポーネントのカルーセルで通しで見せる。`SpotlightTour`（driver.js）は play 画面の「?」から、
-  今画面にある要素を順に照らして 1〜2 文で説明する。段階で画面が変わる練習は全段階の手順を渡し、
-  無い要素はツアーが飛ばす（`data-tour-id` で対象を引く）。説明を文章のモーダルで読ませない
+- ヘルプは 2 種類。`HelpTourModal`（`practice/_components/`）は練習の設定画面の「?」から、開始前に
+  流れを実コンポーネントのカルーセルで通しで見せる。`SpotlightTour`（driver.js、`(user)/_components/`）は
+  練習の play 画面や道場の見出しの「?」から、今画面にある要素を順に照らして 1〜2 文で説明する。段階で
+  画面が変わる練習は全段階の手順を渡し、無い要素はツアーが飛ばす（`data-tour-id` で対象を引く）。
+  説明を文章のモーダルで読ませない。ページの見方の説明を見出しと本文の間の地の文に置かない —
+  `PageTitle` の `action` に「?」を置いてツアーへ逃がす（道場が前例）
 
 ### 影
 
@@ -182,26 +218,43 @@ packages/eslint-config/ — 共通 ESLint 設定（PaiForge コーディング�
 
 ## ローディング境界（loading.tsx）
 
-`src/app/loading-boundaries.test.ts` が「すべての page.tsx は祖先に loading.tsx を
-ちょうど 1 つ持つ」ことを検査する。Next の挙動に由来する制約で、どちらに違反しても
-スケルトンが機能しない（2026-08 に本番ビルドで実測）。
+`src/app/loading-boundaries.test.ts` が「**動的ルートは祖先に loading.tsx を
+ちょうど 1 つ持ち、静的ルートは持たない**」ことを検査する。どのルートが動的か
+（`next build` の route table で ƒ）はテスト内の `DYNAMIC_ROUTES` に写してあり、
+`pnpm build` 後は `.next` の manifest と突き合わせる。ページを動的にしたとき
+（cookie を読む・`searchParams` を使う・`force-dynamic` を付ける）は、この一覧と
+loading.tsx を一緒に足すこと。逆に静的にしたら両方を外す。
 
+- **静的ルートに置かない** — loading.tsx はページ全体を包む Suspense 境界で、
+  React（Fizz）は完了済みの境界でも中身が 12.8KB（既に流したバイト数との累計）を
+  超えると fallback を先に書き、本文を応答末尾の `<div hidden>` + `$RC()` に回す。
+  これは静的生成の HTML にもそのまま焼き込まれ、境界を持つ静的ページは初期 HTML の
+  `<main>` がスケルトンだけになる（2026-09 に本番で実測）。Google は JS を実行する
+  ので索引には影響しないが、JS を実行しないクローラー・SNS プレビューには本文が
+  見えず、空の見出しが本物より先に出る。静的ルートは `<Link>` が全量プリフェッチ
+  するので遷移スケルトンはそもそも出ず、境界を外して失うのは「プリフェッチが
+  間に合わなかったときのスケルトン」だけ
+- **動的ルートには leaf に置く** — React は遷移中、マウント済みの Suspense の
+  フォールバックを出さない。祖先の共通 loading.tsx は同じセグメント内の遷移
+  （`/lessons` → `/lessons/x` 等）で効かず、サーバ応答までクリックが無反応になる
 - **入れ子にしない** — `<Link>` のプリフェッチは最も外側の境界までしか取らないため、
   内側の個別スケルトンは速いサーバでは一度も出ず、遅いサーバでは本文直前に一瞬出るだけになる
-- **leaf に置く** — React は遷移中、マウント済みの Suspense のフォールバックを出さない。
-  祖先の共通 loading.tsx は同じセグメント内の遷移（`/learn` → `/learn/x` 等）で効かず、
-  サーバ応答までクリックが無反応になる
-- 複数の子ルートを 1 枚で受けるときは `practice/_components/practice-loading.tsx` のように
-  `usePathname()` で振り分ける。index ページだけ固有にしたいときは page.tsx と loading.tsx を
-  route group に退避する（`mypage/(home)`, `practice/(index)`, `admin/(dashboard)`）
+  （2026-08 に本番ビルドで実測）
+- 静的な親と動的な子が同居するルートは、動的な子の leaf にだけ置く
+  （`practice/<slug>/result/loading.tsx`、`exam/<級>/play/loading.tsx`）。index だけ
+  動的なときは page.tsx と loading.tsx を route group に退避する
+  （`lessons/(index)`, `mypage/(home)`, `admin/(dashboard)`, `admin/users/(list)`）
 - **祖先に loading.tsx があると `notFound()` は 404 を返さない** — Suspense の
   フォールバックを流し始めた時点でヘッダが確定するため、ページ本体でも
   `generateMetadata` でも `notFound()` はソフト 404（200）になる（2026-08 に
   本番ビルドで実測）。slug を事前に列挙できるルートは
   `generateStaticParams` + `export const dynamicParams = false` で弾くこと。
   未知の slug がページを描画する前にルーティングで落ちるため、本物の 404 に
-  なる（`/reference/glossary/[slug]` 参照）。列挙できない DB 由来のルート
-  （`/announcements/[slug]`, `/u/[username]`）は 200 のまま残るが、Next が
+  なる（`/reference/glossary/[slug]` 参照）。ただしこれが効くのは静的ルート
+  だけで、cookie を読む動的ルートでは列挙しても未知の slug が描画まで進み
+  200 になる（2026-10 に本番ビルドで実測、`/dojo/ranks/[slug]`）。そうした
+  ルートや列挙できない DB 由来の動的ルート（`/announcements/[slug]`,
+  `/u/[username]`）は 200 のまま残るが、Next が
   not-found の描画に `<meta name="robots" content="noindex">` を自動で入れる
   ため索引はされない。ページ側で noindex を足す必要はない
 - ドロップダウン等のメニュー内 `<Link>` は閉じている間も mount したままにする（`invisible` + `inert`）。
@@ -214,7 +267,7 @@ packages/eslint-config/ — 共通 ESLint 設定（PaiForge コーディング�
 
 ボタンの下に「移動するだけ」のテキストリンクを添える構造（結果画面の
 「練習一覧に戻る」、登録 CTA の「ログイン」、設定ゲートの「ログイン」、
-プロフィール編集の「スキップ」）の間隔は `SUB_LINK_GAP`（`gap-4` = 16px）に
+マイレコードの「練習一覧へ」）の間隔は `SUB_LINK_GAP`（`gap-4` = 16px）に
 統一する。押し間違いを防ぐ縦のタップ間隔として `PracticeFooterActions` が
 定めている `gap-3`（12px）より一段広く、「ボタンの一部ではない」ことを
 距離で示す値。
@@ -242,7 +295,14 @@ packages/eslint-config/ — 共通 ESLint 設定（PaiForge コーディング�
 
 ## 牌画像（@pai-forge/mahjong-react-ui）
 
-- `Hai` コンポーネントで牌を表示（base64埋め込み画像）
+- `Hai` コンポーネントで牌を表示。画像は `public/tiles/*.webp`（静的ファイル）を参照する —
+  ルートレイアウトの `AppTileImageProvider`（`src/app/_contexts/tile-image-context.tsx`）が
+  パッケージの `TileImageProvider` で参照先を差し替えている。パッケージ既定の
+  base64 埋め込み（data URI）に戻さないこと。牌を並べるページの HTML が 1〜5MB になる
+- `public/tiles/` は `pnpm --filter web tiles:generate` で生成する（パッケージ同梱の PNG を
+  144×192 の WebP に縮小）。パッケージを更新したら再実行する。`src/app/tile-assets.test.ts` が
+  牌の一覧と生成物の一致を検査する
+- `Hai` の `alt` は省略時に牌の名前（一萬・東 等）。装飾として並べるだけなら `alt=""` を渡す
 - React Native 対応パッケージのため `apps/web/src/shims/react-native.ts` で web 用 shim を提供
 - ライブラリの `styles.css` は Tailwind v4 と競合するためインポート禁止。牌サイズクラスは `globals.css` に抽出済み
 - `Hai` を使うコンポーネントは `"use client"` が必要
@@ -252,7 +312,8 @@ packages/eslint-config/ — 共通 ESLint 設定（PaiForge コーディング�
 - 制限時間 60 秒、ミス 3 回で終了
 - ページ遷移直後にカウントダウンオーバーレイ（3, 2, 1）→ タイマー開始
 - 「準備はいいですか？」のような確認画面は出さない
-- 共通フック: `apps/web/src/app/(public)/practice/_hooks/` に `use-timed-session.ts`, `use-game-timer.ts`, `use-countdown.ts`
+- 共通フック: `packages/features/src/session/` に `use-timed-session.ts`, `use-game-timer.ts`, `use-countdown.ts`。
+  web は `practice/_hooks/use-timed-session.ts` 等の薄いラッパー（スクロールと端末ローカル設定を渡す）を通して使う
 - 円形タイマー: `apps/web/src/app/(public)/practice/_components/quiz-timer.tsx`
 
 ## ルート構成
@@ -266,10 +327,18 @@ packages/eslint-config/ — 共通 ESLint 設定（PaiForge コーディング�
 /forgot-password            — パスワードリセットリンク送信
 /reset-password             — 新パスワード設定（リセットメールのリンクから遷移）
 /practice                   — 練習一覧
-/practice/jantou-fu         — 雀頭符練習説明（learn へのリンク付き）
+/practice/jantou-fu         — 雀頭符練習説明（レッスンへのリンク付き）
 /practice/jantou-fu/play    — 練習本体
 /practice/jantou-fu/result  — 結果表示
-/learn/jantou-fu            — 雀頭の符計算（教本ページ、SEO重視でSSR）
+/lessons                    — レッスン一覧（セクション別の目次。完了を読む動的ルート）
+/lessons/jantou-fu          — レッスン（静的・SEO重視でSSR。本文 → 確認問題 → 完了。登録直後の「次にやること」の行き先）
+/dojo                       — 道場。現在の段級位（1 行）・次の目標の級（開いたカード）・「点数計算・黒帯への道」（全段級位の行程。閉じたカード）
+/dojo/ranks/<級>            — 級の詳細（合格基準・前提章・試験）。/dojo/ranks（旧一覧）は /dojo へ 301
+/plan                       — 料金ページ（Pro: 30 日パス / 買い切り。静的、価格は Stripe から 1 日キャッシュ）
+/mypage/plan                — 購入状況と購入履歴（動的）
+/tokushoho                  — 特定商取引法に基づく表記
+/api/stripe/webhook         — Stripe Webhook（署名検証・重複排除）
+/api/stripe/checkout/complete — Checkout 完了の着地（所有者検証 → 同期記録 → /mypage/plan）
 ```
 
 ### 練習ページ構成パターン
@@ -311,6 +380,38 @@ packages/eslint-config/ — 共通 ESLint 設定（PaiForge コーディング�
 - 昇級試験は記録を残さない（`submitExamResult` が合否だけ判定して `user_ranks` に
   付与する）。`savePracticeResult` は試験の menuType を入口で弾く
 
+## 点数計算・黒帯への道（段級位の行程）
+
+段級位（5級 → … → 初段 = 黒帯）を 1 本の道として見せる。級ごとに
+「学ぶ（レッスン）→ 練習する → 認定される（試験）」の 3 段を持ち、計算は
+`packages/features/src/journey/journey.ts` の `buildJourney()` に一本化する。
+ダッシュボードの「次にやること」・道場の行程・登録直後の案内はすべてこれを読む。
+置き場所ごとに「次」を別々に決めない（ホームと道場で指す先が食い違う）。
+
+- **ホームは「今すること 1 つ」、道場は「全体の道筋」。** ダッシュボードは
+  次に取る級の中で最初の未了を 1 つだけカードに出す（候補を並べない）。
+  道場は次の目標の級を開いて上に置き、その下に全級を閉じたカードで並べる
+  （次の目標の級も道の中では閉じる。中身を 2 回出さない）
+- **ページの名前は「道場」（`/dojo`）、journey はコードの中だけの名前。** 道場は
+  現在の段級位と黒帯への道を見せるページで、級の詳細（`/dojo/ranks/<級>`）も
+  その配下に置く。journey は道場・ダッシュボード・レッスンが読む行程の計算
+  （`buildJourney()`）の名前で、UI に「ジャーニー」を出さず、`/journey` のような
+  ルートも作らない。URL は画面の呼び名に合わせる（`/lessons` と同じ理由）。
+  `/journey` は道場の中身の一部（行程）しか表さず、段級位・黒帯という武道の
+  比喩からも外れるため採らなかった
+- **学ぶ段はどの章も「本文 → 確認問題 → 完了」のレッスンに揃える。**
+  「学んだ」はレッスンの完了で、段級位の前提章（5級〜1級）はすべて確認問題を
+  持つ。前提章を足すときは確認問題も一緒に用意する（持たない章だけ確認を
+  経ずに進む歩になる）
+- **「練習した」は一度でも挑戦したこと。** 習得の判定は試験が持つ。
+  トレーニングは記録が無いので数えない。練習と試験はレッスンに置き換えない
+- **順序は案内であって強制ではない。** 受験資格は従来どおり級の順序だけ
+  （`evaluateExamEligibility`）。前提のレッスンの完了を受験の条件にしない。経験者は
+  道場や試験ページから直接受けられる。鍵を掛けるのは試験の順序だけで、
+  EXP レベル等で教材や練習を鍵付きにしない
+- 登録直後（レッスン・挑戦・級がすべて無い = `isFresh`）は最初のレッスンへ
+  送る。見出しは常に「次にやること」で、初回だけ別の見出しや初回限定のカードは持たない
+
 ## 認証（Email + Google OAuth）
 
 ### 環境変数
@@ -350,11 +451,15 @@ packages/eslint-config/ — 共通 ESLint 設定（PaiForge コーディング�
 pnpm --filter web db:seed:dev
 ```
 
-管理者（`admin@example.local`）と一般ユーザー3人（`alice@`（無級）/ `bob@`（5級）/ `carol@`（最上位の段級位）、いずれも `example.local`）を投入する。パスワードはいずれも `devpass1`、メール確認済みなのでそのままサインインできる。冪等なので何度実行してもよい。DB と Supabase の両方がローカルホストでなければ実行を拒否する。実装は `apps/web/scripts/dev-seed.ts`。
+管理者（`admin@example.local`）と一般ユーザー8人（`alice@`（無級）/ `bob@`（5級）/ `erin@`（4級）/ `frank@`（3級）/ `grace@`（2級）/ `heidi@`（1級）/ `carol@`（最上位の段級位）/ `dave@`（無級・Pro を手動付与）、いずれも `example.local`）を投入する。パスワードはいずれも `devpass1`、メール確認済みなのでそのままサインインできる。冪等なので何度実行してもよい。DB と Supabase の両方がローカルホストでなければ実行を拒否する。実装は `apps/web/scripts/dev-seed.ts`。
 
-段級位を持つユーザーには `user_ranks` と前提章の読了（次に取る級の前提章を含む）が入る。道場の「現在の段級位 / 次の段級位」とダッシュボードの昇級試験カードを、ログインするだけで確認できる。
+段級位を持つユーザーには `user_ranks` と前提のレッスンの完了（次に取る級の前提章を含む）が入る。道場の「現在の段級位」と黒帯への道の開いた級、ダッシュボードの「次にやること」（学び終えているので練習か試験を指す）を、ログインするだけで確認できる。無級の alice では「次にやること」が最初のレッスンを指す（チャレンジ成績が入っているため `isFresh` ではなく、最初のレッスン向けの文言にはならない。その状態は登録したての本物のアカウントで見る）。
 
-これに加えて、ランキングの母集団を作るためだけの `seed_player01`〜`seed_player20`（`player01@example.local` …）を投入する。上位3位のメダル・ページ送り・1 ページに収まらない自分の順位を出す「あなた」の行は、人数が足りないと画面に出ないため。全シードユーザーに全練習種別（昇級試験を除く。試験は本番でも記録されない）のチャレンジ成績（当月と前月の 2 件ずつ）が入り、総合・月間の両方のランキングが埋まる。成績の値はユーザー名から決まる擬似乱数なので、何度実行しても順位は変わらない。ただしシードユーザーの既存の成績・段級位・章の読了は宣言された状態へ消して入れ直すため、シードユーザーとして遊んだ記録は残らない。EXP は付与しないので、EXP の画面を見たいときは実際に練習を 1 回走らせること。
+これに加えて、ランキングの母集団を作るためだけの `seed_player01`〜`seed_player20`（`player01@example.local` …）を投入する。上位3位のメダル・ページ送り・1 ページに収まらない自分の順位を出す「あなた」の行は、人数が足りないと画面に出ないため。全シードユーザーに全練習種別（昇級試験を除く。試験は本番でも記録されない）のチャレンジ成績（当月と前月の 2 件ずつ）が入り、総合・月間の両方のランキングが埋まる。成績の値はユーザー名から決まる擬似乱数なので、何度実行しても順位は変わらない。ただしシードユーザーの既存の成績・段級位・レッスンの完了は宣言された状態へ消して入れ直すため、シードユーザーとして遊んだ記録は残らない。EXP は付与しないので、EXP の画面を見たいときは実際に練習を 1 回走らせること。
+
+有料プラン（`purchases`）は bob に有効な 30 日パス 1 枚と期限切れのパス 1 枚、carol に買い切りを入れる（偽の Stripe ID。Stripe API は叩かない）。alice は購入なしで、無料枠の回数制限が掛かる状態。`stripe_customers` には入れない — 偽の顧客 ID があるとシードユーザーで Checkout を試したときに Stripe 側に存在しない顧客を渡して失敗するため。特典の手動付与（`benefit_grants`）は dave に 60 日の付与 1 件（付与者は admin、購入なし）を入れる。マイページの「Pro（付与）」と管理画面の付与一覧（`/admin/benefit-grants`）の取り消しがこれで試せる。
+
+ネイティブ広告も、本番のシード（`scripts/seed/ad-creatives.ts`）と同じ広告と、ローカル用の架空の Amazon トラッキング ID を入れる（`scripts/dev-seed/ad-creatives.ts`）。ASIN で指す広告はトラッキング ID が無いと画面に出ないため、これで配置と見た目をログインなしで確かめられる。管理画面（`/admin/ads`）で編集しても、次の実行で戻る。
 
 既存のアカウントを管理者にしたい場合は DB に直接 INSERT する:
 
@@ -472,6 +577,7 @@ preview branch の既知の穴: `config.toml` の `site_url = "http://localhost:
 ## Database Migration
 
 - **Always use `pnpm db:run-migrate`** — This runs `scripts/migrate.ts`, which executes Drizzle migrations and then applies Supabase-specific SQL (RLS policies, FK constraints) in Supabase environments.
+- **本番の初期データは `pnpm db:seed`**（`scripts/seed.ts`）— prebuild がマイグレーションの後に走らせる。宣言した行のうち DB に無いものだけを入れ（id 単位の insert-only）、既存の行は管理画面の編集ごと DB が正。いまはネイティブ広告（ASIN で本を指す。トラッキング ID は管理画面で設定するまで無く、それまで画面に出ない）だけ
 - **Do NOT use `drizzle-kit push`** — `push` bypasses migration tracking and directly syncs the schema. This causes the migration journal and actual DB state to diverge.
 - **Schema changes workflow**: Edit `src/lib/db/schema.ts` → run `npx drizzle-kit generate --name=<migration_name>` → run `pnpm db:run-migrate`
 - **Always specify `--name` when generating migrations** — Use snake_case (e.g., `create_profiles_table`, `add_avatar_to_profiles`)

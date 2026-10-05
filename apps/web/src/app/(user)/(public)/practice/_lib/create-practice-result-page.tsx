@@ -6,23 +6,25 @@ import { getTranslations } from "next-intl/server";
 import { createResultMetadata } from "@/app/_lib/metadata";
 
 import { getLeaderboard } from "@/app/(user)/(public)/leaderboard/_actions/get-leaderboard";
-import type { LeaderboardBoard } from "@/app/(user)/(public)/leaderboard/_lib/types";
 import type { RankedLeaderboardRow } from "@/lib/db/leaderboard-queries";
 import { buildDetailPath } from "@/app/(user)/(public)/leaderboard/_lib/types";
 import type {
   PracticeMenuSlug,
   PracticeMenuType,
-} from "@/lib/db/practice-menu-types";
+} from "@mahjong-scoring/features/practice-menu-types";
 import {
   isExamMenuType,
   practiceMenuBySlug,
   resolvePracticeVariant,
-} from "@/lib/db/practice-menu-types";
+} from "@mahjong-scoring/features/practice-menu-types";
 import { getExpInfoByChallengeResultId } from "@/lib/db/save-exp";
 import { getScoreComparison } from "@/lib/db/score-comparison-queries";
 import { getOptionalUser } from "@/lib/auth";
 
-import { isRankSlug, rankRequiringMenu } from "@/lib/ranks/registry";
+import {
+  isRankSlug,
+  rankRequiringMenu,
+} from "@mahjong-scoring/features/ranks/registry";
 import { ExamResultSummary } from "@/app/(user)/(public)/exam/_components/exam-result-summary";
 
 import { RecordSection } from "../_components/record-section";
@@ -36,16 +38,20 @@ import {
   FINISH_REASON_PARAM,
   listedProblemCount,
   parseFinishReason,
-} from "./finish-reason";
-import { RUN_PARAM, parseRunId } from "./challenge-run";
+} from "@mahjong-scoring/features/challenge/finish-reason";
+import {
+  RUN_PARAM,
+  parseRunId,
+} from "@mahjong-scoring/features/challenge/challenge-run";
 import { debugResultDelay } from "./debug-delay";
 import { tryFetch } from "./try-fetch";
 import {
   practiceHref,
   practicePlayHref,
-  practiceSetupHref,
-} from "./practice-catalog";
-import { VARIANT_PARAM } from "./variant-param";
+} from "@mahjong-scoring/features/routes";
+import { practiceSetupHref } from "./practice-web-routes";
+import { VARIANT_PARAM } from "@mahjong-scoring/features/routes";
+import type { PracticeBoard } from "@mahjong-scoring/features/practice-menu-types";
 
 const PREVIEW_COUNT = 3;
 
@@ -310,7 +316,7 @@ export function createPracticeResultPage(
         leaderboardBlock={
           isExam ? undefined : (
             <Suspense fallback={<LeaderboardSkeleton />}>
-              <AsyncLeaderboardBlock board={{ module: menuType, variant }} />
+              <AsyncLeaderboardBlock board={{ menuType: menuType, variant }} />
             </Suspense>
           )
         }
@@ -399,7 +405,7 @@ async function AsyncResultBlock({
 async function AsyncLeaderboardBlock({
   board,
 }: {
-  readonly board: LeaderboardBoard;
+  readonly board: PracticeBoard;
 }) {
   // デバッグ用: `DEBUG_RESULT_DELAY_MS` が設定されていれば指定 ms 待機。
   // 本番では no-op（debugResultDelay 内で NODE_ENV をチェック）。

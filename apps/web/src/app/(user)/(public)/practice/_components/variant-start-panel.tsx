@@ -5,13 +5,13 @@ import { useTranslations } from "next-intl";
 import {
   practiceMenuBySlug,
   type PracticeMenuSlug,
-} from "@/lib/db/practice-menu-types";
+} from "@mahjong-scoring/features/practice-menu-types";
 import { SectionTitle } from "@/app/(user)/_components/section-title";
 import { useVariantQuery } from "../_hooks/use-variant-query";
 import {
   practicePlayHref,
   practiceTrainingHref,
-} from "../_lib/practice-catalog";
+} from "@mahjong-scoring/features/routes";
 import { buildPracticeStartCtaLabels } from "../_lib/practice-start-cta-labels";
 import {
   PRACTICE_SCROLL_HASH,

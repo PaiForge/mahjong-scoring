@@ -19,7 +19,7 @@ import {
   listCellRefs,
   type MachiCellRef,
 } from "../_hooks/use-machi-score-store";
-import { correctCellAnswerOf } from "../_lib/format-cell-answer";
+import { correctCellAnswerOf } from "@mahjong-scoring/features/practice/machi-score/format-cell-answer";
 
 vi.mock("next-intl", async () => await import("@/test/intl-mock"));
 vi.mock("@pai-forge/mahjong-react-ui", () => ({

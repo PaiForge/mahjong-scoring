@@ -2,11 +2,13 @@ import type { ViewerProfileResponse } from "@/app/_lib/viewer-profile";
 import { jsonPrivate } from "@/lib/api-response";
 import { getOptionalUser } from "@/lib/auth";
 import { getProfileCardByUserId } from "@/lib/db/queries";
+import { getActiveBenefits } from "@/lib/entitlements/has-benefit";
 import { logExternalError } from "@/lib/log-error";
+import { countUnreadNotifications } from "@/lib/notifications/queries";
 
 /**
  * 閲覧中のユーザー自身のプロフィール表示情報を返すエンドポイント。
- * ヘッダーのアカウント表示（アバター）が使う。
+ * ヘッダーのアカウント表示（アバター）と通知のベル（未読数）が使う。
  *
  * 未ログイン・プロフィール未作成（仮登録）・取得失敗のいずれも `profile: null` を
  * 200 で返す。呼び出し元は表示の分岐しかしないため、未認証をエラーとして扱う必要がない。
@@ -20,13 +22,21 @@ export async function GET() {
     const user = await getOptionalUser();
     if (!user) return jsonPrivate(empty);
 
-    const profile = await getProfileCardByUserId(user.id);
+    // 特典は失敗しても空に、未読数は 0 になる（どちらも握り潰して既定値）ので、
+    // プロフィールと並行して引く
+    const [profile, benefits, unreadNotificationCount] = await Promise.all([
+      getProfileCardByUserId(user.id),
+      getActiveBenefits(user.id),
+      countUnreadNotifications(user.id),
+    ]);
     if (!profile) return jsonPrivate(empty);
 
     return jsonPrivate<ViewerProfileResponse>({
       profile: {
         avatarUrl: profile.avatarUrl ?? null,
         name: profile.displayName ?? profile.username,
+        benefits: [...benefits],
+        unreadNotificationCount,
       },
     });
   } catch (error) {

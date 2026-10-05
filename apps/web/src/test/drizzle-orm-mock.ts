@@ -33,6 +33,10 @@ export const lte = operator("lte");
 export const asc = operator("asc");
 export const desc = operator("desc");
 export const inArray = operator("inArray");
+export const gt = operator("gt");
+export const lt = operator("lt");
+export const isNull = operator("isNull");
+export const isNotNull = operator("isNotNull");
 
 export const sql = Object.assign(
   (strings: TemplateStringsArray, ...values: unknown[]) => ({

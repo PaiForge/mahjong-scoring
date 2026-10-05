@@ -1,12 +1,12 @@
-import { PRACTICE_MENU_SLUGS } from "@/lib/db/practice-menu-types";
+import { PRACTICE_MENU_SLUGS } from "@mahjong-scoring/features/practice-menu-types";
 import { GLOSSARY_TERM_SLUGS } from "@/lib/glossary/registry";
 import { GLOSSARY_PATH, glossaryTermHref } from "@/lib/glossary/routes";
 
-import {
-  chapterHref,
-  CURRICULUM_CHAPTER_SLUGS,
-} from "@/app/(user)/(public)/learn/_lib/curriculum";
-import { practiceHref } from "@/app/(user)/(public)/practice/_lib/practice-catalog";
+import { chapterHref } from "@mahjong-scoring/features/routes";
+import { CURRICULUM } from "@mahjong-scoring/features/curriculum/registry";
+import { practiceHref } from "@mahjong-scoring/features/routes";
+import { rankHref } from "@mahjong-scoring/features/routes";
+import { RANK_SLUGS } from "@mahjong-scoring/features/ranks/registry";
 
 /**
  * sitemap の静的ルート定義
@@ -20,7 +20,8 @@ import { practiceHref } from "@/app/(user)/(public)/practice/_lib/practice-catal
 export const STATIC_SITEMAP_ROUTE_DEFS = [
   { url: "", changeFrequency: "weekly", priority: 1.0 },
   { url: "/getting-started", changeFrequency: "monthly", priority: 0.9 },
-  { url: "/learn", changeFrequency: "weekly", priority: 0.9 },
+  { url: "/try", changeFrequency: "monthly", priority: 0.8 },
+  { url: "/lessons", changeFrequency: "weekly", priority: 0.9 },
   { url: "/practice", changeFrequency: "weekly", priority: 0.9 },
   { url: "/dojo", changeFrequency: "monthly", priority: 0.8 },
   { url: "/reference", changeFrequency: "weekly", priority: 0.8 },
@@ -31,15 +32,34 @@ export const STATIC_SITEMAP_ROUTE_DEFS = [
   { url: "/reference/yaku", changeFrequency: "monthly", priority: 0.7 },
   { url: GLOSSARY_PATH, changeFrequency: "monthly", priority: 0.7 },
   { url: "/announcements", changeFrequency: "daily", priority: 0.5 },
+  { url: "/leaderboard", changeFrequency: "daily", priority: 0.4 },
   { url: "/terms", changeFrequency: "yearly", priority: 0.2 },
   { url: "/privacy", changeFrequency: "yearly", priority: 0.2 },
   { url: "/contact", changeFrequency: "yearly", priority: 0.3 },
+  { url: "/plan", changeFrequency: "monthly", priority: 0.6 },
+  { url: "/tokushoho", changeFrequency: "yearly", priority: 0.2 },
   { url: "/company", changeFrequency: "yearly", priority: 0.2 },
 ] as const;
 
-/** 教本章ページのパス一覧（`/learn/<slug>`） */
-export const LEARN_SITEMAP_PATHS: readonly string[] =
-  CURRICULUM_CHAPTER_SLUGS.map(chapterHref);
+/**
+ * レッスン（章）ページの sitemap 項目（`/lessons/<slug>` と最終更新日）
+ *
+ * `lastModified` は章の `publishedAt`。Google は sitemap の `changefreq` /
+ * `priority` を無視し `lastmod` だけをクロールの手がかりにするため、実データが
+ * ある章だけ付ける（静的ページに推測の日付は付けない）。
+ */
+export const LEARN_SITEMAP_ENTRIES: readonly {
+  readonly path: string;
+  readonly lastModified: string;
+}[] = CURRICULUM.map((chapter) => ({
+  path: chapterHref(chapter.slug),
+  lastModified: chapter.publishedAt,
+}));
+
+/** レッスン（章）ページのパス一覧（`/lessons/<slug>`） */
+export const LEARN_SITEMAP_PATHS: readonly string[] = LEARN_SITEMAP_ENTRIES.map(
+  (entry) => entry.path,
+);
 
 /** 練習説明ページのパス一覧（`/practice/<slug>`） */
 export const PRACTICE_SITEMAP_PATHS: readonly string[] =
@@ -55,6 +75,14 @@ export const PRACTICE_SITEMAP_PATHS: readonly string[] =
  */
 export const GLOSSARY_SITEMAP_PATHS: readonly string[] =
   GLOSSARY_TERM_SLUGS.map(glossaryTermHref);
+
+/**
+ * 段級位の詳細ページのパス一覧（`/dojo/ranks/<slug>`）
+ *
+ * 用語ページと同じ理由で INDEXABLE_PATHS には入れない（動的セグメントで
+ * 受けるページは seo-coverage.test.ts がディレクトリ名に解決できない）。
+ */
+export const RANK_SITEMAP_PATHS: readonly string[] = RANK_SLUGS.map(rankHref);
 
 /**
  * DB に依存しない indexable パスの全集合（トップは "/" に正規化済み）。

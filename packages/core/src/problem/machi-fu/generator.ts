@@ -8,6 +8,7 @@ import {
   type RandomSource,
 } from "../../core/random";
 import { isHaiKindId } from "../../core/type-guards";
+import { calculateMachiFu } from "../../score/machi-fu";
 import { SUIT_BASES } from "../../core/constants";
 import {
   randomHaiKindId,
@@ -46,7 +47,7 @@ function createRyanmen(
     id: idGen(),
     tiles: [t1, t2],
     agariHai: agari,
-    answer: 0,
+    answer: calculateMachiFu("Ryanmen"),
   };
 }
 
@@ -73,7 +74,7 @@ function createPenchan(
     id: idGen(),
     tiles: [t1, t2],
     agariHai: agari,
-    answer: 2,
+    answer: calculateMachiFu("Penchan"),
   };
 }
 
@@ -100,7 +101,7 @@ function createKanchan(
     id: idGen(),
     tiles: [t1, t2],
     agariHai: agari,
-    answer: 2,
+    answer: calculateMachiFu("Kanchan"),
   };
 }
 
@@ -115,7 +116,7 @@ function createTanki(idGen: IdGenerator, rng: RandomSource): MachiFuQuestion {
     id: idGen(),
     tiles: [hai],
     agariHai: hai,
-    answer: 2,
+    answer: calculateMachiFu("Tanki"),
   };
 }
 
@@ -137,7 +138,7 @@ function createShanpon(idGen: IdGenerator, rng: RandomSource): MachiFuQuestion {
     id: idGen(),
     tiles: [lower, lower, higher, higher],
     agariHai: agari,
-    answer: 0,
+    answer: calculateMachiFu("Shanpon"),
   };
 }
 

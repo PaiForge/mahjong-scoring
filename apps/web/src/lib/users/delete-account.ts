@@ -1,17 +1,20 @@
 import "server-only";
 
 import { eq } from "drizzle-orm";
-import { revalidateTag } from "next/cache";
 
 import type { ActionResult } from "@/lib/action-types";
-import { LEADERBOARD_CACHE_TAG } from "@/lib/cache-tags";
+import { purgeLeaderboardCache } from "@/lib/cache-tags";
 
 import {
+  benefitGrants,
+  purchases,
+  practiceQuotaUsage,
+  stripeCustomers,
   challengeBestScores,
   challengeResults,
   db,
   expEvents,
-  learnChapterReads,
+  lessonCompletions,
   profiles,
   userExp,
   userRanks,
@@ -29,6 +32,9 @@ import { createAdminClient } from "@/lib/supabase/admin";
  * - `profiles` は行を残し、個人情報を NULL 化して `deletedAt` を記録する
  *   （username は再利用防止のため保持）。
  * - 成績・経験値・学習履歴・段級位・ロールは物理削除する（ランキングからも消える）。
+ *   購入・顧客対応・手動付与・無料枠も同じトランザクションで明示的に削除する。
+ *   auth.users のソフトデリートでは CASCADE しない。購入手続きは顧客対応の
+ *   削除に CASCADE する。Stripe の決済記録は残し、返金はしない。
  *   利用規約の「退会」の節がこの一覧を約束しているので、消す対象を増減
  *   したら規約の文面（`terms.deletion`）も合わせて直すこと。
  * - `user_activity_log` / `moderation_actions` は監査のため保持する。
@@ -55,6 +61,20 @@ export async function deleteAccount(
 
   // 2. 行動データを物理削除し、profiles は username を残して匿名化する（トランザクション）。
   await db.transaction(async (tx) => {
+    // 顧客対応の作成も同じプロフィールを先にロックする。退会直後の再作成を防ぐ。
+    await tx
+      .select({ id: profiles.id })
+      .from(profiles)
+      .where(eq(profiles.id, userId))
+      .for("update");
+    // 購入記録側がロックする顧客を先に消す。進行中の購入の COMMIT を待ってから
+    // 購入行を消すので、削除の途中で新しい購入だけが残ることがない。
+    await tx.delete(stripeCustomers).where(eq(stripeCustomers.userId, userId));
+    await tx.delete(purchases).where(eq(purchases.userId, userId));
+    await tx.delete(benefitGrants).where(eq(benefitGrants.userId, userId));
+    await tx
+      .delete(practiceQuotaUsage)
+      .where(eq(practiceQuotaUsage.userId, userId));
     await tx
       .delete(challengeBestScores)
       .where(eq(challengeBestScores.userId, userId));
@@ -64,8 +84,8 @@ export async function deleteAccount(
     await tx.delete(expEvents).where(eq(expEvents.userId, userId));
     await tx.delete(userExp).where(eq(userExp.userId, userId));
     await tx
-      .delete(learnChapterReads)
-      .where(eq(learnChapterReads.userId, userId));
+      .delete(lessonCompletions)
+      .where(eq(lessonCompletions.userId, userId));
     await tx.delete(userRanks).where(eq(userRanks.userId, userId));
     await tx.delete(userRoles).where(eq(userRoles.userId, userId));
 
@@ -87,7 +107,7 @@ export async function deleteAccount(
   // 成績を消しても、ランキングのキャッシュ（5 分）には退会者の行が残る。
   // しかもアバターの実体は直後に消えるため、捨てないと数分間「退会者の名前と
   // 割れた画像」が一覧に出る。
-  revalidateTag(LEADERBOARD_CACHE_TAG, "default");
+  purgeLeaderboardCache();
 
   // 3. アバター画像を Storage から削除（失敗しても退会は完了させる）。
   try {

@@ -1,3 +1,5 @@
+import type { PlanBenefit } from "@mahjong-scoring/features/billing/plans";
+
 import { callApi } from "@/lib/api-client";
 
 /**
@@ -8,6 +10,21 @@ export interface ViewerProfile {
   readonly avatarUrl: string | null;
   /** 表示名（未設定ならユーザー名）。アバター画像の alt に使う */
   readonly name: string;
+  /**
+   * 有料プランで現在持っている特典（`PlanBenefit` の値）。
+   *
+   * 静的ページ（練習の設定画面・盤面）が「Pro の機能を出すか」を決めるのに
+   * 使う。サーバーで判定した結果をここに載せることで、クライアントは
+   * 特典ごとの API を持たずに済む。無料ユーザーは空配列。
+   */
+  readonly benefits: readonly PlanBenefit[];
+  /**
+   * 未読の通知の件数。ヘッダーのベル（`NotificationBell`）が使う。
+   *
+   * プロフィールと同じ応答に載せるのは、ベルを置くためだけの往復を増やさない
+   * ため。既読にしたときはベルが `refreshProfile()` でこの応答を取り直す。
+   */
+  readonly unreadNotificationCount: number;
 }
 
 /** `/api/profile/me` のレスポンス本文 */

@@ -3,7 +3,7 @@ import { render } from "@testing-library/react";
 
 vi.mock("next-intl", async () => await import("@/test/intl-mock"));
 
-import { practiceMenuBySlug } from "@/lib/db/practice-menu-types";
+import { practiceMenuBySlug } from "@mahjong-scoring/features/practice-menu-types";
 import { PracticePlayLoadingFallback } from "./practice-play-loading-fallback";
 
 /** 残機のプレースホルダは丸い矩形。状態バーの右端にその数だけ並ぶ */

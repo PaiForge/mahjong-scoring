@@ -18,16 +18,17 @@ import { eq } from "drizzle-orm";
 import type { PostgresJsDatabase } from "drizzle-orm/postgres-js";
 
 import {
-  learnChapterReads,
+  lessonCompletions,
   profiles,
   userRanks,
   userRoles,
 } from "../../src/lib/db/schema";
+import type { CurriculumChapterSlug } from "@mahjong-scoring/features/curriculum/registry";
 import {
   RANK_REGISTRY,
   nextRank,
   type RankSlug,
-} from "../../src/lib/ranks/registry";
+} from "@mahjong-scoring/features/ranks/registry";
 
 export interface SeedUser {
   readonly email: string;
@@ -68,7 +69,7 @@ export interface SeedUser {
  * ランキングは母集団の大きさそのものが確認対象になる — 上位3位のメダル、
  * ページ送り、1 ページに収まらない自分の順位を出す「あなた」の行は、
  * どれも人数が足りないと画面に出ない。状態を持たないこの一群がその人数を
- * 埋める。名前付きの 4 人と合わせて 24 人になり、1 ページ 20 件の
+ * 埋める。名前付きのユーザーと合わせて 20 人を超え、1 ページ 20 件の
  * ページ送りに 2 ページ目ができる。
  *
  * 状態を持たないので連番で名前を付けてよい（状態を名前に埋めるなという
@@ -124,12 +125,46 @@ export const SEED_USERS: readonly SeedUser[] = [
     displayName: "ボブ（シード）",
     ranks: ["kyu-5"],
   },
+  // 4級。符の計算を学び終え、3級（七対子）へ向かう状態
+  {
+    email: "erin@example.local",
+    username: "seed_erin",
+    displayName: "エリン（シード）",
+    ranks: ["kyu-5", "kyu-4"],
+  },
+  // 3級。2級（平和）へ向かう状態
+  {
+    email: "frank@example.local",
+    username: "seed_frank",
+    displayName: "フランク（シード）",
+    ranks: ["kyu-5", "kyu-4", "kyu-3"],
+  },
+  // 2級。1級（30〜50符）へ向かう状態
+  {
+    email: "grace@example.local",
+    username: "seed_grace",
+    displayName: "グレース（シード）",
+    ranks: ["kyu-5", "kyu-4", "kyu-3", "kyu-2"],
+  },
+  // 1級。前提章を持たない初段（昇段試験だけ）へ向かう状態
+  {
+    email: "heidi@example.local",
+    username: "seed_heidi",
+    displayName: "ハイジ（シード）",
+    ranks: ["kyu-5", "kyu-4", "kyu-3", "kyu-2", "kyu-1"],
+  },
   // 最上位の段級位。道場は「新しい段級位は準備中」を出す
   {
     email: "carol@example.local",
     username: "seed_carol",
     displayName: "キャロル（シード）",
     ranks: ["kyu-5", "kyu-4", "kyu-3", "kyu-2", "kyu-1", "dan-1"],
+  },
+  // 無級・購入なし。運営から Pro を付与されている状態（benefit-grants.ts）
+  {
+    email: "dave@example.local",
+    username: "seed_dave",
+    displayName: "デイブ（シード）",
   },
   ...RANKING_FILLERS,
 ];
@@ -169,45 +204,47 @@ export async function ensureSeedUser(
       .onConflictDoNothing();
   }
 
-  // シードは段級位と読了の権威ソース: 宣言された状態へ消して入れ直す。
-  // チャレンジ成績（challenge-results.ts）と同じ方針で、シードユーザーと
-  // して実際に受験・読了した記録は残らない。追記だけ（onConflictDoNothing）
-  // だと、シードユーザーで遊んで付いた級が再シード後も残り、「無級の
-  // 管理者」等のフィクスチャが壊れたままになる
+  // シードは段級位とレッスンの完了の権威ソース: 宣言された状態へ消して
+  // 入れ直す。チャレンジ成績（challenge-results.ts）と同じ方針で、シード
+  // ユーザーとして実際に受験・完了した記録は残らない。追記だけ
+  // （onConflictDoNothing）だと、シードユーザーで遊んで付いた級が再シード後も
+  // 残り、「無級の管理者」等のフィクスチャが壊れたままになる。
+  // 無級のユーザーには完了を入れない — レッスンが次の一歩として出る状態を
+  // 確かめたい
   await db.delete(userRanks).where(eq(userRanks.userId, userId));
   await db
-    .delete(learnChapterReads)
-    .where(eq(learnChapterReads.userId, userId));
+    .delete(lessonCompletions)
+    .where(eq(lessonCompletions.userId, userId));
 
   if (user.ranks && user.ranks.length > 0) {
     await db
       .insert(userRanks)
       .values(user.ranks.map((rankSlug) => ({ userId, rankSlug })));
 
-    await db.insert(learnChapterReads).values(
-      readChaptersFor(user.ranks).map((chapterSlug) => ({
-        userId,
-        chapterSlug,
-      })),
-    );
+    const completedLessons = completedLessonsFor(user.ranks);
+    await db
+      .insert(lessonCompletions)
+      .values(completedLessons.map((lessonSlug) => ({ userId, lessonSlug })));
   }
 
   return userId;
 }
 
 /**
- * 段級位を持つユーザーが読み終えていることにする章
- * シード読了章
+ * 段級位を持つユーザーが終えていることにするレッスン（章）
+ * シード完了レッスン
  *
- * 取得済みの級の前提章に加えて、次に取る級の前提章も読了にする。
- * ダッシュボードの昇級試験カードは「次の級の前提章をすべて読んだ人」に
- * だけ出るため、これが無いと5級のシードユーザーでダッシュボードから
- * 4級の試験に辿り着けない（道場からは読了に関係なく辿り着ける）。
+ * 取得済みの級の前提章に加えて、次に取る級の前提章も完了にする。
+ * ダッシュボードの「次にやること」は学ぶ段が済んでいる前提で練習か試験を
+ * 指すため、これが無いと5級のシードユーザーで次の一歩が 4級の最初の
+ * レッスンに戻る（道場からは完了に関係なく試験に辿り着ける）。
  *
  * 章の一覧は段級位レジストリから引く。級を足しても、その級の前提章が
- * 自動で読了に入る。
+ * 自動で完了に入る。
  */
-function readChaptersFor(ranks: readonly RankSlug[]): readonly string[] {
+function completedLessonsFor(
+  ranks: readonly RankSlug[],
+): readonly CurriculumChapterSlug[] {
   const held = RANK_REGISTRY.filter((rank) => ranks.includes(rank.slug));
   const next = nextRank(ranks);
   const target = next === undefined ? held : [...held, next];

@@ -23,6 +23,8 @@ export default defineConfig({
       // 牌画像ライブラリ（React Native 対応）を web 用 shim へ向ける。
       // next.config.ts の turbopack.resolveAlias と同じ差し替え。
       "react-native": resolve(__dirname, "src/shims/react-native.ts"),
+      // サーバー専用モジュールの目印。テストでは空のモジュールに差し替える。
+      "server-only": resolve(__dirname, "src/test/server-only-stub.ts"),
     },
   },
 });

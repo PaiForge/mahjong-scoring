@@ -6,12 +6,12 @@ import { generateMachiFuQuestion } from "@mahjong-scoring/core";
 import type { MachiFuQuestion } from "@mahjong-scoring/core";
 import { FuChoiceGrid } from "../../_components/fu-choice-grid";
 import { useFuChoiceBoard } from "../../_hooks/use-fu-choice-board";
-import { MACHI_FU_OPTIONS } from "../_lib/fu-options";
+import { MACHI_FU_OPTIONS } from "@mahjong-scoring/features/practice/machi-fu/fu-options";
 import { MachiFuPrompt } from "./machi-fu-prompt";
 import { QuestionGeneratingPlaceholder } from "../../_components/question-generating-placeholder";
 import { QuestionPrompt } from "../../_components/question-prompt";
-import { toQuestionResult } from "../_lib/types";
-import type { MachiFuQuestionResult } from "../_lib/types";
+import { toQuestionResult } from "@mahjong-scoring/features/practice/machi-fu/types";
+import type { MachiFuQuestionResult } from "@mahjong-scoring/features/practice/machi-fu/types";
 import type { RecordingPracticeBoardProps } from "../../_lib/practice-board-props";
 
 type MachiFuBoardProps = RecordingPracticeBoardProps<MachiFuQuestionResult>;

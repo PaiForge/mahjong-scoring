@@ -1,14 +1,15 @@
 "use client";
 
+import { useGradeAndRecord } from "./use-verified-challenge";
+
 import { useCallback } from "react";
 import { generateValidScoreQuestion } from "@mahjong-scoring/core";
 import type {
   ScoreQuestion,
   ScoreTableUserAnswer,
 } from "@mahjong-scoring/core";
-import type { ScoreQuestionResult } from "../_lib/score-question-result";
-import { toScoreQuestionResult } from "../_lib/score-question-result";
-import { AnswerOutcome } from "../_lib/result-schemas";
+import type { ScoreQuestionResult } from "@mahjong-scoring/features/results/score-question-result";
+import { toScoreQuestionResult } from "@mahjong-scoring/features/results/score-question-result";
 import type { RecordingPracticeBoardProps } from "../_lib/practice-board-props";
 import { useGeneratedScoreQuestion } from "./use-generated-score-question";
 import { usePresentQuestion } from "./use-present-question";
@@ -55,6 +56,11 @@ export function useScoreQuestionBoard({
 }: UseScoreQuestionBoardParams): UseScoreQuestionBoardResult {
   const { question, questionIndex, advanceQuestion } =
     useGeneratedScoreQuestion(generateOptions, maxRetries);
+  const gradeAndRecord = useGradeAndRecord(toScoreQuestionResult, {
+    onRecordResult,
+    onAnswer,
+    advance: advanceQuestion,
+  });
 
   useRegisterAdvance(question === undefined ? undefined : advanceQuestion);
   usePresentQuestion(question, toUnansweredResult, onPresentQuestion);
@@ -63,11 +69,9 @@ export function useScoreQuestionBoard({
     (userAnswer: ScoreTableUserAnswer) => {
       if (showFeedback || !question) return;
 
-      const result = toScoreQuestionResult(question, userAnswer);
-      onRecordResult?.(result);
-      onAnswer(result.outcome === AnswerOutcome.Correct, advanceQuestion);
+      gradeAndRecord(question, userAnswer);
     },
-    [showFeedback, question, onAnswer, advanceQuestion, onRecordResult],
+    [showFeedback, question, gradeAndRecord],
   );
 
   return { question, questionIndex, handleSubmit };

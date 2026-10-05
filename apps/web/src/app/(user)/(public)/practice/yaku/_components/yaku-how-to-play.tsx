@@ -3,7 +3,7 @@
 import { useTranslations } from "next-intl";
 import { HaiKind } from "@mahjong-scoring/core";
 import { TehaiDisplay } from "../../_components/tehai-display";
-import { buildDemoTehai } from "../../_lib/demo-tehai";
+import { buildDemoTehai } from "@mahjong-scoring/features/board/demo-tehai";
 import { QuestionPrompt } from "../../_components/question-prompt";
 import { YakuSelectList } from "./yaku-select-list";
 import { YakuSelectedChips } from "./yaku-selected-chips";

@@ -1,6 +1,5 @@
 import { ContentContainer } from "@/app/(user)/_components/content-container";
-import { PageTitle } from "@/app/(user)/_components/page-title";
-import { PageTitleSkeleton } from "@/app/_components/page-title-skeleton";
+import { PageTitlePlaceholder } from "@/app/(user)/_components/page-title";
 
 import { LeaderboardRowListSkeleton } from "../_components/leaderboard-row-list-skeleton";
 
@@ -14,9 +13,7 @@ import { LeaderboardRowListSkeleton } from "../_components/leaderboard-row-list-
 export default function Loading() {
   return (
     <ContentContainer>
-      <PageTitle>
-        <PageTitleSkeleton width="w-40" />
-      </PageTitle>
+      <PageTitlePlaceholder width="w-40" />
 
       <LeaderboardRowListSkeleton />
     </ContentContainer>

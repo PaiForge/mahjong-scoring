@@ -2,10 +2,22 @@
 
 import { useCallback, useMemo, useState } from "react";
 import type { Dispatch, SetStateAction } from "react";
+import { useVerifiedQuestion } from "./use-verified-challenge";
 import { useIsClient } from "@/app/_hooks/use-is-client";
 
 /** まだ差し替えが一度も無い（最初の問題をそのまま使う）ことを表す番兵 */
 const UNSET = Symbol("unset");
+
+/**
+ * `SetStateAction` が更新関数かどうか
+ *
+ * `typeof action === "function"` だけでは TS が `TQuestion` 自身が関数で
+ * ある可能性を残して絞り込めないため、型述語で明示する（`useState` の
+ * setter と同じ約束 — 関数を状態として持たない）。
+ */
+function isUpdater<T>(action: SetStateAction<T>): action is (prev: T) => T {
+  return typeof action === "function";
+}
 
 /**
  * 最初の問題をクライアントでだけ生成する出題状態
@@ -27,13 +39,14 @@ const UNSET = Symbol("unset");
 export function useClientGeneratedQuestion<TQuestion>(
   generate: () => TQuestion,
 ): [TQuestion | undefined, Dispatch<SetStateAction<TQuestion | undefined>>] {
+  const verified = useVerifiedQuestion<TQuestion>();
   const isClient = useIsClient();
   const [stored, setStored] = useState<TQuestion | undefined | typeof UNSET>(
     UNSET,
   );
   const initial = useMemo(
-    () => (isClient ? generate() : undefined),
-    [isClient, generate],
+    () => (isClient && !verified ? generate() : undefined),
+    [isClient, generate, verified],
   );
   const question = stored === UNSET ? initial : stored;
 
@@ -41,17 +54,17 @@ export function useClientGeneratedQuestion<TQuestion>(
     Dispatch<SetStateAction<TQuestion | undefined>>
   >(
     (action) => {
+      if (verified) {
+        verified.advance();
+        return;
+      }
       setStored((prev) => {
         const current = prev === UNSET ? initial : prev;
-        return typeof action === "function"
-          ? (action as (prev: TQuestion | undefined) => TQuestion | undefined)(
-              current,
-            )
-          : action;
+        return isUpdater(action) ? action(current) : action;
       });
     },
-    [initial],
+    [initial, verified],
   );
 
-  return [question, setQuestion];
+  return [verified ? verified.question : question, setQuestion];
 }

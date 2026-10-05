@@ -1,7 +1,10 @@
 import "server-only";
 
-import type { RankDefinition, RankSlug } from "@/lib/ranks/registry";
-import { nextRank } from "@/lib/ranks/registry";
+import type {
+  RankDefinition,
+  RankSlug,
+} from "@mahjong-scoring/features/ranks/registry";
+import { nextRank } from "@mahjong-scoring/features/ranks/registry";
 import { db } from "./index";
 import { getUserRankSlugs } from "./rank-queries";
 import { userRanks } from "./schema";
@@ -68,6 +71,7 @@ export function selectGrantableRank(
 export async function gradeExamRun(
   userId: string,
   run: ExamRun,
+  connection: Pick<typeof db, "insert"> = db,
 ): Promise<readonly RankSlug[]> {
   const achieved = await getUserRankSlugs(userId);
   const grantable = selectGrantableRank(achieved, run);
@@ -75,7 +79,7 @@ export async function gradeExamRun(
 
   // 冪等に付与する。並行実行と競合した場合は onConflictDoNothing + returning
   // により「実際に挿入できた側」だけが付与として報告される
-  const inserted = await db
+  const inserted = await connection
     .insert(userRanks)
     .values({ userId, rankSlug: grantable.slug })
     .onConflictDoNothing()

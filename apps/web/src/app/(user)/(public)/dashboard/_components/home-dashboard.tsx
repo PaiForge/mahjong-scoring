@@ -1,75 +1,72 @@
 import { getTranslations } from "next-intl/server";
 
-import { fetchReadChapterSlugs } from "@/app/(user)/(public)/learn/_lib/progress";
+import { fetchCompletedLessonSlugs } from "@/app/(user)/(public)/lessons/_lib/lesson-progress";
 import { ContentContainer } from "@/app/(user)/_components/content-container";
 import { PageTitle } from "@/app/(user)/_components/page-title";
 
 import { fetchAchievedRankSlugs } from "../_lib/achieved-ranks";
-import { fetchAttemptedPracticeSlugs } from "../_lib/attempted-practices";
+import { fetchAttemptedPractices } from "../_lib/attempted-practices";
 import { selectDashboardGuidance } from "../_lib/guidance";
 import { ComprehensivePracticeSection } from "./comprehensive-practice-section";
 import { ContinueLearningSection } from "./continue-learning-section";
 import { HomeAnnouncements } from "./home-announcements";
-import { ReadyExamRows } from "./ready-exam-rows";
-import { RecommendedPracticeSection } from "./recommended-practice-section";
+import { NextStepSection } from "./next-step-section";
+import { PendingLessonSync } from "./pending-lesson-sync";
+
+interface HomeDashboardProps {
+  /** ログインしている本人の id（ページが cookie から確定したもの） */
+  readonly userId: string;
+}
 
 /**
  * ログイン済みユーザーのトップ（ダッシュボード）。
  * ダッシュボード
  *
- * 「教本の続き」→「おすすめの練習」→ お知らせ の順に並べる。
- * 再訪時に真っ先に必要なのは学習の再開点で、お知らせはその次だという判断。
+ * 行程が進行中なら「次にやること」→ お知らせ、
+ * 全級取得済みなら「レッスンの続き」→「おすすめの練習」（総合演習）→ お知らせ
+ * の順に並べる。出し分けは `selectDashboardGuidance` が決める。
  *
- * 受験できる昇級試験は「教本の続き」の中に行リンクとして添える
- * （{@link ReadyExamRows}）。前提章を読み終えた先にある行き先なので
- * 学習の再開点の隣が収まりがよく、ページ先頭のカードにはしない。
+ * 「次にやること」は黒帯への道（段級位の行程）の中で今やること 1 つ
+ * （{@link NextStepSection}）。登録直後は最初のレッスン、以降はレッスンと練習を
+ * 交互に進み、最後に試験。ホームは「今すること」を答える場で、全体の道筋は
+ * 道場が持つ。行程が進行中のあいだ目次は出さない — 別の「次はここ」を
+ * 同じ重さで並べると今やることが決まらず、目次へはナビゲーションから行ける
+ * （{@link selectDashboardGuidance}）。
  *
- * 学習導線は勧めるものがあるときだけ出す（`selectDashboardGuidance`）。
- * 教本を読み切って練習もひととおり終えたユーザーには、代わりに総合演習を出す。
+ * 先頭に {@link PendingLessonSync} を置く。登録前に終えたレッスンや保存に
+ * 失敗した完了が端末に残っていれば、ここで本人の記録にして「次にやること」を
+ * 組み直す。
  */
-export async function HomeDashboard() {
-  const [t, readSlugs, attemptedSlugs, achievedRankSlugs] = await Promise.all([
-    getTranslations("nav"),
-    fetchReadChapterSlugs(),
-    fetchAttemptedPracticeSlugs(),
-    fetchAchievedRankSlugs(),
-  ]);
+export async function HomeDashboard({ userId }: HomeDashboardProps) {
+  const [t, completedLessonSlugs, attemptedPractices, achievedRankSlugs] =
+    await Promise.all([
+      getTranslations("nav"),
+      fetchCompletedLessonSlugs(),
+      fetchAttemptedPractices(),
+      fetchAchievedRankSlugs(),
+    ]);
 
-  const {
-    nextChapter,
-    recommendedPracticeSlugs,
-    showComprehensivePractice,
-    readyExamSlugs,
-  } = selectDashboardGuidance({
-    readSlugs,
-    attemptedSlugs,
-    achievedRankSlugs,
-  });
-
-  const examRows =
-    readyExamSlugs.length > 0 ? (
-      <ReadyExamRows slugs={readyExamSlugs} />
-    ) : undefined;
+  const { journey, nextChapter, showComprehensivePractice } =
+    selectDashboardGuidance({
+      completedLessonSlugs,
+      attemptedPractices,
+      achievedRankSlugs,
+    });
 
   return (
     <ContentContainer>
       <PageTitle>{t("home")}</PageTitle>
 
       <div className="space-y-8">
-        {nextChapter ? (
-          <ContinueLearningSection
-            readSlugs={readSlugs}
-            nextChapter={nextChapter}
-            trailingRow={examRows}
-          />
-        ) : (
-          // 全章読了済みで「教本の続き」が出ないときも、受験できる試験の
-          // 導線だけは残す（次に取れる級があることを知らせる場が他に無い）
-          examRows
-        )}
+        <PendingLessonSync userId={userId} />
 
-        {recommendedPracticeSlugs.length > 0 && (
-          <RecommendedPracticeSection slugs={recommendedPracticeSlugs} />
+        <NextStepSection journey={journey} />
+
+        {nextChapter && (
+          <ContinueLearningSection
+            completedSlugs={completedLessonSlugs}
+            nextChapter={nextChapter}
+          />
         )}
 
         {showComprehensivePractice && <ComprehensivePracticeSection />}

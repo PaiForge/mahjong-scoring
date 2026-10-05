@@ -13,42 +13,22 @@
  * 2. 問題方式デモと出題範囲セレクタ、「開始」「トレーニング」ボタンが表示される
  * 3. 範囲を選んで「開始」を押すと play ページへ遷移（variant クエリ付き）
  */
-import { PRACTICE_SLUG } from "@/lib/db/practice-menu-types";
+import { PRACTICE_SLUG } from "@mahjong-scoring/features/practice-menu-types";
 import type { Metadata } from "next";
-import { HowToPlaySection } from "../_components/how-to-play-section";
-import { getTranslations } from "next-intl/server";
-import { ContentContainer } from "@/app/(user)/_components/content-container";
-import { PageTitle } from "@/app/(user)/_components/page-title";
 import { createPracticeMetadata } from "../_lib/metadata";
+import { PracticeIntroContent } from "../_components/practice-intro-content";
 import { YakuHanHowToPlay } from "./_components/yaku-han-how-to-play";
-import { VariantStartPanel } from "../_components/variant-start-panel";
 
 export async function generateMetadata(): Promise<Metadata> {
   return createPracticeMetadata(PRACTICE_SLUG.yakuHan);
 }
 
-export default async function YakuHanPage() {
-  const t = await getTranslations("yakuHanChallenge");
-  const tp = await getTranslations("practice");
-
+export default function YakuHanPage() {
   return (
-    <ContentContainer
-      breadcrumb={[
-        { label: tp("title"), href: "/practice" },
-        { label: t("title") },
-      ]}
-    >
-      <PageTitle>{t("title")}</PageTitle>
-      <div className="space-y-8">
-        <HowToPlaySection
-          title={t("howToPlay.title")}
-          lead={t("howToPlay.lead")}
-        >
-          <YakuHanHowToPlay />
-        </HowToPlaySection>
-
-        <VariantStartPanel slug={PRACTICE_SLUG.yakuHan} />
-      </div>
-    </ContentContainer>
+    <PracticeIntroContent
+      namespace="yakuHanChallenge"
+      slug={PRACTICE_SLUG.yakuHan}
+      howToPlay={<YakuHanHowToPlay />}
+    />
   );
 }

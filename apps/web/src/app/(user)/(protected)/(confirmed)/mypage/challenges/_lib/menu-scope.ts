@@ -1,13 +1,12 @@
-import type { PracticeMenuType } from "@/lib/db/practice-menu-types";
+import type { PracticeMenuType } from "@mahjong-scoring/features/practice-menu-types";
 import {
   PRACTICE_MENU_TYPES,
   isExamMenuType,
   isPracticeMenuType,
   isPracticeVariant,
   practiceMenuByType,
-} from "@/lib/db/practice-menu-types";
-
-import type { RecordBoard } from "./types";
+} from "@mahjong-scoring/features/practice-menu-types";
+import type { PracticeBoard } from "@mahjong-scoring/features/practice-menu-types";
 
 /**
  * マイレコードが扱わない練習種別（昇級試験）
@@ -45,7 +44,7 @@ export function isMyRecordMenuType(value: string): value is PracticeMenuType {
  * 練習種別が対象で、かつバリアントがその練習の列挙にあるか。Server Action は
  * 任意の値で呼べるため、他の練習のバリアント名を名乗った土俵はここで弾く。
  */
-export function isMyRecordBoard(board: RecordBoard): boolean {
+export function isMyRecordBoard(board: PracticeBoard): boolean {
   return (
     isMyRecordMenuType(board.menuType) &&
     isPracticeVariant(board.menuType, board.variant)
@@ -68,17 +67,17 @@ export function toRecordBoards(
     readonly menuType: string;
     readonly leaderboardKey: string;
   }[],
-): RecordBoard[] {
+): PracticeBoard[] {
   const boards = rows.flatMap((row) => {
     if (!isPracticeMenuType(row.menuType)) return [];
-    const board: RecordBoard = {
+    const board: PracticeBoard = {
       menuType: row.menuType,
       variant: row.leaderboardKey,
     };
     return isMyRecordBoard(board) ? [board] : [];
   });
 
-  const order = (board: RecordBoard): number =>
+  const order = (board: PracticeBoard): number =>
     PRACTICE_MENU_TYPES.indexOf(board.menuType) * 100 +
     practiceMenuByType(board.menuType).variants.indexOf(board.variant);
   return boards.toSorted((a, b) => order(a) - order(b));

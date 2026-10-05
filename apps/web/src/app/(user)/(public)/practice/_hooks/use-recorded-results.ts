@@ -1,8 +1,8 @@
 "use client";
 
 import { useCallback, useEffect, useRef } from "react";
-import { packStoredResults } from "../_lib/challenge-run";
-import type { FinalResult } from "./use-timed-session";
+import { packStoredResults } from "@mahjong-scoring/features/challenge/challenge-run";
+import type { FinalResult } from "@mahjong-scoring/features/session/use-timed-session";
 
 /**
  * 各問題の結果を蓄積し、チャレンジ終了時に sessionStorage へ保存するフック

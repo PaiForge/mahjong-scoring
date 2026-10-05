@@ -2,7 +2,7 @@ import "server-only";
 
 import { getOptionalUser } from "@/lib/auth";
 import { getUserRankSlugs } from "@/lib/db/rank-queries";
-import type { RankSlug } from "@/lib/ranks/registry";
+import type { RankSlug } from "@mahjong-scoring/features/ranks/registry";
 
 /**
  * 取得済みの段級位スラッグを返す。未認証なら空。

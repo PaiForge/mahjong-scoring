@@ -6,9 +6,14 @@ import { revalidatePath } from "next/cache";
 import type { ActionResult } from "../../../../lib/action-types";
 import { getClientIp } from "../../../../lib/client-ip";
 import { db, profiles } from "../../../../lib/db";
+import { logExternalError } from "../../../../lib/log-error";
 import { createAdminClient } from "../../../../lib/supabase/admin";
 import { requireAdminActor } from "../../_lib/auth";
-import { recordModerationAction } from "../_lib/moderation";
+import {
+  NO_BAN_DURATION,
+  PERMANENT_BAN_DURATION,
+  recordModerationAction,
+} from "../_lib/moderation";
 
 /**
  * ユーザーの BAN を解除する Server Action。
@@ -46,10 +51,15 @@ export async function unbanUser(
   // Phase 1: Supabase Auth で BAN 解除
   const { error: authError } = await adminClient.auth.admin.updateUserById(
     targetUserId,
-    { ban_duration: "none" },
+    { ban_duration: NO_BAN_DURATION },
   );
 
   if (authError) {
+    logExternalError(
+      "unbanUser",
+      "failed to unban in Supabase Auth",
+      authError,
+    );
     return { error: "unbanFailed" };
   }
 
@@ -68,20 +78,39 @@ export async function unbanUser(
         ipAddress,
       });
     });
-  } catch {
-    // DB 失敗時: Auth 側を re-ban + bannedAt 復元
-    await adminClient.auth.admin.updateUserById(targetUserId, {
-      ban_duration: "876000h",
-    });
+  } catch (error: unknown) {
+    logExternalError("unbanUser", "failed to record the unban", error);
+    // DB 失敗時: Auth 側を re-ban + bannedAt 復元。ここも失敗すると Auth と DB の
+    // BAN 状態が食い違ったまま残るので、手で戻せるよう必ず痕跡を残す
+    const { error: rollbackError } =
+      await adminClient.auth.admin.updateUserById(targetUserId, {
+        ban_duration: PERMANENT_BAN_DURATION,
+      });
+    if (rollbackError) {
+      logExternalError(
+        "unbanUser",
+        `failed to roll back the Auth unban; Auth and DB disagree for ${targetUserId}`,
+        rollbackError,
+      );
+    }
     if (originalBannedAt) {
-      await db
-        .update(profiles)
-        .set({ bannedAt: originalBannedAt })
-        .where(eq(profiles.id, targetUserId));
+      try {
+        await db
+          .update(profiles)
+          .set({ bannedAt: originalBannedAt })
+          .where(eq(profiles.id, targetUserId));
+      } catch (restoreError: unknown) {
+        logExternalError(
+          "unbanUser",
+          `failed to restore bannedAt for ${targetUserId}`,
+          restoreError,
+        );
+      }
     }
     return { error: "unbanFailed" };
   }
 
-  revalidatePath("/admin/users");
+  // 一覧と詳細（/admin/users/[id]）の両方の状態表示を更新する
+  revalidatePath("/admin/users", "layout");
   return { success: true };
 }

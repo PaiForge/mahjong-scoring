@@ -1,11 +1,8 @@
-import { isPracticeVariant } from "@/lib/db/practice-menu-types";
+import { isPracticeVariant } from "@mahjong-scoring/features/practice-menu-types";
 
-import type {
-  LeaderboardBoard,
-  LeaderboardModule,
-  LeaderboardPeriod,
-} from "./types";
+import type { LeaderboardModule, LeaderboardPeriod } from "./types";
 import { MODULES, VALID_PERIODS } from "./types";
+import type { PracticeBoard } from "@mahjong-scoring/features/practice-menu-types";
 
 const validPeriodSet: ReadonlySet<string> = new Set(VALID_PERIODS);
 
@@ -39,9 +36,9 @@ export function isValidModule(value: string): value is LeaderboardModule {
  * Server Action はクライアントから任意の値で呼べるため、他の練習の
  * バリアント名を名乗った土俵はここで落とす。
  */
-export function isValidBoard(board: LeaderboardBoard): boolean {
+export function isValidBoard(board: PracticeBoard): boolean {
   return (
-    isValidModule(board.module) &&
-    isPracticeVariant(board.module, board.variant)
+    isValidModule(board.menuType) &&
+    isPracticeVariant(board.menuType, board.variant)
   );
 }

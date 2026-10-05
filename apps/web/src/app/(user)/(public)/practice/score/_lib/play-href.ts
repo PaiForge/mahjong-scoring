@@ -5,7 +5,10 @@ import {
   RANGE_TOKEN_MANGAN_PLUS,
   RANGE_TOKEN_NON_MANGAN,
 } from "../../_lib/range-params";
-import { HAND_SHAPE_PARAM, type HandShape } from "./hand-shape-param";
+import {
+  HAND_SHAPE_PARAM,
+  type HandShape,
+} from "@mahjong-scoring/features/practice/score/hand-shape-param";
 import { YAKU_PARAM, yakuTokenOf } from "./yaku-filter-params";
 
 /**

@@ -3,9 +3,8 @@ import { getTranslations } from "next-intl/server";
 import {
   menuTypeToMessageKey,
   practiceMenuByType,
-} from "@/lib/db/practice-menu-types";
-
-import type { LeaderboardBoard } from "./types";
+} from "@mahjong-scoring/features/practice-menu-types";
+import type { PracticeBoard } from "@mahjong-scoring/features/practice-menu-types";
 
 /**
  * 土俵の表示名（練習の短い名 + バリアント名）
@@ -17,11 +16,13 @@ import type { LeaderboardBoard } from "./types";
  *
  * サーバーコンポーネント専用（`getTranslations`）。
  */
-export async function boardTitle(board: LeaderboardBoard): Promise<string> {
+export async function boardTitle(board: PracticeBoard): Promise<string> {
   const tPractices = await getTranslations("practice.practices");
-  const title = tPractices(`${menuTypeToMessageKey(board.module)}.shortTitle`);
+  const title = tPractices(
+    `${menuTypeToMessageKey(board.menuType)}.shortTitle`,
+  );
 
-  const { hasSetup, namespace } = practiceMenuByType(board.module);
+  const { hasSetup, namespace } = practiceMenuByType(board.menuType);
   if (!hasSetup) return title;
 
   const tVariants = await getTranslations(`${namespace}.variants`);

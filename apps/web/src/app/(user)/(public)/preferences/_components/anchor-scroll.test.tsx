@@ -9,11 +9,13 @@
  * - 認証状態の確定前: まだスクロールしない（未ログインと区別が付かないため）
  */
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
+import { useAuth as mockUseAuth } from "@/test/auth-context-mock";
 import { cleanup, render } from "@testing-library/react";
 
-const { mockUseAuth } = vi.hoisted(() => ({ mockUseAuth: vi.fn() }));
-
-vi.mock("@/app/_contexts/auth-context", () => ({ useAuth: mockUseAuth }));
+vi.mock(
+  "@/app/_contexts/auth-context",
+  async () => await import("@/test/auth-context-mock"),
+);
 
 import { AnchorScroll } from "./anchor-scroll";
 

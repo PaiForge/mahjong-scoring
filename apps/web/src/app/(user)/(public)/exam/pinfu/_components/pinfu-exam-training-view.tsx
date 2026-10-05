@@ -1,6 +1,6 @@
 "use client";
 
-import { PRACTICE_SLUG } from "@/lib/db/practice-menu-types";
+import { PRACTICE_SLUG } from "@mahjong-scoring/features/practice-menu-types";
 import { createTrainingView } from "@/app/(user)/(public)/practice/_lib/create-challenge-views";
 import { PinfuExamBoard } from "./pinfu-exam-board";
 

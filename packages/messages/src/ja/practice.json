@@ -1,0 +1,131 @@
+{
+  "title": "練習",
+  "description": "符計算の基礎から点数申告まで、段階的にマスターできる練習を用意しています",
+  "detail": "くわしく見る",
+  "learn": "レッスンを見る",
+  "cardExample": {
+    "units": {
+      "fu": "符は？",
+      "han": "翻数は？",
+      "score": "点数は？",
+      "yaku": "役は？"
+    },
+    "naki": "鳴き",
+    "yakuName": "混一色",
+    "fuHanExample": {
+      "fu": "30符",
+      "han": "4翻"
+    },
+    "manganHan": "5翻"
+  },
+  "progress": "学習の進捗",
+  "progressSignInPrompt": "サインインすると学習履歴を記録できます",
+  "categories": {
+    "fuCalculation": {
+      "title": "符の計算",
+      "short": "符"
+    },
+    "han": {
+      "title": "翻数",
+      "short": "翻数"
+    },
+    "scoring": {
+      "title": "点数計算",
+      "short": "点数"
+    }
+  },
+  "filter": {
+    "label": "練習を絞り込む",
+    "all": "すべて",
+    "listHeading": "練習メニュー"
+  },
+  "practices": {
+    "jantouFu": {
+      "title": "雀頭の符計算",
+      "shortTitle": "雀頭の符"
+    },
+    "machiFu": {
+      "title": "待ちの符計算",
+      "shortTitle": "待ちの符"
+    },
+    "mentsuFu": {
+      "title": "面子の符計算",
+      "shortTitle": "面子の符"
+    },
+    "mentsuJantouFu": {
+      "title": "面子と雀頭の符計算",
+      "shortTitle": "面子と雀頭の符"
+    },
+    "totalFu": {
+      "title": "手牌の合計符",
+      "shortTitle": "手牌の合計符"
+    },
+    "yakuHan": {
+      "title": "役の翻数",
+      "shortTitle": "役の翻数"
+    },
+    "yaku": {
+      "title": "役の選択",
+      "shortTitle": "役"
+    },
+    "scoreTable": {
+      "title": "点数表早引き",
+      "shortTitle": "点数表早引き"
+    },
+    "scoreCalculation": {
+      "title": "点数即答",
+      "shortTitle": "点数即答"
+    },
+    "hanCount": {
+      "title": "翻数即答",
+      "shortTitle": "翻数即答"
+    },
+    "manganScoreCalculation": {
+      "title": "満貫以上の点数計算",
+      "shortTitle": "満貫以上"
+    },
+    "manganExam": {
+      "title": "昇級試験：満貫以上の点数計算",
+      "shortTitle": "満貫試験"
+    },
+    "fuExam": {
+      "title": "昇級試験：手牌の合計符",
+      "shortTitle": "符試験"
+    },
+    "chiitoitsuExam": {
+      "title": "昇級試験：七対子の点数計算",
+      "shortTitle": "七対子試験"
+    },
+    "pinfuExam": {
+      "title": "昇級試験：平和の点数計算",
+      "shortTitle": "平和試験"
+    },
+    "fuScoreExam": {
+      "title": "昇級試験：30〜50符の点数計算",
+      "shortTitle": "30〜50符試験"
+    },
+    "scoreExam": {
+      "title": "昇段試験：点数計算",
+      "shortTitle": "点数計算試験"
+    }
+  },
+  "dojoRow": {
+    "title": "試験は道場で",
+    "description": "段級位の確認と試験への挑戦は道場から"
+  },
+  "comprehensiveBanner": {
+    "title": "点数計算総合演習",
+    "description": "翻数・役・符・点数全てをチェックできる問題に好きなだけ回答できます。麻雀の点数計算の総合練習として最適です。"
+  },
+  "machiScoreBanner": {
+    "title": "待ち別点数計算",
+    "description": "聴牌形から待ち牌を読み、待ちごとにツモ・ロンの点数を答えます。高目・安目まで含めた実戦さながらの練習です。"
+  },
+  "orDivider": "または",
+  "modeChallengeHint": "制限時間{timeLimit}秒・ミス{mistakeLimit}回で記録に挑戦",
+  "modeTrainingHint": "時間無制限・1問ごとに答え合わせして反復練習",
+  "settingsTitle": "設定",
+  "requiredKnowledge": "関連するレッスン",
+  "variantLabel": "設定: {label}",
+  "introTitle": "{title}の練習"
+}

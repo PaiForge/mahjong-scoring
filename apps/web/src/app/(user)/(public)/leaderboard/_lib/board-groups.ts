@@ -2,21 +2,21 @@ import {
   PRACTICE_CATEGORIES,
   practiceMenuFromCatalog,
   type PracticeCategory,
-} from "@/app/(user)/(public)/practice/_lib/practice-catalog";
+} from "@mahjong-scoring/features/practice/catalog";
 
-import type { LeaderboardBoard } from "./types";
 import { BOARDS, moduleToSlug } from "./types";
+import type { PracticeBoard } from "@mahjong-scoring/features/practice-menu-types";
 
 /** 1 つの分野に属する土俵のまとまり */
 export interface LeaderboardBoardGroup {
   readonly category: PracticeCategory;
   /** {@link BOARDS} の並びを保った、この分野の土俵 */
-  readonly boards: readonly LeaderboardBoard[];
+  readonly boards: readonly PracticeBoard[];
 }
 
 /** その土俵が属する分野。練習カタログ（一覧の絞り込みと同じ分類）が持つ */
-function boardCategory(board: LeaderboardBoard): PracticeCategory | undefined {
-  return practiceMenuFromCatalog(moduleToSlug(board.module))?.category;
+function boardCategory(board: PracticeBoard): PracticeCategory | undefined {
+  return practiceMenuFromCatalog(moduleToSlug(board.menuType))?.category;
 }
 
 /**

@@ -1,0 +1,10 @@
+{
+  "$schema": "https://openapi.vercel.sh/vercel.json",
+  "regions": ["hnd1"],
+  "crons": [
+    {
+      "path": "/api/cron/notify-plan-expiry",
+      "schedule": "0 1 * * *"
+    }
+  ]
+}

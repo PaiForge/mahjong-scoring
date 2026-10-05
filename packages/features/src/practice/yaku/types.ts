@@ -1,0 +1,123 @@
+import {
+  answerOutcomeSchema,
+  questionTilesSnapshotSchema,
+  toAnswerOutcome,
+  type AnswerOutcome,
+} from "@mahjong-scoring/features/results/result-schemas";
+import type { QuestionTilesSnapshot } from "@mahjong-scoring/features/results/parse-question-tiles";
+import {
+  haiIdToMspz,
+  judgeYakuAnswer,
+  kazeIdToMspz,
+  tehaiToMspz,
+} from "@mahjong-scoring/core";
+import type { YakuQuestion } from "@mahjong-scoring/core";
+
+import {
+  PRACTICE_SLUG,
+  resultStorageKeyFor,
+} from "@mahjong-scoring/features/practice-menu-types";
+
+import { z } from "zod";
+
+import { createSessionStorageParser } from "@mahjong-scoring/features/results/create-session-storage-parser";
+
+/** sessionStorage に保存する際のキー */
+export const RESULT_STORAGE_KEY = resultStorageKeyFor(PRACTICE_SLUG.yaku);
+
+/**
+ * 役判定の出題の生成リトライ予算
+ * 出題リトライ予算
+ *
+ * 役判定の出題は1回の試行あたり約48%しか成立せず（牌の残数不足・役なしの手を
+ * 弾くため。20万回の実測で失敗率52.2%）、`retryGenerate` の既定予算10では
+ * 約0.15%/問で生成に失敗する。失敗した問題は盤面がプレースホルダのまま固まり、
+ * チャレンジのタイマーだけが進む。100 なら失敗確率は 6e-29 で実質ゼロになり、
+ * 平均試行回数は2回前後のままなので生成コストも増えない。
+ */
+export const QUESTION_GENERATION_MAX_RETRIES = 100;
+
+/**
+ * 役選択練習の1問ごとの結果データ
+ * 役選択問題結果
+ *
+ * 結果ページで手牌を再表示するため、出題そのものを MSPZ 文字列として持つ。
+ * 役の成否はリーチとドラにも依存するので、手牌だけでなく和了状況一式を残す。
+ */
+export interface YakuQuestionResult extends QuestionTilesSnapshot {
+  readonly isTsumo: boolean;
+  readonly isRiichi: boolean;
+  /**
+   * ドラ表示牌（1 枚 1 要素の MSPZ）
+   *
+   * 1 つの文字列にまとめると花色ごとに並べ替えられ、出題時と順が変わる。
+   */
+  readonly doraMarkers: readonly string[];
+  /**
+   * 裏ドラ表示牌（1 枚 1 要素の MSPZ）
+   *
+   * リーチしている問題だけが持つ。この項目を保存する前の旧データにも
+   * 存在しないため任意。
+   */
+  readonly uraDoraMarkers?: readonly string[];
+  /** 成立していた役 */
+  readonly correctYakuNames: readonly string[];
+  /** ユーザーが選んだ役。時間切れで答えられなかった問題では持たない */
+  readonly selectedYakuNames?: readonly string[];
+  /** 過不足なく選べたか。時間切れなら判定しない */
+  readonly outcome: AnswerOutcome;
+}
+
+/**
+ * 出題と回答から保存用の結果データを組み立てる
+ * 役選択問題結果生成
+ *
+ * @param selectedYakuNames - ユーザーが選んだ役。時間切れで答えられなかった
+ *   問題は undefined
+ */
+export function toQuestionResult(
+  question: YakuQuestion,
+  selectedYakuNames: readonly string[] | undefined,
+): YakuQuestionResult {
+  const { context } = question;
+  return {
+    tehai: tehaiToMspz(question.tehai),
+    bakaze: kazeIdToMspz(context.bakaze),
+    jikaze: kazeIdToMspz(context.jikaze),
+    agariHai: haiIdToMspz(context.agariHai),
+    isTsumo: context.isTsumo,
+    isRiichi: context.isRiichi,
+    doraMarkers: context.doraMarkers.map(haiIdToMspz),
+    uraDoraMarkers: context.uraDoraMarkers?.map(haiIdToMspz),
+    correctYakuNames: [...question.correctYakuNames],
+    selectedYakuNames: selectedYakuNames && [...selectedYakuNames],
+    outcome: toAnswerOutcome(
+      selectedYakuNames &&
+        judgeYakuAnswer(question.correctYakuNames, selectedYakuNames),
+    ),
+  };
+}
+
+/**
+ * sessionStorage から取得した値が YakuQuestionResult として妥当か検証する
+ * 役選択問題結果バリデーション
+ */
+const questionResultSchema: z.ZodType<YakuQuestionResult> = z.object({
+  ...questionTilesSnapshotSchema.shape,
+  isTsumo: z.boolean(),
+  isRiichi: z.boolean(),
+  doraMarkers: z.array(z.string()),
+  uraDoraMarkers: z.array(z.string()).optional(),
+  correctYakuNames: z.array(z.string()),
+  selectedYakuNames: z.array(z.string()).optional(),
+  outcome: answerOutcomeSchema,
+});
+
+/**
+ * sessionStorage から問題結果を安全にパースする
+ * 役選択問題結果パース
+ */
+export const parseYakuResults: (
+  stored: unknown,
+) => readonly YakuQuestionResult[] =
+  createSessionStorageParser(questionResultSchema);

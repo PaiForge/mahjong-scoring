@@ -13,8 +13,6 @@ export const PROFILE_INPUT_CLASS =
 interface ProfileTextFieldProps {
   readonly id: string;
   readonly label: string;
-  /** ラベル下の補足説明 */
-  readonly description?: string;
   readonly value: string;
   readonly onChange: (value: string) => void;
   readonly placeholder?: string;
@@ -22,6 +20,8 @@ interface ProfileTextFieldProps {
   /** ラベル横に必須マークを出す */
   readonly required?: boolean;
   readonly autoFocus?: boolean;
+  /** ラベルと同じ行の右端に置く要素（入力欄を埋める補助ボタンなど） */
+  readonly labelAction?: ReactNode;
   /** 入力欄の下に置く要素（エラー・注意書き・文字数カウンタなど） */
   readonly children?: ReactNode;
 }
@@ -30,32 +30,32 @@ interface ProfileTextFieldProps {
  * プロフィール系フォームの単行入力欄
  * プロフィール入力欄
  *
- * 「ラベル + 補足 + 入力欄」の体裁をプロフィール編集とユーザー名登録で共有する。
+ * 「ラベル + 入力欄」の体裁をプロフィール編集とユーザー名登録で共有する。
  */
 export function ProfileTextField({
   id,
   label,
-  description,
   value,
   onChange,
   placeholder,
   maxLength,
   required = false,
   autoFocus = false,
+  labelAction,
   children,
 }: ProfileTextFieldProps) {
   return (
     <div>
-      <label
-        htmlFor={id}
-        className="mb-1 block text-sm font-medium text-surface-800"
-      >
-        {label}
-        {required && <span className="text-destructive"> *</span>}
-      </label>
-      {description && (
-        <p className="mb-2 text-xs text-surface-500">{description}</p>
-      )}
+      <div className="mb-1 flex items-baseline justify-between gap-2">
+        <label
+          htmlFor={id}
+          className="block text-sm font-medium text-surface-800"
+        >
+          {label}
+          {required && <span className="text-destructive"> *</span>}
+        </label>
+        {labelAction}
+      </div>
       <input
         id={id}
         type="text"

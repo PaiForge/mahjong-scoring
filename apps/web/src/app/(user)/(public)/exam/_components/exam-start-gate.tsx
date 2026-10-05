@@ -12,15 +12,18 @@ import { LinkButton } from "@/app/(user)/_components/link-button";
 import {
   practiceMenuBySlug,
   type PracticeMenuSlug,
-} from "@/lib/db/practice-menu-types";
+} from "@mahjong-scoring/features/practice-menu-types";
 import {
   PRACTICE_START_CTA_BLOCK_CLASS,
   PRACTICE_START_CTA_HINT_CLASS,
 } from "../../practice/_components/practice-start-cta";
 import { START_BUTTON_HEIGHT_CLASS } from "../../practice/_components/practice-start-cta-skeleton";
 import { beltButtonVarsClass } from "@/lib/ranks/belt-colors";
-import { evaluateExamEligibility } from "@/lib/ranks/exam-eligibility";
-import { rankTier, type RankSlug } from "@/lib/ranks/registry";
+import { evaluateExamEligibility } from "@mahjong-scoring/features/ranks/exam-eligibility";
+import {
+  rankTier,
+  type RankSlug,
+} from "@mahjong-scoring/features/ranks/registry";
 
 interface ExamStartGateProps {
   /** 昇級試験の練習スラッグ（例: "pinfu-exam"） */

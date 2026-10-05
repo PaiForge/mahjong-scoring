@@ -8,7 +8,7 @@ import { TehaiDisplay } from "@/app/(user)/(public)/practice/_components/tehai-d
 import {
   DEMO_FU_CONTEXT,
   DEMO_FU_TEHAI,
-} from "@/app/(user)/(public)/practice/_lib/demo-tehai";
+} from "@mahjong-scoring/features/board/demo-tehai";
 
 /**
  * 昇級試験（手牌の合計符）の「問題方式」ビジュアルデモ

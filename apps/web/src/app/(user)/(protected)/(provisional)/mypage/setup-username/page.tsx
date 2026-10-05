@@ -22,6 +22,9 @@ export default async function SetupUsernamePage() {
       <PageTitle>{t("title")}</PageTitle>
       <section className="space-y-4">
         <SectionTitle>{t("sectionTitle")}</SectionTitle>
+        {/* 確認メールのリンクや Google から着いた人は登録済みのつもりでいるため、
+            まだ途中であることと、この画面で何を決めるかを先に伝える */}
+        <p className="text-sm leading-relaxed text-surface-500">{t("lead")}</p>
         <UsernameForm />
       </section>
     </ContentContainer>

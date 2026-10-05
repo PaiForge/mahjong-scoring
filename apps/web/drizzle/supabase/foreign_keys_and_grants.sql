@@ -43,7 +43,12 @@ BEGIN
 END;
 $$;
 
-GRANT SELECT, INSERT, UPDATE ON TABLE public.profiles TO authenticated;
+-- 書き込みはクライアントに許さない。登録・編集は Server Action が Drizzle の
+-- 直 DB 接続で行う。profiles の行には banned_at / deleted_at / username のように
+-- サーバだけが決めてよい列が同居しており、own-row の RLS では列を区別できない
+-- （以前は INSERT / UPDATE を付けていたため、BAN の印を自分で消す・予約語や形式の
+-- 検証を通らない username を名乗る、といった書き換えが PostgREST 越しにできた）。
+GRANT SELECT ON TABLE public.profiles TO authenticated;
 GRANT SELECT ON TABLE public.profiles TO anon;
 
 -- =============================================================================
@@ -183,23 +188,24 @@ $$;
 GRANT SELECT ON TABLE public.user_exp TO authenticated;
 
 -- =============================================================================
--- learn_chapter_reads
+-- lesson_completions
 -- =============================================================================
 
--- FK constraint: learn_chapter_reads.user_id → auth.users(id) ON DELETE CASCADE
+-- FK constraint: lesson_completions.user_id → auth.users(id) ON DELETE CASCADE
 DO $$
 BEGIN
   IF NOT EXISTS (
-    SELECT 1 FROM pg_constraint WHERE conname = 'learn_chapter_reads_user_id_fkey'
+    SELECT 1 FROM pg_constraint WHERE conname = 'lesson_completions_user_id_fkey'
   ) THEN
-    ALTER TABLE public.learn_chapter_reads
-      ADD CONSTRAINT learn_chapter_reads_user_id_fkey
+    ALTER TABLE public.lesson_completions
+      ADD CONSTRAINT lesson_completions_user_id_fkey
       FOREIGN KEY (user_id) REFERENCES auth.users(id) ON DELETE CASCADE;
   END IF;
 END;
 $$;
 
-GRANT SELECT, INSERT, DELETE ON TABLE public.learn_chapter_reads TO authenticated;
+-- 書き込みは Server Action の直 DB 接続だけ（rls_policies.sql 参照）
+GRANT SELECT ON TABLE public.lesson_completions TO authenticated;
 
 -- =============================================================================
 -- announcements
@@ -236,3 +242,127 @@ GRANT SELECT ON TABLE public.user_ranks TO authenticated;
 -- TO anon, authenticated, service_role` を既定で持つため、GRANT を書かなかった
 -- 表にも全権限が自動で付く。明示的に REVOKE しない限り閉じない。
 REVOKE ALL ON TABLE public.user_roles FROM anon, authenticated;
+
+-- =============================================================================
+-- ad_creatives / ad_creative_translations / ad_network_settings
+-- =============================================================================
+-- ネイティブ広告はサーバーだけが読み書きする（rls_policies.sql 参照）。
+REVOKE ALL ON TABLE public.ad_creatives FROM anon, authenticated;
+REVOKE ALL ON TABLE public.ad_creative_translations FROM anon, authenticated;
+REVOKE ALL ON TABLE public.ad_network_settings FROM anon, authenticated;
+
+-- =============================================================================
+-- stripe_customers / purchases / stripe_webhook_events
+-- =============================================================================
+-- 有料プラン。サーバーだけが読み書きする（rls_policies.sql 参照）。
+-- 退会（auth.users の削除）で顧客対応と購入記録は一緒に消える。返金はしない
+-- （規約に明記）。Stripe 側の顧客・決済記録は会計のため残る。
+
+-- FK constraint: stripe_customers.user_id → auth.users(id) ON DELETE CASCADE
+DO $$
+BEGIN
+  IF NOT EXISTS (
+    SELECT 1 FROM pg_constraint WHERE conname = 'stripe_customers_user_id_fkey'
+  ) THEN
+    ALTER TABLE public.stripe_customers
+      ADD CONSTRAINT stripe_customers_user_id_fkey
+      FOREIGN KEY (user_id) REFERENCES auth.users(id) ON DELETE CASCADE;
+  END IF;
+END;
+$$;
+
+-- FK constraint: purchases.user_id → auth.users(id) ON DELETE CASCADE
+DO $$
+BEGIN
+  IF NOT EXISTS (
+    SELECT 1 FROM pg_constraint WHERE conname = 'purchases_user_id_fkey'
+  ) THEN
+    ALTER TABLE public.purchases
+      ADD CONSTRAINT purchases_user_id_fkey
+      FOREIGN KEY (user_id) REFERENCES auth.users(id) ON DELETE CASCADE;
+  END IF;
+END;
+$$;
+
+REVOKE ALL ON TABLE public.stripe_customers FROM anon, authenticated;
+REVOKE ALL ON TABLE public.purchases FROM anon, authenticated;
+REVOKE ALL ON TABLE public.stripe_webhook_events FROM anon, authenticated;
+
+-- =============================================================================
+-- practice_quota_usage
+-- =============================================================================
+-- 練習の無料枠の消費記録。サーバーだけが読み書きする（rls_policies.sql 参照）。
+
+-- FK constraint: practice_quota_usage.user_id → auth.users(id) ON DELETE CASCADE
+DO $$
+BEGIN
+  IF NOT EXISTS (
+    SELECT 1 FROM pg_constraint WHERE conname = 'practice_quota_usage_user_id_fkey'
+  ) THEN
+    ALTER TABLE public.practice_quota_usage
+      ADD CONSTRAINT practice_quota_usage_user_id_fkey
+      FOREIGN KEY (user_id) REFERENCES auth.users(id) ON DELETE CASCADE;
+  END IF;
+END;
+$$;
+
+REVOKE ALL ON TABLE public.practice_quota_usage FROM anon, authenticated;
+
+-- =============================================================================
+-- benefit_grants
+-- =============================================================================
+-- 特典の手動付与。サーバーだけが読み書きする（rls_policies.sql 参照）。
+-- 退会で付与は消える。付与した管理者は moderation_actions.actor_id と同じく
+-- RESTRICT（付与の記録から管理者を辿れなくしない）。
+
+-- FK constraint: benefit_grants.user_id → auth.users(id) ON DELETE CASCADE
+DO $$
+BEGIN
+  IF NOT EXISTS (
+    SELECT 1 FROM pg_constraint WHERE conname = 'benefit_grants_user_id_fkey'
+  ) THEN
+    ALTER TABLE public.benefit_grants
+      ADD CONSTRAINT benefit_grants_user_id_fkey
+      FOREIGN KEY (user_id) REFERENCES auth.users(id) ON DELETE CASCADE;
+  END IF;
+END;
+$$;
+
+-- FK constraint: benefit_grants.granted_by → auth.users(id) ON DELETE RESTRICT
+DO $$
+BEGIN
+  IF NOT EXISTS (
+    SELECT 1 FROM pg_constraint WHERE conname = 'benefit_grants_granted_by_fkey'
+  ) THEN
+    ALTER TABLE public.benefit_grants
+      ADD CONSTRAINT benefit_grants_granted_by_fkey
+      FOREIGN KEY (granted_by) REFERENCES auth.users(id) ON DELETE RESTRICT;
+  END IF;
+END;
+$$;
+
+REVOKE ALL ON TABLE public.benefit_grants FROM anon, authenticated;
+
+-- 顧客への CASCADE FK は Drizzle が作成。予約・販売条件を公開しない。
+REVOKE ALL ON TABLE public.billing_checkouts FROM anon, authenticated;
+
+-- =============================================================================
+-- notifications
+-- =============================================================================
+-- サイト内通知。サーバーだけが読み書きする（rls_policies.sql 参照）。
+-- 退会で本人宛ての通知は消える。
+
+-- FK constraint: notifications.user_id → auth.users(id) ON DELETE CASCADE
+DO $$
+BEGIN
+  IF NOT EXISTS (
+    SELECT 1 FROM pg_constraint WHERE conname = 'notifications_user_id_fkey'
+  ) THEN
+    ALTER TABLE public.notifications
+      ADD CONSTRAINT notifications_user_id_fkey
+      FOREIGN KEY (user_id) REFERENCES auth.users(id) ON DELETE CASCADE;
+  END IF;
+END;
+$$;
+
+REVOKE ALL ON TABLE public.notifications FROM anon, authenticated;

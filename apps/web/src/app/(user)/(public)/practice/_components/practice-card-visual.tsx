@@ -1,4 +1,7 @@
-import { TehaiHand } from "@/app/(user)/(public)/_components/tehai-hand";
+import {
+  CardVisualBand,
+  CardVisualHand,
+} from "@/app/(user)/(public)/_components/card-visual-band";
 import { TileSet } from "@/app/(user)/_components/tile-set";
 
 import type {
@@ -18,25 +21,19 @@ interface PracticeCardVisualProps {
  * `出題で見えるもの` の下に `答えの単位` を置く。何をどう例示するかは
  * `practiceCardVisual` が決め、ここは受け取ったものを並べるだけ。
  *
- * 卓と同じ濃い緑を敷くのは、この帯が出題盤面の縮図だと見せるため。高さは
- * 中身によらず固定で、手牌が入るカードとそうでないカードで帯の位置が
- * ずれない。
- *
- * 読み上げには載せない（練習名と説明文が同じことを言っており、牌の名前や
+ * 卓と同じ濃い緑（`CardVisualBand`）を敷くのは、この帯が出題盤面の縮図だと
+ * 見せるため。読み上げには載せない（練習名が同じことを言っており、牌の名前や
  * 「符は？」を読み上げても情報は増えない）。
  */
 export function PracticeCardVisual({ visual }: PracticeCardVisualProps) {
   return (
-    <div
-      aria-hidden="true"
-      className="mt-4 flex h-20 flex-col items-center justify-center gap-1.5 overflow-hidden rounded-lg bg-primary-800 px-3"
-    >
+    <CardVisualBand>
       <SubjectContent subject={visual.subject} />
       <span className="flex items-center gap-1.5">
         {visual.note !== undefined && <VisualPill label={visual.note} />}
         <span className="text-xs font-bold text-white">{visual.unitLabel}</span>
       </span>
-    </div>
+    </CardVisualBand>
   );
 }
 
@@ -57,15 +54,7 @@ function VisualPill({ label }: { readonly label: string }) {
 /** 帯の上段 */
 function SubjectContent({ subject }: { readonly subject: ResolvedSubject }) {
   if (subject.kind === "hand") {
-    return (
-      // 手牌は出題盤面と同じ TehaiHand が描く（牌の出し方の単一実装）。
-      // 幅いっぱいまで自動で縮むため、カードの幅が変わっても 14 枚が
-      // 途切れない。max-w は 14 枚の等倍幅で、これ以上大きくならない
-      // カード（ダッシュボードの 1 枚表示）では中央に寄る
-      <div className="mx-auto w-full max-w-md">
-        <TehaiHand tehai={{ closed: subject.tiles, exposed: [] }} />
-      </div>
-    );
+    return <CardVisualHand tiles={subject.tiles} />;
   }
 
   if (subject.kind === "fuHan") {

@@ -6,7 +6,7 @@ import type {
   ScoreTableUserAnswer,
 } from "@mahjong-scoring/core";
 import { useYakumanRules } from "@/app/_hooks/use-rule-settings-store";
-import type { ScoreOptionRange } from "../score/_lib/get-available-scores";
+import type { ScoreOptionRange } from "@mahjong-scoring/features/practice/score/get-available-scores";
 import { ScoreAnswerForm } from "./score-answer-form";
 
 interface ScoreChallengeAnswerFormProps {

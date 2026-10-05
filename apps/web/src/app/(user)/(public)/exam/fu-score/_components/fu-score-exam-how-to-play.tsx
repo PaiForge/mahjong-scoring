@@ -1,5 +1,5 @@
 import { HaiKind } from "@mahjong-scoring/core";
-import { DEMO_YAKUHAI_KOUTSU_HAND } from "@/app/(user)/(public)/practice/_lib/demo-score-question";
+import { DEMO_YAKUHAI_KOUTSU_HAND } from "@mahjong-scoring/features/board/demo-score-question";
 import { createScoreExamHowToPlay } from "../../_lib/create-exam-how-to-play";
 import type { ScoreExamHowToPlayConfig } from "../../_lib/create-exam-how-to-play";
 

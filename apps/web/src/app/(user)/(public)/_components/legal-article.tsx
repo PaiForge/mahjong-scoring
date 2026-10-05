@@ -6,6 +6,7 @@ import { getTranslations } from "next-intl/server";
 import { TEXT_LINK_CLASSES } from "@/app/_components/_lib/link-classes";
 import { SectionTitle } from "@/app/(user)/_components/section-title";
 import { DEFAULT_LOCALE } from "@/i18n/locales";
+import { JST_TIME_ZONE } from "@mahjong-scoring/features/jst";
 
 /**
  * 規約系ページ（利用規約・プライバシーポリシー）の本文部品
@@ -98,7 +99,7 @@ export async function LegalLastUpdated({ date }: { readonly date: string }) {
   const t = await getTranslations("legal");
   const formatted = new Intl.DateTimeFormat(DEFAULT_LOCALE, {
     dateStyle: "long",
-    timeZone: "Asia/Tokyo",
+    timeZone: JST_TIME_ZONE,
   }).format(new Date(date));
 
   return (

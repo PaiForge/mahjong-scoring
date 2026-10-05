@@ -1,16 +1,14 @@
 "use server";
 
 import { eq } from "drizzle-orm";
-import { revalidateTag } from "next/cache";
 
 import type { ActionResult } from "@/lib/action-types";
+import { guardUserAction } from "@/lib/action-guard";
+import type { UserActionGuardErrorCode } from "@/lib/action-guard";
 import { logActivityEvent } from "@/lib/activity-log";
-import { authenticateAndCheckBan } from "@/lib/auth";
-import type { AuthGateErrorCode } from "@/lib/auth";
-import { LEADERBOARD_CACHE_TAG } from "@/lib/cache-tags";
+import { purgeLeaderboardCache } from "@/lib/cache-tags";
 import { db, profiles } from "@/lib/db";
-import { enforceIpRateLimit } from "@/lib/rate-limit-ip";
-import type { RateLimitErrorCode } from "@/lib/rate-limit-ip";
+import { logExternalError } from "@/lib/log-error";
 
 import {
   type ProfileInput,
@@ -20,10 +18,7 @@ import {
 
 /** プロフィール更新の失敗理由 */
 export type UpdateProfileError =
-  | RateLimitErrorCode
-  | AuthGateErrorCode
-  | ProfileValidationError
-  | "updateFailed";
+  UserActionGuardErrorCode | ProfileValidationError | "updateFailed";
 
 export type UpdateProfileResult = ActionResult<UpdateProfileError>;
 
@@ -35,16 +30,11 @@ export type UpdateProfileResult = ActionResult<UpdateProfileError>;
 export async function updateProfile(
   input: ProfileInput,
 ): Promise<UpdateProfileResult> {
-  const rateLimited = await enforceIpRateLimit("updateProfile");
-  if (rateLimited) {
-    return rateLimited;
+  const guard = await guardUserAction("updateProfile");
+  if ("error" in guard) {
+    return guard;
   }
-
-  const authResult = await authenticateAndCheckBan();
-  if ("error" in authResult) {
-    return authResult;
-  }
-  const { user } = authResult;
+  const { user } = guard;
 
   const validated = normalizeAndValidateProfile(input);
   if (!validated.ok) {
@@ -56,14 +46,15 @@ export async function updateProfile(
       .update(profiles)
       .set({ ...validated.value, updatedAt: new Date() })
       .where(eq(profiles.id, user.id));
-  } catch {
+  } catch (error) {
+    logExternalError("updateProfile", "failed to update profile", error);
     return { error: "updateFailed" };
   }
 
   // ランキングのキャッシュ（5 分）は行に表示名を含むため、ここで捨てないと
   // 一覧だけ古い名前を出し続ける。アバター更新（/api/profile/avatar）も同じ理由で
   // 同じタグを捨てる。
-  revalidateTag(LEADERBOARD_CACHE_TAG, "default");
+  purgeLeaderboardCache();
 
   logActivityEvent({
     userId: user.id,

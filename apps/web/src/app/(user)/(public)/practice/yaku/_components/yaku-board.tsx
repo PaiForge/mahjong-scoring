@@ -1,5 +1,7 @@
 "use client";
 
+import { useGradeAnswer } from "../../_hooks/use-verified-challenge";
+
 import { useState, useCallback } from "react";
 import { useTranslations } from "next-intl";
 import { generateYakuQuestion, retryGenerate } from "@mahjong-scoring/core";
@@ -18,12 +20,15 @@ import {
   useRegisterAdvance,
   useTrainingMode,
 } from "../../_hooks/use-training-mode";
-import { AnswerOutcome, toAnswerOutcome } from "../../_lib/result-schemas";
+import {
+  AnswerOutcome,
+  toAnswerOutcome,
+} from "@mahjong-scoring/features/results/result-schemas";
 import {
   QUESTION_GENERATION_MAX_RETRIES,
   toQuestionResult,
-} from "../_lib/types";
-import type { YakuQuestionResult } from "../_lib/types";
+} from "@mahjong-scoring/features/practice/yaku/types";
+import type { YakuQuestionResult } from "@mahjong-scoring/features/practice/yaku/types";
 import type { RecordingPracticeBoardProps } from "../../_lib/practice-board-props";
 
 function generateQuestion(): YakuQuestion | undefined {
@@ -59,6 +64,7 @@ export function YakuBoard({
   onRecordResult,
   onPresentQuestion,
 }: YakuBoardProps) {
+  const gradeAnswer = useGradeAnswer<YakuQuestion>();
   const t = useTranslations("yaku");
   const [question, setQuestion] = useClientGeneratedQuestion(generateQuestion);
   const [selectedYaku, setSelectedYaku] = useState<Set<string>>(new Set());
@@ -95,9 +101,11 @@ export function YakuBoard({
 
   const handleSubmit = useCallback(() => {
     if (!question || showFeedback || selectedYaku.size === 0) return;
-    const result = toQuestionResult(question, [...selectedYaku]);
-    onRecordResult?.(result);
-    onAnswer(result.outcome === AnswerOutcome.Correct, advanceQuestion);
+    gradeAnswer(question, [...selectedYaku], (gradedQuestion) => {
+      const result = toQuestionResult(gradedQuestion, [...selectedYaku]);
+      onRecordResult?.(result);
+      onAnswer(result.outcome === AnswerOutcome.Correct, advanceQuestion);
+    });
   }, [
     question,
     selectedYaku,
@@ -105,6 +113,7 @@ export function YakuBoard({
     onAnswer,
     advanceQuestion,
     onRecordResult,
+    gradeAnswer,
   ]);
 
   if (!question) {

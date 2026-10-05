@@ -1,17 +1,19 @@
+"use client";
+
 import { useSearchParams } from "next/navigation";
 import { useTranslations } from "next-intl";
 
-import type { PracticeMenuSlug } from "@/lib/db/practice-menu-types";
+import type { PracticeMenuSlug } from "@mahjong-scoring/features/practice-menu-types";
 import {
   isExamMenuType,
   practiceMenuBySlug,
-} from "@/lib/db/practice-menu-types";
+} from "@mahjong-scoring/features/practice-menu-types";
 import {
   FINISH_REASON_PARAM,
   listedProblemCount,
   parseFinishReason,
-} from "../_lib/finish-reason";
-import { practiceHref } from "../_lib/practice-catalog";
+} from "@mahjong-scoring/features/challenge/finish-reason";
+import { practiceHref } from "@mahjong-scoring/features/routes";
 import {
   buildResultBreadcrumb,
   resultBreadcrumbParent,
@@ -27,8 +29,8 @@ interface Props {
  * 結果ページのローディングフォールバック
  * 結果ページローディング
  *
- * `/practice/<slug>/loading.tsx`（`PracticeLoading`）から result への遷移時に描画する。
- * その loading.tsx は pathname で振り分けるためクライアントコンポーネントであり、
+ * `/practice/<slug>/result/loading.tsx`（昇級試験は `/exam/<級>/result/loading.tsx`）が
+ * 描画する。URL のクエリを読むためクライアントコンポーネントであり、
  * 翻訳は `useTranslations()` で引く（`getTranslations()` は使えない）。
  *
  * 問題別フィードバック一覧の枠は出題数ぶん描く。`loading.tsx` は searchParams を

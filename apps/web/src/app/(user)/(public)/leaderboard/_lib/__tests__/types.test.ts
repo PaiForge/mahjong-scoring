@@ -3,7 +3,7 @@ import { describe, expect, it } from "vitest";
 import {
   PRACTICE_MENU_TYPES,
   isExamMenuType,
-} from "@/lib/db/practice-menu-types";
+} from "@mahjong-scoring/features/practice-menu-types";
 
 import {
   BOARDS,
@@ -100,19 +100,25 @@ describe("slugToModule", () => {
 describe("buildDetailPath", () => {
   it("builds correct path for all-time jantou_fu", () => {
     expect(
-      buildDetailPath("all-time", { module: "jantou_fu", variant: "default" }),
+      buildDetailPath("all-time", {
+        menuType: "jantou_fu",
+        variant: "default",
+      }),
     ).toBe("/leaderboard/all-time/jantou-fu");
   });
 
   it("builds correct path for monthly yaku", () => {
     expect(
-      buildDetailPath("monthly", { module: "yaku", variant: "default" }),
+      buildDetailPath("monthly", { menuType: "yaku", variant: "default" }),
     ).toBe("/leaderboard/monthly/yaku");
   });
 
   it("バリアントを持つ練習は ?variant= で土俵を指す", () => {
     expect(
-      buildDetailPath("all-time", { module: "yaku_han", variant: "kuisagari" }),
+      buildDetailPath("all-time", {
+        menuType: "yaku_han",
+        variant: "kuisagari",
+      }),
     ).toBe("/leaderboard/all-time/yaku-han?variant=kuisagari");
   });
 });
@@ -120,38 +126,40 @@ describe("buildDetailPath", () => {
 describe("buildChallengePath", () => {
   it("builds correct path for jantou_fu", () => {
     expect(
-      buildChallengePath({ module: "jantou_fu", variant: "default" }),
+      buildChallengePath({ menuType: "jantou_fu", variant: "default" }),
     ).toBe("/practice/jantou-fu/play");
   });
 
   it("バリアントを持つ練習はそのバリアントで play を開く", () => {
-    expect(buildChallengePath({ module: "score_table", variant: "all" })).toBe(
-      "/practice/score-table/play?variant=all",
-    );
+    expect(
+      buildChallengePath({ menuType: "score_table", variant: "all" }),
+    ).toBe("/practice/score-table/play?variant=all");
   });
 });
 
 describe("BOARDS", () => {
   it("ランキング対象の練習 × バリアントを列挙順に並べる", () => {
-    const yakuHan = BOARDS.filter((board) => board.module === "yaku_han");
+    const yakuHan = BOARDS.filter((board) => board.menuType === "yaku_han");
     expect(yakuHan.map((board) => board.variant)).toEqual([
       "no_kuisagari",
       "kuisagari",
       "all",
     ]);
-    const jantouFu = BOARDS.filter((board) => board.module === "jantou_fu");
+    const jantouFu = BOARDS.filter((board) => board.menuType === "jantou_fu");
     expect(jantouFu.map((board) => board.variant)).toEqual(["default"]);
   });
 
   it("昇級試験の土俵を持たない", () => {
-    expect(BOARDS.some((board) => board.module === "mangan_exam")).toBe(false);
+    expect(BOARDS.some((board) => board.menuType === "mangan_exam")).toBe(
+      false,
+    );
   });
 });
 
 describe("resolveBoard", () => {
   it("バリアントを既定に正規化する", () => {
     expect(resolveBoard("yaku-han", undefined)).toEqual({
-      module: "yaku_han",
+      menuType: "yaku_han",
       variant: "no_kuisagari",
     });
     expect(resolveBoard("yaku-han", "bogus")?.variant).toBe("no_kuisagari");

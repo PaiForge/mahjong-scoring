@@ -1,0 +1,52 @@
+{
+  "pageTitle": "特定商取引法に基づく表記",
+  "description": "麻雀点数計算の有料プラン（Pro）に関する特定商取引法に基づく表記。販売事業者、価格、支払方法、提供時期、返品・キャンセルについて。",
+  "seller": {
+    "title": "販売事業者",
+    "value": "富士エンタープライズ"
+  },
+  "representative": {
+    "title": "運営責任者",
+    "value": "（要記入）"
+  },
+  "address": {
+    "title": "所在地",
+    "value": "〒107-0061\n東京都港区北青山1-3-3 三橋ビル 3階"
+  },
+  "phone": {
+    "title": "電話番号",
+    "value": "（要記入）"
+  },
+  "contact": {
+    "title": "お問い合わせ",
+    "value": "<contact>お問い合わせフォーム</contact>からご連絡ください。"
+  },
+  "price": {
+    "title": "販売価格",
+    "value": "<plan>料金ページ</plan>に表示した価格（消費税込み）。"
+  },
+  "extraFees": {
+    "title": "商品代金以外の必要料金",
+    "value": "インターネット接続に必要な通信料金はお客様のご負担です。"
+  },
+  "paymentMethod": {
+    "title": "支払方法",
+    "value": "クレジットカード（決済代行事業者 Stripe の決済画面で行います）。"
+  },
+  "paymentTiming": {
+    "title": "支払時期",
+    "value": "購入手続きの完了時に決済されます。"
+  },
+  "delivery": {
+    "title": "サービスの提供時期",
+    "value": "決済完了後、直ちにご利用いただけます。期間パスは決済完了時から 30 日間、買い切りは期限なく有効です。"
+  },
+  "returns": {
+    "title": "返品・キャンセル",
+    "value": "デジタルコンテンツの性質上、購入後の返品・返金・キャンセルはできません。期間パスは自動更新されず、期間の終了後に無料プランへ戻ります。"
+  },
+  "environment": {
+    "title": "動作環境",
+    "value": "最新版の Google Chrome、Safari、Microsoft Edge、Firefox。"
+  }
+}

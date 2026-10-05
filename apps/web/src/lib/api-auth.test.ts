@@ -87,6 +87,20 @@ describe("authorizeApiRequest", () => {
     expect(mockIsUserBanned).not.toHaveBeenCalled();
   });
 
+  it("拒否の応答も共有キャッシュに乗せない（private, no-store）", async () => {
+    mockCheckIpRateLimitGuard.mockReturnValue(undefined);
+    mockGetUser.mockResolvedValue({ data: { user: null } });
+
+    const result = await authorizeApiRequest(
+      sameOriginRequest(),
+      "uploadAvatar",
+    );
+
+    expect(
+      result.ok === false && result.response.headers.get("Cache-Control"),
+    ).toBe("private, no-store");
+  });
+
   /**
    * ページガードは画面遷移しか守らないため、Route Handler を直接叩かれると
    * BAN が効かない。ここで弾いていることを固定する。

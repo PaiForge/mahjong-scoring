@@ -2,7 +2,7 @@
 
 import type { ReactNode } from "react";
 import { useTranslations } from "next-intl";
-import { AnswerOutcome } from "../_lib/result-schemas";
+import { AnswerOutcome } from "@mahjong-scoring/features/results/result-schemas";
 import { DetailTable } from "./detail-table";
 
 interface AnswerComparisonProps {

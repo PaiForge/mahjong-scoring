@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useMemo, useState } from "react";
+import { useMemo } from "react";
 import { useTranslations } from "next-intl";
 import {
   generateValidMachiScoreQuestion,
@@ -26,7 +26,11 @@ import {
   correctCellAnswerOf,
   formatCellAnswer,
   formatCellAnswerLines,
-} from "../_lib/format-cell-answer";
+} from "@mahjong-scoring/features/practice/machi-score/format-cell-answer";
+import {
+  HELP_TOUR_ALL_CORRECT,
+  useHelpTourSample,
+} from "../../_hooks/use-help-tour-sample";
 import { MachiPicker } from "./machi-picker";
 import { MachiScoreResult } from "./machi-score-result";
 import { TenpaiDisplay } from "./tenpai-display";
@@ -49,13 +53,10 @@ import { WaitCellGrid } from "./wait-cell-grid";
 
 const noop = () => {};
 
-const ALL_CORRECT: JudgementResult = {
-  isCorrect: true,
-  isHanCorrect: true,
-  isFuCorrect: true,
-  isScoreCorrect: true,
-  isYakuCorrect: true,
-};
+/** 副露なしの分かりやすいサンプル */
+function generateSample(): MachiScoreQuestion | undefined {
+  return generateValidMachiScoreQuestion({ includeFuro: false });
+}
 
 /** 全マスを正解で埋めた回答と、その判定 */
 function buildCorrectCells(question: MachiScoreQuestion): {
@@ -71,7 +72,7 @@ function buildCorrectCells(question: MachiScoreQuestion): {
       correctCellAnswerOf(wait.ron);
   }
   for (const cell of listCellRefs(question))
-    results[cellKeyOf(cell)] = ALL_CORRECT;
+    results[cellKeyOf(cell)] = HELP_TOUR_ALL_CORRECT;
   return { answers, results };
 }
 
@@ -79,20 +80,7 @@ export function MachiScoreHelpTour() {
   const t = useTranslations("machiScore");
   const tScore = useTranslations("score");
   const tCommon = useTranslations("common");
-  const [isOpen, setIsOpen] = useState(false);
-  // 副露なしの分かりやすいサンプルを初回開封時に 1 度だけ生成して固定する
-  const [sample, setSample] = useState<MachiScoreQuestion | undefined>(
-    undefined,
-  );
-
-  const open = useCallback(() => {
-    setSample(
-      (prev) => prev ?? generateValidMachiScoreQuestion({ includeFuro: false }),
-    );
-    setIsOpen(true);
-  }, []);
-
-  const close = useCallback(() => setIsOpen(false), []);
+  const { isOpen, sample, open, close } = useHelpTourSample(generateSample);
 
   const slides = useMemo((): readonly HelpTourSlide[] => {
     if (!sample) return [];

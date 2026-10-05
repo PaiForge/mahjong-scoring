@@ -49,11 +49,11 @@ export default async function AdminDashboardPage({
           }}
         />
 
-        <section className="space-y-1 rounded-lg border border-surface-200 bg-surface-50 p-6">
-          <p className="text-sm text-surface-500">
+        <section className="admin-kpi space-y-2">
+          <p className="text-sm font-medium text-surface-600">
             {t("dashboardKpi.newUsersPeriodTotal")}
           </p>
-          <p className="text-3xl font-semibold text-surface-900">
+          <p className="text-5xl leading-[56px] font-semibold tracking-tight text-primary-900 tabular-nums">
             {newUsers.total}
           </p>
           <p className="text-xs text-surface-500">
@@ -61,7 +61,7 @@ export default async function AdminDashboardPage({
           </p>
         </section>
 
-        <section className="rounded-lg border border-surface-200 bg-surface-50 p-6">
+        <section className="admin-panel p-6">
           <h3 className="mb-4 text-lg font-semibold text-surface-900">
             {t("dashboardKpi.dailyTrends")}
           </h3>

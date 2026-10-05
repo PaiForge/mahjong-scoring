@@ -17,17 +17,17 @@ export function LinkRowList({ children }: { readonly children: ReactNode }) {
   return <ul className="flex flex-col">{children}</ul>;
 }
 
-/** 行の外枠（破線の区切り）。実物とスケルトンで共有する */
-const ROW_ITEM_CLASSES =
+/** 行の外枠（破線の区切り）。実物・スケルトン・広告の行（`NativeAdRow`）で共有する */
+export const ROW_ITEM_CLASSES =
   "border-b border-dashed border-border/40 last:border-b-0";
 
 /**
- * 行の中身の箱。実物とスケルトンで共有する。
+ * 行の中身の箱。実物・スケルトン・広告の行（`NativeAdRow`）で共有する。
  *
  * 負のマージンで hover の面を行の左右いっぱいに広げつつ、
  * リスト自体の左端は隣のセクションと揃えたままにする。
  */
-const ROW_INNER_CLASSES = "-mx-2 flex gap-3 rounded-lg px-2 py-3";
+export const ROW_INNER_CLASSES = "-mx-2 flex gap-3 rounded-lg px-2 py-3";
 
 interface LinkRowProps {
   readonly href: string;

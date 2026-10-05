@@ -85,6 +85,146 @@
       "when": 1787783174349,
       "tag": "20260826222614_rename_tehai_fu_menu_type",
       "breakpoints": true
+    },
+    {
+      "idx": 12,
+      "version": "7",
+      "when": 1790413218831,
+      "tag": "20260926090018_server_graded_challenge_attempts",
+      "breakpoints": true
+    },
+    {
+      "idx": 13,
+      "version": "7",
+      "when": 1790426564660,
+      "tag": "20260926124244_create_ad_creatives",
+      "breakpoints": true
+    },
+    {
+      "idx": 14,
+      "version": "7",
+      "when": 1790510489640,
+      "tag": "20260927120129_add_hand_to_ad_creatives",
+      "breakpoints": true
+    },
+    {
+      "idx": 15,
+      "version": "7",
+      "when": 1790682401724,
+      "tag": "20260929114641_add_asin_and_ad_network_settings",
+      "breakpoints": true
+    },
+    {
+      "idx": 16,
+      "version": "7",
+      "when": 1790824520504,
+      "tag": "20261001031520_create_purchases",
+      "breakpoints": true
+    },
+    {
+      "idx": 17,
+      "version": "7",
+      "when": 1790840001753,
+      "tag": "20261001073321_create_practice_quota_usage",
+      "breakpoints": true
+    },
+    {
+      "idx": 18,
+      "version": "7",
+      "when": 1790844649124,
+      "tag": "20261001085049_create_benefit_grants",
+      "breakpoints": true
+    },
+    {
+      "idx": 19,
+      "version": "7",
+      "when": 1790846736711,
+      "tag": "20261001092536_add_billing_checkouts",
+      "breakpoints": true
+    },
+    {
+      "idx": 20,
+      "version": "7",
+      "when": 1790945871539,
+      "tag": "20261002125751_create_notifications",
+      "breakpoints": true
+    },
+    {
+      "idx": 21,
+      "version": "7",
+      "when": 1791027672937,
+      "tag": "20261003114112_create_lesson_completions",
+      "breakpoints": true
+    },
+    {
+      "idx": 22,
+      "version": "7",
+      "when": 1791063127940,
+      "tag": "20261003213207_backfill_kyu5_lesson_completions",
+      "breakpoints": true
+    },
+    {
+      "idx": 23,
+      "version": "7",
+      "when": 1791083612137,
+      "tag": "20261004031332_backfill_jantou_fu_lesson_completion",
+      "breakpoints": true
+    },
+    {
+      "idx": 24,
+      "version": "7",
+      "when": 1791083968470,
+      "tag": "20261004031928_backfill_mentsu_fu_lesson_completion",
+      "breakpoints": true
+    },
+    {
+      "idx": 25,
+      "version": "7",
+      "when": 1791084227379,
+      "tag": "20261004032347_backfill_machi_fu_lesson_completion",
+      "breakpoints": true
+    },
+    {
+      "idx": 26,
+      "version": "7",
+      "when": 1791084991756,
+      "tag": "20261004033631_backfill_tehai_fu_lesson_completion",
+      "breakpoints": true
+    },
+    {
+      "idx": 27,
+      "version": "7",
+      "when": 1791085310703,
+      "tag": "20261004034150_backfill_chiitoitsu_score_lesson_completion",
+      "breakpoints": true
+    },
+    {
+      "idx": 28,
+      "version": "7",
+      "when": 1791085476930,
+      "tag": "20261004034436_backfill_pinfu_score_lesson_completion",
+      "breakpoints": true
+    },
+    {
+      "idx": 29,
+      "version": "7",
+      "when": 1791085681007,
+      "tag": "20261004034801_backfill_menzen_mentsu_score_lesson_completion",
+      "breakpoints": true
+    },
+    {
+      "idx": 30,
+      "version": "7",
+      "when": 1791085817199,
+      "tag": "20261004035017_backfill_furo_score_lesson_completion",
+      "breakpoints": true
+    },
+    {
+      "idx": 31,
+      "version": "7",
+      "when": 1791169821556,
+      "tag": "20261005031021_merge_chapter_reads_into_lesson_completions",
+      "breakpoints": true
     }
   ]
 }

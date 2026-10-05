@@ -1,7 +1,8 @@
 "use client";
 
+import { useVerifiedChallenge } from "./use-verified-challenge";
 import { useCallback } from "react";
-import type { PracticeMenuType } from "@/lib/db/practice-menu-types";
+import type { PracticeMenuType } from "@mahjong-scoring/features/practice-menu-types";
 import { logExternalError } from "@/lib/log-error";
 import type {
   FinishCallbackArgs,
@@ -34,16 +35,14 @@ import { savePracticeResult } from "../_actions/save-practice-result";
 export function useSaveOnFinish(
   menuType: PracticeMenuType,
 ): (args: FinishCallbackArgs) => Promise<FinishCallbackResult | undefined> {
+  const challenge = useVerifiedChallenge();
   return useCallback(
     async (args: FinishCallbackArgs) => {
-      if (args.totalCount === 0) return undefined;
+      if (args.totalCount === 0 || !challenge) return undefined;
+      await challenge.settled();
 
       try {
-        const result = await savePracticeResult(menuType, args.variant, {
-          score: args.correctCount,
-          incorrectAnswers: args.incorrectCount,
-          timeTaken: Math.round(args.elapsedMs / 1000),
-        });
+        const result = await savePracticeResult(challenge.id);
         if (!result.success) {
           logExternalError("savePracticeResult", menuType, result.error);
           return undefined;
@@ -58,6 +57,6 @@ export function useSaveOnFinish(
         return undefined;
       }
     },
-    [menuType],
+    [menuType, challenge],
   );
 }

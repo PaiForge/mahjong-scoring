@@ -20,10 +20,11 @@ describe("practiceCardRank", () => {
     expect(practiceCardRank(undefined, tRanks)).toBeUndefined();
   });
 
-  it("級を持つ練習にはその級の試験へ送るピルを出す", () => {
+  it("級を持つ練習にはその級の詳細ページへ送るピルを出す", () => {
+    // カードが「4級」と名乗る以上、押した先も 4級 の話をしていること
     const pill = practiceCardRank("kyu-4", tRanks);
 
     expect(pill?.slug).toBe("kyu-4");
-    expect(pill?.href).toBe("/exam/fu");
+    expect(pill?.href).toBe("/dojo/ranks/kyu-4");
   });
 });

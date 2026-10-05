@@ -5,14 +5,14 @@ import { MentsuType, parseHais } from "@mahjong-scoring/core";
 import type { CompletedMentsu, HaiKindId } from "@mahjong-scoring/core";
 import { ProblemListAccordion } from "../../_components/problem-list-accordion";
 import { TehaiDisplay } from "../../_components/tehai-display";
-import { AnswerOutcome } from "../../_lib/result-schemas";
-import { buildMentsu } from "../../_lib/mentsu-serialization";
-import { parseQuestionTiles } from "../../_lib/parse-question-tiles";
-import { findAgariHighlight } from "../_lib/find-agari-highlight";
+import { AnswerOutcome } from "@mahjong-scoring/features/results/result-schemas";
+import { buildMentsu } from "@mahjong-scoring/features/results/mentsu-serialization";
+import { restoreTehaiQuestion } from "@mahjong-scoring/features/results/parse-question-tiles";
+import { findAgariHighlight } from "@mahjong-scoring/features/practice/mentsu-jantou-fu/find-agari-highlight";
 import type {
   MentsuJantouFuItemResult,
   MentsuJantouFuQuestionResult,
-} from "../_lib/types";
+} from "@mahjong-scoring/features/practice/mentsu-jantou-fu/types";
 import { FuItemTiles } from "./fu-item-tiles";
 
 interface MentsuJantouFuProblemListProps {
@@ -29,20 +29,6 @@ interface RestoredItem {
   readonly correctFu: number;
   /** ユーザーが選んだ符。時間切れで答えられなかった問題では持たない */
   readonly userFu?: number;
-}
-
-/**
- * 保存された結果から出題内容（手牌と状況）を復元する
- * 出題復元
- *
- * MSPZ のパースに失敗した場合は undefined を返し、手牌の再表示だけを諦める
- * （回答行の符の比較は手牌の復元に依存しないため表示できる）。
- */
-function restoreQuestion(result: MentsuJantouFuQuestionResult) {
-  const tiles = parseQuestionTiles(result);
-  if (!tiles) return undefined;
-  const { tehai, ...context } = tiles;
-  return { tehai, context: { ...context, isTsumo: result.isTsumo } };
 }
 
 /** 保存された回答行を、出題中と同じ体裁で描ける形に戻す */
@@ -101,7 +87,7 @@ export function MentsuJantouFuProblemList({
             })
       }
       renderDetail={(result) => {
-        const question = restoreQuestion(result);
+        const question = restoreTehaiQuestion(result);
         const items = result.items.map(restoreItem);
         const highlight = question
           ? findAgariHighlight(items, question.context.agariHai)

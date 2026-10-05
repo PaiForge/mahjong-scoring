@@ -1,12 +1,12 @@
 import { describe, expect, it } from "vitest";
 
-import { sanitizeInternalRedirect } from "../redirect";
+import { buildSignInHref, sanitizeInternalRedirect } from "../redirect";
 
 describe("sanitizeInternalRedirect", () => {
   describe("valid internal paths", () => {
     it("accepts a simple internal path", () => {
-      expect(sanitizeInternalRedirect("/learn/jantou-fu")).toBe(
-        "/learn/jantou-fu",
+      expect(sanitizeInternalRedirect("/lessons/jantou-fu")).toBe(
+        "/lessons/jantou-fu",
       );
     });
 
@@ -234,13 +234,13 @@ describe("sanitizeInternalRedirect", () => {
 
   describe("edge cases: path after sanitize is reused safely", () => {
     it("result is strictly equal to input when accepted (no mutation)", () => {
-      const input = "/learn/jantou-fu?from=practice";
+      const input = "/lessons/jantou-fu?from=practice";
       expect(sanitizeInternalRedirect(input)).toBe(input);
     });
 
     it("result never contains a protocol scheme when accepted", () => {
       const inputs = [
-        "/learn/about-this-app",
+        "/lessons/about-this-app",
         "/mypage",
         "/practice/jantou-fu?mode=timed#review",
       ];
@@ -251,5 +251,21 @@ describe("sanitizeInternalRedirect", () => {
         expect(out!.toLowerCase()).not.toContain("https:");
       }
     });
+  });
+});
+
+describe("buildSignInHref", () => {
+  it("encodes the return path into the redirect query", () => {
+    expect(buildSignInHref("/lessons/jantou-fu?x=1&y=2")).toBe(
+      "/sign-in?redirect=%2Flessons%2Fjantou-fu%3Fx%3D1%26y%3D2",
+    );
+  });
+
+  it("round-trips through sanitizeInternalRedirect", () => {
+    const href = buildSignInHref("/preferences#rules");
+    const value = new URL(href, "http://localhost").searchParams.get(
+      "redirect",
+    );
+    expect(sanitizeInternalRedirect(value)).toBe("/preferences#rules");
   });
 });

@@ -1,8 +1,16 @@
 import { describe, it, expect } from "vitest";
 import {
+  FuroType,
+  HaiKind,
+  MentsuType,
+  Tacha,
+  type HaiKindId,
+} from "@pai-forge/riichi-mahjong";
+import {
   calculateKoScore,
   calculateOyaScore,
   isInvalidCell,
+  calculateStandaloneMentsuFu,
 } from "./score-calculation";
 
 describe("calculateKoScore", () => {
@@ -255,5 +263,50 @@ describe("切り上げ満貫オプション", () => {
   it("オプション無効時は従来どおり切り上げない", () => {
     expect(calculateKoScore(4, 30, { kiriageMangan: false }).ron).toBe(7700);
     expect(calculateOyaScore(3, 60).ron).toBe(11600);
+  });
+});
+
+describe("calculateStandaloneMentsuFu", () => {
+  const pon = { type: FuroType.Pon, from: Tacha.Toimen };
+  const kan = { type: FuroType.Daiminkan, from: Tacha.Toimen };
+
+  it("順子は鳴いていても 0 符", () => {
+    expect(
+      calculateStandaloneMentsuFu({
+        type: MentsuType.Shuntsu,
+        hais: [HaiKind.ManZu2, HaiKind.ManZu3, HaiKind.ManZu4],
+        furo: { type: FuroType.Chi, from: Tacha.Kamicha },
+      }),
+    ).toBe(0);
+  });
+
+  it("副露していれば明、していなければ暗として数え、么九牌で倍になる", () => {
+    const koutsu = (hai: HaiKindId, open: boolean) =>
+      calculateStandaloneMentsuFu({
+        type: MentsuType.Koutsu,
+        hais: [hai, hai, hai],
+        ...(open ? { furo: pon } : {}),
+      });
+    expect(koutsu(HaiKind.ManZu5, true)).toBe(2);
+    expect(koutsu(HaiKind.ManZu5, false)).toBe(4);
+    expect(koutsu(HaiKind.Haku, true)).toBe(4);
+    expect(koutsu(HaiKind.ManZu1, false)).toBe(8);
+  });
+
+  it("槓子は刻子の 4 倍", () => {
+    const hai = HaiKind.PinZu9;
+    expect(
+      calculateStandaloneMentsuFu({
+        type: MentsuType.Kantsu,
+        hais: [hai, hai, hai, hai],
+        furo: kan,
+      }),
+    ).toBe(16);
+    expect(
+      calculateStandaloneMentsuFu({
+        type: MentsuType.Kantsu,
+        hais: [hai, hai, hai, hai],
+      }),
+    ).toBe(32);
   });
 });

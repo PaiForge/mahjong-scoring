@@ -7,9 +7,9 @@ import { SectionTitle } from "@/app/(user)/_components/section-title";
  * ダッシュボードのフォールバックセクション。
  * 総合演習のすすめ
  *
- * 教本を読み切り、対応する練習にもひととおり挑戦したユーザーには次に読む章も
- * 未挑戦の練習も無い。ダッシュボードがお知らせだけになるのを避けるため、
- * 終わりのない総合演習へ誘導する。
+ * 全級を取得したユーザーには黒帯への道の「次にやること」が無い。ダッシュボードが
+ * お知らせだけになるのを避けるため、終わりのない総合演習へ誘導する（教本に
+ * 未学習の章が残っていれば「教本の続き」と並ぶ）。
  */
 export async function ComprehensivePracticeSection() {
   const t = await getTranslations("dashboard");

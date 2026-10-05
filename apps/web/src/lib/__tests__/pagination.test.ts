@@ -1,5 +1,9 @@
 import { describe, expect, it } from "vitest";
-import { getPaginationData, DEFAULT_PAGE_SIZE } from "../pagination";
+import {
+  getPaginationData,
+  DEFAULT_PAGE_SIZE,
+  parsePageParam,
+} from "../pagination";
 
 describe("getPaginationData", () => {
   describe("default pageSize", () => {
@@ -122,5 +126,21 @@ describe("getPaginationData", () => {
     it("is 20", () => {
       expect(DEFAULT_PAGE_SIZE).toBe(20);
     });
+  });
+});
+
+describe("parsePageParam", () => {
+  it("正の整数として読める値はそのページ", () => {
+    expect(parsePageParam("3")).toBe(3);
+  });
+
+  it.each([
+    ["未指定", undefined],
+    ["配列", ["2", "3"]],
+    ["数値でない", "abc"],
+    ["0", "0"],
+    ["負数", "-2"],
+  ])("%s なら 1 ページ目", (_label, raw) => {
+    expect(parsePageParam(raw)).toBe(1);
   });
 });

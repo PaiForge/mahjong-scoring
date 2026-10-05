@@ -2,9 +2,10 @@
 
 import { getOptionalUser } from "@/lib/auth";
 import { logExternalError } from "@/lib/log-error";
-import type { ChallengeAttempt, RecordBoard } from "../_lib/types";
+import type { ChallengeAttempt } from "../_lib/types";
 import { isMyRecordBoard } from "../_lib/menu-scope";
 import { fetchChallengeAttempts } from "../_lib/queries";
+import type { PracticeBoard } from "@mahjong-scoring/features/practice-menu-types";
 
 /**
  * 指定した土俵・期間のチャレンジ一覧を取得する
@@ -15,7 +16,7 @@ import { fetchChallengeAttempts } from "../_lib/queries";
  * 選べなくても、このアクションを直接呼べば引けてしまう。
  */
 export async function getChallengeAttempts(
-  board: RecordBoard,
+  board: PracticeBoard,
   currentRangeStart: Date,
   currentRangeEnd: Date,
   previousRangeStart: Date,

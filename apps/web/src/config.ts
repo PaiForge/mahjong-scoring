@@ -14,7 +14,7 @@ const PRODUCTION_SITE_URL = "https://score.mahjong.help";
  * - `??` ではなく `||` — Vercel で「変数だけ作って値が空」だと空文字が来る。
  *   `??` は空文字を通してしまい、`new URL("")`（layout の metadataBase）が
  *   全ルートを 500 にする
- * - 末尾スラッシュを落とす — `${SITE_URL}/learn` が `//learn` にならないように
+ * - 末尾スラッシュを落とす — `${SITE_URL}/lessons` が `//learn` にならないように
  * - URL として不正な値（scheme 抜けの `score.mahjong.help` 等）は本番 URL に
  *   フォールバックする — 誤設定でリンクが歪むのは許容するが、落とさない
  */
@@ -44,3 +44,12 @@ export const SITE_URL = normalizeSiteUrl(process.env.NEXT_PUBLIC_SITE_URL);
  * パスワード最小文字数
  */
 export const MIN_PASSWORD_LENGTH = 6;
+
+/**
+ * 運営者のコーポレートサイト
+ * コーポレートサイトURL
+ *
+ * 運営者情報ページの導線と、Organization の構造化データ（`parentOrganization`）が
+ * 指す先。1 箇所に持ち、どちらかだけ古い URL を指し続けないようにする。
+ */
+export const CORPORATE_SITE_URL = "https://www.fuji.llc/";

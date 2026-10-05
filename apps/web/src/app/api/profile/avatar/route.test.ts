@@ -26,7 +26,9 @@ const {
   mockUpdate,
   mockSharp,
   mockToBuffer,
+  mockCreateAdminClient,
 } = vi.hoisted(() => ({
+  mockCreateAdminClient: vi.fn(),
   mockAuthorizeApiRequest: vi.fn(),
   mockLogActivityEvent: vi.fn(),
   mockRevalidateTag: vi.fn(),
@@ -48,6 +50,10 @@ vi.mock("@/lib/activity-log", () => ({
 vi.mock("@/lib/db", async () => ({
   db: { update: mockUpdate },
   profiles: (await import("@/test/schema-mock")).profiles,
+}));
+
+vi.mock("@/lib/supabase/admin", () => ({
+  createAdminClient: mockCreateAdminClient,
 }));
 
 vi.mock("drizzle-orm", async () => await import("@/test/drizzle-orm-mock"));
@@ -75,25 +81,34 @@ const PNG_HEADER = [0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a, 0x1a, 0x0a];
 let mockUpload: ReturnType<typeof vi.fn>;
 let mockRemove: ReturnType<typeof vi.fn>;
 let mockGetPublicUrl: ReturnType<typeof vi.fn>;
+let mockUserStorageFrom: ReturnType<typeof vi.fn>;
 
-/** 認証済みユーザーとして Storage を操作できる状態にする */
+/**
+ * 認証済みユーザーとして Storage を操作できる状態にする
+ *
+ * Storage への書き込みはサービスロールのクライアントが行う。ユーザーの
+ * クライアントの Storage は触られてはならないので、別のモックにして区別する。
+ */
 function authorized() {
   mockUpload = vi.fn().mockResolvedValue({ error: undefined });
   mockRemove = vi.fn().mockResolvedValue({ error: undefined });
   mockGetPublicUrl = vi.fn(() => ({ data: { publicUrl: PUBLIC_URL } }));
+  mockUserStorageFrom = vi.fn();
+
+  mockCreateAdminClient.mockReturnValue({
+    storage: {
+      from: vi.fn(() => ({
+        upload: mockUpload,
+        remove: mockRemove,
+        getPublicUrl: mockGetPublicUrl,
+      })),
+    },
+  });
 
   mockAuthorizeApiRequest.mockResolvedValue({
     ok: true,
     user: { id: USER_ID },
-    supabase: {
-      storage: {
-        from: vi.fn(() => ({
-          upload: mockUpload,
-          remove: mockRemove,
-          getPublicUrl: mockGetPublicUrl,
-        })),
-      },
-    },
+    supabase: { storage: { from: mockUserStorageFrom } },
   });
 }
 
@@ -237,6 +252,16 @@ describe("POST", () => {
       );
     });
 
+    it("書き込みはサービスロールで行い、ユーザーのクライアントの Storage を使わない", async () => {
+      // avatars バケットは認証ユーザーに書き込みを許していない。ユーザーの
+      // クライアントで書く実装に戻ると本番では常に失敗する（そして RLS を
+      // 緩めて直すと、検証を通らないバイト列を直接置ける穴が戻る）。
+      await POST(requestWithFile(pngFile()));
+
+      expect(mockCreateAdminClient).toHaveBeenCalled();
+      expect(mockUserStorageFrom).not.toHaveBeenCalled();
+    });
+
     it("保存に失敗したら 500 を返し、プロフィールを更新しない", async () => {
       // 更新してしまうと、存在しないオブジェクトを指す URL が一覧に出る。
       mockUpload.mockResolvedValue({ error: new Error("storage down") });
@@ -319,6 +344,7 @@ describe("DELETE", () => {
 
     expect(order).toEqual(["db", "storage"]);
     expect(mockRemove).toHaveBeenCalledWith([`${USER_ID}/avatar.webp`]);
+    expect(mockUserStorageFrom).not.toHaveBeenCalled();
   });
 
   it("avatar_url を空に戻し、ランキングのキャッシュを捨て、活動ログを残す", async () => {

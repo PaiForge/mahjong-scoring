@@ -2,8 +2,6 @@ import { describe, it, expect, vi, beforeEach } from "vitest";
 
 import type { QueryChainMock } from "@/test/drizzle-mock";
 
-vi.mock("server-only", () => ({}));
-
 // vi.mock の factory は巻き上げられるため、チェーンは hoisted な入れ物経由で受け取る
 const holder = vi.hoisted(() => ({
   chain: undefined as unknown as QueryChainMock,

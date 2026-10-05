@@ -10,7 +10,7 @@ import {
   HAND_SHAPE_MENZEN,
   HAND_SHAPE_PARAM,
   parseHandShape,
-} from "./hand-shape-param";
+} from "@mahjong-scoring/features/practice/score/hand-shape-param";
 import { YAKU_PARAM, parseYakuValues } from "./yaku-filter-params";
 
 /**
@@ -66,6 +66,12 @@ export interface ScorePracticeModeFlags {
   readonly requireFuForMangan: boolean;
   /** 正解時に自動で次の問題へ進む */
   readonly autoNext: boolean;
+  /**
+   * 回答時間を計測して表示する（Pro の拡張機能）。
+   * 設定画面は Pro のときだけこのフラグを付け、盤面は特典の有無を
+   * サーバーの返事（`beginPracticeQuestion`）で改めて確かめる
+   */
+  readonly measureTime: boolean;
 }
 
 /**
@@ -80,5 +86,6 @@ export function parseModeFlagsFromParams(
     simplifyMangan: params.get("simple") === "1",
     requireFuForMangan: params.get("fu_mangan") === "1",
     autoNext: params.get("auto_next") === "1",
+    measureTime: params.get("measure") === "1",
   };
 }

@@ -16,7 +16,14 @@
         "NEXT_PUBLIC_GA_MEASUREMENT_ID",
         "RESEND_API_KEY",
         "CONTACT_FROM_EMAIL",
-        "CONTACT_TO_EMAIL"
+        "CONTACT_TO_EMAIL",
+        "STRIPE_SECRET_KEY",
+        "STRIPE_WEBHOOK_SECRET",
+        "STRIPE_PRICE_ID_PRO_PASS",
+        "STRIPE_PRICE_ID_PRO_LIFETIME",
+        "CRON_SECRET",
+        "VERCEL_DEPLOYMENT_ID",
+        "VERCEL_GIT_COMMIT_SHA"
       ]
     },
     "dev": {
@@ -25,6 +32,8 @@
     },
     "lint": {},
     "typecheck": {},
-    "test": {}
+    "test": {
+      "env": ["CHALLENGE_TEST_DATABASE_URL", "BILLING_TEST_DATABASE_URL"]
+    }
   }
 }

@@ -1,7 +1,8 @@
 "use client";
 
+import { useVerifiedChallenge } from "../../practice/_hooks/use-verified-challenge";
 import { useCallback } from "react";
-import type { PracticeMenuType } from "@/lib/db/practice-menu-types";
+import type { PracticeMenuType } from "@mahjong-scoring/features/practice-menu-types";
 import { logExternalError } from "@/lib/log-error";
 import type {
   FinishCallbackArgs,
@@ -26,12 +27,14 @@ import { submitExamResult } from "../_actions/submit-exam-result";
 export function useSubmitExamOnFinish(
   menuType: PracticeMenuType,
 ): (args: FinishCallbackArgs) => Promise<FinishCallbackResult | undefined> {
+  const challenge = useVerifiedChallenge();
   return useCallback(
     async (args: FinishCallbackArgs) => {
-      if (args.totalCount === 0) return undefined;
+      if (args.totalCount === 0 || !challenge) return undefined;
+      await challenge.settled();
 
       try {
-        const result = await submitExamResult(menuType, args.correctCount);
+        const result = await submitExamResult(challenge.id);
         if (!result.success) {
           logExternalError("submitExamResult", menuType, result.error);
           return undefined;
@@ -45,6 +48,6 @@ export function useSubmitExamOnFinish(
         return undefined;
       }
     },
-    [menuType],
+    [menuType, challenge],
   );
 }

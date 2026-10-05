@@ -6,11 +6,10 @@
  * React / DB / i18n に依存しないため単独でテスト可能。
  */
 
+import { JST_TIME_ZONE } from "@mahjong-scoring/features/jst";
+
 /** デスクトップヒートマップで表示する週数 */
 export const DESKTOP_WEEKS = 46;
-
-/** 日付境界として扱うタイムゾーン（固定）。ja ユーザー向けに JST。 */
-export const HEATMAP_TIME_ZONE = "Asia/Tokyo";
 
 /**
  * 任意の `now` を JST の年月日に正規化して、その日の 00:00 (ローカル TZ) を表す `Date` を返す。
@@ -24,7 +23,7 @@ export const HEATMAP_TIME_ZONE = "Asia/Tokyo";
  */
 export function getJstTodayDate(now: Date): Date {
   const parts = new Intl.DateTimeFormat("en-CA", {
-    timeZone: HEATMAP_TIME_ZONE,
+    timeZone: JST_TIME_ZONE,
     year: "numeric",
     month: "2-digit",
     day: "2-digit",

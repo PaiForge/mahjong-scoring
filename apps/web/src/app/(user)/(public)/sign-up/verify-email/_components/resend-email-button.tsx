@@ -49,8 +49,9 @@ export function ResendEmailButton({ email }: { readonly email: string }) {
   const isDisabled = isLoading || !email || cooldown > 0;
 
   return (
-    <div className="space-y-2">
-      <Button onClick={handleResend} disabled={isDisabled}>
+    // 直下の Google ボタン・認証フォームの送信ボタンと同じ幅と大きさに揃える
+    <div className="mx-auto w-full max-w-sm space-y-2 text-center">
+      <Button size="lg" fullWidth onClick={handleResend} disabled={isDisabled}>
         {isLoading
           ? t("resendLoading")
           : cooldown > 0

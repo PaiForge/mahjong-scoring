@@ -1,9 +1,9 @@
 "use client";
 
-import { PRACTICE_SLUG } from "@/lib/db/practice-menu-types";
+import { PRACTICE_SLUG } from "@mahjong-scoring/features/practice-menu-types";
 import { createChallengePlayView } from "@/app/(user)/(public)/practice/_lib/create-challenge-views";
 import { FuScoreExamBoard } from "./fu-score-exam-board";
-import type { FuScoreExamQuestionResult } from "../_lib/types";
+import type { FuScoreExamQuestionResult } from "@mahjong-scoring/features/exam/fu-score/types";
 
 /**
  * 昇級試験（30〜50符の点数計算）本体

@@ -1,6 +1,6 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
 import { renderHook, act } from "@testing-library/react";
-import { completeCountdown } from "./__tests__/timer-helpers";
+import { completeCountdown } from "@mahjong-scoring/features/test/timer-helpers";
 import { useTimedSession } from "./use-timed-session";
 import { PRACTICE_SCROLL_ANCHOR_ID } from "../_lib/scroll-anchor";
 

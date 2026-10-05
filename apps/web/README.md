@@ -84,6 +84,33 @@ Google サインインをローカルでテストするには、OAuth 認証情�
 
 ドメイン認証と API キーの発行手順は [docs/contact-form-setup.md](docs/contact-form-setup.md) を参照してください。
 
+### 有料プラン（Stripe）
+
+有料プラン「Pro」（30 日パス + 買い切り）の決済は [Stripe](https://stripe.com/jp) の Checkout（一括払い）で行います。購入の記録は Webhook と Checkout 完了の着地の両方から冪等に入り、特典の判定は `src/lib/entitlements/has-benefit.ts` に集約しています。ローカルで購入の流れを試すには `.env.local` に以下を設定し、`stripe listen` で Webhook を転送してください（未設定でも無料枠の機能は動き、Stripe を使う処理を呼んだ時点で変数名を含むエラーになります）:
+
+| 変数名                         | 説明                                                                                             |
+| ------------------------------ | ------------------------------------------------------------------------------------------------ |
+| `STRIPE_SECRET_KEY`            | Stripe のシークレットキー（`sk_test_` / `sk_live_`）。`NEXT_PUBLIC_` を付けない                  |
+| `STRIPE_WEBHOOK_SECRET`        | Webhook の署名シークレット（`whsec_`）。ローカルは `stripe listen` の出力、本番は Dashboard の値 |
+| `STRIPE_PRICE_ID_PRO_PASS`     | 30 日パスの Price ID（`price_`）。一括払いで作る                                                 |
+| `STRIPE_PRICE_ID_PRO_LIFETIME` | 買い切りの Price ID（`price_`）。一括払いで作る                                                  |
+
+購入が無いときに掛かる練習の回数制限を外して確認したいだけなら、Stripe を設定せず `pnpm db:seed:dev` のシードユーザー（bob: 有効なパス / carol: 買い切り）でサインインしてください。
+
+API キーの取得、商品と価格の作成、Webhook の登録、本番移行の手順は [docs/stripe-setup.md](docs/stripe-setup.md) を参照してください。
+
+### サイト内通知と Cron
+
+Pro プランの出来事（購入完了・期限切れ・運営からの付与・取り消し）は、ヘッダーのベルと `/mypage/notifications` でユーザー本人に知らせます。購入や付与の通知はその処理の中で書かれますが、**期限切れ**は時刻だけで起きるため、`vercel.json` の `crons` が 1 日 1 回 `/api/cron/notify-plan-expiry` を呼んで書きます。
+
+受け口は `CRON_SECRET` の Bearer トークンだけで守られます（Vercel が cron の呼び出しに自動で付ける）。未設定なら常に 401 で、通知は届きません。ローカルで試すには `.env.local` に任意の値を置いて、同じヘッダを付けて叩きます:
+
+```bash
+curl -H "Authorization: Bearer $CRON_SECRET" http://localhost:3000/api/cron/notify-plan-expiry
+```
+
+何度叩いても同じ購入・付与には 1 通しか付きません。一覧とベルの見た目は `pnpm db:seed:dev` のシードユーザー（bob: 期限切れを含む 3 件 / carol / dave）でサインインすると確認できます。
+
 ### ローカルサービス
 
 - **Supabase Studio**: http://127.0.0.1:54323

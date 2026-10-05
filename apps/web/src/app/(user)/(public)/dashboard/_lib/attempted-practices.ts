@@ -4,38 +4,45 @@ import { eq } from "drizzle-orm";
 
 import { getOptionalUser } from "@/lib/auth";
 import { db } from "@/lib/db";
+import type { PracticeAttempt } from "@mahjong-scoring/features/journey/journey";
 import {
   isPracticeMenuType,
   menuTypeToSlug,
-  type PracticeMenuSlug,
-} from "@/lib/db/practice-menu-types";
+} from "@mahjong-scoring/features/practice-menu-types";
 import { challengeBestScores } from "@/lib/db/schema";
 
 /**
- * 一度でも挑戦したことのある練習のスラッグ集合を返す。
+ * 一度でも挑戦したことのある練習の土俵（slug × バリアント）を返す。
  * 挑戦済み練習取得
  *
  * @remarks
  * `challenge_best_scores` は (userId, menuType, leaderboardKey) に 1 行なので、
- * 「その練習をやったことがあるか」は追記ログ（`challenge_results`）を走査せずに
- * ここから引ける。未認証の場合は空集合を返す。
+ * 「その土俵をやったことがあるか」は追記ログ（`challenge_results`）を走査せずに
+ * ここから引ける。`leaderboard_key` はバリアントのキーそのもの（設定を持たない
+ * 練習は `default`）で、変換せずそのまま `variant` に載せる。
+ *
+ * `menu_type` はレジストリから外れた過去の値を読み飛ばすが、`leaderboard_key`
+ * は外れていても落とさない。黒帯への道はそれを「範囲は分からないが挑戦は
+ * した」として、バリアントを指定しない章のリンクだけに数える
+ * （`PracticeAttempt` の TSDoc 参照）。未認証の場合は空配列を返す。
  */
-export async function fetchAttemptedPracticeSlugs(): Promise<
-  ReadonlySet<PracticeMenuSlug>
+export async function fetchAttemptedPractices(): Promise<
+  readonly PracticeAttempt[]
 > {
   const user = await getOptionalUser();
-  if (!user) return new Set();
+  if (!user) return [];
 
   const rows = await db
-    .select({ menuType: challengeBestScores.menuType })
+    .select({
+      menuType: challengeBestScores.menuType,
+      leaderboardKey: challengeBestScores.leaderboardKey,
+    })
     .from(challengeBestScores)
     .where(eq(challengeBestScores.userId, user.id));
 
-  const slugs = new Set<PracticeMenuSlug>();
-  for (const row of rows) {
-    // menu_type は varchar なので、レジストリから外れた過去の値は読み飛ばす
-    if (!isPracticeMenuType(row.menuType)) continue;
-    slugs.add(menuTypeToSlug(row.menuType));
-  }
-  return slugs;
+  return rows.flatMap((row) =>
+    isPracticeMenuType(row.menuType)
+      ? [{ slug: menuTypeToSlug(row.menuType), variant: row.leaderboardKey }]
+      : [],
+  );
 }

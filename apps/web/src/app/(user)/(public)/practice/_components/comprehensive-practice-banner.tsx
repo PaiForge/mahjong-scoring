@@ -6,7 +6,7 @@ import { ChevronRightIcon } from "@/app/(user)/_components/icons/chevron-right-i
 import {
   COMPREHENSIVE_PRACTICE_HREF,
   MACHI_SCORE_PRACTICE_HREF,
-} from "../_lib/practice-catalog";
+} from "@mahjong-scoring/features/routes";
 
 interface EndlessPracticeBannerProps {
   readonly href: string;

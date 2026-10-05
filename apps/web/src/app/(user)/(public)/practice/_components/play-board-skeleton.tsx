@@ -268,7 +268,7 @@ const SHAPES: Readonly<Record<PlayBoardHeight, () => ReactNode>> = {
  * 「何を待っているのか」も読めない。実物と同じ部品の並びで置く。
  *
  * 実物の色（盤面の濃緑・ボタンの緑・役一覧の琥珀）は写さず灰色にする
- * （`ExamIntroSkeleton` と同じ理由 — 読み込み中の画面が実物より賑やかに
+ * （`ProblemListSkeleton` と同じ理由 — 読み込み中の画面が実物より賑やかに
  * 見えるため）。高さは border-box なので枠を外しても実物と一致したままになる。
  */
 export function PlayBoardSkeleton({

@@ -5,7 +5,7 @@ import type { YakuDetail } from "@mahjong-scoring/core";
 import { useYakuOrder } from "@/app/_hooks/use-yaku-order-store";
 
 import { DetailTable } from "../../_components/detail-table";
-import { orderYakuDetails } from "../../_lib/order-yaku-details";
+import { orderYakuDetails } from "@mahjong-scoring/features/results/order-yaku-details";
 
 interface YakuListDisplayProps {
   readonly yakuDetails: readonly YakuDetail[];

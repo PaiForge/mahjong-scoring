@@ -1,5 +1,5 @@
 import { createCustomResultView } from "@/app/(user)/(public)/practice/_lib/create-custom-result-view";
-import { RESULT_STORAGE_KEY } from "../_lib/types";
+import { RESULT_STORAGE_KEY } from "@mahjong-scoring/features/exam/fu/types";
 import { FuExamProblemListLoader } from "./fu-exam-problem-list-loader";
 
 /**

@@ -1,0 +1,124 @@
+"use client";
+
+import { useEffect, useRef } from "react";
+import { usePathname } from "next/navigation";
+import { driver } from "driver.js";
+import "driver.js/dist/driver.css";
+import { HelpIconButton } from "./help-icon-button";
+
+/**
+ * 画面上の要素を順に照らして説明する 1 段階
+ * スポットライトの段階
+ */
+export interface SpotlightStep {
+  /** 対象要素の `data-tour-id` の値 */
+  readonly targetId: string;
+  readonly title?: string;
+  /** 1〜2 文の短い説明。長い文章は読まれない */
+  readonly description: string;
+  readonly side?: "top" | "bottom" | "left" | "right";
+  readonly align?: "start" | "center" | "end";
+}
+
+interface SpotlightTourLabels {
+  /** 起動ボタンの aria-label */
+  readonly label: string;
+  readonly prev: string;
+  readonly next: string;
+  readonly done: string;
+  /**
+   * 進捗の表示（「2 / 4」）。driver.js の雛形の `{{current}}` / `{{total}}` を
+   * 含む文字列を渡す。省略すると driver.js 既定の英語（「2 of 4」）になるので必須
+   */
+  readonly progress: string;
+}
+
+/**
+ * ツアーの名前空間からボタンの文言を組み立てる
+ * スポットライトツアーの文言
+ *
+ * 名前空間に `label` / `prev` / `next` / `done` / `progress` を持つ前提。
+ * `progress` には driver.js が差し込む雛形をそのまま値として渡す（ICU の
+ * 波括弧と衝突するので辞書には書けない）。
+ *
+ * @param t - ツアーの名前空間（`dojo.tour` 等）の翻訳関数
+ */
+export function spotlightTourLabels(
+  t: (key: string, values?: Record<string, string>) => string,
+): SpotlightTourLabels {
+  return {
+    label: t("label"),
+    prev: t("prev"),
+    next: t("next"),
+    done: t("done"),
+    progress: t("progress", {
+      current: "{{current}}",
+      total: "{{total}}",
+    }),
+  };
+}
+
+interface SpotlightTourProps {
+  readonly steps: readonly SpotlightStep[];
+  readonly labels: SpotlightTourLabels;
+}
+
+/**
+ * 実画面の要素を順に照らして説明するヘルプツアーの「?」ボタン
+ * スポットライトツアー
+ *
+ * 押した時点で画面にある要素だけを案内する。対象が無い段階（別の段階で
+ * しか出ない操作・その人の状態では描かれない要素）は黙って飛ばすため、
+ * 段階ごとに画面が変わる練習でも「今見えている操作」の説明になる。
+ * 練習の play 画面と、読む画面の見方の説明（道場）で使う。オーバーレイと吹き出しは driver.js が
+ * body の直下に描くため、ページ遷移で取り残されないよう pathname が変わったら
+ * 破棄する。
+ *
+ * 同じ「?」でも、練習の開始前に流れを通しで見せるカルーセル
+ * （practice/_components の `HelpTourModal`）とは役割が違う。
+ * こちらは解いている最中に「この操作は何か」を実物の上で答える。
+ */
+export function SpotlightTour({ steps, labels }: SpotlightTourProps) {
+  const driverRef = useRef<ReturnType<typeof driver> | undefined>(undefined);
+  const pathname = usePathname();
+
+  useEffect(() => {
+    return () => {
+      driverRef.current?.destroy();
+      driverRef.current = undefined;
+    };
+  }, [pathname]);
+
+  const startTour = () => {
+    driverRef.current?.destroy();
+
+    const resolved = steps.flatMap((step) => {
+      const element = document.querySelector(
+        `[data-tour-id="${step.targetId}"]`,
+      );
+      return element ? [{ step, element }] : [];
+    });
+    if (resolved.length === 0) return;
+
+    const instance = driver({
+      showProgress: resolved.length > 1,
+      nextBtnText: labels.next,
+      prevBtnText: labels.prev,
+      doneBtnText: labels.done,
+      progressText: labels.progress,
+      steps: resolved.map(({ step, element }) => ({
+        element,
+        popover: {
+          title: step.title,
+          description: step.description,
+          side: step.side ?? "bottom",
+          align: step.align ?? "start",
+        },
+      })),
+    });
+    driverRef.current = instance;
+    instance.drive();
+  };
+
+  return <HelpIconButton onClick={startTour} label={labels.label} />;
+}

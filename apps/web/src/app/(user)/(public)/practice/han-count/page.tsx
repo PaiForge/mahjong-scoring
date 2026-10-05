@@ -10,7 +10,7 @@
  * 2. 練習の説明と「開始」ボタンが表示される
  * 3. 「開始」を押すと play ページへ遷移
  */
-import { PRACTICE_SLUG } from "@/lib/db/practice-menu-types";
+import { PRACTICE_SLUG } from "@mahjong-scoring/features/practice-menu-types";
 import type { Metadata } from "next";
 import { createPracticeMetadata } from "../_lib/metadata";
 import { PracticeIntroContent } from "../_components/practice-intro-content";

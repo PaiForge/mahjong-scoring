@@ -13,7 +13,7 @@
  * 3. 点数を回答して判定、正解の点数を確認してから次の問題へ進む
  * 4. 「終了」を押すと説明ページへ戻る。末尾の導線から本番の試験へも進める
  */
-import { PRACTICE_SLUG } from "@/lib/db/practice-menu-types";
+import { PRACTICE_SLUG } from "@mahjong-scoring/features/practice-menu-types";
 import type { Metadata } from "next";
 import { createPracticeTrainingMetadata } from "@/app/(user)/(public)/practice/_lib/metadata";
 import { ScoreExamTrainingView } from "../_components/score-exam-training-view";

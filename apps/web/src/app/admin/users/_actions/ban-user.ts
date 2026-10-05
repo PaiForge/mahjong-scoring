@@ -6,9 +6,15 @@ import { revalidatePath } from "next/cache";
 import type { ActionResult } from "../../../../lib/action-types";
 import { getClientIp } from "../../../../lib/client-ip";
 import { db, profiles } from "../../../../lib/db";
+import { logExternalError } from "../../../../lib/log-error";
 import { createAdminClient } from "../../../../lib/supabase/admin";
 import { requireAdminActor } from "../../_lib/auth";
-import { recordModerationAction } from "../_lib/moderation";
+import { normalizeModerationReason } from "../_lib/moderation-reason";
+import {
+  NO_BAN_DURATION,
+  PERMANENT_BAN_DURATION,
+  recordModerationAction,
+} from "../_lib/moderation";
 
 /**
  * ユーザーを BAN する Server Action。
@@ -16,6 +22,10 @@ import { recordModerationAction } from "../_lib/moderation";
  * Two-phase ban: Supabase Auth で BAN → DB トランザクションで
  * profiles.bannedAt 更新 + moderationActions INSERT。
  * DB 更新失敗時は Auth 側を rollback する。
+ *
+ * 仮登録（プロフィール無し）も BAN できる。その場合 `profiles` の更新は
+ * 0 行で、BAN は Auth 側にだけ残る。管理画面は `resolveUserStatus` が
+ * Auth の `banned_until` も見るので、仮登録でも BAN 済みと出て解除できる。
  *
  * ユーザーBAN
  */
@@ -38,9 +48,8 @@ export async function banUser(
     return { error: "cannotBanSelf" };
   }
 
-  // 理由バリデーション
-  const trimmedReason = reason.trim();
-  if (trimmedReason.length === 0 || trimmedReason.length > 1000) {
+  const trimmedReason = normalizeModerationReason(reason);
+  if (trimmedReason === undefined) {
     return { error: "invalidReason" };
   }
 
@@ -50,10 +59,11 @@ export async function banUser(
   // Phase 1: Supabase Auth で BAN
   const { error: authError } = await adminClient.auth.admin.updateUserById(
     targetUserId,
-    { ban_duration: "876000h" },
+    { ban_duration: PERMANENT_BAN_DURATION },
   );
 
   if (authError) {
+    logExternalError("banUser", "failed to ban in Supabase Auth", authError);
     return { error: "banFailed" };
   }
 
@@ -74,14 +84,25 @@ export async function banUser(
         ipAddress,
       });
     });
-  } catch {
-    // DB 失敗時: Auth 側をロールバック
-    await adminClient.auth.admin.updateUserById(targetUserId, {
-      ban_duration: "none",
-    });
+  } catch (error: unknown) {
+    logExternalError("banUser", "failed to record the ban", error);
+    // DB 失敗時: Auth 側をロールバック。ここも失敗すると Auth だけ BAN された
+    // 状態が残るので、手で戻せるよう必ず痕跡を残す
+    const { error: rollbackError } =
+      await adminClient.auth.admin.updateUserById(targetUserId, {
+        ban_duration: NO_BAN_DURATION,
+      });
+    if (rollbackError) {
+      logExternalError(
+        "banUser",
+        `failed to roll back the Auth ban; Auth and DB disagree for ${targetUserId}`,
+        rollbackError,
+      );
+    }
     return { error: "banFailed" };
   }
 
-  revalidatePath("/admin/users");
+  // 一覧と詳細（/admin/users/[id]）の両方の状態表示を更新する
+  revalidatePath("/admin/users", "layout");
   return { success: true };
 }

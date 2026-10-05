@@ -6,7 +6,13 @@ import { ProfileTextField } from "@/app/(user)/(protected)/_components/profile-t
 import { useTranslations } from "next-intl";
 import { useRouter } from "next/navigation";
 
-import { USERNAME_MAX_LENGTH, validateUsername } from "@/lib/username";
+import { TEXT_LINK_CLASSES } from "@/app/_components/_lib/link-classes";
+import { toastOnArrival } from "@/app/_components/_lib/toast-on-arrival";
+import {
+  generateUsername,
+  USERNAME_MAX_LENGTH,
+  validateUsername,
+} from "@/lib/username";
 import { PROFILE_LIMITS } from "@/lib/validations/profile";
 
 import { registerUsername } from "../_actions/register-username";
@@ -40,6 +46,10 @@ export function UsernameForm() {
     }
   };
 
+  const handleGenerateUsername = () => {
+    handleUsernameChange(generateUsername());
+  };
+
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
 
@@ -65,8 +75,15 @@ export function UsernameForm() {
         return;
       }
 
-      // 本登録直後はプロフィール編集（アバター・自己紹介・SNS。任意）へ誘導する。
-      router.push("/mypage/profile/edit?from=setup");
+      // 本登録はここで完結する。着地はダッシュボード（ログイン済みの「/」。
+      // proxy が /dashboard へ rewrite する）で、「次にやること」が最初の一歩を
+      // 示す。プロフィール（アバター・自己紹介・SNS）は任意なのでここでは
+      // 挟まず、マイページからいつでも編集できるままにする — 登録の直後に
+      // 任意のフォームが続くと「まだ登録の続き」に見え、最初の学習までの
+      // 距離が伸びる。
+      const next = "/";
+      toastOnArrival(next, t("registered"), "success");
+      router.push(next);
     } catch {
       setError(getValidationMessage("unknown"));
       setIsSubmitting(false);
@@ -78,25 +95,33 @@ export function UsernameForm() {
       <ProfileTextField
         id="username"
         label={t("usernameLabel")}
-        description={t("usernameDescription")}
         value={username}
         onChange={handleUsernameChange}
         placeholder={t("usernamePlaceholder")}
         maxLength={USERNAME_MAX_LENGTH}
         required
         autoFocus
+        labelAction={
+          <button
+            type="button"
+            onClick={handleGenerateUsername}
+            className={`text-xs ${TEXT_LINK_CLASSES}`}
+          >
+            {t("generateUsername")}
+          </button>
+        }
       >
         {error && <p className="mt-2 text-sm text-destructive">{error}</p>}
         <ul className="mt-2 list-inside list-disc space-y-0.5">
           <li className="text-xs text-destructive">{t("cannotChange")}</li>
-          <li className="text-xs text-surface-500">{t("usernameHint")}</li>
+          <li className="text-xs text-surface-500">{t("usernameHintChars")}</li>
+          <li className="text-xs text-surface-500">{t("usernameHintEdges")}</li>
         </ul>
       </ProfileTextField>
 
       <ProfileTextField
         id="displayName"
         label={t("displayNameLabel")}
-        description={t("displayNameDescription")}
         value={displayName}
         onChange={setDisplayName}
         placeholder={t("displayNamePlaceholder")}

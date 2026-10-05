@@ -6,10 +6,10 @@ import { getOptionalUser } from "@/lib/auth";
 import {
   practiceMenuBySlug,
   type PracticeMenuSlug,
-} from "@/lib/db/practice-menu-types";
+} from "@mahjong-scoring/features/practice-menu-types";
 import { getUserRankSlugs } from "@/lib/db/rank-queries";
-import { evaluateExamEligibility } from "@/lib/ranks/exam-eligibility";
-import { practiceHref } from "../../practice/_lib/practice-catalog";
+import { evaluateExamEligibility } from "@mahjong-scoring/features/ranks/exam-eligibility";
+import { practiceHref } from "@mahjong-scoring/features/routes";
 
 /**
  * 昇級試験の受験ガード（play ページ用）

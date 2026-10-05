@@ -3,10 +3,10 @@ import {
   LinkRowSkeleton,
 } from "@/app/(user)/_components/link-row";
 import { SectionTitleSkeleton } from "@/app/(user)/_components/section-title-skeleton";
-import type { PracticeCategory } from "@/app/(user)/(public)/practice/_lib/practice-catalog";
+import type { PracticeCategory } from "@mahjong-scoring/features/practice/catalog";
 
 import { leaderboardBoardGroups } from "../_lib/board-groups";
-import { boardKey } from "../_lib/types";
+import { practiceBoardKey } from "@mahjong-scoring/features/practice-menu-types";
 
 /** 見出し pill のプレースホルダ幅。分野名の字数に合わせる */
 const HEADING_WIDTH: Record<PracticeCategory, string> = {
@@ -37,7 +37,7 @@ export function LeaderboardRowListSkeleton() {
           <LinkRowList>
             {group.boards.map((board) => (
               <LinkRowSkeleton
-                key={boardKey(board)}
+                key={practiceBoardKey(board)}
                 titleWidthClassName="w-40"
                 trailingWidthClassName="w-12"
               />

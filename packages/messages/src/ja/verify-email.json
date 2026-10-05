@@ -1,0 +1,20 @@
+{
+  "pageTitle": "メール確認",
+  "sectionTitle": "確認メールを送信しました",
+  "sentTo": "次のメールアドレスに確認メールを送信しました。",
+  "sent": "ご登録のメールアドレスに確認メールを送信しました。",
+  "mailSubject": "麻雀点数計算 - メールアドレスの確認",
+  "checkInbox": "件名「{subject}」のメールを開き、記載されたリンクをクリックしてアカウントを有効化してください。",
+  "troubleTitle": "メールが届かないときは",
+  "troubleDelay": "届くまで数分かかることがあります。",
+  "troubleSpam": "迷惑メールフォルダや、Gmail の「プロモーション」タブに振り分けられていないか確認してください。",
+  "troubleTypo": "メールアドレスに誤りがある場合は、<signUp>アカウント登録</signUp>からやり直してください。",
+  "troubleResend": "見つからない場合は、下のボタンから確認メールを再送できます。",
+  "googleAlternative": "メールを使わずに、Google アカウントで登録することもできます。",
+  "resendButton": "確認メールを再送",
+  "resendLoading": "送信中...",
+  "resendCooldown": "再送可能まで {seconds} 秒",
+  "resendSuccess": "確認メールを再送しました。",
+  "resendError": "再送に失敗しました。しばらくしてからもう一度お試しください。",
+  "rateLimited": "リクエストが多すぎます。しばらくしてからもう一度お試しください。"
+}

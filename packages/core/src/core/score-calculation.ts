@@ -2,6 +2,7 @@ import {
   MentsuType,
   calculateScore,
   getPaymentTotal,
+  isYaochu,
   type CompletedMentsu,
   type Fu,
   type HaiKindId,
@@ -225,6 +226,26 @@ export function calculateMentsuFu(config: {
   if (!config.isOpen) fu *= 2;
   if (config.isYaochu) fu *= 2;
   return fu;
+}
+
+/**
+ * 面子 1 つを単独で見たときの符を返す
+ * 単独面子符
+ *
+ * 順子は 0 符。刻子・槓子は副露していれば明、していなければ暗として
+ * {@link calculateMentsuFu} で数える。和了牌による明暗の読み替え
+ * （{@link isOpenMentsuForFu}）は含まない — 和了の形を持たない面子 1 つの
+ * 符（教本の例・面子符の練習）を出すためのもの。
+ */
+export function calculateStandaloneMentsuFu(
+  mentsu: Readonly<CompletedMentsu>,
+): number {
+  if (mentsu.type === MentsuType.Shuntsu) return 0;
+  return calculateMentsuFu({
+    isKantsu: mentsu.type === MentsuType.Kantsu,
+    isOpen: mentsu.furo !== undefined,
+    isYaochu: isYaochu(mentsu.hais[0]),
+  });
 }
 
 /**

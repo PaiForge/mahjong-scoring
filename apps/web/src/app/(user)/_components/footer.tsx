@@ -1,9 +1,9 @@
 import Link from "next/link";
 import { getTranslations } from "next-intl/server";
 
-import { BrandLogo } from "./brand-logo";
+import { BrandLogo } from "@/app/_components/brand-logo";
 import { TEXT_LINK_CLASSES } from "@/app/_components/_lib/link-classes";
-import { chapterHref } from "@/app/(user)/(public)/learn/_lib/curriculum";
+import { chapterHref } from "@mahjong-scoring/features/routes";
 
 /**
  * フッター。
@@ -50,6 +50,11 @@ export async function Footer() {
               <li>
                 <Link href="/contact" className={TEXT_LINK_CLASSES}>
                   {t("contact")}
+                </Link>
+              </li>
+              <li>
+                <Link href="/tokushoho" className={TEXT_LINK_CLASSES}>
+                  {t("tokushoho")}
                 </Link>
               </li>
               <li>

@@ -1,6 +1,6 @@
 import type { CompletedMentsu, HaiKindId } from "@mahjong-scoring/core";
 
-import type { CurriculumChapterSlug } from "@/app/(user)/(public)/learn/_lib/curriculum";
+import type { CurriculumChapterSlug } from "@mahjong-scoring/features/curriculum/registry";
 
 /**
  * 用語の分類
@@ -80,7 +80,7 @@ export function isMentsuExample(
  *
  * `slug` を `string` にしてあるのは、用語スラッグの union を
  * 用語データそのものから導出するため。公開する形は {@link GlossaryTerm}。
- * `learn/_lib/curriculum.ts` と同じ組み方。
+ * `@mahjong-scoring/features/curriculum/registry` と同じ組み方。
  */
 export interface GlossaryTermEntry {
   /** URL の `/reference/glossary/<slug>` に対応するローマ字スラッグ */

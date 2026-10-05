@@ -6,7 +6,7 @@ import type { HaiKindId } from "@mahjong-scoring/core";
 import { Hai } from "@pai-forge/mahjong-react-ui";
 import { DemoFuChoiceGrid } from "../../_components/demo-fu-choice-grid";
 import { PromptLabel } from "../../_components/prompt-label";
-import { FU_OPTIONS } from "../../_lib/fu-options";
+import { FU_OPTIONS } from "@mahjong-scoring/features/practice/fu-options";
 import { QuestionPrompt } from "../../_components/question-prompt";
 
 /** デモ用の固定例: 中張牌（五筒）の暗刻 */

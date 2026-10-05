@@ -1,0 +1,51 @@
+{
+  "title": "道場",
+  "description": "麻雀の点数計算の段級位制。5級から初段（黒帯）まで、級ごとに学ぶ・練習する・試験に合格するの順で進む「点数計算・黒帯への道」の全行程を確認できます。",
+  "currentRankTitle": "現在の段級位",
+  "unranked": "無級",
+  "signInNote": "段級位を記録するにはアカウントが必要です。",
+  "signInLink": "ログインはこちら",
+  "nextRankTitle": "次の目標",
+  "journeyTitle": "点数計算・黒帯への道",
+  "tour": {
+    "label": "道場の見方を見る",
+    "prev": "戻る",
+    "next": "次へ",
+    "done": "閉じる",
+    "progress": "{current} / {total}",
+    "currentRank": {
+      "title": "現在の段級位",
+      "description": "昇級試験に合格すると段級位が授与され、ここに表示されます。"
+    },
+    "nextRank": {
+      "title": "次の目標の級",
+      "description": "いま取り組む級です。級名を押すと合格基準と前提のレッスンを確認できます。"
+    },
+    "stages": {
+      "title": "学ぶ → 練習する → 認定される",
+      "description": "5級から初段（黒帯）まで、級ごとにこの順で進みます。数字はそれぞれの済んだ数です。"
+    },
+    "locked": {
+      "title": "試験は下の級から順に",
+      "description": "段級位は下の級から順に取得します。上の級のレッスンは先に進められますが、試験は順番に受けます。"
+    }
+  },
+  "lockedNote": "下の級から順に取得すると受験できます",
+  "lessonDone": "完了",
+  "practiceDone": "挑戦済み",
+  "examLead": "前提のレッスンの内容を身につけたら、試験に挑戦しましょう。",
+  "viewExam": "試験の内容を見る",
+  "chaptersTitle": "前提となるレッスン",
+  "comingSoonTitle": "次の段級位",
+  "comingSoon": "取得できる段級位はすべて取得済みです。新しい段級位は準備中です。",
+  "status": {
+    "achieved": "取得済み",
+    "next": "次の目標",
+    "unachieved": "未取得"
+  },
+  "rankDetail": {
+    "title": "{rank}の合格基準",
+    "description": "麻雀の点数計算の{rank}。合格基準は「{criterion}」。受験前に取り組むレッスンと試験の内容を確認できます。",
+    "examLeadWithoutChapters": "準備ができたら、試験に挑戦しましょう。"
+  }
+}

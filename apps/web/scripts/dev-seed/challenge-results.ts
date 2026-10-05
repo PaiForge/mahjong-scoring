@@ -52,12 +52,13 @@ import type { RandomSource } from "@mahjong-scoring/core/core/random";
 import { inArray, sql } from "drizzle-orm";
 import type { PostgresJsDatabase } from "drizzle-orm/postgres-js";
 
-import type { PracticeMenuType } from "../../src/lib/db/practice-menu-types";
+import { jstStartOfMonth } from "@mahjong-scoring/features/jst";
+import type { PracticeMenuType } from "@mahjong-scoring/features/practice-menu-types";
 import {
   PRACTICE_MENU_TYPES,
   isExamMenuType,
   practiceMenuByType,
-} from "../../src/lib/db/practice-menu-types";
+} from "@mahjong-scoring/features/practice-menu-types";
 import { rankingOrderSql } from "../../src/lib/db/ranking-order";
 import { challengeBestScores, challengeResults } from "../../src/lib/db/schema";
 
@@ -124,7 +125,8 @@ function resultsFor(
   now: Date,
 ): (typeof challengeResults.$inferInsert)[] {
   const menu = practiceMenuByType(menuType);
-  const monthStart = startOfMonthUtc(now);
+  // 月間ランキングの境目と同じ切り方（JST の月初）
+  const monthStart = jstStartOfMonth(now);
   const board = `${menuType}:${variant}`;
 
   return [
@@ -190,11 +192,6 @@ async function rebuildBestScores(
 // ---------------------------------------------------------------------------
 // 日時
 // ---------------------------------------------------------------------------
-
-/** 当月の開始日時（UTC）。月間ランキングの境目と同じ切り方 */
-function startOfMonthUtc(now: Date): Date {
-  return new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), 1));
-}
 
 /** 月初より前（＝月間ランキングに入らない側）の日時 */
 function dateBefore(

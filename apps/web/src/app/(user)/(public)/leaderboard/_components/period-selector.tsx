@@ -1,16 +1,17 @@
 import Link from "next/link";
 import { getTranslations } from "next-intl/server";
 
-import type { LeaderboardBoard, LeaderboardPeriod } from "../_lib/types";
+import type { LeaderboardPeriod } from "../_lib/types";
 import { VALID_PERIODS, buildDetailPath } from "../_lib/types";
 import {
   TOGGLE_GROUP_CONTAINER_CLASSES,
   toggleItemClasses,
 } from "@/app/(user)/_components/_lib/toggle-group-classes";
+import type { PracticeBoard } from "@mahjong-scoring/features/practice-menu-types";
 
 interface PeriodSelectorProps {
   readonly currentPeriod: LeaderboardPeriod;
-  readonly board: LeaderboardBoard;
+  readonly board: PracticeBoard;
 }
 
 /**
