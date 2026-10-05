@@ -2,7 +2,7 @@
 
 import { useMemo, useState } from "react";
 import { useTranslations } from "next-intl";
-import { MentsuType, resolveMentsuBreakdown } from "@mahjong-scoring/core";
+import { resolveMentsuBreakdown } from "@mahjong-scoring/core";
 import type {
   AgariContext,
   HaiKindId,
@@ -17,6 +17,10 @@ import {
 } from "@/app/(user)/_components/data-table";
 import { InfoModal } from "@/app/(user)/_components/info-modal";
 import { TilesIcon } from "@/app/(user)/_components/icons/tiles-icon";
+import {
+  hasRonMinkou,
+  mentsuBreakdownLabelKey,
+} from "@mahjong-scoring/features/board/mentsu-breakdown";
 
 interface TehaiMentsuBreakdownProps {
   /** 分割する手牌（和了牌を含む14枚。純手牌 + 副露） */
@@ -131,21 +135,10 @@ export function TehaiMentsuBreakdown({
 
   if (!breakdown) return undefined;
 
-  const mentsuLabel = (row: MentsuBreakdownRow): string => {
-    switch (row.mentsu.type) {
-      case MentsuType.Shuntsu:
-        return t("shuntsu");
-      case MentsuType.Koutsu:
-        return row.isOpen ? t("minkou") : t("ankou");
-      case MentsuType.Kantsu:
-        return row.isOpen ? t("minkan") : t("ankan");
-    }
-  };
+  const mentsuLabel = (row: MentsuBreakdownRow): string =>
+    t(mentsuBreakdownLabelKey(row));
 
-  /** 手牌の中にありながら明刻子として数える刻子（ロンで完成した刻子）を含むか */
-  const hasRonMinkou = breakdown.fourMentsu.some(
-    (row) => row.isOpen && !row.isExposed,
-  );
+  const showsRonMinkouNote = hasRonMinkou(breakdown.fourMentsu);
 
   return (
     <div className="flex justify-end">
@@ -195,7 +188,7 @@ export function TehaiMentsuBreakdown({
               />
             </BreakdownRow>
           </DataTable>
-          {hasRonMinkou && <p>{t("mentsuBreakdownMinkouNote")}</p>}
+          {showsRonMinkouNote && <p>{t("mentsuBreakdownMinkouNote")}</p>}
         </div>
       </InfoModal>
     </div>
