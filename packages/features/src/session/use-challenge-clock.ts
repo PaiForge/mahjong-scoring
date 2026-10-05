@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef } from "react";
+import { useEffect, useEffectEvent } from "react";
 import { useGameTimer } from "./use-game-timer";
 import type { GameSessionState, TimerControl } from "./use-timed-session";
 
@@ -38,14 +38,11 @@ export function useChallengeClock({
     if (clock) syncTimer(clock.elapsedMs);
   }, [clock, syncTimer]);
 
-  // 登録関数は描画ごとに作り直されうるため、最新を ref で読む
+  // 登録関数は描画ごとに作り直されうるため、Effect Event で最新を呼ぶ
   // （依存に入れると登録のたびに effect が走り直す）
-  const registerTimerResetRef = useRef(timerControl.registerTimerReset);
+  const registerTimerReset = useEffectEvent(timerControl.registerTimerReset);
   useEffect(() => {
-    registerTimerResetRef.current = timerControl.registerTimerReset;
-  });
-  useEffect(() => {
-    registerTimerResetRef.current(resetTimer);
+    registerTimerReset(resetTimer);
   }, [resetTimer]);
 
   return { remainingSeconds, elapsedMs };

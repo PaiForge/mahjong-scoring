@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef } from "react";
+import { useEffect, useEffectEvent, useRef } from "react";
 import type { FinalResult } from "./use-timed-session";
 
 /**
@@ -16,14 +16,11 @@ export function useOnFinished(
   finalResult: FinalResult | undefined,
   onFinished: (finalResult: FinalResult) => void,
 ): void {
-  const onFinishedRef = useRef(onFinished);
-  useEffect(() => {
-    onFinishedRef.current = onFinished;
-  });
+  const onSessionFinished = useEffectEvent(onFinished);
   const firedRef = useRef(false);
   useEffect(() => {
     if (finalResult === undefined || firedRef.current) return;
     firedRef.current = true;
-    onFinishedRef.current(finalResult);
+    onSessionFinished(finalResult);
   }, [finalResult]);
 }

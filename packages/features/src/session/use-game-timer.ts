@@ -1,6 +1,12 @@
 "use client";
 
-import { useCallback, useEffect, useRef, useState } from "react";
+import {
+  useCallback,
+  useEffect,
+  useEffectEvent,
+  useRef,
+  useState,
+} from "react";
 
 interface UseGameTimerOptions {
   timeLimit: number;
@@ -26,11 +32,7 @@ export function useGameTimer({
   const startTimeRef = useRef<number | undefined>(undefined);
   const accumulatedTimeRef = useRef(0);
   const timeLimitFiredRef = useRef(false);
-  const onTimeLimitReachedRef = useRef(onTimeLimitReached);
-
-  useEffect(() => {
-    onTimeLimitReachedRef.current = onTimeLimitReached;
-  });
+  const onTimeUp = useEffectEvent(onTimeLimitReached);
 
   useEffect(() => {
     if (!isActive) {
@@ -51,7 +53,7 @@ export function useGameTimer({
 
       if (!timeLimitFiredRef.current && total >= timeLimit * 1000) {
         timeLimitFiredRef.current = true;
-        onTimeLimitReachedRef.current();
+        onTimeUp();
       }
     }, intervalMs);
 
