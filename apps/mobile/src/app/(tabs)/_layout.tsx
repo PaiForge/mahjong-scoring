@@ -1,5 +1,5 @@
 import { Tabs } from "expo-router";
-import { useSafeAreaInsets } from "react-native-safe-area-context";
+import { StyleSheet } from "react-native";
 import { useTranslations } from "use-intl";
 
 import {
@@ -16,24 +16,23 @@ import { colors } from "../../lib/theme";
  * web のモバイル下部タブバー（`TAB_BAR_NAV_ITEMS`）に揃える: 練習・レッスン・
  * 点数表。web の 4 つ目のランキングはアカウントの記録が要るため、モバイルでは
  * web がドロワーに置く設定を代わりに置く。
+ *
+ * 見た目は OS 標準のタブバーに寄せる（白地にヘアラインの区切り、高さは既定）。
+ * web のモバイル幅のタブバーが持つ太枠は、ネイティブでは見慣れない形なので持たない。
  */
 export default function TabsLayout() {
   const t = useTranslations("nav");
-  const insets = useSafeAreaInsets();
   return (
     <Tabs
       screenOptions={{
         headerShown: false,
-        tabBarActiveTintColor: colors.primary500,
+        tabBarActiveTintColor: colors.primary600,
         tabBarInactiveTintColor: colors.mutedForeground,
-        tabBarLabelStyle: { fontSize: 11 },
+        tabBarLabelStyle: { fontSize: 11, lineHeight: 14, fontWeight: "600" },
         tabBarStyle: {
           backgroundColor: colors.card,
-          borderTopWidth: 4,
-          borderTopColor: colors.ink,
-          // 上端の太枠のぶんだけ既定の高さに足す（足さないとラベルが下で欠ける）
-          height: 58 + insets.bottom,
-          paddingTop: 4,
+          borderTopWidth: StyleSheet.hairlineWidth,
+          borderTopColor: colors.surface300,
         },
       }}
     >
