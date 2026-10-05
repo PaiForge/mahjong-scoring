@@ -1,3 +1,5 @@
+import { revalidateTag } from "next/cache";
+
 /**
  * ランキングのキャッシュタグ
  * ランキングキャッシュタグ
@@ -7,3 +9,35 @@
  * 文字列を各所に散らすと片方だけ purge され、順位と一覧が食い違う。
  */
 export const LEADERBOARD_CACHE_TAG = "leaderboard";
+
+/**
+ * ランキングのキャッシュの破棄
+ * ランキングキャッシュ破棄
+ *
+ * 行に表示名・アバター・公開設定を含むため、それらを書き換えた直後に呼ぶ。
+ * 一覧と自分の順位を同じタグで捨て、キャッシュプロファイルの指定もここに
+ * 閉じ込める。
+ */
+export function purgeLeaderboardCache(): void {
+  revalidateTag(LEADERBOARD_CACHE_TAG, "default");
+}
+
+/**
+ * ネイティブ広告のキャッシュタグ
+ * 広告キャッシュタグ
+ *
+ * 各画面が読む広告（`lib/ads/creatives.ts`）はこのタグで `unstable_cache` に
+ * 載る。管理画面の書き込みはすべて `revalidateAdCreatives()` 経由でこのタグを
+ * 捨て、静的ページの広告も次のリクエストで入れ替わる。
+ */
+export const AD_CREATIVES_CACHE_TAG = "ad-creatives";
+
+/**
+ * 有料プランの表示価格のキャッシュタグ
+ * 表示価格キャッシュタグ
+ *
+ * 料金ページが読む Stripe の Price（`lib/billing/prices.ts`）はこのタグで
+ * `unstable_cache` に載る（1 日）。Dashboard で価格を改定してすぐ反映したい
+ * ときに捨てる。管理画面に捨てる操作はまだ無い。
+ */
+export const PLAN_PRICES_CACHE_TAG = "plan-prices";

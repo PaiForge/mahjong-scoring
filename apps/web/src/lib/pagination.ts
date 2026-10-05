@@ -6,6 +6,20 @@
 
 export const DEFAULT_PAGE_SIZE = 20;
 
+/**
+ * クエリ文字列の `?page=` をページ番号として読む
+ * ページ番号の解釈
+ *
+ * 未指定・配列・数値として読めない値・0 以下は 1 ページ目。上限には丸めない
+ * （件数を知っている側が `getPaginationData` 等で扱う）。
+ *
+ * @param raw - `searchParams.page` の値
+ */
+export function parsePageParam(raw: string | string[] | undefined): number {
+  const page = typeof raw === "string" ? parseInt(raw, 10) : 1;
+  return Number.isFinite(page) && page > 0 ? page : 1;
+}
+
 /** ページネーション算出結果 */
 interface PaginationData {
   currentPage: number;

@@ -4,7 +4,11 @@ import { BeltBadge } from "@/app/(user)/_components/belt-badge";
 import { getOptionalUser } from "@/lib/auth";
 import { getUserRankSlugs } from "@/lib/db/rank-queries";
 import { beltBorderClass, beltTintClasses } from "@/lib/ranks/belt-colors";
-import { highestRank, rankTier, type RankSlug } from "@/lib/ranks/registry";
+import {
+  highestRank,
+  rankTier,
+  type RankSlug,
+} from "@mahjong-scoring/features/ranks/registry";
 
 interface PromotionBannerProps {
   /** URL クエリ由来の昇級候補スラッグ（表示前に user_ranks と突き合わせる） */

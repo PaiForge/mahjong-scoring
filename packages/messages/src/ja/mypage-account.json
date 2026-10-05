@@ -1,0 +1,14 @@
+{
+  "pageTitle": "アカウント",
+  "login": {
+    "title": "ログイン情報",
+    "email": "メールアドレス",
+    "provider": "ログイン方法",
+    "providers": {
+      "email": "メールアドレスとパスワード",
+      "google": "Google アカウント"
+    },
+    "unknown": "—"
+  },
+  "deleteAccountLink": "アカウントを削除"
+}

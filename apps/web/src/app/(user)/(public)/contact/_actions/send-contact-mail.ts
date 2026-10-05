@@ -5,6 +5,7 @@ import { Resend } from "resend";
 import { SITE_NAME } from "@/app/_lib/metadata";
 import type { ActionResult } from "@/lib/action-types";
 import { escapeHtml } from "@/lib/escape-html";
+import { logExternalError } from "@/lib/log-error";
 import { enforceIpRateLimit } from "@/lib/rate-limit-ip";
 import type { RateLimitErrorCode } from "@/lib/rate-limit-ip";
 import { parseContactForm } from "@/lib/validations/contact";
@@ -91,12 +92,12 @@ export async function sendContactMail(
       ].join(""),
     });
     if (error) {
-      console.error("[sendContactMail] Resend API error", error);
+      logExternalError("sendContactMail", "Resend API error", error);
       return { error: "sendFailed" };
     }
   } catch (cause) {
     // SDK は API のエラーを戻り値で返すが、ネットワーク断などは例外で来る
-    console.error("[sendContactMail] 送信に失敗しました", cause);
+    logExternalError("sendContactMail", "送信に失敗しました", cause);
     return { error: "sendFailed" };
   }
 

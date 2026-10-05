@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { makeScoreQuestionResult } from "./score-question-result.fixture";
+import { makeScoreQuestionResult } from "@mahjong-scoring/features/results/score-question-result.fixture";
 
 import { buildReferenceUrl } from "../build-reference-url";
 

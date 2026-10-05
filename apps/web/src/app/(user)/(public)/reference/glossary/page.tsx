@@ -18,10 +18,11 @@ import { ContentContainer } from "@/app/(user)/_components/content-container";
 import { PageTitle } from "@/app/(user)/_components/page-title";
 import { SectionTitle } from "@/app/(user)/_components/section-title";
 import { createNamespaceMetadata } from "@/app/_lib/metadata";
+import { getNativeAdPlacements } from "@/lib/ads/creatives";
 import { getGlossaryTermViews } from "@/lib/glossary/queries";
 
 import { CategoryTermIndex } from "./_components/category-term-index";
-import { JsonLd } from "./_components/json-ld";
+import { JsonLd } from "@/app/(user)/_components/json-ld";
 import { KanaRowNav } from "./_components/kana-row-nav";
 import { KanaTermList } from "./_components/kana-term-list";
 import { buildDefinedTermSetSchema } from "./_lib/json-ld";
@@ -34,10 +35,11 @@ export async function generateMetadata(): Promise<Metadata> {
 }
 
 export default async function GlossaryIndexPage() {
-  const [t, tHub, terms] = await Promise.all([
+  const [t, tHub, terms, ads] = await Promise.all([
     getTranslations("glossary"),
     getTranslations("reference"),
     getGlossaryTermViews(),
+    getNativeAdPlacements("glossary-index-native-ad"),
   ]);
 
   return (
@@ -66,7 +68,7 @@ export default async function GlossaryIndexPage() {
           <section className="space-y-4">
             <SectionTitle>{t("kanaIndexTitle")}</SectionTitle>
             <KanaRowNav terms={terms} />
-            <KanaTermList terms={terms} />
+            <KanaTermList terms={terms} ads={ads} />
           </section>
         </div>
       </ContentContainer>

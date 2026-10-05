@@ -1,4 +1,8 @@
 import { isSupportedLocale } from "@/i18n/locales";
+import {
+  AnnouncementStatus,
+  isAnnouncementStatus,
+} from "@/lib/announcement-status";
 
 /** 管理フォームから受け取るお知らせ入力値 */
 export interface AnnouncementInput {
@@ -37,7 +41,6 @@ export const ANNOUNCEMENT_LIMITS = {
   title: 255,
 } as const;
 
-const VALID_STATUSES: readonly string[] = ["draft", "published"];
 const SLUG_PATTERN = /^[a-z0-9][a-z0-9-]*$/;
 
 /**
@@ -65,10 +68,10 @@ export function validateAnnouncement(
   if (!isSupportedLocale(data.locale)) {
     return "errorLocaleInvalid";
   }
-  if (!VALID_STATUSES.includes(data.status)) {
+  if (!isAnnouncementStatus(data.status)) {
     return "errorStatusInvalid";
   }
-  if (data.status === "published" && !data.publishedAt) {
+  if (data.status === AnnouncementStatus.Published && !data.publishedAt) {
     return "errorPublishedAtRequired";
   }
   return undefined;

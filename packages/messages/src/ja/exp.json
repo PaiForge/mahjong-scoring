@@ -1,0 +1,6 @@
+{
+  "label": "経験値",
+  "earned": "+{amount} EXP",
+  "level": "Lv.{level}",
+  "levelUp": "レベルアップ！"
+}

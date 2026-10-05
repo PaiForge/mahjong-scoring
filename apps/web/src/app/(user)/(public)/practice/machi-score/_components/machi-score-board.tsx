@@ -19,6 +19,14 @@ import {
 } from "../../_lib/scroll-anchor";
 import { QuestionPrompt } from "../../_components/question-prompt";
 import { ScoreCounter } from "../../_components/score-counter";
+import { AnswerTimeBadge } from "../../_components/answer-time-badge";
+import { PracticeQuotaPaywall } from "../../_components/practice-quota-paywall";
+import { PracticeQuotaRemaining } from "../../_components/practice-quota-remaining";
+import {
+  canResumePractice,
+  usePracticeQuota,
+} from "../../_hooks/use-practice-quota";
+import { PlanBenefit } from "@mahjong-scoring/features/billing/plans";
 import {
   PracticeFooterAction,
   PracticeFooterActions,
@@ -28,7 +36,8 @@ import {
   parseModeFlagsFromParams,
 } from "../../score/_lib/parse-practice-params";
 import { ScorePracticeAnswerForm } from "../../score/_components/score-practice-answer-form";
-import { MACHI_SCORE_PRACTICE_HREF } from "../../_lib/practice-catalog";
+import { GenerationFailedNotice } from "../../score/_components/generation-failed-notice";
+import { MACHI_SCORE_PRACTICE_HREF } from "@mahjong-scoring/features/routes";
 import {
   cellKeyOf,
   listCellRefs,
@@ -38,7 +47,7 @@ import { sharedAnswerOfCells } from "../_lib/cell-runs";
 import {
   formatCellAnswer,
   formatCellAnswerLines,
-} from "../_lib/format-cell-answer";
+} from "@mahjong-scoring/features/practice/machi-score/format-cell-answer";
 import { MACHI_SCORE_TOUR_ID } from "../_lib/tour-ids";
 import { MachiPicker } from "./machi-picker";
 import { MachiScoreBoardSkeleton } from "./machi-score-board-skeleton";
@@ -71,19 +80,29 @@ function MachiScoreBoardInner() {
     toggleCell,
     assignAnswer,
     submitCells,
-    nextQuestion,
     revealAnswer,
   } = useMachiScoreStore();
 
   const isClient = useIsClient();
+  const tq = useTranslations("practiceQuota");
+  const { requestQuestion, refreshGate, isChecking, gate } = usePracticeQuota(
+    "machi-score",
+    () => useMachiScoreStore.getState().generateNewQuestion(),
+  );
+
+  useEffect(() => {
+    if (gate?.kind === "rateLimited") toast.error(tq("rateLimited"));
+  }, [gate, tq]);
   const appliedQueryRef = useRef<string | undefined>(undefined);
   const allowDoubleYakuman = allowsDoubleYakuman(useYakumanRules());
 
   useScrollToElement(PRACTICE_SCROLL_ANCHOR_ID, Boolean(currentQuestion));
 
-  // 出題条件の適用はクエリの変化だけで判定する（理由は総合演習の盤面と同じ:
+  // 出題条件の適用はクエリの変化で判定する（理由は総合演習の盤面と同じ:
   // 問題の有無で見ると前回の問題が残ったまま条件が無視され、マウント一度きり
-  // ではクエリだけ変わる遷移に追随できず、生成失敗時には初期化が止まらない）
+  // ではクエリだけ変わる遷移に追随できず、生成失敗時には初期化が止まらない）。
+  // ストアの `appliedQuery` が同じなら盤面を離れて戻ってきただけなので、
+  // 解答中の問題を引き継いで無料枠を消費し直さない（これも総合演習と同じ）
   useEffect(() => {
     if (!isClient) return;
 
@@ -92,20 +111,41 @@ function MachiScoreBoardInner() {
     appliedQueryRef.current = query;
 
     const store = useMachiScoreStore.getState();
+    if (
+      store.appliedQuery === query &&
+      canResumePractice("machi-score", {
+        hasQuestion: store.currentQuestion !== undefined,
+        generationFailed: store.generationFailed,
+      })
+    ) {
+      if (store.currentQuestion) void refreshGate();
+      return;
+    }
+
     const { allowedRanges, includeParent, includeChild, includeFuro } =
       parseGeneratorOptionsFromParams(new URLSearchParams(query));
-    store.setOptions({
+    // 前回の問題もサーバーの返事を待つ前に消す（理由は総合演習の盤面と同じ）
+    store.applyPracticeQuery(query, {
       allowedRanges,
       includeParent,
       includeChild,
       includeFuro,
     });
-    store.resetStats();
-    store.generateNewQuestion();
-  }, [isClient, searchParams]);
+    void requestQuestion();
+  }, [isClient, searchParams, requestQuestion, refreshGate]);
 
-  const { requireYaku, simplifyMangan, requireFuForMangan, autoNext } =
-    parseModeFlagsFromParams(new URLSearchParams(searchParams.toString()));
+  const {
+    requireYaku,
+    simplifyMangan,
+    requireFuForMangan,
+    autoNext,
+    measureTime,
+  } = parseModeFlagsFromParams(new URLSearchParams(searchParams.toString()));
+
+  const showAnswerTime =
+    measureTime &&
+    gate?.kind === "open" &&
+    gate.benefits.includes(PlanBenefit.PracticeTools);
 
   const handleBackToSetup = () => {
     toastOnArrival(MACHI_SCORE_PRACTICE_HREF, t("exitToast"));
@@ -113,8 +153,9 @@ function MachiScoreBoardInner() {
   };
 
   const handleNext = () => {
+    if (isChecking) return;
     scrollToPracticeAnchor();
-    nextQuestion();
+    void requestQuestion();
   };
 
   const handleReveal = () => {
@@ -159,24 +200,29 @@ function MachiScoreBoardInner() {
       const state = useMachiScoreStore.getState();
       if (state.isAllCorrect) {
         toast.success(t("board.correct"), { duration: 1500 });
-        nextQuestion();
+        void requestQuestion();
       }
     }
   };
 
   if (isClient && generationFailed) {
     return (
-      <ContentContainer id={PRACTICE_SCROLL_ANCHOR_ID} fillViewport>
-        <PageTitle>{t("title")}</PageTitle>
-        <div className="space-y-6 py-8 text-center">
-          <p className="text-sm leading-relaxed text-surface-700">
-            {t("board.generationFailed")}
-          </p>
-          <Button variant="secondary" onClick={handleBackToSetup}>
-            {t("board.backToSetup")}
-          </Button>
-        </div>
-      </ContentContainer>
+      <GenerationFailedNotice
+        translationNamespace="machiScore"
+        onBackToSetup={handleBackToSetup}
+      />
+    );
+  }
+
+  if (gate?.kind === "blocked") {
+    return (
+      <PracticeQuotaPaywall
+        menu="machi-score"
+        translationNamespace="machiScore"
+        limit={gate.limit}
+        signedIn={gate.signedIn}
+        onBackToSetup={handleBackToSetup}
+      />
     );
   }
 
@@ -414,6 +460,18 @@ function MachiScoreBoardInner() {
             requireFuForMangan={requireFuForMangan}
             onNext={handleNext}
           />
+        )}
+
+        {(gate?.kind === "open" || showAnswerTime) && (
+          <div className="space-y-1">
+            {showAnswerTime && (
+              <AnswerTimeBadge key={questionSeq} running={isAnswering} />
+            )}
+            <PracticeQuotaRemaining
+              remaining={gate?.kind === "open" ? gate.remaining : undefined}
+              showPlanLink={phase === "machi" && !machiJudgement}
+            />
+          </div>
         )}
 
         <ScoreCounter

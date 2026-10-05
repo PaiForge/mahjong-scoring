@@ -2,7 +2,7 @@
  * 教本本文に用語リンクを埋めるマークアップ
  * 用語マークアップ
  *
- * 辞書（`messages/ja.json`）の本文中に `[[slug|表示語]]` と書くと、その部分が
+ * 辞書（`@mahjong-scoring/messages`）の本文中に `[[slug|表示語]]` と書くと、その部分が
  * 用語集へのリンクになる。表示語が slug と同じでよければ `[[slug]]` と書く。
  *
  * 本文を走査して用語名に自動でリンクを張る方式は採らない。日本語は語の
@@ -81,4 +81,19 @@ export function collectTermSlugs(input: string): string[] {
     if (token.type === "term") seen.add(token.slug);
   }
   return [...seen];
+}
+
+/**
+ * 用語マークアップを外し、表示語だけの文にする
+ * マークアップ除去
+ *
+ * 本文の抜粋（レッスンの完了画面の「次のレッスン」）のように、リンクを
+ * 置かずに文だけを見せる場面で使う。
+ *
+ * @param input 辞書から引いた本文
+ */
+export function stripTermMarkup(input: string): string {
+  return parseTermMarkup(input)
+    .map((token) => (token.type === "text" ? token.value : token.label))
+    .join("");
 }

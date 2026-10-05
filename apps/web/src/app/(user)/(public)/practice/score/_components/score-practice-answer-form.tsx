@@ -14,8 +14,11 @@ import {
   useRuleSettingsStore,
   useYakumanRules,
 } from "@/app/_hooks/use-rule-settings-store";
-import { getAvailableScores } from "../_lib/get-available-scores";
-import { MANGAN_MIN_HAN, practiceHanTiers } from "../_lib/han-tiers";
+import { getAvailableScores } from "@mahjong-scoring/features/practice/score/get-available-scores";
+import {
+  MANGAN_MIN_HAN,
+  practiceHanTiers,
+} from "@mahjong-scoring/features/practice/score/han-tiers";
 import { getSelectClass } from "../../_lib/select-class";
 import { ScoreOptionSelect } from "../../_components/score-option-select";
 import { Button } from "@/app/(user)/_components/button";

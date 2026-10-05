@@ -1,8 +1,8 @@
 import { getTranslations } from "next-intl/server";
 
 import { QuestionPrompt } from "@/app/(user)/(public)/practice/_components/question-prompt";
-import type { DemoScoreQuestionOptions } from "@/app/(user)/(public)/practice/_lib/demo-score-question";
-import { buildDemoScoreQuestion } from "@/app/(user)/(public)/practice/_lib/demo-score-question";
+import type { DemoScoreQuestionOptions } from "@mahjong-scoring/features/board/demo-score-question";
+import { buildDemoScoreQuestion } from "@mahjong-scoring/features/board/demo-score-question";
 import { QuestionDisplay } from "@/app/(user)/(public)/practice/score/_components/question-display";
 
 export type ScoreExamHowToPlayConfig = DemoScoreQuestionOptions & {

@@ -24,7 +24,7 @@
  * 混ぜると「2級は取れたが1級はまだ」という状態が表せない。級ごとに1つの
  * 試験、が段級位レジストリの前提でもある。
  */
-import { PRACTICE_SLUG } from "@/lib/db/practice-menu-types";
+import { PRACTICE_SLUG } from "@mahjong-scoring/features/practice-menu-types";
 import type { Metadata } from "next";
 import { createPracticeMetadata } from "@/app/(user)/(public)/practice/_lib/metadata";
 import { PracticeIntroContent } from "@/app/(user)/(public)/practice/_components/practice-intro-content";

@@ -1,5 +1,8 @@
 import { readFileSync } from "node:fs";
+import { dirname, join } from "node:path";
 import { describe, expect, it } from "vitest";
+
+import { messages } from "@mahjong-scoring/messages/ja";
 
 import { EMAIL_TEMPLATES, SITE_NAME } from "./contents";
 import { emailTemplatePath } from "./paths";
@@ -25,7 +28,7 @@ describe("認証メールテンプレート", () => {
     },
   );
 
-  it("サイト名は ja.json の metadata.siteName から引く", () => {
+  it("サイト名は 日本語辞書の metadata.siteName から引く", () => {
     // ここが空だと3通すべてが名無しのまま送られる。
     expect(SITE_NAME).not.toBe("");
     for (const content of EMAIL_TEMPLATES) {
@@ -42,5 +45,27 @@ describe("認証メールテンプレート", () => {
         'href="{{ .ConfirmationURL }}"',
       );
     }
+  });
+
+  it("確認メールの件名は config.toml・テンプレート・メール確認ページで一致する", () => {
+    // メール確認ページは件名を見せて受信箱で探させる。件名を変えて画面を
+    // 直し忘れると、存在しない件名を探させることになる。
+    const confirmation = EMAIL_TEMPLATES.find(
+      (c) => c.file === "confirmation.html",
+    );
+    const subject = `${SITE_NAME} - ${confirmation?.heading}`;
+    const configToml = readFileSync(
+      join(
+        dirname(emailTemplatePath(confirmation?.file ?? "")),
+        "..",
+        "config.toml",
+      ),
+      "utf8",
+    );
+    const section = configToml.match(
+      /\[auth\.email\.template\.confirmation\]\s*\nsubject = "([^"]*)"/,
+    );
+    expect(section?.[1]).toBe(subject);
+    expect(messages.verifyEmail.mailSubject).toBe(subject);
   });
 });

@@ -1,0 +1,65 @@
+{
+  "timeRemaining": "残り {seconds} 秒",
+  "score": "スコア",
+  "correct": "正解",
+  "incorrect": "不正解",
+  "lives": "ライフ",
+  "startButton": "スタート",
+  "retryButton": "もう一度",
+  "changeSettingsButton": "設定を変更する",
+  "backToList": "練習一覧に戻る",
+  "backToDojo": "道場に戻る",
+  "resultSectionTitle": "結果",
+  "resultAccuracy": "正答率 {accuracy}%",
+  "gameOverMistakes": "ミス {limit} 回で終了",
+  "gameOverTime": "タイムアップ",
+  "pause": "一時停止",
+  "resume": "再開",
+  "resultSuffix": "結果",
+  "quit": {
+    "message": "現在の進捗は保存されません。",
+    "confirm": "中止する",
+    "cancel": "続ける",
+    "practice": {
+      "title": "チャレンジを中止しますか？",
+      "toast": "チャレンジを中止しました"
+    },
+    "exam": {
+      "title": "試験を中止しますか？",
+      "toast": "試験を中止しました"
+    }
+  },
+  "quitButton": "中止する",
+  "signUpCta": {
+    "sectionTitle": "スコアの記録",
+    "message": "無料登録するとスコアが記録されます",
+    "description": "アカウントを作成すると獲得した経験値が保存され、上達を確認できます。",
+    "cta": "無料登録",
+    "signInLink": "ログイン"
+  },
+  "record": {
+    "sectionTitle": "あなたの記録",
+    "thisTimeLabel": "今回",
+    "lastLabel": "前回",
+    "bestLabel": "これまでのベスト",
+    "scoreUnit": "{score} 問",
+    "newBest": "自己ベスト更新！",
+    "firstRecord": "初めての記録",
+    "viewMyRecords": "マイレコードで推移を見る",
+    "loadFailed": "記録を読み込めませんでした",
+    "loadFailedDescription": "時間をおいてページを再読み込みしてください。",
+    "comparisonLoadFailed": "過去の記録を読み込めませんでした"
+  },
+  "openInScoreTable": "点数表で見る",
+  "openInYakuList": "役一覧で見る",
+  "yakuBreakdown": {
+    "title": "翻数の内訳",
+    "total": "合計",
+    "han": "{count}翻",
+    "yakuman": "役満",
+    "doubleYakuman": "ダブル役満",
+    "cappedNote": "13翻以上は役満"
+  },
+  "connectionError": "通信に失敗しました。もう一度開始してください。",
+  "retryConnection": "もう一度開始する"
+}

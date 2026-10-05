@@ -8,8 +8,6 @@ import { createSelectSequenceMock } from "@/test/drizzle-mock";
 
 const selectSequence = createSelectSequenceMock();
 
-vi.mock("server-only", () => ({}));
-
 vi.mock("../index", () => ({
   db: {
     get select() {

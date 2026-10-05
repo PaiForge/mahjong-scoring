@@ -43,7 +43,7 @@ function parsePeriod(value: string | undefined): LeaderboardPeriod {
 }
 
 export async function generateMetadata(): Promise<Metadata> {
-  return createTitleOnlyMetadata("leaderboard");
+  return createTitleOnlyMetadata("leaderboard", "title", "/leaderboard");
 }
 
 export default async function LeaderboardIndexPage({

@@ -26,6 +26,8 @@ import { vi } from "vitest";
  *
  * 辞書に無いキーは `?キー名` を返す。テストが引くつもりのないキーを引いた
  * ことが出力に残るようにするためで、空文字にすると欠落が消えてしまう。
+ * `t(key, { name })` の `{name}` 補間だけは再現する（メタデータのヘルパーが
+ * 「{title}の練習」のような文言を組み立てるため）。
  *
  * `setupTranslations` は `vi.clearAllMocks()` で消えるので、beforeEach で
  * クリアするなら各テストの中で呼ぶこと。
@@ -49,6 +51,13 @@ export function setupTranslations(
   dict: Record<string, Record<string, string>>,
 ): void {
   mockGetTranslations.mockImplementation((namespace: string) =>
-    Promise.resolve((key: string) => dict[namespace]?.[key] ?? `?${key}`),
+    Promise.resolve((key: string, values?: Record<string, unknown>) => {
+      const message = dict[namespace]?.[key] ?? `?${key}`;
+      if (!values) return message;
+      // next-intl の `{name}` 形式の補間だけ再現する（複数形・選択は扱わない）
+      return message.replace(/\{(\w+)\}/g, (match, name: string) =>
+        name in values ? String(values[name]) : match,
+      );
+    }),
   );
 }

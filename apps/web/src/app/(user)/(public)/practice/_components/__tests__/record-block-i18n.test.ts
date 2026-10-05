@@ -10,7 +10,7 @@
  */
 import { describe, expect, it } from "vitest";
 
-import messagesJson from "@/messages/ja.json";
+import { messages as messagesJson } from "@mahjong-scoring/messages/ja";
 
 /** 3 分岐が t() で引く challenge.record のキー */
 const REQUIRED_RECORD_KEYS = [

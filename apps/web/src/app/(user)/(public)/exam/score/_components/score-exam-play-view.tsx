@@ -1,9 +1,9 @@
 "use client";
 
-import { PRACTICE_SLUG } from "@/lib/db/practice-menu-types";
+import { PRACTICE_SLUG } from "@mahjong-scoring/features/practice-menu-types";
 import { createChallengePlayView } from "@/app/(user)/(public)/practice/_lib/create-challenge-views";
 import { ScoreExamBoard } from "./score-exam-board";
-import type { ScoreExamQuestionResult } from "../_lib/types";
+import type { ScoreExamQuestionResult } from "@mahjong-scoring/features/exam/score/types";
 
 /**
  * 昇段試験（あらゆる手の点数計算）本体

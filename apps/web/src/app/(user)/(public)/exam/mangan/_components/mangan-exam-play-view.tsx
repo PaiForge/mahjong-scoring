@@ -1,9 +1,9 @@
 "use client";
 
-import { PRACTICE_SLUG } from "@/lib/db/practice-menu-types";
+import { PRACTICE_SLUG } from "@mahjong-scoring/features/practice-menu-types";
 import { createChallengePlayView } from "@/app/(user)/(public)/practice/_lib/create-challenge-views";
 import { ManganExamBoard } from "./mangan-exam-board";
-import type { ManganExamQuestionResult } from "../_lib/types";
+import type { ManganExamQuestionResult } from "@mahjong-scoring/features/exam/mangan/types";
 
 /**
  * 昇級試験（満貫以上の点数計算）本体

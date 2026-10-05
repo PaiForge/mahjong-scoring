@@ -36,6 +36,18 @@ interface ScorePracticeState {
   questionSeq: number;
   /** 問題生成オプション */
   options: QuestionGeneratorOptions;
+  /**
+   * 今の問題（または生成待ち・生成失敗）がどの出題条件のものか。play の
+   * クエリ文字列をそのまま持つ。
+   * 適用済みクエリ
+   *
+   * 盤面に戻ってきたとき（料金ページを見てブラウザバック等）、同じ条件なら
+   * 解答中の問題を引き継ぎ、無料枠を消費し直さないための目印。盤面の
+   * ローカルな ref では再マウントで消えるので、問題と一緒にここに置く。
+   * undefined は「まだどの条件も適用していない」（設定画面の「開始」で
+   * 空に戻した直後もここに戻る）。
+   */
+  appliedQuery: string | undefined;
   /** 統計 */
   stats: {
     total: number;
@@ -46,6 +58,18 @@ interface ScorePracticeState {
 interface ScorePracticeActions {
   /** 新しい問題を生成 */
   generateNewQuestion: () => void;
+  /**
+   * 出題条件を適用して練習を始め直す
+   *
+   * 条件をストアへ移し、成績を戻し、前回の問題を消して、`appliedQuery` に
+   * クエリを控える。生成はしない（サーバーの許可を待ってから呼び出し側が
+   * `generateNewQuestion` を呼ぶ）。条件の更新と問題の無効化を 1 つの操作に
+   * しているのは、クエリだけ新しく問題は古いという状態を作らないため。
+   */
+  applyPracticeQuery: (
+    query: string,
+    options: Partial<QuestionGeneratorOptions>,
+  ) => void;
   /** 回答を送信 */
   submitAnswer: (
     answer: UserAnswer,
@@ -54,7 +78,6 @@ interface ScorePracticeActions {
     requireFuForMangan?: boolean,
   ) => void;
   /** 次の問題へ */
-  nextQuestion: () => void;
   /**
    * 無回答のまま正解を開示する（「わからない」）
    *
@@ -62,10 +85,6 @@ interface ScorePracticeActions {
    * 開示後は回答時と同じ結果表示から「次の問題へ」で進む。
    */
   revealAnswer: () => void;
-  /** 統計をリセット */
-  resetStats: () => void;
-  /** オプションを更新 */
-  setOptions: (options: Partial<QuestionGeneratorOptions>) => void;
   /** 問題を直接設定 */
   setQuestion: (question: ScoreQuestion | undefined) => void;
 }
@@ -88,6 +107,7 @@ export const useScorePracticeStore = create<ScorePracticeStore>((set, get) => ({
     includeChiitoi: false,
     allowedRanges: ["nonMangan", "manganPlus"],
   },
+  appliedQuery: undefined,
   stats: {
     total: 0,
     correct: 0,
@@ -148,10 +168,6 @@ export const useScorePracticeStore = create<ScorePracticeStore>((set, get) => ({
     });
   },
 
-  nextQuestion: () => {
-    get().generateNewQuestion();
-  },
-
   revealAnswer: () => {
     const { currentQuestion, isAnswered } = get();
     if (!currentQuestion || isAnswered) return;
@@ -162,21 +178,17 @@ export const useScorePracticeStore = create<ScorePracticeStore>((set, get) => ({
     });
   },
 
-  resetStats: () => {
-    set({
-      stats: {
-        total: 0,
-        correct: 0,
-      },
-    });
-  },
-
-  setOptions: (options: Partial<QuestionGeneratorOptions>) => {
+  applyPracticeQuery: (query, options) => {
     set((state) => ({
-      options: {
-        ...state.options,
-        ...options,
-      },
+      options: { ...state.options, ...options },
+      appliedQuery: query,
+      stats: { total: 0, correct: 0 },
+      currentQuestion: undefined,
+      userAnswer: undefined,
+      judgementResult: undefined,
+      isAnswered: false,
+      generationFailed: false,
+      questionSeq: state.questionSeq + 1,
     }));
   },
 
@@ -188,6 +200,9 @@ export const useScorePracticeStore = create<ScorePracticeStore>((set, get) => ({
       isAnswered: false,
       // 設定画面へ戻る前のクリア（setQuestion(undefined)）は失敗ではない
       generationFailed: false,
+      // 直接入れた問題はどの条件のものでもない。「開始」で空に戻した後は
+      // 同じクエリで入っても引き継がず作り直す
+      appliedQuery: undefined,
       questionSeq: state.questionSeq + 1,
     }));
   },

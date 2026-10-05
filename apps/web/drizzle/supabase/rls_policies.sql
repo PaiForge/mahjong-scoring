@@ -8,13 +8,11 @@ DROP POLICY IF EXISTS "profiles_select_policy" ON "profiles";
 CREATE POLICY "profiles_select_policy" ON "profiles"
   FOR SELECT USING (deleted_at IS NULL);
 
+-- INSERT / UPDATE のポリシーは置かない。書き込みはサーバ（Drizzle の直 DB 接続）
+-- だけが行う（理由は foreign_keys_and_grants.sql の profiles の GRANT を参照）。
+-- 下の DROP は既存環境から旧ポリシーを取り除くために残す（冪等）。
 DROP POLICY IF EXISTS "profiles_insert_policy" ON "profiles";
-CREATE POLICY "profiles_insert_policy" ON "profiles"
-  FOR INSERT WITH CHECK (auth.uid() = id);
-
 DROP POLICY IF EXISTS "profiles_update_policy" ON "profiles";
-CREATE POLICY "profiles_update_policy" ON "profiles"
-  FOR UPDATE USING (auth.uid() = id);
 
 CREATE OR REPLACE FUNCTION public.update_updated_at_column()
 RETURNS TRIGGER AS $$
@@ -104,22 +102,16 @@ CREATE POLICY "user_exp_select" ON "user_exp"
   FOR SELECT USING (auth.uid() = user_id);
 
 -- =============================================================================
--- learn_chapter_reads
+-- lesson_completions
 -- =============================================================================
--- 読了情報は本人のみ SELECT / INSERT / DELETE 可。UPDATE は意図的に禁止。
-ALTER TABLE "learn_chapter_reads" ENABLE ROW LEVEL SECURITY;
+-- レッスン完了は本人のみ SELECT 可。書き込みは Server Action（サーバーの直 DB
+-- 接続）だけが行うので、クライアントロールには INSERT / UPDATE / DELETE の
+-- どれも許可しない（完了を取り消す操作も無い。退会時の削除もサーバー）。
+ALTER TABLE "lesson_completions" ENABLE ROW LEVEL SECURITY;
 
-DROP POLICY IF EXISTS "learn_chapter_reads_select" ON "learn_chapter_reads";
-CREATE POLICY "learn_chapter_reads_select" ON "learn_chapter_reads"
+DROP POLICY IF EXISTS "lesson_completions_select" ON "lesson_completions";
+CREATE POLICY "lesson_completions_select" ON "lesson_completions"
   FOR SELECT USING (auth.uid() = user_id);
-
-DROP POLICY IF EXISTS "learn_chapter_reads_insert" ON "learn_chapter_reads";
-CREATE POLICY "learn_chapter_reads_insert" ON "learn_chapter_reads"
-  FOR INSERT WITH CHECK (auth.uid() = user_id);
-
-DROP POLICY IF EXISTS "learn_chapter_reads_delete" ON "learn_chapter_reads";
-CREATE POLICY "learn_chapter_reads_delete" ON "learn_chapter_reads"
-  FOR DELETE USING (auth.uid() = user_id);
 
 -- =============================================================================
 -- announcements
@@ -166,4 +158,96 @@ ALTER TABLE "user_roles" ENABLE ROW LEVEL SECURITY;
 
 DROP POLICY IF EXISTS "user_roles_deny_all" ON "user_roles";
 CREATE POLICY "user_roles_deny_all" ON "user_roles"
+  USING (false);
+
+ALTER TABLE "challenge_attempts" ENABLE ROW LEVEL SECURITY;
+
+-- =============================================================================
+-- ad_creatives / ad_creative_translations
+-- =============================================================================
+-- ネイティブ広告。読み込み（各画面の描画）も書き込み（管理画面）もサーバーが
+-- 直 DB 接続で行うため、クライアントには読み書きとも許可しない。未掲載の広告
+-- （is_active = false の下書き）や遷移先をクライアントから覗かせない。
+ALTER TABLE "ad_creatives" ENABLE ROW LEVEL SECURITY;
+
+DROP POLICY IF EXISTS "ad_creatives_deny_all" ON "ad_creatives";
+CREATE POLICY "ad_creatives_deny_all" ON "ad_creatives"
+  USING (false);
+
+ALTER TABLE "ad_creative_translations" ENABLE ROW LEVEL SECURITY;
+
+DROP POLICY IF EXISTS "ad_creative_translations_deny_all" ON "ad_creative_translations";
+CREATE POLICY "ad_creative_translations_deny_all" ON "ad_creative_translations"
+  USING (false);
+
+-- トラッキング ID も同じくサーバーだけが読む
+ALTER TABLE "ad_network_settings" ENABLE ROW LEVEL SECURITY;
+
+DROP POLICY IF EXISTS "ad_network_settings_deny_all" ON "ad_network_settings";
+CREATE POLICY "ad_network_settings_deny_all" ON "ad_network_settings"
+  USING (false);
+
+-- =============================================================================
+-- stripe_customers / purchases / stripe_webhook_events
+-- =============================================================================
+-- 有料プラン。Stripe の顧客対応・購入記録・Webhook の重複排除は、読み込み
+-- （特典の判定・マイページの購入履歴）も書き込み（Checkout 完了・Webhook）も
+-- サーバーが直 DB 接続で行う。クライアントに Stripe の ID を読ませる理由がなく、
+-- 購入行を書き換えられれば特典を自分で付けられるため、読み書きとも許可しない。
+ALTER TABLE "stripe_customers" ENABLE ROW LEVEL SECURITY;
+
+DROP POLICY IF EXISTS "stripe_customers_deny_all" ON "stripe_customers";
+CREATE POLICY "stripe_customers_deny_all" ON "stripe_customers"
+  USING (false);
+
+ALTER TABLE "purchases" ENABLE ROW LEVEL SECURITY;
+
+DROP POLICY IF EXISTS "purchases_deny_all" ON "purchases";
+CREATE POLICY "purchases_deny_all" ON "purchases"
+  USING (false);
+
+ALTER TABLE "stripe_webhook_events" ENABLE ROW LEVEL SECURITY;
+
+DROP POLICY IF EXISTS "stripe_webhook_events_deny_all" ON "stripe_webhook_events";
+CREATE POLICY "stripe_webhook_events_deny_all" ON "stripe_webhook_events"
+  USING (false);
+
+-- =============================================================================
+-- practice_quota_usage
+-- =============================================================================
+-- 練習の無料枠の消費記録。増やすのは Server Action（直 DB 接続）だけで、
+-- クライアントが読み書きできると自分の消費を消せるため、読み書きとも許可しない。
+ALTER TABLE "practice_quota_usage" ENABLE ROW LEVEL SECURITY;
+
+DROP POLICY IF EXISTS "practice_quota_usage_deny_all" ON "practice_quota_usage";
+CREATE POLICY "practice_quota_usage_deny_all" ON "practice_quota_usage"
+  USING (false);
+
+-- =============================================================================
+-- benefit_grants
+-- =============================================================================
+-- 特典の手動付与。読み込み（特典の判定・マイページ）も書き込み（管理画面）も
+-- サーバーが直 DB 接続で行う。付与行を書ければ特典を自分で付けられるため、
+-- 読み書きとも許可しない。
+ALTER TABLE "benefit_grants" ENABLE ROW LEVEL SECURITY;
+
+DROP POLICY IF EXISTS "benefit_grants_deny_all" ON "benefit_grants";
+CREATE POLICY "benefit_grants_deny_all" ON "benefit_grants"
+  USING (false);
+
+-- Checkout の予約と販売条件はサーバー専用。クライアントは読み書きできない。
+ALTER TABLE "billing_checkouts" ENABLE ROW LEVEL SECURITY;
+DROP POLICY IF EXISTS "billing_checkouts_deny_all" ON "billing_checkouts";
+CREATE POLICY "billing_checkouts_deny_all" ON "billing_checkouts" USING (false);
+
+-- =============================================================================
+-- notifications
+-- =============================================================================
+-- サイト内通知。一覧・未読数・既読化はサーバー（Server Action / Route Handler）が
+-- 直 DB 接続で本人の行だけを扱う。クライアントに直接読ませる経路が無く、
+-- 書き込みを許すと他人宛ての通知を作れるため、読み書きとも許可しない。
+ALTER TABLE "notifications" ENABLE ROW LEVEL SECURITY;
+
+DROP POLICY IF EXISTS "notifications_deny_all" ON "notifications";
+CREATE POLICY "notifications_deny_all" ON "notifications"
   USING (false);

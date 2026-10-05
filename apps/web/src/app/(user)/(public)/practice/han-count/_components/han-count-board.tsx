@@ -1,9 +1,11 @@
 "use client";
 
+import { useGradeAndRecord } from "../../_hooks/use-verified-challenge";
+
 import { useCallback } from "react";
 import { clampHanToYakuman } from "@mahjong-scoring/core";
 import type { ScoreQuestion } from "@mahjong-scoring/core";
-import { tehaiContextOf } from "../../_lib/score-question-context";
+import { tehaiContextOf } from "@mahjong-scoring/features/board/score-question-context";
 import { QuestionGeneratingPlaceholder } from "../../_components/question-generating-placeholder";
 import { useTranslations } from "next-intl";
 import type { useGeneratedScoreQuestion } from "../../_hooks/use-generated-score-question";
@@ -14,11 +16,10 @@ import {
   useRegisterAdvance,
   useTrainingMode,
 } from "../../_hooks/use-training-mode";
-import { AnswerOutcome } from "../../_lib/result-schemas";
 import { HanBreakdown } from "./han-breakdown";
 import { HanCountAnswerForm } from "./han-count-answer-form";
-import type { HanCountQuestionResult } from "../_lib/types";
-import { toHanCountQuestionResult } from "../_lib/types";
+import type { HanCountQuestionResult } from "@mahjong-scoring/features/practice/han-count/types";
+import { toHanCountQuestionResult } from "@mahjong-scoring/features/practice/han-count/types";
 import type { RecordingPracticeBoardProps } from "../../_lib/practice-board-props";
 
 /**
@@ -64,6 +65,11 @@ export function HanCountBoard({
   onRecordResult,
   onPresentQuestion,
 }: HanCountBoardProps) {
+  const gradeAndRecord = useGradeAndRecord(toHanCountQuestionResult, {
+    onRecordResult,
+    onAnswer,
+    advance: advanceQuestion,
+  });
   const t = useTranslations("hanCountChallenge");
   // トレーニングでは開示時も回答後の停止中も内訳を出す（どちらも答え合わせの局面）
   const { isRevealed, isHolding } = useTrainingMode();
@@ -82,12 +88,9 @@ export function HanCountBoard({
 
       // 選択肢は 1〜13 のため、14翻以上（役満+ドラ・ダブル役満等）の正解は
       // 役満（13翻）に丸めて判定・記録する。丸めないと正解できない問題になる
-      const result = toHanCountQuestionResult(question, userHan);
-
-      onRecordResult?.(result);
-      onAnswer(result.outcome === AnswerOutcome.Correct, advanceQuestion);
+      gradeAndRecord(question, userHan);
     },
-    [showFeedback, question, onAnswer, advanceQuestion, onRecordResult],
+    [showFeedback, question, gradeAndRecord],
   );
 
   if (!question) {

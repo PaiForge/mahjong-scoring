@@ -1,7 +1,7 @@
 import type { WinType } from "../core/roles";
 
 /** 符の切り上げ単位 */
-const FU_STEP = 10;
+export const FU_STEP = 10;
 
 /** 副底 — 和了の形に関係なく必ず付く符 */
 export const FUTEI_FU = 20;

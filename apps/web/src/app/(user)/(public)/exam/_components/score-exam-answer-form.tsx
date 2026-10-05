@@ -6,7 +6,7 @@ import type {
   ScoreTableUserAnswer,
 } from "@mahjong-scoring/core";
 import { ScoreAnswerForm } from "@/app/(user)/(public)/practice/_components/score-answer-form";
-import type { ScoreOptionRange } from "@/app/(user)/(public)/practice/score/_lib/get-available-scores";
+import type { ScoreOptionRange } from "@mahjong-scoring/features/practice/score/get-available-scores";
 
 interface ScoreExamAnswerFormProps {
   readonly question: ScoreQuestion;

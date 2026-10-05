@@ -9,6 +9,8 @@
 | Framework Preset | Next.js    |
 | Root Directory   | `apps/web` |
 
+`apps/web/vercel.json` の `regions` で関数（Server Actions・動的ルート・Route Handlers）を東京（`hnd1`）に置いている。Supabase が `ap-northeast-1` にあり、関数と DB の往復はリクエストごとに何度も直列で起きるため（チャレンジの回答 1 回で BAN 判定 + トランザクションの約 5 往復）、関数を DB から離すとその回数ぶん太平洋往復が掛かる。未指定だと Vercel の既定の `iad1`（米国東部）になり、チャレンジで回答してから正誤が出るまでに 1 秒前後の遅れが出ていた（2026-10 に本番で `x-vercel-id: hnd1::iad1::…` を実測）。DB のリージョンを変えるときはここも一緒に変えること。
+
 `apps/web/vercel.json` の `ignoreCommand` で、`claude/*` ブランチ（`.github/workflows/claude-issue-solve.yml` が bot 名義で開く PR の head）のビルドをスキップしている。bot の PR は人が Actions からマージするまでレビュー対象でしかなく、PR ごとに preview デプロイを作る意味がないため。
 
 ## Supabase の設定
@@ -74,3 +76,4 @@ Supabase Integration はアカウント（チーム）レベルでインスト�
 | `RESEND_API_KEY`                       | Resend の API キー（お問い合わせフォームの送信用）。[お問い合わせフォームのセットアップ](contact-form-setup.md)を参照。                                                                                                              | いいえ                 | 未設定だと問い合わせの送信がエラーになる（フォームの表示はできる）                                                                             |
 | `CONTACT_TO_EMAIL`                     | お問い合わせを受け取る運営のメールアドレス                                                                                                                                                                                           | いいえ                 | 同上                                                                                                                                           |
 | `CONTACT_FROM_EMAIL`                   | お問い合わせメールの送信元（Resend で認証済みドメインのアドレス。例: `contact@score.mahjong.help`）                                                                                                                                  | いいえ                 | 未設定なら Resend のテスト用アドレスから送られる（アカウント所有者宛てにしか届かない）                                                         |
+| `CRON_SECRET`                          | Vercel Cron の呼び出しを認証する秘密（`/api/cron/*` が `Authorization: Bearer <値>` を照合する）。Vercel が cron の呼び出しに自動で付けるので、十分に長いランダムな文字列を設定するだけでよい。                                      | はい                   | 未設定だと cron の受け口は常に 401 になり、Pro の期限切れの通知（`vercel.json` の `crons`）が届かない                                          |

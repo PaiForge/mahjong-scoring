@@ -1,6 +1,10 @@
 import { describe, expect, it } from "vitest";
 
-import { collectTermSlugs, parseTermMarkup } from "./term-markup";
+import {
+  collectTermSlugs,
+  parseTermMarkup,
+  stripTermMarkup,
+} from "./term-markup";
 
 describe("parseTermMarkup", () => {
   it("マークアップの無い文字列はテキスト1個になる", () => {
@@ -71,5 +75,14 @@ describe("collectTermSlugs", () => {
 
   it("マークアップが無ければ空配列", () => {
     expect(collectTermSlugs("符と翻")).toEqual([]);
+  });
+});
+
+describe("stripTermMarkup", () => {
+  it("用語マークアップを表示語に置き換え、地の文はそのまま残す", () => {
+    expect(stripTermMarkup("[[menzen|門前]]で[[riichi]]をかける")).toBe(
+      "門前でriichiをかける",
+    );
+    expect(stripTermMarkup("用語なし")).toBe("用語なし");
   });
 });

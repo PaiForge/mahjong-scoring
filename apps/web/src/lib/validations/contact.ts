@@ -61,6 +61,10 @@ export const CONTACT_VALIDATION_ERROR_KEYS = [
   "messageMaxLength",
 ] as const;
 
+const contactValidationErrorKeySet: ReadonlySet<string> = new Set(
+  CONTACT_VALIDATION_ERROR_KEYS,
+);
+
 export type ContactValidationErrorKey =
   (typeof CONTACT_VALIDATION_ERROR_KEYS)[number];
 
@@ -71,7 +75,7 @@ export type ContactValidationErrorKey =
 export function isContactValidationErrorKey(
   key: string,
 ): key is ContactValidationErrorKey {
-  return (CONTACT_VALIDATION_ERROR_KEYS as readonly string[]).includes(key);
+  return contactValidationErrorKeySet.has(key);
 }
 
 /**

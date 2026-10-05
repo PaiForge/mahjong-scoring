@@ -8,6 +8,10 @@ vi.mock(
   async () => await import("@/test/save-practice-result-mock"),
 );
 
+vi.mock("./use-verified-challenge", () => ({
+  useVerifiedChallenge: () => ({ id: "attempt-id", settled: async () => {} }),
+}));
+
 async function importMockedAction() {
   const mod = await import("../_actions/save-practice-result");
   return mod.savePracticeResult as ReturnType<typeof vi.fn>;
@@ -36,26 +40,10 @@ describe("useSaveOnFinish", () => {
     vi.spyOn(console, "error").mockImplementation(() => undefined);
   });
 
-  it("menuType と variant が savePracticeResult に正しく渡される", async () => {
+  it("申告スコアやvariantを渡さず挑戦IDだけを送る", async () => {
     const { result } = renderHook(() => useSaveOnFinish("jantou_fu"));
-    await result.current(makeArgs());
-
-    expect(mockedSave).toHaveBeenCalledWith("jantou_fu", "default", {
-      score: 5,
-      incorrectAnswers: 2,
-      timeTaken: 30,
-    });
-  });
-
-  it("終了時の variant がそのまま leaderboardKey になる", async () => {
-    const { result } = renderHook(() => useSaveOnFinish("yaku_han"));
-    await result.current(makeArgs({ variant: "kuisagari" }));
-
-    expect(mockedSave).toHaveBeenCalledWith(
-      "yaku_han",
-      "kuisagari",
-      expect.anything(),
-    );
+    await result.current(makeArgs({ correctCount: 1000, variant: "forged" }));
+    expect(mockedSave).toHaveBeenCalledWith("attempt-id");
   });
 
   it("totalCount === 0 の場合 savePracticeResult が呼ばれない", async () => {

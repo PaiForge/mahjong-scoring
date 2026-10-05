@@ -317,7 +317,11 @@ async function readLeadingBytes(
 function blobToArrayBuffer(blob: Blob): Promise<ArrayBuffer> {
   return new Promise((resolve, reject) => {
     const reader = new FileReader();
-    reader.onload = () => resolve(reader.result as ArrayBuffer);
+    reader.onload = () => {
+      const { result } = reader;
+      if (result instanceof ArrayBuffer) resolve(result);
+      else reject(new Error("FileReader did not produce an ArrayBuffer"));
+    };
     reader.onerror = () =>
       reject(reader.error ?? new Error("FileReader failed"));
     reader.readAsArrayBuffer(blob);

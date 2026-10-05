@@ -2,7 +2,7 @@
 
 import { type ReactNode, memo, useEffect, useRef, useCallback } from "react";
 import { useTranslations } from "next-intl";
-import type { PracticeMenuSlug } from "@/lib/db/practice-menu-types";
+import type { PracticeMenuSlug } from "@mahjong-scoring/features/practice-menu-types";
 import { ContentContainer } from "@/app/(user)/_components/content-container";
 import { PageTitle } from "@/app/(user)/_components/page-title";
 import { BoardOverlay } from "@/app/(user)/_components/board-overlay";
@@ -12,12 +12,12 @@ import { ScoreCounter } from "./score-counter";
 import type {
   GameSessionState,
   TimerControl,
-} from "../_hooks/use-timed-session";
+} from "@mahjong-scoring/features/session/use-timed-session";
 import type {
   FinishCallbackArgs,
   FinishCallbackResult,
 } from "../_hooks/use-finish-redirect";
-import { useGameTimer } from "../_hooks/use-game-timer";
+import { useGameTimer } from "@mahjong-scoring/features/session/use-game-timer";
 import { useFinishRedirect } from "../_hooks/use-finish-redirect";
 import { useQuitConfirm } from "../_hooks/use-quit-confirm";
 import { useScrollToElement } from "../_hooks/use-scroll-to-element";
@@ -25,8 +25,8 @@ import {
   buildResultBreadcrumb,
   resultBreadcrumbParent,
 } from "../_lib/result-breadcrumb";
-import { listedProblemCount } from "../_lib/finish-reason";
-import { practiceHref } from "../_lib/practice-catalog";
+import { listedProblemCount } from "@mahjong-scoring/features/challenge/finish-reason";
+import { practiceHref } from "@mahjong-scoring/features/routes";
 import { PRACTICE_SCROLL_ANCHOR_ID } from "../_lib/scroll-anchor";
 import { readVariantFromLocation } from "../_lib/variant-param";
 import { QuizTimer } from "./quiz-timer";
@@ -196,11 +196,19 @@ export function ChallengeShell({
     remainingSeconds,
     elapsedMs,
     reset: resetTimer,
+    sync: syncTimer,
   } = useGameTimer({
     timeLimit: gameSession.timeLimit,
     onTimeLimitReached: timerControl.onTimeLimitReached,
     isActive: timerControl.isActive,
   });
+
+  // サーバーが採点のたびに返す時計へ合わせ直す（ずれを積み上げない。
+  // 理由は TimerControl.clock の TSDoc）
+  const clock = timerControl.clock;
+  useEffect(() => {
+    if (clock) syncTimer(clock.elapsedMs);
+  }, [clock, syncTimer]);
 
   // タイマーリセット関数を timerControl に登録（セッションリセット時に使用）
   const registerTimerResetRef = useRef(timerControl.registerTimerReset);

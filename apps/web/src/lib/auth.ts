@@ -11,6 +11,12 @@ import { getProfileByUserId } from "./db/queries";
 export interface AuthUser {
   readonly id: string;
   readonly email?: string;
+  /**
+   * 最初にサインアップしたときのプロバイダ（`email` / `google`）。
+   * Supabase が JWT の `app_metadata.provider` に入れる値をそのまま持つ。
+   * ログインプロバイダ
+   */
+  readonly provider?: string;
 }
 
 /**
@@ -29,7 +35,11 @@ export const getAuthenticatedUser = cache(async (): Promise<AuthUser> => {
   if (error || !claims) {
     redirect("/sign-in");
   }
-  return { id: claims.sub, email: claims.email };
+  return {
+    id: claims.sub,
+    email: claims.email,
+    provider: claims.app_metadata?.provider,
+  };
 });
 
 /**

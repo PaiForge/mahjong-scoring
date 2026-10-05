@@ -14,7 +14,6 @@ import {
 import type { DailyCount } from "@/app/admin/_lib/dashboard/aggregate-by-day";
 import {
   CHART_AXIS_TICK,
-  CHART_EMPTY_CLASS,
   CHART_GRID_DASH,
   CHART_GRID_STROKE,
   CHART_MARGIN,
@@ -48,7 +47,11 @@ export function DailyTrendChart({
   const mutableData = useMemo(() => [...data], [data]);
 
   if (data.length === 0) {
-    return <div className={CHART_EMPTY_CLASS}>{emptyMessage}</div>;
+    return (
+      <div className="flex h-[300px] items-center justify-center text-sm text-surface-500">
+        {emptyMessage}
+      </div>
+    );
   }
 
   return (

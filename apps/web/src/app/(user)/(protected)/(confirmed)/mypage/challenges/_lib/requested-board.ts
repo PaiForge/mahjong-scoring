@@ -1,10 +1,10 @@
 import {
   DEFAULT_VARIANT,
   isPracticeMenuType,
-} from "@/lib/db/practice-menu-types";
+} from "@mahjong-scoring/features/practice-menu-types";
 
 import { isMyRecordBoard } from "./menu-scope";
-import type { RecordBoard } from "./types";
+import type { PracticeBoard } from "@mahjong-scoring/features/practice-menu-types";
 
 /** Next.js の searchParams（解決済み） */
 type ResolvedSearchParams = Record<
@@ -23,12 +23,12 @@ type ResolvedSearchParams = Record<
  */
 export function resolveRequestedBoard(
   params: ResolvedSearchParams,
-): RecordBoard | undefined {
+): PracticeBoard | undefined {
   const menu = params.menu;
   if (typeof menu !== "string" || !isPracticeMenuType(menu)) return undefined;
 
   const variant = params.variant;
-  const board: RecordBoard = {
+  const board: PracticeBoard = {
     menuType: menu,
     variant: typeof variant === "string" ? variant : DEFAULT_VARIANT,
   };

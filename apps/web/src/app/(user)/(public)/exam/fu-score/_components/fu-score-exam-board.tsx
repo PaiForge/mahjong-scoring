@@ -1,7 +1,7 @@
 "use client";
 
 import { createScoreExamBoard } from "../../_lib/create-score-exam-board";
-import { EXAM_GENERATE_OPTIONS } from "../_lib/types";
+import { EXAM_GENERATE_OPTIONS } from "@mahjong-scoring/features/exam/fu-score/types";
 
 /**
  * 昇級試験（30〜50符の点数計算）の出題盤面（手牌の提示と点数の回答）

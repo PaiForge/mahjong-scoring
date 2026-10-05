@@ -1,11 +1,11 @@
 import type { Metadata } from "next";
 import { getTranslations } from "next-intl/server";
 
-import messages from "@/messages/ja.json";
+import { messages } from "@mahjong-scoring/messages/ja";
 
 /**
  * サイト名
- * 唯一の正典は i18n 辞書（messages/ja.json）の `metadata.siteName`。
+ * 唯一の正典は i18n 辞書（`@mahjong-scoring/messages`）の `metadata.siteName`。
  * タイトル・メタデータ・メールテンプレートはすべてこの名称に揃える。
  */
 export const SITE_NAME = messages.metadata.siteName;
@@ -85,7 +85,7 @@ export function createMetadata({
   readonly title: string;
   readonly description?: string;
   /**
-   * canonical URL のパス（例: `/learn/jantou-fu`）。
+   * canonical URL のパス（例: `/lessons/jantou-fu`）。
    *
    * ルートレイアウトの `metadataBase` を基準に絶対 URL へ解決される。
    * 検索結果に載せるページにだけ渡すこと。noindex ページや

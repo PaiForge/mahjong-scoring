@@ -9,7 +9,11 @@ dist/
 .env.local
 .env*.local
 
-.claude/
+# Claude Code: settings.json (SessionStart hook, allow list) is shared; only
+# the machine-local files stay out of git.
+.claude/settings.local.json
+.claude/*.lock
+.claude/worktrees/
 
 # Supabase CLI local cache (generated at project root by Studio/CLI)
 /supabase/
@@ -20,4 +24,4 @@ SPEC*.md
 
 # Vim swap files
 .*.sw?
-*.swp
+*.sw?

@@ -7,7 +7,6 @@ import {
 } from "@/app/(user)/(protected)/_components/profile-text-field";
 
 import { useTranslations } from "next-intl";
-import Link from "next/link";
 import { useRouter } from "next/navigation";
 import toast from "react-hot-toast";
 
@@ -16,8 +15,6 @@ import { SectionTitle } from "@/app/(user)/_components/section-title";
 import { updateProfile } from "../_actions/update-profile";
 import { PROFILE_LIMITS } from "@/lib/validations/profile";
 import type { ProfileInput } from "@/lib/validations/profile";
-import { TEXT_LINK_CLASSES } from "@/app/_components/_lib/link-classes";
-import { SUB_LINK_GAP } from "@/app/_components/_lib/spacing";
 import { Button } from "@/app/(user)/_components/button";
 
 /** action が返す既知のエラーキー（profileEdit 名前空間に対応する文言がある） */
@@ -38,11 +35,9 @@ const KNOWN_ERROR_KEYS = new Set([
  */
 export function ProfileForm({
   initial,
-  showSkip,
 }: {
   /** 各欄の初期値。空欄は null ではなく空文字で渡す */
   readonly initial: ProfileInput;
-  readonly showSkip: boolean;
 }) {
   const t = useTranslations("profileEdit");
   const router = useRouter();
@@ -95,7 +90,6 @@ export function ProfileForm({
         <ProfileTextField
           id="displayName"
           label={t("displayNameLabel")}
-          description={t("displayNameDescription")}
           value={displayName}
           onChange={setDisplayName}
           placeholder={t("displayNamePlaceholder")}
@@ -157,18 +151,9 @@ export function ProfileForm({
 
       {error && <p className="text-sm text-destructive">{error}</p>}
 
-      <div className={`flex flex-col ${SUB_LINK_GAP}`}>
-        <Button type="submit" size="lg" fullWidth disabled={isSubmitting}>
-          {isSubmitting ? t("submitting") : t("submit")}
-        </Button>
-        {showSkip && (
-          <div className="text-center">
-            <Link href="/mypage" className={`text-sm ${TEXT_LINK_CLASSES}`}>
-              {t("skip")}
-            </Link>
-          </div>
-        )}
-      </div>
+      <Button type="submit" size="lg" fullWidth disabled={isSubmitting}>
+        {isSubmitting ? t("submitting") : t("submit")}
+      </Button>
     </form>
   );
 }

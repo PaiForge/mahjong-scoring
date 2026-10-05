@@ -4,6 +4,7 @@ import { expectSampled } from "../../test/sampling";
 import {
   YAKU_HAN_ENTRIES,
   YAKUMAN_HAN,
+  canPromptNaki,
   getYakuHanEntries,
   normalizeYakuHanRange,
 } from "./constants";
@@ -28,8 +29,8 @@ describe("generateYakuHanQuestion", () => {
       if (q.isMenzen) {
         expect(q.correctHan).toBe(entry.menzenHan);
       } else {
-        // 鳴き状態が出るのは鳴ける役のみ
-        expect(entry.nakiHan).toBeDefined();
+        // 鳴き状態が出るのは鳴き出題を許した役のみ
+        expect(canPromptNaki(entry)).toBe(true);
         expect(q.correctHan).toBe(entry.nakiHan);
       }
     }
@@ -45,13 +46,11 @@ describe("generateYakuHanQuestion", () => {
     }
   });
 
-  it("門前限定役（nakiHan 未定義）は常に門前で出題される", () => {
+  it("鳴き状態で出題しない役は常に門前で出題される", () => {
     const menzenOnlyNames = new Set(
-      YAKU_HAN_ENTRIES.filter((e) => e.nakiHan === undefined).map(
-        (e) => e.name,
-      ),
+      YAKU_HAN_ENTRIES.filter((e) => !canPromptNaki(e)).map((e) => e.name),
     );
-    // 門前限定役が1問も出ないと無言で pass するため、母集団を保証する
+    // 対象の役が1問も出ないと無言で pass するため、母集団を保証する
     const questions = expectSampled(generateYakuHanQuestion, {
       need: 20,
       attempts: 500,
@@ -60,6 +59,19 @@ describe("generateYakuHanQuestion", () => {
 
     for (const q of questions) {
       expect(q.isMenzen).toBe(true);
+    }
+  });
+
+  it("三暗刻は鳴き状態で出題されない", () => {
+    const questions = expectSampled(generateYakuHanQuestion, {
+      need: 20,
+      attempts: 1000,
+      where: (q) => q.yakuName === "三暗刻",
+    });
+
+    for (const q of questions) {
+      expect(q.isMenzen).toBe(true);
+      expect(q.correctHan).toBe(2);
     }
   });
 });

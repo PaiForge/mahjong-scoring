@@ -28,7 +28,7 @@
  * （`useFuChoiceBoard`）・結果の一覧（`FuProblemList`）は練習と共有する
  * （満貫の昇級試験と同じ構図）。
  */
-import { PRACTICE_SLUG } from "@/lib/db/practice-menu-types";
+import { PRACTICE_SLUG } from "@mahjong-scoring/features/practice-menu-types";
 import type { Metadata } from "next";
 import { createPracticeMetadata } from "@/app/(user)/(public)/practice/_lib/metadata";
 import { PracticeIntroContent } from "@/app/(user)/(public)/practice/_components/practice-intro-content";

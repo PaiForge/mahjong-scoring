@@ -9,38 +9,39 @@
  */
 import type { Metadata } from "next";
 import { getTranslations } from "next-intl/server";
-import { chapterHref } from "@/app/(user)/(public)/learn/_lib/curriculum";
 import { ContentContainer } from "@/app/(user)/_components/content-container";
 import { LinkRow, LinkRowList } from "@/app/(user)/_components/link-row";
+import { NativeAdCard } from "@/app/(user)/(public)/_components/native-ad-card";
 import { PageTitle } from "@/app/(user)/_components/page-title";
 import { createNamespaceMetadata } from "@/app/_lib/metadata";
+import { getNativeAdCreative } from "@/lib/ads/creatives";
 import {
   ComprehensivePracticeBanner,
   MachiScorePracticeBanner,
 } from "../_components/comprehensive-practice-banner";
-import { PracticeCard } from "../_components/practice-card";
+import { CatalogPracticeCard } from "../_components/catalog-practice-card";
 import {
   PracticeFilter,
   type PracticeFilterItem,
 } from "../_components/practice-filter";
-import { practiceCardRank } from "../_lib/practice-card-rank";
-import { practiceCardVisual } from "../_lib/practice-card-visual";
 import {
   listedPracticeMenus,
-  listedPracticeRanks,
   PRACTICE_CATEGORIES,
-  practiceHref,
-  practiceTitleKey,
-} from "../_lib/practice-catalog";
+} from "@mahjong-scoring/features/practice/catalog";
+import {
+  listedPracticeRanks,
+  practiceRanks,
+} from "@mahjong-scoring/features/practice/rank-practices";
 
 export async function generateMetadata(): Promise<Metadata> {
   return createNamespaceMetadata("practice", { path: "/practice" });
 }
 
 export default async function PracticePage() {
-  const [t, tRanks] = await Promise.all([
+  const [t, tRanks, ad] = await Promise.all([
     getTranslations("practice"),
     getTranslations("ranks"),
+    getNativeAdCreative("practice-grid-native-ad"),
   ]);
 
   // カードはここで全件描画し、絞り込みは表示するかどうかの判断だけを
@@ -48,23 +49,9 @@ export default async function PracticePage() {
   const items: readonly PracticeFilterItem[] = listedPracticeMenus().map(
     (practice) => ({
       key: practice.slug,
-      rank: practice.rank,
+      ranks: practiceRanks(practice.slug),
       category: practice.category,
-      card: (
-        <PracticeCard
-          visual={practiceCardVisual(practice.slug, t)}
-          href={practiceHref(practice.slug)}
-          title={t(practiceTitleKey(practice.slug))}
-          rank={practiceCardRank(practice.rank, tRanks)}
-          detailLabel={t("detail")}
-          learnHref={
-            practice.learnChapter
-              ? chapterHref(practice.learnChapter)
-              : undefined
-          }
-          learnLabel={practice.learnChapter ? t("learn") : undefined}
-        />
-      ),
+      card: <CatalogPracticeCard slug={practice.slug} />,
     }),
   );
 
@@ -85,6 +72,7 @@ export default async function PracticePage() {
           items={items}
           filterLabel={t("filter.label")}
           listHeading={t("filter.listHeading")}
+          adCard={ad && <NativeAdCard creative={ad} />}
           optionGroups={[
             [{ label: t("filter.all") }],
             // 級の並びはレジストリの順（5級 → 4級 の学習順）。一覧の

@@ -13,7 +13,7 @@
  *    出題された手牌・符の内訳・回答の比較を確認できる）
  * 4. リトライボタンと道場へのリンク
  */
-import { PRACTICE_SLUG } from "@/lib/db/practice-menu-types";
+import { PRACTICE_SLUG } from "@mahjong-scoring/features/practice-menu-types";
 import type { Metadata } from "next";
 import {
   createPracticeResultMetadata,

@@ -1,15 +1,14 @@
 import { ContentContainer } from "@/app/(user)/_components/content-container";
-import { PageTitle } from "@/app/(user)/_components/page-title";
+import { PageTitlePlaceholder } from "@/app/(user)/_components/page-title";
 import { SectionTitleSkeleton } from "@/app/(user)/_components/section-title-skeleton";
 import { SkeletonBar } from "@/app/_components/skeleton-bar";
-import { PageTitleSkeleton } from "@/app/_components/page-title-skeleton";
 
 /** SNS 入力欄スケルトンのキー（index key を避けるための固定ID） */
 const SNS_FIELDS = ["x", "instagram", "youtube"] as const;
 
 /**
  * プロフィール編集ページのローディング状態。
- * 実描画（アバター → 基本情報 → SNS → 保存ボタン → 退会リンク）に合わせる。
+ * 実描画（アバター → 基本情報 → SNS → 保存ボタン）に合わせる。
  *
  * アバターは実描画の苔緑の太枠（`border-ink`）を写さず、灰色の円だけで示す
  * （`ProblemListSkeleton` と同じ理由 — 読み込み中の画面が実物より賑やかに
@@ -19,10 +18,7 @@ const SNS_FIELDS = ["x", "instagram", "youtube"] as const;
 export default function Loading() {
   return (
     <ContentContainer>
-      {/* PageTitle を使うことで実描画と同じ全幅グレー帯を再現する */}
-      <PageTitle>
-        <PageTitleSkeleton width="w-44" />
-      </PageTitle>
+      <PageTitlePlaceholder width="w-44" />
 
       <div className="space-y-8">
         {/* アバター（実: 中央寄せの円 + 画像選択リンク + ヒント） */}
@@ -65,11 +61,6 @@ export default function Loading() {
 
         {/* 保存ボタン */}
         <SkeletonBar radius="lg" className="h-11 w-full" />
-      </div>
-
-      {/* 退会リンク（実: mt-10 border-t pt-6 中央寄せ） */}
-      <div className="mt-10 flex justify-center border-t-2 border-dashed border-border/40 pt-6">
-        <SkeletonBar className="h-4 w-28" />
       </div>
     </ContentContainer>
   );

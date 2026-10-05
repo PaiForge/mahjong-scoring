@@ -17,7 +17,7 @@ import { fileURLToPath } from "node:url";
 
 import sharp from "sharp";
 
-import messages from "../src/messages/ja.json";
+import { messages } from "@mahjong-scoring/messages/ja";
 
 /** OGP の推奨サイズ（Twitter の summary_large_image もこの比率） */
 const WIDTH = 1200;
@@ -55,7 +55,7 @@ function escapeXml(value: string): string {
 /**
  * テキストがカードからはみ出さないことを検証する。
  *
- * SVG の <text> は幅を超えても警告なく描画し続けるため、ja.json の文言を
+ * SVG の <text> は幅を超えても警告なく描画し続けるため、日本語辞書の文言を
  * 長くして再生成すると枠外へ silent にはみ出す。全角前提で
  * 「フォントサイズ × 文字数」がカード内の実効幅に収まるかを見る。
  */

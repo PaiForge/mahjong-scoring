@@ -19,7 +19,7 @@ import { requireConfirmedUser } from "@/lib/auth";
 import { getProfileCardByUserId } from "@/lib/db/queries";
 import { getExpHeatmapData } from "@/lib/db/get-exp-heatmap-data";
 import { getUserRankSlugs } from "@/lib/db/rank-queries";
-import { highestRank } from "@/lib/ranks/registry";
+import { highestRank } from "@mahjong-scoring/features/ranks/registry";
 
 import { ExpActivityHeatmap } from "./_components/exp-activity-heatmap";
 import { DESKTOP_WEEKS, buildHeatmapLayout } from "./_lib/heatmap-utils";
@@ -66,12 +66,32 @@ export default async function MyPage() {
       summary: t("cards.challenges.summary"),
     },
     {
+      href: "/mypage/plan",
+      icon: "\u2B50",
+      title: t("cards.plan.title"),
+      summary: t("cards.plan.summary"),
+    },
+    {
+      href: "/mypage/notifications",
+      icon: "\uD83D\uDD14",
+      title: t("cards.notifications.title"),
+      summary: t("cards.notifications.summary"),
+    },
+    {
       // 段級位を持たないユーザーにも道場の存在を知らせる導線
       // （ヘッダの段級位バッジは取得済みのときしか出ない）
       href: "/dojo",
       icon: "\uD83E\uDD4B",
       title: t("cards.dojo.title"),
       summary: t("cards.dojo.summary"),
+    },
+    {
+      // ログイン情報と退会の入口。退会はこの先のページの最下部にだけ置き、
+      // 普段の画面（ここやプロフィール編集）には「削除」の文言を出さない
+      href: "/mypage/account",
+      icon: "🔑",
+      title: t("cards.account.title"),
+      summary: t("cards.account.summary"),
     },
   ];
 

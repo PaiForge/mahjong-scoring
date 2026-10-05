@@ -1,6 +1,7 @@
 import type { useTranslations } from "next-intl";
 
-import { practiceMenuByType } from "@/lib/db/practice-menu-types";
+import { practiceMenuByType } from "@mahjong-scoring/features/practice-menu-types";
+import { JST_TIME_ZONE, jstDayKey } from "@mahjong-scoring/features/jst";
 
 import type {
   ChallengeAttempt,
@@ -10,8 +11,11 @@ import type {
 } from "./types";
 
 /**
- * 日付を MM/DD HH:mm 形式にフォーマットする
+ * 日付を YYYY/MM/DD HH:mm 形式にフォーマットする（JST）
  * 日付フォーマット
+ *
+ * 期間の境界（`period-utils.ts`）と同じ JST で表示する。サーバーで描画する
+ * 全履歴の表とクライアントで描画するダッシュボードが同じ文字列を出すため。
  */
 export function formatDate(date: Date | undefined): string {
   if (!date) return "-";
@@ -21,11 +25,12 @@ export function formatDate(date: Date | undefined): string {
     day: "2-digit",
     hour: "2-digit",
     minute: "2-digit",
+    timeZone: JST_TIME_ZONE,
   }).format(new Date(date));
 }
 
 /**
- * 日付を短縮形式（月/日）にフォーマットする
+ * 日付を短縮形式（月/日）にフォーマットする（JST）
  * 短縮日付フォーマット
  */
 export function formatShortDate(date: Date | undefined): string {
@@ -33,6 +38,7 @@ export function formatShortDate(date: Date | undefined): string {
   return new Intl.DateTimeFormat("ja", {
     month: "short",
     day: "numeric",
+    timeZone: JST_TIME_ZONE,
   }).format(new Date(date));
 }
 
@@ -163,6 +169,9 @@ interface DailyAggregation {
 /**
  * チャレンジを日ごとに集約して平均スコアを算出する
  * 日別集約
+ *
+ * 「日」は JST で切る。期間の境界と同じ基準にしないと、JST の 0〜9 時の
+ * チャレンジがサーバー（UTC）では前日の点に乗る。
  */
 export function aggregateByDay(
   attempts: readonly ChallengeAttempt[],
@@ -173,8 +182,7 @@ export function aggregateByDay(
   >();
 
   for (const s of attempts) {
-    const d = new Date(s.createdAt);
-    const dateKey = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`;
+    const dateKey = jstDayKey(new Date(s.createdAt));
     const existing = dailyMap.get(dateKey);
     if (existing) {
       existing.total += s.score;

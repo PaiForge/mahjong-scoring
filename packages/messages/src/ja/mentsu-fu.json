@@ -1,0 +1,53 @@
+{
+  "title": "面子の符計算",
+  "generating": "問題を生成中...",
+  "description": "面子の種類（順子・刻子・槓子）と明暗に応じた符を答えてください",
+  "mentsuLabel": "面子",
+  "questionPrompt": "この面子の符を回答してください",
+  "fuOption": "{value}符",
+  "result": {
+    "problemDetails": "問題の詳細",
+    "correct": "正解",
+    "incorrect": "不正解",
+    "correctAnswer": "正解",
+    "yourAnswer": "あなたの回答"
+  },
+  "howToPlay": {
+    "title": "問題方式",
+    "lead": "このような問題が出題されます。"
+  },
+  "learn": {
+    "pageTitle": "面子の符計算",
+    "pageDescription": "麻雀の面子（順子・刻子・槓子）による符計算を、牌の画像付きでわかりやすく解説します。",
+    "whatIsMentsuFu": "面子の符とは",
+    "whatIsMentsuFuBody": "[[mentsu|面子]]の構成によって、[[hora|和了]]時に符が加算されます。[[shuntsu|順子]]は常に0符ですが、[[koutsu|刻子]]・[[kantsu|槓子]]は牌の種類（[[chunchanpai|中張牌]]か[[yaochuuhai|么九牌]]か）と明暗（鳴いているか手の内か）によって符が変わります。",
+    "shuntsuTitle": "順子 → 0符",
+    "shuntsuBody": "順子は、明順子でも暗順子でも常に0符です。",
+    "shuntsuExamples": "順子の例",
+    "shuntsuLabel": "順子",
+    "koutsuTitle": "刻子 → 2〜8符",
+    "koutsuBody": "刻子は、鳴いているか（[[minkou|明刻]]）・手の内か（[[ankou|暗刻]]）、そして中張牌か么九牌かによって符が変わります。么九牌は1・9の[[shuupai|数牌]]と[[jihai|字牌]]、中張牌は2〜8の数牌です。下の例で1枚だけ横向きになっているのが鳴いた印で、これが付いているものが明刻です。",
+    "koutsuExamples": "刻子の例",
+    "koutsuOpenSimpleLabel": "中張牌の明刻",
+    "koutsuClosedSimpleLabel": "中張牌の暗刻",
+    "koutsuOpenYaochuLabel": "么九牌の明刻",
+    "koutsuClosedYaochuLabel": "么九牌の暗刻",
+    "kantsuTitle": "槓子 → 8〜32符",
+    "kantsuBody": "槓子の符は、牌の種類と明暗がそろった刻子の4倍です。たとえば中張牌の明刻は2符なので、その4倍にあたる中張牌の[[minkan|明槓]]は8符になります。\n[[ankan|暗槓]]が明槓の倍、么九牌が中張牌の倍という関係は刻子と同じです。暗槓は手の内だけで作るため、下の例でも両端を伏せた形で並べています。",
+    "kantsuExamples": "槓子の例",
+    "kantsuOpenSimpleLabel": "中張牌の明槓",
+    "kantsuClosedSimpleLabel": "中張牌の暗槓",
+    "kantsuOpenYaochuLabel": "么九牌の明槓",
+    "kantsuClosedYaochuLabel": "么九牌の暗槓",
+    "summaryTitle": "まとめ",
+    "colType": "面子の種類",
+    "colFu": "符",
+    "rowShuntsu": "順子（明・暗とも）",
+    "rowOpenSimpleKoutsu": "中張牌の明刻",
+    "rowClosedSimpleKoutsuOrOpenYaochuKoutsu": "中張牌の暗刻 / 么九牌の明刻",
+    "rowClosedYaochuKoutsuOrOpenSimpleKantsu": "么九牌の暗刻 / 中張牌の明槓",
+    "rowClosedSimpleKantsuOrOpenYaochuKantsu": "中張牌の暗槓 / 么九牌の明槓",
+    "rowClosedYaochuKantsu": "么九牌の暗槓",
+    "fuUnit": "{value}符"
+  }
+}

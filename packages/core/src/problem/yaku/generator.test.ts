@@ -1,9 +1,11 @@
 import { describe, it, expect } from "vitest";
-import { MentsuType } from "@pai-forge/riichi-mahjong";
 import { generateYakuQuestion } from "./generator";
 import { countKantsu } from "../shared/count-kantsu";
 import { countHaiInTehai, listTehaiHais } from "../../core/hai-count";
-import { expectHaiUsageWithinLimit } from "../../test/tile-usage";
+import {
+  expectAgariHaiNotKantsuKind,
+  expectHaiUsageWithinLimit,
+} from "../../test/tile-usage";
 import { getKazeYakuhaiDisplayName, SELECTABLE_YAKU } from "./constants";
 import {
   expectGeneratesEventually,
@@ -162,19 +164,12 @@ describe("generateYakuQuestion", () => {
   });
 
   it("和了牌が槓子（カン）の牌種と一致しない", () => {
-    // 槓子は同じ牌4枚を束縛するため5枚目が存在せず、その牌では和了できない。
     const questions = expectSampled(generateYakuQuestion, {
       attempts: 2000,
       need: 2000,
     });
 
-    for (const q of questions) {
-      for (const m of q.tehai.exposed) {
-        if (m.type === MentsuType.Kantsu) {
-          expect(q.context.agariHai).not.toBe(m.hais[0]);
-        }
-      }
-    }
+    expectAgariHaiNotKantsuKind(questions);
   });
 
   it("偶然役・ドラが正解に含まれない", () => {

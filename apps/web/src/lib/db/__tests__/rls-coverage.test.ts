@@ -46,12 +46,15 @@ const GRANTS_SQL = readFileSync(
  * — own-row の RLS は「誰の行か」しか見ず「スコアが正しいか」は見ないため、
  * 書き込みを許した時点でリーダーボードと昇級判定の入力が publishable key だけで
  * 捏造できるようになる（2026-09 の監査で実際にこの状態だった）。
+ *
+ * profiles も足してはいけない。行に banned_at / deleted_at / username のような
+ * サーバだけが決める列が同居しており、own-row の RLS では列を区別できないため、
+ * 書き込みを許すと BAN の自己解除や検証を通らない username が作れる
+ * （2026-09 の監査で実際にこの状態だった）。登録・編集は Server Action が行う。
  */
 const CLIENT_WRITABLE_TABLES: readonly string[] = [
-  // 本人のプロフィール。登録・編集はクライアントの Supabase セッションで行う
-  "profiles",
-  // 章の読了マーク。値は「読んだ」の有無だけで、順位や資格に影響しない
-  "learn_chapter_reads",
+  // 以前は章の読了マーク（learn_chapter_reads）があったが、レッスンの完了
+  // （サーバーの Server Action だけが書く）へ畳んで空になった
 ];
 
 const WRITE_PRIVILEGES = ["INSERT", "UPDATE", "DELETE"] as const;
@@ -117,4 +120,24 @@ describe("RLS coverage", () => {
       ).toEqual([]);
     },
   );
+
+  /**
+   * GRANT を外していても、書き込みのポリシーが残っていると「GRANT を戻した
+   * 瞬間に開く」状態になる。許可リスト外の表は書き込みポリシーごと持たない。
+   * いまは許可リストが空（章の読了がレッスンの完了へ畳まれ、クライアントが
+   * 直接書く表は無くなった）なので、書き込みのポリシーは 1 つも無いのが正。
+   */
+  it("許可リスト外の表に書き込みのポリシーを作っていない", () => {
+    const writablePolicies = [
+      ...RLS_SQL.matchAll(
+        /CREATE POLICY\s+"[^"]+"\s+ON\s+"?([a-z0-9_]+)"?\s+FOR\s+(INSERT|UPDATE|DELETE|ALL)\b/gi,
+      ),
+    ].map((match) => match[1]!);
+
+    expect(
+      writablePolicies.filter(
+        (table) => !CLIENT_WRITABLE_TABLES.includes(table),
+      ),
+    ).toEqual([]);
+  });
 });

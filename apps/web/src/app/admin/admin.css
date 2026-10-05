@@ -1,0 +1,197 @@
+/* 管理画面だけに適用する。一般向けの pop スキンとは独立。 */
+.admin-shell {
+  display: flex;
+  min-height: 100dvh;
+  background: var(--color-surface-100);
+  color: var(--color-surface-800);
+}
+
+.admin-sidebar {
+  position: sticky;
+  top: 0;
+  width: 248px;
+  height: 100dvh;
+  overflow-y: auto;
+  flex-shrink: 0;
+  padding: 28px 20px;
+  background: #fff;
+  border-right: 1px solid var(--color-surface-200);
+}
+
+.admin-brand {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 4px;
+  margin-bottom: 28px;
+}
+
+.admin-navigation {
+  display: grid;
+  gap: 24px;
+}
+.admin-nav-label {
+  margin: 0 12px 8px;
+  color: var(--color-surface-500);
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+}
+.admin-nav-items {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+.admin-nav-link {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 12px;
+  border-radius: 8px;
+  color: var(--color-surface-600);
+  font-size: 13px;
+  transition:
+    background-color 0.15s,
+    color 0.15s;
+}
+.admin-nav-link:hover {
+  background: var(--color-surface-100);
+  color: var(--color-surface-900);
+}
+.admin-nav-link[aria-current="page"] {
+  background: var(--color-primary-50);
+  color: var(--color-primary-800);
+  font-weight: 700;
+}
+.admin-nav-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--color-surface-300);
+  flex-shrink: 0;
+}
+.admin-nav-link[aria-current="page"] .admin-nav-dot {
+  background: var(--color-primary-600);
+}
+.admin-content {
+  min-width: 0;
+  flex: 1;
+}
+.admin-topbar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  min-height: 72px;
+  padding: 16px 24px;
+  border-bottom: 1px solid var(--color-surface-200);
+  background: #ffffffb3;
+  font-size: 12px;
+  color: var(--color-surface-500);
+}
+.admin-main {
+  max-width: 1440px;
+  margin: 0 auto;
+  padding: 40px 40px 80px;
+}
+.admin-panel,
+.admin-table,
+.admin-filter {
+  border: 1px solid var(--color-surface-200);
+  border-radius: 12px;
+  background: white;
+  box-shadow: 0 2px 4px #0f172a05;
+}
+.admin-panel {
+  min-width: 0;
+}
+.admin-panel > header {
+  border-radius: 12px 12px 0 0;
+  background: var(--color-surface-50);
+}
+.admin-filter {
+  padding: 20px;
+}
+.admin-table {
+  overflow-x: auto;
+}
+.admin-panel > .admin-table {
+  border: 0;
+  border-radius: 0 0 12px 12px;
+  box-shadow: none;
+}
+.admin-panel > .overflow-x-auto {
+  border-radius: 0 0 12px 12px;
+}
+.admin-shell table {
+  background: white;
+}
+.admin-shell thead {
+  background: var(--color-surface-50);
+  color: var(--color-surface-600);
+}
+.admin-shell th {
+  font-size: 12px;
+  font-weight: 600;
+}
+.admin-shell td {
+  vertical-align: middle;
+}
+.admin-shell tbody tr:hover {
+  background: var(--color-surface-50);
+}
+.admin-shell
+  :is(input:not([type="checkbox"]):not([type="file"]), select, textarea) {
+  max-width: 100%;
+  border-radius: 8px;
+}
+.admin-shell :is(a, button, input, select, textarea):focus-visible {
+  outline: 2px solid var(--color-primary-600);
+  outline-offset: 3px;
+}
+.admin-shell button:not(:disabled),
+.admin-shell select {
+  cursor: pointer;
+}
+.admin-shell button:disabled {
+  cursor: not-allowed;
+}
+.admin-skip-link {
+  position: fixed;
+  top: -100px;
+  left: 16px;
+  z-index: 50;
+  padding: 12px;
+  background: white;
+}
+.admin-skip-link:focus {
+  top: 12px;
+}
+.admin-kpi {
+  padding: 28px;
+  border: 1px solid var(--color-surface-200);
+  border-radius: 12px;
+  background: white;
+  box-shadow: 0 2px 4px #0f172a05;
+}
+@media (max-width: 1100px) {
+  .admin-sidebar {
+    width: 216px;
+    padding: 24px 12px;
+  }
+  .admin-main {
+    padding: 28px 24px 64px;
+  }
+  .admin-topbar {
+    padding-inline: 24px;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .admin-shell *,
+  .admin-shell *::before,
+  .admin-shell *::after {
+    animation: none !important;
+    transition: none !important;
+  }
+}

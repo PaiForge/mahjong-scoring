@@ -3,6 +3,7 @@ import { cache } from "react";
 import { and, desc, eq, sql } from "drizzle-orm";
 
 import { type Announcement, announcements, db } from "@/lib/db";
+import { AnnouncementStatus } from "@/lib/announcement-status";
 import { DEFAULT_LOCALE, pickByLocale } from "@/i18n/locales";
 
 /**
@@ -58,7 +59,7 @@ export async function getPublishedAnnouncementCount(): Promise<number> {
   const [result] = await db
     .select({ count: sql<number>`COUNT(DISTINCT ${announcements.slug})` })
     .from(announcements)
-    .where(eq(announcements.status, "published"));
+    .where(eq(announcements.status, AnnouncementStatus.Published));
 
   return Number(result.count);
 }
@@ -79,7 +80,7 @@ export async function getPublishedAnnouncementSlugsForSitemap(): Promise<
       publishedAt: sql<Date | null>`MAX(${announcements.publishedAt})`,
     })
     .from(announcements)
-    .where(eq(announcements.status, "published"))
+    .where(eq(announcements.status, AnnouncementStatus.Published))
     .groupBy(announcements.slug);
 
   return rows;
@@ -100,7 +101,7 @@ export const getPublishedAnnouncement = cache(
       .where(
         and(
           eq(announcements.slug, slug),
-          eq(announcements.status, "published"),
+          eq(announcements.status, AnnouncementStatus.Published),
         ),
       )
       .orderBy(desc(announcements.publishedAt));

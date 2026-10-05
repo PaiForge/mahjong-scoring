@@ -1,0 +1,323 @@
+"use client";
+
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { useCountdown } from "./use-countdown";
+import { CHALLENGE_TIME_LIMIT, MISTAKE_LIMIT } from "@mahjong-scoring/core";
+import { ANSWER_FEEDBACK_DURATION_MS } from "../challenge/challenge-result-bounds";
+import type { FinishReason } from "../challenge/finish-reason";
+
+/** チャレンジのセッション管理の設定 */
+export interface UseTimedSessionOptions {
+  readonly timeLimit?: number;
+  readonly mistakeLimit?: number;
+  readonly feedbackDurationMs?: number;
+  readonly countdownFrom?: number;
+  /**
+   * ここまで正解したら終える正解数
+   * 目標正解数
+   *
+   * 昇級試験の合格点。届いた時点で合否は決まり、その先を解いても結果は
+   * 変わらないため、そこで終える。未指定なら時間切れかミス上限まで続く。
+   */
+  readonly goalCount?: number;
+  /**
+   * 回答して盤面の表示が切り替わるときに呼ぶ処理
+   * 表示切り替え通知
+   *
+   * 回答ボタンは盤面下端にあるため、縦に長い練習では押した位置のままだと
+   * 盤面上部の正誤表示も次の問題も画面外に残る。web はここで練習の先頭へ
+   * スクロールし、モバイルは ScrollView を戻す。画面の持ち方が
+   * プラットフォームごとに違うので、フックは「切り替わった」ことだけを伝える。
+   */
+  readonly onDisplayChange?: () => void;
+}
+
+/**
+ * ゲーム終了時の確定結果
+ * 終了スナップショット
+ *
+ * ref から取得するため、React の state バッチングやレンダーサイクルに依存せず
+ * 終了時点の正確な値を保持する。
+ */
+export interface FinalResult {
+  readonly correctCount: number;
+  readonly incorrectCount: number;
+  readonly totalCount: number;
+  /** 終わった理由。時間切れなら出題中の問題が答えられないまま残っている */
+  readonly reason: FinishReason;
+  /**
+   * 終わった時刻（`Date.now()`）。この回（チャレンジ 1 回分）の ID として、
+   * 結果一覧の保存（`useRecordedResults`）と結果ページの URL
+   * （`useFinishRedirect` の `?run=`）の両方に同じ値を渡す
+   */
+  readonly finishedAt: number;
+}
+
+/** ゲームロジック状態（タイマー値を含まない、ユーザー操作時のみ変化） */
+export interface GameSessionState {
+  readonly isCountingDown: boolean;
+  readonly countdownValue: number;
+  readonly isPlaying: boolean;
+  readonly isFinished: boolean;
+  readonly isPaused: boolean;
+  readonly correctCount: number;
+  readonly incorrectCount: number;
+  readonly totalCount: number;
+  readonly remainingLives: number;
+  readonly showFeedback: boolean;
+  readonly lastAnswerCorrect: boolean | undefined;
+  readonly handleAnswer: (correct: boolean, onNext: () => void) => void;
+  readonly togglePause: () => void;
+  readonly mistakeLimit: number;
+  readonly timeLimit: number;
+  readonly finalResult: FinalResult | undefined;
+}
+
+/**
+ * サーバーの時計の読み
+ * 時計の読み
+ *
+ * 採点をサーバーで行うチャレンジは、応答のたびにサーバーの経過時間を
+ * 返す。シェルはこれが変わるたびにタイマーを合わせ直す
+ * （`useGameTimer` の `sync`）。`sequence` は同じ経過時間が続いても
+ * 合わせ直しを起こすための識別子（問題番号）。
+ */
+export interface ClockReading {
+  readonly elapsedMs: number;
+  readonly sequence: number;
+}
+
+/** チャレンジのシェルがタイマーを制御するためのインターフェース */
+export interface TimerControl {
+  /** タイマーを動かすべきか */
+  readonly isActive: boolean;
+  /**
+   * 合わせ直す先のサーバーの時計。ローカル採点（未ログイン）では undefined
+   *
+   * サーバーは回答を受け取ってから応答を返すまでの処理時間と、その後の固定の
+   * 猶予（往復の典型値）の間、時計を止める。画面は押してから応答が届くまで
+   * 止める（`isActive`）。両者は一致しないが、応答のたびにここへ合わせ直すので
+   * ずれは直近の 1 問分（往復の片道）に留まり積み上がらない
+   */
+  readonly clock?: ClockReading;
+  /** 制限時間到達時のコールバック */
+  readonly onTimeLimitReached: () => void;
+  /** タイマーをリセットする関数（reset に組み込むため ChallengeShell に渡す） */
+  readonly registerTimerReset: (resetFn: () => void) => void;
+  /** セッション全体をリセット */
+  readonly reset: () => void;
+}
+
+/**
+ * 練習のゲームセッション管理
+ * チャレンジのセッション管理
+ *
+ * タイマー値（elapsedMs, remainingSeconds）を含まないため、100ms ごとの再レンダリングが発生しない。
+ * タイマー表示はシェル（web の ChallengeShell 等）の中で `useGameTimer` を呼び出し、
+ * シェルだけが再レンダリングされる。
+ */
+export function useTimedSession({
+  timeLimit = CHALLENGE_TIME_LIMIT,
+  mistakeLimit = MISTAKE_LIMIT,
+  feedbackDurationMs = ANSWER_FEEDBACK_DURATION_MS,
+  countdownFrom = 3,
+  goalCount,
+  onDisplayChange,
+}: UseTimedSessionOptions = {}): {
+  gameSession: GameSessionState;
+  timerControl: TimerControl;
+} {
+  const [correctCount, setCorrectCount] = useState(0);
+  const [incorrectCount, setIncorrectCount] = useState(0);
+  const [isFinished, setIsFinished] = useState(false);
+  const [isPlaying, setIsPlaying] = useState(false);
+  const [isPaused, setIsPaused] = useState(false);
+  const [showFeedback, setShowFeedback] = useState(false);
+  const [lastAnswerCorrect, setLastAnswerCorrect] = useState<
+    boolean | undefined
+  >(undefined);
+  const [finalResult, setFinalResult] = useState<FinalResult | undefined>(
+    undefined,
+  );
+  const feedbackTimeoutRef = useRef<ReturnType<typeof setTimeout> | undefined>(
+    undefined,
+  );
+  const isFinishedRef = useRef(false);
+  const correctCountRef = useRef(0);
+  const incorrectCountRef = useRef(0);
+  const timerResetRef = useRef<(() => void) | undefined>(undefined);
+  // 呼び出し側が毎レンダー新しい関数を渡しても回答処理を作り直さないよう、
+  // 最新の値を ref で読む
+  const onDisplayChangeRef = useRef(onDisplayChange);
+  useEffect(() => {
+    onDisplayChangeRef.current = onDisplayChange;
+  });
+
+  const handleCountdownComplete = useCallback(() => {
+    setIsPlaying(true);
+  }, []);
+
+  const countdown = useCountdown({
+    from: countdownFrom,
+    onComplete: handleCountdownComplete,
+  });
+
+  const handleTimeLimitReached = useCallback(() => {
+    if (isFinishedRef.current) return;
+    isFinishedRef.current = true;
+    const correct = correctCountRef.current;
+    const incorrect = incorrectCountRef.current;
+    setFinalResult({
+      correctCount: correct,
+      incorrectCount: incorrect,
+      totalCount: correct + incorrect,
+      reason: "timeUp",
+      finishedAt: Date.now(),
+    });
+    setIsFinished(true);
+  }, []);
+
+  const totalCount = correctCount + incorrectCount;
+  const remainingLives = Math.max(0, mistakeLimit - incorrectCount);
+
+  const togglePause = useCallback(() => {
+    if (isFinishedRef.current || countdown.isActive) return;
+    setIsPaused((prev) => !prev);
+  }, [countdown.isActive]);
+
+  const handleAnswer = useCallback(
+    (correct: boolean, onNext: () => void) => {
+      if (isFinishedRef.current || showFeedback || isPaused) return;
+
+      onDisplayChangeRef.current?.();
+      setShowFeedback(true);
+      setLastAnswerCorrect(correct);
+
+      const newCorrectCount = correct
+        ? correctCountRef.current + 1
+        : correctCountRef.current;
+      const newIncorrectCount = correct
+        ? incorrectCountRef.current
+        : incorrectCountRef.current + 1;
+
+      correctCountRef.current = newCorrectCount;
+      incorrectCountRef.current = newIncorrectCount;
+
+      if (correct) {
+        setCorrectCount((c) => c + 1);
+      } else {
+        setIncorrectCount(newIncorrectCount);
+      }
+
+      const finishReason: FinishReason | undefined =
+        newIncorrectCount >= mistakeLimit
+          ? "mistakeLimit"
+          : goalCount !== undefined && newCorrectCount >= goalCount
+            ? "goalReached"
+            : undefined;
+      if (finishReason !== undefined) {
+        feedbackTimeoutRef.current = setTimeout(() => {
+          if (isFinishedRef.current) return;
+          isFinishedRef.current = true;
+          setFinalResult({
+            correctCount: newCorrectCount,
+            incorrectCount: newIncorrectCount,
+            totalCount: newCorrectCount + newIncorrectCount,
+            reason: finishReason,
+            finishedAt: Date.now(),
+          });
+          setIsFinished(true);
+          setShowFeedback(false);
+        }, feedbackDurationMs);
+        return;
+      }
+
+      feedbackTimeoutRef.current = setTimeout(() => {
+        if (isFinishedRef.current) return;
+        setShowFeedback(false);
+        setLastAnswerCorrect(undefined);
+        onNext();
+      }, feedbackDurationMs);
+    },
+    [mistakeLimit, goalCount, feedbackDurationMs, showFeedback, isPaused],
+  );
+
+  const registerTimerReset = useCallback((resetFn: () => void) => {
+    timerResetRef.current = resetFn;
+  }, []);
+
+  const reset = useCallback(() => {
+    if (feedbackTimeoutRef.current) clearTimeout(feedbackTimeoutRef.current);
+    setCorrectCount(0);
+    setIncorrectCount(0);
+    setIsFinished(false);
+    setIsPlaying(false);
+    setIsPaused(false);
+    setShowFeedback(false);
+    setLastAnswerCorrect(undefined);
+    setFinalResult(undefined);
+    isFinishedRef.current = false;
+    correctCountRef.current = 0;
+    incorrectCountRef.current = 0;
+    timerResetRef.current?.();
+    countdown.reset();
+  }, [countdown]);
+
+  const gameSession: GameSessionState = useMemo(
+    () => ({
+      isCountingDown: countdown.isActive,
+      countdownValue: countdown.count,
+      isPlaying: isPlaying && !isPaused,
+      isFinished,
+      isPaused,
+      correctCount,
+      incorrectCount,
+      totalCount,
+      remainingLives,
+      showFeedback,
+      lastAnswerCorrect,
+      handleAnswer,
+      togglePause,
+      mistakeLimit,
+      timeLimit,
+      finalResult,
+    }),
+    [
+      countdown.isActive,
+      countdown.count,
+      isPlaying,
+      isPaused,
+      isFinished,
+      correctCount,
+      incorrectCount,
+      totalCount,
+      remainingLives,
+      showFeedback,
+      lastAnswerCorrect,
+      handleAnswer,
+      togglePause,
+      mistakeLimit,
+      timeLimit,
+      finalResult,
+    ],
+  );
+
+  const timerControl: TimerControl = useMemo(
+    () => ({
+      isActive: isPlaying && !isFinished && !isPaused,
+      onTimeLimitReached: handleTimeLimitReached,
+      registerTimerReset,
+      reset,
+    }),
+    [
+      isPlaying,
+      isFinished,
+      isPaused,
+      handleTimeLimitReached,
+      registerTimerReset,
+      reset,
+    ],
+  );
+
+  return { gameSession, timerControl };
+}

@@ -1,13 +1,17 @@
 "use client";
 
+import {
+  VerifiedChallengeProvider,
+  useVerifiedChallenge,
+} from "../_hooks/use-verified-challenge";
 import { useCallback, useMemo, useState, type ReactNode } from "react";
 import { useTranslations } from "next-intl";
-import type { PracticeMenuSlug } from "@/lib/db/practice-menu-types";
+import type { PracticeMenuSlug } from "@mahjong-scoring/features/practice-menu-types";
 import {
   isExamMenuType,
   practiceMenuBySlug,
   resultStorageKeyFor,
-} from "@/lib/db/practice-menu-types";
+} from "@mahjong-scoring/features/practice-menu-types";
 import { useSubmitExamOnFinish } from "@/app/(user)/(public)/exam/_hooks/use-submit-exam-on-finish";
 import { ChallengeShell } from "../_components/challenge-shell";
 import { TrainingShell } from "../_components/training-shell";
@@ -17,7 +21,8 @@ import { useTimedSession } from "../_hooks/use-timed-session";
 import { useTrainingSession } from "../_hooks/use-training-session";
 import { TrainingModeProvider } from "../_hooks/use-training-mode";
 import type { PracticeBoardProps } from "./practice-board-props";
-import { practiceResultHref } from "./practice-catalog";
+import { practiceResultHref } from "@mahjong-scoring/features/routes";
+import { rankRequiringMenu } from "@mahjong-scoring/features/ranks/registry";
 
 /**
  * チャレンジ盤面の描画に渡される状態
@@ -40,6 +45,18 @@ export interface ChallengeBoardArgs<TResult> extends PracticeBoardProps {
  * チャレンジ本体ビューの生成設定
  * チャレンジビュー設定
  */
+/**
+ * 盤面の状態を持たない設定の既定 `useBoardState`
+ *
+ * `useBoardState` を省略した設定では `TState` が既定の `undefined` になる。
+ * 「省略」と「TState = undefined」が同時に決まることを型では結べないため、
+ * ここで undefined を TState として返す。
+ */
+function useNoBoardState<TState>(): TState {
+  // eslint-disable-next-line @typescript-eslint/consistent-type-assertions -- useBoardState 省略時の TState は既定の undefined（上の TSDoc 参照）
+  return undefined as TState;
+}
+
 export interface ChallengePlayViewConfig<TResult, TProps, TState> {
   /**
    * ルートスラッグ（例: "jantou-fu"）。
@@ -73,7 +90,7 @@ export interface ChallengePlayViewConfig<TResult, TProps, TState> {
  */
 export function createChallengePlayView<
   TResult = never,
-  TProps = Record<string, never>,
+  TProps extends object = Record<string, never>,
   TState = undefined,
 >(
   config: ChallengePlayViewConfig<TResult, TProps, TState>,
@@ -102,17 +119,22 @@ export function createChallengePlayView<
   // フックの呼び出し順は毎レンダー同じ
   const useFinishHandler =
     variant === "exam" ? useSubmitExamOnFinish : useSaveOnFinish;
-  const useBoardState =
-    config.useBoardState ?? (() => undefined as unknown as TState);
+  // 昇級試験は合格点に届いた時点で終える。合否はそこで決まり、その先を
+  // 解いても結果は変わらない。サーバーも合格点に届いた挑戦を終わったものと
+  // して扱う（`finishedChallengeTime`）
+  const goalCount = rankRequiringMenu(menuType)?.requirement.minScore;
+  const useBoardState = config.useBoardState ?? useNoBoardState;
 
   function ChallengePlayView(props: TProps) {
     const t = useTranslations(namespace);
+    const verified = useVerifiedChallenge();
     const boardState = useBoardState(props);
     // チャレンジのルール（制限時間・ミス上限）はレジストリが正典。
     // 練習ごとの上書き（昇級試験のミス1回等）もここ経由で効く
     const { gameSession, timerControl } = useTimedSession({
       mistakeLimit,
       timeLimit,
+      goalCount,
     });
     const handleFinish = useFinishHandler(menuType);
     const { recordResult, presentQuestion } = useRecordedResults<TResult>(
@@ -124,8 +146,29 @@ export function createChallengePlayView<
       <ChallengeShell
         title={t("title")}
         slug={slug}
-        gameSession={gameSession}
-        timerControl={timerControl}
+        gameSession={{
+          ...gameSession,
+          togglePause: () => {
+            if (!verified) {
+              gameSession.togglePause();
+              return;
+            }
+            void verified.pause(!gameSession.isPaused).then((ok) => {
+              if (ok) gameSession.togglePause();
+            });
+          },
+        }}
+        timerControl={{
+          ...timerControl,
+          // サーバーの採点を待つ間は時計を止め、応答が届いたらサーバーの
+          // 時計に合わせ直す（サーバー側も受付後に固定の猶予だけ止めている）
+          isActive: timerControl.isActive && !verified?.isGrading,
+          clock: verified?.clock,
+          onTimeLimitReached: verified
+            ? () => verified.expire(timerControl.onTimeLimitReached)
+            : timerControl.onTimeLimitReached,
+          reset: verified ? verified.restart : timerControl.reset,
+        }}
         resultPath={practiceResultHref(slug)}
         maxWidth={maxWidth}
         hasProblemList={hasProblemList}
@@ -149,7 +192,13 @@ export function createChallengePlayView<
     );
   }
   ChallengePlayView.displayName = `ChallengePlayView(${slug})`;
-  return ChallengePlayView;
+  return function VerifiedPlayView(props: TProps) {
+    return (
+      <VerifiedChallengeProvider slug={slug}>
+        <ChallengePlayView {...props} />
+      </VerifiedChallengeProvider>
+    );
+  };
 }
 
 /**
@@ -214,7 +263,7 @@ export interface TrainingViewConfig<TProps, TState> {
  * 導線が「チャレンジ」ではなく「本番の試験」を指すことだけ。
  */
 export function createTrainingView<
-  TProps = Record<string, never>,
+  TProps extends object = Record<string, never>,
   TState = undefined,
 >(config: TrainingViewConfig<TProps, TState>): (props: TProps) => ReactNode {
   const { slug, maxWidth, hasSubmitButton, help, renderBoard } = config;
@@ -222,8 +271,7 @@ export function createTrainingView<
   const { namespace, menuType, mistakeLimit, timeLimit } =
     practiceMenuBySlug(slug);
   const variant = isExamMenuType(menuType) ? "exam" : "practice";
-  const useBoardState =
-    config.useBoardState ?? (() => undefined as unknown as TState);
+  const useBoardState = config.useBoardState ?? useNoBoardState;
 
   function TrainingView(props: TProps) {
     const t = useTranslations(namespace);

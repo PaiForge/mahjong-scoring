@@ -30,5 +30,5 @@ export default async function DashboardPage() {
     redirect("/");
   }
 
-  return <HomeDashboard />;
+  return <HomeDashboard userId={user.id} />;
 }

@@ -1,59 +1,42 @@
-import { CurriculumProgressBarSkeleton } from "@/app/(user)/(public)/learn/_components/curriculum-progress-bar-skeleton";
-import { PageTitleSkeleton } from "@/app/_components/page-title-skeleton";
 import { SkeletonBar } from "@/app/_components/skeleton-bar";
 import { ContentContainer } from "@/app/(user)/_components/content-container";
-import { PageTitle } from "@/app/(user)/_components/page-title";
+import { PageTitlePlaceholder } from "@/app/(user)/_components/page-title";
 import { SectionTitleSkeleton } from "@/app/(user)/_components/section-title-skeleton";
 
 /**
  * ダッシュボードの読み込み中スケルトン。
  *
- * 実体（HomeDashboard）の「教本の続き」（見出しピル + 進捗バー + 章カード +
- * 右寄せリンク + 行リンク）と「おすすめの練習」（見出しピル + 練習カード 2 枚 +
- * 右寄せリンク）を実測の高さで模す。「お知らせ」以降は初期ビューポート
- * （420x900 実測）のフォールド下なので描かない — 上 2 セクションの高さが
- * 実体と一致していれば、下に追記される分は可視要素を動かさず CLS に効かない
- * （中級進捗のシードユーザー bob / carol で CLS 0.000 を実測）。
+ * 実体（HomeDashboard）の先頭のセクション「次にやること」（見出しピル +
+ * 帯色のカード）を同じ高さで模す。行程が進行中のあいだ実体は「次にやること」
+ * → お知らせの 2 つだけで、「教本の続き」は全級取得済みのユーザーにしか
+ * 出ないため写さない（写すと大多数のユーザーで、実体に無い進捗バーと章カードが
+ * カードの下に出る）。
  *
- * 実体の形はユーザーの進捗で変わるため全状態との一致は原理的に不可能で、
- * ここでは中級進捗（セクション 2 つ + 試験行）に合わせている。進捗ゼロの
- * ユーザーでは実体が短くなり、フッターが繰り上がる分のシフトが出る
- * （alice で CLS 0.083 を実測。Google の「良好」閾値 0.1 未満で、
- * 読了 0 は最初の章を読むまでの一時的な状態）。
+ * 「次にやること」のカードは、級の見出し・進み具合のステップ表示・ボタン
+ * （50px）・下のリンク（20px）に、`space-y-4` の間隔と `p-5` の余白を足した
+ * 高さ。見出しが帯バッジの丈（48px = 2 行）に収まるあいだは 274px
+ * （2026-10-05 に 390px〜1024px 幅で実測）。合格基準の長い 3級・2級・1級が
+ * 次の目標のときだけ、sm 未満で見出しが 3 行になりカードが 298px に伸びる
+ * （同日に 390px 幅で実測）。スケルトンは級を知らないので、登録直後の
+ * 全員が通る 5級の形（274px）に合わせる。
+ * 帯色の枠は写さずグレーの矩形にする
+ * （読み込み中の画面が実物より賑やかに見えるため）。
+ *
+ * それ以降のセクション（お知らせ）は描かない。上のセクションの高さが実体と
+ * 一致していれば、下に追記される分は可視要素を動かさない（お知らせは件数で
+ * 丈も変わる）。全級取得済みのユーザーでは「次にやること」の代わりに
+ * 「教本の続き」・総合演習が並び形が食い違うが、それは行程の終点に着いた人
+ * だけの状態。
  */
 export default function Loading() {
   return (
     <ContentContainer>
-      <PageTitle>
-        <PageTitleSkeleton width="w-24" />
-      </PageTitle>
+      <PageTitlePlaceholder width="w-24" />
 
-      <div className="space-y-8">
-        {/* 教本の続き: 進捗バー(40px) + 章カード(93px) + リンク行(24px) + 試験行(62px) */}
-        <div className="space-y-4">
-          <SectionTitleSkeleton width="w-32" />
-          {/* 実体は /learn と同じ CurriculumProgressBar なので、スケルトンも
-              同じものを使う。矩形 1 枚で代用すると高さは合っていても
-              「ラベル行 + 細いトラック」というバーの形が出ない */}
-          <CurriculumProgressBarSkeleton />
-          <SkeletonBar radius="xl" className="h-[93px] w-full" tone={100} />
-          <div className="flex justify-end">
-            <SkeletonBar className="h-5 w-28" tone={100} />
-          </div>
-          <SkeletonBar radius="xl" className="h-[62px] w-full" tone={100} />
-        </div>
-
-        {/* おすすめの練習: 練習カード(144px) x 2 + リンク行(24px) */}
-        <div className="space-y-4">
-          <SectionTitleSkeleton width="w-36" />
-          <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
-            <SkeletonBar radius="xl" className="h-36 w-full" tone={100} />
-            <SkeletonBar radius="xl" className="h-36 w-full" tone={100} />
-          </div>
-          <div className="flex justify-end">
-            <SkeletonBar className="h-5 w-28" tone={100} />
-          </div>
-        </div>
+      {/* 次にやること: 帯色のカード 1 枚 */}
+      <div className="space-y-4">
+        <SectionTitleSkeleton width="w-28" />
+        <SkeletonBar radius="xl" className="h-[274px] w-full" tone={100} />
       </div>
     </ContentContainer>
   );

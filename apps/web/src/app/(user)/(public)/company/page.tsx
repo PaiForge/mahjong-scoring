@@ -13,6 +13,7 @@ import { getTranslations } from "next-intl/server";
 import { ContentContainer } from "@/app/(user)/_components/content-container";
 import { PageTitle } from "@/app/(user)/_components/page-title";
 import { createNamespaceMetadata } from "@/app/_lib/metadata";
+import { CORPORATE_SITE_URL } from "@/config";
 
 import {
   LegalArticle,
@@ -21,9 +22,6 @@ import {
   LegalParagraph,
   LegalSection,
 } from "../_components/legal-article";
-
-/** 事業者のコーポレートサイト */
-const CORPORATE_SITE_URL = "https://www.fuji.llc/";
 
 export async function generateMetadata(): Promise<Metadata> {
   return createNamespaceMetadata("company", {

@@ -22,19 +22,19 @@ import type {
   ChartDataPoint,
   DatePeriod,
   AttemptRow,
-  RecordBoard,
 } from "../_lib/types";
+import type { PracticeBoard } from "@mahjong-scoring/features/practice-menu-types";
 
 const TABLE_DISPLAY_LIMIT = 5;
 
 interface UseDashboardDataOptions {
   /** サーバーサイドでプリフェッチした、記録を持つ土俵の一覧 */
-  readonly initialBoards: readonly RecordBoard[];
+  readonly initialBoards: readonly PracticeBoard[];
   /**
    * 初期選択の土俵。`initialAttempts` がどの土俵のデータかを表すため、
    * プリフェッチと同じ値を渡すこと（食い違うと初回描画だけ別の土俵のデータが出る）。
    */
-  readonly initialBoard: RecordBoard | undefined;
+  readonly initialBoard: PracticeBoard | undefined;
   /** サーバーサイドでプリフェッチした初期チャレンジデータ */
   readonly initialAttempts: {
     readonly current: readonly ChallengeAttempt[];
@@ -52,11 +52,11 @@ export function useDashboardData({
   initialBoard,
   initialAttempts,
 }: UseDashboardDataOptions) {
-  const [selectedBoard, setSelectedBoard] = useState<RecordBoard | undefined>(
+  const [selectedBoard, setSelectedBoard] = useState<PracticeBoard | undefined>(
     initialBoard,
   );
   const [selectedPeriod, setSelectedPeriod] = useState<DatePeriod>("thisWeek");
-  const [availableBoards] = useState<RecordBoard[] | undefined>([
+  const [availableBoards] = useState<PracticeBoard[] | undefined>([
     ...initialBoards,
   ]);
   const [currentAttempts, setCurrentAttempts] = useState<ChallengeAttempt[]>([

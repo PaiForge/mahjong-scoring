@@ -50,9 +50,7 @@ export async function callApi<T = unknown>(
 
   if (!res.ok) {
     // 本文が空・非 JSON でもエラーコードは必ず返す
-    const body = (await res.json().catch(() => ({}))) as {
-      error?: unknown;
-    };
+    const body: { error?: unknown } = await res.json().catch(() => ({}));
     const error =
       typeof body.error === "string" && body.error.length > 0
         ? body.error
@@ -61,6 +59,6 @@ export async function callApi<T = unknown>(
   }
 
   // 204 や本文なしの成功も許容する
-  const data = (await res.json().catch(() => undefined)) as T;
+  const data: T = await res.json().catch(() => undefined);
   return { ok: true, data };
 }

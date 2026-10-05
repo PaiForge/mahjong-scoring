@@ -1,0 +1,34 @@
+{
+  "title": "ランキング",
+  "periodLabel": "期間",
+  "period": {
+    "all-time": "総合",
+    "monthly": "月間"
+  },
+  "rankLabel": "{rank} 位",
+  "notRanked": "未挑戦",
+  "table": {
+    "rank": "順位",
+    "player": "プレイヤー",
+    "score": "スコア",
+    "miss": "ミス"
+  },
+  "emptyState": "まだスコアが記録されていません。最初の記録を作りましょう！",
+  "yourRank": "あなた",
+  "viewerHidden": "ランキングに表示しない設定です",
+  "viewerHiddenLink": "設定を変更する",
+  "pagination": {
+    "label": "ランキングページ送り",
+    "previous": "前へ",
+    "next": "次へ",
+    "total": "全 {count} 人"
+  },
+  "tryChallenge": "この種目にチャレンジ",
+  "signUpBanner": {
+    "message": "ランキングに参加しよう！",
+    "description": "無料アカウントを作成して、スコアを記録し他のプレイヤーと競い合いましょう。",
+    "cta": "無料登録"
+  },
+  "allTimeRanking": "総合ランキング",
+  "viewMore": "ランキングをもっと見る"
+}

@@ -67,9 +67,15 @@ export const config = [
       "@typescript-eslint/no-wrapper-object-types": "error",
     },
   },
-  // Allow `as` assertions in test files
+  // Allow `as` assertions in test files and test support code (mocks / setup)
   {
-    files: ["**/*.test.ts", "**/*.test.tsx", "**/*.spec.ts", "**/*.spec.tsx"],
+    files: [
+      "**/*.test.ts",
+      "**/*.test.tsx",
+      "**/*.spec.ts",
+      "**/*.spec.tsx",
+      "**/src/test/**",
+    ],
     rules: {
       "@typescript-eslint/consistent-type-assertions": "off",
     },

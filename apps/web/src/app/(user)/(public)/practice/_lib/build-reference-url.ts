@@ -1,4 +1,4 @@
-import type { ScoreQuestionResult } from "./score-question-result";
+import type { ScoreQuestionResult } from "@mahjong-scoring/features/results/score-question-result";
 
 /**
  * 点数系練習の問題結果から点数表参照ページへのURLを生成する

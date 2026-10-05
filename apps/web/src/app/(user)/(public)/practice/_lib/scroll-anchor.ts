@@ -32,9 +32,17 @@ export const PRACTICE_SETUP_HASH = `#${PRACTICE_SETUP_ANCHOR_ID}`;
  * まま止まると、盤面上部に出る正誤表示も続けて差し替わる次の問題も画面外に
  * 残る。手牌符・点数計算総合演習のように縦に長い練習で顕著なので、表示が
  * 切り替わる操作のたびにマウント時（`useScrollToElement`）と同じ位置へ戻す。
+ */
+export function scrollToPracticeAnchor(): void {
+  scrollToAnchor(PRACTICE_SCROLL_ANCHOR_ID);
+}
+
+/**
+ * 指定 id の要素をビューポート先頭へ滑らかにスクロールする。
+ * アンカーへ滑らかに戻す
  *
- * マウント時と違い操作の続きとして動くので、どこへ運ばれたのかが分かるよう
- * 滑らかにスクロールする。動きを減らす設定の環境では即時に切り替える。
+ * 操作の続きとして動くので、どこへ運ばれたのかが分かるよう滑らかに
+ * スクロールする。動きを減らす設定の環境では即時に切り替える。
  *
  * 開始を次フレームまで遅らせるのは、呼び出し元がクリックハンドラだからで、
  * その場で始めた smooth スクロールは直後の React のコミットに打ち消される。
@@ -44,14 +52,16 @@ export const PRACTICE_SETUP_HASH = `#${PRACTICE_SETUP_ANCHOR_ID}`;
  * スクロールアニメーションが中断されて押した位置に留まる。コミットは
  * クリックイベントと同じタスクで同期的に終わるので、次フレームまで待てば
  * フォーカス復元より後に始められる。
+ *
+ * @param elementId スクロール先要素の id
  */
-export function scrollToPracticeAnchor(): void {
+export function scrollToAnchor(elementId: string): void {
   const prefersReducedMotion = window.matchMedia(
     "(prefers-reduced-motion: reduce)",
   ).matches;
 
   requestAnimationFrame(() => {
-    document.getElementById(PRACTICE_SCROLL_ANCHOR_ID)?.scrollIntoView({
+    document.getElementById(elementId)?.scrollIntoView({
       behavior: prefersReducedMotion ? "instant" : "smooth",
       block: "start",
     });

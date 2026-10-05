@@ -5,6 +5,8 @@ import { enforceIpRateLimit } from "@/lib/rate-limit-ip";
 import type { RateLimitErrorCode } from "@/lib/rate-limit-ip";
 import { createClient } from "@/lib/supabase/server";
 
+import { SIGN_UP_EMAIL_REDIRECT_TO } from "../../_lib/email-redirect";
+
 /** 確認メール再送の失敗理由 */
 export type ResendEmailError = RateLimitErrorCode | "resendFailed";
 
@@ -24,6 +26,9 @@ export async function resendEmail(email: string): Promise<ResendEmailResult> {
   const { error } = await supabase.auth.resend({
     type: "signup",
     email,
+    options: {
+      emailRedirectTo: SIGN_UP_EMAIL_REDIRECT_TO,
+    },
   });
 
   if (error) {

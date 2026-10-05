@@ -1,5 +1,5 @@
 import { createCustomResultView } from "../../_lib/create-custom-result-view";
-import { RESULT_STORAGE_KEY } from "../_lib/types";
+import { RESULT_STORAGE_KEY } from "@mahjong-scoring/features/practice/yaku/types";
 import { YakuProblemListLoader } from "./yaku-problem-list-loader";
 
 /**

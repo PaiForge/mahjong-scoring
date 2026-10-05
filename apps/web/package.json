@@ -11,10 +11,13 @@
     "email:generate": "tsx scripts/generate-email-templates.ts",
     "og:generate": "tsx scripts/generate-og-image.ts",
     "icons:generate": "tsx scripts/generate-icons.ts",
+    "tiles:generate": "tsx scripts/generate-tiles.ts",
     "typecheck": "tsc --noEmit",
     "test": "vitest run",
     "db:run-migrate": "tsx scripts/migrate.ts",
+    "db:seed": "tsx scripts/seed.ts",
     "db:seed:dev": "tsx scripts/dev-seed.ts",
+    "stripe:bootstrap": "tsx scripts/stripe-bootstrap.ts",
     "db:studio": "drizzle-kit studio"
   },
   "dependencies": {
@@ -23,8 +26,10 @@
     "@dnd-kit/sortable": "^10.0.0",
     "@dnd-kit/utilities": "^3.2.2",
     "@mahjong-scoring/core": "workspace:*",
+    "@mahjong-scoring/features": "workspace:*",
+    "@mahjong-scoring/messages": "workspace:*",
     "@next/third-parties": "^16.3.0",
-    "@pai-forge/mahjong-react-ui": "^0.3.0",
+    "@pai-forge/mahjong-react-ui": "^0.4.0",
     "@supabase/ssr": "^0.12.4",
     "@supabase/supabase-js": "^2.112.2",
     "driver.js": "^1.8.0",
@@ -32,7 +37,7 @@
     "env-ribbon": "^0.1.0",
     "heic-to": "^1.5.2",
     "katex": "^0.18.2",
-    "next": "^16.3.0",
+    "next": "^16.3.6",
     "next-intl": "^4.13.5",
     "nuqs": "^2.9.5",
     "postgres": "^3.4.9",
@@ -44,7 +49,8 @@
     "remark-gfm": "^4.0.1",
     "resend": "^6.28.0",
     "server-only": "^0.0.1",
-    "sharp": "^0.35.3",
+    "sharp": "^0.35.4",
+    "stripe": "^23.0.0",
     "zod": "^4.4.3",
     "zustand": "^5.0.14"
   },
@@ -56,13 +62,13 @@
     "@types/react": "^19.2.18",
     "@types/react-dom": "^19.2.4",
     "dotenv": "^17.4.2",
-    "drizzle-kit": "^0.31.10",
+    "drizzle-kit": "^0.31.11",
     "jsdom": "^30.0.1",
     "postcss": "^8.5.26",
     "supabase": "^2.115.0",
     "tailwindcss": "^4.3.3",
     "tsx": "^4.23.11",
     "typescript": "^7.0.2",
-    "vitest": "^4.1.10"
+    "vitest": "^4.1.11"
   }
 }

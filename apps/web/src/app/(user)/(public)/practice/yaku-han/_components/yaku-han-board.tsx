@@ -1,5 +1,7 @@
 "use client";
 
+import { useGradeAndRecord } from "../../_hooks/use-verified-challenge";
+
 import { useCallback, useState } from "react";
 import { useTranslations } from "next-intl";
 import {
@@ -11,11 +13,10 @@ import { QuestionGeneratingPlaceholder } from "../../_components/question-genera
 import { useClientGeneratedQuestion } from "../../_hooks/use-client-generated-question";
 import { usePresentQuestion } from "../../_hooks/use-present-question";
 import { useRegisterAdvance } from "../../_hooks/use-training-mode";
-import { AnswerOutcome } from "../../_lib/result-schemas";
 import { YakuHanPrompt } from "./yaku-han-prompt";
 import { YakuHanAnswerForm } from "./yaku-han-answer-form";
-import { toQuestionResult } from "../_lib/types";
-import type { YakuHanQuestionResult } from "../_lib/types";
+import { toQuestionResult } from "@mahjong-scoring/features/practice/yaku-han/types";
+import type { YakuHanQuestionResult } from "@mahjong-scoring/features/practice/yaku-han/types";
 import type { RecordingPracticeBoardProps } from "../../_lib/practice-board-props";
 
 interface YakuHanBoardProps extends RecordingPracticeBoardProps<YakuHanQuestionResult> {
@@ -54,6 +55,12 @@ export function YakuHanBoard({
     setQuestionIndex((prev) => prev + 1);
   }, [generateQuestion, setQuestion]);
 
+  const gradeAndRecord = useGradeAndRecord(toQuestionResult, {
+    onRecordResult,
+    onAnswer,
+    advance: advanceQuestion,
+  });
+
   useRegisterAdvance(question === undefined ? undefined : advanceQuestion);
   usePresentQuestion(question, toUnansweredResult, onPresentQuestion);
 
@@ -61,11 +68,9 @@ export function YakuHanBoard({
     (userHan: number) => {
       if (showFeedback || !question) return;
 
-      const result = toQuestionResult(question, userHan);
-      onRecordResult?.(result);
-      onAnswer(result.outcome === AnswerOutcome.Correct, advanceQuestion);
+      gradeAndRecord(question, userHan);
     },
-    [showFeedback, question, onAnswer, advanceQuestion, onRecordResult],
+    [showFeedback, question, gradeAndRecord],
   );
 
   if (!question) {

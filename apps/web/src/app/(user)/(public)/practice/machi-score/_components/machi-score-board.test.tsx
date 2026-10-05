@@ -11,10 +11,17 @@ import { isOya } from "@mahjong-scoring/core";
 
 vi.mock("next/navigation", async () => await import("@/test/navigation-mock"));
 vi.mock("next-intl", async () => await import("@/test/intl-mock"));
+vi.mock(
+  "../../_actions/begin-practice-question",
+  async () => await import("@/test/begin-practice-question-mock"),
+);
 
+const { beginPracticeQuestion } =
+  await import("@/test/begin-practice-question-mock");
 const { MachiScoreBoard } = await import("./machi-score-board");
 const { cellKeyOf, useMachiScoreStore } =
   await import("../_hooks/use-machi-score-store");
+const { _resetPracticeQuota } = await import("../../_hooks/use-practice-quota");
 
 /** 盤面を mount し、待ちを正解して点数の回答（cells）まで進める */
 async function visitCells() {
@@ -45,7 +52,7 @@ async function visitCellsWithWaits(minWaits: number, koOnly = false) {
     const q = useMachiScoreStore.getState().currentQuestion;
     if (q && fits(q)) break;
     act(() => {
-      useMachiScoreStore.getState().nextQuestion();
+      useMachiScoreStore.getState().generateNewQuestion();
     });
     const store = useMachiScoreStore.getState();
     const question = store.currentQuestion;
@@ -332,5 +339,68 @@ describe("MachiScoreBoard の回答欄", () => {
     fireEvent.change(hanSelect(), { target: { value: "3" } });
     fireEvent.click(rowCells(1)[0]);
     expect(hanSelect().value).toBe("3");
+  });
+});
+
+// 盤面を離れて戻ってきた経路。判定は総合演習の盤面と同じ仕組みなので、
+// ここでは「3 段階の途中の入力ごと引き継ぐ」ことだけを見る
+describe("MachiScoreBoard に同じ条件で戻ってきたとき", () => {
+  beforeEach(() => {
+    cleanup();
+    beginPracticeQuestion.mockClear();
+    _resetPracticeQuota();
+    useMachiScoreStore.getState().setQuestion(undefined);
+  });
+
+  it("消費し直さず、点数の回答の途中から続けられる", async () => {
+    const question = await visitCells();
+    fireEvent.click(firstRowCells()[0]);
+    act(() => {
+      useMachiScoreStore.getState().assignAnswer({
+        kind: "score",
+        answer: {
+          han: 2,
+          fu: 30,
+          scoreFromKo: 500,
+          scoreFromOya: 1000,
+          yakus: [],
+        },
+      });
+    });
+
+    cleanup();
+    await act(async () => {
+      render(<MachiScoreBoard />);
+    });
+
+    expect(beginPracticeQuestion).toHaveBeenCalledTimes(1);
+    const state = useMachiScoreStore.getState();
+    expect(state.currentQuestion).toBe(question);
+    expect(state.phase).toBe("cells");
+    expect(Object.keys(state.cellAnswers)).toHaveLength(1);
+    expect(screen.getByRole("button", { name: "cells.submit" })).toBeDefined();
+  });
+
+  it("上限で止まっていたら聞き直す", async () => {
+    beginPracticeQuestion.mockResolvedValueOnce({
+      success: true,
+      allowed: false,
+      remaining: 0,
+      limit: 3,
+      signedIn: true,
+      benefits: [],
+    });
+    await act(async () => {
+      render(<MachiScoreBoard />);
+    });
+    expect(screen.getByText("perksTitle")).toBeDefined();
+
+    cleanup();
+    await act(async () => {
+      render(<MachiScoreBoard />);
+    });
+
+    expect(beginPracticeQuestion).toHaveBeenCalledTimes(2);
+    expect(useMachiScoreStore.getState().currentQuestion).toBeDefined();
   });
 });

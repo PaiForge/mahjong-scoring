@@ -1,8 +1,8 @@
 import type { getTranslations } from "next-intl/server";
 
-import { rankTier, type RankSlug } from "@/lib/ranks/registry";
+import type { RankSlug } from "@mahjong-scoring/features/ranks/registry";
 
-import { rankExamHref } from "./practice-catalog";
+import { rankHref } from "@mahjong-scoring/features/routes";
 
 type RanksTranslator = Awaited<ReturnType<typeof getTranslations<"ranks">>>;
 
@@ -26,8 +26,8 @@ export function practiceCardRank(
   return {
     slug: rank,
     label,
-    href: rankExamHref(rank),
+    href: rankHref(rank),
     // pill には段級位名しか出ないため、リンクとしての名前は行き先まで含める
-    ariaLabel: tRanks(`examTitle.${rankTier(rank)}`, { rank: label }),
+    ariaLabel: tRanks("pillLinkLabel", { rank: label }),
   };
 }

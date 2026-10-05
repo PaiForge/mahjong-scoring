@@ -1,9 +1,9 @@
 "use client";
 
-import { PRACTICE_SLUG } from "@/lib/db/practice-menu-types";
+import { PRACTICE_SLUG } from "@mahjong-scoring/features/practice-menu-types";
 import { createChallengePlayView } from "@/app/(user)/(public)/practice/_lib/create-challenge-views";
 import { ChiitoitsuExamBoard } from "./chiitoitsu-exam-board";
-import type { ChiitoitsuExamQuestionResult } from "../_lib/types";
+import type { ChiitoitsuExamQuestionResult } from "@mahjong-scoring/features/exam/chiitoitsu/types";
 
 /**
  * 昇級試験（七対子の点数計算）本体

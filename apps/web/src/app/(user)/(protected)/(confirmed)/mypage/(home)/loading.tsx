@@ -1,7 +1,6 @@
 import { ContentContainer } from "@/app/(user)/_components/content-container";
-import { PageTitle } from "@/app/(user)/_components/page-title";
+import { PageTitlePlaceholder } from "@/app/(user)/_components/page-title";
 import { SkeletonBar } from "@/app/_components/skeleton-bar";
-import { PageTitleSkeleton } from "@/app/_components/page-title-skeleton";
 
 import { HeatmapSkeleton } from "./_components/heatmap-skeleton";
 
@@ -21,10 +20,7 @@ import { HeatmapSkeleton } from "./_components/heatmap-skeleton";
 export default function Loading() {
   return (
     <ContentContainer>
-      {/* PageTitle を使うことで実描画と同じ全幅グレー帯を再現する */}
-      <PageTitle>
-        <PageTitleSkeleton width="w-40" />
-      </PageTitle>
+      <PageTitlePlaceholder width="w-40" />
 
       <div className="space-y-6">
         {/* プロフィールカード（実: flex items-center gap-4 border-3 bg-card p-4。

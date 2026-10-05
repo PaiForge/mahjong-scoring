@@ -1,0 +1,3 @@
+ALTER TABLE "ad_creatives" DROP CONSTRAINT "ad_creatives_chk_has_visual";--> statement-breakpoint
+ALTER TABLE "ad_creatives" ADD COLUMN "hand" varchar(64);--> statement-breakpoint
+ALTER TABLE "ad_creatives" ADD CONSTRAINT "ad_creatives_chk_has_visual" CHECK (("ad_creatives"."icon" IS NOT NULL AND "ad_creatives"."icon" <> '') OR "ad_creatives"."image_path" IS NOT NULL OR "ad_creatives"."hand" IS NOT NULL);

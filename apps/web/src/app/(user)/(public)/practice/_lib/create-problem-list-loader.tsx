@@ -46,6 +46,7 @@ export function createProblemListLoader<TListProps extends ProblemListProps>(
     }
     // `Omit<TListProps, "results">` に results を戻した形は TListProps と同一だが、
     // ジェネリックのまま差分を足し戻す推論は TS が追えないため unknown 経由で通す。
+    // eslint-disable-next-line @typescript-eslint/consistent-type-assertions -- 上記の TS の制限
     const listProps = { ...extraProps, results } as unknown as TListProps;
     return <ProblemList {...listProps} />;
   }

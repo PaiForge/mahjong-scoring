@@ -1,6 +1,28 @@
 "use client";
 
+import Link from "next/link";
+
+import { TEXT_LINK_CLASSES } from "@/app/_components/_lib/link-classes";
 import { HelpIconButton } from "@/app/(user)/_components/help-icon-button";
+
+/**
+ * 有料プランの機能で、いまの閲覧者には開放されていないことを示す
+ * 設定ロック
+ *
+ * 機能名・使えない理由・使うための導線を隠さずに読ませる。スイッチの位置には
+ * 押せない表記（`badge`。「Pro」）を置き、その下に利用条件（`note`）と
+ * 料金ページへのテキストリンク（`linkLabel`）を添える。
+ *
+ * ぼかしや中央のオーバーレイで覆わない。1 行を覆うには面積が足りず、
+ * 描画の崩れに見えるため。Pro の設定が複数になったら、独立したカードに
+ * まとめる形を検討する。
+ */
+export interface SettingToggleLock {
+  readonly badge: string;
+  readonly note: string;
+  readonly linkLabel: string;
+  readonly href: string;
+}
 
 interface SettingToggleProps {
   readonly checked: boolean;
@@ -10,6 +32,8 @@ interface SettingToggleProps {
   readonly isLast?: boolean;
   readonly onInfoClick?: () => void;
   readonly infoAriaLabel?: string;
+  /** 指定するとスイッチを出さず、利用条件と料金ページへの導線を出す */
+  readonly locked?: SettingToggleLock;
 }
 
 export function SettingToggle({
@@ -20,7 +44,36 @@ export function SettingToggle({
   isLast = false,
   onInfoClick,
   infoAriaLabel,
+  locked,
 }: SettingToggleProps) {
+  if (locked) {
+    // 操作できない行なので hover の反応は付けない。淡い背景で区切るが、
+    // 文字のコントラストは通常の行と同じに保つ
+    return (
+      <div
+        className={`bg-surface-50 px-5 py-3.5 ${isLast ? "" : "border-b-2 border-dashed border-border/40"}`}
+      >
+        <div className="flex items-center justify-between gap-3">
+          <span className="text-sm font-medium text-surface-700">
+            {title || label}
+          </span>
+          <span className="inline-flex shrink-0 items-center rounded-full border-2 border-surface-300 bg-white px-2 py-0.5 text-[11px] leading-none font-bold text-surface-600">
+            {locked.badge}
+          </span>
+        </div>
+        <p className="mt-1 text-xs text-surface-600">{locked.note}</p>
+        <div className="mt-1 text-right text-xs">
+          <Link
+            href={locked.href}
+            className={`font-semibold ${TEXT_LINK_CLASSES}`}
+          >
+            {locked.linkLabel}
+          </Link>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div
       className={`group flex items-center justify-between px-5 py-3.5 transition-colors hover:bg-surface-50 ${isLast ? "" : "border-b-2 border-dashed border-border/40"}`}

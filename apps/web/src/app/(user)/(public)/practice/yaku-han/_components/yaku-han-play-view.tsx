@@ -1,6 +1,6 @@
 "use client";
 
-import { PRACTICE_SLUG } from "@/lib/db/practice-menu-types";
+import { PRACTICE_SLUG } from "@mahjong-scoring/features/practice-menu-types";
 import { Suspense } from "react";
 
 import { createChallengePlayView } from "../../_lib/create-challenge-views";
@@ -8,8 +8,8 @@ import type { ChallengeBoardArgs } from "../../_lib/create-challenge-views";
 import { YakuHanBoard } from "./yaku-han-board";
 import { YakuHanGeneratingPlaceholder } from "./yaku-han-generating-placeholder";
 import { useVariantQuery } from "../../_hooks/use-variant-query";
-import { YAKU_HAN_VARIANT_RANGES } from "../_lib/variants";
-import type { YakuHanQuestionResult } from "../_lib/types";
+import { YAKU_HAN_VARIANT_RANGES } from "@mahjong-scoring/features/practice/yaku-han/variants";
+import type { YakuHanQuestionResult } from "@mahjong-scoring/features/practice/yaku-han/types";
 
 /**
  * URL のバリアント（出題範囲）で盤面を描く

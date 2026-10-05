@@ -1,5 +1,5 @@
 import { createCustomResultView } from "../../_lib/create-custom-result-view";
-import { RESULT_STORAGE_KEY } from "../_lib/types";
+import { RESULT_STORAGE_KEY } from "@mahjong-scoring/features/practice/total-fu/types";
 import { TotalFuProblemListLoader } from "./total-fu-problem-list-loader";
 
 /**

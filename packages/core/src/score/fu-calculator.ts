@@ -10,6 +10,7 @@ import {
   isOpenMentsuForFu,
 } from "../core/score-calculation";
 import { jantouFuReasons } from "../problem/shared/jantou-fu";
+import { FU_STEP, FUTEI_FU } from "./mentsu-tehai-fu";
 import { openLabel, yaochuLabel } from "../problem/shared/mentsu-labels";
 
 /** 符が付く待ち形の日本語ラベル */
@@ -59,12 +60,12 @@ export function convertScoreDetailToFuDetails(
 
   // 国士無双（便宜上）
   if (structure.type === "Kokushi") {
-    return [{ reason: "副底", fu: 20 }];
+    return [{ reason: "副底", fu: FUTEI_FU }];
   }
 
   // 平和ツモの特例（符合計が20符の場合）
-  if (fuResult.total === 20 && config.isTsumo) {
-    return [{ reason: "平和ツモ", fu: 20 }];
+  if (fuResult.total === FUTEI_FU && config.isTsumo) {
+    return [{ reason: "平和ツモ", fu: FUTEI_FU }];
   }
 
   const result: FuDetail[] = [];
@@ -126,8 +127,8 @@ export function convertScoreDetailToFuDetails(
 
   // 喰い平和の特例（合計20符を30符に切り上げ）
   const rawSum = result.reduce((acc, d) => acc + d.fu, 0);
-  if (rawSum === 20 && !config.isTsumo) {
-    result.push({ reason: "特例等の加符", fu: 10 });
+  if (rawSum === FUTEI_FU && !config.isTsumo) {
+    result.push({ reason: "特例等の加符", fu: FU_STEP });
   }
 
   return result;

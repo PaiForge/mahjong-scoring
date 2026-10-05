@@ -1,0 +1,49 @@
+{
+  "pageTitle": "Pro プラン",
+  "success": "購入が完了しました。ありがとうございます！",
+  "pending": "支払いの確認中です。反映まで少しお待ちください。",
+  "status": {
+    "title": "現在の状態",
+    "free": "無料プラン",
+    "freeHint": "Pro を購入すると、点数計算の練習を回数制限なしで続けられます。",
+    "lifetime": "Pro（買い切り）",
+    "lifetimeHint": "購入時点の Pro の機能をずっと使えます。",
+    "pass": "Pro（{until} まで）",
+    "passHint": "期限が来ると無料プランに戻ります。もう 1 枚買うと期限の後ろに繋がります。",
+    "granted": "Pro（付与）",
+    "grantedUntil": "Pro（付与・{until} まで）",
+    "grantedHint": "運営から付与された Pro の特典です。購入した特典とは別に扱われます。",
+    "buy": "Pro を購入する"
+  },
+  "history": {
+    "title": "購入履歴",
+    "empty": "購入履歴はありません",
+    "date": "購入日",
+    "item": "内容",
+    "amount": "金額",
+    "state": "状態",
+    "kind": {
+      "pass": "30 日パス",
+      "lifetime": "買い切り"
+    },
+    "state_active": "有効",
+    "state_scheduled": "開始待ち",
+    "state_expired": "期限切れ",
+    "state_refunded": "返金済み",
+    "receiptHint": "領収書は購入時に Stripe から届いたメールをご確認ください。"
+  },
+  "grants": {
+    "title": "付与された特典",
+    "date": "付与日",
+    "item": "内容",
+    "period": "期間",
+    "state": "状態",
+    "pro": "Pro",
+    "permanent": "無期限",
+    "until": "{until} まで",
+    "state_active": "有効",
+    "state_expired": "期限切れ",
+    "state_revoked": "取り消し済み"
+  },
+  "failed": "購入情報を確認できませんでした。お支払い済みの場合は、再購入せずお問い合わせください。"
+}

@@ -6,7 +6,8 @@
  * 文中リンクの張り先だけを持つ。文面はサービスの実装（未ログイン時に
  * 記録が残らないこと、退会時に消すもの・残すもの、公開される項目）を
  * そのまま書いているので、実装を変えたら文面も合わせて直すこと。
- * 特に「退会」の節は `lib/users/delete-account.ts` と対応している。
+ * 特に「退会」の節は `lib/users/delete-account.ts` と、「有料プラン」の節は
+ * `lib/billing/plans.ts`（期間パスの重ね買い・買い切りの範囲）と対応している。
  */
 import type { Metadata } from "next";
 import { getTranslations } from "next-intl/server";
@@ -25,7 +26,7 @@ import {
 } from "../_components/legal-article";
 
 /** 改定日。文面を変えたら更新する */
-const LAST_UPDATED = "2026-09-14";
+const LAST_UPDATED = "2026-10-01";
 
 export async function generateMetadata(): Promise<Metadata> {
   return createNamespaceMetadata("terms", {
@@ -97,6 +98,19 @@ export default async function TermsPage() {
             <li>{t("deletion.item2")}</li>
             <li>{t("deletion.item3")}</li>
             <li>{t("deletion.item4")}</li>
+            <li>{t("deletion.item5")}</li>
+          </LegalList>
+        </LegalSection>
+
+        <LegalSection title={t("paidPlan.title")}>
+          <LegalParagraph>{t("paidPlan.body")}</LegalParagraph>
+          <LegalList>
+            <li>{t("paidPlan.item1")}</li>
+            <li>{t("paidPlan.item2")}</li>
+            <li>{t("paidPlan.item3")}</li>
+            <li>{t("paidPlan.item4")}</li>
+            <li>{t("paidPlan.item5")}</li>
+            <li>{t("paidPlan.item6")}</li>
           </LegalList>
         </LegalSection>
 

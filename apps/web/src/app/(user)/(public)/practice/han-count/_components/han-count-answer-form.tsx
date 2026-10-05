@@ -1,7 +1,10 @@
 "use client";
 
 import { HanChoiceAnswerForm } from "../../_components/han-choice-answer-form";
-import { HAN_OPTIONS, hanCountLabel } from "../_lib/han-options";
+import {
+  HAN_OPTIONS,
+  hanCountLabel,
+} from "@mahjong-scoring/features/practice/han-count/han-options";
 
 interface HanCountAnswerFormProps {
   /** 正解の翻数 */

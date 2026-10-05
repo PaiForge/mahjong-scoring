@@ -4,7 +4,7 @@ import { useMemo } from "react";
 import type { ComponentProps } from "react";
 import type { MachiScoreQuestion } from "@mahjong-scoring/core";
 import { TehaiDisplay } from "../../_components/tehai-display";
-import type { TehaiContext } from "../../_components/tehai-display";
+import type { TehaiContext } from "@mahjong-scoring/features/board/tehai-context";
 
 interface TenpaiDisplayProps {
   readonly question: MachiScoreQuestion;

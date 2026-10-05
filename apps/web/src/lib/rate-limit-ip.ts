@@ -97,11 +97,32 @@ export const IP_RATE_LIMITS = {
   deleteAccount: { maxRequests: 5, windowMs: 300_000 },
   uploadAvatar: { maxRequests: 5, windowMs: 600_000 },
   deleteAvatar: { maxRequests: 5, windowMs: 600_000 },
+  // 管理画面の広告画像。管理者しか通らないが、差し替えを続けて試す運用を
+  // 妨げない程度に緩めにする
+  uploadAdImage: { maxRequests: 30, windowMs: 600_000 },
   updateProfile: { maxRequests: 10, windowMs: 600_000 },
   updateLeaderboardVisibility: { maxRequests: 20, windowMs: 600_000 },
   // 未ログインで叩けるメール送信。Resend の送信枠（アカウント単位）を
   // 1 つの IP に食い潰されないよう短い窓で絞る
   contact: { maxRequests: 3, windowMs: 60_000 },
+  // エンドレス練習の 1 問ごとの消費。本来の上限は無料枠（1 日 3〜5 問）と
+  // Pro の無制限で決まるので、ここは連打や自動化を止める網だけ。1 問に
+  // 数秒は掛かるため、10 分で 120 回なら人の操作は引っ掛からない
+  beginPracticeQuestion: { maxRequests: 120, windowMs: 600_000 },
+  // 盤面に戻ってきたときの残数の取り直し（消費しない）。戻る操作の回数
+  // だけ増えるので、出題の網とは別に数えて互いの枠を食い合わせない
+  peekPracticeQuota: { maxRequests: 120, windowMs: 600_000 },
+  // Stripe Checkout の作成と完了の着地。Stripe 側に顧客・Session を作る操作
+  // なので、連打や自動化で Stripe の API を叩かせない
+  createCheckoutSession: { maxRequests: 5, windowMs: 600_000 },
+  completeCheckout: { maxRequests: 10, windowMs: 600_000 },
+  // 通知の既読化。一覧を順に開くと 1 件ずつ飛ぶので、人の操作が
+  // 引っ掛からない程度に取る
+  markNotificationsRead: { maxRequests: 60, windowMs: 600_000 },
+  // チャレンジの開始。呼ぶたびに challenge_attempts へ 1 行作るので、連打や
+  // 自動化で行を増やし続けさせない。1 回は最短でも数十秒掛かり、すぐ
+  // やり直しても 10 分で 60 回には届かない
+  beginChallenge: { maxRequests: 60, windowMs: 600_000 },
 } as const;
 
 /**

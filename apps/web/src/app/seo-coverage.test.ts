@@ -1,15 +1,17 @@
-import { readdirSync, readFileSync } from "node:fs";
-import { dirname, join, relative, sep } from "node:path";
+import { readFileSync } from "node:fs";
+import { dirname, sep } from "node:path";
 import { fileURLToPath } from "node:url";
 
 import { describe, expect, it } from "vitest";
+
+import { collectPages } from "@/test/collect-pages";
 
 import { INDEXABLE_PATHS } from "@/app/_lib/sitemap-routes";
 import {
   PRACTICE_SLUG,
   PRACTICE_MENU_SLUGS,
   practiceMenuBySlug,
-} from "@/lib/db/practice-menu-types";
+} from "@mahjong-scoring/features/practice-menu-types";
 
 /**
  * SEO カバレッジの不変条件（loading-boundaries.test.ts と同型の構造検査）:
@@ -42,7 +44,6 @@ const EXCLUDED_PATHS: ReadonlyMap<string, string> = new Map([
   ["/sign-up/verify-email", "認証フロー（登録直後のみ意味を持つ）"],
   ["/preferences", "ユーザー個別設定。sitemap 掲載は判断保留"],
   ["/preferences/yaku-order", "ユーザー個別設定（設定の子ページ）"],
-  ["/leaderboard", "sitemap 掲載は判断保留（掲載するなら canonical も付ける）"],
 ]);
 
 /** ページソースにこれが含まれていれば noindex（検索除外）を宣言しているとみなす */
@@ -55,36 +56,14 @@ const NOINDEX_MARKERS = [
   "robots: { index: false",
 ] as const;
 
-/** src/app 配下の全 page.tsx を「URL パス → ファイルパス」で収集する */
-function collectPages(dir: string): Map<string, string> {
-  const pages = new Map<string, string>();
-  const walk = (current: string) => {
-    for (const entry of readdirSync(current, { withFileTypes: true })) {
-      if (entry.isDirectory()) {
-        if (entry.name === "node_modules") continue;
-        walk(join(current, entry.name));
-      } else if (entry.name === "page.tsx") {
-        const segments = relative(dir, current)
-          .split(sep)
-          // route group（(user) 等）と _ プレフィックスは URL に現れない
-          .filter((seg) => !seg.startsWith("(") && !seg.startsWith("_"));
-        // ルート直下（segments が空）は "/" になる
-        pages.set(`/${segments.join("/")}`, join(current, "page.tsx"));
-      }
-    }
-  };
-  walk(dir);
-  return pages;
-}
-
 /** ページソースが urlPath への canonical を宣言しているか */
 function declaresCanonical(source: string, urlPath: string): boolean {
   if (urlPath === "/") {
     return source.includes('canonical: "/"');
   }
-  const learnMatch = /^\/learn\/([^/]+)$/.exec(urlPath);
-  if (learnMatch) {
-    return source.includes(`createLearnMetadata("${learnMatch[1]}")`);
+  const lessonMatch = /^\/lessons\/([^/]+)$/.exec(urlPath);
+  if (lessonMatch) {
+    return source.includes(`createLearnMetadata("${lessonMatch[1]}")`);
   }
   // 練習の説明ページ: URL はレジストリの basePath（/exam 配下の昇級試験を含む）
   // から引くため、/practice/ 前置きの正規表現ではなく basePath の逆引きで判定する

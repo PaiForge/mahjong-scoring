@@ -47,7 +47,7 @@ describe("ScrollReset", () => {
   it("パスが変わったら先頭へ戻す", () => {
     const { rerender } = render(<ScrollReset />);
 
-    setPathname("/learn");
+    setPathname("/lessons");
     rerender(<ScrollReset />);
 
     expect(scrollTo).toHaveBeenCalledWith({
@@ -74,8 +74,8 @@ describe("ScrollReset", () => {
   it("戻る / 進むではスクロールしない", () => {
     const { rerender } = render(<ScrollReset />);
 
-    goBackTo("/learn");
-    setPathname("/learn");
+    goBackTo("/lessons");
+    setPathname("/lessons");
     rerender(<ScrollReset />);
 
     expect(scrollTo).not.toHaveBeenCalled();
@@ -84,8 +84,8 @@ describe("ScrollReset", () => {
   it("履歴移動の次の遷移は先頭へ戻す", () => {
     const { rerender } = render(<ScrollReset />);
 
-    goBackTo("/learn");
-    setPathname("/learn");
+    goBackTo("/lessons");
+    setPathname("/lessons");
     rerender(<ScrollReset />);
 
     window.history.pushState({}, "", "/dojo");

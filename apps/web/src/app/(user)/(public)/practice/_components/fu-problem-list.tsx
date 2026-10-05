@@ -1,32 +1,18 @@
 "use client";
 
 import { useTranslations } from "next-intl";
-import { parseQuestionTiles } from "../_lib/parse-question-tiles";
+import { restoreTehaiQuestion } from "@mahjong-scoring/features/results/parse-question-tiles";
 import { AnswerComparison } from "./answer-comparison";
 import { ProblemListAccordion } from "./problem-list-accordion";
 import { TehaiDisplay } from "./tehai-display";
 import { TehaiMentsuBreakdown } from "./tehai-mentsu-breakdown";
 import { FuBreakdown } from "./fu-breakdown";
-import type { FuQuestionResult } from "../_lib/fu-question-result";
+import type { FuQuestionResult } from "@mahjong-scoring/features/results/fu-question-result";
 
 interface FuProblemListProps {
   readonly results: readonly FuQuestionResult[];
   /** 練習の翻訳名前空間（例: "totalFu"） */
   readonly translationNamespace: string;
-}
-
-/**
- * 保存された結果から出題内容を復元する
- * 出題復元
- *
- * MSPZ のパースに失敗した場合は undefined を返し、手牌の再表示だけを諦める
- * （符の内訳と回答の比較は文字列に依存しないため表示できる）。
- */
-function restoreQuestion(result: FuQuestionResult) {
-  const tiles = parseQuestionTiles(result);
-  if (!tiles) return undefined;
-  const { tehai, ...context } = tiles;
-  return { tehai, context: { ...context, isTsumo: result.isTsumo } };
 }
 
 /**
@@ -49,7 +35,7 @@ export function FuProblemList({
       outcome={(r) => r.outcome}
       renderSummary={(result) => t("fuSuffix", { value: result.correctFu })}
       renderDetail={(result) => {
-        const question = restoreQuestion(result);
+        const question = restoreTehaiQuestion(result);
         const { userFu } = result;
 
         return (

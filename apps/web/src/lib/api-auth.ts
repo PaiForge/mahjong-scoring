@@ -1,6 +1,8 @@
 import type { User } from "@supabase/supabase-js";
 import type { SupabaseServerClient } from "./supabase/server";
-import { NextResponse } from "next/server";
+import type { NextResponse } from "next/server";
+
+import { jsonPrivate } from "./api-response";
 
 import { isUserBanned } from "./ban";
 import { isValidOrigin } from "./csrf";
@@ -52,7 +54,7 @@ export async function authorizeApiRequest(
   if (!isValidOrigin(request)) {
     return {
       ok: false,
-      response: NextResponse.json({ error: "forbidden" }, { status: 403 }),
+      response: jsonPrivate({ error: "forbidden" }, { status: 403 }),
     };
   }
 
@@ -64,7 +66,7 @@ export async function authorizeApiRequest(
   if (ipRateLimited) {
     return {
       ok: false,
-      response: NextResponse.json({ error: "rateLimited" }, { status: 429 }),
+      response: jsonPrivate({ error: "rateLimited" }, { status: 429 }),
     };
   }
 
@@ -76,14 +78,14 @@ export async function authorizeApiRequest(
   if (!user) {
     return {
       ok: false,
-      response: NextResponse.json({ error: "unauthorized" }, { status: 401 }),
+      response: jsonPrivate({ error: "unauthorized" }, { status: 401 }),
     };
   }
 
   if (await isUserBanned(user.id)) {
     return {
       ok: false,
-      response: NextResponse.json({ error: "banned" }, { status: 403 }),
+      response: jsonPrivate({ error: "banned" }, { status: 403 }),
     };
   }
 

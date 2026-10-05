@@ -1,7 +1,6 @@
 import { ContentContainer } from "@/app/(user)/_components/content-container";
-import { PageTitle } from "@/app/(user)/_components/page-title";
+import { PageTitlePlaceholder } from "@/app/(user)/_components/page-title";
 import { SkeletonBar } from "@/app/_components/skeleton-bar";
-import { PageTitleSkeleton } from "@/app/_components/page-title-skeleton";
 import { SectionTitleSkeleton } from "@/app/(user)/_components/section-title-skeleton";
 import {
   CHALLENGE_RESULTS_COLUMNS,
@@ -25,10 +24,7 @@ const RESULTS_COLUMN_ALIGNS = ["left", "left", "right", "right"] as const;
 export default function Loading() {
   return (
     <ContentContainer>
-      {/* PageTitle を使うことで実描画と同じ全幅グレー帯を再現する */}
-      <PageTitle>
-        <PageTitleSkeleton width="w-48" />
-      </PageTitle>
+      <PageTitlePlaceholder width="w-48" />
 
       <div className="space-y-6">
         <SectionTitleSkeleton width="w-32" />

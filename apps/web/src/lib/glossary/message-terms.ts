@@ -1,4 +1,4 @@
-import messages from "@/messages/ja.json";
+import { messages } from "@mahjong-scoring/messages/ja";
 
 import { collectTermSlugs } from "./term-markup";
 

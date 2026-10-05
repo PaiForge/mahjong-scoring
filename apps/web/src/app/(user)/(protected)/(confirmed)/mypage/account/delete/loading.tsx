@@ -1,8 +1,7 @@
 import { ContentContainer } from "@/app/(user)/_components/content-container";
-import { PageTitle } from "@/app/(user)/_components/page-title";
+import { PageTitlePlaceholder } from "@/app/(user)/_components/page-title";
 import { SectionTitleSkeleton } from "@/app/(user)/_components/section-title-skeleton";
 import { SkeletonBar } from "@/app/_components/skeleton-bar";
-import { PageTitleSkeleton } from "@/app/_components/page-title-skeleton";
 
 /**
  * 退会ページのローディング状態。
@@ -12,10 +11,7 @@ import { PageTitleSkeleton } from "@/app/_components/page-title-skeleton";
 export default function Loading() {
   return (
     <ContentContainer>
-      {/* PageTitle を使うことで実描画と同じ全幅グレー帯を再現する */}
-      <PageTitle>
-        <PageTitleSkeleton width="w-24" />
-      </PageTitle>
+      <PageTitlePlaceholder width="w-24" />
 
       <section className="space-y-4">
         <SectionTitleSkeleton width="w-16" />

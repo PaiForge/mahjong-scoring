@@ -1,7 +1,7 @@
 import { getTranslations } from "next-intl/server";
 
-import type { ExamOutcomeInput } from "../_lib/exam-outcome";
-import { evaluateExamOutcome } from "../_lib/exam-outcome";
+import type { ExamOutcomeInput } from "@mahjong-scoring/features/exam/exam-outcome";
+import { evaluateExamOutcome } from "@mahjong-scoring/features/exam/exam-outcome";
 
 /** 秒を小数 1 桁で出す（"7.5"）。ロケールを跨いでも桁が揺れないよう固定 */
 function formatSeconds(seconds: number): string {
@@ -79,9 +79,11 @@ export async function ExamResultSummary(input: ExamOutcomeInput) {
       </dl>
 
       <p className="text-xs text-surface-500">
-        {outcome.ending === "mistake"
-          ? t("endedByMistake", { n: total })
-          : t("endedByTime")}
+        {outcome.ending === "goal"
+          ? t("endedByGoal")
+          : outcome.ending === "mistake"
+            ? t("endedByMistake", { n: total })
+            : t("endedByTime")}
       </p>
     </div>
   );

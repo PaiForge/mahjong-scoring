@@ -3,8 +3,9 @@ import type { MetadataRoute } from "next";
 import { getPublishedAnnouncementSlugsForSitemap } from "@/app/(user)/(public)/announcements/_lib/queries";
 import {
   GLOSSARY_SITEMAP_PATHS,
-  LEARN_SITEMAP_PATHS,
+  LEARN_SITEMAP_ENTRIES,
   PRACTICE_SITEMAP_PATHS,
+  RANK_SITEMAP_PATHS,
   STATIC_SITEMAP_ROUTE_DEFS,
 } from "@/app/_lib/sitemap-routes";
 import { SITE_URL } from "@/config";
@@ -16,11 +17,14 @@ const STATIC_ROUTES: MetadataRoute.Sitemap = STATIC_SITEMAP_ROUTE_DEFS.map(
   }),
 );
 
-const LEARN_ROUTES: MetadataRoute.Sitemap = LEARN_SITEMAP_PATHS.map((path) => ({
-  url: `${SITE_URL}${path}`,
-  changeFrequency: "monthly",
-  priority: 0.8,
-}));
+const LEARN_ROUTES: MetadataRoute.Sitemap = LEARN_SITEMAP_ENTRIES.map(
+  ({ path, lastModified }) => ({
+    url: `${SITE_URL}${path}`,
+    lastModified,
+    changeFrequency: "monthly",
+    priority: 0.8,
+  }),
+);
 
 const PRACTICE_ROUTES: MetadataRoute.Sitemap = PRACTICE_SITEMAP_PATHS.map(
   (path) => ({
@@ -37,6 +41,12 @@ const GLOSSARY_ROUTES: MetadataRoute.Sitemap = GLOSSARY_SITEMAP_PATHS.map(
     priority: 0.5,
   }),
 );
+
+const RANK_ROUTES: MetadataRoute.Sitemap = RANK_SITEMAP_PATHS.map((path) => ({
+  url: `${SITE_URL}${path}`,
+  changeFrequency: "monthly",
+  priority: 0.5,
+}));
 
 /** `/sitemap.xml` を生成する（Next.js の `MetadataRoute.Sitemap` 規約） */
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
@@ -56,6 +66,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     ...LEARN_ROUTES,
     ...PRACTICE_ROUTES,
     ...GLOSSARY_ROUTES,
+    ...RANK_ROUTES,
     ...announcementRoutes,
   ];
 }

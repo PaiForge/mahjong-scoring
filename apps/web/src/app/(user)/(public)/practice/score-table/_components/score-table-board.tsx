@@ -1,5 +1,7 @@
 "use client";
 
+import { useGradeAndRecord } from "../../_hooks/use-verified-challenge";
+
 import { useCallback } from "react";
 import type {
   ScoreTableQuestion,
@@ -11,11 +13,10 @@ import {
   useRegisterAdvance,
   useTrainingAnswerVisibility,
 } from "../../_hooks/use-training-mode";
-import { AnswerOutcome } from "../../_lib/result-schemas";
 import { ScoreTablePrompt } from "./score-table-prompt";
 import { ScoreTableAnswerForm } from "./score-table-answer-form";
-import { toQuestionResult } from "../_lib/types";
-import type { ScoreTableQuestionResult } from "../_lib/types";
+import { toQuestionResult } from "@mahjong-scoring/features/practice/score-table/types";
+import type { ScoreTableQuestionResult } from "@mahjong-scoring/features/practice/score-table/types";
 import type { RecordingPracticeBoardProps } from "../../_lib/practice-board-props";
 
 interface ScoreTableBoardProps extends RecordingPracticeBoardProps<ScoreTableQuestionResult> {
@@ -50,6 +51,11 @@ export function ScoreTableBoard({
   onPresentQuestion,
 }: ScoreTableBoardProps) {
   useRegisterAdvance(onAdvance);
+  const gradeAndRecord = useGradeAndRecord(toQuestionResult, {
+    onRecordResult,
+    onAnswer,
+    advance: onAdvance,
+  });
   usePresentQuestion(question, toUnansweredResult, onPresentQuestion);
   // トレーニングでは開示時だけでなく回答後の停止中も正解を出す（答え合わせ用）。
   // 正解のときは出さない — 選んだ値がそのまま正解で、枠の色が正誤を示している
@@ -58,11 +64,9 @@ export function ScoreTableBoard({
   const handleSubmit = useCallback(
     (userAnswer: ScoreTableUserAnswer) => {
       if (showFeedback) return;
-      const result = toQuestionResult(question, userAnswer);
-      onRecordResult?.(result);
-      onAnswer(result.outcome === AnswerOutcome.Correct, onAdvance);
+      gradeAndRecord(question, userAnswer);
     },
-    [showFeedback, question, onAnswer, onAdvance, onRecordResult],
+    [showFeedback, question, gradeAndRecord],
   );
 
   return (

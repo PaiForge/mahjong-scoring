@@ -1,6 +1,6 @@
 import { describe, expect, it, vi } from "vitest";
 import { fireEvent, render, screen, within } from "@testing-library/react";
-import { makeScoreQuestionResult } from "../_lib/__tests__/score-question-result.fixture";
+import { makeScoreQuestionResult } from "@mahjong-scoring/features/results/score-question-result.fixture";
 import { ScoreProblemListWithLinks } from "./score-problem-list-with-links";
 
 vi.mock("next-intl", async () => await import("@/test/intl-mock"));

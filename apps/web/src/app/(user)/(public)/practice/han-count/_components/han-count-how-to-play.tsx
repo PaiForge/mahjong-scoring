@@ -4,10 +4,13 @@ import { useTranslations } from "next-intl";
 import { DemoChoiceCell } from "../../_components/demo-choice-cell";
 import { HaiKind } from "@mahjong-scoring/core";
 import { QuestionDisplay } from "../../score/_components/question-display";
-import { buildDemoScoreQuestion } from "../../_lib/demo-score-question";
-import type { DemoHand } from "../../_lib/demo-score-question";
+import { buildDemoScoreQuestion } from "@mahjong-scoring/features/board/demo-score-question";
+import type { DemoHand } from "@mahjong-scoring/features/board/demo-score-question";
 import { QuestionPrompt } from "../../_components/question-prompt";
-import { HAN_OPTIONS, hanCountLabel } from "../_lib/han-options";
+import {
+  HAN_OPTIONS,
+  hanCountLabel,
+} from "@mahjong-scoring/features/practice/han-count/han-options";
 
 /**
  * デモ用の固定例: 立直 + 門前清自摸和 + 断么九（3翻）

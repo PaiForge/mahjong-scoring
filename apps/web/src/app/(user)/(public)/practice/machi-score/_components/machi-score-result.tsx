@@ -15,12 +15,12 @@ import { Button } from "@/app/(user)/_components/button";
 import { ResultDisplay } from "../../score/_components/result-display";
 import { TehaiMentsuBreakdown } from "../../_components/tehai-mentsu-breakdown";
 import { JudgementMark } from "../../_components/judgement-mark";
-import { correctCellAnswerOf } from "../_lib/format-cell-answer";
+import { correctCellAnswerOf } from "@mahjong-scoring/features/practice/machi-score/format-cell-answer";
 import {
   MACHI_TILE_MARK_CLASSES,
   machiTileMark,
   type MachiTileMark,
-} from "../_lib/machi-tile-mark";
+} from "@mahjong-scoring/features/practice/machi-score/machi-tile-mark";
 import {
   cellKeyOf,
   listCellRefs,

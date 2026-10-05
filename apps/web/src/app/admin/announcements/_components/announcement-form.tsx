@@ -6,6 +6,7 @@ import { useTranslations } from "next-intl";
 import { toast } from "react-hot-toast";
 
 import { SUPPORTED_LOCALES } from "@/i18n/locales";
+import { AnnouncementStatus } from "@/lib/announcement-status";
 
 import { createAnnouncement } from "../_actions/create-announcement";
 import { ANNOUNCEMENT_LIMITS } from "../_lib/validation";
@@ -58,7 +59,9 @@ export function AnnouncementForm({
   );
   const [title, setTitle] = useState(defaultValues?.title ?? "");
   const [content, setContent] = useState(defaultValues?.content ?? "");
-  const [status, setStatus] = useState(defaultValues?.status ?? "draft");
+  const [status, setStatus] = useState(
+    defaultValues?.status ?? AnnouncementStatus.Draft,
+  );
   const [publishedAtLocal, setPublishedAtLocal] = useState(
     toDatetimeLocal(defaultValues?.publishedAt),
   );
@@ -66,7 +69,7 @@ export function AnnouncementForm({
 
   const handleStatusChange = (next: string) => {
     setStatus(next);
-    if (next === "published" && publishedAtLocal === "") {
+    if (next === AnnouncementStatus.Published && publishedAtLocal === "") {
       setPublishedAtLocal(toDatetimeLocal(new Date().toISOString()));
     }
   };
@@ -105,9 +108,9 @@ export function AnnouncementForm({
     "w-full rounded border border-surface-300 bg-white px-3 py-2 text-sm text-surface-900 focus:border-primary-500 focus:outline-none";
 
   return (
-    <div className="max-w-3xl space-y-5">
-      <div className="flex gap-4">
-        <div className="flex-1">
+    <div className="admin-panel max-w-3xl space-y-5 p-5 sm:p-7">
+      <div className="flex flex-wrap gap-4">
+        <div className="min-w-0 flex-1">
           <label className="mb-1 block text-sm font-medium text-surface-700">
             {t("slug")}
           </label>
@@ -176,11 +179,13 @@ export function AnnouncementForm({
             onChange={(e) => handleStatusChange(e.target.value)}
             className={inputClass}
           >
-            <option value="draft">{t("statusDraft")}</option>
-            <option value="published">{t("statusPublished")}</option>
+            <option value={AnnouncementStatus.Draft}>{t("statusDraft")}</option>
+            <option value={AnnouncementStatus.Published}>
+              {t("statusPublished")}
+            </option>
           </select>
         </div>
-        <div className="flex-1">
+        <div className="min-w-0 flex-1">
           <label className="mb-1 block text-sm font-medium text-surface-700">
             {t("publishedAt")}
           </label>
@@ -209,7 +214,7 @@ export function AnnouncementForm({
           type="button"
           onClick={handleSubmit}
           disabled={isPending}
-          className="rounded bg-primary-600 px-5 py-2 text-sm font-medium text-white transition-colors hover:bg-primary-700 disabled:opacity-50"
+          className="rounded bg-primary-600 px-5 py-2 text-sm font-medium text-white transition-colors hover:bg-primary-700 disabled:bg-surface-300 disabled:text-surface-500"
         >
           {isPending ? t("saving") : t("save")}
         </button>

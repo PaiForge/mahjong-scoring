@@ -11,7 +11,7 @@
  */
 import { describe, expect, it } from "vitest";
 
-import messagesJson from "@/messages/ja.json";
+import { messages as messagesJson } from "@mahjong-scoring/messages/ja";
 
 /** createCustomResultView に translationNamespace を渡している練習の名前空間 */
 const SCORE_PROBLEM_LIST_NAMESPACES = [
@@ -63,7 +63,7 @@ describe.each(SCORE_PROBLEM_LIST_NAMESPACES)(
     it.each(REQUIRED_KEYS)("%s が定義されている", (key) => {
       expect(
         typeof resolveKey(section, key),
-        `${namespace}.${key} が ja.json に無い`,
+        `${namespace}.${key} が日本語辞書に無い`,
       ).toBe("string");
     });
   },

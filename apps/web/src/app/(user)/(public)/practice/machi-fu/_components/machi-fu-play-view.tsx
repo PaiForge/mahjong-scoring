@@ -1,8 +1,8 @@
 "use client";
 
-import { PRACTICE_SLUG } from "@/lib/db/practice-menu-types";
+import { PRACTICE_SLUG } from "@mahjong-scoring/features/practice-menu-types";
 import { createChallengePlayView } from "../../_lib/create-challenge-views";
-import type { MachiFuQuestionResult } from "../_lib/types";
+import type { MachiFuQuestionResult } from "@mahjong-scoring/features/practice/machi-fu/types";
 import { MachiFuBoard } from "./machi-fu-board";
 
 export const MachiFuPlayView = createChallengePlayView<MachiFuQuestionResult>({

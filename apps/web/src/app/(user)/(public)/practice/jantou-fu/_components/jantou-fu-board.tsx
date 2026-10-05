@@ -1,5 +1,7 @@
 "use client";
 
+import { useGradeAnswer } from "../../_hooks/use-verified-challenge";
+
 import { useCallback, useState } from "react";
 import { useTranslations } from "next-intl";
 import { generateJantouFuQuestion } from "@mahjong-scoring/core";
@@ -14,8 +16,8 @@ import { QuestionPrompt } from "../../_components/question-prompt";
 import { useClientGeneratedQuestion } from "../../_hooks/use-client-generated-question";
 import { usePresentQuestion } from "../../_hooks/use-present-question";
 import { useRegisterAdvance } from "../../_hooks/use-training-mode";
-import { toQuestionResult } from "../_lib/types";
-import type { JantouFuQuestionResult } from "../_lib/types";
+import { toQuestionResult } from "@mahjong-scoring/features/practice/jantou-fu/types";
+import type { JantouFuQuestionResult } from "@mahjong-scoring/features/practice/jantou-fu/types";
 import type { RecordingPracticeBoardProps } from "../../_lib/practice-board-props";
 
 type JantouFuBoardProps = RecordingPracticeBoardProps<JantouFuQuestionResult>;
@@ -40,6 +42,7 @@ export function JantouFuBoard({
   onRecordResult,
   onPresentQuestion,
 }: JantouFuBoardProps) {
+  const gradeAnswer = useGradeAnswer<JantouFuQuestion>();
   const t = useTranslations("jantouFu");
   const renfonpaiAs4Fu = useRuleSettingsStore((s) => s.renfonpaiAs4Fu);
   const generateQuestion = useCallback(
@@ -62,12 +65,23 @@ export function JantouFuBoard({
   const handleChoiceSelect = useCallback(
     (index: number) => {
       if (showFeedback || !question) return;
-      const choice = question.choices[index];
-      setSelectedHai(choice.hai);
-      onRecordResult?.(toQuestionResult(question, choice));
-      onAnswer(choice.isCorrect, advanceQuestion);
+      const accepted = gradeAnswer(question, index, (gradedQuestion) => {
+        const choice = gradedQuestion.choices[index];
+        onRecordResult?.(toQuestionResult(gradedQuestion, choice));
+        onAnswer(choice.isCorrect, advanceQuestion);
+      });
+      // 採点を待たずに選択を立てる（サーバー採点の待ち時間に押した印を出す）。
+      // 牌は出題時点の問題にもあるので、採点済みの問題を待たなくてよい
+      if (accepted) setSelectedHai(question.choices[index].hai);
     },
-    [showFeedback, question, onAnswer, advanceQuestion, onRecordResult],
+    [
+      showFeedback,
+      question,
+      onAnswer,
+      advanceQuestion,
+      onRecordResult,
+      gradeAnswer,
+    ],
   );
 
   if (!question) {

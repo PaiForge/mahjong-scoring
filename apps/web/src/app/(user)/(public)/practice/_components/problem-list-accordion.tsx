@@ -4,7 +4,7 @@ import type { ReactNode } from "react";
 import { useTranslations } from "next-intl";
 import { AccordionCard } from "@/app/(user)/_components/accordion-card";
 import { ClockIcon } from "@/app/(user)/_components/icons/clock-icon";
-import { AnswerOutcome } from "../_lib/result-schemas";
+import { AnswerOutcome } from "@mahjong-scoring/features/results/result-schemas";
 import { JudgementMark } from "./judgement-mark";
 
 interface ProblemListAccordionProps<T> {

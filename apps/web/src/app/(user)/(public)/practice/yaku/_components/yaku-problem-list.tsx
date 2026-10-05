@@ -2,12 +2,12 @@
 
 import {
   parseMarkers,
-  parseQuestionTiles,
-} from "../../_lib/parse-question-tiles";
+  restoreTehaiQuestion,
+} from "@mahjong-scoring/features/results/parse-question-tiles";
 import { ProblemListAccordion } from "../../_components/problem-list-accordion";
 import { TehaiDisplay } from "../../_components/tehai-display";
 import { TehaiMentsuBreakdown } from "../../_components/tehai-mentsu-breakdown";
-import type { YakuQuestionResult } from "../_lib/types";
+import type { YakuQuestionResult } from "@mahjong-scoring/features/practice/yaku/types";
 import { YakuAnswerComparison } from "./yaku-answer-comparison";
 
 interface YakuProblemListProps {
@@ -22,14 +22,12 @@ interface YakuProblemListProps {
  * （役の対比は文字列に依存しないため表示できる）。
  */
 function restoreQuestion(result: YakuQuestionResult) {
-  const tiles = parseQuestionTiles(result);
-  if (!tiles) return undefined;
-  const { tehai, ...context } = tiles;
+  const restored = restoreTehaiQuestion(result);
+  if (!restored) return undefined;
   return {
-    tehai,
+    tehai: restored.tehai,
     context: {
-      ...context,
-      isTsumo: result.isTsumo,
+      ...restored.context,
       isRiichi: result.isRiichi,
       doraMarkers: parseMarkers(result.doraMarkers) ?? [],
       uraDoraMarkers: parseMarkers(result.uraDoraMarkers),

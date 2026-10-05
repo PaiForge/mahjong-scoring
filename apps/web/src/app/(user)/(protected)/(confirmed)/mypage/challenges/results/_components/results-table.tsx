@@ -7,7 +7,8 @@ import {
 } from "../../_components/compact-table";
 import { getMissColorClass } from "@/app/(user)/_components/_lib/miss-color";
 import { formatDate } from "../../_lib/dashboard-utils";
-import type { ChallengeAttempt, RecordBoard } from "../../_lib/types";
+import type { ChallengeAttempt } from "../../_lib/types";
+import type { PracticeBoard } from "@mahjong-scoring/features/practice-menu-types";
 
 interface ResultsTableProps {
   readonly items: readonly ChallengeAttempt[];
@@ -19,7 +20,7 @@ interface ResultsTableProps {
     readonly incorrectAnswers: string;
   };
   /** 土俵（練習種別 × バリアント）を表示ラベルへ変換する（i18n は呼び出し元で行う） */
-  readonly getBoardLabel: (board: RecordBoard) => string;
+  readonly getBoardLabel: (board: PracticeBoard) => string;
 }
 
 /**

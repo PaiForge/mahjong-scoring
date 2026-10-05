@@ -4,7 +4,7 @@ import { useTranslations } from "next-intl";
 import { HaiKind } from "@mahjong-scoring/core";
 import type { HaiKindId } from "@mahjong-scoring/core";
 import { DemoFuChoiceGrid } from "../../_components/demo-fu-choice-grid";
-import { MACHI_FU_OPTIONS } from "../_lib/fu-options";
+import { MACHI_FU_OPTIONS } from "@mahjong-scoring/features/practice/machi-fu/fu-options";
 import { MachiFuPrompt } from "./machi-fu-prompt";
 import { QuestionPrompt } from "../../_components/question-prompt";
 

@@ -27,12 +27,21 @@ import { TehaiMentsuBreakdown } from "../../_components/tehai-mentsu-breakdown";
 import { QuestionPrompt } from "../../_components/question-prompt";
 import { ScorePracticeAnswerForm } from "./score-practice-answer-form";
 import { ScorePracticeBoardSkeleton } from "./score-practice-board-skeleton";
+import { GenerationFailedNotice } from "./generation-failed-notice";
 import { ResultDisplay } from "./result-display";
 import { ScoreCounter } from "../../_components/score-counter";
 import {
   PracticeFooterAction,
   PracticeFooterActions,
 } from "../../_components/practice-footer-actions";
+import { AnswerTimeBadge } from "../../_components/answer-time-badge";
+import { PracticeQuotaPaywall } from "../../_components/practice-quota-paywall";
+import { PracticeQuotaRemaining } from "../../_components/practice-quota-remaining";
+import {
+  canResumePractice,
+  usePracticeQuota,
+} from "../../_hooks/use-practice-quota";
+import { PlanBenefit } from "@mahjong-scoring/features/billing/plans";
 
 /** 出題条件を選ぶ設定画面。「終了」で戻る先 */
 const SETUP_HREF = "/practice/score";
@@ -51,11 +60,21 @@ function ScorePracticeBoardInner() {
     questionSeq,
     stats,
     submitAnswer,
-    nextQuestion,
     revealAnswer,
   } = useScorePracticeStore();
 
   const isClient = useIsClient();
+  const tq = useTranslations("practiceQuota");
+  // 問題の生成はサーバーの許可（無料枠の消費）を挟む。生成そのものは
+  // 今までどおりブラウザ側のストアが行う
+  const { requestQuestion, refreshGate, isChecking, gate } = usePracticeQuota(
+    "score",
+    () => useScorePracticeStore.getState().generateNewQuestion(),
+  );
+
+  useEffect(() => {
+    if (gate?.kind === "rateLimited") toast.error(tq("rateLimited"));
+  }, [gate, tq]);
   // 出題条件を適用済みのクエリ文字列。undefined はこの盤面でまだ一度も
   // 初期化していないことを表す
   const appliedQueryRef = useRef<string | undefined>(undefined);
@@ -65,7 +84,7 @@ function ScorePracticeBoardInner() {
   useScrollToElement(PRACTICE_SCROLL_ANCHOR_ID, Boolean(currentQuestion));
 
   // 出題条件はストア（モジュールスコープで、ページを離れても破棄されない）へ
-  // 移し替えてから問題を作る。判定を「クエリが変わったか」だけで行うのが要点:
+  // 移し替えてから問題を作る。判定を「クエリが変わったか」で行うのが要点:
   //
   // - 「問題がまだ無いか」で見ると、前回の練習の問題が残っている限り初期化が
   //   走らず、教本から `?yaku=chiitoitsu` で入っても絞り込みが無視されて
@@ -75,6 +94,13 @@ function ScorePracticeBoardInner() {
   //   （平和の練習 → 七対子の練習）で条件が入れ替わらない
   // - 逆に「問題がまだ無いか」を条件に足すと、生成失敗（generationFailed）の
   //   ときに問題が入らないまま初期化を呼び続けて止まらなくなる
+  //
+  // 「クエリが変わったか」は 2 段で見る。このマウントの中（ref）と、ストアに
+  // 残った問題がどの条件のものか（`appliedQuery`）。後者が同じなら盤面を
+  // 離れて戻ってきただけ（料金ページを見てブラウザバック等）なので、解答中の
+  // 問題を引き継ぎ、無料枠を消費し直さない。引き継げる条件は
+  // `canResumePractice` が決める（上限で止まっていたら聞き直す等）。
+  // リロードはストアごと消えるので対象外で、これまでどおり 1 問消費する
   useEffect(() => {
     if (!isClient) return;
 
@@ -83,17 +109,45 @@ function ScorePracticeBoardInner() {
     appliedQueryRef.current = query;
 
     const store = useScorePracticeStore.getState();
-    store.setOptions(
+    if (
+      store.appliedQuery === query &&
+      canResumePractice("score", {
+        hasQuestion: store.currentQuestion !== undefined,
+        generationFailed: store.generationFailed,
+      })
+    ) {
+      // 残数と特典の表示だけ、離れている間の変化（購入・ログイン・日付）に
+      // 追随させる。問題はそのまま
+      if (store.currentQuestion) void refreshGate();
+      return;
+    }
+
+    // 条件を移し、統計を戻し、前回の問題を消してから聞く。統計を戻さないと
+    // 別の条件で入り直した練習の頭から前回の成績がカウンタに出たままになる。
+    // 問題を消すのは、生成がサーバーの許可（無料枠の消費）を待ってから走る
+    // ため — 消さないと返事が届くまで前回の問題（回答済みならその結果表示）が
+    // 新しい条件の盤面に出たままになり、遅い回線では答えられる
+    store.applyPracticeQuery(
+      query,
       parseGeneratorOptionsFromParams(new URLSearchParams(query)),
     );
-    // 統計も同じストアに載っている。ここで戻さないと、別の条件で入り直した
-    // 練習の頭から前回の成績がカウンタに出たままになる
-    store.resetStats();
-    store.generateNewQuestion();
-  }, [isClient, searchParams]);
+    void requestQuestion();
+  }, [isClient, searchParams, requestQuestion, refreshGate]);
 
-  const { requireYaku, simplifyMangan, requireFuForMangan, autoNext } =
-    parseModeFlagsFromParams(new URLSearchParams(searchParams.toString()));
+  const {
+    requireYaku,
+    simplifyMangan,
+    requireFuForMangan,
+    autoNext,
+    measureTime,
+  } = parseModeFlagsFromParams(new URLSearchParams(searchParams.toString()));
+
+  // 回答時間の計測（Pro の拡張機能）。設定のフラグだけでなく、サーバーが
+  // 返した特典にも含まれているときだけ出す
+  const showAnswerTime =
+    measureTime &&
+    gate?.kind === "open" &&
+    gate.benefits.includes(PlanBenefit.PracticeTools);
 
   const handleBackToSetup = useCallback(() => {
     // 他の練習（challenge-shell / training-shell）の「終了」と同じく、
@@ -110,8 +164,8 @@ function ScorePracticeBoardInner() {
   // 表示が切り替わる操作のたびに練習の先頭へ戻す。
   const handleNext = useCallback(() => {
     scrollToPracticeAnchor();
-    nextQuestion();
-  }, [nextQuestion]);
+    void requestQuestion();
+  }, [requestQuestion]);
 
   // 「わからない」: 無回答のまま正解を開示する（統計には入らない）。
   // 旧仕様のスキップ（開示なしで次問題へ）は、開示後の「次の問題へ」連打で代替できる
@@ -130,13 +184,13 @@ function ScorePracticeBoardInner() {
         if (state.judgementResult?.isCorrect) {
           // 連続で解く練習なので既定より短く消す（見た目は GlobalToaster が持つ）
           toast.success(t("board.correct"), { duration: 1500 });
-          nextQuestion();
+          void requestQuestion();
         }
       }
     },
     [
       submitAnswer,
-      nextQuestion,
+      requestQuestion,
       requireYaku,
       simplifyMangan,
       requireFuForMangan,
@@ -145,25 +199,25 @@ function ScorePracticeBoardInner() {
     ],
   );
 
-  // 生成失敗: リトライを使い切っても出題条件に合う手牌を作れなかった。
-  // このときスケルトンを出し続けると操作手段が無いまま固まる（終了ボタンも
-  // 盤面の一部なので描かれない）ため、条件を変えて戻る導線を明示する。
   if (isClient && generationFailed) {
     return (
-      <ContentContainer id={PRACTICE_SCROLL_ANCHOR_ID} fillViewport>
-        <PageTitle>{t("title")}</PageTitle>
-        <div className="space-y-6 py-8 text-center">
-          <p className="text-sm leading-relaxed text-surface-700">
-            {t("board.generationFailed")}
-          </p>
-          <Button
-            variant="secondary"
-            onClick={() => router.push("/practice/score")}
-          >
-            {t("board.backToSetup")}
-          </Button>
-        </div>
-      </ContentContainer>
+      <GenerationFailedNotice
+        translationNamespace="score"
+        onBackToSetup={() => router.push("/practice/score")}
+      />
+    );
+  }
+
+  // 無料枠を使い切った。問題は生成していないので盤面ごと置き換える
+  if (gate?.kind === "blocked") {
+    return (
+      <PracticeQuotaPaywall
+        menu="score"
+        translationNamespace="score"
+        limit={gate.limit}
+        signedIn={gate.signedIn}
+        onBackToSetup={handleBackToSetup}
+      />
     );
   }
 
@@ -212,7 +266,12 @@ function ScorePracticeBoardInner() {
                 requireFuForMangan={requireFuForMangan}
               />
             </div>
-            <Button size="lg" fullWidth onClick={handleNext}>
+            <Button
+              size="lg"
+              fullWidth
+              onClick={handleNext}
+              disabled={isChecking}
+            >
               {t("result.next")}
             </Button>
           </div>
@@ -231,6 +290,19 @@ function ScorePracticeBoardInner() {
               requireYaku={requireYaku}
               simplifyMangan={simplifyMangan}
               requireFuForMangan={requireFuForMangan}
+            />
+          </div>
+        )}
+
+        {/* 無料枠の残りと回答時間。どちらも無いときは何も描かない */}
+        {(gate?.kind === "open" || showAnswerTime) && (
+          <div className="space-y-1">
+            {showAnswerTime && (
+              <AnswerTimeBadge key={questionSeq} running={!isAnswered} />
+            )}
+            <PracticeQuotaRemaining
+              remaining={gate?.kind === "open" ? gate.remaining : undefined}
+              showPlanLink={!isAnswered}
             />
           </div>
         )}
