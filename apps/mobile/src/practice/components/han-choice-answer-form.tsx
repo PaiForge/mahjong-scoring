@@ -1,6 +1,7 @@
-import { memo, useCallback, useState } from "react";
+import { memo, useCallback } from "react";
 import { StyleSheet, Text, View } from "react-native";
 import { useTranslations } from "use-intl";
+import { useQuestionScopedSelection } from "@mahjong-scoring/features/practice/use-question-scoped-selection";
 
 import { Grid } from "../../components/grid";
 import { colors } from "../../lib/theme";
@@ -51,21 +52,16 @@ export const HanChoiceAnswerForm = memo(function HanChoiceAnswerFormComponent({
   renderLabel,
 }: HanChoiceAnswerFormProps) {
   const t = useTranslations(translationNamespace);
-  // 選択はどの問題に対するものかと一緒に持ち、問題が変わったら読み捨てる
-  // （web は effect でリセットするが、それだと 1 フレーム前の選択が残る）
-  const [selection, setSelection] = useState<
-    { readonly index: number; readonly questionIndex: number } | undefined
-  >(undefined);
-  const selectedIndex =
-    selection?.questionIndex === questionIndex ? selection.index : undefined;
+  const [selectedIndex, setSelectedIndex] =
+    useQuestionScopedSelection<number>(questionIndex);
 
   const handleSelect = useCallback(
     (index: number) => {
       if (disabled) return;
-      setSelection({ index, questionIndex });
+      setSelectedIndex(index);
       onSubmit(options[index]);
     },
-    [disabled, onSubmit, options, questionIndex],
+    [disabled, onSubmit, options, setSelectedIndex],
   );
 
   return (
