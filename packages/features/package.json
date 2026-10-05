@@ -23,11 +23,13 @@
     "react": "^19.2.8",
     "react-dom": "^19.2.8",
     "typescript": "^7.0.2",
+    "use-intl": "^4.13.5",
     "vitest": "^4.1.11",
     "zustand": "^5.0.14"
   },
   "peerDependencies": {
     "react": ">=18",
+    "use-intl": "^4.0.0",
     "zustand": "^5.0.0"
   }
 }

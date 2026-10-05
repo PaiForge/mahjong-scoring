@@ -14,7 +14,7 @@ import {
   SettingToggleRow,
 } from "../../../components/setting-toggle-row";
 import type { ScoreSettingsStoreHook } from "../../../hooks/use-score-settings-store";
-import { useYakuLabel } from "../../../hooks/use-yaku-options";
+import { useYakuLabel } from "@mahjong-scoring/features/yaku/use-yaku-options";
 import { colors } from "../../../lib/theme";
 import { SettingCard } from "./setting-card";
 import { SmallCheckbox } from "./small-checkbox";

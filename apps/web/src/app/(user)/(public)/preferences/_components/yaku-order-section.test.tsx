@@ -16,6 +16,8 @@ const { mockToastSuccess } = vi.hoisted(() => ({
 }));
 
 vi.mock("next-intl", async () => await import("@/test/intl-mock"));
+// 共有フック（features の useYakuLabel）は use-intl から辞書を読む
+vi.mock("use-intl", async () => await import("@/test/intl-mock"));
 
 vi.mock("react-hot-toast", () => ({
   default: { success: mockToastSuccess },

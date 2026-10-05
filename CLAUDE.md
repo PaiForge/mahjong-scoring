@@ -75,12 +75,16 @@ packages/eslint-config/ — 共通 ESLint 設定（PaiForge コーディング�
 web とモバイル（Expo）で共有するロジックを置く。`exports` は `./*` のファイル単位で、
 消費側は `@mahjong-scoring/features/<path>` で必要なファイルだけを import する（バレルは作らない）。
 
-- **React と zustand に触れてよいのは `use-*.ts` だけ。** それ以外の純粋なモジュールは
+- **React・zustand・use-intl に触れてよいのは `use-*.ts` だけ。** それ以外の純粋なモジュールは
   サーバーコンポーネントからも Node のテストからも読める状態に保つ。純粋なモジュールから
   `use-*.ts` を import することも禁止。どちらも ESLint（ルートの `eslint.config.mjs`）が弾く
+- 辞書を引くフックは next-intl ではなく use-intl の `useTranslations` を使う。next-intl の
+  クライアント用 `useTranslations` は use-intl のものを包んだだけで、`NextIntlClientProvider` も
+  use-intl の Provider なので、web とモバイルの両方で同じに動く（`yaku/use-yaku-options.ts`）。
+  use-intl は web・モバイル・features で同じ版にそろえる（版が分かれると Provider のコンテキストが別物になる）
 - 設定ストアはファクトリ（`createRuleSettingsStore` 等）で、保存先とハイドレーションガードを
   アプリが渡す。web の実体は `app/_hooks/use-*-store.ts`（localStorage・`useHydrated`）
-- web 固有のもの（DOM・Next・辞書・Tailwind）は置かない。パスは両プラットフォームにある
+- web 固有のもの（DOM・Next・next-intl・Tailwind）は置かない。パスは両プラットフォームにある
   遷移先だけ `routes.ts` に置き、一覧の絞り込みやアンカーは web に残す
 
 ## モバイル（apps/mobile）

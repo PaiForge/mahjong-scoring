@@ -12,7 +12,7 @@ import { useScoreSettingsStore } from "../_hooks/use-score-settings-store";
 import { useScorePracticeStore } from "../_hooks/use-score-practice-store";
 import { InfoModal } from "@/app/(user)/_components/info-modal";
 import { MultiSelect } from "@/app/(user)/_components/multi-select";
-import { useYakuLabel } from "@/app/_hooks/use-yaku-options";
+import { useYakuLabel } from "@mahjong-scoring/features/yaku/use-yaku-options";
 import { yakuTokenOf, YAKU_PARAM } from "../_lib/yaku-filter-params";
 import {
   RANGE_PARAM,
