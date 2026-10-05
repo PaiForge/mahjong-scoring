@@ -2,10 +2,10 @@
  * 道場
  *
  * @description
- * 段級位制のホーム。現在の段級位と、5級から初段（黒帯）までの全行程
- * 「点数計算・黒帯への道」を 1 ページで示す。級ごとに「学ぶ（章 / レッスン）→
- * 練習する → 認定される（試験）」の進み具合を出し、いま取り組む級（次の目標）
- * だけ中身を開く。ホーム（ダッシュボード）が「今すること 1 つ」を答えるのに
+ * 段級位制のホーム。現在の段級位、次の目標の級、5級から初段（黒帯）までの
+ * 全行程「点数計算・黒帯への道」を 1 ページで示す。級ごとに「学ぶ（レッスン）→
+ * 練習する → 認定される（試験）」の進み具合を出し、次の目標の級だけ中身を
+ * 開いて上に置く。ホーム（ダッシュボード）が「今すること 1 つ」を答えるのに
  * 対し、ここは「全体のどこにいて、この先に何があるか」に答える。
  *
  * 未認証でも閲覧でき、その場合は無級として表示される（段級位制は「この
@@ -17,9 +17,17 @@
  * ダッシュボードの「次にやること」と同じ計算を読む。ホームと道場で「次」の指す先が
  * 食い違わないようにするため、この画面で独自に順序を決めない。
  *
+ * @design 現在の段級位は 1 行、次の目標を上に
+ * 以前は現在の段級位を大きな帯バッジの中央寄せのカードで出し、次の目標の
+ * 級は黒帯への道の中で開いていた。現在の段級位は「帯の色と級名」しか持たない
+ * のに画面の上部を大きく取り、取得済みの級が多い人ほど開いたカードが下へ
+ * 押された。現在の段級位は消さずにラベル付きの 1 行に縮め、その下に次の目標の
+ * 級を開いて置く。黒帯への道は全級を閉じたカードで並べる全体の地図にする
+ * （次の目標の級もそこでは閉じて pill で示し、中身を 2 回出さない）。
+ *
  * @flow
  * 1. 現在の段級位を確認する（未取得・未認証は無級）
- * 2. 行程で次の目標の級を開き、レッスン / 前提章 / 練習 / 試験へ進む
+ * 2. 次の目標の級から、レッスン / 練習 / 試験へ進む
  *    （見方は見出しの横の「?」のツアーで説明する）
  * 3. 合格すると結果ページの昇級バナーと本ページ・マイページの表示が更新される
  */
@@ -74,24 +82,30 @@ export default async function DojoPage() {
       <PageTitle action={<DojoSpotlightTour />}>{t("title")}</PageTitle>
 
       <div className="space-y-8">
-        <section className="space-y-4">
-          <SectionTitle>{t("currentRankTitle")}</SectionTitle>
-          {/* 枠は帯色。昇級試験カード（ExamCtaCard）と同じ理由で、級を掲げた
-              カードに既定の ink（緑）を回すと緑がその級の色に見えてしまう
-              — 5級の帯（オレンジ）を緑で囲むと帯が緑に染まって読める。
-              無級のときは帯色そのものが淡いグレーなので枠もグレーになり、
-              「まだ色が付いていない」という円の意味とカードが揃う。 */}
-          <div
-            data-tour-id={DOJO_TOUR_ID.currentRank}
-            data-belt-slug={current?.slug ?? "unranked"}
-            className={`rounded-xl border-3 bg-white p-5 text-center ${beltBorderClass(current?.slug)}`}
-          >
-            <BeltBadge slug={current?.slug} size="lg" />
-            <p className="mt-3 text-lg font-bold text-surface-900">
+        {/* 現在の段級位は節にせず 1 行で示す。ラベルは見た目こそ小さな文字
+            だが h2 にして、見出しジャンプで「次の目標」と同じ段に並ぶようにする
+            （SectionTitle の pill を使わないのは、1 行の枠の中に pill の見出しを
+            入れると枠より見出しが目立つため）。
+            枠は帯色。昇級試験カード（ExamCtaCard）と同じ理由で、級を掲げた
+            カードに既定の ink（緑）を回すと緑がその級の色に見えてしまう
+            — 5級の帯（オレンジ）を緑で囲むと帯が緑に染まって読める。
+            無級のときは帯色そのものが淡いグレーなので枠もグレーになり、
+            「まだ色が付いていない」という円の意味とカードが揃う。 */}
+        <div
+          data-tour-id={DOJO_TOUR_ID.currentRank}
+          data-belt-slug={current?.slug ?? "unranked"}
+          className={`flex items-center gap-3 rounded-xl border-3 bg-white px-4 py-3 ${beltBorderClass(current?.slug)}`}
+        >
+          <BeltBadge slug={current?.slug} />
+          <div className="min-w-0">
+            <h2 className="text-xs font-bold text-surface-500">
+              {t("currentRankTitle")}
+            </h2>
+            <p className="text-base font-bold text-surface-900">
               {current ? tRanks(`names.${current.slug}`) : t("unranked")}
             </p>
             {!user && (
-              <p className="mt-2 text-sm text-surface-500">
+              <p className="mt-1 text-xs text-surface-500">
                 {t("signInNote")}{" "}
                 <Link href="/sign-in" className={TEXT_LINK_CLASSES}>
                   {t("signInLink")}
@@ -99,17 +113,22 @@ export default async function DojoPage() {
               </p>
             )}
           </div>
-        </section>
+        </div>
+
+        {journey.current !== undefined && (
+          <section className="space-y-4">
+            <SectionTitle>{t("nextRankTitle")}</SectionTitle>
+            <RankJourneyCard journey={journey.current} expanded />
+          </section>
+        )}
 
         <section className="space-y-4">
           <SectionTitle>{t("journeyTitle")}</SectionTitle>
           <ol className="space-y-4">
             {journey.ranks.map((rankJourney) => (
-              <RankJourneyCard
-                key={rankJourney.rank.slug}
-                journey={rankJourney}
-                expanded={rankJourney.status === "next"}
-              />
+              <li key={rankJourney.rank.slug}>
+                <RankJourneyCard journey={rankJourney} expanded={false} />
+              </li>
             ))}
           </ol>
         </section>

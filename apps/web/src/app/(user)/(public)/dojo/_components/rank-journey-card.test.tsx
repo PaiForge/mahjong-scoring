@@ -12,13 +12,6 @@ import { RANK_REGISTRY } from "@mahjong-scoring/features/ranks/registry";
 vi.mock("next-intl/server", async () => await import("@/test/intl-mock"));
 vi.mock("next-intl", async () => await import("@/test/intl-mock"));
 
-/** 取得状態の pill も async なサーバーコンポーネント。状態の文字列だけ写す */
-vi.mock("../ranks/_components/rank-status-badge", () => ({
-  RankStatusBadge: ({ status }: { status: string }) => (
-    <span data-testid="status">{status}</span>
-  ),
-}));
-
 const { RankJourneyCard } = await import("./rank-journey-card");
 
 const NONE: ReadonlySet<string> = new Set();
@@ -48,14 +41,14 @@ function hrefs(container: HTMLElement): string[] {
 describe("RankJourneyCard", () => {
   it("開いた級は、レッスン・章から送る練習・試験への導線を並べる", async () => {
     const { container, getAllByRole } = render(
-      <ol>
+      <div>
         {await RankJourneyCard({
           journey: rankJourney("kyu-5", {
             completedLessonSlugs: new Set(["mangan-ko-ron"]),
           }),
           expanded: true,
         })}
-      </ol>,
+      </div>,
     );
 
     const links = hrefs(container);
@@ -69,10 +62,10 @@ describe("RankJourneyCard", () => {
 
     // 終えたレッスンにだけ完了の印が付く
     expect(getAllByRole("img", { name: "lessonDone" })).toHaveLength(1);
-    // 確認問題を持つレッスンにはその旨を添える（5級の章はすべて持つ）
-    expect(container.textContent?.match(/lessonRowDescription/g)).toHaveLength(
-      RANK_REGISTRY[0].learnChapterSlugs.length,
-    );
+    // 各レッスンの行にはレッスンの目次と同じ章の説明を添える
+    expect(
+      container.textContent?.match(/learnCurriculum\.[\w.]+?\.description/g),
+    ).toHaveLength(RANK_REGISTRY[0].learnChapterSlugs.length);
     // 施錠の注記は次の目標の級には出ない
     expect(container.textContent).not.toContain("lockedNote");
     // 進み具合の各段はその段の一覧へ送る（学ぶは目次のその級の最初のレッスン）
@@ -87,7 +80,7 @@ describe("RankJourneyCard", () => {
     ]);
   });
 
-  it("確認問題を持たないレッスンも同じ行で、説明だけを添えない", async () => {
+  it("確認問題を持たないレッスンも同じ行で、同じ章の説明を添える", async () => {
     // 前提章はすべて確認問題を持つので、行程から確認問題を外して作る
     const base = rankJourney("kyu-4", { achievedRankSlugs: ["kyu-5"] });
     const chapters = base.chapters.map((item) => ({
@@ -96,33 +89,37 @@ describe("RankJourneyCard", () => {
       done: item.chapterSlug === "jantou-fu",
     }));
     const { container, getAllByRole } = render(
-      <ol>
+      <div>
         {await RankJourneyCard({
           journey: { ...base, chapters },
           expanded: true,
         })}
-      </ol>,
+      </div>,
     );
 
     for (const chapterSlug of RANK_REGISTRY[1].learnChapterSlugs) {
       expect(hrefs(container)).toContain(`/lessons/${chapterSlug}`);
     }
-    expect(container.textContent).not.toContain("lessonRowDescription");
+    expect(
+      container.textContent?.match(/learnCurriculum\.[\w.]+?\.description/g),
+    ).toHaveLength(RANK_REGISTRY[1].learnChapterSlugs.length);
     expect(getAllByRole("img", { name: "lessonDone" })).toHaveLength(1);
   });
 
   it("閉じた上位の級は、級名の詳細リンクと施錠の注記だけで、中身は出さない", async () => {
-    const { container, queryByTestId } = render(
-      <ol>
+    const { container } = render(
+      <div>
         {await RankJourneyCard({
           journey: rankJourney("kyu-4"),
           expanded: false,
         })}
-      </ol>,
+      </div>,
     );
 
     expect(hrefs(container)).toEqual(["/dojo/ranks/kyu-4"]);
-    expect(queryByTestId("chapters")).toBeNull();
+    // 中身（学ぶ / 練習する / 試験の各段の見出しと行）は描かない
+    expect(container.querySelector("h4")).toBeNull();
+    expect(container.textContent).not.toContain("viewExam");
     expect(container.textContent).toContain("lockedNote");
     expect(
       container.querySelector("article")?.getAttribute("data-rank-status"),
@@ -134,11 +131,11 @@ describe("RankJourneyCard", () => {
       ["kyu-5", "kyu-4", "dan-1"].map((slug) =>
         RankJourneyCard({
           journey: rankJourney(slug),
-          expanded: slug === "kyu-5",
+          expanded: false,
         }),
       ),
     );
-    const { container } = render(<ol>{cards}</ol>);
+    const { container } = render(<div>{cards}</div>);
 
     const notes = Array.from(container.querySelectorAll("article")).map(
       (article) => article.textContent?.includes("lockedNote") ?? false,
@@ -154,11 +151,11 @@ describe("RankJourneyCard", () => {
           journey: rankJourney(slug, {
             achievedRankSlugs: [...achievedRankSlugs],
           }),
-          expanded: slug === "kyu-3",
+          expanded: false,
         }),
       ),
     );
-    const { container } = render(<ol>{cards}</ol>);
+    const { container } = render(<div>{cards}</div>);
 
     const notes = Array.from(container.querySelectorAll("article")).map(
       (article) => article.textContent?.includes("lockedNote") ?? false,
@@ -174,11 +171,11 @@ describe("RankJourneyCard", () => {
           journey: rankJourney(slug, {
             achievedRankSlugs: [...achievedRankSlugs],
           }),
-          expanded: slug === "kyu-4",
+          expanded: false,
         }),
       ),
     );
-    const { container } = render(<ol>{cards}</ol>);
+    const { container } = render(<div>{cards}</div>);
 
     const articles = Array.from(container.querySelectorAll("article"));
     expect(

@@ -1,5 +1,3 @@
-import { getTranslations } from "next-intl/server";
-
 import { CheckIcon } from "@/app/(user)/_components/icons/check-icon";
 import type { RankStatus } from "@mahjong-scoring/features/ranks/rank-status";
 
@@ -20,26 +18,31 @@ const STATUS_CLASSES: Readonly<Record<RankStatus, string>> = {
 
 interface RankStatusBadgeProps {
   readonly status: RankStatus;
+  /** `dojo` 名前空間の翻訳関数（呼び出し側が引いたものを渡す） */
+  readonly tDojo: (key: string) => string;
 }
 
 /**
  * 段級位の取得状態の pill（取得済み / 次の目標 / 未取得）
  * 段級位状態バッジ
  *
- * Server Component。段級位一覧のカードと級の詳細ページで使う。状態は色だけで
- * なく文字でも示す（色の区別に頼らない）。取得済みにはチェックを添えて、
- * 教本の目次の読了チェックと同じ「済んだ」の記号に揃える。
+ * 級の見出し（`RankHeading`。道場の級カードとダッシュボードの「次にやること」）
+ * と級の詳細ページで使う。状態は色だけでなく文字でも示す（色の区別に
+ * 頼らない）。取得済みにはチェックを添えて、レッスンの目次の完了チェックと
+ * 同じ「済んだ」の記号に揃える。
+ *
+ * 級の見出し（`RankHeading`）の中で描かれ、呼び出し側のテストが async な
+ * サーバーコンポーネントを 1 段だけ await して描画するため、翻訳関数は
+ * 受け取って同期で描く。
  */
-export async function RankStatusBadge({ status }: RankStatusBadgeProps) {
-  const t = await getTranslations("dojo");
-
+export function RankStatusBadge({ status, tDojo }: RankStatusBadgeProps) {
   return (
     <span
       data-rank-status={status}
       className={`inline-flex h-6 shrink-0 items-center gap-1 rounded-full px-2.5 text-xs leading-none font-bold ${STATUS_CLASSES[status]}`}
     >
       {status === "achieved" && <CheckIcon className="size-3.5" />}
-      {t(`status.${status}`)}
+      {tDojo(`status.${status}`)}
     </span>
   );
 }

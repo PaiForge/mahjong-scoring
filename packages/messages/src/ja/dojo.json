@@ -5,6 +5,7 @@
   "unranked": "無級",
   "signInNote": "段級位を記録するにはアカウントが必要です。",
   "signInLink": "ログインはこちら",
+  "nextRankTitle": "次の目標",
   "journeyTitle": "点数計算・黒帯への道",
   "tour": {
     "label": "道場の見方を見る",
@@ -18,7 +19,7 @@
     },
     "nextRank": {
       "title": "次の目標の級",
-      "description": "いま取り組む級だけ中身を開いています。上から順に済ませると試験に進めます。"
+      "description": "いま取り組む級です。級名を押すと合格基準と前提のレッスンを確認できます。"
     },
     "stages": {
       "title": "学ぶ → 練習する → 認定される",
@@ -29,13 +30,9 @@
       "description": "段級位は下の級から順に取得します。上の級のレッスンは先に進められますが、試験は順番に受けます。"
     }
   },
-  "canDoLabel": "できるようになること",
   "lockedNote": "下の級から順に取得すると受験できます",
-  "lessonRowDescription": "短い説明と確認問題で学ぶ",
   "lessonDone": "完了",
   "practiceDone": "挑戦済み",
-  "chaptersLead": "試験に必要な知識はここで身につきます。",
-  "practicesLead": "読んだ内容を手を動かして確かめます。",
   "examLead": "前提のレッスンの内容を身につけたら、試験に挑戦しましょう。",
   "viewExam": "試験の内容を見る",
   "chaptersTitle": "前提となるレッスン",
