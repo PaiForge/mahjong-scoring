@@ -1,6 +1,5 @@
-import { useTranslations } from "use-intl";
-import { YAKUMAN_HAN } from "@mahjong-scoring/core";
 import type { YakuDetail } from "@mahjong-scoring/core";
+import { useYakumanRoundingNote } from "@mahjong-scoring/features/practice/han-count/use-yakuman-rounding-note";
 
 import { YakuBreakdown } from "../../components/yaku-breakdown";
 
@@ -21,21 +20,8 @@ export function HanBreakdown({
   /** 正解の翻数（役満に丸めた後） */
   readonly correctHan: number;
 }) {
-  const t = useTranslations("hanCountChallenge");
-  const tBreakdown = useTranslations("challenge.yakuBreakdown");
+  // 役満への丸めの補足（出す条件と文言）はwebと共有する
+  const note = useYakumanRoundingNote(yakuDetails, correctHan);
 
-  const rawTotal = yakuDetails.reduce((sum, detail) => sum + detail.han, 0);
-  const isClampedToYakuman =
-    correctHan === YAKUMAN_HAN && rawTotal > correctHan;
-
-  return (
-    <YakuBreakdown
-      yakuDetails={yakuDetails}
-      note={
-        isClampedToYakuman
-          ? `${tBreakdown("han", { count: rawTotal })} → ${t("yakuman")}（${t("yakumanNote")}）`
-          : undefined
-      }
-    />
-  );
+  return <YakuBreakdown yakuDetails={yakuDetails} note={note} />;
 }
