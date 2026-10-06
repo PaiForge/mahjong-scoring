@@ -1,5 +1,8 @@
 {
   "title": "ランキング",
+  "indexDescription": "種目を選んで、みんなの記録を見てみよう。",
+  "boardLabel": "種目・出題設定",
+  "yourRankLabel": "あなたの順位",
   "periodLabel": "期間",
   "period": {
     "all-time": "総合",
