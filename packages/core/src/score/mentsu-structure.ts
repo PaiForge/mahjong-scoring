@@ -94,10 +94,13 @@ export interface MentsuBreakdownCandidate {
   /** 成立した役と翻数（ドラを含まない） */
   readonly yakuResult: YakuResult;
   /**
-   * 高点法で最も高い解釈か
+   * 最も高い点数（支払い）になる解釈か
    *
-   * 先頭の候補と翻・符・支払いがすべて同じ候補も true になる。高点法では
-   * 同順位であり、先頭だけを唯一の正解として扱わないため。
+   * 先頭の候補と支払いが同じ候補はすべて true になる。翻・符が違っても
+   * 支払いが同じなら（例: 6翻60符と 6翻50符はどちらも跳満 12000 点）
+   * 「最高点」としては同じであり、先頭だけを唯一の正解として扱わない。
+   * 候補の並び順（基本点 → 翻数 → 符）はこの印とは別で、先頭が点数計算に
+   * 採用される解釈。
    */
   readonly isBest: boolean;
 }
@@ -217,13 +220,9 @@ function toBreakdown(
   };
 }
 
-/** 2 つの点数計算結果が高点法で同順位（翻・符・支払いが同じ）か */
-function isSameScore(a: RankedScoreResult, b: RankedScoreResult): boolean {
-  return (
-    a.han === b.han &&
-    a.fu === b.fu &&
-    getPaymentTotal(a.payment) === getPaymentTotal(b.payment)
-  );
+/** 2 つの点数計算結果の支払いが同じか（翻・符は問わない） */
+function isSamePayment(a: RankedScoreResult, b: RankedScoreResult): boolean {
+  return getPaymentTotal(a.payment) === getPaymentTotal(b.payment);
 }
 
 /**
@@ -236,8 +235,8 @@ function isSameScore(a: RankedScoreResult, b: RankedScoreResult): boolean {
  * （convertScoreDetailToFuDetails）と食い違う分割を表示しかねないため、
  * ライブラリが点数計算で評価した和了解釈（`rankScoresForTehai`）を土台にする。
  *
- * 候補は高点法の降順で、先頭が点数計算に採用された解釈。先頭と同点の候補も
- * `isBest` になる。役が成立しない解釈は和了ではないため候補に入らない。
+ * 候補は高点法の降順で、先頭が点数計算に採用された解釈。先頭と支払いが
+ * 同じ候補も `isBest` になる。役が成立しない解釈は和了ではないため候補に入らない。
  * 面子手でない解釈（七対子・国士無双）は分解表示を持たないため除く。
  *
  * 手牌が14枚でない・成立する和了が無い場合は空配列を返す。呼び出し側は
@@ -272,7 +271,7 @@ export function resolveMentsuBreakdowns(
         fu: result.fu,
         payment: result.payment,
         yakuResult: result.detail.yakuResult,
-        isBest: isSameScore(result, best),
+        isBest: isSamePayment(result, best),
       },
     ];
   });

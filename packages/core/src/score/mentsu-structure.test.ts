@@ -533,6 +533,40 @@ describe("resolveMentsuBreakdowns", () => {
     expect(koutsuRow(1)?.isOpen).toBe(true);
   });
 
+  it("翻・符が違っても支払いが同じ候補はすべて最高点として印が付く", () => {
+    // 345m 55m 999p 666s 111z の 5m ロン、ドラ表示牌 8p（ドラ 9p ×3）
+    //   単騎: 場風 + 三暗刻 + ドラ3 = 6翻60符、両面: 6翻50符。どちらも跳満 12000 点
+    const candidates = resolveMentsuBreakdowns(
+      makeTehai([
+        HaiKind.ManZu3,
+        HaiKind.ManZu4,
+        HaiKind.ManZu5,
+        HaiKind.ManZu5,
+        HaiKind.ManZu5,
+        HaiKind.PinZu9,
+        HaiKind.PinZu9,
+        HaiKind.PinZu9,
+        HaiKind.SouZu6,
+        HaiKind.SouZu6,
+        HaiKind.SouZu6,
+        HaiKind.Ton,
+        HaiKind.Ton,
+        HaiKind.Ton,
+      ]),
+      {
+        ...RON_CONTEXT,
+        agariHai: HaiKind.ManZu5,
+        doraMarkers: [HaiKind.PinZu8],
+      },
+    );
+
+    expect(candidates.map((c) => [c.han, c.fu])).toEqual([
+      [6, 60],
+      [6, 50],
+    ]);
+    expect(candidates.map((c) => c.isBest)).toEqual([true, true]);
+  });
+
   it("同点の候補はすべて最高点として印が付く", () => {
     // 111m 123m 999p 555s 66z の 1m ツモ: どちらに入れても 3翻50符
     const tehai = makeTehai([
