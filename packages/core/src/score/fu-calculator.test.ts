@@ -33,6 +33,8 @@ function makeMentsuDetail(overrides: {
   fourMentsu?: readonly TestMentsu[];
   jantouHais?: readonly HaiKindId[];
   machiType?: string;
+  /** 和了牌で完成した面子の位置。省略時はフィラー側の順子（2 番目） */
+  agariAt?: number;
 }): ScoreDetail {
   const {
     base = 20,
@@ -61,6 +63,7 @@ function makeMentsuDetail(overrides: {
     ],
     jantouHais = [HaiKind.ManZu9, HaiKind.ManZu9],
     machiType = "Ryanmen",
+    agariAt = 1,
   } = overrides;
 
   return {
@@ -68,6 +71,13 @@ function makeMentsuDetail(overrides: {
       type: "Mentsu",
       fourMentsu,
       jantou: { type: MentsuType.Toitsu, hais: jantouHais },
+      // 和了牌は既定でフィラー側の順子（2 番目の面子）の先頭の牌に入れる。
+      // 検証対象の刻子がロンで完成した扱いにならないようにするため
+      agari: {
+        kind: "Mentsu",
+        index: agariAt,
+        hai: fourMentsu[agariAt]?.hais[0],
+      },
     },
     machiType,
     fuResult: {
@@ -123,7 +133,12 @@ const YAOCHU_FILLER: readonly TestMentsu[] = [
 function makeTargetMentsuDetail(
   target: TestMentsu,
   filler: readonly TestMentsu[],
-  fu: { readonly mentsu: number; readonly total: number },
+  fu: {
+    readonly mentsu: number;
+    readonly total: number;
+    /** 和了牌で完成した面子の位置（検証対象は 0） */
+    readonly agariAt?: number;
+  },
 ): ScoreDetail {
   return makeMentsuDetail({ ...fu, fourMentsu: [target, ...filler] });
 }
@@ -449,11 +464,12 @@ describe("convertScoreDetailToFuDetails", () => {
           hais: [HaiKind.ManZu5, HaiKind.ManZu5, HaiKind.ManZu5],
         },
         CHUNCHAN_FILLER,
-        { mentsu: 2, total: 30 },
+        // 和了牌が検証対象の刻子を完成させた（シャンポン待ち）→ 明刻
+        { mentsu: 2, total: 30, agariAt: 0 },
       );
 
       const result = convert(detail, {
-        agariHai: HaiKind.ManZu5, // 和了牌が刻子に含まれる → シャンポン待ち → 明刻
+        agariHai: HaiKind.ManZu5,
         isTsumo: false,
       });
 

@@ -11,6 +11,8 @@ import {
   calculateOyaScore,
   isInvalidCell,
   calculateStandaloneMentsuFu,
+  isOpenMentsuAt,
+  isOpenMentsuForFu,
 } from "./score-calculation";
 
 describe("calculateKoScore", () => {
@@ -308,5 +310,95 @@ describe("calculateStandaloneMentsuFu", () => {
         hais: [hai, hai, hai, hai],
       }),
     ).toBe(32);
+  });
+});
+
+describe("isOpenMentsuForFu", () => {
+  const koutsu5m = {
+    type: MentsuType.Koutsu,
+    hais: [HaiKind.ManZu5, HaiKind.ManZu5, HaiKind.ManZu5],
+  } as const;
+
+  it("副露した面子は和了状況によらず明", () => {
+    const pon = {
+      ...koutsu5m,
+      furo: { type: FuroType.Pon, from: Tacha.Kamicha },
+    };
+    expect(
+      isOpenMentsuForFu(pon, { completedByAgari: false, isTsumo: true }),
+    ).toBe(true);
+  });
+
+  it("ロンで和了牌が完成させた刻子は明、完成させていない刻子は暗", () => {
+    expect(
+      isOpenMentsuForFu(koutsu5m, { completedByAgari: true, isTsumo: false }),
+    ).toBe(true);
+    expect(
+      isOpenMentsuForFu(koutsu5m, { completedByAgari: false, isTsumo: false }),
+    ).toBe(false);
+  });
+
+  it("ツモなら和了牌が完成させた刻子も暗", () => {
+    expect(
+      isOpenMentsuForFu(koutsu5m, { completedByAgari: true, isTsumo: true }),
+    ).toBe(false);
+  });
+
+  it("順子は和了牌で完成させても明にならない", () => {
+    const shuntsu = {
+      type: MentsuType.Shuntsu,
+      hais: [HaiKind.ManZu2, HaiKind.ManZu3, HaiKind.ManZu4],
+    } as const;
+    expect(
+      isOpenMentsuForFu(shuntsu, { completedByAgari: true, isTsumo: false }),
+    ).toBe(false);
+  });
+});
+
+describe("isOpenMentsuAt", () => {
+  // 222m 234m 456p 678s + 33s。2m のロンで 222m と 234m のどちらを完成させたかは
+  // 和了形の置き場所（agari）が持つ
+  const fourMentsu = [
+    {
+      type: MentsuType.Koutsu,
+      hais: [HaiKind.ManZu2, HaiKind.ManZu2, HaiKind.ManZu2],
+    },
+    {
+      type: MentsuType.Shuntsu,
+      hais: [HaiKind.ManZu2, HaiKind.ManZu3, HaiKind.ManZu4],
+    },
+    {
+      type: MentsuType.Shuntsu,
+      hais: [HaiKind.PinZu4, HaiKind.PinZu5, HaiKind.PinZu6],
+    },
+    {
+      type: MentsuType.Shuntsu,
+      hais: [HaiKind.SouZu6, HaiKind.SouZu7, HaiKind.SouZu8],
+    },
+  ] as const;
+  const jantou = {
+    type: MentsuType.Toitsu,
+    hais: [HaiKind.SouZu3, HaiKind.SouZu3],
+  } as const;
+
+  it("和了牌を順子に入れた解釈では、同じ牌の刻子は暗刻のまま", () => {
+    const structure = {
+      type: "Mentsu",
+      fourMentsu,
+      jantou,
+      agari: { kind: "Mentsu", index: 1, hai: HaiKind.ManZu2 },
+    } as const;
+    expect(isOpenMentsuAt(structure, 0, false)).toBe(false);
+  });
+
+  it("和了牌を刻子に入れた解釈では、ロンならその刻子が明刻", () => {
+    const structure = {
+      type: "Mentsu",
+      fourMentsu,
+      jantou,
+      agari: { kind: "Mentsu", index: 0, hai: HaiKind.ManZu2 },
+    } as const;
+    expect(isOpenMentsuAt(structure, 0, false)).toBe(true);
+    expect(isOpenMentsuAt(structure, 0, true)).toBe(false);
   });
 });

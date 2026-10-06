@@ -70,19 +70,23 @@ export function generateMentsuJantouFuQuestion(
   if (headTile === undefined) return undefined;
 
   // 4. 和了状況を決める。ロンかツモかで刻子の明暗（＝符）が変わるため、
-  //    回答行の符を確定させる前に和了牌まで決めておく。
+  //    回答行の符を確定させる前に和了牌と、その置き場所まで決めておく。
   const isTsumo = randomBool(0.5, rng);
   const agariHai = isTsumo
     ? pickAgariHai(mentsuList, headTile, rng)
     : pickRonAgariHai(mentsuList, headTile, rng);
   if (agariHai === undefined) return undefined;
+  const agariMentsuIndex = locateAgariMentsu(mentsuList, agariHai);
 
   // 5. 回答行を作る
-  const items: MentsuJantouFuItem[] = mentsuList.map((result) => ({
+  const items: MentsuJantouFuItem[] = mentsuList.map((result, index) => ({
     id: idGen(),
     tiles: [...result.mentsu.hais],
     type: result.mentsu.type,
-    fu: mentsuFuInHand(result.mentsu, { agariHai, isTsumo }),
+    fu: mentsuFuInHand(result.mentsu, {
+      completedByAgari: index === agariMentsuIndex,
+      isTsumo,
+    }),
     // 副露しているかどうか（手牌の右に晒して表示するか）。ロンで明刻に
     // なった刻子は符の上では明でも、手牌では暗牌のまま並べる。
     isOpen: !!result.mentsu.furo,
@@ -127,6 +131,32 @@ export function generateMentsuJantouFuQuestion(
 }
 
 /**
+ * 和了牌がどの面子を完成させたかを決める
+ * 和了面子特定
+ *
+ * 面子の符に効くのは「ロンで完成した刻子は明刻」の読み替えだけなので、
+ * 和了牌を含む手牌の中の刻子があればそれを採る。ロンの和了牌は
+ * {@link pickRonAgariHai} が「暗刻と暗順子に跨る牌」を除いて選んでおり、
+ * 刻子に入る牌はその刻子にしか入らない（ライブラリの高点法なら順子を
+ * 優先するが、ここでは順子との競合が生成時に無い）。刻子に入らない牌は
+ * 雀頭か順子で、どちらに入れても面子の符は変わらないため区別しない。
+ *
+ * @returns 和了牌で完成した面子の位置。雀頭・順子なら undefined
+ */
+function locateAgariMentsu(
+  mentsuList: readonly { readonly mentsu: CompletedMentsu }[],
+  agariHai: HaiKindId,
+): number | undefined {
+  const index = mentsuList.findIndex(
+    ({ mentsu }) =>
+      mentsu.type === MentsuType.Koutsu &&
+      !mentsu.furo &&
+      mentsu.hais.includes(agariHai),
+  );
+  return index === -1 ? undefined : index;
+}
+
+/**
  * 和了状況を織り込んだ、その面子の符
  * 面子符（和了状況込み）
  *
@@ -135,7 +165,7 @@ export function generateMentsuJantouFuQuestion(
  */
 function mentsuFuInHand(
   mentsu: CompletedMentsu,
-  context: { readonly agariHai: HaiKindId; readonly isTsumo: boolean },
+  context: { readonly completedByAgari: boolean; readonly isTsumo: boolean },
 ): number {
   if (mentsu.type === MentsuType.Shuntsu) return 0;
   return calculateMentsuFu({

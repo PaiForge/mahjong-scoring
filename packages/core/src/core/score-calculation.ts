@@ -5,7 +5,7 @@ import {
   isYaochu,
   type CompletedMentsu,
   type Fu,
-  type HaiKindId,
+  type MentsuHouraStructure,
   type Payment,
 } from "@pai-forge/riichi-mahjong";
 import type { WinType } from "./roles";
@@ -252,10 +252,16 @@ export function calculateStandaloneMentsuFu(
  * 符計算でその面子を明（副露と同じ扱い）として数えるかを判定する
  * 面子明暗判定
  *
- * 副露していれば当然明。加えてロン和了では、和了牌を含む刻子も明刻として
+ * 副露していれば当然明。加えてロン和了では、和了牌で完成した刻子も明刻として
  * 数える。シャンポン待ちの片割れを他家から受けた形であり、手牌に2枚
  * 持っていても最後の1枚は自力で引いていないため暗刻にはならない。
  * 槓子はロンでは完成しないため、この読み替えの対象外。
+ *
+ * 「和了牌を含む刻子」ではなく「和了牌で完成した刻子」（`completedByAgari`）で
+ * 判定する。同じ牌が刻子と順子の両方にある手（例: 222m 234m の 2m）では、
+ * 和了牌を順子に入れた解釈なら刻子は暗刻のまま残る。どちらの解釈かは
+ * 和了形の置き場所（ライブラリの `MentsuHouraStructure.agari`）が持つので、
+ * 呼び出し側はそこから `completedByAgari` を引く（{@link isOpenMentsuAt}）。
  *
  * 手牌の符を面子ごとに出す箇所は、生成側・表示側を問わずこの判定を通すこと。
  * 面子を作った時点の明暗をそのまま符にすると、ロン和了だけ符が過大になる。
@@ -263,7 +269,8 @@ export function calculateStandaloneMentsuFu(
 export function isOpenMentsuForFu(
   mentsu: CompletedMentsu,
   context: {
-    readonly agariHai: HaiKindId;
+    /** 和了牌がこの面子を完成させたか */
+    readonly completedByAgari: boolean;
     readonly isTsumo: boolean;
   },
 ): boolean {
@@ -271,8 +278,27 @@ export function isOpenMentsuForFu(
   return (
     !context.isTsumo &&
     mentsu.type === MentsuType.Koutsu &&
-    mentsu.hais.includes(context.agariHai)
+    context.completedByAgari
   );
+}
+
+/**
+ * 和了形の `index` 番目の面子を符計算で明として数えるかを判定する
+ * 和了形面子明暗判定
+ *
+ * ライブラリが返した和了構造の置き場所（`agari`）から「和了牌で完成した
+ * 面子か」を引いて {@link isOpenMentsuForFu} に渡す。
+ */
+export function isOpenMentsuAt(
+  structure: Readonly<MentsuHouraStructure>,
+  index: number,
+  isTsumo: boolean,
+): boolean {
+  const { agari } = structure;
+  return isOpenMentsuForFu(structure.fourMentsu[index], {
+    completedByAgari: agari.kind === "Mentsu" && agari.index === index,
+    isTsumo,
+  });
 }
 
 /**

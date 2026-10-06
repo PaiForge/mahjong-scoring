@@ -7,7 +7,10 @@ import {
   type CompletedMentsu,
   type Tehai,
 } from "@pai-forge/riichi-mahjong";
-import { resolveMentsuBreakdown } from "./mentsu-structure";
+import {
+  resolveMentsuBreakdown,
+  resolveMentsuBreakdowns,
+} from "./mentsu-structure";
 
 /** 副露なしの手牌を作るヘルパー */
 function makeTehai(closed: readonly HaiKind[]): Tehai {
@@ -417,5 +420,208 @@ describe("resolveMentsuBreakdown", () => {
       const chi = breakdown?.fourMentsu.find((row) => row.isExposed);
       expect(chi?.agariHaiIndex).toBeUndefined();
     });
+  });
+});
+
+describe("resolveMentsuBreakdowns", () => {
+  /** 345m 345m 55m 123s 456s: 5m は雀頭にも順子にも入る */
+  const TWO_WAYS = [
+    HaiKind.ManZu3,
+    HaiKind.ManZu3,
+    HaiKind.ManZu4,
+    HaiKind.ManZu4,
+    HaiKind.ManZu5,
+    HaiKind.ManZu5,
+    HaiKind.ManZu5,
+    HaiKind.ManZu5,
+    HaiKind.SouZu1,
+    HaiKind.SouZu2,
+    HaiKind.SouZu3,
+    HaiKind.SouZu4,
+    HaiKind.SouZu5,
+    HaiKind.SouZu6,
+  ] as const;
+
+  it("和了牌の置き場所ごとの候補を高点法の順に返し、先頭が採用される解釈", () => {
+    const candidates = resolveMentsuBreakdowns(makeTehai(TWO_WAYS), {
+      ...RON_CONTEXT,
+      agariHai: HaiKind.ManZu5,
+    });
+
+    // 5m を順子に入れる（平和 + 一盃口 2翻30符）→ 雀頭に入れる（一盃口 1翻40符）
+    expect(candidates.map((c) => [c.han, c.fu])).toEqual([
+      [2, 30],
+      [1, 40],
+    ]);
+    expect(candidates.map((c) => c.isBest)).toEqual([true, false]);
+    expect(candidates[0]?.yakuResult).toEqual([
+      ["Pinfu", 1],
+      ["Iipeikou", 1],
+    ]);
+
+    // 先頭は resolveMentsuBreakdown と同じ
+    expect(candidates[0]?.breakdown).toEqual(
+      resolveMentsuBreakdown(makeTehai(TWO_WAYS), {
+        ...RON_CONTEXT,
+        agariHai: HaiKind.ManZu5,
+      }),
+    );
+  });
+
+  it("候補ごとに和了牌の位置が置き場所に従う", () => {
+    const [ryanmen, tanki] = resolveMentsuBreakdowns(makeTehai(TWO_WAYS), {
+      ...RON_CONTEXT,
+      agariHai: HaiKind.ManZu5,
+    });
+
+    expect(ryanmen?.breakdown.jantou.agariHaiIndex).toBeUndefined();
+    expect(
+      ryanmen?.breakdown.fourMentsu.filter(
+        (r) => r.agariHaiIndex !== undefined,
+      ),
+    ).toHaveLength(1);
+    expect(tanki?.breakdown.jantou.agariHaiIndex).toBe(1);
+  });
+
+  it("候補のキーは置き場所を区別し、順序によらず安定している", () => {
+    const candidates = resolveMentsuBreakdowns(makeTehai(TWO_WAYS), {
+      ...RON_CONTEXT,
+      agariHai: HaiKind.ManZu5,
+    });
+    const keys = candidates.map((c) => c.key);
+
+    expect(new Set(keys).size).toBe(keys.length);
+    expect(keys).toEqual(
+      resolveMentsuBreakdowns(makeTehai(TWO_WAYS), {
+        ...RON_CONTEXT,
+        agariHai: HaiKind.ManZu5,
+      }).map((c) => c.key),
+    );
+  });
+
+  it("和了牌を刻子に入れた解釈では刻子が明、順子に入れた解釈では暗になる", () => {
+    // 222m 234m 555z 678s 33s の 2m ロン
+    const tehai = makeTehai([
+      HaiKind.ManZu2,
+      HaiKind.ManZu2,
+      HaiKind.ManZu2,
+      HaiKind.ManZu2,
+      HaiKind.ManZu3,
+      HaiKind.ManZu4,
+      HaiKind.Haku,
+      HaiKind.Haku,
+      HaiKind.Haku,
+      HaiKind.SouZu6,
+      HaiKind.SouZu7,
+      HaiKind.SouZu8,
+      HaiKind.SouZu3,
+      HaiKind.SouZu3,
+    ]);
+    const candidates = resolveMentsuBreakdowns(tehai, {
+      ...RON_CONTEXT,
+      agariHai: HaiKind.ManZu2,
+    });
+    const koutsuRow = (i: number) =>
+      candidates[i]?.breakdown.fourMentsu.find(
+        (r) =>
+          r.mentsu.type === MentsuType.Koutsu &&
+          r.mentsu.hais[0] === HaiKind.ManZu2,
+      );
+
+    expect(candidates.map((c) => c.fu)).toEqual([50, 40]);
+    expect(koutsuRow(0)?.isOpen).toBe(false);
+    expect(koutsuRow(1)?.isOpen).toBe(true);
+  });
+
+  it("同点の候補はすべて最高点として印が付く", () => {
+    // 111m 123m 999p 555s 66z の 1m ツモ: どちらに入れても 3翻50符
+    const tehai = makeTehai([
+      HaiKind.ManZu1,
+      HaiKind.ManZu1,
+      HaiKind.ManZu1,
+      HaiKind.ManZu1,
+      HaiKind.ManZu2,
+      HaiKind.ManZu3,
+      HaiKind.PinZu9,
+      HaiKind.PinZu9,
+      HaiKind.PinZu9,
+      HaiKind.SouZu5,
+      HaiKind.SouZu5,
+      HaiKind.SouZu5,
+      HaiKind.Hatsu,
+      HaiKind.Hatsu,
+    ]);
+    const candidates = resolveMentsuBreakdowns(tehai, {
+      ...TSUMO_CONTEXT,
+      agariHai: HaiKind.ManZu1,
+    });
+
+    expect(candidates).toHaveLength(2);
+    expect(candidates.every((c) => c.isBest)).toBe(true);
+  });
+
+  it("ドラで翻数が上がると順位が変わりうるため、ドラ表示牌を順位に反映する", () => {
+    // 345m 345m 55m 123s 456s の 5m ロン、ドラ 3 つ（表示牌 2m → ドラ 3m ×2、
+    // 表示牌 4m → ドラ 5m ×4 ではなく、翻数を揃えて満貫で頭打ちにする）
+    // ドラ表示牌 1s → ドラ 2s（1 つ）、2s → 3s（1 つ）、4m → 5m（4 つ）: 計 6 つ
+    //   順子に入れる: 2 + 6 = 8翻 → 倍満（16000）
+    //   雀頭に入れる: 1 + 6 = 7翻 → 跳満（12000）
+    // 順位は変わらないが、翻数にドラが乗っていることを確かめる
+    const candidates = resolveMentsuBreakdowns(makeTehai(TWO_WAYS), {
+      ...RON_CONTEXT,
+      agariHai: HaiKind.ManZu5,
+      doraMarkers: [HaiKind.SouZu1, HaiKind.SouZu2, HaiKind.ManZu4],
+    });
+
+    expect(candidates.map((c) => c.han)).toEqual([8, 7]);
+  });
+
+  it("面子手でない解釈は候補に入らず、成立する和了が無ければ空配列", () => {
+    const chiitoitsu = makeTehai([
+      HaiKind.ManZu1,
+      HaiKind.ManZu1,
+      HaiKind.ManZu3,
+      HaiKind.ManZu3,
+      HaiKind.PinZu5,
+      HaiKind.PinZu5,
+      HaiKind.PinZu7,
+      HaiKind.PinZu7,
+      HaiKind.SouZu2,
+      HaiKind.SouZu2,
+      HaiKind.SouZu9,
+      HaiKind.SouZu9,
+      HaiKind.Ton,
+      HaiKind.Ton,
+    ]);
+    expect(
+      resolveMentsuBreakdowns(chiitoitsu, {
+        ...RON_CONTEXT,
+        agariHai: HaiKind.Ton,
+      }),
+    ).toEqual([]);
+
+    // 234m 234p 456s 678s 55z は役なし
+    const yakunashi = makeTehai([
+      HaiKind.ManZu2,
+      HaiKind.ManZu3,
+      HaiKind.ManZu4,
+      HaiKind.PinZu2,
+      HaiKind.PinZu3,
+      HaiKind.PinZu4,
+      HaiKind.SouZu4,
+      HaiKind.SouZu5,
+      HaiKind.SouZu6,
+      HaiKind.SouZu6,
+      HaiKind.SouZu7,
+      HaiKind.SouZu8,
+      HaiKind.Haku,
+      HaiKind.Haku,
+    ]);
+    expect(
+      resolveMentsuBreakdowns(yakunashi, {
+        ...RON_CONTEXT,
+        agariHai: HaiKind.ManZu4,
+      }),
+    ).toEqual([]);
   });
 });

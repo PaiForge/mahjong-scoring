@@ -96,10 +96,15 @@ export {
   TSUMO_AGARI_FU,
   MENZEN_RON_AGARI_FU,
 } from "./score/mentsu-tehai-fu";
-export { resolveMentsuBreakdown } from "./score/mentsu-structure";
+export {
+  resolveMentsuBreakdown,
+  resolveMentsuBreakdowns,
+} from "./score/mentsu-structure";
 export type {
   MentsuBreakdown,
   MentsuBreakdownRow,
+  MentsuBreakdownCandidate,
+  MentsuBreakdownContext,
   JantouBreakdownRow,
 } from "./score/mentsu-structure";
 export type {
@@ -226,5 +231,6 @@ export type {
   MachiType,
   Payment,
   RuleConfig,
+  YakuResult,
   YakumanRuleConfig,
 } from "@pai-forge/riichi-mahjong";

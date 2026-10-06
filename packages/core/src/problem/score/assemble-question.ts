@@ -69,7 +69,6 @@ export function assembleScoreQuestion(
 
   const fuDetails = originalAnswer.detail
     ? convertScoreDetailToFuDetails(originalAnswer.detail, {
-        agariHai,
         isTsumo,
         bakaze,
         jikaze,
