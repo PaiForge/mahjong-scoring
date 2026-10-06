@@ -233,3 +233,11 @@ export function ArrowDownIcon(props: IconProps) {
     </Outline>
   );
 }
+
+export function CloseIcon(props: IconProps) {
+  return (
+    <Outline {...props}>
+      <Path d="M18 6L6 18M6 6l12 12" />
+    </Outline>
+  );
+}

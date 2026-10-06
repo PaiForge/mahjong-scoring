@@ -19,7 +19,7 @@ import {
 
 import { LinkRow, LinkRowList } from "../../components/link-row";
 import { Screen } from "../../components/screen";
-import { ToggleGroup } from "../../components/toggle-group";
+import { FilterChips } from "../../components/filter-chips";
 import { EndlessPracticeBanner } from "../../practice/components/endless-practice-banner";
 import { PracticeCard } from "../../practice/components/practice-card";
 import { practiceScreensFor } from "../../practice/registry";
@@ -70,7 +70,7 @@ export default function PracticeListPage() {
   );
 
   return (
-    <Screen title={t("title")}>
+    <Screen title={t("title")} inTabs>
       {/* 終わりのない訓練（総合演習・待ち別点数計算）。web と同じく見出しを付けない */}
       <View style={styles.banners}>
         <EndlessPracticeBanner
@@ -84,7 +84,7 @@ export default function PracticeListPage() {
           description={t("machiScoreBanner.description")}
         />
       </View>
-      <ToggleGroup
+      <FilterChips
         accessibilityLabel={t("filter.label")}
         selected={filter}
         onSelect={setFilter}

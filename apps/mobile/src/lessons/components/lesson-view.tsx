@@ -31,6 +31,7 @@ import {
   useLessonCompleted,
   useLessonCompletionStore,
 } from "../../hooks/use-lesson-completion-store";
+import { hapticJudgement } from "../../lib/haptics";
 import { colors, radius } from "../../lib/theme";
 import { ChoiceButton } from "../../practice/components/choice-button";
 import { JudgementMark } from "../../practice/components/judgement-mark";
@@ -156,7 +157,9 @@ export function LessonView({
     if (isAnswered) return;
     const choice = choices[choiceIndex];
     setSelected(choice);
-    if (isSameChoice(choice, question.answer)) {
+    const correct = isSameChoice(choice, question.answer);
+    hapticJudgement(correct ? "correct" : "incorrect");
+    if (correct) {
       setCorrectCount((count) => count + 1);
     }
   };

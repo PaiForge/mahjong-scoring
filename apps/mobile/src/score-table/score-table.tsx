@@ -169,9 +169,9 @@ const styles = StyleSheet.create({
   controls: {
     flexDirection: "row",
     flexWrap: "wrap",
-    justifyContent: "flex-end",
+    justifyContent: "space-between",
     alignItems: "center",
-    gap: 6,
+    gap: 8,
   },
   control: {
     flexShrink: 0,

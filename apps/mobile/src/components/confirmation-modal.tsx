@@ -90,7 +90,8 @@ const styles = StyleSheet.create({
     color: colors.surface900,
   },
   message: {
-    fontSize: 14,
+    fontSize: 15,
+    lineHeight: 22,
     color: colors.surface600,
   },
   actions: {

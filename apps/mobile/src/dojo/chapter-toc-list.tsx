@@ -10,6 +10,7 @@ import {
 import { chapterHref, LESSONS_PATH } from "@mahjong-scoring/features/routes";
 
 import { DashedDivider } from "../components/dashed-divider";
+import { ChevronRightIcon } from "../components/icons/icons";
 import { TextLink } from "../components/text-link";
 import { SECTION_COLORS } from "../lessons/lesson-colors";
 import { colors } from "../lib/theme";
@@ -86,6 +87,9 @@ export function ChapterTocList({
                       {completedSlugs.has(chapter.slug) && (
                         <DoneMark label={t("chapter.completedMark")} />
                       )}
+                      <View style={styles.chevron}>
+                        <ChevronRightIcon size={18} color={colors.surface400} />
+                      </View>
                     </Pressable>
                   </View>
                 );
@@ -153,17 +157,19 @@ const styles = StyleSheet.create({
   pressed: {
     opacity: 0.6,
   },
+  chevron: {
+    minHeight: 20,
+    justifyContent: "center",
+  },
   chapterBody: {
     flex: 1,
     minWidth: 0,
     gap: 8,
   },
   chapterTitle: {
-    fontSize: 14,
-    fontWeight: "700",
-    color: colors.mutedForeground,
-    textDecorationLine: "underline",
-    textDecorationColor: colors.surface300,
+    fontSize: 15,
+    fontWeight: "600",
+    color: colors.foreground,
   },
   chapterDescription: {
     fontSize: 12,

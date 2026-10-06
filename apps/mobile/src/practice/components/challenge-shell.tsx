@@ -8,6 +8,7 @@ import {
 import {
   AppState,
   BackHandler,
+  Platform,
   Pressable,
   ScrollView,
   StyleSheet,
@@ -27,6 +28,7 @@ import { useQuitPause } from "@mahjong-scoring/features/session/use-quit-pause";
 
 import { BoardBleedProvider } from "../../board/board-bleed";
 import { ConfirmationModal } from "../../components/confirmation-modal";
+import { useJudgementHaptics } from "../../hooks/use-judgement-haptics";
 import { PauseIcon, PlayIcon } from "../../components/icons/icons";
 import { Screen } from "../../components/screen";
 import { TextLink } from "../../components/text-link";
@@ -83,6 +85,8 @@ function LifeIndicator({
  * 白で覆う — どちらも一時停止中に問題を読ませない）。
  *
  * モバイル固有の扱い:
+ * - ヘッダーの左端に ×（中止）を置く。解答中は戻る先が無く「閉じる」
+ *   なので矢印ではなく × にする
  * - アプリが裏に回ったら一時停止する（電話・通知で時間を失わない）
  * - Android の戻るボタンは中止の確認を開く（押しただけで記録を失わない）
  */
@@ -110,6 +114,8 @@ export function ChallengeShell({
   // 終わった瞬間の経過時間で 1 回だけ結果へ送る
   useOnFinished(gameSession.finalResult, () => onFinish(elapsedMs));
 
+  useJudgementHaptics(gameSession.correctCount, gameSession.incorrectCount);
+
   const openQuit = useCallback(() => {
     pauseForQuit();
     setIsQuitOpen(true);
@@ -126,6 +132,8 @@ export function ChallengeShell({
   }, [router, exitHref]);
 
   useEffect(() => {
+    // web（画面確認用）には戻るボタンの仕組みが無く、登録すると警告が出る
+    if (Platform.OS === "web") return;
     const sub = BackHandler.addEventListener("hardwareBackPress", () => {
       openQuit();
       return true;
@@ -155,7 +163,14 @@ export function ChallengeShell({
 
   return (
     <View style={styles.root}>
-      <Screen ref={scrollRef} title={title}>
+      {/* ヘッダーの × は中止（確認を挟む）。Android の戻るボタンと同じ */}
+      <Screen
+        ref={scrollRef}
+        title={title}
+        back
+        backIcon="close"
+        onBack={openQuit}
+      >
         <View style={styles.status}>
           <View style={styles.timerGroup}>
             <QuizTimer

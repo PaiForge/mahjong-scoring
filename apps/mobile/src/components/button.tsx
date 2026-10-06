@@ -38,8 +38,15 @@ const FILL: Record<ButtonVariant, { bg: string; fg: string }> = {
 
 const PADDING: Record<ButtonSize, ViewStyle> = {
   sm: { paddingHorizontal: 16, paddingVertical: 8 },
-  md: { paddingHorizontal: 24, paddingVertical: 10 },
-  lg: { paddingHorizontal: 24, paddingVertical: 13 },
+  md: { paddingHorizontal: 24, paddingVertical: 11 },
+  lg: { paddingHorizontal: 24, paddingVertical: 14 },
+};
+
+/** 文字の大きさ。スマホの標準（本文 15〜17pt）に合わせ、面の大きさと一緒に段を付ける */
+const FONT_SIZE: Record<ButtonSize, number> = {
+  sm: 14,
+  md: 15,
+  lg: 16,
 };
 
 /** ボタンの文字色（アイコンの色を合わせるために公開する） */
@@ -86,7 +93,13 @@ export function Button({
       <View style={styles.content}>
         {icon}
         <Text
-          style={[styles.label, { color: buttonForeground(variant, disabled) }]}
+          style={[
+            styles.label,
+            {
+              fontSize: FONT_SIZE[size],
+              color: buttonForeground(variant, disabled),
+            },
+          ]}
         >
           {children}
         </Text>
@@ -108,7 +121,6 @@ const styles = StyleSheet.create({
     gap: 8,
   },
   label: {
-    fontSize: 14,
     fontWeight: "700",
   },
   disabled: {

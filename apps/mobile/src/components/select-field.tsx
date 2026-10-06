@@ -1,17 +1,15 @@
 import { useCallback, useState } from "react";
 import {
-  Modal,
   Pressable,
   ScrollView,
   StyleSheet,
   Text,
-  View,
   type StyleProp,
   type ViewStyle,
 } from "react-native";
-import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 import { colors, radius } from "../lib/theme";
+import { BottomSheet } from "./bottom-sheet";
 import { ChevronDownIcon } from "./icons/icons";
 
 /** 選択肢 1 つ（値と表示名） */
@@ -44,7 +42,8 @@ interface SelectFieldProps<TValue extends string | number> {
  * 選択欄（web の `<select>` の代わり）
  * セレクト欄
  *
- * 押すと下からせり上がる一覧を開き、1 つ選ぶと閉じて `onChange` を呼ぶ。
+ * 押すと下からせり上がる一覧（{@link BottomSheet}）を開き、1 つ選ぶと閉じて
+ * `onChange` を呼ぶ。
  * React Native には `<select>` が無く、OS ごとのピッカーは見た目も操作も
  * 揃わないため、アプリの部品で組む。欄の見た目は web の select と同じ
  * 太枠（3px・ink）の白地で、押せる面の記号である影は持たない（入力欄のため）。
@@ -60,7 +59,6 @@ export function SelectField<TValue extends string | number>({
   testID,
 }: SelectFieldProps<TValue>) {
   const [isOpen, setIsOpen] = useState(false);
-  const insets = useSafeAreaInsets();
   const selected = options.find((option) => option.value === value);
 
   const close = useCallback(() => setIsOpen(false), []);
@@ -98,63 +96,48 @@ export function SelectField<TValue extends string | number>({
         <ChevronDownIcon size={16} color={colors.surface500} />
       </Pressable>
 
-      <Modal
-        visible={isOpen}
-        transparent
-        animationType="slide"
-        onRequestClose={close}
+      <BottomSheet
+        isOpen={isOpen}
+        onClose={close}
+        title={accessibilityLabel ?? placeholder}
+        closeLabel={placeholder}
       >
-        <View style={styles.backdrop}>
-          <Pressable
-            style={StyleSheet.absoluteFill}
-            onPress={close}
-            accessibilityRole="button"
-            accessibilityLabel={placeholder}
-          />
-          <View
-            style={[
-              styles.sheet,
-              { paddingBottom: Math.max(insets.bottom, 16) },
-            ]}
-          >
-            <Text style={styles.sheetTitle}>
-              {accessibilityLabel ?? placeholder}
-            </Text>
-            <ScrollView style={styles.list}>
-              {options.map((option) => {
-                const isSelected = option.value === value;
-                return (
-                  <Pressable
-                    key={option.value}
-                    onPress={() => handleSelect(option.value)}
-                    accessibilityRole="menuitem"
-                    accessibilityState={{ selected: isSelected }}
-                    testID={
-                      testID === undefined
-                        ? undefined
-                        : `${testID}-option-${option.value}`
-                    }
-                    style={({ pressed }) => [
-                      styles.option,
-                      isSelected && styles.optionSelected,
-                      pressed && styles.optionPressed,
-                    ]}
-                  >
-                    <Text
-                      style={[
-                        styles.optionText,
-                        isSelected && styles.optionTextSelected,
-                      ]}
-                    >
-                      {option.label}
-                    </Text>
-                  </Pressable>
-                );
-              })}
-            </ScrollView>
-          </View>
-        </View>
-      </Modal>
+        <ScrollView
+          style={styles.list}
+          contentContainerStyle={styles.listInner}
+        >
+          {options.map((option) => {
+            const isSelected = option.value === value;
+            return (
+              <Pressable
+                key={option.value}
+                onPress={() => handleSelect(option.value)}
+                accessibilityRole="menuitem"
+                accessibilityState={{ selected: isSelected }}
+                testID={
+                  testID === undefined
+                    ? undefined
+                    : `${testID}-option-${option.value}`
+                }
+                style={({ pressed }) => [
+                  styles.option,
+                  isSelected && styles.optionSelected,
+                  pressed && styles.optionPressed,
+                ]}
+              >
+                <Text
+                  style={[
+                    styles.optionText,
+                    isSelected && styles.optionTextSelected,
+                  ]}
+                >
+                  {option.label}
+                </Text>
+              </Pressable>
+            );
+          })}
+        </ScrollView>
+      </BottomSheet>
     </>
   );
 }
@@ -183,32 +166,12 @@ const styles = StyleSheet.create({
   placeholder: {
     color: colors.surface400,
   },
-  backdrop: {
-    flex: 1,
-    justifyContent: "flex-end",
-    backgroundColor: "rgba(0,0,0,0.5)",
-  },
-  sheet: {
-    maxHeight: "70%",
-    backgroundColor: colors.card,
-    borderTopWidth: 4,
-    borderLeftWidth: 4,
-    borderRightWidth: 4,
-    borderColor: colors.ink,
-    borderTopLeftRadius: radius["2xl"],
-    borderTopRightRadius: radius["2xl"],
-    paddingTop: 16,
-    paddingHorizontal: 16,
-    gap: 8,
-  },
-  sheetTitle: {
-    fontSize: 14,
-    fontWeight: "700",
-    color: colors.surface700,
-    textAlign: "center",
-  },
   list: {
     flexGrow: 0,
+    flexShrink: 1,
+  },
+  listInner: {
+    paddingBottom: 4,
   },
   option: {
     paddingVertical: 14,

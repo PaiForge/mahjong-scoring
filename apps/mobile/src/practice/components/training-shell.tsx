@@ -8,6 +8,7 @@ import { Button } from "../../components/button";
 import { DashedDivider } from "../../components/dashed-divider";
 import { InfinityIcon, PlayIcon } from "../../components/icons/icons";
 import { Screen } from "../../components/screen";
+import { useJudgementHaptics } from "../../hooks/use-judgement-haptics";
 import { TextLink } from "../../components/text-link";
 import { colors } from "../../lib/theme";
 import { ScoreCounter } from "./score-counter";
@@ -55,7 +56,8 @@ interface TrainingShellProps {
  *
  * web の `TrainingShell` と同じ並び: 見出し → 盤面（回答後は「次の問題へ」で
  * 止まる）→ 正誤カウンタ → わからない / 終了する → チャレンジへの誘い。
- * 時計もライフも無く、記録も残らない。
+ * 時計もライフも無く、記録も残らない。ヘッダーの × は下端の「終了する」と
+ * 同じく説明画面へ戻る（記録が無いので確認は挟まない）。
  *
  * 模試（`variant="exam"`）は「模試を受験中」の印だけを残し、本番の試験への
  * 誘いを出さない。web は本番へ送るが、本番は合否と段級位の付与にアカウントが
@@ -84,12 +86,16 @@ export function TrainingShell({
   const tExam = useTranslations("examTraining");
   const router = useRouter();
   const isExam = variant === "exam";
+  useJudgementHaptics(correctCount, totalCount - correctCount);
 
   return (
     <Screen
       ref={scrollRef}
       title={title}
       titleAction={help}
+      back
+      backIcon="close"
+      onBack={() => router.dismissTo(exitHref)}
       contentStyle={styles.content}
     >
       <View>

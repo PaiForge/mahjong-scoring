@@ -9,6 +9,7 @@ import { BoardBleedProvider } from "../../../board/board-bleed";
 import { TehaiMentsuBreakdown } from "../../../board/tehai-mentsu-breakdown";
 import { Button } from "../../../components/button";
 import { Screen } from "../../../components/screen";
+import { useJudgementHaptics } from "../../../hooks/use-judgement-haptics";
 import { useScoreSettingsStore } from "../../../hooks/use-score-settings-store";
 import { QuestionDisplay } from "../../components/question-display";
 import { QuestionPrompt } from "../../components/question-prompt";
@@ -57,6 +58,8 @@ export function ScorePracticeBoard() {
     generateNewQuestion,
   } = useScorePracticeStore();
 
+  useJudgementHaptics(stats.correct, stats.total - stats.correct);
+
   // 出題条件をストアへ移し、成績と前回の問題を消してから最初の問題を作る
   useEffect(() => {
     const options = readGeneratorOptions(settings, true);
@@ -104,7 +107,14 @@ export function ScorePracticeBoard() {
 
   return (
     <View style={styles.root}>
-      <Screen ref={scrollRef} title={t("title")} contentStyle={styles.content}>
+      <Screen
+        ref={scrollRef}
+        title={t("title")}
+        back
+        backIcon="close"
+        onBack={handleBackToSetup}
+        contentStyle={styles.content}
+      >
         {currentQuestion !== undefined && (
           <BoardBleedProvider>
             <View style={styles.board}>

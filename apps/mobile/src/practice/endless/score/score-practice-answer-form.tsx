@@ -248,12 +248,12 @@ const styles = StyleSheet.create({
     color: colors.surface500,
   },
   noYaku: {
-    fontSize: 12,
-    color: colors.mutedForeground,
-    textDecorationLine: "underline",
-    textDecorationColor: colors.surface300,
+    fontSize: 13,
+    fontWeight: "600",
+    color: colors.primary700,
   },
   noYakuPressed: {
-    color: colors.foreground,
+    color: colors.primary900,
+    opacity: 0.7,
   },
 });

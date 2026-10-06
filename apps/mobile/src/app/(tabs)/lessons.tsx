@@ -52,7 +52,7 @@ export default function LessonsTab() {
   const allCompleted = next === undefined;
 
   return (
-    <Screen title={t("pageTitle")}>
+    <Screen title={t("pageTitle")} inTabs>
       <View style={styles.page}>
         <View style={styles.intro}>
           <SectionTitle>{t("sectionTitle")}</SectionTitle>
@@ -91,7 +91,8 @@ const styles = StyleSheet.create({
     gap: 12,
   },
   description: {
-    fontSize: 14,
+    fontSize: 15,
+    lineHeight: 23,
     color: colors.surface500,
   },
   allCompleted: {

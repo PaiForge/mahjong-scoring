@@ -137,9 +137,7 @@ const styles = StyleSheet.create({
   },
   detail: {
     fontSize: 14,
-    fontWeight: "700",
-    color: colors.mutedForeground,
-    textDecorationLine: "underline",
-    textDecorationColor: colors.surface300,
+    fontWeight: "600",
+    color: colors.primary700,
   },
 });

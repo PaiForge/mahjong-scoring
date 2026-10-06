@@ -1,11 +1,14 @@
 import { Pressable, StyleSheet, Text } from "react-native";
 
-import { colors } from "../lib/theme";
+import { linkStyles } from "../lib/link-styles";
 
 /**
- * テキストリンク（web の `TEXT_LINK_CLASSES` = グレー + 常時下線）
+ * 文字の操作（web の `TEXT_LINK_CLASSES` に当たる）
+ * テキストリンク
  *
- * 移動するだけの導線に使う。緑はボタン（押して始める）の色なのでリンクには使わない。
+ * 「終了する」「一覧へ戻る」のように、面を持たずに置く操作。ネイティブの
+ * 文字ボタンの定石どおりアクセント色の太字で、下線は引かない（体裁の理由は
+ * `linkStyles`）。当たり判定は上下に広げて 44pt を確保する。
  */
 export function TextLink({
   onPress,
@@ -15,23 +18,34 @@ export function TextLink({
   readonly children: string;
 }) {
   return (
-    <Pressable onPress={onPress} accessibilityRole="link" hitSlop={8}>
+    <Pressable
+      onPress={onPress}
+      accessibilityRole="link"
+      hitSlop={8}
+      style={styles.pressable}
+    >
       {({ pressed }) => (
-        <Text style={[styles.text, pressed && styles.pressed]}>{children}</Text>
+        <Text
+          style={[
+            styles.text,
+            linkStyles.textButton,
+            pressed && linkStyles.textButtonPressed,
+          ]}
+        >
+          {children}
+        </Text>
       )}
     </Pressable>
   );
 }
 
 const styles = StyleSheet.create({
-  text: {
-    fontSize: 14,
-    color: colors.mutedForeground,
-    textDecorationLine: "underline",
-    textDecorationColor: colors.surface300,
-    textAlign: "center",
+  pressable: {
+    paddingVertical: 6,
+    paddingHorizontal: 8,
   },
-  pressed: {
-    color: colors.foreground,
+  text: {
+    fontSize: 15,
+    textAlign: "center",
   },
 });

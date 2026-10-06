@@ -124,7 +124,7 @@ function ChapterRow({
  * 「次はここから」のバッジと完了の印は行の右端に出す（排他）。
  *
  * モバイルに本文を移植していない章は、目次の並びを崩さないよう行は残し、
- * 押せない形（下線なしの淡い題名）に「アプリ版は準備中」を添える。
+ * 押せない形（淡い題名）に「アプリ版は準備中」を添える。
  */
 export function CurriculumToc({
   section,
@@ -269,15 +269,13 @@ const styles = StyleSheet.create({
     fontWeight: "700",
   },
   titleLink: {
-    color: colors.mutedForeground,
-    textDecorationLine: "underline",
-    textDecorationColor: colors.surface300,
+    color: colors.foreground,
   },
   titleDisabled: {
     color: colors.surface400,
   },
   titlePressed: {
-    color: colors.foreground,
+    color: colors.primary700,
   },
   description: {
     fontSize: 12,

@@ -33,12 +33,24 @@ const THUMB_TRAVEL = TRACK_WIDTH - THUMB_SIZE - THUMB_INSET * 2;
 
 interface SettingToggleRowProps {
   readonly title: string;
-  /** 補足説明。辞書側の改行をそのまま出す */
+  /** 補足説明。辞書の改行は無視してスマホの幅で折り返す（{@link joinDescriptionLines}） */
   readonly description?: string;
   readonly checked: boolean;
   readonly onChange: (checked: boolean) => void;
   /** 見出しの右隣に添える操作（補足を開く「?」等。web の `onInfoClick`） */
   readonly titleAction?: ReactNode;
+}
+
+/**
+ * 辞書の補足説明の改行を取り除く
+ *
+ * 辞書の説明文は web の広い幅で読みやすいよう文の切れ目に改行を持つ。
+ * スマホの幅ではその改行の直前でも折り返しが起き、「き、」のような
+ * 1〜2 文字の行ができる。日本語は語間に空白が要らないので、改行を
+ * 取り除いて幅なりに折り返す。
+ */
+function joinDescriptionLines(description: string): string {
+  return description.replace(/\n/g, "");
 }
 
 /**
@@ -94,7 +106,9 @@ export function SettingToggleRow({
           </View>
         )}
         {description !== undefined && (
-          <Text style={styles.description}>{description}</Text>
+          <Text style={styles.description}>
+            {joinDescriptionLines(description)}
+          </Text>
         )}
       </View>
       <Animated.View style={[styles.track, { backgroundColor: trackColor }]}>
@@ -109,7 +123,7 @@ export function SettingToggleRow({
 interface SettingLinkRowProps {
   readonly onPress: () => void;
   readonly title: string;
-  /** 補足説明。辞書側の改行をそのまま出す */
+  /** 補足説明。辞書の改行は無視してスマホの幅で折り返す */
   readonly description?: string;
 }
 
@@ -133,7 +147,9 @@ export function SettingLinkRow({
       <View style={styles.body}>
         <Text style={[styles.title, styles.linkTitle]}>{title}</Text>
         {description !== undefined && (
-          <Text style={styles.description}>{description}</Text>
+          <Text style={styles.description}>
+            {joinDescriptionLines(description)}
+          </Text>
         )}
       </View>
       <ChevronRightIcon size={20} color={colors.surface400} />
@@ -173,19 +189,17 @@ const styles = StyleSheet.create({
     gap: 6,
   },
   title: {
-    fontSize: 14,
+    fontSize: 15,
     fontWeight: "500",
     color: colors.surface900,
   },
   linkTitle: {
-    color: colors.mutedForeground,
-    textDecorationLine: "underline",
-    textDecorationColor: colors.surface300,
+    fontWeight: "600",
   },
   description: {
-    marginTop: 2,
-    fontSize: 12,
-    lineHeight: 18,
+    marginTop: 4,
+    fontSize: 13,
+    lineHeight: 19,
     color: colors.surface500,
   },
   track: {

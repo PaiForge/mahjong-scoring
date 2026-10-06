@@ -1,7 +1,8 @@
 import type { ReactNode } from "react";
-import { Modal, ScrollView, StyleSheet, Text, View } from "react-native";
+import { ScrollView, StyleSheet, Text, View } from "react-native";
 
-import { colors, radius } from "../lib/theme";
+import { colors } from "../lib/theme";
+import { BottomSheet } from "./bottom-sheet";
 import { Button } from "./button";
 
 interface InfoModalProps {
@@ -18,7 +19,8 @@ interface InfoModalProps {
 /**
  * 説明のモーダル（web の `InfoModal`）
  *
- * パネルは押せないので影を持たず、太枠で区切る。
+ * 「?」から開く補足の説明。下からせり上がるシート（{@link BottomSheet}）で
+ * 出し、本文が長いときはシートの中でスクロールする。
  */
 export function InfoModal({
   isOpen,
@@ -29,75 +31,50 @@ export function InfoModal({
   footnote,
 }: InfoModalProps) {
   return (
-    <Modal
-      visible={isOpen}
-      transparent
-      animationType="fade"
-      onRequestClose={onClose}
+    <BottomSheet
+      isOpen={isOpen}
+      onClose={onClose}
+      title={title}
+      closeLabel={closeLabel}
     >
-      <View style={styles.backdrop}>
-        <View style={styles.panel}>
-          <Text style={styles.title}>{title}</Text>
-          <ScrollView style={styles.body}>
-            {typeof children === "string" ? (
-              <Text style={styles.text}>{children}</Text>
-            ) : (
-              children
-            )}
-          </ScrollView>
-          <View style={styles.actions}>
-            <Button variant="neutral" onPress={onClose}>
-              {closeLabel}
-            </Button>
-          </View>
-          {footnote !== undefined && (
-            <View style={styles.footnote}>{footnote}</View>
-          )}
-        </View>
+      <ScrollView style={styles.body} contentContainerStyle={styles.bodyInner}>
+        {typeof children === "string" ? (
+          <Text style={styles.text}>{children}</Text>
+        ) : (
+          children
+        )}
+      </ScrollView>
+      <View style={styles.actions}>
+        <Button variant="neutral" fullWidth onPress={onClose}>
+          {closeLabel}
+        </Button>
       </View>
-    </Modal>
+      {footnote !== undefined && (
+        <View style={styles.footnote}>{footnote}</View>
+      )}
+    </BottomSheet>
   );
 }
 
 const styles = StyleSheet.create({
-  backdrop: {
-    flex: 1,
-    backgroundColor: "rgba(0,0,0,0.5)",
-    alignItems: "center",
-    justifyContent: "center",
-    padding: 24,
-  },
-  panel: {
-    width: "100%",
-    maxWidth: 440,
-    maxHeight: "85%",
-    backgroundColor: colors.card,
-    borderWidth: 4,
-    borderColor: colors.ink,
-    borderRadius: radius["2xl"],
-    padding: 24,
-    gap: 16,
-  },
-  title: {
-    fontSize: 20,
-    fontWeight: "700",
-    color: colors.surface900,
-  },
   body: {
     flexGrow: 0,
+    flexShrink: 1,
+  },
+  bodyInner: {
+    paddingVertical: 4,
   },
   text: {
-    fontSize: 14,
+    fontSize: 15,
     lineHeight: 24,
     color: colors.surface700,
   },
   actions: {
-    flexDirection: "row",
-    justifyContent: "flex-end",
+    marginTop: 8,
   },
   footnote: {
-    borderTopWidth: 2,
-    borderTopColor: colors.surface100,
+    borderTopWidth: StyleSheet.hairlineWidth,
+    borderTopColor: colors.surface300,
     paddingTop: 16,
   },
 });
