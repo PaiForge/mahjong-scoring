@@ -2,10 +2,11 @@
 
 import { useMemo, useState } from "react";
 import { useTranslations } from "next-intl";
-import { resolveMentsuBreakdown } from "@mahjong-scoring/core";
+import { resolveMentsuBreakdowns } from "@mahjong-scoring/core";
 import type {
-  AgariContext,
   HaiKindId,
+  MentsuBreakdownCandidate,
+  MentsuBreakdownContext,
   MentsuBreakdownRow,
   Tehai,
 } from "@mahjong-scoring/core";
@@ -16,7 +17,10 @@ import {
   DataTableHeaderCell,
 } from "@/app/(user)/_components/data-table";
 import { InfoModal } from "@/app/(user)/_components/info-modal";
+import { ToggleGroup } from "@/app/(user)/_components/toggle-group";
 import { TilesIcon } from "@/app/(user)/_components/icons/tiles-icon";
+import { useFuHanOrder } from "@/app/_hooks/use-display-settings-store";
+import { orderFuHan } from "@mahjong-scoring/features/settings/fu-han-order";
 import {
   hasRonMinkou,
   mentsuBreakdownLabelKey,
@@ -25,8 +29,11 @@ import {
 interface TehaiMentsuBreakdownProps {
   /** 分割する手牌（和了牌を含む14枚。純手牌 + 副露） */
   readonly tehai: Pick<Tehai, "closed" | "exposed">;
-  /** 和了状況。分割の解決（= 点数計算と同じ構造選択）に使う */
-  readonly context: AgariContext;
+  /**
+   * 和了状況。分割の解決（= 点数計算と同じ構造選択）に使う。
+   * 出題がドラ表示牌を持つならそれも渡す（候補の順位を採点と揃えるため）
+   */
+  readonly context: MentsuBreakdownContext;
 }
 
 /**
@@ -104,10 +111,17 @@ function ClosedTiles({
  * 占め、すぐ下に翻数・符の内訳の開閉行と「次の問題へ」が続くため、文字の
  * 高さだけでは隣の行やボタンに指が流れる（{@link import("./collapsible-detail").CollapsibleDetail} と同じ理由）。
  *
- * 分解は resolveMentsuBreakdown が返す、ライブラリが点数計算で採用した
- * 構造に基づく。面子分解は一意ではなく、独自に分解すると符内訳と
+ * 分解は resolveMentsuBreakdowns が返す、ライブラリが点数計算で評価した
+ * 和了解釈に基づく。面子分解は一意ではなく（さらに同じ分解でも和了牌を
+ * どのブロックに入れたかで待ち・明暗が変わる）、独自に分解すると符内訳と
  * 食い違う分割を出しかねないため。変則手（七対子・国士無双）や
  * 分解を復元できない手牌では導線ごと何も描画しない。
+ *
+ * 解釈が複数ある手では、候補を高点法の順にタブで並べて切り替えられる。
+ * 最も高い点数になる解釈（点数計算に採用されるもの）には ⭐ を付け、同じ
+ * 点数の解釈には同じ印を付ける — 高点法では同順位で、先頭だけが正解では
+ * ないため。タブの文言は「30符 2翻」のように符と翻で、並び順は表示設定に
+ * 従う。解釈が 1 つしか無い手ではタブも注記も出さず、従来どおり表だけを出す。
  *
  * 牌の並べ方とラベルは手牌での見え方に揃える。副露と槓子は卓と同じく
  * 鳴き元の牌を倒して並べ（暗槓は両端が伏せ牌）、刻子・槓子のラベルは
@@ -126,18 +140,32 @@ export function TehaiMentsuBreakdown({
   context,
 }: TehaiMentsuBreakdownProps) {
   const t = useTranslations("common");
+  const fuHanOrder = useFuHanOrder();
   const [isOpen, setIsOpen] = useState(false);
+  const [selectedKey, setSelectedKey] = useState<string | undefined>(undefined);
 
-  const breakdown = useMemo(
-    () => resolveMentsuBreakdown(tehai, context),
+  const candidates = useMemo(
+    () => resolveMentsuBreakdowns(tehai, context),
     [tehai, context],
   );
 
-  if (!breakdown) return undefined;
+  const selected =
+    candidates.find((c) => c.key === selectedKey) ?? candidates[0];
+  if (selected === undefined) return undefined;
 
   const mentsuLabel = (row: MentsuBreakdownRow): string =>
     t(mentsuBreakdownLabelKey(row));
 
+  const candidateLabel = (candidate: MentsuBreakdownCandidate): string => {
+    const fuHan = orderFuHan(fuHanOrder, {
+      fu: t("mentsuBreakdownCandidateFu", { fu: candidate.fu }),
+      han: t("mentsuBreakdownCandidateHan", { han: candidate.han }),
+    }).join(" ");
+    return candidate.isBest ? `⭐ ${fuHan}` : fuHan;
+  };
+
+  const { breakdown } = selected;
+  const showsCandidateTabs = candidates.length > 1;
   const showsRonMinkouNote = hasRonMinkou(breakdown.fourMentsu);
 
   return (
@@ -155,6 +183,23 @@ export function TehaiMentsuBreakdown({
         closeLabel={t("close")}
       >
         <div className="space-y-3">
+          {showsCandidateTabs && (
+            <>
+              {/* 候補は高点法の順。横に収まらない数になることは稀だが、
+                  端末幅で折り返さず横に流す */}
+              <div className="overflow-x-auto">
+                <ToggleGroup
+                  options={candidates.map((c) => ({
+                    value: c.key,
+                    label: candidateLabel(c),
+                  }))}
+                  selected={selected.key}
+                  onChange={setSelectedKey}
+                />
+              </div>
+              <p>{t("mentsuBreakdownCandidatesNote")}</p>
+            </>
+          )}
           {/* 4面子を1行ずつ縦に積み、雀頭は最後に置く。面子から順に読ませ、
               残りが雀頭だと分かる並びにする */}
           <DataTable

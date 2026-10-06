@@ -2,17 +2,21 @@ import { useMemo, useState } from "react";
 import { StyleSheet, Text, View } from "react-native";
 import { useTranslations } from "use-intl";
 import { Hai } from "@pai-forge/mahjong-react-ui";
-import { resolveMentsuBreakdown } from "@mahjong-scoring/core";
+import { resolveMentsuBreakdowns } from "@mahjong-scoring/core";
 import type {
-  AgariContext,
   HaiKindId,
+  MentsuBreakdownCandidate,
+  MentsuBreakdownContext,
   MentsuBreakdownRow,
   Tehai,
 } from "@mahjong-scoring/core";
+import { orderFuHan } from "@mahjong-scoring/features/settings/fu-han-order";
 
 import { DataTable } from "../components/data-table";
 import { TilesIcon } from "../components/icons/icons";
 import { InfoModal } from "../components/info-modal";
+import { ToggleGroup } from "../components/toggle-group";
+import { useFuHanOrder } from "../hooks/use-display-settings-store";
 import { colors } from "../lib/theme";
 import { FuroTiles } from "./furo-tiles";
 import { ReferenceLinkButton } from "../practice/components/reference-link-button";
@@ -42,24 +46,44 @@ function ClosedTiles({
  *
  * 和了形を 4 面子 + 雀頭に分けた表をモーダルで見せる。答えが割れるので、
  * 盤面ではトレーニングの答え合わせ中（と結果の一覧）だけ出す。
+ *
+ * 解釈が複数ある手（面子分解が割れる・和了牌の入れ方が割れる）では、
+ * 候補を高点法の順にセグメントコントロールで切り替えられる。最も高い
+ * 点数になる解釈（点数計算に採用されるもの）には ⭐ を付け、同じ点数の
+ * 解釈には同じ印を付ける。解釈が 1 つの手では切り替えも注記も出さない。
  */
 export function TehaiMentsuBreakdown({
   tehai,
   context,
 }: {
   readonly tehai: Pick<Tehai, "closed" | "exposed">;
-  readonly context: AgariContext;
+  /** 和了状況。出題がドラ表示牌を持つならそれも渡す（候補の順位を採点と揃える） */
+  readonly context: MentsuBreakdownContext;
 }) {
   const t = useTranslations("common");
+  const fuHanOrder = useFuHanOrder();
   const [isOpen, setIsOpen] = useState(false);
-  const breakdown = useMemo(
-    () => resolveMentsuBreakdown(tehai, context),
+  const [selectedKey, setSelectedKey] = useState<string | undefined>(undefined);
+  const candidates = useMemo(
+    () => resolveMentsuBreakdowns(tehai, context),
     [tehai, context],
   );
-  if (!breakdown) return undefined;
+  const selected =
+    candidates.find((c) => c.key === selectedKey) ?? candidates[0];
+  if (selected === undefined) return undefined;
 
   const mentsuLabel = (row: MentsuBreakdownRow): string =>
     t(mentsuBreakdownLabelKey(row));
+  const candidateLabel = (candidate: MentsuBreakdownCandidate): string => {
+    const fuHan = orderFuHan(fuHanOrder, {
+      fu: t("mentsuBreakdownCandidateFu", { fu: candidate.fu }),
+      han: t("mentsuBreakdownCandidateHan", { han: candidate.han }),
+    }).join(" ");
+    return candidate.isBest ? `⭐ ${fuHan}` : fuHan;
+  };
+
+  const { breakdown } = selected;
+  const showsCandidateTabs = candidates.length > 1;
   const showsRonMinkouNote = hasRonMinkou(breakdown.fourMentsu);
 
   return (
@@ -76,6 +100,24 @@ export function TehaiMentsuBreakdown({
         closeLabel={t("close")}
       >
         <View style={styles.body}>
+          {showsCandidateTabs && (
+            <>
+              <ToggleGroup
+                groups={[
+                  candidates.map((c) => ({
+                    value: c.key,
+                    label: candidateLabel(c),
+                  })),
+                ]}
+                selected={selected.key}
+                onSelect={setSelectedKey}
+                accessibilityLabel={t("mentsuBreakdown")}
+              />
+              <Text style={styles.note}>
+                {t("mentsuBreakdownCandidatesNote")}
+              </Text>
+            </>
+          )}
           <DataTable
             columns={[
               { label: t("mentsuBreakdownColHai"), flex: 3 },
