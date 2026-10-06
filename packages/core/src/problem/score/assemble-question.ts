@@ -1,5 +1,4 @@
 import {
-  countDora,
   type HaiKindId,
   type Kazehai,
   type ScoreResult,
@@ -39,14 +38,16 @@ interface AssembleScoreQuestionInput {
   readonly answer: ScoreResult;
   /** convertScoreDetailToFuDetails のソースとなる元の answer（補正前） */
   readonly originalAnswer: ScoreResult;
-  /** 全ての yakuDetails（ドラは含まない） */
+  /** 全ての yakuDetails（立直・裏ドラ・ドラの後付けを済ませたもの） */
   readonly yakuDetails: readonly YakuDetail[];
 }
 
 /**
  * 共通の ScoreQuestion 組立処理
  *
- * ドラの加算と fuDetails の計算を行い、最終的な ScoreQuestion を返す。
+ * fuDetails の計算を行い、最終的な ScoreQuestion を返す。役の内訳は
+ * 後付け（立直・裏ドラ・ドラ）まで済んだものを受け取り、ここでは足さない
+ * （役満の手に何を乗せないかの判断を `build-question.ts` の 1 箇所に置くため）。
  * 問題組立
  */
 export function assembleScoreQuestion(
@@ -63,15 +64,8 @@ export function assembleScoreQuestion(
     uraDoraMarkers,
     answer,
     originalAnswer,
-    yakuDetails: baseYakuDetails,
+    yakuDetails,
   } = input;
-
-  const yakuDetails = [...baseYakuDetails];
-
-  const doraHan = countDora(tehai, doraMarkers);
-  if (doraHan > 0 && !yakuDetails.find((d) => d.name === "ドラ")) {
-    yakuDetails.push({ name: "ドラ", han: doraHan });
-  }
 
   const fuDetails = originalAnswer.detail
     ? convertScoreDetailToFuDetails(originalAnswer.detail, {
