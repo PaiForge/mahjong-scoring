@@ -7,6 +7,7 @@ import {
   type CurriculumChapter,
   type CurriculumSection,
 } from "@mahjong-scoring/features/curriculum/registry";
+import { roundedPercent } from "@mahjong-scoring/features/percent";
 import { chapterHref } from "@mahjong-scoring/features/routes";
 
 import { colors, radius } from "../../lib/theme";
@@ -183,8 +184,7 @@ export function CurriculumProgressBar({
   readonly allCompleted: boolean;
 }) {
   const t = useTranslations("learnCurriculum.index");
-  const percentage =
-    totalCount === 0 ? 0 : Math.round((completedCount / totalCount) * 100);
+  const percentage = roundedPercent(completedCount, totalCount);
   return (
     <View style={styles.progress}>
       <View style={styles.progressLabels}>

@@ -1,4 +1,5 @@
 import { StyleSheet, Text, View } from "react-native";
+import { scoreBarFigures } from "@mahjong-scoring/features/results/score-bar";
 import { useTranslations } from "use-intl";
 
 import { colors, radius } from "../../lib/theme";
@@ -14,11 +15,11 @@ export function ResultScoreBar({
   readonly total: number;
 }) {
   const tc = useTranslations("challenge");
-  const safeTotal = Math.max(total, 0);
-  const safeCorrect = Math.max(Math.min(correct, safeTotal), 0);
-  const incorrect = safeTotal - safeCorrect;
-  const accuracy =
-    safeTotal > 0 ? Math.round((safeCorrect / safeTotal) * 100) : 0;
+  const {
+    correct: safeCorrect,
+    incorrect,
+    accuracy,
+  } = scoreBarFigures(correct, total);
 
   return (
     <View style={styles.root}>
