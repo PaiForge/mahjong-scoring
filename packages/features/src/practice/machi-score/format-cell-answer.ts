@@ -56,6 +56,44 @@ export function formatCellAnswer(
 }
 
 /**
+ * 1 問の盤面で使うマスの回答の整形関数
+ * マス回答整形関数の組
+ */
+export interface CellAnswerFormatters {
+  /** {@link formatCellAnswer} をそのマスの列（ツモ / ロン）で呼ぶ */
+  readonly formatAnswer: (answer: MachiCellAnswer, isTsumo: boolean) => string;
+  /** {@link formatCellAnswerLines} をそのマスの列（ツモ / ロン）で呼ぶ */
+  readonly formatAnswerLines: (
+    answer: MachiCellAnswer,
+    isTsumo: boolean,
+  ) => readonly string[];
+}
+
+/**
+ * 1 問の盤面で使う整形関数を組み立てる
+ * マス回答整形関数の生成
+ *
+ * 「オール」を付けるかは親の問題のツモ列だけなので、問題の親子を受け取り、
+ * マスごとに列から `isOyaTsumo` を決める。盤面（web・モバイル）と
+ * ヘルプツアーが同じ組み立てを使う。
+ */
+export function cellAnswerFormatters(
+  options: FormatCellAnswerOptions & { readonly isOya: boolean },
+): CellAnswerFormatters {
+  const { isOya, ...formatOptions } = options;
+  const optionsFor = (isTsumo: boolean) => ({
+    ...formatOptions,
+    isOyaTsumo: isOya && isTsumo,
+  });
+  return {
+    formatAnswer: (answer, isTsumo) =>
+      formatCellAnswer(answer, optionsFor(isTsumo)),
+    formatAnswerLines: (answer, isTsumo) =>
+      formatCellAnswerLines(answer, optionsFor(isTsumo)),
+  };
+}
+
+/**
  * マスの正解を回答と同じ形にする
  * 正解のマス回答化
  *

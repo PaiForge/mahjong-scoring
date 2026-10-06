@@ -1,7 +1,5 @@
 "use server";
 
-import { revalidatePath } from "next/cache";
-
 import type { ActionResult } from "@/lib/action-types";
 import { getClientIp } from "@/lib/client-ip";
 import { db, type BenefitGrant } from "@/lib/db";
@@ -19,6 +17,7 @@ import {
   ModerationActionKind,
   recordModerationAction,
 } from "../../users/_lib/moderation";
+import { revalidateBenefitGrantViews } from "../../users/_lib/revalidate";
 
 /** 取り消しの失敗理由 */
 export type RevokeBenefitGrantError =
@@ -83,8 +82,6 @@ export async function revokeBenefitGrantAction(
     metadata: { plan: revoked.plan },
   });
 
-  revalidatePath("/admin/benefit-grants");
-  // ユーザー詳細のプラン表示と付与一覧も更新する
-  revalidatePath("/admin/users", "layout");
+  revalidateBenefitGrantViews();
   return { success: true };
 }

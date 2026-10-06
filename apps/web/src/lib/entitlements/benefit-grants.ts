@@ -1,7 +1,11 @@
 import { and, desc, eq, isNull } from "drizzle-orm";
 import "server-only";
 
-import { PLANS, type PlanKey } from "@mahjong-scoring/features/billing/plans";
+import {
+  addPassDuration,
+  PLANS,
+  type PlanKey,
+} from "@mahjong-scoring/features/billing/plans";
 import {
   benefitGrants,
   db,
@@ -53,7 +57,7 @@ export async function insertBenefitGrant(
   const expiresAt =
     input.durationDays === undefined
       ? undefined
-      : new Date(now.getTime() + input.durationDays * 24 * 60 * 60 * 1000);
+      : addPassDuration(now, input.durationDays);
 
   const [row] = await tx
     .insert(benefitGrants)

@@ -5,7 +5,7 @@ import { useRouter, useSearchParams } from "next/navigation";
 import { useTranslations } from "next-intl";
 import { toast } from "react-hot-toast";
 import { allowsDoubleYakuman, isOya } from "@mahjong-scoring/core";
-import type { MachiCellAnswer, UserAnswer } from "@mahjong-scoring/core";
+import type { UserAnswer } from "@mahjong-scoring/core";
 import { toastOnArrival } from "@/app/_components/_lib/toast-on-arrival";
 import { useYakumanRules } from "@/app/_hooks/use-rule-settings-store";
 import { Button } from "@/app/(user)/_components/button";
@@ -44,10 +44,7 @@ import {
 } from "@mahjong-scoring/features/practice/machi-score/cell-ref";
 import { useMachiScoreStore } from "../_hooks/use-machi-score-store";
 import { sharedAnswerOfCells } from "@mahjong-scoring/features/practice/machi-score/cell-runs";
-import {
-  formatCellAnswer,
-  formatCellAnswerLines,
-} from "@mahjong-scoring/features/practice/machi-score/format-cell-answer";
+import { cellAnswerFormatters } from "@mahjong-scoring/features/practice/machi-score/format-cell-answer";
 import { MACHI_SCORE_TOUR_ID } from "../_lib/tour-ids";
 import { MachiPicker } from "./machi-picker";
 import { MachiScoreBoardSkeleton } from "./machi-score-board-skeleton";
@@ -231,17 +228,13 @@ function MachiScoreBoardInner() {
   }
 
   const isOyaQuestion = isOya(currentQuestion.jikaze);
-  const formatOptions = (isTsumo: boolean) => ({
+  const { formatAnswer, formatAnswerLines } = cellAnswerFormatters({
     t: tScore,
     noYakuLabel: t("cells.noYakuShort"),
     simplifyMangan,
     allowDoubleYakuman,
-    isOyaTsumo: isOyaQuestion && isTsumo,
+    isOya: isOyaQuestion,
   });
-  const formatAnswer = (answer: MachiCellAnswer, isTsumo: boolean) =>
-    formatCellAnswer(answer, formatOptions(isTsumo));
-  const formatAnswerLines = (answer: MachiCellAnswer, isTsumo: boolean) =>
-    formatCellAnswerLines(answer, formatOptions(isTsumo));
 
   const cells = listCellRefs(currentQuestion);
   const remaining = cells.filter(

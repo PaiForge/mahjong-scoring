@@ -24,8 +24,7 @@ import {
 } from "@mahjong-scoring/features/practice/machi-score/cell-ref";
 import {
   correctCellAnswerOf,
-  formatCellAnswer,
-  formatCellAnswerLines,
+  cellAnswerFormatters,
 } from "@mahjong-scoring/features/practice/machi-score/format-cell-answer";
 import {
   HELP_TOUR_ALL_CORRECT,
@@ -87,17 +86,13 @@ export function MachiScoreHelpTour() {
     const waits = sample.waits.map((wait) => wait.agariHai);
     const { answers, results } = buildCorrectCells(sample);
     const isOyaQuestion = isOya(sample.jikaze);
-    const formatOptions = (isTsumo: boolean) => ({
+    const { formatAnswer, formatAnswerLines } = cellAnswerFormatters({
       t: tScore,
       noYakuLabel: t("cells.noYakuShort"),
       simplifyMangan: false,
       allowDoubleYakuman: false,
-      isOyaTsumo: isOyaQuestion && isTsumo,
+      isOya: isOyaQuestion,
     });
-    const formatAnswer = (answer: MachiCellAnswer, isTsumo: boolean) =>
-      formatCellAnswer(answer, formatOptions(isTsumo));
-    const formatAnswerLines = (answer: MachiCellAnswer, isTsumo: boolean) =>
-      formatCellAnswerLines(answer, formatOptions(isTsumo));
     // マスのスライドはツモ列を回答済み、ロン列を選択中の途中経過で見せる
     const tsumoAnswers: Record<string, MachiCellAnswer> = {};
     const ronCells: MachiCellRef[] = [];

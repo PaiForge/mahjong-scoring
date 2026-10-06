@@ -1,7 +1,5 @@
+import type { JudgementVerdict } from "@mahjong-scoring/features/results/result-schemas";
 import * as Haptics from "expo-haptics";
-
-/** 正誤の判定（正解 / 不正解） */
-export type JudgementVerdict = "correct" | "incorrect";
 
 /**
  * 正誤の判定を手触りで知らせる

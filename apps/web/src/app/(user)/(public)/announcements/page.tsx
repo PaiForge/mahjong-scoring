@@ -14,7 +14,7 @@ import { PageTitle } from "@/app/(user)/_components/page-title";
 import { PaginationNav } from "@/app/(user)/_components/pagination-nav";
 import { SectionTitle } from "@/app/(user)/_components/section-title";
 import { createNamespaceMetadata } from "@/app/_lib/metadata";
-import { getPaginationData } from "@/lib/pagination";
+import { getPaginationData, parsePageParam } from "@/lib/pagination";
 
 import { AnnouncementTextList } from "./_components/announcement-text-list";
 import {
@@ -45,7 +45,7 @@ export default async function AnnouncementsPage({ searchParams }: Props) {
 
   const totalCount = await getPublishedAnnouncementCount();
   const { currentPage, totalPages, limit, offset } = getPaginationData(
-    Number(page) || 1,
+    parsePageParam(page),
     totalCount,
     ANNOUNCEMENTS_PER_PAGE,
   );

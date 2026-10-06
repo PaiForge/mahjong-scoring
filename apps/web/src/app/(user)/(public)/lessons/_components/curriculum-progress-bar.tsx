@@ -1,4 +1,5 @@
 import { getTranslations } from "next-intl/server";
+import { roundedPercent } from "@mahjong-scoring/features/percent";
 
 interface CurriculumProgressBarProps {
   readonly completedCount: number;
@@ -20,8 +21,7 @@ export async function CurriculumProgressBar({
   allCompleted,
 }: CurriculumProgressBarProps) {
   const t = await getTranslations("learnCurriculum.index");
-  const percentage =
-    totalCount === 0 ? 0 : Math.round((completedCount / totalCount) * 100);
+  const percentage = roundedPercent(completedCount, totalCount);
   const barColorClass = allCompleted ? "bg-primary-500" : "bg-primary-400";
 
   return (

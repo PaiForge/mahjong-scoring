@@ -1,10 +1,8 @@
+import type { JudgementVerdict } from "@mahjong-scoring/features/results/result-schemas";
 import { View } from "react-native";
 import Svg, { Path } from "react-native-svg";
 
 import { colors } from "../../lib/theme";
-
-/** 正誤 */
-export type JudgementVerdict = "correct" | "incorrect";
 
 const MARK_PATHS: Readonly<Record<JudgementVerdict, string>> = {
   correct: "M5 13l4 4L19 7",

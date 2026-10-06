@@ -47,7 +47,7 @@ beforeEach(() => {
 });
 
 describe("authorizeApiRequest", () => {
-  it("認証済みで BAN されていなければ user と supabase を返す", async () => {
+  it("認証済みで BAN されていなければ user を返す", async () => {
     authorized();
 
     const result = await authorizeApiRequest(

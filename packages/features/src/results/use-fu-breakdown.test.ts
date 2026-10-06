@@ -1,20 +1,9 @@
 // @vitest-environment jsdom
-import { createElement, type ReactNode } from "react";
 import { renderHook } from "@testing-library/react";
-import { IntlProvider } from "use-intl";
 import { describe, expect, it } from "vitest";
-import { messages } from "@mahjong-scoring/messages/ja";
 
+import { IntlWrapper } from "../test/intl-wrapper";
 import { useFuBreakdown } from "./use-fu-breakdown";
-
-function wrapper({ children }: { readonly children: ReactNode }) {
-  return createElement(IntlProvider, {
-    locale: "ja",
-    timeZone: "Asia/Tokyo",
-    messages,
-    children,
-  });
-}
 
 describe("useFuBreakdown", () => {
   it("渡した名前空間の辞書で見出し・行・合計・切り上げの補足を引く", () => {
@@ -31,7 +20,7 @@ describe("useFuBreakdown", () => {
           40,
           "totalFu",
         ),
-      { wrapper },
+      { wrapper: IntlWrapper },
     );
 
     expect(result.current).toEqual({

@@ -29,6 +29,7 @@ import { SectionTitle } from "@/app/(user)/_components/section-title";
 import { createMetadata } from "@/app/_lib/metadata";
 import { getOptionalUser } from "@/lib/auth";
 import { isHiddenFromLeaderboard } from "@/lib/db/leaderboard-visibility";
+import { parsePageParam } from "@/lib/pagination";
 import { getLeaderboard } from "../../_actions/get-leaderboard";
 import { LeaderboardDetailContent } from "../../_components/leaderboard-detail-content";
 import { LeaderboardTableSkeleton } from "../../_components/leaderboard-table-skeleton";
@@ -139,7 +140,7 @@ export default async function LeaderboardDetailPage({
   const validated = validateParams(period, moduleSlug, variant);
   if (!validated) notFound();
 
-  const page = Math.max(1, parseInt(pageParam ?? "1", 10) || 1);
+  const page = parsePageParam(pageParam);
   const t = await getTranslations("leaderboard");
 
   const moduleTitle = await boardTitle(validated.board);

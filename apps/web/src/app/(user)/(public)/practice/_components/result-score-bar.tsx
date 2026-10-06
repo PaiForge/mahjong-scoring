@@ -1,4 +1,5 @@
 import { getTranslations } from "next-intl/server";
+import { scoreBarFigures } from "@mahjong-scoring/features/results/score-bar";
 
 interface ResultScoreBarProps {
   readonly correct: number;
@@ -15,13 +16,14 @@ interface ResultScoreBarProps {
  */
 export async function ResultScoreBar({ correct, total }: ResultScoreBarProps) {
   const tc = await getTranslations("challenge");
-  const safeTotal = Math.max(total, 0);
-  const safeCorrect = Math.max(Math.min(correct, safeTotal), 0);
-  const incorrect = safeTotal - safeCorrect;
+  const {
+    correct: safeCorrect,
+    incorrect,
+    total: safeTotal,
+    accuracy,
+  } = scoreBarFigures(correct, total);
   const correctPercent = safeTotal > 0 ? (safeCorrect / safeTotal) * 100 : 0;
   const incorrectPercent = safeTotal > 0 ? (incorrect / safeTotal) * 100 : 0;
-  const accuracy =
-    safeTotal > 0 ? Math.round((safeCorrect / safeTotal) * 100) : 0;
 
   return (
     <div className="w-full space-y-3">
