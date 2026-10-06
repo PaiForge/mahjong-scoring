@@ -21,6 +21,9 @@ import {
 import type { ScoreQuestion, ScoreRange, YakuDetail } from "./types";
 import { applyRiichiAndUraDora } from "./utils/reconciler";
 
+/** 表ドラの内訳名（`yakuDetails.name` の語彙。裏ドラは reconciler.ts） */
+const DORA_NAME = "ドラ";
+
 /**
  * 点数計算入力
  * 点数計算入力
@@ -137,10 +140,11 @@ function computeScoreAndYaku(
  *    （{@link hasYakumanYaku}）。`isRiichi` と `uraDoraMarkers` は宣言と盤面の
  *    状態なのでそのまま残す。待ち別点数計算では同じ聴牌形でも待ちによって
  *    役満になったりならなかったりする（四暗刻の双碰待ちをロンすると三暗刻）ため、
- *    リーチの抽選時ではなく和了形ごとに採点するここで判断する
- * 3. 翻数を役の内訳の合計に合わせる。内訳の合計を翻数の正典にし、内訳と翻数と
- *    点数が画面上で必ず一致することを保証する（結果表示が役の内訳を出すため、
- *    ここがずれると見えてしまう）。ライブラリ 0.5 までは `detectYaku` と
+ *    リーチの抽選時ではなく和了形ごとに採点するここで判断する。表ドラも同じ
+ *    扱いで、役満の手では内訳に出さない
+ * 3. 表ドラを内訳に足し、翻数を役の内訳の合計に合わせる。内訳の合計を翻数の
+ *    正典にし、内訳と翻数と点数が画面上で必ず一致することを保証する（結果表示が
+ *    役の内訳を出すため、ここがずれると見えてしまう）。ライブラリ 0.5 までは `detectYaku` と
  *    `calculateScoreForTehai` が同じ手牌で食い違うことがあった（門前の
  *    清一色・混一色・混全帯么九を含む手で後者が副露のときの値で数え、
  *    30000 手中 19 件で 1〜2 翻少なかった）。0.6 で両者の解釈が統一されて
@@ -175,7 +179,11 @@ export function buildScoreQuestion(
   let finalAnswer = scored.answer;
   let yakuDetails: YakuDetail[] = buildYakuDetailsFromResult(scored.yakuResult);
 
-  if (riichi && !hasYakumanYaku(scored.yakuResult)) {
+  // 役満は通常役と複合しない。ライブラリは役満の手で通常役を返さないので、
+  // アプリが後付けする立直・裏ドラ・ドラも同じく乗せない
+  const yakuman = hasYakumanYaku(scored.yakuResult);
+
+  if (riichi && !yakuman) {
     const riichiRes = applyRiichiAndUraDora({
       tehai,
       currentAnswer: finalAnswer,
@@ -188,11 +196,15 @@ export function buildScoreQuestion(
     yakuDetails = [...yakuDetails, ...riichiRes.additionalYakuDetails];
   }
 
-  // この時点の `yakuDetails` は表ドラを持たない（`assembleScoreQuestion` が
-  // 後で足す）ため、合計にはドラの翻を明示的に加える
-  const doraHan = countDora(tehai, doraMarkers);
-  const detailsHan =
-    yakuDetails.reduce((total, yaku) => total + yaku.han, 0) + doraHan;
+  // 表ドラ。ライブラリは役満の手でも翻数にドラを足して返す（支払いは役満
+  // 単位で固定なので点数には効かない）が、内訳には出さず翻数も役満の翻に
+  // 揃える（下の再計算）
+  const doraHan = yakuman ? 0 : countDora(tehai, doraMarkers);
+  if (doraHan > 0) {
+    yakuDetails = [...yakuDetails, { name: DORA_NAME, han: doraHan }];
+  }
+
+  const detailsHan = yakuDetails.reduce((total, yaku) => total + yaku.han, 0);
   if (detailsHan !== finalAnswer.han) {
     finalAnswer = recalculateScore(finalAnswer, detailsHan, {
       isTsumo,

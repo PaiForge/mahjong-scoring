@@ -7,6 +7,7 @@ import {
 import { buildScoreQuestion } from "./build-question";
 import { parseTehai } from "./mspz-serializer";
 import { ScoreLevel } from "../../core/constants";
+import { YAKUMAN_HAN } from "../../score/tiers";
 
 /** MSPZ の 14 枚を和了形の手牌にする */
 function agariTehai(mspz: string) {
@@ -23,8 +24,8 @@ describe("buildScoreQuestion", () => {
     tehai,
     jikaze: HaiKind.Ton,
     bakaze: HaiKind.Ton,
-    // 表示牌はどちらも手牌の外で、指すドラも手牌に無い（内訳を役だけにする）
-    doraMarkers: [HaiKind.Ton],
+    // 表ドラ表示牌は發 → ドラは中（手牌に 3 枚）。裏ドラ表示牌は南 → 西（手牌に無い）
+    doraMarkers: [HaiKind.Hatsu],
     ruleConfig: {},
     riichi: { uraDoraMarkers: [HaiKind.Nan] },
   } as const;
@@ -38,31 +39,33 @@ describe("buildScoreQuestion", () => {
     };
   }
 
-  it("役満の手にはリーチしていても立直と裏ドラを乗せない", () => {
+  it("役満の手にはリーチしていても立直・裏ドラ・ドラを乗せない", () => {
     // 役満は通常役と複合しない。ライブラリが役満の手で通常役を返さないのと
-    // 同じ規則を、アプリが後付けする立直・裏ドラにも適用する
+    // 同じ規則を、アプリが後付けする立直・裏ドラ・ドラにも適用する
     for (const isTsumo of [true, false]) {
       const { question, names } = yakuNames(HaiKind.Haku, isTsumo);
 
       expect(names).toEqual(["四暗刻"]);
       expect(question.answer.scoreLevel).toBe(ScoreLevel.Yakuman);
-      // 翻数は内訳の合計のまま（立直の 1 翻で崩れない）
-      expect(question.answer.han).toBe(
-        question.yakuDetails!.reduce((sum, yaku) => sum + yaku.han, 0),
-      );
+      // 翻数は役満の翻そのもの（ライブラリが足すドラの翻も内訳に合わせて落とす）
+      expect(question.answer.han).toBe(YAKUMAN_HAN);
       // リーチ棒と裏ドラ表示牌は盤面の状態として残る
       expect(question.isRiichi).toBe(true);
       expect(question.uraDoraMarkers).toEqual(base.riichi.uraDoraMarkers);
     }
   });
 
-  it("同じ聴牌形でも通常手になる和了なら立直が乗る", () => {
+  it("同じ聴牌形でも通常手になる和了なら立直とドラが乗る", () => {
     // 待ち別点数計算では待ちごとにここを通るので、役満になる待ちだけ
-    // 立直が外れ、ならない待ちには乗る
+    // 立直・ドラが外れ、ならない待ちには乗る
     const { question, names } = yakuNames(HaiKind.Chun, false);
 
     expect(names).not.toContain("四暗刻");
     expect(names).toContain("立直");
+    expect(question.yakuDetails).toContainEqual({ name: "ドラ", han: 3 });
+    expect(question.answer.han).toBe(
+      question.yakuDetails!.reduce((sum, yaku) => sum + yaku.han, 0),
+    );
     expect(question.isRiichi).toBe(true);
   });
 });
