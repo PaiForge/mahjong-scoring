@@ -118,8 +118,10 @@ export default async function DojoPage() {
         )}
 
         {journey.current !== undefined && (
-          <section className="space-y-4">
-            <SectionTitle>{t("nextRankTitle")}</SectionTitle>
+          // 見出しの pill は置かない。カードの中に「次の目標」の状態 pill が
+          // あり、すぐ上の区切りバーでも次の級が枠で示されているため、
+          // 見出しを重ねると同じことを 3 度言う。節の名前は読み上げ用に残す
+          <section aria-label={t("nextRankTitle")}>
             <RankJourneyCard journey={journey.current} expanded />
           </section>
         )}

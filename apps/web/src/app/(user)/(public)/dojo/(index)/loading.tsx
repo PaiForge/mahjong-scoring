@@ -36,8 +36,7 @@ export default async function Loading() {
         <SkeletonBar radius="xl" className="h-[92px] w-full" tone={100} />
 
         {/* 次の目標: 開いた 5級のカード。実測（2026-10-05）で 975px（sm 以上 983px） */}
-        <section className="space-y-4">
-          <SectionTitleSkeleton width="w-24" />
+        <section>
           <SkeletonBar
             radius="xl"
             className="h-[975px] w-full sm:h-[983px]"
