@@ -3,6 +3,7 @@
  *
  * チャレンジモード（ランキング対応）の練習種別を定義する。
  * `challenge_results` / `challenge_best_scores` テーブルの `menu_type` カラムに格納される値。
+ * ただし昇級試験（`*_exam`）は記録を残さないため、レジストリにあってもテーブルには入らない。
  *
  * @description 新しい練習種別の追加は `PRACTICE_MENU_REGISTRY` に1行追加するだけでよい。
  * slug（URL 用ケバブケース）・messageKey（i18n 用キャメルケース）・namespace
@@ -28,7 +29,8 @@
  * - 'fu_score_exam': 昇級試験（30〜50符の点数計算・役表示なし・ミス1回で終了）
  * - 'score_exam': 昇段試験（あらゆる手の点数計算・役表示なし・ミス1回で終了）
  *
- * `practice/score` は自由練習のため記録対象外。
+ * `practice/score` / `practice/machi-score` は終了条件の無い無限訓練のため、
+ * レジストリに載らず記録対象外。
  */
 
 // バレル（`@mahjong-scoring/core`）ではなく定数のモジュールを直に指す。
