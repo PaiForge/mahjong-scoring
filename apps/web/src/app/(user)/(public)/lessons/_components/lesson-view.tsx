@@ -29,7 +29,6 @@ import { SUB_LINK_GAP } from "@/app/_components/_lib/spacing";
 import { useAuth } from "@/app/_contexts/auth-context";
 import { logExternalError } from "@/lib/log-error";
 import { buildSignInHref } from "@/lib/redirect";
-import { MentsuType, getKazeName } from "@mahjong-scoring/core";
 import type { JourneyStep } from "@mahjong-scoring/features/journey/journey";
 import {
   choiceKey,
@@ -38,10 +37,18 @@ import {
   type LessonPrompt,
 } from "@mahjong-scoring/features/lessons/quiz";
 import { lessonQuiz } from "@mahjong-scoring/features/lessons/quizzes";
+import {
+  lessonAnswerLabel,
+  lessonChoiceLabel,
+  lessonConditionValues,
+} from "@mahjong-scoring/features/lessons/quiz-labels";
 import type { QuizLessonSlug } from "@mahjong-scoring/features/lessons/registry";
 import { chapterHref } from "@mahjong-scoring/features/routes";
 
-import { journeyStepHref, journeyStepTitle } from "../../_lib/journey-step";
+import {
+  journeyStepHref,
+  journeyStepTitle,
+} from "@mahjong-scoring/features/journey/journey-step";
 import { completeLesson } from "../_actions/complete-lesson";
 import type { LessonFollowUp } from "../_lib/lesson-follow-up";
 import { useLessonCompletion } from "../_hooks/use-lesson-completion";
@@ -114,55 +121,6 @@ const PHASES = ["learn", "quiz", "done"] as const;
 type SaveState =
   "idle" | "saving" | "saved" | "failed" | "anonymous" | "signedOut";
 
-/** 点数を日本語ロケールの桁区切りで表示する */
-function formatPoints(points: number): string {
-  return points.toLocaleString("ja-JP");
-}
-
-/** 翻訳関数（`useTranslations` の戻り値のうち、ここで使う形） */
-type Translator = (
-  key: string,
-  values?: Record<string, string | number>,
-) => string;
-
-/**
- * 選択肢のボタンに出す文字列
- *
- * 数字だけで読めるもの（点数・子のツモの支払い）は辞書を通さずに組む。
- * 単位や語が付くもの（オール・翻・役満）は辞書から引く。
- */
-function choiceLabel(choice: LessonChoice, t: Translator): string {
-  switch (choice.kind) {
-    case "points":
-      return formatPoints(choice.points);
-    case "koTsumo":
-      return `${formatPoints(choice.fromKo)} / ${formatPoints(choice.fromOya)}`;
-    case "oyaTsumo":
-      return t("choiceLabels.oyaTsumo", { all: formatPoints(choice.all) });
-    case "han":
-      return t("choiceLabels.han", { han: choice.han });
-    case "yakuman":
-      return t("choiceLabels.yakuman");
-    case "fu":
-      return t("choiceLabels.fu", { fu: choice.fu });
-  }
-}
-
-/**
- * 不正解のときに「正解は〜」へ差し込む文字列
- *
- * ボタンでは単位を省いている点数・子のツモにだけ「点」を付ける。
- */
-function answerLabel(choice: LessonChoice, t: Translator): string {
-  switch (choice.kind) {
-    case "points":
-    case "koTsumo":
-      return t("answerLabels.points", { points: choiceLabel(choice, t) });
-    default:
-      return choiceLabel(choice, t);
-  }
-}
-
 /**
  * 選択肢の文字の大きさ
  *
@@ -174,54 +132,6 @@ function choiceTextClass(choice: LessonChoice): string {
     ? "whitespace-nowrap text-base font-bold tabular-nums"
     : "text-lg font-bold tabular-nums";
 }
-
-/** 条件文（辞書の `condition`）へ差し込む値 */
-function conditionValues(
-  prompt: LessonPrompt,
-  tScoreTable: (key: string) => string,
-): Record<string, string | number> {
-  switch (prompt.kind) {
-    case "tier":
-      return { han: prompt.han, tier: tScoreTable(prompt.tierKey) };
-    case "yaku":
-      return { yaku: prompt.yaku, state: prompt.naki ? "naki" : "menzen" };
-    case "jantou":
-      return {
-        bakaze: getKazeName(prompt.bakaze),
-        jikaze: getKazeName(prompt.jikaze),
-      };
-    case "mentsu":
-      return { shape: MENTSU_SHAPES[prompt.mentsu.type] };
-    case "machi":
-      return {};
-    case "tehai":
-      return {
-        bakaze: getKazeName(prompt.context.bakaze),
-        jikaze: getKazeName(prompt.context.jikaze),
-        winType: prompt.context.isTsumo ? "tsumo" : "ron",
-      };
-    case "agari":
-      return {
-        role: prompt.role,
-        winType: prompt.winType,
-        yaku: prompt.yaku.join("＋"),
-        han: prompt.han,
-      };
-    case "extraFu":
-      return {
-        handShape: prompt.handShape,
-        winType: prompt.winType,
-        extraFu: prompt.extraFu,
-      };
-  }
-}
-
-/** 面子の形を条件文の `select` に渡す名前 */
-const MENTSU_SHAPES = {
-  [MentsuType.Shuntsu]: "shuntsu",
-  [MentsuType.Koutsu]: "koutsu",
-  [MentsuType.Kantsu]: "kantsu",
-} as const;
 
 /**
  * 条件文の下に並べる牌
@@ -539,7 +449,7 @@ export function LessonView({
             >
               {tLesson(
                 "condition",
-                conditionValues(question.prompt, tScoreTable),
+                lessonConditionValues(question.prompt, tScoreTable),
               )}
             </p>
             <PromptTiles prompt={question.prompt} />
@@ -562,7 +472,9 @@ export function LessonView({
                 />
                 {isCorrect
                   ? t("correct")
-                  : t("incorrect", { answer: answerLabel(question.answer, t) })}
+                  : t("incorrect", {
+                      answer: lessonAnswerLabel(question.answer, t),
+                    })}
               </p>
             )}
             {isAnswered && (
@@ -591,7 +503,7 @@ export function LessonView({
                   bgClass={bgClass}
                   className={choiceTextClass(choice)}
                 >
-                  {choiceLabel(choice, t)}
+                  {lessonChoiceLabel(choice, t)}
                 </ChoiceButton>
               );
             })}

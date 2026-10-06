@@ -11,14 +11,14 @@
 import { describe, expect, it } from "vitest";
 
 import { messages as messagesJson } from "@mahjong-scoring/messages/ja";
-import { collectTermSlugs } from "@/lib/glossary/term-markup";
+import { collectTermSlugs } from "@mahjong-scoring/features/glossary/term-markup";
 
 import {
   CURRICULUM,
   CURRICULUM_SECTIONS,
   getChapterI18nPath,
 } from "@mahjong-scoring/features/curriculum/registry";
-import { chapterNamespace } from "../metadata";
+import { chapterNamespace } from "@mahjong-scoring/features/curriculum/chapter-namespace";
 
 const messages = messagesJson as unknown as {
   readonly learnCurriculum: {

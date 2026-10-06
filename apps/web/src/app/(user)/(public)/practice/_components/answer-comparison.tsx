@@ -2,6 +2,10 @@
 
 import type { ReactNode } from "react";
 import { useTranslations } from "next-intl";
+import {
+  formatDifference,
+  type AnswerDifference,
+} from "@mahjong-scoring/features/practice/answer-difference";
 import { AnswerOutcome } from "@mahjong-scoring/features/results/result-schemas";
 import { DetailTable } from "./detail-table";
 
@@ -39,14 +43,6 @@ interface AnswerComparisonProps {
    * false にして詳細を軽くする
    */
   readonly showTitle?: boolean;
-}
-
-/** 過不足の計算に使う正解と回答の値、そして単位の付け方 */
-interface AnswerDifference {
-  readonly correct: number;
-  readonly user: number;
-  /** 値に単位を付ける（`(3) => "3翻"` など。差の絶対値に対して呼ばれる） */
-  readonly format: (value: number) => string;
 }
 
 /**
@@ -107,20 +103,4 @@ export function AnswerComparison({
       ]}
     />
   );
-}
-
-/**
- * 過不足を符号付きの文字列にする
- * 過不足整形
- *
- * 差は「回答 − 正解」で、多く数えていれば +、足りなければ −。
- * 記号は演算子のマイナス（U+2212）で、ハイフンより横棒が長く数字と釣り合う。
- */
-function formatDifference(
-  { correct, user, format }: AnswerDifference,
-  noDifferenceLabel: string,
-): string {
-  const diff = user - correct;
-  if (diff === 0) return noDifferenceLabel;
-  return `${diff > 0 ? "+" : "\u2212"}${format(Math.abs(diff))}`;
 }

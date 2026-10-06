@@ -1,10 +1,7 @@
 import type { Role } from "@mahjong-scoring/core";
 
-import {
-  formatPoints,
-  ManganTableShell,
-  type ManganTableColumn,
-} from "./mangan-table-shell";
+import { formatLessonPoints } from "@mahjong-scoring/features/lessons/quiz-labels";
+import { ManganTableShell, type ManganTableColumn } from "./mangan-table-shell";
 
 interface ManganScoreTableProps {
   /** 子・親のどちらの点数を表示するか */
@@ -37,7 +34,7 @@ export function ManganScoreTable({ role }: ManganScoreTableProps) {
     <ManganTableShell
       columns={COLUMNS}
       renderCells={(row, t) => [
-        formatPoints(role === "ko" ? row.ronKo : row.ronOya),
+        formatLessonPoints(role === "ko" ? row.ronKo : row.ronOya),
         t(noteKeyOf(row.nameKey)),
       ]}
     />

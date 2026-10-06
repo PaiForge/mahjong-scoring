@@ -1,7 +1,6 @@
 "use client";
 
 import { useTranslations } from "next-intl";
-import { HaiKind, MentsuType } from "@mahjong-scoring/core";
 import { Hai } from "@pai-forge/mahjong-react-ui";
 import { QuestionPrompt } from "../../_components/question-prompt";
 import { TehaiDisplay } from "../../_components/tehai-display";
@@ -11,52 +10,9 @@ import {
 } from "@mahjong-scoring/features/board/demo-tehai";
 import { FU_OPTIONS } from "@mahjong-scoring/features/practice/fu-options";
 import {
-  findAgariHighlight,
-  type AgariHighlightItem,
-} from "@mahjong-scoring/features/practice/mentsu-jantou-fu/find-agari-highlight";
-
-/**
- * デモ用の固定例（{@link DEMO_FU_TEHAI}）の各要素
- * 234m / 567p / 中中中(暗刻) / 678s / 南南(雀頭)
- */
-const DEMO_ITEMS: readonly AgariHighlightItem[] = [
-  {
-    id: "234m",
-    tiles: [HaiKind.ManZu2, HaiKind.ManZu3, HaiKind.ManZu4],
-    type: MentsuType.Shuntsu,
-    isOpen: false,
-  },
-  {
-    id: "567p",
-    tiles: [HaiKind.PinZu5, HaiKind.PinZu6, HaiKind.PinZu7],
-    type: MentsuType.Shuntsu,
-    isOpen: false,
-  },
-  {
-    id: "chun",
-    tiles: [HaiKind.Chun, HaiKind.Chun, HaiKind.Chun],
-    type: MentsuType.Koutsu,
-    isOpen: false,
-  },
-  {
-    id: "678s",
-    tiles: [HaiKind.SouZu6, HaiKind.SouZu7, HaiKind.SouZu8],
-    type: MentsuType.Shuntsu,
-    isOpen: false,
-  },
-  {
-    id: "nan",
-    tiles: [HaiKind.Nan, HaiKind.Nan],
-    type: "Pair",
-    isOpen: false,
-  },
-];
-
-/** デモの和了牌（七筒ツモ）を示す位置。出題盤面と同じ判定から求める */
-const DEMO_AGARI_HIGHLIGHT = findAgariHighlight(
-  DEMO_ITEMS,
-  DEMO_FU_CONTEXT.agariHai,
-);
+  MENTSU_JANTOU_FU_DEMO_AGARI_HIGHLIGHT,
+  MENTSU_JANTOU_FU_DEMO_ITEMS,
+} from "@mahjong-scoring/features/practice/mentsu-jantou-fu/demo-items";
 
 /**
  * 面子と雀頭の符計算の「問題方式」ビジュアルデモ
@@ -88,7 +44,7 @@ export function MentsuJantouFuHowToPlay() {
           不透明部分（78% = 250px）はちょうど 2 要素目の下端で終わる */}
       <div className="max-h-80 overflow-hidden [mask-image:linear-gradient(to_bottom,black_78%,transparent_100%)]">
         <div className="space-y-2">
-          {DEMO_ITEMS.map((item) => (
+          {MENTSU_JANTOU_FU_DEMO_ITEMS.map((item) => (
             <div
               key={item.id}
               className="space-y-2.5 rounded-xl border border-surface-200 bg-white p-3"
@@ -100,8 +56,9 @@ export function MentsuJantouFuHowToPlay() {
                     hai={tile}
                     size="sm"
                     highlighted={
-                      DEMO_AGARI_HIGHLIGHT?.itemId === item.id &&
-                      DEMO_AGARI_HIGHLIGHT.tileIndex === j
+                      MENTSU_JANTOU_FU_DEMO_AGARI_HIGHLIGHT?.itemId ===
+                        item.id &&
+                      MENTSU_JANTOU_FU_DEMO_AGARI_HIGHLIGHT.tileIndex === j
                     }
                   />
                 ))}

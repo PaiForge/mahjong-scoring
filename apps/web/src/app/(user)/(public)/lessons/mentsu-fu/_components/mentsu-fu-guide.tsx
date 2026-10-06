@@ -5,7 +5,7 @@ import {
   exampleMinkan,
   exampleMinkou,
   exampleShuntsu,
-} from "@/lib/example-mentsu";
+} from "@mahjong-scoring/features/board/example-mentsu";
 import { ExampleTable } from "../../_components/example-table";
 import { loadExampleTableColumns } from "../../_lib/example-table-columns";
 import { FuSummaryTable } from "../../_components/fu-summary-table";

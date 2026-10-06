@@ -5,7 +5,7 @@ import { TsumoScore } from "@/app/(user)/(public)/reference/score-table/_compone
 
 import { HanRowsTable } from "../../_components/han-rows-table";
 
-import { buildTsumoSplitRows } from "../_lib/tsumo-payment-rows";
+import { buildTsumoSplitRows } from "@mahjong-scoring/features/curriculum/tsumo-payment-rows";
 
 interface TsumoSplitTableProps {
   /** 対象の符。4翻でも満貫に届かない符を渡すこと（30符など） */

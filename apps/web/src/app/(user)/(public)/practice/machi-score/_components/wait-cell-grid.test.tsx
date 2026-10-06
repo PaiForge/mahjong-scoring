@@ -3,7 +3,10 @@ import { fireEvent, render, screen } from "@testing-library/react";
 import { generateValidMachiScoreQuestion } from "@mahjong-scoring/core";
 import type { MachiScoreQuestion } from "@mahjong-scoring/core";
 import { WaitCellGrid } from "./wait-cell-grid";
-import { cellKeyOf, type MachiCellRef } from "../_hooks/use-machi-score-store";
+import {
+  cellKeyOf,
+  type MachiCellRef,
+} from "@mahjong-scoring/features/practice/machi-score/cell-ref";
 
 vi.mock("next-intl", async () => await import("@/test/intl-mock"));
 vi.mock("@pai-forge/mahjong-react-ui", () => ({
@@ -222,5 +225,30 @@ describe("WaitCellGrid の選択中の表示", () => {
     expect(
       screen.getAllByRole("button", { name: /removeFromSelection/ }),
     ).toHaveLength(question.waits.length);
+  });
+  it("選択中の塊に未回答のマスが混ざると、回答済みのマスがあっても「まとめて回答中」を出す", () => {
+    const question = seedQuestion();
+    const tsumoCells = question.waits.map((wait) => ({
+      agariHai: wait.agariHai,
+      isTsumo: true,
+    }));
+    render(
+      <WaitCellGrid
+        question={question}
+        cellAnswers={{
+          [cellKeyOf(tsumoCells[0])]: {
+            kind: "score",
+            answer: { han: 1, fu: 30, score: 1000, yakus: [] },
+          },
+        }}
+        selectedCells={tsumoCells}
+        formatAnswer={() => "1翻 30符 1000点"}
+        onToggleCell={vi.fn()}
+      />,
+    );
+
+    const group = screen.getByRole("group", { name: "answeringTogether" });
+    expect(group.closest("td")?.rowSpan).toBe(question.waits.length);
+    expect(screen.queryByRole("group", { name: "1翻 30符 1000点" })).toBeNull();
   });
 });

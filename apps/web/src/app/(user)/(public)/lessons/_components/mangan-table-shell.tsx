@@ -9,7 +9,7 @@ import {
   DataTableHeaderCell,
 } from "@/app/(user)/_components/data-table";
 
-import { HAN_DISPLAY } from "../_lib/han-display";
+import { HAN_DISPLAY } from "@mahjong-scoring/features/curriculum/han-display";
 
 /** 満貫以上早見表の1行分のデータ */
 export type ManganTableRow = (typeof HIGH_SCORES)[number];
@@ -114,9 +114,4 @@ export async function ManganTableShell({
       ))}
     </DataTable>
   );
-}
-
-/** 点数を日本語ロケールの桁区切りで表示する */
-export function formatPoints(points: number): string {
-  return points.toLocaleString("ja-JP");
 }

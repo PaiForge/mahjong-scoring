@@ -298,7 +298,7 @@ export function isInvalidCell(
  *
  * 早見表は「この翻数なら符に関係なくこの点数」を示すため、満貫の下限は
  * 5 翻。学習ページは「満貫になる翻数」を教える別の観点で 4 翻から示す
- * （learn/_lib/han-display.ts）。
+ * （features の curriculum/han-display.ts）。
  */
 function hanRangeLabel(key: string): string {
   const range = hanRangeOf(key);

@@ -41,9 +41,9 @@ import { MACHI_SCORE_PRACTICE_HREF } from "@mahjong-scoring/features/routes";
 import {
   cellKeyOf,
   listCellRefs,
-  useMachiScoreStore,
-} from "../_hooks/use-machi-score-store";
-import { sharedAnswerOfCells } from "../_lib/cell-runs";
+} from "@mahjong-scoring/features/practice/machi-score/cell-ref";
+import { useMachiScoreStore } from "../_hooks/use-machi-score-store";
+import { sharedAnswerOfCells } from "@mahjong-scoring/features/practice/machi-score/cell-runs";
 import {
   formatCellAnswer,
   formatCellAnswerLines,

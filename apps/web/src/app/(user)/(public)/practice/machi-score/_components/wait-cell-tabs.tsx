@@ -7,7 +7,10 @@ import type { JudgementResult } from "@mahjong-scoring/core";
 import { haiIdToMspz } from "@mahjong-scoring/core";
 import { Hai } from "@pai-forge/mahjong-react-ui";
 import { JudgementMark } from "../../_components/judgement-mark";
-import { cellKeyOf, type MachiCellRef } from "../_hooks/use-machi-score-store";
+import {
+  cellKeyOf,
+  type MachiCellRef,
+} from "@mahjong-scoring/features/practice/machi-score/cell-ref";
 
 /**
  * タブの地と文字色

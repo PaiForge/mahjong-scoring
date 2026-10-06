@@ -1,6 +1,5 @@
 "use client";
 
-import { useCallback } from "react";
 import { useTranslations } from "next-intl";
 import { FU_VALUES } from "@mahjong-scoring/core";
 import type { TotalFuQuestion } from "@mahjong-scoring/core";
@@ -10,14 +9,14 @@ import { TehaiDisplay } from "./tehai-display";
 import { TehaiMentsuBreakdown } from "./tehai-mentsu-breakdown";
 import { FuBreakdown } from "./fu-breakdown";
 import { QuestionPrompt } from "./question-prompt";
-import { useFuChoiceBoard } from "../_hooks/use-fu-choice-board";
-import { useTrainingMode } from "../_hooks/use-training-mode";
+import { useFuChoiceBoard } from "@mahjong-scoring/features/practice/use-fu-choice-board";
+import { useTrainingMode } from "@mahjong-scoring/features/practice/use-training-mode";
 import type { PlayBoardHeight } from "../_lib/board-area-height";
 import {
   toFuQuestionResult,
   type FuQuestionResult,
 } from "@mahjong-scoring/features/results/fu-question-result";
-import type { RecordingPracticeBoardProps } from "../_lib/practice-board-props";
+import type { RecordingPracticeBoardProps } from "@mahjong-scoring/features/practice/board-props";
 
 interface TotalFuQuestionBoardProps extends RecordingPracticeBoardProps<FuQuestionResult> {
   /**
@@ -60,23 +59,14 @@ export function TotalFuQuestionBoard({
   onPresentQuestion,
 }: TotalFuQuestionBoardProps) {
   const t = useTranslations(translationNamespace);
-  const recordResult = useCallback(
-    (question: TotalFuQuestion, fu: number) =>
-      onRecordResult?.(toFuQuestionResult(question, fu)),
-    [onRecordResult],
-  );
-  const presentQuestion = useCallback(
-    (question: TotalFuQuestion) =>
-      onPresentQuestion?.(toFuQuestionResult(question, undefined)),
-    [onPresentQuestion],
-  );
   const { question, selectedFu, handleSelect } = useFuChoiceBoard({
     generateQuestion,
     options: FU_VALUES,
+    toResult: toFuQuestionResult,
     showFeedback,
     onAnswer,
-    onRecordResult: recordResult,
-    onPresentQuestion: presentQuestion,
+    onRecordResult,
+    onPresentQuestion,
   });
   // 内訳はトレーニングで止まっている間だけ出す（開示・回答後のどちらでも）。
   // チャレンジ・本番の試験ではどちらも立たない

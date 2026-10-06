@@ -18,7 +18,7 @@ vi.mock(
 );
 
 import { ChallengeSubmitButton } from "../_components/challenge-submit-button";
-import { useRegisterAdvance } from "../_hooks/use-training-mode";
+import { useRegisterAdvance } from "@mahjong-scoring/features/practice/use-training-mode";
 import { createTrainingView } from "./create-challenge-views";
 
 /**

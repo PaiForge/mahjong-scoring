@@ -1,7 +1,7 @@
 import { getTranslations } from "next-intl/server";
 
 import type { QuizLessonSlug } from "@mahjong-scoring/features/lessons/registry";
-import { stripTermMarkup } from "@/lib/glossary/term-markup";
+import { stripTermMarkup } from "@mahjong-scoring/features/glossary/term-markup";
 
 /**
  * レッスンの抜粋に使う、章の本文の段落の辞書キー（名前空間付き）

@@ -1,0 +1,64 @@
+import { StyleSheet, View } from "react-native";
+import { useTranslations } from "use-intl";
+import { parseHais } from "@mahjong-scoring/core";
+import type { MachiFuQuestionResult } from "@mahjong-scoring/features/practice/machi-fu/types";
+
+import { AnswerComparison } from "../../components/answer-comparison";
+import { ProblemListAccordion } from "../../components/problem-list-accordion";
+import { MachiFuPrompt } from "./machi-fu-prompt";
+
+/**
+ * 待ち符練習の問題別フィードバック一覧
+ * 待ち符問題一覧
+ *
+ * web の `MachiFuProblemList` の移植。展開すると出題された待ち形と、正解・
+ * 自分の回答を確認できる。符は待ちの形で決まるため、形を出さずに符だけ
+ * 並べても何を間違えたのかが読めない。待ち形の見せ方は出題盤面と同じ
+ * `MachiFuPrompt`。
+ */
+export function MachiFuProblemList({
+  results,
+}: {
+  readonly results: readonly MachiFuQuestionResult[];
+}) {
+  const t = useTranslations("machiFu");
+  const fuLabel = (fu: number) => t("fuOption", { value: fu });
+
+  return (
+    <ProblemListAccordion
+      results={results}
+      translationNamespace="machiFu"
+      outcome={(r) => r.outcome}
+      renderSummary={(result) => fuLabel(result.correctFu)}
+      renderDetail={(result) => {
+        const tiles = parseHais(result.tiles);
+        const agariHai = parseHais(result.agariHai)[0];
+
+        return (
+          <View style={styles.detail}>
+            {agariHai !== undefined && tiles.length > 0 && (
+              <MachiFuPrompt tiles={tiles} agariHai={agariHai} />
+            )}
+            {/* 回答は 0 符か 2 符の二択で、正解と回答が並んだ時点で差まで
+                読み取れる。「答え合わせ」の見出しも「過不足」の行も足さない */}
+            <AnswerComparison
+              translationNamespace="machiFu"
+              outcome={result.outcome}
+              correct={fuLabel(result.correctFu)}
+              user={
+                result.userFu === undefined ? undefined : fuLabel(result.userFu)
+              }
+              showTitle={false}
+            />
+          </View>
+        );
+      }}
+    />
+  );
+}
+
+const styles = StyleSheet.create({
+  detail: {
+    gap: 12,
+  },
+});

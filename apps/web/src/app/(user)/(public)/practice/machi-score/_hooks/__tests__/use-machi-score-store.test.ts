@@ -10,12 +10,12 @@ import {
   machiCellKey,
 } from "@mahjong-scoring/core";
 
-import type { MachiCellRef } from "../use-machi-score-store";
 import {
   cellKeyOf,
   listCellRefs,
-  useMachiScoreStore,
-} from "../use-machi-score-store";
+  type MachiCellRef,
+} from "@mahjong-scoring/features/practice/machi-score/cell-ref";
+import { useMachiScoreStore } from "../use-machi-score-store";
 
 const MODE: MachiCellJudgementMode = {
   requireYaku: false,

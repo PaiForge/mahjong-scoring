@@ -12,16 +12,17 @@ import {
   isMangan,
   isOya,
   getScoreLevelName,
-  judgeYakuSelection,
 } from "@mahjong-scoring/core";
 import { useYakumanRules } from "@/app/_hooks/use-rule-settings-store";
 import { useYakuOrder } from "@/app/_hooks/use-yaku-order-store";
-import { practiceHanTier } from "@mahjong-scoring/features/practice/score/han-tiers";
-import { orderYakuDetails } from "@mahjong-scoring/features/results/order-yaku-details";
+import {
+  formatHan,
+  formatPayment,
+} from "@mahjong-scoring/features/practice/score/format-answer";
 import { formatScoreAnswer } from "@mahjong-scoring/features/results/format-score-answer";
 import { paymentToScoreTableAnswer } from "@mahjong-scoring/features/results/payment-adapter";
+import { buildScoreResultDisplay } from "@mahjong-scoring/features/results/score-result-display";
 import { DetailsPanelRow } from "./details-accordion";
-import type { DetailItem } from "./details-accordion";
 import { ScoreTableModal } from "./score-table-modal";
 import { ReferenceLinkButton } from "../../_components/reference-link-button";
 import {
@@ -105,32 +106,17 @@ export function ResultDisplay({
     userAnswer !== undefined && result !== undefined
       ? { answer: userAnswer, result }
       : undefined;
-  const fuTotal =
-    question.fuDetails?.reduce((acc, curr) => acc + curr.fu, 0) ?? 0;
-  const yakuTotal =
-    question.yakuDetails?.reduce((acc, curr) => acc + curr.han, 0) ?? 0;
 
-  // 役は「合っていた / 余分だった / 選び忘れた」を役ごとに見せる。1つ余分なだけで
-  // 回答全体が赤くなると、合っていた役まで間違いに見えてしまうため。
-  const yakuJudgements = judgeYakuSelection(question, userAnswer?.yakus ?? []);
-  const answeredYakuJudgements = yakuJudgements.filter(
-    (judgement) => judgement.state !== "missed",
-  );
-  const correctYakuJudgements = yakuJudgements.filter(
-    (judgement) => judgement.state !== "incorrect",
-  );
+  // 役の振り分けと内訳の並び・合計はモバイルと共有する
+  const {
+    answeredYakuJudgements,
+    correctYakuJudgements,
+    yakuBreakdown,
+    fuBreakdown,
+  } = buildScoreResultDisplay(question, userAnswer?.yakus, yakuOrder);
   const correctYakuNames = correctYakuJudgements.map(
     (judgement) => judgement.name,
   );
-
-  // 翻数の内訳は結果ページの内訳表と同じく、設定の役の並び順に載せ替える
-  // （ライブラリの判定順のままだと問題ごとに同じ役の位置が変わる）
-  const yakuDetailItems: readonly DetailItem[] = orderYakuDetails(
-    question.yakuDetails ?? [],
-    yakuOrder,
-  ).map((d) => ({ name: d.name, value: d.han }));
-  const fuDetailItems: readonly DetailItem[] =
-    question.fuDetails?.map((d) => ({ name: d.reason, value: d.fu })) ?? [];
 
   // 正解の支払いは共通の整形関数に寄せる（"オール" 等の表記を1箇所で管理）。
   // ロンにはユーザー回答セルと同じ「点」を付ける。
@@ -149,15 +135,8 @@ export function ResultDisplay({
     fu: answer.fu,
   };
 
-  const getHanDisplay = (hanValue: number, levelName?: string) => {
-    const tier = simplifyMangan
-      ? practiceHanTier(hanValue, allowDoubleYakuman)
-      : undefined;
-    if (tier) {
-      return levelName ?? t(`form.options.${tier.key}`);
-    }
-    return `${hanValue}${t("form.options.hanSuffix")}`;
-  };
+  const getHanDisplay = (hanValue: number) =>
+    formatHan(hanValue, { t, simplifyMangan, allowDoubleYakuman });
 
   return (
     <div className="space-y-4">
@@ -235,11 +214,11 @@ export function ResultDisplay({
             </td>
           </tr>
           {/* 翻数の内訳。閉じた状態から始める（理由は CollapsibleDetail） */}
-          {yakuDetailItems.length > 0 && (
+          {yakuBreakdown && (
             <DetailsPanelRow
               title={t("result.details.yakuTitle")}
-              items={yakuDetailItems}
-              total={yakuTotal}
+              items={yakuBreakdown.items}
+              total={yakuBreakdown.total}
               suffix={t("form.options.hanSuffix")}
               colSpan={RESULT_TABLE_COLUMN_COUNT}
             />
@@ -276,11 +255,11 @@ export function ResultDisplay({
                 {t("form.options.fuSuffix")}
               </td>
             </tr>
-            {question.fuDetails && (
+            {fuBreakdown && (
               <DetailsPanelRow
                 title={t("result.details.fuTitle")}
-                items={fuDetailItems}
-                total={fuTotal}
+                items={fuBreakdown.items}
+                total={fuBreakdown.total}
                 suffix={t("form.options.fuSuffix")}
                 colSpan={RESULT_TABLE_COLUMN_COUNT}
                 roundedTotal={answer.fu}
@@ -300,9 +279,7 @@ export function ResultDisplay({
               <td
                 className={`py-2 pr-4 text-right align-top ${judged.result.isScoreCorrect ? "text-success" : "text-destructive"}`}
               >
-                {judged.answer.scoreFromKo !== undefined
-                  ? `${judged.answer.scoreFromKo}/${judged.answer.scoreFromOya}`
-                  : `${judged.answer.score}${t("result.pointSuffix")}`}{" "}
+                {formatPayment(judged.answer, false, { t })}{" "}
                 <JudgementMark
                   verdict={
                     judged.result.isScoreCorrect ? "correct" : "incorrect"

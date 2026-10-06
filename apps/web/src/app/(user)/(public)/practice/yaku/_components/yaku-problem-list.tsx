@@ -1,9 +1,6 @@
 "use client";
 
-import {
-  parseMarkers,
-  restoreTehaiQuestion,
-} from "@mahjong-scoring/features/results/parse-question-tiles";
+import { restoreYakuQuestion } from "@mahjong-scoring/features/practice/yaku/answer-comparison";
 import { ProblemListAccordion } from "../../_components/problem-list-accordion";
 import { TehaiDisplay } from "../../_components/tehai-display";
 import { TehaiMentsuBreakdown } from "../../_components/tehai-mentsu-breakdown";
@@ -12,27 +9,6 @@ import { YakuAnswerComparison } from "./yaku-answer-comparison";
 
 interface YakuProblemListProps {
   readonly results: readonly YakuQuestionResult[];
-}
-
-/**
- * 保存された結果から出題内容を復元する
- * 出題復元
- *
- * MSPZ のパースに失敗した場合は undefined を返し、手牌の再表示だけを諦める
- * （役の対比は文字列に依存しないため表示できる）。
- */
-function restoreQuestion(result: YakuQuestionResult) {
-  const restored = restoreTehaiQuestion(result);
-  if (!restored) return undefined;
-  return {
-    tehai: restored.tehai,
-    context: {
-      ...restored.context,
-      isRiichi: result.isRiichi,
-      doraMarkers: parseMarkers(result.doraMarkers) ?? [],
-      uraDoraMarkers: parseMarkers(result.uraDoraMarkers),
-    },
-  };
 }
 
 /**
@@ -56,7 +32,7 @@ export function YakuProblemList({ results }: YakuProblemListProps) {
       translationNamespace="yaku"
       outcome={(r) => r.outcome}
       renderDetail={(result) => {
-        const question = restoreQuestion(result);
+        const question = restoreYakuQuestion(result);
 
         return (
           <div className="space-y-3">

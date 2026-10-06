@@ -9,7 +9,7 @@ import {
   getChapterBySlug,
   type CurriculumChapterSlug,
 } from "@mahjong-scoring/features/curriculum/registry";
-import { quizLessonBySlug } from "@mahjong-scoring/features/lessons/registry";
+import { relatedPracticeLinks } from "@mahjong-scoring/features/lessons/registry";
 
 import { FREE_PRACTICE_LINKS } from "../_lib/free-practice-links";
 import { ExamCtaCard } from "./exam-cta-card";
@@ -44,8 +44,7 @@ interface ChapterRelatedLinksProps {
  */
 export async function ChapterRelatedLinks({ slug }: ChapterRelatedLinksProps) {
   const chapter = getChapterBySlug(slug);
-  const practiceLinks =
-    quizLessonBySlug(slug)?.practiceLinks ?? chapter?.practiceLinks ?? [];
+  const practiceLinks = relatedPracticeLinks(slug);
   const freePractice = FREE_PRACTICE_LINKS[slug];
   const examSlug = chapter?.examSlug;
   const hasPractice = practiceLinks.length > 0 || freePractice !== undefined;

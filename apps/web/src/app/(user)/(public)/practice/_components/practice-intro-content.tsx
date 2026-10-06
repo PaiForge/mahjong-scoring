@@ -4,7 +4,7 @@ import { HowToPlaySection } from "./how-to-play-section";
 import { PracticeChapterSection } from "./practice-chapter-section";
 import { PracticeStartCta } from "./practice-start-cta";
 import { VariantStartPanel } from "./variant-start-panel";
-import { buildPracticeStartCtaLabels } from "../_lib/practice-start-cta-labels";
+import { buildPracticeStartCtaLabels } from "@mahjong-scoring/features/practice/start-cta-labels";
 import { getTranslations } from "next-intl/server";
 import { LinkRow, LinkRowList } from "@/app/(user)/_components/link-row";
 import { relatedChaptersForPractice } from "@mahjong-scoring/features/practice/catalog";

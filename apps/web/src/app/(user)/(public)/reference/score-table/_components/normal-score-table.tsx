@@ -12,15 +12,16 @@ import {
   TABLE_HIGHLIGHT_FOCUS_CLASS,
   TABLE_HIGHLIGHT_HEADER_CLASS,
 } from "@/app/(user)/_components/_lib/table-highlight";
+import { SCORE_TABLE_FU_COLUMN_CLASS } from "../_lib/score-table-utils";
+import { HAN_COLS } from "@mahjong-scoring/features/score-table/han-cols";
 import {
-  HAN_COLS,
+  FREQUENT_FU,
   FU_ROWS,
-  SCORE_TABLE_FU_COLUMN_CLASS,
-} from "../_lib/score-table-utils";
+  normalCellId,
+  scoreGridKey,
+} from "@mahjong-scoring/features/score-table/score-grid";
 import type { NormalCellHighlight } from "../_lib/score-table-utils";
 import { TsumoScore } from "./tsumo-score";
-
-const FREQUENT_FU = new Set([30, 40]);
 
 interface NormalScoreTableProps {
   /** `${han}-${fu}` → 点数計算結果のグリッド */
@@ -123,7 +124,7 @@ export function NormalScoreTable({
               {fu}
             </td>
             {HAN_COLS.map((han) => {
-              const score = scoreGrid.get(`${han}-${fu}`);
+              const score = scoreGrid.get(scoreGridKey(han, fu));
               if (!score) {
                 return (
                   <td
@@ -135,7 +136,7 @@ export function NormalScoreTable({
                 );
               }
 
-              const cellId = `${activeTab}-${winType}-${han}han-${fu}fu`;
+              const cellId = normalCellId(activeTab, winType, han, fu);
               const isHidden = !!hiddenCells[cellId];
               const isHighlighted =
                 highlight !== undefined &&

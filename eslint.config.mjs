@@ -29,7 +29,7 @@ export default [
   ...reactHooksConfig.map(scopeTo("packages/features")),
   {
     // features は web（サーバーコンポーネントを含む）とモバイルの両方から
-    // ファイル単位で import される。React と zustand に触れてよいのは
+    // ファイル単位で import される。React・zustand・use-intl に触れてよいのは
     // フック・ストアのファイル（`use-*.ts`）だけにして、それ以外の純粋な
     // モジュールはサーバーでも Node のテストでもそのまま読めるようにする。
     // フックのファイルを純粋なモジュールから import することも同じ理由で禁じる
@@ -43,12 +43,14 @@ export default [
       "@typescript-eslint/no-restricted-imports": [
         "error",
         {
-          paths: ["react", "zustand", "zustand/middleware"].map((name) => ({
-            name,
-            allowTypeImports: true,
-            message:
-              "React と zustand を使うコードは use-*.ts（フック・ストア）に置く",
-          })),
+          paths: ["react", "zustand", "zustand/middleware", "use-intl"].map(
+            (name) => ({
+              name,
+              allowTypeImports: true,
+              message:
+                "React・zustand・use-intl を使うコードは use-*.ts（フック・ストア）に置く",
+            }),
+          ),
           patterns: [
             {
               regex: "(^|/)use-[^/]+$",
@@ -62,14 +64,26 @@ export default [
     },
   },
   {
-    // CommonJS で書かれた設定ファイル（postcss 等）。`module` / `require` を
-    // 未定義扱いにしない
-    files: ["apps/web/*.config.js"],
-    languageOptions: { sourceType: "commonjs" },
+    // CommonJS で書かれた設定ファイル（postcss・Metro・Babel 等）。`module` /
+    // `require` を未定義扱いにしない
+    files: [
+      "apps/web/*.config.js",
+      "apps/mobile/*.config.js",
+      "apps/mobile/index.js",
+    ],
+    languageOptions: {
+      sourceType: "commonjs",
+      globals: {
+        module: "readonly",
+        require: "readonly",
+        __dirname: "readonly",
+      },
+    },
   },
   {
     ignores: [
       "apps/web/.next/**",
+      "apps/mobile/.expo/**",
       // supabase start が生成する作業ディレクトリ（バンドル済みの edge runtime を含む）
       "**/supabase/.temp/**",
       "**/dist/**",

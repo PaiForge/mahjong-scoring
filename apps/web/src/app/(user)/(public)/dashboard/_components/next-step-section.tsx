@@ -15,7 +15,10 @@ import type {
 
 import { practiceListHref } from "../../practice/_lib/practice-web-routes";
 
-import { journeyStepHref, journeyStepTitle } from "../../_lib/journey-step";
+import {
+  journeyStepHref,
+  journeyStepTitle,
+} from "@mahjong-scoring/features/journey/journey-step";
 import { RankHeading } from "../../dojo/_components/rank-heading";
 import { RankStageProgress } from "../../dojo/_components/rank-stage-progress";
 
@@ -36,7 +39,7 @@ interface StepPresentation {
 /**
  * 一歩の種類ごとに、行き先とボタンの文言を組む
  *
- * 対象の名前と行き先はレッスンの完了画面と共有する（`_lib/journey-step`）。
+ * 対象の名前と行き先はレッスンの完了画面と共有する（features の `journey/journey-step`）。
  */
 function presentStep(
   step: JourneyStep,

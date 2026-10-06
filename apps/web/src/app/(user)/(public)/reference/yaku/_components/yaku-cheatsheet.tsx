@@ -7,7 +7,7 @@ import {
   isKuisagariEntry,
 } from "@mahjong-scoring/core";
 import type { YakuHanEntry } from "@mahjong-scoring/core";
-import { yakuHanLabel } from "@/app/_lib/yaku-han-label";
+import { yakuHanLabel } from "@mahjong-scoring/features/yaku/yaku-han-label";
 import { AccordionCard } from "@/app/(user)/_components/accordion-card";
 import { SectionTitle } from "@/app/(user)/_components/section-title";
 import { YAKU_EXAMPLES, hasYakuCheatsheetEntry } from "../_lib/yaku-examples";

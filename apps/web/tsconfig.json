@@ -19,7 +19,12 @@
       }
     ],
     "paths": {
-      "@/*": ["./src/*"]
+      "@/*": ["./src/*"],
+      // 牌画像ライブラリの型が import する react-native を、実行時（next.config.ts /
+      // vitest.config.ts の alias）と同じ web 用 shim に向ける。ワークスペースに
+      // モバイル（Expo）が入ると本物の react-native が解決でき、その型の global
+      // 宣言（FormData 等）が DOM の型を上書きしてしまう
+      "react-native": ["./src/shims/react-native.ts"]
     }
   },
   "include": [

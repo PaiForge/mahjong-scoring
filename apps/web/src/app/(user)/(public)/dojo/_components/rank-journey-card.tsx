@@ -11,10 +11,9 @@ import {
   getChapterI18nPath,
 } from "@mahjong-scoring/features/curriculum/registry";
 import type { RankJourney } from "@mahjong-scoring/features/journey/journey";
-import { practiceTitleKey } from "@mahjong-scoring/features/practice/catalog";
 import { chapterHref, practiceHref } from "@mahjong-scoring/features/routes";
 
-import { practiceVariantLabel } from "../../_lib/practice-variant-label";
+import { practiceDisplayTitle } from "@mahjong-scoring/features/practice/practice-variant-label";
 import { DOJO_TOUR_ID } from "../_lib/tour-ids";
 import { RankHeading } from "./rank-heading";
 import { RankStageProgress } from "./rank-stage-progress";
@@ -136,8 +135,7 @@ export async function RankJourneyCard({
               </h4>
               <LinkRowList>
                 {practices.map((item) => {
-                  const title = tAll(`practice.${practiceTitleKey(item.slug)}`);
-                  const variantLabel = practiceVariantLabel(
+                  const title = practiceDisplayTitle(
                     tAll,
                     item.slug,
                     item.variant,
@@ -146,9 +144,7 @@ export async function RankJourneyCard({
                     <LinkRow
                       key={`${item.slug}:${item.variant ?? ""}`}
                       href={practiceHref(item.slug, item.variant)}
-                      title={
-                        variantLabel ? `${title}（${variantLabel}）` : title
-                      }
+                      title={title}
                       trailing={
                         item.done ? (
                           <DoneMark label={t("practiceDone")} />

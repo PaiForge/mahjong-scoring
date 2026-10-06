@@ -4,20 +4,7 @@ import { SkeletonBar } from "@/app/_components/skeleton-bar";
 import { InfinityIcon } from "@/app/(user)/_components/icons/infinity-icon";
 import { PlayIcon } from "@/app/(user)/_components/icons/play-icon";
 import { LinkButton } from "@/app/(user)/_components/link-button";
-
-/** 開始導線に表示する文言 */
-export interface PracticeStartCtaLabels {
-  /** チャレンジ開始ボタン（challenge.startButton） */
-  readonly challenge: string;
-  /** チャレンジの補足（practice.modeChallengeHint） */
-  readonly challengeHint: string;
-  /** トレーニング開始ボタン（training.startButton） */
-  readonly training: string;
-  /** トレーニングの補足（practice.modeTrainingHint） */
-  readonly trainingHint: string;
-  /** 2つの導線の区切り（practice.orDivider） */
-  readonly orDivider: string;
-}
+import type { PracticeStartCtaLabels } from "@mahjong-scoring/features/practice/start-cta-labels";
 
 interface PracticeStartCtaProps {
   /** チャレンジ開始のリンク先 */

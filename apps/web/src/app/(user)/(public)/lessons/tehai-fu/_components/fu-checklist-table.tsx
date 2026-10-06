@@ -4,22 +4,7 @@ import {
   DataTable,
   DataTableHeaderCell,
 } from "@/app/(user)/_components/data-table";
-
-/**
- * 符が付く場所
- *
- * 和了の状況だけで決まる符（副底・門前ロンの加符・ツモ符）を先に置き、
- * 手牌を見て数える符（待ち・雀頭・面子）を後に置く。数える順番そのものは
- * 読者に委ねているので、この並びは覚える順の目安でしかない。
- */
-const CHECKLIST_ROWS = [
-  "futei",
-  "menzenRon",
-  "tsumo",
-  "machi",
-  "jantou",
-  "mentsu",
-] as const;
+import { FU_CHECKLIST_ROWS } from "@mahjong-scoring/features/curriculum/fu-checklist-rows";
 
 /**
  * 符を数える場所のチェックリスト
@@ -45,7 +30,7 @@ export async function FuChecklistTable() {
         </>
       }
     >
-      {CHECKLIST_ROWS.map((key) => (
+      {FU_CHECKLIST_ROWS.map((key) => (
         <tr key={key} className="bg-white">
           <td className="px-4 py-3">
             <span className="font-medium text-surface-900">

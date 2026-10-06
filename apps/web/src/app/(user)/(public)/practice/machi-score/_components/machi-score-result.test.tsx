@@ -18,7 +18,7 @@ import {
   cellKeyOf,
   listCellRefs,
   type MachiCellRef,
-} from "../_hooks/use-machi-score-store";
+} from "@mahjong-scoring/features/practice/machi-score/cell-ref";
 import { correctCellAnswerOf } from "@mahjong-scoring/features/practice/machi-score/format-cell-answer";
 
 vi.mock("next-intl", async () => await import("@/test/intl-mock"));

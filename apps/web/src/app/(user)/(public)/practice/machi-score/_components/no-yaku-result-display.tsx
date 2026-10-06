@@ -9,7 +9,10 @@ import type {
 import { allowsDoubleYakuman } from "@mahjong-scoring/core";
 import { useYakumanRules } from "@/app/_hooks/use-rule-settings-store";
 import { JudgementMark } from "../../_components/judgement-mark";
-import { practiceHanTier } from "@mahjong-scoring/features/practice/score/han-tiers";
+import {
+  formatHan,
+  formatPayment,
+} from "@mahjong-scoring/features/practice/score/format-answer";
 import {
   ResultTableFrame,
   ResultUnansweredCell,
@@ -82,18 +85,10 @@ export function NoYakuResultDisplay({
   const noYakuResult =
     userAnswer?.kind === "noYaku" && result !== undefined ? result : undefined;
 
-  const hanDisplay = (han: number) => {
-    const tier = simplifyMangan
-      ? practiceHanTier(han, allowDoubleYakuman)
-      : undefined;
-    return tier
-      ? tScore(`form.options.${tier.key}`)
-      : `${han}${tScore("form.options.hanSuffix")}`;
-  };
+  const hanDisplay = (han: number) =>
+    formatHan(han, { t: tScore, simplifyMangan, allowDoubleYakuman });
   const paymentDisplay = (answer: UserAnswer) =>
-    answer.scoreFromKo !== undefined
-      ? `${answer.scoreFromKo}/${answer.scoreFromOya}`
-      : `${answer.score}${tScore("result.pointSuffix")}`;
+    formatPayment(answer, false, { t: tScore });
 
   const labelCell = (label: string) => (
     <td className="whitespace-nowrap py-2 pr-4 align-top text-surface-600">

@@ -4,11 +4,13 @@ import type { ReactNode } from "react";
 import { useTranslations } from "next-intl";
 import type { ScoreTableAnswer } from "@mahjong-scoring/core";
 import { useFuHanOrder } from "@/app/_hooks/use-display-settings-store";
-import { orderFuHan } from "@mahjong-scoring/features/settings/fu-han-order";
 import { QuestionDisplay } from "../score/_components/question-display";
 import type { ScoreQuestionResult } from "@mahjong-scoring/features/results/score-question-result";
-import { restoreScoreQuestion } from "@mahjong-scoring/features/results/score-question-result";
-import { buildYakumanCapNote } from "../_lib/yakuman-cap-note";
+import {
+  restoreScoreQuestion,
+  scoreResultSummary,
+} from "@mahjong-scoring/features/results/score-question-result";
+import { buildYakumanCapNote } from "@mahjong-scoring/features/results/yakuman-cap-note";
 import { AnswerComparison } from "./answer-comparison";
 import { ProblemListAccordion } from "./problem-list-accordion";
 import { TehaiMentsuBreakdown } from "./tehai-mentsu-breakdown";
@@ -62,22 +64,7 @@ export function ScoreProblemList({
       results={results}
       translationNamespace={translationNamespace}
       outcome={(r) => r.outcome}
-      renderSummary={(result) => {
-        // 符と翻の順は表示設定に従う（出題文の ScoreTablePrompt と同じ）。
-        // 満貫以上の問題は符を持たないため、orderFuHan が符を省く
-        const summary = [
-          result.isOya ? t("oya") : t("ko"),
-          result.isTsumo ? t("tsumo") : t("ron"),
-          ...orderFuHan(fuHanOrder, {
-            fu:
-              result.fu === undefined
-                ? undefined
-                : t("fu", { count: result.fu }),
-            han: t("han", { count: result.han }),
-          }),
-        ].join("・");
-        return summary;
-      }}
+      renderSummary={(result) => scoreResultSummary(result, t, fuHanOrder)}
       renderDetail={(result) => {
         const question = restoreScoreQuestion(result.question, result.isTsumo);
 

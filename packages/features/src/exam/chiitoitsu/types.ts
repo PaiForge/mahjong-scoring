@@ -3,6 +3,7 @@ import {
   PRACTICE_SLUG,
   resultStorageKeyFor,
 } from "@mahjong-scoring/features/practice-menu-types";
+import type { ScoreExamBoardConfig } from "../score-exam-board-config";
 
 export type { ScoreQuestionResult as ChiitoitsuExamQuestionResult } from "@mahjong-scoring/features/results/score-question-result";
 export { parseQuestionResults } from "@mahjong-scoring/features/results/score-question-result";
@@ -44,3 +45,15 @@ export const EXAM_GENERATE_OPTIONS = {
   requiredYaku: ["七対子"],
   allowedRanges: ["nonMangan"],
 } as const satisfies QuestionGeneratorOptions;
+
+/**
+ * 昇級試験（七対子の点数計算）の出題盤面の設定
+ * 昇級試験盤面設定
+ *
+ * 本番と模試、web とモバイルで同じ出題盤面を組み立てるための値。
+ */
+export const EXAM_BOARD_CONFIG: ScoreExamBoardConfig = {
+  translationNamespace: "chiitoitsuExamChallenge",
+  generateOptions: EXAM_GENERATE_OPTIONS,
+  scoreRange: "nonMangan",
+};

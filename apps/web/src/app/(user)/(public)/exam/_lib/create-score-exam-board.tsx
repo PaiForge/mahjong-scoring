@@ -9,34 +9,15 @@ import { TehaiMentsuBreakdown } from "@/app/(user)/(public)/practice/_components
 import { YakuBreakdown } from "@/app/(user)/(public)/practice/_components/yaku-breakdown";
 import { RevealedScoreAnswer } from "@/app/(user)/(public)/practice/_components/revealed-score-answer";
 import { scoreTableFocusOf } from "@/app/(user)/(public)/practice/_lib/score-table-focus";
-import { useScoreQuestionBoard } from "@/app/(user)/(public)/practice/_hooks/use-score-question-board";
-import type { UseScoreQuestionBoardParams } from "@/app/(user)/(public)/practice/_hooks/use-score-question-board";
-import { useTrainingAnswerVisibility } from "@/app/(user)/(public)/practice/_hooks/use-training-mode";
+import { useScoreQuestionBoard } from "@mahjong-scoring/features/practice/use-score-question-board";
+import { useTrainingAnswerVisibility } from "@mahjong-scoring/features/practice/use-training-mode";
 import { paymentToScoreTableAnswer } from "@mahjong-scoring/features/results/payment-adapter";
-import type { RecordingPracticeBoardProps } from "@/app/(user)/(public)/practice/_lib/practice-board-props";
+import type { RecordingPracticeBoardProps } from "@mahjong-scoring/features/practice/board-props";
 import type { ScoreQuestionResult } from "@mahjong-scoring/features/results/score-question-result";
-import { buildYakumanCapNote } from "@/app/(user)/(public)/practice/_lib/yakuman-cap-note";
+import { buildYakumanCapNote } from "@mahjong-scoring/features/results/yakuman-cap-note";
 import { QuestionDisplay } from "@/app/(user)/(public)/practice/score/_components/question-display";
-import type { ScoreOptionRange } from "@mahjong-scoring/features/practice/score/get-available-scores";
+import type { ScoreExamBoardConfig } from "@mahjong-scoring/features/exam/score-exam-board-config";
 import { ScoreExamAnswerForm } from "../_components/score-exam-answer-form";
-
-interface CreateScoreExamBoardConfig {
-  /** i18n の翻訳ネームスペース（例: "manganExamChallenge"） */
-  readonly translationNamespace: string;
-  /** 出題条件（各級の `_lib/types.ts` の `EXAM_GENERATE_OPTIONS`） */
-  readonly generateOptions: UseScoreQuestionBoardParams["generateOptions"];
-  /**
-   * 回答の選択肢を固定する範囲。`generateOptions.allowedRanges` と揃えること
-   * （揃っていないと正解が選択肢に無い問題が出る）。点数帯を絞らない出題は
-   * `"all"` を渡す。
-   */
-  readonly scoreRange: ScoreOptionRange;
-  /**
-   * 生成の最大試行回数。成立率が低い出題条件（平和・満貫以上）だけが上書きする。
-   * 省略時は `useScoreQuestionBoard` の既定値。
-   */
-  readonly maxRetries?: number;
-}
 
 /**
  * 昇級試験（点数計算）の出題盤面を生成するファクトリー関数
@@ -85,7 +66,7 @@ interface CreateScoreExamBoardConfig {
  * 含めて import を検査する。
  */
 export function createScoreExamBoard(
-  config: CreateScoreExamBoardConfig,
+  config: ScoreExamBoardConfig,
 ): ComponentType<RecordingPracticeBoardProps<ScoreQuestionResult>> {
   const { translationNamespace, generateOptions, scoreRange, maxRetries } =
     config;

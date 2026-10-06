@@ -1,7 +1,7 @@
 import { HaiKind } from "@mahjong-scoring/core";
 import { describe, expect, it } from "vitest";
 
-import { resolveDoraTiles } from "./dora-display";
+import { resolveBoardDora, resolveDoraTiles } from "./dora-display";
 
 describe("resolveDoraTiles", () => {
   const markers = [HaiKind.ManZu9, HaiKind.Pei, HaiKind.Chun];
@@ -21,5 +21,25 @@ describe("resolveDoraTiles", () => {
   it("空配列はどちらのモードでも空", () => {
     expect(resolveDoraTiles([], "indicator")).toEqual([]);
     expect(resolveDoraTiles([], "actual")).toEqual([]);
+  });
+});
+
+describe("resolveBoardDora", () => {
+  const context = {
+    doraMarkers: [HaiKind.ManZu9],
+    uraDoraMarkers: [HaiKind.Pei],
+  };
+
+  it("リーチしていれば裏ドラも表示モードどおりに引く", () => {
+    expect(resolveBoardDora({ ...context, isRiichi: true }, "actual")).toEqual({
+      doraTiles: [HaiKind.ManZu1],
+      uraDoraTiles: [HaiKind.Ton],
+    });
+  });
+
+  it("リーチしていなければ裏ドラは空", () => {
+    expect(
+      resolveBoardDora({ ...context, isRiichi: false }, "indicator"),
+    ).toEqual({ doraTiles: [HaiKind.ManZu9], uraDoraTiles: [] });
   });
 });

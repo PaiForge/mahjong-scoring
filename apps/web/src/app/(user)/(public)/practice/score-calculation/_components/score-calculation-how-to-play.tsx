@@ -1,18 +1,7 @@
 import { getTranslations } from "next-intl/server";
-import { HaiKind } from "@mahjong-scoring/core";
 import { QuestionDisplay } from "../../score/_components/question-display";
-import { buildDemoScoreQuestion } from "@mahjong-scoring/features/board/demo-score-question";
+import { SCORE_CALCULATION_DEMO_QUESTION } from "@mahjong-scoring/features/practice/score-calculation/demo-question";
 import { QuestionPrompt } from "../../_components/question-prompt";
-
-/**
- * デモ用の固定例: 平和 + 断么九 + 門前清自摸和（子・門前ツモ・両面待ち）
- * 手牌・状況から点数を読み取る出題形式を示すため、ドラは手牌に乗らない
- * 二索（表示牌は一索）にして翻数を増やさない。
- */
-export const SCORE_CALCULATION_DEMO_QUESTION = buildDemoScoreQuestion({
-  doraMarkers: [HaiKind.SouZu1],
-  isRiichi: false,
-});
 
 /**
  * 点数即答の「問題方式」ビジュアルデモ

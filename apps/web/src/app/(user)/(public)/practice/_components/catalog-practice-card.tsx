@@ -2,15 +2,14 @@ import { getTranslations } from "next-intl/server";
 
 import {
   practiceMenuFromCatalog,
-  practiceTitleKey,
   relatedChaptersForPractice,
 } from "@mahjong-scoring/features/practice/catalog";
 import type { PracticeMenuSlug } from "@mahjong-scoring/features/practice-menu-types";
 import { chapterHref, practiceHref } from "@mahjong-scoring/features/routes";
 
-import { practiceVariantLabel } from "../../_lib/practice-variant-label";
+import { practiceDisplayTitle } from "@mahjong-scoring/features/practice/practice-variant-label";
 import { practiceCardRank } from "../_lib/practice-card-rank";
-import { practiceCardVisual } from "../_lib/practice-card-visual";
+import { practiceCardVisual } from "@mahjong-scoring/features/practice/card-visual";
 import { PracticeCard } from "./practice-card";
 
 interface CatalogPracticeCardProps {
@@ -43,14 +42,13 @@ export async function CatalogPracticeCard({
     getTranslations(),
   ]);
   const firstChapter = relatedChaptersForPractice(slug)[0];
-  const title = t(practiceTitleKey(slug));
-  const variantLabel = practiceVariantLabel(tAll, slug, variant);
+  const title = practiceDisplayTitle(tAll, slug, variant);
 
   return (
     <PracticeCard
       visual={practiceCardVisual(slug, t)}
       href={practiceHref(slug, variant)}
-      title={variantLabel ? `${title}（${variantLabel}）` : title}
+      title={title}
       rank={practiceCardRank(practiceMenuFromCatalog(slug)?.rank, tRanks)}
       detailLabel={t("detail")}
       learnHref={firstChapter ? chapterHref(firstChapter) : undefined}

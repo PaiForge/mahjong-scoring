@@ -5,7 +5,7 @@
 ## 関連リポジトリ
 
 - **旧リポ**: `/Users/k0kishima/work/PaiForge/mahjong-score-drill` — 以前の実装。コードの移植元として参照する。
-- **参考プロジェクト**: `/Users/k0kishima/work/checkmate-works/blindfold-chess` — チェスアプリ。技術スタックをこのプロジェクトと同一にする。
+- **参考プロジェクト**: `/Users/k0kishima/work/checkmate-works/blindfold-chess` — チェスアプリ。技術スタック（言語・フレームワーク・主要ライブラリの選定と構成）をこのプロジェクトと同一にする。バージョンまでは揃えない — 各リポジトリはそれぞれの都合で最新に追従する
 
 ## コーディング規約
 
@@ -63,6 +63,7 @@
 
 ```
 apps/web/          — Next.js 16 (Turbopack, App Router, Tailwind CSS v4)
+apps/mobile/       — Expo SDK 57（expo-router, React Native 0.86）。web と同じ画面をネイティブで出す
 packages/core/     — 共通ドメインロジック（問題生成等）。@pai-forge/riichi-mahjong 依存
 packages/features/ — web とモバイルで共有するアプリのロジック（レジストリ・パス・セッションのフック・設定ストア）
 packages/messages/ — i18n 辞書（ICU 形式。web は next-intl、モバイルは use-intl で同じ辞書を読む）
@@ -74,13 +75,65 @@ packages/eslint-config/ — 共通 ESLint 設定（PaiForge コーディング�
 web とモバイル（Expo）で共有するロジックを置く。`exports` は `./*` のファイル単位で、
 消費側は `@mahjong-scoring/features/<path>` で必要なファイルだけを import する（バレルは作らない）。
 
-- **React と zustand に触れてよいのは `use-*.ts` だけ。** それ以外の純粋なモジュールは
+- **React・zustand・use-intl に触れてよいのは `use-*.ts` だけ。** それ以外の純粋なモジュールは
   サーバーコンポーネントからも Node のテストからも読める状態に保つ。純粋なモジュールから
   `use-*.ts` を import することも禁止。どちらも ESLint（ルートの `eslint.config.mjs`）が弾く
+- 辞書を引くフックは next-intl ではなく use-intl の `useTranslations` を使う。next-intl の
+  クライアント用 `useTranslations` は use-intl のものを包んだだけで、`NextIntlClientProvider` も
+  use-intl の Provider なので、web とモバイルの両方で同じに動く（`yaku/use-yaku-options.ts`）。
+  use-intl は web・モバイル・features で同じ版にそろえる（版が分かれると Provider のコンテキストが別物になる）
 - 設定ストアはファクトリ（`createRuleSettingsStore` 等）で、保存先とハイドレーションガードを
   アプリが渡す。web の実体は `app/_hooks/use-*-store.ts`（localStorage・`useHydrated`）
-- web 固有のもの（DOM・Next・辞書・Tailwind）は置かない。パスは両プラットフォームにある
+- web 固有のもの（DOM・Next・next-intl・Tailwind）は置かない。パスは両プラットフォームにある
   遷移先だけ `routes.ts` に置き、一覧の絞り込みやアンカーは web に残す
+
+## モバイル（apps/mobile）
+
+web と同じ画面をネイティブで出す Expo アプリ。技術スタック（Expo + expo-router）は
+参考プロジェクト（blindfold-chess の apps/mobile）に揃えている（バージョンは揃えない）。ロジックは
+packages/features / core を共有し、アプリ側は画面と RN の部品だけを持つ。
+
+**仕様は web を踏襲するが、外観まで web を写さない。** スマホアプリとして見慣れない
+形（地の斜線の帯・太枠のヘッダーとタブバー・グレー + 下線のリンク・中央の太枠の
+ダイアログ）はネイティブの定石に置き換える。残すのは面の記号（太枠・ハードシャドウ・
+押し込み・緑の塗り = 押して始める）と色の値。
+
+- 画面の枠（`components/screen.tsx`）はネイティブ標準: 白地のヘッダー（左に戻る / ×、
+  中央に見出し、右に「?」等）とヘアラインの区切り。解答中の画面（チャレンジ・
+  トレーニング・訓練）は `backIcon="close"` で「閉じる」を出し、チャレンジだけ中止の
+  確認を挟む。履歴が無いときの戻るは練習一覧へ
+- リンクは下線を引かない（`lib/link-styles.ts`）。押せる行は濃い題名 + 右端の矢印 +
+  押したときの地の色、単独の文字の操作はアクセント色の太字、本文中の語だけ下線
+- 説明・選択肢の一覧・選択欄は `BottomSheet`（下からのシート）。確認だけ中央の
+  ダイアログ（`ConfirmationModal`）
+- 一覧の絞り込みは `FilterChips`（端まで流す独立したチップ）、2〜3 択の表示切り替えは
+  `ToggleGroup`（セグメントコントロール）
+- 答え合わせは色に加えて触覚（`lib/haptics.ts`、expo-haptics）でも知らせる
+- 本文の文字は 15〜16pt（web の 14px を写さない）。辞書の改行は設定の説明では取り除く
+
+- **画面の構成は web をなぞる。** ルートは expo-router で web と同じパス（`/practice/<slug>`,
+  `/practice/<slug>/play` …）に置き、パスは `@mahjong-scoring/features/routes` で組み立てる。
+  練習ごとに違うのは盤面と結果の一覧だけで、`src/practice/boards/<slug>/index.tsx` が
+  `PracticeScreens`（Play / Training / Demo / ProblemList）を返し、`src/practice/registry.ts` に
+  1 行足すと一覧・説明・チャレンジ・トレーニング・結果のすべてに載る
+- **ログインはまだ無い。** チャレンジは結果画面で今回の成績を見せるだけで記録しない（記録・
+  ランキング・段級位はアカウントに紐づくため）。結果はメモリのストアで結果画面へ運ぶ
+  （web の sessionStorage の代わり）。設定とレッスンの完了は端末ローカル（AsyncStorage）
+- **色・角丸の値は web から写す。** `src/lib/theme.ts`（web の `globals.css` と同じ値）。
+  太枠・ハードシャドウ・押し込みは `PressableSurface`（影は面の後ろに敷いた View で描く。
+  Android の elevation は硬い影を描けない）。影を持つのは押せる面だけ（web と同じ規則）
+- **牌は `Tile` / `FuroTiles` を使う。** `@pai-forge/mahjong-react-ui` の `Hai` は `onClick` が
+  無くても常に `Pressable` で包まれ、選択肢ボタンの中に置くと牌がタップを奪う。`Furo` /
+  `HaiBack` / `Tehai` は `div` と Tailwind のクラスで描く web 専用の実装で、ネイティブでは描けない
+- **Expo SDK の推奨と違う版を 3 つ意図して使う**（`package.json` の `expo.install.exclude`）。
+  `npx expo install --fix` で戻さないこと
+  - `react` / `react-dom` — ワークスペース全体と同じ版にそろえる。packages/features も devDependency で
+    React を持ち、版が違うと pnpm が別の実体を置き、Metro が共有コードの React を別に解決して
+    React が 2 つバンドルに入る（フックが落ちる）。RN のレンダラーは React の版を厳密には検査しない
+  - `typescript` — 他のパッケージと同じ TS7。SDK 54 では Expo の CLI が TS7 で Metro まで届かず
+    5.9 に固定していたが、SDK 57 では `expo start` から iOS / Android / web のバンドルまで通る
+- **web 版（`pnpm --filter @mahjong-scoring/mobile web`）は画面確認用**
+- 辞書は web と同じもの（`@mahjong-scoring/messages`）を use-intl で読む
 
 ## i18n
 

@@ -12,7 +12,7 @@ import {
   practicePlayHref,
   practiceTrainingHref,
 } from "@mahjong-scoring/features/routes";
-import { buildPracticeStartCtaLabels } from "../_lib/practice-start-cta-labels";
+import { buildPracticeStartCtaLabels } from "@mahjong-scoring/features/practice/start-cta-labels";
 import {
   PRACTICE_SCROLL_HASH,
   PRACTICE_SETUP_ANCHOR_ID,

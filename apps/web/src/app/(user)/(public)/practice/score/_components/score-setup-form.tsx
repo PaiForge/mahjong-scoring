@@ -3,7 +3,7 @@
 import { useState, useMemo, type ReactNode } from "react";
 import { SettingCard } from "../../_components/setting-card";
 import { SettingCardSkeleton } from "../../_components/setting-card-skeleton";
-import { toggleInArray } from "../../_lib/toggle-in-array";
+import { toggleInArray } from "@mahjong-scoring/features/practice/toggle-in-array";
 import { useRouter } from "next/navigation";
 import { useTranslations } from "next-intl";
 import { SCORE_FILTERABLE_YAKU } from "@mahjong-scoring/core";
@@ -12,7 +12,7 @@ import { useScoreSettingsStore } from "../_hooks/use-score-settings-store";
 import { useScorePracticeStore } from "../_hooks/use-score-practice-store";
 import { InfoModal } from "@/app/(user)/_components/info-modal";
 import { MultiSelect } from "@/app/(user)/_components/multi-select";
-import { useYakuLabel } from "@/app/_hooks/use-yaku-options";
+import { useYakuLabel } from "@mahjong-scoring/features/yaku/use-yaku-options";
 import { yakuTokenOf, YAKU_PARAM } from "../_lib/yaku-filter-params";
 import {
   RANGE_PARAM,

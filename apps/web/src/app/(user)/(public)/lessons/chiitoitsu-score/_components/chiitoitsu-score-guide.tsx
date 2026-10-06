@@ -2,7 +2,7 @@ import { getTranslations } from "next-intl/server";
 
 import { ChapterColumn } from "../../_components/chapter-column";
 import { FixedFuScoreTable } from "../../_components/fixed-fu-score-table";
-import { CHIITOITSU_SCORE_TABLE } from "../../_lib/fixed-fu-rows";
+import { CHIITOITSU_SCORE_TABLE } from "@mahjong-scoring/features/curriculum/fixed-fu-rows";
 import { GuideParagraph } from "../../_components/guide-paragraph";
 import { GuideSection } from "../../_components/guide-section";
 

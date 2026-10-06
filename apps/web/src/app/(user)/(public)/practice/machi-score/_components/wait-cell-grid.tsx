@@ -7,9 +7,14 @@ import type {
 } from "@mahjong-scoring/core";
 import { haiIdToMspz } from "@mahjong-scoring/core";
 import { Hai } from "@pai-forge/mahjong-react-ui";
-import { cellKeyOf, type MachiCellRef } from "../_hooks/use-machi-score-store";
-import { answerKey, groupAdjacentCells, indexRuns } from "../_lib/cell-runs";
-import type { CellRun } from "../_lib/cell-runs";
+import {
+  cellKeyOf,
+  type MachiCellRef,
+} from "@mahjong-scoring/features/practice/machi-score/cell-ref";
+import {
+  buildWaitCellRuns,
+  type WaitCellRun,
+} from "@mahjong-scoring/features/practice/machi-score/wait-cell-runs";
 import { MACHI_SCORE_TOUR_ID } from "../_lib/tour-ids";
 
 interface WaitCellGridProps {
@@ -52,16 +57,6 @@ const CELL_CLASSES: Readonly<Record<CellState, string>> = {
   joinable: "border-dashed border-amber-400 bg-amber-50/40 text-surface-700",
   unanswered: "border-dashed border-surface-300 bg-surface-50 text-surface-400",
 };
-
-/**
- * 塊のグループ
- *
- * - `answering`: 選択中のマス。見た目は 1 枚だが行ごとに押せて、押した行
- *   だけ選択から外れる
- * - `answered:<回答キー>`: 未選択で回答が同じマス。1 つのボタンで、押すと
- *   塊ごと選択に入る
- */
-type RunGroup = "answering" | `answered:${string}`;
 
 /**
  * 待ち × ツモ/ロン のマスの表
@@ -110,45 +105,27 @@ export function WaitCellGrid({
   disabled = false,
 }: WaitCellGridProps) {
   const t = useTranslations("machiScore.cells");
-  const selectedKeys = new Set(selectedCells.map(cellKeyOf));
   // 選択中のマスは同じ列に限られる（ストアが保証する）ので先頭で列が決まる
   const selectedIsTsumo = selectedCells[0]?.isTsumo;
 
   // 縦に隣り合う塊。先頭のキーに塊を持たせ、先頭以外は absorbed に入れて
-  // td を描かない（rowSpan が行をまたぐ）。塊になる条件は「どちらも選択中」
-  // か「どちらも未選択の回答済みで回答が同じ」。1 マスだけのものは塊と
-  // して扱わず、単体のマスとして描く
-  const { runAt: runs, absorbed } = indexRuns(
-    groupAdjacentCells<RunGroup>(question, (cell) => {
-      const key = cellKeyOf(cell);
-      const answer = cellAnswers[key];
-      return selectedKeys.has(key)
-        ? "answering"
-        : answer
-          ? `answered:${answerKey(answer)}`
-          : undefined;
-    }).filter((run) => run.cells.length >= 2),
-  );
+  // td を描かない（rowSpan が行をまたぐ）
+  const {
+    runAt: runs,
+    absorbed,
+    selectedKeys,
+  } = buildWaitCellRuns(question, cellAnswers, selectedCells);
 
   const buttonClasses = (state: CellState) =>
     `press-sm flex h-full min-h-14 w-full items-center justify-center rounded-lg border-3 px-2 py-2 text-center text-sm font-bold leading-snug ${CELL_CLASSES[state]}`;
 
   /** 塊の文字。全マスの回答が同じならその回答、そうでなければ「まとめて回答中」 */
-  const runLabel = (run: CellRun<RunGroup>) => {
-    const [first] = run.cells;
-    const answer = cellAnswers[cellKeyOf(first)];
-    if (!answer) return t("answeringTogether");
-    const key = answerKey(answer);
-    const allSame = run.cells.every((cell) => {
-      const other = cellAnswers[cellKeyOf(cell)];
-      return other !== undefined && answerKey(other) === key;
-    });
-    return allSame
-      ? formatAnswer(answer, first.isTsumo)
+  const runLabel = (run: WaitCellRun) =>
+    run.answer
+      ? formatAnswer(run.answer, run.cells[0].isTsumo)
       : t("answeringTogether");
-  };
 
-  const renderRun = (key: string, run: CellRun<RunGroup>) => {
+  const renderRun = (key: string, run: WaitCellRun) => {
     const label = runLabel(run);
     if (run.group !== "answering") {
       return (

@@ -1,4 +1,5 @@
-import { HaiKind } from "@mahjong-scoring/core";
+import { EXAM_BOARD_CONFIG } from "@mahjong-scoring/features/exam/mangan/types";
+import { MANGAN_EXAM_DEMO_OPTIONS } from "@mahjong-scoring/features/exam/mangan/demo-question";
 import { createScoreExamHowToPlay } from "../../_lib/create-exam-how-to-play";
 import type { ScoreExamHowToPlayConfig } from "../../_lib/create-exam-how-to-play";
 
@@ -6,18 +7,12 @@ import type { ScoreExamHowToPlayConfig } from "../../_lib/create-exam-how-to-pla
  * 昇級試験（満貫以上の点数計算）の「問題方式」ビジュアルデモ
  * 昇級試験 遊び方デモ
  *
- * 実際の出題盤面（手牌・状況のみ。役一覧なし）を静的に再現し、
- * 「翻数は自分で数える」出題形式を端的に示す。
- *
- * 固定例は立直 + 門前清自摸和 + 断么九 + 平和 + ドラ1 = 5翻（満貫）。
- * 満貫以上の点数計算と同じ手牌を使う。裏ドラ表示牌は出題と同じくリーチの手なので
- * 添えるが、手牌に乗らない一筒（表示牌は九筒）にして翻数を変えない。
+ * 牌姿と表示牌（とその選び方の理由）はモバイルと共有する
+ * `MANGAN_EXAM_DEMO_OPTIONS` が持つ。ここは翻訳名前空間を束ねるだけ。
  */
 export const MANGAN_EXAM_DEMO = {
-  translationNamespace: "manganExamChallenge",
-  doraMarkers: [HaiKind.ManZu1],
-  uraDoraMarkers: [HaiKind.PinZu9],
-  isRiichi: true,
+  translationNamespace: EXAM_BOARD_CONFIG.translationNamespace,
+  ...MANGAN_EXAM_DEMO_OPTIONS,
 } satisfies ScoreExamHowToPlayConfig;
 
 export const ManganExamHowToPlay = createScoreExamHowToPlay(MANGAN_EXAM_DEMO);

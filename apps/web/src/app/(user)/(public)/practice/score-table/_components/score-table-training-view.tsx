@@ -1,18 +1,19 @@
 "use client";
 
-import { Suspense, useCallback, useMemo, useState } from "react";
+import { Suspense } from "react";
 import { useTranslations } from "next-intl";
 import { useTrainingSession } from "../../_hooks/use-training-session";
-import { TrainingModeProvider } from "../../_hooks/use-training-mode";
+import { TrainingModeProvider } from "@mahjong-scoring/features/practice/use-training-mode";
 import { TrainingShell } from "../../_components/training-shell";
 import { ScoreTableBoard } from "./score-table-board";
 import { ScoreTableGeneratingPlaceholder } from "./score-table-generating-placeholder";
 import { useScoreTableGeneratorOptions } from "../_hooks/use-score-table-generator-options";
-import { useScoreTableQuestion } from "../_hooks/use-score-table-question";
+import { useScoreTableQuestion } from "@mahjong-scoring/features/practice/score-table/use-score-table-question";
 import {
   PRACTICE_SLUG,
   practiceMenuBySlug,
 } from "@mahjong-scoring/features/practice-menu-types";
+import { useTrainingModeBridge } from "@mahjong-scoring/features/practice/use-training-mode-bridge";
 
 /** チャレンジ導線の補足文に出すルール（制限時間・ミス上限。本体とフォールバックで共有） */
 const { timeLimit, mistakeLimit } = practiceMenuBySlug(
@@ -30,6 +31,7 @@ const CHALLENGE_RULES = { timeLimit, mistakeLimit };
  */
 function ScoreTableTrainingViewInner() {
   const t = useTranslations("scoreTableChallenge");
+  const session = useTrainingSession();
   const {
     correctCount,
     totalCount,
@@ -38,24 +40,14 @@ function ScoreTableTrainingViewInner() {
     isRevealed,
     isHolding,
     handleAnswer,
-    reveal,
     proceed,
-  } = useTrainingSession();
+  } = session;
   const generatorOptions = useScoreTableGeneratorOptions(true);
   const { question, advance } = useScoreTableQuestion(generatorOptions);
 
   // 盤面から登録される「次へ進む」操作（ファクトリ版と同じ配線）
-  const [registeredAdvance, setRegisteredAdvance] = useState<
-    (() => void) | undefined
-  >(undefined);
-  const registerAdvance = useCallback(
-    (next: (() => void) | undefined) => setRegisteredAdvance(() => next),
-    [],
-  );
-  const trainingMode = useMemo(
-    () => ({ isRevealed, isHolding, registerAdvance }),
-    [isRevealed, isHolding, registerAdvance],
-  );
+  const { trainingMode, reveal, revealDisabled } =
+    useTrainingModeBridge(session);
 
   return (
     <TrainingShell
@@ -64,10 +56,8 @@ function ScoreTableTrainingViewInner() {
       correctCount={correctCount}
       totalCount={totalCount}
       challengeRules={CHALLENGE_RULES}
-      onReveal={() => {
-        if (registeredAdvance) reveal(registeredAdvance);
-      }}
-      revealDisabled={showFeedback || registeredAdvance === undefined}
+      onReveal={reveal}
+      revealDisabled={revealDisabled}
       isRevealed={isRevealed}
       isHolding={isHolding}
       onProceed={proceed}

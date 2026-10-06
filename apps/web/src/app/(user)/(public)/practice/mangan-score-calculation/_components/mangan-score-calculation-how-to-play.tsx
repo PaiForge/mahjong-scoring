@@ -1,28 +1,8 @@
 import { getTranslations } from "next-intl/server";
-import { HaiKind } from "@mahjong-scoring/core";
 import { QuestionDisplay } from "../../score/_components/question-display";
-import { buildDemoScoreQuestion } from "@mahjong-scoring/features/board/demo-score-question";
+import { MANGAN_SCORE_CALCULATION_DEMO_QUESTION } from "@mahjong-scoring/features/practice/mangan-score-calculation/demo-question";
 import { QuestionPrompt } from "../../_components/question-prompt";
 import { YakuListDisplay } from "./yaku-list-display";
-
-/**
- * デモ用の固定例: 立直 + 門前清自摸和 + 断么九 + 平和 + ドラ1 = 5翻（満貫）
- * 役と翻数が提示され、そこから点数を導く出題形式を示すため、ドラは手牌に乗る
- * 二萬（表示牌は一萬）にして5翻に届かせる。裏ドラ表示牌は出題と同じくリーチの
- * 手なので添えるが、手牌に乗らない一筒（表示牌は九筒）にして翻数を変えない。
- */
-export const MANGAN_SCORE_CALCULATION_DEMO_QUESTION = buildDemoScoreQuestion({
-  doraMarkers: [HaiKind.ManZu1],
-  uraDoraMarkers: [HaiKind.PinZu9],
-  isRiichi: true,
-  yakuDetails: [
-    { name: "立直", han: 1 },
-    { name: "門前清自摸和", han: 1 },
-    { name: "断么九", han: 1 },
-    { name: "平和", han: 1 },
-    { name: "ドラ", han: 1 },
-  ],
-});
 
 /**
  * 満貫以上の点数計算の「問題方式」ビジュアルデモ

@@ -1,6 +1,6 @@
 import { messages } from "@mahjong-scoring/messages/ja";
 
-import { collectTermSlugs } from "./term-markup";
+import { collectTermSlugs } from "@mahjong-scoring/features/glossary/term-markup";
 
 /**
  * 辞書のノードが子を持つか（オブジェクトか配列か）を判定する。

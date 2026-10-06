@@ -4,7 +4,7 @@ import {
   YAKU_HAN_ENTRIES,
   groupYakuHanEntriesByMenzenHan,
 } from "@mahjong-scoring/core";
-import { yakuHanLabel } from "@/app/_lib/yaku-han-label";
+import { yakuHanLabel } from "@mahjong-scoring/features/yaku/yaku-han-label";
 import {
   DataTable,
   DataTableHeaderCell,

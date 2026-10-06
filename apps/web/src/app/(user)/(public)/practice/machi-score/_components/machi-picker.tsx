@@ -2,7 +2,7 @@
 
 import { memo } from "react";
 import { useTranslations } from "next-intl";
-import { HaiKind, haiIdToMspz } from "@mahjong-scoring/core";
+import { haiIdToMspz } from "@mahjong-scoring/core";
 import type { HaiKindId, MachiSelectionJudgement } from "@mahjong-scoring/core";
 import { Hai } from "@pai-forge/mahjong-react-ui";
 import {
@@ -10,29 +10,7 @@ import {
   machiTileMark,
   type MachiTileMark,
 } from "@mahjong-scoring/features/practice/machi-score/machi-tile-mark";
-
-/**
- * 牌種を種類ごとに並べた選択肢の行
- * 牌の行
- *
- * 数牌は 1〜9、字牌は東南西北白發中の順。牌種 ID は種類ごとに連番なので
- * 先頭の ID から 9 つ（字牌は 7 つ）を並べる。
- */
-const TILE_ROWS = [
-  { key: "manzu", from: HaiKind.ManZu1, count: 9 },
-  { key: "pinzu", from: HaiKind.PinZu1, count: 9 },
-  { key: "souzu", from: HaiKind.SouZu1, count: 9 },
-  { key: "jihai", from: HaiKind.Ton, count: 7 },
-] as const;
-
-/** 行の牌種 ID を列挙する（ID は連番なので加算で足りる） */
-function tilesOf(row: (typeof TILE_ROWS)[number]): readonly HaiKindId[] {
-  const tiles: HaiKindId[] = [];
-  for (const id of Object.values(HaiKind)) {
-    if (id >= row.from && id < row.from + row.count) tiles.push(id);
-  }
-  return tiles;
-}
+import { MACHI_PICKER_ROWS } from "@mahjong-scoring/features/practice/machi-score/picker-rows";
 
 /**
  * 牌の枠と背景。押せる面なので太枠 + 押し込み演出（ChoiceButton と同じ語彙）。
@@ -83,14 +61,14 @@ export const MachiPicker = memo(function MachiPickerComponent({
 
   return (
     <div className="space-y-2">
-      {TILE_ROWS.map((row) => (
+      {MACHI_PICKER_ROWS.map((row) => (
         <div
           key={row.key}
           role="group"
           aria-label={t(`suits.${row.key}`)}
           className="grid grid-cols-9 gap-1 sm:gap-2"
         >
-          {tilesOf(row).map((hai) => {
+          {row.tiles.map((hai) => {
             const isSelected = selected.includes(hai);
             const mark = machiTileMark(hai, isSelected, judgement);
             return (

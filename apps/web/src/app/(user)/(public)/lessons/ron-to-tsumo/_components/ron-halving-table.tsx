@@ -5,7 +5,7 @@ import { TsumoScore } from "@/app/(user)/(public)/reference/score-table/_compone
 
 import { HanRowsTable } from "../../_components/han-rows-table";
 
-import { buildRonHalvingRows } from "../_lib/ron-halving-rows";
+import { buildRonHalvingRows } from "@mahjong-scoring/features/curriculum/ron-halving-rows";
 
 interface RonHalvingTableProps {
   /** 対象の符。ロンとツモが両方ある符を渡すこと（20符には行が無い） */

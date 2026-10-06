@@ -6,7 +6,7 @@ import { PRACTICE_SLUG } from "@mahjong-scoring/features/practice-menu-types";
 import type { PracticeVariantOf } from "@mahjong-scoring/features/practice-menu-types";
 import type { ScoreTableGeneratorOptions } from "@mahjong-scoring/core";
 import { useVariantQuery } from "../../_hooks/use-variant-query";
-import { SCORE_TABLE_VARIANT_OPTIONS } from "@mahjong-scoring/features/practice/score-table/variants";
+import { scoreTableGeneratorOptions } from "@mahjong-scoring/features/practice/score-table/variants";
 
 /**
  * URL クエリから点数表早引きのバリアントを読むフック
@@ -28,7 +28,7 @@ export function useScoreTableVariant(): PracticeVariantOf<"score-table"> {
  * ローカルルール設定（切り上げ満貫）も出題オプションへ反映する。
  *
  * チャレンジ（`isTraining` が false）では、切り上げ満貫の採否で正解が割れる
- * セル（60符3翻）を出題から落とす（理由は `_lib/rule-boundary.ts`）。
+ * セル（60符3翻）を出題から落とす（`scoreTableGeneratorOptions`）。
  */
 export function useScoreTableGeneratorOptions(
   isTraining: boolean,
@@ -36,11 +36,7 @@ export function useScoreTableGeneratorOptions(
   const variant = useScoreTableVariant();
   const kiriageMangan = useRuleSettingsStore((s) => s.kiriageMangan);
   return useMemo(
-    () => ({
-      ...SCORE_TABLE_VARIANT_OPTIONS[variant],
-      kiriageMangan,
-      excludeKiriageBoundary: !isTraining,
-    }),
+    () => scoreTableGeneratorOptions(variant, { kiriageMangan, isTraining }),
     [variant, kiriageMangan, isTraining],
   );
 }

@@ -1,10 +1,7 @@
 "use client";
 
+import { EXAM_BOARD_CONFIG } from "@mahjong-scoring/features/exam/pinfu/types";
 import { createScoreExamBoard } from "../../_lib/create-score-exam-board";
-import {
-  EXAM_GENERATE_OPTIONS,
-  EXAM_GENERATION_MAX_RETRIES,
-} from "@mahjong-scoring/features/exam/pinfu/types";
 
 /**
  * 昇級試験（平和の点数計算）の出題盤面（手牌の提示と点数の回答）
@@ -18,9 +15,4 @@ import {
  * 平和は1回の試行あたりの成立率が低いため、生成予算を既定より大きく取る
  * （`EXAM_GENERATION_MAX_RETRIES` 参照）。
  */
-export const PinfuExamBoard = createScoreExamBoard({
-  translationNamespace: "pinfuExamChallenge",
-  generateOptions: EXAM_GENERATE_OPTIONS,
-  scoreRange: "nonMangan",
-  maxRetries: EXAM_GENERATION_MAX_RETRIES,
-});
+export const PinfuExamBoard = createScoreExamBoard(EXAM_BOARD_CONFIG);

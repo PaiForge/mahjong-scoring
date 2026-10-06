@@ -11,13 +11,13 @@ import { ScoreChallengeAnswerForm } from "./score-challenge-answer-form";
 import {
   useScoreQuestionBoard,
   type UseScoreQuestionBoardParams,
-} from "../_hooks/use-score-question-board";
-import { useTrainingAnswerVisibility } from "../_hooks/use-training-mode";
+} from "@mahjong-scoring/features/practice/use-score-question-board";
+import { useTrainingAnswerVisibility } from "@mahjong-scoring/features/practice/use-training-mode";
 import { QuestionDisplay } from "../score/_components/question-display";
 import type { ScoreOptionRange } from "@mahjong-scoring/features/practice/score/get-available-scores";
 import type { PlayBoardHeight } from "../_lib/board-area-height";
 import type { ScoreQuestionResult } from "@mahjong-scoring/features/results/score-question-result";
-import type { RecordingPracticeBoardProps } from "../_lib/practice-board-props";
+import type { RecordingPracticeBoardProps } from "@mahjong-scoring/features/practice/board-props";
 
 interface ScoreCalculationQuestionBoardProps extends RecordingPracticeBoardProps<ScoreQuestionResult> {
   /** 出題オプション（再生成のたびに使用するため安定参照を渡すこと） */

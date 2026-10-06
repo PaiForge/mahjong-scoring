@@ -1,24 +1,16 @@
 "use client";
 
 import { memo } from "react";
+import {
+  formatTimerClock,
+  timerColorOf,
+} from "@mahjong-scoring/features/session/timer-display";
 
 interface QuizTimerProps {
   timeRemaining: number;
   progress: number;
   size?: number;
   strokeWidth?: number;
-}
-
-function formatTime(seconds: number): string {
-  const minutes = Math.floor(seconds / 60);
-  const remainingSeconds = seconds % 60;
-  return `${minutes}:${remainingSeconds.toString().padStart(2, "0")}`;
-}
-
-function getColor(progress: number): string {
-  if (progress >= 0.8) return "#ef4444";
-  if (progress >= 0.6) return "#f59e0b";
-  return "#22c55e";
 }
 
 export const QuizTimer = memo(function QuizTimerComponent({
@@ -30,7 +22,7 @@ export const QuizTimer = memo(function QuizTimerComponent({
   const radius = (size - strokeWidth) / 2;
   const circumference = 2 * Math.PI * radius;
   const strokeDashoffset = circumference * (1 - progress);
-  const color = getColor(progress);
+  const color = timerColorOf(progress);
 
   return (
     <div
@@ -64,7 +56,7 @@ export const QuizTimer = memo(function QuizTimerComponent({
         />
       </svg>
       <span className="relative z-10 text-xs font-bold" style={{ color }}>
-        {formatTime(timeRemaining)}
+        {formatTimerClock(timeRemaining)}
       </span>
     </div>
   );
