@@ -1,10 +1,8 @@
-import type { User } from "@supabase/supabase-js";
-import type { SupabaseServerClient } from "./supabase/server";
 import type { NextResponse } from "next/server";
 
 import { jsonPrivate } from "./api-response";
 
-import { isUserBanned } from "./ban";
+import { authenticateAndCheckBan, type AuthUser } from "./auth";
 import { isValidOrigin } from "./csrf";
 import { getClientIp } from "./client-ip";
 import {
@@ -12,14 +10,9 @@ import {
   checkIpRateLimitGuard,
   type IpRateLimitConfig,
 } from "./rate-limit-ip";
-import { createClient } from "./supabase/server";
 
 type AuthorizeResult =
-  | {
-      readonly ok: true;
-      readonly user: User;
-      readonly supabase: SupabaseServerClient;
-    }
+  | { readonly ok: true; readonly user: AuthUser }
   | { readonly ok: false; readonly response: NextResponse };
 
 /**
@@ -28,19 +21,22 @@ type AuthorizeResult =
  *
  * Origin 不一致は 403、レートリミット超過は 429、未認証は 401、BAN 済みは 403 の
  * `NextResponse` を `{ ok: false, response }` として返す。
- * 成功時は `{ ok: true, user, supabase }`。
+ * 成功時は `{ ok: true, user }`。
  *
  * Origin 検証を最初に置くのは、Server Action と違い Route Handler には
  * CSRF 防御が無いため（{@link isValidOrigin}）。他サイトのフォームから
  * 認証 cookie 込みで叩かれる経路をここで塞ぐ。
  *
  * BAN チェックはページガードと同じ方針。Route Handler は画面を経由せず
- * 直接叩けるため、ここでも弾く。
+ * 直接叩けるため、ここでも弾く。認証と BAN の判定は Server Action と同じ
+ * {@link authenticateAndCheckBan} に任せる — `getOptionalVerifiedUser` の
+ * `cache()` を共有するので、続けて `requireAdmin()` 等を呼んでも認証サーバーへの
+ * 問い合わせは 1 回で済む。
  *
  * @example
  * const auth = await authorizeApiRequest(request, "deleteAccount");
  * if (!auth.ok) return auth.response;
- * const { user, supabase } = auth;
+ * const { user } = auth;
  *
  * @param request - 検証対象のリクエスト（Origin ヘッダを見る）
  * @param rateLimitKey - レートリミットのアクションキー（`IP_RATE_LIMITS` のキー）
@@ -70,24 +66,16 @@ export async function authorizeApiRequest(
     };
   }
 
-  const supabase = await createClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
-
-  if (!user) {
+  const gate = await authenticateAndCheckBan();
+  if ("error" in gate) {
     return {
       ok: false,
-      response: jsonPrivate({ error: "unauthorized" }, { status: 401 }),
+      response: jsonPrivate(
+        { error: gate.error },
+        { status: gate.error === "unauthorized" ? 401 : 403 },
+      ),
     };
   }
 
-  if (await isUserBanned(user.id)) {
-    return {
-      ok: false,
-      response: jsonPrivate({ error: "banned" }, { status: 403 }),
-    };
-  }
-
-  return { ok: true, user, supabase };
+  return { ok: true, user: gate.user };
 }
