@@ -22,7 +22,7 @@ export function PageTitleSkeleton({ width = "w-48" }: PageTitleSkeletonProps) {
     <SkeletonBar
       as="span"
       tone={300}
-      className={`inline-block h-7 ${width} align-middle`}
+      className={`inline-block h-[1em] ${width} align-middle`}
     />
   );
 }

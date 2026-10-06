@@ -15,7 +15,7 @@ import { PageTitleSkeleton } from "@/app/_components/page-title-skeleton";
  * 「?」（HelpIconButton）はこの高さに収まる大きさにしている（下の `action` 参照）。
  */
 const PAGE_TITLE_CLASSES =
-  "min-h-[1.5em] text-xl md:text-2xl font-bold text-primary-900 text-center";
+  "min-h-[1.5em] text-lg md:text-xl leading-normal tracking-wide font-bold text-primary-900 text-center";
 
 interface PageTitleProps {
   children: React.ReactNode;
@@ -44,12 +44,8 @@ export function PageTitle({
   return (
     <div className="flex items-center justify-center gap-2">
       {heading}
-      {/* 操作要素（HelpIconButton）は em で大きさを決める。見出しの文字
-          （text-xl / md:text-2xl）をそのまま継がせると丸がその 1.5 倍
-          （30px / 36px）になり、見出しより目立つ。一段小さい文字を基準に
-          して 24px / 27px に抑える — 見出しの文字（20px / 24px）よりは
-          一回り大きく、押せる丸として読める */}
-      <span className="flex text-base md:text-lg">{action}</span>
+      {/* ヘルプの丸は24pxに保ち、見出しの行高（27px / 30px）に収める。 */}
+      <span className="flex shrink-0 text-base">{action}</span>
     </div>
   );
 }

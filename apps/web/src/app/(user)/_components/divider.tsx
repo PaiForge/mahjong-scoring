@@ -3,10 +3,8 @@ interface DividerProps {
 }
 
 /**
- * 水平区切り線（blindfold-chess の Divider 準拠）。
+ * 内容のまとまりを区切る淡い実線。
  */
 export function Divider({ className = "" }: DividerProps) {
-  return (
-    <hr className={`border-t-2 border-dashed border-border/40 ${className}`} />
-  );
+  return <hr className={`border-t border-panel ${className}`} />;
 }
