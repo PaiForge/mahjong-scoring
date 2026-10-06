@@ -18,6 +18,7 @@ import { getSelectClass } from "../../_lib/select-class";
 import { ScoreOptionSelect } from "../../_components/score-option-select";
 import { Button } from "@/app/(user)/_components/button";
 import { TEXT_LINK_CLASSES } from "@/app/_components/_lib/link-classes";
+import { SCORE_TOUR_ID } from "../_lib/tour-ids";
 
 interface ScorePracticeAnswerFormProps {
   readonly onSubmit: (answer: UserAnswer) => void;
@@ -67,6 +68,10 @@ interface ScorePracticeAnswerFormProps {
 /**
  * 回答フォームコンポーネント
  * 回答フォーム
+ *
+ * 各欄には総合演習のヘルプツアーが照らす印（`SCORE_TOUR_ID`）を付ける。
+ * 待ち別点数計算もこのフォームを使うが、そちらのツアーはフォーム全体を
+ * 1 つの対象として照らすので、欄ごとの印は引かれない。
  */
 export function ScorePracticeAnswerForm({
   onSubmit,
@@ -185,19 +190,21 @@ export function ScorePracticeAnswerForm({
         );
         if (requireYaku) {
           return (
-            <YakuSelect
-              value={yakus}
-              onChange={setYakus}
-              disabled={disabled}
-              labelAction={noYakuButton}
-            />
+            <div data-tour-id={SCORE_TOUR_ID.yaku}>
+              <YakuSelect
+                value={yakus}
+                onChange={setYakus}
+                disabled={disabled}
+                labelAction={noYakuButton}
+              />
+            </div>
           );
         }
         return reserveYakuRow ? <YakuLabelRow action={noYakuButton} /> : null;
       })()}
 
       {/* Han input */}
-      <div>
+      <div data-tour-id={SCORE_TOUR_ID.han}>
         <label
           htmlFor={hanId}
           className="mb-2 block text-sm font-bold text-surface-700"
@@ -225,7 +232,7 @@ export function ScorePracticeAnswerForm({
           まま残す。差し替えるとブロックの高さが約 58px 縮み、翻数を選んだ直後に
           触る「点数」と回答ボタンが指の下でせり上がる。注記は select の唯一の
           option として同じ箱に描くため、高さは要素が同一であることで一致する。 */}
-      <div>
+      <div data-tour-id={SCORE_TOUR_ID.fu}>
         <label
           htmlFor={fuId}
           className="mb-2 block text-sm font-bold text-surface-700"
@@ -251,7 +258,7 @@ export function ScorePracticeAnswerForm({
       {/* Score input
           子ツモは「点数」ラベル 1 つに対し select が 2 つあるため、
           ラベルは group の名前として使い、各 select は「子」「親」で名付ける。 */}
-      <div>
+      <div data-tour-id={SCORE_TOUR_ID.score}>
         <label
           htmlFor={availableScores.type === "koTsumo" ? undefined : scoreId}
           id={scoreLabelId}
@@ -306,6 +313,7 @@ export function ScorePracticeAnswerForm({
         size="lg"
         fullWidth
         disabled={disabled || !isComplete}
+        data-tour-id={SCORE_TOUR_ID.submit}
       >
         {submitLabel ?? t("form.buttons.answer")}
       </Button>

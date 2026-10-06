@@ -30,6 +30,8 @@ import { ScorePracticeBoardSkeleton } from "./score-practice-board-skeleton";
 import { GenerationFailedNotice } from "./generation-failed-notice";
 import { ResultDisplay } from "./result-display";
 import { ScoreCounter } from "../../_components/score-counter";
+import { ScoreSpotlightTour } from "./score-spotlight-tour";
+import { SCORE_TOUR_ID } from "../_lib/tour-ids";
 import {
   PracticeFooterAction,
   PracticeFooterActions,
@@ -238,11 +240,15 @@ function ScorePracticeBoardInner() {
           レスポンシブ値に揃え、最終要素である「終了する」の上下余白を均等にする。 */}
       <div className="space-y-4 sm:space-y-6 md:space-y-8">
         {/* Question */}
-        {/* 盤面はカードの先頭。タイトル帯との間に白帯が出ないよう上も詰める */}
-        <QuestionDisplay
-          question={currentQuestion}
-          mobileFrame="fullBleedFlushTop"
-        />
+        {/* 盤面はカードの先頭。タイトル帯との間に白帯が出ないよう上も詰める。
+            ツアーの対象にするため div で包む（盤面は <sm で負のマージンを
+            持つので、包んだ div も同じ幅になる） */}
+        <div data-tour-id={SCORE_TOUR_ID.board}>
+          <QuestionDisplay
+            question={currentQuestion}
+            mobileFrame="fullBleedFlushTop"
+          />
+        </div>
 
         {/* Answer area（開示時は userAnswer / judgementResult なしで結果表示を出す）
             答え合わせの組み方（面子分解 → 表 を 1 組にして、その下に「次の問題へ」）
@@ -279,7 +285,13 @@ function ScorePracticeBoardInner() {
           /* 出題文はフォームの見出しなので、盤面全体の余白ではなく
              フォームと近い間隔で組にする */
           <div className="space-y-4">
-            <QuestionPrompt>{t("board.questionPrompt")}</QuestionPrompt>
+            {/* 出題文の右端にヘルプツアーの「?」を添える。説明する欄は
+                この下に並ぶので、ページの見出しより入口として近い
+                （待ち別点数計算と同じ置き方） */}
+            <div className="flex items-center justify-center gap-1.5">
+              <QuestionPrompt>{t("board.questionPrompt")}</QuestionPrompt>
+              <ScoreSpotlightTour />
+            </div>
 
             <ScorePracticeAnswerForm
               key={questionSeq}
@@ -321,9 +333,11 @@ function ScorePracticeBoardInner() {
             回答・開示後も消さずに無効化して残すのは、終了リンクの位置を
             動かさないため */}
         <PracticeFooterActions>
-          <PracticeFooterAction onClick={handleReveal} disabled={isAnswered}>
-            {tt("revealButton")}
-          </PracticeFooterAction>
+          <div data-tour-id={SCORE_TOUR_ID.reveal}>
+            <PracticeFooterAction onClick={handleReveal} disabled={isAnswered}>
+              {tt("revealButton")}
+            </PracticeFooterAction>
+          </div>
           <PracticeFooterAction onClick={handleBackToSetup}>
             {tt("exitButton")}
           </PracticeFooterAction>

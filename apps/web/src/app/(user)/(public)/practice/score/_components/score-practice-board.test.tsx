@@ -8,6 +8,8 @@ vi.mock("next/navigation", async () => ({
   useSearchParams: () => new URLSearchParams(currentQuery),
 }));
 vi.mock("next-intl", async () => await import("@/test/intl-mock"));
+// 役の欄（YakuSelect）は features の共有フックが use-intl から辞書を読む
+vi.mock("use-intl", async () => await import("@/test/intl-mock"));
 vi.mock(
   "../../_actions/begin-practice-question",
   async () => await import("@/test/begin-practice-question-mock"),
@@ -20,6 +22,7 @@ const { useScorePracticeStore } =
   await import("../_hooks/use-score-practice-store");
 const { _resetPracticeQuota, usePracticeQuotaStore } =
   await import("../../_hooks/use-practice-quota");
+const { SCORE_TOUR_ID } = await import("../_lib/tour-ids");
 
 const LAST_FREE = {
   success: true,
@@ -284,6 +287,45 @@ describe("ScorePracticeBoard", () => {
       expect(useScorePracticeStore.getState().currentQuestion).not.toBe(
         previous,
       );
+    });
+  });
+
+  // 出題文の横の「?」が照らす要素。役の欄は設定で役の回答を求めるときだけ
+  // 描かれ、ツアーは無いものを飛ばす（印が無いことで飛ばされる）
+  describe("ヘルプツアー", () => {
+    const tourTarget = (id: string) =>
+      document.querySelector(`[data-tour-id="${id}"]`);
+
+    it("回答中は「?」があり、盤面と各欄に印が付いている", async () => {
+      await visit("");
+
+      expect(screen.getByLabelText("label")).toBeDefined();
+      for (const id of [
+        SCORE_TOUR_ID.board,
+        SCORE_TOUR_ID.han,
+        SCORE_TOUR_ID.fu,
+        SCORE_TOUR_ID.score,
+        SCORE_TOUR_ID.submit,
+        SCORE_TOUR_ID.reveal,
+      ]) {
+        expect(tourTarget(id), id).not.toBeNull();
+      }
+      expect(tourTarget(SCORE_TOUR_ID.yaku)).toBeNull();
+    });
+
+    it("役の回答を求める設定では役の欄にも印が付く", async () => {
+      await visit("mode=with_yaku");
+
+      expect(tourTarget(SCORE_TOUR_ID.yaku)).not.toBeNull();
+    });
+
+    it("答え合わせの段階では「?」を出さない", async () => {
+      await visit("");
+      act(() => {
+        useScorePracticeStore.getState().revealAnswer();
+      });
+
+      expect(screen.queryByLabelText("label")).toBeNull();
     });
   });
 });
