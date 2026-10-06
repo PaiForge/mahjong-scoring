@@ -329,24 +329,23 @@ describe("TehaiMentsuBreakdown", () => {
       );
     }
 
-    it("解釈が 1 つの手では切り替えも注記も出さない", () => {
+    it("解釈が 1 つの手では切り替えを出さない", () => {
       render(<TehaiMentsuBreakdown tehai={MENTSU_TEHAI} context={CONTEXT} />);
       openModal();
 
       expect(candidateButtons()).toHaveLength(0);
-      expect(screen.queryByText("mentsuBreakdownCandidatesNote")).toBeNull();
+      expect(screen.queryByText("mentsuBreakdownBest")).toBeNull();
     });
 
-    it("解釈が分かれる手では候補を高点法の順に並べ、最高点に ⭐ を付ける", () => {
+    it("解釈が分かれる手では候補を高点法の順に並べ、最高点にバッジを付ける", () => {
       render(<TehaiMentsuBreakdown tehai={TWO_WAYS_TEHAI} context={RON_5M} />);
       openModal();
 
       const buttons = candidateButtons();
       expect(buttons).toHaveLength(2);
       // 先頭（平和 + 一盃口 2翻30符）だけが最高点
-      expect(buttons[0]?.textContent?.startsWith("⭐")).toBe(true);
-      expect(buttons[1]?.textContent?.startsWith("⭐")).toBe(false);
-      expect(screen.getByText("mentsuBreakdownCandidatesNote")).toBeTruthy();
+      expect(buttons[0]?.textContent).toContain("mentsuBreakdownBest");
+      expect(buttons[1]?.textContent).not.toContain("mentsuBreakdownBest");
     });
 
     it("候補を切り替えると分解と和了牌の位置が変わる", () => {

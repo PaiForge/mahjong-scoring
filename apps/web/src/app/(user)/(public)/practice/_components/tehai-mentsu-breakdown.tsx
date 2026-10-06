@@ -118,10 +118,12 @@ function ClosedTiles({
  * 分解を復元できない手牌では導線ごと何も描画しない。
  *
  * 解釈が複数ある手では、候補を高点法の順にタブで並べて切り替えられる。
- * 最も高い点数になる解釈（点数計算に採用されるもの）には ⭐ を付け、同じ
- * 点数の解釈には同じ印を付ける — 高点法では同順位で、先頭だけが正解では
- * ないため。タブの文言は「30符 2翻」のように符と翻で、並び順は表示設定に
- * 従う。解釈が 1 つしか無い手ではタブも注記も出さず、従来どおり表だけを出す。
+ * 最も高い点数になる解釈には「最高点」のバッジを付け、同じ点数の解釈には
+ * 同じバッジを付ける — 高点法では同順位で、先頭だけが正解ではないため。
+ * バッジは文字で、絵文字（⭐）にしない。絵文字は OS ごとに別の絵になり、
+ * 印の意味を文章で補う必要が出る。文字のバッジなら凡例が要らない。
+ * タブの文言は「30符 2翻」のように符と翻で、並び順は表示設定に従う。
+ * 解釈が 1 つしか無い手ではタブを出さず、従来どおり表だけを出す。
  *
  * 牌の並べ方とラベルは手牌での見え方に揃える。副露と槓子は卓と同じく
  * 鳴き元の牌を倒して並べ（暗槓は両端が伏せ牌）、刻子・槓子のラベルは
@@ -156,12 +158,22 @@ export function TehaiMentsuBreakdown({
   const mentsuLabel = (row: MentsuBreakdownRow): string =>
     t(mentsuBreakdownLabelKey(row));
 
-  const candidateLabel = (candidate: MentsuBreakdownCandidate): string => {
+  const candidateLabel = (candidate: MentsuBreakdownCandidate) => {
     const fuHan = orderFuHan(fuHanOrder, {
       fu: t("mentsuBreakdownCandidateFu", { fu: candidate.fu }),
       han: t("mentsuBreakdownCandidateHan", { han: candidate.han }),
     }).join(" ");
-    return candidate.isBest ? `⭐ ${fuHan}` : fuHan;
+    if (!candidate.isBest) return fuHan;
+    // バッジは枠と文字を currentColor で描き、選択中（緑地に白）と未選択
+    // （淡い地に濃い文字）のどちらでも読めるようにする
+    return (
+      <span className="inline-flex items-center gap-1">
+        {fuHan}
+        <span className="rounded-full border border-current px-1.5 text-[10px] leading-4">
+          {t("mentsuBreakdownBest")}
+        </span>
+      </span>
+    );
   };
 
   const { breakdown } = selected;
@@ -184,21 +196,18 @@ export function TehaiMentsuBreakdown({
       >
         <div className="space-y-3">
           {showsCandidateTabs && (
-            <>
-              {/* 候補は高点法の順。横に収まらない数になることは稀だが、
-                  端末幅で折り返さず横に流す */}
-              <div className="overflow-x-auto">
-                <ToggleGroup
-                  options={candidates.map((c) => ({
-                    value: c.key,
-                    label: candidateLabel(c),
-                  }))}
-                  selected={selected.key}
-                  onChange={setSelectedKey}
-                />
-              </div>
-              <p>{t("mentsuBreakdownCandidatesNote")}</p>
-            </>
+            /* 候補は高点法の順。横に収まらない数になることは稀だが、
+               端末幅で折り返さず横に流す */
+            <div className="overflow-x-auto">
+              <ToggleGroup
+                options={candidates.map((c) => ({
+                  value: c.key,
+                  label: candidateLabel(c),
+                }))}
+                selected={selected.key}
+                onChange={setSelectedKey}
+              />
+            </div>
           )}
           {/* 4面子を1行ずつ縦に積み、雀頭は最後に置く。面子から順に読ませ、
               残りが雀頭だと分かる並びにする */}

@@ -49,8 +49,9 @@ function ClosedTiles({
  *
  * 解釈が複数ある手（面子分解が割れる・和了牌の入れ方が割れる）では、
  * 候補を高点法の順にセグメントコントロールで切り替えられる。最も高い
- * 点数になる解釈（点数計算に採用されるもの）には ⭐ を付け、同じ点数の
- * 解釈には同じ印を付ける。解釈が 1 つの手では切り替えも注記も出さない。
+ * 点数になる解釈には「最高点」のバッジを付け、同じ点数の解釈には同じ
+ * バッジを付ける（絵文字ではなく文字。OS で絵が変わらず、凡例も要らない）。
+ * 解釈が 1 つの手では切り替えを出さない。
  */
 export function TehaiMentsuBreakdown({
   tehai,
@@ -74,12 +75,27 @@ export function TehaiMentsuBreakdown({
 
   const mentsuLabel = (row: MentsuBreakdownRow): string =>
     t(mentsuBreakdownLabelKey(row));
-  const candidateLabel = (candidate: MentsuBreakdownCandidate): string => {
+  const candidateLabel = (candidate: MentsuBreakdownCandidate) => {
     const fuHan = orderFuHan(fuHanOrder, {
       fu: t("mentsuBreakdownCandidateFu", { fu: candidate.fu }),
       han: t("mentsuBreakdownCandidateHan", { han: candidate.han }),
     }).join(" ");
-    return candidate.isBest ? `⭐ ${fuHan}` : fuHan;
+    const isSelected = candidate.key === selected.key;
+    // セグメントは選択中が白地・未選択が淡い灰地。文字色は選択状態で変え、
+    // バッジは枠と文字を同じ色にして両方の地で読めるようにする
+    const color = isSelected ? colors.foreground : colors.surface600;
+    return (
+      <View style={styles.segmentLabel}>
+        <Text style={[styles.segmentText, { color }]}>{fuHan}</Text>
+        {candidate.isBest && (
+          <View style={[styles.badge, { borderColor: color }]}>
+            <Text style={[styles.badgeText, { color }]}>
+              {t("mentsuBreakdownBest")}
+            </Text>
+          </View>
+        )}
+      </View>
+    );
   };
 
   const { breakdown } = selected;
@@ -101,22 +117,17 @@ export function TehaiMentsuBreakdown({
       >
         <View style={styles.body}>
           {showsCandidateTabs && (
-            <>
-              <ToggleGroup
-                groups={[
-                  candidates.map((c) => ({
-                    value: c.key,
-                    label: candidateLabel(c),
-                  })),
-                ]}
-                selected={selected.key}
-                onSelect={setSelectedKey}
-                accessibilityLabel={t("mentsuBreakdown")}
-              />
-              <Text style={styles.note}>
-                {t("mentsuBreakdownCandidatesNote")}
-              </Text>
-            </>
+            <ToggleGroup
+              groups={[
+                candidates.map((c) => ({
+                  value: c.key,
+                  label: candidateLabel(c),
+                })),
+              ]}
+              selected={selected.key}
+              onSelect={setSelectedKey}
+              accessibilityLabel={t("mentsuBreakdown")}
+            />
           )}
           <DataTable
             columns={[
@@ -176,5 +187,24 @@ const styles = StyleSheet.create({
     fontSize: 14,
     lineHeight: 22,
     color: colors.surface700,
+  },
+  segmentLabel: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 4,
+  },
+  segmentText: {
+    fontSize: 13,
+    fontWeight: "600",
+  },
+  badge: {
+    borderWidth: 1,
+    borderRadius: 999,
+    paddingHorizontal: 5,
+    paddingVertical: 1,
+  },
+  badgeText: {
+    fontSize: 10,
+    fontWeight: "700",
   },
 });
