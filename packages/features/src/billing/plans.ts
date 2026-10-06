@@ -166,6 +166,9 @@ export function isOfferKey(value: string): value is OfferKey {
  * 期間パスの終了日時を求める
  * パス期限計算
  *
+ * 管理者が日数を指定して付与する特典（`benefit_grants`）の期限も同じ数え方で
+ * 求める — 30 日パスと「30 日の付与」が同じ瞬間に切れるように。
+ *
  * @param startsAt - 開始日時
  * @param durationDays - 日数
  */
