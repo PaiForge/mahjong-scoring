@@ -36,9 +36,14 @@ export interface ScoreQuestion {
   readonly bakaze: Kazehai;
   /** ドラ表示牌 */
   readonly doraMarkers: readonly HaiKindId[];
-  /** リーチ有無 */
+  /**
+   * リーチを宣言しているか（盤面にリーチ棒を出す）。
+   *
+   * 宣言していても役満の手では `yakuDetails` に立直と裏ドラが入らず、点数にも
+   * 効かない（役満は通常役と複合しない。`build-question.ts` 参照）
+   */
   readonly isRiichi?: boolean;
-  /** 裏ドラ表示牌 */
+  /** 裏ドラ表示牌（リーチしている手だけが持つ） */
   readonly uraDoraMarkers?: readonly HaiKindId[];
   /** 正解の点数計算結果 */
   readonly answer: ScoreResult;

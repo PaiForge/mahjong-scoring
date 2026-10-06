@@ -11,6 +11,7 @@ import {
 } from "@pai-forge/riichi-mahjong";
 import { ScoreLevel } from "../../core/constants";
 import { isOya } from "../../core/kaze";
+import { hasYakumanYaku } from "../../core/yaku-names";
 import { recalculateScore } from "../../score/calculator";
 import type { AgariContext } from "../shared/agari-context";
 import {
@@ -39,6 +40,10 @@ interface ScoringInput extends AgariContext {
  * リーチはライブラリの概念ではなく、翻と裏ドラをアプリ側で後付けする。
  * 裏ドラ表示牌はリーチしている手だけが持つため、リーチと同じ構造体に置いて
  * 「リーチしているのに裏ドラ表示牌が無い」状態を型で作れなくする。
+ *
+ * 役満の手に渡しても翻と裏ドラは乗らない（役満は通常役と複合しない。
+ * {@link buildScoreQuestion} 参照）。リーチ棒と裏ドラ表示牌は盤面の状態として
+ * 問題に残る。
  *
  * ダブル立直は出題しない（常に立直の 1 翻）。以前は生成器がリーチの 1 割を
  * ダブル立直として 2 翻を足していたが、盤面が持つ情報はリーチ棒 1 本だけで
@@ -126,7 +131,13 @@ function computeScoreAndYaku(
  * 手順:
  * 1. ライブラリで点数と役を計算する。役牌（三元牌・場風・自風）はライブラリが
  *    判定して返すので、ここで手牌を数えて補完しない（補完すると二重に数える）
- * 2. リーチなら立直の翻と裏ドラを後付けして点数を再計算する
+ * 2. リーチなら立直の翻と裏ドラを後付けして点数を再計算する。ただし役満の
+ *    手には乗せない — 役満は通常役と複合せず、ライブラリも役満の手では通常役を
+ *    返さない。立直はライブラリが判定しない役なので、ここで同じ規則に従わせる
+ *    （{@link hasYakumanYaku}）。`isRiichi` と `uraDoraMarkers` は宣言と盤面の
+ *    状態なのでそのまま残す。待ち別点数計算では同じ聴牌形でも待ちによって
+ *    役満になったりならなかったりする（四暗刻の双碰待ちをロンすると三暗刻）ため、
+ *    リーチの抽選時ではなく和了形ごとに採点するここで判断する
  * 3. 翻数を役の内訳の合計に合わせる。内訳の合計を翻数の正典にし、内訳と翻数と
  *    点数が画面上で必ず一致することを保証する（結果表示が役の内訳を出すため、
  *    ここがずれると見えてしまう）。ライブラリ 0.5 までは `detectYaku` と
@@ -164,7 +175,7 @@ export function buildScoreQuestion(
   let finalAnswer = scored.answer;
   let yakuDetails: YakuDetail[] = buildYakuDetailsFromResult(scored.yakuResult);
 
-  if (riichi) {
+  if (riichi && !hasYakumanYaku(scored.yakuResult)) {
     const riichiRes = applyRiichiAndUraDora({
       tehai,
       currentAnswer: finalAnswer,

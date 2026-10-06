@@ -368,10 +368,11 @@ describe("generateValidScoreQuestion", () => {
   it("リーチフラグが true の問題は必ず立直の翻と裏ドラ表示牌を持つ", () => {
     // 出題（isRiichi の表示）と正解（yakuDetails・点数）が食い違わないこと。
     // リーチの抽選が generator の1箇所に閉じている限り、例外は無い。
+    // 役満の手は例外で、立直も裏ドラも乗らない（build-question.test.ts）
     const riichiQuestions = expectSampled(generateValidScoreQuestion, {
       need: 5,
       attempts: 1000,
-      where: (q) => q.isRiichi === true,
+      where: (q) => q.isRiichi === true && q.answer.yakumanMultiplier === 0,
     });
 
     for (const question of riichiQuestions) {
