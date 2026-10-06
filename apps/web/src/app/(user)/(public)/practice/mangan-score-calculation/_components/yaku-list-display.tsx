@@ -56,7 +56,7 @@ export function YakuListDisplay({ yakuDetails }: YakuListDisplayProps) {
   const totalHan = ordered.reduce((sum, yaku) => sum + yaku.han, 0);
 
   return (
-    <div className="rounded-lg border-3 border-ink bg-surface-50 p-3">
+    <div className="rounded-panel border border-panel bg-surface-50 p-3">
       <DetailTable
         title={t("yakuListTitle")}
         rows={ordered.map((yaku) => ({

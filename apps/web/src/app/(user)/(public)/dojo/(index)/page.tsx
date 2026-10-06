@@ -106,7 +106,7 @@ export default async function DojoPage() {
         </div>
 
         {current?.slug === "dan-1" && (
-          <section className="space-y-3 rounded-xl border-3 border-ink bg-primary-50 p-5">
+          <section className="space-y-3 rounded-panel border border-panel bg-primary-50 p-5">
             <SectionTitle>{t("practicalTitle")}</SectionTitle>
             <p className="text-sm leading-relaxed text-surface-700">
               {t("practicalDescription")}

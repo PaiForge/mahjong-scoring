@@ -51,7 +51,7 @@ export function ContactConfirm({ formData }: ContactConfirmProps) {
 
       <AuthFormError message={error} />
 
-      <dl className="space-y-4 rounded-lg border-3 border-ink bg-surface-50 p-4">
+      <dl className="space-y-4 rounded-panel border border-panel bg-surface-50 p-4">
         {rows.map(({ label, value }) => (
           <div key={label}>
             <dt className="text-xs font-medium text-surface-500">{label}</dt>

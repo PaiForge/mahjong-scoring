@@ -55,7 +55,7 @@ export default async function MypageAccountPage() {
 
       <section className="space-y-4">
         <SectionTitle>{t("login.title")}</SectionTitle>
-        <dl className="space-y-4 rounded-xl border-3 border-ink bg-white p-5">
+        <dl className="space-y-4 rounded-panel border border-panel bg-white p-5">
           <div>
             <dt className="text-xs font-bold text-surface-500">
               {t("login.email")}

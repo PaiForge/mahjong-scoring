@@ -14,17 +14,17 @@ interface ProblemListSkeletonProps {
  * チャレンジ終了直後の `ResultPageSkeleton` でも同じものを使い、
  * 遷移前後で一覧の領域が一致するようにしている。
  *
- * 寸法は `ProblemListAccordion` の実装に合わせる（2026-09 に puppeteer で実測）:
+ * 寸法は `ProblemListAccordion` の実装に合わせる:
  * - 外枠 `mt-8 w-full space-y-2`
  * - 見出しラベル: `text-sm` の 1 行 = 20px
- * - 各行: `border-3` の 3px×2 + `p-3` の 12px×2 + `text-base` 1 行 24px = 54px
+ * - 各行: `border` の 1px×2 + `p-3` の 12px×2 + `text-base` 1 行 24px = 50px
  *
  * 点数系練習の行見出し（「親・ツモ・3翻・40符」等）は画面幅が狭いと折り返して
  * 50px を超えることがある。その場合だけ実物がわずかに高くなるが、一覧全体の
  * 高さを確保できていれば十分なため許容する。
  *
- * 各行は実物（`AccordionCard`）の `border-3 border-ink` を写さない。スケルトンは
- * 灰色の矩形だけで面を示す表現に統一しており、ここだけ苔緑の枠を持つと
+ * 各行は実物（`AccordionCard`）の `border border-panel` を写さない。スケルトンは
+ * 灰色の矩形だけで面を示す表現に統一しており、ここだけ色付きの枠を持つと
  * リーダーボードや経験値の矩形から浮いて、読み込み中の画面が実物より
  * 賑やかに見える。高さは `h-[50px]`（border-box）で確保しているため、
  * 枠を外しても実物との高さは一致したまま。
@@ -41,7 +41,7 @@ export function ProblemListSkeleton({ count }: ProblemListSkeletonProps) {
       <SkeletonBar className="h-5 w-24" />
       <div className="space-y-2">
         {Array.from({ length: count }, (_, index) => (
-          <SkeletonBar radius="lg" key={index} className="h-[54px]" />
+          <SkeletonBar radius="lg" key={index} className="h-[50px]" />
         ))}
       </div>
     </div>

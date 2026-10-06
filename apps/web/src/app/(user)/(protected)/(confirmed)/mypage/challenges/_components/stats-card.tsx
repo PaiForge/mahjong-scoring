@@ -60,7 +60,7 @@ export function StatsCard({ label, value, info, comparison }: StatsCardProps) {
   };
 
   return (
-    <div className="bg-surface-50 border-3 border-ink rounded-lg p-4 min-w-0">
+    <div className="bg-surface-50 border border-panel rounded-panel p-4 min-w-0">
       {/* ラベルと「?」は inline-flex で並べる。「?」を text-xs の行の中に
           流し込むと、1.25em の丸が行ボックスを 1px 押し広げて補足のある
           カードだけラベル行が高くなる */}

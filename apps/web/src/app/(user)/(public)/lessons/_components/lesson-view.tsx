@@ -677,7 +677,7 @@ function CompletionActions({
         <div
           role="alert"
           data-testid="lesson-signed-out"
-          className="space-y-4 rounded-lg border-3 border-ink bg-surface-50 p-5 text-center"
+          className="space-y-4 rounded-panel border border-panel bg-surface-50 p-5 text-center"
         >
           <p className="text-sm leading-relaxed text-surface-700">
             {t("signedOut.description")}

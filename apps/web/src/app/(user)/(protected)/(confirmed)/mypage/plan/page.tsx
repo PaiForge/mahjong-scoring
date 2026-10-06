@@ -87,7 +87,7 @@ export default async function MypagePlanPage({
           status === "failed") && (
           <p
             role="status"
-            className="rounded-xl border-3 border-ink bg-primary-50 px-4 py-3 text-sm font-bold"
+            className="rounded-panel border border-panel bg-primary-50 px-4 py-3 text-sm font-bold"
           >
             {t(status)}
           </p>
@@ -95,7 +95,7 @@ export default async function MypagePlanPage({
 
         <section className="space-y-4">
           <SectionTitle>{t("status.title")}</SectionTitle>
-          <div className="space-y-3 rounded-xl border-3 border-ink bg-white p-5">
+          <div className="space-y-3 rounded-panel border border-panel bg-white p-5">
             <p className="text-lg font-bold">
               {plan.kind === "lifetime" && t("status.lifetime")}
               {plan.kind === "pass" &&
