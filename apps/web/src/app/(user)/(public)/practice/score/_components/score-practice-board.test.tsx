@@ -1,7 +1,24 @@
-import { render, cleanup, act, screen } from "@testing-library/react";
+import {
+  render,
+  cleanup,
+  act,
+  fireEvent,
+  screen,
+} from "@testing-library/react";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
 let currentQuery = "";
+
+// driver.js は実際には起動せず、「?」から渡った手順と drive() の呼び出しだけを見る
+const { driverMock, driveMock } = vi.hoisted(() => {
+  const drive = vi.fn();
+  const driver = vi.fn((_config: { steps: readonly unknown[] }) => ({
+    drive,
+    destroy: vi.fn(),
+  }));
+  return { driverMock: driver, driveMock: drive };
+});
+vi.mock("driver.js", () => ({ driver: driverMock }));
 
 vi.mock("next/navigation", async () => ({
   ...(await import("@/test/navigation-mock")),
@@ -43,6 +60,8 @@ async function visit(query: string) {
 
 describe("ScorePracticeBoard", () => {
   beforeEach(() => {
+    driverMock.mockClear();
+    driveMock.mockClear();
     cleanup();
     beginPracticeQuestion.mockClear();
     peekPracticeQuota.mockClear();
@@ -293,30 +312,76 @@ describe("ScorePracticeBoard", () => {
   // 出題文の横の「?」が照らす要素。役の欄は設定で役の回答を求めるときだけ
   // 描かれ、ツアーは無いものを飛ばす（印が無いことで飛ばされる）
   describe("ヘルプツアー", () => {
-    const tourTarget = (id: string) =>
-      document.querySelector(`[data-tour-id="${id}"]`);
+    interface DriverStep {
+      readonly element: Element;
+      readonly popover: { readonly description: string };
+    }
 
-    it("回答中は「?」があり、盤面と各欄に印が付いている", async () => {
+    /** 「?」を押し、driver.js に渡った手順を返す */
+    function startTour(): readonly DriverStep[] {
+      fireEvent.click(screen.getByLabelText("label"));
+      expect(driverMock).toHaveBeenCalledTimes(1);
+      expect(driveMock).toHaveBeenCalledTimes(1);
+      const config = driverMock.mock.calls[0]?.[0];
+      if (!config) throw new Error("driver に設定が渡っていない");
+      return config.steps as readonly DriverStep[];
+    }
+
+    const tourIdsOf = (steps: readonly DriverStep[]) =>
+      steps.map((step) => step.element.getAttribute("data-tour-id"));
+
+    it("「?」を押すと盤面・各欄・回答・開示の順に照らす", async () => {
       await visit("");
 
-      expect(screen.getByLabelText("label")).toBeDefined();
-      for (const id of [
+      expect(tourIdsOf(startTour())).toEqual([
         SCORE_TOUR_ID.board,
         SCORE_TOUR_ID.han,
         SCORE_TOUR_ID.fu,
         SCORE_TOUR_ID.score,
         SCORE_TOUR_ID.submit,
         SCORE_TOUR_ID.reveal,
-      ]) {
-        expect(tourTarget(id), id).not.toBeNull();
-      }
-      expect(tourTarget(SCORE_TOUR_ID.yaku)).toBeNull();
+      ]);
     });
 
-    it("役の回答を求める設定では役の欄にも印が付く", async () => {
+    it("役の回答を求める設定では役の欄も照らす", async () => {
       await visit("mode=with_yaku");
 
-      expect(tourTarget(SCORE_TOUR_ID.yaku)).not.toBeNull();
+      expect(tourIdsOf(startTour())).toEqual([
+        SCORE_TOUR_ID.board,
+        SCORE_TOUR_ID.yaku,
+        SCORE_TOUR_ID.han,
+        SCORE_TOUR_ID.fu,
+        SCORE_TOUR_ID.score,
+        SCORE_TOUR_ID.submit,
+        SCORE_TOUR_ID.reveal,
+      ]);
+    });
+
+    it("盤面の印は包む div ではなく盤面の要素に付く（<sm の負のマージンが効く）", async () => {
+      await visit("");
+
+      const board = document.querySelector(
+        `[data-tour-id="${SCORE_TOUR_ID.board}"]`,
+      );
+      expect(board?.className).toContain("bg-primary-800");
+    });
+
+    // 翻数と符の説明は出題設定で変わる。設定と違う操作を案内すると、
+    // 従った人が回答できなくなる
+    it("既定の設定では翻数で答え、満貫以上は符が不要と案内する", async () => {
+      await visit("");
+
+      const descriptions = startTour().map((s) => s.popover.description);
+      expect(descriptions).toContain("han.description");
+      expect(descriptions).toContain("fu.description");
+    });
+
+    it("満貫の簡略化と満貫でも符を答える設定では、それに合わせて案内する", async () => {
+      await visit("simple=1&fu_mangan=1");
+
+      const descriptions = startTour().map((s) => s.popover.description);
+      expect(descriptions).toContain("han.descriptionSimplified");
+      expect(descriptions).toContain("fu.descriptionRequired");
     });
 
     it("答え合わせの段階では「?」を出さない", async () => {

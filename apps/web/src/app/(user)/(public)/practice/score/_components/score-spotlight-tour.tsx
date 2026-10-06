@@ -8,6 +8,13 @@ import {
 } from "@/app/(user)/_components/spotlight-tour";
 import { SCORE_TOUR_ID } from "../_lib/tour-ids";
 
+interface ScoreSpotlightTourProps {
+  /** 満貫以上を翻数ではなく区分（満貫・跳満…）で答える設定か */
+  readonly simplifyMangan: boolean;
+  /** 満貫以上でも符を答える設定か */
+  readonly requireFuForMangan: boolean;
+}
+
 /**
  * 点数計算総合演習の play 画面のヘルプツアー
  * 総合演習スポットライトツアー
@@ -16,10 +23,18 @@ import { SCORE_TOUR_ID } from "../_lib/tour-ids";
  * 説明する。設定画面の「?」（`ScoreHelpTour`）が開始前に流れを通しで見せる
  * のに対し、こちらは解いている最中に「この欄に何を入れるか」を実物の上で
  * 答える。役の欄は設定で役の回答を求めるときだけあり、無ければツアーが
- * 飛ばす。答え合わせは案内しない — 見比べるだけで操作が無い（出題文ごと
- * 「?」が閉じる）。
+ * 飛ばす。翻数と符の説明は出題設定で選択肢と必須の有無が変わるので、
+ * 設定に合わせて文言を切り替える — 設定と違う操作を案内すると、従った
+ * 人が回答できなくなる。
+ *
+ * 答え合わせの段階は案内しない。内訳を開く・点数表を見るといった操作は
+ * あるが、回答の入力ほど迷わないので、まず回答欄だけに絞っている
+ * （出題文ごと「?」が閉じる）。
  */
-export function ScoreSpotlightTour() {
+export function ScoreSpotlightTour({
+  simplifyMangan,
+  requireFuForMangan,
+}: ScoreSpotlightTourProps) {
   const t = useTranslations("score.tour");
 
   const steps: readonly SpotlightStep[] = [
@@ -36,12 +51,16 @@ export function ScoreSpotlightTour() {
     {
       targetId: SCORE_TOUR_ID.han,
       title: t("han.title"),
-      description: t("han.description"),
+      description: t(
+        simplifyMangan ? "han.descriptionSimplified" : "han.description",
+      ),
     },
     {
       targetId: SCORE_TOUR_ID.fu,
       title: t("fu.title"),
-      description: t("fu.description"),
+      description: t(
+        requireFuForMangan ? "fu.descriptionRequired" : "fu.description",
+      ),
     },
     {
       targetId: SCORE_TOUR_ID.score,

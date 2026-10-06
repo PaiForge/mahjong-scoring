@@ -16,6 +16,8 @@ interface TenpaiDisplayProps {
   readonly showUraDora: boolean;
   /** モバイルでの盤面の広げ方（{@link TehaiDisplay} にそのまま渡す） */
   readonly mobileFrame?: ComponentProps<typeof TehaiDisplay>["mobileFrame"];
+  /** ヘルプツアーの対象 ID（{@link TehaiDisplay} にそのまま渡す） */
+  readonly tourId?: string;
 }
 
 /**
@@ -29,6 +31,7 @@ export function TenpaiDisplay({
   question,
   showUraDora,
   mobileFrame,
+  tourId,
 }: TenpaiDisplayProps) {
   const context = useMemo<TehaiContext>(
     () => ({
@@ -46,6 +49,7 @@ export function TenpaiDisplay({
       tehai={question.tehai}
       context={context}
       mobileFrame={mobileFrame}
+      tourId={tourId}
     />
   );
 }

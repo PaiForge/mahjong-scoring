@@ -12,6 +12,8 @@ interface QuestionDisplayProps {
   readonly question: ScoreQuestionDisplayData;
   /** モバイルでの盤面の広げ方（{@link TehaiDisplay} にそのまま渡す） */
   readonly mobileFrame?: ComponentProps<typeof TehaiDisplay>["mobileFrame"];
+  /** ヘルプツアーの対象 ID（{@link TehaiDisplay} にそのまま渡す） */
+  readonly tourId?: string;
 }
 
 /**
@@ -25,6 +27,7 @@ interface QuestionDisplayProps {
 export function QuestionDisplay({
   question,
   mobileFrame,
+  tourId,
 }: QuestionDisplayProps) {
   const context = useMemo<TehaiContext>(() => {
     const { tehai: _tehai, ...rest } = question;
@@ -36,6 +39,7 @@ export function QuestionDisplay({
       tehai={question.tehai}
       context={context}
       mobileFrame={mobileFrame}
+      tourId={tourId}
     />
   );
 }

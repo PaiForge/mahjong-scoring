@@ -240,15 +240,12 @@ function ScorePracticeBoardInner() {
           レスポンシブ値に揃え、最終要素である「終了する」の上下余白を均等にする。 */}
       <div className="space-y-4 sm:space-y-6 md:space-y-8">
         {/* Question */}
-        {/* 盤面はカードの先頭。タイトル帯との間に白帯が出ないよう上も詰める。
-            ツアーの対象にするため div で包む（盤面は <sm で負のマージンを
-            持つので、包んだ div も同じ幅になる） */}
-        <div data-tour-id={SCORE_TOUR_ID.board}>
-          <QuestionDisplay
-            question={currentQuestion}
-            mobileFrame="fullBleedFlushTop"
-          />
-        </div>
+        {/* 盤面はカードの先頭。タイトル帯との間に白帯が出ないよう上も詰める */}
+        <QuestionDisplay
+          question={currentQuestion}
+          mobileFrame="fullBleedFlushTop"
+          tourId={SCORE_TOUR_ID.board}
+        />
 
         {/* Answer area（開示時は userAnswer / judgementResult なしで結果表示を出す）
             答え合わせの組み方（面子分解 → 表 を 1 組にして、その下に「次の問題へ」）
@@ -290,7 +287,10 @@ function ScorePracticeBoardInner() {
                 （待ち別点数計算と同じ置き方） */}
             <div className="flex items-center justify-center gap-1.5">
               <QuestionPrompt>{t("board.questionPrompt")}</QuestionPrompt>
-              <ScoreSpotlightTour />
+              <ScoreSpotlightTour
+                simplifyMangan={simplifyMangan}
+                requireFuForMangan={requireFuForMangan}
+              />
             </div>
 
             <ScorePracticeAnswerForm
