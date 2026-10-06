@@ -5,6 +5,7 @@ import { FuroType, MentsuType, Tacha } from "@mahjong-scoring/core";
 import type {
   FuDetail,
   Furo,
+  RuleConfig,
   ScoreTableAnswer,
   YakuDetail,
 } from "@mahjong-scoring/core";
@@ -24,6 +25,22 @@ import type {
  * 値の意味までは見ない。MSPZ として解釈できるか、符が実際に取りうる数かは
  * ここでは確かめず、表示時に失敗したらその表示だけを諦める。
  */
+
+/**
+ * 採点に使ったルール設定
+ *
+ * ライブラリの `RuleConfig` はすべて任意項目。結果ページで面子分解の候補を
+ * 正解と同じ設定で評価するために保存する。
+ */
+export const ruleConfigSchema: z.ZodType<RuleConfig> = z.object({
+  doubleWindJantouFu: z.literal([2, 4]).optional(),
+  kiriageMangan: z.boolean().optional(),
+  suuankouTanki: z.boolean().optional(),
+  daisuushii: z.boolean().optional(),
+  kokushiMusouJuusanmen: z.boolean().optional(),
+  junseiChuurenPoutou: z.boolean().optional(),
+  fukugouYakuman: z.boolean().optional(),
+});
 
 /** 副露の種別と出所 */
 export const furoSchema: z.ZodType<Furo> = z.object({

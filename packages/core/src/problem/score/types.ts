@@ -2,6 +2,7 @@ import type {
   HaiKindId,
   Tehai14,
   Kazehai,
+  RuleConfig,
   ScoreResult,
   YakumanRuleConfig,
 } from "@pai-forge/riichi-mahjong";
@@ -45,6 +46,14 @@ export interface ScoreQuestion {
   readonly isRiichi?: boolean;
   /** 裏ドラ表示牌（リーチしている手だけが持つ） */
   readonly uraDoraMarkers?: readonly HaiKindId[];
+  /**
+   * 採点に使ったルール設定（連風牌の雀頭符・切り上げ満貫・役満のルール）
+   *
+   * 正解と同じ設定で面子分解の候補を評価するために持つ。設定は端末ローカル
+   * なので、出題時の値を問題に残さないと表示側が既定ルールに戻り、正解が
+   * 50符でも候補が 40符になる。保存を始める前の結果データには無いため任意
+   */
+  readonly ruleConfig?: RuleConfig;
   /** 正解の点数計算結果 */
   readonly answer: ScoreResult;
   /** 符計算の内訳 */

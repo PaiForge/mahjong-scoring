@@ -39,6 +39,18 @@ describe("buildScoreQuestion", () => {
     };
   }
 
+  it("採点に使ったルール設定を問題に残す", () => {
+    const ruleConfig = { doubleWindJantouFu: 4, kiriageMangan: true } as const;
+    const built = buildScoreQuestion({
+      ...base,
+      ruleConfig,
+      agariHai: HaiKind.Haku,
+      isTsumo: true,
+    });
+
+    expect(built._unsafeUnwrap().ruleConfig).toEqual(ruleConfig);
+  });
+
   it("役満の手にはリーチしていても立直・裏ドラ・ドラを乗せない", () => {
     // 役満は通常役と複合しない。ライブラリが役満の手で通常役を返さないのと
     // 同じ規則を、アプリが後付けする立直・裏ドラ・ドラにも適用する

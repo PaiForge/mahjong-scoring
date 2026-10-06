@@ -663,6 +663,43 @@ describe("resolveMentsuBreakdowns", () => {
     });
   });
 
+  it("ルール設定（連風牌の雀頭符）を候補の符に反映する", () => {
+    // 東場・東家、111m 123m 999p 678s 11z の 1m ツモ
+    //   20 + ツモ2 + 111m 8 + 999p 8 + 連風牌の雀頭（2 or 4）= 40 or 42 -> 40符 or 50符
+    const tehai = makeTehai([
+      HaiKind.ManZu1,
+      HaiKind.ManZu1,
+      HaiKind.ManZu1,
+      HaiKind.ManZu1,
+      HaiKind.ManZu2,
+      HaiKind.ManZu3,
+      HaiKind.PinZu9,
+      HaiKind.PinZu9,
+      HaiKind.PinZu9,
+      HaiKind.SouZu6,
+      HaiKind.SouZu7,
+      HaiKind.SouZu8,
+      HaiKind.Ton,
+      HaiKind.Ton,
+    ]);
+    const context = {
+      isTsumo: true,
+      bakaze: HaiKind.Ton,
+      jikaze: HaiKind.Ton,
+      agariHai: HaiKind.ManZu1,
+    } as const;
+
+    expect(resolveMentsuBreakdowns(tehai, context).map((c) => c.fu)).toEqual([
+      40, 40,
+    ]);
+    expect(
+      resolveMentsuBreakdowns(tehai, {
+        ...context,
+        ruleConfig: { doubleWindJantouFu: 4 },
+      }).map((c) => c.fu),
+    ).toEqual([50, 50]);
+  });
+
   it("面子手でない解釈は候補に入らず、成立する和了が無ければ空配列", () => {
     const chiitoitsu = makeTehai([
       HaiKind.ManZu1,

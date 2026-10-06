@@ -223,6 +223,7 @@ export function buildScoreQuestion(
       doraMarkers,
       isRiichi: riichi !== undefined,
       uraDoraMarkers: riichi?.uraDoraMarkers,
+      ruleConfig,
       answer: finalAnswer,
       originalAnswer: scored.answer,
       yakuDetails,

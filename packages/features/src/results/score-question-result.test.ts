@@ -6,6 +6,7 @@ import { generateOrThrow } from "../test/generate-or-throw";
 import { buildDemoScoreQuestion } from "../board/demo-score-question";
 import {
   parseQuestionResults,
+  restoreScoreQuestion,
   toScoreQuestionResult,
   toScoreQuestionSnapshot,
 } from "./score-question-result";
@@ -327,6 +328,24 @@ describe("toScoreQuestionSnapshot", () => {
       // 役の内訳は結果ページの翻数内訳に使う。持たない出題では空配列
       yakuDetails: question.yakuDetails ?? [],
     });
+  });
+
+  it("採点に使ったルール設定を保存し、復元した出題に引き継ぐ", () => {
+    const question = generateOrThrow(() =>
+      generateValidScoreQuestion({ renfonpaiAs4Fu: true, kiriageMangan: true }),
+    );
+    const snapshot = toScoreQuestionSnapshot(question);
+
+    expect(snapshot.ruleConfig).toEqual(question.ruleConfig);
+    expect(snapshot.ruleConfig?.doubleWindJantouFu).toBe(4);
+
+    const parsed = parseQuestionResults([
+      { ...toScoreQuestionResult(question, undefined) },
+    ]);
+    expect(parsed[0]?.question?.ruleConfig).toEqual(question.ruleConfig);
+    expect(
+      restoreScoreQuestion(parsed[0]?.question, question.isTsumo)?.ruleConfig,
+    ).toEqual(question.ruleConfig);
   });
 
   it("変換結果はパーサーのバリデーションを通過する", () => {

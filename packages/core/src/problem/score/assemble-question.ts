@@ -1,6 +1,7 @@
 import {
   type HaiKindId,
   type Kazehai,
+  type RuleConfig,
   type ScoreResult,
   type Tehai14,
 } from "@pai-forge/riichi-mahjong";
@@ -34,6 +35,8 @@ interface AssembleScoreQuestionInput {
   readonly doraMarkers: readonly HaiKindId[];
   readonly isRiichi: boolean;
   readonly uraDoraMarkers: readonly HaiKindId[] | undefined;
+  /** 採点に使ったルール設定。問題に残して表示側へ引き継ぐ */
+  readonly ruleConfig: RuleConfig;
   /** 最終的な ScoreResult（リーチ・役牌補正適用済み） */
   readonly answer: ScoreResult;
   /** convertScoreDetailToFuDetails のソースとなる元の answer（補正前） */
@@ -62,6 +65,7 @@ export function assembleScoreQuestion(
     doraMarkers,
     isRiichi,
     uraDoraMarkers,
+    ruleConfig,
     answer,
     originalAnswer,
     yakuDetails,
@@ -84,6 +88,7 @@ export function assembleScoreQuestion(
     doraMarkers,
     isRiichi,
     uraDoraMarkers,
+    ruleConfig,
     answer,
     fuDetails,
     yakuDetails,
