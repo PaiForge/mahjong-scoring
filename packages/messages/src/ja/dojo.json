@@ -3,6 +3,8 @@
   "description": "麻雀の点数計算の段級位制。5級から初段（黒帯）まで、級ごとに学ぶ・練習する・試験に合格するの順で進む「点数計算・黒帯への道」の全行程を確認できます。",
   "currentRankTitle": "現在の段級位",
   "unranked": "無級",
+  "rankProgress": "{done} / {total}",
+  "rankProgressValue": "{rank}（{done} / {total}）",
   "signInNote": "段級位を記録するにはアカウントが必要です。",
   "signInLink": "ログインはこちら",
   "nextRankTitle": "次の目標",
@@ -15,7 +17,7 @@
     "progress": "{current} / {total}",
     "currentRank": {
       "title": "現在の段級位",
-      "description": "昇級試験に合格すると段級位が授与され、ここに表示されます。"
+      "description": "5級から初段（黒帯）までのうち、取得した級が帯の色で塗られます。昇級試験に合格すると 1 つ進みます。"
     },
     "nextRank": {
       "title": "次の目標の級",
