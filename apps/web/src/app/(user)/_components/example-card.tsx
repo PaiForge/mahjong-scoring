@@ -17,7 +17,9 @@ export function ExampleCard({
   spacing = "space-y-3",
 }: ExampleCardProps) {
   return (
-    <div className={`${spacing} rounded-xl border-3 border-ink bg-white p-5`}>
+    <div
+      className={`${spacing} rounded-panel border border-panel bg-white p-5`}
+    >
       {children}
     </div>
   );

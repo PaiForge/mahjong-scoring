@@ -105,6 +105,10 @@
    */
   --color-ink: #2f6b4f;
 
+  /* 内側の情報カード。外側の苔緑の太枠と区別し、内容を穏やかに区切る。 */
+  --color-panel: #dce3e0;
+  --radius-panel: 12px;
+
   /*
    * shadow-* の実体は --skin-shadow-*（@layer base で定義）に委ねる。
    * Tailwind は --shadow-* の値を shadow-* ユーティリティにインライン展開するため、
