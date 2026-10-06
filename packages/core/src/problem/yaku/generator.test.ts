@@ -7,11 +7,32 @@ import {
   expectHaiUsageWithinLimit,
 } from "../../test/tile-usage";
 import { getKazeYakuhaiDisplayName, SELECTABLE_YAKU } from "./constants";
+import type { YakuQuestion } from "./types";
+import { YAKU_OPTION_GROUPS } from "../../core/yaku-names";
+import { defaultIdGenerator } from "../../core/id";
+import { YAKUMAN_HAN } from "../../score/tiers";
 import {
   expectGeneratesEventually,
   expectSampled,
   generateOne,
 } from "../../test/sampling";
+import { seededRandom } from "../../test/seeded-random";
+
+/** 役満の表示名。役満の手は通常役と複合せず、正解に並ぶのは役満だけになる */
+const YAKUMAN_NAMES: ReadonlySet<string> = new Set(
+  YAKU_OPTION_GROUPS.filter((group) => group.han === YAKUMAN_HAN).flatMap(
+    (group) => group.names,
+  ),
+);
+
+function isYakumanQuestion(question: YakuQuestion): boolean {
+  return question.correctYakuNames.some((name) => YAKUMAN_NAMES.has(name));
+}
+
+/** 場風牌を刻子（または槓子）で持つ手 */
+function hasBakazeKoutsu(question: YakuQuestion): boolean {
+  return countHaiInTehai(question.tehai, question.context.bakaze) >= 3;
+}
 
 describe("generateYakuQuestion", () => {
   it("試行すれば問題が生成される", () => {
@@ -58,11 +79,13 @@ describe("generateYakuQuestion", () => {
   it("場風の刻子があれば風ごとの表示名（役牌 東 等）が正解に1回だけ含まれる", () => {
     // ライブラリは場風の役牌を "Bakaze" で返す。この練習は風ごとの選択肢で
     // 答えさせるため局面の風に引き直す。連風牌では場風・自風が同じ表示名に
-    // なるので、重複して並ばないこと
+    // なるので、重複して並ばないこと。
+    // 役満の手（場風の暗刻を含む四暗刻・四槓子等）は役満だけが正解になり
+    // 役牌が並ばないので、ここでは対象から外す（次のテストで確かめる）
     const questions = expectSampled(generateYakuQuestion, {
       need: 10,
       attempts: 2000,
-      where: (q) => countHaiInTehai(q.tehai, q.context.bakaze) >= 3,
+      where: (q) => hasBakazeKoutsu(q) && !isYakumanQuestion(q),
     });
 
     for (const question of questions) {
@@ -73,6 +96,27 @@ describe("generateYakuQuestion", () => {
       expect(new Set(question.correctYakuNames).size).toBe(
         question.correctYakuNames.length,
       );
+    }
+  });
+
+  it("役満の手では場風の刻子があっても役牌を正解に並べない", () => {
+    // 役満は通常役と複合しない（ライブラリは役満の手で "Bakaze" を返さない）。
+    // 場風牌 3 枚を持つ役満は生成の 2000 回に 1 回ほどしか出ないため、
+    // Math.random では母集団が試行内に集まるかが実行ごとに変わる。シードを
+    // 固定して、試行回数の中に必ず現れる数列で回す
+    const rng = seededRandom(20261006);
+    const questions = expectSampled(
+      () => generateYakuQuestion(defaultIdGenerator, rng),
+      {
+        need: 3,
+        attempts: 20000,
+        where: (q) => hasBakazeKoutsu(q) && isYakumanQuestion(q),
+      },
+    );
+
+    for (const question of questions) {
+      const name = getKazeYakuhaiDisplayName(question.context.bakaze);
+      expect(question.correctYakuNames).not.toContain(name);
     }
   });
 
