@@ -17,13 +17,20 @@
  * ダッシュボードの「次にやること」と同じ計算を読む。ホームと道場で「次」の指す先が
  * 食い違わないようにするため、この画面で独自に順序を決めない。
  *
- * @design 現在の段級位は 1 行、次の目標を上に
+ * @design 現在の段級位は小さく、次の目標を上に
  * 以前は現在の段級位を大きな帯バッジの中央寄せのカードで出し、次の目標の
  * 級は黒帯への道の中で開いていた。現在の段級位は「帯の色と級名」しか持たない
  * のに画面の上部を大きく取り、取得済みの級が多い人ほど開いたカードが下へ
- * 押された。現在の段級位は消さずにラベル付きの 1 行に縮め、その下に次の目標の
+ * 押された。現在の段級位は消さずに縮め（次項の区切りバー）、その下に次の目標の
  * 級を開いて置く。黒帯への道は全級を閉じたカードで並べる全体の地図にする
  * （次の目標の級もそこでは閉じて pill で示し、中身を 2 回出さない）。
+ *
+ * @design 現在の段級位は帯色の区切りバーで
+ * 1 行のカード（帯バッジ + 級名）は帯の色と級名しか持たないのに太枠の
+ * カードとして場所を取っていた。レッスン一覧の学習進捗バーにならい、
+ * 5級〜初段を 1 級 1 区切りで並べ、取得済みを帯色で塗るバーに置き換えた。
+ * 帯色と級名はそのまま残り、「黒帯までのどこにいるか」が加わる。％のバーに
+ * しないのは、段級位が 6 段階しかなく割合では意味が読めないため。
  *
  * @flow
  * 1. 現在の段級位を確認する（未取得・未認証は無級）
@@ -35,7 +42,6 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { getTranslations } from "next-intl/server";
 
-import { BeltBadge } from "@/app/(user)/_components/belt-badge";
 import { ContentContainer } from "@/app/(user)/_components/content-container";
 import { PageTitle } from "@/app/(user)/_components/page-title";
 import { SectionTitle } from "@/app/(user)/_components/section-title";
@@ -45,12 +51,12 @@ import { TEXT_LINK_CLASSES } from "@/app/_components/_lib/link-classes";
 import { createNamespaceMetadata } from "@/app/_lib/metadata";
 import { getOptionalUser } from "@/lib/auth";
 import { getUserRankSlugs } from "@/lib/db/rank-queries";
-import { beltBorderClass } from "@/lib/ranks/belt-colors";
 import { buildJourney } from "@mahjong-scoring/features/journey/journey";
 import { highestRank } from "@mahjong-scoring/features/ranks/registry";
 
 import { DojoSpotlightTour } from "../_components/dojo-spotlight-tour";
 import { RankJourneyCard } from "../_components/rank-journey-card";
+import { RankProgressBar } from "../_components/rank-progress-bar";
 import { DOJO_TOUR_ID } from "../_lib/tour-ids";
 
 export async function generateMetadata(): Promise<Metadata> {
@@ -58,9 +64,8 @@ export async function generateMetadata(): Promise<Metadata> {
 }
 
 export default async function DojoPage() {
-  const [t, tRanks, user] = await Promise.all([
+  const [t, user] = await Promise.all([
     getTranslations("dojo"),
-    getTranslations("ranks"),
     getOptionalUser(),
   ]);
   const [rankSlugs, completedLessonSlugs, attemptedPractices] =
@@ -82,37 +87,22 @@ export default async function DojoPage() {
       <PageTitle action={<DojoSpotlightTour />}>{t("title")}</PageTitle>
 
       <div className="space-y-8">
-        {/* 現在の段級位は節にせず 1 行で示す。ラベルは見た目こそ小さな文字
-            だが h2 にして、見出しジャンプで「次の目標」と同じ段に並ぶようにする
-            （SectionTitle の pill を使わないのは、1 行の枠の中に pill の見出しを
-            入れると枠より見出しが目立つため）。
-            枠は帯色。昇級試験カード（ExamCtaCard）と同じ理由で、級を掲げた
-            カードに既定の ink（緑）を回すと緑がその級の色に見えてしまう
-            — 5級の帯（オレンジ）を緑で囲むと帯が緑に染まって読める。
-            無級のときは帯色そのものが淡いグレーなので枠もグレーになり、
-            「まだ色が付いていない」という円の意味とカードが揃う。 */}
-        <div
-          data-tour-id={DOJO_TOUR_ID.currentRank}
-          data-belt-slug={current?.slug ?? "unranked"}
-          className={`flex items-center gap-3 rounded-xl border-3 bg-white px-4 py-3 ${beltBorderClass(current?.slug)}`}
-        >
-          <BeltBadge slug={current?.slug} />
-          <div className="min-w-0">
-            <h2 className="text-xs font-bold text-surface-500">
-              {t("currentRankTitle")}
-            </h2>
-            <p className="text-base font-bold text-surface-900">
-              {current ? tRanks(`names.${current.slug}`) : t("unranked")}
+        {/* 現在の段級位は節にせず、5級〜初段の区切り付きのバーで示す
+            （見出し・帯色の扱いは RankProgressBar を参照）。未ログインの
+            ログイン導線はバーの下に添える。 */}
+        <div className="space-y-2">
+          <RankProgressBar
+            currentSlug={current?.slug}
+            dataTourId={DOJO_TOUR_ID.currentRank}
+          />
+          {!user && (
+            <p className="text-xs text-surface-500">
+              {t("signInNote")}{" "}
+              <Link href="/sign-in" className={TEXT_LINK_CLASSES}>
+                {t("signInLink")}
+              </Link>
             </p>
-            {!user && (
-              <p className="mt-1 text-xs text-surface-500">
-                {t("signInNote")}{" "}
-                <Link href="/sign-in" className={TEXT_LINK_CLASSES}>
-                  {t("signInLink")}
-                </Link>
-              </p>
-            )}
-          </div>
+          )}
         </div>
 
         {current?.slug === "dan-1" && (

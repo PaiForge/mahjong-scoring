@@ -6,7 +6,7 @@
  * 手順を組むクライアントコンポーネントの両方から読むため、値をここに置く。
  */
 export const DOJO_TOUR_ID = {
-  /** 現在の段級位のカード */
+  /** 現在の段級位の区切りバー */
   currentRank: "dojo-current-rank",
   /** 次の目標の級の見出し行（帯・級名・状態） */
   nextRankHeader: "dojo-next-rank-header",
