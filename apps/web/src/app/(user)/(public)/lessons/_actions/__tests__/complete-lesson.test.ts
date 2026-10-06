@@ -1,19 +1,19 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
 const {
-  mockGetOptionalVerifiedUser,
+  mockAuthenticateAndCheckBan,
   mockInsert,
   mockRevalidatePath,
   mockFetchJourneyInput,
 } = vi.hoisted(() => ({
-  mockGetOptionalVerifiedUser: vi.fn(),
+  mockAuthenticateAndCheckBan: vi.fn(),
   mockInsert: vi.fn(),
   mockRevalidatePath: vi.fn(),
   mockFetchJourneyInput: vi.fn(),
 }));
 
 vi.mock("@/lib/auth", () => ({
-  getOptionalVerifiedUser: mockGetOptionalVerifiedUser,
+  authenticateAndCheckBan: mockAuthenticateAndCheckBan,
 }));
 
 vi.mock("@/lib/db", () => ({
@@ -58,12 +58,12 @@ describe("completeLesson", () => {
     const result = await completeLesson("not-a-lesson");
 
     expect(result).toEqual({ success: false, error: "invalid_slug" });
-    expect(mockGetOptionalVerifiedUser).not.toHaveBeenCalled();
+    expect(mockAuthenticateAndCheckBan).not.toHaveBeenCalled();
     expect(mockInsert).not.toHaveBeenCalled();
   });
 
   it("未ログインは skipped: anonymous で、INSERT も revalidate もしない", async () => {
-    mockGetOptionalVerifiedUser.mockResolvedValue(undefined);
+    mockAuthenticateAndCheckBan.mockResolvedValue({ error: "unauthorized" });
 
     const result = await completeLesson("mangan-ko-ron");
 
@@ -72,8 +72,19 @@ describe("completeLesson", () => {
     expect(mockRevalidatePath).not.toHaveBeenCalled();
   });
 
+  it("BAN 中は banned で拒否し、INSERT も revalidate も続きの読み取りもしない", async () => {
+    mockAuthenticateAndCheckBan.mockResolvedValue({ error: "banned" });
+
+    const result = await completeLesson("mangan-ko-ron");
+
+    expect(result).toEqual({ success: false, error: "banned" });
+    expect(mockInsert).not.toHaveBeenCalled();
+    expect(mockRevalidatePath).not.toHaveBeenCalled();
+    expect(mockFetchJourneyInput).not.toHaveBeenCalled();
+  });
+
   it("認証済みなら本人の id と slug で冪等に INSERT し、次の一歩を読む画面を捨てる", async () => {
-    mockGetOptionalVerifiedUser.mockResolvedValue({ id: "user-123" });
+    mockAuthenticateAndCheckBan.mockResolvedValue({ user: { id: "user-123" } });
 
     const result = await completeLesson("mangan-ko-ron");
 
@@ -87,7 +98,7 @@ describe("completeLesson", () => {
   });
 
   it("記録したら、本人の進み具合から次の一歩と級の進み具合を 1 回の読み取りで返す", async () => {
-    mockGetOptionalVerifiedUser.mockResolvedValue({ id: "user-123" });
+    mockAuthenticateAndCheckBan.mockResolvedValue({ user: { id: "user-123" } });
     mockFetchJourneyInput.mockResolvedValue({
       ...NO_PROGRESS,
       completedLessonSlugs: new Set(["mangan-ko-tsumo"]),
@@ -115,7 +126,7 @@ describe("completeLesson", () => {
   });
 
   it("次の一歩を求められなくても、記録は成功として返す", async () => {
-    mockGetOptionalVerifiedUser.mockResolvedValue({ id: "user-123" });
+    mockAuthenticateAndCheckBan.mockResolvedValue({ user: { id: "user-123" } });
     mockFetchJourneyInput.mockRejectedValue(new Error("db down"));
     vi.spyOn(console, "error").mockImplementation(() => {});
 
@@ -124,7 +135,7 @@ describe("completeLesson", () => {
   });
 
   it("DB が失敗したら例外をそのまま伝える（クライアントが失敗として扱う）", async () => {
-    mockGetOptionalVerifiedUser.mockResolvedValue({ id: "user-123" });
+    mockAuthenticateAndCheckBan.mockResolvedValue({ user: { id: "user-123" } });
     insertChain.onConflictDoNothing.mockRejectedValue(new Error("db down"));
 
     await expect(completeLesson("mangan-ko-ron")).rejects.toThrow("db down");
@@ -134,7 +145,7 @@ describe("completeLesson", () => {
 
 describe("completeLessons", () => {
   it("未ログインは skipped: anonymous で、INSERT しない", async () => {
-    mockGetOptionalVerifiedUser.mockResolvedValue(undefined);
+    mockAuthenticateAndCheckBan.mockResolvedValue({ error: "unauthorized" });
 
     const result = await completeLessons(["mangan-ko-ron"]);
 
@@ -142,8 +153,18 @@ describe("completeLessons", () => {
     expect(mockInsert).not.toHaveBeenCalled();
   });
 
+  it("BAN 中は banned で拒否し、INSERT も revalidate もしない", async () => {
+    mockAuthenticateAndCheckBan.mockResolvedValue({ error: "banned" });
+
+    const result = await completeLessons(["mangan-ko-ron"]);
+
+    expect(result).toEqual({ success: false, error: "banned" });
+    expect(mockInsert).not.toHaveBeenCalled();
+    expect(mockRevalidatePath).not.toHaveBeenCalled();
+  });
+
   it("有効な slug だけを本人の id で冪等に INSERT し、無い slug は rejected に返す", async () => {
-    mockGetOptionalVerifiedUser.mockResolvedValue({ id: "user-123" });
+    mockAuthenticateAndCheckBan.mockResolvedValue({ user: { id: "user-123" } });
 
     const result = await completeLessons([
       "mangan-ko-ron",
@@ -165,7 +186,7 @@ describe("completeLessons", () => {
   });
 
   it("有効な slug が 1 つも無ければ DB にも revalidate にも触らない", async () => {
-    mockGetOptionalVerifiedUser.mockResolvedValue({ id: "user-123" });
+    mockAuthenticateAndCheckBan.mockResolvedValue({ user: { id: "user-123" } });
 
     const result = await completeLessons(["not-a-lesson"]);
 

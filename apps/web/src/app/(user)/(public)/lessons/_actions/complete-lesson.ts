@@ -2,7 +2,7 @@
 
 import { revalidatePath } from "next/cache";
 
-import { getOptionalVerifiedUser } from "@/lib/auth";
+import { authenticateAndCheckBan, type AuthUser } from "@/lib/auth";
 import { db } from "@/lib/db";
 import { lessonCompletions } from "@/lib/db/schema";
 import { logExternalError } from "@/lib/log-error";
@@ -33,11 +33,13 @@ import { lessonFollowUp, type LessonFollowUp } from "../_lib/lesson-follow-up";
  *   受けられ、残らないのは完了の印だけ。クライアントは完了を端末に預け、
  *   ログイン後のホームで同期する
  * - `{ success: false, error: 'invalid_slug' }`: カリキュラムに存在しない slug
+ * - `{ success: false, error: 'banned' }`: BAN されたユーザー。記録しない。
+ *   端末にも預けない（同期しても同じく弾かれるだけ）
  */
 export type CompleteLessonResult =
   | { readonly success: true; readonly followUp?: LessonFollowUp }
   | { readonly success: true; readonly skipped: "anonymous" }
-  | { readonly success: false; readonly error: "invalid_slug" };
+  | { readonly success: false; readonly error: "invalid_slug" | "banned" };
 
 /**
  * 複数レッスンの完了を同期する Server Action の戻り値
@@ -47,6 +49,8 @@ export type CompleteLessonResult =
  *   （既に記録済みのものも含む）スラッグ、`rejected` はレジストリに無く
  *   捨てたもの。クライアントはどちらも預かりから外す
  * - `{ success: true, skipped: 'anonymous' }`: 未ログイン。預かりはそのまま残す
+ * - `{ success: false, error: 'banned' }`: BAN されたユーザー。記録しない。
+ *   預かりは残す（BAN が解かれたら次のホームで記録できる）
  */
 export type CompleteLessonsResult =
   | {
@@ -54,7 +58,27 @@ export type CompleteLessonsResult =
       readonly completed: readonly CurriculumChapterSlug[];
       readonly rejected: readonly string[];
     }
-  | { readonly success: true; readonly skipped: "anonymous" };
+  | { readonly success: true; readonly skipped: "anonymous" }
+  | { readonly success: false; readonly error: "banned" };
+
+/**
+ * 完了を記録してよい本人を決める
+ *
+ * 書き込む Action なので認証に加えて BAN を確かめる（`authenticateAndCheckBan`）。
+ * 未認証はエラーにせず `anonymous` に読み替える — レッスンは未ログインでも
+ * 最後まで受けられ、完了は端末に預けてログイン後に同期するため。
+ */
+async function resolveRecorder(): Promise<
+  | { readonly user: AuthUser }
+  | { readonly skipped: "anonymous" }
+  | { readonly error: "banned" }
+> {
+  const auth = await authenticateAndCheckBan();
+  if (!("error" in auth)) return { user: auth.user };
+  return auth.error === "unauthorized"
+    ? { skipped: "anonymous" }
+    : { error: auth.error };
+}
 
 /**
  * 認証済みユーザーの完了を冪等に記録し、完了を読む画面を捨てる
@@ -92,6 +116,7 @@ async function recordCompletions(
  *
  * - 不正な slug は `{ success: false, error: 'invalid_slug' }` で拒否
  * - 未認証は `{ success: true, skipped: 'anonymous' }` で静かにスキップ
+ * - BAN は `{ success: false, error: 'banned' }` で拒否
  * - 既に完了済みでも `ON CONFLICT DO NOTHING` で冪等
  *
  * @param slug 対象レッスン（章）のスラッグ
@@ -103,10 +128,10 @@ export async function completeLesson(
     return { success: false, error: "invalid_slug" };
   }
 
-  const user = await getOptionalVerifiedUser();
-  if (!user) {
-    return { success: true, skipped: "anonymous" };
-  }
+  const recorder = await resolveRecorder();
+  if ("skipped" in recorder) return { success: true, skipped: "anonymous" };
+  if ("error" in recorder) return { success: false, error: recorder.error };
+  const { user } = recorder;
 
   await recordCompletions(user.id, [slug]);
   if (!isQuizLessonSlug(slug)) return { success: true };
@@ -149,7 +174,7 @@ async function followUpFor(
  * 捨てさせる。書くのは `lesson_completions` だけで、段級位や試験の合否には
  * 触らない（それらは `submitExamResult` だけが付与する）。
  *
- * 誰の完了として記録するかは cookie のセッション（`getOptionalVerifiedUser`）
+ * 誰の完了として記録するかは cookie のセッション（`authenticateAndCheckBan`）
  * だけで決める。クライアントが名乗る id は受け取らない。
  *
  * @param slugs 預かっていたレッスンのスラッグ
@@ -164,10 +189,10 @@ export async function completeLessons(
     else rejected.push(slug);
   }
 
-  const user = await getOptionalVerifiedUser();
-  if (!user) {
-    return { success: true, skipped: "anonymous" };
-  }
+  const recorder = await resolveRecorder();
+  if ("skipped" in recorder) return { success: true, skipped: "anonymous" };
+  if ("error" in recorder) return { success: false, error: recorder.error };
+  const { user } = recorder;
 
   await recordCompletions(user.id, completed);
   return { success: true, completed, rejected };
