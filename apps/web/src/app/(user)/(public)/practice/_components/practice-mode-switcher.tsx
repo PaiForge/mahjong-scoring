@@ -9,10 +9,7 @@ import {
   useSyncExternalStore,
   type ReactNode,
 } from "react";
-import {
-  TOGGLE_GROUP_CONTAINER_CLASSES,
-  toggleItemClasses,
-} from "@/app/(user)/_components/_lib/toggle-group-classes";
+import { TOGGLE_GROUP_CONTAINER_CLASSES } from "@/app/(user)/_components/_lib/toggle-group-classes";
 
 const STORAGE_KEY = "practice-mode";
 const CHANGE_EVENT = "practice-mode-change";
@@ -57,7 +54,7 @@ function ModeContent({
             href={`/practice?mode=${value}`}
             scroll={false}
             aria-current={mode === value ? "page" : undefined}
-            className={toggleItemClasses(mode === value)}
+            className={`flex min-h-11 flex-1 items-center justify-center rounded-full px-4 text-sm font-bold transition-colors ${mode === value ? "bg-primary-700 text-white" : "text-surface-700 hover:bg-primary-100"}`}
           >
             {t(value)}
           </Link>

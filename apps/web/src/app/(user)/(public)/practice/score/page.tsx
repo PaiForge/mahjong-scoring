@@ -34,7 +34,7 @@ export default async function ScoreSetupPage() {
   return (
     <ContentContainer
       breadcrumb={[
-        { label: tp("title"), href: "/practice" },
+        { label: tp("modes.practical"), href: "/practice?mode=practical" },
         { label: t("title") },
       ]}
     >

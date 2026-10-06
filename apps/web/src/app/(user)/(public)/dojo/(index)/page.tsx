@@ -115,6 +115,18 @@ export default async function DojoPage() {
           </div>
         </div>
 
+        {current?.slug === "dan-1" && (
+          <section className="space-y-3 rounded-xl border-3 border-ink bg-primary-50 p-5">
+            <SectionTitle>{t("practicalTitle")}</SectionTitle>
+            <p className="text-sm leading-relaxed text-surface-700">
+              {t("practicalDescription")}
+            </p>
+            <Link href="/practice?mode=practical" className={TEXT_LINK_CLASSES}>
+              {t("practicalCta")} →
+            </Link>
+          </section>
+        )}
+
         {journey.current !== undefined && (
           <section className="space-y-4">
             <SectionTitle>{t("nextRankTitle")}</SectionTitle>
