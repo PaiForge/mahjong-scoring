@@ -1,7 +1,6 @@
 "use server";
 
 import { eq } from "drizzle-orm";
-import { revalidatePath } from "next/cache";
 
 import type { ActionResult } from "../../../../lib/action-types";
 import { getClientIp } from "../../../../lib/client-ip";
@@ -15,6 +14,7 @@ import {
   PERMANENT_BAN_DURATION,
   recordModerationAction,
 } from "../_lib/moderation";
+import { revalidateAdminUsers } from "../_lib/revalidate";
 
 /**
  * ユーザーを BAN する Server Action。
@@ -102,7 +102,6 @@ export async function banUser(
     return { error: "banFailed" };
   }
 
-  // 一覧と詳細（/admin/users/[id]）の両方の状態表示を更新する
-  revalidatePath("/admin/users", "layout");
+  revalidateAdminUsers();
   return { success: true };
 }
