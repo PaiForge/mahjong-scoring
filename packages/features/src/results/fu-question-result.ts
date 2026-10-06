@@ -4,6 +4,7 @@ import {
   kazeIdToMspz,
   tehaiToMspz,
   type FuDetail,
+  type RuleConfig,
   type TotalFuQuestion,
 } from "@mahjong-scoring/core";
 
@@ -14,6 +15,7 @@ import {
   questionTilesSnapshotSchema,
   fuAnswerResultSchema,
   fuDetailSchema,
+  ruleConfigSchema,
   toAnswerOutcome,
   type FuAnswerResult,
 } from "./result-schemas";
@@ -35,6 +37,11 @@ export interface FuQuestionResult
   readonly isTsumo: boolean;
   /** 切り上げ前の符の内訳 */
   readonly fuDetails: readonly FuDetail[];
+  /**
+   * 採点に使ったルール設定（連風牌の雀頭符）。結果ページの面子分解で
+   * 候補を正解と同じ設定で評価するために持つ。保存を始める前の旧データには無い
+   */
+  readonly ruleConfig?: RuleConfig;
 }
 
 /**
@@ -60,6 +67,7 @@ export function toFuQuestionResult(
       userFu === undefined ? undefined : userFu === question.answer,
     ),
     fuDetails: question.fuDetails,
+    ruleConfig: context.ruleConfig,
   };
 }
 
@@ -72,6 +80,7 @@ const questionResultSchema: z.ZodType<FuQuestionResult> =
     ...questionTilesSnapshotSchema.shape,
     isTsumo: z.boolean(),
     fuDetails: z.array(fuDetailSchema),
+    ruleConfig: ruleConfigSchema.optional(),
   });
 
 /**

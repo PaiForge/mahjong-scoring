@@ -1,3 +1,4 @@
+import type { ReactNode } from "react";
 import { Pressable, StyleSheet, Text, View } from "react-native";
 
 import { colors, radius } from "../lib/theme";
@@ -5,7 +6,12 @@ import { colors, radius } from "../lib/theme";
 /** トグルの選択肢 */
 export interface ToggleOption<T extends string> {
   readonly value: T;
-  readonly label: string;
+  /**
+   * 文言。文字列なら選択状態に応じた色の Text で描く。文言にバッジを
+   * 添えるなど自前で描くときは要素を渡す（{@link ToggleGroup} は `isActive` を
+   * 渡せないので、両方の地色で読める配色にすること）
+   */
+  readonly label: string | ReactNode;
 }
 
 interface ToggleGroupProps<T extends string> {
@@ -48,9 +54,13 @@ export function ToggleGroup<T extends string>({
             accessibilityState={{ selected: isActive }}
             style={[styles.segment, isActive && styles.segmentActive]}
           >
-            <Text style={[styles.label, isActive && styles.labelActive]}>
-              {option.label}
-            </Text>
+            {typeof option.label === "string" ? (
+              <Text style={[styles.label, isActive && styles.labelActive]}>
+                {option.label}
+              </Text>
+            ) : (
+              option.label
+            )}
           </Pressable>
         );
       })}

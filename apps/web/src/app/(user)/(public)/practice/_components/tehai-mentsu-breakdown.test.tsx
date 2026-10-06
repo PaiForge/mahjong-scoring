@@ -289,4 +289,78 @@ describe("TehaiMentsuBreakdown", () => {
       expect(screen.getByTestId("furo").dataset.furoType).toBe("none");
     });
   });
+
+  describe("解釈の候補", () => {
+    /** 345m 345m 55m 123s 456s: 5m は雀頭にも順子にも入る */
+    const TWO_WAYS_TEHAI = {
+      closed: [
+        HaiKind.ManZu3,
+        HaiKind.ManZu3,
+        HaiKind.ManZu4,
+        HaiKind.ManZu4,
+        HaiKind.ManZu5,
+        HaiKind.ManZu5,
+        HaiKind.ManZu5,
+        HaiKind.ManZu5,
+        HaiKind.SouZu1,
+        HaiKind.SouZu2,
+        HaiKind.SouZu3,
+        HaiKind.SouZu4,
+        HaiKind.SouZu5,
+        HaiKind.SouZu6,
+      ] as readonly HaiKindId[],
+      exposed: [],
+    };
+    const RON_5M = { ...CONTEXT, agariHai: HaiKind.ManZu5, isTsumo: false };
+
+    /** 候補の切り替えボタン（文言は「⭐ 符 翻」の形） */
+    function candidateButtons() {
+      return screen
+        .getAllByRole("button")
+        .filter((el) => el.textContent?.includes("mentsuBreakdownCandidateFu"));
+    }
+
+    /** 雀頭の行に枠付きの牌があるか */
+    function jantouHighlighted(): boolean {
+      const row = screen.getByText("jantou").closest("tr");
+      if (!row) throw new Error("雀頭の行が見つからない");
+      return Array.from(row.querySelectorAll("[data-testid=hai]")).some(
+        (el) => (el as HTMLElement).dataset.highlighted === "true",
+      );
+    }
+
+    it("解釈が 1 つの手では切り替えを出さない", () => {
+      render(<TehaiMentsuBreakdown tehai={MENTSU_TEHAI} context={CONTEXT} />);
+      openModal();
+
+      expect(candidateButtons()).toHaveLength(0);
+      expect(screen.queryByText("mentsuBreakdownBest")).toBeNull();
+    });
+
+    it("解釈が分かれる手では候補を高点法の順に並べ、最高点にバッジを付ける", () => {
+      render(<TehaiMentsuBreakdown tehai={TWO_WAYS_TEHAI} context={RON_5M} />);
+      openModal();
+
+      const buttons = candidateButtons();
+      expect(buttons).toHaveLength(2);
+      // 先頭（平和 + 一盃口 2翻30符）だけが最高点
+      expect(buttons[0]?.textContent).toContain("mentsuBreakdownBest");
+      expect(buttons[1]?.textContent).not.toContain("mentsuBreakdownBest");
+    });
+
+    it("候補を切り替えると分解と和了牌の位置が変わる", () => {
+      render(<TehaiMentsuBreakdown tehai={TWO_WAYS_TEHAI} context={RON_5M} />);
+      openModal();
+
+      // 既定は最高点の解釈: 5m は順子（両面）に入り、雀頭には付かない
+      expect(highlightedHais()).toEqual([HaiKind.ManZu5]);
+      expect(jantouHighlighted()).toBe(false);
+
+      fireEvent.click(candidateButtons()[1]!);
+
+      // 単騎の解釈: 5m は雀頭に付く
+      expect(highlightedHais()).toEqual([HaiKind.ManZu5]);
+      expect(jantouHighlighted()).toBe(true);
+    });
+  });
 });

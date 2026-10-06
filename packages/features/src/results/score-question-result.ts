@@ -7,6 +7,7 @@ import {
   tehaiToMspz,
 } from "@mahjong-scoring/core";
 import type {
+  RuleConfig,
   ScoreQuestion,
   ScoreTableAnswer,
   YakuDetail,
@@ -22,6 +23,7 @@ import { paymentToScoreTableAnswer } from "./payment-adapter";
 import {
   answerOutcomeSchema,
   questionTilesSnapshotSchema,
+  ruleConfigSchema,
   scoreTableAnswerSchema,
   toAnswerOutcome,
   yakuDetailSchema,
@@ -51,6 +53,13 @@ export interface ScoreQuestionSnapshot extends QuestionTilesSnapshot {
    * 示すために持つ。この項目を保存する前の旧データには存在しないため任意。
    */
   readonly yakuDetails?: readonly YakuDetail[];
+  /**
+   * 採点に使ったルール設定
+   *
+   * 結果ページの面子分解で候補を正解と同じ設定で評価するために持つ。
+   * この項目を保存する前の旧データには存在しないため任意。
+   */
+  readonly ruleConfig?: RuleConfig;
 }
 
 /**
@@ -104,6 +113,7 @@ export function toScoreQuestionSnapshot(
     isRiichi: question.isRiichi,
     uraDoraMarkers: question.uraDoraMarkers?.map(haiIdToMspz),
     yakuDetails: question.yakuDetails ?? [],
+    ruleConfig: question.ruleConfig,
   };
 }
 
@@ -155,6 +165,7 @@ export const scoreQuestionSnapshotSchema: z.ZodType<ScoreQuestionSnapshot> =
     isRiichi: z.boolean().optional(),
     uraDoraMarkers: z.array(z.string()).optional(),
     yakuDetails: z.array(yakuDetailSchema).optional(),
+    ruleConfig: ruleConfigSchema.optional(),
   });
 
 /**
@@ -211,6 +222,7 @@ export function restoreScoreQuestion(
     doraMarkers: parseMarkers(snapshot.doraMarkers) ?? [],
     isRiichi: snapshot.isRiichi,
     uraDoraMarkers: parseMarkers(snapshot.uraDoraMarkers),
+    ruleConfig: snapshot.ruleConfig,
   };
 }
 

@@ -2,6 +2,7 @@ import {
   calculateScoreForTehai,
   type Fu,
   type Kazehai,
+  type RuleConfig,
   type ScoreResult,
   type Tehai14,
 } from "@pai-forge/riichi-mahjong";
@@ -35,7 +36,7 @@ const CHIITOI_RATE = 0.12;
 function calculateFuSource(
   tehai: Tehai14,
   context: AgariContext,
-  renfonpaiAs4Fu: boolean,
+  ruleConfig: RuleConfig,
 ): ScoreResult | undefined {
   const result = calculateScoreForTehai(tehai, {
     agariHai: context.agariHai,
@@ -43,11 +44,14 @@ function calculateFuSource(
     jikaze: context.jikaze,
     bakaze: context.bakaze,
     doraMarkers: [],
-    ruleConfig: {
-      doubleWindJantouFu: doubleWindJantouFu(renfonpaiAs4Fu),
-    },
+    ruleConfig,
   });
   return result.isErr() ? undefined : result.value;
+}
+
+/** 符の練習が採点に使うルール設定（符に効くのは連風牌の雀頭符だけ） */
+function fuRuleConfig(renfonpaiAs4Fu: boolean): RuleConfig {
+  return { doubleWindJantouFu: doubleWindJantouFu(renfonpaiAs4Fu) };
 }
 
 /**
@@ -67,7 +71,7 @@ export function calculateTotalFu(
   context: AgariContext,
   renfonpaiAs4Fu = false,
 ): Fu | undefined {
-  const score = calculateFuSource(tehai, context, renfonpaiAs4Fu);
+  const score = calculateFuSource(tehai, context, fuRuleConfig(renfonpaiAs4Fu));
   if (!score?.detail || score.han === 0) return undefined;
   return score.detail.fuResult.total;
 }
@@ -129,15 +133,17 @@ export function generateTotalFuQuestion(
 
   // 2. 和了状況の決定
   const bakaze = randomChoice(BAKAZE_OPTIONS, rng);
-  const context: AgariContext = {
+  const ruleConfig = fuRuleConfig(renfonpaiAs4Fu);
+  const context: TotalFuQuestion["context"] = {
     agariHai: tehaiResult.agariHai,
     isTsumo: randomBool(0.5, rng),
     bakaze,
     jikaze: randomChoice(jikazeOptions(bakaze, excludeRenfonpai), rng),
+    ruleConfig,
   };
 
   // 3. 符の算出（ライブラリ境界）
-  const score = calculateFuSource(tehaiResult.tehai, context, renfonpaiAs4Fu);
+  const score = calculateFuSource(tehaiResult.tehai, context, ruleConfig);
   if (!score?.detail) return undefined;
 
   // 役が無い手はそもそも和了できず、出題として成立しない。

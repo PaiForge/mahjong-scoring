@@ -1,5 +1,10 @@
 import { parseHais, parseKazehai, parseTehai } from "@mahjong-scoring/core";
-import type { HaiKindId, Kazehai, Tehai } from "@mahjong-scoring/core";
+import type {
+  HaiKindId,
+  Kazehai,
+  RuleConfig,
+  Tehai,
+} from "@mahjong-scoring/core";
 
 /**
  * 結果に保存された牌まわりの MSPZ 文字列
@@ -56,6 +61,8 @@ export interface RestoredTehaiQuestion {
   readonly tehai: Tehai;
   readonly context: Omit<QuestionTiles, "tehai"> & {
     readonly isTsumo: boolean;
+    /** 採点に使ったルール設定（保存していれば）。面子分解の候補の評価に使う */
+    readonly ruleConfig?: RuleConfig;
   };
 }
 
@@ -67,14 +74,25 @@ export interface RestoredTehaiQuestion {
  * MSPZ のパースに失敗した場合は undefined を返し、手牌の再表示だけを諦める
  * （正誤や回答の比較は手牌の復元に依存しないため表示できる）。状況を足す
  * 練習（リーチ・ドラ等）は、戻り値の `context` に項目を足して使う。
+ * 採点に使ったルール設定を保存している結果からはそれも引き継ぐ。
  */
 export function restoreTehaiQuestion(
-  result: QuestionTilesSnapshot & { readonly isTsumo: boolean },
+  result: QuestionTilesSnapshot & {
+    readonly isTsumo: boolean;
+    readonly ruleConfig?: RuleConfig;
+  },
 ): RestoredTehaiQuestion | undefined {
   const tiles = parseQuestionTiles(result);
   if (!tiles) return undefined;
   const { tehai, ...context } = tiles;
-  return { tehai, context: { ...context, isTsumo: result.isTsumo } };
+  return {
+    tehai,
+    context: {
+      ...context,
+      isTsumo: result.isTsumo,
+      ruleConfig: result.ruleConfig,
+    },
+  };
 }
 
 /**

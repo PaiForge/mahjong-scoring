@@ -1,14 +1,10 @@
 import {
   MentsuType,
   isYaochu,
-  type HaiKindId,
   type Kazehai,
   type ScoreDetail,
 } from "@pai-forge/riichi-mahjong";
-import {
-  calculateMentsuFu,
-  isOpenMentsuForFu,
-} from "../core/score-calculation";
+import { calculateMentsuFu, isOpenMentsuAt } from "../core/score-calculation";
 import { jantouFuReasons } from "../problem/shared/jantou-fu";
 import { FU_STEP, FUTEI_FU } from "./mentsu-tehai-fu";
 import { openLabel, yaochuLabel } from "../problem/shared/mentsu-labels";
@@ -38,13 +34,15 @@ export interface FuDetail {
  * answer.fu と fuDetails の合計が必ず一致する
  * 符内訳変換
  *
+ * 和了牌の位置（どの面子を完成させたか）は `detail.structure.agari` が持つので
+ * 引数には取らない。明暗はそこから引く（{@link isOpenMentsuAt}）。
+ *
  * @param detail - ライブラリの ScoreDetail
- * @param config - 和了状況（和了牌、ツモ/ロン、場風、自風）
+ * @param config - 和了状況（ツモ/ロン、場風、自風）
  */
 export function convertScoreDetailToFuDetails(
   detail: Readonly<ScoreDetail>,
   config: {
-    readonly agariHai: HaiKindId;
     readonly isTsumo: boolean;
     readonly bakaze: Kazehai;
     readonly jikaze: Kazehai;
@@ -84,13 +82,13 @@ export function convertScoreDetailToFuDetails(
 
   // 面子符（個別の面子の内訳を構造から復元）
   if (details.mentsu > 0 && structure.type === "Mentsu") {
-    for (const mentsu of structure.fourMentsu) {
+    for (const [index, mentsu] of structure.fourMentsu.entries()) {
       if (mentsu.type === MentsuType.Shuntsu) continue;
 
       const isYao = isYaochu(mentsu.hais[0]);
 
-      // 明暗の判定（ライブラリの符計算ロジックと同一）
-      const isOpen = isOpenMentsuForFu(mentsu, config);
+      // 明暗の判定（ライブラリの符計算ロジックと同一。置き場所から引く）
+      const isOpen = isOpenMentsuAt(structure, index, config.isTsumo);
 
       const fu = calculateMentsuFu({
         isKantsu: mentsu.type === MentsuType.Kantsu,

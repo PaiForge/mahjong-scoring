@@ -73,6 +73,8 @@ describe("toFuQuestionResult", () => {
 
     expect(result.outcome).toBe("correct");
     expect(result.correctFu).toBe(question.answer);
+    // 採点に使ったルール設定（連風牌の雀頭符）も結果ページへ引き継ぐ
+    expect(result.ruleConfig).toEqual(question.context.ruleConfig);
 
     const parsed = parseFuQuestionResults([result]);
     expect(parsed).toHaveLength(1);

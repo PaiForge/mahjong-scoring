@@ -1,12 +1,18 @@
 "use client";
 
+import type { ReactNode } from "react";
+
 import {
   TOGGLE_GROUP_CONTAINER_CLASSES,
   toggleItemClasses,
 } from "./_lib/toggle-group-classes";
 
 interface ToggleGroupProps<T extends string> {
-  readonly options: readonly { readonly value: T; readonly label: string }[];
+  /** 選択肢。文言だけでなく、文言にバッジを添えた要素も置ける */
+  readonly options: readonly {
+    readonly value: T;
+    readonly label: ReactNode;
+  }[];
   readonly selected: T;
   readonly onChange: (value: T) => void;
 }

@@ -2,6 +2,7 @@ import type {
   AgariContext,
   HaiKindId,
   KazeContext,
+  RuleConfig,
   Tehai,
 } from "@mahjong-scoring/core";
 
@@ -27,6 +28,11 @@ export type TehaiContext = KazeContext &
     readonly doraMarkers?: readonly HaiKindId[];
     /** 裏ドラ表示牌。リーチしている出題でのみ表示する */
     readonly uraDoraMarkers?: readonly HaiKindId[];
+    /**
+     * 採点に使ったルール設定。面子分解の候補を正解と同じ設定で評価する
+     * ために出題から引き継ぐ。保存を始める前の結果データには無い
+     */
+    readonly ruleConfig?: RuleConfig;
   };
 
 /**
