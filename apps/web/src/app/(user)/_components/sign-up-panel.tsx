@@ -36,7 +36,7 @@ export function SignUpPanel({
   secondary,
 }: SignUpPanelProps) {
   return (
-    <section className="space-y-4 rounded-lg border-3 border-ink bg-surface-50 px-6 py-8 text-center">
+    <section className="space-y-4 rounded-panel border border-panel bg-surface-50 px-6 py-8 text-center">
       <h2 className="text-lg font-semibold text-surface-900">{title}</h2>
       <p className="mx-auto max-w-xl text-sm leading-relaxed text-surface-500">
         {description}

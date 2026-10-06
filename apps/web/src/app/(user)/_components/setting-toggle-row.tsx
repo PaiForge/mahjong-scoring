@@ -12,7 +12,7 @@ import {
 /** 設定項目を並べるカード */
 export function SettingsCard({ children }: { readonly children: ReactNode }) {
   return (
-    <div className="divide-y-2 divide-surface-100 overflow-hidden rounded-lg border-3 border-ink bg-white">
+    <div className="divide-y-2 divide-surface-100 overflow-hidden rounded-panel border border-panel bg-white">
       {children}
     </div>
   );

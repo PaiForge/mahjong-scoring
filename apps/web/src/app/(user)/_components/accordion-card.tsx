@@ -75,7 +75,7 @@ export function AccordionCard({
     <div
       ref={rootRef}
       id={anchorId}
-      className="scroll-mt-24 overflow-hidden rounded-lg border-3 border-ink bg-white"
+      className="scroll-mt-24 overflow-hidden rounded-panel border border-panel bg-white"
     >
       <button
         type="button"

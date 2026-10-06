@@ -57,7 +57,7 @@ export function SelectOptionList({
       role="listbox"
       aria-multiselectable
       aria-label={label}
-      className={`flex flex-col rounded-lg border-3 border-ink bg-white ${
+      className={`flex flex-col rounded-panel border border-panel bg-white ${
         scrollable ? "overflow-y-auto" : "overflow-hidden"
       } ${className}`}
     >

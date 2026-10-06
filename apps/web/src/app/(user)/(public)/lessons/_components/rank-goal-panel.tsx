@@ -56,12 +56,12 @@ export async function RankGoalPanel({
   return (
     <section
       aria-labelledby={HEADING_ID}
-      className="overflow-hidden rounded-xl border-3 border-ink bg-white"
+      className="overflow-hidden rounded-panel border border-panel bg-white"
       data-testid="rank-goal-panel"
     >
       <h3
         id={HEADING_ID}
-        className="border-b-3 border-ink bg-primary-50 px-4 py-3 text-sm font-bold text-surface-700"
+        className="border-b border-panel bg-primary-50 px-4 py-3 text-sm font-bold text-surface-700"
       >
         {t("title", { rank })}
       </h3>

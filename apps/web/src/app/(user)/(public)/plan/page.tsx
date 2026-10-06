@@ -113,7 +113,7 @@ export default async function PlanPage() {
               return (
                 <div
                   key={offer}
-                  className="flex flex-col gap-4 rounded-xl border-3 border-ink bg-white p-5"
+                  className="flex flex-col gap-4 rounded-panel border border-panel bg-white p-5"
                 >
                   <div className="space-y-1">
                     <h3 className="text-lg font-bold">

@@ -31,7 +31,7 @@ export function DerivationFigure({
   footer,
 }: DerivationFigureProps) {
   return (
-    <figure className="space-y-3 rounded-xl border-3 border-ink bg-white p-5">
+    <figure className="space-y-3 rounded-panel border border-panel bg-white p-5">
       <figcaption className="text-xs font-semibold tracking-wider text-surface-400 uppercase">
         {caption}
       </figcaption>

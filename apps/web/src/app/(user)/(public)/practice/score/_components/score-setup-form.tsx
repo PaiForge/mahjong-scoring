@@ -177,12 +177,12 @@ export function ScoreSetupForm({
     // フル幅ボタン）でスケルトンを描画し、実 UI 表示時の CLS を防ぐ。
     // 最後の行（回答時間の計測）は Pro でない閲覧者が多数なので、ロック行の
     // 高さ（見出し・利用条件・料金ページへのリンクの 3 段）に合わせる。
-    // 実 UI の苔緑の太枠（border-ink）は写さず灰色にする（ProblemListSkeleton と
+    // 実 UI の細枠（border-panel）は灰色にする（ProblemListSkeleton と
     // 同じ理由）。枠は border-box なので寸法は実 UI と一致したまま。
     return (
       <div className="space-y-4 sm:space-y-6 md:space-y-8">
         {/* Settings card: トグル5行 */}
-        <div className="overflow-hidden rounded-xl border-3 border-surface-100 bg-surface-50">
+        <div className="overflow-hidden rounded-panel border border-surface-100 bg-surface-50">
           <div className="flex flex-col">
             {["requireYaku", "simplifyMangan", "requireFu", "autoNext"].map(
               (key) => (
@@ -236,7 +236,7 @@ export function ScoreSetupForm({
     // 要素間の余白を ContentContainer カードのパディング（p-4 sm:p-6 md:p-8）と同じ
     // レスポンシブ値に揃える。SectionTitle との間隔も親（page.tsx）の space-y が担う。
     <div className="space-y-4 sm:space-y-6 md:space-y-8">
-      <div className="overflow-hidden rounded-xl border-3 border-ink bg-white">
+      <div className="overflow-hidden rounded-panel border border-panel bg-white">
         <div className="flex flex-col">
           <SettingToggle
             checked={requireYaku}

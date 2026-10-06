@@ -46,7 +46,7 @@ export async function NextLessonPreview({ slug }: NextLessonPreviewProps) {
   return (
     <section
       aria-labelledby={HEADING_ID}
-      className="overflow-hidden rounded-xl border-3 border-ink bg-white"
+      className="overflow-hidden rounded-panel border border-panel bg-white"
       data-testid="next-lesson-preview"
     >
       {/* 見出し帯は教本の表（DataTable）のヘッダー行と同じ体裁。節の見出し
@@ -54,7 +54,7 @@ export async function NextLessonPreview({ slug }: NextLessonPreviewProps) {
           完了の続きではなく別の話題に見える */}
       <h3
         id={HEADING_ID}
-        className="border-b-3 border-ink bg-primary-50 px-4 py-3 text-sm font-bold text-surface-700"
+        className="border-b border-panel bg-primary-50 px-4 py-3 text-sm font-bold text-surface-700"
       >
         {t("title")}
       </h3>

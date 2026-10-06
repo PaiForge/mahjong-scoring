@@ -28,7 +28,7 @@ async function PracticalPracticeCard({ menu }: { readonly menu: QuotaMenu }) {
     // なく、右下の「くわしく見る」だけがリンク。行き先は play ではなく説明と
     // 設定のページなので、「練習する」のように始まる印象の文言は使わない
     // （緑はボタン = 押して始める面の色で、リンクには使わない）
-    <article className="flex h-full flex-col rounded-2xl border-3 border-ink bg-white">
+    <article className="flex h-full flex-col rounded-panel border border-panel bg-white">
       <div className="flex flex-1 flex-col p-5">
         <div
           aria-hidden="true"

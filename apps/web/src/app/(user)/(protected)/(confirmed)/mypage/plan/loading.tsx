@@ -17,7 +17,7 @@ export default function Loading() {
       <div className="space-y-8">
         <section className="space-y-4">
           <SectionTitleSkeleton width="w-24" />
-          <div className="space-y-3 rounded-xl border-3 border-surface-100 bg-surface-50 p-5">
+          <div className="space-y-3 rounded-panel border border-surface-100 bg-surface-50 p-5">
             <SkeletonBar className="h-6 w-40" />
             <SkeletonBar className="h-4 w-full" />
             <SkeletonBar radius="lg" className="h-[50px] w-full" />

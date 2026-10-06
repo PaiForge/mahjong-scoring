@@ -56,7 +56,7 @@ export function HeatmapDetailPanel({
 
   return (
     <div
-      className="rounded-lg border-3 border-ink bg-surface-50 p-4 text-sm"
+      className="rounded-panel border border-panel bg-surface-50 p-4 text-sm"
       role="status"
       aria-live="polite"
     >

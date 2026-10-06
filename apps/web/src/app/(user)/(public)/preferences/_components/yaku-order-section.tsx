@@ -240,7 +240,7 @@ export function YakuOrderSection() {
         </p>
       )}
 
-      <div className="overflow-hidden rounded-lg border-3 border-ink bg-white">
+      <div className="overflow-hidden rounded-panel border border-panel bg-white">
         {/* id を渡さないと dnd-kit が内部カウンタで aria-describedby を振り、
             SSR とクライアントでずれてハイドレーション不一致になる */}
         <DndContext

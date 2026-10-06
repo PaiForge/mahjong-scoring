@@ -113,7 +113,7 @@ interface DataTableProps {
  * データテーブルの外枠
  * データテーブル
  *
- * 太枠・ヘッダー行の背景・破線の行区切りというアプリ共通の表の体裁を
+ * 細枠・ヘッダー行の背景・破線の行区切りというアプリ共通の表の体裁を
  * 1 箇所に集約する。教本の早見表と点数表リファレンスで共有する。
  * サーバー / クライアントどちらのコンポーネントからも使える。
  *
@@ -140,10 +140,10 @@ export function DataTable({
     .join(" ");
 
   return (
-    <div className="overflow-x-auto rounded-xl border-3 border-ink">
+    <div className="overflow-x-auto rounded-panel border border-panel">
       <table className={className}>
         <thead>
-          <tr className="border-b-3 border-ink bg-primary-50">{header}</tr>
+          <tr className="border-b border-panel bg-primary-50">{header}</tr>
         </thead>
         <tbody className="divide-y-2 divide-dashed divide-surface-200">
           {children}

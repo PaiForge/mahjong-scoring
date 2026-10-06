@@ -26,7 +26,7 @@ const items = [
 ] as const;
 
 const panelClasses =
-  "overflow-hidden rounded-xl border border-surface-200 bg-card";
+  "overflow-hidden rounded-panel border border-panel bg-card";
 const rowClasses =
   "flex min-h-24 items-center gap-3 px-4 py-5 sm:gap-4 sm:px-5";
 
