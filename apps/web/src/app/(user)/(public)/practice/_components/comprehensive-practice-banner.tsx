@@ -9,6 +9,8 @@ import {
 import type { QuotaMenu } from "@mahjong-scoring/features/quota/limits";
 import { TehaiHand } from "../../_components/tehai-hand";
 import { TileSet } from "@/app/(user)/_components/tile-set";
+import { ChevronRightIcon } from "@/app/(user)/_components/icons/chevron-right-icon";
+import { TEXT_LINK_CLASSES } from "@/app/_components/_lib/link-classes";
 import { PracticeEntryQuota } from "./practice-entry-quota";
 
 // 三筒で和了するデモから1枚抜いた、三筒・六筒待ちの聴牌形。
@@ -22,11 +24,12 @@ async function PracticalPracticeCard({ menu }: { readonly menu: QuotaMenu }) {
     ? COMPREHENSIVE_PRACTICE_HREF
     : MACHI_SCORE_PRACTICE_HREF;
   return (
-    <article className="flex h-full flex-col rounded-2xl border-3 border-ink bg-white shadow-sm">
-      <Link
-        href={href}
-        className="group flex flex-1 flex-col rounded-t-xl p-5 hover:bg-primary-50"
-      >
+    // 基礎練習のカード（PracticeCard）と同じ組み方: カード自体は押せる面では
+    // なく、右下の「くわしく見る」だけがリンク。行き先は play ではなく説明と
+    // 設定のページなので、「練習する」のように始まる印象の文言は使わない
+    // （緑はボタン = 押して始める面の色で、リンクには使わない）
+    <article className="flex h-full flex-col rounded-2xl border-3 border-ink bg-white">
+      <div className="flex flex-1 flex-col p-5">
         <div
           aria-hidden="true"
           className="mb-5 flex min-h-40 flex-col justify-center gap-4 overflow-hidden rounded-xl bg-primary-800 p-3"
@@ -64,10 +67,16 @@ async function PracticalPracticeCard({ menu }: { readonly menu: QuotaMenu }) {
         <p className="mt-2 flex-1 text-sm leading-relaxed text-surface-500">
           {t(`${key}.description`)}
         </p>
-        <span className="mt-5 font-bold text-primary-700 group-hover:underline">
-          {t("preview.start")} →
-        </span>
-      </Link>
+        <div className="mt-4 flex justify-end">
+          <Link
+            href={href}
+            className={`flex items-center text-sm font-bold ${TEXT_LINK_CLASSES}`}
+          >
+            {t("detail")}
+            <ChevronRightIcon className="ml-1 size-4" />
+          </Link>
+        </div>
+      </div>
       <div className="border-t border-surface-200 px-5 py-4">
         <PracticeEntryQuota menu={menu} />
       </div>

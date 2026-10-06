@@ -30,6 +30,8 @@ import { ScorePracticeBoardSkeleton } from "./score-practice-board-skeleton";
 import { GenerationFailedNotice } from "./generation-failed-notice";
 import { ResultDisplay } from "./result-display";
 import { ScoreCounter } from "../../_components/score-counter";
+import { ScoreSpotlightTour } from "./score-spotlight-tour";
+import { SCORE_TOUR_ID } from "../_lib/tour-ids";
 import {
   PracticeFooterAction,
   PracticeFooterActions,
@@ -242,6 +244,7 @@ function ScorePracticeBoardInner() {
         <QuestionDisplay
           question={currentQuestion}
           mobileFrame="fullBleedFlushTop"
+          tourId={SCORE_TOUR_ID.board}
         />
 
         {/* Answer area（開示時は userAnswer / judgementResult なしで結果表示を出す）
@@ -279,7 +282,16 @@ function ScorePracticeBoardInner() {
           /* 出題文はフォームの見出しなので、盤面全体の余白ではなく
              フォームと近い間隔で組にする */
           <div className="space-y-4">
-            <QuestionPrompt>{t("board.questionPrompt")}</QuestionPrompt>
+            {/* 出題文の右端にヘルプツアーの「?」を添える。説明する欄は
+                この下に並ぶので、ページの見出しより入口として近い
+                （待ち別点数計算と同じ置き方） */}
+            <div className="flex items-center justify-center gap-1.5">
+              <QuestionPrompt>{t("board.questionPrompt")}</QuestionPrompt>
+              <ScoreSpotlightTour
+                simplifyMangan={simplifyMangan}
+                requireFuForMangan={requireFuForMangan}
+              />
+            </div>
 
             <ScorePracticeAnswerForm
               key={questionSeq}
@@ -321,9 +333,11 @@ function ScorePracticeBoardInner() {
             回答・開示後も消さずに無効化して残すのは、終了リンクの位置を
             動かさないため */}
         <PracticeFooterActions>
-          <PracticeFooterAction onClick={handleReveal} disabled={isAnswered}>
-            {tt("revealButton")}
-          </PracticeFooterAction>
+          <div data-tour-id={SCORE_TOUR_ID.reveal}>
+            <PracticeFooterAction onClick={handleReveal} disabled={isAnswered}>
+              {tt("revealButton")}
+            </PracticeFooterAction>
+          </div>
           <PracticeFooterAction onClick={handleBackToSetup}>
             {tt("exitButton")}
           </PracticeFooterAction>

@@ -264,21 +264,15 @@ function MachiScoreBoardInner() {
       <PageTitle>{t("title")}</PageTitle>
 
       <div className="space-y-4 sm:space-y-6 md:space-y-8">
-        {/* 裏ドラは待ちを答えるまで伏せる。ツアーの対象にするため div で包む
-            （盤面は <sm で負のマージンを持つので、包んだ div も同じ幅になる）。
+        {/* 裏ドラは待ちを答えるまで伏せる。
             聴牌形の説明は待ちを読む最初の段階だけに出す。あとの段階で
             同じ説明を繰り返すと冗長なので、対象の印を外してツアーに飛ばさせる */}
-        <div
-          data-tour-id={
-            phase === "machi" ? MACHI_SCORE_TOUR_ID.board : undefined
-          }
-        >
-          <TenpaiDisplay
-            question={currentQuestion}
-            showUraDora={phase !== "machi"}
-            mobileFrame="fullBleedFlushTop"
-          />
-        </div>
+        <TenpaiDisplay
+          question={currentQuestion}
+          showUraDora={phase !== "machi"}
+          mobileFrame="fullBleedFlushTop"
+          tourId={phase === "machi" ? MACHI_SCORE_TOUR_ID.board : undefined}
+        />
 
         {phase === "machi" && (
           <div className="space-y-4">

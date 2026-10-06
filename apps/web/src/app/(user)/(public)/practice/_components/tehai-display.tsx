@@ -52,6 +52,14 @@ interface TehaiDisplayProps {
    * `space-y-*` のラッパーだけなら同じように働く。
    */
   readonly mobileFrame?: MobileFrame;
+  /**
+   * ヘルプツアー（`SpotlightTour`）が照らすための `data-tour-id`
+   *
+   * 盤面の要素に直接付ける。呼び出し側で div に包んで印を付けると、
+   * <sm で盤面が持つ負のマージン（`-mx-4`）は包んだ div の幅に反映されず、
+   * スポットライトが盤面の左右 16px ずつ内側で切れる
+   */
+  readonly tourId?: string;
 }
 
 /** モバイルでの盤面の広げ方 */
@@ -87,6 +95,7 @@ export const TehaiDisplay = memo(function TehaiDisplayComponent({
   context,
   onScaleChange,
   mobileFrame = "inset",
+  tourId,
 }: TehaiDisplayProps) {
   const t = useTranslations("common");
   const doraDisplay = useDoraDisplayMode();
@@ -132,6 +141,7 @@ export const TehaiDisplay = memo(function TehaiDisplayComponent({
   return (
     <div
       className={`border-ink bg-primary-800 ${MOBILE_FRAME_CLASSES[mobileFrame]}`}
+      data-tour-id={tourId}
     >
       <div
         ref={infoWrapperRef}
