@@ -127,7 +127,11 @@ export default async function DojoPage() {
         )}
 
         <section className="space-y-4">
-          <SectionTitle>{t("journeyTitle")}</SectionTitle>
+          {/* ツアーは見出しの pill だけを照らす（節全体だと全級のカードまで
+              照らしてしまう）。w-fit で包みを pill の幅に縮める */}
+          <div data-tour-id={DOJO_TOUR_ID.journeyTitle} className="w-fit">
+            <SectionTitle>{t("journeyTitle")}</SectionTitle>
+          </div>
           <ol className="space-y-4">
             {journey.ranks.map((rankJourney) => (
               <li key={rankJourney.rank.slug}>

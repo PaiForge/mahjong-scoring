@@ -44,6 +44,11 @@ export function DojoSpotlightTour() {
       description: t("stages.description"),
     },
     {
+      targetId: DOJO_TOUR_ID.journeyTitle,
+      title: t("blackBelt.title"),
+      description: t("blackBelt.description"),
+    },
+    {
       targetId: DOJO_TOUR_ID.lockedNote,
       title: t("locked.title"),
       description: t("locked.description"),

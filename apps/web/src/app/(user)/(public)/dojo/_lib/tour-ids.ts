@@ -12,6 +12,8 @@ export const DOJO_TOUR_ID = {
   nextRankHeader: "dojo-next-rank-header",
   /** 次の目標の級の進み具合（学ぶ・練習する・試験） */
   nextRankStages: "dojo-next-rank-stages",
+  /** 黒帯への道の見出し（黒帯 = 何の認定かを説明する） */
+  journeyTitle: "dojo-journey-title",
   /** 未取得の上位級の施錠の注記（最初の 1 つを照らす） */
   lockedNote: "dojo-locked-note",
 } as const;
