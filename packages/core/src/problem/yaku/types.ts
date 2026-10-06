@@ -11,6 +11,12 @@ export interface YakuQuestion {
   readonly tehai: Tehai14;
   /** リーチ・ドラは役の成否に直結するため、この練習では必須 */
   readonly context: AgariContext & {
+    /**
+     * リーチを宣言しているか（盤面にリーチ棒を出す）。
+     *
+     * 宣言していても役満の手では `correctYakuNames` に「立直」が入らない
+     * （役満は通常役と複合しない）。
+     */
     readonly isRiichi: boolean;
     readonly doraMarkers: readonly HaiKindId[];
     /**
