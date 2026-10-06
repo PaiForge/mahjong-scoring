@@ -6,6 +6,7 @@ import {
   type PendingLessonCompletion,
 } from "@mahjong-scoring/features/lessons/pending-completions";
 import type { CurriculumChapterSlug } from "@mahjong-scoring/features/curriculum/registry";
+import { safeLocalStorage } from "@/lib/safe-storage";
 
 /**
  * 未同期のレッスン完了の置き場（web は localStorage）
@@ -17,32 +18,21 @@ import type { CurriculumChapterSlug } from "@mahjong-scoring/features/curriculum
  * （同じブラウザなら別タブでも読める）。
  *
  * localStorage はプライベートウィンドウや設定で使えないことがあるので、
- * 読み書きはすべて try/catch で包み、失敗は「預かり無し」として黙って扱う
- * （預けられなくても学習自体は終わっている。失われるのは引き継ぎだけ）。
+ * 読み書きは例外を投げない `safeLocalStorage` を通し、失敗は「預かり無し」
+ * として黙って扱う（預けられなくても学習自体は終わっている。失われるのは
+ * 引き継ぎだけ）。
  */
 
 const STORAGE_KEY = "mahjong-scoring:pending-lesson-completions";
 
-function readRaw(): string | null {
-  try {
-    return localStorage.getItem(STORAGE_KEY);
-  } catch {
-    return null;
-  }
-}
-
 function write(entries: readonly PendingLessonCompletion[]): void {
-  try {
-    if (entries.length === 0) {
-      localStorage.removeItem(STORAGE_KEY);
-    } else {
-      localStorage.setItem(
-        STORAGE_KEY,
-        serializePendingLessonCompletions(entries),
-      );
-    }
-  } catch {
-    // 預けられなくても学習は終わっている。引き継ぎだけが失われる
+  if (entries.length === 0) {
+    safeLocalStorage.removeItem(STORAGE_KEY);
+  } else {
+    safeLocalStorage.setItem(
+      STORAGE_KEY,
+      serializePendingLessonCompletions(entries),
+    );
   }
 }
 
@@ -54,7 +44,10 @@ function write(entries: readonly PendingLessonCompletion[]): void {
 export function readPendingLessonCompletions(
   now: number = Date.now(),
 ): readonly PendingLessonCompletion[] {
-  return parsePendingLessonCompletions(readRaw(), now);
+  return parsePendingLessonCompletions(
+    safeLocalStorage.getItem(STORAGE_KEY),
+    now,
+  );
 }
 
 /**
