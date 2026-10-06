@@ -1,6 +1,6 @@
 import { render, screen } from "@testing-library/react";
 import { NextIntlClientProvider } from "next-intl";
-import { beforeEach, expect, it, vi } from "vitest";
+import { afterEach, beforeEach, expect, it, vi } from "vitest";
 import { messages } from "@mahjong-scoring/messages/ja";
 import { PracticeModeSwitcher } from "./practice-mode-switcher";
 let query = "";
@@ -10,6 +10,9 @@ vi.mock("next/navigation", () => ({
 beforeEach(() => {
   query = "";
   localStorage.clear();
+});
+afterEach(() => {
+  vi.restoreAllMocks();
 });
 function show() {
   return render(
@@ -48,4 +51,19 @@ it("実戦への直接リンクで選択を保存する", () => {
     screen.getByRole("link", { name: "実戦練習" }).getAttribute("aria-current"),
   ).toBe("page");
   expect(localStorage.getItem("practice-mode")).toBe("practical");
+});
+it("localStorage が使えないときは初回と同じ基礎練習を表示し、直接リンクの切り替えは効く", () => {
+  const denied = () => {
+    throw new DOMException("access denied", "SecurityError");
+  };
+  vi.spyOn(Storage.prototype, "getItem").mockImplementation(denied);
+  vi.spyOn(Storage.prototype, "setItem").mockImplementation(denied);
+
+  const { unmount } = show();
+  expect(screen.getByText("基礎一覧")).toBeTruthy();
+  unmount();
+
+  query = "mode=practical";
+  show();
+  expect(screen.getByText("実戦一覧")).toBeTruthy();
 });

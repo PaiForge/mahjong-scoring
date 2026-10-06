@@ -1,4 +1,4 @@
-import { afterEach, describe, expect, it } from "vitest";
+import { afterEach, describe, expect, it, vi } from "vitest";
 import { act, renderHook } from "@testing-library/react";
 import { useStoredRecordedResults } from "./use-stored-recorded-results";
 import type { FinalResult } from "@mahjong-scoring/features/session/use-timed-session";
@@ -38,6 +38,7 @@ function saved(): readonly Row[] {
 
 describe("useStoredRecordedResults", () => {
   afterEach(() => {
+    vi.restoreAllMocks();
     sessionStorage.clear();
   });
 
@@ -132,5 +133,24 @@ describe("useStoredRecordedResults", () => {
     rerender({ finalResult: finished("timeUp") });
 
     expect(sessionStorage.length).toBe(0);
+  });
+
+  it("sessionStorage に書けないとき（容量超過・プライベートモード）も終了を落とさない", () => {
+    vi.spyOn(Storage.prototype, "setItem").mockImplementation(() => {
+      throw new DOMException("quota exceeded", "QuotaExceededError");
+    });
+    const { result, rerender } = renderHook(
+      ({ finalResult }: Props) =>
+        useStoredRecordedResults<Row>(KEY, finalResult),
+      { initialProps: NOT_FINISHED },
+    );
+    act(() => {
+      result.current.recordResult({ id: "a" });
+    });
+
+    expect(() => {
+      rerender({ finalResult: finished("mistakeLimit") });
+    }).not.toThrow();
+    expect(saved()).toEqual([]);
   });
 });

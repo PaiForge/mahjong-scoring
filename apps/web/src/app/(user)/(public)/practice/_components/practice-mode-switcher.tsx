@@ -10,19 +10,16 @@ import {
   type ReactNode,
 } from "react";
 import { TOGGLE_GROUP_CONTAINER_CLASSES } from "@/app/(user)/_components/_lib/toggle-group-classes";
+import { safeLocalStorage } from "@/lib/safe-storage";
 
 const STORAGE_KEY = "practice-mode";
 const CHANGE_EVENT = "practice-mode-change";
 type Mode = "basic" | "practical";
 
 function readMode(): Mode {
-  try {
-    return localStorage.getItem(STORAGE_KEY) === "practical"
-      ? "practical"
-      : "basic";
-  } catch {
-    return "basic";
-  }
+  return safeLocalStorage.getItem(STORAGE_KEY) === "practical"
+    ? "practical"
+    : "basic";
 }
 
 function subscribe(callback: () => void) {
@@ -83,12 +80,9 @@ function ModeFromQuery(props: Props) {
   const mode = explicit ?? saved;
   useEffect(() => {
     if (!explicit) return;
-    try {
-      localStorage.setItem(STORAGE_KEY, explicit);
-      window.dispatchEvent(new Event(CHANGE_EVENT));
-    } catch {
-      /* 保存できなくても URL による切り替えは使える */
-    }
+    // 保存できなくても URL による切り替えは使える
+    safeLocalStorage.setItem(STORAGE_KEY, explicit);
+    window.dispatchEvent(new Event(CHANGE_EVENT));
   }, [explicit]);
   return <ModeContent {...props} mode={mode} />;
 }

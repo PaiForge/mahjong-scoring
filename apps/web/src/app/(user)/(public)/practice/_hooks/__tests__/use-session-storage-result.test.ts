@@ -1,5 +1,5 @@
 import { renderHook } from "@testing-library/react";
-import { afterEach, describe, expect, it } from "vitest";
+import { afterEach, describe, expect, it, vi } from "vitest";
 
 import { packStoredResults } from "@mahjong-scoring/features/challenge/challenge-run";
 import { useSessionStorageResult } from "../use-session-storage-result";
@@ -12,6 +12,7 @@ const parse = (stored: unknown): readonly string[] =>
   Array.isArray(stored) ? stored.map(String) : [];
 
 afterEach(() => {
+  vi.restoreAllMocks();
   sessionStorage.clear();
 });
 
@@ -50,6 +51,20 @@ describe("useSessionStorageResult", () => {
   });
 
   it("値が無ければ空配列を返す", () => {
+    const { result } = renderHook(() =>
+      useSessionStorageResult(KEY, RUN, parse),
+    );
+
+    expect(result.current).toEqual([]);
+  });
+
+  it("sessionStorage が読めないときは値が無いときと同じ空配列を返す", () => {
+    // プライベートモードやサイトデータの禁止で読み取りが投げても結果画面を落とさない
+    sessionStorage.setItem(KEY, packStoredResults(RUN, ["stored"]));
+    vi.spyOn(Storage.prototype, "getItem").mockImplementation(() => {
+      throw new DOMException("access denied", "SecurityError");
+    });
+
     const { result } = renderHook(() =>
       useSessionStorageResult(KEY, RUN, parse),
     );

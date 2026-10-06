@@ -1,8 +1,9 @@
-import { afterEach, describe, expect, it } from "vitest";
+import { afterEach, describe, expect, it, vi } from "vitest";
 
 import { PENDING_LESSON_COMPLETION_TTL_MS } from "@mahjong-scoring/features/lessons/pending-completions";
 
 import {
+  forgetPendingLessonCompletions,
   readPendingLessonCompletions,
   rememberPendingLessonCompletion,
 } from "../pending-completions-storage";
@@ -10,6 +11,7 @@ import {
 const T0 = Date.UTC(2026, 9, 4, 12);
 
 afterEach(() => {
+  vi.restoreAllMocks();
   localStorage.clear();
 });
 
@@ -38,5 +40,22 @@ describe("pending lesson completions in localStorage", () => {
     expect(readPendingLessonCompletions(later)).toEqual([
       { slug: "mangan-ko-tsumo", completedAt: later },
     ]);
+  });
+
+  it("localStorage が使えないときは預かり無しとして扱い、預ける・外す操作も落ちない", () => {
+    const denied = () => {
+      throw new DOMException("access denied", "SecurityError");
+    };
+    vi.spyOn(Storage.prototype, "getItem").mockImplementation(denied);
+    vi.spyOn(Storage.prototype, "setItem").mockImplementation(denied);
+    vi.spyOn(Storage.prototype, "removeItem").mockImplementation(denied);
+
+    expect(readPendingLessonCompletions(T0)).toEqual([]);
+    expect(() => {
+      rememberPendingLessonCompletion("mangan-ko-ron", undefined, T0);
+    }).not.toThrow();
+    expect(() => {
+      forgetPendingLessonCompletions(["mangan-ko-ron"]);
+    }).not.toThrow();
   });
 });
