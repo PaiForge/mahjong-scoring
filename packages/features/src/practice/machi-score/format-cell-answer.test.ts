@@ -1,5 +1,9 @@
 import { describe, expect, it } from "vitest";
-import { formatCellAnswer, formatCellAnswerLines } from "./format-cell-answer";
+import {
+  cellAnswerFormatters,
+  formatCellAnswer,
+  formatCellAnswerLines,
+} from "./format-cell-answer";
 
 /** 辞書の代わり。キーの末尾だけを返す */
 const t = (key: string) =>
@@ -95,5 +99,27 @@ describe("formatCellAnswerLines", () => {
     expect(
       formatCellAnswerLines({ kind: "noYaku" }, { ...base, isOyaTsumo: false }),
     ).toEqual(["役なし"]);
+  });
+});
+
+describe("cellAnswerFormatters", () => {
+  const answer = {
+    kind: "score",
+    answer: { han: 1, fu: 30, score: 500, yakus: [] },
+  } as const;
+
+  it("親の問題ではツモ列だけ「オール」を付ける", () => {
+    const { formatAnswer, formatAnswerLines } = cellAnswerFormatters({
+      ...base,
+      isOya: true,
+    });
+    expect(formatAnswer(answer, true)).toBe("1翻 30符 500オール");
+    expect(formatAnswer(answer, false)).toBe("1翻 30符 500点");
+    expect(formatAnswerLines(answer, true)).toEqual(["1翻 30符", "500オール"]);
+  });
+
+  it("子の問題ではツモ列でも「オール」を付けない", () => {
+    const { formatAnswer } = cellAnswerFormatters({ ...base, isOya: false });
+    expect(formatAnswer(answer, true)).toBe("1翻 30符 500点");
   });
 });

@@ -3,16 +3,13 @@ import { ScrollView, StyleSheet, Text, View } from "react-native";
 import { useRouter } from "expo-router";
 import { useTranslations } from "use-intl";
 import { allowsDoubleYakuman, isOya } from "@mahjong-scoring/core";
-import type { MachiCellAnswer, UserAnswer } from "@mahjong-scoring/core";
+import type { UserAnswer } from "@mahjong-scoring/core";
 import {
   cellKeyOf,
   listCellRefs,
 } from "@mahjong-scoring/features/practice/machi-score/cell-ref";
 import { sharedAnswerOfCells } from "@mahjong-scoring/features/practice/machi-score/cell-runs";
-import {
-  formatCellAnswer,
-  formatCellAnswerLines,
-} from "@mahjong-scoring/features/practice/machi-score/format-cell-answer";
+import { cellAnswerFormatters } from "@mahjong-scoring/features/practice/machi-score/format-cell-answer";
 import { MACHI_SCORE_PRACTICE_HREF } from "@mahjong-scoring/features/routes";
 
 import { BoardBleedProvider } from "../../../board/board-bleed";
@@ -161,17 +158,13 @@ export function MachiScoreBoard() {
     if (currentQuestion === undefined) return undefined;
 
     const isOyaQuestion = isOya(currentQuestion.jikaze);
-    const formatOptions = (isTsumo: boolean) => ({
+    const { formatAnswer, formatAnswerLines } = cellAnswerFormatters({
       t: tScore,
       noYakuLabel: t("cells.noYakuShort"),
       simplifyMangan,
       allowDoubleYakuman,
-      isOyaTsumo: isOyaQuestion && isTsumo,
+      isOya: isOyaQuestion,
     });
-    const formatAnswer = (answer: MachiCellAnswer, isTsumo: boolean) =>
-      formatCellAnswer(answer, formatOptions(isTsumo));
-    const formatAnswerLines = (answer: MachiCellAnswer, isTsumo: boolean) =>
-      formatCellAnswerLines(answer, formatOptions(isTsumo));
 
     const remaining = listCellRefs(currentQuestion).filter(
       (cell) => !(cellKeyOf(cell) in cellAnswers),
