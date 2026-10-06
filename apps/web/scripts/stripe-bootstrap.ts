@@ -41,6 +41,7 @@ import {
   type OfferKey,
   type PlanKey,
 } from "@mahjong-scoring/features/billing/plans";
+import { STRIPE_API_VERSION } from "../src/lib/billing/api-version";
 import { STRIPE_WEBHOOK_EVENTS } from "../src/lib/billing/webhook-events";
 
 dotenv.config({ path: [".env.local", ".env"] });
@@ -112,7 +113,7 @@ const amounts: Readonly<Record<OfferKey, number>> = {
   lifetime: parseAmount(args["lifetime-amount"], DEFAULT_AMOUNTS.lifetime),
 };
 
-const stripe = new Stripe(secretKey);
+const stripe = new Stripe(secretKey, { apiVersion: STRIPE_API_VERSION });
 
 async function findProductForPlan(
   plan: PlanKey,

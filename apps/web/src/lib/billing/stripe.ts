@@ -1,16 +1,8 @@
 import "server-only";
 import Stripe from "stripe";
 
+import { STRIPE_API_VERSION } from "./api-version";
 import { getStripeSecretKey } from "./env";
-
-/**
- * SDK に固定する Stripe API のバージョン
- * StripeAPIバージョン
- *
- * SDK の型はこのバージョンの応答形に対応している。SDK を上げるときは
- * `node_modules/stripe/esm/apiVersion.js` の値に合わせて更新する。
- */
-const STRIPE_API_VERSION = "2026-09-30.endive";
 
 let stripeClient: Stripe | undefined;
 
