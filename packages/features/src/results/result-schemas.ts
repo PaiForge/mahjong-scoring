@@ -68,6 +68,18 @@ export const AnswerOutcome = {
 } as const;
 export type AnswerOutcome = (typeof AnswerOutcome)[keyof typeof AnswerOutcome];
 
+/**
+ * 答えた問題の正誤
+ * 正誤
+ *
+ * 顛末から時間切れを除いた 2 値。正誤の記号・色・触覚のように、答えた
+ * 問題にだけ付くものがこれを受け取る。
+ */
+export type JudgementVerdict = Exclude<
+  AnswerOutcome,
+  typeof AnswerOutcome.TimeUp
+>;
+
 /** 回答の顛末のスキーマ */
 export const answerOutcomeSchema: z.ZodType<AnswerOutcome> =
   z.enum(AnswerOutcome);

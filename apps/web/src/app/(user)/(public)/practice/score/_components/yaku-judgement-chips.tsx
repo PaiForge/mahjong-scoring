@@ -8,7 +8,7 @@ import type {
 import { resolveYakuCheatsheetName } from "@/app/(user)/(public)/reference/yaku/_lib/yaku-examples";
 import { YAKU_SELECTION_CLASSES } from "../../_lib/yaku-selection-classes";
 import { JudgementMark } from "../../_components/judgement-mark";
-import type { JudgementVerdict } from "../../_components/judgement-mark";
+import type { JudgementVerdict } from "@mahjong-scoring/features/results/result-schemas";
 
 /**
  * 色だけに頼らず正誤が読めるようにチップへ添える記号。選び忘れは記号では

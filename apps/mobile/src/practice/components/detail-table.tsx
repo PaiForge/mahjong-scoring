@@ -1,18 +1,17 @@
+import type { JudgementVerdict } from "@mahjong-scoring/features/results/result-schemas";
 import type { ReactNode } from "react";
 import { StyleSheet, Text, View } from "react-native";
 
 import { colors } from "../../lib/theme";
 
-type DetailTone = "correct" | "incorrect";
-
 /** 内訳の表の 1 行 */
 export interface DetailTableRow {
   readonly label: ReactNode;
   readonly value: ReactNode;
-  readonly tone?: DetailTone;
+  readonly tone?: JudgementVerdict;
 }
 
-const TONE_COLOR: Readonly<Record<DetailTone, string>> = {
+const TONE_COLOR: Readonly<Record<JudgementVerdict, string>> = {
   correct: colors.primary600,
   incorrect: colors.destructive,
 };

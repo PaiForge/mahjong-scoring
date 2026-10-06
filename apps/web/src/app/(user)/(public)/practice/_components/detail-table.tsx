@@ -1,7 +1,6 @@
 import type { ReactNode } from "react";
 
-/** 値の色。正誤を示す行だけが指定する */
-type DetailTone = "correct" | "incorrect";
+import type { JudgementVerdict } from "@mahjong-scoring/features/results/result-schemas";
 
 /** 名前と値の1行 */
 export interface DetailTableRow {
@@ -9,11 +8,11 @@ export interface DetailTableRow {
   readonly label: ReactNode;
   /** 表示する値。単位まで含めた文字列か、牌・チップ・リンクを含む要素 */
   readonly value: ReactNode;
-  /** 値の色（既定は本文色） */
-  readonly tone?: DetailTone;
+  /** 値の色。正誤を示す行だけが指定する（既定は本文色） */
+  readonly tone?: JudgementVerdict;
 }
 
-const TONE_CLASSES: Readonly<Record<DetailTone, string>> = {
+const TONE_CLASSES: Readonly<Record<JudgementVerdict, string>> = {
   correct: "text-primary-600",
   incorrect: "text-destructive",
 };

@@ -1,5 +1,4 @@
-/** 正誤 */
-export type JudgementVerdict = "correct" | "incorrect";
+import type { JudgementVerdict } from "@mahjong-scoring/features/results/result-schemas";
 
 /** 線画のパス（`CheckIcon` / `XMarkIcon` と同じ形） */
 const MARK_PATHS: Readonly<Record<JudgementVerdict, string>> = {
