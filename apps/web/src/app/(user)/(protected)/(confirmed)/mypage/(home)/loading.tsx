@@ -2,6 +2,7 @@ import { ContentContainer } from "@/app/(user)/_components/content-container";
 import { PageTitlePlaceholder } from "@/app/(user)/_components/page-title";
 import { SkeletonBar } from "@/app/_components/skeleton-bar";
 
+import { MyPageMenuSkeleton } from "./_components/mypage-menu";
 import { HeatmapSkeleton } from "./_components/heatmap-skeleton";
 
 /**
@@ -55,21 +56,7 @@ export default function Loading() {
           <HeatmapSkeleton />
         </section>
 
-        {/* 行リンク（実: LinkRow。絵文字(text-lg) + タイトル(text-sm) +
-            説明(text-xs) を py-3 の行に置き、破線で区切る） */}
-        <ul className="flex flex-col">
-          <li className="flex items-start gap-3 border-b border-dashed border-border/40 py-3 last:border-b-0">
-            <SkeletonBar radius="md" className="size-6 shrink-0" />
-            <div className="min-w-0 flex-1">
-              <div className="flex h-5 items-center">
-                <SkeletonBar className="h-3.5 w-28" />
-              </div>
-              <div className="mt-0.5 flex h-4 items-center">
-                <SkeletonBar className="h-3 w-5/6" tone={100} />
-              </div>
-            </div>
-          </li>
-        </ul>
+        <MyPageMenuSkeleton />
       </div>
     </ContentContainer>
   );

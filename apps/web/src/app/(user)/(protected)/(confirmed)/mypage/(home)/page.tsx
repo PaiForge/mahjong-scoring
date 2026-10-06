@@ -11,7 +11,6 @@ import { getTranslations } from "next-intl/server";
 
 import { BeltPill } from "@/app/(user)/_components/belt-pill";
 import { ContentContainer } from "@/app/(user)/_components/content-container";
-import { LinkRow, LinkRowList } from "@/app/(user)/_components/link-row";
 import { PageTitle } from "@/app/(user)/_components/page-title";
 import { UserAvatar } from "@/app/(user)/_components/user-avatar";
 import { createPrivateMetadata } from "@/app/_lib/metadata";
@@ -21,6 +20,7 @@ import { getExpHeatmapData } from "@/lib/db/get-exp-heatmap-data";
 import { getUserRankSlugs } from "@/lib/db/rank-queries";
 import { highestRank } from "@mahjong-scoring/features/ranks/registry";
 
+import { MyPageMenu } from "./_components/mypage-menu";
 import { ExpActivityHeatmap } from "./_components/exp-activity-heatmap";
 import { DESKTOP_WEEKS, buildHeatmapLayout } from "./_lib/heatmap-utils";
 
@@ -57,43 +57,6 @@ export default async function MyPage() {
     recentDaysCount: 7,
     totalWeeks: DESKTOP_WEEKS,
   });
-
-  const links = [
-    {
-      href: "/mypage/challenges",
-      icon: "\uD83D\uDCCA",
-      title: t("cards.challenges.title"),
-      summary: t("cards.challenges.summary"),
-    },
-    {
-      href: "/mypage/plan",
-      icon: "\u2B50",
-      title: t("cards.plan.title"),
-      summary: t("cards.plan.summary"),
-    },
-    {
-      href: "/mypage/notifications",
-      icon: "\uD83D\uDD14",
-      title: t("cards.notifications.title"),
-      summary: t("cards.notifications.summary"),
-    },
-    {
-      // 段級位を持たないユーザーにも道場の存在を知らせる導線
-      // （ヘッダの段級位バッジは取得済みのときしか出ない）
-      href: "/dojo",
-      icon: "\uD83E\uDD4B",
-      title: t("cards.dojo.title"),
-      summary: t("cards.dojo.summary"),
-    },
-    {
-      // ログイン情報と退会の入口。退会はこの先のページの最下部にだけ置き、
-      // 普段の画面（ここやプロフィール編集）には「削除」の文言を出さない
-      href: "/mypage/account",
-      icon: "🔑",
-      title: t("cards.account.title"),
-      summary: t("cards.account.summary"),
-    },
-  ];
 
   return (
     <ContentContainer breadcrumb={[{ label: t("pageTitle") }]}>
@@ -153,23 +116,7 @@ export default async function MyPage() {
           <ExpActivityHeatmap data={heatmapData} layout={heatmapLayout} />
         </section>
 
-        {/* 各機能への導線。見に行くだけの行き先なので、太枠 + 影のカードでは
-            なく行リンクで並べる（プロフィールとヒートマップがこのページの主役）。 */}
-        <LinkRowList>
-          {links.map((link) => (
-            <LinkRow
-              key={link.href}
-              href={link.href}
-              leading={
-                <span className="text-base" aria-hidden="true">
-                  {link.icon}
-                </span>
-              }
-              title={link.title}
-              description={link.summary}
-            />
-          ))}
-        </LinkRowList>
+        <MyPageMenu />
       </div>
     </ContentContainer>
   );
