@@ -6,7 +6,7 @@ import {
   practiceMenuBySlug,
   type PracticeMenuSlug,
 } from "@mahjong-scoring/features/practice-menu-types";
-import { beltClass, beltForegroundClass } from "@/lib/ranks/belt-colors";
+import { beltClass } from "@/lib/ranks/belt-colors";
 import { rankRequiringMenu } from "@mahjong-scoring/features/ranks/registry";
 
 interface ExamConditionsProps {
@@ -43,9 +43,7 @@ export async function ExamConditions({ slug }: ExamConditionsProps) {
 
   return (
     <section className="space-y-3">
-      <SectionTitle
-        toneClass={`${beltClass(exam.rank.slug)} ${beltForegroundClass(exam.rank.slug)}`}
-      >
+      <SectionTitle accentClass={beltClass(exam.rank.slug)}>
         {t("rankPassConditionsTitle", {
           rank: t(`names.${exam.rank.slug}`),
         })}
