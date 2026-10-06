@@ -6,6 +6,7 @@ import {
   getKazeYakuhaiDisplayName,
 } from "./constants";
 import { BAKAZE_OPTIONS, KAZEHAI } from "../../core/constants";
+import { hasYakumanYaku } from "../../core/yaku-names";
 import { defaultIdGenerator, type IdGenerator } from "../../core/id";
 import {
   randomBool,
@@ -96,8 +97,10 @@ export function generateYakuQuestion(
     }
   }
 
-  // 立直の追加（ライブラリは立直を判定しない）
-  if (isRiichi) {
+  // 立直の追加（ライブラリは立直を判定しない）。役満は通常役と複合しないので、
+  // 役満の手には足さない。リーチ棒は盤面に出たまま（isRiichi は宣言の有無）で
+  // 正解にだけ乗らない — 「役満にリーチは複合しない」と答えさせる出題になる
+  if (isRiichi && !hasYakumanYaku(yakuResult)) {
     yakuNames.push("立直");
   }
 

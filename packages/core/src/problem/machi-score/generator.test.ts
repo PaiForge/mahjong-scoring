@@ -161,6 +161,8 @@ describe("generateMachiScoreQuestion", () => {
       for (const cell of listCells(question)) {
         expect(cell.isRiichi).toBe(true);
         expect(cell.uraDoraMarkers).toEqual(question.uraDoraMarkers);
+        // 役満になる待ちには立直が乗らない（build-question.test.ts）
+        if (cell.answer.yakumanMultiplier >= 1) continue;
         expect(
           cell.yakuDetails?.some((yaku) => yaku.name.includes("立直")),
         ).toBe(true);

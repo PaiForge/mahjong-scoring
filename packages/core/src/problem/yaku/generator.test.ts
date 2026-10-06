@@ -65,14 +65,37 @@ describe("generateYakuQuestion", () => {
   });
 
   it("isRiichi が true の場合、立直が正解に含まれる", () => {
+    // 役満の手は例外（次のテスト）
     const questions = expectSampled(generateYakuQuestion, {
       need: 5,
       attempts: 1000,
-      where: (q) => q.context.isRiichi,
+      where: (q) => q.context.isRiichi && !isYakumanQuestion(q),
     });
 
     for (const question of questions) {
       expect(question.correctYakuNames).toContain("立直");
+    }
+  });
+
+  it("役満の手はリーチしていても立直を正解に並べない", () => {
+    // 役満は通常役と複合しない。リーチ棒は盤面に出たままで、正解は役満だけ。
+    // リーチしている役満は生成の 1000 回に 1 回ほどなので、シードを固定して
+    // 試行回数の中に必ず現れる数列で回す
+    const rng = seededRandom(20261006);
+    const questions = expectSampled(
+      () => generateYakuQuestion(defaultIdGenerator, rng),
+      {
+        need: 3,
+        attempts: 20000,
+        where: (q) => q.context.isRiichi && isYakumanQuestion(q),
+      },
+    );
+
+    for (const question of questions) {
+      expect(question.correctYakuNames).not.toContain("立直");
+      expect(
+        question.correctYakuNames.every((name) => YAKUMAN_NAMES.has(name)),
+      ).toBe(true);
     }
   });
 

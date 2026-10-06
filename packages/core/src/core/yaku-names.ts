@@ -64,6 +64,23 @@ export const SCORE_YAKU_NAME_MAP: Readonly<Record<string, string>> = {
 };
 
 /**
+ * 役の判定結果に役満が含まれるか
+ * 役満判定
+ *
+ * 役満は通常役と複合しない。ライブラリの `detectYaku` も役満の手では通常役を
+ * 返さないが、立直はライブラリが判定せずアプリが後付けする役なので、その
+ * 規則をここで引き継ぐ（役満の手には立直と裏ドラを乗せない）。
+ * 数え役満（通常役の合計が 13 翻以上）は役満役ではないので真にならない。
+ *
+ * @param yakuResult - `detectYaku` の結果（役名と翻数の組）
+ */
+export function hasYakumanYaku(
+  yakuResult: readonly (readonly [string, number])[],
+): boolean {
+  return yakuResult.some(([, han]) => han >= YAKUMAN_HAN);
+}
+
+/**
  * 英語の役名キーから日本語名を取得する
  * 役名日本語変換
  */
