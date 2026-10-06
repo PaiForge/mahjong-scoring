@@ -2,6 +2,7 @@
 
 import { useMemo } from "react";
 import { useIsClient } from "@/app/_hooks/use-is-client";
+import { safeSessionStorage } from "@/lib/safe-storage";
 import { unpackStoredResults } from "@mahjong-scoring/features/challenge/challenge-run";
 
 /**
@@ -29,7 +30,8 @@ import { unpackStoredResults } from "@mahjong-scoring/features/challenge/challen
  * 読み取り前を `undefined`、読み取り後を配列（データが無ければ空配列）として
  * 区別することで、呼び出し側は「まだ読んでいない」間だけ placeholder を出し、
  * データが存在しなかった場合（別の回の URL 等）には placeholder を出し
- * 続けずに済む。
+ * 続けずに済む。sessionStorage が使えない環境（プライベートモード・サイト
+ * データの禁止）の読み取りも、値が無いときと同じ空配列になる。
  */
 export function useSessionStorageResult<T>(
   key: string,
@@ -39,7 +41,7 @@ export function useSessionStorageResult<T>(
   const isClient = useIsClient();
   return useMemo(() => {
     if (!isClient) return undefined;
-    const raw = sessionStorage.getItem(key) ?? undefined;
+    const raw = safeSessionStorage.getItem(key) ?? undefined;
     const stored = unpackStoredResults(raw, run);
     return stored === undefined ? [] : parse(stored);
   }, [isClient, key, run, parse]);
