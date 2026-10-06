@@ -312,8 +312,9 @@ export function LessonView({
       try {
         const result = await completeLesson(slug);
         if (!result.success) {
-          // レジストリに無い slug。静的生成されたページでは起きないが、
-          // 起きたら失敗として見せる（預けても同期で捨てられるだけ）
+          // レジストリに無い slug（静的生成されたページでは起きない）か BAN。
+          // どちらも失敗として見せ、預けない（同期しても捨てられるか
+          // 弾かれるだけ）
           logExternalError("completeLesson", slug, result.error);
           setSaveState("failed");
           return;

@@ -20,8 +20,12 @@ interface PendingLessonSyncProps {
   readonly userId: string;
 }
 
-/** 同期の結末。結果が返るまでは `pending` */
-type SyncOutcome = "pending" | "synced" | "failed";
+/**
+ * 同期の結末。結果が返るまでは `pending`
+ *
+ * `blocked` は BAN で記録を拒まれたとき。再試行しても通らないので何も描かない
+ */
+type SyncOutcome = "pending" | "synced" | "failed" | "blocked";
 
 /**
  * 端末に預けてあったレッスンの完了を、ログイン済みのホームで本人の記録にする
@@ -39,6 +43,8 @@ type SyncOutcome = "pending" | "synced" | "failed";
  *
  * 失敗したら預かりは残し、その場で再試行できる注記を出す。何もしなくても
  * 次にホームを開いたときにまた試みる。同期するものが無ければ何も描かない。
+ * BAN で拒まれたときも預かりは残し（BAN が解かれたら次のホームで記録できる）、
+ * 再試行の注記は出さない。
  *
  * 預かりは localStorage にあるので、クライアント判定（`useIsClient`）が
  * 立ってから読む（サーバーの HTML とハイドレーションの描画を揃えるため）。
@@ -78,6 +84,11 @@ export function PendingLessonSync({ userId }: PendingLessonSyncProps) {
         const result = await completeLessons(pendingSlugs);
         if (handled.current) return;
         handled.current = true;
+        if (!result.success) {
+          // BAN。預かりは残すが、押しても通らない再試行は出さない
+          setOutcome("blocked");
+          return;
+        }
         if ("skipped" in result) {
           // サーバーにセッションが無い。預かりは残し、次の表示で再び試みる
           setOutcome("failed");
@@ -106,7 +117,12 @@ export function PendingLessonSync({ userId }: PendingLessonSyncProps) {
     setAttempt((count) => count + 1);
   };
 
-  if (pendingSlugs.length === 0 || outcome === "synced") return undefined;
+  if (
+    pendingSlugs.length === 0 ||
+    outcome === "synced" ||
+    outcome === "blocked"
+  )
+    return undefined;
 
   if (outcome === "pending") {
     return (

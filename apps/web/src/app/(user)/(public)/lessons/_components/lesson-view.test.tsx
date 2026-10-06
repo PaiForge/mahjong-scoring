@@ -343,6 +343,24 @@ describe("LessonView", () => {
       expect(screen.getByRole("link", { name: "nextLesson" })).toBeTruthy();
     });
 
+    it("BAN で拒まれたら失敗として見せ、端末に預けない", async () => {
+      mockCompleteLesson.mockResolvedValueOnce({
+        success: false,
+        error: "banned",
+      });
+      const errorSpy = vi
+        .spyOn(console, "error")
+        .mockImplementation(() => undefined);
+      renderLesson();
+      startQuiz();
+      answerAll(["8,000", "12,000", "16,000"]);
+
+      await screen.findByTestId("lesson-save-failed");
+      expect(readPendingLessonCompletions()).toEqual([]);
+      expect(screen.queryByRole("link", { name: "nextLesson" })).toBeNull();
+      errorSpy.mockRestore();
+    });
+
     it("サーバーにセッションが無ければ本人の id 付きで預け、ログインし直す導線を出す", async () => {
       mockCompleteLesson.mockResolvedValueOnce({
         success: true,
