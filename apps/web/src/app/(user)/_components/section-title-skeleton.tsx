@@ -1,5 +1,5 @@
 import {
-  SECTION_TITLE_PLACEHOLDER_TONE,
+  SECTION_TITLE_ACCENT_CLASSES,
   SECTION_TITLE_SHAPE_CLASSES,
 } from "./section-title";
 import { SkeletonBar } from "@/app/_components/skeleton-bar";
@@ -10,30 +10,23 @@ interface SectionTitleSkeletonProps {
 }
 
 /**
- * SectionTitle の読み込み中プレースホルダー
- * セクション見出しスケルトン
- *
- * `SectionTitle` と同じ形のクラス（`SECTION_TITLE_SHAPE_CLASSES`）を貼るため、
- * フォントサイズや pill の余白に由来する高さが実物と必ず一致する。固定の `h-*` で
- * 近似すると実物より低くなり、ブレークポイントごとにもずれるため使わない。
- *
- * 見出し要素（h2）は名乗らない。loading.tsx の中身は Suspense のフォールバック
- * として初期 HTML に焼き込まれるため、`h2` で描くと中身が空の見出しが本物より
- * 先に文書へ出る（`PageTitlePlaceholder` と同じ理由）。
- *
- * 中身の `&nbsp;` は 1 行分の行ボックスを作るためのもの。
+ * 見出しと同じ行高・余白を持つ読み込み表示。
+ * 空の見出しが文書に現れないよう、h2 ではなく div として描画する。
  */
 export function SectionTitleSkeleton({
   width = "w-24",
 }: SectionTitleSkeletonProps) {
   return (
-    <div
-      aria-hidden="true"
-      className={`${SECTION_TITLE_SHAPE_CLASSES} ${SECTION_TITLE_PLACEHOLDER_TONE}`}
-    >
-      <SkeletonBar as="span" className={`inline-block ${width}`}>
-        &nbsp;
-      </SkeletonBar>
+    <div aria-hidden="true" className={SECTION_TITLE_SHAPE_CLASSES}>
+      <span className={`${SECTION_TITLE_ACCENT_CLASSES} bg-surface-100`} />
+      <span className="relative min-w-0">
+        <span className={`block ${width}`}>&nbsp;</span>
+        <SkeletonBar
+          className="absolute inset-x-0 top-1/2 h-4 -translate-y-1/2"
+          tone={100}
+        />
+      </span>
+      <span className="h-px min-w-4 flex-1 bg-surface-100" />
     </div>
   );
 }

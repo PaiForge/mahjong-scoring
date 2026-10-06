@@ -8,7 +8,6 @@ import {
   beltBorderClass,
   beltButtonVarsClass,
   beltClass,
-  beltForegroundClass,
 } from "@/lib/ranks/belt-colors";
 import {
   rankRequiringMenu,
@@ -51,9 +50,7 @@ export async function ExamCtaCard({ slug, lead }: ExamCtaCardProps) {
     <section className="space-y-4">
       {/* 見出しも級の色。このアプリで唯一「特定の段級位のもの」である見出しで、
           既定の緑のままだと隣のオレンジの枠と競合して見える */}
-      <SectionTitle
-        toneClass={`${beltClass(exam.rank.slug)} ${beltForegroundClass(exam.rank.slug)}`}
-      >
+      <SectionTitle accentClass={beltClass(exam.rank.slug)}>
         {t(`examTitle.${rankTier(exam.rank.slug)}`, { rank: rankName })}
       </SectionTitle>
       {/* どの級の試験かを枠の色でも示す。既定の ink（緑）は使わない — 級名を
