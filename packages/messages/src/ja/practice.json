@@ -115,11 +115,11 @@
   },
   "comprehensiveBanner": {
     "title": "点数計算総合演習",
-    "description": "翻数・役・符・点数全てをチェックできる問題に好きなだけ回答できます。麻雀の点数計算の総合練習として最適です。"
+    "description": "和了した手牌から、役・翻・符・点数を計算。点数申告まで通して練習できます。"
   },
   "machiScoreBanner": {
     "title": "待ち別点数計算",
-    "description": "聴牌形から待ち牌を読み、待ちごとにツモ・ロンの点数を答えます。高目・安目まで含めた実戦さながらの練習です。"
+    "description": "聴牌形から待ちを見つけ、待ちごとのツモ・ロンの点数を計算。高目・安目の違いも練習できます。"
   },
   "orDivider": "または",
   "modeChallengeHint": "制限時間{timeLimit}秒・ミス{mistakeLimit}回で記録に挑戦",
@@ -137,5 +137,12 @@
     "recommendation": "点数計算の基礎が身についた方におすすめです。黒帯取得前でも利用できます。",
     "journeyTitle": "黒帯への道",
     "journeyDescription": "現在の級・次の目標を確認して、レッスンと試験へ"
+  },
+  "preview": {
+    "tsumo": "ツモ",
+    "score": "役・翻・符を数えて、何点？",
+    "ron": "ロン ？点",
+    "tsumoScore": "ツモ ？点",
+    "start": "練習する"
   }
 }

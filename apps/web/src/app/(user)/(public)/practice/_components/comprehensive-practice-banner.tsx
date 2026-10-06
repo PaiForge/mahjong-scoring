@@ -1,89 +1,85 @@
 import Link from "next/link";
 import { getTranslations } from "next-intl/server";
-
-import { ChevronRightIcon } from "@/app/(user)/_components/icons/chevron-right-icon";
-
+import { HaiKind } from "@mahjong-scoring/core";
+import { DEMO_MENTSU_HAND } from "@mahjong-scoring/features/board/demo-score-question";
 import {
   COMPREHENSIVE_PRACTICE_HREF,
   MACHI_SCORE_PRACTICE_HREF,
 } from "@mahjong-scoring/features/routes";
+import type { QuotaMenu } from "@mahjong-scoring/features/quota/limits";
+import { TehaiHand } from "../../_components/tehai-hand";
+import { TileSet } from "@/app/(user)/_components/tile-set";
+import { PracticeEntryQuota } from "./practice-entry-quota";
 
-interface EndlessPracticeBannerProps {
-  readonly href: string;
-  /** 練習を表す絵文字（装飾。読み上げには載せない） */
-  readonly emoji: string;
-  readonly title: string;
-  readonly description: string;
-}
+// 三筒で和了するデモから1枚抜いた、三筒・六筒待ちの聴牌形。
+const TENPAI_TILES = DEMO_MENTSU_HAND.closed.filter((_, index) => index !== 6);
 
-/**
- * 終わりのない練習（記録を取らない訓練）への導線バナー
- * 訓練バナー
- *
- * 制限時間もミス上限もなく好きなだけ解ける訓練は練習カードにせず、
- * 一覧の先頭にこのバナーで置く。カード全体がリンクなので押せる面の記号
- * （太枠 + 影 + 押し込み）を持つ。
- */
-function EndlessPracticeBanner({
-  href,
-  emoji,
-  title,
-  description,
-}: EndlessPracticeBannerProps) {
+async function PracticalPracticeCard({ menu }: { readonly menu: QuotaMenu }) {
+  const t = await getTranslations("practice");
+  const isScore = menu === "score";
+  const key = isScore ? "comprehensiveBanner" : "machiScoreBanner";
+  const href = isScore
+    ? COMPREHENSIVE_PRACTICE_HREF
+    : MACHI_SCORE_PRACTICE_HREF;
   return (
-    <Link
-      href={href}
-      className="press-sm flex items-center gap-4 rounded-2xl border-3 border-ink bg-white p-6 shadow-sm hover:bg-primary-50"
-    >
-      <span className="text-3xl" aria-hidden="true">
-        {emoji}
-      </span>
-      <div className="flex-1">
-        <h3 className="text-base font-bold text-surface-900">{title}</h3>
-        <p className="mt-1 text-sm font-medium text-surface-500">
-          {description}
+    <article className="flex h-full flex-col rounded-2xl border-3 border-ink bg-white shadow-sm">
+      <Link
+        href={href}
+        className="group flex flex-1 flex-col rounded-t-xl p-5 hover:bg-primary-50"
+      >
+        <div
+          aria-hidden="true"
+          className="mb-5 flex min-h-40 flex-col justify-center gap-4 overflow-hidden rounded-xl bg-primary-800 p-3"
+        >
+          <TehaiHand
+            tehai={{
+              closed: isScore ? DEMO_MENTSU_HAND.closed : TENPAI_TILES,
+              exposed: [],
+            }}
+            agariHai={isScore ? DEMO_MENTSU_HAND.agariHai : undefined}
+            agariLabel={isScore ? t("preview.tsumo") : undefined}
+          />
+          {isScore ? (
+            <p className="text-center text-sm font-bold text-white">
+              {t("preview.score")}
+            </p>
+          ) : (
+            <div className="flex justify-center gap-5">
+              {[HaiKind.PinZu3, HaiKind.PinZu6].map((tile) => (
+                <div key={tile} className="flex items-center gap-2">
+                  <TileSet tiles={[tile]} size="sm" />
+                  <span className="text-xs font-bold leading-6 text-white">
+                    {t("preview.ron")}
+                    <br />
+                    {t("preview.tsumoScore")}
+                  </span>
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
+        <h3 className="text-lg font-bold text-surface-900">
+          {t(`${key}.title`)}
+        </h3>
+        <p className="mt-2 flex-1 text-sm leading-relaxed text-surface-500">
+          {t(`${key}.description`)}
         </p>
+        <span className="mt-5 font-bold text-primary-700 group-hover:underline">
+          {t("preview.start")} →
+        </span>
+      </Link>
+      <div className="border-t border-surface-200 px-5 py-4">
+        <PracticeEntryQuota menu={menu} />
       </div>
-      <ChevronRightIcon className="size-5 shrink-0 text-surface-400" />
-    </Link>
+    </article>
   );
 }
 
-/**
- * 点数計算総合演習（`/practice/score`）への導線バナー
- * 総合演習バナー
- *
- * 練習一覧の先頭と、ダッシュボードで他に勧めるものが無くなったときの
- * フォールバックで共有する。
- */
-export async function ComprehensivePracticeBanner() {
-  const t = await getTranslations("practice");
-
-  return (
-    <EndlessPracticeBanner
-      href={COMPREHENSIVE_PRACTICE_HREF}
-      emoji="♾️"
-      title={t("comprehensiveBanner.title")}
-      description={t("comprehensiveBanner.description")}
-    />
-  );
+/** 実戦練習とダッシュボードで共有する、問題プレビュー付きの入口。 */
+export function ComprehensivePracticeBanner() {
+  return <PracticalPracticeCard menu="score" />;
 }
 
-/**
- * 待ち別点数計算（`/practice/machi-score`）への導線バナー
- * 待ち別点数計算バナー
- *
- * 総合演習の隣に置く、もう 1 つの終わりのない訓練。
- */
-export async function MachiScorePracticeBanner() {
-  const t = await getTranslations("practice");
-
-  return (
-    <EndlessPracticeBanner
-      href={MACHI_SCORE_PRACTICE_HREF}
-      emoji="♾️"
-      title={t("machiScoreBanner.title")}
-      description={t("machiScoreBanner.description")}
-    />
-  );
+export function MachiScorePracticeBanner() {
+  return <PracticalPracticeCard menu="machi-score" />;
 }

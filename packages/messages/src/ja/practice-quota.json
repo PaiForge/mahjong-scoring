@@ -16,5 +16,16 @@
     "backToSetup": "練習に戻る"
   },
   "rateLimited": "操作が速すぎます。少し待ってからお試しください。",
-  "answerTime": "回答時間 {seconds} 秒"
+  "answerTime": "回答時間 {seconds} 秒",
+  "entry": {
+    "loading": "今日の利用枠を確認中…",
+    "unavailable": "利用枠を確認できませんでした。開始時に再確認します。",
+    "remaining": "今日の無料分：残り {remaining} / {limit} 問",
+    "exhausted": "本日の無料分は終了しました",
+    "reset": "毎日 0:00（日本時間）に回復します",
+    "signIn": "ログインすると1日 {limit} 問まで無料",
+    "unlimited": "回数制限なしで練習できます",
+    "proUnlimited": "Pro · 回数無制限",
+    "plan": "Proなら回数無制限"
+  }
 }
