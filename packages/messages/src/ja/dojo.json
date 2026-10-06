@@ -47,5 +47,8 @@
     "title": "{rank}の合格基準",
     "description": "麻雀の点数計算の{rank}。合格基準は「{criterion}」。受験前に取り組むレッスンと試験の内容を確認できます。",
     "examLeadWithoutChapters": "準備ができたら、試験に挑戦しましょう。"
-  }
+  },
+  "practicalTitle": "次は実戦で磨こう",
+  "practicalDescription": "黒帯で身につけた点数計算を、実際の手牌で。点数計算と待ち別点数計算に挑戦できます。",
+  "practicalCta": "実戦練習へ"
 }

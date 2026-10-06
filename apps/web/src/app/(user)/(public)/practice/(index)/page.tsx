@@ -1,11 +1,9 @@
 /**
  * 練習一覧
  *
- * @description 練習一覧ページ。すべての練習を 1 つのグリッドに並べ、段級位
- * （5級 / 4級）か分野（符 / 翻数 / 点数）のどちらか 1 つで絞り込める。
- * 絞り込みは URL のクエリ（`?rank=kyu-4` / `?category=han`）が持ち、
- * 昇級試験のページから級を指定して開かれる。
- * @flow 練習カードから各練習の説明ページまたはプレイページへ遷移する。
+ * @description 基礎練習と実戦練習の入口。基礎練習は段級位・分野で絞り込み、
+ * 実戦練習は問題のプレビューと利用枠を示す。選択は URL と端末に保存する。
+ * @flow 各練習の設定・説明ページへ遷移する。
  */
 import type { Metadata } from "next";
 import { getTranslations } from "next-intl/server";
@@ -19,6 +17,7 @@ import {
   ComprehensivePracticeBanner,
   MachiScorePracticeBanner,
 } from "../_components/comprehensive-practice-banner";
+import { PracticeModeSwitcher } from "../_components/practice-mode-switcher";
 import { CatalogPracticeCard } from "../_components/catalog-practice-card";
 import {
   PracticeFilter,
@@ -59,55 +58,62 @@ export default async function PracticePage() {
     <ContentContainer breadcrumb={[{ label: t("title") }]}>
       <PageTitle>{t("title")}</PageTitle>
 
-      <div className="space-y-8">
-        {/* 終わりのない訓練（総合演習・待ち別点数計算）には見出しを付けない。
-            バナー自身が名前を持っており、ここに h2 を足すと絞り込みの一覧に
-            見出しが割り込む */}
-        <div className="space-y-4">
-          <ComprehensivePracticeBanner />
-          <MachiScorePracticeBanner />
-        </div>
-
-        <PracticeFilter
-          items={items}
-          filterLabel={t("filter.label")}
-          listHeading={t("filter.listHeading")}
-          adCard={ad && <NativeAdCard creative={ad} />}
-          optionGroups={[
-            [{ label: t("filter.all") }],
-            // 級の並びはレジストリの順（5級 → 4級 の学習順）。一覧の
-            // 並びも学習順なので、選択肢だけ級位の数字順にはしない。
-            // 昇級試験だけで完結する級（1級）は一覧に並ぶ練習を持たないため
-            // 選択肢にも出ない
-            listedPracticeRanks().map((rank) => ({
-              filter: { kind: "rank" as const, value: rank },
-              label: tRanks(`names.${rank}`),
-            })),
-            // 分野は 1 本のトグルに 6 つ並ぶため、見出しに使っていた
-            // 「符の計算」ではなく短い名前を使う（狭い画面で折り返さない）
-            PRACTICE_CATEGORIES.map((category) => ({
-              filter: { kind: "category" as const, value: category },
-              label: t(`categories.${category}.short`),
-            })),
-          ]}
-        />
-
-        {/* 昇級試験は練習カードにしない（合格ラインを持ち段級位が授与される、
-            練習とは種類の違うコンテンツ）。入口は道場が持つため、ここは
-            見に行くだけの行リンクで送る。 */}
-        <LinkRowList>
-          <LinkRow
-            href="/dojo"
-            leading={
-              <span className="text-base" aria-hidden="true">
-                🥋
-              </span>
-            }
-            title={t("dojoRow.title")}
-            description={t("dojoRow.description")}
-          />
-        </LinkRowList>
-      </div>
+      <PracticeModeSwitcher
+        basic={
+          <div className="space-y-6">
+            <p className="text-sm text-surface-500">
+              {t("modes.basicDescription")}
+            </p>
+            <LinkRowList>
+              <LinkRow
+                href="/dojo"
+                leading={<span aria-hidden="true">🥋</span>}
+                title={t("modes.journeyTitle")}
+                description={t("modes.journeyDescription")}
+              />
+            </LinkRowList>
+            <PracticeFilter
+              items={items}
+              filterLabel={t("filter.label")}
+              listHeading={t("filter.listHeading")}
+              adCard={ad && <NativeAdCard creative={ad} />}
+              optionGroups={[
+                [{ label: t("filter.all") }],
+                // 級の並びはレジストリの順（5級 → 4級 の学習順）。一覧の
+                // 並びも学習順なので、選択肢だけ級位の数字順にはしない。
+                // 昇級試験だけで完結する級（1級）は一覧に並ぶ練習を持たないため
+                // 選択肢にも出ない
+                listedPracticeRanks().map((rank) => ({
+                  filter: { kind: "rank" as const, value: rank },
+                  label: tRanks(`names.${rank}`),
+                })),
+                // 分野は 1 本のトグルに 6 つ並ぶため、見出しに使っていた
+                // 「符の計算」ではなく短い名前を使う（狭い画面で折り返さない）
+                PRACTICE_CATEGORIES.map((category) => ({
+                  filter: { kind: "category" as const, value: category },
+                  label: t(`categories.${category}.short`),
+                })),
+              ]}
+            />
+          </div>
+        }
+        practical={
+          <section className="space-y-6">
+            <div className="space-y-2">
+              <h2 className="text-lg font-bold">
+                {t("modes.practicalDescription")}
+              </h2>
+              <p className="text-sm text-surface-500">
+                {t("modes.recommendation")}
+              </p>
+            </div>
+            <div className="grid gap-4 sm:grid-cols-2">
+              <ComprehensivePracticeBanner />
+              <MachiScorePracticeBanner />
+            </div>
+          </section>
+        }
+      />
     </ContentContainer>
   );
 }
