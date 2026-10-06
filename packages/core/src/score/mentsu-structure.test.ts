@@ -610,6 +610,59 @@ describe("resolveMentsuBreakdowns", () => {
     expect(candidates.map((c) => c.han)).toEqual([8, 7]);
   });
 
+  it("リーチしている手では立直の 1 翻と裏ドラを候補の翻数と支払いに乗せる", () => {
+    // 345m 345m 55m 123s 456s の 5m ロン、リーチ、裏ドラ表示牌 2s（裏ドラ 3s ×1）
+    //   順子に入れる: 平和 + 一盃口 + 立直 + 裏ドラ1 = 4翻30符 7700
+    //   雀頭に入れる: 一盃口 + 立直 + 裏ドラ1 = 3翻40符 5200
+    const candidates = resolveMentsuBreakdowns(makeTehai(TWO_WAYS), {
+      ...RON_CONTEXT,
+      agariHai: HaiKind.ManZu5,
+      isRiichi: true,
+      uraDoraMarkers: [HaiKind.SouZu2],
+    });
+
+    expect(candidates.map((c) => [c.han, c.fu, c.payment])).toEqual([
+      [4, 30, { type: "ron", amount: 7700 }],
+      [3, 40, { type: "ron", amount: 5200 }],
+    ]);
+  });
+
+  it("役満の手にはリーチもドラも乗せず、翻数を役満の翻に揃える", () => {
+    // 111m 222p 333s 444z + 55m の 5m ツモ（四暗刻の単騎）、リーチ、ドラ表示牌 4m（ドラ 5m ×2）
+    const candidates = resolveMentsuBreakdowns(
+      makeTehai([
+        HaiKind.ManZu1,
+        HaiKind.ManZu1,
+        HaiKind.ManZu1,
+        HaiKind.PinZu2,
+        HaiKind.PinZu2,
+        HaiKind.PinZu2,
+        HaiKind.SouZu3,
+        HaiKind.SouZu3,
+        HaiKind.SouZu3,
+        HaiKind.Pei,
+        HaiKind.Pei,
+        HaiKind.Pei,
+        HaiKind.ManZu5,
+        HaiKind.ManZu5,
+      ]),
+      {
+        ...TSUMO_CONTEXT,
+        agariHai: HaiKind.ManZu5,
+        isRiichi: true,
+        doraMarkers: [HaiKind.ManZu4],
+        uraDoraMarkers: [HaiKind.ManZu4],
+      },
+    );
+
+    expect(candidates).toHaveLength(1);
+    expect(candidates[0]?.han).toBe(13);
+    expect(candidates[0]?.payment).toEqual({
+      type: "koTsumo",
+      amount: [8000, 16000],
+    });
+  });
+
   it("面子手でない解釈は候補に入らず、成立する和了が無ければ空配列", () => {
     const chiitoitsu = makeTehai([
       HaiKind.ManZu1,

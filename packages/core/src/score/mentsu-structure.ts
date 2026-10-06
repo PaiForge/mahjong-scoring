@@ -10,11 +10,14 @@ import {
   type Payment,
   type RankedScoreResult,
   type RuleConfig,
+  type ScoreResult,
   type Tehai,
+  type Tehai14,
   type YakuResult,
 } from "@pai-forge/riichi-mahjong";
 import { isOpenMentsuAt } from "../core/score-calculation";
 import { isExposedMentsu } from "../problem/shared/hand-skeleton";
+import { applyAppScoringRules } from "../problem/score/utils/reconciler";
 import type { AgariContext } from "../problem/shared/agari-context";
 
 /**
@@ -111,12 +114,18 @@ export interface MentsuBreakdownCandidate {
  *
  * ドラは全ての解釈で同数だが、翻数が上がると満貫で点数が頭打ちになり、
  * 符の差で勝っていた解釈と翻数で勝つ解釈の順位が入れ替わることがある。
- * 候補の順位を問題の採点と揃えるため、採点に使ったドラ表示牌と
- * ルール設定を渡す。持たない出題（符の練習など）は省略してよい。
+ * 候補の順位と点数を問題の採点と揃えるため、採点に使ったドラ表示牌・
+ * ルール設定・リーチ（立直の 1 翻と裏ドラ）を渡す。`ScoreQuestion` は
+ * これらを同じ名前で持つのでそのまま渡せる。持たない出題（符の練習など）は
+ * 省略してよい。
  */
 export interface MentsuBreakdownContext extends AgariContext {
   readonly doraMarkers?: readonly HaiKindId[];
   readonly ruleConfig?: RuleConfig;
+  /** リーチを宣言しているか。立直の 1 翻と裏ドラを候補の点数に乗せる */
+  readonly isRiichi?: boolean;
+  /** 裏ドラ表示牌（リーチしている手だけが持つ） */
+  readonly uraDoraMarkers?: readonly HaiKindId[];
 }
 
 /** 和了牌の位置。雀頭で和了した場合は mentsuIndex を持たない */
@@ -221,8 +230,32 @@ function toBreakdown(
 }
 
 /** 2 つの点数計算結果の支払いが同じか（翻・符は問わない） */
-function isSamePayment(a: RankedScoreResult, b: RankedScoreResult): boolean {
+function isSamePayment(a: ScoreResult, b: ScoreResult): boolean {
   return getPaymentTotal(a.payment) === getPaymentTotal(b.payment);
+}
+
+/**
+ * 候補の点数に、問題の正解と同じアプリの採点規則（立直・裏ドラの後付け、
+ * 役満では乗せない）を適用する
+ */
+function scoreCandidate(
+  result: RankedScoreResult,
+  tehai: Tehai14,
+  context: MentsuBreakdownContext,
+): ScoreResult {
+  const riichi =
+    context.isRiichi === true
+      ? { uraDoraMarkers: context.uraDoraMarkers ?? [] }
+      : undefined;
+  return applyAppScoringRules({
+    tehai,
+    answer: result,
+    yakuResult: result.detail.yakuResult,
+    isTsumo: context.isTsumo,
+    jikaze: context.jikaze,
+    ruleConfig: context.ruleConfig,
+    riichi,
+  }).answer;
 }
 
 /**
@@ -237,6 +270,8 @@ function isSamePayment(a: RankedScoreResult, b: RankedScoreResult): boolean {
  *
  * 候補は高点法の降順で、先頭が点数計算に採用された解釈。先頭と支払いが
  * 同じ候補も `isBest` になる。役が成立しない解釈は和了ではないため候補に入らない。
+ * 候補ごとの翻・支払いには、問題の正解と同じくアプリの採点規則（立直の
+ * 1 翻と裏ドラ。役満の手には乗せない）を適用する。
  * 面子手でない解釈（七対子・国士無双）は分解表示を持たないため除く。
  *
  * 手牌が14枚でない・成立する和了が無い場合は空配列を返す。呼び出し側は
@@ -259,19 +294,21 @@ export function resolveMentsuBreakdowns(
   });
   const [best] = ranked;
   if (best === undefined) return [];
+  const bestScore = scoreCandidate(best, tehai14.value, context);
 
   return ranked.flatMap((result): MentsuBreakdownCandidate[] => {
     const { structure } = result.detail;
     if (structure.type !== "Mentsu") return [];
+    const score = scoreCandidate(result, tehai14.value, context);
     return [
       {
         key: candidateKeyOf(structure),
         breakdown: toBreakdown(structure, context.isTsumo),
-        han: result.han,
-        fu: result.fu,
-        payment: result.payment,
+        han: score.han,
+        fu: score.fu,
+        payment: score.payment,
         yakuResult: result.detail.yakuResult,
-        isBest: isSamePayment(result, best),
+        isBest: isSamePayment(score, bestScore),
       },
     ];
   });

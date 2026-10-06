@@ -19,7 +19,7 @@ import {
   buildYakuDetailsFromResult,
 } from "./assemble-question";
 import type { ScoreQuestion, ScoreRange, YakuDetail } from "./types";
-import { applyRiichiAndUraDora } from "./utils/reconciler";
+import { applyAppScoringRules, type RiichiInput } from "./utils/reconciler";
 
 /** 表ドラの内訳名（`yakuDetails.name` の語彙。裏ドラは reconciler.ts） */
 const DORA_NAME = "ドラ";
@@ -40,9 +40,10 @@ interface ScoringInput extends AgariContext {
  * リーチしている手の追加情報
  * リーチ情報
  *
- * リーチはライブラリの概念ではなく、翻と裏ドラをアプリ側で後付けする。
- * 裏ドラ表示牌はリーチしている手だけが持つため、リーチと同じ構造体に置いて
- * 「リーチしているのに裏ドラ表示牌が無い」状態を型で作れなくする。
+ * リーチはライブラリの概念ではなく、翻と裏ドラをアプリ側で後付けする
+ * （{@link applyAppScoringRules}）。裏ドラ表示牌はリーチしている手だけが
+ * 持つため、リーチと同じ構造体に置いて「リーチしているのに裏ドラ表示牌が
+ * 無い」状態を型で作れなくする。
  *
  * 役満の手に渡しても翻と裏ドラは乗らない（役満は通常役と複合しない。
  * {@link buildScoreQuestion} 参照）。リーチ棒と裏ドラ表示牌は盤面の状態として
@@ -59,9 +60,7 @@ interface ScoringInput extends AgariContext {
  * 設定で正解が割れる手を出題から落とすのと同じ方針で、見えない条件で
  * 正解が変わる手は出さない。
  */
-export interface RiichiInput {
-  readonly uraDoraMarkers: readonly HaiKindId[];
-}
+export type { RiichiInput };
 
 /**
  * 1 つの和了形から点数計算問題を組み立てるための入力
@@ -176,25 +175,24 @@ export function buildScoreQuestion(
   });
   if (!scored) return err("noYaku");
 
-  let finalAnswer = scored.answer;
-  let yakuDetails: YakuDetail[] = buildYakuDetailsFromResult(scored.yakuResult);
-
   // 役満は通常役と複合しない。ライブラリは役満の手で通常役を返さないので、
-  // アプリが後付けする立直・裏ドラ・ドラも同じく乗せない
+  // アプリが後付けする立直・裏ドラ・ドラも同じく乗せない（判断は
+  // applyAppScoringRules に集約。面子分解の候補も同じ規則を通る）
   const yakuman = hasYakumanYaku(scored.yakuResult);
-
-  if (riichi && !yakuman) {
-    const riichiRes = applyRiichiAndUraDora({
-      tehai,
-      currentAnswer: finalAnswer,
-      uraDoraMarkers: riichi.uraDoraMarkers,
-      isTsumo,
-      jikaze,
-      ruleConfig,
-    });
-    finalAnswer = riichiRes.answer;
-    yakuDetails = [...yakuDetails, ...riichiRes.additionalYakuDetails];
-  }
+  const ruled = applyAppScoringRules({
+    tehai,
+    answer: scored.answer,
+    yakuResult: scored.yakuResult,
+    isTsumo,
+    jikaze,
+    ruleConfig,
+    riichi,
+  });
+  let finalAnswer = ruled.answer;
+  let yakuDetails: YakuDetail[] = [
+    ...buildYakuDetailsFromResult(scored.yakuResult),
+    ...ruled.additionalYakuDetails,
+  ];
 
   // 表ドラ。ライブラリは役満の手でも翻数にドラを足して返す（支払いは役満
   // 単位で固定なので点数には効かない）が、内訳には出さず翻数も役満の翻に
