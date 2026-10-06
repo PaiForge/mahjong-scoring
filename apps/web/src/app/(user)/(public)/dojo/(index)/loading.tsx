@@ -9,7 +9,7 @@ import { RANK_REGISTRY } from "@mahjong-scoring/features/ranks/registry";
 /**
  * 道場の読み込み中スケルトン。
  *
- * 実体（`dojo/(index)/page.tsx`）の「現在の段級位（1 行）→ 次の目標（開いた
+ * 実体（`dojo/(index)/page.tsx`）の「現在の段級位（区切りバー）→ 次の目標（開いた
  * カード）→ 黒帯への道（閉じたカードの並び）」を同じ順・同じ高さで模す。
  *
  * 見出しはプレースホルダで受ける — 同じ形のクラスを共有していて高さは
@@ -31,17 +31,12 @@ export default async function Loading() {
       <PageTitlePlaceholder width="w-16" />
 
       <div className="space-y-8">
-        {/* 現在の段級位: 帯バッジ + ラベル + 級名 + 未ログイン時のログイン導線。
-            実測（2026-10-05）で 90px、ログイン導線が折り返す 390px 幅で 106px */}
-        <SkeletonBar
-          radius="xl"
-          className="h-[106px] w-full sm:h-[90px]"
-          tone={100}
-        />
+        {/* 現在の段級位: ラベル行 + 区切りバー + 級名 + 未ログイン時のログイン導線。
+            実測（2026-10-06）で 390px 幅・1280px 幅とも 92px（ログイン済みは導線が無く 68px） */}
+        <SkeletonBar radius="xl" className="h-[92px] w-full" tone={100} />
 
         {/* 次の目標: 開いた 5級のカード。実測（2026-10-05）で 975px（sm 以上 983px） */}
-        <section className="space-y-4">
-          <SectionTitleSkeleton width="w-24" />
+        <section>
           <SkeletonBar
             radius="xl"
             className="h-[975px] w-full sm:h-[983px]"
