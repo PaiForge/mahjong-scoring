@@ -141,15 +141,16 @@ function scoreTupleColumns() {
  *
  * @design menuType — 練習種別
  *
- * 各練習に対応する値:
- * - 'jantou_fu' | 'machi_fu' | 'mentsu_fu' | 'mentsu_jantou_fu' | 'total_fu' | 'yaku'
- * `practice/score` は自由練習のため記録対象外。
+ * 値は `@mahjong-scoring/features` の `PRACTICE_MENU_REGISTRY` の `menuType`。
+ * ここに書き写さない（練習を足すたびに食い違う）。昇級試験の menuType は
+ * レジストリにあるが記録を残さないため、このテーブルには入らない。
+ * レジストリに載らない無限訓練（`practice/score` / `practice/machi-score`）も
+ * 記録対象外。
  *
  * @design leaderboardKey — ランキングセグメントキー
  *
- * 練習内でランキングを細分化するためのキー。
- * 現時点では全練習で 'default' のみ。将来、難易度別や
- * 条件別のセグメントが必要になった場合に拡張可能。
+ * 練習内でランキングを細分化するためのキー。出題設定のバリアントで、
+ * 値はレジストリの `variants`（設定を持たない練習は `DEFAULT_VARIANT`）。
  *
  * @design ランキング基準: score DESC, incorrectAnswers ASC, timeTaken ASC
  *
