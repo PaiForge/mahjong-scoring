@@ -1,10 +1,8 @@
 import { getTranslations } from "next-intl/server";
 
 import { beltClass, beltTintClasses } from "@/lib/ranks/belt-colors";
-import {
-  RANK_REGISTRY,
-  type RankSlug,
-} from "@mahjong-scoring/features/ranks/registry";
+import { buildRankProgress } from "@mahjong-scoring/features/ranks/rank-progress";
+import type { RankSlug } from "@mahjong-scoring/features/ranks/registry";
 
 interface RankProgressBarProps {
   /** 現在の段級位。未取得（無級）なら undefined */
@@ -24,9 +22,8 @@ interface RankProgressBarProps {
  *
  * 取得済みの区切りはその級の帯色で塗る。以前この場所にあった帯バッジが
  * 担っていた「帯の色で今の級がわかる」役割をバーが引き継ぐため。次の目標の
- * 級は帯色の淡い側で塗り、残りは淡いグレー。級は下から順にしか
- * 取得できない（`evaluateExamEligibility`）ので、現在の級以下をすべて
- * 取得済みとして塗ってよい。
+ * 級は帯色の淡い側で塗り、残りは淡いグレー。区切りの状態はモバイルの
+ * 道場と同じ `buildRankProgress` から引く。
  *
  * 区切りの中に次の級の「学ぶ → 練習 → 試験」の進み具合までは入れない。
  * すぐ下の「次の目標」のカードと中身が重なるため、ここは級単位だけを持つ。
@@ -42,12 +39,8 @@ export async function RankProgressBar({
     getTranslations("dojo"),
     getTranslations("ranks"),
   ]);
-  const currentIndex =
-    currentSlug === undefined
-      ? -1
-      : RANK_REGISTRY.findIndex((rank) => rank.slug === currentSlug);
-  const achievedCount = currentIndex + 1;
-  const totalCount = RANK_REGISTRY.length;
+  const { achievedCount, totalCount, segments } =
+    buildRankProgress(currentSlug);
   const currentName =
     currentSlug === undefined ? t("unranked") : tRanks(`names.${currentSlug}`);
 
@@ -91,35 +84,29 @@ export async function RankProgressBar({
             gridTemplateColumns: `repeat(${totalCount}, minmax(0, 1fr))`,
           }}
         >
-          {RANK_REGISTRY.map((rank, index) => {
-            const state =
-              index <= currentIndex
-                ? "achieved"
-                : index === currentIndex + 1
-                  ? "next"
-                  : "upcoming";
+          {segments.map(({ slug, state, isCurrent }) => {
             const segmentClass =
               state === "achieved"
-                ? beltClass(rank.slug)
+                ? beltClass(slug)
                 : state === "next"
-                  ? beltTintClasses(rank.slug)
+                  ? beltTintClasses(slug)
                   : "bg-surface-100";
             return (
               <li
-                key={rank.slug}
-                data-rank-slug={rank.slug}
+                key={slug}
+                data-rank-slug={slug}
                 data-state={state}
                 className="space-y-1 text-center"
               >
                 <div className={`h-2 rounded-full ${segmentClass}`} />
                 <span
                   className={`block text-xs ${
-                    index === currentIndex
+                    isCurrent
                       ? "font-bold text-surface-900"
                       : "text-surface-500"
                   }`}
                 >
-                  {tRanks(`names.${rank.slug}`)}
+                  {tRanks(`names.${slug}`)}
                 </span>
               </li>
             );
