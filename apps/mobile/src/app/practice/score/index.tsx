@@ -3,6 +3,7 @@ import { useTranslations } from "use-intl";
 import { COMPREHENSIVE_PRACTICE_HREF } from "@mahjong-scoring/features/routes";
 
 import { Screen } from "../../../components/screen";
+import { ScoreHelpTour } from "../../../practice/endless/score/score-help";
 import { SectionTitle } from "../../../components/section-title";
 import { useScoreSettingsStore } from "../../../hooks/use-score-settings-store";
 import { RelatedLessonsSection } from "../../../practice/endless/related-lessons-section";
@@ -27,7 +28,12 @@ export default function ScoreSetupPage() {
   const tp = useTranslations("practice");
 
   return (
-    <Screen title={t("title")} back contentStyle={styles.content}>
+    <Screen
+      title={t("title")}
+      back
+      titleAction={<ScoreHelpTour />}
+      contentStyle={styles.content}
+    >
       <View style={styles.section}>
         <SectionTitle>{tp("settingsTitle")}</SectionTitle>
         <ScoreSetupForm

@@ -14,10 +14,8 @@ import {
   HelpTourModal,
 } from "../../_components/help-tour-modal";
 import type { HelpTourSlide } from "../../_components/help-tour-modal";
-import {
-  HELP_TOUR_ALL_CORRECT,
-  useHelpTourSample,
-} from "../../_hooks/use-help-tour-sample";
+import { HELP_TOUR_ALL_CORRECT } from "@mahjong-scoring/features/practice/help-tour-sample";
+import { useHelpTourSample } from "@mahjong-scoring/features/practice/use-help-tour-sample";
 
 /**
  * 点数計算総合演習 ヘルプツアー

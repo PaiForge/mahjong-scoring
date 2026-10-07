@@ -112,6 +112,9 @@ packages/features / core を共有し、アプリ側は画面と RN の部品だ
   押したときの地の色、単独の文字の操作はアクセント色の太字、本文中の語だけ下線
 - 説明・選択肢の一覧・選択欄は `BottomSheet`（下からのシート）。確認だけ中央の
   ダイアログ（`ConfirmationModal`）
+- 「?」のヘルプは `HelpTourSheet`（1 枚ずつ送るシート）。web の 2 種類（設定画面の
+  `HelpTourModal` と画面の要素を照らす `SpotlightTour`）を、どちらもこの形で出す
+  （要素を照らす仕組みはネイティブに無い。進め方の方だけ実物の見本を添える）
 - 一覧の絞り込みは `FilterChips`（端まで流す独立したチップ）、2〜3 択の表示切り替えは
   `ToggleGroup`（セグメントコントロール）
 - 答え合わせは色に加えて触覚（`lib/haptics.ts`、expo-haptics）でも知らせる

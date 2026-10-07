@@ -1,56 +1,42 @@
-"use client";
-
-import { useMemo } from "react";
-import { useTranslations } from "next-intl";
+import { useMemo, useState } from "react";
+import { StyleSheet, View } from "react-native";
+import { useTranslations } from "use-intl";
 import {
   generateValidMachiScoreQuestion,
-  judgeMachiSelection,
   isOya,
+  judgeMachiSelection,
+  type JudgementResult,
+  type MachiCellAnswer,
+  type MachiScoreQuestion,
 } from "@mahjong-scoring/core";
-import type {
-  JudgementResult,
-  MachiCellAnswer,
-  MachiScoreQuestion,
-} from "@mahjong-scoring/core";
-import {
-  HelpTourButton,
-  HelpTourModal,
-} from "../../_components/help-tour-modal";
-import type { HelpTourSlide } from "../../_components/help-tour-modal";
 import {
   cellKeyOf,
   listCellRefs,
   type MachiCellRef,
 } from "@mahjong-scoring/features/practice/machi-score/cell-ref";
 import {
-  correctCellAnswerOf,
   cellAnswerFormatters,
+  correctCellAnswerOf,
 } from "@mahjong-scoring/features/practice/machi-score/format-cell-answer";
 import { HELP_TOUR_ALL_CORRECT } from "@mahjong-scoring/features/practice/help-tour-sample";
 import { useHelpTourSample } from "@mahjong-scoring/features/practice/use-help-tour-sample";
+
+import { HelpIconButton } from "../../../components/help-icon-button";
+import {
+  HelpTourSheet,
+  type HelpTourStep,
+} from "../../../components/help-tour-sheet";
 import { MachiPicker } from "./machi-picker";
 import { MachiScoreResult } from "./machi-score-result";
 import { TenpaiDisplay } from "./tenpai-display";
 import { WaitCellGrid } from "./wait-cell-grid";
 
-/**
- * 待ち別点数計算 ヘルプツアー
- *
- * @description
- * 設定画面の PageTitle 右端に置く「?」ボタン。押すと「開始する」後の 3 段階
- * （待ち牌を選ぶ → マスに点数を当てはめる → 答え合わせ）を実コンポーネントで
- * 見せるカルーセルモーダル（{@link HelpTourModal}）を開く。この練習は 1 問の
- * 中に段階があり、始める前に流れを通しで見せた方が迷わない。
- *
- * @flow
- * 1. 「?」を押すとモーダルが開く（初回開封時に門前のサンプル問題を生成）
- * 2. 待ち牌・マス・答え合わせの 3 スライドを「戻る/次へ」で閲覧
- * 3. 「閉じる」またはオーバーレイクリック / Esc で終了
- */
-
 const noop = () => {};
 
-/** 副露なしの分かりやすいサンプル */
+/** 見出しの「?」の大きさ（ヘッダーの見出しの文字に合わせる） */
+const HEADER_HELP_FONT_SIZE = 17;
+
+/** 副露なしの分かりやすいサンプル（web と同じ） */
 function generateSample(): MachiScoreQuestion | undefined {
   return generateValidMachiScoreQuestion({ includeFuro: false });
 }
@@ -68,30 +54,37 @@ function buildCorrectCells(question: MachiScoreQuestion): {
     answers[cellKeyOf({ agariHai: wait.agariHai, isTsumo: false })] =
       correctCellAnswerOf(wait.ron);
   }
-  for (const cell of listCellRefs(question))
+  for (const cell of listCellRefs(question)) {
     results[cellKeyOf(cell)] = HELP_TOUR_ALL_CORRECT;
+  }
   return { answers, results };
 }
 
+/**
+ * 待ち別点数計算の進め方（設定画面の「?」。web の `MachiScoreHelpTour`）
+ * 待ち別ヘルプツアー
+ *
+ * 1 問の中の 3 段階（待ち牌を選ぶ → マスに点数を当てはめる → 答え合わせ）を
+ * 実物のコンポーネントで 1 枚ずつ見せる。マスの 1 枚はツモ列を回答済み、
+ * ロン列を選択中の途中経過で見せる（web と同じ）。
+ */
 export function MachiScoreHelpTour() {
   const t = useTranslations("machiScore");
   const tScore = useTranslations("score");
   const tCommon = useTranslations("common");
   const { isOpen, sample, open, close } = useHelpTourSample(generateSample);
 
-  const slides = useMemo((): readonly HelpTourSlide[] => {
-    if (!sample) return [];
+  const steps = useMemo((): readonly HelpTourStep[] => {
+    if (sample === undefined) return [];
     const waits = sample.waits.map((wait) => wait.agariHai);
     const { answers, results } = buildCorrectCells(sample);
-    const isOyaQuestion = isOya(sample.jikaze);
     const { formatAnswer, formatAnswerLines } = cellAnswerFormatters({
       t: tScore,
       noYakuLabel: t("cells.noYakuShort"),
       simplifyMangan: false,
       allowDoubleYakuman: false,
-      isOya: isOyaQuestion,
+      isOya: isOya(sample.jikaze),
     });
-    // マスのスライドはツモ列を回答済み、ロン列を選択中の途中経過で見せる
     const tsumoAnswers: Record<string, MachiCellAnswer> = {};
     const ronCells: MachiCellRef[] = [];
     for (const cell of listCellRefs(sample)) {
@@ -104,25 +97,24 @@ export function MachiScoreHelpTour() {
       {
         key: "machi",
         title: t("help.slides.machi.title"),
-        caption: t("help.slides.machi.caption"),
+        description: t("help.slides.machi.caption"),
         node: (
-          <div className="space-y-4">
+          <View style={styles.sample}>
             <TenpaiDisplay question={sample} showUraDora={false} />
             <MachiPicker
               selected={waits}
               onToggle={noop}
               judgement={judgeMachiSelection(sample, waits)}
-              disabled
             />
-          </div>
+          </View>
         ),
       },
       {
         key: "cells",
         title: t("help.slides.cells.title"),
-        caption: t("help.slides.cells.caption"),
+        description: t("help.slides.cells.caption"),
         node: (
-          <div className="space-y-4">
+          <View style={styles.sample}>
             <TenpaiDisplay question={sample} showUraDora />
             <WaitCellGrid
               question={sample}
@@ -130,15 +122,14 @@ export function MachiScoreHelpTour() {
               selectedCells={ronCells}
               formatAnswer={formatAnswer}
               onToggleCell={noop}
-              disabled
             />
-          </div>
+          </View>
         ),
       },
       {
         key: "result",
         title: t("help.slides.result.title"),
-        caption: t("help.slides.result.caption"),
+        description: t("help.slides.result.caption"),
         node: (
           <MachiScoreResult
             question={sample}
@@ -159,18 +150,76 @@ export function MachiScoreHelpTour() {
 
   return (
     <>
-      <HelpTourButton onClick={open} label={t("help.label")} />
-      <HelpTourModal
+      <HelpIconButton
+        onPress={open}
+        label={t("help.label")}
+        fontSize={HEADER_HELP_FONT_SIZE}
+      />
+      <HelpTourSheet
         isOpen={isOpen}
         onClose={close}
         title={t("help.title")}
-        slides={slides}
+        steps={steps}
         labels={{
-          close: tCommon("close"),
           prev: t("help.prev"),
           next: t("help.next"),
+          close: tCommon("close"),
+          progress: (current, total) => t("tour.progress", { current, total }),
         }}
       />
     </>
   );
 }
+
+/**
+ * 待ち別点数計算の画面の操作（play 画面の「?」。web の `MachiScoreSpotlightTour`）
+ * 待ち別の操作ヘルプ
+ *
+ * いまの段階の画面にある要素だけを 1 枚ずつ説明する（待ち牌の段階と、マスに
+ * 当てはめる段階で中身が変わる。答え合わせの段階では「?」を出さない）。
+ */
+export function MachiScoreOperationHelp({
+  phase,
+}: {
+  readonly phase: "machi" | "cells";
+}) {
+  const t = useTranslations("machiScore.tour");
+  const [isOpen, setIsOpen] = useState(false);
+
+  const keys =
+    phase === "machi"
+      ? (["board", "picker", "machiSubmit"] as const)
+      : (["board", "cells", "answerForm", "cellsSubmit"] as const);
+  const steps: readonly HelpTourStep[] = keys.map((key) => ({
+    key,
+    title: t(`${key}.title`),
+    description: t(`${key}.description`),
+  }));
+
+  return (
+    <>
+      <HelpIconButton
+        onPress={() => setIsOpen(true)}
+        label={t("label")}
+        fontSize={HEADER_HELP_FONT_SIZE}
+      />
+      <HelpTourSheet
+        isOpen={isOpen}
+        onClose={() => setIsOpen(false)}
+        steps={steps}
+        labels={{
+          prev: t("prev"),
+          next: t("next"),
+          close: t("done"),
+          progress: (current, total) => t("progress", { current, total }),
+        }}
+      />
+    </>
+  );
+}
+
+const styles = StyleSheet.create({
+  sample: {
+    gap: 16,
+  },
+});
