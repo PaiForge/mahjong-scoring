@@ -10,6 +10,7 @@ import {
 import { roundedPercent } from "@mahjong-scoring/features/percent";
 import { chapterHref } from "@mahjong-scoring/features/routes";
 
+import { Chip } from "../../components/chip";
 import { colors, radius } from "../../lib/theme";
 import { isLessonPorted } from "../ported-lessons";
 import { lessonColors, SECTION_COLORS } from "../lesson-colors";
@@ -74,18 +75,14 @@ function ChapterRow({
         <Text style={styles.description}>{t(`${path}.description`)}</Text>
       </View>
       {isNext && (
-        <View style={styles.nextBadge}>
-          <Text style={styles.nextBadgeText}>
-            {t("index.nextChapterBadge")}
-          </Text>
+        <View style={styles.badge}>
+          <Chip tone="amber">{t("index.nextChapterBadge")}</Chip>
         </View>
       )}
       {isDone && <DoneMark label={t("chapter.completedMark")} />}
       {!ported && (
-        <View style={styles.unavailableBadge}>
-          <Text style={styles.unavailableText}>
-            {t("index.unavailableBadge")}
-          </Text>
+        <View style={styles.badge}>
+          <Chip tone="neutral">{t("index.unavailableBadge")}</Chip>
         </View>
       )}
     </>
@@ -281,33 +278,8 @@ const styles = StyleSheet.create({
     fontSize: 12,
     color: colors.surface400,
   },
-  nextBadge: {
+  badge: {
     marginTop: 2,
-    height: 24,
-    justifyContent: "center",
-    borderRadius: radius.full,
-    borderWidth: 2,
-    borderColor: colors.ink,
-    backgroundColor: lessonColors.amber200Solid,
-    paddingHorizontal: 8,
-  },
-  nextBadgeText: {
-    fontSize: 11,
-    fontWeight: "700",
-    color: lessonColors.amber900,
-  },
-  unavailableBadge: {
-    marginTop: 2,
-    height: 24,
-    justifyContent: "center",
-    borderRadius: radius.full,
-    backgroundColor: colors.surface100,
-    paddingHorizontal: 8,
-  },
-  unavailableText: {
-    fontSize: 11,
-    fontWeight: "700",
-    color: colors.surface500,
   },
   progress: {
     gap: 8,
@@ -328,14 +300,13 @@ const styles = StyleSheet.create({
     color: colors.surface600,
   },
   progressTrack: {
-    height: 16,
+    height: 8,
     borderRadius: radius.full,
-    borderWidth: 3,
-    borderColor: colors.ink,
-    backgroundColor: colors.surface200,
+    backgroundColor: colors.surface100,
     overflow: "hidden",
   },
   progressFill: {
     height: "100%",
+    borderRadius: radius.full,
   },
 });

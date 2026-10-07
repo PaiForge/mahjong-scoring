@@ -1,7 +1,8 @@
 import { StyleSheet, Text, View } from "react-native";
 import { useTranslations } from "use-intl";
 
-import { colors, radius } from "../../../lib/theme";
+import { Chip } from "../../../components/chip";
+import { colors } from "../../../lib/theme";
 
 /**
  * 役翻数練習の出題提示（役名と門前/鳴きバッジ。web の `YakuHanPrompt`）
@@ -24,9 +25,11 @@ export function YakuHanPrompt({
 
   return (
     <View style={styles.root}>
-      <Text style={[styles.badge, isMenzen ? styles.menzen : styles.naki]}>
-        {isMenzen ? t("menzen") : t("naki")}
-      </Text>
+      <View style={styles.badgeRow}>
+        <Chip tone={isMenzen ? "primary" : "amber"}>
+          {isMenzen ? t("menzen") : t("naki")}
+        </Chip>
+      </View>
       <Text style={styles.yakuName}>{yakuName}</Text>
     </View>
   );
@@ -37,21 +40,8 @@ const styles = StyleSheet.create({
     alignItems: "center",
     gap: 12,
   },
-  badge: {
-    overflow: "hidden",
-    borderRadius: radius.full,
-    paddingHorizontal: 12,
-    paddingVertical: 4,
-    fontSize: 12,
-    fontWeight: "600",
-  },
-  menzen: {
-    backgroundColor: colors.primary50,
-    color: colors.primary700,
-  },
-  naki: {
-    backgroundColor: colors.amber50,
-    color: colors.warning,
+  badgeRow: {
+    flexDirection: "row",
   },
   yakuName: {
     fontSize: 30,
