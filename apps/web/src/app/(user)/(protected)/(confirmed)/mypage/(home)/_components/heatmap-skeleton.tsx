@@ -96,7 +96,7 @@ export function HeatmapSkeleton() {
       </div>
 
       {/* 詳細パネル。実描画は未選択時もプレースホルダ文を出すため枠ごと再現する */}
-      <div className="rounded-panel border border-surface-100 bg-surface-50 p-4">
+      <div className="rounded-panel border border-panel bg-surface-50 p-4">
         <div className="flex h-5 items-center">
           <SkeletonBar className="h-3.5 w-full max-w-[264px]" />
         </div>

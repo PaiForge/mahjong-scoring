@@ -17,7 +17,7 @@ export default function Loading() {
 
       <section className="space-y-4">
         <SectionTitleSkeleton width="w-28" />
-        <div className="space-y-4 rounded-panel border border-surface-100 bg-surface-50 p-5">
+        <div className="space-y-4 rounded-panel border border-panel bg-surface-50 p-5">
           {/* 項目 2 つ（実: dt text-xs = 16px 行、dd text-sm = 20px 行 + mt-0.5） */}
           {[0, 1].map((i) => (
             <div key={i}>

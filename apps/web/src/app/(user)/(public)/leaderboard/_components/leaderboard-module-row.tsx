@@ -27,7 +27,7 @@ export async function LeaderboardModuleRow({
     <li>
       <Link
         href={buildDetailPath(period, board)}
-        className="group flex min-h-16 items-center gap-3 px-4 py-4 transition-colors hover:bg-primary-50/40 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-ring sm:px-5"
+        className="group flex min-h-16 items-center gap-3 px-4 py-4 transition-colors hover:bg-surface-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-ring sm:px-5"
       >
         <span className="min-w-0 flex-1 text-sm font-bold leading-relaxed text-foreground">
           {await boardTitle(board)}
@@ -47,7 +47,7 @@ export async function LeaderboardModuleRow({
         )}
         <span
           aria-hidden="true"
-          className="shrink-0 text-surface-400 group-hover:text-primary-700"
+          className="shrink-0 text-surface-400 group-hover:text-foreground"
         >
           <ChevronRightIcon />
         </span>
