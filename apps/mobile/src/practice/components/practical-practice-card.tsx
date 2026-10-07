@@ -6,7 +6,7 @@ import { HaiKind } from "@mahjong-scoring/core";
 import { DEMO_MENTSU_HAND } from "@mahjong-scoring/features/board/demo-score-question";
 import {
   SCORE_PRACTICE_HREF,
-  MACHI_SCORE_PRACTICE_HREF,
+  TENPAI_SCORE_PRACTICE_HREF,
 } from "@mahjong-scoring/features/routes";
 
 import { TehaiHand } from "../../board/tehai-hand";
@@ -21,7 +21,7 @@ const TENPAI_TILES = DEMO_MENTSU_HAND.closed.filter((_, index) => index !== 6);
 const WAIT_TILES = [HaiKind.PinZu3, HaiKind.PinZu6] as const;
 
 /**
- * 実戦練習のカード（web の `ScorePracticeBanner` / `MachiScorePracticeBanner`）
+ * 実戦練習のカード（web の `ScorePracticeBanner` / `TenpaiScorePracticeBanner`）
  * 実戦練習カード
  *
  * 終わりのない訓練（和了形の点数計算・聴牌形の点数計算）の入口。卓と同じ濃い緑に出題の
@@ -35,13 +35,13 @@ const WAIT_TILES = [HaiKind.PinZu3, HaiKind.PinZu6] as const;
 export function PracticalPracticeCard({
   menu,
 }: {
-  readonly menu: "score" | "machi-score";
+  readonly menu: "score" | "tenpai-score";
 }) {
   const t = useTranslations("practice");
   const router = useRouter();
   const isScore = menu === "score";
-  const key = isScore ? "scoreBanner" : "machiScoreBanner";
-  const href = isScore ? SCORE_PRACTICE_HREF : MACHI_SCORE_PRACTICE_HREF;
+  const key = isScore ? "scoreBanner" : "tenpaiScoreBanner";
+  const href = isScore ? SCORE_PRACTICE_HREF : TENPAI_SCORE_PRACTICE_HREF;
   const title = t(`${key}.title`);
 
   return (

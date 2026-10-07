@@ -99,7 +99,7 @@ export default async function PlanPage() {
           <p className="text-sm leading-relaxed text-surface-600">
             {t("perks.freeLimits", {
               score: PRACTICE_QUOTA_LIMITS.score.signedIn,
-              machi: PRACTICE_QUOTA_LIMITS["machi-score"].signedIn,
+              machi: PRACTICE_QUOTA_LIMITS["tenpai-score"].signedIn,
             })}
           </p>
         </section>

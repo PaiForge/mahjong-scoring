@@ -54,7 +54,7 @@ beforeEach(() => {
   mockGetOptionalUser.mockResolvedValue({ id: "u1" });
   mockGetActiveBenefits.mockResolvedValue(new Set());
   mockCanSign.mockReturnValue(true);
-  mockReadAnonymous.mockResolvedValue({ score: 0, "machi-score": 0 });
+  mockReadAnonymous.mockResolvedValue({ score: 0, "tenpai-score": 0 });
   mockIsPlanOnSale.mockReturnValue(true);
 });
 
@@ -97,7 +97,7 @@ describe("beginPracticeQuestion", () => {
 
     it("未ログインも cookie を触らず無制限で許可", async () => {
       mockGetOptionalUser.mockResolvedValue(undefined);
-      mockReadAnonymous.mockResolvedValue({ score: 1, "machi-score": 1 });
+      mockReadAnonymous.mockResolvedValue({ score: 1, "tenpai-score": 1 });
 
       const result = await beginPracticeQuestion("score");
 
@@ -127,7 +127,7 @@ describe("beginPracticeQuestion", () => {
         new Set(["unlimited_practice", "practice_tools"]),
       );
 
-      const result = await beginPracticeQuestion("machi-score");
+      const result = await beginPracticeQuestion("tenpai-score");
 
       expect(result).toEqual({
         success: true,
@@ -143,7 +143,7 @@ describe("beginPracticeQuestion", () => {
     it("無料ユーザーは DB で消費し、残りを返す", async () => {
       mockConsumeUserQuota.mockResolvedValue({ allowed: true, remaining: 2 });
 
-      const result = await beginPracticeQuestion("machi-score");
+      const result = await beginPracticeQuestion("tenpai-score");
 
       expect(result).toEqual({
         success: true,
@@ -155,7 +155,7 @@ describe("beginPracticeQuestion", () => {
       });
       expect(mockConsumeUserQuota).toHaveBeenCalledWith(
         "u1",
-        "machi-score",
+        "tenpai-score",
         expect.stringMatching(/^\d{4}-\d{2}-\d{2}$/),
         3,
       );
@@ -201,7 +201,7 @@ describe("beginPracticeQuestion", () => {
     });
 
     it("上限未満なら cookie の回数を 1 増やして許可", async () => {
-      mockReadAnonymous.mockResolvedValue({ score: 0, "machi-score": 1 });
+      mockReadAnonymous.mockResolvedValue({ score: 0, "tenpai-score": 1 });
 
       const result = await beginPracticeQuestion("score");
 
@@ -214,13 +214,13 @@ describe("beginPracticeQuestion", () => {
         benefits: [],
       });
       expect(mockWriteAnonymous).toHaveBeenCalledWith(
-        { score: 1, "machi-score": 1 },
+        { score: 1, "tenpai-score": 1 },
         expect.any(Date),
       );
     });
 
     it("上限に達していれば書かずに不許可", async () => {
-      mockReadAnonymous.mockResolvedValue({ score: 1, "machi-score": 0 });
+      mockReadAnonymous.mockResolvedValue({ score: 1, "tenpai-score": 0 });
 
       const result = await beginPracticeQuestion("score");
 
@@ -264,7 +264,7 @@ describe("peekPracticeQuota", () => {
   it("Pro（回数無制限）は DB を読まずに無制限", async () => {
     mockGetActiveBenefits.mockResolvedValue(new Set(["unlimited_practice"]));
 
-    expect(await peekPracticeQuota("machi-score")).toEqual({
+    expect(await peekPracticeQuota("tenpai-score")).toEqual({
       success: true,
       allowed: true,
       remaining: "unlimited",
@@ -278,7 +278,7 @@ describe("peekPracticeQuota", () => {
   it("無料ユーザーは DB を読むだけで消費しない", async () => {
     mockReadUserQuota.mockResolvedValue(1);
 
-    expect(await peekPracticeQuota("machi-score")).toEqual({
+    expect(await peekPracticeQuota("tenpai-score")).toEqual({
       success: true,
       allowed: true,
       remaining: 2,
@@ -288,7 +288,7 @@ describe("peekPracticeQuota", () => {
     });
     expect(mockReadUserQuota).toHaveBeenCalledWith(
       "u1",
-      "machi-score",
+      "tenpai-score",
       expect.stringMatching(/^\d{4}-\d{2}-\d{2}$/),
     );
     expect(mockConsumeUserQuota).not.toHaveBeenCalled();
@@ -312,7 +312,7 @@ describe("peekPracticeQuota", () => {
     });
 
     it("cookie を読むだけで書かない", async () => {
-      mockReadAnonymous.mockResolvedValue({ score: 1, "machi-score": 0 });
+      mockReadAnonymous.mockResolvedValue({ score: 1, "tenpai-score": 0 });
 
       expect(await peekPracticeQuota("score")).toEqual({
         success: true,
@@ -322,7 +322,7 @@ describe("peekPracticeQuota", () => {
         signedIn: false,
         benefits: [],
       });
-      expect(await peekPracticeQuota("machi-score")).toEqual(
+      expect(await peekPracticeQuota("tenpai-score")).toEqual(
         expect.objectContaining({ allowed: true, remaining: 1, limit: 1 }),
       );
       expect(mockWriteAnonymous).not.toHaveBeenCalled();

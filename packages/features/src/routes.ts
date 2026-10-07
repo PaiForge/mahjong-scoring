@@ -159,9 +159,9 @@ export function practiceResultHref(slug: PracticeMenuSlug): string {
 export const SCORE_PRACTICE_HREF = "/practice/score";
 
 /**
- * 記録を取らない聴牌形の点数計算（`/practice/machi-score`）のパス。
+ * 記録を取らない聴牌形の点数計算（`/practice/tenpai-score`）のパス。
  *
  * 和了形の点数計算と同じく無限に解ける訓練で、レジストリにもカタログにも載らない。
  * 練習一覧のバナーが参照する。
  */
-export const MACHI_SCORE_PRACTICE_HREF = "/practice/machi-score";
+export const TENPAI_SCORE_PRACTICE_HREF = "/practice/tenpai-score";

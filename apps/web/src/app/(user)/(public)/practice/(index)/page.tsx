@@ -15,7 +15,7 @@ import { createNamespaceMetadata } from "@/app/_lib/metadata";
 import { getNativeAdCreative } from "@/lib/ads/creatives";
 import {
   ScorePracticeBanner,
-  MachiScorePracticeBanner,
+  TenpaiScorePracticeBanner,
 } from "../_components/practical-practice-banners";
 import { PracticeModeSwitcher } from "../_components/practice-mode-switcher";
 import { CatalogPracticeCard } from "../_components/catalog-practice-card";
@@ -111,7 +111,7 @@ export default async function PracticePage() {
             </div>
             <div className="grid gap-4 sm:grid-cols-2">
               <ScorePracticeBanner />
-              <MachiScorePracticeBanner />
+              <TenpaiScorePracticeBanner />
             </div>
           </section>
         }

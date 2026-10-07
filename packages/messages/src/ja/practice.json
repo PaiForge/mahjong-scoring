@@ -113,7 +113,7 @@
     "title": "和了形の点数計算",
     "description": "和了した手牌から、役・翻・符・点数を計算。点数申告まで通して練習できます。"
   },
-  "machiScoreBanner": {
+  "tenpaiScoreBanner": {
     "title": "聴牌形の点数計算",
     "description": "聴牌形から待ちを見つけ、待ちごとのツモ・ロンの点数を計算。高目・安目の違いも練習できます。"
   },

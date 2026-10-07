@@ -165,7 +165,7 @@ export default function PracticeListPage() {
           </View>
           <View style={styles.list}>
             <PracticalPracticeCard menu="score" />
-            <PracticalPracticeCard menu="machi-score" />
+            <PracticalPracticeCard menu="tenpai-score" />
           </View>
         </View>
       )}

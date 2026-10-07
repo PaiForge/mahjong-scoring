@@ -60,11 +60,11 @@ describe("consumeUserQuota", () => {
   it("先に 1 を入れ、衝突時は count+1 を上限未満のときだけ行う単文の UPSERT", async () => {
     givenReturning([{ count: 1 }]);
 
-    await consumeUserQuota("u1", "machi-score", "2026-10-01", 3);
+    await consumeUserQuota("u1", "tenpai-score", "2026-10-01", 3);
 
     expect(chain.values).toHaveBeenCalledWith({
       userId: "u1",
-      menu: "machi-score",
+      menu: "tenpai-score",
       day: "2026-10-01",
       count: 1,
     });

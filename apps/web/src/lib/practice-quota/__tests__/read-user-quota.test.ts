@@ -49,7 +49,9 @@ describe("readUserQuotaUsage", () => {
 
   it("行が無ければまだ 1 問も生成していないので 0", async () => {
     givenRows([]);
-    expect(await readUserQuotaUsage("u1", "machi-score", "2026-10-01")).toBe(0);
+    expect(await readUserQuotaUsage("u1", "tenpai-score", "2026-10-01")).toBe(
+      0,
+    );
   });
 
   it("DB の失敗はそのまま投げる", async () => {

@@ -144,7 +144,7 @@ function scoreTupleColumns() {
  * 値は `@mahjong-scoring/features` の `PRACTICE_MENU_REGISTRY` の `menuType`。
  * ここに書き写さない（練習を足すたびに食い違う）。昇級試験の menuType は
  * レジストリにあるが記録を残さないため、このテーブルには入らない。
- * レジストリに載らない無限訓練（`practice/score` / `practice/machi-score`）も
+ * レジストリに載らない無限訓練（`practice/score` / `practice/tenpai-score`）も
  * 記録対象外。
  *
  * @design leaderboardKey — ランキングセグメントキー
@@ -1031,7 +1031,7 @@ export type StripeWebhookEvent = typeof stripeWebhookEvents.$inferSelect;
  * 練習回数記録
  *
  * @description
- * `practice/score` と `practice/machi-score` は無料ユーザーに 1 日の回数制限が
+ * `practice/score` と `practice/tenpai-score` は無料ユーザーに 1 日の回数制限が
  * ある（上限は `lib/practice-quota/limits.ts`）。問題を 1 つ生成する直前に
  * Server Action がこの表の `count` を 1 増やし、上限を超えるなら問題を出さない。
  * Pro（`unlimited_practice` 特典）は消費しないので行が増えない。

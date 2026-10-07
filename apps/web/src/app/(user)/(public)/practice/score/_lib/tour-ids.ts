@@ -9,7 +9,7 @@
  *
  * 回答フォーム（`ScorePracticeAnswerForm`）は聴牌形の点数計算も使うため、
  * その盤面にも同じ印が付くが、聴牌形のツアーはフォーム全体を 1 つの対象
- * （`MACHI_SCORE_TOUR_ID.answerForm`）として照らすので、個々の欄の印は
+ * （`TENPAI_SCORE_TOUR_ID.answerForm`）として照らすので、個々の欄の印は
  * 引かれないまま残るだけ。
  */
 export const SCORE_TOUR_ID = {

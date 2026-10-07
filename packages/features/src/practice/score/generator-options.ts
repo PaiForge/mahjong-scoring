@@ -9,7 +9,7 @@ import {
   type HandShape,
 } from "./hand-shape-param";
 
-/** 点数の無限訓練（score / machi-score）が出題条件として組むオプション */
+/** 点数の無限訓練（score / tenpai-score）が出題条件として組むオプション */
 export type ScoreGeneratorOptions = Pick<
   QuestionGeneratorOptions,
   | "allowedRanges"

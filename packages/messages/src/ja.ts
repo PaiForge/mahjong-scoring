@@ -35,7 +35,7 @@ import yaku from "./ja/yaku.json";
 import reference from "./ja/reference.json";
 import glossary from "./ja/glossary.json";
 import scoreTable from "./ja/score-table.json";
-import machiScore from "./ja/machi-score.json";
+import tenpaiScore from "./ja/tenpai-score.json";
 import score from "./ja/score.json";
 import aboutThisApp from "./ja/about-this-app.json";
 import whyScoringIsComplex from "./ja/why-scoring-is-complex.json";
@@ -135,7 +135,7 @@ export const messages = {
   reference,
   glossary,
   scoreTable,
-  machiScore,
+  tenpaiScore,
   score,
   aboutThisApp,
   whyScoringIsComplex,

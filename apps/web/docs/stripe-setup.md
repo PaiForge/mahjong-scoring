@@ -172,7 +172,7 @@ Checkout 開始時に Price ID・特典・期間を DB に保存するため、�
 - [ ] 「購入する」で Stripe Checkout に遷移する
 - [ ] テストカード（`4242 4242 4242 4242`）で決済が完了する
 - [ ] `/mypage/plan` に戻り、`purchases` に行ができている
-- [ ] `practice/score` と `practice/machi-score` の回数制限が外れ、拡張機能が使える
+- [ ] `practice/score` と `practice/tenpai-score` の回数制限が外れ、拡張機能が使える
 - [ ] パス有効中・買い切り保有中は追加購入できない（売り方を問わず）
 - [ ] 複数タブで同時に購入を開始しても同じ Checkout に戻る
 - [ ] Checkout 開始後に Price ID を切り替えても、開始済みの購入を記録できる

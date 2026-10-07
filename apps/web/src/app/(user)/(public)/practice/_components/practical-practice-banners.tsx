@@ -4,7 +4,7 @@ import { HaiKind } from "@mahjong-scoring/core";
 import { DEMO_MENTSU_HAND } from "@mahjong-scoring/features/board/demo-score-question";
 import {
   SCORE_PRACTICE_HREF,
-  MACHI_SCORE_PRACTICE_HREF,
+  TENPAI_SCORE_PRACTICE_HREF,
 } from "@mahjong-scoring/features/routes";
 import type { QuotaMenu } from "@mahjong-scoring/features/quota/limits";
 import { TehaiHand } from "../../_components/tehai-hand";
@@ -19,8 +19,8 @@ const TENPAI_TILES = DEMO_MENTSU_HAND.closed.filter((_, index) => index !== 6);
 async function PracticalPracticeCard({ menu }: { readonly menu: QuotaMenu }) {
   const t = await getTranslations("practice");
   const isScore = menu === "score";
-  const key = isScore ? "scoreBanner" : "machiScoreBanner";
-  const href = isScore ? SCORE_PRACTICE_HREF : MACHI_SCORE_PRACTICE_HREF;
+  const key = isScore ? "scoreBanner" : "tenpaiScoreBanner";
+  const href = isScore ? SCORE_PRACTICE_HREF : TENPAI_SCORE_PRACTICE_HREF;
   return (
     // 基礎練習のカード（PracticeCard）と同じ組み方: カード自体は押せる面では
     // なく、右下の「くわしく見る」だけがリンク。行き先は play ではなく説明と
@@ -87,6 +87,6 @@ export function ScorePracticeBanner() {
   return <PracticalPracticeCard menu="score" />;
 }
 
-export function MachiScorePracticeBanner() {
-  return <PracticalPracticeCard menu="machi-score" />;
+export function TenpaiScorePracticeBanner() {
+  return <PracticalPracticeCard menu="tenpai-score" />;
 }

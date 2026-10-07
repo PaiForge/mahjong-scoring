@@ -50,7 +50,7 @@
  * 特典
  * 特典
  *
- * - `unlimited_practice` — `practice/score` と `practice/machi-score` の 1 日の
+ * - `unlimited_practice` — `practice/score` と `practice/tenpai-score` の 1 日の
  *   回数制限を外す
  * - `practice_tools` — 同 2 練習の拡張機能（回答時間の計測など）
  */

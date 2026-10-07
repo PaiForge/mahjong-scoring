@@ -21,8 +21,8 @@ export const useScoreSettingsStore = createScoreSettingsStore(
  * 設定項目は和了形の点数計算と同じ。保存名を分け、片方の練習で変えた設定が
  * もう片方に及ばないようにする（web と同じ）。
  */
-export const useMachiScoreSettingsStore = createScoreSettingsStore(
-  "mahjong-machi-score-settings",
+export const useTenpaiScoreSettingsStore = createScoreSettingsStore(
+  "mahjong-tenpai-score-settings",
   MOBILE_SETTINGS_STORE_OPTIONS,
 );
 

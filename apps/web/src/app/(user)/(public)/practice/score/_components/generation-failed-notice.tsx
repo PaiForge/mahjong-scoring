@@ -8,7 +8,7 @@ import { PRACTICE_SCROLL_ANCHOR_ID } from "../../_lib/scroll-anchor";
 
 interface GenerationFailedNoticeProps {
   /** 見出し・案内文・ボタンの文言を引く辞書の namespace */
-  readonly translationNamespace: "score" | "machiScore";
+  readonly translationNamespace: "score" | "tenpaiScore";
   /** 設定画面へ戻る */
   readonly onBackToSetup: () => void;
 }

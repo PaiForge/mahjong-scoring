@@ -9,7 +9,7 @@ import { SkeletonBar } from "@/app/_components/skeleton-bar";
 
 interface ScoreBoardSkeletonFrameProps {
   /** 見出し（`title`）を引く辞書の namespace */
-  readonly translationNamespace: "score" | "machiScore";
+  readonly translationNamespace: "score" | "tenpaiScore";
   /** 盤面の直下に置く回答欄のスケルトン（練習ごとに形が違う） */
   readonly children: ReactNode;
 }

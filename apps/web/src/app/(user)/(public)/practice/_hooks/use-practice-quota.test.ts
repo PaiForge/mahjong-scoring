@@ -245,7 +245,7 @@ describe("盤面を離れて戻る", () => {
     await act(async () => {
       await score.result.current.requestQuestion();
     });
-    const machi = renderHook(() => usePracticeQuota("machi-score", vi.fn()));
+    const machi = renderHook(() => usePracticeQuota("tenpai-score", vi.fn()));
     expect(machi.result.current.gate).toBeUndefined();
   });
 
