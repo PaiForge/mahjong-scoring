@@ -20,11 +20,12 @@ import { formatScoreAnswer } from "@mahjong-scoring/features/results/format-scor
 import { paymentToScoreTableAnswer } from "@mahjong-scoring/features/results/payment-adapter";
 import { buildScoreResultDisplay } from "@mahjong-scoring/features/results/score-result-display";
 
-import { TableIcon } from "../../../components/icons/icons";
+import { BookIcon, TableIcon } from "../../../components/icons/icons";
 import { useYakumanRules } from "../../../hooks/use-rule-settings-store";
 import { useYakuOrder } from "../../../hooks/use-yaku-order-store";
 import { colors } from "../../../lib/theme";
 import { ReferenceLinkButton } from "../../components/reference-link-button";
+import { useYakuCheatsheetModal } from "../../use-yaku-cheatsheet-modal";
 import { DetailsPanelRow } from "./details-panel-row";
 import {
   CorrectValue,
@@ -63,9 +64,8 @@ interface ResultDisplayProps {
  * 正解開示として描き、「あなたの回答」列は落とさず各行に未回答の印を出す
  * （列数を変えると正解の列が動くため）。
  *
- * 正解の点数を押すと、この和了の親子・ロンツモで点数早見表を開く。web の
- * 役一覧モーダル（役のチップ・「役一覧を確認」）はモバイルに役一覧が無いため
- * 持たない。
+ * 正解の点数を押すと点数早見表をその和了のセルで開き、役のチップを押すと
+ * 役一覧をその役で開く（web と同じ。どちらも表への補助リンクも置く）。
  */
 export function ResultDisplay({
   question,
@@ -104,6 +104,10 @@ export function ResultDisplay({
     yakuBreakdown,
     fuBreakdown,
   } = buildScoreResultDisplay(question, userAnswer?.yakus, yakuOrder);
+  // 役一覧は成立していた役に印を付け、押した役まで送って開く
+  const { openYakuCheatsheet, yakuCheatsheetModal } = useYakuCheatsheetModal(
+    correctYakuJudgements.map((judgement) => judgement.name),
+  );
 
   const paymentDescription = formatScoreAnswer(
     paymentToScoreTableAnswer(answer.payment),
@@ -137,16 +141,26 @@ export function ResultDisplay({
                   <YakuJudgementChips
                     judgements={answeredYakuJudgements}
                     emptyLabel={t("result.details.none")}
+                    onSelect={openYakuCheatsheet}
                   />
                 ) : (
                   <ResultUnansweredValue />
                 )
               }
               correct={
-                <YakuJudgementChips
-                  judgements={correctYakuJudgements}
-                  emptyLabel={t("result.details.none")}
-                />
+                <>
+                  <YakuJudgementChips
+                    judgements={correctYakuJudgements}
+                    emptyLabel={t("result.details.none")}
+                    onSelect={openYakuCheatsheet}
+                  />
+                  {/* 役を押しても開けるが、それが分かるように一覧への導線も置く */}
+                  <ReferenceLinkButton
+                    icon={<BookIcon size={14} color={colors.mutedForeground} />}
+                    label={t("result.viewYakuList")}
+                    onPress={() => openYakuCheatsheet()}
+                  />
+                </>
               }
             />
           </ResultSection>
@@ -256,6 +270,7 @@ export function ResultDisplay({
         })}
         highlighted={isScoreTableHighlighted}
       />
+      {yakuCheatsheetModal}
     </View>
   );
 }
