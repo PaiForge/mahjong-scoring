@@ -68,7 +68,7 @@ export default async function AdminAnnouncementsPage() {
               <div className="overflow-x-auto">
                 <table className="w-full text-left text-sm">
                   <thead>
-                    <tr className="border-b border-surface-100 text-xs text-surface-500">
+                    <tr className="border-b border-surface-200 text-xs text-surface-500">
                       <th className="px-4 py-2 font-medium whitespace-nowrap">
                         {t("locale")}
                       </th>
@@ -88,7 +88,7 @@ export default async function AdminAnnouncementsPage() {
                   </thead>
                   <tbody>
                     {variants.map((a) => (
-                      <tr key={a.id} className="border-t border-surface-100">
+                      <tr key={a.id} className="border-t border-surface-200">
                         <td className="px-4 py-3">
                           <span className="font-mono">{a.locale}</span>
                           {a.pinnedAt !== null && (

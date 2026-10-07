@@ -126,7 +126,7 @@ export default async function AdminAdsPage() {
               <div className="admin-table">
                 <table className="w-full text-left text-sm">
                   <thead>
-                    <tr className="border-b border-surface-100 text-xs text-surface-500">
+                    <tr className="border-b border-surface-200 text-xs text-surface-500">
                       <th className="px-4 py-2 font-medium whitespace-nowrap">
                         {t("order")}
                       </th>
@@ -143,7 +143,7 @@ export default async function AdminAdsPage() {
                   </thead>
                   <tbody>
                     {inSlot.map(({ row, copy }, index) => (
-                      <tr key={row.id} className="border-t border-surface-100">
+                      <tr key={row.id} className="border-t border-surface-200">
                         <td className="px-4 py-3 text-surface-500">
                           {index + 1}
                         </td>
