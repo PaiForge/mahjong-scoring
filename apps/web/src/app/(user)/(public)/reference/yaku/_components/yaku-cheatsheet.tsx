@@ -1,5 +1,6 @@
 "use client";
 
+import type { ReactNode } from "react";
 import { useTranslations } from "next-intl";
 import {
   YAKU_HAN_ENTRIES,
@@ -17,6 +18,7 @@ import {
 import type { YakuExampleSet } from "@mahjong-scoring/features/yaku/examples";
 import { YakuExampleList } from "./yaku-example-list";
 import { yakuAnchorId } from "@mahjong-scoring/features/yaku/anchors";
+import { adIndexAfterGroup } from "@/lib/ads/spacing";
 
 /** チートシートに表示する1役分の項目（役データと例示手牌を束ねる） */
 interface YakuCheatItem {
@@ -67,6 +69,13 @@ interface YakuCheatsheetProps {
    * 答え合わせで役をタップして開いたときに、その役へ直接着地させる。
    */
   readonly focusedYakuName?: string;
+  /**
+   * 翻数のまとまりの末尾に混ぜる広告（並び順どおり。描画済みの要素）
+   *
+   * 何番目のまとまりの後に置くかは `adIndexAfterGroup` が決める。広告は
+   * サーバーで引くため、役一覧ページが描画した要素を渡す。モーダルでは渡さない
+   */
+  readonly ads?: readonly ReactNode[];
 }
 
 /**
@@ -86,6 +95,7 @@ export function YakuCheatsheet({
   withAnchors = false,
   markedYakuNames,
   focusedYakuName,
+  ads = [],
 }: YakuCheatsheetProps) {
   const t = useTranslations("reference.yaku");
 
@@ -119,35 +129,40 @@ export function YakuCheatsheet({
 
   return (
     <div className="space-y-8">
-      {groups.map((group) => (
-        <section key={group.han} className="space-y-3">
-          <SectionTitle>{groupLabel(group.han)}</SectionTitle>
-          <div className="space-y-2">
-            {group.items.map(({ entry, examples }) => (
-              <AccordionCard
-                key={entry.name}
-                anchorId={withAnchors ? yakuAnchorId(entry.name) : undefined}
-                autoOpen={entry.name === focusedYakuName}
-                title={
-                  <span className="flex min-w-0 items-center gap-2">
-                    <span className="font-semibold text-surface-900">
-                      {entry.name}
-                    </span>
-                    {markedYakuNames?.includes(entry.name) && (
-                      <span className="rounded-md bg-primary-50 px-2 py-0.5 text-[11px] font-bold text-primary-800">
-                        {t("inThisHand")}
+      {groups.map((group, groupIndex) => {
+        const adIndex = adIndexAfterGroup(groupIndex);
+        const ad = adIndex === undefined ? undefined : ads[adIndex];
+        return (
+          <section key={group.han} className="space-y-3">
+            <SectionTitle>{groupLabel(group.han)}</SectionTitle>
+            <div className="space-y-2">
+              {group.items.map(({ entry, examples }) => (
+                <AccordionCard
+                  key={entry.name}
+                  anchorId={withAnchors ? yakuAnchorId(entry.name) : undefined}
+                  autoOpen={entry.name === focusedYakuName}
+                  title={
+                    <span className="flex min-w-0 items-center gap-2">
+                      <span className="font-semibold text-surface-900">
+                        {entry.name}
                       </span>
-                    )}
-                  </span>
-                }
-                trailing={nakiLabel(entry)}
-              >
-                <YakuExampleList examples={examples} />
-              </AccordionCard>
-            ))}
-          </div>
-        </section>
-      ))}
+                      {markedYakuNames?.includes(entry.name) && (
+                        <span className="rounded-md bg-primary-50 px-2 py-0.5 text-[11px] font-bold text-primary-800">
+                          {t("inThisHand")}
+                        </span>
+                      )}
+                    </span>
+                  }
+                  trailing={nakiLabel(entry)}
+                >
+                  <YakuExampleList examples={examples} />
+                </AccordionCard>
+              ))}
+              {ad}
+            </div>
+          </section>
+        );
+      })}
     </div>
   );
 }

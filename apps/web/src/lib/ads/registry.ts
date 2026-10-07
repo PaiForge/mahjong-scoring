@@ -172,6 +172,13 @@ export const AD_SLOTS = {
     kind: "native_row",
     surfaces: [{ route: "/dojo/ranks/<級>", href: "/dojo/ranks/kyu-4" }],
   },
+  "yaku-reference-native-ad": {
+    kind: "native_row",
+    surfaces: [{ route: "/reference/yaku", href: "/reference/yaku" }],
+    // 翻数のまとまり（1・2・3・6 翻・役満の 5 つ）に間隔を広げながら置く
+    // （`adIndexAfterGroup`）。1・3 まとまり目の後
+    placements: 2,
+  },
 } as const satisfies Record<string, AdSlotConfig>;
 
 /** 広告スロット */
