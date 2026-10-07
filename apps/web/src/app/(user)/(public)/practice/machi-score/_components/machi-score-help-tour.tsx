@@ -26,10 +26,8 @@ import {
   correctCellAnswerOf,
   cellAnswerFormatters,
 } from "@mahjong-scoring/features/practice/machi-score/format-cell-answer";
-import {
-  HELP_TOUR_ALL_CORRECT,
-  useHelpTourSample,
-} from "../../_hooks/use-help-tour-sample";
+import { HELP_TOUR_ALL_CORRECT } from "@mahjong-scoring/features/practice/help-tour-sample";
+import { useHelpTourSample } from "@mahjong-scoring/features/practice/use-help-tour-sample";
 import { MachiPicker } from "./machi-picker";
 import { MachiScoreResult } from "./machi-score-result";
 import { TenpaiDisplay } from "./tenpai-display";
