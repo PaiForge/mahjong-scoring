@@ -5,7 +5,7 @@
  * いずれも端末ローカルに保存する。web にあるプライバシー設定（ランキングへの
  * 表示可否）はアカウントに紐づくため、アカウントを持たないモバイルには無い。
  * 同じ理由で web の会員限定ゲートも掛けない。
- * @flow 下部タブ → 設定 →（役の並び順）
+ * @flow ホームのヘッダーの歯車 → 設定 →（役の並び順）
  */
 import { View, StyleSheet } from "react-native";
 import { useTranslations } from "use-intl";
@@ -20,7 +20,7 @@ export default function PreferencesScreen() {
   const t = useTranslations("settings");
 
   return (
-    <Screen title={t("pageTitle")} inTabs contentStyle={styles.content}>
+    <Screen title={t("pageTitle")} back contentStyle={styles.content}>
       <View style={styles.section}>
         <SectionTitle>{t("rulesSectionTitle")}</SectionTitle>
         <RuleSettingsSection />
