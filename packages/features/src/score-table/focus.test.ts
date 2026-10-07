@@ -3,7 +3,7 @@ import { describe, expect, it } from "vitest";
 import {
   parseScoreTableFocusFromParams,
   resolveScoreTableFocus,
-} from "../score-table-utils";
+} from "./focus";
 
 describe("parseScoreTableFocusFromParams", () => {
   it("全パラメータ指定で focus を組み立てる", () => {

@@ -8,8 +8,8 @@ import {
   type ScoreTableAnswer,
 } from "@mahjong-scoring/core";
 import { paymentToScoreTableAnswer } from "@mahjong-scoring/features/results/payment-adapter";
-import { scoreTableFocusOf } from "../_lib/score-table-focus";
-import type { ScoreTableFocus } from "@/app/(user)/(public)/reference/score-table/_lib/score-table-utils";
+import { scoreTableFocusOf } from "@mahjong-scoring/features/score-table/focus";
+import type { ScoreTableFocus } from "@mahjong-scoring/features/score-table/focus";
 
 import { formatScoreAnswer } from "@mahjong-scoring/features/results/format-score-answer";
 import { ScoreTableModal } from "../score/_components/score-table-modal";
@@ -23,7 +23,7 @@ interface RevealedScoreAnswerProps {
    * 正解を押したときに開く点数表の位置（親子・ロンツモ・翻・符）
    *
    * 渡すと正解の点数が押せる文字になり、そのセルをハイライトした点数早見表を
-   * モーダルで開く（{@link import("../_lib/score-table-focus").scoreTableFocusOf}
+   * モーダルで開く（{@link import("@mahjong-scoring/features/score-table/focus").scoreTableFocusOf}
    * で組む）。渡さなければただの文字。
    */
   readonly scoreTableFocus?: ScoreTableFocus;

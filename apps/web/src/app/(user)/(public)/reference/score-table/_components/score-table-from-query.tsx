@@ -7,7 +7,7 @@ import type { Role, WinType } from "@mahjong-scoring/core";
 import {
   parseScoreTableFocusFromParams,
   type ScoreTableFocus,
-} from "../_lib/score-table-utils";
+} from "@mahjong-scoring/features/score-table/focus";
 import { ScoreTable } from "./score-table";
 
 /** URL のクエリから読み取った、表の注目対象とタブ初期値 */

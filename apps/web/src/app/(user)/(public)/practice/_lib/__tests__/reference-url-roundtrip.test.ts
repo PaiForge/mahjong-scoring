@@ -6,8 +6,8 @@ import { buildReferenceUrl } from "../build-reference-url";
 import {
   parseScoreTableFocusFromParams,
   resolveScoreTableFocus,
-} from "../../../reference/score-table/_lib/score-table-utils";
-import type { ScoreTableFocusTarget } from "../../../reference/score-table/_lib/score-table-utils";
+} from "@mahjong-scoring/features/score-table/focus";
+import type { ScoreTableFocusTarget } from "@mahjong-scoring/features/score-table/focus";
 
 /**
  * buildReferenceUrl で生成されたURLのクエリパラメータが、
