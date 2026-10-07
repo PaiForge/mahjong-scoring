@@ -11,12 +11,15 @@ import {
   practiceRanks,
 } from "@mahjong-scoring/features/practice/rank-practices";
 
+import { MOBILE_PRACTICE_GRID_AD_SLOT } from "@mahjong-scoring/features/ads/native-ad";
 import {
   COMPREHENSIVE_PRACTICE_HREF,
   DOJO_PATH,
   MACHI_SCORE_PRACTICE_HREF,
 } from "@mahjong-scoring/features/routes";
 
+import { NativeAdCard } from "../../ads/native-ad-card";
+import { useNativeAds } from "../../ads/use-native-ads";
 import { LinkRow, LinkRowList } from "../../components/link-row";
 import { Screen } from "../../components/screen";
 import { FilterChips } from "../../components/filter-chips";
@@ -30,12 +33,20 @@ type FilterValue = string;
 const ALL = "all";
 
 /**
+ * 広告カードを置く位置（0 始まり）。web の練習一覧（`AD_GRID_POSITION`）と
+ * 同じく上から 3 枚目。先頭に置くと一覧が広告から始まり、ずっと下に置くと
+ * 絞り込んだ一覧ではほぼ出ない。表示中の練習がそれより少なければ末尾に置く
+ */
+const AD_LIST_POSITION = 2;
+
+/**
  * 練習一覧
  *
  * @description
  * web の練習一覧と同じく、カタログ（`PRACTICE_CATALOG`）の並びで練習カードを
  * 並べ、段級位・分野で絞り込める。昇級試験はカードにしない（web と同じ）。
- * モバイルに盤面が無い練習はまだ出さない。
+ * モバイルに盤面が無い練習はまだ出さない。広告カードを 1 枚混ぜる（絞り込みの
+ * 対象にはしない）。
  */
 export default function PracticeListPage() {
   const t = useTranslations("practice");
@@ -62,12 +73,14 @@ export default function PracticeListPage() {
       ),
     [],
   );
+  const [ad] = useNativeAds(MOBILE_PRACTICE_GRID_AD_SLOT);
   const visible = menus.filter(
     (menu) =>
       filter === ALL ||
       menu.category === filter ||
       practiceRanks(menu.slug).some((rank) => rank === filter),
   );
+  const adIndex = Math.min(AD_LIST_POSITION, visible.length);
 
   return (
     <Screen title={t("title")} inTabs>
@@ -101,7 +114,11 @@ export default function PracticeListPage() {
         ]}
       />
       <View style={styles.list}>
-        {visible.map((menu) => (
+        {visible.slice(0, adIndex).map((menu) => (
+          <PracticeCard key={menu.slug} slug={menu.slug} />
+        ))}
+        {ad !== undefined && <NativeAdCard creative={ad} />}
+        {visible.slice(adIndex).map((menu) => (
           <PracticeCard key={menu.slug} slug={menu.slug} />
         ))}
       </View>

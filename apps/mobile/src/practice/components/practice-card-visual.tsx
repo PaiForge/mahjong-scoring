@@ -1,4 +1,6 @@
+import type { ReactNode } from "react";
 import { StyleSheet, Text, View } from "react-native";
+import type { HaiKindId } from "@mahjong-scoring/core";
 import type {
   PracticeCardVisual as CardVisual,
   ResolvedSubject,
@@ -19,11 +21,7 @@ function VisualPill({ label }: { readonly label: string }) {
 function SubjectContent({ subject }: { readonly subject: ResolvedSubject }) {
   const fuHanOrder = useFuHanOrder();
   if (subject.kind === "hand") {
-    return (
-      <View style={styles.hand}>
-        <TehaiHand tehai={{ closed: subject.tiles, exposed: [] }} />
-      </View>
-    );
+    return <CardVisualHand tiles={subject.tiles} />;
   }
   if (subject.kind === "fuHan") {
     return (
@@ -77,16 +75,49 @@ export function PracticeCardVisual({
   readonly visual: CardVisual;
 }) {
   return (
-    <View
-      style={styles.band}
-      accessibilityElementsHidden
-      importantForAccessibility="no-hide-descendants"
-    >
+    <CardVisualBand>
       <SubjectContent subject={visual.subject} />
       <View style={styles.inline}>
         {visual.note !== undefined && <VisualPill label={visual.note} />}
         <Text style={styles.unit}>{visual.unitLabel}</Text>
       </View>
+    </CardVisualBand>
+  );
+}
+
+/**
+ * カードの例示の帯の面（卓と同じ濃い緑。web の `CardVisualBand`）
+ * 例示の帯の面
+ *
+ * 練習カードと広告カード（`NativeAdCard`）が同じ面を使う。練習一覧に広告
+ * カードが混ざったとき、帯の色・高さ・角丸が 1 枚だけ違うと別の部品に見える。
+ * 読み上げには載せない（カードの見出しが同じことを言っている）。
+ */
+export function CardVisualBand({ children }: { readonly children: ReactNode }) {
+  return (
+    <View
+      style={styles.band}
+      accessibilityElementsHidden
+      importantForAccessibility="no-hide-descendants"
+    >
+      {children}
+    </View>
+  );
+}
+
+/**
+ * 帯に並べる手牌（web の `CardVisualHand`）。出題盤面と同じ `TehaiHand` が
+ * 幅いっぱいまで自動で縮めて描く
+ * 帯の手牌
+ */
+export function CardVisualHand({
+  tiles,
+}: {
+  readonly tiles: readonly HaiKindId[];
+}) {
+  return (
+    <View style={styles.hand}>
+      <TehaiHand tehai={{ closed: tiles, exposed: [] }} />
     </View>
   );
 }
