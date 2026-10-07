@@ -6,7 +6,7 @@ import {
   exampleChii,
   exampleMinkan,
   exampleMinkou,
-} from "@mahjong-scoring/features/board/example-mentsu";
+} from "../../board/example-mentsu";
 
 import type { GlossaryTermEntry } from "../types";
 

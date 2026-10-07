@@ -5,12 +5,12 @@ import {
   parseHais,
   parseTehai,
 } from "@mahjong-scoring/core";
-import type { YakuExampleHand, YakuExampleSet } from "./yaku-examples";
+import type { YakuExampleHand, YakuExampleSet } from "./examples";
 import {
   YAKU_EXAMPLES,
   YAKU_CHEATSHEET_EXCLUDED,
   resolveYakuCheatsheetName,
-} from "./yaku-examples";
+} from "./examples";
 
 /** 副露を含む手牌の有効牌数（槓子は4枚だが面子として3枚分で数える） */
 function effectiveTileCount(

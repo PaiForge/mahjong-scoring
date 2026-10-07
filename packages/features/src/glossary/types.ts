@@ -1,6 +1,6 @@
 import type { CompletedMentsu, HaiKindId } from "@mahjong-scoring/core";
 
-import type { CurriculumChapterSlug } from "@mahjong-scoring/features/curriculum/registry";
+import type { CurriculumChapterSlug } from "../curriculum/registry";
 
 /**
  * 用語の分類

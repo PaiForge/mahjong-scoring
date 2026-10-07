@@ -1,9 +1,6 @@
 import { HaiKind } from "@mahjong-scoring/core";
 
-import {
-  exampleAnkan,
-  exampleMinkan,
-} from "@mahjong-scoring/features/board/example-mentsu";
+import { exampleAnkan, exampleMinkan } from "../../board/example-mentsu";
 
 import type { GlossaryTermEntry } from "../types";
 

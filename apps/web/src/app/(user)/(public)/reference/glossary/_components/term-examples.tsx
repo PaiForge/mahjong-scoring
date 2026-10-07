@@ -3,8 +3,8 @@ import { getTranslations } from "next-intl/server";
 import { ExampleCard } from "@/app/(user)/_components/example-card";
 import { MentsuSet } from "@/app/(user)/_components/mentsu-set";
 import { TileSet } from "@/app/(user)/_components/tile-set";
-import { isMentsuExample } from "@/lib/glossary/types";
-import type { GlossaryTermExample } from "@/lib/glossary/types";
+import { isMentsuExample } from "@mahjong-scoring/features/glossary/types";
+import type { GlossaryTermExample } from "@mahjong-scoring/features/glossary/types";
 
 interface TermExamplesProps {
   readonly examples: readonly GlossaryTermExample[];
