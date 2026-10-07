@@ -30,8 +30,8 @@ export function ExamCtaCard({
 }: {
   /** 昇級試験の練習スラッグ */
   readonly slug: PracticeMenuSlug;
-  /** リード文（翻訳済み） */
-  readonly lead: string;
+  /** リード文（翻訳済み）。省略すると既定の文（レッスンの末尾から出すとき） */
+  readonly lead?: string;
 }) {
   const t = useTranslations("ranks");
   const router = useRouter();
@@ -49,7 +49,7 @@ export function ExamCtaCard({
       {/* どの級の試験かを上端の帯の色でも示す（web と同じく細い枠 + 上端の帯）。
           既定の緑は使わない — 級名を掲げたカードが緑だと、緑がその級の色に見える */}
       <View style={[styles.card, beltCardFrame(rankSlug)]}>
-        <Text style={styles.lead}>{lead}</Text>
+        <Text style={styles.lead}>{lead ?? t("examCta.lead")}</Text>
         <Text style={styles.criterion}>
           <Text style={styles.criterionLabel}>
             {t("examCta.criterionLabel")}:{" "}
