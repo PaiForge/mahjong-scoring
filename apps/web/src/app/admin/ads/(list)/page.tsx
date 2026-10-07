@@ -101,7 +101,10 @@ export default async function AdminAdsPage() {
                   {surfacesForSlot(slot).map((surface, i) => (
                     <span key={surface.route}>
                       {i > 0 && ", "}
-                      {surface.href !== undefined ? (
+                      {surface.platform === "mobile" ? (
+                        // アプリの画面はブラウザで開けないのでリンクにしない
+                        t("surfaceMobile", { route: surface.route })
+                      ) : surface.href !== undefined ? (
                         <Link href={surface.href} className={TEXT_LINK_CLASSES}>
                           {surface.route}
                         </Link>

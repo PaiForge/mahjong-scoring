@@ -1,7 +1,7 @@
 import { render, screen } from "@testing-library/react";
 import { describe, expect, it, vi } from "vitest";
 
-import type { NativeAdView } from "@/lib/ads/creatives";
+import type { NativeAdView } from "@mahjong-scoring/features/ads/native-ad";
 
 import { NativeAdRow } from "./native-ad-row";
 

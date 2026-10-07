@@ -1,3 +1,9 @@
+import {
+  AD_KINDS,
+  MOBILE_PRACTICE_GRID_AD_SLOT,
+  type AdKind,
+} from "@mahjong-scoring/features/ads/native-ad";
+
 /**
  * ネイティブ広告のスロットと広告の形の正典
  * 広告スロットレジストリ
@@ -34,11 +40,7 @@
  * 土俵を選ぶ一覧（`/leaderboard`）だけ。
  */
 
-/** 広告の形 */
-export const AD_KINDS = ["native_card", "native_row"] as const;
-
 const adKindSet: ReadonlySet<string> = new Set(AD_KINDS);
-export type AdKind = (typeof AD_KINDS)[number];
 
 export function isAdKind(value: string): value is AdKind {
   return adKindSet.has(value);
@@ -52,9 +54,17 @@ export function isAdKind(value: string): value is AdKind {
  * 書き足さなくても型は通る）。画面を配線するときに一緒に書くこと。
  */
 export interface AdSurface {
+  /**
+   * 描画する側。省略時は web。モバイル（Expo）の画面は広告配信 API
+   * （`/api/ads/<スロット>`）から広告を読む
+   */
+  readonly platform?: "mobile";
   /** アプリのルート。動的セグメントはファイルツリーの綴りで書く */
   readonly route: string;
-  /** 実際に開けるパス。動的セグメントを必ず解決できる値が無ければ省く */
+  /**
+   * 実際に開けるパス。動的セグメントを必ず解決できる値が無ければ省く。
+   * モバイルの画面はブラウザで開けないので持たない
+   */
   readonly href?: string;
 }
 
@@ -140,6 +150,12 @@ export const AD_SLOTS = {
     // 10 行に届いたら 4 本目の位置（10 行目の後）ができる
     placements: 3,
   },
+  // モバイルの練習一覧。web の練習一覧と同じく上から 3 枚目に置く。web とは
+  // 別のスロットにして、アプリの成果を別のトラッキング ID で分けられるようにする
+  [MOBILE_PRACTICE_GRID_AD_SLOT]: {
+    kind: "native_card",
+    surfaces: [{ platform: "mobile", route: "/practice" }],
+  },
   "glossary-term-native-ad": {
     kind: "native_card",
     surfaces: [
@@ -169,6 +185,14 @@ export function kindForSlot(slot: AdSlot): AdKind {
 /** スロットの広告が描画される場所。{@link AdSurface} 参照 */
 export function surfacesForSlot(slot: AdSlot): readonly AdSurface[] {
   return AD_SLOTS[slot].surfaces;
+}
+
+/**
+ * モバイルの画面が読むスロットか。広告配信 API はこのスロットだけに答える
+ * （web の画面はサーバーで DB を読むため API を使わない）
+ */
+export function isMobileAdSlot(slot: AdSlot): boolean {
+  return surfacesForSlot(slot).some((surface) => surface.platform === "mobile");
 }
 
 /** 1 画面に出す広告の数。{@link AdSlotConfig} の `placements` 参照 */

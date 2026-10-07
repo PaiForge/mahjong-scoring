@@ -19,6 +19,8 @@
  */
 import type { PostgresJsDatabase } from "drizzle-orm/postgres-js";
 
+import { MOBILE_PRACTICE_GRID_AD_SLOT } from "@mahjong-scoring/features/ads/native-ad";
+
 import type { CreativeCopy } from "../../src/lib/ads/copy";
 import { copyToTranslationRows } from "../../src/lib/ads/copy";
 import {
@@ -118,7 +120,7 @@ type BookKey = keyof typeof BOOKS;
  * 本を選ぶまで型が通らない。1 画面に出るのは先頭から
  * `placementsForSlot` の数だけで、残りは先頭を止めたときの繰り上がり。
  *
- * 本はその画面の読み手に合わせる。練習一覧は牌効率（手牌を見て考える練習の
+ * 本はその画面の読み手に合わせる。練習一覧（web・アプリ）は牌効率（手牌を見て考える練習の
  * 並び）、結果画面・教本の章・レッスンの練習の並びは点数計算ドリル（点数計算を
  * 練習・学習した直後）、目次・用語集・レッスンの教本の並びは入門書から、
  * ランキングは戦術書から。
@@ -160,6 +162,10 @@ const SLOT_BOOKS: Record<
     { id: "8fb92191-744d-4001-8c5c-4e831c88fe2b", book: "mangaIntro" },
     { id: "e4469e51-7985-4872-82b2-d9471fdafd8f", book: "haiKouritsu" },
     { id: "e5c5116e-afaa-4641-95c9-2f1dadf15329", book: "oshihiki" },
+  ],
+  [MOBILE_PRACTICE_GRID_AD_SLOT]: [
+    { id: "0dbcf231-50a1-41e2-b6dc-6be96b62dc95", book: "haiKouritsu" },
+    { id: "e68009d9-a86c-4236-83c2-4948013da970", book: "oshihiki" },
   ],
   "glossary-term-native-ad": [
     { id: "a27c9103-162a-4578-bcd4-517013fc2a26", book: "mangaIntro" },
