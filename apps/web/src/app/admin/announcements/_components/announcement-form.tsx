@@ -12,6 +12,7 @@ import { createAnnouncement } from "../_actions/create-announcement";
 import { ANNOUNCEMENT_LIMITS } from "../_lib/validation";
 import { updateAnnouncement } from "../_actions/update-announcement";
 import { adminButtonClasses } from "../../_lib/button-classes";
+import { ADMIN_INPUT_CLASSES } from "../../_lib/input-classes";
 
 export interface AnnouncementFormDefaults {
   slug: string;
@@ -105,8 +106,7 @@ export function AnnouncementForm({
     });
   };
 
-  const inputClass =
-    "w-full rounded border border-surface-300 bg-white px-3 py-2 text-sm text-surface-900 focus:border-primary-500 focus:outline-none";
+  const inputClass = `w-full ${ADMIN_INPUT_CLASSES}`;
 
   return (
     <div className="admin-panel max-w-3xl space-y-5 p-5 sm:p-7">

@@ -10,6 +10,7 @@ import { AdminPageTitle } from "./admin-page-title";
 import { TableEmptyRow } from "./table-empty-row";
 import { PaginationNav } from "@/app/(user)/_components/pagination-nav";
 import { adminButtonClasses } from "../_lib/button-classes";
+import { ADMIN_INPUT_CLASSES } from "../_lib/input-classes";
 
 /**
  * 管理画面ログページ共通の検索パラメータキャッシュ（ログ検索パラメータ）
@@ -108,7 +109,7 @@ export function AdminLogPageLayout({
             id="action-filter"
             name="action"
             defaultValue={actionFilter}
-            className="w-52 rounded border border-surface-300 bg-white px-3 py-2 text-sm"
+            className={`w-52 ${ADMIN_INPUT_CLASSES}`}
           >
             <option value="">{i18n.allActions}</option>
             {filterActionOptions}
@@ -127,7 +128,7 @@ export function AdminLogPageLayout({
             type="text"
             defaultValue={userFilter}
             placeholder={i18n.userFilterPlaceholder}
-            className="w-52 rounded border border-surface-300 bg-white px-3 py-2 text-sm"
+            className={`w-52 ${ADMIN_INPUT_CLASSES}`}
           />
         </div>
         <button type="submit" className={adminButtonClasses()}>

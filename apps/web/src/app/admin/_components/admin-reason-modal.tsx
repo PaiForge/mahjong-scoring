@@ -5,6 +5,7 @@ import { useActionState, useState, type ReactNode } from "react";
 import { MODERATION_REASON_MAX_LENGTH } from "../users/_lib/moderation-reason";
 import { AdminModalShell } from "./admin-modal-shell";
 import { adminButtonClasses } from "../_lib/button-classes";
+import { ADMIN_INPUT_CLASSES } from "../_lib/input-classes";
 
 /** ボタンとモーダルに出す文言（翻訳済み） */
 interface AdminReasonModalLabels {
@@ -106,7 +107,7 @@ export function AdminReasonModal({
             value={reason}
             onChange={(e) => setReason(e.target.value)}
             placeholder={labels.reasonPlaceholder}
-            className="mb-4 w-full rounded border border-surface-300 px-3 py-2 text-sm"
+            className={`mb-4 w-full ${ADMIN_INPUT_CLASSES}`}
             rows={3}
             maxLength={MODERATION_REASON_MAX_LENGTH}
           />

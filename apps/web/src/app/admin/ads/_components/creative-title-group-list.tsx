@@ -11,6 +11,7 @@ import type { CreativeTitleGroup } from "../_lib/title-groups";
 import { AD_CREATIVE_LIMITS } from "../_lib/validation";
 import { adminChipClasses } from "../../_lib/chip-classes";
 import { adminButtonClasses } from "../../_lib/button-classes";
+import { ADMIN_INPUT_CLASSES } from "../../_lib/input-classes";
 
 interface Props {
   readonly groups: readonly CreativeTitleGroup[];
@@ -109,7 +110,7 @@ function CreativeTitleGroupRow({
             aria-label={t("href")}
             placeholder="https://"
             maxLength={AD_CREATIVE_LIMITS.href}
-            className="min-w-60 flex-1 rounded border border-surface-300 bg-white px-3 py-2 text-sm text-surface-900 focus:border-primary-500 focus:outline-none"
+            className={`min-w-60 flex-1 ${ADMIN_INPUT_CLASSES}`}
           />
           <button
             type="submit"

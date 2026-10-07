@@ -7,6 +7,7 @@ import { toast } from "react-hot-toast";
 import { useAdsAction } from "../_hooks/use-ads-action";
 import { setAmazonTrackingId } from "../_actions/set-amazon-tracking-id";
 import { adminButtonClasses } from "../../_lib/button-classes";
+import { ADMIN_INPUT_CLASSES } from "../../_lib/input-classes";
 
 interface Props {
   /** 今の設定。未設定なら undefined */
@@ -61,7 +62,7 @@ export function TrackingIdForm({ trackingId, hiddenAsinCount }: Props) {
           value={value}
           onChange={(e) => setValue(e.target.value)}
           placeholder="example-22"
-          className="w-64 max-w-full rounded border border-surface-300 bg-white px-3 py-2 font-mono text-sm text-surface-900 focus:border-primary-500 focus:outline-none"
+          className={`w-64 max-w-full font-mono ${ADMIN_INPUT_CLASSES}`}
         />
         <button
           type="submit"

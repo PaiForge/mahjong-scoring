@@ -3,6 +3,7 @@
 import { parseAsString, useQueryStates } from "nuqs";
 
 import { daysAgo, today } from "@/app/admin/_lib/dashboard/date-utils";
+import { ADMIN_INPUT_CLASSES } from "../_lib/input-classes";
 
 interface DateRangePickerProps {
   readonly startDate: string;
@@ -55,7 +56,7 @@ export function DateRangePicker({
           value={startDate}
           max={endDate}
           onChange={(e) => setParams({ from: e.target.value })}
-          className="h-9 w-40 rounded border border-surface-200 bg-white px-3 py-1.5 text-sm"
+          className={`w-40 ${ADMIN_INPUT_CLASSES}`}
         />
       </div>
       <div className="flex items-center gap-2">
@@ -69,7 +70,7 @@ export function DateRangePicker({
           min={startDate}
           max={today(now)}
           onChange={(e) => setParams({ to: e.target.value })}
-          className="h-9 w-40 rounded border border-surface-200 bg-white px-3 py-1.5 text-sm"
+          className={`w-40 ${ADMIN_INPUT_CLASSES}`}
         />
       </div>
       <div className="flex gap-1.5">

@@ -3,6 +3,7 @@ import Link from "next/link";
 
 import { TEXT_LINK_CLASSES } from "@/app/_components/_lib/link-classes";
 import { adminButtonClasses } from "../../_lib/button-classes";
+import { ADMIN_INPUT_CLASSES } from "../../_lib/input-classes";
 
 interface UserSearchFormProps {
   /** 現在の検索文字列（trim 済み） */
@@ -41,7 +42,7 @@ export async function UserSearchForm({
             type="search"
             defaultValue={query}
             placeholder={t("searchPlaceholder")}
-            className="w-72 max-w-full rounded border border-surface-300 bg-white px-3 py-2 text-sm"
+            className={`w-72 max-w-full ${ADMIN_INPUT_CLASSES}`}
           />
         </div>
         <button type="submit" className={adminButtonClasses()}>
