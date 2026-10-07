@@ -29,6 +29,14 @@ import {
  * 使う（変換の表を持たない）。読む側は必ず `resolvePracticeVariant` で
  * 正規化する — 未指定・不正値はその練習の既定（先頭）に落ちるので、
  * 盤面・保存・結果ページが同じ土俵に着地する。
+ *
+ * @design パスの単数・複数
+ * 同じ種類の文書が並ぶ一覧（1 件 = 1 ページ）は複数形にする（`/lessons`,
+ * `/announcements`, `/dojo/ranks`）。活動の場・コーナーの名前は単数形にする
+ * （`/practice`, `/exam`, `/dojo`, `/reference`, `/leaderboard`）。練習は
+ * 複数の練習を一覧にしているが、`/practices` にはしない — 数えない名詞の
+ * "practice"（練習すること）を複数形にすると「慣行」（best practices）の
+ * 意味に寄るため。
  */
 
 /** バリアントを指定するクエリパラメータ名 */
