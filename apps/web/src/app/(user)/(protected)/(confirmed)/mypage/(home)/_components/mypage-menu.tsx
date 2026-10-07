@@ -2,7 +2,6 @@ import Link from "next/link";
 import { useTranslations } from "next-intl";
 
 import { BellIcon } from "@/app/(user)/_components/icons/bell-icon";
-import { BeltIcon } from "@/app/(user)/_components/icons/belt-icon";
 import { ChartIcon } from "@/app/(user)/_components/icons/chart-icon";
 import { ChevronRightIcon } from "@/app/(user)/_components/icons/chevron-right-icon";
 import { OutlineIcon } from "@/app/(user)/_components/icons/outline-icon";
@@ -21,7 +20,6 @@ const items = [
   { key: "challenges", href: "/mypage/challenges", icon: ChartIcon },
   { key: "plan", href: "/mypage/plan", icon: PlanIcon },
   { key: "notifications", href: "/mypage/notifications", icon: BellIcon },
-  { key: "dojo", href: "/dojo", icon: BeltIcon },
   { key: "account", href: "/mypage/account", icon: UserIcon },
 ] as const;
 
