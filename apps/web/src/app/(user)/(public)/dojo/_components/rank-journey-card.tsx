@@ -105,7 +105,7 @@ export async function RankJourneyCard({
               </h4>
               {/* 学ぶ段はレッスンごとに 1 行。題名と説明は章の辞書から引き
                   （レッスン = 章）、レッスンの目次と同じ文言を出す */}
-              <LinkRowList>
+              <LinkRowList inset>
                 {chapters.map((item) => {
                   const chapter = getChapterBySlug(item.chapterSlug);
                   const path = chapter
@@ -136,7 +136,7 @@ export async function RankJourneyCard({
               <h4 className="text-sm font-bold text-surface-900">
                 {tRanks("stages.practice")}
               </h4>
-              <LinkRowList>
+              <LinkRowList inset>
                 {practices.map((item) => {
                   const title = practiceDisplayTitle(
                     tAll,

@@ -6,27 +6,58 @@ import {
   ROW_LINK_TITLE_CLASSES,
 } from "@/app/_components/_lib/link-classes";
 import { SkeletonBar } from "@/app/_components/skeleton-bar";
+import { ChevronRightIcon } from "./icons/chevron-right-icon";
 
 /**
  * 行リンクのリスト枠
  * 行リンクリスト
  *
- * 枠も影も持たない。区切りは各行の淡い実線だけ。
+ * 既定はお知らせ一覧・ランキング一覧と同じ細枠の面（`rounded-panel border
+ * border-panel`）に行を並べ、行の間を淡い実線で区切る。影は持たない — 影は
+ * 「押して始める面」の記号で、読みに行くだけの行には付けない。
+ *
+ * 既に枠を持つ面の内側（道場の級のカード・レッスンの目標パネル）に置くときは
+ * `inset` を渡す。枠を重ねると入れ子の箱が増えるため、枠を持たず区切り線だけで
+ * 並べ、行の文字の左端をカードの本文とそろえる。
+ *
+ * 行の余白は枠の有無で変わるが、行の側（`ROW_ITEM_CLASSES` /
+ * `ROW_INNER_CLASSES`）は 1 組のまま、リストの `data-framed` を見て切り替える
+ * （`group-data-[framed]/rows:`）。行はサーバーコンポーネントで、親から props を
+ * 配らずに済ませるため。
  */
-export function LinkRowList({ children }: { readonly children: ReactNode }) {
-  return <ul className="flex flex-col">{children}</ul>;
+export function LinkRowList({
+  children,
+  inset = false,
+}: {
+  readonly children: ReactNode;
+  /** 枠を持つ面の内側に置くとき true（枠を描かない） */
+  readonly inset?: boolean;
+}) {
+  return inset ? (
+    <ul className="group/rows flex flex-col">{children}</ul>
+  ) : (
+    <ul
+      data-framed=""
+      className="group/rows flex flex-col overflow-hidden rounded-panel border border-panel bg-card"
+    >
+      {children}
+    </ul>
+  );
 }
 
 /** 行の外枠（淡い実線の区切り）。実物・スケルトン・広告の行（`NativeAdRow`）で共有する */
-export const ROW_ITEM_CLASSES = "border-b border-surface-200 last:border-b-0";
+export const ROW_ITEM_CLASSES =
+  "border-b border-surface-200 last:border-b-0 group-data-[framed]/rows:border-surface-100";
 
 /**
  * 行の中身の箱。実物・スケルトン・広告の行（`NativeAdRow`）で共有する。
  *
- * 負のマージンで hover の面を行の左右いっぱいに広げつつ、
- * リスト自体の左端は隣のセクションと揃えたままにする。
+ * 枠の無いリストでは、負のマージンで hover の面を行の左右いっぱいに広げつつ、
+ * リスト自体の左端は隣の本文と揃えたままにする。枠の中では枠の内側いっぱいを
+ * hover の面にし、お知らせ一覧の行と同じ左右の余白を取る。
  */
-export const ROW_INNER_CLASSES = "-mx-2 flex gap-3 rounded-lg px-2 py-3";
+export const ROW_INNER_CLASSES =
+  "-mx-2 flex gap-3 rounded-lg px-2 py-3 group-data-[framed]/rows:mx-0 group-data-[framed]/rows:rounded-none group-data-[framed]/rows:px-4 sm:group-data-[framed]/rows:px-5";
 
 interface LinkRowProps {
   readonly href: string;
@@ -88,6 +119,13 @@ export function LinkRow({
         {trailing !== undefined && (
           <span className="flex min-h-5 shrink-0 items-center">{trailing}</span>
         )}
+        {/* 行全体が押せることを右端の矢印でも示す（お知らせ一覧の行と同じ） */}
+        <span
+          aria-hidden="true"
+          className="flex min-h-5 shrink-0 items-center text-surface-400 group-hover:text-foreground"
+        >
+          <ChevronRightIcon />
+        </span>
       </Link>
     </li>
   );
