@@ -24,7 +24,7 @@ export function NativeAdBadge({ label, ariaLabel }: NativeAdBadgeProps) {
     // 見える表記は読み上げから外し、読む名前を sr-only で添える
     <span
       title={ariaLabel}
-      className="inline-flex shrink-0 items-center rounded-full border-2 border-surface-200 px-2 py-0.5 text-[11px] leading-none font-bold text-surface-500"
+      className="inline-flex shrink-0 items-center rounded-md bg-surface-100 px-2 py-0.5 text-[11px] leading-none font-bold text-surface-500"
     >
       <span aria-hidden="true">{label}</span>
       <span className="sr-only">{ariaLabel}</span>

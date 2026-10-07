@@ -57,7 +57,7 @@ export function SettingToggle({
           <span className="text-sm font-medium text-surface-700">
             {title || label}
           </span>
-          <span className="inline-flex shrink-0 items-center rounded-full border-2 border-surface-300 bg-white px-2 py-0.5 text-[11px] leading-none font-bold text-surface-600">
+          <span className="inline-flex shrink-0 items-center rounded-md bg-surface-100 px-2 py-0.5 text-[11px] leading-none font-bold text-surface-600">
             {locked.badge}
           </span>
         </div>
