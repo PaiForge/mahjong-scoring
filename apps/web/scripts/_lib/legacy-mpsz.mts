@@ -27,10 +27,7 @@ import { parseTehai } from "@mahjong-scoring/core";
 
 /** 書き換えられない理由 */
 export type LegacyMpszFailureReason =
-  | "redFive"
-  | "honorOutOfRange"
-  | "invalidMeld"
-  | "invalidSyntax";
+  "redFive" | "honorOutOfRange" | "invalidMeld" | "invalidSyntax";
 
 /** {@link convertLegacyExtendedMpsz} の結果 */
 export type LegacyMpszConversion =
