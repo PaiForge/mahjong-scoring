@@ -51,7 +51,9 @@ export function UnbanButton({ targetUserId }: UnbanButtonProps) {
         label={t("unbanUser.title")}
       >
         <h3 className="text-lg font-semibold">{t("unbanUser.title")}</h3>
-        <p className="text-sm text-gray-600">{t("unbanUser.confirmMessage")}</p>
+        <p className="text-sm text-surface-600">
+          {t("unbanUser.confirmMessage")}
+        </p>
 
         <form action={formAction}>
           {state?.error && (
@@ -62,7 +64,7 @@ export function UnbanButton({ targetUserId }: UnbanButtonProps) {
             <button
               type="button"
               onClick={close}
-              className="rounded border border-gray-300 px-4 py-2 text-sm hover:bg-gray-100 transition-colors"
+              className="rounded border border-surface-300 px-4 py-2 text-sm hover:bg-surface-100 transition-colors"
             >
               {t("unbanUser.cancel")}
             </button>

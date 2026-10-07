@@ -31,8 +31,8 @@ export function InfoRow({
   readonly children: ReactNode;
 }) {
   return (
-    <div className="flex flex-col gap-0.5 border-t border-gray-100 py-2 text-sm first:border-t-0 sm:flex-row sm:gap-4">
-      <dt className="shrink-0 text-gray-500 sm:w-36">{label}</dt>
+    <div className="flex flex-col gap-0.5 border-t border-surface-100 py-2 text-sm first:border-t-0 sm:flex-row sm:gap-4">
+      <dt className="shrink-0 text-surface-500 sm:w-36">{label}</dt>
       <dd className="min-w-0 break-all">{children}</dd>
     </div>
   );
@@ -51,13 +51,13 @@ export function DetailTable({
   readonly children: ReactNode;
 }) {
   if (isEmpty) {
-    return <p className="text-sm text-gray-500">{emptyLabel}</p>;
+    return <p className="text-sm text-surface-500">{emptyLabel}</p>;
   }
   return (
     <div className="admin-table">
       <table className="w-full text-left text-sm">
         <thead>
-          <tr className="border-b border-gray-200">
+          <tr className="border-b border-surface-200">
             {headers.map((header) => (
               <th
                 key={header}

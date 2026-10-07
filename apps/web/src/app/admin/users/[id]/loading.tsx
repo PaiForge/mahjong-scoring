@@ -18,7 +18,7 @@ export default function Loading() {
               {Array.from({ length: rows }, (_, i) => (
                 <div
                   key={i}
-                  className="flex flex-col gap-0.5 border-t border-gray-100 py-2 first:border-t-0 sm:flex-row sm:gap-4"
+                  className="flex flex-col gap-0.5 border-t border-surface-100 py-2 first:border-t-0 sm:flex-row sm:gap-4"
                 >
                   <SkeletonBar className="h-5 w-36 shrink-0" tone={100} />
                   <SkeletonBar className="h-5 w-32 max-w-full" />

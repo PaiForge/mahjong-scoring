@@ -40,7 +40,7 @@ export async function UserSearchForm({
             type="search"
             defaultValue={query}
             placeholder={t("searchPlaceholder")}
-            className="w-72 max-w-full rounded border border-gray-300 bg-white px-3 py-2 text-sm"
+            className="w-72 max-w-full rounded border border-surface-300 bg-white px-3 py-2 text-sm"
           />
         </div>
         <button
@@ -51,7 +51,7 @@ export async function UserSearchForm({
         </button>
       </form>
       {query && (
-        <p className="flex flex-wrap gap-x-3 text-sm text-gray-500">
+        <p className="flex flex-wrap gap-x-3 text-sm text-surface-500">
           <span>{t("searchResultCount", { query, count: totalCount })}</span>
           <Link href="/admin/users" className={TEXT_LINK_CLASSES}>
             {t("clearSearch")}

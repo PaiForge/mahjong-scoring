@@ -13,7 +13,7 @@ export function AuditLogRow({ log, profileMap, emailMap }: AuditLogRowProps) {
   const actorDisplay = resolveUserDisplay(log.actorId, profileMap, emailMap);
 
   return (
-    <tr className="border-t border-gray-200">
+    <tr className="border-t border-surface-200">
       <td className="px-4 py-3">
         <span
           className={`inline-block rounded px-2 py-0.5 text-xs font-medium ${
@@ -21,14 +21,14 @@ export function AuditLogRow({ log, profileMap, emailMap }: AuditLogRowProps) {
               ? "bg-red-100 text-red-700"
               : log.action === "unban"
                 ? "bg-primary-100 text-primary-700"
-                : "bg-gray-100 text-gray-700"
+                : "bg-surface-100 text-surface-700"
           }`}
         >
           {log.action}
         </span>
       </td>
       <td className="px-4 py-3">{targetDisplay}</td>
-      <td className="px-4 py-3 text-gray-500">{actorDisplay}</td>
+      <td className="px-4 py-3 text-surface-500">{actorDisplay}</td>
       <td className="px-4 py-3">
         {log.reason ? (
           <span title={log.reason}>
@@ -37,11 +37,11 @@ export function AuditLogRow({ log, profileMap, emailMap }: AuditLogRowProps) {
               : log.reason}
           </span>
         ) : (
-          <span className="text-gray-400">-</span>
+          <span className="text-surface-400">-</span>
         )}
       </td>
-      <td className="px-4 py-3 text-gray-500">{log.ipAddress ?? "-"}</td>
-      <td className="px-4 py-3 text-gray-500">
+      <td className="px-4 py-3 text-surface-500">{log.ipAddress ?? "-"}</td>
+      <td className="px-4 py-3 text-surface-500">
         {formatAdminDateTime(log.createdAt)}
       </td>
     </tr>

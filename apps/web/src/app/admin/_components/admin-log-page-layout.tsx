@@ -107,7 +107,7 @@ export function AdminLogPageLayout({
             id="action-filter"
             name="action"
             defaultValue={actionFilter}
-            className="w-52 rounded border border-gray-300 bg-white px-3 py-2 text-sm"
+            className="w-52 rounded border border-surface-300 bg-white px-3 py-2 text-sm"
           >
             <option value="">{i18n.allActions}</option>
             {filterActionOptions}
@@ -126,7 +126,7 @@ export function AdminLogPageLayout({
             type="text"
             defaultValue={userFilter}
             placeholder={i18n.userFilterPlaceholder}
-            className="w-52 rounded border border-gray-300 bg-white px-3 py-2 text-sm"
+            className="w-52 rounded border border-surface-300 bg-white px-3 py-2 text-sm"
           />
         </div>
         <button
@@ -141,7 +141,7 @@ export function AdminLogPageLayout({
       <div className="admin-table">
         <table className="w-full text-left text-sm">
           <thead>
-            <tr className="border-b border-gray-200">
+            <tr className="border-b border-surface-200">
               {/* 見出しは折り返さない。main が min-w-0 で縮むようになって
                   から、表は横スクロールしつつ見出しセルも min-content まで
                   縮むため、放っておくと「アクション」が「アクシ／ョン」の

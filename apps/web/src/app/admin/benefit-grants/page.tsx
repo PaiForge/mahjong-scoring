@@ -59,7 +59,7 @@ export default async function AdminBenefitGrantsPage({
       <div className="admin-table">
         <table className="w-full text-left text-sm">
           <thead>
-            <tr className="border-b border-gray-200">
+            <tr className="border-b border-surface-200">
               {COLUMN_KEYS.map((key) => (
                 <th
                   key={key}

@@ -96,7 +96,7 @@ export function AdminReasonModal({
       <AdminModalShell isOpen={isOpen} onClose={close} label={labels.title}>
         <h3 className="text-lg font-semibold">{labels.title}</h3>
         {labels.description && (
-          <p className="text-sm text-gray-600">{labels.description}</p>
+          <p className="text-sm text-surface-600">{labels.description}</p>
         )}
 
         <form action={formAction}>
@@ -110,7 +110,7 @@ export function AdminReasonModal({
             value={reason}
             onChange={(e) => setReason(e.target.value)}
             placeholder={labels.reasonPlaceholder}
-            className="mb-4 w-full rounded border border-gray-300 px-3 py-2 text-sm"
+            className="mb-4 w-full rounded border border-surface-300 px-3 py-2 text-sm"
             rows={3}
             maxLength={MODERATION_REASON_MAX_LENGTH}
           />
@@ -123,7 +123,7 @@ export function AdminReasonModal({
             <button
               type="button"
               onClick={close}
-              className="rounded border border-gray-300 px-4 py-2 text-sm hover:bg-gray-100 transition-colors"
+              className="rounded border border-surface-300 px-4 py-2 text-sm hover:bg-surface-100 transition-colors"
             >
               {labels.cancel}
             </button>

@@ -44,7 +44,7 @@ export function MaskedEmail({ email, labels }: MaskedEmailProps) {
         aria-label={label}
         aria-pressed={isRevealed}
         title={label}
-        className="inline-flex items-center justify-center rounded p-1 text-gray-500 transition-colors hover:bg-gray-100 hover:text-gray-900"
+        className="inline-flex items-center justify-center rounded p-1 text-surface-500 transition-colors hover:bg-surface-100 hover:text-surface-900"
       >
         <EyeIcon crossed={isRevealed} />
       </button>

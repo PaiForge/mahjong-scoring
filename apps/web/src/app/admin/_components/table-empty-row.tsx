@@ -15,7 +15,10 @@ interface TableEmptyRowProps {
 export function TableEmptyRow({ columnCount, label }: TableEmptyRowProps) {
   return (
     <tr>
-      <td colSpan={columnCount} className="px-4 py-8 text-center text-gray-500">
+      <td
+        colSpan={columnCount}
+        className="px-4 py-8 text-center text-surface-500"
+      >
         {label}
       </td>
     </tr>
