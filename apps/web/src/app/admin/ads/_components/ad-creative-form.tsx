@@ -8,13 +8,22 @@ import { Hai } from "@pai-forge/mahjong-react-ui";
 import { parseHais } from "@mahjong-scoring/core";
 
 import { DEFAULT_LOCALE, SUPPORTED_LOCALES } from "@/i18n/locales";
-import { isAdSlot, kindForSlot } from "@/lib/ads/registry";
+import {
+  counterpartSlot,
+  isAdSlot,
+  kindForSlot,
+  platformForSlot,
+  surfacesForSlot,
+} from "@/lib/ads/registry";
+import { TEXT_LINK_CLASSES } from "@/app/_components/_lib/link-classes";
 import { callApi } from "@/lib/api-client";
 import { ALLOWED_IMAGE_MIME_TYPES } from "@/lib/images/policy";
 
 import { createAdCreative } from "../_actions/create-ad-creative";
 import { updateAdCreative } from "../_actions/update-ad-creative";
+import { adsSlotHref } from "../_lib/list-href";
 import { AD_CREATIVE_LIMITS, type AdCreativeInput } from "../_lib/validation";
+import { adminChipClasses } from "../../_lib/chip-classes";
 import { adminButtonClasses } from "../../_lib/button-classes";
 import { ADMIN_INPUT_CLASSES } from "../../_lib/input-classes";
 
@@ -42,6 +51,9 @@ function emptyByLocale(): Record<string, string> {
  * バイト列を載せない）。
  *
  * スロットは作成時に決まり、編集では変えない（`updateAdCreative` 参照）。
+ * スロットの横にどちら（web / アプリ）の画面に出るかを示し、アプリの
+ * スロットには web の同じ画面のリンクを添える — アプリの画面はブラウザで
+ * 開けないが、置かれる位置は web と同じなのでそこで確かめられる。
  * 手牌の欄はカード型のスロットだけに出す（行型は帯を持たない）。入力中の
  * 表記は牌に直して下に並べ、読めているかをその場で確かめられるようにする。
  */
@@ -64,7 +76,24 @@ export function AdCreativeForm({
   const [imageUrl, setImageUrl] = useState(defaultValues?.imageUrl ?? "");
   const [imageAlt, setImageAlt] = useState(defaultValues?.imageAlt ?? "");
   const [hand, setHand] = useState(defaultValues?.hand ?? "");
-  const acceptsHand = isAdSlot(slot) && kindForSlot(slot) === "native_card";
+  const knownSlot = isAdSlot(slot) ? slot : undefined;
+  const acceptsHand =
+    knownSlot !== undefined && kindForSlot(knownSlot) === "native_card";
+  const platform =
+    knownSlot !== undefined ? platformForSlot(knownSlot) : undefined;
+  const webCounterpart =
+    platform === "mobile" && knownSlot !== undefined
+      ? counterpartSlot(knownSlot)
+      : undefined;
+  const webPreviewHrefs =
+    webCounterpart !== undefined
+      ? surfacesForSlot(webCounterpart).flatMap((surface) =>
+          surface.href !== undefined ? [surface.href] : [],
+        )
+      : [];
+  // 一覧の、このスロットのあるタブと位置へ戻る
+  const backHref =
+    knownSlot !== undefined ? adsSlotHref(knownSlot) : "/admin/ads";
   const handTiles = parseHais(hand.trim());
   const [title, setTitle] = useState<Record<string, string>>({
     ...emptyByLocale(),
@@ -117,7 +146,7 @@ export function AdCreativeForm({
       }
 
       toast.success(t(mode === "edit" ? "updatedToast" : "createdToast"));
-      router.push("/admin/ads");
+      router.push(backHref);
       router.refresh();
     });
   };
@@ -130,7 +159,32 @@ export function AdCreativeForm({
     <div className="admin-panel max-w-3xl space-y-5 p-5 sm:p-7">
       <div>
         <p className={labelClass}>{t("slot")}</p>
-        <code className="text-sm text-surface-800">{slot}</code>
+        <div className="flex flex-wrap items-center gap-2">
+          <code className="text-sm text-surface-800">{slot}</code>
+          {platform !== undefined && (
+            <span className={adminChipClasses("neutral")}>
+              {t(`platforms.${platform}`)}
+            </span>
+          )}
+        </div>
+        {webPreviewHrefs.length > 0 && (
+          <p className={hintClass}>
+            {t("webPreview")}:{" "}
+            {webPreviewHrefs.map((previewHref, i) => (
+              <span key={previewHref}>
+                {i > 0 && ", "}
+                <a
+                  href={previewHref}
+                  target="_blank"
+                  rel="noreferrer"
+                  className={TEXT_LINK_CLASSES}
+                >
+                  {previewHref}
+                </a>
+              </span>
+            ))}
+          </p>
+        )}
       </div>
 
       <div>
@@ -345,7 +399,7 @@ export function AdCreativeForm({
         </button>
         <button
           type="button"
-          onClick={() => router.push("/admin/ads")}
+          onClick={() => router.push(backHref)}
           className={adminButtonClasses({ variant: "secondary" })}
         >
           {t("cancel")}

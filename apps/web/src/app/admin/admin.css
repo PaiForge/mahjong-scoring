@@ -195,3 +195,32 @@
     transition: none !important;
   }
 }
+
+/* ページ内のタブ（同じ一覧を切り替える）。今のタブは aria-current で示す */
+.admin-tabs {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+  border-bottom: 1px solid var(--color-surface-200);
+}
+.admin-tab {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  margin-bottom: -1px;
+  padding: 8px 14px;
+  border-bottom: 2px solid transparent;
+  color: var(--color-surface-600);
+  font-size: 13px;
+  transition:
+    color 0.15s,
+    border-color 0.15s;
+}
+.admin-tab:hover {
+  color: var(--color-surface-900);
+}
+.admin-tab[aria-current="page"] {
+  border-bottom-color: var(--color-primary-600);
+  color: var(--color-primary-800);
+  font-weight: 700;
+}
