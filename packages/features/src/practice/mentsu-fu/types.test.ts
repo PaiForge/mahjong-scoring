@@ -38,6 +38,15 @@ describe("parseMentsuFuResults", () => {
     };
     expect(parseMentsuFuResults([broken])).toEqual([]);
   });
+
+  it("鳴いた牌を持たない旧形式の要素は例外にせず除外する", () => {
+    // riichi-mahjong 0.x の Furo（鳴き元だけ）で保存された結果
+    const legacy = {
+      ...validResult,
+      mentsu: { ...validResult.mentsu, furo: { type: "Pon", from: 2 } },
+    };
+    expect(parseMentsuFuResults([legacy, validResult])).toEqual([validResult]);
+  });
 });
 
 describe("toQuestionResult", () => {
