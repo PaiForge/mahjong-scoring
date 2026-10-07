@@ -122,7 +122,7 @@ type BookKey = keyof typeof BOOKS;
  * 並び）、結果画面・教本の章・レッスンの練習の並びは点数計算ドリル（点数計算を
  * 練習・学習した直後）、目次・用語集・レッスンの教本の並びは入門書から、
  * ランキングは戦術書から。練習の説明ページは点数計算ドリル（これから点数計算を
- * 練習する人）。
+ * 練習する人）。昇級試験の説明ページも点数計算ドリル（試験の範囲を固める人）。
  */
 const SLOT_BOOKS: Record<
   AdSlot,
@@ -169,6 +169,10 @@ const SLOT_BOOKS: Record<
   "practice-intro-native-ad": [
     { id: "7729ea6e-f82f-4baf-9cd7-03d779c3b8d7", book: "scoreDrill" },
     { id: "7ad6b8ff-002b-48bf-9f3c-f828f7b604d9", book: "haiKouritsu" },
+  ],
+  "exam-intro-native-ad": [
+    { id: "e6bf36e9-7407-43f3-87c6-312442941841", book: "scoreDrill" },
+    { id: "9ffc5483-04cd-4396-9e82-5f3d8010b47d", book: "oshihiki" },
   ],
 };
 

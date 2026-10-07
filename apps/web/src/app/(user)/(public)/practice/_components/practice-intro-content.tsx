@@ -101,9 +101,9 @@ export async function PracticeIntroContent({
     ? examRank.learnChapterSlugs
     : relatedChaptersForPractice(slug);
   // 広告は開始の導線とレッスンの後ろに置く（始める前に目に入れない）
-  const ad = isExam
-    ? undefined
-    : await getNativeAdCreative("practice-intro-native-ad");
+  const ad = await getNativeAdCreative(
+    isExam ? "exam-intro-native-ad" : "practice-intro-native-ad",
+  );
   const chaptersTitle = examRank
     ? tDojo("chaptersTitle")
     : tp("requiredKnowledge");
@@ -167,7 +167,7 @@ export async function PracticeIntroContent({
         <PracticeChapterSection title={chaptersTitle} slugs={chapterSlugs} />
 
         {/* 目次は枠を持たないので、広告の行も枠を描かない（/lessons と同じ） */}
-        {ad && (
+        {!isExam && ad && (
           <LinkRowList inset>
             <NativeAdRow creative={ad} />
           </LinkRowList>
@@ -191,6 +191,8 @@ export async function PracticeIntroContent({
               })}
               description={tRanks("practiceLink.description")}
             />
+            {/* 試験は目次の下ではなく、この行リンクの並びの末尾に置く */}
+            {ad && <NativeAdRow creative={ad} />}
           </LinkRowList>
         )}
 

@@ -161,6 +161,11 @@ export const AD_SLOTS = {
       { route: "/practice/machi-score", href: "/practice/machi-score" },
     ],
   },
+  // 昇級試験の説明ページの末尾、「その級の練習」の行リンクと同じ並び
+  "exam-intro-native-ad": {
+    kind: "native_row",
+    surfaces: [{ route: "/exam/<級>", href: "/exam/fu" }],
+  },
 } as const satisfies Record<string, AdSlotConfig>;
 
 /** 広告スロット */
