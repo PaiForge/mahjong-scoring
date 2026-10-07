@@ -39,11 +39,14 @@ export function DisplaySettingsSection() {
         checked={doraDisplay === "actual"}
         onChange={(checked) => setDoraDisplay(checked ? "actual" : "indicator")}
       />
+      {/* 保存値（termLinks）は「リンクを出す」で既定 true のまま、スイッチだけ
+          反転して「リンクなしで表示する」として見せる。設定のスイッチは既定 OFF に
+          揃えており、リンクは覚えた人が外すものなので、ON にする側を外す操作に置く */}
       <SettingToggleRow
         title={t("termLinksTitle")}
         description={t("termLinksDescription")}
-        checked={termLinks}
-        onChange={setTermLinks}
+        checked={!termLinks}
+        onChange={(checked) => setTermLinks(!checked)}
       />
       {/* 符→翻が既定なので、スイッチは「翻を先にする」の向きで出す */}
       <SettingToggleRow
