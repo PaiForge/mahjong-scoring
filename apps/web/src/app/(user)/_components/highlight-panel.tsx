@@ -10,7 +10,7 @@ import type { ReactNode } from "react";
  */
 export function HighlightPanel({ children }: { readonly children: ReactNode }) {
   return (
-    <aside className="rounded-xl border-3 border-amber-500 bg-amber-50/60 p-5">
+    <aside className="rounded-panel border border-amber-300 bg-amber-50/60 p-5">
       {children}
     </aside>
   );

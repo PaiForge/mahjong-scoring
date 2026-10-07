@@ -541,7 +541,7 @@ export function LessonView({
             示す。琥珀色（HighlightPanel）は教本のコラム・注意書きの記号なので
             使わない — 補足に見える */}
           <div
-            className="rounded-xl border-3 border-success bg-success-subtle p-5 text-success-strong"
+            className="rounded-panel border border-success bg-success-subtle p-5 text-success-strong"
             data-testid="lesson-achievement"
           >
             <p className="flex items-start gap-2 text-base font-bold leading-relaxed">
@@ -654,7 +654,7 @@ function CompletionActions({
         <div
           role="alert"
           data-testid="lesson-save-failed"
-          className="space-y-4 rounded-lg border-3 border-destructive bg-destructive-subtle p-5"
+          className="space-y-4 rounded-panel border border-destructive bg-destructive-subtle p-5"
         >
           <p className="text-base font-bold text-destructive-strong">
             {t("saveFailed.title")}

@@ -32,7 +32,7 @@ export async function ExamResultSummary(input: ExamOutcomeInput) {
   return (
     <div className="space-y-4">
       <div
-        className={`rounded-xl border-3 p-5 text-center ${
+        className={`rounded-panel border p-5 text-center ${
           outcome.passed
             ? "border-success bg-success-subtle text-success-strong"
             : "border-destructive bg-destructive-subtle text-destructive-strong"
