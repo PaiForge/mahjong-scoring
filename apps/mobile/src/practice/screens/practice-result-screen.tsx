@@ -53,14 +53,14 @@ export function PracticeResultScreen({
 
   return (
     <Screen title={t("title")} contentStyle={styles.content}>
-      {hasSetup && (
-        <Text style={styles.variant}>
-          {tp("variantLabel", { label: t(`variants.${variant}.label`) })}
-        </Text>
-      )}
-
       <View style={styles.section}>
         <SectionTitle>{tc("resultSectionTitle")}</SectionTitle>
+        {/* 走った出題設定。設定を持つ練習だけ、見出しの下に 1 行（web と同じ） */}
+        {hasSetup && (
+          <Text style={styles.variant}>
+            {tp("variantLabel", { label: t(`variants.${variant}.label`) })}
+          </Text>
+        )}
         {current !== undefined && (
           <ResultScoreBar
             correct={current.finalResult.correctCount}
@@ -109,7 +109,6 @@ const styles = StyleSheet.create({
     gap: 32,
   },
   variant: {
-    textAlign: "center",
     fontSize: 14,
     color: colors.surface500,
   },
