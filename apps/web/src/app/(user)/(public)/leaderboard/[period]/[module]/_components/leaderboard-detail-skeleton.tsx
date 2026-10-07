@@ -37,7 +37,7 @@ export function LeaderboardDetailSkeleton() {
 
       {/* 「この種目にチャレンジ」ボタン（実描画では常時表示）。46px は
           実物の内訳（枠 3px × 2 + py-2.5 の 10px × 2 + 文字の行ボックス 20px） */}
-      <div className="border-t-2 border-dashed border-border/40 pt-4">
+      <div className="border-t border-panel pt-4">
         <SkeletonBar radius="lg" className="h-[46px] w-full" tone={100} />
       </div>
 

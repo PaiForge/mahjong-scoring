@@ -54,7 +54,7 @@ export function leaderboardRowClassName(options: {
   const isTop3 = options.rank >= 1 && options.rank <= 3;
 
   return [
-    "border-b-2 border-dashed border-border/40 last:border-b-0 transition-colors",
+    "border-b-2 border-dashed border-surface-200 last:border-b-0 transition-colors",
     options.isCurrentUser
       ? "bg-primary-50"
       : isTop3

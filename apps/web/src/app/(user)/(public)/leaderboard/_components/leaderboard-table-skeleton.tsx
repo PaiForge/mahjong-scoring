@@ -65,7 +65,7 @@ export function LeaderboardTableSkeleton() {
           // あたり 2px ずつ短くなる
           <tr
             key={i}
-            className="border-b-2 border-dashed border-border/40 last:border-b-0"
+            className="border-b-2 border-dashed border-surface-200 last:border-b-0"
           >
             <td className="w-16 px-3 py-3">
               <SkeletonBar
