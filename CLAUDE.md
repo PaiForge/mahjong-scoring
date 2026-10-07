@@ -147,6 +147,12 @@ packages/features / core を共有し、アプリ側は画面と RN の部品だ
     React が 2 つバンドルに入る（フックが落ちる）。RN のレンダラーは React の版を厳密には検査しない
   - `typescript` — 他のパッケージと同じ TS7。SDK 54 では Expo の CLI が TS7 で Metro まで届かず
     5.9 に固定していたが、SDK 57 では `expo start` から iOS / Android / web のバンドルまで通る
+- **ネイティブ広告は web と同じ画面の同じ位置に出す。** 広告は web の広告配信 API
+  （`/api/ads/<スロット>`）から読み（`src/ads/use-native-ads.ts`）、スロットは
+  `MOBILE_AD_SLOTS`（features の `ads/native-ad.ts`）で web とは別に持つ（成果をトラッキング ID で
+  分けるため）。web に広告の置き場所を足したら、アプリに同じ画面があればこちらにも足す。
+  ランキング・お知らせ・本番の昇級試験の結果は画面が無いので持たない。開発中は Metro を動かす
+  Mac の web（`:3000`）を読む（`src/lib/site-url.ts`）
 - **web 版（`pnpm --filter @mahjong-scoring/mobile web`）は画面確認用**
 - 辞書は web と同じもの（`@mahjong-scoring/messages`）を use-intl で読む
 

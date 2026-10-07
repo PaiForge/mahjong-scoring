@@ -3,12 +3,19 @@ import { useRouter } from "expo-router";
 import { Pressable, StyleSheet, Text, View } from "react-native";
 import { useTranslations } from "use-intl";
 import {
+  MOBILE_AD_SLOTS,
+  type NativeAdView,
+} from "@mahjong-scoring/features/ads/native-ad";
+import { adIndexAfterGroup } from "@mahjong-scoring/features/ads/spacing";
+import {
   KANA_ROWS,
   type KanaRow,
 } from "@mahjong-scoring/features/glossary/kana";
 import { GLOSSARY_CATEGORIES } from "@mahjong-scoring/features/glossary/types";
 import { glossaryTermViews } from "@mahjong-scoring/features/glossary/views";
 
+import { NativeAdRow } from "../../../ads/native-ad-row";
+import { useNativeAds } from "../../../ads/use-native-ads";
 import { LinkRow, LinkRowList } from "../../../components/link-row";
 import { Screen } from "../../../components/screen";
 import { useScrollIntoView } from "../../../components/scroll-into-view";
@@ -32,6 +39,7 @@ export default function GlossaryIndexScreen() {
   const t = useTranslations("glossary");
   const router = useRouter();
   const terms = glossaryTermViews((key) => t(key));
+  const ads = useNativeAds(MOBILE_AD_SLOTS.glossaryIndex);
 
   return (
     <Screen title={t("title")} back contentStyle={styles.content}>
@@ -57,6 +65,7 @@ export default function GlossaryIndexScreen() {
           terms: terms.filter((term) => term.kanaRow === row),
         }))}
         onOpen={(href) => router.push(href)}
+        ads={ads}
       />
     </Screen>
   );
@@ -68,11 +77,15 @@ export default function GlossaryIndexScreen() {
  * 収録語が無い行はジャンプを押せない薄い文字のまま置き、一覧には出さない。
  * 行が抜けると「わ行は無いのか、飛ばされたのか」が分からなくなるため、
  * ジャンプの並びは常にあ行から わ行まで固定で見せる（web と同じ）。
+ *
+ * 広告は行の一覧の末尾に 1 行ずつ、間隔を広げながら置く（位置は
+ * `adIndexAfterGroup`。数えるのは語のある行だけ。web と同じ）。
  */
 function KanaIndex({
   title,
   rows,
   onOpen,
+  ads,
 }: {
   readonly title: string;
   readonly rows: readonly {
@@ -81,6 +94,8 @@ function KanaIndex({
     readonly terms: ReturnType<typeof glossaryTermViews>;
   }[];
   readonly onOpen: (href: string) => void;
+  /** 一覧に混ぜる広告（並び順どおり、スロットの枠数まで） */
+  readonly ads: readonly NativeAdView[];
 }) {
   const scrollIntoView = useScrollIntoView();
   const headingRefs = useRef(new Map<KanaRow, View | null>());
@@ -120,28 +135,33 @@ function KanaIndex({
       </View>
       {rows
         .filter(({ terms }) => terms.length > 0)
-        .map(({ row, label, terms }) => (
-          <View key={row} style={styles.kanaRow}>
-            <View
-              ref={(node) => {
-                headingRefs.current.set(row, node);
-              }}
-              collapsable={false}
-            >
-              <Text style={styles.heading}>{label}</Text>
+        .map(({ row, label, terms }, rowIndex) => {
+          const adIndex = adIndexAfterGroup(rowIndex);
+          const ad = adIndex === undefined ? undefined : ads[adIndex];
+          return (
+            <View key={row} style={styles.kanaRow}>
+              <View
+                ref={(node) => {
+                  headingRefs.current.set(row, node);
+                }}
+                collapsable={false}
+              >
+                <Text style={styles.heading}>{label}</Text>
+              </View>
+              <LinkRowList>
+                {terms.map((term) => (
+                  <LinkRow
+                    key={term.slug}
+                    onPress={() => onOpen(term.href)}
+                    title={term.term}
+                    description={term.reading}
+                  />
+                ))}
+                {ad !== undefined && <NativeAdRow creative={ad} />}
+              </LinkRowList>
             </View>
-            <LinkRowList>
-              {terms.map((term) => (
-                <LinkRow
-                  key={term.slug}
-                  onPress={() => onOpen(term.href)}
-                  title={term.term}
-                  description={term.reading}
-                />
-              ))}
-            </LinkRowList>
-          </View>
-        ))}
+          );
+        })}
     </View>
   );
 }

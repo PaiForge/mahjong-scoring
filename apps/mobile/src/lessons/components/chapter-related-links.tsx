@@ -5,8 +5,11 @@ import {
   type CurriculumChapterSlug,
   type PracticeLink,
 } from "@mahjong-scoring/features/curriculum/registry";
+import { MOBILE_AD_SLOTS } from "@mahjong-scoring/features/ads/native-ad";
 import { relatedPracticeLinks } from "@mahjong-scoring/features/lessons/registry";
 
+import { NativeAdCard } from "../../ads/native-ad-card";
+import { useNativeAds } from "../../ads/use-native-ads";
 import { SectionTitle } from "../../components/section-title";
 import { ExamCtaCard } from "../../dojo/exam-cta-card";
 import { PracticeCard } from "../../practice/components/practice-card";
@@ -23,9 +26,10 @@ import { PracticeCard } from "../../practice/components/practice-card";
  * カードは練習一覧と同じ {@link PracticeCard}。試験を持つ章では、その下に
  * 昇級試験の案内（{@link ExamCtaCard}。行き先は試験の説明画面と模試）を置く。
  *
- * web が出す総合演習の絞り込み（カタログ外の練習）へのボタンと広告はモバイルに
- * 出さない — 総合演習は URL の絞り込み（`?yaku=` 等）を受け取らない。練習も
- * 試験も無い章（基礎のセクション）では何も出さない。
+ * 練習のカードの並びの末尾に広告のカードを 1 枚混ぜる（練習一覧と同じカードの
+ * 形。web と同じ）。web が出す総合演習の絞り込み（カタログ外の練習）への
+ * ボタンはモバイルに出さない — 総合演習は URL の絞り込み（`?yaku=` 等）を
+ * 受け取らない。練習も試験も無い章（基礎のセクション）では何も出さない。
  *
  * @param slug レッスン（章）の slug
  * @param exclude 完了画面の次の一歩と同じ練習（重ねて出さない）
@@ -45,6 +49,7 @@ export function ChapterRelatedLinks({
       link.variant !== exclude.variant,
   );
   const examSlug = getChapterBySlug(slug)?.examSlug;
+  const [ad] = useNativeAds(MOBILE_AD_SLOTS.lessonPractices);
   if (links.length === 0 && examSlug === undefined) return undefined;
 
   return (
@@ -60,6 +65,7 @@ export function ChapterRelatedLinks({
                 variant={link.variant}
               />
             ))}
+            {ad !== undefined && <NativeAdCard creative={ad} />}
           </View>
         </View>
       )}

@@ -1,6 +1,7 @@
 import { StyleSheet, Text, View } from "react-native";
 import { useRouter } from "expo-router";
 import { useTranslations } from "use-intl";
+import { MOBILE_AD_SLOTS } from "@mahjong-scoring/features/ads/native-ad";
 import {
   practiceMenuBySlug,
   type PracticeMenuSlug,
@@ -11,6 +12,8 @@ import {
   practicePlayHref,
 } from "@mahjong-scoring/features/routes";
 
+import { NativeAdCard } from "../../ads/native-ad-card";
+import { useNativeAds } from "../../ads/use-native-ads";
 import { Button, buttonForeground } from "../../components/button";
 import { RotateCcwIcon } from "../../components/icons/icons";
 import { Screen } from "../../components/screen";
@@ -27,7 +30,7 @@ import { useRouteVariant } from "./use-route-variant";
  *
  * @description
  * web の結果ページ（`ResultView`）と同じ並び: 結果（正解・不正解の帯）→
- * もう一度 / 設定を変更する → 練習一覧に戻る → 問題別の結果。記録・
+ * もう一度 / 設定を変更する → 練習一覧に戻る → 広告のカード → 問題別の結果。記録・
  * ランキング・経験値はアカウントに紐づくため、モバイルでは出さない。
  *
  * @flow
@@ -50,6 +53,7 @@ export function PracticeResultScreen({
   const attempt = useChallengeResultStore((s) => s.attempt);
   const current = attempt?.slug === slug ? attempt : undefined;
   const { ProblemList } = screens;
+  const [ad] = useNativeAds(MOBILE_AD_SLOTS.practiceResult);
 
   return (
     <Screen title={t("title")} contentStyle={styles.content}>
@@ -96,6 +100,9 @@ export function PracticeResultScreen({
           {tc("backToList")}
         </TextLink>
       </View>
+
+      {/* ボタン群の後ろに置く。前に置くと「もう一度」より先に広告が目に入る（web と同じ） */}
+      {ad !== undefined && <NativeAdCard creative={ad} />}
 
       {current !== undefined && ProblemList !== undefined && (
         <ProblemList results={current.results} />

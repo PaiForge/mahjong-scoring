@@ -1,5 +1,8 @@
+import { Fragment } from "react";
 import { StyleSheet, Text, View } from "react-native";
 import { useTranslations } from "use-intl";
+import { MOBILE_AD_SLOTS } from "@mahjong-scoring/features/ads/native-ad";
+import { adIndexAfterGroup } from "@mahjong-scoring/features/ads/spacing";
 import {
   CURRICULUM,
   CURRICULUM_SECTIONS,
@@ -7,6 +10,9 @@ import {
   pickNextChapter,
 } from "@mahjong-scoring/features/curriculum/registry";
 
+import { NativeAdRow } from "../../ads/native-ad-row";
+import { useNativeAds } from "../../ads/use-native-ads";
+import { LinkRowList } from "../../components/link-row";
 import { Screen } from "../../components/screen";
 import { SectionTitle } from "../../components/section-title";
 import { useCompletedLessonSlugs } from "../../hooks/use-lesson-completion-store";
@@ -37,7 +43,8 @@ const GROUPED = chaptersBySection();
  * セクション（基礎 / 満貫 / 役 / 符 / 点数計算 / 記憶術）ごとにレッスン（章）を
  * 並べ、完了の印・進捗率・「次はここから」を出す（web の `/lessons`）。完了は
  * 端末に記録したもの。モバイルに本文を移植していないレッスンも並びに残すが
- * 開けず、進捗の分母と「次はここから」の候補から外す。
+ * 開けず、進捗の分母と「次はここから」の候補から外す。セクションの切れ目に
+ * 広告の行を間隔を広げながら置く（web と同じ）。
  *
  * @flow
  * レッスンの行を押すと `/lessons/<slug>` を開く。
@@ -50,6 +57,7 @@ export default function LessonsTab() {
     completedSlugs.has(chapter.slug),
   ).length;
   const allCompleted = next === undefined;
+  const ads = useNativeAds(MOBILE_AD_SLOTS.learnIndex);
 
   return (
     <Screen title={t("pageTitle")} inTabs>
@@ -65,15 +73,28 @@ export default function LessonsTab() {
           allCompleted={allCompleted}
         />
 
-        {CURRICULUM_SECTIONS.map((section) => (
-          <CurriculumToc
-            key={section}
-            section={section}
-            chapters={GROUPED.get(section) ?? []}
-            completedSlugs={completedSlugs}
-            nextSlug={next?.slug}
-          />
-        ))}
+        {CURRICULUM_SECTIONS.map((section, index) => {
+          const adIndex = adIndexAfterGroup(index);
+          const ad = adIndex === undefined ? undefined : ads[adIndex];
+          return (
+            <Fragment key={section}>
+              <CurriculumToc
+                section={section}
+                chapters={GROUPED.get(section) ?? []}
+                completedSlugs={completedSlugs}
+                nextSlug={next?.slug}
+              />
+              {/* 広告はセクションの切れ目に 1 行ずつ。セクションの中（章の並び）には
+                  入れない — レッスンの順序は学習の順序で、間に挟まると順路が途切れる。
+                  目次は枠を持たないので、広告の行も枠を描かない（web と同じ） */}
+              {ad !== undefined && (
+                <LinkRowList inset>
+                  <NativeAdRow creative={ad} />
+                </LinkRowList>
+              )}
+            </Fragment>
+          );
+        })}
 
         {allCompleted && (
           <Text style={styles.allCompleted}>{t("allCompletedMessage")}</Text>

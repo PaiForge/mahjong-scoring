@@ -1,7 +1,11 @@
 import { StyleSheet, Text, View } from "react-native";
 import { useTranslations } from "use-intl";
+import { MOBILE_AD_SLOTS } from "@mahjong-scoring/features/ads/native-ad";
 import { MACHI_SCORE_PRACTICE_HREF } from "@mahjong-scoring/features/routes";
 
+import { NativeAdRow } from "../../../ads/native-ad-row";
+import { useNativeAds } from "../../../ads/use-native-ads";
+import { LinkRowList } from "../../../components/link-row";
 import { Screen } from "../../../components/screen";
 import { MachiScoreHelpTour } from "../../../practice/endless/machi-score/machi-score-help";
 import { SectionTitle } from "../../../components/section-title";
@@ -27,9 +31,15 @@ import { ScoreSetupForm } from "../../../practice/endless/score/score-setup-form
 export default function MachiScoreSetupPage() {
   const t = useTranslations("machiScore");
   const tp = useTranslations("practice");
+  const [ad] = useNativeAds(MOBILE_AD_SLOTS.practiceIntro);
 
   return (
-    <Screen title={t("title")} back titleAction={<MachiScoreHelpTour />}>
+    <Screen
+      title={t("title")}
+      back
+      titleAction={<MachiScoreHelpTour />}
+      contentStyle={styles.content}
+    >
       <View style={styles.section}>
         <SectionTitle>{tp("settingsTitle")}</SectionTitle>
         <ScoreSetupForm
@@ -46,11 +56,21 @@ export default function MachiScoreSetupPage() {
           </View>
         </ScoreSetupForm>
       </View>
+
+      {/* 関連するレッスンの節を持たないので、設定の後ろに直接置く（web と同じ） */}
+      {ad !== undefined && (
+        <LinkRowList inset>
+          <NativeAdRow creative={ad} />
+        </LinkRowList>
+      )}
     </Screen>
   );
 }
 
 const styles = StyleSheet.create({
+  content: {
+    gap: 32,
+  },
   section: {
     gap: 16,
   },

@@ -1,7 +1,11 @@
 import { StyleSheet, View } from "react-native";
 import { useTranslations } from "use-intl";
+import { MOBILE_AD_SLOTS } from "@mahjong-scoring/features/ads/native-ad";
 import { COMPREHENSIVE_PRACTICE_HREF } from "@mahjong-scoring/features/routes";
 
+import { NativeAdRow } from "../../../ads/native-ad-row";
+import { useNativeAds } from "../../../ads/use-native-ads";
+import { LinkRowList } from "../../../components/link-row";
 import { Screen } from "../../../components/screen";
 import { ScoreHelpTour } from "../../../practice/endless/score/score-help";
 import { SectionTitle } from "../../../components/section-title";
@@ -16,7 +20,7 @@ import { useScorePracticeStore } from "../../../practice/endless/score/use-score
  * @description
  * 点数計算総合演習の設定画面。時計もミス上限も無く好きなだけ解ける練習で、
  * 始める前に役の回答・満貫の簡略化・符の入力・自動で次へ・親子・点数帯・
- * 出題する役を選ぶ。下に点数の計算セクションのレッスンを並べる。
+ * 出題する役を選ぶ。下に点数の計算セクションのレッスンと広告の行を並べる。
  *
  * @flow
  * 1. 練習一覧のバナーから遷移
@@ -26,6 +30,7 @@ import { useScorePracticeStore } from "../../../practice/endless/score/use-score
 export default function ScoreSetupPage() {
   const t = useTranslations("score");
   const tp = useTranslations("practice");
+  const [ad] = useNativeAds(MOBILE_AD_SLOTS.practiceIntro);
 
   return (
     <Screen
@@ -48,6 +53,12 @@ export default function ScoreSetupPage() {
       {/* 点数の計算セクションの章はどれも本文の導線でこの練習へ送る。戻る先を
           その章にそろえる（web と同じ） */}
       <RelatedLessonsSection section="score" />
+
+      {ad !== undefined && (
+        <LinkRowList inset>
+          <NativeAdRow creative={ad} />
+        </LinkRowList>
+      )}
     </Screen>
   );
 }
