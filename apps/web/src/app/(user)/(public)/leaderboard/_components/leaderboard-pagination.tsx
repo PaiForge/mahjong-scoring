@@ -69,8 +69,8 @@ export function LeaderboardPagination({
               aria-current={currentPage === page ? "page" : undefined}
               className={`min-w-[36px] px-2 py-2 text-sm rounded-md border transition-colors text-center ${
                 currentPage === page
-                  ? "border-primary-500 bg-primary-500 text-white font-medium"
-                  : "border-surface-200 hover:bg-surface-50"
+                  ? "border-primary-700 bg-primary-700 text-white font-bold"
+                  : "border-panel text-surface-600 hover:bg-surface-50 hover:text-foreground"
               }`}
             >
               {page}

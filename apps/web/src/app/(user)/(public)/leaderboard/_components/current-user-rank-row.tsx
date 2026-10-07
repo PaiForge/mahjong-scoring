@@ -16,13 +16,13 @@ export async function CurrentUserRankRow({ row }: CurrentUserRankRowProps) {
   const t = await getTranslations("leaderboard");
 
   return (
-    <div className="border-t-2 border-surface-200 mt-2">
-      <div className="bg-primary-50 rounded-b-lg">
+    <div className="border-t border-panel">
+      <div className="bg-primary-50">
         <table className="w-full table-fixed">
           <tbody>
             <tr>
               <td className="py-3 px-3 text-center w-16">
-                <span className="text-xs font-medium text-surface-400 uppercase">
+                <span className="text-xs font-medium text-surface-500">
                   {t("yourRank")}
                 </span>
               </td>

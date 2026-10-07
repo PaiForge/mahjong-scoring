@@ -38,8 +38,8 @@ function HeaderCell({
  * 詳細ページの Suspense フォールバックと loading.tsx が共有する。列幅
  * （`w-16` / `w-20` / `w-24`）とセルの余白（`px-3 py-3`）を実物の表と揃え、
  * 順位・アバターは実物と同じ 32px の丸にする。これで見出し行 41px・
- * データ行 58px（破線の区切り 2px 込み。最終行は 56px）が一致し、
- * データ到着で表の高さが動かない。
+ * データ行 57px（区切り 1px 込み。最終行は 56px）が一致し、
+ * データ到着で表の高さが動かない。外枠も実物と同じ細枠の面にする。
  *
  * ページ送り（`LeaderboardPagination`）の枠は出さない。実物は 2 ページ以上の
  * ときだけ描くもので、この行数（1 ページに満たない土俵）を想定した
@@ -50,49 +50,51 @@ function HeaderCell({
  */
 export function LeaderboardTableSkeleton() {
   return (
-    <table className="w-full table-fixed" aria-hidden="true">
-      <thead>
-        <tr className="border-b-2 border-surface-200">
-          <HeaderCell className="w-16" barWidthClassName="mx-auto w-8" />
-          <HeaderCell className="" barWidthClassName="w-20" />
-          <HeaderCell className="w-20" barWidthClassName="ml-auto w-12" />
-          <HeaderCell className="w-24" barWidthClassName="ml-auto w-8" />
-        </tr>
-      </thead>
-      <tbody>
-        {Array.from({ length: PLACEHOLDER_ROWS }).map((_, i) => (
-          // 実物と同じ破線の区切り（最終行だけ無し）。これが無いと 1 行
-          // あたり 2px ずつ短くなる
-          <tr
-            key={i}
-            className="border-b-2 border-dashed border-surface-200 last:border-b-0"
-          >
-            <td className="w-16 px-3 py-3">
-              <SkeletonBar
-                radius="full"
-                className="mx-auto size-8"
-                tone={100}
-              />
-            </td>
-            <td className="px-3 py-3">
-              <div className="flex items-center gap-3">
+    <div
+      aria-hidden="true"
+      className="overflow-hidden rounded-panel border border-panel"
+    >
+      <table className="w-full table-fixed">
+        <thead>
+          <tr className="border-b border-panel bg-surface-50">
+            <HeaderCell className="w-16" barWidthClassName="mx-auto w-8" />
+            <HeaderCell className="" barWidthClassName="w-20" />
+            <HeaderCell className="w-20" barWidthClassName="ml-auto w-12" />
+            <HeaderCell className="w-24" barWidthClassName="ml-auto w-8" />
+          </tr>
+        </thead>
+        <tbody>
+          {Array.from({ length: PLACEHOLDER_ROWS }).map((_, i) => (
+            // 実物と同じ区切り（最終行だけ無し）。これが無いと 1 行
+            // あたり 1px ずつ短くなる
+            <tr key={i} className="border-b border-surface-100 last:border-b-0">
+              <td className="w-16 px-3 py-3">
                 <SkeletonBar
                   radius="full"
-                  className="size-8 shrink-0"
+                  className="mx-auto size-8"
                   tone={100}
                 />
-                <SkeletonBar className="h-5 w-28" tone={100} />
-              </div>
-            </td>
-            <td className="w-20 px-3 py-3">
-              <SkeletonBar className="ml-auto h-5 w-10" tone={100} />
-            </td>
-            <td className="w-24 px-3 py-3">
-              <SkeletonBar className="ml-auto h-5 w-8" tone={100} />
-            </td>
-          </tr>
-        ))}
-      </tbody>
-    </table>
+              </td>
+              <td className="px-3 py-3">
+                <div className="flex items-center gap-3">
+                  <SkeletonBar
+                    radius="full"
+                    className="size-8 shrink-0"
+                    tone={100}
+                  />
+                  <SkeletonBar className="h-5 w-28" tone={100} />
+                </div>
+              </td>
+              <td className="w-20 px-3 py-3">
+                <SkeletonBar className="ml-auto h-5 w-10" tone={100} />
+              </td>
+              <td className="w-24 px-3 py-3">
+                <SkeletonBar className="ml-auto h-5 w-8" tone={100} />
+              </td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
+    </div>
   );
 }

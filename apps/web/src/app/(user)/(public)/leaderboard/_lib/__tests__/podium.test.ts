@@ -28,12 +28,6 @@ describe("leaderboardRowClassName", () => {
     ).toContain("border-l-podium-bronze");
   });
 
-  it("keeps the accent solid so the dashed row divider does not bleed into it", () => {
-    expect(
-      leaderboardRowClassName({ rank: 1, isCurrentUser: false }),
-    ).toContain("[border-left-style:solid]");
-  });
-
   it("leaves rows outside the podium without an accent", () => {
     expect(
       leaderboardRowClassName({ rank: 4, isCurrentUser: false }),

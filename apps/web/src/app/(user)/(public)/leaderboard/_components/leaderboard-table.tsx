@@ -35,8 +35,10 @@ export async function LeaderboardTable({
   }
 
   return (
-    <div className="space-y-0">
-      <div>
+    <div>
+      {/* 表と「あなたの順位」は 1 枚の枠に収める。一覧の画面（土俵ごとの
+          行リスト）と同じ細枠の面で、ページ外の自分の行が表の続きに見える */}
+      <div className="overflow-hidden rounded-panel border border-panel bg-card">
         <table className="w-full table-fixed" aria-label={t("title")}>
           <LeaderboardTableHeader />
           <tbody>
@@ -49,15 +51,15 @@ export async function LeaderboardTable({
             ))}
           </tbody>
         </table>
+        {currentUserRank ? (
+          <CurrentUserRankRow row={currentUserRank} />
+        ) : undefined}
       </div>
 
       {viewerHidden ? (
         <div className="mt-4">
           <ViewerHiddenNote />
         </div>
-      ) : undefined}
-      {currentUserRank ? (
-        <CurrentUserRankRow row={currentUserRank} />
       ) : undefined}
     </div>
   );
