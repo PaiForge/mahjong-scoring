@@ -85,13 +85,15 @@ export function HelpTourModal({
 
   return (
     // ヘッダー・本文・フッターの区画をパネル自身の flex で組むため、
-    // 既定のパネル体裁（p-6 / space-y-6 / 太枠）は使わず丸ごと差し替える。
+    // 既定のパネル体裁の余白（p-6 / space-y-6）は使わず差し替える。外枠
+    // （太枠・角丸）は他のモーダルと同じものを保つ — モーダルは地から浮かせる
+    // 最外の面で、ContentContainer の白カードと同じ記号を着る。
     <ModalShell
       isOpen={isOpen}
       onClose={close}
       label={title}
       widthClassName="max-w-lg"
-      panelClassName="flex max-h-[85vh] flex-col overflow-hidden rounded-xl bg-white"
+      panelClassName="flex max-h-[85vh] flex-col overflow-hidden rounded-2xl border-4 border-ink bg-white"
     >
       {current !== undefined && (
         <>
