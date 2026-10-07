@@ -2,7 +2,7 @@ import { Image, StyleSheet, View } from "react-native";
 import {
   getHaiSizePixels,
   Hai,
-  toTileImageUri,
+  toTileImageSource,
   useTileImage,
   type HaiSize,
 } from "@pai-forge/mahjong-react-ui";
@@ -40,7 +40,7 @@ export function TileBack({ size = "sm" }: { readonly size?: HaiSize }) {
   return (
     <View style={[styles.back, { width, height }]}>
       <Image
-        source={{ uri: toTileImageUri(source) }}
+        source={toTileImageSource(source)}
         style={styles.backImage}
         resizeMode="cover"
       />

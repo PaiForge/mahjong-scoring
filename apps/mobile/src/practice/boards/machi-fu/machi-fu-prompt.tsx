@@ -1,8 +1,8 @@
+import { Hai } from "@pai-forge/mahjong-react-ui";
 import { StyleSheet, View } from "react-native";
 import { useTranslations } from "use-intl";
 import type { HaiKindId } from "@mahjong-scoring/core";
 
-import { Tile } from "../../../components/tile";
 import { colors } from "../../../lib/theme";
 import { PromptLabel } from "../../components/prompt-label";
 
@@ -31,7 +31,7 @@ export function MachiFuPrompt({
         <PromptLabel>{t("machiLabel")}</PromptLabel>
         <View style={styles.tiles}>
           {tiles.map((tile, i) => (
-            <Tile key={i} hai={tile} size="lg" />
+            <Hai key={i} hai={tile} size="lg" />
           ))}
         </View>
       </View>
@@ -40,7 +40,7 @@ export function MachiFuPrompt({
 
       <View style={styles.group}>
         <PromptLabel>{t("agariLabel")}</PromptLabel>
-        <Tile hai={agariHai} size="lg" />
+        <Hai hai={agariHai} size="lg" />
       </View>
     </View>
   );

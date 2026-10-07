@@ -64,10 +64,9 @@ function normalizeStyle(style: unknown): Record<string, unknown> | undefined {
   return undefined;
 }
 
-export function Pressable({
-  ref,
-  ...props
-}: Record<string, unknown> & { ref?: Ref<HTMLDivElement> }) {
+// View and Pressable both render a <div>. RN-only props are mapped to their
+// DOM equivalents (or dropped) the same way for both.
+function toDivProps(props: Record<string, unknown>): Record<string, unknown> {
   const mapped: Record<string, unknown> = {};
   for (const key of Object.keys(props)) {
     if (key === "style") {
@@ -79,7 +78,22 @@ export function Pressable({
       mapped[key] = props[key];
     }
   }
-  return createElement("div", { ...mapped, ref });
+  return mapped;
+}
+
+// Non-pressable Hai (no onClick) is wrapped in View since 0.5.0
+export function View({
+  ref,
+  ...props
+}: Record<string, unknown> & { ref?: Ref<HTMLDivElement> }) {
+  return createElement("div", { ...toDivProps(props), ref });
+}
+
+export function Pressable({
+  ref,
+  ...props
+}: Record<string, unknown> & { ref?: Ref<HTMLDivElement> }) {
+  return createElement("div", { ...toDivProps(props), ref });
 }
 
 // RN Image receives `source` (object with `uri` or a require() result).

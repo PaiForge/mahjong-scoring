@@ -1,3 +1,4 @@
+import { Hai } from "@pai-forge/mahjong-react-ui";
 import { StyleSheet, Text, View } from "react-native";
 import type {
   PracticeCardVisual as CardVisual,
@@ -6,7 +7,6 @@ import type {
 import { orderFuHan } from "@mahjong-scoring/features/settings/fu-han-order";
 
 import { TehaiHand } from "../../board/tehai-hand";
-import { Tile } from "../../components/tile";
 import { useFuHanOrder } from "../../hooks/use-display-settings-store";
 import { colors, radius } from "../../lib/theme";
 
@@ -48,7 +48,7 @@ function SubjectContent({ subject }: { readonly subject: ResolvedSubject }) {
         {subject.groups.map((group, i) => (
           <View key={i} style={styles.tiles}>
             {group.map((hai, j) => (
-              <Tile key={j} hai={hai} size={size} alt="" />
+              <Hai key={j} hai={hai} size={size} alt="" />
             ))}
           </View>
         ))}
@@ -56,7 +56,7 @@ function SubjectContent({ subject }: { readonly subject: ResolvedSubject }) {
       {subject.agariHai !== undefined && (
         <>
           <Text style={styles.plus}>+</Text>
-          <Tile hai={subject.agariHai} size={size} alt="" />
+          <Hai hai={subject.agariHai} size={size} alt="" />
         </>
       )}
     </View>
