@@ -3,7 +3,7 @@
 import { useTranslations } from "next-intl";
 import { DemoChoiceCell } from "../../_components/demo-choice-cell";
 import { HaiKind } from "@mahjong-scoring/core";
-import { QuestionDisplay } from "../../score/_components/question-display";
+import { QuestionDisplay } from "../../agari-score/_components/question-display";
 import { buildDemoScoreQuestion } from "@mahjong-scoring/features/board/demo-score-question";
 import type { DemoHand } from "@mahjong-scoring/features/board/demo-score-question";
 import { QuestionPrompt } from "../../_components/question-prompt";

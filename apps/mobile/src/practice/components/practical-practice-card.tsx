@@ -5,8 +5,8 @@ import { useTranslations } from "use-intl";
 import { HaiKind } from "@mahjong-scoring/core";
 import { DEMO_MENTSU_HAND } from "@mahjong-scoring/features/board/demo-score-question";
 import {
-  COMPREHENSIVE_PRACTICE_HREF,
-  MACHI_SCORE_PRACTICE_HREF,
+  AGARI_SCORE_PRACTICE_HREF,
+  TENPAI_SCORE_PRACTICE_HREF,
 } from "@mahjong-scoring/features/routes";
 
 import { TehaiHand } from "../../board/tehai-hand";
@@ -17,14 +17,14 @@ import { colors, radius } from "../../lib/theme";
 /** 三筒で和了するデモから 1 枚抜いた、三筒・六筒待ちの聴牌形（web と同じ） */
 const TENPAI_TILES = DEMO_MENTSU_HAND.closed.filter((_, index) => index !== 6);
 
-/** 待ち別点数計算のプレビューで並べる待ち牌 */
+/** 聴牌形の点数計算のプレビューで並べる待ち牌 */
 const WAIT_TILES = [HaiKind.PinZu3, HaiKind.PinZu6] as const;
 
 /**
- * 実戦練習のカード（web の `ComprehensivePracticeBanner` / `MachiScorePracticeBanner`）
+ * 実戦練習のカード（web の `AgariScorePracticeBanner` / `TenpaiScorePracticeBanner`）
  * 実戦練習カード
  *
- * 終わりのない訓練（総合演習・待ち別点数計算）の入口。卓と同じ濃い緑に出題の
+ * 終わりのない訓練（和了形の点数計算・聴牌形の点数計算）の入口。卓と同じ濃い緑に出題の
  * 縮図（和了形と「何点？」/ 聴牌形と待ちごとのロン・ツモ）を描き、練習名と
  * 説明を添える。押すと説明画面へ移動するだけで練習は始まらないので、練習
  * カードと同じ細枠で影を持たない（web と同じ）。
@@ -35,15 +35,13 @@ const WAIT_TILES = [HaiKind.PinZu3, HaiKind.PinZu6] as const;
 export function PracticalPracticeCard({
   menu,
 }: {
-  readonly menu: "score" | "machi-score";
+  readonly menu: "agari-score" | "tenpai-score";
 }) {
   const t = useTranslations("practice");
   const router = useRouter();
-  const isScore = menu === "score";
-  const key = isScore ? "comprehensiveBanner" : "machiScoreBanner";
-  const href = isScore
-    ? COMPREHENSIVE_PRACTICE_HREF
-    : MACHI_SCORE_PRACTICE_HREF;
+  const isScore = menu === "agari-score";
+  const key = isScore ? "agariScoreBanner" : "tenpaiScoreBanner";
+  const href = isScore ? AGARI_SCORE_PRACTICE_HREF : TENPAI_SCORE_PRACTICE_HREF;
   const title = t(`${key}.title`);
 
   return (

@@ -7,7 +7,7 @@ import { PageTitle } from "@/app/(user)/_components/page-title";
 import { fetchAchievedRankSlugs } from "../_lib/achieved-ranks";
 import { fetchAttemptedPractices } from "../_lib/attempted-practices";
 import { selectDashboardGuidance } from "../_lib/guidance";
-import { ComprehensivePracticeSection } from "./comprehensive-practice-section";
+import { AgariScorePracticeSection } from "./agari-score-practice-section";
 import { ContinueLearningSection } from "./continue-learning-section";
 import { HomeAnnouncements } from "./home-announcements";
 import { NextStepSection } from "./next-step-section";
@@ -23,7 +23,7 @@ interface HomeDashboardProps {
  * ダッシュボード
  *
  * 行程が進行中なら「次にやること」→ お知らせ、
- * 全級取得済みなら「レッスンの続き」→「おすすめの練習」（総合演習）→ お知らせ
+ * 全級取得済みなら「レッスンの続き」→「おすすめの練習」（和了形の点数計算）→ お知らせ
  * の順に並べる。出し分けは `selectDashboardGuidance` が決める。
  *
  * 「次にやること」は黒帯への道（段級位の行程）の中で今やること 1 つ
@@ -46,7 +46,7 @@ export async function HomeDashboard({ userId }: HomeDashboardProps) {
       fetchAchievedRankSlugs(),
     ]);
 
-  const { journey, nextChapter, showComprehensivePractice } =
+  const { journey, nextChapter, showAgariScorePractice } =
     selectDashboardGuidance({
       completedLessonSlugs,
       attemptedPractices,
@@ -69,7 +69,7 @@ export async function HomeDashboard({ userId }: HomeDashboardProps) {
           />
         )}
 
-        {showComprehensivePractice && <ComprehensivePracticeSection />}
+        {showAgariScorePractice && <AgariScorePracticeSection />}
 
         <HomeAnnouncements />
       </div>

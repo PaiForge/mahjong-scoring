@@ -15,7 +15,7 @@ import { paymentToScoreTableAnswer } from "@mahjong-scoring/features/results/pay
 
 import { linkStyles } from "../../lib/link-styles";
 import { colors } from "../../lib/theme";
-import { ScoreTableModal } from "../endless/score/score-table-modal";
+import { ScoreTableModal } from "../endless/agari-score/score-table-modal";
 
 interface RevealedScoreAnswerProps {
   /** 開示する正解の点数 */

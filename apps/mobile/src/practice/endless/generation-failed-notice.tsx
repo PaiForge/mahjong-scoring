@@ -17,7 +17,7 @@ export function GenerationFailedNotice({
   onBackToSetup,
 }: {
   /** 見出し・案内文・ボタンの文言を引く辞書の namespace */
-  readonly translationNamespace: "score" | "machiScore";
+  readonly translationNamespace: "agariScore" | "tenpaiScore";
   readonly onBackToSetup: () => void;
 }) {
   const t = useTranslations(translationNamespace);

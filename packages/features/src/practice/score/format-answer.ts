@@ -17,7 +17,7 @@ export interface FormatHanOptions {
  * 翻数の表示（区分名か「n翻」）
  * 翻数表示
  *
- * 点数計算の無限訓練の答え合わせ（点数・待ち別点数）が使う。
+ * 点数計算の無限訓練の答え合わせ（和了形・聴牌形）が使う。
  */
 export function formatHan(
   han: number,

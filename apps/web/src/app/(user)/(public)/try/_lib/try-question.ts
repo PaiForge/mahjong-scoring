@@ -65,6 +65,6 @@ function buildTryQuestion(): ScoreQuestion {
  *
  * 毎回同じ問題なのは意図したもの。体験の目的は「どんな練習か」を登録なしで
  * 触らせることで、繰り返し解かせることではない。固定なので無料枠
- * （`practice/score` の 1 日の上限）を消費せず、サーバーにも問い合わせない。
+ * （`practice/agari-score` の 1 日の上限）を消費せず、サーバーにも問い合わせない。
  */
 export const TRY_QUESTION: ScoreQuestion = buildTryQuestion();

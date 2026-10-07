@@ -24,7 +24,7 @@ interface PracticeQuotaPaywallProps {
   /** 練習（1 日の上限を引く） */
   readonly menu: QuotaMenu;
   /** 見出し（練習名）の辞書。`GenerationFailedNotice` と同じ */
-  readonly translationNamespace: "score" | "machiScore";
+  readonly translationNamespace: "agariScore" | "tenpaiScore";
   /** 使い切った上限（サーバーの返事。未ログインなら未ログインの上限） */
   readonly limit: number;
   readonly signedIn: boolean;

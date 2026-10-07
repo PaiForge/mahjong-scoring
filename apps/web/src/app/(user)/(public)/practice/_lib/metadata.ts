@@ -88,7 +88,7 @@ export async function createPracticePlayMetadata(
  * レジストリに載らない自由練習のプレイページの metadata を生成する。
  * 自由練習プレイページメタデータ生成
  *
- * `/practice/score` 専用。この練習は成績を記録せずランキングにも載らないため
+ * `/practice/agari-score` 専用。この練習は成績を記録せずランキングにも載らないため
  * `PRACTICE_MENU_REGISTRY` に無く、slug から namespace を引けない。
  *
  * 新しい練習でこれを使わないこと — 記録対象の練習はレジストリに 1 行足して

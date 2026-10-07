@@ -2,8 +2,8 @@
  * 練習の無料枠 — 回数制限の対象と上限
  * 練習回数上限
  *
- * 対象は終了条件の無いエンドレス練習 2 つ（`practice/score` と
- * `practice/machi-score`）。1 問生成するごとに 1 回を消費する。
+ * 対象は終了条件の無いエンドレス練習 2 つ（`practice/agari-score` と
+ * `practice/tenpai-score`）。1 問生成するごとに 1 回を消費する。
  * `PRACTICE_MENU_REGISTRY` には載せない（どちらも元々レジストリ外で、
  * 記録・ランキングの土俵を持たない）。
  *
@@ -14,7 +14,7 @@
  */
 
 /** 回数制限の対象となる練習（URL のスラッグと同じ文字列） */
-export const QUOTA_MENUS = ["score", "machi-score"] as const;
+export const QUOTA_MENUS = ["agari-score", "tenpai-score"] as const;
 export type QuotaMenu = (typeof QUOTA_MENUS)[number];
 
 const quotaMenuSet: ReadonlySet<string> = new Set(QUOTA_MENUS);
@@ -36,11 +36,11 @@ export interface QuotaLimit {
  * 練習ごとの 1 日の上限
  * 練習別上限
  *
- * 待ち別点数計算（`machi-score`）は 1 問が重い（待ちを全部読んでから
- * マスを埋める）ので少なめ、点数計算（`score`）は 1 問が軽いので多め。
+ * 聴牌形の点数計算（`tenpai-score`）は 1 問が重い（待ちを全部読んでから
+ * マスを埋める）ので少なめ、和了形の点数計算（`agari-score`）は 1 問が軽いので多め。
  * 未ログインはどちらも 1 問 — 「どんな練習か」を見せる分だけ。
  */
 export const PRACTICE_QUOTA_LIMITS: Readonly<Record<QuotaMenu, QuotaLimit>> = {
-  "machi-score": { signedIn: 3, anonymous: 1 },
-  score: { signedIn: 5, anonymous: 1 },
+  "tenpai-score": { signedIn: 3, anonymous: 1 },
+  "agari-score": { signedIn: 5, anonymous: 1 },
 };

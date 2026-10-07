@@ -21,6 +21,6 @@ describe("useYakuLabel（next-intl の Provider の下）", () => {
       </NextIntlClientProvider>
     );
     const { result } = renderHook(() => useYakuLabel(), { wrapper });
-    expect(result.current("断么九")).toBe(messages.score.yaku.tanyao);
+    expect(result.current("断么九")).toBe(messages.agariScore.yaku.tanyao);
   });
 });

@@ -68,7 +68,7 @@ describe("buildScoreQuestion", () => {
   });
 
   it("同じ聴牌形でも通常手になる和了なら立直とドラが乗る", () => {
-    // 待ち別点数計算では待ちごとにここを通るので、役満になる待ちだけ
+    // 聴牌形の点数計算では待ちごとにここを通るので、役満になる待ちだけ
     // 立直・ドラが外れ、ならない待ちには乗る
     const { question, names } = yakuNames(HaiKind.Chun, false);
 

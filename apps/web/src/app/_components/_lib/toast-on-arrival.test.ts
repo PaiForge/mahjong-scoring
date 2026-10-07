@@ -24,8 +24,11 @@ describe("toastOnArrival", () => {
   });
 
   it("href のクエリ・ハッシュは着地判定に使わない", () => {
-    toastOnArrival("/practice/score?bakaze=ton#board", "練習を終了しました");
-    expect(takeToastOnArrival("/practice/score")?.message).toBe(
+    toastOnArrival(
+      "/practice/agari-score?bakaze=ton#board",
+      "練習を終了しました",
+    );
+    expect(takeToastOnArrival("/practice/agari-score")?.message).toBe(
       "練習を終了しました",
     );
   });

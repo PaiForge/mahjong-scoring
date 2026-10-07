@@ -13,7 +13,7 @@ import {
   type UseScoreQuestionBoardParams,
 } from "@mahjong-scoring/features/practice/use-score-question-board";
 import { useTrainingAnswerVisibility } from "@mahjong-scoring/features/practice/use-training-mode";
-import { QuestionDisplay } from "../score/_components/question-display";
+import { QuestionDisplay } from "../agari-score/_components/question-display";
 import type { ScoreOptionRange } from "@mahjong-scoring/features/practice/score/get-available-scores";
 import type { PlayBoardHeight } from "../_lib/board-area-height";
 import type { ScoreQuestionResult } from "@mahjong-scoring/features/results/score-question-result";

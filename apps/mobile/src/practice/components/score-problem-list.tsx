@@ -17,7 +17,7 @@ import { buildYakumanCapNote } from "@mahjong-scoring/features/results/yakuman-c
 import { TehaiMentsuBreakdown } from "../../board/tehai-mentsu-breakdown";
 import { useFuHanOrder } from "../../hooks/use-display-settings-store";
 import { linkStyles } from "../../lib/link-styles";
-import { ScoreTableModal } from "../endless/score/score-table-modal";
+import { ScoreTableModal } from "../endless/agari-score/score-table-modal";
 import { AnswerComparison } from "./answer-comparison";
 import { ProblemListAccordion } from "./problem-list-accordion";
 import { QuestionDisplay } from "./question-display";

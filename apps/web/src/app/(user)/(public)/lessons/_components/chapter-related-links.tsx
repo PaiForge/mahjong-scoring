@@ -35,7 +35,7 @@ interface ChapterRelatedLinksProps {
  *   レッスンなら章の `practiceLinks`。カードの並びの末尾に、練習一覧と
  *   同じカードの形のネイティブ広告（掲載中の広告があるときだけ）を置く。
  *   完了画面の次の一歩と同じ練習のカードは出さない（`RelatedPracticeCardSlot`）。
- *   カタログ外の練習（総合演習の絞り込み。`FREE_PRACTICE_LINKS`）はカードに
+ *   カタログ外の練習（和了形の点数計算の絞り込み。`FREE_PRACTICE_LINKS`）はカードに
  *   できないので、並びの下にボタンで添える
  * - 昇級試験 — 試験を持つ章（CURRICULUM の `examSlug`）のみ。練習で腕試し →
  *   昇級試験、の順

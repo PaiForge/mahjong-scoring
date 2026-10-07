@@ -36,7 +36,10 @@ const FORMAT_VERSION = "v1";
 /** 練習ごとのその日の回数 */
 export type AnonymousQuotaCounts = Readonly<Record<QuotaMenu, number>>;
 
-const EMPTY_COUNTS: AnonymousQuotaCounts = { score: 0, "machi-score": 0 };
+const EMPTY_COUNTS: AnonymousQuotaCounts = {
+  "agari-score": 0,
+  "tenpai-score": 0,
+};
 
 let cachedKey: Buffer | undefined;
 

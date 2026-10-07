@@ -191,8 +191,8 @@ export const AD_SLOTS = {
     kind: "native_row",
     surfaces: [
       { route: "/practice/<練習>", href: "/practice/jantou-fu" },
-      { route: "/practice/score", href: "/practice/score" },
-      { route: "/practice/machi-score", href: "/practice/machi-score" },
+      { route: "/practice/agari-score", href: "/practice/agari-score" },
+      { route: "/practice/tenpai-score", href: "/practice/tenpai-score" },
     ],
   },
   // 昇級試験の説明ページの末尾、「その級の練習」の行リンクと同じ並び
@@ -232,8 +232,8 @@ export const AD_SLOTS = {
     kind: "native_row",
     surfaces: [
       { platform: "mobile", route: "/practice/<練習>" },
-      { platform: "mobile", route: "/practice/score" },
-      { platform: "mobile", route: "/practice/machi-score" },
+      { platform: "mobile", route: "/practice/agari-score" },
+      { platform: "mobile", route: "/practice/tenpai-score" },
     ],
   },
   [MOBILE_AD_SLOTS.practiceResult]: {

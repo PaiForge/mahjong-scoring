@@ -53,7 +53,7 @@ const PLAN_DISPLAY: Readonly<
   pro: {
     name: "Pro",
     description:
-      "点数計算練習（待ち別点数計算・点数計算）の回数無制限と拡張機能",
+      "点数計算練習（和了形・聴牌形の点数計算）の回数無制限と拡張機能",
   },
 };
 

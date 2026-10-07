@@ -4,7 +4,7 @@ import { createJSONStorage, persist } from "zustand/middleware";
 
 import type { SettingsStoreOptions } from "./settings-store-options";
 
-/** 点数計算系の練習の設定（総合演習・待ち別点数計算で共通の項目） */
+/** 点数計算系の練習の設定（和了形の点数計算・聴牌形の点数計算で共通の項目） */
 export interface ScoreSettingsState {
   /** 役も回答するかどうか */
   requireYaku: boolean;
@@ -39,7 +39,7 @@ export interface ScoreSettingsState {
  * 点数計算系の練習の設定ストアを作る（永続化あり）
  * 点数練習設定ストア生成
  *
- * 点数計算総合演習と待ち別点数計算は同じ設定項目を持つが、片方で変えた
+ * 和了形の点数計算と聴牌形の点数計算は同じ設定項目を持つが、片方で変えた
  * 設定がもう片方に及ばないよう、練習ごとに別の保存名で持つ。
  *
  * @param name - 保存名（web では localStorage のキー）

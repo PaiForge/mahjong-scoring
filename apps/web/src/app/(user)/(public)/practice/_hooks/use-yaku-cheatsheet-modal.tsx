@@ -3,7 +3,7 @@
 import { useCallback, useMemo, useState } from "react";
 import type { ReactNode } from "react";
 import { resolveYakuCheatsheetName } from "@mahjong-scoring/features/yaku/examples";
-import { YakuCheatsheetModal } from "../score/_components/yaku-cheatsheet-modal";
+import { YakuCheatsheetModal } from "../agari-score/_components/yaku-cheatsheet-modal";
 
 interface YakuCheatsheetModalHandle {
   /**

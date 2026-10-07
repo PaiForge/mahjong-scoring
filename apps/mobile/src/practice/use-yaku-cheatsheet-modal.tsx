@@ -1,7 +1,7 @@
 import { useCallback, useMemo, useState, type ReactNode } from "react";
 import { resolveYakuCheatsheetName } from "@mahjong-scoring/features/yaku/examples";
 
-import { YakuCheatsheetModal } from "./endless/score/yaku-cheatsheet-modal";
+import { YakuCheatsheetModal } from "./endless/agari-score/yaku-cheatsheet-modal";
 
 interface YakuCheatsheetModalHandle {
   /**
@@ -19,7 +19,7 @@ interface YakuCheatsheetModalHandle {
  * 答え合わせから役一覧のシートを開くための状態（web の `useYakuCheatsheetModal`）
  * 役一覧モーダル状態
  *
- * 役判定の対比・翻数の内訳・総合演習の結果表示で共有する。点数計算が返す
+ * 役判定の対比・翻数の内訳・和了形の点数計算の結果表示で共有する。点数計算が返す
  * 役名（「役牌 白」等）から早見表の項目名への解決と、成立役への印の組み立てを
  * ここに寄せ、画面ごとに別の役へ着地しないようにする。
  *

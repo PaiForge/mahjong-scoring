@@ -3,7 +3,7 @@ import { getTranslations } from "next-intl/server";
 import { QuestionPrompt } from "@/app/(user)/(public)/practice/_components/question-prompt";
 import type { DemoScoreQuestionOptions } from "@mahjong-scoring/features/board/demo-score-question";
 import { buildDemoScoreQuestion } from "@mahjong-scoring/features/board/demo-score-question";
-import { QuestionDisplay } from "@/app/(user)/(public)/practice/score/_components/question-display";
+import { QuestionDisplay } from "@/app/(user)/(public)/practice/agari-score/_components/question-display";
 
 export type ScoreExamHowToPlayConfig = DemoScoreQuestionOptions & {
   /** i18n の翻訳ネームスペース（例: "manganExamChallenge"） */

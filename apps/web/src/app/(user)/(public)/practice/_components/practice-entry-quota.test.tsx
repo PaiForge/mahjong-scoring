@@ -23,7 +23,7 @@ beforeEach(() => {
 function show() {
   return render(
     <NextIntlClientProvider locale="ja" messages={messages}>
-      <PracticeEntryQuota menu="score" />
+      <PracticeEntryQuota menu="agari-score" />
     </NextIntlClientProvider>,
   );
 }
@@ -31,7 +31,7 @@ it("残量を消費せずに表示する", async () => {
   vi.mocked(peekPracticeQuota).mockResolvedValue(result);
   show();
   await screen.findByText("今日の無料分：残り 3 / 5 問");
-  expect(peekPracticeQuota).toHaveBeenCalledWith("score");
+  expect(peekPracticeQuota).toHaveBeenCalledWith("agari-score");
 });
 it("未ログインで使い切った場合は回復とログインによる増枠を案内する", async () => {
   vi.mocked(peekPracticeQuota).mockResolvedValue({
