@@ -1,7 +1,7 @@
 import { SITE_URL } from "@/config";
 
-import type { GlossaryTermView } from "@/lib/glossary/queries";
-import { GLOSSARY_PATH } from "@/lib/glossary/routes";
+import type { GlossaryTermView } from "@mahjong-scoring/features/glossary/views";
+import { GLOSSARY_PATH } from "@mahjong-scoring/features/glossary/routes";
 
 /**
  * 用語集の JSON-LD（DefinedTermSet）を組み立てる。

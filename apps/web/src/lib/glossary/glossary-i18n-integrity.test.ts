@@ -2,14 +2,17 @@ import { describe, expect, it } from "vitest";
 
 import { messages as messagesJson } from "@mahjong-scoring/messages/ja";
 
-import { kanaRowOf } from "./kana";
+import { kanaRowOf } from "@mahjong-scoring/features/glossary/kana";
 import { collectTermSlugsInNamespace } from "./message-terms";
 import {
   GLOSSARY_TERMS,
   GLOSSARY_TERM_SLUGS,
   isGlossaryTermSlug,
-} from "./registry";
-import { GLOSSARY_CATEGORIES, isMentsuExample } from "./types";
+} from "@mahjong-scoring/features/glossary/registry";
+import {
+  GLOSSARY_CATEGORIES,
+  isMentsuExample,
+} from "@mahjong-scoring/features/glossary/types";
 
 /**
  * 用語レジストリと辞書（日本語の辞書）の整合性検証

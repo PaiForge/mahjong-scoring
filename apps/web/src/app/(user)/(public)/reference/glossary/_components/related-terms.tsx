@@ -1,7 +1,7 @@
 import Link from "next/link";
 
 import { TEXT_LINK_CLASSES } from "@/app/_components/_lib/link-classes";
-import type { GlossaryTermView } from "@/lib/glossary/queries";
+import type { GlossaryTermView } from "@mahjong-scoring/features/glossary/views";
 
 interface RelatedTermsProps {
   readonly terms: readonly GlossaryTermView[];

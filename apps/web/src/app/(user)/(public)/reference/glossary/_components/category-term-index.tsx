@@ -2,8 +2,8 @@ import Link from "next/link";
 import { getTranslations } from "next-intl/server";
 
 import { TEXT_LINK_CLASSES } from "@/app/_components/_lib/link-classes";
-import type { GlossaryTermView } from "@/lib/glossary/queries";
-import { GLOSSARY_CATEGORIES } from "@/lib/glossary/types";
+import type { GlossaryTermView } from "@mahjong-scoring/features/glossary/views";
+import { GLOSSARY_CATEGORIES } from "@mahjong-scoring/features/glossary/types";
 
 interface CategoryTermIndexProps {
   readonly terms: readonly GlossaryTermView[];

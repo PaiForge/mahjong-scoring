@@ -8,7 +8,7 @@ import { InfoModal } from "@/app/(user)/_components/info-modal";
 import { MentsuSet } from "@/app/(user)/_components/mentsu-set";
 import { TileSet } from "@/app/(user)/_components/tile-set";
 import { TEXT_LINK_CLASSES } from "@/app/_components/_lib/link-classes";
-import type { GlossaryTermPreview } from "@/lib/glossary/queries";
+import type { GlossaryTermPreview } from "@mahjong-scoring/features/glossary/views";
 import {
   PREFERENCE_ANCHORS,
   preferencesHref,

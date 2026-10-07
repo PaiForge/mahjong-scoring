@@ -1,6 +1,9 @@
 import { PRACTICE_MENU_SLUGS } from "@mahjong-scoring/features/practice-menu-types";
-import { GLOSSARY_TERM_SLUGS } from "@/lib/glossary/registry";
-import { GLOSSARY_PATH, glossaryTermHref } from "@/lib/glossary/routes";
+import { GLOSSARY_TERM_SLUGS } from "@mahjong-scoring/features/glossary/registry";
+import {
+  GLOSSARY_PATH,
+  glossaryTermHref,
+} from "@mahjong-scoring/features/glossary/routes";
 
 import { chapterHref } from "@mahjong-scoring/features/routes";
 import { CURRICULUM } from "@mahjong-scoring/features/curriculum/registry";

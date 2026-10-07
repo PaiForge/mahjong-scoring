@@ -2,8 +2,11 @@ import Link from "next/link";
 import { getTranslations } from "next-intl/server";
 
 import { TEXT_LINK_CLASSES } from "@/app/_components/_lib/link-classes";
-import { KANA_ROWS, kanaAnchorId } from "@/lib/glossary/kana";
-import type { GlossaryTermView } from "@/lib/glossary/queries";
+import {
+  KANA_ROWS,
+  kanaAnchorId,
+} from "@mahjong-scoring/features/glossary/kana";
+import type { GlossaryTermView } from "@mahjong-scoring/features/glossary/views";
 
 interface KanaRowNavProps {
   readonly terms: readonly GlossaryTermView[];
