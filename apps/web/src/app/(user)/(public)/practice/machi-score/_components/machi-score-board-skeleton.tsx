@@ -5,10 +5,10 @@ import { ScoreBoardSkeletonFrame } from "../../score/_components/score-board-ske
 
 /**
  * プレイ画面のローディングスケルトン
- * 待ち別練習ボードスケルトン
+ * 聴牌形練習ボードスケルトン
  *
  * 本体（MachiScoreBoardInner の最初の段階 = 待ち牌の選択）の回答欄の形を、
- * 総合演習と共通の外枠（{@link ScoreBoardSkeletonFrame}）に入れる。
+ * 和了形の点数計算と共通の外枠（{@link ScoreBoardSkeletonFrame}）に入れる。
  */
 export function MachiScoreBoardSkeleton() {
   return (

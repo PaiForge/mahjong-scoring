@@ -3,7 +3,7 @@ import { createScoreSettingsStore } from "@mahjong-scoring/features/settings/use
 import { WEB_SETTINGS_STORE_OPTIONS } from "@/app/_hooks/settings-store-options";
 
 /**
- * 点数計算総合演習の設定ストア（web・localStorage に永続化）
+ * 和了形の点数計算の設定ストア（web・localStorage に永続化）
  * 点数練習設定
  */
 export const useScoreSettingsStore = createScoreSettingsStore(

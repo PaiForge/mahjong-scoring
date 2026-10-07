@@ -7,7 +7,7 @@ import { ScoreBoardSkeletonFrame } from "./score-board-skeleton-frame";
  * プレイ画面のローディングスケルトン
  * 練習ボードスケルトン
  *
- * 本体（ScorePracticeBoardInner の最終レンダリング）の回答欄の形を、待ち別
+ * 本体（ScorePracticeBoardInner の最終レンダリング）の回答欄の形を、聴牌形
  * 点数計算と共通の外枠（{@link ScoreBoardSkeletonFrame}）に入れる。
  */
 export function ScorePracticeBoardSkeleton() {
@@ -25,7 +25,7 @@ export function ScorePracticeBoardSkeleton() {
  * 翻・符・点数の select（各 label 付き）と回答するボタンの形。フォームは
  * 端末ローカルのルール設定で選択肢が変わるため、サーバーの HTML には出せず
  * ハイドレーション後に差し替える。その間この形で高さを確保する
- * （総合演習の盤面と体験ページが共有する）。
+ * （和了形の点数計算の盤面と体験ページが共有する）。
  */
 export function ScoreAnswerFormSkeleton() {
   return (

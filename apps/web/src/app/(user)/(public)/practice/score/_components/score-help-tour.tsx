@@ -18,7 +18,7 @@ import { HELP_TOUR_ALL_CORRECT } from "@mahjong-scoring/features/practice/help-t
 import { useHelpTourSample } from "@mahjong-scoring/features/practice/use-help-tour-sample";
 
 /**
- * 点数計算総合演習 ヘルプツアー
+ * 和了形の点数計算 ヘルプツアー
  *
  * @description
  * 設定画面の PageTitle 右端に置く「?」ボタン。押すと、初回利用者向けに

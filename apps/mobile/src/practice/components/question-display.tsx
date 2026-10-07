@@ -13,7 +13,7 @@ import { TehaiDisplay } from "../../board/tehai-display";
  * web の `score/_components/question-display.tsx` の移植。盤面そのものは
  * 全練習共通の {@link TehaiDisplay} に委譲し、この層は平坦な出題データから
  * 手牌と盤面コンテキストを切り分けるだけで見た目は持たない。点数即答・
- * 満貫以上の点数計算・総合演習・結果の一覧で共有する。
+ * 満貫以上の点数計算・和了形の点数計算・結果の一覧で共有する。
  */
 export function QuestionDisplay({
   question,

@@ -22,7 +22,7 @@ import { SettingCard } from "./setting-card";
 import { SmallCheckbox } from "./small-checkbox";
 
 interface ScoreSetupFormProps {
-  /** 設定の保存先（総合演習と待ち別点数計算で保存名が違う） */
+  /** 設定の保存先（和了形の点数計算と聴牌形の点数計算で保存名が違う） */
   readonly settingsStore: ScoreSettingsStoreHook;
   /** 「開始する」で開く play 画面のパス */
   readonly playPath: string;
@@ -38,7 +38,7 @@ interface ScoreSetupFormProps {
  * 点数計算練習の設定画面（web の `ScoreSetupForm`）
  * 練習設定画面
  *
- * 点数計算総合演習と待ち別点数計算で共有する。設定項目（役の回答・満貫の
+ * 和了形の点数計算と聴牌形の点数計算で共有する。設定項目（役の回答・満貫の
  * 簡略化・符の入力・自動で次へ・親子・点数帯）は同じで、保存先と遷移先だけが
  * 練習ごとに違う。
  *

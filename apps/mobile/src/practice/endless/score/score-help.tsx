@@ -34,8 +34,8 @@ function generateSample(): ScoreQuestion | undefined {
 const HEADER_HELP_FONT_SIZE = 17;
 
 /**
- * 点数計算総合演習の進め方（設定画面の「?」。web の `ScoreHelpTour`）
- * 総合演習ヘルプツアー
+ * 和了形の点数計算の進め方（設定画面の「?」。web の `ScoreHelpTour`）
+ * 和了形の点数計算ヘルプツアー
  *
  * 開始後の画面（問題 → 回答 → 結果）を実物のコンポーネントで 1 枚ずつ見せる。
  * サンプル問題は初めて開いたときに 1 度だけ作って固定する。
@@ -111,8 +111,8 @@ export function ScoreHelpTour() {
 }
 
 /**
- * 点数計算総合演習の画面の操作（play 画面の「?」。web の `ScoreSpotlightTour`）
- * 総合演習の操作ヘルプ
+ * 和了形の点数計算の画面の操作（play 画面の「?」。web の `ScoreSpotlightTour`）
+ * 和了形の点数計算の操作ヘルプ
  *
  * 盤面と回答欄の各項目に何を入れるかを 1 枚ずつ説明する。役の欄は設定で
  * 役の回答を求めるときだけ説明し、翻数と符の説明は出題設定に合わせて

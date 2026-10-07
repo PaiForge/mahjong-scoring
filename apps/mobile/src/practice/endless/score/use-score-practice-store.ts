@@ -3,7 +3,7 @@ import { createScorePracticeStore } from "@mahjong-scoring/features/practice/sco
 import { useRuleSettingsStore } from "../../../hooks/use-rule-settings-store";
 
 /**
- * 点数計算総合演習のストア（モバイル）
+ * 和了形の点数計算のストア（モバイル）
  * 点数練習ストア
  *
  * 出題・判定・成績の操作は web と共通（features の `createScorePracticeStore`）。

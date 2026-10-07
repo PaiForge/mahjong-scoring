@@ -17,14 +17,14 @@ import { colors, radius } from "../../lib/theme";
 /** 三筒で和了するデモから 1 枚抜いた、三筒・六筒待ちの聴牌形（web と同じ） */
 const TENPAI_TILES = DEMO_MENTSU_HAND.closed.filter((_, index) => index !== 6);
 
-/** 待ち別点数計算のプレビューで並べる待ち牌 */
+/** 聴牌形の点数計算のプレビューで並べる待ち牌 */
 const WAIT_TILES = [HaiKind.PinZu3, HaiKind.PinZu6] as const;
 
 /**
  * 実戦練習のカード（web の `ScorePracticeBanner` / `MachiScorePracticeBanner`）
  * 実戦練習カード
  *
- * 終わりのない訓練（総合演習・待ち別点数計算）の入口。卓と同じ濃い緑に出題の
+ * 終わりのない訓練（和了形の点数計算・聴牌形の点数計算）の入口。卓と同じ濃い緑に出題の
  * 縮図（和了形と「何点？」/ 聴牌形と待ちごとのロン・ツモ）を描き、練習名と
  * 説明を添える。押すと説明画面へ移動するだけで練習は始まらないので、練習
  * カードと同じ細枠で影を持たない（web と同じ）。

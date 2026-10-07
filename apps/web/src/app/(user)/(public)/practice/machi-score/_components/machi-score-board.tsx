@@ -96,11 +96,11 @@ function MachiScoreBoardInner() {
 
   useScrollToElement(PRACTICE_SCROLL_ANCHOR_ID, Boolean(currentQuestion));
 
-  // 出題条件の適用はクエリの変化で判定する（理由は総合演習の盤面と同じ:
+  // 出題条件の適用はクエリの変化で判定する（理由は和了形の点数計算の盤面と同じ:
   // 問題の有無で見ると前回の問題が残ったまま条件が無視され、マウント一度きり
   // ではクエリだけ変わる遷移に追随できず、生成失敗時には初期化が止まらない）。
   // ストアの `appliedQuery` が同じなら盤面を離れて戻ってきただけなので、
-  // 解答中の問題を引き継いで無料枠を消費し直さない（これも総合演習と同じ）
+  // 解答中の問題を引き継いで無料枠を消費し直さない（これも和了形の点数計算と同じ）
   useEffect(() => {
     if (!isClient) return;
 
@@ -122,7 +122,7 @@ function MachiScoreBoardInner() {
 
     const { allowedRanges, includeParent, includeChild, includeFuro } =
       parseGeneratorOptionsFromParams(new URLSearchParams(query));
-    // 前回の問題もサーバーの返事を待つ前に消す（理由は総合演習の盤面と同じ）
+    // 前回の問題もサーバーの返事を待つ前に消す（理由は和了形の点数計算の盤面と同じ）
     store.applyPracticeQuery(query, {
       allowedRanges,
       includeParent,
@@ -479,8 +479,8 @@ function MachiScoreBoardInner() {
 }
 
 /**
- * 待ち別点数計算のメインボード
- * 待ち別練習ボード
+ * 聴牌形の点数計算のメインボード
+ * 聴牌形練習ボード
  *
  * 1 問を「待ち牌を選ぶ → マスに点数を当てはめる → 答え合わせ」の 3 段階で
  * 解く。段階の状態はストア（{@link useMachiScoreStore}）が持ち、この

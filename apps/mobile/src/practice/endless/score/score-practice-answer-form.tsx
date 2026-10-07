@@ -32,7 +32,7 @@ interface ScorePracticeAnswerFormProps {
   /**
    * 「役」のラベル行を役の回答が不要でも出す。「役なし」のボタンの置き場を
    * ツモ・ロンの別によらず確保し、フォームの高さを変えないため
-   * （待ち別点数計算が立てる）
+   * （聴牌形の点数計算が立てる）
    */
   readonly reserveYakuRow?: boolean;
   /**
@@ -45,7 +45,7 @@ interface ScorePracticeAnswerFormProps {
   };
   /**
    * 入力欄に読み込んでおく回答。まだ何も入力していない間だけ効く
-   * （待ち別点数計算で回答済みのマスを選択に加えたとき。web の同名 prop）
+   * （聴牌形の点数計算で回答済みのマスを選択に加えたとき。web の同名 prop）
    */
   readonly prefill?: UserAnswer;
 }

@@ -184,7 +184,7 @@ export {
 } from "./rules/settings";
 export type { RuleSettings, YakumanRuleSettings } from "./rules/settings";
 
-// === Problem: Machi Score（待ち別点数計算） ===
+// === Problem: Machi Score（聴牌形の点数計算） ===
 export {
   generateMachiScoreQuestion,
   generateValidMachiScoreQuestion,

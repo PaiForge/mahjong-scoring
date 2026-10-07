@@ -20,7 +20,7 @@ export interface DashboardGuidance {
    * 完了していない最初のレッスン。行程が進行中、またはすべて完了なら undefined
    */
   readonly nextChapter: CurriculumChapter | undefined;
-  /** 全級取得済みのユーザーに、終わりのない総合演習を出すか */
+  /** 全級取得済みのユーザーに、終わりのない和了形の点数計算を出すか */
   readonly showScorePractice: boolean;
 }
 
@@ -39,7 +39,7 @@ export interface DashboardGuidance {
  *
  * 行程を終えた（全級取得）ユーザーには「次にやること」が無いので、代わりに
  * 「レッスンの続き」（完了していない最初のレッスン）と、終わりのない
- * 総合演習を出す。
+ * 和了形の点数計算を出す。
  */
 export function selectDashboardGuidance(
   input: BuildJourneyInput,

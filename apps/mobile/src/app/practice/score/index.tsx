@@ -15,10 +15,10 @@ import { ScoreSetupForm } from "../../../practice/endless/score/score-setup-form
 import { useScorePracticeStore } from "../../../practice/endless/score/use-score-practice-store";
 
 /**
- * 点数計算総合演習 設定
+ * 和了形の点数計算 設定
  *
  * @description
- * 点数計算総合演習の設定画面。時計もミス上限も無く好きなだけ解ける練習で、
+ * 和了形の点数計算の設定画面。時計もミス上限も無く好きなだけ解ける練習で、
  * 始める前に役の回答・満貫の簡略化・符の入力・自動で次へ・親子・点数帯・
  * 出題する役を選ぶ。下に点数の計算セクションのレッスンと広告の行を並べる。
  *

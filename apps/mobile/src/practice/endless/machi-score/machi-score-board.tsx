@@ -41,8 +41,8 @@ import { WaitCellGrid } from "./wait-cell-grid";
 const COLUMNS = ["tsumo", "ron"] as const;
 
 /**
- * 待ち別点数計算の盤面（web の `MachiScoreBoard`）
- * 待ち別練習ボード
+ * 聴牌形の点数計算の盤面（web の `MachiScoreBoard`）
+ * 聴牌形練習ボード
  *
  * 1 問を「待ち牌を選ぶ → マスに点数を当てはめる → 答え合わせ」の 3 段階で
  * 解く。段階の状態はストア（{@link useMachiScoreStore}）が持ち、この

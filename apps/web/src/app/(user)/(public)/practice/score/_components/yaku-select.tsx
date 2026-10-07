@@ -17,7 +17,7 @@ interface YakuLabelRowProps {
  * 役ラベル行
  *
  * 役の select の見出しであると同時に、「役なし（ロンできない）」の
- * ボタンを置く行でもある。役の回答が不要な設定でも、待ち別点数計算は
+ * ボタンを置く行でもある。役の回答が不要な設定でも、聴牌形の点数計算は
  * この行だけを出してボタンの置き場にする（役の select は無い）。
  */
 export function YakuLabelRow({ action }: YakuLabelRowProps) {

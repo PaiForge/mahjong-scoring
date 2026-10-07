@@ -29,7 +29,7 @@ interface MachiScoreState {
   currentQuestion: MachiScoreQuestion | undefined;
   phase: MachiScorePhase;
   /**
-   * 直近の生成が問題を作れずに終わったか（理由は総合演習のストアと同じ:
+   * 直近の生成が問題を作れずに終わったか（理由は和了形の点数計算のストアと同じ:
    * 盤面が「問題が無い」を生成前としか解釈しないため、失敗を別に持つ）
    */
   generationFailed: boolean;
@@ -48,7 +48,7 @@ interface MachiScoreState {
   options: MachiScoreGeneratorOptions;
   /**
    * 今の問題（または生成待ち・生成失敗）がどの出題条件のものか（理由は
-   * 総合演習のストアと同じ: 盤面に戻ってきたとき同じ条件なら解答中の
+   * 和了形の点数計算のストアと同じ: 盤面に戻ってきたとき同じ条件なら解答中の
    * 問題を引き継ぎ、無料枠を消費し直さない）
    */
   appliedQuery: string | undefined;
@@ -74,7 +74,7 @@ interface MachiScoreActions {
   generateNewQuestion: () => void;
   /**
    * 出題条件を適用して練習を始め直す（条件・成績・問題・`appliedQuery` を
-   * 1 つの操作で入れ替える。生成はしない）。総合演習のストアと同じ
+   * 1 つの操作で入れ替える。生成はしない）。和了形の点数計算のストアと同じ
    */
   applyPracticeQuery: (
     query: string,
@@ -123,7 +123,7 @@ interface MachiScoreActions {
   revealAnswer: () => void;
 }
 
-/** 待ち別点数計算のストアの状態と操作 */
+/** 聴牌形の点数計算のストアの状態と操作 */
 export type MachiScoreStore = MachiScoreState & MachiScoreActions;
 
 const INITIAL_ANSWERING: Pick<
@@ -146,8 +146,8 @@ const INITIAL_ANSWERING: Pick<
 };
 
 /**
- * 待ち別点数計算のストアを作る
- * 待ち別点数計算ストア生成
+ * 聴牌形の点数計算のストアを作る
+ * 聴牌形の点数計算ストア生成
  *
  * 1 問の中に「待ち牌を選ぶ → マスに点数を当てはめる → 答え合わせ」の
  * 3 段階があるため、段階（{@link MachiScorePhase}）と段階ごとの入力を

@@ -34,7 +34,7 @@ import { TenpaiDisplay } from "./tenpai-display";
 import { WaitCellGrid } from "./wait-cell-grid";
 
 /**
- * 待ち別点数計算 ヘルプツアー
+ * 聴牌形の点数計算 ヘルプツアー
  *
  * @description
  * 設定画面の PageTitle 右端に置く「?」ボタン。押すと「開始する」後の 3 段階

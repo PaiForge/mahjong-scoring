@@ -246,7 +246,7 @@ function ScorePracticeBoardInner() {
 
         {/* Answer area（開示時は userAnswer / judgementResult なしで結果表示を出す）
             答え合わせの組み方（面子分解 → 表 を 1 組にして、その下に「次の問題へ」）
-            と余白は待ち別点数計算の結果（MachiScoreResult）と同じにする。
+            と余白は聴牌形の点数計算の結果（MachiScoreResult）と同じにする。
             面子分解は正解開示の一部で、回答中に見せると符の答えが割れるため
             回答後にのみ出す。置き場所が手牌の直下なのは TehaiMentsuBreakdown の
             TSDoc のとおり */}
@@ -281,7 +281,7 @@ function ScorePracticeBoardInner() {
           <div className="space-y-4">
             {/* 出題文の右端にヘルプツアーの「?」を添える。説明する欄は
                 この下に並ぶので、ページの見出しより入口として近い
-                （待ち別点数計算と同じ置き方） */}
+                （聴牌形の点数計算と同じ置き方） */}
             <div className="flex items-center justify-center gap-1.5">
               <QuestionPrompt>{t("board.questionPrompt")}</QuestionPrompt>
               <ScoreSpotlightTour

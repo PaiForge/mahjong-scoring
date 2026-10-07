@@ -151,7 +151,7 @@ export function practiceResultHref(slug: PracticeMenuSlug): string {
 }
 
 /**
- * 記録を取らない総合演習（`/practice/score`）のパス。
+ * 記録を取らない和了形の点数計算（`/practice/score`）のパス。
  *
  * チャレンジではなく無限に解ける訓練なので `PRACTICE_MENU_REGISTRY` にも
  * カタログにも載らない。練習一覧のバナーとダッシュボードのフォールバックが参照する。
@@ -159,9 +159,9 @@ export function practiceResultHref(slug: PracticeMenuSlug): string {
 export const SCORE_PRACTICE_HREF = "/practice/score";
 
 /**
- * 記録を取らない待ち別点数計算（`/practice/machi-score`）のパス。
+ * 記録を取らない聴牌形の点数計算（`/practice/machi-score`）のパス。
  *
- * 総合演習と同じく無限に解ける訓練で、レジストリにもカタログにも載らない。
+ * 和了形の点数計算と同じく無限に解ける訓練で、レジストリにもカタログにも載らない。
  * 練習一覧のバナーが参照する。
  */
 export const MACHI_SCORE_PRACTICE_HREF = "/practice/machi-score";

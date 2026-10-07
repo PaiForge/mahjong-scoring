@@ -30,7 +30,7 @@ export const PRACTICE_SETUP_HASH = `#${PRACTICE_SETUP_ANCHOR_ID}`;
  *
  * 回答・開示・次へ進むのボタンは盤面下端やフッターにあるため、押した位置の
  * まま止まると、盤面上部に出る正誤表示も続けて差し替わる次の問題も画面外に
- * 残る。手牌符・点数計算総合演習のように縦に長い練習で顕著なので、表示が
+ * 残る。手牌符・和了形の点数計算のように縦に長い練習で顕著なので、表示が
  * 切り替わる操作のたびにマウント時（`useScrollToElement`）と同じ位置へ戻す。
  */
 export function scrollToPracticeAnchor(): void {

@@ -61,8 +61,8 @@ function buildCorrectCells(question: MachiScoreQuestion): {
 }
 
 /**
- * 待ち別点数計算の進め方（設定画面の「?」。web の `MachiScoreHelpTour`）
- * 待ち別ヘルプツアー
+ * 聴牌形の点数計算の進め方（設定画面の「?」。web の `MachiScoreHelpTour`）
+ * 聴牌形ヘルプツアー
  *
  * 1 問の中の 3 段階（待ち牌を選ぶ → マスに点数を当てはめる → 答え合わせ）を
  * 実物のコンポーネントで 1 枚ずつ見せる。マスの 1 枚はツモ列を回答済み、
@@ -172,8 +172,8 @@ export function MachiScoreHelpTour() {
 }
 
 /**
- * 待ち別点数計算の画面の操作（play 画面の「?」。web の `MachiScoreSpotlightTour`）
- * 待ち別の操作ヘルプ
+ * 聴牌形の点数計算の画面の操作（play 画面の「?」。web の `MachiScoreSpotlightTour`）
+ * 聴牌形の操作ヘルプ
  *
  * いまの段階の画面にある要素だけを 1 枚ずつ説明する（待ち牌の段階と、マスに
  * 当てはめる段階で中身が変わる。答え合わせの段階では「?」を出さない）。

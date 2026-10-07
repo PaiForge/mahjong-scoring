@@ -1,7 +1,7 @@
 import { ScorePracticeBoard } from "../../../practice/endless/score/score-practice-board";
 
 /**
- * 点数計算総合演習 プレイ
+ * 和了形の点数計算 プレイ
  *
  * @description
  * 時計もミス上限も無く繰り返し解く練習の本体。設定に応じて役・翻・符・点数を

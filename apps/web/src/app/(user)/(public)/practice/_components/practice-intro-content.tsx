@@ -68,7 +68,7 @@ interface PracticeIntroContentProps {
  *   道場が出す前提章と同じ集合・同じ見出しで、出どころも同じレジストリ
  *
  * どちらも練習ページ側でパスを渡したり表示可否を切り替えたりはしない。
- * 描画は {@link PracticeChapterSection} が持つ（記録を取らない総合演習の
+ * 描画は {@link PracticeChapterSection} が持つ（記録を取らない和了形の点数計算の
  * 設定ページと共有する）。
  */
 export async function PracticeIntroContent({

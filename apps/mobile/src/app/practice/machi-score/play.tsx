@@ -1,7 +1,7 @@
 import { MachiScoreBoard } from "../../../practice/endless/machi-score/machi-score-board";
 
 /**
- * 待ち別点数計算 プレイ
+ * 聴牌形の点数計算 プレイ
  *
  * @description
  * 聴牌形（13 枚）から待ち牌を読み、待ちごとにツモ・ロンの点数を答える

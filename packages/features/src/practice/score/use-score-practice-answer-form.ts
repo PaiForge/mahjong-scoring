@@ -54,7 +54,7 @@ export interface UseScorePracticeAnswerFormParams {
   readonly allowDoubleYakuman: boolean;
   /**
    * 入力欄の初期値。変わったら、まだ触っていない欄をその中身に合わせる
-   * （待ち別点数で同じ答えのマスをまとめて選んだとき、共通の答えを入れておく）
+   * （聴牌形の点数計算で同じ答えのマスをまとめて選んだとき、共通の答えを入れておく）
    */
   readonly prefill?: UserAnswer;
 }
@@ -85,7 +85,7 @@ export interface UseScorePracticeAnswerFormResult extends FormFields {
  * 点数訓練回答フォーム状態
  *
  * 入力欄の値と prefill への追従、符を問うか、点数の選択肢、入力が揃ったか、
- * 送る回答の組み立てを持つ。点数計算・待ち別点数の両方で使う。
+ * 送る回答の組み立てを持つ。和了形・聴牌形の点数計算の両方で使う。
  */
 export function useScorePracticeAnswerForm({
   onSubmit,

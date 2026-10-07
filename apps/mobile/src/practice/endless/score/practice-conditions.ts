@@ -44,7 +44,7 @@ export function readModeFlags(
  * 通す。手の形は門前・副露の両方、役の絞り込みは生成器が安定して作れる役
  * （`SCORE_FILTERABLE_YAKU`）に限る。
  *
- * @param withYakuFilter 役の絞り込みを読むか（待ち別点数計算は持たない）
+ * @param withYakuFilter 役の絞り込みを読むか（聴牌形の点数計算は持たない）
  */
 export function readGeneratorOptions(
   settings: Readonly<ScoreSettingsValues>,

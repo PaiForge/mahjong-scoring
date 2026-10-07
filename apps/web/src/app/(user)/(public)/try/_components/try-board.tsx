@@ -38,10 +38,10 @@ interface TryAttempt {
  * 体験ページの盤面
  * 体験盤面
  *
- * 総合演習の盤面（`ScorePracticeBoard`）と同じ部品を、固定の 1 問
+ * 和了形の点数計算の盤面（`ScorePracticeBoard`）と同じ部品を、固定の 1 問
  * （{@link TRY_QUESTION}）に対して並べる。違いは次の 3 点で、それ以外の
  * 見え方（盤面 → 出題文 → 回答フォーム、答え合わせでは面子分解 → 結果表）は
- * 総合演習に揃える。体験で見たものがそのまま本番の練習の姿であるため。
+ * 和了形の点数計算に揃える。体験で見たものがそのまま本番の練習の姿であるため。
  *
  * - 問題を生成せず、サーバーにも聞かない。無料枠を消費しない
  * - 判定は標準ルール固定（端末ローカルのルール設定を読まない。問題側の
@@ -74,7 +74,7 @@ export function TryBoard() {
   useScrollToElement(PRACTICE_SCROLL_ANCHOR_ID);
 
   // 回答・開示・やり直しのボタンはいずれも縦に長い盤面の下端にあるため、
-  // 総合演習と同じく表示が切り替わる操作のたびに盤面の先頭へ戻す
+  // 和了形の点数計算と同じく表示が切り替わる操作のたびに盤面の先頭へ戻す
   const handleSubmit = useCallback((answer: UserAnswer) => {
     scrollToPracticeAnchor();
     setAttempt({

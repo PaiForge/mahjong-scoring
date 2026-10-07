@@ -46,7 +46,7 @@ interface ResultDisplayProps {
   /** 判定結果。無回答の正解開示（「わからない」）では undefined */
   readonly result?: JudgementResult;
   /**
-   * 翻・符・点数の形を取らない回答の一言（待ち別点数計算の「役なし」）。
+   * 翻・符・点数の形を取らない回答の一言（聴牌形の点数計算の「役なし」）。
    * `userAnswer` の代わりに「あなたの回答」列の翻数の行へ ✗ 付きで出す
    */
   readonly answerSummary?: string;

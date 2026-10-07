@@ -7,10 +7,10 @@ import { useMachiScoreSettingsStore } from "../_hooks/use-machi-score-settings-s
 import { useMachiScoreStore } from "../_hooks/use-machi-score-store";
 
 /**
- * 待ち別点数計算の設定画面
- * 待ち別練習設定画面
+ * 聴牌形の点数計算の設定画面
+ * 聴牌形練習設定画面
  *
- * 総合演習の設定画面（{@link ScoreSetupForm}）を、この練習の保存先と
+ * 和了形の点数計算の設定画面（{@link ScoreSetupForm}）を、この練習の保存先と
  * 遷移先で使う。役の絞り込みは持たない — 待ちごとに役が変わる出題で
  * 「どの待ちに掛けるか」を定められないため。設定ストアはクライアントの
  * オブジェクトなので、サーバーコンポーネントの page から直接は渡せず、

@@ -25,7 +25,7 @@ import { ScorePracticeAnswerForm } from "./score-practice-answer-form";
 import { useScorePracticeStore } from "./use-score-practice-store";
 
 /**
- * 点数計算総合演習の盤面（web の `ScorePracticeBoard`）
+ * 和了形の点数計算の盤面（web の `ScorePracticeBoard`）
  * 練習ボード
  *
  * 時計もミス上限も無く、手牌を見て役・翻・符・点数を答え、答え合わせを

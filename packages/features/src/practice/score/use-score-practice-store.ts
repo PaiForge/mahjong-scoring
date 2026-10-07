@@ -89,11 +89,11 @@ interface ScorePracticeActions {
   setQuestion: (question: ScoreQuestion | undefined) => void;
 }
 
-/** 点数計算総合演習のストアの状態と操作 */
+/** 和了形の点数計算のストアの状態と操作 */
 export type ScorePracticeStore = ScorePracticeState & ScorePracticeActions;
 
 /**
- * 点数計算総合演習のストアを作る
+ * 和了形の点数計算のストアを作る
  * 点数練習ストア生成
  *
  * 出題・回答の判定・成績を持つ。web とモバイルで同じ操作を持たせるため、

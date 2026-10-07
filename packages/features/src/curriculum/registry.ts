@@ -462,7 +462,7 @@ export function sortChapterSlugs(
  * セクションに属する章を、カリキュラムの順で返す。
  * セクションの章
  *
- * 記録を取らない総合演習（`/practice/score`）が「関連する教本の章」を出すのに
+ * 記録を取らない和了形の点数計算（`/practice/score`）が「関連する教本の章」を出すのに
  * 使う。あの練習はカタログにも章の `practiceLinks` にも載らない（記録対象外
  * のため前者に、出題条件付きの自由練習のため後者に載せられない）ので、
  * {@link relatedChaptersForPractice} の逆引きでは引けない。代わりに「点数の

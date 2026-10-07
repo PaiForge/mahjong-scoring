@@ -46,7 +46,7 @@ describe("selectDashboardGuidance", () => {
       expect(guidance.nextChapter).toBeUndefined();
     });
 
-    it("全レッスン完了でも、取る級が残っているなら総合演習に譲らない", () => {
+    it("全レッスン完了でも、取る級が残っているなら和了形の点数計算に譲らない", () => {
       const guidance = selectDashboardGuidance({
         completedLessonSlugs: new Set(CURRICULUM_CHAPTER_SLUGS),
         attemptedPractices: NO_ATTEMPTS,
@@ -60,7 +60,7 @@ describe("selectDashboardGuidance", () => {
   });
 
   describe("全級取得済み", () => {
-    it("終えていないレッスンが残っているならレッスンの続きを出し、総合演習も出す", () => {
+    it("終えていないレッスンが残っているならレッスンの続きを出し、和了形の点数計算も出す", () => {
       const guidance = selectDashboardGuidance({
         completedLessonSlugs: new Set(["about-this-app"]),
         attemptedPractices: NO_ATTEMPTS,
@@ -86,7 +86,7 @@ describe("selectDashboardGuidance", () => {
       expect(guidance.nextChapter?.slug).toBe("mangan-ko-tsumo");
     });
 
-    it("全レッスン完了ならレッスンの続きは無く、総合演習だけを勧める", () => {
+    it("全レッスン完了ならレッスンの続きは無く、和了形の点数計算だけを勧める", () => {
       const guidance = selectDashboardGuidance({
         completedLessonSlugs: new Set(CURRICULUM_CHAPTER_SLUGS),
         attemptedPractices: NO_ATTEMPTS,

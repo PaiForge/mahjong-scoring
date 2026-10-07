@@ -28,7 +28,7 @@ export const STATIC_SITEMAP_ROUTE_DEFS = [
   { url: "/practice", changeFrequency: "weekly", priority: 0.9 },
   { url: "/dojo", changeFrequency: "monthly", priority: 0.8 },
   { url: "/reference", changeFrequency: "weekly", priority: 0.8 },
-  // 総合演習。slug が練習レジストリ外のため PRACTICE_SITEMAP_PATHS で導出されない
+  // 和了形の点数計算。slug が練習レジストリ外のため PRACTICE_SITEMAP_PATHS で導出されない
   { url: "/practice/score", changeFrequency: "monthly", priority: 0.8 },
   { url: "/practice/machi-score", changeFrequency: "monthly", priority: 0.8 },
   { url: "/reference/score-table", changeFrequency: "monthly", priority: 0.7 },

@@ -64,7 +64,7 @@ export type MachiCellAnswer =
  * マスの判定に使う出題モード
  * マス判定モード
  *
- * 点数計算総合演習の `judgeAnswer` に渡すフラグと同じ。
+ * 和了形の点数計算の `judgeAnswer` に渡すフラグと同じ。
  */
 export interface MachiCellJudgementMode {
   readonly requireYaku: boolean;
