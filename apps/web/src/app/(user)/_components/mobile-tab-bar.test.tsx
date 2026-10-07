@@ -21,6 +21,8 @@ function renderAt(pathname: string, overlay = false) {
       locale="ja"
       messages={{
         nav: {
+          home: "ホーム",
+          dojo: "道場",
           practice: "練習",
           learn: "教本",
           scoreTable: "点数表",
@@ -73,5 +75,23 @@ describe("MobileTabBar", () => {
     renderAt("/practice/jantou-fu/result");
 
     expect(screen.getByRole("navigation")).toBeDefined();
+  });
+
+  it("ホームを先頭に道場を含み、ランキングは含めない", () => {
+    renderAt("/practice");
+
+    const labels = screen.getAllByRole("link").map((link) => link.textContent);
+    expect(labels).toEqual(["ホーム", "道場", "練習", "教本", "点数表"]);
+  });
+
+  it("配下のページでも親のタブを選択中にする", () => {
+    renderAt("/dojo/ranks/kyu5");
+
+    expect(screen.getByRole("link", { name: /道場/ }).className).toContain(
+      "text-primary",
+    );
+    expect(
+      screen.getByRole("link", { name: /ホーム/ }).className,
+    ).not.toContain("text-primary");
   });
 });

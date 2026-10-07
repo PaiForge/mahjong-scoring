@@ -5,6 +5,9 @@ import { SectionTitle } from "@/app/(user)/_components/section-title";
 import { LeaderboardTableHeader } from "@/app/(user)/(public)/leaderboard/_components/leaderboard-table-header";
 import { LeaderboardTableRow } from "@/app/(user)/(public)/leaderboard/_components/leaderboard-table-row";
 import type { RankedLeaderboardRow } from "@/lib/db/leaderboard-queries";
+import { getLeaderboard } from "@/app/(user)/(public)/leaderboard/_actions/get-leaderboard";
+import { buildDetailPath } from "@/app/(user)/(public)/leaderboard/_lib/types";
+import type { PracticeBoard } from "@mahjong-scoring/features/practice-menu-types";
 import { TEXT_LINK_CLASSES } from "@/app/_components/_lib/link-classes";
 
 interface LeaderboardPreviewProps {
@@ -52,5 +55,30 @@ export async function LeaderboardPreview({
         </Link>
       </div>
     </div>
+  );
+}
+
+/** プレビューに出す人数 */
+const PREVIEW_COUNT = 3;
+
+/**
+ * 土俵の全期間ランキング上位を引いて {@link LeaderboardPreview} を描画する
+ * 土俵別リーダーボードプレビュー
+ *
+ * @remarks
+ * 結果ページと練習の説明ページ（`renderLeaderboardPreview` 経由）で共有する。
+ */
+export async function BoardLeaderboardPreview({
+  board,
+}: {
+  readonly board: PracticeBoard;
+}) {
+  const { rows } = await getLeaderboard(board, "all-time", 1);
+
+  return (
+    <LeaderboardPreview
+      rows={rows.slice(0, PREVIEW_COUNT)}
+      detailPath={buildDetailPath("all-time", board)}
+    />
   );
 }

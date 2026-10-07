@@ -5,9 +5,6 @@ import { getTranslations } from "next-intl/server";
 
 import { createResultMetadata } from "@/app/_lib/metadata";
 
-import { getLeaderboard } from "@/app/(user)/(public)/leaderboard/_actions/get-leaderboard";
-import type { RankedLeaderboardRow } from "@/lib/db/leaderboard-queries";
-import { buildDetailPath } from "@/app/(user)/(public)/leaderboard/_lib/types";
 import type {
   PracticeMenuSlug,
   PracticeMenuType,
@@ -29,7 +26,7 @@ import { ExamResultSummary } from "@/app/(user)/(public)/exam/_components/exam-r
 
 import { RecordSection } from "../_components/record-section";
 import { PromotionBanner } from "../_components/promotion-banner";
-import { LeaderboardPreview } from "../_components/leaderboard-preview";
+import { BoardLeaderboardPreview } from "../_components/leaderboard-preview";
 import { LeaderboardSkeleton } from "../_components/leaderboard-skeleton";
 import { ResultBlockSkeleton } from "../_components/result-block-skeleton";
 import { RecordUnavailable } from "../_components/record-unavailable";
@@ -52,8 +49,6 @@ import {
 import { practiceSetupHref } from "./practice-web-routes";
 import { VARIANT_PARAM } from "@mahjong-scoring/features/routes";
 import type { PracticeBoard } from "@mahjong-scoring/features/practice-menu-types";
-
-const PREVIEW_COUNT = 3;
 
 /** 取得失敗のログに付ける発生箇所タグ */
 const LOG_TAG = "createPracticeResultPage";
@@ -191,7 +186,7 @@ interface PracticeResultPageProps {
  *      `RecordSection` / `SignUpCta` / `RecordUnavailable` のいずれかを描画
  *
  * 3. **`<Suspense fallback={<LeaderboardSkeleton />}>`**
- *    - `AsyncLeaderboardBlock`: `getLeaderboard()` を呼んで `LeaderboardPreview` を描画
+ *    - `AsyncLeaderboardBlock`: `BoardLeaderboardPreview` で全期間の上位を描画
  *    - ランキングを持たない練習（昇級試験）では境界ごと出さない
  *
  * 2 と 3 は互いに並列に解決され、遅い方に全体が引っ張られないストリーミング表示となる。
@@ -411,12 +406,5 @@ async function AsyncLeaderboardBlock({
   // 本番では no-op（debugResultDelay 内で NODE_ENV をチェック）。
   await debugResultDelay();
 
-  const { rows } = await getLeaderboard(board, "all-time", 1);
-  const previewRows = rows.slice(
-    0,
-    PREVIEW_COUNT,
-  ) satisfies readonly RankedLeaderboardRow[];
-  const detailPath = buildDetailPath("all-time", board);
-
-  return <LeaderboardPreview rows={previewRows} detailPath={detailPath} />;
+  return <BoardLeaderboardPreview board={board} />;
 }

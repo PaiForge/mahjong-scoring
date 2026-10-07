@@ -5,7 +5,7 @@ import { usePathname } from "next/navigation";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { useTranslations } from "next-intl";
 import { useIsOverlayOpen } from "@/app/_hooks/use-body-scroll-lock";
-import { TAB_BAR_NAV_ITEMS } from "./_lib/nav-items";
+import { TAB_BAR_NAV_ITEMS, isNavItemActive } from "./_lib/nav-items";
 import { isSessionRoute } from "@/app/_components/_lib/session-routes";
 
 const SCROLL_DEAD_ZONE = 10;
@@ -58,7 +58,7 @@ export function MobileTabBar() {
       >
         <ul className="flex items-stretch px-2 py-1">
           {TAB_BAR_NAV_ITEMS.map((item) => {
-            const isActive = pathname === item.href;
+            const isActive = isNavItemActive(pathname, item.href);
             return (
               <li key={item.href} className="flex-1">
                 <Link
