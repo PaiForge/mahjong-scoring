@@ -29,7 +29,7 @@ function renderChapter() {
     <GlossaryTermModalProvider
       terms={TERMS}
       viewDetailsLabel="用語ページを見る"
-      turnOffLabel="用語リンクをオフにする"
+      turnOffLabel="用語リンクなしで表示する"
       closeLabel="閉じる"
     >
       <p>
@@ -69,7 +69,7 @@ describe("GlossaryTermModalProvider", () => {
 
     expect(
       screen
-        .getByRole("link", { name: "用語リンクをオフにする" })
+        .getByRole("link", { name: "用語リンクなしで表示する" })
         .getAttribute("href"),
     ).toBe("/preferences#term-links");
   });
