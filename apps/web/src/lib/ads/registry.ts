@@ -90,6 +90,12 @@ interface AdSlotConfig {
   readonly kind: AdKind;
   readonly surfaces: readonly AdSurface[];
   /**
+   * モバイルのスロットだけが持つ、web の同じ画面のスロット。管理画面が
+   * web 版とアプリ版を行き来するのに使う。形と枠数はこのスロットに揃える
+   * （`registry.test.ts` が検査する）
+   */
+  readonly webCounterpart?: string;
+  /**
    * 1 画面に出す広告の数（省略時 1）。掲載中の広告を並び順の先頭から
    * この数だけ出し、同じ広告を 2 度は出さない（掲載中が足りなければ
    * 足りない枠は空ける）。
@@ -217,10 +223,12 @@ export const AD_SLOTS = {
   // 成果を別のトラッキング ID で分けられるようにする。形・枠数・置き場所は
   // web の同じ画面のスロットに合わせる
   [MOBILE_AD_SLOTS.practiceGrid]: {
+    webCounterpart: "practice-grid-native-ad",
     kind: "native_card",
     surfaces: [{ platform: "mobile", route: "/practice" }],
   },
   [MOBILE_AD_SLOTS.practiceIntro]: {
+    webCounterpart: "practice-intro-native-ad",
     kind: "native_row",
     surfaces: [
       { platform: "mobile", route: "/practice/<練習>" },
@@ -229,40 +237,49 @@ export const AD_SLOTS = {
     ],
   },
   [MOBILE_AD_SLOTS.practiceResult]: {
+    webCounterpart: "practice-result-native-ad",
     kind: "native_card",
     surfaces: [{ platform: "mobile", route: "/practice/<練習>/result" }],
   },
   [MOBILE_AD_SLOTS.examIntro]: {
+    webCounterpart: "exam-intro-native-ad",
     kind: "native_row",
     surfaces: [{ platform: "mobile", route: "/exam/<級>" }],
   },
   [MOBILE_AD_SLOTS.rankDetail]: {
+    webCounterpart: "rank-detail-native-ad",
     kind: "native_row",
     surfaces: [{ platform: "mobile", route: "/dojo/ranks/<級>" }],
   },
   [MOBILE_AD_SLOTS.learnIndex]: {
+    webCounterpart: "learn-index-native-ad",
     kind: "native_row",
     surfaces: [{ platform: "mobile", route: "/lessons" }],
     placements: 3,
   },
   [MOBILE_AD_SLOTS.learnChapter]: {
+    webCounterpart: "learn-chapter-native-ad",
     kind: "native_row",
     surfaces: [{ platform: "mobile", route: "/lessons/<章>" }],
   },
   [MOBILE_AD_SLOTS.lessonPractices]: {
+    webCounterpart: "lesson-practices-native-ad",
     kind: "native_card",
     surfaces: [{ platform: "mobile", route: "/lessons/<章>" }],
   },
   [MOBILE_AD_SLOTS.glossaryIndex]: {
+    webCounterpart: "glossary-index-native-ad",
     kind: "native_row",
     surfaces: [{ platform: "mobile", route: "/reference/glossary" }],
     placements: 3,
   },
   [MOBILE_AD_SLOTS.glossaryTerm]: {
+    webCounterpart: "glossary-term-native-ad",
     kind: "native_card",
     surfaces: [{ platform: "mobile", route: "/reference/glossary/<用語>" }],
   },
   [MOBILE_AD_SLOTS.yakuReference]: {
+    webCounterpart: "yaku-reference-native-ad",
     kind: "native_row",
     surfaces: [{ platform: "mobile", route: "/reference/yaku" }],
     placements: 2,
@@ -305,6 +322,22 @@ export function platformForSlot(slot: AdSlot): AdPlatform {
  */
 export function isMobileAdSlot(slot: AdSlot): boolean {
   return platformForSlot(slot) === "mobile";
+}
+
+/**
+ * web とアプリで同じ画面に出るもう片方のスロット。web だけの画面
+ * （ランキング一覧など、アプリに画面が無いもの）は undefined
+ * 対のスロット
+ */
+export function counterpartSlot(slot: AdSlot): AdSlot | undefined {
+  const config: AdSlotConfig = AD_SLOTS[slot];
+  if (config.webCounterpart !== undefined) {
+    return isAdSlot(config.webCounterpart) ? config.webCounterpart : undefined;
+  }
+  return AD_SLOT_VALUES.find((other) => {
+    const otherConfig: AdSlotConfig = AD_SLOTS[other];
+    return otherConfig.webCounterpart === slot;
+  });
 }
 
 /** 1 画面に出す広告の数。{@link AdSlotConfig} の `placements` 参照 */
