@@ -88,7 +88,9 @@ export async function RecordSection({
   return (
     <ResultBlockSection>
       <div className="flex items-center justify-between gap-3">
-        <SectionTitle>{t("record.sectionTitle")}</SectionTitle>
+        <SectionTitle className="min-w-0 flex-1">
+          {t("record.sectionTitle")}
+        </SectionTitle>
         {badge && (
           <span
             className={`inline-block whitespace-nowrap rounded-full px-3 py-1 text-xs font-semibold ${badge.className}`}

@@ -429,8 +429,10 @@ export function LessonView({
     return (
       <div className="space-y-6">
         <section className="space-y-4">
-          <div className="flex items-center justify-between">
-            <SectionTitle>{t("quizTitle")}</SectionTitle>
+          <div className="flex items-center justify-between gap-3">
+            <SectionTitle className="min-w-0 flex-1">
+              {t("quizTitle")}
+            </SectionTitle>
             <span className="text-sm font-bold tabular-nums text-surface-600">
               {t("progress", { index: index + 1, total: questions.length })}
             </span>
