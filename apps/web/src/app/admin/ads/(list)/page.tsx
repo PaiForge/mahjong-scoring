@@ -34,6 +34,7 @@ import {
   getAmazonTrackingId,
 } from "../_lib/queries";
 import { adminChipClasses } from "../../_lib/chip-classes";
+import { adminButtonClasses } from "../../_lib/button-classes";
 
 export const dynamic = "force-dynamic";
 
@@ -113,7 +114,7 @@ export default async function AdminAdsPage() {
               </div>
               <Link
                 href={`/admin/ads/new?slot=${encodeURIComponent(slot)}`}
-                className="rounded bg-primary-600 px-3 py-1.5 text-sm font-medium text-white transition-colors hover:bg-primary-700"
+                className={adminButtonClasses()}
               >
                 {t("new")}
               </Link>

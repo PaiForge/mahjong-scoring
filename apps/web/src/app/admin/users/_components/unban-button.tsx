@@ -6,6 +6,7 @@ import { useTranslations } from "next-intl";
 import { AdminModalShell } from "@/app/admin/_components/admin-modal-shell";
 
 import { unbanUser } from "../_actions/unban-user";
+import { adminButtonClasses } from "../../_lib/button-classes";
 
 interface UnbanButtonProps {
   readonly targetUserId: string;
@@ -40,7 +41,7 @@ export function UnbanButton({ targetUserId }: UnbanButtonProps) {
       <button
         type="button"
         onClick={() => setIsOpen(true)}
-        className="rounded bg-primary-600 px-3 py-1 text-xs font-medium text-white hover:bg-primary-700 transition-colors"
+        className={adminButtonClasses({ size: "sm" })}
       >
         {t("unbanUser.confirm")}
       </button>
@@ -64,14 +65,14 @@ export function UnbanButton({ targetUserId }: UnbanButtonProps) {
             <button
               type="button"
               onClick={close}
-              className="rounded border border-surface-300 px-4 py-2 text-sm hover:bg-surface-100 transition-colors"
+              className={adminButtonClasses({ variant: "secondary" })}
             >
               {t("unbanUser.cancel")}
             </button>
             <button
               type="submit"
               disabled={isPending}
-              className="rounded bg-primary-600 px-4 py-2 text-sm font-medium text-white hover:bg-primary-700 disabled:bg-surface-300 disabled:text-surface-500 transition-colors"
+              className={adminButtonClasses()}
             >
               {isPending ? t("unbanUser.pending") : t("unbanUser.confirm")}
             </button>

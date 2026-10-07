@@ -15,6 +15,7 @@ import { ALLOWED_IMAGE_MIME_TYPES } from "@/lib/images/policy";
 import { createAdCreative } from "../_actions/create-ad-creative";
 import { updateAdCreative } from "../_actions/update-ad-creative";
 import { AD_CREATIVE_LIMITS, type AdCreativeInput } from "../_lib/validation";
+import { adminButtonClasses } from "../../_lib/button-classes";
 
 /** 編集時の初期値（`AdCreativeInput` から slot を除いたもの） */
 export type AdCreativeFormDefaults = Omit<AdCreativeInput, "slot">;
@@ -338,14 +339,14 @@ export function AdCreativeForm({
           type="button"
           onClick={handleSubmit}
           disabled={isPending || isUploading}
-          className="rounded bg-primary-600 px-5 py-2 text-sm font-medium text-white transition-colors hover:bg-primary-700 disabled:bg-surface-300 disabled:text-surface-500"
+          className={adminButtonClasses()}
         >
           {isPending ? t("saving") : t("save")}
         </button>
         <button
           type="button"
           onClick={() => router.push("/admin/ads")}
-          className="rounded border border-surface-300 px-5 py-2 text-sm font-medium text-surface-700 transition-colors hover:bg-surface-100"
+          className={adminButtonClasses({ variant: "secondary" })}
         >
           {t("cancel")}
         </button>

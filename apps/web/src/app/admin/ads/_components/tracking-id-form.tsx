@@ -6,6 +6,7 @@ import { toast } from "react-hot-toast";
 
 import { useAdsAction } from "../_hooks/use-ads-action";
 import { setAmazonTrackingId } from "../_actions/set-amazon-tracking-id";
+import { adminButtonClasses } from "../../_lib/button-classes";
 
 interface Props {
   /** 今の設定。未設定なら undefined */
@@ -65,7 +66,7 @@ export function TrackingIdForm({ trackingId, hiddenAsinCount }: Props) {
         <button
           type="submit"
           disabled={isPending || value.trim() === (trackingId ?? "")}
-          className="rounded bg-primary-600 px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-primary-700 disabled:bg-surface-300 disabled:text-surface-500"
+          className={adminButtonClasses()}
         >
           {t("save")}
         </button>

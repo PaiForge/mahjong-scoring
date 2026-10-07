@@ -9,6 +9,7 @@ import {
 import { AdminPageTitle } from "./admin-page-title";
 import { TableEmptyRow } from "./table-empty-row";
 import { PaginationNav } from "@/app/(user)/_components/pagination-nav";
+import { adminButtonClasses } from "../_lib/button-classes";
 
 /**
  * 管理画面ログページ共通の検索パラメータキャッシュ（ログ検索パラメータ）
@@ -129,10 +130,7 @@ export function AdminLogPageLayout({
             className="w-52 rounded border border-surface-300 bg-white px-3 py-2 text-sm"
           />
         </div>
-        <button
-          type="submit"
-          className="rounded-lg bg-primary-700 px-4 py-2 text-sm text-white hover:bg-primary-800 transition-colors"
-        >
+        <button type="submit" className={adminButtonClasses()}>
           {i18n.filter}
         </button>
       </form>

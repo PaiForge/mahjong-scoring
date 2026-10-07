@@ -11,6 +11,7 @@ import { AnnouncementStatus } from "@/lib/announcement-status";
 import { DeleteAnnouncementButton } from "../_components/delete-announcement-button";
 import { TEXT_LINK_CLASSES } from "@/app/_components/_lib/link-classes";
 import { adminChipClasses } from "../../_lib/chip-classes";
+import { adminButtonClasses } from "../../_lib/button-classes";
 
 export const dynamic = "force-dynamic";
 
@@ -42,10 +43,7 @@ export default async function AdminAnnouncementsPage() {
     <div className="space-y-6">
       <div className="flex flex-wrap items-center justify-between gap-3">
         <AdminPageTitle>{t("listTitle")}</AdminPageTitle>
-        <Link
-          href="/admin/announcements/new"
-          className="rounded bg-primary-600 px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-primary-700"
-        >
+        <Link href="/admin/announcements/new" className={adminButtonClasses()}>
           {t("new")}
         </Link>
       </div>

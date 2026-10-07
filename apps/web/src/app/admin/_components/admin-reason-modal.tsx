@@ -4,6 +4,7 @@ import { useActionState, useState, type ReactNode } from "react";
 
 import { MODERATION_REASON_MAX_LENGTH } from "../users/_lib/moderation-reason";
 import { AdminModalShell } from "./admin-modal-shell";
+import { adminButtonClasses } from "../_lib/button-classes";
 
 /** ボタンとモーダルに出す文言（翻訳済み） */
 interface AdminReasonModalLabels {
@@ -38,11 +39,6 @@ interface AdminReasonModalProps {
   /** 理由欄の前に置く追加の入力欄 */
   readonly children?: ReactNode;
 }
-
-const TRIGGER_CLASSES = {
-  danger: "bg-red-600 hover:bg-red-700",
-  primary: "bg-primary-600 hover:bg-primary-700",
-} as const;
 
 /**
  * 理由を入力して実行する管理操作のボタンとモーダル
@@ -88,7 +84,7 @@ export function AdminReasonModal({
       <button
         type="button"
         onClick={() => setIsOpen(true)}
-        className={`rounded px-3 py-1 text-xs font-medium text-white transition-colors ${TRIGGER_CLASSES[tone]}`}
+        className={adminButtonClasses({ variant: tone, size: "sm" })}
       >
         {labels.trigger}
       </button>
@@ -123,14 +119,14 @@ export function AdminReasonModal({
             <button
               type="button"
               onClick={close}
-              className="rounded border border-surface-300 px-4 py-2 text-sm hover:bg-surface-100 transition-colors"
+              className={adminButtonClasses({ variant: "secondary" })}
             >
               {labels.cancel}
             </button>
             <button
               type="submit"
               disabled={isPending}
-              className={`rounded px-4 py-2 text-sm font-medium text-white disabled:opacity-50 transition-colors ${TRIGGER_CLASSES[tone]}`}
+              className={adminButtonClasses({ variant: tone })}
             >
               {isPending ? labels.pending : labels.confirm}
             </button>

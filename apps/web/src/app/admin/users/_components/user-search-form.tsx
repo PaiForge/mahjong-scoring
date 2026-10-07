@@ -2,6 +2,7 @@ import { getTranslations } from "next-intl/server";
 import Link from "next/link";
 
 import { TEXT_LINK_CLASSES } from "@/app/_components/_lib/link-classes";
+import { adminButtonClasses } from "../../_lib/button-classes";
 
 interface UserSearchFormProps {
   /** 現在の検索文字列（trim 済み） */
@@ -43,10 +44,7 @@ export async function UserSearchForm({
             className="w-72 max-w-full rounded border border-surface-300 bg-white px-3 py-2 text-sm"
           />
         </div>
-        <button
-          type="submit"
-          className="rounded-lg bg-primary-700 px-4 py-2 text-sm text-white transition-colors hover:bg-primary-800"
-        >
+        <button type="submit" className={adminButtonClasses()}>
           {t("searchButton")}
         </button>
       </form>
