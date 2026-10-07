@@ -127,9 +127,10 @@ export default async function DojoPage() {
         )}
 
         <section className="space-y-4">
-          {/* ツアーは見出しの pill だけを照らす（節全体だと全級のカードまで
-              照らしてしまう）。w-fit で包みを pill の幅に縮める */}
-          <div data-tour-id={DOJO_TOUR_ID.journeyTitle} className="w-fit">
+          {/* ツアーは見出しの行だけを照らす（節全体だと全級のカードまで
+              照らしてしまう）。包みを w-fit で縮めると、見出しの横線
+              （flex-1）が最小幅まで潰れるので幅は行いっぱいのままにする */}
+          <div data-tour-id={DOJO_TOUR_ID.journeyTitle}>
             <SectionTitle>{t("journeyTitle")}</SectionTitle>
           </div>
           <ol className="space-y-4">
