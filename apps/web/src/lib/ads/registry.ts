@@ -179,6 +179,11 @@ export const AD_SLOTS = {
     // （`adIndexAfterGroup`）。1・3 まとまり目の後
     placements: 2,
   },
+  // お知らせ一覧の末尾の行。ホームのお知らせ・お知らせの詳細には置かない
+  "announcements-index-native-ad": {
+    kind: "native_row",
+    surfaces: [{ route: "/announcements", href: "/announcements" }],
+  },
 } as const satisfies Record<string, AdSlotConfig>;
 
 /** 広告スロット */

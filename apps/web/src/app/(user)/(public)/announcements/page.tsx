@@ -10,10 +10,12 @@ import { notFound } from "next/navigation";
 import { getLocale, getTranslations } from "next-intl/server";
 
 import { ContentContainer } from "@/app/(user)/_components/content-container";
+import { NativeAdRow } from "@/app/(user)/_components/native-ad-row";
 import { PageTitle } from "@/app/(user)/_components/page-title";
 import { PaginationNav } from "@/app/(user)/_components/pagination-nav";
 import { SectionTitle } from "@/app/(user)/_components/section-title";
 import { createNamespaceMetadata } from "@/app/_lib/metadata";
+import { getNativeAdCreative } from "@/lib/ads/creatives";
 import { getPaginationData, parsePageParam } from "@/lib/pagination";
 
 import { AnnouncementTextList } from "./_components/announcement-text-list";
@@ -54,7 +56,10 @@ export default async function AnnouncementsPage({ searchParams }: Props) {
     notFound();
   }
 
-  const items = await getPublishedAnnouncementsPaginated(locale, limit, offset);
+  const [items, ad] = await Promise.all([
+    getPublishedAnnouncementsPaginated(locale, limit, offset),
+    getNativeAdCreative("announcements-index-native-ad"),
+  ]);
 
   return (
     <ContentContainer breadcrumb={[{ label: t("pageTitle") }]}>
@@ -71,6 +76,7 @@ export default async function AnnouncementsPage({ searchParams }: Props) {
               announcements={items}
               locale={locale}
               pinnedLabel={t("pinned")}
+              trailingAd={ad && <NativeAdRow creative={ad} />}
             />
             <PaginationNav
               currentPage={currentPage}
