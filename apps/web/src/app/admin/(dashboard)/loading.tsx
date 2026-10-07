@@ -22,21 +22,19 @@ export default function AdminDashboardLoading() {
       <SkeletonBar className="mb-6 h-5 w-2/3 max-w-md" tone={100} />
 
       <div className="space-y-6">
-        {/* 期間ピッカー（ラベル + 日付入力 ×2、プリセットボタン ×3） */}
+        {/* 期間ピッカー（ラベル + 日付入力 ×2、プリセットのセグメント）。
+            高さ 38px は入力欄（文字 20px + 余白 8px × 2 + 枠 1px × 2）と
+            セグメント（ボタン 32px + 内側の余白 2px × 2 + 枠 1px × 2）で共通 */}
         <div className="admin-filter flex flex-wrap items-center gap-3">
           <div className="flex items-center gap-2">
             <SkeletonBar className="h-4 w-12" tone={100} />
-            <SkeletonBar className="h-9 w-40" />
+            <SkeletonBar radius="lg" className="h-[38px] w-40" />
           </div>
           <div className="flex items-center gap-2">
             <SkeletonBar className="h-4 w-12" tone={100} />
-            <SkeletonBar className="h-9 w-40" />
+            <SkeletonBar radius="lg" className="h-[38px] w-40" />
           </div>
-          <div className="flex gap-1.5">
-            <SkeletonBar className="h-8 w-20" tone={100} />
-            <SkeletonBar className="h-8 w-20" tone={100} />
-            <SkeletonBar className="h-8 w-20" tone={100} />
-          </div>
+          <SkeletonBar radius="lg" className="h-[38px] w-[246px]" tone={100} />
         </div>
 
         {/* サマリーカード */}

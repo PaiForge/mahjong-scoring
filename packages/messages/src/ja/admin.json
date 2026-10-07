@@ -5,6 +5,7 @@
   "dashboardKpi": {
     "from": "開始日",
     "to": "終了日",
+    "presets": "期間のプリセット",
     "past7days": "過去7日",
     "past28days": "過去28日",
     "past90days": "過去90日",
