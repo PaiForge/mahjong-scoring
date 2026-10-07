@@ -1,5 +1,12 @@
 import type { ReactNode } from "react";
-import { StyleSheet, Text, View } from "react-native";
+import {
+  StyleSheet,
+  Text,
+  View,
+  type StyleProp,
+  type TextStyle,
+  type ViewStyle,
+} from "react-native";
 
 import { panelFrame } from "../lib/panel-styles";
 import { colors } from "../lib/theme";
@@ -23,6 +30,18 @@ interface DataTableProps {
   readonly rows: readonly (readonly ReactNode[])[];
   /** セルの余白。列が多く狭い表（点数表など）は "dense" で詰める */
   readonly density?: DataTableDensity;
+  /**
+   * 見出しのセルに足す体裁（列の番号を受ける）。表の中の 1 か所を指す
+   * ハイライト（点数早見表の正解の列）に使う
+   */
+  readonly headerCellStyle?: (column: number) =>
+    | {
+        readonly cell?: StyleProp<ViewStyle>;
+        readonly text?: StyleProp<TextStyle>;
+      }
+    | undefined;
+  /** 本体のセルに足す体裁（行と列の番号を受ける）。ハイライトに使う */
+  readonly cellStyle?: (row: number, column: number) => StyleProp<ViewStyle>;
 }
 
 /**
@@ -34,6 +53,8 @@ export function DataTable({
   columns,
   rows,
   density = "regular",
+  headerCellStyle,
+  cellStyle: extraCellStyle,
 }: DataTableProps) {
   const sizeOf = (i: number) => {
     const col = columns[i];
@@ -52,21 +73,34 @@ export function DataTable({
   return (
     <View style={styles.frame}>
       <View style={[styles.row, styles.header]}>
-        {columns.map((col, i) => (
-          <View
-            key={i}
-            style={[cellStyle, sizeOf(i), { alignItems: justify(i) }]}
-          >
-            <Text style={styles.headerText}>{col.label}</Text>
-          </View>
-        ))}
+        {columns.map((col, i) => {
+          const extra = headerCellStyle?.(i);
+          return (
+            <View
+              key={i}
+              style={[
+                cellStyle,
+                sizeOf(i),
+                { alignItems: justify(i) },
+                extra?.cell,
+              ]}
+            >
+              <Text style={[styles.headerText, extra?.text]}>{col.label}</Text>
+            </View>
+          );
+        })}
       </View>
       {rows.map((cells, r) => (
         <View key={r} style={[styles.row, r > 0 && styles.divider]}>
           {cells.map((cell, i) => (
             <View
               key={i}
-              style={[cellStyle, sizeOf(i), { alignItems: justify(i) }]}
+              style={[
+                cellStyle,
+                sizeOf(i),
+                { alignItems: justify(i) },
+                extraCellStyle?.(r, i),
+              ]}
             >
               {typeof cell === "string" || typeof cell === "number" ? (
                 <Text style={[styles.text, { textAlign: alignOf(i) }]}>
@@ -87,7 +121,9 @@ const styles = StyleSheet.create({
   frame: panelFrame,
   row: {
     flexDirection: "row",
-    alignItems: "center",
+    // セルを行の高さいっぱいに伸ばす（中身はセルの justifyContent で縦中央）。
+    // 伸ばさないとハイライトの塗りが行の途中で切れる
+    alignItems: "stretch",
   },
   header: {
     backgroundColor: colors.primary50,

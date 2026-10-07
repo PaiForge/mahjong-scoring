@@ -8,6 +8,10 @@ import {
   scoreResultSummary,
   type ScoreQuestionResult,
 } from "@mahjong-scoring/features/results/score-question-result";
+import {
+  scoreTableFocusOf,
+  type ScoreTableFocus,
+} from "@mahjong-scoring/features/score-table/focus";
 import { buildYakumanCapNote } from "@mahjong-scoring/features/results/yakuman-cap-note";
 
 import { TehaiMentsuBreakdown } from "../../board/tehai-mentsu-breakdown";
@@ -17,7 +21,6 @@ import { ScoreTableModal } from "../endless/score/score-table-modal";
 import { AnswerComparison } from "./answer-comparison";
 import { ProblemListAccordion } from "./problem-list-accordion";
 import { QuestionDisplay } from "./question-display";
-import type { ScoreTablePosition } from "./revealed-score-answer";
 import { YakuBreakdown } from "./yaku-breakdown";
 
 interface ScoreProblemListProps {
@@ -51,10 +54,8 @@ interface ScoreProblemListProps {
  * の順。翻数の内訳は既定で閉じる（問われているのは点数で、開いたままだと
  * 役の行数だけ答え合わせが下へ流れる）。
  *
- * 正解の点数は押すとその和了の親子・ロンツモで点数早見表を開く（web の
- * `ScoreProblemListWithLinks`）。web は正解のセルまでハイライトするが、
- * モバイルの点数早見表はまだ注目するセルを受け取れないため、タブを合わせる
- * だけにとどめる。
+ * 正解の点数は押すとそのセルをハイライトした点数早見表を開く（web の
+ * `ScoreProblemListWithLinks`）。
  */
 export function ScoreProblemList({
   results,
@@ -67,7 +68,8 @@ export function ScoreProblemList({
   const tBreakdown = useTranslations("challenge.yakuBreakdown");
   const fuHanOrder = useFuHanOrder();
   const translate = (key: string) => t(key);
-  const [scoreTable, setScoreTable] = useState<ScoreTablePosition | null>(null);
+  const [scoreTableFocus, setScoreTableFocus] =
+    useState<ScoreTableFocus | null>(null);
 
   return (
     <>
@@ -111,10 +113,14 @@ export function ScoreProblemList({
                   renderCorrectAnswer?.(result.correctAnswer, result) ?? (
                     <Text
                       onPress={() =>
-                        setScoreTable({
-                          role: result.isOya ? "oya" : "ko",
-                          winType: result.isTsumo ? "tsumo" : "ron",
-                        })
+                        setScoreTableFocus(
+                          scoreTableFocusOf({
+                            isOya: result.isOya,
+                            isTsumo: result.isTsumo,
+                            han: result.han,
+                            fu: result.fu,
+                          }),
+                        )
                       }
                       accessibilityRole="link"
                       style={[styles.correctLink, linkStyles.textButton]}
@@ -133,12 +139,12 @@ export function ScoreProblemList({
           );
         }}
       />
-      {scoreTable !== null && (
+      {scoreTableFocus !== null && (
         <ScoreTableModal
           isOpen
-          onClose={() => setScoreTable(null)}
-          role={scoreTable.role}
-          winType={scoreTable.winType}
+          onClose={() => setScoreTableFocus(null)}
+          focus={scoreTableFocus}
+          highlighted
         />
       )}
     </>

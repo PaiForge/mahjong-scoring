@@ -20,7 +20,7 @@ import {
   normalCellId,
   scoreGridKey,
 } from "@mahjong-scoring/features/score-table/score-grid";
-import type { NormalCellHighlight } from "../_lib/score-table-utils";
+import type { NormalCellHighlight } from "@mahjong-scoring/features/score-table/focus";
 import { TsumoScore } from "./tsumo-score";
 
 interface NormalScoreTableProps {

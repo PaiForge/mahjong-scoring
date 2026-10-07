@@ -1,8 +1,9 @@
 import type { ReactNode } from "react";
-import { ScrollView, StyleSheet } from "react-native";
+import { StyleSheet } from "react-native";
 import { useTranslations } from "use-intl";
 
 import { BottomSheet } from "../../../components/bottom-sheet";
+import { ScrollIntoViewScrollView } from "../../../components/scroll-into-view";
 
 /**
  * 参照シート（web の `ReferenceModal`）
@@ -34,7 +35,10 @@ export function ReferenceModal({
       title={title}
       closeLabel={tCommon("close")}
     >
-      <ScrollView style={styles.body}>{children}</ScrollView>
+      {/* 中身（点数早見表）が注目セルを中央へ寄せられるスクロール枠 */}
+      <ScrollIntoViewScrollView style={styles.body}>
+        {children}
+      </ScrollIntoViewScrollView>
     </BottomSheet>
   );
 }

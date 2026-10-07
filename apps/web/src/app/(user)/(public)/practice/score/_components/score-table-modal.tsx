@@ -2,7 +2,7 @@
 
 import { useTranslations } from "next-intl";
 import { ScoreTable } from "@/app/(user)/(public)/reference/score-table/_components/score-table";
-import type { ScoreTableFocus } from "@/app/(user)/(public)/reference/score-table/_lib/score-table-utils";
+import type { ScoreTableFocus } from "@mahjong-scoring/features/score-table/focus";
 import { ReferenceModal } from "./reference-modal";
 
 interface ScoreTableModalProps {

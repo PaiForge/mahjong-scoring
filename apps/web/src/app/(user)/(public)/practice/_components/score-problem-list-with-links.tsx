@@ -8,7 +8,7 @@ import { formatScoreAnswer } from "@mahjong-scoring/features/results/format-scor
 import { ScoreTableModal } from "../score/_components/score-table-modal";
 import { ScoreProblemList } from "./score-problem-list";
 import { TEXT_LINK_CLASSES } from "@/app/_components/_lib/link-classes";
-import type { ScoreTableFocus } from "@/app/(user)/(public)/reference/score-table/_lib/score-table-utils";
+import type { ScoreTableFocus } from "@mahjong-scoring/features/score-table/focus";
 
 interface ScoreProblemListWithLinksProps {
   readonly results: readonly ScoreQuestionResult[];

@@ -33,7 +33,7 @@ import {
 import { JudgementMark } from "../../_components/judgement-mark";
 import { YakuCheatsheetModal } from "./yaku-cheatsheet-modal";
 import { YakuJudgementChips } from "./yaku-judgement-chips";
-import type { ScoreTableFocus } from "@/app/(user)/(public)/reference/score-table/_lib/score-table-utils";
+import type { ScoreTableFocus } from "@mahjong-scoring/features/score-table/focus";
 import { BookIcon } from "@/app/(user)/_components/icons/book-icon";
 import { TableIcon } from "@/app/(user)/_components/icons/table-icon";
 
