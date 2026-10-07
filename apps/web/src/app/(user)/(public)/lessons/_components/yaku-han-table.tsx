@@ -10,8 +10,8 @@ import {
   DataTableHeaderCell,
 } from "@/app/(user)/_components/data-table";
 import { TEXT_LINK_CLASSES } from "@/app/_components/_lib/link-classes";
-import { referenceYakuHref } from "@/app/(user)/(public)/reference/yaku/_lib/anchors";
-import { hasYakuCheatsheetEntry } from "@/app/(user)/(public)/reference/yaku/_lib/yaku-examples";
+import { referenceYakuHref } from "@mahjong-scoring/features/yaku/anchors";
+import { hasYakuCheatsheetEntry } from "@mahjong-scoring/features/yaku/examples";
 
 /**
  * 翻数別の役まとめ表

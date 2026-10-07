@@ -5,7 +5,7 @@ import type {
   YakuSelectionJudgement,
   YakuSelectionState,
 } from "@mahjong-scoring/core";
-import { resolveYakuCheatsheetName } from "@/app/(user)/(public)/reference/yaku/_lib/yaku-examples";
+import { resolveYakuCheatsheetName } from "@mahjong-scoring/features/yaku/examples";
 import { YAKU_SELECTION_CLASSES } from "../../_lib/yaku-selection-classes";
 import { JudgementMark } from "../../_components/judgement-mark";
 import type { JudgementVerdict } from "@mahjong-scoring/features/results/result-schemas";

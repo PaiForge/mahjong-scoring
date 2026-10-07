@@ -10,10 +10,13 @@ import type { YakuHanEntry } from "@mahjong-scoring/core";
 import { yakuHanLabel } from "@mahjong-scoring/features/yaku/yaku-han-label";
 import { AccordionCard } from "@/app/(user)/_components/accordion-card";
 import { SectionTitle } from "@/app/(user)/_components/section-title";
-import { YAKU_EXAMPLES, hasYakuCheatsheetEntry } from "../_lib/yaku-examples";
-import type { YakuExampleSet } from "../_lib/yaku-examples";
+import {
+  YAKU_EXAMPLES,
+  hasYakuCheatsheetEntry,
+} from "@mahjong-scoring/features/yaku/examples";
+import type { YakuExampleSet } from "@mahjong-scoring/features/yaku/examples";
 import { YakuExampleList } from "./yaku-example-list";
-import { yakuAnchorId } from "../_lib/anchors";
+import { yakuAnchorId } from "@mahjong-scoring/features/yaku/anchors";
 
 /** チートシートに表示する1役分の項目（役データと例示手牌を束ねる） */
 interface YakuCheatItem {

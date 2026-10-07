@@ -1,7 +1,7 @@
 import { describe, it, expect } from "vitest";
 import { YAKU_HAN_ENTRIES } from "@mahjong-scoring/core";
 import { yakuAnchorId, referenceYakuHref } from "./anchors";
-import { hasYakuCheatsheetEntry } from "./yaku-examples";
+import { hasYakuCheatsheetEntry } from "./examples";
 
 /** 早見表に載る役（＝教本からリンクを張る役） */
 const LINKABLE_NAMES = YAKU_HAN_ENTRIES.map((e) => e.name).filter(

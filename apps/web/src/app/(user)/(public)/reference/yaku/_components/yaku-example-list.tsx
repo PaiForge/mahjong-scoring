@@ -3,7 +3,10 @@
 import { useTranslations } from "next-intl";
 import { parseHais, parseTehai } from "@mahjong-scoring/core";
 import { TehaiHand } from "../../../_components/tehai-hand";
-import type { YakuExampleHand, YakuExampleSet } from "../_lib/yaku-examples";
+import type {
+  YakuExampleHand,
+  YakuExampleSet,
+} from "@mahjong-scoring/features/yaku/examples";
 
 interface YakuExampleListProps {
   readonly examples: readonly YakuExampleSet[];
