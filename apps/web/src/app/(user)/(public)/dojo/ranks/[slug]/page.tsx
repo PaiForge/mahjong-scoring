@@ -42,7 +42,7 @@ import { fetchCompletedLessonSlugs } from "@/app/(user)/(public)/lessons/_lib/le
 import { createMetadata } from "@/app/_lib/metadata";
 import { getOptionalUser } from "@/lib/auth";
 import { getUserRankSlugs } from "@/lib/db/rank-queries";
-import { beltBorderClass } from "@/lib/ranks/belt-colors";
+import { beltBorderTopClass } from "@/lib/ranks/belt-colors";
 import { menuTypeToSlug } from "@mahjong-scoring/features/practice-menu-types";
 import { resolveRankStatus } from "@mahjong-scoring/features/ranks/rank-status";
 import { rankBySlug } from "@mahjong-scoring/features/ranks/registry";
@@ -100,11 +100,11 @@ export default async function RankDetailPage({ params }: RankDetailPageProps) {
       <PageTitle>{rankName}</PageTitle>
 
       <div className="space-y-8">
-        {/* 枠は帯色（道場の「現在の段級位」カードと同じ理由）。級名は見出しが
+        {/* 上端の帯は帯色（道場の級のカードと同じ理由）。級名は見出しが
             持つので、ここは帯・取得状態・合格基準だけを置く */}
         <div
           data-belt-slug={rank.slug}
-          className={`flex items-center gap-4 rounded-xl border-3 bg-white p-5 ${beltBorderClass(rank.slug)}`}
+          className={`flex items-center gap-4 rounded-panel border border-t-4 border-panel bg-white p-5 ${beltBorderTopClass(rank.slug)}`}
         >
           <BeltBadge slug={rank.slug} size="lg" />
           <div className="min-w-0 space-y-2">

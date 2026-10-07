@@ -5,7 +5,7 @@ import { SectionTitle } from "@/app/(user)/_components/section-title";
 import { practiceMenuBySlug } from "@mahjong-scoring/features/practice-menu-types";
 import type { PracticeMenuSlug } from "@mahjong-scoring/features/practice-menu-types";
 import {
-  beltBorderClass,
+  beltBorderTopClass,
   beltButtonVarsClass,
   beltClass,
 } from "@/lib/ranks/belt-colors";
@@ -53,13 +53,12 @@ export async function ExamCtaCard({ slug, lead }: ExamCtaCardProps) {
       <SectionTitle accentClass={beltClass(exam.rank.slug)}>
         {t(`examTitle.${rankTier(exam.rank.slug)}`, { rank: rankName })}
       </SectionTitle>
-      {/* どの級の試験かを枠の色でも示す。既定の ink（緑）は使わない — 級名を
-          掲げたカードが緑枠だと、緑がその級の色に見えてしまう。
-          参考プロジェクトのランクカードは細い枠に加えて上端に帯を敷くが、
-          こちらは枠自体が 3px あり、帯を足すと上辺だけ厚い不揃いに見える。 */}
+      {/* どの級の試験かを上端の帯の色でも示す。既定の緑は使わない — 級名を
+          掲げたカードが緑だと、緑がその級の色に見えてしまう。参考プロジェクトの
+          ランクカードと同じく、細い枠に加えて上端に帯を敷く。 */}
       <div
         data-belt-slug={exam.rank.slug}
-        className={`rounded-xl border-3 bg-white ${beltBorderClass(exam.rank.slug)}`}
+        className={`rounded-panel border border-t-4 border-panel bg-white ${beltBorderTopClass(exam.rank.slug)}`}
       >
         <div className="space-y-4 p-5">
           <p className="text-sm leading-relaxed text-surface-700">

@@ -5,7 +5,10 @@ import { ChevronRightIcon } from "@/app/(user)/_components/icons/chevron-right-i
 import { LockClosedIcon } from "@/app/(user)/_components/icons/lock-closed-icon";
 import { LinkButton } from "@/app/(user)/_components/link-button";
 import { LinkRow, LinkRowList } from "@/app/(user)/_components/link-row";
-import { beltBorderClass, beltButtonVarsClass } from "@/lib/ranks/belt-colors";
+import {
+  beltBorderTopClass,
+  beltButtonVarsClass,
+} from "@/lib/ranks/belt-colors";
 import {
   getChapterBySlug,
   getChapterI18nPath,
@@ -65,7 +68,7 @@ export async function RankJourneyCard({
     <article
       data-belt-slug={rank.slug}
       data-rank-status={status}
-      className={`rounded-xl border-3 bg-white p-4 sm:p-5 ${beltBorderClass(rank.slug)}`}
+      className={`rounded-panel border border-t-4 border-panel bg-white p-4 sm:p-5 ${beltBorderTopClass(rank.slug)}`}
     >
       <RankHeading
         rankSlug={rank.slug}
