@@ -594,7 +594,7 @@ export const adCreatives = pgTable(
     /** 画像の代替テキスト */
     imageAlt: varchar("image_alt", { length: 255 }),
     /**
-     * カードの帯に並べる手牌（MPSZ 表記）。練習カードの帯と同じ緑の面に
+     * カードの帯に並べる手牌（Extended MPSZ 2.0 の純手牌）。練習カードの帯と同じ緑の面に
      * 牌を出す。表記で持つのは管理画面で読み書きできるようにするため
      */
     hand: varchar("hand", { length: 64 }),
