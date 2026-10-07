@@ -1,4 +1,4 @@
-import type { ReactNode, Ref } from "react";
+import { useCallback, useRef, type ReactNode, type Ref } from "react";
 import {
   Pressable,
   ScrollView,
@@ -15,6 +15,7 @@ import { PRACTICE_PATH } from "@mahjong-scoring/features/routes";
 
 import { colors } from "../lib/theme";
 import { ChevronLeftIcon, CloseIcon } from "./icons/icons";
+import { ScrollIntoViewProvider } from "./scroll-into-view";
 
 /** ヘッダーの高さ（ステータスバーを除く）。iOS / Android の標準に合わせる */
 const HEADER_HEIGHT = 48;
@@ -85,6 +86,17 @@ export function Screen({
   ref,
 }: ScreenProps) {
   const insets = useSafeAreaInsets();
+  // 子孫が「ここを見せて」と頼めるよう、本文の枠を手元でも持つ
+  const scrollRef = useRef<ScrollView>(null);
+  const viewportHeight = useRef(0);
+  const setScrollRef = useCallback(
+    (node: ScrollView | null) => {
+      scrollRef.current = node;
+      if (typeof ref === "function") ref(node);
+      else if (ref != null) ref.current = node;
+    },
+    [ref],
+  );
   const router = useRouter();
   const t = useTranslations("nav");
 
@@ -138,23 +150,31 @@ export function Screen({
           </View>
         </View>
       )}
-      <ScrollView
-        ref={ref}
-        style={styles.body}
-        contentContainerStyle={[
-          styles.content,
-          { paddingBottom: (inTabs ? 0 : insets.bottom) + 32 },
-          contentStyle,
-        ]}
-        keyboardShouldPersistTaps="handled"
-        stickyHeaderIndices={
-          stickyHeaderIndices === undefined
-            ? undefined
-            : [...stickyHeaderIndices]
-        }
+      <ScrollIntoViewProvider
+        scrollRef={scrollRef}
+        viewportHeight={viewportHeight}
       >
-        {children}
-      </ScrollView>
+        <ScrollView
+          ref={setScrollRef}
+          onLayout={(e) => {
+            viewportHeight.current = e.nativeEvent.layout.height;
+          }}
+          style={styles.body}
+          contentContainerStyle={[
+            styles.content,
+            { paddingBottom: (inTabs ? 0 : insets.bottom) + 32 },
+            contentStyle,
+          ]}
+          keyboardShouldPersistTaps="handled"
+          stickyHeaderIndices={
+            stickyHeaderIndices === undefined
+              ? undefined
+              : [...stickyHeaderIndices]
+          }
+        >
+          {children}
+        </ScrollView>
+      </ScrollIntoViewProvider>
     </View>
   );
 }
