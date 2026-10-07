@@ -3,6 +3,7 @@ import { useTranslations } from "use-intl";
 import { MACHI_SCORE_PRACTICE_HREF } from "@mahjong-scoring/features/routes";
 
 import { Screen } from "../../../components/screen";
+import { MachiScoreHelpTour } from "../../../practice/endless/machi-score/machi-score-help";
 import { SectionTitle } from "../../../components/section-title";
 import { useMachiScoreSettingsStore } from "../../../hooks/use-score-settings-store";
 import { colors } from "../../../lib/theme";
@@ -28,7 +29,7 @@ export default function MachiScoreSetupPage() {
   const tp = useTranslations("practice");
 
   return (
-    <Screen title={t("title")} back>
+    <Screen title={t("title")} back titleAction={<MachiScoreHelpTour />}>
       <View style={styles.section}>
         <SectionTitle>{tp("settingsTitle")}</SectionTitle>
         <ScoreSetupForm

@@ -31,6 +31,7 @@ import {
 } from "../score/practice-conditions";
 import { ScorePracticeAnswerForm } from "../score/score-practice-answer-form";
 import { MachiPicker } from "./machi-picker";
+import { MachiScoreOperationHelp } from "./machi-score-help";
 import { MachiScoreResult } from "./machi-score-result";
 import { TenpaiDisplay } from "./tenpai-display";
 import { useMachiScoreStore } from "./use-machi-score-store";
@@ -48,7 +49,8 @@ const COLUMNS = ["tsumo", "ron"] as const;
  * コンポーネントは段階ごとの画面を切り替えるだけ。
  *
  * 出題条件は開いたときの設定から組む（web はクエリから読む）。web の無料枠・
- * 回答時間の計測（Pro）・操作を照らすツアー（「?」）はモバイルに無い。
+ * 回答時間の計測（Pro）はモバイルに無い。web が要素を照らすツアーの代わりに、
+ * 見出しの「?」からいまの段階の操作を 1 枚ずつ説明する。
  */
 export function MachiScoreBoard() {
   const t = useTranslations("machiScore");
@@ -344,6 +346,12 @@ export function MachiScoreBoard() {
         back
         backIcon="close"
         onBack={handleBackToSetup}
+        // 段階ごとに、その画面にある要素の説明を開ける（答え合わせでは出さない）
+        titleAction={
+          phase === "result" ? undefined : (
+            <MachiScoreOperationHelp phase={phase} />
+          )
+        }
         contentStyle={styles.content}
       >
         <BoardBleedProvider>{renderBoard()}</BoardBleedProvider>
