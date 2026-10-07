@@ -44,7 +44,7 @@ interface DetailTableProps {
  * 参照表の {@link DataTable} は使わない。あちらは 1 ページを占める表
  * （点数表・教本の早見表）のための体裁で、色付きの見出し帯を持つ。ここは
  * 列見出しも置かない（2列しかなく、名前と値は見れば分かる）。行区切りの
- * 破線と、最後を締める実線だけで読ませる。
+ * 淡い実線と、最後を締める一段濃い線だけで読ませる。
  *
  * 濃さは見出し（何の表か）> 合計 > 値 > 名前の順。中身が見出しより濃いと
  * 表の切れ目が読めず、いくつも積むと1枚の帳票のように見えてしまう。
@@ -60,7 +60,7 @@ export function DetailTable({ title, rows, total, note }: DetailTableProps) {
       )}
 
       <table className="w-full text-sm">
-        <tbody className="divide-y-2 divide-dashed divide-surface-200">
+        <tbody className="divide-y divide-surface-100">
           {rows.map((row, i) => (
             <tr key={i}>
               <td className="py-2 pr-4 text-left align-top whitespace-nowrap text-surface-500">
@@ -76,13 +76,13 @@ export function DetailTable({ title, rows, total, note }: DetailTableProps) {
             </tr>
           ))}
           {total !== undefined && (
-            // 合計の実線は tr ではなくセルに置く。tbody の divide-dashed は
-            // セレクタの詳細度が高く、tr 側に border-solid を書いても破線に負ける
+            // 合計の線は tr ではなくセルに置く。tbody の divide-* は
+            // セレクタの詳細度が高く、tr 側に border 色を書いても区切りの色に負ける
             <tr>
-              <td className="border-t-2 border-solid border-ink py-2 pr-4 text-left font-bold whitespace-nowrap text-surface-700">
+              <td className="border-t border-surface-300 py-2 pr-4 text-left font-bold whitespace-nowrap text-surface-700">
                 {total.label}
               </td>
-              <td className="border-t-2 border-solid border-ink py-2 text-right font-bold text-surface-700">
+              <td className="border-t border-surface-300 py-2 text-right font-bold text-surface-700">
                 {total.value}
               </td>
             </tr>
