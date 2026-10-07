@@ -9,7 +9,7 @@ import {
 } from "@mahjong-scoring/features/curriculum/registry";
 import { chapterHref, LESSONS_PATH } from "@mahjong-scoring/features/routes";
 
-import { DashedDivider } from "../components/dashed-divider";
+import { Divider } from "../components/divider";
 import { ChevronRightIcon } from "../components/icons/icons";
 import { TextLink } from "../components/text-link";
 import { SECTION_COLORS } from "../lessons/lesson-colors";
@@ -67,7 +67,7 @@ export function ChapterTocList({
                 const path = getChapterI18nPath(chapter);
                 return (
                   <View key={chapter.slug}>
-                    {index > 0 && <DashedDivider />}
+                    {index > 0 && <Divider tone="row" />}
                     <Pressable
                       accessibilityRole="link"
                       onPress={() => router.push(chapterHref(chapter.slug))}

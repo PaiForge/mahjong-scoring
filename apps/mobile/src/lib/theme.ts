@@ -32,6 +32,8 @@ export const colors = {
 
   /** 太枠とハードシャドウの色（`--color-ink`） */
   ink: "#2f6b4f",
+  /** 内側の情報カード・表・区切り線の淡い枠（`--color-panel`）。外側の太枠と区別する */
+  panel: "#dce3e0",
   background: "#f8fafc",
   card: "#ffffff",
   foreground: "#0f172a",
@@ -39,6 +41,7 @@ export const colors = {
 
   success: "#007a3d",
   successSubtle: "#d3f5db",
+  successStrong: "#034621",
   destructive: "#dc524a",
   destructiveSubtle: "#fee2e2",
   destructiveStrong: "#7f1d1d",
@@ -46,6 +49,8 @@ export const colors = {
   warningSubtle: "#fef3c7",
   warningStrong: "#78350f",
   amber500: "#f59e0b",
+  amber300: "#fcd34d",
+  amber100: "#fef3c7",
   amber50: "#fffbeb",
   red500: "#ef4444",
   white: "#ffffff",
@@ -58,11 +63,19 @@ export const radius = {
   lg: 14,
   xl: 18,
   "2xl": 22,
+  /** 内側の情報カード・表（`--radius-panel`） */
+  panel: 12,
   full: 9999,
 } as const;
 
-/** 枠の太さ（web の `border-3` / `border-4`） */
+/**
+ * 枠の太さ（web の `border` / `border-3` / `border-4`）
+ *
+ * 太枠（regular / thick）は押せる面とダイアログの記号。表示だけのカード・表・
+ * 入力欄は `panel`（1px の淡い枠）で組む。
+ */
 export const borderWidth = {
+  panel: 1,
   regular: 3,
   thick: 4,
 } as const;

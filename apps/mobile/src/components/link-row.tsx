@@ -1,10 +1,18 @@
-import type { ReactNode } from "react";
+import { createContext, useContext, type ReactNode } from "react";
 import { Pressable, StyleSheet, Text, View } from "react-native";
 
 import { linkStyles } from "../lib/link-styles";
+import { panelFrame } from "../lib/panel-styles";
 import { colors } from "../lib/theme";
-import { DashedDivider } from "./dashed-divider";
+import { Divider } from "./divider";
 import { ChevronRightIcon } from "./icons/icons";
+
+/**
+ * 行が枠の中にあるか（枠の中では行の内側いっぱいを押したときの面にし、
+ * 左右に余白を取る。枠の無いリストでは負のマージンで面を左右に広げつつ、
+ * 文字の左端を隣の本文とそろえる）
+ */
+const LinkRowFramedContext = createContext(false);
 
 interface LinkRowProps {
   readonly onPress: () => void;
@@ -28,11 +36,16 @@ export function LinkRow({
   leading,
   trailing,
 }: LinkRowProps) {
+  const framed = useContext(LinkRowFramedContext);
   return (
     <Pressable
       onPress={onPress}
       accessibilityRole="link"
-      style={({ pressed }) => [styles.row, pressed && styles.pressed]}
+      style={({ pressed }) => [
+        styles.row,
+        framed && styles.rowFramed,
+        pressed && styles.pressed,
+      ]}
     >
       {leading !== undefined && <View style={styles.side}>{leading}</View>}
       <View style={styles.body}>
@@ -48,19 +61,38 @@ export function LinkRow({
   );
 }
 
-/** {@link LinkRow} を並べる枠。行の間を破線で区切る */
-export function LinkRowList({ children }: { readonly children: ReactNode }) {
+/**
+ * {@link LinkRow} を並べる枠（web の `LinkRowList`）
+ *
+ * 既定は細枠の白い面に行を並べ、行の間を淡い実線で区切る（iOS の「グループ化
+ * された一覧」と同じ形）。影は持たない — 影は「押して始める面」の記号で、
+ * 読みに行くだけの行には付けない。
+ *
+ * 既に枠を持つ面の内側（道場の級のカード）に置くときは `inset` を渡す。枠を
+ * 重ねると入れ子の箱が増えるため、枠を持たず区切り線だけで並べ、行の文字の
+ * 左端をカードの本文とそろえる。
+ */
+export function LinkRowList({
+  children,
+  inset = false,
+}: {
+  readonly children: ReactNode;
+  /** 枠を持つ面の内側に置くとき true（枠を描かない） */
+  readonly inset?: boolean;
+}) {
   const items = Array.isArray(children) ? children.flat() : [children];
   const rows = items.filter(Boolean);
   return (
-    <View>
-      {rows.map((child, i) => (
-        <View key={i}>
-          {child}
-          {i < rows.length - 1 && <DashedDivider />}
-        </View>
-      ))}
-    </View>
+    <LinkRowFramedContext.Provider value={!inset}>
+      <View style={inset ? undefined : panelFrame}>
+        {rows.map((child, i) => (
+          <View key={i}>
+            {child}
+            {i < rows.length - 1 && <Divider tone={inset ? "panel" : "row"} />}
+          </View>
+        ))}
+      </View>
+    </LinkRowFramedContext.Provider>
   );
 }
 
@@ -73,6 +105,12 @@ const styles = StyleSheet.create({
     paddingHorizontal: 8,
     marginHorizontal: -8,
     borderRadius: 14,
+  },
+  rowFramed: {
+    paddingVertical: 14,
+    paddingHorizontal: 16,
+    marginHorizontal: 0,
+    borderRadius: 0,
   },
   pressed: {
     backgroundColor: colors.surface50,

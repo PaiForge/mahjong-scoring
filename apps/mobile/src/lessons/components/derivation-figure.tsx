@@ -4,7 +4,7 @@ import { useTranslations } from "use-intl";
 import type { TsumoPayment } from "@mahjong-scoring/core";
 import { deriveKoTsumoFromRon } from "@mahjong-scoring/features/curriculum/ko-tsumo-halving";
 
-import { DashedDivider } from "../../components/dashed-divider";
+import { Divider } from "../../components/divider";
 import { ArrowDownIcon } from "../../components/icons/icons";
 import { colors, radius } from "../../lib/theme";
 import { lessonColors } from "../lesson-colors";
@@ -90,7 +90,7 @@ function DerivationResult({
 }) {
   return (
     <View style={styles.resultBlock}>
-      <DashedDivider />
+      <Divider />
       <View style={styles.result}>
         <Text style={styles.stepLabel}>{label}</Text>
         <TsumoScore payment={payment} color={colors.surface900} />
@@ -175,9 +175,9 @@ export function OyaAllDiagram({
 const styles = StyleSheet.create({
   figure: {
     gap: 12,
-    borderWidth: 3,
-    borderColor: colors.ink,
-    borderRadius: radius.xl,
+    borderWidth: 1,
+    borderColor: colors.panel,
+    borderRadius: radius.panel,
     backgroundColor: colors.white,
     padding: 20,
   },

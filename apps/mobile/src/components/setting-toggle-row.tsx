@@ -1,13 +1,14 @@
 import { Children, Fragment, useEffect, useState, type ReactNode } from "react";
 import { Animated, Pressable, StyleSheet, Text, View } from "react-native";
 
-import { colors, radius } from "../lib/theme";
+import { panelFrame } from "../lib/panel-styles";
+import { colors } from "../lib/theme";
 import { ChevronRightIcon } from "./icons/icons";
 
 /**
  * 設定項目を並べるカード（web の `SettingsCard`）
  *
- * 太枠の白いカードに項目を縦に積み、項目の間を淡い実線で区切る。
+ * 細枠の白いカードに項目を縦に積み、項目の間を淡い実線で区切る。
  * 押せる面ではないので影は持たない。
  */
 export function SettingsCard({ children }: { readonly children: ReactNode }) {
@@ -158,15 +159,9 @@ export function SettingLinkRow({
 }
 
 const styles = StyleSheet.create({
-  card: {
-    borderWidth: 3,
-    borderColor: colors.ink,
-    borderRadius: radius.lg,
-    backgroundColor: colors.white,
-    overflow: "hidden",
-  },
+  card: panelFrame,
   divider: {
-    height: 2,
+    height: 1,
     backgroundColor: colors.surface100,
   },
   row: {

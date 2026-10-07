@@ -1,8 +1,9 @@
 import { useState, type ReactNode } from "react";
 import { Pressable, StyleSheet, View } from "react-native";
 
-import { colors, radius } from "../lib/theme";
-import { DashedDivider } from "./dashed-divider";
+import { panelFrame } from "../lib/panel-styles";
+import { colors } from "../lib/theme";
+import { Divider } from "./divider";
 import { ChevronRightIcon } from "./icons/icons";
 
 interface AccordionCardProps {
@@ -46,7 +47,7 @@ export function AccordionCard({
       </Pressable>
       {isOpen && (
         <View style={styles.body}>
-          <DashedDivider thickness={2} />
+          <Divider />
           <View style={styles.bodyInner}>{children}</View>
         </View>
       )}
@@ -55,13 +56,7 @@ export function AccordionCard({
 }
 
 const styles = StyleSheet.create({
-  card: {
-    overflow: "hidden",
-    borderRadius: radius.lg,
-    borderWidth: 3,
-    borderColor: colors.ink,
-    backgroundColor: colors.white,
-  },
+  card: panelFrame,
   header: {
     flexDirection: "row",
     alignItems: "center",

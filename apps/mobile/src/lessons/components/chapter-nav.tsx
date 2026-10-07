@@ -11,7 +11,7 @@ import {
 import { formatPublishedDate } from "@mahjong-scoring/features/curriculum/published-date";
 import { chapterHref } from "@mahjong-scoring/features/routes";
 
-import { DashedDivider } from "../../components/dashed-divider";
+import { Divider } from "../../components/divider";
 import {
   ChevronLeftIcon,
   ChevronRightIcon,
@@ -84,7 +84,7 @@ export function ChapterNav({ slug }: { readonly slug: CurriculumChapterSlug }) {
     <View style={styles.footer}>
       {(prevPorted || nextPorted) && (
         <>
-          <DashedDivider />
+          <Divider />
           <View accessibilityLabel={t("chapterNavLabel")} style={styles.nav}>
             {prevPorted && (
               <ChapterNavLink chapter={prevPorted} direction="prev" />
