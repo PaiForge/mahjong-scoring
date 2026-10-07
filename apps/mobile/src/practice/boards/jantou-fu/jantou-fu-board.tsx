@@ -1,7 +1,7 @@
+import { Hai } from "@pai-forge/mahjong-react-ui";
 import { StyleSheet, Text, View } from "react-native";
 import { useTranslations } from "use-intl";
 import { Grid } from "../../../components/grid";
-import { Tile } from "../../../components/tile";
 import { getKazeName } from "@mahjong-scoring/core";
 import type { Kazehai } from "@mahjong-scoring/core";
 import type { JantouFuQuestionResult } from "@mahjong-scoring/features/practice/jantou-fu/types";
@@ -84,7 +84,7 @@ export function JantouFuBoard({
               isCorrect: choice.isCorrect,
             })}
           >
-            <Tile hai={choice.hai} size="md" />
+            <Hai hai={choice.hai} size="md" />
           </ChoiceButton>
         ))}
       </Grid>

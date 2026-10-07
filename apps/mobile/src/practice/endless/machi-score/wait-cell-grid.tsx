@@ -1,3 +1,4 @@
+import { Hai } from "@pai-forge/mahjong-react-ui";
 import { Fragment, type ReactNode } from "react";
 import {
   Pressable,
@@ -22,7 +23,6 @@ import {
 } from "@mahjong-scoring/features/practice/machi-score/wait-cell-runs";
 
 import { PressableSurface } from "../../../components/pressable-surface";
-import { Tile } from "../../../components/tile";
 import { colors, radius, shadowOffset } from "../../../lib/theme";
 
 /** マス 1 つの高さ（px）。回答の文字が 3 行まで収まる高さ */
@@ -240,7 +240,7 @@ export function WaitCellGrid({
         <View style={styles.cells}>
           {question.waits.map((wait) => (
             <View key={wait.agariHai} style={styles.waitCell}>
-              <Tile hai={wait.agariHai} size="sm" />
+              <Hai hai={wait.agariHai} size="sm" />
             </View>
           ))}
         </View>

@@ -133,9 +133,10 @@ packages/features / core を共有し、アプリ側は画面と RN の部品だ
   （1px の `colors.panel` + `radius.panel`。web の `rounded-panel border border-panel`）を使い、太枠
   （`borderWidth.regular` + `colors.ink`）は押せる面・回答欄・ダイアログに残す。段級位のカードは
   `beltCardFrame()`（細枠 + 上端の帯色の帯）、小さな印は `Chip`、区切りは `Divider`（破線は使わない）
-- **牌は `Tile` / `FuroTiles` を使う。** `@pai-forge/mahjong-react-ui` の `Hai` は `onClick` が
-  無くても常に `Pressable` で包まれ、選択肢ボタンの中に置くと牌がタップを奪う。`Furo` /
-  `HaiBack` / `Tehai` は `div` と Tailwind のクラスで描く web 専用の実装で、ネイティブでは描けない
+- **牌は `Hai` / `FuroTiles` を使う。** `@pai-forge/mahjong-react-ui` の `Furo` /
+  `HaiBack` / `Tehai` は `div` と Tailwind のクラスで描く web 専用の実装で、ネイティブでは描けない。
+  `Hai` は 0.5.0 から `onClick` が無ければ `View` で包まれ、ボタンの中に置いてもタップを奪わない
+  （0.4.0 までは常に `Pressable` で包まれ、ネイティブでは画像も描かれなかった）
 - **Expo SDK の推奨と違う版を 3 つ意図して使う**（`package.json` の `expo.install.exclude`）。
   `npx expo install --fix` で戻さないこと
   - `react` / `react-dom` — ワークスペース全体と同じ版にそろえる。packages/features も devDependency で

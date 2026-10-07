@@ -1,3 +1,4 @@
+import { Hai } from "@pai-forge/mahjong-react-ui";
 import { memo } from "react";
 import { StyleSheet, View } from "react-native";
 import { useTranslations } from "use-intl";
@@ -11,7 +12,6 @@ import { MACHI_PICKER_ROWS } from "@mahjong-scoring/features/practice/machi-scor
 
 import { Grid } from "../../../components/grid";
 import { PressableSurface } from "../../../components/pressable-surface";
-import { Tile } from "../../../components/tile";
 import { colors, radius } from "../../../lib/theme";
 import { MACHI_TILE_MARK_STYLES } from "./machi-tile-mark-styles";
 
@@ -65,7 +65,7 @@ export const MachiPicker = memo(function MachiPickerComponent({
                   testID={`machi-tile-${hai}`}
                   style={[styles.tile, tileStyle(isSelected, mark, judged)]}
                 >
-                  <Tile hai={hai} size="xs" />
+                  <Hai hai={hai} size="xs" />
                 </PressableSurface>
               );
             })}

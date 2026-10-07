@@ -1,6 +1,6 @@
+import { Hai } from "@pai-forge/mahjong-react-ui";
 import { StyleSheet, Text, View } from "react-native";
 import { useTranslations } from "use-intl";
-import { Tile } from "../../../components/tile";
 import { getKazeName, parseHais, parseKazehai } from "@mahjong-scoring/core";
 import type { HaiKindId } from "@mahjong-scoring/core";
 import type { JantouFuQuestionResult } from "@mahjong-scoring/features/practice/jantou-fu/types";
@@ -20,7 +20,7 @@ export function JantouFuProblemList({
 
   const haiWithFu = (hai: HaiKindId | undefined, fu: number) => (
     <View style={styles.haiWithFu}>
-      {hai !== undefined && <Tile hai={hai} size="sm" />}
+      {hai !== undefined && <Hai hai={hai} size="sm" />}
       <Text style={styles.fu}>{t("fu", { value: fu })}</Text>
     </View>
   );
