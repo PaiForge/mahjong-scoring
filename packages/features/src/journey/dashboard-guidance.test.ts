@@ -1,13 +1,10 @@
 import { describe, expect, it } from "vitest";
 
-import { CURRICULUM_CHAPTER_SLUGS } from "@mahjong-scoring/features/curriculum/registry";
-import type { PracticeAttempt } from "@mahjong-scoring/features/journey/journey";
-import {
-  RANK_SLUGS,
-  type RankSlug,
-} from "@mahjong-scoring/features/ranks/registry";
+import { CURRICULUM_CHAPTER_SLUGS } from "../curriculum/registry";
+import type { PracticeAttempt } from "./journey";
+import { RANK_SLUGS, type RankSlug } from "../ranks/registry";
 
-import { selectDashboardGuidance } from "../guidance";
+import { selectDashboardGuidance } from "./dashboard-guidance";
 
 const NONE: ReadonlySet<string> = new Set();
 const NO_ATTEMPTS: readonly PracticeAttempt[] = [];

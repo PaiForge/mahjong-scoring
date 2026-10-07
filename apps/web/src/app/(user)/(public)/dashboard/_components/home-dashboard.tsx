@@ -3,10 +3,10 @@ import { getTranslations } from "next-intl/server";
 import { fetchCompletedLessonSlugs } from "@/app/(user)/(public)/lessons/_lib/lesson-progress";
 import { ContentContainer } from "@/app/(user)/_components/content-container";
 import { PageTitle } from "@/app/(user)/_components/page-title";
+import { selectDashboardGuidance } from "@mahjong-scoring/features/journey/dashboard-guidance";
 
 import { fetchAchievedRankSlugs } from "../_lib/achieved-ranks";
 import { fetchAttemptedPractices } from "../_lib/attempted-practices";
-import { selectDashboardGuidance } from "../_lib/guidance";
 import { ComprehensivePracticeSection } from "./comprehensive-practice-section";
 import { ContinueLearningSection } from "./continue-learning-section";
 import { HomeAnnouncements } from "./home-announcements";
