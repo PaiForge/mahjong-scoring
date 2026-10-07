@@ -30,7 +30,7 @@ export function LeaderboardDetailSkeleton() {
           （枠 1px × 2 + 内側の余白 2px × 2 + 選択肢 24px） */}
       <div className="flex items-center justify-between gap-4">
         <SkeletonBar className="h-5 w-12" tone={100} />
-        <SkeletonBar radius="lg" className="h-[30px] w-28" tone={100} />
+        <SkeletonBar radius="md" className="h-[30px] w-28" tone={100} />
       </div>
 
       <LeaderboardTableSkeleton />
