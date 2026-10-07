@@ -25,7 +25,7 @@
     "reset": "毎日 0:00（日本時間）に回復します",
     "signIn": "ログインすると1日 {limit} 問まで無料",
     "unlimited": "回数制限なしで練習できます",
-    "proUnlimited": "Pro · 回数無制限",
-    "plan": "Proなら回数無制限"
+    "proUnlimited": "回数無制限で練習できます",
+    "plan": "<badge></badge><text>なら回数無制限</text>"
   }
 }

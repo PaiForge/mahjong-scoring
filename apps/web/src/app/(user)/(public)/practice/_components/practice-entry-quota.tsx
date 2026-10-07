@@ -11,7 +11,14 @@ import {
   PRACTICE_QUOTA_LIMITS,
   type QuotaMenu,
 } from "@mahjong-scoring/features/quota/limits";
-import { TEXT_LINK_CLASSES } from "@/app/_components/_lib/link-classes";
+import {
+  FOCUS_RING_CLASSES,
+  ROW_LINK_TITLE_CLASSES,
+  TEXT_LINK_CLASSES,
+} from "@/app/_components/_lib/link-classes";
+import { ProBadge } from "@/app/(user)/_components/pro-badge";
+import { ChevronRightIcon } from "@/app/(user)/_components/icons/chevron-right-icon";
+import { InfinityIcon } from "@/app/(user)/_components/icons/infinity-icon";
 import {
   peekPracticeQuota,
   type BeginPracticeQuestionResult,
@@ -20,6 +27,8 @@ import {
 /** 出題枠を消費せず、入口で実際の残量と利用条件を案内する。 */
 export function PracticeEntryQuota({ menu }: { readonly menu: QuotaMenu }) {
   const t = useTranslations("practiceQuota.entry");
+  const tQuota = useTranslations("practiceQuota");
+  const badge = <ProBadge label={tQuota("proBadge")} />;
   const [quota, setQuota] = useState<BeginPracticeQuestionResult | null>();
   useEffect(() => {
     let active = true;
@@ -52,7 +61,9 @@ export function PracticeEntryQuota({ menu }: { readonly menu: QuotaMenu }) {
 
   return (
     <div
-      className="min-h-16 space-y-1 text-xs leading-relaxed text-surface-500"
+      // min-h は読み込み中から結果へ切り替わるときの高さの跳ねを抑えるため。
+      // 中身が低い状態（Pro の帯）でも上下の余白が揃うよう縦に中央へ寄せる
+      className="flex min-h-16 flex-col justify-center space-y-1 text-xs leading-relaxed text-surface-500"
       aria-live="polite"
     >
       {quota === undefined ? (
@@ -60,13 +71,17 @@ export function PracticeEntryQuota({ menu }: { readonly menu: QuotaMenu }) {
       ) : quota === null ? (
         <p>{t("unavailable")}</p>
       ) : quota.remaining === "unlimited" ? (
-        <p className="font-bold text-primary-700">
-          {t(
-            quota.benefits.includes(PlanBenefit.UnlimitedPractice)
-              ? "proUnlimited"
-              : "unlimited",
-          )}
-        </p>
+        quota.benefits.includes(PlanBenefit.UnlimitedPractice) ? (
+          <div className="flex items-center gap-2 rounded-lg bg-podium-gold px-3 py-2">
+            <ProBadge label={tQuota("proBadge")} onGold />
+            <p className="flex items-center gap-1 text-sm font-bold text-surface-900">
+              <InfinityIcon className="size-4" />
+              {t("proUnlimited")}
+            </p>
+          </div>
+        ) : (
+          <p className="font-bold text-primary-700">{t("unlimited")}</p>
+        )
       ) : (
         <>
           <p className="font-bold text-surface-900">
@@ -85,9 +100,19 @@ export function PracticeEntryQuota({ menu }: { readonly menu: QuotaMenu }) {
               </Link>
             </p>
           )}
-          <p>
-            <Link href={PLAN_PAGE_HREF} className={TEXT_LINK_CLASSES}>
-              {t("plan")}
+          <p className="pt-1">
+            {/* 下線は文字にだけ引く。リンク全体に引くとバッジまで下線が掛かる */}
+            <Link
+              href={PLAN_PAGE_HREF}
+              className={`group inline-flex items-center gap-1.5 rounded-xs ${FOCUS_RING_CLASSES}`}
+            >
+              {t.rich("plan", {
+                badge: () => badge,
+                text: (chunks) => (
+                  <span className={ROW_LINK_TITLE_CLASSES}>{chunks}</span>
+                ),
+              })}
+              <ChevronRightIcon className="size-3.5 text-surface-400 group-hover:text-foreground" />
             </Link>
           </p>
         </>
