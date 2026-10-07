@@ -7,7 +7,7 @@ import { useFuHanOrder } from "@/app/_hooks/use-display-settings-store";
 import { orderFuHan } from "@mahjong-scoring/features/settings/fu-han-order";
 import { QuestionPrompt } from "../../_components/question-prompt";
 import { RevealedScoreAnswer } from "../../_components/revealed-score-answer";
-import { scoreTableFocusOf } from "../../_lib/score-table-focus";
+import { scoreTableFocusOf } from "@mahjong-scoring/features/score-table/focus";
 
 interface ScoreTablePromptProps {
   readonly isOya: boolean;
