@@ -109,7 +109,7 @@ export function DashboardSkeleton() {
           「ボタン → 補助リンク」の境界で、補助リンクは text-sm の <p> 1 行ぶん
           24px（result-page-skeleton と同じ実測値） */}
       <div
-        className={`flex flex-col ${SUB_LINK_GAP} border-t-2 border-dashed border-border/40 pt-4`}
+        className={`flex flex-col ${SUB_LINK_GAP} border-t border-panel pt-4`}
       >
         <PracticeLinkButtonSkeleton />
         <SkeletonBar className="mx-auto h-6 w-24" />

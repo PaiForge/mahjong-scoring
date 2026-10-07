@@ -94,7 +94,7 @@ export async function RankJourneyCard({
       )}
 
       {expanded && (
-        <div className="mt-5 space-y-6 border-t-2 border-dashed border-border/40 pt-5">
+        <div className="mt-5 space-y-6 border-t border-panel pt-5">
           {chapters.length > 0 && (
             <section className="space-y-3">
               <h4 className="text-sm font-bold text-surface-900">

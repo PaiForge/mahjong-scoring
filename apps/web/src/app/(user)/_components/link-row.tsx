@@ -11,15 +11,14 @@ import { SkeletonBar } from "@/app/_components/skeleton-bar";
  * 行リンクのリスト枠
  * 行リンクリスト
  *
- * 枠も影も持たない。区切りは各行の破線だけ。
+ * 枠も影も持たない。区切りは各行の淡い実線だけ。
  */
 export function LinkRowList({ children }: { readonly children: ReactNode }) {
   return <ul className="flex flex-col">{children}</ul>;
 }
 
-/** 行の外枠（破線の区切り）。実物・スケルトン・広告の行（`NativeAdRow`）で共有する */
-export const ROW_ITEM_CLASSES =
-  "border-b border-dashed border-border/40 last:border-b-0";
+/** 行の外枠（淡い実線の区切り）。実物・スケルトン・広告の行（`NativeAdRow`）で共有する */
+export const ROW_ITEM_CLASSES = "border-b border-surface-200 last:border-b-0";
 
 /**
  * 行の中身の箱。実物・スケルトン・広告の行（`NativeAdRow`）で共有する。

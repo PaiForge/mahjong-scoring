@@ -73,7 +73,7 @@ function SortableYakuRow({
     <li
       ref={setNodeRef}
       style={{ transform: CSS.Transform.toString(transform), transition }}
-      className={`flex items-center gap-3 border-b-2 border-dashed border-border/40 bg-white px-4 py-3 last:border-0 ${
+      className={`flex items-center gap-3 border-b border-surface-100 bg-white px-4 py-3 last:border-0 ${
         isDragging ? "relative z-10 shadow-hard" : ""
       }`}
     >

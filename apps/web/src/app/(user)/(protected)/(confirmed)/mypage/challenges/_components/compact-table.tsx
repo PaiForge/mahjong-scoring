@@ -110,7 +110,7 @@ export function CompactTableRow({
   readonly children: ReactNode;
 }) {
   return (
-    <tr className="border-b-2 border-dashed border-border/40">{children}</tr>
+    <tr className="border-b-2 border-dashed border-surface-200">{children}</tr>
   );
 }
 

@@ -188,7 +188,7 @@ export function ScoreSetupForm({
               (key) => (
                 <div
                   key={key}
-                  className="flex items-center justify-between border-b-2 border-dashed border-border/40 px-5 py-3.5"
+                  className="flex items-center justify-between border-b border-surface-100 px-5 py-3.5"
                 >
                   <SkeletonBar className="h-4 w-32" tone={100} />
                   <SkeletonBar radius="full" className="h-6 w-11" tone={100} />

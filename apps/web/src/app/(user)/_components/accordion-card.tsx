@@ -27,7 +27,7 @@ interface AccordionCardProps {
  * 開閉式カード
  * アコーディオンカード
  *
- * 太枠カードのヘッダーを押すと本文を展開する。▶ の回転・破線区切り・本文の
+ * 太枠カードのヘッダーを押すと本文を展開する。▶ の回転・淡い区切り線・本文の
  * 薄い背景など「開閉するもの」の見た目をここに集約し、練習結果の問題一覧と
  * 役一覧の例示手牌で同じ操作感にする。本文は閉じている間は描画しない。
  *
@@ -104,7 +104,7 @@ export function AccordionCard({
       {isOpen && (
         <div
           id={panelId}
-          className="border-t-2 border-dashed border-border/40 bg-surface-50 px-3 pb-3 pt-3"
+          className="border-t border-panel bg-surface-50 px-3 pb-3 pt-3"
         >
           {children}
         </div>

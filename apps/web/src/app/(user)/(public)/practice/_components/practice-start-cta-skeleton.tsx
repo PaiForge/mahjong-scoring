@@ -24,7 +24,7 @@ export const START_BUTTON_HEIGHT_CLASS = "h-[50px]";
  * ストアが hydrate されるまでの間、{@link PracticeStartCta} と同じ寸法の枠を
  * 確保して CLS を防ぐ。並び・間隔は CTA と同じクラス定数を共有するため、
  * 導線の構成を変えてもスケルトンだけ取り残されることがない。
- * OR 区切りの破線は文字を持たないため実物（`PracticeStartCtaDivider`）を
+ * OR 区切りの線は文字を持たないため実物（`PracticeStartCtaDivider`）を
  * そのまま描画する。昇級試験の説明ページ（本番 / 模試）のスケルトンも
  * 同じ 3 ブロックなのでこれを使う。
  *

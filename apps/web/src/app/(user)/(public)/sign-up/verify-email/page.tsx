@@ -89,9 +89,9 @@ export default async function VerifyEmailPage({
         <ResendEmailButton email={email ?? ""} />
 
         <div className="mx-auto flex max-w-sm items-center gap-4">
-          <div className="flex-1 border-t-2 border-dashed border-border/40" />
+          <div className="flex-1 border-t border-panel" />
           <span className="text-sm text-surface-500">{tAuth("or")}</span>
-          <div className="flex-1 border-t-2 border-dashed border-border/40" />
+          <div className="flex-1 border-t border-panel" />
         </div>
 
         <div className="space-y-3">

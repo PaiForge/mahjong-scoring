@@ -51,7 +51,7 @@ export function SettingToggle({
     // 文字のコントラストは通常の行と同じに保つ
     return (
       <div
-        className={`bg-surface-50 px-5 py-3.5 ${isLast ? "" : "border-b-2 border-dashed border-border/40"}`}
+        className={`bg-surface-50 px-5 py-3.5 ${isLast ? "" : "border-b border-surface-100"}`}
       >
         <div className="flex items-center justify-between gap-3">
           <span className="text-sm font-medium text-surface-700">
@@ -76,7 +76,7 @@ export function SettingToggle({
 
   return (
     <div
-      className={`group flex items-center justify-between px-5 py-3.5 transition-colors hover:bg-surface-50 ${isLast ? "" : "border-b-2 border-dashed border-border/40"}`}
+      className={`group flex items-center justify-between px-5 py-3.5 transition-colors hover:bg-surface-50 ${isLast ? "" : "border-b border-surface-100"}`}
     >
       <span className="flex items-center gap-1.5">
         <label className="cursor-pointer select-none text-sm font-medium text-surface-700 group-hover:text-surface-900">

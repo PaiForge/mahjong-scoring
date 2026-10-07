@@ -75,9 +75,9 @@ export default async function MypageAccountPage() {
         </dl>
       </section>
 
-      {/* 退会への入口。本文から破線で切り離して最下部に置き、
+      {/* 退会への入口。本文から区切り線で切り離して最下部に置き、
           ログイン情報を見に来ただけの人の視線には入りにくくする。 */}
-      <div className="mt-10 border-t-2 border-dashed border-border/40 pt-6 text-center">
+      <div className="mt-10 border-t border-panel pt-6 text-center">
         <Link
           href="/mypage/account/delete"
           className={`text-sm ${TEXT_LINK_CLASSES}`}

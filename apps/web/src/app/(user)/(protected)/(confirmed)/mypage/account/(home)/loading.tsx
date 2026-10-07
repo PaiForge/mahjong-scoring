@@ -33,7 +33,7 @@ export default function Loading() {
       </section>
 
       {/* 退会リンク（実: mt-10 border-t pt-6 中央寄せ） */}
-      <div className="mt-10 flex justify-center border-t-2 border-dashed border-border/40 pt-6">
+      <div className="mt-10 flex justify-center border-t border-panel pt-6">
         <SkeletonBar className="h-4 w-32" />
       </div>
     </ContentContainer>

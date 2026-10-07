@@ -277,7 +277,7 @@ export function ChallengeDashboard({
           決まり、成績の取得を待つ必要が無いため */}
       {selectedBoard && (
         <div
-          className={`flex flex-col ${SUB_LINK_GAP} border-t-2 border-dashed border-border/40 pt-4`}
+          className={`flex flex-col ${SUB_LINK_GAP} border-t border-panel pt-4`}
         >
           <PracticeLinkButton
             href={practiceHref(

@@ -57,8 +57,8 @@ export default async function DeleteAccountPage() {
       </div>
 
       {/* 破壊的操作の直下に戻るリンクを並べると誤クリックしやすいため、
-          アカウントページの退会リンクと同じ破線で区切って離す。 */}
-      <div className="mt-10 border-t-2 border-dashed border-border/40 pt-6 text-center">
+          アカウントページの退会リンクと同じ区切り線で離す。 */}
+      <div className="mt-10 border-t border-panel pt-6 text-center">
         <Link
           href="/mypage/account"
           className={`text-sm font-medium ${TEXT_LINK_CLASSES}`}

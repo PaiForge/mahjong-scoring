@@ -96,7 +96,7 @@ export function HelpTourModal({
       {current !== undefined && (
         <>
           {/* Header */}
-          <div className="flex items-center justify-between border-b-2 border-dashed border-border/40 px-5 py-3">
+          <div className="flex items-center justify-between border-b border-panel px-5 py-3">
             <h3 className="text-base font-bold text-surface-900">{title}</h3>
             <button
               type="button"
@@ -128,7 +128,7 @@ export function HelpTourModal({
           </div>
 
           {/* Footer */}
-          <div className="flex items-center justify-between border-t-2 border-dashed border-border/40 px-5 py-3">
+          <div className="flex items-center justify-between border-t border-panel px-5 py-3">
             <button
               type="button"
               onClick={goPrev}

@@ -122,7 +122,7 @@ export function AuthNavItem() {
           href="/mypage"
           role="menuitem"
           onClick={() => setIsOpen(false)}
-          className="block border-b-2 border-dashed border-border/40 px-4 py-3 text-sm font-bold text-foreground transition-colors hover:bg-primary-50"
+          className="block border-b border-surface-100 px-4 py-3 text-sm font-bold text-foreground transition-colors hover:bg-primary-50"
         >
           {t("mypage")}
         </Link>
@@ -130,7 +130,7 @@ export function AuthNavItem() {
           href="/preferences"
           role="menuitem"
           onClick={() => setIsOpen(false)}
-          className="block border-b-2 border-dashed border-border/40 px-4 py-3 text-sm font-bold text-foreground transition-colors hover:bg-primary-50"
+          className="block border-b border-surface-100 px-4 py-3 text-sm font-bold text-foreground transition-colors hover:bg-primary-50"
         >
           {t("settings")}
         </Link>
