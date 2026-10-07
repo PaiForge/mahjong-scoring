@@ -217,7 +217,10 @@ export function LessonView({
     return (
       <View style={styles.quiz}>
         <View style={styles.quizHeader}>
-          <SectionTitle>{t("quizTitle")}</SectionTitle>
+          {/* 見出しが残りの幅を取らないと、右へ伸びる横線が最小幅に潰れる */}
+          <View style={styles.quizTitle}>
+            <SectionTitle>{t("quizTitle")}</SectionTitle>
+          </View>
           <Text style={styles.progress}>
             {t("progress", { index: index + 1, total: questions.length })}
           </Text>
@@ -392,7 +395,11 @@ const styles = StyleSheet.create({
   quizHeader: {
     flexDirection: "row",
     alignItems: "center",
-    justifyContent: "space-between",
+    gap: 12,
+  },
+  quizTitle: {
+    flex: 1,
+    minWidth: 0,
   },
   progress: {
     fontSize: 14,
