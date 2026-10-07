@@ -9,10 +9,10 @@
 
 ## コーディング規約
 
-`docs/` submodule（[PaiForge/docs](https://github.com/PaiForge/docs)）で一元管理。新しいセッション開始時は以下を読み込むこと:
+新しいセッション開始時は以下を読み込むこと:
 
-- `docs/coding-standards.md`
-- `docs/extended-mspz.md`
+- `docs/coding-standards.md` — `docs/` submodule（[PaiForge/docs](https://github.com/PaiForge/docs)）で一元管理
+- Extended MPSZ（牌の表記法）の仕様 — https://raw.githubusercontent.com/PaiForge/extended-mpsz/refs/heads/main/SPEC.md
 
 ## SPEC ファイルは足場であり成果物ではない
 

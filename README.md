@@ -80,7 +80,8 @@ pnpm --filter @mahjong-scoring/mobile web     # ブラウザで確認（画面�
 コーディング規約は `docs/` submodule で一元管理されています。
 
 - [coding-standards.md](https://github.com/PaiForge/docs/blob/main/coding-standards.md)（ローカルでは `docs/coding-standards.md`）
-- [extended-mspz.md](https://github.com/PaiForge/docs/blob/main/extended-mspz.md)（ローカルでは `docs/extended-mspz.md`）
+
+牌の表記法 Extended MPSZ の仕様は [PaiForge/extended-mpsz](https://github.com/PaiForge/extended-mpsz) にあります（本文: https://raw.githubusercontent.com/PaiForge/extended-mpsz/refs/heads/main/SPEC.md）。
 
 submodule を最新に更新するには:
 

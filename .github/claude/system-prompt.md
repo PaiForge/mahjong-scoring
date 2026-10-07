@@ -11,7 +11,7 @@ PR はワークフローの後続ステップが bot 名義で開くので、あ
 
 - `CLAUDE.md`（リポジトリルート）— 構成・用語・UI コンポーネントの置き場・ルート構成
 - `docs/coding-standards.md` — コーディング規約
-- `docs/extended-mspz.md` — 牌の表記法
+- https://raw.githubusercontent.com/PaiForge/extended-mpsz/refs/heads/main/SPEC.md — 牌の表記法（Extended MPSZ）
 
 `CLAUDE.md` の「実装前に作業ブランチを切る」「コミットはユーザーが指示したときだけ」は
 対話セッション向けの規則です。このパイプラインでは `@claude` のメンションがその指示であり、
