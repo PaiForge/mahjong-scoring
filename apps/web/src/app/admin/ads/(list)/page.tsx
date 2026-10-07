@@ -33,6 +33,8 @@ import {
   getAllAdCreatives,
   getAmazonTrackingId,
 } from "../_lib/queries";
+import { adminChipClasses } from "../../_lib/chip-classes";
+import { adminButtonClasses } from "../../_lib/button-classes";
 
 export const dynamic = "force-dynamic";
 
@@ -112,7 +114,7 @@ export default async function AdminAdsPage() {
               </div>
               <Link
                 href={`/admin/ads/new?slot=${encodeURIComponent(slot)}`}
-                className="rounded bg-primary-600 px-3 py-1.5 text-sm font-medium text-white transition-colors hover:bg-primary-700"
+                className={adminButtonClasses()}
               >
                 {t("new")}
               </Link>
@@ -124,7 +126,7 @@ export default async function AdminAdsPage() {
               <div className="admin-table">
                 <table className="w-full text-left text-sm">
                   <thead>
-                    <tr className="border-b border-surface-100 text-xs text-surface-500">
+                    <tr className="border-b border-surface-200 text-xs text-surface-500">
                       <th className="px-4 py-2 font-medium whitespace-nowrap">
                         {t("order")}
                       </th>
@@ -141,7 +143,7 @@ export default async function AdminAdsPage() {
                   </thead>
                   <tbody>
                     {inSlot.map(({ row, copy }, index) => (
-                      <tr key={row.id} className="border-t border-surface-100">
+                      <tr key={row.id} className="border-t border-surface-200">
                         <td className="px-4 py-3 text-surface-500">
                           {index + 1}
                         </td>
@@ -156,18 +158,18 @@ export default async function AdminAdsPage() {
                         </td>
                         <td className="px-4 py-3 whitespace-nowrap">
                           <span
-                            className={`rounded px-2 py-0.5 text-xs font-semibold ${
-                              row.isActive
-                                ? "bg-primary-100 text-primary-700"
-                                : "bg-surface-100 text-surface-500"
-                            }`}
+                            className={adminChipClasses(
+                              row.isActive ? "success" : "neutral",
+                            )}
                           >
                             {row.isActive
                               ? t("statusActive")
                               : t("statusInactive")}
                           </span>
                           {displayedIds.has(row.id) && (
-                            <span className="ml-2 text-xs font-semibold text-amber-700">
+                            <span
+                              className={`ml-2 ${adminChipClasses("warning")}`}
+                            >
                               {t("displayed")}
                             </span>
                           )}

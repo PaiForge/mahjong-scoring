@@ -6,6 +6,7 @@ import { TEXT_LINK_CLASSES } from "@/app/_components/_lib/link-classes";
 import { MaskedEmail } from "@/app/admin/_components/masked-email";
 import { AdminPageTitle } from "@/app/admin/_components/admin-page-title";
 import { requireAdminPage } from "@/app/admin/_lib/auth";
+import { adminChipClasses } from "@/app/admin/_lib/chip-classes";
 import {
   formatAdminDate,
   formatAdminDateTime,
@@ -114,7 +115,11 @@ export default async function AdminUserDetailPage({
           {profile?.username ?? authUser.email ?? authUser.id}
         </AdminPageTitle>
         <StatusBadge status={status} />
-        <span className="inline-block rounded-md bg-gray-100 px-2 py-0.5 text-xs font-medium whitespace-nowrap text-gray-700">
+        <span
+          className={adminChipClasses(
+            plan.kind === "free" ? "neutral" : "success",
+          )}
+        >
           {planLabel(plan)}
         </span>
       </div>
@@ -194,7 +199,7 @@ export default async function AdminUserDetailPage({
             </InfoRow>
           </dl>
           {detail.ranks.length > 0 && (
-            <ul className="space-y-1 border-t border-gray-100 pt-2 text-sm">
+            <ul className="space-y-1 border-t border-surface-100 pt-2 text-sm">
               {detail.ranks.map((rank) => (
                 <li key={rank.rankSlug} className="flex justify-between gap-4">
                   <span>
@@ -202,7 +207,7 @@ export default async function AdminUserDetailPage({
                       ? tRanks(rank.rankSlug)
                       : rank.rankSlug}
                   </span>
-                  <span className="text-gray-500">
+                  <span className="text-surface-500">
                     {formatAdminDate(rank.grantedAt)}
                   </span>
                 </li>
@@ -225,7 +230,7 @@ export default async function AdminUserDetailPage({
           emptyLabel={t("purchases.empty")}
         >
           {detail.purchases.map((purchase) => (
-            <tr key={purchase.id} className="border-t border-gray-200">
+            <tr key={purchase.id} className="border-t border-surface-200">
               <td className="px-3 py-2 whitespace-nowrap">
                 {formatAdminDate(purchase.createdAt)}
               </td>
@@ -237,7 +242,7 @@ export default async function AdminUserDetailPage({
               <td className="px-3 py-2 whitespace-nowrap tabular-nums">
                 {formatAmount(purchase.amount, purchase.currency)}
               </td>
-              <td className="px-3 py-2 whitespace-nowrap text-gray-500">
+              <td className="px-3 py-2 whitespace-nowrap text-surface-500">
                 {formatAdminDate(purchase.startsAt)}
                 {" 〜 "}
                 {purchase.expiresAt
@@ -267,8 +272,8 @@ export default async function AdminUserDetailPage({
           {detail.grants.map((grant) => {
             const state = benefitGrantStateOf(grant, now);
             return (
-              <tr key={grant.id} className="border-t border-gray-200">
-                <td className="px-3 py-2 whitespace-nowrap text-gray-500">
+              <tr key={grant.id} className="border-t border-surface-200">
+                <td className="px-3 py-2 whitespace-nowrap text-surface-500">
                   {formatAdminDate(grant.startsAt)}
                   {" 〜 "}
                   {grant.expiresAt
@@ -278,14 +283,14 @@ export default async function AdminUserDetailPage({
                 <td className="px-3 py-2">
                   {grant.reason}
                   {grant.revokeReason && (
-                    <span className="mt-1 block text-xs text-gray-500">
+                    <span className="mt-1 block text-xs text-surface-500">
                       {tGrants("table.revokedReason", {
                         reason: grant.revokeReason,
                       })}
                     </span>
                   )}
                 </td>
-                <td className="px-3 py-2 text-gray-500">
+                <td className="px-3 py-2 text-surface-500">
                   {actorDisplay(grant.grantedBy, detail.actorProfileMap)}
                 </td>
                 <td className="px-3 py-2 whitespace-nowrap">
@@ -314,15 +319,18 @@ export default async function AdminUserDetailPage({
           emptyLabel={t("moderation.empty")}
         >
           {detail.moderationEntries.map((entry) => (
-            <tr key={entry.id} className="border-t border-gray-200 align-top">
+            <tr
+              key={entry.id}
+              className="border-t border-surface-200 align-top"
+            >
               <td className="px-3 py-2 font-medium whitespace-nowrap">
                 {entry.action}
               </td>
               <td className="px-3 py-2">{entry.reason ?? "-"}</td>
-              <td className="px-3 py-2 text-gray-500">
+              <td className="px-3 py-2 text-surface-500">
                 {actorDisplay(entry.actorId, detail.actorProfileMap)}
               </td>
-              <td className="px-3 py-2 whitespace-nowrap text-gray-500">
+              <td className="px-3 py-2 whitespace-nowrap text-surface-500">
                 {formatAdminDateTime(entry.createdAt)}
               </td>
             </tr>

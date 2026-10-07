@@ -1,7 +1,7 @@
 import { getTranslations } from "next-intl/server";
 import { createSearchParamsCache, parseAsInteger } from "nuqs/server";
 
-import { PaginationNav } from "@/app/(user)/_components/pagination-nav";
+import { AdminPaginationNav } from "@/app/admin/_components/admin-pagination-nav";
 import { AdminPageTitle } from "@/app/admin/_components/admin-page-title";
 import { TableEmptyRow } from "@/app/admin/_components/table-empty-row";
 import { requireAdminPage } from "@/app/admin/_lib/auth";
@@ -59,7 +59,7 @@ export default async function AdminBenefitGrantsPage({
       <div className="admin-table">
         <table className="w-full text-left text-sm">
           <thead>
-            <tr className="border-b border-gray-200">
+            <tr className="border-b border-surface-200">
               {COLUMN_KEYS.map((key) => (
                 <th
                   key={key}
@@ -91,7 +91,7 @@ export default async function AdminBenefitGrantsPage({
         </table>
       </div>
 
-      <PaginationNav
+      <AdminPaginationNav
         currentPage={currentPage}
         totalPages={totalPages}
         buildHref={buildHref}

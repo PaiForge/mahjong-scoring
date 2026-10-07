@@ -20,7 +20,7 @@ export function TableSkeleton({
     <div className="admin-table" aria-hidden="true">
       <table className="w-full text-left text-sm">
         <thead>
-          <tr className="border-b border-gray-200">
+          <tr className="border-b border-surface-200">
             {Array.from({ length: columns }, (_, i) => (
               <th key={i} className={compact ? "px-4 py-2" : "px-4 py-3"}>
                 <SkeletonBar className={compact ? "h-4 w-16" : "h-5 w-16"} />
@@ -30,7 +30,7 @@ export function TableSkeleton({
         </thead>
         <tbody>
           {Array.from({ length: rows }, (_, i) => (
-            <tr key={i} className="border-t border-gray-200">
+            <tr key={i} className="border-t border-surface-200">
               {Array.from({ length: columns }, (__, j) => (
                 <td key={j} className="px-4 py-3">
                   <SkeletonBar className="h-5 w-24" />

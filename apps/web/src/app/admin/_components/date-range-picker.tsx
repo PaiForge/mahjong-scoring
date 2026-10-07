@@ -3,6 +3,7 @@
 import { parseAsString, useQueryStates } from "nuqs";
 
 import { daysAgo, today } from "@/app/admin/_lib/dashboard/date-utils";
+import { ADMIN_INPUT_CLASSES } from "../_lib/input-classes";
 
 interface DateRangePickerProps {
   readonly startDate: string;
@@ -10,6 +11,7 @@ interface DateRangePickerProps {
   readonly labels: {
     readonly from: string;
     readonly to: string;
+    readonly presets: string;
     readonly past7days: string;
     readonly past28days: string;
     readonly past90days: string;
@@ -55,7 +57,7 @@ export function DateRangePicker({
           value={startDate}
           max={endDate}
           onChange={(e) => setParams({ from: e.target.value })}
-          className="h-9 w-40 rounded border border-surface-200 bg-white px-3 py-1.5 text-sm"
+          className={`w-40 ${ADMIN_INPUT_CLASSES}`}
         />
       </div>
       <div className="flex items-center gap-2">
@@ -69,10 +71,14 @@ export function DateRangePicker({
           min={startDate}
           max={today(now)}
           onChange={(e) => setParams({ to: e.target.value })}
-          className="h-9 w-40 rounded border border-surface-200 bg-white px-3 py-1.5 text-sm"
+          className={`w-40 ${ADMIN_INPUT_CLASSES}`}
         />
       </div>
-      <div className="flex gap-1.5">
+      <div
+        role="group"
+        aria-label={labels.presets}
+        className="flex rounded-lg border border-surface-300 bg-white p-0.5"
+      >
         {presets.map((preset) => {
           const presetFrom = daysAgo(preset.days, now);
           const presetTo = today(now);
@@ -84,10 +90,10 @@ export function DateRangePicker({
               type="button"
               onClick={() => setParams({ from: presetFrom, to: presetTo })}
               aria-pressed={isActive}
-              className={`h-8 w-20 rounded border px-3 py-1.5 text-xs transition-colors ${
+              className={`h-8 w-20 rounded-md text-xs font-medium transition-colors ${
                 isActive
-                  ? "border-primary-600 bg-primary-600 text-white"
-                  : "border-surface-200 bg-surface-100 text-surface-700 hover:bg-surface-200"
+                  ? "bg-primary-600 text-white"
+                  : "text-surface-500 hover:bg-surface-100 hover:text-surface-900"
               }`}
             >
               {preset.label}

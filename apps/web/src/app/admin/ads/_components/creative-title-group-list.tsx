@@ -9,6 +9,9 @@ import { setAdCreativeActiveByTitle } from "../_actions/set-ad-creative-active-b
 import { setAdCreativeHrefByTitle } from "../_actions/set-ad-creative-href-by-title";
 import type { CreativeTitleGroup } from "../_lib/title-groups";
 import { AD_CREATIVE_LIMITS } from "../_lib/validation";
+import { adminChipClasses } from "../../_lib/chip-classes";
+import { adminButtonClasses } from "../../_lib/button-classes";
+import { ADMIN_INPUT_CLASSES } from "../../_lib/input-classes";
 
 interface Props {
   readonly groups: readonly CreativeTitleGroup[];
@@ -74,7 +77,7 @@ function CreativeTitleGroupRow({
       <div className="flex flex-wrap items-center gap-2">
         <span className="font-medium text-surface-900">{group.title}</span>
         {group.hrefs.length > 1 && (
-          <span className="rounded bg-amber-100 px-2 py-0.5 text-xs font-medium text-amber-800">
+          <span className={adminChipClasses("warning")}>
             {t("links.mixed", { count: group.hrefs.length })}
           </span>
         )}
@@ -107,12 +110,12 @@ function CreativeTitleGroupRow({
             aria-label={t("href")}
             placeholder="https://"
             maxLength={AD_CREATIVE_LIMITS.href}
-            className="min-w-60 flex-1 rounded border border-surface-300 bg-white px-3 py-2 text-sm text-surface-900 focus:border-primary-500 focus:outline-none"
+            className={`min-w-60 flex-1 ${ADMIN_INPUT_CLASSES}`}
           />
           <button
             type="submit"
             disabled={isPending || href.trim() === ""}
-            className="rounded bg-primary-600 px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-primary-700 disabled:bg-surface-300 disabled:text-surface-500"
+            className={adminButtonClasses()}
           >
             {t("links.apply", { count: group.hrefCount })}
           </button>
@@ -125,7 +128,7 @@ function CreativeTitleGroupRow({
           onClick={() =>
             run(() => setAdCreativeActiveByTitle(group.title, true))
           }
-          className="rounded border border-surface-300 px-4 py-1.5 text-sm font-medium text-surface-700 transition-colors hover:bg-surface-100 disabled:opacity-40"
+          className={adminButtonClasses({ variant: "secondary" })}
         >
           {t("links.activate", { count: total })}
         </button>
@@ -135,7 +138,7 @@ function CreativeTitleGroupRow({
           onClick={() =>
             run(() => setAdCreativeActiveByTitle(group.title, false))
           }
-          className="rounded border border-surface-300 px-4 py-1.5 text-sm font-medium text-surface-700 transition-colors hover:bg-surface-100 disabled:opacity-40"
+          className={adminButtonClasses({ variant: "secondary" })}
         >
           {t("links.deactivate", { count: total })}
         </button>

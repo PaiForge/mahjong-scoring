@@ -1,17 +1,22 @@
 import { getTranslations } from "next-intl/server";
 
 import { UserStatus } from "../_lib/user-status";
+import { adminChipClasses } from "../../_lib/chip-classes";
 
 interface StatusBadgeProps {
   readonly status: UserStatus;
 }
 
-/** 状態ごとのバッジの色 */
+/**
+ * 状態ごとのバッジの色。有効は大半の行が該当するため塗らず、
+ * それ以外の状態だけが一覧で目に留まるようにする。
+ */
 const STATUS_CLASSES: Record<UserStatus, string> = {
-  [UserStatus.Provisional]: "bg-amber-100 text-amber-800",
-  [UserStatus.Deleted]: "bg-gray-100 text-gray-600",
-  [UserStatus.Banned]: "bg-red-100 text-red-700",
-  [UserStatus.Active]: "text-surface-600",
+  [UserStatus.Provisional]: adminChipClasses("warning"),
+  [UserStatus.Deleted]: adminChipClasses("neutral"),
+  [UserStatus.Banned]: adminChipClasses("danger"),
+  [UserStatus.Active]:
+    "inline-flex items-center px-2 py-0.5 text-xs font-semibold whitespace-nowrap text-surface-600",
 };
 
 /**
@@ -22,9 +27,7 @@ export async function StatusBadge({ status }: StatusBadgeProps) {
   const t = await getTranslations("admin");
 
   return (
-    <span
-      className={`inline-block rounded-md px-2 py-0.5 text-xs font-medium whitespace-nowrap ${STATUS_CLASSES[status]}`}
-    >
+    <span className={STATUS_CLASSES[status]}>
       {t(`usersTable.statuses.${status}`)}
     </span>
   );

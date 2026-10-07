@@ -1,6 +1,7 @@
 import type { Profile, UserActivityLog } from "../../../../lib/db";
 import { formatAdminDateTime } from "../../_lib/format-date";
 import { resolveUserDisplay } from "../../_lib/log-query-helpers";
+import { adminChipClasses } from "../../_lib/chip-classes";
 
 interface ActivityLogRowProps {
   readonly log: UserActivityLog;
@@ -19,17 +20,15 @@ export function ActivityLogRow({
     : "-";
 
   return (
-    <tr className="border-t border-gray-200">
+    <tr className="border-t border-surface-200">
       <td className="px-4 py-3">
-        <span className="inline-block rounded bg-gray-100 px-2 py-0.5 text-xs font-medium text-gray-700">
-          {log.action}
-        </span>
+        <span className={adminChipClasses("neutral")}>{log.action}</span>
       </td>
       <td className="px-4 py-3">{userDisplay}</td>
-      <td className="px-4 py-3 text-gray-500">
+      <td className="px-4 py-3 text-surface-500">
         {log.targetType ? `${log.targetType}: ${targetDisplay}` : targetDisplay}
       </td>
-      <td className="px-4 py-3 text-gray-500">
+      <td className="px-4 py-3 text-surface-500">
         {log.metadata && Object.keys(log.metadata).length > 0 ? (
           <code className="text-xs">
             {JSON.stringify(log.metadata).slice(0, 80)}
@@ -38,7 +37,7 @@ export function ActivityLogRow({
           "-"
         )}
       </td>
-      <td className="px-4 py-3 text-gray-500">
+      <td className="px-4 py-3 text-surface-500">
         {formatAdminDateTime(log.createdAt)}
       </td>
     </tr>

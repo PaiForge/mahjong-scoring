@@ -11,6 +11,8 @@ import { AnnouncementStatus } from "@/lib/announcement-status";
 import { createAnnouncement } from "../_actions/create-announcement";
 import { ANNOUNCEMENT_LIMITS } from "../_lib/validation";
 import { updateAnnouncement } from "../_actions/update-announcement";
+import { adminButtonClasses } from "../../_lib/button-classes";
+import { ADMIN_INPUT_CLASSES } from "../../_lib/input-classes";
 
 export interface AnnouncementFormDefaults {
   slug: string;
@@ -104,8 +106,7 @@ export function AnnouncementForm({
     });
   };
 
-  const inputClass =
-    "w-full rounded border border-surface-300 bg-white px-3 py-2 text-sm text-surface-900 focus:border-primary-500 focus:outline-none";
+  const inputClass = `w-full ${ADMIN_INPUT_CLASSES}`;
 
   return (
     <div className="admin-panel max-w-3xl space-y-5 p-5 sm:p-7">
@@ -214,14 +215,14 @@ export function AnnouncementForm({
           type="button"
           onClick={handleSubmit}
           disabled={isPending}
-          className="rounded bg-primary-600 px-5 py-2 text-sm font-medium text-white transition-colors hover:bg-primary-700 disabled:bg-surface-300 disabled:text-surface-500"
+          className={adminButtonClasses()}
         >
           {isPending ? t("saving") : t("save")}
         </button>
         <button
           type="button"
           onClick={() => router.push("/admin/announcements")}
-          className="rounded border border-surface-300 px-5 py-2 text-sm font-medium text-surface-700 transition-colors hover:bg-surface-100"
+          className={adminButtonClasses({ variant: "secondary" })}
         >
           {t("cancel")}
         </button>

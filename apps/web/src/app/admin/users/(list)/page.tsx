@@ -15,7 +15,7 @@ import {
 
 import { getPaginationData } from "@/lib/pagination";
 import { createAdminClient } from "@/lib/supabase/admin";
-import { PaginationNav } from "@/app/(user)/_components/pagination-nav";
+import { AdminPaginationNav } from "@/app/admin/_components/admin-pagination-nav";
 
 import { MaskedEmail } from "@/app/admin/_components/masked-email";
 import { TableEmptyRow } from "@/app/admin/_components/table-empty-row";
@@ -78,7 +78,7 @@ export default async function AdminUsersPage({
       <div className="admin-table">
         <table className="w-full text-left text-sm">
           <thead>
-            <tr className="border-b border-gray-200">
+            <tr className="border-b border-surface-200">
               <th className="px-4 py-3 font-medium whitespace-nowrap">
                 {t("usersTable.email")}
               </th>
@@ -110,7 +110,7 @@ export default async function AdminUsersPage({
                 const profile = profileMap.get(user.id);
                 const status = resolveUserStatus(profile, user, now);
                 return (
-                  <tr key={user.id} className="border-t border-gray-200">
+                  <tr key={user.id} className="border-t border-surface-200">
                     <td className="px-4 py-3 whitespace-nowrap">
                       <MaskedEmail email={user.email} labels={emailLabels} />
                     </td>
@@ -125,7 +125,7 @@ export default async function AdminUsersPage({
                     <td className="px-4 py-3">
                       <StatusBadge status={status} />
                     </td>
-                    <td className="px-4 py-3 text-gray-500">
+                    <td className="px-4 py-3 text-surface-500">
                       {formatAdminDate(user.created_at)}
                     </td>
                     <td className="px-4 py-3 whitespace-nowrap">
@@ -144,7 +144,7 @@ export default async function AdminUsersPage({
         </table>
       </div>
 
-      <PaginationNav
+      <AdminPaginationNav
         currentPage={pagination.currentPage}
         totalPages={pagination.totalPages}
         buildHref={buildHref}

@@ -2,6 +2,8 @@ import { getTranslations } from "next-intl/server";
 import Link from "next/link";
 
 import { TEXT_LINK_CLASSES } from "@/app/_components/_lib/link-classes";
+import { adminButtonClasses } from "../../_lib/button-classes";
+import { ADMIN_INPUT_CLASSES } from "../../_lib/input-classes";
 
 interface UserSearchFormProps {
   /** 現在の検索文字列（trim 済み） */
@@ -40,18 +42,15 @@ export async function UserSearchForm({
             type="search"
             defaultValue={query}
             placeholder={t("searchPlaceholder")}
-            className="w-72 max-w-full rounded border border-gray-300 bg-white px-3 py-2 text-sm"
+            className={`w-72 max-w-full ${ADMIN_INPUT_CLASSES}`}
           />
         </div>
-        <button
-          type="submit"
-          className="rounded-lg bg-primary-700 px-4 py-2 text-sm text-white transition-colors hover:bg-primary-800"
-        >
+        <button type="submit" className={adminButtonClasses()}>
           {t("searchButton")}
         </button>
       </form>
       {query && (
-        <p className="flex flex-wrap gap-x-3 text-sm text-gray-500">
+        <p className="flex flex-wrap gap-x-3 text-sm text-surface-500">
           <span>{t("searchResultCount", { query, count: totalCount })}</span>
           <Link href="/admin/users" className={TEXT_LINK_CLASSES}>
             {t("clearSearch")}

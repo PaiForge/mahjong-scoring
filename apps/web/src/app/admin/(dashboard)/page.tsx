@@ -43,6 +43,7 @@ export default async function AdminDashboardPage({
           labels={{
             from: t("dashboardKpi.from"),
             to: t("dashboardKpi.to"),
+            presets: t("dashboardKpi.presets"),
             past7days: t("dashboardKpi.past7days"),
             past28days: t("dashboardKpi.past28days"),
             past90days: t("dashboardKpi.past90days"),

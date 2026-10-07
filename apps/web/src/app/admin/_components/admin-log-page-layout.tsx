@@ -8,7 +8,9 @@ import {
 
 import { AdminPageTitle } from "./admin-page-title";
 import { TableEmptyRow } from "./table-empty-row";
-import { PaginationNav } from "@/app/(user)/_components/pagination-nav";
+import { AdminPaginationNav } from "@/app/admin/_components/admin-pagination-nav";
+import { adminButtonClasses } from "../_lib/button-classes";
+import { ADMIN_INPUT_CLASSES } from "../_lib/input-classes";
 
 /**
  * 管理画面ログページ共通の検索パラメータキャッシュ（ログ検索パラメータ）
@@ -107,7 +109,7 @@ export function AdminLogPageLayout({
             id="action-filter"
             name="action"
             defaultValue={actionFilter}
-            className="w-52 rounded border border-gray-300 bg-white px-3 py-2 text-sm"
+            className={`w-52 ${ADMIN_INPUT_CLASSES}`}
           >
             <option value="">{i18n.allActions}</option>
             {filterActionOptions}
@@ -126,13 +128,10 @@ export function AdminLogPageLayout({
             type="text"
             defaultValue={userFilter}
             placeholder={i18n.userFilterPlaceholder}
-            className="w-52 rounded border border-gray-300 bg-white px-3 py-2 text-sm"
+            className={`w-52 ${ADMIN_INPUT_CLASSES}`}
           />
         </div>
-        <button
-          type="submit"
-          className="rounded-lg bg-primary-700 px-4 py-2 text-sm text-white hover:bg-primary-800 transition-colors"
-        >
+        <button type="submit" className={adminButtonClasses()}>
           {i18n.filter}
         </button>
       </form>
@@ -141,7 +140,7 @@ export function AdminLogPageLayout({
       <div className="admin-table">
         <table className="w-full text-left text-sm">
           <thead>
-            <tr className="border-b border-gray-200">
+            <tr className="border-b border-surface-200">
               {/* 見出しは折り返さない。main が min-w-0 で縮むようになって
                   から、表は横スクロールしつつ見出しセルも min-content まで
                   縮むため、放っておくと「アクション」が「アクシ／ョン」の
@@ -166,7 +165,7 @@ export function AdminLogPageLayout({
         </table>
       </div>
 
-      <PaginationNav
+      <AdminPaginationNav
         currentPage={currentPage}
         totalPages={totalPages}
         buildHref={buildHref}

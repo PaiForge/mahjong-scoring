@@ -10,6 +10,8 @@ import { AnnouncementStatus } from "@/lib/announcement-status";
 
 import { DeleteAnnouncementButton } from "../_components/delete-announcement-button";
 import { TEXT_LINK_CLASSES } from "@/app/_components/_lib/link-classes";
+import { adminChipClasses } from "../../_lib/chip-classes";
+import { adminButtonClasses } from "../../_lib/button-classes";
 
 export const dynamic = "force-dynamic";
 
@@ -41,10 +43,7 @@ export default async function AdminAnnouncementsPage() {
     <div className="space-y-6">
       <div className="flex flex-wrap items-center justify-between gap-3">
         <AdminPageTitle>{t("listTitle")}</AdminPageTitle>
-        <Link
-          href="/admin/announcements/new"
-          className="rounded bg-primary-600 px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-primary-700"
-        >
+        <Link href="/admin/announcements/new" className={adminButtonClasses()}>
           {t("new")}
         </Link>
       </div>
@@ -69,7 +68,7 @@ export default async function AdminAnnouncementsPage() {
               <div className="overflow-x-auto">
                 <table className="w-full text-left text-sm">
                   <thead>
-                    <tr className="border-b border-surface-100 text-xs text-surface-500">
+                    <tr className="border-b border-surface-200 text-xs text-surface-500">
                       <th className="px-4 py-2 font-medium whitespace-nowrap">
                         {t("locale")}
                       </th>
@@ -89,11 +88,13 @@ export default async function AdminAnnouncementsPage() {
                   </thead>
                   <tbody>
                     {variants.map((a) => (
-                      <tr key={a.id} className="border-t border-surface-100">
+                      <tr key={a.id} className="border-t border-surface-200">
                         <td className="px-4 py-3">
                           <span className="font-mono">{a.locale}</span>
                           {a.pinnedAt !== null && (
-                            <span className="ml-2 rounded bg-primary-100 px-1.5 py-0.5 text-xs font-semibold text-primary-700">
+                            <span
+                              className={`ml-2 ${adminChipClasses("success")}`}
+                            >
                               {t("pinned")}
                             </span>
                           )}
@@ -103,11 +104,11 @@ export default async function AdminAnnouncementsPage() {
                         </td>
                         <td className="px-4 py-3">
                           <span
-                            className={`rounded px-2 py-0.5 text-xs font-semibold ${
+                            className={adminChipClasses(
                               a.status === AnnouncementStatus.Published
-                                ? "bg-primary-100 text-primary-700"
-                                : "bg-surface-100 text-surface-500"
-                            }`}
+                                ? "success"
+                                : "neutral",
+                            )}
                           >
                             {a.status === AnnouncementStatus.Published
                               ? t("statusPublished")
