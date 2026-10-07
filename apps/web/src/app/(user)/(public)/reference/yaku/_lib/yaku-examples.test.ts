@@ -101,15 +101,15 @@ describe("YAKU_EXAMPLES", () => {
   it("全ての例示手牌がパース可能で、有効牌数が14枚である", () => {
     for (const [name, examples] of Object.entries(YAKU_EXAMPLES)) {
       for (const { label, hand } of eachHand(examples)) {
-        const tehai = parseTehai(hand.mspz);
+        const tehai = parseTehai(hand.mpsz);
         expect(
           tehai,
-          `パース失敗: ${name} / ${label} / ${hand.mspz}`,
+          `パース失敗: ${name} / ${label} / ${hand.mpsz}`,
         ).toBeDefined();
         if (!tehai) continue;
         expect(
           effectiveTileCount(tehai),
-          `${name} / ${label} / ${hand.mspz}: 有効牌数は14`,
+          `${name} / ${label} / ${hand.mpsz}: 有効牌数は14`,
         ).toBe(14);
       }
     }
@@ -118,19 +118,19 @@ describe("YAKU_EXAMPLES", () => {
   it("門前形は副露を持たず、副露形は副露を持つ（暗槓は副露に数えない）", () => {
     for (const [name, examples] of Object.entries(YAKU_EXAMPLES)) {
       for (const { form, label, hand } of eachHand(examples)) {
-        const tehai = parseTehai(hand.mspz);
+        const tehai = parseTehai(hand.mpsz);
         if (!tehai) continue;
         const furoCount = tehai.exposed.filter(
           (m) => m.furo !== undefined,
         ).length;
         if (form === "menzen") {
-          expect(furoCount, `${name} ${label} に副露がある: ${hand.mspz}`).toBe(
+          expect(furoCount, `${name} ${label} に副露がある: ${hand.mpsz}`).toBe(
             0,
           );
         } else {
           expect(
             furoCount,
-            `${name} ${label} に副露がない: ${hand.mspz}`,
+            `${name} ${label} に副露がない: ${hand.mpsz}`,
           ).toBeGreaterThan(0);
         }
       }
@@ -148,10 +148,10 @@ describe("YAKU_EXAMPLES", () => {
           `${name} ${label} の和了牌は1枚: ${hand.agari.hai}`,
         ).toBe(1);
 
-        const closed = parseTehai(hand.mspz)?.closed ?? [];
+        const closed = parseTehai(hand.mpsz)?.closed ?? [];
         expect(
           closed.includes(agariHais[0]),
-          `${name} ${label} の和了牌 ${hand.agari.hai} が純手牌 ${hand.mspz} に無い`,
+          `${name} ${label} の和了牌 ${hand.agari.hai} が純手牌 ${hand.mpsz} に無い`,
         ).toBe(true);
       }
     }

@@ -5,7 +5,7 @@ import type {
   MachiCellAnswer,
   MachiScoreQuestion,
 } from "@mahjong-scoring/core";
-import { haiIdToMspz } from "@mahjong-scoring/core";
+import { haiIdToMpsz } from "@mahjong-scoring/core";
 import { Hai } from "@pai-forge/mahjong-react-ui";
 import {
   cellKeyOf,
@@ -164,7 +164,7 @@ export function WaitCellGrid({
               disabled={disabled}
               aria-pressed
               aria-label={t("removeFromSelection", {
-                hai: haiIdToMspz(member.agariHai),
+                hai: haiIdToMpsz(member.agariHai),
               })}
               onClick={() => onToggleCell(member)}
               className={`min-h-14 w-full flex-1 ${i > 0 ? "border-t-2 border-dashed border-amber-300" : ""}`}

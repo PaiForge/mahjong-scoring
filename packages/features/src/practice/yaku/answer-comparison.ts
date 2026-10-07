@@ -11,7 +11,7 @@ import type { YakuQuestionResult } from "./types";
  * 保存された結果から出題内容を復元する
  * 役出題復元
  *
- * MSPZ のパースに失敗した場合は undefined を返し、手牌の再表示だけを諦める
+ * MPSZ のパースに失敗した場合は undefined を返し、手牌の再表示だけを諦める
  * （役の対比は文字列に依存しないため表示できる）。
  */
 export function restoreYakuQuestion(result: YakuQuestionResult) {

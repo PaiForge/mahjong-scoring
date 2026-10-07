@@ -8,10 +8,10 @@ import {
   type Tehai14,
 } from "@pai-forge/riichi-mahjong";
 
-/** MSPZ の花色サフィックス */
+/** MPSZ の花色サフィックス */
 type Suit = "m" | "p" | "s" | "z";
 
-/** 花色の表記順（MSPZ 標準順） */
+/** 花色の表記順（MPSZ 標準順） */
 const SUITS: readonly Suit[] = ["m", "p", "s", "z"];
 
 /**
@@ -29,16 +29,16 @@ function haiIdToSuitNumber(id: HaiKindId): {
 }
 
 /**
- * 牌種IDをMSPZ文字列に変換する
- * 牌ID→MSPZ変換
+ * 牌種IDをMPSZ文字列に変換する
+ * 牌ID→MPSZ変換
  */
-export function haiIdToMspz(id: HaiKindId): string {
+export function haiIdToMpsz(id: HaiKindId): string {
   const { suit, number } = haiIdToSuitNumber(id);
   return `${number}${suit}`;
 }
 
-/** 風牌ID→MSPZ文字列マップ */
-const KAZE_TO_MSPZ: Readonly<Record<Kazehai, string>> = {
+/** 風牌ID→MPSZ文字列マップ */
+const KAZE_TO_MPSZ: Readonly<Record<Kazehai, string>> = {
   [HaiKind.Ton]: "1z",
   [HaiKind.Nan]: "2z",
   [HaiKind.Sha]: "3z",
@@ -46,11 +46,11 @@ const KAZE_TO_MSPZ: Readonly<Record<Kazehai, string>> = {
 };
 
 /**
- * 風牌IDをMSPZ文字列に変換する
- * 風牌ID→MSPZ変換
+ * 風牌IDをMPSZ文字列に変換する
+ * 風牌ID→MPSZ変換
  */
-export function kazeIdToMspz(id: Kazehai): string {
-  return KAZE_TO_MSPZ[id] ?? "1z";
+export function kazeIdToMpsz(id: Kazehai): string {
+  return KAZE_TO_MPSZ[id] ?? "1z";
 }
 
 /**
@@ -75,10 +75,10 @@ function bucketSortHais(
 }
 
 /**
- * バケットをMSPZ文字列に変換する
- * バケット→MSPZ変換
+ * バケットをMPSZ文字列に変換する
+ * バケット→MPSZ変換
  */
-function bucketsToMspz(
+function bucketsToMpsz(
   buckets: Readonly<Record<Suit, readonly number[]>>,
 ): string {
   let result = "";
@@ -89,26 +89,26 @@ function bucketsToMspz(
 }
 
 /**
- * 牌IDリストをMSPZ文字列に変換する
- * 牌IDリスト→MSPZ変換
+ * 牌IDリストをMPSZ文字列に変換する
+ * 牌IDリスト→MPSZ変換
  *
  * {@link parseHais} の逆変換。面子や雀頭のように手牌の一部だけを保存して
  * 読み戻す用途で使う。出力は花色ごとに昇順へ並べ直した正規形になるため、
  * 元の並び順は保たれない。
  */
-export function haisToMspz(hais: readonly HaiKindId[]): string {
-  return bucketsToMspz(bucketSortHais(hais));
+export function haisToMpsz(hais: readonly HaiKindId[]): string {
+  return bucketsToMpsz(bucketSortHais(hais));
 }
 
 /**
- * 手牌をMSPZ文字列に変換する
- * 手牌→MSPZ変換
+ * 手牌をMPSZ文字列に変換する
+ * 手牌→MPSZ変換
  */
-export function tehaiToMspz(tehai: Tehai14): string {
-  let result = bucketsToMspz(bucketSortHais(tehai.closed));
+export function tehaiToMpsz(tehai: Tehai14): string {
+  let result = bucketsToMpsz(bucketSortHais(tehai.closed));
 
   for (const meld of tehai.exposed) {
-    const meldStr = bucketsToMspz(bucketSortHais(meld.hais));
+    const meldStr = bucketsToMpsz(bucketSortHais(meld.hais));
 
     if (meld.type === "Kantsu" && !meld.furo) {
       // 暗槓: (...) 表記
@@ -123,8 +123,8 @@ export function tehaiToMspz(tehai: Tehai14): string {
 }
 
 /**
- * MSPZ / Extended MSPZ 文字列を柔軟にパースする（Extended 優先）
- * 柔軟MSPZ解析
+ * MPSZ / Extended MPSZ 文字列を柔軟にパースする（Extended 優先）
+ * 柔軟MPSZ解析
  */
 function parseFlexible(str: string): Tehai | undefined {
   const ext = parseExtendedMspz(str);
@@ -135,10 +135,10 @@ function parseFlexible(str: string): Tehai | undefined {
 }
 
 /**
- * 牌文字列（MSPZ / Extended MSPZ）を手牌オブジェクトに変換する
- * MSPZ→手牌変換
+ * 牌文字列（MPSZ / Extended MPSZ）を手牌オブジェクトに変換する
+ * MPSZ→手牌変換
  *
- * 副露（`[...]`）・暗槓（`(...)`）を含む Extended MSPZ にも対応し、
+ * 副露（`[...]`）・暗槓（`(...)`）を含む Extended MPSZ にも対応し、
  * closed / exposed を保持した Tehai を返す。パースできない場合は undefined。
  */
 export function parseTehai(str: string | undefined): Tehai | undefined {
@@ -147,8 +147,8 @@ export function parseTehai(str: string | undefined): Tehai | undefined {
 }
 
 /**
- * 牌文字列（MSPZ / Extended MSPZ）の純手牌部分をIDリストに変換する
- * MSPZ→牌IDリスト変換
+ * 牌文字列（MPSZ / Extended MPSZ）の純手牌部分をIDリストに変換する
+ * MPSZ→牌IDリスト変換
  */
 export function parseHais(str: string | undefined): HaiKindId[] {
   if (!str) return [];

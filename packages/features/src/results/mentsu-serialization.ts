@@ -1,4 +1,4 @@
-import { MentsuType, haisToMspz, parseHais } from "@mahjong-scoring/core";
+import { MentsuType, haisToMpsz, parseHais } from "@mahjong-scoring/core";
 import type { CompletedMentsu, Furo, HaiKindId } from "@mahjong-scoring/core";
 import { z } from "zod";
 
@@ -10,10 +10,10 @@ import { completedMentsuTypeSchema, furoSchema } from "./result-schemas";
  *
  * 結果ページで面子を出題時と同じ体裁（副露・槓子は横倒しで晒す）に描き直す
  * ための最小限。sessionStorage を経由する都合上、ブランド型の牌はそのまま
- * 往復できないため MSPZ 文字列に落とす。
+ * 往復できないため MPSZ 文字列に落とす。
  */
 export interface SerializedMentsu {
-  /** 面子の牌（MSPZ） */
+  /** 面子の牌（MPSZ） */
   readonly tiles: string;
   readonly type: MentsuType;
   /** 副露の種別と出所。鳴いていない面子では持たない */
@@ -23,7 +23,7 @@ export interface SerializedMentsu {
 /** 完成面子を保存形に変換する */
 export function toSerializedMentsu(mentsu: CompletedMentsu): SerializedMentsu {
   return {
-    tiles: haisToMspz(mentsu.hais),
+    tiles: haisToMpsz(mentsu.hais),
     type: mentsu.type,
     ...(mentsu.furo ? { furo: mentsu.furo } : {}),
   };

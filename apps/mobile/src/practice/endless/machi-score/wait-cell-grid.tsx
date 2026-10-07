@@ -11,7 +11,7 @@ import type {
   MachiCellAnswer,
   MachiScoreQuestion,
 } from "@mahjong-scoring/core";
-import { haiIdToMspz } from "@mahjong-scoring/core";
+import { haiIdToMpsz } from "@mahjong-scoring/core";
 import {
   cellKeyOf,
   type MachiCellRef,
@@ -182,7 +182,7 @@ export function WaitCellGrid({
               accessibilityRole="button"
               accessibilityState={{ selected: true }}
               accessibilityLabel={t("removeFromSelection", {
-                hai: haiIdToMspz(member.agariHai),
+                hai: haiIdToMpsz(member.agariHai),
               })}
               style={[styles.groupRow, i > 0 && styles.groupRowDivider]}
             />

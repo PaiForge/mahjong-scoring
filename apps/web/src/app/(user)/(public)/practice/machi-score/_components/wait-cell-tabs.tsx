@@ -4,7 +4,7 @@ import { useRef } from "react";
 import type { KeyboardEvent } from "react";
 import { useTranslations } from "next-intl";
 import type { JudgementResult } from "@mahjong-scoring/core";
-import { haiIdToMspz } from "@mahjong-scoring/core";
+import { haiIdToMpsz } from "@mahjong-scoring/core";
 import { Hai } from "@pai-forge/mahjong-react-ui";
 import { JudgementMark } from "../../_components/judgement-mark";
 import {
@@ -191,7 +191,7 @@ export function WaitCellTabs({
             // 牌の画像と記号で名乗るので、読み上げ用の名前はここでまとめる
             aria-label={[
               t(cell.isTsumo ? "cells.tsumo" : "cells.ron"),
-              haiIdToMspz(cell.agariHai),
+              haiIdToMpsz(cell.agariHai),
               ...correctLines,
               verdict && tCommon(verdict),
             ]

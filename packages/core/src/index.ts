@@ -121,11 +121,11 @@ export {
   parseTehai,
   parseHais,
   parseKazehai,
-  haiIdToMspz,
-  haisToMspz,
-  kazeIdToMspz,
-  tehaiToMspz,
-} from "./problem/score/mspz-serializer";
+  haiIdToMpsz,
+  haisToMpsz,
+  kazeIdToMpsz,
+  tehaiToMpsz,
+} from "./problem/score/mpsz-serializer";
 
 // === Score ===
 export {

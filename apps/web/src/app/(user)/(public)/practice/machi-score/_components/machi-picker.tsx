@@ -2,7 +2,7 @@
 
 import { memo } from "react";
 import { useTranslations } from "next-intl";
-import { haiIdToMspz } from "@mahjong-scoring/core";
+import { haiIdToMpsz } from "@mahjong-scoring/core";
 import type { HaiKindId, MachiSelectionJudgement } from "@mahjong-scoring/core";
 import { Hai } from "@pai-forge/mahjong-react-ui";
 import {
@@ -77,7 +77,7 @@ export const MachiPicker = memo(function MachiPickerComponent({
                 type="button"
                 disabled={disabled || judged}
                 aria-pressed={isSelected}
-                aria-label={haiIdToMspz(hai)}
+                aria-label={haiIdToMpsz(hai)}
                 onClick={() => onToggle(hai)}
                 className={`press-sm flex min-h-12 flex-col items-center justify-center rounded-lg border-2 px-0.5 py-1 sm:min-h-16 sm:rounded-xl sm:border-3 ${tileClasses(isSelected, mark, judged)}`}
               >

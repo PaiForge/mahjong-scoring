@@ -37,8 +37,8 @@ type Subject =
        * 牌はカードの幅に合わせて縮む。
        */
       readonly kind: "hand";
-      /** 手牌の MSPZ 表記。読めるように文字列で持ち、牌 ID へは引くときに直す */
-      readonly mspz: string;
+      /** 手牌の MPSZ 表記。読めるように文字列で持ち、牌 ID へは引くときに直す */
+      readonly mpsz: string;
     }
   | {
       /** 牌が出ず、文言だけが出る出題 */
@@ -125,7 +125,7 @@ const PRACTICE_CARD_VISUALS: Partial<Record<PracticeMenuSlug, CatalogVisual>> =
     // 符の付く暗刻を 2 つ持つ手。符を拾う対象が手牌のどこにあるかを見せる。
     // 字牌に東を使うのは、白が白紙の牌で「画像が出ていない」ように見えるため
     "total-fu": {
-      subject: { kind: "hand", mspz: "23499m111p789s111z" },
+      subject: { kind: "hand", mpsz: "23499m111p789s111z" },
       unit: "fu",
     },
     // 役名と鳴きの状態だけが出る唯一の練習。牌は 1 枚も出ない。
@@ -136,12 +136,12 @@ const PRACTICE_CARD_VISUALS: Partial<Record<PracticeMenuSlug, CatalogVisual>> =
     },
     // 順子だけの門前手。役が 1 つに定まらない手を出す（すべて選ぶ練習のため）
     yaku: {
-      subject: { kind: "hand", mspz: "234567m23455p678s" },
+      subject: { kind: "hand", mpsz: "234567m23455p678s" },
       unit: "yaku",
     },
     // 翻を生む役牌（中）の刻子を持つ手。数える対象は符ではなく役だと示す
     "han-count": {
-      subject: { kind: "hand", mspz: "234m456p67899s777z" },
+      subject: { kind: "hand", mpsz: "234m456p67899s777z" },
       unit: "han",
     },
     // 符と翻から表を引く練習。手牌は出ず、引くための 2 つの数だけが出る
@@ -152,12 +152,12 @@ const PRACTICE_CARD_VISUALS: Partial<Record<PracticeMenuSlug, CatalogVisual>> =
     // 断幺九・平和・一盃口・三色同順で門前 5翻（満貫）の手。翻数は先に
     // 示されるため、手牌と一緒にその翻数も出す
     "mangan-score-calculation": {
-      subject: { kind: "hand", mspz: "234m23455p223344s" },
+      subject: { kind: "hand", mpsz: "234m23455p223344s" },
       unit: "score",
       note: "manganHan",
     },
     "score-calculation": {
-      subject: { kind: "hand", mspz: "123456m789p23455s" },
+      subject: { kind: "hand", mpsz: "123456m789p23455s" },
       unit: "score",
     },
   };
@@ -225,7 +225,7 @@ function resolveSubject(
 ): ResolvedSubject {
   if (subject.kind === "tiles") return subject;
   if (subject.kind === "hand") {
-    return { kind: "hand", tiles: parseHais(subject.mspz) };
+    return { kind: "hand", tiles: parseHais(subject.mpsz) };
   }
   if (subject.kind === "fuHan") {
     return {

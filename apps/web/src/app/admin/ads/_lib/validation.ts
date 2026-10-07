@@ -21,7 +21,7 @@ export interface AdCreativeInput {
   /** 画像の公開 URL（/api/admin/ads/image の戻り値）。空文字は「無し」 */
   readonly imageUrl: string;
   readonly imageAlt: string;
-  /** カードの帯に並べる手牌（MSPZ 表記）。空文字は「無し」 */
+  /** カードの帯に並べる手牌（MPSZ 表記）。空文字は「無し」 */
   readonly hand: string;
   /** ロケール → タイトル。空文字は「そのロケールでは書かない」 */
   readonly title: Readonly<Record<string, string>>;

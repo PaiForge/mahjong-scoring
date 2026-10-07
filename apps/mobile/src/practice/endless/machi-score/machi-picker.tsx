@@ -1,7 +1,7 @@
 import { memo } from "react";
 import { StyleSheet, View } from "react-native";
 import { useTranslations } from "use-intl";
-import { haiIdToMspz } from "@mahjong-scoring/core";
+import { haiIdToMpsz } from "@mahjong-scoring/core";
 import type { HaiKindId, MachiSelectionJudgement } from "@mahjong-scoring/core";
 import {
   machiTileMark,
@@ -60,7 +60,7 @@ export const MachiPicker = memo(function MachiPickerComponent({
                   key={hai}
                   onPress={() => onToggle(hai)}
                   disabled={judged}
-                  accessibilityLabel={haiIdToMspz(hai)}
+                  accessibilityLabel={haiIdToMpsz(hai)}
                   accessibilityState={{ selected: isSelected }}
                   testID={`machi-tile-${hai}`}
                   style={[styles.tile, tileStyle(isSelected, mark, judged)]}

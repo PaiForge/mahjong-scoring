@@ -7,7 +7,7 @@ import {
   PINFU_RON_FU,
   PINFU_TSUMO_FU,
 } from "../../score/constants";
-import { parseTehai } from "../score/mspz-serializer";
+import { parseTehai } from "../score/mpsz-serializer";
 import {
   expectGeneratesEventually,
   expectSampled,
@@ -132,10 +132,10 @@ describe("generateTotalFuQuestion", () => {
 });
 
 describe("calculateTotalFu", () => {
-  /** MSPZ の 14 枚を和了形の手牌にする */
-  function agariTehai(mspz: string) {
-    const tehai = parseTehai(mspz);
-    if (tehai === undefined) throw new Error(mspz);
+  /** MPSZ の 14 枚を和了形の手牌にする */
+  function agariTehai(mpsz: string) {
+    const tehai = parseTehai(mpsz);
+    if (tehai === undefined) throw new Error(mpsz);
     return validateTehai14(tehai)._unsafeUnwrap();
   }
   const kaze = { bakaze: HaiKind.Ton, jikaze: HaiKind.Nan };

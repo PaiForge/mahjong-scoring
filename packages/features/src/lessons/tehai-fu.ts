@@ -12,10 +12,10 @@ import {
 
 import type { LessonQuestion, LessonQuiz } from "./quiz";
 
-/** 出題する手牌 1 つ（牌は Extended MSPZ。副露は `[...]`） */
+/** 出題する手牌 1 つ（牌は Extended MPSZ。副露は `[...]`） */
 interface TehaiFuQuestionSource {
   readonly key: string;
-  readonly mspz: string;
+  readonly mpsz: string;
   readonly agariHai: HaiKindId;
   readonly isTsumo: boolean;
   readonly bakaze: Kazehai;
@@ -43,7 +43,7 @@ interface TehaiFuQuestionSource {
 const QUESTIONS: readonly TehaiFuQuestionSource[] = [
   {
     key: "furoRon",
-    mspz: "234m22m567p46s[555z]",
+    mpsz: "234m22m567p46s[555z]",
     agariHai: HaiKind.SouZu5,
     isTsumo: false,
     bakaze: HaiKind.Ton,
@@ -51,7 +51,7 @@ const QUESTIONS: readonly TehaiFuQuestionSource[] = [
   },
   {
     key: "furoTsumo",
-    mspz: "234m22m888p46s[555z]",
+    mpsz: "234m22m888p46s[555z]",
     agariHai: HaiKind.SouZu5,
     isTsumo: true,
     bakaze: HaiKind.Ton,
@@ -59,7 +59,7 @@ const QUESTIONS: readonly TehaiFuQuestionSource[] = [
   },
   {
     key: "shanponRon",
-    mspz: "999m111p567s33s55z",
+    mpsz: "999m111p567s33s55z",
     agariHai: HaiKind.Haku,
     isTsumo: false,
     bakaze: HaiKind.Ton,
@@ -67,7 +67,7 @@ const QUESTIONS: readonly TehaiFuQuestionSource[] = [
   },
   {
     key: "nanBakaze",
-    mspz: "999m34m234p678s22z",
+    mpsz: "999m34m234p678s22z",
     agariHai: HaiKind.ManZu5,
     isTsumo: true,
     bakaze: HaiKind.Nan,
@@ -77,7 +77,7 @@ const QUESTIONS: readonly TehaiFuQuestionSource[] = [
 
 /** 聴牌形（13 枚）に和了牌を足した和了形（14 枚）にする */
 function toAgariTehai(source: TehaiFuQuestionSource): Tehai14 {
-  const tenpai = parseTehai(source.mspz);
+  const tenpai = parseTehai(source.mpsz);
   if (tenpai === undefined) {
     throw new Error(`${source.key}: 手牌を読めない`);
   }

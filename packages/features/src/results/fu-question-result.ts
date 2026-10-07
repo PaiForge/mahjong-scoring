@@ -1,8 +1,8 @@
 import type { QuestionTilesSnapshot } from "./parse-question-tiles";
 import {
-  haiIdToMspz,
-  kazeIdToMspz,
-  tehaiToMspz,
+  haiIdToMpsz,
+  kazeIdToMpsz,
+  tehaiToMpsz,
   type FuDetail,
   type RuleConfig,
   type TotalFuQuestion,
@@ -24,7 +24,7 @@ import {
  * 手牌の合計符を答える出題の1問ごとの結果データ
  * 合計符問題結果
  *
- * 結果ページで手牌を再表示するため、出題そのものを MSPZ 文字列として持つ。
+ * 結果ページで手牌を再表示するため、出題そのものを MPSZ 文字列として持つ。
  * sessionStorage を経由する都合上、ブランド型（Tehai14 等）はそのまま
  * 往復できないため、牌はすべて文字列に落として保存する。
  *
@@ -56,10 +56,10 @@ export function toFuQuestionResult(
 ): FuQuestionResult {
   const { context } = question;
   return {
-    tehai: tehaiToMspz(question.tehai),
-    agariHai: haiIdToMspz(context.agariHai),
-    bakaze: kazeIdToMspz(context.bakaze),
-    jikaze: kazeIdToMspz(context.jikaze),
+    tehai: tehaiToMpsz(question.tehai),
+    agariHai: haiIdToMpsz(context.agariHai),
+    bakaze: kazeIdToMpsz(context.bakaze),
+    jikaze: kazeIdToMpsz(context.jikaze),
     isTsumo: context.isTsumo,
     correctFu: question.answer,
     userFu,
