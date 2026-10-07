@@ -29,7 +29,9 @@ interface LeaderboardTopContentProps {
  * 同じ知らせを二度読ませることになる。
  *
  * 分野の末尾にネイティブ広告を 1 行ずつ、間隔を広げながら混ぜる
- * （`adIndexAfterGroup`。掲載中の広告があるときだけ）。
+ * （`adIndexAfterGroup`。掲載中の広告があるときだけ）。広告はパネルの
+ * 最後の行として入れる — パネルの外に置くと、枠の無い行が 1 本だけ浮く。
+ * `data-framed` は広告の行（`NativeAdRow`）が枠の中の余白に切り替える目印。
  */
 export async function LeaderboardTopContent({
   period,
@@ -100,7 +102,10 @@ export async function LeaderboardTopContent({
                 <span>{t("boardLabel")}</span>
                 {showRank && <span className="pr-7">{t("yourRankLabel")}</span>}
               </div>
-              <ul className="divide-y divide-surface-100">
+              <ul
+                data-framed=""
+                className="group/rows divide-y divide-surface-100"
+              >
                 {group.boards.map((board) => (
                   <LeaderboardModuleRow
                     key={practiceBoardKey(board)}
@@ -114,13 +119,9 @@ export async function LeaderboardTopContent({
                     }
                   />
                 ))}
+                {ad && <NativeAdRow creative={ad} />}
               </ul>
             </div>
-            {ad && (
-              <ul className="px-2">
-                <NativeAdRow creative={ad} />
-              </ul>
-            )}
           </section>
         );
       })}
