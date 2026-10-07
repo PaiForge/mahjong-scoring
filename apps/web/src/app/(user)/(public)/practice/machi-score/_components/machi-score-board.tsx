@@ -8,6 +8,7 @@ import { allowsDoubleYakuman, isOya } from "@mahjong-scoring/core";
 import type { UserAnswer } from "@mahjong-scoring/core";
 import { toastOnArrival } from "@/app/_components/_lib/toast-on-arrival";
 import { useYakumanRules } from "@/app/_hooks/use-rule-settings-store";
+import { useAutoAdvanceOnCorrect } from "@/app/_hooks/use-training-settings-store";
 import { Button } from "@/app/(user)/_components/button";
 import { ContentContainer } from "@/app/(user)/_components/content-container";
 import { PageTitle } from "@/app/(user)/_components/page-title";
@@ -131,13 +132,9 @@ function MachiScoreBoardInner() {
     void requestQuestion();
   }, [isClient, searchParams, requestQuestion, refreshGate]);
 
-  const {
-    requireYaku,
-    simplifyMangan,
-    requireFuForMangan,
-    autoNext,
-    measureTime,
-  } = parseModeFlagsFromParams(new URLSearchParams(searchParams.toString()));
+  const { requireYaku, simplifyMangan, requireFuForMangan, measureTime } =
+    parseModeFlagsFromParams(new URLSearchParams(searchParams.toString()));
+  const autoAdvanceOnCorrect = useAutoAdvanceOnCorrect();
 
   const showAnswerTime =
     measureTime &&
@@ -193,7 +190,7 @@ function MachiScoreBoardInner() {
       allowDoubleYakuman,
     });
 
-    if (autoNext) {
+    if (autoAdvanceOnCorrect) {
       const state = useMachiScoreStore.getState();
       if (state.isAllCorrect) {
         toast.success(t("board.correct"), { duration: 1500 });

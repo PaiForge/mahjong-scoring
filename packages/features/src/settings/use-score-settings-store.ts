@@ -21,9 +21,6 @@ export interface ScoreSettingsState {
   /** 出題する役（日本語役名、空 = 絞り込みなし） */
   targetYaku: string[];
   setTargetYaku: (yaku: string[]) => void;
-  /** 正解時に自動で次の問題へ進むかどうか */
-  autoNext: boolean;
-  setAutoNext: (enabled: boolean) => void;
   /**
    * 回答時間を計測するかどうか（Pro の拡張機能）。
    * 保存はするが、Pro でなければ設定画面が play へ渡さない
@@ -66,8 +63,6 @@ export function createScoreSettingsStore(
         setTargetScoreRanges: (targetScoreRanges) => set({ targetScoreRanges }),
         targetYaku: [],
         setTargetYaku: (targetYaku) => set({ targetYaku }),
-        autoNext: false,
-        setAutoNext: (autoNext) => set({ autoNext }),
         measureTime: false,
         setMeasureTime: (measureTime) => set({ measureTime }),
         includeParent: true,
@@ -81,11 +76,17 @@ export function createScoreSettingsStore(
         // v0 は点数帯を snake_case（"non_mangan" / "mangan_plus"）で保存していた。
         // 型を core の ScoreRange（camelCase）へ統一したため、保存済みの値を
         // 変換する。変換しないと全チェックが外れ、練習を開始できなくなる。
-        version: 1,
+        // v1 までは「正解時に自動で次へ」（`autoNext`）もここに持っていた。
+        // トレーニング設定（`autoAdvanceOnCorrect`）と同じ意味の設定が練習ごとに
+        // 別々に保存されていたため、トレーニング設定の 1 つに寄せて捨てる。
+        version: 2,
         migrate: (persisted, version) => {
-          // eslint-disable-next-line @typescript-eslint/consistent-type-assertions -- zustand の migrate は保存値を unknown で受けて S を返す契約。保存するのは自分の partialize 済みの値なので形は信じ、点数帯の表記だけ直す
-          const state = persisted as ScoreSettingsState;
-          if (version >= 1) return state;
+          // eslint-disable-next-line @typescript-eslint/consistent-type-assertions -- zustand の migrate は保存値を unknown で受けて S を返す契約。保存するのは自分の partialize 済みの値なので形は信じ、旧版の項目だけ直す
+          const state = persisted as ScoreSettingsState & {
+            autoNext?: boolean;
+          };
+          const { autoNext: _dropped, ...rest } = state;
+          if (version >= 1) return rest;
 
           const legacy: Readonly<Record<string, ScoreRange | undefined>> = {
             non_mangan: "nonMangan",
@@ -93,8 +94,8 @@ export function createScoreSettingsStore(
           };
 
           return {
-            ...state,
-            targetScoreRanges: (state.targetScoreRanges ?? []).map(
+            ...rest,
+            targetScoreRanges: (rest.targetScoreRanges ?? []).map(
               (range) => legacy[range] ?? range,
             ),
           };

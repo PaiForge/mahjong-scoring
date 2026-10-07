@@ -12,7 +12,6 @@ export type ScoreSettingsValues = Pick<
   | "requireYaku"
   | "simplifyMangan"
   | "requireFuForMangan"
-  | "autoNext"
   | "targetScoreRanges"
   | "targetYaku"
   | "includeParent"
@@ -34,7 +33,6 @@ export function readModeFlags(
     requireYaku: settings.requireYaku,
     simplifyMangan: settings.simplifyMangan,
     requireFuForMangan: settings.requireFuForMangan,
-    autoNext: settings.autoNext,
   };
 }
 
