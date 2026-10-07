@@ -50,7 +50,7 @@ import {
   journeyStepTitle,
 } from "@mahjong-scoring/features/journey/journey-step";
 import { completeLesson } from "../_actions/complete-lesson";
-import type { LessonFollowUp } from "../_lib/lesson-follow-up";
+import type { LessonFollowUp } from "@mahjong-scoring/features/lessons/follow-up";
 import { useLessonCompletion } from "../_hooks/use-lesson-completion";
 import { usePhaseHistory } from "../_hooks/use-phase-history";
 import { LESSON_SCROLL_ANCHOR_ID } from "../_lib/scroll-anchor";
