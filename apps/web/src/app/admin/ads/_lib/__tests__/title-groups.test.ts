@@ -11,6 +11,7 @@ describe("groupCreativesByTitle", () => {
       {
         id: "1",
         slot: "s1",
+        platform: "web",
         href: A,
         isActive: true,
         title: "何切る本",
@@ -19,6 +20,7 @@ describe("groupCreativesByTitle", () => {
       {
         id: "2",
         slot: "s2",
+        platform: "web",
         href: A,
         isActive: false,
         title: "何切る本",
@@ -27,6 +29,7 @@ describe("groupCreativesByTitle", () => {
       {
         id: "3",
         slot: "s2",
+        platform: "web",
         href: B,
         isActive: true,
         title: "何切る本",
@@ -35,6 +38,7 @@ describe("groupCreativesByTitle", () => {
       {
         id: "4",
         slot: "s1",
+        platform: "web",
         href: A,
         isActive: true,
         title: "牌効率本",
@@ -44,23 +48,85 @@ describe("groupCreativesByTitle", () => {
     expect(groups).toEqual([
       {
         title: "何切る本",
-        creativeIds: ["1", "2", "3"],
-        slots: ["s1", "s2"],
+        total: 3,
         activeCount: 2,
-        hrefs: [A, B],
-        hrefCount: 3,
-        asins: [],
+        sides: [
+          {
+            platform: "web",
+            total: 3,
+            slots: ["s1", "s2"],
+            activeCount: 2,
+            hrefs: [A, B],
+            hrefCount: 3,
+            asins: [],
+          },
+        ],
       },
       {
         title: "牌効率本",
-        creativeIds: ["4"],
-        slots: ["s1"],
+        total: 1,
         activeCount: 1,
-        hrefs: [A],
-        hrefCount: 1,
-        asins: [],
+        sides: [
+          {
+            platform: "web",
+            total: 1,
+            slots: ["s1"],
+            activeCount: 1,
+            hrefs: [A],
+            hrefCount: 1,
+            asins: [],
+          },
+        ],
       },
     ]);
+  });
+
+  it("web とアプリの行を分けて数え、web → アプリの順に並べる", () => {
+    const [group] = groupCreativesByTitle([
+      {
+        id: "1",
+        slot: "m1",
+        platform: "mobile",
+        href: B,
+        isActive: false,
+        title: "本",
+        asin: null,
+      },
+      {
+        id: "2",
+        slot: "w1",
+        platform: "web",
+        href: A,
+        isActive: true,
+        title: "本",
+        asin: null,
+      },
+    ]);
+    expect(group).toEqual({
+      title: "本",
+      total: 2,
+      activeCount: 1,
+      sides: [
+        {
+          platform: "web",
+          total: 1,
+          slots: ["w1"],
+          activeCount: 1,
+          hrefs: [A],
+          hrefCount: 1,
+          asins: [],
+        },
+        {
+          platform: "mobile",
+          total: 1,
+          slots: ["m1"],
+          activeCount: 0,
+          hrefs: [B],
+          hrefCount: 1,
+          asins: [],
+        },
+      ],
+    });
   });
 
   it("ASIN の行はリンクに数えず、ASIN を集める", () => {
@@ -68,6 +134,7 @@ describe("groupCreativesByTitle", () => {
       {
         id: "1",
         slot: "s1",
+        platform: "web",
         href: null,
         asin: "B08721VWS5",
         isActive: true,
@@ -76,13 +143,14 @@ describe("groupCreativesByTitle", () => {
       {
         id: "2",
         slot: "s2",
+        platform: "web",
         href: null,
         asin: "B08721VWS5",
         isActive: true,
         title: "本",
       },
     ]);
-    expect(group).toMatchObject({
+    expect(group?.sides[0]).toMatchObject({
       hrefs: [],
       hrefCount: 0,
       asins: ["B08721VWS5"],
@@ -92,7 +160,15 @@ describe("groupCreativesByTitle", () => {
   it("タイトルの無い行は束ねない", () => {
     expect(
       groupCreativesByTitle([
-        { id: "1", slot: "s1", href: A, isActive: true, title: "", asin: null },
+        {
+          id: "1",
+          slot: "s1",
+          platform: "web",
+          href: A,
+          isActive: true,
+          title: "",
+          asin: null,
+        },
       ]),
     ).toEqual([]);
   });

@@ -316,6 +316,11 @@ export function platformForSlot(slot: AdSlot): AdPlatform {
     : "web";
 }
 
+/** プラットフォームの画面が読むスロット（`AD_SLOTS` の順） */
+export function slotsForPlatform(platform: AdPlatform): AdSlot[] {
+  return AD_SLOT_VALUES.filter((slot) => platformForSlot(slot) === platform);
+}
+
 /**
  * モバイルの画面が読むスロットか。広告配信 API はこのスロットだけに答える
  * （web の画面はサーバーで DB を読むため API を使わない）
