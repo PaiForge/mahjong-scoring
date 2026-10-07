@@ -3,6 +3,7 @@ import { StyleSheet } from "react-native";
 import { useTranslations } from "use-intl";
 
 import {
+  BeltIcon,
   BookIcon,
   DumbbellIcon,
   SettingsIcon,
@@ -13,9 +14,11 @@ import { colors } from "../../lib/theme";
 /**
  * 下部タブ
  *
- * web のモバイル下部タブバー（`TAB_BAR_NAV_ITEMS`）に揃える: 練習・レッスン・
- * 点数表。web の 4 つ目のランキングはアカウントの記録が要るため、モバイルでは
- * web がドロワーに置く設定を代わりに置く。
+ * web のモバイル下部タブバー（`TAB_BAR_NAV_ITEMS`）に揃える: 道場・練習・
+ * レッスン・点数表。web の先頭のホーム（ダッシュボード）はアカウントの記録から
+ * 「次にやること」を出す画面で、モバイルには無い。代わりに次の目標の級を上に
+ * 置く道場を先頭にし、起動時もここを開く。web がドロワーに置く設定は、
+ * ドロワーを持たないモバイルでは末尾のタブに置く。
  *
  * 見た目は OS 標準のタブバーに寄せる（白地にヘアラインの区切り、高さは既定）。
  * web のモバイル幅のタブバーが持つ太枠は、ネイティブでは見慣れない形なので持たない。
@@ -36,6 +39,13 @@ export default function TabsLayout() {
         },
       }}
     >
+      <Tabs.Screen
+        name="dojo"
+        options={{
+          title: t("dojo"),
+          tabBarIcon: ({ color }) => <BeltIcon color={color} size={22} />,
+        }}
+      />
       <Tabs.Screen
         name="practice"
         options={{
