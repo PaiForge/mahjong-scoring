@@ -7,7 +7,7 @@ import { colors, radius } from "../../lib/theme";
 import { lessonColors } from "../lesson-colors";
 
 /**
- * 例示カード（web の `ExampleCard` = 白背景・角丸・太枠）
+ * 例示カード（web の `ExampleCard` = 白背景・角丸・細枠）
  * 例示カード
  */
 export function ExampleCard({

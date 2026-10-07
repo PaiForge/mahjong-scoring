@@ -46,7 +46,8 @@ export interface ScoreTableParts {
  * 親子・ツモロン・表示モードの切り替え状態と点数グリッドの計算を持ち、
  * 表本体の描画は NormalScoreTable / HighScoreTable に委譲する。
  * web の focus（練習の答え合わせから開いたときのハイライトとスクロール）は
- * モバイルでは呼び出し元がまだ無いため持たない。
+ * まだ持たない。答え合わせから開く `ScoreTableModal` は親子・ロンツモの
+ * タブを合わせるだけにとどめている。
  */
 export function ScoreTable({
   initialRole = "ko",
