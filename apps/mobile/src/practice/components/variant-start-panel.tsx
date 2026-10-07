@@ -73,7 +73,7 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderColor: colors.surface200,
     backgroundColor: colors.white,
-    borderRadius: radius.xl,
+    borderRadius: radius.panel,
     padding: 16,
     gap: 4,
   },

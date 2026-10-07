@@ -73,8 +73,8 @@ const styles = StyleSheet.create({
     marginTop: 8,
   },
   footnote: {
-    borderTopWidth: StyleSheet.hairlineWidth,
-    borderTopColor: colors.surface300,
+    borderTopWidth: 1,
+    borderTopColor: colors.panel,
     paddingTop: 16,
   },
 });

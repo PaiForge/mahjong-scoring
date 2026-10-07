@@ -453,9 +453,9 @@ const styles = StyleSheet.create({
     gap: 16,
   },
   achievement: {
-    borderWidth: 3,
+    borderWidth: 1,
     borderColor: colors.success,
-    borderRadius: radius.xl,
+    borderRadius: radius.panel,
     backgroundColor: colors.successSubtle,
     padding: 20,
     gap: 8,

@@ -1,7 +1,7 @@
 import { StyleSheet, View } from "react-native";
 import { useTranslations } from "use-intl";
 
-import { colors, radius } from "../../../lib/theme";
+import { panelFrame } from "../../../lib/panel-styles";
 import { CollapsibleDetail } from "../../components/collapsible-detail";
 import { DetailTable } from "../../components/detail-table";
 
@@ -68,10 +68,7 @@ const styles = StyleSheet.create({
     paddingVertical: 8,
   },
   panel: {
-    borderWidth: 2,
-    borderColor: colors.surface200,
-    borderRadius: radius.lg,
-    backgroundColor: colors.white,
+    ...panelFrame,
     padding: 12,
   },
 });

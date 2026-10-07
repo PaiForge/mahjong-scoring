@@ -149,7 +149,7 @@ const styles = StyleSheet.create({
     alignItems: "center",
     gap: 8,
     borderWidth: 1,
-    borderRadius: radius.xl,
+    borderRadius: radius.panel,
     padding: 8,
   },
   itemTimeUp: {
