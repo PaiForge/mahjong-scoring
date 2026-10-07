@@ -61,7 +61,9 @@ export function PracticeEntryQuota({ menu }: { readonly menu: QuotaMenu }) {
 
   return (
     <div
-      className="min-h-16 space-y-1 text-xs leading-relaxed text-surface-500"
+      // min-h は読み込み中から結果へ切り替わるときの高さの跳ねを抑えるため。
+      // 中身が低い状態（Pro の帯）でも上下の余白が揃うよう縦に中央へ寄せる
+      className="flex min-h-16 flex-col justify-center space-y-1 text-xs leading-relaxed text-surface-500"
       aria-live="polite"
     >
       {quota === undefined ? (
@@ -70,9 +72,9 @@ export function PracticeEntryQuota({ menu }: { readonly menu: QuotaMenu }) {
         <p>{t("unavailable")}</p>
       ) : quota.remaining === "unlimited" ? (
         quota.benefits.includes(PlanBenefit.UnlimitedPractice) ? (
-          <div className="flex items-center gap-2 rounded-lg bg-pro-subtle px-3 py-2">
-            {badge}
-            <p className="flex items-center gap-1 text-sm font-bold text-pro-foreground">
+          <div className="flex items-center gap-2 rounded-lg bg-podium-gold px-3 py-2">
+            <ProBadge label={tQuota("proBadge")} onGold />
+            <p className="flex items-center gap-1 text-sm font-bold text-surface-900">
               <InfinityIcon className="size-4" />
               {t("proUnlimited")}
             </p>
