@@ -35,7 +35,7 @@ export async function ExpGainDisplay({ expInfo }: ExpGainDisplayProps) {
         </div>
         <div className="h-2 w-full rounded-full bg-surface-100">
           <div
-            className="h-2 rounded-full bg-primary-500 transition-all duration-500"
+            className="h-2 rounded-full bg-primary-500 transition-[width] duration-500 motion-reduce:transition-none"
             style={{ width: `${progressPercent}%` }}
           />
         </div>
