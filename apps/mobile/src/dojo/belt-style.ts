@@ -1,6 +1,8 @@
+import type { ViewStyle } from "react-native";
 import type { RankSlug } from "@mahjong-scoring/features/ranks/registry";
 
 import { RANK_BELT_COLORS } from "../lib/belt-colors";
+import { panelFrame } from "../lib/panel-styles";
 import { colors } from "../lib/theme";
 
 /** 段級位（無級を含む）の帯色一式 */
@@ -43,5 +45,20 @@ export function beltStyle(slug: RankSlug | undefined): BeltStyle {
     tint: belt.tint,
     tintText: belt.tintText,
     foreground: colors.white,
+  };
+}
+
+/**
+ * 段級位のカードの枠（web の `rounded-panel border border-t-4 border-panel` + `beltBorderTopClass`）
+ * 帯色カード枠
+ *
+ * 細い枠に、上端だけ帯色の帯を敷く。級名を掲げたカードを既定の緑で
+ * 縁取ると緑がその級の色に見えるため、級の色は帯が持つ。
+ */
+export function beltCardFrame(slug: RankSlug | undefined): ViewStyle {
+  return {
+    ...panelFrame,
+    borderTopWidth: 4,
+    borderTopColor: beltStyle(slug).fill,
   };
 }
