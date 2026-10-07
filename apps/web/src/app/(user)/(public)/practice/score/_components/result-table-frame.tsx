@@ -68,7 +68,7 @@ export function ResultTableFrame({ children }: ResultTableFrameProps) {
   const t = useTranslations("score");
   return (
     <div className="rounded-lg bg-surface-50 p-4">
-      <table className="w-full table-fixed text-sm [&>tbody+tbody]:border-t-2 [&>tbody+tbody]:border-surface-200">
+      <table className="w-full table-fixed text-sm [&>tbody+tbody]:border-t [&>tbody+tbody]:border-surface-200">
         <colgroup>
           {/* 項目名（役・翻数・符・点数）+ pr-4 が収まる最小限 */}
           <col className="w-16" />
@@ -76,7 +76,7 @@ export function ResultTableFrame({ children }: ResultTableFrameProps) {
           <col />
         </colgroup>
         <thead>
-          <tr className="border-b-3 border-ink">
+          <tr className="border-b border-surface-300">
             <th className="pb-3 pr-4 pt-2 text-left font-bold text-surface-600" />
             {/* 見出しは折り返さない。役のチップが列幅を取ると
                 「あなたの回答」が 2 行に割れて表の頭が崩れる */}

@@ -152,7 +152,7 @@ export function MachiScoreResult({
               横へ動く） */}
           <table className="w-full table-fixed text-sm">
             <thead>
-              <tr className="border-b-3 border-ink">
+              <tr className="border-b border-surface-300">
                 <th className="whitespace-nowrap pb-3 pr-4 pt-2 text-right font-bold text-surface-600">
                   {tScore("result.headers.answer")}
                 </th>
