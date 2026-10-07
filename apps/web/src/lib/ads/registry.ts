@@ -151,6 +151,16 @@ export const AD_SLOTS = {
       },
     ],
   },
+  // 練習の説明ページ（自由練習の設定ページを含む）の開始ボタンより後ろ、
+  // 関連するレッスンの目次の下。全練習が共有する 1 枠
+  "practice-intro-native-ad": {
+    kind: "native_row",
+    surfaces: [
+      { route: "/practice/<練習>", href: "/practice/jantou-fu" },
+      { route: "/practice/score", href: "/practice/score" },
+      { route: "/practice/machi-score", href: "/practice/machi-score" },
+    ],
+  },
 } as const satisfies Record<string, AdSlotConfig>;
 
 /** 広告スロット */

@@ -8,6 +8,8 @@ import { VariantStartPanel } from "./variant-start-panel";
 import { buildPracticeStartCtaLabels } from "@mahjong-scoring/features/practice/start-cta-labels";
 import { getTranslations } from "next-intl/server";
 import { LinkRow, LinkRowList } from "@/app/(user)/_components/link-row";
+import { NativeAdRow } from "@/app/(user)/_components/native-ad-row";
+import { getNativeAdCreative } from "@/lib/ads/creatives";
 import { relatedChaptersForPractice } from "@mahjong-scoring/features/practice/catalog";
 import type { CurriculumChapterSlug } from "@mahjong-scoring/features/curriculum/registry";
 import type { PracticeMenuSlug } from "@mahjong-scoring/features/practice-menu-types";
@@ -98,6 +100,10 @@ export async function PracticeIntroContent({
   const chapterSlugs: readonly CurriculumChapterSlug[] = examRank
     ? examRank.learnChapterSlugs
     : relatedChaptersForPractice(slug);
+  // 広告は開始の導線とレッスンの後ろに置く（始める前に目に入れない）
+  const ad = isExam
+    ? undefined
+    : await getNativeAdCreative("practice-intro-native-ad");
   const chaptersTitle = examRank
     ? tDojo("chaptersTitle")
     : tp("requiredKnowledge");
@@ -159,6 +165,13 @@ export async function PracticeIntroContent({
         )}
 
         <PracticeChapterSection title={chaptersTitle} slugs={chapterSlugs} />
+
+        {/* 目次は枠を持たないので、広告の行も枠を描かない（/lessons と同じ） */}
+        {ad && (
+          <LinkRowList inset>
+            <NativeAdRow creative={ad} />
+          </LinkRowList>
+        )}
 
         {/* 前提章の下に「その級の練習」への行リンクを置く。試験に落ちた人が
             次に行く先は教本の読み直しだけではなく、同じ範囲を数える練習でも

@@ -17,7 +17,10 @@ import { getTranslations } from "next-intl/server";
 import { createNamespaceMetadata } from "@/app/_lib/metadata";
 import { ContentContainer } from "@/app/(user)/_components/content-container";
 import { PageTitle } from "@/app/(user)/_components/page-title";
+import { LinkRowList } from "@/app/(user)/_components/link-row";
+import { NativeAdRow } from "@/app/(user)/_components/native-ad-row";
 import { SectionTitle } from "@/app/(user)/_components/section-title";
+import { getNativeAdCreative } from "@/lib/ads/creatives";
 import { MachiScoreHelpTour } from "./_components/machi-score-help-tour";
 import { MachiScoreSetupForm } from "./_components/machi-score-setup-form";
 
@@ -33,6 +36,7 @@ export async function generateMetadata(): Promise<Metadata> {
 export default async function MachiScoreSetupPage() {
   const t = await getTranslations("machiScore");
   const tp = await getTranslations("practice");
+  const ad = await getNativeAdCreative("practice-intro-native-ad");
 
   return (
     <ContentContainer
@@ -43,17 +47,26 @@ export default async function MachiScoreSetupPage() {
     >
       <PageTitle action={<MachiScoreHelpTour />}>{t("title")}</PageTitle>
 
-      <div className="space-y-4 sm:space-y-6 md:space-y-8">
-        <SectionTitle>{tp("settingsTitle")}</SectionTitle>
-        <MachiScoreSetupForm>
-          {/* 出題範囲は始める前に読ませたい告知ではなく、始めたあとで
+      <div className="space-y-8">
+        <div className="space-y-4 sm:space-y-6 md:space-y-8">
+          <SectionTitle>{tp("settingsTitle")}</SectionTitle>
+          <MachiScoreSetupForm>
+            {/* 出題範囲は始める前に読ませたい告知ではなく、始めたあとで
               「なぜこの形しか出ないのか」を引くための脚注。見出しも箇条書きの
               点も立てず、※ の但し書きとして開始ボタンの下に小さく置く */}
-          <div className="space-y-0.5 text-xs leading-relaxed text-surface-500">
-            <p>{t("notes.mentsuOnly")}</p>
-            <p>{t("notes.multiWait")}</p>
-          </div>
-        </MachiScoreSetupForm>
+            <div className="space-y-0.5 text-xs leading-relaxed text-surface-500">
+              <p>{t("notes.mentsuOnly")}</p>
+              <p>{t("notes.multiWait")}</p>
+            </div>
+          </MachiScoreSetupForm>
+        </div>
+
+        {/* 関連するレッスンの節を持たないので、設定の後ろに直接置く */}
+        {ad && (
+          <LinkRowList inset>
+            <NativeAdRow creative={ad} />
+          </LinkRowList>
+        )}
       </div>
     </ContentContainer>
   );

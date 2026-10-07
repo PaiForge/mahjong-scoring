@@ -121,7 +121,8 @@ type BookKey = keyof typeof BOOKS;
  * 本はその画面の読み手に合わせる。練習一覧は牌効率（手牌を見て考える練習の
  * 並び）、結果画面・教本の章・レッスンの練習の並びは点数計算ドリル（点数計算を
  * 練習・学習した直後）、目次・用語集・レッスンの教本の並びは入門書から、
- * ランキングは戦術書から。
+ * ランキングは戦術書から。練習の説明ページは点数計算ドリル（これから点数計算を
+ * 練習する人）。
  */
 const SLOT_BOOKS: Record<
   AdSlot,
@@ -164,6 +165,10 @@ const SLOT_BOOKS: Record<
   "glossary-term-native-ad": [
     { id: "a27c9103-162a-4578-bcd4-517013fc2a26", book: "mangaIntro" },
     { id: "26d38ae2-00bc-4065-9af6-26466b0aaa03", book: "scoreDrill" },
+  ],
+  "practice-intro-native-ad": [
+    { id: "7729ea6e-f82f-4baf-9cd7-03d779c3b8d7", book: "scoreDrill" },
+    { id: "7ad6b8ff-002b-48bf-9f3c-f828f7b604d9", book: "haiKouritsu" },
   ],
 };
 
