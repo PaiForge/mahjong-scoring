@@ -216,6 +216,7 @@ export { isHaiKindId } from "./core/type-guards";
 
 export {
   formatMpsz,
+  parseExtendedMpsz,
   validateTehai14,
   countDora,
   getDoraNext,

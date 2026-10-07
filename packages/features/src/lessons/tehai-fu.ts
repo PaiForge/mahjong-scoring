@@ -12,7 +12,7 @@ import {
 
 import type { LessonQuestion, LessonQuiz } from "./quiz";
 
-/** 出題する手牌 1 つ（牌は Extended MPSZ。副露は `[...]`） */
+/** 出題する手牌 1 つ（牌は Extended MPSZ。副露は鳴き元の注釈付きの `[5=55z]`） */
 interface TehaiFuQuestionSource {
   readonly key: string;
   readonly mpsz: string;
