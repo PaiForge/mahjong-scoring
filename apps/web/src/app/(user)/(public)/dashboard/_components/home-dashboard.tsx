@@ -7,7 +7,7 @@ import { PageTitle } from "@/app/(user)/_components/page-title";
 import { fetchAchievedRankSlugs } from "../_lib/achieved-ranks";
 import { fetchAttemptedPractices } from "../_lib/attempted-practices";
 import { selectDashboardGuidance } from "../_lib/guidance";
-import { ScorePracticeSection } from "./score-practice-section";
+import { AgariScorePracticeSection } from "./agari-score-practice-section";
 import { ContinueLearningSection } from "./continue-learning-section";
 import { HomeAnnouncements } from "./home-announcements";
 import { NextStepSection } from "./next-step-section";
@@ -46,11 +46,12 @@ export async function HomeDashboard({ userId }: HomeDashboardProps) {
       fetchAchievedRankSlugs(),
     ]);
 
-  const { journey, nextChapter, showScorePractice } = selectDashboardGuidance({
-    completedLessonSlugs,
-    attemptedPractices,
-    achievedRankSlugs,
-  });
+  const { journey, nextChapter, showAgariScorePractice } =
+    selectDashboardGuidance({
+      completedLessonSlugs,
+      attemptedPractices,
+      achievedRankSlugs,
+    });
 
   return (
     <ContentContainer>
@@ -68,7 +69,7 @@ export async function HomeDashboard({ userId }: HomeDashboardProps) {
           />
         )}
 
-        {showScorePractice && <ScorePracticeSection />}
+        {showAgariScorePractice && <AgariScorePracticeSection />}
 
         <HomeAnnouncements />
       </div>

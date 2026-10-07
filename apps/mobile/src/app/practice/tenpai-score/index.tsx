@@ -12,7 +12,7 @@ import { SectionTitle } from "../../../components/section-title";
 import { useTenpaiScoreSettingsStore } from "../../../hooks/use-score-settings-store";
 import { colors } from "../../../lib/theme";
 import { useTenpaiScoreStore } from "../../../practice/endless/tenpai-score/use-tenpai-score-store";
-import { ScoreSetupForm } from "../../../practice/endless/score/score-setup-form";
+import { ScoreSetupForm } from "../../../practice/endless/agari-score/score-setup-form";
 
 /**
  * 聴牌形の点数計算 設定

@@ -23,7 +23,7 @@ export interface YakuOption {
  * Provider なので、web とモバイルのどちらの Provider の下でも同じに動く。
  */
 export function useYakuLabel(): (yakuName: string) => string {
-  const tYaku = useTranslations("score.yaku");
+  const tYaku = useTranslations("agariScore.yaku");
 
   return useCallback(
     (yakuName: string) => {

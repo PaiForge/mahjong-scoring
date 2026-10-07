@@ -83,8 +83,10 @@ describe("failOpenUsage", () => {
 
 describe("dailyLimit", () => {
   it("ログイン済みと未ログインで別の上限を引く", () => {
-    expect(dailyLimit("score", { signedIn: true, benefits: [] })).toBe(5);
-    expect(dailyLimit("score", { signedIn: false, benefits: [] })).toBe(1);
+    expect(dailyLimit("agari-score", { signedIn: true, benefits: [] })).toBe(5);
+    expect(dailyLimit("agari-score", { signedIn: false, benefits: [] })).toBe(
+      1,
+    );
     expect(dailyLimit("tenpai-score", { signedIn: true, benefits: [] })).toBe(
       3,
     );

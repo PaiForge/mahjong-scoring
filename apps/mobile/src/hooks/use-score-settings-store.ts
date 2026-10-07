@@ -9,8 +9,8 @@ import { MOBILE_SETTINGS_STORE_OPTIONS } from "./settings-store-options";
  * 保存名は web と同じ（端末が別なので衝突はしない。揃えておくと同じ設定の
  * 保存名を 2 つ覚えずに済む）。
  */
-export const useScoreSettingsStore = createScoreSettingsStore(
-  "mahjong-practice-settings",
+export const useAgariScoreSettingsStore = createScoreSettingsStore(
+  "mahjong-agari-score-settings",
   MOBILE_SETTINGS_STORE_OPTIONS,
 );
 
@@ -27,4 +27,4 @@ export const useTenpaiScoreSettingsStore = createScoreSettingsStore(
 );
 
 /** 点数計算系の練習の設定ストア（和了形の点数計算・聴牌形の点数計算のどちらか） */
-export type ScoreSettingsStoreHook = typeof useScoreSettingsStore;
+export type ScoreSettingsStoreHook = typeof useAgariScoreSettingsStore;

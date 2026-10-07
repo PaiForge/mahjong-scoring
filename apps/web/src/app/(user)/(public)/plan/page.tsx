@@ -98,8 +98,8 @@ export default async function PlanPage() {
           </ul>
           <p className="text-sm leading-relaxed text-surface-600">
             {t("perks.freeLimits", {
-              score: PRACTICE_QUOTA_LIMITS.score.signedIn,
-              machi: PRACTICE_QUOTA_LIMITS["tenpai-score"].signedIn,
+              agari: PRACTICE_QUOTA_LIMITS["agari-score"].signedIn,
+              tenpai: PRACTICE_QUOTA_LIMITS["tenpai-score"].signedIn,
             })}
           </p>
         </section>

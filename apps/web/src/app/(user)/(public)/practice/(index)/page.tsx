@@ -14,7 +14,7 @@ import { PageTitle } from "@/app/(user)/_components/page-title";
 import { createNamespaceMetadata } from "@/app/_lib/metadata";
 import { getNativeAdCreative } from "@/lib/ads/creatives";
 import {
-  ScorePracticeBanner,
+  AgariScorePracticeBanner,
   TenpaiScorePracticeBanner,
 } from "../_components/practical-practice-banners";
 import { PracticeModeSwitcher } from "../_components/practice-mode-switcher";
@@ -110,7 +110,7 @@ export default async function PracticePage() {
               </p>
             </div>
             <div className="grid gap-4 sm:grid-cols-2">
-              <ScorePracticeBanner />
+              <AgariScorePracticeBanner />
               <TenpaiScorePracticeBanner />
             </div>
           </section>

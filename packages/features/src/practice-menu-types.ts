@@ -29,7 +29,7 @@
  * - 'fu_score_exam': 昇級試験（30〜50符の点数計算・役表示なし・ミス1回で終了）
  * - 'score_exam': 昇段試験（あらゆる手の点数計算・役表示なし・ミス1回で終了）
  *
- * `practice/score` / `practice/tenpai-score` は終了条件の無い無限訓練のため、
+ * `practice/agari-score` / `practice/tenpai-score` は終了条件の無い無限訓練のため、
  * レジストリに載らず記録対象外。
  */
 

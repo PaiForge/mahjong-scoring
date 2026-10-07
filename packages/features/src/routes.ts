@@ -151,12 +151,12 @@ export function practiceResultHref(slug: PracticeMenuSlug): string {
 }
 
 /**
- * 記録を取らない和了形の点数計算（`/practice/score`）のパス。
+ * 記録を取らない和了形の点数計算（`/practice/agari-score`）のパス。
  *
  * チャレンジではなく無限に解ける訓練なので `PRACTICE_MENU_REGISTRY` にも
  * カタログにも載らない。練習一覧のバナーとダッシュボードのフォールバックが参照する。
  */
-export const SCORE_PRACTICE_HREF = "/practice/score";
+export const AGARI_SCORE_PRACTICE_HREF = "/practice/agari-score";
 
 /**
  * 記録を取らない聴牌形の点数計算（`/practice/tenpai-score`）のパス。

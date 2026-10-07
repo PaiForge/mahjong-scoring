@@ -34,13 +34,13 @@ describe("readUserQuotaUsage", () => {
   it("行があれば count を返し、何も書かない", async () => {
     givenRows([{ count: 2 }]);
 
-    expect(await readUserQuotaUsage("u1", "score", "2026-10-01")).toBe(2);
+    expect(await readUserQuotaUsage("u1", "agari-score", "2026-10-01")).toBe(2);
     expect(chain.where).toHaveBeenCalledWith(
       expect.objectContaining({
         op: "and",
         args: [
           { op: "eq", args: ["user_id", "u1"] },
-          { op: "eq", args: ["menu", "score"] },
+          { op: "eq", args: ["menu", "agari-score"] },
           { op: "eq", args: ["day", "2026-10-01"] },
         ],
       }),
@@ -59,7 +59,7 @@ describe("readUserQuotaUsage", () => {
       throw new Error("boom");
     });
     await expect(
-      readUserQuotaUsage("u1", "score", "2026-10-01"),
+      readUserQuotaUsage("u1", "agari-score", "2026-10-01"),
     ).rejects.toThrow("boom");
   });
 });

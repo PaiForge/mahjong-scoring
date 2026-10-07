@@ -164,7 +164,7 @@ export default function PracticeListPage() {
             <Text style={styles.lead}>{t("modes.recommendation")}</Text>
           </View>
           <View style={styles.list}>
-            <PracticalPracticeCard menu="score" />
+            <PracticalPracticeCard menu="agari-score" />
             <PracticalPracticeCard menu="tenpai-score" />
           </View>
         </View>

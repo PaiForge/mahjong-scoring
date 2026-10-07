@@ -36,7 +36,7 @@ import reference from "./ja/reference.json";
 import glossary from "./ja/glossary.json";
 import scoreTable from "./ja/score-table.json";
 import tenpaiScore from "./ja/tenpai-score.json";
-import score from "./ja/score.json";
+import agariScore from "./ja/agari-score.json";
 import aboutThisApp from "./ja/about-this-app.json";
 import whyScoringIsComplex from "./ja/why-scoring-is-complex.json";
 import learnCurriculum from "./ja/learn-curriculum.json";
@@ -136,7 +136,7 @@ export const messages = {
   glossary,
   scoreTable,
   tenpaiScore,
-  score,
+  agariScore,
   aboutThisApp,
   whyScoringIsComplex,
   learnCurriculum,

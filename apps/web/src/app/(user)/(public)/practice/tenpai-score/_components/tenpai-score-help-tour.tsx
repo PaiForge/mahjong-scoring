@@ -75,7 +75,7 @@ function buildCorrectCells(question: TenpaiScoreQuestion): {
 
 export function TenpaiScoreHelpTour() {
   const t = useTranslations("tenpaiScore");
-  const tScore = useTranslations("score");
+  const tScore = useTranslations("agariScore");
   const tCommon = useTranslations("common");
   const { isOpen, sample, open, close } = useHelpTourSample(generateSample);
 

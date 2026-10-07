@@ -12,7 +12,7 @@ import type {
 } from "@mahjong-scoring/core";
 import { Hai } from "@pai-forge/mahjong-react-ui";
 import { Button } from "@/app/(user)/_components/button";
-import { ResultDisplay } from "../../score/_components/result-display";
+import { ResultDisplay } from "../../agari-score/_components/result-display";
 import { TehaiMentsuBreakdown } from "../../_components/tehai-mentsu-breakdown";
 import { JudgementMark } from "../../_components/judgement-mark";
 import { correctCellAnswerOf } from "@mahjong-scoring/features/practice/tenpai-score/format-cell-answer";
@@ -114,7 +114,7 @@ export function TenpaiScoreResult({
 }: TenpaiScoreResultProps) {
   const t = useTranslations("tenpaiScore.result");
   const tCells = useTranslations("tenpaiScore.cells");
-  const tScore = useTranslations("score");
+  const tScore = useTranslations("agariScore");
   const tCommon = useTranslations("common");
   const cells = listCellRefs(question);
   const [focused, setFocused] = useState<MachiCellRef>(cells[0]);

@@ -63,7 +63,7 @@ describe("canReloadNow", () => {
 
   it.each([
     "/practice/jantou-fu/play",
-    "/practice/score/training",
+    "/practice/agari-score/training",
     "/exam/mangan/play",
   ])("出題セッションの最中（%s）は再読み込みしない", (pathname) => {
     expect(canReloadNow(pathname, document.body)).toBe(false);

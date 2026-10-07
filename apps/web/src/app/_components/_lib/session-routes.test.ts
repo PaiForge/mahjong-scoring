@@ -4,7 +4,7 @@ import { isSessionRoute } from "./session-routes";
 describe("isSessionRoute", () => {
   it.each([
     "/practice/jantou-fu/play",
-    "/practice/score/play",
+    "/practice/agari-score/play",
     "/practice/mangan-score-calculation/training",
     "/exam/fu-score/play",
   ])("%s はセッション中とみなす", (pathname) => {

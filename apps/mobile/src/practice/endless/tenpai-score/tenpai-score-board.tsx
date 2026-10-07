@@ -28,8 +28,8 @@ import { GenerationFailedNotice } from "../generation-failed-notice";
 import {
   readGeneratorOptions,
   readModeFlags,
-} from "../score/practice-conditions";
-import { ScorePracticeAnswerForm } from "../score/score-practice-answer-form";
+} from "../agari-score/practice-conditions";
+import { ScorePracticeAnswerForm } from "../agari-score/score-practice-answer-form";
 import { MachiPicker } from "./machi-picker";
 import { TenpaiScoreOperationHelp } from "./tenpai-score-help";
 import { TenpaiScoreResult } from "./tenpai-score-result";
@@ -54,7 +54,7 @@ const COLUMNS = ["tsumo", "ron"] as const;
  */
 export function TenpaiScoreBoard() {
   const t = useTranslations("tenpaiScore");
-  const tScore = useTranslations("score");
+  const tScore = useTranslations("agariScore");
   const router = useRouter();
   const scrollRef = useRef<ScrollView>(null);
   const [settings] = useState(() => useTenpaiScoreSettingsStore.getState());

@@ -25,7 +25,7 @@ import { TehaiMentsuBreakdown } from "../../../board/tehai-mentsu-breakdown";
 import { Button } from "../../../components/button";
 import { colors, radius } from "../../../lib/theme";
 import { JudgementMark } from "../../components/judgement-mark";
-import { ResultDisplay } from "../score/result-display";
+import { ResultDisplay } from "../agari-score/result-display";
 import { MACHI_TILE_MARK_STYLES } from "./machi-tile-mark-styles";
 import { NoYakuResultDisplay } from "./no-yaku-result-display";
 import { WaitCellTabs } from "./wait-cell-tabs";
@@ -99,7 +99,7 @@ export function TenpaiScoreResult({
 }: TenpaiScoreResultProps) {
   const t = useTranslations("tenpaiScore.result");
   const tCells = useTranslations("tenpaiScore.cells");
-  const tScore = useTranslations("score");
+  const tScore = useTranslations("agariScore");
   const tCommon = useTranslations("common");
   const cells = listCellRefs(question);
   const [focused, setFocused] = useState<MachiCellRef>(cells[0]);

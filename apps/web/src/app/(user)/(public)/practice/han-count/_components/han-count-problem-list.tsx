@@ -4,7 +4,7 @@ import { useTranslations } from "next-intl";
 import { AnswerComparison } from "../../_components/answer-comparison";
 import { ProblemListAccordion } from "../../_components/problem-list-accordion";
 import { TehaiMentsuBreakdown } from "../../_components/tehai-mentsu-breakdown";
-import { QuestionDisplay } from "../../score/_components/question-display";
+import { QuestionDisplay } from "../../agari-score/_components/question-display";
 import { restoreScoreQuestion } from "@mahjong-scoring/features/results/score-question-result";
 import { hanCountLabel } from "@mahjong-scoring/features/practice/han-count/han-options";
 import type { HanCountQuestionResult } from "@mahjong-scoring/features/practice/han-count/types";

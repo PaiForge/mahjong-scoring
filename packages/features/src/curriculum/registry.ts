@@ -206,7 +206,7 @@ const CURRICULUM_REGISTRY = [
     publishedAt: "2026-08-29",
     section: "score",
     order: 70,
-    // 対応する練習は自由練習（/practice/score の役絞り込み）だが、
+    // 対応する練習は自由練習（/practice/agari-score の役絞り込み）だが、
     // practiceLinks はカタログ登録済みの練習しか指せない（記録対象・
     // おすすめ導線の前提。`practice/catalog.test.ts` が固定している）。
     // 導線は章本文（chiitoitsu-score-guide.tsx）の CTA が持つ
@@ -462,7 +462,7 @@ export function sortChapterSlugs(
  * セクションに属する章を、カリキュラムの順で返す。
  * セクションの章
  *
- * 記録を取らない和了形の点数計算（`/practice/score`）が「関連する教本の章」を出すのに
+ * 記録を取らない和了形の点数計算（`/practice/agari-score`）が「関連する教本の章」を出すのに
  * 使う。あの練習はカタログにも章の `practiceLinks` にも載らない（記録対象外
  * のため前者に、出題条件付きの自由練習のため後者に載せられない）ので、
  * {@link relatedChaptersForPractice} の逆引きでは引けない。代わりに「点数の

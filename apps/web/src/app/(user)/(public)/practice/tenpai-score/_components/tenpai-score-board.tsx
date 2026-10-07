@@ -35,9 +35,9 @@ import {
 import {
   parseGeneratorOptionsFromParams,
   parseModeFlagsFromParams,
-} from "../../score/_lib/parse-practice-params";
-import { ScorePracticeAnswerForm } from "../../score/_components/score-practice-answer-form";
-import { GenerationFailedNotice } from "../../score/_components/generation-failed-notice";
+} from "../../agari-score/_lib/parse-practice-params";
+import { ScorePracticeAnswerForm } from "../../agari-score/_components/score-practice-answer-form";
+import { GenerationFailedNotice } from "../../agari-score/_components/generation-failed-notice";
 import { TENPAI_SCORE_PRACTICE_HREF } from "@mahjong-scoring/features/routes";
 import {
   cellKeyOf,
@@ -56,7 +56,7 @@ import { WaitCellGrid } from "./wait-cell-grid";
 
 function TenpaiScoreBoardInner() {
   const t = useTranslations("tenpaiScore");
-  const tScore = useTranslations("score");
+  const tScore = useTranslations("agariScore");
   const tt = useTranslations("training");
   const router = useRouter();
   const searchParams = useSearchParams();

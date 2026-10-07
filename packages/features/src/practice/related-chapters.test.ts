@@ -82,7 +82,7 @@ describe("sortChapterSlugs", () => {
 
 describe("chaptersInSection", () => {
   it("セクションの章をカリキュラムの順で返す", () => {
-    // 和了形の点数計算（/practice/score）の戻り先。点数の計算セクションの各章が
+    // 和了形の点数計算（/practice/agari-score）の戻り先。点数の計算セクションの各章が
     // 本文の CTA でこの練習へ送っている
     expect(chaptersInSection("score")).toEqual([
       "chiitoitsu-score",

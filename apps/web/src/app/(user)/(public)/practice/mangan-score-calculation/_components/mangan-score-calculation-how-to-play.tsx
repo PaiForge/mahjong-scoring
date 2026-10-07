@@ -1,5 +1,5 @@
 import { getTranslations } from "next-intl/server";
-import { QuestionDisplay } from "../../score/_components/question-display";
+import { QuestionDisplay } from "../../agari-score/_components/question-display";
 import { MANGAN_SCORE_CALCULATION_DEMO_QUESTION } from "@mahjong-scoring/features/practice/mangan-score-calculation/demo-question";
 import { QuestionPrompt } from "../../_components/question-prompt";
 import { YakuListDisplay } from "./yaku-list-display";

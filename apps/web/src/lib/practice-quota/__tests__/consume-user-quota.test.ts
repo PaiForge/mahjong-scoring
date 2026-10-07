@@ -32,7 +32,9 @@ beforeEach(() => {
 
 describe("consumeUserQuota", () => {
   it("上限が 0 以下なら DB に触らず不許可", async () => {
-    expect(await consumeUserQuota("u1", "score", "2026-10-01", 0)).toEqual({
+    expect(
+      await consumeUserQuota("u1", "agari-score", "2026-10-01", 0),
+    ).toEqual({
       allowed: false,
       remaining: 0,
     });
@@ -42,7 +44,9 @@ describe("consumeUserQuota", () => {
   it("行が返れば許可し、残りは上限 − count", async () => {
     givenReturning([{ count: 2 }]);
 
-    expect(await consumeUserQuota("u1", "score", "2026-10-01", 5)).toEqual({
+    expect(
+      await consumeUserQuota("u1", "agari-score", "2026-10-01", 5),
+    ).toEqual({
       allowed: true,
       remaining: 3,
     });
@@ -51,7 +55,9 @@ describe("consumeUserQuota", () => {
   it("行が返らなければ上限到達（UPDATE が WHERE で起きなかった）", async () => {
     givenReturning([]);
 
-    expect(await consumeUserQuota("u1", "score", "2026-10-01", 5)).toEqual({
+    expect(
+      await consumeUserQuota("u1", "agari-score", "2026-10-01", 5),
+    ).toEqual({
       allowed: false,
       remaining: 0,
     });
@@ -80,7 +86,9 @@ describe("consumeUserQuota", () => {
 
   it("残りは負にならない（count が上限ちょうどのとき 0）", async () => {
     givenReturning([{ count: 5 }]);
-    expect(await consumeUserQuota("u1", "score", "2026-10-01", 5)).toEqual({
+    expect(
+      await consumeUserQuota("u1", "agari-score", "2026-10-01", 5),
+    ).toEqual({
       allowed: true,
       remaining: 0,
     });
@@ -91,7 +99,7 @@ describe("consumeUserQuota", () => {
       throw new Error("boom");
     });
     await expect(
-      consumeUserQuota("u1", "score", "2026-10-01", 5),
+      consumeUserQuota("u1", "agari-score", "2026-10-01", 5),
     ).rejects.toThrow("boom");
   });
 });

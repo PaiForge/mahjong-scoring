@@ -22,7 +22,7 @@ import type { RankSlug } from "../ranks/registry";
  * 練習名のキーは {@link practiceTitleKey}）。教本へのリンクも章スラッグだけを
  * 持ち、パスは `chapterHref()` に任せる。slug と messageKey の対応は
  * `practice-menu-types.ts` のレジストリが正典で、そこに載らない練習
- * （記録対象外の `/practice/score`）はカタログにも含めない。
+ * （記録対象外の `/practice/agari-score`）はカタログにも含めない。
  */
 
 /** 練習一覧のカテゴリ（`practice.categories.*` に対応） */

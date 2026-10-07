@@ -2,7 +2,7 @@
  * 役名（日本語）から辞書キーへの対応。
  *
  * 役の選択練習と点数計算練習、設定ページの並び替えがいずれも同じ表示名を
- * 出すため、対応表は 1 つに寄せる。辞書の実体は `score.yaku` 名前空間。
+ * 出すため、対応表は 1 つに寄せる。辞書の実体は `agariScore.yaku` 名前空間。
  */
 export const YAKU_TO_KEY: Readonly<Record<string, string>> = {
   立直: "riichi",

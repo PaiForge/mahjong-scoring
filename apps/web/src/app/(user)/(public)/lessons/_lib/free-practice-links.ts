@@ -1,6 +1,6 @@
 import type { CurriculumChapterSlug } from "@mahjong-scoring/features/curriculum/registry";
 
-import { scorePracticePlayHref } from "../../practice/score/_lib/play-href";
+import { scorePracticePlayHref } from "../../practice/agari-score/_lib/play-href";
 
 /** カタログ外の練習への導線 1 つ */
 export interface FreePracticeLink {

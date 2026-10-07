@@ -16,7 +16,7 @@ import {
 import {
   ResultTableFrame,
   ResultUnansweredCell,
-} from "../../score/_components/result-table-frame";
+} from "../../agari-score/_components/result-table-frame";
 
 interface JudgedCellProps {
   readonly value: string;
@@ -74,7 +74,7 @@ export function NoYakuResultDisplay({
   simplifyMangan,
 }: NoYakuResultDisplayProps) {
   const t = useTranslations("tenpaiScore");
-  const tScore = useTranslations("score");
+  const tScore = useTranslations("agariScore");
   const allowDoubleYakuman = allowsDoubleYakuman(useYakumanRules());
 
   // 点数で答えた（= 役なしのマスに対する誤答）ときだけ翻・符・点数の行に値が入る

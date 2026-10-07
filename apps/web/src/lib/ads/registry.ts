@@ -191,7 +191,7 @@ export const AD_SLOTS = {
     kind: "native_row",
     surfaces: [
       { route: "/practice/<練習>", href: "/practice/jantou-fu" },
-      { route: "/practice/score", href: "/practice/score" },
+      { route: "/practice/agari-score", href: "/practice/agari-score" },
       { route: "/practice/tenpai-score", href: "/practice/tenpai-score" },
     ],
   },
@@ -232,7 +232,7 @@ export const AD_SLOTS = {
     kind: "native_row",
     surfaces: [
       { platform: "mobile", route: "/practice/<練習>" },
-      { platform: "mobile", route: "/practice/score" },
+      { platform: "mobile", route: "/practice/agari-score" },
       { platform: "mobile", route: "/practice/tenpai-score" },
     ],
   },

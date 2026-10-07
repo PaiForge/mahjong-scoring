@@ -21,7 +21,7 @@ export interface DashboardGuidance {
    */
   readonly nextChapter: CurriculumChapter | undefined;
   /** 全級取得済みのユーザーに、終わりのない和了形の点数計算を出すか */
-  readonly showScorePractice: boolean;
+  readonly showAgariScorePractice: boolean;
 }
 
 /**
@@ -52,6 +52,6 @@ export function selectDashboardGuidance(
     nextChapter: journeyDone
       ? pickNextChapter(input.completedLessonSlugs)
       : undefined,
-    showScorePractice: journeyDone,
+    showAgariScorePractice: journeyDone,
   };
 }

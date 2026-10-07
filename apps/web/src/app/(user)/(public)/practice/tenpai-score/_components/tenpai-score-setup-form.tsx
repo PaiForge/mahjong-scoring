@@ -1,7 +1,7 @@
 "use client";
 
 import type { ReactNode } from "react";
-import { ScoreSetupForm } from "../../score/_components/score-setup-form";
+import { ScoreSetupForm } from "../../agari-score/_components/score-setup-form";
 import { TENPAI_SCORE_PRACTICE_HREF } from "@mahjong-scoring/features/routes";
 import { useTenpaiScoreSettingsStore } from "../_hooks/use-tenpai-score-settings-store";
 import { useTenpaiScoreStore } from "../_hooks/use-tenpai-score-store";

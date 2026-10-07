@@ -74,7 +74,7 @@ const IDLE: MenuQuotaState = { gate: undefined, isChecking: false };
  * 出題ゲートストア
  *
  * 盤面のローカル state ではなくモジュールスコープに置く。練習の問題を持つ
- * ストア（`useScorePracticeStore` 等）と同じく、盤面を離れても捨てられない。
+ * ストア（`useAgariScoreStore` 等）と同じく、盤面を離れても捨てられない。
  * 盤面に戻ってきたとき、問題と一緒に残数・特典の表示と「返事を待っている
  * 最中か」を引き継ぐため。読む側は `usePracticeQuota()` を通す。
  */

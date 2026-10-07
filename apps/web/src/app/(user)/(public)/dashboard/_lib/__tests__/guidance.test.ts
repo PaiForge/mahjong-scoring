@@ -25,7 +25,7 @@ describe("selectDashboardGuidance", () => {
       expect(guidance.journey.isFresh).toBe(true);
       expect(guidance.journey.nextStep?.kind).toBe("lesson");
       expect(guidance.nextChapter).toBeUndefined();
-      expect(guidance.showScorePractice).toBe(false);
+      expect(guidance.showAgariScorePractice).toBe(false);
     });
 
     it("継続ユーザー: 行程の外のレッスンを終えていても、行程の次の一歩と別の再開先は出さない", () => {
@@ -55,7 +55,7 @@ describe("selectDashboardGuidance", () => {
 
       // 学ぶ段は済んでいるので、次の一歩は練習
       expect(guidance.journey.nextStep?.kind).toBe("practice");
-      expect(guidance.showScorePractice).toBe(false);
+      expect(guidance.showAgariScorePractice).toBe(false);
     });
   });
 
@@ -69,7 +69,7 @@ describe("selectDashboardGuidance", () => {
 
       expect(guidance.journey.nextStep).toBeUndefined();
       expect(guidance.nextChapter?.slug).toBe("why-scoring-is-complex");
-      expect(guidance.showScorePractice).toBe(true);
+      expect(guidance.showAgariScorePractice).toBe(true);
     });
 
     it("終えたレッスンは順序に関わらず飛ばし、最初の未完了を勧める", () => {
@@ -94,7 +94,7 @@ describe("selectDashboardGuidance", () => {
       });
 
       expect(guidance.nextChapter).toBeUndefined();
-      expect(guidance.showScorePractice).toBe(true);
+      expect(guidance.showAgariScorePractice).toBe(true);
     });
   });
 });

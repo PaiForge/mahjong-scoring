@@ -15,7 +15,7 @@ import { paymentToScoreTableAnswer } from "@mahjong-scoring/features/results/pay
 import type { RecordingPracticeBoardProps } from "@mahjong-scoring/features/practice/board-props";
 import type { ScoreQuestionResult } from "@mahjong-scoring/features/results/score-question-result";
 import { buildYakumanCapNote } from "@mahjong-scoring/features/results/yakuman-cap-note";
-import { QuestionDisplay } from "@/app/(user)/(public)/practice/score/_components/question-display";
+import { QuestionDisplay } from "@/app/(user)/(public)/practice/agari-score/_components/question-display";
 import type { ScoreExamBoardConfig } from "@mahjong-scoring/features/exam/score-exam-board-config";
 import { ScoreExamAnswerForm } from "../_components/score-exam-answer-form";
 

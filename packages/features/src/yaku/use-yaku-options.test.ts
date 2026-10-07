@@ -11,7 +11,7 @@ describe("useYakuLabel", () => {
     const { result } = renderHook(() => useYakuLabel(), {
       wrapper: IntlWrapper,
     });
-    expect(result.current("断么九")).toBe(messages.score.yaku.tanyao);
+    expect(result.current("断么九")).toBe(messages.agariScore.yaku.tanyao);
   });
 
   it("辞書に無い役名はそのまま返す", () => {
@@ -29,8 +29,8 @@ describe("useYakuOptions", () => {
       wrapper: IntlWrapper,
     });
     expect(result.current).toEqual([
-      { value: "平和", label: messages.score.yaku.pinfu },
-      { value: "立直", label: messages.score.yaku.riichi },
+      { value: "平和", label: messages.agariScore.yaku.pinfu },
+      { value: "立直", label: messages.agariScore.yaku.riichi },
     ]);
   });
 });

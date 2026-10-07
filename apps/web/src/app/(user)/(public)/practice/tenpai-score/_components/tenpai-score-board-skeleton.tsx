@@ -1,7 +1,7 @@
 "use client";
 
 import { SkeletonBar } from "@/app/_components/skeleton-bar";
-import { ScoreBoardSkeletonFrame } from "../../score/_components/score-board-skeleton-frame";
+import { ScoreBoardSkeletonFrame } from "../../agari-score/_components/score-board-skeleton-frame";
 
 /**
  * プレイ画面のローディングスケルトン
