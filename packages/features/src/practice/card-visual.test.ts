@@ -30,7 +30,7 @@ describe("練習カードの例示", () => {
       .map((menu) => practiceCardVisual(menu.slug, t)?.subject)
       .filter((subject) => subject?.kind === "hand");
 
-    // MSPZ の書き損じは牌が減った手牌として静かに描画されるため枚数で見る
+    // MPSZ の書き損じは牌が減った手牌として静かに描画されるため枚数で見る
     expect(hands.length).toBeGreaterThan(0);
     for (const hand of hands) {
       expect(hand.tiles).toHaveLength(14);

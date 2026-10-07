@@ -9,7 +9,7 @@ const validResult = {
   mentsu: {
     tiles: "111m",
     type: MentsuType.Koutsu,
-    furo: { type: "Pon", from: 2 },
+    furo: { type: "Pon", from: 2, nakiHai: 0 },
   },
   correctFu: 4,
   userFu: 8,
@@ -37,6 +37,15 @@ describe("parseMentsuFuResults", () => {
       mentsu: { ...validResult.mentsu, furo: { type: "Pon" } },
     };
     expect(parseMentsuFuResults([broken])).toEqual([]);
+  });
+
+  it("鳴いた牌を持たない旧形式の要素は例外にせず除外する", () => {
+    // riichi-mahjong 0.x の Furo（鳴き元だけ）で保存された結果
+    const legacy = {
+      ...validResult,
+      mentsu: { ...validResult.mentsu, furo: { type: "Pon", from: 2 } },
+    };
+    expect(parseMentsuFuResults([legacy, validResult])).toEqual([validResult]);
   });
 });
 

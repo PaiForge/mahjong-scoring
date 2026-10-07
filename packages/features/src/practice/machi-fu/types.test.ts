@@ -31,7 +31,7 @@ describe("toQuestionResult", () => {
 
   it("保存形式から待ち形と和了牌を出題時の並びのまま復元できる", () => {
     // 結果ページはこの復元に依存して待ち形を再表示する。
-    // 待ち形の牌は昇順で出題されるため、MSPZ の正規化を通しても並びが変わらない。
+    // 待ち形の牌は昇順で出題されるため、MPSZ の正規化を通しても並びが変わらない。
     for (let i = 0; i < 50; i++) {
       const question = generateMachiFuQuestion();
       const result = toQuestionResult(question, 0);

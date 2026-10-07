@@ -1,4 +1,4 @@
-import { haiIdToMspz, kazeIdToMspz } from "@mahjong-scoring/core";
+import { haiIdToMpsz } from "@mahjong-scoring/core";
 import type { JantouFuChoice, JantouFuQuestion } from "@mahjong-scoring/core";
 
 import {
@@ -27,15 +27,15 @@ export const RESULT_STORAGE_KEY = resultStorageKeyFor(PRACTICE_SLUG.jantouFu);
  * 振り返る値が無いため保存しない。
  */
 export interface JantouFuQuestionResult {
-  /** 場風（MSPZ） */
+  /** 場風（MPSZ） */
   readonly bakaze: string;
-  /** 自風（MSPZ） */
+  /** 自風（MPSZ） */
   readonly jikaze: string;
-  /** 正解の雀頭（MSPZ） */
+  /** 正解の雀頭（MPSZ） */
   readonly correctHai: string;
   /** 正解の雀頭に付く符 */
   readonly correctFu: number;
-  /** ユーザーが選んだ雀頭（MSPZ）。時間切れで答えられなかった問題では持たない */
+  /** ユーザーが選んだ雀頭（MPSZ）。時間切れで答えられなかった問題では持たない */
   readonly selectedHai?: string;
   /** ユーザーが選んだ雀頭に付く符。時間切れで答えられなかった問題では持たない */
   readonly selectedFu?: number;
@@ -57,11 +57,11 @@ export function toQuestionResult(
     question.choices.find((choice) => choice.isCorrect) ?? question.choices[0];
 
   return {
-    bakaze: kazeIdToMspz(question.context.bakaze),
-    jikaze: kazeIdToMspz(question.context.jikaze),
-    correctHai: haiIdToMspz(correct.hai),
+    bakaze: haiIdToMpsz(question.context.bakaze),
+    jikaze: haiIdToMpsz(question.context.jikaze),
+    correctHai: haiIdToMpsz(correct.hai),
     correctFu: correct.fu,
-    selectedHai: selected && haiIdToMspz(selected.hai),
+    selectedHai: selected && haiIdToMpsz(selected.hai),
     selectedFu: selected?.fu,
     outcome: toAnswerOutcome(selected?.isCorrect),
   };

@@ -21,7 +21,7 @@ export interface AdCreativeInput {
   /** 画像の公開 URL（/api/admin/ads/image の戻り値）。空文字は「無し」 */
   readonly imageUrl: string;
   readonly imageAlt: string;
-  /** カードの帯に並べる手牌（MSPZ 表記）。空文字は「無し」 */
+  /** カードの帯に並べる手牌（MPSZ 表記）。空文字は「無し」 */
   readonly hand: string;
   /** ロケール → タイトル。空文字は「そのロケールでは書かない」 */
   readonly title: Readonly<Record<string, string>>;
@@ -106,12 +106,20 @@ const MAX_HAND_TILES = 14;
 
 /**
  * 手牌の表記が帯に並べられるものか。
+ * 広告手牌検証
  *
- * 帯は純手牌を 1 列に並べるだけなので、副露（`[...]`）は受け付けない —
- * 表記が通っても描画で落ちる部分を保存させない。
+ * 表記は Extended MPSZ 2.0。帯は純手牌を 1 列に並べるだけなので、面子
+ * ブロック（副露 `[...]`・加槓 `{...}`・暗槓 `(...)`）は受け付けない —
+ * 表記が通っても描画で落ちる部分を保存させない。赤 5（`0m` 等）も
+ * 受け付けない。赤 5 の牌画像を持たず、帯には普通の 5 として並んでしまう
+ * （入力した表記と画面が食い違う）ため。
+ *
+ * 表記は入力のまま保存し、正規形（`formatMpsz`）には揃えない。帯は表記の
+ * 順に牌を並べるので、揃えると管理者が決めた並びが変わる。
  */
-function isValidHand(value: string): boolean {
+export function isValidAdHand(value: string): boolean {
   if (value.length > AD_CREATIVE_LIMITS.hand) return false;
+  if (value.includes("0")) return false;
   const tehai = parseTehai(value);
   return (
     tehai !== undefined &&
@@ -185,7 +193,7 @@ export function validateAdCreative(
   if (icon === "" && imageUrl === "" && hand === "") {
     return { ok: false, error: "errorVisualRequired" };
   }
-  if (hand !== "" && !isValidHand(hand)) {
+  if (hand !== "" && !isValidAdHand(hand)) {
     return { ok: false, error: "errorHandInvalid" };
   }
   if (icon.length > AD_CREATIVE_LIMITS.icon) {

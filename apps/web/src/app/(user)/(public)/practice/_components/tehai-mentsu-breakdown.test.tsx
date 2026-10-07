@@ -186,7 +186,7 @@ describe("TehaiMentsuBreakdown", () => {
     const PON_HAKU: CompletedMentsu = {
       type: MentsuType.Koutsu,
       hais: [HaiKind.Haku, HaiKind.Haku, HaiKind.Haku],
-      furo: { type: FuroType.Pon, from: Tacha.Toimen },
+      furo: { type: FuroType.Pon, from: Tacha.Toimen, nakiHai: HaiKind.Haku },
     };
 
     it("副露した刻子は明刻子として、鳴きの並びで見せる", () => {

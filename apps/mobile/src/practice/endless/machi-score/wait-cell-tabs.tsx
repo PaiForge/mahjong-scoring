@@ -1,7 +1,7 @@
 import { Pressable, ScrollView, StyleSheet, Text, View } from "react-native";
 import { useTranslations } from "use-intl";
 import type { JudgementResult } from "@mahjong-scoring/core";
-import { haiIdToMspz } from "@mahjong-scoring/core";
+import { haiIdToMpsz } from "@mahjong-scoring/core";
 import {
   cellKeyOf,
   type MachiCellRef,
@@ -88,7 +88,7 @@ export function WaitCellTabs({
             accessibilityState={{ selected: isFocused }}
             accessibilityLabel={[
               winLabel,
-              haiIdToMspz(cell.agariHai),
+              haiIdToMpsz(cell.agariHai),
               ...correctLines,
               verdict && tCommon(verdict),
             ]

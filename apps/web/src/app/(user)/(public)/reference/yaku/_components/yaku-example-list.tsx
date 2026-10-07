@@ -19,7 +19,7 @@ function YakuExample({
 }) {
   const t = useTranslations("common");
 
-  const tehai = parseTehai(hand.mspz);
+  const tehai = parseTehai(hand.mpsz);
   if (!tehai) return null;
 
   const { agari } = hand;
@@ -65,7 +65,7 @@ export function YakuExampleList({ examples }: YakuExampleListProps) {
   return (
     <div className="space-y-4">
       {examples.map((example) => (
-        <div key={example.variant ?? example.menzen.mspz} className="space-y-3">
+        <div key={example.variant ?? example.menzen.mpsz} className="space-y-3">
           <YakuExample
             hand={example.menzen}
             label={label(

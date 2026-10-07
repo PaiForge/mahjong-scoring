@@ -12,7 +12,6 @@
 - `packages/features` — web とモバイルで共有するアプリのロジック
 - `packages/messages` — i18n 辞書（web とモバイルで共有）
 - `packages/eslint-config` — 共有 ESLint 設定
-- `docs/` — [PaiForge/docs](https://github.com/PaiForge/docs)（git submodule — コーディング規約等）
 
 ## セットアップ
 
@@ -32,14 +31,8 @@
 ### クローン
 
 ```bash
-git clone --recurse-submodules https://github.com/PaiForge/mahjong-scoring.git
+git clone https://github.com/PaiForge/mahjong-scoring.git
 cd mahjong-scoring
-```
-
-既にクローン済みで submodule が未取得の場合:
-
-```bash
-git submodule update --init --recursive
 ```
 
 ### インストール
@@ -77,16 +70,12 @@ pnpm --filter @mahjong-scoring/mobile web     # ブラウザで確認（画面�
 
 ## コーディング規約
 
-コーディング規約は `docs/` submodule で一元管理されています。
+コーディング規約と牌の表記法は、PaiForge の別リポジトリで一元管理しています。
 
-- [coding-standards.md](https://github.com/PaiForge/docs/blob/main/coding-standards.md)（ローカルでは `docs/coding-standards.md`）
-- [extended-mspz.md](https://github.com/PaiForge/docs/blob/main/extended-mspz.md)（ローカルでは `docs/extended-mspz.md`）
+- コーディング規約: [PaiForge/docs](https://github.com/PaiForge/docs)（https://raw.githubusercontent.com/PaiForge/docs/0b464878e4e24b6b8c154d90f96e1657e212ddaa/coding-standards.md）
+- 牌の表記法 Extended MPSZ: [PaiForge/extended-mpsz](https://github.com/PaiForge/extended-mpsz)（https://raw.githubusercontent.com/PaiForge/extended-mpsz/72ee9ede74583d58587bc8c6ed36166bb808b5bd/SPEC.md）
 
-submodule を最新に更新するには:
-
-```bash
-git submodule update --remote docs
-```
+URL はコミット SHA で固定しています。共有文書を更新したら、CLAUDE.md・`.github/claude/system-prompt.md`・この README の SHA を差し替えてください。
 
 ## バージョニング
 

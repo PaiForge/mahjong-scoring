@@ -24,7 +24,7 @@ function koutsu(hai: HaiKindId, open: boolean): CompletedMentsu {
     ? {
         type: MentsuType.Koutsu,
         hais: [hai, hai, hai],
-        furo: { type: FuroType.Pon, from: FURO_FROM },
+        furo: { type: FuroType.Pon, from: FURO_FROM, nakiHai: hai },
       }
     : { type: MentsuType.Koutsu, hais: [hai, hai, hai] };
 }
@@ -35,7 +35,7 @@ function kantsu(hai: HaiKindId, open: boolean): CompletedMentsu {
     ? {
         type: MentsuType.Kantsu,
         hais: [hai, hai, hai, hai],
-        furo: { type: FuroType.Daiminkan, from: FURO_FROM },
+        furo: { type: FuroType.Daiminkan, from: FURO_FROM, nakiHai: hai },
       }
     : { type: MentsuType.Kantsu, hais: [hai, hai, hai, hai] };
 }

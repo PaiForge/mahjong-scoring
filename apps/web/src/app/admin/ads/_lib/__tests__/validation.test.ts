@@ -89,12 +89,18 @@ describe("validateAdCreative", () => {
     expect(result.ok && result.value.hand).toBe("123m456p789s11z22z");
   });
 
-  it.each(["abc", "123m456p789s111z222z", "123m[456p]"])(
-    "帯に並べられない手牌を弾く: %s",
-    (hand) => {
-      expect(errorOf(input({ hand }))).toBe("errorHandInvalid");
-    },
-  );
+  it.each([
+    "abc",
+    "123m456p789s111z222z",
+    "123m[4-56p]",
+    "123m(1111z)",
+    "123m{5=555^p}",
+    "123m406p",
+    "[123m]",
+    "123m8z",
+  ])("帯に並べられない手牌を弾く: %s", (hand) => {
+    expect(errorOf(input({ hand }))).toBe("errorHandInvalid");
+  });
 
   it("行型のスロットには手牌を設定させない", () => {
     expect(

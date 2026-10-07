@@ -17,6 +17,7 @@
     "db:run-migrate": "tsx scripts/migrate.ts",
     "db:seed": "tsx scripts/seed.ts",
     "db:seed:dev": "tsx scripts/dev-seed.ts",
+    "db:migrate-ad-hands": "tsx scripts/migrate-ad-hands.mts",
     "stripe:bootstrap": "tsx scripts/stripe-bootstrap.ts",
     "db:studio": "drizzle-kit studio"
   },

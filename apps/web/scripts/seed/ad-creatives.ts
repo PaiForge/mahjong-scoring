@@ -35,7 +35,7 @@ interface SeedBook {
   /** 行の形（`native_row`）の行頭に出す絵文字 */
   readonly icon: string;
   /**
-   * カードの形（`native_card`）の帯に並べる手牌（MSPZ 表記、14 枚）。
+   * カードの形（`native_card`）の帯に並べる手牌（MPSZ 表記、14 枚）。
    * 練習カードと同じ緑の帯に、その本の中身に近い手を置く
    */
   readonly hand: string;

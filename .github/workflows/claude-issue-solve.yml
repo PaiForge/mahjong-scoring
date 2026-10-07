@@ -79,10 +79,6 @@ jobs:
         uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5.0.0
         with:
           fetch-depth: 0
-          # CLAUDE.md points Claude at docs/coding-standards.md and
-          # docs/extended-mspz.md, which live in the public PaiForge/docs
-          # submodule. Without this the directory is empty on the runner.
-          submodules: true
 
       # Install the toolchain and dependencies so that Claude can run the
       # quality gates itself. Without this, allowing `Bash(<gate>)` via
@@ -163,7 +159,11 @@ jobs:
           # `pnpm format` (prettier --write) is the only non-gate command: it is
           # the deterministic remedy for a failing `pnpm format:check`, and
           # writes nothing that the format gate would not have demanded.
-          claude_args: --allowed-tools "Bash(pnpm lint),Bash(pnpm typecheck),Bash(pnpm test),Bash(pnpm format:check),Bash(pnpm format)"
+          # WebFetch is limited to raw.githubusercontent.com: the coding
+          # standards and the Extended MPSZ spec live in other PaiForge
+          # repositories and are referenced by raw URLs pinned to a commit
+          # (CLAUDE.md), not checked out as submodules.
+          claude_args: --allowed-tools "Bash(pnpm lint),Bash(pnpm typecheck),Bash(pnpm test),Bash(pnpm format:check),Bash(pnpm format),WebFetch(domain:raw.githubusercontent.com)"
 
       # Deterministic post-validation of what Claude actually pushed. No PR
       # exists yet, so a violation here costs nothing beyond an orphaned

@@ -82,7 +82,7 @@ export function generateShuntsu(
     ? {
         type: MentsuType.Shuntsu,
         hais,
-        furo: { type: FuroType.Chi, from: Tacha.Kamicha },
+        furo: { type: FuroType.Chi, from: Tacha.Kamicha, nakiHai: start },
       }
     : { type: MentsuType.Shuntsu, hais };
 }
@@ -114,6 +114,7 @@ export function generateKoutsu(
             [Tacha.Kamicha, Tacha.Toimen, Tacha.Shimocha],
             rng,
           ),
+          nakiHai: hai,
         },
       }
     : { type: MentsuType.Koutsu, hais };
@@ -136,19 +137,18 @@ export function generateKantsu(
   if (hai === undefined) return undefined;
 
   const hais = [hai, hai, hai, hai] as const;
-  return furo
-    ? {
-        type: MentsuType.Kantsu,
-        hais,
-        furo: {
-          type: randomBool(0.5, rng) ? FuroType.Daiminkan : FuroType.Kakan,
-          from: randomChoice(
-            [Tacha.Kamicha, Tacha.Toimen, Tacha.Shimocha],
-            rng,
-          ),
-        },
-      }
-    : { type: MentsuType.Kantsu, hais };
+  if (!furo) return { type: MentsuType.Kantsu, hais };
+
+  // 乱数は「種別 → 鳴き元」の順に引く（seed を固定したテストの出題を変えない）
+  const isDaiminkan = randomBool(0.5, rng);
+  const from = randomChoice([Tacha.Kamicha, Tacha.Toimen, Tacha.Shimocha], rng);
+  return {
+    type: MentsuType.Kantsu,
+    hais,
+    furo: isDaiminkan
+      ? { type: FuroType.Daiminkan, from, nakiHai: hai }
+      : { type: FuroType.Kakan, from, nakiHai: hai, kakanHai: hai },
+  };
 }
 
 /**

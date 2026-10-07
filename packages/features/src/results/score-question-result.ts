@@ -1,10 +1,9 @@
 import { orderFuHan, type FuHanOrder } from "../settings/fu-han-order";
 import {
-  haiIdToMspz,
+  haiIdToMpsz,
   isOya,
   judgeScoreTableAnswer,
-  kazeIdToMspz,
-  tehaiToMspz,
+  formatMpsz,
 } from "@mahjong-scoring/core";
 import type {
   RuleConfig,
@@ -35,15 +34,15 @@ import {
  * 出題スナップショット
  *
  * sessionStorage を経由する都合上、ブランド型（Tehai14 等）はそのまま
- * 往復できないため、total-fu 練習と同様に牌はすべて MSPZ 文字列に落として
+ * 往復できないため、total-fu 練習と同様に牌はすべて MPSZ 文字列に落として
  * 保存する。
  */
 export interface ScoreQuestionSnapshot extends QuestionTilesSnapshot {
-  /** ドラ表示牌（MSPZ） */
+  /** ドラ表示牌（MPSZ） */
   readonly doraMarkers: readonly string[];
   /** リーチ有無 */
   readonly isRiichi?: boolean;
-  /** 裏ドラ表示牌（MSPZ） */
+  /** 裏ドラ表示牌（MPSZ） */
   readonly uraDoraMarkers?: readonly string[];
   /**
    * 役の内訳（ドラ・裏ドラを含む）
@@ -105,13 +104,13 @@ export function toScoreQuestionSnapshot(
   question: ScoreQuestion,
 ): ScoreQuestionSnapshot {
   return {
-    tehai: tehaiToMspz(question.tehai),
-    agariHai: haiIdToMspz(question.agariHai),
-    bakaze: kazeIdToMspz(question.bakaze),
-    jikaze: kazeIdToMspz(question.jikaze),
-    doraMarkers: question.doraMarkers.map(haiIdToMspz),
+    tehai: formatMpsz(question.tehai),
+    agariHai: haiIdToMpsz(question.agariHai),
+    bakaze: haiIdToMpsz(question.bakaze),
+    jikaze: haiIdToMpsz(question.jikaze),
+    doraMarkers: question.doraMarkers.map(haiIdToMpsz),
     isRiichi: question.isRiichi,
-    uraDoraMarkers: question.uraDoraMarkers?.map(haiIdToMspz),
+    uraDoraMarkers: question.uraDoraMarkers?.map(haiIdToMpsz),
     yakuDetails: question.yakuDetails ?? [],
     ruleConfig: question.ruleConfig,
   };
@@ -152,7 +151,7 @@ export function toScoreQuestionResult(
  * 値が ScoreQuestionSnapshot として妥当か検証するスキーマ
  * 出題スナップショットスキーマ
  *
- * MSPZ として解釈できるかまでは見ない（表示時のパースが失敗したら
+ * MPSZ として解釈できるかまでは見ない（表示時のパースが失敗したら
  * 手牌の再表示だけを諦める）。ここでは形だけを確かめる。
  *
  * リーチ・裏ドラ・役の内訳は、それらを保存し始める前の旧データに存在しない
@@ -200,7 +199,7 @@ export const parseQuestionResults: (
  * 保存された出題スナップショットから手牌表示用のデータを復元する
  * 出題復元
  *
- * MSPZ のパースに失敗した場合は undefined を返し、手牌の再表示だけを諦める
+ * MPSZ のパースに失敗した場合は undefined を返し、手牌の再表示だけを諦める
  * （正誤と回答の比較はスナップショットに依存しないため表示できる）。
  * スナップショットを保存する前の旧データも同様に undefined になる。
  *

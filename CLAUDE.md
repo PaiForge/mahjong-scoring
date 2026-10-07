@@ -9,10 +9,16 @@
 
 ## コーディング規約
 
-`docs/` submodule（[PaiForge/docs](https://github.com/PaiForge/docs)）で一元管理。新しいセッション開始時は以下を読み込むこと:
+新しいセッション開始時は以下を読み込むこと:
 
-- `docs/coding-standards.md`
-- `docs/extended-mspz.md`
+- コーディング規約 — https://raw.githubusercontent.com/PaiForge/docs/0b464878e4e24b6b8c154d90f96e1657e212ddaa/coding-standards.md
+- Extended MPSZ（牌の表記法）の仕様 — https://raw.githubusercontent.com/PaiForge/extended-mpsz/72ee9ede74583d58587bc8c6ed36166bb808b5bd/SPEC.md
+
+どちらも別リポジトリ（[PaiForge/docs](https://github.com/PaiForge/docs)・
+[PaiForge/extended-mpsz](https://github.com/PaiForge/extended-mpsz)）で管理している共有文書で、
+submodule では取り込まず raw URL で読む（jj など git 以外の VCS へ移れるようにするため）。
+URL はコミット SHA で固定している — `main` を指すと、読む時点によって規約が変わる。
+共有文書を更新したら SHA を差し替える（ここと `.github/claude/system-prompt.md`・README の 3 か所）
 
 ## SPEC ファイルは足場であり成果物ではない
 
@@ -568,7 +574,7 @@ Anthropic 管理の VM（Ubuntu 24.04、Node 20/21/22 のみ、Docker あり）�
 - `.claude/settings.json` の SessionStart hook が `scripts/claude-cloud/session-start.sh` を
   実行する。`CLAUDE_CODE_REMOTE=true`（VM だけ）でなければ即終了するので、ローカルと
   GitHub Actions には影響しない。VM では Node 24 を PATH の先頭に置き（`CLAUDE_ENV_FILE`
-  経由で以降のコマンドにも効く）、`docs/` submodule と依存を揃え、できること・できないことの
+  経由で以降のコマンドにも効く）、依存を揃え、できること・できないことの
   サマリを Claude に渡す
 - `scripts/claude-cloud/setup-environment.sh` は claude.ai 側の環境の **Setup script** に
   貼るもの。Node 24 + pnpm を VM のスナップショットに入れておき、毎セッションの再インストール

@@ -6,10 +6,9 @@ import {
 } from "@mahjong-scoring/features/results/result-schemas";
 import type { QuestionTilesSnapshot } from "@mahjong-scoring/features/results/parse-question-tiles";
 import {
-  haiIdToMspz,
+  haiIdToMpsz,
   judgeYakuAnswer,
-  kazeIdToMspz,
-  tehaiToMspz,
+  formatMpsz,
 } from "@mahjong-scoring/core";
 import type { YakuQuestion } from "@mahjong-scoring/core";
 
@@ -41,20 +40,20 @@ export const QUESTION_GENERATION_MAX_RETRIES = 100;
  * 役選択練習の1問ごとの結果データ
  * 役選択問題結果
  *
- * 結果ページで手牌を再表示するため、出題そのものを MSPZ 文字列として持つ。
+ * 結果ページで手牌を再表示するため、出題そのものを MPSZ 文字列として持つ。
  * 役の成否はリーチとドラにも依存するので、手牌だけでなく和了状況一式を残す。
  */
 export interface YakuQuestionResult extends QuestionTilesSnapshot {
   readonly isTsumo: boolean;
   readonly isRiichi: boolean;
   /**
-   * ドラ表示牌（1 枚 1 要素の MSPZ）
+   * ドラ表示牌（1 枚 1 要素の MPSZ）
    *
    * 1 つの文字列にまとめると花色ごとに並べ替えられ、出題時と順が変わる。
    */
   readonly doraMarkers: readonly string[];
   /**
-   * 裏ドラ表示牌（1 枚 1 要素の MSPZ）
+   * 裏ドラ表示牌（1 枚 1 要素の MPSZ）
    *
    * リーチしている問題だけが持つ。この項目を保存する前の旧データにも
    * 存在しないため任意。
@@ -81,14 +80,14 @@ export function toQuestionResult(
 ): YakuQuestionResult {
   const { context } = question;
   return {
-    tehai: tehaiToMspz(question.tehai),
-    bakaze: kazeIdToMspz(context.bakaze),
-    jikaze: kazeIdToMspz(context.jikaze),
-    agariHai: haiIdToMspz(context.agariHai),
+    tehai: formatMpsz(question.tehai),
+    bakaze: haiIdToMpsz(context.bakaze),
+    jikaze: haiIdToMpsz(context.jikaze),
+    agariHai: haiIdToMpsz(context.agariHai),
     isTsumo: context.isTsumo,
     isRiichi: context.isRiichi,
-    doraMarkers: context.doraMarkers.map(haiIdToMspz),
-    uraDoraMarkers: context.uraDoraMarkers?.map(haiIdToMspz),
+    doraMarkers: context.doraMarkers.map(haiIdToMpsz),
+    uraDoraMarkers: context.uraDoraMarkers?.map(haiIdToMpsz),
     correctYakuNames: [...question.correctYakuNames],
     selectedYakuNames: selectedYakuNames && [...selectedYakuNames],
     outcome: toAnswerOutcome(

@@ -173,7 +173,7 @@ describe("resolveMentsuBreakdown", () => {
     const PON_HAKU: CompletedMentsu = {
       type: MentsuType.Koutsu,
       hais: [HaiKind.Haku, HaiKind.Haku, HaiKind.Haku],
-      furo: { type: FuroType.Pon, from: Tacha.Toimen },
+      furo: { type: FuroType.Pon, from: Tacha.Toimen, nakiHai: HaiKind.Haku },
     };
 
     it("副露した刻子は明かつ晒され、副露のメタ情報を持つ", () => {
@@ -407,7 +407,11 @@ describe("resolveMentsuBreakdown", () => {
           {
             type: MentsuType.Shuntsu,
             hais: [HaiKind.ManZu2, HaiKind.ManZu3, HaiKind.ManZu4],
-            furo: { type: FuroType.Chi, from: Tacha.Kamicha },
+            furo: {
+              type: FuroType.Chi,
+              from: Tacha.Kamicha,
+              nakiHai: HaiKind.ManZu2,
+            },
           },
         ],
       };

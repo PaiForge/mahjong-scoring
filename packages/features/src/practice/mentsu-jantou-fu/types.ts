@@ -1,10 +1,9 @@
 import type { QuestionTilesSnapshot } from "@mahjong-scoring/features/results/parse-question-tiles";
 import {
   MentsuType,
-  haiIdToMspz,
-  haisToMspz,
-  kazeIdToMspz,
-  tehaiToMspz,
+  haiIdToMpsz,
+  haisToMpsz,
+  formatMpsz,
   type Furo,
   type MentsuJantouFuItem,
   type MentsuJantouFuQuestion,
@@ -41,7 +40,7 @@ export const RESULT_STORAGE_KEY = resultStorageKeyFor(
  * 平らに並べ直すと符の根拠（明刻か暗刻か）が読めなくなる。
  */
 export interface MentsuJantouFuItemResult {
-  /** 行の牌（MSPZ） */
+  /** 行の牌（MPSZ） */
   readonly tiles: string;
   /** 面子種別。雀頭は "Pair" */
   readonly type: MentsuType | "Pair";
@@ -59,7 +58,7 @@ export interface MentsuJantouFuItemResult {
  * 面子と雀頭の符練習の 1 問ごとの結果データ
  * 面子雀頭符問題結果
  *
- * 結果ページで手牌と回答行を再表示するため、出題そのものを MSPZ 文字列として
+ * 結果ページで手牌と回答行を再表示するため、出題そのものを MPSZ 文字列として
  * 持つ。sessionStorage を経由する都合上、ブランド型（Tehai14 等）はそのまま
  * 往復できないため、牌はすべて文字列に落として保存する。
  */
@@ -89,10 +88,10 @@ export function toQuestionResult(
   );
 
   return {
-    tehai: tehaiToMspz(question.tehai),
-    agariHai: haiIdToMspz(context.agariHai),
-    bakaze: kazeIdToMspz(context.bakaze),
-    jikaze: kazeIdToMspz(context.jikaze),
+    tehai: formatMpsz(question.tehai),
+    agariHai: haiIdToMpsz(context.agariHai),
+    bakaze: haiIdToMpsz(context.bakaze),
+    jikaze: haiIdToMpsz(context.jikaze),
     isTsumo: context.isTsumo,
     items,
     outcome: toAnswerOutcome(
@@ -110,7 +109,7 @@ function toItemResult(
 ): MentsuJantouFuItemResult {
   const furo = item.originalMentsu?.furo;
   return {
-    tiles: haisToMspz(item.tiles),
+    tiles: haisToMpsz(item.tiles),
     type: item.type,
     isOpen: item.isOpen,
     ...(furo ? { furo } : {}),

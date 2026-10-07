@@ -310,7 +310,7 @@ describe("parseQuestionResults", () => {
 });
 
 describe("toScoreQuestionSnapshot", () => {
-  it("出題を MSPZ 文字列のスナップショットに変換する", () => {
+  it("出題を MPSZ 文字列のスナップショットに変換する", () => {
     const question = buildDemoScoreQuestion({
       doraMarkers: [HaiKind.ManZu1],
       isRiichi: true,

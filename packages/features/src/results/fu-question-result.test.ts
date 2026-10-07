@@ -13,7 +13,7 @@ import {
 
 /** 保存形式として妥当な結果データ */
 const validResult = {
-  tehai: "234m67888s[234s][678m]",
+  tehai: "234m67888s[2-34s][6-78m]",
   agariHai: "2m",
   bakaze: "2z",
   jikaze: "1z",

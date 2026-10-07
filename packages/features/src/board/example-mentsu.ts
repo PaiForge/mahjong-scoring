@@ -24,6 +24,9 @@ import {
  * 右端）。例示が示したいのは「鳴いている」ことだけで誰から鳴いたかではない
  * ため、位置はここで 1 つに決める。面子符の出題も対面から鳴いた形を出すので、
  * 教本・用語集で見た並びがそのまま問題に出る。
+ *
+ * チーだけは上家からしか鳴けない（`Furo` の型も上家に固定している）ため、
+ * この値を使わず上家にする。
  */
 const EXAMPLE_FURO_FROM = Tacha.Toimen;
 
@@ -38,14 +41,14 @@ export function exampleShuntsu(
   return { type: MentsuType.Shuntsu, hais };
 }
 
-/** 例示用のチー（鳴いて作った順子。1 枚が横向きになる） */
+/** 例示用のチー（上家から鳴いて作った順子。先頭の 1 枚が横向きになる） */
 export function exampleChii(
   hais: readonly [HaiKindId, HaiKindId, HaiKindId],
 ): CompletedMentsu {
   return {
     type: MentsuType.Shuntsu,
     hais,
-    furo: { type: FuroType.Chi, from: EXAMPLE_FURO_FROM },
+    furo: { type: FuroType.Chi, from: Tacha.Kamicha, nakiHai: hais[0] },
   };
 }
 
@@ -54,7 +57,7 @@ export function exampleMinkou(hai: HaiKindId): CompletedMentsu {
   return {
     type: MentsuType.Koutsu,
     hais: [hai, hai, hai],
-    furo: { type: FuroType.Pon, from: EXAMPLE_FURO_FROM },
+    furo: { type: FuroType.Pon, from: EXAMPLE_FURO_FROM, nakiHai: hai },
   };
 }
 
@@ -68,7 +71,7 @@ export function exampleMinkan(hai: HaiKindId): CompletedMentsu {
   return {
     type: MentsuType.Kantsu,
     hais: [hai, hai, hai, hai],
-    furo: { type: FuroType.Daiminkan, from: EXAMPLE_FURO_FROM },
+    furo: { type: FuroType.Daiminkan, from: EXAMPLE_FURO_FROM, nakiHai: hai },
   };
 }
 
