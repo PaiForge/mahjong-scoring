@@ -21,7 +21,7 @@
 import type { Metadata } from "next";
 import { Fragment } from "react";
 import { getTranslations } from "next-intl/server";
-import { HashAnchorScroll } from "@/app/(user)/_components/hash-anchor-scroll";
+import { HashAnchorScroll } from "@/app/_components/hash-anchor-scroll";
 import { ContentContainer } from "@/app/(user)/_components/content-container";
 import { LinkRowList } from "@/app/(user)/_components/link-row";
 import { NativeAdRow } from "@/app/(user)/_components/native-ad-row";

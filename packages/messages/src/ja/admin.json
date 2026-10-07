@@ -203,7 +203,16 @@
       "native_row": "行（行リンクと同じ形）"
     },
     "surfaces": "掲載先",
-    "surfaceMobile": "アプリ {route}",
+    "platformTabs": "表示する側",
+    "platforms": {
+      "web": "web",
+      "mobile": "アプリ"
+    },
+    "counterpart": {
+      "web": "アプリの同じ画面",
+      "mobile": "web の同じ画面"
+    },
+    "counterpartNone": "アプリに画面がありません",
     "new": "新規作成",
     "empty": "このスロットの広告はありません",
     "order": "順",
@@ -221,6 +230,7 @@
     "createTitle": "広告を作成",
     "editTitle": "広告を編集",
     "slot": "スロット",
+    "webPreview": "アプリの画面はブラウザで開けません。置かれる位置は web の同じ画面で確かめられます",
     "asin": "ASIN（Amazon の商品）",
     "asinHint": "Amazon の商品は ASIN で指定します。商品ページの URL を貼っても ASIN を読み取ります。リンクは広告一覧で設定する Amazon トラッキング ID と組み合わせて自動で作ります。",
     "href": "リンク先 URL（Amazon 以外の広告）",
