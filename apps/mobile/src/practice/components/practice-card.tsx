@@ -18,7 +18,7 @@ import { PracticeCardVisual } from "./practice-card-visual";
  * 練習一覧のカード（web の `CatalogPracticeCard`）
  *
  * 練習名・身につく段級位・例示の帯・「くわしく見る」。カードは説明画面へ移動するだけで
- * 練習は始まらないので、影を持たせない（web も影なしの太枠）。
+ * 練習は始まらないので、影を持たせない（web と同じ細枠）。
  */
 export function PracticeCard({ slug }: { readonly slug: PracticeMenuSlug }) {
   const t = useTranslations("practice");
@@ -51,15 +51,15 @@ export function PracticeCard({ slug }: { readonly slug: PracticeMenuSlug }) {
 
 const styles = StyleSheet.create({
   card: {
-    borderWidth: 3,
-    borderColor: colors.ink,
-    borderRadius: radius["2xl"],
+    borderWidth: 1,
+    borderColor: colors.panel,
+    borderRadius: radius.panel,
     backgroundColor: colors.white,
     padding: 20,
     gap: 16,
   },
   pressed: {
-    backgroundColor: colors.primary50,
+    backgroundColor: colors.surface50,
   },
   header: {
     flexDirection: "row",
