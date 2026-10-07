@@ -1,4 +1,4 @@
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { StyleSheet, Text, View } from "react-native";
 import { useLocalSearchParams, useRouter } from "expo-router";
 import { useTranslations } from "use-intl";
@@ -54,16 +54,19 @@ export default function PracticeListPage() {
 
   // 道場・試験の「この級の練習」から `?rank=<級>` 付きで開かれる（web の
   // `practiceListHref`）。タブは開いたまま残るので、初期値ではなく値が変わる
-  // たびに合わせる（描画中に前回の値と比べて差し替える）。級の指定は基礎練習の
-  // 絞り込みなので、保存済みの実戦練習より優先して基礎練習に切り替える（web と同じ）
+  // たびに合わせる（描画中に前回の値と比べて差し替える）
   const [appliedRankParam, setAppliedRankParam] = useState(rankParam);
   if (rankParam !== appliedRankParam) {
     setAppliedRankParam(rankParam);
-    if (typeof rankParam === "string" && rankParam !== "") {
-      setFilter(rankParam);
-      setMode("basic");
-    }
+    if (typeof rankParam === "string" && rankParam !== "") setFilter(rankParam);
   }
+
+  // 級の指定は基礎練習の絞り込みなので、保存済みの実戦練習より優先して基礎練習に
+  // 切り替える（web と同じ）。初めてタブを開いたときにも効かせるため、描画中の
+  // 差し替えではなく effect で行う（端末に保存するストアを描画中に書き換えない）
+  useEffect(() => {
+    if (typeof rankParam === "string" && rankParam !== "") setMode("basic");
+  }, [rankParam, setMode]);
 
   const menus = useMemo(
     () =>
@@ -83,6 +86,7 @@ export default function PracticeListPage() {
     <Screen title={t("title")} inTabs>
       <ToggleGroup<PracticeMode>
         accessibilityLabel={t("modes.label")}
+        fill
         selected={mode}
         onSelect={setMode}
         groups={[

@@ -20,6 +20,12 @@ interface ToggleGroupProps<T extends string> {
   readonly selected: T;
   readonly onSelect: (value: T) => void;
   readonly accessibilityLabel?: string;
+  /**
+   * 選択肢を溝の幅いっぱいに均等に広げる（画面の表示そのものを切り替える
+   * 上段の切り替え。web の練習一覧の「基礎練習 / 実戦練習」と同じ）。既定は
+   * 文言の幅に詰める
+   */
+  readonly fill?: boolean;
 }
 
 /**
@@ -36,6 +42,7 @@ export function ToggleGroup<T extends string>({
   selected,
   onSelect,
   accessibilityLabel,
+  fill = false,
 }: ToggleGroupProps<T>) {
   const options = groups.flat();
   return (
@@ -52,7 +59,11 @@ export function ToggleGroup<T extends string>({
             onPress={() => onSelect(option.value)}
             accessibilityRole="radio"
             accessibilityState={{ selected: isActive }}
-            style={[styles.segment, isActive && styles.segmentActive]}
+            style={[
+              styles.segment,
+              fill && styles.segmentFill,
+              isActive && styles.segmentActive,
+            ]}
           >
             {typeof option.label === "string" ? (
               <Text style={[styles.label, isActive && styles.labelActive]}>
@@ -81,6 +92,10 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     borderRadius: radius.sm,
     paddingHorizontal: 12,
+  },
+  segmentFill: {
+    flex: 1,
+    alignItems: "center",
   },
   segmentActive: {
     backgroundColor: colors.white,
