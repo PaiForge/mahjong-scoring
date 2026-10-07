@@ -27,7 +27,11 @@ export function AnnouncementTextList({
           >
             <span className="flex min-w-0 flex-1 flex-col gap-1.5 sm:flex-row sm:items-baseline sm:gap-5">
               <time
-                dateTime={announcement.publishedAt?.toISOString()}
+                dateTime={
+                  announcement.publishedAt
+                    ? new Date(announcement.publishedAt).toISOString()
+                    : undefined
+                }
                 className="shrink-0 text-xs font-medium tabular-nums text-surface-500"
               >
                 {formatPublishedDate(
