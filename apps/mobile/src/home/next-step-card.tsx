@@ -10,9 +10,8 @@ import { listedPracticeRanks } from "@mahjong-scoring/features/practice/rank-pra
 
 import { SectionTitle } from "../components/section-title";
 import { TextLink } from "../components/text-link";
-import { colors, radius } from "../lib/theme";
 import { BeltButton } from "../dojo/belt-button";
-import { beltStyle } from "../dojo/belt-style";
+import { beltCardFrame } from "../dojo/belt-style";
 import { practiceListHrefForRank } from "../dojo/dojo-routes";
 import { RankHeading } from "../dojo/rank-heading";
 import { RankStageProgress } from "../dojo/rank-stage-progress";
@@ -26,8 +25,7 @@ import { RankStageProgress } from "../dojo/rank-stage-progress";
  * 対象の名前を含むボタン → 「自分で練習を選ぶ」の順で、文言と行き先は web と
  * 同じもの（features の `journey-step`、辞書の `dashboard.nextStep`）。
  *
- * 枠は道場の級カードと同じ帯色の太枠（web は上辺だけ帯色の細枠だが、モバイルの
- * 級カードはすべて全周の帯色で描いている）。
+ * 枠は道場の級カードと同じ細枠 + 上端の帯色の帯（web と同じ）。
  *
  * 全級取得済み（`nextStep` が無い）なら何も描画しない。モバイルは段級位を
  * 持たないので実際には常に描画される。
@@ -49,7 +47,7 @@ export function NextStepCard({ journey }: { readonly journey: Journey }) {
   return (
     <View style={styles.section}>
       <SectionTitle>{t("title")}</SectionTitle>
-      <View style={[styles.card, { borderColor: beltStyle(rankSlug).border }]}>
+      <View style={[styles.card, beltCardFrame(rankSlug)]}>
         <RankHeading rankSlug={rankSlug} status={current.status} />
         <RankStageProgress journey={current} isCurrentRank />
         <View style={styles.actions}>
@@ -83,9 +81,6 @@ const styles = StyleSheet.create({
   },
   card: {
     gap: 16,
-    borderWidth: 3,
-    borderRadius: radius.xl,
-    backgroundColor: colors.white,
     padding: 16,
   },
   actions: {

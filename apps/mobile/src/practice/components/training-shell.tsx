@@ -5,7 +5,7 @@ import { useTranslations } from "use-intl";
 
 import { BoardBleedProvider } from "../../board/board-bleed";
 import { Button } from "../../components/button";
-import { DashedDivider } from "../../components/dashed-divider";
+import { Divider } from "../../components/divider";
 import { InfinityIcon, PlayIcon } from "../../components/icons/icons";
 import { Screen } from "../../components/screen";
 import { useJudgementHaptics } from "../../hooks/use-judgement-haptics";
@@ -137,7 +137,7 @@ export function TrainingShell({
       </View>
 
       <View style={styles.cta}>
-        <DashedDivider thickness={2} />
+        <Divider />
         <View style={styles.ctaLead}>
           <View style={styles.modeRow}>
             <InfinityIcon size={14} color={colors.surface400} />

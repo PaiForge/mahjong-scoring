@@ -9,12 +9,12 @@ import type { RankJourney } from "@mahjong-scoring/features/journey/journey";
 import { practiceDisplayTitle } from "@mahjong-scoring/features/practice/practice-variant-label";
 import { chapterHref, practiceHref } from "@mahjong-scoring/features/routes";
 
-import { DashedDivider } from "../components/dashed-divider";
+import { Divider } from "../components/divider";
 import { LockClosedIcon } from "../components/icons/icons";
 import { LinkRow, LinkRowList } from "../components/link-row";
-import { colors, radius } from "../lib/theme";
+import { colors } from "../lib/theme";
 import { BeltButton } from "./belt-button";
-import { beltStyle } from "./belt-style";
+import { beltCardFrame } from "./belt-style";
 import { DoneMark } from "./done-mark";
 import { RankHeading } from "./rank-heading";
 import { RankStageProgress } from "./rank-stage-progress";
@@ -33,7 +33,7 @@ import { RankStageProgress } from "./rank-stage-progress";
  * モバイルは本番の試験を開かない（模試だけ）が、段級位の順序の規則として
  * web と同じ文言を出す。
  *
- * 枠は帯色。練習するの行の挑戦済みの印は、端末に記録した「チャレンジを
+ * 枠は細枠で、上端に帯色の帯を敷く。練習するの行の挑戦済みの印は、端末に記録した「チャレンジを
  * 終えた」練習から出す（成績は記録しない）。
  */
 export function RankJourneyCard({
@@ -51,7 +51,7 @@ export function RankJourneyCard({
   const { rank, status, chapters, practices, exam } = journey;
 
   return (
-    <View style={[styles.card, { borderColor: beltStyle(rank.slug).border }]}>
+    <View style={[styles.card, beltCardFrame(rank.slug)]}>
       <RankHeading rankSlug={rank.slug} status={status} />
 
       <View style={styles.progress}>
@@ -67,7 +67,7 @@ export function RankJourneyCard({
 
       {expanded && (
         <View style={styles.expanded}>
-          <DashedDivider thickness={2} />
+          <Divider />
 
           {chapters.length > 0 && (
             <View style={styles.stage}>
@@ -75,7 +75,7 @@ export function RankJourneyCard({
                 {tRanks("stages.learn")}
               </Text>
               {/* 学ぶ段はレッスンごとに 1 行。題名と説明は章の辞書から引く */}
-              <LinkRowList>
+              <LinkRowList inset>
                 {chapters.map((item) => {
                   const chapter = getChapterBySlug(item.chapterSlug);
                   const path = chapter
@@ -106,7 +106,7 @@ export function RankJourneyCard({
               <Text accessibilityRole="header" style={styles.stageTitle}>
                 {tRanks("stages.practice")}
               </Text>
-              <LinkRowList>
+              <LinkRowList inset>
                 {practices.map((item) => {
                   const title = practiceDisplayTitle(
                     tAll,
@@ -151,9 +151,6 @@ export function RankJourneyCard({
 
 const styles = StyleSheet.create({
   card: {
-    borderWidth: 3,
-    borderRadius: radius.xl,
-    backgroundColor: colors.white,
     padding: 16,
   },
   progress: {

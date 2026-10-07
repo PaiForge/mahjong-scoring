@@ -1,17 +1,18 @@
-import { StyleSheet, Text, View } from "react-native";
+import { Pressable, StyleSheet, Text, View } from "react-native";
 import { useRouter } from "expo-router";
 
 import { ChevronRightIcon } from "../../components/icons/icons";
-import { PressableSurface } from "../../components/pressable-surface";
-import { colors, radius } from "../../lib/theme";
+import { panelFrame } from "../../lib/panel-styles";
+import { colors } from "../../lib/theme";
 
 /**
  * 終わりのない練習（記録を取らない訓練）への導線バナー（web の `EndlessPracticeBanner`）
  * 訓練バナー
  *
  * 制限時間もミス上限もなく好きなだけ解ける訓練（総合演習・待ち別点数計算）は
- * 練習カードにせず、一覧の先頭にこのバナーで置く。カード全体が押せるので
- * 押せる面の記号（太枠 + ハードシャドウ + 押し込み）を持つ。
+ * 練習カードにせず、一覧の先頭にこのバナーで置く。押すと説明画面へ移動する
+ * だけで練習は始まらないので、練習カードと同じ細枠で影を持たない（web と同じ）。
+ * 押せることは右端の矢印と押したときの地の色で示す。
  */
 export function EndlessPracticeBanner({
   href,
@@ -27,10 +28,11 @@ export function EndlessPracticeBanner({
 }) {
   const router = useRouter();
   return (
-    <PressableSurface
+    <Pressable
       onPress={() => router.push(href)}
+      accessibilityRole="link"
       accessibilityLabel={title}
-      style={styles.face}
+      style={({ pressed }) => [styles.face, pressed && styles.pressed]}
     >
       <View style={styles.row}>
         <Text
@@ -46,17 +48,17 @@ export function EndlessPracticeBanner({
         </View>
         <ChevronRightIcon size={20} color={colors.surface400} />
       </View>
-    </PressableSurface>
+    </Pressable>
   );
 }
 
 const styles = StyleSheet.create({
   face: {
-    borderWidth: 3,
-    borderColor: colors.ink,
-    borderRadius: radius["2xl"],
-    backgroundColor: colors.white,
-    padding: 24,
+    ...panelFrame,
+    padding: 20,
+  },
+  pressed: {
+    backgroundColor: colors.surface50,
   },
   row: {
     flexDirection: "row",

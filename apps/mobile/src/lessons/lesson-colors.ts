@@ -13,13 +13,10 @@ export const lessonColors = {
   amber50: "rgba(255, 251, 235, 0.6)",
   /** 「次はここから」の行の地（web の `bg-amber-50`） */
   amber50Solid: "#fffbeb",
-  /** コラムのラベルの地（web の `bg-amber-200/70`） */
-  amber200: "rgba(253, 230, 138, 0.7)",
   /** 「次はここから」のバッジ（web の `bg-amber-200`） */
   amber200Solid: "#fde68a",
   amber500: "#f59e0b",
   amber600: "#d97706",
-  amber800: "#92400e",
   amber900: "#78350f",
 } as const;
 

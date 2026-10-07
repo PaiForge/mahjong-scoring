@@ -11,10 +11,10 @@ import {
 } from "@mahjong-scoring/features/ranks/registry";
 import { practiceHref } from "@mahjong-scoring/features/routes";
 
-import { colors, radius } from "../lib/theme";
+import { SectionTitle } from "../components/section-title";
+import { colors } from "../lib/theme";
 import { BeltButton } from "./belt-button";
-import { BeltSectionTitle } from "./belt-section-title";
-import { beltStyle } from "./belt-style";
+import { beltCardFrame, beltStyle } from "./belt-style";
 
 /**
  * 昇級試験への案内（web の `ExamCtaCard`）
@@ -41,12 +41,14 @@ export function ExamCtaCard({
 
   return (
     <View style={styles.section}>
-      <BeltSectionTitle slug={rankSlug}>
+      <SectionTitle accentColor={beltStyle(rankSlug).fill}>
         {t(`examTitle.${rankTier(rankSlug)}`, {
           rank: t(`names.${rankSlug}`),
         })}
-      </BeltSectionTitle>
-      <View style={[styles.card, { borderColor: beltStyle(rankSlug).border }]}>
+      </SectionTitle>
+      {/* どの級の試験かを上端の帯の色でも示す（web と同じく細い枠 + 上端の帯）。
+          既定の緑は使わない — 級名を掲げたカードが緑だと、緑がその級の色に見える */}
+      <View style={[styles.card, beltCardFrame(rankSlug)]}>
         <Text style={styles.lead}>{lead}</Text>
         <Text style={styles.criterion}>
           <Text style={styles.criterionLabel}>
@@ -70,9 +72,6 @@ const styles = StyleSheet.create({
     gap: 16,
   },
   card: {
-    borderWidth: 3,
-    borderRadius: radius.xl,
-    backgroundColor: colors.white,
     padding: 20,
     gap: 16,
   },

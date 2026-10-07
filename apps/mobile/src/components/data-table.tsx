@@ -1,7 +1,8 @@
 import type { ReactNode } from "react";
 import { StyleSheet, Text, View } from "react-native";
 
-import { colors, radius } from "../lib/theme";
+import { panelFrame } from "../lib/panel-styles";
+import { colors } from "../lib/theme";
 
 /** 表の列 */
 export interface DataTableColumn {
@@ -25,7 +26,7 @@ interface DataTableProps {
 }
 
 /**
- * データテーブル（web の `DataTable` = 太枠・淡い緑の見出し行・破線の行区切り）
+ * データテーブル（web の `DataTable` = 細枠・淡い緑の見出し行・淡い実線の行区切り）
  *
  * 表を作るときは直接 View を並べずこれを使う。
  */
@@ -83,25 +84,19 @@ export function DataTable({
 }
 
 const styles = StyleSheet.create({
-  frame: {
-    borderWidth: 3,
-    borderColor: colors.ink,
-    borderRadius: radius.xl,
-    overflow: "hidden",
-    backgroundColor: colors.white,
-  },
+  frame: panelFrame,
   row: {
     flexDirection: "row",
     alignItems: "center",
   },
   header: {
     backgroundColor: colors.primary50,
-    borderBottomWidth: 3,
-    borderBottomColor: colors.ink,
+    borderBottomWidth: 1,
+    borderBottomColor: colors.panel,
   },
   divider: {
-    borderTopWidth: 2,
-    borderTopColor: colors.surface200,
+    borderTopWidth: 1,
+    borderTopColor: colors.surface100,
   },
   cell: {
     paddingHorizontal: 12,

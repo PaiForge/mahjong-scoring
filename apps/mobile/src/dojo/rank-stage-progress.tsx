@@ -150,9 +150,9 @@ export function RankStageProgress({
 const styles = StyleSheet.create({
   row: {
     flexDirection: "row",
-    borderWidth: 2,
-    borderColor: colors.surface200,
-    borderRadius: radius.md,
+    borderWidth: 1,
+    borderColor: colors.panel,
+    borderRadius: radius.lg,
     overflow: "hidden",
   },
   cell: {
@@ -164,8 +164,8 @@ const styles = StyleSheet.create({
     paddingVertical: 8,
   },
   divided: {
-    borderLeftWidth: 2,
-    borderLeftColor: colors.surface200,
+    borderLeftWidth: 1,
+    borderLeftColor: colors.panel,
   },
   pressed: {
     opacity: 0.7,

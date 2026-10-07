@@ -1,7 +1,7 @@
 import { useTranslations } from "use-intl";
 import { HaiKind } from "@mahjong-scoring/core";
 
-import { DashedDivider } from "../../components/dashed-divider";
+import { Divider } from "../../components/divider";
 import { ChapterLink, richLineBreak } from "../components/chapter-link";
 import { ExampleCard, TehaiFuExample } from "../components/example-card";
 import {
@@ -98,7 +98,7 @@ export function TehaiFuGuide() {
                 annotation={t("ronKoutsuExampleRonAnnotation")}
                 annotationTone="caution"
               />
-              <DashedDivider />
+              <Divider />
               <TehaiFuExample
                 tiles={[
                   HaiKind.SouZu3,

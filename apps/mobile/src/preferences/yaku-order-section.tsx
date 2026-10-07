@@ -6,7 +6,7 @@ import { useYakuLabel } from "@mahjong-scoring/features/yaku/use-yaku-options";
 
 import { Button } from "../components/button";
 import { ConfirmationModal } from "../components/confirmation-modal";
-import { DashedDivider } from "../components/dashed-divider";
+import { Divider } from "../components/divider";
 import {
   ChevronDownIcon,
   ChevronUpIcon,
@@ -233,7 +233,7 @@ export function YakuOrderSection({ renderLayout }: YakuOrderSectionProps) {
     <View style={styles.list}>
       {items.map((name, index) => (
         <View key={name}>
-          {index > 0 && <DashedDivider thickness={2} />}
+          {index > 0 && <Divider tone="row" />}
           <YakuOrderRow
             label={labelOf(name)}
             position={index + 1}
@@ -343,9 +343,9 @@ const styles = StyleSheet.create({
     color: colors.surface500,
   },
   list: {
-    borderWidth: 3,
-    borderColor: colors.ink,
-    borderRadius: radius.lg,
+    borderWidth: 1,
+    borderColor: colors.panel,
+    borderRadius: radius.panel,
     backgroundColor: colors.white,
     overflow: "hidden",
   },

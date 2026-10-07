@@ -108,9 +108,9 @@ const styles = StyleSheet.create({
     gap: 16,
   },
   card: {
-    borderWidth: 3,
-    borderColor: colors.ink,
-    borderRadius: radius["2xl"],
+    borderWidth: 1,
+    borderColor: colors.panel,
+    borderRadius: radius.panel,
     backgroundColor: colors.white,
     padding: 20,
     gap: 16,

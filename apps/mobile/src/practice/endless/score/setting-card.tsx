@@ -29,15 +29,15 @@ export function SettingCard({
 const styles = StyleSheet.create({
   frame: {
     overflow: "hidden",
-    borderWidth: 3,
-    borderColor: colors.ink,
-    borderRadius: radius.xl,
+    borderWidth: 1,
+    borderColor: colors.panel,
+    borderRadius: radius.panel,
     backgroundColor: colors.white,
   },
   header: {
-    borderBottomWidth: 3,
-    borderBottomColor: colors.ink,
-    backgroundColor: colors.primary50,
+    borderBottomWidth: 1,
+    borderBottomColor: colors.panel,
+    backgroundColor: colors.surface50,
     paddingHorizontal: 16,
     paddingVertical: 12,
   },
@@ -45,7 +45,7 @@ const styles = StyleSheet.create({
     textAlign: "center",
     fontSize: 14,
     fontWeight: "700",
-    color: colors.surface700,
+    color: colors.surface900,
   },
   body: {
     gap: 12,

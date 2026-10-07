@@ -247,7 +247,7 @@ const styles = StyleSheet.create({
   heading: {
     fontSize: 14,
     fontWeight: "700",
-    color: colors.surface700,
+    color: colors.surface900,
   },
   machiTable: {
     borderRadius: radius.lg,
@@ -257,8 +257,8 @@ const styles = StyleSheet.create({
   machiHeader: {
     flexDirection: "row",
     gap: 16,
-    borderBottomWidth: 3,
-    borderBottomColor: colors.ink,
+    borderBottomWidth: 1,
+    borderBottomColor: colors.surface300,
     paddingTop: 8,
     paddingBottom: 12,
   },

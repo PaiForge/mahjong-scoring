@@ -54,9 +54,9 @@ export function YakuListDisplay({
 
 const styles = StyleSheet.create({
   frame: {
-    borderWidth: 3,
-    borderColor: colors.ink,
-    borderRadius: radius.lg,
+    borderWidth: 1,
+    borderColor: colors.panel,
+    borderRadius: radius.panel,
     backgroundColor: colors.surface50,
     padding: 12,
   },

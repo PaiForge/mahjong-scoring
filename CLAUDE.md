@@ -129,6 +129,10 @@ packages/features / core を共有し、アプリ側は画面と RN の部品だ
 - **色・角丸の値は web から写す。** `src/lib/theme.ts`（web の `globals.css` と同じ値）。
   太枠・ハードシャドウ・押し込みは `PressableSurface`（影は面の後ろに敷いた View で描く。
   Android の elevation は硬い影を描けない）。影を持つのは押せる面だけ（web と同じ規則）
+- **表示だけのカード・表・設定のカード・一覧の枠は細枠。** `lib/panel-styles.ts` の `panelFrame`
+  （1px の `colors.panel` + `radius.panel`。web の `rounded-panel border border-panel`）を使い、太枠
+  （`borderWidth.regular` + `colors.ink`）は押せる面・回答欄・ダイアログに残す。段級位のカードは
+  `beltCardFrame()`（細枠 + 上端の帯色の帯）、小さな印は `Chip`、区切りは `Divider`（破線は使わない）
 - **牌は `Tile` / `FuroTiles` を使う。** `@pai-forge/mahjong-react-ui` の `Hai` は `onClick` が
   無くても常に `Pressable` で包まれ、選択肢ボタンの中に置くと牌がタップを奪う。`Furo` /
   `HaiBack` / `Tehai` は `div` と Tailwind のクラスで描く web 専用の実装で、ネイティブでは描けない

@@ -8,7 +8,7 @@ import { rankBySlug } from "@mahjong-scoring/features/ranks/registry";
 import { Screen } from "../../../components/screen";
 import { SectionTitle } from "../../../components/section-title";
 import { BeltBadge } from "../../../dojo/belt-badge";
-import { beltStyle } from "../../../dojo/belt-style";
+import { beltCardFrame } from "../../../dojo/belt-style";
 import {
   ChapterTocList,
   CurriculumTocLink,
@@ -16,7 +16,7 @@ import {
 import { ExamCtaCard } from "../../../dojo/exam-cta-card";
 import { RankStatusBadge } from "../../../dojo/rank-status-badge";
 import { useCompletedLessonSlugs } from "../../../hooks/use-lesson-completion-store";
-import { colors, radius } from "../../../lib/theme";
+import { colors } from "../../../lib/theme";
 import { PracticeNotFoundScreen } from "../../../practice/screens/not-found-screen";
 
 /**
@@ -50,10 +50,8 @@ export default function RankDetailPage() {
       back
       contentStyle={styles.content}
     >
-      {/* 枠は帯色。級名は見出しが持つので、ここは帯・取得状態・合格基準だけ */}
-      <View
-        style={[styles.summary, { borderColor: beltStyle(rank.slug).border }]}
-      >
+      {/* 上端の帯は帯色。級名は見出しが持つので、ここは帯・取得状態・合格基準だけ */}
+      <View style={[styles.summary, beltCardFrame(rank.slug)]}>
         <BeltBadge slug={rank.slug} size="lg" />
         <View style={styles.summaryBody}>
           <View style={styles.statusRow}>
@@ -98,9 +96,6 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     alignItems: "center",
     gap: 16,
-    borderWidth: 3,
-    borderRadius: radius.xl,
-    backgroundColor: colors.white,
     padding: 20,
   },
   summaryBody: {

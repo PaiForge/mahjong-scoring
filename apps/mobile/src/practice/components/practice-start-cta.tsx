@@ -12,7 +12,7 @@ import {
 } from "@mahjong-scoring/features/routes";
 
 import { Button, buttonForeground } from "../../components/button";
-import { DashedDivider } from "../../components/dashed-divider";
+import { Divider } from "../../components/divider";
 import { InfinityIcon, PlayIcon } from "../../components/icons/icons";
 import { colors } from "../../lib/theme";
 
@@ -54,11 +54,11 @@ export function PracticeStartCta({
 
       <View style={styles.divider}>
         <View style={styles.line}>
-          <DashedDivider thickness={2} />
+          <Divider />
         </View>
         <Text style={styles.or}>{labels.orDivider}</Text>
         <View style={styles.line}>
-          <DashedDivider thickness={2} />
+          <Divider />
         </View>
       </View>
 
