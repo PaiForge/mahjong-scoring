@@ -8,7 +8,7 @@ import { useTranslations } from "next-intl";
 
 import { useBodyScrollLock } from "@/app/_hooks/use-body-scroll-lock";
 import { useIsClient } from "@/app/_hooks/use-is-client";
-import { DRAWER_NAV_ITEMS } from "./_lib/nav-items";
+import { DRAWER_NAV_ITEMS, isNavItemActive } from "./_lib/nav-items";
 
 /**
  * ハンバーガーメニュー（左スライドのドロワー）。
@@ -99,7 +99,7 @@ export function NavMenu() {
 
               <nav className="space-y-1 px-4 py-6">
                 {DRAWER_NAV_ITEMS.map((item) => {
-                  const isActive = pathname === item.href;
+                  const isActive = isNavItemActive(pathname, item.href);
                   return (
                     <Link
                       key={item.href}
