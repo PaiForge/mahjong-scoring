@@ -65,6 +65,15 @@
   --color-podium-bronze: #c17f3f;
 
   /*
+   * Pro（有料プラン）の色。Pro であること・Pro で開く機能を示す金のバッジに
+   * だけ使う。成否や注意の意味は持たないため状態色とは別に置き、表彰台の
+   * 金とも分ける（順位メダルと Pro を同じ値で結び付けない）。
+   */
+  --color-pro: #e8b931;
+  --color-pro-foreground: #4a3200;
+  --color-pro-subtle: #fdf6dc;
+
+  /*
    * Semantic トークン（blindfold-chess のトークン体系に準拠）。
    * ニュートラルは麻雀のスレート系（surface-*）にマッピングし、
    * primary / ring / link は麻雀の緑を維持する。

@@ -32,6 +32,11 @@ it("残量を消費せずに表示する", async () => {
   show();
   await screen.findByText("今日の無料分：残り 3 / 5 問");
   expect(peekPracticeQuota).toHaveBeenCalledWith("agari-score");
+  expect(
+    screen
+      .getByRole("link", { name: "Proなら回数無制限" })
+      .getAttribute("href"),
+  ).toBe("/plan");
 });
 it("未ログインで使い切った場合は回復とログインによる増枠を案内する", async () => {
   vi.mocked(peekPracticeQuota).mockResolvedValue({
@@ -61,8 +66,9 @@ it.each([true, false])(
     });
     show();
     await screen.findByText(
-      pro ? "Pro · 回数無制限" : "回数制限なしで練習できます",
+      pro ? "回数無制限で練習できます" : "回数制限なしで練習できます",
     );
+    expect(screen.queryByText("Pro") !== null).toBe(pro);
     expect(screen.queryByRole("link")).toBeNull();
   },
 );
