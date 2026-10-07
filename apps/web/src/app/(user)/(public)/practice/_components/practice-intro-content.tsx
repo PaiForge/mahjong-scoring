@@ -1,6 +1,7 @@
 import type { ReactNode } from "react";
 import { ExamStartCta } from "@/app/(user)/(public)/exam/_components/exam-start-cta";
 import { HowToPlaySection } from "./how-to-play-section";
+import { LeaderboardPreviewLoader } from "./leaderboard-preview-loader";
 import { PracticeChapterSection } from "./practice-chapter-section";
 import { PracticeStartCta } from "./practice-start-cta";
 import { VariantStartPanel } from "./variant-start-panel";
@@ -179,6 +180,10 @@ export async function PracticeIntroContent({
             />
           </LinkRowList>
         )}
+
+        {/* ランキングはタブバーに置かず、練習の入口で上位を見せて導線にする。
+            昇級試験は記録を残さないため出さない */}
+        {!isExam && <LeaderboardPreviewLoader slug={slug} />}
       </div>
     </ContentContainer>
   );
