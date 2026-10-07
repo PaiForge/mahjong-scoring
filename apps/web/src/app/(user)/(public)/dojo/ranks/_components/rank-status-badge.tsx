@@ -12,7 +12,7 @@ import type { RankStatus } from "@mahjong-scoring/features/ranks/rank-status";
  */
 const STATUS_CLASSES: Readonly<Record<RankStatus, string>> = {
   achieved: "bg-success-subtle text-success-strong",
-  next: "bg-amber-200 text-amber-900",
+  next: "bg-amber-100 text-amber-900",
   unachieved: "bg-surface-100 text-surface-600",
 };
 
@@ -39,7 +39,7 @@ export function RankStatusBadge({ status, tDojo }: RankStatusBadgeProps) {
   return (
     <span
       data-rank-status={status}
-      className={`inline-flex h-6 shrink-0 items-center gap-1 rounded-full px-2.5 text-xs leading-none font-bold ${STATUS_CLASSES[status]}`}
+      className={`inline-flex h-6 shrink-0 items-center gap-1 rounded-md px-2.5 text-xs leading-none font-bold ${STATUS_CLASSES[status]}`}
     >
       {status === "achieved" && <CheckIcon className="size-3.5" />}
       {tDojo(`status.${status}`)}

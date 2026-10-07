@@ -26,7 +26,7 @@ interface GuideColumnProps {
 export function GuideColumn({ label, title, children }: GuideColumnProps) {
   return (
     <HighlightPanel>
-      <div className="mb-2 inline-flex items-center rounded-full bg-amber-200/70 px-2.5 py-0.5 text-xs font-semibold tracking-wide text-amber-800">
+      <div className="mb-2 inline-flex items-center rounded-md bg-amber-100 px-2.5 py-0.5 text-xs font-bold tracking-wide text-amber-900">
         {label}
       </div>
       <h3 className="mb-2 text-sm font-semibold text-surface-900">{title}</h3>

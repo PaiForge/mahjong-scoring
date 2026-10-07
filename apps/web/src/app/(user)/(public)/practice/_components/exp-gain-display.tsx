@@ -42,7 +42,7 @@ export async function ExpGainDisplay({ expInfo }: ExpGainDisplayProps) {
       </div>
 
       {levelUp && (
-        <span className="inline-block rounded-full bg-primary-100 px-3 py-1 text-sm font-semibold text-primary-700">
+        <span className="inline-block rounded-md bg-primary-50 px-2.5 py-1 text-sm font-bold text-primary-800">
           {t("levelUp")}
         </span>
       )}

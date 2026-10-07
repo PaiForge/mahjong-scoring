@@ -99,7 +99,7 @@ export function YakuCheatsheet({
   const nakiLabel = (entry: YakuHanEntry) => {
     if (isMenzenOnly(entry)) {
       return (
-        <span className="rounded-full border-2 border-ink bg-amber-200 px-2 py-0.5 text-[11px] font-bold text-amber-900">
+        <span className="rounded-md bg-amber-100 px-2 py-0.5 text-[11px] font-bold text-amber-900">
           {t("menzenOnly")}
         </span>
       );
@@ -131,7 +131,7 @@ export function YakuCheatsheet({
                       {entry.name}
                     </span>
                     {markedYakuNames?.includes(entry.name) && (
-                      <span className="rounded-full border-2 border-primary-500 bg-primary-50 px-2 py-0.5 text-[11px] font-bold text-primary-700">
+                      <span className="rounded-md bg-primary-50 px-2 py-0.5 text-[11px] font-bold text-primary-800">
                         {t("inThisHand")}
                       </span>
                     )}

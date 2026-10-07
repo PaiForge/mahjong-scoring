@@ -79,7 +79,7 @@ export function SelectValueBox({
             key={v}
             onClick={(e) => e.stopPropagation()}
             onKeyDown={(e) => e.stopPropagation()}
-            className="inline-flex items-center rounded-md bg-primary-100 px-2 py-1 text-sm text-primary-800"
+            className="inline-flex items-center rounded-md bg-primary-50 px-2 py-1 text-sm text-primary-800"
             role="listitem"
           >
             {labelOf(v)}
