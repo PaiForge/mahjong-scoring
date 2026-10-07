@@ -8,8 +8,7 @@ import type { QuestionTilesSnapshot } from "@mahjong-scoring/features/results/pa
 import {
   haiIdToMpsz,
   judgeYakuAnswer,
-  kazeIdToMpsz,
-  tehaiToMpsz,
+  formatMpsz,
 } from "@mahjong-scoring/core";
 import type { YakuQuestion } from "@mahjong-scoring/core";
 
@@ -81,9 +80,9 @@ export function toQuestionResult(
 ): YakuQuestionResult {
   const { context } = question;
   return {
-    tehai: tehaiToMpsz(question.tehai),
-    bakaze: kazeIdToMpsz(context.bakaze),
-    jikaze: kazeIdToMpsz(context.jikaze),
+    tehai: formatMpsz(question.tehai),
+    bakaze: haiIdToMpsz(context.bakaze),
+    jikaze: haiIdToMpsz(context.jikaze),
     agariHai: haiIdToMpsz(context.agariHai),
     isTsumo: context.isTsumo,
     isRiichi: context.isRiichi,

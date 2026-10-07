@@ -3,8 +3,7 @@ import {
   MentsuType,
   haiIdToMpsz,
   haisToMpsz,
-  kazeIdToMpsz,
-  tehaiToMpsz,
+  formatMpsz,
   type Furo,
   type MentsuJantouFuItem,
   type MentsuJantouFuQuestion,
@@ -89,10 +88,10 @@ export function toQuestionResult(
   );
 
   return {
-    tehai: tehaiToMpsz(question.tehai),
+    tehai: formatMpsz(question.tehai),
     agariHai: haiIdToMpsz(context.agariHai),
-    bakaze: kazeIdToMpsz(context.bakaze),
-    jikaze: kazeIdToMpsz(context.jikaze),
+    bakaze: haiIdToMpsz(context.bakaze),
+    jikaze: haiIdToMpsz(context.jikaze),
     isTsumo: context.isTsumo,
     items,
     outcome: toAnswerOutcome(

@@ -269,15 +269,21 @@ describe("切り上げ満貫オプション", () => {
 });
 
 describe("calculateStandaloneMentsuFu", () => {
-  const pon = { type: FuroType.Pon, from: Tacha.Toimen };
-  const kan = { type: FuroType.Daiminkan, from: Tacha.Toimen };
+  const pon = (hai: HaiKindId) =>
+    ({ type: FuroType.Pon, from: Tacha.Toimen, nakiHai: hai }) as const;
+  const kan = (hai: HaiKindId) =>
+    ({ type: FuroType.Daiminkan, from: Tacha.Toimen, nakiHai: hai }) as const;
 
   it("順子は鳴いていても 0 符", () => {
     expect(
       calculateStandaloneMentsuFu({
         type: MentsuType.Shuntsu,
         hais: [HaiKind.ManZu2, HaiKind.ManZu3, HaiKind.ManZu4],
-        furo: { type: FuroType.Chi, from: Tacha.Kamicha },
+        furo: {
+          type: FuroType.Chi,
+          from: Tacha.Kamicha,
+          nakiHai: HaiKind.ManZu2,
+        },
       }),
     ).toBe(0);
   });
@@ -287,7 +293,7 @@ describe("calculateStandaloneMentsuFu", () => {
       calculateStandaloneMentsuFu({
         type: MentsuType.Koutsu,
         hais: [hai, hai, hai],
-        ...(open ? { furo: pon } : {}),
+        ...(open ? { furo: pon(hai) } : {}),
       });
     expect(koutsu(HaiKind.ManZu5, true)).toBe(2);
     expect(koutsu(HaiKind.ManZu5, false)).toBe(4);
@@ -301,7 +307,7 @@ describe("calculateStandaloneMentsuFu", () => {
       calculateStandaloneMentsuFu({
         type: MentsuType.Kantsu,
         hais: [hai, hai, hai, hai],
-        furo: kan,
+        furo: kan(hai),
       }),
     ).toBe(16);
     expect(
@@ -322,7 +328,11 @@ describe("isOpenMentsuForFu", () => {
   it("副露した面子は和了状況によらず明", () => {
     const pon = {
       ...koutsu5m,
-      furo: { type: FuroType.Pon, from: Tacha.Kamicha },
+      furo: {
+        type: FuroType.Pon,
+        from: Tacha.Kamicha,
+        nakiHai: HaiKind.ManZu5,
+      },
     };
     expect(
       isOpenMentsuForFu(pon, { completedByAgari: false, isTsumo: true }),

@@ -43,7 +43,7 @@ interface TehaiFuQuestionSource {
 const QUESTIONS: readonly TehaiFuQuestionSource[] = [
   {
     key: "furoRon",
-    mpsz: "234m22m567p46s[555z]",
+    mpsz: "234m22m567p46s[5=55z]",
     agariHai: HaiKind.SouZu5,
     isTsumo: false,
     bakaze: HaiKind.Ton,
@@ -51,7 +51,7 @@ const QUESTIONS: readonly TehaiFuQuestionSource[] = [
   },
   {
     key: "furoTsumo",
-    mpsz: "234m22m888p46s[555z]",
+    mpsz: "234m22m888p46s[5=55z]",
     agariHai: HaiKind.SouZu5,
     isTsumo: true,
     bakaze: HaiKind.Ton,

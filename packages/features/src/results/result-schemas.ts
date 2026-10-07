@@ -1,10 +1,16 @@
 import { z } from "zod";
 import type { QuestionTilesSnapshot } from "./parse-question-tiles";
 
-import { FuroType, MentsuType, Tacha } from "@mahjong-scoring/core";
+import {
+  FuroType,
+  MentsuType,
+  Tacha,
+  isHaiKindId,
+} from "@mahjong-scoring/core";
 import type {
   FuDetail,
   Furo,
+  HaiKindId,
   RuleConfig,
   ScoreTableAnswer,
   YakuDetail,
@@ -42,11 +48,41 @@ export const ruleConfigSchema: z.ZodType<RuleConfig> = z.object({
   fukugouYakuman: z.boolean().optional(),
 });
 
-/** 副露の種別と出所 */
-export const furoSchema: z.ZodType<Furo> = z.object({
-  type: z.enum(FuroType),
-  from: z.enum(Tacha),
-});
+/** 牌種ID（0〜33） */
+export const haiKindIdSchema: z.ZodType<HaiKindId> = z.custom<HaiKindId>(
+  (value) => typeof value === "number" && isHaiKindId(value),
+);
+
+/**
+ * 副露の種別・出所・鳴いた牌
+ *
+ * 鳴いた牌（加槓では加槓牌も）は必須。これを持たない旧形式の保存データ
+ * （riichi-mahjong 0.x の `Furo`）はここで弾かれ、その要素ごと捨てられる。
+ * チーの出所は上家に限る（`Furo` の型と同じ）。
+ */
+export const furoSchema: z.ZodType<Furo> = z.discriminatedUnion("type", [
+  z.object({
+    type: z.literal(FuroType.Chi),
+    from: z.literal(Tacha.Kamicha),
+    nakiHai: haiKindIdSchema,
+  }),
+  z.object({
+    type: z.literal(FuroType.Pon),
+    from: z.enum(Tacha),
+    nakiHai: haiKindIdSchema,
+  }),
+  z.object({
+    type: z.literal(FuroType.Daiminkan),
+    from: z.enum(Tacha),
+    nakiHai: haiKindIdSchema,
+  }),
+  z.object({
+    type: z.literal(FuroType.Kakan),
+    from: z.enum(Tacha),
+    nakiHai: haiKindIdSchema,
+    kakanHai: haiKindIdSchema,
+  }),
+]);
 
 /**
  * 完成面子の種別

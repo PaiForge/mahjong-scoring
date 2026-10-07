@@ -1,8 +1,7 @@
 import type { QuestionTilesSnapshot } from "./parse-question-tiles";
 import {
   haiIdToMpsz,
-  kazeIdToMpsz,
-  tehaiToMpsz,
+  formatMpsz,
   type FuDetail,
   type RuleConfig,
   type TotalFuQuestion,
@@ -56,10 +55,10 @@ export function toFuQuestionResult(
 ): FuQuestionResult {
   const { context } = question;
   return {
-    tehai: tehaiToMpsz(question.tehai),
+    tehai: formatMpsz(question.tehai),
     agariHai: haiIdToMpsz(context.agariHai),
-    bakaze: kazeIdToMpsz(context.bakaze),
-    jikaze: kazeIdToMpsz(context.jikaze),
+    bakaze: haiIdToMpsz(context.bakaze),
+    jikaze: haiIdToMpsz(context.jikaze),
     isTsumo: context.isTsumo,
     correctFu: question.answer,
     userFu,

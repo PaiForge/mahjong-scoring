@@ -54,7 +54,7 @@ export function createRandomShuntsu(
     ? {
         type: MentsuType.Shuntsu,
         hais,
-        furo: { type: FuroType.Chi, from: Tacha.Kamicha },
+        furo: { type: FuroType.Chi, from: Tacha.Kamicha, nakiHai: t1 },
       }
     : { type: MentsuType.Shuntsu, hais };
 
@@ -80,7 +80,7 @@ export function createRandomKoutsu(
     ? {
         type: MentsuType.Koutsu,
         hais,
-        furo: { type: FuroType.Pon, from: Tacha.Toimen },
+        furo: { type: FuroType.Pon, from: Tacha.Toimen, nakiHai: tile },
       }
     : { type: MentsuType.Koutsu, hais };
 
@@ -108,7 +108,7 @@ export function createRandomKantsu(
     ? {
         type: MentsuType.Kantsu,
         hais,
-        furo: { type: FuroType.Daiminkan, from: Tacha.Toimen },
+        furo: { type: FuroType.Daiminkan, from: Tacha.Toimen, nakiHai: tile },
       }
     : { type: MentsuType.Kantsu, hais };
 

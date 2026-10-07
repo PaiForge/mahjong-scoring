@@ -12,7 +12,7 @@ import { parseMentsuJantouFuResults, toQuestionResult } from "./types";
 
 /** 保存形式として妥当な結果データ */
 const validResult = {
-  tehai: "11m345p11122s[789m]",
+  tehai: "11m345p11122s[7-89m]",
   agariHai: "1m",
   bakaze: "1z",
   jikaze: "2z",
@@ -37,7 +37,7 @@ const validResult = {
       tiles: "789m",
       type: MentsuType.Shuntsu,
       isOpen: true,
-      furo: { type: "Chi", from: 3 },
+      furo: { type: "Chi", from: 3, nakiHai: 6 },
       correctFu: 0,
       userFu: 0,
     },

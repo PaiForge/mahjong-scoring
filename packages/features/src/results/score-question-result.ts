@@ -3,8 +3,7 @@ import {
   haiIdToMpsz,
   isOya,
   judgeScoreTableAnswer,
-  kazeIdToMpsz,
-  tehaiToMpsz,
+  formatMpsz,
 } from "@mahjong-scoring/core";
 import type {
   RuleConfig,
@@ -105,10 +104,10 @@ export function toScoreQuestionSnapshot(
   question: ScoreQuestion,
 ): ScoreQuestionSnapshot {
   return {
-    tehai: tehaiToMpsz(question.tehai),
+    tehai: formatMpsz(question.tehai),
     agariHai: haiIdToMpsz(question.agariHai),
-    bakaze: kazeIdToMpsz(question.bakaze),
-    jikaze: kazeIdToMpsz(question.jikaze),
+    bakaze: haiIdToMpsz(question.bakaze),
+    jikaze: haiIdToMpsz(question.jikaze),
     doraMarkers: question.doraMarkers.map(haiIdToMpsz),
     isRiichi: question.isRiichi,
     uraDoraMarkers: question.uraDoraMarkers?.map(haiIdToMpsz),

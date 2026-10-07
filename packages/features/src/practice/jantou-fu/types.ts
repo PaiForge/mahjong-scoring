@@ -1,4 +1,4 @@
-import { haiIdToMpsz, kazeIdToMpsz } from "@mahjong-scoring/core";
+import { haiIdToMpsz } from "@mahjong-scoring/core";
 import type { JantouFuChoice, JantouFuQuestion } from "@mahjong-scoring/core";
 
 import {
@@ -57,8 +57,8 @@ export function toQuestionResult(
     question.choices.find((choice) => choice.isCorrect) ?? question.choices[0];
 
   return {
-    bakaze: kazeIdToMpsz(question.context.bakaze),
-    jikaze: kazeIdToMpsz(question.context.jikaze),
+    bakaze: haiIdToMpsz(question.context.bakaze),
+    jikaze: haiIdToMpsz(question.context.jikaze),
     correctHai: haiIdToMpsz(correct.hai),
     correctFu: correct.fu,
     selectedHai: selected && haiIdToMpsz(selected.hai),

@@ -9,7 +9,7 @@ const validResult = {
   mentsu: {
     tiles: "111m",
     type: MentsuType.Koutsu,
-    furo: { type: "Pon", from: 2 },
+    furo: { type: "Pon", from: 2, nakiHai: 0 },
   },
   correctFu: 4,
   userFu: 8,

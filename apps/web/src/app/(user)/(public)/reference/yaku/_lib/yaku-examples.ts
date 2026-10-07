@@ -96,7 +96,7 @@ export const YAKU_EXAMPLES: Readonly<
   断么九: [
     {
       menzen: { mpsz: "234m567m234p678s55p" },
-      naki: { mpsz: "234m234p678s55p[567m]" },
+      naki: { mpsz: "234m234p678s55p[5-67m]" },
     },
   ],
   // 三元牌はどれも同じ扱いなので、牌だけを差し替えた同じ手で並べる
@@ -104,36 +104,36 @@ export const YAKU_EXAMPLES: Readonly<
     {
       variant: "白",
       menzen: { mpsz: "234m567m234p99s555z" },
-      naki: { mpsz: "234m567m234p99s[555z]" },
+      naki: { mpsz: "234m567m234p99s[5=55z]" },
     },
     {
       variant: "發",
       menzen: { mpsz: "234m567m234p99s666z" },
-      naki: { mpsz: "234m567m234p99s[666z]" },
+      naki: { mpsz: "234m567m234p99s[6=66z]" },
     },
     {
       variant: "中",
       menzen: { mpsz: "234m567m234p99s777z" },
-      naki: { mpsz: "234m567m234p99s[777z]" },
+      naki: { mpsz: "234m567m234p99s[7=77z]" },
     },
   ],
   // --- 2翻 ---
   三色同順: [
     {
       menzen: { mpsz: "234m234p234s678m55z" },
-      naki: { mpsz: "234m234p678m55z[234s]" },
+      naki: { mpsz: "234m234p678m55z[2-34s]" },
     },
   ],
   一気通貫: [
     {
       menzen: { mpsz: "123456789m22p333s" },
-      naki: { mpsz: "123456m22p333s[789m]" },
+      naki: { mpsz: "123456m22p333s[7-89m]" },
     },
   ],
   混全帯么九: [
     {
       menzen: { mpsz: "123m123p123s789m11z" },
-      naki: { mpsz: "123p123s789m11z[123m]" },
+      naki: { mpsz: "123p123s789m11z[1-23m]" },
     },
   ],
   七対子: [{ menzen: { mpsz: "1188m2299p3377s11z" } }],
@@ -145,7 +145,7 @@ export const YAKU_EXAMPLES: Readonly<
         agari: { type: "ron", hai: "1m" },
       },
       // 明刻を2つにして三暗刻との複合を避けた形
-      naki: { mpsz: "111m555p22m[999s][333z]" },
+      naki: { mpsz: "111m555p22m[9=99s][3=33z]" },
     },
   ],
   三暗刻: [
@@ -157,7 +157,7 @@ export const YAKU_EXAMPLES: Readonly<
       },
       // 副露形で暗刻を3つ保てるのは、雀頭の単騎待ちで和了る形だけ
       naki: {
-        mpsz: "111m333m555p77z[789s]",
+        mpsz: "111m333m555p77z[7-89s]",
         agari: { type: "ron", hai: "7z" },
       },
     },
@@ -165,19 +165,19 @@ export const YAKU_EXAMPLES: Readonly<
   三色同刻: [
     {
       menzen: { mpsz: "333m333p333s678m11z" },
-      naki: { mpsz: "333m333p678m11z[333s]" },
+      naki: { mpsz: "333m333p678m11z[3=33s]" },
     },
   ],
   三槓子: [
     {
       menzen: { mpsz: "234s11z(1111m)(5555p)(9999s)" },
-      naki: { mpsz: "234s11z(1111m)(5555p)[9999s]" },
+      naki: { mpsz: "234s11z(1111m)(5555p)[9=999s]" },
     },
   ],
   小三元: [
     {
       menzen: { mpsz: "234m234p555z666z77z" },
-      naki: { mpsz: "234m234p666z77z[555z]" },
+      naki: { mpsz: "234m234p666z77z[5=55z]" },
     },
   ],
   混老頭: [
@@ -187,20 +187,20 @@ export const YAKU_EXAMPLES: Readonly<
         mpsz: "111m999m111p999p11z",
         agari: { type: "ron", hai: "1m" },
       },
-      naki: { mpsz: "111m999m111p11z[999p]" },
+      naki: { mpsz: "111m999m111p11z[9=99p]" },
     },
   ],
   // --- 3翻 ---
   混一色: [
     {
       menzen: { mpsz: "123m456m789m99m111z" },
-      naki: { mpsz: "123m456m99m111z[789m]" },
+      naki: { mpsz: "123m456m99m111z[7-89m]" },
     },
   ],
   純全帯么九: [
     {
       menzen: { mpsz: "123m789m123p789s11s" },
-      naki: { mpsz: "789m123p789s11s[123m]" },
+      naki: { mpsz: "789m123p789s11s[1-23m]" },
     },
   ],
   二盃口: [{ menzen: { mpsz: "112233m112233p55s" } }],
@@ -209,7 +209,7 @@ export const YAKU_EXAMPLES: Readonly<
   清一色: [
     {
       menzen: { mpsz: "234m345m456m789m22m" },
-      naki: { mpsz: "234m345m456m22m[789m]" },
+      naki: { mpsz: "234m345m456m22m[7-89m]" },
     },
   ],
   // --- 役満 ---
@@ -227,45 +227,45 @@ export const YAKU_EXAMPLES: Readonly<
   大三元: [
     {
       menzen: { mpsz: "234m555z666z777z11p" },
-      naki: { mpsz: "234m555z666z11p[777z]" },
+      naki: { mpsz: "234m555z666z11p[7=77z]" },
     },
   ],
   // 風牌を3種に留めて小四喜・大四喜との複合を避けた形
   字一色: [
     {
       menzen: { mpsz: "111z222z333z555z66z" },
-      naki: { mpsz: "111z222z555z66z[333z]" },
+      naki: { mpsz: "111z222z555z66z[3=33z]" },
     },
   ],
   小四喜: [
     {
       menzen: { mpsz: "234m111z222z333z44z" },
-      naki: { mpsz: "234m111z222z44z[333z]" },
+      naki: { mpsz: "234m111z222z44z[3=33z]" },
     },
   ],
   // 雀頭を数牌にして字一色との複合を避けた形
   大四喜: [
     {
       menzen: { mpsz: "111z222z333z444z11m" },
-      naki: { mpsz: "111z222z333z11m[444z]" },
+      naki: { mpsz: "111z222z333z11m[4=44z]" },
     },
   ],
   清老頭: [
     {
       menzen: { mpsz: "111m999m111p999p11s" },
-      naki: { mpsz: "111m999m111p11s[999p]" },
+      naki: { mpsz: "111m999m111p11s[9=99p]" },
     },
   ],
   緑一色: [
     {
       menzen: { mpsz: "234s234s666s888s66z" },
-      naki: { mpsz: "234s234s666s66z[888s]" },
+      naki: { mpsz: "234s234s666s66z[8=88s]" },
     },
   ],
   四槓子: [
     {
       menzen: { mpsz: "55z(1111m)(2222p)(3333s)(4444z)" },
-      naki: { mpsz: "55z(1111m)(2222p)(3333s)[4444z]" },
+      naki: { mpsz: "55z(1111m)(2222p)(3333s)[4=444z]" },
     },
   ],
 };

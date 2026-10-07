@@ -123,8 +123,6 @@ export {
   parseKazehai,
   haiIdToMpsz,
   haisToMpsz,
-  kazeIdToMpsz,
-  tehaiToMpsz,
 } from "./problem/score/mpsz-serializer";
 
 // === Score ===
@@ -214,7 +212,10 @@ export {
   FuroType,
   Tacha,
 } from "@pai-forge/riichi-mahjong";
+export { isHaiKindId } from "./core/type-guards";
+
 export {
+  formatMpsz,
   validateTehai14,
   countDora,
   getDoraNext,
