@@ -642,12 +642,22 @@ export type NewAdCreative = typeof adCreatives.$inferInsert;
  *
  * 運用者個人の設定なので、シードもコードも書かない。管理画面
  * （`/admin/ads`）でだけ設定する。
+ *
+ * @design プラットフォームごとに持つ
+ * Amazon アソシエイトで成果を分ける単位はトラッキング ID だけで、サイト・
+ * アプリの登録（サイト一覧）は成果を分けない。アプリと web の成果を分けたく
+ * なったときに ID を差し替えるだけで済むよう、web とモバイルで別の行にする。
+ * 分けない間は両方に同じ ID を入れる。片方が未設定なら、その側の ASIN の
+ * 広告だけを出さない — もう片方の ID に落とすと、設定漏れのまま成果が
+ * 混ざり、気付く手がかりが無い。
  */
 export const adNetworkSettings = pgTable(
   "ad_network_settings",
   {
     /** ネットワーク（`lib/ads/amazon.ts` の `AMAZON_NETWORK`） */
-    network: varchar("network", { length: 50 }).primaryKey(),
+    network: varchar("network", { length: 50 }).notNull(),
+    /** 広告を描画する側（`lib/ads/registry.ts` の `AdPlatform`） */
+    platform: varchar("platform", { length: 20 }).notNull().default("web"),
     /** トラッキング ID（Amazon アソシエイトの `tag=` の値） */
     trackingId: varchar("tracking_id", { length: 64 }).notNull(),
     /** 更新日時 */
@@ -656,9 +666,14 @@ export const adNetworkSettings = pgTable(
       .notNull(),
   },
   (table) => [
+    primaryKey({ columns: [table.network, table.platform] }),
     check(
       "ad_network_settings_chk_network",
       sql`${table.network} IN ('amazon_jp')`,
+    ),
+    check(
+      "ad_network_settings_chk_platform",
+      sql`${table.platform} IN ('web', 'mobile')`,
     ),
   ],
 );
