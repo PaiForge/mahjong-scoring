@@ -92,6 +92,12 @@ export const PREFERENCES_PATH = "/preferences";
  */
 export const YAKU_ORDER_PATH = "/preferences/yaku-order";
 
+/** 早見表（点数表・役一覧・用語集の入口）のパス */
+export const REFERENCE_PATH = "/reference";
+
+/** 役一覧（早見表）のパス */
+export const REFERENCE_YAKU_PATH = "/reference/yaku";
+
 /** 道場（黒帯への道の全行程）のパス */
 export const DOJO_PATH = "/dojo";
 

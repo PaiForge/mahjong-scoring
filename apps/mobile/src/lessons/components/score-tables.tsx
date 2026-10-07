@@ -1,4 +1,5 @@
 import { StyleSheet, Text, View } from "react-native";
+import { useRouter } from "expo-router";
 import { useTranslations } from "use-intl";
 import {
   YAKU_HAN_ENTRIES,
@@ -11,10 +12,13 @@ import {
   type FixedFuTableShape,
 } from "@mahjong-scoring/features/curriculum/fixed-fu-rows";
 import type { FixedHandShape } from "@mahjong-scoring/features/practice/score/hand-shape-param";
+import { hasYakuCheatsheetEntry } from "@mahjong-scoring/features/yaku/examples";
 import { yakuHanLabel } from "@mahjong-scoring/features/yaku/yaku-han-label";
 
 import { DataTable } from "../../components/data-table";
+import { linkStyles } from "../../lib/link-styles";
 import { colors } from "../../lib/theme";
+import { referenceYakuHref } from "../../reference/routes";
 import { TableCaption } from "./guide-text";
 import { MutedCell, RowHeaderCell, StrongCell } from "./table-cells";
 import { TsumoScore } from "./tsumo-score";
@@ -126,12 +130,14 @@ export function ExtraFuTable({
  * 翻数別の役まとめ表（web の `YakuHanTable`）
  * 翻数別役一覧表
  *
- * 役と翻数は core の `YAKU_HAN_ENTRIES` を単一ソースとする。web は役名を
- * 役一覧（`/reference/yaku`）の該当カードへのリンクにするが、モバイルには
- * 役一覧がまだ無いので素のテキストで並べる。
+ * 役と翻数は core の `YAKU_HAN_ENTRIES` を単一ソースとする。各役名は役一覧の
+ * その役へのリンクで、押すとその役が開いた状態で着地する。早見表に載らない
+ * 状況役（立直・門前清自摸和）だけは素のテキスト（web と同じ）。役名は指で
+ * 押せる間隔を空けて折り返す。
  */
 export function YakuHanTable() {
   const t = useTranslations("yaku.learn");
+  const router = useRouter();
   const groups = groupYakuHanEntriesByMenzenHan(YAKU_HAN_ENTRIES);
   return (
     <DataTable
@@ -142,11 +148,22 @@ export function YakuHanTable() {
       rows={groups.map((group) => [
         <StrongCell key="han">{yakuHanLabel(group.han, t)}</StrongCell>,
         <View key="list" style={styles.yakuList}>
-          {group.entries.map((entry) => (
-            <Text key={entry.name} style={styles.yaku}>
-              {entry.name}
-            </Text>
-          ))}
+          {group.entries.map((entry) =>
+            hasYakuCheatsheetEntry(entry.name) ? (
+              <Text
+                key={entry.name}
+                onPress={() => router.push(referenceYakuHref(entry.name))}
+                accessibilityRole="link"
+                style={[styles.yaku, linkStyles.inline]}
+              >
+                {entry.name}
+              </Text>
+            ) : (
+              <Text key={entry.name} style={styles.yaku}>
+                {entry.name}
+              </Text>
+            ),
+          )}
         </View>,
       ])}
     />

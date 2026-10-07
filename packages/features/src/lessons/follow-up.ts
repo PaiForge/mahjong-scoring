@@ -5,12 +5,9 @@ import {
   type BuildJourneyInput,
   type JourneyStageProgress,
   type JourneyStep,
-} from "@mahjong-scoring/features/journey/journey";
-import {
-  quizLessonBySlug,
-  type QuizLessonSlug,
-} from "@mahjong-scoring/features/lessons/registry";
-import type { PracticeLink } from "@mahjong-scoring/features/curriculum/registry";
+} from "../journey/journey";
+import { quizLessonBySlug, type QuizLessonSlug } from "./registry";
+import type { PracticeLink } from "../curriculum/registry";
 
 /** 1 つの級の行程の進み具合（段ごとの済んだ数と全体、試験の合否） */
 export interface RankProgress {

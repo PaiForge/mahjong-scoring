@@ -1,3 +1,4 @@
+import { Hai } from "@pai-forge/mahjong-react-ui";
 import { Pressable, ScrollView, StyleSheet, Text, View } from "react-native";
 import { useTranslations } from "use-intl";
 import type { JudgementResult } from "@mahjong-scoring/core";
@@ -7,7 +8,6 @@ import {
   type MachiCellRef,
 } from "@mahjong-scoring/features/practice/machi-score/cell-ref";
 
-import { Tile } from "../../../components/tile";
 import { colors, radius } from "../../../lib/theme";
 import { JudgementMark } from "../../components/judgement-mark";
 
@@ -102,7 +102,7 @@ export function WaitCellTabs({
           >
             <View style={styles.tabHead}>
               <Text style={styles.tabText}>{winLabel}</Text>
-              <Tile hai={cell.agariHai} size="xs" />
+              <Hai hai={cell.agariHai} size="xs" />
               {verdict !== undefined && (
                 <JudgementMark verdict={verdict} size={14} />
               )}

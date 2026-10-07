@@ -1,3 +1,4 @@
+import { Hai } from "@pai-forge/mahjong-react-ui";
 import { useState } from "react";
 import { StyleSheet, Text, View } from "react-native";
 import { useTranslations } from "use-intl";
@@ -22,7 +23,6 @@ import {
 
 import { TehaiMentsuBreakdown } from "../../../board/tehai-mentsu-breakdown";
 import { Button } from "../../../components/button";
-import { Tile } from "../../../components/tile";
 import { colors, radius } from "../../../lib/theme";
 import { JudgementMark } from "../../components/judgement-mark";
 import { ResultDisplay } from "../score/result-display";
@@ -52,7 +52,7 @@ function MarkedHai({
         mark ? MACHI_TILE_MARK_STYLES[mark] : styles.unmarked,
       ]}
     >
-      <Tile hai={hai} size="xs" />
+      <Hai hai={hai} size="xs" />
     </View>
   );
 }

@@ -1,8 +1,12 @@
+import { useMemo } from "react";
+import { StyleSheet, Text } from "react-native";
 import { useTranslations } from "use-intl";
 import type { YakuDetail } from "@mahjong-scoring/core";
 import { orderYakuDetails } from "@mahjong-scoring/features/results/order-yaku-details";
 
 import { useYakuOrder } from "../../hooks/use-yaku-order-store";
+import { linkStyles } from "../../lib/link-styles";
+import { useYakuCheatsheetModal } from "../use-yaku-cheatsheet-modal";
 import { CollapsibleDetail } from "./collapsible-detail";
 import { DetailTable } from "./detail-table";
 
@@ -14,8 +18,8 @@ import { DetailTable } from "./detail-table";
  * （{@link orderYakuDetails}）。文言は共通の `challenge.yakuBreakdown` から
  * 引く。常に既定で閉じる。
  *
- * web は早見表に載る役の行を押すと役一覧モーダルが開くが、モバイルには
- * まだ役一覧が無いため役名は文字のまま。
+ * 早見表に載る役の名前は押せて、押すと役一覧のシートをその役で開く
+ * （web と同じ）。
  */
 export function YakuBreakdown({
   yakuDetails,
@@ -27,7 +31,14 @@ export function YakuBreakdown({
   readonly note?: string;
 }) {
   const t = useTranslations("challenge.yakuBreakdown");
+  const tChallenge = useTranslations("challenge");
   const yakuOrder = useYakuOrder();
+  const yakuNames = useMemo(
+    () => yakuDetails.map((detail) => detail.name),
+    [yakuDetails],
+  );
+  const { canOpenYakuCheatsheet, openYakuCheatsheet, yakuCheatsheetModal } =
+    useYakuCheatsheetModal(yakuNames);
 
   if (yakuDetails.length === 0) return undefined;
 
@@ -35,16 +46,36 @@ export function YakuBreakdown({
   const total = ordered.reduce((sum, detail) => sum + detail.han, 0);
 
   return (
-    <CollapsibleDetail title={t("title")}>
-      <DetailTable
-        // 見出しは開閉ボタンが持つため、表側の見出しは出さない
-        rows={ordered.map((detail) => ({
-          label: detail.name,
-          value: t("han", { count: detail.han }),
-        }))}
-        total={{ label: t("total"), value: t("han", { count: total }) }}
-        note={note}
-      />
-    </CollapsibleDetail>
+    <>
+      <CollapsibleDetail title={t("title")}>
+        <DetailTable
+          // 見出しは開閉ボタンが持つため、表側の見出しは出さない
+          rows={ordered.map((detail) => ({
+            label: canOpenYakuCheatsheet(detail.name) ? (
+              <Text
+                onPress={() => openYakuCheatsheet(detail.name)}
+                accessibilityRole="link"
+                accessibilityHint={tChallenge("openInYakuList")}
+                style={[styles.yakuLink, linkStyles.textButton]}
+              >
+                {detail.name}
+              </Text>
+            ) : (
+              detail.name
+            ),
+            value: t("han", { count: detail.han }),
+          }))}
+          total={{ label: t("total"), value: t("han", { count: total }) }}
+          note={note}
+        />
+      </CollapsibleDetail>
+      {yakuCheatsheetModal}
+    </>
   );
 }
+
+const styles = StyleSheet.create({
+  yakuLink: {
+    fontSize: 14,
+  },
+});

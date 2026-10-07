@@ -18,7 +18,9 @@ import { ChevronRightIcon } from "./icons/chevron-right-icon";
  *
  * 既に枠を持つ面の内側（道場の級のカード・レッスンの目標パネル）に置くときは
  * `inset` を渡す。枠を重ねると入れ子の箱が増えるため、枠を持たず区切り線だけで
- * 並べ、行の文字の左端をカードの本文とそろえる。
+ * 並べ、行の文字の左端をカードの本文とそろえる。周りが枠を持たない並び
+ * （レッスンの目次）に広告の行を差し込むときも同じで、1 行だけ枠を描くと
+ * そこだけ独立したカードに見える。
  *
  * 行の余白は枠の有無で変わるが、行の側（`ROW_ITEM_CLASSES` /
  * `ROW_INNER_CLASSES`）は 1 組のまま、リストの `data-framed` を見て切り替える
@@ -30,7 +32,7 @@ export function LinkRowList({
   inset = false,
 }: {
   readonly children: ReactNode;
-  /** 枠を持つ面の内側に置くとき true（枠を描かない） */
+  /** 枠を持つ面の内側や、枠の無い並びに混ぜるとき true（枠を描かない） */
   readonly inset?: boolean;
 }) {
   return inset ? (

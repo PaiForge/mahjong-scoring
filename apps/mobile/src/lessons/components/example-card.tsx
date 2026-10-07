@@ -1,13 +1,13 @@
+import { Hai } from "@pai-forge/mahjong-react-ui";
 import type { ReactNode } from "react";
 import { StyleSheet, Text, View } from "react-native";
 import type { HaiKindId } from "@mahjong-scoring/core";
 
-import { Tile } from "../../components/tile";
 import { colors, radius } from "../../lib/theme";
 import { lessonColors } from "../lesson-colors";
 
 /**
- * 例示カード（web の `ExampleCard` = 白背景・角丸・太枠）
+ * 例示カード（web の `ExampleCard` = 白背景・角丸・細枠）
  * 例示カード
  */
 export function ExampleCard({
@@ -50,13 +50,13 @@ export function TehaiFuExample({
       <View style={styles.tilesRow}>
         <View style={styles.tiles}>
           {tiles.map((tile, i) => (
-            <Tile key={i} hai={tile} rotated={i === rotatedIndex} />
+            <Hai key={i} hai={tile} rotated={i === rotatedIndex} />
           ))}
         </View>
         {agariHai !== undefined && (
           <>
             <Text style={styles.plus}>+</Text>
-            <Tile hai={agariHai} />
+            <Hai hai={agariHai} />
           </>
         )}
       </View>

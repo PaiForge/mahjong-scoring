@@ -136,8 +136,8 @@ const styles = StyleSheet.create({
   },
   headerRow: {
     flexDirection: "row",
-    borderBottomWidth: 3,
-    borderBottomColor: colors.ink,
+    borderBottomWidth: 1,
+    borderBottomColor: colors.surface300,
     paddingTop: 8,
     paddingBottom: 12,
   },
@@ -148,7 +148,7 @@ const styles = StyleSheet.create({
     color: colors.surface600,
   },
   sectionDivider: {
-    borderTopWidth: 2,
+    borderTopWidth: 1,
     borderTopColor: colors.surface200,
   },
   row: {

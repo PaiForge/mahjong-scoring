@@ -1,23 +1,18 @@
 import type { ReactNode } from "react";
-import {
-  Modal,
-  Pressable,
-  ScrollView,
-  StyleSheet,
-  Text,
-  View,
-} from "react-native";
+import { StyleSheet } from "react-native";
 import { useTranslations } from "use-intl";
 
-import { colors, radius } from "../../../lib/theme";
+import { BottomSheet } from "../../../components/bottom-sheet";
+import { ScrollIntoViewScrollView } from "../../../components/scroll-into-view";
 
 /**
- * 参照モーダル（web の `ReferenceModal`）
+ * 参照シート（web の `ReferenceModal`）
  * 早見表モーダル
  *
- * 答え合わせから出題ループを離脱せずに早見表を確かめるための器。見出し・
- * 閉じるボタン・スクロール枠の体裁だけを持ち、中身と開閉の制御は呼び出し側に
- * 任せる。パネルは押せないので影を持たず、太枠で区切る。
+ * 答え合わせから出題ループを離脱せずに早見表を確かめるための器。見出しと
+ * スクロール枠の体裁だけを持ち、中身と開閉の制御は呼び出し側に任せる。
+ * web は中央のモーダルだが、モバイルでは表を読ませるものは下からのシート
+ * （{@link BottomSheet}）に置く — 中央のダイアログは確認だけに使う。
  */
 export function ReferenceModal({
   isOpen,
@@ -27,80 +22,28 @@ export function ReferenceModal({
 }: {
   readonly isOpen: boolean;
   readonly onClose: () => void;
-  /** モーダルの見出し（参照先のページタイトル） */
+  /** シートの見出し（参照先のページタイトル） */
   readonly title: string;
   readonly children: ReactNode;
 }) {
   const tCommon = useTranslations("common");
 
   return (
-    <Modal
-      visible={isOpen}
-      transparent
-      animationType="fade"
-      onRequestClose={onClose}
+    <BottomSheet
+      isOpen={isOpen}
+      onClose={onClose}
+      title={title}
+      closeLabel={tCommon("close")}
     >
-      <View style={styles.backdrop}>
-        <View style={styles.panel}>
-          <View style={styles.header}>
-            <Text style={styles.title}>{title}</Text>
-            <Pressable
-              onPress={onClose}
-              accessibilityRole="button"
-              accessibilityLabel={tCommon("close")}
-              hitSlop={12}
-            >
-              {({ pressed }) => (
-                <Text style={[styles.close, pressed && styles.closePressed]}>
-                  {"×"}
-                </Text>
-              )}
-            </Pressable>
-          </View>
-          <ScrollView style={styles.body}>{children}</ScrollView>
-        </View>
-      </View>
-    </Modal>
+      {/* 中身（点数早見表）が注目セルを中央へ寄せられるスクロール枠 */}
+      <ScrollIntoViewScrollView style={styles.body}>
+        {children}
+      </ScrollIntoViewScrollView>
+    </BottomSheet>
   );
 }
 
 const styles = StyleSheet.create({
-  backdrop: {
-    flex: 1,
-    backgroundColor: "rgba(0,0,0,0.5)",
-    alignItems: "center",
-    justifyContent: "center",
-    padding: 12,
-  },
-  panel: {
-    width: "100%",
-    maxWidth: 672,
-    maxHeight: "90%",
-    backgroundColor: colors.card,
-    borderWidth: 4,
-    borderColor: colors.ink,
-    borderRadius: radius["2xl"],
-    padding: 16,
-    gap: 12,
-  },
-  header: {
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "space-between",
-  },
-  title: {
-    fontSize: 18,
-    fontWeight: "700",
-    color: colors.surface900,
-  },
-  close: {
-    fontSize: 24,
-    lineHeight: 24,
-    color: colors.surface400,
-  },
-  closePressed: {
-    color: colors.surface600,
-  },
   body: {
     flexGrow: 0,
   },

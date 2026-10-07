@@ -4,6 +4,7 @@ import { useRouter } from "expo-router";
 import { useTranslations } from "use-intl";
 import type { PracticeLink } from "@mahjong-scoring/features/curriculum/registry";
 import { stepAfterLesson } from "@mahjong-scoring/features/journey/journey";
+import { lessonFollowUp } from "@mahjong-scoring/features/lessons/follow-up";
 import {
   journeyStepHref,
   journeyStepTitle,
@@ -20,7 +21,13 @@ import {
   lessonConditionValues,
 } from "@mahjong-scoring/features/lessons/quiz-labels";
 import { lessonQuiz } from "@mahjong-scoring/features/lessons/quizzes";
-import type { QuizLessonSlug } from "@mahjong-scoring/features/lessons/registry";
+import {
+  isQuizLessonSlug,
+  quizLessonBySlug,
+  type QuizLessonSlug,
+} from "@mahjong-scoring/features/lessons/registry";
+import { menuTypeToSlug } from "@mahjong-scoring/features/practice-menu-types";
+import { rankBySlug } from "@mahjong-scoring/features/ranks/registry";
 
 import { TehaiDisplay } from "../../board/tehai-display";
 import { Button } from "../../components/button";
@@ -28,9 +35,11 @@ import { Grid } from "../../components/grid";
 import { SectionTitle } from "../../components/section-title";
 import { TextLink } from "../../components/text-link";
 import {
+  useCompletedLessonSlugs,
   useLessonCompleted,
   useLessonCompletionStore,
 } from "../../hooks/use-lesson-completion-store";
+import { useAttemptedPractices } from "../../hooks/use-practice-attempt-store";
 import { hapticJudgement } from "../../lib/haptics";
 import { colors, radius } from "../../lib/theme";
 import { ChoiceButton } from "../../practice/components/choice-button";
@@ -45,8 +54,9 @@ import { isLessonPorted } from "../ported-lessons";
 import { lessonColors, verdictTextColors } from "../lesson-colors";
 import { ChapterRelatedLinks } from "./chapter-related-links";
 import { DoneMark } from "./done-mark";
+import { NextLessonPreview } from "./next-lesson-preview";
+import { RankGoalPanel } from "./rank-goal-panel";
 import { MachiTiles, MentsuSet, TileSet } from "./tile-row";
-import { LESSONS_PATH } from "@mahjong-scoring/features/routes";
 
 /** レッスンの段階（並びは進む順） */
 type LessonPhase = "learn" | "quiz" | "done";
@@ -108,10 +118,11 @@ interface LessonViewProps {
  *
  * 最後の問題を解き終えたら完了を端末に記録する（web はサーバーに記録し、
  * 保存の状態ごとに完了画面の導線を変えるが、端末への記録は失敗しないので
- * その分岐は持たない）。完了画面の主導線は黒帯への道でこのレッスンの次に
- * ある一歩（features の `stepAfterLesson`）。web が添える次のレッスンの冒頭の
- * プレビューと昇級試験までの進み具合はモバイルでは出さず、ボタンだけにする。
- * 次の一歩が昇級試験のとき（級の最後のレッスン）は、試験の代わりに目次へ戻す。
+ * その分岐は持たない）。完了画面の主導線は web と同じ: 端末の進み具合を
+ * 踏まえた次の一歩（features の `lessonFollowUp`）。それが道筋の順の次の
+ * レッスン（`stepAfterLesson`）と同じなら、ボタンの代わりにそのレッスンの
+ * 冒頭のプレビューを出す。級の最後のレッスンでは、ボタンの下に昇級試験までの
+ * 残りを添える。
  *
  * 完了済みの人が開いたときは、本文の下の「確認問題へ」を控えめな解き直しの
  * リンクに替え、その下に練習への導線を出す。
@@ -132,6 +143,8 @@ export function LessonView({
   const tAll = useTranslations();
   const router = useRouter();
   const completed = useLessonCompleted(slug);
+  const completedLessonSlugs = useCompletedLessonSlugs();
+  const attemptedPractices = useAttemptedPractices();
   const markCompleted = useLessonCompletionStore((s) => s.markCompleted);
 
   const { questions, choices } = lessonQuiz(slug);
@@ -218,7 +231,10 @@ export function LessonView({
     return (
       <View style={styles.quiz}>
         <View style={styles.quizHeader}>
-          <SectionTitle>{t("quizTitle")}</SectionTitle>
+          {/* 見出しが残りの幅を取らないと、右へ伸びる横線が最小幅に潰れる */}
+          <View style={styles.quizTitle}>
+            <SectionTitle>{t("quizTitle")}</SectionTitle>
+          </View>
           <Text style={styles.progress}>
             {t("progress", { index: index + 1, total: questions.length })}
           </Text>
@@ -322,17 +338,48 @@ export function LessonView({
     );
   }
 
-  const step = stepAfterLesson(slug);
+  // 道筋の順の一歩（ページの順序）と、端末の進み具合を踏まえた一歩
+  const planned = stepAfterLesson(slug);
+  const followUp = lessonFollowUp(slug, {
+    completedLessonSlugs,
+    attemptedPractices,
+    achievedRankSlugs: [],
+  });
+  // 次が確認問題を持つレッスンなら、その冒頭をボタンの代わりに見せる
+  const previewSlug =
+    planned?.kind === "lesson" &&
+    isQuizLessonSlug(planned.chapterSlug) &&
+    isLessonPorted(planned.chapterSlug)
+      ? planned.chapterSlug
+      : undefined;
+  // 進み具合の一歩が求まらないか、道筋の順の次のレッスンと同じなら道筋の順に従う
+  const progressStep = followUp.next;
+  const usePlanned =
+    progressStep === undefined ||
+    (progressStep.kind === "lesson" &&
+      progressStep.chapterSlug === previewSlug);
+  const step = usePlanned ? planned : progressStep;
   const nextPractice: PracticeLink | undefined =
     step?.kind === "practice"
       ? { slug: step.slug, variant: step.variant }
       : undefined;
-  // 次の一歩がモバイルに無いもの（昇級試験 — 記録も段級位も持たない）や
-  // 開けないレッスンなら、目次へ戻す（今の前提章はすべて開ける）
+  // 次の一歩が無いか開けないレッスン（今の前提章はすべて開ける）なら、web と
+  // 同じくホームの「次にやること」に任せる。昇級試験は説明画面（模試）へ送る
   const stepReachable =
     step !== undefined &&
-    step.kind !== "exam" &&
     (step.kind !== "lesson" || isLessonPorted(step.chapterSlug));
+  // 級の最後のレッスン（道筋の次がレッスンでない）では昇級試験までの残りを添える
+  const rank = rankBySlug(quizLessonBySlug(slug)?.rankSlug ?? "kyu-5");
+  const goal =
+    planned === undefined ||
+    planned.kind === "lesson" ||
+    rank === undefined ? undefined : (
+      <RankGoalPanel
+        rankSlug={rank.slug}
+        examSlug={menuTypeToSlug(rank.exam.menuType)}
+        progress={followUp.rankProgress}
+      />
+    );
 
   return (
     <View style={styles.done}>
@@ -355,7 +402,9 @@ export function LessonView({
                 })}
           </Text>
         </View>
-        {stepReachable ? (
+        {usePlanned && previewSlug !== undefined ? (
+          <NextLessonPreview slug={previewSlug} />
+        ) : stepReachable ? (
           <Button
             size="lg"
             fullWidth
@@ -366,14 +415,11 @@ export function LessonView({
             })}
           </Button>
         ) : (
-          <Button
-            size="lg"
-            fullWidth
-            onPress={() => router.navigate(LESSONS_PATH)}
-          >
+          <Button size="lg" fullWidth onPress={() => router.navigate("/")}>
             {t("continueHome")}
           </Button>
         )}
+        {goal}
       </View>
 
       <ChapterRelatedLinks slug={slug} exclude={nextPractice} />
@@ -398,7 +444,11 @@ const styles = StyleSheet.create({
   quizHeader: {
     flexDirection: "row",
     alignItems: "center",
-    justifyContent: "space-between",
+    gap: 12,
+  },
+  quizTitle: {
+    flex: 1,
+    minWidth: 0,
   },
   progress: {
     fontSize: 14,
@@ -459,9 +509,9 @@ const styles = StyleSheet.create({
     gap: 16,
   },
   achievement: {
-    borderWidth: 3,
+    borderWidth: 1,
     borderColor: colors.success,
-    borderRadius: radius.xl,
+    borderRadius: radius.panel,
     backgroundColor: colors.successSubtle,
     padding: 20,
     gap: 8,

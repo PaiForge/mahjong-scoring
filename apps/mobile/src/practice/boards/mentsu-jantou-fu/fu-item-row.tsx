@@ -176,7 +176,7 @@ const styles = StyleSheet.create({
   row: {
     gap: 10,
     borderWidth: 1,
-    borderRadius: radius.xl,
+    borderRadius: radius.panel,
     padding: 12,
   },
   rowPlain: {

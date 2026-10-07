@@ -5,8 +5,8 @@ import { useTranslations } from "next-intl";
 import { ToggleGroup } from "@/app/(user)/_components/toggle-group";
 import { useIsClient } from "@/app/_hooks/use-is-client";
 import { useRuleSettingsStore } from "@/app/_hooks/use-rule-settings-store";
-import { resolveScoreTableFocus } from "../_lib/score-table-utils";
-import type { ScoreTableFocus } from "../_lib/score-table-utils";
+import { resolveScoreTableFocus } from "@mahjong-scoring/features/score-table/focus";
+import type { ScoreTableFocus } from "@mahjong-scoring/features/score-table/focus";
 import {
   buildScoreGrid,
   type ScoreTableViewMode,

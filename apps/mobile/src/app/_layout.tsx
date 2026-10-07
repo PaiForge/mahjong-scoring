@@ -4,6 +4,7 @@ import { SafeAreaProvider } from "react-native-safe-area-context";
 
 import { AppIntlProvider } from "../lib/intl-provider";
 import { colors } from "../lib/theme";
+import { TermSheetProvider } from "../reference/term-sheet";
 
 /**
  * ルートレイアウト
@@ -17,22 +18,25 @@ export default function RootLayout() {
   return (
     <SafeAreaProvider>
       <AppIntlProvider>
-        <Stack
-          screenOptions={{
-            contentStyle: { backgroundColor: colors.card },
-            // 見出しは各画面が地の斜線の帯で持つ（web と同じ見た目）
-            headerShown: false,
-          }}
-        >
-          <Stack.Screen
-            name="practice/[slug]/play"
-            options={{ gestureEnabled: false }}
-          />
-          <Stack.Screen
-            name="practice/[slug]/result"
-            options={{ gestureEnabled: false }}
-          />
-        </Stack>
+        {/* 本文の用語リンクはどの画面からでも同じシートを開く */}
+        <TermSheetProvider>
+          <Stack
+            screenOptions={{
+              contentStyle: { backgroundColor: colors.card },
+              // 見出しは各画面が地の斜線の帯で持つ（web と同じ見た目）
+              headerShown: false,
+            }}
+          >
+            <Stack.Screen
+              name="practice/[slug]/play"
+              options={{ gestureEnabled: false }}
+            />
+            <Stack.Screen
+              name="practice/[slug]/result"
+              options={{ gestureEnabled: false }}
+            />
+          </Stack>
+        </TermSheetProvider>
         <StatusBar style="dark" />
       </AppIntlProvider>
     </SafeAreaProvider>

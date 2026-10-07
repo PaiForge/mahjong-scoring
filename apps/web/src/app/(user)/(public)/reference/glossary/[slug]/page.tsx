@@ -43,8 +43,8 @@ import {
   getGlossaryTermViewBySlug,
   getGlossaryTermViews,
 } from "@/lib/glossary/queries";
-import { GLOSSARY_TERM_SLUGS } from "@/lib/glossary/registry";
-import { GLOSSARY_PATH } from "@/lib/glossary/routes";
+import { GLOSSARY_TERM_SLUGS } from "@mahjong-scoring/features/glossary/registry";
+import { GLOSSARY_PATH } from "@mahjong-scoring/features/glossary/routes";
 
 import { JsonLd } from "@/app/(user)/_components/json-ld";
 import { RelatedTerms } from "../_components/related-terms";

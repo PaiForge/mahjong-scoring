@@ -20,6 +20,7 @@ import { EndlessFooterActions } from "../endless-footer-actions";
 import { GenerationFailedNotice } from "../generation-failed-notice";
 import { readGeneratorOptions, readModeFlags } from "./practice-conditions";
 import { ResultDisplay } from "./result-display";
+import { ScoreOperationHelp } from "./score-help";
 import { ScorePracticeAnswerForm } from "./score-practice-answer-form";
 import { useScorePracticeStore } from "./use-score-practice-store";
 
@@ -115,6 +116,16 @@ export function ScorePracticeBoard() {
         back
         backIcon="close"
         onBack={handleBackToSetup}
+        // 回答中だけ、回答欄の各項目の説明を開ける（答え合わせでは出さない。web と同じ）
+        titleAction={
+          isAnswered ? undefined : (
+            <ScoreOperationHelp
+              requireYaku={requireYaku}
+              simplifyMangan={simplifyMangan}
+              requireFuForMangan={requireFuForMangan}
+            />
+          )
+        }
         contentStyle={styles.content}
       >
         {currentQuestion !== undefined && (

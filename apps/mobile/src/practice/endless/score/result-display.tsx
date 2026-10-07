@@ -20,11 +20,12 @@ import { formatScoreAnswer } from "@mahjong-scoring/features/results/format-scor
 import { paymentToScoreTableAnswer } from "@mahjong-scoring/features/results/payment-adapter";
 import { buildScoreResultDisplay } from "@mahjong-scoring/features/results/score-result-display";
 
-import { TableIcon } from "../../../components/icons/icons";
+import { BookIcon, TableIcon } from "../../../components/icons/icons";
 import { useYakumanRules } from "../../../hooks/use-rule-settings-store";
 import { useYakuOrder } from "../../../hooks/use-yaku-order-store";
 import { colors } from "../../../lib/theme";
 import { ReferenceLinkButton } from "../../components/reference-link-button";
+import { useYakuCheatsheetModal } from "../../use-yaku-cheatsheet-modal";
 import { DetailsPanelRow } from "./details-panel-row";
 import {
   CorrectValue,
@@ -35,6 +36,7 @@ import {
   ResultUnansweredValue,
 } from "./result-table-frame";
 import { ScoreTableModal } from "./score-table-modal";
+import { scoreTableFocusOf } from "@mahjong-scoring/features/score-table/focus";
 import { YakuJudgementChips } from "./yaku-judgement-chips";
 
 interface ResultDisplayProps {
@@ -62,9 +64,8 @@ interface ResultDisplayProps {
  * 正解開示として描き、「あなたの回答」列は落とさず各行に未回答の印を出す
  * （列数を変えると正解の列が動くため）。
  *
- * 正解の点数を押すと、この和了の親子・ロンツモで点数早見表を開く。web の
- * 役一覧モーダル（役のチップ・「役一覧を確認」）はモバイルに役一覧が無いため
- * 持たない。
+ * 正解の点数を押すと点数早見表をその和了のセルで開き、役のチップを押すと
+ * 役一覧をその役で開く（web と同じ。どちらも表への補助リンクも置く）。
  */
 export function ResultDisplay({
   question,
@@ -82,7 +83,14 @@ export function ResultDisplay({
   const allowDoubleYakuman = allowsDoubleYakuman(useYakumanRules());
   const isManganOrAbove = isMangan(answer.scoreLevel);
   const scoreLevelName = getScoreLevelName(answer.scoreLevel);
+  // 点数表。点数そのものを押したときだけ正解のセルをハイライトする
+  // （表への補助リンクからは素の表を開く。web と同じ）
   const [isScoreTableOpen, setIsScoreTableOpen] = useState(false);
+  const [isScoreTableHighlighted, setIsScoreTableHighlighted] = useState(false);
+  const openScoreTable = (highlighted: boolean) => {
+    setIsScoreTableHighlighted(highlighted);
+    setIsScoreTableOpen(true);
+  };
 
   const judged =
     userAnswer !== undefined && result !== undefined
@@ -96,6 +104,10 @@ export function ResultDisplay({
     yakuBreakdown,
     fuBreakdown,
   } = buildScoreResultDisplay(question, userAnswer?.yakus, yakuOrder);
+  // 役一覧は成立していた役に印を付け、押した役まで送って開く
+  const { openYakuCheatsheet, yakuCheatsheetModal } = useYakuCheatsheetModal(
+    correctYakuJudgements.map((judgement) => judgement.name),
+  );
 
   const paymentDescription = formatScoreAnswer(
     paymentToScoreTableAnswer(answer.payment),
@@ -129,16 +141,26 @@ export function ResultDisplay({
                   <YakuJudgementChips
                     judgements={answeredYakuJudgements}
                     emptyLabel={t("result.details.none")}
+                    onSelect={openYakuCheatsheet}
                   />
                 ) : (
                   <ResultUnansweredValue />
                 )
               }
               correct={
-                <YakuJudgementChips
-                  judgements={correctYakuJudgements}
-                  emptyLabel={t("result.details.none")}
-                />
+                <>
+                  <YakuJudgementChips
+                    judgements={correctYakuJudgements}
+                    emptyLabel={t("result.details.none")}
+                    onSelect={openYakuCheatsheet}
+                  />
+                  {/* 役を押しても開けるが、それが分かるように一覧への導線も置く */}
+                  <ReferenceLinkButton
+                    icon={<BookIcon size={14} color={colors.mutedForeground} />}
+                    label={t("result.viewYakuList")}
+                    onPress={() => openYakuCheatsheet()}
+                  />
+                </>
               }
             />
           </ResultSection>
@@ -218,7 +240,7 @@ export function ResultDisplay({
               <>
                 {/* 押せることが見て分かるよう、常時点線の下線を敷く */}
                 <Pressable
-                  onPress={() => setIsScoreTableOpen(true)}
+                  onPress={() => openScoreTable(true)}
                   accessibilityRole="button"
                   accessibilityHint={t("result.openInScoreTable")}
                   hitSlop={6}
@@ -229,7 +251,7 @@ export function ResultDisplay({
                 <ReferenceLinkButton
                   icon={<TableIcon size={14} color={colors.mutedForeground} />}
                   label={t("result.viewScoreTable")}
-                  onPress={() => setIsScoreTableOpen(true)}
+                  onPress={() => openScoreTable(false)}
                 />
               </>
             }
@@ -240,9 +262,15 @@ export function ResultDisplay({
       <ScoreTableModal
         isOpen={isScoreTableOpen}
         onClose={() => setIsScoreTableOpen(false)}
-        role={isOya(question.jikaze) ? "oya" : "ko"}
-        winType={question.isTsumo ? "tsumo" : "ron"}
+        focus={scoreTableFocusOf({
+          isOya: isOya(question.jikaze),
+          isTsumo: question.isTsumo,
+          han: answer.han,
+          fu: answer.fu,
+        })}
+        highlighted={isScoreTableHighlighted}
       />
+      {yakuCheatsheetModal}
     </View>
   );
 }

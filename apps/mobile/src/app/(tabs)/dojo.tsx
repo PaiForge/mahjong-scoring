@@ -2,6 +2,7 @@ import { StyleSheet, Text, View } from "react-native";
 import { useTranslations } from "use-intl";
 
 import { Screen } from "../../components/screen";
+import { DojoHelp } from "../../dojo/dojo-help";
 import { SectionTitle } from "../../components/section-title";
 import { RankJourneyCard } from "../../dojo/rank-journey-card";
 import { RankProgressBar } from "../../dojo/rank-progress-bar";
@@ -19,8 +20,9 @@ import { colors } from "../../lib/theme";
  *
  * モバイルは段級位を持たない（取得にはアカウントが要る）ので、現在の
  * 段級位は常に無級で、次の目標は 5級。学ぶ段の進み具合は端末に記録した
- * レッスンの完了から出す。web の見出しの「?」のツアーと、未ログインに
- * 添えるログインの案内は持たない。
+ * レッスンの完了から出す。見出しの「?」から道場の見方を開ける（web の
+ * ツアーの代わりに 1 枚ずつ送るシート）。未ログインに添えるログインの案内は
+ * 持たない。
  *
  * @flow
  * 1. 次の目標の級から、レッスン / 練習 / 試験（模試）へ進む
@@ -31,13 +33,20 @@ export default function DojoPage() {
   const journey = useMobileJourney();
 
   return (
-    <Screen title={t("title")} inTabs contentStyle={styles.content}>
+    <Screen
+      title={t("title")}
+      inTabs
+      titleAction={<DojoHelp />}
+      contentStyle={styles.content}
+    >
       {/* 現在の段級位は節にせずバーで示す。モバイルは常に無級 */}
       <RankProgressBar currentSlug={undefined} />
 
       {journey.current !== undefined && (
-        <View style={styles.section}>
-          <SectionTitle>{t("nextRankTitle")}</SectionTitle>
+        // 見出しは置かない（web と同じ）。カードの中に「次の目標」の状態の印が
+        // あり、すぐ上の区切りバーでも次の級を示しているため、見出しを重ねると
+        // 同じことを 3 度言う。節の名前は読み上げ用に残す
+        <View accessible={false} accessibilityLabel={t("nextRankTitle")}>
           <RankJourneyCard journey={journey.current} expanded />
         </View>
       )}

@@ -112,6 +112,9 @@ packages/features / core を共有し、アプリ側は画面と RN の部品だ
   押したときの地の色、単独の文字の操作はアクセント色の太字、本文中の語だけ下線
 - 説明・選択肢の一覧・選択欄は `BottomSheet`（下からのシート）。確認だけ中央の
   ダイアログ（`ConfirmationModal`）
+- 「?」のヘルプは `HelpTourSheet`（1 枚ずつ送るシート）。web の 2 種類（設定画面の
+  `HelpTourModal` と画面の要素を照らす `SpotlightTour`）を、どちらもこの形で出す
+  （要素を照らす仕組みはネイティブに無い。進め方の方だけ実物の見本を添える）
 - 一覧の絞り込みは `FilterChips`（端まで流す独立したチップ）、2〜3 択の表示切り替えは
   `ToggleGroup`（セグメントコントロール）
 - 答え合わせは色に加えて触覚（`lib/haptics.ts`、expo-haptics）でも知らせる
@@ -133,9 +136,10 @@ packages/features / core を共有し、アプリ側は画面と RN の部品だ
   （1px の `colors.panel` + `radius.panel`。web の `rounded-panel border border-panel`）を使い、太枠
   （`borderWidth.regular` + `colors.ink`）は押せる面・回答欄・ダイアログに残す。段級位のカードは
   `beltCardFrame()`（細枠 + 上端の帯色の帯）、小さな印は `Chip`、区切りは `Divider`（破線は使わない）
-- **牌は `Tile` / `FuroTiles` を使う。** `@pai-forge/mahjong-react-ui` の `Hai` は `onClick` が
-  無くても常に `Pressable` で包まれ、選択肢ボタンの中に置くと牌がタップを奪う。`Furo` /
-  `HaiBack` / `Tehai` は `div` と Tailwind のクラスで描く web 専用の実装で、ネイティブでは描けない
+- **牌は `Hai` / `FuroTiles` を使う。** `@pai-forge/mahjong-react-ui` の `Furo` /
+  `HaiBack` / `Tehai` は `div` と Tailwind のクラスで描く web 専用の実装で、ネイティブでは描けない。
+  `Hai` は 0.5.0 から `onClick` が無ければ `View` で包まれ、ボタンの中に置いてもタップを奪わない
+  （0.4.0 までは常に `Pressable` で包まれ、ネイティブでは画像も描かれなかった）
 - **Expo SDK の推奨と違う版を 3 つ意図して使う**（`package.json` の `expo.install.exclude`）。
   `npx expo install --fix` で戻さないこと
   - `react` / `react-dom` — ワークスペース全体と同じ版にそろえる。packages/features も devDependency で
@@ -221,14 +225,14 @@ packages/features / core を共有し、アプリ側は画面と RN の部品だ
 ### 主なコンポーネント
 
 - `PageTitle` — h1。全ページで使用
-- `SectionTitle` — h2。濃い緑の pill に白抜き
+- `SectionTitle` — h2。左の短い縦線・文字・右へ伸びる淡い横線
 - `ContentContainer` — ページコンテンツの max-w-3xl ラッパー。全ページで統一して使用し CLS を防ぐ
 - `Sidebar` / `MobileHeader` / `MobileTabBar` — ナビゲーションシェル
 - `DataTable` / `DataTableHeaderCell` — データテーブルの外枠と見出しセル。表を作るときは直接 `<table>` を書かない
 - `LinkRow` / `LinkRowList` — 読む・見るためのリンク 1 行とその枠。太枠 + ハードシャドウ + 押し込みは「押して始める面」（練習・試験・登録）の記号なので、ページを読みに行くだけ / 一覧を見に行くだけの導線はカードにせずこれを使う
 - `SkeletonBar` — 読み込み中のプレースホルダ矩形。`animate-pulse` と背景色を直接書かない。角丸は `radius`（md / lg / xl / full）で指定し、`className` に `rounded*` を書かない
 - `PageTitlePlaceholder` / `AdminPageTitlePlaceholder` — 読み込み中の見出し。`PageTitle` / `AdminPageTitle` と同じ箱にグレー帯（`PageTitleSkeleton`）を置く。スケルトンで `PageTitle` に `PageTitleSkeleton` を入れない — 空の h1 が本物より先に初期 HTML へ出る
-- `SectionTitleSkeleton` — 見出しのプレースホルダ pill。矩形で代用せずこれを使う（`SectionTitle` 自身を描画するため実物と高さ・形が一致する）
+- `SectionTitleSkeleton` — 見出しのプレースホルダ。矩形で代用せずこれを使う（`SectionTitle` 自身を描画するため実物と高さ・形が一致する）
 - `icons/OutlineIcon` — 線画アイコンの svg 外殻。新しい線画アイコンはこれを使う
 - `HighlightPanel` — 地の文から浮かせて読ませる琥珀色の囲み（教本のコラム・計算手順・注意書き）。`border-amber-500 bg-amber-50/60` の一式をページ側で直接書かない
 - `SettingsCard` / `SettingToggleRow` — 設定ページの項目カードとトグル行。設定項目を足すときに `<input type="checkbox">` とスイッチの markup を書き起こさない
@@ -250,7 +254,7 @@ packages/features / core を共有し、アプリ側は画面と RN の部品だ
   リンクになっているもの、トグルのつまみ
 - 最外の白カード（`ContentContainer` の `sm:shadow-lg`）— 地の斜線から浮かせる 1 枚
 
-押せないもの（表示だけのカード・表・見出し pill・モーダルパネル・トースト・
+押せないもの（表示だけのカード・表・見出し・モーダルパネル・トースト・
 アイコンの丸）には付けない。区切りは太枠（`border-3` / `border-4 border-ink`）が
 持つ。マイページのカードが既定の姿。
 

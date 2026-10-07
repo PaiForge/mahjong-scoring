@@ -13,7 +13,7 @@ export const lessonColors = {
   amber50: "rgba(255, 251, 235, 0.6)",
   /** 「次はここから」の行の地（web の `bg-amber-50`） */
   amber50Solid: "#fffbeb",
-  /** 「次はここから」のバッジ（web の `bg-amber-200`） */
+  /** 暗記の表で結び付いたセルの枠（Tailwind の amber-200） */
   amber200Solid: "#fde68a",
   amber500: "#f59e0b",
   amber600: "#d97706",

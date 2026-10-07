@@ -1,13 +1,18 @@
-import { useCallback, useMemo, useState, type ReactNode } from "react";
+import { useCallback, useMemo, useRef, useState, type ReactNode } from "react";
 import { StyleSheet, Text, View } from "react-native";
 import { useTranslations } from "use-intl";
 import { type Role, type WinType } from "@mahjong-scoring/core";
 
 import {
+  resolveScoreTableFocus,
+  type ScoreTableFocus,
+} from "@mahjong-scoring/features/score-table/focus";
+import {
   buildScoreGrid,
   type ScoreTableViewMode,
 } from "@mahjong-scoring/features/score-table/score-grid";
 
+import { useScrollIntoView } from "../components/scroll-into-view";
 import { ToggleGroup, type ToggleOption } from "../components/toggle-group";
 import { useRuleSettingsStore } from "../hooks/use-rule-settings-store";
 import { colors } from "../lib/theme";
@@ -16,7 +21,16 @@ import { KiriageManganNote } from "./kiriage-mangan-note";
 import { NormalScoreTable } from "./normal-score-table";
 
 interface ScoreTableProps {
+  /**
+   * 注目させる和了。親子・ロンツモのタブと表示モードの初期値になり、
+   * 該当セル（満貫以上なら区分行）をハイライトして、囲んでいる
+   * `ScrollIntoViewScrollView` の中央までスクロールする。タブを focus と
+   * 別の組へ切り替えている間、ハイライトは出さない
+   */
+  readonly focus?: ScoreTableFocus;
+  /** focus なしでタブ初期値だけ指定する場合の親/子 */
   readonly initialRole?: Role;
+  /** focus なしでタブ初期値だけ指定する場合のロン/ツモ */
   readonly initialWinType?: WinType;
   /**
    * セルタップで数字を隠す切り替え（暗記用）を有効にするか。
@@ -45,22 +59,46 @@ export interface ScoreTableParts {
  *
  * 親子・ツモロン・表示モードの切り替え状態と点数グリッドの計算を持ち、
  * 表本体の描画は NormalScoreTable / HighScoreTable に委譲する。
- * web の focus（練習の答え合わせから開いたときのハイライトとスクロール）は
- * モバイルでは呼び出し元がまだ無いため持たない。
+ * 練習の答え合わせから開いたときは `focus` で正解のセルを指す（web と同じ）。
  */
 export function ScoreTable({
+  focus,
   initialRole = "ko",
   initialWinType = "ron",
   blurToggleEnabled = true,
   renderLayout,
 }: ScoreTableProps) {
   const t = useTranslations("scoreTable");
-  const [activeTab, setActiveTab] = useState<Role>(initialRole);
-  const [winType, setWinType] = useState<WinType>(initialWinType);
-  const [viewMode, setViewMode] = useState<ScoreTableViewMode>("normal");
+  const focusTarget = useMemo(() => resolveScoreTableFocus(focus), [focus]);
+  const [activeTab, setActiveTab] = useState<Role>(focus?.role ?? initialRole);
+  const [winType, setWinType] = useState<WinType>(
+    focus?.winType ?? initialWinType,
+  );
+  const [viewMode, setViewMode] = useState<ScoreTableViewMode>(
+    focusTarget.viewMode,
+  );
   const [hiddenCells, setHiddenCells] = useState<Record<string, boolean>>({});
   const kiriageMangan = useRuleSettingsStore((s) => s.kiriageMangan);
   const isKo = activeTab === "ko";
+
+  // ハイライトは focus と同じ親子・ロンツモの表を見ているときだけ出す
+  // （タブを切り替えた表では focus のセルは「その和了の点数」ではないため）
+  const isFocusView =
+    focus !== undefined &&
+    activeTab === focus.role &&
+    winType === focus.winType;
+
+  // 注目セルが置かれたら一度だけ中央へ寄せる（タブを行き来して戻っても
+  // 動かさない — 読んでいる位置を奪わないため）
+  const scrollIntoView = useScrollIntoView();
+  const focusRef = useRef<View>(null);
+  const hasScrolled = useRef(false);
+  const handleFocusLayout = useCallback(() => {
+    if (hasScrolled.current) return;
+    hasScrolled.current = true;
+    scrollIntoView(focusRef.current);
+  }, [scrollIntoView]);
+  const focusAnchor = { ref: focusRef, onLayout: handleFocusLayout };
 
   /** 符・翻の点数計算結果グリッド（親子 / ロンツモ / 切り上げ満貫設定に依存） */
   const scoreGrid = useMemo(
@@ -130,6 +168,8 @@ export function ScoreTable({
           winType={winType}
           hiddenCells={hiddenCells}
           onToggleCell={onToggleCell}
+          highlight={isFocusView ? focusTarget.normalCell : undefined}
+          focusAnchor={focusAnchor}
         />
       ) : (
         <HighScoreTable
@@ -137,6 +177,8 @@ export function ScoreTable({
           winType={winType}
           hiddenCells={hiddenCells}
           onToggleCell={onToggleCell}
+          highlightKey={isFocusView ? focusTarget.highScoreKey : undefined}
+          focusAnchor={focusAnchor}
         />
       )}
       {/* 切り上げ満貫が動かすのは符×翻の表だけなので、満貫+ の表では出さない */}

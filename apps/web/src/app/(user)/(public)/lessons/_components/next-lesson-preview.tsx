@@ -9,7 +9,7 @@ import {
 import type { QuizLessonSlug } from "@mahjong-scoring/features/lessons/registry";
 import { chapterHref } from "@mahjong-scoring/features/routes";
 
-import { lessonExcerpt } from "../_lib/lesson-excerpt";
+import { lessonExcerpt } from "@mahjong-scoring/features/lessons/excerpt";
 
 /** 見出しの id。完了画面に 1 つしか出ないので固定でよい */
 const HEADING_ID = "next-lesson-preview-title";
@@ -37,11 +37,12 @@ export async function NextLessonPreview({ slug }: NextLessonPreviewProps) {
   const chapter = getChapterBySlug(slug);
   if (chapter === undefined) return undefined;
 
-  const [t, tCurriculum, paragraphs] = await Promise.all([
+  const [t, tCurriculum, tAll] = await Promise.all([
     getTranslations("lessons.nextLesson"),
     getTranslations("learnCurriculum"),
-    lessonExcerpt(slug),
+    getTranslations(),
   ]);
+  const paragraphs = lessonExcerpt(slug, (key) => tAll(key));
 
   return (
     <section

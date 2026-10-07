@@ -1,7 +1,7 @@
 import { Fragment } from "react";
 
-import { isGlossaryTermSlug } from "@/lib/glossary/registry";
-import { glossaryTermHref } from "@/lib/glossary/routes";
+import { isGlossaryTermSlug } from "@mahjong-scoring/features/glossary/registry";
+import { glossaryTermHref } from "@mahjong-scoring/features/glossary/routes";
 import { parseTermMarkup } from "@mahjong-scoring/features/glossary/term-markup";
 
 import { TermLink } from "./term-link";

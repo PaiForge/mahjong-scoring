@@ -109,10 +109,6 @@
       "shortTitle": "点数計算試験"
     }
   },
-  "dojoRow": {
-    "title": "試験は道場で",
-    "description": "段級位の確認と試験への挑戦は道場から"
-  },
   "comprehensiveBanner": {
     "title": "点数計算総合演習",
     "description": "和了した手牌から、役・翻・符・点数を計算。点数申告まで通して練習できます。"

@@ -21,7 +21,7 @@ import { FOCUS_RING_CLASSES } from "@/app/_components/_lib/link-classes";
 import { SectionTitle } from "@/app/(user)/_components/section-title";
 import { PageTitle } from "@/app/(user)/_components/page-title";
 import { createNamespaceMetadata } from "@/app/_lib/metadata";
-import { GLOSSARY_PATH } from "@/lib/glossary/routes";
+import { GLOSSARY_PATH } from "@mahjong-scoring/features/glossary/routes";
 
 export async function generateMetadata(): Promise<Metadata> {
   return createNamespaceMetadata("reference", { path: "/reference" });

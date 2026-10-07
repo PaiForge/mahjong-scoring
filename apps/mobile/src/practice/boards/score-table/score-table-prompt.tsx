@@ -6,6 +6,8 @@ import { orderFuHan } from "@mahjong-scoring/features/settings/fu-han-order";
 import { useFuHanOrder } from "../../../hooks/use-display-settings-store";
 import { colors } from "../../../lib/theme";
 import { QuestionPrompt } from "../../components/question-prompt";
+import { scoreTableFocusOf } from "@mahjong-scoring/features/score-table/focus";
+
 import { RevealedScoreAnswer } from "../../components/revealed-score-answer";
 
 interface ScoreTablePromptProps {
@@ -63,6 +65,7 @@ export function ScoreTablePrompt({
             <RevealedScoreAnswer
               answer={revealedAnswer}
               translationNamespace="scoreTableChallenge"
+              scoreTableFocus={scoreTableFocusOf({ isOya, isTsumo, han, fu })}
             />
           )
         }

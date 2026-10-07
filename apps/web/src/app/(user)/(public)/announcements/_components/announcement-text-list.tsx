@@ -1,3 +1,4 @@
+import type { ReactNode } from "react";
 import Link from "next/link";
 import { ChevronRightIcon } from "@/app/(user)/_components/icons/chevron-right-icon";
 import type { Announcement } from "@/lib/db";
@@ -9,6 +10,11 @@ interface AnnouncementTextListProps {
   readonly locale: string;
   /** 翻訳済みの「ピン留め」ラベル */
   readonly pinnedLabel: string;
+  /**
+   * リストの末尾に混ぜる広告の行（`NativeAdRow`）。一覧ページだけが渡す。
+   * リストは `data-framed` を持ち、広告の行は枠の中の余白に切り替わる
+   */
+  readonly trailingAd?: ReactNode;
 }
 
 /** ホームと一覧ページで共有する、公開日とタイトルを揃えたお知らせリスト。 */
@@ -16,9 +22,13 @@ export function AnnouncementTextList({
   announcements,
   locale,
   pinnedLabel,
+  trailingAd,
 }: AnnouncementTextListProps) {
   return (
-    <ul className="divide-y divide-surface-100 overflow-hidden rounded-panel border border-panel bg-card">
+    <ul
+      data-framed=""
+      className="group/rows divide-y divide-surface-100 overflow-hidden rounded-panel border border-panel bg-card"
+    >
       {announcements.map((announcement) => (
         <li key={announcement.id}>
           <Link
@@ -60,6 +70,7 @@ export function AnnouncementTextList({
           </Link>
         </li>
       ))}
+      {trailingAd}
     </ul>
   );
 }

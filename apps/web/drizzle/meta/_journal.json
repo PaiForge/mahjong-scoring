@@ -225,6 +225,13 @@
       "when": 1791169821556,
       "tag": "20261005031021_merge_chapter_reads_into_lesson_completions",
       "breakpoints": true
+    },
+    {
+      "idx": 32,
+      "version": "7",
+      "when": 1791372492306,
+      "tag": "20261007112812_convert_learn_chapter_ads_to_rows",
+      "breakpoints": true
     }
   ]
 }

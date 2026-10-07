@@ -32,6 +32,8 @@ import { getTranslations } from "next-intl/server";
 import { notFound } from "next/navigation";
 
 import { BeltBadge } from "@/app/(user)/_components/belt-badge";
+import { LinkRowList } from "@/app/(user)/_components/link-row";
+import { NativeAdRow } from "@/app/(user)/_components/native-ad-row";
 import { ContentContainer } from "@/app/(user)/_components/content-container";
 import { PageTitle } from "@/app/(user)/_components/page-title";
 import { SectionTitle } from "@/app/(user)/_components/section-title";
@@ -40,6 +42,7 @@ import { CurriculumTocLink } from "@/app/(user)/(public)/lessons/_components/cur
 import { ExamCtaCard } from "@/app/(user)/(public)/lessons/_components/exam-cta-card";
 import { fetchCompletedLessonSlugs } from "@/app/(user)/(public)/lessons/_lib/lesson-progress";
 import { createMetadata } from "@/app/_lib/metadata";
+import { getNativeAdCreative } from "@/lib/ads/creatives";
 import { getOptionalUser } from "@/lib/auth";
 import { getUserRankSlugs } from "@/lib/db/rank-queries";
 import { beltBorderTopClass } from "@/lib/ranks/belt-colors";
@@ -83,11 +86,12 @@ export default async function RankDetailPage({ params }: RankDetailPageProps) {
   const rank = rankBySlug(slug);
   if (!rank) notFound();
 
-  const [t, tRanks, user, completedSlugs] = await Promise.all([
+  const [t, tRanks, user, completedSlugs, ad] = await Promise.all([
     getTranslations("dojo"),
     getTranslations("ranks"),
     getOptionalUser(),
     fetchCompletedLessonSlugs(),
+    getNativeAdCreative("rank-detail-native-ad"),
   ]);
   const achievedSlugs = user ? await getUserRankSlugs(user.id) : [];
   const rankName = tRanks(`names.${rank.slug}`);
@@ -132,6 +136,15 @@ export default async function RankDetailPage({ params }: RankDetailPageProps) {
             />
             <CurriculumTocLink />
           </section>
+        )}
+
+        {/* 広告は前提のレッスンの目次の下に枠なしの 1 行で置く。目次を
+            持たない級では置かない — 帯のカードと試験の案内しかない短い画面で、
+            その間に挟まると広告が主役になる */}
+        {hasChapters && ad && (
+          <LinkRowList inset>
+            <NativeAdRow creative={ad} />
+          </LinkRowList>
         )}
 
         <ExamCtaCard
