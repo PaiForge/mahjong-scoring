@@ -33,6 +33,7 @@ import {
   getAllAdCreatives,
   getAmazonTrackingId,
 } from "../_lib/queries";
+import { adminChipClasses } from "../../_lib/chip-classes";
 
 export const dynamic = "force-dynamic";
 
@@ -156,18 +157,18 @@ export default async function AdminAdsPage() {
                         </td>
                         <td className="px-4 py-3 whitespace-nowrap">
                           <span
-                            className={`rounded px-2 py-0.5 text-xs font-semibold ${
-                              row.isActive
-                                ? "bg-primary-100 text-primary-700"
-                                : "bg-surface-100 text-surface-500"
-                            }`}
+                            className={adminChipClasses(
+                              row.isActive ? "success" : "neutral",
+                            )}
                           >
                             {row.isActive
                               ? t("statusActive")
                               : t("statusInactive")}
                           </span>
                           {displayedIds.has(row.id) && (
-                            <span className="ml-2 text-xs font-semibold text-amber-700">
+                            <span
+                              className={`ml-2 ${adminChipClasses("warning")}`}
+                            >
                               {t("displayed")}
                             </span>
                           )}

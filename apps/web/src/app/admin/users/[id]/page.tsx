@@ -6,6 +6,7 @@ import { TEXT_LINK_CLASSES } from "@/app/_components/_lib/link-classes";
 import { MaskedEmail } from "@/app/admin/_components/masked-email";
 import { AdminPageTitle } from "@/app/admin/_components/admin-page-title";
 import { requireAdminPage } from "@/app/admin/_lib/auth";
+import { adminChipClasses } from "@/app/admin/_lib/chip-classes";
 import {
   formatAdminDate,
   formatAdminDateTime,
@@ -114,7 +115,11 @@ export default async function AdminUserDetailPage({
           {profile?.username ?? authUser.email ?? authUser.id}
         </AdminPageTitle>
         <StatusBadge status={status} />
-        <span className="inline-block rounded-md bg-surface-100 px-2 py-0.5 text-xs font-medium whitespace-nowrap text-surface-700">
+        <span
+          className={adminChipClasses(
+            plan.kind === "free" ? "neutral" : "success",
+          )}
+        >
           {planLabel(plan)}
         </span>
       </div>

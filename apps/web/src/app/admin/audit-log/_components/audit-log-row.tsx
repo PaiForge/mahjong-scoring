@@ -1,6 +1,7 @@
 import type { ModerationAction, Profile } from "../../../../lib/db";
 import { formatAdminDateTime } from "../../_lib/format-date";
 import { resolveUserDisplay } from "../../_lib/log-query-helpers";
+import { adminChipClasses } from "../../_lib/chip-classes";
 
 interface AuditLogRowProps {
   readonly log: ModerationAction;
@@ -16,13 +17,13 @@ export function AuditLogRow({ log, profileMap, emailMap }: AuditLogRowProps) {
     <tr className="border-t border-surface-200">
       <td className="px-4 py-3">
         <span
-          className={`inline-block rounded px-2 py-0.5 text-xs font-medium ${
+          className={adminChipClasses(
             log.action === "ban"
-              ? "bg-red-100 text-red-700"
+              ? "danger"
               : log.action === "unban"
-                ? "bg-primary-100 text-primary-700"
-                : "bg-surface-100 text-surface-700"
-          }`}
+                ? "success"
+                : "neutral",
+          )}
         >
           {log.action}
         </span>

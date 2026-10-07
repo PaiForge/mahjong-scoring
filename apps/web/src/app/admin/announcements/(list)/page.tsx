@@ -10,6 +10,7 @@ import { AnnouncementStatus } from "@/lib/announcement-status";
 
 import { DeleteAnnouncementButton } from "../_components/delete-announcement-button";
 import { TEXT_LINK_CLASSES } from "@/app/_components/_lib/link-classes";
+import { adminChipClasses } from "../../_lib/chip-classes";
 
 export const dynamic = "force-dynamic";
 
@@ -93,7 +94,9 @@ export default async function AdminAnnouncementsPage() {
                         <td className="px-4 py-3">
                           <span className="font-mono">{a.locale}</span>
                           {a.pinnedAt !== null && (
-                            <span className="ml-2 rounded bg-primary-100 px-1.5 py-0.5 text-xs font-semibold text-primary-700">
+                            <span
+                              className={`ml-2 ${adminChipClasses("success")}`}
+                            >
                               {t("pinned")}
                             </span>
                           )}
@@ -103,11 +106,11 @@ export default async function AdminAnnouncementsPage() {
                         </td>
                         <td className="px-4 py-3">
                           <span
-                            className={`rounded px-2 py-0.5 text-xs font-semibold ${
+                            className={adminChipClasses(
                               a.status === AnnouncementStatus.Published
-                                ? "bg-primary-100 text-primary-700"
-                                : "bg-surface-100 text-surface-500"
-                            }`}
+                                ? "success"
+                                : "neutral",
+                            )}
                           >
                             {a.status === AnnouncementStatus.Published
                               ? t("statusPublished")

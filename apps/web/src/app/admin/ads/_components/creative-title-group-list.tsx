@@ -9,6 +9,7 @@ import { setAdCreativeActiveByTitle } from "../_actions/set-ad-creative-active-b
 import { setAdCreativeHrefByTitle } from "../_actions/set-ad-creative-href-by-title";
 import type { CreativeTitleGroup } from "../_lib/title-groups";
 import { AD_CREATIVE_LIMITS } from "../_lib/validation";
+import { adminChipClasses } from "../../_lib/chip-classes";
 
 interface Props {
   readonly groups: readonly CreativeTitleGroup[];
@@ -74,7 +75,7 @@ function CreativeTitleGroupRow({
       <div className="flex flex-wrap items-center gap-2">
         <span className="font-medium text-surface-900">{group.title}</span>
         {group.hrefs.length > 1 && (
-          <span className="rounded bg-amber-100 px-2 py-0.5 text-xs font-medium text-amber-800">
+          <span className={adminChipClasses("warning")}>
             {t("links.mixed", { count: group.hrefs.length })}
           </span>
         )}
