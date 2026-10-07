@@ -47,9 +47,7 @@ export function InfoModal({
         </Button>
       </div>
       {footnote !== undefined && (
-        <div className="border-t-2 border-surface-100 pt-4 text-xs">
-          {footnote}
-        </div>
+        <div className="border-t border-panel pt-4 text-xs">{footnote}</div>
       )}
     </ModalShell>
   );

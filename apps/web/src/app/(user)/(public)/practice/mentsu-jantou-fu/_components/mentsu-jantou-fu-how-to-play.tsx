@@ -47,7 +47,7 @@ export function MentsuJantouFuHowToPlay() {
           {MENTSU_JANTOU_FU_DEMO_ITEMS.map((item) => (
             <div
               key={item.id}
-              className="space-y-2.5 rounded-xl border border-surface-200 bg-white p-3"
+              className="space-y-2.5 rounded-panel border border-panel bg-white p-3"
             >
               <div className="flex gap-0.5">
                 {item.tiles.map((tile, j) => (

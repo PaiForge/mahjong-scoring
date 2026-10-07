@@ -68,7 +68,7 @@ export function MentsuJantouFuProblemList({
                 return (
                   <li
                     key={item.id}
-                    className={`flex min-w-0 items-center gap-2 rounded-xl border p-2 ${
+                    className={`flex min-w-0 items-center gap-2 rounded-panel border p-2 ${
                       userFu === undefined
                         ? "border-surface-300 bg-surface-50"
                         : correct

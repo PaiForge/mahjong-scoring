@@ -32,7 +32,7 @@ async function PracticalPracticeCard({ menu }: { readonly menu: QuotaMenu }) {
       <div className="flex flex-1 flex-col p-5">
         <div
           aria-hidden="true"
-          className="mb-5 flex min-h-40 flex-col justify-center gap-4 overflow-hidden rounded-xl bg-primary-800 p-3"
+          className="mb-5 flex min-h-40 flex-col justify-center gap-4 overflow-hidden rounded-lg bg-primary-800 p-3"
         >
           <TehaiHand
             tehai={{
@@ -77,7 +77,7 @@ async function PracticalPracticeCard({ menu }: { readonly menu: QuotaMenu }) {
           </Link>
         </div>
       </div>
-      <div className="border-t border-surface-200 px-5 py-4">
+      <div className="border-t border-panel px-5 py-4">
         <PracticeEntryQuota menu={menu} />
       </div>
     </article>

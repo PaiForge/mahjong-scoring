@@ -60,7 +60,7 @@ export function DetailsPanelRow({
     <tr>
       <td colSpan={colSpan} className="py-2">
         <CollapsibleDetail title={title}>
-          <div className="rounded-lg border-2 border-surface-200 bg-white p-3">
+          <div className="rounded-panel border border-panel bg-white p-3">
             <DetailTable
               rows={items.map((detail) => ({
                 label: detail.name,
