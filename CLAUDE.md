@@ -201,10 +201,11 @@ packages/features / core を共有し、アプリ側は画面と RN の部品だ
 へ足すのは管理画面からも使うときだけ。`app/_components/` 側から
 `(user)/_components/` を import しない（依存の向きを一方向に保つ）。
 
-例外は 2 つだけ:
+例外は 1 つだけ: ルートの `app/not-found.tsx` / `app/error.tsx` — `(user)` 配下ではないがユーザーに見える画面なので、ブランド UI を使う。
 
-- ルートの `app/not-found.tsx` / `app/error.tsx` — `(user)` 配下ではないがユーザーに見える画面なので、ブランド UI を使う
-- 管理画面の `PaginationNav` — 元々ユーザー向けと同じ見た目なので `(user)/_components/` のものを共有する
+管理画面は `(user)/_components/` を import しない（ページ送りも `AdminPaginationNav` を持つ）。
+ボタン・入力欄・状態チップは `admin/_lib/` の `adminButtonClasses()` / `ADMIN_INPUT_CLASSES` /
+`adminChipClasses()` に集約しており、ページ側で一式を直接書かない。
 
 ### 主なコンポーネント
 

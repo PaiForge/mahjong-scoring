@@ -8,7 +8,7 @@ import {
 
 import { AdminPageTitle } from "./admin-page-title";
 import { TableEmptyRow } from "./table-empty-row";
-import { PaginationNav } from "@/app/(user)/_components/pagination-nav";
+import { AdminPaginationNav } from "@/app/admin/_components/admin-pagination-nav";
 import { adminButtonClasses } from "../_lib/button-classes";
 import { ADMIN_INPUT_CLASSES } from "../_lib/input-classes";
 
@@ -165,7 +165,7 @@ export function AdminLogPageLayout({
         </table>
       </div>
 
-      <PaginationNav
+      <AdminPaginationNav
         currentPage={currentPage}
         totalPages={totalPages}
         buildHref={buildHref}

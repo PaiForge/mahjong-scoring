@@ -15,7 +15,7 @@ import {
 
 import { getPaginationData } from "@/lib/pagination";
 import { createAdminClient } from "@/lib/supabase/admin";
-import { PaginationNav } from "@/app/(user)/_components/pagination-nav";
+import { AdminPaginationNav } from "@/app/admin/_components/admin-pagination-nav";
 
 import { MaskedEmail } from "@/app/admin/_components/masked-email";
 import { TableEmptyRow } from "@/app/admin/_components/table-empty-row";
@@ -144,7 +144,7 @@ export default async function AdminUsersPage({
         </table>
       </div>
 
-      <PaginationNav
+      <AdminPaginationNav
         currentPage={pagination.currentPage}
         totalPages={pagination.totalPages}
         buildHref={buildHref}
