@@ -166,6 +166,12 @@ export const AD_SLOTS = {
     kind: "native_row",
     surfaces: [{ route: "/exam/<級>", href: "/exam/fu" }],
   },
+  // 級の詳細の前提のレッスンの目次の下。前提のレッスンを持たない級（初段）
+  // では出さない（短い画面で帯のカードと試験の案内の間に挟まるため）
+  "rank-detail-native-ad": {
+    kind: "native_row",
+    surfaces: [{ route: "/dojo/ranks/<級>", href: "/dojo/ranks/kyu-4" }],
+  },
 } as const satisfies Record<string, AdSlotConfig>;
 
 /** 広告スロット */
