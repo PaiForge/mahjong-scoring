@@ -3,11 +3,13 @@ import { StyleSheet, Text } from "react-native";
 import { useTranslations } from "use-intl";
 import {
   isOya,
-  type Role,
   type ScoreQuestion,
   type ScoreTableAnswer,
-  type WinType,
 } from "@mahjong-scoring/core";
+import {
+  scoreTableFocusOf,
+  type ScoreTableFocus,
+} from "@mahjong-scoring/features/score-table/focus";
 import { formatScoreAnswer } from "@mahjong-scoring/features/results/format-score-answer";
 import { paymentToScoreTableAnswer } from "@mahjong-scoring/features/results/payment-adapter";
 
@@ -15,22 +17,17 @@ import { linkStyles } from "../../lib/link-styles";
 import { colors } from "../../lib/theme";
 import { ScoreTableModal } from "../endless/score/score-table-modal";
 
-/** 正解の点数が載っている点数早見表のタブ（親子・ロンツモ） */
-export interface ScoreTablePosition {
-  readonly role: Role;
-  readonly winType: WinType;
-}
-
 interface RevealedScoreAnswerProps {
   /** 開示する正解の点数 */
   readonly answer: ScoreTableAnswer;
   /** `revealedAnswer` / `pointSuffix` / `all` キーを持つ翻訳名前空間 */
   readonly translationNamespace: string;
   /**
-   * 正解を押したときに開く点数早見表のタブ。渡すと正解の点数が押せる語に
-   * なり、その和了の親子・ロンツモで点数早見表を開く。渡さなければただの文字
+   * 正解を押したときに開く点数表の位置（親子・ロンツモ・翻・符）。渡すと
+   * 正解の点数が押せる語になり、そのセルをハイライトした点数早見表を開く
+   * （`scoreTableFocusOf` で組む）。渡さなければただの文字
    */
-  readonly scoreTable?: ScoreTablePosition;
+  readonly scoreTableFocus?: ScoreTableFocus;
 }
 
 /**
@@ -43,11 +40,9 @@ interface RevealedScoreAnswerProps {
  * `replacement`）。正解のときは出さない — 選んだ値がそのまま正解で、
  * 枠の色が正誤を示している。
  *
- * 正解の点数は押せる（`scoreTable`）。値を読むだけでは「なぜその点数か」が
+ * 正解の点数は押せる（`scoreTableFocus`）。値を読むだけでは「なぜその点数か」が
  * 分からず、表のどこに載っているかを見て初めて次に引けるようになる（web と
- * 同じ）。押せることは本文中のリンクと同じ下線で示す。web は開いた表で正解の
- * セルまでハイライトするが、モバイルの点数早見表はまだ注目するセルを受け
- * 取れないため、タブを合わせるだけにとどめる。
+ * 同じ）。押せることは本文中のリンクと同じ下線で示す。
  *
  * 出題文と同じ 1 行（20px）に収める。行を高くすると差し替えた瞬間に
  * 回答欄が動く。ロンの点数には単位が無いため「点」を付ける。
@@ -55,7 +50,7 @@ interface RevealedScoreAnswerProps {
 export function RevealedScoreAnswer({
   answer,
   translationNamespace,
-  scoreTable,
+  scoreTableFocus,
 }: RevealedScoreAnswerProps) {
   const t = useTranslations(translationNamespace);
   const tChallenge = useTranslations("challenge");
@@ -69,7 +64,7 @@ export function RevealedScoreAnswer({
       <Text style={styles.text}>
         {t.rich("revealedAnswer", {
           answer: () =>
-            scoreTable === undefined ? (
+            scoreTableFocus === undefined ? (
               formatted
             ) : (
               <Text
@@ -83,12 +78,12 @@ export function RevealedScoreAnswer({
             ),
         })}
       </Text>
-      {scoreTable !== undefined && (
+      {scoreTableFocus !== undefined && (
         <ScoreTableModal
           isOpen={isScoreTableOpen}
           onClose={() => setIsScoreTableOpen(false)}
-          role={scoreTable.role}
-          winType={scoreTable.winType}
+          focus={scoreTableFocus}
+          highlighted
         />
       )}
     </>
@@ -107,10 +102,12 @@ export function RevealedScoreQuestionAnswer({
     <RevealedScoreAnswer
       answer={paymentToScoreTableAnswer(question.answer.payment)}
       translationNamespace={translationNamespace}
-      scoreTable={{
-        role: isOya(question.jikaze) ? "oya" : "ko",
-        winType: question.isTsumo ? "tsumo" : "ron",
-      }}
+      scoreTableFocus={scoreTableFocusOf({
+        isOya: isOya(question.jikaze),
+        isTsumo: question.isTsumo,
+        han: question.answer.han,
+        fu: question.answer.fu,
+      })}
     />
   );
 }

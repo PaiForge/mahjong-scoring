@@ -1,4 +1,4 @@
-import type { Role, WinType } from "@mahjong-scoring/core";
+import type { ScoreTableFocus } from "@mahjong-scoring/features/score-table/focus";
 import { useTranslations } from "use-intl";
 
 import { ScoreTable } from "../../../score-table/score-table";
@@ -9,25 +9,27 @@ import { ReferenceModal } from "./reference-modal";
  * 点数表モーダル
  *
  * 答え合わせから出題ループを離脱せずに、正解が点数早見表のどこにあるかを
- * 確かめるための導線。親子・ロンツモのタブはその和了に合わせて開き、探す
- * 手間を省く。暗記用の隠す切り替えは参照中の誤タップを防ぐため無効にする。
- *
- * web は点数そのものを押して開いたとき正解のセル（満貫以上は区分の行）を
- * ハイライトし、表示モードもそれに合わせるが、モバイルの点数早見表は
- * まだ注目するセルを受け取れないため、タブを合わせるだけにとどめる。
+ * 確かめるための導線。ハイライトなしで開くときも親子・ロンツモのタブは
+ * その和了に合わせ、探す手間を省く。暗記用の隠す切り替えは参照中の誤タップを
+ * 防ぐため無効にする。
  */
 export function ScoreTableModal({
   isOpen,
   onClose,
-  role,
-  winType,
+  focus,
+  highlighted,
 }: {
   readonly isOpen: boolean;
   readonly onClose: () => void;
-  /** この和了の親子。タブの初期値に使う */
-  readonly role: Role;
-  /** この和了のツモ / ロン。タブの初期値に使う */
-  readonly winType: WinType;
+  /** この和了（正解の親子・ロンツモ・翻・符）。タブの初期値に使う */
+  readonly focus: ScoreTableFocus;
+  /**
+   * 正解のセルをハイライトするか
+   *
+   * 点数そのものを押して開いたときだけ真。表への補助リンクから開いたときは
+   * 素の表を出す（web と同じ）。
+   */
+  readonly highlighted: boolean;
 }) {
   const tScoreTable = useTranslations("scoreTable");
 
@@ -40,8 +42,9 @@ export function ScoreTableModal({
       {/* 開くたびに作り直し、前回切り替えたタブではなくこの和了のタブから始める */}
       {isOpen && (
         <ScoreTable
-          initialRole={role}
-          initialWinType={winType}
+          focus={highlighted ? focus : undefined}
+          initialRole={focus.role}
+          initialWinType={focus.winType}
           blurToggleEnabled={false}
         />
       )}

@@ -35,6 +35,7 @@ import {
   ResultUnansweredValue,
 } from "./result-table-frame";
 import { ScoreTableModal } from "./score-table-modal";
+import { scoreTableFocusOf } from "@mahjong-scoring/features/score-table/focus";
 import { YakuJudgementChips } from "./yaku-judgement-chips";
 
 interface ResultDisplayProps {
@@ -82,7 +83,14 @@ export function ResultDisplay({
   const allowDoubleYakuman = allowsDoubleYakuman(useYakumanRules());
   const isManganOrAbove = isMangan(answer.scoreLevel);
   const scoreLevelName = getScoreLevelName(answer.scoreLevel);
+  // 点数表。点数そのものを押したときだけ正解のセルをハイライトする
+  // （表への補助リンクからは素の表を開く。web と同じ）
   const [isScoreTableOpen, setIsScoreTableOpen] = useState(false);
+  const [isScoreTableHighlighted, setIsScoreTableHighlighted] = useState(false);
+  const openScoreTable = (highlighted: boolean) => {
+    setIsScoreTableHighlighted(highlighted);
+    setIsScoreTableOpen(true);
+  };
 
   const judged =
     userAnswer !== undefined && result !== undefined
@@ -218,7 +226,7 @@ export function ResultDisplay({
               <>
                 {/* 押せることが見て分かるよう、常時点線の下線を敷く */}
                 <Pressable
-                  onPress={() => setIsScoreTableOpen(true)}
+                  onPress={() => openScoreTable(true)}
                   accessibilityRole="button"
                   accessibilityHint={t("result.openInScoreTable")}
                   hitSlop={6}
@@ -229,7 +237,7 @@ export function ResultDisplay({
                 <ReferenceLinkButton
                   icon={<TableIcon size={14} color={colors.mutedForeground} />}
                   label={t("result.viewScoreTable")}
-                  onPress={() => setIsScoreTableOpen(true)}
+                  onPress={() => openScoreTable(false)}
                 />
               </>
             }
@@ -240,8 +248,13 @@ export function ResultDisplay({
       <ScoreTableModal
         isOpen={isScoreTableOpen}
         onClose={() => setIsScoreTableOpen(false)}
-        role={isOya(question.jikaze) ? "oya" : "ko"}
-        winType={question.isTsumo ? "tsumo" : "ron"}
+        focus={scoreTableFocusOf({
+          isOya: isOya(question.jikaze),
+          isTsumo: question.isTsumo,
+          han: answer.han,
+          fu: answer.fu,
+        })}
+        highlighted={isScoreTableHighlighted}
       />
     </View>
   );
