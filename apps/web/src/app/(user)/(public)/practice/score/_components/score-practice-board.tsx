@@ -13,6 +13,7 @@ import { PageTitle } from "@/app/(user)/_components/page-title";
 import { useScorePracticeStore } from "../_hooks/use-score-practice-store";
 import type { UserAnswer } from "@mahjong-scoring/core";
 import { useIsClient } from "../../../../../_hooks/use-is-client";
+import { useAutoAdvanceOnCorrect } from "@/app/_hooks/use-training-settings-store";
 import { useScrollToElement } from "../../_hooks/use-scroll-to-element";
 import {
   PRACTICE_SCROLL_ANCHOR_ID,
@@ -136,13 +137,9 @@ function ScorePracticeBoardInner() {
     void requestQuestion();
   }, [isClient, searchParams, requestQuestion, refreshGate]);
 
-  const {
-    requireYaku,
-    simplifyMangan,
-    requireFuForMangan,
-    autoNext,
-    measureTime,
-  } = parseModeFlagsFromParams(new URLSearchParams(searchParams.toString()));
+  const { requireYaku, simplifyMangan, requireFuForMangan, measureTime } =
+    parseModeFlagsFromParams(new URLSearchParams(searchParams.toString()));
+  const autoAdvanceOnCorrect = useAutoAdvanceOnCorrect();
 
   // 回答時間の計測（Pro の拡張機能）。設定のフラグだけでなく、サーバーが
   // 返した特典にも含まれているときだけ出す
@@ -181,7 +178,7 @@ function ScorePracticeBoardInner() {
       scrollToPracticeAnchor();
       submitAnswer(answer, requireYaku, simplifyMangan, requireFuForMangan);
 
-      if (autoNext) {
+      if (autoAdvanceOnCorrect) {
         const state = useScorePracticeStore.getState();
         if (state.judgementResult?.isCorrect) {
           // 連続で解く練習なので既定より短く消す（見た目は GlobalToaster が持つ）
@@ -196,7 +193,7 @@ function ScorePracticeBoardInner() {
       requireYaku,
       simplifyMangan,
       requireFuForMangan,
-      autoNext,
+      autoAdvanceOnCorrect,
       t,
     ],
   );

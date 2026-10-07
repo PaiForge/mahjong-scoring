@@ -11,6 +11,7 @@ import { Button } from "../../../components/button";
 import { Screen } from "../../../components/screen";
 import { useJudgementHaptics } from "../../../hooks/use-judgement-haptics";
 import { useScoreSettingsStore } from "../../../hooks/use-score-settings-store";
+import { useAutoAdvanceOnCorrect } from "../../../hooks/use-training-settings-store";
 import { QuestionDisplay } from "../../components/question-display";
 import { QuestionPrompt } from "../../components/question-prompt";
 import { ScoreCounter } from "../../components/score-counter";
@@ -42,8 +43,9 @@ export function ScorePracticeBoard() {
   // 盤面を開いたときの設定で通す（途中で変わる経路は無いが、出題条件と
   // 判定モードを 1 問ごとに読み直さない）
   const [settings] = useState(() => useScoreSettingsStore.getState());
-  const { requireYaku, simplifyMangan, requireFuForMangan, autoNext } =
+  const { requireYaku, simplifyMangan, requireFuForMangan } =
     readModeFlags(settings);
+  const autoAdvanceOnCorrect = useAutoAdvanceOnCorrect();
   const [flashSignal, setFlashSignal] = useState(0);
   const {
     currentQuestion,
@@ -88,7 +90,7 @@ export function ScorePracticeBoard() {
     scrollToTop();
     submitAnswer(answer, requireYaku, simplifyMangan, requireFuForMangan);
     if (
-      autoNext &&
+      autoAdvanceOnCorrect &&
       useScorePracticeStore.getState().judgementResult?.isCorrect
     ) {
       setFlashSignal((prev) => prev + 1);

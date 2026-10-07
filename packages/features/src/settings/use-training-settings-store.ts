@@ -8,7 +8,12 @@ import {
 
 /** トレーニング設定ストアの状態と更新関数 */
 export interface TrainingSettingsState {
-  /** トレーニングで正解したとき、答え合わせを挟まず次の問題へ進むか */
+  /**
+   * 正解したとき、答え合わせを挟まず次の問題へ進むか。トレーニングに加えて、
+   * 時計もミス上限も無い点数計算の演習（総合演習・待ち別点数計算）も読む。
+   * 演習の設定画面のスイッチもこの値を書く（設定ページは会員限定のため、
+   * 未ログインでも演習の設定画面から切り替えられるようにしてある）
+   */
   autoAdvanceOnCorrect: boolean;
   setAutoAdvanceOnCorrect: (enabled: boolean) => void;
 }

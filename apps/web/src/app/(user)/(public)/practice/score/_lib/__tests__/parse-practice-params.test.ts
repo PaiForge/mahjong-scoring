@@ -61,37 +61,30 @@ describe("parseModeFlagsFromParams", () => {
       requireYaku: false,
       simplifyMangan: false,
       requireFuForMangan: false,
-      autoNext: false,
       measureTime: false,
     });
   });
 
   it("各パラメータを個別に読み取る", () => {
     const result = parseModeFlagsFromParams(
-      new URLSearchParams(
-        "mode=with_yaku&simple=1&fu_mangan=1&auto_next=1&measure=1",
-      ),
+      new URLSearchParams("mode=with_yaku&simple=1&fu_mangan=1&measure=1"),
     );
     expect(result).toEqual({
       requireYaku: true,
       simplifyMangan: true,
       requireFuForMangan: true,
-      autoNext: true,
       measureTime: true,
     });
   });
 
   it("値が異なる場合は false になる", () => {
     const result = parseModeFlagsFromParams(
-      new URLSearchParams(
-        "mode=normal&simple=0&fu_mangan=0&auto_next=0&measure=0",
-      ),
+      new URLSearchParams("mode=normal&simple=0&fu_mangan=0&measure=0"),
     );
     expect(result).toEqual({
       requireYaku: false,
       simplifyMangan: false,
       requireFuForMangan: false,
-      autoNext: false,
       measureTime: false,
     });
   });

@@ -69,6 +69,4 @@ export interface ScorePracticeModeFlags {
   readonly simplifyMangan: boolean;
   /** 満貫以上でも符の回答を必須にする */
   readonly requireFuForMangan: boolean;
-  /** 正解時に自動で次の問題へ進む */
-  readonly autoNext: boolean;
 }

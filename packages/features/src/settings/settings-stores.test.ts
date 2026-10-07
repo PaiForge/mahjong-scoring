@@ -4,6 +4,7 @@ import { describe, expect, it } from "vitest";
 import type { StateStorage } from "zustand/middleware";
 
 import { createRuleSettingsStore } from "./use-rule-settings-store";
+import { createScoreSettingsStore } from "./use-score-settings-store";
 import { createTrainingSettingsStore } from "./use-training-settings-store";
 
 /** 同期で読み書きする保存先（web の localStorage 相当） */
@@ -91,5 +92,44 @@ describe("設定ストアの保存先の注入", () => {
 
     const { result } = renderHook(() => useAutoAdvanceOnCorrect());
     expect(result.current).toBe(false);
+  });
+});
+
+describe("点数練習の設定ストアの移行", () => {
+  it("v1 の保存値から「自動で次へ」を落とし、他の値は残す", () => {
+    // 「自動で次へ」はトレーニング設定に一本化した。旧キーを残すと、
+    // 書き込みのたびに使われない値が保存され続ける
+    const { data, storage } = createMemoryStorage({
+      "score-settings": JSON.stringify({
+        state: { autoNext: true, requireYaku: true },
+        version: 1,
+      }),
+    });
+    const useStore = createScoreSettingsStore("score-settings", {
+      storage: () => storage,
+    });
+
+    expect(useStore.getState()).not.toHaveProperty("autoNext");
+    expect(useStore.getState().requireYaku).toBe(true);
+
+    act(() => useStore.getState().setSimplifyMangan(true));
+    const saved = JSON.parse(data.get("score-settings") ?? "{}");
+    expect(saved.state).not.toHaveProperty("autoNext");
+    expect(saved.version).toBe(2);
+  });
+
+  it("v0 の点数帯の表記も引き続き直す", () => {
+    const { storage } = createMemoryStorage({
+      "score-settings": JSON.stringify({
+        state: { autoNext: true, targetScoreRanges: ["non_mangan"] },
+        version: 0,
+      }),
+    });
+    const useStore = createScoreSettingsStore("score-settings", {
+      storage: () => storage,
+    });
+
+    expect(useStore.getState().targetScoreRanges).toEqual(["nonMangan"]);
+    expect(useStore.getState()).not.toHaveProperty("autoNext");
   });
 });

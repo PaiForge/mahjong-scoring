@@ -18,6 +18,7 @@ import { Screen } from "../../../components/screen";
 import { useJudgementHaptics } from "../../../hooks/use-judgement-haptics";
 import { useYakumanRules } from "../../../hooks/use-rule-settings-store";
 import { useMachiScoreSettingsStore } from "../../../hooks/use-score-settings-store";
+import { useAutoAdvanceOnCorrect } from "../../../hooks/use-training-settings-store";
 import { colors, radius } from "../../../lib/theme";
 import { QuestionPrompt } from "../../components/question-prompt";
 import { ScoreCounter } from "../../components/score-counter";
@@ -55,8 +56,9 @@ export function MachiScoreBoard() {
   const router = useRouter();
   const scrollRef = useRef<ScrollView>(null);
   const [settings] = useState(() => useMachiScoreSettingsStore.getState());
-  const { requireYaku, simplifyMangan, requireFuForMangan, autoNext } =
+  const { requireYaku, simplifyMangan, requireFuForMangan } =
     readModeFlags(settings);
+  const autoAdvanceOnCorrect = useAutoAdvanceOnCorrect();
   const allowDoubleYakuman = allowsDoubleYakuman(useYakumanRules());
   const [flashSignal, setFlashSignal] = useState(0);
   const {
@@ -139,7 +141,7 @@ export function MachiScoreBoard() {
       requireFuForMangan,
       allowDoubleYakuman,
     });
-    if (autoNext && useMachiScoreStore.getState().isAllCorrect) {
+    if (autoAdvanceOnCorrect && useMachiScoreStore.getState().isAllCorrect) {
       setFlashSignal((prev) => prev + 1);
       generateNewQuestion();
     }

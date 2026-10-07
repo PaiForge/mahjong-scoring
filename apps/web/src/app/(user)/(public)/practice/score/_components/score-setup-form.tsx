@@ -10,6 +10,7 @@ import { SCORE_FILTERABLE_YAKU } from "@mahjong-scoring/core";
 import type { ScoreRange } from "@mahjong-scoring/core";
 import { useScoreSettingsStore } from "../_hooks/use-score-settings-store";
 import { useScorePracticeStore } from "../_hooks/use-score-practice-store";
+import { useTrainingSettingsStore } from "@/app/_hooks/use-training-settings-store";
 import { InfoModal } from "@/app/(user)/_components/info-modal";
 import { MultiSelect } from "@/app/(user)/_components/multi-select";
 import { useYakuLabel } from "@mahjong-scoring/features/yaku/use-yaku-options";
@@ -95,8 +96,6 @@ export function ScoreSetupForm({
     setRequireFuForMangan,
     targetScoreRanges,
     setTargetScoreRanges,
-    autoNext,
-    setAutoNext,
     measureTime,
     setMeasureTime,
     includeParent,
@@ -106,6 +105,16 @@ export function ScoreSetupForm({
     targetYaku,
     setTargetYaku,
   } = useSettingsStore();
+  // 「正解したら自動で次へ」はトレーニングと共通の設定で、練習ごとの保存先
+  // （settingsStore）には持たない。設定ページは会員限定なので、未ログインでも
+  // 切り替えられるようここにもスイッチを置き、同じ値を読み書きする
+  const autoAdvanceOnCorrect = useTrainingSettingsStore(
+    (s) => s.autoAdvanceOnCorrect,
+  );
+  const setAutoAdvanceOnCorrect = useTrainingSettingsStore(
+    (s) => s.setAutoAdvanceOnCorrect,
+  );
+  const tSettings = useTranslations("settings");
   const tPicker = useTranslations("common.yakuPicker");
   const yakuLabelOf = useYakuLabel();
 
@@ -132,9 +141,6 @@ export function ScoreSetupForm({
     }
     if (requireFuForMangan) {
       params.set("fu_mangan", "1");
-    }
-    if (autoNext) {
-      params.set("auto_next", "1");
     }
     // Pro でなければ付けない。保存された値は Pro になったときに生きる
     if (measureTime && hasPracticeTools) {
@@ -184,17 +190,20 @@ export function ScoreSetupForm({
         {/* Settings card: トグル5行 */}
         <div className="overflow-hidden rounded-panel border border-panel bg-surface-50">
           <div className="flex flex-col">
-            {["requireYaku", "simplifyMangan", "requireFu", "autoNext"].map(
-              (key) => (
-                <div
-                  key={key}
-                  className="flex items-center justify-between border-b border-surface-100 px-5 py-3.5"
-                >
-                  <SkeletonBar className="h-4 w-32" tone={100} />
-                  <SkeletonBar radius="full" className="h-6 w-11" tone={100} />
-                </div>
-              ),
-            )}
+            {[
+              "requireYaku",
+              "simplifyMangan",
+              "requireFu",
+              "autoAdvanceOnCorrect",
+            ].map((key) => (
+              <div
+                key={key}
+                className="flex items-center justify-between border-b border-surface-100 px-5 py-3.5"
+              >
+                <SkeletonBar className="h-4 w-32" tone={100} />
+                <SkeletonBar radius="full" className="h-6 w-11" tone={100} />
+              </div>
+            ))}
             <div className="px-5 py-3.5">
               <div className="flex h-5 items-center justify-between">
                 <SkeletonBar className="h-4 w-32" tone={100} />
@@ -256,10 +265,10 @@ export function ScoreSetupForm({
             label={t("setup.requireFu")}
           />
           <SettingToggle
-            checked={autoNext}
-            onChange={setAutoNext}
-            title={t("setup.autoNext")}
-            label={t("setup.autoNext")}
+            checked={autoAdvanceOnCorrect}
+            onChange={setAutoAdvanceOnCorrect}
+            title={tSettings("autoAdvanceOnCorrectTitle")}
+            label={tSettings("autoAdvanceOnCorrectTitle")}
           />
           {/* 回答時間の計測は Pro の拡張機能。Pro でなければスイッチの代わりに
               利用条件と料金ページへの導線を出す（押せないスイッチは「壊れている」に見える）。

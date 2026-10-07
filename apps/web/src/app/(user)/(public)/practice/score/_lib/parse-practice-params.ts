@@ -59,7 +59,6 @@ export function parseModeFlagsFromParams(
     requireYaku: params.get("mode") === "with_yaku",
     simplifyMangan: params.get("simple") === "1",
     requireFuForMangan: params.get("fu_mangan") === "1",
-    autoNext: params.get("auto_next") === "1",
     measureTime: params.get("measure") === "1",
   };
 }

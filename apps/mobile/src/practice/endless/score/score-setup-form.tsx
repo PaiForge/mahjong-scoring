@@ -14,6 +14,7 @@ import {
   SettingToggleRow,
 } from "../../../components/setting-toggle-row";
 import type { ScoreSettingsStoreHook } from "../../../hooks/use-score-settings-store";
+import { useTrainingSettingsStore } from "../../../hooks/use-training-settings-store";
 import { toggleInArray } from "@mahjong-scoring/features/practice/toggle-in-array";
 import { useYakuLabel } from "@mahjong-scoring/features/yaku/use-yaku-options";
 import { colors } from "../../../lib/theme";
@@ -55,6 +56,15 @@ export function ScoreSetupForm({
   const t = useTranslations("score");
   const tCommon = useTranslations("common");
   const tPicker = useTranslations("common.yakuPicker");
+  const tSettings = useTranslations("settings");
+  // 「正解したら自動で次へ」はトレーニングと共通の設定（web と同じ）。練習ごとの
+  // 保存先（settingsStore）には持たず、設定画面と同じ値を読み書きする
+  const autoAdvanceOnCorrect = useTrainingSettingsStore(
+    (s) => s.autoAdvanceOnCorrect,
+  );
+  const setAutoAdvanceOnCorrect = useTrainingSettingsStore(
+    (s) => s.setAutoAdvanceOnCorrect,
+  );
   const router = useRouter();
   const yakuLabelOf = useYakuLabel();
   const [showSimplifyInfo, setShowSimplifyInfo] = useState(false);
@@ -67,8 +77,6 @@ export function ScoreSetupForm({
     setRequireFuForMangan,
     targetScoreRanges,
     setTargetScoreRanges,
-    autoNext,
-    setAutoNext,
     includeParent,
     setIncludeParent,
     includeChild,
@@ -122,9 +130,9 @@ export function ScoreSetupForm({
           onChange={setRequireFuForMangan}
         />
         <SettingToggleRow
-          title={t("setup.autoNext")}
-          checked={autoNext}
-          onChange={setAutoNext}
+          title={tSettings("autoAdvanceOnCorrectTitle")}
+          checked={autoAdvanceOnCorrect}
+          onChange={setAutoAdvanceOnCorrect}
         />
       </SettingsCard>
 
