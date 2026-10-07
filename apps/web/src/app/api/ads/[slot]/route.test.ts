@@ -1,7 +1,10 @@
 // @vitest-environment node
 import { describe, expect, it, vi } from "vitest";
 
-import type { NativeAdView } from "@mahjong-scoring/features/ads/native-ad";
+import {
+  MOBILE_AD_SLOTS,
+  type NativeAdView,
+} from "@mahjong-scoring/features/ads/native-ad";
 import { parseNativeAdsResponse } from "@mahjong-scoring/features/ads/parse-native-ads-response";
 
 const ad: NativeAdView = {
@@ -32,9 +35,11 @@ function call(slot: string) {
 
 describe("GET /api/ads/[slot]", () => {
   it("モバイルのスロットだけを静的に生成する", () => {
-    expect(generateStaticParams()).toEqual([
-      { slot: "mobile-practice-grid-native-ad" },
-    ]);
+    expect(
+      generateStaticParams()
+        .map(({ slot }) => slot)
+        .sort(),
+    ).toEqual(Object.values(MOBILE_AD_SLOTS).sort());
   });
 
   it("モバイルのスロットの広告を、モバイルが読める形で返す", async () => {

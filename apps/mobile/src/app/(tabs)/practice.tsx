@@ -10,7 +10,7 @@ import {
   listedPracticeRanks,
   practiceRanks,
 } from "@mahjong-scoring/features/practice/rank-practices";
-import { MOBILE_PRACTICE_GRID_AD_SLOT } from "@mahjong-scoring/features/ads/native-ad";
+import { MOBILE_AD_SLOTS } from "@mahjong-scoring/features/ads/native-ad";
 import { DOJO_PATH } from "@mahjong-scoring/features/routes";
 
 import { NativeAdCard } from "../../ads/native-ad-card";
@@ -86,7 +86,7 @@ export default function PracticeListPage() {
       ),
     [],
   );
-  const [ad] = useNativeAds(MOBILE_PRACTICE_GRID_AD_SLOT);
+  const [ad] = useNativeAds(MOBILE_AD_SLOTS.practiceGrid);
   const visible = menus.filter(
     (menu) =>
       filter === ALL ||

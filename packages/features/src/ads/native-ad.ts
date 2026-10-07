@@ -51,15 +51,33 @@ export interface NativeAdsResponse {
 }
 
 /**
- * モバイルの練習一覧に出す広告のスロット
- * モバイル練習一覧広告スロット
+ * モバイル（Expo）の画面が読む広告のスロット。キーは画面での呼び名、値は
+ * スロットの綴り（DB の `slot`・広告配信 API のパス）
+ * モバイル広告スロット
  *
- * web の練習一覧（`practice-grid-native-ad`）とは分ける。Amazon アソシエイトは
- * 成果を分ける単位がリンクのトラッキング ID だけなので、スロットを共有すると
- * アプリと web の成果を後から分けられない。web のスロット定義（`AD_SLOTS`）は
- * この定数をキーに使い、両者の綴りを 1 か所に保つ。
+ * web の同じ画面のスロットとは分ける。Amazon アソシエイトは成果を分ける
+ * 単位がリンクのトラッキング ID だけなので、スロットを共有するとアプリと web の
+ * 成果を後から分けられない。web のスロット定義（`AD_SLOTS`）はこの値を
+ * キーに使い、両者の綴りを 1 か所に保つ。形（kind）と枠数は web の同じ画面の
+ * スロットに合わせる。
  */
-export const MOBILE_PRACTICE_GRID_AD_SLOT = "mobile-practice-grid-native-ad";
+export const MOBILE_AD_SLOTS = {
+  practiceGrid: "mobile-practice-grid-native-ad",
+  practiceIntro: "mobile-practice-intro-native-ad",
+  practiceResult: "mobile-practice-result-native-ad",
+  examIntro: "mobile-exam-intro-native-ad",
+  rankDetail: "mobile-rank-detail-native-ad",
+  learnIndex: "mobile-learn-index-native-ad",
+  learnChapter: "mobile-learn-chapter-native-ad",
+  lessonPractices: "mobile-lesson-practices-native-ad",
+  glossaryIndex: "mobile-glossary-index-native-ad",
+  glossaryTerm: "mobile-glossary-term-native-ad",
+  yakuReference: "mobile-yaku-reference-native-ad",
+} as const;
+
+/** モバイル広告スロット */
+export type MobileAdSlot =
+  (typeof MOBILE_AD_SLOTS)[keyof typeof MOBILE_AD_SLOTS];
 
 /**
  * 広告配信 API のパス（サイトの origin からの相対）

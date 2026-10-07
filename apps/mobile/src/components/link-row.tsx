@@ -20,6 +20,8 @@ interface LinkRowProps {
   readonly description?: string;
   readonly leading?: ReactNode;
   readonly trailing?: ReactNode;
+  /** 読み上げの名前。省略時は行の中の文字をそのまま読む */
+  readonly accessibilityLabel?: string;
 }
 
 /**
@@ -35,12 +37,14 @@ export function LinkRow({
   description,
   leading,
   trailing,
+  accessibilityLabel,
 }: LinkRowProps) {
   const framed = useContext(LinkRowFramedContext);
   return (
     <Pressable
       onPress={onPress}
       accessibilityRole="link"
+      accessibilityLabel={accessibilityLabel}
       style={({ pressed }) => [
         styles.row,
         framed && styles.rowFramed,

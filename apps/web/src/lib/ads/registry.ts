@@ -1,6 +1,6 @@
 import {
   AD_KINDS,
-  MOBILE_PRACTICE_GRID_AD_SLOT,
+  MOBILE_AD_SLOTS,
   type AdKind,
 } from "@mahjong-scoring/features/ads/native-ad";
 
@@ -152,12 +152,6 @@ export const AD_SLOTS = {
     // 10 行に届いたら 4 本目の位置（10 行目の後）ができる
     placements: 3,
   },
-  // モバイルの練習一覧。web の練習一覧と同じく上から 3 枚目に置く。web とは
-  // 別のスロットにして、アプリの成果を別のトラッキング ID で分けられるようにする
-  [MOBILE_PRACTICE_GRID_AD_SLOT]: {
-    kind: "native_card",
-    surfaces: [{ platform: "mobile", route: "/practice" }],
-  },
   "glossary-term-native-ad": {
     kind: "native_card",
     surfaces: [
@@ -199,6 +193,61 @@ export const AD_SLOTS = {
   "announcements-index-native-ad": {
     kind: "native_row",
     surfaces: [{ route: "/announcements", href: "/announcements" }],
+  },
+
+  // --- モバイル（Expo）の画面。web の同じ画面とは別のスロットにして、アプリの
+  // 成果を別のトラッキング ID で分けられるようにする。形・枠数・置き場所は
+  // web の同じ画面のスロットに合わせる
+  [MOBILE_AD_SLOTS.practiceGrid]: {
+    kind: "native_card",
+    surfaces: [{ platform: "mobile", route: "/practice" }],
+  },
+  [MOBILE_AD_SLOTS.practiceIntro]: {
+    kind: "native_row",
+    surfaces: [
+      { platform: "mobile", route: "/practice/<練習>" },
+      { platform: "mobile", route: "/practice/score" },
+      { platform: "mobile", route: "/practice/machi-score" },
+    ],
+  },
+  [MOBILE_AD_SLOTS.practiceResult]: {
+    kind: "native_card",
+    surfaces: [{ platform: "mobile", route: "/practice/<練習>/result" }],
+  },
+  [MOBILE_AD_SLOTS.examIntro]: {
+    kind: "native_row",
+    surfaces: [{ platform: "mobile", route: "/exam/<級>" }],
+  },
+  [MOBILE_AD_SLOTS.rankDetail]: {
+    kind: "native_row",
+    surfaces: [{ platform: "mobile", route: "/dojo/ranks/<級>" }],
+  },
+  [MOBILE_AD_SLOTS.learnIndex]: {
+    kind: "native_row",
+    surfaces: [{ platform: "mobile", route: "/lessons" }],
+    placements: 3,
+  },
+  [MOBILE_AD_SLOTS.learnChapter]: {
+    kind: "native_row",
+    surfaces: [{ platform: "mobile", route: "/lessons/<章>" }],
+  },
+  [MOBILE_AD_SLOTS.lessonPractices]: {
+    kind: "native_card",
+    surfaces: [{ platform: "mobile", route: "/lessons/<章>" }],
+  },
+  [MOBILE_AD_SLOTS.glossaryIndex]: {
+    kind: "native_row",
+    surfaces: [{ platform: "mobile", route: "/reference/glossary" }],
+    placements: 3,
+  },
+  [MOBILE_AD_SLOTS.glossaryTerm]: {
+    kind: "native_card",
+    surfaces: [{ platform: "mobile", route: "/reference/glossary/<用語>" }],
+  },
+  [MOBILE_AD_SLOTS.yakuReference]: {
+    kind: "native_row",
+    surfaces: [{ platform: "mobile", route: "/reference/yaku" }],
+    placements: 2,
   },
 } as const satisfies Record<string, AdSlotConfig>;
 

@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 
-import { adIndexAfterGroup } from "../spacing";
+import { adIndexAfterGroup } from "./spacing";
 
 describe("adIndexAfterGroup", () => {
   it("間隔を 1, 2, 3 と広げ、0・2・5 番目のまとまりの後に置く", () => {

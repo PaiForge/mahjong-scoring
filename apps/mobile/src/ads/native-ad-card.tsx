@@ -1,17 +1,11 @@
-import {
-  Image,
-  Linking,
-  Pressable,
-  StyleSheet,
-  Text,
-  View,
-} from "react-native";
+import { Image, Pressable, StyleSheet, Text, View } from "react-native";
 import { useTranslations } from "use-intl";
 import type { NativeAdView } from "@mahjong-scoring/features/ads/native-ad";
 
 import { Chip } from "../components/chip";
 import { ChevronRightIcon } from "../components/icons/icons";
 import { colors, radius } from "../lib/theme";
+import { nativeAdAccessibilityLabel, openNativeAd } from "./open-native-ad";
 import {
   CardVisualBand,
   CardVisualHand,
@@ -25,15 +19,7 @@ import {
  * 左上にタイトル、右上に添え物（段級位の代わりに「PR」）、右下に行き先の
  * 文言 — で描く。一覧に混ざったときに 1 枚だけ別の形にならないように。
  * 手牌を持つ広告は練習カードと同じ緑の帯に手牌を並べ、持たない広告は
- * 画像（書影など）か絵文字を左に置く。
- *
- * @design リンクは OS に開かせる
- *
- * アプリ内ブラウザ（`expo-web-browser`）ではなく `Linking.openURL` で開く。
- * Amazon の商品ページは Amazon アプリが自分のリンクとして登録しているため、
- * 入っていれば（多くの人がログイン済みの）Amazon アプリが開き、無ければ
- * 標準のブラウザが開く。iOS のアプリ内ブラウザは Safari と Cookie を共有せず
- * Amazon が未ログインで開くため、購入まで進みにくい。
+ * 画像（書影など）か絵文字を左に置く。リンクは OS に開かせる（{@link openNativeAd}）。
  */
 export function NativeAdCard({
   creative,
@@ -44,21 +30,9 @@ export function NativeAdCard({
 
   return (
     <Pressable
-      onPress={() => {
-        Linking.openURL(creative.href).catch(() => {
-          // 開けるアプリが無い。押しても何も起きないだけでよい
-        });
-      }}
+      onPress={() => openNativeAd(creative.href)}
       accessibilityRole="link"
-      // カードは 1 つの読み上げ単位になり、中の「PR」は「ピーアール」と
-      // 読まれるだけになる。広告であることを先頭で言う
-      accessibilityLabel={[
-        t("badgeLabel"),
-        creative.title,
-        creative.description,
-      ]
-        .filter((part) => part !== undefined)
-        .join("、")}
+      accessibilityLabel={nativeAdAccessibilityLabel(t("badgeLabel"), creative)}
       testID={`native-ad-${creative.id}`}
       style={({ pressed }) => [styles.card, pressed && styles.pressed]}
     >

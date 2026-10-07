@@ -18,7 +18,7 @@ import {
 import type { YakuExampleSet } from "@mahjong-scoring/features/yaku/examples";
 import { YakuExampleList } from "./yaku-example-list";
 import { yakuAnchorId } from "@mahjong-scoring/features/yaku/anchors";
-import { adIndexAfterGroup } from "@/lib/ads/spacing";
+import { adIndexAfterGroup } from "@mahjong-scoring/features/ads/spacing";
 
 /** チートシートに表示する1役分の項目（役データと例示手牌を束ねる） */
 interface YakuCheatItem {

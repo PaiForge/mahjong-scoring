@@ -19,7 +19,7 @@
  */
 import type { PostgresJsDatabase } from "drizzle-orm/postgres-js";
 
-import { MOBILE_PRACTICE_GRID_AD_SLOT } from "@mahjong-scoring/features/ads/native-ad";
+import { MOBILE_AD_SLOTS } from "@mahjong-scoring/features/ads/native-ad";
 
 import type { CreativeCopy } from "../../src/lib/ads/copy";
 import { copyToTranslationRows } from "../../src/lib/ads/copy";
@@ -120,13 +120,14 @@ type BookKey = keyof typeof BOOKS;
  * 本を選ぶまで型が通らない。1 画面に出るのは先頭から
  * `placementsForSlot` の数だけで、残りは先頭を止めたときの繰り上がり。
  *
- * 本はその画面の読み手に合わせる。練習一覧（web・アプリ）は牌効率（手牌を見て考える練習の
+ * 本はその画面の読み手に合わせる。練習一覧は牌効率（手牌を見て考える練習の
  * 並び）、結果画面・教本の章・レッスンの練習の並びは点数計算ドリル（点数計算を
  * 練習・学習した直後）、目次・用語集・レッスンの教本の並びは入門書から、
  * ランキングは戦術書から。練習の説明ページは点数計算ドリル（これから点数計算を
  * 練習する人）。昇級試験の説明ページ・級の詳細も点数計算ドリル（試験の範囲を
  * 固める人）。役一覧は用語集と同じく入門書から、お知らせ一覧はランキングと
- * 同じく戦術書から（すでに使い続けている人が読む）。
+ * 同じく戦術書から（すでに使い続けている人が読む）。アプリの画面は web の
+ * 同じ画面と同じ本を同じ順で載せる。
  */
 const SLOT_BOOKS: Record<
   AdSlot,
@@ -166,10 +167,6 @@ const SLOT_BOOKS: Record<
     { id: "e4469e51-7985-4872-82b2-d9471fdafd8f", book: "haiKouritsu" },
     { id: "e5c5116e-afaa-4641-95c9-2f1dadf15329", book: "oshihiki" },
   ],
-  [MOBILE_PRACTICE_GRID_AD_SLOT]: [
-    { id: "0dbcf231-50a1-41e2-b6dc-6be96b62dc95", book: "haiKouritsu" },
-    { id: "e68009d9-a86c-4236-83c2-4948013da970", book: "oshihiki" },
-  ],
   "glossary-term-native-ad": [
     { id: "a27c9103-162a-4578-bcd4-517013fc2a26", book: "mangaIntro" },
     { id: "26d38ae2-00bc-4065-9af6-26466b0aaa03", book: "scoreDrill" },
@@ -194,6 +191,54 @@ const SLOT_BOOKS: Record<
   "announcements-index-native-ad": [
     { id: "67987085-4274-4e02-977b-bb8a31fbbb2a", book: "shinsoku" },
     { id: "c210bfcf-c7d5-4fd1-8cea-a0e852d7e218", book: "oshihiki" },
+  ],
+  // モバイルの画面は web の同じ画面と同じ本を同じ順で載せる
+  [MOBILE_AD_SLOTS.practiceGrid]: [
+    { id: "0dbcf231-50a1-41e2-b6dc-6be96b62dc95", book: "haiKouritsu" },
+    { id: "e68009d9-a86c-4236-83c2-4948013da970", book: "oshihiki" },
+  ],
+  [MOBILE_AD_SLOTS.practiceIntro]: [
+    { id: "0b4bc15f-2992-4c28-beb3-eec5da433828", book: "scoreDrill" },
+    { id: "6f4d9e0c-0186-4f08-8edc-a6dcf59b35f1", book: "haiKouritsu" },
+  ],
+  [MOBILE_AD_SLOTS.practiceResult]: [
+    { id: "b64a1e2c-0436-4fc0-b6bb-99da661e9be3", book: "scoreDrill" },
+    { id: "d5311f6d-1c95-4bbd-826d-00d469d846f9", book: "haiKouritsu" },
+  ],
+  [MOBILE_AD_SLOTS.examIntro]: [
+    { id: "1c30eee2-0796-4807-8062-39e631a71554", book: "scoreDrill" },
+    { id: "c5734f80-fbeb-4bdc-86bd-7037c9adbf06", book: "oshihiki" },
+  ],
+  [MOBILE_AD_SLOTS.rankDetail]: [
+    { id: "d5dc35c5-2a02-4641-9d94-0f9352a64e47", book: "scoreDrill" },
+    { id: "5003ec8d-94a4-4d2d-93b0-5f7a1835d91e", book: "mangaIntro" },
+  ],
+  [MOBILE_AD_SLOTS.learnIndex]: [
+    { id: "61d24c42-7596-49e5-9a20-722c4daa2d49", book: "mangaIntro" },
+    { id: "e734ac5c-e72b-45d0-8929-6983ddbc9316", book: "scoreDrill" },
+    { id: "b0e8b787-d544-4554-9648-41f8f686944a", book: "haiKouritsu" },
+  ],
+  [MOBILE_AD_SLOTS.learnChapter]: [
+    { id: "b3ff2eb3-2753-4176-83aa-f43e14f45f16", book: "scoreDrill" },
+    { id: "90a0d660-1b22-474a-a6d6-02ce8814c095", book: "mangaIntro" },
+  ],
+  [MOBILE_AD_SLOTS.lessonPractices]: [
+    { id: "1579a3e0-60ed-4655-945f-bc6ce163269f", book: "scoreDrill" },
+    { id: "a41266a4-37dd-4805-b233-c2a1b8428691", book: "haiKouritsu" },
+  ],
+  [MOBILE_AD_SLOTS.glossaryIndex]: [
+    { id: "495839f9-4ab3-4650-9653-3e24ef4ef088", book: "mangaIntro" },
+    { id: "45cd9d6c-1052-4f9f-809a-c94d20131d5c", book: "haiKouritsu" },
+    { id: "e6fbd1eb-99de-4cbe-91fb-f112be99affe", book: "oshihiki" },
+  ],
+  [MOBILE_AD_SLOTS.glossaryTerm]: [
+    { id: "cdb03842-0d25-4369-9da0-b2505e359352", book: "mangaIntro" },
+    { id: "e0bc3f06-f134-433a-a006-d1c823f812a7", book: "scoreDrill" },
+  ],
+  [MOBILE_AD_SLOTS.yakuReference]: [
+    { id: "6fe73057-b56e-474b-be18-6812ca427196", book: "mangaIntro" },
+    { id: "2ebff36b-e29d-4ac5-9742-f9949e46088a", book: "haiKouritsu" },
+    { id: "3c7c44cb-2f1e-401c-b3e2-ab5b7928bfd5", book: "oshihiki" },
   ],
 };
 
