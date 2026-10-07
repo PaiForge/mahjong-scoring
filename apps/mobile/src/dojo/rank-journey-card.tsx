@@ -33,8 +33,8 @@ import { RankStageProgress } from "./rank-stage-progress";
  * モバイルは本番の試験を開かない（模試だけ）が、段級位の順序の規則として
  * web と同じ文言を出す。
  *
- * 枠は帯色。練習するの行は挑戦済みの印を出さない — モバイルはチャレンジを
- * 記録しないため、常に未挑戦として数える。
+ * 枠は帯色。練習するの行の挑戦済みの印は、端末に記録した「チャレンジを
+ * 終えた」練習から出す（成績は記録しない）。
  */
 export function RankJourneyCard({
   journey,
@@ -120,6 +120,11 @@ export function RankJourneyCard({
                         router.push(practiceHref(item.slug, item.variant))
                       }
                       title={title}
+                      trailing={
+                        item.done ? (
+                          <DoneMark label={t("practiceDone")} />
+                        ) : undefined
+                      }
                     />
                   );
                 })}
