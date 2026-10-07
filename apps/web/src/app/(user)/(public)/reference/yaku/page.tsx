@@ -14,8 +14,11 @@
 import type { Metadata } from "next";
 import { getTranslations } from "next-intl/server";
 import { ContentContainer } from "@/app/(user)/_components/content-container";
+import { LinkRowList } from "@/app/(user)/_components/link-row";
+import { NativeAdRow } from "@/app/(user)/_components/native-ad-row";
 import { PageTitle } from "@/app/(user)/_components/page-title";
 import { createNamespaceMetadata } from "@/app/_lib/metadata";
+import { getNativeAdPlacements } from "@/lib/ads/creatives";
 import { YakuCheatsheet } from "./_components/yaku-cheatsheet";
 
 export async function generateMetadata(): Promise<Metadata> {
@@ -27,6 +30,7 @@ export async function generateMetadata(): Promise<Metadata> {
 export default async function ReferenceYakuPage() {
   const t = await getTranslations("reference.yaku");
   const tHub = await getTranslations("reference");
+  const ads = await getNativeAdPlacements("yaku-reference-native-ad");
 
   return (
     <ContentContainer
@@ -37,7 +41,15 @@ export default async function ReferenceYakuPage() {
     >
       <PageTitle>{t("title")}</PageTitle>
 
-      <YakuCheatsheet withAnchors />
+      {/* 役のカードは 1 枚ずつ細枠を持つので、広告の行も細枠の 1 枚にする */}
+      <YakuCheatsheet
+        withAnchors
+        ads={ads.map((ad) => (
+          <LinkRowList key={ad.id}>
+            <NativeAdRow creative={ad} />
+          </LinkRowList>
+        ))}
+      />
 
       <p className="mt-6 text-sm text-surface-500">{t("nakiNote")}</p>
     </ContentContainer>

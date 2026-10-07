@@ -121,7 +121,10 @@ type BookKey = keyof typeof BOOKS;
  * 本はその画面の読み手に合わせる。練習一覧は牌効率（手牌を見て考える練習の
  * 並び）、結果画面・教本の章・レッスンの練習の並びは点数計算ドリル（点数計算を
  * 練習・学習した直後）、目次・用語集・レッスンの教本の並びは入門書から、
- * ランキングは戦術書から。
+ * ランキングは戦術書から。練習の説明ページは点数計算ドリル（これから点数計算を
+ * 練習する人）。昇級試験の説明ページ・級の詳細も点数計算ドリル（試験の範囲を
+ * 固める人）。役一覧は用語集と同じく入門書から、お知らせ一覧はランキングと
+ * 同じく戦術書から（すでに使い続けている人が読む）。
  */
 const SLOT_BOOKS: Record<
   AdSlot,
@@ -164,6 +167,27 @@ const SLOT_BOOKS: Record<
   "glossary-term-native-ad": [
     { id: "a27c9103-162a-4578-bcd4-517013fc2a26", book: "mangaIntro" },
     { id: "26d38ae2-00bc-4065-9af6-26466b0aaa03", book: "scoreDrill" },
+  ],
+  "practice-intro-native-ad": [
+    { id: "7729ea6e-f82f-4baf-9cd7-03d779c3b8d7", book: "scoreDrill" },
+    { id: "7ad6b8ff-002b-48bf-9f3c-f828f7b604d9", book: "haiKouritsu" },
+  ],
+  "exam-intro-native-ad": [
+    { id: "e6bf36e9-7407-43f3-87c6-312442941841", book: "scoreDrill" },
+    { id: "9ffc5483-04cd-4396-9e82-5f3d8010b47d", book: "oshihiki" },
+  ],
+  "rank-detail-native-ad": [
+    { id: "4ea1fe53-3001-4305-af95-6a0a15f27859", book: "scoreDrill" },
+    { id: "5ce9a332-30ec-40e2-80a8-fe28523b07f4", book: "mangaIntro" },
+  ],
+  "yaku-reference-native-ad": [
+    { id: "e2837d58-d17e-42ed-b37a-55b3c66693d6", book: "mangaIntro" },
+    { id: "0b05d2fc-b8ff-4662-b3a9-4d045adea70b", book: "haiKouritsu" },
+    { id: "f4e1aa06-2d49-42ee-82e3-ad90d8558a7a", book: "oshihiki" },
+  ],
+  "announcements-index-native-ad": [
+    { id: "67987085-4274-4e02-977b-bb8a31fbbb2a", book: "shinsoku" },
+    { id: "c210bfcf-c7d5-4fd1-8cea-a0e852d7e218", book: "oshihiki" },
   ],
 };
 

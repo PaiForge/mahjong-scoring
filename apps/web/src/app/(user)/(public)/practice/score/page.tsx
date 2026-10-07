@@ -15,7 +15,10 @@ import { getTranslations } from "next-intl/server";
 import { createNamespaceMetadata } from "@/app/_lib/metadata";
 import { ContentContainer } from "@/app/(user)/_components/content-container";
 import { PageTitle } from "@/app/(user)/_components/page-title";
+import { LinkRowList } from "@/app/(user)/_components/link-row";
+import { NativeAdRow } from "@/app/(user)/_components/native-ad-row";
 import { SectionTitle } from "@/app/(user)/_components/section-title";
+import { getNativeAdCreative } from "@/lib/ads/creatives";
 import { chaptersInSection } from "@mahjong-scoring/features/curriculum/registry";
 import { PracticeChapterSection } from "../_components/practice-chapter-section";
 import { ScoreSetupForm } from "./_components/score-setup-form";
@@ -30,6 +33,7 @@ export async function generateMetadata(): Promise<Metadata> {
 export default async function ScoreSetupPage() {
   const t = await getTranslations("score");
   const tp = await getTranslations("practice");
+  const ad = await getNativeAdCreative("practice-intro-native-ad");
 
   return (
     <ContentContainer
@@ -53,6 +57,12 @@ export default async function ScoreSetupPage() {
           title={tp("requiredKnowledge")}
           slugs={chaptersInSection("score")}
         />
+
+        {ad && (
+          <LinkRowList inset>
+            <NativeAdRow creative={ad} />
+          </LinkRowList>
+        )}
       </div>
     </ContentContainer>
   );

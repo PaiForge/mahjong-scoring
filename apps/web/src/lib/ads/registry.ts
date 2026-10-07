@@ -151,6 +151,39 @@ export const AD_SLOTS = {
       },
     ],
   },
+  // 練習の説明ページ（自由練習の設定ページを含む）の開始ボタンより後ろ、
+  // 関連するレッスンの目次の下。全練習が共有する 1 枠
+  "practice-intro-native-ad": {
+    kind: "native_row",
+    surfaces: [
+      { route: "/practice/<練習>", href: "/practice/jantou-fu" },
+      { route: "/practice/score", href: "/practice/score" },
+      { route: "/practice/machi-score", href: "/practice/machi-score" },
+    ],
+  },
+  // 昇級試験の説明ページの末尾、「その級の練習」の行リンクと同じ並び
+  "exam-intro-native-ad": {
+    kind: "native_row",
+    surfaces: [{ route: "/exam/<級>", href: "/exam/fu" }],
+  },
+  // 級の詳細の前提のレッスンの目次の下。前提のレッスンを持たない級（初段）
+  // では出さない（短い画面で帯のカードと試験の案内の間に挟まるため）
+  "rank-detail-native-ad": {
+    kind: "native_row",
+    surfaces: [{ route: "/dojo/ranks/<級>", href: "/dojo/ranks/kyu-4" }],
+  },
+  "yaku-reference-native-ad": {
+    kind: "native_row",
+    surfaces: [{ route: "/reference/yaku", href: "/reference/yaku" }],
+    // 翻数のまとまり（1・2・3・6 翻・役満の 5 つ）に間隔を広げながら置く
+    // （`adIndexAfterGroup`）。1・3 まとまり目の後
+    placements: 2,
+  },
+  // お知らせ一覧の末尾の行。ホームのお知らせ・お知らせの詳細には置かない
+  "announcements-index-native-ad": {
+    kind: "native_row",
+    surfaces: [{ route: "/announcements", href: "/announcements" }],
+  },
 } as const satisfies Record<string, AdSlotConfig>;
 
 /** 広告スロット */
