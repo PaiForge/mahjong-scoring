@@ -109,8 +109,10 @@ export const AD_SLOTS = {
       },
     ],
   },
+  // 章末の前後のレッスンへのリンクの上。周りは表・ボタン・テキストリンクで
+  // 練習カードが無いため、カードの形にすると本文から浮く。枠の無い 1 行で置く
   "learn-chapter-native-ad": {
-    kind: "native_card",
+    kind: "native_row",
     surfaces: [
       { route: "/lessons/<章>", href: "/lessons/why-scoring-is-complex" },
     ],

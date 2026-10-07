@@ -3,7 +3,8 @@ import { getTranslations } from "next-intl/server";
 import { ContentContainer } from "@/app/(user)/_components/content-container";
 import { GlossaryTermModalProvider } from "@/app/(user)/_components/glossary/glossary-term-modal-provider";
 import { JsonLd } from "@/app/(user)/_components/json-ld";
-import { NativeAdCard } from "@/app/(user)/(public)/_components/native-ad-card";
+import { LinkRowList } from "@/app/(user)/_components/link-row";
+import { NativeAdRow } from "@/app/(user)/_components/native-ad-row";
 import { PageTitle } from "@/app/(user)/_components/page-title";
 import { getNativeAdCreative } from "@/lib/ads/creatives";
 import { collectTermSlugsInNamespace } from "@/lib/glossary/message-terms";
@@ -63,7 +64,8 @@ interface LearnPageLayoutProps {
  *   完了後に、持たない章では完了ボタンの下に。確認問題より前に押して始める
  *   ボタンを置かない
  * - 章末（`footer`）: ネイティブ広告（掲載中の広告があるときだけ。本文や
- *   練習への CTA より前には出さない）→ 前後のレッスンへのリンク → 公開日
+ *   練習への CTA より前には出さない。枠の無い行の形 — 練習カードの形は
+ *   練習カードの並ぶ所でしか周りに溶けない）→ 前後のレッスンへのリンク → 公開日
  *   （`CURRICULUM` の `publishedAt`。Article の datePublished と同じ日付）
  *
  * @design cookie を読まない
@@ -108,7 +110,11 @@ export async function LearnPageLayout({
 
   const footer = (
     <>
-      {ad && <NativeAdCard creative={ad} />}
+      {ad && (
+        <LinkRowList inset>
+          <NativeAdRow creative={ad} />
+        </LinkRowList>
+      )}
       <ChapterNav slug={slug} />
       {/*
         章の鮮度を読者と検索側に示す（Article の datePublished と同じ日付）。
