@@ -3,7 +3,7 @@ import { describe, expect, it, vi } from "vitest";
 
 import { HaiKind } from "@mahjong-scoring/core";
 
-import type { NativeAdView } from "@/lib/ads/creatives";
+import type { NativeAdView } from "@mahjong-scoring/features/ads/native-ad";
 
 import { NativeAdCard } from "./native-ad-card";
 

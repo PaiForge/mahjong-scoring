@@ -5,7 +5,7 @@ import { FOCUS_RING_CLASSES } from "@/app/_components/_lib/link-classes";
 import { NativeAdRow } from "@/app/(user)/_components/native-ad-row";
 import { SectionTitle } from "@/app/(user)/_components/section-title";
 import { getNativeAdPlacements } from "@/lib/ads/creatives";
-import { adIndexAfterGroup } from "@/lib/ads/spacing";
+import { adIndexAfterGroup } from "@mahjong-scoring/features/ads/spacing";
 import { getOptionalUser } from "@/lib/auth";
 import { isHiddenFromLeaderboard } from "@/lib/db/leaderboard-visibility";
 

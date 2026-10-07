@@ -5,7 +5,7 @@ import {
   FOCUS_RING_CLASSES,
   ROW_LINK_TITLE_CLASSES,
 } from "@/app/_components/_lib/link-classes";
-import type { NativeAdView } from "@/lib/ads/creatives";
+import type { NativeAdView } from "@mahjong-scoring/features/ads/native-ad";
 
 import { ChevronRightIcon } from "@/app/(user)/_components/icons/chevron-right-icon";
 import {

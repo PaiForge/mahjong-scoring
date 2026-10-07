@@ -5,7 +5,7 @@ import {
   FOCUS_RING_CLASSES,
   ROW_LINK_TITLE_CLASSES,
 } from "@/app/_components/_lib/link-classes";
-import type { NativeAdView } from "@/lib/ads/creatives";
+import type { NativeAdView } from "@mahjong-scoring/features/ads/native-ad";
 
 import { ROW_ITEM_CLASSES, ROW_INNER_CLASSES } from "./link-row";
 import { NATIVE_AD_LINK_PROPS, NativeAdBadge } from "./native-ad-badge";

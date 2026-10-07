@@ -5,9 +5,12 @@ import {
   practiceMenuBySlug,
   type PracticeMenuSlug,
 } from "@mahjong-scoring/features/practice-menu-types";
+import { MOBILE_AD_SLOTS } from "@mahjong-scoring/features/ads/native-ad";
 import { rankRequiringMenu } from "@mahjong-scoring/features/ranks/registry";
 import { practiceTrainingHref } from "@mahjong-scoring/features/routes";
 
+import { NativeAdRow } from "../../ads/native-ad-row";
+import { useNativeAds } from "../../ads/use-native-ads";
 import { Button, buttonForeground } from "../../components/button";
 import { InfinityIcon } from "../../components/icons/icons";
 import { LinkRow, LinkRowList } from "../../components/link-row";
@@ -25,7 +28,7 @@ import type { PracticeScreens } from "../practice-screens";
  * @description
  * web の試験の説明ページ（`PracticeIntroContent` の試験の分岐）と同じ並び:
  * 問題方式（見本の盤面）→ 合格条件 → 開始導線 → 前提となるレッスン →
- * その級の練習メニュー。
+ * その級の練習メニュー（末尾に広告の行）。
  *
  * 開始導線は模試だけ。web は本番の試験（合否判定・段級位の付与）と模試を
  * 並べ、未ログインには本番の代わりに登録の案内を出すが、モバイルはまだ
@@ -47,6 +50,7 @@ export function ExamIntroScreen({
   const router = useRouter();
   const rank = rankRequiringMenu(menuType)?.rank;
   const { Demo } = screens;
+  const [ad] = useNativeAds(MOBILE_AD_SLOTS.examIntro);
 
   return (
     <Screen title={t("title")} back contentStyle={styles.content}>
@@ -101,6 +105,8 @@ export function ExamIntroScreen({
             })}
             description={tRanks("practiceLink.description")}
           />
+          {/* 広告は目次の下ではなく、この行リンクの並びの末尾に置く（web と同じ） */}
+          {ad !== undefined && <NativeAdRow creative={ad} />}
         </LinkRowList>
       )}
     </Screen>

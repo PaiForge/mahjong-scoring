@@ -2,6 +2,7 @@ import { and, asc, eq } from "drizzle-orm";
 import { unstable_cache } from "next/cache";
 
 import { parseHais, type HaiKindId } from "@mahjong-scoring/core";
+import type { NativeAdView } from "@mahjong-scoring/features/ads/native-ad";
 
 import { DEFAULT_LOCALE, type SupportedLocale } from "@/i18n/locales";
 import { AD_CREATIVES_CACHE_TAG } from "@/lib/cache-tags";
@@ -15,33 +16,8 @@ import {
   isAdKind,
   kindForSlot,
   placementsForSlot,
-  type AdKind,
   type AdSlot,
 } from "./registry";
-
-/**
- * 画面に渡す広告 1 件。文言は閲覧者のロケールで解決済みで、そのまま
- * クライアントコンポーネントへ渡せる（シリアライズ可能）。
- * 広告ビュー
- */
-export interface NativeAdView {
-  readonly id: string;
-  readonly kind: AdKind;
-  readonly href: string;
-  /** 絵文字。画像が無いときの見た目 */
-  readonly icon: string | undefined;
-  /** 画像の公開 URL */
-  readonly imageUrl: string | undefined;
-  /** 画像の代替テキスト。画像が無ければ空 */
-  readonly imageAlt: string;
-  /**
-   * カードの帯に並べる手牌。持たなければ undefined。読めない表記も
-   * undefined にする（管理画面で検証済みのため、手で書かれた行だけ）
-   */
-  readonly hand: readonly HaiKindId[] | undefined;
-  readonly title: string;
-  readonly description: string | undefined;
-}
 
 /** キャッシュに載せる形。文言は全ロケール分を持ち、読む側で解決する */
 interface ActiveCreative {

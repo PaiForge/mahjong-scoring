@@ -2,6 +2,7 @@ import { useCallback, useRef, type ReactNode } from "react";
 import { ScrollView, StyleSheet, Text, View } from "react-native";
 import { useRouter } from "expo-router";
 import { useTranslations } from "use-intl";
+import { MOBILE_AD_SLOTS } from "@mahjong-scoring/features/ads/native-ad";
 import { chapterNamespace } from "@mahjong-scoring/features/curriculum/chapter-namespace";
 import {
   isCurriculumChapterSlug,
@@ -9,6 +10,9 @@ import {
 } from "@mahjong-scoring/features/curriculum/registry";
 import { quizLessonBySlug } from "@mahjong-scoring/features/lessons/registry";
 
+import { NativeAdRow } from "../ads/native-ad-row";
+import { useNativeAds } from "../ads/use-native-ads";
+import { LinkRowList } from "../components/link-row";
 import { Screen } from "../components/screen";
 import { TextLink } from "../components/text-link";
 import { colors } from "../lib/theme";
@@ -73,7 +77,20 @@ function LessonScreenContent({
     scrollRef.current?.scrollTo({ y: 0, animated: false });
   }, []);
   const quizLesson = quizLessonBySlug(slug);
-  const footer = <ChapterNav slug={slug} />;
+  const [ad] = useNativeAds(MOBILE_AD_SLOTS.learnChapter);
+  // 章末の前後のレッスンへのリンクの上に広告を 1 行。周りは表・ボタン・
+  // テキストリンクで練習カードが無いため、カードにすると本文から浮く。
+  // 枠の無い 1 行で置く（web と同じ）
+  const footer = (
+    <>
+      {ad !== undefined && (
+        <LinkRowList inset>
+          <NativeAdRow creative={ad} />
+        </LinkRowList>
+      )}
+      <ChapterNav slug={slug} />
+    </>
+  );
 
   return (
     <Screen ref={scrollRef} title={t("pageTitle")} back>

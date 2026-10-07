@@ -2,8 +2,8 @@ import { getTranslations } from "next-intl/server";
 
 import { LinkRow, LinkRowList } from "@/app/(user)/_components/link-row";
 import { NativeAdRow } from "@/app/(user)/_components/native-ad-row";
-import type { NativeAdView } from "@/lib/ads/creatives";
-import { adIndexAfterGroup } from "@/lib/ads/spacing";
+import type { NativeAdView } from "@mahjong-scoring/features/ads/native-ad";
+import { adIndexAfterGroup } from "@mahjong-scoring/features/ads/spacing";
 import {
   KANA_ROWS,
   kanaAnchorId,

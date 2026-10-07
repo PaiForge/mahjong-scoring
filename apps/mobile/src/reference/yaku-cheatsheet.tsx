@@ -1,4 +1,4 @@
-import { useCallback, useRef } from "react";
+import { useCallback, useRef, type ReactNode } from "react";
 import { StyleSheet, Text, View } from "react-native";
 import { useTranslations } from "use-intl";
 import {
@@ -15,6 +15,7 @@ import {
   type YakuExampleHand,
   type YakuExampleSet,
 } from "@mahjong-scoring/features/yaku/examples";
+import { adIndexAfterGroup } from "@mahjong-scoring/features/ads/spacing";
 import { yakuHanLabel } from "@mahjong-scoring/features/yaku/yaku-han-label";
 
 import { TehaiHand } from "../board/tehai-hand";
@@ -40,11 +41,14 @@ function groupByMenzenHan() {
  * 印、食い下がり役は「鳴きN翻」。無表示は鳴いても翻数が変わらない役）。
  * カードを開くと出題盤面と同じ `TehaiHand` で手牌の例を見せる。
  *
- * 役一覧の画面と、総合演習の答え合わせから開くシートで共有する。
+ * 役一覧の画面と、総合演習の答え合わせから開くシートで共有する。広告は
+ * 役一覧の画面だけが渡し、翻数のまとまりの末尾に間隔を広げながら置く
+ * （位置は `adIndexAfterGroup`。web と同じ）。
  */
 export function YakuCheatsheet({
   markedYakuNames,
   focusedYakuName,
+  ads = [],
 }: {
   /**
    * 「今見ている手で成立している役」として印を付ける役名。答え合わせから
@@ -53,6 +57,8 @@ export function YakuCheatsheet({
   readonly markedYakuNames?: readonly string[];
   /** 表示直後に開いて、そこまでスクロールする役名 */
   readonly focusedYakuName?: string;
+  /** まとまりの間に置く広告（描画済み。並び順どおり） */
+  readonly ads?: readonly ReactNode[];
 }) {
   const t = useTranslations("reference.yaku");
 
@@ -84,45 +90,50 @@ export function YakuCheatsheet({
 
   return (
     <View style={styles.root}>
-      {groupByMenzenHan().map(({ han, entries }) => (
-        <View key={han} style={styles.group}>
-          <SectionTitle>{yakuHanLabel(han, t)}</SectionTitle>
-          <View style={styles.cards}>
-            {entries.map((entry) => {
-              const isFocused = entry.name === focusedYakuName;
-              const card = (
-                <AccordionCard
-                  key={entry.name}
-                  defaultOpen={isFocused}
-                  title={
-                    <View style={styles.title}>
-                      <Text style={styles.name}>{entry.name}</Text>
-                      {markedYakuNames?.includes(entry.name) === true && (
-                        <Chip tone="primary">{t("inThisHand")}</Chip>
-                      )}
-                    </View>
-                  }
-                  trailing={nakiLabel(entry)}
-                >
-                  <YakuExampleList examples={YAKU_EXAMPLES[entry.name]} />
-                </AccordionCard>
-              );
-              return isFocused ? (
-                <View
-                  key={entry.name}
-                  ref={focusRef}
-                  onLayout={handleFocusLayout}
-                  collapsable={false}
-                >
-                  {card}
-                </View>
-              ) : (
-                card
-              );
-            })}
+      {groupByMenzenHan().map(({ han, entries }, groupIndex) => {
+        const adIndex = adIndexAfterGroup(groupIndex);
+        const ad = adIndex === undefined ? undefined : ads[adIndex];
+        return (
+          <View key={han} style={styles.group}>
+            <SectionTitle>{yakuHanLabel(han, t)}</SectionTitle>
+            <View style={styles.cards}>
+              {entries.map((entry) => {
+                const isFocused = entry.name === focusedYakuName;
+                const card = (
+                  <AccordionCard
+                    key={entry.name}
+                    defaultOpen={isFocused}
+                    title={
+                      <View style={styles.title}>
+                        <Text style={styles.name}>{entry.name}</Text>
+                        {markedYakuNames?.includes(entry.name) === true && (
+                          <Chip tone="primary">{t("inThisHand")}</Chip>
+                        )}
+                      </View>
+                    }
+                    trailing={nakiLabel(entry)}
+                  >
+                    <YakuExampleList examples={YAKU_EXAMPLES[entry.name]} />
+                  </AccordionCard>
+                );
+                return isFocused ? (
+                  <View
+                    key={entry.name}
+                    ref={focusRef}
+                    onLayout={handleFocusLayout}
+                    collapsable={false}
+                  >
+                    {card}
+                  </View>
+                ) : (
+                  card
+                );
+              })}
+              {ad}
+            </View>
           </View>
-        </View>
-      ))}
+        );
+      })}
     </View>
   );
 }

@@ -29,7 +29,7 @@ import { PageTitle } from "@/app/(user)/_components/page-title";
 import { SectionTitle } from "@/app/(user)/_components/section-title";
 import { createNamespaceMetadata } from "@/app/_lib/metadata";
 import { getNativeAdPlacements } from "@/lib/ads/creatives";
-import { adIndexAfterGroup } from "@/lib/ads/spacing";
+import { adIndexAfterGroup } from "@mahjong-scoring/features/ads/spacing";
 import { CurriculumProgressBar } from "../_components/curriculum-progress-bar";
 import { CurriculumToc } from "../_components/curriculum-toc";
 import {

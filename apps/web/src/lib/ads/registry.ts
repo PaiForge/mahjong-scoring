@@ -1,3 +1,9 @@
+import {
+  AD_KINDS,
+  MOBILE_AD_SLOTS,
+  type AdKind,
+} from "@mahjong-scoring/features/ads/native-ad";
+
 /**
  * ネイティブ広告のスロットと広告の形の正典
  * 広告スロットレジストリ
@@ -34,11 +40,7 @@
  * 土俵を選ぶ一覧（`/leaderboard`）だけ。
  */
 
-/** 広告の形 */
-export const AD_KINDS = ["native_card", "native_row"] as const;
-
 const adKindSet: ReadonlySet<string> = new Set(AD_KINDS);
-export type AdKind = (typeof AD_KINDS)[number];
 
 export function isAdKind(value: string): value is AdKind {
   return adKindSet.has(value);
@@ -52,9 +54,17 @@ export function isAdKind(value: string): value is AdKind {
  * 書き足さなくても型は通る）。画面を配線するときに一緒に書くこと。
  */
 export interface AdSurface {
+  /**
+   * 描画する側。省略時は web。モバイル（Expo）の画面は広告配信 API
+   * （`/api/ads/<スロット>`）から広告を読む
+   */
+  readonly platform?: "mobile";
   /** アプリのルート。動的セグメントはファイルツリーの綴りで書く */
   readonly route: string;
-  /** 実際に開けるパス。動的セグメントを必ず解決できる値が無ければ省く */
+  /**
+   * 実際に開けるパス。動的セグメントを必ず解決できる値が無ければ省く。
+   * モバイルの画面はブラウザで開けないので持たない
+   */
   readonly href?: string;
 }
 
@@ -184,6 +194,61 @@ export const AD_SLOTS = {
     kind: "native_row",
     surfaces: [{ route: "/announcements", href: "/announcements" }],
   },
+
+  // --- モバイル（Expo）の画面。web の同じ画面とは別のスロットにして、アプリの
+  // 成果を別のトラッキング ID で分けられるようにする。形・枠数・置き場所は
+  // web の同じ画面のスロットに合わせる
+  [MOBILE_AD_SLOTS.practiceGrid]: {
+    kind: "native_card",
+    surfaces: [{ platform: "mobile", route: "/practice" }],
+  },
+  [MOBILE_AD_SLOTS.practiceIntro]: {
+    kind: "native_row",
+    surfaces: [
+      { platform: "mobile", route: "/practice/<練習>" },
+      { platform: "mobile", route: "/practice/score" },
+      { platform: "mobile", route: "/practice/machi-score" },
+    ],
+  },
+  [MOBILE_AD_SLOTS.practiceResult]: {
+    kind: "native_card",
+    surfaces: [{ platform: "mobile", route: "/practice/<練習>/result" }],
+  },
+  [MOBILE_AD_SLOTS.examIntro]: {
+    kind: "native_row",
+    surfaces: [{ platform: "mobile", route: "/exam/<級>" }],
+  },
+  [MOBILE_AD_SLOTS.rankDetail]: {
+    kind: "native_row",
+    surfaces: [{ platform: "mobile", route: "/dojo/ranks/<級>" }],
+  },
+  [MOBILE_AD_SLOTS.learnIndex]: {
+    kind: "native_row",
+    surfaces: [{ platform: "mobile", route: "/lessons" }],
+    placements: 3,
+  },
+  [MOBILE_AD_SLOTS.learnChapter]: {
+    kind: "native_row",
+    surfaces: [{ platform: "mobile", route: "/lessons/<章>" }],
+  },
+  [MOBILE_AD_SLOTS.lessonPractices]: {
+    kind: "native_card",
+    surfaces: [{ platform: "mobile", route: "/lessons/<章>" }],
+  },
+  [MOBILE_AD_SLOTS.glossaryIndex]: {
+    kind: "native_row",
+    surfaces: [{ platform: "mobile", route: "/reference/glossary" }],
+    placements: 3,
+  },
+  [MOBILE_AD_SLOTS.glossaryTerm]: {
+    kind: "native_card",
+    surfaces: [{ platform: "mobile", route: "/reference/glossary/<用語>" }],
+  },
+  [MOBILE_AD_SLOTS.yakuReference]: {
+    kind: "native_row",
+    surfaces: [{ platform: "mobile", route: "/reference/yaku" }],
+    placements: 2,
+  },
 } as const satisfies Record<string, AdSlotConfig>;
 
 /** 広告スロット */
@@ -204,6 +269,14 @@ export function kindForSlot(slot: AdSlot): AdKind {
 /** スロットの広告が描画される場所。{@link AdSurface} 参照 */
 export function surfacesForSlot(slot: AdSlot): readonly AdSurface[] {
   return AD_SLOTS[slot].surfaces;
+}
+
+/**
+ * モバイルの画面が読むスロットか。広告配信 API はこのスロットだけに答える
+ * （web の画面はサーバーで DB を読むため API を使わない）
+ */
+export function isMobileAdSlot(slot: AdSlot): boolean {
+  return surfacesForSlot(slot).some((surface) => surface.platform === "mobile");
 }
 
 /** 1 画面に出す広告の数。{@link AdSlotConfig} の `placements` 参照 */

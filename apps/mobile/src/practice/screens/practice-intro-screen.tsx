@@ -1,11 +1,15 @@
 import { StyleSheet, Text, View } from "react-native";
 import { useTranslations } from "use-intl";
+import { MOBILE_AD_SLOTS } from "@mahjong-scoring/features/ads/native-ad";
 import { relatedChaptersForPractice } from "@mahjong-scoring/features/practice/catalog";
 import {
   practiceMenuBySlug,
   type PracticeMenuSlug,
 } from "@mahjong-scoring/features/practice-menu-types";
 
+import { NativeAdRow } from "../../ads/native-ad-row";
+import { useNativeAds } from "../../ads/use-native-ads";
+import { LinkRowList } from "../../components/link-row";
 import { Screen } from "../../components/screen";
 import { SectionTitle } from "../../components/section-title";
 import { colors, radius } from "../../lib/theme";
@@ -21,7 +25,7 @@ import { useRouteVariant } from "./use-route-variant";
  * @description
  * web の練習説明ページ（`PracticeIntroContent`）と同じ並び: 問題方式（見本の
  * 盤面）→ 出題設定（バリアントを持つ練習だけ）→ チャレンジ / トレーニングの
- * 開始導線 → 関連するレッスン。
+ * 開始導線 → 関連するレッスン → 広告の行（始める前に目に入れない）。
  */
 export function PracticeIntroScreen({
   slug,
@@ -35,6 +39,7 @@ export function PracticeIntroScreen({
   const tp = useTranslations("practice");
   const variant = useRouteVariant(slug);
   const { Demo } = screens;
+  const [ad] = useNativeAds(MOBILE_AD_SLOTS.practiceIntro);
 
   return (
     <Screen title={t("title")} back contentStyle={styles.content}>
@@ -65,6 +70,13 @@ export function PracticeIntroScreen({
         title={tp("requiredKnowledge")}
         slugs={relatedChaptersForPractice(slug)}
       />
+
+      {/* 目次は枠を持たないので、広告の行も枠を描かない（web と同じ） */}
+      {ad !== undefined && (
+        <LinkRowList inset>
+          <NativeAdRow creative={ad} />
+        </LinkRowList>
+      )}
     </Screen>
   );
 }

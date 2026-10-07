@@ -5,6 +5,7 @@ import {
   getChapterBySlug,
   getChapterI18nPath,
 } from "@mahjong-scoring/features/curriculum/registry";
+import { MOBILE_AD_SLOTS } from "@mahjong-scoring/features/ads/native-ad";
 import { GLOSSARY_PATH } from "@mahjong-scoring/features/glossary/routes";
 import {
   isMentsuExample,
@@ -16,6 +17,8 @@ import {
 } from "@mahjong-scoring/features/glossary/views";
 import { chapterHref } from "@mahjong-scoring/features/routes";
 
+import { NativeAdCard } from "../../../ads/native-ad-card";
+import { useNativeAds } from "../../../ads/use-native-ads";
 import { LinkRow, LinkRowList } from "../../../components/link-row";
 import { Screen } from "../../../components/screen";
 import { SectionTitle } from "../../../components/section-title";
@@ -44,6 +47,7 @@ export default function GlossaryTermScreen() {
   const tCurriculum = useTranslations("learnCurriculum");
   const router = useRouter();
   const { slug } = useLocalSearchParams<{ slug?: string }>();
+  const [ad] = useNativeAds(MOBILE_AD_SLOTS.glossaryTerm);
   const translate = (key: string) => t(key);
   const term =
     typeof slug === "string"
@@ -89,6 +93,9 @@ export default function GlossaryTermScreen() {
       <TermSection title={t("usageTitle")} body={term.usage} />
       <TermSection title={t("caseStudyTitle")} body={term.caseStudy} />
       <TermSection title={t("pitfallTitle")} body={term.pitfall} />
+
+      {/* 語の説明を読み終えた後、関連する用語の前（web と同じ） */}
+      {ad !== undefined && <NativeAdCard creative={ad} />}
 
       {related.length > 0 && (
         <View style={styles.section}>

@@ -203,6 +203,7 @@
       "native_row": "行（行リンクと同じ形）"
     },
     "surfaces": "掲載先",
+    "surfaceMobile": "アプリ {route}",
     "new": "新規作成",
     "empty": "このスロットの広告はありません",
     "order": "順",

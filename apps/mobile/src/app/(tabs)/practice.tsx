@@ -10,8 +10,11 @@ import {
   listedPracticeRanks,
   practiceRanks,
 } from "@mahjong-scoring/features/practice/rank-practices";
+import { MOBILE_AD_SLOTS } from "@mahjong-scoring/features/ads/native-ad";
 import { DOJO_PATH } from "@mahjong-scoring/features/routes";
 
+import { NativeAdCard } from "../../ads/native-ad-card";
+import { useNativeAds } from "../../ads/use-native-ads";
 import { LinkRow, LinkRowList } from "../../components/link-row";
 import { Screen } from "../../components/screen";
 import { FilterChips } from "../../components/filter-chips";
@@ -31,6 +34,13 @@ type FilterValue = string;
 const ALL = "all";
 
 /**
+ * 広告カードを置く位置（0 始まり）。web の練習一覧（`AD_GRID_POSITION`）と
+ * 同じく上から 3 枚目。先頭に置くと一覧が広告から始まり、ずっと下に置くと
+ * 絞り込んだ一覧ではほぼ出ない。表示中の練習がそれより少なければ末尾に置く
+ */
+const AD_LIST_POSITION = 2;
+
+/**
  * 練習一覧
  *
  * @description
@@ -39,7 +49,8 @@ const ALL = "all";
  * カードを並べ、段級位・分野で絞り込める。実戦練習は終わりのない訓練（総合演習・
  * 待ち別点数計算）を問題のプレビュー付きのカードで出す。最後に選んだ方を端末に
  * 覚える。昇級試験はカードにしない（入口は道場）。モバイルに盤面が無い練習は
- * まだ出さない。
+ * まだ出さない。基礎練習のカードの並びに広告カードを 1 枚混ぜる（絞り込みの
+ * 対象にはしない。web と同じ）。
  */
 export default function PracticeListPage() {
   const t = useTranslations("practice");
@@ -75,12 +86,14 @@ export default function PracticeListPage() {
       ),
     [],
   );
+  const [ad] = useNativeAds(MOBILE_AD_SLOTS.practiceGrid);
   const visible = menus.filter(
     (menu) =>
       filter === ALL ||
       menu.category === filter ||
       practiceRanks(menu.slug).some((rank) => rank === filter),
   );
+  const adIndex = Math.min(AD_LIST_POSITION, visible.length);
 
   return (
     <Screen title={t("title")} inTabs>
@@ -132,7 +145,11 @@ export default function PracticeListPage() {
             ]}
           />
           <View style={styles.list}>
-            {visible.map((menu) => (
+            {visible.slice(0, adIndex).map((menu) => (
+              <PracticeCard key={menu.slug} slug={menu.slug} />
+            ))}
+            {ad !== undefined && <NativeAdCard creative={ad} />}
+            {visible.slice(adIndex).map((menu) => (
               <PracticeCard key={menu.slug} slug={menu.slug} />
             ))}
           </View>

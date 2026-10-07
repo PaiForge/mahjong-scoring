@@ -1,10 +1,14 @@
 import { StyleSheet, Text, View } from "react-native";
 import { useLocalSearchParams } from "expo-router";
 import { useTranslations } from "use-intl";
+import { MOBILE_AD_SLOTS } from "@mahjong-scoring/features/ads/native-ad";
 import { menuTypeToSlug } from "@mahjong-scoring/features/practice-menu-types";
 import { resolveRankStatus } from "@mahjong-scoring/features/ranks/rank-status";
 import { rankBySlug } from "@mahjong-scoring/features/ranks/registry";
 
+import { NativeAdRow } from "../../../ads/native-ad-row";
+import { useNativeAds } from "../../../ads/use-native-ads";
+import { LinkRowList } from "../../../components/link-row";
 import { Screen } from "../../../components/screen";
 import { SectionTitle } from "../../../components/section-title";
 import { BeltBadge } from "../../../dojo/belt-badge";
@@ -38,6 +42,7 @@ export default function RankDetailPage() {
   const t = useTranslations("dojo");
   const tRanks = useTranslations("ranks");
   const completedSlugs = useCompletedLessonSlugs();
+  const [ad] = useNativeAds(MOBILE_AD_SLOTS.rankDetail);
   const rank = typeof param === "string" ? rankBySlug(param) : undefined;
 
   if (rank === undefined) return <PracticeNotFoundScreen />;
@@ -76,6 +81,15 @@ export default function RankDetailPage() {
           />
           <CurriculumTocLink />
         </View>
+      )}
+
+      {/* 広告は前提のレッスンの目次の下に枠なしの 1 行で置く。目次を持たない級
+          では置かない — 帯のカードと試験の案内しかない短い画面で、その間に
+          挟まると広告が主役になる（web と同じ） */}
+      {hasChapters && ad !== undefined && (
+        <LinkRowList inset>
+          <NativeAdRow creative={ad} />
+        </LinkRowList>
       )}
 
       <ExamCtaCard
