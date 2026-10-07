@@ -25,6 +25,7 @@ export interface NavItemDef {
 export const TAB_BAR_NAV_ITEMS: readonly NavItemDef[] = [
   // ログイン済みは proxy がダッシュボードへ rewrite するので「次にやること」へ戻れる
   { href: "/", labelKey: "home", icon: <HomeIcon /> },
+  { href: "/dojo", labelKey: "dojo", icon: <BeltIcon /> },
   { href: "/practice", labelKey: "practice", icon: <DumbbellIcon /> },
   { href: "/lessons", labelKey: "learn", icon: <BookIcon /> },
   // 対局中に片手で開くタブバーからは、早見表ハブを経由せず最も使う点数表へ直接飛ばす
@@ -33,7 +34,6 @@ export const TAB_BAR_NAV_ITEMS: readonly NavItemDef[] = [
     labelKey: "scoreTable",
     icon: <TableIcon />,
   },
-  { href: "/dojo", labelKey: "dojo", icon: <BeltIcon /> },
 ];
 
 /**

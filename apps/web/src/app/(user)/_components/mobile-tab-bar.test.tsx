@@ -81,7 +81,7 @@ describe("MobileTabBar", () => {
     renderAt("/practice");
 
     const labels = screen.getAllByRole("link").map((link) => link.textContent);
-    expect(labels).toEqual(["ホーム", "練習", "教本", "点数表", "道場"]);
+    expect(labels).toEqual(["ホーム", "道場", "練習", "教本", "点数表"]);
   });
 
   it("配下のページでも親のタブを選択中にする", () => {
