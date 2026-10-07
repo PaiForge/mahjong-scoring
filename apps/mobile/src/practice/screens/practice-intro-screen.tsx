@@ -1,5 +1,6 @@
 import { StyleSheet, Text, View } from "react-native";
 import { useTranslations } from "use-intl";
+import { relatedChaptersForPractice } from "@mahjong-scoring/features/practice/catalog";
 import {
   practiceMenuBySlug,
   type PracticeMenuSlug,
@@ -8,6 +9,7 @@ import {
 import { Screen } from "../../components/screen";
 import { SectionTitle } from "../../components/section-title";
 import { colors, radius } from "../../lib/theme";
+import { PracticeChapterSection } from "../components/practice-chapter-section";
 import { PracticeStartCta } from "../components/practice-start-cta";
 import { VariantStartPanel } from "../components/variant-start-panel";
 import type { PracticeScreens } from "../practice-screens";
@@ -19,7 +21,7 @@ import { useRouteVariant } from "./use-route-variant";
  * @description
  * web の練習説明ページ（`PracticeIntroContent`）と同じ並び: 問題方式（見本の
  * 盤面）→ 出題設定（バリアントを持つ練習だけ）→ チャレンジ / トレーニングの
- * 開始導線。
+ * 開始導線 → 関連するレッスン。
  */
 export function PracticeIntroScreen({
   slug,
@@ -30,6 +32,7 @@ export function PracticeIntroScreen({
 }) {
   const { namespace, hasSetup } = practiceMenuBySlug(slug);
   const t = useTranslations(namespace);
+  const tp = useTranslations("practice");
   const variant = useRouteVariant(slug);
   const { Demo } = screens;
 
@@ -57,6 +60,11 @@ export function PracticeIntroScreen({
       ) : (
         <PracticeStartCta slug={slug} variant={variant} />
       )}
+
+      <PracticeChapterSection
+        title={tp("requiredKnowledge")}
+        slugs={relatedChaptersForPractice(slug)}
+      />
     </Screen>
   );
 }
