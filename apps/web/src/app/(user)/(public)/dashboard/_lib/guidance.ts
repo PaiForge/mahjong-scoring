@@ -1,10 +1,14 @@
 import {
   type CurriculumChapter,
   pickNextChapter,
-} from "../curriculum/registry";
-import { buildJourney, type BuildJourneyInput, type Journey } from "./journey";
+} from "@mahjong-scoring/features/curriculum/registry";
+import {
+  buildJourney,
+  type BuildJourneyInput,
+  type Journey,
+} from "@mahjong-scoring/features/journey/journey";
 
-/** ホーム（ダッシュボード）の学習導線。web とモバイルのホームが読む */
+/** ダッシュボードの学習導線 */
 export interface DashboardGuidance {
   /**
    * 黒帯への道（段級位の行程）。「次にやること」カードが読む。
