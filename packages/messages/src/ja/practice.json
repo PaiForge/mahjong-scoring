@@ -109,7 +109,7 @@
       "shortTitle": "点数計算試験"
     }
   },
-  "comprehensiveBanner": {
+  "scoreBanner": {
     "title": "和了形の点数計算",
     "description": "和了した手牌から、役・翻・符・点数を計算。点数申告まで通して練習できます。"
   },

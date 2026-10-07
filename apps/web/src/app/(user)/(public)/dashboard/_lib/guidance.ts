@@ -21,7 +21,7 @@ export interface DashboardGuidance {
    */
   readonly nextChapter: CurriculumChapter | undefined;
   /** 全級取得済みのユーザーに、終わりのない総合演習を出すか */
-  readonly showComprehensivePractice: boolean;
+  readonly showScorePractice: boolean;
 }
 
 /**
@@ -52,6 +52,6 @@ export function selectDashboardGuidance(
     nextChapter: journeyDone
       ? pickNextChapter(input.completedLessonSlugs)
       : undefined,
-    showComprehensivePractice: journeyDone,
+    showScorePractice: journeyDone,
   };
 }

@@ -14,9 +14,9 @@ import { PageTitle } from "@/app/(user)/_components/page-title";
 import { createNamespaceMetadata } from "@/app/_lib/metadata";
 import { getNativeAdCreative } from "@/lib/ads/creatives";
 import {
-  ComprehensivePracticeBanner,
+  ScorePracticeBanner,
   MachiScorePracticeBanner,
-} from "../_components/comprehensive-practice-banner";
+} from "../_components/practical-practice-banners";
 import { PracticeModeSwitcher } from "../_components/practice-mode-switcher";
 import { CatalogPracticeCard } from "../_components/catalog-practice-card";
 import {
@@ -110,7 +110,7 @@ export default async function PracticePage() {
               </p>
             </div>
             <div className="grid gap-4 sm:grid-cols-2">
-              <ComprehensivePracticeBanner />
+              <ScorePracticeBanner />
               <MachiScorePracticeBanner />
             </div>
           </section>

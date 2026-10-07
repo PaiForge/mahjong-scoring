@@ -427,7 +427,7 @@ loading.tsx を一緒に足すこと。逆に静的にしたら両方を外す�
 
 - `score-calculation`, `score-table` はチャレンジ型だが説明ページ（page.tsx）は未作成
 - `score` / `machi-score` は終了条件がなく無限ループする訓練機能のため、result ページを持たない。
-  どちらも `PRACTICE_MENU_REGISTRY` に載らず、練習一覧のバナー（`comprehensive-practice-banner.tsx`）と
+  どちらも `PRACTICE_MENU_REGISTRY` に載らず、練習一覧のバナー（`practical-practice-banners.tsx`）と
   `sitemap-routes.ts` の手書きの 1 行で参照する
 - `machi-score`（待ち別点数計算）は 1 問を「待ち牌を選ぶ → 待ち × ツモ/ロン のマスに点数を当てはめる →
   答え合わせ」の 3 段階で解く。設定画面・回答フォーム・結果表は `score` のものを共有し、設定の保存名だけ分ける

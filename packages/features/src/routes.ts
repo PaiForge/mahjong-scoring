@@ -156,7 +156,7 @@ export function practiceResultHref(slug: PracticeMenuSlug): string {
  * チャレンジではなく無限に解ける訓練なので `PRACTICE_MENU_REGISTRY` にも
  * カタログにも載らない。練習一覧のバナーとダッシュボードのフォールバックが参照する。
  */
-export const COMPREHENSIVE_PRACTICE_HREF = "/practice/score";
+export const SCORE_PRACTICE_HREF = "/practice/score";
 
 /**
  * 記録を取らない待ち別点数計算（`/practice/machi-score`）のパス。

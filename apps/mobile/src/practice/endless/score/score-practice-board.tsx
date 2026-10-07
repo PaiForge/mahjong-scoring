@@ -3,7 +3,7 @@ import { ScrollView, StyleSheet, View } from "react-native";
 import { useRouter } from "expo-router";
 import { useTranslations } from "use-intl";
 import { isOya, type UserAnswer } from "@mahjong-scoring/core";
-import { COMPREHENSIVE_PRACTICE_HREF } from "@mahjong-scoring/features/routes";
+import { SCORE_PRACTICE_HREF } from "@mahjong-scoring/features/routes";
 
 import { BoardBleedProvider } from "../../../board/board-bleed";
 import { TehaiMentsuBreakdown } from "../../../board/tehai-mentsu-breakdown";
@@ -75,7 +75,7 @@ export function ScorePracticeBoard() {
   const scrollToTop = () =>
     scrollRef.current?.scrollTo({ y: 0, animated: false });
 
-  const handleBackToSetup = () => router.dismissTo(COMPREHENSIVE_PRACTICE_HREF);
+  const handleBackToSetup = () => router.dismissTo(SCORE_PRACTICE_HREF);
 
   const handleNext = () => {
     scrollToTop();

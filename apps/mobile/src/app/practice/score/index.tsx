@@ -1,7 +1,7 @@
 import { StyleSheet, View } from "react-native";
 import { useTranslations } from "use-intl";
 import { MOBILE_AD_SLOTS } from "@mahjong-scoring/features/ads/native-ad";
-import { COMPREHENSIVE_PRACTICE_HREF } from "@mahjong-scoring/features/routes";
+import { SCORE_PRACTICE_HREF } from "@mahjong-scoring/features/routes";
 
 import { NativeAdRow } from "../../../ads/native-ad-row";
 import { useNativeAds } from "../../../ads/use-native-ads";
@@ -43,7 +43,7 @@ export default function ScoreSetupPage() {
         <SectionTitle>{tp("settingsTitle")}</SectionTitle>
         <ScoreSetupForm
           settingsStore={useScoreSettingsStore}
-          playPath={`${COMPREHENSIVE_PRACTICE_HREF}/play`}
+          playPath={`${SCORE_PRACTICE_HREF}/play`}
           onStart={() =>
             useScorePracticeStore.getState().setQuestion(undefined)
           }
