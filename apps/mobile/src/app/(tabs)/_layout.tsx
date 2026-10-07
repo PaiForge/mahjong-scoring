@@ -3,9 +3,10 @@ import { StyleSheet } from "react-native";
 import { useTranslations } from "use-intl";
 
 import {
+  BeltIcon,
   BookIcon,
   DumbbellIcon,
-  SettingsIcon,
+  HomeIcon,
   TableIcon,
 } from "../../components/icons/icons";
 import { colors } from "../../lib/theme";
@@ -13,9 +14,10 @@ import { colors } from "../../lib/theme";
 /**
  * 下部タブ
  *
- * web のモバイル下部タブバー（`TAB_BAR_NAV_ITEMS`）に揃える: 練習・レッスン・
- * 点数表。web の 4 つ目のランキングはアカウントの記録が要るため、モバイルでは
- * web がドロワーに置く設定を代わりに置く。
+ * web のモバイル下部タブバー（`TAB_BAR_NAV_ITEMS`）と同じ並び: ホーム・道場・
+ * 練習・レッスン・点数表。起動時は先頭のホームを開く。web がドロワーに置く
+ * 設定は、ドロワーを持たないモバイルではホームのヘッダー右の歯車から開く
+ * （タブを 6 つにすると 1 つあたりの幅が狭まり、OS の上限の 5 も超える）。
  *
  * 見た目は OS 標準のタブバーに寄せる（白地にヘアラインの区切り、高さは既定）。
  * web のモバイル幅のタブバーが持つ太枠は、ネイティブでは見慣れない形なので持たない。
@@ -37,6 +39,20 @@ export default function TabsLayout() {
       }}
     >
       <Tabs.Screen
+        name="index"
+        options={{
+          title: t("home"),
+          tabBarIcon: ({ color }) => <HomeIcon color={color} size={22} />,
+        }}
+      />
+      <Tabs.Screen
+        name="dojo"
+        options={{
+          title: t("dojo"),
+          tabBarIcon: ({ color }) => <BeltIcon color={color} size={22} />,
+        }}
+      />
+      <Tabs.Screen
         name="practice"
         options={{
           title: t("practice"),
@@ -55,13 +71,6 @@ export default function TabsLayout() {
         options={{
           title: t("scoreTable"),
           tabBarIcon: ({ color }) => <TableIcon color={color} size={22} />,
-        }}
-      />
-      <Tabs.Screen
-        name="preferences"
-        options={{
-          title: t("settings"),
-          tabBarIcon: ({ color }) => <SettingsIcon color={color} size={22} />,
         }}
       />
     </Tabs>

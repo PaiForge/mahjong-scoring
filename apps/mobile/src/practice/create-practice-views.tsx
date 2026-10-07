@@ -17,6 +17,7 @@ import type {
   ChallengeBoardArgs,
   TrainingBoardArgs,
 } from "@mahjong-scoring/features/practice/board-props";
+import { usePracticeAttemptStore } from "../hooks/use-practice-attempt-store";
 import { useChallengeResultStore } from "./challenge-result-store";
 import { ChallengeShell } from "./components/challenge-shell";
 import { TrainingShell } from "./components/training-shell";
@@ -68,6 +69,7 @@ export function createChallengePlayView<TResult = never>(
     const t = useTranslations(namespace);
     const router = useRouter();
     const setAttempt = useChallengeResultStore((s) => s.setAttempt);
+    const markAttempted = usePracticeAttemptStore((s) => s.markAttempted);
     const { scrollRef, scrollToTop } = useScrollToTop();
     const { gameSession, timerControl } = useTimedSession({
       mistakeLimit,
@@ -82,6 +84,8 @@ export function createChallengePlayView<TResult = never>(
       (elapsedMs: number) => {
         const finalResult = gameSession.finalResult;
         if (finalResult === undefined) return;
+        // 黒帯への道の「練習した」は一度でも終えたこと（web の記録と同じ数え方）
+        markAttempted(slug, props.variant);
         setAttempt({
           slug,
           variant: props.variant,
@@ -93,7 +97,14 @@ export function createChallengePlayView<TResult = never>(
           `${practiceResultHref(slug)}${variantQuery(slug, props.variant)}`,
         );
       },
-      [gameSession.finalResult, setAttempt, props.variant, collect, router],
+      [
+        gameSession.finalResult,
+        markAttempted,
+        setAttempt,
+        props.variant,
+        collect,
+        router,
+      ],
     );
 
     return (

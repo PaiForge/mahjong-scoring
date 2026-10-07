@@ -32,7 +32,7 @@ export default function DojoPage() {
   const journey = useMobileJourney();
 
   return (
-    <Screen title={t("title")} back contentStyle={styles.content}>
+    <Screen title={t("title")} inTabs contentStyle={styles.content}>
       {/* 現在の段級位は節にせず 1 行で示す。無級なので帯色も枠も淡いグレー */}
       <View
         style={[
