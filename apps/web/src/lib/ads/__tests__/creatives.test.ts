@@ -93,6 +93,33 @@ describe("getNativeAdCreatives", () => {
     );
   });
 
+  it("ASIN の広告はスロットを読む側のトラッキング ID でリンクを組み、片方が未設定ならその側だけ出さない", async () => {
+    mockCachedRead.mockResolvedValue([
+      creative({ href: null, asin: "B08721VWS5" }),
+    ]);
+    mockTrackingId.mockImplementation((platform: string) =>
+      Promise.resolve(platform === "web" ? "web-22" : null),
+    );
+
+    const [webAd] = await getNativeAdCreatives("practice-grid-native-ad");
+    expect(webAd?.href).toBe(
+      "https://www.amazon.co.jp/dp/B08721VWS5?tag=web-22",
+    );
+    await expect(
+      getNativeAdCreatives("mobile-practice-grid-native-ad"),
+    ).resolves.toEqual([]);
+
+    mockTrackingId.mockImplementation((platform: string) =>
+      Promise.resolve(platform === "web" ? "web-22" : "app-22"),
+    );
+    const [mobileAd] = await getNativeAdCreatives(
+      "mobile-practice-grid-native-ad",
+    );
+    expect(mobileAd?.href).toBe(
+      "https://www.amazon.co.jp/dp/B08721VWS5?tag=app-22",
+    );
+  });
+
   it("スロットが受け付けない kind の行は描画に通さない", async () => {
     mockCachedRead.mockResolvedValue([creative({ kind: "native_row" })]);
     await expect(
