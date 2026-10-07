@@ -4,6 +4,7 @@ import { DEFAULT_LOCALE } from "@/i18n/locales";
 import { AMAZON_NETWORK } from "@/lib/ads/amazon";
 import type { CreativeCopy } from "@/lib/ads/copy";
 import { loadCreativeCopy } from "@/lib/ads/load-copy";
+import type { AdPlatform } from "@/lib/ads/registry";
 import { type AdCreative, adCreatives, adNetworkSettings, db } from "@/lib/db";
 
 /** 管理画面の一覧・編集で扱う広告（本体 + 全ロケールの文言） */
@@ -56,12 +57,23 @@ export function adminCreativeLabel(copy: CreativeCopy): string {
   return copy.title[DEFAULT_LOCALE] ?? "";
 }
 
-/** Amazon のトラッキング ID（キャッシュを通さない）。未設定なら undefined */
-export async function getAmazonTrackingId(): Promise<string | undefined> {
-  const [row] = await db
-    .select({ trackingId: adNetworkSettings.trackingId })
+/**
+ * プラットフォームごとの Amazon のトラッキング ID（キャッシュを通さない）。
+ * 未設定のプラットフォームは undefined
+ */
+export async function getAmazonTrackingIds(): Promise<
+  Record<AdPlatform, string | undefined>
+> {
+  const rows = await db
+    .select({
+      platform: adNetworkSettings.platform,
+      trackingId: adNetworkSettings.trackingId,
+    })
     .from(adNetworkSettings)
-    .where(eq(adNetworkSettings.network, AMAZON_NETWORK))
-    .limit(1);
-  return row?.trackingId;
+    .where(eq(adNetworkSettings.network, AMAZON_NETWORK));
+  const byPlatform = new Map(rows.map((row) => [row.platform, row.trackingId]));
+  return {
+    web: byPlatform.get("web"),
+    mobile: byPlatform.get("mobile"),
+  } satisfies Record<AdPlatform, string | undefined>;
 }

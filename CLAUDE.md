@@ -534,7 +534,7 @@ pnpm --filter web db:seed:dev
 
 有料プラン（`purchases`）は bob に有効な 30 日パス 1 枚と期限切れのパス 1 枚、carol に買い切りを入れる（偽の Stripe ID。Stripe API は叩かない）。alice は購入なしで、無料枠の回数制限が掛かる状態。`stripe_customers` には入れない — 偽の顧客 ID があるとシードユーザーで Checkout を試したときに Stripe 側に存在しない顧客を渡して失敗するため。特典の手動付与（`benefit_grants`）は dave に 60 日の付与 1 件（付与者は admin、購入なし）を入れる。マイページの「Pro（付与）」と管理画面の付与一覧（`/admin/benefit-grants`）の取り消しがこれで試せる。
 
-ネイティブ広告も、本番のシード（`scripts/seed/ad-creatives.ts`）と同じ広告と、ローカル用の架空の Amazon トラッキング ID を入れる（`scripts/dev-seed/ad-creatives.ts`）。ASIN で指す広告はトラッキング ID が無いと画面に出ないため、これで配置と見た目をログインなしで確かめられる。管理画面（`/admin/ads`）で編集しても、次の実行で戻る。
+ネイティブ広告も、本番のシード（`scripts/seed/ad-creatives.ts`）と同じ広告と、ローカル用の架空の Amazon トラッキング ID（web は `localdev-web-22`、アプリは `localdev-app-22`。リンクの `tag=` でどちらの ID で組んだかが分かる）を入れる（`scripts/dev-seed/ad-creatives.ts`）。ASIN で指す広告はトラッキング ID が無いと画面に出ないため、これで配置と見た目をログインなしで確かめられる。管理画面（`/admin/ads`）で編集しても、次の実行で戻る。
 
 既存のアカウントを管理者にしたい場合は DB に直接 INSERT する:
 
