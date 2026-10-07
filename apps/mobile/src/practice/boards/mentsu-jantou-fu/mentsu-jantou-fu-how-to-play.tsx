@@ -93,8 +93,8 @@ const styles = StyleSheet.create({
   row: {
     gap: 10,
     borderWidth: 1,
-    borderColor: colors.surface200,
-    borderRadius: radius.xl,
+    borderColor: colors.panel,
+    borderRadius: radius.panel,
     backgroundColor: colors.white,
     padding: 12,
   },

@@ -15,7 +15,7 @@ import { orderFuHan } from "@mahjong-scoring/features/settings/fu-han-order";
 import { DataTable } from "../components/data-table";
 import { TilesIcon } from "../components/icons/icons";
 import { InfoModal } from "../components/info-modal";
-import { ToggleGroup } from "../components/toggle-group";
+import { ToggleGroup, toggleLabelColor } from "../components/toggle-group";
 import { useFuHanOrder } from "../hooks/use-display-settings-store";
 import { colors } from "../lib/theme";
 import { FuroTiles } from "./furo-tiles";
@@ -81,9 +81,8 @@ export function TehaiMentsuBreakdown({
       han: t("mentsuBreakdownCandidateHan", { han: candidate.han }),
     }).join(" ");
     const isSelected = candidate.key === selected.key;
-    // セグメントは選択中が白地・未選択が淡い灰地。文字色は選択状態で変え、
-    // バッジは枠と文字を同じ色にして両方の地で読めるようにする
-    const color = isSelected ? colors.foreground : colors.surface600;
+    // 文字色はセグメントの選択状態に合わせ、バッジは枠と文字を同じ色にする
+    const color = toggleLabelColor(isSelected);
     return (
       <View style={styles.segmentLabel}>
         <Text style={[styles.segmentText, { color }]}>{fuHan}</Text>

@@ -54,8 +54,11 @@ export function LinkRow({
           <Text style={styles.description}>{description}</Text>
         )}
       </View>
+      {trailing !== undefined && <View style={styles.side}>{trailing}</View>}
+      {/* 右端の印（完了など）があっても矢印は残す。行全体が押せることを示すのは
+          矢印で、印は状態を言うだけ（web と同じ） */}
       <View style={styles.side}>
-        {trailing ?? <ChevronRightIcon size={18} color={colors.surface400} />}
+        <ChevronRightIcon size={18} color={colors.surface400} />
       </View>
     </Pressable>
   );

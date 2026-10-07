@@ -36,8 +36,10 @@ export default function DojoPage() {
       <RankProgressBar currentSlug={undefined} />
 
       {journey.current !== undefined && (
-        <View style={styles.section}>
-          <SectionTitle>{t("nextRankTitle")}</SectionTitle>
+        // 見出しは置かない（web と同じ）。カードの中に「次の目標」の状態の印が
+        // あり、すぐ上の区切りバーでも次の級を示しているため、見出しを重ねると
+        // 同じことを 3 度言う。節の名前は読み上げ用に残す
+        <View accessible={false} accessibilityLabel={t("nextRankTitle")}>
           <RankJourneyCard journey={journey.current} expanded />
         </View>
       )}

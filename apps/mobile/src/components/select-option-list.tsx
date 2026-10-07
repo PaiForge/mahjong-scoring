@@ -36,7 +36,7 @@ interface SelectOptionListProps {
  * 選択肢一覧
  *
  * 枠の中で一覧自身がスクロールし、外側の高さは呼び出し側が決める。行は
- * 破線で区切り、選んだ行は薄い緑の地にチェックを付ける。
+ * 細い実線で区切り、選んだ行は薄い緑の地にチェックを付ける。
  */
 export function SelectOptionList({
   options,

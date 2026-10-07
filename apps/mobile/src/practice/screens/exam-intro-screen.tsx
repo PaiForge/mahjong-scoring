@@ -13,14 +13,11 @@ import { InfinityIcon } from "../../components/icons/icons";
 import { LinkRow, LinkRowList } from "../../components/link-row";
 import { Screen } from "../../components/screen";
 import { SectionTitle } from "../../components/section-title";
-import { ChapterTocList, CurriculumTocLink } from "../../dojo/chapter-toc-list";
 import { practiceListHrefForRank } from "../../dojo/dojo-routes";
 import { colors, radius } from "../../lib/theme";
 import { ExamConditions } from "../exam/exam-conditions";
+import { PracticeChapterSection } from "../components/practice-chapter-section";
 import type { PracticeScreens } from "../practice-screens";
-
-/** 前提のレッスンに完了の印を出さない（web の練習側の章の並びと同じ） */
-const NO_COMPLETED_SLUGS: ReadonlySet<string> = new Set();
 
 /**
  * 昇級試験の説明画面
@@ -85,15 +82,11 @@ export function ExamIntroScreen({
         <Text style={styles.hint}>{tExam("hint")}</Text>
       </View>
 
-      {rank !== undefined && rank.learnChapterSlugs.length > 0 && (
-        <View style={styles.chapters}>
-          <SectionTitle>{tDojo("chaptersTitle")}</SectionTitle>
-          <ChapterTocList
-            slugs={rank.learnChapterSlugs}
-            completedSlugs={NO_COMPLETED_SLUGS}
-          />
-          <CurriculumTocLink />
-        </View>
+      {rank !== undefined && (
+        <PracticeChapterSection
+          title={tDojo("chaptersTitle")}
+          slugs={rank.learnChapterSlugs}
+        />
       )}
 
       {/* 前提のレッスンの下に「その級の練習」への行リンク。模試で間違えた人が
@@ -146,9 +139,6 @@ const styles = StyleSheet.create({
     fontSize: 12,
     color: colors.surface400,
     textAlign: "center",
-  },
-  chapters: {
-    gap: 12,
   },
   emoji: {
     fontSize: 16,

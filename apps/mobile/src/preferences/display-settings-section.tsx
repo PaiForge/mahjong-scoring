@@ -10,7 +10,6 @@ import {
   useDisplaySettingsStore,
   useDoraDisplayMode,
   useFuHanOrder,
-  useTermLinksEnabled,
 } from "../hooks/use-display-settings-store";
 import { YAKU_ORDER_PATH } from "@mahjong-scoring/features/routes";
 
@@ -26,8 +25,6 @@ export function DisplaySettingsSection() {
   const router = useRouter();
   const doraDisplay = useDoraDisplayMode();
   const setDoraDisplay = useDisplaySettingsStore((s) => s.setDoraDisplay);
-  const termLinks = useTermLinksEnabled();
-  const setTermLinks = useDisplaySettingsStore((s) => s.setTermLinks);
   const fuHanOrder = useFuHanOrder();
   const setFuHanOrder = useDisplaySettingsStore((s) => s.setFuHanOrder);
 
@@ -39,15 +36,9 @@ export function DisplaySettingsSection() {
         checked={doraDisplay === "actual"}
         onChange={(checked) => setDoraDisplay(checked ? "actual" : "indicator")}
       />
-      {/* 保存値（termLinks）は「リンクを出す」で既定 true のまま、スイッチだけ
-          反転して「リンクなしで表示する」として見せる。設定のスイッチは既定 OFF に
-          揃えており、リンクは覚えた人が外すものなので、ON にする側を外す操作に置く */}
-      <SettingToggleRow
-        title={t("termLinksTitle")}
-        description={t("termLinksDescription")}
-        checked={!termLinks}
-        onChange={(checked) => setTermLinks(!checked)}
-      />
+      {/* 用語リンク（web の「用語リンクなしで表示する」）は出さない。モバイルには
+          用語集が無く、本文の用語は押せない太字で描くだけなので、切り替えても
+          何も変わらない。用語集を移植したらここに戻す */}
       {/* 符→翻が既定なので、スイッチは「翻を先にする」の向きで出す */}
       <SettingToggleRow
         title={t("fuHanOrderTitle")}

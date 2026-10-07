@@ -89,7 +89,7 @@ export function GuideBulletList({
 /**
  * 教本の小見出し（web の `GuideSubsectionTitle`）
  *
- * 緑の丸バッジ + 素のテキストで、節の見出し（pill）より一段下の階層に見せる。
+ * 緑の丸バッジ + 素のテキストで、節の見出し（`SectionTitle`）より一段下の階層に見せる。
  * 番号を渡すと導入の番号リストと見出しが番号で対応する。
  */
 export function GuideSubsectionTitle({

@@ -46,7 +46,6 @@ import { lessonColors, verdictTextColors } from "../lesson-colors";
 import { ChapterRelatedLinks } from "./chapter-related-links";
 import { DoneMark } from "./done-mark";
 import { MachiTiles, MentsuSet, TileSet } from "./tile-row";
-import { LESSONS_PATH } from "@mahjong-scoring/features/routes";
 
 /** レッスンの段階（並びは進む順） */
 type LessonPhase = "learn" | "quiz" | "done";
@@ -218,7 +217,10 @@ export function LessonView({
     return (
       <View style={styles.quiz}>
         <View style={styles.quizHeader}>
-          <SectionTitle>{t("quizTitle")}</SectionTitle>
+          {/* 見出しが残りの幅を取らないと、右へ伸びる横線が最小幅に潰れる */}
+          <View style={styles.quizTitle}>
+            <SectionTitle>{t("quizTitle")}</SectionTitle>
+          </View>
           <Text style={styles.progress}>
             {t("progress", { index: index + 1, total: questions.length })}
           </Text>
@@ -327,11 +329,10 @@ export function LessonView({
     step?.kind === "practice"
       ? { slug: step.slug, variant: step.variant }
       : undefined;
-  // 次の一歩がモバイルに無いもの（昇級試験 — 記録も段級位も持たない）や
-  // 開けないレッスンなら、目次へ戻す（今の前提章はすべて開ける）
+  // 次の一歩が無いか開けないレッスン（今の前提章はすべて開ける）なら、web と
+  // 同じくホームの「次にやること」に任せる。昇級試験は説明画面（模試）へ送る
   const stepReachable =
     step !== undefined &&
-    step.kind !== "exam" &&
     (step.kind !== "lesson" || isLessonPorted(step.chapterSlug));
 
   return (
@@ -366,11 +367,7 @@ export function LessonView({
             })}
           </Button>
         ) : (
-          <Button
-            size="lg"
-            fullWidth
-            onPress={() => router.navigate(LESSONS_PATH)}
-          >
+          <Button size="lg" fullWidth onPress={() => router.navigate("/")}>
             {t("continueHome")}
           </Button>
         )}
@@ -398,7 +395,11 @@ const styles = StyleSheet.create({
   quizHeader: {
     flexDirection: "row",
     alignItems: "center",
-    justifyContent: "space-between",
+    gap: 12,
+  },
+  quizTitle: {
+    flex: 1,
+    minWidth: 0,
   },
   progress: {
     fontSize: 14,
@@ -459,9 +460,9 @@ const styles = StyleSheet.create({
     gap: 16,
   },
   achievement: {
-    borderWidth: 3,
+    borderWidth: 1,
     borderColor: colors.success,
-    borderRadius: radius.xl,
+    borderRadius: radius.panel,
     backgroundColor: colors.successSubtle,
     padding: 20,
     gap: 8,
