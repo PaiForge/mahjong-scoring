@@ -1,6 +1,6 @@
 /**
- * トグルピル（丸い枠の中に選択肢を並べる切り替え UI）の見た目
- * トグルピルclass
+ * トグル（淡い枠の中に選択肢を並べる切り替え UI）の見た目
+ * トグルclass
  *
  * `ToggleGroup`（button）と期間セレクター（`next/link`）で要素が違うだけの
  * 同じパーツ。以前はそれぞれが class 一式を持っており、角丸・配色・
@@ -15,10 +15,10 @@
  * と対で使う）。
  */
 export const TOGGLE_GROUP_CONTAINER_METRICS_CLASSES =
-  "flex rounded-full border-3 p-0.5";
+  "flex rounded-lg border p-0.5";
 
 /** 外枠 */
-export const TOGGLE_GROUP_CONTAINER_CLASSES = `${TOGGLE_GROUP_CONTAINER_METRICS_CLASSES} border-ink bg-primary-50`;
+export const TOGGLE_GROUP_CONTAINER_CLASSES = `${TOGGLE_GROUP_CONTAINER_METRICS_CLASSES} border-panel bg-surface-50`;
 
 /**
  * 選択肢1つ分の寸法（左右の余白・字送り）
@@ -29,7 +29,7 @@ export const TOGGLE_GROUP_CONTAINER_CLASSES = `${TOGGLE_GROUP_CONTAINER_METRICS_
  * 折り返してしまうため。
  */
 export const TOGGLE_ITEM_METRICS_CLASSES =
-  "whitespace-nowrap rounded-full px-2 py-1 text-xs font-bold sm:px-3";
+  "whitespace-nowrap rounded-md px-2 py-1 text-xs font-bold sm:px-3";
 
 /**
  * 選択肢1つ分
@@ -40,6 +40,6 @@ export function toggleItemClasses(isActive: boolean): string {
   return `${TOGGLE_ITEM_METRICS_CLASSES} transition-colors ${
     isActive
       ? "bg-primary-700 text-white"
-      : "text-surface-700 hover:bg-primary-100"
+      : "text-surface-500 hover:bg-surface-100 hover:text-foreground"
   }`;
 }

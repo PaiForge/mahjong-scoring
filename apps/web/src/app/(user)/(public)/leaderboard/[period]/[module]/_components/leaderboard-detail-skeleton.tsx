@@ -26,11 +26,11 @@ export function LeaderboardDetailSkeleton() {
       {/* 土俵名 */}
       <SectionTitleSkeleton width="w-32" />
 
-      {/* 期間ラベル + 期間セレクタ。セレクタの 34px は実物の内訳
-          （枠 3px × 2 + 内側の余白 2px × 2 + 選択肢 24px） */}
+      {/* 期間ラベル + 期間セレクタ。セレクタの 30px は実物の内訳
+          （枠 1px × 2 + 内側の余白 2px × 2 + 選択肢 24px） */}
       <div className="flex items-center justify-between gap-4">
         <SkeletonBar className="h-5 w-12" tone={100} />
-        <SkeletonBar radius="full" className="h-[34px] w-28" tone={100} />
+        <SkeletonBar radius="lg" className="h-[30px] w-28" tone={100} />
       </div>
 
       <LeaderboardTableSkeleton />

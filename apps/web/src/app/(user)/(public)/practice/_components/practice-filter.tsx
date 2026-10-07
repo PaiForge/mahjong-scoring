@@ -112,7 +112,7 @@ function FilteredList({
                 // どこまでが同じ軸かを区切りで示す
                 <span
                   aria-hidden="true"
-                  className="mx-1 w-px self-stretch bg-primary-200"
+                  className="mx-1 w-px self-stretch bg-panel"
                 />
               )}
               {group.map((option) => {
