@@ -16,6 +16,8 @@ import {
   isAdKind,
   kindForSlot,
   placementsForSlot,
+  platformForSlot,
+  type AdPlatform,
   type AdSlot,
 } from "./registry";
 
@@ -79,19 +81,26 @@ const getActiveCreativesCached = unstable_cache(
   { tags: [AD_CREATIVES_CACHE_TAG], revalidate: 60 * 60 * 24 },
 );
 
-async function queryAmazonTrackingId(): Promise<string | null> {
+async function queryAmazonTrackingId(
+  platform: AdPlatform,
+): Promise<string | null> {
   const [row] = await db
     .select({ trackingId: adNetworkSettings.trackingId })
     .from(adNetworkSettings)
-    .where(eq(adNetworkSettings.network, AMAZON_NETWORK))
+    .where(
+      and(
+        eq(adNetworkSettings.network, AMAZON_NETWORK),
+        eq(adNetworkSettings.platform, platform),
+      ),
+    )
     .limit(1);
   return row?.trackingId ?? null;
 }
 
 /**
- * Amazon のトラッキング ID（未設定なら null）。広告と同じタグ・同じ鮮度で
- * キャッシュする — 管理画面で設定した時点でタグが捨てられ、ASIN の広告が
- * 次のリクエストから出る。
+ * プラットフォームの Amazon のトラッキング ID（未設定なら null）。広告と
+ * 同じタグ・同じ鮮度でキャッシュする — 管理画面で設定した時点でタグが
+ * 捨てられ、ASIN の広告が次のリクエストから出る。
  */
 const getAmazonTrackingIdCached = unstable_cache(
   queryAmazonTrackingId,
@@ -114,8 +123,10 @@ function toHandTiles(hand: string | null): HaiKindId[] | undefined {
  * 読み込みに失敗したら空配列（広告を出さない）— 広告の失敗でページを
  * 落とさない。
  *
- * ASIN で指す広告は、トラッキング ID が未設定の間は出さない
- * （`resolveAdHref`）。管理画面の一覧がその旨を示す。
+ * ASIN で指す広告は、スロットを読む側（web / モバイル）のトラッキング ID と
+ * リンクを組み立て、その ID が未設定の間は出さない（`resolveAdHref`）。
+ * もう片方の ID には落とさない（`adNetworkSettings` の TSDoc 参照）。
+ * 管理画面の一覧がその旨を示す。
  */
 export async function getNativeAdCreatives(
   slot: AdSlot,
@@ -126,7 +137,7 @@ export async function getNativeAdCreatives(
   try {
     [creatives, trackingId] = await Promise.all([
       getActiveCreativesCached(slot),
-      getAmazonTrackingIdCached(),
+      getAmazonTrackingIdCached(platformForSlot(slot)),
     ]);
   } catch (error) {
     logExternalError("getNativeAdCreatives", `slot=${slot}`, error);

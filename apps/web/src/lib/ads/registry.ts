@@ -47,6 +47,24 @@ export function isAdKind(value: string): value is AdKind {
 }
 
 /**
+ * 広告を描画する側
+ * 広告プラットフォーム
+ *
+ * スロットはどちらか一方の画面だけが読む（{@link platformForSlot}）。
+ * トラッキング ID はプラットフォームごとに持つ（`ad_network_settings`）。
+ */
+export const AD_PLATFORMS = ["web", "mobile"] as const;
+
+/** 広告プラットフォーム */
+export type AdPlatform = (typeof AD_PLATFORMS)[number];
+
+const adPlatformSet: ReadonlySet<string> = new Set(AD_PLATFORMS);
+
+export function isAdPlatform(value: string): value is AdPlatform {
+  return adPlatformSet.has(value);
+}
+
+/**
  * スロットの広告が実際に描画される場所。管理画面（`/admin/ads`）で
  * 「このスロットはどこに出るのか」を見に行けるように書く。
  *
@@ -272,11 +290,21 @@ export function surfacesForSlot(slot: AdSlot): readonly AdSurface[] {
 }
 
 /**
+ * スロットを読む側。モバイルの画面に出る（`surfaces` に `platform: "mobile"`
+ * を持つ）スロットは mobile、それ以外は web
+ */
+export function platformForSlot(slot: AdSlot): AdPlatform {
+  return surfacesForSlot(slot).some((surface) => surface.platform === "mobile")
+    ? "mobile"
+    : "web";
+}
+
+/**
  * モバイルの画面が読むスロットか。広告配信 API はこのスロットだけに答える
  * （web の画面はサーバーで DB を読むため API を使わない）
  */
 export function isMobileAdSlot(slot: AdSlot): boolean {
-  return surfacesForSlot(slot).some((surface) => surface.platform === "mobile");
+  return platformForSlot(slot) === "mobile";
 }
 
 /** 1 画面に出す広告の数。{@link AdSlotConfig} の `placements` 参照 */

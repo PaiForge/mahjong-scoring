@@ -18,9 +18,12 @@ import { AdminPageTitle } from "@/app/admin/_components/admin-page-title";
 import { requireAdminPage } from "@/app/admin/_lib/auth";
 import { TEXT_LINK_CLASSES } from "@/app/_components/_lib/link-classes";
 import {
+  AD_PLATFORMS,
   AD_SLOT_VALUES,
+  isAdSlot,
   kindForSlot,
   placementsForSlot,
+  platformForSlot,
   surfacesForSlot,
 } from "@/lib/ads/registry";
 
@@ -31,7 +34,7 @@ import { TrackingIdForm } from "../_components/tracking-id-form";
 import {
   adminCreativeLabel,
   getAllAdCreatives,
-  getAmazonTrackingId,
+  getAmazonTrackingIds,
 } from "../_lib/queries";
 import { adminChipClasses } from "../../_lib/chip-classes";
 import { adminButtonClasses } from "../../_lib/button-classes";
@@ -41,18 +44,26 @@ export const dynamic = "force-dynamic";
 export default async function AdminAdsPage() {
   await requireAdminPage();
 
-  const [t, creatives, trackingId] = await Promise.all([
+  const [t, creatives, trackingIds] = await Promise.all([
     getTranslations("admin.ads"),
     getAllAdCreatives(),
-    getAmazonTrackingId(),
+    getAmazonTrackingIds(),
   ]);
-  // 画面に出せる広告（リンクが決まるもの）。ASIN の広告はトラッキング ID が
-  // 未設定なら出ない（`getNativeAdCreatives` と同じ判定）
-  const isServable = (row: (typeof creatives)[number]["row"]) =>
-    row.isActive && resolveAdHref(row, trackingId) !== undefined;
-  const hiddenAsinCount = creatives.filter(
-    ({ row }) => row.isActive && !isServable(row),
-  ).length;
+  type Row = (typeof creatives)[number]["row"];
+  // 画面に出せる広告（リンクが決まるもの）。ASIN の広告はスロットを読む側の
+  // トラッキング ID が未設定なら出ない（`getNativeAdCreatives` と同じ判定）
+  const isServable = (row: Row) =>
+    row.isActive &&
+    isAdSlot(row.slot) &&
+    resolveAdHref(row, trackingIds[platformForSlot(row.slot)]) !== undefined;
+  const hiddenAsinCount = (platform: (typeof AD_PLATFORMS)[number]) =>
+    creatives.filter(
+      ({ row }) =>
+        row.isActive &&
+        isAdSlot(row.slot) &&
+        platformForSlot(row.slot) === platform &&
+        !isServable(row),
+    ).length;
 
   return (
     <div className="space-y-6">
@@ -67,10 +78,14 @@ export default async function AdminAdsPage() {
         </Link>
       </div>
 
-      <TrackingIdForm
-        trackingId={trackingId}
-        hiddenAsinCount={hiddenAsinCount}
-      />
+      {AD_PLATFORMS.map((platform) => (
+        <TrackingIdForm
+          key={platform}
+          platform={platform}
+          trackingId={trackingIds[platform]}
+          hiddenAsinCount={hiddenAsinCount(platform)}
+        />
+      ))}
 
       {AD_SLOT_VALUES.map((slot) => {
         const inSlot = creatives.filter((c) => c.row.slot === slot);

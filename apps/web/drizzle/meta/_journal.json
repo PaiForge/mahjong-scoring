@@ -232,6 +232,13 @@
       "when": 1791372492306,
       "tag": "20261007112812_convert_learn_chapter_ads_to_rows",
       "breakpoints": true
+    },
+    {
+      "idx": 33,
+      "version": "7",
+      "when": 1791374963075,
+      "tag": "20261007120923_add_platform_to_ad_network_settings",
+      "breakpoints": true
     }
   ]
 }

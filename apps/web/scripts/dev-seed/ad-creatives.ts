@@ -3,7 +3,9 @@
  * シード広告
  *
  * 本番のシード（`scripts/seed/ad-creatives.ts`）と同じ本・同じ id の広告を
- * 入れ、ローカル用のトラッキング ID（{@link DEV_TRACKING_ID}）を設定する。
+ * 入れ、ローカル用のトラッキング ID（{@link DEV_TRACKING_IDS}。web とモバイルで
+ * 別の値）を設定する。値を分けておくのは、リンクの `tag=` を見るだけで
+ * どちらの ID で組み立てたかを確かめられるようにするため。
  * ASIN の広告はトラッキング ID が無いと画面に出ないため、これが無いと配置や
  * 見た目を確かめられない。ID は架空の値で、押すと Amazon の商品ページに
  * その ID 付きで飛ぶ（成果はどこにも付かない）。
@@ -18,6 +20,7 @@ import type { PostgresJsDatabase } from "drizzle-orm/postgres-js";
 
 import { copyToTranslationRows } from "../../src/lib/ads/copy";
 import { AMAZON_NETWORK } from "../../src/lib/ads/amazon";
+import { AD_PLATFORMS, type AdPlatform } from "../../src/lib/ads/registry";
 import {
   adCreatives,
   adCreativeTranslations,
@@ -25,8 +28,11 @@ import {
 } from "../../src/lib/db/schema";
 import { SEED_AD_CREATIVES } from "../seed/ad-creatives";
 
-/** ローカル用の架空のトラッキング ID */
-export const DEV_TRACKING_ID = "localdev-example-22";
+/** ローカル用の架空のトラッキング ID（プラットフォームごと） */
+export const DEV_TRACKING_IDS: Record<AdPlatform, string> = {
+  web: "localdev-web-22",
+  mobile: "localdev-app-22",
+};
 
 /** 以前のサンプル広告の id の接頭辞 */
 const LEGACY_SAMPLE_ID_PREFIX = "00000000-0000-4000-8";
@@ -45,13 +51,16 @@ export async function reseedAdCreatives(
     // id は uuid 型で LIKE を持たないため、文字列にして比べる
     .where(sql`${adCreatives.id}::text LIKE ${`${LEGACY_SAMPLE_ID_PREFIX}%`}`);
 
-  await db
-    .insert(adNetworkSettings)
-    .values({ network: AMAZON_NETWORK, trackingId: DEV_TRACKING_ID })
-    .onConflictDoUpdate({
-      target: adNetworkSettings.network,
-      set: { trackingId: DEV_TRACKING_ID, updatedAt: new Date() },
-    });
+  for (const platform of AD_PLATFORMS) {
+    const trackingId = DEV_TRACKING_IDS[platform];
+    await db
+      .insert(adNetworkSettings)
+      .values({ network: AMAZON_NETWORK, platform, trackingId })
+      .onConflictDoUpdate({
+        target: [adNetworkSettings.network, adNetworkSettings.platform],
+        set: { trackingId, updatedAt: new Date() },
+      });
+  }
 
   for (const { row, copy } of SEED_AD_CREATIVES) {
     await db

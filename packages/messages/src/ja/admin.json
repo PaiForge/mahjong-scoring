@@ -262,8 +262,14 @@
     "errorUploadFailed": "画像のアップロードに失敗しました",
     "errorTrackingIdInvalid": "トラッキング ID は「英小文字・数字・ハイフン」で、末尾が -22 の形で入力してください",
     "trackingId": {
-      "label": "Amazon トラッキング ID",
-      "hint": "Amazon アソシエイトのトラッキング ID（例: example-22）。ASIN で指定した広告のリンクは、この ID と組み合わせて作ります。空にして保存すると設定を消します。",
+      "label": {
+        "web": "Amazon トラッキング ID（web）",
+        "mobile": "Amazon トラッキング ID（アプリ）"
+      },
+      "hint": {
+        "web": "Amazon アソシエイトのトラッキング ID（例: example-22）。web の画面の ASIN で指定した広告のリンクは、この ID と組み合わせて作ります。空にして保存すると設定を消します。",
+        "mobile": "アプリの画面の ASIN で指定した広告のリンクに使う ID です。web と成果を分けないなら web と同じ ID を入れてください。未設定の間はアプリの ASIN の広告が出ません（web の ID では代わりに出しません）。"
+      },
       "save": "保存",
       "saved": "トラッキング ID を保存しました",
       "unset": "未設定のため、ASIN で指定した掲載中の広告 {count} 件が画面に出ていません"
