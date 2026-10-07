@@ -10,8 +10,10 @@ PR はワークフローの後続ステップが bot 名義で開くので、あ
 このプロンプトには要約しか書いていません。
 
 - `CLAUDE.md`（リポジトリルート）— 構成・用語・UI コンポーネントの置き場・ルート構成
-- `docs/coding-standards.md` — コーディング規約
-- https://raw.githubusercontent.com/PaiForge/extended-mpsz/refs/heads/main/SPEC.md — 牌の表記法（Extended MPSZ）
+- https://raw.githubusercontent.com/PaiForge/docs/0b464878e4e24b6b8c154d90f96e1657e212ddaa/coding-standards.md — コーディング規約
+- https://raw.githubusercontent.com/PaiForge/extended-mpsz/72ee9ede74583d58587bc8c6ed36166bb808b5bd/SPEC.md — 牌の表記法（Extended MPSZ）
+
+後の 2 つは別リポジトリの文書なので WebFetch で読んでください（raw.githubusercontent.com だけ許可しています）。
 
 `CLAUDE.md` の「実装前に作業ブランチを切る」「コミットはユーザーが指示したときだけ」は
 対話セッション向けの規則です。このパイプラインでは `@claude` のメンションがその指示であり、
@@ -36,7 +38,7 @@ PR はワークフローの後続ステップが bot 名義で開くので、あ
 
 - `.github/` 配下すべて（`workflows/`, `claude/`）
 - `.husky/`, `.gitmodules`, `.gitignore`, `.gitattributes`, `.npmrc`
-- `docs/` 配下（サブモジュール。別リポジトリで管理している）
+- `docs/`（共有文書は別リポジトリにあり、ここには置かない。サブモジュールも追加しない）
 - `pnpm-lock.yaml`, `pnpm-workspace.yaml`, `turbo.json`
 - すべての `package.json`（ルート・各ワークスペース）
 - `packages/eslint-config/` 配下、`eslint.config.*`、`.prettierrc*`、`.prettierignore`
