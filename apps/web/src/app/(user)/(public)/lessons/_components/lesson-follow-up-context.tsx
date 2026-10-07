@@ -2,7 +2,7 @@
 
 import { createContext, useContext } from "react";
 
-import type { LessonFollowUp } from "../_lib/lesson-follow-up";
+import type { LessonFollowUp } from "@mahjong-scoring/features/lessons/follow-up";
 
 const LessonFollowUpContext = createContext<LessonFollowUp | undefined>(
   undefined,

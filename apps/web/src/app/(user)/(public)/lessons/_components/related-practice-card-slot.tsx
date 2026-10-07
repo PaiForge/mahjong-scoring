@@ -4,7 +4,7 @@ import type { ReactNode } from "react";
 
 import type { PracticeLink } from "@mahjong-scoring/features/curriculum/registry";
 
-import { isNextStepPractice } from "../_lib/lesson-follow-up";
+import { isNextStepPractice } from "@mahjong-scoring/features/lessons/follow-up";
 import { useLessonFollowUp } from "./lesson-follow-up-context";
 
 interface RelatedPracticeCardSlotProps {

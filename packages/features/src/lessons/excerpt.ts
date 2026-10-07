@@ -1,7 +1,5 @@
-import { getTranslations } from "next-intl/server";
-
-import type { QuizLessonSlug } from "@mahjong-scoring/features/lessons/registry";
-import { stripTermMarkup } from "@mahjong-scoring/features/glossary/term-markup";
+import type { QuizLessonSlug } from "./registry";
+import { stripTermMarkup } from "../glossary/term-markup";
 
 /**
  * レッスンの抜粋に使う、章の本文の段落の辞書キー（名前空間付き）
@@ -60,11 +58,16 @@ const LESSON_EXCERPT_KEYS: Readonly<Record<QuizLessonSlug, readonly string[]>> =
  * レッスンの本文の冒頭の文（表と見出しを除いた段落）
  * レッスン抜粋
  *
- * 用語マークアップは外す（抜粋はリンクを置かずに文だけを見せる）。
+ * 用語マークアップは外す（抜粋はリンクを置かずに文だけを見せる）。辞書を
+ * 引く関数はプラットフォームから受ける（web はサーバーの `getTranslations`、
+ * モバイルは use-intl の `useTranslations`）。
+ *
+ * @param slug 抜粋するレッスン
+ * @param t ルートの名前空間の翻訳関数
  */
-export async function lessonExcerpt(
+export function lessonExcerpt(
   slug: QuizLessonSlug,
-): Promise<readonly string[]> {
-  const t = await getTranslations();
+  t: (key: string) => string,
+): readonly string[] {
   return LESSON_EXCERPT_KEYS[slug].map((key) => stripTermMarkup(t(key)));
 }

@@ -17,7 +17,10 @@ import {
 } from "@mahjong-scoring/features/lessons/registry";
 
 import { fetchJourneyInput } from "../_lib/journey-input";
-import { lessonFollowUp, type LessonFollowUp } from "../_lib/lesson-follow-up";
+import {
+  lessonFollowUp,
+  type LessonFollowUp,
+} from "@mahjong-scoring/features/lessons/follow-up";
 
 /**
  * レッスン完了 Server Action の戻り値
