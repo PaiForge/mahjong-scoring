@@ -61,7 +61,7 @@ export default async function PracticePage() {
       <PracticeModeSwitcher
         basic={
           <div className="space-y-6">
-            <p className="text-sm text-surface-500">
+            <p className="text-sm font-medium leading-relaxed text-surface-500">
               {t("modes.basicDescription")}
             </p>
             <LinkRowList>
@@ -100,10 +100,12 @@ export default async function PracticePage() {
         practical={
           <section className="space-y-6">
             <div className="space-y-2">
-              <h2 className="text-lg font-bold">
+              {/* 実戦モードの節の見出しだが、中身は 1 文のリード。基礎モードの
+                  説明文と同じ見た目にそろえ、太字の大見出しにしない */}
+              <h2 className="text-sm font-bold leading-relaxed text-surface-700">
                 {t("modes.practicalDescription")}
               </h2>
-              <p className="text-sm text-surface-500">
+              <p className="text-sm leading-relaxed text-surface-500">
                 {t("modes.recommendation")}
               </p>
             </div>

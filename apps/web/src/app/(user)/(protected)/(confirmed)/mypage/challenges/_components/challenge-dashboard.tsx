@@ -224,7 +224,7 @@ export function ChallengeDashboard({
           </div>
 
           <div className="min-w-0 overflow-hidden space-y-4">
-            <h3 className="text-sm md:text-base font-medium text-surface-500">
+            <h3 className="text-sm font-bold text-surface-900">
               {t("scoreTrend")}
             </h3>
             <ScoreChart
@@ -240,7 +240,7 @@ export function ChallengeDashboard({
           </div>
 
           <div className="space-y-4">
-            <h3 className="text-sm md:text-base font-medium text-surface-500">
+            <h3 className="text-sm font-bold text-surface-900">
               {t("recentHistory")}
             </h3>
             <AttemptHistoryTable
