@@ -5,7 +5,7 @@ import {
 } from "@mahjong-scoring/features/ads/native-ad";
 import { parseNativeAdsResponse } from "@mahjong-scoring/features/ads/parse-native-ads-response";
 
-import { SITE_URL } from "../lib/site-url";
+import { SITE_URL } from "../lib/app-site-url";
 
 /**
  * スロットの広告を web の広告配信 API から読む
