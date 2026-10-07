@@ -79,9 +79,9 @@ const styles = StyleSheet.create({
     color: colors.surface900,
   },
   demo: {
-    borderWidth: 3,
-    borderColor: colors.ink,
-    borderRadius: radius["2xl"],
+    borderWidth: 1,
+    borderColor: colors.panel,
+    borderRadius: radius.panel,
     backgroundColor: colors.surface50,
     padding: 16,
   },

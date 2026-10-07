@@ -79,9 +79,9 @@ export function TehaiFuExample({
 
 const styles = StyleSheet.create({
   card: {
-    borderWidth: 3,
-    borderColor: colors.ink,
-    borderRadius: radius.xl,
+    borderWidth: 1,
+    borderColor: colors.panel,
+    borderRadius: radius.panel,
     backgroundColor: colors.white,
     padding: 20,
   },
