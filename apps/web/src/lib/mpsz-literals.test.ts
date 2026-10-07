@@ -40,6 +40,10 @@ const EXCLUDED_FILES: ReadonlyMap<string, string> = new Map([
     "旧表記の変換のテスト。1.x の表記と変換できない表記を入力に使う",
   ],
   [
+    "apps/web/src/app/admin/ads/_lib/__tests__/validation.test.ts",
+    "広告の手牌の入力検証のテスト。拒否する表記を入力に使う",
+  ],
+  [
     "packages/core/src/problem/score/mpsz-serializer.ts",
     "受け付けない旧表記をコメントで例示している",
   ],

@@ -249,7 +249,7 @@
     "errorHrefInvalid": "リンク先は https の URL を入力してください",
     "errorAsinInvalid": "ASIN を読み取れません。10 桁の ASIN か、Amazon の商品ページの URL を入力してください",
     "errorVisualRequired": "絵文字・画像・手牌のどれかを設定してください",
-    "errorHandInvalid": "手牌は MPSZ 表記で 14 枚まで入力してください（副露は使えません）",
+    "errorHandInvalid": "手牌は MPSZ 表記で 14 枚まで入力してください（副露・暗槓・赤 5 は使えません）",
     "errorHandNotForRow": "行の形のスロットには手牌を設定できません",
     "errorIconTooLong": "絵文字が長すぎます",
     "errorImageInvalid": "画像はこの画面からアップロードしたものを使ってください",
