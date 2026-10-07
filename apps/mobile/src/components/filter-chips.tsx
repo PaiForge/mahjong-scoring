@@ -21,13 +21,15 @@ interface FilterChipsProps<T extends string> {
 const SCREEN_GUTTER = 16;
 
 /**
- * 絞り込みのチップの列（web の練習一覧の `ToggleGroup`）
+ * 絞り込みのチップの列（web の練習一覧の絞り込み）
  * 絞り込みチップ
  *
- * 一覧の絞り込みに使う。スマホアプリの定石に合わせ、独立したチップを横 1 列に
- * 並べて画面の端まで流す（web の「太枠の pill の中に選択肢を並べる」形は、
- * 横にスクロールすると枠の端が途中で切れて見えるため採らない）。選んだ
- * チップは濃い緑に白抜き、それ以外は淡い緑の地に細い枠。
+ * 一覧の絞り込みに使う。web は 1 つの細枠の溝に選択肢を詰めて 1 行に収めるが、
+ * それが収まるのは文字が 12px・押せる高さが 30px と小さいため。モバイルの
+ * 本文の大きさで並べると画面からはみ出し、溝のまま横にスクロールさせると枠の
+ * 端が途中で切れて見える。そこで形はスマホアプリの定石（独立したチップを
+ * 横 1 列に並べ、画面の端まで流す）にし、色だけ web の値を写す: 選んだチップは
+ * 緑の地に白抜き、それ以外は淡い灰色の地に細枠と灰色の文字。
  *
  * 2〜3 択の表示切り替え（親 / 子、ロン / ツモ）は {@link ToggleGroup}
  * （セグメントコントロール）を使う。
@@ -93,9 +95,9 @@ const styles = StyleSheet.create({
     minHeight: 36,
     justifyContent: "center",
     borderRadius: radius.full,
-    borderWidth: 1.5,
-    borderColor: colors.primary200,
-    backgroundColor: colors.primary50,
+    borderWidth: 1,
+    borderColor: colors.panel,
+    backgroundColor: colors.surface50,
     paddingHorizontal: 14,
   },
   chipActive: {
@@ -103,12 +105,12 @@ const styles = StyleSheet.create({
     backgroundColor: colors.primary700,
   },
   chipPressed: {
-    backgroundColor: colors.primary100,
+    backgroundColor: colors.surface100,
   },
   label: {
     fontSize: 14,
-    fontWeight: "600",
-    color: colors.primary900,
+    fontWeight: "700",
+    color: colors.surface500,
   },
   labelActive: {
     color: colors.white,
