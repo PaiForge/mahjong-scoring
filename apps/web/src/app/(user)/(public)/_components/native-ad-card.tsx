@@ -110,7 +110,7 @@ function CreativeVisual({ creative }: NativeAdCardProps) {
   return (
     <span
       aria-hidden="true"
-      className="flex size-20 shrink-0 items-center justify-center rounded-xl bg-surface-50 text-4xl"
+      className="flex size-20 shrink-0 items-center justify-center rounded-lg bg-surface-50 text-4xl"
     >
       {creative.icon}
     </span>

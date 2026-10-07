@@ -1,6 +1,6 @@
 import { getTranslations } from "next-intl/server";
 
-import { beltBorderClass, beltClass } from "@/lib/ranks/belt-colors";
+import { beltClass, beltTintClasses } from "@/lib/ranks/belt-colors";
 import {
   RANK_REGISTRY,
   type RankSlug,
@@ -18,13 +18,13 @@ interface RankProgressBarProps {
  * 段級位進捗バー
  *
  * レッスン一覧の学習進捗バー（`CurriculumProgressBar`）と同じ「ラベル行 +
- * 太枠のトラック」の形だが、％ではなく級ごとの区切りで見せる。段級位は
+ * 細いトラック」の形だが、％ではなく級ごとの区切りで見せる。段級位は
  * 6 段階しかなく「33%」のような数字は粗いうえ意味を持たない — 章の数という
  * 量ではなく段階なので、区切りそのものが目盛りになる。
  *
  * 取得済みの区切りはその級の帯色で塗る。以前この場所にあった帯バッジが
  * 担っていた「帯の色で今の級がわかる」役割をバーが引き継ぐため。次の目標の
- * 級は塗らずに帯色の枠だけを付け、残りは淡いグレー。級は下から順にしか
+ * 級は帯色の淡い側で塗り、残りは淡いグレー。級は下から順にしか
  * 取得できない（`evaluateExamEligibility`）ので、現在の級以下をすべて
  * 取得済みとして塗ってよい。
  *
@@ -59,7 +59,7 @@ export async function RankProgressBar({
     >
       <div className="flex items-baseline justify-between gap-3">
         {/* ラベルは小さな文字だが h2 にして、見出しジャンプで「次の目標」と
-            同じ段に並ぶようにする（SectionTitle の pill にすると、1 行の
+            同じ段に並ぶようにする（SectionTitle にすると、1 行の
             ラベルがバーより目立つ） */}
         <div className="flex min-w-0 items-baseline gap-2">
           <h2 className="text-xs font-bold text-surface-500">
@@ -100,10 +100,10 @@ export async function RankProgressBar({
                   : "upcoming";
             const segmentClass =
               state === "achieved"
-                ? `${beltClass(rank.slug)} ${beltBorderClass(rank.slug)}`
+                ? beltClass(rank.slug)
                 : state === "next"
-                  ? `bg-white ${beltBorderClass(rank.slug)}`
-                  : "border-surface-300 bg-surface-100";
+                  ? beltTintClasses(rank.slug)
+                  : "bg-surface-100";
             return (
               <li
                 key={rank.slug}
@@ -111,7 +111,7 @@ export async function RankProgressBar({
                 data-state={state}
                 className="space-y-1 text-center"
               >
-                <div className={`h-4 rounded-full border-3 ${segmentClass}`} />
+                <div className={`h-2 rounded-full ${segmentClass}`} />
                 <span
                   className={`block text-xs ${
                     index === currentIndex

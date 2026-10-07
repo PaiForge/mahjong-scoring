@@ -18,6 +18,7 @@ import { MagnifyingGlassIcon } from "@/app/(user)/_components/icons/magnifying-g
 import { ContentContainer } from "@/app/(user)/_components/content-container";
 import { ChevronRightIcon } from "@/app/(user)/_components/icons/chevron-right-icon";
 import { FOCUS_RING_CLASSES } from "@/app/_components/_lib/link-classes";
+import { SectionTitle } from "@/app/(user)/_components/section-title";
 import { PageTitle } from "@/app/(user)/_components/page-title";
 import { createNamespaceMetadata } from "@/app/_lib/metadata";
 import { GLOSSARY_PATH } from "@/lib/glossary/routes";
@@ -61,7 +62,8 @@ export default async function ReferenceHubPage() {
     <ContentContainer breadcrumb={[{ label: t("title") }]}>
       <PageTitle>{t("title")}</PageTitle>
 
-      <p className="mb-6 text-sm leading-relaxed text-surface-500">
+      <SectionTitle className="mb-3">{t("sectionTitle")}</SectionTitle>
+      <p className="mb-6 text-sm font-medium leading-relaxed text-surface-500">
         {t("description")}
       </p>
 

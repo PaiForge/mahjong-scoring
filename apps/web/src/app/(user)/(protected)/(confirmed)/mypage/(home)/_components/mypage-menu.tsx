@@ -47,7 +47,7 @@ export function MyPageMenu() {
               >
                 <span
                   aria-hidden="true"
-                  className={`flex size-11 shrink-0 items-center justify-center rounded-xl ${featured ? "bg-primary-100 text-primary-800" : "bg-surface-100 text-surface-600"}`}
+                  className={`flex size-11 shrink-0 items-center justify-center rounded-lg ${featured ? "bg-primary-50 text-primary-800" : "bg-surface-100 text-surface-600"}`}
                 >
                   <Icon />
                 </span>

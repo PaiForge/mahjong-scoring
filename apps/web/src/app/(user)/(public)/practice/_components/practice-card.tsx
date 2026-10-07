@@ -67,7 +67,7 @@ export function PracticeCard({
                 href={learnHref}
                 aria-label={learnLabel}
                 title={learnLabel}
-                className="flex size-8 items-center justify-center rounded-full border-2 border-surface-200 text-surface-400 transition-colors hover:border-surface-400 hover:text-surface-700"
+                className="flex size-8 items-center justify-center rounded-full border border-panel text-surface-400 transition-colors hover:border-surface-400 hover:text-surface-700"
               >
                 <BookIcon className="size-4" />
               </Link>

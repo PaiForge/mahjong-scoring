@@ -28,7 +28,7 @@ interface VariantStartPanelProps {
 
 /** 選択肢 1 枚の外形（実物とスケルトンで共有） */
 const OPTION_FRAME_CLASS =
-  "flex flex-col items-start gap-1 rounded-xl border p-4 text-left";
+  "flex flex-col items-start gap-1 rounded-panel border p-4 text-left";
 
 /**
  * 選択肢を並べるグリッド（実物とスケルトンで共有）

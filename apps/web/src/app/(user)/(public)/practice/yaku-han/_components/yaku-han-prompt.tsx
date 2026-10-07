@@ -35,10 +35,10 @@ export function YakuHanPrompt({ yakuName, isMenzen }: YakuHanPromptProps) {
   return (
     <div className="flex flex-col items-center gap-3">
       <span
-        className={`rounded-full px-3 py-1 text-xs font-semibold ${
+        className={`rounded-md px-2.5 py-1 text-xs font-bold ${
           isMenzen
-            ? "bg-primary-50 text-primary-700"
-            : "bg-amber-50 text-amber-700"
+            ? "bg-primary-50 text-primary-800"
+            : "bg-amber-100 text-amber-900"
         }`}
       >
         {isMenzen ? t("menzen") : t("naki")}

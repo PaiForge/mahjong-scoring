@@ -140,7 +140,7 @@ export function PendingLessonSync({ userId }: PendingLessonSyncProps) {
     <div
       role="alert"
       data-testid="pending-lesson-failed"
-      className="flex flex-col gap-3 rounded-lg border-3 border-destructive bg-destructive-subtle p-4 sm:flex-row sm:items-center sm:justify-between"
+      className="flex flex-col gap-3 rounded-panel border border-destructive bg-destructive-subtle p-4 sm:flex-row sm:items-center sm:justify-between"
     >
       <p className="text-sm leading-relaxed text-destructive-strong">
         {t("failed")}

@@ -6,13 +6,10 @@ import { SkeletonBar } from "@/app/_components/skeleton-bar";
  *
  * `CurriculumProgressBar` と同じ構造（`space-y-2` / ラベル行 + トラック）で描画し、
  * 読了数・パーセンテージのテキストだけを矩形に置き換える。トラックの高さ
- * （`h-4`）は実物と同じものをそのまま描き、読み込み完了時に高さが変わらない
+ * （`h-2`）は実物と同じものをそのまま描き、読み込み完了時に高さが変わらない
  * ようにする。
  *
- * 実物のトラックが持つ苔緑の太枠（`border-3 border-ink`）は写さない。
- * スケルトンは灰色の矩形だけで面を示す（`ProblemListSkeleton` と同じ理由 —
- * 読み込み中の画面が実物より賑やかに見えるため）。枠は border-box なので、
- * 外しても実物との高さは一致したまま。
+ * 読み込み中はトラックと進捗をグレーで表示する。
  */
 export function CurriculumProgressBarSkeleton() {
   return (
@@ -25,7 +22,7 @@ export function CurriculumProgressBarSkeleton() {
           &nbsp;
         </SkeletonBar>
       </div>
-      <div className="h-4 w-full overflow-hidden rounded-full bg-surface-200">
+      <div className="h-2 w-full overflow-hidden rounded-full bg-surface-100">
         <SkeletonBar radius="full" className="h-full w-1/4" tone={300} />
       </div>
     </div>

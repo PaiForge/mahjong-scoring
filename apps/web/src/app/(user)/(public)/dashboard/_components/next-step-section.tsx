@@ -6,7 +6,10 @@ import { LinkButton } from "@/app/(user)/_components/link-button";
 import { SectionTitle } from "@/app/(user)/_components/section-title";
 import { TEXT_LINK_CLASSES } from "@/app/_components/_lib/link-classes";
 import { SUB_LINK_GAP } from "@/app/_components/_lib/spacing";
-import { beltBorderClass, beltButtonVarsClass } from "@/lib/ranks/belt-colors";
+import {
+  beltBorderTopClass,
+  beltButtonVarsClass,
+} from "@/lib/ranks/belt-colors";
 import { listedPracticeRanks } from "@mahjong-scoring/features/practice/rank-practices";
 import type {
   Journey,
@@ -106,7 +109,7 @@ export async function NextStepSection({ journey }: NextStepSectionProps) {
 
       <div
         data-belt-slug={rankSlug}
-        className={`space-y-4 rounded-xl border-3 bg-white p-5 ${beltBorderClass(rankSlug)}`}
+        className={`space-y-4 rounded-panel border border-t-4 border-panel bg-white p-5 ${beltBorderTopClass(rankSlug)}`}
       >
         <RankHeading
           rankSlug={rankSlug}

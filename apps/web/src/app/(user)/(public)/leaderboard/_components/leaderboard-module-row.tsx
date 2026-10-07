@@ -1,7 +1,7 @@
+import Link from "next/link";
 import { getTranslations } from "next-intl/server";
 
-import { LinkRow } from "@/app/(user)/_components/link-row";
-
+import { ChevronRightIcon } from "@/app/(user)/_components/icons/chevron-right-icon";
 import type { LeaderboardPeriod } from "../_lib/types";
 import { buildDetailPath } from "../_lib/types";
 import { boardTitle } from "../_lib/board-title";
@@ -11,41 +11,47 @@ interface LeaderboardModuleRowProps {
   readonly board: PracticeBoard;
   readonly period: LeaderboardPeriod;
   readonly rank: number | undefined;
+  readonly showRank: boolean;
 }
 
-/**
- * リーダーボード一覧の 1 行
- * ランキング行
- *
- * 土俵名（練習名 + バリアント）と自分の順位を出し、押すとその土俵の詳細
- * ランキングへ移る。
- * ランキングは見に行くもので押して始めるものではないため、太枠 + 影のカードでは
- * なく行リンクで並べる。
- *
- * 行頭には何も置かない。種目ごとに違う記号を 1 つ選ぼうとしても、記号で
- * 表せるのはせいぜい分野（符 / 翻数 / 点数）までで種目そのものではない。
- * その分野は一覧側が見出しで括るため、行はタイトルと順位だけを持つ。
- */
+/** 分野別パネルの種目リンク。順位列は本人の順位を表示できるときだけ出す。 */
 export async function LeaderboardModuleRow({
   board,
   period,
   rank,
+  showRank,
 }: LeaderboardModuleRowProps) {
   const t = await getTranslations("leaderboard");
 
   return (
-    <LinkRow
-      href={buildDetailPath(period, board)}
-      title={await boardTitle(board)}
-      trailing={
-        rank !== undefined ? (
-          <span className="text-sm font-bold tabular-nums text-primary-600">
-            {t("rankLabel", { rank })}
+    <li>
+      <Link
+        href={buildDetailPath(period, board)}
+        className="group flex min-h-16 items-center gap-3 px-4 py-4 transition-colors hover:bg-surface-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-ring sm:px-5"
+      >
+        <span className="min-w-0 flex-1 text-sm font-bold leading-relaxed text-foreground">
+          {await boardTitle(board)}
+        </span>
+        {showRank && (
+          <span className="w-20 shrink-0 text-right">
+            {rank !== undefined ? (
+              <span className="inline-block rounded-md bg-primary-50 px-2.5 py-1 text-sm font-bold tabular-nums text-primary-800">
+                {t("rankLabel", { rank })}
+              </span>
+            ) : (
+              <span className="text-xs font-medium text-surface-500">
+                {t("notRanked")}
+              </span>
+            )}
           </span>
-        ) : (
-          <span className="text-xs text-surface-400">{t("notRanked")}</span>
-        )
-      }
-    />
+        )}
+        <span
+          aria-hidden="true"
+          className="shrink-0 text-surface-400 group-hover:text-foreground"
+        >
+          <ChevronRightIcon />
+        </span>
+      </Link>
+    </li>
   );
 }

@@ -119,7 +119,7 @@ export default async function DojoPage() {
 
         {journey.current !== undefined && (
           // 見出しの pill は置かない。カードの中に「次の目標」の状態 pill が
-          // あり、すぐ上の区切りバーでも次の級が枠で示されているため、
+          // あり、すぐ上の区切りバーでも次の級が淡い帯色で示されているため、
           // 見出しを重ねると同じことを 3 度言う。節の名前は読み上げ用に残す
           <section aria-label={t("nextRankTitle")}>
             <RankJourneyCard journey={journey.current} expanded />
@@ -127,9 +127,10 @@ export default async function DojoPage() {
         )}
 
         <section className="space-y-4">
-          {/* ツアーは見出しの pill だけを照らす（節全体だと全級のカードまで
-              照らしてしまう）。w-fit で包みを pill の幅に縮める */}
-          <div data-tour-id={DOJO_TOUR_ID.journeyTitle} className="w-fit">
+          {/* ツアーは見出しの行だけを照らす（節全体だと全級のカードまで
+              照らしてしまう）。包みを w-fit で縮めると、見出しの横線
+              （flex-1）が最小幅まで潰れるので幅は行いっぱいのままにする */}
+          <div data-tour-id={DOJO_TOUR_ID.journeyTitle}>
             <SectionTitle>{t("journeyTitle")}</SectionTitle>
           </div>
           <ol className="space-y-4">

@@ -1,4 +1,5 @@
-import { LinkRow, LinkRowList } from "@/app/(user)/_components/link-row";
+import Link from "next/link";
+import { ChevronRightIcon } from "@/app/(user)/_components/icons/chevron-right-icon";
 import type { Announcement } from "@/lib/db";
 
 import { formatPublishedDate } from "../_lib/format";
@@ -10,47 +11,56 @@ interface AnnouncementTextListProps {
   readonly pinnedLabel: string;
 }
 
-/**
- * 公開日 + タイトルだけの、枠を持たないお知らせリスト
- * お知らせテキストリスト
- *
- * 一覧ページとダッシュボードで共有する。お知らせは読みに行くものなので、
- * 押して始める面（練習カード）の太枠 + 影ではなく行リンクで示す。
- * 見出しが「お知らせ」と言い切っている以上、全行に同じアイコンは置かない。
- */
+/** ホームと一覧ページで共有する、公開日とタイトルを揃えたお知らせリスト。 */
 export function AnnouncementTextList({
   announcements,
   locale,
   pinnedLabel,
 }: AnnouncementTextListProps) {
   return (
-    <LinkRowList>
+    <ul className="divide-y divide-surface-100 overflow-hidden rounded-panel border border-panel bg-card">
       {announcements.map((announcement) => (
-        <LinkRow
-          key={announcement.id}
-          href={`/announcements/${announcement.slug}`}
-          leading={
-            // 日付は桁を揃えて縦に並べる。等幅数字にしないと行ごとに
-            // タイトルの開始位置がずれ、リストの左端が波打って見える。
-            <span className="text-xs tabular-nums text-muted-foreground">
-              {formatPublishedDate(
-                announcement.publishedAt,
-                locale,
-                NUMERIC_DATE_OPTIONS,
-              )}
-            </span>
-          }
-          title={announcement.title}
-          trailing={
-            announcement.pinnedAt !== null ? (
-              <span className="rounded-md bg-primary-100 px-1.5 py-0.5 text-xs font-semibold text-primary-700">
-                {pinnedLabel}
+        <li key={announcement.id}>
+          <Link
+            href={`/announcements/${announcement.slug}`}
+            className="group flex min-h-16 items-center gap-3 px-4 py-4 transition-colors hover:bg-surface-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-ring sm:px-5"
+          >
+            <span className="flex min-w-0 flex-1 flex-col gap-1.5 sm:flex-row sm:items-baseline sm:gap-5">
+              <time
+                dateTime={
+                  announcement.publishedAt
+                    ? new Date(announcement.publishedAt).toISOString()
+                    : undefined
+                }
+                className="shrink-0 text-xs font-medium tabular-nums text-surface-500"
+              >
+                {formatPublishedDate(
+                  announcement.publishedAt,
+                  locale,
+                  NUMERIC_DATE_OPTIONS,
+                )}
+              </time>
+              <span className="flex min-w-0 flex-wrap items-baseline gap-x-2 gap-y-1">
+                <span className="text-sm font-bold leading-relaxed text-foreground [overflow-wrap:anywhere]">
+                  {announcement.title}
+                </span>
+                {announcement.pinnedAt !== null && (
+                  <span className="shrink-0 rounded-md bg-primary-50 px-2 py-0.5 text-xs font-medium text-primary-800">
+                    {pinnedLabel}
+                  </span>
+                )}
               </span>
-            ) : undefined
-          }
-        />
+            </span>
+            <span
+              aria-hidden="true"
+              className="shrink-0 text-surface-400 group-hover:text-foreground"
+            >
+              <ChevronRightIcon />
+            </span>
+          </Link>
+        </li>
       ))}
-    </LinkRowList>
+    </ul>
   );
 }
 

@@ -71,7 +71,7 @@ export async function RankGoalPanel({
         </p>
         <RankProgressSummary />
         <div className={`flex flex-col ${SUB_LINK_GAP}`}>
-          <LinkRowList>
+          <LinkRowList inset>
             <LinkRow
               href={practiceHref(examSlug)}
               title={journeyStepTitle({ kind: "exam", slug: examSlug }, tAll)}

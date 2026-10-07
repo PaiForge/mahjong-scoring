@@ -35,14 +35,14 @@ export async function ExpGainDisplay({ expInfo }: ExpGainDisplayProps) {
         </div>
         <div className="h-2 w-full rounded-full bg-surface-100">
           <div
-            className="h-2 rounded-full bg-primary-500 transition-all duration-500"
+            className="h-2 rounded-full bg-primary-500 transition-[width] duration-500 motion-reduce:transition-none"
             style={{ width: `${progressPercent}%` }}
           />
         </div>
       </div>
 
       {levelUp && (
-        <span className="inline-block rounded-full bg-primary-100 px-3 py-1 text-sm font-semibold text-primary-700">
+        <span className="inline-block rounded-md bg-primary-50 px-2.5 py-1 text-sm font-bold text-primary-800">
           {t("levelUp")}
         </span>
       )}

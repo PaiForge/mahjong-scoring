@@ -177,18 +177,18 @@ export function ScoreSetupForm({
     // フル幅ボタン）でスケルトンを描画し、実 UI 表示時の CLS を防ぐ。
     // 最後の行（回答時間の計測）は Pro でない閲覧者が多数なので、ロック行の
     // 高さ（見出し・利用条件・料金ページへのリンクの 3 段）に合わせる。
-    // 実 UI の細枠（border-panel）は灰色にする（ProblemListSkeleton と
-    // 同じ理由）。枠は border-box なので寸法は実 UI と一致したまま。
+    // 枠は実 UI と同じ細枠（border-panel）のまま、面を灰色にする。枠は
+    // border-box なので寸法は実 UI と一致したまま。
     return (
       <div className="space-y-4 sm:space-y-6 md:space-y-8">
         {/* Settings card: トグル5行 */}
-        <div className="overflow-hidden rounded-panel border border-surface-100 bg-surface-50">
+        <div className="overflow-hidden rounded-panel border border-panel bg-surface-50">
           <div className="flex flex-col">
             {["requireYaku", "simplifyMangan", "requireFu", "autoNext"].map(
               (key) => (
                 <div
                   key={key}
-                  className="flex items-center justify-between border-b-2 border-dashed border-border/40 px-5 py-3.5"
+                  className="flex items-center justify-between border-b border-surface-100 px-5 py-3.5"
                 >
                   <SkeletonBar className="h-4 w-32" tone={100} />
                   <SkeletonBar radius="full" className="h-6 w-11" tone={100} />

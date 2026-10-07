@@ -62,7 +62,7 @@ export function MarkdownRenderer({
         }
         components={{
           h1: ({ children }) => (
-            <h1 className="mt-8 mb-3 text-xl font-bold text-surface-900">
+            <h1 className="mt-8 mb-3 text-lg font-bold text-surface-900">
               {children}
             </h1>
           ),
@@ -106,11 +106,11 @@ export function MarkdownRenderer({
           ),
           em: ({ children }) => <em className="italic">{children}</em>,
           blockquote: ({ children }) => (
-            <blockquote className="my-4 border-l-4 border-ink pl-4 text-surface-600 italic">
+            <blockquote className="my-4 border-l-4 border-panel pl-4 text-surface-600 italic">
               {children}
             </blockquote>
           ),
-          hr: () => <hr className="my-6 border-surface-200" />,
+          hr: () => <hr className="my-6 border-panel" />,
           code: ({
             className,
             children,
@@ -137,19 +137,21 @@ export function MarkdownRenderer({
             </pre>
           ),
           table: ({ children }) => (
-            <div className="my-4 overflow-x-auto">
+            <div className="my-4 overflow-x-auto rounded-panel border border-panel">
               <table className="w-full border-collapse text-sm">
                 {children}
               </table>
             </div>
           ),
           th: ({ children }) => (
-            <th className="border-2 border-ink bg-primary-50 px-3 py-2 text-left font-bold text-surface-900">
+            <th className="border-b border-panel bg-primary-50 px-3 py-2 text-left font-bold text-surface-900">
               {children}
             </th>
           ),
           td: ({ children }) => (
-            <td className="border-2 border-ink px-3 py-2">{children}</td>
+            <td className="border-t border-surface-100 px-3 py-2">
+              {children}
+            </td>
           ),
         }}
       >

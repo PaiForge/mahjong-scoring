@@ -29,14 +29,14 @@ export function StepCard({
   subHref,
 }: StepCardProps) {
   return (
-    <div className="flex flex-col items-center space-y-4 rounded-lg border-3 border-ink bg-white p-6 text-center">
+    <div className="flex flex-col items-center space-y-4 rounded-panel border border-panel bg-white p-6 text-center">
       {stepLabel ? (
         <span className="text-xs font-bold tracking-wider text-primary-600">
           {stepLabel}
         </span>
       ) : null}
       <div
-        className={`flex size-14 items-center justify-center rounded-2xl border-3 border-ink ${iconClassName}`}
+        className={`flex size-14 items-center justify-center rounded-lg ${iconClassName}`}
       >
         {icon}
       </div>

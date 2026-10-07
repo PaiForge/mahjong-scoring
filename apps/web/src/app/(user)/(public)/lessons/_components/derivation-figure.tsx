@@ -8,7 +8,7 @@ interface DerivationFigureProps {
   readonly caption: string;
   /** 鎖の中身。{@link DerivationStep} と {@link DerivationArrow} を交互に並べる */
   readonly children: ReactNode;
-  /** 鎖の下に置く答え合わせや一言。破線で区切って出す */
+  /** 鎖の下に置く答え合わせや一言。区切り線の下に出す */
   readonly footer?: ReactNode;
 }
 
@@ -88,7 +88,7 @@ export function DerivationArrow({ label }: { readonly label: string }) {
 }
 
 /**
- * 鎖の下に置く答え合わせの段（破線で区切り、点数表の実際の値を見せる）
+ * 鎖の下に置く答え合わせの段（区切り線の下で、点数表の実際の値を見せる）
  * 導出図の答え合わせ
  */
 export function DerivationResult({
@@ -99,7 +99,7 @@ export function DerivationResult({
   readonly children: ReactNode;
 }) {
   return (
-    <div className="flex items-center justify-center gap-3 border-t-2 border-dashed border-surface-200 pt-3">
+    <div className="flex items-center justify-center gap-3 border-t border-panel pt-3">
       <span className="text-xs font-medium text-surface-500">{label}</span>
       <span className="text-lg font-semibold text-surface-900">{children}</span>
     </div>

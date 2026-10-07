@@ -44,7 +44,7 @@ export const CHALLENGE_RESULTS_COLUMNS = [
  * チャレンジ履歴まわりの詰まった表の外枠
  * コンパクトテーブル
  *
- * `(user)/_components/data-table.tsx` の `DataTable` より余白と枠線が
+ * `(user)/_components/data-table.tsx` の `DataTable` より余白が
  * 軽い系統で、マイページのチャレンジ履歴（本体とスケルトン）で共有する。
  * 本体とスケルトンで行の高さがずれるとスケルトンが CLS を防げなくなるため、
  * 双方がこのコンポーネントを通ること。
@@ -70,7 +70,7 @@ export function CompactTable({
   readonly children: ReactNode;
 }) {
   return (
-    <div className="overflow-x-auto">
+    <div className="overflow-x-auto rounded-panel border border-panel">
       <table className="w-full table-fixed text-sm">
         <colgroup>
           {columns.map((width, index) => (
@@ -78,7 +78,7 @@ export function CompactTable({
           ))}
         </colgroup>
         <thead>
-          <tr className="border-b-3 border-ink">{head}</tr>
+          <tr className="border-b border-panel bg-surface-50">{head}</tr>
         </thead>
         <tbody>{children}</tbody>
       </table>
@@ -110,7 +110,7 @@ export function CompactTableRow({
   readonly children: ReactNode;
 }) {
   return (
-    <tr className="border-b-2 border-dashed border-border/40">{children}</tr>
+    <tr className="border-b border-surface-100 last:border-b-0">{children}</tr>
   );
 }
 

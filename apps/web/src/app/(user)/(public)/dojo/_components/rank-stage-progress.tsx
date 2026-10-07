@@ -137,7 +137,7 @@ export function RankStageProgress({
   return (
     <ol
       className={[
-        "flex divide-x-2 divide-surface-200 rounded-lg border-2 border-surface-200",
+        "flex divide-x divide-panel rounded-lg border border-panel",
         className,
       ]
         .filter(Boolean)

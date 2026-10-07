@@ -33,14 +33,18 @@ export async function CurriculumProgressBar({
         <span className="tabular-nums">{percentage}%</span>
       </div>
       <div
-        className="h-4 w-full overflow-hidden rounded-full border-3 border-ink bg-surface-200"
+        className="h-2 w-full overflow-hidden rounded-full bg-surface-100"
         role="progressbar"
+        aria-label={t("progressLabel", {
+          done: completedCount,
+          total: totalCount,
+        })}
         aria-valuenow={percentage}
         aria-valuemin={0}
         aria-valuemax={100}
       >
         <div
-          className={`h-full rounded-l-full transition-all ${barColorClass}`}
+          className={`h-full rounded-full transition-[width] motion-reduce:transition-none ${barColorClass}`}
           style={{ width: `${percentage}%` }}
         />
       </div>

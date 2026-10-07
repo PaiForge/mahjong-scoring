@@ -71,7 +71,7 @@ export function SelectOptionList({
             aria-selected={isSelected}
             disabled={disabled}
             onClick={() => onToggle(option.value)}
-            className={`flex shrink-0 items-center justify-between gap-2 border-b-2 border-dashed border-border/40 px-4 py-3 text-left text-sm transition-colors last:border-b-0 ${
+            className={`flex shrink-0 items-center justify-between gap-2 border-b border-surface-100 px-4 py-3 text-left text-sm transition-colors last:border-b-0 ${
               disabled ? "cursor-not-allowed" : "cursor-pointer"
             } ${
               isSelected

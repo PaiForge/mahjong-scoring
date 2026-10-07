@@ -5,7 +5,10 @@ import { ChevronRightIcon } from "@/app/(user)/_components/icons/chevron-right-i
 import { LockClosedIcon } from "@/app/(user)/_components/icons/lock-closed-icon";
 import { LinkButton } from "@/app/(user)/_components/link-button";
 import { LinkRow, LinkRowList } from "@/app/(user)/_components/link-row";
-import { beltBorderClass, beltButtonVarsClass } from "@/lib/ranks/belt-colors";
+import {
+  beltBorderTopClass,
+  beltButtonVarsClass,
+} from "@/lib/ranks/belt-colors";
 import {
   getChapterBySlug,
   getChapterI18nPath,
@@ -65,7 +68,7 @@ export async function RankJourneyCard({
     <article
       data-belt-slug={rank.slug}
       data-rank-status={status}
-      className={`rounded-xl border-3 bg-white p-4 sm:p-5 ${beltBorderClass(rank.slug)}`}
+      className={`rounded-panel border border-t-4 border-panel bg-white p-4 sm:p-5 ${beltBorderTopClass(rank.slug)}`}
     >
       <RankHeading
         rankSlug={rank.slug}
@@ -94,7 +97,7 @@ export async function RankJourneyCard({
       )}
 
       {expanded && (
-        <div className="mt-5 space-y-6 border-t-2 border-dashed border-border/40 pt-5">
+        <div className="mt-5 space-y-6 border-t border-panel pt-5">
           {chapters.length > 0 && (
             <section className="space-y-3">
               <h4 className="text-sm font-bold text-surface-900">
@@ -102,7 +105,7 @@ export async function RankJourneyCard({
               </h4>
               {/* 学ぶ段はレッスンごとに 1 行。題名と説明は章の辞書から引き
                   （レッスン = 章）、レッスンの目次と同じ文言を出す */}
-              <LinkRowList>
+              <LinkRowList inset>
                 {chapters.map((item) => {
                   const chapter = getChapterBySlug(item.chapterSlug);
                   const path = chapter
@@ -133,7 +136,7 @@ export async function RankJourneyCard({
               <h4 className="text-sm font-bold text-surface-900">
                 {tRanks("stages.practice")}
               </h4>
-              <LinkRowList>
+              <LinkRowList inset>
                 {practices.map((item) => {
                   const title = practiceDisplayTitle(
                     tAll,

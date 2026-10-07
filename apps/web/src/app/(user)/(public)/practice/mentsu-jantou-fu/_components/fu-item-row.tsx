@@ -58,7 +58,7 @@ export const FuItemRow = memo(function FuItemRowComponent({
 
   return (
     <div
-      className={`space-y-2.5 rounded-xl border bg-white p-3 ${
+      className={`space-y-2.5 rounded-panel border bg-white p-3 ${
         !showFeedback || isRevealed
           ? "border-surface-200"
           : isCorrect

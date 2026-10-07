@@ -53,7 +53,7 @@ const DATE_PERIODS: readonly DatePeriod[] = [
 ];
 
 const selectClassName =
-  "px-3 py-2 rounded-lg border-3 border-ink bg-surface-50 text-surface-900 text-sm focus:outline-none focus:ring-2 focus:ring-primary-400";
+  "px-3 py-2.5 rounded-lg border border-surface-400 bg-white text-surface-900 text-sm focus:border-primary-500 focus:outline-none focus:ring-2 focus:ring-primary-400";
 
 interface ChallengeDashboardProps {
   /** サーバーサイドでプリフェッチした、記録を持つ土俵の一覧 */
@@ -224,7 +224,7 @@ export function ChallengeDashboard({
           </div>
 
           <div className="min-w-0 overflow-hidden space-y-4">
-            <h3 className="text-sm md:text-base font-medium text-surface-500">
+            <h3 className="text-sm font-bold text-surface-900">
               {t("scoreTrend")}
             </h3>
             <ScoreChart
@@ -240,7 +240,7 @@ export function ChallengeDashboard({
           </div>
 
           <div className="space-y-4">
-            <h3 className="text-sm md:text-base font-medium text-surface-500">
+            <h3 className="text-sm font-bold text-surface-900">
               {t("recentHistory")}
             </h3>
             <AttemptHistoryTable
@@ -277,7 +277,7 @@ export function ChallengeDashboard({
           決まり、成績の取得を待つ必要が無いため */}
       {selectedBoard && (
         <div
-          className={`flex flex-col ${SUB_LINK_GAP} border-t-2 border-dashed border-border/40 pt-4`}
+          className={`flex flex-col ${SUB_LINK_GAP} border-t border-panel pt-4`}
         >
           <PracticeLinkButton
             href={practiceHref(

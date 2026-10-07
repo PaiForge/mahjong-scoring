@@ -138,7 +138,7 @@ export async function CurriculumToc({
                 {isNext && (
                   <span
                     data-testid="curriculum-next-badge"
-                    className="mt-0.5 inline-flex h-6 shrink-0 items-center rounded-full border-2 border-ink bg-amber-200 px-2 text-[11px] leading-none font-bold text-amber-900"
+                    className="mt-0.5 inline-flex h-6 shrink-0 items-center rounded-md bg-amber-100 px-2 text-[11px] leading-none font-bold text-amber-900"
                   >
                     {tIndex("nextChapterBadge")}
                   </span>

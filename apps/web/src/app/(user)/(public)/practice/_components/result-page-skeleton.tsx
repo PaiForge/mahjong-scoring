@@ -133,7 +133,7 @@ function ResultScoreBarSkeleton() {
 function ExamResultSummarySkeleton() {
   return (
     <div className="space-y-4">
-      <div className="rounded-xl border-3 border-surface-100 bg-surface-50 p-5">
+      <div className="rounded-panel border border-panel bg-surface-50 p-5">
         <div className="flex flex-col items-center">
           <SkeletonBar className="h-8 w-20" tone={100} />
           <SkeletonBar className="mt-1 h-5 w-48 max-w-full" tone={100} />

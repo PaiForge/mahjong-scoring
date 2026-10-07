@@ -34,16 +34,16 @@ export const PRACTICE_START_CTA_HINT_CLASS = "text-xs text-surface-400";
 export const PRACTICE_START_CTA_DIVIDER_CLASS =
   "flex w-full items-center gap-3 text-xs text-surface-400";
 
-/** OR 区切りの破線 */
+/** OR 区切りの線 */
 export const PRACTICE_START_CTA_DIVIDER_LINE_CLASS =
-  "h-0.5 flex-1 border-t-2 border-dashed border-border/40";
+  "flex-1 border-t border-panel";
 
 /**
  * 2 つの開始導線を分ける OR 区切りの行
  * 開始導線区切り
  *
  * 練習（チャレンジ / トレーニング）と昇級試験（本番 / 模試）の開始導線、
- * およびそのスケルトンが共有する。破線は文字を持たないため、スケルトンでも
+ * およびそのスケルトンが共有する。区切り線は文字を持たないため、スケルトンでも
  * 実物をそのまま描く。
  *
  * @param label - 区切りの文言（`practice.orDivider`）。省略時はスケルトン用に

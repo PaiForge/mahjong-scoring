@@ -37,7 +37,7 @@ export function PageSkeleton({
           {Array.from({ length: rows }).map((_, i) => (
             <SkeletonBar
               key={i}
-              radius="xl"
+              radius="lg"
               className="h-14 w-full"
               tone={100}
             />

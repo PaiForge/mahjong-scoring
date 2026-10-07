@@ -79,7 +79,7 @@ export function TrainingChallengeCta({
   const isExam = variant === "exam";
 
   return (
-    <div className="space-y-4 border-t-2 border-dashed border-border/40 pt-8">
+    <div className="space-y-4 border-t border-panel pt-8">
       {/* 今どちらのモードに居るかを示してから誘う。トレーニングは終了条件が
           無く、解き続けているうちに記録を取っているつもりになりやすい */}
       <div className="space-y-1 text-center">

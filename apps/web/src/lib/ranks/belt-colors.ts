@@ -14,6 +14,8 @@ interface BeltColorClasses {
   readonly bg: string;
   /** 帯色でカードを縁取るときの枠 */
   readonly border: string;
+  /** 段級位のカードの上端に敷く帯（`border-t-*` の色だけ） */
+  readonly borderTop: string;
   /**
    * 帯色でカードの面を染めるときの塗り（100 — 帯色の淡い側）。
    *
@@ -73,6 +75,7 @@ export const RANK_BELT_CLASSES: Readonly<Record<RankSlug, BeltColorClasses>> = {
   "kyu-5": {
     bg: "bg-orange-500",
     border: "border-orange-500",
+    borderTop: "border-t-orange-500",
     tint: "bg-orange-100",
     tintText: "text-orange-800",
     buttonVars:
@@ -81,6 +84,7 @@ export const RANK_BELT_CLASSES: Readonly<Record<RankSlug, BeltColorClasses>> = {
   "kyu-4": {
     bg: "bg-blue-500",
     border: "border-blue-500",
+    borderTop: "border-t-blue-500",
     tint: "bg-blue-100",
     tintText: "text-blue-800",
     buttonVars:
@@ -93,6 +97,7 @@ export const RANK_BELT_CLASSES: Readonly<Record<RankSlug, BeltColorClasses>> = {
   "kyu-3": {
     bg: "bg-yellow-500",
     border: "border-yellow-500",
+    borderTop: "border-t-yellow-500",
     tint: "bg-yellow-100",
     tintText: "text-yellow-800",
     buttonVars:
@@ -105,6 +110,7 @@ export const RANK_BELT_CLASSES: Readonly<Record<RankSlug, BeltColorClasses>> = {
   "kyu-2": {
     bg: "bg-green-500",
     border: "border-green-500",
+    borderTop: "border-t-green-500",
     tint: "bg-green-100",
     tintText: "text-green-800",
     buttonVars:
@@ -118,6 +124,7 @@ export const RANK_BELT_CLASSES: Readonly<Record<RankSlug, BeltColorClasses>> = {
   "kyu-1": {
     bg: "bg-amber-800",
     border: "border-amber-800",
+    borderTop: "border-t-amber-800",
     tint: "bg-amber-200",
     tintText: "text-amber-900",
     buttonVars:
@@ -130,6 +137,7 @@ export const RANK_BELT_CLASSES: Readonly<Record<RankSlug, BeltColorClasses>> = {
   "dan-1": {
     bg: "bg-stone-900",
     border: "border-stone-900",
+    borderTop: "border-t-stone-900",
     tint: "bg-stone-200",
     tintText: "text-stone-900",
     buttonVars:
@@ -146,6 +154,7 @@ export const RANK_BELT_CLASSES: Readonly<Record<RankSlug, BeltColorClasses>> = {
 const UNRANKED_BELT_CLASSES: BeltColorClasses = {
   bg: "bg-surface-200",
   border: "border-surface-300",
+  borderTop: "border-t-surface-300",
   tint: "bg-surface-100",
   tintText: "text-surface-700",
   // 塗りと枠が別の濃さなのは、淡いグレーの円を淡いグレーで縁取ると輪郭が
@@ -157,6 +166,22 @@ const UNRANKED_BELT_CLASSES: BeltColorClasses = {
 
 function classesFor(slug: RankSlug | undefined): BeltColorClasses {
   return slug === undefined ? UNRANKED_BELT_CLASSES : RANK_BELT_CLASSES[slug];
+}
+
+/**
+ * 段級位のカードの上端に敷く帯の色クラス。
+ * 帯上端色取得
+ *
+ * 段級位を掲げたカード（次にやること・道場の級・級の詳細・試験への誘導）は、
+ * 他の情報カードと同じ細枠（`border-panel`）に、上端だけ帯色の太い線を敷く。
+ * 以前は四辺を帯色の太枠で縁取っていたが、細枠に揃えた画面の中で級のカード
+ * だけが重く浮いたため、帯の色は上端の 1 本に寄せた。幅（`border-t-4`）は
+ * 呼び出し側が持つ。
+ *
+ * @param slug 段級位スラッグ。未取得なら undefined
+ */
+export function beltBorderTopClass(slug: RankSlug | undefined): string {
+  return classesFor(slug).borderTop;
 }
 
 /**
@@ -173,9 +198,10 @@ export function beltClass(slug: RankSlug | undefined): string {
  * 帯色でカードを縁取るときの枠のクラス。
  * 帯枠色取得
  *
- * 段級位に属するカード（昇級試験カード）は、このアプリ既定の ink（緑）では
- * なくこれで縁取る。級の名前を掲げたカードが別の色の枠を着ていると、枠の色が
- * その級の色に見えてしまう（5級のカードが緑枠だと緑帯に読める）。
+ * 段級位そのものを主題にした面（結果ページの昇級バナー）は、このアプリ既定の
+ * 枠ではなくこれで縁取る。級の名前を掲げた面が別の色の枠を着ていると、枠の色が
+ * その級の色に見えてしまう（5級の面が緑枠だと緑帯に読める）。級を掲げた
+ * 情報カードは細枠に上端の帯を敷く形で、{@link beltBorderTopClass} を使う。
  *
  * @param slug 段級位スラッグ。未取得なら undefined
  */

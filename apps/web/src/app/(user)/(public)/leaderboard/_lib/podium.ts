@@ -28,15 +28,11 @@ export function getMedalEmoji(rank: number): string | undefined {
 
 /**
  * 上位3位の行に付ける左端の金属色アクセント
- *
- * `border-left-style` を明示するのは、行の区切りが破線（`border-dashed`）で
- * border-style が四辺に効くため。指定しないと左端の縁も破線になり、
- * 金属の帯ではなく点線に見える。
  */
 const TOP3_BORDER: Record<number, string> = {
-  1: "border-l-4 [border-left-style:solid] border-l-podium-gold",
-  2: "border-l-4 [border-left-style:solid] border-l-podium-silver",
-  3: "border-l-4 [border-left-style:solid] border-l-podium-bronze",
+  1: "border-l-4 border-l-podium-gold",
+  2: "border-l-4 border-l-podium-silver",
+  3: "border-l-4 border-l-podium-bronze",
 };
 
 /**
@@ -54,7 +50,7 @@ export function leaderboardRowClassName(options: {
   const isTop3 = options.rank >= 1 && options.rank <= 3;
 
   return [
-    "border-b-2 border-dashed border-border/40 last:border-b-0 transition-colors",
+    "border-b border-surface-100 last:border-b-0 transition-colors",
     options.isCurrentUser
       ? "bg-primary-50"
       : isTop3

@@ -143,7 +143,7 @@ export function MachiScoreResult({
           全体の正誤を名乗る見出しは置かない — 2 列を並べた時点で読めば
           分かり、回答の側に付く ✓/✗ が既に判定を持っている */}
       <div className="space-y-2">
-        <h3 className="text-sm font-bold text-surface-700">
+        <h3 className="text-sm font-bold text-surface-900">
           {t("machiTitle")}
         </h3>
         <div className="rounded-lg bg-surface-50 p-4">
@@ -152,7 +152,7 @@ export function MachiScoreResult({
               横へ動く） */}
           <table className="w-full table-fixed text-sm">
             <thead>
-              <tr className="border-b-3 border-ink">
+              <tr className="border-b border-surface-300">
                 <th className="whitespace-nowrap pb-3 pr-4 pt-2 text-right font-bold text-surface-600">
                   {tScore("result.headers.answer")}
                 </th>
@@ -222,7 +222,7 @@ export function MachiScoreResult({
           今の内訳が出ているのかが離れて分かりにくい。選んだタブがそのまま
           内訳の見出しになる形なら、押し方を注記で言わなくても伝わる */}
       <div className="space-y-2">
-        <h3 className="text-sm font-bold text-surface-700">
+        <h3 className="text-sm font-bold text-surface-900">
           {t("summaryTitle")}
         </h3>
         <div>

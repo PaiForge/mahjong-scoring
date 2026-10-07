@@ -85,7 +85,7 @@ export function PracticeQuotaPaywall({
           </div>
         )}
 
-        <section className="space-y-5 rounded-xl border border-primary-200 bg-primary-50/60 p-5">
+        <section className="space-y-5 rounded-panel border border-primary-200 bg-primary-50/60 p-5">
           <div>
             <h3 className="font-bold text-primary-900">{t("perksTitle")}</h3>
             <ul className="mt-3 space-y-2 text-sm leading-relaxed">

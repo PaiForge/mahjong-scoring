@@ -26,18 +26,18 @@ export function LeaderboardDetailSkeleton() {
       {/* 土俵名 */}
       <SectionTitleSkeleton width="w-32" />
 
-      {/* 期間ラベル + 期間セレクタ。セレクタの 34px は実物の内訳
-          （枠 3px × 2 + 内側の余白 2px × 2 + 選択肢 24px） */}
+      {/* 期間ラベル + 期間セレクタ。セレクタの 30px は実物の内訳
+          （枠 1px × 2 + 内側の余白 2px × 2 + 選択肢 24px） */}
       <div className="flex items-center justify-between gap-4">
         <SkeletonBar className="h-5 w-12" tone={100} />
-        <SkeletonBar radius="full" className="h-[34px] w-28" tone={100} />
+        <SkeletonBar radius="md" className="h-[30px] w-28" tone={100} />
       </div>
 
       <LeaderboardTableSkeleton />
 
       {/* 「この種目にチャレンジ」ボタン（実描画では常時表示）。46px は
           実物の内訳（枠 3px × 2 + py-2.5 の 10px × 2 + 文字の行ボックス 20px） */}
-      <div className="border-t-2 border-dashed border-border/40 pt-4">
+      <div className="border-t border-panel pt-4">
         <SkeletonBar radius="lg" className="h-[46px] w-full" tone={100} />
       </div>
 

@@ -44,7 +44,7 @@ export async function PromotionBanner({ slugs }: PromotionBannerProps) {
     <section
       aria-live="polite"
       data-belt-slug={awarded ?? "unranked"}
-      className={`rounded-xl border-3 p-5 text-center ${beltBorderClass(awarded)} ${beltTintClasses(awarded)}`}
+      className={`rounded-panel border p-5 text-center ${beltBorderClass(awarded)} ${beltTintClasses(awarded)}`}
     >
       <BeltBadge slug={awarded} />
       {/* 見出しは最上位の段級位の種別で出す（級と段が同時に付いたときは

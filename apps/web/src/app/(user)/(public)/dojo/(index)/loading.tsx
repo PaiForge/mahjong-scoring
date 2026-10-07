@@ -32,14 +32,14 @@ export default async function Loading() {
 
       <div className="space-y-8">
         {/* 現在の段級位: ラベル行 + 区切りバー + 級名 + 未ログイン時のログイン導線。
-            実測（2026-10-06）で 390px 幅・1280px 幅とも 92px（ログイン済みは導線が無く 68px） */}
-        <SkeletonBar radius="xl" className="h-[92px] w-full" tone={100} />
+            実測（2026-10-07）で 390px 幅・1280px 幅とも 84px（ログイン済みは導線が無く 60px） */}
+        <SkeletonBar radius="lg" className="h-[84px] w-full" tone={100} />
 
-        {/* 次の目標: 開いた 5級のカード。実測（2026-10-05）で 975px（sm 以上 983px） */}
+        {/* 次の目標: 開いた 5級のカード。実測（2026-10-07）で 971px（sm 以上 979px） */}
         <section>
           <SkeletonBar
-            radius="xl"
-            className="h-[975px] w-full sm:h-[983px]"
+            radius="lg"
+            className="h-[971px] w-full sm:h-[979px]"
             tone={100}
           />
         </section>
@@ -50,13 +50,13 @@ export default async function Loading() {
             {RANK_REGISTRY.map((rank, index) => (
               <SkeletonBar
                 key={rank.slug}
-                radius="xl"
-                // 実測（2026-10-05）: 次の目標の 5級は 156px（sm 以上 164px）、
-                // 施錠の注記を持つ他の級は 180px（sm 以上 188px）
+                radius="lg"
+                // 実測（2026-10-07）: 次の目標の 5級は 153px（sm 以上 161px）、
+                // 施錠の注記を持つ他の級は 177px（sm 以上 185px）
                 className={
                   index === 0
-                    ? "h-[156px] w-full sm:h-[164px]"
-                    : "h-[180px] w-full sm:h-[188px]"
+                    ? "h-[153px] w-full sm:h-[161px]"
+                    : "h-[177px] w-full sm:h-[185px]"
                 }
                 tone={100}
               />

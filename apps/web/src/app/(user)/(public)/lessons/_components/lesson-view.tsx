@@ -429,8 +429,10 @@ export function LessonView({
     return (
       <div className="space-y-6">
         <section className="space-y-4">
-          <div className="flex items-center justify-between">
-            <SectionTitle>{t("quizTitle")}</SectionTitle>
+          <div className="flex items-center justify-between gap-3">
+            <SectionTitle className="min-w-0 flex-1">
+              {t("quizTitle")}
+            </SectionTitle>
             <span className="text-sm font-bold tabular-nums text-surface-600">
               {t("progress", { index: index + 1, total: questions.length })}
             </span>
@@ -539,7 +541,7 @@ export function LessonView({
             示す。琥珀色（HighlightPanel）は教本のコラム・注意書きの記号なので
             使わない — 補足に見える */}
           <div
-            className="rounded-xl border-3 border-success bg-success-subtle p-5 text-success-strong"
+            className="rounded-panel border border-success bg-success-subtle p-5 text-success-strong"
             data-testid="lesson-achievement"
           >
             <p className="flex items-start gap-2 text-base font-bold leading-relaxed">
@@ -652,7 +654,7 @@ function CompletionActions({
         <div
           role="alert"
           data-testid="lesson-save-failed"
-          className="space-y-4 rounded-lg border-3 border-destructive bg-destructive-subtle p-5"
+          className="space-y-4 rounded-panel border border-destructive bg-destructive-subtle p-5"
         >
           <p className="text-base font-bold text-destructive-strong">
             {t("saveFailed.title")}

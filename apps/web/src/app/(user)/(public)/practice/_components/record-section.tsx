@@ -73,7 +73,7 @@ export async function RecordSection({
     view?.status === "newBest"
       ? {
           label: t("record.newBest"),
-          className: "bg-primary-100 text-primary-700",
+          className: "bg-primary-50 text-primary-800",
         }
       : view?.status === "first"
         ? {
@@ -88,10 +88,12 @@ export async function RecordSection({
   return (
     <ResultBlockSection>
       <div className="flex items-center justify-between gap-3">
-        <SectionTitle>{t("record.sectionTitle")}</SectionTitle>
+        <SectionTitle className="min-w-0 flex-1">
+          {t("record.sectionTitle")}
+        </SectionTitle>
         {badge && (
           <span
-            className={`inline-block whitespace-nowrap rounded-full px-3 py-1 text-xs font-semibold ${badge.className}`}
+            className={`inline-block whitespace-nowrap rounded-md px-2.5 py-1 text-xs font-bold ${badge.className}`}
           >
             {badge.label}
           </span>

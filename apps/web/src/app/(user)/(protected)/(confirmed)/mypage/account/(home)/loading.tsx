@@ -17,7 +17,7 @@ export default function Loading() {
 
       <section className="space-y-4">
         <SectionTitleSkeleton width="w-28" />
-        <div className="space-y-4 rounded-panel border border-surface-100 bg-surface-50 p-5">
+        <div className="space-y-4 rounded-panel border border-panel bg-surface-50 p-5">
           {/* 項目 2 つ（実: dt text-xs = 16px 行、dd text-sm = 20px 行 + mt-0.5） */}
           {[0, 1].map((i) => (
             <div key={i}>
@@ -33,7 +33,7 @@ export default function Loading() {
       </section>
 
       {/* 退会リンク（実: mt-10 border-t pt-6 中央寄せ） */}
-      <div className="mt-10 flex justify-center border-t-2 border-dashed border-border/40 pt-6">
+      <div className="mt-10 flex justify-center border-t border-panel pt-6">
         <SkeletonBar className="h-4 w-32" />
       </div>
     </ContentContainer>
