@@ -1,5 +1,5 @@
-import type { ReactNode } from "react";
-import { StyleSheet, View } from "react-native";
+import { useState, type ReactNode } from "react";
+import { StyleSheet, Text, View } from "react-native";
 import { useTranslations } from "use-intl";
 import type { ScoreTableAnswer } from "@mahjong-scoring/core";
 import { formatScoreAnswer } from "@mahjong-scoring/features/results/format-score-answer";
@@ -12,9 +12,12 @@ import { buildYakumanCapNote } from "@mahjong-scoring/features/results/yakuman-c
 
 import { TehaiMentsuBreakdown } from "../../board/tehai-mentsu-breakdown";
 import { useFuHanOrder } from "../../hooks/use-display-settings-store";
+import { linkStyles } from "../../lib/link-styles";
+import { ScoreTableModal } from "../endless/score/score-table-modal";
 import { AnswerComparison } from "./answer-comparison";
 import { ProblemListAccordion } from "./problem-list-accordion";
 import { QuestionDisplay } from "./question-display";
+import type { ScoreTablePosition } from "./revealed-score-answer";
 import { YakuBreakdown } from "./yaku-breakdown";
 
 interface ScoreProblemListProps {
@@ -22,7 +25,8 @@ interface ScoreProblemListProps {
   /** i18n の翻訳ネームスペース（例: "scoreTableChallenge"） */
   readonly translationNamespace: string;
   /**
-   * 正解を表示する際のレンダリング関数（省略時は回答と同じ書式の文字）
+   * 正解を表示する際のレンダリング関数（省略時は回答と同じ書式で、押すと
+   * その和了の点数早見表を開く文字）
    */
   readonly renderCorrectAnswer?: (
     answer: ScoreTableAnswer,
@@ -47,9 +51,10 @@ interface ScoreProblemListProps {
  * の順。翻数の内訳は既定で閉じる（問われているのは点数で、開いたままだと
  * 役の行数だけ答え合わせが下へ流れる）。
  *
- * web は正解の点数を押すとその条件をハイライトした点数早見表を開く
- * （`ScoreProblemListWithLinks`）が、モバイルにはまだ点数早見表が無いため
- * 正解は文字のまま出す。
+ * 正解の点数は押すとその和了の親子・ロンツモで点数早見表を開く（web の
+ * `ScoreProblemListWithLinks`）。web は正解のセルまでハイライトするが、
+ * モバイルの点数早見表はまだ注目するセルを受け取れないため、タブを合わせる
+ * だけにとどめる。
  */
 export function ScoreProblemList({
   results,
@@ -62,57 +67,89 @@ export function ScoreProblemList({
   const tBreakdown = useTranslations("challenge.yakuBreakdown");
   const fuHanOrder = useFuHanOrder();
   const translate = (key: string) => t(key);
+  const [scoreTable, setScoreTable] = useState<ScoreTablePosition | null>(null);
 
   return (
-    <ProblemListAccordion
-      results={results}
-      translationNamespace={translationNamespace}
-      outcome={(r) => r.outcome}
-      renderSummary={(result) => scoreResultSummary(result, t, fuHanOrder)}
-      renderDetail={(result) => {
-        const question = restoreScoreQuestion(result.question, result.isTsumo);
-        const yakuDetails = result.question?.yakuDetails;
+    <>
+      <ProblemListAccordion
+        results={results}
+        translationNamespace={translationNamespace}
+        outcome={(r) => r.outcome}
+        renderSummary={(result) => scoreResultSummary(result, t, fuHanOrder)}
+        renderDetail={(result) => {
+          const question = restoreScoreQuestion(
+            result.question,
+            result.isTsumo,
+          );
+          const yakuDetails = result.question?.yakuDetails;
 
-        return (
-          <View style={styles.detail}>
-            {question && <QuestionDisplay question={question} />}
-            {question && (
-              <TehaiMentsuBreakdown tehai={question.tehai} context={question} />
-            )}
-            {/* 役の内訳。保存を始める前の旧データには無いため任意 */}
-            {yakuDetails !== undefined && (
-              <YakuBreakdown
-                yakuDetails={yakuDetails}
-                note={buildYakumanCapNote(
-                  yakuDetails,
-                  result.yakumanMultiplier,
-                  (key, values) => tBreakdown(key, values),
-                )}
+          return (
+            <View style={styles.detail}>
+              {question && <QuestionDisplay question={question} />}
+              {question && (
+                <TehaiMentsuBreakdown
+                  tehai={question.tehai}
+                  context={question}
+                />
+              )}
+              {/* 役の内訳。保存を始める前の旧データには無いため任意 */}
+              {yakuDetails !== undefined && (
+                <YakuBreakdown
+                  yakuDetails={yakuDetails}
+                  note={buildYakumanCapNote(
+                    yakuDetails,
+                    result.yakumanMultiplier,
+                    (key, values) => tBreakdown(key, values),
+                  )}
+                />
+              )}
+
+              <AnswerComparison
+                translationNamespace={translationNamespace}
+                outcome={result.outcome}
+                correct={
+                  renderCorrectAnswer?.(result.correctAnswer, result) ?? (
+                    <Text
+                      onPress={() =>
+                        setScoreTable({
+                          role: result.isOya ? "oya" : "ko",
+                          winType: result.isTsumo ? "tsumo" : "ron",
+                        })
+                      }
+                      accessibilityRole="link"
+                      style={[styles.correctLink, linkStyles.textButton]}
+                    >
+                      {formatAnswer(result.correctAnswer, translate)}
+                    </Text>
+                  )
+                }
+                user={
+                  result.userAnswer === undefined
+                    ? undefined
+                    : formatAnswer(result.userAnswer, translate)
+                }
               />
-            )}
-
-            <AnswerComparison
-              translationNamespace={translationNamespace}
-              outcome={result.outcome}
-              correct={
-                renderCorrectAnswer?.(result.correctAnswer, result) ??
-                formatAnswer(result.correctAnswer, translate)
-              }
-              user={
-                result.userAnswer === undefined
-                  ? undefined
-                  : formatAnswer(result.userAnswer, translate)
-              }
-            />
-          </View>
-        );
-      }}
-    />
+            </View>
+          );
+        }}
+      />
+      {scoreTable !== null && (
+        <ScoreTableModal
+          isOpen
+          onClose={() => setScoreTable(null)}
+          role={scoreTable.role}
+          winType={scoreTable.winType}
+        />
+      )}
+    </>
   );
 }
 
 const styles = StyleSheet.create({
   detail: {
     gap: 12,
+  },
+  correctLink: {
+    fontSize: 14,
   },
 });

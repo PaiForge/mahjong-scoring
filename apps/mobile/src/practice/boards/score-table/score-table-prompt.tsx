@@ -63,6 +63,10 @@ export function ScoreTablePrompt({
             <RevealedScoreAnswer
               answer={revealedAnswer}
               translationNamespace="scoreTableChallenge"
+              scoreTable={{
+                role: isOya ? "oya" : "ko",
+                winType: isTsumo ? "tsumo" : "ron",
+              }}
             />
           )
         }
