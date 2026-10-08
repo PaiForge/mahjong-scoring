@@ -85,3 +85,24 @@ export function jstStartOfMonth(instant: Date): Date {
 export function jstDayKey(instant: Date): string {
   return new Date(instant.getTime() + JST_OFFSET_MS).toISOString().slice(0, 10);
 }
+
+const JST_DATE_TIME_FORMAT = new Intl.DateTimeFormat("ja-JP", {
+  year: "numeric",
+  month: "2-digit",
+  day: "2-digit",
+  hour: "2-digit",
+  minute: "2-digit",
+  hour12: false,
+  timeZone: JST_TIME_ZONE,
+});
+
+/**
+ * 日時を JST の「2026/10/02 10:30」の形にする
+ * JST日時表示
+ *
+ * 時刻は 24 時間表記。サーバーで描く画面とクライアントで描く画面が同じ文字列を
+ * 出すよう、実行環境のタイムゾーンに依らず JST で整形する。
+ */
+export function formatJstDateTime(instant: Date): string {
+  return JST_DATE_TIME_FORMAT.format(instant);
+}

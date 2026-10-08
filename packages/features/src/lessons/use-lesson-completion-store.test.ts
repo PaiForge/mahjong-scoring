@@ -1,24 +1,12 @@
 // @vitest-environment jsdom
 import { act, renderHook, waitFor } from "@testing-library/react";
 import { describe, expect, it } from "vitest";
-import type { StateStorage } from "zustand/middleware";
 
 import { createLessonCompletionStore } from "./use-lesson-completion-store";
-
-/** 同期で読み書きする保存先 */
-function createMemoryStorage(initial: Record<string, string> = {}) {
-  const data = new Map(Object.entries(initial));
-  const storage: StateStorage = {
-    getItem: (name) => data.get(name) ?? null,
-    setItem: (name, value) => {
-      data.set(name, value);
-    },
-    removeItem: (name) => {
-      data.delete(name);
-    },
-  };
-  return { data, storage };
-}
+import {
+  createAsyncStorage,
+  createMemoryStorage,
+} from "../test/memory-storage";
 
 describe("レッスン完了ストア", () => {
   it("完了を保存名 mahjong-lesson-completions に書き込む", () => {
@@ -65,19 +53,14 @@ describe("レッスン完了ストア", () => {
   });
 
   it("非同期の保存先でも読み込み後に完了が反映される", async () => {
-    const { storage } = createMemoryStorage({
+    const { storage } = createAsyncStorage({
       "mahjong-lesson-completions": JSON.stringify({
         state: { completedSlugs: ["machi-fu"] },
         version: 0,
       }),
     });
-    const asyncStorage: StateStorage = {
-      getItem: async (name) => storage.getItem(name),
-      setItem: async (name, value) => storage.setItem(name, value),
-      removeItem: async (name) => storage.removeItem(name),
-    };
     const { useLessonCompleted } = createLessonCompletionStore({
-      storage: () => asyncStorage,
+      storage: () => storage,
     });
 
     const { result } = renderHook(() => useLessonCompleted("machi-fu"));

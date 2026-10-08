@@ -1,10 +1,8 @@
 import type { ReactNode } from "react";
 import { useTranslations } from "use-intl";
-import {
-  formatDifference,
-  type AnswerDifference,
-} from "@mahjong-scoring/features/practice/answer-difference";
-import { AnswerOutcome } from "@mahjong-scoring/features/results/result-schemas";
+import type { AnswerDifference } from "@mahjong-scoring/features/practice/answer-difference";
+import { buildAnswerComparisonTable } from "@mahjong-scoring/features/practice/answer-comparison-table";
+import type { AnswerOutcome } from "@mahjong-scoring/features/results/result-schemas";
 
 import { DetailTable } from "./detail-table";
 
@@ -33,31 +31,17 @@ export function AnswerComparison({
 }: AnswerComparisonProps) {
   const tResult = useTranslations(`${translationNamespace}.result`);
   const tCommon = useTranslations("common");
-  const isTimeUp = outcome === AnswerOutcome.TimeUp;
   return (
     <DetailTable
-      title={showTitle ? tCommon("answerCheck") : undefined}
-      total={
-        difference === undefined || isTimeUp
-          ? undefined
-          : {
-              label: tCommon("difference"),
-              value: formatDifference(difference, tCommon("noDifference")),
-            }
-      }
-      rows={[
-        { label: tResult("correctAnswer"), value: correct },
-        {
-          label: tResult("yourAnswer"),
-          value: isTimeUp ? tCommon("timeUpAnswer") : user,
-          tone:
-            outcome === AnswerOutcome.Correct
-              ? "correct"
-              : outcome === AnswerOutcome.Incorrect
-                ? "incorrect"
-                : undefined,
-        },
-      ]}
+      {...buildAnswerComparisonTable({
+        tResult,
+        tCommon,
+        correct,
+        user,
+        outcome,
+        difference,
+        showTitle,
+      })}
     />
   );
 }

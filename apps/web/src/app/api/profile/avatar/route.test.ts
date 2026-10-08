@@ -53,12 +53,11 @@ vi.mock("@/lib/db", async () => ({
 }));
 
 // 退会と直列にする書き込みの枠は、退会が無い状態（そのまま書く）として通す
-vi.mock("@/lib/users/account-write-lock", () => ({
-  writeAsAccount: async (
-    _userId: string,
-    write: (tx: unknown) => Promise<unknown>,
-  ) => ({ written: true, value: await write({ update: mockUpdate }) }),
-}));
+vi.mock("@/lib/users/account-write-lock", async () =>
+  (await import("@/test/account-write-lock-mock")).passThroughAccountWrite({
+    update: mockUpdate,
+  }),
+);
 
 vi.mock("@/lib/supabase/admin", () => ({
   createAdminClient: mockCreateAdminClient,

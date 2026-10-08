@@ -1,7 +1,11 @@
 import type { useTranslations } from "next-intl";
 
 import { practiceMenuByType } from "@mahjong-scoring/features/practice-menu-types";
-import { JST_TIME_ZONE, jstDayKey } from "@mahjong-scoring/features/jst";
+import {
+  formatJstDateTime,
+  JST_TIME_ZONE,
+  jstDayKey,
+} from "@mahjong-scoring/features/jst";
 
 import type {
   ChallengeAttempt,
@@ -19,14 +23,7 @@ import type {
  */
 export function formatDate(date: Date | undefined): string {
   if (!date) return "-";
-  return new Intl.DateTimeFormat("ja", {
-    year: "numeric",
-    month: "2-digit",
-    day: "2-digit",
-    hour: "2-digit",
-    minute: "2-digit",
-    timeZone: JST_TIME_ZONE,
-  }).format(new Date(date));
+  return formatJstDateTime(new Date(date));
 }
 
 /**

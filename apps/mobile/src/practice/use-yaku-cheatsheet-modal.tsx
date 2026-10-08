@@ -1,5 +1,6 @@
-import { useCallback, useMemo, useState, type ReactNode } from "react";
+import { useCallback, type ReactNode } from "react";
 import { resolveYakuCheatsheetName } from "@mahjong-scoring/features/yaku/examples";
+import { useYakuCheatsheetState } from "@mahjong-scoring/features/yaku/use-yaku-cheatsheet-state";
 
 import { YakuCheatsheetModal } from "./endless/agari-score/yaku-cheatsheet-modal";
 
@@ -19,45 +20,37 @@ interface YakuCheatsheetModalHandle {
  * 答え合わせから役一覧のシートを開くための状態（web の `useYakuCheatsheetModal`）
  * 役一覧モーダル状態
  *
- * 役判定の対比・翻数の内訳・和了形の点数計算の結果表示で共有する。点数計算が返す
- * 役名（「役牌 白」等）から早見表の項目名への解決と、成立役への印の組み立てを
- * ここに寄せ、画面ごとに別の役へ着地しないようにする。
+ * 開閉と成立役の印は features の `useYakuCheatsheetState` が持ち、ここは
+ * シート本体を組み立てる。
  *
  * @param yakuNames この手で成立している役名。一覧内で印を付ける
  */
 export function useYakuCheatsheetModal(
   yakuNames: readonly string[],
 ): YakuCheatsheetModalHandle {
-  const [focusedYakuName, setFocusedYakuName] = useState<string | undefined>(
-    undefined,
-  );
-  const [isOpen, setIsOpen] = useState(false);
+  const {
+    markedYakuNames,
+    focusedYakuName,
+    isOpen,
+    canOpenYakuCheatsheet,
+    openAt,
+    close,
+  } = useYakuCheatsheetState(yakuNames);
 
-  const markedYakuNames = useMemo(
-    () =>
-      yakuNames.flatMap((name) => {
-        const resolved = resolveYakuCheatsheetName(name);
-        return resolved === undefined ? [] : [resolved];
-      }),
-    [yakuNames],
+  const openYakuCheatsheet = useCallback(
+    (yakuName?: string) =>
+      openAt(
+        yakuName === undefined
+          ? undefined
+          : resolveYakuCheatsheetName(yakuName),
+      ),
+    [openAt],
   );
-
-  const canOpenYakuCheatsheet = useCallback(
-    (yakuName: string) => resolveYakuCheatsheetName(yakuName) !== undefined,
-    [],
-  );
-
-  const openYakuCheatsheet = useCallback((yakuName?: string) => {
-    setFocusedYakuName(
-      yakuName === undefined ? undefined : resolveYakuCheatsheetName(yakuName),
-    );
-    setIsOpen(true);
-  }, []);
 
   const yakuCheatsheetModal = (
     <YakuCheatsheetModal
       isOpen={isOpen}
-      onClose={() => setIsOpen(false)}
+      onClose={close}
       markedYakuNames={markedYakuNames}
       focusedYakuName={focusedYakuName}
     />

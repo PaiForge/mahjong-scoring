@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest";
 
 import {
+  formatJstDateTime,
   jstCalendarDate,
   jstDayKey,
   jstStartOfDay,
@@ -91,5 +92,20 @@ describe("jstStartOfMonth", () => {
     expect(
       jstStartOfMonth(new Date("2026-12-31T15:00:00Z")).toISOString(),
     ).toBe("2026-12-31T15:00:00.000Z");
+  });
+});
+
+describe("formatJstDateTime", () => {
+  it("JST の「年/月/日 時:分」にする", () => {
+    // UTC 23:30 は JST の翌日 08:30
+    expect(formatJstDateTime(new Date("2026-10-01T23:30:00Z"))).toBe(
+      "2026/10/02 08:30",
+    );
+  });
+
+  it("深夜 0 時台を 24 時と書かない", () => {
+    expect(formatJstDateTime(new Date("2026-10-01T15:05:00Z"))).toBe(
+      "2026/10/02 00:05",
+    );
   });
 });
