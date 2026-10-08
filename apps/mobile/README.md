@@ -142,3 +142,9 @@ npx expo run:ios --device   # 繋いだ iPhone を選ぶ。初回は数分かか
 5. 退会すると、`account_deletions` の `apple_revoked_at` が入り、`apple_refresh_tokens` の行が消える。
    iPhone の 設定 > Apple アカウント > サインインとセキュリティ > Apple でサインイン から、このアプリが消えている
 6. 同じ Apple ID でもう一度ログインすると、新しいアカウントとして始まる
+7. トークンが無い状態の退会: Apple でログインし直した後、Supabase Studio の SQL Editor で
+   `delete from apple_refresh_tokens;` を流してから退会すると、退会の前に Apple のシートが出る。
+   確認を済ませると 5 と同じになり、シートを閉じると退会されずに案内が出る
+
+サーバーの環境変数が無い環境では、Apple でログインした人は退会できない（Apple の連携を
+取り消せないまま退会を受け付けないため。退会の画面に通信の失敗の案内が出る）。
