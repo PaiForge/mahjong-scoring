@@ -5,8 +5,8 @@ import { logCurrentUserEvent } from "@/lib/activity-log";
 import { enforceIpRateLimit } from "@/lib/rate-limit-ip";
 import type { RateLimitErrorCode } from "@/lib/rate-limit-ip";
 import { createClient } from "@/lib/supabase/server";
-import { getPasswordValidationError } from "@/lib/validations/password";
-import type { PasswordValidationErrorKey } from "@/lib/validations/password";
+import { getPasswordValidationError } from "@mahjong-scoring/features/account/password";
+import type { PasswordValidationErrorKey } from "@mahjong-scoring/features/account/password";
 
 /** パスワード再設定の失敗理由 */
 export type ResetPasswordError =

@@ -1,6 +1,12 @@
 import { z } from "zod";
 
-import { MIN_PASSWORD_LENGTH } from "../../config";
+/**
+ * パスワード最小文字数（web の Supabase config.toml の minimum_password_length と同期）
+ * パスワード最小文字数
+ *
+ * web とアプリの登録・再設定のフォームが同じ規則で検証するため、ここに置く。
+ */
+export const MIN_PASSWORD_LENGTH = 6;
 
 /**
  * パスワードバリデーションスキーマ。

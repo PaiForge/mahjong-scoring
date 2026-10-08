@@ -514,7 +514,7 @@ loading.tsx を一緒に足すこと。逆に静的にしたら両方を外す�
 
 - IP ベースのインメモリレートリミット（`src/lib/rate-limit-ip.ts`）+ Supabase サーバーサイドレートリミットの二重防御
 - アカウント列挙防止: サインインは汎用エラー、パスワードリセットは常に成功を返す
-- パスワードバリデーション: Zod スキーマ（`src/lib/validations/password.ts`）で client/server 両方で検証
+- パスワードバリデーション: Zod スキーマ（`packages/features/src/account/password.ts`）で client/server・web/モバイルの両方で検証
 
 ### 管理者ロールの割り当て
 

@@ -5,7 +5,7 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { useTranslations } from "next-intl";
 
-import { MIN_PASSWORD_LENGTH } from "@/config";
+import { MIN_PASSWORD_LENGTH } from "@mahjong-scoring/features/account/password";
 
 import { useAuthFormSubmit } from "../../_hooks/use-auth-form-submit";
 import { usePasswordFormMessages } from "../../_hooks/use-password-form-messages";

@@ -40,12 +40,6 @@ function normalizeSiteUrl(raw: string | undefined): string {
 export const SITE_URL = normalizeSiteUrl(process.env.NEXT_PUBLIC_SITE_URL);
 
 /**
- * パスワード最小文字数（Supabase config.toml の minimum_password_length と同期）
- * パスワード最小文字数
- */
-export const MIN_PASSWORD_LENGTH = 6;
-
-/**
  * 運営者のコーポレートサイト
  * コーポレートサイトURL
  *

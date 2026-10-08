@@ -2,11 +2,11 @@
 
 import { useTranslations } from "next-intl";
 
-import { MIN_PASSWORD_LENGTH } from "@/config";
+import { MIN_PASSWORD_LENGTH } from "@mahjong-scoring/features/account/password";
 import {
   parsePasswordActionError,
   validatePasswordPair,
-} from "@/lib/validations/password";
+} from "@mahjong-scoring/features/account/password";
 
 interface PasswordFormMessages {
   /**
@@ -30,7 +30,7 @@ interface PasswordFormMessages {
  *
  * ペア検証の結果と Server Action のパスワードエラーコードを i18n メッセージへ
  * 落とす手順を一元化する。パスワードポリシーは client/server 共通の Zod スキーマ
- * （`@/lib/validations/password`）が唯一の定義で、ここはその表示層。
+ * （`@mahjong-scoring/features/account/password`）が唯一の定義で、ここはその表示層。
  *
  * @param namespace - `passwordMismatch` キーを持つ画面の翻訳名前空間
  */

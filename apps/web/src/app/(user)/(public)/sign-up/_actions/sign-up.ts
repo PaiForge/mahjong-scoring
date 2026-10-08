@@ -4,8 +4,8 @@ import type { ActionResult } from "@/lib/action-types";
 import { enforceIpRateLimit } from "@/lib/rate-limit-ip";
 import type { RateLimitErrorCode } from "@/lib/rate-limit-ip";
 import { createClient } from "@/lib/supabase/server";
-import { getPasswordValidationError } from "@/lib/validations/password";
-import type { PasswordValidationErrorKey } from "@/lib/validations/password";
+import { getPasswordValidationError } from "@mahjong-scoring/features/account/password";
+import type { PasswordValidationErrorKey } from "@mahjong-scoring/features/account/password";
 
 import { SIGN_UP_EMAIL_REDIRECT_TO } from "../_lib/email-redirect";
 
