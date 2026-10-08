@@ -41,20 +41,33 @@ const EMPTY_COUNTS: AnonymousQuotaCounts = {
   "tenpai-score": 0,
 };
 
-let cachedKey: Buffer | undefined;
+/**
+ * 鍵の素材から署名鍵を派生させる
+ * 署名鍵導出
+ */
+function deriveSigningKey(material: string): Buffer {
+  return Buffer.from(
+    hkdfSync("sha256", material, "", "practice-quota-cookie", 32),
+  );
+}
+
+/**
+ * 派生させた鍵の控え。素材ごと持ち、素材が変わったら派生し直す — 鍵だけを
+ * 持つと、最初に読んだ環境変数の鍵をプロセスが終わるまで使い続ける
+ */
+let cachedKey: { readonly material: string; readonly key: Buffer } | undefined;
 
 /**
  * 署名鍵。無ければ undefined
- * 署名鍵導出
+ * 署名鍵
  */
 function signingKey(): Buffer | undefined {
-  if (cachedKey) return cachedKey;
   const material = process.env.SUPABASE_SERVICE_ROLE_KEY;
   if (!material) return undefined;
-  cachedKey = Buffer.from(
-    hkdfSync("sha256", material, "", "practice-quota-cookie", 32),
-  );
-  return cachedKey;
+  if (cachedKey?.material !== material) {
+    cachedKey = { material, key: deriveSigningKey(material) };
+  }
+  return cachedKey.key;
 }
 
 function sign(key: Buffer, payload: string): string {
