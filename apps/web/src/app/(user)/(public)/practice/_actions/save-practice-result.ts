@@ -1,7 +1,8 @@
 "use server";
-import { type AuthGateErrorCode, authenticateAndCheckBan } from "@/lib/auth";
+import type { AuthGateErrorCode } from "@/lib/auth";
 import { finishAttempt } from "@/lib/challenge/attempts";
 import { logExternalError } from "@/lib/log-error";
+import { resolveRecorder } from "@/lib/resolve-recorder";
 
 /**
  * `savePracticeResult` が返しうるエラーコード
@@ -65,12 +66,10 @@ export async function savePracticeResult(
   attemptId: string,
 ): Promise<SaveResultResponse> {
   try {
-    const auth = await authenticateAndCheckBan();
-    if ("error" in auth)
-      return auth.error === "unauthorized"
-        ? { success: true, skipped: "anonymous" }
-        : { success: false, error: auth.error };
-    const result = await finishAttempt(auth.user.id, attemptId, false);
+    const recorder = await resolveRecorder();
+    if ("skipped" in recorder) return { success: true, skipped: "anonymous" };
+    if ("error" in recorder) return { success: false, error: recorder.error };
+    const result = await finishAttempt(recorder.user.id, attemptId, false);
     if (!result || !("challengeResultId" in result))
       return { success: false, error: "invalid_result" };
     return { success: true, challengeResultId: result.challengeResultId };

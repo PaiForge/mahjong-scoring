@@ -2,12 +2,12 @@
 
 import { revalidatePath } from "next/cache";
 
-import { authenticateAndCheckBan, type AuthUser } from "@/lib/auth";
 import {
   partitionLessonSlugs,
   recordLessonCompletions,
 } from "@/lib/lessons/record-completions";
 import { logExternalError } from "@/lib/log-error";
+import { resolveRecorder } from "@/lib/resolve-recorder";
 
 import {
   isCurriculumChapterSlug,
@@ -65,25 +65,6 @@ export type CompleteLessonsResult =
     }
   | { readonly success: true; readonly skipped: "anonymous" }
   | { readonly success: false; readonly error: "banned" };
-
-/**
- * 完了を記録してよい本人を決める
- *
- * 書き込む Action なので認証に加えて BAN を確かめる（`authenticateAndCheckBan`）。
- * 未認証はエラーにせず `anonymous` に読み替える — レッスンは未ログインでも
- * 最後まで受けられ、完了は端末に預けてログイン後に同期するため。
- */
-async function resolveRecorder(): Promise<
-  | { readonly user: AuthUser }
-  | { readonly skipped: "anonymous" }
-  | { readonly error: "banned" }
-> {
-  const auth = await authenticateAndCheckBan();
-  if (!("error" in auth)) return { user: auth.user };
-  return auth.error === "unauthorized"
-    ? { skipped: "anonymous" }
-    : { error: auth.error };
-}
 
 /**
  * 認証済みユーザーの完了を冪等に記録し、完了を読む画面を捨てる
