@@ -3,6 +3,7 @@ import { StatusBar } from "expo-status-bar";
 import { SafeAreaProvider } from "react-native-safe-area-context";
 
 import { AppIntlProvider } from "../lib/intl-provider";
+import { useAccountSync } from "../records/use-account-sync";
 import { colors } from "../lib/theme";
 import { TermSheetProvider } from "../reference/term-sheet";
 
@@ -15,6 +16,7 @@ import { TermSheetProvider } from "../reference/term-sheet";
  * web がタブバーを畳むのと同じく、ヘッダーもタブも出さず画面を明け渡す。
  */
 export default function RootLayout() {
+  useAccountSync();
   return (
     <SafeAreaProvider>
       <AppIntlProvider>
