@@ -129,7 +129,10 @@ interface LessonViewProps {
  * リンクに替え、その下に練習への導線を出す。
  *
  * web は段階をブラウザの履歴に積み「戻る」で 1 段階ずつ戻れるが、モバイルの
- * 戻るは画面を閉じる。
+ * 戻るは画面を閉じる。その代わり確認問題の下に「本文を読み返す」を置き、
+ * 本文へ戻っても解いている問題と回答（選んだ答え・ヒント・正答数）は残して、
+ * 本文の下のボタンから同じ問題へ戻れるようにする。読み返すたびに最初から
+ * 解き直させないため。
  */
 export function LessonView({
   slug,
@@ -152,6 +155,8 @@ export function LessonView({
 
   const [phase, setPhase] = useState<LessonPhase>("learn");
   const [finished, setFinished] = useState(false);
+  // 確認問題を解いている途中か（本文を読み返しても続きから戻れるように）
+  const [inQuiz, setInQuiz] = useState(false);
   const [index, setIndex] = useState(0);
   const [selected, setSelected] = useState<LessonChoice | undefined>(undefined);
   const [showHint, setShowHint] = useState(false);
@@ -187,12 +192,14 @@ export function LessonView({
       setCorrectCount(0);
       setFinished(false);
     }
+    setInQuiz(true);
     goTo("quiz");
   };
 
   const handleNext = () => {
     if (isLast) {
       setFinished(true);
+      setInQuiz(false);
       markCompleted(slug);
       goTo("done");
       return;
@@ -213,7 +220,11 @@ export function LessonView({
           </View>
         )}
         {explanation}
-        {completed ? (
+        {inQuiz ? (
+          <Button size="lg" fullWidth onPress={handleStart}>
+            {t("resumeQuiz", { index: index + 1, total: questions.length })}
+          </Button>
+        ) : completed ? (
           <>
             <TextLink onPress={handleStart}>{t("retakeQuiz")}</TextLink>
             <ChapterRelatedLinks slug={slug} />
@@ -335,6 +346,7 @@ export function LessonView({
             {t("showHint")}
           </Button>
         )}
+        <TextLink onPress={() => goTo("learn")}>{t("reviewBody")}</TextLink>
       </View>
     );
   }
