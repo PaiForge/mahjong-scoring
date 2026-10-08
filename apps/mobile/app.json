@@ -9,10 +9,10 @@
     "scheme": "mahjong-scoring",
     "ios": {
       "supportsTablet": true,
-      "bundleIdentifier": "com.paiforge.mahjongscoring"
+      "bundleIdentifier": "help.mahjong.score"
     },
     "android": {
-      "package": "com.paiforge.mahjongscoring",
+      "package": "help.mahjong.score",
       "adaptiveIcon": {
         "foregroundImage": "./assets/adaptive-icon.png",
         "backgroundColor": "#00904a"
