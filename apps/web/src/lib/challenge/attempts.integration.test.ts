@@ -132,26 +132,6 @@ describe.skipIf(!url)("challenge transactions (PostgreSQL)", () => {
     });
     expect(await finishAttempt(owner, attempt.id, false)).toBeUndefined();
   });
-  it("計測の段階は、採点した回答と採点に進まなかった回答で分かれる", async () => {
-    const attempt = await start();
-    const entered: string[] = [];
-    const tracker = {
-      enter: (phase: string) => {
-        entered.push(phase);
-      },
-      finish: () => {
-        entered.push("finish");
-      },
-    };
-    await answerAttempt(owner, attempt.id, 0, 2, undefined, tracker);
-    expect(entered).toEqual(["lock", "grade", "update", "commit", "finish"]);
-    entered.length = 0;
-    // 同じ問題への再送は採点に進まず、読むだけのトランザクションを確定して終わる
-    expect(
-      await answerAttempt(owner, attempt.id, 0, 2, undefined, tracker),
-    ).toBeUndefined();
-    expect(entered).toEqual(["lock", "commit", "finish"]);
-  });
   it("記録の書き込み失敗時は挑戦の消費もロールバックする", async () => {
     const attempt = await start();
     await answerAttempt(owner, attempt.id, 0, 2);
