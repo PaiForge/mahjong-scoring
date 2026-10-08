@@ -74,7 +74,7 @@ interface AgariScoreActions {
   submitAnswer: (
     answer: UserAnswer,
     requireYaku?: boolean,
-    simplifyMangan?: boolean,
+    exactHan?: boolean,
     requireFuForMangan?: boolean,
   ) => void;
   /** 次の問題へ */
@@ -150,7 +150,7 @@ export function createAgariScoreStore(getRuleSettings: () => RuleSettings) {
     submitAnswer: (
       answer: UserAnswer,
       requireYaku = false,
-      simplifyMangan = false,
+      exactHan = false,
       requireFuForMangan = false,
     ) => {
       const { currentQuestion, stats } = get();
@@ -160,7 +160,7 @@ export function createAgariScoreStore(getRuleSettings: () => RuleSettings) {
         currentQuestion,
         answer,
         requireYaku,
-        simplifyMangan,
+        exactHan,
         requireFuForMangan,
         // ダブル役満採用時は 26 翻を役満へ丸めずに別の答えとして判定する
         allowsDoubleYakuman(toYakumanRuleConfig(getRuleSettings())),

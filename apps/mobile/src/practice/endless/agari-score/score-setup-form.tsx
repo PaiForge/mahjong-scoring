@@ -38,8 +38,8 @@ interface ScoreSetupFormProps {
  * 点数計算練習の設定画面（web の `ScoreSetupForm`）
  * 練習設定画面
  *
- * 和了形の点数計算と聴牌形の点数計算で共有する。設定項目（役の回答・満貫の
- * 簡略化・符の入力・自動で次へ・親子・点数帯）は同じで、保存先と遷移先だけが
+ * 和了形の点数計算と聴牌形の点数計算で共有する。設定項目（役の回答・5翻以上の
+ * 翻数回答・符の入力・自動で次へ・親子・点数帯）は同じで、保存先と遷移先だけが
  * 練習ごとに違う。
  *
  * web の「回答時間を計測する」（Pro の拡張機能）はモバイルに購入が無いため
@@ -67,12 +67,12 @@ export function ScoreSetupForm({
   );
   const router = useRouter();
   const yakuLabelOf = useYakuLabel();
-  const [showSimplifyInfo, setShowSimplifyInfo] = useState(false);
+  const [showExactHanInfo, setShowExactHanInfo] = useState(false);
   const {
     requireYaku,
     setRequireYaku,
-    simplifyMangan,
-    setSimplifyMangan,
+    exactHan,
+    setExactHan,
     requireFuForMangan,
     setRequireFuForMangan,
     targetScoreRanges,
@@ -114,12 +114,12 @@ export function ScoreSetupForm({
           onChange={setRequireYaku}
         />
         <SettingToggleRow
-          title={t("setup.simplifyMangan")}
-          checked={simplifyMangan}
-          onChange={setSimplifyMangan}
+          title={t("setup.exactHan")}
+          checked={exactHan}
+          onChange={setExactHan}
           titleAction={
             <HelpIconButton
-              onPress={() => setShowSimplifyInfo(true)}
+              onPress={() => setShowExactHanInfo(true)}
               label={tCommon("showDetailInfo")}
             />
           }
@@ -205,12 +205,12 @@ export function ScoreSetupForm({
       {children}
 
       <InfoModal
-        isOpen={showSimplifyInfo}
-        onClose={() => setShowSimplifyInfo(false)}
-        title={t("setup.simplifyMangan")}
+        isOpen={showExactHanInfo}
+        onClose={() => setShowExactHanInfo(false)}
+        title={t("setup.exactHan")}
         closeLabel={tCommon("close")}
       >
-        {t("setup.simplifyManganInfo")}
+        {t("setup.exactHanInfo")}
       </InfoModal>
     </View>
   );

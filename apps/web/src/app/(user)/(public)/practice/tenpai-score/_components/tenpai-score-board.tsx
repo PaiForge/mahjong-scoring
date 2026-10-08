@@ -132,7 +132,7 @@ function TenpaiScoreBoardInner() {
     void requestQuestion();
   }, [isClient, searchParams, requestQuestion, refreshGate]);
 
-  const { requireYaku, simplifyMangan, requireFuForMangan, measureTime } =
+  const { requireYaku, exactHan, requireFuForMangan, measureTime } =
     parseModeFlagsFromParams(new URLSearchParams(searchParams.toString()));
   const autoAdvanceOnCorrect = useAutoAdvanceOnCorrect();
 
@@ -185,7 +185,7 @@ function TenpaiScoreBoardInner() {
     scrollToPracticeAnchor();
     submitCells({
       requireYaku,
-      simplifyMangan,
+      exactHan,
       requireFuForMangan,
       allowDoubleYakuman,
     });
@@ -228,7 +228,7 @@ function TenpaiScoreBoardInner() {
   const { formatAnswer, formatAnswerLines } = cellAnswerFormatters({
     t: tScore,
     noYakuLabel: t("cells.noYakuShort"),
-    simplifyMangan,
+    exactHan,
     allowDoubleYakuman,
     isOya: isOyaQuestion,
   });
@@ -381,7 +381,7 @@ function TenpaiScoreBoardInner() {
                     isTsumo={isTsumo}
                     isOya={isOyaQuestion}
                     requireYaku={requireYaku}
-                    simplifyMangan={simplifyMangan}
+                    exactHan={exactHan}
                     requireFuForMangan={requireFuForMangan}
                     submitLabel={t("cells.assign")}
                     prefill={isShown ? prefill : undefined}
@@ -440,7 +440,7 @@ function TenpaiScoreBoardInner() {
             cellResults={cellResults}
             formatAnswerLines={formatAnswerLines}
             requireYaku={requireYaku}
-            simplifyMangan={simplifyMangan}
+            exactHan={exactHan}
             requireFuForMangan={requireFuForMangan}
             onNext={handleNext}
           />

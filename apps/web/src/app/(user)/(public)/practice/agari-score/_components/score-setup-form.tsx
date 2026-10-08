@@ -60,8 +60,8 @@ interface ScoreSetupFormProps {
  * 点数計算練習の設定画面
  * 練習設定画面
  *
- * 和了形の点数計算と聴牌形の点数計算で共有する。設定項目（役の回答・満貫の
- * 簡略化・符の入力・自動で次へ・親子・点数帯）は同じで、保存先と遷移先だけが
+ * 和了形の点数計算と聴牌形の点数計算で共有する。設定項目（役の回答・5翻以上の
+ * 翻数回答・符の入力・自動で次へ・親子・点数帯）は同じで、保存先と遷移先だけが
  * 練習ごとに違う。
  */
 export function ScoreSetupForm({
@@ -75,7 +75,7 @@ export function ScoreSetupForm({
   const tCommon = useTranslations("common");
   const router = useRouter();
   const mounted = useIsClient();
-  const [showSimplifyInfo, setShowSimplifyInfo] = useState(false);
+  const [showExactHanInfo, setShowExactHanInfo] = useState(false);
   // 拡張機能（回答時間の計測）は Pro の特典。閲覧者の特典はログイン時に
   // `/api/profile/me` が返す（静的ページなのでサーバーから props では渡せない）。
   // 盤面は特典の有無をサーバーの返事で改めて確かめるので、ここの判定は
@@ -90,8 +90,8 @@ export function ScoreSetupForm({
   const {
     requireYaku,
     setRequireYaku,
-    simplifyMangan,
-    setSimplifyMangan,
+    exactHan,
+    setExactHan,
     requireFuForMangan,
     setRequireFuForMangan,
     targetScoreRanges,
@@ -136,8 +136,8 @@ export function ScoreSetupForm({
     if (requireYaku) {
       params.set("mode", "with_yaku");
     }
-    if (simplifyMangan) {
-      params.set("simple", "1");
+    if (exactHan) {
+      params.set("exact_han", "1");
     }
     if (requireFuForMangan) {
       params.set("fu_mangan", "1");
@@ -192,7 +192,7 @@ export function ScoreSetupForm({
           <div className="flex flex-col">
             {[
               "requireYaku",
-              "simplifyMangan",
+              "exactHan",
               "requireFu",
               "autoAdvanceOnCorrect",
             ].map((key) => (
@@ -253,10 +253,10 @@ export function ScoreSetupForm({
             label={t("setup.requireYaku")}
           />
           <SettingToggle
-            checked={simplifyMangan}
-            onChange={setSimplifyMangan}
-            label={t("setup.simplifyMangan")}
-            onInfoClick={() => setShowSimplifyInfo(true)}
+            checked={exactHan}
+            onChange={setExactHan}
+            label={t("setup.exactHan")}
+            onInfoClick={() => setShowExactHanInfo(true)}
             infoAriaLabel={tCommon("showDetailInfo")}
           />
           <SettingToggle
@@ -363,12 +363,12 @@ export function ScoreSetupForm({
       {children}
 
       <InfoModal
-        isOpen={showSimplifyInfo}
-        onClose={() => setShowSimplifyInfo(false)}
-        title={t("setup.simplifyMangan")}
+        isOpen={showExactHanInfo}
+        onClose={() => setShowExactHanInfo(false)}
+        title={t("setup.exactHan")}
         closeLabel={tCommon("close")}
       >
-        {t("setup.simplifyManganInfo")}
+        {t("setup.exactHanInfo")}
       </InfoModal>
     </div>
   );

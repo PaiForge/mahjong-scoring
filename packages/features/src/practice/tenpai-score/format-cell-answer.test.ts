@@ -18,7 +18,7 @@ const t = (key: string) =>
 const base = {
   t,
   noYakuLabel: "役なし",
-  simplifyMangan: false,
+  exactHan: true,
   allowDoubleYakuman: false,
 };
 
@@ -53,12 +53,12 @@ describe("formatCellAnswer", () => {
     ).toBe("2翻 30符 500/1000");
   });
 
-  it("満貫以上は簡略化のときだけ区分名で出し、符が無ければ省く", () => {
+  it("満貫以上は既定では区分名で出し、符が無ければ省く", () => {
     const answer = { han: 5, fu: undefined, score: 8000, yakus: [] };
     expect(
       formatCellAnswer(
         { kind: "score", answer },
-        { ...base, simplifyMangan: true, isOyaTsumo: false },
+        { ...base, exactHan: false, isOyaTsumo: false },
       ),
     ).toBe("満貫 8000点");
     expect(
@@ -90,7 +90,7 @@ describe("formatCellAnswerLines", () => {
           kind: "score",
           answer: { han: 5, fu: undefined, score: 8000, yakus: [] },
         },
-        { ...base, simplifyMangan: true, isOyaTsumo: false },
+        { ...base, exactHan: false, isOyaTsumo: false },
       ),
     ).toEqual(["満貫", "8000点"]);
   });

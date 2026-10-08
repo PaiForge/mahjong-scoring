@@ -179,7 +179,8 @@ function getSimplifiedHan(han: number, allowDoubleYakuman: boolean): number {
  * @param question - 問題
  * @param userAnswer - ユーザーの回答
  * @param requireYaku - 役の判定を必須とするかどうか
- * @param simplifyMangan - 満貫以上の翻数を簡略化するかどうか
+ * @param exactHan - 5翻以上も翻数で判定するかどうか。既定（false）では
+ *   満貫・跳満…の区分が合っていれば正解とする
  * @param requireFuForMangan - 満貫以上でも符の判定を必須とするかどうか
  * @param allowDoubleYakuman - ダブル役満を採用したルールでの出題かどうか。
  *   採用時は 26 翻を役満（13翻）へ丸めずに別の答えとして判定する
@@ -188,7 +189,7 @@ export function judgeAnswer(
   question: Readonly<ScoreQuestion>,
   userAnswer: Readonly<UserAnswer>,
   requireYaku: boolean = false,
-  simplifyMangan: boolean = false,
+  exactHan: boolean = false,
   requireFuForMangan: boolean = false,
   allowDoubleYakuman: boolean = false,
 ): JudgementResult {
@@ -198,8 +199,8 @@ export function judgeAnswer(
   // 翻の判定
   let isHanCorrect = userAnswer.han === answer.han;
 
-  if (simplifyMangan) {
-    // 簡略化モード: 4翻以下でも満貫になる場合（60符3翻等）は「満貫（5翻扱い）」も正解とする
+  if (!exactHan) {
+    // 区分で判定: 4翻以下でも満貫になる場合（60符3翻等）は「満貫（5翻扱い）」も正解とする
     if (
       isManganOrAbove &&
       answer.han < MANGAN_MIN_HAN &&

@@ -13,14 +13,14 @@ const t = (key: string) =>
 describe("formatHan", () => {
   it("満貫以上を区分名で出す設定なら区分名にする", () => {
     expect(
-      formatHan(6, { t, simplifyMangan: true, allowDoubleYakuman: false }),
+      formatHan(6, { t, exactHan: false, allowDoubleYakuman: false }),
     ).toBe("跳満");
   });
 
   it("区分名で出さない設定なら翻数のまま", () => {
-    expect(
-      formatHan(6, { t, simplifyMangan: false, allowDoubleYakuman: false }),
-    ).toBe("6翻");
+    expect(formatHan(6, { t, exactHan: true, allowDoubleYakuman: false })).toBe(
+      "6翻",
+    );
   });
 });
 

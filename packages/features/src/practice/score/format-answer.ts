@@ -8,8 +8,8 @@ import { practiceHanTier } from "./han-tiers";
 export interface FormatHanOptions {
   /** `score` 名前空間の翻訳関数（`form.options.*` / `result.pointSuffix` を引く） */
   readonly t: (key: string) => string;
-  /** 満貫以上を区分名（満貫・跳満…）で出すか */
-  readonly simplifyMangan: boolean;
+  /** 5翻以上も「n翻」で出すか（既定では満貫・跳満…の区分名で出す） */
+  readonly exactHan: boolean;
   readonly allowDoubleYakuman: boolean;
 }
 
@@ -21,11 +21,9 @@ export interface FormatHanOptions {
  */
 export function formatHan(
   han: number,
-  { t, simplifyMangan, allowDoubleYakuman }: FormatHanOptions,
+  { t, exactHan, allowDoubleYakuman }: FormatHanOptions,
 ): string {
-  const tier = simplifyMangan
-    ? practiceHanTier(han, allowDoubleYakuman)
-    : undefined;
+  const tier = !exactHan ? practiceHanTier(han, allowDoubleYakuman) : undefined;
   return tier
     ? t(`form.options.${tier.key}`)
     : `${han}${t("form.options.hanSuffix")}`;

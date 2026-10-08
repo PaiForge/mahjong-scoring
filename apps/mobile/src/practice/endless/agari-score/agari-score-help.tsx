@@ -120,11 +120,11 @@ export function AgariScoreHelpTour() {
  */
 export function AgariScoreOperationHelp({
   requireYaku,
-  simplifyMangan,
+  exactHan,
   requireFuForMangan,
 }: {
   readonly requireYaku: boolean;
-  readonly simplifyMangan: boolean;
+  readonly exactHan: boolean;
   readonly requireFuForMangan: boolean;
 }) {
   const t = useTranslations("agariScore.tour");
@@ -148,9 +148,7 @@ export function AgariScoreOperationHelp({
     {
       key: "han",
       title: t("han.title"),
-      description: t(
-        simplifyMangan ? "han.descriptionSimplified" : "han.description",
-      ),
+      description: t(exactHan ? "han.descriptionExact" : "han.description"),
     },
     {
       key: "fu",

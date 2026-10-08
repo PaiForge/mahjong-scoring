@@ -65,8 +65,8 @@ export function buildScoreGeneratorOptions(
 export interface ScorePracticeModeFlags {
   /** 役の回答を必須にする */
   readonly requireYaku: boolean;
-  /** 満貫以上の翻数を区分名で答える */
-  readonly simplifyMangan: boolean;
+  /** 5翻以上も翻数で答える（既定では満貫・跳満…の区分で答える） */
+  readonly exactHan: boolean;
   /** 満貫以上でも符の回答を必須にする */
   readonly requireFuForMangan: boolean;
 }

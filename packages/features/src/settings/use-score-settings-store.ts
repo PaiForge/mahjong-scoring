@@ -9,9 +9,9 @@ export interface ScoreSettingsState {
   /** 役も回答するかどうか */
   requireYaku: boolean;
   setRequireYaku: (enabled: boolean) => void;
-  /** 5翻以降を簡略化するかどうか */
-  simplifyMangan: boolean;
-  setSimplifyMangan: (enabled: boolean) => void;
+  /** 5翻以上も翻数で回答するかどうか（既定では満貫・跳満…の区分で回答する） */
+  exactHan: boolean;
+  setExactHan: (enabled: boolean) => void;
   /** 満貫以上でも符を入力するかどうか */
   requireFuForMangan: boolean;
   setRequireFuForMangan: (enabled: boolean) => void;
@@ -54,8 +54,8 @@ export function createScoreSettingsStore(
       (set) => ({
         requireYaku: false,
         setRequireYaku: (requireYaku) => set({ requireYaku }),
-        simplifyMangan: false,
-        setSimplifyMangan: (simplifyMangan) => set({ simplifyMangan }),
+        exactHan: false,
+        setExactHan: (exactHan) => set({ exactHan }),
         requireFuForMangan: false,
         setRequireFuForMangan: (requireFuForMangan) =>
           set({ requireFuForMangan }),

@@ -58,8 +58,7 @@ export function TenpaiScoreBoard() {
   const router = useRouter();
   const scrollRef = useRef<ScrollView>(null);
   const [settings] = useState(() => useTenpaiScoreSettingsStore.getState());
-  const { requireYaku, simplifyMangan, requireFuForMangan } =
-    readModeFlags(settings);
+  const { requireYaku, exactHan, requireFuForMangan } = readModeFlags(settings);
   const autoAdvanceOnCorrect = useAutoAdvanceOnCorrect();
   const allowDoubleYakuman = allowsDoubleYakuman(useYakumanRules());
   const [flashSignal, setFlashSignal] = useState(0);
@@ -139,7 +138,7 @@ export function TenpaiScoreBoard() {
     scrollToTop();
     submitCells({
       requireYaku,
-      simplifyMangan,
+      exactHan,
       requireFuForMangan,
       allowDoubleYakuman,
     });
@@ -165,7 +164,7 @@ export function TenpaiScoreBoard() {
     const { formatAnswer, formatAnswerLines } = cellAnswerFormatters({
       t: tScore,
       noYakuLabel: t("cells.noYakuShort"),
-      simplifyMangan,
+      exactHan,
       allowDoubleYakuman,
       isOya: isOyaQuestion,
     });
@@ -278,7 +277,7 @@ export function TenpaiScoreBoard() {
                     isTsumo={isTsumo}
                     isOya={isOyaQuestion}
                     requireYaku={requireYaku}
-                    simplifyMangan={simplifyMangan}
+                    exactHan={exactHan}
                     requireFuForMangan={requireFuForMangan}
                     submitLabel={t("cells.assign")}
                     prefill={isShown ? prefill : undefined}
@@ -329,7 +328,7 @@ export function TenpaiScoreBoard() {
             cellResults={cellResults}
             formatAnswerLines={formatAnswerLines}
             requireYaku={requireYaku}
-            simplifyMangan={simplifyMangan}
+            exactHan={exactHan}
             requireFuForMangan={requireFuForMangan}
             onNext={handleNext}
           />
