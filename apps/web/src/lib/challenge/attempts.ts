@@ -248,11 +248,17 @@ export async function answerAttempt(
     };
   });
 }
-/** 一時停止・再開もサーバー時計に記録する。 */
+/**
+ * 一時停止・再開もサーバー時計に記録する。
+ *
+ * @param clock - 時計。行を読んだ（ロックした）後に読むので、時刻ではなく
+ *   関数で受ける。テストが制限時間の境界を指定するために差し替える
+ */
 export async function pauseAttempt(
   userId: string,
   id: unknown,
   paused: unknown,
+  clock: () => number = Date.now,
 ): Promise<boolean> {
   if (
     typeof id !== "string" ||
@@ -262,7 +268,7 @@ export async function pauseAttempt(
     return false;
   return db.transaction(async (tx) => {
     const row = await lockOwnAttempt(tx, userId, id);
-    const now = Date.now();
+    const now = clock();
     if (!row || row.consumed || !canPauseChallenge(row.state, now))
       return false;
     if (row.state.paused === paused) return true;
@@ -278,18 +284,22 @@ export async function pauseAttempt(
  *
  * 確定済みの挑戦への再送には、記録し直さずに確定したときの結果を返す。
  * 成功の応答が通信で失われたクライアントが、結果を取り直せるようにするため。
+ *
+ * @param clock - 時計。行を読んだ（ロックした）後に読むので、時刻ではなく
+ *   関数で受ける。テストが制限時間の境界を指定するために差し替える
  */
 export async function finishAttempt(
   userId: string,
   id: unknown,
   exam: boolean,
+  clock: () => number = Date.now,
 ) {
   if (typeof id !== "string" || !uuid.safeParse(id).success) return undefined;
   return db.transaction(async (tx) => {
     // 成績・EXP・段級位を書く。退会を受け付けた後には書かない
     if (!(await lockAccountForWrite(tx, userId))) return undefined;
     const row = await lockOwnAttempt(tx, userId, id);
-    const now = Date.now();
+    const now = clock();
     if (!row || isExamMenuType(row.state.menuType) !== exam) return undefined;
     if (row.consumed)
       return row.state.outcome ? outcomeResult(row.state.outcome) : undefined;
@@ -361,13 +371,20 @@ function outcomeResult(
  *
  * 今の問題は正解を伏せて返す。確定済みなら確定の結果も返す（結果画面へ進める）。
  * 時計はサーバーの値だけを返し、クライアントの申告で巻き戻さない。
+ *
+ * @param clock - 時計。行を読んだ（ロックした）後に読むので、時刻ではなく
+ *   関数で受ける。テストが制限時間の境界を指定するために差し替える
  */
-export async function readAttemptStatus(userId: string, id: unknown) {
+export async function readAttemptStatus(
+  userId: string,
+  id: unknown,
+  clock: () => number = Date.now,
+) {
   if (typeof id !== "string" || !uuid.safeParse(id).success) return undefined;
   const row = await readOwnAttempt(userId, id);
   if (!row) return undefined;
   const { state } = row;
-  const now = Date.now();
+  const now = clock();
   return {
     ...attemptEntry(row.id, state),
     menuType: state.menuType,
@@ -396,11 +413,20 @@ function toJsonValue(value: unknown): unknown {
   return value === undefined ? null : JSON.parse(JSON.stringify(value));
 }
 
-/** 時間切れ後に未回答問題を開示する。期限までは残り時間だけを返す。 */
-export async function revealExpiredAttempt(userId: string, id: unknown) {
+/**
+ * 時間切れ後に未回答問題を開示する。期限までは残り時間だけを返す。
+ *
+ * @param clock - 時計。行を読んだ（ロックした）後に読むので、時刻ではなく
+ *   関数で受ける。テストが制限時間の境界を指定するために差し替える
+ */
+export async function revealExpiredAttempt(
+  userId: string,
+  id: unknown,
+  clock: () => number = Date.now,
+) {
   if (typeof id !== "string" || !uuid.safeParse(id).success) return undefined;
   const row = await readOwnAttempt(userId, id);
   if (!row || row.consumed || row.state.paused) return undefined;
-  const remainingMs = challengeRemainingMs(row.state, Date.now());
+  const remainingMs = challengeRemainingMs(row.state, clock());
   return remainingMs > 0 ? { remainingMs } : { question: row.state.question };
 }
