@@ -1,11 +1,17 @@
-import { StyleSheet, Text, View } from "react-native";
+import { Pressable, StyleSheet, Text, View } from "react-native";
 import { scoreBarFigures } from "@mahjong-scoring/features/results/score-bar";
 import { useTranslations } from "use-intl";
 
+import { linkStyles } from "../../lib/link-styles";
 import { colors, radius } from "../../lib/theme";
+import { useMistakeReveal } from "./mistake-reveal";
 
 /**
  * 正解・不正解の割合の帯（web の `ResultScoreBar`）
+ *
+ * 凡例の「不正解: N」は、下の問題別一覧が間違えた問題を開く処理を登録して
+ * いれば、押すとそこへ送る文字の操作になる（{@link useMistakeReveal}）。
+ * 全問正解のときや一覧が出ないときは送る先が無いので文字のまま。
  */
 export function ResultScoreBar({
   correct,
@@ -20,6 +26,8 @@ export function ResultScoreBar({
     incorrect,
     accuracy,
   } = scoreBarFigures(correct, total);
+  const reveal = useMistakeReveal();
+  const incorrectLabel = `${tc("incorrect")}: ${incorrect}`;
 
   return (
     <View style={styles.root}>
@@ -63,9 +71,32 @@ export function ResultScoreBar({
             <View
               style={[styles.swatch, { backgroundColor: colors.destructive }]}
             />
-            <Text style={styles.legendText}>
-              {tc("incorrect")}: <Text style={styles.strong}>{incorrect}</Text>
-            </Text>
+            {incorrect > 0 && reveal !== undefined ? (
+              <Pressable
+                onPress={reveal}
+                accessibilityRole="button"
+                accessibilityLabel={incorrectLabel}
+                accessibilityHint={tc("revealMistakesHint")}
+                hitSlop={12}
+              >
+                {({ pressed }) => (
+                  <Text
+                    style={[
+                      styles.legendText,
+                      linkStyles.textButton,
+                      pressed && linkStyles.textButtonPressed,
+                    ]}
+                  >
+                    {tc("incorrect")}: {incorrect}
+                  </Text>
+                )}
+              </Pressable>
+            ) : (
+              <Text style={styles.legendText}>
+                {tc("incorrect")}:{" "}
+                <Text style={styles.strong}>{incorrect}</Text>
+              </Text>
+            )}
           </View>
         </View>
         <Text style={[styles.legendText, styles.strong]}>

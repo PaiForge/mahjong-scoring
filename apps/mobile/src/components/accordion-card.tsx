@@ -12,6 +12,12 @@ interface AccordionCardProps {
   /** 見出しの右端に添えるもの（正誤の印など） */
   readonly trailing?: ReactNode;
   readonly defaultOpen?: boolean;
+  /**
+   * 開閉を呼び出し側が持つときの開いた状態。渡すと `defaultOpen` は使わず、
+   * 押したときは {@link AccordionCardProps.onOpenChange} で知らせるだけになる
+   */
+  readonly open?: boolean;
+  readonly onOpenChange?: (open: boolean) => void;
   readonly children: ReactNode;
 }
 
@@ -24,13 +30,20 @@ export function AccordionCard({
   title,
   trailing,
   defaultOpen = false,
+  open,
+  onOpenChange,
   children,
 }: AccordionCardProps) {
-  const [isOpen, setIsOpen] = useState(defaultOpen);
+  const [openState, setOpenState] = useState(defaultOpen);
+  const isOpen = open ?? openState;
+  const toggle = () => {
+    if (open === undefined) setOpenState(!isOpen);
+    onOpenChange?.(!isOpen);
+  };
   return (
     <View style={styles.card}>
       <Pressable
-        onPress={() => setIsOpen((v) => !v)}
+        onPress={toggle}
         accessibilityRole="button"
         accessibilityState={{ expanded: isOpen }}
         style={({ pressed }) => [styles.header, pressed && styles.pressed]}
