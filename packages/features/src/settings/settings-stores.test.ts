@@ -1,37 +1,14 @@
 // @vitest-environment jsdom
 import { act, renderHook, waitFor } from "@testing-library/react";
 import { describe, expect, it } from "vitest";
-import type { StateStorage } from "zustand/middleware";
 
 import { createRuleSettingsStore } from "./use-rule-settings-store";
 import { createScoreSettingsStore } from "./use-score-settings-store";
 import { createTrainingSettingsStore } from "./use-training-settings-store";
-
-/** 同期で読み書きする保存先（web の localStorage 相当） */
-function createMemoryStorage(initial: Record<string, string> = {}) {
-  const data = new Map(Object.entries(initial));
-  const storage: StateStorage = {
-    getItem: (name) => data.get(name) ?? null,
-    setItem: (name, value) => {
-      data.set(name, value);
-    },
-    removeItem: (name) => {
-      data.delete(name);
-    },
-  };
-  return { data, storage };
-}
-
-/** 非同期で読み書きする保存先（モバイルの AsyncStorage 相当） */
-function createAsyncStorage(initial: Record<string, string> = {}) {
-  const { data, storage } = createMemoryStorage(initial);
-  const asyncStorage: StateStorage = {
-    getItem: async (name) => storage.getItem(name),
-    setItem: async (name, value) => storage.setItem(name, value),
-    removeItem: async (name) => storage.removeItem(name),
-  };
-  return { data, storage: asyncStorage };
-}
+import {
+  createAsyncStorage,
+  createMemoryStorage,
+} from "../test/memory-storage";
 
 describe("設定ストアの保存先の注入", () => {
   it("渡した保存先に既存の保存名で書き込む", () => {

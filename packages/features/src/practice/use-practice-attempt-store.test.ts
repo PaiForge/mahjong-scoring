@@ -1,24 +1,9 @@
 // @vitest-environment jsdom
 import { act, renderHook } from "@testing-library/react";
 import { describe, expect, it } from "vitest";
-import type { StateStorage } from "zustand/middleware";
 
 import { createPracticeAttemptStore } from "./use-practice-attempt-store";
-
-/** 同期で読み書きする保存先 */
-function createMemoryStorage(initial: Record<string, string> = {}) {
-  const data = new Map(Object.entries(initial));
-  const storage: StateStorage = {
-    getItem: (name) => data.get(name) ?? null,
-    setItem: (name, value) => {
-      data.set(name, value);
-    },
-    removeItem: (name) => {
-      data.delete(name);
-    },
-  };
-  return { data, storage };
-}
+import { createMemoryStorage } from "../test/memory-storage";
 
 describe("練習挑戦ストア", () => {
   it("挑戦を保存名 mahjong-practice-attempts に書き込む", () => {
