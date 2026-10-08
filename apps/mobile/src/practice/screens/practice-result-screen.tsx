@@ -31,8 +31,12 @@ import { useRouteVariant } from "./use-route-variant";
  *
  * @description
  * web の結果ページ（`ResultView`）と同じ並び: 結果（正解・不正解の帯）→
- * もう一度 / 設定を変更する → 練習一覧に戻る → 広告のカード → 問題別の結果。記録・
- * ランキング・経験値はアカウントに紐づくため、モバイルでは出さない。
+ * もう一度 / 設定を変更する → 練習一覧に戻る → 広告のカード → 問題別の結果 →
+ * もう一度。記録・ランキング・経験値はアカウントに紐づくため、モバイルでは出さない。
+ *
+ * 「もう一度」を問題別の結果の末尾にも置くのは、一覧で間違えた問題を読み終えた
+ * 位置から、広告とボタン群まで戻らずに再挑戦できるようにするため（web と同じ）。
+ * 一覧が空のときは、広告の直後に上と同じボタンが並ぶだけなので置かない。
  *
  * @flow
  * 1. チャレンジの画面が終了時に結果をメモリのストアへ置いてここへ置き換える
@@ -55,6 +59,17 @@ export function PracticeResultScreen({
   const current = attempt?.slug === slug ? attempt : undefined;
   const { ProblemList } = screens;
   const [ad] = useNativeAds(MOBILE_AD_SLOTS.practiceResult);
+  // 上のボタン群と一覧の末尾の 2 か所に置く。行き先が食い違わないよう 1 つにする
+  const retryButton = (
+    <Button
+      size="lg"
+      fullWidth
+      icon={<RotateCcwIcon size={16} color={buttonForeground("primary")} />}
+      onPress={() => router.replace(practicePlayHref(slug, variant))}
+    >
+      {tc("retryButton")}
+    </Button>
+  );
 
   return (
     <Screen title={t("title")} contentStyle={styles.content}>
@@ -77,16 +92,7 @@ export function PracticeResultScreen({
 
         <View style={styles.actions}>
           <View style={styles.buttons}>
-            <Button
-              size="lg"
-              fullWidth
-              icon={
-                <RotateCcwIcon size={16} color={buttonForeground("primary")} />
-              }
-              onPress={() => router.replace(practicePlayHref(slug, variant))}
-            >
-              {tc("retryButton")}
-            </Button>
+            {retryButton}
             {hasSetup && (
               <Button
                 variant="secondary"
@@ -106,9 +112,14 @@ export function PracticeResultScreen({
         {/* ボタン群の後ろに置く。前に置くと「もう一度」より先に広告が目に入る（web と同じ） */}
         {ad !== undefined && <NativeAdCard creative={ad} />}
 
-        {current !== undefined && ProblemList !== undefined && (
-          <ProblemList results={current.results} />
-        )}
+        {current !== undefined &&
+          ProblemList !== undefined &&
+          current.results.length > 0 && (
+            <View style={styles.problemList}>
+              <ProblemList results={current.results} />
+              {retryButton}
+            </View>
+          )}
       </MistakeRevealProvider>
     </Screen>
   );
@@ -128,6 +139,9 @@ const styles = StyleSheet.create({
   actions: {
     gap: 16,
     alignItems: "center",
+  },
+  problemList: {
+    gap: 16,
   },
   buttons: {
     alignSelf: "stretch",
