@@ -84,7 +84,7 @@ describe("answerChallenge", () => {
         0,
         2,
         1_000_000,
-        expect.any(Function),
+        expect.objectContaining({ enter: expect.any(Function) }),
       );
     } finally {
       vi.useRealTimers();
@@ -105,24 +105,38 @@ describe("answerChallenge", () => {
       return typeof line === "string" ? JSON.parse(line) : undefined;
     }
 
+    /** 本物の answerAttempt と同じ順に段階へ入る採点の差し替え */
+    interface Tracker {
+      readonly enter: (phase: string) => void;
+      readonly finish: () => void;
+    }
+    function answeringThrough(
+      phases: readonly string[],
+      outcome: () => unknown,
+    ) {
+      return async (
+        _user: string,
+        _id: string,
+        _sequence: number,
+        _answer: unknown,
+        _receivedAt: number,
+        tracker: Tracker,
+      ) => {
+        phases.forEach((phase) => tracker.enter(phase));
+        const result = outcome();
+        tracker.finish();
+        return result;
+      };
+    }
+
     it("採点できたら段階の所要時間と直前の回答の往復時間を 1 行に出す", async () => {
       const info = vi.spyOn(console, "info").mockImplementation(() => {});
       try {
         mockAnswerAttempt.mockImplementation(
-          async (
-            _user: string,
-            _id: string,
-            _sequence: number,
-            _answer: unknown,
-            _receivedAt: number,
-            lap: (phase: string) => void,
-          ) => {
-            lap("lock");
-            lap("grade");
-            lap("update");
-            lap("commit");
-            return { correct: true, menuType: "jantou_fu" };
-          },
+          answeringThrough(["lock", "grade", "update", "commit"], () => ({
+            correct: true,
+            menuType: "jantou_fu",
+          })),
         );
 
         await answerChallenge("attempt-1", 3, 2, {
@@ -181,26 +195,18 @@ describe("answerChallenge", () => {
     it("例外で落ちても通った段階までを failed として出し、例外は投げ直す", async () => {
       const info = vi.spyOn(console, "info").mockImplementation(() => {});
       try {
-        // 本物のガードと同じく、通った段階を区切ってから返す
+        // 本物のガードと同じく、段階に入ってから進む
         mockAuthenticateAndCheckBan.mockImplementation(
-          async (lap: (phase: string) => void) => {
-            lap("auth");
-            lap("ban");
+          async (enter: (phase: string) => void) => {
+            enter("auth");
+            enter("ban");
             return { user: AUTHENTICATED_USER };
           },
         );
         mockAnswerAttempt.mockImplementation(
-          async (
-            _user: string,
-            _id: string,
-            _sequence: number,
-            _answer: unknown,
-            _receivedAt: number,
-            lap: (phase: string) => void,
-          ) => {
-            lap("lock");
+          answeringThrough(["lock"], () => {
             throw new Error("connection reset");
-          },
+          }),
         );
 
         await expect(answerChallenge("attempt-1", 4, 2)).rejects.toThrow(
@@ -210,12 +216,38 @@ describe("answerChallenge", () => {
           expect.objectContaining({
             handling: "failed",
             sequence: 4,
-            failedPhase: "grade",
+            failedPhase: "lock",
+            auth: expect.any(Number),
+            ban: expect.any(Number),
             lock: expect.any(Number),
             totalMs: expect.any(Number),
           }),
         );
         expect(lastLogged(info)).not.toHaveProperty("afterRespondedMs");
+      } finally {
+        info.mockRestore();
+      }
+    });
+
+    it("採点に進まなかった回答の COMMIT が落ちたら、落ちた段階は commit", async () => {
+      const info = vi.spyOn(console, "info").mockImplementation(() => {});
+      try {
+        // 期限切れ・拒否は grade と update を飛ばして commit に入る
+        mockAnswerAttempt.mockImplementation(
+          answeringThrough(["lock", "commit"], () => {
+            throw new Error("commit failed");
+          }),
+        );
+
+        await expect(answerChallenge("attempt-1", 4, 2)).rejects.toThrow(
+          "commit failed",
+        );
+        expect(lastLogged(info)).toMatchObject({
+          handling: "failed",
+          failedPhase: "commit",
+        });
+        expect(lastLogged(info)).not.toHaveProperty("grade");
+        expect(lastLogged(info)).not.toHaveProperty("update");
       } finally {
         info.mockRestore();
       }

@@ -4,52 +4,43 @@ import {
   createPhaseStopwatch,
   logAnswerTiming,
   parseAnswerObservation,
-  pendingPhase,
 } from "./answer-telemetry";
 
 describe("createPhaseStopwatch", () => {
-  it("区切りごとの所要時間と合計を整数の ms で持つ", () => {
+  it("段階に入るたびに前の段階を閉じ、所要時間と合計を整数の ms で持つ", () => {
     let now = 1000;
     const stopwatch = createPhaseStopwatch(() => now);
+    stopwatch.enter("auth");
     now = 1012.4;
-    stopwatch.lap("auth");
+    stopwatch.enter("ban");
     now = 1020;
-    stopwatch.lap("ban");
+    stopwatch.enter("lock");
+    expect(stopwatch.current).toBe("lock");
     now = 1100.6;
-    stopwatch.lap("lock");
+    stopwatch.finish();
 
     expect(stopwatch.phases).toEqual({ auth: 12, ban: 8, lock: 81 });
+    expect(stopwatch.current).toBeUndefined();
     expect(stopwatch.elapsed()).toBe(101);
   });
 
-  it("通らなかった段階は持たない", () => {
+  it("飛ばした段階は記録に残らず、今いる段階は飛ばした先になる", () => {
+    let now = 0;
+    const stopwatch = createPhaseStopwatch(() => now);
+    stopwatch.enter("lock");
+    now = 5;
+    // 採点に進まない回答は grade / update を飛ばして commit に入る
+    stopwatch.enter("commit");
+    expect(stopwatch.current).toBe("commit");
+    expect(stopwatch.phases).toEqual({ lock: 5 });
+    expect("grade" in stopwatch.phases).toBe(false);
+  });
+
+  it("どの段階にもいなければ finish は何もしない", () => {
     const stopwatch = createPhaseStopwatch(() => 0);
-    stopwatch.lap("auth");
-    expect(stopwatch.phases).toEqual({ auth: 0 });
-    expect("commit" in stopwatch.phases).toBe(false);
-  });
-});
-
-describe("pendingPhase", () => {
-  it("記録の無い最初の段階が、落ちた場所", () => {
-    expect(pendingPhase({})).toBe("auth");
-    expect(pendingPhase({ auth: 1, ban: 1 })).toBe("lock");
-    expect(
-      pendingPhase({ auth: 1, ban: 1, lock: 1, grade: 1, update: 1 }),
-    ).toBe("commit");
-  });
-
-  it("全段階を通っていれば無い", () => {
-    expect(
-      pendingPhase({
-        auth: 1,
-        ban: 1,
-        lock: 1,
-        grade: 1,
-        update: 1,
-        commit: 1,
-      }),
-    ).toBeUndefined();
+    stopwatch.finish();
+    expect(stopwatch.phases).toEqual({});
+    expect(stopwatch.current).toBeUndefined();
   });
 });
 
@@ -151,8 +142,9 @@ describe("logAnswerTiming", () => {
       logAnswerTiming({
         handling: "failed",
         sequence: 5,
-        phases: { auth: 30, ban: 4 },
-        totalMs: 2034,
+        failedPhase: "commit",
+        phases: { auth: 30, ban: 4, lock: 6, commit: 2000 },
+        totalMs: 2040,
         observation: {},
       });
       expect(JSON.parse(info.mock.calls[0][0])).toEqual({
@@ -160,11 +152,31 @@ describe("logAnswerTiming", () => {
         handling: "failed",
         sequence: 5,
         first: false,
-        totalMs: 2034,
-        failedPhase: "lock",
+        totalMs: 2040,
+        failedPhase: "commit",
         auth: 30,
         ban: 4,
+        lock: 6,
+        commit: 2000,
       });
+    } finally {
+      info.mockRestore();
+    }
+  });
+
+  it("落ちていない回答では failedPhase を出さない", () => {
+    const info = vi.spyOn(console, "info").mockImplementation(() => {});
+    try {
+      logAnswerTiming({
+        handling: "rejected",
+        failedPhase: "lock",
+        phases: { auth: 1 },
+        totalMs: 1,
+        observation: {},
+      });
+      expect(JSON.parse(info.mock.calls[0][0])).not.toHaveProperty(
+        "failedPhase",
+      );
     } finally {
       info.mockRestore();
     }

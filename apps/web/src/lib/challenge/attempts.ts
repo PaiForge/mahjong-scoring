@@ -16,7 +16,7 @@ import {
   gradeChallengeAnswer,
   publicChallengeQuestion,
 } from "./questions";
-import type { AnswerPhase } from "./answer-telemetry";
+import { NOOP_PHASE_TRACKER, type PhaseTracker } from "./answer-telemetry";
 import {
   answeredChallenge,
   canAnswerChallenge,
@@ -93,8 +93,9 @@ export async function beginAttempt(
  * @param receivedAt - 回答のリクエストを受け取った時刻。認証や行ロックの前に
  *   取ったものを渡す。ここから応答を組むまでの処理時間は競技時間に数えない
  *   （{@link answeredChallenge}）
- * @param lap - 段階が終わるたびに呼ぶ計測の区切り（{@link AnswerPhase}）。
- *   受け付けなかったときも、通った段階までは呼ぶ
+ * @param tracker - 段階の計測（{@link PhaseTracker}）。採点に進まない回答は
+ *   `lock` から `grade` と `update` を飛ばして `commit`（読むだけの
+ *   トランザクションの確定）に入る — 飛ばした段階を計測済みにはしない
  */
 export async function answerAttempt(
   userId: string,
@@ -102,22 +103,32 @@ export async function answerAttempt(
   sequence: unknown,
   answer: unknown,
   receivedAt: number = Date.now(),
-  lap: (phase: AnswerPhase) => void = () => {},
+  tracker: PhaseTracker = NOOP_PHASE_TRACKER,
 ) {
+  tracker.enter("lock");
   if (
     !uuid.safeParse(id).success ||
     typeof id !== "string" ||
     !Number.isInteger(sequence) ||
     typeof sequence !== "number"
-  )
+  ) {
+    tracker.finish();
     return undefined;
+  }
   const result = await db.transaction(async (tx) => {
     const row = await lockOwnAttempt(tx, userId, id);
-    lap("lock");
     const now = receivedAt;
-    if (!row || row.consumed) return undefined;
-    if (isChallengeTimeUp(row.state, now)) return { expired: true as const };
-    if (!canAnswerChallenge(row.state, sequence, now)) return undefined;
+    /** 採点に進まない経路。残るのはトランザクションの確定だけ */
+    const skipToCommit = <T>(value: T): T => {
+      tracker.enter("commit");
+      return value;
+    };
+    if (!row || row.consumed) return skipToCommit(undefined);
+    if (isChallengeTimeUp(row.state, now))
+      return skipToCommit({ expired: true as const });
+    if (!canAnswerChallenge(row.state, sequence, now))
+      return skipToCommit(undefined);
+    tracker.enter("grade");
     const correct = gradeChallengeAnswer(
       row.state.menuType,
       row.state.question,
@@ -128,7 +139,7 @@ export async function answerAttempt(
       row.state.variant,
       row.state.settings,
     );
-    if (!next) return undefined;
+    if (!next) return skipToCommit(undefined);
     const state = answeredChallenge(
       row.state,
       correct,
@@ -136,12 +147,12 @@ export async function answerAttempt(
       receivedAt,
       Date.now(),
     );
-    lap("grade");
+    tracker.enter("update");
     await tx
       .update(challengeAttempts)
       .set({ state })
       .where(eq(challengeAttempts.id, id));
-    lap("update");
+    tracker.enter("commit");
     return {
       correct,
       answered: row.state.question,
@@ -153,7 +164,7 @@ export async function answerAttempt(
       menuType: state.menuType,
     };
   });
-  lap("commit");
+  tracker.finish();
   return result;
 }
 /** 一時停止・再開もサーバー時計に記録する。 */

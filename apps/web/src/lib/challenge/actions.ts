@@ -57,7 +57,7 @@ export async function answerChallenge(
   let handling: AnswerHandling = "failed";
   let menuType: string | undefined;
   try {
-    const auth = await authenticateAndCheckBan(stopwatch.lap);
+    const auth = await authenticateAndCheckBan(stopwatch.enter);
     if ("error" in auth) {
       handling = auth.error === "banned" ? "banned" : "unauthorized";
       return undefined;
@@ -68,7 +68,7 @@ export async function answerChallenge(
       sequence,
       answer,
       receivedAt,
-      stopwatch.lap,
+      stopwatch,
     );
     handling =
       result === undefined
@@ -79,10 +79,14 @@ export async function answerChallenge(
     if (result && "menuType" in result) menuType = result.menuType;
     return result;
   } finally {
+    // 落ちた段階は、計測を閉じる前に読む（閉じると「今いる段階」は消える）
+    const failedPhase = handling === "failed" ? stopwatch.current : undefined;
+    stopwatch.finish();
     logAnswerTiming({
       handling,
       menuType,
       sequence: Number.isInteger(sequence) ? Number(sequence) : undefined,
+      failedPhase,
       phases: stopwatch.phases,
       totalMs: stopwatch.elapsed(),
       observation: parseAnswerObservation(observation),

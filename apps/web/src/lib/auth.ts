@@ -165,23 +165,23 @@ export type AuthGateErrorCode = "unauthorized" | "banned";
  *
  * エラーコードは未認証が `"unauthorized"`、BAN が `"banned"`。
  *
- * @param lap - 段階が終わるたびに呼ぶ計測の区切り（本人確認 → `"auth"`、
- *   BAN 判定 → `"ban"`）。回答の処理時間を段階ごとに測る Action が渡す。
- *   未認証で BAN 判定に進まなかったときは `"ban"` を呼ばない
+ * @param enter - 段階に入るたびに呼ぶ計測の区切り（本人確認に入る → `"auth"`、
+ *   BAN 判定に入る → `"ban"`）。回答の処理時間を段階ごとに測る Action が渡す。
+ *   未認証なら `"ban"` には入らない。最後の段階は呼び出し側が次の段階に
+ *   入るか、計測を終えることで閉じる
  */
 export async function authenticateAndCheckBan(
-  lap: (phase: "auth" | "ban") => void = () => {},
+  enter: (phase: "auth" | "ban") => void = () => {},
 ): Promise<{ user: AuthUser } | { error: AuthGateErrorCode }> {
+  enter("auth");
   const user = await getOptionalVerifiedUser();
-  lap("auth");
 
   if (!user) {
     return { error: "unauthorized" };
   }
 
-  const banned = await isUserBanned(user.id);
-  lap("ban");
-  if (banned) {
+  enter("ban");
+  if (await isUserBanned(user.id)) {
     return { error: "banned" };
   }
 

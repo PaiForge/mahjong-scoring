@@ -58,13 +58,41 @@ export type AnswerPhase = (typeof ANSWER_PHASES)[number];
 export type AnswerPhaseTimings = Readonly<Partial<Record<AnswerPhase, number>>>;
 
 /**
- * 段階ごとの所要時間を区切りながら測るストップウォッチ
- * 段階計測
+ * 処理が「今どの段階にいるか」を告げる口
+ * 段階追跡
+ *
+ * 計測される側（認証ガード・採点）はこれだけを受け取る。段階に入るたびに
+ * `enter` を呼び、最後の段階は次の段階に入るか `finish` で閉じる。
+ * 採点に進まない回答のように段階を飛ばす経路は、次に実際に入る段階を
+ * `enter` するだけでよく、飛ばした段階は記録に残らない。
+ *
+ * 「今いる段階」を明示的に持つのは、落ちた段階を記録の有無から推測しない
+ * ため。推測だと、期限切れで採点を飛ばした後に COMMIT が落ちたとき
+ * 「記録の無い最初の段階」= 採点、と誤る。
  */
-export interface PhaseStopwatch {
-  /** 直前の区切りからの経過を `phase` の所要時間として記録し、区切りを今に進める */
-  readonly lap: (phase: AnswerPhase) => void;
-  /** これまでに記録した所要時間 */
+export interface PhaseTracker {
+  /** `phase` に入る。それまでいた段階は、その時点までの所要時間で閉じる */
+  readonly enter: (phase: AnswerPhase) => void;
+  /** いまいる段階を閉じる。どの段階にもいなければ何もしない */
+  readonly finish: () => void;
+}
+
+/** 何も測らない追跡。計測の無い呼び出し（テスト・他の経路）の既定 */
+export const NOOP_PHASE_TRACKER: PhaseTracker = {
+  enter: () => {},
+  finish: () => {},
+};
+
+/**
+ * 段階ごとの所要時間を測るストップウォッチ
+ * 段階計測
+ *
+ * {@link PhaseTracker} に、記録の読み出しを足したもの。
+ */
+export interface PhaseStopwatch extends PhaseTracker {
+  /** いまいる段階。`finish` の後や、まだどの段階にも入っていなければ undefined */
+  readonly current: AnswerPhase | undefined;
+  /** 閉じた段階の所要時間 */
   readonly phases: AnswerPhaseTimings;
   /** 計測開始からの合計（ms、整数） */
   readonly elapsed: () => number;
@@ -80,30 +108,28 @@ export function createPhaseStopwatch(
   now: () => number = () => performance.now(),
 ): PhaseStopwatch {
   const startedAt = now();
-  let last = startedAt;
+  let current:
+    { readonly phase: AnswerPhase; readonly since: number } | undefined;
   const phases: Partial<Record<AnswerPhase, number>> = {};
+  const close = (at: number) => {
+    if (current) phases[current.phase] = Math.round(at - current.since);
+    current = undefined;
+  };
   return {
-    lap(phase) {
+    enter(phase) {
       const at = now();
-      phases[phase] = Math.round(at - last);
-      last = at;
+      close(at);
+      current = { phase, since: at };
+    },
+    finish() {
+      close(now());
+    },
+    get current() {
+      return current?.phase;
     },
     phases,
     elapsed: () => Math.round(now() - startedAt),
   };
-}
-
-/**
- * 処理が途中で落ちたとき、どの段階の中で落ちたか
- * 未完了段階
- *
- * 段階は {@link ANSWER_PHASES} の順に通るので、記録が無い最初の段階が
- * 落ちた場所。全段階を通っていれば undefined
- */
-export function pendingPhase(
-  phases: AnswerPhaseTimings,
-): AnswerPhase | undefined {
-  return ANSWER_PHASES.find((phase) => !(phase in phases));
 }
 
 /**
@@ -178,6 +204,11 @@ export interface AnswerTiming {
   readonly menuType?: string;
   /** 回答した問題番号（0 が最初の問題）。整数でなければ不明 */
   readonly sequence?: number;
+  /**
+   * `failed` のとき、落ちた段階（落ちた時点で {@link PhaseStopwatch.current}
+   * にあった段階）。その段階の所要時間は「落ちるまでに掛かった時間」
+   */
+  readonly failedPhase?: AnswerPhase;
   readonly phases: AnswerPhaseTimings;
   /** 受け取ってから処理を終える（落ちる）までの合計（ms） */
   readonly totalMs: number;
@@ -190,7 +221,7 @@ export interface AnswerTiming {
  *
  * 出す項目:
  * - `first` — 挑戦の最初の問題か（関数のコールドスタートの指標ではない）
- * - `failedPhase` — `failed` のとき、落ちた段階
+ * - `failedPhase` — `failed` のとき、落ちた段階。その段階の値は落ちるまでの時間
  * - `afterRespondedMs` — 採点できた回答だけ。`update` と `commit` の和で、
  *   サーバー時計の起点を決めてから DB で確定するまでの時間。**猶予 100ms を
  *   超えていれば、DB の確定までに猶予を使い切ったと分かる。100ms 以下でも
@@ -209,7 +240,7 @@ export function logAnswerTiming(timing: AnswerTiming): void {
       sequence: timing.sequence,
       first: timing.sequence === 0,
       totalMs: timing.totalMs,
-      failedPhase: handling === "failed" ? pendingPhase(phases) : undefined,
+      failedPhase: handling === "failed" ? timing.failedPhase : undefined,
       afterRespondedMs:
         handling === "answered"
           ? (phases.update ?? 0) + (phases.commit ?? 0)
