@@ -1,6 +1,7 @@
 import type { ComponentType } from "react";
 import type { PracticeResultViewProps } from "./create-practice-result-page";
 import type { ProblemListLoaderProps } from "./problem-list-loader-props";
+import { ResultPrimaryAction } from "../_components/result-primary-action";
 import { ResultView } from "../_components/result-view";
 import { ScoreProblemListLoader } from "../_components/score-problem-list-loader";
 
@@ -58,6 +59,15 @@ export function createCustomResultView(
     // `expectedCount` は一覧に並ぶ問題数（URL クエリ由来）で、Loader が
     // 読み取り完了までの placeholder の行数に使う。`runId` は URL の回 ID で、
     // Loader が保存の回 ID と突き合わせる。
+    // `footer` は一覧の末尾の主ボタン。一覧で間違えた問題を読み終えた位置から
+    // 上のボタン群まで戻らずに再挑戦できるようにする
+    const footer = (
+      <ResultPrimaryAction
+        playHref={props.playHref}
+        introHref={props.introHref}
+        primaryAction={props.primaryAction}
+      />
+    );
     return (
       <ResultView {...props}>
         {config.translationNamespace !== undefined ? (
@@ -66,12 +76,14 @@ export function createCustomResultView(
             runId={props.runId}
             expectedCount={props.listedProblemCount}
             translationNamespace={config.translationNamespace}
+            footer={footer}
           />
         ) : (
           <config.ProblemListLoader
             storageKey={storageKey}
             runId={props.runId}
             expectedCount={props.listedProblemCount}
+            footer={footer}
           />
         )}
       </ResultView>

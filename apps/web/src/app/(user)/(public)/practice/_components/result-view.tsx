@@ -5,7 +5,6 @@ import { PageTitle } from "@/app/(user)/_components/page-title";
 import { LinkButton } from "@/app/(user)/_components/link-button";
 import { NativeAdCard } from "@/app/(user)/(public)/_components/native-ad-card";
 import { ArrowUturnLeftIcon } from "@/app/(user)/_components/icons/arrow-uturn-left-icon";
-import { RotateCcwIcon } from "@/app/(user)/_components/icons/rotate-ccw-icon";
 import { SectionTitle } from "@/app/(user)/_components/section-title";
 import { TEXT_LINK_CLASSES } from "@/app/_components/_lib/link-classes";
 import { SUB_LINK_GAP } from "@/app/_components/_lib/spacing";
@@ -16,6 +15,7 @@ import {
   resultBreadcrumbParent,
 } from "../_lib/result-breadcrumb";
 import { PRACTICE_SCROLL_HASH } from "../_lib/scroll-anchor";
+import { ResultPrimaryAction } from "./result-primary-action";
 import { ResultScoreBar } from "./result-score-bar";
 
 /**
@@ -48,7 +48,8 @@ import { ResultScoreBar } from "./result-score-bar";
  *    （道場）になり、「もう一度」が補助リンクへ下がる
  * 6. ネイティブ広告 — 掲載中の広告があるときだけ。練習と昇級試験で
  *    スロットを分ける（読み手の状況が違い、成果もスロット単位で見るため）
- * 7. `children` — 練習種別固有の追加コンテンツ（問題別フィードバック等）
+ * 7. `children` — 練習種別固有の追加コンテンツ（問題別フィードバック等）。
+ *    問題別一覧は末尾に 5 の主ボタンをもう 1 つ持つ（`ResultPrimaryAction`）
  * 8. `leaderboardBlock` — リーダーボードプレビュー（Suspense 境界）。
  *    ランキングを持たない練習（昇級試験）では undefined で、節ごと出ない
  */
@@ -118,21 +119,11 @@ export async function ResultView({
             padding を足して差を作らない（SUB_LINK_GAP 参照）。 */}
         <div className={`flex flex-col ${SUB_LINK_GAP}`}>
           <div className="flex flex-col gap-3">
-            {primaryAction === "parent" ? (
-              <LinkButton href={parent.href} size="lg" fullWidth>
-                <ArrowUturnLeftIcon className="size-4" />
-                {tc(parent.namespace === "dojo" ? "backToDojo" : "backToList")}
-              </LinkButton>
-            ) : (
-              <LinkButton
-                href={`${playHref}${PRACTICE_SCROLL_HASH}`}
-                size="lg"
-                fullWidth
-              >
-                <RotateCcwIcon className="size-4" />
-                {tc("retryButton")}
-              </LinkButton>
-            )}
+            <ResultPrimaryAction
+              playHref={playHref}
+              introHref={introHref}
+              primaryAction={primaryAction}
+            />
             {settingsHref !== undefined && (
               <LinkButton
                 href={settingsHref}
