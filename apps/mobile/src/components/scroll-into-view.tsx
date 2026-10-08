@@ -14,8 +14,19 @@ import {
   type ViewStyle,
 } from "react-native";
 
-/** 渡した要素がスクロール枠の縦の中央に来るまでスクロールする関数 */
-type ScrollIntoView = (target: View | null) => void;
+/**
+ * 渡した要素が見えるところまでスクロールする関数
+ *
+ * 既定は枠の縦の中央に寄せる。`block: "start"` は要素の上端を枠の上端の
+ * 少し下に合わせる — 開いたばかりの長い中身を、見出しから読ませるとき
+ */
+type ScrollIntoView = (
+  target: View | null,
+  options?: { readonly block?: "center" | "start" },
+) => void;
+
+/** `block: "start"` のとき要素の上に残す余白 */
+const START_MARGIN = 12;
 
 const ScrollIntoViewContext = createContext<ScrollIntoView | undefined>(
   undefined,
@@ -44,7 +55,7 @@ export function ScrollIntoViewProvider({
   readonly children: ReactNode;
 }) {
   const scrollIntoView = useCallback<ScrollIntoView>(
-    (target) => {
+    (target, options) => {
       const scroll = scrollRef.current;
       if (target === null || scroll === null) return;
       // 中身の View。型定義は any（RN の非公開寄りの API だが、iOS / Android /
@@ -52,10 +63,11 @@ export function ScrollIntoViewProvider({
       const content = scroll.getInnerViewNode();
       if (content == null) return;
       target.measureLayout(content, (_x, y, _width, height) => {
-        scroll.scrollTo({
-          y: Math.max(0, y + height / 2 - viewportHeight.current / 2),
-          animated: true,
-        });
+        const top =
+          options?.block === "start"
+            ? y - START_MARGIN
+            : y + height / 2 - viewportHeight.current / 2;
+        scroll.scrollTo({ y: Math.max(0, top), animated: true });
       });
     },
     [scrollRef, viewportHeight],
