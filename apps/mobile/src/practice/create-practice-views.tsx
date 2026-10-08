@@ -140,7 +140,8 @@ export function createChallengePlayView<TResult = never>(
         title={t("title")}
         gameSession={{
           ...gameSession,
-          // 画面はすぐ止め、サーバーへは後から伝える（`RecordedChallenge.pause`）
+          // 画面はすぐ止め、サーバーへは後から伝える。再開はサーバーが
+          // 動き出したと確かめるまで回答と時計を止める（`RecordedChallenge.pause`）
           togglePause: () => {
             if (!gameSession.isCountingDown && !gameSession.isFinished)
               recorded?.pause(!gameSession.isPaused);

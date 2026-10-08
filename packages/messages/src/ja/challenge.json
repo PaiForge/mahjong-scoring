@@ -70,6 +70,7 @@
     "retry": "もう一度試す",
     "training": "トレーニングで練習する",
     "connectionLost": "通信が途切れました。回答はまだ採点されていません。",
+    "resumeConnectionLost": "通信が途切れました。再接続すると、止めたところから再開します。",
     "reconnect": "再接続する",
     "status": {
       "sending": "成績を記録しています…",

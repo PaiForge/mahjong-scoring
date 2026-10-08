@@ -11,6 +11,7 @@ import { ActivityIndicator, StyleSheet, Text, View } from "react-native";
 import { useRouter } from "expo-router";
 import { randomUUID } from "expo-crypto";
 import { useTranslations } from "use-intl";
+import type { MobileChallengeStatus } from "@mahjong-scoring/features/challenge/mobile-api";
 import type { ChallengeQuestion } from "@mahjong-scoring/features/challenge/types";
 import {
   practiceMenuBySlug,
@@ -265,10 +266,15 @@ function RecordedSession({
   const t = useTranslations("challenge.recording");
   const [current, setCurrent] = useState(initial);
   const [grading, setGrading] = useState(false);
+  const [resuming, setResuming] = useState(false);
   const [clock, setClock] = useState<ClockReading | undefined>(undefined);
-  const [reconnect, setReconnect] = useState<(() => void) | undefined>(
-    undefined,
-  );
+  const [reconnect, setReconnect] = useState<
+    | {
+        readonly message: "connectionLost" | "resumeConnectionLost";
+        readonly onPress: () => void;
+      }
+    | undefined
+  >(undefined);
   const next = useRef<ServerQuestion | undefined>(undefined);
   const pending = useRef<Promise<void> | undefined>(undefined);
   const busy = useRef(false);
@@ -277,6 +283,12 @@ function RecordedSession({
   const unanswered = useRef<
     ((question: ChallengeQuestion) => void) | undefined
   >(undefined);
+  /** 画面が止まっているか（サーバーへ伝えたい一時停止の状態） */
+  const wantPaused = useRef(false);
+  /** サーバーが受け付けたと確かめた一時停止の状態 */
+  const serverPaused = useRef(false);
+  /** 一時停止・再開をサーバーへ伝えている処理（同時に 1 本だけ） */
+  const pauseSync = useRef<Promise<void> | undefined>(undefined);
 
   // 解いている間は起動時の後始末の対象から外し、閉じたら（中止・終了）
   // 進行中の預かりを捨てる。終えたチャレンジは確定待ちへ移してあるので
@@ -305,18 +317,99 @@ function RecordedSession({
     setCurrent(following);
   }, []);
 
-  /** サーバーの状態を読み、今の問題と時計を合わせ直す */
-  const resync = useCallback(async (): Promise<boolean> => {
+  /** 再接続の案内を出し、押されるまで待つ */
+  const waitForReconnect = useCallback(
+    (message: "connectionLost" | "resumeConnectionLost") =>
+      new Promise<void>((resolve) => {
+        setReconnect({
+          message,
+          onPress: () => {
+            setReconnect(undefined);
+            resolve();
+          },
+        });
+      }),
+    [],
+  );
+
+  /**
+   * サーバーの状態を読み、今の問題と時計を合わせ直す。読めなければ undefined
+   *
+   * サーバーで終わっている（時間切れ）なら、時計を制限時間まで進める
+   * （画面のタイマーが次の刻みで時間切れを出し、`expire` に進む）。
+   */
+  const resync = useCallback(async (): Promise<
+    MobileChallengeStatus | undefined
+  > => {
     const status = await withRetries(() =>
       readRecordedChallenge(userId, attemptId),
     );
-    if ("error" in status) return false;
+    if ("error" in status) return undefined;
     const { value } = status;
     if (!next.current && value.sequence !== current.sequence)
       setCurrent({ question: value.question, sequence: value.sequence });
-    setClock({ elapsedMs: value.elapsedMs, sequence: value.sequence });
-    return true;
+    serverPaused.current = value.paused;
+    setClock({
+      elapsedMs: value.finished
+        ? value.elapsedMs + Math.max(0, value.remainingMs)
+        : value.elapsedMs,
+      sequence: value.sequence,
+    });
+    return value;
   }, [userId, attemptId, current.sequence]);
+
+  /**
+   * サーバーの一時停止を、画面の状態（`wantPaused`）に合わせる
+   *
+   * 停止・再開は 1 本の処理で順に送り、送るのはその時点の画面の状態だけ
+   * （連打しても届く順が入れ替わらない）。止める要求が届かなくても画面は
+   * 止めておく（サーバーの時計は進み、再開のときに合わせる）。再開は
+   * サーバーが動き出したと確かめるまで回答を受け付けず、届かなければ
+   * 再接続の案内を出す（サーバーが止まったままだと回答が断られる）。
+   */
+  const syncPause = useCallback(async (): Promise<void> => {
+    let attempts = 0;
+    while (serverPaused.current !== wantPaused.current) {
+      await pending.current;
+      const desired = wantPaused.current;
+      const sent = await withRetries(() =>
+        pauseRecordedChallenge(userId, attemptId, desired),
+      );
+      const unreachable = "error" in sent && isRetryableFailure(sent.error);
+      if (desired) {
+        // 届かなくても止まったものとして扱う。再開のときに送り直し、
+        // サーバーの時計に合わせる
+        serverPaused.current = true;
+        continue;
+      }
+      // 再開: 受け付けられても断られても、サーバーの今の状態を読んで合わせる
+      const status = unreachable ? undefined : await resync();
+      if (status?.finished) {
+        // 時間切れは `resync` が時計に写した。送るものはもう無い
+        serverPaused.current = wantPaused.current;
+        return;
+      }
+      if (status === undefined || (status.paused && ++attempts >= 3)) {
+        attempts = 0;
+        await waitForReconnect("resumeConnectionLost");
+      }
+    }
+  }, [userId, attemptId, resync, waitForReconnect]);
+
+  /** 一時停止の同期を始める（走っていれば、その処理が最新の状態まで送る） */
+  const startPauseSync = useCallback(
+    function start(): void {
+      if (pauseSync.current) return;
+      setResuming(true);
+      pauseSync.current = syncPause().finally(() => {
+        pauseSync.current = undefined;
+        setResuming(false);
+        // 終わる直前に状態が変わっていたら、もう 1 度送る
+        if (serverPaused.current !== wantPaused.current) start();
+      });
+    },
+    [syncPause],
+  );
 
   const grade = useCallback(
     (answer: unknown, onGraded: (question: ChallengeQuestion) => void) => {
@@ -324,7 +417,8 @@ function RecordedSession({
         busy.current ||
         next.current ||
         expiring.current ||
-        serverExpired.current
+        serverExpired.current ||
+        pauseSync.current
       )
         return false;
       busy.current = true;
@@ -340,16 +434,16 @@ function RecordedSession({
         if ("error" in result) {
           if (isRetryableFailure(result.error)) {
             // 同じ回答を送り直す。押すまで時計は止めたまま
-            await new Promise<void>((resolve) => {
-              setReconnect(() => () => {
-                setReconnect(undefined);
-                resolve();
-              });
-            });
+            await waitForReconnect("connectionLost");
             return send();
           }
-          // 受け付けられなかった（別の端末で進んだ等）。サーバーに合わせる
-          await resync();
+          // 受け付けられなかった（別の端末で進んだ・止まったまま等）。
+          // サーバーに合わせ、止まっていたら動かし直す
+          const status = await resync();
+          if (status?.paused && !wantPaused.current) {
+            serverPaused.current = true;
+            startPauseSync();
+          }
           return;
         }
         updateAccountRecords((records) =>
@@ -371,18 +465,15 @@ function RecordedSession({
       });
       return true;
     },
-    [current, userId, attemptId, resync],
+    [current, userId, attemptId, resync, startPauseSync, waitForReconnect],
   );
 
   const pause = useCallback(
     (paused: boolean) => {
-      void (async () => {
-        await pending.current;
-        await pauseRecordedChallenge(userId, attemptId, paused);
-        if (!paused) await resync();
-      })();
+      wantPaused.current = paused;
+      startPauseSync();
     },
-    [userId, attemptId, resync],
+    [startPauseSync],
   );
 
   const settled = useCallback(async () => {
@@ -406,12 +497,7 @@ function RecordedSession({
           );
         }
         if ("error" in result && isRetryableFailure(result.error)) {
-          await new Promise<void>((resolve) => {
-            setReconnect(() => () => {
-              setReconnect(undefined);
-              resolve();
-            });
-          });
+          await waitForReconnect("connectionLost");
           return reveal();
         }
         // フィードバック中は、まだ表示していない次問を結果に足さない
@@ -421,7 +507,7 @@ function RecordedSession({
       };
       void reveal();
     },
-    [userId, attemptId],
+    [userId, attemptId, waitForReconnect],
   );
 
   return (
@@ -429,7 +515,7 @@ function RecordedSession({
       value={{
         userId,
         attemptId,
-        isGrading: grading,
+        isGrading: grading || resuming,
         clock,
         pause,
         expire,
@@ -444,15 +530,18 @@ function RecordedSession({
           registerUnanswered,
         }}
       >
-        <View style={styles.fill} pointerEvents={grading ? "none" : "auto"}>
+        <View
+          style={styles.fill}
+          pointerEvents={grading || resuming ? "none" : "auto"}
+        >
           {children}
         </View>
       </QuestionHostProvider>
       {reconnect && (
         <View style={styles.overlay}>
           <View style={styles.reconnectPanel}>
-            <Text style={styles.reconnectText}>{t("connectionLost")}</Text>
-            <Button onPress={reconnect}>{t("reconnect")}</Button>
+            <Text style={styles.reconnectText}>{t(reconnect.message)}</Text>
+            <Button onPress={reconnect.onPress}>{t("reconnect")}</Button>
           </View>
         </View>
       )}
