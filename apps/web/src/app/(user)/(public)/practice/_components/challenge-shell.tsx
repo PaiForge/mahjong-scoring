@@ -287,8 +287,16 @@ export function ChallengeShell({
             戻すことで、中の要素の位置は変えずに箱だけを盤面と同じ幅にする
             （sm 以上は盤面が広がらないので元に戻す）。 */}
         <div className="relative -mx-4 px-4 sm:mx-0 sm:px-0">
+          {/* 一時停止中は盤面を inert にして、タップもキーボードも届かなくする。
+              上に重ねる BoardOverlay は再開ボタン以外を pointer-events-none で
+              素通しするため、幕だけでは下の選択肢が押せてしまう。押せると
+              盤面は問題別一覧に結果を記録するのに、セッションは一時停止中の
+              回答を捨てるので、正誤の数に入らない行が一覧に残る（再開後に
+              同じ問題へもう一度答えると 2 行になる）。ログイン中はサーバーが
+              一時停止中の回答を受け付けず、チャレンジが通信エラーで止まる */}
           <div
             className={gameSession.isPaused ? "blur-sm select-none" : undefined}
+            inert={gameSession.isPaused}
           >
             {children}
           </div>
