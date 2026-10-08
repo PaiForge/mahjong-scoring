@@ -26,6 +26,7 @@ interface ProblemListProps {
  *
  * sessionStorage の読み取りが完了するまでは `ProblemListSkeleton` で高さを
  * 確保し、一覧が現れたときに以降のセクションが押し下げられるのを防ぐ。
+ * 読み取った結果が空なら一覧も `footer` も出さない。
  *
  * @param parse - sessionStorage から読んだ値を型付き配列に選別する関数
  * @param ProblemList - パース済み結果を描画する一覧コンポーネント
@@ -38,6 +39,7 @@ export function createProblemListLoader<TListProps extends ProblemListProps>(
     storageKey,
     runId,
     expectedCount,
+    footer,
     ...extraProps
   }: ProblemListLoaderProps & Omit<TListProps, "results">) {
     const results = useSessionStorageResult(storageKey, runId, parse);
@@ -48,7 +50,14 @@ export function createProblemListLoader<TListProps extends ProblemListProps>(
     // ジェネリックのまま差分を足し戻す推論は TS が追えないため unknown 経由で通す。
     // eslint-disable-next-line @typescript-eslint/consistent-type-assertions -- 上記の TS の制限
     const listProps = { ...extraProps, results } as unknown as TListProps;
-    return <ProblemList {...listProps} />;
+    if (results.length === 0) return undefined;
+    // 断片で返し、一覧と末尾の要素を結果画面の節と同じ間隔（親の space-y）で並べる
+    return (
+      <>
+        <ProblemList {...listProps} />
+        {footer}
+      </>
+    );
   }
   return ProblemListLoader;
 }
