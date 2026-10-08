@@ -44,7 +44,7 @@ export function renderEmailTemplate(content: EmailTemplateContent): string {
                 <table role="presentation" width="100%" cellpadding="0" cellspacing="0">
                   <tr>
                     <td align="center" style="padding: 8px 0;">
-                      <a href="{{ .ConfirmationURL }}" target="_blank" style="display: inline-block; padding: 12px 32px; background-color: #1a1a1a; color: #ffffff; text-decoration: none; font-size: 15px; font-weight: 500; border-radius: 6px;">
+                      <a href="${content.href}" target="_blank" style="display: inline-block; padding: 12px 32px; background-color: #1a1a1a; color: #ffffff; text-decoration: none; font-size: 15px; font-weight: 500; border-radius: 6px;">
                         ${content.button}
                       </a>
                     </td>

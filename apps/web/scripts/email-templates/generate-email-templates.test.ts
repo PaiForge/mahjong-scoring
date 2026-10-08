@@ -38,13 +38,21 @@ describe("認証メールテンプレート", () => {
     }
   });
 
-  it("Supabase が差し込む確認 URL のプレースホルダを残す", () => {
+  it("Supabase が差し込むリンクのプレースホルダを残す", () => {
     // 生成時にエスケープや整形で壊すと、リンクの無いメールが送られる。
-    for (const content of EMAIL_TEMPLATES) {
-      expect(renderEmailTemplate(content)).toContain(
-        'href="{{ .ConfirmationURL }}"',
-      );
-    }
+    const hrefs = Object.fromEntries(
+      EMAIL_TEMPLATES.map((c) => [
+        c.file,
+        renderEmailTemplate(c).match(/<a href="([^"]*)"/)?.[1],
+      ]),
+    );
+    expect(hrefs).toEqual({
+      "confirmation.html":
+        "{{ .SiteURL }}/auth/callback?token_hash={{ .TokenHash }}&amp;type=signup",
+      "recovery.html":
+        "{{ .SiteURL }}/auth/callback?token_hash={{ .TokenHash }}&amp;type=recovery",
+      "email_change.html": "{{ .ConfirmationURL }}",
+    });
   });
 
   it("確認メールの件名は config.toml・テンプレート・メール確認ページで一致する", () => {
