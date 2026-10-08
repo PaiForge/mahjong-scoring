@@ -5,11 +5,13 @@ const {
   mockInsert,
   mockRevalidatePath,
   mockFetchJourneyInput,
+  mockLockAccountForWrite,
 } = vi.hoisted(() => ({
   mockAuthenticateAndCheckBan: vi.fn(),
   mockInsert: vi.fn(),
   mockRevalidatePath: vi.fn(),
   mockFetchJourneyInput: vi.fn(),
+  mockLockAccountForWrite: vi.fn(),
 }));
 
 vi.mock("@/lib/auth", () => ({
@@ -18,8 +20,13 @@ vi.mock("@/lib/auth", () => ({
 
 vi.mock("@/lib/db", () => ({
   db: {
-    insert: mockInsert,
+    transaction: (run: (tx: unknown) => Promise<unknown>) =>
+      run({ insert: mockInsert }),
   },
+}));
+
+vi.mock("@/lib/users/account-write-lock", () => ({
+  lockAccountForWrite: mockLockAccountForWrite,
 }));
 
 vi.mock("@/lib/db/schema", async () => await import("@/test/schema-mock"));
@@ -51,6 +58,7 @@ beforeEach(() => {
   insertChain.onConflictDoNothing.mockResolvedValue(undefined);
   mockInsert.mockReturnValue(insertChain);
   mockFetchJourneyInput.mockResolvedValue(NO_PROGRESS);
+  mockLockAccountForWrite.mockResolvedValue(true);
 });
 
 describe("completeLesson", () => {
@@ -81,6 +89,21 @@ describe("completeLesson", () => {
     expect(mockInsert).not.toHaveBeenCalled();
     expect(mockRevalidatePath).not.toHaveBeenCalled();
     expect(mockFetchJourneyInput).not.toHaveBeenCalled();
+  });
+
+  /**
+   * 入口の確認を通った後に退会が受け付けられても、書き込みのロックで
+   * 止まる。消した完了を蘇らせない。
+   */
+  it("退会を受け付けた後なら INSERT せず、未ログインと同じく skipped を返す", async () => {
+    mockAuthenticateAndCheckBan.mockResolvedValue({ user: { id: "user-123" } });
+    mockLockAccountForWrite.mockResolvedValue(false);
+
+    const result = await completeLesson("mangan-ko-ron");
+
+    expect(result).toEqual({ success: true, skipped: "anonymous" });
+    expect(mockInsert).not.toHaveBeenCalled();
+    expect(mockRevalidatePath).not.toHaveBeenCalled();
   });
 
   it("認証済みなら本人の id と slug で冪等に INSERT し、次の一歩を読む画面を捨てる", async () => {

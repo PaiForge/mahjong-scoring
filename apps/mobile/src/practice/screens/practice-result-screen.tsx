@@ -21,6 +21,7 @@ import { Screen } from "../../components/screen";
 import { SectionTitle } from "../../components/section-title";
 import { TextLink } from "../../components/text-link";
 import { colors } from "../../lib/theme";
+import { useFinishStatus } from "../../records/account-sync";
 import { useChallengeResultStore } from "../challenge-result-store";
 import { MistakeRevealProvider } from "../components/mistake-reveal";
 import { ResultScoreBar } from "../components/result-score-bar";
@@ -33,7 +34,9 @@ import { useRouteVariant } from "./use-route-variant";
  * @description
  * web の結果ページ（`ResultView`）と同じ並び: 結果（正解・不正解の帯）→
  * もう一度 / 設定を変更する → 練習一覧に戻る → 広告のカード → 問題別の結果 →
- * もう一度。記録・ランキング・経験値はアカウントに紐づくため、モバイルでは出さない。
+ * もう一度。ログイン中のチャレンジは、結果の帯の下に成績を記録できたかを 1 行で
+ * 添える（送れなければ、次に通信できたときに送ると伝える）。ランキング・
+ * 経験値・自己ベストの比較はまだ出さない。
  *
  * 「もう一度」を問題別の結果の末尾にも置くのは、一覧で間違えた問題を読み終えた
  * 位置から、広告とボタン群まで戻らずに再挑戦できるようにするため（web と同じ）。
@@ -127,6 +130,7 @@ export function PracticeResultScreen({
               {tc("resultUnavailable")}
             </Text>
           )}
+          <RecordStatus attemptId={current?.recordedAttemptId} />
         </View>
 
         <View style={styles.actions}>
@@ -159,7 +163,28 @@ export function PracticeResultScreen({
   );
 }
 
+/** 成績を記録できたか（ログイン中のチャレンジだけ） */
+function RecordStatus({
+  attemptId,
+}: {
+  readonly attemptId: string | undefined;
+}) {
+  const t = useTranslations("challenge.recording.status");
+  const status = useFinishStatus(attemptId);
+  if (status === undefined) return undefined;
+  return (
+    <Text style={styles.recordStatus} testID="record-status">
+      {t(status)}
+    </Text>
+  );
+}
+
 const styles = StyleSheet.create({
+  recordStatus: {
+    fontSize: 15,
+    lineHeight: 24,
+    color: colors.surface600,
+  },
   content: {
     gap: 32,
   },

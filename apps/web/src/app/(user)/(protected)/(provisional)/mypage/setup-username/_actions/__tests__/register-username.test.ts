@@ -4,13 +4,17 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 // Mocks
 // ---------------------------------------------------------------------------
 
-const { mockProfileExistsByUserId, mockInsert, mockValues } = vi.hoisted(
-  () => ({
-    mockProfileExistsByUserId: vi.fn(),
-    mockInsert: vi.fn(),
-    mockValues: vi.fn(),
-  }),
-);
+const {
+  mockProfileExistsByUserId,
+  mockInsert,
+  mockValues,
+  mockLockAccountForWrite,
+} = vi.hoisted(() => ({
+  mockProfileExistsByUserId: vi.fn(),
+  mockInsert: vi.fn(),
+  mockValues: vi.fn(),
+  mockLockAccountForWrite: vi.fn(),
+}));
 
 vi.mock("@/lib/rate-limit-ip", async () => await import("@/test/auth-mocks"));
 
@@ -21,8 +25,15 @@ vi.mock("@/lib/db/queries", () => ({
 }));
 
 vi.mock("@/lib/db", async () => ({
-  db: { insert: mockInsert },
+  db: {
+    transaction: (run: (tx: unknown) => Promise<unknown>) =>
+      run({ insert: mockInsert }),
+  },
   ...(await import("@/test/schema-mock")),
+}));
+
+vi.mock("@/lib/users/account-write-lock", () => ({
+  lockAccountForWrite: mockLockAccountForWrite,
 }));
 
 // validateUsername / extractPgErrorCode は純粋関数なので実物を使い、
@@ -68,6 +79,7 @@ describe("registerUsername", () => {
   beforeEach(() => {
     vi.clearAllMocks();
     setupInsertChain();
+    mockLockAccountForWrite.mockResolvedValue(true);
   });
 
   describe("rate limit", () => {
@@ -268,6 +280,22 @@ describe("registerUsername", () => {
         username: "alice",
         displayName: "alice",
       });
+    });
+  });
+
+  /**
+   * プロフィールの無いユーザーの退会も、ロックで登録と直列になる。
+   * 受付の後にプロフィールを作り直させない。
+   */
+  describe("account deletion accepted", () => {
+    it('returns { error: "unauthorized" } and inserts nothing', async () => {
+      authorized();
+      mockLockAccountForWrite.mockResolvedValue(false);
+
+      const result = await registerUsername("tsumo_master");
+
+      expect(result).toEqual({ error: "unauthorized" });
+      expect(mockInsert).not.toHaveBeenCalled();
     });
   });
 

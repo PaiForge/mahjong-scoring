@@ -4,30 +4,18 @@ import {
   type Journey,
 } from "@mahjong-scoring/features/journey/journey";
 
-import { useCompletedLessonSlugs } from "../hooks/use-lesson-completion-store";
-import { useAttemptedPractices } from "../hooks/use-practice-attempt-store";
+import { useAccountProgress } from "../records/use-account-progress";
 
 /**
  * モバイルの黒帯への道
  * モバイル行程
  *
- * web の道場と同じ `buildJourney` を、モバイルが持つ材料で呼ぶ。
- *
- * - 学ぶ: 端末に記録したレッスンの完了（`useCompletedLessonSlugs`）
- * - 練習する: 端末に記録した「チャレンジを終えた」練習
- *   （`useAttemptedPractices`。成績は記録しない）
- * - 認定される: 段級位はアカウントに紐づくので常に空（全員が無級）
+ * web の道場と同じ `buildJourney` を、モバイルが持つ材料
+ * （`useAccountProgress`）で呼ぶ。ログイン中はサーバーの記録（段級位を含む）に
+ * 端末の未送信分・ゲストの「チャレンジを終えた練習」を合わせたもの、ゲストは
+ * 端末の記録だけ（段級位は無い）。
  */
 export function useMobileJourney(): Journey {
-  const completedLessonSlugs = useCompletedLessonSlugs();
-  const attemptedPractices = useAttemptedPractices();
-  return useMemo(
-    () =>
-      buildJourney({
-        completedLessonSlugs,
-        attemptedPractices,
-        achievedRankSlugs: [],
-      }),
-    [completedLessonSlugs, attemptedPractices],
-  );
+  const { input } = useAccountProgress();
+  return useMemo(() => buildJourney(input), [input]);
 }

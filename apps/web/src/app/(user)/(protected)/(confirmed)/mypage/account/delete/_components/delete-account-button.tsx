@@ -41,8 +41,13 @@ export function DeleteAccountButton() {
     }
 
     await signOut();
-    // トップに着いてから出す（ここで出すと表示時間が遷移の裏で減る）
-    toastOnArrival("/", t("successToast"), "success");
+    // トップに着いてから出す（ここで出すと表示時間が遷移の裏で減る）。
+    // 工程が残っている（pending）ときは完了と言わず、受け付けたことを伝える
+    toastOnArrival(
+      "/",
+      result.status === "completed" ? t("successToast") : t("acceptedToast"),
+      "success",
+    );
     router.push("/");
   };
 

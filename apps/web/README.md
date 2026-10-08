@@ -68,6 +68,10 @@ pnpm dev
 
 Google サインインをローカルでテストするには、OAuth 認証情報の設定が必要です。詳細は [docs/authentication-setup.md](docs/authentication-setup.md) を参照してください。
 
+### Apple ログイン（iOS アプリ用）
+
+iOS アプリの Apple ログインは、ローカルの Supabase で設定済み（`supabase/config.toml` の `[auth.external.apple]`）。アプリが送る Apple の認可コードを交換・保存し、退会で取り消すには `.env.local` に `APPLE_TEAM_ID` / `APPLE_KEY_ID` / `APPLE_PRIVATE_KEY` / `APPLE_TOKEN_ENCRYPTION_KEY` が要る（未設定でもログインはでき、トークンの保存だけが飛ばされる）。値と作り方は [apps/mobile/README.md](../mobile/README.md) の「Apple でログイン」を参照してください。
+
 ### 管理画面のセットアップ
 
 管理画面（`/admin`）を利用するにはセットアップが必要です。詳細は [docs/admin-panel-setup.md](docs/admin-panel-setup.md) を参照してください。
@@ -110,6 +114,12 @@ curl -H "Authorization: Bearer $CRON_SECRET" http://localhost:3000/api/cron/noti
 ```
 
 何度叩いても同じ購入・付与には 1 通しか付きません。一覧とベルの見た目は `pnpm db:seed:dev` のシードユーザー（bob: 期限切れを含む 3 件 / carol / dave）でサインインすると確認できます。
+
+退会も cron を使います。退会はその場で全工程（データの削除 → アバター画像の削除 → ログインの無効化 → Apple の連携の取り消し）を進めますが、外部サービスの一時障害で終わらなかった分を、`crons` が 1 日 1 回 `/api/cron/process-account-deletions` で再開します。進み具合は `account_deletions` テーブルに残ります。ローカルで再開を試すときも同じヘッダで叩きます:
+
+```bash
+curl -H "Authorization: Bearer $CRON_SECRET" http://localhost:3000/api/cron/process-account-deletions
+```
 
 ### ローカルサービス
 

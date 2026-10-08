@@ -123,6 +123,24 @@ export const IP_RATE_LIMITS = {
   // 自動化で行を増やし続けさせない。1 回は最短でも数十秒掛かり、すぐ
   // やり直しても 10 分で 60 回には届かない
   beginChallenge: { maxRequests: 60, windowMs: 600_000 },
+  // アプリが起動・復帰・ログインのたびに読むアカウント状態。書き込みは
+  // しないので、認証サーバーへの問い合わせを連打させない程度に取る
+  readMobileAccount: { maxRequests: 60, windowMs: 600_000 },
+  // アプリの記録付きチャレンジの回答。1 回のチャレンジで数十問、通信の
+  // 失敗で同じ回答を送り直すこともあるので、人の操作が届かない程度に広く取る
+  answerChallenge: { maxRequests: 600, windowMs: 600_000 },
+  // アプリのチャレンジの一時停止・状態の取り直し・時間切れの問題の取得。
+  // 裏に回る・通信が戻るたびに飛ぶ
+  readChallenge: { maxRequests: 300, windowMs: 600_000 },
+  // アプリのチャレンジの確定。送り直しを含めても開始の回数を超えない
+  finishChallenge: { maxRequests: 60, windowMs: 600_000 },
+  // アプリが画面を開くたびに読む進み具合
+  readMobileProgress: { maxRequests: 120, windowMs: 600_000 },
+  // アプリのレッスン完了の記録（未送信分の送り直しを含む）
+  completeLessons: { maxRequests: 60, windowMs: 600_000 },
+  // アプリが Apple でログインした直後に認可コードを預ける。ログイン 1 回に
+  // 1 度（失敗の送り直しを含めて数回）しか飛ばない。Apple への問い合わせを伴う
+  saveAppleToken: { maxRequests: 20, windowMs: 600_000 },
 } as const;
 
 /**

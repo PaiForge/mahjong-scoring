@@ -7,6 +7,7 @@ import { authorizeApiRequest } from "@/lib/api-auth";
 import { jsonPrivate } from "@/lib/api-response";
 import { logExternalError } from "@/lib/log-error";
 import { db, profiles } from "@/lib/db";
+import { writeAsAccount } from "@/lib/users/account-write-lock";
 import { readUploadedImage } from "@/lib/images/read-uploaded-image";
 import { SHARP_DECODE_OPTIONS } from "@/lib/images/sharp-options";
 import { createAdminClient } from "@/lib/supabase/admin";
@@ -77,10 +78,18 @@ export async function POST(request: Request) {
   } = storage.from("avatars").getPublicUrl(filePath);
   const avatarUrl = `${publicUrl}?t=${Date.now()}`;
 
-  await db
-    .update(profiles)
-    .set({ avatarUrl, updatedAt: new Date() })
-    .where(eq(profiles.id, user.id));
+  // 退会を受け付けた後なら URL を書かず、上げた画像も消す（退会の Storage の
+  // 工程が先に済んでいると、ここで上げた画像は誰にも消されずに残る）
+  const { written } = await writeAsAccount(user.id, (tx) =>
+    tx
+      .update(profiles)
+      .set({ avatarUrl, updatedAt: new Date() })
+      .where(eq(profiles.id, user.id)),
+  );
+  if (!written) {
+    await storage.from("avatars").remove([filePath]);
+    return jsonPrivate({ error: "unauthorized" }, { status: 401 });
+  }
 
   // ランキングのキャッシュ（5 分）は行にアバター URL を含むため、ここで捨てないと
   // 一覧だけ古い画像を出し続ける。URL 末尾の ?t= は新しい URL が配られて初めて効く。

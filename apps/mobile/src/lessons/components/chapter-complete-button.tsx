@@ -4,9 +4,9 @@ import type { CurriculumChapterSlug } from "@mahjong-scoring/features/curriculum
 
 import { Button } from "../../components/button";
 import {
-  useLessonCompleted,
-  useLessonCompletionStore,
-} from "../../hooks/use-lesson-completion-store";
+  useLessonDone,
+  useMarkLessonCompleted,
+} from "../../records/use-account-progress";
 import { DoneMark } from "./done-mark";
 
 /**
@@ -14,11 +14,11 @@ import { DoneMark } from "./done-mark";
  * 章完了ボタン
  *
  * 確認問題を持たないレッスン（基礎・点数記憶術の章）には区切りが無いので、
- * 本人が押して完了にする。記録される印は確認問題と同じ（端末の完了の記録）。
- * 完了済みなら済みの印だけを出す（取り消しは無い）。
+ * 本人が押して完了にする。記録される印は確認問題と同じ（ログイン中は
+ * アカウント、ゲストは端末の記録）。完了済みなら済みの印だけを出す（取り消しは無い）。
  *
- * web はログインしていないとログインへの導線を出すが、モバイルには
- * アカウントが無く、完了は端末に残すので常にボタンを出す。
+ * web はログインしていないとログインへの導線を出すが、モバイルはゲストの
+ * 完了を端末に残せるので常にボタンを出す。
  */
 export function ChapterCompleteButton({
   slug,
@@ -26,8 +26,8 @@ export function ChapterCompleteButton({
   readonly slug: CurriculumChapterSlug;
 }) {
   const t = useTranslations("learnCurriculum.chapter");
-  const completed = useLessonCompleted(slug);
-  const markCompleted = useLessonCompletionStore((s) => s.markCompleted);
+  const completed = useLessonDone(slug);
+  const markCompleted = useMarkLessonCompleted();
 
   if (completed) {
     return (

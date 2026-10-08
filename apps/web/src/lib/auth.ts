@@ -1,6 +1,6 @@
 import { cache } from "react";
 import { redirect } from "next/navigation";
-import { isUserBanned } from "./ban";
+import { getAccountStanding, isUserBanned } from "./ban";
 import { createClient } from "./supabase/server";
 import { getProfileByUserId } from "./db/queries";
 
@@ -163,18 +163,33 @@ export type AuthGateErrorCode = "unauthorized" | "banned";
  * （{@link requireConfirmedUser} 等）は画面遷移しか守らないため、Action を
  * 直接叩かれると BAN が効かない。
  *
- * エラーコードは未認証が `"unauthorized"`、BAN が `"banned"`。
+ * エラーコードは未認証が `"unauthorized"`、BAN が `"banned"`。退会を
+ * 受け付けたユーザー（退会の工程が終わるまではログインが生きている）も
+ * `"unauthorized"` にする — 消したデータを書き込みで蘇らせないため。
+ * 入口のこの確認は早く断るためのもので、受付との競合は書き込みの
+ * トランザクションの中（`lockAccountForWrite`）が閉じる。
+ *
+ * @param options.forAccountDeletion - 退会の受付として使う。BAN 中・退会処理中も
+ *   通す（本人による退会は、通常の利用を止める BAN の対象にしない。受付は
+ *   冪等なので処理中に送り直してもよい）
  */
-export async function authenticateAndCheckBan(): Promise<
-  { user: AuthUser } | { error: AuthGateErrorCode }
-> {
+export async function authenticateAndCheckBan(
+  options: { readonly forAccountDeletion?: boolean } = {},
+): Promise<{ user: AuthUser } | { error: AuthGateErrorCode }> {
   const user = await getOptionalVerifiedUser();
 
   if (!user) {
     return { error: "unauthorized" };
   }
+  if (options.forAccountDeletion) {
+    return { user };
+  }
 
-  if (await isUserBanned(user.id)) {
+  const standing = await getAccountStanding(user.id);
+  if (standing === "deleting") {
+    return { error: "unauthorized" };
+  }
+  if (standing === "banned") {
     return { error: "banned" };
   }
 

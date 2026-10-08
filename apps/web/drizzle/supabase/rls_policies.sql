@@ -251,3 +251,25 @@ ALTER TABLE "notifications" ENABLE ROW LEVEL SECURITY;
 DROP POLICY IF EXISTS "notifications_deny_all" ON "notifications";
 CREATE POLICY "notifications_deny_all" ON "notifications"
   USING (false);
+
+-- =============================================================================
+-- account_deletions
+-- =============================================================================
+-- 退会の要求と進み具合。受付・処理・状態の確認はすべてサーバーが直 DB 接続で
+-- 行う。書ければ他人を退会処理中にできるため、読み書きとも許可しない。
+ALTER TABLE "account_deletions" ENABLE ROW LEVEL SECURITY;
+
+DROP POLICY IF EXISTS "account_deletions_deny_all" ON "account_deletions";
+CREATE POLICY "account_deletions_deny_all" ON "account_deletions"
+  USING (false);
+
+-- =============================================================================
+-- apple_refresh_tokens
+-- =============================================================================
+-- 退会時に Apple の連携を取り消すためのトークン（暗号化済み）。保存も取り消しも
+-- サーバーが直 DB 接続で行う。読み書きとも許可しない。
+ALTER TABLE "apple_refresh_tokens" ENABLE ROW LEVEL SECURITY;
+
+DROP POLICY IF EXISTS "apple_refresh_tokens_deny_all" ON "apple_refresh_tokens";
+CREATE POLICY "apple_refresh_tokens_deny_all" ON "apple_refresh_tokens"
+  USING (false);

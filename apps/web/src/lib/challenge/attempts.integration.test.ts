@@ -46,6 +46,7 @@ import {
   beginAttempt,
   finishAttempt,
   pauseAttempt,
+  readAttemptStatus,
   revealExpiredAttempt,
 } from "./attempts";
 import { challengeTestDb, closeChallengeTestDb } from "./test-database";
@@ -62,6 +63,9 @@ describe.skipIf(!url)("challenge transactions (PostgreSQL)", () => {
     await db.execute(
       `CREATE TEMP TABLE challenge_attempts (id uuid PRIMARY KEY DEFAULT gen_random_uuid(), user_id uuid NOT NULL, state jsonb NOT NULL, consumed boolean NOT NULL DEFAULT false)`,
     );
+    await db.execute(
+      `CREATE TEMP TABLE account_deletions (user_id uuid PRIMARY KEY, requested_at timestamptz NOT NULL DEFAULT now())`,
+    );
   });
   afterAll(async () => {
     vi.restoreAllMocks();
@@ -75,6 +79,7 @@ describe.skipIf(!url)("challenge transactions (PostgreSQL)", () => {
     mocked.grade.mockResolvedValue(["kyu-5"]);
     mocked.ranks.mockResolvedValue([]);
     await challengeTestDb().delete(schema.challengeAttempts);
+    await challengeTestDb().execute(`DELETE FROM account_deletions`);
   });
   async function start() {
     const attempt = await beginAttempt(owner, "machi_fu", "default", {
@@ -93,15 +98,16 @@ describe.skipIf(!url)("challenge transactions (PostgreSQL)", () => {
     expect(await finishAttempt(owner, other, false)).toBeUndefined();
     expect(mocked.save).not.toHaveBeenCalled();
   });
-  it("同一問題への再送・並列回答は一度しか採点しない", async () => {
+  it("同一問題への再送・並列回答は一度しか採点せず、同じ応答を返す", async () => {
     const attempt = await start();
     const results = await Promise.all([
       answerAttempt(owner, attempt.id, 0, 2),
       answerAttempt(owner, attempt.id, 0, 2),
     ]);
-    expect(results.filter(Boolean)).toHaveLength(1);
+    expect(results[0]).toBeDefined();
+    expect(results[1]).toEqual(results[0]);
     now += 800;
-    expect(await answerAttempt(owner, attempt.id, 0, 2)).toBeUndefined();
+    expect(await answerAttempt(owner, attempt.id, 0, 2)).toEqual(results[0]);
     const [row] = await challengeTestDb()
       .select()
       .from(schema.challengeAttempts)
@@ -130,7 +136,96 @@ describe.skipIf(!url)("challenge transactions (PostgreSQL)", () => {
       menuType: "machi_fu",
       leaderboardKey: "default",
     });
-    expect(await finishAttempt(owner, attempt.id, false)).toBeUndefined();
+    expect(await finishAttempt(owner, attempt.id, false)).toEqual({
+      challengeResultId: "saved",
+    });
+    expect(mocked.save).toHaveBeenCalledTimes(1);
+  });
+  it("直前の問題へ別の回答を送り直しても受け付けない", async () => {
+    const attempt = await start();
+    const first = await answerAttempt(owner, attempt.id, 0, 0);
+    expect(first).toMatchObject({ correct: false, sequence: 1 });
+    expect(await answerAttempt(owner, attempt.id, 0, 2)).toBeUndefined();
+    // 値が undefined のキーは jsonb に残らないが、同じ回答として扱う
+    now += 800;
+    const keyed = await answerAttempt(owner, attempt.id, 1, { fu: 2 });
+    expect(
+      await answerAttempt(owner, attempt.id, 1, { fu: 2, note: undefined }),
+    ).toEqual(keyed);
+  });
+  it("確定済みの試験への再送は、判定し直さずに同じ付与結果を返す", async () => {
+    const attempt = await beginAttempt(owner, "mangan_exam", "default", {
+      renfonpaiAs4Fu: false,
+    });
+    if (!attempt) throw new Error("start failed");
+    now += 3000 + 120000;
+    const first = await finishAttempt(owner, attempt.id, true);
+    expect(first).toEqual({ grantedRanks: ["kyu-5"] });
+    expect(await finishAttempt(owner, attempt.id, true)).toEqual(first);
+    expect(mocked.grade).toHaveBeenCalledTimes(1);
+  });
+  it("呼び出し側の ID で開始すると、再送は同じ挑戦を返す", async () => {
+    const id = "33333333-3333-4333-8333-333333333333";
+    const begin = () =>
+      beginAttempt(owner, "machi_fu", "default", { renfonpaiAs4Fu: false }, id);
+    const [a, b] = await Promise.all([begin(), begin()]);
+    expect(a).toMatchObject({ id, sequence: 0 });
+    expect(b).toEqual(a);
+    now += 3000;
+    await answerAttempt(owner, id, 0, 2);
+    expect(await begin()).toMatchObject({ id, sequence: 1 });
+    const rows = await challengeTestDb()
+      .select()
+      .from(schema.challengeAttempts);
+    expect(rows).toHaveLength(1);
+  });
+  it("他人の挑戦 ID・別の練習や別の設定の ID では開始しない", async () => {
+    const id = "44444444-4444-4444-8444-444444444444";
+    const settings = { renfonpaiAs4Fu: false };
+    await beginAttempt(owner, "machi_fu", "default", settings, id);
+    expect(
+      await beginAttempt(other, "machi_fu", "default", settings, id),
+    ).toBeUndefined();
+    expect(
+      await beginAttempt(owner, "jantou_fu", "default", settings, id),
+    ).toBeUndefined();
+    // 同じ ID でルール設定だけ違う要求も再送ではなく競合
+    expect(
+      await beginAttempt(
+        owner,
+        "machi_fu",
+        "default",
+        { renfonpaiAs4Fu: true },
+        id,
+      ),
+    ).toBeUndefined();
+    expect(
+      await beginAttempt(owner, "machi_fu", "default", settings, "not-a-uuid"),
+    ).toBeUndefined();
+  });
+  it("挑戦の状態は本人にだけ、正解を伏せて返す", async () => {
+    const attempt = await start();
+    await answerAttempt(owner, attempt.id, 0, 2);
+    now += 1000;
+    const status = await readAttemptStatus(owner, attempt.id);
+    expect(status).toMatchObject({
+      id: attempt.id,
+      menuType: "machi_fu",
+      settings: { renfonpaiAs4Fu: false },
+      sequence: 1,
+      score: 1,
+      incorrectAnswers: 0,
+      paused: false,
+      finished: false,
+    });
+    expect(status?.question).not.toHaveProperty("answer", 2);
+    expect(await readAttemptStatus(other, attempt.id)).toBeUndefined();
+    now += 120000;
+    await finishAttempt(owner, attempt.id, false);
+    expect(await readAttemptStatus(owner, attempt.id)).toMatchObject({
+      finished: true,
+      outcome: { challengeResultId: "saved" },
+    });
   });
   it("記録の書き込み失敗時は挑戦の消費もロールバックする", async () => {
     const attempt = await start();
@@ -187,6 +282,21 @@ describe.skipIf(!url)("challenge transactions (PostgreSQL)", () => {
       "question.answer",
       2,
     );
+  });
+  it("退会を受け付けた後は、挑戦を始めることも成績を確定することもできない", async () => {
+    const attempt = await start();
+    await answerAttempt(owner, attempt.id, 0, 2);
+    now += 120000;
+    await challengeTestDb().execute(
+      `INSERT INTO account_deletions (user_id) VALUES ('${owner}')`,
+    );
+    expect(await finishAttempt(owner, attempt.id, false)).toBeUndefined();
+    expect(mocked.save).not.toHaveBeenCalled();
+    expect(
+      await beginAttempt(owner, "machi_fu", "default", {
+        renfonpaiAs4Fu: false,
+      }),
+    ).toBeUndefined();
   });
   it("受験資格のない試験や不正バリアントを開始できない", async () => {
     expect(

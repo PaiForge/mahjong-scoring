@@ -15,7 +15,7 @@ import { useNativeAds } from "../ads/use-native-ads";
 import { LinkRowList } from "../components/link-row";
 import { Screen } from "../components/screen";
 import { TextLink } from "../components/text-link";
-import { useLessonCompleted } from "../hooks/use-lesson-completion-store";
+import { useLessonDone } from "../records/use-account-progress";
 import { colors } from "../lib/theme";
 import { ChapterCompleteButton } from "./components/chapter-complete-button";
 import { ChapterPublishedDate } from "./components/chapter-published-date";
@@ -87,7 +87,7 @@ function LessonScreenContent({
     scrollRef.current?.scrollTo({ y: 0, animated: false });
   }, []);
   const quizLesson = quizLessonBySlug(slug);
-  const completed = useLessonCompleted(slug);
+  const completed = useLessonDone(slug);
   const nextSlug = nextChapterSlug(slug);
   const [ad] = useNativeAds(MOBILE_AD_SLOTS.learnChapter);
   // 章末の公開日の上に広告を 1 行。周りは表・ボタン・

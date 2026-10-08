@@ -40,9 +40,9 @@ Resend のダッシュボードで必要な DNS レコード（SPF、DKIM、DMAR
 
    | テンプレートタイプ       | ローカルファイル                       | Subject                                   |
    | ------------------------ | -------------------------------------- | ----------------------------------------- |
-   | **Confirm signup**       | `supabase/templates/confirmation.html` | `麻雀点数道場 - メールアドレスの確認`     |
-   | **Reset password**       | `supabase/templates/recovery.html`     | `麻雀点数道場 - パスワードのリセット`     |
-   | **Change email address** | `supabase/templates/email_change.html` | `麻雀点数道場 - メールアドレス変更の確認` |
+   | **Confirm signup**       | `supabase/templates/confirmation.html` | `麻雀点数計算 - メールアドレスの確認`     |
+   | **Reset password**       | `supabase/templates/recovery.html`     | `麻雀点数計算 - パスワードのリセット`     |
+   | **Change email address** | `supabase/templates/email_change.html` | `麻雀点数計算 - メールアドレス変更の確認` |
 
 3. 各テンプレートについて:
    - **Subject** を上記の値に設定

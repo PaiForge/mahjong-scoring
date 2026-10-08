@@ -56,6 +56,8 @@ pnpm --filter @mahjong-scoring/mobile android # Android エミュレーター
 pnpm --filter @mahjong-scoring/mobile web     # ブラウザで確認（画面確認用）
 ```
 
+接続先・ビルドの環境変数・Apple ログインの設定・実機での確かめ方は [apps/mobile/README.md](apps/mobile/README.md) を参照してください。
+
 ### スクリプト一覧
 
 | コマンド            | 説明                                      |

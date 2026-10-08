@@ -1152,3 +1152,108 @@ export const notifications = pgTable(
 
 export type Notification = typeof notifications.$inferSelect;
 export type NewNotification = typeof notifications.$inferInsert;
+
+/**
+ * 退会の要求と進み具合
+ * 退会要求
+ *
+ * @description
+ * 本人が退会を求めた時点で 1 行作り、工程（データ削除・Storage 削除・Auth の
+ * 無効化・Apple の連携の取り消し）ごとに終えた時刻を記録する。全工程を終えたら `completed_at` を入れる。
+ * 処理は受付の直後にその場で進め、終わらなかった分は cron
+ * （`/api/cron/process-account-deletions`）が拾って再開する。本人のログインに
+ * 頼らないので、Auth を無効化した後でも、アプリを閉じた後でも完了する。
+ *
+ * @design 行があること自体が「退会処理中」の印
+ * プロフィール（`profiles.deleted_at`）だけでは、ユーザー名を決める前の
+ * ユーザーに印を付けられない。書き込みの入口（認証ゲート）と、書き込みの
+ * トランザクションの中（`lockAccountForWrite`）の両方がこの行を見て、
+ * 退会を受け付けた後の書き込みを止める。
+ *
+ * @design auth.users への FK を張らない
+ * Auth の無効化（ソフトデリート）の後も、いつ受け付けていつ終えたかを
+ * 監査のために残す。行はユーザー ID だけを持ち、個人情報を持たない。
+ *
+ * @design 処理の重複は `last_attempt_at` の貸し出しで防ぐ
+ * その場の処理と cron が同時に同じ要求を進めないよう、処理を始める側が
+ * 一定時間（`lib/users/account-deletion.ts`）の貸し出しを取る。工程は
+ * どれも冪等なので、貸し出しが切れて二重に走っても結果は変わらない。
+ */
+export const accountDeletions = pgTable(
+  "account_deletions",
+  {
+    /** 退会する auth.users(id)（FK は張らない。上の TSDoc） */
+    userId: uuid("user_id").primaryKey(),
+    /** 受け付けた日時 */
+    requestedAt: timestamp("requested_at", { withTimezone: true })
+      .defaultNow()
+      .notNull(),
+    /** DB の行動データを消し、プロフィールを匿名化した日時 */
+    dataDeletedAt: timestamp("data_deleted_at", { withTimezone: true }),
+    /** アバター画像を Storage から消した日時 */
+    storageDeletedAt: timestamp("storage_deleted_at", { withTimezone: true }),
+    /** Auth をソフトデリートした（ログインできなくした）日時 */
+    authDeletedAt: timestamp("auth_deleted_at", { withTimezone: true }),
+    /**
+     * Apple の連携を取り消した日時（取り消すトークンが無かったときも入れる。
+     * `apple_refresh_tokens` の TSDoc）
+     */
+    appleRevokedAt: timestamp("apple_revoked_at", { withTimezone: true }),
+    /** 全工程を終えた日時。NULL なら処理中 */
+    completedAt: timestamp("completed_at", { withTimezone: true }),
+    /** 処理を試みた回数 */
+    attempts: integer("attempts").notNull().default(0),
+    /** 最後に処理を始めた日時（処理の貸し出し） */
+    lastAttemptAt: timestamp("last_attempt_at", { withTimezone: true }),
+    /** 最後に失敗した工程と理由（調査用。個人情報を入れない） */
+    lastError: text("last_error"),
+  },
+  (table) => [
+    index("idx_account_deletions_pending")
+      .on(table.requestedAt)
+      .where(sql`${table.completedAt} IS NULL`),
+  ],
+);
+
+export type AccountDeletion = typeof accountDeletions.$inferSelect;
+
+/**
+ * Apple の refresh token（退会時の連携の取り消し用）
+ *
+ * @description
+ * Apple でログインしたユーザーが退会したら、Apple 側の連携も取り消す
+ * （App Store の審査の条件。Apple の TN3194）。取り消しには Apple が
+ * 発行した refresh token が要り、Supabase のトークンでは代わりにならない。
+ * アプリが Apple でログインした直後に、Apple から受け取った認可コードを
+ * サーバーが Apple と交換して得たものを 1 ユーザー 1 行で持つ（ログインし
+ * 直すたびに新しいものへ置き換える）。
+ *
+ * 退会の工程（`lib/users/delete-account.ts`）が取り消しに使い、取り消したら
+ * 行を消す。行が無い（交換に失敗した・web で登録した）ユーザーの退会は
+ * 取り消しを飛ばして進める — 取り消しのためにデータの削除を止めない。
+ *
+ * @design トークンは暗号化して持つ
+ * DB が漏れても Apple のトークンとして使えないよう、サーバーだけが持つ鍵
+ * （`APPLE_TOKEN_ENCRYPTION_KEY`）で AES-256-GCM で暗号化する
+ * （`lib/apple/token-cipher.ts`）。
+ *
+ * @design auth.users への FK を張らない
+ * `account_deletions` と同じく、Auth のソフトデリートの後も取り消しの工程が
+ * 読めるようにする。
+ */
+export const appleRefreshTokens = pgTable("apple_refresh_tokens", {
+  /** auth.users(id) */
+  userId: uuid("user_id").primaryKey(),
+  /** Apple のユーザー ID（ID トークンの sub）。交換の結果がこのユーザーの Apple の連携と一致することを確かめて保存する */
+  appleSubject: text("apple_subject").notNull(),
+  /** 交換に使った client_id（アプリの Bundle ID）。取り消しも同じ client_id で行う */
+  clientId: text("client_id").notNull(),
+  /** 暗号化した refresh token */
+  encryptedRefreshToken: text("encrypted_refresh_token").notNull(),
+  createdAt: timestamp("created_at", { withTimezone: true })
+    .defaultNow()
+    .notNull(),
+  updatedAt: timestamp("updated_at", { withTimezone: true })
+    .defaultNow()
+    .notNull(),
+});

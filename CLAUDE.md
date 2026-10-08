@@ -125,10 +125,28 @@ packages/features / core を共有し、アプリ側は画面と RN の部品だ
   練習ごとに違うのは盤面と結果の一覧だけで、`src/practice/boards/<slug>/index.tsx` が
   `PracticeScreens`（Play / Training / Demo / ProblemList）を返し、`src/practice/registry.ts` に
   1 行足すと一覧・説明・チャレンジ・トレーニング・結果のすべてに載る
-- **ログインはまだ無い。** チャレンジは結果画面で今回の成績を見せるだけで記録しない（記録・
-  ランキング・段級位はアカウントに紐づくため）。結果はメモリのストアで結果画面へ運ぶ
-  （web の sessionStorage の代わり）。設定・レッスンの完了・「チャレンジを終えた練習」
-  （黒帯への道の「練習した」。成績は持たない）は端末ローカル（AsyncStorage）
+- **ログインは web と同じ Supabase Auth（`src/auth/`）。** 入口は設定のアカウントの節で、
+  ログイン・登録・ユーザー名の設定・退会の画面は web と同じパスに置く。セッションは
+  SecureStore、サーバーへの書き込みは web のアプリ向け API（`/api/mobile/v1/*`、
+  `Authorization: Bearer`。web の `lib/mobile-api/`）を通す。DB を直接読み書きしない。
+  ログインはメールと Apple（iOS のネイティブだけ。`auth/apple-sign-in.ts`）。Apple の認可コードは
+  サーバーが交換して保存し、退会の最後の工程で Apple 側の連携を取り消す（`apple_refresh_tokens`）。
+  外部の設定と実機での確かめ方は `apps/mobile/README.md`。
+  ログインは任意で、ゲストのまま全機能を使える。結果はメモリのストアで結果画面へ運ぶ
+  （web の sessionStorage の代わり）。設定は常に端末ローカル（AsyncStorage）
+- **記録はログイン中（ユーザー名を決めた人）だけサーバーに残す。** チャレンジは web と
+  同じくサーバーで採点・記録し（`practice/recorded-challenge.tsx`）、通信できなければ記録付きでは
+  始めない。サーバーへ送り切るまでの記録（進行中のチャレンジ・確定待ち・未送信のレッスン完了）は
+  userId ごとに端末へ預け（`records/account-records.ts`）、預けたユーザーの名義でだけ送る
+  （`callMobileApi` の `asUser`）。ゲストのレッスン完了・「チャレンジを終えた練習」は端末の
+  ゲストの記録で、ログイン中の記録をそこへ書かない。ゲストのレッスン完了は端末で 1 度だけ
+  最初にログインしたアカウントへ取り込み、「チャレンジを終えた練習」はサーバーへ送らず
+  案内（行程）にだけ合わせる。本番の昇級試験の画面はまだ無い
+- **アプリでは Pro（有料プラン）を扱わない。** 全員に同じ無料の機能を出し、購入の導線も出さない。
+  web で Pro を買ったアカウントでもアプリでは差を付けない（アプリの外で買った特典をアプリで開けるなら、
+  同じものをアプリ内課金でも売る必要がある — 審査ガイドライン 3.1）。web の練習の回数制限
+  （practice-quota）はアプリの練習には掛からない。要求の本文の申告（「iOS から」等）で web の
+  制限を外す経路も作らない。アプリ内課金を入れるときに購入の権利を web と共通にする
 - **色・角丸の値は web から写す。** `src/lib/theme.ts`（web の `globals.css` と同じ値）。
   太枠・ハードシャドウ・押し込みは `PressableSurface`（影は面の後ろに敷いた View で描く。
   Android の elevation は硬い影を描けない）。影を持つのは押せる面だけ（web と同じ規則）
@@ -514,7 +532,7 @@ loading.tsx を一緒に足すこと。逆に静的にしたら両方を外す�
 
 - IP ベースのインメモリレートリミット（`src/lib/rate-limit-ip.ts`）+ Supabase サーバーサイドレートリミットの二重防御
 - アカウント列挙防止: サインインは汎用エラー、パスワードリセットは常に成功を返す
-- パスワードバリデーション: Zod スキーマ（`src/lib/validations/password.ts`）で client/server 両方で検証
+- パスワードバリデーション: Zod スキーマ（`packages/features/src/account/password.ts`）で client/server・web/モバイルの両方で検証
 
 ### 管理者ロールの割り当て
 

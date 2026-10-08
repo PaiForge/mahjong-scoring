@@ -1,7 +1,8 @@
 import { sql } from "drizzle-orm";
 import "server-only";
 
-import { db, practiceQuotaUsage } from "@/lib/db";
+import { practiceQuotaUsage } from "@/lib/db";
+import { writeAsAccount } from "@/lib/users/account-write-lock";
 
 import type { QuotaMenu } from "@mahjong-scoring/features/quota/limits";
 
@@ -33,21 +34,25 @@ export async function consumeUserQuota(
 ): Promise<ConsumeQuotaResult> {
   if (limit <= 0) return { allowed: false, remaining: 0 };
 
-  const rows = await db
-    .insert(practiceQuotaUsage)
-    .values({ userId, menu, day, count: 1 })
-    .onConflictDoUpdate({
-      target: [
-        practiceQuotaUsage.userId,
-        practiceQuotaUsage.menu,
-        practiceQuotaUsage.day,
-      ],
-      set: { count: sql`${practiceQuotaUsage.count} + 1` },
-      setWhere: sql`${practiceQuotaUsage.count} < ${limit}`,
-    })
-    .returning({ count: practiceQuotaUsage.count });
+  // 退会を受け付けた後には消費の行を作らない（消した行を作り直さない）
+  const consumed = await writeAsAccount(userId, (tx) =>
+    tx
+      .insert(practiceQuotaUsage)
+      .values({ userId, menu, day, count: 1 })
+      .onConflictDoUpdate({
+        target: [
+          practiceQuotaUsage.userId,
+          practiceQuotaUsage.menu,
+          practiceQuotaUsage.day,
+        ],
+        set: { count: sql`${practiceQuotaUsage.count} + 1` },
+        setWhere: sql`${practiceQuotaUsage.count} < ${limit}`,
+      })
+      .returning({ count: practiceQuotaUsage.count }),
+  );
+  if (!consumed.written) return { allowed: false, remaining: 0 };
 
-  const row = rows[0];
+  const row = consumed.value[0];
   if (!row) return { allowed: false, remaining: 0 };
   return { allowed: true, remaining: Math.max(0, limit - row.count) };
 }

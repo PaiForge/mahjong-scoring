@@ -19,11 +19,12 @@ export type SaveResultErrorCode =
  * 練習結果保存レスポンス
  *
  * - `{ success: true, challengeResultId }`: 認証済みユーザーの保存成功。
+ *   確定済みの挑戦への再送も、記録し直さずに同じ ID を返す。
  * - `{ success: true, skipped: 'anonymous' }`: 未ログインユーザーによる呼び出し。
  *   エラーではなく「期待された no-op」を表す。呼び出し側は静かに無視すること。
  * - `{ success: false, error: 'banned' }`: BAN されたユーザー。記録しない。
  * - `{ success: false, error: 'invalid_result' }`: 記録できる挑戦ではない。
- *   存在しない・他人の・確定済みの挑戦、昇級試験の挑戦、まだ終わっていない
+ *   存在しない・他人の挑戦、昇級試験の挑戦、まだ終わっていない
  *   挑戦（時間切れにもミス上限にも達していない）、1 問も回答していない挑戦。
  * - `{ success: false, error: 'unexpected_error' }`: DB エラー等。挑戦の確定も
  *   ロールバックされるため、同じ挑戦 ID で再送できる。

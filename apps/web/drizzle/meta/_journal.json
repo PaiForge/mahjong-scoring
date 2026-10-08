@@ -239,6 +239,20 @@
       "when": 1791374963075,
       "tag": "20261007120923_add_platform_to_ad_network_settings",
       "breakpoints": true
+    },
+    {
+      "idx": 34,
+      "version": "7",
+      "when": 1791449628788,
+      "tag": "20261008085348_create_account_deletions",
+      "breakpoints": true
+    },
+    {
+      "idx": 35,
+      "version": "7",
+      "when": 1791498040531,
+      "tag": "20261008222040_add_apple_refresh_tokens",
+      "breakpoints": true
     }
   ]
 }

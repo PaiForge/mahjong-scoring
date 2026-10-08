@@ -21,13 +21,14 @@ export type SubmitExamErrorCode =
  *
  * - `{ success: true, grantedRanks }`: 採点済み。`grantedRanks` は今回の走行を
  *   機に新たに付与された段級位（0 件または 1 件）。不合格・再挑戦・既に
- *   保持している級の試験では空配列。
+ *   保持している級の試験では空配列。確定済みの挑戦への再送も、判定し直さずに
+ *   確定したときと同じ値を返す。
  * - `{ success: true, skipped: 'anonymous' }`: 未ログインユーザーによる呼び出し。
  *   エラーではなく「期待された no-op」を表す（未ログインでは挑戦が始まらない
  *   ため、通常は起きない）。
  * - `{ success: false, error: 'banned' }`: BAN されたユーザー。採点しない。
  * - `{ success: false, error: 'invalid_result' }`: 採点できる試験の挑戦ではない。
- *   存在しない・他人の・確定済みの挑戦、試験でない練習の挑戦、まだ終わって
+ *   存在しない・他人の挑戦、試験でない練習の挑戦、まだ終わって
  *   いない挑戦（時間切れにもミス上限にも達していない）。
  * - `{ success: false, error: 'unexpected_error' }`: DB エラー等。挑戦の確定も
  *   ロールバックされるため、同じ挑戦 ID で再送できる。

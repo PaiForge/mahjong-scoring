@@ -3,8 +3,10 @@
 import { revalidatePath } from "next/cache";
 
 import { authenticateAndCheckBan, type AuthUser } from "@/lib/auth";
-import { db } from "@/lib/db";
-import { lessonCompletions } from "@/lib/db/schema";
+import {
+  partitionLessonSlugs,
+  recordLessonCompletions,
+} from "@/lib/lessons/record-completions";
 import { logExternalError } from "@/lib/log-error";
 
 import {
@@ -88,20 +90,20 @@ async function resolveRecorder(): Promise<
  *
  * 完了を読むのはレッスンの目次・ダッシュボードの「次にやること」・道場の行程。
  * レッスンページ自体は静的で完了状態を持たないため捨てない。
+ *
+ * 退会を受け付けた後には書かない（`recordLessonCompletions`）。そのとき false を返す。
  */
 async function recordCompletions(
   userId: string,
   slugs: readonly CurriculumChapterSlug[],
-): Promise<void> {
-  if (slugs.length === 0) return;
-  await db
-    .insert(lessonCompletions)
-    .values(slugs.map((lessonSlug) => ({ userId, lessonSlug })))
-    .onConflictDoNothing();
+): Promise<boolean> {
+  if (slugs.length === 0) return true;
+  if (!(await recordLessonCompletions(userId, slugs))) return false;
 
   revalidatePath("/lessons");
   revalidatePath("/dashboard");
   revalidatePath("/dojo");
+  return true;
 }
 
 /**
@@ -136,7 +138,9 @@ export async function completeLesson(
   if ("error" in recorder) return { success: false, error: recorder.error };
   const { user } = recorder;
 
-  await recordCompletions(user.id, [slug]);
+  // 退会を受け付けた後は、入口で弾いたとき（未認証）と同じく記録しない
+  if (!(await recordCompletions(user.id, [slug])))
+    return { success: true, skipped: "anonymous" };
   if (!isQuizLessonSlug(slug)) return { success: true };
   const followUp = await followUpFor(user.id, slug);
   return followUp === undefined
@@ -185,18 +189,14 @@ async function followUpFor(
 export async function completeLessons(
   slugs: readonly string[],
 ): Promise<CompleteLessonsResult> {
-  const completed: CurriculumChapterSlug[] = [];
-  const rejected: string[] = [];
-  for (const slug of new Set(slugs)) {
-    if (isCurriculumChapterSlug(slug)) completed.push(slug);
-    else rejected.push(slug);
-  }
+  const { completed, rejected } = partitionLessonSlugs(slugs);
 
   const recorder = await resolveRecorder();
   if ("skipped" in recorder) return { success: true, skipped: "anonymous" };
   if ("error" in recorder) return { success: false, error: recorder.error };
   const { user } = recorder;
 
-  await recordCompletions(user.id, completed);
+  if (!(await recordCompletions(user.id, completed)))
+    return { success: true, skipped: "anonymous" };
   return { success: true, completed, rejected };
 }

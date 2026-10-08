@@ -60,8 +60,8 @@ interface TrainingShellProps {
  * 同じく説明画面へ戻る（記録が無いので確認は挟まない）。
  *
  * 模試（`variant="exam"`）は「模試を受験中」の印だけを残し、本番の試験への
- * 誘いを出さない。web は本番へ送るが、本番は合否と段級位の付与にアカウントが
- * 要り、モバイルはまだログインを持たない。
+ * 誘いを出さない。web は本番へ送るが、アプリには本番の試験の画面がまだ無い
+ * （段級位はサーバーから読んで表示するだけ）。
  */
 export function TrainingShell({
   title,
@@ -149,8 +149,8 @@ export function TrainingShell({
             <Text style={styles.prompt}>{tt("challengePrompt")}</Text>
           )}
         </View>
-        {/* 模試から本番の試験へは誘わない。本番は合否と段級位の付与に
-            アカウントが要り、モバイルはまだログインを持たないため */}
+        {/* 模試から本番の試験へは誘わない。アプリには本番の試験の画面が
+            まだ無いため */}
         {!isExam && (
           <>
             <Button

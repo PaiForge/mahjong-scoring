@@ -9,10 +9,11 @@
     "scheme": "mahjong-scoring",
     "ios": {
       "supportsTablet": true,
-      "bundleIdentifier": "com.paiforge.mahjongscoring"
+      "bundleIdentifier": "help.mahjong.score",
+      "usesAppleSignIn": true
     },
     "android": {
-      "package": "com.paiforge.mahjongscoring",
+      "package": "help.mahjong.score",
       "adaptiveIcon": {
         "foregroundImage": "./assets/adaptive-icon.png",
         "backgroundColor": "#00904a"
@@ -34,7 +35,9 @@
           "resizeMode": "contain",
           "backgroundColor": "#00904a"
         }
-      ]
+      ],
+      "expo-secure-store",
+      "expo-apple-authentication"
     ],
     "experiments": {
       "typedRoutes": false

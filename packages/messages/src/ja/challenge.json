@@ -63,5 +63,20 @@
     "cappedNote": "13翻以上は役満"
   },
   "connectionError": "通信に失敗しました。もう一度開始してください。",
-  "retryConnection": "もう一度開始する"
+  "retryConnection": "もう一度開始する",
+  "recording": {
+    "offlineTitle": "記録付きのチャレンジを始められません",
+    "offlineMessage": "通信できないため、成績を記録するチャレンジを始められませんでした。通信できる場所でもう一度お試しください。トレーニングは通信しなくても練習できます。",
+    "retry": "もう一度試す",
+    "training": "トレーニングで練習する",
+    "connectionLost": "通信が途切れました。回答はまだ採点されていません。",
+    "resumeConnectionLost": "通信が途切れました。再接続すると、止めたところから再開します。",
+    "reconnect": "再接続する",
+    "status": {
+      "sending": "成績を記録しています…",
+      "recorded": "成績を記録しました",
+      "queued": "成績を送れませんでした。次に通信できたときに送ります。",
+      "notRecorded": "このチャレンジの成績は記録されませんでした。"
+    }
+  }
 }

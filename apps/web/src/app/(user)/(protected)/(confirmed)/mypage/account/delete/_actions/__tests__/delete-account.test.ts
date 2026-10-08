@@ -14,7 +14,7 @@ vi.mock("@/lib/rate-limit-ip", async () => await import("@/test/auth-mocks"));
 vi.mock("@/lib/auth", async () => await import("@/test/auth-mocks"));
 
 vi.mock("@/lib/users/delete-account", () => ({
-  deleteAccount: mockDeleteAccount,
+  requestAccountDeletion: mockDeleteAccount,
 }));
 
 vi.mock("@/lib/activity-log", () => ({
@@ -44,7 +44,7 @@ const authorized = setupAuthorized;
 describe("deleteOwnAccount", () => {
   beforeEach(() => {
     vi.clearAllMocks();
-    mockDeleteAccount.mockResolvedValue({ success: true });
+    mockDeleteAccount.mockResolvedValue("completed");
   });
 
   describe("rate limit", () => {
@@ -73,6 +73,21 @@ describe("deleteOwnAccount", () => {
 
       expect(mockEnforceIpRateLimit).toHaveBeenCalledWith("deleteAccount");
     });
+  });
+
+  /**
+   * 本人による退会は BAN の対象にしない。受付は冪等なので、退会処理中の
+   * 送り直しも通す。どちらも認証ゲートに退会の受付だと伝えて決める。
+   */
+  it("認証ゲートに退会の受付だと伝える（BAN 中・退会処理中も通す）", async () => {
+    authorized();
+
+    await deleteOwnAccount();
+
+    expect(mockAuthenticateAndCheckBan).toHaveBeenCalledWith({
+      forAccountDeletion: true,
+    });
+    expect(mockDeleteAccount).toHaveBeenCalledWith(USER.id);
   });
 
   describe("banned user", () => {
@@ -113,9 +128,9 @@ describe("deleteOwnAccount", () => {
   });
 
   describe("deletion failure", () => {
-    it("passes the deleteAccount error through unchanged", async () => {
+    it('returns { error: "deleteFailed" } when the request could not be accepted', async () => {
       authorized();
-      mockDeleteAccount.mockResolvedValue({ error: "deleteFailed" });
+      mockDeleteAccount.mockRejectedValue(new Error("db down"));
 
       const result = await deleteOwnAccount();
 
@@ -124,7 +139,7 @@ describe("deleteOwnAccount", () => {
 
     it("does not write an activity log when deletion failed", async () => {
       authorized();
-      mockDeleteAccount.mockResolvedValue({ error: "deleteFailed" });
+      mockDeleteAccount.mockRejectedValue(new Error("db down"));
 
       await deleteOwnAccount();
 
@@ -133,12 +148,25 @@ describe("deleteOwnAccount", () => {
   });
 
   describe("successful deletion", () => {
-    it("returns { success: true }", async () => {
+    it("returns { success: true } with the deletion status", async () => {
       authorized();
 
       const result = await deleteOwnAccount();
 
-      expect(result).toEqual({ success: true });
+      expect(result).toEqual({ success: true, status: "completed" });
+    });
+
+    /**
+     * 工程の一部（Storage・Auth）が一時障害で残っても、受付は成立している。
+     * 残りはサーバーが再開するので失敗として返さない。
+     */
+    it("returns pending as a success when some steps remain", async () => {
+      authorized();
+      mockDeleteAccount.mockResolvedValue("pending");
+
+      const result = await deleteOwnAccount();
+
+      expect(result).toEqual({ success: true, status: "pending" });
     });
 
     it("deletes the authenticated user's account", async () => {

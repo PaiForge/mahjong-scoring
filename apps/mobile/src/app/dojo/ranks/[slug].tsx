@@ -19,7 +19,7 @@ import {
 } from "../../../dojo/chapter-toc-list";
 import { ExamCtaCard } from "../../../dojo/exam-cta-card";
 import { RankStatusBadge } from "../../../dojo/rank-status-badge";
-import { useCompletedLessonSlugs } from "../../../hooks/use-lesson-completion-store";
+import { useAccountProgress } from "../../../records/use-account-progress";
 import { colors } from "../../../lib/theme";
 import { PracticeNotFoundScreen } from "../../../practice/screens/not-found-screen";
 
@@ -29,8 +29,8 @@ import { PracticeNotFoundScreen } from "../../../practice/screens/not-found-scre
  * @description
  * 1 つの級について、合格基準・取得状態・受験前に取り組むレッスン（完了の
  * 印付き）・試験への導線を 1 画面で示す（web の級の詳細と同じ並び）。
- * モバイルは段級位を持たないので、取得状態は無級から見たもの（5級が
- * 「次の目標」、それより上は「未取得」）。
+ * 取得状態はログイン中ならサーバーの段級位から、ゲストは無級から見たもの
+ * （5級が「次の目標」、それより上は「未取得」）。
  *
  * @flow
  * 1. 道場の級カードの級名から遷移する
@@ -41,7 +41,8 @@ export default function RankDetailPage() {
   const { slug: param } = useLocalSearchParams<{ slug: string }>();
   const t = useTranslations("dojo");
   const tRanks = useTranslations("ranks");
-  const completedSlugs = useCompletedLessonSlugs();
+  const { input } = useAccountProgress();
+  const completedSlugs = input.completedLessonSlugs;
   const [ad] = useNativeAds(MOBILE_AD_SLOTS.rankDetail);
   const rank = typeof param === "string" ? rankBySlug(param) : undefined;
 
@@ -60,7 +61,9 @@ export default function RankDetailPage() {
         <BeltBadge slug={rank.slug} size="lg" />
         <View style={styles.summaryBody}>
           <View style={styles.statusRow}>
-            <RankStatusBadge status={resolveRankStatus(rank.slug, [])} />
+            <RankStatusBadge
+              status={resolveRankStatus(rank.slug, input.achievedRankSlugs)}
+            />
           </View>
           <Text style={styles.criterion}>
             <Text style={styles.criterionLabel}>

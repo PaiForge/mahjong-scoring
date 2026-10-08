@@ -13,6 +13,14 @@ vi.mock("@/lib/db", () => ({
   },
 }));
 
+// 退会と直列にする書き込みの枠は、退会が無い状態（そのまま書く）として通す
+vi.mock("@/lib/users/account-write-lock", () => ({
+  writeAsAccount: async (
+    _userId: string,
+    write: (tx: unknown) => Promise<unknown>,
+  ) => ({ written: true, value: await write({ insert: mockInsert }) }),
+}));
+
 vi.mock("drizzle-orm", async () => await import("@/test/drizzle-orm-mock"));
 
 import { createQueryChain, type QueryChainMock } from "@/test/drizzle-mock";
