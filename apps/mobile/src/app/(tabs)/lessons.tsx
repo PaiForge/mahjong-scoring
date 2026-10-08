@@ -14,7 +14,7 @@ import { NativeAdRow } from "../../ads/native-ad-row";
 import { useNativeAds } from "../../ads/use-native-ads";
 import { LinkRowList } from "../../components/link-row";
 import { Screen } from "../../components/screen";
-import { useCompletedLessonSlugs } from "../../hooks/use-lesson-completion-store";
+import { useCompletedLessons } from "../../records/use-account-progress";
 import { colors } from "../../lib/theme";
 import {
   CurriculumProgressBar,
@@ -50,7 +50,7 @@ const GROUPED = chaptersBySection();
  */
 export default function LessonsTab() {
   const t = useTranslations("learnCurriculum.index");
-  const completedSlugs = useCompletedLessonSlugs();
+  const completedSlugs = useCompletedLessons();
   const next = pickNextChapter(new Set([...completedSlugs, ...UNPORTED_SLUGS]));
   const completedCount = PORTED_CHAPTERS.filter((chapter) =>
     completedSlugs.has(chapter.slug),

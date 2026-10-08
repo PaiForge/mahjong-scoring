@@ -36,11 +36,10 @@ import { useScrollIntoView } from "../../components/scroll-into-view";
 import { SectionTitle } from "../../components/section-title";
 import { TextLink } from "../../components/text-link";
 import {
-  useCompletedLessonSlugs,
-  useLessonCompleted,
-  useLessonCompletionStore,
-} from "../../hooks/use-lesson-completion-store";
-import { useAttemptedPractices } from "../../hooks/use-practice-attempt-store";
+  useAccountProgress,
+  useLessonDone,
+  useMarkLessonCompleted,
+} from "../../records/use-account-progress";
 import { hapticJudgement } from "../../lib/haptics";
 import { colors, radius } from "../../lib/theme";
 import { ChoiceButton } from "../../practice/components/choice-button";
@@ -117,9 +116,10 @@ interface LessonViewProps {
  * 描くが、時計もライフも無い。間違えても止まらず、正解と解説を見せてから
  * 次へ進む。正答数は完了画面で添えるだけで残さない。
  *
- * 最後の問題を解き終えたら完了を端末に記録する（web はサーバーに記録し、
- * 保存の状態ごとに完了画面の導線を変えるが、端末への記録は失敗しないので
- * その分岐は持たない）。完了画面の主導線は web と同じ: 端末の進み具合を
+ * 最後の問題を解き終えたら完了を記録する。ログイン中はアカウントの未送信へ
+ * 積んでからサーバーへ送り、ゲストは端末に残す（web は保存の状態ごとに完了
+ * 画面の導線を変えるが、アプリは先に端末へ預けるので失敗の分岐を持たない。
+ * 送れなかった分は次の同期で送る）。完了画面の主導線は web と同じ: 本人の進み具合を
  * 踏まえた次の一歩（features の `lessonFollowUp`）。それが道筋の順の次の
  * レッスン（`stepAfterLesson`）と同じなら、ボタンの代わりにそのレッスンの
  * 冒頭のプレビューを出す。級の最後のレッスンでは、ボタンの下に昇級試験までの
@@ -147,10 +147,9 @@ export function LessonView({
   const tScoreTable = useTranslations("scoreTable");
   const tAll = useTranslations();
   const router = useRouter();
-  const completed = useLessonCompleted(slug);
-  const completedLessonSlugs = useCompletedLessonSlugs();
-  const attemptedPractices = useAttemptedPractices();
-  const markCompleted = useLessonCompletionStore((s) => s.markCompleted);
+  const completed = useLessonDone(slug);
+  const { input: progress } = useAccountProgress();
+  const markCompleted = useMarkLessonCompleted();
   const scrollIntoView = useScrollIntoView();
   const judgementRef = useRef<View>(null);
   const nextButtonRef = useRef<View>(null);
@@ -383,13 +382,9 @@ export function LessonView({
     );
   }
 
-  // 道筋の順の一歩（ページの順序）と、端末の進み具合を踏まえた一歩
+  // 道筋の順の一歩（ページの順序）と、本人の進み具合を踏まえた一歩
   const planned = stepAfterLesson(slug);
-  const followUp = lessonFollowUp(slug, {
-    completedLessonSlugs,
-    attemptedPractices,
-    achievedRankSlugs: [],
-  });
+  const followUp = lessonFollowUp(slug, progress);
   // 次が確認問題を持つレッスンなら、その冒頭をボタンの代わりに見せる
   const previewSlug =
     planned?.kind === "lesson" &&

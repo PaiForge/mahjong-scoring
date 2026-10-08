@@ -48,7 +48,7 @@ function stageHref(stage: JourneyStage, journey: RankJourney): string {
  * 添え、まだの段はグレーに置く。いま取り組む級（`isCurrentRank`）では各段が
  * その段の一覧へのリンクになる。数えるものがある段だけ並べる（初段は試験だけ）。
  *
- * 試験の値は合格までは「未合格」。モバイルは段級位を持たないので常にこの値。
+ * 試験の値は合格までは「未合格」。ゲストは段級位を持たないので常にこの値。
  */
 export function RankStageProgress({
   journey,

@@ -9,6 +9,7 @@
   "signInLink": "ログインはこちら",
   "nextRankTitle": "次の目標",
   "journeyTitle": "点数計算・黒帯への道",
+  "includesDeviceHistory": "この端末でログインせずに終えたチャレンジも含めています。",
   "tour": {
     "label": "道場の見方を見る",
     "prev": "戻る",
