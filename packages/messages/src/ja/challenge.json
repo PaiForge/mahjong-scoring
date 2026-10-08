@@ -12,6 +12,7 @@
   "resultSectionTitle": "結果",
   "resultAccuracy": "正答率 {accuracy}%",
   "revealMistakesHint": "間違えた問題の解説を開きます",
+  "resultUnavailable": "結果を表示できません。結果はアプリを閉じると消えるため、もう一度挑戦してください。",
   "gameOverMistakes": "ミス {limit} 回で終了",
   "gameOverTime": "タイムアップ",
   "pause": "一時停止",
