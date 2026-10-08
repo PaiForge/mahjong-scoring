@@ -62,6 +62,30 @@ Supabase Integration はアカウント（チーム）レベルでインスト�
 
 `prebuild` スクリプトにより、Vercel ビルド時にデータベースマイグレーションが自動実行されます。`POSTGRES_URL_NON_POOLING`、`POSTGRES_URL`、`DATABASE_URL` のいずれかの環境変数が設定されている場合にマイグレーションが実行され、未設定の場合はスキップされます。
 
+新しいテーブル・列（退会の進み具合の `account_deletions`、Apple のトークンの `apple_refresh_tokens` など）も、このマイグレーションで本番に入ります。手で SQL を流す必要はありません。
+
+## Supabase ダッシュボードで手で行う設定
+
+本番の Supabase は `supabase/config.toml` を読みません。ローカルで設定を変えたら、本番のダッシュボードにも同じ変更を手で入れます。
+
+### 認証メールのテンプレート
+
+確認メールとパスワード再設定のメールは、リンクを web の `/auth/callback` に `token_hash` 付きで向けています（どの端末・ブラウザで開いても確認が済むように）。テンプレートを変えたら、本番のダッシュボードに貼り直します。**貼り直さないと、本番のメールのリンクは古い形のまま**です。
+
+1. Authentication > Emails > Templates を開く
+2. 次のテンプレートの Body を、ローカルのファイルの中身で置き換えて Save する
+
+| テンプレート   | ローカルのファイル                     | Subject                               |
+| -------------- | -------------------------------------- | ------------------------------------- |
+| Confirm signup | `supabase/templates/confirmation.html` | `麻雀点数計算 - メールアドレスの確認` |
+| Reset password | `supabase/templates/recovery.html`     | `麻雀点数計算 - パスワードのリセット` |
+
+Subject は `supabase/config.toml` の `[auth.email.template.*]` と同じ値です。
+
+### Apple ログイン
+
+Authentication > Sign In / Providers > Apple を有効にし、Client IDs に `help.mahjong.score` を入れます。手順は [apps/mobile/README.md](../../mobile/README.md) の「Supabase の設定」を参照してください。
+
 ## 環境変数
 
 | 変数名                                 | 説明                                                                                                                                                                                                                                 | 必須                   | 備考                                                                                                                                           |
@@ -76,4 +100,8 @@ Supabase Integration はアカウント（チーム）レベルでインスト�
 | `RESEND_API_KEY`                       | Resend の API キー（お問い合わせフォームの送信用）。[お問い合わせフォームのセットアップ](contact-form-setup.md)を参照。                                                                                                              | いいえ                 | 未設定だと問い合わせの送信がエラーになる（フォームの表示はできる）                                                                             |
 | `CONTACT_TO_EMAIL`                     | お問い合わせを受け取る運営のメールアドレス                                                                                                                                                                                           | いいえ                 | 同上                                                                                                                                           |
 | `CONTACT_FROM_EMAIL`                   | お問い合わせメールの送信元（Resend で認証済みドメインのアドレス。例: `contact@score.mahjong.help`）                                                                                                                                  | いいえ                 | 未設定なら Resend のテスト用アドレスから送られる（アカウント所有者宛てにしか届かない）                                                         |
-| `CRON_SECRET`                          | Vercel Cron の呼び出しを認証する秘密（`/api/cron/*` が `Authorization: Bearer <値>` を照合する）。Vercel が cron の呼び出しに自動で付けるので、十分に長いランダムな文字列を設定するだけでよい。                                      | はい                   | 未設定だと cron の受け口は常に 401 になり、Pro の期限切れの通知（`vercel.json` の `crons`）が届かない                                          |
+| `CRON_SECRET`                          | Vercel Cron の呼び出しを認証する秘密（`/api/cron/*` が `Authorization: Bearer <値>` を照合する）。Vercel が cron の呼び出しに自動で付けるので、十分に長いランダムな文字列を設定するだけでよい。                                      | はい                   | 未設定だと cron の受け口は常に 401 になり、Pro の期限切れの通知と、途中で止まった退会の再開（`vercel.json` の `crons`）が動かない              |
+| `APPLE_TEAM_ID`                        | Apple Developer のチーム ID（`YV82X4FFX3`）                                                                                                                                                                                          | iOS アプリを出すなら   | 下の 3 つと揃って初めて有効。[apps/mobile/README.md](../../mobile/README.md) の「Apple でログイン」                                            |
+| `APPLE_KEY_ID`                         | Sign in with Apple の鍵の ID                                                                                                                                                                                                         | 同上                   | 未設定だと、Apple でログインした人の退会で Apple 側の連携を取り消せない（ログイン自体はできる）                                                |
+| `APPLE_PRIVATE_KEY`                    | Sign in with Apple の鍵（`.p8` の中身）。`vercel env add APPLE_PRIVATE_KEY production < AuthKey_XXXX.p8` でファイルのまま渡せる                                                                                                      | 同上                   | 同上                                                                                                                                           |
+| `APPLE_TOKEN_ENCRYPTION_KEY`           | 保存する Apple のトークンを暗号化する鍵（`openssl rand -base64 32`）                                                                                                                                                                 | 同上                   | 一度使い始めたら替えない（替えると保存済みのトークンが読めず、その人たちの取り消しが飛ばされる）                                               |

@@ -314,6 +314,12 @@ async function deleteAvatarFiles(userId: string): Promise<void> {
  * Auth をソフトデリートする（ログインできなくする）。失敗は投げて再試行に回す
  *
  * 既に消えている（前の試行で消えた後、完了の記録だけが失敗した）なら成功として扱う。
+ *
+ * ソフトデリートは `auth.users` の email と、`auth.identities` の
+ * `provider_id`（Apple・Google のユーザー ID、メールなら email）を読めない値に
+ * 置き換え、`identity_data` を空にする（行は残る。2026-10 にローカルで実測）。
+ * そのため同じ Apple ID・メールで登録し直すと、新しいユーザー ID として始まり、
+ * 旧データには繋がらない。
  */
 async function softDeleteAuthUser(userId: string): Promise<void> {
   const { error } = await createAdminClient().auth.admin.deleteUser(
