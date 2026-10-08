@@ -1,22 +1,7 @@
-/** 本番サイトの URL（web の `config.ts` の `PRODUCTION_SITE_URL` と同じ値） */
-const PRODUCTION_SITE_URL = "https://score.mahjong.help";
-
-/**
- * サイト URL を正規化する。空・不正値は本番 URL、末尾のスラッシュは落とす
- * サイトURL正規化
- *
- * web の `normalizeSiteUrl` と同じ扱い。設定漏れでアプリが壊れた URL を
- * 叩き続けるより、本番を読む方がよい。
- */
-export function normalizeSiteUrl(raw: string | undefined): string {
-  const candidate = (raw || PRODUCTION_SITE_URL).replace(/\/+$/, "");
-  try {
-    new URL(candidate);
-    return candidate;
-  } catch {
-    return PRODUCTION_SITE_URL;
-  }
-}
+import {
+  normalizeSiteUrl,
+  PRODUCTION_SITE_URL,
+} from "@mahjong-scoring/features/site-url";
 
 /** 手元の web（`pnpm --filter web dev`）のポート */
 const DEV_WEB_PORT = 3000;
