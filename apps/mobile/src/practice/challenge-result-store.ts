@@ -18,6 +18,12 @@ export interface ChallengeAttempt {
   readonly elapsedMs: number;
   /** 問題別の結果（盤面ごとの型。結果画面の一覧が盤面の型として読む） */
   readonly results: readonly unknown[];
+  /**
+   * サーバーで記録するチャレンジの ID。結果画面が確定の送信の状態
+   * （`useFinishStatus`）を読む。ゲストのチャレンジ・1 問も答えずに
+   * 終わったチャレンジでは無い
+   */
+  readonly recordedAttemptId?: string;
 }
 
 interface ChallengeResultState {
