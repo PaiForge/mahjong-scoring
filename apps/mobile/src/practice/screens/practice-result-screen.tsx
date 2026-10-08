@@ -1,4 +1,5 @@
-import { StyleSheet, Text, View } from "react-native";
+import { useCallback, useEffect } from "react";
+import { BackHandler, Platform, StyleSheet, Text, View } from "react-native";
 import { useRouter } from "expo-router";
 import { useTranslations } from "use-intl";
 import { MOBILE_AD_SLOTS } from "@mahjong-scoring/features/ads/native-ad";
@@ -41,6 +42,14 @@ import { useRouteVariant } from "./use-route-variant";
  * @flow
  * 1. チャレンジの画面が終了時に結果をメモリのストアへ置いてここへ置き換える
  * 2. 「もう一度」で同じ設定のチャレンジへ、「設定を変更する」で説明画面へ
+ * 3. ヘッダーの × と Android の戻るは結果を閉じて説明画面へ戻る
+ *
+ * 閉じる操作をヘッダーに置くのは、問題別の結果までスクロールすると
+ * 「練習一覧に戻る」が画面の外へ出て、退出の手段が無くなるため。閉じる先は
+ * チャレンジの × と同じ説明画面（流れを始めた画面）にそろえる。終えた
+ * チャレンジの画面は結果へ置き換わってスタックに無いので、そこへは戻らない。
+ * iOS の戻るジェスチャーはルートレイアウトで切ってある（下の画面が説明画面
+ * とは限らず、× と行き先が食い違うため）。
  */
 export function PracticeResultScreen({
   slug,
@@ -59,6 +68,20 @@ export function PracticeResultScreen({
   const current = attempt?.slug === slug ? attempt : undefined;
   const { ProblemList } = screens;
   const [ad] = useNativeAds(MOBILE_AD_SLOTS.practiceResult);
+  const close = useCallback(
+    () => router.dismissTo(practiceHref(slug, variant)),
+    [router, slug, variant],
+  );
+
+  useEffect(() => {
+    // web（画面確認用）には戻るボタンの仕組みが無く、登録すると警告が出る
+    if (Platform.OS === "web") return;
+    const sub = BackHandler.addEventListener("hardwareBackPress", () => {
+      close();
+      return true;
+    });
+    return () => sub.remove();
+  }, [close]);
   // 上のボタン群と一覧の末尾の 2 か所に置く。行き先が食い違わないよう 1 つにする
   const retryButton = (
     <Button
@@ -72,7 +95,13 @@ export function PracticeResultScreen({
   );
 
   return (
-    <Screen title={t("title")} contentStyle={styles.content}>
+    <Screen
+      title={t("title")}
+      back
+      backIcon="close"
+      onBack={close}
+      contentStyle={styles.content}
+    >
       <MistakeRevealProvider>
         <View style={styles.section}>
           <SectionTitle>{tc("resultSectionTitle")}</SectionTitle>
@@ -94,12 +123,7 @@ export function PracticeResultScreen({
           <View style={styles.buttons}>
             {retryButton}
             {hasSetup && (
-              <Button
-                variant="secondary"
-                size="lg"
-                fullWidth
-                onPress={() => router.dismissTo(practiceHref(slug, variant))}
-              >
+              <Button variant="secondary" size="lg" fullWidth onPress={close}>
                 {tc("changeSettingsButton")}
               </Button>
             )}
