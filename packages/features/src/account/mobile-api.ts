@@ -52,12 +52,15 @@ export function parseMobileMeResponse(
  * - `deleted` — 退会済み（401）。ログアウト状態へ戻す
  * - `banned` — BAN 済み（403）
  * - `rateLimited` — 回数の上限（429）
+ * - `authUnavailable` — 認証サーバーに確かめられなかった（503）。トークンが
+ *   無効だという意味ではないので、ログイン状態を捨てずに後で再試行する
  */
 export const MOBILE_API_ERROR_CODES = [
   "unauthorized",
   "deleted",
   "banned",
   "rateLimited",
+  "authUnavailable",
 ] as const;
 
 /** アプリ向け API が返すエラーの理由（{@link MOBILE_API_ERROR_CODES}） */

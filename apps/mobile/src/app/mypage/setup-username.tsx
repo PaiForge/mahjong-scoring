@@ -37,6 +37,7 @@ const ERROR_KEYS = {
   banned: "banned",
   unauthorized: "unauthorized",
   deleted: "unauthorized",
+  authUnavailable: "error",
   unknown: "error",
 } as const satisfies Record<
   Exclude<MobileUsernameErrorCode | ApiFailure, "network">,

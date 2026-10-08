@@ -15,6 +15,11 @@ vi.mock("server-only", () => ({}));
 
 vi.mock("@supabase/supabase-js", () => ({
   createClient: mockCreateClient,
+  isAuthRetryableFetchError: (error: unknown) =>
+    typeof error === "object" &&
+    error !== null &&
+    "name" in error &&
+    error.name === "AuthRetryableFetchError",
 }));
 
 vi.mock("../supabase/env", () => ({
@@ -131,7 +136,10 @@ describe("authorizeMobileRequest", () => {
   });
 
   it("失効したトークンは 401", async () => {
-    mockGetUser.mockResolvedValue({ data: { user: null } });
+    mockGetUser.mockResolvedValue({
+      data: { user: null },
+      error: { name: "AuthSessionMissingError", status: 400 },
+    });
 
     const result = await authorizeMobileRequest(
       withToken(),
@@ -142,6 +150,42 @@ describe("authorizeMobileRequest", () => {
     await expect(
       result.ok === false ? result.response.json() : undefined,
     ).resolves.toEqual({ error: "unauthorized" });
+  });
+
+  /**
+   * 認証サーバーに届かない・混んでいるときは、トークンが無効だという
+   * 答えではない。401 にするとアプリが有効なログインを捨てる。
+   */
+  it.each([
+    ["届かない", { name: "AuthRetryableFetchError", status: 0 }],
+    ["回数制限", { name: "AuthApiError", status: 429 }],
+    ["障害", { name: "AuthApiError", status: 502 }],
+  ])("認証サーバーが%sときは 503 で authUnavailable", async (_, error) => {
+    mockGetUser.mockResolvedValue({ data: { user: null }, error });
+
+    const result = await authorizeMobileRequest(
+      withToken(),
+      "readMobileAccount",
+    );
+
+    expect(result.ok === false && result.response.status).toBe(503);
+    await expect(
+      result.ok === false ? result.response.json() : undefined,
+    ).resolves.toEqual({ error: "authUnavailable" });
+  });
+
+  it("認証サーバーが無効と答えたトークンは 401", async () => {
+    mockGetUser.mockResolvedValue({
+      data: { user: null },
+      error: { name: "AuthApiError", status: 403, code: "bad_jwt" },
+    });
+
+    const result = await authorizeMobileRequest(
+      withToken(),
+      "readMobileAccount",
+    );
+
+    expect(result.ok === false && result.response.status).toBe(401);
   });
 
   it("BAN 済みは 403", async () => {
@@ -202,7 +246,10 @@ describe("authorizeMobileRequest", () => {
   });
 
   it("応答は共有キャッシュに乗せず、Expo の web 版が読める CORS ヘッダを付ける", async () => {
-    mockGetUser.mockResolvedValue({ data: { user: null } });
+    mockGetUser.mockResolvedValue({
+      data: { user: null },
+      error: { name: "AuthApiError", status: 403 },
+    });
 
     const result = await authorizeMobileRequest(
       withToken(),

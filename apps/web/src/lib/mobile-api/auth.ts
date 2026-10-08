@@ -1,7 +1,7 @@
 import "server-only";
 
 import type { NextResponse } from "next/server";
-import { createClient } from "@supabase/supabase-js";
+import { createClient, isAuthRetryableFetchError } from "@supabase/supabase-js";
 
 import type { MobileApiErrorCode } from "@mahjong-scoring/features/account/mobile-api";
 
@@ -59,21 +59,48 @@ export function readBearerToken(request: Request): string | undefined {
  * cookie を読む `lib/supabase/server.ts` のクライアントは使わない。
  * セッションを持たないクライアントにトークンを直接渡す。
  */
-async function verifyBearerToken(token: string): Promise<AuthUser | undefined> {
+async function verifyBearerToken(
+  token: string,
+): Promise<AuthUser | "invalid" | "unavailable"> {
   const { url, publishableKey } = getSupabasePublicEnv();
   const supabase = createClient(url, publishableKey, {
     auth: { autoRefreshToken: false, persistSession: false },
   });
   const {
     data: { user },
+    error,
   } = await supabase.auth.getUser(token);
-  return user
-    ? {
-        id: user.id,
-        email: user.email,
-        provider: user.app_metadata.provider,
-      }
-    : undefined;
+  if (user) {
+    return {
+      id: user.id,
+      email: user.email,
+      provider: user.app_metadata.provider,
+    };
+  }
+  return isAuthServiceFailure(error) ? "unavailable" : "invalid";
+}
+
+/**
+ * 認証サーバーが答えられなかった（トークンの正否が分からない）失敗か
+ *
+ * 届かない（`AuthRetryableFetchError`・status 0）・回数制限（429）・
+ * サーバーの障害（5xx）は、トークンが無効だという答えではない。これを
+ * 401 にすると、アプリは有効なログインを捨ててしまう。それ以外（不正な
+ * JWT の 403・ログアウト済みの `AuthSessionMissingError`・削除済み）は
+ * 認証サーバーが「無効」と答えたもの（2026-10 にローカルで実測）。
+ */
+function isAuthServiceFailure(error: unknown): boolean {
+  if (isAuthRetryableFetchError(error)) return true;
+  const status =
+    typeof error === "object" && error !== null && "status" in error
+      ? error.status
+      : undefined;
+  return (
+    typeof status !== "number" ||
+    status === 0 ||
+    status === 429 ||
+    status >= 500
+  );
 }
 
 /**
@@ -96,7 +123,8 @@ export async function authenticateMobileRequest(
   if (!token) return { error: "unauthorized" };
 
   const user = await verifyBearerToken(token);
-  if (!user) return { error: "unauthorized" };
+  if (user === "invalid") return { error: "unauthorized" };
+  if (user === "unavailable") return { error: "authUnavailable" };
 
   const profile = await getProfileCoreByUserId(user.id);
   if (profile?.bannedAt != null) return { error: "banned" };
@@ -108,6 +136,15 @@ export async function authenticateMobileRequest(
   };
 }
 
+/** 認証で弾いた理由ごとの HTTP ステータス */
+const MOBILE_AUTH_ERROR_STATUS = {
+  unauthorized: 401,
+  deleted: 401,
+  banned: 403,
+  // 再試行してよい失敗。アプリはログインを捨てない
+  authUnavailable: 503,
+} as const satisfies Record<MobileAuthErrorCode, number>;
+
 type AuthorizeMobileResult =
   | ({ readonly ok: true } & MobileAuthContext)
   | { readonly ok: false; readonly response: NextResponse };
@@ -116,7 +153,7 @@ type AuthorizeMobileResult =
  * アプリ向け Route Handler 共通の「レートリミット + 認証」前処理
  * アプリAPI認証前処理
  *
- * 超過は 429、未認証・退会済みは 401、BAN は 403 の応答を
+ * 超過は 429、未認証・退会済みは 401、BAN は 403、認証サーバーの障害は 503 の応答を
  * `{ ok: false, response }` で返す。
  *
  * @design Origin による CSRF 検証をしない
@@ -164,7 +201,7 @@ export async function authorizeMobileRequest(
       ok: false,
       response: mobileJson(
         { error: auth.error },
-        { status: auth.error === "banned" ? 403 : 401 },
+        { status: MOBILE_AUTH_ERROR_STATUS[auth.error] },
       ),
     };
   }
