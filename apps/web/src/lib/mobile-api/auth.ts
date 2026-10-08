@@ -31,6 +31,17 @@ export interface MobileAuthContext {
    * 決めていない）なら undefined。退会済みはここに来る前に弾く
    */
   readonly profile: { readonly username: string } | undefined;
+  /**
+   * このユーザーにつながった Apple の連携の Apple のユーザー ID（ID トークンの
+   * sub）。Apple でログインしたことが無ければ undefined
+   */
+  readonly appleSubject: string | undefined;
+}
+
+/** 認証サーバーが認めたユーザー */
+interface VerifiedUser {
+  readonly user: AuthUser;
+  readonly appleSubject: string | undefined;
 }
 
 /**
@@ -62,7 +73,7 @@ export function readBearerToken(request: Request): string | undefined {
  */
 async function verifyBearerToken(
   token: string,
-): Promise<AuthUser | "invalid" | "unavailable"> {
+): Promise<VerifiedUser | "invalid" | "unavailable"> {
   const { url, publishableKey } = getSupabasePublicEnv();
   const supabase = createClient(url, publishableKey, {
     auth: { autoRefreshToken: false, persistSession: false },
@@ -72,10 +83,16 @@ async function verifyBearerToken(
     error,
   } = await supabase.auth.getUser(token);
   if (user) {
+    const apple = user.identities?.find(
+      (identity) => identity.provider === "apple",
+    );
     return {
-      id: user.id,
-      email: user.email,
-      provider: user.app_metadata.provider,
+      user: {
+        id: user.id,
+        email: user.email,
+        provider: user.app_metadata.provider,
+      },
+      appleSubject: apple?.id,
     };
   }
   return isAuthServiceFailure(error) ? "unavailable" : "invalid";
@@ -131,9 +148,10 @@ export async function authenticateMobileRequest(
   const token = readBearerToken(request);
   if (!token) return { error: "unauthorized" };
 
-  const user = await verifyBearerToken(token);
-  if (user === "invalid") return { error: "unauthorized" };
-  if (user === "unavailable") return { error: "authUnavailable" };
+  const verified = await verifyBearerToken(token);
+  if (verified === "invalid") return { error: "unauthorized" };
+  if (verified === "unavailable") return { error: "authUnavailable" };
+  const { user, appleSubject } = verified;
 
   const [profile, standing] = await Promise.all([
     getProfileCoreByUserId(user.id),
@@ -147,6 +165,7 @@ export async function authenticateMobileRequest(
   return {
     user,
     profile: profile ? { username: profile.username } : undefined,
+    appleSubject,
   };
 }
 

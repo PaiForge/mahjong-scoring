@@ -22,6 +22,7 @@ import {
   userRoles,
   type AccountDeletion,
 } from "@/lib/db";
+import { revokeAppleTokensForDeletion } from "@/lib/apple/refresh-tokens";
 import { logExternalError } from "@/lib/log-error";
 import { createAdminClient } from "@/lib/supabase/admin";
 
@@ -75,6 +76,8 @@ const CRON_BATCH_SIZE = 20;
  *   いるので、消す対象を増減したら規約の文面（`terms.deletion`）も合わせて直すこと。
  * - `user_activity_log` / `moderation_actions` / `account_deletions` は監査のため保持する。
  * - アバター画像は Storage から削除する。失敗したら再試行する。
+ * - Apple でログインしたことがあれば、Apple 側の連携を取り消す
+ *   （`apple_refresh_tokens`）。失敗したら再試行する。
  *
  * @param userId - 本人確認を済ませたユーザーの ID
  */
@@ -94,8 +97,10 @@ export async function requestAccountDeletion(
  * 退会の工程を、終わっていないものから進める
  * 退会処理
  *
- * 工程は「DB のデータ削除 → Storage の削除 → Auth の無効化」の順で、
- * 終えたものは時刻を記録して飛ばす。どれかが失敗したらそこで止め、理由を
+ * 工程は「DB のデータ削除 → Storage の削除 → Auth の無効化 → Apple の連携の
+ * 取り消し」の順で、終えたものは時刻を記録して飛ばす。Apple の取り消しを
+ * 最後に置くのは、Apple の障害や設定の不備でデータの削除とログインの無効化を
+ * 止めないため。どれかが失敗したらそこで止め、理由を
  * 記録して `pending` を返す（次の試行がそこから続ける）。
  *
  * 他の処理（その場の処理と cron）が貸し出しを持っている間は何もせず、
@@ -119,6 +124,10 @@ export async function processAccountDeletion(
     if (!leased.authDeletedAt) {
       await softDeleteAuthUser(userId);
       await markStep(userId, { authDeletedAt: new Date() });
+    }
+    if (!leased.appleRevokedAt) {
+      await revokeAppleTokensForDeletion(userId);
+      await markStep(userId, { appleRevokedAt: new Date() });
     }
     await markStep(userId, {
       completedAt: new Date(),
@@ -215,6 +224,7 @@ async function markStep(
       | "dataDeletedAt"
       | "storageDeletedAt"
       | "authDeletedAt"
+      | "appleRevokedAt"
       | "completedAt"
       | "lastAttemptAt"
       | "lastError"

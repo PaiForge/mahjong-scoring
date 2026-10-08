@@ -113,6 +113,29 @@ describe("authorizeMobileRequest", () => {
     expect(mockGetUser).toHaveBeenCalledWith("token-1");
   });
 
+  it("Apple の連携があれば、その Apple のユーザー ID を返す", async () => {
+    activeUser();
+    mockGetUser.mockResolvedValue({
+      data: {
+        user: {
+          id: "user-1",
+          app_metadata: { provider: "email" },
+          identities: [
+            { provider: "email", id: "user-1" },
+            { provider: "apple", id: "001234.abcd.0123" },
+          ],
+        },
+      },
+    });
+
+    const result = await authorizeMobileRequest(
+      withToken(),
+      "readMobileAccount",
+    );
+
+    expect(result.ok && result.appleSubject).toBe("001234.abcd.0123");
+  });
+
   it("プロフィール未作成は弾かず、profile を undefined で返す", async () => {
     activeUser();
     mockGetProfileCore.mockResolvedValue(undefined);

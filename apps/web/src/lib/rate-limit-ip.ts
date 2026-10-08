@@ -138,6 +138,9 @@ export const IP_RATE_LIMITS = {
   readMobileProgress: { maxRequests: 120, windowMs: 600_000 },
   // アプリのレッスン完了の記録（未送信分の送り直しを含む）
   completeLessons: { maxRequests: 60, windowMs: 600_000 },
+  // アプリが Apple でログインした直後に認可コードを預ける。ログイン 1 回に
+  // 1 度（失敗の送り直しを含めて数回）しか飛ばない。Apple への問い合わせを伴う
+  saveAppleToken: { maxRequests: 20, windowMs: 600_000 },
 } as const;
 
 /**

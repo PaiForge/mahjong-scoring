@@ -21,11 +21,15 @@ const mocks = vi.hoisted(() => ({
   storageRemove: vi.fn(),
   lockForDeletion: vi.fn(),
   dataDeletes: vi.fn(),
+  appleRevoke: vi.fn(),
 }));
 
 vi.mock("server-only", () => ({}));
 vi.mock("@/lib/cache-tags", () => ({ purgeLeaderboardCache: vi.fn() }));
 vi.mock("@/lib/log-error", () => ({ logExternalError: vi.fn() }));
+vi.mock("@/lib/apple/refresh-tokens", () => ({
+  revokeAppleTokensForDeletion: mocks.appleRevoke,
+}));
 vi.mock("./account-write-lock", () => ({
   lockAccountForDeletion: async () => {
     state.calls.push("lock");
@@ -71,6 +75,7 @@ vi.mock("@/lib/db", async () => {
             dataDeletedAt: null,
             storageDeletedAt: null,
             authDeletedAt: null,
+            appleRevokedAt: null,
             completedAt: null,
             attempts: 0,
             lastAttemptAt: null,
@@ -157,6 +162,7 @@ beforeEach(() => {
   });
   mocks.storageRemove.mockResolvedValue({ error: null });
   mocks.authDelete.mockResolvedValue({ error: null });
+  mocks.appleRevoke.mockResolvedValue(undefined);
 });
 
 describe("requestAccountDeletion", () => {
@@ -183,6 +189,22 @@ describe("requestAccountDeletion", () => {
       completedAt: expect.any(Date),
       lastError: null,
     });
+  });
+
+  it("Apple の連携の取り消しは Auth の無効化の後に行う", async () => {
+    const order: string[] = [];
+    mocks.authDelete.mockImplementation(async () => {
+      order.push("auth");
+      return { error: null };
+    });
+    mocks.appleRevoke.mockImplementation(async () => {
+      order.push("apple");
+    });
+
+    expect(await requestAccountDeletion(USER)).toBe("completed");
+    expect(order).toEqual(["auth", "apple"]);
+    expect(mocks.appleRevoke).toHaveBeenCalledWith(USER);
+    expect(state.row).toMatchObject({ appleRevokedAt: expect.any(Date) });
   });
 
   it("途中のチャレンジ・通知・購入も消す（Auth のソフト削除では CASCADE しない）", async () => {
@@ -228,6 +250,28 @@ describe("processAccountDeletion", () => {
     expect(await processAccountDeletion(USER)).toBe("completed");
     expect(mocks.dataDeletes).not.toHaveBeenCalled();
     expect(mocks.authDelete).toHaveBeenCalledTimes(1);
+  });
+
+  /**
+   * Apple の障害・設定の不備でも、データの削除とログインの無効化は済ませる。
+   * 取り消しだけを cron が再試行する。
+   */
+  it("Apple の取り消しが失敗しても、データと Auth は済ませ、取り消しだけ再試行する", async () => {
+    mocks.appleRevoke.mockRejectedValueOnce(new Error("apple revoke: 503"));
+
+    expect(await requestAccountDeletion(USER)).toBe("pending");
+    expect(state.row).toMatchObject({
+      dataDeletedAt: expect.any(Date),
+      authDeletedAt: expect.any(Date),
+      appleRevokedAt: null,
+      completedAt: null,
+      lastError: "apple revoke: 503",
+    });
+
+    mocks.authDelete.mockClear();
+    expect(await processAccountDeletion(USER)).toBe("completed");
+    expect(mocks.authDelete).not.toHaveBeenCalled();
+    expect(mocks.appleRevoke).toHaveBeenCalledTimes(2);
   });
 
   /**

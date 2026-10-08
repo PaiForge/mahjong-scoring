@@ -262,3 +262,14 @@ ALTER TABLE "account_deletions" ENABLE ROW LEVEL SECURITY;
 DROP POLICY IF EXISTS "account_deletions_deny_all" ON "account_deletions";
 CREATE POLICY "account_deletions_deny_all" ON "account_deletions"
   USING (false);
+
+-- =============================================================================
+-- apple_refresh_tokens
+-- =============================================================================
+-- 退会時に Apple の連携を取り消すためのトークン（暗号化済み）。保存も取り消しも
+-- サーバーが直 DB 接続で行う。読み書きとも許可しない。
+ALTER TABLE "apple_refresh_tokens" ENABLE ROW LEVEL SECURITY;
+
+DROP POLICY IF EXISTS "apple_refresh_tokens_deny_all" ON "apple_refresh_tokens";
+CREATE POLICY "apple_refresh_tokens_deny_all" ON "apple_refresh_tokens"
+  USING (false);
