@@ -14,7 +14,6 @@ import { NativeAdRow } from "../../ads/native-ad-row";
 import { useNativeAds } from "../../ads/use-native-ads";
 import { LinkRowList } from "../../components/link-row";
 import { Screen } from "../../components/screen";
-import { SectionTitle } from "../../components/section-title";
 import { useCompletedLessonSlugs } from "../../hooks/use-lesson-completion-store";
 import { colors } from "../../lib/theme";
 import {
@@ -40,9 +39,9 @@ const GROUPED = chaptersBySection();
  * レッスン（目次）
  *
  * @description
- * セクション（基礎 / 満貫 / 役 / 符 / 点数計算 / 記憶術）ごとにレッスン（章）を
- * 並べ、完了の印・進捗率・「次はここから」を出す（web の `/lessons`）。完了は
- * 端末に記録したもの。モバイルに本文を移植していないレッスンも並びに残すが
+ * 進捗バーから始め、セクション（基礎 / 満貫 / 役 / 符 / 点数計算 / 記憶術）ごとに
+ * レッスン（章）を並べ、完了の印・「次はここから」を出す（web の `/lessons`）。
+ * 完了は端末に記録したもの。モバイルに本文を移植していないレッスンも並びに残すが
  * 開けず、進捗の分母と「次はここから」の候補から外す。セクションの切れ目に
  * 広告の行を間隔を広げながら置く（web と同じ）。
  *
@@ -62,11 +61,6 @@ export default function LessonsTab() {
   return (
     <Screen title={t("pageTitle")} inTabs>
       <View style={styles.page}>
-        <View style={styles.intro}>
-          <SectionTitle>{t("sectionTitle")}</SectionTitle>
-          <Text style={styles.description}>{t("pageDescription")}</Text>
-        </View>
-
         <CurriculumProgressBar
           completedCount={completedCount}
           totalCount={PORTED_CHAPTERS.length}
@@ -107,14 +101,6 @@ export default function LessonsTab() {
 const styles = StyleSheet.create({
   page: {
     gap: 32,
-  },
-  intro: {
-    gap: 12,
-  },
-  description: {
-    fontSize: 15,
-    lineHeight: 23,
-    color: colors.surface500,
   },
   allCompleted: {
     fontSize: 14,
