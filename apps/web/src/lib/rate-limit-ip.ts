@@ -126,6 +126,18 @@ export const IP_RATE_LIMITS = {
   // アプリが起動・復帰・ログインのたびに読むアカウント状態。書き込みは
   // しないので、認証サーバーへの問い合わせを連打させない程度に取る
   readMobileAccount: { maxRequests: 60, windowMs: 600_000 },
+  // アプリの記録付きチャレンジの回答。1 回のチャレンジで数十問、通信の
+  // 失敗で同じ回答を送り直すこともあるので、人の操作が届かない程度に広く取る
+  answerChallenge: { maxRequests: 600, windowMs: 600_000 },
+  // アプリのチャレンジの一時停止・状態の取り直し・時間切れの問題の取得。
+  // 裏に回る・通信が戻るたびに飛ぶ
+  readChallenge: { maxRequests: 300, windowMs: 600_000 },
+  // アプリのチャレンジの確定。送り直しを含めても開始の回数を超えない
+  finishChallenge: { maxRequests: 60, windowMs: 600_000 },
+  // アプリが画面を開くたびに読む進み具合
+  readMobileProgress: { maxRequests: 120, windowMs: 600_000 },
+  // アプリのレッスン完了の記録（未送信分の送り直しを含む）
+  completeLessons: { maxRequests: 60, windowMs: 600_000 },
 } as const;
 
 /**

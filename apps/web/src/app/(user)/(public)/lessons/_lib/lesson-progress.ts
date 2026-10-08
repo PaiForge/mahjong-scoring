@@ -1,10 +1,7 @@
 import "server-only";
 
-import { eq } from "drizzle-orm";
-
 import { getOptionalUser } from "@/lib/auth";
-import { db } from "@/lib/db";
-import { lessonCompletions } from "@/lib/db/schema";
+import { getCompletedLessonSlugsOf } from "@/lib/journey/progress";
 
 /**
  * 認証ユーザーが完了したレッスン（章）のスラッグ集合を返す
@@ -21,10 +18,5 @@ export async function fetchCompletedLessonSlugs(): Promise<
   const user = await getOptionalUser();
   if (!user) return new Set();
 
-  const rows = await db
-    .select({ lessonSlug: lessonCompletions.lessonSlug })
-    .from(lessonCompletions)
-    .where(eq(lessonCompletions.userId, user.id));
-
-  return new Set(rows.map((row) => row.lessonSlug));
+  return getCompletedLessonSlugsOf(user.id);
 }

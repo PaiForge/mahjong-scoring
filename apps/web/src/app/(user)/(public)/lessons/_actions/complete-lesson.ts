@@ -3,10 +3,11 @@
 import { revalidatePath } from "next/cache";
 
 import { authenticateAndCheckBan, type AuthUser } from "@/lib/auth";
-import { db } from "@/lib/db";
-import { lessonCompletions } from "@/lib/db/schema";
+import {
+  partitionLessonSlugs,
+  recordLessonCompletions,
+} from "@/lib/lessons/record-completions";
 import { logExternalError } from "@/lib/log-error";
-import { lockAccountForWrite } from "@/lib/users/account-write-lock";
 
 import {
   isCurriculumChapterSlug,
@@ -90,23 +91,14 @@ async function resolveRecorder(): Promise<
  * 完了を読むのはレッスンの目次・ダッシュボードの「次にやること」・道場の行程。
  * レッスンページ自体は静的で完了状態を持たないため捨てない。
  *
- * 退会を受け付けた後には書かない（入口の確認を通った後に退会が受け付け
- * られても、`lockAccountForWrite` が直列にする）。そのとき false を返す。
+ * 退会を受け付けた後には書かない（`recordLessonCompletions`）。そのとき false を返す。
  */
 async function recordCompletions(
   userId: string,
   slugs: readonly CurriculumChapterSlug[],
 ): Promise<boolean> {
   if (slugs.length === 0) return true;
-  const recorded = await db.transaction(async (tx) => {
-    if (!(await lockAccountForWrite(tx, userId))) return false;
-    await tx
-      .insert(lessonCompletions)
-      .values(slugs.map((lessonSlug) => ({ userId, lessonSlug })))
-      .onConflictDoNothing();
-    return true;
-  });
-  if (!recorded) return false;
+  if (!(await recordLessonCompletions(userId, slugs))) return false;
 
   revalidatePath("/lessons");
   revalidatePath("/dashboard");
@@ -197,12 +189,7 @@ async function followUpFor(
 export async function completeLessons(
   slugs: readonly string[],
 ): Promise<CompleteLessonsResult> {
-  const completed: CurriculumChapterSlug[] = [];
-  const rejected: string[] = [];
-  for (const slug of new Set(slugs)) {
-    if (isCurriculumChapterSlug(slug)) completed.push(slug);
-    else rejected.push(slug);
-  }
+  const { completed, rejected } = partitionLessonSlugs(slugs);
 
   const recorder = await resolveRecorder();
   if ("skipped" in recorder) return { success: true, skipped: "anonymous" };
