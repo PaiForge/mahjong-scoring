@@ -37,6 +37,8 @@ const ERROR_KEYS = {
   banned: "banned",
   unauthorized: "unauthorized",
   deleted: "unauthorized",
+  // 送る前にログインが変わった（ユーザーを指定して送る記録の同期だけが返す）
+  userChanged: "unauthorized",
   authUnavailable: "error",
   unknown: "error",
 } as const satisfies Record<
