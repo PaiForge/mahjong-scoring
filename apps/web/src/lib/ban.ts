@@ -1,6 +1,9 @@
 import "server-only";
 
-import { getProfileCoreByUserId } from "./db/queries";
+import {
+  getProfileCoreByUserId,
+  hasAccountDeletionRequest,
+} from "./db/queries";
 
 /**
  * ユーザーが BAN されているかチェックする。
@@ -18,23 +21,29 @@ export async function isUserBanned(userId: string): Promise<boolean> {
  *
  * - `active` — 受け付ける（プロフィール未作成もここ）
  * - `banned` — BAN 済み
- * - `deleted` — 退会済み。退会は Auth の削除を最後に行うので
- *   （`lib/users/delete-account.ts`）、その手前で失敗すると DB は消えたまま
- *   ログインだけが生きている状態が残る。書き込みの入口はこれを未認証として扱う
+ * - `deleting` — 退会を受け付けた（処理中または完了）。退会の工程は
+ *   サーバーが最後まで進めるので（`lib/users/delete-account.ts`）、その途中で
+ *   ログインがまだ生きていても、書き込みの入口はこれを未認証として扱う
  */
-export type AccountStanding = "active" | "banned" | "deleted";
+export type AccountStanding = "active" | "banned" | "deleting";
 
 /**
- * アカウントの状態を 1 回の読み込みで判定する。BAN と退会済みが重なったら BAN。
+ * アカウントの状態を判定する。退会と BAN が重なったら退会を優先する
+ * （退会を受け付けた人には、BAN より退会の扱いを見せる）。
  * アカウント状態判定
  *
- * {@link isUserBanned} と同じキャッシュを共有する。
+ * プロフィールと退会の要求は並べて読む（往復は 1 回分の待ち）。
+ * {@link isUserBanned} とプロフィールのキャッシュを共有する。
  */
 export async function getAccountStanding(
   userId: string,
 ): Promise<AccountStanding> {
-  const profile = await getProfileCoreByUserId(userId);
+  const [profile, deletionRequested] = await Promise.all([
+    getProfileCoreByUserId(userId),
+    hasAccountDeletionRequest(userId),
+  ]);
+  // deletedAt だけが付いた行は、要求の表より前の退会（Auth も無効化済み）
+  if (deletionRequested || profile?.deletedAt != null) return "deleting";
   if (profile?.bannedAt != null) return "banned";
-  if (profile?.deletedAt != null) return "deleted";
   return "active";
 }

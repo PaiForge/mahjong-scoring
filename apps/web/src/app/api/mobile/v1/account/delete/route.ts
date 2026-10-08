@@ -1,26 +1,35 @@
+import type { MobileDeleteAccountResponse } from "@mahjong-scoring/features/account/mobile-api";
+
 import { logActivityEvent } from "@/lib/activity-log";
+import { logExternalError } from "@/lib/log-error";
 import { authorizeMobileRequest } from "@/lib/mobile-api/auth";
 import { mobileJson, mobilePreflight } from "@/lib/mobile-api/response";
-import { deleteAccount } from "@/lib/users/delete-account";
+import { requestAccountDeletion } from "@/lib/users/delete-account";
 
 /**
- * アカウントを削除する（アプリ向け）
+ * アカウントの退会を受け付ける（アプリ向け）
  * 退会API（アプリ向け）
  *
- * web の退会（`mypage/account/delete`）と同じ本体（`deleteAccount`）を呼ぶ。
- * 退会は途中で失敗しても同じ要求で最初からやり直せる作りなので、退会済みの
- * プロフィールも通す（`allowDeleted`）。プロフィール未作成のまま（ユーザー名を
- * 決める前）でも退会できる。失敗は 500 で、アプリは再試行を促す。
+ * web の退会と同じ受付（`requestAccountDeletion`）を呼ぶ。受け付けた後の
+ * 工程はサーバーが最後まで進めるので、応答の `status` が `pending` でも
+ * アプリはやり直さなくてよい。受付は冪等で、応答を失って送り直しても
+ * 二重に処理しない。
+ *
+ * BAN 中・退会処理中・プロフィール未作成（ユーザー名を決める前）でも受け付ける
+ * （`forAccountDeletion`）。受付そのものの失敗だけが 500 で、アプリは再試行を促す。
  */
 export async function POST(request: Request) {
   const auth = await authorizeMobileRequest(request, "deleteAccount", {
-    allowDeleted: true,
+    forAccountDeletion: true,
   });
   if (!auth.ok) return auth.response;
 
-  const result = await deleteAccount(auth.user.id);
-  if ("error" in result) {
-    return mobileJson({ error: result.error }, { status: 500 });
+  let status: MobileDeleteAccountResponse["status"];
+  try {
+    status = await requestAccountDeletion(auth.user.id);
+  } catch (error) {
+    logExternalError("POST /api/mobile/v1/account/delete", "受付に失敗", error);
+    return mobileJson({ error: "deleteFailed" }, { status: 500 });
   }
 
   logActivityEvent({
@@ -30,7 +39,7 @@ export async function POST(request: Request) {
     targetId: auth.user.id,
   });
 
-  return mobileJson({ success: true });
+  return mobileJson<MobileDeleteAccountResponse>({ status });
 }
 
 export const OPTIONS = mobilePreflight;

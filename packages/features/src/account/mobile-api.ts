@@ -49,7 +49,8 @@ export function parseMobileMeResponse(
  * アプリ向け API が返すエラーの理由（認証と回数制限）
  *
  * - `unauthorized` — トークンが無い・無効・失効（401）。ログアウト状態へ戻す
- * - `deleted` — 退会済み（401）。ログアウト状態へ戻す
+ * - `deleted` — 退会を受け付けた（403。処理中または完了）。退会の工程は
+ *   サーバーが最後まで進めるので、アプリは受け付けた旨を伝えてログイン状態を捨てる
  * - `banned` — BAN 済み（403）
  * - `rateLimited` — 回数の上限（429）
  * - `authUnavailable` — 認証サーバーに確かめられなかった（503）。トークンが
@@ -124,6 +125,18 @@ export function isMobileUsernameErrorCode(
  * 退会の API のパス（POST）
  * 退会APIパス
  *
- * 途中で失敗しても、同じ要求をもう一度送れば最初からやり直せる。
+ * 受け付けた後の工程はサーバーが最後まで進める。受付は冪等で、応答を
+ * 失ったら同じ要求を送り直してよい。
  */
 export const MOBILE_DELETE_ACCOUNT_API_PATH = `${MOBILE_API_PREFIX}/account/delete`;
+
+/**
+ * 退会の受付の応答
+ *
+ * - `completed` — 全工程を終えた
+ * - `pending` — 受け付けたが、一部の工程がまだ終わっていない（サーバーが
+ *   再開する。アプリはやり直さない）
+ */
+export interface MobileDeleteAccountResponse {
+  readonly status: "pending" | "completed";
+}

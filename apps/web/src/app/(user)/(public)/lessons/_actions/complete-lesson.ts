@@ -6,6 +6,7 @@ import { authenticateAndCheckBan, type AuthUser } from "@/lib/auth";
 import { db } from "@/lib/db";
 import { lessonCompletions } from "@/lib/db/schema";
 import { logExternalError } from "@/lib/log-error";
+import { lockAccountForWrite } from "@/lib/users/account-write-lock";
 
 import {
   isCurriculumChapterSlug,
@@ -88,20 +89,29 @@ async function resolveRecorder(): Promise<
  *
  * 完了を読むのはレッスンの目次・ダッシュボードの「次にやること」・道場の行程。
  * レッスンページ自体は静的で完了状態を持たないため捨てない。
+ *
+ * 退会を受け付けた後には書かない（入口の確認を通った後に退会が受け付け
+ * られても、`lockAccountForWrite` が直列にする）。そのとき false を返す。
  */
 async function recordCompletions(
   userId: string,
   slugs: readonly CurriculumChapterSlug[],
-): Promise<void> {
-  if (slugs.length === 0) return;
-  await db
-    .insert(lessonCompletions)
-    .values(slugs.map((lessonSlug) => ({ userId, lessonSlug })))
-    .onConflictDoNothing();
+): Promise<boolean> {
+  if (slugs.length === 0) return true;
+  const recorded = await db.transaction(async (tx) => {
+    if (!(await lockAccountForWrite(tx, userId))) return false;
+    await tx
+      .insert(lessonCompletions)
+      .values(slugs.map((lessonSlug) => ({ userId, lessonSlug })))
+      .onConflictDoNothing();
+    return true;
+  });
+  if (!recorded) return false;
 
   revalidatePath("/lessons");
   revalidatePath("/dashboard");
   revalidatePath("/dojo");
+  return true;
 }
 
 /**
@@ -136,7 +146,9 @@ export async function completeLesson(
   if ("error" in recorder) return { success: false, error: recorder.error };
   const { user } = recorder;
 
-  await recordCompletions(user.id, [slug]);
+  // 退会を受け付けた後は、入口で弾いたとき（未認証）と同じく記録しない
+  if (!(await recordCompletions(user.id, [slug])))
+    return { success: true, skipped: "anonymous" };
   if (!isQuizLessonSlug(slug)) return { success: true };
   const followUp = await followUpFor(user.id, slug);
   return followUp === undefined
@@ -197,6 +209,7 @@ export async function completeLessons(
   if ("error" in recorder) return { success: false, error: recorder.error };
   const { user } = recorder;
 
-  await recordCompletions(user.id, completed);
+  if (!(await recordCompletions(user.id, completed)))
+    return { success: true, skipped: "anonymous" };
   return { success: true, completed, rejected };
 }

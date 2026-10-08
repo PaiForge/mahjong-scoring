@@ -1,77 +1,240 @@
 import "server-only";
 
-import { eq, sql } from "drizzle-orm";
+import { and, asc, eq, isNull, lt, or, sql } from "drizzle-orm";
 
-import type { ActionResult } from "@/lib/action-types";
 import { purgeLeaderboardCache } from "@/lib/cache-tags";
-
 import {
+  accountDeletions,
   benefitGrants,
   challengeAttempts,
-  notifications,
-  purchases,
-  practiceQuotaUsage,
-  stripeCustomers,
   challengeBestScores,
   challengeResults,
   db,
   expEvents,
   lessonCompletions,
+  notifications,
+  practiceQuotaUsage,
   profiles,
+  purchases,
+  stripeCustomers,
   userExp,
   userRanks,
   userRoles,
+  type AccountDeletion,
 } from "@/lib/db";
+import { logExternalError } from "@/lib/log-error";
 import { createAdminClient } from "@/lib/supabase/admin";
 
+import { lockAccountForDeletion } from "./account-write-lock";
+
 /**
- * アカウント退会処理。
+ * 退会の進み具合
  *
- * @design 何度実行しても同じ結果になる処理を、Auth の削除を最後にして並べる
+ * - `pending` — 受け付けたが、まだ終わっていない工程がある（サーバーが再開する）
+ * - `completed` — 全工程を終えた
+ */
+export type AccountDeletionStatus = "pending" | "completed";
+
+/**
+ * 処理の貸し出しの長さ。その場の処理と cron が同じ要求を同時に進めない
+ * ための目安で、どの工程もこれより十分短い。切れて二重に走っても、
+ * 工程はどれも冪等なので結果は変わらない。
+ */
+const PROCESSING_LEASE_MS = 2 * 60 * 1000;
+
+/** cron が 1 回に進める要求の数。関数の実行時間に収める */
+const CRON_BATCH_SIZE = 20;
+
+/**
+ * 退会を受け付け、その場で処理を進める
+ * 退会受付
  *
- * 1. DB の行動データを消し、プロフィールを匿名化する（1 トランザクション）
- * 2. アバター画像を消す（ベストエフォート）
- * 3. Auth をソフトデリートする（ここでログインできなくなる）
+ * @description
+ * 退会は「受け付けた時点で約束が成立し、サーバーが最後まで終わらせる」
+ * 処理として扱う。受付で `account_deletions` に行を作り、以降の書き込みを
+ * 止めてから、工程（{@link processAccountDeletion}）をその場で 1 度進める。
+ * 外部サービス（Storage・Auth）の一時障害で終わらなかった工程は cron が
+ * 再開する — 本人のログインにも、アプリを開き続けていることにも頼らない
+ * （Auth を無効化した後はログインできないので、本人にやり直させる設計は
+ * 成り立たない）。
  *
- * Auth を最後に置くのは、途中で失敗しても本人がまだログインできる状態を
- * 残すため。もう一度退会を押せば最初からやり直し、すでに消えたものは
- * 消し直すだけで済む。Auth を先に消すと、後半が失敗したとき本人は
- * ログインできず、再試行の手段が無くなる。削除の要求を記録して再開する
- * ジョブの表は持たない — どの段も冪等なので、本人の再実行がその代わりになる。
+ * 受付は冪等: 2 度目以降は行を作り直さず、今の進み具合を返す（成功の
+ * 応答を失った端末が送り直しても二重に処理しない）。
  *
- * 1 と 3 の間（3 が失敗したまま）でも書き込みを受け付けないよう、
- * 認証ゲート（`authenticateAndCheckBan` / アプリ向けの
- * `authenticateMobileRequest`）は `profiles.deleted_at` を見て退会済みを
- * 未認証として扱う。退会の Action だけがそれを素通しする。
- *
- * 方針:
+ * 方針（何を消し、何を残すか）:
  * - `auth.users` はソフトデリート（ログイン不可化）。`profiles`(RESTRICT) と
  *   `moderation_actions`(RESTRICT) が参照するため物理削除はできず、また username 保持・
  *   監査ログ保持の足場として残す。
  * - `profiles` は行を残し、個人情報を NULL 化して `deletedAt` を記録する
  *   （username は再利用防止のため保持）。
- * - 成績・経験値・学習履歴・段級位・ロールは物理削除する（ランキングからも消える）。
- *   購入・顧客対応・手動付与・無料枠も同じトランザクションで明示的に削除する。
- *   auth.users のソフトデリートでは CASCADE しない。購入手続きは顧客対応の
- *   削除に CASCADE する。Stripe の決済記録は残し、返金はしない。
- *   利用規約の「退会」の節がこの一覧を約束しているので、消す対象を増減
- *   したら規約の文面（`terms.deletion`）も合わせて直すこと。
- * - `user_activity_log` / `moderation_actions` は監査のため保持する。
- * - アバター画像は Storage から削除する（ベストエフォート）。
+ * - 成績・経験値・学習履歴・段級位・ロール・途中のチャレンジ・通知は物理削除する
+ *   （ランキングからも消える）。購入・顧客対応・手動付与・無料枠も同じ
+ *   トランザクションで明示的に削除する。auth.users のソフトデリートでは
+ *   CASCADE しない。購入手続きは顧客対応の削除に CASCADE する。Stripe の
+ *   決済記録は残し、返金はしない。利用規約の「退会」の節がこの一覧を約束して
+ *   いるので、消す対象を増減したら規約の文面（`terms.deletion`）も合わせて直すこと。
+ * - `user_activity_log` / `moderation_actions` / `account_deletions` は監査のため保持する。
+ * - アバター画像は Storage から削除する。失敗したら再試行する。
  *
- * アカウント退会
+ * @param userId - 本人確認を済ませたユーザーの ID
  */
-/** 退会処理そのものの失敗理由 */
-export type DeleteAccountError = "deleteFailed";
-
-export async function deleteAccount(
+export async function requestAccountDeletion(
   userId: string,
-): Promise<ActionResult<DeleteAccountError>> {
-  const adminClient = createAdminClient();
-
-  // 1. 行動データを物理削除し、profiles は username を残して匿名化する（トランザクション）。
+): Promise<AccountDeletionStatus> {
   await db.transaction(async (tx) => {
-    // 顧客対応の作成も同じプロフィールを先にロックする。退会直後の再作成を防ぐ。
+    // 共有ロックを持って書いている途中の書き込みが終わるのを待ってから
+    // 要求を書く。以降の書き込みはこの行を見て止まる（account-write-lock.ts）
+    await lockAccountForDeletion(tx, userId);
+    await tx.insert(accountDeletions).values({ userId }).onConflictDoNothing();
+  });
+  return processAccountDeletion(userId);
+}
+
+/**
+ * 退会の工程を、終わっていないものから進める
+ * 退会処理
+ *
+ * 工程は「DB のデータ削除 → Storage の削除 → Auth の無効化」の順で、
+ * 終えたものは時刻を記録して飛ばす。どれかが失敗したらそこで止め、理由を
+ * 記録して `pending` を返す（次の試行がそこから続ける）。
+ *
+ * 他の処理（その場の処理と cron）が貸し出しを持っている間は何もせず、
+ * 今の進み具合だけを返す。
+ */
+export async function processAccountDeletion(
+  userId: string,
+): Promise<AccountDeletionStatus> {
+  const leased = await leaseDeletion(userId);
+  if (!leased) return (await getAccountDeletionStatus(userId)) ?? "pending";
+
+  try {
+    if (!leased.dataDeletedAt) {
+      await deleteAccountData(userId);
+      await markStep(userId, { dataDeletedAt: new Date() });
+    }
+    if (!leased.storageDeletedAt) {
+      await deleteAvatarFiles(userId);
+      await markStep(userId, { storageDeletedAt: new Date() });
+    }
+    if (!leased.authDeletedAt) {
+      await softDeleteAuthUser(userId);
+      await markStep(userId, { authDeletedAt: new Date() });
+    }
+    await markStep(userId, {
+      completedAt: new Date(),
+      lastAttemptAt: null,
+      lastError: null,
+    });
+    return "completed";
+  } catch (error) {
+    logExternalError("processAccountDeletion", "deletion step failed", error);
+    await markStep(userId, {
+      // 貸し出しを返し、次の試行（cron）がすぐ拾えるようにする
+      lastAttemptAt: null,
+      lastError: error instanceof Error ? error.message : String(error),
+    });
+    return "pending";
+  }
+}
+
+/**
+ * 終わっていない退会を古いものから進める（cron 用）
+ * 退会の再開
+ *
+ * @returns 進めた要求の数と、そのうち完了した数
+ */
+export async function processPendingAccountDeletions(): Promise<{
+  readonly processed: number;
+  readonly completed: number;
+}> {
+  const pending = await db
+    .select({ userId: accountDeletions.userId })
+    .from(accountDeletions)
+    .where(isNull(accountDeletions.completedAt))
+    .orderBy(asc(accountDeletions.requestedAt))
+    .limit(CRON_BATCH_SIZE);
+  let completed = 0;
+  for (const { userId } of pending) {
+    if ((await processAccountDeletion(userId)) === "completed") completed++;
+  }
+  return { processed: pending.length, completed };
+}
+
+/**
+ * 退会の進み具合を読む。退会を受け付けていなければ undefined
+ * 退会状態取得
+ */
+export async function getAccountDeletionStatus(
+  userId: string,
+): Promise<AccountDeletionStatus | undefined> {
+  const [row] = await db
+    .select({ completedAt: accountDeletions.completedAt })
+    .from(accountDeletions)
+    .where(eq(accountDeletions.userId, userId))
+    .limit(1);
+  if (!row) return undefined;
+  return row.completedAt ? "completed" : "pending";
+}
+
+/**
+ * 処理の貸し出しを取る。取れたら要求の行（どの工程が済んでいるか）を返す
+ *
+ * 完了済み・他の処理が貸し出し中なら undefined。1 文の UPDATE で
+ * 取るので、同時に取りに来ても片方だけが取れる。
+ */
+async function leaseDeletion(
+  userId: string,
+): Promise<AccountDeletion | undefined> {
+  const leaseExpiredBefore = new Date(Date.now() - PROCESSING_LEASE_MS);
+  const [row] = await db
+    .update(accountDeletions)
+    .set({
+      lastAttemptAt: new Date(),
+      attempts: sql`${accountDeletions.attempts} + 1`,
+    })
+    .where(
+      and(
+        eq(accountDeletions.userId, userId),
+        isNull(accountDeletions.completedAt),
+        or(
+          isNull(accountDeletions.lastAttemptAt),
+          lt(accountDeletions.lastAttemptAt, leaseExpiredBefore),
+        ),
+      ),
+    )
+    .returning();
+  return row;
+}
+
+/** 工程の完了などを要求の行に書く */
+async function markStep(
+  userId: string,
+  values: Partial<
+    Pick<
+      AccountDeletion,
+      | "dataDeletedAt"
+      | "storageDeletedAt"
+      | "authDeletedAt"
+      | "completedAt"
+      | "lastAttemptAt"
+      | "lastError"
+    >
+  >,
+): Promise<void> {
+  await db
+    .update(accountDeletions)
+    .set(values)
+    .where(eq(accountDeletions.userId, userId));
+}
+
+/**
+ * DB の行動データを物理削除し、プロフィールを username を残して匿名化する
+ * （1 トランザクション。何度実行しても同じ結果）
+ */
+async function deleteAccountData(userId: string): Promise<void> {
+  await db.transaction(async (tx) => {
+    // 顧客対応の作成もこのプロフィールの行をロックする（billing/customer.ts）。
+    // 進行中の Checkout の作成が終わるのを待ってから顧客を消す。
     await tx
       .select({ id: profiles.id })
       .from(profiles)
@@ -123,30 +286,31 @@ export async function deleteAccount(
   // しかもアバターの実体は直後に消えるため、捨てないと数分間「退会者の名前と
   // 割れた画像」が一覧に出る。
   purgeLeaderboardCache();
+}
 
-  // 2. アバター画像を Storage から削除（失敗しても退会は完了させる）。
-  try {
-    const { data: files } = await adminClient.storage
-      .from("avatars")
-      .list(userId);
-    if (files?.length) {
-      await adminClient.storage
-        .from("avatars")
-        .remove(files.map((f) => `${userId}/${f.name}`));
-    }
-  } catch {
-    // Storage 障害で退会をブロックしない。
-  }
+/** アバター画像を Storage から消す。失敗は投げて再試行に回す */
+async function deleteAvatarFiles(userId: string): Promise<void> {
+  const bucket = createAdminClient().storage.from("avatars");
+  const { data: files, error: listError } = await bucket.list(userId);
+  if (listError) throw new Error(`storage list: ${listError.message}`);
+  if (!files?.length) return;
+  const { error: removeError } = await bucket.remove(
+    files.map((f) => `${userId}/${f.name}`),
+  );
+  if (removeError) throw new Error(`storage remove: ${removeError.message}`);
+}
 
-  // 3. 最後に auth ユーザーをソフトデリート（ログイン不可化）。失敗したら
-  //    本人はまだログインできるので、もう一度退会すればここからやり直せる。
-  const { error: authError } = await adminClient.auth.admin.deleteUser(
+/**
+ * Auth をソフトデリートする（ログインできなくする）。失敗は投げて再試行に回す
+ *
+ * 既に消えている（前の試行で消えた後、完了の記録だけが失敗した）なら成功として扱う。
+ */
+async function softDeleteAuthUser(userId: string): Promise<void> {
+  const { error } = await createAdminClient().auth.admin.deleteUser(
     userId,
     true,
   );
-  if (authError) {
-    return { error: "deleteFailed" };
-  }
-
-  return { success: true };
+  if (!error) return;
+  if (error.status === 404) return;
+  throw new Error(`auth delete: ${error.message}`);
 }

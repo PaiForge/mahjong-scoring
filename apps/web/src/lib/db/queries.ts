@@ -2,13 +2,13 @@ import { cache } from "react";
 
 import { and, eq, isNull } from "drizzle-orm";
 
-import { db, profiles } from "@/lib/db";
+import { accountDeletions, db, profiles } from "@/lib/db";
 
 /**
  * ユーザーIDからプロフィールの基本情報を取得する（React cache でリクエスト内で重複排除）。
  * BAN チェック (`bannedAt`) とプロフィール取得 (`username`) を単一クエリに統合し、
  * `isUserBanned` と `getProfileByUserId` の両方がこの結果を共有する。
- * 退会済み（`deletedAt`）はアプリ向け API の認証（`lib/mobile-api/auth.ts`）が見る。
+ * 退会済み（`deletedAt`）はアカウントの状態（`getAccountStanding`）が見る。
  *
  * プロフィール基本情報取得
  */
@@ -23,6 +23,21 @@ export const getProfileCoreByUserId = cache(async (userId: string) => {
     .where(eq(profiles.id, userId))
     .limit(1);
   return profile;
+});
+
+/**
+ * 退会を受け付けたユーザーか（`account_deletions` に行があるか）。
+ * プロフィールを持たない（ユーザー名を決める前の）ユーザーにも効く印。
+ *
+ * 退会要求の有無
+ */
+export const hasAccountDeletionRequest = cache(async (userId: string) => {
+  const [row] = await db
+    .select({ userId: accountDeletions.userId })
+    .from(accountDeletions)
+    .where(eq(accountDeletions.userId, userId))
+    .limit(1);
+  return row !== undefined;
 });
 
 /**

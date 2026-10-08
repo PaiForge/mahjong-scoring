@@ -8,9 +8,17 @@ import { validateUsername } from "@/lib/username";
 import type { UsernameValidationError } from "@/lib/username";
 import { validateDisplayName } from "@/lib/validations/profile";
 
-/** ユーザー名登録そのものの失敗理由（認証・回数制限は呼び出し側） */
+import { lockAccountForWrite } from "./account-write-lock";
+
+/**
+ * ユーザー名登録そのものの失敗理由（認証・回数制限は呼び出し側）
+ *
+ * `unauthorized` は入口の確認を通った後に退会が受け付けられたとき
+ * （退会を受け付けたユーザーは未認証として扱う）。
+ */
 export type UsernameRegistrationError =
   | UsernameValidationError
+  | "unauthorized"
   | "username_required"
   | "username_already_set"
   | "username_taken"
@@ -55,13 +63,19 @@ export async function registerUsernameForUser(
     return { error: "username_already_set" };
   }
 
-  // username の UNIQUE 制約が競合を最終的に弾く
+  // username の UNIQUE 制約が競合を最終的に弾く。退会を受け付けた後には
+  // 作らない（プロフィールの無いユーザーの退会も、ロックで直列になる）
   try {
-    await db.insert(profiles).values({
-      id: userId,
-      username: trimmedUsername,
-      displayName: trimmedDisplayName,
+    const created = await db.transaction(async (tx) => {
+      if (!(await lockAccountForWrite(tx, userId))) return false;
+      await tx.insert(profiles).values({
+        id: userId,
+        username: trimmedUsername,
+        displayName: trimmedDisplayName,
+      });
+      return true;
     });
+    if (!created) return { error: "unauthorized" };
   } catch (e) {
     if (isUniqueViolation(e)) {
       return { error: "username_taken" };

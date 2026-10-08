@@ -14,6 +14,7 @@ vi.mock("./db", async () => {
   return {
     db: { select: vi.fn(() => holder.chain) },
     profiles,
+    accountDeletions: { _name: "account_deletions", userId: "user_id" },
   };
 });
 
@@ -43,22 +44,38 @@ describe("isUserBanned", () => {
 });
 
 describe("getAccountStanding", () => {
-  it("プロフィールが無ければ active（ユーザー名を決める前）", async () => {
-    holder.chain.limit.mockResolvedValue([]);
+  /** プロフィールの読み込みと退会の要求の読み込みは、この順に呼ばれる */
+  function given(profile: unknown[], deletion: unknown[]) {
+    holder.chain.limit
+      .mockResolvedValueOnce(profile)
+      .mockResolvedValueOnce(deletion);
+  }
+
+  it("プロフィールが無く退会の要求も無ければ active（ユーザー名を決める前）", async () => {
+    given([], []);
     expect(await getAccountStanding("new-user")).toBe("active");
   });
 
-  it("退会済みなら deleted", async () => {
-    holder.chain.limit.mockResolvedValue([
-      { bannedAt: null, deletedAt: new Date("2026-01-01") },
-    ]);
-    expect(await getAccountStanding("user-3")).toBe("deleted");
+  it("プロフィールが無くても、退会の要求があれば deleting", async () => {
+    given([], [{ userId: "new-user-2" }]);
+    expect(await getAccountStanding("new-user-2")).toBe("deleting");
   });
 
-  it("BAN と退会済みが重なったら banned", async () => {
-    holder.chain.limit.mockResolvedValue([
-      { bannedAt: new Date("2026-01-01"), deletedAt: new Date("2026-01-02") },
-    ]);
-    expect(await getAccountStanding("user-4")).toBe("banned");
+  it("BAN 済みなら banned", async () => {
+    given([{ bannedAt: new Date("2026-01-01"), deletedAt: null }], []);
+    expect(await getAccountStanding("user-3")).toBe("banned");
+  });
+
+  it("BAN と退会の要求が重なったら deleting", async () => {
+    given(
+      [{ bannedAt: new Date("2026-01-01"), deletedAt: null }],
+      [{ userId: "user-4" }],
+    );
+    expect(await getAccountStanding("user-4")).toBe("deleting");
+  });
+
+  it("要求の表より前に退会した（deletedAt だけがある）ユーザーも deleting", async () => {
+    given([{ bannedAt: null, deletedAt: new Date("2026-01-02") }], []);
+    expect(await getAccountStanding("user-5")).toBe("deleting");
   });
 });

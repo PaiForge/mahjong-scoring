@@ -163,28 +163,34 @@ export type AuthGateErrorCode = "unauthorized" | "banned";
  * （{@link requireConfirmedUser} 等）は画面遷移しか守らないため、Action を
  * 直接叩かれると BAN が効かない。
  *
- * エラーコードは未認証が `"unauthorized"`、BAN が `"banned"`。退会済み
- * （退会の途中で Auth の削除だけが失敗し、ログインが生きている状態）も
+ * エラーコードは未認証が `"unauthorized"`、BAN が `"banned"`。退会を
+ * 受け付けたユーザー（退会の工程が終わるまではログインが生きている）も
  * `"unauthorized"` にする — 消したデータを書き込みで蘇らせないため。
+ * 入口のこの確認は早く断るためのもので、受付との競合は書き込みの
+ * トランザクションの中（`lockAccountForWrite`）が閉じる。
  *
- * @param options.allowDeleted - 退会済みを通す。退会のやり直し（退会の
- *   Action）だけが使う
+ * @param options.forAccountDeletion - 退会の受付として使う。BAN 中・退会処理中も
+ *   通す（本人による退会は、通常の利用を止める BAN の対象にしない。受付は
+ *   冪等なので処理中に送り直してもよい）
  */
 export async function authenticateAndCheckBan(
-  options: { readonly allowDeleted?: boolean } = {},
+  options: { readonly forAccountDeletion?: boolean } = {},
 ): Promise<{ user: AuthUser } | { error: AuthGateErrorCode }> {
   const user = await getOptionalVerifiedUser();
 
   if (!user) {
     return { error: "unauthorized" };
   }
+  if (options.forAccountDeletion) {
+    return { user };
+  }
 
   const standing = await getAccountStanding(user.id);
+  if (standing === "deleting") {
+    return { error: "unauthorized" };
+  }
   if (standing === "banned") {
     return { error: "banned" };
-  }
-  if (standing === "deleted" && !options.allowDeleted) {
-    return { error: "unauthorized" };
   }
 
   return { user };

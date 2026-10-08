@@ -7,8 +7,9 @@ import { guardUserAction } from "@/lib/action-guard";
 import type { UserActionGuardErrorCode } from "@/lib/action-guard";
 import { logActivityEvent } from "@/lib/activity-log";
 import { purgeLeaderboardCache } from "@/lib/cache-tags";
-import { db, profiles } from "@/lib/db";
+import { profiles } from "@/lib/db";
 import { logExternalError } from "@/lib/log-error";
+import { writeAsAccount } from "@/lib/users/account-write-lock";
 
 import {
   type ProfileInput,
@@ -42,10 +43,14 @@ export async function updateProfile(
   }
 
   try {
-    await db
-      .update(profiles)
-      .set({ ...validated.value, updatedAt: new Date() })
-      .where(eq(profiles.id, user.id));
+    // 退会を受け付けた後には書かない（匿名化した名前を書き戻さない）
+    const { written } = await writeAsAccount(user.id, (tx) =>
+      tx
+        .update(profiles)
+        .set({ ...validated.value, updatedAt: new Date() })
+        .where(eq(profiles.id, user.id)),
+    );
+    if (!written) return { error: "unauthorized" };
   } catch (error) {
     logExternalError("updateProfile", "failed to update profile", error);
     return { error: "updateFailed" };

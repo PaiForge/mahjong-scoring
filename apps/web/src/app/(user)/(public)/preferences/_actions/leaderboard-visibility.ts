@@ -7,9 +7,10 @@ import { guardUserAction } from "@/lib/action-guard";
 import type { UserActionGuardErrorCode } from "@/lib/action-guard";
 import { getOptionalUser } from "@/lib/auth";
 import { purgeLeaderboardCache } from "@/lib/cache-tags";
-import { db, profiles } from "@/lib/db";
+import { profiles } from "@/lib/db";
 import { isHiddenFromLeaderboard } from "@/lib/db/leaderboard-visibility";
 import { logExternalError } from "@/lib/log-error";
+import { writeAsAccount } from "@/lib/users/account-write-lock";
 
 /** ランキング非表示設定の失敗理由 */
 export type SetLeaderboardVisibilityError =
@@ -50,10 +51,13 @@ export async function setLeaderboardVisibility(
   const { user } = guard;
 
   try {
-    await db
-      .update(profiles)
-      .set({ hiddenFromLeaderboard: hidden, updatedAt: new Date() })
-      .where(eq(profiles.id, user.id));
+    const { written } = await writeAsAccount(user.id, (tx) =>
+      tx
+        .update(profiles)
+        .set({ hiddenFromLeaderboard: hidden, updatedAt: new Date() })
+        .where(eq(profiles.id, user.id)),
+    );
+    if (!written) return { error: "unauthorized" };
   } catch (error) {
     logExternalError(
       "setLeaderboardVisibility",

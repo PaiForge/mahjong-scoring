@@ -7,6 +7,7 @@ import type { MobileApiErrorCode } from "@mahjong-scoring/features/account/mobil
 
 import type { AuthUser } from "../auth";
 import { getClientIp } from "../client-ip";
+import { getAccountStanding } from "../ban";
 import { getProfileCoreByUserId } from "../db/queries";
 import { getSupabasePublicEnv } from "../supabase/env";
 import {
@@ -104,20 +105,28 @@ function isAuthServiceFailure(error: unknown): boolean {
 }
 
 /**
- * アプリ向け API の認証（トークン検証 + BAN + 退会済み）
+ * アプリ向け API の認証（トークン検証 + アカウントの状態）
  * アプリAPI認証
  *
  * ユーザーの ID は検証済みトークンからだけ取る。リクエスト本文の
  * userId を信じる経路を作らない。
  *
- * 退会済みを BAN と別に弾くのは、退会の途中で Auth の削除だけが失敗した
- * 状態（DB はすでに消えている）でも、トークンが有効なまま書き込めて
- * しまうため。プロフィール未作成は弾かない — ユーザー名の設定や退会は
- * その状態から呼ぶので、要否は各 API が `profile` を見て決める。
+ * 退会を受け付けたユーザーは、退会の工程が終わるまでログインが生きている。
+ * その間の要求は `deleted` で弾く（401 ではない — トークンは有効で、
+ * 「このアカウントは退会を受け付けた」という答え。アプリはこれを受けて
+ * 退会を受け付けた旨を伝え、端末のログインを捨てる）。退会の工程は
+ * サーバーが進めるので、本人に何かをやり直させる必要は無い。
+ *
+ * プロフィール未作成は弾かない — ユーザー名の設定や退会はその状態から
+ * 呼ぶので、要否は各 API が `profile` を見て決める。
+ *
+ * @param options.forAccountDeletion - 退会の受付として使う。BAN 中・退会処理中も通す
  */
 export async function authenticateMobileRequest(
   request: Request,
-  { allowDeleted = false }: { readonly allowDeleted?: boolean } = {},
+  {
+    forAccountDeletion = false,
+  }: { readonly forAccountDeletion?: boolean } = {},
 ): Promise<MobileAuthContext | { error: MobileAuthErrorCode }> {
   const token = readBearerToken(request);
   if (!token) return { error: "unauthorized" };
@@ -126,9 +135,14 @@ export async function authenticateMobileRequest(
   if (user === "invalid") return { error: "unauthorized" };
   if (user === "unavailable") return { error: "authUnavailable" };
 
-  const profile = await getProfileCoreByUserId(user.id);
-  if (profile?.bannedAt != null) return { error: "banned" };
-  if (profile?.deletedAt != null && !allowDeleted) return { error: "deleted" };
+  const [profile, standing] = await Promise.all([
+    getProfileCoreByUserId(user.id),
+    getAccountStanding(user.id),
+  ]);
+  if (!forAccountDeletion) {
+    if (standing === "deleting") return { error: "deleted" };
+    if (standing === "banned") return { error: "banned" };
+  }
 
   return {
     user,
@@ -139,7 +153,9 @@ export async function authenticateMobileRequest(
 /** 認証で弾いた理由ごとの HTTP ステータス */
 const MOBILE_AUTH_ERROR_STATUS = {
   unauthorized: 401,
-  deleted: 401,
+  // トークンは有効で、アカウントが退会を受け付けた（401 にするとアプリの
+  // 「古いトークンなら更新して送り直す」に回ってしまう）
+  deleted: 403,
   banned: 403,
   // 再試行してよい失敗。アプリはログインを捨てない
   authUnavailable: 503,
@@ -153,7 +169,7 @@ type AuthorizeMobileResult =
  * アプリ向け Route Handler 共通の「レートリミット + 認証」前処理
  * アプリAPI認証前処理
  *
- * 超過は 429、未認証・退会済みは 401、BAN は 403、認証サーバーの障害は 503 の応答を
+ * 超過は 429、未認証は 401、退会を受け付けた・BAN は 403、認証サーバーの障害は 503 の応答を
  * `{ ok: false, response }` で返す。
  *
  * @design Origin による CSRF 検証をしない
@@ -174,15 +190,15 @@ type AuthorizeMobileResult =
  *
  * @param rateLimitKey - レートリミットのアクションキー（`IP_RATE_LIMITS` のキー）
  * @param options.config - レートリミット設定（省略時は `IP_RATE_LIMITS[rateLimitKey]`）
- * @param options.allowDeleted - 退会済みを通す。途中で失敗した退会のやり直し
- *   （退会の API）だけが使う（`lib/users/delete-account.ts` の TSDoc）
+ * @param options.forAccountDeletion - 退会の受付として使う（退会の API だけ）。
+ *   BAN 中・退会処理中も通す（本人による退会は BAN の対象にしない。受付は冪等）
  */
 export async function authorizeMobileRequest(
   request: Request,
   rateLimitKey: keyof typeof IP_RATE_LIMITS,
   options: {
     readonly config?: Readonly<IpRateLimitConfig>;
-    readonly allowDeleted?: boolean;
+    readonly forAccountDeletion?: boolean;
   } = {},
 ): Promise<AuthorizeMobileResult> {
   const config = options.config ?? IP_RATE_LIMITS[rateLimitKey];

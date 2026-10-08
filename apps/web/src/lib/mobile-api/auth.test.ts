@@ -1,15 +1,21 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
-const { mockGetUser, mockCreateClient, mockGetProfileCore, mockGetClientIp } =
-  vi.hoisted(() => {
-    const getUser = vi.fn();
-    return {
-      mockGetUser: getUser,
-      mockCreateClient: vi.fn(() => ({ auth: { getUser } })),
-      mockGetProfileCore: vi.fn(),
-      mockGetClientIp: vi.fn(),
-    };
-  });
+const {
+  mockGetUser,
+  mockCreateClient,
+  mockGetProfileCore,
+  mockHasDeletionRequest,
+  mockGetClientIp,
+} = vi.hoisted(() => {
+  const getUser = vi.fn();
+  return {
+    mockGetUser: getUser,
+    mockCreateClient: vi.fn(() => ({ auth: { getUser } })),
+    mockGetProfileCore: vi.fn(),
+    mockHasDeletionRequest: vi.fn(),
+    mockGetClientIp: vi.fn(),
+  };
+});
 
 vi.mock("server-only", () => ({}));
 
@@ -35,6 +41,7 @@ vi.mock("../client-ip", () => ({
 
 vi.mock("../db/queries", () => ({
   getProfileCoreByUserId: mockGetProfileCore,
+  hasAccountDeletionRequest: mockHasDeletionRequest,
 }));
 
 import { _resetStore } from "../rate-limit-ip";
@@ -65,6 +72,7 @@ beforeEach(() => {
   vi.clearAllMocks();
   _resetStore();
   mockGetClientIp.mockResolvedValue("127.0.0.1");
+  mockHasDeletionRequest.mockResolvedValue(false);
 });
 
 describe("readBearerToken", () => {
@@ -208,38 +216,49 @@ describe("authorizeMobileRequest", () => {
   });
 
   /**
-   * 退会の途中で Auth の削除だけが失敗すると、トークンは有効なまま
-   * DB は消えている。その状態で書き込ませない。
+   * 退会を受け付けた後も、工程が終わるまではトークンが有効。その間に
+   * 書き込ませない。401 ではなく 403 — トークンは有効で、アプリの
+   * 「古いトークンなら更新して送り直す」に回さないため。
    */
-  it("退会済みは 401 で deleted を返す", async () => {
+  it("退会を受け付けたユーザーは 403 で deleted を返す", async () => {
     activeUser();
-    mockGetProfileCore.mockResolvedValue({
-      username: "alice",
-      bannedAt: null,
-      deletedAt: new Date(),
-    });
+    mockHasDeletionRequest.mockResolvedValue(true);
 
     const result = await authorizeMobileRequest(
       withToken(),
       "readMobileAccount",
     );
 
-    expect(result.ok === false && result.response.status).toBe(401);
+    expect(result.ok === false && result.response.status).toBe(403);
     await expect(
       result.ok === false ? result.response.json() : undefined,
     ).resolves.toEqual({ error: "deleted" });
   });
 
-  it("退会のやり直しでは退会済みを通す", async () => {
+  it("プロフィールが無くても、退会の要求があれば deleted を返す", async () => {
     activeUser();
+    mockGetProfileCore.mockResolvedValue(undefined);
+    mockHasDeletionRequest.mockResolvedValue(true);
+
+    const result = await authorizeMobileRequest(withToken(), "username");
+
+    expect(result.ok === false && result.response.status).toBe(403);
+  });
+
+  it.each([
+    ["退会処理中", { deleting: true, bannedAt: null }],
+    ["BAN 中", { deleting: false, bannedAt: new Date() }],
+  ])("退会の受付は%sでも通す", async (_, { deleting, bannedAt }) => {
+    activeUser();
+    mockHasDeletionRequest.mockResolvedValue(deleting);
     mockGetProfileCore.mockResolvedValue({
       username: "alice",
-      bannedAt: null,
-      deletedAt: new Date(),
+      bannedAt,
+      deletedAt: null,
     });
 
     const result = await authorizeMobileRequest(withToken(), "deleteAccount", {
-      allowDeleted: true,
+      forAccountDeletion: true,
     });
 
     expect(result.ok).toBe(true);

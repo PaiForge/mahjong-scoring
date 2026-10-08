@@ -63,6 +63,9 @@ describe.skipIf(!url)("challenge transactions (PostgreSQL)", () => {
     await db.execute(
       `CREATE TEMP TABLE challenge_attempts (id uuid PRIMARY KEY DEFAULT gen_random_uuid(), user_id uuid NOT NULL, state jsonb NOT NULL, consumed boolean NOT NULL DEFAULT false)`,
     );
+    await db.execute(
+      `CREATE TEMP TABLE account_deletions (user_id uuid PRIMARY KEY, requested_at timestamptz NOT NULL DEFAULT now())`,
+    );
   });
   afterAll(async () => {
     vi.restoreAllMocks();
@@ -76,6 +79,7 @@ describe.skipIf(!url)("challenge transactions (PostgreSQL)", () => {
     mocked.grade.mockResolvedValue(["kyu-5"]);
     mocked.ranks.mockResolvedValue([]);
     await challengeTestDb().delete(schema.challengeAttempts);
+    await challengeTestDb().execute(`DELETE FROM account_deletions`);
   });
   async function start() {
     const attempt = await beginAttempt(owner, "machi_fu", "default", {
@@ -278,6 +282,21 @@ describe.skipIf(!url)("challenge transactions (PostgreSQL)", () => {
       "question.answer",
       2,
     );
+  });
+  it("退会を受け付けた後は、挑戦を始めることも成績を確定することもできない", async () => {
+    const attempt = await start();
+    await answerAttempt(owner, attempt.id, 0, 2);
+    now += 120000;
+    await challengeTestDb().execute(
+      `INSERT INTO account_deletions (user_id) VALUES ('${owner}')`,
+    );
+    expect(await finishAttempt(owner, attempt.id, false)).toBeUndefined();
+    expect(mocked.save).not.toHaveBeenCalled();
+    expect(
+      await beginAttempt(owner, "machi_fu", "default", {
+        renfonpaiAs4Fu: false,
+      }),
+    ).toBeUndefined();
   });
   it("受験資格のない試験や不正バリアントを開始できない", async () => {
     expect(

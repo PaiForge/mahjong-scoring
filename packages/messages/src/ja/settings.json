@@ -78,6 +78,8 @@
     "signOutConfirmTitle": "ログアウトしますか？",
     "signOutConfirmMessage": "この端末からログアウトします。web や他の端末のログインはそのままです。",
     "signOutCancel": "キャンセル",
-    "deleteAccount": "アカウントを削除"
+    "deleteAccount": "アカウントを削除",
+    "banned": "このアカウントは停止されています。ログアウトと退会はできます。",
+    "dismissNotice": "閉じる"
   }
 }

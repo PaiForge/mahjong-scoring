@@ -12,6 +12,7 @@ import { getUserRankSlugs } from "../db/rank-queries";
 import { evaluateExamEligibility } from "@mahjong-scoring/features/ranks/exam-eligibility";
 import { gradeExamRun } from "../db/rank-evaluation";
 import { saveChallengeResult } from "../db/save-challenge-result";
+import { lockAccountForWrite } from "../users/account-write-lock";
 import type {
   ChallengeOutcome,
   ChallengeSettings,
@@ -103,11 +104,17 @@ export async function beginAttempt(
     { menuType, variant, settings: parsed.data, question },
     Date.now(),
   );
-  const [row] = await db
-    .insert(challengeAttempts)
-    .values({ ...(id === undefined ? {} : { id }), userId, state })
-    .onConflictDoNothing()
-    .returning({ id: challengeAttempts.id });
+  // 退会を受け付けた後には挑戦を作らない（受付と競合しても、ロックで直列になる）
+  const row = await db.transaction(async (tx) => {
+    if (!(await lockAccountForWrite(tx, userId))) return "deleting" as const;
+    const [inserted] = await tx
+      .insert(challengeAttempts)
+      .values({ ...(id === undefined ? {} : { id }), userId, state })
+      .onConflictDoNothing()
+      .returning({ id: challengeAttempts.id });
+    return inserted;
+  });
+  if (row === "deleting") return undefined;
   if (row) return attemptEntry(row.id, state);
   // 同じ ID の並行した開始に先を越された。勝った側の挑戦を返す
   const raced = id === undefined ? undefined : await readOwnAttempt(userId, id);
@@ -279,6 +286,8 @@ export async function finishAttempt(
 ) {
   if (typeof id !== "string" || !uuid.safeParse(id).success) return undefined;
   return db.transaction(async (tx) => {
+    // 成績・EXP・段級位を書く。退会を受け付けた後には書かない
+    if (!(await lockAccountForWrite(tx, userId))) return undefined;
     const row = await lockOwnAttempt(tx, userId, id);
     const now = Date.now();
     if (!row || isExamMenuType(row.state.menuType) !== exam) return undefined;

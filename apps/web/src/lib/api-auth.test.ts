@@ -121,12 +121,12 @@ describe("authorizeApiRequest", () => {
   });
 
   /**
-   * 退会の途中で Auth の削除だけが失敗すると、ログインは生きたまま DB は
-   * 消えている。その状態の書き込みで消したデータを蘇らせない。
+   * 退会を受け付けた後も、工程が終わるまではログインが生きている。
+   * その間の書き込みで消したデータを蘇らせない。
    */
-  it("退会済みユーザーは未認証として 401 を返す", async () => {
+  it("退会を受け付けたユーザーは未認証として 401 を返す", async () => {
     authorized();
-    mockGetAccountStanding.mockResolvedValue("deleted");
+    mockGetAccountStanding.mockResolvedValue("deleting");
 
     const result = await authorizeApiRequest(
       sameOriginRequest(),

@@ -34,13 +34,15 @@ export async function POST(request: Request) {
     body.data.username,
     body.data.displayName,
   );
-  if ("error" in result) {
-    return mobileJson<{ error: MobileUsernameErrorCode }>(
-      { error: result.error },
-      { status: 422 },
-    );
+  if (!("error" in result)) return mobileJson({ success: true });
+  // 認証を通った後に退会が受け付けられた（入口で弾いたときと同じ答え）
+  if (result.error === "unauthorized") {
+    return mobileJson({ error: "deleted" }, { status: 403 });
   }
-  return mobileJson({ success: true });
+  return mobileJson<{ error: MobileUsernameErrorCode }>(
+    { error: result.error },
+    { status: 422 },
+  );
 }
 
 export const OPTIONS = mobilePreflight;
