@@ -25,3 +25,5 @@ SPEC*.md
 # Vim swap files
 .*.sw?
 *.sw?
+.vercel
+.env*
