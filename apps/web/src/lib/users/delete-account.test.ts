@@ -20,6 +20,8 @@ vi.mock("@/lib/db", async () => ({
 import { deleteAccount } from "./delete-account";
 import {
   benefitGrants,
+  challengeAttempts,
+  notifications,
   practiceQuotaUsage,
   purchases,
   stripeCustomers,
@@ -53,12 +55,34 @@ it("Auth をソフト削除しても購入・顧客・付与・消費を明示�
     expect(mocks.remove).toHaveBeenCalledWith(table);
   expect(mocks.remove.mock.calls[0][0]).toBe(stripeCustomers);
 });
-it("Auth 削除が失敗した場合にデータを先に消さない", async () => {
-  mocks.authDelete.mockResolvedValue({ error: new Error("auth failed") });
-  expect(await deleteAccount("user")).toEqual({ error: "deleteFailed" });
-  expect(mocks.transaction).not.toHaveBeenCalled();
+it("途中の挑戦と通知も消す（Auth のソフト削除では CASCADE しない）", async () => {
+  await deleteAccount("user");
+  expect(mocks.remove).toHaveBeenCalledWith(challengeAttempts);
+  expect(mocks.remove).toHaveBeenCalledWith(notifications);
 });
-it("DB 削除の失敗を完了扱いにしない", async () => {
+/**
+ * Auth を最後に消すので、Auth の削除が失敗しても本人はまだログインでき、
+ * もう一度退会すればやり直せる。
+ */
+it("DB を消してから Auth を消し、Auth の失敗は失敗として返す", async () => {
+  const order: string[] = [];
+  mocks.transaction.mockImplementation(async (run) => {
+    order.push("db");
+    return run({
+      select: mocks.select,
+      delete: mocks.remove,
+      update: mocks.update,
+    });
+  });
+  mocks.authDelete.mockImplementation(async () => {
+    order.push("auth");
+    return { error: new Error("auth failed") };
+  });
+  expect(await deleteAccount("user")).toEqual({ error: "deleteFailed" });
+  expect(order).toEqual(["db", "auth"]);
+});
+it("DB 削除が失敗したら Auth を消さない（ログインを残して再試行させる）", async () => {
   mocks.transaction.mockRejectedValue(new Error("db failed"));
   await expect(deleteAccount("user")).rejects.toThrow("db failed");
+  expect(mocks.authDelete).not.toHaveBeenCalled();
 });

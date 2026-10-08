@@ -1,12 +1,11 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
-const { mockCheckIpRateLimitGuard, mockGetUser, mockIsUserBanned } = vi.hoisted(
-  () => ({
+const { mockCheckIpRateLimitGuard, mockGetUser, mockGetAccountStanding } =
+  vi.hoisted(() => ({
     mockCheckIpRateLimitGuard: vi.fn(),
     mockGetUser: vi.fn(),
-    mockIsUserBanned: vi.fn(),
-  }),
-);
+    mockGetAccountStanding: vi.fn(),
+  }));
 
 vi.mock("./client-ip", () => ({
   getClientIp: () => Promise.resolve("127.0.0.1"),
@@ -22,7 +21,7 @@ vi.mock("./supabase/server", () => ({
 }));
 
 vi.mock("./ban", () => ({
-  isUserBanned: mockIsUserBanned,
+  getAccountStanding: mockGetAccountStanding,
 }));
 
 import { authorizeApiRequest } from "./api-auth";
@@ -39,7 +38,7 @@ function sameOriginRequest(): Request {
 function authorized() {
   mockCheckIpRateLimitGuard.mockReturnValue(undefined);
   mockGetUser.mockResolvedValue({ data: { user: { id: "user-1" } } });
-  mockIsUserBanned.mockResolvedValue(false);
+  mockGetAccountStanding.mockResolvedValue("active");
 }
 
 beforeEach(() => {
@@ -70,7 +69,7 @@ describe("authorizeApiRequest", () => {
     expect(result.ok).toBe(false);
     expect(result.ok === false && result.response.status).toBe(429);
     expect(mockGetUser).not.toHaveBeenCalled();
-    expect(mockIsUserBanned).not.toHaveBeenCalled();
+    expect(mockGetAccountStanding).not.toHaveBeenCalled();
   });
 
   it("未認証は 401 で、BAN を見に行かない", async () => {
@@ -84,7 +83,7 @@ describe("authorizeApiRequest", () => {
 
     expect(result.ok).toBe(false);
     expect(result.ok === false && result.response.status).toBe(401);
-    expect(mockIsUserBanned).not.toHaveBeenCalled();
+    expect(mockGetAccountStanding).not.toHaveBeenCalled();
   });
 
   it("拒否の応答も共有キャッシュに乗せない（private, no-store）", async () => {
@@ -107,7 +106,7 @@ describe("authorizeApiRequest", () => {
    */
   it("BAN 済みユーザーは 403 で banned を返す", async () => {
     authorized();
-    mockIsUserBanned.mockResolvedValue(true);
+    mockGetAccountStanding.mockResolvedValue("banned");
 
     const result = await authorizeApiRequest(
       sameOriginRequest(),
@@ -119,6 +118,22 @@ describe("authorizeApiRequest", () => {
     await expect(
       result.ok === false ? result.response.json() : undefined,
     ).resolves.toEqual({ error: "banned" });
+  });
+
+  /**
+   * 退会の途中で Auth の削除だけが失敗すると、ログインは生きたまま DB は
+   * 消えている。その状態の書き込みで消したデータを蘇らせない。
+   */
+  it("退会済みユーザーは未認証として 401 を返す", async () => {
+    authorized();
+    mockGetAccountStanding.mockResolvedValue("deleted");
+
+    const result = await authorizeApiRequest(
+      sameOriginRequest(),
+      "uploadAvatar",
+    );
+
+    expect(result.ok === false && result.response.status).toBe(401);
   });
 
   /**

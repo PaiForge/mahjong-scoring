@@ -75,6 +75,21 @@ describe("deleteOwnAccount", () => {
     });
   });
 
+  /**
+   * 退会は Auth の削除を最後に行うので、そこで失敗した人は退会済みの
+   * プロフィールのままログインしている。やり直しを認証ゲートで弾かない。
+   */
+  it("退会済みのプロフィールでも通す（途中で失敗した退会のやり直し）", async () => {
+    authorized();
+
+    await deleteOwnAccount();
+
+    expect(mockAuthenticateAndCheckBan).toHaveBeenCalledWith({
+      allowDeleted: true,
+    });
+    expect(mockDeleteAccount).toHaveBeenCalledWith(USER.id);
+  });
+
   describe("banned user", () => {
     it('returns { error: "banned" } and performs no write', async () => {
       mockEnforceIpRateLimit.mockResolvedValue(undefined);

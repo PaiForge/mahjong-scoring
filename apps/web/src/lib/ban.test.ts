@@ -17,7 +17,7 @@ vi.mock("./db", async () => {
   };
 });
 
-import { isUserBanned } from "./ban";
+import { getAccountStanding, isUserBanned } from "./ban";
 
 beforeEach(() => {
   vi.clearAllMocks();
@@ -39,5 +39,26 @@ describe("isUserBanned", () => {
       { bannedAt: new Date("2026-01-01") },
     ]);
     expect(await isUserBanned("user-2")).toBe(true);
+  });
+});
+
+describe("getAccountStanding", () => {
+  it("プロフィールが無ければ active（ユーザー名を決める前）", async () => {
+    holder.chain.limit.mockResolvedValue([]);
+    expect(await getAccountStanding("new-user")).toBe("active");
+  });
+
+  it("退会済みなら deleted", async () => {
+    holder.chain.limit.mockResolvedValue([
+      { bannedAt: null, deletedAt: new Date("2026-01-01") },
+    ]);
+    expect(await getAccountStanding("user-3")).toBe("deleted");
+  });
+
+  it("BAN と退会済みが重なったら banned", async () => {
+    holder.chain.limit.mockResolvedValue([
+      { bannedAt: new Date("2026-01-01"), deletedAt: new Date("2026-01-02") },
+    ]);
+    expect(await getAccountStanding("user-4")).toBe("banned");
   });
 });

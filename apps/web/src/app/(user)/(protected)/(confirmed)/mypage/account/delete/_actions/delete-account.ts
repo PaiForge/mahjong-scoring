@@ -22,7 +22,8 @@ export type DeleteOwnAccountError =
 export async function deleteOwnAccount(): Promise<
   ActionResult<DeleteOwnAccountError>
 > {
-  const guard = await guardUserAction("deleteAccount");
+  // 退会の途中で失敗した人がやり直せるよう、退会済みのプロフィールも通す
+  const guard = await guardUserAction("deleteAccount", { allowDeleted: true });
   if ("error" in guard) {
     return guard;
   }

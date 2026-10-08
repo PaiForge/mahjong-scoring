@@ -17,13 +17,15 @@ export type UserActionGuardErrorCode = RateLimitErrorCode | AuthGateErrorCode;
  * 超過・未認証・BAN のいずれかならエラーを返し、通過すればユーザーを返す。
  *
  * @param rateLimitKey - アクションキー（`IP_RATE_LIMITS` のキー）
+ * @param options - 認証ゲートへの指定（{@link authenticateAndCheckBan}）
  */
 export async function guardUserAction(
   rateLimitKey: keyof typeof IP_RATE_LIMITS,
+  options?: Parameters<typeof authenticateAndCheckBan>[0],
 ): Promise<{ user: AuthUser } | { error: UserActionGuardErrorCode }> {
   const rateLimited = await enforceIpRateLimit(rateLimitKey);
   if (rateLimited) {
     return rateLimited;
   }
-  return authenticateAndCheckBan();
+  return authenticateAndCheckBan(options);
 }
