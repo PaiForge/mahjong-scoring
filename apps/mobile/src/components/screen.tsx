@@ -90,6 +90,7 @@ export function Screen({
   // 子孫が「ここを見せて」と頼めるよう、本文の枠を手元でも持つ
   const scrollRef = useRef<ScrollView>(null);
   const viewportHeight = useRef(0);
+  const scrollY = useRef(0);
   const setScrollRef = useCallback(
     (node: ScrollView | null) => {
       scrollRef.current = node;
@@ -155,12 +156,17 @@ export function Screen({
       <ScrollIntoViewProvider
         scrollRef={scrollRef}
         viewportHeight={viewportHeight}
+        scrollY={scrollY}
       >
         <ScrollView
           ref={setScrollRef}
           onLayout={(e) => {
             viewportHeight.current = e.nativeEvent.layout.height;
           }}
+          onScroll={(e) => {
+            scrollY.current = e.nativeEvent.contentOffset.y;
+          }}
+          scrollEventThrottle={16}
           style={styles.body}
           contentContainerStyle={[
             styles.content,

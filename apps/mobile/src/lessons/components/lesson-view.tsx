@@ -1,4 +1,4 @@
-import { useState, type ReactNode } from "react";
+import { useEffect, useRef, useState, type ReactNode } from "react";
 import { StyleSheet, Text, View } from "react-native";
 import { useRouter } from "expo-router";
 import { useTranslations } from "use-intl";
@@ -32,6 +32,7 @@ import { rankBySlug } from "@mahjong-scoring/features/ranks/registry";
 import { TehaiDisplay } from "../../board/tehai-display";
 import { Button } from "../../components/button";
 import { Grid } from "../../components/grid";
+import { useScrollIntoView } from "../../components/scroll-into-view";
 import { SectionTitle } from "../../components/section-title";
 import { TextLink } from "../../components/text-link";
 import {
@@ -150,6 +151,8 @@ export function LessonView({
   const completedLessonSlugs = useCompletedLessonSlugs();
   const attemptedPractices = useAttemptedPractices();
   const markCompleted = useLessonCompletionStore((s) => s.markCompleted);
+  const scrollIntoView = useScrollIntoView();
+  const nextButtonRef = useRef<View>(null);
 
   const { questions, choices } = lessonQuiz(slug);
 
@@ -166,6 +169,18 @@ export function LessonView({
   const isAnswered = selected !== undefined;
   const isCorrect = isAnswered && isSameChoice(selected, question.answer);
   const isLast = index === questions.length - 1;
+
+  // 答えると判定と解説が選択肢の上に入り、選択肢と「次へ」が下へ押し出される。
+  // 小さな画面や文字を大きくした端末では「次へ」が画面の外へ出るので、
+  // 見えていなければ下端が見えるところまで送る（見えていれば動かさない）。
+  // 答えた問題へ本文から戻ったときも同じ
+  useEffect(() => {
+    if (phase !== "quiz" || !isAnswered) return;
+    const frame = requestAnimationFrame(() => {
+      scrollIntoView(nextButtonRef.current, { block: "nearest" });
+    });
+    return () => cancelAnimationFrame(frame);
+  }, [phase, isAnswered, scrollIntoView]);
 
   const goTo = (next: LessonPhase) => {
     setPhase(next);
@@ -333,9 +348,11 @@ export function LessonView({
         </Grid>
 
         {isAnswered ? (
-          <Button size="lg" fullWidth onPress={handleNext}>
-            {isLast ? t("finish") : t("next")}
-          </Button>
+          <View ref={nextButtonRef} collapsable={false}>
+            <Button size="lg" fullWidth onPress={handleNext}>
+              {isLast ? t("finish") : t("next")}
+            </Button>
+          </View>
         ) : (
           <Button
             variant="secondary"
