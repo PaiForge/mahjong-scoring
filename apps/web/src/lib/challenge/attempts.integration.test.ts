@@ -175,7 +175,7 @@ describe.skipIf(!url)("challenge transactions (PostgreSQL)", () => {
       .from(schema.challengeAttempts);
     expect(rows).toHaveLength(1);
   });
-  it("他人の挑戦 ID・別の練習の ID では開始しない", async () => {
+  it("他人の挑戦 ID・別の練習や別の設定の ID では開始しない", async () => {
     const id = "44444444-4444-4444-8444-444444444444";
     const settings = { renfonpaiAs4Fu: false };
     await beginAttempt(owner, "machi_fu", "default", settings, id);
@@ -184,6 +184,16 @@ describe.skipIf(!url)("challenge transactions (PostgreSQL)", () => {
     ).toBeUndefined();
     expect(
       await beginAttempt(owner, "jantou_fu", "default", settings, id),
+    ).toBeUndefined();
+    // 同じ ID でルール設定だけ違う要求も再送ではなく競合
+    expect(
+      await beginAttempt(
+        owner,
+        "machi_fu",
+        "default",
+        { renfonpaiAs4Fu: true },
+        id,
+      ),
     ).toBeUndefined();
     expect(
       await beginAttempt(owner, "machi_fu", "default", settings, "not-a-uuid"),
@@ -197,6 +207,7 @@ describe.skipIf(!url)("challenge transactions (PostgreSQL)", () => {
     expect(status).toMatchObject({
       id: attempt.id,
       menuType: "machi_fu",
+      settings: { renfonpaiAs4Fu: false },
       sequence: 1,
       score: 1,
       incorrectAnswers: 0,

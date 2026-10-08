@@ -14,6 +14,7 @@ import { gradeExamRun } from "../db/rank-evaluation";
 import { saveChallengeResult } from "../db/save-challenge-result";
 import type {
   ChallengeOutcome,
+  ChallengeSettings,
   ChallengeState,
 } from "@mahjong-scoring/features/challenge/types";
 import type { RankSlug } from "@mahjong-scoring/features/ranks/registry";
@@ -87,7 +88,8 @@ export async function beginAttempt(
   const id = typeof requestedId === "string" ? requestedId : undefined;
   if (id !== undefined) {
     const existing = await readOwnAttempt(userId, id);
-    if (existing) return resumableEntry(existing, menuType, variant);
+    if (existing)
+      return resumableEntry(existing, menuType, variant, parsed.data);
   }
   if (
     isExamMenuType(menuType) &&
@@ -109,7 +111,9 @@ export async function beginAttempt(
   if (row) return attemptEntry(row.id, state);
   // 同じ ID の並行した開始に先を越された。勝った側の挑戦を返す
   const raced = id === undefined ? undefined : await readOwnAttempt(userId, id);
-  return raced ? resumableEntry(raced, menuType, variant) : undefined;
+  return raced
+    ? resumableEntry(raced, menuType, variant, parsed.data)
+    : undefined;
 }
 /** 本人の挑戦行を読む（ロックしない）。他人の id では見つからない扱いになる。 */
 async function readOwnAttempt(userId: string, id: string) {
@@ -123,17 +127,23 @@ async function readOwnAttempt(userId: string, id: string) {
 }
 /**
  * 開始の再送で既存の挑戦を返せるなら、その入口を返す。
- * 別の練習・バリアントで同じ ID を使い回した要求と、確定済みの挑戦には返さない。
+ *
+ * 同じ ID で別の練習・バリアント・ルール設定を送った要求は再送ではなく
+ * 競合なので返さない。設定まで比べるのは、違う設定で始めたつもりの
+ * 端末に、サーバーが固定した別の設定の挑戦を渡すと、端末の表示と
+ * サーバーの採点の条件が食い違うため。確定済みの挑戦にも返さない。
  */
 function resumableEntry(
   row: typeof challengeAttempts.$inferSelect,
   menuType: string,
   variant: string,
+  settings: ChallengeSettings,
 ) {
   if (
     row.consumed ||
     row.state.menuType !== menuType ||
-    row.state.variant !== variant
+    row.state.variant !== variant ||
+    !isDeepStrictEqual(row.state.settings, settings)
   )
     return undefined;
   return attemptEntry(row.id, row.state);
@@ -353,6 +363,8 @@ export async function readAttemptStatus(userId: string, id: unknown) {
     ...attemptEntry(row.id, state),
     menuType: state.menuType,
     variant: state.variant,
+    // 採点の条件。復帰した端末は手元の設定ではなくこれで表示し直す
+    settings: state.settings,
     score: state.score,
     incorrectAnswers: state.incorrectAnswers,
     elapsedMs: challengeElapsed(state, now),
