@@ -14,19 +14,17 @@ import {
   type ViewStyle,
 } from "react-native";
 
+import { scrollTargetY, type ScrollBlock } from "../lib/scroll-target";
+
 /**
  * 渡した要素が見えるところまでスクロールする関数
  *
- * 既定は枠の縦の中央に寄せる。`block: "start"` は要素の上端を枠の上端の
- * 少し下に合わせる — 開いたばかりの長い中身を、見出しから読ませるとき
+ * 既定は枠の縦の中央に寄せる。合わせ方は {@link scrollTargetY} を参照
  */
 type ScrollIntoView = (
   target: View | null,
-  options?: { readonly block?: "center" | "start" },
+  options?: { readonly block?: ScrollBlock },
 ) => void;
-
-/** `block: "start"` のとき要素の上に残す余白 */
-const START_MARGIN = 12;
 
 const ScrollIntoViewContext = createContext<ScrollIntoView | undefined>(
   undefined,
@@ -44,14 +42,17 @@ const ScrollIntoViewContext = createContext<ScrollIntoView | undefined>(
  *
  * @param scrollRef 対象のスクロール枠
  * @param viewportHeight 枠の見えている高さ（`onLayout` で更新する入れ物）
+ * @param scrollY 今のスクロール位置（`onScroll` で更新する入れ物）
  */
 export function ScrollIntoViewProvider({
   scrollRef,
   viewportHeight,
+  scrollY,
   children,
 }: {
   readonly scrollRef: RefObject<ScrollView | null>;
   readonly viewportHeight: RefObject<number>;
+  readonly scrollY: RefObject<number>;
   readonly children: ReactNode;
 }) {
   const scrollIntoView = useCallback<ScrollIntoView>(
@@ -63,14 +64,16 @@ export function ScrollIntoViewProvider({
       const content = scroll.getInnerViewNode();
       if (content == null) return;
       target.measureLayout(content, (_x, y, _width, height) => {
-        const top =
-          options?.block === "start"
-            ? y - START_MARGIN
-            : y + height / 2 - viewportHeight.current / 2;
-        scroll.scrollTo({ y: Math.max(0, top), animated: true });
+        const top = scrollTargetY(
+          options?.block ?? "center",
+          { y, height },
+          viewportHeight.current,
+          scrollY.current,
+        );
+        if (top !== undefined) scroll.scrollTo({ y: top, animated: true });
       });
     },
-    [scrollRef, viewportHeight],
+    [scrollRef, viewportHeight, scrollY],
   );
 
   return (
@@ -95,11 +98,13 @@ export function ScrollIntoViewScrollView({
 }) {
   const scrollRef = useRef<ScrollView>(null);
   const viewportHeight = useRef(0);
+  const scrollY = useRef(0);
 
   return (
     <ScrollIntoViewProvider
       scrollRef={scrollRef}
       viewportHeight={viewportHeight}
+      scrollY={scrollY}
     >
       <ScrollView
         ref={scrollRef}
@@ -107,6 +112,10 @@ export function ScrollIntoViewScrollView({
         onLayout={(e: LayoutChangeEvent) => {
           viewportHeight.current = e.nativeEvent.layout.height;
         }}
+        onScroll={(e) => {
+          scrollY.current = e.nativeEvent.contentOffset.y;
+        }}
+        scrollEventThrottle={16}
       >
         {children}
       </ScrollView>
