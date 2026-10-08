@@ -10,6 +10,10 @@ import { useRouter } from "expo-router";
 import { useTranslations } from "use-intl";
 
 import { refreshAccount, signOut, useAuth } from "../auth/use-auth";
+import {
+  dismissDeletionNotice,
+  useDeletionNotice,
+} from "../auth/use-deletion-notice";
 import { ConfirmationModal } from "../components/confirmation-modal";
 import { Divider } from "../components/divider";
 import { LinkRow, LinkRowList } from "../components/link-row";
@@ -28,6 +32,8 @@ import { colors } from "../lib/theme";
  *
  * ログインを出せないビルド（接続先が無い）と、保存したログイン状態を
  * 読んでいる間は節ごと出さない。
+ *
+ * BAN 中もログアウトと退会の行は出す（本人による退会は BAN の対象にしない）。
  */
 export function AccountSection({
   style,
@@ -41,7 +47,28 @@ export function AccountSection({
   return (
     <View style={style}>
       <SectionTitle>{t("sectionTitle")}</SectionTitle>
+      <DeletionNoticePanel />
       {status === "signedOut" ? <GuestAccount /> : <SignedInAccount />}
+    </View>
+  );
+}
+
+/**
+ * 退会を受け付けた知らせ。工程が残っている（pending）ときは完了と言わない
+ */
+function DeletionNoticePanel() {
+  const t = useTranslations("deleteAccount");
+  const tAccount = useTranslations("settings.account");
+  const notice = useDeletionNotice();
+  if (notice === undefined) return null;
+  return (
+    <View style={[panelFrame, styles.notice]} accessibilityLiveRegion="polite">
+      <Text style={styles.noticeText}>
+        {notice === "completed" ? t("successToast") : t("acceptedToast")}
+      </Text>
+      <TextLink onPress={dismissDeletionNotice}>
+        {tAccount("dismissNotice")}
+      </TextLink>
     </View>
   );
 }
@@ -65,12 +92,15 @@ function GuestAccount() {
 function SignedInAccount() {
   const t = useTranslations("settings.account");
   const router = useRouter();
-  const { user, account, accountFailed } = useAuth();
+  const { user, account, accountError } = useAuth();
   const [confirmingSignOut, setConfirmingSignOut] = useState(false);
 
   return (
     <>
-      {accountFailed && (
+      {accountError === "banned" && (
+        <Text style={styles.failedText}>{t("banned")}</Text>
+      )}
+      {accountError !== undefined && accountError !== "banned" && (
         <View style={styles.failed}>
           <Text style={styles.failedText}>{t("loadFailed")}</Text>
           <TextLink onPress={() => void refreshAccount()}>
@@ -140,6 +170,16 @@ function InfoRow({
 }
 
 const styles = StyleSheet.create({
+  notice: {
+    padding: 16,
+    gap: 4,
+    alignItems: "flex-start",
+  },
+  noticeText: {
+    fontSize: 15,
+    lineHeight: 23,
+    color: colors.surface800,
+  },
   lead: {
     fontSize: 15,
     lineHeight: 23,

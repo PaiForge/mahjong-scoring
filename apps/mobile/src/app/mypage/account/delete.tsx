@@ -3,13 +3,14 @@
  *
  * @description アカウントを削除する（App Store の審査ガイドライン 5.1.1(v):
  * アカウントを作れるアプリはアプリの中で削除できること）。web の退会と
- * 同じ処理をサーバーで行い、消える内容も同じ文言で示す。削除は途中で
- * 失敗しても、もう一度押せば最初からやり直せる。成功したらこの端末の
- * ログイン状態も捨て、ゲストに戻る。
+ * 同じ受付をサーバーで行い、消える内容も同じ文言で示す。受け付けた後の
+ * 工程はサーバーが最後まで進めるので（一時障害で残った分も再開する）、
+ * 受け付けたらこの端末のログイン状態を捨ててゲストに戻り、設定で
+ * 受け付けたことを知らせる。BAN 中・ユーザー名を決める前でも退会できる。
  * @flow 設定のアカウント（またはユーザー名の設定）→ 退会 → 確認 → 設定へ戻る
  */
 import { useState } from "react";
-import { Alert, StyleSheet, Text, View } from "react-native";
+import { StyleSheet, Text, View } from "react-native";
 import { useRouter } from "expo-router";
 import { useTranslations } from "use-intl";
 
@@ -39,15 +40,14 @@ export default function DeleteAccountScreen() {
       setError(
         result.error === "rateLimited"
           ? t("rateLimited")
-          : result.error === "banned"
-            ? t("banned")
-            : result.error === "network"
-              ? t("networkError")
-              : t("error"),
+          : result.error === "network"
+            ? t("networkError")
+            : t("error"),
       );
       return;
     }
-    Alert.alert(t("successToast"));
+    // 受け付けた知らせ（完了か、残りをサーバーが続けているか）は設定の
+    // アカウントの節が出す（deleteOwnAccount が知らせを立てる）
     router.dismissTo("/preferences");
   };
 

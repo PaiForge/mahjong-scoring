@@ -1,7 +1,7 @@
 import { create } from "zustand";
 import type { MobileMeResponse } from "@mahjong-scoring/features/account/mobile-api";
 
-import { fetchAccount } from "./account-api";
+import { fetchAccount, type ApiFailure } from "./account-api";
 import { supabase } from "./supabase-client";
 
 /**
@@ -20,18 +20,21 @@ interface AuthState {
   readonly user: { readonly id: string; readonly email?: string } | undefined;
   /**
    * サーバーから読んだアカウント状態。読み終えるまで・読めなかったときは
-   * undefined（`accountFailed` で区別する）
+   * undefined（`accountError` で区別する）
    */
   readonly account: MobileMeResponse | undefined;
-  /** アカウント状態を読めなかった（通信できない等） */
-  readonly accountFailed: boolean;
+  /**
+   * アカウント状態を読めなかった理由。`banned` は BAN 中（ログアウトと
+   * 退会はできる）、それ以外は通信の失敗などで読み直せる
+   */
+  readonly accountError: ApiFailure | undefined;
 }
 
 const useAuthStore = create<AuthState>(() => ({
   status: supabase ? "loading" : "unavailable",
   user: undefined,
   account: undefined,
-  accountFailed: false,
+  accountError: undefined,
 }));
 
 /**
@@ -44,15 +47,15 @@ const useAuthStore = create<AuthState>(() => ({
 export async function refreshAccount(): Promise<MobileMeResponse | undefined> {
   const userId = useAuthStore.getState().user?.id;
   if (userId === undefined) return undefined;
-  useAuthStore.setState({ accountFailed: false });
+  useAuthStore.setState({ accountError: undefined });
   const result = await fetchAccount();
   // 読んでいる間に別のユーザーへ切り替わったら、古い結果を捨てる
   if (useAuthStore.getState().user?.id !== userId) return undefined;
   if ("error" in result) {
-    useAuthStore.setState({ account: undefined, accountFailed: true });
+    useAuthStore.setState({ account: undefined, accountError: result.error });
     return undefined;
   }
-  useAuthStore.setState({ account: result, accountFailed: false });
+  useAuthStore.setState({ account: result, accountError: undefined });
   return result;
 }
 
@@ -76,7 +79,7 @@ supabase?.auth.onAuthStateChange((event, session) => {
       status: "signedOut",
       user: undefined,
       account: undefined,
-      accountFailed: false,
+      accountError: undefined,
     });
     return;
   }
@@ -84,7 +87,7 @@ supabase?.auth.onAuthStateChange((event, session) => {
   useAuthStore.setState({
     status: "signedIn",
     user: { id: user.id, email: user.email },
-    ...(changed ? { account: undefined, accountFailed: false } : {}),
+    ...(changed ? { account: undefined, accountError: undefined } : {}),
   });
   // トークンの更新だけなら読み直さない。コールバックの中で Supabase の
   // 呼び出しを待つと supabase-js の内部のロックと絡んで止まるため、次の

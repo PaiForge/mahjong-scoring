@@ -6,6 +6,7 @@ import {
   isMobileUsernameErrorCode,
   parseMobileMeResponse,
   type MobileApiErrorCode,
+  type MobileDeleteAccountResponse,
   type MobileMeResponse,
   type MobileRegisterUsernameRequest,
   type MobileUsernameErrorCode,
@@ -13,6 +14,7 @@ import {
 
 import { SITE_URL } from "../lib/app-site-url";
 import { supabase } from "./supabase-client";
+import { showDeletionNotice } from "./use-deletion-notice";
 import {
   decideUnauthorizedRecovery,
   type Credentials,
@@ -30,6 +32,11 @@ export type ApiFailure = MobileApiErrorCode | "network" | "unknown";
  * その 401 が今のログインに当てはまるかを確かめてから扱う。認証は API の
  * 処理より前に行うので、401 の要求はサーバーで何も処理されておらず、
  * 送り直してよい。送り直すのは 1 度だけ。
+ *
+ * 403 `deleted`（退会を受け付けたアカウント）が返ったら、別の端末で
+ * 退会した・退会の成功の応答を失ったということ。退会の工程はサーバーが
+ * 進めるので、受け付けたことを知らせて端末のログインを捨てる（送った
+ * ログインが今もそのままのときだけ）。
  */
 async function callMobileApi(
   path: string,
@@ -46,12 +53,20 @@ async function callMobileApi(
   };
   try {
     let response = await send(path, init, sent.accessToken);
-    if (response.status !== 401) return response;
-    const retryToken = await recoverFromUnauthorized(sent);
-    if (retryToken === undefined) return response;
-    sent = { ...sent, accessToken: retryToken };
-    response = await send(path, init, retryToken);
-    if (response.status === 401) await signOutIfStillCurrent(sent);
+    if (response.status === 401) {
+      const retryToken = await recoverFromUnauthorized(sent);
+      if (retryToken === undefined) return response;
+      sent = { ...sent, accessToken: retryToken };
+      response = await send(path, init, retryToken);
+      if (response.status === 401) await signOutIfStillCurrent(sent);
+    }
+    if (
+      response.status === 403 &&
+      (await errorOf(response.clone())) === "deleted" &&
+      (await signOutIfStillCurrent(sent))
+    ) {
+      showDeletionNotice("pending");
+    }
     return response;
   } catch {
     return "network";
@@ -116,18 +131,18 @@ async function recoverFromUnauthorized(
 }
 
 /**
- * 新しいトークンでも 401 なら、サーバーはこのログインを認めていない
- * （ログアウト済み・削除済み）。その間に別のログインへ変わっていなければ、
- * この端末のログイン状態を捨てる。
+ * サーバーがこのログインを認めない（新しいトークンでも 401・退会を受け付けた）
+ * とき、その間に別のログインへ変わっていなければ、この端末のログイン状態を
+ * 捨てる。捨てたら true
  */
-async function signOutIfStillCurrent(sent: Credentials): Promise<void> {
-  if (!supabase) return;
+async function signOutIfStillCurrent(sent: Credentials): Promise<boolean> {
+  if (!supabase) return false;
   const {
     data: { session: current },
   } = await supabase.auth.getSession();
-  if (current?.access_token === sent.accessToken) {
-    await supabase.auth.signOut({ scope: "local" });
-  }
+  if (current?.user.id !== sent.userId) return false;
+  await supabase.auth.signOut({ scope: "local" });
+  return true;
 }
 
 /** 失敗の応答の `error` を読む。形が違えば undefined */
@@ -184,19 +199,34 @@ export async function registerUsername(
 }
 
 /**
- * アカウントを削除する。成功したら端末のログイン状態も捨てる
+ * 退会を受け付けてもらう。受け付けたら端末のログイン状態を捨て、知らせを出す
  * 退会
  *
- * 失敗しても同じ操作でやり直せる（サーバーの退会は冪等）。
+ * 受け付けた後の工程はサーバーが最後まで進めるので、`pending`（一部の工程が
+ * 残っている）でも成功として扱い、やり直させない。受付そのものの失敗は
+ * 同じ操作でやり直せる（サーバーの受付は冪等）。
  */
 export async function deleteOwnAccount(): Promise<
-  { readonly success: true } | { readonly error: ApiFailure }
+  | {
+      readonly success: true;
+      readonly status: MobileDeleteAccountResponse["status"];
+    }
+  | { readonly error: ApiFailure }
 > {
   const response = await callMobileApi(MOBILE_DELETE_ACCOUNT_API_PATH, {
     method: "POST",
   });
   if (typeof response === "string") return { error: response };
   if (!response.ok) return { error: await apiFailureOf(response) };
+  const body: unknown = await response.json().catch(() => undefined);
+  const status =
+    typeof body === "object" &&
+    body !== null &&
+    "status" in body &&
+    body.status === "completed"
+      ? "completed"
+      : "pending";
   await supabase?.auth.signOut({ scope: "local" });
-  return { success: true };
+  showDeletionNotice(status);
+  return { success: true, status };
 }
