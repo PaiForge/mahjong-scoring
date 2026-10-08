@@ -105,7 +105,7 @@ describe("answerChallenge", () => {
       return typeof line === "string" ? JSON.parse(line) : undefined;
     }
 
-    it("採点できたら段階の所要時間と申告の往復時間を 1 行に出す", async () => {
+    it("採点できたら段階の所要時間と直前の回答の往復時間を 1 行に出す", async () => {
       const info = vi.spyOn(console, "info").mockImplementation(() => {});
       try {
         mockAnswerAttempt.mockImplementation(
@@ -119,11 +119,15 @@ describe("answerChallenge", () => {
           ) => {
             lap("lock");
             lap("grade");
+            lap("update");
+            lap("commit");
             return { correct: true, menuType: "jantou_fu" };
           },
         );
 
-        await answerChallenge("attempt-1", 3, 2, { previousRoundTripMs: 240 });
+        await answerChallenge("attempt-1", 3, 2, {
+          previous: { sequence: 2, roundTripMs: 240 },
+        });
 
         expect(lastLogged(info)).toEqual(
           expect.objectContaining({
@@ -134,8 +138,10 @@ describe("answerChallenge", () => {
             first: false,
             lock: expect.any(Number),
             grade: expect.any(Number),
+            afterRespondedMs: expect.any(Number),
             totalMs: expect.any(Number),
-            clientRoundTripMs: 240,
+            previousSequence: 2,
+            previousClientRoundTripMs: 240,
           }),
         );
       } finally {
@@ -143,7 +149,7 @@ describe("answerChallenge", () => {
       }
     });
 
-    it("受け付けなかった回答・期限切れ・未認証も結果の種別で出す", async () => {
+    it("受け付けなかった回答・期限切れ・未認証・BAN も結果の種別で出す", async () => {
       const info = vi.spyOn(console, "info").mockImplementation(() => {});
       try {
         mockAnswerAttempt.mockResolvedValue(undefined);
@@ -152,6 +158,7 @@ describe("answerChallenge", () => {
           handling: "rejected",
           first: true,
         });
+        expect(lastLogged(info)).not.toHaveProperty("afterRespondedMs");
 
         mockAnswerAttempt.mockResolvedValue({ expired: true });
         await answerChallenge("attempt-1", 0, 2);
@@ -162,6 +169,53 @@ describe("answerChallenge", () => {
         });
         await answerChallenge("attempt-1", 0, 2);
         expect(lastLogged(info)).toMatchObject({ handling: "unauthorized" });
+
+        mockAuthenticateAndCheckBan.mockResolvedValue({ error: "banned" });
+        await answerChallenge("attempt-1", 0, 2);
+        expect(lastLogged(info)).toMatchObject({ handling: "banned" });
+      } finally {
+        info.mockRestore();
+      }
+    });
+
+    it("例外で落ちても通った段階までを failed として出し、例外は投げ直す", async () => {
+      const info = vi.spyOn(console, "info").mockImplementation(() => {});
+      try {
+        // 本物のガードと同じく、通った段階を区切ってから返す
+        mockAuthenticateAndCheckBan.mockImplementation(
+          async (lap: (phase: string) => void) => {
+            lap("auth");
+            lap("ban");
+            return { user: AUTHENTICATED_USER };
+          },
+        );
+        mockAnswerAttempt.mockImplementation(
+          async (
+            _user: string,
+            _id: string,
+            _sequence: number,
+            _answer: unknown,
+            _receivedAt: number,
+            lap: (phase: string) => void,
+          ) => {
+            lap("lock");
+            throw new Error("connection reset");
+          },
+        );
+
+        await expect(answerChallenge("attempt-1", 4, 2)).rejects.toThrow(
+          "connection reset",
+        );
+        expect(lastLogged(info)).toEqual(
+          expect.objectContaining({
+            handling: "failed",
+            sequence: 4,
+            failedPhase: "grade",
+            lock: expect.any(Number),
+            totalMs: expect.any(Number),
+          }),
+        );
+        expect(lastLogged(info)).not.toHaveProperty("afterRespondedMs");
       } finally {
         info.mockRestore();
       }
@@ -171,8 +225,13 @@ describe("answerChallenge", () => {
       const info = vi.spyOn(console, "info").mockImplementation(() => {});
       try {
         mockAnswerAttempt.mockResolvedValue({ correct: true });
-        await answerChallenge("attempt-1", 0, 2, { previousRoundTripMs: -1 });
-        expect(lastLogged(info)).not.toHaveProperty("clientRoundTripMs");
+        await answerChallenge("attempt-1", 0, 2, {
+          previous: { sequence: 0, roundTripMs: -1 },
+        });
+        expect(lastLogged(info)).not.toHaveProperty(
+          "previousClientRoundTripMs",
+        );
+        expect(lastLogged(info)).not.toHaveProperty("previousSequence");
       } finally {
         info.mockRestore();
       }

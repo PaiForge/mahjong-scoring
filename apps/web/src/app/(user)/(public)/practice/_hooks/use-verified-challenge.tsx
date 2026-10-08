@@ -89,10 +89,13 @@ export function VerifiedChallengeProvider({
     { question: ChallengeQuestion; sequence: number } | undefined
   >(undefined);
   const pending = useRef<Promise<void> | undefined>(undefined);
-  // 直前の回答を押してから応答が届くまでの時間。次の回答に添えてサーバーの
-  // 計測ログに載せる（観測のためだけに往復を増やさない）。サーバーは観測に
+  // 直前の回答（問題番号付き）を押してから応答が届くまでの時間。次の回答に
+  // 添えてサーバーの計測ログに載せる（観測のためだけに往復を増やさない。
+  // そのぶん最後の回答と途中でやめた挑戦の往復は載らない）。サーバーは観測に
   // 使うだけで、時計の補正には使わない
-  const lastRoundTripMs = useRef<number | undefined>(undefined);
+  const lastRoundTrip = useRef<
+    { sequence: number; roundTripMs: number } | undefined
+  >(undefined);
   const busyRef = useRef(false);
   const serverExpired = useRef(false);
   const expiring = useRef(false);
@@ -112,7 +115,7 @@ export function VerifiedChallengeProvider({
     setGrading(false);
     setClock(undefined);
     next.current = undefined;
-    lastRoundTripMs.current = undefined;
+    lastRoundTrip.current = undefined;
     setMode("loading");
     setGeneration((value) => value + 1);
   }, []);
@@ -168,11 +171,14 @@ export function VerifiedChallengeProvider({
       pending.current = actions()
         .then((api) =>
           api.answerChallenge(state.id, state.sequence, answer, {
-            previousRoundTripMs: lastRoundTripMs.current,
+            previous: lastRoundTrip.current,
           }),
         )
         .then((result) => {
-          lastRoundTripMs.current = Math.round(performance.now() - pressedAt);
+          lastRoundTrip.current = {
+            sequence: state.sequence,
+            roundTripMs: Math.round(performance.now() - pressedAt),
+          };
           if (!result) {
             setMode("error");
             return;
