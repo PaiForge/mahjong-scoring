@@ -28,11 +28,19 @@ export const API_ERROR_BANNED = "banned";
 export const API_ERROR_UNKNOWN = "unknown";
 
 /**
+ * サーバーに届かなかった（fetch 自体が失敗した）ときのエラーコード。
+ * サーバーが返した失敗（{@link API_ERROR_UNKNOWN} を含む）と分けるのは、
+ * 通信をやり直せば通りうる失敗だから。アプリの API クライアントの
+ * `"network"` と同じ語
+ */
+export const API_ERROR_NETWORK = "network";
+
+/**
  * 内部 API を呼び出し、成功時は本文を、失敗時はエラーコードを返す
  * 内部API呼び出し
  *
- * ネットワーク例外も `{ ok: false }` に正規化するため、呼び出し側で
- * try/catch を書く必要はない。
+ * ネットワーク例外も `{ ok: false, error: API_ERROR_NETWORK }` に正規化する
+ * ため、呼び出し側で try/catch を書く必要はない。
  *
  * @param path - `/api/...` のパス
  * @param init - fetch のオプション
@@ -45,7 +53,7 @@ export async function callApi<T = unknown>(
   try {
     res = await fetch(path, init);
   } catch {
-    return { ok: false, error: API_ERROR_UNKNOWN };
+    return { ok: false, error: API_ERROR_NETWORK };
   }
 
   if (!res.ok) {
