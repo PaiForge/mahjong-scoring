@@ -247,10 +247,14 @@ template = "Your code is {{ .Code }}"
 max_frequency = "5s"
 
 # Use an external OAuth provider.
+# iOS アプリのネイティブの Apple ログイン（signInWithIdToken）だけを受け付ける。
+# client_id は Apple の ID トークンの aud（アプリの Bundle ID。features の
+# APPLE_APP_BUNDLE_ID）。secret は web の Apple ログイン（OAuth）でだけ要るので空。
+# 本番はダッシュボードの Authentication > Sign In / Providers > Apple に同じ値を入れる。
 [auth.external.apple]
-enabled = false
-client_id = ""
-secret = "env(SUPABASE_AUTH_EXTERNAL_APPLE_SECRET)"
+enabled = true
+client_id = "help.mahjong.score"
+secret = ""
 redirect_uri = ""
 url = ""
 skip_nonce_check = false

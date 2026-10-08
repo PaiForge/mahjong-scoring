@@ -9,7 +9,8 @@
     "scheme": "mahjong-scoring",
     "ios": {
       "supportsTablet": true,
-      "bundleIdentifier": "help.mahjong.score"
+      "bundleIdentifier": "help.mahjong.score",
+      "usesAppleSignIn": true
     },
     "android": {
       "package": "help.mahjong.score",
@@ -35,7 +36,8 @@
           "backgroundColor": "#00904a"
         }
       ],
-      "expo-secure-store"
+      "expo-secure-store",
+      "expo-apple-authentication"
     ],
     "experiments": {
       "typedRoutes": false

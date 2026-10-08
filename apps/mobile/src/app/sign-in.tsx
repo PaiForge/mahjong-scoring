@@ -1,8 +1,8 @@
 /**
  * ログイン
  *
- * @description メールアドレスとパスワードでログインする。web で登録した
- * アカウントもそのまま使える（同じ Supabase の認証）。ユーザー名をまだ
+ * @description Apple（iOS だけ）か、メールアドレスとパスワードでログインする。
+ * web で登録したアカウントもそのまま使える（同じ Supabase の認証）。ユーザー名をまだ
  * 決めていなければ、続けてユーザー名の設定へ進む。
  * パスワードの再設定は web の画面で行う（メールのリンクも web に着地するため）。
  * @flow 設定のアカウント → ログイン →（ユーザー名の設定）→ 設定へ戻る
@@ -12,6 +12,7 @@ import { Linking, StyleSheet, Text, View } from "react-native";
 import { useRouter } from "expo-router";
 import { useTranslations } from "use-intl";
 
+import { AppleSignInSection } from "../auth/apple-sign-in-section";
 import { FormMessage } from "../auth/form-message";
 import { supabase } from "../auth/supabase-client";
 import { refreshAccount } from "../auth/use-auth";
@@ -66,6 +67,7 @@ export default function SignInScreen() {
 
   return (
     <Screen title={t("signInPageTitle")} back contentStyle={styles.content}>
+      <AppleSignInSection mode="signIn" />
       <View style={styles.form}>
         <TextField
           label={t("emailLabel")}

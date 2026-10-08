@@ -1,12 +1,14 @@
 /**
  * アカウント登録
  *
- * @description メールアドレスとパスワードで登録する。確認メールのリンクは
- * web に着地する（どの端末で開いても確認が済むよう `token_hash` で検証する）
- * ので、確認が済んだらアプリに戻ってログインしてもらう。メールを開いた
+ * @description Apple（iOS だけ）か、メールアドレスとパスワードで登録する。
+ * Apple はその場で登録とログインが済み、ユーザー名の設定へ進む。メールの
+ * 確認メールのリンクは web に着地する（どの端末で開いても確認が済むよう
+ * `token_hash` で検証する）ので、確認が済んだらアプリに戻ってログインしてもらう。メールを開いた
  * ブラウザでも web にログインした状態になるが、同じアカウントなので
  * どちらでユーザー名を決めてもよい。
  * @flow 設定のアカウント → 登録 → 確認メールの案内 →（メールのリンク）→ ログイン
+ * （Apple: 設定のアカウント → 登録 → Apple のシート → ユーザー名の設定）
  */
 import { useState } from "react";
 import { StyleSheet, Text, View } from "react-native";
@@ -17,6 +19,7 @@ import {
   validatePasswordPair,
 } from "@mahjong-scoring/features/account/password";
 
+import { AppleSignInSection } from "../auth/apple-sign-in-section";
 import { FormMessage } from "../auth/form-message";
 import { supabase } from "../auth/supabase-client";
 import { refreshAccount } from "../auth/use-auth";
@@ -106,6 +109,7 @@ export default function SignUpScreen() {
 
   return (
     <Screen title={t("pageTitle")} back contentStyle={styles.content}>
+      <AppleSignInSection mode="signUp" />
       <View style={styles.form}>
         <TextField
           label={t("emailLabel")}
