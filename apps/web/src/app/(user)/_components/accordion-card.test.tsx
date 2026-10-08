@@ -42,4 +42,25 @@ describe("AccordionCard", () => {
       Element.prototype.scrollIntoView = original;
     }
   });
+
+  it("open を渡すと外の状態で開閉し、押されたら onOpenChange で次の状態を知らせる", () => {
+    const onOpenChange = vi.fn();
+    const { rerender } = render(
+      <AccordionCard title="混一色" open={false} onOpenChange={onOpenChange}>
+        <p>例示手牌</p>
+      </AccordionCard>,
+    );
+
+    fireEvent.click(screen.getByRole("button", { name: /混一色/ }));
+    expect(onOpenChange).toHaveBeenCalledWith(true);
+    // 外の状態が変わるまでは閉じたまま
+    expect(screen.queryByText("例示手牌")).toBeNull();
+
+    rerender(
+      <AccordionCard title="混一色" open onOpenChange={onOpenChange}>
+        <p>例示手牌</p>
+      </AccordionCard>,
+    );
+    expect(screen.getByText("例示手牌")).toBeDefined();
+  });
 });
