@@ -16,6 +16,7 @@ import {
   gradeChallengeAnswer,
   publicChallengeQuestion,
 } from "./questions";
+import type { AnswerPhase } from "./answer-telemetry";
 import {
   answeredChallenge,
   canAnswerChallenge,
@@ -84,9 +85,16 @@ export async function beginAttempt(
 /**
  * 本人の行をロックし、一度だけ回答を受け付ける。正解開示と次問発行は受付後。
  *
+ * サーバー時計の起点（`respondedAt`）は UPDATE の直前に取る。起点を行に
+ * 書くので、UPDATE と COMMIT の時間は起点より後に掛かり、固定の猶予
+ * （`RESPONSE_GRACE_MS`）の中から消費される。その長さは `lap` の
+ * `"update"` と `"commit"` で測れる。
+ *
  * @param receivedAt - 回答のリクエストを受け取った時刻。認証や行ロックの前に
  *   取ったものを渡す。ここから応答を組むまでの処理時間は競技時間に数えない
  *   （{@link answeredChallenge}）
+ * @param lap - 段階が終わるたびに呼ぶ計測の区切り（{@link AnswerPhase}）。
+ *   受け付けなかったときも、通った段階までは呼ぶ
  */
 export async function answerAttempt(
   userId: string,
@@ -94,6 +102,7 @@ export async function answerAttempt(
   sequence: unknown,
   answer: unknown,
   receivedAt: number = Date.now(),
+  lap: (phase: AnswerPhase) => void = () => {},
 ) {
   if (
     !uuid.safeParse(id).success ||
@@ -102,8 +111,9 @@ export async function answerAttempt(
     typeof sequence !== "number"
   )
     return undefined;
-  return db.transaction(async (tx) => {
+  const result = await db.transaction(async (tx) => {
     const row = await lockOwnAttempt(tx, userId, id);
+    lap("lock");
     const now = receivedAt;
     if (!row || row.consumed) return undefined;
     if (isChallengeTimeUp(row.state, now)) return { expired: true as const };
@@ -126,10 +136,12 @@ export async function answerAttempt(
       receivedAt,
       Date.now(),
     );
+    lap("grade");
     await tx
       .update(challengeAttempts)
       .set({ state })
       .where(eq(challengeAttempts.id, id));
+    lap("update");
     return {
       correct,
       answered: row.state.question,
@@ -137,8 +149,12 @@ export async function answerAttempt(
       sequence: state.sequence,
       // 採点時点の経過時間。画面の時計をこれに合わせ直す（猶予の間は止まっている）
       elapsedMs: state.elapsedMs,
+      // 計測のログに載せる。画面は使わない
+      menuType: state.menuType,
     };
   });
+  lap("commit");
+  return result;
 }
 /** 一時停止・再開もサーバー時計に記録する。 */
 export async function pauseAttempt(

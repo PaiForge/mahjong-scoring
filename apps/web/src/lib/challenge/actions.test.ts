@@ -84,6 +84,7 @@ describe("answerChallenge", () => {
         0,
         2,
         1_000_000,
+        expect.any(Function),
       );
     } finally {
       vi.useRealTimers();
@@ -95,5 +96,86 @@ describe("answerChallenge", () => {
 
     expect(await answerChallenge("attempt-1", 0, 2)).toBeUndefined();
     expect(mockAnswerAttempt).not.toHaveBeenCalled();
+  });
+
+  describe("計測ログ", () => {
+    /** 直近の `console.info` を JSON として読む */
+    function lastLogged(info: ReturnType<typeof vi.spyOn>) {
+      const line = info.mock.lastCall?.[0];
+      return typeof line === "string" ? JSON.parse(line) : undefined;
+    }
+
+    it("採点できたら段階の所要時間と申告の往復時間を 1 行に出す", async () => {
+      const info = vi.spyOn(console, "info").mockImplementation(() => {});
+      try {
+        mockAnswerAttempt.mockImplementation(
+          async (
+            _user: string,
+            _id: string,
+            _sequence: number,
+            _answer: unknown,
+            _receivedAt: number,
+            lap: (phase: string) => void,
+          ) => {
+            lap("lock");
+            lap("grade");
+            return { correct: true, menuType: "jantou_fu" };
+          },
+        );
+
+        await answerChallenge("attempt-1", 3, 2, { previousRoundTripMs: 240 });
+
+        expect(lastLogged(info)).toEqual(
+          expect.objectContaining({
+            event: "challenge.answer",
+            handling: "answered",
+            menuType: "jantou_fu",
+            sequence: 3,
+            first: false,
+            lock: expect.any(Number),
+            grade: expect.any(Number),
+            totalMs: expect.any(Number),
+            clientRoundTripMs: 240,
+          }),
+        );
+      } finally {
+        info.mockRestore();
+      }
+    });
+
+    it("受け付けなかった回答・期限切れ・未認証も結果の種別で出す", async () => {
+      const info = vi.spyOn(console, "info").mockImplementation(() => {});
+      try {
+        mockAnswerAttempt.mockResolvedValue(undefined);
+        await answerChallenge("attempt-1", 0, 2);
+        expect(lastLogged(info)).toMatchObject({
+          handling: "rejected",
+          first: true,
+        });
+
+        mockAnswerAttempt.mockResolvedValue({ expired: true });
+        await answerChallenge("attempt-1", 0, 2);
+        expect(lastLogged(info)).toMatchObject({ handling: "expired" });
+
+        mockAuthenticateAndCheckBan.mockResolvedValue({
+          error: "unauthorized",
+        });
+        await answerChallenge("attempt-1", 0, 2);
+        expect(lastLogged(info)).toMatchObject({ handling: "unauthorized" });
+      } finally {
+        info.mockRestore();
+      }
+    });
+
+    it("申告の往復時間が形を成さなければ欠損として出す", async () => {
+      const info = vi.spyOn(console, "info").mockImplementation(() => {});
+      try {
+        mockAnswerAttempt.mockResolvedValue({ correct: true });
+        await answerChallenge("attempt-1", 0, 2, { previousRoundTripMs: -1 });
+        expect(lastLogged(info)).not.toHaveProperty("clientRoundTripMs");
+      } finally {
+        info.mockRestore();
+      }
+    });
   });
 });

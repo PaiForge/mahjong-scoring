@@ -2,6 +2,11 @@
 import { authenticateAndCheckBan } from "../auth";
 import { enforceIpRateLimit } from "../rate-limit-ip";
 import {
+  createPhaseStopwatch,
+  logAnswerTiming,
+  parseAnswerObservation,
+} from "./answer-telemetry";
+import {
   beginAttempt,
   answerAttempt,
   pauseAttempt,
@@ -31,16 +36,49 @@ export async function beginChallenge(
  *
  * 受け取った時刻は本人確認より前に取る。確認と採点に掛かる時間を
  * 競技時間に数えないため（`answerAttempt` の `receivedAt`）。
+ *
+ * 段階ごとの所要時間を測り、結果と一緒に 1 行のログに出す
+ * （{@link logAnswerTiming}）。
+ *
+ * @param observation - クライアントの観測値（{@link parseAnswerObservation}）。
+ *   ログに載せるだけで、採点にも時計にも使わない
  */
 export async function answerChallenge(
   id: unknown,
   sequence: unknown,
   answer: unknown,
+  observation?: unknown,
 ) {
   const receivedAt = Date.now();
-  const auth = await authenticateAndCheckBan();
-  if ("error" in auth) return undefined;
-  return answerAttempt(auth.user.id, id, sequence, answer, receivedAt);
+  const stopwatch = createPhaseStopwatch();
+  const auth = await authenticateAndCheckBan(stopwatch.lap);
+  const result =
+    "error" in auth
+      ? undefined
+      : await answerAttempt(
+          auth.user.id,
+          id,
+          sequence,
+          answer,
+          receivedAt,
+          stopwatch.lap,
+        );
+  logAnswerTiming({
+    handling:
+      "error" in auth
+        ? "unauthorized"
+        : result === undefined
+          ? "rejected"
+          : "expired" in result
+            ? "expired"
+            : "answered",
+    menuType: result && "menuType" in result ? result.menuType : undefined,
+    sequence: Number.isInteger(sequence) ? Number(sequence) : undefined,
+    phases: stopwatch.phases,
+    totalMs: stopwatch.elapsed(),
+    observation: parseAnswerObservation(observation),
+  });
+  return result;
 }
 /** 挑戦の一時停止・再開。 */
 export async function pauseChallenge(id: unknown, paused: unknown) {
