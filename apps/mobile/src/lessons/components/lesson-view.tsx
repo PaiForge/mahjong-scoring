@@ -70,6 +70,12 @@ type LessonPhase = "learn" | "quiz" | "done";
  */
 function PromptTiles({ prompt }: { readonly prompt: LessonPrompt }) {
   switch (prompt.kind) {
+    case "tier":
+    case "yaku":
+    case "agari":
+    case "extraFu":
+    case "tehai":
+      return undefined;
     case "jantou":
       return <TileSet tiles={[prompt.tile, prompt.tile]} size="md" />;
     case "mentsu":
@@ -78,8 +84,6 @@ function PromptTiles({ prompt }: { readonly prompt: LessonPrompt }) {
       return (
         <MachiTiles tiles={prompt.tiles} agariHai={prompt.agariHai} size="md" />
       );
-    default:
-      return undefined;
   }
 }
 

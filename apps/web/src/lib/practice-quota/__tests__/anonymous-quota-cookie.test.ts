@@ -22,7 +22,6 @@ const NOW = new Date("2026-10-01T03:00:00Z"); // JST 12:00
 const COOKIE = "mj_quota";
 
 async function loadModule() {
-  vi.resetModules();
   return await import("../anonymous-quota-cookie");
 }
 

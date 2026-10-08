@@ -51,8 +51,18 @@ function deletionErrorKey(
       return "appleMismatch";
     case "appleNotSupported":
       return "appleNotSupported";
-    default:
+    case "unauthorized":
+    case "deleted":
+    case "banned":
+    case "authUnavailable":
+    case "userChanged":
+    case "unknown":
+    case "deleteFailed":
       return "error";
+    default: {
+      const exhaustive: never = error;
+      return exhaustive;
+    }
   }
 }
 

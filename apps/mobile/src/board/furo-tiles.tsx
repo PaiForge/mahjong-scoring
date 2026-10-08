@@ -28,8 +28,6 @@ function rotatedIndex(furo: Furo | undefined, length: number): number {
       return 1;
     case Tacha.Shimocha:
       return length - 1;
-    default:
-      return NO_ROTATION;
   }
 }
 
