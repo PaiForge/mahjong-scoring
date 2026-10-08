@@ -26,7 +26,6 @@ import { ContentContainer } from "@/app/(user)/_components/content-container";
 import { LinkRowList } from "@/app/(user)/_components/link-row";
 import { NativeAdRow } from "@/app/(user)/_components/native-ad-row";
 import { PageTitle } from "@/app/(user)/_components/page-title";
-import { SectionTitle } from "@/app/(user)/_components/section-title";
 import { createNamespaceMetadata } from "@/app/_lib/metadata";
 import { getNativeAdPlacements } from "@/lib/ads/creatives";
 import { adIndexAfterGroup } from "@mahjong-scoring/features/ads/spacing";
@@ -65,13 +64,6 @@ export default async function LearnIndexPage() {
       <HashAnchorScroll />
 
       <div className="space-y-8">
-        <div className="space-y-3">
-          <SectionTitle>{t("index.sectionTitle")}</SectionTitle>
-          <p className="text-sm text-surface-500">
-            {t("index.pageDescription")}
-          </p>
-        </div>
-
         <CurriculumProgressBar
           completedCount={completedSlugs.size}
           totalCount={CURRICULUM.length}
