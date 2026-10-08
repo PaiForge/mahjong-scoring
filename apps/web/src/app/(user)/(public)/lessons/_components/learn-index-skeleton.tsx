@@ -1,7 +1,5 @@
 import { ContentContainer } from "@/app/(user)/_components/content-container";
 import { PageTitlePlaceholder } from "@/app/(user)/_components/page-title";
-import { SectionTitleSkeleton } from "@/app/(user)/_components/section-title-skeleton";
-import { SkeletonBar } from "@/app/_components/skeleton-bar";
 import {
   CURRICULUM,
   CURRICULUM_SECTIONS,
@@ -14,8 +12,8 @@ import { CurriculumTocSkeleton } from "./curriculum-toc-skeleton";
  * 教本（目次）の読み込み中スケルトン
  * 目次ページスケルトン
  *
- * `/lessons` の実描画（`learn/page.tsx`）と同じ構造 — タイトル帯・セクション見出し +
- * 説明文・進捗バー・セクションごとの目次 — を描く。章の行数は `CURRICULUM` から
+ * `/lessons` の実描画（`learn/page.tsx`）と同じ構造 — タイトル帯・進捗バー・
+ * セクションごとの目次 — を描く。章の行数は `CURRICULUM` から
  * 数えるため、章を足しても自動で追従する。
  *
  * 汎用の `PageSkeleton` はリスト行を大きなカード矩形で表すため、2 段組みの
@@ -27,15 +25,6 @@ export function LearnIndexSkeleton() {
       <PageTitlePlaceholder width="w-24" />
 
       <div className="space-y-8">
-        <div className="space-y-3">
-          <SectionTitleSkeleton width="w-12" />
-          <p className="text-sm">
-            <SkeletonBar as="span" tone={100} className="inline-block w-4/5">
-              &nbsp;
-            </SkeletonBar>
-          </p>
-        </div>
-
         <CurriculumProgressBarSkeleton />
 
         {CURRICULUM_SECTIONS.map((section) => {

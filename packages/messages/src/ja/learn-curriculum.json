@@ -84,7 +84,6 @@
   },
   "index": {
     "pageTitle": "レッスン",
-    "sectionTitle": "目次",
     "pageDescription": "麻雀の点数計算を、短い説明と確認問題で 1 つずつ身につけるレッスンです。順に進められます。",
     "progressLabel": "{done} / {total} レッスン完了",
     "nextChapterBadge": "次はここから",
