@@ -21,6 +21,7 @@ import { SectionTitle } from "../../components/section-title";
 import { TextLink } from "../../components/text-link";
 import { colors } from "../../lib/theme";
 import { useChallengeResultStore } from "../challenge-result-store";
+import { MistakeRevealProvider } from "../components/mistake-reveal";
 import { ResultScoreBar } from "../components/result-score-bar";
 import type { PracticeScreens } from "../practice-screens";
 import { useRouteVariant } from "./use-route-variant";
@@ -57,56 +58,58 @@ export function PracticeResultScreen({
 
   return (
     <Screen title={t("title")} contentStyle={styles.content}>
-      <View style={styles.section}>
-        <SectionTitle>{tc("resultSectionTitle")}</SectionTitle>
-        {/* 走った出題設定。設定を持つ練習だけ、見出しの下に 1 行（web と同じ） */}
-        {hasSetup && (
-          <Text style={styles.variant}>
-            {tp("variantLabel", { label: t(`variants.${variant}.label`) })}
-          </Text>
-        )}
-        {current !== undefined && (
-          <ResultScoreBar
-            correct={current.finalResult.correctCount}
-            total={current.finalResult.totalCount}
-          />
-        )}
-      </View>
-
-      <View style={styles.actions}>
-        <View style={styles.buttons}>
-          <Button
-            size="lg"
-            fullWidth
-            icon={
-              <RotateCcwIcon size={16} color={buttonForeground("primary")} />
-            }
-            onPress={() => router.replace(practicePlayHref(slug, variant))}
-          >
-            {tc("retryButton")}
-          </Button>
+      <MistakeRevealProvider>
+        <View style={styles.section}>
+          <SectionTitle>{tc("resultSectionTitle")}</SectionTitle>
+          {/* 走った出題設定。設定を持つ練習だけ、見出しの下に 1 行（web と同じ） */}
           {hasSetup && (
-            <Button
-              variant="secondary"
-              size="lg"
-              fullWidth
-              onPress={() => router.dismissTo(practiceHref(slug, variant))}
-            >
-              {tc("changeSettingsButton")}
-            </Button>
+            <Text style={styles.variant}>
+              {tp("variantLabel", { label: t(`variants.${variant}.label`) })}
+            </Text>
+          )}
+          {current !== undefined && (
+            <ResultScoreBar
+              correct={current.finalResult.correctCount}
+              total={current.finalResult.totalCount}
+            />
           )}
         </View>
-        <TextLink onPress={() => router.dismissTo(PRACTICE_PATH)}>
-          {tc("backToList")}
-        </TextLink>
-      </View>
 
-      {/* ボタン群の後ろに置く。前に置くと「もう一度」より先に広告が目に入る（web と同じ） */}
-      {ad !== undefined && <NativeAdCard creative={ad} />}
+        <View style={styles.actions}>
+          <View style={styles.buttons}>
+            <Button
+              size="lg"
+              fullWidth
+              icon={
+                <RotateCcwIcon size={16} color={buttonForeground("primary")} />
+              }
+              onPress={() => router.replace(practicePlayHref(slug, variant))}
+            >
+              {tc("retryButton")}
+            </Button>
+            {hasSetup && (
+              <Button
+                variant="secondary"
+                size="lg"
+                fullWidth
+                onPress={() => router.dismissTo(practiceHref(slug, variant))}
+              >
+                {tc("changeSettingsButton")}
+              </Button>
+            )}
+          </View>
+          <TextLink onPress={() => router.dismissTo(PRACTICE_PATH)}>
+            {tc("backToList")}
+          </TextLink>
+        </View>
 
-      {current !== undefined && ProblemList !== undefined && (
-        <ProblemList results={current.results} />
-      )}
+        {/* ボタン群の後ろに置く。前に置くと「もう一度」より先に広告が目に入る（web と同じ） */}
+        {ad !== undefined && <NativeAdCard creative={ad} />}
+
+        {current !== undefined && ProblemList !== undefined && (
+          <ProblemList results={current.results} />
+        )}
+      </MistakeRevealProvider>
     </Screen>
   );
 }
