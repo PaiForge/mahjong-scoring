@@ -129,6 +129,9 @@ packages/features / core を共有し、アプリ側は画面と RN の部品だ
   ログイン・登録・ユーザー名の設定・退会の画面は web と同じパスに置く。セッションは
   SecureStore、サーバーへの書き込みは web のアプリ向け API（`/api/mobile/v1/*`、
   `Authorization: Bearer`。web の `lib/mobile-api/`）を通す。DB を直接読み書きしない。
+  ログインはメールと Apple（iOS のネイティブだけ。`auth/apple-sign-in.ts`）。Apple の認可コードは
+  サーバーが交換して保存し、退会の最後の工程で Apple 側の連携を取り消す（`apple_refresh_tokens`）。
+  外部の設定と実機での確かめ方は `apps/mobile/README.md`。
   ログインは任意で、ゲストのまま全機能を使える。結果はメモリのストアで結果画面へ運ぶ
   （web の sessionStorage の代わり）。設定は常に端末ローカル（AsyncStorage）
 - **記録はログイン中（ユーザー名を決めた人）だけサーバーに残す。** チャレンジは web と
