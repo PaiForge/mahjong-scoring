@@ -13,9 +13,9 @@ import { useLessonFollowUp } from "./lesson-follow-up-context";
  * 完了画面は記録が済んでから描かれるので、待ちは無い。返らなかった
  * （読み取りの失敗）・別のユーザーに切り替わったときは何も出さない。
  */
-export function RankProgressSummary() {
+export function RankJourneyProgressSummary() {
   const t = useTranslations("ranks");
-  const progress = useLessonFollowUp()?.rankProgress;
+  const progress = useLessonFollowUp()?.rankJourneyProgress;
   if (progress === undefined) return null;
 
   return (

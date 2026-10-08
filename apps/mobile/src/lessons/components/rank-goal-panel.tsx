@@ -2,7 +2,7 @@ import { StyleSheet, Text, View } from "react-native";
 import { useRouter } from "expo-router";
 import { useTranslations } from "use-intl";
 import { journeyStepTitle } from "@mahjong-scoring/features/journey/journey-step";
-import type { RankProgress } from "@mahjong-scoring/features/lessons/follow-up";
+import type { RankJourneyProgress } from "@mahjong-scoring/features/lessons/follow-up";
 import type { PracticeMenuSlug } from "@mahjong-scoring/features/practice-menu-types";
 import type { RankSlug } from "@mahjong-scoring/features/ranks/registry";
 import {
@@ -35,7 +35,7 @@ export function RankGoalPanel({
   /** その級の昇級試験 */
   readonly examSlug: PracticeMenuSlug;
   /** その級の行程の進み具合（道場の行程カードと同じ数え方） */
-  readonly progress: RankProgress | undefined;
+  readonly progress: RankJourneyProgress | undefined;
 }) {
   const t = useTranslations("lessons.rankGoal");
   const tRanks = useTranslations("ranks");

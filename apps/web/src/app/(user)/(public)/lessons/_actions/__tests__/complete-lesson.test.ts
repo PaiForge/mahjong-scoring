@@ -139,7 +139,7 @@ describe("completeLesson", () => {
           chapterSlug: "mangan-oya-ron",
         },
         // 終えた子のロンと、先に済ませた子のツモ
-        rankProgress: {
+        rankJourneyProgress: {
           learn: { done: 2, total: 5 },
           practice: { done: 0, total: 6 },
           examPassed: false,

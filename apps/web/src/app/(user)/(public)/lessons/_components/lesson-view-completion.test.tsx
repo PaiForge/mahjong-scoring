@@ -29,7 +29,8 @@ const { useAuth: mockUseAuth } = await import("@/test/auth-context-mock");
 const { LessonView } = await import("./lesson-view");
 const { RelatedPracticeCardSlot } =
   await import("./related-practice-card-slot");
-const { RankProgressSummary } = await import("./rank-progress-summary");
+const { RankJourneyProgressSummary } =
+  await import("./rank-journey-progress-summary");
 
 function page(
   goal?: ReactNode,
@@ -298,21 +299,21 @@ describe("LessonView の済みの印", () => {
           slug: "score-table",
           variant: "ko_mangan_plus",
         },
-        rankProgress: {
+        rankJourneyProgress: {
           learn: { done: 2, total: 5 },
           practice: { done: 6, total: 6 },
           examPassed: false,
         },
       },
     });
-    const view = renderPage(<RankProgressSummary />);
+    const view = renderPage(<RankJourneyProgressSummary />);
     await flush();
     await finishSignedIn();
     await screen.findByRole("link", { name: "nextStep.practice" });
     expect(screen.getByTestId("rank-progress")).toBeTruthy();
 
     mockUseAuth.mockReturnValue({ user: undefined, isLoading: false });
-    view.rerender(page(<RankProgressSummary />));
+    view.rerender(page(<RankJourneyProgressSummary />));
 
     expect(
       screen.queryByRole("link", { name: "nextStep.practice" }),
