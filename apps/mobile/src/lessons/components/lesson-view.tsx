@@ -55,7 +55,7 @@ import { isLessonPorted } from "../ported-lessons";
 import { lessonColors, verdictTextColors } from "../lesson-colors";
 import { ChapterRelatedLinks } from "./chapter-related-links";
 import { DoneMark } from "./done-mark";
-import { NextLessonPreview } from "./next-lesson-preview";
+import { NextLessonPreview, nextChapterSlug } from "./next-lesson-preview";
 import { RankGoalPanel } from "./rank-goal-panel";
 import { MachiTiles, MentsuSet, TileSet } from "./tile-row";
 
@@ -127,7 +127,7 @@ interface LessonViewProps {
  * 学習を始めた画面へ帰る。
  *
  * 完了済みの人が開いたときは、本文の下の「確認問題へ」を控えめな解き直しの
- * リンクに替え、その下に練習への導線を出す。
+ * リンクに替え、その下に目次の順の次のレッスンと練習への導線を出す。
  *
  * web は段階をブラウザの履歴に積み「戻る」で 1 段階ずつ戻れるが、モバイルの
  * 戻るは画面を閉じる。その代わり確認問題の下に「本文を読み返す」を置き、
@@ -152,6 +152,7 @@ export function LessonView({
   const attemptedPractices = useAttemptedPractices();
   const markCompleted = useLessonCompletionStore((s) => s.markCompleted);
   const scrollIntoView = useScrollIntoView();
+  const judgementRef = useRef<View>(null);
   const nextButtonRef = useRef<View>(null);
 
   const { questions, choices } = lessonQuiz(slug);
@@ -169,15 +170,21 @@ export function LessonView({
   const isAnswered = selected !== undefined;
   const isCorrect = isAnswered && isSameChoice(selected, question.answer);
   const isLast = index === questions.length - 1;
+  const nextSlug = nextChapterSlug(slug);
 
   // 答えると判定と解説が選択肢の上に入り、選択肢と「次へ」が下へ押し出される。
-  // 小さな画面や文字を大きくした端末では「次へ」が画面の外へ出るので、
-  // 見えていなければ下端が見えるところまで送る（見えていれば動かさない）。
-  // 答えた問題へ本文から戻ったときも同じ
+  // 小さな画面や文字を大きくした端末では、判定から「次へ」までが画面に
+  // 収まらないことがある。判定の先頭から「次へ」までを 1 つとして見えるところへ
+  // 送り（見えていれば動かさない）、収まらなければ判定の先頭に合わせる —
+  // 「次へ」を優先すると、読む前の解説が画面の上へ追い出されるため。「次へ」は
+  // 解説を読み進めた先の下にある。答えた問題へ本文から戻ったときも同じ
   useEffect(() => {
     if (phase !== "quiz" || !isAnswered) return;
     const frame = requestAnimationFrame(() => {
-      scrollIntoView(nextButtonRef.current, { block: "nearest" });
+      scrollIntoView(judgementRef.current, {
+        block: "nearest",
+        until: nextButtonRef.current,
+      });
     });
     return () => cancelAnimationFrame(frame);
   }, [phase, isAnswered, scrollIntoView]);
@@ -242,6 +249,9 @@ export function LessonView({
         ) : completed ? (
           <>
             <TextLink onPress={handleStart}>{t("retakeQuiz")}</TextLink>
+            {/* 完了済みで開き直したときも、確認問題を解き直さずに次へ進める
+                （確認問題を持たない章の完了後と同じ） */}
+            {nextSlug !== undefined && <NextLessonPreview slug={nextSlug} />}
             <ChapterRelatedLinks slug={slug} />
           </>
         ) : (
@@ -291,7 +301,12 @@ export function LessonView({
             </Text>
           )}
           {isAnswered && (
-            <View style={styles.judgement} testID="lesson-judgement">
+            <View
+              ref={judgementRef}
+              collapsable={false}
+              style={styles.judgement}
+              testID="lesson-judgement"
+            >
               <JudgementMark verdict={isCorrect ? "correct" : "incorrect"} />
               <Text
                 style={[

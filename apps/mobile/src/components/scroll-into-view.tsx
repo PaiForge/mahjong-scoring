@@ -19,11 +19,14 @@ import { scrollTargetY, type ScrollBlock } from "../lib/scroll-target";
 /**
  * 渡した要素が見えるところまでスクロールする関数
  *
- * 既定は枠の縦の中央に寄せる。合わせ方は {@link scrollTargetY} を参照
+ * 既定は枠の縦の中央に寄せる。合わせ方は {@link scrollTargetY} を参照。
+ * `until` を渡すと、`target` の上端から `until` の下端までをひとまとまりと
+ * して扱う（離れた 2 つの要素を一緒に見せたいとき。枠に収まらなければ
+ * `nearest` は上端を優先する）
  */
 type ScrollIntoView = (
   target: View | null,
-  options?: { readonly block?: ScrollBlock },
+  options?: { readonly block?: ScrollBlock; readonly until?: View | null },
 ) => void;
 
 const ScrollIntoViewContext = createContext<ScrollIntoView | undefined>(
@@ -63,7 +66,7 @@ export function ScrollIntoViewProvider({
       // web のいずれも中身のノードを返す）
       const content = scroll.getInnerViewNode();
       if (content == null) return;
-      target.measureLayout(content, (_x, y, _width, height) => {
+      const scrollTo = (y: number, height: number) => {
         const top = scrollTargetY(
           options?.block ?? "center",
           { y, height },
@@ -71,6 +74,16 @@ export function ScrollIntoViewProvider({
           scrollY.current,
         );
         if (top !== undefined) scroll.scrollTo({ y: top, animated: true });
+      };
+      const until = options?.until;
+      target.measureLayout(content, (_x, y, _width, height) => {
+        if (until == null) {
+          scrollTo(y, height);
+          return;
+        }
+        until.measureLayout(content, (_ux, untilY, _uw, untilHeight) => {
+          scrollTo(y, Math.max(height, untilY + untilHeight - y));
+        });
       });
     },
     [scrollRef, viewportHeight, scrollY],
