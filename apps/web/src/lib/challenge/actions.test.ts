@@ -84,6 +84,7 @@ describe("answerChallenge", () => {
         0,
         2,
         1_000_000,
+        expect.objectContaining({ enter: expect.any(Function) }),
       );
     } finally {
       vi.useRealTimers();
@@ -95,5 +96,177 @@ describe("answerChallenge", () => {
 
     expect(await answerChallenge("attempt-1", 0, 2)).toBeUndefined();
     expect(mockAnswerAttempt).not.toHaveBeenCalled();
+  });
+
+  describe("計測ログ", () => {
+    /** 直近の `console.info` を JSON として読む */
+    function lastLogged(info: ReturnType<typeof vi.spyOn>) {
+      const line = info.mock.lastCall?.[0];
+      return typeof line === "string" ? JSON.parse(line) : undefined;
+    }
+
+    /** 本物の answerAttempt と同じ順に段階へ入る採点の差し替え */
+    interface Tracker {
+      readonly enter: (phase: string) => void;
+      readonly finish: () => void;
+    }
+    function answeringThrough(
+      phases: readonly string[],
+      outcome: () => unknown,
+    ) {
+      return async (
+        _user: string,
+        _id: string,
+        _sequence: number,
+        _answer: unknown,
+        _receivedAt: number,
+        tracker: Tracker,
+      ) => {
+        phases.forEach((phase) => tracker.enter(phase));
+        const result = outcome();
+        tracker.finish();
+        return result;
+      };
+    }
+
+    it("採点できたら段階の所要時間と直前の回答の往復時間を 1 行に出す", async () => {
+      const info = vi.spyOn(console, "info").mockImplementation(() => {});
+      try {
+        mockAnswerAttempt.mockImplementation(
+          answeringThrough(["lock", "grade", "update", "commit"], () => ({
+            correct: true,
+            menuType: "jantou_fu",
+          })),
+        );
+
+        await answerChallenge("attempt-1", 3, 2, {
+          previous: { sequence: 2, roundTripMs: 240 },
+        });
+
+        expect(lastLogged(info)).toEqual(
+          expect.objectContaining({
+            event: "challenge.answer",
+            handling: "answered",
+            menuType: "jantou_fu",
+            sequence: 3,
+            first: false,
+            lock: expect.any(Number),
+            grade: expect.any(Number),
+            afterRespondedMs: expect.any(Number),
+            totalMs: expect.any(Number),
+            previousSequence: 2,
+            previousClientRoundTripMs: 240,
+          }),
+        );
+      } finally {
+        info.mockRestore();
+      }
+    });
+
+    it("受け付けなかった回答・期限切れ・未認証・BAN も結果の種別で出す", async () => {
+      const info = vi.spyOn(console, "info").mockImplementation(() => {});
+      try {
+        mockAnswerAttempt.mockResolvedValue(undefined);
+        await answerChallenge("attempt-1", 0, 2);
+        expect(lastLogged(info)).toMatchObject({
+          handling: "rejected",
+          first: true,
+        });
+        expect(lastLogged(info)).not.toHaveProperty("afterRespondedMs");
+
+        mockAnswerAttempt.mockResolvedValue({ expired: true });
+        await answerChallenge("attempt-1", 0, 2);
+        expect(lastLogged(info)).toMatchObject({ handling: "expired" });
+
+        mockAuthenticateAndCheckBan.mockResolvedValue({
+          error: "unauthorized",
+        });
+        await answerChallenge("attempt-1", 0, 2);
+        expect(lastLogged(info)).toMatchObject({ handling: "unauthorized" });
+
+        mockAuthenticateAndCheckBan.mockResolvedValue({ error: "banned" });
+        await answerChallenge("attempt-1", 0, 2);
+        expect(lastLogged(info)).toMatchObject({ handling: "banned" });
+      } finally {
+        info.mockRestore();
+      }
+    });
+
+    it("例外で落ちても通った段階までを failed として出し、例外は投げ直す", async () => {
+      const info = vi.spyOn(console, "info").mockImplementation(() => {});
+      try {
+        // 本物のガードと同じく、段階に入ってから進む
+        mockAuthenticateAndCheckBan.mockImplementation(
+          async (enter: (phase: string) => void) => {
+            enter("auth");
+            enter("ban");
+            return { user: AUTHENTICATED_USER };
+          },
+        );
+        mockAnswerAttempt.mockImplementation(
+          answeringThrough(["lock"], () => {
+            throw new Error("connection reset");
+          }),
+        );
+
+        await expect(answerChallenge("attempt-1", 4, 2)).rejects.toThrow(
+          "connection reset",
+        );
+        expect(lastLogged(info)).toEqual(
+          expect.objectContaining({
+            handling: "failed",
+            sequence: 4,
+            failedPhase: "lock",
+            auth: expect.any(Number),
+            ban: expect.any(Number),
+            lock: expect.any(Number),
+            totalMs: expect.any(Number),
+          }),
+        );
+        expect(lastLogged(info)).not.toHaveProperty("afterRespondedMs");
+      } finally {
+        info.mockRestore();
+      }
+    });
+
+    it("採点に進まなかった回答の COMMIT が落ちたら、落ちた段階は commit", async () => {
+      const info = vi.spyOn(console, "info").mockImplementation(() => {});
+      try {
+        // 期限切れ・拒否は grade と update を飛ばして commit に入る
+        mockAnswerAttempt.mockImplementation(
+          answeringThrough(["lock", "commit"], () => {
+            throw new Error("commit failed");
+          }),
+        );
+
+        await expect(answerChallenge("attempt-1", 4, 2)).rejects.toThrow(
+          "commit failed",
+        );
+        expect(lastLogged(info)).toMatchObject({
+          handling: "failed",
+          failedPhase: "commit",
+        });
+        expect(lastLogged(info)).not.toHaveProperty("grade");
+        expect(lastLogged(info)).not.toHaveProperty("update");
+      } finally {
+        info.mockRestore();
+      }
+    });
+
+    it("申告の往復時間が形を成さなければ欠損として出す", async () => {
+      const info = vi.spyOn(console, "info").mockImplementation(() => {});
+      try {
+        mockAnswerAttempt.mockResolvedValue({ correct: true });
+        await answerChallenge("attempt-1", 0, 2, {
+          previous: { sequence: 0, roundTripMs: -1 },
+        });
+        expect(lastLogged(info)).not.toHaveProperty(
+          "previousClientRoundTripMs",
+        );
+        expect(lastLogged(info)).not.toHaveProperty("previousSequence");
+      } finally {
+        info.mockRestore();
+      }
+    });
   });
 });

@@ -2,6 +2,12 @@
 import { authenticateAndCheckBan } from "../auth";
 import { enforceIpRateLimit } from "../rate-limit-ip";
 import {
+  createPhaseStopwatch,
+  logAnswerTiming,
+  parseAnswerObservation,
+  type AnswerHandling,
+} from "./answer-telemetry";
+import {
   beginAttempt,
   answerAttempt,
   pauseAttempt,
@@ -31,16 +37,61 @@ export async function beginChallenge(
  *
  * 受け取った時刻は本人確認より前に取る。確認と採点に掛かる時間を
  * 競技時間に数えないため（`answerAttempt` の `receivedAt`）。
+ *
+ * 段階ごとの所要時間を測り、結果と一緒に 1 行のログに出す
+ * （{@link logAnswerTiming}）。例外で落ちたときも通った段階までを
+ * `failed` として出し、例外はそのまま投げ直す。
+ *
+ * @param observation - クライアントの観測値（{@link parseAnswerObservation}）。
+ *   ログに載せるだけで、採点にも時計にも使わない
  */
 export async function answerChallenge(
   id: unknown,
   sequence: unknown,
   answer: unknown,
+  observation?: unknown,
 ) {
   const receivedAt = Date.now();
-  const auth = await authenticateAndCheckBan();
-  if ("error" in auth) return undefined;
-  return answerAttempt(auth.user.id, id, sequence, answer, receivedAt);
+  const stopwatch = createPhaseStopwatch();
+  // 途中で落ちたときは "failed" のまま finally に入る
+  let handling: AnswerHandling = "failed";
+  let menuType: string | undefined;
+  try {
+    const auth = await authenticateAndCheckBan(stopwatch.enter);
+    if ("error" in auth) {
+      handling = auth.error === "banned" ? "banned" : "unauthorized";
+      return undefined;
+    }
+    const result = await answerAttempt(
+      auth.user.id,
+      id,
+      sequence,
+      answer,
+      receivedAt,
+      stopwatch,
+    );
+    handling =
+      result === undefined
+        ? "rejected"
+        : "expired" in result
+          ? "expired"
+          : "answered";
+    if (result && "menuType" in result) menuType = result.menuType;
+    return result;
+  } finally {
+    // 落ちた段階は、計測を閉じる前に読む（閉じると「今いる段階」は消える）
+    const failedPhase = handling === "failed" ? stopwatch.current : undefined;
+    stopwatch.finish();
+    logAnswerTiming({
+      handling,
+      menuType,
+      sequence: Number.isInteger(sequence) ? Number(sequence) : undefined,
+      failedPhase,
+      phases: stopwatch.phases,
+      totalMs: stopwatch.elapsed(),
+      observation: parseAnswerObservation(observation),
+    });
+  }
 }
 /** 挑戦の一時停止・再開。 */
 export async function pauseChallenge(id: unknown, paused: unknown) {

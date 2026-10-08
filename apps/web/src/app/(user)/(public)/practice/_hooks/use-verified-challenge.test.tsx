@@ -98,11 +98,26 @@ describe("server-graded challenge UI", () => {
     await waitFor(() =>
       expect(mocks.onAnswer).toHaveBeenCalledWith(true, expect.any(Function)),
     );
-    expect(mocks.answer).toHaveBeenCalledWith("attempt-1", 0, 2);
+    // 最初の回答には直前の往復が無い
+    expect(mocks.answer).toHaveBeenCalledWith("attempt-1", 0, 2, {
+      previous: undefined,
+    });
     expect(mocks.recorded).toHaveBeenCalledWith([answered, 2]);
     expect(screen.getByTestId("answer").textContent).toBe("2");
     fireEvent.click(screen.getByText("next"));
     expect(screen.getByTestId("answer").textContent).toBe("20");
+  });
+  it("直前の回答の問題番号と往復時間を次の回答に添える（観測のための申告）", async () => {
+    mount();
+    await screen.findByText("20");
+    fireEvent.click(screen.getByText("answer"));
+    await waitFor(() => expect(mocks.onAnswer).toHaveBeenCalledTimes(1));
+    fireEvent.click(screen.getByText("next"));
+    fireEvent.click(screen.getByText("answer"));
+    await waitFor(() => expect(mocks.answer).toHaveBeenCalledTimes(2));
+    expect(mocks.answer).toHaveBeenLastCalledWith("attempt-1", 1, 2, {
+      previous: { sequence: 0, roundTripMs: expect.any(Number) },
+    });
   });
   it("通信待ち・回答済みの連打を二重送信しない", async () => {
     let resolve: (value: unknown) => void = () => {};
