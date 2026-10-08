@@ -96,6 +96,38 @@ export async function signInWithApple(): Promise<AppleSignInResult> {
   return "signedIn";
 }
 
+/**
+ * Apple で確認し直し、新しい認可コードを得る（退会の前に使う）
+ * Apple再確認
+ *
+ * サーバーが Apple の連携の取り消しに使うトークンを持っていないとき、
+ * 退会の受付はこのコードを求める（`appleAuthorizationRequired`）。
+ * ログインし直すのではなく、コードを得るためだけに Apple のシートを出す。
+ *
+ * - `canceled` — 本人がシートを閉じた
+ * - `notSupported` — この端末では Apple のネイティブのシートを出せない（Android・web 版）
+ * - `failed` — それ以外の失敗
+ */
+export async function requestAppleAuthorizationCode(): Promise<
+  | { readonly authorizationCode: string }
+  | "canceled"
+  | "notSupported"
+  | "failed"
+> {
+  if (Platform.OS !== "ios" || !(await AppleAuthentication.isAvailableAsync()))
+    return "notSupported";
+  try {
+    const credential = await AppleAuthentication.signInAsync({
+      requestedScopes: [],
+    });
+    return credential.authorizationCode
+      ? { authorizationCode: credential.authorizationCode }
+      : "failed";
+  } catch (error) {
+    return isCanceled(error) ? "canceled" : "failed";
+  }
+}
+
 /** 本人が Apple のシートを閉じたときの失敗か */
 function isCanceled(error: unknown): boolean {
   return (
