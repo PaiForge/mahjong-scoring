@@ -13,9 +13,9 @@ import {
 } from "@/app/(user)/_components/link-row";
 import type { NotificationListItem } from "@/lib/notifications/queries";
 import { dispatchNotificationsRead } from "@/lib/notifications/read-event";
+import { formatJstDateTime } from "@mahjong-scoring/features/jst";
 
 import { markNotificationReadAction } from "../_actions/mark-read";
-import { formatNotificationDate } from "../_lib/format-notification-date";
 import { notificationHref } from "../_lib/notification-link";
 import { buildNotificationMessage } from "../_lib/notification-message";
 import { NotificationTypeIcon } from "./notification-type-icon";
@@ -65,7 +65,9 @@ export function NotificationItem({ notification }: NotificationItemProps) {
           {t(`messages.${message.key}`, message.values)}
         </span>
         <span className="mt-0.5 block text-xs tabular-nums text-surface-400">
-          {formatNotificationDate(notification.createdAt)}
+          {/* 相対表記（「3 日前」）にしない。サーバーで描いた文字列をそのまま
+              出すので、クライアントの時計とのずれでハイドレーションが崩れない */}
+          {formatJstDateTime(notification.createdAt)}
         </span>
       </span>
       {isUnread && (
