@@ -44,6 +44,10 @@ import { useRouteVariant } from "./use-route-variant";
  * 2. 「もう一度」で同じ設定のチャレンジへ、「設定を変更する」で説明画面へ
  * 3. ヘッダーの × と Android の戻るは結果を閉じて説明画面へ戻る
  *
+ * 結果はメモリのストアにしか無く、アプリを閉じると消える。再起動や
+ * ディープリンクで結果が無いまま開いたときは、正解・不正解の帯の代わりに
+ * その旨を書き、すぐ下の「もう一度」で挑戦し直せるようにする。
+ *
  * 閉じる操作をヘッダーに置くのは、問題別の結果までスクロールすると
  * 「練習一覧に戻る」が画面の外へ出て、退出の手段が無くなるため。閉じる先は
  * チャレンジの × と同じ説明画面（流れを始めた画面）にそろえる。終えた
@@ -111,11 +115,17 @@ export function PracticeResultScreen({
               {tp("variantLabel", { label: t(`variants.${variant}.label`) })}
             </Text>
           )}
-          {current !== undefined && (
+          {current !== undefined ? (
             <ResultScoreBar
               correct={current.finalResult.correctCount}
               total={current.finalResult.totalCount}
             />
+          ) : (
+            // 結果はメモリにしか無い。アプリの再起動やディープリンクで直接
+            // 開くと空になるので、何も無い帯の代わりに理由と再挑戦を示す
+            <Text style={styles.unavailable} testID="result-unavailable">
+              {tc("resultUnavailable")}
+            </Text>
           )}
         </View>
 
@@ -156,6 +166,11 @@ const styles = StyleSheet.create({
   variant: {
     fontSize: 14,
     color: colors.surface500,
+  },
+  unavailable: {
+    fontSize: 15,
+    lineHeight: 24,
+    color: colors.surface600,
   },
   section: {
     gap: 16,

@@ -8,11 +8,11 @@ import {
   type StyleProp,
   type ViewStyle,
 } from "react-native";
-import { useRouter } from "expo-router";
+import { usePathname, useRouter } from "expo-router";
 import { useTranslations } from "use-intl";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
-import { PRACTICE_PATH } from "@mahjong-scoring/features/routes";
 
+import { backFallbackHref } from "../lib/back-fallback";
 import { colors } from "../lib/theme";
 import { ChevronLeftIcon, CloseIcon } from "./icons/icons";
 import { ScrollIntoViewProvider } from "./scroll-into-view";
@@ -70,8 +70,9 @@ interface ScreenProps {
  * そろえる。web の地の斜線の帯と太枠の区切りは持たない — スマホアプリの
  * ヘッダーとして見慣れない形で、本文の面積も削るため。
  *
- * 戻るは履歴が無いとき（ディープリンクや再起動で直接開いたとき）でも
- * 練習一覧へ戻れるようにする。
+ * 戻るは履歴が無いとき（ディープリンクや再起動で直接開いたとき）でも、
+ * 画面の入口のタブ（レッスンならレッスンの目次）へ戻れるようにする
+ * （{@link backFallbackHref}）。
  */
 export function Screen({
   title,
@@ -98,6 +99,7 @@ export function Screen({
     [ref],
   );
   const router = useRouter();
+  const pathname = usePathname();
   const t = useTranslations("nav");
 
   const handleBack = () => {
@@ -108,7 +110,7 @@ export function Screen({
     if (router.canGoBack()) {
       router.back();
     } else {
-      router.replace(PRACTICE_PATH);
+      router.replace(backFallbackHref(pathname));
     }
   };
 
