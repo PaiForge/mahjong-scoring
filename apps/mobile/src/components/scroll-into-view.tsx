@@ -14,8 +14,20 @@ import {
   type ViewStyle,
 } from "react-native";
 
-/** 渡した要素がスクロール枠の縦の中央に来るまでスクロールする関数 */
-type ScrollIntoView = (target: View | null) => void;
+import { scrollTargetY, type ScrollBlock } from "../lib/scroll-target";
+
+/**
+ * 渡した要素が見えるところまでスクロールする関数
+ *
+ * 既定は枠の縦の中央に寄せる。合わせ方は {@link scrollTargetY} を参照。
+ * `until` を渡すと、`target` の上端から `until` の下端までをひとまとまりと
+ * して扱う（離れた 2 つの要素を一緒に見せたいとき。枠に収まらなければ
+ * `nearest` は上端を優先する）
+ */
+type ScrollIntoView = (
+  target: View | null,
+  options?: { readonly block?: ScrollBlock; readonly until?: View | null },
+) => void;
 
 const ScrollIntoViewContext = createContext<ScrollIntoView | undefined>(
   undefined,
@@ -33,32 +45,48 @@ const ScrollIntoViewContext = createContext<ScrollIntoView | undefined>(
  *
  * @param scrollRef 対象のスクロール枠
  * @param viewportHeight 枠の見えている高さ（`onLayout` で更新する入れ物）
+ * @param scrollY 今のスクロール位置（`onScroll` で更新する入れ物）
  */
 export function ScrollIntoViewProvider({
   scrollRef,
   viewportHeight,
+  scrollY,
   children,
 }: {
   readonly scrollRef: RefObject<ScrollView | null>;
   readonly viewportHeight: RefObject<number>;
+  readonly scrollY: RefObject<number>;
   readonly children: ReactNode;
 }) {
   const scrollIntoView = useCallback<ScrollIntoView>(
-    (target) => {
+    (target, options) => {
       const scroll = scrollRef.current;
       if (target === null || scroll === null) return;
       // 中身の View。型定義は any（RN の非公開寄りの API だが、iOS / Android /
       // web のいずれも中身のノードを返す）
       const content = scroll.getInnerViewNode();
       if (content == null) return;
+      const scrollTo = (y: number, height: number) => {
+        const top = scrollTargetY(
+          options?.block ?? "center",
+          { y, height },
+          viewportHeight.current,
+          scrollY.current,
+        );
+        if (top !== undefined) scroll.scrollTo({ y: top, animated: true });
+      };
+      const until = options?.until;
       target.measureLayout(content, (_x, y, _width, height) => {
-        scroll.scrollTo({
-          y: Math.max(0, y + height / 2 - viewportHeight.current / 2),
-          animated: true,
+        if (until == null) {
+          scrollTo(y, height);
+          return;
+        }
+        until.measureLayout(content, (_ux, untilY, _uw, untilHeight) => {
+          scrollTo(y, Math.max(height, untilY + untilHeight - y));
         });
       });
     },
-    [scrollRef, viewportHeight],
+    [scrollRef, viewportHeight, scrollY],
   );
 
   return (
@@ -83,11 +111,13 @@ export function ScrollIntoViewScrollView({
 }) {
   const scrollRef = useRef<ScrollView>(null);
   const viewportHeight = useRef(0);
+  const scrollY = useRef(0);
 
   return (
     <ScrollIntoViewProvider
       scrollRef={scrollRef}
       viewportHeight={viewportHeight}
+      scrollY={scrollY}
     >
       <ScrollView
         ref={scrollRef}
@@ -95,6 +125,10 @@ export function ScrollIntoViewScrollView({
         onLayout={(e: LayoutChangeEvent) => {
           viewportHeight.current = e.nativeEvent.layout.height;
         }}
+        onScroll={(e) => {
+          scrollY.current = e.nativeEvent.contentOffset.y;
+        }}
+        scrollEventThrottle={16}
       >
         {children}
       </ScrollView>

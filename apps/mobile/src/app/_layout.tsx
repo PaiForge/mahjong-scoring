@@ -31,6 +31,9 @@ export default function RootLayout() {
               name="practice/[slug]/play"
               options={{ gestureEnabled: false }}
             />
+            {/* 結果はヘッダーの × で説明画面へ閉じる。スワイプで戻ると下の画面
+                （ディープリンクでは説明画面とは限らない）へ落ち、× と行き先が
+                食い違うので切る */}
             <Stack.Screen
               name="practice/[slug]/result"
               options={{ gestureEnabled: false }}

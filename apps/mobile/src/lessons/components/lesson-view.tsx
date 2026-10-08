@@ -1,4 +1,4 @@
-import { useState, type ReactNode } from "react";
+import { useEffect, useRef, useState, type ReactNode } from "react";
 import { StyleSheet, Text, View } from "react-native";
 import { useRouter } from "expo-router";
 import { useTranslations } from "use-intl";
@@ -32,6 +32,7 @@ import { rankBySlug } from "@mahjong-scoring/features/ranks/registry";
 import { TehaiDisplay } from "../../board/tehai-display";
 import { Button } from "../../components/button";
 import { Grid } from "../../components/grid";
+import { useScrollIntoView } from "../../components/scroll-into-view";
 import { SectionTitle } from "../../components/section-title";
 import { TextLink } from "../../components/text-link";
 import {
@@ -54,7 +55,7 @@ import { isLessonPorted } from "../ported-lessons";
 import { lessonColors, verdictTextColors } from "../lesson-colors";
 import { ChapterRelatedLinks } from "./chapter-related-links";
 import { DoneMark } from "./done-mark";
-import { NextLessonPreview } from "./next-lesson-preview";
+import { NextLessonPreview, nextChapterSlug } from "./next-lesson-preview";
 import { RankGoalPanel } from "./rank-goal-panel";
 import { MachiTiles, MentsuSet, TileSet } from "./tile-row";
 
@@ -102,7 +103,7 @@ interface LessonViewProps {
   readonly messageKey: string;
   /** 本文（章の本文そのもの） */
   readonly explanation: ReactNode;
-  /** 章の末尾（前後のレッスンへのナビ・公開日）。確認問題の画面には出さない */
+  /** 章の末尾（広告・公開日）。確認問題の画面には出さない */
   readonly footer: ReactNode;
   /** 画面の先頭へ戻す（段階・問題が変わったとき） */
   readonly onScrollTop: () => void;
@@ -122,13 +123,17 @@ interface LessonViewProps {
  * 踏まえた次の一歩（features の `lessonFollowUp`）。それが道筋の順の次の
  * レッスン（`stepAfterLesson`）と同じなら、ボタンの代わりにそのレッスンの
  * 冒頭のプレビューを出す。級の最後のレッスンでは、ボタンの下に昇級試験までの
- * 残りを添える。
+ * 残りを添える。次のレッスンへは置き換えて移り、続けて読んでも戻るは 1 回で
+ * 学習を始めた画面へ帰る。
  *
  * 完了済みの人が開いたときは、本文の下の「確認問題へ」を控えめな解き直しの
- * リンクに替え、その下に練習への導線を出す。
+ * リンクに替え、その下に目次の順の次のレッスンと練習への導線を出す。
  *
  * web は段階をブラウザの履歴に積み「戻る」で 1 段階ずつ戻れるが、モバイルの
- * 戻るは画面を閉じる。
+ * 戻るは画面を閉じる。その代わり確認問題の下に「本文を読み返す」を置き、
+ * 本文へ戻っても解いている問題と回答（選んだ答え・ヒント・正答数）は残して、
+ * 本文の下のボタンから同じ問題へ戻れるようにする。読み返すたびに最初から
+ * 解き直させないため。
  */
 export function LessonView({
   slug,
@@ -146,11 +151,16 @@ export function LessonView({
   const completedLessonSlugs = useCompletedLessonSlugs();
   const attemptedPractices = useAttemptedPractices();
   const markCompleted = useLessonCompletionStore((s) => s.markCompleted);
+  const scrollIntoView = useScrollIntoView();
+  const judgementRef = useRef<View>(null);
+  const nextButtonRef = useRef<View>(null);
 
   const { questions, choices } = lessonQuiz(slug);
 
   const [phase, setPhase] = useState<LessonPhase>("learn");
   const [finished, setFinished] = useState(false);
+  // 確認問題を解いている途中か（本文を読み返しても続きから戻れるように）
+  const [inQuiz, setInQuiz] = useState(false);
   const [index, setIndex] = useState(0);
   const [selected, setSelected] = useState<LessonChoice | undefined>(undefined);
   const [showHint, setShowHint] = useState(false);
@@ -160,6 +170,24 @@ export function LessonView({
   const isAnswered = selected !== undefined;
   const isCorrect = isAnswered && isSameChoice(selected, question.answer);
   const isLast = index === questions.length - 1;
+  const nextSlug = nextChapterSlug(slug);
+
+  // 答えると判定と解説が選択肢の上に入り、選択肢と「次へ」が下へ押し出される。
+  // 小さな画面や文字を大きくした端末では、判定から「次へ」までが画面に
+  // 収まらないことがある。判定の先頭から「次へ」までを 1 つとして見えるところへ
+  // 送り（見えていれば動かさない）、収まらなければ判定の先頭に合わせる —
+  // 「次へ」を優先すると、読む前の解説が画面の上へ追い出されるため。「次へ」は
+  // 解説を読み進めた先の下にある。答えた問題へ本文から戻ったときも同じ
+  useEffect(() => {
+    if (phase !== "quiz" || !isAnswered) return;
+    const frame = requestAnimationFrame(() => {
+      scrollIntoView(judgementRef.current, {
+        block: "nearest",
+        until: nextButtonRef.current,
+      });
+    });
+    return () => cancelAnimationFrame(frame);
+  }, [phase, isAnswered, scrollIntoView]);
 
   const goTo = (next: LessonPhase) => {
     setPhase(next);
@@ -186,12 +214,14 @@ export function LessonView({
       setCorrectCount(0);
       setFinished(false);
     }
+    setInQuiz(true);
     goTo("quiz");
   };
 
   const handleNext = () => {
     if (isLast) {
       setFinished(true);
+      setInQuiz(false);
       markCompleted(slug);
       goTo("done");
       return;
@@ -212,9 +242,16 @@ export function LessonView({
           </View>
         )}
         {explanation}
-        {completed ? (
+        {inQuiz ? (
+          <Button size="lg" fullWidth onPress={handleStart}>
+            {t("resumeQuiz", { index: index + 1, total: questions.length })}
+          </Button>
+        ) : completed ? (
           <>
             <TextLink onPress={handleStart}>{t("retakeQuiz")}</TextLink>
+            {/* 完了済みで開き直したときも、確認問題を解き直さずに次へ進める
+                （確認問題を持たない章の完了後と同じ） */}
+            {nextSlug !== undefined && <NextLessonPreview slug={nextSlug} />}
             <ChapterRelatedLinks slug={slug} />
           </>
         ) : (
@@ -264,7 +301,12 @@ export function LessonView({
             </Text>
           )}
           {isAnswered && (
-            <View style={styles.judgement} testID="lesson-judgement">
+            <View
+              ref={judgementRef}
+              collapsable={false}
+              style={styles.judgement}
+              testID="lesson-judgement"
+            >
               <JudgementMark verdict={isCorrect ? "correct" : "incorrect"} />
               <Text
                 style={[
@@ -321,9 +363,11 @@ export function LessonView({
         </Grid>
 
         {isAnswered ? (
-          <Button size="lg" fullWidth onPress={handleNext}>
-            {isLast ? t("finish") : t("next")}
-          </Button>
+          <View ref={nextButtonRef} collapsable={false}>
+            <Button size="lg" fullWidth onPress={handleNext}>
+              {isLast ? t("finish") : t("next")}
+            </Button>
+          </View>
         ) : (
           <Button
             variant="secondary"
@@ -334,6 +378,7 @@ export function LessonView({
             {t("showHint")}
           </Button>
         )}
+        <TextLink onPress={() => goTo("learn")}>{t("reviewBody")}</TextLink>
       </View>
     );
   }
@@ -408,7 +453,12 @@ export function LessonView({
           <Button
             size="lg"
             fullWidth
-            onPress={() => router.push(journeyStepHref(step))}
+            onPress={() =>
+              // レッスンからレッスンへは置き換える（NextLessonPreview と同じ理由）
+              step.kind === "lesson"
+                ? router.replace(journeyStepHref(step))
+                : router.push(journeyStepHref(step))
+            }
           >
             {t(`nextStep.${step.kind}`, {
               title: journeyStepTitle(step, tAll),
