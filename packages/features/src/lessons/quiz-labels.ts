@@ -70,7 +70,10 @@ export function lessonAnswerLabel(
     case "points":
     case "koTsumo":
       return t("answerLabels.points", { points: lessonChoiceLabel(choice, t) });
-    default:
+    case "oyaTsumo":
+    case "han":
+    case "yakuman":
+    case "fu":
       return lessonChoiceLabel(choice, t);
   }
 }
