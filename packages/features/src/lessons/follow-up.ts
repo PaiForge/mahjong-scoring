@@ -9,8 +9,14 @@ import {
 import { quizLessonBySlug, type QuizLessonSlug } from "./registry";
 import type { PracticeLink } from "../curriculum/registry";
 
-/** 1 つの級の行程の進み具合（段ごとの済んだ数と全体、試験の合否） */
-export interface RankProgress {
+/**
+ * 1 つの級の行程の進み具合（段ごとの済んだ数と全体、試験の合否）
+ * 級の行程の進捗
+ *
+ * 5級から初段までのどこまで取ったかを示す段級位の進捗バー
+ * （`ranks/rank-progress` の `RankProgress`）とは別物。
+ */
+export interface RankJourneyProgress {
   readonly learn: JourneyStageProgress;
   readonly practice: JourneyStageProgress;
   readonly examPassed: boolean;
@@ -22,12 +28,12 @@ export interface RankProgress {
  *
  * - `next`: 進み具合を踏まえた次の一歩（features の `stepAfterLessonWithProgress`）。
  *   求められなければ無く、完了画面は道筋の順の一歩を使う
- * - `rankProgress`: レッスンの級の行程の進み具合（道場の行程カードと同じ数え方）。
+ * - `rankJourneyProgress`: レッスンの級の行程の進み具合（道場の行程カードと同じ数え方）。
  *   級の最後のレッスンの「昇級試験まで」が出す
  */
 export interface LessonFollowUp {
   readonly next?: JourneyStep;
-  readonly rankProgress?: RankProgress;
+  readonly rankJourneyProgress?: RankJourneyProgress;
 }
 
 /**
@@ -52,7 +58,7 @@ export function lessonFollowUp(
   );
   return {
     next: stepAfterLessonWithProgress(slug, progress),
-    rankProgress:
+    rankJourneyProgress:
       rank === undefined
         ? undefined
         : {

@@ -15,7 +15,7 @@ import { useLessonFollowUp } from "./lesson-follow-up-context";
  */
 export function RankProgressSummary() {
   const t = useTranslations("ranks");
-  const progress = useLessonFollowUp()?.rankProgress;
+  const progress = useLessonFollowUp()?.rankJourneyProgress;
   if (progress === undefined) return null;
 
   return (

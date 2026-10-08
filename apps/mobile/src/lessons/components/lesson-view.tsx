@@ -417,7 +417,7 @@ export function LessonView({
       <RankGoalPanel
         rankSlug={rank.slug}
         examSlug={menuTypeToSlug(rank.exam.menuType)}
-        progress={followUp.rankProgress}
+        progress={followUp.rankJourneyProgress}
       />
     );
 

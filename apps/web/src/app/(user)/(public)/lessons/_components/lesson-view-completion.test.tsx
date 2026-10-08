@@ -298,7 +298,7 @@ describe("LessonView の済みの印", () => {
           slug: "score-table",
           variant: "ko_mangan_plus",
         },
-        rankProgress: {
+        rankJourneyProgress: {
           learn: { done: 2, total: 5 },
           practice: { done: 6, total: 6 },
           examPassed: false,
