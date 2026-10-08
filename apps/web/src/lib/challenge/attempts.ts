@@ -87,8 +87,8 @@ export async function beginAttempt(
  *
  * サーバー時計の起点（`respondedAt`）は UPDATE の直前に取る。起点を行に
  * 書くので、UPDATE と COMMIT の時間は起点より後に掛かり、固定の猶予
- * （`RESPONSE_GRACE_MS`）の中から消費される。その長さは `lap` の
- * `"update"` と `"commit"` で測れる。
+ * （`RESPONSE_GRACE_MS`）の中から消費される。その長さは `tracker` が
+ * 測る `"update"` と `"commit"` の段階で見える。
  *
  * @param receivedAt - 回答のリクエストを受け取った時刻。認証や行ロックの前に
  *   取ったものを渡す。ここから応答を組むまでの処理時間は競技時間に数えない
