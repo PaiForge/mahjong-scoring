@@ -14,7 +14,7 @@ import {
 
 import { journeyStepTitle } from "@mahjong-scoring/features/journey/journey-step";
 
-import { RankProgressSummary } from "./rank-progress-summary";
+import { RankJourneyProgressSummary } from "./rank-journey-progress-summary";
 
 /** 見出しの id。完了画面に 1 つしか出ないので固定でよい */
 const HEADING_ID = "rank-goal-panel-title";
@@ -69,7 +69,7 @@ export async function RankGoalPanel({
         <p className="text-sm leading-relaxed text-surface-700">
           {t("lead", { rank })}
         </p>
-        <RankProgressSummary />
+        <RankJourneyProgressSummary />
         <div className={`flex flex-col ${SUB_LINK_GAP}`}>
           <LinkRowList inset>
             <LinkRow
