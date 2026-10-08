@@ -2,6 +2,8 @@
   "completedMark": "完了済み",
   "startQuiz": "確認問題へ（{count} 問）",
   "retakeQuiz": "確認問題を解き直す",
+  "resumeQuiz": "確認問題に戻る（{index} / {total} 問目）",
+  "reviewBody": "本文を読み返す",
   "quizTitle": "確認問題",
   "progress": "{index} / {total} 問目",
   "conditionLabel": "条件",
