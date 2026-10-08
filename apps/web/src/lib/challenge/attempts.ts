@@ -69,6 +69,8 @@ function attemptEntry(id: string, state: ChallengeState) {
  *   通信で失われたアプリが、挑戦を 2 つ作らずに同じ挑戦へ戻るため。
  *   他人の行と ID がぶつかった（推測で送られた）ときは開始しない。
  *   省略すると DB が ID を決める（web はこちら）
+ * @param clock - 時計。受験資格を確かめ出題を作った後に読むので、時刻ではなく
+ *   関数で受ける
  */
 export async function beginAttempt(
   userId: string,
@@ -76,6 +78,7 @@ export async function beginAttempt(
   variant: unknown,
   settings: unknown,
   requestedId?: unknown,
+  clock: () => number = Date.now,
 ) {
   const parsed = settingsSchema.safeParse(settings);
   if (
@@ -102,7 +105,7 @@ export async function beginAttempt(
   if (!question) return undefined;
   const state = startedChallenge(
     { menuType, variant, settings: parsed.data, question },
-    Date.now(),
+    clock(),
   );
   // 退会を受け付けた後には挑戦を作らない（受付と競合しても、ロックで直列になる）
   const row = await db.transaction(async (tx) => {
@@ -170,6 +173,8 @@ function resumableEntry(
  * @param receivedAt - 回答のリクエストを受け取った時刻。認証や行ロックの前に
  *   取ったものを渡す。ここから応答を組むまでの処理時間は競技時間に数えない
  *   （{@link answeredChallenge}）
+ * @param clock - 時計。応答の起点（`respondedAt`）を UPDATE の直前に読むので、
+ *   時刻ではなく関数で受ける
  */
 export async function answerAttempt(
   userId: string,
@@ -177,6 +182,7 @@ export async function answerAttempt(
   sequence: unknown,
   answer: unknown,
   receivedAt: number = Date.now(),
+  clock: () => number = Date.now,
 ) {
   if (
     !uuid.safeParse(id).success ||
@@ -222,7 +228,7 @@ export async function answerAttempt(
       correct,
       next,
       receivedAt,
-      Date.now(),
+      clock(),
     );
     const state: ChallengeState = {
       ...answered,
