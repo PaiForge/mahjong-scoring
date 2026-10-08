@@ -22,6 +22,8 @@ const SCORE_TABLE_TAB_PATH = "/score-table";
  * - 道場・級の詳細・昇級試験 → 道場
  * - 参照（役一覧・用語）→ 参照の入口、参照の入口 → 点数表のタブ
  * - 設定の下のページ → 設定、設定 → ホーム
+ * - アカウント（ログイン・登録・ユーザー名の設定・退会）→ 設定（入口が設定の
+ *   アカウントの節のため）
  * - それ以外（練習）→ 練習一覧
  *
  * @param pathname 今の画面のパス（`usePathname()`）
@@ -38,6 +40,10 @@ export function backFallbackHref(pathname: string): string {
       return child === undefined ? SCORE_TABLE_TAB_PATH : REFERENCE_PATH;
     case "preferences":
       return child === undefined ? "/" : PREFERENCES_PATH;
+    case "sign-in":
+    case "sign-up":
+    case "mypage":
+      return PREFERENCES_PATH;
     default:
       return PRACTICE_PATH;
   }

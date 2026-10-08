@@ -1,0 +1,176 @@
+import { useState } from "react";
+import {
+  StyleSheet,
+  Text,
+  View,
+  type StyleProp,
+  type ViewStyle,
+} from "react-native";
+import { useRouter } from "expo-router";
+import { useTranslations } from "use-intl";
+
+import { refreshAccount, signOut, useAuth } from "../auth/use-auth";
+import { ConfirmationModal } from "../components/confirmation-modal";
+import { Divider } from "../components/divider";
+import { LinkRow, LinkRowList } from "../components/link-row";
+import { SectionTitle } from "../components/section-title";
+import { TextLink } from "../components/text-link";
+import { panelFrame } from "../lib/panel-styles";
+import { colors } from "../lib/theme";
+
+/**
+ * 設定のアカウントの節
+ * アカウント設定
+ *
+ * ゲストにはログイン・登録の入口を、ログイン中はユーザー名・メール
+ * アドレスとログアウト・退会を出す。ユーザー名を決めていなければ、
+ * その設定へ進む行を先頭に置く。
+ *
+ * ログインを出せないビルド（接続先が無い）と、保存したログイン状態を
+ * 読んでいる間は節ごと出さない。
+ */
+export function AccountSection({
+  style,
+}: {
+  /** 節の外枠（他の節と間隔をそろえる） */
+  readonly style?: StyleProp<ViewStyle>;
+}) {
+  const t = useTranslations("settings.account");
+  const { status } = useAuth();
+  if (status === "unavailable" || status === "loading") return null;
+  return (
+    <View style={style}>
+      <SectionTitle>{t("sectionTitle")}</SectionTitle>
+      {status === "signedOut" ? <GuestAccount /> : <SignedInAccount />}
+    </View>
+  );
+}
+
+/** ゲスト: ログイン・登録の入口 */
+function GuestAccount() {
+  const t = useTranslations("settings.account");
+  const router = useRouter();
+  return (
+    <>
+      <Text style={styles.lead}>{t("lead")}</Text>
+      <LinkRowList>
+        <LinkRow title={t("signIn")} onPress={() => router.push("/sign-in")} />
+        <LinkRow title={t("signUp")} onPress={() => router.push("/sign-up")} />
+      </LinkRowList>
+    </>
+  );
+}
+
+/** ログイン中: アカウントの情報とログアウト・退会 */
+function SignedInAccount() {
+  const t = useTranslations("settings.account");
+  const router = useRouter();
+  const { user, account, accountFailed } = useAuth();
+  const [confirmingSignOut, setConfirmingSignOut] = useState(false);
+
+  return (
+    <>
+      {accountFailed && (
+        <View style={styles.failed}>
+          <Text style={styles.failedText}>{t("loadFailed")}</Text>
+          <TextLink onPress={() => void refreshAccount()}>
+            {t("retry")}
+          </TextLink>
+        </View>
+      )}
+      {account?.profile === null && (
+        <LinkRowList>
+          <LinkRow
+            title={t("usernameMissing")}
+            description={t("usernameMissingDescription")}
+            onPress={() => router.push("/mypage/setup-username")}
+          />
+        </LinkRowList>
+      )}
+      <View style={[panelFrame, styles.info]}>
+        {account?.profile && (
+          <>
+            <InfoRow label={t("username")} value={account.profile.username} />
+            <Divider />
+          </>
+        )}
+        <InfoRow label={t("email")} value={user?.email ?? "—"} />
+      </View>
+      <LinkRowList>
+        <LinkRow
+          title={t("signOut")}
+          onPress={() => setConfirmingSignOut(true)}
+        />
+        <LinkRow
+          title={t("deleteAccount")}
+          onPress={() => router.push("/mypage/account/delete")}
+        />
+      </LinkRowList>
+      <ConfirmationModal
+        isOpen={confirmingSignOut}
+        title={t("signOutConfirmTitle")}
+        message={t("signOutConfirmMessage")}
+        confirmText={t("signOut")}
+        cancelText={t("signOutCancel")}
+        onConfirm={() => {
+          setConfirmingSignOut(false);
+          void signOut();
+        }}
+        onClose={() => setConfirmingSignOut(false)}
+      />
+    </>
+  );
+}
+
+function InfoRow({
+  label,
+  value,
+}: {
+  readonly label: string;
+  readonly value: string;
+}) {
+  return (
+    <View style={styles.infoRow}>
+      <Text style={styles.infoLabel}>{label}</Text>
+      <Text style={styles.infoValue} numberOfLines={1}>
+        {value}
+      </Text>
+    </View>
+  );
+}
+
+const styles = StyleSheet.create({
+  lead: {
+    fontSize: 15,
+    lineHeight: 23,
+    color: colors.surface700,
+  },
+  failed: {
+    alignItems: "flex-start",
+    gap: 4,
+  },
+  failedText: {
+    fontSize: 15,
+    color: colors.destructiveStrong,
+  },
+  info: {
+    paddingHorizontal: 16,
+  },
+  infoRow: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+    gap: 12,
+    paddingVertical: 14,
+  },
+  infoLabel: {
+    fontSize: 15,
+    color: colors.surface600,
+  },
+  infoValue: {
+    flexShrink: 1,
+    fontSize: 15,
+    fontWeight: "600",
+    color: colors.surface900,
+  },
+});

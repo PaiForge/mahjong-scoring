@@ -174,6 +174,9 @@ export function Screen({
             contentStyle,
           ]}
           keyboardShouldPersistTaps="handled"
+          // 入力欄（ログイン・登録等）がキーボードに隠れないよう、iOS で
+          // キーボードの高さぶん本文の下を空けてスクロールできるようにする
+          automaticallyAdjustKeyboardInsets
           stickyHeaderIndices={
             stickyHeaderIndices === undefined
               ? undefined

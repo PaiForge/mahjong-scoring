@@ -24,6 +24,13 @@ describe("backFallbackHref", () => {
     expect(backFallbackHref("/preferences")).toBe("/");
   });
 
+  it("アカウントの画面は入口の設定へ", () => {
+    expect(backFallbackHref("/sign-in")).toBe("/preferences");
+    expect(backFallbackHref("/sign-up")).toBe("/preferences");
+    expect(backFallbackHref("/mypage/setup-username")).toBe("/preferences");
+    expect(backFallbackHref("/mypage/account/delete")).toBe("/preferences");
+  });
+
   it("練習とそれ以外は練習一覧へ", () => {
     expect(backFallbackHref("/practice/jantou-fu")).toBe("/practice");
     expect(backFallbackHref("/unknown")).toBe("/practice");

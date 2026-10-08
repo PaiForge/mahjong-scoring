@@ -62,5 +62,22 @@
     "resetToast": "既定の並びに戻しました"
   },
   "yakuOrderTitle": "役の並び順",
-  "yakuOrderDescription": "役を選ぶときの選択肢の並びを入れ替える"
+  "yakuOrderDescription": "役を選ぶときの選択肢の並びを入れ替える",
+  "account": {
+    "sectionTitle": "アカウント",
+    "lead": "ログインすると、チャレンジの成績とレッスンの完了をアカウントに記録できます。web で登録したアカウントでもログインできます。",
+    "signIn": "ログイン",
+    "signUp": "アカウント登録",
+    "username": "ユーザー名",
+    "email": "メールアドレス",
+    "usernameMissing": "ユーザー名の設定",
+    "usernameMissingDescription": "登録を完了するにはユーザー名を決めてください",
+    "loadFailed": "アカウントの状態を読み込めませんでした。",
+    "retry": "もう一度読み込む",
+    "signOut": "ログアウト",
+    "signOutConfirmTitle": "ログアウトしますか？",
+    "signOutConfirmMessage": "この端末からログアウトします。web や他の端末のログインはそのままです。",
+    "signOutCancel": "キャンセル",
+    "deleteAccount": "アカウントを削除"
+  }
 }

@@ -1,3 +1,5 @@
+import { z } from "zod";
+
 /**
  * アプリ向け API のパスの接頭辞（サイトの origin からの相対）
  * アプリAPI接頭辞
@@ -27,16 +29,50 @@ export interface MobileMeResponse {
   readonly profile: { readonly username: string } | null;
 }
 
+const mobileMeResponseSchema = z.object({
+  userId: z.string(),
+  profile: z.object({ username: z.string() }).nullable(),
+});
+
 /**
- * アプリ向け API が返すエラーの理由
+ * アカウント状態の応答を検証する。形が違えば undefined
+ * アカウント状態応答検証
+ */
+export function parseMobileMeResponse(
+  body: unknown,
+): MobileMeResponse | undefined {
+  const parsed = mobileMeResponseSchema.safeParse(body);
+  return parsed.success ? parsed.data : undefined;
+}
+
+/**
+ * アプリ向け API が返すエラーの理由（認証と回数制限）
  *
  * - `unauthorized` — トークンが無い・無効・失効（401）。ログアウト状態へ戻す
  * - `deleted` — 退会済み（401）。ログアウト状態へ戻す
  * - `banned` — BAN 済み（403）
  * - `rateLimited` — 回数の上限（429）
  */
-export type MobileApiErrorCode =
-  "unauthorized" | "deleted" | "banned" | "rateLimited";
+export const MOBILE_API_ERROR_CODES = [
+  "unauthorized",
+  "deleted",
+  "banned",
+  "rateLimited",
+] as const;
+
+/** アプリ向け API が返すエラーの理由（{@link MOBILE_API_ERROR_CODES}） */
+export type MobileApiErrorCode = (typeof MOBILE_API_ERROR_CODES)[number];
+
+const mobileApiErrorCodeSet: ReadonlySet<string> = new Set(
+  MOBILE_API_ERROR_CODES,
+);
+
+/** 値がアプリ向け API のエラーの理由かを判定する型ガード */
+export function isMobileApiErrorCode(
+  value: unknown,
+): value is MobileApiErrorCode {
+  return typeof value === "string" && mobileApiErrorCodeSet.has(value);
+}
 
 /**
  * ユーザー名を決めてプロフィールを作る API のパス（POST）
@@ -55,15 +91,31 @@ export interface MobileRegisterUsernameRequest {
  * ユーザー名登録で弾く理由（422）。辞書の `setupUsername.validation` の
  * キーへの対応はアプリ側が持つ
  */
+export const MOBILE_USERNAME_ERROR_CODES = [
+  "too_short",
+  "too_long",
+  "invalid_format",
+  "reserved",
+  "username_required",
+  "username_already_set",
+  "username_taken",
+  "display_name_too_long",
+] as const;
+
+/** ユーザー名登録で弾く理由（{@link MOBILE_USERNAME_ERROR_CODES}） */
 export type MobileUsernameErrorCode =
-  | "too_short"
-  | "too_long"
-  | "invalid_format"
-  | "reserved"
-  | "username_required"
-  | "username_already_set"
-  | "username_taken"
-  | "display_name_too_long";
+  (typeof MOBILE_USERNAME_ERROR_CODES)[number];
+
+const mobileUsernameErrorCodeSet: ReadonlySet<string> = new Set(
+  MOBILE_USERNAME_ERROR_CODES,
+);
+
+/** 値がユーザー名登録で弾く理由かを判定する型ガード */
+export function isMobileUsernameErrorCode(
+  value: unknown,
+): value is MobileUsernameErrorCode {
+  return typeof value === "string" && mobileUsernameErrorCodeSet.has(value);
+}
 
 /**
  * 退会の API のパス（POST）
