@@ -17,8 +17,8 @@ type Translator = (key: string) => string;
  * 点数計算の無限訓練の翻数の選択肢
  * 翻数選択肢
  *
- * 満貫以上を区分名で出す設定（`simplifyMangan`）では 1〜4翻のあとに区分名
- * （満貫・跳満…）を並べる。出さない設定では役満未満を数値で出し、役満以上
+ * 既定では 1〜4翻のあとに区分名（満貫・跳満…）を並べる。5翻以上も翻数で
+ * 答える設定（`exactHan`）では役満未満を数値で出し、役満以上
  * （ダブル役満の採用時はダブル役満も）だけを区分名で出す。区分の値は
  * その区分のしきい値の翻数。
  *
@@ -26,7 +26,7 @@ type Translator = (key: string) => string;
  */
 export function practiceHanOptions(
   t: Translator,
-  simplifyMangan: boolean,
+  exactHan: boolean,
   allowDoubleYakuman: boolean,
 ): readonly AnswerOption[] {
   // 満貫以上の区分は翻数しきい値の昇順で並べる（practiceHanTiers は降順）
@@ -42,7 +42,7 @@ export function practiceHanOptions(
       label: `${i + 1}${t("form.options.hanSuffix")}`,
     }));
 
-  if (simplifyMangan) {
+  if (!exactHan) {
     return [...numbered(MANGAN_MIN_HAN - 1), ...manganPlusOptions];
   }
   return [

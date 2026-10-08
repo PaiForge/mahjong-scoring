@@ -25,7 +25,7 @@ interface ScorePracticeAnswerFormProps {
   readonly isTsumo: boolean;
   readonly isOya: boolean;
   readonly requireYaku?: boolean;
-  readonly simplifyMangan?: boolean;
+  readonly exactHan?: boolean;
   readonly requireFuForMangan?: boolean;
   /** 回答ボタンの文言。既定は「回答する」 */
   readonly submitLabel?: string;
@@ -69,7 +69,7 @@ export function ScorePracticeAnswerForm({
   isTsumo,
   isOya,
   requireYaku = false,
-  simplifyMangan = false,
+  exactHan = false,
   requireFuForMangan = false,
   submitLabel,
   reserveYakuRow = false,
@@ -110,8 +110,8 @@ export function ScorePracticeAnswerForm({
   });
 
   const hanOptions = useMemo(
-    () => practiceHanOptions(t, simplifyMangan, allowDoubleYakuman),
-    [t, simplifyMangan, allowDoubleYakuman],
+    () => practiceHanOptions(t, exactHan, allowDoubleYakuman),
+    [t, exactHan, allowDoubleYakuman],
   );
   const fuOptions = useMemo(() => practiceFuOptions(t), [t]);
 

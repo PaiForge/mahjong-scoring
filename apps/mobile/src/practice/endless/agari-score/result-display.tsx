@@ -51,7 +51,7 @@ interface ResultDisplayProps {
    */
   readonly answerSummary?: string;
   readonly requireYaku?: boolean;
-  readonly simplifyMangan?: boolean;
+  readonly exactHan?: boolean;
   readonly requireFuForMangan?: boolean;
 }
 
@@ -73,7 +73,7 @@ export function ResultDisplay({
   result,
   answerSummary,
   requireYaku = false,
-  simplifyMangan = false,
+  exactHan = false,
   requireFuForMangan = false,
 }: ResultDisplayProps) {
   const t = useTranslations("agariScore");
@@ -116,7 +116,7 @@ export function ResultDisplay({
   );
 
   const hanDisplay = (hanValue: number) =>
-    formatHan(hanValue, { t, simplifyMangan, allowDoubleYakuman });
+    formatHan(hanValue, { t, exactHan, allowDoubleYakuman });
 
   const hanAnswer = judged ? (
     <JudgedValue
@@ -173,9 +173,7 @@ export function ResultDisplay({
             correct={
               <CorrectValue
                 value={`${hanDisplay(answer.han)}${
-                  !simplifyMangan && scoreLevelName
-                    ? ` (${scoreLevelName})`
-                    : ""
+                  exactHan && scoreLevelName ? ` (${scoreLevelName})` : ""
                 }`}
               />
             }

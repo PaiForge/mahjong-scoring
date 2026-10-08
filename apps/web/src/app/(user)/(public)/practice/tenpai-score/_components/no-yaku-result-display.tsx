@@ -47,7 +47,7 @@ interface NoYakuResultDisplayProps {
   /** マスの判定。開示では undefined */
   readonly result: JudgementResult | undefined;
   readonly requireYaku: boolean;
-  readonly simplifyMangan: boolean;
+  readonly exactHan: boolean;
 }
 
 /**
@@ -71,7 +71,7 @@ export function NoYakuResultDisplay({
   userAnswer,
   result,
   requireYaku,
-  simplifyMangan,
+  exactHan,
 }: NoYakuResultDisplayProps) {
   const t = useTranslations("tenpaiScore");
   const tScore = useTranslations("agariScore");
@@ -86,7 +86,7 @@ export function NoYakuResultDisplay({
     userAnswer?.kind === "noYaku" && result !== undefined ? result : undefined;
 
   const hanDisplay = (han: number) =>
-    formatHan(han, { t: tScore, simplifyMangan, allowDoubleYakuman });
+    formatHan(han, { t: tScore, exactHan, allowDoubleYakuman });
   const paymentDisplay = (answer: UserAnswer) =>
     formatPayment(answer, false, { t: tScore });
 

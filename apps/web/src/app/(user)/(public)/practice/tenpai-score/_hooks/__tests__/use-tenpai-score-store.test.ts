@@ -19,7 +19,7 @@ import { useTenpaiScoreStore } from "../use-tenpai-score-store";
 
 const MODE: MachiCellJudgementMode = {
   requireYaku: false,
-  simplifyMangan: false,
+  exactHan: true,
   requireFuForMangan: false,
   allowDoubleYakuman: false,
 };

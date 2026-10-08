@@ -68,7 +68,7 @@ export type MachiCellAnswer =
  */
 export interface MachiCellJudgementMode {
   readonly requireYaku: boolean;
-  readonly simplifyMangan: boolean;
+  readonly exactHan: boolean;
   readonly requireFuForMangan: boolean;
   readonly allowDoubleYakuman: boolean;
 }
@@ -104,7 +104,7 @@ export function judgeMachiCellAnswer(
     cell,
     answer.answer,
     mode.requireYaku,
-    mode.simplifyMangan,
+    mode.exactHan,
     mode.requireFuForMangan,
     mode.allowDoubleYakuman,
   );

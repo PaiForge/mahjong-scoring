@@ -87,7 +87,7 @@ export function TenpaiScoreHelpTour() {
     const { formatAnswer, formatAnswerLines } = cellAnswerFormatters({
       t: tScore,
       noYakuLabel: t("cells.noYakuShort"),
-      simplifyMangan: false,
+      exactHan: false,
       allowDoubleYakuman: false,
       isOya: isOyaQuestion,
     });
@@ -148,7 +148,7 @@ export function TenpaiScoreHelpTour() {
             cellResults={results}
             formatAnswerLines={formatAnswerLines}
             requireYaku={false}
-            simplifyMangan={false}
+            exactHan={false}
             requireFuForMangan={false}
             onNext={noop}
           />

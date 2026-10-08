@@ -50,7 +50,7 @@ interface ResultDisplayProps {
    */
   readonly answerSummary?: string;
   readonly requireYaku?: boolean;
-  readonly simplifyMangan?: boolean;
+  readonly exactHan?: boolean;
   readonly requireFuForMangan?: boolean;
 }
 
@@ -69,7 +69,7 @@ export function ResultDisplay({
   result,
   answerSummary,
   requireYaku = false,
-  simplifyMangan = false,
+  exactHan = false,
   requireFuForMangan = false,
 }: ResultDisplayProps) {
   const t = useTranslations("agariScore");
@@ -136,7 +136,7 @@ export function ResultDisplay({
   };
 
   const getHanDisplay = (hanValue: number) =>
-    formatHan(hanValue, { t, simplifyMangan, allowDoubleYakuman });
+    formatHan(hanValue, { t, exactHan, allowDoubleYakuman });
 
   return (
     <div className="space-y-4">
@@ -210,7 +210,7 @@ export function ResultDisplay({
             )}
             <td className="py-2 text-right font-bold text-surface-800">
               {getHanDisplay(answer.han)}
-              {!simplifyMangan && scoreLevelName && ` (${scoreLevelName})`}
+              {exactHan && scoreLevelName && ` (${scoreLevelName})`}
             </td>
           </tr>
           {/* 翻数の内訳。閉じた状態から始める（理由は CollapsibleDetail） */}

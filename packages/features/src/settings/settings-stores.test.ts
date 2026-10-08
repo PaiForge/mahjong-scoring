@@ -112,7 +112,7 @@ describe("点数練習の設定ストアの移行", () => {
     expect(useStore.getState()).not.toHaveProperty("autoNext");
     expect(useStore.getState().requireYaku).toBe(true);
 
-    act(() => useStore.getState().setSimplifyMangan(true));
+    act(() => useStore.getState().setExactHan(true));
     const saved = JSON.parse(data.get("score-settings") ?? "{}");
     expect(saved.state).not.toHaveProperty("autoNext");
     expect(saved.version).toBe(2);

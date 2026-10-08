@@ -10,7 +10,7 @@ import { AGARI_SCORE_TOUR_ID } from "../_lib/tour-ids";
 
 interface ScoreSpotlightTourProps {
   /** 満貫以上を翻数ではなく区分（満貫・跳満…）で答える設定か */
-  readonly simplifyMangan: boolean;
+  readonly exactHan: boolean;
   /** 満貫以上でも符を答える設定か */
   readonly requireFuForMangan: boolean;
 }
@@ -32,7 +32,7 @@ interface ScoreSpotlightTourProps {
  * （出題文ごと「?」が閉じる）。
  */
 export function AgariScoreSpotlightTour({
-  simplifyMangan,
+  exactHan,
   requireFuForMangan,
 }: ScoreSpotlightTourProps) {
   const t = useTranslations("agariScore.tour");
@@ -51,9 +51,7 @@ export function AgariScoreSpotlightTour({
     {
       targetId: AGARI_SCORE_TOUR_ID.han,
       title: t("han.title"),
-      description: t(
-        simplifyMangan ? "han.descriptionSimplified" : "han.description",
-      ),
+      description: t(exactHan ? "han.descriptionExact" : "han.description"),
     },
     {
       targetId: AGARI_SCORE_TOUR_ID.fu,

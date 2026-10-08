@@ -63,13 +63,13 @@ describe("useAgariScoreSettingsStore の永続化", () => {
     await rehydrateWith({
       targetScoreRanges: ["non_mangan"],
       requireYaku: true,
-      simplifyMangan: true,
+      exactHan: true,
       includeParent: false,
     });
 
     const state = useAgariScoreSettingsStore.getState();
     expect(state.requireYaku).toBe(true);
-    expect(state.simplifyMangan).toBe(true);
+    expect(state.exactHan).toBe(true);
     expect(state.includeParent).toBe(false);
   });
 });

@@ -367,7 +367,7 @@ describe("AgariScoreBoard", () => {
 
     // 翻数と符の説明は出題設定で変わる。設定と違う操作を案内すると、
     // 従った人が回答できなくなる
-    it("既定の設定では翻数で答え、満貫以上は符が不要と案内する", async () => {
+    it("既定の設定では満貫以上を区分で答え、符が不要と案内する", async () => {
       await visit("");
 
       const descriptions = startTour().map((s) => s.popover.description);
@@ -375,11 +375,11 @@ describe("AgariScoreBoard", () => {
       expect(descriptions).toContain("fu.description");
     });
 
-    it("満貫の簡略化と満貫でも符を答える設定では、それに合わせて案内する", async () => {
-      await visit("simple=1&fu_mangan=1");
+    it("5翻以上も翻数で答え、満貫でも符を答える設定では、それに合わせて案内する", async () => {
+      await visit("exact_han=1&fu_mangan=1");
 
       const descriptions = startTour().map((s) => s.popover.description);
-      expect(descriptions).toContain("han.descriptionSimplified");
+      expect(descriptions).toContain("han.descriptionExact");
       expect(descriptions).toContain("fu.descriptionRequired");
     });
 

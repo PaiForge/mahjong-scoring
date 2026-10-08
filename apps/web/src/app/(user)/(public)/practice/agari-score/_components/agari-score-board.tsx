@@ -137,7 +137,7 @@ function AgariScoreBoardInner() {
     void requestQuestion();
   }, [isClient, searchParams, requestQuestion, refreshGate]);
 
-  const { requireYaku, simplifyMangan, requireFuForMangan, measureTime } =
+  const { requireYaku, exactHan, requireFuForMangan, measureTime } =
     parseModeFlagsFromParams(new URLSearchParams(searchParams.toString()));
   const autoAdvanceOnCorrect = useAutoAdvanceOnCorrect();
 
@@ -176,7 +176,7 @@ function AgariScoreBoardInner() {
   const handleSubmit = useCallback(
     (answer: UserAnswer) => {
       scrollToPracticeAnchor();
-      submitAnswer(answer, requireYaku, simplifyMangan, requireFuForMangan);
+      submitAnswer(answer, requireYaku, exactHan, requireFuForMangan);
 
       if (autoAdvanceOnCorrect) {
         const state = useAgariScoreStore.getState();
@@ -191,7 +191,7 @@ function AgariScoreBoardInner() {
       submitAnswer,
       requestQuestion,
       requireYaku,
-      simplifyMangan,
+      exactHan,
       requireFuForMangan,
       autoAdvanceOnCorrect,
       t,
@@ -262,7 +262,7 @@ function AgariScoreBoardInner() {
                 userAnswer={userAnswer}
                 result={judgementResult}
                 requireYaku={requireYaku}
-                simplifyMangan={simplifyMangan}
+                exactHan={exactHan}
                 requireFuForMangan={requireFuForMangan}
               />
             </div>
@@ -285,7 +285,7 @@ function AgariScoreBoardInner() {
             <div className="flex items-center justify-center gap-1.5">
               <QuestionPrompt>{t("board.questionPrompt")}</QuestionPrompt>
               <AgariScoreSpotlightTour
-                simplifyMangan={simplifyMangan}
+                exactHan={exactHan}
                 requireFuForMangan={requireFuForMangan}
               />
             </div>
@@ -297,7 +297,7 @@ function AgariScoreBoardInner() {
               isTsumo={currentQuestion.isTsumo}
               isOya={isOya(currentQuestion.jikaze)}
               requireYaku={requireYaku}
-              simplifyMangan={simplifyMangan}
+              exactHan={exactHan}
               requireFuForMangan={requireFuForMangan}
             />
           </div>

@@ -199,7 +199,7 @@ describe("judgeAnswer", () => {
     });
   });
 
-  describe("simplifyMangan モード", () => {
+  describe("区分での判定（exactHan = false、既定）", () => {
     it("5翻以上は満貫バケットに統一される（5翻正解 → 5翻回答OK）", () => {
       const question = makeQuestion({
         han: 5,
@@ -208,7 +208,7 @@ describe("judgeAnswer", () => {
         payment: { type: "ron", amount: 8000 },
       });
       const answer: UserAnswer = { han: 5, fu: 30, score: 8000, yakus: [] };
-      const result = judgeAnswer(question, answer, false, true);
+      const result = judgeAnswer(question, answer, false, false);
 
       expect(result.isHanCorrect).toBe(true);
     });
@@ -221,7 +221,7 @@ describe("judgeAnswer", () => {
         payment: { type: "ron", amount: 12000 },
       });
       const answer: UserAnswer = { han: 6, fu: 30, score: 12000, yakus: [] };
-      const result = judgeAnswer(question, answer, false, true);
+      const result = judgeAnswer(question, answer, false, false);
 
       expect(result.isHanCorrect).toBe(true);
     });
@@ -234,7 +234,7 @@ describe("judgeAnswer", () => {
         payment: { type: "ron", amount: 16000 },
       });
       const answer: UserAnswer = { han: 8, fu: 30, score: 16000, yakus: [] };
-      const result = judgeAnswer(question, answer, false, true);
+      const result = judgeAnswer(question, answer, false, false);
 
       expect(result.isHanCorrect).toBe(true);
     });
@@ -247,7 +247,7 @@ describe("judgeAnswer", () => {
         payment: { type: "ron", amount: 24000 },
       });
       const answer: UserAnswer = { han: 11, fu: 30, score: 24000, yakus: [] };
-      const result = judgeAnswer(question, answer, false, true);
+      const result = judgeAnswer(question, answer, false, false);
 
       expect(result.isHanCorrect).toBe(true);
     });
@@ -260,7 +260,7 @@ describe("judgeAnswer", () => {
         payment: { type: "ron", amount: 32000 },
       });
       const answer: UserAnswer = { han: 13, fu: 30, score: 32000, yakus: [] };
-      const result = judgeAnswer(question, answer, false, true);
+      const result = judgeAnswer(question, answer, false, false);
 
       expect(result.isHanCorrect).toBe(true);
     });
@@ -276,7 +276,7 @@ describe("judgeAnswer", () => {
           payment: { type: "ron", amount: 64000 },
         });
         const answer: UserAnswer = { han: 13, fu: 30, score: 64000, yakus: [] };
-        const result = judgeAnswer(question, answer, false, true, false, true);
+        const result = judgeAnswer(question, answer, false, false, false, true);
 
         expect(result.isHanCorrect).toBe(false);
       });
@@ -289,7 +289,7 @@ describe("judgeAnswer", () => {
           payment: { type: "ron", amount: 64000 },
         });
         const answer: UserAnswer = { han: 26, fu: 30, score: 64000, yakus: [] };
-        const result = judgeAnswer(question, answer, false, true, false, true);
+        const result = judgeAnswer(question, answer, false, false, false, true);
 
         expect(result.isHanCorrect).toBe(true);
       });
@@ -302,7 +302,7 @@ describe("judgeAnswer", () => {
           payment: { type: "ron", amount: 32000 },
         });
         const answer: UserAnswer = { han: 26, fu: 30, score: 32000, yakus: [] };
-        const result = judgeAnswer(question, answer, false, true, false, true);
+        const result = judgeAnswer(question, answer, false, false, false, true);
 
         expect(result.isHanCorrect).toBe(false);
       });
@@ -315,7 +315,7 @@ describe("judgeAnswer", () => {
         payment: { type: "ron", amount: 3900 },
       });
       const answer: UserAnswer = { han: 4, fu: 30, score: 3900, yakus: [] };
-      const result = judgeAnswer(question, answer, false, true);
+      const result = judgeAnswer(question, answer, false, false);
 
       expect(result.isHanCorrect).toBe(false);
     });
@@ -328,9 +328,24 @@ describe("judgeAnswer", () => {
         payment: { type: "ron", amount: 8000 },
       });
       const answer: UserAnswer = { han: 5, fu: 60, score: 8000, yakus: [] };
-      const result = judgeAnswer(question, answer, false, true);
+      const result = judgeAnswer(question, answer, false, false);
 
       expect(result.isHanCorrect).toBe(true);
+    });
+  });
+
+  describe("exactHan = true", () => {
+    it("同じ跳満でも翻数が違えば不正解", () => {
+      const question = makeQuestion({
+        han: 7,
+        fu: 30,
+        scoreLevel: ScoreLevel.Haneman,
+        payment: { type: "ron", amount: 12000 },
+      });
+      const answer: UserAnswer = { han: 6, fu: 30, score: 12000, yakus: [] };
+      const result = judgeAnswer(question, answer, false, true);
+
+      expect(result.isHanCorrect).toBe(false);
     });
   });
 

@@ -47,7 +47,7 @@ interface TenpaiScoreResultProps {
     isTsumo: boolean,
   ) => readonly string[];
   readonly requireYaku: boolean;
-  readonly simplifyMangan: boolean;
+  readonly exactHan: boolean;
   readonly requireFuForMangan: boolean;
   readonly onNext: () => void;
 }
@@ -108,7 +108,7 @@ export function TenpaiScoreResult({
   cellResults,
   formatAnswerLines,
   requireYaku,
-  simplifyMangan,
+  exactHan,
   requireFuForMangan,
   onNext,
 }: TenpaiScoreResultProps) {
@@ -271,7 +271,7 @@ export function TenpaiScoreResult({
                       : undefined
                   }
                   requireYaku={requireYaku}
-                  simplifyMangan={simplifyMangan}
+                  exactHan={exactHan}
                   requireFuForMangan={requireFuForMangan}
                 />
                 <TehaiMentsuBreakdown
@@ -284,7 +284,7 @@ export function TenpaiScoreResult({
                 userAnswer={focusedAnswer}
                 result={focusedResult}
                 requireYaku={requireYaku}
-                simplifyMangan={simplifyMangan}
+                exactHan={exactHan}
               />
             )}
           </div>
