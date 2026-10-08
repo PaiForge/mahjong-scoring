@@ -525,7 +525,7 @@ const styles = StyleSheet.create({
   reconnectText: {
     fontSize: 16,
     lineHeight: 24,
-    color: colors.ink,
+    color: colors.foreground,
     textAlign: "center",
   },
   offline: {
@@ -536,7 +536,7 @@ const styles = StyleSheet.create({
   offlineTitle: {
     fontSize: 17,
     fontWeight: "700",
-    color: colors.ink,
+    color: colors.foreground,
     textAlign: "center",
   },
   offlineMessage: {
