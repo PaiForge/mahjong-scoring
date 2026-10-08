@@ -84,6 +84,10 @@ export async function beginAttempt(
 /**
  * 本人の行をロックし、一度だけ回答を受け付ける。正解開示と次問発行は受付後。
  *
+ * サーバー時計の起点（`respondedAt`）は UPDATE の直前に取る。起点を行に
+ * 書くので、UPDATE と COMMIT の時間は起点より後に掛かり、固定の猶予
+ * （`RESPONSE_GRACE_MS`）の中から消費される（実測値はそちらの TSDoc）。
+ *
  * @param receivedAt - 回答のリクエストを受け取った時刻。認証や行ロックの前に
  *   取ったものを渡す。ここから応答を組むまでの処理時間は競技時間に数えない
  *   （{@link answeredChallenge}）
