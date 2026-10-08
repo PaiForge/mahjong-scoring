@@ -102,7 +102,7 @@ interface LessonViewProps {
   readonly messageKey: string;
   /** 本文（章の本文そのもの） */
   readonly explanation: ReactNode;
-  /** 章の末尾（前後のレッスンへのナビ・公開日）。確認問題の画面には出さない */
+  /** 章の末尾（広告・公開日）。確認問題の画面には出さない */
   readonly footer: ReactNode;
   /** 画面の先頭へ戻す（段階・問題が変わったとき） */
   readonly onScrollTop: () => void;
@@ -122,7 +122,8 @@ interface LessonViewProps {
  * 踏まえた次の一歩（features の `lessonFollowUp`）。それが道筋の順の次の
  * レッスン（`stepAfterLesson`）と同じなら、ボタンの代わりにそのレッスンの
  * 冒頭のプレビューを出す。級の最後のレッスンでは、ボタンの下に昇級試験までの
- * 残りを添える。
+ * 残りを添える。次のレッスンへは置き換えて移り、続けて読んでも戻るは 1 回で
+ * 学習を始めた画面へ帰る。
  *
  * 完了済みの人が開いたときは、本文の下の「確認問題へ」を控えめな解き直しの
  * リンクに替え、その下に練習への導線を出す。
@@ -408,7 +409,12 @@ export function LessonView({
           <Button
             size="lg"
             fullWidth
-            onPress={() => router.push(journeyStepHref(step))}
+            onPress={() =>
+              // レッスンからレッスンへは置き換える（NextLessonPreview と同じ理由）
+              step.kind === "lesson"
+                ? router.replace(journeyStepHref(step))
+                : router.push(journeyStepHref(step))
+            }
           >
             {t(`nextStep.${step.kind}`, {
               title: journeyStepTitle(step, tAll),
