@@ -125,10 +125,14 @@ packages/features / core を共有し、アプリ側は画面と RN の部品だ
   練習ごとに違うのは盤面と結果の一覧だけで、`src/practice/boards/<slug>/index.tsx` が
   `PracticeScreens`（Play / Training / Demo / ProblemList）を返し、`src/practice/registry.ts` に
   1 行足すと一覧・説明・チャレンジ・トレーニング・結果のすべてに載る
-- **ログインはまだ無い。** チャレンジは結果画面で今回の成績を見せるだけで記録しない（記録・
-  ランキング・段級位はアカウントに紐づくため）。結果はメモリのストアで結果画面へ運ぶ
-  （web の sessionStorage の代わり）。設定・レッスンの完了・「チャレンジを終えた練習」
-  （黒帯への道の「練習した」。成績は持たない）は端末ローカル（AsyncStorage）
+- **ログインは web と同じ Supabase Auth（`src/auth/`）。** 入口は設定のアカウントの節で、
+  ログイン・登録・ユーザー名の設定・退会の画面は web と同じパスに置く。セッションは
+  SecureStore、サーバーへの書き込みは web のアプリ向け API（`/api/mobile/v1/*`、
+  `Authorization: Bearer`。web の `lib/mobile-api/`）を通す。DB を直接読み書きしない。
+  ログインは任意で、ゲストのまま全機能を使える。チャレンジはまだ記録せず、結果画面で今回の
+  成績を見せるだけ。結果はメモリのストアで結果画面へ運ぶ（web の sessionStorage の代わり）。
+  設定・レッスンの完了・「チャレンジを終えた練習」（黒帯への道の「練習した」。成績は
+  持たない）は端末ローカル（AsyncStorage）
 - **色・角丸の値は web から写す。** `src/lib/theme.ts`（web の `globals.css` と同じ値）。
   太枠・ハードシャドウ・押し込みは `PressableSurface`（影は面の後ろに敷いた View で描く。
   Android の elevation は硬い影を描けない）。影を持つのは押せる面だけ（web と同じ規則）
