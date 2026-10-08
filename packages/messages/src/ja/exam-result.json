@@ -3,8 +3,8 @@
   "fail": "不合格",
   "scoreLine": "{correct} 問正解 / 合格ライン {minScore} 問",
   "remaining": "あと {count} 問",
-  "correctLabel": "正解数",
-  "correctValue": "{count} 問",
+  "correctLegend": "正解",
+  "minScoreLegend": "合格ライン",
   "averageTimeLabel": "平均回答時間",
   "averageTimeValue": "{seconds} 秒",
   "averageTimeNone": "—",
@@ -12,5 +12,5 @@
   "requiredPaceValue": "{seconds} 秒/問",
   "endedByGoal": "合格ラインに到達して終了",
   "endedByMistake": "{n} 問目の誤答で終了",
-  "endedByTime": "制限時間まで解答"
+  "endedByTime": "時間切れで終了"
 }

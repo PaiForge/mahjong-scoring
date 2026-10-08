@@ -19,6 +19,17 @@ interface AccordionCardProps {
    * 初期状態として一度だけ効くので、後から真に変えても開かない。
    */
   readonly autoOpen?: boolean;
+  /**
+   * 開閉を外から決めるときの状態。渡すとカード自身は開閉を持たず、
+   * ヘッダーを押したときは {@link AccordionCardProps.onOpenChange} で知らせる
+   * だけになる（結果画面で「不正解を押すと間違えた問題を全部開く」のように、
+   * 一覧の外から複数のカードを開くため）。省略時はカードが自分で開閉を持つ。
+   * `anchorId` / `autoOpen` による着地はカード自身の開閉にだけ効くので、
+   * この prop とは併用しない。
+   */
+  readonly open?: boolean;
+  /** ヘッダーが押されたときに、次の開閉状態を受け取る */
+  readonly onOpenChange?: (open: boolean) => void;
   /** 展開時に表示する本文 */
   readonly children: ReactNode;
 }
@@ -40,9 +51,16 @@ export function AccordionCard({
   trailing,
   anchorId,
   autoOpen = false,
+  open,
+  onOpenChange,
   children,
 }: AccordionCardProps) {
-  const [isOpen, setIsOpen] = useState(autoOpen);
+  const [ownOpen, setOwnOpen] = useState(autoOpen);
+  const isOpen = open ?? ownOpen;
+  const setIsOpen = (next: boolean) => {
+    if (open === undefined) setOwnOpen(next);
+    onOpenChange?.(next);
+  };
   const panelId = useId();
   const rootRef = useRef<HTMLDivElement>(null);
 
@@ -59,7 +77,7 @@ export function AccordionCard({
       // ハッシュは日本語役名を含むためブラウザ側でパーセントエンコードされる。
       if (decodeURIComponent(window.location.hash.slice(1)) !== anchorId)
         return;
-      setIsOpen(true);
+      setOwnOpen(true);
       // 展開は下方向に伸びるためカード上端の位置は変わらない。開く前にスクロール
       // しても着地点はずれない。
       rootRef.current?.scrollIntoView({ behavior: "instant", block: "start" });
@@ -79,7 +97,7 @@ export function AccordionCard({
     >
       <button
         type="button"
-        onClick={() => setIsOpen((prev) => !prev)}
+        onClick={() => setIsOpen(!isOpen)}
         aria-expanded={isOpen}
         aria-controls={panelId}
         className="flex w-full items-center justify-between p-3 text-left transition-colors hover:bg-surface-50"
