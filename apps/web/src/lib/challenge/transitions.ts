@@ -27,12 +27,13 @@ const ANSWER_INTERVAL_MS = 800;
  *
  * 実測で除けるのは「受け取ってから、時計の起点を行に書く UPDATE の直前まで」。
  * 起点を行に書く以上、UPDATE・COMMIT・応答の直列化と送出は起点より後に
- * 掛かり、この猶予の中から消費される。回答ごとの計測ログ
- * （`answer-telemetry.ts` の `afterRespondedMs`）で見えるのはそのうち
- * UPDATE と COMMIT までで、これが 100ms を超えていれば DB の確定までに
- * 猶予を使い切ったと分かる。100ms 以下でも応答の送出と下りの通信は
- * 含まれないので、余裕があるとは言えない。使い切っていることが分かったら
- * ここの値を見直す。
+ * 掛かり、この猶予の中から消費される。2026-10 の本番実測（雀頭符 11 問、
+ * hnd1 → ap-northeast-1）では UPDATE + COMMIT は 13〜16ms で、100ms に
+ * 十分収まっていた。参考に、同じ実測での 1 回答のサーバー処理は定常で
+ * 58〜83ms（Supabase Auth の `getUser()` が 22〜41ms、BAN 判定 9〜10ms、
+ * 行ロック 13〜15ms）、ブラウザから見た往復は 136〜233ms で、約 90ms は
+ * 通信と Server Action の枠組みの時間。挑戦の最初の回答だけ往復 684ms
+ * （接続が冷えた形で、関数のコールドスタートと見ている）。
  *
  * 正誤の表示（`ANSWER_INTERVAL_MS`）は猶予に含めない — これは採点が
  * ローカルだった頃から数えていた時間で、含めると 1 分で解ける問題数が
@@ -120,9 +121,8 @@ export function canAnswerChallenge(
  * 回答を受け取った時刻（`receivedAt`）までの経過を畳み込み、時計の起点を
  * 応答を組んだ時刻（`respondedAt`）の猶予（{@link RESPONSE_GRACE_MS}）後に
  * 置く。カウントダウン中（{@link startedChallenge}）と同じ仕組みで、起点が
- * 来るまで `challengeElapsed` は進まない。受け取ってから `respondedAt` を
- * 取るまでの処理時間は、こうしてそのまま競技時間から外れる（`respondedAt`
- * より後の UPDATE・COMMIT は猶予の側に入る — {@link RESPONSE_GRACE_MS}）。
+ * 来るまで `challengeElapsed` は進まない。受け取ってから応答を組むまでの
+ * 処理時間は、こうしてそのまま競技時間から外れる。
  *
  * 画面側は押してから応答が届くまで時計を止め、届いた応答の経過時間に
  * 合わせ直す。応答が届くのは `respondedAt` の片道後なので、画面はサーバーが
