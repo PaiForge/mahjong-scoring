@@ -25,6 +25,12 @@ const ANSWER_INTERVAL_MS = 800;
  * 与える（日本から東京リージョンへの往復の典型値）。受け取るまでの片道は
  * 数えられてしまうが、押した時刻は申告でしか知れないので受け入れる。
  *
+ * 実測で除けるのは「受け取ってから、時計の起点を行に書く UPDATE の直前まで」。
+ * 起点を行に書く以上、UPDATE・COMMIT・応答の送出は起点より後に掛かり、
+ * この猶予の中から消費される。その長さは回答ごとの計測ログ
+ * （`answer-telemetry.ts` の `afterRespondedMs`）で見え、猶予に収まらない
+ * ことが分かったらここの値を見直す。
+ *
  * 正誤の表示（`ANSWER_INTERVAL_MS`）は猶予に含めない — これは採点が
  * ローカルだった頃から数えていた時間で、含めると 1 分で解ける問題数が
  * 2 割以上増えて過去の記録と比べられなくなる。
@@ -111,8 +117,9 @@ export function canAnswerChallenge(
  * 回答を受け取った時刻（`receivedAt`）までの経過を畳み込み、時計の起点を
  * 応答を組んだ時刻（`respondedAt`）の猶予（{@link RESPONSE_GRACE_MS}）後に
  * 置く。カウントダウン中（{@link startedChallenge}）と同じ仕組みで、起点が
- * 来るまで `challengeElapsed` は進まない。受け取ってから応答を組むまでの
- * 処理時間は、こうしてそのまま競技時間から外れる。
+ * 来るまで `challengeElapsed` は進まない。受け取ってから `respondedAt` を
+ * 取るまでの処理時間は、こうしてそのまま競技時間から外れる（`respondedAt`
+ * より後の UPDATE・COMMIT は猶予の側に入る — {@link RESPONSE_GRACE_MS}）。
  *
  * 画面側は押してから応答が届くまで時計を止め、届いた応答の経過時間に
  * 合わせ直す。応答が届くのは `respondedAt` の片道後なので、画面はサーバーが
