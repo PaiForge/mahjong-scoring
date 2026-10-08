@@ -90,6 +90,7 @@ async function verifyBearerToken(token: string): Promise<AuthUser | undefined> {
  */
 export async function authenticateMobileRequest(
   request: Request,
+  { allowDeleted = false }: { readonly allowDeleted?: boolean } = {},
 ): Promise<MobileAuthContext | { error: MobileAuthErrorCode }> {
   const token = readBearerToken(request);
   if (!token) return { error: "unauthorized" };
@@ -99,7 +100,7 @@ export async function authenticateMobileRequest(
 
   const profile = await getProfileCoreByUserId(user.id);
   if (profile?.bannedAt != null) return { error: "banned" };
-  if (profile?.deletedAt != null) return { error: "deleted" };
+  if (profile?.deletedAt != null && !allowDeleted) return { error: "deleted" };
 
   return {
     user,
@@ -135,13 +136,19 @@ type AuthorizeMobileResult =
  * キーに `user:` を付けて IP の枠と混ざらないようにしている。
  *
  * @param rateLimitKey - レートリミットのアクションキー（`IP_RATE_LIMITS` のキー）
- * @param config - レートリミット設定（省略時は `IP_RATE_LIMITS[rateLimitKey]`）
+ * @param options.config - レートリミット設定（省略時は `IP_RATE_LIMITS[rateLimitKey]`）
+ * @param options.allowDeleted - 退会済みを通す。途中で失敗した退会のやり直し
+ *   （退会の API）だけが使う（`lib/users/delete-account.ts` の TSDoc）
  */
 export async function authorizeMobileRequest(
   request: Request,
   rateLimitKey: keyof typeof IP_RATE_LIMITS,
-  config: Readonly<IpRateLimitConfig> = IP_RATE_LIMITS[rateLimitKey],
+  options: {
+    readonly config?: Readonly<IpRateLimitConfig>;
+    readonly allowDeleted?: boolean;
+  } = {},
 ): Promise<AuthorizeMobileResult> {
+  const config = options.config ?? IP_RATE_LIMITS[rateLimitKey];
   const rateLimited = () => ({
     ok: false as const,
     response: mobileJson({ error: "rateLimited" }, { status: 429 }),
@@ -151,7 +158,7 @@ export async function authorizeMobileRequest(
     return rateLimited();
   }
 
-  const auth = await authenticateMobileRequest(request);
+  const auth = await authenticateMobileRequest(request, options);
   if ("error" in auth) {
     return {
       ok: false,

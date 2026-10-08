@@ -186,6 +186,21 @@ describe("authorizeMobileRequest", () => {
     ).resolves.toEqual({ error: "deleted" });
   });
 
+  it("退会のやり直しでは退会済みを通す", async () => {
+    activeUser();
+    mockGetProfileCore.mockResolvedValue({
+      username: "alice",
+      bannedAt: null,
+      deletedAt: new Date(),
+    });
+
+    const result = await authorizeMobileRequest(withToken(), "deleteAccount", {
+      allowDeleted: true,
+    });
+
+    expect(result.ok).toBe(true);
+  });
+
   it("応答は共有キャッシュに乗せず、Expo の web 版が読める CORS ヘッダを付ける", async () => {
     mockGetUser.mockResolvedValue({ data: { user: null } });
 
@@ -201,14 +216,18 @@ describe("authorizeMobileRequest", () => {
 
   it("IP の枠を超えたら 429 で、認証サーバーに問い合わせない", async () => {
     activeUser();
-    await authorizeMobileRequest(withToken(), "readMobileAccount", LIMIT);
-    await authorizeMobileRequest(withToken(), "readMobileAccount", LIMIT);
+    await authorizeMobileRequest(withToken(), "readMobileAccount", {
+      config: LIMIT,
+    });
+    await authorizeMobileRequest(withToken(), "readMobileAccount", {
+      config: LIMIT,
+    });
     mockGetUser.mockClear();
 
     const result = await authorizeMobileRequest(
       withToken(),
       "readMobileAccount",
-      LIMIT,
+      { config: LIMIT },
     );
 
     expect(result.ok === false && result.response.status).toBe(429);
@@ -223,12 +242,16 @@ describe("authorizeMobileRequest", () => {
       .mockResolvedValueOnce("10.0.0.2")
       .mockResolvedValueOnce("10.0.0.3");
 
-    await authorizeMobileRequest(withToken(), "readMobileAccount", LIMIT);
-    await authorizeMobileRequest(withToken(), "readMobileAccount", LIMIT);
+    await authorizeMobileRequest(withToken(), "readMobileAccount", {
+      config: LIMIT,
+    });
+    await authorizeMobileRequest(withToken(), "readMobileAccount", {
+      config: LIMIT,
+    });
     const result = await authorizeMobileRequest(
       withToken(),
       "readMobileAccount",
-      LIMIT,
+      { config: LIMIT },
     );
 
     expect(result.ok === false && result.response.status).toBe(429);

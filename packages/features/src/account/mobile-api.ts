@@ -37,3 +37,38 @@ export interface MobileMeResponse {
  */
 export type MobileApiErrorCode =
   "unauthorized" | "deleted" | "banned" | "rateLimited";
+
+/**
+ * ユーザー名を決めてプロフィールを作る API のパス（POST）
+ * ユーザー名登録APIパス
+ */
+export const MOBILE_USERNAME_API_PATH = `${MOBILE_API_PREFIX}/username`;
+
+/** ユーザー名登録の要求 */
+export interface MobileRegisterUsernameRequest {
+  readonly username: string;
+  /** 表示名。省略・空ならユーザー名を流用する */
+  readonly displayName?: string;
+}
+
+/**
+ * ユーザー名登録で弾く理由（422）。辞書の `setupUsername.validation` の
+ * キーへの対応はアプリ側が持つ
+ */
+export type MobileUsernameErrorCode =
+  | "too_short"
+  | "too_long"
+  | "invalid_format"
+  | "reserved"
+  | "username_required"
+  | "username_already_set"
+  | "username_taken"
+  | "display_name_too_long";
+
+/**
+ * 退会の API のパス（POST）
+ * 退会APIパス
+ *
+ * 途中で失敗しても、同じ要求をもう一度送れば最初からやり直せる。
+ */
+export const MOBILE_DELETE_ACCOUNT_API_PATH = `${MOBILE_API_PREFIX}/account/delete`;
