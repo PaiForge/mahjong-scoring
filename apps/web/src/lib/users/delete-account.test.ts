@@ -28,7 +28,7 @@ vi.mock("server-only", () => ({}));
 vi.mock("@/lib/cache-tags", () => ({ purgeLeaderboardCache: vi.fn() }));
 vi.mock("@/lib/log-error", () => ({ logExternalError: vi.fn() }));
 vi.mock("@/lib/apple/refresh-tokens", () => ({
-  revokeAppleTokensForDeletion: mocks.appleRevoke,
+  revokeAppleLinkForDeletion: mocks.appleRevoke,
 }));
 vi.mock("./account-write-lock", () => ({
   lockAccountForDeletion: async () => {
@@ -112,17 +112,24 @@ vi.mock("@/lib/db", async () => {
         set: (values: Partial<AccountDeletion> & { attempts?: unknown }) => {
           if (table !== accountDeletions) throw new Error("unexpected update");
           const isLease = "attempts" in values;
+          const isCompletion = "completedAt" in values;
           return {
             // 工程の記録（markStep）
             where: () => {
               const write = Promise.resolve().then(() => {
-                if (isLease || !state.row) return;
+                if (isLease || isCompletion || !state.row) return;
                 Object.assign(state.row, values);
               });
               return Object.assign(write, {
                 // 貸し出し（leaseDeletion）
                 returning: async () => {
                   const row = state.row;
+                  // 完了の記録（markCompleted）: Apple の工程が済んでいるときだけ
+                  if (isCompletion) {
+                    if (!row?.appleRevokedAt) return [];
+                    Object.assign(row, values);
+                    return [{ userId: row.userId }];
+                  }
                   if (
                     !row ||
                     row.completedAt ||
@@ -162,8 +169,13 @@ beforeEach(() => {
   });
   mocks.storageRemove.mockResolvedValue({ error: null });
   mocks.authDelete.mockResolvedValue({ error: null });
-  mocks.appleRevoke.mockResolvedValue(undefined);
+  mocks.appleRevoke.mockImplementation(markAppleRevoked);
 });
+
+/** 取り消しの工程は済みの記録を自分で書く（`revokeAppleLinkForDeletion`） */
+async function markAppleRevoked() {
+  if (state.row) state.row.appleRevokedAt = new Date();
+}
 
 describe("requestAccountDeletion", () => {
   it("進行中の書き込みを待ってから要求を書き、データ → Storage → Auth の順に終える", async () => {
@@ -199,6 +211,7 @@ describe("requestAccountDeletion", () => {
     });
     mocks.appleRevoke.mockImplementation(async () => {
       order.push("apple");
+      await markAppleRevoked();
     });
 
     expect(await requestAccountDeletion(USER)).toBe("completed");
@@ -271,6 +284,25 @@ describe("processAccountDeletion", () => {
     mocks.authDelete.mockClear();
     expect(await processAccountDeletion(USER)).toBe("completed");
     expect(mocks.authDelete).not.toHaveBeenCalled();
+    expect(mocks.appleRevoke).toHaveBeenCalledTimes(2);
+  });
+
+  /**
+   * 退会の受付の後に Apple のトークンが保存されると、保存した側が Apple の
+   * 工程を未了へ戻す。その直後の完了の記録は書かれず、cron が取り消しから
+   * やり直す（`lib/apple/refresh-tokens.ts`）。
+   */
+  it("取り消しの後に Apple の工程が未了へ戻されたら、完了にせず pending を返す", async () => {
+    mocks.appleRevoke.mockImplementationOnce(async () => {
+      // 済みにした直後に、遅れて届いたトークンの保存が工程を戻した
+      await markAppleRevoked();
+      if (state.row) state.row.appleRevokedAt = null;
+    });
+
+    expect(await requestAccountDeletion(USER)).toBe("pending");
+    expect(state.row).toMatchObject({ completedAt: null, lastAttemptAt: null });
+
+    expect(await processAccountDeletion(USER)).toBe("completed");
     expect(mocks.appleRevoke).toHaveBeenCalledTimes(2);
   });
 

@@ -1,6 +1,6 @@
 import "server-only";
 
-import { and, asc, eq, isNull, lt, or, sql } from "drizzle-orm";
+import { and, asc, eq, isNotNull, isNull, lt, or, sql } from "drizzle-orm";
 
 import { purgeLeaderboardCache } from "@/lib/cache-tags";
 import {
@@ -22,7 +22,7 @@ import {
   userRoles,
   type AccountDeletion,
 } from "@/lib/db";
-import { revokeAppleTokensForDeletion } from "@/lib/apple/refresh-tokens";
+import { revokeAppleLinkForDeletion } from "@/lib/apple/refresh-tokens";
 import { logExternalError } from "@/lib/log-error";
 import { createAdminClient } from "@/lib/supabase/admin";
 
@@ -77,7 +77,7 @@ const CRON_BATCH_SIZE = 20;
  * - `user_activity_log` / `moderation_actions` / `account_deletions` は監査のため保持する。
  * - アバター画像は Storage から削除する。失敗したら再試行する。
  * - Apple でログインしたことがあれば、Apple 側の連携を取り消す
- *   （`apple_refresh_tokens`）。失敗したら再試行する。
+ *   （`apple_refresh_tokens`）。失敗したら再試行し、取り消すまで完了にしない。
  *
  * @param userId - 本人確認を済ませたユーザーの ID
  */
@@ -125,16 +125,9 @@ export async function processAccountDeletion(
       await softDeleteAuthUser(userId);
       await markStep(userId, { authDeletedAt: new Date() });
     }
-    if (!leased.appleRevokedAt) {
-      await revokeAppleTokensForDeletion(userId);
-      await markStep(userId, { appleRevokedAt: new Date() });
-    }
-    await markStep(userId, {
-      completedAt: new Date(),
-      lastAttemptAt: null,
-      lastError: null,
-    });
-    return "completed";
+    // 済みの記録は取り消しの側が書く（保存と競合しないよう行をロックして）
+    if (!leased.appleRevokedAt) await revokeAppleLinkForDeletion(userId);
+    return await markCompleted(userId);
   } catch (error) {
     logExternalError("processAccountDeletion", "deletion step failed", error);
     await markStep(userId, {
@@ -215,6 +208,30 @@ async function leaseDeletion(
   return row;
 }
 
+/**
+ * 全工程を終えたことを記録する
+ *
+ * 退会の受付の後に Apple のトークンが届くと、保存した側が Apple の工程を
+ * 未了へ戻す（`lib/apple/refresh-tokens.ts`）。その直後に完了を書いて
+ * しまわないよう、Apple の工程が済んでいるときだけ書く。書けなければ
+ * 貸し出しを返して `pending`（cron が取り消しからやり直す）。
+ */
+async function markCompleted(userId: string): Promise<AccountDeletionStatus> {
+  const [completed] = await db
+    .update(accountDeletions)
+    .set({ completedAt: new Date(), lastAttemptAt: null, lastError: null })
+    .where(
+      and(
+        eq(accountDeletions.userId, userId),
+        isNotNull(accountDeletions.appleRevokedAt),
+      ),
+    )
+    .returning({ userId: accountDeletions.userId });
+  if (completed) return "completed";
+  await markStep(userId, { lastAttemptAt: null });
+  return "pending";
+}
+
 /** 工程の完了などを要求の行に書く */
 async function markStep(
   userId: string,
@@ -224,8 +241,6 @@ async function markStep(
       | "dataDeletedAt"
       | "storageDeletedAt"
       | "authDeletedAt"
-      | "appleRevokedAt"
-      | "completedAt"
       | "lastAttemptAt"
       | "lastError"
     >

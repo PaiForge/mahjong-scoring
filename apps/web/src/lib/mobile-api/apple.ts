@@ -3,14 +3,14 @@ import "server-only";
 import type { NextResponse } from "next/server";
 
 import {
-  APPLE_APP_BUNDLE_ID,
   mobileAppleTokenRequestSchema,
   type MobileAppleTokenErrorCode,
 } from "@mahjong-scoring/features/account/apple";
 
-import { exchangeAppleAuthorizationCode } from "../apple/apple-id-api";
-import { readAppleServerConfig } from "../apple/config";
-import { saveAppleRefreshToken } from "../apple/refresh-tokens";
+import {
+  storeAppleAuthorizationCode,
+  type AppleCodeStoreResult,
+} from "../apple/refresh-tokens";
 import { logExternalError } from "../log-error";
 
 import { authorizeMobileRequest } from "./auth";
@@ -37,9 +37,8 @@ function appleTokenError(error: MobileAppleTokenErrorCode): NextResponse {
  * ここへ送る。保存したトークンは退会のときに Apple 側の連携の取り消しに
  * 使う（`apple_refresh_tokens` の TSDoc）。
  *
- * 交換の結果の Apple のユーザー ID が、ログイン中のユーザーにつながった
- * Apple の連携と一致するときだけ保存する。別の Apple アカウントのコードを
- * 送って他人のトークンを紐づける経路を作らない。
+ * 交換と保存は `storeAppleAuthorizationCode`（Apple のユーザー ID の突き合わせと、
+ * 退会と競合したときの扱いはその TSDoc）。
  *
  * プロフィール未作成（ユーザー名を決める前）でも受け付ける — ログイン直後に呼ぶため。
  */
@@ -54,38 +53,18 @@ export async function handleSaveAppleToken(
   if (!body.success) return appleTokenError("invalidRequest");
   if (!auth.appleSubject) return appleTokenError("appleRejected");
 
-  const config = readAppleServerConfig();
-  if (!config) {
-    logExternalError(
-      "POST /api/mobile/v1/apple/token",
-      "Apple の設定（APPLE_*）が無い",
-      undefined,
-    );
-    return appleTokenError("appleUnavailable");
-  }
-
-  const exchanged = await exchangeAppleAuthorizationCode(
-    config,
-    APPLE_APP_BUNDLE_ID,
-    body.data.authorizationCode,
-  );
-  if (!exchanged.ok)
-    return appleTokenError(
-      exchanged.reason === "rejected" ? "appleRejected" : "appleUnavailable",
-    );
-  if (exchanged.subject !== auth.appleSubject)
-    return appleTokenError("appleRejected");
-
+  let stored: AppleCodeStoreResult;
   try {
-    await saveAppleRefreshToken(auth.user.id, {
-      appleSubject: exchanged.subject,
-      clientId: APPLE_APP_BUNDLE_ID,
-      refreshToken: exchanged.refreshToken,
-      encryptionKey: config.encryptionKey,
-    });
+    stored = await storeAppleAuthorizationCode(
+      auth.user.id,
+      auth.appleSubject,
+      body.data.authorizationCode,
+    );
   } catch (error) {
     logExternalError("POST /api/mobile/v1/apple/token", "保存に失敗", error);
     return mobileJson({ error: "serverError" }, { status: 500 });
   }
+  if (stored === "rejected") return appleTokenError("appleRejected");
+  if (stored === "unavailable") return appleTokenError("appleUnavailable");
   return mobileJson({ success: true });
 }

@@ -140,3 +140,47 @@ export const MOBILE_DELETE_ACCOUNT_API_PATH = `${MOBILE_API_PREFIX}/account/dele
 export interface MobileDeleteAccountResponse {
   readonly status: "pending" | "completed";
 }
+
+/**
+ * 退会の要求
+ *
+ * Apple でログインしたことがあり、サーバーが Apple の連携の取り消しに使う
+ * トークンを持っていないときは、本文無しの要求が 409
+ * `appleAuthorizationRequired` で断られる。アプリは Apple で確認し直して
+ * 得た認可コードを付けて送り直す（退会では Apple 側の連携も取り消す必要が
+ * あり、そのトークンはコードからしか得られない）。
+ */
+export interface MobileDeleteAccountRequest {
+  readonly appleAuthorizationCode?: string;
+}
+
+/**
+ * 退会の API 固有の失敗の理由
+ *
+ * - `appleAuthorizationRequired` — Apple で確認し直した認可コードが要る（409）
+ * - `appleRejected` — Apple がコードを受け付けなかった、またはこのアカウントの
+ *   Apple ID のものではない（422）
+ * - `appleUnavailable` — Apple に届かなかった（503）。後でやり直す
+ * - `deleteFailed` — 受付そのものに失敗した（500）。やり直してよい
+ */
+export const MOBILE_DELETE_ACCOUNT_ERROR_CODES = [
+  "appleAuthorizationRequired",
+  "appleRejected",
+  "appleUnavailable",
+  "deleteFailed",
+] as const;
+
+/** 退会の API 固有の失敗の理由（{@link MOBILE_DELETE_ACCOUNT_ERROR_CODES}） */
+export type MobileDeleteAccountErrorCode =
+  (typeof MOBILE_DELETE_ACCOUNT_ERROR_CODES)[number];
+
+const deleteAccountErrorCodeSet: ReadonlySet<string> = new Set(
+  MOBILE_DELETE_ACCOUNT_ERROR_CODES,
+);
+
+/** 値が退会の API 固有の失敗の理由かを判定する型ガード */
+export function isMobileDeleteAccountErrorCode(
+  value: unknown,
+): value is MobileDeleteAccountErrorCode {
+  return typeof value === "string" && deleteAccountErrorCodeSet.has(value);
+}
