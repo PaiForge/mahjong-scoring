@@ -123,6 +123,9 @@ export const IP_RATE_LIMITS = {
   // 自動化で行を増やし続けさせない。1 回は最短でも数十秒掛かり、すぐ
   // やり直しても 10 分で 60 回には届かない
   beginChallenge: { maxRequests: 60, windowMs: 600_000 },
+  // アプリが起動・復帰・ログインのたびに読むアカウント状態。書き込みは
+  // しないので、認証サーバーへの問い合わせを連打させない程度に取る
+  readMobileAccount: { maxRequests: 60, windowMs: 600_000 },
 } as const;
 
 /**

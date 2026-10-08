@@ -8,12 +8,17 @@ import { db, profiles } from "@/lib/db";
  * ユーザーIDからプロフィールの基本情報を取得する（React cache でリクエスト内で重複排除）。
  * BAN チェック (`bannedAt`) とプロフィール取得 (`username`) を単一クエリに統合し、
  * `isUserBanned` と `getProfileByUserId` の両方がこの結果を共有する。
+ * 退会済み（`deletedAt`）はアプリ向け API の認証（`lib/mobile-api/auth.ts`）が見る。
  *
  * プロフィール基本情報取得
  */
 export const getProfileCoreByUserId = cache(async (userId: string) => {
   const [profile] = await db
-    .select({ username: profiles.username, bannedAt: profiles.bannedAt })
+    .select({
+      username: profiles.username,
+      bannedAt: profiles.bannedAt,
+      deletedAt: profiles.deletedAt,
+    })
     .from(profiles)
     .where(eq(profiles.id, userId))
     .limit(1);

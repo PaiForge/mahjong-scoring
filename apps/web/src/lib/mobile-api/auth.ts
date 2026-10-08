@@ -1,0 +1,170 @@
+import "server-only";
+
+import type { NextResponse } from "next/server";
+import { createClient } from "@supabase/supabase-js";
+
+import type { MobileApiErrorCode } from "@mahjong-scoring/features/account/mobile-api";
+
+import type { AuthUser } from "../auth";
+import { getClientIp } from "../client-ip";
+import { getProfileCoreByUserId } from "../db/queries";
+import { getSupabasePublicEnv } from "../supabase/env";
+import {
+  IP_RATE_LIMITS,
+  checkIpRateLimitGuard,
+  type IpRateLimitConfig,
+} from "../rate-limit-ip";
+
+import { mobileJson } from "./response";
+
+/**
+ * アプリ向け API の認証で弾く理由（意味はアプリと共有する `MobileApiErrorCode` の TSDoc）
+ */
+export type MobileAuthErrorCode = Exclude<MobileApiErrorCode, "rateLimited">;
+
+/** アプリ向け API の認証を通ったユーザーとプロフィールの状態 */
+export interface MobileAuthContext {
+  readonly user: AuthUser;
+  /**
+   * ユーザー名を決めたプロフィール。未作成（登録直後でユーザー名を
+   * 決めていない）なら undefined。退会済みはここに来る前に弾く
+   */
+  readonly profile: { readonly username: string } | undefined;
+}
+
+/**
+ * `Authorization: Bearer <token>` からアクセストークンを取り出す
+ * Bearerトークン取得
+ *
+ * 形式が違えば undefined。スキーム名は大文字小文字を区別しない（RFC 9110）。
+ */
+export function readBearerToken(request: Request): string | undefined {
+  const header = request.headers.get("authorization");
+  const match = header?.match(/^Bearer\s+(\S+)$/i);
+  return match?.[1];
+}
+
+/**
+ * Bearer トークンを認証サーバーに問い合わせて検証する
+ * Bearerトークン検証
+ *
+ * @design getClaims ではなく getUser で検証する
+ *
+ * JWT の署名と期限だけを見る `getClaims` では、ログアウト・アカウント削除・
+ * BAN の後もトークンの期限（1 時間）まで書き込めてしまう。web の書き込み
+ * （`authenticateAndCheckBan`）が `getUser` で失効を即座に反映しているのと
+ * 強さを揃える。読み取り専用の API で往復を削りたくなっても、ここは共有の
+ * 入口なので緩めない。
+ *
+ * cookie を読む `lib/supabase/server.ts` のクライアントは使わない。
+ * セッションを持たないクライアントにトークンを直接渡す。
+ */
+async function verifyBearerToken(token: string): Promise<AuthUser | undefined> {
+  const { url, publishableKey } = getSupabasePublicEnv();
+  const supabase = createClient(url, publishableKey, {
+    auth: { autoRefreshToken: false, persistSession: false },
+  });
+  const {
+    data: { user },
+  } = await supabase.auth.getUser(token);
+  return user
+    ? {
+        id: user.id,
+        email: user.email,
+        provider: user.app_metadata.provider,
+      }
+    : undefined;
+}
+
+/**
+ * アプリ向け API の認証（トークン検証 + BAN + 退会済み）
+ * アプリAPI認証
+ *
+ * ユーザーの ID は検証済みトークンからだけ取る。リクエスト本文の
+ * userId を信じる経路を作らない。
+ *
+ * 退会済みを BAN と別に弾くのは、退会の途中で Auth の削除だけが失敗した
+ * 状態（DB はすでに消えている）でも、トークンが有効なまま書き込めて
+ * しまうため。プロフィール未作成は弾かない — ユーザー名の設定や退会は
+ * その状態から呼ぶので、要否は各 API が `profile` を見て決める。
+ */
+export async function authenticateMobileRequest(
+  request: Request,
+): Promise<MobileAuthContext | { error: MobileAuthErrorCode }> {
+  const token = readBearerToken(request);
+  if (!token) return { error: "unauthorized" };
+
+  const user = await verifyBearerToken(token);
+  if (!user) return { error: "unauthorized" };
+
+  const profile = await getProfileCoreByUserId(user.id);
+  if (profile?.bannedAt != null) return { error: "banned" };
+  if (profile?.deletedAt != null) return { error: "deleted" };
+
+  return {
+    user,
+    profile: profile ? { username: profile.username } : undefined,
+  };
+}
+
+type AuthorizeMobileResult =
+  | ({ readonly ok: true } & MobileAuthContext)
+  | { readonly ok: false; readonly response: NextResponse };
+
+/**
+ * アプリ向け Route Handler 共通の「レートリミット + 認証」前処理
+ * アプリAPI認証前処理
+ *
+ * 超過は 429、未認証・退会済みは 401、BAN は 403 の応答を
+ * `{ ok: false, response }` で返す。
+ *
+ * @design Origin による CSRF 検証をしない
+ *
+ * 認証は `Authorization` ヘッダのトークンだけで、cookie を一切読まない
+ * （フォールバックもしない）。ブラウザが勝手に添える資格情報に依存しない
+ * ので、他サイトから被害者の権限で叩かせる CSRF が成立しない。web 向けの
+ * `authorizeApiRequest`（`lib/api-auth.ts`）が Origin を見るのは cookie で
+ * 認証するから。この 2 つを混ぜないこと — cookie を読み始めたら Origin 検証も要る。
+ *
+ * @design レートリミットは IP とユーザーの 2 段
+ *
+ * IP の枠は認証より前に数え、認証サーバーへの問い合わせ自体を絞る。
+ * ユーザーの枠は認証の後に数え、回線を変えながら 1 アカウントで叩く経路を
+ * 絞る。どちらも `rate-limit-ip.ts` のインメモリの枠を使うので、インスタンス
+ * 間で共有されない制約も同じ（web の Server Action と同条件）。ユーザーの枠は
+ * キーに `user:` を付けて IP の枠と混ざらないようにしている。
+ *
+ * @param rateLimitKey - レートリミットのアクションキー（`IP_RATE_LIMITS` のキー）
+ * @param config - レートリミット設定（省略時は `IP_RATE_LIMITS[rateLimitKey]`）
+ */
+export async function authorizeMobileRequest(
+  request: Request,
+  rateLimitKey: keyof typeof IP_RATE_LIMITS,
+  config: Readonly<IpRateLimitConfig> = IP_RATE_LIMITS[rateLimitKey],
+): Promise<AuthorizeMobileResult> {
+  const rateLimited = () => ({
+    ok: false as const,
+    response: mobileJson({ error: "rateLimited" }, { status: 429 }),
+  });
+
+  if (checkIpRateLimitGuard(await getClientIp(), rateLimitKey, config)) {
+    return rateLimited();
+  }
+
+  const auth = await authenticateMobileRequest(request);
+  if ("error" in auth) {
+    return {
+      ok: false,
+      response: mobileJson(
+        { error: auth.error },
+        { status: auth.error === "banned" ? 403 : 401 },
+      ),
+    };
+  }
+
+  if (checkIpRateLimitGuard(`user:${auth.user.id}`, rateLimitKey, config)) {
+    return rateLimited();
+  }
+
+  return { ok: true, ...auth };
+}
