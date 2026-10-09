@@ -24,4 +24,11 @@ describe("buildExpInfo", () => {
     expect(info.level).toBe(2);
     expect(info.levelUp).toBe(false);
   });
+
+  it("一度に複数のレベルを越えてもレベルアップにする", () => {
+    const total = getExpForLevel(5);
+    const info = buildExpInfo({ earned: total, totalExpAfter: total });
+    expect(info.level).toBe(5);
+    expect(info.levelUp).toBe(true);
+  });
 });
