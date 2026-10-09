@@ -17,6 +17,8 @@ const HERE = dirname(fileURLToPath(import.meta.url));
 const WEB_SRC = resolve(HERE, "..");
 const FEATURES_SRC = resolve(HERE, "../../../../packages/features/src");
 const ADMIN_DIR = resolve(WEB_SRC, "app/admin");
+/** 管理画面が import してよい共有部品の置き場（CLAUDE.md の「共通UIコンポーネント」） */
+const SHARED_COMPONENTS_DIR = resolve(WEB_SRC, "app/_components");
 
 /** 走査対象のソース（テストは除く。テストは本物の辞書を丸ごと渡してよい） */
 function listSourceFiles(dir: string): string[] {
@@ -100,6 +102,25 @@ describe("クライアントに渡す辞書", () => {
     expect(violations).toEqual([]);
   });
 
+  it("管理画面の配下と共有部品が引く名前空間は管理画面の辞書にある", () => {
+    // 管理画面の Provider は辞書を置き換えるので、ここに無い名前空間は
+    // 管理画面の中では引けない（`MISSING_MESSAGE`）
+    const available = new Set(Object.keys(adminClientMessages));
+    const violations: string[] = [];
+    for (const file of [
+      ...listSourceFiles(ADMIN_DIR),
+      ...listSourceFiles(SHARED_COMPONENTS_DIR),
+    ]) {
+      const source = readFileSync(file, "utf8");
+      for (const namespace of referencedNamespaces(source)) {
+        if (!available.has(namespace)) {
+          violations.push(`${relative(WEB_SRC, file)}: ${namespace}`);
+        }
+      }
+    }
+    expect(violations).toEqual([]);
+  });
+
   it("ルートと管理画面の辞書を合わせると全名前空間からサーバー専用の分を引いたものになる", () => {
     const expected = Object.keys(messages)
       .filter(
@@ -109,9 +130,12 @@ describe("クライアントに渡す辞書", () => {
           ),
       )
       .sort();
+    // 共有部品の名前空間（`nav`）は両方の辞書に入るので重複を除く
     const actual = [
-      ...Object.keys(clientMessages),
-      ...Object.keys(adminClientMessages),
+      ...new Set([
+        ...Object.keys(clientMessages),
+        ...Object.keys(adminClientMessages),
+      ]),
     ].sort();
     expect(actual).toEqual(expected);
   });
