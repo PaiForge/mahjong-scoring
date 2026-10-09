@@ -16,6 +16,17 @@ import {
 
 import { scrollTargetY, type ScrollBlock } from "../lib/scroll-target";
 
+declare module "react-native" {
+  interface ScrollView {
+    /**
+     * 中身の View の ref。iOS / Android の実装（`ScrollView.js`）にも
+     * react-native-web にもあるが、型定義（`ScrollView.d.ts`）に載っていない。
+     * 型定義が勧める `innerViewRef` プロップは react-native-web が受け取らない
+     */
+    getInnerViewRef(): View | null;
+  }
+}
+
 /**
  * 渡した要素が見えるところまでスクロールする関数
  *
@@ -40,7 +51,7 @@ const ScrollIntoViewContext = createContext<ScrollIntoView | undefined>(
  * web の `scrollIntoView({ block: "center" })` に当たる。中身の要素は自分が
  * どのスクロール枠に入っているかを知らないので、枠がコンテキストで
  * スクロールの関数を配り、子孫（点数早見表の注目セル・役一覧の役）がそれを
- * 呼ぶ。位置は枠の中身（`getInnerViewNode`）からの距離で測るので、枠の
+ * 呼ぶ。位置は枠の中身（`getInnerViewRef`）からの距離で測るので、枠の
  * 子の並びを包み直さない（`stickyHeaderIndices` が直接の子を数えるため）。
  *
  * @param scrollRef 対象のスクロール枠
@@ -62,9 +73,11 @@ export function ScrollIntoViewProvider({
     (target, options) => {
       const scroll = scrollRef.current;
       if (target === null || scroll === null) return;
-      // 中身の View。型定義は any（RN の非公開寄りの API だが、iOS / Android /
-      // web のいずれも中身のノードを返す）
-      const content = scroll.getInnerViewNode();
+      // 中身の View の ref。`getInnerViewNode()`（数値のタグ）は使わない —
+      // New Architecture の `measureLayout` は ref 以外を受け取ると黙って何も
+      // せず（開発ビルドで警告が出るだけ）、スクロールしない。web 版
+      // （react-native-web）はどちらも要素を返すため、web では差が見えない
+      const content = scroll.getInnerViewRef();
       if (content == null) return;
       const scrollTo = (y: number, height: number) => {
         const top = scrollTargetY(
