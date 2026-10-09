@@ -19,6 +19,5 @@ appId: help.mahjong.score
 - tapOn:
     id: "mypage-sign-up-cta"
 - extendedWaitUntil:
-    visible:
-      id: "sign-up-submit"
+    visible: "アカウント登録"
     timeout: 10000

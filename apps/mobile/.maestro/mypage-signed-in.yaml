@@ -21,7 +21,7 @@ appId: help.mahjong.score
 - tapOn:
     id: "home-mypage"
 - extendedWaitUntil:
-    visible: "@bob"
+    visible: "@seed_bob"
     timeout: 15000
 - assertVisible: "アクティビティ"
 - assertVisible: "5級"
