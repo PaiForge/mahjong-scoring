@@ -3,6 +3,7 @@ import {
   MentsuType,
   generateMentsuJantouFuQuestion,
   parseHais,
+  sortHaiCodes,
 } from "@mahjong-scoring/core";
 
 import { expectRestoresQuestion } from "@mahjong-scoring/features/test/expect-restores-question";
@@ -121,9 +122,7 @@ describe("toQuestionResult", () => {
 
     question.items.forEach((item, index) => {
       const saved = result.items[index];
-      expect(parseHais(saved.tiles)).toEqual(
-        [...item.tiles].sort((a, b) => a - b),
-      );
+      expect(parseHais(saved.tiles)).toEqual(sortHaiCodes(item.tiles));
       expect(saved.type).toBe(item.type);
       expect(saved.isOpen).toBe(item.isOpen);
       expect(saved.furo).toEqual(item.originalMentsu?.furo);

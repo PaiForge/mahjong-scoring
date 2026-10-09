@@ -10,6 +10,7 @@ import type {
   MachiSelectionJudgement,
   ScoreQuestion,
 } from "@mahjong-scoring/core";
+import { sortHaiCodes } from "@mahjong-scoring/core";
 import {
   cellKeyOf,
   listCellRefs,
@@ -104,7 +105,7 @@ export function TenpaiScoreResult({
   const cells = listCellRefs(question);
   const [focused, setFocused] = useState<MachiCellRef>(cells[0]);
   // 選んだ順ではなく牌の順に並べ、正解の列と横に見比べられるようにする
-  const answeredMachi = [...selectedMachi].sort((a, b) => a - b);
+  const answeredMachi = sortHaiCodes([...selectedMachi]);
 
   const cellQuestionOf = (cell: MachiCellRef): ScoreQuestion | undefined => {
     const wait = question.waits.find((w) => w.agariHai === cell.agariHai);

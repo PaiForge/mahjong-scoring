@@ -1,6 +1,7 @@
 import { describe, it, expect } from "vitest";
 import {
   HaiKind,
+  sortTehai,
   type Tehai14,
   type ScoreResult,
 } from "@pai-forge/riichi-mahjong";
@@ -20,13 +21,13 @@ function makeScoreResult(overrides: Partial<ScoreResult> = {}): ScoreResult {
 }
 
 /**
- * テスト用の門前手牌（刻子含む）を構築するヘルパー
+ * テスト用の門前手牌（刻子含む）を構築するヘルパー。出題と同じく理牌する
  */
 function makeTehaiWithKoutsu(koutsuHai: number, closedRest: number[]): Tehai14 {
-  return {
+  return sortTehai({
     closed: [koutsuHai, koutsuHai, koutsuHai, ...closedRest],
     exposed: [],
-  } as unknown as Tehai14;
+  } as unknown as Tehai14);
 }
 
 /**

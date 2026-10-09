@@ -11,6 +11,7 @@ import {
   generateValidTenpaiScoreQuestion,
   judgeMachiCellAnswer,
   judgeMachiSelection,
+  sortHaiCodes,
 } from "@mahjong-scoring/core";
 import type { HaiKindId } from "@mahjong-scoring/core";
 import { TenpaiScoreResult } from "./tenpai-score-result";
@@ -170,9 +171,7 @@ describe("TenpaiScoreResult の待ち牌", () => {
 
     const { answer, correct } = machiCells();
     // 回答の列は選んだ牌を牌の順に並べ、正解の列は出題の待ちをすべて出す
-    expect(haiIdsIn(answer)).toEqual(
-      [waits[0], notAWait].sort((a, b) => a - b),
-    );
+    expect(haiIdsIn(answer)).toEqual(sortHaiCodes([waits[0], notAWait]));
     expect(haiIdsIn(correct)).toEqual(waits);
 
     // 余分な牌は回答の列で赤、見落とした牌は正解の列で緑の破線

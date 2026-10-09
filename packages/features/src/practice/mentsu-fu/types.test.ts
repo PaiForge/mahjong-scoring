@@ -1,5 +1,9 @@
 import { describe, expect, it } from "vitest";
-import { MentsuType, generateMentsuFuQuestion } from "@mahjong-scoring/core";
+import {
+  MentsuType,
+  generateMentsuFuQuestion,
+  sortHaiCodes,
+} from "@mahjong-scoring/core";
 
 import { restoreMentsu } from "@mahjong-scoring/features/results/mentsu-serialization";
 import { parseMentsuFuResults, toQuestionResult } from "./types";
@@ -66,9 +70,7 @@ describe("toQuestionResult", () => {
 
     const mentsu = restoreMentsu(result.mentsu);
     expect(mentsu?.type).toBe(question.mentsu.type);
-    expect(mentsu?.hais).toEqual(
-      [...question.mentsu.hais].sort((a, b) => a - b),
-    );
+    expect(mentsu?.hais).toEqual(sortHaiCodes(question.mentsu.hais));
     expect(mentsu?.furo).toEqual(question.mentsu.furo);
   });
 

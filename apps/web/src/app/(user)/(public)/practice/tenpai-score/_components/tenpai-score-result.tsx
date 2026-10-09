@@ -10,6 +10,7 @@ import type {
   MachiSelectionJudgement,
   ScoreQuestion,
 } from "@mahjong-scoring/core";
+import { sortHaiCodes } from "@mahjong-scoring/core";
 import { Hai } from "@pai-forge/mahjong-react-ui";
 import { Button } from "@/app/(user)/_components/button";
 import { ResultDisplay } from "../../agari-score/_components/result-display";
@@ -120,7 +121,7 @@ export function TenpaiScoreResult({
   const [focused, setFocused] = useState<MachiCellRef>(cells[0]);
   // 選んだ順ではなく牌の順に並べる。正解の列（出題の並び = 牌の順）と
   // 同じ並びになり、2 列を横に見比べられる
-  const answeredMachi = [...selectedMachi].sort((a, b) => a - b);
+  const answeredMachi = sortHaiCodes([...selectedMachi]);
 
   const cellQuestionOf = (cell: MachiCellRef): ScoreQuestion | undefined => {
     const wait = question.waits.find((w) => w.agariHai === cell.agariHai);

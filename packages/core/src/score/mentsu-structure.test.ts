@@ -4,6 +4,7 @@ import {
   HaiKind,
   MentsuType,
   Tacha,
+  sortTehai,
   type CompletedMentsu,
   type HaiKindId,
   type Tehai,
@@ -13,9 +14,9 @@ import {
   resolveMentsuBreakdowns,
 } from "./mentsu-structure";
 
-/** 副露なしの手牌を作るヘルパー */
+/** 副露なしの手牌を作るヘルパー（面子ごとに書いた牌を、出題と同じく理牌する） */
 function makeTehai(closed: readonly HaiKind[]): Tehai {
-  return { closed, exposed: [] };
+  return sortTehai({ closed, exposed: [] });
 }
 
 /** 東場・南家のツモ和了 */
@@ -439,7 +440,7 @@ describe("resolveMentsuBreakdown", () => {
       ]);
 
     it("雀頭も面子の間に、萬子 → 筒子 → 索子 → 字牌の順に並べる", () => {
-      // 發發發 234m 456p 678s + 99m（理牌していない並びで渡す）
+      // 發發發 234m 456p 678s + 99m（ライブラリが返す面子の順に依らない）
       const tehai = makeTehai([
         HaiKind.Hatsu,
         HaiKind.Hatsu,
