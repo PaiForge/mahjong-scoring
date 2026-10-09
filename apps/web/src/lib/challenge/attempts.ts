@@ -368,6 +368,10 @@ function outcomeResult(
       return { challengeResultId: outcome.challengeResultId };
     case "unrecorded":
       return undefined;
+    default: {
+      const exhaustive: never = outcome;
+      return exhaustive;
+    }
   }
 }
 

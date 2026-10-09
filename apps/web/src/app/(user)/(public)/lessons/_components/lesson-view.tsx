@@ -175,6 +175,10 @@ function PromptTiles({ prompt }: { readonly prompt: LessonPrompt }) {
       // 手牌は 14 枚並び、枠の内側では読めない大きさまで縮む。枠の外の
       // 盤面（{@link PromptBoard}）に出す
       return undefined;
+    default: {
+      const exhaustive: never = prompt;
+      return exhaustive;
+    }
   }
 }
 
@@ -698,5 +702,9 @@ function CompletionActions({
           secondary={{ label: t("signUp.secondary"), href: next.href }}
         />
       );
+    default: {
+      const exhaustive: never = saveState;
+      return exhaustive;
+    }
   }
 }

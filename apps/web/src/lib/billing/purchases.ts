@@ -24,10 +24,8 @@ import {
   isFullyRefunded,
   sessionMatchesCheckout,
 } from "./checkout-session-match";
-import {
-  addPassDuration,
-  PurchaseKind,
-} from "@mahjong-scoring/features/billing/plans";
+import { PurchaseKind } from "@mahjong-scoring/features/billing/plans";
+import { buildPurchaseRow } from "./purchase-row";
 import { PurchaseRevokeReason } from "./revoke-reason";
 import { getStripe } from "./stripe";
 
@@ -140,27 +138,18 @@ export async function recordPurchaseFromCheckoutSession(
           throw new Error("Duplicate purchase refund failed");
         refunded = true;
       }
-      const startsAt = new Date(charge.created * 1000);
-      const expiresAt =
-        checkout.durationDays === null
-          ? null
-          : addPassDuration(startsAt, checkout.durationDays);
+      const row = buildPurchaseRow({
+        session,
+        paymentIntentId,
+        checkout,
+        userId: customer.userId,
+        chargeCreated: charge.created,
+        refunded,
+        now,
+      });
       const [inserted] = await tx
         .insert(purchases)
-        .values({
-          userId: customer.userId,
-          plan: checkout.plan,
-          kind: checkout.kind,
-          benefits: checkout.benefits,
-          stripeCheckoutSessionId: session.id,
-          stripePaymentIntentId: paymentIntentId,
-          currency: (session.currency ?? "jpy").toLowerCase(),
-          amount: session.amount_total ?? 0,
-          startsAt,
-          expiresAt,
-          revokedAt: refunded ? now : null,
-          revokeReason: refunded ? PurchaseRevokeReason.Refunded : null,
-        })
+        .values(row)
         .onConflictDoNothing({ target: purchases.stripeCheckoutSessionId })
         .returning({ id: purchases.id });
       await tx
@@ -168,15 +157,7 @@ export async function recordPurchaseFromCheckoutSession(
         .set({ stripeCheckoutSessionId: session.id, settledAt: now })
         .where(eq(billingCheckouts.id, checkout.id));
       if (!inserted) return { outcome: "duplicate" };
-      notification = purchaseNotificationOf({
-        id: inserted.id,
-        userId: customer.userId,
-        plan: checkout.plan,
-        kind: checkout.kind,
-        expiresAt,
-        revokedAt: refunded ? now : null,
-        revokeReason: refunded ? PurchaseRevokeReason.Refunded : null,
-      });
+      notification = purchaseNotificationOf({ ...row, id: inserted.id });
       return {
         outcome: refunded ? "refunded" : "recorded",
         purchaseId: inserted.id,

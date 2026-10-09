@@ -18,10 +18,16 @@ import {
   answerRecordedChallenge,
   fetchProgress,
   finishRecordedChallenge,
-  isRetryableFailure,
   readRecordedChallenge,
   sendLessonCompletions,
 } from "./records-api";
+import {
+  canDropActiveChallenge,
+  decidePendingFinish,
+  decidePendingFinishByStatus,
+  isRetryableFailure,
+  isSettled,
+} from "./failure-policy";
 import {
   accountRecordsHydrated,
   updateAccountRecords,
@@ -155,7 +161,7 @@ async function recoverActiveChallenge(userId: string): Promise<void> {
     if ("error" in answered && isRetryableFailure(answered.error)) return;
   }
   const finished = await finishRecordedChallenge(userId, active.attemptId);
-  if ("error" in finished && !isSettled(finished.error)) return;
+  if (!canDropActiveChallenge(finished)) return;
   updateAccountRecords((records) =>
     dropActiveChallenge(records, userId, active.attemptId),
   );
@@ -174,36 +180,35 @@ async function sendPendingFinish(
   pending: PendingFinish,
 ): Promise<boolean> {
   const finished = await finishRecordedChallenge(userId, pending.attemptId);
-  if ("value" in finished) setFinishStatus(pending.attemptId, "recorded");
-  else {
-    if (!isSettled(finished.error)) return false;
-    // 画面の時計がサーバーより先に切れた。期限が来れば確定できるので残す
-    if (finished.error === "notFinished") {
-      const status = await readRecordedChallenge(userId, pending.attemptId);
-      if ("error" in status) return !isRetryableFailure(status.error);
-      if (!status.value.paused && status.value.remainingMs > 0) return true;
+  const first = decidePendingFinish(finished);
+  const decision =
+    first === "checkStatus"
+      ? decidePendingFinishByStatus(
+          await readRecordedChallenge(userId, pending.attemptId),
+        )
+      : first;
+  switch (decision) {
+    case "recorded":
+      setFinishStatus(pending.attemptId, "recorded");
+      dropPending(userId, pending.attemptId);
+      return true;
+    case "drop":
+      dropPending(userId, pending.attemptId);
+      return true;
+    case "keep":
+      return true;
+    case "stop":
+      return false;
+    default: {
+      const exhaustive: never = decision;
+      return exhaustive;
     }
   }
-  updateAccountRecords((records) =>
-    dropPendingFinish(records, userId, pending.attemptId),
-  );
-  return true;
 }
 
-/**
- * 確定の失敗が「もう送っても変わらない」ものか
- *
- * 通信・一時的な障害、ログインが変わった・切れたものは、後で送れば
- * 通るかもしれないので残す。サーバーが答えを出したもの（まだ終わって
- * いない・記録できない・見つからない）は確定したものとして扱う。
- */
-function isSettled(error: Parameters<typeof isRetryableFailure>[0]): boolean {
-  if (isRetryableFailure(error)) return false;
-  return (
-    error === "notFinished" ||
-    error === "invalidChallenge" ||
-    error === "conflict" ||
-    error === "invalidRequest"
+function dropPending(userId: string, attemptId: string): void {
+  updateAccountRecords((records) =>
+    dropPendingFinish(records, userId, attemptId),
   );
 }
 

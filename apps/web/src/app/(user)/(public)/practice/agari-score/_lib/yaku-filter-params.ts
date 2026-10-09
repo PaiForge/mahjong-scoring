@@ -44,10 +44,12 @@ export function yakuTokenOf(name: string): string | undefined {
  * 条件が入るのを防ぐ）。空配列 = 絞り込みなし。
  */
 export function parseYakuValues(values: readonly string[]): readonly string[] {
-  const names: string[] = [];
-  for (const value of values) {
-    const name = NAME_BY_TOKEN.get(value);
-    if (name !== undefined && !names.includes(name)) names.push(name);
-  }
-  return names;
+  return [
+    ...new Set(
+      values.flatMap((value) => {
+        const name = NAME_BY_TOKEN.get(value);
+        return name === undefined ? [] : [name];
+      }),
+    ),
+  ];
 }

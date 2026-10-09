@@ -105,11 +105,14 @@ export async function requestAccountDeletion(
  *
  * 他の処理（その場の処理と cron）が貸し出しを持っている間は何もせず、
  * 今の進み具合だけを返す。
+ *
+ * @param now - 貸し出しを取る時刻（貸し出しの期限切れの判定と記録に使う）
  */
 export async function processAccountDeletion(
   userId: string,
+  now: Date = new Date(),
 ): Promise<AccountDeletionStatus> {
-  const leased = await leaseDeletion(userId);
+  const leased = await leaseDeletion(userId, now);
   if (!leased) return (await getAccountDeletionStatus(userId)) ?? "pending";
 
   try {
@@ -186,12 +189,13 @@ export async function getAccountDeletionStatus(
  */
 async function leaseDeletion(
   userId: string,
+  now: Date,
 ): Promise<AccountDeletion | undefined> {
-  const leaseExpiredBefore = new Date(Date.now() - PROCESSING_LEASE_MS);
+  const leaseExpiredBefore = new Date(now.getTime() - PROCESSING_LEASE_MS);
   const [row] = await db
     .update(accountDeletions)
     .set({
-      lastAttemptAt: new Date(),
+      lastAttemptAt: now,
       attempts: sql`${accountDeletions.attempts} + 1`,
     })
     .where(

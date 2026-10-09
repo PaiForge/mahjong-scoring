@@ -76,20 +76,23 @@ const JIKAZE_NAME = getYakuNameJa("Jikaze");
 function expectedYakuNames(
   source: Readonly<YakuJudgementSource>,
 ): readonly string[] {
-  const names: string[] = [];
-  for (const { name } of source.yakuDetails ?? []) {
-    if (IGNORE_YAKU_FOR_JUDGEMENT.includes(name)) continue;
-    const resolved =
-      name === BAKAZE_NAME
-        ? getKazeYakuhaiDisplayName(source.bakaze)
-        : name === JIKAZE_NAME
-          ? getKazeYakuhaiDisplayName(source.jikaze)
-          : name;
-    if (resolved !== undefined && !names.includes(resolved)) {
-      names.push(resolved);
-    }
-  }
-  return names;
+  const resolved = (source.yakuDetails ?? [])
+    .filter(({ name }) => !IGNORE_YAKU_FOR_JUDGEMENT.includes(name))
+    .flatMap(({ name }) => {
+      const display = resolveKazeYakuName(name, source);
+      return display === undefined ? [] : [display];
+    });
+  return [...new Set(resolved)];
+}
+
+/** 内訳の「場風牌」「自風牌」を局面の風の役牌の名前に引き直す。他の役はそのまま */
+function resolveKazeYakuName(
+  name: string,
+  source: Readonly<YakuJudgementSource>,
+): string | undefined {
+  if (name === BAKAZE_NAME) return getKazeYakuhaiDisplayName(source.bakaze);
+  if (name === JIKAZE_NAME) return getKazeYakuhaiDisplayName(source.jikaze);
+  return name;
 }
 
 /**

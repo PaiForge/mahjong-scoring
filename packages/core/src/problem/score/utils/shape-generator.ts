@@ -169,7 +169,8 @@ export function generateWeightedMentsu(
   furo: boolean = false,
   rng: RandomSource = defaultRandomSource,
 ): CompletedMentsu | undefined {
-  switch (pickMentsuType(weights, rng)) {
+  const kind = pickMentsuType(weights, rng);
+  switch (kind) {
     case "shuntsu":
       return (
         generateShuntsu(tracker, furo, rng) ??
@@ -186,6 +187,10 @@ export function generateWeightedMentsu(
         generateKoutsu(tracker, furo, rng) ??
         generateShuntsu(tracker, furo, rng)
       );
+    default: {
+      const exhaustive: never = kind;
+      return exhaustive;
+    }
   }
 }
 

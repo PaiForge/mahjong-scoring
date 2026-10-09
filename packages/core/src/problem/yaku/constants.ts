@@ -129,20 +129,13 @@ export function normalizeYakuOrder(
   savedOrder: readonly string[],
 ): readonly string[] {
   const selectable = new Set(SELECTABLE_YAKU);
-  const seen = new Set<string>();
-  const result: string[] = [];
-
-  for (const name of savedOrder) {
-    if (!selectable.has(name) || seen.has(name)) continue;
-    seen.add(name);
-    result.push(name);
-  }
-  for (const name of YAKU_DEFAULT_ORDER) {
-    if (seen.has(name)) continue;
-    seen.add(name);
-    result.push(name);
-  }
-  return result;
+  // Set は最初に入れた順を保つので、保存済みの並びが先・既定順の残りが後になる
+  return [
+    ...new Set([
+      ...savedOrder.filter((name) => selectable.has(name)),
+      ...YAKU_DEFAULT_ORDER,
+    ]),
+  ];
 }
 
 /**

@@ -84,6 +84,10 @@ function PromptTiles({ prompt }: { readonly prompt: LessonPrompt }) {
       return (
         <MachiTiles tiles={prompt.tiles} agariHai={prompt.agariHai} size="md" />
       );
+    default: {
+      const exhaustive: never = prompt;
+      return exhaustive;
+    }
   }
 }
 
