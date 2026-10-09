@@ -3,6 +3,7 @@ import {
   formatMpsz,
   parseExtendedMpsz,
   parseMpsz,
+  sortTehai,
   tehaiToHaiKindId,
   type HaiKindId,
   type Kazehai,
@@ -41,20 +42,24 @@ export function haisToMpsz(hais: readonly HaiKindId[]): string {
  * 手牌はどれも点数計算か牌の描画に渡され、どちらも牌種 ID しか受け付け
  * ない（赤ドラは点数に乗らず、赤 5 の牌画像も持たない）ため。
  *
+ * 純手牌は理牌して返す（sortTehai。晒した面子は表記の順のまま）。表記は
+ * 面子ごとにまとめて書くなど理牌の順とは限らず（`234m22m567p` 等）、
+ * 読んだ順のまま並べると、生成した問題と同じ手牌でも並びが変わるため。
+ *
  * 1.x の表記（方向注釈の無い副露 `[123m]` など）は受け付けない。
  * 保存済みの旧表記はここで undefined になり、呼び出し側は表示を諦める。
  */
 export function parseTehai(str: string | undefined): Tehai | undefined {
   if (!str) return undefined;
   const result = parseExtendedMpsz(str);
-  return result.isOk() ? tehaiToHaiKindId(result.value) : undefined;
+  return result.isOk() ? sortTehai(tehaiToHaiKindId(result.value)) : undefined;
 }
 
 /**
  * 牌文字列（Extended MPSZ）の純手牌部分をIDリストに変換する
  * MPSZ→牌IDリスト変換
  *
- * 純手牌は表記の順のまま返す（整列しない）。読めない文字列は空配列。
+ * {@link parseTehai} と同じく理牌して返す。読めない文字列は空配列。
  */
 export function parseHais(str: string | undefined): HaiKindId[] {
   return [...(parseTehai(str)?.closed ?? [])];
