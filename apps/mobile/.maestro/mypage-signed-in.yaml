@@ -1,0 +1,43 @@
+# 記録が残る人（bob）のマイページ: 見出し（名前・@ユーザー名・段級位）と直近 7 日の
+# アクティビティ。今日の棒を押すとその日の内訳が出る。EXP はシードに無いので、棒を
+# 見るなら先に challenge-recorded を流す（clearState で消えるのは端末だけで、
+# サーバーの EXP は残る）。手元の web（:3000）とその DB が動いていること
+appId: help.mahjong.score
+---
+- clearKeychain
+- launchApp:
+    clearState: true
+- extendedWaitUntil:
+    visible: "次にやること"
+    timeout: 20000
+- runFlow:
+    file: _sign-in.yaml
+    env:
+      EMAIL: bob@example.local
+      PASSWORD: devpass1
+- extendedWaitUntil:
+    visible: "次にやること"
+    timeout: 15000
+- tapOn:
+    id: "home-mypage"
+- extendedWaitUntil:
+    visible: "@bob"
+    timeout: 15000
+- assertVisible: "アクティビティ"
+- assertVisible: "5級"
+- assertNotVisible:
+    id: "mypage-sign-up-cta"
+- takeScreenshot: mypage-signed-in
+# 7 本の棒の最後（今日）
+- tapOn:
+    id: "mypage-activity-.*"
+    index: 6
+- extendedWaitUntil:
+    visible: "合計.*"
+    timeout: 5000
+- takeScreenshot: mypage-activity-detail
+- tapOn:
+    text: "5級"
+- extendedWaitUntil:
+    visible: "現在の段級位"
+    timeout: 10000
