@@ -2,8 +2,8 @@
 
 import { getOptionalUser } from "@/lib/auth";
 import { logExternalError } from "@/lib/log-error";
-import type { ChallengeAttempt } from "../_lib/types";
-import { isMyRecordBoard } from "../_lib/menu-scope";
+import type { ChallengeAttempt } from "@mahjong-scoring/features/my-record/types";
+import { isMyRecordBoard } from "@mahjong-scoring/features/my-record/menu-scope";
 import { fetchChallengeAttempts } from "../_lib/queries";
 import type { PracticeBoard } from "@mahjong-scoring/features/practice-menu-types";
 

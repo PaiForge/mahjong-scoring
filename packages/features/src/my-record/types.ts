@@ -1,12 +1,19 @@
-import type { PracticeBoard } from "@mahjong-scoring/features/practice-menu-types";
+import type { PracticeBoard } from "../practice-menu-types";
 
 /**
  * チャレンジダッシュボードの共通型定義
  * マイレコード型
  */
 
-/** 期間選択の有効値 */
-const DATE_PERIOD_VALUES = [
+/**
+ * 期間選択の有効値（選択肢の並び順）
+ * 期間選択肢
+ *
+ * 期間選択は意図的に固定期間のみ提供している。
+ * 理由: (1) 古いデータは練習の成長指標として参考にならない
+ * (2) 定期的なデータクリーンアップを想定しており、長期間のデータ保持を前提としない
+ */
+export const DATE_PERIOD_VALUES = [
   "thisWeek",
   "lastWeek",
   "thisMonth",

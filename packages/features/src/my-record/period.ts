@@ -1,4 +1,4 @@
-import { jstCalendarDate, jstStartOfDay } from "@mahjong-scoring/features/jst";
+import { jstCalendarDate, jstStartOfDay } from "../jst";
 
 import type { DatePeriod } from "./types";
 
@@ -68,7 +68,7 @@ function rangeOf(period: DatePeriod, now: Date, shift: number): DateRange {
  * 指定期間の開始・終了を返す
  * 期間範囲取得
  *
- * 週・月の境界は実行環境の TZ ではなく JST で切る（`@mahjong-scoring/features/jst`）。
+ * 週・月の境界は実行環境の TZ ではなく JST で切る（`../jst`）。
  * サーバー（Vercel = UTC）とクライアント（ブラウザ = JST）の両方がこの関数を
  * 呼ぶため、ローカル時刻で切ると JST の 0〜9 時に「今週」「今月」が
  * 別の範囲になる。
@@ -96,4 +96,74 @@ export function getPreviousPeriodRange(
   now: Date,
 ): DateRange {
   return rangeOf(period, now, -1);
+}
+
+/**
+ * 期間に応じた比較ラベルの辞書キー（`mypage.challenges.<キー>`）を返す
+ * 比較ラベルキー取得
+ *
+ * 翻訳関数を受け取らずキーを返す — web（next-intl）とアプリ（use-intl）の
+ * どちらの翻訳関数でも引けるようにするため。
+ */
+export function getComparisonLabelKey(
+  period: DatePeriod,
+): "vsLastWeek" | "vs2WeeksAgo" | "vsLastMonth" | "vs2MonthsAgo" {
+  switch (period) {
+    case "thisWeek":
+      return "vsLastWeek";
+    case "lastWeek":
+      return "vs2WeeksAgo";
+    case "thisMonth":
+      return "vsLastMonth";
+    case "lastMonth":
+      return "vs2MonthsAgo";
+  }
+}
+
+/**
+ * 前の期間のラベルキーを返す
+ * 前期間ラベルキー
+ */
+export function getPreviousPeriodLabel(
+  period: DatePeriod,
+): "lastWeek" | "twoWeeksAgo" | "lastMonth" | "twoMonthsAgo" {
+  switch (period) {
+    case "thisWeek":
+      return "lastWeek";
+    case "lastWeek":
+      return "twoWeeksAgo";
+    case "thisMonth":
+      return "lastMonth";
+    case "lastMonth":
+      return "twoMonthsAgo";
+  }
+}
+
+/**
+ * 凡例クリックで遷移可能な前の期間を返す。不可なら undefined。
+ * 遷移可能な前期間
+ *
+ * 同ファイルの {@link getComparisonLabel} などは戻り値が `string` のため、
+ * 分岐が漏れると「undefined を返しうる」ことになって型検査で落ちる。
+ * この関数は戻り値に `undefined` を含むので同じ守りが効かない
+ * （漏れたケースは黙って「遷移不可」に落ちる）。default で `never` を
+ * 受け止め、DatePeriod にケースが増えたらここが壊れるようにしてある。
+ */
+export function getNavigablePreviousPeriod(
+  period: DatePeriod,
+): DatePeriod | undefined {
+  switch (period) {
+    case "thisWeek":
+      return "lastWeek";
+    case "thisMonth":
+      return "lastMonth";
+    // さらに前の期間は期間選択に無いため遷移先を持たない
+    case "lastWeek":
+    case "lastMonth":
+      return undefined;
+    default: {
+      const exhaustive: never = period;
+      return exhaustive;
+    }
+  }
 }

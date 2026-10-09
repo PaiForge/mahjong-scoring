@@ -7,14 +7,17 @@ import { useTranslations } from "next-intl";
 
 import { SectionTitle } from "@/app/(user)/_components/section-title";
 
-import { boardLabel } from "../_lib/board-label";
+import { boardLabel } from "@mahjong-scoring/features/my-record/board-label";
 import {
-  getComparisonLabel,
+  getComparisonLabelKey,
   getNavigablePreviousPeriod,
   getPreviousPeriodLabel,
-} from "../_lib/dashboard-utils";
-import type { ChallengeAttempt, DatePeriod } from "../_lib/types";
-import { isDatePeriod } from "../_lib/types";
+} from "@mahjong-scoring/features/my-record/period";
+import type { ChallengeAttempt } from "@mahjong-scoring/features/my-record/types";
+import {
+  DATE_PERIOD_VALUES,
+  isDatePeriod,
+} from "@mahjong-scoring/features/my-record/types";
 import { useDashboardData } from "../_hooks/use-dashboard-data";
 import {
   DashboardContentSkeleton,
@@ -39,18 +42,6 @@ const ScoreChart = dynamic(
     loading: () => <SkeletonBar radius="lg" className="h-[250px] w-full" />,
   },
 );
-
-/**
- * 期間選択は意図的に固定期間のみ提供している。
- * 理由: (1) 古いデータは練習の成長指標として参考にならない
- * (2) 定期的なデータクリーンアップを想定しており、長期間のデータ保持を前提としない
- */
-const DATE_PERIODS: readonly DatePeriod[] = [
-  "thisWeek",
-  "lastWeek",
-  "thisMonth",
-  "lastMonth",
-];
 
 const selectClassName =
   "px-3 py-2.5 rounded-lg border border-surface-400 bg-white text-surface-900 text-sm focus:border-primary-500 focus:outline-none focus:ring-2 focus:ring-primary-400";
@@ -95,7 +86,7 @@ export function ChallengeDashboard({
     hasMoreResults,
   } = useDashboardData({ initialBoards, initialBoard, initialAttempts });
 
-  const comparisonLabel = getComparisonLabel(selectedPeriod, t);
+  const comparisonLabel = t(getComparisonLabelKey(selectedPeriod));
   const navigablePrevPeriod = getNavigablePreviousPeriod(selectedPeriod);
 
   const handlePeriodChange = useCallback(
@@ -170,7 +161,7 @@ export function ChallengeDashboard({
         onChange={handlePeriodChange}
         className={`block w-full sm:w-48 ${selectClassName}`}
       >
-        {DATE_PERIODS.map((period) => (
+        {DATE_PERIOD_VALUES.map((period) => (
           <option key={period} value={period}>
             {t(`periods.${period}`)}
           </option>

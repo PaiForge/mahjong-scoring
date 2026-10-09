@@ -6,7 +6,7 @@ import {
   CompactTableRow,
 } from "./compact-table";
 import { getMissColorClass } from "@/app/(user)/_components/_lib/miss-color";
-import type { AttemptRow } from "../_lib/types";
+import type { AttemptRow } from "@mahjong-scoring/features/my-record/types";
 
 interface AttemptHistoryTableProps {
   readonly attempts: readonly AttemptRow[];

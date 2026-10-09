@@ -1,6 +1,6 @@
 import { afterAll, beforeAll, describe, expect, it, vi } from "vitest";
 
-import { getPeriodRange, getPreviousPeriodRange } from "./period-utils";
+import { getPeriodRange, getPreviousPeriodRange } from "./period";
 
 /** JST の年月日時分秒を表す瞬間 */
 function jst(
