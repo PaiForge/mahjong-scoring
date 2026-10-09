@@ -1,4 +1,6 @@
-import { render, screen, fireEvent, cleanup } from "@testing-library/react";
+import { screen, fireEvent, cleanup } from "@testing-library/react";
+// 牌を描くので TileImageProvider で包む render を使う
+import { render } from "@/test/tile-image-render";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import { generateValidScoreQuestion } from "@mahjong-scoring/core";
 import type { ScoreQuestion } from "@mahjong-scoring/core";

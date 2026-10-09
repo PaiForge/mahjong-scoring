@@ -1,4 +1,6 @@
-import { render, screen, cleanup } from "@testing-library/react";
+import { screen, cleanup } from "@testing-library/react";
+// 牌を描くので TileImageProvider で包む render を使う
+import { render } from "@/test/tile-image-render";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
 vi.mock("next-intl", async () => await import("@/test/intl-mock"));

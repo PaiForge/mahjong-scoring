@@ -1,10 +1,6 @@
-import {
-  render,
-  cleanup,
-  act,
-  fireEvent,
-  screen,
-} from "@testing-library/react";
+import { cleanup, act, fireEvent, screen } from "@testing-library/react";
+// 牌を描くので TileImageProvider で包む render を使う
+import { render } from "@/test/tile-image-render";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
 let currentQuery = "";

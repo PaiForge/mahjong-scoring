@@ -15,6 +15,7 @@ import {
   SITE_NAME,
 } from "@/app/_lib/metadata";
 import { SITE_URL } from "@/config";
+import { clientMessages } from "@/i18n/client-messages";
 import "./globals.css";
 
 const GlobalToaster = dynamic(() =>
@@ -62,7 +63,10 @@ export default async function RootLayout({
       <body className="min-h-screen overflow-x-hidden">
         <ScrollReset />
         <AppVersionWatcher />
-        <NextIntlClientProvider>
+        {/* 辞書はクライアントが引く名前空間だけ渡す。渡したものは全ページの HTML と
+            遷移ごとの RSC 応答に載るため（`i18n/client-messages.ts`）。
+            サーバーコンポーネントの getTranslations() は request.ts の全辞書を読む */}
+        <NextIntlClientProvider messages={clientMessages}>
           <AppTileImageProvider>
             <AuthProvider>{children}</AuthProvider>
           </AppTileImageProvider>
