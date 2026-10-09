@@ -46,6 +46,36 @@ pnpm --filter @mahjong-scoring/mobile start
 
 `EXPO_PUBLIC_` の値はアプリの中に埋め込まれる。公開キー以外の秘密を入れないこと。
 
+EAS の `production` 環境に入れる（`eas.json` の `production` プロファイルがこの環境を読む）:
+
+```bash
+cd apps/mobile
+npx eas-cli env:create --environment production --visibility plaintext \
+  --name EXPO_PUBLIC_SUPABASE_URL --value https://<ref>.supabase.co
+npx eas-cli env:create --environment production --visibility plaintext \
+  --name EXPO_PUBLIC_SUPABASE_PUBLISHABLE_KEY --value sb_publishable_…
+```
+
+## TestFlight に出す
+
+EAS のプロジェクトは `@k0kishima/mahjong-scoring`（`app.json` の `extra.eas.projectId`）。
+ビルド番号は EAS 側で持ち、ビルドのたびに 1 つ上がる（`appVersionSource: remote` + `autoIncrement`）。
+暗号化は HTTPS だけなので `usesNonExemptEncryption: false` を申告済みで、App Store Connect で
+輸出コンプライアンスを毎回答えなくてよい。
+
+```bash
+cd apps/mobile
+npx eas-cli build --platform ios --profile production --auto-submit
+```
+
+- 初回は Apple ID でのログインを求められる。配布用の証明書とプロビジョニングプロファイルは
+  EAS に作らせて EAS 側に置く（「Generate a new Apple Distribution Certificate?」等にすべて Yes）
+- `--auto-submit` はビルドが済むと App Store Connect へ送る。アプリの登録が無ければ初回に作られる
+- App Store Connect で処理が済むと（10〜30 分）、TestFlight の「内部テスト」のグループに
+  自分を入れれば iPhone の TestFlight アプリから入れられる。内部テストに審査は無い
+- 本番の Supabase・web に繋がるので、試して作ったアカウントは本番の DB に残る。最後にアプリから
+  退会すると、退会と Apple 連携の取り消しの確認を兼ねられる
+
 ## Apple でログイン（iOS）
 
 iOS アプリのネイティブの Apple ログインだけを持つ（web の Apple ログインは無い）。
