@@ -9,6 +9,7 @@ const {
   mockFinish,
   mockStatus,
   mockReveal,
+  mockExp,
 } = vi.hoisted(() => ({
   mockAuthorize: vi.fn(),
   mockBegin: vi.fn(),
@@ -17,6 +18,7 @@ const {
   mockFinish: vi.fn(),
   mockStatus: vi.fn(),
   mockReveal: vi.fn(),
+  mockExp: vi.fn(),
 }));
 
 vi.mock("./auth", () => ({ authorizeMobileRequest: mockAuthorize }));
@@ -27,6 +29,9 @@ vi.mock("../challenge/attempts", () => ({
   finishAttempt: mockFinish,
   readAttemptStatus: mockStatus,
   revealExpiredAttempt: mockReveal,
+}));
+vi.mock("../db/save-exp", () => ({
+  getExpInfoByChallengeResultId: mockExp,
 }));
 vi.mock("../log-error", () => ({ logExternalError: vi.fn() }));
 
@@ -245,13 +250,45 @@ describe("handleReadChallenge", () => {
 describe("handleFinishChallenge", () => {
   const request = () => post({});
 
-  it("記録した成績の ID を返す", async () => {
+  const EXP = {
+    earnedExp: 12,
+    totalExp: 340,
+    level: 3,
+    levelUp: false,
+    progressPercent: 40,
+  };
+
+  it("記録した成績の ID と付いた経験値を返す", async () => {
     mockFinish.mockResolvedValue({ challengeResultId: "result-1" });
+    mockExp.mockResolvedValue(EXP);
+
+    const response = await handleFinishChallenge(request(), ATTEMPT_ID);
+
+    expect(await response.json()).toEqual({
+      challengeResultId: "result-1",
+      exp: EXP,
+    });
+    expect(mockFinish).toHaveBeenCalledWith(USER_ID, ATTEMPT_ID, false);
+    expect(mockExp).toHaveBeenCalledWith(USER_ID, "result-1");
+  });
+
+  it("経験値の対象外なら ID だけを返す", async () => {
+    mockFinish.mockResolvedValue({ challengeResultId: "result-1" });
+    mockExp.mockResolvedValue(undefined);
 
     const response = await handleFinishChallenge(request(), ATTEMPT_ID);
 
     expect(await response.json()).toEqual({ challengeResultId: "result-1" });
-    expect(mockFinish).toHaveBeenCalledWith(USER_ID, ATTEMPT_ID, false);
+  });
+
+  it("経験値を読めなくても確定は成功にする（記録は済んでいる）", async () => {
+    mockFinish.mockResolvedValue({ challengeResultId: "result-1" });
+    mockExp.mockRejectedValue(new Error("db down"));
+
+    const response = await handleFinishChallenge(request(), ATTEMPT_ID);
+
+    expect(response.status).toBe(200);
+    expect(await response.json()).toEqual({ challengeResultId: "result-1" });
   });
 
   it("まだ終わっていなければ 409 notFinished", async () => {

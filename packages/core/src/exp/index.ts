@@ -1,4 +1,5 @@
 export { calculateExp } from "./calc";
+export { buildExpInfo } from "./info";
 export { getExpForLevel, getLevel, getLevelProgress } from "./level";
 export {
   EXP_CURVE,

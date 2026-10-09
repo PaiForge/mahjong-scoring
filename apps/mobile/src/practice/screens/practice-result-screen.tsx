@@ -21,8 +21,9 @@ import { Screen } from "../../components/screen";
 import { SectionTitle } from "../../components/section-title";
 import { TextLink } from "../../components/text-link";
 import { colors } from "../../lib/theme";
-import { useFinishStatus } from "../../records/account-sync";
+import { useFinishExp, useFinishStatus } from "../../records/account-sync";
 import { useChallengeResultStore } from "../challenge-result-store";
+import { ExpGain } from "../components/exp-gain";
 import { MistakeRevealProvider } from "../components/mistake-reveal";
 import { ResultScoreBar } from "../components/result-score-bar";
 import type { PracticeScreens } from "../practice-screens";
@@ -131,6 +132,7 @@ export function PracticeResultScreen({
             </Text>
           )}
           <RecordStatus attemptId={current?.recordedAttemptId} />
+          <RecordedExp attemptId={current?.recordedAttemptId} />
         </View>
 
         <View style={styles.actions}>
@@ -177,6 +179,17 @@ function RecordStatus({
       {t(status)}
     </Text>
   );
+}
+
+/** 記録できたチャレンジに付いた経験値（ログイン中で、対象の練習だけ） */
+function RecordedExp({
+  attemptId,
+}: {
+  readonly attemptId: string | undefined;
+}) {
+  const exp = useFinishExp(attemptId);
+  if (exp === undefined) return undefined;
+  return <ExpGain exp={exp} />;
 }
 
 const styles = StyleSheet.create({
