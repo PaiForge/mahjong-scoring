@@ -189,15 +189,46 @@ function candidateKeyOf(structure: MentsuHouraStructure): string {
 }
 
 /**
+ * 面子を手牌の並びの順に並べ替える
+ *
+ * ライブラリの和了構造は面子を独自の順で持つため、そのまま出すと手牌が
+ * 發から始まっていても發の刻子が最後に来るなど、分解の表と手牌の並びが
+ * 食い違う。手の内の面子は手牌の中で最初に現れる位置の順に、晒した面子
+ * （副露・暗槓）は手牌でも右に並ぶので手の内の面子の後に元の順で置く。
+ * 同じ位置になる面子（同じ順子が 2 つ等）は元の順を保つ。
+ */
+function sortByTehaiOrder(
+  rows: readonly MentsuBreakdownRow[],
+  closed: readonly HaiKindId[],
+): MentsuBreakdownRow[] {
+  const positionOf = (row: MentsuBreakdownRow): number =>
+    row.isExposed
+      ? Number.POSITIVE_INFINITY
+      : Math.min(
+          ...row.mentsu.hais.map((hai) => {
+            const index = closed.indexOf(hai);
+            return index === -1 ? Number.POSITIVE_INFINITY : index;
+          }),
+        );
+  return [...rows].sort((a, b) => {
+    const pa = positionOf(a);
+    const pb = positionOf(b);
+    return pa === pb ? 0 : pa < pb ? -1 : 1;
+  });
+}
+
+/**
  * ライブラリの和了構造を分解表示に直す
  *
  * 面子の牌だけでは「その面子が手牌でどう見えていたか」が落ちるため、
  * 副露・明暗・和了牌の位置をここで併せて解決する。符内訳が「明刻子」と
  * 書いている面子を分解表示が単に「刻子」と出すと、同じ手牌の説明が
- * 2箇所で食い違って見える。
+ * 2箇所で食い違って見える。面子は手牌の並びの順に並べる
+ * （{@link sortByTehaiOrder}）。
  */
 function toBreakdown(
   structure: MentsuHouraStructure,
+  closed: readonly HaiKindId[],
   isTsumo: boolean,
 ): MentsuBreakdown {
   const agari = locateAgariHai(structure);
@@ -212,15 +243,13 @@ function toBreakdown(
     agariHaiIndex: agari.mentsuIndex === index ? agari.haiIndex : undefined,
   });
 
-  const [first, second, third, fourth] = structure.fourMentsu;
+  const [first, second, third, fourth] = sortByTehaiOrder(
+    structure.fourMentsu.map(toRow),
+    closed,
+  );
 
   return {
-    fourMentsu: [
-      toRow(first, 0),
-      toRow(second, 1),
-      toRow(third, 2),
-      toRow(fourth, 3),
-    ],
+    fourMentsu: [first, second, third, fourth],
     jantou: {
       hais: structure.jantou.hais,
       agariHaiIndex:
@@ -303,7 +332,7 @@ export function resolveMentsuBreakdowns(
     return [
       {
         key: candidateKeyOf(structure),
-        breakdown: toBreakdown(structure, context.isTsumo),
+        breakdown: toBreakdown(structure, tehai14.value.closed, context.isTsumo),
         han: score.han,
         fu: score.fu,
         payment: score.payment,

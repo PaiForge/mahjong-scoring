@@ -425,6 +425,95 @@ describe("resolveMentsuBreakdown", () => {
       expect(chi?.agariHaiIndex).toBeUndefined();
     });
   });
+
+  describe("面子の並び", () => {
+    /** 各面子の先頭の牌（並びの比較用） */
+    const leadHais = (tehai: Tehai) =>
+      resolveMentsuBreakdown(tehai, {
+        ...TSUMO_CONTEXT,
+        agariHai: HaiKind.ManZu4,
+      })?.fourMentsu.map((row) => row.mentsu.hais[0]);
+
+    it("手牌が發から始まれば發の刻子から並べる", () => {
+      // 發發發 234m 456p 678s + 99m
+      const tehai = makeTehai([
+        HaiKind.Hatsu,
+        HaiKind.Hatsu,
+        HaiKind.Hatsu,
+        ...THREE_SHUNTSU,
+        HaiKind.ManZu9,
+        HaiKind.ManZu9,
+      ]);
+
+      expect(leadHais(tehai)).toEqual([
+        HaiKind.Hatsu,
+        HaiKind.ManZu2,
+        HaiKind.PinZu4,
+        HaiKind.SouZu6,
+      ]);
+    });
+
+    it("同じ面子でも手牌で發が後ろにあれば發の刻子を後ろに並べる", () => {
+      // 234m 456p 678s 發發發 + 99m
+      const tehai = makeTehai([
+        ...THREE_SHUNTSU,
+        HaiKind.Hatsu,
+        HaiKind.Hatsu,
+        HaiKind.Hatsu,
+        HaiKind.ManZu9,
+        HaiKind.ManZu9,
+      ]);
+
+      expect(leadHais(tehai)).toEqual([
+        HaiKind.ManZu2,
+        HaiKind.PinZu4,
+        HaiKind.SouZu6,
+        HaiKind.Hatsu,
+      ]);
+    });
+
+    it("副露した面子は手の内の面子の後に並べる", () => {
+      // 456p 678s 白白白 99m + 234m チー
+      const tehai: Tehai = {
+        closed: [
+          HaiKind.PinZu4,
+          HaiKind.PinZu5,
+          HaiKind.PinZu6,
+          HaiKind.SouZu6,
+          HaiKind.SouZu7,
+          HaiKind.SouZu8,
+          HaiKind.Haku,
+          HaiKind.Haku,
+          HaiKind.Haku,
+          HaiKind.ManZu9,
+          HaiKind.ManZu9,
+        ],
+        exposed: [
+          {
+            type: MentsuType.Shuntsu,
+            hais: [HaiKind.ManZu2, HaiKind.ManZu3, HaiKind.ManZu4],
+            furo: {
+              type: FuroType.Chi,
+              from: Tacha.Kamicha,
+              nakiHai: HaiKind.ManZu2,
+            },
+          },
+        ],
+      };
+
+      expect(
+        resolveMentsuBreakdown(tehai, {
+          ...TSUMO_CONTEXT,
+          agariHai: HaiKind.PinZu6,
+        })?.fourMentsu.map((row) => row.mentsu.hais[0]),
+      ).toEqual([
+        HaiKind.PinZu4,
+        HaiKind.SouZu6,
+        HaiKind.Haku,
+        HaiKind.ManZu2,
+      ]);
+    });
+  });
 });
 
 describe("resolveMentsuBreakdowns", () => {
