@@ -5,22 +5,16 @@ import { ExamStartGate } from "@/app/(user)/(public)/exam/_components/exam-start
 import { InfinityIcon } from "@/app/(user)/_components/icons/infinity-icon";
 import { PlayIcon } from "@/app/(user)/_components/icons/play-icon";
 import { LinkButton } from "@/app/(user)/_components/link-button";
-import type { PracticeMenuSlug } from "@mahjong-scoring/features/practice-menu-types";
+import type {
+  MenuKind,
+  PracticeMenuSlug,
+} from "@mahjong-scoring/features/practice-menu-types";
 import { practicePlayHref } from "@mahjong-scoring/features/routes";
 import {
   PRACTICE_START_CTA_BLOCK_CLASS,
   PRACTICE_START_CTA_HINT_CLASS,
 } from "./practice-start-cta";
 import { WithUrlVariant } from "./with-url-variant";
-
-/**
- * トレーニングの種類
- * トレーニング種別
- *
- * - `practice`: 練習のトレーニング。末尾からチャレンジへ送る
- * - `exam`: 昇級試験の模試。末尾から本番の試験へ送る（受験資格のゲート付き）
- */
-export type TrainingVariant = "practice" | "exam";
 
 /** チャレンジのルール（補足文に差し込む制限時間・ミス上限） */
 export interface TrainingChallengeRules {
@@ -35,7 +29,11 @@ interface TrainingChallengeCtaProps {
    * 模試（`variant: "exam"`）では本番の受験資格を引くのにも使う
    */
   readonly slug: PracticeMenuSlug;
-  readonly variant?: TrainingVariant;
+  /**
+   * `practice` は練習のトレーニングで、末尾からチャレンジへ送る。`exam` は
+   * 昇級試験の模試で、末尾から本番の試験へ送る（受験資格のゲート付き）
+   */
+  readonly variant?: MenuKind;
 }
 
 function ChallengeButton({ href }: { readonly href: string }) {

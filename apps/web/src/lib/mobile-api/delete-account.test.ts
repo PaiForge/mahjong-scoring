@@ -9,7 +9,6 @@ const { mockAuthorize, mockHasToken, mockStore, mockRequest } = vi.hoisted(
   }),
 );
 
-vi.mock("server-only", () => ({}));
 vi.mock("./auth", () => ({ authorizeMobileRequest: mockAuthorize }));
 vi.mock("../apple/refresh-tokens", () => ({
   hasAppleRefreshToken: mockHasToken,

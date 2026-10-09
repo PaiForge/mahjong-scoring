@@ -1,25 +1,21 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import {
+  mockRecordModerationAction,
   mockRequireAdminActor,
+  mockRevalidatePath,
   mockTransaction,
   setupAdminActor,
 } from "@/test/admin-action-mocks";
 
-const {
-  mockUpdateSet,
-  mockUpdateWhere,
-  mockUpdateUserById,
-  mockRecordModerationAction,
-  mockRevalidatePath,
-} = vi.hoisted(() => ({
-  mockUpdateSet: vi.fn(),
-  mockUpdateWhere: vi.fn(),
-  mockUpdateUserById: vi.fn(),
-  mockRecordModerationAction: vi.fn(),
-  mockRevalidatePath: vi.fn(),
-}));
+const { mockUpdateSet, mockUpdateWhere, mockUpdateUserById } = vi.hoisted(
+  () => ({
+    mockUpdateSet: vi.fn(),
+    mockUpdateWhere: vi.fn(),
+    mockUpdateUserById: vi.fn(),
+  }),
+);
 
-vi.mock("next/cache", () => ({ revalidatePath: mockRevalidatePath }));
+vi.mock("next/cache", async () => await import("@/test/admin-action-mocks"));
 vi.mock(
   "@/lib/client-ip",
   async () => await import("@/test/admin-action-mocks"),
@@ -41,7 +37,8 @@ vi.mock(
 );
 vi.mock("../../_lib/moderation", async (importOriginal) => ({
   ...(await importOriginal<typeof import("../../_lib/moderation")>()),
-  recordModerationAction: mockRecordModerationAction,
+  recordModerationAction: (await import("@/test/admin-action-mocks"))
+    .mockRecordModerationAction,
 }));
 
 import { banUser } from "../ban-user";

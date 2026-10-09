@@ -4,6 +4,7 @@ import { useCallback, useState } from "react";
 import { useRouter } from "next/navigation";
 import { useTranslations } from "next-intl";
 import { toastOnArrival } from "@/app/_components/_lib/toast-on-arrival";
+import type { MenuKind } from "@mahjong-scoring/features/practice-menu-types";
 
 interface UseQuitConfirmOptions {
   /** モーダルを開いたときに呼ばれるコールバック（タイマー一時停止等） */
@@ -23,7 +24,7 @@ interface UseQuitConfirmOptions {
    * モーダルの見出しも同じ区別で出し分けるため、{@link
    * import("../_components/quit-confirm-modal").QuitConfirmModal} にも同じ値を渡すこと。
    */
-  readonly variant?: "practice" | "exam";
+  readonly variant?: MenuKind;
 }
 
 interface UseQuitConfirmReturn {

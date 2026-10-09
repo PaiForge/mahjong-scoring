@@ -14,11 +14,10 @@ import {
   partitionLessonSlugs,
   recordLessonCompletions,
 } from "../lessons/record-completions";
-import { logExternalError } from "../log-error";
 
 import { authorizeMobileRequest } from "./auth";
-import { readMobileJson } from "./request";
-import { mobileJson } from "./response";
+import { parseMobileBody } from "./request";
+import { mobileJson, mobileServerError } from "./response";
 
 const completeLessonsSchema = z.object({
   slugs: z.array(z.string().max(100)).max(MOBILE_LESSON_COMPLETIONS_MAX),
@@ -45,8 +44,11 @@ export async function handleReadProgress(
       achievedRankSlugs: input.achievedRankSlugs,
     });
   } catch (error) {
-    logExternalError("GET /api/mobile/v1/progress", "読み取りに失敗", error);
-    return mobileJson({ error: "serverError" }, { status: 500 });
+    return mobileServerError(
+      "GET /api/mobile/v1/progress",
+      "読み取りに失敗",
+      error,
+    );
   }
 }
 
@@ -63,22 +65,18 @@ export async function handleCompleteLessons(
 ): Promise<NextResponse> {
   const auth = await authorizeMobileRequest(request, "completeLessons");
   if (!auth.ok) return auth.response;
-  const body = completeLessonsSchema.safeParse(
-    await readMobileJson(request, 8 * 1024),
-  );
-  if (!body.success)
-    return mobileJson({ error: "invalidRequest" }, { status: 400 });
+  const body = await parseMobileBody(request, completeLessonsSchema, 8 * 1024);
+  if (!body.ok) return body.response;
   const { completed, rejected } = partitionLessonSlugs(body.data.slugs);
   try {
     if (!(await recordLessonCompletions(auth.user.id, completed)))
       return mobileJson({ error: "deleted" }, { status: 403 });
   } catch (error) {
-    logExternalError(
+    return mobileServerError(
       "POST /api/mobile/v1/lessons/complete",
       "記録に失敗",
       error,
     );
-    return mobileJson({ error: "serverError" }, { status: 500 });
   }
   return mobileJson<MobileCompleteLessonsResponse>({ completed, rejected });
 }

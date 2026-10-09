@@ -11,15 +11,19 @@ import {
 } from "react";
 import { TOGGLE_GROUP_CONTAINER_CLASSES } from "@/app/(user)/_components/_lib/toggle-group-classes";
 import { safeLocalStorage } from "@/lib/safe-storage";
+import {
+  DEFAULT_PRACTICE_MODE,
+  isPracticeMode,
+  PRACTICE_MODES,
+  type PracticeMode,
+} from "@mahjong-scoring/features/practice/practice-mode";
 
 const STORAGE_KEY = "practice-mode";
 const CHANGE_EVENT = "practice-mode-change";
-type Mode = "basic" | "practical";
 
-function readMode(): Mode {
-  return safeLocalStorage.getItem(STORAGE_KEY) === "practical"
-    ? "practical"
-    : "basic";
+function readMode(): PracticeMode {
+  const saved = safeLocalStorage.getItem(STORAGE_KEY);
+  return isPracticeMode(saved) ? saved : DEFAULT_PRACTICE_MODE;
 }
 
 function subscribe(callback: () => void) {
@@ -40,12 +44,12 @@ function ModeContent({
   basic,
   practical,
   mode,
-}: Props & { readonly mode: Mode }) {
+}: Props & { readonly mode: PracticeMode }) {
   const t = useTranslations("practice.modes");
   return (
     <div className="space-y-6">
       <nav aria-label={t("label")} className={TOGGLE_GROUP_CONTAINER_CLASSES}>
-        {(["basic", "practical"] as const).map((value) => (
+        {PRACTICE_MODES.map((value) => (
           <Link
             key={value}
             href={`/practice?mode=${value}`}
@@ -67,14 +71,14 @@ function ModeFromQuery(props: Props) {
   const saved = useSyncExternalStore(
     subscribe,
     readMode,
-    () => "basic" as const,
+    () => DEFAULT_PRACTICE_MODE,
   );
   // 試験やレッスンからの絞り込みリンクは保存済みの実戦モードより優先する。
   const query = params.get("mode");
   const explicit =
     params.has("rank") || params.has("category")
       ? "basic"
-      : query === "basic" || query === "practical"
+      : isPracticeMode(query)
         ? query
         : undefined;
   const mode = explicit ?? saved;
@@ -90,7 +94,9 @@ function ModeFromQuery(props: Props) {
 /** URL を共有でき、通常の再訪では最後に選んだ練習を開く。 */
 export function PracticeModeSwitcher(props: Props) {
   return (
-    <Suspense fallback={<ModeContent {...props} mode="basic" />}>
+    <Suspense
+      fallback={<ModeContent {...props} mode={DEFAULT_PRACTICE_MODE} />}
+    >
       <ModeFromQuery {...props} />
     </Suspense>
   );

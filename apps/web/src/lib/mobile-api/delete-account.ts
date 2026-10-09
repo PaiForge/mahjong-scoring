@@ -17,14 +17,18 @@ import { logExternalError } from "../log-error";
 import { requestAccountDeletion } from "../users/delete-account";
 
 import { authorizeMobileRequest } from "./auth";
-import { readMobileJson } from "./request";
+import { parseMobileBody } from "./request";
 import { mobileJson } from "./response";
 
 const BODY_MAX_BYTES = 2 * 1024;
 
-const bodySchema = z.object({
-  appleAuthorizationCode: z.string().min(1).max(1024).optional(),
-});
+// 本文は省略できる（Apple の連携が無い・トークンを持っているとき）
+const bodySchema = z.preprocess(
+  (body) => body ?? {},
+  z.object({
+    appleAuthorizationCode: z.string().min(1).max(1024).optional(),
+  }),
+);
 
 const ERROR_STATUS = {
   appleAuthorizationRequired: 409,
@@ -64,12 +68,8 @@ export async function handleDeleteAccount(
     forAccountDeletion: true,
   });
   if (!auth.ok) return auth.response;
-  // 本文は省略できる（Apple の連携が無い・トークンを持っているとき）
-  const body = bodySchema.safeParse(
-    (await readMobileJson(request, BODY_MAX_BYTES)) ?? {},
-  );
-  if (!body.success)
-    return mobileJson({ error: "invalidRequest" }, { status: 400 });
+  const body = await parseMobileBody(request, bodySchema, BODY_MAX_BYTES);
+  if (!body.ok) return body.response;
   const userId = auth.user.id;
 
   try {

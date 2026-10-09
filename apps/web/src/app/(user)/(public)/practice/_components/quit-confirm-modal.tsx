@@ -2,13 +2,14 @@
 
 import { useTranslations } from "next-intl";
 import { ConfirmationModal } from "@/app/(user)/_components/confirmation-modal";
+import type { MenuKind } from "@mahjong-scoring/features/practice-menu-types";
 
 interface QuitConfirmModalProps {
   readonly isOpen: boolean;
   readonly onConfirm: () => void;
   readonly onCancel: () => void;
   /** 中断する対象。見出しの文言を選ぶ（チャレンジ / 試験） */
-  readonly variant?: "practice" | "exam";
+  readonly variant?: MenuKind;
 }
 
 /**

@@ -5,7 +5,8 @@ import { vi } from "vitest";
  * 管理者アクションモック
  *
  * どのアクションも `requireAdminActor` → `getClientIp` → `db.transaction` の
- * 順に通る。各テストが同じ `vi.fn()` 生成・`vi.mock` 登録・「管理者として
+ * 順に通り、操作を記録して（`recordModerationAction`）画面を再検証する
+ * （`revalidatePath`）。各テストが同じ `vi.fn()` 生成・`vi.mock` 登録・「管理者として
  * 通過した状態」の初期化を書いていたのでここへまとめる。
  *
  * export はモック対象の module 形にも揃えてあるため、`vi.mock` のファクトリに
@@ -13,8 +14,14 @@ import { vi } from "vitest";
  * `mockTransaction` だけを取り出して組む）:
  *
  * ```ts
+ * vi.mock("next/cache", async () => await import("@/test/admin-action-mocks"));
  * vi.mock("@/lib/client-ip", async () => await import("@/test/admin-action-mocks"));
  * vi.mock("../../../_lib/auth", async () => await import("@/test/admin-action-mocks"));
+ * vi.mock("../../_lib/moderation", async (importOriginal) => ({
+ *   ...(await importOriginal<typeof import("../../_lib/moderation")>()),
+ *   recordModerationAction: (await import("@/test/admin-action-mocks"))
+ *     .mockRecordModerationAction,
+ * }));
  * vi.mock("@/lib/db", async () => ({
  *   db: { transaction: (await import("@/test/admin-action-mocks")).mockTransaction },
  * }));
@@ -40,11 +47,26 @@ export const mockGetClientIp = vi.fn();
 /** `@/lib/db` の `db.transaction` の差し替え先 */
 export const mockTransaction = vi.fn();
 
+/** `next/cache` の `revalidatePath` の差し替え先 */
+export const mockRevalidatePath = vi.fn();
+
+/** `admin/users/_lib/moderation` の `recordModerationAction` の差し替え先 */
+export const mockRecordModerationAction = vi.fn();
+
+/** `@/lib/notifications/create-notification` の `notifyQuietly` の差し替え先 */
+export const mockNotify = vi.fn();
+
 /** `vi.mock("<admin/_lib/auth>", ...)` 用のエイリアス */
 export const requireAdminActor = mockRequireAdminActor;
 
 /** `vi.mock("@/lib/client-ip", ...)` 用のエイリアス */
 export const getClientIp = mockGetClientIp;
+
+/** `vi.mock("next/cache", ...)` 用のエイリアス */
+export const revalidatePath = mockRevalidatePath;
+
+/** `vi.mock("@/lib/notifications/create-notification", ...)` 用のエイリアス */
+export const notifyQuietly = mockNotify;
 
 /** 操作した管理者の id */
 export const ADMIN_ACTOR_ID = "admin-1";

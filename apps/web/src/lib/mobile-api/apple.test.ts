@@ -5,7 +5,6 @@ const { mockAuthorize, mockStore } = vi.hoisted(() => ({
   mockStore: vi.fn(),
 }));
 
-vi.mock("server-only", () => ({}));
 vi.mock("./auth", () => ({ authorizeMobileRequest: mockAuthorize }));
 vi.mock("../apple/refresh-tokens", () => ({
   storeAppleAuthorizationCode: mockStore,

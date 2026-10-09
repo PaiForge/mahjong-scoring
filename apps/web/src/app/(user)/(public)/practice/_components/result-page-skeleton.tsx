@@ -7,6 +7,7 @@ import { ProblemListSkeleton } from "./problem-list-skeleton";
 import { ResultBlockSkeleton } from "./result-block-skeleton";
 import { SkeletonBar } from "@/app/_components/skeleton-bar";
 import { SUB_LINK_GAP } from "@/app/_components/_lib/spacing";
+import type { MenuKind } from "@mahjong-scoring/features/practice-menu-types";
 
 interface ResultPageSkeletonProps {
   /** 結果ページと同じ練習名を表示してタイトル帯を一致させる */
@@ -31,7 +32,7 @@ interface ResultPageSkeletonProps {
    * ランキングプレビューを持たない。実体に無い枠を描くと、替わった瞬間に
    * ページがその高さぶん縮む。
    */
-  readonly variant?: "practice" | "exam";
+  readonly variant?: MenuKind;
 }
 
 /**

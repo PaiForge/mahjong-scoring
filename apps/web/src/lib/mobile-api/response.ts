@@ -1,6 +1,7 @@
 import type { NextResponse } from "next/server";
 
 import { jsonPrivate } from "../api-response";
+import { logExternalError } from "../log-error";
 
 /**
  * アプリ向け API の CORS ヘッダ
@@ -34,6 +35,21 @@ export function mobileJson<T>(body: T, init?: ResponseInit): NextResponse {
     headers.set(name, value);
   }
   return jsonPrivate(body, { ...init, headers });
+}
+
+/**
+ * DB 等の失敗を記録して 500 `serverError` を返す
+ * アプリAPIサーバーエラー応答
+ *
+ * アプリは同じ要求を送り直してよい。引数は {@link logExternalError} と同じ。
+ */
+export function mobileServerError(
+  where: string,
+  message: string,
+  error: unknown,
+): NextResponse {
+  logExternalError(where, message, error);
+  return mobileJson({ error: "serverError" }, { status: 500 });
 }
 
 /**

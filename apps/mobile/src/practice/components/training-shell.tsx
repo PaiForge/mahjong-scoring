@@ -12,10 +12,11 @@ import { useJudgementHaptics } from "../../hooks/use-judgement-haptics";
 import { TextLink } from "../../components/text-link";
 import { colors } from "../../lib/theme";
 import { ScoreCounter } from "./score-counter";
+import type { MenuKind } from "@mahjong-scoring/features/practice-menu-types";
 
 interface TrainingShellProps {
   readonly title: string;
-  readonly variant: "practice" | "exam";
+  readonly variant: MenuKind;
   readonly correctCount: number;
   readonly totalCount: number;
   /** チャレンジ（本番）の制限時間とミス上限。チャレンジへの誘いに添える */

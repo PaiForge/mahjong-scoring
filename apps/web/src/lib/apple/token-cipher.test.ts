@@ -1,10 +1,8 @@
 import { randomBytes } from "node:crypto";
 
-import { describe, expect, it, vi } from "vitest";
+import { describe, expect, it } from "vitest";
 
 import { decryptToken, encryptToken } from "./token-cipher";
-
-vi.mock("server-only", () => ({}));
 
 const KEY = randomBytes(32);
 

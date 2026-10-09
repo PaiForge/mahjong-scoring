@@ -2,23 +2,20 @@ import { useMemo, useState } from "react";
 import { StyleSheet, View } from "react-native";
 import { useTranslations } from "use-intl";
 import {
-  generateValidTenpaiScoreQuestion,
   isOya,
   judgeMachiSelection,
-  type JudgementResult,
   type MachiCellAnswer,
-  type TenpaiScoreQuestion,
 } from "@mahjong-scoring/core";
 import {
   cellKeyOf,
   listCellRefs,
   type MachiCellRef,
 } from "@mahjong-scoring/features/practice/tenpai-score/cell-ref";
+import { cellAnswerFormatters } from "@mahjong-scoring/features/practice/tenpai-score/format-cell-answer";
 import {
-  cellAnswerFormatters,
-  correctCellAnswerOf,
-} from "@mahjong-scoring/features/practice/tenpai-score/format-cell-answer";
-import { HELP_TOUR_ALL_CORRECT } from "@mahjong-scoring/features/practice/help-tour-sample";
+  buildTenpaiHelpCells,
+  generateTenpaiHelpSample,
+} from "@mahjong-scoring/features/practice/help-tour-sample";
 import { useHelpTourSample } from "@mahjong-scoring/features/practice/use-help-tour-sample";
 
 import { HelpIconButton } from "../../../components/help-icon-button";
@@ -36,30 +33,6 @@ const noop = () => {};
 /** 見出しの「?」の大きさ（ヘッダーの見出しの文字に合わせる） */
 const HEADER_HELP_FONT_SIZE = 17;
 
-/** 副露なしの分かりやすいサンプル（web と同じ） */
-function generateSample(): TenpaiScoreQuestion | undefined {
-  return generateValidTenpaiScoreQuestion({ includeFuro: false });
-}
-
-/** 全マスを正解で埋めた回答と、その判定 */
-function buildCorrectCells(question: TenpaiScoreQuestion): {
-  readonly answers: Readonly<Record<string, MachiCellAnswer>>;
-  readonly results: Readonly<Record<string, JudgementResult>>;
-} {
-  const answers: Record<string, MachiCellAnswer> = {};
-  const results: Record<string, JudgementResult> = {};
-  for (const wait of question.waits) {
-    answers[cellKeyOf({ agariHai: wait.agariHai, isTsumo: true })] =
-      correctCellAnswerOf(wait.tsumo);
-    answers[cellKeyOf({ agariHai: wait.agariHai, isTsumo: false })] =
-      correctCellAnswerOf(wait.ron);
-  }
-  for (const cell of listCellRefs(question)) {
-    results[cellKeyOf(cell)] = HELP_TOUR_ALL_CORRECT;
-  }
-  return { answers, results };
-}
-
 /**
  * 聴牌形の点数計算の進め方（設定画面の「?」。web の `TenpaiScoreHelpTour`）
  * 聴牌形ヘルプツアー
@@ -72,12 +45,14 @@ export function TenpaiScoreHelpTour() {
   const t = useTranslations("tenpaiScore");
   const tScore = useTranslations("agariScore");
   const tCommon = useTranslations("common");
-  const { isOpen, sample, open, close } = useHelpTourSample(generateSample);
+  const { isOpen, sample, open, close } = useHelpTourSample(
+    generateTenpaiHelpSample,
+  );
 
   const steps = useMemo((): readonly HelpTourStep[] => {
     if (sample === undefined) return [];
     const waits = sample.waits.map((wait) => wait.agariHai);
-    const { answers, results } = buildCorrectCells(sample);
+    const { answers, results } = buildTenpaiHelpCells(sample);
     const { formatAnswer, formatAnswerLines } = cellAnswerFormatters({
       t: tScore,
       noYakuLabel: t("cells.noYakuShort"),

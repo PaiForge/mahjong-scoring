@@ -1,12 +1,11 @@
 import { useMemo, useState } from "react";
 import { StyleSheet, View } from "react-native";
 import { useTranslations } from "use-intl";
+import { isOya } from "@mahjong-scoring/core";
 import {
-  generateValidScoreQuestion,
-  isOya,
-  type ScoreQuestion,
-} from "@mahjong-scoring/core";
-import { HELP_TOUR_ALL_CORRECT } from "@mahjong-scoring/features/practice/help-tour-sample";
+  generateAgariHelpSample,
+  HELP_TOUR_ALL_CORRECT,
+} from "@mahjong-scoring/features/practice/help-tour-sample";
 import { useHelpTourSample } from "@mahjong-scoring/features/practice/use-help-tour-sample";
 import { scoreAnswerToUserAnswer } from "@mahjong-scoring/features/results/payment-adapter";
 
@@ -22,14 +21,6 @@ import { ScorePracticeAnswerForm } from "./score-practice-answer-form";
 
 const noop = () => {};
 
-/** 副露・七対子なしの分かりやすいサンプル（web と同じ） */
-function generateSample(): ScoreQuestion | undefined {
-  return generateValidScoreQuestion({
-    includeFuro: false,
-    includeChiitoi: false,
-  });
-}
-
 /** 見出しの「?」の大きさ（ヘッダーの見出しの文字に合わせる） */
 const HEADER_HELP_FONT_SIZE = 17;
 
@@ -43,7 +34,9 @@ const HEADER_HELP_FONT_SIZE = 17;
 export function AgariScoreHelpTour() {
   const t = useTranslations("agariScore");
   const tCommon = useTranslations("common");
-  const { isOpen, sample, open, close } = useHelpTourSample(generateSample);
+  const { isOpen, sample, open, close } = useHelpTourSample(
+    generateAgariHelpSample,
+  );
 
   const steps = useMemo((): readonly HelpTourStep[] => {
     if (sample === undefined) return [];

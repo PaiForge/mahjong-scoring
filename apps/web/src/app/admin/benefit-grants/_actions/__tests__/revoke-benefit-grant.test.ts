@@ -1,24 +1,19 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import {
   mockGetClientIp,
+  mockNotify,
+  mockRecordModerationAction,
   mockRequireAdminActor,
+  mockRevalidatePath,
   mockTransaction,
   setupAdminActor,
 } from "@/test/admin-action-mocks";
 
-const {
-  mockRevokeBenefitGrant,
-  mockRecordModerationAction,
-  mockRevalidatePath,
-  mockNotify,
-} = vi.hoisted(() => ({
+const { mockRevokeBenefitGrant } = vi.hoisted(() => ({
   mockRevokeBenefitGrant: vi.fn(),
-  mockRecordModerationAction: vi.fn(),
-  mockRevalidatePath: vi.fn(),
-  mockNotify: vi.fn(),
 }));
 
-vi.mock("next/cache", () => ({ revalidatePath: mockRevalidatePath }));
+vi.mock("next/cache", async () => await import("@/test/admin-action-mocks"));
 vi.mock(
   "@/lib/client-ip",
   async () => await import("@/test/admin-action-mocks"),
@@ -31,16 +26,18 @@ vi.mock("@/lib/db", async () => ({
 vi.mock("@/lib/entitlements/benefit-grants", () => ({
   revokeBenefitGrant: mockRevokeBenefitGrant,
 }));
-vi.mock("@/lib/notifications/create-notification", () => ({
-  notifyQuietly: mockNotify,
-}));
+vi.mock(
+  "@/lib/notifications/create-notification",
+  async () => await import("@/test/admin-action-mocks"),
+);
 vi.mock(
   "../../../_lib/auth",
   async () => await import("@/test/admin-action-mocks"),
 );
 vi.mock("../../../users/_lib/moderation", async (importOriginal) => ({
   ...(await importOriginal<typeof import("../../../users/_lib/moderation")>()),
-  recordModerationAction: mockRecordModerationAction,
+  recordModerationAction: (await import("@/test/admin-action-mocks"))
+    .mockRecordModerationAction,
 }));
 
 import { revokeBenefitGrantAction } from "../revoke-benefit-grant";

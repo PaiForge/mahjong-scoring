@@ -2,16 +2,8 @@
 
 import { useMemo } from "react";
 import { useTranslations } from "next-intl";
-import {
-  generateValidTenpaiScoreQuestion,
-  judgeMachiSelection,
-  isOya,
-} from "@mahjong-scoring/core";
-import type {
-  JudgementResult,
-  MachiCellAnswer,
-  TenpaiScoreQuestion,
-} from "@mahjong-scoring/core";
+import { judgeMachiSelection, isOya } from "@mahjong-scoring/core";
+import type { MachiCellAnswer } from "@mahjong-scoring/core";
 import {
   HelpTourButton,
   HelpTourModal,
@@ -22,11 +14,11 @@ import {
   listCellRefs,
   type MachiCellRef,
 } from "@mahjong-scoring/features/practice/tenpai-score/cell-ref";
+import { cellAnswerFormatters } from "@mahjong-scoring/features/practice/tenpai-score/format-cell-answer";
 import {
-  correctCellAnswerOf,
-  cellAnswerFormatters,
-} from "@mahjong-scoring/features/practice/tenpai-score/format-cell-answer";
-import { HELP_TOUR_ALL_CORRECT } from "@mahjong-scoring/features/practice/help-tour-sample";
+  buildTenpaiHelpCells,
+  generateTenpaiHelpSample,
+} from "@mahjong-scoring/features/practice/help-tour-sample";
 import { useHelpTourSample } from "@mahjong-scoring/features/practice/use-help-tour-sample";
 import { MachiPicker } from "./machi-picker";
 import { TenpaiScoreResult } from "./tenpai-score-result";
@@ -50,39 +42,18 @@ import { WaitCellGrid } from "./wait-cell-grid";
 
 const noop = () => {};
 
-/** 副露なしの分かりやすいサンプル */
-function generateSample(): TenpaiScoreQuestion | undefined {
-  return generateValidTenpaiScoreQuestion({ includeFuro: false });
-}
-
-/** 全マスを正解で埋めた回答と、その判定 */
-function buildCorrectCells(question: TenpaiScoreQuestion): {
-  readonly answers: Readonly<Record<string, MachiCellAnswer>>;
-  readonly results: Readonly<Record<string, JudgementResult>>;
-} {
-  const answers: Record<string, MachiCellAnswer> = {};
-  const results: Record<string, JudgementResult> = {};
-  for (const wait of question.waits) {
-    answers[cellKeyOf({ agariHai: wait.agariHai, isTsumo: true })] =
-      correctCellAnswerOf(wait.tsumo);
-    answers[cellKeyOf({ agariHai: wait.agariHai, isTsumo: false })] =
-      correctCellAnswerOf(wait.ron);
-  }
-  for (const cell of listCellRefs(question))
-    results[cellKeyOf(cell)] = HELP_TOUR_ALL_CORRECT;
-  return { answers, results };
-}
-
 export function TenpaiScoreHelpTour() {
   const t = useTranslations("tenpaiScore");
   const tScore = useTranslations("agariScore");
   const tCommon = useTranslations("common");
-  const { isOpen, sample, open, close } = useHelpTourSample(generateSample);
+  const { isOpen, sample, open, close } = useHelpTourSample(
+    generateTenpaiHelpSample,
+  );
 
   const slides = useMemo((): readonly HelpTourSlide[] => {
     if (!sample) return [];
     const waits = sample.waits.map((wait) => wait.agariHai);
-    const { answers, results } = buildCorrectCells(sample);
+    const { answers, results } = buildTenpaiHelpCells(sample);
     const isOyaQuestion = isOya(sample.jikaze);
     const { formatAnswer, formatAnswerLines } = cellAnswerFormatters({
       t: tScore,
