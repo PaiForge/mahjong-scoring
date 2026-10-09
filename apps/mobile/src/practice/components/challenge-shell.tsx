@@ -16,7 +16,7 @@ import {
   View,
   type AppStateStatus,
 } from "react-native";
-import { useRouter } from "expo-router";
+import { useIsFocused, useRouter } from "expo-router";
 import { useTranslations } from "use-intl";
 import type {
   GameSessionState,
@@ -161,6 +161,19 @@ export function ChallengeShell({
     );
     return () => sub.remove();
   }, []);
+
+  // 画面が手前から外れたとき（外部のリンクで別の画面が積まれた等）も止める。
+  // 止めないと裏で時計が進み、時間切れの結果画面への replace が手前の画面を
+  // 置き換える。カウントダウン中に外れたら、始まった時点で止める
+  const isFocused = useIsFocused();
+  const isRunning =
+    !gameSession.isPaused &&
+    !gameSession.isFinished &&
+    !gameSession.isCountingDown;
+  const pauseInBackground = useEffectEvent(() => gameSession.togglePause());
+  useEffect(() => {
+    if (!isFocused && isRunning) pauseInBackground();
+  }, [isFocused, isRunning]);
 
   return (
     <View style={styles.root}>
