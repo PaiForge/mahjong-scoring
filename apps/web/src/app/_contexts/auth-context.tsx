@@ -7,14 +7,13 @@ import {
   useCallback,
   useContext,
   useEffect,
-  useRef,
   useState,
 } from "react";
 
 import { useRouter } from "next/navigation";
 import type { Session, SupabaseClient, User } from "@supabase/supabase-js";
-import { createClient } from "@/lib/supabase/client";
 import { signOutAction } from "@/app/_actions/sign-out";
+import { whenPageIdle } from "@/app/_lib/page-idle";
 import {
   type ViewerProfile,
   fetchViewerProfile,
@@ -53,6 +52,46 @@ interface AuthContextValue {
 const AuthContext = createContext<AuthContextValue | undefined>(undefined);
 
 /**
+ * Supabase のブラウザ用クライアントを読み込んで作る。
+ *
+ * SDK（supabase-js と @supabase/ssr、約 68KB）を静的に import すると、未ログインで
+ * 開く LP を含む全ページの初期チャンクに載る。動的 import で別チャンクに分け、
+ * 要る時点で読む。一度作ったクライアントを使い回す。
+ *
+ * 読み込みに失敗した Promise は保持しない。保持すると一時的な通信障害で
+ * 動的 import が 1 度失敗しただけで、ページを再読み込みするまで同じ失敗を
+ * 返し続ける。
+ */
+let supabaseClientPromise: Promise<SupabaseClient> | undefined;
+function loadSupabaseClient(): Promise<SupabaseClient> {
+  supabaseClientPromise ??= import("@/lib/supabase/client")
+    .then((mod) => mod.createClient())
+    .catch((error: unknown) => {
+      supabaseClientPromise = undefined;
+      throw error;
+    });
+  return supabaseClientPromise;
+}
+
+/** 認証状態の監視を張れなかったときの再試行の間隔（試行ごとに倍、上限あり） */
+const SUBSCRIBE_RETRY_BASE_MS = 1000;
+const SUBSCRIBE_RETRY_MAX_MS = 30_000;
+
+/**
+ * ブラウザに Supabase のセッションの cookie があるか。
+ *
+ * ブラウザ用クライアント（@supabase/ssr）はセッションを `sb-<プロジェクト>-auth-token`
+ * （大きければ `.0`, `.1` … に分割）の cookie に JS から読める形で保存する。これが
+ * 無ければ SDK を読むまでもなく未ログインと分かる。PKCE の途中で残る
+ * `…-auth-token-code-verifier` も拾うが、そのときは SDK をすぐ読むだけで害は無い。
+ */
+function hasSessionCookie(): boolean {
+  return document.cookie
+    .split(";")
+    .some((pair) => /^\s*sb-[^=]+-auth-token/.test(pair));
+}
+
+/**
  * 認証状態を提供するプロバイダー
  * 認証コンテキストプロバイダー
  *
@@ -62,6 +101,11 @@ const AuthContext = createContext<AuthContextValue | undefined>(undefined);
  * React はその境界をハイドレートできずクライアントレンダーに切り替え、SSR 済みの
  * 本文を捨てて一瞬 loading のスケルトンへ巻き戻す。transition にしておけば
  * ハイドレーション完了まで更新を待てるため巻き戻らない。
+ *
+ * セッションの cookie が無い訪問者（LP の大半）は SDK を読まずに未ログインで
+ * 確定させ、SDK はページの読み込みが落ち着いてから読む。読んだ後は
+ * `onAuthStateChange` が別タブでのログイン・ログアウトを拾う（読んだ時点で
+ * 届く INITIAL_SESSION が、待っている間に変わった状態も反映する）。
  */
 export function AuthProvider({ children }: { readonly children: ReactNode }) {
   const [user, setUser] = useState<User | null>(null);
@@ -69,11 +113,10 @@ export function AuthProvider({ children }: { readonly children: ReactNode }) {
   const [isLoading, setIsLoading] = useState(true);
   const [profile, setProfile] = useState<ViewerProfile | undefined>(undefined);
   const [isProfileLoading, setIsProfileLoading] = useState(true);
-  const supabaseRef = useRef<SupabaseClient | undefined>(undefined);
   const router = useRouter();
 
   const loadUser = useCallback(async (): Promise<User | null> => {
-    const supabase = supabaseRef.current ?? createClient();
+    const supabase = await loadSupabaseClient();
     const [
       {
         data: { user: currentUser },
@@ -107,8 +150,94 @@ export function AuthProvider({ children }: { readonly children: ReactNode }) {
   }, [loadUser, refreshProfile]);
 
   useEffect(() => {
-    const supabase = createClient();
-    supabaseRef.current = supabase;
+    let unsubscribe: (() => void) | undefined;
+    let isDisposed = false;
+    let retryTimer: number | undefined;
+    let removeOnlineListener: (() => void) | undefined;
+
+    // isDeferred: cookie が無く、認証状態を SDK を読まずに確定させた場合。読むまでの
+    // 間に別タブでログインしていれば SIGNED_IN ではなく INITIAL_SESSION で届くので、
+    // そのときもプロフィールを取る。
+    const subscribe = async (isDeferred: boolean) => {
+      const supabase = await loadSupabaseClient();
+      if (isDisposed) {
+        return;
+      }
+      const {
+        data: { subscription },
+      } = supabase.auth.onAuthStateChange((event, newSession) => {
+        startTransition(() => {
+          setSession(newSession);
+          setUser(newSession?.user ?? null);
+        });
+
+        if (
+          event === "SIGNED_IN" ||
+          (isDeferred && event === "INITIAL_SESSION" && newSession)
+        ) {
+          void refreshProfile();
+        }
+
+        if (event === "SIGNED_OUT") {
+          startTransition(() => setProfile(undefined));
+          router.refresh();
+        }
+
+        if (event === "PASSWORD_RECOVERY") {
+          router.push("/reset-password");
+        }
+      });
+      unsubscribe = () => subscription.unsubscribe();
+    };
+
+    // SDK の読み込みに失敗すると監視が張られず、通信が戻っても認証状態が
+    // 更新されない。間隔を空けて（オンラインに戻ったらすぐ）張り直す。
+    // 再試行の時点では表示を SDK 抜きで確定させている（cookie 無し、または
+    // loadUser の失敗で未ログイン扱い）ので、INITIAL_SESSION でもプロフィールを取る。
+    const startSubscription = (isDeferred: boolean, attempt: number) => {
+      subscribe(isDeferred).catch(() => {
+        if (isDisposed) {
+          return;
+        }
+        const retry = () => {
+          window.clearTimeout(retryTimer);
+          removeOnlineListener?.();
+          removeOnlineListener = undefined;
+          if (!isDisposed) {
+            startSubscription(true, attempt + 1);
+          }
+        };
+        retryTimer = window.setTimeout(
+          retry,
+          Math.min(
+            SUBSCRIBE_RETRY_BASE_MS * 2 ** attempt,
+            SUBSCRIBE_RETRY_MAX_MS,
+          ),
+        );
+        window.addEventListener("online", retry, { once: true });
+        removeOnlineListener = () =>
+          window.removeEventListener("online", retry);
+      });
+    };
+
+    const dispose = () => {
+      isDisposed = true;
+      window.clearTimeout(retryTimer);
+      removeOnlineListener?.();
+      unsubscribe?.();
+    };
+
+    if (!hasSessionCookie()) {
+      startTransition(() => {
+        setIsLoading(false);
+        setIsProfileLoading(false);
+      });
+      const cancelIdle = whenPageIdle(() => startSubscription(true, 0));
+      return () => {
+        cancelIdle();
+        dispose();
+      };
+    }
 
     // プロフィールは認証状態が解決してから取りに行く。未ログインの訪問者に
     // サーバーへの往復をさせないため、ここだけは並列にしない。
@@ -128,36 +257,16 @@ export function AuthProvider({ children }: { readonly children: ReactNode }) {
       }
     })();
 
-    const {
-      data: { subscription },
-    } = supabase.auth.onAuthStateChange((event, newSession) => {
-      startTransition(() => {
-        setSession(newSession);
-        setUser(newSession?.user ?? null);
-      });
+    startSubscription(false, 0);
 
-      if (event === "SIGNED_IN") {
-        void refreshProfile();
-      }
-
-      if (event === "SIGNED_OUT") {
-        startTransition(() => setProfile(undefined));
-        router.refresh();
-      }
-
-      if (event === "PASSWORD_RECOVERY") {
-        router.push("/reset-password");
-      }
-    });
-
-    return () => subscription.unsubscribe();
+    return dispose;
   }, [router, loadUser, refreshProfile]);
 
   const signOut = useCallback(async () => {
     // サーバー側で activity-log 記録 + セッション無効化を行い、
     // クライアント側で Supabase のローカルセッション状態をクリアする
     await signOutAction();
-    const supabase = supabaseRef.current ?? createClient();
+    const supabase = await loadSupabaseClient();
     await supabase.auth.signOut();
   }, []);
 

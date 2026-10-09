@@ -1,9 +1,9 @@
 "use client";
 
-import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { useTranslations } from "next-intl";
+import { DeferredPrefetchLink } from "./deferred-prefetch-link";
 import { UserIcon } from "./icons/user-icon";
 import { UserAvatar } from "./user-avatar";
 import { useAuth } from "@/app/_contexts/auth-context";
@@ -66,18 +66,18 @@ export function AuthNavItem() {
   if (!user) {
     return (
       <div className="flex items-center gap-3 text-xs sm:gap-4 sm:text-sm">
-        <Link
+        <DeferredPrefetchLink
           href="/sign-in"
           className={`font-medium whitespace-nowrap ${TEXT_LINK_CLASSES}`}
         >
           {t("login")}
-        </Link>
-        <Link
+        </DeferredPrefetchLink>
+        <DeferredPrefetchLink
           href="/sign-up"
           className="rounded-lg border-3 border-ink bg-card px-2.5 py-1 font-bold whitespace-nowrap text-primary-700 transition-colors hover:bg-primary-50 sm:px-3 sm:py-1.5"
         >
           {t("signUp")}
-        </Link>
+        </DeferredPrefetchLink>
       </div>
     );
   }
@@ -109,7 +109,8 @@ export function AuthNavItem() {
           閉じている間に unmount すると中の Link がプリフェッチされず、開いてすぐ
           クリックしたときにサーバ応答までスケルトンも出ない（無反応に見える）。
           visibility: hidden なら IntersectionObserver が発火するので、Link は
-          ページ表示時点で遷移先（/mypage は loading 境界まで）を取得しておける。
+          ページの読み込みが落ち着いた時点（DeferredPrefetchLink）で遷移先
+          （/mypage は loading 境界まで）を取得しておける。
           router.prefetch() で先読みする案は Next 16 の Segment Cache で Link 自身の
           プリフェッチと干渉し、開いて待ってから押しても遅くなったため採らない。 */}
       <div
@@ -118,22 +119,22 @@ export function AuthNavItem() {
         aria-hidden={!isOpen}
         className={`absolute right-0 top-full z-50 mt-2 w-48 overflow-hidden rounded-xl border-3 border-ink bg-card ${isOpen ? "" : "invisible"}`}
       >
-        <Link
+        <DeferredPrefetchLink
           href="/mypage"
           role="menuitem"
           onClick={() => setIsOpen(false)}
           className="block border-b border-surface-100 px-4 py-3 text-sm font-bold text-foreground transition-colors hover:bg-primary-50"
         >
           {t("mypage")}
-        </Link>
-        <Link
+        </DeferredPrefetchLink>
+        <DeferredPrefetchLink
           href="/preferences"
           role="menuitem"
           onClick={() => setIsOpen(false)}
           className="block border-b border-surface-100 px-4 py-3 text-sm font-bold text-foreground transition-colors hover:bg-primary-50"
         >
           {t("settings")}
-        </Link>
+        </DeferredPrefetchLink>
         <button
           type="button"
           role="menuitem"

@@ -1,12 +1,12 @@
 "use client";
 
-import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { useTranslations } from "next-intl";
 import { useIsOverlayOpen } from "@/app/_hooks/use-body-scroll-lock";
 import { TAB_BAR_NAV_ITEMS, isNavItemActive } from "./_lib/nav-items";
 import { isSessionRoute } from "@/app/_components/_lib/session-routes";
+import { DeferredPrefetchLink } from "./deferred-prefetch-link";
 
 const SCROLL_DEAD_ZONE = 10;
 
@@ -61,7 +61,7 @@ export function MobileTabBar() {
             const isActive = isNavItemActive(pathname, item.href);
             return (
               <li key={item.href} className="flex-1">
-                <Link
+                <DeferredPrefetchLink
                   href={item.href}
                   className={`flex w-full flex-col items-center gap-0.5 px-3 py-1 text-xs transition-colors ${
                     isActive
@@ -71,7 +71,7 @@ export function MobileTabBar() {
                 >
                   {item.icon}
                   <span>{t(item.labelKey)}</span>
-                </Link>
+                </DeferredPrefetchLink>
               </li>
             );
           })}

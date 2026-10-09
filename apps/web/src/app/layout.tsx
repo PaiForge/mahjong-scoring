@@ -3,7 +3,7 @@ import dynamic from "next/dynamic";
 import { EnvironmentRibbon } from "env-ribbon";
 import { NextIntlClientProvider } from "next-intl";
 import { getLocale } from "next-intl/server";
-import { GoogleAnalytics } from "@next/third-parties/google";
+import { GoogleAnalytics } from "@/app/_components/google-analytics";
 import { AppVersionWatcher } from "@/app/_components/app-version-watcher";
 import { ScrollReset } from "@/app/_components/scroll-reset";
 import { AuthProvider } from "@/app/_contexts/auth-context";
