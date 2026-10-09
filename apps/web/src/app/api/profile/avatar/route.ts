@@ -115,6 +115,11 @@ export async function DELETE(request: Request) {
   // 先に参照（profiles.avatar_url）を切る。Storage の削除に失敗しても残るのは
   // 誰からも参照されないオブジェクトだけで、次のアップロードが同じパスを上書きする。
   // 逆順にすると失敗時に「消えた画像を指す URL」が残り、一覧が壊れた画像を出す。
+  //
+  // POST と違い writeAsAccount を通さない。あのロックが防ぐのは「退会の
+  // データ削除の後に書き込みが走り、消したはずのデータが残る」ことで、
+  // ここは消すだけなので退会と前後しても残るものが無い（退会も同じ列を
+  // NULL にし、同じ画像を消す）。
   await db
     .update(profiles)
     .set({ avatarUrl: null, updatedAt: new Date() })
