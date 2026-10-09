@@ -1,5 +1,5 @@
 import { describe, expect, it, vi } from "vitest";
-import { render, screen, fireEvent } from "@testing-library/react";
+import { render, screen, fireEvent, within } from "@testing-library/react";
 import { FuroType, HaiKind, MentsuType, Tacha } from "@mahjong-scoring/core";
 import type { CompletedMentsu, HaiKindId } from "@mahjong-scoring/core";
 import { TehaiMentsuBreakdown } from "./tehai-mentsu-breakdown";
@@ -86,9 +86,18 @@ function openModal() {
   fireEvent.click(screen.getByRole("button", { name: "mentsuBreakdown" }));
 }
 
-/** 枠が付いている牌の牌種一覧 */
+/**
+ * 分解の表
+ *
+ * モーダルは表の上に分ける前の手牌も並べるため、分解の検証は表の中に絞る
+ */
+function breakdownTable() {
+  return within(screen.getByRole("table"));
+}
+
+/** 分解の表で枠が付いている牌の牌種一覧 */
 function highlightedHais(): number[] {
-  return screen
+  return breakdownTable()
     .getAllByTestId("hai")
     .filter((el) => el.dataset.highlighted === "true")
     .map((el) => Number(el.textContent));
@@ -105,8 +114,9 @@ describe("TehaiMentsuBreakdown", () => {
     openModal();
 
     expect(screen.getByRole("dialog")).toBeTruthy();
-    // 手牌14枚が過不足なく描画される
-    expect(screen.getAllByTestId("hai")).toHaveLength(14);
+    // 分ける前の手牌と分解の表の両方に、手牌14枚が過不足なく描画される
+    expect(screen.getAllByTestId("hai")).toHaveLength(28);
+    expect(breakdownTable().getAllByTestId("hai")).toHaveLength(14);
     // 4面子（順子3 + 暗刻1）と雀頭のラベル
     expect(screen.getAllByText("shuntsu")).toHaveLength(3);
     expect(screen.getAllByText("ankou")).toHaveLength(1);
@@ -212,7 +222,7 @@ describe("TehaiMentsuBreakdown", () => {
 
       expect(screen.getByText("minkou")).toBeTruthy();
       expect(screen.queryByText("ankou")).toBeNull();
-      expect(screen.getByTestId("furo").dataset.furoType).toBe(FuroType.Pon);
+      expect(breakdownTable().getByTestId("furo").dataset.furoType).toBe(FuroType.Pon);
     });
 
     it("ロンで完成した刻子は明刻子とし、その旨を注記する", () => {
@@ -247,7 +257,7 @@ describe("TehaiMentsuBreakdown", () => {
 
       expect(screen.getByText("minkou")).toBeTruthy();
       // 鳴いていないので卓に晒す並びにはしない
-      expect(screen.queryByTestId("furo")).toBeNull();
+      expect(breakdownTable().queryByTestId("furo")).toBeNull();
       expect(screen.getByText("mentsuBreakdownMinkouNote")).toBeTruthy();
     });
 
@@ -286,7 +296,7 @@ describe("TehaiMentsuBreakdown", () => {
       openModal();
 
       expect(screen.getByText("ankan")).toBeTruthy();
-      expect(screen.getByTestId("furo").dataset.furoType).toBe("none");
+      expect(breakdownTable().getByTestId("furo").dataset.furoType).toBe("none");
     });
   });
 
