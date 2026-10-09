@@ -355,6 +355,11 @@ loading.tsx を一緒に足すこと。逆に静的にしたら両方を外す�
   Next 16 の Segment Cache では動的ルートの prefetch に 2 往復（`/_tree` → loading 境界）かかる。
   `router.prefetch()` で先読みする案は Link 自身のプリフェッチと干渉して逆に遅くなったので使わない
   （`auth-nav-item.tsx` 参照）
+- ページを開いた瞬間から画面にある常設のリンク（ヘッダー・タブバー）は `DeferredPrefetchLink` を使う。
+  `load` 後のアイドル時まで先読みを止め、初回ロードで本文の描画と RSC の先読みが並ばないようにする。
+  閉じたドロワー（`NavMenu`）の中のリンクは、開きそうな操作（ボタンへの pointerenter / focus）か
+  開いた時点まで `prefetch={false}` にする（`<Link>` は `prefetch` が変わると先読みを登録し直す）。
+  本文の主導線（LP のヒーローの CTA 等）は素の `<Link>` のまま
 
 ## ボタンの下の補助リンクの余白（`apps/web/src/app/_components/_lib/spacing.ts`）
 

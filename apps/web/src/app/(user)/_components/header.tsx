@@ -1,6 +1,5 @@
-import Link from "next/link";
-
 import { AuthNavItem } from "./auth-nav-item";
+import { DeferredPrefetchLink } from "./deferred-prefetch-link";
 import { BrandLogo } from "@/app/_components/brand-logo";
 import { NavMenu } from "./nav-menu";
 import { NotificationBell } from "./notification-bell";
@@ -17,9 +16,9 @@ export function Header() {
         <div className="flex h-14 items-center justify-between">
           <div className="flex items-center gap-2 sm:gap-3">
             <NavMenu />
-            <Link href="/" className="flex items-center">
+            <DeferredPrefetchLink href="/" className="flex items-center">
               <BrandLogo size="md" />
-            </Link>
+            </DeferredPrefetchLink>
           </div>
 
           <div className="flex items-center gap-2 sm:gap-3">

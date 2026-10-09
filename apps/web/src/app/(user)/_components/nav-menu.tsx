@@ -18,6 +18,12 @@ export function NavMenu() {
   const t = useTranslations("nav");
   const pathname = usePathname();
   const [isOpen, setIsOpen] = useState(false);
+  // ドロワーの中のリンクを先読みしてよいか。ドロワーは閉じていても描画したままで、
+  // `<Link>` の監視範囲（画面外 200px まで）に掛かるため、放っておくとページを開いた
+  // 瞬間に 6 本の先読みが本文の描画と並んで走る。メニューを開きそうな操作
+  // （ボタンへの pointerenter（ホバー・タッチ）と focus）か、開いた時点で解禁する。
+  const [wantsPrefetch, setWantsPrefetch] = useState(false);
+  const armPrefetch = () => setWantsPrefetch(true);
   const mounted = useIsClient();
 
   useBodyScrollLock(isOpen);
@@ -27,7 +33,12 @@ export function NavMenu() {
       {/* ハンバーガーボタン */}
       <button
         type="button"
-        onClick={() => setIsOpen((prev) => !prev)}
+        onClick={() => {
+          armPrefetch();
+          setIsOpen((prev) => !prev);
+        }}
+        onPointerEnter={armPrefetch}
+        onFocus={armPrefetch}
         className="rounded-lg p-1.5 text-foreground transition-colors hover:bg-primary-50"
         aria-label={t("menu")}
         aria-expanded={isOpen}
@@ -104,6 +115,7 @@ export function NavMenu() {
                     <Link
                       key={item.href}
                       href={item.href}
+                      prefetch={wantsPrefetch ? undefined : false}
                       onClick={() => setIsOpen(false)}
                       className={`flex items-center gap-3 rounded-lg px-4 py-3 transition-colors ${
                         isActive
