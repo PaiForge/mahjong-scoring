@@ -57,14 +57,25 @@ const AuthContext = createContext<AuthContextValue | undefined>(undefined);
  * SDK（supabase-js と @supabase/ssr、約 68KB）を静的に import すると、未ログインで
  * 開く LP を含む全ページの初期チャンクに載る。動的 import で別チャンクに分け、
  * 要る時点で読む。一度作ったクライアントを使い回す。
+ *
+ * 読み込みに失敗した Promise は保持しない。保持すると一時的な通信障害で
+ * 動的 import が 1 度失敗しただけで、ページを再読み込みするまで同じ失敗を
+ * 返し続ける。
  */
 let supabaseClientPromise: Promise<SupabaseClient> | undefined;
 function loadSupabaseClient(): Promise<SupabaseClient> {
-  supabaseClientPromise ??= import("@/lib/supabase/client").then((mod) =>
-    mod.createClient(),
-  );
+  supabaseClientPromise ??= import("@/lib/supabase/client")
+    .then((mod) => mod.createClient())
+    .catch((error: unknown) => {
+      supabaseClientPromise = undefined;
+      throw error;
+    });
   return supabaseClientPromise;
 }
+
+/** 認証状態の監視を張れなかったときの再試行の間隔（試行ごとに倍、上限あり） */
+const SUBSCRIBE_RETRY_BASE_MS = 1000;
+const SUBSCRIBE_RETRY_MAX_MS = 30_000;
 
 /**
  * ブラウザに Supabase のセッションの cookie があるか。
@@ -141,6 +152,8 @@ export function AuthProvider({ children }: { readonly children: ReactNode }) {
   useEffect(() => {
     let unsubscribe: (() => void) | undefined;
     let isDisposed = false;
+    let retryTimer: number | undefined;
+    let removeOnlineListener: (() => void) | undefined;
 
     // isDeferred: cookie が無く、認証状態を SDK を読まずに確定させた場合。読むまでの
     // 間に別タブでログインしていれば SIGNED_IN ではなく INITIAL_SESSION で届くので、
@@ -177,16 +190,52 @@ export function AuthProvider({ children }: { readonly children: ReactNode }) {
       unsubscribe = () => subscription.unsubscribe();
     };
 
+    // SDK の読み込みに失敗すると監視が張られず、通信が戻っても認証状態が
+    // 更新されない。間隔を空けて（オンラインに戻ったらすぐ）張り直す。
+    // 再試行の時点では表示を SDK 抜きで確定させている（cookie 無し、または
+    // loadUser の失敗で未ログイン扱い）ので、INITIAL_SESSION でもプロフィールを取る。
+    const startSubscription = (isDeferred: boolean, attempt: number) => {
+      subscribe(isDeferred).catch(() => {
+        if (isDisposed) {
+          return;
+        }
+        const retry = () => {
+          window.clearTimeout(retryTimer);
+          removeOnlineListener?.();
+          removeOnlineListener = undefined;
+          if (!isDisposed) {
+            startSubscription(true, attempt + 1);
+          }
+        };
+        retryTimer = window.setTimeout(
+          retry,
+          Math.min(
+            SUBSCRIBE_RETRY_BASE_MS * 2 ** attempt,
+            SUBSCRIBE_RETRY_MAX_MS,
+          ),
+        );
+        window.addEventListener("online", retry, { once: true });
+        removeOnlineListener = () =>
+          window.removeEventListener("online", retry);
+      });
+    };
+
+    const dispose = () => {
+      isDisposed = true;
+      window.clearTimeout(retryTimer);
+      removeOnlineListener?.();
+      unsubscribe?.();
+    };
+
     if (!hasSessionCookie()) {
       startTransition(() => {
         setIsLoading(false);
         setIsProfileLoading(false);
       });
-      const cancelIdle = whenPageIdle(() => void subscribe(true));
+      const cancelIdle = whenPageIdle(() => startSubscription(true, 0));
       return () => {
-        isDisposed = true;
         cancelIdle();
-        unsubscribe?.();
+        dispose();
       };
     }
 
@@ -208,12 +257,9 @@ export function AuthProvider({ children }: { readonly children: ReactNode }) {
       }
     })();
 
-    void subscribe(false);
+    startSubscription(false, 0);
 
-    return () => {
-      isDisposed = true;
-      unsubscribe?.();
-    };
+    return dispose;
   }, [router, loadUser, refreshProfile]);
 
   const signOut = useCallback(async () => {
