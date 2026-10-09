@@ -1,6 +1,12 @@
 import { describe, expect, it, vi } from "vitest";
-import { render, screen, fireEvent } from "@testing-library/react";
-import { FuroType, HaiKind, MentsuType, Tacha } from "@mahjong-scoring/core";
+import { render, screen, fireEvent, within } from "@testing-library/react";
+import {
+  FuroType,
+  HaiKind,
+  MentsuType,
+  Tacha,
+  sortTehai,
+} from "@mahjong-scoring/core";
 import type { CompletedMentsu, HaiKindId } from "@mahjong-scoring/core";
 import { TehaiMentsuBreakdown } from "./tehai-mentsu-breakdown";
 
@@ -33,7 +39,7 @@ vi.mock("@pai-forge/mahjong-react-ui", () => ({
 }));
 
 /** 234m 456p 678s 白白白 + 99m（白の役あり） */
-const MENTSU_TEHAI = {
+const MENTSU_TEHAI = sortTehai({
   closed: [
     HaiKind.ManZu2,
     HaiKind.ManZu3,
@@ -51,10 +57,10 @@ const MENTSU_TEHAI = {
     HaiKind.ManZu9,
   ],
   exposed: [],
-} as const;
+} as const);
 
 /** 七対子（ツモ） */
-const CHIITOI_TEHAI = {
+const CHIITOI_TEHAI = sortTehai({
   closed: [
     HaiKind.ManZu1,
     HaiKind.ManZu1,
@@ -72,7 +78,7 @@ const CHIITOI_TEHAI = {
     HaiKind.Haku,
   ],
   exposed: [],
-} as const;
+} as const);
 
 const CONTEXT = {
   agariHai: HaiKind.ManZu4,
@@ -86,9 +92,18 @@ function openModal() {
   fireEvent.click(screen.getByRole("button", { name: "mentsuBreakdown" }));
 }
 
-/** 枠が付いている牌の牌種一覧 */
+/**
+ * 分解の表
+ *
+ * モーダルは表の上に分ける前の手牌も並べるため、分解の検証は表の中に絞る
+ */
+function breakdownTable() {
+  return within(screen.getByRole("table"));
+}
+
+/** 分解の表で枠が付いている牌の牌種一覧 */
 function highlightedHais(): number[] {
-  return screen
+  return breakdownTable()
     .getAllByTestId("hai")
     .filter((el) => el.dataset.highlighted === "true")
     .map((el) => Number(el.textContent));
@@ -105,12 +120,32 @@ describe("TehaiMentsuBreakdown", () => {
     openModal();
 
     expect(screen.getByRole("dialog")).toBeTruthy();
-    // 手牌14枚が過不足なく描画される
-    expect(screen.getAllByTestId("hai")).toHaveLength(14);
+    // 分ける前の手牌と分解の表の両方に、手牌14枚が過不足なく描画される
+    expect(screen.getAllByTestId("hai")).toHaveLength(28);
+    expect(breakdownTable().getAllByTestId("hai")).toHaveLength(14);
     // 4面子（順子3 + 暗刻1）と雀頭のラベル
     expect(screen.getAllByText("shuntsu")).toHaveLength(3);
     expect(screen.getAllByText("ankou")).toHaveLength(1);
     expect(screen.getAllByText("jantou")).toHaveLength(1);
+  });
+
+  it("雀頭と面子を上の手牌と同じ順（理牌の順）に並べる", () => {
+    render(<TehaiMentsuBreakdown tehai={MENTSU_TEHAI} context={CONTEXT} />);
+
+    openModal();
+
+    // 見出し行を除いた各行の種別（234m 99m 456p 678s 白白白）
+    const labels = breakdownTable()
+      .getAllByRole("row")
+      .slice(1)
+      .map((row) => row.textContent?.match(/[a-z]+$/)?.[0]);
+    expect(labels).toEqual([
+      "shuntsu",
+      "jantou",
+      "shuntsu",
+      "shuntsu",
+      "ankou",
+    ]);
   });
 
   it("閉じるボタンでモーダルが閉じる", () => {
@@ -149,7 +184,7 @@ describe("TehaiMentsuBreakdown", () => {
 
     it("単騎待ちのロン牌は雀頭に付く", () => {
       // 234m 456p 678s 中中中 + 白白 で白の単騎ロン
-      const tehai = {
+      const tehai = sortTehai({
         closed: [
           HaiKind.ManZu2,
           HaiKind.ManZu3,
@@ -167,7 +202,7 @@ describe("TehaiMentsuBreakdown", () => {
           HaiKind.Haku,
         ] as readonly HaiKindId[],
         exposed: [],
-      };
+      });
 
       render(
         <TehaiMentsuBreakdown
@@ -190,7 +225,7 @@ describe("TehaiMentsuBreakdown", () => {
     };
 
     it("副露した刻子は明刻子として、鳴きの並びで見せる", () => {
-      const tehai = {
+      const tehai = sortTehai({
         closed: [
           HaiKind.ManZu2,
           HaiKind.ManZu3,
@@ -205,19 +240,21 @@ describe("TehaiMentsuBreakdown", () => {
           HaiKind.ManZu9,
         ] as readonly HaiKindId[],
         exposed: [PON_HAKU],
-      };
+      });
 
       render(<TehaiMentsuBreakdown tehai={tehai} context={CONTEXT} />);
       openModal();
 
       expect(screen.getByText("minkou")).toBeTruthy();
       expect(screen.queryByText("ankou")).toBeNull();
-      expect(screen.getByTestId("furo").dataset.furoType).toBe(FuroType.Pon);
+      expect(breakdownTable().getByTestId("furo").dataset.furoType).toBe(
+        FuroType.Pon,
+      );
     });
 
     it("ロンで完成した刻子は明刻子とし、その旨を注記する", () => {
       // 234m 456p 678s 白白白 + 中中 で白をロン（シャンポン）
-      const tehai = {
+      const tehai = sortTehai({
         closed: [
           HaiKind.ManZu2,
           HaiKind.ManZu3,
@@ -235,7 +272,7 @@ describe("TehaiMentsuBreakdown", () => {
           HaiKind.Chun,
         ] as readonly HaiKindId[],
         exposed: [],
-      };
+      });
 
       render(
         <TehaiMentsuBreakdown
@@ -247,7 +284,7 @@ describe("TehaiMentsuBreakdown", () => {
 
       expect(screen.getByText("minkou")).toBeTruthy();
       // 鳴いていないので卓に晒す並びにはしない
-      expect(screen.queryByTestId("furo")).toBeNull();
+      expect(breakdownTable().queryByTestId("furo")).toBeNull();
       expect(screen.getByText("mentsuBreakdownMinkouNote")).toBeTruthy();
     });
 
@@ -260,7 +297,7 @@ describe("TehaiMentsuBreakdown", () => {
 
     it("暗槓は暗槓子として、伏せ牌を含む並びで見せる", () => {
       // 234m 456p 中中中 + 99m + 白暗槓
-      const tehai = {
+      const tehai = sortTehai({
         closed: [
           HaiKind.ManZu2,
           HaiKind.ManZu3,
@@ -280,19 +317,21 @@ describe("TehaiMentsuBreakdown", () => {
             hais: [HaiKind.Haku, HaiKind.Haku, HaiKind.Haku, HaiKind.Haku],
           } as CompletedMentsu,
         ],
-      };
+      });
 
       render(<TehaiMentsuBreakdown tehai={tehai} context={CONTEXT} />);
       openModal();
 
       expect(screen.getByText("ankan")).toBeTruthy();
-      expect(screen.getByTestId("furo").dataset.furoType).toBe("none");
+      expect(breakdownTable().getByTestId("furo").dataset.furoType).toBe(
+        "none",
+      );
     });
   });
 
   describe("解釈の候補", () => {
     /** 345m 345m 55m 123s 456s: 5m は雀頭にも順子にも入る */
-    const TWO_WAYS_TEHAI = {
+    const TWO_WAYS_TEHAI = sortTehai({
       closed: [
         HaiKind.ManZu3,
         HaiKind.ManZu3,
@@ -310,7 +349,7 @@ describe("TehaiMentsuBreakdown", () => {
         HaiKind.SouZu6,
       ] as readonly HaiKindId[],
       exposed: [],
-    };
+    });
     const RON_5M = { ...CONTEXT, agariHai: HaiKind.ManZu5, isTsumo: false };
 
     /** 候補の切り替えボタン（文言は「⭐ 符 翻」の形） */

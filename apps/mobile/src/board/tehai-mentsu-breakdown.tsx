@@ -133,8 +133,20 @@ export function TehaiMentsuBreakdown({
               { label: t("mentsuBreakdownColHai"), flex: 3 },
               { label: t("mentsuBreakdownColType"), align: "right", flex: 2 },
             ]}
-            rows={[
-              ...breakdown.fourMentsu.map((row) => [
+            // 雀頭と4面子を手牌の左から右と同じ順に並べる（web と同じ）
+            rows={breakdown.blocks.map((block) => {
+              if (block.kind === "Jantou") {
+                return [
+                  <ClosedTiles
+                    key="jantou"
+                    hais={block.row.hais}
+                    agariHaiIndex={block.row.agariHaiIndex}
+                  />,
+                  t("jantou"),
+                ];
+              }
+              const { row } = block;
+              return [
                 row.isExposed ? (
                   <View pointerEvents="none">
                     <FuroTiles
@@ -150,16 +162,8 @@ export function TehaiMentsuBreakdown({
                   />
                 ),
                 mentsuLabel(row),
-              ]),
-              [
-                <ClosedTiles
-                  key="jantou"
-                  hais={breakdown.jantou.hais}
-                  agariHaiIndex={breakdown.jantou.agariHaiIndex}
-                />,
-                t("jantou"),
-              ],
-            ]}
+              ];
+            })}
           />
           {showsRonMinkouNote && (
             <Text style={styles.note}>{t("mentsuBreakdownMinkouNote")}</Text>

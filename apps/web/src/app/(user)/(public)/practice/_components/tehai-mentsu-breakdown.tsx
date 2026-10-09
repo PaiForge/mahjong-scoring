@@ -18,6 +18,7 @@ import {
 } from "@/app/(user)/_components/data-table";
 import { InfoModal } from "@/app/(user)/_components/info-modal";
 import { ToggleGroup } from "@/app/(user)/_components/toggle-group";
+import { TehaiHand } from "@/app/(user)/(public)/_components/tehai-hand";
 import { TilesIcon } from "@/app/(user)/_components/icons/tiles-icon";
 import { useFuHanOrder } from "@/app/_hooks/use-display-settings-store";
 import { orderFuHan } from "@mahjong-scoring/features/settings/fu-han-order";
@@ -130,6 +131,10 @@ function ClosedTiles({
  * 明暗を書き分ける。符内訳が「明刻子」と呼んでいる面子をここで単に
  * 「刻子」と出すと、同じ手牌の説明が2箇所で食い違って見える。
  *
+ * 分解の上には分ける前の手牌を盤面と同じ並び（{@link TehaiHand}）で置き、
+ * 盤面までスクロールして戻らなくても何を分けたのかが読めるようにする。
+ * 主役は分解なので、手牌は折り返さず幅に収まる倍率まで縮めてよい。
+ *
  * 和了牌には枠を付ける。ツモ・ロンのどちらだったかは盤面が既に示して
  * いるので、モーダル側で言い直さない。
  *
@@ -195,6 +200,14 @@ export function TehaiMentsuBreakdown({
         closeLabel={t("close")}
       >
         <div className="space-y-3">
+          {/* 分ける前の手牌。主役は下の分解なので、折り返さず幅に収まる
+              倍率まで縮める（TehaiHand の自動スケール） */}
+          <TehaiHand
+            tehai={tehai}
+            agariHai={context.agariHai}
+            agariLabel={context.isTsumo ? t("tsumo") : t("ron")}
+            agariLabelTone="light"
+          />
           {showsCandidateTabs && (
             /* 候補は高点法の順。横に収まらない数になることは稀だが、
                端末幅で折り返さず横に流す */
@@ -209,8 +222,9 @@ export function TehaiMentsuBreakdown({
               />
             </div>
           )}
-          {/* 4面子を1行ずつ縦に積み、雀頭は最後に置く。面子から順に読ませ、
-              残りが雀頭だと分かる並びにする */}
+          {/* 雀頭と4面子を1行ずつ縦に積む。上の手牌の左から右と同じ順
+              （手の内は雀頭も含めて理牌の順、副露はその後）にし、表の行を
+              手牌の中で探さずに済むようにする */}
           <DataTable
             header={
               <>
@@ -223,24 +237,31 @@ export function TehaiMentsuBreakdown({
               </>
             }
           >
-            {breakdown.fourMentsu.map((row, i) => (
-              <BreakdownRow key={i} label={mentsuLabel(row)}>
-                {row.isExposed ? (
-                  <Furo mentsu={row.mentsu} furo={row.mentsu.furo} size="sm" />
-                ) : (
+            {breakdown.blocks.map(({ kind, row }, i) =>
+              kind === "Jantou" ? (
+                <BreakdownRow key={i} label={t("jantou")}>
                   <ClosedTiles
-                    hais={row.mentsu.hais}
+                    hais={row.hais}
                     agariHaiIndex={row.agariHaiIndex}
                   />
-                )}
-              </BreakdownRow>
-            ))}
-            <BreakdownRow label={t("jantou")}>
-              <ClosedTiles
-                hais={breakdown.jantou.hais}
-                agariHaiIndex={breakdown.jantou.agariHaiIndex}
-              />
-            </BreakdownRow>
+                </BreakdownRow>
+              ) : (
+                <BreakdownRow key={i} label={mentsuLabel(row)}>
+                  {row.isExposed ? (
+                    <Furo
+                      mentsu={row.mentsu}
+                      furo={row.mentsu.furo}
+                      size="sm"
+                    />
+                  ) : (
+                    <ClosedTiles
+                      hais={row.mentsu.hais}
+                      agariHaiIndex={row.agariHaiIndex}
+                    />
+                  )}
+                </BreakdownRow>
+              ),
+            )}
           </DataTable>
           {showsRonMinkouNote && <p>{t("mentsuBreakdownMinkouNote")}</p>}
         </div>

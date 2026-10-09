@@ -2,6 +2,7 @@ import Link from "next/link";
 import { getTranslations } from "next-intl/server";
 import { HaiKind } from "@mahjong-scoring/core";
 import { DEMO_MENTSU_HAND } from "@mahjong-scoring/features/board/demo-score-question";
+import { splitAgariHai } from "@mahjong-scoring/features/board/agari-hai";
 import {
   AGARI_SCORE_PRACTICE_HREF,
   TENPAI_SCORE_PRACTICE_HREF,
@@ -14,7 +15,10 @@ import { TEXT_LINK_CLASSES } from "@/app/_components/_lib/link-classes";
 import { PracticeEntryQuota } from "./practice-entry-quota";
 
 // 三筒で和了するデモから1枚抜いた、三筒・六筒待ちの聴牌形。
-const TENPAI_TILES = DEMO_MENTSU_HAND.closed.filter((_, index) => index !== 6);
+const TENPAI_TILES = splitAgariHai(
+  DEMO_MENTSU_HAND.closed,
+  DEMO_MENTSU_HAND.agariHai,
+).closedTiles;
 
 async function PracticalPracticeCard({ menu }: { readonly menu: QuotaMenu }) {
   const t = await getTranslations("practice");

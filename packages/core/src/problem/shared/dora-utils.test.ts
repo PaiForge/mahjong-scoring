@@ -2,6 +2,7 @@ import { describe, it, expect } from "vitest";
 import {
   HaiKind,
   MentsuType,
+  sortTehai,
   validateTehai14,
 } from "@pai-forge/riichi-mahjong";
 import type {
@@ -11,7 +12,7 @@ import type {
 } from "@pai-forge/riichi-mahjong";
 import { generateDoraMarkers } from "./dora-utils";
 
-/** 検証済みの手牌を組む（固定値なので失敗しない） */
+/** 検証済みの手牌を組む（固定値なので失敗しない）。出題と同じく理牌する */
 function tehaiOf(input: {
   readonly closed: readonly HaiKindId[];
   readonly exposed: readonly CompletedMentsu[];
@@ -21,7 +22,7 @@ function tehaiOf(input: {
     exposed: [...input.exposed],
   });
   if (result.isErr()) throw new Error("テスト用の手牌が不正");
-  return result.value;
+  return sortTehai(result.value);
 }
 
 /** 123m 456m 789m 234s 55s（槓子なし） */

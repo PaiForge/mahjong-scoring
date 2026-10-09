@@ -4,6 +4,7 @@ import { useRouter } from "expo-router";
 import { useTranslations } from "use-intl";
 import { HaiKind } from "@mahjong-scoring/core";
 import { DEMO_MENTSU_HAND } from "@mahjong-scoring/features/board/demo-score-question";
+import { splitAgariHai } from "@mahjong-scoring/features/board/agari-hai";
 import {
   AGARI_SCORE_PRACTICE_HREF,
   TENPAI_SCORE_PRACTICE_HREF,
@@ -15,7 +16,10 @@ import { panelFrame } from "../../lib/panel-styles";
 import { colors, radius } from "../../lib/theme";
 
 /** 三筒で和了するデモから 1 枚抜いた、三筒・六筒待ちの聴牌形（web と同じ） */
-const TENPAI_TILES = DEMO_MENTSU_HAND.closed.filter((_, index) => index !== 6);
+const TENPAI_TILES = splitAgariHai(
+  DEMO_MENTSU_HAND.closed,
+  DEMO_MENTSU_HAND.agariHai,
+).closedTiles;
 
 /** 聴牌形の点数計算のプレビューで並べる待ち牌 */
 const WAIT_TILES = [HaiKind.PinZu3, HaiKind.PinZu6] as const;

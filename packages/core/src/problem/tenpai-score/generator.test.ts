@@ -5,6 +5,7 @@ import {
   calculateShanten,
   getUkeire,
   isMenzen,
+  sortHaiCodes,
 } from "@pai-forge/riichi-mahjong";
 import {
   generateTenpaiScoreQuestion,
@@ -56,7 +57,7 @@ describe("generateTenpaiScoreQuestion", () => {
     for (const question of questions) {
       const waits = question.waits.map((wait) => wait.agariHai);
       expect(waits.length).toBeGreaterThanOrEqual(2);
-      expect(waits).toEqual([...waits].sort((a, b) => a - b));
+      expect(waits).toEqual(sortHaiCodes(waits));
       expect(waits).toEqual(getUkeire(question.tehai));
     }
   });
@@ -74,8 +75,8 @@ describe("generateTenpaiScoreQuestion", () => {
           expect(cell.jikaze).toBe(question.jikaze);
           expect(cell.bakaze).toBe(question.bakaze);
           expect(cell.doraMarkers).toEqual(question.doraMarkers);
-          expect([...cell.tehai.closed].sort((a, b) => a - b)).toEqual(
-            [...question.tehai.closed, wait.agariHai].sort((a, b) => a - b),
+          expect(sortHaiCodes(cell.tehai.closed)).toEqual(
+            sortHaiCodes([...question.tehai.closed, wait.agariHai]),
           );
           expect(cell.tehai.exposed).toEqual(question.tehai.exposed);
 

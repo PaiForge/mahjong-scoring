@@ -2,6 +2,7 @@ import {
   MentsuType,
   getPaymentTotal,
   rankScoresForTehai,
+  sortHouraBlocksByTehai,
   validateTehai14,
   type CompletedMentsu,
   type Fu,
@@ -60,16 +61,27 @@ export interface JantouBreakdownRow {
 }
 
 /**
+ * 面子分解表示の 1 行（面子または雀頭）
+ * 面子分解ブロック
+ */
+export type MentsuBreakdownBlock =
+  | { readonly kind: "Mentsu"; readonly row: MentsuBreakdownRow }
+  | { readonly kind: "Jantou"; readonly row: JantouBreakdownRow };
+
+/**
  * 面子分解表示の全体
  * 面子分解
  */
 export interface MentsuBreakdown {
-  readonly fourMentsu: readonly [
-    MentsuBreakdownRow,
-    MentsuBreakdownRow,
-    MentsuBreakdownRow,
-    MentsuBreakdownRow,
-  ];
+  /**
+   * 雀頭と 4 面子を、手牌の左から右の並びの順に並べたもの（5 行）
+   *
+   * 分解の表はこの順に並べる。手の内のブロックは雀頭も含めて理牌の順、
+   * 晒した面子はその後に鳴いた順（ライブラリの `sortHouraBlocksByTehai`）。
+   */
+  readonly blocks: readonly MentsuBreakdownBlock[];
+  /** 4 面子（{@link blocks} から雀頭を除いた順） */
+  readonly fourMentsu: readonly MentsuBreakdownRow[];
   readonly jantou: JantouBreakdownRow;
 }
 
@@ -194,7 +206,9 @@ function candidateKeyOf(structure: MentsuHouraStructure): string {
  * 面子の牌だけでは「その面子が手牌でどう見えていたか」が落ちるため、
  * 副露・明暗・和了牌の位置をここで併せて解決する。符内訳が「明刻子」と
  * 書いている面子を分解表示が単に「刻子」と出すと、同じ手牌の説明が
- * 2箇所で食い違って見える。
+ * 2箇所で食い違って見える。雀頭と面子は手牌の左から右の並びの順に並べる
+ * （`sortHouraBlocksByTehai`）。ライブラリの和了構造は面子を独自の順で
+ * 持つため、そのままでは分解の表と手牌の並びが食い違う。
  */
 function toBreakdown(
   structure: MentsuHouraStructure,
@@ -212,20 +226,24 @@ function toBreakdown(
     agariHaiIndex: agari.mentsuIndex === index ? agari.haiIndex : undefined,
   });
 
-  const [first, second, third, fourth] = structure.fourMentsu;
+  const jantou: JantouBreakdownRow = {
+    hais: structure.jantou.hais,
+    agariHaiIndex: agari.mentsuIndex === undefined ? agari.haiIndex : undefined,
+  };
+
+  const blocks = sortHouraBlocksByTehai(structure).map(
+    (block): MentsuBreakdownBlock =>
+      block.kind === "Jantou"
+        ? { kind: "Jantou", row: jantou }
+        : { kind: "Mentsu", row: toRow(block.block, block.index) },
+  );
 
   return {
-    fourMentsu: [
-      toRow(first, 0),
-      toRow(second, 1),
-      toRow(third, 2),
-      toRow(fourth, 3),
-    ],
-    jantou: {
-      hais: structure.jantou.hais,
-      agariHaiIndex:
-        agari.mentsuIndex === undefined ? agari.haiIndex : undefined,
-    },
+    blocks,
+    fourMentsu: blocks.flatMap((block) =>
+      block.kind === "Mentsu" ? [block.row] : [],
+    ),
+    jantou,
   };
 }
 

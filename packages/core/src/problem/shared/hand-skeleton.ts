@@ -1,5 +1,6 @@
 import {
   MentsuType,
+  sortTehai,
   validateTehai13,
   validateTehai14,
   type CompletedMentsu,
@@ -38,16 +39,18 @@ export function isExposedMentsu(mentsu: CompletedMentsu): boolean {
  * 暗牌を理牌して Tehai14 として検証する（不正な手牌は undefined）
  * 手牌確定
  *
- * @param closed - 暗牌（雀頭を含む）。この関数内でコピーしてソートする
+ * @param closed - 暗牌（雀頭を含む）。並びは問わず、ここで理牌する（sortTehai）
  * @param exposed - 副露・槓子
  */
 export function finalizeTehai14(
   closed: readonly HaiKindId[],
   exposed: readonly CompletedMentsu[],
 ): Tehai14 | undefined {
-  const sorted = [...closed].sort((a, b) => a - b);
-  const result = validateTehai14({ closed: sorted, exposed: [...exposed] });
-  return result.isErr() ? undefined : result.value;
+  const result = validateTehai14({
+    closed: [...closed],
+    exposed: [...exposed],
+  });
+  return result.isErr() ? undefined : sortTehai(result.value);
 }
 
 /**
@@ -57,16 +60,18 @@ export function finalizeTehai14(
  * 和了形（{@link finalizeTehai14}）から和了牌を 1 枚抜いた聴牌形を作るときの
  * 入口。ブランド型の手牌を組み立てる場所をこのモジュールに集める。
  *
- * @param closed - 暗牌。この関数内でコピーしてソートする
+ * @param closed - 暗牌。並びは問わず、ここで理牌する（sortTehai）
  * @param exposed - 副露・槓子
  */
 export function finalizeTehai13(
   closed: readonly HaiKindId[],
   exposed: readonly CompletedMentsu[],
 ): Tehai13 | undefined {
-  const sorted = [...closed].sort((a, b) => a - b);
-  const result = validateTehai13({ closed: sorted, exposed: [...exposed] });
-  return result.isErr() ? undefined : result.value;
+  const result = validateTehai13({
+    closed: [...closed],
+    exposed: [...exposed],
+  });
+  return result.isErr() ? undefined : sortTehai(result.value);
 }
 
 /**

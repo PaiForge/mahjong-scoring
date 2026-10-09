@@ -6,6 +6,7 @@ import {
   calculateStandaloneMentsuFu,
   type CompletedMentsu,
   type HaiKindId,
+  compareNumbers,
 } from "@mahjong-scoring/core";
 
 import type { LessonQuestion, LessonQuiz } from "./quiz";
@@ -92,6 +93,6 @@ export const MENTSU_FU_LESSON_QUIZ: LessonQuiz = {
     answer: { kind: "fu", fu: calculateStandaloneMentsuFu(mentsu) },
   })),
   choices: [...new Set(ALL_KINDS.map(calculateStandaloneMentsuFu))]
-    .sort((a, b) => a - b)
+    .sort(compareNumbers)
     .map((fu) => ({ kind: "fu", fu })),
 };

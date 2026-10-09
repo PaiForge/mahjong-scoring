@@ -2,6 +2,7 @@ import {
   HaiKind,
   calculateJantouFu,
   type HaiKindId,
+  compareNumbers,
 } from "@mahjong-scoring/core";
 
 import type { LessonQuestion, LessonQuiz } from "./quiz";
@@ -55,6 +56,6 @@ export const JANTOU_FU_LESSON_QUIZ: LessonQuiz = {
       ALL_TILES.map((tile) => calculateJantouFu(tile, BAKAZE, JIKAZE)),
     ),
   ]
-    .sort((a, b) => a - b)
+    .sort(compareNumbers)
     .map((fu) => ({ kind: "fu", fu })),
 };

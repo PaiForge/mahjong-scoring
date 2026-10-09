@@ -269,8 +269,8 @@ importers:
   packages/core:
     dependencies:
       '@pai-forge/riichi-mahjong':
-        specifier: ^1.0.0
-        version: 1.0.0
+        specifier: ^1.1.0
+        version: 1.1.0
       neverthrow:
         specifier: ^8.2.0
         version: 8.2.0
@@ -1846,6 +1846,10 @@ packages:
 
   '@pai-forge/riichi-mahjong@1.0.0':
     resolution: {integrity: sha512-TwHxEuIQipVq1IdTwL5q90yyDRMeOdwWST9cVTGSUhkO9pOO7SUtR67XBodoqiGnzmMNRl5KW8rH9w+yiPsDQg==}
+    engines: {node: '>=20.0.0'}
+
+  '@pai-forge/riichi-mahjong@1.1.0':
+    resolution: {integrity: sha512-V+dHSjotfEOL7o2hcQHOV2OpCoSyElQjp/snduFJ6hNzsLYE3sjlYk/Rchp9dGlMJY9m4mUbI3K6Mpp7flz1rg==}
     engines: {node: '>=20.0.0'}
 
   '@parcel/watcher-android-arm64@2.6.0':
@@ -8063,6 +8067,10 @@ snapshots:
       react-dom: 19.2.8(react@19.2.8)
 
   '@pai-forge/riichi-mahjong@1.0.0':
+    dependencies:
+      neverthrow: 8.2.0
+
+  '@pai-forge/riichi-mahjong@1.1.0':
     dependencies:
       neverthrow: 8.2.0
 

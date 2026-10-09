@@ -102,6 +102,7 @@ export {
 } from "./score/mentsu-structure";
 export type {
   MentsuBreakdown,
+  MentsuBreakdownBlock,
   MentsuBreakdownRow,
   MentsuBreakdownCandidate,
   MentsuBreakdownContext,
@@ -205,6 +206,8 @@ export type {
   TenpaiScoreGeneratorOptions,
 } from "./problem/tenpai-score/types";
 
+export { compareNumbers } from "./core/compare";
+
 // === Re-exports from @pai-forge/riichi-mahjong ===
 export {
   HaiKind,
@@ -215,8 +218,11 @@ export {
 export { isHaiKindId } from "./core/type-guards";
 
 export {
+  compareHaiCode,
   formatMpsz,
   parseExtendedMpsz,
+  sortHaiCodes,
+  sortTehai,
   validateTehai14,
   countDora,
   getDoraNext,

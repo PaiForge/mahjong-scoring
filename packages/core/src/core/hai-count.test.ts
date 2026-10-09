@@ -1,5 +1,5 @@
 import { describe, it, expect } from "vitest";
-import { HaiKind, type Tehai14 } from "@pai-forge/riichi-mahjong";
+import { HaiKind, sortTehai, type Tehai14 } from "@pai-forge/riichi-mahjong";
 import { listTehaiHais, countHaiInTehai } from "./hai-count";
 
 /**
@@ -7,12 +7,13 @@ import { listTehaiHais, countHaiInTehai } from "./hai-count";
  *
  * 使用牌の列挙に必要なのは牌の並びだけで、面子として成立しているかは見ない。
  * 各テストが `as unknown as Tehai14` を書くと、その意図が牌の並びに紛れる。
+ * 純手牌は出題と同じく理牌する。
  */
 function tehai14(
   closed: readonly HaiKind[],
   exposed: readonly unknown[] = [],
 ): Tehai14 {
-  return { closed, exposed } as unknown as Tehai14;
+  return sortTehai({ closed, exposed } as unknown as Tehai14);
 }
 
 const CLOSED_ONLY = [
