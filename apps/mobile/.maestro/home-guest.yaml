@@ -1,0 +1,20 @@
+# ゲストのホーム: 記録の案内（登録 CTA）が出て、登録画面へ進める
+appId: help.mahjong.score
+---
+- clearKeychain
+- launchApp:
+    clearState: true
+- extendedWaitUntil:
+    visible: "次にやること"
+    timeout: 20000
+- scrollUntilVisible:
+    element:
+      id: "home-sign-up-cta"
+    direction: DOWN
+- takeScreenshot: home-guest
+- tapOn:
+    id: "home-sign-up-cta"
+- extendedWaitUntil:
+    visible: "アカウント登録"
+    timeout: 10000
+- takeScreenshot: sign-up

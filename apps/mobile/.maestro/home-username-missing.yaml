@@ -1,0 +1,36 @@
+# ユーザー名未設定（登録の途中）: ログイン直後にユーザー名の設定へ送られ、
+# ホームにはユーザー名の案内が出る（登録 CTA は出ない）
+appId: help.mahjong.score
+---
+- clearKeychain
+- launchApp:
+    clearState: true
+- extendedWaitUntil:
+    visible: "次にやること"
+    timeout: 20000
+- runFlow:
+    file: _sign-in.yaml
+    env:
+      EMAIL: ivan@example.local
+      PASSWORD: devpass1
+- extendedWaitUntil:
+    visible: "ユーザー名の設定"
+    timeout: 15000
+- takeScreenshot: setup-username
+- launchApp:
+    stopApp: true
+- extendedWaitUntil:
+    visible: "次にやること"
+    timeout: 20000
+- scrollUntilVisible:
+    element:
+      id: "home-username-cta"
+    direction: DOWN
+- assertNotVisible:
+    id: "home-sign-up-cta"
+- takeScreenshot: home-username-missing
+- tapOn:
+    id: "home-username-cta"
+- extendedWaitUntil:
+    visible: "ユーザー名の設定"
+    timeout: 10000

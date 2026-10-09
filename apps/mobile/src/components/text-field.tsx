@@ -23,6 +23,8 @@ interface TextFieldProps {
   readonly kind?: "email" | "password" | "newPassword" | "username" | "text";
   readonly editable?: boolean;
   readonly onSubmitEditing?: () => void;
+  /** UI テスト（Maestro）が欄を引く印。文字（ラベル・プレースホルダ）は辞書で変わるので使わない */
+  readonly testID?: string;
 }
 
 /** 欄の種類ごとの OS への伝え方（パスワードの自動入力・メールのキーボード） */
@@ -77,6 +79,7 @@ export function TextField({
   kind = "text",
   editable = true,
   onSubmitEditing,
+  testID,
 }: TextFieldProps) {
   const [focused, setFocused] = useState(false);
   return (
@@ -91,6 +94,7 @@ export function TextField({
         maxLength={maxLength}
         editable={editable}
         onSubmitEditing={onSubmitEditing}
+        testID={testID}
         onFocus={() => setFocused(true)}
         onBlur={() => setFocused(false)}
         accessibilityLabel={label}
